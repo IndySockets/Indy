@@ -1,0 +1,225 @@
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log:  11715: IdRemoteCMDClient.pas 
+{
+{   Rev 1.7    2004.02.03 5:44:16 PM  czhower
+{ Name changes
+}
+{
+{   Rev 1.6    2004.01.22 6:09:04 PM  czhower
+{ IdCriticalSection
+}
+{
+{   Rev 1.5    1/21/2004 3:27:18 PM  JPMugaas
+{ InitComponent
+}
+{
+    Rev 1.4    4/4/2003 8:03:40 PM  BGooijen
+  fixed
+}
+{
+{   Rev 1.3    2/24/2003 09:32:56 PM  JPMugaas
+}
+{
+{   Rev 1.2    1/31/2003 02:32:04 PM  JPMugaas
+{ Should now compile.
+}
+{
+{   Rev 1.1    12/6/2002 05:30:32 PM  JPMugaas
+{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+}
+{
+{   Rev 1.0    11/13/2002 07:59:26 AM  JPMugaas
+}
+unit IdRemoteCMDClient;
+
+{
+-2001.02.15 - J. Peter Mugaas
+              Started this unit with code originally in
+              TIdRexec
+
+}              
+(*******************************************************}
+{                                                       }
+{       Indy Rexec Client TIdRexec                      }
+{                                                       }
+{       Copyright (C) 2001 Indy Pit Crew                }
+{       Author J. Peter Mugaas                          }
+{       Based partly on code authored by Laurence LIew  }
+{       2001-February-15                                }
+{                                                       }
+{*******************************************************)
+
+interface
+
+uses
+  Classes,
+  IdException, IdTCPClient;
+
+const
+  IDRemoteUseStdErr = True;
+  {for IdRSH, we set this to.  IdRexec will override this}
+  IDRemoteFixPort = True;
+
+type
+  EIdCanNotBindRang = class(EIdException);
+
+  TIdRemoteCMDClient = class(TIdTCPClientCustom)
+  protected
+    FUseReservedPorts: Boolean;
+    FUseStdError : Boolean;
+    FErrorMessage : String;
+    FErrorReply : Boolean;
+    //
+    function InternalExec(AParam1, AParam2, ACommand : String) : String; virtual;
+    procedure InitComponent; override;
+  public
+    destructor Destroy; override;
+    Function Execute(ACommand: String): String; virtual;
+    property ErrorReply : Boolean read FErrorReply;
+    property ErrorMessage : String read FErrorMessage;
+  published
+    property UseStdError : Boolean read FUseStdError write FUseStdError default IDRemoteUseStdErr;
+  end;
+
+implementation
+
+uses
+  IdComponent, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket,IdSimpleServer, IdTCPConnection, IdThread,
+  SysUtils;
+
+type
+  TIdStdErrThread = class(TIdThread)
+   protected
+     FStdErr : TIdSimpleServer;
+     FOutput : String;
+   public
+     Constructor Create(AStdErr : TIdSimpleServer; ALock : TIdCriticalSection); reintroduce;
+     Procedure Run; override;
+     property Output : String read FOutput;
+   end;
+
+{ TIdRemoteCMDClient }
+
+procedure TIdRemoteCMDClient.InitComponent;
+begin
+  inherited;
+  FUseReservedPorts := IDRemoteFixPort;
+  FUseStdError := IDRemoteUseStdErr;
+end;
+
+destructor TIdRemoteCMDClient.Destroy;
+begin
+  inherited;
+end;
+
+function TIdRemoteCMDClient.Execute(ACommand: String): String;
+begin
+  Result := '';    {Do not Localize}
+end;
+
+function TIdRemoteCMDClient.InternalExec(AParam1, AParam2, ACommand: String) : String;
+var
+  stdErr : TIdSimpleServer;
+  thr : TIdStdErrThread;
+
+      procedure SendAuthentication(APort : Integer);
+      begin
+           // Send authentication and commands
+        IOHandler.Write(IntToStr( APort )+#0);  //stdErr Port Number - none for this session
+        IOHandler.Write(AParam1 + #0);
+        IOHandler.Write(AParam2 + #0);
+        IOHandler.Write(ACommand + #0);
+      end;
+begin
+  IOHandler := TIdIOHandlerStack.Create(nil);
+  Result := '';    {Do not Localize}
+  if FUseReservedPorts then begin
+    TIdIOHandlerSocket(IOHandler).BoundPortMin := 512;
+    TIdIOHandlerSocket(IOHandler).BoundPortMax := 1023;
+  end else begin
+    TIdIOHandlerSocket(IOHandler).BoundPortMin := 0;
+    TIdIOHandlerSocket(IOHandler).BoundPortMax := 0;
+  end;
+  {For RSH, we have to set the port the client to connect.  I don't    
+   think it is required to this in Rexec.}
+   Connect; try
+    if FUseStdError then begin
+      StdErr := TIdSimpleServer.Create(nil);
+      StdErr.CreateIOHandler;
+      try
+        TIdIOHandlerSocket(IOHandler).BoundIP := (IOHandler as TIdIOHandlerSocket).Binding.IP;
+        StdErr.CreateBinding;
+        StdErr.Binding.ClientPortMin := TIdIOHandlerSocket(IOHandler).BoundPortMin;
+        StdErr.Binding.ClientPortMax := TIdIOHandlerSocket(IOHandler).BoundPortMax;
+        StdErr.BeginListen;
+        thr := TIdStdErrThread.Create(StdErr, nil{, FLock});
+        SendAuthentication(StdErr.Binding.Port);
+        Thr.Start;
+        try
+          FErrorReply := (IOHandler.ReadString(1) <> #0);
+          {Receive answers}
+          BeginWork(wmRead);
+          try
+            Result := IOHandler.AllData;
+          finally
+            EndWork(wmRead);
+            FErrorMessage := thr.Output;
+          end;
+        finally
+          StdErr.Abort;
+          thr.Terminate;
+          thr.WaitFor;
+        end;
+      finally
+        FreeAndNil(StdErr);
+        FreeAndNil(thr);
+      end;
+    end
+    else
+    begin
+      SendAuthentication(0);
+      FErrorReply := (IOHandler.ReadString(1) <> #0);
+      {Receive answers}
+      BeginWork(wmRead);
+      try
+        if FErrorReply then
+        begin
+          FErrorMessage := IOHandler.AllData;
+        end
+        else
+          Result := IOHandler.AllData;
+      finally
+        EndWork(wmRead);
+      end;
+    end;
+  finally Disconnect; end;
+end;
+
+{ TIdStdErrThread }
+
+constructor TIdStdErrThread.Create(AStdErr: TIdSimpleServer;
+  ALock: TIdCriticalSection);
+begin
+  inherited Create(True);
+  FStdErr := AStdErr;
+  FreeOnTerminate := False;
+  StopMode := smTerminate;
+  FStdErr.BeginListen;
+end;
+
+procedure TIdStdErrThread.Run;
+begin
+  if FStdErr.Listen then begin
+    FOutput := FStdErr.IOHandler.AllData;
+  end;
+end;
+
+end.
