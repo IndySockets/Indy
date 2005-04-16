@@ -1,0 +1,83 @@
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log:  13764: IdCoderXXE.pas
+{
+{   Rev 1.5    1/21/2004 1:44:18 PM  JPMugaas
+{ InitComponent
+}
+{
+    Rev 1.4    10/16/2003 11:11:34 PM  DSiders
+  Added localization comments.
+}
+{
+{   Rev 1.3    2003.06.13 6:57:12 PM  czhower
+{ Speed improvement
+}
+{
+{   Rev 1.1    6/13/2003 08:14:38 AM  JPMugaas
+{ Removed some extra line feeds causing formatting problems.
+}
+{
+{   Rev 1.0    11/14/2002 02:15:22 PM  JPMugaas
+}
+unit IdCoderXXE;
+
+interface
+
+uses
+  Classes,
+  IdCoder00E, IdCoder3to4;
+
+type
+  TIdDecoderXXE = class(TIdDecoder00E)
+  protected
+    procedure InitComponent; override;
+  end;
+
+  TIdEncoderXXE = class(TIdEncoder00E)
+  protected
+    procedure InitComponent; override;
+  end;
+
+const
+  GXXECodeTable: string =
+    '+-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; {do not localize}
+
+var
+  GXXEDecodeTable: TIdDecodeTable;
+
+implementation
+
+uses
+  IdGlobal,
+  SysUtils;
+
+{ TIdEncoderXXE }
+
+procedure TIdEncoderXXE.InitComponent;
+begin
+  inherited;
+  FCodingTable := GXXECodeTable;
+  FFillChar := FCodingTable[1];
+end;
+
+{ TIdDecoderXXE }
+
+procedure TIdDecoderXXE.InitComponent;
+begin
+  inherited;
+  FDecodeTable := GXXEDecodeTable;
+  FFillChar := GXXECodeTable[1];
+end;
+
+initialization
+  TIdDecoder00E.ConstructDecodeTable(GXXECodeTable, GXXEDecodeTable);
+end.
+

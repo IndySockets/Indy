@@ -107,9 +107,83 @@ Indy10/Lib/Indy.SocketsDebug.dpr -text
 Indy10/Lib/Indy100Net.dpk -text
 Indy10/Lib/Indy110Net.dpk -text
 Indy10/Lib/Indy90Net.dpk -text
+Indy10/Lib/Protocols/IdASN1Coder.pas -text
+Indy10/Lib/Protocols/IdASN1Util.pas -text
+Indy10/Lib/Protocols/IdAttachment.pas -text
+Indy10/Lib/Protocols/IdAttachmentFile.pas -text
+Indy10/Lib/Protocols/IdAttachmentMemory.pas -text
+Indy10/Lib/Protocols/IdAuthentication.pas -text
+Indy10/Lib/Protocols/IdAuthenticationDigest.pas -text
+Indy10/Lib/Protocols/IdAuthenticationManager.pas -text
+Indy10/Lib/Protocols/IdAuthenticationNTLM.pas -text
+Indy10/Lib/Protocols/IdAuthenticationSSPI.pas -text
+Indy10/Lib/Protocols/IdBlockCipherIntercept.pas -text
+Indy10/Lib/Protocols/IdChargenServer.pas -text
+Indy10/Lib/Protocols/IdChargenUDPServer.pas -text
+Indy10/Lib/Protocols/IdCharsets.pas -text
+Indy10/Lib/Protocols/IdCoder.pas -text
+Indy10/Lib/Protocols/IdCoder00E.pas -text
+Indy10/Lib/Protocols/IdCoder3to4.pas -text
+Indy10/Lib/Protocols/IdCoderBinHex4.pas -text
+Indy10/Lib/Protocols/IdCoderHeader.pas -text
+Indy10/Lib/Protocols/IdCoderMIME.pas -text
+Indy10/Lib/Protocols/IdCoderQuotedPrintable.pas -text
+Indy10/Lib/Protocols/IdCoderTNEF.pas -text
+Indy10/Lib/Protocols/IdCoderUUE.pas -text
+Indy10/Lib/Protocols/IdCoderXXE.pas -text
+Indy10/Lib/Protocols/IdCompressionIntercept.pas -text
+Indy10/Lib/Protocols/IdConnectThroughHttpProxy.pas -text
+Indy10/Lib/Protocols/IdContainers.pas -text
+Indy10/Lib/Protocols/IdCookieManager.pas -text
+Indy10/Lib/Protocols/IdCustomHTTPServer.pas -text
+Indy10/Lib/Protocols/IdDICTCommon.pas -text
+Indy10/Lib/Protocols/IdDNSServer.pas -text
+Indy10/Lib/Protocols/IdDateTimeStamp.pas -text
+Indy10/Lib/Protocols/IdDayTime.pas -text
+Indy10/Lib/Protocols/IdDayTimeUDP.pas -text
+Indy10/Lib/Protocols/IdDayTimeUDPServer.pas -text
+Indy10/Lib/Protocols/IdDiscardUDPServer.pas -text
+Indy10/Lib/Protocols/IdDsnRegister.pas -text
+Indy10/Lib/Protocols/IdDsnSASLListEditor.pas -text
+Indy10/Lib/Protocols/IdDsnSASLListEditorForm.pas -text
+Indy10/Lib/Protocols/IdDummyUnit.pas -text
+Indy10/Lib/Protocols/IdEMailAddress.pas -text
+Indy10/Lib/Protocols/IdEcho.pas -text
+Indy10/Lib/Protocols/IdEchoUDP.pas -text
+Indy10/Lib/Protocols/IdEchoUDPServer.pas -text
+Indy10/Lib/Protocols/IdFSP.pas -text
+Indy10/Lib/Protocols/IdFTP.pas -text
+Indy10/Lib/Protocols/IdFTPBaseFileSystem.pas -text
+Indy10/Lib/Protocols/IdFTPCommon.pas -text
+Indy10/Lib/Protocols/IdFTPListOutput.pas -text
+Indy10/Lib/Protocols/IdFTPListParseBase.pas -text
+Indy10/Lib/Protocols/IdFTPListParseBullGCOS7.pas -text
+Indy10/Lib/Protocols/IdFTPListParseEPLF.pas -text
+Indy10/Lib/Protocols/IdFTPListParseHellSoft.pas -text
+Indy10/Lib/Protocols/IdFTPListParseKA9Q.pas -text
+Indy10/Lib/Protocols/IdFTPListParseMPEiX.pas -text
+Indy10/Lib/Protocols/IdFTPListParseMVS.pas -text
+Indy10/Lib/Protocols/IdFTPListParseMicrowareOS9.pas -text
+Indy10/Lib/Protocols/IdFTPListParseMusic.pas -text
+Indy10/Lib/Protocols/IdFingerServer.pas -text
+Indy10/Lib/Protocols/IddclProtocols90ASM90.inc -text
 Indy10/Lib/Protocols/adler32.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/compress.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/crc32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/dclIndyProtocols50.RES -text svneol=unset#unset
+Indy10/Lib/Protocols/dclIndyProtocols50.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols50.rc -text
+Indy10/Lib/Protocols/dclIndyProtocols60.RES -text svneol=unset#unset
+Indy10/Lib/Protocols/dclIndyProtocols60.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols60.rc -text
+Indy10/Lib/Protocols/dclIndyProtocols70.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols70.rc -text
+Indy10/Lib/Protocols/dclIndyProtocols70.res -text svneol=unset#unset
+Indy10/Lib/Protocols/dclIndyProtocols90.bdsproj -text
+Indy10/Lib/Protocols/dclIndyProtocols90.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols90.rc -text
+Indy10/Lib/Protocols/dclIndyProtocols90Net.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocolsK3.dpk -text
 Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/infback.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inffast.obj -text svneol=unset#unset
