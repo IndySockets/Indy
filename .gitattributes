@@ -1,4 +1,105 @@
 * text=auto !eol
+Indy10/Lib/Core/IdAbout.pas -text
+Indy10/Lib/Core/IdAntiFreeze.pas -text
+Indy10/Lib/Core/IdAssignedNumbers.pas -text
+Indy10/Lib/Core/IdBuffer.pas -text
+Indy10/Lib/Core/IdCmdTCPClient.pas -text
+Indy10/Lib/Core/IdCmdTCPServer.pas -text
+Indy10/Lib/Core/IdCommandHandlers.pas -text
+Indy10/Lib/Core/IdCompilerDefines.inc -text
+Indy10/Lib/Core/IdContext.pas -text
+Indy10/Lib/Core/IdCore90ASM90.inc -text
+Indy10/Lib/Core/IdCoreDsnRegister.pas -text
+Indy10/Lib/Core/IdCoreRegister.dcr -text svneol=unset#unset
+Indy10/Lib/Core/IdCoreRegisterCool.dcr -text svneol=unset#unset
+Indy10/Lib/Core/IdCreditsBitmap.res -text svneol=unset#unset
+Indy10/Lib/Core/IdCreditsBitmap.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdCustomTCPServer.pas -text
+Indy10/Lib/Core/IdCustomTransparentProxy.pas -text
+Indy10/Lib/Core/IdDsnBaseCmpEdt.pas -text
+Indy10/Lib/Core/IdDsnCoreResourceStrings.pas -text
+Indy10/Lib/Core/IdDsnPropEdBinding.pas -text
+Indy10/Lib/Core/IdExceptionCore.pas -text
+Indy10/Lib/Core/IdGlobalCore.pas -text
+Indy10/Lib/Core/IdIOHandler.pas -text
+Indy10/Lib/Core/IdIOHandlerSocket.pas -text
+Indy10/Lib/Core/IdIOHandlerStack.pas -text
+Indy10/Lib/Core/IdIOHandlerStream.pas -text
+Indy10/Lib/Core/IdIPAddress.pas -text
+Indy10/Lib/Core/IdIcmpClient.pas -text
+Indy10/Lib/Core/IdIntercept.pas -text
+Indy10/Lib/Core/IdInterceptSimLog.pas -text
+Indy10/Lib/Core/IdInterceptThrottler.pas -text
+Indy10/Lib/Core/IdLogBase.pas -text
+Indy10/Lib/Core/IdLogDebug.pas -text
+Indy10/Lib/Core/IdLogEvent.pas -text
+Indy10/Lib/Core/IdLogFile.pas -text
+Indy10/Lib/Core/IdLogStream.pas -text
+Indy10/Lib/Core/IdRawBase.pas -text
+Indy10/Lib/Core/IdRawClient.pas -text
+Indy10/Lib/Core/IdRawFunctions.pas -text
+Indy10/Lib/Core/IdRawHeaders.pas -text
+Indy10/Lib/Core/IdRegisterCore.pas -text
+Indy10/Lib/Core/IdReply.pas -text
+Indy10/Lib/Core/IdReplyRFC.pas -text
+Indy10/Lib/Core/IdResourceStringsCore.pas -text
+Indy10/Lib/Core/IdScheduler.pas -text
+Indy10/Lib/Core/IdSchedulerOfThread.pas -text
+Indy10/Lib/Core/IdSchedulerOfThreadDefault.pas -text
+Indy10/Lib/Core/IdSchedulerOfThreadPool.pas -text
+Indy10/Lib/Core/IdServerIOHandler.pas -text
+Indy10/Lib/Core/IdServerIOHandlerSocket.pas -text
+Indy10/Lib/Core/IdServerIOHandlerStack.pas -text
+Indy10/Lib/Core/IdSimpleServer.pas -text
+Indy10/Lib/Core/IdSocketHandle.pas -text
+Indy10/Lib/Core/IdSocks.pas -text
+Indy10/Lib/Core/IdSync.pas -text
+Indy10/Lib/Core/IdTCPClient.pas -text
+Indy10/Lib/Core/IdTCPConnection.pas -text
+Indy10/Lib/Core/IdTCPServer.pas -text
+Indy10/Lib/Core/IdTCPStream.pas -text
+Indy10/Lib/Core/IdTask.pas -text
+Indy10/Lib/Core/IdThread.pas -text
+Indy10/Lib/Core/IdThreadComponent.pas -text
+Indy10/Lib/Core/IdThreadSafe.pas -text
+Indy10/Lib/Core/IdUDPBase.pas -text
+Indy10/Lib/Core/IdUDPClient.pas -text
+Indy10/Lib/Core/IdUDPServer.pas -text
+Indy10/Lib/Core/IdYarn.pas -text
+Indy10/Lib/Core/IddclCore90ASM90.inc -text
+Indy10/Lib/Core/IndyCore50.RES -text svneol=unset#unset
+Indy10/Lib/Core/IndyCore50.dpk -text
+Indy10/Lib/Core/IndyCore50.rc -text
+Indy10/Lib/Core/IndyCore60.RES -text svneol=unset#unset
+Indy10/Lib/Core/IndyCore60.dpk -text
+Indy10/Lib/Core/IndyCore60.rc -text
+Indy10/Lib/Core/IndyCore70.RES -text svneol=unset#unset
+Indy10/Lib/Core/IndyCore70.dpk -text
+Indy10/Lib/Core/IndyCore70.rc -text
+Indy10/Lib/Core/IndyCore90.RES -text svneol=unset#unset
+Indy10/Lib/Core/IndyCore90.dpk -text
+Indy10/Lib/Core/IndyCore90.rc -text
+Indy10/Lib/Core/IndyCore90Net.bdsproj -text
+Indy10/Lib/Core/IndyCore90Net.dpk -text
+Indy10/Lib/Core/IndyCoreK3.dpk -text
+Indy10/Lib/Core/dclIndyCore50.dpk -text
+Indy10/Lib/Core/dclIndyCore50.rc -text
+Indy10/Lib/Core/dclIndyCore50.res -text svneol=unset#unset
+Indy10/Lib/Core/dclIndyCore60.dpk -text
+Indy10/Lib/Core/dclIndyCore60.rc -text
+Indy10/Lib/Core/dclIndyCore60.res -text svneol=unset#unset
+Indy10/Lib/Core/dclIndyCore70.dpk -text
+Indy10/Lib/Core/dclIndyCore70.rc -text
+Indy10/Lib/Core/dclIndyCore70.res -text svneol=unset#unset
+Indy10/Lib/Core/dclIndyCore90.bdsproj -text
+Indy10/Lib/Core/dclIndyCore90.dpk -text
+Indy10/Lib/Core/dclIndyCore90.rc -text
+Indy10/Lib/Core/dclIndyCore90.res -text svneol=unset#unset
+Indy10/Lib/Core/dclIndyCore90Net.bdsproj -text
+Indy10/Lib/Core/dclIndyCore90Net.dpk -text
+Indy10/Lib/Core/dclindycorek3.dpk -text
+Indy10/Lib/Core/dclindycorek3.dpkl -text
+Indy10/Lib/Core/dclindycorek3.res -text svneol=unset#unset
 Indy10/Lib/Indy.Sockets.bdsproj -text
 Indy10/Lib/Indy.Sockets.dpr -text
 Indy10/Lib/Indy.SocketsDebug.bdsproj -text
