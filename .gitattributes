@@ -1,4 +1,24 @@
 * text=auto !eol
+Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdConnectionIntercept.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdICMPClient.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdIOHandlerStack.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdIOHandlerStream.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdInterceptSimLog.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdInterceptThrottler.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdLogDebug.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdLogEvent.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdLogFile.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdLogStream.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdSchedulerOfThreadDefault.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdSchedulerOfThreadPool.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdServerIOHandlerStack.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdSimpleServer.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdTCPClient.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdTCPServer.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IconsDotNet/TIdThreadComponent.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IdAbout.pas -text
 Indy10/Lib/Core/IdAntiFreeze.pas -text
 Indy10/Lib/Core/IdAssignedNumbers.pas -text
@@ -103,6 +123,8 @@ Indy10/Lib/Core/dclIndyCore90Net.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpkl -text
 Indy10/Lib/Core/dclindycorek3.res -text svneol=unset#unset
+Indy10/Lib/FCL/IdCompilerDefines.inc -text
+Indy10/Lib/FCL/IdVers.inc -text
 Indy10/Lib/Indy.Sockets.bdsproj -text
 Indy10/Lib/Indy.Sockets.dpr -text
 Indy10/Lib/Indy.SocketsDebug.bdsproj -text
@@ -409,3 +431,54 @@ Indy10/Lib/Security/IndySecurity90Net.bdsproj -text
 Indy10/Lib/Security/IndySecurity90Net.dpk -text
 Indy10/Lib/Security/dclIndySecurity90Net.bdsproj -text
 Indy10/Lib/Security/dclIndySecurity90Net.dpk -text
+Indy10/Lib/SuperCore/IdCompilerDefines.inc -text
+Indy10/Lib/SuperCore/IdFiber.pas -text
+Indy10/Lib/SuperCore/IdFiberWeaver.pas -text
+Indy10/Lib/SuperCore/IdFiberWeaverInline.pas -text
+Indy10/Lib/SuperCore/IdFiberWeaverThreaded.pas -text
+Indy10/Lib/SuperCore/IdIOHandlerChain.pas -text
+Indy10/Lib/SuperCore/IdSchedulerOfFiber.pas -text
+Indy10/Lib/SuperCore/IdServerIOHandlerChain.pas -text
+Indy10/Lib/SuperCore/IdSuperCoreRegister.dcr -text svneol=unset#unset
+Indy10/Lib/SuperCore/IdSuperCoreRegister.pas -text
+Indy10/Lib/SuperCore/IdSuperCoreRegisterCool.dcr -text svneol=unset#unset
+Indy10/Lib/SuperCore/IdWorkOpUnit.pas -text
+Indy10/Lib/SuperCore/IdWorkOpUnits.pas -text
+Indy10/Lib/SuperCore/IndySuperCore70.dpk -text
+Indy10/Lib/SuperCore/IndySuperCore70.res -text svneol=unset#unset
+Indy10/Lib/SuperCore/dclIndySuperCore70.dpk -text
+Indy10/Lib/SuperCore/dclIndySuperCore70.res -text svneol=unset#unset
+Indy10/Lib/System/IdAntiFreezeBase.pas -text
+Indy10/Lib/System/IdAssemblyInfo.pas -text
+Indy10/Lib/System/IdBaseComponent.pas -text
+Indy10/Lib/System/IdCompilerDefines.inc -text
+Indy10/Lib/System/IdComponent.pas -text
+Indy10/Lib/System/IdException.pas -text
+Indy10/Lib/System/IdGlobal.pas -text
+Indy10/Lib/System/IdResourceStrings.pas -text
+Indy10/Lib/System/IdStack.pas -text
+Indy10/Lib/System/IdStackBSDBase.pas -text
+Indy10/Lib/System/IdStackConsts.pas -text
+Indy10/Lib/System/IdStackDotNet.pas -text
+Indy10/Lib/System/IdStackLinux.pas -text
+Indy10/Lib/System/IdStackWindows.pas -text
+Indy10/Lib/System/IdSystem90ASM90.inc -text
+Indy10/Lib/System/IdVers.inc -text
+Indy10/Lib/System/IdWinsock2.pas -text
+Indy10/Lib/System/IdWship6.pas -text
+Indy10/Lib/System/IndySystem50.dpk -text
+Indy10/Lib/System/IndySystem50.rc -text
+Indy10/Lib/System/IndySystem50.res -text svneol=unset#unset
+Indy10/Lib/System/IndySystem60.dpk -text
+Indy10/Lib/System/IndySystem60.rc -text
+Indy10/Lib/System/IndySystem60.res -text svneol=unset#unset
+Indy10/Lib/System/IndySystem70.dpk -text
+Indy10/Lib/System/IndySystem70.rc -text
+Indy10/Lib/System/IndySystem70.res -text svneol=unset#unset
+Indy10/Lib/System/IndySystem90.bdsproj -text
+Indy10/Lib/System/IndySystem90.dpk -text
+Indy10/Lib/System/IndySystem90.rc -text
+Indy10/Lib/System/IndySystem90.res -text svneol=unset#unset
+Indy10/Lib/System/IndySystem90Net.bdsproj -text
+Indy10/Lib/System/IndySystem90Net.dpk -text
+Indy10/Lib/System/IndySystemK3.dpk -text
