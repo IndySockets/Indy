@@ -1,0 +1,158 @@
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log:  24280: IdFTPListParseStercomOS390Exp.pas
+{
+{   Rev 1.3    10/26/2004 9:55:58 PM  JPMugaas
+{ Updated refs.
+}
+{
+{   Rev 1.2    4/19/2004 5:06:10 PM  JPMugaas
+{ Class rework Kudzu wanted.
+}
+{
+    Rev 1.1    10/19/2003 3:36:18 PM  DSiders
+  Added localization comments.
+}
+{
+{   Rev 1.0    10/1/2003 12:55:20 AM  JPMugaas
+{ New FTP list parsers.
+}
+unit IdFTPListParseStercomOS390Exp;
+
+interface
+
+uses
+  classes,
+  IdFTPList, IdFTPListParseBase, IdTStrings;
+
+type
+  TIdSterCommExpOS390FTPListItem = class(TIdFTPListItem)
+  protected
+      FRecFormat : String;
+    FRecLength : Integer;
+    FBlockSize : Integer;
+  public
+     property RecFormat : String read FRecFormat write FRecFormat;
+    property RecLength : Integer read FRecLength write FRecLength;
+    property BlockSize : Integer read FBlockSize write FBlockSize;
+  end;
+  TIdFTPLPSterCommExpOS390 = class(TIdFTPListBase)
+  protected
+    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+      class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+  public
+    class function GetIdent : String; override;
+    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+  end;
+
+const
+  STIRCOMEXPOS390 = 'Connect:Express for OS/390'; {do not localize}
+
+implementation
+
+uses
+  IdGlobal, IdFTPCommon, IdGlobalProtocols,
+  SysUtils;
+
+{
+"Connect:Express OS/390 FTP Guide Version 4.1" Copyright
+© 2002, 2003 Sterling Commerce, Inc.
+
+125 LIST Command accepted.
+-D 2 T VB  00244 18000 FTPGDG!PSR$TST.GDG.TSTGDG0(+01)
+-D 2 * VB  00244 27800 FTPV!PSR$TST.A.VVV.&REQNUMB
+-F 1 R -   -     -     FTPVAL1!PSR$TST.A.VVV
+250 list completed successfully.
+The LIST of symbolic files from Connect:Express Files directory available for
+User FTP1 is sent. A number of File attributes are showed. Default profile FTPV
+is part of the list. The Following attributes are sent:
+- Dynamic or Fixed Allocation
+- Allocation rule: 2 = to be created, 1 = pre-allocated, 0=to be created or
+replaced
+- Direction Transmission, Reception, * = both
+- File record format (Variable, Fixed, Blocked..)
+- Record length
+- Block size
+
+}
+{ TIdFTPLPSterCommExpOS390 }
+
+class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TIdStrings;
+  const ASysDescript: String; const ADetails: Boolean): boolean;
+var LBuf : String;
+begin
+  Result := False;
+  if AListing.Count >0 then
+  begin
+    LBuf := AListing[0];
+    if (Copy(LBuf,2,2)<>'D ') and (Copy(LBuf,2,2)<>'F ') then {do not localize}
+    begin
+      Exit;
+    end;
+    if (Copy(LBuf,4,2) <> '0 ') and (Copy(LBuf,4,2) <> '1 ') and (Copy(LBuf,4,2) <> '2 ') then  {do not localize}
+    begin
+      Exit;
+    end;
+    Result := True;
+  end;
+
+end;
+
+class function TIdFTPLPSterCommExpOS390.GetIdent: String;
+begin
+  Result := STIRCOMEXPOS390;
+end;
+
+class function TIdFTPLPSterCommExpOS390.MakeNewItem(
+  AOwner: TIdFTPListItems): TIdFTPListItem;
+begin
+  Result := TIdSterCommExpOS390FTPListItem.Create(AOwner);
+end;
+
+class function TIdFTPLPSterCommExpOS390.ParseLine(
+  const AItem: TIdFTPListItem; const APath: String): Boolean;
+var s : TIdStrings;
+  LI : TIdSterCommExpOS390FTPListItem;
+begin
+  LI := AItem as TIdSterCommExpOS390FTPListItem;
+  s := TIdStringList.Create;
+  try
+    SplitColumns(AItem.Data,s);
+    if s.Count > 3 then
+    begin
+      if s[3]<>'-' then
+      begin
+        LI.RecFormat := s[3];
+      end;
+    end;
+    if s.Count > 4 then
+    begin
+      LI.RecLength := StrToIntDef(s[4],0);
+    end;
+    if s.Count > 5 then
+    begin
+      LI.BlockSize := StrToIntDef(s[5],0);
+    end;
+    if s.Count > 6 then
+    begin
+      LI.FileName := s[6];
+    end;
+  finally
+    FreeAndNil(s);
+  end;
+  Result := True;
+end;
+
+initialization
+  RegisterFTPListParser(TIdFTPLPSterCommExpOS390);
+finalization
+  UnRegisterFTPListParser(TIdFTPLPSterCommExpOS390);
+
+end.
