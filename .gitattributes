@@ -1,1 +1,8 @@
 * text=auto !eol
+Indy10/Lib/Indy.Sockets.bdsproj -text
+Indy10/Lib/Indy.Sockets.dpr -text
+Indy10/Lib/Indy.SocketsDebug.bdsproj -text
+Indy10/Lib/Indy.SocketsDebug.dpr -text
+Indy10/Lib/Indy100Net.dpk -text
+Indy10/Lib/Indy110Net.dpk -text
+Indy10/Lib/Indy90Net.dpk -text
