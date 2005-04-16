@@ -107,3 +107,12 @@ Indy10/Lib/Indy.SocketsDebug.dpr -text
 Indy10/Lib/Indy100Net.dpk -text
 Indy10/Lib/Indy110Net.dpk -text
 Indy10/Lib/Indy90Net.dpk -text
+Indy10/Lib/Protocols/adler32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/compress.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/crc32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/infback.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/inffast.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/inflate.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/inftrees.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/trees.obj -text svneol=unset#unset
