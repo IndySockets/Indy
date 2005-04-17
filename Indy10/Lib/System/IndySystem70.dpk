@@ -1,5 +1,7 @@
 package IndySystem70;
 
+{$R *.res}
+{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -45,6 +47,8 @@ contains
   IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
   IdTStrings in 'IdTStrings.pas',
   IdWinsock2 in 'IdWinsock2.pas',
-  IdWship6 in 'IdWship6.pas';
+  IdWship6 in 'IdWship6.pas',
+  IdSysUtilsWin32 in 'IdSysUtilsWin32.pas',
+  IdSysUtils in 'IdSysUtils.pas';
 
 end.

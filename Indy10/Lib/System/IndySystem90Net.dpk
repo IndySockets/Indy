@@ -26,8 +26,8 @@ package IndySystem90Net;
 {$IMPLICITBUILD OFF}
 
 requires
-Borland.Delphi,
-Borland.VclRtl;
+  Borland.Delphi,
+  Borland.VclRtl;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
@@ -44,7 +44,10 @@ contains
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
-  IdTStrings in 'IdTStrings.pas';
+  IdTStrings in 'IdTStrings.pas',
+  IdSysUtilsNet in 'IdSysUtilsNet.pas',
+  IdSysUtils in 'IdSysUtils.pas';
+
 {$I IdSystem90ASM90.inc}
 
 end.

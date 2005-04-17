@@ -649,22 +649,23 @@ unit IdGlobal;
 interface
 
 uses
-  IdTStrings,
-  {$IFDEF MSWINDOWS}
-  Windows,
-  {$ENDIF}
-  {$IFDEF DotNetDistro}
-  System.Collections.Specialized,
-  {$ENDIF}
   {$IFDEF DotNet}
+  IdSysUtilsNet,
+  System.Collections.Specialized,
   System.net, System.net.Sockets, System.Diagnostics, System.Threading,
   System.IO, System.Text,
+  {$ELSE}
+  IdSysUtilsWin32,
+  {$ENDIF}
+  {$IFDEF MSWINDOWS}
+  Windows,
   {$ENDIF}
   {$IFNDEF DotNetExclude}
   SyncObjs,
   {$ENDIF}
-  SysUtils, Classes,
-  IdException;
+  SysUtils,
+  Classes,
+  IdTStrings, IdException;
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -721,6 +722,11 @@ const
   {$ENDIF}
 
 type
+  {$IFDEF DotNet}
+  SysUtil = TIdSysUtilsNet;
+  {$ELSE}
+  SysUtil = TIdSysUtilsWin32;
+  {$ENDIF}
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
   TIdStringStream = class(TStringStream)
@@ -1254,12 +1260,11 @@ var
   i: Integer;
   LBuf, LTmp: string;
 begin
-  LBuf := Trim(AIPAddress);
+  LBuf := SysUtil.Trim(AIPAddress);
   Result := HEXPREFIX;
 
   for i := 0 to 3 do begin
     LTmp := ByteToHex(StrToIntDef(Fetch(LBuf, '.', True), 0));
-
     if ASDotted then begin
       Result := Result + '.' + HEXPREFIX + LTmp;
     end else begin
@@ -1849,9 +1854,7 @@ begin
     except
       VErr := True;
     end;
-  finally
-    AIPaddr.free;
-  end;
+  finally FreeAndNil(AIPaddr); end;
 end;
 {$ELSE}
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
