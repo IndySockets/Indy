@@ -468,6 +468,12 @@ Indy10/Lib/System/IdSystem90ASM90.inc -text
 Indy10/Lib/System/IdVers.inc -text
 Indy10/Lib/System/IdWinsock2.pas -text
 Indy10/Lib/System/IdWship6.pas -text
+Indy10/Lib/System/IndySystem100.dpk -text
+Indy10/Lib/System/IndySystem100Net.dpk -text
+Indy10/Lib/System/IndySystem110.dpk -text
+Indy10/Lib/System/IndySystem110Net.dpk -text
+Indy10/Lib/System/IndySystem40.dpk -text
+Indy10/Lib/System/IndySystem40.res -text svneol=unset#unset
 Indy10/Lib/System/IndySystem50.dpk -text
 Indy10/Lib/System/IndySystem50.rc -text
 Indy10/Lib/System/IndySystem50.res -text svneol=unset#unset
@@ -477,6 +483,8 @@ Indy10/Lib/System/IndySystem60.res -text svneol=unset#unset
 Indy10/Lib/System/IndySystem70.dpk -text
 Indy10/Lib/System/IndySystem70.rc -text
 Indy10/Lib/System/IndySystem70.res -text svneol=unset#unset
+Indy10/Lib/System/IndySystem80Net.bdsproj -text
+Indy10/Lib/System/IndySystem80Net.dpk -text
 Indy10/Lib/System/IndySystem90.bdsproj -text
 Indy10/Lib/System/IndySystem90.dpk -text
 Indy10/Lib/System/IndySystem90.rc -text

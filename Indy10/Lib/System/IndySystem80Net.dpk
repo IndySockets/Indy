@@ -1,0 +1,61 @@
+package IndySystem80Net;
+
+{$ALIGN 0}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 System'}
+{$RUNONLY}
+{$IMPLICITBUILD OFF}
+
+requires
+Borland.Delphi,
+Borland.VclRtl;
+
+contains
+  IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
+  IdBaseComponent in 'IdBaseComponent.pas',
+  IdComponent in 'IdComponent.pas',
+  IdException in 'IdException.pas',
+  IdGlobal in 'IdGlobal.pas',
+  IdResourceStrings in 'IdResourceStrings.pas',
+  IdStack in 'IdStack.pas',
+  IdStackConsts in 'IdStackConsts.pas',
+  IdStackDotNet in 'IdStackDotNet.pas',
+  IdStream in 'IdStream.pas',
+  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
+  IdStreamVCL in 'IdStreamVCL.pas',
+  IdStreamVCLBase in 'IdStreamVCLBase.pas',
+  IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
+  IdTStrings in 'IdTStrings.pas';
+[assembly: AssemblyDescription('')]
+[assembly: AssemblyConfiguration('')]
+[assembly: AssemblyCompany('')]
+[assembly: AssemblyProduct('')]
+[assembly: AssemblyCopyright('')]
+[assembly: AssemblyTrademark('')]
+[assembly: AssemblyCulture('')]
+[assembly: AssemblyTitle('')]
+[assembly: AssemblyVersion('10.0.0.*')]
+[assembly: AssemblyDelaySign(false)]
+[assembly: AssemblyKeyFile('')]
+[assembly: AssemblyKeyName('')]
+
+end.
