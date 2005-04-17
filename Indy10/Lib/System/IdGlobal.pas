@@ -663,7 +663,6 @@ uses
   {$IFNDEF DotNetExclude}
   SyncObjs,
   {$ENDIF}
-  SysUtils,
   Classes,
   IdTStrings, IdException;
 
@@ -1083,15 +1082,6 @@ function TwoByteToWord(AByte1, AByte2: Byte): Word;
 
 var
   IndyPos: TPosProc = nil;
-  {$IFNDEF VCL6ORABOVE}
-    {$IFDEF MSWINDOWS}
-  RaiseLastOSError: procedure = SysUtils.RaiseLastWin32Error;
-    {$ELSE}
-  RaiseLastOSError: procedure = SysUtils.RaiseLastOSError;
-    {$ENDIF}
-  {$ELSE}
-  RaiseLastOSError: procedure = SysUtils.RaiseLastOSError;
-  {$ENDIF}
 
 implementation
 
@@ -1264,7 +1254,7 @@ begin
   Result := HEXPREFIX;
 
   for i := 0 to 3 do begin
-    LTmp := ByteToHex(StrToIntDef(Fetch(LBuf, '.', True), 0));
+    LTmp := ByteToHex( SysUtil.StrToIntDef(Fetch(LBuf, '.', True), 0));
     if ASDotted then begin
       Result := Result + '.' + HEXPREFIX + LTmp;
     end else begin
@@ -1280,7 +1270,7 @@ begin
   Result := 0;
   for i := 1 to Length(AValue) do
   begin
-    Result := (Result shl 3) + StrToIntDef(copy(AValue, i, 1), 0);
+    Result := (Result shl 3) +  SysUtil.StrToIntDef(copy(AValue, i, 1), 0);
   end;
 end;
 
@@ -1301,11 +1291,11 @@ var
   i: Integer;
   LBuf: string;
 begin
-  LBuf := Trim(AIPAddress);
-  Result := ByteToOctal(StrToIntDef(Fetch(LBuf, '.', True), 0));
+  LBuf :=  SysUtil.Trim(AIPAddress);
+  Result := ByteToOctal( SysUtil.StrToIntDef(Fetch(LBuf, '.', True), 0));
   for i := 0 to 2 do
   begin
-    Result := Result + '.' + ByteToOctal(StrToIntDef(Fetch(LBuf, '.', True), 0));
+    Result := Result + '.' + ByteToOctal(SysUtil.StrToIntDef(Fetch(LBuf, '.', True), 0));
   end;
 end;
 
@@ -1501,7 +1491,7 @@ begin
     LPos := Pos(ADelim, AInput);
   end else begin
     //? may be AnsiUpperCase?
-    LPos := IndyPos(UpperCase(ADelim), UpperCase(AInput));
+    LPos := IndyPos( SysUtil.UpperCase(ADelim), SysUtil.UpperCase(AInput));
   end;
   if LPos = 0 then begin
     Result := AInput;
@@ -1609,7 +1599,7 @@ begin
     SetLength(sLocation, MAX_PATH);
     SetLength(sLocation, GetWindowsDirectory(pchar(sLocation), MAX_PATH));
     sLocation := IncludeTrailingSlash(sLocation);
-    if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+    if SysUtil.Win32Platform = VER_PLATFORM_WIN32_NT then begin
       sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
     end;
     {$ENDIF}
@@ -1645,7 +1635,7 @@ begin
             end;
           //TODO: Make Whitespace a function to elim warning
           until Ord(s[i]) in WhiteSpace;
-          i := StrToInt(Copy(s, i+1, iPosSlash-i-1));
+          i := SysUtil.StrToInt(Copy(s, i+1, iPosSlash-i-1));
           if i <> iPrev then begin
             GIdPorts.Add(TObject(i));
           end;
@@ -1696,7 +1686,7 @@ begin
   Result := IncludeTrailingBackSlash(APath);
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-    Result :=  IncludeTrailingPathDelimiter(APath);
+    Result :=  SysUtil.IncludeTrailingPathDelimiter(APath);
     {$ELSE}
     Result := APath;
     if not IsPathDelimiter(Result, Length(Result)) then begin
@@ -1734,10 +1724,10 @@ end;
 //convert a dword into an IPv4 address in dotted form
 function MakeDWordIntoIPv4Address(const ADWord: Cardinal): string;
 begin
-  Result := IntToStr((ADWord shr 24) and $FF) + '.';
-  Result := Result + IntToStr((ADWord shr 16) and $FF) + '.';
-  Result := Result + IntToStr((ADWord shr 8) and $FF) + '.';
-  Result := Result + IntToStr(ADWord and $FF);
+  Result := SysUtil.IntToStr((ADWord shr 24) and $FF) + '.';
+  Result := Result + SysUtil.IntToStr((ADWord shr 16) and $FF) + '.';
+  Result := Result + SysUtil.IntToStr((ADWord shr 8) and $FF) + '.';
+  Result := Result + SysUtil.IntToStr(ADWord and $FF);
 end;
 
 function IsOctal(AChar: Char): Boolean; overload;
@@ -1854,7 +1844,7 @@ begin
     except
       VErr := True;
     end;
-  finally FreeAndNil(AIPaddr); end;
+  finally SysUtil.FreeAndNil(AIPaddr); end;
 end;
 {$ELSE}
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
@@ -1942,7 +1932,7 @@ var i:Integer;
 begin
   Result := '';
   for i := 0 to 7 do begin
-    Result := Result + ':' + IntToHex(AValue[i], 4);
+    Result := Result + ':' + SysUtil.IntToHex(AValue[i], 4);
   end;
 end;
 
@@ -2026,11 +2016,11 @@ begin
   end;
 
   // now start :-)
-  num := StrToIntDef('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
+  num := SysUtil.StrToIntDef('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
   if (num<0) or (num>65535) then begin
     Exit; // huh? odd number...
   end;
-  Result := IntToHex(num,1)+':';
+  Result := SysUtil.IntToHex(num,1)+':';
 
   haddoublecolon := false;
   for p := 2 to colons do begin
@@ -2047,50 +2037,50 @@ begin
         Result := Result + '0:'; {do not localize}
       end;
     end else begin
-      num := StrToIntDef('$' + Copy(LAddr, colonpos[p - 1] + 1, colonpos[p] - colonpos[p - 1] - 1), -1);
+      num := SysUtil.StrToIntDef('$' + Copy(LAddr, colonpos[p - 1] + 1, colonpos[p] - colonpos[p - 1] - 1), -1);
       if (num < 0) or (num > 65535) then begin
         Result := '';
         Exit; // huh? odd number...
       end;
-      Result := Result + IntToHex(num,1) + ':';
+      Result := Result + SysUtil.IntToHex(num,1) + ':';
     end;
   end; // end of colon separated part
 
   if dots = 0 then begin
-    num := StrToIntDef('$' + Copy(LAddr, colonpos[colons] + 1, MaxInt), -1);
+    num := SysUtil.StrToIntDef('$' + Copy(LAddr, colonpos[colons] + 1, MaxInt), -1);
     if (num < 0) or (num > 65535) then begin
       Result := '';
       Exit; // huh? odd number...
     end;
-    Result := Result + IntToHex(num,1) + ':';
+    Result := Result + SysUtil.IntToHex(num,1) + ':';
   end;
 
   if dots > 0 then begin
-    num := StrToIntDef(Copy(LAddr, colonpos[colons] + 1, dotpos[1] - colonpos[colons] -1),-1);
+    num := SysUtil.StrToIntDef(Copy(LAddr, colonpos[colons] + 1, dotpos[1] - colonpos[colons] -1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + IntToHex(num, 2);
-    num := StrToIntDef(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
+    Result := Result + SysUtil.IntToHex(num, 2);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + IntToHex(num, 2) + ':';
+    Result := Result + SysUtil.IntToHex(num, 2) + ':';
 
-    num := StrToIntDef(Copy(LAddr, dotpos[2] + 1, dotpos[3] - dotpos[2] -1),-1);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[2] + 1, dotpos[3] - dotpos[2] -1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + IntToHex(num, 2);
-    num := StrToIntDef(Copy(LAddr, dotpos[3] + 1, 3), -1);
+    Result := Result + SysUtil.IntToHex(num, 2);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[3] + 1, 3), -1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + IntToHex(num, 2) + ':';
+    Result := Result + SysUtil.IntToHex(num, 2) + ':';
   end;
   SetLength(Result, Length(Result) - 1);
 end;
@@ -2139,7 +2129,7 @@ begin
     while LSearchLength > 0 do begin
       if LPM^ = LChar then begin
         Inc(LPM);
-        if CompareMem(LPM, LPS, LS1) then begin
+        if SysUtil.CompareMem(LPM, LPS, LS1) then begin
           Result := LPM - MemBuff;
           Exit;
         end;
@@ -2239,6 +2229,13 @@ function SBPos(const Substr, S: string): Integer;
 begin
   Result := Pos(Substr, S);
 end;
+
+{$IFNDEF DotNet}
+function AnsiPos(const Substr, S: string): Integer;
+begin
+  Result := SysUtil.AnsiPos(Substr,S);
+end;
+{$ENDIF}
 
 procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 begin
@@ -2367,7 +2364,7 @@ Begin
   AStrings.Clear;
   LDelim := Length(ADelim);
   LLastPos := 1;
-  LData := Trim(AData);
+  LData := SysUtil.Trim(AData);
 
   LLeadingSpaceCnt := 0;
   if LData <> '' then begin //if Not WhiteStr
@@ -2382,13 +2379,13 @@ Begin
   while I > 0 do begin
     LLeft:= Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
     if LLeft > '' then begin    {Do not Localize}
-      AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
+      AStrings.AddObject(SysUtil.Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
     end;
     LLastPos := I + LDelim; //first char after Delim
     i := PosIdx (ADelim, LData, LLastPos);
   end;//while found
   if LLastPos <= Length(LData) then begin
-    AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
+    AStrings.AddObject(SysUtil.Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
   end;
 end;
 {$IFNDEF DotNet}
@@ -2993,7 +2990,7 @@ begin
   {$IFDEF DotNet}
   Result := A1.Compare(A1, A2, True) = 0;
   {$else}
-  Result := AnsiCompareText(A1, A2) = 0;
+  Result := SysUtil.AnsiCompareText(A1, A2) = 0;
   {$endif}
 end;
 
@@ -3002,7 +2999,7 @@ begin
   {$IFDEF DotNet}
   Result := A1.ToLower;
   {$else}
-  Result := AnsiLowerCase(A1);
+  Result := SysUtil.AnsiLowerCase(A1);
   {$endif}
 end;
 
@@ -3011,16 +3008,16 @@ begin
   {$IFDEF DotNet}
   Result := A1.ToUpper;
   {$else}
-  Result := AnsiUpperCase(A1);
+  Result := SysUtil.AnsiUpperCase(A1);
   {$endif}
 end;
 
 function IndyCompareStr(const A1: string; const A2: string): Integer;
 begin
   {$IFDEF DotNet}
-  Result := CompareStr(A1, A2);
+  Result := SysUtil.CompareStr(A1, A2);
   {$else}
-  Result := AnsiCompareStr(A1, A2);
+  Result := SysUtil.AnsiCompareStr(A1, A2);
   {$endif}
 end;
 
@@ -3060,12 +3057,13 @@ begin
   {$ENDIF}
 end;
 
+
 initialization
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos
   {$IFDEF DotNet}
   IndyPos := SBPos;
   {$ELSE}
-  if LeadBytes = [] then begin
+  if SysUtil.LeadBytes = [] then begin
     IndyPos := SBPos;
   end else begin
     IndyPos := AnsiPos;
@@ -3074,7 +3072,7 @@ initialization
 
 finalization
   {$IFNDEF DotNet}
-  FreeAndNil(GIdPorts);
+  SysUtil.FreeAndNil(GIdPorts);
   {$ENDIF}
 
 end.
