@@ -100,8 +100,7 @@ implementation
 uses
   IdGlobal,
   IdResourceStrings,
-  IdException,
-  SysUtils;
+  IdException;
 
 { TIdAntiFreezeBase }
 

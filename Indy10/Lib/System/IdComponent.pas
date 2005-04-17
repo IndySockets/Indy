@@ -66,8 +66,7 @@ interface
 uses
   Classes,
   IdAntiFreezeBase, IdBaseComponent, IdGlobal, IdResourceStrings,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 type
   TIdStatus = ( hsResolving,
@@ -160,9 +159,9 @@ begin
 //in TIdFTP
   if assigned(OnStatus) then begin
     if Length(aaArgs)=0 then
-      OnStatus(Self, AStatus, Format(IdStati[AStatus], ['']))  {Do not Localize}
+      OnStatus(Self, AStatus, SysUtil.Format(IdStati[AStatus], ['']))  {Do not Localize}
     else
-      OnStatus(Self, AStatus, Format(IdStati[AStatus], aaArgs));
+      OnStatus(Self, AStatus, SysUtil.Format(IdStati[AStatus], aaArgs));
   end;
 end;
 

@@ -315,8 +315,7 @@ uses
   {$IFDEF LINUX}     IdStackLinux, {$ENDIF}
   {$IFDEF MSWINDOWS} IdStackWindows, {$ENDIF}
   {$IFDEF DOTNET}    IdStackDotNet, {$ENDIF}
-  IdResourceStrings,
-  SysUtils;
+  IdResourceStrings;
 
 var
   GStackClass: TIdStackClass = nil;
@@ -355,7 +354,7 @@ End;
 
 destructor TIdSocketList.Destroy;
 begin
-  FreeAndNil(FLock);
+  SysUtil.FreeAndNil(FLock);
   inherited;
 end;
 
@@ -391,13 +390,13 @@ begin
 //
 //Result := Result and ((i > 0) and (i < 256));
 //
-  i := StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := SysUtil.StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := (i > -1) and (i < 256);
-  i := StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := SysUtil.StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256));
-  i := StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := SysUtil.StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256));
-  i := StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := SysUtil.StrToIntDef(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256)) and (AIP = '');
 end;
 
@@ -468,11 +467,11 @@ begin
   end;
 
   // now start :-)
-  num := StrToIntDef('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
+  num := SysUtil.StrToIntDef('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
   if (num<0) or (num>65535) then begin
     exit; // huh? odd number...
   end;
-  Result := IntToHex(num,1)+':';
+  Result := SysUtil.IntToHex(num,1)+':';
 
   haddoublecolon := false;
   for p := 2 to colons do begin
@@ -488,50 +487,50 @@ begin
         Result := Result + '0:'; {do not localize}
       end;
     end else begin
-      num := StrToIntDef('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
+      num := SysUtil.StrToIntDef('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
       if (num<0) or (num>65535) then begin
         Result := '';
         exit; // huh? odd number...
       end;
-      Result := Result + IntToHex(num,1)+':';
+      Result := Result + SysUtil.IntToHex(num,1)+':';
     end;
   end; // end of colon separated part
 
   if dots = 0 then begin
-    num := StrToIntDef('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
+    num := SysUtil.StrToIntDef('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
     if (num<0) or (num>65535) then begin
       Result := '';
       exit; // huh? odd number...
     end;
-    Result := Result + IntToHex(num,1)+':';
+    Result := Result + SysUtil.IntToHex(num,1)+':';
   end;
 
   if dots > 0 then begin
-    num := StrToIntDef(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
+    num := SysUtil.StrToIntDef(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + IntToHex(num, 2);
-    num := StrToIntDef(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
+    Result := Result + SysUtil.IntToHex(num, 2);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + IntToHex(num, 2)+':';
+    Result := Result + SysUtil.IntToHex(num, 2)+':';
 
-    num := StrToIntDef(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + IntToHex(num, 2);
-    num := StrToIntDef(Copy(LAddr, dotpos[3]+1, 3), -1);
+    Result := Result + SysUtil.IntToHex(num, 2);
+    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[3]+1, 3), -1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + IntToHex(num, 2)+':';
+    Result := Result + SysUtil.IntToHex(num, 2)+':';
   end;
   SetLength(Result, Length(Result)-1);
 end;
@@ -578,7 +577,7 @@ begin
     if GInstanceCount = 0 then begin
       // This CS will guarantee that during the FreeAndNil nobody will try to use
       // or construct GStack
-      FreeAndNil(GStack);
+      SysUtil.FreeAndNil(GStack);
     end;
   finally GStackCriticalSection.Release; end;
 end;
