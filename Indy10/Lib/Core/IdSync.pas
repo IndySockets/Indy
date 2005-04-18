@@ -162,7 +162,7 @@ begin
     GNotifyThread.FEvent.SetEvent;
     GNotifyThread.WaitFor;
     // Instead of FreeOnTerminate so we can set the reference to nil
-    SysUtil.FreeAndNil(GNotifyThread);
+    Sys.FreeAndNil(GNotifyThread);
   end;
 end;
 
@@ -226,8 +226,8 @@ begin
       Delete(0);
     end;
   finally FNotifications.UnlockList; end;
-  SysUtil.FreeAndNil(FNotifications);
-  SysUtil.FreeAndNil(FEvent);
+  Sys.FreeAndNil(FNotifications);
+  Sys.FreeAndNil(FEvent);
   inherited Destroy;
 end;
 
@@ -249,7 +249,7 @@ begin
         LNotify := TIdNotify(LNotifications.Items[0]);
       finally FNotifications.UnlockList; end;
       Synchronize(LNotify.DoNotify);
-      SysUtil.FreeAndNil(LNotify);
+      Sys.FreeAndNil(LNotify);
       with FNotifications.LockList do try
         Delete(0);
       finally FNotifications.UnlockList; end;

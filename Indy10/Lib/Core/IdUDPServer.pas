@@ -147,6 +147,7 @@ type
   EIdUDPServerException = class(EIdUDPException);
 
 implementation
+uses IdSysUtils;
 
 { TIdUDPServer }
 
@@ -172,7 +173,7 @@ begin
       Bindings[i].CloseSocket;
     end;
     FListenerThread.WaitFor;
-    SysUtil.FreeAndNil(FListenerThread);
+    Sys.FreeAndNil(FListenerThread);
     FCurrentBinding := nil;
   end;
 end;
@@ -180,7 +181,7 @@ end;
 destructor TIdUDPServer.Destroy;
 begin
   Active := False;
-  SysUtil.FreeAndNil(FBindings);
+  Sys.FreeAndNil(FBindings);
   inherited;
 end;
 

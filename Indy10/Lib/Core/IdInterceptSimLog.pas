@@ -75,7 +75,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsCore;
+  IdException, IdResourceStringsCore, IdSysUtils;
 
 { TIdInterceptSimLog }
 
@@ -90,14 +90,14 @@ begin
   try
     FStream := TIdStreamVCL.Create(LStream, True);
   except
-    SysUtil.FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
     raise;
   end;
 end;
 
 procedure TIdInterceptSimLog.Disconnect;
 begin
-  SysUtil.FreeAndNil(FStream);
+  Sys.FreeAndNil(FStream);
   inherited;
 end;
 
@@ -145,7 +145,7 @@ begin
     if LUseEOL then begin
       WriteLn(ATag + ':EOL'); {do not localize}
     end else begin
-      WriteLn(ATag + ':Bytes:' + SysUtil.IntToStr(Length(ABuffer)));  {do not localize}
+      WriteLn(ATag + ':Bytes:' + Sys.IntToStr(Length(ABuffer)));  {do not localize}
     end;
     Write(ABuffer);
     WriteLn;

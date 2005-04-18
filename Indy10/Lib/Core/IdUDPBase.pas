@@ -80,7 +80,7 @@ interface
 
 uses
   Classes,
-  IdComponent, IdGlobal, IdException, IdSocketHandle;
+  IdComponent, IdGlobal, IdException, IdSocketHandle, IdSysUtils;
 
 const
   ID_UDP_BUFFERSIZE = 8192;
@@ -174,7 +174,7 @@ end;
 
 procedure TIdUDPBase.CloseBinding;
 begin
-  SysUtil.FreeAndNil(FBinding);
+  Sys.FreeAndNil(FBinding);
 end;
 
 destructor TIdUDPBase.Destroy;

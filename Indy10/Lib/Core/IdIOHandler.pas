@@ -773,7 +773,7 @@ type
 implementation
 
 uses
-  IdStack, IdException, IdResourceStrings;
+  IdStack, IdException, IdResourceStrings, IdSysUtils;
 
 var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
@@ -792,8 +792,8 @@ end;
 destructor TIdIOHandler.Destroy;
 begin
   Close;
-  SysUtil.FreeAndNil(FRecvBuffer);
-  SysUtil.FreeAndNil(FInputBuffer);
+  Sys.FreeAndNil(FRecvBuffer);
+  Sys.FreeAndNil(FInputBuffer);
   inherited;
 end;
 
@@ -807,10 +807,10 @@ begin
   FOpened := False;
   FClosedGracefully := False;
   // Recreate FRecvBuffer
-  SysUtil.FreeAndNil(FRecvBuffer);
+  Sys.FreeAndNil(FRecvBuffer);
   FRecvBuffer := TIdBuffer.Create;
   //
-  SysUtil.FreeAndNil(FInputBuffer);
+  Sys.FreeAndNil(FInputBuffer);
   FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
   FOpened := True;
 end;
@@ -872,7 +872,7 @@ begin
       Exit;
     end;
   end;
-  raise EIdException.Create(SysUtil.Format(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]));
+  raise EIdException.Create(Sys.Format(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]));
 end;
 
 function TIdIOHandler.GetDestination: string;
@@ -904,7 +904,7 @@ procedure TIdIOHandler.WriteBufferClose;
 begin
   try
     WriteBufferFlush;
-  finally SysUtil.FreeAndNil(FWriteBuffer); end;
+  finally Sys.FreeAndNil(FWriteBuffer); end;
 end;
 
 procedure TIdIOHandler.WriteBufferFlush(AByteCount: Integer);
@@ -1176,7 +1176,7 @@ begin
   LAttempts := 0;
   while (Length(Result) = 0) and (LAttempts < AFailCount) do begin
     Inc(LAttempts);
-    Result := SysUtil.Trim(ReadLn);
+    Result := Sys.Trim(ReadLn);
   end;
 end;
 
@@ -1473,7 +1473,7 @@ begin
     finally EndWork(wmRead); end;
   finally
     if LStream <> nil then begin
-      SysUtil.FreeAndNil(LStream);
+      Sys.FreeAndNil(LStream);
     end;
   end;
 end;
@@ -1665,13 +1665,13 @@ var
   LStream: TStream;
   LIdStream: TIdStreamVCL;
 begin
-  EIdFileNotFound.IfFalse(SysUtil.FileExists(AFile), SysUtil.Format(RSFileNotFound, [AFile]));
+  EIdFileNotFound.IfFalse(Sys.FileExists(AFile), Sys.Format(RSFileNotFound, [AFile]));
   LStream := TReadFileExclusiveStream.Create(AFile); try
     LIdStream := TIdStreamVCL.Create(LStream); try
       Write(LIdStream);
       Result := LIdStream.VCLStream.Size;
-    finally SysUtil.FreeAndNil(LIdStream); end;
-  finally SysUtil.FreeAndNil(LStream); end;
+    finally Sys.FreeAndNil(LIdStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 function TIdIOHandler.WriteBufferingActive: Boolean;
@@ -1735,5 +1735,5 @@ end;
 
 initialization
 finalization
-  SysUtil.FreeAndNil(GIOHandlerClassList)
+  Sys.FreeAndNil(GIOHandlerClassList)
 end.

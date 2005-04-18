@@ -135,7 +135,8 @@ interface
 uses
   Classes,
   IdException,
-  IdTStrings;
+  IdTStrings,
+  IdSysUtils;
 
 type
   TIdReplies = class;
@@ -260,8 +261,8 @@ end;
 
 destructor TIdReply.Destroy;
 begin
-  SysUtil.FreeAndNil(FText);
-  SysUtil.FreeAndNil(FFormattedReply);
+  Sys.FreeAndNil(FText);
+  Sys.FreeAndNil(FFormattedReply);
   inherited;
 end;
 
@@ -287,7 +288,7 @@ end;
 
 procedure TIdReply.SetNumericCode(const AValue: Integer);
 begin
-  Code := SysUtil.IntToStr(AValue);
+  Code := Sys.IntToStr(AValue);
 end;
 
 procedure TIdReply.SetText(const AValue: TIdStrings);
@@ -297,12 +298,12 @@ end;
 
 procedure TIdReply.SetReply(const ACode: Integer; const AText: string);
 begin
-  SetReply(SysUtil.IntToStr(ACode), AText);
+  SetReply(Sys.IntToStr(ACode), AText);
 end;
 
 function TIdReply.GetNumericCode: Integer;
 begin
-  Result := SysUtil.StrToIntDef(Code, 0);
+  Result := Sys.StrToInt(Code, 0);
 end;
 
 procedure TIdReply.SetCode(const AValue: string);
@@ -310,7 +311,7 @@ var
   LMatchedReply: TIdReply;
 begin
   if FCode <> AValue then begin
-    EIdException.IfFalse(CheckIfCodeIsValid(AValue), SysUtil.Format(RSReplyInvalidCode, [AValue]));
+    EIdException.IfFalse(CheckIfCodeIsValid(AValue), Sys.Format(RSReplyInvalidCode, [AValue]));
     // Only check for duplicates if we are in a collection. NormalReply etc are not in collections
     // Also dont check FReplyTexts, as non members can be duplicates of members
     if Collection <> nil then begin
@@ -369,7 +370,7 @@ end;
 
 function TIdReplies.Add(ACode: Integer; AText: string): TIdReply;
 begin
-  Result := Add(SysUtil.IntToStr(ACode), AText);
+  Result := Add(Sys.IntToStr(ACode), AText);
 end;
 
 function TIdReplies.Add(ACode, AText: string): TIdReply;
@@ -378,7 +379,7 @@ begin
   try
     Result.SetReply(ACode, AText);
   except
-    SysUtil.FreeAndNil(Result);
+    Sys.FreeAndNil(Result);
     raise;
   end;
 end;

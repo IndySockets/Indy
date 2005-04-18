@@ -409,7 +409,7 @@ begin
       // LClass := Pointer(AProxy.ClassType);
       if Assigned(FTransparentProxy) then begin
         if FTransparentProxy.ClassType <> LClass then begin
-          SysUtil.FreeAndNil(FTransparentProxy);
+          Sys.FreeAndNil(FTransparentProxy);
           FTransparentProxy := LClass.Create(NIL);
         end;
       end else begin
@@ -419,7 +419,7 @@ begin
     end else begin
       if Assigned(FTransparentProxy) then begin
         if NOT Assigned(FTransparentProxy.Owner) then begin
-          SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
+          Sys.FreeAndNIL(FTransparentProxy);//tmp obj
         end;
       end;
       FTransparentProxy := AProxy;
@@ -428,7 +428,7 @@ begin
   end
   else begin
     if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
+      Sys.FreeAndNIL(FTransparentProxy);//tmp obj
     end else begin
       FTransparentProxy := NIL; //remove link
     end;

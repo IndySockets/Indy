@@ -336,7 +336,7 @@ interface
 uses
   Classes,
   IdStreamVCL, //TODO: Remove dependency on IdStreamVCL and return to IdStream
-  IdGlobal, IdException, IdStream;
+  IdGlobal, IdException, IdStream, IdSysUtils;
 
 type
   EIdNotEnoughDataInBuffer = class(EIdException);
@@ -484,7 +484,7 @@ begin
     VByteCount := Size+AIndex;
   end else begin
     EIdNotEnoughDataInBuffer.IfTrue(VByteCount > (Size+AIndex), RSNotEnoughDataInBuffer + ' ('
-     + SysUtil.IntToStr(VByteCount) + '/' + SysUtil.IntToStr(Size) + ')');
+     + Sys.IntToStr(VByteCount) + '/' + Sys.IntToStr(Size) + ')');
   end;
 end;
 

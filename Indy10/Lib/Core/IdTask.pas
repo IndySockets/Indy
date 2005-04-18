@@ -74,7 +74,7 @@ destructor TIdTask.Destroy;
 begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
-  SysUtil.FreeAndNil(FData);
+  Sys.FreeAndNil(FData);
   inherited;
 end;
 

@@ -66,7 +66,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdBaseComponent, IdBuffer, IdException;
+  IdGlobal, IdBaseComponent, IdBuffer, IdException, IdSysUtils;
 
 type
   EIdInterceptCircularLink = class(EIdException);
@@ -176,7 +176,7 @@ Begin
   LIntercept := AValue;
   while Assigned(LIntercept) do begin
     if LIntercept = SELF then begin //recursion
-      raise EIdInterceptCircularLink.Create(SysUtil.Format(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
+      raise EIdInterceptCircularLink.Create(Sys.Format(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
     end;
     LIntercept := LIntercept.Intercept;
   end;

@@ -180,7 +180,7 @@ interface
 uses
   Classes, IdAssignedNumbers, IdException,
   IdComponent, IdCustomTransparentProxy, IdGlobal, IdIOHandler,
-  IdIOHandlerSocket, IdSocketHandle;
+  IdIOHandlerSocket, IdSocketHandle, IdSysUtils;
 
 type
   EIdSocksUDPNotSupportedBySOCKSVersion = class(EIdException);
@@ -286,10 +286,10 @@ begin
       LIpAddr := GStack.ResolveHost(AHost,Id_IPv4);
     end;
 
-    AIOHandler.Write(ToBytes(Byte(SysUtil.StrToIntDef(Fetch(LIpAddr,'.'),0))));// IP
-    AIOHandler.Write(ToBytes(Byte(SysUtil.StrToIntDef(Fetch(LIpAddr,'.'),0))));// IP
-    AIOHandler.Write(ToBytes(Byte(SysUtil.StrToIntDef(Fetch(LIpAddr,'.'),0))));// IP
-    AIOHandler.Write(ToBytes(Byte(SysUtil.StrToIntDef(Fetch(LIpAddr,'.'),0))));// IP
+    AIOHandler.Write(ToBytes(Byte(Sys.StrToInt(Fetch(LIpAddr,'.')))));// IP
+    AIOHandler.Write(ToBytes(Byte(Sys.StrToInt(Fetch(LIpAddr,'.')))));// IP
+    AIOHandler.Write(ToBytes(Byte(Sys.StrToInt(Fetch(LIpAddr,'.')))));// IP
+    AIOHandler.Write(ToBytes(Byte(Sys.StrToInt(Fetch(LIpAddr,'.')))));// IP
 
     AIOHandler.Write(ToBytes(Username));
     AIOHandler.Write(ToBytes(Byte(0)));// Username
@@ -344,7 +344,7 @@ begin
         CopyTIdBytes(LIP.HToNBytes,0,VBuf,4,16);
       end;
     finally
-      SysUtil.FreeAndNil(LIP);
+      Sys.FreeAndNil(LIP);
     end;
     VLen := VLen + 16;
   end
@@ -362,7 +362,7 @@ begin
           CopyTIdBytes(LIP.HToNBytes,0,VBuf,4,4);
         end;
       finally
-        SysUtil.FreeAndNil(LIP);
+        Sys.FreeAndNil(LIP);
       end;
       VLen := 8;
     end
@@ -467,13 +467,13 @@ begin
     try
       // Socks server replies on connect, this is the second part
       AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
-      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding( SysUtil.IntToStr(LResponse[2])+'.'+SysUtil.IntToStr(LResponse[3])+'.'+SysUtil.IntToStr(LResponse[4])+'.'+SysUtil.IntToStr(LResponse[5]) , LResponse[0]*256+LResponse[1]);
+      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding( Sys.IntToStr(LResponse[2])+'.'+Sys.IntToStr(LResponse[3])+'.'+Sys.IntToStr(LResponse[4])+'.'+Sys.IntToStr(LResponse[5]) , LResponse[0]*256+LResponse[1]);
     except
       raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
     end;
   finally
     LClient.IOHandler := nil;
-    SysUtil.FreeAndNil(LClient);
+    Sys.FreeAndNil(LClient);
   end;
 end;
 
@@ -627,7 +627,7 @@ begin
       case LType of
         1 : begin
               //IPv4
-              TIdIOHandlerSocket(AIOHandler).binding.SetBinding( SysUtil.IntToStr(LBuf[0])+'.'+SysUtil.IntToStr(LBuf[1])+'.'+SysUtil.IntToStr(LBuf[2])+'.'+SysUtil.IntToStr(LBuf[3]) ,LBuf[4]*256+LBuf[5],Id_IPv4);
+              TIdIOHandlerSocket(AIOHandler).binding.SetBinding( Sys.IntToStr(LBuf[0])+'.'+Sys.IntToStr(LBuf[1])+'.'+Sys.IntToStr(LBuf[2])+'.'+Sys.IntToStr(LBuf[3]) ,LBuf[4]*256+LBuf[5],Id_IPv4);
             end;
         3 : begin
               TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
@@ -641,7 +641,7 @@ begin
     end;
   finally
     LClient.IOHandler := nil;
-    SysUtil.FreeAndNil(LClient);
+    Sys.FreeAndNil(LClient);
   end;
 end;
 
@@ -704,7 +704,7 @@ begin
     AIOHandler.ReadBytes(LBuf, Lpos, False);      // just write it over the first part for now
     case LType of
     //IPv4
-      1 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(SysUtil.IntToStr(LBuf[0])+'.'+SysUtil.IntToStr(LBuf[1])+'.'+SysUtil.IntToStr(LBuf[2])+'.'+SysUtil.IntToStr(LBuf[3]),LBuf[4]*256+LBuf[5],Id_IPv4);
+      1 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(Sys.IntToStr(LBuf[0])+'.'+Sys.IntToStr(LBuf[1])+'.'+Sys.IntToStr(LBuf[2])+'.'+Sys.IntToStr(LBuf[3]),LBuf[4]*256+LBuf[5],Id_IPv4);
     //FQN
       3 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
     else
@@ -734,7 +734,7 @@ begin
 
     // Socks server replies on connect, this is the second part
     AIOHandler.ReadBytes(LBuf, 6, False);      // just write it over the first part for now
-    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(SysUtil.IntToStr(LBuf[2])+'.'+SysUtil.IntToStr(LBuf[3])+'.'+SysUtil.IntToStr(LBuf[4])+'.'+SysUtil.IntToStr(LBuf[5]) , LBuf[0]*256+LBuf[1]);
+    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(Sys.IntToStr(LBuf[2])+'.'+Sys.IntToStr(LBuf[3])+'.'+Sys.IntToStr(LBuf[4])+'.'+Sys.IntToStr(LBuf[5]) , LBuf[0]*256+LBuf[1]);
   end;
 end;
 
@@ -881,7 +881,7 @@ begin
       // IP V4
       1: begin
            LLen := 4 + 4; //4 IPv4 address len, 4- 2 reserved, 1 frag, 1 atype
-           VHost := SysUtil.IntToStr(APacket[4])+'.'+SysUtil.IntToStr(APacket[5])+'.'+SysUtil.IntToStr(APacket[6])+'.'+SysUtil.IntToStr(APacket[7]);
+           VHost := Sys.IntToStr(APacket[4])+'.'+Sys.IntToStr(APacket[5])+'.'+Sys.IntToStr(APacket[6])+'.'+Sys.IntToStr(APacket[7]);
 
          end;
       // FQDN
@@ -960,7 +960,7 @@ begin
         CopyTIdBytes(LIP.HToNBytes,0,Result,4,16);
       end;
     finally
-      SysUtil.FreeAndNil(LIP);
+      Sys.FreeAndNil(LIP);
     end;
     LLen := LLen + 16;
   end
@@ -979,7 +979,7 @@ begin
           CopyTIdBytes(LIP.HToNBytes,0,Result,4,4);
         end;
       finally
-        SysUtil.FreeAndNil(LIP);
+        Sys.FreeAndNil(LIP);
       end;
       LLen := 8;
     end

@@ -211,7 +211,7 @@ end;
 
 destructor TIdThreadSafe.Destroy;
 begin
-  SysUtil.FreeAndNil(FCriticalSection);
+  Sys.FreeAndNil(FCriticalSection);
   inherited;
 end;
 
@@ -335,7 +335,7 @@ end;
 destructor TIdThreadSafeStringList.Destroy;
 begin
   inherited Lock; try
-    SysUtil.FreeAndNil(FValue);
+    Sys.FreeAndNil(FValue);
   finally inherited Unlock; end;
   inherited;
 end;

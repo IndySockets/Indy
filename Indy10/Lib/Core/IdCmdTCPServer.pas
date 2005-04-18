@@ -284,13 +284,13 @@ end;
 destructor TIdCmdTCPServer.Destroy;
 begin
   inherited Destroy;
-  SysUtil.FreeAndNil(FReplyUnknownCommand);
-  SysUtil.FreeAndNil(FReplyTexts);
-  SysUtil.FreeAndNil(FMaxConnectionReply);
-  SysUtil.FreeAndNil(FHelpReply);
-  SysUtil.FreeAndNil(FGreeting);
-  SysUtil.FreeAndNil(FExceptionReply);
-  SysUtil.FreeAndNil(FCommandHandlers);
+  Sys.FreeAndNil(FReplyUnknownCommand);
+  Sys.FreeAndNil(FReplyTexts);
+  Sys.FreeAndNil(FMaxConnectionReply);
+  Sys.FreeAndNil(FHelpReply);
+  Sys.FreeAndNil(FGreeting);
+  Sys.FreeAndNil(FExceptionReply);
+  Sys.FreeAndNil(FCommandHandlers);
 end;
 
 procedure TIdCmdTCPServer.DoAfterCommandHandler(ASender: TIdCommandHandlers;
@@ -345,7 +345,7 @@ begin
     LReply.Text.Add(ALine);
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    SysUtil.FreeAndNil(LReply);
+    Sys.FreeAndNil(LReply);
   end;
 end;
 
@@ -366,7 +366,7 @@ begin
       LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
       SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
     finally
-      SysUtil.FreeAndNil(LGreeting);
+      Sys.FreeAndNil(LGreeting);
     end;
   end;
 end;
@@ -415,7 +415,7 @@ begin
             Response.Add('');
           end;
         finally
-          SysUtil.FreeAndNil(LHelpList);
+          Sys.FreeAndNil(LHelpList);
         end;
       end;
     end;

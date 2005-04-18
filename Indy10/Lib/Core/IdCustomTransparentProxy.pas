@@ -62,7 +62,7 @@
 unit IdCustomTransparentProxy;
 
 interface
-uses Classes, IdComponent, IdException, IdGlobal, IdIOHandler, IdSocketHandle;
+uses Classes, IdComponent, IdException, IdGlobal, IdIOHandler, IdSocketHandle, IdSysUtils;
 type
   EIdTransparentProxyCircularLink = class(EIdException);
   EIdTransparentProxyUDPNotSupported = class(EIdException);
@@ -174,7 +174,7 @@ begin
   LNextValue := AValue;
   while Assigned(LNextValue) do begin
     if LNextValue = SELF then begin
-      raise EIdTransparentProxyCircularLink.Create(SysUtil.Format(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
+      raise EIdTransparentProxyCircularLink.Create(Sys.Format(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
     end;
     LNextValue := LNextValue.FChainedProxy;
   end;

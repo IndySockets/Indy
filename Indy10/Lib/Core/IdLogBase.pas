@@ -134,7 +134,7 @@ begin
     inherited Receive(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := SysUtil.DateTimeToStr(SysUtil.Now);
+      LMsg := Sys.DateTimeToStr(Sys.Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin
@@ -146,7 +146,7 @@ end;
 
 function TIdLogBase.ReplaceCR(const AString: String): String;
 begin
-  Result := SysUtil.StringReplace(AString,LOldStr,LNewStr);
+  Result := Sys.StringReplace(AString,LOldStr,LNewStr);
 end;
 
 procedure TIdLogBase.Send(var ABuffer: TIdBytes);
@@ -158,7 +158,7 @@ begin
     inherited Send(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := SysUtil.DateTimeToStr(SysUtil.Now);
+      LMsg := Sys.DateTimeToStr(Sys.Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin

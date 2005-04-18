@@ -327,6 +327,7 @@ type
   end;//TIdCommand
 
 implementation
+uses IdSysUtils;
 
 { TIdCommandHandlers }
 
@@ -534,7 +535,7 @@ begin
 
   FCmdDelimiter := #32;
   FEnabled := IdEnabledDefault;
-  FName := ClassName + SysUtil.IntToStr(ID);
+  FName := ClassName + Sys.IntToStr(ID);
   FParamDelimiter := #32;
   FParseParams := IdParseParamsDefault;
   FResponse := TIdStringList.Create;
@@ -551,10 +552,10 @@ end;
 
 destructor TIdCommandHandler.Destroy;
 begin
-  SysUtil.FreeAndNil(FResponse);
-  SysUtil.FreeAndNil(FNormalReply);
-  SysUtil.FreeAndNil(FDescription);
-  SysUtil.FreeAndNil(FExceptionReply);
+  Sys.FreeAndNil(FResponse);
+  Sys.FreeAndNil(FNormalReply);
+  Sys.FreeAndNil(FDescription);
+  Sys.FreeAndNil(FExceptionReply);
   inherited Destroy;
 end;
 
@@ -616,9 +617,9 @@ end;
 
 destructor TIdCommand.Destroy;
 begin
-  SysUtil.FreeAndNil(FReply);
-  SysUtil.FreeAndNil(FResponse);
-  SysUtil.FreeAndNil(FParams);
+  Sys.FreeAndNil(FReply);
+  Sys.FreeAndNil(FResponse);
+  Sys.FreeAndNil(FParams);
   inherited;
 end;
 

@@ -436,7 +436,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC;
+  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC, IdSysUtils;
 
 function TIdTCPConnection.GetReplyClass:TIdReplyClass;
 begin
@@ -474,8 +474,8 @@ begin
     // This will free any managed IOHandlers
     IOHandler := nil;
   end;
-  SysUtil.FreeAndNil(FLastCmdResult);
-  SysUtil.FreeAndNil(FGreeting);
+  Sys.FreeAndNil(FLastCmdResult);
+  Sys.FreeAndNil(FGreeting);
   inherited Destroy;
 end;
 
@@ -565,7 +565,7 @@ procedure TIdTCPConnection.SetIOHandler(AValue: TIdIOHandler);
 begin
   if AValue <> IOHandler then begin
     if ManagedIOHandler and Assigned(IOHandler) then begin
-      SysUtil.FreeAndNil(FIOHandler);
+      Sys.FreeAndNil(FIOHandler);
     end;
     // Reset this if nil (to match nil, but not needed) or when a new IOHandler is specified
     // If true, code must set it after the IOHandler is set
@@ -604,7 +604,7 @@ begin
     WriteBufferOpen; try
       for i := 0 to AHeader.Count -1 do begin
         // No ReplaceAll flag - we only want to replace the first one
-        WriteLn(SysUtil.ReplaceOnlyFirst(AHeader[i], '=', ': '));
+        WriteLn(Sys.ReplaceOnlyFirst(AHeader[i], '=', ': '));
       end;
       WriteLn;
     finally WriteBufferClose; end;
@@ -669,7 +669,7 @@ begin
     end;
     //Note that FormattedReply uses an assign in it's property set method.
     FLastCmdResult.FormattedReply := LResponse;
-  finally SysUtil.FreeAndNil(LResponse); end;
+  finally Sys.FreeAndNil(LResponse); end;
 end;
 
 procedure TIdTCPConnection.WriteRFCStrings(AStrings: TIdStrings);

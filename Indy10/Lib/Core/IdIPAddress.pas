@@ -124,7 +124,7 @@ begin
   Result := 0;
   for i := 1 to Length(AValue) do
   begin
-    Result := Result * 8 + SysUtil.StrToIntDef(Copy(AValue, i, 1),0);
+    Result := Result * 8 + Sys.StrToInt(Copy(AValue, i, 1),0);
   end;
 end;
 
@@ -211,7 +211,7 @@ begin
         end;
       end;
     finally
-      SysUtil.FreeAndNil(LIP2);
+      Sys.FreeAndNil(LIP2);
     end;
   end;
 end;
@@ -260,10 +260,10 @@ begin
   Result := '';
   if FAddrType = Id_IPv4 then
   begin
-    Result := SysUtil.IntToStr((FIPv4 shr 24) and $FF)+'.';
-    Result := Result + SysUtil.IntToStr((FIPv4 shr 16) and $FF)+'.';
-    Result := Result + SysUtil.IntToStr((FIPv4 shr 8) and $FF)+'.';
-    Result := Result + SysUtil.IntToStr(FIPv4 and $FF);
+    Result := Sys.IntToStr((FIPv4 shr 24) and $FF)+'.';
+    Result := Result + Sys.IntToStr((FIPv4 shr 16) and $FF)+'.';
+    Result := Result + Sys.IntToStr((FIPv4 shr 8) and $FF)+'.';
+    Result := Result + Sys.IntToStr(FIPv4 and $FF);
   end;
 end;
 
@@ -273,9 +273,9 @@ begin
   Result := '';
   if FAddrType = Id_IPv6 then
   begin
-    Result := SysUtil.IntToHex(FIPv6[0], 4);
+    Result := Sys.IntToHex(FIPv6[0], 4);
     for i := 1 to 7 do begin
-      Result := Result + ':' + SysUtil.IntToHex(FIPv6[i], 4);
+      Result := Result + ':' + Sys.IntToHex(FIPv6[i], 4);
     end;
   end;
 end;
@@ -337,7 +337,7 @@ begin
       end
       else
       begin
-        Result :=  Result + IPv4MakeCardInRange(SysUtil.StrToInt64Def(LBuf,0), LParts);
+        Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64Def(LBuf,0), LParts);
       end;
     end
     else
@@ -352,7 +352,7 @@ begin
         else
         begin
           //this must be a decimal
-          Result :=  Result + IPv4MakeCardInRange(SysUtil.StrToInt64Def(LBuf,0), LParts);
+          Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64Def(LBuf,0), LParts);
         end;
       end
       else
@@ -381,7 +381,7 @@ begin
   VErr := (LAddress='');
   if not VErr then begin
     for i := 0 to 7 do begin
-      Result[i]:=SysUtil.StrToIntDef('$'+fetch(LAddress,':'),0);
+      Result[i]:=Sys.StrToInt('$'+fetch(LAddress,':'),0);
     end;
   end;
 end;
@@ -398,7 +398,7 @@ begin
     if LErr then
     begin
       //this is not a valid IPv4 address
-      SysUtil.FreeAndNil(Result);
+      Sys.FreeAndNil(Result);
     end
     else
     begin
@@ -495,11 +495,11 @@ begin
   end;
 
   // now start :-)
-  num := SysUtil.StrToIntDef('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
+  num := Sys.StrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
   if (num<0) or (num>65535) then begin
     exit; // huh? odd number...
   end;
-  Result := SysUtil.IntToHex(num,1)+':';
+  Result := Sys.IntToHex(num,1)+':';
 
   haddoublecolon := false;
   for p := 2 to colons do begin
@@ -515,50 +515,50 @@ begin
         Result := Result + '0:'; {do not localize}
       end;
     end else begin
-      num := SysUtil.StrToIntDef('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
+      num := Sys.StrToInt('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
       if (num<0) or (num>65535) then begin
         Result := '';
         exit; // huh? odd number...
       end;
-      Result := Result + SysUtil.IntToHex(num,1)+':';
+      Result := Result + Sys.IntToHex(num,1)+':';
     end;
   end; // end of colon separated part
 
   if dots = 0 then begin
-    num := SysUtil.StrToIntDef('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
+    num := Sys.StrToInt('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
     if (num<0) or (num>65535) then begin
       Result := '';
       exit; // huh? odd number...
     end;
-    Result := Result + SysUtil.IntToHex(num,1)+':';
+    Result := Result + Sys.IntToHex(num,1)+':';
   end;
 
   if dots > 0 then begin
-    num := SysUtil.StrToIntDef(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
+    num := Sys.StrToInt(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + SysUtil.IntToHex(num, 2);
-    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
+    Result := Result + Sys.IntToHex(num, 2);
+    num := Sys.StrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + SysUtil.IntToHex(num, 2)+':';
+    Result := Result + Sys.IntToHex(num, 2)+':';
 
-    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
+    num := Sys.StrToInt(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + SysUtil.IntToHex(num, 2);
-    num := SysUtil.StrToIntDef(Copy(LAddr, dotpos[3]+1, 3), -1);
+    Result := Result + Sys.IntToHex(num, 2);
+    num := Sys.StrToInt(Copy(LAddr, dotpos[3]+1, 3), -1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + SysUtil.IntToHex(num, 2)+':';
+    Result := Result + Sys.IntToHex(num, 2)+':';
   end;
   SetLength(Result, Length(Result)-1);
 end;

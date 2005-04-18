@@ -301,7 +301,7 @@ end;
 destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
-  SysUtil.FreeAndNil(FConnectionHandle);
+  Sys.FreeAndNil(FConnectionHandle);
   inherited;
 end;
 
@@ -341,10 +341,10 @@ procedure TIdSocketHandle.Bind;
 begin
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
-      raise EIdInvalidPortRange.Create(SysUtil.Format(RSInvalidPortRange
+      raise EIdInvalidPortRange.Create(Sys.Format(RSInvalidPortRange
        , [FClientPortMin, FClientPortMax]));
     end else if not BindPortReserved then begin
-      raise EIdCanNotBindPortInRange.Create(SysUtil.Format(RSCanNotBindRange
+      raise EIdCanNotBindPortInRange.Create(Sys.Format(RSCanNotBindRange
        , [FClientPortMin, FClientPortMax]));
     end;
   end else if not TryBind then begin
@@ -511,7 +511,7 @@ procedure TIdSocketHandle.SetHandle(AHandle: TIdStackSocketHandle);
 begin
   FHandle := AHandle;
   FHandleAllocated := Handle <> Id_INVALID_SOCKET;
-  SysUtil.FreeAndNil(FReadSocketList);
+  Sys.FreeAndNil(FReadSocketList);
   if HandleAllocated then begin
     FReadSocketList := TIdSocketList.CreateSocketList;
     FReadSocketList.Add(Handle);

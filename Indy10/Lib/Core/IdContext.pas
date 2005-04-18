@@ -140,7 +140,7 @@ begin
   if FContextList <> nil then begin
     FContextList.Remove(Self);
   end;
-  SysUtil.FreeAndNil(FConnection);
+  Sys.FreeAndNil(FConnection);
   inherited Destroy;
 end;
 

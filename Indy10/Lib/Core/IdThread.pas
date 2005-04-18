@@ -161,7 +161,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe;
+  IdGlobal, IdException, IdSysUtils, IdYarn, IdTask, IdThreadSafe;
 
 const
   IdWaitAllThreadsTerminatedCount = 1 * 60 * 1000;
@@ -451,7 +451,7 @@ begin
     // terminated after the Yarn was assigned but the thread was not
     // re-started, so the Yarn would not be freed in Cleanup()
     try
-      SysUtil.FreeAndNil(FYarn);
+      Sys.FreeAndNil(FYarn);
     finally
       // Protect FLock if thread was resumed by Start Method and we are still there.
       // This usually happens if Exception was raised in BeforeRun for some reason
@@ -459,7 +459,7 @@ begin
       FLock.Enter; try
       finally FLock.Leave; end;
 
-      SysUtil.FreeAndNil(FLock);
+      Sys.FreeAndNil(FLock);
       GThreadCount.Decrement;
     end;
   end;
@@ -532,9 +532,9 @@ end;
 procedure TIdThread.Cleanup;
 begin
   Exclude(FOptions, itoReqCleanup);
-  SysUtil.FreeAndNil(FYarn);
+  Sys.FreeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
-    SysUtil.FreeAndNil(FData);
+    Sys.FreeAndNil(FData);
   end;
 end;
 
@@ -579,7 +579,7 @@ end;
 
 destructor TIdThreadWithTask.Destroy;
 begin
-  SysUtil.FreeAndNil(FTask);
+  Sys.FreeAndNil(FTask);
   inherited;
 end;
 

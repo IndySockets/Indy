@@ -222,7 +222,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdSocketHandle, IdIOHandlerSocket, IdExceptionCore, IdStack;
+  IdGlobal, IdSocketHandle, IdIOHandlerSocket, IdExceptionCore, IdStack, IdSysUtils;
 
 type
   TIdIOHandlerStack = class(TIdIOHandlerSocket)

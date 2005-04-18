@@ -208,7 +208,7 @@ function TIdReplyRFC.CheckIfCodeIsValid(const ACode: string): Boolean;
 var
   LCode: Integer;
 begin
-  LCode := SysUtil.StrToIntDef(ACode, 0);
+  LCode := Sys.StrToInt(ACode, 0);
   {Replaced 600 with 999 because some developers may want 6xx, 7xx, and 8xx reply
   codes for their protocols.  It also turns out that RFC 2228 defines 6xx reply codes.
 
@@ -217,7 +217,7 @@ begin
    A new class of reply types (6yz) is also introduced for protected
    replies.
   }
-  Result := ((LCode >= 100) and (LCode < 1000)) or (SysUtil.Trim(ACode) = '');
+  Result := ((LCode >= 100) and (LCode < 1000)) or (Sys.Trim(ACode) = '');
 end;
 
 function TIdReplyRFC.GetFormattedReply: TIdStrings;
@@ -228,7 +228,7 @@ begin
   Result := GetFormattedReplyStrings;
   LCode := NumericCode;
   if LCode > 0 then begin
-    LCodeStr := SysUtil.IntToStr(LCode);
+    LCodeStr := Sys.IntToStr(LCode);
     if Text.Count > 0 then begin
       for I := 0 to Text.Count - 1 do begin
         if I < Text.Count - 1 then begin
@@ -270,7 +270,7 @@ var
 begin
   Clear;
   if AValue.Count > 0 then begin
-    s := SysUtil.Trim(Copy(AValue[0], 1, 3));
+    s := Sys.Trim(Copy(AValue[0], 1, 3));
     Code := s;
     for i := 0 to AValue.Count - 1 do begin
       Text.Add(Copy(AValue[i], 5, MaxInt));
@@ -311,7 +311,7 @@ begin
     // RLebeau - in cases where the AReply.Code is the same as the
     // generic code, ignore the AReply as it doesn't have any text
     // to assign, or else the code wouldn't be this far
-    LReply := Find(SysUtil.IntToStr(LGenericNumCode), AReply);
+    LReply := Find(Sys.IntToStr(LGenericNumCode), AReply);
     if LReply = nil then begin
       // If no generic was found, then use defaults.
       case LGenericNumCode of

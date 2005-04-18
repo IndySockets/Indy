@@ -208,7 +208,7 @@ type
 implementation
 
 uses
-  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore;
+  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, IdSysUtils;
 
 { TIdSchedulerOfThread }
 
@@ -234,7 +234,7 @@ begin
   EIdSchedulerMaxThreadsExceeded.IfTrue(
    (FMaxThreads <> 0) and (ActiveYarns.IsCountLessThan(FMaxThreads + 1) = False)
    , RSchedMaxThreadEx);
-  Result := TIdThreadWithTask.Create(nil, SysUtil.Format('%s User', [Name])); {do not localize}
+  Result := TIdThreadWithTask.Create(nil, Sys.Format('%s User', [Name])); {do not localize}
   if ThreadPriority <> tpNormal then begin
     SetThreadPriority(Result, ThreadPriority);
   end;

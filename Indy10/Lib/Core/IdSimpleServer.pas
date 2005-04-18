@@ -89,7 +89,7 @@ interface
 
 uses
   Classes, IdException,
-  IdGlobal, IdSocketHandle, IdTCPConnection, IdStackConsts, IdIOHandler;
+  IdGlobal, IdSocketHandle, IdTCPConnection, IdStackConsts, IdIOHandler, IdSysUtils;
 
 const
   ID_ACCEPT_WAIT = 1000;

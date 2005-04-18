@@ -88,13 +88,13 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore;
+  IdGlobal, IdException, IdResourceStringsCore, IdSysUtils;
 
 { TIdLogFile }
 
 procedure TIdLogFile.Close;
 begin
-  SysUtil.FreeAndNil(FFileStream);
+  Sys.FreeAndNil(FFileStream);
 end;
 
 procedure TIdLogFile.LogReceivedData(AText, AData: string);
@@ -123,9 +123,9 @@ begin
       FFileStream := TIdStreamVCL.Create(LStream, True);
     except
       if FFileStream <> nil then begin
-        SysUtil.FreeAndNil(FFileStream);
+        Sys.FreeAndNil(FFileStream);
       end else begin
-        SysUtil.FreeAndNil(LStream);
+        Sys.FreeAndNil(LStream);
       end;
       raise;
     end;
@@ -154,10 +154,10 @@ begin
 
   if LogTime then
   begin
-    sPre := SysUtil.DateTimeToStr(SysUtil.Now) + ' ' ;      {Do not translate}
+    sPre := Sys.DateTimeToStr(Sys.Now) + ' ' ;      {Do not translate}
   end;
 
-  sData := SysUtil.Format(AFormat, AArgs);
+  sData := Sys.Format(AFormat, AArgs);
   if FReplaceCRLF then begin
     sData :=  ReplaceCR(sData);
   end;

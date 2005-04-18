@@ -115,7 +115,7 @@ destructor TIdSchedulerOfThreadPool.Destroy;
 begin
   inherited Destroy;
   // Must be after, inherited calls TerminateThreads
-  SysUtil.FreeAndNil(FThreadPool);
+  Sys.FreeAndNil(FThreadPool);
 end;
 
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;

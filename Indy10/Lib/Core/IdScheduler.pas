@@ -115,7 +115,7 @@ uses
 
 destructor TIdScheduler.Destroy;
 begin
-  SysUtil.FreeAndNil(FActiveYarns);
+  Sys.FreeAndNil(FActiveYarns);
   inherited;
 end;
 

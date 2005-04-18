@@ -231,8 +231,8 @@ begin
     ReceiveStream.Free;
     SendStream.Free;
   end;
-  SysUtil.FreeAndNil(FReceiveIdStream);
-  SysUtil.FreeAndNil(FSendIdStream);
+  Sys.FreeAndNil(FReceiveIdStream);
+  Sys.FreeAndNil(FSendIdStream);
 end;
 
 function TIdIOHandlerStream.Connected: Boolean;
@@ -357,7 +357,7 @@ end;
 
 procedure TIdIOHandlerStream.SetReceiveStream(AStream: TStream);
 begin
-  SysUtil.FreeAndNil(FReceiveIdStream);
+  Sys.FreeAndNil(FReceiveIdStream);
   if AStream <> nil then begin
     FReceiveIdStream := TIdStreamVCL.Create(AStream);
   end;
@@ -365,7 +365,7 @@ end;
 
 procedure TIdIOHandlerStream.SetSendStream(AStream: TStream);
 begin
-  SysUtil.FreeAndNil(FSendIdStream);
+  Sys.FreeAndNil(FSendIdStream);
   if AStream <> nil then begin
     FSendIdStream := TIdStreamVCL.Create(AStream);
   end;
