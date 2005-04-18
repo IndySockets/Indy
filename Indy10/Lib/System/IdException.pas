@@ -38,7 +38,10 @@
 unit IdException;
 
 interface
-
+{$I IdCompilerDefines.inc}
+{$IFNDEF DOTNET}
+uses IdSysUtilsWin32;
+{$ENDIF}
 type
   // EIdExceptionBase is the base class which extends Exception. It is separate from EIdException
   // to allow other users of Indy to use EIdExceptionBase while still being able to separate from

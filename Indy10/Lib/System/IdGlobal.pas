@@ -663,8 +663,17 @@ uses
   {$IFNDEF DotNetExclude}
   SyncObjs,
   {$ENDIF}
+  IdException,
   Classes,
-  IdTStrings, IdException;
+  IdTStrings;
+
+type
+  {$IFNDEF DotNet}
+  EAbort = IdSysUtilsWin32.EAbort;
+
+  {$ELSE}
+   EAbort = IdSysUtilsNet.EAbort;
+  {$ENDIF}
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -725,6 +734,7 @@ type
   SysUtil = TIdSysUtilsNet;
   {$ELSE}
   SysUtil = TIdSysUtilsWin32;
+  Exception = IdSysUtilsWin32.Exception;
   {$ENDIF}
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
@@ -732,7 +742,14 @@ type
   public
     constructor Create(const ASrc: string); reintroduce;
   end;
-
+  TLogFileStream = class(TFileStream)
+  public
+    constructor Create(AFile : String);
+  end;
+  TReadFileExclusiveStream = class(TFileStream)
+  public
+    constructor Create(AFile : String);
+  end;
   {$IFDEF DotNet}
   // dotNET implementation
   TWaitResult = (wrSignaled, wrTimeout, wrAbandoned, wrError);
@@ -1093,6 +1110,64 @@ uses
 var
   GIdPorts: TList;
 {$ENDIF}
+
+//taken from SysUtils
+{$IFDEF DOTNET}
+const
+  fmOpenRead       = $0000;
+  fmOpenWrite      = $0001;
+  fmOpenReadWrite  = $0002;
+
+  fmShareCompat    = $0000 platform; // DOS compatibility mode is not portable
+  fmShareExclusive = $0010;
+  fmShareDenyWrite = $0020;
+  fmShareDenyRead  = $0030 platform; // write-only not supported on all platforms
+  fmShareDenyNone  = $0040;
+{$ELSE}
+{$IFDEF LINUX}
+const
+  fmOpenRead       = O_RDONLY;
+  fmOpenWrite      = O_WRONLY;
+  fmOpenReadWrite  = O_RDWR;
+//  fmShareCompat not supported
+  fmShareExclusive = $0010;
+  fmShareDenyWrite = $0020;
+//  fmShareDenyRead  not supported
+  fmShareDenyNone  = $0030;
+{$ENDIF}
+{$IFDEF MSWINDOWS}
+const
+  fmOpenRead       = $0000;
+  fmOpenWrite      = $0001;
+  fmOpenReadWrite  = $0002;
+
+  fmShareCompat    = $0000 platform; // DOS compatibility mode is not portable
+  fmShareExclusive = $0010;
+  fmShareDenyWrite = $0020;
+  fmShareDenyRead  = $0030 platform; // write-only not supported on all platforms
+  fmShareDenyNone  = $0040;
+{$ENDIF}
+{$ENDIF}
+
+constructor TLogFileStream.Create(AFile : String);
+var  LFlags: Word;
+begin
+  if SysUtil.FileExists(AFile) then
+  begin
+    LFlags := fmOpenReadWrite or fmShareDenyWrite;
+  end else begin
+    LFlags := fmCreate;
+  end;
+  inherited Create(AFile, LFlags);
+  if LFlags <> fmCreate then begin
+    Position := Size;
+  end;
+end;
+
+constructor TReadFileExclusiveStream.Create(AFile : String);
+begin
+  inherited Create(AFile,fmOpenRead or fmShareDenyWrite);
+end;
 
 function IsASCIILDH(const AByte: Byte): Boolean;
 
