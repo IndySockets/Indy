@@ -186,7 +186,7 @@ interface
 uses
   Classes,
   IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack, IdTStrings,
-  SyncObjs,
+  SyncObjs, IdSysUtils,
   Windows;
 
 type
@@ -301,8 +301,7 @@ var
 implementation
 
 uses
-  IdResourceStrings, IdWship6,
-  SysUtils;
+  IdResourceStrings, IdWship6;
 
 var
   GStarted: Boolean = False;
@@ -566,7 +565,7 @@ begin
     Result := Ntohs(ps^.s_port);
   end else begin
     try
-      Result := StrToInt(AServiceName);
+      Result := Sys.StrToInt(AServiceName);
     except
       on EConvertError do begin
         raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
@@ -793,7 +792,7 @@ begin
     Result :=  inherited WSTranslateSocketErrorMsg(AErr);
     EXIT;
   end;
-  Result := Format(RSStackError, [AErr, Result]);
+  Result := Sys.Format(RSStackError, [AErr, Result]);
 end;
 
 function TIdSocketListWindows.SelectRead(const ATimeout: Integer): Boolean;
@@ -1079,7 +1078,7 @@ end;
 initialization
   GSocketListClass := TIdSocketListWindows;
   // Check if we are running under windows NT
-  if (SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT) then begin
+  if (Sys.Win32Platform = VER_PLATFORM_WIN32_NT) then begin
     GServeFileProc := ServeFile;
   end;
 finalization

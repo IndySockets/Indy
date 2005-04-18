@@ -38,55 +38,13 @@
 unit IdException;
 
 interface
-{$I IdCompilerDefines.inc}
-{$IFNDEF DOTNET}
-uses IdSysUtilsWin32;
-{$ENDIF}
+uses IdSysUtils;
+
 type
   // EIdExceptionBase is the base class which extends Exception. It is separate from EIdException
   // to allow other users of Indy to use EIdExceptionBase while still being able to separate from
   // EIdException.
-  EIdExceptionBase = class(Exception)
-  public
-  {
-  The constructor must be virtual for Delphi NET if you want to call it with class methods.
-  Otherwise, it will not compile in that IDE. Also it's overloaded so that it doesn't close
-  the other methods declared by the DotNet exception (particularly InnerException constructors)
-  }
-    constructor Create(
-      AMsg: string
-      ); overload; virtual;
-    class procedure IfAssigned(
-      const ACheck: TObject;
-      const AMsg: string = ''
-      );
-    class procedure IfFalse(
-      const ACheck: Boolean;
-      const AMsg: string = ''
-      );
-    class procedure IfNotAssigned(
-      const ACheck: TObject;
-      const AMsg: string = ''
-      );
-    class procedure IfNotInRange(
-      const AValue: Integer;
-      const AMin: Integer;
-      const AMax: Integer;
-      const AMsg: string = ''
-      );
-    class procedure IfTrue(
-      const ACheck: Boolean;
-      const AMsg: string = ''
-      );
-    class procedure Toss(
-      const AMsg: string
-      );
-  end;
 
-  // ALL Indy exceptions must descend from EIdException or descendants of it and not directly
-  // from EIdExceptionBase. This is the class that differentiates Indy exceptions from non Indy
-  // exceptions
-  EIdException = class(EIdExceptionBase);
   TClassIdException = class of EIdException;
 
   // You can add EIdSilentException to the list of ignored exceptions to reduce debugger "trapping"
@@ -117,59 +75,5 @@ type
   EIdInvalidIPAddress = class(EIdSocketHandleError);
 
 implementation
-
-{ EIdExceptionBase }
-
-constructor EIdExceptionBase.Create(AMsg : String);
-begin
-  inherited Create(AMsg);
-end;
-
-class procedure EIdExceptionBase.IfAssigned(const ACheck: TObject;
-  const AMsg: string);
-begin
-  if ACheck <> nil then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdExceptionBase.IfFalse(const ACheck: Boolean; const AMsg: string);
-begin
-  if not ACheck then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdExceptionBase.IfNotAssigned(const ACheck: TObject;
-  const AMsg: string);
-begin
-  if ACheck = nil then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdExceptionBase.IfNotInRange(
-  const AValue: Integer;
-  const AMin: Integer;
-  const AMax: Integer;
-  const AMsg: string = ''
-  );
-begin
-  if (AValue < AMin) or (AValue > AMax) then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdExceptionBase.IfTrue(const ACheck: Boolean; const AMsg: string);
-begin
-  if ACheck then begin
-    Toss(AMsg);
-  end;
-end;
-
-class procedure EIdExceptionBase.Toss(const AMsg: string);
-begin
-  raise Create(AMsg);
-end;
 
 end.

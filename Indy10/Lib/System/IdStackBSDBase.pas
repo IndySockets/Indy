@@ -194,7 +194,7 @@ interface
 uses
   Classes,
   IdException, IdStack, IdStackConsts,IdTStrings, IdGlobal,
-  SyncObjs;
+  SyncObjs, IdSysUtils;
 
 type
   EIdNotASocket = class(EIdSocketError);
@@ -333,8 +333,7 @@ uses
   {$IFDEF LINUX}     IdStackLinux, {$ENDIF}
   {$IFDEF MSWINDOWS} IdStackWindows, {$ENDIF}
   {$IFDEF DOTNET}    IdStackDotNet, {$ENDIF}
-  IdResourceStrings,
-  SysUtils;
+  IdResourceStrings;
 
 { TIdStackBSDBase }
 
@@ -346,14 +345,14 @@ begin
   case AIPVersion of
     Id_IPv4: begin
       with TIdIn4Addr(AInAddr).S_un_b do begin
-        result := IntToStr(s_b1) + '.' + IntToStr(s_b2) + '.' + IntToStr(s_b3) + '.'    {Do not Localize}
-         + IntToStr(s_b4);
+        result := Sys.IntToStr(s_b1) + '.' + Sys.IntToStr(s_b2) + '.' + Sys.IntToStr(s_b3) + '.'    {Do not Localize}
+         + Sys.IntToStr(s_b4);
       end;
     end;
     Id_IPv6: begin
       Result := '';
       for i := 0 to 7 do begin
-        Result := Result + IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]),1)+':';
+        Result := Result + Sys.IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]),1)+':';
       end;
       SetLength(Result,Length(Result)-1);
     end;
@@ -371,17 +370,17 @@ begin
   case AIPVersion of
     Id_IPv4: begin
       with TIdIn4Addr(AInAddr).S_un_b do begin
-        s_b1 := StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b2 := StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b3 := StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b4 := StrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b1 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b2 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b3 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b4 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
       end;
     end;
     Id_IPv6: begin
       AIP := MakeCanonicalIPv6Address(AIP);
       with TIdIn6Addr(AInAddr) do begin
         for i := 0 to 7 do begin
-          s6_addr16[i] := HostToNetwork(StrToInt('$'+Fetch(AIP, ':')));    {Do not Localize}
+          s6_addr16[i] := HostToNetwork(Sys.StrToInt('$'+Fetch(AIP, ':')));    {Do not Localize}
         end;
       end;
     end;
@@ -522,7 +521,7 @@ begin
     Id_WSAEHOSTUNREACH: Result    := RSStackEHOSTUNREACH;
     Id_WSAENOTEMPTY: Result       := RSStackENOTEMPTY;
   end;
-  Result := Format(RSStackError, [AErr, Result]);
+  Result := Sys.Format(RSStackError, [AErr, Result]);
 end;
 
 procedure TIdStackBSDBase.IPVersionUnsupported;
@@ -538,7 +537,7 @@ end;
 
 destructor TIdStackBSDBase.Destroy;
 begin
-  FreeAndNil(FLocalAddresses);
+  Sys.FreeAndNil(FLocalAddresses);
   inherited;
 end;
 
