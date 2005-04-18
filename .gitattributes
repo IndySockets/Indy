@@ -102,6 +102,7 @@ Indy10/Lib/Core/IndyCore70.RES -text svneol=unset#unset
 Indy10/Lib/Core/IndyCore70.dpk -text
 Indy10/Lib/Core/IndyCore70.rc -text
 Indy10/Lib/Core/IndyCore90.RES -text svneol=unset#unset
+Indy10/Lib/Core/IndyCore90.bdsproj -text
 Indy10/Lib/Core/IndyCore90.dpk -text
 Indy10/Lib/Core/IndyCore90.rc -text
 Indy10/Lib/Core/IndyCore90Net.bdsproj -text
