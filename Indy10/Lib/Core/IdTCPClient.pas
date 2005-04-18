@@ -253,8 +253,7 @@ type
 implementation
 
 uses
-  IdComponent, IdResourceStringsCore, IdIOHandlerSocket,
-  SysUtils;
+  IdComponent, IdResourceStringsCore, IdIOHandlerSocket;
 
 { TIdTCPClientCustom }
 

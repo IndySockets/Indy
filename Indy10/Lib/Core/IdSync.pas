@@ -115,9 +115,6 @@ type
   
 implementation
 
-uses
-  SysUtils;
-
 type
   // This is done with a NotifyThread instead of PostMessage because starting
   // with D6/Kylix Borland radically modified the mecanisms for .Synchronize.
@@ -165,7 +162,7 @@ begin
     GNotifyThread.FEvent.SetEvent;
     GNotifyThread.WaitFor;
     // Instead of FreeOnTerminate so we can set the reference to nil
-    FreeAndNil(GNotifyThread);
+    SysUtil.FreeAndNil(GNotifyThread);
   end;
 end;
 
@@ -229,8 +226,8 @@ begin
       Delete(0);
     end;
   finally FNotifications.UnlockList; end;
-  FreeAndNil(FNotifications);
-  FreeAndNil(FEvent);
+  SysUtil.FreeAndNil(FNotifications);
+  SysUtil.FreeAndNil(FEvent);
   inherited Destroy;
 end;
 
@@ -252,7 +249,7 @@ begin
         LNotify := TIdNotify(LNotifications.Items[0]);
       finally FNotifications.UnlockList; end;
       Synchronize(LNotify.DoNotify);
-      FreeAndNil(LNotify);
+      SysUtil.FreeAndNil(LNotify);
       with FNotifications.LockList do try
         Delete(0);
       finally FNotifications.UnlockList; end;

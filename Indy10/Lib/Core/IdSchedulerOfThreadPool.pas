@@ -107,8 +107,7 @@ type
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 { TIdSchedulerOfThreadPool }
 
@@ -116,7 +115,7 @@ destructor TIdSchedulerOfThreadPool.Destroy;
 begin
   inherited Destroy;
   // Must be after, inherited calls TerminateThreads
-  FreeAndNil(FThreadPool);
+  SysUtil.FreeAndNil(FThreadPool);
 end;
 
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;

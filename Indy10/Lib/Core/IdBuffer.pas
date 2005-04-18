@@ -468,8 +468,8 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdStack, //needed for byte order functions
-  SysUtils;
+  IdStack; //needed for byte order functions
+
 
 { TIdBuffer }
 
@@ -484,7 +484,7 @@ begin
     VByteCount := Size+AIndex;
   end else begin
     EIdNotEnoughDataInBuffer.IfTrue(VByteCount > (Size+AIndex), RSNotEnoughDataInBuffer + ' ('
-     + IntToStr(VByteCount) + '/' + IntToStr(Size) + ')');
+     + SysUtil.IntToStr(VByteCount) + '/' + SysUtil.IntToStr(Size) + ')');
   end;
 end;
 

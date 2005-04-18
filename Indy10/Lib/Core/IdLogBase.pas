@@ -53,6 +53,7 @@ type
     procedure LogSentData(AText: string; AData: string); virtual; abstract;
     procedure SetActive(AValue: Boolean); virtual;
     procedure Loaded; override;
+    function ReplaceCR(const AString : String) : String;
   public
     procedure Open; virtual;
     procedure Close; virtual;
@@ -70,9 +71,16 @@ type
 implementation
 
 uses
-  IdResourceStringsCore,
-  SysUtils;
+  IdResourceStringsCore;
 
+const
+  LOldStr : array [0..2] of string =
+    ( EOL,  CR,
+      LF);
+  LNewStr : array [0..2] of string =
+     (RSLogEOL,
+     RSLogCR,
+     RSLogLF);
 { TIdLogBase }
 
 procedure TIdLogBase.Close;
@@ -126,16 +134,19 @@ begin
     inherited Receive(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := DateTimeToStr(Now);
+      LMsg := SysUtil.DateTimeToStr(SysUtil.Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin
-      s := StringReplace(s, EOL, RSLogEOL, [rfReplaceAll]);
-      s := StringReplace(s, CR, RSLogCR, [rfReplaceAll]);
-      s := StringReplace(s, LF, RSLogLF, [rfReplaceAll]);
+      s :=  ReplaceCR(S);
     end;
     LogReceivedData(LMsg, s);
   end;
+end;
+
+function TIdLogBase.ReplaceCR(const AString: String): String;
+begin
+  Result := SysUtil.StringReplace(AString,LOldStr,LNewStr);
 end;
 
 procedure TIdLogBase.Send(var ABuffer: TIdBytes);
@@ -147,13 +158,11 @@ begin
     inherited Send(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := DateTimeToStr(Now);
+      LMsg := SysUtil.DateTimeToStr(SysUtil.Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin
-      s := StringReplace(s, EOL, RSLogEOL, [rfReplaceAll]);
-      s := StringReplace(s, CR, RSLogCR, [rfReplaceAll]);
-      s := StringReplace(s, LF, RSLogLF, [rfReplaceAll]);
+      s := ReplaceCR(S);
     end;
     LogSentData(LMsg, s);
   end;

@@ -109,13 +109,13 @@ type
 implementation
 
 uses
-  SysUtils, IdGlobal;
+  IdGlobal;
 
 { TIdScheduler }
 
 destructor TIdScheduler.Destroy;
 begin
-  FreeAndNil(FActiveYarns);
+  SysUtil.FreeAndNil(FActiveYarns);
   inherited;
 end;
 

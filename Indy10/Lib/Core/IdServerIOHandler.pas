@@ -50,8 +50,7 @@ interface
 uses
   Classes,
   IdSocketHandle, IdComponent, IdIOHandlerStack, IdStackConsts, IdIOHandler,
-  IdThread, IdScheduler, IdYarn,
-  SysUtils;
+  IdThread, IdScheduler, IdYarn;
 
 type
   TIdServerIOHandler = class(TIdComponent)

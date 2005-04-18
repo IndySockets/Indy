@@ -218,8 +218,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdResourceStringsCore,
-  SysUtils;
+  IdGlobal, IdResourceStringsCore;
 
 { TIdReply }
 
@@ -261,8 +260,8 @@ end;
 
 destructor TIdReply.Destroy;
 begin
-  FreeAndNil(FText);
-  FreeAndNil(FFormattedReply);
+  SysUtil.FreeAndNil(FText);
+  SysUtil.FreeAndNil(FFormattedReply);
   inherited;
 end;
 
@@ -288,7 +287,7 @@ end;
 
 procedure TIdReply.SetNumericCode(const AValue: Integer);
 begin
-  Code := IntToStr(AValue);
+  Code := SysUtil.IntToStr(AValue);
 end;
 
 procedure TIdReply.SetText(const AValue: TIdStrings);
@@ -298,12 +297,12 @@ end;
 
 procedure TIdReply.SetReply(const ACode: Integer; const AText: string);
 begin
-  SetReply(IntToStr(ACode), AText);
+  SetReply(SysUtil.IntToStr(ACode), AText);
 end;
 
 function TIdReply.GetNumericCode: Integer;
 begin
-  Result := StrToIntDef(Code, 0);
+  Result := SysUtil.StrToIntDef(Code, 0);
 end;
 
 procedure TIdReply.SetCode(const AValue: string);
@@ -311,7 +310,7 @@ var
   LMatchedReply: TIdReply;
 begin
   if FCode <> AValue then begin
-    EIdException.IfFalse(CheckIfCodeIsValid(AValue), Format(RSReplyInvalidCode, [AValue]));
+    EIdException.IfFalse(CheckIfCodeIsValid(AValue), SysUtil.Format(RSReplyInvalidCode, [AValue]));
     // Only check for duplicates if we are in a collection. NormalReply etc are not in collections
     // Also dont check FReplyTexts, as non members can be duplicates of members
     if Collection <> nil then begin
@@ -370,7 +369,7 @@ end;
 
 function TIdReplies.Add(ACode: Integer; AText: string): TIdReply;
 begin
-  Result := Add(IntToStr(ACode), AText);
+  Result := Add(SysUtil.IntToStr(ACode), AText);
 end;
 
 function TIdReplies.Add(ACode, AText: string): TIdReply;
@@ -379,7 +378,7 @@ begin
   try
     Result.SetReply(ACode, AText);
   except
-    FreeAndNil(Result);
+    SysUtil.FreeAndNil(Result);
     raise;
   end;
 end;

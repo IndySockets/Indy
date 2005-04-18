@@ -251,8 +251,7 @@ implementation
 uses
   IdStack,
   IdStackConsts,
-  IdSocks,
-  SysUtils;
+  IdSocks;
 
 { TIdIOHandlerSocket }
 
@@ -295,10 +294,10 @@ destructor TIdIOHandlerSocket.Destroy;
 begin
   if Assigned(FTransparentProxy) then begin
     if FTransparentProxy.Owner = nil then begin
-      FreeAndNil(FTransparentProxy);
+      SysUtil.FreeAndNil(FTransparentProxy);
     end;
   end;
-  FreeAndNil(FBinding);
+  SysUtil.FreeAndNil(FBinding);
   inherited Destroy;
 end;
 
@@ -327,7 +326,7 @@ function TIdIOHandlerSocket.GetDestination: string;
 begin
   Result := Host;
   if (Port <> DefaultPort) and (Port > 0) then begin
-    Result := Host + ':' + IntToStr(Port);
+    Result := Host + ':' + SysUtil.IntToStr(Port);
   end;
 end;
 
@@ -350,10 +349,10 @@ procedure TIdIOHandlerSocket.SetDestination(const AValue: string);
 var LPortStart:integer;
 begin
   // Bas Gooijen 06-Dec-2002: Changed to search the last ':', instead of the first:
-  LPortStart := LastDelimiter(':', AValue);
+  LPortStart := SysUtil.LastDelimiter(':', AValue);
   if LPortStart > 0 then begin
     Host := Copy(AValue,1,LPortStart-1);
-    Port := StrToIntDef(Trim(Copy(AValue, LPortStart + 1, $FF)), DefaultPort);
+    Port := SysUtil.StrToIntDef(SysUtil.Trim(Copy(AValue, LPortStart + 1, $FF)), DefaultPort);
   end;
 end;
 
@@ -406,7 +405,7 @@ begin
       // LClass := Pointer(AProxy.ClassType);
       if Assigned(FTransparentProxy) then begin
         if FTransparentProxy.ClassType <> LClass then begin
-          FreeAndNIL(FTransparentProxy);
+          SysUtil.FreeAndNIL(FTransparentProxy);
           FTransparentProxy := LClass.Create(NIL);
         end;
       end else begin
@@ -415,7 +414,7 @@ begin
       FTransparentProxy.Assign(AProxy);
     end else begin
       if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-        FreeAndNIL(FTransparentProxy);//tmp obj
+        SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
       end;
       FTransparentProxy := AProxy;
       FTransparentProxy.FreeNotification(SELF);
@@ -423,7 +422,7 @@ begin
   end
   else begin
     if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      FreeAndNIL(FTransparentProxy);//tmp obj
+      SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
     end else begin
       FTransparentProxy := NIL; //remove link
     end;

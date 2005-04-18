@@ -250,8 +250,7 @@ implementation
 
 uses
   IdAntiFreezeBase, IdResourceStringsCore, IdResourceStrings, IdStackConsts, IdException,
-  IdTCPConnection, IdComponent, IdIOHandler,
-  SysUtils;
+  IdTCPConnection, IdComponent, IdIOHandler;
 
 type
   TIdConnectThread = class(TThread)

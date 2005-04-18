@@ -123,8 +123,7 @@ type
 
 implementation
 uses
-  IdResourceStringsCore,
-  SysUtils;
+  IdResourceStringsCore;
 
 { TIdIntercept }
 
@@ -177,7 +176,7 @@ Begin
   LIntercept := AValue;
   while Assigned(LIntercept) do begin
     if LIntercept = SELF then begin //recursion
-      raise EIdInterceptCircularLink.Create(Format(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
+      raise EIdInterceptCircularLink.Create(SysUtil.Format(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
     end;
     LIntercept := LIntercept.Intercept;
   end;

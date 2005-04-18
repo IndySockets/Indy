@@ -127,7 +127,7 @@ type
   end;
 
 implementation
-uses IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts, SysUtils;
+uses IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts;
 
 { TIdUDPClient }
 
@@ -409,7 +409,7 @@ begin
       // LClass := Pointer(AProxy.ClassType);
       if Assigned(FTransparentProxy) then begin
         if FTransparentProxy.ClassType <> LClass then begin
-          FreeAndNIL(FTransparentProxy);
+          SysUtil.FreeAndNil(FTransparentProxy);
           FTransparentProxy := LClass.Create(NIL);
         end;
       end else begin
@@ -419,7 +419,7 @@ begin
     end else begin
       if Assigned(FTransparentProxy) then begin
         if NOT Assigned(FTransparentProxy.Owner) then begin
-          FreeAndNIL(FTransparentProxy);//tmp obj
+          SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
         end;
       end;
       FTransparentProxy := AProxy;
@@ -428,7 +428,7 @@ begin
   end
   else begin
     if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      FreeAndNIL(FTransparentProxy);//tmp obj
+      SysUtil.FreeAndNIL(FTransparentProxy);//tmp obj
     end else begin
       FTransparentProxy := NIL; //remove link
     end;

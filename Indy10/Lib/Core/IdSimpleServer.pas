@@ -141,8 +141,7 @@ type
 implementation
 
 uses
-  IdIOHandlerStack, IdIOHandlerSocket, IdStack,
-  SysUtils;
+  IdIOHandlerStack, IdIOHandlerSocket, IdStack;
 
 { TIdSimpleServer }
 

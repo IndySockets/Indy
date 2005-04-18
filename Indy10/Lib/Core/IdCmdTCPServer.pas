@@ -185,7 +185,7 @@ unit IdCmdTCPServer;
 interface
 
 uses
-  Classes, SysUtils, IdContext, IdReply, IdCommandHandlers, IdTCPServer, IdTStrings,
+  Classes, IdContext, IdReply, IdCommandHandlers, IdTCPServer, IdTStrings,
   IdIOHandler;
 
 type
@@ -284,13 +284,13 @@ end;
 destructor TIdCmdTCPServer.Destroy;
 begin
   inherited Destroy;
-  FreeAndNil(FReplyUnknownCommand);
-  FreeAndNil(FReplyTexts);
-  FreeAndNil(FMaxConnectionReply);
-  FreeAndNil(FHelpReply);
-  FreeAndNil(FGreeting);
-  FreeAndNil(FExceptionReply);
-  FreeAndNil(FCommandHandlers);
+  SysUtil.FreeAndNil(FReplyUnknownCommand);
+  SysUtil.FreeAndNil(FReplyTexts);
+  SysUtil.FreeAndNil(FMaxConnectionReply);
+  SysUtil.FreeAndNil(FHelpReply);
+  SysUtil.FreeAndNil(FGreeting);
+  SysUtil.FreeAndNil(FExceptionReply);
+  SysUtil.FreeAndNil(FCommandHandlers);
 end;
 
 procedure TIdCmdTCPServer.DoAfterCommandHandler(ASender: TIdCommandHandlers;
@@ -344,7 +344,9 @@ begin
     LReply.Assign(ReplyUnknownCommand);
     LReply.Text.Add(ALine);
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
-  finally FreeAndNil(LReply); end;
+  finally
+    SysUtil.FreeAndNil(LReply);
+  end;
 end;
 
 procedure TIdCmdTCPServer.InitializeCommandHandlers;
@@ -364,7 +366,7 @@ begin
       LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
       SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
     finally
-      FreeAndNil(LGreeting);
+      SysUtil.FreeAndNil(LGreeting);
     end;
   end;
 end;
@@ -412,7 +414,9 @@ begin
             end;
             Response.Add('');
           end;
-        finally FreeAndNil(LHelpList); end;
+        finally
+          SysUtil.FreeAndNil(LHelpList);
+        end;
       end;
     end;
   end;

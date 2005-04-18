@@ -62,7 +62,7 @@ interface
 
 Uses
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdStackConsts, IdIOHandler, IdScheduler,
-  IdIOHandlerStack, IdServerIOHandlerSocket, IdYarn, SysUtils, Classes;
+  IdIOHandlerStack, IdServerIOHandlerSocket, IdYarn, Classes;
 
 type
   TIdServerIOHandlerStack = class(TIdServerIOHandlerSocket)

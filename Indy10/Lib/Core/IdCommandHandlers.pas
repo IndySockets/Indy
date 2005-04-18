@@ -164,7 +164,7 @@ unit IdCommandHandlers;
 interface
 
 uses
-  SysUtils, Classes, IdBaseComponent, IdComponent, IdReply, IdGlobal,
+  Classes, IdBaseComponent, IdComponent, IdReply, IdGlobal,
   IdContext, IdReplyRFC, IdTStrings;
 
 const
@@ -534,7 +534,7 @@ begin
 
   FCmdDelimiter := #32;
   FEnabled := IdEnabledDefault;
-  FName := ClassName + IntToStr(ID);
+  FName := ClassName + SysUtil.IntToStr(ID);
   FParamDelimiter := #32;
   FParseParams := IdParseParamsDefault;
   FResponse := TIdStringList.Create;
@@ -551,10 +551,10 @@ end;
 
 destructor TIdCommandHandler.Destroy;
 begin
-  FreeAndNil(FResponse);
-  FreeAndNil(FNormalReply);
-  FreeAndNil(FDescription);
-  FreeAndNil(FExceptionReply);
+  SysUtil.FreeAndNil(FResponse);
+  SysUtil.FreeAndNil(FNormalReply);
+  SysUtil.FreeAndNil(FDescription);
+  SysUtil.FreeAndNil(FExceptionReply);
   inherited Destroy;
 end;
 
@@ -616,9 +616,9 @@ end;
 
 destructor TIdCommand.Destroy;
 begin
-  FreeAndNil(FReply);
-  FreeAndNil(FResponse);
-  FreeAndNil(FParams);
+  SysUtil.FreeAndNil(FReply);
+  SysUtil.FreeAndNil(FResponse);
+  SysUtil.FreeAndNil(FParams);
   inherited;
 end;
 

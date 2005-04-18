@@ -245,8 +245,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdComponent, IdResourceStrings,
-  SysUtils;
+  IdAntiFreezeBase, IdComponent, IdResourceStrings;
 
 { TIdSocketHandle }
 
@@ -302,7 +301,7 @@ end;
 destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
-  FreeAndNil(FConnectionHandle);
+  SysUtil.FreeAndNil(FConnectionHandle);
   inherited;
 end;
 
@@ -342,11 +341,11 @@ procedure TIdSocketHandle.Bind;
 begin
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
-      raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange
-       , [FClientPortMin, FClientPortMax]);
+      raise EIdInvalidPortRange.Create(SysUtil.Format(RSInvalidPortRange
+       , [FClientPortMin, FClientPortMax]));
     end else if not BindPortReserved then begin
-      raise EIdCanNotBindPortInRange.CreateFmt(RSCanNotBindRange
-       , [FClientPortMin, FClientPortMax]);
+      raise EIdCanNotBindPortInRange.Create(SysUtil.Format(RSCanNotBindRange
+       , [FClientPortMin, FClientPortMax]));
     end;
   end else if not TryBind then begin
     raise EIdCouldNotBindSocket.Create(RSCouldNotBindSocket);
@@ -512,7 +511,7 @@ procedure TIdSocketHandle.SetHandle(AHandle: TIdStackSocketHandle);
 begin
   FHandle := AHandle;
   FHandleAllocated := Handle <> Id_INVALID_SOCKET;
-  FreeAndNil(FReadSocketList);
+  SysUtil.FreeAndNil(FReadSocketList);
   if HandleAllocated then begin
     FReadSocketList := TIdSocketList.CreateSocketList;
     FReadSocketList.Add(Handle);

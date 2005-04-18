@@ -201,9 +201,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TIdThreadSafe }
 
 constructor TIdThreadSafe.Create;
@@ -214,7 +211,7 @@ end;
 
 destructor TIdThreadSafe.Destroy;
 begin
-  FreeAndNil(FCriticalSection);
+  SysUtil.FreeAndNil(FCriticalSection);
   inherited;
 end;
 
@@ -338,7 +335,7 @@ end;
 destructor TIdThreadSafeStringList.Destroy;
 begin
   inherited Lock; try
-    FreeAndNil(FValue);
+    SysUtil.FreeAndNil(FValue);
   finally inherited Unlock; end;
   inherited;
 end;

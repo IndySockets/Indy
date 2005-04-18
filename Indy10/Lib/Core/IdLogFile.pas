@@ -63,13 +63,12 @@ interface
 
 uses
   Classes,
-  IdLogBase, IdStreamVCL,
-  SysUtils;
+  IdLogBase, IdStreamVCL;
 
 type
   TIdLogFile = class(TIdLogBase)
   protected
-    FFilename: TFilename;
+    FFilename: String;
     FFileStream: TIdStreamVCL;
     //
     procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
@@ -78,12 +77,12 @@ type
     procedure LogStatus(AText: string); override;
     procedure LogWriteString(AText: string); virtual;
     //
-    procedure SetFilename(AFilename: TFilename);
+    procedure SetFilename(AFilename: String);
   public
     procedure Open; override;
     procedure Close; override;
   published
-    property Filename: TFilename read FFilename write SetFilename;
+    property Filename: String read FFilename write SetFilename;
   end;
 
 implementation
@@ -95,7 +94,7 @@ uses
 
 procedure TIdLogFile.Close;
 begin
-  FreeAndNil(FFileStream);
+  SysUtil.FreeAndNil(FFileStream);
 end;
 
 procedure TIdLogFile.LogReceivedData(AText, AData: string);
@@ -116,25 +115,17 @@ end;
 procedure TIdLogFile.Open;
 var
   LStream: TStream;
-  LFlags: Word;
+
 begin
   if not (csDesigning in ComponentState) then begin
-    if FileExists(Filename) then begin
-      LFlags := fmOpenReadWrite or fmShareDenyWrite;
-    end else begin
-      LFlags := fmCreate;
-    end;
-    LStream := TFileStream.Create(Filename, LFlags);
+    LStream := TLogFileStream.Create(Filename);
     try
       FFileStream := TIdStreamVCL.Create(LStream, True);
-      if LFlags <> fmCreate then begin
-        FFileStream.Position := FFileStream.Size;
-      end;
     except
       if FFileStream <> nil then begin
-        FreeAndNil(FFileStream);
+        SysUtil.FreeAndNil(FFileStream);
       end else begin
-        FreeAndNil(LStream);
+        SysUtil.FreeAndNil(LStream);
       end;
       raise;
     end;
@@ -163,21 +154,19 @@ begin
 
   if LogTime then
   begin
-    sPre := DateTimeToStr(Now) + ' ' ;      {Do not translate}
+    sPre := SysUtil.DateTimeToStr(SysUtil.Now) + ' ' ;      {Do not translate}
   end;
 
-  sData := Format(AFormat, AArgs);
+  sData := SysUtil.Format(AFormat, AArgs);
   if FReplaceCRLF then begin
-    sData := StringReplace(sData, EOL, RSLogEOL, [rfReplaceAll]);
-    sData := StringReplace(sData, CR, RSLogCR,  [rfReplaceAll]);
-    sData := StringReplace(sData, LF,  RSLogLF,  [rfReplaceAll]);
+    sData :=  ReplaceCR(sData);
   end;
   sMsg := sPre + sData + EOL;
 
   LogWriteString(sMsg);
 end;
 
-procedure TIdLogFile.SetFilename(AFilename: TFilename);
+procedure TIdLogFile.SetFilename(AFilename: String);
 begin
   EIdException.IfAssigned(FFileStream, RSLogFileAlreadyOpen);
   FFilename := AFilename;

@@ -156,8 +156,7 @@ type
 implementation
 
 uses
-  IdStackConsts, IdStack,
-  SysUtils;
+  IdStackConsts, IdStack;
 
 { TIdUDPBase }
 
@@ -175,7 +174,7 @@ end;
 
 procedure TIdUDPBase.CloseBinding;
 begin
-  FreeAndNil(FBinding);
+  SysUtil.FreeAndNil(FBinding);
 end;
 
 destructor TIdUDPBase.Destroy;

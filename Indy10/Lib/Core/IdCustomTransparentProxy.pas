@@ -110,7 +110,7 @@ type
 implementation
 
 uses
-  IdResourceStringsCore, IdExceptionCore, SysUtils;
+  IdResourceStringsCore, IdExceptionCore;
 
 { TIdCustomTransparentProxy }
 
@@ -174,7 +174,7 @@ begin
   LNextValue := AValue;
   while Assigned(LNextValue) do begin
     if LNextValue = SELF then begin
-      raise EIdTransparentProxyCircularLink.Create(Format(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
+      raise EIdTransparentProxyCircularLink.Create(SysUtil.Format(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
     end;
     LNextValue := LNextValue.FChainedProxy;
   end;

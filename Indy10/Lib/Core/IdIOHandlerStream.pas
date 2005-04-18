@@ -210,9 +210,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TIdIOHandlerStream }
 
 procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
@@ -234,8 +231,8 @@ begin
     ReceiveStream.Free;
     SendStream.Free;
   end;
-  FreeAndNil(FReceiveIdStream);
-  FreeAndNil(FSendIdStream);
+  SysUtil.FreeAndNil(FReceiveIdStream);
+  SysUtil.FreeAndNil(FSendIdStream);
 end;
 
 function TIdIOHandlerStream.Connected: Boolean;
@@ -360,7 +357,7 @@ end;
 
 procedure TIdIOHandlerStream.SetReceiveStream(AStream: TStream);
 begin
-  FreeAndNil(FReceiveIdStream);
+  SysUtil.FreeAndNil(FReceiveIdStream);
   if AStream <> nil then begin
     FReceiveIdStream := TIdStreamVCL.Create(AStream);
   end;
@@ -368,7 +365,7 @@ end;
 
 procedure TIdIOHandlerStream.SetSendStream(AStream: TStream);
 begin
-  FreeAndNil(FSendIdStream);
+  SysUtil.FreeAndNil(FSendIdStream);
   if AStream <> nil then begin
     FSendIdStream := TIdStreamVCL.Create(AStream);
   end;

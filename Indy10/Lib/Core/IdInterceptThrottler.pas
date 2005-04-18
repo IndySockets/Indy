@@ -53,8 +53,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdException,
-  SysUtils;
+  IdAntiFreezeBase, IdException;
 
 { TIdInterceptThrottler }
 

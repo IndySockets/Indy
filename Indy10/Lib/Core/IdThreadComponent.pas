@@ -87,8 +87,7 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdException, IdGlobal, IdThread,
-  SysUtils;
+  IdBaseComponent, IdException, IdGlobal, IdThread;
 
 const
   IdThreadComponentDefaultPriority = tpNormal;
@@ -316,7 +315,7 @@ begin
     FThread.Terminate;
     FThread.Start;//resume for terminate
   end;
-  FreeAndNIL(FThread);
+  SysUtil.FreeAndNIL(FThread);
   inherited Destroy;
 end;
 
@@ -468,7 +467,7 @@ procedure TIdThreadComponent.Start;
 begin
   if NOT (csDesigning in ComponentState) then begin
     if Assigned(FThread) and FThread.Terminated then begin
-      FreeAndNIL(FThread);
+      SysUtil.FreeAndNIL(FThread);
     end;
 
     if NOT Assigned(FThread) then begin

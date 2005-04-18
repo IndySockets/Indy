@@ -50,9 +50,7 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
+uses IdGlobal;
 
 { TIdTask }
 
@@ -76,7 +74,7 @@ destructor TIdTask.Destroy;
 begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
-  FreeAndNil(FData);
+  SysUtil.FreeAndNil(FData);
   inherited;
 end;
 

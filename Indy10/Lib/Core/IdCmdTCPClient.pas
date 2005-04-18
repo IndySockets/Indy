@@ -108,7 +108,7 @@ unit IdCmdTCPClient;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes,
   IdContext, IdGlobal, IdReply, IdThread, IdTCPClient, IdCommandHandlers;
 
 type
@@ -186,7 +186,7 @@ end;
 destructor TIdCmdTCPClientListeningThread.Destroy;
 begin
   inherited Destroy;
-  FreeAndNil(FContext);
+  SysUtil.FreeAndNil(FContext);
 end;
 
 procedure TIdCmdTCPClientListeningThread.Run;
@@ -201,8 +201,8 @@ end;
 
 destructor TIdCmdTCPClient.Destroy;
 begin
-  FreeAndNil(FExceptionReply);
-  FreeAndNil(FCommandHandlers);
+  SysUtil.FreeAndNil(FExceptionReply);
+  SysUtil.FreeAndNil(FCommandHandlers);
   inherited Destroy;
 end;
 
@@ -231,7 +231,7 @@ begin
   if Assigned(FListeningThread) then begin
     FListeningThread.WaitFor;
   end;
-  FreeAndNil(FListeningThread);
+  SysUtil.FreeAndNil(FListeningThread);
 end;
 
 procedure TIdCmdTCPClient.DoAfterCommandHandler(ASender: TIdCommandHandlers;

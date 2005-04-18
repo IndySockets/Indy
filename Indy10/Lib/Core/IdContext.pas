@@ -119,8 +119,7 @@ implementation
 
 uses
   IdGlobal,
-  IdIOHandlerSocket,
-  SysUtils;
+  IdIOHandlerSocket;
 
 constructor TIdContext.Create(
   AConnection: TIdTCPConnection;
@@ -141,7 +140,7 @@ begin
   if FContextList <> nil then begin
     FContextList.Remove(Self);
   end;
-  FreeAndNil(FConnection);
+  SysUtil.FreeAndNil(FConnection);
   inherited Destroy;
 end;
 

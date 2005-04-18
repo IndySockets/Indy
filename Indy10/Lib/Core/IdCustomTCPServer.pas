@@ -310,7 +310,7 @@ unit IdCustomTCPServer;
 interface
 
 uses
-  Classes, SysUtils,
+  Classes, 
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
@@ -474,13 +474,13 @@ begin
   Active := False;
 
   if (FIOHandler <> nil) and FImplicitIOHandler then begin
-    FreeAndNil(FIOHandler);
+    SysUtil.FreeAndNil(FIOHandler);
   end;
 
   // Destroy bindings first
-  FreeAndNil(FBindings);
+  SysUtil.FreeAndNil(FBindings);
   //
-  FreeAndNil(FContexts);
+  SysUtil.FreeAndNil(FContexts);
   inherited;
 end;
 
@@ -647,7 +647,7 @@ begin
     // -Kudzu
     LScheduler := FScheduler;
     FScheduler := nil;
-    FreeAndNil(LScheduler);
+    SysUtil.FreeAndNil(LScheduler);
     //
     FImplicitScheduler := False;
   end;
@@ -667,7 +667,7 @@ procedure TIdCustomTCPServer.SetIOHandler(const AValue: TIdServerIOHandler);
 begin
   if Assigned(FIOHandler) and FImplicitIOHandler then begin
     FImplicitIOHandler := False;
-    FreeAndNil(FIOHandler);
+    SysUtil.FreeAndNil(FIOHandler);
   end;
   FIOHandler := AValue;
   if AValue <> nil then begin
@@ -699,7 +699,7 @@ Begin
         end;
       end;
     finally FListenerThreads.UnlockList; end;
-    FreeAndNil(FListenerThreads);
+    SysUtil.FreeAndNil(FListenerThreads);
   end;
 end;
 
@@ -832,7 +832,7 @@ begin
   for i := 0 to Bindings.Count - 1 do begin
     Bindings[i].Listen(FListenQueue);
     LListenerThread := TIdListenerThread.Create(Self, Bindings[i]);
-    LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
+    LListenerThread.Name := Name + ' Listener #' + SysUtil.IntToStr(i + 1); {do not localize}
     LListenerThread.OnBeforeRun := OnBeforeListenerRun;
     //Todo: Implement proper priority handling for Linux
     //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
@@ -891,7 +891,7 @@ begin
     if LIOHandler = nil then begin
       // Listening has finished
       Stop;
-      Abort;
+      SysUtil.Abort;
     end else begin
       // We have accepted the connection and need to handle it
       LPeer := TIdTCPConnection.Create(nil);
@@ -906,7 +906,7 @@ begin
      then begin
       FServer.DoMaxConnectionsExceeded(LIOHandler);
       LPeer.Disconnect;
-      Abort;
+      SysUtil.Abort;
     end;
     // Create and init context
     LContext := Server.FContextClass.Create(LPeer, LYarn, Server.Contexts);
@@ -923,8 +923,8 @@ begin
     Server.Scheduler.StartYarn(LYarn, LContext);
   except
     on E: Exception do begin
-      FreeAndNil(LContext);
-      FreeAndNil(LPeer);
+      SysUtil.FreeAndNil(LContext);
+      SysUtil.FreeAndNil(LPeer);
       // Must terminate - likely has not started yet
       if LYarn <> nil then begin
         Server.Scheduler.TerminateYarn(LYarn);
