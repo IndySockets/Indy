@@ -85,10 +85,15 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  IdZLibEx,
-
   Classes,
-  IdException, IdTCPClient, IdGlobal, IdTCPConnection, IdIntercept, IdGlobalProtocols;
+  IdException,
+  IdGlobal,
+  IdGlobalProtocols,
+   IdIntercept,
+  IdSysUtils,
+  IdTCPClient,
+  IdTCPConnection,
+  IdZLibEx;
 
 type
   EIdCompressionException = class(EIdException);
@@ -133,8 +138,7 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdExceptionCore,
-  SysUtils;
+  IdResourceStringsProtocols, IdExceptionCore;
 
 { TIdCompressionIntercept }
 

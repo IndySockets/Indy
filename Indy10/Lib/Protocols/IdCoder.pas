@@ -112,8 +112,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdStreamVCL,
-  SysUtils;
+  IdGlobal, IdGlobalProtocols, IdStreamVCL;
 
 { TIdDecoder }
 
@@ -138,8 +137,8 @@ begin
           Decode(AIn);
           Result := LStringStream.DataString;
         finally DecodeEnd; end;
-      finally FreeAndNil(LDestStream); end;
-    finally FreeAndNil(LStringStream); end;
+      finally Sys.FreeAndNil(LDestStream); end;
+    finally Sys.FreeAndNil(LStringStream); end;
   finally Free; end;
 end;
 
@@ -153,8 +152,8 @@ begin
   LStream := TIdStringStream.Create(ASrc); try
     LIdStream := TIdStreamVCL.Create(LStream); try
       Result := Encode(LIdStream);
-    finally FreeAndNil(LIdStream); end;
-  finally FreeAndNil(LStream); end;
+    finally Sys.FreeAndNil(LIdStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 class function TIdEncoder.EncodeString(const AIn: string): string;

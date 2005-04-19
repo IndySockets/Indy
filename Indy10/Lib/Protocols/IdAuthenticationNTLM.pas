@@ -41,7 +41,7 @@ unit IdAuthenticationNTLM;
 interface
 
 Uses
-  Classes, SysUtils,
+  Classes, 
   IdAuthentication;
 
 Type
@@ -78,7 +78,7 @@ begin
   if not IdSSLOpenSSLHeaders.Load then
   begin
     Unload;
-    Abort;
+    Sys.Abort;
   end;
 end;
 
@@ -138,7 +138,7 @@ begin
         if Length(FNTLMInfo) = 0 then
         begin
           Reset;
-          Abort;
+          Sys.Abort;
         end;
 
         S := TIdDecoderMIME.DecodeString(FNTLMInfo);

@@ -46,7 +46,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes, SysUtils, IdAttachment, IdMessageParts, IdGlobal;
+  Classes, IdAttachment, IdMessageParts, IdGlobal;
 
 type
   TIdAttachmentMemory = class(TIdAttachment)

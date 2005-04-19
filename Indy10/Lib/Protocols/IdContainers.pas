@@ -57,7 +57,7 @@ unit IdContainers;
 interface
 
 uses
-  SysUtils, Classes, IdTStrings;
+  Classes, IdTStrings;
 
 type
   TIdSortCompare = function(AItem1, AItem2 : TObject):Integer;

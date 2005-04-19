@@ -188,8 +188,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings,
-  SysUtils;
+  IdException, IdResourceStrings;
 
 { TIdDecoder4to3 }
 
@@ -414,13 +413,13 @@ begin
 
     assert(LLen + 4 <= length(Result),
       'TIdEncoder3to4.Encode: Calculated length exceeded (expected '+ {do not localize}
-      inttostr(4 * trunc((LBufSize + 2)/3)) +
+      Sys.IntToStr(4 * trunc((LBufSize + 2)/3)) +
       ', about to go '+                                               {do not localize}
-      inttostr(LLen + 4) +
+      Sys.IntToStr(LLen + 4) +
       ' at offset ' +                                                 {do not localize}
-      inttostr(LPos) +
+      Sys.IntToStr(LPos) +
       ' of '+                                                         {do not localize}
-      inttostr(LBufSize));
+       Sys.IntToStr(LBufSize));
 
     //CopyTIdBytes(LUnit, 0, Result, LLen, 4);
     Result[LLen] := LUnit[0];
@@ -439,11 +438,11 @@ begin
 
   assert(LLen = (4 * trunc((LBufSize + 2)/3)),
     'TIdEncoder3to4.Encode: Calculated length not met (expected ' +  {do not localize}
-    inttostr(4 * trunc((LBufSize + 2)/3)) +
+    Sys.IntToStr(4 * trunc((LBufSize + 2)/3)) +
     ', finished at ' +                                               {do not localize}
-    inttostr(LLen + 4) +
+    Sys.IntToStr(LLen + 4) +
     ', Bufsize = ' +                                                 {do not localize}
-    inttostr(LBufSize));
+    Sys.IntToStr(LBufSize));
 end;
 
 (*procedure TIdEncoder3to4.EncodeUnit(const AIn1, AIn2, AIn3: Byte; var VOut: TIdBytes);

@@ -105,11 +105,14 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdYarn, IdContext,
+  IdAssignedNumbers,
+  IdContext,
+  IdCustomTCPServer,
   IdException,
   IdGlobal,
+  IdSysUtils,
   IdTCPConnection,
-  IdCustomTCPServer;
+  IdYarn;
 
 const
   IdSocksAuthNoAuthenticationRequired = 0;
@@ -218,8 +221,7 @@ uses
   IdSimpleServer,
   IdIOHandlerStack,
   IdStack,
-  IdGlobalProtocols,
-  SysUtils;
+  IdGlobalProtocols;
 
 function ReadBufferEx( AFrom: TIdTCPConnection; var ABuffer; const AMaxSize: Integer; const ATimeOut: integer = 25 ) : integer;
 begin
@@ -374,7 +376,7 @@ begin
     1:
       begin
         Lline := AThread.Connection.IOHandler.ReadString( 6 ) ;
-        Ahost := inttostr( ord( Lline[1] ) ) + '.' + inttostr( ord( Lline[2] ) ) + '.' + inttostr( ord( Lline[3] ) ) + '.' + inttostr( ord( Lline[4] ) ) ;
+        Ahost := Sys.IntToStr( ord( Lline[1] ) ) + '.' + Sys.IntToStr( ord( Lline[2] ) ) + '.' + Sys.IntToStr( ord( Lline[3] ) ) + '.' + Sys.IntToStr( ord( Lline[4] ) ) ;
         Aport := ord( Lline[5] ) * 256 + ord( Lline[6] ) ;
       end;
     3:
@@ -404,7 +406,10 @@ begin
   Lline := AThread.Connection.IOHandler.ReadString( 2 ) ;
   Aport := ord( Lline[1] ) * 256 + ord( Lline[2] ) ;
   Lline := AThread.Connection.IOHandler.ReadString( 5 ) ;
-  Ahost := inttostr( ord( Lline[1] ) ) + '.' + inttostr( ord( Lline[2] ) ) + '.' + inttostr( ord( Lline[3] ) ) + '.' + inttostr( ord( Lline[4] ) ) ;
+  Ahost := Sys.IntToStr( ord( Lline[1] ) ) + '.' +
+           Sys.IntToStr( ord( Lline[2] ) ) + '.' +
+           Sys.IntToStr( ord( Lline[3] ) ) + '.' +
+           Sys.IntToStr( ord( Lline[4] ) ) ;
 end;
 
 function TIdCustomSocksServer.DoExecute( AThread: TIdContext ) : boolean;
@@ -511,18 +516,18 @@ begin
   setlength( result, 4 ) ;
 
   a := pos( '.', ip ) ;
-  result[1] := chr( strtoint( copy( ip, 1, a - 1 ) ) ) ;
+  result[1] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
   a := pos( '.', ip ) ;
-  result[2] := chr( strtoint( copy( ip, 1, a - 1 ) ) ) ;
+  result[2] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
   a := pos( '.', ip ) ;
-  result[3] := chr( strtoint( copy( ip, 1, a - 1 ) ) ) ;
+  result[3] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
-  result[4] := chr( strtoint( ip ) ) ;
+  result[4] := chr( Sys.StrToInt( ip ) ) ;
 end;
 
 function PortToStr( const port: word ) : string;

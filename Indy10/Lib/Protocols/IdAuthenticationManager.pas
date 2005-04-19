@@ -32,7 +32,7 @@ unit IdAuthenticationManager;
 interface
 
 Uses
-  Classes, IdAuthentication, IdBaseComponent, IdTStrings, IdURI, SysUtils ;
+  Classes, IdAuthentication, IdBaseComponent, IdTStrings, IdURI;
 
 Type
   TIdAuthenticationItem = class(TCollectionItem)
@@ -116,7 +116,7 @@ end;
 
 destructor TIdAuthenticationManager.Destroy;
 begin
-  FreeAndNil(FAuthentications);
+  Sys.FreeAndNil(FAuthentications);
   inherited Destroy;
 end;
 
@@ -138,8 +138,8 @@ end;
 
 destructor TIdAuthenticationItem.Destroy;
 begin
-  FreeAndNil(FURI);
-  FreeAndNil(FParams);
+  Sys.FreeAndNil(FURI);
+  Sys.FreeAndNil(FParams);
   inherited Destroy;
 end;
 

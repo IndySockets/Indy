@@ -2988,7 +2988,7 @@ procedure InitializeRandom;
 implementation
 
 uses
-  SysUtils,
+  IdGlobal,  //needed for Sys symbol
   {$IFDEF LINUX}
   libc
   {$ELSE}
@@ -5071,12 +5071,12 @@ begin
   end;
 
   // Convert time from string to number
-  year := StrToInt(Copy(time_str, 1, 2)) + 1900;
-  month := StrToInt(Copy(time_str, 3, 2));
-  day := StrToInt(Copy(time_str, 5, 2));
-  hour := StrToInt(Copy(time_str, 7, 2));
-  min := StrToInt(Copy(time_str, 9, 2));
-  sec := StrToInt(Copy(time_str, 11, 2));
+  year := Sys.StrToInt(Copy(time_str, 1, 2)) + 1900;
+  month := Sys.StrToInt(Copy(time_str, 3, 2));
+  day := Sys.StrToInt(Copy(time_str, 5, 2));
+  hour := Sys.StrToInt(Copy(time_str, 7, 2));
+  min := Sys.StrToInt(Copy(time_str, 9, 2));
+  sec := Sys.StrToInt(Copy(time_str, 11, 2));
 
   // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
   if (year < 1950) then year := Year + 100;
@@ -5096,8 +5096,8 @@ begin
       if (time_str[i] > '9' ) or (time_str[i] < '0') then exit;    {Do not Localize}
     end;
 
-    tz_hour := StrToInt(Copy(time_str, 14, 15)) * tz_dir;
-    tz_min  := StrToInt(Copy(time_str, 17, 18))*tz_dir;
+    tz_hour := Sys.StrToInt(Copy(time_str, 14, 15)) * tz_dir;
+    tz_min  := Sys.StrToInt(Copy(time_str, 17, 18))*tz_dir;
   end;
 end;
 

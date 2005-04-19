@@ -50,8 +50,7 @@ uses
   IdBaseComponent,
   IdComponent,
   IdStrings,
-  IdTStrings,
-  SysUtils;
+  IdTStrings;
 
 type
   TIdUserHandle = Cardinal;//ptr,object,collection.item.id or THandle
@@ -338,7 +337,7 @@ end;
 
 destructor TIdUserAccount.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  Sys.FreeAndNil(FAttributes);
   inherited Destroy;
 end;
 
@@ -407,7 +406,7 @@ end;
 
 destructor TIdUserManager.Destroy;
 begin
-  FreeAndNil(FAccounts);
+  Sys.FreeAndNil(FAccounts);
   inherited Destroy;
 end;
 

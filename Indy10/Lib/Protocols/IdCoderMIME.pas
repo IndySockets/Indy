@@ -66,8 +66,7 @@ var
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 { TIdDecoderMIMELineByLine }
 

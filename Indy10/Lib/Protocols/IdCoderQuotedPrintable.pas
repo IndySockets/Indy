@@ -133,8 +133,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols,
-  SysUtils;
+  IdGlobal, IdGlobalProtocols;
 
 
 { TIdDecoderQuotedPrintable }
@@ -339,7 +338,7 @@ begin
     end;
     Result := st.Text;
   finally
-    FreeAndNil(st);
+    Sys.FreeAndNil(st);
   end;
 end;
 

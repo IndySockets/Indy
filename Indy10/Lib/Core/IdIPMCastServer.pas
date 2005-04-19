@@ -103,8 +103,7 @@ uses
   IdResourceStringsProtocols, IdStack,
   IdStackBSDBase,
   IdStackConsts,
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 procedure TIdIPMCastServer.InitComponent;
 begin
@@ -122,7 +121,7 @@ begin
   GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
   Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
   GBSDStack.SetSocketOption(FBinding.Handle,Id_IPPROTO_IP, Id_IP_DROP_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
-  FreeAndNil(FBinding);
+  Sys.FreeAndNil(FBinding);
 end;
 
 function TIdIPMCastServer.GetActive: Boolean;

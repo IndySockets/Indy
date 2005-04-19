@@ -234,11 +234,12 @@ uses
   IdTCPServer,
   IdThread,
   IdTCPConnection,
-  IdIntercept, SysUtils,
+  IdIntercept, 
   IdIOHandlerSocket,
   IdSSL,
   IdSocks,
   IdScheduler,
+  IdSysUtils,
   IdYarn;
 
 type
@@ -279,7 +280,7 @@ type
 
   TIdSSLOptions = class(TPersistent)
   protected
-    fsRootCertFile, fsCertFile, fsKeyFile: TFileName;
+    fsRootCertFile, fsCertFile, fsKeyFile: String;
     fMethod: TIdSSLVersion;
     fMode: TIdSSLMode;
 
@@ -289,9 +290,9 @@ type
     fVerifyDirs, fCipherList: String;
     procedure AssignTo(ASource: TPersistent); override;
   published
-    property RootCertFile: TFileName read fsRootCertFile write fsRootCertFile;
-    property CertFile: TFileName read fsCertFile write fsCertFile;
-    property KeyFile: TFileName read fsKeyFile write fsKeyFile;
+    property RootCertFile: String read fsRootCertFile write fsRootCertFile;
+    property CertFile: String read fsCertFile write fsCertFile;
+    property KeyFile: String read fsKeyFile write fsKeyFile;
     property Method: TIdSSLVersion read fMethod write fMethod;
     property Mode: TIdSSLMode read fMode write fMode;
     property VerifyMode: TIdSSLVerifyModeSet read fVerifyMode write fVerifyMode;
@@ -593,7 +594,7 @@ begin
     end;
 
     size := Length(Password);
-    StrLCopy(buf, PChar(Password + #0), size + 1);
+    Sys.StrLCopy(buf, PChar(Password + #0), size + 1);
     Result := size;
   finally
     LockPassCB.Leave;
@@ -609,7 +610,7 @@ begin
   try
     IdSSLSocket := TIdSSLSocket(IdSslGetAppData(sslSocket));
 
-    StatusStr := Format(RSOSSLStatusString, [StrPas(IdSslStateStringLong(sslSocket))]);
+    StatusStr := Sys.Format(RSOSSLStatusString, [Sys.StrPas(IdSslStateStringLong(sslSocket))]);
 
     if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
       TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoStatusInfo(StatusStr);
@@ -740,9 +741,9 @@ procedure UnLoadOpenSLLibrary;
 var
   i : integer;
 begin
-  FreeAndNil(LockInfoCB);
-  FreeAndNil(LockPassCB);
-  FreeAndNil(LockVerifyCB);
+  Sys.FreeAndNil(LockInfoCB);
+  Sys.FreeAndNil(LockPassCB);
+  Sys.FreeAndNil(LockVerifyCB);
 
   if Assigned(CallbackLockList) then
   begin
@@ -756,7 +757,7 @@ begin
         CallbackLockList.UnlockList;
       end;
 
-    FreeAndNil(CallbackLockList);
+    Sys.FreeAndNil(CallbackLockList);
   end;
 
   IdSSLOpenSSLHeaders.Unload;
@@ -775,7 +776,7 @@ var
 begin
   Result := 0;
   if IdSslUCTTimeDecode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 Then Begin
-    Result := EncodeDate(year, month, day) + EncodeTime(hour, min, sec, 0);
+    Result := Sys.EncodeDate(year, month, day) + Sys.EncodeTime(hour, min, sec, 0);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);
     Result := GetLocalTime(Result);
@@ -858,7 +859,7 @@ begin
         VerifiedOK := TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk);
       end;
 
-      FreeAndNil(Certificate); // Used to be Certificate.Destroy - any reason for that?
+      Sys.FreeAndNil(Certificate); // Used to be Certificate.Destroy - any reason for that?
     except
     end;
     //if VerifiedOK and (Ok > 0) then begin
@@ -913,10 +914,10 @@ end;
 destructor TIdServerIOHandlerSSLOpenSSL.Destroy;
 begin
   if fSSLContext <> nil then begin
-    FreeAndNil(fSSLContext);
+    Sys.FreeAndNil(fSSLContext);
   end;
 
-  FreeAndNil(fxSSLOptions);
+  Sys.FreeAndNil(fxSSLOptions);
   inherited Destroy;
 end;
 
@@ -993,7 +994,7 @@ begin
     result := tmpIdCIOpenSSL;
   end else begin
     result := nil;
-    FreeAndNil(tmpIdCIOpenSSL);
+    Sys.FreeAndNil(tmpIdCIOpenSSL);
   end;
 end;
 
@@ -1077,12 +1078,12 @@ end;
 
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
-  FreeAndNil(fSSLSocket);
+  Sys.FreeAndNil(fSSLSocket);
   if not fIsPeer then begin
   //we do not destroy these in IsPeer equals true
   //because these do not belong to us when we are in a server.
-    FreeAndNil(fSSLContext);
-    FreeAndNil(fxSSLOptions);
+    Sys.FreeAndNil(fSSLContext);
+    Sys.FreeAndNil(fxSSLOptions);
   end;
   inherited Destroy;
 end;
@@ -1116,9 +1117,9 @@ end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
-  FreeAndNil(fSSLSocket);
+  Sys.FreeAndNil(fSSLSocket);
   if not fIsPeer then begin
-    FreeAndNil(fSSLContext);
+    Sys.FreeAndNil(fSSLContext);
   end;
 
   inherited Close;
@@ -1564,9 +1565,9 @@ begin
 //    f_SSL_CTX_set_tmp_rsa_callback(hSSLContext, @RSACallback);
 
   if fCipherList <> '' then begin    {Do not Localize}
-    pCipherList := StrNew(PChar(fCipherList));
+    pCipherList := Sys.StrNew(PChar(fCipherList));
     error := IdSslCtxSetCipherList(fContext, pCipherList);
-    StrDispose(pCipherList);
+    Sys.StrDispose(pCipherList);
   end
   else begin
     error := IdSslCtxSetCipherList(fContext, OPENSSL_SSL_DEFAULT_CIPHER_LIST);
@@ -1585,9 +1586,9 @@ begin
 
   // CA list
   if RootCertFile <> '' then begin    {Do not Localize}
-    pRootCertFile := StrNew(PChar(RootCertFile));
+    pRootCertFile := Sys.StrNew(PChar(RootCertFile));
     IdSSLCtxSetClientCAList(fContext, IdSSLLoadClientCAFile(pRootCertFile));
-    StrDispose(pRootCertFile);
+    Sys.StrDispose(pRootCertFile);
   end
 
 end;
@@ -1689,7 +1690,7 @@ var
   error: Integer;
 //  pDirs : PChar;
 begin
-  pStr := StrNew(PChar(RootCertFile));
+  pStr := Sys.StrNew(PChar(RootCertFile));
 {  if fVerifyDirs <> '' then begin
     pDirs := StrNew(PChar(fVerifyDirs));
     error := IdSslCtxLoadVerifyLocations(
@@ -1711,7 +1712,7 @@ begin
     Result := True;
   end;
 
-  StrDispose(pStr);
+  Sys.StrDispose(pStr);
 end;
 
 function TIdSSLContext.LoadCert: Boolean;
@@ -1719,7 +1720,7 @@ var
   pStr: PChar;
   error: Integer;
 begin
-  pStr := StrNew(PChar(CertFile));
+  pStr := Sys.StrNew(PChar(CertFile));
   error := IdSslCtxUseCertificateFile(
                  fContext,
                  pStr,
@@ -1729,7 +1730,7 @@ begin
   else
     Result := True;
 
-  StrDispose(pStr);
+  Sys.StrDispose(pStr);
 end;
 
 function TIdSSLContext.LoadKey: Boolean;
@@ -1739,7 +1740,7 @@ var
 begin
   Result := True;
 
-  pStr := StrNew(PChar(fsKeyFile));
+  pStr := Sys.StrNew(PChar(fsKeyFile));
   error := IdSslCtxUsePrivateKeyFile(
                  fContext,
                  pStr,
@@ -1754,7 +1755,7 @@ begin
     end;
   end;
 
-  StrDispose(pStr);
+  Sys.StrDispose(pStr);
 end;
 
 
@@ -1794,7 +1795,7 @@ begin
     fSSL := nil;
   end;
   if fSSLCipher <> nil then begin
-    FreeAndNil(fSSLCipher);
+    Sys.FreeAndNil(fSSLCipher);
   end;
   inherited Destroy;
 end;
@@ -1884,7 +1885,7 @@ begin
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+               'bits = ' + Sys.IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
 
   if (fParent is TIdServerIOHandlerSSLOpenSSL) then begin
@@ -1915,7 +1916,7 @@ begin
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+               'bits = ' + Sys.IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
 
   if (fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
@@ -1992,7 +1993,7 @@ begin
   Result := '';    {Do not Localize}
   Data := GetSessionID;
   for i := 0 to Data.Length-1 do begin
-    Result := Result+Format('%.2x', [Byte(Data.Data[I])]);{do not localize}
+    Result := Result+Sys.Format('%.2x', [Byte(Data.Data[I])]);{do not localize}
   end;
 end;
 
@@ -2022,7 +2023,7 @@ begin
     Result := '';    {Do not Localize}
   end
   else begin
-    Result := StrPas(IdSslX509NameOneline(FX509Name, PChar(@OneLine), sizeof(OneLine)));
+    Result := Sys.StrPas(IdSslX509NameOneline(FX509Name, PChar(@OneLine), sizeof(OneLine)));
   end;
 end;
 
@@ -2038,7 +2039,7 @@ end;
 
 function TIdX509Name.GetHashAsString: String;
 begin
-  Result := Format('%.8x', [Hash.L1]); {do not localize}
+  Result := Sys.Format('%.8x', [Hash.L1]); {do not localize}
 end;
 
 constructor TIdX509Name.Create(aX509Name: PX509_NAME);
@@ -2113,26 +2114,37 @@ begin
   Result := '';
   EVP_MD := Fingerprint;
   for I := 0 to EVP_MD.Length - 1 do begin
-    if I <> 0 then Result := Result + ':';    {Do not Localize}
-    Result := Result + Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
+    if I <> 0 then
+    begin
+      Result := Result + ':';    {Do not Localize}
+    end;
+    Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
   end;
 end;
 
 function TIdX509.RnotBefore:TDateTime;
 begin
   if FX509=nil then
+  begin
     Result := 0
+  end
   else
+  begin
     Result := UTCTime2DateTime(IdSslX509GetNotBefore(FX509));
+  end;
 end;
 
 
 function TIdX509.RnotAfter:TDateTime;
 begin
   if FX509=nil then
-    Result := 0
+  begin
+    Result := 0;
+  end
   else
+  begin
     Result := UTCTime2DateTime(IdSslX509GetNotAfter(FX509));
+  end;
 end;
 
 ///////////////////////////////////////////////////////////////
@@ -2154,12 +2166,12 @@ function TIdSSLCipher.GetDescription;
 var
   Buf: Array[0..1024] of Char;
 begin
-  Result := StrPas(IdSSLCipherDescription(IdSSLGetCurrentCipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
+  Result := Sys.StrPas(IdSSLCipherDescription(IdSSLGetCurrentCipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
 end;
 
 function TIdSSLCipher.GetName:String;
 begin
-  Result := StrPas(IdSSLCipherGetName(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
+  Result := Sys.StrPas(IdSSLCipherGetName(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
 function TIdSSLCipher.GetBits:Integer;
@@ -2169,7 +2181,7 @@ end;
 
 function TIdSSLCipher.GetVersion:String;
 begin
-  Result := StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
+  Result := Sys.StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
 initialization

@@ -152,8 +152,7 @@ interface
 
 uses
   Classes,
-  IdCoder, IdCoder3to4, IdGlobal, IdStream, IdStreamRandomAccess,
-  SysUtils;
+  IdCoder, IdCoder3to4, IdGlobal, IdStream, IdStreamRandomAccess, IdSysUtils;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
@@ -179,7 +178,7 @@ const
   GBinHex4IdentificationString: string = '(This file must be converted with BinHex 4.0)';             {Do not Localize}
 
 type
-  EIdMissingColon = class(Exception);
+  EIdMissingColon = class(EIdException);
 
 var
   GBinHex4DecodeTable: TIdDecodeTable;

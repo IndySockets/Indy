@@ -33,7 +33,8 @@ interface
 
 uses
   Classes,
-  IdComponent, IdException, IdGlobal, IdSocketHandle, IdStack {$IFDEF LINUX} ,Libc {$ENDIF}, IdStackBSDBase;
+  IdComponent, IdException, IdGlobal, IdSocketHandle,
+  IdStack {$IFDEF LINUX} ,Libc {$ENDIF}, IdStackBSDBase, IdSysUtils;
 
 const
   IPMCastLo = 224;
@@ -77,8 +78,7 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdResourceStringsProtocols, IdStackConsts,
-  SysUtils;
+  IdResourceStringsProtocols, IdStackConsts;
 
 { TIdIPMCastBase }
 
@@ -106,7 +106,7 @@ begin
 
   ThisIP := Value;
   s1 := Fetch(ThisIP, '.');    {Do not Localize}
-  ip1 := StrToInt(s1);
+  ip1 := Sys.StrToInt(s1);
 
   if ((ip1 < IPMCastLo) or (ip1 > IPMCastHi)) then
     Exit;

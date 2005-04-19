@@ -103,7 +103,7 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdResourceStringsProtocols, IdStack, IdStackConsts, IdStackBSDBase, IdGlobal, SysUtils;
+  IdResourceStringsProtocols, IdStack, IdStackConsts, IdStackBSDBase, IdGlobal;
 
 { TIdIPMCastClient }
 
@@ -132,7 +132,7 @@ begin
       Bindings[i].CloseSocket;
     end;
     FListenerThread.WaitFor;
-    FreeAndNil(FListenerThread);
+    Sys.FreeAndNil(FListenerThread);
     FCurrentBinding := nil;
   end;
 end;
@@ -212,7 +212,7 @@ end;
 destructor TIdIPMCastClient.Destroy;
 begin
   Active := False;
-  FreeAndNil(FBindings);
+  Sys.FreeAndNil(FBindings);
   inherited Destroy;
 end;
 
@@ -229,7 +229,7 @@ end;
 
 destructor TIdIPMCastListenerThread.Destroy;
 begin
-  FreeAndNil(FBuffer);
+  Sys.FreeAndNil(FBuffer);
   inherited Destroy;
 end;
 
