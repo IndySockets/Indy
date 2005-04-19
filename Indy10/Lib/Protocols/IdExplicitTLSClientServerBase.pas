@@ -78,7 +78,7 @@ interface
 
 uses
   Classes, IdGlobal, IdCmdTCPServer,
-    IdException, IdIOHandler, IdServerIOHandler,
+    IdException, IdIOHandler, IdServerIOHandler, IdSysUtils,
     IdTCPClient, IdTStrings;
 
 type
@@ -164,7 +164,7 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdSSL, SysUtils;
+  IdResourceStringsProtocols, IdSSL;
 
 { TIdExplicitTLSServer }
 
@@ -277,7 +277,7 @@ end;
 
 destructor TIdExplicitTLSClient.Destroy;
 begin
-  FreeAndNil(FCapabilities);
+  Sys.FreeAndNil(FCapabilities);
   inherited;
 end;
 

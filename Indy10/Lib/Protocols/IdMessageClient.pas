@@ -460,7 +460,7 @@ uses
   IdTCPConnection,
   IdStreamVCL, IdTCPStream, IdStream,
   IdIOHandler, IdAttachmentFile,
-  SysUtils, IdText, IdAttachment;
+  IdSysUtils, IdText, IdAttachment;
 
 const
   SContentType = 'Content-Type'; {do not localize}
@@ -634,7 +634,7 @@ begin
     end;
 
     // complete the output with what's left
-    if Trim(s) <> '' then
+    if Sys.Trim(s) <> '' then
     begin
       IOHandler.WriteLn(ins + s);
     end;
@@ -709,8 +709,8 @@ var
           end;
         end;
         ADecoder.Free;
-      finally FreeAndNil(LDestStream); end;
-    finally FreeAndNil(LStringStream); end;
+      finally Sys.FreeAndNil(LDestStream); end;
+    finally Sys.FreeAndNil(LStringStream); end;
   end;
 
   function ProcessAttachment(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
@@ -729,7 +729,7 @@ var
         LDestStream := PrepareTempStream; try
           LStream := TIdStreamVCL.Create(LDestStream); try
             Result := ADecoder.ReadBody(LStream, LMsgEnd);
-          finally FreeAndNil(LStream); end;
+          finally Sys.FreeAndNil(LStream); end;
           if AMsg.IsMsgSinglePartMime then begin
             ContentType := ResolveContentType(AMsg.Headers.Values[SContentType]);    {do not localize}
             Headers.Add('Content-Type: '+ AMsg.Headers.Values[SContentType]);        {do not localize}
@@ -972,9 +972,9 @@ var
             ATextPart.Body.SaveToStream(LStrStream.VCLStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
-          finally FreeAndNil(LStrStream); end;
-        finally FreeAndNil(LEncoder); end;
-      finally FreeAndNil(LDestStream); end;
+          finally Sys.FreeAndNil(LStrStream); end;
+        finally Sys.FreeAndNil(LEncoder); end;
+      finally Sys.FreeAndNil(LDestStream); end;
     end else begin
       LX := ATextPart.Body.Count;
       IOHandler.Write(ATextPart.Body);
@@ -1015,13 +1015,13 @@ begin
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally
-            FreeAndNil(LStrStream);
+            Sys.FreeAndNil(LStrStream);
           end;
         finally
-          FreeAndNil(LEncoder)
+          Sys.FreeAndNil(LEncoder)
         end;
       finally
-        FreeAndNil(LDestStream);
+        Sys.FreeAndNil(LDestStream);
       end;
     end else if AMsg.Encoding = mePlainText then begin
       IOHandler.WriteLn('');     //This is the blank line after the headers
@@ -1087,7 +1087,7 @@ begin
                 Free;
               end;
             finally
-              FreeAndNil(LDestStream);
+              Sys.FreeAndNil(LDestStream);
             end;
           end;
           IOHandler.WriteLn('');
@@ -1218,7 +1218,7 @@ begin
               end else begin
                 IOHandler.WriteLn('Content-Type: '+LAttachment.ContentType+';'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        name="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
             end else begin
               if LAttachment.CharSet <> '' then begin
                 IOHandler.WriteLn('Content-Type: ' + RemoveHeaderEntry(LAttachment.ContentType, 'charset')  {do not localize}
@@ -1226,10 +1226,10 @@ begin
               end else begin
                 IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        name="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
               IOHandler.WriteLn('Content-Transfer-Encoding: ' + LAttachment.ContentTransfer); {do not localize}
               IOHandler.WriteLn('Content-Disposition: ' + LAttachment.ContentDisposition +';'); {do not localize}
-              IOHandler.WriteLn('        filename="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        filename="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
             end;
             if LAttachment.ContentID <> '' then begin
               IOHandler.WriteLn('Content-ID: '+ LAttachment.ContentID); {Do not Localize}
@@ -1287,7 +1287,7 @@ begin
                 end;
               end;
             finally
-              FreeAndNil(LDestStream);
+              Sys.FreeAndNil(LDestStream);
             end;
             IOHandler.WriteLn('');
           end;
@@ -1377,9 +1377,9 @@ procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; const AFilename: str
 var
   LStream: TFileStream;
 begin
-  LStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite); try
+  LStream := TReadFileExclusiveStream.Create(AFileName); try
     ProcessMessage(AMsg, LStream, AHeaderOnly);
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 procedure TIdMessageClient.WriteBodyText(AMsg: TIdMessage);

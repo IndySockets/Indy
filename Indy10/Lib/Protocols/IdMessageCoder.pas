@@ -168,7 +168,7 @@ implementation
 uses
   IdException, IdResourceStringsProtocols, IdStreamVCL,
   IdTCPStream,
-  SysUtils;
+  IdSysUtils;
 
 var
   GMessageDecoderList: TIdMessageDecoderList = nil;
@@ -213,7 +213,7 @@ begin
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageDecoderInfo(FMessageCoders.Objects[i]).Free;
   end;
-  FreeAndNil(FMessageCoders);
+  Sys.FreeAndNil(FMessageCoders);
   inherited;
 end;
 
@@ -244,9 +244,9 @@ end;
 
 destructor TIdMessageDecoder.Destroy;
 begin
-  FreeAndNil(FHeaders);
+  Sys.FreeAndNil(FHeaders);
   if FFreeSourceStream then begin
-    FreeAndNil(FSourceStream);
+    Sys.FreeAndNil(FSourceStream);
   end else begin
     FSourceStream := nil;
   end;
@@ -308,7 +308,7 @@ begin
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageEncoderInfo(FMessageCoders.Objects[i]).Free;
   end;
-  FreeAndNil(FMessageCoders);
+  Sys.FreeAndNil(FMessageCoders);
   inherited;
 end;
 
@@ -328,11 +328,11 @@ var
   LSrcStream: TStream;
   LIdSrcStream: TIdStreamVCL;
 begin
-  LSrcStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite); try
+  LSrcStream := TReadFileExclusiveStream.Create(AFileName); try
     LIdSrcStream := TIdStreamVCL.Create(LSrcStream); try
       Encode(LIdSrcStream, ADest);
-    finally FreeAndNil(LIdSrcStream); end;
-  finally FreeAndNil(LSrcStream); end;
+    finally Sys.FreeAndNil(LIdSrcStream); end;
+  finally Sys.FreeAndNil(LSrcStream); end;
 end;
 
 procedure TIdMessageEncoder.InitComponent;
@@ -343,6 +343,6 @@ end;
 
 initialization
 finalization
-  FreeAndNil(GMessageDecoderList);
-  FreeAndNil(GMessageEncoderList);
+  Sys.FreeAndNil(GMessageDecoderList);
+  Sys.FreeAndNil(GMessageEncoderList);
 end.

@@ -32,7 +32,7 @@ unit IdNetworkCalculator;
 interface
 
 uses
-  SysUtils, Classes, IdBaseComponent, IdTStrings;
+  Classes, IdBaseComponent, IdTStrings;
 
 type
 
@@ -141,7 +141,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols;
+  IdException, IdGlobal, IdResourceStringsProtocols, IdSysUtils;
 
 { TIdNetworkCalculator }
 
@@ -166,23 +166,23 @@ begin
   strBuffers[2] := Fetch(StrWork, '.', true);    {Do not Localize}
   strBuffers[3] := StrWork;
   try
-    cardBuffers[0] := StrToInt(strBuffers[0]);
-    cardBuffers[1] := StrToInt(strBuffers[1]);
-    cardBuffers[2] := StrToInt(strBuffers[2]);
-    cardBuffers[3] := StrToInt(strBuffers[3]);
+    cardBuffers[0] := Sys.StrToInt(strBuffers[0]);
+    cardBuffers[1] := Sys.StrToInt(strBuffers[1]);
+    cardBuffers[2] := Sys.StrToInt(strBuffers[2]);
+    cardBuffers[3] := Sys.StrToInt(strBuffers[3]);
   except
     on e: exception do
-      Raise exception.Create(Format( RSNETCALInvalidIPString, [Value]));
+      Raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
   end;
   // range check
   if not(cardBuffers[0] in [0..255]) then
-      raise EIdException.Create(Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[1] in [0..255]) then
-      raise EIdException.Create(Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[2] in [0..255]) then
-      raise EIdException.Create(Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[3] in [0..255]) then
-      raise EIdException.Create(Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
   result := IP(cardBuffers[0], cardBuffers[1], cardBuffers[2], cardBuffers[3]);
 end;
 
@@ -217,7 +217,7 @@ begin
     // prevent to start a long loop in the IDE (will lock delphi)
     if (csDesigning in ComponentState) and (NumIP > 1024) then
     begin
-      FListIP.text := Format(RSNETCALConfirmLongIPList,[NumIP]);
+      FListIP.text := Sys.Format(RSNETCALConfirmLongIPList,[NumIP]);
     end
     else
     begin
@@ -230,7 +230,7 @@ begin
         for i := 1 to (NumIP - 1) do
         begin
           Inc(BaseIP.FullAddr);
-          FListIP.append(format('%d.%d.%d.%d', [BaseIP.Byte1, BaseIP.Byte2, BaseIP.Byte3, BaseIP.Byte4]));    {Do not Localize}
+          FListIP.append(Sys.Format('%d.%d.%d.%d', [BaseIP.Byte1, BaseIP.Byte2, BaseIP.Byte3, BaseIP.Byte4]));    {Do not Localize}
         end;
       finally
         FListIP.EndUpdate;
@@ -417,7 +417,7 @@ begin
       FAsBinaryString[i] := '0';    {Do not Localize}
   end;
   // Set the string
-  FAsString := Format('%d.%d.%d.%d', [FByte1, FByte2, FByte3, FByte4]);    {Do not Localize}
+  FAsString := Sys.Format('%d.%d.%d.%d', [FByte1, FByte2, FByte3, FByte4]);    {Do not Localize}
   IpStruct := IP(FByte1, FByte2, FByte3, FByte4);
   if IpStruct.FullAddr <> InitialIP.FullAddr then
   begin
@@ -545,7 +545,7 @@ var
 begin
   IP.FullAddr := NetworkAddress.AsDoubleWord AND NetworkMask.AsDoubleWord;
   Inc(IP.FullAddr, NumIP - 1);
-  result := Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
+  result := Sys.Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
 end;
 
 function TIdNetworkCalculator.NumIP: integer;
@@ -558,7 +558,7 @@ var
   IP: TIpStruct;
 begin
   IP.FullAddr := NetworkAddress.AsDoubleWord AND NetworkMask.AsDoubleWord;
-  result := Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
+  result := Sys.Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
 end;
 
 function TIpProperty.GetAddressType: TIdIPAddressType;

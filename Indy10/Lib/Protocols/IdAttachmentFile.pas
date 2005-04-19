@@ -32,17 +32,17 @@ unit IdAttachmentFile;
 interface
 
 uses
-  IdAttachment, Classes, SysUtils, IdMessageParts;
+  IdAttachment, Classes, IdMessageParts;
 
 type
   TIdAttachmentFile = class(TIdAttachment)
   protected
     FTempFileStream: TFileStream;
-    FStoredPathName: TFileName;
+    FStoredPathName: String;
     FFileIsTempFile: Boolean;
     FAttachmentBlocked: Boolean;
   public
-    constructor Create(Collection: TIdMessageParts; const AFileName: TFileName = ''); reintroduce;
+    constructor Create(Collection: TIdMessageParts; const AFileName: String = ''); reintroduce;
     destructor Destroy; override;
 
     function OpenLoadStream: TStream; override;
@@ -50,30 +50,30 @@ type
     function PrepareTempStream: TStream; override;
     procedure FinishTempStream; override;
 
-    procedure SaveToFile(const FileName: TFileName); override;
+    procedure SaveToFile(const FileName: String); override;
 
     property FileIsTempFile: Boolean read FFileIsTempFile write FFileIsTempFile;
-    property StoredPathName: TFileName read FStoredPathName write FStoredPathName;
+    property StoredPathName: String read FStoredPathName write FStoredPathName;
     property AttachmentBlocked: Boolean read FAttachmentBlocked;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
+  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols, IdSysUtils,
   IdMessage;
 
 { TIdAttachmentFile }
 
 procedure TIdAttachmentFile.CloseLoadStream;
 begin
-  FreeAndNil(FTempFileStream);
+  Sys.FreeAndNil(FTempFileStream);
 end;
 
-constructor TIdAttachmentFile.Create(Collection: TIdMessageParts; const AFileName: TFileName = '');
+constructor TIdAttachmentFile.Create(Collection: TIdMessageParts; const AFileName: String = '');
 begin
   inherited Create(Collection);
-  FFilename := ExtractFilename(AFilename);
+  FFilename := Sys.ExtractFilename(AFilename);
   FTempFileStream := nil;
   FStoredPathName := AFileName;
   FFileIsTempFile := False;
@@ -82,25 +82,25 @@ end;
 destructor TIdAttachmentFile.Destroy;
 begin
   if FileIsTempFile then begin
-    DeleteFile(StoredPathName);
+    Sys.DeleteFile(StoredPathName);
   end;
   inherited Destroy;
 end;
 
 procedure TIdAttachmentFile.FinishTempStream;
 begin
-  FreeAndNil(FTempFileStream);
+  Sys.FreeAndNil(FTempFileStream);
   // An on access virus scanner meight delete/block the temporary file.
-  FAttachmentBlocked := not FileExists(StoredPathName);
+  FAttachmentBlocked := not Sys.FileExists(StoredPathName);
   if FAttachmentBlocked and TIdMessage(TIdMessageParts(Collection).OwnerMessage).ExceptionOnBlockedAttachments then
   begin
-    raise EIdMessageCannotLoad.CreateFmt(RSTIdMessageErrorAttachmentBlocked, [StoredPathName]);
+    raise EIdMessageCannotLoad.Create(Sys.Format(RSTIdMessageErrorAttachmentBlocked, [StoredPathName]));
   end;
 end;
 
 function TIdAttachmentFile.OpenLoadStream: TStream;
 begin
-  FTempFileStream := TFilestream.Create(StoredPathName, fmOpenRead or fmShareDenyWrite);
+  FTempFileStream := TReadFileExclusiveStream.Create(StoredPathName);
   Result := FTempFileStream;
 end;
 
@@ -112,7 +112,7 @@ begin
   FFileIsTempFile := True;
 end;
 
-procedure TIdAttachmentFile.SaveToFile(const FileName: TFileName);
+procedure TIdAttachmentFile.SaveToFile(const FileName: String);
 begin
   if not CopyFileTo(StoredPathname, FileName) then begin
     raise EIdException.Create(RSTIdMessageErrorSavingAttachment);

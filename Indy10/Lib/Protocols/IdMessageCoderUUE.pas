@@ -113,7 +113,7 @@ implementation
 
 uses
   IdCoderUUE, IdCoderXXE, IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols,
-  SysUtils;
+  IdSysUtils;
 
 { TIdMessageDecoderInfoUUE }
 
@@ -122,7 +122,7 @@ function TIdMessageDecoderInfoUUE.CheckForStart(ASender: TIdMessage;
 var
   LPermissionCode: integer;
 begin
-  LPermissionCode := StrToIntDef(Copy(ALine, 7, 3), 0);
+  LPermissionCode := Sys.StrToInt(Copy(ALine, 7, 3), 0);
   if TextIsSame(Copy(ALine, 1, 6), 'begin ') and (Copy(ALine, 10, 1) = ' ') and (LPermissionCode > 0)    {Do not Localize}
    then begin
     Result := TIdMessageDecoderUUE.Create(ASender);
@@ -171,17 +171,17 @@ begin
     if Assigned(LDecoder) then
     begin
       repeat
-        if (Length(Trim(LLine)) = 0) or (LLine = LDecoder.FillChar) then begin
+        if (Length(Sys.Trim(LLine)) = 0) or (LLine = LDecoder.FillChar) then begin
           // UUE: Comes on the line before end. Supposed to be `, but some put a
           // blank line instead
         end else begin
           LDecoder.Decode(LLine);
         end;
         LLine := ReadLn;
-      until TextIsSame(Trim(LLine), 'end');    {Do not Localize}
+      until TextIsSame(Sys.Trim(LLine), 'end');    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
-  finally FreeAndNil(LDecoder); end;
+  finally Sys.FreeAndNil(LDecoder); end;
 end;
 
 { TIdMessageEncoderInfoUUE }
@@ -199,13 +199,13 @@ var
   LEncoder: TIdEncoder3to4;
 begin
   ASrc.Position := 0;
-  ADest.Write('begin ' + IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
+  ADest.Write('begin ' + Sys.IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
   LEncoder := FEncoderClass.Create(nil); try
     while not ASrc.EOF do begin
       ADest.Write(LEncoder.Encode(ASrc, 45) + EOL);
     end;
     ADest.Write(LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
-  finally FreeAndNil(LEncoder); end;
+  finally Sys.FreeAndNil(LEncoder); end;
 end;
 
 { TIdMessageEncoderUUE }

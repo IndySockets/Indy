@@ -474,7 +474,7 @@ than Unix permissions so they belong in a different property.
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdFTPCommon, SysUtils;
+  Classes, IdGlobal, IdException, IdFTPCommon, IdSysUtils;
 
 { Indy TIdFtp extensions to support automatic parsing of FTP directory listings }
 
@@ -636,7 +636,7 @@ const LLowCase = ['a','b','c','d','e','f','g','h','i','j','k','l','m',  {do not 
                  'n','o','p','q','r','s','t','u','v','w','x','y','z'];   {do not localize}
 begin
 
-  if (FLocalFileName = '') or (UpperCase(FFileName) = UpperCase(FLocalFileName)) then
+  if (FLocalFileName = '') or (Sys.UpperCase(FFileName) = Sys.UpperCase(FLocalFileName)) then
   begin
     //we do things this way because some file systems use all capital letters or are
     //case insensivite.  The Unix file is case sensitive and Unix users tend to
@@ -653,7 +653,7 @@ begin
     end;
     if LLowerCase then
     begin
-      FLocalFileName := LowerCase(AValue);
+      FLocalFileName := Sys.LowerCase(AValue);
     end
     else
     begin

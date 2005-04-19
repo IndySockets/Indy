@@ -99,6 +99,7 @@ interface
 uses
   Classes,
   IdException,
+  IdSysUtils,
   IdTStrings;
 
 type
@@ -161,7 +162,6 @@ type
 implementation
 
 uses
-  SysUtils,
   IdGlobal, IdGlobalProtocols, IdExceptionCore, IdResourceStringsProtocols;
 
 const
@@ -372,7 +372,7 @@ var
   i: Integer;
   tempName, resName: string;
 begin
-  if (FName <> '') and (UpperCase(FAddress) <> FName) then
+  if (FName <> '') and (Sys.UpperCase(FAddress) <> FName) then
   begin
     i := FindFirstNotOf(IETF_ATEXT_SPACE, FName);
     if i > 0 then
@@ -426,7 +426,7 @@ begin
   FAddress := '';    {Do not Localize}
   FName := '';        {Do not Localize}
 
-  AText := Trim(AText);
+  AText := Sys.Trim(AText);
   if AText = '' then
     Exit;
 
@@ -450,7 +450,7 @@ begin
           begin
             // Only valid if in a name not contained in quotes - keep the space.
             if bAfterAt then begin
-              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
             end else begin
               FName := FName + Copy(AText, 1, nFirst);
             end;
@@ -465,7 +465,7 @@ begin
             // There's at least one character to the name    {Do not Localize}
             if bInAddress then
             begin
-              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
             end else
             begin
               if nBracketCount = 1 then
@@ -490,10 +490,10 @@ begin
           begin
             if bAddressInLT then
             begin
-              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
             end else
             begin
-              FName := FName + Trim(Copy(AText, 1, nFirst - 1));
+              FName := FName + Sys.Trim(Copy(AText, 1, nFirst - 1));
             end;
             IdDelete(AText, 1, nFirst);
             bInQuote := False;
@@ -509,7 +509,7 @@ begin
           begin
             FName := FName + Copy(AText, 1, nFirst - 1);
           end;
-          FName := TrimAllOf(' ' + TAB, Trim(FName));    {Do not Localize}
+          FName := TrimAllOf(' ' + TAB, Sys.Trim(FName));    {Do not Localize}
           bAddressInLT := True;
           bInAddress := True;
           Delete(AText, 1, nFirst);
@@ -520,7 +520,7 @@ begin
           bInAddress := False;
           bAfterAt := False;
           FAddress := FAddress +
-            TrimAllOf(' ' + TAB, Trim(Copy(AText, 1, nFirst - 1)));  {Do not Localize}
+            TrimAllOf(' ' + TAB, Sys.Trim(Copy(AText, 1, nFirst - 1)));  {Do not Localize}
           IdDelete(AText, 1, nFirst);
         end;
         '@' :                 {Do not Localize}
@@ -564,8 +564,8 @@ begin
           begin
             // Whitespace is possible around the parts of the domain.
             FAddress := FAddress +
-              TrimAllOf(' ' + TAB, Trim(Copy(AText, 1, nFirst - 1))) + '.'; {Do not Localize}
-            AText := TrimLeft(Copy(AText, nFirst + 1, MaxInt));
+              TrimAllOf(' ' + TAB, Sys.Trim(Copy(AText, 1, nFirst - 1))) + '.'; {Do not Localize}
+            AText := Sys.TrimLeft(Copy(AText, nFirst + 1, MaxInt));
           end else
           begin
             // No whitespace is allowed if no wrapping <> characters.
@@ -638,7 +638,7 @@ begin
     until nFirst = 0;
     if bInAddress and not bAddressInLT then
     begin
-      FAddress := FAddress + TrimAllOf(' ' + TAB, Trim(AText));   {Do not Localize}
+      FAddress := FAddress + TrimAllOf(' ' + TAB, Sys.Trim(AText));   {Do not Localize}
     end;
   end else
   begin
@@ -706,12 +706,12 @@ var
 begin
   Clear;
 
-  if (Trim(AList) = '') then Exit;   {Do not Localize}
+  if (Sys.Trim(AList) = '') then Exit;   {Do not Localize}
 
   iStart := FindFirstOf(':;(", ' + TAB, AList); {Do not Localize}
   if iStart = 0 then begin
     EMail := Add;
-    EMail.Text := TrimLeft(AList);
+    EMail.Text := Sys.TrimLeft(AList);
   end else begin
     sTemp := '';                   {Do not Localize}
     nInBracket := 0;
@@ -738,9 +738,9 @@ begin
           // End of a group.  If we have something (groups can be empty),
           // then process it.
           sTemp := sTemp + Copy(AList, 1, iStart - 1);
-          if Trim(sTemp) <> '' then begin
+          if Sys.Trim(sTemp) <> '' then begin
             EMail := Add;
-            EMail.Text := TrimLeft(sTemp);
+            EMail.Text := Sys.TrimLeft(sTemp);
             sTemp := '';                     {Do not Localize}
           end;
           // Now simply remove the end of the group.
@@ -766,9 +766,9 @@ begin
           EMail := Add;
           EMail.Text := sTemp;
           // added - Allen .. saves blank entries being added
-          if (Trim(Email.Text) = '') or (Trim(Email.Text) = '<>') then   {Do not Localize}
+          if (Sys.Trim(Email.Text) = '') or (Sys.Trim(Email.Text) = '<>') then   {Do not Localize}
           begin
-            FreeAndNil(Email);
+            Sys.FreeAndNil(Email);
           end;
           sTemp := '';    {Do not Localize}
           IdDelete(AList, 1, iStart);
@@ -790,14 +790,14 @@ begin
     until iStart = 0;
 
     // Clean up the content in sTemp
-    if (Trim(sTemp) <> '') or (Trim(AList) <> '') then begin
+    if (Sys.Trim(sTemp) <> '') or (Sys.Trim(AList) <> '') then begin
       sTemp := sTemp + AList;
       EMail := Add;
-      EMail.Text := TrimLeft(sTemp);
+      EMail.Text := Sys.TrimLeft(sTemp);
       // added - Allen .. saves blank entries being added
-      if (Trim(Email.Text) = '') or (Trim(Email.Text) = '<>') then   {Do not Localize}
+      if (Sys.Trim(Email.Text) = '') or (Sys.Trim(Email.Text) = '<>') then   {Do not Localize}
       begin
-        FreeAndNil(Email);
+        Sys.FreeAndNil(Email);
       end;
     end;
   end;
@@ -832,7 +832,7 @@ begin
     AStrings.Clear;
     for i := 0 to Count-1 do
     begin
-      LCurDom :=  Lowercase(Items[i].Domain);
+      LCurDom :=  Sys.Lowercase(Items[i].Domain);
       if AStrings.IndexOf( LCurDom ) = -1 then
       begin
         AStrings.Add( LCurDom );
@@ -849,11 +849,11 @@ var
   LCurDom: string;
   LEnt : TIdEMailAddressItem;
 begin
-  LDomain := LowerCase(ADomain);
+  LDomain := Sys.LowerCase(ADomain);
   AList.Clear;
   for i := 0 to Count-1 do
   begin
-    LCurDom := LowerCase(Items[i].Domain);
+    LCurDom := Sys.LowerCase(Items[i].Domain);
     if LCurDom = LDomain then
     begin
       LEnt := AList.Add;

@@ -43,13 +43,13 @@ interface
 
 Uses
   Classes,
-  SysUtils,
   IdException,
   IdGlobal,
   
   IdAuthentication,
   IdHashMessageDigest,
   IdHeaderList,
+  IdSysUtils,
   IdTStrings;
 
 Type
@@ -88,11 +88,11 @@ destructor TIdDigestAuthentication.Destroy;
 begin
   if Assigned(FDomain) then
   begin
-    FreeAndNil( FDomain );
+    Sys.FreeAndNil( FDomain );
   end;
   if Assigned(FQopOptions) then
   begin
-    FreeAndNil(FQopOptions);
+    Sys.FreeAndNil(FQopOptions);
   end;
   inherited Destroy;
 end;
@@ -115,7 +115,7 @@ function TIdDigestAuthentication.Authentication: String;
     AppendBytes(LHash,ToBytes(MDValue[2]));
     AppendBytes(LHash,ToBytes(MDValue[3]));
     for i := 0 to 15 do begin
-      S1 := S1 + Format('%02x', [LHash[i]]);
+      S1 := S1 + Sys.Format('%02x', [LHash[i]]);
     end;
     while Pos(' ', S1) > 0 do 
     begin
@@ -137,7 +137,7 @@ begin
       begin
         //Build request
 
-        LstrCNonce := ResultString(DateTimeToStr(Now));
+        LstrCNonce := ResultString(Sys.DateTimeToStr(Sys.Now));
 
         LstrA1 := ResultString(Username + ':' + FRealm + ':' + Password);
         if TextIsSame(FAlgorithm, 'MD5-sess') then
@@ -155,7 +155,7 @@ begin
         LstrResponse := LstrA1 + ':' + Fnonce + ':';
         if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then //Qop header present
         begin
-          LstrResponse := LstrResponse + IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':';
+          LstrResponse := LstrResponse + Sys.IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':';
           if FQopOptions.IndexOf('auth-int') > -1 then
           begin
             LstrResponse := LstrResponse + 'auth-int:';
@@ -184,7 +184,7 @@ begin
           begin
             result := result + 'qop="auth", ';
           end;
-          result := result + 'nc=' + IntToHex(FNoncecount, 8) + ', ' +
+          result := result + 'nc=' + Sys.IntToHex(FNoncecount, 8) + ', ' +
             'cnonce="' + LstrCNonce + '", ';
         end;
         result := result + 'response="' + LstrResponse + '", ' +

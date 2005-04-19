@@ -71,7 +71,7 @@ unit IdURI;
 interface
 
 uses
-  IdException, IdGlobal;
+  IdException, IdGlobal, IdSysUtils;
 
 type
   TIdURIOptionalFields = (ofAuthInfo, ofBookmark);

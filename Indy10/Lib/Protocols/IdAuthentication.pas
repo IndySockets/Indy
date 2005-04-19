@@ -50,7 +50,7 @@ unit IdAuthentication;
 interface
 
 Uses
-  Classes, IdHeaderList, IdGlobal, IdException, IdTStrings;
+  Classes, IdHeaderList, IdGlobal, IdException, IdSysUtils, IdTStrings;
 
 Type
   TIdAuthenticationSchemes = (asBasic, asDigest, asNTLM, asUnknown);
@@ -117,7 +117,7 @@ Type
 implementation
 
 Uses
-  IdCoderMIME, IdResourceStringsProtocols, SysUtils;
+  IdCoderMIME, IdResourceStringsProtocols;
 
 Type
   TAuthListObject = class(TObject)
@@ -141,7 +141,7 @@ begin
     AuthList.AddObject(MethodName, LAuthItem);
   end
   else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Format(RSHTTPAuthAlreadyRegistered,
+    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Sys.Format(RSHTTPAuthAlreadyRegistered,
       [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]));
   end;
 end;
@@ -179,8 +179,8 @@ end;
 
 destructor TIdAuthentication.Destroy;
 begin
-  FreeAndNil(FAuthParams);
-  FreeAndNil(FParams);
+  Sys.FreeAndNil(FAuthParams);
+  Sys.FreeAndNil(FParams);
 
   inherited Destroy;
 end;
@@ -273,7 +273,7 @@ begin
     with Params do begin
       // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
       // FRealm never assigned without StringReplace
-      Add(StringReplace(Fetch(S, ', '), '=', NameValueSeparator, []));  {do not localize}
+      Add(Sys.ReplaceOnlyFirst(Fetch(S, ', '), '=', NameValueSeparator));  {do not localize}
   end;
 
   FRealm := Copy(Params.Values['realm'], 2, Length(Params.Values['realm']) - 2);   {Do not Localize}
@@ -319,7 +319,7 @@ finalization
       AuthList.Objects[0].Free;
       AuthList.Delete(0);
     end;
-    FreeAndNil(AuthList);
+    Sys.FreeAndNil(AuthList);
   end;
 end.
 

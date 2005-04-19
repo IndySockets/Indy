@@ -199,7 +199,7 @@ uses
   IdGlobal, IdStack,
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer, IdTCPConnection, IdThread, IdCookie,
   IdHTTPHeaderInfo, IdStackConsts, IdTStrings,
-  SysUtils;
+  IdSysUtils;
 
 type
   // Enums
@@ -324,8 +324,8 @@ type
     procedure WriteHeader;
     procedure WriteContent;
     //
-    function ServeFile(AContext:TIdContext; aFile: TFileName): cardinal; virtual;
-    function SmartServeFile(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: TFileName): cardinal;
+    function ServeFile(AContext:TIdContext; aFile: String): cardinal; virtual;
+    function SmartServeFile(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
     //
     property AuthRealm: string read FAuthRealm write FAuthRealm;
     property CloseConnection: Boolean read FCloseConnection write SetCloseConnection;
@@ -608,8 +608,8 @@ destructor TIdCustomHTTPServer.Destroy;
 begin
   Active := false; // Set Active to false in order to cloase all active sessions.
 
-  FreeAndNil(FMIMETable);
-  FreeAndNil(FSessionList);
+  Sys.FreeAndNil(FMIMETable);
+  Sys.FreeAndNil(FSessionList);
   inherited Destroy;
 end;
 
@@ -655,7 +655,7 @@ var
         S := LRawCookies[i];
         while IndyPos(';', S) > 0 do begin    {Do not Localize}
           LRequestInfo.Cookies.AddSrcCookie(Fetch(S, ';'));    {Do not Localize}
-          S := Trim(S);
+          S := Sys.Trim(S);
         end;
         if S <> '' then
           LRequestInfo.Cookies.AddSrcCookie(S);
@@ -697,7 +697,7 @@ begin
           LVersion := Copy(LInputLine, i + 1, MaxInt);
           SetLength(LInputLine, i - 1);
           {TODO Check for 1.0 only at this point}
-          LCmd := UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
+          LCmd := Sys.UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
           LRequestInfo := TIdHTTPRequestInfo.Create;
           try
             LRequestInfo.FRawHTTPCommand := LRawHTTPCommand;
@@ -736,7 +736,7 @@ begin
                 end;
               end;
             finally
-              FreeAndNil(LP);
+              Sys.FreeAndNil(LP);
             end;
 
             // reset back to 0 before reading the string from the post stream
@@ -787,7 +787,7 @@ begin
                   LRequestInfo.FHost := LURI.Host;
                 end;
               finally
-                FreeAndNil(LURI);
+                Sys.FreeAndNil(LURI);
               end;
             end;
 
@@ -812,7 +812,7 @@ begin
               GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
               // SG 05.07.99
               // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
-              if Length(Trim(ServerSoftware)) > 0  then begin
+              if Length(Sys.Trim(ServerSoftware)) > 0  then begin
                 LResponseInfo.ServerSoftware := ServerSoftware;
               end;
 
@@ -846,10 +846,10 @@ begin
               end;
             finally
               LCloseConnection := LResponseInfo.CloseConnection;
-              FreeAndNil(LResponseInfo);
+              Sys.FreeAndNil(LResponseInfo);
             end;
           finally
-            FreeAndNil(LRequestInfo);
+            Sys.FreeAndNil(LRequestInfo);
           end;
         end;
       until LCloseConnection;
@@ -947,7 +947,7 @@ begin
       if assigned(FSessionCleanupThread) then begin
         SetThreadPriority(FSessionCleanupThread, tpNormal);
         FSessionCleanupThread.TerminateAndWaitFor;
-        FreeAndNil(FSessionCleanupThread);
+        Sys.FreeAndNil(FSessionCleanupThread);
       end;
       FSessionCleanupThread := nil;
       FSessionList.Clear;
@@ -1003,7 +1003,7 @@ begin
 
   FSessionID := SessionID;
   FRemoteHost := RemoteIP;
-  FLastTimeStamp := Now;
+  FLastTimeStamp := Sys.Now;
   FLock := TIdCriticalSection.Create;
   FContent := TIdStringList.Create;
   FOwner := AOwner;
@@ -1043,7 +1043,7 @@ end;
 
 function TIdHTTPSession.IsSessionStale: boolean;
 begin
-  result := TimeStampInterval(FLastTimeStamp, Now) > Integer(FOwner.SessionTimeout);
+  result := TimeStampInterval(FLastTimeStamp, Sys.Now) > Integer(FOwner.SessionTimeout);
 end;
 
 procedure TIdHTTPSession.Lock;
@@ -1094,7 +1094,7 @@ begin
       end;
       s := copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
-      s := StringReplace(s, '+', ' ', [rfReplaceAll]);  {do not localize}
+      s := Sys.StringReplace(s, '+', ' ');  {do not localize}
       Params.Add(TIdURI.URLDecode(s));
       i := j + 1;
     end;
@@ -1105,9 +1105,9 @@ end;
 
 destructor TIdHTTPRequestInfo.Destroy;
 begin
-  FreeAndNil(FCookies);
-  FreeAndNil(FParams);
-  FreeAndNil(FPostStream);
+  Sys.FreeAndNil(FCookies);
+  Sys.FreeAndNil(FParams);
+  Sys.FreeAndNil(FPostStream);
   inherited;
 end;
 
@@ -1122,7 +1122,7 @@ begin
     Cookies.Delete(i);
   end;
   Cookies.Add.CookieName := GSessionIDCookie;
-  FreeAndNil(FSession);
+  Sys.FreeAndNil(FSession);
 end;
 
 constructor TIdHTTPResponseInfo.Create(AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer);
@@ -1145,7 +1145,7 @@ end;
 
 destructor TIdHTTPResponseInfo.Destroy;
 begin
-  FreeAndNil(FCookies);
+  Sys.FreeAndNil(FCookies);
   ReleaseContentStream;
   inherited Destroy;
 end;
@@ -1159,7 +1159,7 @@ end;
 procedure TIdHTTPResponseInfo.ReleaseContentStream;
 begin
   if FreeContentStream then begin
-    FreeAndNil(FContentStream);
+    Sys.FreeAndNil(FContentStream);
   end else begin
     FContentStream := nil;
   end;
@@ -1192,7 +1192,7 @@ begin
     end;
     if ContentLength > -1 then
     begin
-      Values['Content-Length'] := IntToStr(ContentLength);    {Do not Localize}
+      Values['Content-Length'] := Sys.IntToStr(ContentLength);    {Do not Localize}
     end;
     if FLastModified > 0 then
     begin
@@ -1203,7 +1203,7 @@ begin
     begin
       ResponseNo := 401;
       Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
-      FContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
+      FContentText := '<HTML><BODY><B>' + Sys.IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
     end;
   end;
 end;
@@ -1265,7 +1265,7 @@ begin
 end;
 
 
-function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; AFile: TFileName): Cardinal;
+function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; AFile: String): Cardinal;
 begin
   if Length(ContentType) = 0 then begin
     ContentType := HTTPServer.MIMETable.GetFileMIMEType(aFile);
@@ -1276,12 +1276,12 @@ begin
   result := AContext.Connection.IOHandler.WriteFile(aFile);
 end;
 
-function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: TFileName): cardinal;
+function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
 var
   LFileDate : TDateTime;
   LReqDate : TDateTime;
 begin
-  LFileDate := FileDateToDateTime(FileAge(AFile));
+  LFileDate := Sys.FileAge(AFile);
   LReqDate := GMTToLocalDateTime(ARequestInfo.RawHeaders.Values['If-Modified-Since']);  {do not localize}
 
   // if the file date in the If-Modified-Since header is within 2 seconds of the
@@ -1321,10 +1321,10 @@ begin
       try
         IOHandler.Write(LS);
       finally
-        FreeAndNil(LS);
+        Sys.FreeAndNil(LS);
       end;
     end else begin
-      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
+      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + Sys.IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
        + '</B></BODY></HTML>');    {Do not Localize}
     end;
     // Clear All - This signifies that WriteConent has been called.
@@ -1353,7 +1353,7 @@ begin
     // Write HTTP status response
     // Client will be forced to close the connection. We are not going to support
     // keep-alive feature for now
-    FConnection.IOHandler.WriteLn('HTTP/1.1 ' + IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
+    FConnection.IOHandler.WriteLn('HTTP/1.1 ' + Sys.IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
     // Write headers
     for i := 0 to RawHeaders.Count -1 do begin
       FConnection.IOHandler.WriteLn(RawHeaders[i]);
@@ -1458,7 +1458,7 @@ begin
       if TextIsSame(ASession.FSessionID, SessionID) and ((length(RemoteIP) = 0) or TextIsSame(ASession.RemoteHost, RemoteIP)) then
       begin
         // Session found
-        ASession.FLastTimeStamp := Now;
+        ASession.FLastTimeStamp := Sys.Now;
         result := ASession;
         break;
       end;

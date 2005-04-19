@@ -40,6 +40,7 @@ unit IdSASLCollection;
 interface
 uses
   Classes, IdBaseComponent, IdCoder, IdSASL, IdTCPConnection, IdException,
+  IdSysUtils,
   IdTStrings;
 
 type
@@ -95,8 +96,7 @@ implementation
 uses
   IdCoderMIME,
   IdGlobal,
-  IdGlobalProtocols,
-  SysUtils;
+  IdGlobalProtocols;
 
 { TIdSASLListEntry }
 
@@ -142,7 +142,7 @@ begin
     Result := True;
     Exit; // we've authenticated successfully :)
   end;
-  S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
+  S := ADecoder.DecodeString(Sys.TrimRight(AClient.LastCmdResult.Text.Text));
   S := ASASL.StartAuthenticate(S);
   AClient.SendCmd(AEncoder.Encode(S));
   if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -151,7 +151,7 @@ begin
     Exit;
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
-    S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
+    S := ADecoder.DecodeString(Sys.TrimRight(AClient.LastCmdResult.Text.Text));
     S := ASASL.ContinueAuthenticate(S);
     AClient.SendCmd(AEncoder.Encode(S));
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -241,17 +241,17 @@ begin
               end;
             end;
           finally
-            FreeAndNil(LD);
+            Sys.FreeAndNil(LD);
           end;
         finally
-          FreeAndNil(LE);
+          Sys.FreeAndNil(LE);
         end;
       end;
     finally
-      FreeAndNil(LSupportedSASL);
+      Sys.FreeAndNil(LSupportedSASL);
     end;
   finally
-    FreeAndNil(LSASLList);
+    Sys.FreeAndNil(LSASLList);
   end;
 end;
 
@@ -290,14 +290,14 @@ begin
             AClient.RaiseExceptionForLastCmdResult;
           end;
         finally
-          FreeAndNil(LD);
+          Sys.FreeAndNil(LD);
         end;
       finally
-        FreeAndNil(LE);
+        Sys.FreeAndNil(LE);
       end;
     end;
   finally
-    FreeAndNil(LSupportedSASL);
+    Sys.FreeAndNil(LSupportedSASL);
   end;
 end;
 
@@ -316,12 +316,12 @@ begin
   Result := TIdStringList.Create;
   try
     for i := 0 to ACapaReply.Count - 1 do begin
-      s := UpperCase(ACapaReply[i]);
+      s := Sys.UpperCase(ACapaReply[i]);
       LPrefix := Copy(s, 1, Length(AAuthString)+1);
       if TextIsSame(LPrefix, AAuthString+' ') or TextIsSame(LPrefix, AAuthString+'=') then {Do not Localize}
       begin
         s := Copy(s, Length(LPrefix), MaxInt);
-        s := StringReplace(s, '=', ' ', [rfReplaceAll]);    {Do not Localize}
+        s := Sys.StringReplace(s, '=', ' ');    {Do not Localize}
         while Length(s) > 0 do begin
           LEntry := Fetch(s, ' ');    {Do not Localize}
           if LEntry <> '' then
@@ -334,7 +334,7 @@ begin
       end;
     end;
   except
-    FreeAndNil(Result);
+    Sys.FreeAndNil(Result);
     raise;
   end;
 end;

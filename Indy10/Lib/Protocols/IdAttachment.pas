@@ -46,12 +46,12 @@
 unit IdAttachment;
 interface
 uses
-  Classes, IdMessageParts, SysUtils;
+  Classes, IdMessageParts;
 
 type
   TIdAttachment = class(TIdMessagePart)
   protected
-    FFileName: TFileName;
+    FFileName: String;
 
     function  GetContentDisposition: string; virtual;
     function  GetContentType: String; override;
@@ -79,13 +79,13 @@ type
     //  4) FinishTempStream is called of the newly created attachment
     function  PrepareTempStream: TStream; virtual; abstract;
     procedure FinishTempStream; virtual; abstract;
-    procedure SaveToFile(const FileName: TFileName); virtual;
+    procedure SaveToFile(const FileName: String); virtual;
     procedure SaveToStream(const Stream: TStream); virtual;
 
     procedure Assign(Source: TPersistent); override;
 
 
-    property  FileName: TFileName read FFileName write FFileName;
+    property  FileName: String read FFileName write FFileName;
     property  ContentDisposition: string read GetContentDisposition write SetContentDisposition;
     property  ContentTypeName: String read GetContentTypeName;
     class function PartType: TIdMessagePartType; override;
@@ -148,14 +148,14 @@ begin
   Result := mptAttachment;
 end;
 
-procedure TIdAttachment.SaveToFile(const FileName: TFileName);
+procedure TIdAttachment.SaveToFile(const FileName: String);
 var
   fs: TFileStream;
 begin
   fs := TFileStream.Create(FileName, fmCreate); try
     SaveToStream(fs);
   finally
-    FreeAndNil(fs);
+    Sys.FreeAndNil(fs);
   end;
 end;
 

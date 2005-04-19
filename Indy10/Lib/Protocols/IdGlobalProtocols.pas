@@ -386,7 +386,7 @@ uses
   IdGlobal,
   IdException,
   IdTStrings,
-  SysUtils;
+  IdSysUtils;
 
 const
   LWS = [TAB, CHAR32];
@@ -493,7 +493,7 @@ type
   function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 
   function GetClockValue : Int64;
-  function GetMIMETypeFromFile(const AFile: TFileName): string;
+  function GetMIMETypeFromFile(const AFile: String): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): string;
   function GetGMTDateByName(const AFileName : String) : TDateTime;
   function GmtOffsetStrToDateTime(S: string): TDateTime;
@@ -599,6 +599,7 @@ uses
   {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
+  System.Text,
   {$ENDIF}
   IdAssignedNumbers,
   IdResourceStringsCore,
@@ -622,7 +623,7 @@ end;
 
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
 begin
-  Result := (ANSIStr<>'') and (IndyPos(APattern, UpperCase(ANSIStr)) = 1)  {do not localize}
+  Result := (ANSIStr<>'') and (IndyPos(APattern, Sys.UpperCase(ANSIStr)) = 1)  {do not localize}
     //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
    {$IFNDEF DOTNET}
    //note that in DotNET, everything is MBCS
@@ -684,31 +685,33 @@ function IndyCopyFile(AFromFileName, AToFileName : String; const AFailIfExists :
 var
   LStream : TStream;
 begin
-  if FileExists(AToFileName) and AFailIfExists then begin
+  if Sys.FileExists(AToFileName) and AFailIfExists then begin
     Result := False;
   end else begin
-    LStream := TFileStream.Create(AFromFileName, fmOpenRead or fmShareDenyWrite); try
-      with TFileStream.Create(AToFileName, fmCreate) do try
+    LStream := TReadFileExclusiveStream.Create(AFromFileName); try
+      with TFileCreateStream.Create(AToFileName) do try
         CopyFrom(LStream, 0);
       finally Free; end;
-    finally FreeAndNil(LStream); end;
+    finally Sys.FreeAndNil(LStream); end;
     Result := True;
   end;
 end;
 
 function CreateEmptyFile(const APathName : String) : Boolean;
 {$IFDEF DOTNET}
-var LSTr : FileStream;
+var LSTr : StreamWriter;
 {$ELSE}
 var LHandle : Integer;
 {$ENDIF}
 begin
   Result := False;
   {$IFDEF DOTNET}
-  LStr := FileCreate(APathName);
+
+  LStr := System.IO.&File.CreateText(APathName);
+
   if Assigned(LStr) then
   begin
-    FreeAndNil(LStr);
+    LStr.Close;
     Result := True;
   end;
   {$ELSE}
@@ -984,8 +987,8 @@ The return value is less than 0 if ADateTime1 is less than ADateTime2,
 greater than 0 if ADateTime1 is greater than ADateTime2.
 }
 begin
-  DecodeDate(ADateTime1,LYear1,LMonth1,LDay1);
-  DecodeDate(ADateTime2,LYear2,LMonth2,LDay2);
+  Sys.DecodeDate(ADateTime1,LYear1,LMonth1,LDay1);
+  Sys.DecodeDate(ADateTime2,LYear2,LMonth2,LDay2);
   // year
   Result := LYear1 - LYear2;
   if Result <> 0 then
@@ -1004,8 +1007,8 @@ begin
   begin
     Exit;
   end;
-  DecodeTime(ADateTime1,LHour1,LMin1,LSec1,LMSec1);
-  DecodeTime(ADateTime2,LHour2,LMin2,LSec2,LMSec2);
+  Sys.DecodeTime(ADateTime1,LHour1,LMin1,LSec1,LMSec1);
+  Sys.DecodeTime(ADateTime2,LHour2,LMin2,LSec2,LMSec2);
   //hour
   Result := LHour1 - LHour2;
   if Result <> 0 then
@@ -1040,14 +1043,14 @@ var
 
   Procedure ParseDayOfMonth;
   begin
-    Dt :=  StrToIntDef( Fetch(Value, ADelim), 1);
-    Value := TrimLeft(Value);
+    Dt :=  Sys.StrToInt( Fetch(Value, ADelim), 1);
+    Value := Sys.TrimLeft(Value);
   end;
 
   Procedure ParseMonth;
   begin
     Mo := StrToMonth( Fetch ( Value, ADelim )  );
-    Value := TrimLeft(Value);
+    Value := Sys.TrimLeft(Value);
   end;
 begin
   Result := 0.0;
@@ -1055,7 +1058,7 @@ begin
   LAM:=false;
   LPM:=false;
 
-  Value := Trim(Value);
+  Value := Sys.Trim(Value);
   if Length(Value) = 0 then begin
     Exit;
   end;
@@ -1069,7 +1072,7 @@ begin
         Insert(' ',Value,5);
       end;
       Fetch(Value);
-      Value := TrimLeft(Value);
+      Value := Sys.TrimLeft(Value);
     end;
 
     // Workaround for some buggy web servers which use '-' to separate the date parts.    {Do not Localize}
@@ -1100,10 +1103,10 @@ begin
     // DayOfWeek Month DayOfMonth Time Year
 
     sTime := Fetch(Value);
-    Yr := StrToIntDef(sTime, 1900);
+    Yr := Sys.StrToInt(sTime, 1900);
     // Is sTime valid Integer
     if Yr = 1900 then begin
-      Yr := StrToIntDef(Value, 1900);
+      Yr := Sys.StrToInt(Value, 1900);
       Value := sTime;
     end;
     if Yr < 80 then begin
@@ -1112,7 +1115,7 @@ begin
       Inc(Yr, 1900);
     end;
 
-    Result := EncodeDate(Yr, Mo, Dt);
+    Result := Sys.EncodeDate(Yr, Mo, Dt);
     // SG 26/9/00: Changed so that ANY time format is accepted
     if IndyPos('AM', Value)>0 then {do not localize}
     begin
@@ -1130,13 +1133,13 @@ begin
       // Copy time string up until next space (before GMT offset)
       sTime := fetch(Value, ' ');  {do not localize}
       {Hour}
-      Ho  := StrToIntDef( Fetch ( sTime, ':'), 0);  {do not localize}
+      Ho  := Sys.StrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
       {Minute}
-      Min := StrToIntDef( Fetch ( sTime, ':'), 0);  {do not localize}
+      Min := Sys.StrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
       {Second}
-      Sec := StrToIntDef( Fetch ( sTime ), 0);
+      Sec := Sys.StrToInt( Fetch ( sTime ), 0);
       {AM/PM part if preasent}
-      Value := TrimLeft(Value);
+      Value := Sys.TrimLeft(Value);
       if LAM then
       begin
         if Ho = 12 then
@@ -1158,9 +1161,9 @@ begin
         end;
       end;
       {The date and time stamp returned}
-      Result := Result + EncodeTime(Ho, Min, Sec, 0);
+      Result := Result + Sys.EncodeTime(Ho, Min, Sec, 0);
     end;
-    Value := TrimLeft(Value);
+    Value := Sys.TrimLeft(Value);
   except
     Result := 0.0;
   end;
@@ -1195,29 +1198,74 @@ end;
 {This should never be localized}
 function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
 // should adhere to RFC 2616
+{$IFDEF DOTNET}
+var
+  LS : StringBuilder;
+begin
+  LS := StringBuilder.Create;
+  LS.Append( wdays[ GMTValue.DayOfWeek ] );
+  LS.Append(', ');
+  LS.Append( Sys.AlignLeftCol( GMTValue.Day.ToString('{$0:d2}') ,2));
+  LS.Append(' ');
+  LS.Append(monthnames[ GMTValue.Month ]);
+  LS.Append(' ');
+  LS.Append( Sys.AlignLeftCol(GMTValue.Year.ToString('{$0:d4}' ),4));
+  LS.Append(' ');
+   LS.Append( GMTValue.Hour.ToString('{$0:d2}' ));
+   LS.Append(':');
+   LS.Append( GMTValue.Minute.ToString('{$0:d2}' ));
+   LS.Append(':');
+   LS.Append( GMTValue.Second.ToString('{$0:d2}' ));
+   LS.Append(' GMT');
+   Result := LS.ToString;
+{$ELSE}
 var
   wDay,
   wMonth,
   wYear: Word;
 begin
-  DecodeDate(GMTValue, wYear, wMonth, wDay);
-  Result := Format('%s, %.2d %s %.4d %s %s',    {do not localize}
+  Sys.DecodeDate(GMTValue, wYear, wMonth, wDay);
+  Result := Sys.Format('%s, %.2d %s %.4d %s %s',    {do not localize}
                    [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
                     wYear, FormatDateTime('HH":"NN":"SS', GMTValue), 'GMT']);  {do not localize}
+{$ENDIF}
 end;
 
 {This should never be localized}
 function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
+{$IFDEF DOTNET}
+var
+  LS : StringBuilder;
+begin
+  LS := StringBuilder.Create;
+  LS.Append( wdays[ Value.DayOfWeek ] );
+  LS.Append(', ');
+  LS.Append( Sys.AlignLeftCol( Value.Day.ToString('{$0:d2}') ,2));
+  LS.Append(' ');
+  LS.Append(monthnames[ Value.Month ]);
+  LS.Append(' ');
+  LS.Append( Sys.AlignLeftCol(Value.Year.ToString('{$0:d4}' ),4));
+  LS.Append(' ');
+   LS.Append( Value.Hour.ToString('{$0:d2}' ));
+   LS.Append(':');
+   LS.Append( Value.Minute.ToString('{$0:d2}' ));
+   LS.Append(':');
+   LS.Append( Value.Second.ToString('{$0:d2}' ));
+   LS.Append(' ');
+   LS.Append(  DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT) );
+   Result := LS.ToString;
+{$ELSE}
 var
   wDay,
   wMonth,
   wYear: Word;
 begin
-  DecodeDate(Value, wYear, wMonth, wDay);
-  Result := Format('%s, %d %s %d %s %s',    {do not localize}
+  Sys.DecodeDate(Value, wYear, wMonth, wDay);
+  Result := Sys.Format('%s, %d %s %d %s %s',    {do not localize}
                    [wdays[DayOfWeek(Value)], wDay, monthnames[wMonth],
                     wYear, FormatDateTime('HH":"NN":"SS', Value),  {do not localize}
-                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
+                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT));
+{$ENDIF}
 end;
 
 function StrInternetToDateTime(Value: string): TDateTime;
@@ -1236,17 +1284,17 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := StrToIntDef( Copy( LBuffer,1,4),0);
-      LMonth := StrToIntDef(Copy(LBuffer,5,2),0);
-      LDay := StrToIntDef(Copy(LBuffer,7,2),0);
+      LYear := Sys.StrToInt( Copy( LBuffer,1,4),0);
+      LMonth := Sys.StrToInt(Copy(LBuffer,5,2),0);
+      LDay := Sys.StrToInt(Copy(LBuffer,7,2),0);
 
-      LHour := StrToIntDef(Copy(LBuffer,9,2),0);
-      LMin := StrToIntDef(Copy(LBuffer,11,2),0);
-      LSec := StrToIntDef(Copy(LBuffer,13,2),0);
+      LHour := Sys.StrToInt(Copy(LBuffer,9,2),0);
+      LMin := Sys.StrToInt(Copy(LBuffer,11,2),0);
+      LSec := Sys.StrToInt(Copy(LBuffer,13,2),0);
       Fetch(LBuffer,'.');
-      LMSec := StrToIntDef(LBuffer,0);
-      Result := EncodeDate(LYear,LMonth,LDay);
-      Result := Result + EncodeTime(LHour,LMin,LSec,LMSec);
+      LMSec := Sys.StrToInt(LBuffer,0);
+      Result := Sys.EncodeDate(LYear,LMonth,LDay);
+      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
   end;
 end;
 
@@ -1266,17 +1314,17 @@ var LYear, LMonth, LDay,
     LHour, LMin, LSec, LMSec : Word;
 
 begin
-  DecodeDate(ATimeStamp,LYear,LMonth,LDay);
-  DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
-  Result := Format('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]);
+  Sys.DecodeDate(ATimeStamp,LYear,LMonth,LDay);
+  Sys.DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
+  Result := sys.Format('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]);
   if AIncludeMSecs then
   begin
     if (LMSec <> 0) then
     begin
-      Result := Result + Format('.%3d',[LMSec]);
+      Result := Result + Sys.Format('.%3d',[LMSec]);
     end;
   end;
-  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
+  Result := Sys.StringReplace(Result,' ','0');
 end;
 {
 Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
@@ -1338,7 +1386,7 @@ begin
       inc(iEnd);
       inc(iPos);
     end ;
-    sTemp := Trim(Copy(Value, iStart, iEnd - iStart));
+    sTemp := Sys.Trim(Copy(Value, iStart, iEnd - iStart));
     if Length(sTemp) > 0 then
     begin
       AList.Add(sTemp);
@@ -1467,7 +1515,7 @@ begin
   // validate path and add path delimiter before file name prefix
   if APath <> '' then
   begin
-    if not DirectoryExists(APath) then
+    if not Sys.DirectoryExists(APath) then
     begin
       LFName := APrefix;
     end
@@ -1484,9 +1532,9 @@ begin
 
   LNamePart := Ticks;
   repeat
-    Result := LFName + IntToHex(LNamePart, 8) + LFQE;
+    Result := LFName + Sys.IntToHex(LNamePart, 8) + LFQE;
 
-    if not FileExists(Result) then
+    if not Sys.FileExists(Result) then
     begin
       break;
     end
@@ -1531,11 +1579,19 @@ end;
 // OS-independant version
 function FileSizeByName(const AFilename: string): Int64;
 //Leave in for HTTP Server
+{$IFDEF DOTNET}
+var LF : System.IO.FileInfo;
+{$ENDIF}
 begin
+  {$IFDEF DOTNET}
+  LF := FileInfo.Create(AFileName);
+  Result := LF.Length;
+  {$ELSE}
   with TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite) do
   try
     Result := Size;
   finally Free; end;
+  {$ENDIF}
 end;
 
 function GetGMTDateByName(const AFileName : String) : TDateTime;
@@ -1604,7 +1660,7 @@ end;
 {$IFDEF DOTNET}
 function OffsetFromUTC: TDateTime;
 begin
-  Result := System.Timezone.CurrentTimezone.GetUTCOffset(now).TotalDays;
+  Result := System.Timezone.CurrentTimezone.GetUTCOffset(Sys.now).TotalDays;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
@@ -1639,7 +1695,7 @@ end;
 
 function StrToCard(const AStr: String): Cardinal;
 begin
-  Result := StrToInt64Def(Trim(AStr),0);
+  Result := Sys.StrToInt64Def(Sys.Trim(AStr),0);
 end;
 
 {$IFDEF LINUX}
@@ -1699,7 +1755,7 @@ begin
   // None of the strings match, so convert to numeric (allowing an
   // EConvertException to be thrown if not) and test against zero.
   // If zero, return false, otherwise return true.
-  LCount := StrToInt(AString);
+  LCount := Sys.StrToInt(AString);
   if LCount = 0 then
   begin
     result := false;
@@ -1769,19 +1825,19 @@ end;
 
 function StrToDay(const ADay: string): Byte;
 begin
-  Result := Succ(PosInStrArray(Uppercase(ADay),
+  Result := Succ(PosInStrArray(Sys.Uppercase(ADay),
     ['SUN','MON','TUE','WED','THU','FRI','SAT']));   {do not localize}
 end;
 
 function StrToMonth(const AMonth: string): Byte;
 begin
-  Result := Succ(PosInStrArray(Uppercase(AMonth),
+  Result := Succ(PosInStrArray(Sys.Uppercase(AMonth),
     ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']));   {do not localize}
 end;
 
 function UpCaseFirst(const AStr: string): string;
 begin
-  Result := LowerCase(TrimLeft(AStr));
+  Result := Sys.LowerCase(Sys.TrimLeft(AStr));
   if Result <> '' then begin   {Do not Localize}
     Result[1] := UpCase(Result[1]);
   end;
@@ -1796,8 +1852,8 @@ begin
     Result := 'GMT'; {do not localize}
     Exit;
   end;
-  DecodeTime(ADateTime, AHour, AMin, ASec, AMSec);
-  Result := Format(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
+  Sys.DecodeTime(ADateTime, AHour, AMin, ASec, AMSec);
+  Result := Sys.Format(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
   if ADateTime < 0.0 then
   begin
     Result[1] := '-'; {do not localize}
@@ -1814,12 +1870,12 @@ const
 
 function IsHex(const AChar : Char) : Boolean;
 begin
-  Result := (IndyPos(UpperCase(AChar),HexNumbers)>0);
+  Result := (IndyPos(Sys.UpperCase(AChar),HexNumbers)>0);
 end;
 
 function IsBinary(const AChar : Char) : Boolean;
 begin
-  Result := (IndyPos(UpperCase(AChar),BinNumbers)>0);
+  Result := (IndyPos(Sys.UpperCase(AChar),BinNumbers)>0);
 end;
 
 function BinStrToInt(const ABinary: String): Integer;
@@ -1869,17 +1925,17 @@ begin
         If IsNumeric(AText[i]) then
         begin
           LNum := LNum + AText[i];
-          if StrToIntDef(LNum,0)>$FF then
+          if Sys.StrToInt(LNum,0)>$FF then
           begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(StrToIntDef(LNum,0));
+            Result := Result + Char(Sys.StrToInt(LNum,0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(StrToIntDef(LNum,0));
+          Result := Result + Char(Sys.StrToInt(LNum,0));
           LNum := '';
           if AText[i]<>'.' then
           begin
@@ -1891,17 +1947,17 @@ begin
         If IsHex(AText[i]) and (Length(LNum)<2) then
         begin
           LNum := LNum + AText[i];
-          if (StrToIntDef('$'+LNum,0)>$FF)  then
+          if (Sys.StrToInt('$'+LNum,0)>$FF)  then
           begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(StrToIntDef(LNum,0));
+            Result := Result + Char(Sys.StrToInt(LNum,0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(StrToIntDef('$'+LNum,0));
+          Result := Result + Char(Sys.StrToInt('$'+LNum,0));
           LNum := '';
           if AText[i]<>'.' then
           begin
@@ -1923,7 +1979,7 @@ begin
         end
         else
         begin
-          Result := Result + Char(StrToIntDef('$'+LNum,0));
+          Result := Result + Char(Sys.StrToInt('$'+LNum,0));
           LNum := '';
           if AText[i]<>'.' then
           begin
@@ -1973,7 +2029,7 @@ end;
 {$ENDIF}
 *)
 
-function GetMIMETypeFromFile(const AFile: TFileName): string;
+function GetMIMETypeFromFile(const AFile: String): string;
 var
   MIMEMap: TIdMIMETable;
 begin
@@ -2000,13 +2056,13 @@ end;
 function GmtOffsetStrToDateTime(S: string): TDateTime;
 begin
   Result := 0.0;
-  S := Copy(Trim(s), 1, 5);
+  S := Copy(Sys.Trim(s), 1, 5);
   if Length(S) > 0 then
   begin
     if (s[1] = '-') or (s[1] = '+') then   {do not localize}
     begin
       try
-        Result := EncodeTime(StrToInt(Copy(s, 2, 2)), StrToInt(Copy(s, 4, 2)), 0, 0);
+        Result := Sys.EncodeTime(Sys.StrToInt(Copy(s, 2, 2)), Sys.StrToInt(Copy(s, 4, 2)), 0, 0);
         if s[1] = '-' then  {do not localize}
         begin
           Result := -Result;
@@ -2423,7 +2479,7 @@ begin
     FillMIMETable(LKeys);
     LoadFromStrings(LKeys);
   finally
-    FreeAndNil(LKeys);
+    Sys.FreeAndNil(LKeys);
   end;
 end;
 
@@ -2439,8 +2495,8 @@ end;
 
 destructor TIdMimeTable.Destroy;
 begin
-  FreeAndNil(FMIMEList);
-  FreeAndNil(FFileExt);
+  Sys.FreeAndNil(FMIMEList);
+  Sys.FreeAndNil(FFileExt);
   inherited Destroy;
 end;
 
@@ -2470,7 +2526,7 @@ var
   Index : Integer;
   LExt: string;
 begin
-  LExt := IndyLowerCase(ExtractFileExt(AFileName));
+  LExt := IndyLowerCase(Sys.ExtractFileExt(AFileName));
   Index := FFileExt.IndexOf(LExt);
   if Index <> -1 then
   begin
@@ -2525,9 +2581,9 @@ var
   LTmp: String;
 begin
   Result := True;
-  LTmp := Trim(S);
+  LTmp := Sys.Trim(S);
   for i := 1 to 4 do begin
-    j := StrToIntDef(Fetch(LTmp, '.'), -1);    {Do not Localize}
+    j := Sys.StrToInt(Fetch(LTmp, '.'), -1);    {Do not Localize}
     Result := Result and (j > -1) and (j < 256);
     if NOT Result then begin
       Break;
@@ -2549,7 +2605,7 @@ Var
 begin
   i := 0;
 
-  LTmp := IndyUpperCase(Trim(AStr));
+  LTmp := IndyUpperCase(Sys.Trim(AStr));
   while IndyPos('.', LTmp) > 0 do begin    {Do not Localize}
     S1 := LTmp;
     Fetch(LTmp, '.');    {Do not Localize}
@@ -2824,7 +2880,7 @@ var
   LPos: integer;
   LInQuotes: Boolean;
 begin
-  LPos := Pos(LowerCase(AEntry), LowerCase(AHeader));
+  LPos := Pos(Sys.LowerCase(AEntry), Sys.LowerCase(AHeader));
   if LPos = 0 then begin
     Result := AHeader;
   end else begin
@@ -2842,7 +2898,7 @@ begin
         Exit;
       end;
     end;
-    Result := Trim(Result);
+    Result := Sys.Trim(Result);
     if Result[Length(Result)] = ';' then begin
       Result := Copy(Result, 1, Length(Result)-1);
     end;

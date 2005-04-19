@@ -84,6 +84,7 @@ interface
 
 uses
   Classes, IdGlobal, IdException, IdGlobalProtocols, IdTStrings, SysUtils;
+  //must keep for now
 
 Const
   GFMaxAge = -1;
@@ -236,7 +237,7 @@ Type
 implementation
 
 uses
-  IdAssignedNumbers;
+  IdAssignedNumbers, IdSysUtils;
   
 { base functions used for construction of Cookie text }
 
