@@ -1,4 +1,4 @@
-{ $HDR$}
+ { $HDR$}
 {**********************************************************************}
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
