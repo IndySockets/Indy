@@ -743,17 +743,21 @@ type
   public
     constructor Create(const ASrc: string); reintroduce;
   end;
-  TLogFileStream = class(TFileStream)
+  TAppendFileStream = class(TFileStream)
   public
-    constructor Create(AFile : String);
+    constructor Create(const AFile : String);
   end;
   TReadFileExclusiveStream = class(TFileStream)
   public
-    constructor Create(AFile : String);
+    constructor Create(const AFile : String);
+  end;
+  TReadFileNonExclusiveStream = class(TFileStream)
+  public
+    constructor Create(const AFile : String);
   end;
   TFileCreateStream = class(TFileStream)
   public
-    constructor Create(AFile : String);
+    constructor Create(const AFile : String);
   end;
   {$IFDEF DotNet}
   // dotNET implementation
@@ -1153,12 +1157,12 @@ const
   fmShareDenyNone  = $0040;
 {$ENDIF}
 {$ENDIF}
-constructor TFileCreateStream.Create(AFile : String);
+constructor TFileCreateStream.Create(const AFile : String);
 begin
   inherited Create(AFile,fmCreate);
 end;
 
-constructor TLogFileStream.Create(AFile : String);
+constructor TAppendFileStream.Create(const AFile : String);
 var  LFlags: Word;
 begin
   if Sys.FileExists(AFile) then
@@ -1173,7 +1177,12 @@ begin
   end;
 end;
 
-constructor TReadFileExclusiveStream.Create(AFile : String);
+constructor TReadFileNonExclusiveStream.Create(const AFile : String);
+begin
+  inherited Create(AFile,fmOpenRead or  fmOpenRead or fmShareDenyNone);
+end;
+
+constructor TReadFileExclusiveStream.Create(const AFile : String);
 begin
   inherited Create(AFile,fmOpenRead or fmShareDenyWrite);
 end;
