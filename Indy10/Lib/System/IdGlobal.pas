@@ -751,6 +751,10 @@ type
   public
     constructor Create(AFile : String);
   end;
+  TFileCreateStream = class(TFileStream)
+  public
+    constructor Create(AFile : String);
+  end;
   {$IFDEF DotNet}
   // dotNET implementation
   TWaitResult = (wrSignaled, wrTimeout, wrAbandoned, wrError);
@@ -1149,6 +1153,10 @@ const
   fmShareDenyNone  = $0040;
 {$ENDIF}
 {$ENDIF}
+constructor TFileCreateStream.Create(AFile : String);
+begin
+  inherited Create(AFile,fmCreate);
+end;
 
 constructor TLogFileStream.Create(AFile : String);
 var  LFlags: Word;
