@@ -282,7 +282,6 @@ interface
 uses
     Classes,
     IdContainers,
-    SysUtils,
     IdAssignedNumbers,
     IdSocketHandle,
     IdIOHandlerSocket,
@@ -410,7 +409,7 @@ type
     procedure RemoveChild(Index : integer);
     procedure SortChildren;
     procedure Clear;
-    procedure SaveToFile(Filename : TFilename);
+    procedure SaveToFile(Filename : String);
     function IndexByLabel(CLabel : AnsiString): integer;
     function IndexByNode(ANode : TIdDNTreeNode) : integer;
   end;
@@ -542,8 +541,8 @@ type
     function CompleteQuery(DNSHeader: TDNSHeader; Question: string;
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : word;
       DNSResolver : TIdDNSResolver) : string;
-    function LoadZoneFromMasterFile(MasterFileName : TFileName) : boolean;
-    function LoadZoneStrings(FileStrings: TIdStrings; Filename : TFilename;
+    function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
+    function LoadZoneStrings(FileStrings: TIdStrings; Filename : String;
              TreeRoot : TIdDNTreeNode): boolean;
     function SearchTree(Root : TIdDNTreeNode; QName : String; QType : Word): TIdDNTreeNode;
     procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TIdTextModeResourceRecord); overload;
@@ -624,7 +623,7 @@ var LObj1, LObj2 : TIdDNTreeNode;
 begin
   LObj1 := Item1 as TIdDNTreeNode;
   LObj2 := Item2 as TIdDNTreeNode;
-  Result := CompareText((LObj1 as TIdDNTreeNode).CLabel, (LObj2 as TIdDNTreeNode).CLabel);
+  Result := Sys.CompareStr((LObj1 as TIdDNTreeNode).CLabel, (LObj2 as TIdDNTreeNode).CLabel);
 end;
 
 function SameArray(const B1, B2: TIdBytes): boolean;
@@ -857,7 +856,7 @@ begin
   Self.FChildIndex.Delete(Index);
 end;
 
-procedure TIdDNTreeNode.SaveToFile(Filename: TFilename);
+procedure TIdDNTreeNode.SaveToFile(Filename: String);
 var
   DNSs : TIdStrings;
 begin
@@ -1196,12 +1195,12 @@ begin
 end;
 
 function TIdDNS_UDPServer.LoadZoneFromMasterFile(
-  MasterFileName: TFileName): boolean;
+  MasterFileName: String): boolean;
 var
    FileStrings : TIdStrings;
 begin
    {MakeTagList;}
-   Result := FileExists(MasterFileName);
+   Result := Sys.FileExists(MasterFileName);
 
    if Result then begin
       FileStrings := TIdStringList.Create;
@@ -1220,12 +1219,12 @@ begin
    {FreeTagList;}
 end;
 
-function TIdDNS_UDPServer.LoadZoneStrings(FileStrings: TIdStrings; Filename : TFilename;
+function TIdDNS_UDPServer.LoadZoneStrings(FileStrings: TIdStrings; Filename : String;
          TreeRoot : TIdDNTreeNode): boolean;
 var
    TagList : TIdStrings;
 
-   function IsMSDNSFileName(theFileName : TFilename; var DN:string) : boolean;
+   function IsMSDNSFileName(theFileName : String; var DN:string) : boolean;
    var
       namepart : TIdStrings;
       Fullname : string;
@@ -1329,7 +1328,7 @@ var
 
       if FileStrings.Count > 0 then begin
          repeat
-            LineData := Trim(FileStrings.Strings[CurrentLineNum]);
+            LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
             DataBody := Fetch(LineData, ';');
             Comment := LineData;
             PassQuota := Pos('(', DataBody) = 0;
@@ -1338,7 +1337,7 @@ var
             repeat
                   if not PassQuota then begin
                      Inc(CurrentLineNum);
-                     LineData := Trim(FileStrings.Strings[CurrentLineNum]);
+                     LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
                      DataBody := DataBody + ' ' + Fetch(LineData, ';');
                      PassQuota := Pos(')', DataBody) > 0;
                   end;
@@ -1352,11 +1351,11 @@ var
                DataBody := ReplaceSpecString(DataBody, ')', '');
 
                repeat
-                     DataBody := Trim(DataBody);
+                     DataBody := Sys.Trim(DataBody);
                      FPart := Fetch(DataBody, #9);
 
                      repeat
-                       FPart := Trim(FPart);
+                       FPart := Sys.Trim(FPart);
                        Tag := Fetch(FPart,' ');
 
                        if (Tag <> '') and (Tag <> '(') and (Tag <> ')') then
@@ -1510,12 +1509,12 @@ var
 
       if IsMSDNSFileName(FileName, LastDenotedDomain) then begin
          //canChangPrevDNTag := False;
-         Filename := Uppercase (Filename);
+         Filename := Sys.Uppercase (Filename);
       end else LastDenotedDomain := '';
 
       if FileStrings.Count > 0 then begin
          repeat
-            LineData := Trim(FileStrings.Strings[CurrentLineNum]);
+            LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
             DataBody := Fetch(LineData, ';');
             Comment := LineData;
             PassQuota := Pos('(', DataBody) = 0;
@@ -1524,7 +1523,7 @@ var
             repeat
                   if not PassQuota then begin
                      Inc(CurrentLineNum);
-                     LineData := Trim(FileStrings.Strings[CurrentLineNum]);
+                     LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
                      DataBody := DataBody + ' ' + Fetch(LineData, ';');
                      PassQuota := Pos(')', DataBody) > 0;
                   end;
@@ -1534,11 +1533,11 @@ var
             DataBody := ReplaceSpecString(DataBody, '(', '');
             DataBody := ReplaceSpecString(DataBody, ')', '');
             repeat
-               DataBody := Trim(DataBody);
+               DataBody := Sys.Trim(DataBody);
                FPart := Fetch(DataBody, #9);
 
                repeat
-                  FPart := Trim(FPart);
+                  FPart := Sys.Trim(FPart);
                   if Pos('"', FPart) = 1 then begin
                      Fetch(FPart, '"');
                      Text := Fetch(FPart, '"');
@@ -1585,7 +1584,7 @@ var
                                      if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
                                         PrevDNTag := '';
                                      end else begin
-                                         LastTTL := StrToInt(EachLinePart.Strings[TagField + 6]);
+                                         LastTTL := Sys.StrToInt(EachLinePart.Strings[TagField + 6]);
                                      end;
                                   end else canChangPrevDNTag := False;
                               2 : if EachLinePart.Strings[1] = 'IN' then begin  {do not localize}
@@ -1594,7 +1593,7 @@ var
                                      if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
                                         PrevDNTag := '';
                                      end else begin
-                                         LastTTL := StrToInt(EachLinePart.Strings[TagField + 6]);
+                                         LastTTL := Sys.StrToInt(EachLinePart.Strings[TagField + 6]);
                                      end;
                                   end else canChangPrevDNTag := False;
                               else begin
@@ -1841,7 +1840,7 @@ var
                                                 LLRR_SOA.Expire := EachLinePart.Strings[TagField + 6];
                                                 LLRR_SOA.Minimum := EachLinePart.Strings[TagField + 7];
 
-                                                LastTTL := StrToInt(LLRR_SOA.Expire);
+                                                LastTTL := Sys.StrToInt(LLRR_SOA.Expire);
                                                 LLRR_SOA.TTL := LastTTL;
                                                 UpdateTree(TreeRoot, LLRR_SOA);
 
@@ -1887,7 +1886,7 @@ begin
    TempResolver := TIdDNSResolver.Create(nil);
    TempResolver.FillResultWithOutCheckId(ResourceRecord);
 
-   if TempResolver.FDNSHeader.ANCount > 0 then begin
+   if TempResolver.DNSHeader.ANCount > 0 then begin
       for count := 0 to TempResolver.QueryResult.Count - 1 do begin
           RR := TempResolver.QueryResult.Items[Count];
           { marked by Dennies Chang. 2004/7/16
@@ -2180,11 +2179,11 @@ begin
                   LRR_SOA.RRName := RRName;
                   LRR_SOA.MName := TSOARecord(RR).Primary;
                   LRR_SOA.RName := TSOARecord(RR).ResponsiblePerson;
-                  LRR_SOA.Serial := IntToStr(TSOARecord(RR).Serial);
-                  LRR_SOA.Minimum := IntToStr(TSOARecord(RR).MinimumTTL);
-                  LRR_SOA.Refresh := IntToStr(TSOARecord(RR).Refresh);
-                  LRR_SOA.Retry := IntToStr(TSOARecord(RR).Retry);
-                  LRR_SOA.Expire := IntToStr(TSOARecord(RR).Expire);
+                  LRR_SOA.Serial := Sys.IntToStr(TSOARecord(RR).Serial);
+                  LRR_SOA.Minimum := Sys.IntToStr(TSOARecord(RR).MinimumTTL);
+                  LRR_SOA.Refresh := Sys.IntToStr(TSOARecord(RR).Refresh);
+                  LRR_SOA.Retry := Sys.IntToStr(TSOARecord(RR).Retry);
+                  LRR_SOA.Expire := Sys.IntToStr(TSOARecord(RR).Expire);
                   LRR_SOA.TTL:= TSOARecord(RR).TTL;
 
                   if LRR_SOA.ifAddFullName(NodeCursor.FullName) then begin
@@ -2264,7 +2263,7 @@ begin
 
                   LRR_MX.RRName := RRName;
                   LRR_MX.Exchange := TMXRecord(RR).ExchangeServer;
-                  LRR_MX.Preference := IntToStr(TMXRecord(RR).Preference);
+                  LRR_MX.Preference := Sys.IntToStr(TMXRecord(RR).Preference);
                   LRR_MX.TTL := TMXRecord(RR).TTL;
 
                   if LRR_MX.ifAddFullName(NodeCursor.FullName) then begin
@@ -2567,7 +2566,7 @@ var
   AResult: TIdBytes;
   Stop, Extra, IsMyDomains, ifAdditional : boolean;
   LDNSResolver : TIdDNSResolver;
-  TM1, TM2 : TTimeStamp;
+
 begin
   SetLength(Answer, 0);
   SetLength(Aresult, 0);
@@ -2937,12 +2936,11 @@ begin
           SetLength(LocalAnswer, 0);
 
           if RRIndex <> -1 then begin
-            TM1 := DateTimeToTimeStamp(Now);
-            TM2 := DateTimeToTimeStamp(StrToDateTime(TargetNode.RRs.Items[RRIndex].TimeOut));
 
             // TimeOut, update the record.
-            if (((TM1.Date = TM2.Date) and (TM1.Time > TM2.Time)) or
-              (TM1.Date > TM2.Date)) then begin
+            if Sys.CompareDate(Sys.Now,
+              Sys.StrToDateTime(TargetNode.RRs.Items[RRIndex].TimeOut)) =1 then
+            begin
               SetLength(LocalAnswer, 0)
             end else begin
               case QType of
@@ -3538,7 +3536,7 @@ begin
 
              if not NotThis then begin
                 Dec(TIndex);
-                NeedUpdated := ((TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = IntToStr(TSOARecord(RR).Serial));
+                NeedUpdated := ((TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = Sys.IntToStr(TSOARecord(RR).Serial));
              end else begin
                  NeedUpdated := True;
              end;
@@ -3650,11 +3648,11 @@ begin
   Self.FServer := nil;
   Self.FMainBinding := nil;
   Self.FMyBinding.CloseSocket;
-  FreeAndNil(Self.FMyBinding);
+  Sys.FreeAndNil(Self.FMyBinding);
   //Self.FMyBinding := nil;
 
   if Self.FMyData <> nil then begin
-     FreeAndNil(Self.FMyData);
+     Sys.FreeAndNil(Self.FMyData);
   end;
   inherited;
 end;
@@ -3743,7 +3741,7 @@ begin
             Self.FServer.DoAfterCacheSaved(Self.FServer.FCached_Tree);
           end;
         finally
-          FreeAndNil(DNSHeader_Processing);
+          Sys.FreeAndNil(DNSHeader_Processing);
         end;
       end;
   end;
@@ -3852,7 +3850,7 @@ begin
    TempResolver := TIdDNSResolver.Create(nil);
    TempResolver.FillResultWithOutCheckId(ResourceRecord);
 
-   if TempResolver.FDNSHeader.ANCount > 0 then begin
+   if TempResolver.DNSHeader.ANCount > 0 then begin
       for count := 0 to TempResolver.QueryResult.Count - 1 do begin
           RR := TempResolver.QueryResult.Items[Count];
           {
@@ -3893,7 +3891,7 @@ begin
        end;
    end;
 
-   FreeAndNil(TempResolver);
+   Sys.FreeAndNil(TempResolver);
 end;
 
 function TIdDNS_ProcessThread.SearchTree(Root: TIdDNTreeNode;
@@ -3960,9 +3958,11 @@ begin
     end;
   until (NameLabels.Count = 0) or (Found);
 
-  if Found then Result := NodeCursor;
-
-  FreeAndNil(NameLabels);
+  if Found then
+  begin
+    Result := NodeCursor;
+  end;
+  Sys.FreeAndNil(NameLabels);
 end;
 
 function TIdDNS_ProcessThread.CompleteQuery(DNSHeader: TDNSHeader;
