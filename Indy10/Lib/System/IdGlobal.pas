@@ -656,6 +656,7 @@ uses
   System.IO, System.Text,
   {$ELSE}
   IdSysUtilsWin32,
+  //DotNET
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Windows,
@@ -685,6 +686,17 @@ const
   //We make the version things an Inc so that they can be managed independantly
   //by the package builder.
   {$I IdVers.inc}
+
+  {$IFNDEF DotNet}
+  // We need these constants from SysUtils because they aren't in the system unit.
+  HoursPerDay   = 24;
+  MinsPerHour   = 60;
+  SecsPerMin    = 60;
+  MSecsPerSec   = 1000;
+  MinsPerDay    = HoursPerDay * MinsPerHour;
+  SecsPerDay    = MinsPerDay * SecsPerMin;
+  MSecsPerDay   = SecsPerDay * MSecsPerSec;
+  {$ENDIF}
 
   {$IFDEF DotNet}
   // Timeout.Infinite is -1 which violates Cardinal which VCL uses for parameter
