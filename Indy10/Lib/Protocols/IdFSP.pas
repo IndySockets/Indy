@@ -70,7 +70,7 @@
 unit IdFSP;
 
 interface
-uses Classes, IdException, IdFTPList,  IdGlobal, IdStreamVCL, IdThreadSafe,
+uses Classes, IdException, IdFTPList,  IdGlobal, IdStreamVCL, IdSysUtils, IdThreadSafe,
   IdTStrings, IdUDPClient;
 
 {This is based on:
@@ -386,7 +386,7 @@ causes that directory can be listable even it do not have
   end;
 
 implementation
-uses IdBuffer, IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils,
+uses IdBuffer, IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, 
   IdStack;
 
 function ParseASCIIZ(const ABytes : TIdBytes; const ALen : Cardinal) : String;
@@ -440,10 +440,10 @@ end;
 destructor TIdFSP.Destroy;
 begin
   Disconnect;
-  FreeAndNil( FDirInfo );
-  FreeAndNil( FDirectoryListing );
-  FreeAndNil( FStatInfo );
-  FreeAndNil( FAbortFlag );
+  Sys.FreeAndNil( FDirInfo );
+  Sys.FreeAndNil( FDirectoryListing );
+  Sys.FreeAndNil( FStatInfo );
+  Sys.FreeAndNil( FAbortFlag );
   inherited;
 end;
 
@@ -468,7 +468,7 @@ begin
   try
     Get(ASourceFile,LStream,AResume);
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -477,29 +477,25 @@ procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
 var
   LDestStream: TFileStream;
 begin
-  if FileExists(ADestFile) then begin
+
     if ACanOverwrite and (not AResume) then begin
-      DeleteFile(ADestFile);
-      LDestStream := TFileStream.Create(ADestFile, fmCreate);
+      Sys.DeleteFile(ADestFile);
+      LDestStream := TFileCreateStream.Create(ADestFile);
     end
     else begin
       if (not ACanOverwrite) and AResume then begin
-        LDestStream := TFileStream.Create(ADestFile, fmOpenReadWrite or fmShareDenyWrite);
-        LDestStream.Position := LDestStream.Size;
+        LDestStream := TAppendFileStream.Create(ADestFile);
       end
       else begin
         raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
       end;
     end;
-  end
-  else begin
-    LDestStream := TFileStream.Create(ADestFile, fmCreate);
-  end;
+
 
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
-    FreeAndNil(LDestStream);
+    Sys.FreeAndNil(LDestStream);
   end;
 end;
 
@@ -548,8 +544,8 @@ begin
       EndWork(wmRead);
     end;
   finally
-    FreeAndNil(LSendPacket);
-    FreeAndNil(LRecvPacket);
+    Sys.FreeAndNil(LSendPacket);
+    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
@@ -628,8 +624,8 @@ begin
       end;
     until FDirectoryListing.ParseEntries( LRecvPacket.FData, LRecvPacket.FDataLen );
   finally
-    FreeAndNil(LSendPacket);
-    FreeAndNil(LRecvPacket);
+    Sys.FreeAndNil(LSendPacket);
+    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
@@ -654,8 +650,8 @@ begin
     VExtraData := LRecvPacket.ExtraData;
 
   finally
-    FreeAndNil(LSendPacket);
-    FreeAndNil(LRecvPacket);
+    Sys.FreeAndNil(LSendPacket);
+    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
@@ -881,8 +877,8 @@ begin
     end;
     SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
   finally
-    FreeAndNil(LSendPacket);
-    FreeAndNil(LRecvPacket);
+    Sys.FreeAndNil(LSendPacket);
+    Sys.FreeAndNil(LRecvPacket);
   end;
 
 end;
@@ -895,7 +891,7 @@ begin
   try
     Put(LStream,ADestFile,AGMTTime);
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -907,11 +903,11 @@ begin
   LDestFileName := ADestFile;
   if LDestFileName = '' then
   begin
-   LDestFileName := ExtractFileName(ASourceFile);
+    LDestFileName := Sys.ExtractFileName(ASourceFile);
   end;
-  LSourceStream := TFileStream.Create(ASourceFile, fmOpenRead or fmShareDenyNone); try
+  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
     Put(LSourceStream, LDestFileName, GetGMTDateByName(ASourceFile) );
-  finally FreeAndNil(LSourceStream); end;
+  finally Sys.FreeAndNil(LSourceStream); end;
 end;
 
 procedure TIdFSP.Delete(const AFilename: string);
@@ -1050,8 +1046,8 @@ begin
     VExtraData := LRecvPacket.ExtraData;
 
   finally
-    FreeAndNil(LSendPacket);
-    FreeAndNil(LRecvPacket);
+    Sys.FreeAndNil(LSendPacket);
+    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
@@ -1147,7 +1143,7 @@ begin
     LBuf.ExtractToBytes(Result,-1,True);
   finally
 
-    FreeAndNil(LBuf);
+    Sys.FreeAndNil(LBuf);
   end;
 end;
 
@@ -1164,7 +1160,7 @@ begin
     if ALen<HSIZE then
     begin
       FValid := False;
-      FreeAndNil(LBuf);
+      Sys.FreeAndNil(LBuf);
       Exit;
     end;
     //check data length
@@ -1220,7 +1216,7 @@ begin
     SetLength(FExtraData,0);
   end;
   finally
-    FreeAndNil(LBuf);
+    Sys.FreeAndNil(LBuf);
   end;
 end;
 

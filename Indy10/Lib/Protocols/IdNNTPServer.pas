@@ -154,7 +154,7 @@ Original Author: Ozz Nixon (Winshoes 7)
 uses
   Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
-  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase,
+  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSysUtils,
   IdTCPConnection, IdTCPServer, IdTStrings;
 
 (*
@@ -371,8 +371,7 @@ uses
   IdResourceStringsProtocols,
   IdReply,
   IdReplyRFC,
-  IdSSL,
-  SysUtils;
+  IdSSL;
 
 resourcestring
   RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
@@ -388,15 +387,15 @@ begin
   LTimeStr := ATimeStamp;
   if LTimeStr <> '' then
   begin
-    LHr := StrToIntDef(Copy(LTimeStr,1,2),1);
+    LHr := Sys.StrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    LMn := StrToIntDef(Copy(LTimeStr,1,2),1);
+    LMn := Sys.StrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    LSec := StrToIntDef(Copy(LTimeStr,1,2),1);
+    LSec := Sys.StrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    Result := EncodeTime(LHr, LMn, LSec,0);
-    LTimeStr := Trim(LTimeStr);
-    if UpperCase(LTimeStr)='GMT' then {do not localize}
+    Result := Sys.EncodeTime(LHr, LMn, LSec,0);
+    LTimeStr := Sys.Trim(LTimeStr);
+    if Sys.UpperCase(LTimeStr)='GMT' then {do not localize}
     begin
       // Apply local offset
       Result := Result + OffSetFromUTC;
@@ -418,18 +417,18 @@ begin
     LDateStr := Fetch(LTimeStr);
     if (Length(LDateStr) > 6) then begin
       //four digit year, good idea - IMAO
-      LYr := StrToIntDef(Copy(LDateStr,1,4),1969);
+      LYr := Sys.StrToInt(Copy(LDateStr,1,4),1969);
       Delete(LDateStr,1,4);
     end else begin
-      LYr := StrToIntDef(Copy(LDateStr,1,2),69);
+      LYr := Sys.StrToInt(Copy(LDateStr,1,2),69);
       Delete(LDateStr,1,2);
       LYr := LYr + 2000;
     end;
-    LMo := StrToIntDef(Copy(LDateStr,1,2),1);
+    LMo := Sys.StrToInt(Copy(LDateStr,1,2),1);
     Delete(LDateStr,1,2);
-    LDay := StrToIntDef(Copy(LDateStr,1,2),1);
+    LDay := Sys.StrToInt(Copy(LDateStr,1,2),1);
     Delete(LDateStr,1,2);
-    Result := EncodeDate(LYr, LMo, LDay) + NNTPTimeToTime(LTimeStr);
+    Result := Sys.EncodeDate(LYr, LMo, LDay) + NNTPTimeToTime(LTimeStr);
   end;
 end;
 
@@ -537,12 +536,12 @@ begin
     if Length(LThread.CurrentGroup) = 0 then begin
       ASender.Reply.NumericCode := 412;
     end else begin
-      s := Trim(ASender.UnparsedParams);
+      s := Sys.Trim(ASender.UnparsedParams);
       // Try as a MsgID
       if Copy(s, 1, 1) = '<' then begin
       // Try as a MsgNo
       end else begin
-        LMsgNo := StrToIntDef(s, 0);
+        LMsgNo := Sys.StrToInt(s, 0);
         if LMsgNo = 0 then begin
           if LThread.CurrentArticle = 0 then begin
             ASender.Reply.NumericCode := 420;
@@ -553,7 +552,7 @@ begin
         LMsgID := '';
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID
            + ' article retrieved - head and body follow');  {do not localize}
           ASender.SendReply;
           OnArticleByNo(LThread, LMsgNo);
@@ -585,12 +584,12 @@ begin
     if Length(LThread.CurrentGroup) = 0 then begin
       ASender.Reply.NumericCode := 412;
     end else begin
-      s := Trim(ASender.UnparsedParams);
+      s := Sys.Trim(ASender.UnparsedParams);
       // Try as a MsgID
       if Copy(s, 1, 1) = '<' then begin
       // Try as a MsgNo
       end else begin
-        LMsgNo := StrToIntDef(s, 0);
+        LMsgNo := Sys.StrToInt(s, 0);
         if LMsgNo = 0 then begin
           if LThread.CurrentArticle = 0 then begin
             ASender.Reply.NumericCode := 420;
@@ -601,7 +600,7 @@ begin
         LMsgID := '';
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID
            + ' article retrieved - body follows');  {do not localize}
           ASender.SendReply;
           OnBodyByNo(LThread, LMsgNo);
@@ -619,7 +618,7 @@ begin
   begin
     Exit;
   end;
-  ASender.Reply.SetReply(111,FormatDateTime('yyyymmddhhnnss', Now + TimeZoneBias));  {do not localize}
+  ASender.Reply.SetReply(111,Sys.FormatDateTime('yyyymmddhhnnss', Sys.Now + TimeZoneBias));  {do not localize}
 end;
 
 (*
@@ -675,12 +674,12 @@ begin
     Exit;
   end;
   if not AuthOk(ASender) then begin
-    LGroup := Trim(ASender.UnparsedParams);
+    LGroup := Sys.Trim(ASender.UnparsedParams);
     DoSelectGroup(TIdNNTPContext(ASender.Context), LGroup, LMsgCount, LMsgFirst, LMsgLast
      , LGroupExists);
     if LGroupExists then begin
       TIdNNTPContext(ASender.Context).FCurrentGroup := LGroup;
-      ASender.Reply.SetReply(211, Format('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
+      ASender.Reply.SetReply(211, Sys.Format('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
     end;
   end;
 end;
@@ -705,12 +704,12 @@ begin
     if Length(LThread.CurrentGroup) = 0 then begin
       ASender.Reply.NumericCode := 412;
     end else begin
-      s := Trim(ASender.UnparsedParams);
+      s := Sys.Trim(ASender.UnparsedParams);
       // Try as a MsgID
       if Copy(s, 1, 1) = '<' then begin
       // Try as a MsgNo
       end else begin
-        LMsgNo := StrToIntDef(s, 0);
+        LMsgNo := Sys.StrToInt(s, 0);
         if LMsgNo = 0 then begin
           if LThread.CurrentArticle = 0 then begin
             ASender.Reply.NumericCode := 420;
@@ -721,7 +720,7 @@ begin
         LMsgID := '';
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID +
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
            ' article retrieved - head follows');  {do not localize}
           ASender.SendReply;
           OnHeadByNo(LThread, LMsgNo);
@@ -749,7 +748,7 @@ begin
       Exit;
     end;
     LThread := TIdNNTPContext(ASender.Context);
-    LMsgID := Trim(ASender.UnparsedParams);
+    LMsgID := Sys.Trim(ASender.UnparsedParams);
     if (Copy(LMsgID, 1, 1) = '<') then begin
       FOnIHaveCheck(LThread,LMsgID,LAccept);
       if LAccept then
@@ -785,7 +784,7 @@ begin
       LMsgNo := LThread.CurrentArticle;
       LMsgID := RawNavigate(LThread,OnPrevArticle);
       if LMsgID<>'' then begin
-        ASender.Reply.SetReply(223, IntToStr(LMsgNo) + ' ' + LMsgID +
+        ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
           ' article retrieved - request text separately');  {do not localize}
       end else begin
         ASender.Reply.NumericCode := 430;
@@ -862,7 +861,7 @@ begin
       ASender.Reply.NumericCode := 502;
     end;
     LThrd := TIdNNTPContext ( ASender.Context );
-    LGroup := Trim(ASender.UnparsedParams);
+    LGroup := Sys.Trim(ASender.UnparsedParams);
     if Length(LGroup)>0 then
     begin
       LGroup := LThrd.CurrentGroup;
@@ -965,7 +964,7 @@ begin
     LDate := LDate + NNTPTimeToTime( ASender.Params[1] );
     if ASender.Params.Count > 2 then
     begin
-      if (UpperCase(ASender.Params[2]) = 'GMT') then {Do not translate}
+      if (Sys.UpperCase(ASender.Params[2]) = 'GMT') then {Do not translate}
       begin
         LDate := LDate + OffSetFromUTC;
         if (ASender.Params.Count > 3) then
@@ -1007,7 +1006,7 @@ begin
     LDate := LDate + NNTPTimeToTime( ASender.Params[2] );
     if (ASender.Params.Count > 3) then
     begin
-      if (UpperCase(ASender.Params[3]) = 'GMT') then {Do not translate}
+      if (Sys.UpperCase(ASender.Params[3]) = 'GMT') then {Do not translate}
       begin
         LDate := LDate + OffSetFromUTC;
         if (ASender.Params.Count > 4) then
@@ -1045,7 +1044,7 @@ begin
     LMsgNo := LThread.CurrentArticle;
     LMsgID := RawNavigate(LThread,OnPrevArticle);
     if LMsgID<>'' then begin
-      ASender.Reply.SetReply(223, IntToStr(LMsgNo) + ' ' + LMsgID +
+      ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
         ' article retrieved - request text separately'); {do not localize}
     end else begin
       ASender.Reply.NumericCode := 430;
@@ -1126,7 +1125,7 @@ begin
     ReplyTexts.UpdateText(LReply);
     ASender.Context.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    FreeAndNil(LReply);
+    Sys.FreeAndNil(LReply);
   end;
   if LCanPost then begin
     LPostOk := False;
@@ -1165,12 +1164,12 @@ begin
     if Length(LThread.CurrentGroup) = 0 then begin
       ASender.Reply.NumericCode := 412;
     end else begin
-      s := Trim(ASender.UnparsedParams);
+      s := Sys.Trim(ASender.UnparsedParams);
       // Try as a MsgID
       if Copy(s, 1, 1) = '<' then begin
       // Try as a MsgNo
       end else begin
-        LMsgNo := StrToIntDef(s, 0);
+        LMsgNo := Sys.StrToInt(s, 0);
         if LMsgNo = 0 then begin
           if LThread.CurrentArticle = 0 then begin
             ASender.Reply.NumericCode := 420;
@@ -1182,7 +1181,7 @@ begin
         OnStatMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) then begin
           LThread.FCurrentArticle := LMsgNo;
-          ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID +
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
             ' article retrieved - statistics only');  {do not localize}
           ASender.SendReply;
         end else begin
@@ -1221,8 +1220,8 @@ begin
           begin
             s := s + ASender.Params[i] + ' ';
           end;
-          s := Trim(s);
-          LFirstMsg := StrToIntDef(Trim(Fetch(s, '-')), 0);
+          s := Sys.Trim(s);
+          LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
           LMsgID := '';
 
           if LFirstMsg = 0 then
@@ -1230,7 +1229,7 @@ begin
             if (ASender.Params.Count = 2) then { HEADER MSG-ID }
             begin
               LMsgID := ASender.Params[1];
-              LFirstMsg := StrToIntDef(LMsgID, 0);
+              LFirstMsg := Sys.StrToInt(LMsgID, 0);
               LLastMsg := LFirstMsg;
             end
             else
@@ -1243,7 +1242,7 @@ begin
           begin
             if Pos('-', ASender.UnparsedParams) > 0 then
             begin
-              LLastMsg := StrToIntDef(Trim(s), 0);
+              LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
             end
             else
             begin
@@ -1354,12 +1353,12 @@ begin
       ASender.Reply.NumericCode := 412;
     end else begin
       s := ASender.UnparsedParams;
-      LFirstMsg := StrToIntDef(Trim(Fetch(s, '-')), -1);
+      LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), -1);
       if LFirstMsg = -1 then begin
         LFirstMsg := TIdNNTPContext(ASender.Context).CurrentArticle;
         LLastMsg := LFirstMsg;
       end else begin
-        LLastMsg := StrToIntDef(Trim(s), -1);
+        LLastMsg := Sys.StrToInt(Sys.Trim(s), -1);
       end;
       if LFirstMsg = -1 then begin
         ASender.Reply.NumericCode := 420;
@@ -1410,8 +1409,8 @@ end;
 
 destructor TIdNNTPServer.Destroy;
 begin
-  FreeAndNil(FOverviewFormat);
-  FreeAndNil(FHelp);
+  Sys.FreeAndNil(FOverviewFormat);
+  Sys.FreeAndNil(FHelp);
   inherited;
 end;
 

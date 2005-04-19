@@ -146,7 +146,7 @@ uses
   Classes, IdAssignedNumbers, IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
   IdDNSResolver, IdMessage, IdMessageClient,
-  IdSMTPBase, IdReplySMTP, IdTStrings, SysUtils;
+  IdSMTPBase, IdReplySMTP, IdTStrings, IdSysUtils;
 
 const
   DEF_OneConnectionPerDomain = True;
@@ -337,9 +337,9 @@ end;
 
 destructor TIdSMTPRelay.Destroy;
 begin
-  FreeAndNil(FSSLOptions);
-  FreeAndNil(FMXServerList);
-  FreeAndNil(FStatusList);
+  Sys.FreeAndNil(FSSLOptions);
+  Sys.FreeAndNil(FMXServerList);
+  Sys.FreeAndNil(FStatusList);
   inherited;
 end;
 
@@ -392,7 +392,7 @@ begin
   end
   else
   begin
-    raise EIdDirectSMTPCannotResolveMX.Create(Format(RSDirSMTPInvalidEMailAddress,[AAddress]));
+    raise EIdDirectSMTPCannotResolveMX.Create(Sys.Format(RSDirSMTPInvalidEMailAddress,[AAddress]));
   end;
   IdDNSResolver1:=TIdDNSResolver.Create(Self);
   FMXServerList.Clear;
@@ -427,7 +427,7 @@ begin
 
       if FMXServerList.Count=0 then
       begin
-        raise EIdDirectSMTPCannotResolveMX.Create(Format(RSDirSMTPNoMXRecordsForDomain,[LDomain]));
+        raise EIdDirectSMTPCannotResolveMX.Create(Sys.Format(RSDirSMTPNoMXRecordsForDomain,[LDomain]));
       end;
     finally
       IdDNSResolver1.Free;
@@ -474,7 +474,7 @@ var LAllEntries, LCurDomEntries : TIdEMailAddressList;
 
         if not Connected then
         begin
-           raise EIdTCPConnectionError.Create(Format(RSDirSMTPCantConnectToSMTPSvr,[AEmailAddresses[0].Address]));
+           raise EIdTCPConnectionError.Create(Sys.Format(RSDirSMTPCantConnectToSMTPSvr,[AEmailAddresses[0].Address]));
         end;
        	if Assigned(FOnDirectSMTPStatus) then
         begin
@@ -527,13 +527,13 @@ begin
           RelayInternalSend(AMsg,LCurDomEntries);
         end;
       finally
-        FreeAndNil(LCurDomEntries);
+        Sys.FreeAndNil(LCurDomEntries);
       end;
     finally
-      FreeAndNil(SDomains);
+      Sys.FreeAndNil(SDomains);
     end;
   finally
-    FreeAndNil(LAllEntries);
+    Sys.FreeAndNil(LAllEntries);
   end;
 end;
 
@@ -594,7 +594,7 @@ end;
 
 destructor TIdSMTPRelayStatusItem.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  Sys.FreeAndNil(FEnhancedCode);
   inherited Destroy;
 end;
 

@@ -69,7 +69,9 @@ interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdContext, IdTCPConnection, IdYarn, IdCustomTCPServer;
+  IdAssignedNumbers, IdContext,
+  IdCustomTCPServer, IdSysUtils,
+  IdTCPConnection, IdYarn;
 
 const
   GLoginAttempts = 3;

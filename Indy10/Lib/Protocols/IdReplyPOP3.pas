@@ -109,7 +109,7 @@ unit IdReplyPOP3;
 interface
 
 uses
-  Classes, IdReply, IdException, IdTStrings;
+  Classes, IdReply, IdException, IdSysUtils, IdTStrings;
 
 const
   {do not change these strings unless you know what you are doing}
@@ -192,7 +192,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols;
 
 { TIdReplyPOP3 }
 
@@ -219,7 +219,7 @@ var
   LOrd: Integer;
 begin
   LOrd := PosInStrArray(ACode,VALID_POP3_STR, False);
-  Result := (LOrd <> -1) or (Trim(ACode) = '');
+  Result := (LOrd <> -1) or (Sys.Trim(ACode) = '');
 end;
 
 constructor TIdReplyPOP3.Create(
@@ -331,7 +331,7 @@ class function TIdReplyPOP3.IsValidEnhancedCode(const AText : String; const AStr
 var LBuf : String;
   i : integer;
 begin
-  Result := (Trim(AText) = '');
+  Result := (Sys.Trim(AText) = '');
   if not Result then begin
     LBuf := AText;
     if (LBuf<>'') and (LBuf[1]='[') then begin
@@ -373,7 +373,7 @@ begin
   end
   else
   begin
-    LBuf := UpperCase(LBuf);
+    LBuf := Sys.UpperCase(LBuf);
     if (LBuf[1]<>'[') then
     begin
       LBuf := '['+LBuf;

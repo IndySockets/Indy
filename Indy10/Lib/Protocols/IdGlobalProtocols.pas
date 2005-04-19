@@ -1198,27 +1198,7 @@ end;
 {This should never be localized}
 function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
 // should adhere to RFC 2616
-{$IFDEF DOTNET}
-var
-  LS : StringBuilder;
-begin
-  LS := StringBuilder.Create;
-  LS.Append( wdays[ GMTValue.DayOfWeek ] );
-  LS.Append(', ');
-  LS.Append( Sys.AlignLeftCol( GMTValue.Day.ToString('{$0:d2}') ,2));
-  LS.Append(' ');
-  LS.Append(monthnames[ GMTValue.Month ]);
-  LS.Append(' ');
-  LS.Append( Sys.AlignLeftCol(GMTValue.Year.ToString('{$0:d4}' ),4));
-  LS.Append(' ');
-   LS.Append( GMTValue.Hour.ToString('{$0:d2}' ));
-   LS.Append(':');
-   LS.Append( GMTValue.Minute.ToString('{$0:d2}' ));
-   LS.Append(':');
-   LS.Append( GMTValue.Second.ToString('{$0:d2}' ));
-   LS.Append(' GMT');
-   Result := LS.ToString;
-{$ELSE}
+
 var
   wDay,
   wMonth,
@@ -1226,35 +1206,12 @@ var
 begin
   Sys.DecodeDate(GMTValue, wYear, wMonth, wDay);
   Result := Sys.Format('%s, %.2d %s %.4d %s %s',    {do not localize}
-                   [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime('HH":"NN":"SS', GMTValue), 'GMT']);  {do not localize}
-{$ENDIF}
+                   [wdays[Sys.DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
+                    wYear, Sys.FormatDateTime('HH":"NN":"SS', GMTValue), 'GMT']);  {do not localize}
 end;
 
 {This should never be localized}
 function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
-{$IFDEF DOTNET}
-var
-  LS : StringBuilder;
-begin
-  LS := StringBuilder.Create;
-  LS.Append( wdays[ Value.DayOfWeek ] );
-  LS.Append(', ');
-  LS.Append( Sys.AlignLeftCol( Value.Day.ToString('{$0:d2}') ,2));
-  LS.Append(' ');
-  LS.Append(monthnames[ Value.Month ]);
-  LS.Append(' ');
-  LS.Append( Sys.AlignLeftCol(Value.Year.ToString('{$0:d4}' ),4));
-  LS.Append(' ');
-   LS.Append( Value.Hour.ToString('{$0:d2}' ));
-   LS.Append(':');
-   LS.Append( Value.Minute.ToString('{$0:d2}' ));
-   LS.Append(':');
-   LS.Append( Value.Second.ToString('{$0:d2}' ));
-   LS.Append(' ');
-   LS.Append(  DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT) );
-   Result := LS.ToString;
-{$ELSE}
 var
   wDay,
   wMonth,
@@ -1262,10 +1219,9 @@ var
 begin
   Sys.DecodeDate(Value, wYear, wMonth, wDay);
   Result := Sys.Format('%s, %d %s %d %s %s',    {do not localize}
-                   [wdays[DayOfWeek(Value)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime('HH":"NN":"SS', Value),  {do not localize}
-                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT));
-{$ENDIF}
+                   [ wdays[Sys.DayOfWeek(Value)], wDay, monthnames[wMonth],
+                    wYear, Sys.FormatDateTime('HH":"NN":"SS', Value),  {do not localize}
+                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
 end;
 
 function StrInternetToDateTime(Value: string): TDateTime;

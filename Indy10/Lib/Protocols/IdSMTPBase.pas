@@ -166,8 +166,7 @@ uses
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,
-  IdStack, //required as we need to get the local computer DNS hostname.
-  SysUtils;
+  IdStack; //required as we need to get the local computer DNS hostname.
 
 { TIdSMTPBase }
 
@@ -316,7 +315,7 @@ begin
       SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize}
     end;
   finally
-    FreeAndNil(LError);
+    Sys.FreeAndNil(LError);
   end;
 end;
 

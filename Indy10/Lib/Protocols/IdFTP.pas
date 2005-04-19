@@ -723,7 +723,7 @@ uses
   IdReplyFTP,
   IdReplyRFC,
   IdReply,
-  IdSocketHandle, IdStreamVCL,
+  IdSocketHandle, IdStreamVCL, IdSysUtils,
   IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdTStrings, IdZLibCompressorBase;
 
 type
@@ -1153,7 +1153,7 @@ uses
   IdComponent, IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols,
   IdStack, IdSimpleServer,
-  SysUtils, IdOTPCalculator;
+   IdOTPCalculator;
 
 function CleanDirName(const APWDReply: string): string;
 begin
@@ -1189,7 +1189,7 @@ begin
     Inc(LChallengeStartPos, 4); // to remove "otp-"
     LChallenge := Copy(AResponse, LChallengeStartPos, $FFFF);
     LMethod := Fetch(LChallenge);
-    LCount := StrToInt(Fetch(LChallenge));
+    LCount := Sys.StrToInt(Fetch(LChallenge));
     LSeed := Fetch(LChallenge);
     if LMethod = 'md5' then begin // methods are case sensitive   {do not localize}
       Result := TIdOTPCalculator.ToSixWordFormat(TIdOTPCalculator.GenerateKeyMD5(lseed,APassword,LCount))
@@ -1403,7 +1403,7 @@ begin
   try
     Get(ASourceFile, LStream, AResume);
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -1412,27 +1412,23 @@ procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: 
 var
   LDestStream: TFileStream;
 begin
-  if FileExists(ADestFile) then begin
+
     AResume := AResume and CanResume;
     if ACanOverwrite and (not AResume) then begin
-      DeleteFile(ADestFile);
-      LDestStream := TFileStream.Create(ADestFile, fmCreate);
+      Sys.DeleteFile(ADestFile);
+      LDestStream := TFileCreateStream.Create(ADestFile);
     end else begin
       if (not ACanOverwrite) and AResume then begin
-        LDestStream := TFileStream.Create(ADestFile, fmOpenReadWrite or fmShareDenyWrite);
-        LDestStream.Position := LDestStream.Size;
+        LDestStream := TAppendFileStream.Create(ADestFile);
       end else begin
         raise EIdFTPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
       end;
     end;
-  end else begin
-    LDestStream := TFileStream.Create(ADestFile, fmCreate);
-  end;
 
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
-    FreeAndNil(LDestStream);
+    Sys.FreeAndNil(LDestStream);
   end;
 end;
 
@@ -1506,15 +1502,15 @@ begin
   try
     LDest := TIdStringStream.Create(''); try
       LStream := TIdStreamVCL.Create(LDest); try
-        InternalGet(Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LStream); {do not localize}
-      finally FreeAndNil(LStream); end;
-      FreeAndNil(FDirectoryListing);
+        InternalGet(Sys.Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LStream); {do not localize}
+      finally Sys.FreeAndNil(LStream); end;
+      Sys.FreeAndNil(FDirectoryListing);
       FListResult.Text := LDest.DataString;
       if ADest <> nil then begin
         ADest.Assign(FListResult);
       end;
       FUsedMLS := False;
-    finally FreeAndNil(LDest); end;
+    finally Sys.FreeAndNil(LDest); end;
     DoOnRetrievedDir;
   finally
     if LTrans <> ftASCII then begin
@@ -1540,7 +1536,7 @@ begin
   end;
   FDataChannel.IOHandler.Free;
   FDataChannel.IOHandler := nil;
-  FreeAndNil(FDataChannel);
+  Sys.FreeAndNil(FDataChannel);
   DoStatus(ftpReady, [RSFTPStatusDoneTransfer]);
   // 226 = download successful, 225 = Abort successful}
   if FAbortFlag.Value then
@@ -1751,7 +1747,7 @@ begin
         LPasvCl.Connect;
         try
           if AResume then begin
-            Self.SendCmd('REST ' + IntToStr(ADest.VCLStream.Position), [350]);   {do not localize}
+            Self.SendCmd('REST ' + Sys.IntToStr(ADest.VCLStream.Position), [350]);   {do not localize}
           end;
           Self.IOHandler.WriteLn(ACommand);
           Self.GetResponse([125, 150, 154]); //APR: Ericsson Switch FTP
@@ -1795,7 +1791,7 @@ begin
           SendPort(LPortSv.Binding);
         end;
         if AResume then begin
-          SendCmd('REST ' + IntToStr(ADest.VCLStream.Position), [350]);  {do not localize}
+          SendCmd('REST ' + Sys.IntToStr(ADest.VCLStream.Position), [350]);  {do not localize}
         end;
         SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
 
@@ -1897,8 +1893,8 @@ end;
 procedure TIdFTP.SendPort(const AIP: String; const APort: Integer);
 begin
   SendDataSettings;
-  SendCmd('PORT ' + StringReplace(AIP, '.', ',', [rfReplaceAll])   {do not localize}
-   + ',' + IntToStr(APort div 256) + ',' + IntToStr(APort mod 256), [200]); {do not localize}
+  SendCmd('PORT ' + Sys.StringReplace(AIP, '.', ',')   {do not localize}
+   + ',' + Sys.IntToStr(APort div 256) + ',' + Sys.IntToStr(APort mod 256), [200]); {do not localize}
 end;
 
 procedure TIdFTP.InitDataChannel;
@@ -1953,7 +1949,7 @@ begin
   try
     Put(LStream,ADestFile,AAppend);
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -1965,11 +1961,11 @@ var
 begin
   LDestFileName := ADestFile;
   if LDestFileName = '' then begin
-   LDestFileName := ExtractFileName(ASourceFile);
+   LDestFileName := Sys.ExtractFileName(ASourceFile);
   end;
-  LSourceStream := TFileStream.Create(ASourceFile, fmOpenRead or fmShareDenyNone); try
+  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
     Put(LSourceStream, LDestFileName, AAppend);
-  finally FreeAndNil(LSourceStream); end;
+  finally Sys.FreeAndNil(LSourceStream); end;
 end;
 
 procedure TIdFTP.StoreUnique(const ASource: TIdStreamVCL);
@@ -1984,7 +1980,7 @@ begin
   try
     StoreUnique(LStream);
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -1992,9 +1988,9 @@ procedure TIdFTP.StoreUnique(const ASourceFile: string);
 var
   LSourceStream: TFileStream;
 begin
-  LSourceStream := TFileStream.Create(ASourceFile, fmOpenRead or fmShareDenyNone); try
+  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
     StoreUnique(LSourceStream);
-  finally FreeAndNil(LSourceStream); end;
+  finally Sys.FreeAndNil(LSourceStream); end;
 end;
 
 procedure TIdFTP.SendInternalPassive(const ACmd: String; var VIP: string;
@@ -2005,7 +2001,7 @@ var
 begin
   SendDataSettings;
   SendCmd(ACmd, 227);      {do not localize}
-  s := Trim(LastCmdResult.Text[0]);
+  s := Sys.Trim(LastCmdResult.Text[0]);
   // Case 1 (Normal)
   // 227 Entering passive mode(100,1,1,1,23,45)
   bLeft := IndyPos('(', s);   {do not localize}
@@ -2024,10 +2020,10 @@ begin
   end;
   IdDelete(VIP, 1, 1);
   // Determine port
-  VPort := StrToInt(Fetch(s, ',')) shl 8;   {do not localize}
+  VPort := Sys.StrToInt(Fetch(s, ',')) shl 8;   {do not localize}
   //use trim as one server sends something like this:
   //"227 Passive mode OK (195,92,195,164,4,99 )"
-  VPort := VPort + StrToInt(Trim(Fetch(s, ','))); {Do not translate}
+  VPort := VPort + Sys.StrToInt(Sys.Trim(Fetch(s, ','))); {Do not translate}
 end;
 
 procedure TIdFTP.SendPassive(var VIP: string; var VPort: integer);
@@ -2124,9 +2120,9 @@ var
 begin
   result := -1;
   if SendCmd('SIZE ' + AFileName) = 213 then begin  {do not localize}
-    SizeStr := Trim(LastCmdResult.Text.Text);
+    SizeStr := Sys.Trim(LastCmdResult.Text.Text);
     IdDelete(SizeStr, 1, IndyPos(' ', SizeStr)); // delete the response   {do not localize}
-    result := StrToIntDef(SizeStr, -1);
+    result := Sys.StrToInt(SizeStr, -1);
   end;
 end;
 
@@ -2162,7 +2158,7 @@ end;
 
 procedure TIdFTP.Allocate(AAllocateBytes: Integer);
 begin
-  SendCmd('ALLO ' + IntToStr(AAllocateBytes), [200]); {do not localize}
+  SendCmd('ALLO ' + Sys.IntToStr(AAllocateBytes), [200]); {do not localize}
 end;
 
 procedure TIdFTP.Status(AStatusList: TIdStrings);
@@ -2186,12 +2182,12 @@ begin
       try
         IOHandler.ReadStream(LIdStream, -1, True);
       finally
-        FreeAndNil(LIdStream);
+        Sys.FreeAndNil(LIdStream);
       end;
       AHelpContents.Text := LStream.DataString;
     end;
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -2247,7 +2243,7 @@ begin
           //with one word.
           for i := 0 to FCapabilities.Count-1 do
           begin
-            LBuf := Trim(FCapabilities[i]);
+            LBuf := Sys.Trim(FCapabilities[i]);
             if LBuf = 'MODE Z' then  {do not localize}
             begin
               s := 'Z'; {do not localize}
@@ -2274,14 +2270,14 @@ end;
 
 destructor TIdFTP.Destroy;
 begin
-  FreeAndNil(FClientInfo);
-  FreeAndNil(FListResult);
-  FreeAndNil(FLoginMsg);
-  FreeAndNil(FDirectoryListing);
-  FreeAndNil(FLangsSupported);
-  FreeAndNIL(FProxySettings); //APR
-  FreeAndNil(FTZInfo);
-  FreeAndNil(FAbortFlag);
+  Sys.FreeAndNil(FClientInfo);
+  Sys.FreeAndNil(FListResult);
+  Sys.FreeAndNil(FLoginMsg);
+  Sys.FreeAndNil(FDirectoryListing);
+  Sys.FreeAndNil(FLangsSupported);
+  Sys.FreeAndNil(FProxySettings); //APR
+  Sys.FreeAndNil(FTZInfo);
+  Sys.FreeAndNil(FAbortFlag);
   inherited Destroy;
 end;
 
@@ -2299,7 +2295,7 @@ var i : Integer;
     if FPort = IDPORT_FTP then begin
       Result := FHost;
     end else begin
-      Result := FHost + Id_TIdFTP_HostPortDelimiter + IntToStr(FPort);
+      Result := FHost + Id_TIdFTP_HostPortDelimiter + Sys.IntToStr(FPort);
     end;
   End;//
 
@@ -2464,7 +2460,7 @@ begin
     end;//fpcmSite
   fpcmUserPass: //USER user@firewalluser@hostname / PASS pass@firewallpass
     begin
-      if SendCmd(Format('USER %s@%s@%s', [FUserName, ProxySettings.UserName, FtpHost]), [230, 232, 331])=331 then begin    {do not localize}
+      if SendCmd(Sys.Format('USER %s@%s@%s', [FUserName, ProxySettings.UserName, FtpHost]), [230, 232, 331])=331 then begin    {do not localize}
         if Length(ProxySettings.Password)>0 then begin
           SendCmd('PASS ' + GetLoginPassword + '@' + ProxySettings.Password, [230,332]); {do not localize}
           if IsAccountNeeded then
@@ -2515,7 +2511,7 @@ begin
     end;//fpcmTransparent
   fpcmUserHostFireWallID :  //USER hostuserId@hostname firewallUsername
     begin
-       if SendCmd(Trim('USER '+Self.Username+'@'+FtpHost+' '+ProxySettings.UserName),[230, 331]) = 331 then    {do not localize}
+       if SendCmd(Sys.Trim('USER '+Self.Username+'@'+FtpHost+' '+ProxySettings.UserName),[230, 331]) = 331 then    {do not localize}
        begin
          if SendCmd('PASS '+GetLoginPassword,[230,232,202,332])=332 then
          begin
@@ -2699,7 +2695,7 @@ var
   delim : Char;
   s : String;
 begin
-  s := Trim(LastCmdResult.Text[0]);
+  s := Sys.Trim(LastCmdResult.Text[0]);
   // "229 Entering Extended Passive Mode (|||59028|)"
   bLeft := IndyPos('(', s);   {do not localize}
   bRight := IndyPos(')', s);  {do not localize}
@@ -2708,10 +2704,10 @@ begin
   Fetch(S, delim);
   Fetch(S, delim);
   VIP := Fetch(S, delim);
-  s := Trim(Fetch(S, delim));
-  VPort := StrToIntDef(s,0);
+  s := Sys.Trim(Fetch(S, delim));
+  VPort := Sys.StrToInt(s,0);
   if VPort = 0 then begin
-    raise EIdFTPServerSentInvalidPort.CreateFmt(RSFTPServerSentInvalidPort, [s]);
+    raise EIdFTPServerSentInvalidPort.Create(Sys.Format(RSFTPServerSentInvalidPort, [s]));
   end;
   if VIP = '' then begin
     VIP :=  Self.Host;
@@ -2751,7 +2747,7 @@ begin
     Exit;
   end;
   try
-    ParseEPSV(Trim(LastCmdResult.Text[0]),VIP,VPort);
+    ParseEPSV(Sys.Trim(LastCmdResult.Text[0]),VIP,VPort);
     // "229 Entering Extended Passive Mode (|||59028|)"
     bLeft := IndyPos('(', s);   {do not localize}
     bRight := IndyPos(')', s);  {do not localize}
@@ -2760,10 +2756,10 @@ begin
     Fetch(S, delim);
     Fetch(S, delim);
     VIP := Fetch(S, delim);
-    s := Trim(Fetch(S, delim));
-    VPort := StrToIntDef(s,0);
+    s := Sys.Trim(Fetch(S, delim));
+    VPort := Sys.StrToInt(s,0);
     if VPort = 0 then begin
-      raise EIdFTPServerSentInvalidPort.CreateFmt(RSFTPServerSentInvalidPort, [s]);
+      raise EIdFTPServerSentInvalidPort.Create(Sys.Format(RSFTPServerSentInvalidPort, [s]));
     end;
     if VIP = '' then begin
       VIP :=  Self.Host;
@@ -2798,7 +2794,7 @@ begin
   end;
   s := s + '|';
 
-  SendCmd('EPRT ' + s+ AIP + '|' + IntToStr(APort) + '|');  {do not localize}
+  SendCmd('EPRT ' + s+ AIP + '|' + Sys.IntToStr(APort) + '|');  {do not localize}
   if LastCmdResult.NumericCode<>200 then
   begin
     SendPort(AIP,APort);
@@ -2848,11 +2844,11 @@ begin
   try
     LIdStream := TIdStreamVCL.Create(LDest);
     try
-      InternalGet(trim('MLSD ' + ADirectory), LIdStream);  {do not localize}
+      InternalGet(Sys.Trim('MLSD ' + ADirectory), LIdStream);  {do not localize}
     finally
-      FreeAndNil(LIdStream);
+      Sys.FreeAndNil(LIdStream);
     end;
-    FreeAndNil(FDirectoryListing);
+    Sys.FreeAndNil(FDirectoryListing);
     DoOnRetrievedDir;
     if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
       ADest.Text := LDest.DataString;
@@ -2860,7 +2856,7 @@ begin
     FListResult.Text := LDest.DataString;
     FUsedMLS := True;
   finally
-    FreeAndNil(LDest);
+    Sys.FreeAndNil(LDest);
   end;
 end;
 
@@ -2868,7 +2864,7 @@ procedure TIdFTP.ExtListItem(ADest: TIdStrings; AFList : TIdFTPListItems; const 
 var i : Integer;
 begin
   ADest.Clear;
-  SendCMD(Trim('MLST '+AItem), 250);  {do not localize}
+  SendCMD(Sys.Trim('MLST '+AItem), 250);  {do not localize}
   for i := 0 to LastCmdResult.Text.Count -1 do
   begin
 
@@ -2895,7 +2891,7 @@ begin
   try
     ExtListItem(LBuf,AFList,AItem);
   finally
-    FreeAndNil(LBuf);
+    Sys.FreeAndNil(LBuf);
   end;
 end;
 
@@ -2906,8 +2902,8 @@ begin
   Result := False;
   for i := 0 to FCapabilities.Count -1 do
   begin
-    LBuf := TrimLeft(FCapabilities[i]);
-    LBuf := UpperCase(Fetch(LBuf));
+    LBuf := Sys.TrimLeft(FCapabilities[i]);
+    LBuf := Sys.UpperCase(Fetch(LBuf));
     if LBuf = ACMD then
     begin
       Result := True;
@@ -2925,7 +2921,7 @@ begin
   if SendCmd('MDTM ' + AFileName) = 213 then  {do not localize}
   begin
     LBuf := LastCmdResult.Text[0];
-    LBuf := Trim(LBuf);
+    LBuf := Sys.Trim(LBuf);
     if AsGMT then
     begin
       Result := FTPMLSToGMTDateTime(LBuf);
@@ -2990,12 +2986,12 @@ begin
   for i := 0 to FCapabilities.Count -1 do
   begin
     LBuf := FCapabilities[i];
-    LBuf := UpperCase(Fetch(LBuf));
+    LBuf := Sys.UpperCase(Fetch(LBuf));
     if LBuf = ACMD then
     begin
       LBuf := FCapabilities[i];
       Fetch(LBuf);
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
       Break;
     end;
     //necessary so we don't wind up capturing the last entry in the FEAT list
@@ -3008,7 +3004,7 @@ begin
     begin
       Break;
     end;
-    AResults.Add(Trim(Fetch(LBuf,';')));
+    AResults.Add(Sys.Trim(Fetch(LBuf,';')));
   until False;
 end;
 
@@ -3034,17 +3030,17 @@ begin
     LCMD := 'XCRC "' + AFileName + '"'; {do not localize}
     if AStartPoint<>0 then
     begin
-      LCMD := LCMD + ' '+IntToStr(AStartPoint);
+      LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint);
       if AEndPoint<>0 then
       begin
-        LCMD := LCMD + ' '+IntToStr(AEndPoint);
+        LCMD := LCMD + ' '+Sys.IntToStr(AEndPoint);
       end;
     end;
     if SendCMD(LCMD) = 250 then
     begin
-       LCRC := Trim(LastCmdResult.Text.Text);
+       LCRC := Sys.Trim(LastCmdResult.Text.Text);
        IdDelete(LCRC, 1, IndyPos(' ', LCRC)); // delete the response
-       Result := StrToInt64Def('$'+LCRC, -1);
+       Result := Sys.StrToInt64('$'+LCRC, -1);
     end;
   end;
 end;
@@ -3097,7 +3093,7 @@ begin
   end;
   Result := Result + '|';
 
-  Result := Result + AIP + '|' + IntToStr(APort) + '|';
+  Result := Result + AIP + '|' + Sys.IntToStr(APort) + '|';
 end;
 
 function TIdFTP.GetSupportsTLS: Boolean;
@@ -3113,12 +3109,12 @@ begin
   Result := '';
   for i := 0 to FCapabilities.Count -1 do
   begin
-    LBuf := TrimLeft(FCapabilities[i]);
-    LBuf := UpperCase(Fetch(LBuf));
+    LBuf := Sys.TrimLeft(FCapabilities[i]);
+    LBuf := Sys.UpperCase(Fetch(LBuf));
     if LBuf = 'AUTH' then {do not localize}
     begin
       repeat
-        LWord := Trim(Fetch(LBuf,';'));
+        LWord := Sys.Trim(Fetch(LBuf,';'));
         if (PosInStrArray(LWord,TLS_AUTH_NAMES)>-1) then
         begin
           Result := 'AUTH ' + LWord;  {do not localize}
@@ -3464,14 +3460,14 @@ end;
 procedure TIdFTPClientIdentifier.SetClientName(const AValue: String);
 begin
   FClientName := AValue;
-  FClientName := Trim(FClientName);
+  FClientName := Sys.Trim(FClientName);
   FClientName := Fetch(FClientName);
 end;
 
 procedure TIdFTPClientIdentifier.SetClientVersion(const AValue: String);
 begin
   FClientVersion := AValue;
-  FClientVersion := Trim(FClientVersion);
+  FClientVersion := Sys.Trim(FClientVersion);
   FClientVersion := Fetch(FClientVersion);
 end;
 
@@ -3635,7 +3631,7 @@ way it is used in TIdFTP.SetModTime, because it only
 compares the first word of the FeatLine." }
   LNoSpaces := IndyPos(' ',AFeatLine)=0;
   for Result := 0 to FCapabilities.Count -1 do begin
-    LBuf := IndyUpperCase(TrimLeft(FCapabilities[Result]));
+    LBuf := IndyUpperCase(Sys.TrimLeft(FCapabilities[Result]));
     if LNoSpaces then begin
       LBuf := Fetch(LBuf);
     end;
@@ -3691,12 +3687,12 @@ begin
     for i := 0 to FCapabilities.Count -1 do
     begin
       LBuf := FCapabilities[i];
-      if UpperCase(Fetch(LBuf)) = 'SITE' then {do not localize}
+      if Sys.UpperCase(Fetch(LBuf)) = 'SITE' then {do not localize}
       begin
         SplitStr(LBuf,LFacts);
         for j := 0 to LFacts.Count -1 do
         begin
-          if Uppercase(LFacts[j]) = 'ZONE' then {do not localize}
+          if Sys.Uppercase(LFacts[j]) = 'ZONE' then {do not localize}
           begin
             Result := True;
             Break;
@@ -3706,7 +3702,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LFacts);
+    Sys.FreeAndNil(LFacts);
   end;
 end;
 

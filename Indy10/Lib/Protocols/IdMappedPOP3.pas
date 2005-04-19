@@ -86,14 +86,14 @@ implementation
 
 uses
   IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols, IdTCPClient
-  , IdTCPConnection, SysUtils;
+  , IdTCPConnection, IdSysUtils;
 
 { TIdMappedPOP3 }
 
 destructor TIdMappedPOP3.Destroy;
 begin
-  FreeAndNil(FReplyUnknownCommand);
-  FreeAndNil(FGreeting);
+  Sys.FreeAndNil(FReplyUnknownCommand);
+  Sys.FreeAndNil(FGreeting);
   inherited;
 end;
 
@@ -146,8 +146,8 @@ Begin
       end;
       try
         // Greeting
-        LHostPort := Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
-        LPop3Cmd := UpperCase(Fetch(LHostPort,' ',TRUE));    {Do not Localize}
+        LHostPort := Sys.Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
+        LPop3Cmd := Sys.UpperCase(Fetch(LHostPort,' ',TRUE));    {Do not Localize}
         if LPop3Cmd = 'QUIT' then begin    {Do not Localize}
           Connection.IOHandler.WriteLn('+OK '+RSPop3QuitMsg);    {Do not Localize}
           Connection.Disconnect;
@@ -155,7 +155,7 @@ Begin
         end else if LPop3Cmd = 'USER' then begin    {Do not Localize}
           LUserName := Fetch(LHostPort,FUserHostDelimiter,TRUE,FALSE);//?:CaseSensetive
           FNetData := LUserName; //save for OnCheckHostPort
-          LHostPort := TrimLeft(LHostPort); //trimRight above
+          LHostPort := Sys.TrimLeft(LHostPort); //Sys.TrimRight above
           ExtractHostAndPortFromLine(SELF,LHostPort);
           LUserName := FNetData; //allow username substitution
         end else begin

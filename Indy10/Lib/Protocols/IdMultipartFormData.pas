@@ -119,7 +119,7 @@ uses
   IdException,
   IdResourceStringsProtocols,
   IdStreamVCL,
-  SysUtils,
+  IdSysUtils,
   IdTStrings;
 
 const
@@ -233,7 +233,7 @@ end;
 
 destructor TIdMultiPartFormDataStream.Destroy;
 begin
-  FreeAndNil(FFields);
+  Sys.FreeAndNil(FFields);
   inherited Destroy;
 end;
 
@@ -265,14 +265,14 @@ end;
 procedure TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName,
   AContentType: string);
 var
-  LStream: TFileStream;
+  LStream: TReadFileExclusiveStream;
   LItem: TIdFormDataField;
 begin
-  LStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  LStream := TReadFileExclusiveStream.Create(AFileName);
   try
     LItem := FFields.Add;
   except
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
     raise;
   end;
 
@@ -308,7 +308,7 @@ end;
 
 function TIdMultiPartFormDataStream.GenerateUniqueBoundary: string;
 begin
-  Result := '--------' + FormatDateTime('mmddyyhhnnsszzz', Now);  {do not localize}
+  Result := '--------' + Sys.FormatDateTime('mmddyyhhnnsszzz', Sys.Now);  {do not localize}
 end;
 
 function TIdMultiPartFormDataStream.PrepareStreamForDispatch: string;
@@ -471,7 +471,7 @@ destructor TIdFormDataField.Destroy;
 begin
   if Assigned(FFieldObject) then begin
     if FCanFreeFieldObject then begin
-      FreeAndNil(FFieldObject);
+      Sys.FreeAndNil(FFieldObject);
     end;
   end;
   inherited Destroy;
@@ -485,7 +485,7 @@ begin
 
   if Assigned(FieldObject) then begin
     if Length(FileName) > 0 then begin
-      Result := Format('--%s' + crlf + sContentDisposition +
+      Result := Sys.Format('--%s' + crlf + sContentDisposition +
         sFileNamePlaceHolder + crlf + sContentTypePlaceHolder +
         crlf + sContentTransferEncoding + crlf + crlf,
         [LBoundary, FieldName, FileName, ContentType]);
@@ -493,7 +493,7 @@ begin
     end;
   end;
 
-  Result := Format('--%s' + crlf + sContentDisposition + crlf + crlf +
+  Result := Sys.Format('--%s' + crlf + sContentDisposition + crlf + crlf +
         '%s' + crlf, [LBoundary, FieldName, FieldValue]);
 end;
 
@@ -565,7 +565,7 @@ begin
 
   if Assigned(FFieldObject) then begin
     if FCanFreeFieldObject then begin
-      FreeAndNil(FFieldObject);
+      Sys.FreeAndNil(FFieldObject);
     end;
   end;
 

@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -81,24 +81,24 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdStreamVCL, IdTCPClient, IdComponent,
-  SysUtils;
+  IdSysUtils;
 
 type
   TIdLPRFileFormat =
     (ffCIF, // CalTech Intermediate Form
      ffDVI, //   DVI (TeX output).
-     ffFormattedText, //add formatting as needed to text file
+     ffFormattedText, //add Sys.Formatting as needed to text file
      ffPlot, //   Berkeley Unix plot library
      ffControlCharText, //text file with control charactors
      ffDitroff, // ditroff output
      ffPostScript, //Postscript output file
-     ffPR,//'pr' format    {Do not Localize}
+     ffPR,//'pr' Sys.Format    {Do not Localize}
      ffFORTRAM, // FORTRAN carriage control
      ffTroff, //Troff output
-     ffSunRaster); //  Sun raster format file
+     ffSunRaster); //  Sun raster Sys.Format file
 
 const
-  DEF_FILEFORMAT = ffControlCharText;
+  DEF_FILEFormat = ffControlCharText;
   DEF_INDENTCOUNT = 0;
   DEF_BANNERPAGE = False;
   DEF_OUTPUTWIDTH = 0;
@@ -136,7 +136,7 @@ type
     property OutputWidth: Integer read FOutputWidth write FOutputWidth
       default DEF_OUTPUTWIDTH;
     property FileFormat: TIdLPRFileFormat read FFileFormat write FFileFormat
-      default DEF_FILEFORMAT;
+      default DEF_FILEFormat;
     {font data }
     property TroffRomanFont : String read FTroffRomanFont write FTroffRomanFont;
     property TroffItalicFont : String read FTroffItalicFont
@@ -234,10 +234,10 @@ begin
       LIdStream.VCLStream.Position := 0;
       InternalPrint(LIdStream);
     finally
-      FreeAndNil(LIdStream);
+      Sys.FreeAndNil(LIdStream);
     end;
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
@@ -254,43 +254,43 @@ begin
       LIdStream.VCLStream.Position := 0;
       InternalPrint(LIdStream);
     finally
-      FreeAndNil(LIdStream);
+      Sys.FreeAndNil(LIdStream);
     end;
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
 procedure TIdLPR.PrintFile(AFileName: String);
 var
-  LStream: TStream;
+  LStream: TReadFileExclusiveStream;
   LIdStream : TIdStreamVCL;
   p: Integer;
 begin
   p := RPos(GPathDelim, AFileName);
   ControlFile.JobName := Copy(AFileName, p+1, Length(AFileName)-p);
-  LStream := TFileStream.Create(AFileName, fmOpenRead or fmShareDenyWrite);
+  LStream := TReadFileExclusiveStream.Create(AFileName);
   try
     LIdStream := TIdStreamVCL.Create(LStream);
     try
       InternalPrint(LIdStream);
     finally
-      FreeAndNil(LIdStream);
+      Sys.FreeAndNil(LIdStream);
     end;
   finally
-    FreeAndNil(LStream);
+    Sys.FreeAndNil(LStream);
   end;
 end;
 
 function TIdLPR.GetJobId: String;
 begin
-  Result:=Format('%.3d', [FJobId]);    {Do not Localize}
+  Result:=Sys.Format('%.3d', [FJobId]);    {Do not Localize}
 end;
 
 procedure TIdLPR.SetJobId(JobId: String);
 begin
-  if StrToInt(JobId) < 999 then
-    FJobId:=StrToInt(JobId);
+  if Sys.StrToInt(JobId) < 999 then
+    FJobId:=Sys.StrToInt(JobId);
 end;
 
 procedure TIdLPR.InternalPrint(Data: TIdStreamVCL);
@@ -315,7 +315,7 @@ begin
       Write(#02 + Queue + LF);
       CheckReply;
       // Receive control file
-      Write(#02 + IntToStr(Length(GetControlData)) +
+      Write(#02 + Sys.IntToStr(Length(GetControlData)) +
         ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
       CheckReply;
       // Send control file
@@ -323,7 +323,7 @@ begin
       Write(#0);
       CheckReply;
       // Send data file
-      Write(#03 + IntToStr(Data.VCLStream.Size) +	' dfA'  + JobId +    {Do not Localize}
+      Write(#03 + Sys.IntToStr(Data.VCLStream.Size) +	' dfA'  + JobId +    {Do not Localize}
         ControlFile.HostName + LF);
       CheckReply;
       // Send data
@@ -387,7 +387,7 @@ begin
          begin
            Data:=Data + 'ddfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffFormattedText : //add formatting as needed to text file
+         ffFormattedText : //add Sys.Formatting as needed to text file
          begin
            Data:=Data + 'fdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
@@ -407,7 +407,7 @@ begin
          begin
            Data:=Data + 'odfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffPR : //'pr' format    {Do not Localize}
+         ffPR : //'pr' Sys.Format    {Do not Localize}
          begin
            Data:=Data + 'pdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
@@ -419,7 +419,7 @@ begin
          begin
            Data:=Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffSunRaster : //  Sun raster format file
+         ffSunRaster : //  Sun raster Sys.Format file
          begin
          end;
       end;
@@ -433,11 +433,11 @@ begin
       begin
         if (IndentCount > 0) then
         begin
-          Data:=Data + 'I' + IntToStr(IndentCount) + LF;    {Do not Localize}
+          Data:=Data + 'I' + Sys.IntToStr(IndentCount) + LF;    {Do not Localize}
         end;
         if (OutputWidth > 0) then
         begin
-          Data:=Data + 'W' + IntToStr(OutputWidth) + LF;    {Do not Localize}
+          Data:=Data + 'W' + Sys.IntToStr(OutputWidth) + LF;    {Do not Localize}
         end;
       end;
       if Length(BannerClass) > 0 then
@@ -480,7 +480,7 @@ end;
 
 destructor TIdLPR.Destroy;
 begin
-  FreeAndNil(FControlFile);
+  Sys.FreeAndNil(FControlFile);
   inherited;
 end;
 
@@ -524,7 +524,7 @@ begin
   ret:=IOHandler.ReadString(1);
   if (Length(ret) > 0) and (ret[1] <> #00) then
   begin
-    raise EIdLPRErrorException.Create(Format(RSLPRError,[ret[1],JobID]));
+    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError,[ret[1],JobID]));
   end;
 end;
 
@@ -569,7 +569,7 @@ begin
   except
     HostName:=RSLPRUnknown;   
   end;
-  FFileFormat := DEF_FILEFORMAT;
+  FFileFormat := DEF_FILEFormat;
   FIndentCount := DEF_INDENTCOUNT;
   FBannerPage := DEF_BANNERPAGE;
   FOutputWidth := DEF_OUTPUTWIDTH;

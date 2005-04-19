@@ -723,7 +723,7 @@ uses
   IdFTPBaseFileSystem, IdFTPCommon,
   IdFTPList, IdFTPListOutput, IdFTPServerContextBase,  IdReply, IdReplyFTP,
   IdReplyRFC, IdScheduler, IdServerIOHandler, IdTCPConnection, IdCmdTCPServer,  IdTCPServer,
-   IdThread, IdTStrings, IdUserAccounts,  IdYarn, IdZLibCompressorBase, SysUtils;
+   IdThread, IdTStrings, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSysUtils;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);
@@ -1375,13 +1375,13 @@ end;
 procedure TIdFTPServerContext.TerminateAndFreeDataChannel;
 Begin
   KillDataChannel;
-  FreeAndNil(FDataChannel);
+  Sys.FreeAndNil(FDataChannel);
 End;//
 
 destructor TIdFTPServerContext.Destroy;
 begin
   TerminateAndFreeDataChannel;
-  FreeAndNil(FUserSecurity);
+  Sys.FreeAndNil(FUserSecurity);
   inherited Destroy;
 end;
 
@@ -1400,7 +1400,7 @@ begin
       FDataChannel.Stopped := True;
       FDataChannel.FDataChannel.Disconnect;
     end;
-    FreeAndNil(FDataChannel);
+    Sys.FreeAndNil(FDataChannel);
   end;
 end;
 
@@ -1626,7 +1626,7 @@ begin
   begin
     for i := 0 to CommandHandlers.Count -1 do
     begin
-      if UpperCase(ASender.Params[0])=UpperCase(CommandHandlers.Items[i].Command) then
+      if Sys.UpperCase(ASender.Params[0])=Sys.UpperCase(CommandHandlers.Items[i].Command) then
       begin
         if CommandHandlers.Items[i].HelpVisible and ShouldShowCommand(ASender.Params[0]) then
         begin
@@ -1641,12 +1641,12 @@ begin
         end
         else
         begin
-          ASender.Reply.SetReply(502,Format(RSFTPCmdHelpNotKnown,[UpperCase(ASender.Params[0])]));
+          ASender.Reply.SetReply(502,Sys.Format(RSFTPCmdHelpNotKnown,[Sys.UpperCase(ASender.Params[0])]));
         end;
         Exit;
       end;
     end;
-    ASender.Reply.SetReply(502,Format(RSFTPCmdHelpNotKnown,[UpperCase(ASender.Params[0])]));
+    ASender.Reply.SetReply(502,Sys.Format(RSFTPCmdHelpNotKnown,[Sys.UpperCase(ASender.Params[0])]));
   end
   else
   begin
@@ -1676,7 +1676,7 @@ begin
       end;
       ASender.Reply.SetReply(214,s);
     finally
-      FreeAndNil(LCmds);
+      Sys.FreeAndNil(LCmds);
     end;
   end;
 end;
@@ -1702,7 +1702,7 @@ begin
   //ACCT <SP> <account-information> <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'ACCT';    {Do not Localize}
-  LCMd.NormalReply.SetReply(502,Format(RSFTPCmdNotImplemented, ['ACCT'])); {do not localize}
+  LCMd.NormalReply.SetReply(502,Sys.Format(RSFTPCmdNotImplemented, ['ACCT'])); {do not localize}
   LCmd.HelpSuperScript := '*'; //not supported
   LCmd.Description.Text := 'ACCT        (specify account); unimplemented.'; {do not localize}
 
@@ -1909,7 +1909,7 @@ begin
   //NOOP <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'NOOP';    {Do not Localize}
-  LCmd.NormalReply.SetReply(200,Format(RSFTPCmdSuccessful, ['NOOP']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(200,Sys.Format(RSFTPCmdSuccessful, ['NOOP']));    {Do not Localize}
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.Description.Text := 'Syntax: NOOP'; {do not localize}
   //RFC 775
@@ -2130,43 +2130,43 @@ begin
     //MLFL [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MLFL';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502, Format(RSFTPCmdNotImplemented, ['MLFL']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, Sys.Format(RSFTPCmdNotImplemented, ['MLFL']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MLFL        (mail file); unimplemented.'; {do not localize}
   //MAIL [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MAIL';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502, Format(RSFTPCmdNotImplemented, ['MAIL']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, Sys.Format(RSFTPCmdNotImplemented, ['MAIL']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MAIL        (mail to user); unimplemented.'; {do not localize}
   //         MSND [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MSND';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502, Format(RSFTPCmdNotImplemented, ['MSND']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, Sys.Format(RSFTPCmdNotImplemented, ['MSND']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MSND        (mail send to terminal); unimplemented.'; {do not localize}
   //         MSOM [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MSOM';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502, Format(RSFTPCmdNotImplemented, ['MSOM']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, Sys.Format(RSFTPCmdNotImplemented, ['MSOM']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MSOM        (mail send to terminal or mailbox); unimplemented.'; {do not localize}
   //         MSAM [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MSAM';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502,Format(RSFTPCmdNotImplemented, ['MSAM']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502,Sys.Format(RSFTPCmdNotImplemented, ['MSAM']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MSAM        (mail send to terminal and mailbox); unimplemented.'; {do not localize}
   //         MRSQ [<SP> <scheme>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MRSQ';    {Do not Localize}
-  LCmd.NormalReply.SetReply( 502,Format(RSFTPCmdNotImplemented, ['MRSQ']));    {Do not Localize}
+  LCmd.NormalReply.SetReply( 502,Sys.Format(RSFTPCmdNotImplemented, ['MRSQ']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MRSQ        (mail recipient scheme question); unimplemented.'; {do not localize}
   //         MRCP <SP> <ident> <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MRCP';    {Do not Localize}
-  LCmd.NormalReply.SetReply( 502,Format(RSFTPCmdNotImplemented, ['MRCP']));    {Do not Localize}
+  LCmd.NormalReply.SetReply( 502,Sys.Format(RSFTPCmdNotImplemented, ['MRCP']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MRCP        (mail recipient); unimplemented.'; {do not localize}
  //
@@ -2280,13 +2280,13 @@ end;
 
 destructor TIdFTPServer.Destroy;
 begin
-  FreeAndNil(FAnonymousAccounts);
-  FreeAndNil(FFTPSecurityOptions);
+  Sys.FreeAndNil(FAnonymousAccounts);
+  Sys.FreeAndNil(FFTPSecurityOptions);
 
-  FreeAndNil(FOPTSCommands);
-  FreeAndNil(FDataChannelCommands);
-  FreeAndNil(FSITECommands);
-  FreeAndNil(FReplyUnknownSITECommand);
+  Sys.FreeAndNil(FOPTSCommands);
+  Sys.FreeAndNil(FDataChannelCommands);
+  Sys.FreeAndNil(FSITECommands);
+  Sys.FreeAndNil(FReplyUnknownSITECommand);
   inherited Destroy;
 end;
 
@@ -2355,7 +2355,7 @@ begin
           LDirectoryList.NLISTOutputDir(ADirContents);
         end;
       end;
-    finally FreeAndNil(LDirectoryList); end;
+    finally Sys.FreeAndNil(LDirectoryList); end;
   end else begin
     raise EIdFTPServerNoOnListDirectory.Create(RSFTPNoOnDirEvent);    {Do not Localize}
   end;
@@ -2410,7 +2410,8 @@ end;
 procedure TIdFTPServer.ThreadException(AThread: TIdThread;
   AException: Exception);
 begin
-  ShowException(AException, nil);
+  //we might not want to show an exception in a dialog-box
+ // ShowException(AException, nil);
 end;
 
 //Command Replies/Handling
@@ -2428,7 +2429,7 @@ begin
     Exit;
   end;
   LF.Authenticated := FALSE;
-  if (FAnonymousAccounts.IndexOf(Lowercase(ASender.UnparsedParams)) >= 0)
+  if (FAnonymousAccounts.IndexOf(Sys.Lowercase(ASender.UnparsedParams)) >= 0)
    and AllowAnonymousLogin then begin
     LF.UserType := utAnonymousUser;
     LF.Username := ASender.UnparsedParams;
@@ -2626,7 +2627,7 @@ begin
     if Assigned(FOnChangeDirectory) or Assigned(FFTPFileSystem) then begin
       DoOnChangeDirectory(LF, s);
       LF.FCurrentDir := s;
-      ASender.Reply.SetReply(250, Format(RSFTPCurrentDirectoryIs, [LF.FCurrentDir]));
+      ASender.Reply.SetReply(250, Sys.Format(RSFTPCurrentDirectoryIs, [LF.FCurrentDir]));
     end else begin
       CmdNotImplemented(ASender);
     end;
@@ -2661,7 +2662,7 @@ begin
   LF.FDataPortDenied := False;
   if LF.IsAuthenticated(ASender) then begin
     if LF.FEPSVAll then begin
-      ASender.Reply.SetReply(501, Format(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
+      ASender.Reply.SetReply(501, Sys.Format(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
       Exit;
     end;
     if LF.UserSecurity.BlockAllPORTTransfers then
@@ -2683,9 +2684,9 @@ begin
     { h4 }
     IP := IP + Fetch(LParm, ',');    {Do not Localize}
     { p1 }
-    LLo := StrToInt(Fetch(LParm, ','));    {Do not Localize}
+    LLo := Sys.StrToInt(Fetch(LParm, ','));    {Do not Localize}
     { p2 }
-    LHi := StrToInt(LParm);
+    LHi := Sys.StrToInt(LParm);
     LF.FDataPort := (LLo * 256) + LHi;
     if LF.UserSecurity.NoReservedRangePORT and
       ((LF.FDataPort > 0) and (LF.FDataPort <= 1024)) then
@@ -2721,9 +2722,9 @@ begin
   if InternalPASV(ASender, LParam, LBPort, LIPVer) then
   begin
     DoOnPASVReply(TIdFTPServerContext(ASender.Context), LParam, LBPort, LIPVer);
-    LParam := StringReplace(LParam, '.', ',', [rfReplaceAll]);    {Do not Localize}
-    LParam := LParam + ',' + IntToStr(LBPort div 256) + ',' + IntToStr(LBPort mod 256);    {Do not Localize}
-    ASender.Reply.SetReply(227, Format(RSFTPPassiveMode, [LParam]));
+    LParam := Sys.StringReplace(LParam, '.', ',');    {Do not Localize}
+    LParam := LParam + ',' + Sys.IntToStr(LBPort div 256) + ',' + Sys.IntToStr(LBPort mod 256);    {Do not Localize}
+    ASender.Reply.SetReply(227, Sys.Format(RSFTPPassiveMode, [LParam]));
   end;
 end;
 
@@ -2739,14 +2740,14 @@ begin
     if Length(ASender.UnparsedParams) = 1 then
     begin
       //Default data type is ASCII
-      LType := Uppercase(ASender.UnparsedParams)[1];
+      LType := Sys.UpperCase(ASender.UnparsedParams)[1];
       case LType of
         'A': LF.FDataType := ftASCII;    {Do not Localize}
         'I': LF.FDataType := ftBinary;    {Do not Localize}
       end;
       if LF.FDataType in  [ftASCII, ftBinary] then
       begin
-        ASender.Reply.SetReply(200, Format(RSFTPTYPEChanged, [LType]));
+        ASender.Reply.SetReply(200, Sys.Format(RSFTPTYPEChanged, [LType]));
       end;
     end;
   end;
@@ -2763,7 +2764,7 @@ begin
     if Length(ASender.UnparsedParams) = 1 then
     begin
       //Default structure is file
-      LDataStruct := Uppercase(ASender.UnparsedParams)[1];
+      LDataStruct := Sys.UpperCase(ASender.UnparsedParams)[1];
       case LDataStruct of
         'F': LF.FDataStruct := dsFile;    {Do not Localize}
         'R': LF.FDataStruct := dsRecord;    {Do not Localize}
@@ -2771,7 +2772,7 @@ begin
       end;
       if LF.FDataStruct in [dsFile, dsRecord, dsPage] then
       begin
-        ASender.Reply.SetReply(200, Format(RSFTPSTRUChanged, [LDataStruct]));
+        ASender.Reply.SetReply(200, Sys.Format(RSFTPSTRUChanged, [LDataStruct]));
       end;
     end;
   end;
@@ -2788,19 +2789,19 @@ begin
     if Length(ASender.UnparsedParams) = 1 then
     begin
       //Default data mode is stream
-      LMode := Uppercase(ASender.UnparsedParams)[1];
+      LMode := Sys.UpperCase(ASender.UnparsedParams)[1];
       case LMode of
          'S' : //stream mode
          begin
            LF.DataMode := dmStream;
-           ASender.Reply.SetReply(200, Format(RSFTPMODEChanged, [LMode]));
+           ASender.Reply.SetReply(200, Sys.Format(RSFTPMODEChanged, [LMode]));
          end;
          'Z' : //deflate
          begin
            if Assigned(FCompressor) then
            begin
              LF.DataMode := dmDeflate;
-             ASender.Reply.SetReply(200, Format(RSFTPMODEChanged, [LMode]));
+             ASender.Reply.SetReply(200, Sys.Format(RSFTPMODEChanged, [LMode]));
            end
            else
            begin
@@ -2893,7 +2894,7 @@ begin
     if TextIsSame(ASender.CommandHandler.Command, 'STOU') then begin    {Do not Localize}
       LTmp1 := GetUniqueFileName('','Temp',''); {Do not localize}
       //THis is a standardized format
-      ASender.Reply.SetReply(150, Format('FILE: %s',[LTmp1]));  {Do not translate}
+      ASender.Reply.SetReply(150, Sys.Format('FILE: %s',[LTmp1]));  {Do not translate}
     end else begin
       LTmp1 := ASender.UnparsedParams;
       ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
@@ -2958,18 +2959,18 @@ begin
   begin
     if IsAuthenticated(ASender) then
     begin
-      s := Uppercase(ASender.UnparsedParams);
+      s := Sys.UpperCase(ASender.UnparsedParams);
       if s<>'' then
       begin
         case s[1] of
         'R':    {Do not Localize}
            begin
              if s[2] = #32 then begin
-               FALLOSize := StrToIntDef(Copy(s, 2, Length(s) - 2), 0);
+               FALLOSize := Sys.StrToInt(Copy(s, 2, Length(s) - 2), 0);
              end;
            end;
         else
-          FALLOSize := StrToIntDef(ASender.UnparsedParams, 0);
+          FALLOSize := Sys.StrToInt(ASender.UnparsedParams, 0);
         end;
         CmdCommandSuccessful(ASender,200);
       end
@@ -2987,7 +2988,7 @@ begin
   begin
     if IsAuthenticated(ASender) then
     begin
-      FRESTPos := StrToIntDef(ASender.UnparsedParams, 0);
+      FRESTPos := Sys.StrToInt(ASender.UnparsedParams, 0);
       ASender.Reply.SetReply(350, RSFTPFileActionPending);
     end;
   end;
@@ -3126,7 +3127,7 @@ begin
   begin
     if IsAuthenticated(ASender) then
     begin
-      ASender.Reply.SetReply(257, Format(RSFTPCurrentDirectoryIs, [FCurrentDir]));
+      ASender.Reply.SetReply(257, Sys.Format(RSFTPCurrentDirectoryIs, [FCurrentDir]));
     end;
   end;
 end;
@@ -3199,7 +3200,7 @@ begin
           end
           else
           begin
-            if (UpperCase(ASender.CommandHandler.Command)='LIST') or (LSwitches <> '') then {do not localize}
+            if (Sys.UpperCase(ASender.CommandHandler.Command)='LIST') or (LSwitches <> '') then {do not localize}
             begin
               ASender.Reply.SetReply(125, RSFTPDataConnList);
             end
@@ -3213,7 +3214,7 @@ begin
         end
         else
         begin
-          FreeAndNil(LStream);
+          Sys.FreeAndNil(LStream);
           TerminateAndFreeDataChannel;
           ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
         end;
@@ -3273,10 +3274,10 @@ const DEF_BLOCKSIZE = 10240;
         FCompressor.DecompressFTPDeflate(LStrm,AContext.ZLibWindowBits,AStream);
       end;
     finally
-      FreeAndNil(LStrm);
+      Sys.FreeAndNil(LStrm);
       if AContext.DataMode = dmDeflate then
       begin
-        FreeAndNil(LM);
+        Sys.FreeAndNil(LM);
       end;
     end;
   end;
@@ -3296,7 +3297,7 @@ const DEF_BLOCKSIZE = 10240;
         AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
         AContext.ZLibMemLevel, AContext.ZLibStratagy,LStrm );
       finally
-        FreeAndNil(LStrm);
+        Sys.FreeAndNil(LStrm);
       end;
       LOutStream.Position := 0;
     end
@@ -3324,10 +3325,10 @@ const DEF_BLOCKSIZE = 10240;
       until (LBufSize=0) or
         (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
     finally
-      FreeAndNil(LStrm);
+      Sys.FreeAndNil(LStrm);
       if (AContext.DataMode = dmDeflate) then
       begin
-        FreeAndNil(LOutStream);
+        Sys.FreeAndNil(LOutStream);
       end;
     end;
   end;
@@ -3347,7 +3348,7 @@ const DEF_BLOCKSIZE = 10240;
         LM.Position := 0;
         WriteToStream(AContext,ACmdQueue,LM,True);
       finally
-        FreeAndNil(LM);
+        Sys.FreeAndNil(LM);
       end;
       Exit;
     end;
@@ -3412,7 +3413,7 @@ begin
                  end;
                end;
             finally
-              FreeAndNil(LStrm);
+              Sys.FreeAndNil(LStrm);
             end;
           end else begin
             case LCxt.FDataChannel.FFtpOperation of
@@ -3434,16 +3435,16 @@ begin
        //TODO;
        //             SplitLines(LStrStream.Memory, LStrStream.Size,TIdStrings( LCxt.FDataChannel.FData));
                     finally
-                      FreeAndNil(LStrm);
+                      Sys.FreeAndNil(LStrm);
                     end;
                   finally
-                    FreeAndNil(LStrStream);
+                    Sys.FreeAndNil(LStrStream);
                   end;
                 end;//ftpStor
             end;//case
           end;
         finally
-          FreeAndNIL(LCxt.FDataChannel.FData );
+          Sys.FreeAndNil(LCxt.FDataChannel.FData );
         end;
       finally
         if assigned(LCxt.FDataChannel.FDataChannel) then
@@ -3469,7 +3470,7 @@ begin
   finally
     ASender.Reply.Assign(LCxt.FDataChannel.FReply);
     ASender.SendReply;
-    FreeAndNil(LCxt.FDataChannel);
+    Sys.FreeAndNil(LCxt.FDataChannel);
     //now we have to handle the FIFO queue we had made
     repeat
       if LCmdQueue.Count = 0 then
@@ -3490,7 +3491,7 @@ begin
       end;
       LCmdQueue.Delete(0);
     until False;
-    FreeAndNil(LCmdQueue);
+    Sys.FreeAndNil(LCmdQueue);
   end;
 end;
 
@@ -3505,7 +3506,7 @@ begin
   end;
   //this should keep CuteFTP Pro 3.0 from stopping there's no custom ID and
   //the Dir format is custonm.
-  if (Self.FDirFormat = ftpdfCustom) and (Trim(FCustomSystID)='') then
+  if (Self.FDirFormat = ftpdfCustom) and (Sys.Trim(FCustomSystID)='') then
   begin
     CmdNotImplemented(ASender);
     Exit;
@@ -3554,13 +3555,13 @@ begin
           for i := 0 to LStream.Count - 1 do
           begin
             if i = 0 then begin
-              ASender.Reply.Text.Add(TrimLeft(LStream[i]));
+              ASender.Reply.Text.Add(Sys.TrimLeft(LStream[i]));
             end else begin
-              ASender.Reply.Text.Add('     ' + TrimLeft(LStream[i])); {Do not Localize}
+              ASender.Reply.Text.Add('     ' + Sys.TrimLeft(LStream[i])); {Do not Localize}
             end;
           end;
         finally
-          FreeAndNil(LStream);
+          Sys.FreeAndNil(LStream);
         end;
       end;
       ASender.Reply.Text.Add(RSFTPCmdEndOfStat);
@@ -3579,12 +3580,12 @@ begin
         //we send than what Reply.SendReply offers.  This is important as the dir
         //is written using WriteStrings and I found that with Reply.SetReply, a stat
         //reply could throw off a FTP client.
-        LF.Connection.IOHandler.WriteLn(Format('213-%s',[RSFTPDataConnToOpen])); {Do not Localize}
+        LF.Connection.IOHandler.WriteLn(Sys.Format('213-%s',[RSFTPDataConnToOpen])); {Do not Localize}
         LF.Connection.IOHandler.Write(LStream);
         ASender.PerformReply := true;
         ASender.Reply.SetReply(213, RSFTPCmdEndOfStat);
       finally
-        FreeAndNil(LStream);
+        Sys.FreeAndNil(LStream);
       end;
     end;
   end;
@@ -3739,7 +3740,7 @@ var LCmd : String;
 begin
   LCmd := ASender.UnparsedParams;
   ASender.Reply.Clear;
-  if (UpperCase(Fetch(LCmd, ' ', False)) = 'MLST') then begin {do not localize}
+  if (Sys.UpperCase(Fetch(LCmd, ' ', False)) = 'MLST') then begin {do not localize}
     //just in case the user doesn't create a ListDirectory event.
     if not Assigned(FOnListDirectory) then begin
       ASender.Reply.SetReply(501, RSFTPOptNotRecog);
@@ -3765,7 +3766,7 @@ begin
       s := DoProcessPath(LF, ASender.UnparsedParams);
       DoOnGetFileSize(LF, s, LSize);
       if LSize > -1 then begin
-        ASender.Reply.SetReply(213, IntToStr(LSize));
+        ASender.Reply.SetReply(213, Sys.IntToStr(LSize));
       end else begin
         CmdFileActionAborted(ASender);
       end;
@@ -3819,7 +3820,7 @@ begin
     LParm := ASender.UnparsedParams;
     if Length(LParm) = 0 then begin
       LF.FDataPortDenied := True;
-      ASender.Reply.SetReply(501, Format(RSFTPParamError, [ASender.CommandHandler.Command]));
+      ASender.Reply.SetReply(501, Sys.Format(RSFTPParamError, [ASender.CommandHandler.Command]));
       Exit;
     end;
     if FFTPSecurityOptions.BlockAllPORTTransfers then
@@ -3829,9 +3830,9 @@ begin
     end;
     LDelim := LParm[1];
     Fetch(LParm, LDelim);
-    LAddrFamily := StrToIntDef(Fetch(LParm, LDelim), -1);
+    LAddrFamily := Sys.StrToInt(Fetch(LParm, LDelim), -1);
     LIP := Fetch(LParm, LDelim);
-    LF.FDataPort := StrToIntDef(Fetch(LParm, LDelim), -1);
+    LF.FDataPort := Sys.StrToInt(Fetch(LParm, LDelim), -1);
     LReqIPVersion := ID_DEFAULT_IP_VERSION; // avoid warning
     case LAddrFamily of
       1: LReqIPVersion := Id_IPv4;
@@ -3843,7 +3844,7 @@ begin
         begin
           LF.FDataPort := 0;
           LF.FDataPortDenied := True;
-          ASender.Reply.SetReply(522, Format(RSFTPNetProtNotSup,['(1)'])); {Do not translate}
+          ASender.Reply.SetReply(522, Sys.Format(RSFTPNetProtNotSup,['(1)'])); {Do not translate}
           Exit;
         end;
     end;
@@ -3906,23 +3907,23 @@ begin
     LIPVersion := TIdIOHandlerSocket(LF.Connection.IOHandler).IPVersion;
     LParam := ASender.UnparsedParams;
     if Length(LParam) > 0 then begin
-      LProtocol := StrToIntDef(LParam, -1);
+      LProtocol := Sys.StrToInt(LParam, -1);
       case LProtocol of
         1: LIPVersion := Id_IPv4;
         2: if GStack.SupportsIPv6 then begin
              LIPVersion := Id_IPv6;
            end else begin
-             ASender.Reply.SetReply(522, Format(RSFTPNetProtNotSup,['(1)'])); {do not localize}
+             ASender.Reply.SetReply(522, Sys.Format(RSFTPNetProtNotSup,['(1)'])); {do not localize}
              Exit;
            end;
         -1: begin
-              if UpperCase(LParam) = 'ALL' then begin { do not localize }
+              if Sys.UpperCase(LParam) = 'ALL' then begin { do not localize }
                 LF.FEPSVAll := True;
                 ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
               end else if GStack.SupportsIPv6 then begin
-                ASender.Reply.SetReply(522, Format(RSFTPNetProtNotSup,['(1,2)'])); {do not localize}
+                ASender.Reply.SetReply(522, Sys.Format(RSFTPNetProtNotSup,['(1,2)'])); {do not localize}
               end else begin
-                ASender.Reply.SetReply(522, Format(RSFTPNetProtNotSup,['(1)'])); {do not localize}
+                ASender.Reply.SetReply(522, Sys.Format(RSFTPNetProtNotSup,['(1)'])); {do not localize}
               end;
               Exit;
             end;
@@ -3956,8 +3957,8 @@ begin
     end;
     //Note that only LBPort can work with EPSV
     DoOnPASVReply(LF, LIP, LBPort, LIPVersion);
-    LParam := '|||'+ IntToStr(LBPort)+'|';
-    ASender.Reply.SetReply(229, Format(RSFTPEnteringEPSV, [LParam]));
+    LParam := '|||'+ Sys.IntToStr(LBPort)+'|';
+    ASender.Reply.SetReply(229, Sys.Format(RSFTPEnteringEPSV, [LParam]));
     LF.FPASV := True;
   end;
 end;
@@ -4161,7 +4162,7 @@ begin
         end
         else
         begin
-          ASender.Reply.SetReply(501, Format(RSFTPParamError, [ASender.CommandHandler.Command]));
+          ASender.Reply.SetReply(501, Sys.Format(RSFTPParamError, [ASender.CommandHandler.Command]));
         end;
       end;
     end;
@@ -4231,7 +4232,7 @@ begin
       Fetch(LBuf,'"');
       LTargetFileName := Fetch(LBuf,'"');
       LTargetFileName := DoProcessPath(LF,LTargetFileName);
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
       LFileParts := TIdStringList.Create;
       try
         repeat
@@ -4245,12 +4246,12 @@ begin
         DoOnCombineFiles(LF,LTargetFileName,LFileParts);
         ASender.Reply.SetReply(250,RSFTPFileOpSuccess);
       finally
-        FreeAndNil(LFileParts);
+        Sys.FreeAndNil(LFileParts);
       end;
     end
     else
     begin
-      ASender.Reply.SetReply(501, Format(RSFTPParamError, [ASender.CommandHandler.Command]));
+      ASender.Reply.SetReply(501, Sys.Format(RSFTPParamError, [ASender.CommandHandler.Command]));
     end;
   end;
 end;
@@ -4264,7 +4265,7 @@ begin
   try
     IdHashCRC32 := TIdHashCRC32.create;
     value := IdHashCRC32.HashValue( AStrm,ABeginPos,AEndPos ) ;
-    result := inttohex( value, 8 ) ;
+    result := Sys.IntToHex( value, 8 ) ;
   finally
     IdHashCRC32.free;
   end;
@@ -4277,7 +4278,7 @@ begin
   try
     Result := TIdHashMessageDigest5.AsHex(LMD.HashValue(AStrm,ABeginPos,AEndPos));
   finally
-    FreeAndNil(LMD);
+    Sys.FreeAndNil(LMD);
   end;
 end;
 
@@ -4304,12 +4305,12 @@ begin
       begin
         LFileName := Fetch(LBuf);
       end;
-      LBuf := Trim(LBuf);
-      LBeginPos := StrToIntDef(Fetch(LBuf),0);
-      LEndPos := StrToIntDef(Fetch(LBuf),0);
+      LBuf := Sys.Trim(LBuf);
+      LBeginPos := Sys.StrToInt(Fetch(LBuf),0);
+      LEndPos := Sys.StrToInt(Fetch(LBuf),0);
       if LFileName = '' then
       begin
-        ASender.Reply.SetReply(501, Format(RSFTPParamError, [ASender.CommandHandler.Command]));
+        ASender.Reply.SetReply(501, Sys.Format(RSFTPParamError, [ASender.CommandHandler.Command]));
         Exit;
       end;
       LCalcStream := nil;
@@ -4319,7 +4320,7 @@ begin
         LCalcStream.Position := 0;
         ASender.Reply.SetReply(250,CalculateCRCHash(LCalcStream,LBeginPos,LEndPos));
       finally
-        FreeAndNil(LCalcStream);
+        Sys.FreeAndNil(LCalcStream);
       end else begin
         CmdFileActionAborted(ASender);
       end;
@@ -4354,7 +4355,7 @@ begin
         AContext.Connection.Disconnect;
       end;
     finally
-      FreeAndNil(LGreeting);
+      Sys.FreeAndNil(LGreeting);
     end;
   end else begin
     inherited DoConnect(AContext);
@@ -4409,7 +4410,7 @@ begin
       end
       else
       begin
-        FreeAndNil(LStream);
+        Sys.FreeAndNil(LStream);
         LF.TerminateAndFreeDataChannel;
         ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
       end;
@@ -4442,7 +4443,7 @@ begin
       ASender.Reply.Text.Add('End'); {do not localize}
       ASender.SendReply;
     finally
-      FreeAndNil(LStream);
+      Sys.FreeAndNil(LStream);
     end;
   end;
 end;
@@ -4512,7 +4513,7 @@ begin
       LFileName := ASender.UnparsedParams;
       LTimeStr := Fetch(LFileName);
       DoOnSetModifiedTime(LF,LFileName,LTimeStr);
-      ASender.Reply.SetReply(213,Format('ModifyTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
+      ASender.Reply.SetReply(213,Sys.Format('ModifyTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
     end else begin
       CmdSyntaxError(ASender);
     end;
@@ -4530,7 +4531,7 @@ begin
       LFileName := ASender.UnparsedParams;
       LTimeStr := Fetch(LFileName);
       DoOnSetCreationTime(LF,LFileName,LTimeStr);
-      ASender.Reply.SetReply(213, Format('CreateTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
+      ASender.Reply.SetReply(213, Sys.Format('CreateTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
     end else begin
       CmdSyntaxError(ASender);
     end;
@@ -4563,7 +4564,7 @@ begin
         begin
           LValue := LFacts.Values['ModifyTime'];  {Do not translate}
           DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-          s := s + Format('ModifyTime=%s;',[LValue]); {Do not translate}
+          s := s + Sys.Format('ModifyTime=%s;',[LValue]); {Do not translate}
         end;
       end;
       if LFacts.Values['CreateTime']<>'' then    {Do not translate}
@@ -4572,7 +4573,7 @@ begin
          begin
            LValue := LFacts.Values['CreateTime'];   {Do not translate}
            DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-           s := s + Format('CreateTime=%s;',[LValue]);  {Do not translate}
+           s := s + Sys.Format('CreateTime=%s;',[LValue]);  {Do not translate}
          end;
       end;
       if s <> '' then
@@ -4582,10 +4583,10 @@ begin
       end
       else
       begin
-        ASender.Reply.SetReply(504,Format(RSFTPParamError,['MFF']));  {Do not translate}
+        ASender.Reply.SetReply(504,Sys.Format(RSFTPParamError,['MFF']));  {Do not translate}
       end;
     finally
-      FreeAndNil(LFacts);
+      Sys.FreeAndNil(LFacts);
     end;
   end;
 end;
@@ -4605,7 +4606,7 @@ begin
       Result := CalculateMD5Checksum(LCalcStream,0,0);
       DoOnMD5Verify(ASender,AFileName,Result);
     finally
-      FreeAndNil(LCalcStream);
+      Sys.FreeAndNil(LCalcStream);
     end;
   end;
 end;
@@ -4639,7 +4640,7 @@ begin
         end;
         IdDelete(LRes,1,1);
       finally
-        FreeAndNil(LFiles);
+        Sys.FreeAndNil(LFiles);
       end;
       if LError then begin
         //The http://www.potaroo.net/ietf/idref/draft-twine-ftpmd5/
@@ -4812,7 +4813,7 @@ begin
       LPerms := Fetch(LFileName);
       If IsValidPermNumbers(LPerms) then begin
         LPermitted := True;
-        DoOnSiteCHMOD(LCx, StrToIntDef(LPerms,0), DoProcessPath(LCx,LFileName), LPermitted);
+        DoOnSiteCHMOD(LCx, Sys.StrToInt(LPerms,0), DoProcessPath(LCx,LFileName), LPermitted);
         if LPermitted then begin
           ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
         end else begin
@@ -4841,10 +4842,10 @@ begin
       if ASender.Params.Count > 0 then begin
         If IsValidPermNumbers(ASender.Params[0]) then begin
           LPermitted := True;
-          LNewMask := SysUtils.StrToIntDef(ASender.Params[0], 0);
+          LNewMask := Sys.StrToInt(ASender.Params[0], 0);
           Self.DoOnSiteUMASK(LCx, LNewMask, LPermitted);
           if LPermitted then begin
-            ASender.Reply.SetReply(200, Format(RSFTPUMaskSet,[LNewMask,LCx.FUMask]));
+            ASender.Reply.SetReply(200, Sys.Format(RSFTPUMaskSet,[LNewMask,LCx.FUMask]));
             LCx.FUMask := LNewMask;
           end else begin
             ASender.Reply.SetReply(553, RSFTPPermissionDenied);
@@ -4853,7 +4854,7 @@ begin
           CmdNotImplemented(ASender);
         end;
       end else begin
-        ASender.Reply.SetReply(200, Format(RSFTPUMaskIs,[LCx.FUMask]));
+        ASender.Reply.SetReply(200, Sys.Format(RSFTPUMaskIs,[LCx.FUMask]));
       end;
     end else begin
       CmdNotImplemented(ASender);
@@ -4913,11 +4914,11 @@ begin
         LCx.FMSDOSMode := not LCx.FMSDOSMode;
         if LCx.FMSDOSMode then
         begin
-          ASender.Reply.SetReply(200,Format(RSFTPDirStyle,[RSFTPOn]));
+          ASender.Reply.SetReply(200,Sys.Format(RSFTPDirStyle,[RSFTPOn]));
         end
         else
         begin
-          ASender.Reply.SetReply(200,Format(RSFTPDirStyle,[RSFTPOff]));
+          ASender.Reply.SetReply(200,Sys.Format(RSFTPDirStyle,[RSFTPOff]));
         end;
       end;
     end;
@@ -4956,7 +4957,7 @@ begin
       s := s + HelpText( LCmds ) + FEndOfHelpLine;
       ASender.Reply.SetReply(214,s);
     finally
-      FreeAndNil(LCmds);
+      Sys.FreeAndNil(LCmds);
     end;
   end;
 end;
@@ -4978,7 +4979,7 @@ begin
     Result := '    ';
     for i := 0 to Cmds.Count -1 do
     begin
-      Result := Result + Format('%-10s',
+      Result := Result + Sys.Format('%-10s',
           [ Cmds[i]]);
     end;
     Result := Result + CR;
@@ -4989,14 +4990,14 @@ begin
     begin
       if (i < LMod-1) and (LMod<>0) then
       begin
-        Result := Result + Format('    %-10s%-10s%-10s%-10s%-10s%-10s%-10s',   {Do not translate}
+        Result := Result + Sys.Format('    %-10s%-10s%-10s%-10s%-10s%-10s%-10s',   {Do not translate}
           [ Cmds[i],Cmds[i+LRows],Cmds[(LRows*2)+i],
           Cmds[(LRows*3)+i],Cmds[(LRows*4)+i],Cmds[(LRows*5)+i],
           Cmds[(LRows*6)+i]])+CR;
       end
       else
       begin
-        Result := Result + Format('    %-10s%-10s%-10s%-10s%-10s%-10s',  {Do not translate}
+        Result := Result + Sys.Format('    %-10s%-10s%-10s%-10s%-10s%-10s',  {Do not translate}
           [ Cmds[i],Cmds[i+LRows],Cmds[(LRows*2)+i],
           Cmds[(LRows*3)+i],Cmds[(LRows*4)+i],Cmds[(LRows*5)+i]])+CR;
       end;
@@ -5223,12 +5224,12 @@ this is really desirable as both file systems are like apples and oranges.
 }
 begin
   case FPathProcessing of
-    ftppDOS : Result := StringReplace(APath,'\','/',[rfReplaceAll]);
+    ftppDOS : Result := Sys.StringReplace(APath,'\','/');
     ftpOSDependent :
     begin
       if GOSType = otWindows then
       begin
-        Result := StringReplace(APath,'\','/',[rfReplaceAll]);
+        Result := Sys.StringReplace(APath,'\','/');
       end
       else
       begin
@@ -5316,7 +5317,7 @@ end;
 
 procedure TIdFTPServer.CmdNotImplemented(ASender: TIdCommand);
 begin
-  ASender.Reply.SetReply(550, Format(RSFTPCmdNotImplemented, [ASender.CommandHandler.Command ]));
+  ASender.Reply.SetReply(550, Sys.Format(RSFTPCmdNotImplemented, [ASender.CommandHandler.Command ]));
 end;
 
 procedure TIdFTPServer.CmdFileActionAborted(ASender: TIdCommand);
@@ -5331,7 +5332,7 @@ end;
 
 procedure TIdFTPServer.CmdCommandSuccessful(ASender: TIdCOmmand; const AReplyCode : Integer = 250);
 begin
-  ASender.Reply.SetReply(AReplyCode, Format(RSFTPCmdSuccessful, [ASender.CommandHandler.Command]));
+  ASender.Reply.SetReply(AReplyCode, Sys.Format(RSFTPCmdSuccessful, [ASender.CommandHandler.Command]));
 end;
 
 procedure TIdFTPServer.CommandSSCN(ASender: TIdCommand);
@@ -5408,11 +5409,11 @@ begin
   //plus must always be displayed for positive numbers
   if LMin < 0 then
   begin
-    ASender.Reply.SetReply(210,Format('UTC%d',[MinutesFromGMT])); {do not localize}
+    ASender.Reply.SetReply(210,Sys.Format('UTC%d',[MinutesFromGMT])); {do not localize}
   end
   else
   begin
-    ASender.Reply.SetReply(210,Format('UTC+%d',[MinutesFromGMT])); {do not localize}
+    ASender.Reply.SetReply(210,Sys.Format('UTC+%d',[MinutesFromGMT])); {do not localize}
   end;
 end;
 
@@ -5438,12 +5439,12 @@ begin
       begin
         LFileName := Fetch(LBuf);
       end;
-      LBuf := Trim(LBuf);
-      LBeginPos := StrToIntDef(Fetch(LBuf),0);
-      LEndPos := StrToIntDef(Fetch(LBuf),0);
+      LBuf := Sys.Trim(LBuf);
+      LBeginPos := Sys.StrToInt(Fetch(LBuf),0);
+      LEndPos := Sys.StrToInt(Fetch(LBuf),0);
       if LFileName = '' then
       begin
-        ASender.Reply.SetReply(501, Format(RSFTPParamError, [ASender.CommandHandler.Command]));
+        ASender.Reply.SetReply(501, Sys.Format(RSFTPParamError, [ASender.CommandHandler.Command]));
         Exit;
       end;
       LCalcStream := nil;
@@ -5453,7 +5454,7 @@ begin
         LCalcStream.Position := 0;
         ASender.Reply.SetReply(250,Self.CalculateMD5Checksum(LCalcStream,LBeginPos,LEndPos));
       finally
-        FreeAndNil(LCalcStream);
+        Sys.FreeAndNil(LCalcStream);
       end else begin
         CmdFileActionAborted(ASender);
       end;
@@ -5485,7 +5486,7 @@ begin
 
   if InternalPASV(ASender, LIP, LBPort, LIPVer) then
   begin
-    ASender.Reply.SetReply(227, IntToStr(LBPort));
+    ASender.Reply.SetReply(227, Sys.IntToStr(LBPort));
   end;
 end;
 
@@ -5498,7 +5499,7 @@ begin
   LF := TIdFTPServerContext(ASender.Context);
   if LF.IsAuthenticated(ASender) then begin
     if LF.FEPSVAll then begin
-      ASender.Reply.SetReply(501, Format(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
+      ASender.Reply.SetReply(501, Sys.Format(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
       Exit;
     end;
     VIP := TIdIOHandlerSocket(LF.Connection.IOHandler).Binding.IP;
@@ -5780,7 +5781,7 @@ const
   LWhiteSet = [TAB, CHAR32];    {Do not Localize}
 begin
   LTmp := ALine;
-  //First make the first word uppercase
+  //First make the first word Sys.UpperCase
   for i := 1 to Length(LTmp) do begin
     if CharIsInSet(LTmp,i,LWhiteSet) then begin
       Break;
@@ -5795,11 +5796,11 @@ begin
       LReply.Assign(ReplyUnknownCommand);
     end;
     LReply.Text.Clear;
-    LReply.Text.Add(Format(RSFTPCmdNotRecognized,[LTmp]));
+    LReply.Text.Add(Sys.Format(RSFTPCmdNotRecognized,[LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      FreeAndNil(LReply);
+      Sys.FreeAndNil(LReply);
     end;
   end;
 end;
@@ -5838,7 +5839,7 @@ const
 
   begin
     Result := [];
-    Ls := UpperCase(AParms);
+    Ls := Sys.UpperCase(AParms);
     repeat
       if Ls = '' then
       begin
@@ -5930,13 +5931,13 @@ begin
   s := ASender.UnparsedParams;
   if IndyPos(' ',s)=0 then
   begin
-    LCxt.MLSOpts := ParseMLSParms(Self,Trim(s));
+    LCxt.MLSOpts := ParseMLSParms(Self,Sys.Trim(s));
     //the string is standardized format
-    ASender.Reply.SetReply(200,Trim(Format('MLST OPTS %s',[SetToOptsStr(LCxt.MLSOpts)]))); {Do not Localize}
+    ASender.Reply.SetReply(200,Sys.Trim(Sys.Format('MLST OPTS %s',[SetToOptsStr(LCxt.MLSOpts)]))); {Do not Localize}
   end
   else
   begin
-    ASender.Reply.SetReply(501, Format(RSFTPInvalidOps,['MLST'])); {Do not Localize}
+    ASender.Reply.SetReply(501, Sys.Format(RSFTPInvalidOps,['MLST'])); {Do not Localize}
   end;
 end;
 
@@ -5959,8 +5960,8 @@ const
     AReply.NumericCode := 200;
     AReply.Text.Clear;
     AReply.Text.Add('MODE Z ENGINE set to ZLIB.');  {do not localize}
-    AReply.Text.Add('MODE Z LEVEL set to '+IntToStr(ACxt.FZLibCompressionLevel)+'.'); {do not localize}
-    AReply.Text.Add('MODE Z METHOD set to '+IntToStr(DEF_ZLIB_METHOD)+'.'); {do not localize}
+    AReply.Text.Add('MODE Z LEVEL set to '+Sys.IntToStr(ACxt.FZLibCompressionLevel)+'.'); {do not localize}
+    AReply.Text.Add('MODE Z METHOD set to '+Sys.IntToStr(DEF_ZLIB_METHOD)+'.'); {do not localize}
   end;
 
   procedure SyntaxError(AReply : TIdCommand);
@@ -5970,8 +5971,8 @@ const
     //drop the OPTS part of the command for display
     LOpts := ASender.RawLine;
     Fetch(LOpts);
-    LOpts := TrimLeft(LOpts);
-    ASender.Reply.SetReply(501, Format(RSFTPInvalidOps,[LOpts]));
+    LOpts := Sys.TrimLeft(LOpts);
+    ASender.Reply.SetReply(501, Sys.Format(RSFTPInvalidOps,[LOpts]));
   end;
 
 begin
@@ -5979,7 +5980,7 @@ begin
   LReset := True;
   LError := True;
   LCxt := ASender.Context as TIdFTPServerContext;
-  s := Trim(ASender.UnparsedParams);
+  s := Sys.Trim(ASender.UnparsedParams);
   if s = '' then begin
     LCxt.ResetZLibSettings;
     ReportSettings(LCxt,ASender.Reply);
@@ -5993,7 +5994,7 @@ begin
       end;
     end;
     LOptVal := Fetch(s);
-    if Trim(s) <> '' then begin
+    if Sys.Trim(s) <> '' then begin
       //if there's more, than we see if there's a valid option.
       LFirstPar := False;
     end;
@@ -6008,7 +6009,7 @@ begin
             LError := False;
           end;
       1 : begin  //,'LEVEL', - implemented
-            LNoVal := StrToIntDef(LOptVal, -1);
+            LNoVal := Sys.StrToInt(LOptVal, -1);
             if (LNoVal > -1) and (LNoVal < 8) then begin
               LCxt.FZLibCompressionLevel := LNoVal;
               LReset := False;
@@ -6016,13 +6017,13 @@ begin
             end;
           end;
       2 : begin //'METHOD', - not implemented - jst do syntax check
-            LNoVal := StrToIntDef(LOptVal, -1);
+            LNoVal := Sys.StrToInt(LOptVal, -1);
             if LNoVal <> -1 then begin
               LError := False;
             end;
           end;
       3 : begin  ///'BLOCKSIZE',   -not implemented - just do syntax check
-            LNoVal := StrToIntDef(LOptVal, -1);
+            LNoVal := Sys.StrToInt(LOptVal, -1);
             if LNoVal <> -1 then begin
               LError := False;
             end;
@@ -6174,12 +6175,12 @@ end;
 
 destructor TIdDataChannel.Destroy;
 begin
-  FreeAndNil(FOKReply);
-  FreeAndNil(FErrorReply);
-  FreeAndNil(FReply);
+  Sys.FreeAndNil(FOKReply);
+  Sys.FreeAndNil(FErrorReply);
+  Sys.FreeAndNil(FReply);
   FDataChannel.IOHandler.Free;
 //  FDataChannel.IOHandler := nil;
-  FreeAndNil(FDataChannel);
+  Sys.FreeAndNil(FDataChannel);
   inherited Destroy;
 end;
 

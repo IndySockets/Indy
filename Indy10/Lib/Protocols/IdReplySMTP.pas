@@ -119,6 +119,7 @@ uses
   IdException,
   IdReply,
   IdReplyRFC,
+  IdSysUtils,
   IdTStrings;
 
 const
@@ -330,7 +331,7 @@ const
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols;
 
 { TIdSMTPEnhancedCode }
 
@@ -363,16 +364,16 @@ begin
   Result := '';
   if Available then
   begin
-    Result := Copy(IntToStr(FStatusClass),1,1)+PARTSEP+
-      Copy(IntToStr(FSubject),1,3)+PARTSEP+
-      Copy(IntToStr(FDetails),1,3);
+    Result := Copy(Sys.IntToStr(FStatusClass),1,1)+PARTSEP+
+      Copy(Sys.IntToStr(FSubject),1,3)+PARTSEP+
+      Copy(Sys.IntToStr(FDetails),1,3);
   end;
 end;
 
 function TIdSMTPEnhancedCode.IsValidReplyCode(const AText: String): Boolean;
 var LBuf, LValidPart : String;
 begin
-  Result := (Trim(AText) = '');
+  Result := (Sys.Trim(AText) = '');
   if not Result then begin
     LBuf := AText;
     LBuf := Fetch(LBuf);
@@ -415,12 +416,12 @@ begin
   if LBuf <> '' then begin
     //class
     LValidPart := Fetch(LBuf, PARTSEP);
-    FStatusClass := StrToIntDef(LValidPart, 0);
+    FStatusClass := Sys.StrToInt(LValidPart, 0);
     //subject
     LValidPart := Fetch(LBuf, PARTSEP);
-    FSubject := StrToIntDef(LValidPart,0);
+    FSubject := Sys.StrToInt(LValidPart,0);
     //details
-    FDetails := StrToIntDef(LBuf,0);
+    FDetails := Sys.StrToInt(LBuf,0);
     FAvailable := True;
   end else begin
     FAvailable := False;
@@ -469,7 +470,7 @@ end;
 
 destructor TIdReplySMTP.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  Sys.FreeAndNil(FEnhancedCode);
   inherited;
 end;
 
@@ -487,31 +488,31 @@ begin
         if i < FText.Count - 1 then begin
           if EnhancedCode.Available then
           begin
-            Result.Add( IntToStr(NumericCode) + '-' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
+            Result.Add( Sys.IntToStr(NumericCode) + '-' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
           end
           else
           begin
-            Result.Add( IntToStr(NumericCode) + '-' + FText[i]);
+            Result.Add( Sys.IntToStr(NumericCode) + '-' + FText[i]);
           end;
         end else begin
           if EnhancedCode.Available then
           begin
-            Result.Add( IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
+            Result.Add( Sys.IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
           end
           else
           begin
-            Result.Add( IntToStr(NumericCode) + ' ' + FText[i]);
+            Result.Add( Sys.IntToStr(NumericCode) + ' ' + FText[i]);
           end;
         end;
       end;
     end else begin
       if EnhancedCode.Available then
       begin
-        Result.Add( IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr);
+        Result.Add( Sys.IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr);
       end
       else
       begin
-        Result.Add( IntToStr(NumericCode));
+        Result.Add( Sys.IntToStr(NumericCode));
       end;
     end;
   end else if FText.Count > 0 then begin
@@ -545,7 +546,7 @@ begin
   Clear;
   if AValue.Count > 0 then begin
     // Get 4 chars - for POP3
-    s := Trim(Copy(AValue[0], 1, 4));
+    s := Sys.Trim(Copy(AValue[0], 1, 4));
     if Length(s) = 4 then begin
       if s[4] = '-' then begin
         SetLength(s, 3);
@@ -582,7 +583,7 @@ end;
 
 destructor EIdSMTPReplyError.Destroy;
 begin
-  FreeAndNil(FEnhancedCode);
+  Sys.FreeAndNil(FEnhancedCode);
   inherited;
 end;
 

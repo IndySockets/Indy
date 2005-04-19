@@ -238,6 +238,7 @@ uses
   IdMessage,
   IdReply,
   IdReplyIMAP4,
+  IdSysUtils,
   IdTCPConnection,
   IdTStrings,
   IdYarn;
@@ -508,8 +509,7 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStreamVCL,
-  SysUtils;
+  IdStreamVCL;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
 begin
@@ -596,7 +596,7 @@ end;
 
 destructor TIdIMAP4Server.Destroy;
 begin
-  FreeAndNil(FLastCommand);
+  Sys.FreeAndNil(FLastCommand);
   inherited;
 end;
 
@@ -639,7 +639,7 @@ end;
 
 destructor TIdIMAP4PeerContext.Destroy;
 begin
-  FreeAndNil(FTagData);
+  Sys.FreeAndNil(FTagData);
   inherited;
 end;
 
@@ -704,24 +704,24 @@ begin
   LPos := IndyPos(':', AMessageSet);      {Do not Localize}
   if LPos > 0 then begin
     LTemp := Copy(AMessageSet, 1, LPos-1);
-    LStart := StrToInt(LTemp);
+    LStart := Sys.StrToInt(LTemp);
     LTemp := Copy(AMessageSet, LPos+1, MAXINT);
     if LTemp = '*' then begin  {Do not Localize}
       if AUseUID = True then begin
-        LEnd := StrToInt(TIdIMAP4PeerContext(ASender.Context).FMailBox.UIDNext)-1;
+        LEnd := Sys.StrToInt(TIdIMAP4PeerContext(ASender.Context).FMailBox.UIDNext)-1;
         for LN := LStart to LEnd do begin
-          AMessageNumbers.Add(IntToStr(LN));
+          AMessageNumbers.Add(Sys.IntToStr(LN));
         end;
       end else begin
         LEnd := TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count;
         for LN := LStart to LEnd do begin
-          AMessageNumbers.Add(IntToStr(LN));
+          AMessageNumbers.Add(Sys.IntToStr(LN));
         end;
       end;
     end else begin
-      LEnd := StrToInt(LTemp);
+      LEnd := Sys.StrToInt(LTemp);
       for LN := LStart to LEnd do begin
-        AMessageNumbers.Add(IntToStr(LN));
+        AMessageNumbers.Add(Sys.IntToStr(LN));
       end;
     end;
   end else begin
@@ -742,7 +742,7 @@ var
   LN: integer;
 begin
   for LN := 0 to AMailBox.MessageList.Count-1 do begin
-    if StrToInt(AMailBox.MessageList.Messages[LN].UID) = AMessageNumber then begin
+    if Sys.StrToInt(AMailBox.MessageList.Messages[LN].UID) = AMessageNumber then begin
       Result := LN;
       Exit;
     end;
@@ -882,13 +882,13 @@ begin
   BreakApart(AParams[1], ' ', LDataItems);
   for LN := 0 to LMessageNumbers.Count-1 do begin
     if AUseUID = False then begin
-      LRecord := StrToInt(LMessageNumbers[LN])-1;
+      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
     end else begin
-      LRecord := GetRecordForUID(StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
+      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
       if LRecord = -1 then continue; //It is OK to skip non-existent UID records
     end;
     if ( (LRecord < 0) or (LRecord > TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count) ) then begin
-      SendBadReply(ASender, 'Message number '+IntToStr(LRecord+1)+' does not exist'); {Do not Localize}
+      SendBadReply(ASender, 'Message number '+Sys.IntToStr(LRecord+1)+' does not exist'); {Do not Localize}
       LMessageNumbers.Free;
       LDataItems.Free;
       Exit;
@@ -905,8 +905,8 @@ begin
         //C10 UID FETCH 6545 (FLAGS)
         //* 490 FETCH (FLAGS (\Recent) UID 6545)
         //C10 OK Completed
-        LTemp := '* ' + IntToStr(LRecord+1) + ' FETCH (FLAGS ('  {Do not Localize}
-         +Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
+        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (FLAGS ('  {Do not Localize}
+         +Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
         if AUseUID = False then begin
           LTemp := LTemp + '))';  {Do not Localize}
         end else begin
@@ -939,11 +939,11 @@ begin
         for LM := 0 to LMessage.Headers.Count-1 do begin
           LSize := LSize + Length(LMessage.Headers.Strings[LM]) + 2; //Allow for CR+LF
         end;
-        LTemp := '* ' + IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
+        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
         if AUseUID = True then begin
           LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
         end;
-        LTemp := LTemp + 'RFC822.HEADER {'+IntToStr(LSize)+'}';  {Do not Localize}
+        LTemp := LTemp + 'RFC822.HEADER {'+Sys.IntToStr(LSize)+'}';  {Do not Localize}
         DoSendReply(ASender.Context, LTemp);
         for LM := 0 to LMessage.Headers.Count-1 do begin
           DoSendReply(ASender.Context, LMessage.Headers.Strings[LM]);
@@ -965,11 +965,11 @@ begin
           LDataItems.Free;
           Exit;
         end;
-        LTemp := '* ' + IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
+        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
         if AUseUID = True then begin
           LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
         end;
-        LTemp := LTemp + 'RFC822.SIZE '+IntToStr(LSize)+')';  {Do not Localize}
+        LTemp := LTemp + 'RFC822.SIZE '+Sys.IntToStr(LSize)+')';  {Do not Localize}
         DoSendReply(ASender.Context, LTemp);
       end else if ( (LDataItems[LO] = 'BODY.PEEK[]') or (LDataItems[LO] = 'BODY[]') or (LDataItems[LO] = 'RFC822') or (LDataItems[LO] = 'RFC822.PEEK') ) then begin  {Do not Localize}
         //All are the same, except the return string is different...
@@ -991,14 +991,14 @@ begin
           LSize := LSize + Length(LMessageRaw.Strings[LM]) + 2; //Allow for CR+LF
         end;
         LSize := LSize + 3;  //The message terminator '.CRLF'
-        LTemp := '* ' + IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
+        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
         LTemp := LTemp + 'FLAGS ('  {Do not Localize}
-         + Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags))
+         + Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags))
          + ') ';  {Do not Localize}
         if AUseUID = True then begin
           LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
         end;
-        LTemp := LTemp + Copy(AParams[1], 2, Length(AParams[1])-2)+' {'+IntToStr(LSize)+'}';  {Do not Localize}
+        LTemp := LTemp + Copy(AParams[1], 2, Length(AParams[1])-2)+' {'+Sys.IntToStr(LSize)+'}';  {Do not Localize}
         DoSendReply(ASender.Context, LTemp);
         for LM := 0 to LMessage.Headers.Count-1 do begin
           DoSendReply(ASender.Context, LMessageRaw.Strings[LM]);
@@ -1064,11 +1064,11 @@ begin
     Exit;
   end;
   if (
-   (UpperCase(AParams[0]) <> 'FROM') and  {Do not Localize}
-   (UpperCase(AParams[0]) <> 'TO') and    {Do not Localize}
-   (UpperCase(AParams[0]) <> 'CC') and    {Do not Localize}
-   (UpperCase(AParams[0]) <> 'BCC') and   {Do not Localize}
-   (UpperCase(AParams[0]) <> 'SUBJECT')   {Do not Localize}
+   (Sys.UpperCase(AParams[0]) <> 'FROM') and  {Do not Localize}
+   (Sys.UpperCase(AParams[0]) <> 'TO') and    {Do not Localize}
+   (Sys.UpperCase(AParams[0]) <> 'CC') and    {Do not Localize}
+   (Sys.UpperCase(AParams[0]) <> 'BCC') and   {Do not Localize}
+   (Sys.UpperCase(AParams[0]) <> 'SUBJECT')   {Do not Localize}
    ) then begin
     SendBadReply(ASender, 'Unsupported search method'); {Do not Localize}
     //LParams.Free;
@@ -1094,51 +1094,51 @@ begin
       //LParams.Free;
       Exit;
     end;
-    if UpperCase(AParams[0]) = 'FROM' then begin  {Do not Localize}
-      if Pos(UpperCase(LSearchString), UpperCase(LMessage.From.Address)) > 0 then begin
+    if Sys.UpperCase(AParams[0]) = 'FROM' then begin  {Do not Localize}
+      if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.From.Address)) > 0 then begin
         if AUseUID = False then begin
-          LHits := LHits + IntToStr(LN+1) + ' ';  {Do not Localize}
+          LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
         end else begin
           LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
         end;
       end;
-    end else if UpperCase(AParams[0]) = 'TO' then begin  {Do not Localize}
+    end else if Sys.UpperCase(AParams[0]) = 'TO' then begin  {Do not Localize}
       for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(UpperCase(LSearchString), UpperCase(LMessage.Recipients.Items[LM].Address)) > 0 then begin
+        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.Recipients.Items[LM].Address)) > 0 then begin
           if AUseUID = False then begin
-            LHits := LHits + IntToStr(LN+1) + ' ';  {Do not Localize}
+            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
           end else begin
             LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
           end;
           break; //Don't want more than 1 hit on this record
         end;
       end;
-    end else if UpperCase(AParams[0]) = 'CC' then begin  {Do not Localize}
+    end else if Sys.UpperCase(AParams[0]) = 'CC' then begin  {Do not Localize}
       for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(UpperCase(LSearchString), UpperCase(LMessage.CCList.Items[LM].Address)) > 0 then begin
+        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.CCList.Items[LM].Address)) > 0 then begin
           if AUseUID = False then begin
-            LHits := LHits + IntToStr(LN+1) + ' ';  {Do not Localize}
+            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
           end else begin
             LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
           end;
           break; //Don't want more than 1 hit on this record
         end;
       end;
-    end else if UpperCase(AParams[0]) = 'BCC' then begin  {Do not Localize}
+    end else if Sys.UpperCase(AParams[0]) = 'BCC' then begin  {Do not Localize}
       for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(UpperCase(LSearchString), UpperCase(LMessage.BCCList.Items[LM].Address)) > 0 then begin
+        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.BCCList.Items[LM].Address)) > 0 then begin
           if AUseUID = False then begin
-            LHits := LHits + IntToStr(LN+1) + ' ';  {Do not Localize}
+            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
           end else begin
             LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
           end;
           break; //Don't want more than 1 hit on this record
         end;
       end;
-    end else if UpperCase(AParams[0]) = 'SUBJECT' then begin  {Do not Localize}
-      if Pos(UpperCase(LSearchString), UpperCase(LMessage.Subject)) > 0 then begin
+    end else if Sys.UpperCase(AParams[0]) = 'SUBJECT' then begin  {Do not Localize}
+      if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.Subject)) > 0 then begin
         if AUseUID = False then begin
-          LHits := LHits + IntToStr(LN+1) + ' ';  {Do not Localize}
+          LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
         end else begin
           LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
         end;
@@ -1147,7 +1147,7 @@ begin
   end;
   LMessage.Free;
   //LParams.Free;
-  Trim(LHits);
+  Sys.Trim(LHits);
   DoSendReply(ASender.Context, '* SEARCH '+LHits); {Do not Localize}
   SendOkCompleted(ASender);
 end;
@@ -1188,9 +1188,9 @@ begin
   LResult := True;
   for LN := 0 to LMessageNumbers.Count-1 do begin
     if AUseUID = False then begin
-      LRecord := StrToInt(LMessageNumbers[LN])-1;
+      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
     end else begin
-      LRecord := GetRecordForUID(StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
+      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
       if LRecord = -1 then continue; //It is OK to skip non-existent UID records
     end;
     if OnDefMechCopyMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
@@ -1267,9 +1267,9 @@ begin
   end;
   for LN := 0 to LMessageNumbers.Count-1 do begin
     if AUseUID = False then begin
-      LRecord := StrToInt(LMessageNumbers[LN])-1;
+      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
     end else begin
-      LRecord := GetRecordForUID(StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
+      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
       if LRecord = -1 then continue; //It is OK to skip non-existent UID records
     end;
     if LStoreMethod = sdReplace then begin
@@ -1336,8 +1336,8 @@ begin
       //The response is '* 43 FETCH (FLAGS (\Seen))' with the UID version
       //being '* 43 FETCH (FLAGS (\Seen) UID 1234)'.  Note the first number is the
       //relative message number in BOTH cases.
-      LTemp := '* '+IntToStr(LRecord+1)+' FETCH (FLAGS ('  {Do not Localize}
-       +Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
+      LTemp := '* '+Sys.IntToStr(LRecord+1)+' FETCH (FLAGS ('  {Do not Localize}
+       +Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
       if AUseUID = False then begin
         LTemp := LTemp + '))'; {Do not Localize}
       end else begin
@@ -1474,7 +1474,7 @@ var
 begin
   FLastCommand.ParseRequest(AData);  //Main purpose is to get sequence number, like C11 from 'C11 CAPABILITY'
   LTmp := Fetch(AData, #32);
-  AData := Trim(AData);
+  AData := Sys.Trim(AData);
   TIdIMAP4PeerContext(AContext).TagData.IMAP4Tag := LTmp;
   if Assigned(fOnBeforeCmd) then begin
     fOnBeforeCmd(ASender, AData, AContext);
@@ -2040,15 +2040,15 @@ begin
           LTemp := Copy(LTemp, 1, Length(LTemp)-1);
         end;
         if LTemp = 'MESSAGES' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
+          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
         end else if LTemp = 'RECENT' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
+          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
         end else if LTemp = 'UIDNEXT' then begin  {Do not Localize}
           LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
         end else if LTemp = 'UIDVALIDITY' then begin  {Do not Localize}
           LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
         end else if LTemp = 'UNSEEN' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
+          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
         end else begin
           SendBadReply(ASender, 'Parameter not supported: '+LTemp); {Do not Localize}
           LMailBox.Free;
@@ -2127,7 +2127,7 @@ begin
       LFlags := LParams[1];
     end;
     LTemp := LParams[LParams.Count-1];
-    LSize := StrToInt(Copy(LTemp, 2, Length(LTemp)-2));
+    LSize := Sys.StrToInt(Copy(LTemp, 2, Length(LTemp)-2));
     //Grab the next UID...
     LUID := OnDefMechGetNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]);
     //Get the message...
@@ -2141,7 +2141,7 @@ begin
       //Update the next free UID in the .uid file...
       OnDefMechUpdateNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName,
          TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         IntToStr(StrToInt(LUID)+1));
+         Sys.IntToStr(Sys.StrToInt(LUID)+1));
     end else begin
       //Update the (optional) flags...
       LParams2 := TIdStringList.Create;
@@ -2178,7 +2178,7 @@ begin
         //Update the next free UID in the .uid file...
         OnDefMechUpdateNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName,
          TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         IntToStr(StrToInt(LUID)+1));
+         Sys.IntToStr(Sys.StrToInt(LUID)+1));
       end;
       LParams2.Free;
     end;
@@ -2387,7 +2387,7 @@ begin
     LParams := TIdStringList.Create;
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     //Map the commands to the general handler but remove the FETCH or whatever...
-    if UpperCase(LParams[0]) = 'FETCH' then begin  {Do not Localize}
+    if Sys.UpperCase(LParams[0]) = 'FETCH' then begin  {Do not Localize}
       LParams.Delete(0);
       if ( (not Assigned(OnDefMechGetMessageHeader))  //Used by ProcessFetch
        or  (not Assigned(OnDefMechGetMessageSize))
@@ -2397,7 +2397,7 @@ begin
         Exit;
       end;
       ProcessFetch(True, ASender, LParams);
-    end else if UpperCase(LParams[0]) = 'COPY' then begin  {Do not Localize}
+    end else if Sys.UpperCase(LParams[0]) = 'COPY' then begin  {Do not Localize}
       LParams.Delete(0);
       if ( (not Assigned(OnDefMechReinterpretParamAsMailBox))
        or  (not Assigned(OnDefMechCopyMessage)) ) then begin    //Needed for ProcessCopy
@@ -2406,10 +2406,10 @@ begin
         Exit;
       end;
       ProcessCopy(True, ASender, LParams);
-    end else if UpperCase(LParams[0]) = 'STORE' then begin  {Do not Localize}
+    end else if Sys.UpperCase(LParams[0]) = 'STORE' then begin  {Do not Localize}
       LParams.Delete(0);
       ProcessStore(True, ASender, LParams);
-    end else if UpperCase(LParams[0]) = 'SEARCH' then begin  {Do not Localize}
+    end else if Sys.UpperCase(LParams[0]) = 'SEARCH' then begin  {Do not Localize}
       LParams.Delete(0);
       if not Assigned(OnDefMechGetMessageHeader) then begin  //Used by ProcessSearch
         SendUnassignedDefaultMechanism(ASender);
@@ -2438,11 +2438,11 @@ var LIO : TIdSSLIOHandlerSocketBase;
 begin
   if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
     if TIdIMAP4PeerContext(ASender.Context).UsingTLS then begin // we are already using TLS
-      DoSendReply(ASender.Context, Format('BAD %s', [RSIMAP4SvrNotPermittedWithTLS])); {do not localize}
+      DoSendReply(ASender.Context, Sys.Format('BAD %s', [RSIMAP4SvrNotPermittedWithTLS])); {do not localize}
       Exit;
     end;
     // TODO: STARTTLS may only be issued in auth-state
-    DoSendReply(ASender.Context, Format('OK %s', [RSIMAP4SvrBeginTLSNegotiation]));  {do not localize}
+    DoSendReply(ASender.Context, Sys.Format('OK %s', [RSIMAP4SvrBeginTLSNegotiation]));  {do not localize}
     LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
     LIO.Passthrough := False;
   end else begin

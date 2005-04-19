@@ -87,7 +87,8 @@ uses
   IdException,
   IdFTPList,
   IdFTPListOutput,
-  IdFTPServerContextBase;
+  IdFTPServerContextBase,
+  IdSysUtils;
 
 type
   TIdFTPBaseFileSystem = class(TIdBaseComponent)

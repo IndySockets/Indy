@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -176,7 +176,7 @@ interface
     - Added CAPA and STLS (RFC 2449 and 2595)
     - Added ImplicitTLS
  02-May-2002: Andy Neillans
-    - Bug Fix 551116 - StrToIntDef needed 'trimming#
+    - Bug Fix 551116 -Sys. StrToInt needed 'Sys.Trimming#
  30-Apr-2002: Allen O'Neill.
     - Failsafe .. added check for ParamCount in reading Username and password - previously
       if either were sent in blank we got an IndexOutOfBounds error.
@@ -189,7 +189,7 @@ interface
  15-Feb-2002: Andy
    - Started rewrite for use of CommandHandlers
  13-Jan-2002:
-    -Fixed formatting bug.
+    -Fixed Sys.Formatting bug.
  26-Dec-2000:
     -Andrew Neillans found a bug on line 157. Originally it was
      If Assigned(OnCommandLIST) then OnCommandRETR(...).
@@ -221,6 +221,7 @@ uses
   IdTCPServer,
   IdServerIOHandler,
   IdMailBox,
+  IdSysUtils,
   IdTCPConnection, IdYarn;
 
 {
@@ -342,8 +343,7 @@ uses
   IdReplyPOP3,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 procedure TIdPOP3Server.DoConnect(AContext: TIdContext);
 begin
@@ -522,11 +522,11 @@ begin
    Begin
     If Assigned(fCommandList) Then
     begin
-      OnList(ASender, StrToIntDef(Trim(ASender.Params.Text), -1));
+      OnList(ASender,Sys.StrToInt(Sys.Trim(ASender.Params.Text), -1));
     end
     Else
     begin
-      ASender.Reply.SetReply(ERR,Format(RSPOP3SVRNotHandled, ['LIST'])); {do not localize}
+      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['LIST'])); {do not localize}
     end;
   End
   Else
@@ -544,11 +544,11 @@ begin
    Begin
     If Assigned(fCommandRetr) Then
     begin
-      OnRetr(ASender, StrToIntDef(Trim(ASender.Params.Text), -1));
+      OnRetr(ASender,Sys. StrToInt(Sys.Trim(ASender.Params.Text), -1));
     end
     Else
     begin
-      ASender.Reply.SetReply(ERR,Format(RSPOP3SVRNotHandled, ['RETR'])); {do not localize}
+      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['RETR'])); {do not localize}
     end;
   End
   Else
@@ -567,15 +567,15 @@ begin
     If Assigned(fCommandDele) Then
     Begin
       Try
-        StrToInt(Trim(ASender.Params.Text));
-        OnDele(ASender, StrToInt(Trim(ASender.Params.Text)))
+        Sys.StrToInt(Sys.Trim(ASender.Params.Text));
+        OnDele(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
       Except
         ASender.Reply.SetReply(ERR,RSPOP3SvrInvalidMsgNo);
       End;
     End
     Else
     begin
-      ASender.Reply.SetReply(ERR,Format(RSPOP3SVRNotHandled, ['DELE'])); {do not localize}
+      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['DELE'])); {do not localize}
     end;
   End
   Else
@@ -618,7 +618,7 @@ begin
        OnAPOP(ASender, ASender.Params.Strings[0], LValidPassword);
        with TIdHashMessageDigest5.Create do
        try
-         LValidHash := LowerCase(TIdHash128.AsHex(
+         LValidHash := Sys.LowerCase(TIdHash128.AsHex(
            HashValue(LThread.APOP3Challenge + LValidPassword)));
          if (LValidHash =ASender.Params[1]) then
          begin
@@ -641,7 +641,7 @@ begin
       End
       Else
       begin
-        ASender.Reply.SetReply(ST_ERR,Format(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
+        ASender.Reply.SetReply(ST_ERR,Sys.Format(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
       end;
     end;
   End
@@ -664,7 +664,7 @@ begin
     end
     Else
     begin
-      ASender.Reply.SetReply(ST_ERR,Format(RSPOP3SVRNotHandled, ['STAT'])); {do not localize}
+      ASender.Reply.SetReply(ST_ERR,Sys.Format(RSPOP3SVRNotHandled, ['STAT'])); {do not localize}
     end;
   End
   Else
@@ -686,7 +686,7 @@ begin
     end
     Else
     begin
-      ASender.Reply.SetReply(ST_ERR, Format(RSPOP3SVRNotHandled, ['RSET']));  {do not localize}
+      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['RSET']));  {do not localize}
     end;
   End
   Else
@@ -704,9 +704,9 @@ begin
   Begin
     If Assigned(fCommandTop) Then
     Begin
-      If (StrToIntDef(Trim(ASender.Params.Strings[0]), -1) <> -1) AND (StrToIntDef(Trim(ASender.Params.Strings[1]), -1) <> -1) Then
+      If (Sys.StrToInt(Sys.Trim(ASender.Params.Strings[0]), -1) <> -1) AND (Sys.StrToInt(Sys.Trim(ASender.Params.Strings[1]), -1) <> -1) Then
       begin
-        OnTop(ASender, StrToInt(ASender.Params.Strings[0]), StrToInt(ASender.Params.Strings[1]))
+        OnTop(ASender, Sys.StrToInt(ASender.Params.Strings[0]), Sys.StrToInt(ASender.Params.Strings[1]))
       end
       Else
       begin
@@ -715,7 +715,7 @@ begin
     End
     Else
     begin
-      ASender.Reply.SetReply(ST_ERR, Format(RSPOP3SVRNotHandled, ['TOP'])); {do not localize}
+      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['TOP'])); {do not localize}
     end;
   End
   Else
@@ -733,11 +733,11 @@ begin
   Begin
     If Assigned(fCommandUidl) Then
     begin
-       OnUidl(ASender, StrToIntDef(Trim(ASender.Params.Text), -1))
+       OnUidl(ASender,Sys.StrToInt(Sys.Trim(ASender.Params.Text), -1))
     end
     Else
     begin
-      ASender.Reply.SetReply(ST_ERR, Format(RSPOP3SVRNotHandled, ['UIDL']));  {do not localize}
+      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['UIDL']));  {do not localize}
     end
   End
   Else
@@ -762,7 +762,7 @@ begin
     LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
     LIO.Passthrough := False;
   end else begin
-    ASender.Reply.SetReply(ST_ERR, Format(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
+    ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
   end;
 end;
 
@@ -883,8 +883,8 @@ begin
     LGreeting := TIdReplyPOP3.Create(nil);
     try
       LThread.APOP3Challenge := '<'+
-              IntToStr(Abs( CurrentProcessId )) +
-        '.'+IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';
+              Sys.IntToStr(Abs( CurrentProcessId )) +
+        '.'+Sys.IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';
       if AGreeting.Text.Count > 0 then begin
         LGreeting.Text.Add(AGreeting.Text[0] + ' ' + LThread.APOP3Challenge);
       end else begin
@@ -893,7 +893,7 @@ begin
       LGreeting.Code := OK;
       AContext.Connection.IOHandler.Write(LGreeting.FormattedReply);
     finally
-      FreeAndNil(LGreeting);
+      Sys.FreeAndNil(LGreeting);
     end;
   end
   else

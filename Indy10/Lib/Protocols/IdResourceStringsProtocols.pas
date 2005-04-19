@@ -456,6 +456,12 @@ resourcestring
   RSIMAP4NumberInvalidDigits = 'Number parameter (relative message number or UID) is invalid; Cannot contain non-digit characters.';
   RSIMAP4DisconnectedProbablyIdledOut = 'Server has gracefully disconnected you, possibly because the connection was idle for too long.';
 
+  { IdIMAP4 UTF encoding error strings}
+
+  RSIMAP4UTFIllegalChar = 'Illegal char #%d in UTF7 sequence.';
+
+  RSIMAP4UTFIllegalBitShifting = 'Illegal bit shifting in MUTF7 string';
+  RSIMAP4UTFUSASCIIInUTF = 'US-ASCII char #%d in UTF7 sequence.';
   { IdIMAP4 Connection State strings }
   RSIMAP4ConnectionStateAny = 'Any';
   RSIMAP4ConnectionStateNonAuthenticated = 'Non Authenticated';
@@ -527,6 +533,7 @@ resourcestring
   {IdNNTPServer}
   RSNNTPServerNotRecognized = 'Command not recognized';
   RSNNTPServerGoodBye = 'Goodbye';
+  RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
   {IdGopherServer}
   RSGopherServerNoProgramCode = 'Error: No program code to return request!';
 

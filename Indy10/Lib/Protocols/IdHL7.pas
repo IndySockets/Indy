@@ -134,7 +134,7 @@ uses
   IdTCPClient,
   IdTCPConnection,
   IdTCPServer,
-  SysUtils;
+  IdSysUtils;
 
 const
   MSG_START = #$0B;       {do not localize}
@@ -447,7 +447,7 @@ end;
 destructor TQueuedMessage.Destroy;
 begin
   assert(self <> NIL);
-  FreeAndNil(FEvent);
+  Sys.FreeAndNil(FEvent);
   inherited;
 end;
 
@@ -530,10 +530,10 @@ begin
       Stop;
       end;
   finally
-    FreeAndNil(FMsgQueue);
-    FreeAndNil(FHndMsgQueue);
-    FreeAndNil(FWaitEvent);
-    FreeAndNil(FLock);
+    Sys.FreeAndNil(FMsgQueue);
+    Sys.FreeAndNil(FHndMsgQueue);
+    Sys.FreeAndNil(FWaitEvent);
+    Sys.FreeAndNil(FLock);
     inherited;
     end;
 end;
@@ -548,7 +548,7 @@ begin
   // we don't make any assertions about AValue - will be '' if we are a server
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['Address']));   {do not localize??}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Address']));   {do not localize??}
     end;
   FAddress := AValue;
 end;
@@ -559,7 +559,7 @@ begin
   // no restrictions on AValue
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['ConnectionLimit'])); {do not localize??}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['ConnectionLimit'])); {do not localize??}
     end;
   FConnectionLimit := AValue;
 end;
@@ -570,7 +570,7 @@ begin
   // to do: enforce that AValue is a valid Subnet mask
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['IP Mask']));  {do not localize??}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IP Mask']));  {do not localize??}
     end;
   FIPMask := AValue;
 end;
@@ -581,7 +581,7 @@ begin
   // to do: enforce that AValue is a valid IP address range
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['IP Restriction']));    {do not localize??}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IP Restriction']));    {do not localize??}
     end;
   FIPRestriction := AValue;
 end;
@@ -592,7 +592,7 @@ begin
   assert(AValue <> 0, 'Attempt to use Port 0 for HL7 Communications'); {do not localize}
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['Port'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Port'])); {do not localize}
     end;
   FPort := AValue;
 end;
@@ -603,7 +603,7 @@ begin
   // any value for AValue is accepted, although this may not make sense
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['Reconnect Delay'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Reconnect Delay'])); {do not localize}
     end;
   FReconnectDelay := AValue;
 end;
@@ -615,7 +615,7 @@ begin
   // we don't fucntion at all if timeout is 0, though there is circumstances where it's not relevent
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['Time Out']));          {do not localize??}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Time Out']));          {do not localize??}
     end;
   FTimeOut := AValue;
 end;
@@ -627,7 +627,7 @@ begin
   // only could arise if someone is typecasting?
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['Communication Mode'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Communication Mode'])); {do not localize}
     end;
   FCommunicationMode := AValue;
 end;
@@ -638,7 +638,7 @@ begin
   // AValue isn't checked
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWhileWorking, ['IsListener'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IsListener'])); {do not localize}
     end;
   FIsListener := AValue;
 end;
@@ -819,8 +819,8 @@ procedure TIdHL7.WaitForConnection(AMaxLength: Integer);
 var
   LStopWaiting: TDateTime;
 begin
-  LStopWaiting := Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
-  while not Connected and (LStopWaiting > now) do
+  LStopWaiting := Sys.Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
+  while not Connected and (LStopWaiting > Sys.Now) do
     sleep(50);
 end;
 
@@ -840,7 +840,7 @@ begin
     srTimeout:
       raise EHL7CommunicationError.Create(Name, 'No response from remote system'); {do not localize}
     else
-      raise EHL7CommunicationError.Create(Name, 'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ' + IntToStr(Ord(AResult))); {do not localize}
+      raise EHL7CommunicationError.Create(Name, 'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ' + Sys.IntToStr(Ord(AResult))); {do not localize}
     end;
 end;
 
@@ -854,7 +854,7 @@ begin
 
   if (FPort < 1) then // though we have already ensured that this cannot happen
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7InvalidPort, [FPort]));
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7InvalidPort, [FPort]));
     end;
 end;
 
@@ -874,8 +874,8 @@ begin
     on e:
     Exception do
       begin
-      InternalSetStatus(IsStopped, Format(RSHL7StatusFailedToStart, [e.message]));
-      FreeAndNil(FServer);
+      InternalSetStatus(IsStopped, Sys.Format(RSHL7StatusFailedToStart, [e.message]));
+      Sys.FreeAndNil(FServer);
       raise;
       end;
     end;
@@ -886,7 +886,7 @@ begin
   assert(assigned(self));
   try
     FServer.Active := False;
-    FreeAndNil(FServer);
+    Sys.FreeAndNil(FServer);
     InternalSetStatus(IsStopped, RSHL7StatusStopped);
   except
     on e:
@@ -894,7 +894,7 @@ begin
       begin
       // somewhat arbitrary decision: if for some reason we fail to shutdown,
       // we will stubbornly refuse to work again.
-      InternalSetStatus(IsUnusable, Format(RSHL7StatusFailedToStop, [e.message]));
+      InternalSetStatus(IsUnusable, Sys.Format(RSHL7StatusFailedToStop, [e.message]));
       FServer := NIL;
       raise
       end;
@@ -1034,7 +1034,7 @@ begin
   assert(assigned(self));
   if (FPort < 1) then
     begin
-    raise EHL7CommunicationError.Create(Name, Format(RSHL7InvalidPort, [FPort]));
+    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7InvalidPort, [FPort]));
     end;
 end;
 
@@ -1072,7 +1072,7 @@ begin
   if GetStatus <> IsStopped then
     begin
     // for some reason the client failed to shutdown. We will stubbornly refuse to work again
-    InternalSetStatus(IsUnusable, Format(RSHL7StatusFailedToStop, [RSHL7ClientThreadNotStopped]));
+    InternalSetStatus(IsUnusable, Sys.Format(RSHL7StatusFailedToStop, [RSHL7ClientThreadNotStopped]));
     end;
 end;
 
@@ -1112,7 +1112,7 @@ begin
   assert(assigned(self));
   assert(assigned(FOwner));
   assert(assigned(FOwner.FLock));
-  FreeAndNil(FCloseEvent);
+  Sys.FreeAndNil(FCloseEvent);
   try
     FOwner.FLock.Enter;
     try
@@ -1189,8 +1189,10 @@ begin
             on e:
             Exception do
               begin
-              LRecTime := Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
-              FOwner.InternalSetStatus(IsWaitReconnect, Format(rsHL7StatusReConnect, [FormatDateTime('hh:nn:ss', LRecTime), e.message])); {do not localize??}
+              LRecTime := Sys.Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
+              //not we can take more liberties with the time and date output because it's only
+              //for human consumption (probably in a log
+              FOwner.InternalSetStatus(IsWaitReconnect, Sys.Format(rsHL7StatusReConnect, [Sys.DateTimeToStr(LRecTime), e.message])); {do not localize??}
               end;
             end;
           if not Terminated and not FClient.Connected then
@@ -1236,7 +1238,7 @@ begin
           end;
       until terminated;
     finally
-      FreeAndNil(FClient);
+      Sys.FreeAndNil(FClient);
       end;
   except
     on e:
@@ -1408,7 +1410,7 @@ begin
   try
     if not Going then
       begin
-      raise EHL7CommunicationError.Create(Name, Format(RSHL7NotWorking, [RSHL7SendMessage]))
+      raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWorking, [RSHL7SendMessage]))
       end
     else if GetStatus <> isConnected then
       begin
@@ -1448,7 +1450,7 @@ begin
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStop := Sys.Now + (FTimeOut * MILLISECOND_LENGTH);
     FReplyResponse := srTimeout;
     FMsgReply := '';
   finally
@@ -1494,7 +1496,7 @@ begin
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStop := Sys.Now + (FTimeOut * MILLISECOND_LENGTH);
     FMsgReply := '';
     FReplyResponse := AsynchronousSend(AMsg);
   finally
@@ -1510,7 +1512,7 @@ begin
   try
     if FWaitingForAnswer then
       begin
-      if FWaitStop < now then
+      if FWaitStop < Sys.Now then
         begin
         Result := srTimeout;
         VReply := '';

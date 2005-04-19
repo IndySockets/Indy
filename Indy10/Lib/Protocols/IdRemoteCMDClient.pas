@@ -61,7 +61,7 @@ interface
 
 uses
   Classes,
-  IdException, IdTCPClient;
+  IdException, IdSysUtils, IdTCPClient;
 
 const
   IDRemoteUseStdErr = True;
@@ -92,8 +92,7 @@ type
 implementation
 
 uses
-  IdComponent, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket,IdSimpleServer, IdTCPConnection, IdThread,
-  SysUtils;
+  IdComponent, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket,IdSimpleServer, IdTCPConnection, IdThread;
 
 type
   TIdStdErrThread = class(TIdThread)
@@ -133,7 +132,7 @@ var
       procedure SendAuthentication(APort : Integer);
       begin
            // Send authentication and commands
-        IOHandler.Write(IntToStr( APort )+#0);  //stdErr Port Number - none for this session
+        IOHandler.Write(Sys.IntToStr( APort )+#0);  //stdErr Port Number - none for this session
         IOHandler.Write(AParam1 + #0);
         IOHandler.Write(AParam2 + #0);
         IOHandler.Write(ACommand + #0);
@@ -179,8 +178,8 @@ begin
           thr.WaitFor;
         end;
       finally
-        FreeAndNil(StdErr);
-        FreeAndNil(thr);
+        Sys.FreeAndNil(StdErr);
+        Sys.FreeAndNil(thr);
       end;
     end
     else

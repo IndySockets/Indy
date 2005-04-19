@@ -293,7 +293,7 @@ uses
   IdReplySMTP,
   IdSSL,
   IdResourceStringsProtocols,
-  SysUtils, IdTCPConnection;
+  IdTCPConnection;
 
 { TIdSMTP }
 
@@ -372,7 +372,7 @@ begin
               FDidAuthenticate := True;
             end;
           finally
-            FreeAndNil(s);
+            Sys.FreeAndNil(s);
           end;
         end;
 {
@@ -445,8 +445,8 @@ begin
           Send(LMsg);
         finally Disconnect; end;
       end;
-    finally FreeAndNil(LMsg); end;
-  finally FreeAndNil(LSMTP); end;
+    finally Sys.FreeAndNil(LMsg); end;
+  finally Sys.FreeAndNil(LSMTP); end;
 end;
 
 procedure TIdSMTP.Send(AMsg: TIdMessage);
@@ -471,7 +471,7 @@ begin
     end;
     InternalSend(AMsg, LRecipients);
   finally
-    FreeAndNil(LRecipients);
+    Sys.FreeAndNil(LRecipients);
   end;
 end;
 
@@ -528,7 +528,7 @@ end;
 
 destructor TIdSMTP.Destroy;
 begin
-  FreeAndNil(FSASLMechanisms);
+  Sys.FreeAndNil(FSASLMechanisms);
   inherited Destroy;
 end;
 

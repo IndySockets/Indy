@@ -384,7 +384,7 @@ uses
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
   IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication , IdAuthenticationManager,
-  IdMultipartFormData, IdGlobal, IdTStrings;
+  IdMultipartFormData, IdGlobal, IdSysUtils, IdTStrings;
 
 type
   // TO DOCUMENTATION TEAM
@@ -660,7 +660,6 @@ type
 implementation
 
 uses
-  SysUtils,
   IdComponent, IdCoderMIME, IdTCPConnection, IdResourceStringsProtocols,
   IdGlobalProtocols, IdIOHandler,IdIOHandlerSocket, IdStreamVCL;
 
@@ -680,9 +679,9 @@ end;
 
 destructor TIdCustomHTTP.Destroy;
 begin
-  FreeAndNil(FHTTPProto);
-  FreeAndNil(FURI);
-  FreeAndNil(FProxyParameters);
+  Sys.FreeAndNil(FHTTPProto);
+  Sys.FreeAndNil(FURI);
+  Sys.FreeAndNil(FProxyParameters);
   inherited Destroy;
 end;
 
@@ -755,9 +754,9 @@ begin
     end;
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&', [rfReplaceAll])
+      Result := Sys.StringReplace(Sys.Trim(AStrings.Text), sLineBreak, '&');
     end else begin
-      Result := Trim(AStrings.Text);
+      Result := Sys.Trim(AStrings.Text);
     end;
   end else begin
     Result := '';
@@ -776,7 +775,7 @@ begin
   try
     Post(AURL, LParams, AResponseContent);
   finally
-    FreeAndNil(LParams);
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
@@ -789,7 +788,7 @@ begin
     Post(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    FreeAndNil(LResponse);
+    Sys.FreeAndNil(LResponse);
   end;
 end;
 
@@ -802,7 +801,7 @@ begin
     Post(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    FreeAndNil(LResponse);
+    Sys.FreeAndNil(LResponse);
   end;
 end;
 
@@ -820,7 +819,7 @@ begin
     Put(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    FreeAndNil(LResponse);
+    Sys.FreeAndNil(LResponse);
   end;
 end;
 
@@ -838,7 +837,7 @@ begin
     Trace(AURL, Stream);
     Result := Stream.DataString;
   finally
-    FreeAndNil(Stream);
+    Sys.FreeAndNil(Stream);
   end;
 end;
 
@@ -916,7 +915,7 @@ begin
       end;
     end;
     LHost := URL.Host;
-    LPort := StrToIntDef(URL.Port, 80);
+    LPort := Sys.StrToInt(URL.Port, 80);
     if (not TextIsSame(FHost, LHost)) or (LPort <> FPort) then begin
       if Connected then begin
         Disconnect;
@@ -958,7 +957,7 @@ var
     begin
       s := Copy(s, 1, j - 1);
     end;
-    Result := StrToIntDef('$' + s, 0);
+    Result := Sys.StrToInt('$' + s, 0);
   end;
 
 begin
@@ -1003,7 +1002,7 @@ begin
         Compressor.DecompressGZipStream(LS);
       end;
     finally
-      FreeAndNil(LS);
+      Sys.FreeAndNil(LS);
     end;
   end;
 
@@ -1049,10 +1048,10 @@ begin
     end
     else begin
       if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
-        FURI.Port := IntToStr(IdPORT_HTTP);
+        FURI.Port := Sys.IntToStr(IdPORT_HTTP);
       end else begin
         if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
-          FURI.Port := IntToStr(IdPORT_SSL);
+          FURI.Port := Sys.IntToStr(IdPORT_SSL);
         end else begin
           if Length(FURI.Port) > 0 then begin
           {  FURI.Port:=FURI.Port; } // do nothing, as the port is already filled in.
@@ -1092,13 +1091,13 @@ begin
       ARequest.ContentLength := -1;
     end;
 
-    if FURI.Port <> IntToStr(IdPORT_HTTP) then begin
+    if FURI.Port <> Sys.IntToStr(IdPORT_HTTP) then begin
       ARequest.Host := FURI.Host + ':' + FURI.Port
     end else begin
       ARequest.Host := FURI.Host;
     end;
   finally
-    FreeAndNil(LURI);  // Free URI Object
+    Sys.FreeAndNil(LURI);  // Free URI Object
   end;
 end;
 
@@ -1202,7 +1201,7 @@ begin
         end;
       finally
         LLocalHTTP.Response.ContentStream.Free;
-        FreeAndNil(LLocalHTTP);
+        Sys.FreeAndNil(LLocalHTTP);
       end;
     end;
   end else begin
@@ -1217,7 +1216,7 @@ begin
     try
       IOHandler.Write(LS, 0, false);
     finally
-      FreeAndNil(LS);
+      Sys.FreeAndNil(LS);
     end;
   end;
 end;
@@ -1256,8 +1255,8 @@ begin
         CookieManager.AddCookie2(Cookies2[i], FURI.Host);
     end;
   finally
-    FreeAndNil(Cookies);
-    FreeAndNil(Cookies2);
+    Sys.FreeAndNil(Cookies);
+    Sys.FreeAndNil(Cookies2);
   end;
 end;
 
@@ -1281,7 +1280,7 @@ begin
   if Assigned(FCookieManager) then
   begin
     if FFreeOnDestroy then begin
-      FreeAndNil(FCookieManager);
+      Sys.FreeAndNil(FCookieManager);
     end;
   end;
 
@@ -1332,7 +1331,7 @@ begin
   end;}
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
-  result := Assigned(FOnAuthorization) or (trim(ARequest.Password) <> '');
+  result := Assigned(FOnAuthorization) or (Sys.Trim(ARequest.Password) <> '');
 
   if Result then
   begin
@@ -1589,18 +1588,18 @@ begin
           the connection only there is "close" }
         begin
           FKeepAlive :=
-            not (TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'CLOSE'));    {do not localize}
+            not (TextIsSame(Sys.Trim(Connection), 'CLOSE') or   {do not localize}
+            TextIsSame(Sys.Trim(ProxyConnection), 'CLOSE'));    {do not localize}
         end;
       pv1_0:
         { By default we assume that keep-alive is not by default and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE') or  {do not localize}
-            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE')            {do not localize}
+          FKeepAlive := TextIsSame(Sys.Trim(Connection), 'KEEP-ALIVE') or  {do not localize}
+            TextIsSame(Sys.Trim(ProxyConnection), 'KEEP-ALIVE')            {do not localize}
             { or ((ResponseVersion = pv1_1) and
-              (Length(Trim(Connection)) = 0) and
-              (Length(Trim(ProxyConnection)) = 0)) };
+              (Length(Sys.Trime(Connection)) = 0) and
+              (Length(Sys.Trime(ProxyConnection)) = 0)) };
         end;
     end;
   result := FKeepAlive;
@@ -1612,8 +1611,8 @@ var
 begin
   S := FResponseText;
   Fetch(S);
-  S := Trim(S);
-  FResponseCode := StrToIntDef(Fetch(S, ' ', False), -1);
+  S := Sys.Trim(S);
+  FResponseCode := Sys.StrToInt(Fetch(S, ' ', False), -1);
   Result := FResponseCode;
 end;
 
@@ -1640,8 +1639,8 @@ end;
 
 destructor TIdHTTPProtocol.Destroy;
 begin
-  FreeAndNil(FRequest);
-  FreeAndNil(FResponse);
+  Sys.FreeAndNil(FRequest);
+  Sys.FreeAndNil(FResponse);
 
   inherited Destroy;
 end;
@@ -1738,7 +1737,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
       raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
     finally
       Response.ContentStream := LTempStream;
-      FreeAndNil(LRespStream);
+      Sys.FreeAndNil(LRespStream);
     end;
   end;
 
@@ -1753,7 +1752,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     try
       FHTTP.ReadResult(Response);
     finally
-      FreeAndNil(LTempResponse);
+      Sys.FreeAndNil(LTempResponse);
       Response.ContentStream := LTempStream;
     end;
   end;
@@ -1939,7 +1938,7 @@ begin
     LStream.Position := 0;
     // This is here instead of a TStringSream for .net conversions?
     Result := ReadStringFromStream(LStream);
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;

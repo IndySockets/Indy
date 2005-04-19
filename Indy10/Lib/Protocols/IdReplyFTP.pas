@@ -10,7 +10,7 @@
 { $Log:  19368: IdReplyFTP.pas 
 {
 {   Rev 1.15    2/8/05 6:09:56 PM  RLebeau
-{ Updated GetFormattedReply() to call IntToStr() only once.
+{ Updated GetFormattedReply() to call Sys.IntToStr() only once.
 }
 {
 {   Rev 1.14    10/26/2004 10:39:54 PM  JPMugaas
@@ -117,8 +117,7 @@ type
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 { TIdReplyFTP }
 
@@ -152,7 +151,7 @@ var
 begin
   Result := GetFormattedReplyStrings;
   if NumericCode > 0 then begin
-    LCode := IntToStr(NumericCode);
+    LCode := Sys.IntToStr(NumericCode);
     if FText.Count > 0 then begin
       for i := 0 to FText.Count - 1 do begin
         if i < FText.Count - 1 then begin
@@ -197,7 +196,7 @@ begin
   Clear;
   if AValue.Count > 0 then begin
     // Get 4 chars - for POP3
-    LCode := Trim(Copy(AValue[0], 1, 4));
+    LCode := Sys.Trim(Copy(AValue[0], 1, 4));
     if Length(LCode) = 4 then begin
       if LCode[4] = '-' then begin
         SetLength(LCode, 3);
@@ -218,7 +217,7 @@ begin
           if Copy(AValue[i], 1, 1) = ' ' then begin
             FReplyFormat := rfIndentMidLines;
           end;
-          LTemp := TrimLeft(AValue[i]);
+          LTemp := Sys.TrimLeft(AValue[i]);
         end;
         Text.Add(LTemp);
       end;

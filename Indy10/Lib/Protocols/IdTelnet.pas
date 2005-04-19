@@ -105,8 +105,8 @@ uses
   IdGlobal,
   IdException,
   IdStack,
-  IdTCPClient, IdThread,
-  SysUtils;
+  IdSysUtils,
+  IdTCPClient, IdThread;
 
 const
   { These are the telnet command constansts from RFC 854 }
@@ -372,7 +372,7 @@ begin
   if Assigned(FTelnetThread) then begin
     FTelnetThread.WaitFor;
   end;
-  FreeAndNil(FTelnetThread);
+  Sys.FreeAndNil(FTelnetThread);
 End;//Disconnect
 
 procedure TIdTelnet.DoOnDataAvailable(const Buf: String);

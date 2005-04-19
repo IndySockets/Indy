@@ -142,7 +142,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdStreamVCL,
-  IdMessage, IdMessageClient, IdReplyRFC,
+  IdMessage, IdMessageClient, IdReplyRFC, IdSysUtils,
   IdTCPServer, IdTCPConnection, IdTStrings;
 
 {
@@ -325,8 +325,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdSSL,
-  SysUtils;
+  IdSSL;
 
 Procedure TIdNNTP.ParseXOVER(Aline : String; var AArticleIndex : Integer;
   var ASubject,
@@ -340,7 +339,7 @@ Procedure TIdNNTP.ParseXOVER(Aline : String; var AArticleIndex : Integer;
 
 begin
   {Strip backspace and tab junk sequences which occur after a tab separator so they don't throw off any code}
-  ALine := StringReplace(ALine,#9#8#9,#9,[rfReplaceAll]);
+  ALine := Sys.StringReplace(ALine,#9#8#9,#9);
   {Article Index}
   AArticleIndex := StrToCard ( Fetch( ALine, #9 ) );
   {Subject}
@@ -798,7 +797,7 @@ end;
 
 function TIdNNTP.SelectArticle(AMsgNo: Integer): Boolean;
 begin
-  Result := SendCmd('STAT ' + IntToStr(AMsgNo), [223, 423]) = 223;  {do not localize}
+  Result := SendCmd('STAT ' + Sys.IntToStr(AMsgNo), [223, 423]) = 223;  {do not localize}
 end;
 
 procedure TIdNNTP.GetNewsgroupList(AList: TIdStrings);
@@ -824,7 +823,7 @@ end;
 function TIdNNTP.ConvertDateTimeDist(ADate: TDateTime; AGMT: boolean;
  ADistributions: string): string;
 begin
-  Result := FormatDateTime('yymmdd hhnnss', ADate); {do not localize}
+  Result := Sys.FormatDateTime('yymmdd hhnnss', ADate); {do not localize}
   if AGMT then begin
     Result:= Result + ' GMT'; {do not localize}
   end;
@@ -931,7 +930,7 @@ end;
 
 function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
+  Result := SendCmd('ARTICLE ' + Sys.IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     //Don't call ReceiveBody if the message ended at the end of the headers
@@ -965,7 +964,7 @@ end;
 
 function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TIdStrings): Boolean;
 begin
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
+  Result := SendCmd('ARTICLE ' + Sys.IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
     AMsg.Clear;
     IOHandler.Capture(AMsg);
@@ -990,7 +989,7 @@ end;
 
 function TIdNNTP.GetArticle(AMsgNo: Integer; AMsg: TStream): Boolean;
 begin
-  Result := SendCmd('ARTICLE ' + IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
+  Result := SendCmd('ARTICLE ' + Sys.IntToStr(AMsgNo), [220, 423]) = 220; {do not localize}
   if Result then begin
     IOHandler.Capture(AMsg);
   end;
@@ -1016,7 +1015,7 @@ end;
 
 function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
+  Result := SendCmd('BODY ' + Sys.IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveBody(AMsg);
@@ -1042,7 +1041,7 @@ end;
 
 function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TIdStrings): Boolean;
 begin
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
+  Result := SendCmd('BODY ' + Sys.IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
     AMsg.Clear;
     IOHandler.Capture(AMsg);
@@ -1067,7 +1066,7 @@ end;
 
 function TIdNNTP.GetBody(AMsgNo: Integer; AMsg: TStream): Boolean;
 begin
-  Result := SendCmd('BODY ' + IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
+  Result := SendCmd('BODY ' + Sys.IntToStr(AMsgNo), [222, 423]) = 222;  {do not localize}
   if Result then begin
     IOHandler.Capture(AMsg);
   end;
@@ -1091,7 +1090,7 @@ end;
 
 function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TIdMessage): Boolean;
 begin
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
+  Result := SendCmd('HEAD ' + Sys.IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     ReceiveHeader(AMsg);
@@ -1117,7 +1116,7 @@ end;
 
 function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TIdStrings): Boolean;
 begin
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
+  Result := SendCmd('HEAD ' + Sys.IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
     AMsg.Clear;
     IOHandler.Capture(AMsg);
@@ -1142,7 +1141,7 @@ end;
 
 function TIdNNTP.GetHeader(AMsgNo: Integer; AMsg: TStream): Boolean;
 begin
-  Result := SendCmd('HEAD ' + IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
+  Result := SendCmd('HEAD ' + Sys.IntToStr(AMsgNo), [221, 423]) = 221;  {do not localize}
   if Result then begin
     IOHandler.Capture(AMsg);
   end;
@@ -1234,7 +1233,7 @@ begin
   //flatten everything out for easy processing
   for i := 0 to FCapabilities.Count -1 do
   begin
-    s := Trim(UpperCase(FCapabilities[i]));
+    s := Sys.Trim(Sys.UpperCase(FCapabilities[i]));
     FCapabilities[i] := s;
   end;
   FOVERSupported := IsExtCmdSupported('OVER');  {do not localize}
@@ -1244,7 +1243,7 @@ end;
 
 function TIdNNTP.IsExtCmdSupported(AExtension: String): Boolean;
 begin
-  Result := FCapabilities.IndexOf(Trim(UpperCase(AExtension)))>-1;
+  Result := FCapabilities.IndexOf(Sys.Trim(Sys.UpperCase(AExtension)))>-1;
 end;
 
 procedure TIdNNTP.StartTLS;
