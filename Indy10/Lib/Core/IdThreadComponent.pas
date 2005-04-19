@@ -409,7 +409,7 @@ procedure TIdThreadComponent.Loaded;
 begin
   inherited Loaded;
   // Active = True must not be performed before all other props are loaded
-  if Assigned(OnTerminate) then begin
+  if Assigned(FThread) and Assigned(OnTerminate) then begin
     FThread.OnTerminate := DoTerminate;
   end;
 
