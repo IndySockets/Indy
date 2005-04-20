@@ -434,6 +434,7 @@ Indy10/Lib/Protocols/IdUserAccounts.pas -text
 Indy10/Lib/Protocols/IdUserAccountsOTP.pas -text
 Indy10/Lib/Protocols/IdUserPassProvider.pas -text
 Indy10/Lib/Protocols/IdVCard.pas -text
+Indy10/Lib/Protocols/IdWebDAV.pas -text
 Indy10/Lib/Protocols/IdWhoIsServer.pas -text
 Indy10/Lib/Protocols/IdWhois.pas -text
 Indy10/Lib/Protocols/IdZLibCompressorBase.pas -text
