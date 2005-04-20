@@ -46,7 +46,6 @@ type
    end;
 
 implementation
-uses SysUtils;
 
 { TIdDayTimeUDPServer }
 
@@ -61,7 +60,7 @@ procedure TIdDayTimeUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHand
 var s : String;
 begin
   inherited DoUDPRead(AData, ABinding);
-  s := FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + ' -' + FTimeZone;  {Do not Localize}
+  s := Sys.FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Sys.Now) + ' -' + FTimeZone;  {Do not Localize}
   with ABinding do
   begin
     SendTo(PeerIP, PeerPort, ToBytes(s));

@@ -90,8 +90,7 @@ implementation
 
 uses
   IdGlobal, IdGlobalProtocols,
-  IdTCPConnection,
-  SysUtils;
+  IdTCPConnection;
 
 { TIdFinger }
 

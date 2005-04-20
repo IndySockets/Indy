@@ -118,9 +118,7 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
+uses IdGlobal;
 
 { TIdDefinitions }
 
@@ -168,8 +166,8 @@ end;
 
 destructor TIdDefinition.Destroy;
 begin
-  FreeAndNil(FDB);
-  FreeAndNil(FDefinition);
+  Sys.FreeAndNil(FDB);
+  Sys.FreeAndNil(FDefinition);
   inherited;
 end;
 

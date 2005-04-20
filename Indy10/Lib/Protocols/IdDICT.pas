@@ -107,7 +107,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest;
 
 const
   DEF_CLIENT_FMT = 'Indy Library %s'; {do not localize}
@@ -130,7 +130,7 @@ begin
     // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
       LBuf := LastCmdResult.Text[0];
       //server
-      FServer := TrimRight(Fetch(LBuf,'<'));
+      FServer := Sys.TrimRight(Fetch(LBuf,'<'));
       //feature negotiation
       LFeat := Fetch(LBuf,'>');
       //One server I tested with has no feature negotiation at all and it returns something
@@ -145,7 +145,7 @@ begin
         LBuf := '<'+LFeat+'>';
       end;
       //LBuf is now for the APOP3 like Challenge
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
     end;
     SendCmd('CLIENT '+FClient); {do not localize}
     if Self.FAuthType = atDefault then
@@ -156,7 +156,7 @@ begin
         begin
           with TIdHashMessageDigest5.Create do
           try
-            S:=LowerCase(TIdHash128.AsHex(HashValue(LBuf+Password)));
+            S:=Sys.LowerCase(TIdHash128.AsHex(HashValue(LBuf+Password)));
           finally
             Free;
           end;//try
@@ -233,8 +233,8 @@ end;
 
 destructor TIdDICT.Destroy;
 begin
-  FreeAndNil(FSASLMechanisms);
-  FreeAndNil(FCapabilities);
+  Sys.FreeAndNil(FSASLMechanisms);
+  Sys.FreeAndNil(FCapabilities);
   inherited;
 end;
 
@@ -277,7 +277,7 @@ begin
   FPort := IdPORT_DICT;
   FAuthType := DICT_AUTHDEF;
   FHost := 'dict.org'; {do not localize}
-  FClient := Format(DEF_CLIENT_FMT, [gsIdVersion]);
+  FClient := Sys.Format(DEF_CLIENT_FMT, [gsIdVersion]);
 end;
 
 procedure TIdDICT.InternalGetList(const ACmd: String;
@@ -298,10 +298,9 @@ begin
       LEnt.Name := Fetch(s);
       Fetch(s,'"');
       LEnt.Desc := Fetch(s,'"');
-      QuotedStr(s);
     end;
   finally
-    FreeAndNil(LS);
+    Sys.FreeAndNil(LS);
   end;
 end;
 
@@ -320,11 +319,11 @@ function TIdDICT.IsCapaSupported(const ACapa: String): Boolean;
 var i : Integer;
   LCapa : String;
 begin
-  LCapa := UpperCase(ACapa);
+  LCapa := Sys.UpperCase(ACapa);
   Result := False;
   for i := 0 to FCapabilities.Count -1 do
   begin
-    Result := LCapa = UpperCase(FCapabilities[i]);
+    Result := LCapa = Sys.UpperCase(FCapabilities[i]);
     if Result then
     begin
       Break;
@@ -352,7 +351,7 @@ begin
       LM.Word := Fetch(s,'"');
     end;
   finally
-    FreeAndNil(LS);
+    Sys.FreeAndNil(LS);
   end;
 end;
 

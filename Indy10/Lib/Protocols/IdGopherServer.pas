@@ -106,8 +106,7 @@ Type
 implementation
 
 uses
-  IdGlobal, IdGopherConsts, IdResourceStringsProtocols,
-  SysUtils;
+  IdGlobal, IdGopherConsts, IdResourceStringsProtocols;
 
 procedure TIdGopherServer.InitComponent;
 begin
@@ -164,7 +163,7 @@ begin
         end;
      end;
     result := ItemType + UserFriendlyName +
-       TAB + RealResourceName + TAB + HostServer + TAB + IntToStr(HostPort);
+       TAB + RealResourceName + TAB + HostServer + TAB + Sys.IntToStr(HostPort);
 end;
 
 procedure TIdGopherServer.SendDirectoryEntry;

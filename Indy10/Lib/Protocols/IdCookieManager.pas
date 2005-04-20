@@ -55,7 +55,7 @@ Details of implementation
 
 interface
 
-Uses Classes, SysUtils, IdBaseComponent, IdCookie, IdURI;
+Uses Classes, IdBaseComponent, IdCookie, IdURI;
 
 Type
   TOnNewCookieEvent = procedure(ASender: TObject; ACookie: TIdCookieRFC2109; Var VAccept: Boolean) of object;
@@ -101,7 +101,7 @@ destructor TIdCookieManager.Destroy;
 begin
   CleanupCookieList;
   DoOnDestroy;
-  FreeAndNil(FCookieCollection);
+  Sys.FreeAndNil(FCookieCollection);
   inherited Destroy;
 end;
 
@@ -246,7 +246,7 @@ begin
         for j := LCookieList.Count - 1 downto 0 do
         begin
           S := LCookieList.Cookies[j].Expires;
-          if (Length(S) > 0) and (GMTToLocalDateTime(S) < Now) then
+          if (Length(S) > 0) and (GMTToLocalDateTime(S) < Sys.Now) then
           begin
             // The Cookie has exiered. It has to be removed from the collection
             LLastCount := LCookieList.Count; // RLebeau

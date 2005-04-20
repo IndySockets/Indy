@@ -600,8 +600,7 @@ implementation
 
 uses
   IdGlobalProtocols,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 function DomainNameToDNSStr(ADomain : String): TIdBytes;
 var
@@ -649,11 +648,11 @@ begin
   SetLength(Result, 0);
   if IsValidIP(IPAddress) then
   begin
-    s := Trim(IPAddress);
+    s := sYS.Trim(IPAddress);
     ret := True;
     for i := 1 to 4 do
     begin
-      j := StrToIntDef(Fetch(IPAddress, '.'), -1); {do not localize}
+      j := Sys.StrToInt(Fetch(IPAddress, '.'), -1); {do not localize}
       ret := ret and (j > -1) and (j < 256);
       if not ret then
       begin
@@ -782,7 +781,7 @@ begin
       Result := True;
       Temps.Clear;
       repeat
-        Apart := Trim(Fetch(All, ':'));             {do not localize}
+        Apart := Sys.Trim(Fetch(All, ':'));             {do not localize}
         if Length(Apart) <= 4 then
         begin
           Apart := '0000' + Apart;  {do not localize}
@@ -875,7 +874,7 @@ begin
   All := ConvertToVaildv6IP(OrgIp);
   Result := '';                      {do not localize}
   repeat
-    Apart := Trim(Fetch(All, ':'));  {do not localize}
+    Apart := Sys.Trim(Fetch(All, ':'));  {do not localize}
     if Length(Apart) < 4 then
     begin
       Apart := '0000' + Apart;  {do not localize}
@@ -890,12 +889,12 @@ end;
 function GetErrorStr(Code, Id :Integer): String;
 begin
   case code Of
-    1 : Result := Format ( RSQueryInvalidQueryCount, [ Id ] );
-    2 : Result := Format ( RSQueryInvalidPacketSize, [ Id ] );
-    3 : Result := Format ( RSQueryLessThanFour, [ Id ] );
-    4 : Result := Format ( RSQueryInvalidHeaderID, [ Id ] );
-    5 : Result := Format ( RSQueryLessThanTwelve, [ Id ] );
-    6 : Result := Format ( RSQueryPackReceivedTooSmall, [Id] );
+    1 : Result := Sys.Format ( RSQueryInvalidQueryCount, [ Id ] );
+    2 : Result := Sys.Format ( RSQueryInvalidPacketSize, [ Id ] );
+    3 : Result := Sys.Format ( RSQueryLessThanFour, [ Id ] );
+    4 : Result := Sys.Format ( RSQueryInvalidHeaderID, [ Id ] );
+    5 : Result := Sys.Format ( RSQueryLessThanTwelve, [ Id ] );
+    6 : Result := Sys.Format ( RSQueryPackReceivedTooSmall, [Id] );
   end;  //case code Of
 end;
 
@@ -1273,13 +1272,11 @@ begin
 end;
 
 procedure TIdTextModeResourceRecord.SetTTL(const Value: integer);
-var
-  TM : TTimeStamp;
+
 begin
   FTTL := Value;
-  TM := DateTimeToTimeStamp(Now);
-  TM.Time := TM.Time + (Value * 1000);
-  Self.FTimeOut := DateTimeToStr(TimeStampToDateTime(TM));
+                                               
+  Self.FTimeOut := Sys.DateTimeToStr(Sys.AddMSecToTime(Sys.Now,(Value * 1000)));
 end;
 
 function TIdTextModeResourceRecord.TextRecord(FullName: string): string;
@@ -1810,7 +1807,7 @@ begin
      begin
        QName := Self.RRName;
      end;
-     Pref := StrToInt(Self.Preference);
+     Pref := Sys.StrToInt(Self.Preference);
      RRData := ToBytes(SmallInt(Pref));
      if Copy(Self.Exchange, Length(Self.Exchange),1) <> '.' then
      begin
@@ -2050,11 +2047,11 @@ begin
 
      RRData := DomainNameToDNSStr((Self.MName));
      AppendBytes(RRData, DomainNameToDNSStr((Self.RName)));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(StrToInt(Self.Serial)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(StrToInt(Self.Refresh)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(StrToInt(Self.Retry)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(StrToInt(Self.Expire)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(StrToInt(Self.Minimum)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Serial)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Refresh)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Retry)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Expire)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Minimum)))));
 
      Result := DomainNameToDNSStr((QName));
      AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_SOA))));

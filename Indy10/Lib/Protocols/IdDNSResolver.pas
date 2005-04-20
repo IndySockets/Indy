@@ -548,8 +548,7 @@ implementation
 uses
   IdBaseComponent,
   IdResourceStringsProtocols,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 // SG 28/1/02: Changed that function according to original Author of the old comp: Ray Malone
 function TQueryResult.DNSStrToDomain(SrcStr: TIdBytes; var Idx: Integer): string;
@@ -793,7 +792,7 @@ end;
 
 destructor TQueryResult.destroy;
 begin
-  FreeAndNil(FQueryPointerList);
+ Sys.FreeAndNil(FQueryPointerList);
   inherited;
 end;
 
@@ -907,7 +906,7 @@ end;
 
 destructor TTextRecord.Destroy;
 begin
-  FreeAndNil(FText);
+ Sys.FreeAndNil(FText);
   inherited;
 end;
 
@@ -1212,8 +1211,8 @@ begin
   InternalQuery := FDNSHeader.GenerateBinaryHeader;
 
   if (qtAXFR in Self.QueryType) then begin
-    if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-      (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
+    if (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) > 0) or   {Do not Localize}
+      (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) > 0) then  {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
       AppendByte(AQuestion, 0);
@@ -1234,8 +1233,8 @@ begin
     AppendBytes(AQuestion, TempBytes);
   end else begin
     if (qtIXFR in Self.QueryType) then begin
-         if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-            (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
+         if (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) > 0) or   {Do not Localize}
+            (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) > 0) then  {do not localize}
          begin
               AppendBytes(AQuestion, DoHostAddress(ADomain));
               AppendByte(AQuestion, 0);
@@ -1258,8 +1257,8 @@ begin
          for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
                if ARecType in QueryType then begin
                     // Create the question
-                    if (ARecType = qtPTR) and (IndyPos('IN-ADDR', UpperCase(ADomain)) = 0) and {Do not Localize}
-                       (IndyPos('IP6.INT', UpperCase(ADomain)) = 0) then begin {do not localize}
+                    if (ARecType = qtPTR) and (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) = 0) and {Do not Localize}
+                       (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) = 0) then begin {do not localize}
                           AppendBytes(AQuestion, DoHostAddress(ADomain));
                           AppendByte(AQuestion, 0);
                     end else begin
@@ -1285,8 +1284,8 @@ end;
 
 destructor TIdDNSResolver.Destroy;
 begin
-  FreeAndNil(FQueryResult);
-  FreeAndNil(FDNSHeader);
+ Sys.FreeAndNil(FQueryResult);
+ Sys.FreeAndNil(FDNSHeader);
   inherited Destroy;
 end;
 
@@ -1477,7 +1476,7 @@ begin
                SetLength(FPlainTextResult, 0);
            end;
         finally
-           FreeAndNil(UDP_Tunnel);
+          Sys.FreeAndNil(UDP_Tunnel);
         end;
 
         if Length(LResult) > 4 then begin
@@ -1540,7 +1539,7 @@ begin
                   end;
             end;
          finally
-                FreeAndNil(TCP_Tunnel);
+               Sys.FreeAndNil(TCP_Tunnel);
          end;
      end;
   end else begin
@@ -1593,7 +1592,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(TCP_Tunnel);
+     Sys.FreeAndNil(TCP_Tunnel);
     end;
   end;
 end;

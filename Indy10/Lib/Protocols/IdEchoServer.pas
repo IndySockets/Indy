@@ -71,9 +71,6 @@ Type
 
 implementation
 
-uses
-  SysUtils;
-
 procedure TIdECHOServer.InitComponent;
 begin
   inherited;

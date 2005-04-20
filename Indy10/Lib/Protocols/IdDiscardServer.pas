@@ -75,8 +75,7 @@ Type
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 procedure TIdDISCARDServer.InitComponent;
 begin

@@ -593,9 +593,11 @@ implementation
 uses
   {$IFDEF LINUX}
   Libc,
+  SysUtils,
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Registry,
+  SysUtils,
   {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,

@@ -79,9 +79,7 @@ Type
   end;
 
 implementation
-
-uses
-  SysUtils;
+uses IdGlobal;
 
 procedure TIdFingerServer.InitComponent;
 begin
@@ -96,9 +94,9 @@ begin
   result := true;
   {We use TrimRight in case there are spaces ending the query which are problematic
   for verbose queries.  CyberKit puts a space after the /W parameter}
-  s := TrimRight(AContext.Connection.IOHandler.Readln);
+  s := Sys.TrimRight(AContext.Connection.IOHandler.Readln);
   If assigned ( FOnCommandVerboseFinger ) and
-    ( UpperCase( Copy ( s, Length ( s ) -1, 2 ) )  = '/W' ) then {Do not Localize}
+    ( Sys.UpperCase( Copy ( s, Length ( s ) -1, 2 ) )  = '/W' ) then {Do not Localize}
   begin
     {we remove the /W switch before calling the event}
     s := Copy(s, 1, Length ( s ) - 2);

@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  SysUtils;
+  IdGlobal;
 
 { TIdDayTime }
 
@@ -71,7 +71,7 @@ end;
 
 function TIdDayTime.GetDayTimeStr: String;
 begin
-  Result := Trim ( ConnectAndGetAll );
+  Result := Sys.Trim ( ConnectAndGetAll );
 end;
 
 end.

@@ -83,7 +83,7 @@ uses
   IdComponent,
   IdGlobal,
   IdTCPConnection,
-  SysUtils, IdIOHandler;
+   IdIOHandler;
 
 { TIdEcho }
 

@@ -251,8 +251,7 @@ uses
   IdComponent, IdGlobal, IdException,
   IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
   IdStreamVCL,
-  IdTCPConnection,
-  SysUtils;
+  IdTCPConnection;
 
 { TIdGopher }
 
@@ -274,7 +273,7 @@ var ErrorNo : Integer;
 begin
   ErrMsg := IOHandler.AllData;
   {Get the error number from the error reply line}
-  ErrorNo := StrToInt ( Fetch ( ErrMsg ) );
+  ErrorNo := Sys.StrToInt ( Fetch ( ErrMsg ) );
   {we want to drop the CRLF+'.'+CRLF}    {Do not Localize}
   LastCmdResult.SetReply(ErrorNo,ErrMsg);
   LastCmdResult.RaiseReplyError;
@@ -284,7 +283,7 @@ function TIdGopher.MenuItemFromString(stLine: String;
   Menu: TIdGopherMenu): TIdGopherMenuItem;
 begin
   {just in case a space thows things off}
-  stLine := Trim(stLine);
+  stLine := Sys.Trim(stLine);
   if Assigned ( Menu ) then
   begin
     Result := Menu.Add;
@@ -310,7 +309,7 @@ begin
   {server}
   Result.Server  := Fetch ( stLine, TAB );
   {port}
-  Result.Port    := StrToInt ( Fetch ( stLine, TAB ) );
+  Result.Port    := Sys.StrToInt ( Fetch ( stLine, TAB ) );
   {is Gopher + Item}
   stLine := Fetch ( stLine, TAB );
   Result.GopherPlusItem := ( (Length ( stLine) > 0 ) and
@@ -414,7 +413,7 @@ begin
       IdGlobal.WriteStringToStream(ADestStream, APreviousData);
       IOHandler.ReadStream(LS,-1,True);
     finally
-      FreeAndNil(LS);
+      Sys.FreeAndNil(LS);
     end;
     ADestStream.Position := 0;
   finally
@@ -452,7 +451,7 @@ begin
     begin
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
+      AView := Sys.Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := IOHandler.ReadChar;
@@ -466,7 +465,7 @@ begin
               {success - read file}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := StrToInt ( IOHandler.ReadLn );
+                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
                 case LengthBytes of
                  {dot terminated - probably a text file}
                   -1 : ProcessTextFile ( ADestStream );
@@ -514,7 +513,7 @@ begin
               end;  {-}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := StrToInt ( IOHandler.ReadLn );
+                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
                 Result := ProcessDirectory ('', LengthBytes );    {Do not Localize}
               end;  {+}
         else
@@ -547,7 +546,7 @@ begin
             end;  {-}
       '+' : begin    {Do not Localize}
               {Get the length byte}
-              LengthBytes := StrToInt ( IOHandler.ReadLn );
+              LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
               Result := LoadExtendedDirectory( '', LengthBytes);    {Do not Localize}
             end;  {+}
     else
@@ -575,7 +574,7 @@ begin
     begin
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
+      AView := Sys.Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := IOHandler.ReadChar;
@@ -589,7 +588,7 @@ begin
               {success - read file}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := StrToInt ( IOHandler.ReadLn );
+                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
                 case LengthBytes of
                  {dot terminated - probably a text file}
                   -1 : ProcessTextFile ( ADestStream );
@@ -650,11 +649,11 @@ end;
 
 destructor TIdGopherMenuItem.Destroy;
 begin
-  FreeAndNil ( fAdminEmail );
-  FreeAndNil ( FAsk );
-  FreeAndNil ( FAbstract );
-  FreeAndNil ( FGopherBlock );
-  FreeAndNil ( FViews );
+  Sys.FreeAndNil ( fAdminEmail );
+  Sys.FreeAndNil ( FAsk );
+  Sys.FreeAndNil ( FAbstract );
+  Sys.FreeAndNil ( FGopherBlock );
+  Sys.FreeAndNil ( FViews );
   inherited;
 end;
 
@@ -675,7 +674,7 @@ var
       while ( idx < FGopherBlock.Count ) and
         ( FGopherBlock [ idx ] [ 1 ] = ' ' ) do    {Do not Localize}
       begin
-         Block.Add ( TrimLeft ( FGopherBlock [ idx ] ) );
+         Block.Add ( Sys.TrimLeft ( FGopherBlock [ idx ] ) );
          Inc ( idx );
       end;  //while
       {correct for incrementation in the main while loop}
@@ -687,7 +686,7 @@ begin
   while ( idx < FGopherBlock.Count ) do
   begin
     Line := FGopherBlock [ idx ];
-    Line := UpperCase ( Fetch( Line, ':' ) );    {Do not Localize}
+    Line := Sys.UpperCase ( Fetch( Line, ':' ) );    {Do not Localize}
     case PosInStrArray ( Line, BlockTypes ) of
       {+VIEWS:}
       0 : ParseBlock ( FViews );

@@ -5359,7 +5359,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
                     AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {ExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
                     LPChar := PChar(Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
-                    AEmailAddressItem.Name := AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
+                    AEmailAddressItem.Name := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
                     LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
                 end;
@@ -5373,7 +5373,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
                 AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
                 LPChar := PChar (Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
-                AEmailAddressItem.Name := AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
+                AEmailAddressItem.Name := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
                 LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
             end;
@@ -5386,7 +5386,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
                 AEmailAddressItem.Address := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
                 LPChar := PChar(Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
-                AEmailAddressItem.Address := AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
+                AEmailAddressItem.Address := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
                 LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
             end;
@@ -5399,7 +5399,7 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
 {$ELSE}
                 LPChar := PChar(Copy(LStr, 1, MaxInt));
                 AEmailAddressItem.Address := AEmailAddressItem.Address + '@' +    {Do not Localize}
-                  AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
+                  Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
             end;
         end;
@@ -5455,7 +5455,7 @@ begin
         LStr := Copy(LStr, 2, Length(LStr)-2);                                                 {Do not Localize}
 {$ELSE}
         LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                       {Do not Localize}
-        LStr := AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
+        LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
 {$ENDIF}
         AMsg.Date := GMTToLocalDateTime(LStr);
         ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);               {Do not Localize}
@@ -5476,7 +5476,7 @@ begin
             LStr := Copy(LStr, 2, Length(LStr)-2);                                                {Do not Localize}
 {$ELSE}
             LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                   {Do not Localize}
-            LStr := AnsiExtractQuotedStr(LPChar, '"');                                             {Do not Localize}
+            LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                             {Do not Localize}
 {$ENDIF}
             AMsg.Subject := LStr;
             ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);           {Do not Localize}
@@ -5547,7 +5547,7 @@ begin
         LStr := Copy(LStr, 2, Length(LStr)-2);                                                  {Do not Localize}
 {$ELSE}
         LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                       {Do not Localize}
-        LStr := AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
+        LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
 {$ENDIF}
         AMsg.InReplyTo := LStr;
         ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);               {Do not Localize}
@@ -5561,7 +5561,7 @@ begin
         LStr := Copy(ACmdResultStr, 2, Length(ACmdResultStr)-2);                                                  {Do not Localize}
 {$ELSE}
         LPChar := PChar(ACmdResultStr);
-        LStr := AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
+        LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
 {$ENDIF}
         AMsg.MsgId := Sys.Trim(LStr);
     end;

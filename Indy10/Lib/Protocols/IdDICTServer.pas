@@ -66,7 +66,7 @@ Original Author: Ozz Nixon
 }
 
 uses
-  Classes, SysUtils, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,
+  Classes,  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,
   IdAssignedNumbers, IdCommandHandlers, IdCmdTCPServer;
 
 type

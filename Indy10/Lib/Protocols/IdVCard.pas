@@ -436,8 +436,7 @@ implementation
 uses
   IdCoderQuotedPrintable,
   IdGlobal,
-  IdGlobalProtocols,
-  SysUtils;
+  IdGlobalProtocols;
 
 const VCardProperties : array [1..28] of string = (
 'FN', 'N', 'NICKNAME', 'PHOTO',    {Do not Localize}
@@ -490,9 +489,9 @@ begin
      IdDelete(LBuf,i,1);
     end;
   end;
-  LHi := StrToIntDef(Fetch(LBuf,'.'),0);
+  LHi := Sys.StrToInt(Fetch(LBuf,'.'),0);
   LBuf := PadZero(LBuf,2);
-  LLo := StrToIntDef(Copy(LBuf,1,2),0);
+  LLo := Sys.StrToInt(Copy(LBuf,1,2),0);
   Result := LHi + (LLo / 100);
 end;
 
@@ -526,14 +525,14 @@ Function ParseDateTimeStamp ( DateString : String ) : TDateTime;
 var Year, Day, Month : Integer;
     Hour, Minute, Second : Integer;
 begin
-    Year  := StrToInt ( Copy ( DateString, 1, 4 ) );
-    Month := StrToInt ( Copy (DateString, 5, 2 ) );
-    Day   := StrToInt ( Copy ( DateString, 7, 2 ) );
+    Year  := Sys.StrToInt ( Copy ( DateString, 1, 4 ) );
+    Month := Sys.StrToInt ( Copy (DateString, 5, 2 ) );
+    Day   := Sys.StrToInt ( Copy ( DateString, 7, 2 ) );
     if ( Length ( DateString ) > 14 ) then
     begin
-      Hour := StrToInt ( Copy ( DateString, 10, 2 ) );
-      Minute := StrToInt ( Copy ( DateString, 12, 2 ) );
-      Second := StrToInt ( Copy ( DateString, 14, 2 ) );
+      Hour := Sys.StrToInt ( Copy ( DateString, 10, 2 ) );
+      Minute := Sys.StrToInt ( Copy ( DateString, 12, 2 ) );
+      Second := Sys.StrToInt ( Copy ( DateString, 14, 2 ) );
     end //if ( Length ( DateString ) > 18 ) then
     else    { no date }
     begin
@@ -542,7 +541,7 @@ begin
       Second := 0;
     end; // else .. if ( Length ( DateString ) > 18 ) then
 //    DateStamp.AsISO8601Calender := DateString;
-    Result := EncodeDate(Year, Month, Day) + EncodeTime(Hour, Minute, Second,0);
+    Result := Sys.EncodeDate(Year, Month, Day) + Sys.EncodeTime(Hour, Minute, Second,0);
 end;
 
 {This function returns a stringList with an item's attributes    
@@ -556,13 +555,13 @@ begin
   begin
     Buff := Fetch( Data, ':' );    {Do not Localize}
     {This handles a VCard property attribute deliniator ","}
-    Buff := StringReplace(Buff,',',';', [ rfReplaceAll ] );    {Do not Localize}
+    Buff := Sys.StringReplace(Buff,',',';');    {Do not Localize}
     while ( Buff <> '' ) do    {Do not Localize}
     begin
       Buff2 := Fetch ( Buff, ';' );    {Do not Localize}
       if ( Length ( Buff2 ) > 0 ) then
       begin
-        Result.Add ( UpperCase( Buff2 ) );
+        Result.Add ( Sys.UpperCase( Buff2 ) );
       end; // if Length ( Buff2 ) > 0) then
     end; // while ( Buff <> '' ) do    {Do not Localize}
   end; // if Pos(':',Data) <> 0 then    {Do not Localize}
@@ -643,7 +642,7 @@ begin
     end; // if (Attribs.Count = 0) then
     PhoneObj.Number := Value;
   finally
-    FreeAndNil ( attribs );
+    Sys.FreeAndNil ( attribs );
   end;  //try..finally
 end;
 
@@ -697,7 +696,7 @@ begin
     AddressObj.PostalCode := Fetch ( Value, ';' );    {Do not Localize}
     AddressObj.Nation:= Fetch ( Value, ';' );    {Do not Localize}
   finally
-    FreeAndNil ( Attribs );
+    Sys.FreeAndNil ( Attribs );
   end;  //try..finally
 end;
 
@@ -746,7 +745,7 @@ begin
     end; //if Attribs.Count = 0 then
     LabelObj.MailingLabel.Add ( Value );
   finally
-    FreeAndNil ( Attribs );
+    Sys.FreeAndNil ( Attribs );
   end;  //try..finally
 end;
 
@@ -765,7 +764,7 @@ begin
   NameObj.Prefix := Fetch ( NameStr, ';' );    {Do not Localize}
   { Suffix }
   NameObj.Suffix := Fetch ( NameStr, ';' );    {Do not Localize}
-  OtherNames := StringReplace( OtherNames, ' ', ',', [ rfReplaceAll ] );    {Do not Localize}
+  OtherNames := Sys.StringReplace( OtherNames, ' ', ',' );    {Do not Localize}
   ParseDelinatorToTStrings (  NameObj.OtherNames, OtherNames);
 end;
 
@@ -803,7 +802,7 @@ begin
       inc ( idx );
     end; // while (idx < Attribs.Count ) do
   finally
-    FreeAndNil ( Attribs );
+    Sys.FreeAndNil ( Attribs );
   end;  //try..finally
 end;
 
@@ -831,21 +830,21 @@ end;
 
 destructor TIdVCard.Destroy;
 begin
-  FreeAndNil ( FKey );
-  FreeAndNil ( FPhoto );
-  FreeAndNil ( FLogo );
-  FreeAndNil ( FSound );
-  FreeAndNil ( FComments );
-  FreeAndNil ( FMailingLabels );
-  FreeAndNil ( FCategories );
-  FreeAndNil ( FBusinessInfo );
-  FreeAndNil ( FGeography );
-  FreeAndNil ( FURLs );
-  FreeAndNil ( FTelephones );
-  FreeAndNil ( FAddresses );
-  FreeAndNil ( FEMailAddresses );
-  FreeAndNil ( FFullName );
-  FreeAndNil ( FRawForm );
+  Sys.FreeAndNil ( FKey );
+  Sys.FreeAndNil ( FPhoto );
+  Sys.FreeAndNil ( FLogo );
+  Sys.FreeAndNil ( FSound );
+  Sys.FreeAndNil ( FComments );
+  Sys.FreeAndNil ( FMailingLabels );
+  Sys.FreeAndNil ( FCategories );
+  Sys.FreeAndNil ( FBusinessInfo );
+  Sys.FreeAndNil ( FGeography );
+  Sys.FreeAndNil ( FURLs );
+  Sys.FreeAndNil ( FTelephones );
+  Sys.FreeAndNil ( FAddresses );
+  Sys.FreeAndNil ( FEMailAddresses );
+  Sys.FreeAndNil ( FFullName );
+  Sys.FreeAndNil ( FRawForm );
   inherited;
 end;
 
@@ -858,7 +857,7 @@ begin
   idx := 0;
   embedded := 0;
   while ( idx < s.Count ) and
-    ( Trim ( UpperCase ( s [ idx ] ) ) <> 'BEGIN:VCARD' ) do    {Do not Localize}
+    ( Sys.Trim ( Sys.UpperCase ( s [ idx ] ) ) <> 'BEGIN:VCARD' ) do    {Do not Localize}
   begin
     Inc ( idx );
   end;  //while ..
@@ -867,7 +866,7 @@ begin
   begin
     if Length ( s [idx] ) > 0 then
     begin
-      if UpperCase ( Trim ( s [ idx ] ) ) <> 'END:VCARD' then    {Do not Localize}
+      if Sys.UpperCase ( Sys.Trim ( s [ idx ] ) ) <> 'END:VCARD' then    {Do not Localize}
       begin
         // Have an END: - check if this is embedded
         if embedded <> 0 then
@@ -875,7 +874,7 @@ begin
           // Yes - decrement the counter & add
           Dec(embedded);
         end;
-      end else if UpperCase ( Trim ( s [ idx ] ) ) <> 'BEGIN:VCARD' then    {Do not Localize}
+      end else if Sys.UpperCase ( Sys.Trim ( s [ idx ] ) ) <> 'BEGIN:VCARD' then    {Do not Localize}
       begin
         // Have a new embedded object - increment the counter & add
         Inc(embedded);
@@ -927,7 +926,7 @@ var idx : Integer;
       while ( idx < FRawForm.Count ) and ( ( Length ( FRawForm [ idx ] ) > 0) and
         (  FRawForm [ idx ] [ 1 ] = ' ' ) or (  FRawForm [ idx ] [ 1 ] = #9 ) ) do    {Do not Localize}
       begin
-        Result := Result + Trim ( FRawForm [ idx ] );
+        Result := Result + Sys.Trim ( FRawForm [ idx ] );
         inc ( idx );
       end; // while
       {Correct for increment in the main while loop}
@@ -983,14 +982,14 @@ var idx : Integer;
           while ( idx < FRawForm.Count ) and ( ( Length ( FRawForm [ idx ] ) > 0) and
            ( FRawForm [ idx ] [ 1 ] = ' ' ) or (  FRawForm [ idx ] [ 1 ] = #9 ) ) do    {Do not Localize}
           begin
-            AddValueToStrings (  EmObj.EmbeddedData, Trim ( FRawForm [ idx2 ] ) );
+            AddValueToStrings (  EmObj.EmbeddedData, Sys.Trim ( FRawForm [ idx2 ] ) );
             inc ( idx );
           end; // while
           {Correct for increment in the main while loop}
           Dec ( idx );
         end; // else .. if
       finally
-        FreeAndNil ( Attribs );
+        Sys.FreeAndNil ( Attribs );
       end;
     end;
 
@@ -1020,7 +1019,7 @@ begin
     // QP to be used in any field.
 
     //****  Begin QP check & decode
-    if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) > 0 then    {Do not Localize}
+    if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Attribs)) > 0 then    {Do not Localize}
     begin
       // First things first - make a copy of the Line.
       OrigLine := Line;
@@ -1036,7 +1035,7 @@ begin
       ColonFind := IndyPos(':', FRawForm[idx]);    {Do not Localize}
       while ColonFind = 0 do
       begin
-        Data := Data + TrimLeft(FRawForm[idx]);
+        Data := Data + Sys.TrimLeft(FRawForm[idx]);
 
         Inc(idx);
         if idx <> FRawForm.Count then
@@ -1056,7 +1055,7 @@ begin
       while ColonFind <> 0 do
       begin
         Test := Copy(Attribs, 1, ColonFind);
-        if IndyPos('QUOTED-PRINTABLE', UpperCase(Test)) = 0 then    {Do not Localize}
+        if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Test)) = 0 then    {Do not Localize}
         begin
           // Add to Line.
           Line := Line + Test;
@@ -1070,7 +1069,7 @@ begin
       if Length(Attribs) <> 0 then
       begin
         // Does Quoted-Printable occur in what's left?    {Do not Localize}
-        if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) = 0 then    {Do not Localize}
+        if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Attribs)) = 0 then    {Do not Localize}
         begin
           // Add to line
           Line := Line + Attribs;
@@ -1094,11 +1093,11 @@ begin
     SColon := IndyPos(';', Line);    {Do not Localize}
     if ( Colon < SColon ) or ( SColon = 0 ) then
     begin
-      Line := StringReplace ( Line, ':', ';', [ ] );    {Do not Localize}
+      Line := Sys.ReplaceOnlyFirst ( Line, ':', ';' );    {Do not Localize}
     end;
 
     // Grab the property name
-    Test := UpperCase ( Fetch ( Line,';') );    {Do not Localize}
+    Test := Sys.UpperCase ( Fetch ( Line,';') );    {Do not Localize}
 
     // Discover which property it is.
     case PosInStrArray( Test, VCardProperties ) of
@@ -1271,8 +1270,8 @@ end;
 
 destructor TIdVCardName.Destroy;
 begin
-  FreeAndNil ( FNickNames );
-  FreeAndNil ( FOtherNames );
+  Sys.FreeAndNil ( FNickNames );
+  Sys.FreeAndNil ( FOtherNames );
   inherited;
 end;
 
@@ -1296,7 +1295,7 @@ end;
 
 destructor TIdVCardBusinessInfo.Destroy;
 begin
-  FreeAndNil ( FDivisions );
+  Sys.FreeAndNil ( FDivisions );
   inherited;
 end;
 
@@ -1330,7 +1329,7 @@ end;
 
 destructor TIdVCardMailingLabelItem.Destroy;
 begin
-  FreeAndNil ( FMailingLabel );
+  Sys.FreeAndNil ( FMailingLabel );
   inherited;
 end;
 
@@ -1373,7 +1372,7 @@ end;
 
 destructor TIdVCardEmbeddedObject.Destroy;
 begin
-  FreeAndNil ( FEmbeddedData );
+  Sys.FreeAndNil ( FEmbeddedData );
   inherited;
 end;
 
