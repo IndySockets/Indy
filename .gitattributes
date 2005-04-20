@@ -1,4 +1,16 @@
 * text=auto !eol
+Indy10/Builder/Package[!!-~]Generator/Package.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageCore.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageD8Master.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageFTPParsers.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageProtocols.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageSecurity.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageSuperCore.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageSystem.pas -text
+Indy10/Builder/Package[!!-~]Generator/PackageVisualStudio.pas -text
+Indy10/Builder/Package[!!-~]Generator/PkgGen.bdsproj -text
+Indy10/Builder/Package[!!-~]Generator/PkgGen.dpr -text
+Indy10/Builder/Package[!!-~]Generator/PkgGen.res -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
