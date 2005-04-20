@@ -48,7 +48,9 @@ contains
   IdTStrings in 'IdTStrings.pas',
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas',
-  IdSysUtilsWin32 in 'IdSysUtilsWin32.pas',
-  IdSysUtils in 'IdSysUtils.pas';
+  IdSysWin32 in 'IdSysWin32.pas',
+  IdSys in 'IdSys.pas',
+  IdSysBase in 'IdSysBase.pas',
+  IdSysVCL in 'IdSysVCL.pas';
 
 end.

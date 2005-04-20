@@ -166,7 +166,7 @@ interface
 
 uses
   Classes,
-  IdException, IdStackConsts, IdTStrings, IdGlobal, IdSysUtils;
+  IdException, IdStackConsts, IdTStrings, IdGlobal, IdSys;
 
 type
   EIdSocketError = class(EIdException)

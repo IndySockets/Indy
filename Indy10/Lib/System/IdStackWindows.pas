@@ -186,7 +186,8 @@ interface
 uses
   Classes,
   IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack, IdTStrings,
-  SyncObjs, IdSysUtils,
+  SyncObjs, IdSys,
+  SysUtils, // Legal because this is a Windows only unit already
   Windows;
 
 type

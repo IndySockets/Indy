@@ -194,7 +194,7 @@ interface
 uses
   Classes,
   IdException, IdStack, IdStackConsts,IdTStrings, IdGlobal,
-  SyncObjs, IdSysUtils;
+  SyncObjs, IdSys;
 
 type
   EIdNotASocket = class(EIdSocketError);

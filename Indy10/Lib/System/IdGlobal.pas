@@ -24,7 +24,7 @@
 {   Rev 1.51    1/31/05 6:01:40 PM  RLebeau
 { Renamed GetCurrentThreadHandle() to CurrentThreadId() and changed the return
 { type from THandle to to TIdPID.
-{ 
+{
 { Reworked conditionals for SetThreadName() and updated the implementation to
 { support naming threads under DotNet.
 }
@@ -650,12 +650,10 @@ interface
 
 uses
   {$IFDEF DotNet}
-  IdSysUtilsNet,
   System.Collections.Specialized,
   System.net, System.net.Sockets, System.Diagnostics, System.Threading,
   System.IO, System.Text,
   {$ELSE}
-  IdSysUtilsWin32,
   //DotNET
   {$ENDIF}
   {$IFDEF MSWINDOWS}
@@ -664,19 +662,10 @@ uses
   {$IFNDEF DotNetExclude}
   SyncObjs,
   {$ENDIF}
-
-  IdException,
+SysUtils, // temp hack
   Classes,
-  IdSysUtils,
-  IdTStrings;
-
-type
-  {$IFNDEF DotNet}
-  EAbort = IdSysUtilsWin32.EAbort;
-
-  {$ELSE}
-   EAbort = IdSysUtilsNet.EAbort;
-  {$ENDIF}
+  IdException,
+  IdSys, IdTStrings;
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -744,11 +733,6 @@ const
   {$ENDIF}
 
 type
-  {$IFDEF DotNet}
-  Sys = TIdSysUtilsNet;
-  {$ELSE}
-  Sys = TIdSysUtilsWin32;
-  {$ENDIF}
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
   TIdStringStream = class(TStringStream)

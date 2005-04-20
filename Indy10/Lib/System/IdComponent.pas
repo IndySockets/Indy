@@ -137,6 +137,9 @@ type
 
 implementation
 
+uses
+  IdSys;
+
 { TIdComponent }
 
 destructor TIdComponent.Destroy;

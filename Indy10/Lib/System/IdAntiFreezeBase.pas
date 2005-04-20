@@ -101,7 +101,7 @@ uses
   IdGlobal,
   IdResourceStrings,
   IdException,
-  IdSysUtils;
+  IdSys;
 
 { TIdAntiFreezeBase }
 

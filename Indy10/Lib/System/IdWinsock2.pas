@@ -132,7 +132,7 @@ interface
 {$RANGECHECKS OFF}
 {$WRITEABLECONST OFF}
 
-uses SysUtils, Windows, IdException, IdSysUtils;
+uses SysUtils, Windows, IdException, IdSys;
 
 type
   EIdWinsockStubError = class(EIdException)
