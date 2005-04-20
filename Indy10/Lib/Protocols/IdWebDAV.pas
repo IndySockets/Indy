@@ -6,7 +6,7 @@ uses
   Classes, IdHTTP, IdGlobal;
 
 const
-  Id_HTTPMethodPropFind = 'FIND';
+  Id_HTTPMethodPropFind = 'PROPFIND';
   Id_HTTPMethodPropPatch = 'PROPPATCH';
   Id_HTTPMethodOrderPatch = 'ORDERPATCH';
   Id_HTTPMethodSearch = 'SEARCH';
