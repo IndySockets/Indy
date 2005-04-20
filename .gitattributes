@@ -16,6 +16,43 @@ Indy10/Builder/Package[!!-~]Generator/PackageVisualStudio.pas -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.dpr -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.res -text svneol=unset#unset
+Indy10/Builder/ResXBuilder/ResxBuilder.bdsproj -text
+Indy10/Builder/ResXBuilder/ResxBuilder.dpr -text
+Indy10/Builder/VersionMarker/Data/IdAssemblyInfo.pas -text
+Indy10/Builder/VersionMarker/Data/IdCore90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IdProtocols90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IdSecurity90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IdSystem90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IddclCore90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IddclProtocols90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/IddclSecurity90ASM90.inc -text
+Indy10/Builder/VersionMarker/Data/Indy40.rc -text
+Indy10/Builder/VersionMarker/Data/Indy50.rc -text
+Indy10/Builder/VersionMarker/Data/Indy60.rc -text
+Indy10/Builder/VersionMarker/Data/Indy70.rc -text
+Indy10/Builder/VersionMarker/Data/Indy90.rc -text
+Indy10/Builder/VersionMarker/Data/IndyCore40.rc -text
+Indy10/Builder/VersionMarker/Data/IndyCore50.rc -text
+Indy10/Builder/VersionMarker/Data/IndyCore60.rc -text
+Indy10/Builder/VersionMarker/Data/IndyCore70.rc -text
+Indy10/Builder/VersionMarker/Data/IndyCore90.rc -text
+Indy10/Builder/VersionMarker/Data/IndySuperCore70.rc -text
+Indy10/Builder/VersionMarker/Data/IndySystem40.rc -text
+Indy10/Builder/VersionMarker/Data/IndySystem50.rc -text
+Indy10/Builder/VersionMarker/Data/IndySystem60.rc -text
+Indy10/Builder/VersionMarker/Data/IndySystem70.rc -text
+Indy10/Builder/VersionMarker/Data/IndySystem90.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndy40.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndy50.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndy60.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndy70.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndy90.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndyCore40.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndyCore50.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndyCore60.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndyCore70.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndyCore90.rc -text
+Indy10/Builder/VersionMarker/Data/dclIndySuperCore70.rc -text
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
