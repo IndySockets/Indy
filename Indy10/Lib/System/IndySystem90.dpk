@@ -46,6 +46,8 @@ contains
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
   IdTStrings in 'IdTStrings.pas',
+  IdSysUtils in 'IdSysUtils.pas',
+  IdSysUtilsWin32 in 'IdSysUtilsWin32.pas',
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas';
 

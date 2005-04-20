@@ -45,8 +45,9 @@ contains
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
   IdTStrings in 'IdTStrings.pas',
-  IdSysUtilsNet in 'IdSysUtilsNet.pas',
-  IdSysUtils in 'IdSysUtils.pas';
+  IdSysNet in 'IdSysNet.pas',
+  IdSys in 'IdSys.pas',
+  IdSysBase in 'IdSysBase.pas';
 
 {$I IdSystem90ASM90.inc}
 

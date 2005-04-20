@@ -123,7 +123,7 @@
 			<Directories Name="Packages">Borland.VclRtl;Borland.Delphi</Directories>
 			<Directories Name="Conditionals"></Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
-			<Directories Name="UsePackages">True</Directories>
+			<Directories Name="UsePackages">False</Directories>
 		</Directories>
 		<Parameters>
 			<Parameters Name="RunParams"></Parameters>
@@ -171,10 +171,6 @@
 		</VersionInfoKeys>  
     
     
-    
-    
-    
-    
     <FileList>
       <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.Delphi" AssemblyName="Borland.Delphi" Version="9.0.1882.30496" LinkUnits="False"/>
       <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.VclRtl" AssemblyName="Borland.VclRtl" Version="9.0.1882.30496" LinkUnits="False"/>
@@ -193,8 +189,9 @@
       <File FileName="IdStreamVCLBase.pas" ContainerId="" ModuleName="IdStreamVCLBase"/>
       <File FileName="IdStreamVCLDotNet.pas" ContainerId="" ModuleName="IdStreamVCLDotNet"/>
       <File FileName="IdTStrings.pas" ContainerId="" ModuleName="IdTStrings"/>
-      <File FileName="IdSysUtilsNet.pas" ContainerId="" ModuleName="IdSysUtilsNet"/>
-      <File FileName="IdSysUtils.pas" ContainerId="" ModuleName="IdSysUtils"/>
+      <File FileName="IdSysNet.pas" ContainerId="" ModuleName="IdSysNet"/>
+      <File FileName="IdSys.pas" ContainerId="" ModuleName="IdSys"/>
+      <File FileName="IdSysBase.pas" ContainerId="" ModuleName="IdSysBase"/>
     </FileList>
   </DelphiDotNet.Personality>
 </BorlandProject>

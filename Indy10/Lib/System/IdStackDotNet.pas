@@ -290,7 +290,6 @@ implementation
 
 uses
   IdException,
-  IdSysUtils,
   System.Net,
   System.Net.Sockets;
 
