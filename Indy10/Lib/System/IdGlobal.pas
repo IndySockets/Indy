@@ -662,7 +662,6 @@ uses
   {$IFNDEF DotNetExclude}
   SyncObjs,
   {$ENDIF}
-SysUtils, // temp hack
   Classes,
   IdException,
   IdSys, IdTStrings;
@@ -677,7 +676,6 @@ const
   {$I IdVers.inc}
 
   {$IFNDEF DotNet}
-  // We need these constants from SysUtils because they aren't in the system unit.
   HoursPerDay   = 24;
   MinsPerHour   = 60;
   SecsPerMin    = 60;
@@ -1032,7 +1030,8 @@ procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address;
 procedure CopyTIdString(const ASource: String;
     var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
 
-function CharIsInSet(const AString: string; const ACharPos: Integer; ASet: TSysCharSet): Boolean;
+// Need to change prob not to use this set
+//function CharIsInSet(const AString: string; const ACharPos: Integer; ASet: TSysCharSet): Boolean;
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 function CurrentProcessId: TIdPID;
 procedure DebugOutput(const AText: string);
@@ -1116,7 +1115,6 @@ var
   GIdPorts: TList;
 {$ENDIF}
 
-//taken from SysUtils
 {$IFDEF DOTNET}
 const
   fmOpenRead       = $0000;
@@ -3110,19 +3108,19 @@ begin
   {$endif}
 end;
 
-function CharIsInSet(const AString: string; const ACharPos: Integer; ASet: TSysCharSet): Boolean;
-begin
-  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos in CharIsInSet.');{ do not localize }
-  if ACharPos > Length(AString) then begin
-    Result := False;
-  end else begin
-    {$IFDEF DotNet}
-    Result := AnsiString(AString[ACharPos])[1] in ASet;
-    {$ELSE}
-    Result := AString[ACharPos] in ASet;
-    {$ENDIF}
-  end;
-end;
+//function CharIsInSet(const AString: string; const ACharPos: Integer; ASet: TSysCharSet): Boolean;
+//begin
+//  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos in CharIsInSet.');{ do not localize }
+//  if ACharPos > Length(AString) then begin
+//    Result := False;
+//  end else begin
+//    {$IFDEF DotNet}
+//    Result := AnsiString(AString[ACharPos])[1] in ASet;
+//    {$ELSE}
+//    Result := AString[ACharPos] in ASet;
+//    {$ENDIF}
+//  end;
+//end;
 
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 begin
