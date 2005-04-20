@@ -118,7 +118,7 @@ var
 
 begin
   if not (csDesigning in ComponentState) then begin
-    LStream := TLogFileStream.Create(Filename);
+    LStream := TAppendFileStream.Create(Filename);
     try
       FFileStream := TIdStreamVCL.Create(LStream, True);
     except
