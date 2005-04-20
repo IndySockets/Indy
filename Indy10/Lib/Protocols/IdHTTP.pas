@@ -391,7 +391,20 @@ type
   // ------------------------
   // For internal use. No need of documentation
   // hmConnect - Used to connect trought CERN proxy to SSL enabled sites.
-  TIdHTTPMethod = (hmHead, hmGet, hmPost, hmOptions, hmTrace, hmPut, hmDelete, hmConnect);
+  TIdHTTPMethod = string;
+
+const
+  Id_HTTPMethodHead = 'HEAD';
+  Id_HTTPMethodGet = 'GET';
+  Id_HTTPMethodPost = 'POST';
+  Id_HTTPMethodOptions = 'OPTIONS';
+  Id_HTTPMethodTrace = 'TRACE';
+  Id_HTTPMethodPut = 'PUT';
+  Id_HTTPMethodDelete = 'DELETE';
+  Id_HTTPMethodConnect = 'CONNECT';
+  //(hmHead, hmGet, hmPost, hmOptions, hmTrace, hmPut, hmDelete, hmConnect);
+
+type
   TIdHTTPWhatsNext = (wnGoToURL, wnJustExit, wnDontKnow, wnReadAndGo, wnAuthRequest);
   TIdHTTPConnectionType = (ctNormal, ctSSL, ctProxy, ctSSLProxy);
 
@@ -687,7 +700,7 @@ end;
 
 procedure TIdCustomHTTP.Options(AURL: string);
 begin
-  DoRequest(hmOptions, AURL, nil, nil, []);
+  DoRequest(Id_HTTPMethodOptions, AURL, nil, nil, []);
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream);
@@ -697,12 +710,12 @@ end;
 
 procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TStream);
 begin
-  DoRequest(hmTrace, AURL, nil, AResponseContent, []);
+  DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
 
 procedure TIdCustomHTTP.Head(AURL: string);
 begin
-  DoRequest(hmHead, AURL, nil, nil, []);
+  DoRequest(Id_HTTPMethodHead, AURL, nil, nil, []);
 end;
 
 procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TStream);
@@ -726,7 +739,7 @@ begin
   // is sure in operations of the server
   if not (hoKeepOrigProtocol in FOptions) then
     FProtocolVersion := pv1_0;
-  DoRequest(hmPost, AURL, ASource, AResponseContent, []);
+  DoRequest(Id_HTTPMethodPost, AURL, ASource, AResponseContent, []);
   FProtocolVersion := OldProtocol;
 end;
 
@@ -807,7 +820,7 @@ end;
 
 procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TStream);
 begin
-  DoRequest(hmPut, AURL, ASource, AResponseContent, []);
+  DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
 function TIdCustomHTTP.Put(AURL: string; ASource: TStream): string;
@@ -1008,6 +1021,21 @@ begin
 
 end;
 
+function IsStringInArray(const aStr:string;const aArray:array of string):boolean;
+var
+ i:integer;
+begin
+  Result:=False;
+  for i:=Low(aArray) to High(aArray) do
+  begin
+  if aStr=aArray[i] then
+   begin
+   Result:=True;
+   Break;
+   end;
+  end;
+end;
+
 procedure TIdCustomHTTP.PrepareRequest(ARequest: TIdHTTPRequest);
 var
   LURI: TIdURI;
@@ -1065,7 +1093,7 @@ begin
     // The URL part is not URL encoded at this place
     ARequest.URL := URL.Path + URL.Document + URL.Params;
 
-    if ARequest.Method = hmOptions then
+    if ARequest.Method = Id_HTTPMethodOptions then
     begin
       if TextIsSame(LURI.Document, '*') then
       begin
@@ -1077,7 +1105,7 @@ begin
     FURI.IPVersion := ARequest.IPVersion;
 
     // Check for valid HTTP request methods
-    if ARequest.Method in [hmTrace, hmPut, hmOptions, hmDelete] then
+    if IsStringInArray(ARequest.Method,[Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete]) then
     begin
       if ProtocolVersion <> pv1_1 then
       begin
@@ -1085,7 +1113,8 @@ begin
       end;
     end;
 
-    if ARequest.Method in [hmPost, hmPut] then begin
+    //IsStringInArray(ARequest.Method , [Id_HTTPMethodPost, Id_HTTPMethodPut]) then begin
+    if Assigned(ARequest.Source) then begin
       ARequest.ContentLength := ARequest.Source.Size;
     end else begin
       ARequest.ContentLength := -1;
@@ -1164,7 +1193,7 @@ begin
       Request.ContentLength := ARequest.ContentLength;
       Request.Pragma := 'no-cache';                       {do not localize}
       Request.URL := URL.Host + ':' + URL.Port;
-      Request.Method := hmConnect;
+      Request.Method := Id_HTTPMethodConnect;
       Request.ProxyConnection := 'keep-alive';            {do not localize}
 
       Response.ContentStream := TMemoryStream.Create;
@@ -1210,7 +1239,7 @@ begin
 
   FHTTPProto.BuildAndSendRequest(URL);
 
-  if (ARequest.Method in [hmPost, hmPut]) then
+  if IsStringInArray(ARequest.Method , [Id_HTTPMethodPost, Id_HTTPMethodPut]) then
   begin
     LS := TIdStreamVCL.Create(ARequest.Source);
     try
@@ -1658,16 +1687,7 @@ begin
   // This is a wrokaround for some HTTP servers wich does not implement properly the HTTP protocol
   FHTTP.IOHandler.WriteBufferOpen;
   try
-    case Request.Method of
-      hmHead: FHTTP.IOHandler.WriteLn('HEAD ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
-      hmGet: FHTTP.IOHandler.WriteLn('GET ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]);   {do not localize}
-      hmPost: FHTTP.IOHandler.WriteLn('POST ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
-      // HTTP 1.1 only
-      hmOptions: FHTTP.IOHandler.WriteLn('OPTIONS ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
-      hmTrace: FHTTP.IOHandler.WriteLn('TRACE ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]);     {do not localize}
-      hmPut: FHTTP.IOHandler.WriteLn('PUT ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]);         {do not localize}
-      hmConnect: FHTTP.IOHandler.WriteLn('CONNECT ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
-    end;
+    FHTTP.IOHandler.WriteLn(Request.Method+' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
     // write the headers
     for i := 0 to Request.RawHeaders.Count - 1 do
       if Length(Request.RawHeaders.Strings[i]) > 0 then
@@ -1798,7 +1818,7 @@ begin
         // RLebeau 7/15/2004 - do a GET on 302 as well, as mentioned in RFC 2616
         if (Response.ResponseCode = 302) or (Response.ResponseCode = 303) then begin
           Request.Source := nil;
-          Request.Method := hmGet;
+          Request.Method := Id_HTTPMethodGet;
         end else begin
           Request.Method := LMethod;
         end;
@@ -1944,7 +1964,7 @@ end;
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
   AIgnoreReplies: array of SmallInt);
 begin
-  DoRequest(hmGet, AURL, nil, AResponseContent, AIgnoreReplies);
+  DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
