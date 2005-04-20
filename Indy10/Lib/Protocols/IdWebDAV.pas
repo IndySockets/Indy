@@ -2,7 +2,8 @@ unit IdHTTPDAV;
 
 interface
 
-uses classes, idHTTP, IdGlobal;
+uses
+  Classes, IdHTTP, IdGlobal;
 
 const
   Id_HTTPMethodPropFind = 'FIND';
