@@ -1100,7 +1100,7 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
     i: integer;
   begin
     if not IsValidIPv6(aDNS) then
-      raise EIdDnsResolverError.CreateFmt(RSQueryInvalidIpV6, [aDNS]);
+      raise EIdDnsResolverError.Create(Sys.Format(RSQueryInvalidIpV6, [aDNS]));
     IPV6str := ConvertToCanonical6IP(aDNS);
     IPV6Ptr := '';                               {Do not Localize}
     for i := Length(IPV6str) downto 1 do
@@ -1453,12 +1453,12 @@ begin
   end;
 
   if Self.FQuestionLength = 0 then begin
-    raise EIdDnsResolverError.CreateFmt(RSQueryInvalidQueryCount, [0]);
+    raise EIdDnsResolverError.Create(Sys.Format(RSQueryInvalidQueryCount, [0]));
   end;
 
   if not (qtAXFR in Self.QueryType) then begin
      if not (qtIXFR in Self.QueryType) then begin
-        UDP_Tunnel := TIdUDPClient.Create(Self);
+        UDP_Tunnel := TIdUDPClient.Create;
         try
            UDP_Tunnel.Host := Self.Host;
            UDP_Tunnel.Port := Self.Port;
