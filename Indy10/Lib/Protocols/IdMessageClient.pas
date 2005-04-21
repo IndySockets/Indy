@@ -463,7 +463,7 @@ uses
   IdTCPConnection,
   IdStreamVCL, IdTCPStream, IdStream,
   IdIOHandler, IdAttachmentFile,
-  IdSysUtils, IdText, IdAttachment;
+  IdText, IdAttachment;
 
 const
   SContentType = 'Content-Type'; {do not localize}

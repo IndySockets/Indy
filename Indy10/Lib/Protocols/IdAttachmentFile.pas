@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols, IdSysUtils,
+  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols, 
   IdMessage;
 
 { TIdAttachmentFile }
