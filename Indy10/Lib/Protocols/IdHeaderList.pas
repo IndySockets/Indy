@@ -130,11 +130,13 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols,
-  SysUtils;
+  IdGlobalProtocols;
+
+type
+  TIdCharSet = set of AnsiChar;
 
 {This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
-function FoldWrapText(const Line, BreakStr: string; BreakChars: TSysCharSet;
+function FoldWrapText(const Line, BreakStr: string; BreakChars: TIdCharSet;
   MaxCol: Integer): string;
 const
   QuoteChars = ['"'];    {Do not Localize}
@@ -214,7 +216,7 @@ var
   i: integer;
 begin
   for i := 0 to ASrc.Count - 1 do begin
-    Add(StringReplace(ASrc[i], '=', NameValueSeparator, []));    {Do not Localize}
+    Add(  Sys.ReplaceOnlyFirst (ASrc[i], '=', NameValueSeparator));    {Do not Localize}
   end;
 end;
 
@@ -223,7 +225,7 @@ var
   i: integer;
 begin
   for i := 0 to Count - 1 do begin
-    ADest.Add(StringReplace(Strings[i], NameValueSeparator, '=', []));    {Do not Localize}
+    ADest.Add(Sys.ReplaceOnlyFirst(Strings[i], NameValueSeparator, '='));    {Do not Localize}
   end;
 end;
 
@@ -280,7 +282,7 @@ begin
       Dec( idx );
     end;
   finally
-    FreeAndNil( strs );
+    Sys.FreeAndNil( strs );
   end;  //finally
 end;
 
@@ -293,7 +295,7 @@ begin
     s := FoldWrapText(AString, EOL+' ', LWS+[','], FFoldLinesLength);    {Do not Localize}
     while s <> '' do    {Do not Localize}
     begin
-      Result.Add( TrimRight( Fetch( s, EOL ) ) );
+      Result.Add( Sys.TrimRight( Fetch( s, EOL ) ) );
     end; // while s <> '' do    {Do not Localize}
   finally
   end; //try..finally
@@ -322,13 +324,13 @@ begin
   Result := Get( ALine );
   if not FCaseSensitive then
   begin
-    Result := UpperCase( Result );
+    Result := Sys.UpperCase( Result );
   end; // if not FCaseSensitive then
   {We trim right to remove space to accomodate header errors such as
 
   Message-ID:<asdf@fdfs
   }
-  P := IndyPos( TrimRight( FNameValueSeparator ), Result );
+  P := IndyPos( Sys.TrimRight( FNameValueSeparator ), Result );
   Result := Copy( Result, 1, P - 1 );
 end;
 
@@ -356,14 +358,14 @@ begin
         if not (CharIsInSet(LFoldedLine, 1, LWS)) then begin
           Break;
         end;
-        Result := Trim(Result) + ' ' + Trim(LFoldedLine); {Do not Localize}
+        Result := Sys.Trim(Result) + ' ' + Sys.Trim(LFoldedLine); {Do not Localize}
       end;
     end;
   end else begin
     Result := ''; {Do not Localize}
   end;
   // User may be fetching an folded line diretly.
-  Result := Trim(Result);
+  Result := Sys.Trim(Result);
 end;
 
 function TIdHeaderList.IndexOfName(const AName: string): Integer;

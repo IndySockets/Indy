@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -228,7 +228,7 @@ type
 implementation
 
 uses
-  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
+  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL;
 
 procedure TIdIRCServer.InitComponent;
 begin
@@ -451,7 +451,7 @@ end;
 procedure TIdIRCServer.DoCommandNotHandled(ASender: TIdCommandHandler;
   ACommand: TIdCommand; const AData, AMessage: String);
 begin
-  ACommand.Context.Connection.IOHandler.WriteLn(Format('%s %s', ['421', RSCMDNotRecognized]));  {do not localize}
+  ACommand.Context.Connection.IOHandler.WriteLn(Sys.Format('%s %s', ['421', RSCMDNotRecognized]));  {do not localize}
 end;
 
 procedure TIdIRCServer.DoCommandOther(ASender: TIdCommandHandler;

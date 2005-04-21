@@ -3,14 +3,14 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
 { $Log:  11667: IdMessage.pas
 {
 {   Rev 1.53    29/12/2004 11:01:56  CCostelloe
-{ IsMsgSinglePartMime now cleared in TIdMessage.Clear.
+{ IsMsgSinglePartMime Sys.Now cleared in TIdMessage.Clear.
 }
 {
 {   Rev 1.52    28/11/2004 20:06:28  CCostelloe
@@ -31,13 +31,13 @@
 {
 {   Rev 1.48    6/29/04 12:29:04 PM  RLebeau
 { Updated TIdMIMEBoundary.FindBoundary() to check the string length after
-{ calling Trim() before referencing the string data
+{ calling Sys.Trim() before referencing the string data
 }
 {
 {   Rev 1.47    6/9/04 5:38:48 PM  RLebeau
 { Updated ClearHeader() to clear the MsgId and UID properties.
 { 
-{ Updated SetUseNowForDate() to support AValue being set to False
+{ Updated SetUseSys.NowForDate() to support AValue being set to False
 }
 {
 {   Rev 1.46    16/05/2004 18:54:42  CCostelloe
@@ -103,7 +103,7 @@
 }
 {
 {   Rev 1.29    08/01/2004 23:43:40  CCostelloe
-{ LoadFromFile/SaveToFile now work in D7 again
+{ LoadFromFile/SaveToFile Sys.Now work in D7 again
 }
 {
 {   Rev 1.28    1/7/04 11:07:16 PM  RLebeau
@@ -173,7 +173,7 @@
 }
 {
 {   Rev 1.11    26/09/2003 00:29:34  CCostelloe
-{ IdMessage.Encoding now set when email decoded; XXencoded emails now decoded;
+{ IdMessage.Encoding Sys.Now set when email decoded; XXencoded emails Sys.Now decoded;
 { logic added to GenerateHeader
 }
 {
@@ -188,7 +188,7 @@
 }
 {
 {   Rev 1.8    11/07/2003 01:11:02  CCostelloe
-{ GenerateHeader changed from function to procedure, results now put in
+{ GenerateHeader changed from function to procedure, results Sys.Now put in
 { LastGeneratedHeaders.  Better for user (can see headers sent) and code still
 { efficient.
 }
@@ -204,7 +204,7 @@
 }
 {
 {   Rev 1.5    6/3/2003 10:46:54 PM  JPMugaas
-{ In-Reply-To header now supported.
+{ In-Reply-To header Sys.Now supported.
 }
 {
     Rev 1.4    1/27/2003 10:07:46 PM  DSiders
@@ -245,32 +245,32 @@ unit IdMessage;
     down from the message-level to the MessagePart level, where it belongs.
 2004-04-20 Ciaran Costelloe
   - Added support for multiple From addresses (per RFC 2822, section 3.6.2) by
-    adding a FromList field.  The previous From field now maps to FromList[0].
+    adding a FromList field.  The previous From field Sys.Now maps to FromList[0].
 2003-10-04 Ciaran Costelloe (see comments starting CC4)
 2003-09-20 Ciaran Costelloe (see comments starting CC2)
   - Added meDefault, meXX to TIdMessageEncoding.
-    Code now sets TIdMessage.Encoding when it decodes an email.
-    Modified TIdMIMEBoundary to work as a straight stack, now Push/Pops ParentPart also.
+    Code Sys.Now sets TIdMessage.Encoding when it decodes an email.
+    Modified TIdMIMEBoundary to work as a straight stack, Sys.Now Push/Pops ParentPart also.
     Added meDefault, meXX to TIdMessageEncoding.
     Moved logic from SendBody to GenerateHeader, added extra logic to avoid exceptions:
-      Change any encodings we dont know to base64
+      Change any encodings we dont kSys.Now to base64
       We dont support attachments in an encoded body, change it to a supported combination
     Made changes to support ConvertPreamble and MIME message bodies with a
       ContentTransferEncoding of base64, quoted-printable.
-    ProcessHeaders now decodes BCC list.
+    ProcessHeaders Sys.Now decodes BCC list.
 2003-09-02 Ciaran Costelloe
   - Added fix to FindBoundary suggested by Juergen Haible to remove trailing space
     after boundary added by some clients.
 2003-07-10 Ciaran Costelloe
   - Added LastGeneratedHeaders property, see comments starting CC.  Changed
-    GenerateHeader from function to procedure, it now puts the generated headers
+    GenerateHeader from function to procedure, it Sys.Now puts the generated headers
     into LastGeneratedHeaders, which is where dependant units should take the
     results from.  This ensures that the headers that were generated are
     recorded, which some users' programs may need.
 2002-12-09 Andrew Neillans
   - Removed X-Library line
 2002-08-30 Andrew P.Rybin
-  - now InitializeISO is IdMessage method
+  - Sys.Now InitializeISO is IdMessage method
 2001-12-27 Andrew P.Rybin
   Custom InitializeISO, ExtractCharSet
 2001-Oct-29 Don Siders
@@ -284,7 +284,7 @@ unit IdMessage;
 2001-Sep-14 Andrew Neillans
   Added LoadFromFile Header only
 2001-Sep-12 Johannes Berg
-  Fixed upper/lowercase in uses clause for Kylix
+  Fixed upper/Sys.LowerCase in uses clause for Kylix
 2001-Aug-09 Allen O'Neill
   Added line to check for valid charset value before adding second ';' after content-type boundry
 2001-Aug-07 Allen O'Neill
@@ -331,14 +331,14 @@ uses
   Classes,
   IdTStrings,
   IdBaseComponent, IdExceptionCore, IdEMailAddress, IdHeaderList,
-  IdCoderHeader, SysUtils, IdMessageParts, IdAttachment;
+  IdCoderHeader, IdMessageParts, IdAttachment;
 
 type
   TIdMessagePriority = (mpHighest, mpHigh, mpNormal, mpLow, mpLowest);
 
 const
   ID_MSG_NODECODE = False;
-  ID_MSG_USENOWFORDATE = True;
+  ID_MSG_USESNOWFORDATE = True;
   ID_MSG_PRIORITY = mpNormal;
 
 type
@@ -373,7 +373,7 @@ type
   TIdMessageFlagsSet = set of TIdMessageFlags;
 
   {WARNING: Replaced meUU with mePlainText in Indy 10 due to meUU being misleading.
-  This is the MESSAGE-LEVEL "encoding", really the format or layout of the message.
+  This is the MESSAGE-LEVEL "encoding", really the Sys.Format or layout of the message.
   When encoding, the user can let Indy decide on the encoding by
   leaving it at meDefault, or he can pick meMIME or mePlainText}
   //TIdMessageEncoding = (meDefault, meMIME, meUU, meXX);
@@ -516,7 +516,7 @@ type
     property ReplyTo: TIdEmailAddressList read FReplyTo write SetReplyTo;
     property Subject: string read FSubject write FSubject;
     property Sender: TIdEmailAddressItem read FSender write SetSender;
-    property UseNowForDate: Boolean read GetUseNowForDate write SetUseNowForDate default ID_MSG_USENOWFORDATE;
+    property UseNowForDate: Boolean read GetUseNowForDate write SetUseNowForDate default ID_MSG_USESNOWFORDATE;
     property LastGeneratedHeaders: TIdHeaderList read FLastGeneratedHeaders;
     property ConvertPreamble: Boolean read FConvertPreamble write FConvertPreamble;
     property ExceptionOnBlockedAttachments: Boolean read FExceptionOnBlockedAttachments write FExceptionOnBlockedAttachments default False;
@@ -577,8 +577,8 @@ end;
 
 destructor TIdMIMEBoundary.Destroy;
 begin
-  FreeAndNil(FBoundaryList);
-  FreeAndNil(FParentPartList);
+  Sys.FreeAndNil(FBoundaryList);
+  Sys.FreeAndNil(FParentPartList);
   inherited;
 end;
 
@@ -592,13 +592,13 @@ begin
   //Get FETCH to ignore case in searching for BoUnDaRy
   Fetch(s, 'BOUNDARY', True, False); {do not localize}
   if Length(s) > 0 then begin
-    s := Trim(s);
+    s := Sys.Trim(s);
     if (Length(s) > 0) and (s[1] = '=') then begin       {do not localize}
       s := Copy(s, 2, MAXINT);
     end;
     {CC: Fix suggested by Juergen Haible - some clients add a space after the boundary,
-    remove it by calling Trim(s)...}
-    s := Trim(s);
+    remove it by calling Sys.Trim(s)...}
+    s := Sys.Trim(s);
     if (Length(s) > 0) and (s[1] = '"') then begin {do not localize}
       Delete(s, 1, 1);
       Result := Fetch(s, '"'); {do not localize}
@@ -623,7 +623,7 @@ end;
 function TIdMIMEBoundary.GetParentPart: integer;
 begin
   if FParentPartList.Count > 0 then begin
-    Result := StrToInt(FParentPartList.Strings[0]);
+    Result := Sys.StrToInt(FParentPartList.Strings[0]);
   end else begin
     Result := -1;
   end;
@@ -639,7 +639,7 @@ procedure TIdMIMEBoundary.Push(ABoundary: string; AParentPart: integer);
 begin
   {CC: Changed implementation to a simple stack}
   FBoundaryList.Insert(0, ABoundary);
-  FParentPartList.Insert(0, IntToStr(AParentPart));
+  FParentPartList.Insert(0, Sys.IntToStr(AParentPart));
 end;
 
 { TIdMessage }
@@ -683,7 +683,7 @@ begin
   Headers.Clear;
   ExtraHeaders.Clear;
   FMIMEBoundary.Clear;
-//  UseNowForDate := ID_MSG_USENOWFORDATE;
+//  UseSys.NowForDate := ID_MSG_USESys.NowFORDATE;
   Flags := [];
   MsgId := '';
   UID := '';
@@ -718,20 +718,20 @@ end;
 
 destructor TIdMessage.Destroy;
 begin
-  FreeAndNil(FBody);
-  FreeAndNil(FRecipients);
-  FreeAndNil(FBccList);
-  FreeAndNil(FCcList);
-  FreeAndNil(FMessageParts);
-  FreeAndNil(FNewsGroups);
-  FreeAndNil(FHeaders);
-  FreeAndNil(FExtraHeaders);
-  FreeAndNil(FFromList);
-  FreeAndNil(FReplyTo);
-  FreeAndNil(FSender);
-  FreeAndNil(FReceiptRecipient);
-  FreeAndNil(FMIMEBoundary);
-  FreeAndNil(FLastGeneratedHeaders);
+  Sys.FreeAndNil(FBody);
+  Sys.FreeAndNil(FRecipients);
+  Sys.FreeAndNil(FBccList);
+  Sys.FreeAndNil(FCcList);
+  Sys.FreeAndNil(FMessageParts);
+  Sys.FreeAndNil(FNewsGroups);
+  Sys.FreeAndNil(FHeaders);
+  Sys.FreeAndNil(FExtraHeaders);
+  Sys.FreeAndNil(FFromList);
+  Sys.FreeAndNil(FReplyTo);
+  Sys.FreeAndNil(FSender);
+  Sys.FreeAndNil(FReceiptRecipient);
+  Sys.FreeAndNil(FMIMEBoundary);
+  Sys.FreeAndNil(FLastGeneratedHeaders);
   inherited destroy;
 end;
 
@@ -785,7 +785,7 @@ begin
     end;
   end;
   for LN := 0 to MessageParts.Count-1 do begin
-    {Change any encodings we don't know to base64 for MIME and UUE for PlainText...}
+    {Change any encodings we don't kSys.Now to base64 for MIME and UUE for PlainText...}
     LEncoding := MessageParts[LN].ContentTransfer;
     if LEncoding <> '' then begin
       if Encoding = meMIME then begin
@@ -816,7 +816,7 @@ begin
     end;
   end;
   if Encoding = meMIME then begin
-    //HH: Generate Boundary here so we know it in the headers
+    //HH: Generate Boundary here so we kSys.Now it in the headers
     LMIMEBoundary := IdMIMEBoundaryStrings.IndyMIMEBoundary;
     //CC: Moved this logic up from SendBody to here, where it fits better...
     if Length(ContentType) = 0 then begin
@@ -901,14 +901,14 @@ begin
     Values['References'] := References; {do not localize}
 
     if UseNowForDate then begin
-      Values['Date'] := DateTimeToInternetStr(Now); {do not localize}
+      Values['Date'] := DateTimeToInternetStr(Sys.Now); {do not localize}
     end else begin
       Values['Date'] := DateTimeToInternetStr(Self.Date); {do not localize}
     end;
 
     // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)
     if Priority <> mpNormal then begin
-      Values['X-Priority'] := IntToStr(Ord(Priority) + 1) {do not localize}
+      Values['X-Priority'] := Sys.IntToStr(Ord(Priority) + 1) {do not localize}
     end else begin
       if IndexOfName('X-Priority') >= 0 then begin  {do not localize}
         delete(IndexOfName('X-Priority'));    {do not localize}
@@ -938,7 +938,7 @@ function TIdMessage.ExtractCharSet(AContentType: string): string;
 var
   s: string;
 begin
-  s := UpperCase(AContentType);
+  s := Sys.UpperCase(AContentType);
   Fetch(s, 'CHARSET='); {do not localize}
   if Copy(s, 1, 1) = '"' then begin {do not localize}
     Delete(s, 1, 1);
@@ -961,14 +961,14 @@ var
     Num: integer;
   begin
     // This is for Pegasus.
-    if IndyPos('urgent', LowerCase(Priority)) <> 0 then begin {do not localize}
+    if IndyPos('urgent', Sys.LowerCase(Priority)) <> 0 then begin {do not localize}
       Result := mpHigh;
-    end else if IndyPos('non-priority', LowerCase(Priority)) <> 0 then begin {do not localize}
+    end else if IndyPos('non-priority', Sys.LowerCase(Priority)) <> 0 then begin {do not localize}
       Result := mpLow;
     end else begin
-      s := Trim(Priority);
-      s := Trim(Fetch(s, ' '));   {do not localize}
-      Num := StrToIntDef(s, 3);
+      s := Sys.Trim(Priority);
+      s := Sys.Trim(Fetch(s, ' '));   {do not localize}
+      Num := Sys.StrToInt(s, 3);
       Result := TIdMessagePriority(Num - 1);
     end;
   end;
@@ -978,7 +978,7 @@ begin
   if FContentType = '' then begin
     FContentType := 'text/plain';  {do not localize}
   end else begin
-    FContentType := Trim(Fetch(FContentType, ';'));  {do not localize}
+    FContentType := Sys.Trim(Fetch(FContentType, ';'));  {do not localize}
   end;
   FCharset := ExtractCharSet(Headers.Values['Content-Type']);  {do not localize}
 
@@ -1014,7 +1014,7 @@ begin
   if LBoundary <> '' then begin
     MIMEBoundary.Push(LBoundary, -1);
   end;
-  {CC2: Set MESSAGE_LEVEL "encoding" (really the format or layout)}
+  {CC2: Set MESSAGE_LEVEL "encoding" (really the Sys.Format or layout)}
   LMIMEVersion := Headers.Values['MIME-Version']; {do not localize}
   if LMIMEVersion = '' then begin
     Encoding := mePlainText;
@@ -1102,7 +1102,7 @@ begin
     if AValue then begin
       FDate := 0;
     end else begin
-      FDate := Now;
+      FDate := Sys.Now;
     end;
   end;
 end;
@@ -1131,12 +1131,12 @@ end;
 
 procedure TIdMessage.LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
 var
-  LStream: TFileStream;
+  LStream: TReadFileExclusiveStream;
 begin
-  EIdMessageCannotLoad.IfFalse(FileExists(AFilename), Format(RSIdMessageCannotLoad, [AFilename]));
-  LStream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite); try
+  EIdMessageCannotLoad.IfFalse(Sys.FileExists(AFilename), Sys.Format(RSIdMessageCannotLoad, [AFilename]));
+  LStream := TReadFileExclusiveStream.Create(AFilename); try
     LoadFromStream(LStream, AHeadersOnly);
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 procedure TIdMessage.LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
@@ -1156,7 +1156,7 @@ begin
     FGenerateBCCListInHeader := True; try
       SaveToStream(LStream, AHeadersOnly);
     finally FGenerateBCCListInHeader := False; end;
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 procedure TIdMessage.SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
@@ -1173,8 +1173,8 @@ begin
       if not AHeadersOnly then begin
         LMsgClient.IOHandler.WriteLn('.');  {do not localize}
       end;
-    finally FreeAndNil(LIOHandler); end;
-  finally FreeAndNil(LMsgClient); end;
+    finally Sys.FreeAndNil(LIOHandler); end;
+  finally Sys.FreeAndNil(LMsgClient); end;
 end;
 
 procedure TIdMessage.DoInitializeISO(var VTransferHeader: TTransfer;

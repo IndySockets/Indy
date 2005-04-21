@@ -156,8 +156,7 @@ implementation
 
 uses
   IdGlobal,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 procedure TIdIPAddrMon.InitComponent;
 begin
@@ -323,7 +322,7 @@ begin
       else
       begin
         FThread.TerminateAndWaitFor;
-        FreeAndNil(FThread);
+        Sys.FreeAndNil(FThread);
       end;
     end;
   end;

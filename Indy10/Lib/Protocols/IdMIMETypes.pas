@@ -81,8 +81,7 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols,
-  SysUtils;
+  IdGlobalProtocols;
 
 function ReturnMIMEType;
 var
@@ -94,7 +93,7 @@ begin
      SType := Copy(MediaType, i + 1, length(MediaType));
      EType := EncType;
 
-     i:=PosInStrArray(LowerCase(MType),MIMEMediaType);
+     i:=PosInStrArray(Sys.LowerCase(MType),MIMEMediaType);
      case i of
        0 : begin
          // MIMETypeApplication - application/
@@ -118,8 +117,8 @@ begin
          // MIMETypeVideo - video/
        end;
      else begin
-          if LowerCase(Copy(MType, 1, 2)) = MIMEXVal then begin
-             i:=PosInStrArray(LowerCase(Copy(MType, 3, length(MType))),MIMEMediaType);
+          if Sys.LowerCase(Copy(MType, 1, 2)) = MIMEXVal then begin
+             i:=PosInStrArray(Sys.LowerCase(Copy(MType, 3, length(MType))),MIMEMediaType);
              case i of
                0 : begin
                  // MIMETypeApplication - application/

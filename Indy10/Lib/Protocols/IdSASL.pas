@@ -120,8 +120,7 @@ var
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 { TIdSASL }
 
@@ -167,5 +166,5 @@ end;
 initialization
   GlobalSASLList := TThreadList.Create;
 finalization
-  FreeAndNil(GlobalSASLList);
+  Sys.FreeAndNil(GlobalSASLList);
 end.

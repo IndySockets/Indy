@@ -33,8 +33,7 @@ interface
 
 uses
   IdGlobal,
-  IdUDPBase, IdUDPClient,
-  SysUtils;
+  IdUDPBase, IdUDPClient;
 
 type
   TIdTFTPMode = (tfNetAscii, tfOctet);

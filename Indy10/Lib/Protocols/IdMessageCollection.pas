@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  SysUtils, IdGlobal;
+  IdGlobal;
 
 function TIdMessageCollection.Add;
 begin
@@ -82,7 +82,7 @@ end;
 
 destructor TIdMessageItem.Destroy;
 begin
-  FreeAndNil(Msg);
+  Sys.FreeAndNil(Msg);
   inherited;
 end;
 

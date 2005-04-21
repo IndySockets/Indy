@@ -64,7 +64,7 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdGlobal, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
-  SysUtils, IdCoderHeader;
+   IdCoderHeader;
 
 { TIdMessageEncoderInfoQuotedPrintable }
 
@@ -82,7 +82,7 @@ var
 begin
   LEncoder := TIdEncoderQuotedPrintable.Create(nil); try
     ADest.Write(LEncoder.Encode(ASrc, ASrc.Size));
-  finally FreeAndNil(LEncoder); end;
+  finally Sys.FreeAndNil(LEncoder); end;
 end;
 
 initialization

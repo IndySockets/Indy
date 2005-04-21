@@ -65,7 +65,7 @@ type
 
 implementation
 
-uses IdGlobal, IdHash, IdHashMessageDigest,IdHashSHA1, IdStreamVCL, Classes, SysUtils;
+uses IdGlobal, IdHash, IdHashMessageDigest,IdHashSHA1, IdStreamVCL, Classes;
 
 const
   Dictionary: array[0..2047] of string = (
@@ -349,7 +349,7 @@ end;
 
 class function TIdOTPCalculator.ToHex(const AKey: int64): string;
 begin
-  result := IntToHex(AKey, 16);
+  result := Sys.IntToHex(AKey, 16);
 end;
 
 class function TIdOTPCalculator.ToSixWordFormat(const AKey: int64): string;
@@ -384,7 +384,7 @@ var
 begin
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    LMD4Hash := LMD4.HashValue(lowercase(ASeed) + APassword);
+    LMD4Hash := LMD4.HashValue(Sys.lowercase(ASeed) + APassword);
     L64Bit := (Int64(LMD4Hash[0] xor LMD4Hash[2]) shl 32) or (LMD4Hash[1] xor LMD4Hash[3]);
 
     for i := 1 to ACount do begin
@@ -424,7 +424,7 @@ var
 begin
   LMD5 := TIdHashMessageDigest5.Create;
   try
-    LMD5Hash := LMD5.HashValue(lowercase(ASeed) + APassword);
+    LMD5Hash := LMD5.HashValue(Sys.lowercase(ASeed) + APassword);
     L64Bit := (Int64(LMD5Hash[0] xor LMD5Hash[2]) shl 32) or (LMD5Hash[1] xor LMD5Hash[3]);
 
     for i := 1 to ACount do begin
@@ -465,7 +465,7 @@ var
 begin
   LSHA1 := TIdHashSHA1.Create;
   try
-    LSHA1Hash := LSHA1.HashValue(lowercase(ASeed) + APassword);
+    LSHA1Hash := LSHA1.HashValue(Sys.lowercase(ASeed) + APassword);
     L64Bit := (Int64(LSHA1Hash[0] xor LSHA1Hash[2] xor LSHA1Hash[4]) shl 32) or (LSHA1Hash[1] xor LSHA1Hash[3]);
 
     for i := 1 to ACount do begin

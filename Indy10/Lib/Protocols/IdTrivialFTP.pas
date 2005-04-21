@@ -88,8 +88,7 @@ uses
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdStack,
-  SysUtils;
+  IdStack;
 
 procedure TIdTrivialFTP.CheckOptionAck(const optionpacket: string);
 var LBuf : String;
@@ -109,7 +108,7 @@ begin
   LOptName := Fetch(LBuf,#0);
   if TextIsSame(LOptName, 'blksize') then begin    {Do not Localize}
   //
-    BufferSize := StrToInt(Fetch(LBuf,#0)) + hdrsize;
+    BufferSize := Sys.StrToInt(Fetch(LBuf,#0)) + hdrsize;
   end;
 end;
 
@@ -135,7 +134,7 @@ begin
   try
     BufferSize := 516;   // BufferSize as specified by RFC 1350
     Send(WordToStr(GStack.HostToNetwork(Word(TFTP_RRQ))) + ServerFile + #0 + ModeToStr + #0 +
-      sBlockSize + IntToStr(FRequestedBlockSize) + #0);
+      sBlockSize + Sys.IntToStr(FRequestedBlockSize) + #0);
     PrevBlockCtr := -1;
     BlockCtr := 0;
     TerminateTransfer := False;
@@ -190,7 +189,7 @@ begin
           BlockCtr := 0;
         end;
         else
-          raise EIdTFTPException.CreateFmt(RSTFTPUnexpectedOp, [Host, Port]);
+          raise EIdTFTPException.Create(Sys.Format(RSTFTPUnexpectedOp, [Host, Port]));
       end;  { case }
       SendAck(BlockCtr);
     end;  { while }
@@ -233,7 +232,7 @@ begin
   try
     BufferSize := 516;   // BufferSize as specified by RFC 1350
     Send(WordToStr(GStack.HostToNetwork(Word(TFTP_WRQ))) + ServerFile + #0 + ModeToStr + #0 +
-      sBlockSize + IntToStr(FRequestedBlockSize) + #0);
+      sBlockSize + Sys.IntToStr(FRequestedBlockSize) + #0);
     PrevBlockCtr := 0;
     BlockCtr := 1;
     TerminateTransfer := False;
@@ -285,9 +284,9 @@ end;
 
 procedure TIdTrivialFTP.Put(const LocalFile, ServerFile: String);
 var
-  fs: TFileStream;
+  fs: TReadFileExclusiveStream;
 begin
-  fs := TFileStream.Create(LocalFile, fmOpenRead or fmShareDenyWrite);
+  fs := TReadFileExclusiveStream.Create(LocalFile);
   try
     Put(fs, ServerFile);
   finally

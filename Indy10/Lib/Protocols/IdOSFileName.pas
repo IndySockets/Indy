@@ -54,7 +54,7 @@ function FileNameUnixToOS9(const AUnixFileName : String) : String;
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal;
 
 type
   TIdValidChars = set of AnsiChar;
@@ -113,8 +113,8 @@ See:  http://www.uh.edu/infotech/services/documentation/vms/v0505.html
 const VMS_VALID_CHARS : TIdValidChars = ['A'..'Z','0'..'9','_','-','$'];
 
 begin
-  //VMS is case insensitive - uppercase to simplify processing
-  Result := UpperCase(AUnixFileName);
+  //VMS is case insensitive - Sys.UpperCase to simplify processing
+  Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFExt := Fetch(Result,'.');
   LFExt := Fetch(LFExt,';');
@@ -140,12 +140,12 @@ begin
   //IDABOUT.PAS;3.
   Result := Fetch(Result,';');
   //VMS is case insensitive
-  Result := LowerCase(AVMSFileName);
+  Result := Sys.LowerCase(AVMSFileName);
 end;
 
 function FileNameMSDOSToUnix(const AMSDOSFileName : String) : String;
 begin
-  Result := Lowercase(AMSDOSFileName);
+  Result := Sys.LowerCase(AMSDOSFileName);
 end;
 
 function FileNameUnixToMSDOS(const AUnixFileName : String):String;
@@ -162,7 +162,7 @@ var LFName, LFExt : String;
 
 const MSDOS_VALID_CHARS : TIdValidChars = ['A'..'Z','0'..'9','_','$','~','!','#','%','&','-','{','}','(',')','@','''',#180];
 begin
-  Result := UpperCase(AUnixFileName);
+  Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := Copy(LFName,1,8);
   LFName := EnsureValidCharsByValidSet(LFExt,MSDOS_VALID_CHARS);
@@ -196,7 +196,7 @@ function FileNameWin32ToUnix(const AWin32FileName : String): String;
 //from http://linux-ntfs.sourceforge.net/ntfs/concepts/filename_namespace.html
 //const UNIX_INVALID_CHARS : TIdValidChars = [#0,'/'];
 begin
-  Result := LowerCase(AWin32FileName);
+  Result := Sys.LowerCase(AWin32FileName);
 end;
 
 function FileNameUnixToVMCMS(const AUnixFileName : String): String;
@@ -211,7 +211,7 @@ function FileNameUnixToVMCMS(const AUnixFileName : String): String;
 var LFName, LFExt : String;
 const VALID_VMCMS_CHARS : TIdValidChars = ['A'..'Z','0'..'9','@','#','$','+','-',':','_'];
 begin
-  Result := UpperCase(AUnixFileName);
+  Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := EnsureValidCharsByValidSet(LFExt,VALID_VMCMS_CHARS);
   LFName := Copy(LFName,1,8);
@@ -227,7 +227,7 @@ end;
 
 function FileNameVMCMSToUnix(const AVMCMSFileName : String): String;
 begin
-  Result := LowerCase(AVMCMSFileName);
+  Result := Sys.LowerCase(AVMCMSFileName);
 end;
 
 function FileNameUnixToMUSICSP(const AUnixFileName : String) : String;
@@ -251,7 +251,7 @@ begin
 // note we have to do our vality checks before truncating the length in
 // case we need to replace the default replacement char and the length changes
 // because of that.
-  Result := UpperCase(AUnixFileName);
+  Result := Sys.UpperCase(AUnixFileName);
   Result := EnsureValidCharsByValidSet(Result,VALID_MUSICSP);
   Result := Copy(Result,1,15);
   if Result <> '' then begin
@@ -267,7 +267,7 @@ end;
 
 function FileNameMUSICSPToUnix(const AMUSICSPFileName : String) : String;
 begin
-  Result := LowerCase(AMUSICSPFileName);
+  Result := Sys.LowerCase(AMUSICSPFileName);
 end;
 
 function FileNameUnixToMVS(const AUnixFileName : String; const AUserID : String; const AUseAnotherID : Boolean=False) : String;
@@ -301,7 +301,7 @@ begin
   //where the JPMUGAAS. prefix is implied.
   LMaxLen := MVS_FQN_MAX_LEN - 1 - Length(AUserID);
 
-  LBuf := UpperCase(AUnixFileName);
+  LBuf := Sys.UpperCase(AUnixFileName);
   Result := '';
   repeat
 
@@ -358,7 +358,7 @@ end;
 
 function FileNameMVSToUnix(const AMVSFileName : String) : String;
 begin
-  Result := Lowercase(AMVSFileName);
+  Result := Sys.LowerCase(AMVSFileName);
 end;
 
 {
@@ -379,7 +379,7 @@ const
   VALID_MPEIX_START = ['A'..'Z'];
   VALID_MPEIX_FNAME = ['0'..'9']+ VALID_MPEIX_START;
 begin
-  Result := UpperCase(AFilePart);
+  Result := Sys.UpperCase(AFilePart);
   if IndyPos('.',Result)>1 then
   begin
     Result := Fetch(Result,'.');
@@ -509,8 +509,8 @@ function FileNameUnixToOS9(const AUnixFileName : String) : String;
 Names can have one to 29 characters, all of which are used for matching. They
 must becin with an upper- or lower-case letter followed by any combination of
 the following characters:
-uppercase letters: A - Z
-lowercase letters: a - z
+UpperCase letters: A - Z
+LowerCase letters: a - z
 decimal digits: 0 - 9
 underscore: _
 period: .

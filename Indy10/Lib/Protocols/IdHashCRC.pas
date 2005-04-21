@@ -52,7 +52,6 @@ type
 implementation
 
 uses
-  SysUtils,
   IdGlobal; // for Min()
 
 const

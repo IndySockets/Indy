@@ -159,7 +159,7 @@ type
 implementation
 
 uses
-  IdMessage, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder, SysUtils;
+  IdMessage, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder;
 
 { TIdMessagePart }
 
@@ -225,7 +225,7 @@ begin
   //or, if '', it finds the correct default value for MIME messages.
   Result := '';  //Default for non-MIME messages
   if AContentType <> '' then begin
-    Result := Trim(Fetch(AContentType, ';'));  {do not localize}
+    Result := Sys.Trim(Fetch(AContentType, ';'));  {do not localize}
   end else begin
     //If it is MIME, then we need to find the correct default...
     if TIdMessage(TIdMessageParts(Collection).OwnerMessage).Encoding = meMIME then begin
@@ -234,7 +234,7 @@ begin
       //There is an exception if we are a child of multipart/digest...
       if ParentPart <> -1 then begin
         LTemp := TIdMessagePart(Collection.Items[ParentPart]).Headers.Values['Content-Type'];  {do not localize}
-        if IndyPos('multipart/digest', LowerCase(LTemp)) > 0 then begin  {do not localize}
+        if IndyPos('multipart/digest', Sys.LowerCase(LTemp)) > 0 then begin  {do not localize}
           Result := 'message/rfc822';  {do not localize}
         end;
       end;

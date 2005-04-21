@@ -261,7 +261,7 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdGlobal, IdException, IdGlobalProtocols, IdResourceStrings,
-  IdCoderQuotedPrintable, IdCoderBinHex4, SysUtils, IdCoderHeader;
+  IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader;
 
 { TIdMIMEBoundaryStrings }
 function TIdMIMEBoundaryStrings.GenerateRandomChar: Char;
@@ -269,14 +269,14 @@ var
   LOrd: integer;
   LFloat: Double;
 begin
-  {Allow only digits (ASCII 48-57), uppercase letters (65-90) and lowercase
+  {Allow only digits (ASCII 48-57), Sys.UpperCase letters (65-90) and lowercase
   letters (97-122), which is 62 possible chars...}
   LFloat := (Random* 61) + 1.5;  //Gives us 1.5 to 62.5
   LOrd := Trunc(LFloat)+47;  //(1..62) -> (48..109)
   if LOrd > 83 then begin
     LOrd := LOrd + 13;  {Move into lowercase letter range}
   end else if LOrd > 57 then begin
-    LOrd := LOrd + 7;  {Move into uppercase letter range}
+    LOrd := LOrd + 7;  {Move into Sys.UpperCase letter range}
   end;
   Result := Chr(LOrd);
 end;
@@ -302,7 +302,7 @@ begin
   FIndyMIMEBoundary[LN+1] := '_';
   {The Alternative boundary is the same with a random lowercase letter added...}
   //FIndyMultiPartAlternativeBoundary := FIndyMIMEBoundary + Chr(RandomRange(97,122));
-  {The Related boundary is the same with a random uppercase letter added...}
+  {The Related boundary is the same with a random Sys.UpperCase letter added...}
   //FIndyMultiPartRelatedBoundary     := FIndyMultiPartAlternativeBoundary + Chr(RandomRange(65,90));
 end;
 
@@ -513,7 +513,7 @@ begin
       end;
       LDecoder.DecodeEnd;
     end;
-  finally FreeAndNil(LDecoder); end;
+  finally Sys.FreeAndNil(LDecoder); end;
 end;
 
 function TIdMessageDecoderMIME.GetAttachmentFilename(AContentType, AContentDisposition: string): string;
@@ -521,17 +521,17 @@ var
   LValue: string;
   LPos: Integer;
 begin
-  LPos := IndyPos('FILENAME=', UpperCase(AContentDisposition));  {do not localize}
+  LPos := IndyPos('FILENAME=', Sys.UpperCase(AContentDisposition));  {do not localize}
   if LPos > 0 then begin
-    LValue := Trim(Copy(AContentDisposition, LPos + 9, MaxInt));
+    LValue := Sys.Trim(Copy(AContentDisposition, LPos + 9, MaxInt));
   end else begin
     LValue := ''; //FileName not found
   end;
   if Length(LValue) = 0 then begin
     // Get filename from Content-Type
-    LPos := IndyPos('NAME=', UpperCase(AContentType)); {do not localize}
+    LPos := IndyPos('NAME=', Sys.UpperCase(AContentType)); {do not localize}
     if LPos > 0 then begin
-      LValue := Trim(Copy(AContentType, LPos + 5, MaxInt));    {do not localize}
+      LValue := Sys.Trim(Copy(AContentType, LPos + 5, MaxInt));    {do not localize}
     end;
   end;
   if Length(LValue) > 0 then begin
@@ -602,11 +602,11 @@ begin
           FHeaders[FHeaders.Count - 1] := FHeaders[FHeaders.Count - 1] + ' ' + Copy(LLine, 2, MaxInt);    {Do not Localize}
         end else begin
           //Make sure you change 'Content-Type :' to 'Content-Type:'
-          FHeaders.Add(StringReplace(StringReplace(Copy(LLine,2,MaxInt),': ','=',[]),' =','=',[])); {Do not Localize}
+          FHeaders.Add(Sys.ReplaceOnlyFirst( Sys.ReplaceOnlyFirst(Copy(LLine,2,MaxInt),': ','='),' =','=')); {Do not Localize}
         end;
       end else begin
         //Make sure you change 'Content-Type :' to 'Content-Type:'
-        FHeaders.Add(StringReplace(StringReplace(LLine,': ','=',[]),' =','=',[]));    {Do not Localize}
+        FHeaders.Add(Sys.ReplaceOnlyFirst(Sys.ReplaceOnlyFirst(LLine,': ','='),' =','='));    {Do not Localize}
       end;
     until False;
     s := FHeaders.Values['Content-Type'];    {do not localize}
@@ -702,7 +702,7 @@ begin
       Inc(LSPos,57);
       ADest.Write(s);
     end;
-  finally FreeAndNil(LEncoder); end;
+  finally Sys.FreeAndNil(LEncoder); end;
 end;
 
 initialization

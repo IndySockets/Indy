@@ -112,7 +112,6 @@ const
                    //selected.
 
 implementation
-uses SysUtils;
 
 { TIdMailBox }
 
@@ -150,7 +149,7 @@ end;
 
 procedure TIdMailBox.SetMessageList(const Value: TIdMessageCollection);
 begin
-     if Value is TCollection then Beep;
+  //   if Value is TCollection then Beep;
      FMessageList.Assign ( Value );
 end;
 

@@ -86,8 +86,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
-  IdUDPClient,
-  SysUtils;
+  IdUDPClient;
 
 type
   TIdTFTPServerThread = class(TThread)
@@ -137,14 +136,14 @@ begin
     begin
       if SourceStream = nil then
       begin
-        SourceStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
+        SourceStream :=  TReadFileExclusiveStream.Create(FileName);
         FreeOnComplete := True;
       end;
       TIdTFTPServerSendFileThread.Create(self, Mode, PeerInfo, SourceStream,
         FreeOnComplete, RequestedBlockSize);
     end
     else
-      raise EIdTFTPAccessViolation.CreateFmt(RSTFTPAccessDenied, [FileName]);
+      raise EIdTFTPAccessViolation.Create(Sys.Format(RSTFTPAccessDenied, [FileName]));
   except
     on E: EFOpenError do
       raise EIdTFTPFileNotFound.Create(E.Message);
@@ -189,7 +188,7 @@ begin
       if (Copy(s,1,Length(sBlockSize))=sBlockSize) then
       begin
         Fetch(s, #0);
-        RequestedBlkSize := StrToInt(Fetch(s, #0));
+        RequestedBlkSize := Sys.StrToInt(Fetch(s, #0));
       end;
       PeerInfo.PeerIP := ABinding.PeerIP;
       PeerInfo.PeerPort := ABinding.PeerPort;
@@ -204,7 +203,7 @@ begin
     end
     else
     begin
-      raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]);
+      raise EIdTFTPIllegalOperation.Create(Sys.Format(RSTFTPUnexpectedOp, [ABinding.PeerIP, ABinding.PeerPort]));
     end;
   except
     on E: EIdTFTPException do
@@ -240,7 +239,7 @@ begin
       if StrLComp(pchar(s), sBlockSize, Length(sBlockSize)) = 0 then
       begin
         Fetch(s, #0);
-        RequestedBlkSize := StrToInt(Fetch(s, #0));
+        RequestedBlkSize := Sys.StrToInt(Fetch(s, #0));
       end;
       PeerInfo.PeerIP := ABinding.PeerIP;
       PeerInfo.PeerPort := ABinding.PeerPort;
@@ -282,7 +281,7 @@ begin
     begin
       if DestinationStream = nil then
       begin
-        DestinationStream := TFileStream.Create(FileName, fmCreate or fmShareDenyWrite);
+        DestinationStream := TFileCreateStream.Create(FileName);
         FreeOnComplete := True;
       end;
       TIdTFTPServerReceiveFileThread.Create(self, Mode, PeerInfo,

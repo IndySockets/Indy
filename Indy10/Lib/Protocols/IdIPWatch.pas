@@ -129,8 +129,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStack,
-  SysUtils;
+  IdGlobal, IdStack;
 
 { TIdIPWatch }
 
@@ -260,7 +259,7 @@ procedure TIdIPWatch.LoadHistory;
 begin
   if not (csDesigning in ComponentState) then begin
     FIPHistoryList.Clear;
-    if (FileExists(FHistoryFilename)) and (FHistoryEnabled) then
+    if (Sys.FileExists(FHistoryFilename)) and (FHistoryEnabled) then
     begin
       FIPHistoryList.LoadFromFile(FHistoryFileName);
       if FIPHistoryList.Count > 0 then
@@ -303,7 +302,7 @@ begin
         end;
       end else begin
         FThread.TerminateAndWaitFor;
-        FreeAndNil(FThread);
+        Sys.FreeAndNil(FThread);
       end;
     end;
   end;

@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -439,8 +439,7 @@ const
 implementation
 
 uses
-  IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, IdStack,
-  SysUtils;
+  IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, IdStack;
 
 //============================================================================//
 { TIdIRCReplies }
@@ -482,8 +481,8 @@ end;
 
 destructor TIdIRC.Destroy;
 begin
-  FreeAndNil(FReplies);
-  FreeAndNil(FTmp);
+  Sys.FreeAndNil(FReplies);
+  Sys.FreeAndNil(FTmp);
   //
   inherited Destroy;
 end;
@@ -523,7 +522,7 @@ begin
   try
     if FPassword <> '' then
     begin
-      Raw(Format('PASS %s', [FPassword]));  {do not localize}
+      Raw(Sys.Format('PASS %s', [FPassword]));  {do not localize}
     end;
 
     SetNickname(FNickname);
@@ -537,7 +536,7 @@ end;
 
 procedure TIdIRC.Disconnect(AReason: String = '');
 begin
-  Raw(Format('QUIT :%s', [AReason])); {do not localize}
+  Raw(Sys.Format('QUIT :%s', [AReason])); {do not localize}
   inherited Disconnect;
 end;
 
@@ -831,7 +830,7 @@ procedure TIdIRC.DoCmdHandlersException(ACommand: String; AContext: TIdContext);
 var
   ACmdCode: Integer;
 begin
-  ACmdCode := StrToIntDef(Fetch(ACommand, #32), -1);
+  ACmdCode := Sys.StrToInt(Fetch(ACommand, #32), -1);
   //
   case ACmdCode of
       6,
@@ -868,7 +867,7 @@ begin
       begin
         if Assigned(FOnNickError) then
         begin
-          OnNicknameError(AContext, StrToInt(Fetch(ACommand, #32)));
+          OnNicknameError(AContext, Sys.StrToInt(Fetch(ACommand, #32)));
         end;
       end;
     else
@@ -1365,7 +1364,7 @@ begin
         begin
           FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Format(RSIRCTimeIsNow, [DateTimeToStr(now)]), ltmp, ltmp, ltmp);
+        OnCTCPReply(nil, FSenderNick, LTmp, Sys.Format(RSIRCTimeIsNow, [Sys.DateTimeToStr(Sys.Now)]), ltmp, ltmp, ltmp);
       end;
     8: { ERROR }
       begin
@@ -1421,28 +1420,28 @@ begin
       begin
         if Assigned(FOnDCCSend) then
         begin
-          FOnDCCSend(nil, FSenderNick, LTmp2, LTmp3, StrToInt(LTmp1), StrToInt(LTmp));
+          FOnDCCSend(nil, FSenderNick, LTmp2, LTmp3, Sys.StrToInt(LTmp1), Sys.StrToInt(LTmp));
         end;
       end;
     1: {CHAT}
       begin
         if Assigned(FOnDCCChat) then
         begin
-          FOnDCCChat(nil, FSenderNick, LTmp2, StrToInt(LTmp3));
+          FOnDCCChat(nil, FSenderNick, LTmp2, Sys.StrToInt(LTmp3));
         end;
       end;
     2: {RESUME}
       begin
         if Assigned(FOnDCCResume) then
         begin
-          FOnDCCResume(nil, FSenderNick, LTmp2, LTmp1, StrToInt(Ltmp1), StrToInt(LTmp3));
+          FOnDCCResume(nil, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(Ltmp1), Sys.StrToInt(LTmp3));
         end;
       end;
     3: {ACCEPT}
       begin
         if Assigned(FOnDCCAccept) then
         begin
-          FOnDCCAccept(nil, FSenderNick, LTmp2, LTmp1, StrToInt(LTmp3), StrToInt(LTmp));
+          FOnDCCAccept(nil, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(LTmp3), Sys.StrToInt(LTmp));
         end;
       end;
   end;
@@ -1457,7 +1456,7 @@ begin
     FNickname := AValue;
   end
   else
-    Raw(Format('NICK %s', [AValue])); {do not localize}
+    Raw(Sys.Format('NICK %s', [AValue])); {do not localize}
 end;
 
 procedure TIdIRC.SetUsername(AValue: String);
@@ -1467,7 +1466,7 @@ begin
     FUsername := AValue;
   end
   else
-    Raw(Format('USER %s %s %s :%s', [AValue, GetUserMode, '*', FRealName]));  {do not localize}
+    Raw(Sys.Format('USER %s %s %s :%s', [AValue, GetUserMode, '*', FRealName]));  {do not localize}
 end;
 
 procedure TIdIRC.SetIdIRCUserMode(AValue: TIdIRCUserModes);
@@ -1515,12 +1514,12 @@ end;
 
 procedure TIdIRC.Say(ATarget, AMsg: String);
 begin
-  Raw(Format('PRIVMSG %s :%s', [ATarget, AMsg])); {do not localize}
+  Raw(Sys.Format('PRIVMSG %s :%s', [ATarget, AMsg])); {do not localize}
 end;
 
 procedure TIdIRC.Notice(ATarget, AMsg: String);
 begin
-  Raw(Format('NOTICE %s :%s', [ATarget, AMsg]));  {do not localize}
+  Raw(Sys.Format('NOTICE %s :%s', [ATarget, AMsg]));  {do not localize}
 end;
 
 procedure TIdIRC.Action(ATarget, AMsg: String);
@@ -1530,12 +1529,12 @@ end;
 
 procedure TIdIRC.CTCPQuery(ATarget, ACommand, AParameters: String);
 begin
-  Say(ATarget, Format(#1'%s %s'#1, [Uppercase(ACommand), AParameters]));  {do not localize}
+  Say(ATarget, Sys.Format(#1'%s %s'#1, [Sys.UpperCase(ACommand), AParameters]));  {do not localize}
 end;
 
 procedure TIdIRC.CTCPReply(ATarget, ACTCP, AReply: String);
 begin
-  Notice(ATarget, Format(#1'%s %s'#1, [ACTCP, AReply]));  {do not localize}
+  Notice(ATarget, Sys.Format(#1'%s %s'#1, [ACTCP, AReply]));  {do not localize}
 end;
 
 procedure TIdIRC.Join(AChannel: String; const AKey: String = '');
@@ -1544,10 +1543,10 @@ begin
   begin
     if AKey <> '' then
     begin
-      Raw(Format('JOIN %s %s', [AChannel, AKey])) {do not localize}
+      Raw(Sys.Format('JOIN %s %s', [AChannel, AKey])) {do not localize}
     end
     else
-      Raw(Format('JOIN %s', [AChannel])); {do not localize}
+      Raw(Sys.Format('JOIN %s', [AChannel])); {do not localize}
   end;
 end;
 
@@ -1557,10 +1556,10 @@ begin
   begin
     if AReason <> '' then
     begin
-      Raw(Format('PART %s :%s', [AChannel, AReason])) {do not localize}
+      Raw(Sys.Format('PART %s :%s', [AChannel, AReason])) {do not localize}
     end
     else
-      Raw(Format('PART %s', [AChannel])); {do not localize}
+      Raw(Sys.Format('PART %s', [AChannel])); {do not localize}
   end;
 end;
 
@@ -1568,7 +1567,7 @@ procedure TIdIRC.Kick(AChannel, ANickname, AReason: String);
 begin
   if IsChannel(AChannel) then
   begin
-    Raw(Format('KICK %s %s :%s', [AChannel, ANickname, AReason]));  {do not localize}
+    Raw(Sys.Format('KICK %s %s :%s', [AChannel, ANickname, AReason]));  {do not localize}
   end;
 end;
 
@@ -1578,23 +1577,23 @@ begin
   begin
     if AParams = '' then
     begin
-      Raw(Format('MODE %s %s', [AChannel, AMode])); {do not localize}
+      Raw(Sys.Format('MODE %s %s', [AChannel, AMode])); {do not localize}
     end
     else
-      Raw(Format('MODE %s %s %s', [AChannel, AMode, AParams])); {do not localize}
+      Raw(Sys.Format('MODE %s %s %s', [AChannel, AMode, AParams])); {do not localize}
   end;
 end;
 
 procedure TIdIRC.SetUserMode(ANickname, AMode: String);
 begin
-  Raw(Format('MODE %s %s', [ANickname, AMode]));  {do not localize}
+  Raw(Sys.Format('MODE %s %s', [ANickname, AMode]));  {do not localize}
 end;
 
 procedure TIdIRC.GetChannelTopic(AChannel: String);
 begin
   if IsChannel(AChannel) then
   begin
-    Raw(Format('TOPIC %s', [AChannel]));  {do not localize}
+    Raw(Sys.Format('TOPIC %s', [AChannel]));  {do not localize}
   end;
 end;
 
@@ -1602,7 +1601,7 @@ procedure TIdIRC.SetChannelTopic(AChannel, ATopic: String);
 begin
   if IsChannel(AChannel) then
   begin
-    Raw(Format('TOPIC %s :%s', [AChannel, ATopic]));  {do not localize}
+    Raw(Sys.Format('TOPIC %s :%s', [AChannel, ATopic]));  {do not localize}
   end;
 end;
 
@@ -1610,7 +1609,7 @@ procedure TIdIRC.SetAway(AMsg: String);
 begin
   if AMsg <> '' then
   begin
-    Raw(Format('AWAY %s', [AMsg])); {do not localize}
+    Raw(Sys.Format('AWAY %s', [AMsg])); {do not localize}
   end
   else
     Raw('AWAY');  {do not localize}
@@ -1649,7 +1648,7 @@ end;
 procedure TIdIRC.RegisterService(const ANickname, ADistribution, AInfo: String;
   AType: Integer);
 begin
-  Raw(Format('SERVICE %s %s %s %s %s :%s',  {do not localize}
+  Raw(Sys.Format('SERVICE %s %s %s %s %s :%s',  {do not localize}
     [ANickname, '*', ADistribution, AType, '0', AInfo]));
 end;
 
@@ -1659,10 +1658,10 @@ begin
   begin
     if ATarget <> '' then
     begin
-      Raw(Format('NAMES %s %s', [AChannel, ATarget]));  {do not localize}
+      Raw(Sys.Format('NAMES %s %s', [AChannel, ATarget]));  {do not localize}
     end
     else
-      Raw(Format('NAMES %s', [AChannel]));  {do not localize}
+      Raw(Sys.Format('NAMES %s', [AChannel]));  {do not localize}
   end;
 end;
 
@@ -1672,10 +1671,10 @@ begin
   begin
     if ATarget <> '' then
     begin
-      Raw(Format('LIST %s %s', [AChannel, ATarget])); {do not localize}
+      Raw(Sys.Format('LIST %s %s', [AChannel, ATarget])); {do not localize}
     end
     else
-      Raw(Format('LIST %s', [AChannel])); {do not localize}
+      Raw(Sys.Format('LIST %s', [AChannel])); {do not localize}
   end;
 end;
 
@@ -1683,7 +1682,7 @@ procedure TIdIRC.Invite(ANickname, AChannel: String);
 begin
   if IsChannel(AChannel) then
   begin
-    Raw(Format('INVITE %s %s', [ANickname, AChannel])); {do not localize}
+    Raw(Sys.Format('INVITE %s %s', [ANickname, AChannel])); {do not localize}
   end;
 end;
 
@@ -1691,7 +1690,7 @@ procedure TIdIRC.GetMessageOfTheDay(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('MOTD %s', [ATarget]));  {do not localize}
+    Raw(Sys.Format('MOTD %s', [ATarget]));  {do not localize}
   end
   else
     Raw('MOTD');  {do not localize}
@@ -1705,14 +1704,14 @@ begin
   end
   else if AHostMask = '' then
   begin
-    Raw(Format('LUSERS %s', [ATarget]));  {do not localize}
+    Raw(Sys.Format('LUSERS %s', [ATarget]));  {do not localize}
   end
   else if ATarget = '' then
   begin
-    Raw(Format('LUSERS %s', [AHostMask]));  {do not localize}
+    Raw(Sys.Format('LUSERS %s', [AHostMask]));  {do not localize}
   end
   else
-    Raw(Format('LUSERS %s %s', [AHostMask, ATarget]));  {do not localize}
+    Raw(Sys.Format('LUSERS %s %s', [AHostMask, ATarget]));  {do not localize}
 end;
 
 procedure TIdIRC.GetServerVersion(ATarget: String = '');
@@ -1722,17 +1721,17 @@ begin
     Raw('VERSION'); {do not localize}
   end
   else
-    Raw(Format('VERSION %s', [ATarget])); {do not localize}
+    Raw(Sys.Format('VERSION %s', [ATarget])); {do not localize}
 end;
 
 procedure TIdIRC.GetServerStatus(AQuery: TIdIRCStat; ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('STATS %s %s', [IdIRCStatChars[ord(AQuery)], ATarget])); {do not localize}
+    Raw(Sys.Format('STATS %s %s', [IdIRCStatChars[ord(AQuery)], ATarget])); {do not localize}
   end
   else
-    Raw(Format('STATS %s', [IdIRCStatChars[ord(AQuery)]])); {do not localize}
+    Raw(Sys.Format('STATS %s', [IdIRCStatChars[ord(AQuery)]])); {do not localize}
 end;
 
 procedure TIdIRC.ListKnownServerNames(ARemoteHost: String = ''; AHostMask: String = '');
@@ -1743,17 +1742,17 @@ begin
   end
   else if ARemoteHost = '' then
   begin
-    Raw(Format('LINKS %s', [AHostMask])); {do not localize}
+    Raw(Sys.Format('LINKS %s', [AHostMask])); {do not localize}
   end
   else
-    Raw(Format('LINKS %s', [ARemoteHost])); {do not localize}
+    Raw(Sys.Format('LINKS %s', [ARemoteHost])); {do not localize}
 end;
 
 procedure TIdIRC.QueryServerTime(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('TIME %s', [ATarget]));  {do not localize}
+    Raw(Sys.Format('TIME %s', [ATarget]));  {do not localize}
   end
   else
     Raw('TIME');  {do not localize}
@@ -1764,17 +1763,17 @@ procedure TIdIRC.RequestServerConnect(ATarget, AHost: String; APort: Integer;
 begin
   if ARemoteHost <> '' then
   begin
-    Raw(Format('CONNECT %s %s %d %s', [ATarget, AHost, APort, ARemoteHost])); {do not localize}
+    Raw(Sys.Format('CONNECT %s %s %d %s', [ATarget, AHost, APort, ARemoteHost])); {do not localize}
   end
   else
-    Raw(Format('CONNECT %s %s %d', [ATarget, AHost, APort])); {do not localize}
+    Raw(Sys.Format('CONNECT %s %s %d', [ATarget, AHost, APort])); {do not localize}
 end;
 
 procedure TIdIRC.TraceServer(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('TRACE %s', [ATarget])); {do not localize}
+    Raw(Sys.Format('TRACE %s', [ATarget])); {do not localize}
   end
   else
     Raw('TRACE'); {do not localize}
@@ -1784,7 +1783,7 @@ procedure TIdIRC.GetAdminInfo(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('ADMIN %s', [ATarget])); {do not localize}
+    Raw(Sys.Format('ADMIN %s', [ATarget])); {do not localize}
   end
   else
     Raw('ADMIN'); {do not localize}
@@ -1794,7 +1793,7 @@ procedure TIdIRC.GetServerInfo(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('INFO %s', [ATarget]));  {do not localize}
+    Raw(Sys.Format('INFO %s', [ATarget]));  {do not localize}
   end
   else
     Raw('INFO');  {do not localize}
@@ -1804,81 +1803,81 @@ procedure TIdIRC.ListNetworkServices(AHostMask: String; AType: String = '');
 begin
   if AType <> '' then
   begin
-    Raw(Format('SERVLIST %s %s', [AHostMask, AType]));  {do not localize}
+    Raw(Sys.Format('SERVLIST %s %s', [AHostMask, AType]));  {do not localize}
   end
   else
-    Raw(Format('SERVLIST %s', [AHostMask]));  {do not localize}
+    Raw(Sys.Format('SERVLIST %s', [AHostMask]));  {do not localize}
 end;
 
 procedure TIdIRC.QueryService(AServiceName, AMessage: String);
 begin
-  Raw(Format('SQUERY %s %s', [AServiceName, AMessage]));  {do not localize}
+  Raw(Sys.Format('SQUERY %s %s', [AServiceName, AMessage]));  {do not localize}
 end;
 
 procedure TIdIRC.Who(AMask: String; AOnlyAdmins: Boolean);
 begin
   if AOnlyAdmins then
   begin
-    Raw(Format('WHO %s o', [AMask])); {do not localize}
+    Raw(Sys.Format('WHO %s o', [AMask])); {do not localize}
   end
   else
-    Raw(Format('WHO %s', [AMask])); {do not localize}
+    Raw(Sys.Format('WHO %s', [AMask])); {do not localize}
 end;
 
 procedure TIdIRC.WhoIs(AMask: String; ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('WHOIS %s %s', [AMask, ATarget])); {do not localize}
+    Raw(Sys.Format('WHOIS %s %s', [AMask, ATarget])); {do not localize}
   end
   else
-    Raw(Format('WHOIS %s', [AMask])); {do not localize}
+    Raw(Sys.Format('WHOIS %s', [AMask])); {do not localize}
 end;
 
 procedure TIdIRC.WhoWas(ANickname: String; ACount: Integer = -1; ATarget: String = '');
 begin
   if ((ATarget = '') and (ACount = -1)) then
   begin
-    Raw(Format('WHOWAS %s', [ANickname]));  {do not localize}
+    Raw(Sys.Format('WHOWAS %s', [ANickname]));  {do not localize}
   end
   else if ATarget = '' then
   begin
-    Raw(Format('WHOWAS %s %d', [ANickname, ACount])); {do not localize}
+    Raw(Sys.Format('WHOWAS %s %d', [ANickname, ACount])); {do not localize}
   end
   else if ACount = -1 then
   begin
-    raw(Format('WHOWAS %s %s', [ANickname, ATarget]));  {do not localize}
+    raw(Sys.Format('WHOWAS %s %s', [ANickname, ATarget]));  {do not localize}
   end;
 end;
 
 procedure TIdIRC.Kill(ANickname, AComment: String);
 begin
-  Raw(Format('KILL %s %s', [ANickname, AComment])); {do not localize}
+  Raw(Sys.Format('KILL %s %s', [ANickname, AComment])); {do not localize}
 end;
 
 procedure TIdIRC.Ping(AServer1: String; AServer2: String = '');
 begin
   if AServer2 <> '' then
   begin
-    Raw(Format('PING %s %s', [AServer1, AServer2]));  {do not localize}
+    Raw(Sys.Format('PING %s %s', [AServer1, AServer2]));  {do not localize}
   end
   else
-    Raw(Format('PING %s', [AServer1])); {do not localize}
+    Raw(Sys.Format('PING %s', [AServer1])); {do not localize}
 end;
 
 procedure TIdIRC.Pong(AServer1: String; AServer2: String = '');
 begin
   if AServer2 <> '' then
   begin
-    Raw(Format('PONG %s %s', [AServer1, AServer2]));  {do not localize}
+    Raw(Sys.Format('PONG %s %s', [AServer1, AServer2]));  {do not localize}
   end
   else
-    Raw(Format('PONG %s', [AServer1])); {do not localize}
+    Raw(Sys.Format('PONG %s', [AServer1])); {do not localize}
 end;
 
 procedure TIdIRC.Error(AMessage: String);
 begin
-  Raw(Format('ERROR %s', [AMessage]));  {do not localize}
+  Raw(Sys.Format('ERROR %s', [AMessage]));  {do not localize}
 end;
 
 procedure TIdIRC.ReHash;
@@ -1900,24 +1899,24 @@ procedure TIdIRC.Summon(ANickname: String; ATarget: String = ''; AChannel: Strin
 begin
   if ((ATarget = '') and (AChannel = '')) then
   begin
-    Raw(Format('SUMMON %s', [ANickname]));  {do not localize}
+    Raw(Sys.Format('SUMMON %s', [ANickname]));  {do not localize}
   end
   else if ATarget = '' then
   begin
     if IsChannel(AChannel) then
     begin
-      Raw(Format('SUMMON %s', [AChannel])); {do not localize}
+      Raw(Sys.Format('SUMMON %s', [AChannel])); {do not localize}
     end;
   end
   else
-    Raw(Format('SUMMON %s', [ANickname]));  {do not localize}
+    Raw(Sys.Format('SUMMON %s', [ANickname]));  {do not localize}
 end;
 
 procedure TIdIRC.ListServerUsers(ATarget: String = '');
 begin
   if ATarget <> '' then
   begin
-    Raw(Format('USERS %s', [ATarget])); {do not localize}
+    Raw(Sys.Format('USERS %s', [ATarget])); {do not localize}
   end
   else
     Raw('USERS'); {do not localize}
@@ -1925,32 +1924,32 @@ end;
 
 procedure TIdIRC.SayWALLOPS(AMessage: String);
 begin
-  Raw(Format('WALLOPS %s', [AMessage]));  {do not localize}
+  Raw(Sys.Format('WALLOPS %s', [AMessage]));  {do not localize}
 end;
 
 procedure TIdIRC.GetUserInfo(ANickname: String);
 begin
-  Raw(Format('USERHOST %s', [ANickname]));  {do not localize}
+  Raw(Sys.Format('USERHOST %s', [ANickname]));  {do not localize}
 end;
 
 procedure TIdIRC.IsOnIRC(ANickname: String);
 begin
-  Raw(Format('ISON %s', [ANickname]));  {do not localize}
+  Raw(Sys.Format('ISON %s', [ANickname]));  {do not localize}
 end;
 
 procedure TIdIRC.BecomeOp(ANickname, APassword: String);
 begin
-  Raw(Format('OPER %s %s', [ANickname, APassword]));  {do not localize}
+  Raw(Sys.Format('OPER %s %s', [ANickname, APassword]));  {do not localize}
 end;
 
 procedure TIdIRC.SQuit(AHost, AComment: String);
 begin
-  Raw(Format('SQUIT %s %s', [AHost, AComment]));  {do not localize}
+  Raw(Sys.Format('SQUIT %s %s', [AHost, AComment]));  {do not localize}
 end;
 
 procedure TIdIRC.SetChannelLimit(AChannel: String; ALimit: Integer);
 begin
-  SetChannelMode(AChannel, '+l', Format('%s', [ALimit])); {do not localize}
+  SetChannelMode(AChannel, '+l', Sys.Format('%s', [ALimit])); {do not localize}
 end;
 
 procedure TIdIRC.SetChannelKey(AChannel, AKey: String);

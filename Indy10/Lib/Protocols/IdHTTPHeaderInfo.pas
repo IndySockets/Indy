@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further information / comments, visit our WEB site at            }
+{ For further inSys.Formation / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -70,7 +70,7 @@ unit IdHTTPHeaderInfo;
 interface
 
 uses
-  Classes, IdAuthentication, IdGlobal, IdGlobalProtocols, IdHeaderList, SysUtils;
+  Classes, IdAuthentication, IdGlobal, IdGlobalProtocols, IdHeaderList;
 
 Type
   TIdEntityHeaderInfo = class(TPersistent)
@@ -247,8 +247,8 @@ end;
 
 destructor TIdEntityHeaderInfo.Destroy;
 begin
-  FreeAndNil(FRawHeaders);
-  FreeAndNil(FCustomHeaders);
+  Sys.FreeAndNil(FRawHeaders);
+  Sys.FreeAndNil(FCustomHeaders);
   inherited Destroy;
 end;
 
@@ -317,7 +317,7 @@ begin
     FContentEncoding := Values['Content-Encoding']; {do not localize}
     FContentLanguage := Values['Content-Language']; {do not localize}
     FContentType := Values['Content-Type']; {do not localize}
-    FContentLength := StrToIntDef(Trim(Values['Content-Length']), -1); {do not localize}
+    FContentLength := Sys.StrToInt(Sys.Trim(Values['Content-Length']), -1); {do not localize}
     FHasContentLength := FContentLength >= 0;
 
     FContentRangeStart := 0;
@@ -339,19 +339,19 @@ begin
       lCRange := Fetch(lRangeDecode, '/');
       lILength := Fetch(lRangeDecode);
 
-      FContentRangeStart := StrToIntDef(Fetch(lCRange, '-'), 0);
-      FContentRangeEnd := StrToIntDef(lCRange, 0);
-      FContentRangeInstanceLength := StrToIntDef(lILength, 0);
+      FContentRangeStart := Sys.StrToInt(Fetch(lCRange, '-'), 0);
+      FContentRangeEnd := Sys.StrToInt(lCRange, 0);
+      FContentRangeInstanceLength := Sys.StrToInt(lILength, 0);
     end;
 
     FDate := GMTToLocalDateTime(Values['Date']); {do not localize}
     FLastModified := GMTToLocalDateTime(Values['Last-Modified']); {do not localize}
 
-    if StrToIntDef(Values['Expires'], -1) <> -1 then {do not localize}
+    if Sys.StrToInt(Values['Expires'], -1) <> -1 then {do not localize}
     begin
       // This is happening when expires is an integer number in seconds
-      LSecs := StrToInt(Values['Expires']); {do not localize}
-      FExpires := Now +  (LSecs / SecsPerDay);
+      LSecs := Sys.StrToInt(Values['Expires']); {do not localize}
+      FExpires := Sys.Now +  (LSecs / SecsPerDay);
     end
     else
     begin
@@ -388,16 +388,16 @@ begin
     end;
     if FContentLength >= 0 then
     begin
-      Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
+      Values['Content-Length'] := Sys.IntToStr(FContentLength); {do not localize}
     end;
 
     if HasContentRange or HasContentRangeInstance then
     begin
       Values['Content-Range'] := 'bytes ' + {do not localize}
         iif(HasContentRange,
-          Format('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*') + '/' + {do not localize}
+          Sys.Format('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*') + '/' + {do not localize}
         iif(HasContentRangeInstance,
-          Format('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
+          Sys.Format('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
     end;
 
     if Length(FCacheControl) > 0 then
@@ -460,7 +460,7 @@ destructor TIdProxyConnectionInfo.Destroy;
 begin
   if Assigned(FAuthentication) then
   begin
-    FreeAndNil(FAuthentication);
+    Sys.FreeAndNil(FAuthentication);
   end;
   inherited Destroy;
 end;
@@ -529,14 +529,14 @@ end;
 procedure TIdProxyConnectionInfo.SetProxyPort(const Value: Integer);
 begin
   if Value <> FPort then
-    FreeAndNil(FAuthentication);
+    Sys.FreeAndNil(FAuthentication);
   FPort := Value;
 end;
 
 procedure TIdProxyConnectionInfo.SetProxyServer(const Value: string);
 begin
   if not TextIsSame(Value, FServer) then
-    FreeAndNil(FAuthentication);
+    Sys.FreeAndNil(FAuthentication);
   FServer := Value;
 end;
 
@@ -709,7 +709,7 @@ destructor TIdRequestHeaderInfo.Destroy;
 begin
   if Assigned(Authentication) then
   begin
-    FreeAndNil(FAuthentication);
+    Sys.FreeAndNil(FAuthentication);
   end;
   inherited;
 end;
@@ -726,8 +726,8 @@ end;
 
 destructor TIdResponseHeaderInfo.Destroy;
 begin
-  FreeAndNil(FWWWAuthenticate);
-  FreeAndNil(FProxyAuthenticate);
+  Sys.FreeAndNil(FWWWAuthenticate);
+  Sys.FreeAndNil(FProxyAuthenticate);
   inherited Destroy;
 end;
 

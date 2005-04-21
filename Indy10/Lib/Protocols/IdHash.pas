@@ -97,8 +97,7 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
-  IdStreamVCL,
-  SysUtils;
+  IdStreamVCL;
 
 { TIdHash32 }
 
@@ -112,7 +111,7 @@ begin
       VCLStream.Position := 0;
       Result := HashValue(VCLStream);
     finally Free; end;
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 { TIdHash16 }
@@ -127,7 +126,7 @@ begin
       VCLStream.Position := 0;
       Result := HashValue(VCLStream);
     finally Free; end;
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 { TIdHash128 }
@@ -142,7 +141,7 @@ begin
       VCLStream.Position := 0;
       Result := HashValue(VCLStream);
     finally Free; end;
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 class function TIdHash128.AsHex(const AValue: T4x4LongWordRecord): string;
@@ -162,7 +161,7 @@ begin
       VCLStream.Position := 0;
       Result := HashValue(VCLStream);
     finally Free; end;
-  finally FreeAndNil(LStream); end;
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
 class function TIdHash160.AsHex(const AValue: T5x4LongWordRecord): string;
