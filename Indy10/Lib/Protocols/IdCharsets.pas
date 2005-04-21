@@ -2689,7 +2689,10 @@ function FindPreferredCharset(const Charset: TIdCharSet): TIdCharSet;
 function FindCharset(const s: string): TIdCharset;
 
 implementation
-uses IdGlobal;
+
+uses
+  IdGlobal,
+  IdSys;
 
 function FindPreferredCharset(const Charset: TIdCharSet): TIdCharSet;
 begin
