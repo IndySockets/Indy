@@ -119,7 +119,7 @@ uses
   IdException,
   IdResourceStringsProtocols,
   IdStreamVCL,
-  IdSysUtils,
+  IdSys,
   IdTStrings;
 
 const

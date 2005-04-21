@@ -160,11 +160,12 @@ interface
 
 uses
   Classes,
-  IdGlobal,
-  IdResourceStringsProtocols,
-  IdException,
-  IdResourceStrings,
   IdContainers,
+  IdException,
+  IdGlobal,
+  IdResourceStrings,
+  IdResourceStringsProtocols,
+  IdSys,
   IdTStrings;
 
 Resourcestring

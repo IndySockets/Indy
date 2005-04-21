@@ -32,7 +32,10 @@ unit IdNetworkCalculator;
 interface
 
 uses
-  Classes, IdBaseComponent, IdTStrings;
+  Classes,
+  IdBaseComponent,
+  IdSys,
+  IdTStrings;
 
 type
 

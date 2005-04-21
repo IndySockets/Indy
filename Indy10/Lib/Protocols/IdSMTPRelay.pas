@@ -146,7 +146,7 @@ uses
   Classes, IdAssignedNumbers, IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
   IdDNSResolver, IdMessage, IdMessageClient,
-  IdSMTPBase, IdReplySMTP, IdTStrings, IdSysUtils;
+  IdSMTPBase, IdReplySMTP, IdTStrings, IdSys;
 
 const
   DEF_OneConnectionPerDomain = True;

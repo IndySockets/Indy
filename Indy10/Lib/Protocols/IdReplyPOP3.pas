@@ -109,7 +109,11 @@ unit IdReplyPOP3;
 interface
 
 uses
-  Classes, IdReply, IdException, IdSysUtils, IdTStrings;
+  Classes,
+  IdReply,
+  IdException,
+  IdSys,
+  IdTStrings;
 
 const
   {do not change these strings unless you know what you are doing}

@@ -205,6 +205,7 @@ uses
   Classes,
   IdGlobal,
   IdGlobalProtocols,
+  IdSys,
   IdTStrings;
 
 type

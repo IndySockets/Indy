@@ -237,7 +237,7 @@ uses
   IdReply,
   IdSASL,
   IdSASLCollection,
-  IdSysUtils,
+  IdSys,
   IdTStrings,
   IdUserPassProvider;
 

@@ -723,7 +723,7 @@ uses
   IdReplyFTP,
   IdReplyRFC,
   IdReply,
-  IdSocketHandle, IdStreamVCL, IdSysUtils,
+  IdSocketHandle, IdStreamVCL, IdSys,
   IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdTStrings, IdZLibCompressorBase;
 
 type

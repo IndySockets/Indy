@@ -58,6 +58,8 @@ unit IdASN1Util;
 
 interface
 
+uses
+  IdSys;
 
 const
   ASN1_INT = $02;

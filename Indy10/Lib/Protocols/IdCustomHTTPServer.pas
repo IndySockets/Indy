@@ -199,7 +199,7 @@ uses
   IdGlobal, IdStack,
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer, IdTCPConnection, IdThread, IdCookie,
   IdHTTPHeaderInfo, IdStackConsts, IdTStrings,
-  IdSysUtils;
+  IdSys;
 
 type
   // Enums

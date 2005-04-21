@@ -84,7 +84,10 @@ interface
 
 uses
   Classes,
-  IdReply, IdReplyRFC, IdTStrings;
+  IdReply,
+  IdReplyRFC,
+  IdSys,
+  IdTStrings;
 
 type
   TIdReplyRFCFormat = (rfNormal, rfIndentMidLines);

@@ -474,7 +474,7 @@ than Unix permissions so they belong in a different property.
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdFTPCommon, IdSysUtils;
+  Classes, IdGlobal, IdException, IdFTPCommon, IdSys;
 
 { Indy TIdFtp extensions to support automatic parsing of FTP directory listings }
 

@@ -51,7 +51,7 @@
 }
 {
 {   Rev 1.21    25/10/2004 15:55:28  ANeillans
-{ Bug fix: 
+{ Bug fix:
 { http://apps.atozedsoftware.com/cgi-bin/BBGIndy/BugBeGoneISAPI.dll/?item=122
 {
 { Checked in for Dennies Chang
@@ -200,6 +200,7 @@ uses
   IdNetworkCalculator,
   IdGlobalProtocols,
   IdDNSCommon,
+  IdSys,
   IdTCPClient,
   IdTCPConnection,
   IdTStrings,
@@ -792,7 +793,7 @@ end;
 
 destructor TQueryResult.destroy;
 begin
- Sys.FreeAndNil(FQueryPointerList);
+  Sys.FreeAndNil(FQueryPointerList);
   inherited;
 end;
 

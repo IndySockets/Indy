@@ -384,7 +384,7 @@ uses
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
   IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication , IdAuthenticationManager,
-  IdMultipartFormData, IdGlobal, IdSysUtils, IdTStrings;
+  IdMultipartFormData, IdGlobal, IdSys, IdTStrings;
 
 type
   // TO DOCUMENTATION TEAM
