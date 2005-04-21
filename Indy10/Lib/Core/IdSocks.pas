@@ -180,7 +180,7 @@ interface
 uses
   Classes, IdAssignedNumbers, IdException,
   IdComponent, IdCustomTransparentProxy, IdGlobal, IdIOHandler,
-  IdIOHandlerSocket, IdSocketHandle, IdSysUtils;
+  IdIOHandlerSocket, IdSocketHandle, IdSys;
 
 type
   EIdSocksUDPNotSupportedBySOCKSVersion = class(EIdException);

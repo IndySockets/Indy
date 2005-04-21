@@ -386,7 +386,7 @@ uses
   IdGlobal,
   IdException,
   IdTStrings,
-  IdSysUtils;
+  IdSys;
 
 const
   LWS = [TAB, CHAR32];
