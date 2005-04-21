@@ -170,7 +170,7 @@ type
 
 implementation
 
-uses IdReplyRFC;
+uses IdReplyRFC, IdSys;
 
 { Listening Thread }
 

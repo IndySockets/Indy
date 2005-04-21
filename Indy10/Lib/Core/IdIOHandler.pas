@@ -773,7 +773,7 @@ type
 implementation
 
 uses
-  IdStack, IdException, IdResourceStrings, IdSysUtils;
+  IdStack, IdException, IdResourceStrings;
 
 var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;

@@ -209,7 +209,7 @@ type
 implementation
 
 uses
-  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, IdSysUtils;
+  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore;
 
 { TIdSchedulerOfThread }
 

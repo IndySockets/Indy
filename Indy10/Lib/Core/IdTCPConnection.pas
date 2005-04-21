@@ -445,7 +445,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC, IdSysUtils;
+  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC;
 
 function TIdTCPConnection.GetReplyClass:TIdReplyClass;
 begin

@@ -327,8 +327,6 @@ type
   end;//TIdCommand
 
 implementation
-uses IdSysUtils;
-
 { TIdCommandHandlers }
 
 constructor TIdCommandHandlers.Create(

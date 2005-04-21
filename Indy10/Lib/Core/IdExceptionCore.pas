@@ -101,7 +101,7 @@ interface
 
 uses
   IdException, IdStack,
-  IdSysUtils;
+  IdSys;
 
 type
   // IdFiber Exceptions
