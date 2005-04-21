@@ -45,11 +45,10 @@ Uses
   Classes,
   IdException,
   IdGlobal,
-  
   IdAuthentication,
   IdHashMessageDigest,
   IdHeaderList,
-  IdSysUtils,
+  IdSys,
   IdTStrings;
 
 Type

@@ -70,8 +70,17 @@
 unit IdFSP;
 
 interface
-uses Classes, IdException, IdFTPList,  IdGlobal, IdStreamVCL, IdSysUtils, IdThreadSafe,
-  IdTStrings, IdUDPClient;
+
+uses
+  Classes,
+  IdException,
+  IdFTPList,
+  IdGlobal,
+  IdStreamVCL,
+  IdSys,
+  IdThreadSafe,
+  IdTStrings,
+  IdUDPClient;
 
 {This is based on:
 

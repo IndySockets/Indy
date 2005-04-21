@@ -152,7 +152,13 @@ interface
 
 uses
   Classes,
-  IdCoder, IdCoder3to4, IdGlobal, IdStream, IdStreamRandomAccess, IdSysUtils;
+  IdException,
+  IdCoder,
+  IdCoder3to4,
+  IdGlobal,
+  IdStream,
+  IdStreamRandomAccess,
+  IdSys;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
@@ -186,7 +192,7 @@ var
 implementation
 
 uses
-  IdException, IdResourceStrings, IdStreamVCL;
+  IdResourceStrings, IdStreamVCL;
 
 { TIdDecoderBinHex4 }
 

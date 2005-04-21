@@ -89,8 +89,7 @@ uses
   IdException,
   IdGlobal,
   IdGlobalProtocols,
-   IdIntercept,
-  IdSysUtils,
+  IdIntercept,
   IdTCPClient,
   IdTCPConnection,
   IdZLibEx;

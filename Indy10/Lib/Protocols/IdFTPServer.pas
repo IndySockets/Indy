@@ -723,7 +723,7 @@ uses
   IdFTPBaseFileSystem, IdFTPCommon,
   IdFTPList, IdFTPListOutput, IdFTPServerContextBase,  IdReply, IdReplyFTP,
   IdReplyRFC, IdScheduler, IdServerIOHandler, IdTCPConnection, IdCmdTCPServer,  IdTCPServer,
-   IdThread, IdTStrings, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSysUtils;
+   IdThread, IdTStrings, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSys;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);

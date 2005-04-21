@@ -237,7 +237,7 @@ Type
 implementation
 
 uses
-  IdAssignedNumbers, IdSysUtils;
+  IdAssignedNumbers;
   
 { base functions used for construction of Cookie text }
 

@@ -57,6 +57,7 @@ unit IdHash;
 interface
 
 uses
+  IdSys,
   Classes;
 
 type
