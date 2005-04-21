@@ -314,7 +314,7 @@ uses
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
-  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdSysUtils, IdTCPConnection,
+  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdSys, IdTCPConnection,
   IdThread, IdYarn;
 
 const

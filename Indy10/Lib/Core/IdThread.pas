@@ -161,7 +161,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdException, IdSysUtils, IdYarn, IdTask, IdThreadSafe;
+  IdGlobal, IdException, IdSys, IdYarn, IdTask, IdThreadSafe;
 
 const
   IdWaitAllThreadsTerminatedCount = 1 * 60 * 1000;

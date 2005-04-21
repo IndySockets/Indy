@@ -175,7 +175,10 @@ interface
 uses
   IdCustomTransparentProxy,
   Classes,
-  IdGlobal, IdIOHandler, IdSocketHandle;
+  IdGlobal,
+  IdIOHandler,
+  IdSocketHandle,
+  IdSys;
 
 const
   IdDefTimeout = 0;

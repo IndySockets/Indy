@@ -185,8 +185,14 @@ unit IdCmdTCPServer;
 interface
 
 uses
-  Classes, IdContext, IdReply, IdCommandHandlers, IdTCPServer, IdTStrings,
-  IdIOHandler;
+  Classes,
+  IdCommandHandlers,
+  IdContext,
+  IdIOHandler,
+  IdReply,
+  IdSys,
+  IdTCPServer,
+  IdTStrings;
 
 type
   TIdCmdTCPServer = class;

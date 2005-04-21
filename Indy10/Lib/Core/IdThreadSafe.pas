@@ -61,6 +61,7 @@ interface
 uses
   Classes,
   IdGlobal,
+  IdSys,
   IdTStrings;
 
 type

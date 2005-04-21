@@ -165,7 +165,7 @@ interface
 
 uses
   Classes, IdBaseComponent, IdComponent, IdReply, IdGlobal,
-  IdContext, IdReplyRFC, IdTStrings;
+  IdContext, IdReplyRFC, IdSys, IdTStrings;
 
 const
   IdEnabledDefault = True;

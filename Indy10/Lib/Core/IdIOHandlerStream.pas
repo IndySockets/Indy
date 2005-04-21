@@ -140,7 +140,10 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdIOHandler, IdStreamVCL;
+  IdGlobal,
+  IdIOHandler,
+  IdStreamVCL,
+  IdSys;
 
 type
   TIdIOHandlerStream = class;

@@ -21,6 +21,7 @@ unit IdTask;
 interface
 
 uses
+  IdSys,
   IdYarn;
 
 type

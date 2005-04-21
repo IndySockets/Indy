@@ -156,7 +156,8 @@ interface
 
 uses
   Classes,
-  IdException, IdBaseComponent, IdGlobal, IdScheduler, IdThread, IdTask, IdYarn;
+  IdException, IdBaseComponent, IdGlobal, IdScheduler, IdSys,
+  IdThread, IdTask, IdYarn;
 
 type
   TIdYarnOfThread = class(TIdYarn)

@@ -72,7 +72,7 @@ interface
 
 uses
   Classes,
-  IdSocketHandle, IdTCPConnection, IdTask, IdYarn;
+  IdSocketHandle, IdSys, IdTCPConnection, IdTask, IdYarn;
 
 type
   TIdContext = class;

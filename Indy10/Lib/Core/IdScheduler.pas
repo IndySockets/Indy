@@ -72,7 +72,7 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
+  IdBaseComponent, IdSys, IdThread, IdTask, IdYarn, IdThreadSafe;
 
 type
   TIdScheduler = class(TIdBaseComponent)
