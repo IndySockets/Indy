@@ -1,4 +1,9 @@
 * text=auto !eol
+Indy10/Builder/ClassList.txt -text svneol=native#unset
+Indy10/Builder/ClassParser.exe -text svneol=unset#unset
+Indy10/Builder/ClassParser.ini -text
+Indy10/Builder/ClassRenamer.exe -text svneol=unset#unset
+Indy10/Builder/ClassRenamer.ini -text
 Indy10/Builder/Package[!!-~]Generator/Data/File.DB -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.FAM -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.PX -text svneol=unset#unset
@@ -16,8 +21,13 @@ Indy10/Builder/Package[!!-~]Generator/PackageVisualStudio.pas -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.dpr -text
 Indy10/Builder/Package[!!-~]Generator/PkgGen.res -text svneol=unset#unset
+Indy10/Builder/PkgGen.exe -text svneol=unset#unset
 Indy10/Builder/ResXBuilder/ResxBuilder.bdsproj -text
 Indy10/Builder/ResXBuilder/ResxBuilder.dpr -text
+Indy10/Builder/UnitAliaser.exe -text svneol=unset#unset
+Indy10/Builder/UnitAliaser.ini -text
+Indy10/Builder/VersionMarker.exe -text svneol=unset#unset
+Indy10/Builder/VersionMarker.ini -text
 Indy10/Builder/VersionMarker/Data/IdAssemblyInfo.pas -text
 Indy10/Builder/VersionMarker/Data/IdCore90ASM90.inc -text
 Indy10/Builder/VersionMarker/Data/IdProtocols90ASM90.inc -text
