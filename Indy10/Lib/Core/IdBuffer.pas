@@ -336,7 +336,7 @@ interface
 uses
   Classes,
   IdStreamVCL, //TODO: Remove dependency on IdStreamVCL and return to IdStream
-  IdGlobal, IdException, IdStream, IdSysUtils;
+  IdGlobal, IdException, IdStream, IdSys;
 
 type
   EIdNotEnoughDataInBuffer = class(EIdException);

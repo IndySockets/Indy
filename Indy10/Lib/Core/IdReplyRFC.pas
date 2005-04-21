@@ -147,6 +147,7 @@ interface
 uses
   Classes,
   IdReply,
+  IdSys,
   IdTStrings;
 
 type

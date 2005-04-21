@@ -62,7 +62,16 @@
 unit IdCustomTransparentProxy;
 
 interface
-uses Classes, IdComponent, IdException, IdGlobal, IdIOHandler, IdSocketHandle, IdSysUtils;
+
+uses
+  Classes,
+  IdComponent,
+  IdException,
+  IdGlobal,
+  IdIOHandler,
+  IdSocketHandle,
+  IdSys;
+
 type
   EIdTransparentProxyCircularLink = class(EIdException);
   EIdTransparentProxyUDPNotSupported = class(EIdException);

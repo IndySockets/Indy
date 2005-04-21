@@ -339,8 +339,17 @@ Original Author and Maintainer:
 
 uses
   Classes,
-  IdExceptionCore, IdException, IdComponent, IdGlobal, IdSocketHandle, IdIOHandler, IdReply,
-  IdIOHandlerSocket, IdIOHandlerStack, IdTStrings;
+  IdComponent,
+  IdException,
+  IdExceptionCore,
+  IdGlobal,
+  IdIOHandler,
+  IdIOHandlerSocket,
+  IdIOHandlerStack,
+  IdReply,
+  IdSocketHandle,
+  IdSys,
+  IdTStrings;
 
 type
   TIdTCPConnection = class(TIdComponent)

@@ -136,7 +136,7 @@ uses
   Classes,
   IdException,
   IdTStrings,
-  IdSysUtils;
+  IdSys;
 
 type
   TIdReplies = class;

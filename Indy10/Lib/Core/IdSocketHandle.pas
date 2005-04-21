@@ -152,7 +152,7 @@ interface
 
 uses
   Classes, SyncObjs,
-  IdException, IdGlobal, IdStackConsts, IdStack;
+  IdException, IdGlobal, IdStackConsts, IdStack, IdSys;
 
 type
   TIdSocketHandle = class;

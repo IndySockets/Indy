@@ -67,7 +67,8 @@ interface
 
 uses
   Classes,
-  IdGlobal;
+  IdGlobal,
+  IdSys;
 
 type
   TIdIPAddress = class(TObject)
