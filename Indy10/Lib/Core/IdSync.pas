@@ -114,6 +114,7 @@ type
   end;
   
 implementation
+uses IdSys;
 
 type
   // This is done with a NotifyThread instead of PostMessage because starting
