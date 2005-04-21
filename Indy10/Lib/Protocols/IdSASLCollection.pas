@@ -38,9 +38,15 @@
 unit IdSASLCollection;
 
 interface
+
 uses
-  Classes, IdBaseComponent, IdCoder, IdSASL, IdTCPConnection, IdException,
-  IdSysUtils,
+  Classes,
+  IdBaseComponent,
+  IdCoder,
+  IdException,
+  IdSASL,
+  IdSys,
+  IdTCPConnection,
   IdTStrings;
 
 type

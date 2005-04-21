@@ -114,12 +114,13 @@
 unit IdReplySMTP;
 
 interface
+
 uses
   Classes,
   IdException,
   IdReply,
   IdReplyRFC,
-  IdSysUtils,
+  IdSys,
   IdTStrings;
 
 const

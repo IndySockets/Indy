@@ -149,7 +149,10 @@ interface
 
 uses
   Classes,
-  IdCoder, IdGlobal, IdStreamRandomAccess;
+  IdCoder,
+  IdGlobal,
+  IdStreamRandomAccess,
+  IdSys;
 
 type
   TIdDecodeTable = array[1..127] of Byte;

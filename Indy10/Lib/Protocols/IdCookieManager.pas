@@ -55,7 +55,12 @@ Details of implementation
 
 interface
 
-Uses Classes, IdBaseComponent, IdCookie, IdURI;
+uses
+  Classes,
+  IdBaseComponent,
+  IdCookie,
+  IdSys,
+  IdURI;
 
 Type
   TOnNewCookieEvent = procedure(ASender: TObject; ACookie: TIdCookieRFC2109; Var VAccept: Boolean) of object;

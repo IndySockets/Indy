@@ -86,7 +86,10 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdStream, IdStreamRandomAccess;
+  IdBaseComponent,
+  IdStream,
+  IdStreamRandomAccess,
+  IdSys;
 
 type
   TIdEncoder = class(TIdBaseComponent)

@@ -78,7 +78,13 @@ interface
 
 uses
   Classes,
-  IdComponent, IdGlobal, IdMessage, IdStream, IdStreamRandomAccess, IdTStrings;
+  IdComponent,
+  IdGlobal,
+  IdMessage,
+  IdStream,
+  IdStreamRandomAccess,
+  IdSys,
+  IdTStrings;
 
 type
   TIdMessageCoderPartType = (mcptUnknown, mcptText, mcptAttachment);

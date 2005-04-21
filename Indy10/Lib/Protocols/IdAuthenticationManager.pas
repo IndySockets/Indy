@@ -32,7 +32,12 @@ unit IdAuthenticationManager;
 interface
 
 Uses
-  Classes, IdAuthentication, IdBaseComponent, IdTStrings, IdURI;
+  Classes,
+  IdAuthentication,
+  IdBaseComponent,
+  IdSys,
+  IdTStrings,
+  IdURI;
 
 Type
   TIdAuthenticationItem = class(TCollectionItem)

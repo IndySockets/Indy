@@ -102,7 +102,12 @@ interface
 
 uses
   Classes,
-  IdEMailAddress, IdMessage, IdMessageClient, IdReply, IdTCPClient;
+  IdEMailAddress,
+  IdMessage,
+  IdMessageClient,
+  IdReply,
+  IdSys,
+  IdTCPClient;
 
 //default property values
 const

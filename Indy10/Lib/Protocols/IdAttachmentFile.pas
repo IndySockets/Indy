@@ -32,7 +32,10 @@ unit IdAttachmentFile;
 interface
 
 uses
-  IdAttachment, Classes, IdMessageParts;
+  Classes,
+  IdAttachment,
+  IdMessageParts,
+  IdSys;
 
 type
   TIdAttachmentFile = class(TIdAttachment)

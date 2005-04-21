@@ -44,9 +44,13 @@
 {   Rev 1.0    11/14/2002 02:12:36 PM  JPMugaas
 }
 unit IdAttachment;
+
 interface
+
 uses
-  Classes, IdMessageParts;
+  Classes,
+  IdMessageParts,
+  IdSys;
 
 type
   TIdAttachment = class(TIdMessagePart)

@@ -395,12 +395,15 @@ unit IdMessageClient;
 interface
 
 uses
-  IdIOHandlerStream,
   Classes,
+  IdCoderMIME,
   IdExplicitTLSClientServerBase,
   IdGlobal,
-  IdMessage, IdTCPClient, IdHeaderList,
-  IdCoderMIME,
+  IdHeaderList,
+  IdIOHandlerStream,
+  IdMessage,
+  IdSys,
+  IdTCPClient,
   IdTStrings;
 
 type

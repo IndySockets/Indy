@@ -76,7 +76,13 @@ interface
 
 uses
   Classes,
-  IdCoder3to4, IdMessageCoder, IdMessage, IdStreamVCL, IdStream, IdStreamRandomAccess;
+  IdCoder3to4,
+  IdMessageCoder,
+  IdMessage,
+  IdStreamVCL,
+  IdStream,
+  IdStreamRandomAccess,
+  IdSys;
 
 type
   TIdMessageDecoderUUE = class(TIdMessageDecoder)

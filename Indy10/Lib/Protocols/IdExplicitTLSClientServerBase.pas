@@ -77,9 +77,15 @@ unit IdExplicitTLSClientServerBase;
 interface
 
 uses
-  Classes, IdGlobal, IdCmdTCPServer,
-    IdException, IdIOHandler, IdServerIOHandler, IdSysUtils,
-    IdTCPClient, IdTStrings;
+  Classes,
+  IdCmdTCPServer,
+  IdException,
+  IdGlobal,
+  IdIOHandler,
+  IdServerIOHandler,
+  IdSys,
+  IdTCPClient,
+  IdTStrings;
 
 type
   TIdUseTLS = (

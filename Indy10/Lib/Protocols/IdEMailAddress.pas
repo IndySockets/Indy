@@ -99,7 +99,7 @@ interface
 uses
   Classes,
   IdException,
-  IdSysUtils,
+  IdSys,
   IdTStrings;
 
 type

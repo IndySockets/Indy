@@ -223,13 +223,22 @@
 {   Rev 1.0    11/13/2002 08:00:48 AM  JPMugaas
 }
 unit IdSMTP;
+
 interface
 
 uses
   Classes,
-  IdAssignedNumbers, IdEMailAddress, IdException,
-  IdExplicitTLSClientServerBase, IdSASL,
-  IdHeaderList, IdMessage, IdMessageClient, IdSMTPBase, IdSASLCollection,
+  IdAssignedNumbers,
+  IdEMailAddress,
+  IdException,
+  IdExplicitTLSClientServerBase,
+  IdHeaderList,
+  IdMessage,
+  IdMessageClient,
+  IdSASL,
+  IdSASLCollection,
+  IdSMTPBase,
+  IdSys,
   IdTStrings;
 
 type

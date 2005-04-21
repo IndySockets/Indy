@@ -116,7 +116,11 @@ interface
 
 uses
   Classes,
-  IdCoder, IdStreamVCL, IdStreamRandomAccess, IdTStrings;
+  IdCoder,
+  IdStreamVCL,
+  IdStreamRandomAccess,
+  IdTStrings,
+  IdSys;
 
 type
   TIdDecoderQuotedPrintable = class(TIdDecoder)

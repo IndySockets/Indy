@@ -49,10 +49,16 @@ unit IdAuthentication;
 
 interface
 
-Uses
-  Classes, IdHeaderList, IdGlobal, IdException, IdSysUtils, IdTStrings;
+uses
+  Classes,
+  IdHeaderList,
+  IdGlobal,
+  IdException,
+  IdSys,
+  IdTStrings;
 
 Type
+
   TIdAuthenticationSchemes = (asBasic, asDigest, asNTLM, asUnknown);
   TIdAuthSchemeSet = set of TIdAuthenticationSchemes;
 

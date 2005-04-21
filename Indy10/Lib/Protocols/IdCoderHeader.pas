@@ -84,6 +84,7 @@ unit IdCoderHeader;
 interface
 
 uses
+  IdSys,
   IdEMailAddress;
 
 type
