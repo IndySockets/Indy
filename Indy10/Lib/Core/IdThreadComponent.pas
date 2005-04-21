@@ -87,7 +87,7 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdException, IdGlobal, IdSysUtils, IdThread;
+  IdBaseComponent, IdException, IdGlobal, IdSys, IdThread;
 
 const
   IdThreadComponentDefaultPriority = tpNormal;

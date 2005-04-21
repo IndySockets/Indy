@@ -76,7 +76,13 @@ interface
 
 uses
   Classes,
-  IdThread, IdYarn, IdScheduler, IdSchedulerOfThread, IdContext, IdThreadSafe;
+  IdContext,
+  IdScheduler,
+  IdSchedulerOfThread,
+  IdSys,
+  IdThread,
+  IdThreadSafe,
+  IdYarn;
 
 type
   TIdSchedulerOfThreadPool = class(TIdSchedulerOfThread)

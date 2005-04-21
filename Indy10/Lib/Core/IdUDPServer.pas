@@ -77,7 +77,14 @@ interface
 
 uses
   Classes,
-  IdComponent, IdException, IdGlobal, IdSocketHandle, IdStackConsts, IdThread, IdUDPBase,
+  IdComponent,
+  IdException,
+  IdGlobal,
+  IdSocketHandle,
+  IdStackConsts,
+  IdSys,
+  IdThread,
+  IdUDPBase,
   IdStack;
 
 type

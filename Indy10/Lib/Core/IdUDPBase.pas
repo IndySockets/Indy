@@ -80,7 +80,11 @@ interface
 
 uses
   Classes,
-  IdComponent, IdGlobal, IdException, IdSocketHandle, IdSysUtils;
+  IdComponent,
+  IdGlobal,
+  IdException,
+  IdSocketHandle,
+  IdSys;
 
 const
   ID_UDP_BUFFERSIZE = 8192;

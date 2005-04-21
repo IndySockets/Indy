@@ -72,7 +72,12 @@ unit IdUDPClient;
 interface
 
 uses
-  Classes, IdUDPBase, IdGlobal, IdSocketHandle, IdCustomTransparentProxy;
+  Classes,
+  IdUDPBase,
+  IdGlobal,
+  IdSocketHandle,
+  IdSys,
+  IdCustomTransparentProxy;
 
 type
   EIdMustUseOpenProxy = class(EIdUDPException);
