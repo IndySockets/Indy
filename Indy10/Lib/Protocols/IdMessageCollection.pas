@@ -35,7 +35,8 @@ interface
 
 uses
   Classes,
-  IdMessage;
+  IdMessage,
+  IdSys;
 
 type
   TIdMessageItems = class of TIdMessageItem;
