@@ -154,9 +154,6 @@ type
   EIdUDPServerException = class(EIdUDPException);
 
 implementation
-uses IdSysUtils;
-
-{ TIdUDPServer }
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var

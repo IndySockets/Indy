@@ -48,8 +48,14 @@ from the UserPass mechanism and link to a UserPass provider.
 unit IdSASL;
 
 interface
+
 uses
-  Classes, IdBaseComponent, IdTCPConnection, IdException, IdTStrings;
+  Classes,
+  IdBaseComponent,
+  IdTCPConnection,
+  IdException,
+  IdSys,
+  IdTStrings;
 
 type
   TIdSASLResult = (srSuccess, srFailure, srAborted);

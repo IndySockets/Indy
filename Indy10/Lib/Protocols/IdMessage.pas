@@ -329,9 +329,15 @@ interface
 
 uses
   Classes,
-  IdTStrings,
-  IdBaseComponent, IdExceptionCore, IdEMailAddress, IdHeaderList,
-  IdCoderHeader, IdMessageParts, IdAttachment;
+  IdAttachment,
+  IdBaseComponent,
+  IdCoderHeader,
+  IdEMailAddress,
+  IdExceptionCore,
+  IdHeaderList,
+  IdMessageParts,
+  IdSys,
+  IdTStrings;
 
 type
   TIdMessagePriority = (mpHighest, mpHigh, mpNormal, mpLow, mpLowest);

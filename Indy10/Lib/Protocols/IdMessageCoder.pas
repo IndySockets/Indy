@@ -173,8 +173,7 @@ implementation
 
 uses
   IdException, IdResourceStringsProtocols, IdStreamVCL,
-  IdTCPStream,
-  IdSysUtils;
+  IdTCPStream;
 
 var
   GMessageDecoderList: TIdMessageDecoderList = nil;

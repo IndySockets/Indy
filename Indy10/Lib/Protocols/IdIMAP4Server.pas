@@ -238,7 +238,6 @@ uses
   IdMessage,
   IdReply,
   IdReplyIMAP4,
-  IdSysUtils,
   IdTCPConnection,
   IdTStrings,
   IdYarn;

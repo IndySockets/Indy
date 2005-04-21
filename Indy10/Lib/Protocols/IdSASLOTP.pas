@@ -38,8 +38,7 @@ uses
   Classes,
   IdException,
   IdSASL,
-  IdSASLUserPass,
-  IdSysUtils;
+  IdSASLUserPass;
 
 type
   TIdSASLOTP = class(TIdSASLUserPass)

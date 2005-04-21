@@ -64,7 +64,10 @@ unit IdMessageParts;
 interface
 
 uses
-  Classes, IdHeaderList, IdExceptionCore;
+  Classes,
+  IdHeaderList,
+  IdExceptionCore,
+  IdSys;
 
 type
   TOnGetMessagePartStream = procedure(AStream: TStream) of object;

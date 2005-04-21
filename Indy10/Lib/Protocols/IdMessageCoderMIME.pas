@@ -188,7 +188,11 @@ interface
 
 uses
   Classes,
-  IdMessageCoder, IdMessage, IdStream, IdStreamRandomAccess;
+  IdMessageCoder,
+  IdMessage,
+  IdStream,
+  IdStreamRandomAccess,
+  IdSys;
 
 type
   TIdMessageDecoderMIME = class(TIdMessageDecoder)

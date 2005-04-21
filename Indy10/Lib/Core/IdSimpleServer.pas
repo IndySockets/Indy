@@ -88,8 +88,13 @@ unit IdSimpleServer;
 interface
 
 uses
-  Classes, IdException,
-  IdGlobal, IdSocketHandle, IdTCPConnection, IdStackConsts, IdIOHandler, IdSysUtils;
+  Classes,
+  IdException,
+  IdGlobal,
+  IdSocketHandle,
+  IdTCPConnection,
+  IdStackConsts,
+  IdIOHandler;
 
 const
   ID_ACCEPT_WAIT = 1000;

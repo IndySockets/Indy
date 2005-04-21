@@ -65,7 +65,14 @@ type
 
 implementation
 
-uses IdGlobal, IdHash, IdHashMessageDigest,IdHashSHA1, IdStreamVCL, Classes;
+uses
+  IdGlobal,
+  IdHash,
+  IdHashMessageDigest,
+  IdHashSHA1,
+  IdStreamVCL,
+  IdSys,
+  Classes;
 
 const
   Dictionary: array[0..2047] of string = (

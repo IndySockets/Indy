@@ -61,7 +61,7 @@ interface
 
 uses
   Classes,
-  IdException, IdSysUtils, IdTCPClient;
+  IdException, IdSys, IdTCPClient;
 
 const
   IDRemoteUseStdErr = True;

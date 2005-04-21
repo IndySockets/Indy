@@ -88,7 +88,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore, IdSysUtils;
+  IdGlobal, IdException, IdResourceStringsCore;
 
 { TIdLogFile }
 

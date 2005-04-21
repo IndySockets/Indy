@@ -503,7 +503,7 @@ uses
     IdCoderQuotedPrintable,
     IdCoderBinHex4,
     IdSASLCollection,
-    IdSysUtils,
+    IdSys,
     IdTStrings,
     IdMessageCollection;
 

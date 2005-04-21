@@ -165,8 +165,7 @@ implementation
 
 uses
   IdException,
-  IdGlobal,
-  IdSysUtils;
+  IdGlobal;
 
 procedure TIdZLibCompressorBase.DecompressGZipStream(AStream : TIdStreamVCL; const AOutStream : TIdStreamVCL=nil);
 

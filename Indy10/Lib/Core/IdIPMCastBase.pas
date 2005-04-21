@@ -34,7 +34,7 @@ interface
 uses
   Classes,
   IdComponent, IdException, IdGlobal, IdSocketHandle,
-  IdStack {$IFDEF LINUX} ,Libc {$ENDIF}, IdStackBSDBase, IdSysUtils;
+  IdStack {$IFDEF LINUX} ,Libc {$ENDIF}, IdStackBSDBase, IdSys;
 
 const
   IPMCastLo = 224;

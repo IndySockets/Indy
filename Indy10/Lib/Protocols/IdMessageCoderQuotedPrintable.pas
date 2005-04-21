@@ -45,7 +45,12 @@ interface
 
 uses
   Classes,
-  IdMessageCoder, IdMessage, IdStream, IdStreamVCL, IdStreamRandomAccess;
+  IdMessageCoder,
+  IdMessage,
+  IdStream,
+  IdStreamVCL,
+  IdStreamRandomAccess,
+  IdSys;
 
   {Note: Decoding handled by IdMessageDecoderMIME}
 
@@ -64,7 +69,7 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdGlobal, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
-   IdCoderHeader;
+  IdCoderHeader;
 
 { TIdMessageEncoderInfoQuotedPrintable }
 

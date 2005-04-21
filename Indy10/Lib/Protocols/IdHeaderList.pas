@@ -69,7 +69,9 @@ unit IdHeaderList;
 interface
 
 uses
-  Classes, IdTStrings;
+  Classes,
+  IdSys,
+  IdTStrings;
 
 type
   TIdHeaderList = class(TIdStringList)

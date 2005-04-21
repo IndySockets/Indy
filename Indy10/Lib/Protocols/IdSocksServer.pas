@@ -110,7 +110,7 @@ uses
   IdCustomTCPServer,
   IdException,
   IdGlobal,
-  IdSysUtils,
+  IdSys,
   IdTCPConnection,
   IdYarn;
 

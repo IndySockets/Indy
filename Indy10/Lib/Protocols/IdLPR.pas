@@ -3,7 +3,7 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further inSys.Formation / comments, visit our WEB site at            }
+{ For further information / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
@@ -81,21 +81,21 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdStreamVCL, IdTCPClient, IdComponent,
-  IdSysUtils;
+  IdSys;
 
 type
   TIdLPRFileFormat =
     (ffCIF, // CalTech Intermediate Form
      ffDVI, //   DVI (TeX output).
-     ffFormattedText, //add Sys.Formatting as needed to text file
+     ffFormattedText, //add formatting as needed to text file
      ffPlot, //   Berkeley Unix plot library
      ffControlCharText, //text file with control charactors
      ffDitroff, // ditroff output
      ffPostScript, //Postscript output file
-     ffPR,//'pr' Sys.Format    {Do not Localize}
+     ffPR,//'pr' format    {Do not Localize}
      ffFORTRAM, // FORTRAN carriage control
      ffTroff, //Troff output
-     ffSunRaster); //  Sun raster Sys.Format file
+     ffSunRaster); //  Sun raster format file
 
 const
   DEF_FILEFormat = ffControlCharText;
@@ -387,7 +387,7 @@ begin
          begin
            Data:=Data + 'ddfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffFormattedText : //add Sys.Formatting as needed to text file
+         ffFormattedText : //add formatting as needed to text file
          begin
            Data:=Data + 'fdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
@@ -407,7 +407,7 @@ begin
          begin
            Data:=Data + 'odfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffPR : //'pr' Sys.Format    {Do not Localize}
+         ffPR : //'pr' format    {Do not Localize}
          begin
            Data:=Data + 'pdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
@@ -419,7 +419,7 @@ begin
          begin
            Data:=Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
          end;
-         ffSunRaster : //  Sun raster Sys.Format file
+         ffSunRaster : //  Sun raster format file
          begin
          end;
       end;

@@ -144,7 +144,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols, IdSysUtils;
+  IdException, IdGlobal, IdResourceStringsProtocols;
 
 { TIdNetworkCalculator }
 

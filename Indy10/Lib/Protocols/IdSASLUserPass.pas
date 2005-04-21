@@ -27,7 +27,7 @@ interface
 
 uses
   IdResourceStringsProtocols, IdSASL, IdUserPassProvider, Classes,
-  IdException, IdSysUtils;
+  IdException;
 
 type
   TIdSASLUserPass = class(TIdSASL)

@@ -118,8 +118,7 @@ type
 implementation
 
 uses
-  IdCoderUUE, IdCoderXXE, IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols,
-  IdSysUtils;
+  IdCoderUUE, IdCoderXXE, IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols;
 
 { TIdMessageDecoderInfoUUE }
 
