@@ -7,7 +7,14 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log:  13736: IdAuthenticationDigest.pas 
+{ $Log:  13736: IdAuthenticationDigest.pas
+{
+  2005-04-22 BTaylor
+  Fixed AV from incorrect object being freed
+  Fixed memory leak
+  Improved parsing
+}
+
 {
 {   Rev 1.6    1/3/05 4:48:24 PM  RLebeau
 { Removed reference to StrUtils unit, not being used.
@@ -43,9 +50,9 @@ interface
 
 Uses
   Classes,
+  IdAuthentication,
   IdException,
   IdGlobal,
-  IdAuthentication,
   IdHashMessageDigest,
   IdHeaderList,
   IdSys,
@@ -194,9 +201,19 @@ begin
   end;
 end;
 
+function RemoveQuote(const aStr:string):string;
+begin
+ if (Length(aStr)>=2) and (aStr[1]='"') and (astr[Length(aStr)]='"') then
+  Result:=Copy(aStr,2,Length(astr)-2)
+ else
+  Result:=aStr;
+end;
+
 function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
 var S, LstrTempNonce: String;
     LParams: TIdStringList;
+    f:string;
+    i:Integer;
 begin
   result := wnDoRequest;
 
@@ -223,33 +240,45 @@ begin
         Fetch(S);
 
         LParams := TIdStringList.Create;
+        try
 
         while Length(S) > 0 do begin
-          Params.Add(Fetch(S, ', '));
+          f:=Fetch(S, ', ');
+          LParams.Add(f);
         end;
 
-        FRealm := Copy(LParams.Values['realm'], 2, Length(Params.Values['realm']) - 2);
-        LStrTempnonce := Copy(LParams.Values['nonce'], 2, Length(Params.Values['nonce']) - 2);
+        for i:=lParams.Count-1 downto 0 do
+        begin
+        f:=lParams.ValueFromIndex[i];
+        f:=RemoveQuote(f);
+        lParams.ValueFromIndex[i]:=f;
+        end;
+
+        FRealm := LParams.Values['realm'];
+        LStrTempnonce := LParams.Values['nonce'];
         if not (FNonce = LstrTempNonce) then
         begin
           FnonceCount := 1;
           FNonce := LstrTempNonce;
         end;
-        S := Copy(LParams.Values['domain'], 2, Length(LParams.Values['domain']) - 2);
+        S := LParams.Values['domain'];
         while Length(S) > 0 do
         begin
           FDomain.Add(Fetch(S));
         end;
-        Fopaque := Copy(LParams.Values['opaque'], 2, Length(LParams.Values['opaque']) - 2);
-        FStale := (Copy(LParams.Values['stale'], 2, Length(LParams.Values['stale']) - 2) = 'true');
-        FAlgorithm := Copy(LParams.Values['algorithm'], 2, Length(LParams.Values['algorithm']) - 2);
-        FQopOptions.CommaText := Copy(Params.Values['qop'], 2, Length(LParams.Values['qop']) - 2);
+        Fopaque := LParams.Values['opaque'];
+        FStale := Sys.AnsiCompareText(LParams.Values['stale'],'True')=1;
+        FAlgorithm := LParams.Values['algorithm'];
+        FQopOptions.CommaText := Params.Values['qop'];
 
         if not TextIsSame(FAlgorithm, 'MD5') then begin
+          //FAlgorithm:='MD5';
           raise EIdInvalidAlgorithm.Create(RSHTTPAuthInvalidHash);
         end;
 
-        Params.Free;
+        finally
+        Sys.FreeAndNil(lParams);
+        end;
 
         FCurrentStep := 1;
 
