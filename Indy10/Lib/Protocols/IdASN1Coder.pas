@@ -7,7 +7,7 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log:  117092: IdASN1Coder.pas 
+{ $Log:  117092: IdASN1Coder.pas
 {
 {   Rev 1.0    15/04/2005 7:25:02 AM  GGrieve
 { first ported to INdy
@@ -18,7 +18,8 @@ interface
 
 uses
   Classes,
-  Contnrs;
+  Contnrs,
+  IdSys;
   
 type
 
@@ -148,7 +149,6 @@ function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 implementation
 
 uses
-  Sysutils,
   IdException;
   
 function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
@@ -379,8 +379,8 @@ end;
 
 function TIdASN1Decoder.DescribeIdentifier(const aId : TIdASN1Identifier) : String;
 begin
-  result := '[Pos '+IntToStr(aId.Position)+', Type '+NAMES_ASN1IDENTIFIERTYPE[aId.TagType]+', '+
-             'Tag '+IntToStr(aId.TagValue)+', Class '+NAMES_ASN1IDENTIFIERCLASS[aId.IdClass]+']';
+  result := '[Pos '+Sys.IntToStr(aId.Position)+', Type '+NAMES_ASN1IDENTIFIERTYPE[aId.TagType]+', '+
+             'Tag '+Sys.IntToStr(aId.TagValue)+', Class '+NAMES_ASN1IDENTIFIERCLASS[aId.IdClass]+']';
 end;
 
 Function TIdASN1Decoder.ReadByte : Byte;

@@ -61,8 +61,7 @@ var
 implementation
 
 uses
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 { TIdEncoderUUE }
 
