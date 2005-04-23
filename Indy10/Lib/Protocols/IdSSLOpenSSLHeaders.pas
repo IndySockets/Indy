@@ -2988,6 +2988,7 @@ procedure InitializeRandom;
 implementation
 
 uses
+  IdSys,
   IdGlobal,  //needed for Sys symbol
   {$IFDEF LINUX}
   libc

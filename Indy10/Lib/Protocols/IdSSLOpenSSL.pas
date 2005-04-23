@@ -239,7 +239,7 @@ uses
   IdSSL,
   IdSocks,
   IdScheduler,
-  IdSysUtils,
+  IdSys,
   IdYarn;
 
 type
