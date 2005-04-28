@@ -1,7 +1,5 @@
 package IndySystem70;
 
-{$R *.res}
-{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -35,6 +33,9 @@ contains
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
+  IdObjs in 'IdObjs.pas',
+  IdObjsBase in 'IdObjsBase.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
@@ -45,17 +46,8 @@ contains
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
-  IdTStrings in 'IdTStrings.pas',
-  IdWinsock2 in 'IdWinsock2.pas',
-  IdWship6 in 'IdWship6.pas',
-  IdSysWin32 in 'IdSysWin32.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
-  IdSysVCL in 'IdSysVCL.pas',
-  IdObjsBase in 'IdObjsBase.pas',
-  IdObjsVCL in 'IdObjsVCL.pas',
-  IdObjs in 'IdObjs.pas',
-  IdObjsLinux in 'IdObjsLinux.pas',
-  IdObjsNET in 'IdObjsNET.pas';
+  IdSysVCL in 'IdSysVCL.pas';
 
 end.

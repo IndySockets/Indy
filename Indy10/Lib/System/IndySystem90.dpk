@@ -35,6 +35,9 @@ contains
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
+  IdObjs in 'IdObjs.pas',
+  IdObjsBase in 'IdObjsBase.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackBSDBase in 'IdStackBSDBase.pas',
@@ -45,9 +48,11 @@ contains
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
+  IdSys in 'IdSys.pas',
+  IdSysBase in 'IdSysBase.pas',
+  IdSysVCL in 'IdSysVCL.pas',
+  IdSysWin32 in 'IdSysWin32.pas',
   IdTStrings in 'IdTStrings.pas',
-  IdSysUtils in 'IdSysUtils.pas',
-  IdSysUtilsWin32 in 'IdSysUtilsWin32.pas',
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas';
 
