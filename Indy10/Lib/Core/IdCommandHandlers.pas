@@ -440,15 +440,22 @@ begin
     end;
 
     PerformReply := True;
-    Reply.Assign(Self.NormalReply);
-    // UpdateText here in case user wants to add to it. SendReply also gets it in case
-    // a different reply is sent (ie exception, etc), or the user changes the code in the event
-    Reply.UpdateText;
-    //
-    Response.Assign(Self.Response);
 
     try
+      //if code<>'' before DoCommand, then it breaks exception handling
+      Assert(Reply.Code='');
       DoCommand;
+
+      if Reply.Code = '' then
+        begin
+        Reply.Assign(Self.NormalReply);
+        end;
+      // UpdateText here in case user wants to add to it. SendReply also gets it in case
+      // a different reply is sent (ie exception, etc), or the user changes the code in the event
+      Reply.UpdateText;
+
+      Response.Assign(Self.Response);
+
     except
       on E: Exception do begin
         if PerformReply then begin
