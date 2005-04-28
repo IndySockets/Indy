@@ -107,7 +107,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest;
+  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdSys;
 
 const
   DEF_CLIENT_FMT = 'Indy Library %s'; {do not localize}

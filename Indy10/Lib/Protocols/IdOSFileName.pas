@@ -54,7 +54,7 @@ function FileNameUnixToOS9(const AUnixFileName : String) : String;
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, IdSys;
 
 type
   TIdValidChars = set of AnsiChar;

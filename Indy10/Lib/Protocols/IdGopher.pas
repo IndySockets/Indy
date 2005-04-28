@@ -251,6 +251,7 @@ uses
   IdComponent, IdGlobal, IdException,
   IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
   IdStreamVCL,
+  IdSys,
   IdTCPConnection;
 
 { TIdGopher }

@@ -439,7 +439,8 @@ const
 implementation
 
 uses
-  IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, IdStack;
+  IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
+  IdStack, IdSys;
 
 //============================================================================//
 { TIdIRCReplies }

@@ -80,7 +80,7 @@ type  TIdIdentQueryEvent = procedure (AContext:TIdContext; AServerPort, AClientP
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, IdSys;
 
 { TIdIdentServer }
 

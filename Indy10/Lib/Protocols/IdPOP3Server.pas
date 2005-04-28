@@ -221,7 +221,7 @@ uses
   IdTCPServer,
   IdServerIOHandler,
   IdMailBox,
-  IdSysUtils,
+  IdSys,
   IdTCPConnection, IdYarn;
 
 {

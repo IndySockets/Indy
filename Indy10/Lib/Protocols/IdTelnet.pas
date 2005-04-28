@@ -105,7 +105,7 @@ uses
   IdGlobal,
   IdException,
   IdStack,
-  IdSysUtils,
+  IdSys,
   IdTCPClient, IdThread;
 
 const

@@ -86,7 +86,7 @@ implementation
 
 uses
   IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols, IdTCPClient
-  , IdTCPConnection, IdSysUtils;
+  , IdTCPConnection, IdSys;
 
 { TIdMappedPOP3 }
 

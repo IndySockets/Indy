@@ -129,7 +129,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStack;
+  IdGlobal, IdStack, IdSys;
 
 { TIdIPWatch }
 

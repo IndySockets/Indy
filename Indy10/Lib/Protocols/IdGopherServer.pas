@@ -106,7 +106,7 @@ Type
 implementation
 
 uses
-  IdGlobal, IdGopherConsts, IdResourceStringsProtocols;
+  IdGlobal, IdGopherConsts, IdResourceStringsProtocols, IdSys;
 
 procedure TIdGopherServer.InitComponent;
 begin

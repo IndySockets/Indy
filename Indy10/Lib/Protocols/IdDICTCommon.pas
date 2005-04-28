@@ -118,7 +118,7 @@ type
   end;
 
 implementation
-uses IdGlobal;
+uses IdGlobal, IdSys;
 
 { TIdDefinitions }
 

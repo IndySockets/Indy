@@ -103,6 +103,7 @@ uses
   IdResourceStringsProtocols, IdStack,
   IdStackBSDBase,
   IdStackConsts,
+  IdSys,
   IdGlobal;
 
 procedure TIdIPMCastServer.InitComponent;

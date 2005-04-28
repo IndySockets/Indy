@@ -32,7 +32,7 @@ unit IdTrivialFTPBase;
 interface
 
 uses
-  IdGlobal,
+  IdGlobal, IdSys,
   IdUDPBase, IdUDPClient;
 
 type

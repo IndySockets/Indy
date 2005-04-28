@@ -46,6 +46,7 @@ type
    end;
 
 implementation
+uses IdSys;
 
 { TIdDayTimeUDPServer }
 

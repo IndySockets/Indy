@@ -134,7 +134,7 @@ uses
   IdTCPClient,
   IdTCPConnection,
   IdTCPServer,
-  IdSysUtils;
+  IdSys;
 
 const
   MSG_START = #$0B;       {do not localize}

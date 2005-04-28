@@ -228,7 +228,7 @@ type
 implementation
 
 uses
-  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL;
+  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, IdSys;
 
 procedure TIdIRCServer.InitComponent;
 begin

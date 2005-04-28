@@ -436,7 +436,8 @@ implementation
 uses
   IdCoderQuotedPrintable,
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols,
+  IdSys;
 
 const VCardProperties : array [1..28] of string = (
 'FN', 'N', 'NICKNAME', 'PHOTO',    {Do not Localize}

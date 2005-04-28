@@ -615,7 +615,7 @@ function SameArray(const B1, B2: TIdBytes): boolean;
 implementation
 
 uses
-  IdIOHandler, IdStack;
+  IdIOHandler, IdStack, IdSys;
 
 {Common Utilities}
 function CompareItems(Item1, Item2: TObject): Integer;

@@ -508,7 +508,8 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStreamVCL;
+  IdStreamVCL,
+  IdSys;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
 begin

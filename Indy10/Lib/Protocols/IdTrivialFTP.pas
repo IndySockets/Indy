@@ -88,7 +88,8 @@ uses
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdStack;
+  IdStack,
+  IdSys;
 
 procedure TIdTrivialFTP.CheckOptionAck(const optionpacket: string);
 var LBuf : String;

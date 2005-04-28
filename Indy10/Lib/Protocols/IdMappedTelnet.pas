@@ -86,7 +86,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsProtocols, IdIOHandlerSocket, IdTCPClient, IdSysUtils;
+  IdGlobal, IdException, IdResourceStringsProtocols, IdIOHandlerSocket, IdTCPClient, IdSys;
 //=============================================================================
 
 const

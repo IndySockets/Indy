@@ -142,7 +142,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdStreamVCL,
-  IdMessage, IdMessageClient, IdReplyRFC, IdSysUtils,
+  IdMessage, IdMessageClient, IdReplyRFC, IdSys,
   IdTCPServer, IdTCPConnection, IdTStrings;
 
 {

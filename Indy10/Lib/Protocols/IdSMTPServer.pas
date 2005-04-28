@@ -67,7 +67,7 @@ uses
   IdTCPServer,
   IdYarn,
   IdStack,
-  IdSysUtils;
+  IdSys;
 
 type
   EIdSMTPServerError = class(EIdException);

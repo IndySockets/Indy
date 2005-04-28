@@ -62,7 +62,7 @@ Type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, IdSys;
 
 procedure TIdDayTimeServer.InitComponent;
 begin

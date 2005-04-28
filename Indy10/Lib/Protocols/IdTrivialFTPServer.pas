@@ -45,6 +45,7 @@ uses
   IdGlobal,
   IdTrivialFTPBase,
   IdSocketHandle,
+
   IdUDPServer;
 
 type
@@ -86,6 +87,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
+  IdSys,
   IdUDPClient;
 
 type
@@ -332,7 +334,7 @@ destructor TIdTFTPServerThread.Destroy;
 begin
   if FFreeStrm then
   begin
-    FreeAndNil(FStream);
+    Sys.FreeAndNil(FStream);
   end;
   Synchronize(TransferComplete);
   FUDPClient.Free;
@@ -356,7 +358,7 @@ begin
   begin
     FUDPClient.BufferSize := Max(FRequestedBlkSize + hdrsize, FUDPClient.BufferSize);
     Response := WordToStr(GStack.NetworkToHost(Word(TFTP_OACK))) + 'blksize'#0    {Do not Localize}
-     + IntToStr(FUDPClient.BufferSize - hdrsize) + #0#0;
+     + Sys.IntToStr(FUDPClient.BufferSize - hdrsize) + #0#0;
   end
   else
   begin
@@ -433,7 +435,7 @@ begin
           end;
           EOT := Length(Buffer) < FUDPClient.BufferSize;
         end;
-        TFTP_ERROR: Abort;
+        TFTP_ERROR: Sys.Abort;
         else
           raise EIdTFTPIllegalOperation.CreateFmt(RSTFTPUnexpectedOp,
               [FUDPClient.Host, FUDPClient.Port]);
@@ -443,7 +445,7 @@ begin
     on E: EIdTFTPException do
       SendError(FUDPClient, E);
     on E: EWriteError do
-      SendError(FUDPClient, ErrAllocationExceeded, Format(RSTFTPDiskFull, [FStream.Position]));
+      SendError(FUDPClient, ErrAllocationExceeded, Sys.Format(RSTFTPDiskFull, [FStream.Position]));
     on E: Exception do
       SendError(FUDPClient, E);
   end;

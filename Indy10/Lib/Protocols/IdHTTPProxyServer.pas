@@ -180,7 +180,7 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdStreamVCL, IdReplyRFC, IdTCPClient, IdURI, IdGlobalProtocols;
+  IdResourceStrings, IdStreamVCL, IdReplyRFC, IdSYs, IdTCPClient, IdURI, IdGlobalProtocols;
 
 procedure TIdHTTPProxyServer.InitializeCommandHandlers;
 begin

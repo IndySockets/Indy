@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, IdSys;
 
 { TIdDayTime }
 

@@ -103,7 +103,8 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdResourceStringsProtocols, IdStack, IdStackConsts, IdStackBSDBase, IdGlobal;
+  IdResourceStringsProtocols, IdStack, IdStackConsts, IdStackBSDBase, IdGlobal,
+  IdSys;
 
 { TIdIPMCastClient }
 

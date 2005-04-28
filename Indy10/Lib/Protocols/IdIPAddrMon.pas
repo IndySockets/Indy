@@ -156,7 +156,8 @@ implementation
 
 uses
   IdGlobal,
-  IdStack;
+  IdStack,
+  IdSys;
 
 procedure TIdIPAddrMon.InitComponent;
 begin

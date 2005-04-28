@@ -62,7 +62,7 @@ uses
   Classes,
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,
   IdReplyRFC,
-  IdSysUtils,
+  IdSys,
   IdTCPConnection,
   IdTCPClient;
 

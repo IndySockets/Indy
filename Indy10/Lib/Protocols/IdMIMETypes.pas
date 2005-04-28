@@ -81,7 +81,8 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols,
+  IdSys;
 
 function ReturnMIMEType;
 var

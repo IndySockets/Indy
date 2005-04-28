@@ -154,7 +154,7 @@ Original Author: Ozz Nixon (Winshoes 7)
 uses
   Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
-  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSysUtils,
+  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSys,
   IdTCPConnection, IdTCPServer, IdTStrings;
 
 (*

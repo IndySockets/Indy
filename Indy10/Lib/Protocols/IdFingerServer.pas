@@ -79,7 +79,7 @@ Type
   end;
 
 implementation
-uses IdGlobal;
+uses IdGlobal, IdSys;
 
 procedure TIdFingerServer.InitComponent;
 begin

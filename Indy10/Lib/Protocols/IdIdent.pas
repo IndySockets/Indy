@@ -83,7 +83,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSys;
 
 const IdentErrorText : Array[0..3] of string =
   ('INVALID-PORT', 'NO-USER', 'HIDDEN-USER', 'UNKNOWN-ERROR');    {Do not Localize}

@@ -67,6 +67,7 @@ uses
   IdException,
   IdCoderMIME,
   IdSSLOpenSSLHeaders,
+  IdSys,
   IdNTLM;
 
 { TIdNTLMAuthentication }

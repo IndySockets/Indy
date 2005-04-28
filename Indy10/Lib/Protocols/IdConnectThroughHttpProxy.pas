@@ -70,7 +70,7 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdExceptionCore;
+  IdCoderMIME, IdExceptionCore, IdSys;
 
 { TIdConnectThroughHttpProxy }
 

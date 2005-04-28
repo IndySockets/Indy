@@ -70,7 +70,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdContext,
-  IdCustomTCPServer, IdSysUtils,
+  IdCustomTCPServer, IdSys,
   IdTCPConnection, IdYarn;
 
 const
