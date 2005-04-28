@@ -71,7 +71,7 @@ type
 implementation
 
 uses
-  IdResourceStringsCore;
+  IdResourceStringsCore, IdSys;
 
 const
   LOldStr : array [0..2] of string =
