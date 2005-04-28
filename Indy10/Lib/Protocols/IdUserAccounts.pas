@@ -50,6 +50,7 @@ uses
   IdBaseComponent,
   IdComponent,
   IdStrings,
+  IdSys,
   IdTStrings;
 
 type
