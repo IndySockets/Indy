@@ -523,6 +523,7 @@ end;
 
 procedure TIdThread.Terminate;
 begin
+  Assert(FLock<>nil);
   FLock.Enter; try
     Include(FOptions, itoStopped);
     inherited Terminate;
