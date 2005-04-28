@@ -9,11 +9,15 @@
 {}
 { $Log:  13828: IdFTP.pas
 {
+{   Rev 1.126    4/28/2005 BTaylor
+{ Changed .Size to use Int64
+}
+{
 {   Rev 1.125    4/15/2005 9:10:10 AM  JPMugaas
 { Changed the default timeout in TIdFTP to one minute and made a comment about
 { this.
-{ 
-{ Soem firewalls don't handle control connections properly during long data
+{
+{ Some firewalls don't handle control connections properly during long data
 { transfers.  They will timeout the control connection because it's idle and
 { making it worse is that they will chop off a connection instead of closing it
 { causing TIdFTP to wait forever for nothing.
@@ -1045,7 +1049,7 @@ type
     function  ResumeSupported: Boolean;
     function  RetrieveCurrentDir: string;
     procedure Site(const ACommand: string);
-    function  Size(const AFileName: String): Integer;
+    function  Size(const AFileName: String): Int64;
     procedure Status(AStatusList: TIdStrings);
     procedure StructureMount(APath: String);
     procedure TransferMode(ATransferMode: TIdFTPTransferMode);
@@ -2114,7 +2118,7 @@ begin
   SendCmd('RNTO ' + ADestFile, 250);    {do not localize}
 end;
 
-function TIdFTP.Size(const AFileName: String): Integer;
+function TIdFTP.Size(const AFileName: String): Int64;
 var
   SizeStr: String;
 begin
@@ -2122,7 +2126,7 @@ begin
   if SendCmd('SIZE ' + AFileName) = 213 then begin  {do not localize}
     SizeStr := Sys.Trim(LastCmdResult.Text.Text);
     IdDelete(SizeStr, 1, IndyPos(' ', SizeStr)); // delete the response   {do not localize}
-    result := Sys.StrToInt(SizeStr, -1);
+    result := Sys.StrToInt64Def(SizeStr, -1);
   end;
 end;
 
