@@ -258,8 +258,7 @@ begin
   if LYarn.Thread.Suspended then begin
     // If suspended, was created but never started
     // ie waiting on connection accept
-    LYarn.Thread.Free;
-//    FreeAndNil(LYarn);
+    Sys.FreeAndNil(LYarn.FThread);
   end else begin
     // Is already running and will free itself
     LYarn.Thread.Stop;

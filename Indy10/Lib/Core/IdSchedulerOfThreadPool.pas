@@ -85,24 +85,18 @@ uses
   IdYarn;
 
 type
+
   TIdSchedulerOfThreadPool = class(TIdSchedulerOfThread)
   protected
     FPoolSize: Integer;
     FThreadPool: TIdThreadSafeList;
   public
-    function AcquireYarn: TIdYarn;
-      override;
-    destructor Destroy;
-      override;
-    procedure Init;
-      override;
-    function NewThread
-      : TIdThreadWithTask;
-      override;
-    procedure ReleaseYarn(AYarn: TIdYarn);
-      override;
-    procedure TerminateAllYarns;
-      override;
+    function AcquireYarn: TIdYarn;override;
+    destructor Destroy; override;
+    procedure Init; override;
+    function NewThread: TIdThreadWithTask;override;
+    procedure ReleaseYarn(AYarn: TIdYarn);override;
+    procedure TerminateAllYarns;override;
   published
     //TODO: Poolsize is only looked at during loading and when threads are
     // needed. Probably should add an Active property to schedulers like
@@ -115,7 +109,10 @@ implementation
 uses
   IdGlobal;
 
-{ TIdSchedulerOfThreadPool }
+type
+
+  TIdYarnOfThreadAccess = class(TIdYarnOfThread)
+  end;
 
 destructor TIdSchedulerOfThreadPool.Destroy;
 begin
@@ -137,28 +134,31 @@ begin
 end;
 
 procedure TIdSchedulerOfThreadPool.ReleaseYarn(AYarn: TIdYarn);
+//only gets called from YarnOf(Fiber/Thread).Destroy
 var
   LThread: TIdThreadWithTask;
 begin
-  // Must save thread reference
-  LThread := TIdYarnOfThread(AYarn).Thread;
+  //take posession of the thread
+  LThread:=TIdYarnOfThread(aYarn).Thread;
+  TIdYarnOfThreadAccess(AYarn).FThread:=nil;
+  //Currently LThread can =nil. Is that a valid condition?
+  //Assert(LThread<>nil);
+
   // inherited removes from ActiveYarns list and destroys yarn
   inherited;
-  //
+
   with FThreadPool.LockList do try
-    if Count < PoolSize then begin
+    if (Count < PoolSize) and (LThread<>nil) then begin
       Add(LThread);
       LThread := nil;
     end;
   finally FThreadPool.UnlockList; end;
   // Was not redeposited to pool, need to destroy it
   if LThread <> nil then begin
-    with LThread do begin
-      Terminate;
-      Resume;
-      WaitFor;
-      Free;
-    end;
+    LThread.Terminate;
+    LThread.Resume;
+    LThread.WaitFor;
+    Sys.FreeAndNil(LThread);
   end;
 end;
 

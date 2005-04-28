@@ -230,6 +230,7 @@ type
     // as what is done in TIdFiber.
     property TerminatingException: string read FTerminatingException;
     property TerminatingExceptionClass: TClass read FTerminatingExceptionClass;
+    //Represents the thread or fiber for the scheduler of the thread.
     property Yarn: TIdYarn read FYarn write FYarn;
     //
     property OnException: TIdExceptionThreadEvent read FOnException write FOnException;
@@ -523,7 +524,9 @@ end;
 
 procedure TIdThread.Terminate;
 begin
+  //this assert can only raise if terminate is called on an already-destroyed thread
   Assert(FLock<>nil);
+  
   FLock.Enter; try
     Include(FOptions, itoStopped);
     inherited Terminate;
