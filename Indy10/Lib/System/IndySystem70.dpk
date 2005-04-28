@@ -51,6 +51,11 @@ contains
   IdSysWin32 in 'IdSysWin32.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
-  IdSysVCL in 'IdSysVCL.pas';
+  IdSysVCL in 'IdSysVCL.pas',
+  IdObjsBase in 'IdObjsBase.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
+  IdObjs in 'IdObjs.pas',
+  IdObjsLinux in 'IdObjsLinux.pas',
+  IdObjsNET in 'IdObjsNET.pas';
 
 end.
