@@ -598,7 +598,7 @@ begin
       end;
     end;
   except
-    Result.Free;
+    Sys.FreeAndNil(Result);
   end;
 end;
 
