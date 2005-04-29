@@ -1679,7 +1679,7 @@ end;
 
 function StrToCard(const AStr: String): Cardinal;
 begin
-  Result := Sys.StrToInt64Def(Sys.Trim(AStr),0);
+  Result := Sys.StrToInt64(Sys.Trim(AStr),0);
 end;
 
 {$IFDEF LINUX}

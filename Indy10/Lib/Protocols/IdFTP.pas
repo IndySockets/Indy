@@ -2126,7 +2126,7 @@ begin
   if SendCmd('SIZE ' + AFileName) = 213 then begin  {do not localize}
     SizeStr := Sys.Trim(LastCmdResult.Text.Text);
     IdDelete(SizeStr, 1, IndyPos(' ', SizeStr)); // delete the response   {do not localize}
-    result := Sys.StrToInt64Def(SizeStr, -1);
+    result := Sys.StrToInt64(SizeStr, -1);
   end;
 end;
 

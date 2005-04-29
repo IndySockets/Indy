@@ -194,7 +194,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPUnix }
 
@@ -256,7 +256,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
     // c - charactor device
     // p - pipe (FIFO)
     // s - socket
-    LCData := UpperCase(AData);
+    LCData := Sys.UpperCase(AData);
     Result := IsValidUnixPerms(AData);
     if Result then
     begin
@@ -282,7 +282,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
           end;
         end;
       finally
-        FreeAndNil(s);
+        Sys.FreeAndNil(s);
       end;
     end
     else
@@ -305,7 +305,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
           end;
         end;
       finally
-        FreeAndNil(s);
+        Sys.FreeAndNil(s);
       end;
     end;
 end;
@@ -322,7 +322,7 @@ var s : TIdStrings;
         Result := IsUnitreeBanner(AData);
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
 end;
 
@@ -394,7 +394,7 @@ var
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 
@@ -403,17 +403,17 @@ var
   begin
     LB := AStrPart;
     Result := Fetch(LB);
-    Result := StringReplace(Result,'-',' ',[rfReplaceAll]);
-    Result := StringReplace(Result,'/',' ',[rfReplaceAll]);
+    Result := Sys.StringReplace(Result,'-',' ');
+    Result := Sys.StringReplace(Result,'/',' ');
     Result := Result + ' '+LB;
   end;
 
 Begin
   LI := AItem as TIdUnixFTPListItem;
   // Get defaults for modified date/time
-  ADate := Now;
-  DecodeDate(ADate, wYear, wMonth, wDay);
-  DecodeTime(ADate, wHour, wMin, wSec, wMSec);
+  ADate := Sys.Now;
+  Sys.DecodeDate(ADate, wYear, wMonth, wDay);
+  Sys.DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LData := AItem.Data;
   LStep := pusinode;
   while NOT (LStep = pusDone) do begin
@@ -422,7 +422,7 @@ Begin
         //we do it this way because the column for inode is right justified
         //and we don't want to create a problem if the -i parameter was never used
 
-         LTmp := TrimLeft(LData);
+         LTmp := Sys.TrimLeft(LData);
          LTmp := Fetch(LTmp);
          if IsValidUnixPerms(LTmp) then
          begin
@@ -431,9 +431,9 @@ Begin
          else
          begin
          //the inode column is right justified
-           LData := TrimLeft(LData);
+           LData := Sys.TrimLeft(LData);
            LTmp := Fetch(LData);
-           LData := TrimLeft(LData);
+           LData := Sys.TrimLeft(LData);
            LInode := LTmp;
            LStep := pusBlocks;
          end;
@@ -445,26 +445,26 @@ Begin
          if IsValidUnixPerms(LTmp)=False then
          begin
            LTmp := Fetch(LData);
-           LData := TrimLeft(LData);
+           LData := Sys.TrimLeft(LData);
            LBlocks := LTmp;
          end;
          LStep := pusPerm;
       end;
     pusPerm: begin//1.-rw-rw-rw-
       LTmp := Fetch(LData);
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
       // Copy the predictable pieces
       LI.PermissionDisplay := Copy(LTmp,1,10);
-      LDir := UpperCase(Copy(LTmp, 1, 1));
+      LDir := Sys.UpperCase(Copy(LTmp, 1, 1));
       LOPerm := Copy(LTmp, 2, 3);
       LGPerm := Copy(LTmp, 5, 3);
       LUPerm := Copy(LTmp, 8, 3);
       LStep := pusCount;
     end;
     pusCount: begin
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
       LTmp := Fetch(LData);
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
 
       //Patch for NetPresenz
       // "-------r--         326  1391972  1392298 Nov 22  1995 MegaPhone.sit" */
@@ -493,11 +493,11 @@ Begin
           LStep := pusOwner;
         end;
       end;
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
     end;
     pusOwner: begin
       LTmp := Fetch(LData);
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
       LOwner := LTmp;
 (*    if (SL[4] > '') and    {Do not Localize}
      //Ericsson Switch FTP returns empty owner.
@@ -508,14 +508,14 @@ Begin
     end;
     pusGroup: begin
       LTmp := Fetch(LData);
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
       LGroup := LTmp;
       LStep := pusSize;
     end;
     pusSize: begin
       //Ericsson - Switch FTP returns empty owner
       //Do not apply Ericson patch to Unitree
-      if (CharIsInSet(LData, 1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
+      if (CharIsInSet(LData, 1,CharRange('A','Z')+CharRange('a','z')))
        and (GetIdent <> UNITREE) then begin
         LSize := LGroup;
         LGroup := LOwner;
@@ -534,7 +534,7 @@ Begin
           repeat
             LGroup := LGroup + ' '+LSize;
             LOwner := LGroup;
-            LData := TrimLeft(LData);
+            LData := Sys.TrimLeft(LData);
             LSize := Fetch(LData);
           until (IsNumeric(LSize));
           //delete the initial space we had added in the repeat loop
@@ -550,16 +550,16 @@ Begin
         //Note sure what 11, 42 is so size is not returned.
         if IndyPos(',',LTmp)>0 then
         begin
-          LData := TrimLeft(LData);
+          LData := Sys.TrimLeft(LData);
           Fetch(LData);
-          LData := TrimLeft(LData);
+          LData := Sys.TrimLeft(LData);
           LSize := '';
         end
         else
         begin
           LSize := LTmp;
         end;
-        LData := TrimLeft(LData);
+        LData := Sys.TrimLeft(LData);
         case PosInStrArray(LSize,UnitreeStoreTypes) of
           0 :  //AR - archived to tape - migrated
           begin
@@ -568,9 +568,9 @@ Begin
               (LI as TIdUnitreeFTPListItem).Migrated := True;
               (LI as TIdUnitreeFTPListItem).FileFamily := Fetch(LData);
             end;
-            LData := TrimLeft(LData);
+            LData := Sys.TrimLeft(LData);
             LSize := Fetch(LData);
-            LData := TrimLeft(LData);
+            LData := Sys.TrimLeft(LData);
           end;
           1 : //DK - disk
           begin
@@ -578,9 +578,9 @@ Begin
             begin
               (LI as TIdUnitreeFTPListItem).FileFamily := Fetch(LData);
             end;
-            LData := TrimLeft(LData);
+            LData := Sys.TrimLeft(LData);
             LSize := Fetch(LData);
-            LData := TrimLeft(LData);
+            LData := Sys.TrimLeft(LData);
           end;
         end;
       end;
@@ -595,19 +595,19 @@ Begin
       if Length(LTmp)>3 then
       begin
         //must be a year
-        wYear := StrToIntDef(LTmp,wYear);
+        wYear := Sys.StrToInt(LTmp,wYear);
         LTmp := Fetch(LData);
       end;
-      LData := TrimLeft(LData);
+      LData := Sys.TrimLeft(LData);
       if IsNumeric(LTmp) then
       begin
-        wMonth := StrToIntDef(LTmp,wMonth);
+        wMonth := Sys.StrToInt(LTmp,wMonth);
         if (wMonth>12) then
         begin
           wDay := wMonth;
           LTmp := Fetch(LData);
-          LData := TrimLeft(LData);
-          wMonth := StrToIntDef(LTmp,wMonth);
+          LData := Sys.TrimLeft(LData);
+          wMonth := Sys.StrToInt(LTmp,wMonth);
           LStep := pusYear;
         end
         else
@@ -623,15 +623,15 @@ Begin
     end;
     pusDay: begin // Scan DD
       LTmp := Fetch(LData);
-      LData := TrimLeft(LData);
-      wDay := StrToIntDef(LTmp, wDay);
+      LData := Sys.TrimLeft(LData);
+      wDay := Sys.StrToInt(LTmp, wDay);
       LStep := pusYear;
     end;
     pusYear: begin
       LTmp := Fetch(LData);
       // Not time info, scan year
       if IndyPos(':', LTmp) = 0 then begin    {Do not Localize}
-        wYear := StrToIntDef(LTmp, wYear);
+        wYear := Sys.StrToInt(LTmp, wYear);
         // Set time info to 00:00:00.999
         wHour := 0;
         wMin := 0;
@@ -646,7 +646,7 @@ Begin
     pusTime: begin
       // correct year and Scan hour
       wYear := AddMissingYear(wDay,wMonth);
-      wHour:= StrToIntDef(Fetch(LTmp,':'), 0);    {Do not Localize}
+      wHour:= Sys.StrToInt(Fetch(LTmp,':'), 0);    {Do not Localize}
       // Set sec and ms to 0.999 except for Serv-U or FreeBSD with the -T parameter
       //with the -T parameter, Serve-U returns something like this:
       //
@@ -658,18 +658,18 @@ Begin
       if (IndyPos(':',LTmp)>0) and (IsNumeric(Fetch(LData,' ',False))) then
       begin
         // Scan minutes
-        wMin := StrToIntDef(Fetch(LTmp,':'), 0);
-        wSec := StrToIntDef(Fetch(LTmp,':'), 0);
-        wMSec := StrToIntDef(Fetch(LTmp,':'),999);
+        wMin :=Sys. StrToInt(Fetch(LTmp,':'), 0);
+        wSec :=Sys. StrToInt(Fetch(LTmp,':'), 0);
+        wMSec :=Sys. StrToInt(Fetch(LTmp,':'),999);
         LTmp := Fetch(LData);
-        wYear := StrToIntDef(LTmp, wYear);
+        wYear :=Sys. StrToInt(LTmp, wYear);
       end
       else
       begin
       // Scan minutes
-        wMin := StrToIntDef(Fetch(LTmp,':'), 0);
-        wSec := StrToIntDef(Fetch(LTmp,':'), 0);
-        wMSec := StrToIntDef(Fetch(LTmp),999);
+        wMin :=Sys. StrToInt(Fetch(LTmp,':'), 0);
+        wSec :=Sys. StrToInt(Fetch(LTmp,':'), 0);
+        wMSec :=Sys. StrToInt(Fetch(LTmp),999);
       end;
       LStep := pusName;
     end;
@@ -694,11 +694,11 @@ Begin
     LI.UnixOwnerPermissions := LOPerm;
     LI.UnixGroupPermissions := LGPerm;
     LI.UnixOtherPermissions := LUPerm;
-    LI.LinkCount := StrToIntDef(LCount, 0);
+    LI.LinkCount :=Sys. StrToInt(LCount, 0);
     LI.OwnerName := LOwner;
     LI.GroupName := LGroup;
-    LI.Size := StrToInt64Def(LSize, 0);
-    LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
+    LI.Size := Sys.StrToInt64(LSize, 0);
+    LI.ModifiedDate := Sys.EncodeDate(wYear, wMonth, wDay) + Sys.EncodeTime(wHour, wMin, wSec, wMSec);
 
     if LI.ItemType = ditSymbolicLink then begin
       i := IndyPos(UNIX_LINKTO_SYM, LName);    {Do not Localize}
@@ -714,8 +714,8 @@ Begin
       end;
       LI.LinkedItemName := LLinkTo;
     end;
-    LI.NumberBlocks := StrToIntDef(LBlocks,0);
-    LI.Inode := StrToIntDef(linode,0);
+    LI.NumberBlocks :=Sys.StrToInt(LBlocks,0);
+    LI.Inode :=Sys.StrToInt(linode,0);
     //with servers using ls -F, / is returned after the name of dir names and a *
     //will be returned at the end of a file name for an executable program.
     //Based on info at http://www.skypoint.com/help/tipgettingaround.html
