@@ -57,7 +57,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPHellSoft }
 

@@ -31,7 +31,7 @@
 unit IdFTPListParseStercomUnixEnt;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
 
 type
   TIdSterCommEntUxFTPListItem = class(TIdOwnerFTPListItem)
@@ -81,7 +81,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPSterCommEntUx }
 
@@ -161,28 +161,28 @@ var LBuf, LTmp : String;
   LI : TIdSterCommEntUxFTPListItem;
 begin
   LI := AItem as TIdSterCommEntUxFTPListItem;
-  DecodeDate(Now,wYear,wMonth,wDay);
+  Sys.DecodeDate(Sys.Now,wYear,wMonth,wDay);
   wHour := 0;
   wMin := 0;
   wSec := 0;
   LBuf := AItem.Data;
   //flags and protocol
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LI.FlagsProt := Fetch(LBuf);
   //protocol indicator
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LI.ProtIndicator := Fetch(LBuf);
   // owner
   LI.OwnerName := Fetch(LBuf);
   //file size
   repeat
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LTmp := Fetch(LBuf);
     if LBuf<>'' then
     begin
       if IsNumeric(LBuf[1])=False then
       begin
-        LI.Size := StrToIntDef(LTmp,0);
+        LI.Size := Sys.StrToInt(LTmp,0);
       end
       else
       begin
@@ -194,26 +194,26 @@ begin
   //month
   wMonth := StrToMonth(LTmp);
   //day
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
-  wDay := StrToIntDef(LTmp,wDay);
+  wDay := Sys.StrToInt(LTmp,wDay);
   //year or time
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
   if IndyPos(':',LTmp)>0 then
   begin
   //year is missing - just get the time
     wYear := AddMissingYear(wDay,wMonth);
-    wHour := StrToIntDef(Fetch(LTmp,':'), 0);
-    wMin := StrToIntDef(Fetch(LTmp,':'), 0);
+    wHour := Sys.StrToInt(Fetch(LTmp,':'), 0);
+    wMin := Sys.StrToInt(Fetch(LTmp,':'), 0);
   end
   else
   begin
-    wYear := StrToIntDef(LTmp,wYear);
+    wYear := Sys.StrToInt(LTmp,wYear);
   end;
   LI.FileName := LBuf;
-  LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
-  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,wSec,0);
+  LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
+  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,wSec,0);
   Result := True;
 end;
 
@@ -249,25 +249,25 @@ Total Number of batches listed: 14
    begin
      LBuf := ADate;
      LDate := Fetch(LBuf,'-');
-     LMonth := StrToIntDef(Copy(LDate,3,2),0);
+     LMonth := Sys.StrToInt(Copy(LDate,3,2),0);
      Result := (LMonth>0) and (LMonth<13);
      if not Result then
      begin
        Exit;
      end;
-     LDay := StrToIntDef(Copy(LDate,5,2),0);
+     LDay := Sys.StrToInt(Copy(LDate,5,2),0);
      Result := (LDay > 0) and (LDay<32);
      if not result then
      begin
        Exit;
      end;
-     LHour := StrToIntDef(Copy(LBuf,1,2),0);
+     LHour := Sys.StrToInt(Copy(LBuf,1,2),0);
      Result := (LHour > 0) and (LHour<25);
      if not result then
      begin
        Exit;
      end;
-     LMin := StrToIntDef(Copy(LBuf,3,2),0);
+     LMin := Sys.StrToInt(Copy(LBuf,3,2),0);
      Result := (LMin < 60);
    end;
 
@@ -287,7 +287,7 @@ begin
         LBuf := AListing[0];
         Fetch(LBuf,'>');
         StripPlus(LBuf);
-        LBuf := TrimLeft(LBuf);
+        LBuf := Sys.TrimLeft(LBuf);
         if IsValidDate(Fetch(LBuf)) then
         begin
           LBuf2 := RightStr(LBuf,7);
@@ -351,32 +351,32 @@ begin
   LBuf := AItem.Data;
   LI.OwnerName := Fetch(LBuf);
   //8 digit batch - skip
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   Fetch(LBuf);
   //size
-  LBuf := TrimLeft(LBuf);
-  LI.Size := StrToIntDef( Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
+  LI.Size := Sys.StrToInt64( Fetch(LBuf),0);
   //filename
   Fetch(LBuf,'<');
   LI.FileName := Fetch(LBuf,'>');
   Self.StripPlus(LBuf);
   //date
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //since we aren't going to do anything else after the date,
   //we should process as a string;
   //Date format:  990926-1431
   LBuf := Copy(LBuf,1,11);
-  LYear := StrToIntDef(Copy(LBuf,1,2),0);
+  LYear := Sys.StrToInt(Copy(LBuf,1,2),0);
   LYear := Y2Year( LYear);
-  LMonth := StrToIntDef(Copy(LBuf,3,2),0);
-  LDay := StrToIntDef(Copy(LBuf,5,2),0);
+  LMonth := Sys.StrToInt(Copy(LBuf,3,2),0);
+  LDay := Sys.StrToInt(Copy(LBuf,5,2),0);
   //  got the date
   StripPlus(LBuf);
   Fetch(LBuf,'-');
-  LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
-  LHour := StrToIntDef(Copy(LBuf,1,2),0);
-  LMin := StrToIntDef(Copy(LBuf,3,2),0);
-  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(LHour,LMin,0,0);
+  LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
+  LHour := Sys.StrToInt(Copy(LBuf,1,2),0);
+  LMin := Sys.StrToInt(Copy(LBuf,3,2),0);
+  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(LHour,LMin,0,0);
   Result := True;
 end;
 
@@ -384,7 +384,7 @@ class procedure TIdFTPLPSterCommEntUxNS.StripPlus(var VString: String);
 begin
   if Copy(VString,1,1) = '+' then
   begin
-    Delete(VString,1,1);
+    IdDelete(VString,1,1);
   end;
 end;
 

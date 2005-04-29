@@ -45,7 +45,7 @@ type
 implementation
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPSuperTCP }
 
@@ -81,7 +81,7 @@ begin
     //filename and extension - we assume an 8.3 filename type because
     //Windows 3.1 only supports that.
     Fetch(LBuf);
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     //<DIR> or file size
     LBuf2 := Fetch(LBuf);
     Result := (LBuf2='<DIR>') or IsNumeric(LBuf2);   {Do not localize}
@@ -90,13 +90,13 @@ begin
       Exit;
     end;
     //date
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsMMDDYY(LBuf2,'/') or IsMMDDYY(LBuf2,'-');
     if Result then
     begin
       //time
-      LBuf := TrimLeft(LBuf);
+      LBuf := Sys.TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       Result := IsHHMMSS(LBuf2,':');
     end;
@@ -144,7 +144,7 @@ begin
   LBuf2 :=  Fetch(LBuf);
   LI.FileName := LBuf2;
   LI.ShortFileName := LBuf2;
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //<DIR> or file size
   LBuf2 := Fetch(LBuf);
   if LBuf2 = '<DIR>' then   {Do not localize}
@@ -160,10 +160,10 @@ begin
     begin
       Exit;
     end;
-    LI.Size := StrToIntDef(LBuf2,0);
+    LI.Size := Sys.StrToInt64(LBuf2,0);
   end;
   //date
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   if IsMMDDYY(LBuf2,'/') or IsMMDDYY(LBuf2,'-') then
   begin
@@ -175,7 +175,7 @@ begin
     Exit;
   end;
   //time
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   Result := IsHHMMSS(LBuf2,':');
   if Result then

@@ -62,7 +62,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPWinQVNet }
 
@@ -111,14 +111,14 @@ begin
     AItem.ItemType := ditDirectory;
   end;
   IdDelete(LBuf, 1, 13);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //Size
-  AItem.Size := StrToIntDef(Fetch(LBuf), 0);
+  AItem.Size := Sys.StrToInt64(Fetch(LBuf), 0);
   //Date
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   AItem.ModifiedDate := DateMMDDYY(Fetch(LBuf));
   //Time
-  LBuf := Trim(LBuf);
+  LBuf := Sys.Trim(LBuf);
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LBuf);
   Result := True;
 end;

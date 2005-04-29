@@ -28,7 +28,7 @@ type
   end;
 
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
+uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPChameleonNewt }
 
@@ -56,7 +56,7 @@ begin
     //filename and extension - we assume an 8.3 filename type because
     //Windows 3.1 only supports that.
     Fetch(LBuf);
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     //<DIR> or file size
     LBuf2 := Fetch(LBuf);
     Result := (LBuf2='<DIR>') or IsNumeric(LBuf2);   {Do not localize}
@@ -64,7 +64,7 @@ begin
     begin
       Exit;
     end;
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     //month
     LBuf2 := Fetch(LBuf);
     Result := StrToMonth(LBuf2)>0;
@@ -73,22 +73,22 @@ begin
       Exit;
     end;
     //day
-    LBuf := TrimLeft(LBuf);
-    LInt := StrToIntDef(Fetch(LBuf),0);
+    LBuf := Sys.TrimLeft(LBuf);
+    LInt := Sys.StrToInt64(Fetch(LBuf),0);
     Result := (LInt>0) and (LInt<32);
     if not result then
     begin
       Exit;
     end;
     //year
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     Result := IsNumeric(Fetch(LBuf));
     if not result then
     begin
       Exit;
     end;
     //time
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
     if not result then
@@ -98,7 +98,7 @@ begin
     //attributes
     repeat
 
-      LBuf := TrimLeft(LBuf);
+      LBuf := Sys.TrimLeft(LBuf);
       if LBuf='' then
       begin
         break;
@@ -136,7 +136,7 @@ begin
   //filename and extension - we assume an 8.3 filename type because
   //Windows 3.1 only supports that.
   LI.FileName :=  Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //<DIR> or file size
   LBuf2 := Fetch(LBuf);
   if LBuf2 = '<DIR>' then   {Do not localize}
@@ -152,11 +152,11 @@ begin
     begin
       Exit;
     end;
-    LI.Size := StrToIntDef(LBuf2,0);
+    LI.Size := Sys.StrToInt64(LBuf2,0);
   end;
 
   //month
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     LMonth := StrToMonth(LBuf2);
     Result := LMonth>0;
@@ -165,26 +165,26 @@ begin
       Exit;
     end;
     //day
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
-    LDay := StrToIntDef(LBuf2,0);
+    LDay := Sys.StrToInt64(LBuf2,0);
     Result := (LDay>0) and (LDay<32);
     if not result then
     begin
       Exit;
     end;
     //year
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsNumeric(LBuf2);
     if not result then
     begin
       Exit;
     end;
-    LYear := Y2Year( StrToIntDef(LBuf2,0));
-    LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
+    LYear := Y2Year( Sys.StrToInt(LBuf2,0));
+    LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
     //time
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
     if not result then
@@ -198,7 +198,7 @@ begin
       begin
         break;
       end;
-      LBuf := TrimLeft(LBuf);
+      LBuf := Sys.TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       result := LI.FAttributes.AddAttribute(LBuf2);
       if not result then

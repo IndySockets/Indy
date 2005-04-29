@@ -95,7 +95,7 @@ unit IdFTPListOutput;
 
 interface
 
-uses IdFTPList, Classes, IdTStrings;
+uses IdFTPList, Classes, IdTStrings, SysUtils;
 
 type
   //we can't use the standard FTP MLSD option types in the FTP Server
@@ -264,7 +264,7 @@ const
 implementation
 
 uses
-  IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 type
   TDirEntry = class(TObject)
@@ -361,8 +361,8 @@ begin
   LItem1 := TIdFTPListItem(AItem1);
   LItem2 := TIdFTPListItem(AItem2);
 
-  LTmpPath1 := ExtractFileExt(LItem1.FileName);
-  LTmpPath2 := ExtractFileExt(LItem2.FileName);
+  LTmpPath1 := Sys.ExtractFileExt(LItem1.FileName);
+  LTmpPath2 := Sys.ExtractFileExt(LItem2.FileName);
   Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
   if Result = 0 then
   begin
@@ -617,7 +617,7 @@ begin
   begin
         Result := Result + ',/';
   end;
-  Result := Result + ',s'+IntToStr(AItem.Size);
+  Result := Result + ',s'+Sys.IntToStr(AItem.Size);
   Result := Result + #9 + LFileName;
 end;
 
@@ -781,7 +781,7 @@ var i : Integer;
             begin
               AOutput.Add('');
             end;
-            AOutput.Add(Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+            AOutput.Add(Sys.Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
           end
           else
           begin
@@ -858,7 +858,7 @@ var i : Integer;
             Break;
           end;
         end;
-        AOutput.Add(TrimRight(LTmp));
+        AOutput.Add(Sys.TrimRight(LTmp));
       until (j = ACurDir.FileList.Count);
 
       if Recurse and Assigned(ACurDir.SubDirs) then
@@ -872,7 +872,7 @@ var i : Integer;
             begin
               AOutput.Add('');
             end;
-            AOutput.Add(Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+            AOutput.Add(Sys.Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
           end
           else
           begin
@@ -915,7 +915,7 @@ var i : Integer;
       end;
       LCols := 79 div (LMaxLen + 2);//2 spaces between columns
       LLines := ACurDir.FileList.COunt div LCols;
-      LFrm := '%'+IntToStr(LMaxLen+2)+'s';
+      LFrm := '%'+Sys.IntToStr(LMaxLen+2)+'s';
       if (ACurDir.FileList.COunt mod LCols >0) then
       begin
         Inc(LLines);
@@ -931,7 +931,7 @@ var i : Integer;
           end;
           Inc(j);
         until (j > LCols);
-        AOutput.Add(TrimRight(LTmp));
+        AOutput.Add(Sys.TrimRight(LTmp));
       end;
       if Recurse and Assigned(ACurDir.SubDirs) then
       begin
@@ -944,7 +944,7 @@ var i : Integer;
             begin
               AOutput.Add('');
             end;
-            AOutput.Add(Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+            AOutput.Add(Sys.Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
           end
           else
           begin
@@ -982,7 +982,7 @@ var i : Integer;
             begin
               AOutput.Add('');
             end;
-            AOutput.Add(Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+            AOutput.Add(Sys.Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
           end
           else
           begin
@@ -1009,7 +1009,7 @@ var i : Integer;
             LBlockCount := LBlockCount +
               TIdFTPListOutputItem(ACurDir.FileList.Objects[i]).NumberBlocks;
           end;
-          AOutput.Add(Format('total %d',[LBlockCount]));  {Do not translate}
+          AOutput.Add(Sys.Format('total %d',[LBlockCount]));  {Do not translate}
         end;
 
         for i := 0 to ACurDir.FileList.Count -1 do
@@ -1036,7 +1036,7 @@ var i : Integer;
               begin
                 AOutput.Add('');
               end;
-              AOutput.Add(Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+              AOutput.Add(Sys.Format('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
             end;
           end
           else
@@ -1170,7 +1170,7 @@ begin
       ProcessPathLong(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
     end;
   finally
-    FreeAndNil(LRootPath);
+    Sys.FreeAndNil(LRootPath);
   end;
 end;
 
@@ -1186,7 +1186,7 @@ begin
   begin
     if Size in AMLstOpts then  {do not localize}
     begin
-      Result := 'size=' + IntToStr(AItem.Size) + ';'; {do not localize}
+      Result := 'size=' + Sys.IntToStr(AItem.Size) + ';'; {do not localize}
     end;
 
     if ItemType in AMLstOpts then  {do not localize}
@@ -1253,7 +1253,7 @@ begin
     end;
     if UnixMODE in AMLstOpts then {do not localize}
     begin
-      Result := Result + 'UNIX.mode='+ Format('%.4d', [PermsToChmodNo(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem) )] ) + ';';  {do not localize}
+      Result := Result + 'UNIX.mode='+ Sys.Format('%.4d', [PermsToChmodNo(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem) )] ) + ';';  {do not localize}
     end;
     if UnixOwner in AMLstOpts then  {do not localize}
     begin
@@ -1346,7 +1346,7 @@ begin
   Result := '';
   if IndyPos(SWITCH_PRINT_BLOCKS,Switches)>0 then
   begin
-    Result := Result + Format('%4d ',[ AItem.NumberBlocks ]);
+    Result := Result + Sys.Format('%4d ',[ AItem.NumberBlocks ]);
   end;
 end;
 
@@ -1442,10 +1442,10 @@ begin
   Result := '';
   if IndyPos(SWITCH_PRINT_INODE,Switches)>0 then
   begin
-    LInode := IntToStr(Abs(AItem.Inode));
+    LInode := Sys.IntToStr(Abs(AItem.Inode));
     //should be no more than 10 digits
     LInode := Copy(LInode,1,10);
-    Result := Result + Format('%10s ',[ LInode ]);
+    Result := Result + Sys.Format('%10s ',[ LInode ]);
   end;
 end;
 
@@ -1498,21 +1498,21 @@ begin
     LFormat := LFormat + '%2:-8s ';  {Do not localize}
   end;
   LFormat := LFormat + '%0:8d'; {Do not localize}
-  LSize := LSize + Format(LFormat
+  LSize := LSize + Sys.Format(LFormat
        , [AItem.Size, UnixGetOutputOwner(AItem), UnixGetOutputGroup(AItem), UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem),LLinkNum]);
   LMTime := GetLocalModTime(AItem);
-  DecodeDate(LMTime, l, month, l);
-  LTime := MonthNames[month] + FormatDateTime(' dd', LMTime);    {Do not Localize}
+  Sys.DecodeDate(LMTime, l, month, l);
+  LTime := MonthNames[month] + Sys.FormatDateTime(' dd', LMTime);    {Do not Localize}
   if (IndyPos(SWITCH_BOTH_TIME_YEAR,Switches)>0) then
   begin
-    LTime := LTime + FormatDateTime(' hh:nn:ss yyyy', AItem.ModifiedDate);    {Do not Localize}
+    LTime := LTime + Sys.FormatDateTime(' hh:nn:ss yyyy', AItem.ModifiedDate);    {Do not Localize}
   end
   else
   begin
     if IsIn6MonthWindow(LMTime) then begin    {Do not Localize}
-      LTime := LTime + FormatDateTime(' hh:nn', LMTime);    {Do not Localize}
+      LTime := LTime + Sys.FormatDateTime(' hh:nn', LMTime);    {Do not Localize}
     end else begin
-      LTime := LTime + FormatDateTime('  yyyy', LMTime);    {Do not Localize}
+      LTime := LTime + Sys.FormatDateTime('  yyyy', LMTime);    {Do not Localize}
     end;
   end;
   // A.Neillans, 20 Apr 2002, Fixed glitch, extra space in front of names.
@@ -1560,9 +1560,9 @@ begin
   if AItem.ItemType = ditDirectory then begin
     LSize := '      ' + '<DIR>' + StringOfChar(' ', 9);    {Do not Localize}
   end else begin
-    LSize := StringOfChar(' ', 20 - Length(IntToStr(AItem.Size))) + IntToStr(AItem.Size);    {Do not Localize}
+    LSize := StringOfChar(' ', 20 - Length(Sys.IntToStr(AItem.Size))) + Sys.IntToStr(AItem.Size);    {Do not Localize}
   end;
-  Result := FormatDateTime('mm-dd-yy  hh:nnAM/PM', GetLocalModTime( AItem) ) + ' ' + LSize    {Do not Localize}
+  Result := Sys.FormatDateTime('mm-dd-yy  hh:nnAM/PM', GetLocalModTime( AItem) ) + ' ' + LSize    {Do not Localize}
        + ' ' + LFileName;    {Do not Localize}
 end;
 
@@ -1669,8 +1669,8 @@ end;
 
 destructor TDirEntry.Destroy;
 begin
-  FreeAndNil( FFileList );
-  FreeAndNil( FSubDirs );
+  Sys.FreeAndNil( FFileList );
+  Sys.FreeAndNil( FSubDirs );
   inherited;
 end;
 

@@ -48,7 +48,7 @@ type
   end;
 
 implementation
-uses IdFTPCommon, IdGlobal, SysUtils;
+uses IdFTPCommon, IdGlobal, IdSys;
 
 { TIdFTPLPTSXPlus }
 
@@ -90,7 +90,7 @@ begin
   begin
     Exit;
   end;
-  LPart := TrimRight(LPart);
+  LPart := Sys.TrimRight(LPart);
   if LPart = 'Directory' then {do not localize}
   begin
     Fetch(LBuf,']');
@@ -98,7 +98,7 @@ begin
     begin
       Exit;
     end;
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     if (Copy(LBuf,1,1)='/') then
     begin
       IdGlobal.IdDelete(LBuf,1,1);
@@ -138,7 +138,7 @@ var LBuf, LExt : String;
     LDir : TIdFTPListItems;
 begin
 
-  LBuf := TrimLeft(AItem.Data);
+  LBuf := Sys.TrimLeft(AItem.Data);
   AItem.FileName := Fetch(LBuf,'.');
   LExt := Fetch(LBuf);
   if LExt = 'dsk' then {do not localize}
@@ -150,10 +150,10 @@ begin
     AItem.ItemType := ditFile;
     AItem.FileName := AItem.FileName + '.'+LExt;
   end;
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //block count
-  (AItem as TIdTSXPlusFTPListItem).NumberBlocks := StrToIntDef(Fetch(LBuf),0);
-  LBuf := TrimRight(LBuf);
+  (AItem as TIdTSXPlusFTPListItem).NumberBlocks := Sys.StrToInt(Fetch(LBuf),0);
+  LBuf := Sys.TrimRight(LBuf);
   if LBuf<>'' then
   begin
     LDir := AItem.Collection as TIdFTPListItems;

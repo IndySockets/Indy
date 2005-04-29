@@ -109,7 +109,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSYs;
+  IdSys;
 
 { TIdFTPLPWindowsNT }
 

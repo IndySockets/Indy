@@ -76,7 +76,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPDistinctTCPIP }
 
@@ -111,7 +111,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -138,35 +138,35 @@ begin
   Result := False;
   LI := AItem as TIdDistinctTCPIPFTPListItem;
   LI.Attributes.Read_Only := True;
-  LBuf := TrimLeft(LI.Data);
+  LBuf := Sys.TrimLeft(LI.Data);
   //attributes and attributes
   LBuf2 := Fetch(LBuf);
   LI.Dist32FileAttributes := LBuf2;
   LI.Attributes.AddAttribute( Lbuf2);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   if Copy(LI.Dist32FileAttributes, 1, 1)='d' then
   begin
     LI.ItemType := ditDirectory;
   end;
   //size
-  LI.Size := StrToIntDef(Fetch(LBuf), 0);
-  LBuf := TrimLeft(LBuf);
+  LI.Size := Sys.StrToInt64(Fetch(LBuf), 0);
+  LBuf := Sys.TrimLeft(LBuf);
   //date - month
   LDate := Fetch(LBuf);
   if StrToMonth(LDate)=0 then
   begin
     Exit;
   end;
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //date - day and year
   LBuf2 := Fetch(LBuf);
   //we do it this way because a year might sometimes be missing
   //in which case, we just add the current year.
   LDate := LDate + ',' + LBuf2;
-  LDate := StringReplace(LDate, ',', ' ', [rfReplaceAll]);
+  LDate := Sys.StringReplace(LDate, ',', ' ');
   LI.ModifiedDate := DateStrMonthDDYY(LDate, ' ', True);
   //time
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LDate := Fetch(LBuf);
   if not IsHHMMSS(LDate,':') then
   begin

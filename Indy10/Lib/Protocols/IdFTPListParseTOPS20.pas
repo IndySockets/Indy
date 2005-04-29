@@ -73,7 +73,7 @@
 unit IdFTPListParseTOPS20;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
 
 type
   TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItme);
@@ -93,7 +93,7 @@ const
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 
 { TIdFTPLPTOPS20 }
@@ -175,7 +175,7 @@ MSGS.TXT.1
         end;
 
       finally
-        FreeAndNil(LParts);
+        Sys.FreeAndNil(LParts);
       end;
     end;
   end;
@@ -266,7 +266,7 @@ begin
       //strip off device in and path suffix >
       Fetch(LBuf,TOPS20_VOLPATH_SEP);
       LBuf := Fetch(LBuf,TOPS20_DIRFILE_SEP);
-      AItem.LocalFileName := LowerCase(Fetch(LBuf,'.'));
+      AItem.LocalFileName := Sys.LowerCase(Fetch(LBuf,'.'));
       AItem.SizeAvail := False;
       AItem.ModifiedAvail := False;
       Result := True;
@@ -287,13 +287,13 @@ begin
       //Creation Date - date - I think
       LI.CreationDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
       //creation date - time
-      LI.CreationDate := LI.CreationDate + IdFTPCommon.TimeHHMMSS(Trim(Fetch(LBuf,',')));
+      LI.CreationDate := LI.CreationDate + IdFTPCommon.TimeHHMMSS(Sys.Trim(Fetch(LBuf,',')));
       //Last modified - date
       AItem.ModifiedDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
       //Last modified - time
-      AItem.ModifiedDate := AItem.ModifiedDate + IdFTPCommon.TimeHHMMSS(Trim(LBuf));
+      AItem.ModifiedDate := AItem.ModifiedDate + IdFTPCommon.TimeHHMMSS(Sys.Trim(LBuf));
       //strip off path information and build no for file
-      LBuf := LowerCase(AItem.FileName);
+      LBuf := Sys.LowerCase(AItem.FileName);
       Fetch(LBuf,TOPS20_DIRFILE_SEP);
       if IndyPos('.DIRECTORY.',LBuf)>0 then
       begin
@@ -309,7 +309,7 @@ begin
   begin
     //That's right - it only returned the file name, no dates, no size, nothing else
     AItem.FileName := LBuf;
-    AItem.LocalFileName := LowerCase(StripBuild(LBuf));
+    AItem.LocalFileName := Sys.LowerCase(StripBuild(LBuf));
     AItem.ModifiedAvail := False;
     AItem.SizeAvail := False;
     if IndyPos('.DIRECTORY.',LBuf)>0 then

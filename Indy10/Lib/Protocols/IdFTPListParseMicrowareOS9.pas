@@ -37,7 +37,7 @@
 unit IdFTPListParseMicrowareOS9;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
 type
   TIdMicrowareOS9FTPListItem = class(TIdOwnerFTPListItem)
   protected
@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 const
   MICROWARE_OS9 = 'MicroWare OS-9'; {do not localize}
@@ -101,7 +101,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LWrds);
+    Sys.FreeAndNil(LWrds);
   end;
 end;
 
@@ -118,19 +118,19 @@ var LBuf : String;
     LI : TIdMicrowareOS9FTPListItem;
 begin
   LI := AItem as TIdMicrowareOS9FTPListItem;
-  LBuf := TrimLeft(LI.Data);
+  LBuf := Sys.TrimLeft(LI.Data);
   //Owner
   LI.OwnerName := Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //Modified date
   LI.ModifiedDate := DateYYMMDD(Fetch(LBuf));
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //not sure what this number is
   Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //permissions
   LPerms := Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   if Copy(LPerms,1,1)='d' then
   begin
     LI.ItemType := ditDirectory;
@@ -144,10 +144,10 @@ begin
   LI.OS9PublicPermissions := Copy(LPerms,3,3);
   LI.OS9OwnerPermissions := Copy(LPerms,5,3);
   //sector
-  LI.OS9Sector := StrToIntDef('$'+Fetch(LBuf),0);
-  LBuf := TrimLeft(LBuf);
+  LI.OS9Sector := Sys.StrToInt64('$'+Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
   //size not sure if in decimal or hexidecimal
-  LI.Size := StrToIntDef(Fetch(LBuf),0);
+  LI.Size := Sys.StrToInt64(Fetch(LBuf),0);
   //name
   LI.FileName := LBuf;
   Result := True;

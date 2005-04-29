@@ -15,7 +15,7 @@
 unit IdFTPListParseNCSAForMACOS;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
 {
 NCSA Telnet for MacIntosh's FTP Server only lists the filenames followed by a /
 if they are directories instead of files.

@@ -113,7 +113,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPVMCMS }
 
@@ -126,7 +126,7 @@ begin
   if AListing.Count > 0 then
   begin
     LData := AListing[0];
-    Result := PosInStrArray(( Trim(Copy(LData,19,3))),VMTypes) <> -1;
+    Result := PosInStrArray(( Sys.Trim(Copy(LData,19,3))),VMTypes) <> -1;
     if Result then
     begin
       Result := (Copy(LData,56,1)='/') and (Copy(LData,59,1)='/');
@@ -187,7 +187,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
   LI := AItem as TIdVMCMSFTPListItem;
   //File Name
   LI.FileName := Copy(AItem.Data,1,8);
-  LI.FileName := Trim(AItem.FileName);
+  LI.FileName := Sys.Trim(AItem.FileName);
   //File Type - extension
   if (LI.Data[9] = ' ') then
   begin
@@ -197,14 +197,14 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
   begin
     LBuffer := Copy(AItem.Data,9,9);
   end;
-  LBuffer := Trim(LBuffer);
+  LBuffer := Sys.Trim(LBuffer);
   if (LBuffer <> '') then
   begin
     LI.FileName := LI.FileName + '.'+LBuffer;
   end;
   //Record format
   LBuffer := Copy(AItem.Data,19,3);
-  LBuffer := Trim(LBuffer);
+  LBuffer := Sys.Trim(LBuffer);
   LI.RecFormat := LBuffer;
   if LI.RecFormat = 'DIR' then {do not localize}
   begin
@@ -216,13 +216,13 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     LI.ItemType := ditFile;
     //Record Length - for files
     LBuffer := Copy(AItem.Data,22,9);
-    LBuffer := Trim(LBuffer);
-    LI.RecLength := StrToIntDef(LBuffer,0);
+    LBuffer := Sys.Trim(LBuffer);
+    LI.RecLength := Sys.StrToInt(LBuffer,0);
     //Record numbers
     LBuffer := Copy(AItem.Data,31,11);
-    LBuffer := Trim(LBuffer);
+    LBuffer := Sys.Trim(LBuffer);
     LBuffer := Fetch(LBuffer);
-    LI.NumberRecs := StrToIntDef(LBuffer,0);
+    LI.NumberRecs := Sys.StrToInt(LBuffer,0);
     //Number of Blocks
     {
     From:
@@ -244,8 +244,8 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     Anyway, you can not know from the directory list.
     }
     LBuffer := Copy(AItem.Data,42,11);
-    LBuffer := Trim(LBuffer);
-    LI.NumberBlocks := StrToIntDef(LBuffer,0);
+    LBuffer := Sys.Trim(LBuffer);
+    LI.NumberBlocks := Sys.StrToInt(LBuffer,0);
     LI.Size := LI.RecLength * LI.NumberRecs;
     //File Size - note that this is just an estimiate
 
@@ -284,11 +284,11 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     // handle both cases.
     if (Copy(AItem.Data,48,1)='-') and (Copy(AItem.Data,51,1)='-') then
     begin
-      LBuffer := Trim(Copy(AItem.Data, 44,Length(AItem.Data)));
+      LBuffer := Sys.Trim(Copy(AItem.Data, 44,Length(AItem.Data)));
     end
     else
     begin
-      LBuffer := Trim(Copy(AItem.Data, 54,Length(AItem.Data)));
+      LBuffer := Sys.Trim(Copy(AItem.Data, 54,Length(AItem.Data)));
     end;
     SplitColumns(LBuffer,LCols);
     //LCols - 0 - Date
@@ -317,7 +317,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
       end;
     end;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 
@@ -343,7 +343,7 @@ begin
     end;
     s := TIdStringList.Create;
     try
-      SplitColumns(TrimRight(AListing[0]),s);
+      SplitColumns(Sys.TrimRight(AListing[0]),s);
       if s.Count >4 then
       begin
         if not IsMMDDYY(s[0],'/') then
@@ -357,7 +357,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -421,10 +421,10 @@ begin
     //file size
     if (LCols.Count > 4) then
     begin
-      AItem.Size := StrToIntDef(LCols[4],0);
+      AItem.Size := Sys.StrToInt64(LCols[4],0);
     end;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -449,7 +449,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -502,7 +502,7 @@ begin
     //record count
     if (LCols.Count > 2) then
     begin
-      LI.NumberRecs := StrToIntDef(LCols[2],0);
+      LI.NumberRecs := Sys.StrToInt(LCols[2],0);
     end;
     //date
     if (LCols.Count > 3) then
@@ -518,7 +518,7 @@ begin
     //with reader file sizes when emulating Unix. We can't support file sizes
     //with this.
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;

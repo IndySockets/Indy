@@ -119,7 +119,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPVMS }
 
@@ -172,7 +172,7 @@ var LData : String;
 begin
   //VMS returns TOTAL at the end.  We test for "blocks." at the end of the line
   //so we don't break something with another parser.
-  LData := UpperCase(AData);
+  LData := Sys.UpperCase(AData);
   Result := (IndyPos('TOTAL OF ', LData) = 1) {do not localize}
          or (IndyPos('GRAND TOTAL OF ', LData )=1); {do not localize}
   if Result then
@@ -237,9 +237,9 @@ begin
     //this assumes that the file contains a ";".  In VMS, this separates the name
     //from the version number.
     LBuffer := Fetch(LLine,';');
-    LI.LocalFileName := LowerCase(LBuffer);
+    LI.LocalFileName := Sys.LowerCase(LBuffer);
     LBuf2 := Fetch(LLine);
-    LI.Version := StrToIntDef(LBuf2,0);
+    LI.Version := Sys.StrToInt(LBuf2,0);
     LBuffer := LBuffer + ';'+ LBuf2;
 
     //Dirs have to be processed differently then
@@ -250,7 +250,7 @@ begin
     begin
       AItem.ItemType := ditDirectory;
       AItem.FileName := Fetch(LBuffer,'.');
-      AItem.LocalFileName := LowerCase(AItem.FileName);
+      AItem.LocalFileName := Sys.LowerCase(AItem.FileName);
     end
     else
     begin
@@ -271,9 +271,9 @@ begin
       begin
         //File Size
         LBuffer := LCols[0];
-        LI.NumberBlocks :=  StrToIntDef(LBuffer,0);
+        LI.NumberBlocks :=  Sys.StrToInt(LBuffer,0);
         LI.BlockSize := VMS_BLOCK_SIZE;
-        LI.Size := StrToIntDef(LBuffer,0)* VMS_BLOCK_SIZE; //512 is the size of a VMS block
+        LI.Size := Sys.StrToInt(LBuffer,0)* VMS_BLOCK_SIZE; //512 is the size of a VMS block
       end
       else
       begin
@@ -291,8 +291,8 @@ begin
 {          //File Size
           LBuffer := LCols[0];
           LBuffer := Fetch(LBuffer,'/');
-          AItem.NumberBlocks :=  StrToIntDef(LBuffer,0);
-          AItem.Size := StrToIntDef(LBuffer,0)* 512; //512 is the size of a VMS block
+          AItem.NumberBlocks :=  Sys.StrToInt(LBuffer,0);
+          AItem.Size := Sys.StrToInt(LBuffer,0)* 512; //512 is the size of a VMS block
 }        end
         else
         begin
@@ -308,12 +308,12 @@ begin
           begin
 
             LBuffer := LCols[1];
-            LDay := StrToIntDef(Fetch(LBuffer,'-'),1);
+            LDay := Sys.StrToInt(Fetch(LBuffer,'-'),1);
             LMonth := StrToMonth( Fetch ( LBuffer,'-' )  );
 
-            LYear := StrToIntDef( TrimLeft(Fetch (LBuffer)),1989);
+            LYear := Sys.StrToInt( Sys.TrimLeft(Fetch (LBuffer)),1989);
 
-            LI.ModifiedDate := EncodeDate( LYear,LMonth,LDay );
+            LI.ModifiedDate := Sys.EncodeDate( LYear,LMonth,LDay );
           end;
 
           //Time
@@ -344,8 +344,8 @@ begin
           LBuffer := LCols[LOwnerIdx];
           Fetch(LBuffer,'[');
           LBuffer := Fetch(LBuffer,']');
-          LI.GroupName := Trim(Fetch(LBuffer,','));
-          LI.OwnerName := Trim(LBuffer);
+          LI.GroupName := Sys.Trim(Fetch(LBuffer,','));
+          LI.OwnerName := Sys.Trim(LBuffer);
         end;
         //Protections
         if (LCols.Count >LOwnerIdx+1) then
@@ -354,10 +354,10 @@ begin
           Fetch(LBuffer,'(');
           LBuffer := Fetch(LBuffer,')');
           LI.PermissionDisplay := '('+LBuffer+')';
-          LI.VMSSystemPermissions := Trim(Fetch(LBuffer,','));
-          LI.VMSOwnerPermissions := Trim(Fetch(LBuffer,','));
-          LI.VMSGroupPermissions := Trim(Fetch(LBuffer,','));
-          LI.VMSWorldPermissions := Trim(LBuffer);
+          LI.VMSSystemPermissions := Sys.Trim(Fetch(LBuffer,','));
+          LI.VMSOwnerPermissions := Sys.Trim(Fetch(LBuffer,','));
+          LI.VMSGroupPermissions := Sys.Trim(Fetch(LBuffer,','));
+          LI.VMSWorldPermissions := Sys.Trim(LBuffer);
         end;
       end;
     end;

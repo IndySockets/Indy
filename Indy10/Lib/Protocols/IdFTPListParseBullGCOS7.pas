@@ -53,7 +53,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdFTPListTypes, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdFTPListTypes, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPGOS7 }
 
@@ -120,7 +120,7 @@ var LBuf : String;
 
   function RemoveComma(const AData : String) : String;
   begin
-    Result := StringReplace(AData,',','',[rfReplaceAll]);
+    Result := Sys.StringReplace(AData,',','');
   end;
 
 begin
@@ -139,7 +139,7 @@ begin
   begin
     LI.ModifiedDate := DateStrMonthDDYY(LBuf, ' ');
   end;
-  LI.OwnerName := Trim(Copy(AItem.Data, 25, 17));
+  LI.OwnerName := Sys.Trim(Copy(AItem.Data, 25, 17));
   //I don't think size is provided
   Result := True;
 end;

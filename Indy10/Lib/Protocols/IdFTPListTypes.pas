@@ -239,7 +239,7 @@ const
   IdFILE_ATTRIBUTE_ENCRYPTED            = $00004000;
   
 implementation
-uses IdFTPCommon, IdGlobal, SysUtils;
+uses IdFTPCommon, IdGlobal, IdSys;
 { TIdMinimalFTPListItem }
 
 constructor TIdMinimalFTPListItem.Create(AOwner: TCollection);
@@ -260,7 +260,7 @@ end;
 
 destructor TIdMLSTFTPListItem.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  Sys.FreeAndNil(FAttributes);
   inherited;
 end;
 
@@ -272,7 +272,7 @@ begin
     ParseFacts(Data,LFacts);
     Result := LFacts.Values[AName];
   finally
-    FreeAndNil(LFacts);
+    Sys.FreeAndNil(LFacts);
   end;
 end;
 
@@ -286,7 +286,7 @@ end;
 
 destructor TIdDOSBaseFTPListItem.Destroy;
 begin
-  FreeAndNil(FAttributes);
+  Sys.FreeAndNil(FAttributes);
   inherited;
 end;
 

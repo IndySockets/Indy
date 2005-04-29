@@ -238,7 +238,7 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols, IdStrings, SysUtils;
+  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols, IdStrings, IdSys;
 
 var GParserList : TIdFTPRegParseList;
 
@@ -543,7 +543,7 @@ begin
     LBuffer := LFacts.Values['size']; {do not localize}
     if LBuffer<>'' then
     begin
-      LI.Size := StrToIntDef(LBuffer, 0);
+      LI.Size := Sys.StrToInt64(LBuffer, 0);
       LI.SizeAvail := True;
     end
     else
@@ -556,7 +556,7 @@ begin
       LBuffer := LFacts.Values['sizd']; {Do not localize}
       if LBuffer<>'' then
       begin
-        LI.Size := StrToIntDef(LBuffer, 0);
+        LI.Size := Sys.StrToInt64(LBuffer, 0);
         LI.SizeAvail := True;
       end
       else
@@ -583,7 +583,7 @@ begin
         if IsNumeric(LBuffer) then
         begin
 
-           ChmodNoToPerms( StrToIntDef( LBuffer,0),LBuffer);
+           ChmodNoToPerms( Sys.StrToInt( LBuffer,0),LBuffer);
            case  LI.ItemType of
              ditFile : LBuffer := '-'+LBuffer;
              ditDirectory : LBuffer := 'd'+LBuffer;
@@ -610,11 +610,11 @@ begin
       Fetch(LBuffer,'x');
       LBuffer := '$'+LBuffer;
       LI.AttributesAvail := True;
-      LI.Attributes.FileAttributes  := StrToIntDef( LBuffer,0);
+      LI.Attributes.FileAttributes  := Sys.StrToInt( LBuffer,0);
     end;
     Result := True;
   finally
-    FreeAndNil(LFacts);
+    Sys.FreeAndNil(LFacts);
   end;
 end;
 
@@ -725,5 +725,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPMList);
 
 finalization
-  FreeAndNil(GParserList);
+  Sys.FreeAndNil(GParserList);
 end.

@@ -105,7 +105,7 @@ type
 const WFFTP = 'WfFTP';
 
 implementation
-uses IdFTPCommon, IdGlobal, SysUtils;
+uses IdFTPCommon, IdGlobal, IdSys;
 
 { TIdFTPLPWfFTP }
 
@@ -132,7 +132,7 @@ begin
           (s[4]='Day') and (s[5]='Time');
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -164,15 +164,15 @@ begin
   //file name
   AItem.FileName := Fetch(LLine);
   //size
-  LLine := TrimLeft(LLine);
-  AItem.Size := StrToIntDef(Fetch(LLine),0);
+  LLine := Sys.TrimLeft(LLine);
+  AItem.Size := Sys.StrToInt64(Fetch(LLine),0);
   // date
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   AItem.ModifiedDate := DateMMDDYY(Fetch(LLine));
   //day of week - discard
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   Fetch(LLine);
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   //time
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Fetch(LLine));
 end;

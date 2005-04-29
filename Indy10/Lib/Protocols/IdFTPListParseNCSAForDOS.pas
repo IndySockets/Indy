@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 
 { TIdFTPLPNCSAforDOS }
@@ -93,7 +93,7 @@ begin
             and ExcludeQVNET(LData);
         end;
       finally
-        FreeAndNil(s);
+        Sys.FreeAndNil(s);
       end;
       if not Result then
       begin
@@ -116,7 +116,7 @@ begin
   Result := False;
   LWords := TIdStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LWords);
+    SplitColumns(Sys.Trim(Sys.StringReplace(AData, '-', ' ')), LWords);
     while (LWords.Count >2) do
     begin
       LWords.Delete(0);
@@ -126,7 +126,7 @@ begin
       Result := (LWords[0] = 'Bytes') and (LWords[1] = 'Available');  {do not localize}
     end;
   finally
-    FreeAndNil(LWords);
+    Sys.FreeAndNil(LWords);
   end;
 end;
 
@@ -150,7 +150,7 @@ begin
   {filename - note that a space is illegal in MS-DOS so this should be safe}
   AItem.FileName := Fetch(LBuf);
   {type or size}
-  LBuf := Trim(LBuf);
+  LBuf := Sys.Trim(LBuf);
   LPt := Fetch(LBuf);
   if LPt = '<DIR>' then {do not localize}
   begin
@@ -160,18 +160,18 @@ begin
   else
   begin
     AItem.ItemType := ditFile;
-    AItem.Size := StrToIntDef(LPt,0);
+    AItem.Size := Sys.StrToInt64(LPt,0);
   end;
   //time stamp
   if LBuf <> '' then
   begin
-    LBuf := Trim(LBuf);
+    LBuf := Sys.Trim(LBuf);
     LPt := Fetch(LBuf);
     if LPt <> '' then
     begin
       //Date
       AItem.ModifiedDate := DateMMDDYY(LPt);
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
       LPt := Fetch(LBuf);
       if LPt <> '' then
       begin

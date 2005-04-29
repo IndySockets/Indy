@@ -152,7 +152,7 @@ const
   TANDEM_GUARDIAN_ID = 'Tandem NonStop Guardian';
 
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdStrings, SysUtils;
+uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPTandemGuardian }
 
@@ -167,7 +167,7 @@ begin
   Result := False;
   LCols := TIdStringList.Create;
   try
-     SplitColumns(Trim(AData),LCols);
+     SplitColumns(Sys.Trim(AData),LCols);
      if LCols.Count = 7 then
      begin
        Result := (LCols[0]='File') and (LCols[1]='Code') and
@@ -176,7 +176,7 @@ begin
                  (LCols[6]='RWEP')
      end;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
 end;
 
@@ -214,39 +214,39 @@ subvolume of the volume on the server.
 ===
   }
   LItem := AItem as TIdTandemGuardianFTPListItem;
-  LLine := Trim(LItem.Data);
+  LLine := Sys.Trim(LItem.Data);
   LItem.ItemType := ditFile;
   //name
   // Steve Howe advised me that a filename can not have a space and is 8 chars
   // with no filename extensions.  It is case insensitive.
   LItem.FileName := Fetch(LLine);
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   //code
-  LItem.Code := StrToIntDef(Fetch(LLine),0);
-  LLine := TrimLeft(LLine);
+  LItem.Code := Sys.StrToInt(Fetch(LLine),0);
+  LLine := Sys.TrimLeft(LLine);
   //EOF
-  LItem.Size := StrToIntDef(Fetch(LLine),0);
-  LLine := TrimLeft(LLine);
+  LItem.Size := Sys.StrToInt64(Fetch(LLine),0);
+  LLine := Sys.TrimLeft(LLine);
   //Last Modification
     //date
   LBuffer := Fetch(LLine);
-  LLine := TrimLeft(LLine);
-  LDay := StrToIntDef(Fetch(LBuffer,'-'),1);
+  LLine := Sys.TrimLeft(LLine);
+  LDay := Sys.StrToInt(Fetch(LBuffer,'-'),1);
   LMonth := StrToMonth( Fetch ( LBuffer,'-' )  );
 
-  LYear := StrToIntDef( TrimLeft(Fetch (LBuffer)),1989);
+  LYear := Sys.StrToInt( Sys.TrimLeft(Fetch (LBuffer)),1989);
   LYear := Y2Year(LYear);
      //time
-  LItem.ModifiedDate := EncodeDate( LYear,LMonth,LDay );
+  LItem.ModifiedDate := Sys.EncodeDate( LYear,LMonth,LDay );
   LBuffer := Fetch(LLine);
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   LItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LBuffer);
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   //group,Owner
   //Steeve how advised me that the first number in this column is a group
   //and the number after the comma is an owner
   LItem.GroupName := Fetch(LLine,',');;
-  LLine := TrimLeft(LLine);
+  LLine := Sys.TrimLeft(LLine);
   LItem.OwnerName := Fetch(LLine);
   //RWEP
   LItem.Permissions := UnquotedStr(LLine);

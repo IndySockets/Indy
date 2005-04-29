@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPKA9Q }
 
@@ -103,7 +103,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -124,14 +124,14 @@ begin
   end;
   LWords := TIdStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LWords);
+    SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LWords);
     if (LWords.Count >1) then
     begin
       Result := (LWords[1] = 'files.') or (LWords[1] = 'file.') or  {do not localize}
         (LWords[1] = 'files') or (LWords[1] = 'file');  {do not localize}
     end;
   finally
-    FreeAndNil(LWords);
+    Sys.FreeAndNil(LWords);
   end;
 end;
 
@@ -172,21 +172,21 @@ begin
     begin
       AItem.FileName := LPt;
       AItem.ItemType := ditFile;
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
       LPt := Fetch(LBuf);
       AItem.Size := ExtractNumber(LPt);
     end;
-    LBuf := Trim(LBuf);
+    LBuf := Sys.Trim(LBuf);
     LPt := Fetch(LBuf);
     if LPt <> '' then
     begin
       AItem.ModifiedDate := TimeHHMMSS(LPt);
-      LBuf := Trim(LBuf);
+      LBuf := Sys.Trim(LBuf);
       LPt := Fetch(LBuf);
       if LPt <> '' then
       begin
         AItem.ModifiedDate := AItem.ModifiedDate + DateMMDDYY(LPt);
-        LBuf := Trim(LBuf);
+        LBuf := Sys.Trim(LBuf);
         if LBuf <> '' then
         begin
           LDir := AItem.Collection as TIdFTPListItems;

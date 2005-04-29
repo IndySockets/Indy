@@ -35,7 +35,7 @@
 unit IdFTPListParseVxWorks;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdTStrings;
 
 type
   TIdVxWorksFTPListItem = class(TIdFTPListItem);
@@ -52,7 +52,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPVxWorks }
 
@@ -75,14 +75,14 @@ begin
   Result := False;
   LCols := TIdStringList.Create;
   try
-     SplitColumns(Trim(AData),LCols);
+     SplitColumns(Sys.Trim(AData),LCols);
      if (LCols[0] = 'size') and (LCols[1] = 'date') and   {do not localize}
         (LCols[2] = 'time') and (LCols[3] = 'name') then  {do not localize}
         begin
           Result := True;
         end;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
 end;
 
@@ -96,15 +96,15 @@ class function TIdFTPLPVxWorks.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var LBuffer : String;
 begin
-  LBuffer := Trim(AItem.Data);
+  LBuffer := Sys.Trim(AItem.Data);
   //Size
-  AItem.Size := StrToIntDef(Fetch(LBuffer),0);
+  AItem.Size := Sys.StrToInt64(Fetch(LBuffer),0);
   //  date
-  LBuffer := TrimLeft(LBuffer);
+  LBuffer := Sys.TrimLeft(LBuffer);
   AItem.ModifiedDate := DateStrMonthDDYY(Fetch(LBuffer));
 
   // time
-  LBuffer := TrimLeft(LBuffer);
+  LBuffer := Sys.TrimLeft(LBuffer);
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Fetch(LBuffer));
 
   // item type
@@ -114,7 +114,7 @@ begin
     LBuffer := Copy(LBuffer, 1, Length(LBuffer)-5);
   end;
   //I hope filenames and dirs don't start or end with a space
-  AItem.FileName := Trim(LBuffer);
+  AItem.FileName := Sys.Trim(LBuffer);
   Result := True;
 end;
 

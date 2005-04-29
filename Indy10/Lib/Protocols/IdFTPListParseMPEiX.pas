@@ -35,7 +35,7 @@
 unit IdFTPListParseMPEiX;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)
   protected
@@ -75,7 +75,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPMPiXBase }
 
@@ -146,7 +146,7 @@ begin
   begin
     LCols := TIdStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
+      SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LCols);
       if Result = False then
       begin
         Result := (LCols.Count > 3) and
@@ -164,7 +164,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      FreeAndNil(LCols);
+      Sys.FreeAndNil(LCols);
     end;
   end;
 end;
@@ -181,13 +181,13 @@ begin
   try
     //According to "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems,Edition 6"
     //the filename here can be 8 chars long
-    LI.FileName := Trim(Copy(AItem.Data, 1, 8));
+    LI.FileName := Sys.Trim(Copy(AItem.Data, 1, 8));
     LBuf := Copy(AItem.Data, 8, Length(AItem.Data));
     if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then
     begin
       Fetch(LBuf);
     end;
-    SplitColumns(Trim(LBuf),LCols);
+    SplitColumns(Sys.Trim(LBuf),LCols);
 
     if LCols.Count > 1 then
     begin
@@ -201,12 +201,12 @@ begin
     //record COunt - EOF
     if LCols.Count > 3 then
     begin
-      LI.NumberRecs := StrToIntDef(LCols[3], 0);
+      LI.NumberRecs := Sys.StrToInt64(LCols[3], 0);
     end;
     //Limit
     if LCols.Count > 4 then
     begin
-      LI.Limit := StrToIntDef(LCols[4], 0);
+      LI.Limit := Sys.StrToInt64(LCols[4], 0);
     end;
     {
     HP3000 is a flat file system where there are no
@@ -221,7 +221,7 @@ begin
     }
     LI.ModifiedAvail := False;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -258,7 +258,7 @@ begin
   begin
     LCols := TIdStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
+      SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LCols);
       Result := (LCols.Count = 5) and
                 (LCols[0] = 'CODE') and       {do not localize}
                 (LCols[1] = 'LOGICAL') and    {do not localize}
@@ -270,7 +270,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      FreeAndNil(LCols);
+      Sys.FreeAndNil(LCols);
     end;
   end;
 end;
@@ -284,7 +284,7 @@ begin
   LI := AItem as TIdMPiXFTPListItem;
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data),LCols);
+    SplitColumns(Sys.Trim(AItem.Data),LCols);
     if LCols.Count > 0 then
     begin
       LI.Size := ExtractNumber(LCols[0]);
@@ -295,11 +295,11 @@ begin
     end;
     if (LCols.Count > 2) then
     begin
-      LI.NumberRecs := StrToIntDef(LCols[2],0);
+      LI.NumberRecs := Sys.StrToInt64(LCols[2],0);
     end;
     if (LCols.Count > 3) then
     begin
-      LI.Limit := StrToIntDef(LCols[3],0);
+      LI.Limit := Sys.StrToInt64(LCols[3],0);
     end;
     if (LCols.Count > 8) then
     begin
@@ -330,7 +330,7 @@ begin
     Note that HP3000 does not give you the date at all.
     }
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;

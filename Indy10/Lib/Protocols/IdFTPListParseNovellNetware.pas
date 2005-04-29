@@ -53,7 +53,7 @@
 unit IdFTPListParseNovellNetware;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
 {
 This parser should work with Netware 3 and 4.  It will probably work on later
 versions of Novell Netware as well.
@@ -74,7 +74,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPNovellNetware }
 
@@ -161,12 +161,12 @@ begin
   LI := AItem as TIdNovellNetwareFTPListItem;
   NameStartIdx := 5;
   // Get defaults for modified date/time
-  ADate := Now;
-  DecodeDate(ADate, wYear, wMonth, wDay);
-  DecodeTime(ADate, wHour, wMin, wSec, wMSec);
+  ADate := Sys.Now;
+  Sys.DecodeDate(ADate, wYear, wMonth, wDay);
+  Sys.DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LCurrentMonth := wMonth;
 
-  if (UpperCase(Copy(LI.Data,1,1)) = 'D') then
+  if (Sys.UpperCase(Copy(LI.Data,1,1)) = 'D') then
   begin
     LI.ItemType :=  ditDirectory;
   end
@@ -206,24 +206,24 @@ begin
       if (strs.Count > 4) then
       begin
         LI.OwnerName := strs[0];
-        LI.Size := StrToIntDef(strs[1],0);
+        LI.Size := Sys.StrToInt64(strs[1],0);
         wMonth := StrToMonth(strs[2]);
         if wMonth < 1 then
         begin
           wMonth := LCurrentMonth;
         end;
-        wDay := StrToIntDef(strs[3],wDay);
+        wDay := Sys.StrToInt(strs[3],wDay);
         if (IndyPos(':',Strs[4])=0) then
         begin
-          wYear := StrToIntDef(strs[4],wYear);
+          wYear := Sys.StrToInt(strs[4],wYear);
           wYear := Y2Year(wYear);
           wHour := 0;
           wMin := 0;
           if (Strs.Count > 5) and (IndyPos(':',Strs[5])>0) then
           begin
             LBuf := Strs[5];
-            wHour := StrToIntDef(Fetch(LBuf,':'),wHour);
-            wMin := StrToIntDef(Fetch(LBuf,':'),wMin);
+            wHour := Sys.StrToInt(Fetch(LBuf,':'),wHour);
+            wMin := Sys.StrToInt(Fetch(LBuf,':'),wMin);
             NameStartIdx := 6;
           end;
         end
@@ -231,11 +231,11 @@ begin
         begin
           wYear := AddMissingYear(wDay,wMonth);
           LBuf := Strs[4];
-          wHour := StrToIntDef(Fetch(LBuf,':'),wHour);
-          wMin := StrToIntDef(Fetch(LBuf,':'),wMin);
+          wHour := Sys.StrToInt(Fetch(LBuf,':'),wHour);
+          wMin := Sys.StrToInt(Fetch(LBuf,':'),wMin);
         end;
-        LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
-        LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,0,0);
+        LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
+        LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,0,0);
         //Note that I doubt a file name can start with a space in Novel/
         //Netware.  Some code I've seen strips those off.
         for NameStartPos := NameStartIdx to Strs.Count -1 do
@@ -248,7 +248,7 @@ begin
         LI.LocalFileName := LName;
       end;
     finally
-      FreeAndNil(strs);
+      Sys.FreeAndNil(strs);
     end;
   end;
   Result := True;

@@ -45,7 +45,7 @@
 unit IdFTPListParseMVS;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
 {
 This should work with IBM MVS, OS/390, and z/OS.
 
@@ -142,7 +142,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPMVS }
 
@@ -269,11 +269,11 @@ begin
       end;
       if s.Count >3 then
       begin
-        LI.NumberExtents := StrToIntDef(s[3],0);
+        LI.NumberExtents := Sys.StrToInt(s[3],0);
       end;
       if s.Count >4 then
       begin
-        LI.NumberTracks := StrToIntDef(s[4],0);
+        LI.NumberTracks := Sys.StrToInt(s[4],0);
       end;
       if s.Count >5 then
       begin
@@ -281,11 +281,11 @@ begin
       end;
       if s.Count >6 then
       begin
-        LI.RecLength := StrToIntDef(s[6],0);
+        LI.RecLength := Sys.StrToInt(s[6],0);
       end;
       if s.Count >7 then
       begin
-        LI.BlockSize := StrToIntDef(s[7],0);
+        LI.BlockSize := Sys.StrToInt(s[7],0);
       end;
       if s.Count >8 then
       begin
@@ -300,7 +300,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
   //Note that spaces are illegal in MVS file names (Data set namess)
@@ -450,7 +450,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
   Result := True;
 end;
@@ -466,7 +466,7 @@ begin
     s := TIdStringList.Create;
     try
       SplitColumns(AListing[0],s);
-      Result := (s.Count >2) and (PosInStrArray(Trim(s[2]),MVS_JES_Status)>-1);
+      Result := (s.Count >2) and (PosInStrArray(Sys.Trim(s[2]),MVS_JES_Status)>-1);
       if Result and (s.Count > 3) then
       begin
         Result := IsNumeric(s[3]) or (s[3][1]='-');
@@ -476,7 +476,7 @@ begin
         Result := IsMVS_JESNoJobsMsg(AListing[0]);
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end
   else
@@ -520,10 +520,10 @@ begin
   //owner
   LBuf := AItem.Data;
   LI.OwnerName := Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   //filename
   LI.FileName  := Fetch(LBuf);
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   case PosInStrArray (Fetch(LBuf),MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;        // 'INPUT'  job received but not run yet
     1 : LI.JobStatus := IdJESHold;            // 'HELD'   job is in hold status
@@ -531,8 +531,8 @@ begin
     3 : LI.JobStatus := IdJESOuptutAvailable; // 'OUTPUT' job has finished and has output available
   end;
   //spool file output if available
-  LBuf := TrimLeft(LBuf);
-  LI.JobSpoolFiles := StrToIntDef(Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
+  LI.JobSpoolFiles := Sys.StrToInt(Fetch(LBuf),0);
   Result := True;
 end;
 
@@ -605,19 +605,19 @@ var LBuf, LNo : String;
   LI : TIdMVSJESIntF2FTPListItem;
 begin
   LI := AItem as TIdMVSJESIntF2FTPListItem;
-  LI.FileName := Trim(Copy(AItem.Data,10,8));
-  LI.OwnerName := Trim(Copy(AItem.Data,19,7));
+  LI.FileName := Sys.Trim(Copy(AItem.Data,10,8));
+  LI.OwnerName := Sys.Trim(Copy(AItem.Data,19,7));
   if IsLineStr(LI.OwnerName) then
   begin
     LI.OwnerName := '';
   end;
-  case PosInStrArray (Trim(Copy(AItem.Data,28,7)),MVS_JES_Status) of
+  case PosInStrArray (Sys.Trim(Copy(AItem.Data,28,7)),MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;          // 'INPUT'   job received but not run yet
     1 : LI.JobStatus := IdJESHold;              // 'HELD'    job is in hold status
     2 : LI.JobStatus := IdJESRunning;           // 'ACTIVE'  job is running
     3 : LI.JobStatus := IdJESOuptutAvailable;   // 'OUTPUT'  job has finished and has output available
   end;
-  LBuf := Trim(Copy(AItem.Data,35,Length(AItem.Data)));
+  LBuf := Sys.Trim(Copy(AItem.Data,35,Length(AItem.Data)));
   LPos := IndyPos(' spool',LBuf); {do not localize}
   if LPos = 0 then
   begin
@@ -636,7 +636,7 @@ begin
       LNo := LBuf[LPos2] + LNo;
     end;
   end;
-  LI.JobSpoolFiles := StrToIntDef(LNo,0);
+  LI.JobSpoolFiles := Sys.StrToInt(LNo,0);
   Result := True;
 end;
 
@@ -709,7 +709,7 @@ end;
 
 destructor TIdMVSJESIntF2FTPListItem.Destroy;
 begin
-  FreeAndNil(FDetails);
+  Sys.FreeAndNil(FDetails);
   inherited;
 end;
 

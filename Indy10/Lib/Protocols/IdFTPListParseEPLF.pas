@@ -65,7 +65,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPEPLF }
 
@@ -105,7 +105,7 @@ begin
       end;
       if (Length(LFacts[i]) > 0) and (LFacts[i][1] = 's') then
       begin
-        AItem.Size := StrToIntDef(Copy(LFacts[i], 2, Length(LFacts[i])), 0);
+        AItem.Size := Sys.StrToInt64(Copy(LFacts[i], 2, Length(LFacts[i])), 0);
       end;
       if LFacts[i][1] = 'm' then  {do not localize}
       begin
@@ -118,7 +118,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(LFacts);
+    Sys.FreeAndNil(LFacts);
   end;
   Result := True;
 end;

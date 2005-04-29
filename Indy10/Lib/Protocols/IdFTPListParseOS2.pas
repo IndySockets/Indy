@@ -41,7 +41,7 @@
 unit IdFTPListParseOS2;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
 
 {
 This parser is based on some data that I had managed to obtain second hand
@@ -65,7 +65,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 
 { TIdFTPLPOS2 }
@@ -91,7 +91,7 @@ begin
 
   }
     LBuf := AListing[0];
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LNum := Fetch(LBuf);
     if IsNumeric(LNum)=False then
     begin
@@ -99,11 +99,11 @@ begin
       Exit;
     end;
     repeat
-      LBuf := TrimLeft(LBuf);
+      LBuf := Sys.TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
         if LBuf2='DIR' then {do not localize}
         begin
-          LBuf := TrimLeft(LBuf);
+          LBuf := Sys.TrimLeft(LBuf);
           LBuf2 := Fetch(LBuf);
         end;
       if IsMMDDYY(LBuf2,'-') then
@@ -128,7 +128,7 @@ begin
       Result := False;
       Exit;
     end;
-    LBuf := TrimLeft(LBuf);
+    LBuf := Sys.TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
   end
@@ -164,20 +164,20 @@ var LO :  TIdOS2FTPListItem;
 begin                         //AddAttribut
   Result := False;
   LBuf := AItem.Data;
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LNum := Fetch(LBuf);
-  AItem.Size := StrToIntDef(LNum,0);
+  AItem.Size := Sys.StrToInt64(LNum,0);
   LO := AItem as TIdOS2FTPListItem;
   repeat
   //keep going until we find a date
-      LBuf := TrimLeft(LBuf);
+      LBuf := Sys.TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       if LNum='0' then
       begin
         if LBuf2 = 'DIR' then {do not localize}
         begin
           LO.ItemType := ditDirectory;
-          LBuf := TrimLeft(LBuf);
+          LBuf := Sys.TrimLeft(LBuf);
           LBuf2 := Fetch(LBuf);
         end;
       end;
@@ -194,7 +194,7 @@ begin                         //AddAttribut
       end;
   until False;
   //time
-  LBuf := TrimLeft(LBuf);
+  LBuf := Sys.TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   if IsHHMMSS(LBuf2,':') then
   begin

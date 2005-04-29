@@ -64,7 +64,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPXecomMicroRTOS }
 
@@ -88,7 +88,7 @@ begin
       (s[6] = '**');                                                        {do not localize}
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -106,7 +106,7 @@ begin
          (s[3] = 'File') and (s[4] = 'name');                                 {do not localize}
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -122,18 +122,18 @@ var LBuf : String;
   LI : TIdXecomMicroRTOSTPListItem;
 begin
   LI := AItem as TIdXecomMicroRTOSTPListItem;
-  LBuf := TrimLeft(AItem.Data);
+  LBuf := Sys.TrimLeft(AItem.Data);
   //start memory offset
-  LBuf := TrimLeft(LBuf);
-  LI.MemStart := StrToIntDef('$'+Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
+  LI.MemStart := Sys.StrToInt('$'+Fetch(LBuf),0);
   //end memory offset
-  LBuf := TrimLeft(LBuf);
-  LI.MemEnd := StrToIntDef('$'+Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
+  LI.MemEnd := Sys.StrToInt('$'+Fetch(LBuf),0);
   //file size
-  LBuf := TrimLeft(LBuf);
-  LI.Size := StrToIntDef(Fetch(LBuf),0);
+  LBuf := Sys.TrimLeft(LBuf);
+  LI.Size := Sys.StrToInt64(Fetch(LBuf),0);
   //File name
-  LI.FileName := TrimLeft(LBuf);
+  LI.FileName := Sys.TrimLeft(LBuf);
   //note that the date is not provided and I do not think there are
   //dirs in this real-time operating system.
   Result := True;

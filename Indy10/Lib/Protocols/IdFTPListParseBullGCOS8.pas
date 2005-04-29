@@ -61,7 +61,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPGOS8 }
 
@@ -142,9 +142,9 @@ begin
     LI.UnixOtherPermissions := Copy(AItem.Data, 11, 3);
     LI.PermissionDisplay    := Copy(AItem.Data, 1, 13);
 
-    LI.Size := StrToIntDef(Trim(Copy(AItem.Data, 15, 11)), 0);
+    LI.Size := Sys.StrToInt64(Sys.Trim(Copy(AItem.Data, 15, 11)), 0);
 
-    LI.OwnerName := Trim(Copy(AItem.Data,46,14));
+    LI.OwnerName := Sys.Trim(Copy(AItem.Data,46,14));
 
     LI.ModifiedDate := DateMMDDYY(Copy(AItem.Data, 27, 8));
     LBuf := Copy(AItem.Data, 36, 8);

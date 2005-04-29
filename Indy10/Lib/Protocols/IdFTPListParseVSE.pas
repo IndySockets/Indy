@@ -133,7 +133,7 @@ implementation
 
 uses
   IdGlobal, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 { TIdFTPLPVSERootDir }
 
@@ -145,7 +145,7 @@ begin
   begin
     LBuffer := AListing[0];
     Fetch(LBuffer);
-    LBuffer := Trim(LBuffer);
+    LBuffer := Sys.Trim(LBuffer);
     Result := (PosInStrArray(LBuffer,VSERootDirItemTypes) > -1);
   end
   else
@@ -176,7 +176,7 @@ begin
   LBuffer := AItem.Data;
 
   AItem.FileName := Fetch(LBuffer);
-  LBuffer := Trim(LBuffer);
+  LBuffer := Sys.Trim(LBuffer);
   case PosInStrArray(LBuffer,VSERootDirItemTypes) of
     5 : AItem.ItemType := ditFile;
   else
@@ -210,7 +210,7 @@ begin
         Result := (IndyPos(s[4],ValidFileTypeSet)>0) and (IsNumeric(s[3]));
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end
   else
@@ -244,13 +244,13 @@ var
 begin
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data),LCols);
+    SplitColumns(Sys.Trim(AItem.Data),LCols);
     AItem.FileName := LCols[0];
     AItem.ModifiedDate := DateYYMMDD(LCols[1]);
     AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
     AItem.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -285,7 +285,7 @@ begin
         end;
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -313,7 +313,7 @@ begin
   LI := AItem as TIdVSEPowerQueueFTPListItem;
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data),LCols);
+    SplitColumns(Sys.Trim(AItem.Data),LCols);
     //0 - Job name, job number, and job suffix. This information is contained in
     //   one string, with the three subfields separated by dots.
     //1 - records in file
@@ -329,12 +329,12 @@ begin
     end;
     if LCols.Count >1 then
     begin
-      LI.Size := StrToIntDef(LCols[1],0);
+      LI.Size := Sys.StrToInt(LCols[1],0);
       LI.NumberRecs := AItem.Size;
     end;
     if (LCols.Count > 4) then
     begin
-      LI.VSEPQPriority := StrToIntDef(LCols[4],0);
+      LI.VSEPQPriority := Sys.StrToInt(LCols[4],0);
     end;
     if (LCols.Count > 5) and (LCols[5]<>'') then
     begin
@@ -346,7 +346,7 @@ begin
     end;
     LI.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -375,7 +375,7 @@ begin
         Result := (IndyPos(s[4],ValidFileTypeSet)>0) and (IsNumeric(s[3]));
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -409,14 +409,14 @@ begin
   LI := AItem as TIdVSEVSAMCatalogFTPListItem;
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data),LCols);
+    SplitColumns(Sys.Trim(AItem.Data),LCols);
     LI.FileName := LCols[0];
     LI.ModifiedDate := DateYYMMDD(LCols[1]);
     LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
-    LI.Size := StrToIntDef(LCols[3],0);
+    LI.Size := Sys.StrToInt64(LCols[3],0);
     LI.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -431,7 +431,7 @@ begin
   begin
     LBuffer := AListing[0];
     Fetch(LBuffer);
-    LBuffer := TrimLeft(LBuffer);
+    LBuffer := Sys.TrimLeft(LBuffer);
     LBuffer := Fetch(LBuffer,'>')+'>';
     Result := LBuffer = '<Sub Library>';  //Note that for Libraries, this  {Do not translate}
     //is always <Sub Library>
@@ -469,18 +469,18 @@ begin
   Fetch(LBuffer,'>');  //This is always <Sub Library>
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(LBuffer),LCols);
+    SplitColumns(Sys.Trim(LBuffer),LCols);
     //0 - number of members - used as file size when emulating Unix, I think
     //1 - number of blocks
     //2 - date
     //3 - time
     if LCols.Count > 0 then
     begin
-      LI.Size := StrToIntDef(LCols[0],0);
+      LI.Size := Sys.StrToInt64(LCols[0],0);
     end;
     if LCols.Count > 1 then
     begin
-      LI.NumberBlocks := StrToIntDef(LCols[1],0);
+      LI.NumberBlocks := Sys.StrToInt(LCols[1],0);
     end;
     if LCols.Count > 2 then
     begin
@@ -493,7 +493,7 @@ begin
     //sublibraries are always types of directories
     LI.ItemType := ditDirectory;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -522,7 +522,7 @@ begin
         Result := (s.Count > 4) and (IndyPos('/',s[3])>0) and (IndyPos(':',s[4])>0)
           and (CharIsInSet(s[s.Count -1], 1, VSE_SUBLIBTYPES));
       finally
-        FreeAndNil(s);
+        Sys.FreeAndNil(s);
       end;
     end;
   end
@@ -562,7 +562,7 @@ begin
   LBuffer := Copy(LBuffer,1,Length(LBuffer)-1);
   LCols := TIdStringList.Create;
   try
-    SplitColumns(Trim(LBuffer),LCols);
+    SplitColumns(Sys.Trim(LBuffer),LCols);
     //0 - file name
     //1 - records in file - might be reported as size in Unix emulation
     //2 - number of library blocks
@@ -577,12 +577,12 @@ begin
     end;
     if LCols.Count >1 then
     begin
-      LI.Size := StrToIntDef(LCols[1],0);
+      LI.Size := Sys.StrToInt64(LCols[1],0);
       LI.NumberRecs := AItem.Size;
     end;
     if LCols.Count > 2 then
     begin
-      LI.NumberBlocks := StrToIntDef(LCols[2],0);
+      LI.NumberBlocks := Sys.StrToInt(LCols[2],0);
     end;
     //creation time
       if LCols.Count >3 then
@@ -613,7 +613,7 @@ begin
       end;
      AItem.ItemType := ditFile;
   finally
-    FreeAndNil(LCols);
+    Sys.FreeAndNil(LCols);
   end;
   Result := True;
 end;

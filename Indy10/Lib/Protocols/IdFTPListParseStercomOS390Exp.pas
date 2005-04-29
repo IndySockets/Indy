@@ -29,7 +29,7 @@ unit IdFTPListParseStercomOS390Exp;
 interface
 
 uses
-  classes,
+  Classes,
   IdFTPList, IdFTPListParseBase, IdTStrings;
 
 type
@@ -59,7 +59,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  SysUtils;
+  IdSys;
 
 {
 "Connect:Express OS/390 FTP Guide Version 4.1" Copyright
@@ -134,18 +134,18 @@ begin
     end;
     if s.Count > 4 then
     begin
-      LI.RecLength := StrToIntDef(s[4],0);
+      LI.RecLength := Sys.StrToInt64(s[4],0);
     end;
     if s.Count > 5 then
     begin
-      LI.BlockSize := StrToIntDef(s[5],0);
+      LI.BlockSize := Sys.StrToInt64(s[5],0);
     end;
     if s.Count > 6 then
     begin
       LI.FileName := s[6];
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
   Result := True;
 end;

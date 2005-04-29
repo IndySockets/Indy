@@ -51,7 +51,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon,  IdGlobalProtocols, SysUtils;
+  IdGlobal, IdFTPCommon,  IdGlobalProtocols, IdSys;
 
 { TIdFTPLPAS400 }
 
@@ -70,7 +70,7 @@ begin
         Result := (s[4][1]='*') or (s[4]='DIR');  {Do not translate}
       end;
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
   end;
 end;
@@ -201,19 +201,19 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   LBuffer := AItem.Data;
   LI.OwnerName := Fetch(LBuffer);
 
-  LBuffer := TrimLeft(LBuffer);
+  LBuffer := Sys.TrimLeft(LBuffer);
   //we have to make sure that the size feild really exists or the
   //the parser is thrown off
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
-    LI.Size := StrToIntDef(FetchLength(LBuffer,9),0);
+    LI.Size := Sys.StrToInt64(FetchLength(LBuffer,9),0);
 
-    LBuffer := TrimLeft(LBuffer);
+    LBuffer := Sys.TrimLeft(LBuffer);
   end;
   //Sometimes the date and time feilds will not present
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
-    LDate := Trim(StrPart(LBuffer,8));
+    LDate := Sys.Trim(StrPart(LBuffer,8));
     if (LBuffer <> '') and (LBuffer[1]<>' ') then
     begin
       LDate := LDate + Fetch(LBuffer);
@@ -222,7 +222,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
     begin
       LI.ModifiedDate := AS400Date(LDate);
     end;
-    LTime := Trim(StrPart(LBuffer,8));
+    LTime := Sys.Trim(StrPart(LBuffer,8));
     if (LBuffer <> '') and (LBuffer[1]<>' ') then
     begin
       LTime := LTime + Fetch(LBuffer);
@@ -233,12 +233,12 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
     end;
   end;
   //most of this data is manditory so things are less sensitive to positions
-  LBuffer := Trim(LBuffer);
+  LBuffer := Sys.Trim(LBuffer);
   LObjType := FetchLength(LBuffer,11);
   //A file object is something like a file but it can contain members - treat as dir.
   //  Odd, I know.
   //There are also several types of file objects
-  if (Copy(UpperCase(LObjType),1,5)) = '*FILE' then {do not localize}
+  if (Copy(Sys.UpperCase(LObjType),1,5)) = '*FILE' then {do not localize}
   begin
     LI.ItemType := ditDirectory;
   end;
@@ -246,13 +246,13 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   begin
     LI.ItemType := ditDirectory;
   end;
-  LI.FileName := TrimLeft(LBuffer);
+  LI.FileName := Sys.TrimLeft(LBuffer);
   if LI.FileName = '' then
   begin
     LI.FileName := LI.OwnerName;
     LI.OwnerName := '';
   end;
-  LI.LocalFileName := LowerCase(StripPath(AItem.FileName, '/'));
+  LI.LocalFileName := Sys.LowerCase(StripPath(AItem.FileName, '/'));
   Result := True;
 end;
 
