@@ -83,8 +83,8 @@ uses
 class function TIdFTPLPDistinctTCPIP.CheckListing(AListing: TIdStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var s : TIdStrings;
-  const DistValidTypes : set of AnsiChar = ['-','d'];
-    DistValidAttrs : set of AnsiChar = ['w','a','s','h','-','d'];
+  const DistValidTypes  = '-d';
+    DistValidAttrs  = 'wash-d';
     //w - can write - read attribute not set
     //a - archive bit set
     //s - system attribute bit set

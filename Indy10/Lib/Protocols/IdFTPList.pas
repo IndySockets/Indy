@@ -632,8 +632,7 @@ end;
 procedure TIdFTPListItem.SetFileName(const AValue: String);
 var i : Integer;
     LLowerCase : Boolean;
-const LLowCase = ['a','b','c','d','e','f','g','h','i','j','k','l','m',  {do not localize}
-                 'n','o','p','q','r','s','t','u','v','w','x','y','z'];   {do not localize}
+const LLowCase = 'abcdefghijklmnpqrstuvwxyz';   {do not localize}
 begin
 
   if (FLocalFileName = '') or (Sys.UpperCase(FFileName) = Sys.UpperCase(FLocalFileName)) then

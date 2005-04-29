@@ -243,7 +243,7 @@ var LTmp : String;
   i : Integer;
   LReply : TIdReply;
 const
-  LWhiteSet = [TAB, CHAR32];    {Do not Localize}
+  LWhiteSet = TAB+CHAR32;    {Do not Localize}
 begin
   LTmp := ALine;
   //First make the first word uppercase

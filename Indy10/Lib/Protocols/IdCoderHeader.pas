@@ -89,12 +89,11 @@ uses
 
 type
   TTransfer = (bit7, bit8, iso2022jp);
-  CSET = set of AnsiChar;
   
 // Procs
   function EncodeAddressItem(EmailAddr:TIdEmailAddressItem; const HeaderEncoding: Char;
     TransferHeader: TTransfer; MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
-  function EncodeHeader(const Header: string; specials : CSET; const HeaderEncoding: Char;
+  function EncodeHeader(const Header: string; const specials : String; const HeaderEncoding: Char;
    TransferHeader: TTransfer; MimeCharSet: string): string;
   function Encode2022JP(const S: ansistring): string;
   function EncodeAddress(EmailAddr:TIdEMailAddressList; const HeaderEncoding: Char;
@@ -111,7 +110,7 @@ uses
   IdGlobalProtocols;
 
 const
-  csSPECIALS: CSET = ['(', ')', '[', ']', '<', '>', ':', ';', '.', ',', '@', '\', '"'];  {Do not Localize}
+  csSPECIALS = '()[]<>:;.,@\"';  {Do not Localize}
 
   kana_tbl : array[#$A1..#$DF] of Word = (
     $2123,$2156,$2157,$2122,$2126,$2572,$2521,$2523,$2525,$2527,
@@ -234,7 +233,7 @@ end;
 
 function DecodeHeader(Header: string):string;
 const
-  WhiteSpace = [LF, CR, CHAR32, TAB];
+  WhiteSpace = LF+CR+CHAR32+TAB;
 var
   i, l: Integer;
   HeaderEncoding,
@@ -619,10 +618,11 @@ begin
 end;
 
 { encode a header field if non-ASCII characters are used }
-function EncodeHeader(const Header: string; specials : CSET; const HeaderEncoding: Char;
-  TransferHeader: TTransfer; MimeCharSet: string): string;
+function EncodeHeader(const Header: string; const specials : String; const HeaderEncoding: Char;
+   TransferHeader: TTransfer; MimeCharSet: string): string;
+
 const
-  SPACES: set of AnsiChar = [' ', #9, #10, #13];    {Do not Localize}
+  SPACES = ' '+#9+#10+#13;    {Do not Localize}
 
 var
   S, T: string;
@@ -630,7 +630,7 @@ var
   B0, B1, B2: Integer;
   InEncode: Integer;
   NeedEncode: Boolean;
-  csNeedEncode, csReqQuote: CSET;
+  csNeedEncode, csReqQuote: String;
   BeginEncode, EndEncode: string;
 
   procedure EncodeWord(P: Integer);
@@ -732,15 +732,15 @@ begin
       Result:=S;
       EXIT;
   end;//if
-  csNeedEncode := [#0..#31, #127..#255] + specials;
-  csReqQuote := csNeedEncode + ['?', '=', '_'];   {Do not Localize}
+  csNeedEncode := CharRange( #0,#31)+CharRange( #127,#255) + specials;
+  csReqQuote := csNeedEncode + '?=_';   {Do not Localize}
   BeginEncode := '=?' + MimeCharSet + '?' + HeaderEncoding + '?';    {Do not Localize}
   EndEncode := '?=';  {Do not Localize}
 
   // JMBERG: We want to encode stuff that the user typed
   // as if it already is encoded!!
   if DecodeHeader(Header) <> Header then begin
-    csNeedEncode := csNeedEncode + ['='];
+    csNeedEncode := csNeedEncode + '=';
   end;
 
   L := Length(S);

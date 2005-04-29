@@ -124,7 +124,7 @@ uses
   IdTStrings;
 
 const
-  ValidClassChars = ['2','4','5'];
+  ValidClassChars = '245';
   ValidClassVals = [2,4,5];
   CLASS_DEF = 2;
   AVAIL_DEF = False;

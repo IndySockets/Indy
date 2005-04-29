@@ -683,7 +683,7 @@ begin
   TextPos := 0;
   s := BytesToString(Text);
   while I > 0 do begin
-    if not CharIsInSet(s, TextPos, ['0'..'9', 'a'..'f', 'A'..'F']) then begin
+    if not CharIsInSet(s, TextPos, CharRange('0','9')+CharRange( 'a','f')+CharRange('A','F')) then begin
       Break;   {do not localize}
     end;
     Buffer[BufferPos] := (Convert[char(Text[TextPos])] shl 4) + Convert[char(Text[TextPos + 1])];
@@ -810,7 +810,7 @@ begin
           if not Result then begin
             Break;
           end;
-          Result := Result and CharIsInSet(All, Count, ['0'..'9', 'A'..'F', 'a'..'f']); {do not localize}
+          Result := Result and CharIsInSet(All, Count, CharRange('0','9')+CharRange('A','F')+CharRange( 'a','f')); {do not localize}
         end;
       end;
     end else

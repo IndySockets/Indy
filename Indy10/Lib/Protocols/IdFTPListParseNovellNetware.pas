@@ -91,7 +91,7 @@ class function TIdFTPLPNovellNetware.CheckListing(AListing: TIdStrings;
       //from a website.  I don't know if that is an real FTP list or not but it's
       //better to be safe then sorry.  At least I did tighten up the Novell Permissions
       //check.
-      Result := (CharIsInSet(AData, 1, ['d','D','-',' ']));  {Do not translate}
+      Result := (CharIsInSet(AData, 1, 'dD- '));  {Do not translate}
       if Result then
       begin
         // we need to test HellSoft separately from this even though they will be handled by

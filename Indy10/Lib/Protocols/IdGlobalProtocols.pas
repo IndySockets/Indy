@@ -389,7 +389,7 @@ uses
   IdSys;
 
 const
-  LWS = [TAB, CHAR32];
+  LWS = TAB + CHAR32;
   wdays: array[1..7] of string = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'    {Do not Localize}
    , 'Sat'); {do not localize}
   monthnames: array[1..12] of string = ('Jan', 'Feb', 'Mar', 'Apr', 'May'    {Do not Localize}
@@ -455,6 +455,7 @@ type
   function BinStrToInt(const ABinary: String): Integer;
   function BreakApart(BaseString, BreakString: string; StringList: TIdStrings): TIdStrings;
   function CardinalToFourChar(ACardinal : Cardinal): string;
+  function CharRange(const AMin, AMax : Char): String;
   Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
   procedure CommaSeparatedToStringList(AList: TIdStrings; const Value:string);
   function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
@@ -607,6 +608,31 @@ uses
   IdResourceStringsCore,
   IdResourceStringsProtocols,
   IdStack;
+
+{$IFDEF DOTNET}
+function CharRange(const AMin, AMax : Char): String;
+var i : Char;
+  LSB : System.Text.StringBuilder;
+begin
+  LSB := System.Text.StringBuilder.Create;
+  for i := Amin to AMax do
+  begin
+    LSB.Append(i.AsChar);
+    Result := Result + i;
+  end;
+  Result := LSB.ToString;
+end;
+{$ELSE}
+function CharRange(const AMin, AMax : Char): String;
+var i : Char;
+begin
+  Result := '';
+  for i := Amin to AMax do
+  begin
+    Result := Result + i;
+  end;
+end;
+{$ENDIF}
 
 {$IFDEF MSWINDOWS}
 var

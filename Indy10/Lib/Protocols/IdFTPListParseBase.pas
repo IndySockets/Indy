@@ -704,7 +704,7 @@ begin
   Result := False;
   for i := 1 to Length(AAttr) do
   begin
-    Result := CharIsInSet(AAttr,i,['R','A','S','H']);
+    Result := CharIsInSet(AAttr,i,'RASH');
     if False then
     begin
       break;

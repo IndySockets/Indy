@@ -262,7 +262,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
     begin
       //Do NOT attempt to do Novell Netware Print Services for Unix FTPD in NFS
       //namespace if we have a block device.
-      if CharIsInSet(LCData, 1, ['C','B']) then
+      if CharIsInSet(LCData, 1, 'CB') then
       begin
         Exit;
       end;
@@ -515,7 +515,7 @@ Begin
     pusSize: begin
       //Ericsson - Switch FTP returns empty owner
       //Do not apply Ericson patch to Unitree
-      if (CharIsInSet(LData, 1, ['A'..'Z','a'..'z']))
+      if (CharIsInSet(LData, 1, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))
        and (GetIdent <> UNITREE) then begin
         LSize := LGroup;
         LGroup := LOwner;
@@ -722,7 +722,7 @@ Begin
     //Note that many FTP servers obtain their DIR lists by piping output from the /bin/ls -l command.
     //The -F parameter does work with ftp.netscape.com and I have also tested a NcFTP server
     //which simulates the output of the ls command.
-    if (CharIsInSet(LName, Length(LName), [PATH_FILENAME_SEP_UNIX,'*'])) then
+    if (CharIsInSet(LName, Length(LName), PATH_FILENAME_SEP_UNIX+'*')) then
     begin
       LName := Copy(LName,1,Length(LName)-1);
     end;

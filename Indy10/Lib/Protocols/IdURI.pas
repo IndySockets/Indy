@@ -304,7 +304,7 @@ class function TIdURI.ParamsEncode(const ASrc: string): string;
 var
   i: Integer;
 const
-  UnsafeChars = ['*', '#', '%', '<', '>', ' ','[',']'];  {do not localize}
+  UnsafeChars = '*#%<> []';  {do not localize}
 begin
   Result := '';    {Do not Localize}
   for i := 1 to Length(ASrc) do
@@ -314,7 +314,7 @@ begin
     // S.G. 27/11/2002: a new parameter"
     // S.G. 27/11/2002: ref: Message-ID: <3de30169@newsgroups.borland.com> borland.public.delphi.internet.winsock
     // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
-    if ((CharIsInSet(ASrc, i, UnsafeChars)) or (not (CharIsInSet(ASrc, i, [#33..#128])))) then
+    if ((CharIsInSet(ASrc, i, UnsafeChars)) or (not (CharIsInSet(ASrc, i, CharRange(#33,#128))))) then
     begin {do not localize}
       Result := Result + '%' + Sys.IntToHex(Ord(ASrc[i]), 2);  {do not localize}
     end
@@ -327,7 +327,7 @@ end;
 
 class function TIdURI.PathEncode(const ASrc: string): string;
 const
-  UnsafeChars = ['*', '#', '%', '<', '>', '+', ' ','[',']'];  {do not localize}
+  UnsafeChars = '*#%<>+ []';  {do not localize}
 var
   i: Integer;
 begin

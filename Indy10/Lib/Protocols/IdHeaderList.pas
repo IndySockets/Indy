@@ -134,14 +134,11 @@ uses
   IdGlobal,
   IdGlobalProtocols;
 
-type
-  TIdCharSet = set of AnsiChar;
-
 {This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
-function FoldWrapText(const Line, BreakStr: string; BreakChars: TIdCharSet;
+function FoldWrapText(const Line, BreakStr, BreakChars : string;
   MaxCol: Integer): string;
 const
-  QuoteChars = ['"'];    {Do not Localize}
+  QuoteChars = '"';    {Do not Localize}
 var
   Col, Pos: Integer;
   LinePos, LineLen: Integer;
@@ -200,7 +197,7 @@ begin
       Col := Pos - BreakPos;
       Result := Result + Copy(Line, LinePos, BreakPos - LinePos + 1);
       if not (CharIsInSet(CurChar, 1, QuoteChars)) then
-        while (Pos <= LineLen) and (CharIsInSet(Line, Pos, BreakChars + [#13, #10])) do Inc(Pos);
+        while (Pos <= LineLen) and (CharIsInSet(Line, Pos, BreakChars + #13+#10)) do Inc(Pos);
       if not ExistingBreak and (Pos < LineLen) then
         Result := Result + BreakStr;
       Inc(BreakPos);
@@ -247,7 +244,7 @@ procedure TIdHeaderList.DeleteFoldedLines(Index: Integer);
 begin
   Inc(Index);  {skip the current line}
   if Index < Count then begin
-    while ( Index < Count ) and CharIsInSet(Get(Index),1,[' ',#9]) do    {Do not Localize}
+    while ( Index < Count ) and CharIsInSet(Get(Index),1,' '+#9) do    {Do not Localize}
     begin
       Delete( Index );
    end; //while
@@ -294,7 +291,7 @@ begin
   Result := TIdStringList.Create;
   try
     {we specify a space so that starts a folded line}
-    s := FoldWrapText(AString, EOL+' ', LWS+[','], FFoldLinesLength);    {Do not Localize}
+    s := FoldWrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
     while s <> '' do    {Do not Localize}
     begin
       Result.Add( Sys.TrimRight( Fetch( s, EOL ) ) );

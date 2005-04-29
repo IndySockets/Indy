@@ -504,8 +504,8 @@ class function TIdFTPLPVSESubLibrary.CheckListing(AListing: TIdStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
 const ValidEntry : array [0..1] of string = (' F',' S');  {Do not translate}
-      VSE_SUBLIBTYPES = ['F',  //fixed
-                           'S'];  //string
+      VSE_SUBLIBTYPES = 'F'+  //fixed
+                           'S';  //string
 var s : TIdStrings;
     LData : String;
 begin

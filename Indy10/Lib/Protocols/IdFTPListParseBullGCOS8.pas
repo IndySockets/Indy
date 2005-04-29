@@ -80,19 +80,19 @@ begin
   begin
     LData := AListing[0];
     Result := (Length(LData)>59) and
-      (CharIsInSet(LData, 1, ['d', '-'])) and    {Do not Localize}
+      (CharIsInSet(LData, 1, 'd-')) and    {Do not Localize}
       (LData[2]=' ') and
-      (CharIsInSet(LData, 3, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 4, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 5, ['t','s','r','w','x','-'])) and    {Do not Localize}
+      (CharIsInSet(LData, 3, 'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 4, 'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 5, 'tsrwx-')) and    {Do not Localize}
       (LData[6]=' ') and
-      (CharIsInSet(LData, 7, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 8, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 9, ['t','s','r','w','x','-'])) and    {Do not Localize}
+      (CharIsInSet(LData, 7, 'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 8, 'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 9, 'tsrwx-')) and    {Do not Localize}
       (LData[10]=' ') and
-      (CharIsInSet(LData, 11, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 12, ['t','s','r','w','x','-'])) and    {Do not Localize}
-      (CharIsInSet(LData, 13, ['t','s','r','w','x','-'])) and    {Do not Localize}
+      (CharIsInSet(LData, 11,'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 12,'tsrwx-')) and    {Do not Localize}
+      (CharIsInSet(LData, 13,'tsrwx-')) and    {Do not Localize}
       (LData[14]=' ') and
       IsNumeric(LData[25]) and (LData[26]=' ');
   end;

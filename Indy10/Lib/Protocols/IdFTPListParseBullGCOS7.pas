@@ -86,14 +86,14 @@ begin
   begin
     LData := AListing[0];
     Result := (Length(LData)>54) and
-      (CharIsInSet(LData, 1, ['-','d'])) and
+      (CharIsInSet(LData, 1, '-d')) and
       (LData[2]=' ') and
-      (CharIsInSet(LData, 3, ['-','d','s','m'])) and
+      (CharIsInSet(LData, 3, '-dsm')) and
       (LData[4]=' ') and
       (LData[24]=' ') and
       (LData[25]<>' ') and
       (NumericOrSpace(Copy(LData,46,2))) and
-      (CharIsInSet(LData, 48, [',',' '])) and
+      (CharIsInSet(LData, 48, ', ')) and
       (LData[49]=' ') and
       (NumericOrSpace(Copy(LData,50,4))) and
       (LData[54]=' ') and

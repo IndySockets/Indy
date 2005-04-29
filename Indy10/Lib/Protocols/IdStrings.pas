@@ -226,7 +226,7 @@ end;
 
 function IsWhiteString(const AStr: String): Boolean;
 const
-  WhiteSet = [TAB, CHAR32];    {do not localize}
+  WhiteSet = TAB+CHAR32;    {do not localize}
 var
   i: Integer;
   LLen: Integer;

@@ -99,7 +99,7 @@ begin
     Result := LData <> '';
     if Result then
     begin
-      Result := (CharIsInSet(LData, 1, ['d','D','-'])); {do not localize}
+      Result := (CharIsInSet(LData, 1, 'dD-')); {do not localize}
       if Result then
       begin
         //we have to be careful to distinguish between Hellsoft and

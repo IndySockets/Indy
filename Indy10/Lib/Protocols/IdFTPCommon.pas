@@ -430,7 +430,7 @@ const UnitreeStoreTypes : array [0..1] of string =
 
 const
   UNIX_LINKTO_SYM = ' -> '; {do not localize} //indicates where a symbolic link points to
-
+  CDATE_PART_SEP = '/-';  {Do not localize}
 {***
 Path conversions
 ***}
@@ -740,7 +740,7 @@ const
 //Note that there are two separate char codes are rended as '-' in the line below.
 //Be careful when editing because the codes are different.
 //  LineSet = [' ','-','–','+'];    {Do not Localize}
-  LineSet = [' ','-',#$96,'+']; //BGO: for DotNet, what to do with this    {Do not Localize}
+  LineSet = ' -'+#$96+'+'; //BGO: for DotNet, what to do with this    {Do not Localize}
 var
   i: Integer;
   LLen: Integer;
@@ -1267,8 +1267,8 @@ function IsYYYYMMDD(const AData : String) : Boolean;
 //90-05-19
 //1234567890
 begin
-  Result := ((CharIsInSet(AData, 5, ['/', '-'])) and
-    (CharIsInSet(AData , 8, ['/', '-'])));
+  Result := ((CharIsInSet(AData, 5, '/-')) and
+    (CharIsInSet(AData , 8, '/-')));
 
   if Result then
   begin
@@ -1277,8 +1277,8 @@ begin
   end;
   if not Result then
   begin
-    Result := ((CharIsInSet(AData, 3, ['/', '-'])) and
-      (CharIsInSet(AData , 6, ['/', '-'])));
+    Result := ((CharIsInSet(AData, 3, CDATE_PART_SEP )) and
+      (CharIsInSet(AData , 6, CDATE_PART_SEP)));
     if Result then
     begin
       Result := IsNumeric(Copy(AData,1,2)) and IsNumeric(Copy(AData,4,2))
@@ -1676,22 +1676,22 @@ begin
   begin
     SData := Sys.UpperCase(AData);
     result := (Length(SData)>9) and
-       (CharIsInSet(SData, 1, ['L','D', '-','B','C','P','S'])) and    {Do not Localize}
-       (CharIsInSet(SData, 2, ['T','S','R','W','X','-'])) and    {Do not Localize}
+       (CharIsInSet(SData, 1, 'LD-BCPS')) and    {Do not Localize}
+       (CharIsInSet(SData, 2, 'TSRWX-')) and    {Do not Localize}
        {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'A" here }
-       (CharIsInSet(SData, 3, ['T','S','R','W','X','-','A'])) and    {Do not Localize}
-       (CharIsInSet(SData, 4, ['T','S','R','W','X','-'])) and    {Do not Localize}
+       (CharIsInSet(SData, 3, 'TSRWX-A')) and    {Do not Localize}
+       (CharIsInSet(SData, 4, 'TSRWX-')) and    {Do not Localize}
        {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'H" here for hidden files}
-       (CharIsInSet(SData, 5, ['T','S','R','W','X','-','H'])) and    {Do not Localize}
-        (CharIsInSet(SData, 6, ['T','S','R','W','X','-'])) and    {Do not Localize}
+       (CharIsInSet(SData, 5, 'TSRWX-H')) and    {Do not Localize}
+        (CharIsInSet(SData, 6, 'TSRWX-')) and    {Do not Localize}
         {Distinct's FTP Server Active X may report a "Y" by mistake, saw in manual
         FTP Server, ActiveX Control, File Transfer Protocol (RFC 959), ActiveX Control,
         for Microsoftâ Windowsä, Version 4.01
         Copyright Ó 1996 - 1998 by Distinct Corporation
         All rights reserved
     }
-        (CharIsInSet(SData, 7, ['T','S','R','W','X','-','Y'])) and    {Do not Localize}
-        (CharIsInSet(SData, 8, ['T','S','R','W','X','-','A'])) and    {Do not Localize}
+        (CharIsInSet(SData, 7, 'TSRWX-Y')) and    {Do not Localize}
+        (CharIsInSet(SData, 8, 'TSRWX-A')) and    {Do not Localize}
          {VxWorks 5.3.1 FTP Server has a quirk where a "A" is in the permissions
         See:
   http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=slrn73rfie.
@@ -1700,21 +1700,21 @@ begin
   slrn73rfie.1g2.chc%2540nasa2.ksc.nasa.gov%26rnum%3D1
 
 }
-        (CharIsInSet(SData, 9, ['T','S','R','W','X','-'])) and    {Do not Localize}
-        (CharIsInSet(SData, 10, ['T','S','R','W','X','-']));    {Do not Localize}
+        (CharIsInSet(SData, 9, 'TSRWX-')) and    {Do not Localize}
+        (CharIsInSet(SData, 10, 'TSRWX-'));    {Do not Localize}
   end
   else
   begin
-    Result := (CharIsInSet(AData, 1, ['d', '-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 2, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 3, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 4, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 5, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 6, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 7, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 8, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 9, ['t','s','r','w','x','-'])) and    {Do not Localize}
-         (CharIsInSet(AData, 10, ['t','s','r','w','x','-',' ']));
+    Result := (CharIsInSet(AData, 1, 'd-')) and    {Do not Localize}
+         (CharIsInSet(AData, 2, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 3, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 4, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 5, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 6, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 7, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 8, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 9, 'tsrwx-')) and    {Do not Localize}
+         (CharIsInSet(AData, 10, 'tsrwx- '));    {Do not Localize}
   end;
 end;
 
@@ -1735,17 +1735,17 @@ begin
   if (Length(LUPer)>2) and (Length(LGPer)>2) and (Length(LOPer)>2) then
   begin
     Result := False;
-    if CharIsInSet(LUPer, 3, ['x','S','s']) then {do not localize}
+    if CharIsInSet(LUPer, 3, 'xSs') then {do not localize}
     begin
       Result := True;
       Exit;
     end;
-    if CharIsInSet(LGPer, 3, ['x','S','s']) then {do not localize}
+    if CharIsInSet(LGPer, 3, 'xSs') then {do not localize}
     begin
       Result := True;
       Exit;
     end;
-    if CharIsInSet(LOPer, 3, ['x','S','s']) then {do not localize}
+    if CharIsInSet(LOPer, 3, 'xSs') then {do not localize}
     begin
       Result := True;
       Exit;
@@ -2123,7 +2123,7 @@ end;
 
 function IsValidNovellPermissionStr(const AStr : String): Boolean;
 var i : Integer;
-const PermSet = ['-','R','W','C','E','A','F','M','S'];  {do not localize}
+const PermSet = '-RWCEAFMS';  {do not localize}
 begin
   if AStr='' then
   begin

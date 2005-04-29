@@ -1485,7 +1485,7 @@ begin
   //Result := (Length(AChannel) > 0) and CharIsInSet(AChannel, 1, ['&','#','+','!']);  {do not localize}
   Result := False;
   if Length(AChannel) > 0 then begin
-    if CharIsInSet(AChannel, 1, ['&','#','+','!']) then begin  {do not localize}
+    if CharIsInSet(AChannel, 1, '&#+!') then begin  {do not localize}
      Result := True;
     end;
   end;

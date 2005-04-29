@@ -858,7 +858,7 @@ begin
   begin
     {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
     Values['From'] := EncodeAddress(FromList, HeaderEncoding, TransferHeader, ISOCharSet, True); {do not localize}
-    Values['Subject'] := EncodeHeader(Subject, [], HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
+    Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
     Values['To'] := EncodeAddress(Recipients, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
     Values['Cc'] := EncodeAddress(CCList, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
     {CC: SaveToFile sets FGenerateBCCListInHeader to True so that BCC names are saved
@@ -899,7 +899,7 @@ begin
     end;
     Values['Sender'] := Sender.Text; {do not localize}
     Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
-    Values['Organization'] := EncodeHeader(Organization, [], HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
+    Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
 
     Values['Disposition-Notification-To'] := EncodeAddressItem(ReceiptRecipient, {do not localize}
       HeaderEncoding, TransferHeader, ISOCharSet);

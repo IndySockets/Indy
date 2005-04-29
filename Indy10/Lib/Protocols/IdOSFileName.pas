@@ -54,12 +54,9 @@ function FileNameUnixToOS9(const AUnixFileName : String) : String;
 implementation
 
 uses
-  IdGlobal, IdSys;
+  IdGlobal, IdGlobalProtocols, IdSys;
 
-type
-  TIdValidChars = set of AnsiChar;
-
-function EnsureValidCharsByValidSet(const AFilePart : String; const AValidChars : TIdValidChars; const AReplaceWith : String='_'): String;
+function EnsureValidCharsByValidSet(const AFilePart, AValidChars : String; const  AReplaceWith : String='_'): String;
 var i : Integer;
 begin
   Result := '';
@@ -76,7 +73,8 @@ begin
   end;
 end;
 
-function EnsureValidCharsByInvalidSet(const AFilePart : String; const AInvalidChars : TIdValidChars; const AReplaceWith : String='_'): String;
+function EnsureValidCharsByInvalidSet(const AFilePart, AInvalidChars : String;
+  const AReplaceWith : String='_'): String;
 var i : Integer;
 begin
   Result := '';
@@ -105,23 +103,23 @@ valid chars are:
 letters A through Z 
 numbers 0 through 9 
 underscore ( _ )
-hyphen ( -) 
+hyphen ( -)
 dollar sign ( $ )
 
 See:  http://www.uh.edu/infotech/services/documentation/vms/v0505.html
 }
-const VMS_VALID_CHARS : TIdValidChars = ['A'..'Z','0'..'9','_','-','$'];
-
+var   VMS_Valid_Chars : String;
 begin
+  VMS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_-$';
   //VMS is case insensitive - Sys.UpperCase to simplify processing
   Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFExt := Fetch(Result,'.');
   LFExt := Fetch(LFExt,';');
   LFName := Copy(LFName,1,39);
-  LFName := EnsureValidCharsByValidSet(LFName,VMS_VALID_CHARS);
+  LFName := EnsureValidCharsByValidSet(LFName,VMS_Valid_Chars);
   LFExt := Copy(LFExt,1,39);
-  LFExt := EnsureValidCharsByValidSet(LFExt,VMS_VALID_CHARS);
+  LFExt := EnsureValidCharsByValidSet(LFExt,VMS_Valid_Chars);
   Result := LFName;
   if LFExt <>'' then
   begin
@@ -160,15 +158,16 @@ var LFName, LFExt : String;
 
 //Note: Macintosh does not allow colin (:) in it's file name and supports upto 32 characters.
 
-const MSDOS_VALID_CHARS : TIdValidChars = ['A'..'Z','0'..'9','_','$','~','!','#','%','&','-','{','}','(',')','@','''',#180];
+var   MSDOS_Valid_Chars : String;
 begin
+  MSDOS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_$~!#%&-{}()@'''+#180;
   Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := Copy(LFName,1,8);
-  LFName := EnsureValidCharsByValidSet(LFExt,MSDOS_VALID_CHARS);
+  LFName := EnsureValidCharsByValidSet(LFExt,MSDOS_Valid_Chars);
   LFExt := Fetch(Result,'.');
   LFExt := Copy(LFExt,1,3);
-  LFExt := EnsureValidCharsByValidSet(LFExt,MSDOS_VALID_CHARS);
+  LFExt := EnsureValidCharsByValidSet(LFExt,MSDOS_Valid_Chars);
   Result := LFName;
   if LFExt <> '' then
   begin
@@ -178,8 +177,8 @@ end;
 
 function FileNameUnixToWin32(const AUnixFileName : String):String;
 //from: http://linux-ntfs.sourceforge.net/ntfs/concepts/filename_namespace.html
-const WIN32_INVALID_CHARS : TIdValidChars = ['"','*','/',':','<','>','?','\','|',#0];
-    WIN32_INVALID_LAST : TIdValidChars = [' ','.'];  //not permitted as the last character in Win32
+const WIN32_INVALID_CHARS  = '"*/:<>?\|' + #0;
+    WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32
 begin
   Result := EnsureValidCharsByInvalidSet(AUnixFileName,WIN32_INVALID_CHARS);
   if Result <> '' then begin
@@ -209,8 +208,10 @@ function FileNameUnixToVMCMS(const AUnixFileName : String): String;
 //      numbers, and these seven special characters: @#$+-:_).  Choose filenames and
 //      filetypes that help to identify the contents of the file.
 var LFName, LFExt : String;
-const VALID_VMCMS_CHARS : TIdValidChars = ['A'..'Z','0'..'9','@','#','$','+','-',':','_'];
+
+   Valid_VMCMS_Chars : String;
 begin
+  Valid_VMCMS_Chars := CharRange('A','Z')+ CharRange('0','9')+'@#$+-:_';
   Result := Sys.UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := EnsureValidCharsByValidSet(LFExt,VALID_VMCMS_CHARS);
@@ -245,9 +246,11 @@ Letters (A to Z), digits (0 to 9), and some special characters
 (including $ # @ _ + - . % & !) can be used, but the first character
 of each part must not be a digit or + - . % & !.
 }
-const VALID_MUSICSP = ['A'..'Z','0'..'9','$','#','@','_','+','-','.','%','&','!'];
-  MUSICSP_CANT_START = ['0'..'9','+','-','.','%','!'];
+var Valid_MUSICSP : String;
+    MUSICSP_Cant_Start : String;
 begin
+  Valid_MUSICSP := CharRange('A','Z')+CharRange('0','9')+'$#@_+-.%&!';
+    MUSICSP_Cant_Start := CharRange('0','9')+ '+-.%!';
 // note we have to do our vality checks before truncating the length in
 // case we need to replace the default replacement char and the length changes
 // because of that.
@@ -277,9 +280,13 @@ var LQualifier : String;
 const
   MVS_FQN_MAX_LEN = 44;
   MVS_MAX_QUAL_LEN = 8;
-  MVS_VALID_QUAL_CHARS = ['0'..'9','A'..'Z','@','$','#'];
-  MVS_VALID_FIRST_CHAR = ['A'..'Z'];
+
+var
+  MVS_Valid_Qual_Chars : String;
+  MVS_Valid_First_Char : String;
 begin
+  MVS_Valid_Qual_Chars := CharRange('0','9')+CharRange('A','Z')+'@$#';
+  MVS_Valid_First_Char := CharRange('A','Z');
   //in MVS, there's a maximum of 44 characters and MVS prepends a prefix with the userID and
   //sometimes process name.  Thus, the dataset name can have 44 characters minus the user ID - 1 (for the dot)
   //
@@ -375,10 +382,11 @@ described it.
 The MPE/iX file system is basically flat with an account, group, and file name.
 }
 function MPEiXValidateFIlePart(AFilePart : String) : String;
-const
-  VALID_MPEIX_START = ['A'..'Z'];
-  VALID_MPEIX_FNAME = ['0'..'9']+ VALID_MPEIX_START;
+var Valid_MPEIX_Start : String;
+    Valid_MPEIX_FName : String;
 begin
+Valid_MPEIX_Start := CharRange('A','Z');
+    Valid_MPEIX_FName :=  Valid_MPEIX_Start + CharRange('0','9');
   Result := Sys.UpperCase(AFilePart);
   if IndyPos('.',Result)>1 then
   begin
@@ -465,9 +473,12 @@ account and a group as they must in MPE syntax. Using HFS syntax, MYFILE could
 be a file under the PAYROLL HFS subdirectory, which is under the FINANCE HFS
 directory, which is under the root directory.
 }
-const MPEIX_VALID_CHARS = ['a'..'z','A'..'Z','0'..'9','.','_','-'];
-      MPEIX_CANTSTART = ['-'];
+
+var MPEIX_Valid_Chars : String;
+    MPEIX_CantStart : String;
 begin
+  MPEIX_Valid_Chars := CharRange('a','z')+CharRange('A','Z')+CharRange('0','9')+'._-';
+  MPEIX_CantStart := '-';
   Result := AUnixFileName;
   if Result<>'' then
   begin
@@ -515,10 +526,12 @@ decimal digits: 0 - 9
 underscore: _
 period: .
 }
-const
-  OS9_MUST_START = ['a'..'z','A'..'Z'];
-  OS9_VALID_CHAR = OS9_MUST_START+['0'..'9','_','.'];
+var
+  OS9_Must_Start : String;
+  OS9_Valid_Char : String;
 begin
+  OS9_Must_Start := CharRange('a','z')+CharRange('A','Z');
+  OS9_Valid_Char := CharRange('0','9')+'_.';
   Result := AUnixFileName;
   if Result<>'' then
   begin

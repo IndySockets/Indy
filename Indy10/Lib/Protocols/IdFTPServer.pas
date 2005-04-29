@@ -4864,7 +4864,7 @@ end;
 
 function TIdFTPServer.IsValidPermNumbers(const APermNos: String): Boolean;
 const
-  PERMDIGITS = ['0'..'7'];
+  PERMDIGITS = '01234567';
 var
   i: Integer;
 begin
@@ -5778,7 +5778,7 @@ var
   i : Integer;
   LReply : TIdReply;
 const
-  LWhiteSet = [TAB, CHAR32];    {Do not Localize}
+  LWhiteSet = TAB+CHAR32;    {Do not Localize}
 begin
   LTmp := ALine;
   //First make the first word Sys.UpperCase

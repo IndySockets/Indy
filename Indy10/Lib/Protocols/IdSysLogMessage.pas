@@ -533,7 +533,7 @@ begin
         Break;
       end
       else
-        if not CharIsInSet(FRawMessage, StartPos, ['0'..'9']) then    {Do not Localize}
+        if not CharIsInSet(FRawMessage, StartPos, CharRange('0','9')) then    {Do not Localize}
           raise EInvalidSyslogMessage.CreateFmt(RSInvalidSyslogPRINumber, [Buffer])
         else
           Buffer  := Buffer + FRawMessage[StartPos];
@@ -673,11 +673,12 @@ begin
 end;
 
 procedure TIdSysLogMessage.CheckASCIIRange(var Data: String);
-const
-  ValidChars = [#0..#127];
+
 var
   i: Integer;
+  ValidChars : String;
 begin
+  ValidChars := CharRange(#0,#127);
   for i := 1 to Length(Data) do    // Iterate
   begin
     if not CharIsInSet(Data, i, ValidChars) then

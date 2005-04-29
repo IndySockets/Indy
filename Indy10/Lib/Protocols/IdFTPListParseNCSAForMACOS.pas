@@ -83,7 +83,7 @@ class function TIdFTPLPNCSAforMACOS.ParseLine(const AItem: TIdFTPListItem;
 begin
   Result := True;
   try
-    if IdGlobal.CharIsInSet(AItem.Data,Length(AItem.Data),['/','\']) then
+    if IdGlobal.CharIsInSet(AItem.Data,Length(AItem.Data),'/\') then
     begin
       AItem.ItemType := ditDirectory;
       AItem.FileName := Copy(AItem.Data,1,Length(AItem.Data)-1);
