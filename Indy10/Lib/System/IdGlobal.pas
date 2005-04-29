@@ -893,8 +893,7 @@ type
     function Seek(AOffset: Longint; AOrigin: Word): Longint; override;
     {$ENDIF}
   end;
-  TIdCharSet = set of AnsiChar;
-  
+
 const
   {$IFDEF Linux}
   GOSType = otLinux;
@@ -1032,7 +1031,7 @@ procedure CopyTIdString(const ASource: String;
     var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
 
 // Need to change prob not to use this set
-function CharIsInSet(const AString: string; const ACharPos: Integer; ASet: TIdCharSet): Boolean;
+function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
 
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 function CurrentProcessId: TIdPID;
@@ -3111,17 +3110,13 @@ begin
   {$endif}
 end;
 
-function CharIsInSet(const AString: string; const ACharPos: Integer; ASet:  TIdCharSet): Boolean;
+function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
 begin
   EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos in CharIsInSet.');{ do not localize }
   if ACharPos > Length(AString) then begin
     Result := False;
   end else begin
-    {$IFDEF DotNet}
-    Result := AnsiString(AString[ACharPos])[1] in ASet;
-    {$ELSE}
-    Result := AString[ACharPos] in ASet;
-    {$ENDIF}
+    Result := IndyPos( AString[ACharPos], ASet)>0;
   end;
 end;
 
