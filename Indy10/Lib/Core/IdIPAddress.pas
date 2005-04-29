@@ -338,7 +338,7 @@ begin
       end
       else
       begin
-        Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64Def(LBuf,0), LParts);
+        Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64(LBuf,0), LParts);
       end;
     end
     else
@@ -353,7 +353,7 @@ begin
         else
         begin
           //this must be a decimal
-          Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64Def(LBuf,0), LParts);
+          Result :=  Result + IPv4MakeCardInRange(Sys.StrToInt64(LBuf,0), LParts);
         end;
       end
       else
