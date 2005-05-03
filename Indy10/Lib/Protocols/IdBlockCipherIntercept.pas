@@ -34,14 +34,13 @@ unit IdBlockCipherIntercept;
  History:
 -----------------------------------------------------------------------------}
 
-{$I Core\IdCompilerDefines.inc}
-
 interface
 
 uses
   Classes,
-  IdCoreGlobal,
+  IdGlobal,
   IdException,
+  IdResourceStringsProtocols,
   IdIntercept;
 
 const
@@ -53,6 +52,7 @@ const
   // more network traffic is wasted
 
 type
+
   TIdBlockCipherIntercept = class;
 
   // OnSend and OnRecieve Events will always be called with a blockSize Data
@@ -61,52 +61,41 @@ type
     FBlockSize: Integer;
     FIncoming : TIdBytes;
     procedure Decrypt (var VData : TIdBytes); virtual;
-    procedure Encrypt (Var VData : TIdBytes); virtual;
+    procedure Encrypt (var VData : TIdBytes); virtual;
     procedure SetBlockSize(const Value: Integer);
+    procedure InitComponent; override;
   public
-    constructor Create(AOwner: TComponent); override;
-
     procedure Receive(var VBuffer: TIdBytes); override; //Decrypt
     procedure Send(var VBuffer: TIdBytes); override; //Encrypt
     procedure CopySettingsFrom (ASrcBlockCipherIntercept: TIdBlockCipherIntercept); // warning: copies Data too
-    //
   published
     property  BlockSize: Integer read FBlockSize write SetBlockSize default IdBlockCipherBlockSizeDefault;
-  End; //TIdBlockCipherIntercept
+  end;
 
   EIdBlockCipherInterceptException = EIdException; {block length}
 
-IMPLEMENTATION
+implementation
 
-Uses
+uses
   IdResourceStrings,
-  SysUtils;
-
-{ TIdBlockCipherIntercept }
+  IdSys;
 
 const
   bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
-
-constructor TIdBlockCipherIntercept.Create(AOwner: TComponent);
-Begin
-  inherited Create(AOwner);
-  FBlockSize := IdBlockCipherBlockSizeDefault;
-  SetLength(FIncoming, 0);
-End;//Create
 
 procedure TIdBlockCipherIntercept.Encrypt(var VData : TIdBytes);
 Begin
   if Assigned(FOnSend) then begin
     FOnSend(Self, VData);
   end;//ex: EncryptAES(LTempIn, ExpandedKey, LTempOut);
-End;//Encrypt
+end;
 
 procedure TIdBlockCipherIntercept.Decrypt(var VData : TIdBytes);
 Begin
   if Assigned(FOnReceive) then begin
     FOnReceive(self, VData);
   end;//ex: DecryptAES(LTempIn, ExpandedKey, LTempOut);
-End;//Decrypt
+end;
 
 procedure TIdBlockCipherIntercept.Send(var VBuffer: TIdBytes);
 var
@@ -136,7 +125,7 @@ Begin
     Encrypt(LTemp);
     CopyTIdBytes(LTemp, 0, VBuffer, Length(VBuffer) - FBlockSize, FBLockSize);
     end;
-End;//Send
+end;
 
 procedure TIdBlockCipherIntercept.Receive(var VBuffer: TIdBytes);
 var
@@ -165,7 +154,7 @@ Begin
       CopyTIdBytes(FIncoming, LCount * FBlockSize, LTemp, 0, FBlockSize);
       Decrypt(LTemp);
       if (LTemp[FBlocksize-1] = 0) or (LTemp[FBlocksize-1] >= FBlockSize) then
-        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength+' ('+inttostr(LTemp[FBlocksize-1])+')');
+        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength+' ('+Sys.IntToStr(LTemp[FBlocksize-1])+')');
       CopyTIdBytes(LTemp, 0, VBuffer, LPos, LTemp[FBlocksize-1]);
       inc(LPos, LTemp[FBlocksize-1]);
       end;
@@ -180,23 +169,30 @@ Begin
       end;
     SetLength(VBuffer, LPos);
     end;
-End;//Receive
+end;
 
 procedure TIdBlockCipherIntercept.CopySettingsFrom(ASrcBlockCipherIntercept: TIdBlockCipherIntercept);
 Begin
-  SELF.FBlockSize := ASrcBlockCipherIntercept.FBlockSize;
-  SELF.FData:= ASrcBlockCipherIntercept.FData; // not sure that this is actually safe
-  SELF.FOnConnect := ASrcBlockCipherIntercept.FOnConnect;
-  SELF.FOnDisconnect:= ASrcBlockCipherIntercept.FOnDisconnect;
-  SELF.FOnReceive := ASrcBlockCipherIntercept.FOnReceive;
-  SELF.FOnSend := ASrcBlockCipherIntercept.FOnSend;
-End;//
+  Self.FBlockSize := ASrcBlockCipherIntercept.FBlockSize;
+  Self.FData:= ASrcBlockCipherIntercept.FData; // not sure that this is actually safe
+  Self.FOnConnect := ASrcBlockCipherIntercept.FOnConnect;
+  Self.FOnDisconnect:= ASrcBlockCipherIntercept.FOnDisconnect;
+  Self.FOnReceive := ASrcBlockCipherIntercept.FOnReceive;
+  Self.FOnSend := ASrcBlockCipherIntercept.FOnSend;
+end;
 
 procedure TIdBlockCipherIntercept.SetBlockSize(const Value: Integer);
 Begin
   if (Value>0) and (Value<=IdBlockCipherBlockSizeMax) then begin
     FBlockSize := Value;
   end;
-End;//
+end;
 
-END.
+procedure TIdBlockCipherIntercept.InitComponent;
+begin
+  inherited;
+  FBlockSize := IdBlockCipherBlockSizeDefault;
+  SetLength(FIncoming, 0);
+end;
+
+end.
