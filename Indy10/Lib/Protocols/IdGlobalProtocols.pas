@@ -12,7 +12,10 @@
 {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
 are permitted to do so except .pas files which are counterparts to dfm/xfm files, and only for
 support of that.}
+unit IdGlobalProtocols;
+{$I IdCompilerDefines.inc}
 
+interface
 uses
   {$IFDEF MSWINDOWS}
   Windows,
