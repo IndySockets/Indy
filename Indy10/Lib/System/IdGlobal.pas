@@ -1394,6 +1394,8 @@ begin
   {$IFDEF DotNet}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
   {$ELSE}
+  //if this assert fails, then it indicates an attempted read-past-end-of-buffer.
+  Assert(ALength<=Length(aSource));
   Move(ASource[ASourceIndex], VDest[ADestIndex], ALength);
   {$ENDIF}
 end;
