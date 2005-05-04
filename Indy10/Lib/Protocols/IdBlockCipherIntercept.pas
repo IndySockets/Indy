@@ -36,8 +36,7 @@ Begin
   SetLength(VBuffer, ((Length(LSrc) + FBlockSize - 2) div (FBlockSize - 1)) * FBLockSize);
   SetLength(LTemp, FBlockSize);
 
-  //process all complete blocks
-  for LCount := 0 to Length(LSrc) div (FBlockSize - 1)-1 do
+  for LCount := 0 to Length(LSrc) div (FBlockSize - 1) do
     begin
     CopyTIdBytes(LSrc, lCount * (FBlockSize - 1), LTemp, 0, FBlockSize - 1);
     LTemp[FBlockSize - 1] := FBlockSize - 1;
@@ -45,7 +44,6 @@ Begin
     CopyTIdBytes(LTemp, 0, VBuffer, LCount * FBlockSize, FBLockSize);
     end;
 
-  //process the possible remaining bytes, ie less than a full block
   if Length(LSrc) Mod (FBlockSize - 1) > 0 then
     begin
     CopyTIdBytes(LSrc, length(LSrc) - (Length(LSrc) Mod (FBlockSize - 1)), LTemp, 0, Length(LSrc) Mod (FBlockSize - 1));
@@ -77,7 +75,7 @@ Begin
     SetLength(VBuffer, Length(FIncoming));
     LPos := 0;
 
-    for LCount := 0 to (Length(FIncoming) div FBLockSize)-1 do
+    for LCount := 0 to Length(FIncoming) div FBLockSize do
       begin
       CopyTIdBytes(FIncoming, LCount * FBlockSize, LTemp, 0, FBlockSize);
       Decrypt(LTemp);
