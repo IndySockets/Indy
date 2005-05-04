@@ -134,80 +134,6 @@ uses
   IdGlobal,
   IdGlobalProtocols;
 
-{This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
-function FoldWrapText(const Line, BreakStr, BreakChars : string;
-  MaxCol: Integer): string;
-const
-  QuoteChars = '"';    {Do not Localize}
-var
-  Col, Pos: Integer;
-  LinePos, LineLen: Integer;
-  BreakLen, BreakPos: Integer;
-  QuoteChar, CurChar: Char;
-  ExistingBreak: Boolean;
-begin
-  Col := 1;
-  Pos := 1;
-  LinePos := 1;
-  BreakPos := 0;
-  QuoteChar := ' ';    {Do not Localize}
-  ExistingBreak := False;
-  LineLen := Length(Line);
-  BreakLen := Length(BreakStr);
-  Result := '';    {Do not Localize}
-  while Pos <= LineLen do
-  begin
-    CurChar := Line[Pos];
-    if IsLeadChar(CurChar) then
-    begin
-      Inc(Pos);
-      Inc(Col);
-    end  //if CurChar in LeadBytes then
-    else
-      if CurChar = BreakStr[1] then
-      begin
-        if QuoteChar = ' ' then    {Do not Localize}
-        begin
-          ExistingBreak := TextIsSame(BreakStr, Copy(Line, Pos, BreakLen));
-          if ExistingBreak then
-          begin
-            Inc(Pos, BreakLen-1);
-            BreakPos := Pos;
-          end; //if ExistingBreak then
-        end // if QuoteChar = ' ' then    {Do not Localize}
-      end // if CurChar = BreakStr[1] then
-      else
-        if CharIsInSet(CurChar, 1, BreakChars) then
-        begin
-          if QuoteChar = ' ' then    {Do not Localize}
-            BreakPos := Pos
-        end  // if CurChar in BreakChars then
-        else
-        if CharIsInSet(CurChar, 1, QuoteChars) then
-          if CurChar = QuoteChar then
-            QuoteChar := ' '    {Do not Localize}
-          else
-            if QuoteChar = ' ' then    {Do not Localize}
-              QuoteChar := CurChar;
-    Inc(Pos);
-    Inc(Col);
-    if not (CharIsInSet(QuoteChar, 1, QuoteChars)) and (ExistingBreak or
-      ((Col > MaxCol) and (BreakPos > LinePos))) then
-    begin
-      Col := Pos - BreakPos;
-      Result := Result + Copy(Line, LinePos, BreakPos - LinePos + 1);
-      if not (CharIsInSet(CurChar, 1, QuoteChars)) then
-        while (Pos <= LineLen) and (CharIsInSet(Line, Pos, BreakChars + #13+#10)) do Inc(Pos);
-      if not ExistingBreak and (Pos < LineLen) then
-        Result := Result + BreakStr;
-      Inc(BreakPos);
-      LinePos := BreakPos;
-      ExistingBreak := False;
-    end; //if not
-  end; //while Pos <= LineLen do
-  Result := Result + Copy(Line, LinePos, MaxInt);
-end;
-
 { TIdHeaderList }
 
 procedure TIdHeaderList.AddStdValues(ASrc: TIdStrings);
@@ -291,7 +217,7 @@ begin
   Result := TIdStringList.Create;
   try
     {we specify a space so that starts a folded line}
-    s := FoldWrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
+    s := WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
     while s <> '' do    {Do not Localize}
     begin
       Result.Add( Sys.TrimRight( Fetch( s, EOL ) ) );
