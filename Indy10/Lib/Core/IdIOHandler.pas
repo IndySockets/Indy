@@ -1725,6 +1725,10 @@ begin
 end;
 
 procedure TIdIOHandler.WriteDirect(ABuffer: TIdBytes);
+//note: currently code in this method is not called
+//(subclass does not call inherited) (see TIdIOHandlerStack, used by win32)
+//this may need to be refactored to either remove this code,
+//or subclass to call inherited.
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
