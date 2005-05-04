@@ -95,7 +95,7 @@ unit IdFTPListOutput;
 
 interface
 
-uses IdFTPList, Classes, IdTStrings, SysUtils;
+uses IdFTPList, Classes, IdTStrings;
 
 type
   //we can't use the standard FTP MLSD option types in the FTP Server
@@ -970,7 +970,7 @@ var i : Integer;
             ', ';
       end;
       IdDelete(LTmp,Length(LTmp)-1,2);
-      AOutput.Text := AOutput.Text + WrapText(LTmp);
+      AOutput.Text := AOutput.Text + WrapText(LTmp,EOL+' ', LWS+',',79);  //79 good maxlen for text only terminals
       if Recurse and Assigned(ACurDir.SubDirs) then
       begin
         for i := 0 to ACurDir.SubDirs.Count -1 do
