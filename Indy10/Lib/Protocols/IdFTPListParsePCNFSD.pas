@@ -49,7 +49,7 @@ type
 
 implementation
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 const
   DIR = '<dir>';   {Do not translate}
@@ -94,7 +94,7 @@ begin
 
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -174,7 +174,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
