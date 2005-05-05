@@ -137,11 +137,10 @@ interface
 
 uses
   Classes,
+  IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
-  IdYarn, IdStack,
-  IdGlobal, IdTCPConnection, IdTCPServer, IdAssignedNumbers,
-  SysUtils;
+  IdGlobal,  IdStack, IdTCPConnection, IdTCPServer, IdYarn;
 
 type
   TIdMappedPortTCP = class;
@@ -221,8 +220,8 @@ type
 Implementation
 
 uses
-  IdIOHandler, IdIOHandlerSocket, IdException, IdResourceStrings, IdTCPClient,
-  IdStackConsts;
+  IdException,
+  IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdSys, IdTCPClient;
 
 procedure TIdMappedPortTCP.InitComponent;
 Begin
@@ -373,10 +372,10 @@ end;
 
 destructor TIdMappedPortContext.Destroy;
 begin
-  //^FreeAndNil(FOutboundClient);
-  FreeAndNil(FOutboundClient);
-  FreeAndNil(FReadList);
-  FreeAndNIL(FDataAvailList);
+  //^Sys.FreeAndNIL(FOutboundClient);
+  Sys.FreeAndNIL(FOutboundClient);
+  Sys.FreeAndNIL(FReadList);
+  Sys.FreeAndNIL(FDataAvailList);
   inherited Destroy;
 End;
 
