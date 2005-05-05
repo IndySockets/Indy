@@ -90,8 +90,7 @@ implementation
 
 uses
   IdCoreGlobal,
-  IdGlobal,
-  SysUtils;
+  IdGlobal;
 
 constructor TIdHostNameServer.Create(AOwner: TComponent);
 begin

@@ -7,7 +7,7 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log:  11878: IdHashAdler32.pas 
+{ $ Log :  11878: IdHashAdler32.pas 
 {
 {   Rev 1.0    11/13/2002 08:30:30 AM  JPMugaas
 { Initial import from FTP VC.
@@ -41,7 +41,7 @@ interface
 
 uses
   Classes,
-  IdGlobal,Sysutils,
+  IdGlobal,
   IdHash;
 
 type

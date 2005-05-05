@@ -89,7 +89,7 @@ type
 
 implementation
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
 
 { TIdFTPLPUnisysClearPath }
 
@@ -120,7 +120,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -137,7 +137,7 @@ begin
       Result := (s[0]='Report') and (s[1]='for:');
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -192,7 +192,7 @@ begin
       end;
     end;
   finally
-    FreeAndNil(s);
+    Sys.FreeAndNil(s);
   end;
 end;
 
@@ -218,7 +218,7 @@ begin
           Result := ParseLine(LItem);
           if Not Result then
           begin
-            FreeAndNil(LItem);
+            Sys.FreeAndNil(LItem);
           end;
         end;
       end;
