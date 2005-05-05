@@ -102,15 +102,17 @@ begin
   Result := false;
 
   if not GStack.IsIP(Value) then
+  begin
     Exit;
-
+  end;
   ThisIP := Value;
   s1 := Fetch(ThisIP, '.');    {Do not Localize}
   ip1 := Sys.StrToInt(s1);
 
   if ((ip1 < IPMCastLo) or (ip1 > IPMCastHi)) then
+  begin
     Exit;
-
+  end;
   Result := true;
 end;
 
