@@ -58,7 +58,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, SysUtils;
+  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, IdSys;
 
 const SKEYSERVICENAME = 'SKEY'; {do not localize}
 
@@ -69,8 +69,8 @@ function TIdSASLSKey.ContinueAuthenticate(
 var LBuf, LSeed : String;
   LCount : Cardinal;
 begin
-  LBuf := Trim(ALastResponse);
-  LCount := StrToIntDef(Fetch(LBuf),0);
+  LBuf := Sys.Trim(ALastResponse);
+  LCount := Sys.StrToInt(Fetch(LBuf),0);
   LSeed := Fetch(LBuf);
   Result := TIdOTPCalculator.ToSixWordFormat(TIdOTPCalculator.GenerateKeyMD4(lseed, GetPassword, LCount));
 end;

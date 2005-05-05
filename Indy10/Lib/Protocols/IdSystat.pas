@@ -47,7 +47,6 @@ uses
   IdAssignedNumbers,
   IdTCPConnection,
   IdTCPClient,
-  SysUtils,
   IdTStrings;
 
 type

@@ -140,7 +140,7 @@ uses
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
-  IdGlobal,  IdStack, IdTCPConnection, IdTCPServer, IdYarn;
+  IdGlobal,  IdStack, IdSys, IdTCPConnection, IdTCPServer, IdYarn;
 
 type
   TIdMappedPortTCP = class;
@@ -221,7 +221,7 @@ Implementation
 
 uses
   IdException,
-  IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdSys, IdTCPClient;
+  IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdTCPClient;
 
 procedure TIdMappedPortTCP.InitComponent;
 Begin

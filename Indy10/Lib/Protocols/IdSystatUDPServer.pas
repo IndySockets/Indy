@@ -65,7 +65,7 @@ type
    end;
 
 implementation
-uses  SysUtils;
+uses  IdSys;
 {
 According to the "Programming UNIX Sockets in C - Frequently Asked Questions"
 
@@ -123,7 +123,7 @@ begin
           s2 := s + EOL+MaxLenStr(LResults[i]);
           if Length(s2)>Max_UDPPacket then
           begin
-            s := TrimLeft(s);
+            s := Sys.TrimLeft(s);
             SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
             s :=  MaxLenStr(LResults[i]);
           end
@@ -134,68 +134,14 @@ begin
         end;
         if (s <> '') then
         begin
-          s := TrimLeft(s);
+          s := Sys.TrimLeft(s);
           SendTo(PeerIP, PeerPort, ToBytes(s));
         end;
       end;
     finally
-      FreeAndNil(LResults);
+      Sys.FreeAndNil(LResults);
     end;
   end;
 end;
-
-(*procedure TIdSystatUDPServer.DoUDPRead(AData: TStream;
-  ABinding: TIdSocketHandle);
-var s, s2 : String;
-  LResults : TIdStrings;
-  i : Integer;
-
-  function MaxLenStr(const AStr : String): String;
-  begin
-    Result := AStr;
-    if (Length(Result)>Max_Line_Len) then
-    begin
-      SetLength(Result,Max_Line_Len);
-    end;
-  end;
-
-begin
-  inherited DoUDPRead(AData, ABinding);
-  if Assigned(FOnSystat) then
-  begin
-    SetLength(s, AData.Size);
-    AData.Read(s[1], AData.Size);
-    LResults := TIdStringList.Create;
-    try
-      FOnSystat(ABinding, LResults);
-      with ABinding do
-      begin
-        s := '';
-        for i := 0 to LResults.Count - 1 do
-        begin
-          {enure that one line will never exceed the maximum packet size }
-          s2 := s + EOL+MaxLenStr(LResults[i]);
-          if Length(s2)>Max_UDPPacket then
-          begin
-            s := TrimLeft(s);
-            SendTo(ABinding.PeerIP, ABinding.PeerPort, s[1], Length(s));
-            s :=  MaxLenStr(LResults[i]);
-          end
-          else
-          begin
-            s := s2;
-          end;
-        end;
-        if (s <> '') then
-        begin
-          s := TrimLeft(s);
-          SendTo(PeerIP, PeerPort, s[1], Length(s));
-        end;
-      end;
-    finally
-      FreeAndNil(LResults);
-    end;
-  end;
-end;*)
 
 end.

@@ -71,9 +71,7 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
+uses IdSys;
 
 { TIdSyslogServer }
 
@@ -89,7 +87,7 @@ begin
   //  ReadFromStream(AData, (AData as TMemoryStream).Size, ABinding.PeerIP);
     DoSyslogEvent(LMsg, ABinding);
   finally
-    FreeAndNil(LMsg)
+    Sys.FreeAndNil(LMsg)
   end;
 end;
 

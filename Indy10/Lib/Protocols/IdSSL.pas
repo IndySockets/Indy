@@ -149,7 +149,7 @@ var
 
 implementation
 
-uses SysUtils;
+uses IdSys;
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
@@ -211,5 +211,5 @@ end;
 initialization
   GSSLRegistry := TIdSSLRegistry.Create;
 finalization
-  FreeAndNil(GSSLRegistry);
+  Sys.FreeAndNil(GSSLRegistry);
 end.

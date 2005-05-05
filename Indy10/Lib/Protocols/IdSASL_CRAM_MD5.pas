@@ -78,7 +78,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHashMessageDigest, IdHash, SysUtils, idBuffer;
+  IdGlobal, IdGlobalProtocols, IdHashMessageDigest, IdHash, idBuffer,IdSys;
 
 { TIdSASLCRAMMD5 }
 
@@ -130,15 +130,15 @@ var
   procedure _ReleaseStreams;
   begin
     if assigned(AKey) then
-      FreeAndNil(AKey);
+      Sys.FreeAndNil(AKey);
     if assigned(ASecret) then
-      FreeAndNil(ASecret);
+      Sys.FreeAndNil(ASecret);
     if assigned(WorkBuffer) then
-      FreeAndNil(WorkBuffer);
+      Sys.FreeAndNil(WorkBuffer);
     if assigned(opad) then
-      FreeAndNil(opad);
+      Sys.FreeAndNil(opad);
     if assigned(ipad) then
-      FreeAndNil(ipad);
+      Sys.FreeAndNil(ipad);
   end;
   // Zero out a memory zone
   procedure IdZeroMemory(Dest: TIdbytes; Length: Integer);
@@ -203,7 +203,7 @@ begin
 
       _HashStream(opad, WorkBuffer, opad.Size);
       opad.Position := 0;
-      result := LowerCase(Ahasher.AsHex(Ahasher.HashValue(opad)));
+      result := Sys.LowerCase(Ahasher.AsHex(Ahasher.HashValue(opad)));
 
       // S.G. 10/5/2003: ToDo: zero the memory so that sensitve info do not stay in memory
     finally

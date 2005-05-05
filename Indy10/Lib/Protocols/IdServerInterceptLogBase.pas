@@ -79,8 +79,8 @@ implementation
 uses
   IdIOHandlerSocket,
   IdResourceStringsCore,
-  IdTCPConnection,
-  SysUtils;
+  IdSys,
+  IdTCPConnection;
 
 { TIdServerInterceptLogFile }
 
@@ -103,7 +103,7 @@ end;
 
 destructor TIdServerInterceptLogBase.Destroy;
 begin
-  FreeAndNil(FLock);
+  Sys.FreeAndNil(FLock);
   inherited;
 end;
 
@@ -153,7 +153,7 @@ begin
     if (LSocket <> nil) then begin
       if (LSocket.Binding <> nil) then begin
         with LSocket.Binding do begin
-          Result := PeerIP + ':' + IntToStr(PeerPort);
+          Result := PeerIP + ':' + Sys.IntToStr(PeerPort);
         end;
         Exit;
       end;

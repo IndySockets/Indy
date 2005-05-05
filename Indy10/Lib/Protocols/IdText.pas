@@ -63,7 +63,8 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal,
+  IdSys;
 
 const
   SContentType = '%s; CHARSET="%s"';  {do not localize}
@@ -140,12 +141,12 @@ end;
 
 procedure TIdText.SetCharSet(const AValue: String);
 begin
-  inherited SetContentType(Format(SContentType,[GetContentType,AValue]));
+  inherited SetContentType(Sys.Format(SContentType,[GetContentType,AValue]));
 end;
 
 procedure TIdText.SetContentType(const AValue: string);
 begin
-  inherited SetContentType(Format(SContentType, [AValue,GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
+  inherited SetContentType(Sys.Format(SContentType, [AValue,GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
 end;
 
 initialization

@@ -215,7 +215,7 @@ type
   end;
 
 implementation
-uses IdGlobal, IdGlobalProtocols, SysUtils;
+uses IdGlobal, IdGlobalProtocols, IdSys;
 
 { TIdReplyIMAP4 }
 
@@ -245,7 +245,7 @@ end;
 
 destructor TIdReplyIMAP4.Destroy;
 begin
-  FreeAndNil(FExtra);
+  Sys.FreeAndNil(FExtra);
   inherited;
 end;
 
@@ -294,7 +294,7 @@ var
   LOrd : Integer;
 begin
   LOrd := PosInStrArray(ACode, VALID_TAGGEDREPLIES, False);
-  Result := (LOrd <> -1) or (Trim(ACode) = '');
+  Result := (LOrd <> -1) or (Sys.Trim(ACode) = '');
 end;
 
 function TIdReplyIMAP4.GetFormattedReply: TIdStrings;
@@ -352,8 +352,8 @@ begin
   for LN := 0 to AValue.Count - 2 do begin
     LLine := AValue[LN];
     if LLine <> '' then begin
-      LWord := Trim(Fetch(LLine));
-      LLine := Trim(LLine);
+      LWord := Sys.Trim(Fetch(LLine));
+      LLine := Sys.Trim(LLine);
       if (LLine = '') then begin
         {Throw an exception: this line is a single word, not a valid data
         line since it does not have a * plus at least one word of data.}
@@ -375,8 +375,8 @@ begin
     DoReplyError('Unexpected: Response (last) line was empty instead of containing a line with a response code like OK, NO, BAD, etc');  {do not localize}
   end;
   LBuf := LLine;
-  LWord := Trim(Fetch(LBuf));
-  LBuf := Trim(LBuf);
+  LWord := Sys.Trim(Fetch(LBuf));
+  LBuf := Sys.Trim(LBuf);
   {We can assume, if the previous function (GetResponse) did its
   job, that either the first or the second word (if it exists) is the
   response code...}
@@ -393,8 +393,8 @@ begin
     end;
     FSequenceNumber := LWord;   {Record that it is a * line}
     {The next word had better be a response...}
-    LWord := Trim(Fetch(LBuf));
-    LBuf := Trim(LBuf);
+    LWord := Sys.Trim(Fetch(LBuf));
+    LBuf := Sys.Trim(LBuf);
     if (LBuf = '') then begin
       {Should never get to here: LBuf should have been ''.  Might as
       well throw an exception since we are down here anyway.}
@@ -417,8 +417,8 @@ begin
     end;
     FSequenceNumber := LWord;   {Record that it is a C41 line}
     {The next word had better be a response...}
-    LWord := Trim(Fetch(LBuf));
-    LBuf := Trim(LBuf);
+    LWord := Sys.Trim(Fetch(LBuf));
+    LBuf := Sys.Trim(LBuf);
     if LBuf = '' then begin
       {Should never get to here: LBuf should have been ''.  Might as
       well throw an exception since we are down here anyway.}

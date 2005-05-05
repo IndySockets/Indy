@@ -76,8 +76,7 @@ uses
   Classes,
   IdAssignedNumbers,
   IdContext,
-  IdCustomTCPServer,
-  IdGlobalProtocols;
+  IdCustomTCPServer;
 
 Type
   TIdCustomTimeServer = class(TIdCustomTCPServer)
@@ -103,7 +102,8 @@ Type
 implementation
 
 uses
-  IdStack, SysUtils;
+  IdGlobalProtocols,
+  IdSys;
 
 procedure TIdCustomTimeServer.InitComponent;
 begin
@@ -118,7 +118,7 @@ function TIdCustomTimeServer.DoExecute(AContext: TIdContext): Boolean;
 begin
   Result := true;
   with AContext.Connection do begin
-    IOHandler.Write(Cardinal(Trunc(extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
+    IOHandler.Write(Cardinal(Trunc(extended(Sys.Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
     Disconnect;
   end;
 end;

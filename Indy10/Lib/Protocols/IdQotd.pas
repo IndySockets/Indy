@@ -56,9 +56,6 @@ type
 
 implementation
 
-uses
-  SysUtils;
-
 { TIdQotd }
 
 procedure TIdQOTD.InitComponent;

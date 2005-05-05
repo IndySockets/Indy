@@ -126,8 +126,7 @@ function GenerateSeed : String;
 implementation
 uses
   IdGlobal,
-  IdOTPCalculator,
-  SysUtils;
+  IdOTPCalculator;
 
 resourcestring
   RSOTP_Challenge = 'Response to %s required for OTP.';

@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IdGlobalProtocols, IdStack, SysUtils;
+  IdGlobalProtocols, IdStack, IdSys;
 
 procedure TIdCustomTimeUDPServer.InitComponent;
 begin
@@ -76,7 +76,7 @@ var
 begin
   inherited DoUDPRead(AData, ABinding);
 
-  LTime := Trunc(extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60);
+  LTime := Trunc(extended(Sys.Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60);
   LTime := GStack.HostToNetwork(LTime);
   SendBuffer(ABinding.PeerIP,ABinding.PeerPort, ToBytes(LTime));
 end;

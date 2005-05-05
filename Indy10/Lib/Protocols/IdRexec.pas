@@ -73,8 +73,7 @@ uses
   IdGlobal,
   IdSimpleServer,
   IdTCPConnection,
-  IdThread,
-  SysUtils;
+  IdThread;
 
 procedure TIdRexec.InitComponent;
 begin

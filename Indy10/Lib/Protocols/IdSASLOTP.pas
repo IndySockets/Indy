@@ -60,7 +60,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, SysUtils;
+  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdSys, IdUserPassProvider;
 
 { TIdSASLOTP }
 
@@ -98,7 +98,7 @@ begin
     inc(LChallengeStartPos, 4); // to remove "otp-"
     LChallenge:=copy(AResponse, LChallengeStartPos, $FFFF);
     LMethod:=Fetch(LChallenge);
-    LCount:=StrToInt(Fetch(LChallenge));
+    LCount:=Sys.StrToInt(Fetch(LChallenge));
     LSeed:=Fetch(LChallenge);
     if LMethod='md5' then {do not localize} // methods are case sensitive
     begin

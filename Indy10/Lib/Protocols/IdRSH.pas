@@ -66,8 +66,7 @@ uses
   IdGlobalProtocols,
   IdSimpleServer,
   IdTCPConnection,
-  IdThread,
-  SysUtils;
+  IdThread;
 
 { TIdRSH }
 

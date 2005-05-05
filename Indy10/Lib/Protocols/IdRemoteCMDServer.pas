@@ -57,8 +57,7 @@ type
 implementation
 
 uses
-  IdSocketHandle, IdException, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack,
-  SysUtils;
+  IdSocketHandle, IdException, IdGlobal, IdIOHandlerStack, IdIOHandlerSocket, IdStack, IdSys;
 
 { TIdRemoteCMDServer }
 
@@ -73,7 +72,7 @@ var
     try
      Result := True;
      StdError := nil;
-     ErrorPort := StrToIntDef(Trim(AThread.Connection.IOHandler.ReadLn(#0)),0);
+     ErrorPort := Sys.StrToInt(Sys.Trim(AThread.Connection.IOHandler.ReadLn(#0)),0);
 
      if ErrorPort <> 0 then
      begin
@@ -128,7 +127,7 @@ var
        StdError.Disconnect;
      end;
     finally
-      FreeAndNil(StdError);
+      Sys.FreeAndNil(StdError);
     end;
   end;
 begin

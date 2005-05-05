@@ -70,8 +70,6 @@ Type
 
 implementation
 
-uses
-  SysUtils;
 
 procedure TIdQOTDServer.InitComponent;
 begin

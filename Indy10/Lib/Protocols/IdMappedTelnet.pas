@@ -36,11 +36,7 @@ uses
   Classes, IdAssignedNumbers,
   IdMappedPortTCP, 
   IdTCPServer;
-{uses
-  Classes,
-  IdContext, IdMappedPortTCP, IdStack,
-  IdCoreGlobal, IdTCPConnection, IdTCPServer, IdAssignedNumbers,
-  SysUtils; }
+
 type
   //=============================================================================
   // * Telnet *

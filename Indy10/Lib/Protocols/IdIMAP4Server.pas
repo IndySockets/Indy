@@ -218,14 +218,6 @@ interface
 {$ENDIF}
 
 uses
-{
-  Classes, SysUtils,
-  IdAssignedNumbers, IdContext, IdException, IdExplicitTLSClientServerBase, IdServerIOHandler, IdCmdTCPServer,
-  IdCommandHandlers, IdGlobal, IdResourceStrings, IdSSL,
-  IdTCPConnection, IdYarn,
-  IdIMAP4, //For some defines like TIdIMAP4ConnectionState
-  IdReply, IdReplyIMAP4;
-}
   Classes,
   IdAssignedNumbers,
   IdCmdTCPServer,

@@ -73,7 +73,7 @@ type
 implementation
 
 uses
-  IdGlobal, SysUtils, IdStackConsts;
+  IdGlobal, IdStackConsts, IdSys;
 
 { TIdSysLog }
 
@@ -88,7 +88,7 @@ procedure TIdSysLog.SendLogMessage(const AMsg: TIdSyslogMessage; const AAutoTime
 begin
   if AAutoTimeStamp then
   begin
-    AMsg.TimeStamp := now;
+    AMsg.TimeStamp := Sys.Now;
   end;
   Send( AMsg.EncodeMessage );
 end;
@@ -119,7 +119,7 @@ begin
     LMsg.Severity := ASeverity;
     SendLogMessage(LMsg);
   finally
-    FreeAndNil(LMsg);
+    Sys.FreeAndNil(LMsg);
   end;
 end;
 
@@ -151,7 +151,7 @@ begin
     LMsg.Severity := ASeverity;
     SendLogMessage(LMsg);
   finally
-    FreeAndNil(LMsg);
+    Sys.FreeAndNil(LMsg);
   end;
 end;
 

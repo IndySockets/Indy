@@ -70,7 +70,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdContext,
-  IdCustomTCPServer, IdSys,
+  IdCustomTCPServer,
   IdTCPConnection, IdYarn;
 
 const
@@ -130,7 +130,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols, SysUtils;
+  IdException, IdGlobal, IdResourceStringsProtocols, IdSys;
 
 procedure TIdTelnetServer.InitComponent;
 begin
@@ -215,7 +215,7 @@ end;
 
 destructor TIdTelnetPeerContext.Destroy;
 begin
-  FreeAndNil(FTelnetData);
+  Sys.FreeAndNil(FTelnetData);
   inherited;
 end;
 

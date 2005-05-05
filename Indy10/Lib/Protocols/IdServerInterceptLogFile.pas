@@ -59,13 +59,13 @@ type
 implementation
 
 uses
-  SysUtils;
+  IdSys;
 
 { TIdServerInterceptLogFile }
 
 destructor TIdServerInterceptLogFile.Destroy;
 begin
-  FreeAndNil(FFileStream);
+  Sys.FreeAndNil(FFileStream);
   inherited;
 end;
 
@@ -74,14 +74,9 @@ begin
   inherited Init;
   if not (csDesigning in ComponentState) then begin
     if FFilename = '' then begin
-      FFilename := ChangeFileExt(ParamStr(0), '.log'); {do not localize}  //BGO: TODO: Do we keep this, or maybe raise an exception?
+      FFilename := Sys.ChangeFileExt(ParamStr(0), '.log'); {do not localize}  //BGO: TODO: Do we keep this, or maybe raise an exception?
     end;
-    if not FileExists(Filename) then begin
-      FFileStream := TFileStream.Create(Filename, fmCreate);
-    end else begin
-      FFileStream := TFileStream.Create(Filename, fmOpenReadWrite or fmShareDenyWrite);
-      FFileStream.Position := FFileStream.Size;
-    end;
+    FFileStream := TAppendFileStream.Create(FFileName);
   end;
 end;
 

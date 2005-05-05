@@ -91,7 +91,7 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal, IdSys;
 
 { TIdSystatServer }
 
@@ -112,7 +112,7 @@ begin
       FOnSystat(AThread,s);
       AThread.Connection.IOHandler.Write(s.Text);
     finally
-      FreeAndNil(s);
+      Sys.FreeAndNil(s);
     end;
     AThread.Connection.Disconnect;
   end;

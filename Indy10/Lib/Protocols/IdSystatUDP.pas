@@ -68,7 +68,7 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, SysUtils;
+  IdGlobal, IdSys;
 
 { TIdSystatUDP }
 
