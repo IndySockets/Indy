@@ -7,11 +7,376 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log$I IdCompilerDefines.inc}
-
-{This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
-are permitted to do so except .pas files which are counterparts to dfm/xfm files, and only for
-support of that.}
+{ $Log:
+{  10   Indy10    1.9         5/4/2005 7:06:24 PM    J. Peter Mugaas Attempt to
+{       fix another junked part of the file.
+{  9    Indy10    1.8         5/4/2005 7:02:50 PM    J. Peter Mugaas Attempt to
+{       fix a junked file.
+{  8    Indy10    1.7         5/4/2005 6:31:08 PM    J. Peter Mugaas These
+{       should now work.  I moved a TextWrapping function out of TIdHeaderList
+{       and into IdGlobalProtocols so the FTP List output object can use it and
+{       so we can rework the routine slightly to use StringBuilder in DotNET.
+{  7    Indy10    1.6         4/28/2005 11:02:30 PM  J. Peter Mugaas Removed
+{       StrToInt64Def symbol.  We now use Sys.StrToInt64 instead.
+{  6    Indy10    1.5         4/28/2005 10:23:14 PM  J. Peter Mugaas Should now
+{       work with new API change in CharInSet.
+{  5    Indy10    1.4         4/20/2005 10:44:24 PM  Ben Taylor      IdSys
+{       changes
+{  4    Indy10    1.3         4/20/2005 12:43:48 AM  J. Peter Mugaas Removed
+{       SysUtils from most units and added it to IdGlobalProtocols (works best
+{       that way).
+{  3    Indy10    1.2         4/19/2005 5:19:11 PM   J. Peter Mugaas Removed
+{       SysUtils and fixed EIdException reference.
+{  2    Indy10    1.1         4/19/2005 10:15:26 AM  J. Peter Mugaas Updates
+{
+{ $Log:  56901: IdGlobalProtocols.pas
+{
+{   Rev 1.31    04/03/2005 21:21:56  HHariri
+{ Fix for DirectoryExists and removal of FileCtrl dependency
+}
+{
+{   Rev 1.30    3/3/2005 10:12:38 AM  JPMugaas
+{ Fix for compiler warning about DotNET and ByteType.
+}
+{
+{   Rev 1.29    2/12/2005 8:08:02 AM  JPMugaas
+{ Attempt to fix MDTM bug where msec was being sent.
+}
+{
+{   Rev 1.28    2/10/2005 2:24:40 PM  JPMugaas
+{ Minor Restructures for some new UnixTime Service components.
+}
+{
+{   Rev 1.27    1/15/2005 6:02:46 PM  JPMugaas
+{ Byte extract with byte order now use updated code in IdGlobal.
+}
+{
+{   Rev 1.26    1/8/2005 3:59:58 PM  JPMugaas
+{ New functions for reading integer values to and from TIdBytes using the
+{ network byte order functions.  They should be used for embedding values in
+{ some Internet Protocols such as FSP, SNTP, and maybe others.
+}
+{
+    Rev 1.25    12/3/2004 3:16:20 PM  DSiders
+  Fixed assignment error in MakeTempFilename.
+}
+{
+{   Rev 1.24    12/1/2004 4:40:42 AM  JPMugaas
+{ Fix for GMT Time routine.  This has been tested.
+}
+{
+{   Rev 1.23    11/14/2004 10:28:42 PM  JPMugaas
+{ Compiler warning in IdGlobalProtocol about an undefined result.
+}
+{
+{   Rev 1.22    12/11/2004 9:31:22  HHariri
+{ Fix for Delphi 5
+}
+{
+{   Rev 1.21    11/11/2004 11:18:04 PM  JPMugaas
+{ Function to get the Last Modified file in GMT instead of localtime.  Needed
+{ by TIdFSP.
+}
+{
+{   Rev 1.20    2004.10.27 9:17:50 AM  czhower
+{ For TIdStrings
+}
+{
+{   Rev 1.19    10/26/2004 10:07:02 PM  JPMugaas
+{ Updated refs.
+}
+{
+    Rev 1.18    10/13/2004 7:48:52 PM  DSiders
+  Modified GetUniqueFilename to pass correct argument type to tempnam function.
+}
+{
+    Rev 1.17    10/6/2004 11:39:48 PM  DSiders
+  Modified MakeTempFilename to use GetUniqueFilename.  File extensions are
+  omitted on Linux.
+  Modified GetUniqueFilename to use tempnam function on Linux.  Validates path
+  on Win32 and .Net.  Uses platform-specific temp path on Win32 and .Net.
+}
+{
+{   Rev 1.16    9/5/2004 2:55:52 AM  JPMugaas
+{ Fixed a range check error in
+{
+{  function TwoCharToWord(AChar1,AChar2: Char):Word;.
+}
+{
+{   Rev 1.15    8/10/04 8:47:16 PM  RLebeau
+{ Bug fix for TIdMimeTable.AddMimeType()
+}
+{
+{   Rev 1.14    8/5/04 5:44:40 PM  RLebeau
+{ Added GetMIMEDefaultFileExt() function
+}
+{
+{   Rev 1.13    7/23/04 6:51:34 PM  RLebeau
+{ Added extra exception handling to IndyCopyFile()
+{
+{ Updated CopyFileTo() to call IndyCopyFile()
+{
+{ TFileStream access right tweak for FileSizeByName()
+}
+{
+{   Rev 1.12    7/8/04 5:23:46 PM  RLebeau
+{ Updated CardinalToFourChar() to remove use of local TIdBytes variable
+}
+{
+{   Rev 1.11    11/06/2004 00:22:38  CCostelloe
+{ Implemented GetClockValue for Linux
+}
+{
+{   Rev 1.10    09/06/2004 10:03:00  CCostelloe
+{ Kylix 3 patch
+}
+{
+{   Rev 1.9    02/05/2004 13:20:50  CCostelloe
+{ Added RemoveHeaderEntry for use by IdMessage and IdMessageParts (typically
+{ removing old boundary)
+}
+{
+{   Rev 1.8    2/22/2004 12:09:38 AM  JPMugaas
+{ Fixes for IMAP4Server compile failure in DotNET.  This also fixes a potential
+{ problem where file handles can be leaked in the server needlessly.
+}
+{
+{   Rev 1.7    2/19/2004 11:53:00 PM  JPMugaas
+{ Moved some functions out of CoderQuotedPrintable for reuse.
+}
+{
+{   Rev 1.6    2/19/2004 11:40:28 PM  JPMugaas
+{ Character to hex translation routine added for QP and some
+{ internationalization work.
+}
+{
+{   Rev 1.5    2/19/2004 3:22:40 PM  JPMugaas
+{ ABNFToText and related functions added for some RFC 2234.  This is somee
+{ groundwork for RFC 2640 - Internationalization of the File Transfer Protocol.
+}
+{
+{   Rev 1.4    2/16/2004 1:53:34 PM  JPMugaas
+{ Moved some routines to the system package.
+}
+{
+{   Rev 1.3    2/11/2004 5:17:50 AM  JPMugaas
+{ Bit flip functionality was removed because is problematic on some
+{ architectures.  They were used in place of the standard network byte order
+{ conversion routines.  On an Intel chip, flip works the same as those but in
+{ architectures where network order is the same as host order, some functions
+{ will fail and you may get strange results.  The network byte order conversion
+{ functions provide transparancy amoung architectures.
+}
+{
+{   Rev 1.2    2/9/2004 11:27:48 AM  JPMugaas
+{ Some functions weren't working as expected.  Renamed them to describe them
+{ better.
+}
+{
+{   Rev 1.1    2/7/2004 7:18:38 PM  JPMugaas
+{ Moved some functions out of IdDNSCommon so we can use them elsewhere.
+}
+{
+{   Rev 1.0    2004.02.03 7:46:04 PM  czhower
+{ New names
+}
+{
+{   Rev 1.43    1/31/2004 3:31:58 PM  JPMugaas
+{ Removed some File System stuff for new package.
+}
+{
+{   Rev 1.42    1/31/2004 1:00:26 AM  JPMugaas
+{ FileDateByName was changed to LocalFileDateByName as that uses the Local Time
+{ Zone.
+{ Added BMTDateByName for some GMT-based stuff.
+{ We now use the IdFileSystem*.pas units instead of SysUtils for directory
+{ functions.  This should remove a dependancy on platform specific things in
+{ DotNET.
+}
+{
+{   Rev 1.41    1/29/2004 6:22:22 AM  JPMugaas
+{ IndyComputerName will now use Environment.MachineName in DotNET.  This should
+{ fix the ESMTP bug where IndyComputerName would return nothing causing an EHLO
+{ and HELO command to fail in TIdSMTP under DotNET.
+}
+{
+{   Rev 1.40    2004.01.22 5:58:56 PM  czhower
+{ IdCriticalSection
+}
+{
+{   Rev 1.39    14/01/2004 00:16:10  CCostelloe
+{ Updated to remove deprecated warnings by using
+{ TextIsSame/IndyLowerCase/IndyUpperCase
+}
+{
+{   Rev 1.38    2003.12.28 6:50:30 PM  czhower
+{ Update for Ticks function
+}
+{
+{   Rev 1.37    4/12/2003 10:24:06 PM  GGrieve
+{ Fix to Compile
+}
+{
+{   Rev 1.36    11/29/2003 12:19:50 AM  JPMugaas
+{ CompareDateTime added for more accurate DateTime comparisons.  Sometimes
+{ comparing two floating point values for equality will fail because they are
+{ of different percision and some fractions such as 1/3 and pi (7/22) can never
+{ be calculated 100% accurately.
+}
+{
+{   Rev 1.35    25/11/2003 12:24:20 PM  SGrobety
+{ various IdStream fixes with ReadLn/D6
+}
+{
+    Rev 1.34    10/16/2003 11:18:10 PM  DSiders
+  Added localization comments.
+  Corrected spelling error in coimments.
+}
+{
+{   Rev 1.33    10/15/2003 9:53:58 PM  GGrieve
+{ Add TIdInterfacedObject
+}
+{
+{   Rev 1.32    10/10/2003 10:52:12 PM  BGooijen
+{ Removed IdHexDigits
+}
+{
+{   Rev 1.31    10/8/2003 9:52:40 PM  GGrieve
+{ reintroduce GetSystemLocale as IdGetDefaultCharSet
+}
+{
+{   Rev 1.30    10/8/2003 2:25:40 PM  GGrieve
+{ Update ROL and ROR for DotNet
+}
+{
+{   Rev 1.29    10/5/2003 11:43:32 PM  GGrieve
+{ Add IsLeadChar
+}
+{
+{   Rev 1.28    10/5/2003 5:00:10 PM  GGrieve
+{ GetComputerName (once was IndyGetHostName)
+}
+{
+{   Rev 1.27    10/4/2003 9:14:26 PM  GGrieve
+{ Remove TIdCardinalBytes - replace with other methods
+}
+{
+{   Rev 1.26    10/3/2003 11:55:50 PM  GGrieve
+{ First full DotNet version
+}
+{
+{   Rev 1.25    10/3/2003 5:39:30 PM  GGrieve
+{ dotnet work
+}
+{
+{   Rev 1.24    2003.10.02 10:52:48 PM  czhower
+{ .Net
+}
+{
+{   Rev 1.23    2003.10.02 9:27:50 PM  czhower
+{ DotNet Excludes
+}
+{
+{   Rev 1.22    9/18/2003 07:41:46 PM  JPMugaas
+{ Moved GetThreadHandle to IdCoreGlobal.
+}
+{
+{   Rev 1.21    9/10/2003 03:26:42 AM  JPMugaas
+{ Added EnsureMsgIDBrackets() function.  Checked in on behalf of Remy Lebeau
+}
+{
+{   Rev 1.20    6/27/2003 05:53:28 AM  JPMugaas
+{ Removed IsNumeric.  That's now in IdCoreGlobal.
+}
+{
+{   Rev 1.19    2003.06.23 2:57:18 PM  czhower
+{ Comments added
+}
+{
+{   Rev 1.18    2003.06.23 9:46:54 AM  czhower
+{ Russian, Ukranian support for headers.
+}
+{
+{   Rev 1.17    2003.06.13 2:24:40 PM  czhower
+{ Expanded TIdCardinalBytes
+}
+{
+{   Rev 1.16    5/13/2003 12:45:50 PM  JPMugaas
+{ GetClockValue added for unique clock values.
+}
+{
+{   Rev 1.15    5/8/2003 08:43:14 PM  JPMugaas
+{ Function for finding an integer's position in an array of integers.  This is
+{ required by some SASL code.
+}
+{
+    Rev 1.14    4/21/2003 7:52:58 PM  BGooijen
+  other nt version detection, removed non-existing windows versions
+}
+{
+{   Rev 1.13    4/18/2003 09:28:24 PM  JPMugaas
+{ Changed Win32 Operating System detection so it can distinguish between
+{ workstation OS NT versions and server versions.  I also added specific
+{ detection for Windows NT 4.0 with a Service Pack below 6 (requested by Bas).
+}
+{
+{   Rev 1.12    2003.04.16 10:06:22 PM  czhower
+{ Moved DebugOutput to IdCoreGlobal
+}
+{
+{   Rev 1.11    4/10/2003 02:54:32 PM  JPMugaas
+{ Improvement for FTP STOU command.  Unique filename now uses
+{ IdGlobal.GetUniqueFileName instead of Rand.  I also fixed GetUniqueFileName
+{ so that it can accept an empty path specification.
+}
+{
+    Rev 1.10    4/5/2003 10:39:06 PM  BGooijen
+  LAM,LPM were not initialized
+}
+{
+{   Rev 1.9    4/5/2003 04:12:00 AM  JPMugaas
+{ Date Time should now be able to process AM/PM.
+}
+{
+{   Rev 1.8    4/4/2003 11:02:56 AM  JPMugaas
+{ Added GetUniqueFileName for the Virtual FTP File System component.
+}
+{
+{   Rev 1.7    20/3/2003 19:15:46  GGrieve
+{ Fix GMTToLocalDateTime for empty content
+}
+{
+{   Rev 1.6    3/9/2003 04:34:40 PM  JPMugaas
+{ FileDateByName now works on directories.
+}
+{
+{   Rev 1.5    2/14/2003 11:50:58 AM  JPMugaas
+{ Removed a function for giving an OS identifier in the FTP server because we
+{ no longer use that function.
+}
+{
+{   Rev 1.4    1/27/2003 12:30:22 AM  JPMugaas
+{ Forgot to add a space after one OS type.  That makes the job a little easier
+{ for the FTP Server SYST command handler.
+}
+{
+{   Rev 1.3    1/26/2003 11:56:30 PM  JPMugaas
+{ Added function for returning an OS descriptor for combining with a FTP Server
+{ SysDescription for the SYST command reply.  This can also optionally return
+{ the true system identifier.
+}
+{
+{   Rev 1.2    1/9/2003 05:39:08 PM  JPMugaas
+{ Added workaround for if the date is missing a space after a comma.
+}
+{
+{   Rev 1.1    12/29/2002 2:13:14 PM  JPMugaas
+{ Moved THandle to IdCoreGlobal for new function used in the core.
+}
+{
+{   Rev 1.0    11/13/2002 08:29:32 AM  JPMugaas
+{ Initial import from FTP VC.
+}
 unit IdGlobalProtocols;
 {$I IdCompilerDefines.inc}
 
