@@ -67,12 +67,17 @@ type
   public
     function HashValue(const ASrc: string): Word; overload;
     function HashValue(AStream: TStream): Word; overload; virtual; abstract;
+    procedure HashStart(var VRunningHash : Word); virtual; abstract;
+    procedure HashByte(var VRunningHash : Word; const AByte : Byte); virtual; abstract;
   end;
 
   TIdHash32 = class(TIdHash)
   public
     function HashValue(const ASrc: string): LongWord; overload;
     function HashValue(AStream: TStream): LongWord; overload; virtual; abstract;
+    procedure HashStart(var VRunningHash : LongWord); virtual; abstract;
+    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); virtual; abstract;
+
   end;
 
   T4x4LongWordRecord = array [0..3] of LongWord;

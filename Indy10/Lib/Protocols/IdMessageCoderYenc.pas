@@ -107,6 +107,16 @@ type
     procedure InitializeHeaders( AMsg: TIdMessage ) ; override;
   end;
 
+const
+  BUFLEN = 4096;
+  //fixed chars in integer form for easy byte comparison
+  B_PERIOD = $2E;
+  B_EQUALS = $3D;
+  B_TAB = $09;
+  B_LF = $0A;
+  B_CR = $0D;
+  B_NUL = $00;
+
 implementation
 
 uses
@@ -122,7 +132,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
     LStart: integer;
     LEnd: integer;
   begin
-    lstart := pos( Sys.lowercase(option) + '=', Sys.lowercase(ALine) ) ;
+    lstart := IndyPos( Sys.lowercase(option) + '=', Sys.lowercase(ALine) ) ;
     if Lstart = 0 then
     begin
       result := default;
@@ -130,7 +140,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
     end;
     lstart := lstart + length( option ) + 1;
     result := copy( ALine, lstart, MaxInt ) ;
-    lend := pos( ' ', result ) ; {Do not Localize}
+    lend := IndyPos( ' ', result ) ; {Do not Localize}
     if lend > 0 then
     begin
       result := copy( result, 1, lend - 1 );
@@ -141,7 +151,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
   var
     Lstart: integer;
   begin
-    Lstart := pos( 'name=', Sys.lowercase(ALine) ) ; {Do not Localize}
+    Lstart := IndyPos( 'name=', Sys.lowercase(ALine) ) ; {Do not Localize}
     if Lstart = 0 then
     begin
       result := '';
@@ -172,35 +182,37 @@ end;
 
 { TIdMessageDecoderYenc }
 
-function GetCRC( const Astream: Tstream; const size: integer ) : string;
+{function GetCRC( const Astream: Tstream; const ASize: integer ) : string;
 begin
   with TIdHashCRC32.create do
   try
-    Astream.Seek( -1 * size, soFromEnd ) ;
+    Astream.Seek( -1 * ASize, IdFromEnd ) ;
     result := Sys.lowercase( Sys.inttohex( HashValue( Astream ) , 8 ) ) ;
   finally
     free;
   end;
-end;
+end;   }
 
 function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder;
 var
   LLine: string;
   LLinepos: integer;
-  LChar: char;
+  LChar: Byte;
   LBytesDecoded: integer;
   LPartSize: integer;
   Lcrc32: string;
 
-  LOutputBuffer:array[0..4095] of Char;
+  LOutputBuffer:TIdBytes;
   LOutputBufferUsed:integer;
+  LHash : Cardinal;
+  LH : TIdHashCRC32;
 
   function GetValue( const option: string; const default: string = '0' ) : string;
   var
     Lstart: integer;
     LEnd: integer;
   begin
-    lstart := pos( Sys.lowercase(option) + '=', Sys.lowercase(LLine) ) ; {Do not Localize}
+    lstart := IndyPos( Sys.lowercase(option) + '=', Sys.lowercase(LLine) ) ; {Do not Localize}
     if Lstart = 0 then
     begin
       result := default;
@@ -208,7 +220,7 @@ var
     end;
     lstart := lstart + length( option ) + 1;
     result := copy( LLine, lstart, $FFFF ) ;
-    lend := pos( ' ', result ) ; {Do not Localize}
+    lend := IndyPos( ' ', result ) ; {Do not Localize}
     if lend > 0 then
     begin
       result := copy( result, 1, lend - 1 );
@@ -219,31 +231,37 @@ var
   begin
   //TODO: this uses Array of Characters. Unless its dealing in Unicode or MBCS it should
   // be using TIdBuffer
-  todo;
-//    ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
+    ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
     LOutputBufferUsed:=0;
   end;
 
-  procedure AddByteToOutputBuffer(const AChar:Char);
+  procedure AddByteToOutputBuffer(const AChar:Byte);
   begin
     LOutputBuffer[LOutputBufferUsed]:=AChar;
     inc(LOutputBufferUsed);
-    if LOutputBufferUsed>=4096 then begin
+    if LOutputBufferUsed>=BUFLEN then begin
       FlushOutputBuffer;
     end;
   end;
 
 begin
+  SetLength(LOutputBuffer,BUFLEN);
   AMSgEnd := false;
   Result := nil;
   LPartSize := fsize;
   LOutputBufferUsed:=0;
 
   LBytesDecoded := 0;
+  LH := TIdHashCRC32.Create;
+  try
+    LH.HashStart(LHash);
+  //note that we have to do hashing here because there's no
+  //seek in the TIdStream class, changing definiti9ons in this API might break something,
+  //and storing in an extra buffer will just eat space
   while true do
   begin
     lline := readln;
-    if pos( '=yend', Sys.lowercase(lline) ) <> 0 then {Do not Localize}
+    if IndyPos( '=yend', Sys.lowercase(lline) ) <> 0 then {Do not Localize}
     begin
       break;
     end;
@@ -260,22 +278,23 @@ begin
         begin
           inc(LLinepos);
         end;
-        lchar := lline[LLinepos];
-        if lchar = '=' then {Do not Localize}
+        lchar := Byte(lline[LLinepos]);
+        if lchar = B_EQUALS then {Do not Localize}
         begin
           if LLinepos = length( lline ) then // invalid file, escape character may not appear at end of line
           begin
             raise EIdMessageYencCorruptionException.Create( RSYencFileCorrupted ) ;
           end;
           inc( LLinepos ) ;
-          lchar := lline[LLinepos];
-          lchar := char( byte( lchar ) - 42 - 64 ) ;
+          lchar := Byte(lline[LLinepos]);
+          lchar :=  byte( lchar ) - 42 - 64  ;
         end
         else
         begin
-          lchar := char( byte( lchar ) - 42 ) ;
+          lchar :=  byte( lchar ) - 42 ;
         end;
         AddByteToOutputBuffer( lchar ) ;
+        LH.HashByte(LHash,lchar);
         inc( LLinepos ) ;
         inc( LBytesDecoded ) ;
       end;
@@ -291,10 +310,14 @@ begin
   end;
 
   if Lcrc32 <> '' then begin
-  todo;
-//    if Lcrc32 <> GetCRC( ADestStream, LBytesDecoded ) then begin
+    //done this way because values can be computed faster than strings and we don't
+    //have to mess with charactor case.
+    if Sys.StrToInt64('$'+Lcrc32) <> LHash then begin
       raise EIdMessageYencInvalidCRCException.Create( RSYencInvalidCRC ) ;
-//    end;
+    end;
+  end;
+  finally
+    Sys.FreeAndNil(LH);
   end;
 end;
 
@@ -318,86 +341,92 @@ var
   i: integer;
   s: string;
   LSSize: Int64;
-  LInput: char;
-  Loutput: Char;
-  LEscape : Char;
+  LInput: Byte;
+  Loutput: Byte;
+  LEscape : Byte;
   LCurrentLineLength: integer;
 
-  LOutputBuffer:array[0..4095] of Char;
+  LOutputBuffer:TIdBytes;
   LOutputBufferUsed:integer;
 
-  LInputBuffer:array[0..4095] of Char;
+  LInputBuffer:TIdBytes;
   LInputBufferPos:integer;
   LInputBufferSize:integer;
-
+  LHash : Cardinal;
+  LH : TIdHashCRC32;
 
   procedure FlushOutputBuffer;
   begin
-  todo;
-//    ADest.Write(LOutputBuffer, LOutputBufferUsed);
+    ADest.Write(LOutputBuffer, LOutputBufferUsed);
     LOutputBufferUsed:=0;
   end;
 
-  procedure AddByteToOutputBuffer(const AChar:Char);
+  procedure AddByteToOutputBuffer(const AChar:Byte);
   begin
     LOutputBuffer[LOutputBufferUsed]:=AChar;
     inc(LOutputBufferUsed);
-    if LOutputBufferUsed>=4096 then begin
+    if LOutputBufferUsed>=BUFLEN then begin
       FlushOutputBuffer;
     end;
   end;
 
-  function ReadByteFromInputBuffer:Char;
+  function ReadByteFromInputBuffer:Byte;
   begin
     if LInputBufferPos>=LInputBufferSize then begin
       LInputBufferPos:=0;
-      Todo;
-//      LInputBufferSize:=ASrc.Read( LInputBuffer, 4096 ) ;
+      LInputBufferSize:=ASrc.ReadBytes( LInputBuffer, BUFLEN ) ;
     end;
     result:=LInputBuffer[LInputBufferPos];
     inc(LInputBufferPos);
   end;
 
 begin
+  SetLength(LOutputBuffer,BUFLEN);
+  SetLength(LInputBuffer,BUFLEN);
   ASrc.Position := 0;
   LSSize := ASrc.Size;
   LCurrentLineLength := 0;
-  LEscape:=#$3D; {do not localize}
+  LEscape:=B_EQUALS; {do not localize}
   LOutputBufferUsed:=0;
+  LH := TIdHashCRC32.Create;
+  try
+    LH.HashStart(LHash);
+    s := '=ybegin line=' + Sys.inttostr( Linesize ) + ' size=' + Sys.inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
+    ADest.Write(s);
 
-  s := '=ybegin line=' + Sys.inttostr( Linesize ) + ' size=' + Sys.inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
-  todo;
-//  ADest.Write( s[1], length( s ) ) ;
-
-  for i := 0 to ASrc.Size - 1 do
-  begin
-    LInput:=ReadByteFromInputBuffer;
-    Loutput := char( byte( LInput ) + 42 ) ;
-    if  Loutput in [#$00, #$0A, #$0D, #$3D, #$09, #$2E] then   {do not localize}
+    for i := 0 to ASrc.Size - 1 do
     begin
-      AddByteToOutputBuffer( LEscape) ;
-      Loutput := char( byte( Loutput ) + 64 ) ;
-      inc( LCurrentLineLength ) ;
-    end;
-    AddByteToOutputBuffer( Loutput) ;
-    inc( LCurrentLineLength ) ;
-    if LCurrentLineLength=1 then begin
-      if Loutput='.' then begin
-        AddByteToOutputBuffer( Loutput ) ;
+      LInput:=ReadByteFromInputBuffer;
+      Loutput :=  byte( LInput ) + 42 ;
+      if  Loutput in [B_NUL, B_LF, B_CR, B_EQUALS, B_TAB, B_PERIOD] then   {do not localize}
+      begin
+        AddByteToOutputBuffer( LEscape) ;
+        Loutput := Loutput + 64;
         inc( LCurrentLineLength ) ;
       end;
-    end;
+      AddByteToOutputBuffer( Loutput) ;
+      LH.HashByte(LHash,LOutput);
+      inc( LCurrentLineLength ) ;
+      if LCurrentLineLength=1 then begin
+        if Loutput=B_PERIOD then begin
+          AddByteToOutputBuffer( Loutput ) ;
+          inc( LCurrentLineLength ) ;
+        end;
+      end;
 
-    if LCurrentLineLength >= Linesize then
-    begin
-      AddByteToOutputBuffer( #$0D) ; {do not localize}
-      AddByteToOutputBuffer( #$0A ) ; {do not localize}
-      LCurrentLineLength := 0;
+      if LCurrentLineLength >= Linesize then
+      begin
+        AddByteToOutputBuffer( B_CR) ; {do not localize}
+        AddByteToOutputBuffer( B_LF ) ; {do not localize}
+        LCurrentLineLength := 0;
+      end;
     end;
+    FlushOutputBuffer;
+    s := EOL + '=yend size=' + Sys.inttostr( LSSize ) + ' crc32=' + {do not localize}
+      Sys.lowercase( Sys.inttohex( LHash, 8 )) + EOL;
+  finally
+    Sys.FreeAndNil(LH);
   end;
-  FlushOutputBuffer;
-  todo;
-//  s := EOL + '=yend size=' + Sys.inttostr( LSSize ) + ' crc32=' + GetCRC( ASrc, LSSize ) + EOL; {do not localize}
   ADest.Write(s);
 end;
 

@@ -27,11 +27,32 @@ type
   TIdHashElf = class( TIdHash32 )
   public
     function HashValue( AStream: TStream ) : LongWord; override;
+    procedure HashStart(var VRunningHash : LongWord); override;
+    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
+
   end;
 
 implementation
 
 { TIdHashElf }
+
+procedure TIdHashElf.HashByte(var VRunningHash: LongWord; const AByte: Byte);
+var
+  LTemp: LongWord;
+begin
+  VRunningHash := ( VRunningHash shl 4 ) + AByte;
+  LTemp := VRunningHash and $F0000000;
+  if LTemp <> 0 then begin
+    VRunningHash := VRunningHash xor ( LTemp shr 24 ) ;
+  end;
+  VRunningHash := VRunningHash and not LTemp;
+
+end;
+
+procedure TIdHashElf.HashStart(var VRunningHash: LongWord);
+begin
+  VRunningHash := 0;
+end;
 
 function TIdHashElf.HashValue( AStream: TStream ) : LongWord;
 const

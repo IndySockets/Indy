@@ -40,12 +40,17 @@ type
   TIdHashCRC16 = class( TIdHash16 )
   public
     function HashValue( AStream: TStream ) : Word; override;
+    procedure HashStart(var VRunningHash : Word); override;
+    procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
+
   end;
 
   TIdHashCRC32 = class( TIdHash32 )
   public
     function HashValue( AStream: TStream ) : LongWord; override;
     function HashValue( AStream: TStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;overload;
+    procedure HashStart(var VRunningHash : LongWord); override;
+    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
 
   end;
 
@@ -138,6 +143,16 @@ const
 
   { TIdHashCRC16 }
 
+procedure TIdHashCRC16.HashByte(var VRunningHash: Word; const AByte: Byte);
+begin
+  VRunningHash := (VRunningHash shr 8) xor CRC16Table[AByte xor (VRunningHash and $FF) ];
+end;
+
+procedure TIdHashCRC16.HashStart(var VRunningHash: Word);
+begin
+  VRunningHash := 0;
+end;
+
 function TIdHashCRC16.HashValue( AStream: TStream ) : Word;
 const
   BufSize = 1024; // Keep it small for dotNet
@@ -175,6 +190,17 @@ begin
     LSize := AStream.Read( LBuffer, BufSize ) ;
   end;
   Result := Result xor $FFFFFFFF;
+end;
+
+procedure TIdHashCRC32.HashByte(var VRunningHash: LongWord; const AByte: Byte);
+begin
+  VRunningHash := ( ( VRunningHash shr 8 ) and $00FFFFFF ) xor CRC32Table[( VRunningHash xor AByte ) and $FF];
+
+end;
+
+procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
+begin
+  VRunningHash := $FFFFFFFF;
 end;
 
 function TIdHashCRC32.HashValue( AStream: TStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;
