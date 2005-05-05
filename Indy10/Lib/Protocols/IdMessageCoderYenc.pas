@@ -110,8 +110,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdResourceStringsProtocols,
-  SysUtils, IdHashCRC;
+  IdGlobal,
+  IdHashCRC, IdResourceStringsProtocols, IdSys;
 
 { TIdMessageDecoderInfoYenc }
 
@@ -122,7 +122,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
     LStart: integer;
     LEnd: integer;
   begin
-    lstart := pos( lowercase(option) + '=', lowercase(ALine) ) ;
+    lstart := pos( Sys.lowercase(option) + '=', Sys.lowercase(ALine) ) ;
     if Lstart = 0 then
     begin
       result := default;
@@ -141,7 +141,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
   var
     Lstart: integer;
   begin
-    Lstart := pos( 'name=', lowercase(ALine) ) ; {Do not Localize}
+    Lstart := pos( 'name=', Sys.lowercase(ALine) ) ; {Do not Localize}
     if Lstart = 0 then
     begin
       result := '';
@@ -152,14 +152,14 @@ function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALi
   end;
 
 begin
-  if AnsiSameText( Copy( ALine, 1, 8 ) , '=ybegin ' ) {Do not Localize} then
+  if Sys.SameText( Copy( ALine, 1, 8 ) , '=ybegin ' ) {Do not Localize} then
   begin
     Result := TIdMessageDecoderYenc.Create( ASender ) ;
     with TIdMessageDecoderYenc( Result ) do
     begin
-      FSize := strtoint( GetValue( 'size' ) ) ; {Do not Localize}
-      FLine := strtoint( GetValue( 'line' ) ) ; {Do not Localize}
-      FPart := strtoint( GetValue( 'part' ) ) ; {Do not Localize}
+      FSize := Sys.strtoint( GetValue( 'size' ) ) ; {Do not Localize}
+      FLine := Sys.strtoint( GetValue( 'line' ) ) ; {Do not Localize}
+      FPart := Sys.strtoint( GetValue( 'part' ) ) ; {Do not Localize}
       FFilename := {'Yenc_' +} Getname; {Do not Localize}
       FPartType := mcptAttachment;
     end;
@@ -177,7 +177,7 @@ begin
   with TIdHashCRC32.create do
   try
     Astream.Seek( -1 * size, soFromEnd ) ;
-    result := lowercase( inttohex( HashValue( Astream ) , 8 ) ) ;
+    result := Sys.lowercase( Sys.inttohex( HashValue( Astream ) , 8 ) ) ;
   finally
     free;
   end;
@@ -200,7 +200,7 @@ var
     Lstart: integer;
     LEnd: integer;
   begin
-    lstart := pos( lowercase(option) + '=', lowercase(LLine) ) ; {Do not Localize}
+    lstart := pos( Sys.lowercase(option) + '=', Sys.lowercase(LLine) ) ; {Do not Localize}
     if Lstart = 0 then
     begin
       result := default;
@@ -243,13 +243,13 @@ begin
   while true do
   begin
     lline := readln;
-    if pos( '=yend', lowercase(lline) ) <> 0 then {Do not Localize}
+    if pos( '=yend', Sys.lowercase(lline) ) <> 0 then {Do not Localize}
     begin
       break;
     end;
     if ( copy( lline, 1, 7 ) = '=ypart ' ) then {Do not Localize}
     begin
-      LPartSize := strtoint( getvalue( 'end' ) ) - strtoint( getvalue( 'begin' ) ) + 1; {Do not Localize}
+      LPartSize := Sys.strtoint( getvalue( 'end' ) ) - Sys.strtoint( getvalue( 'begin' ) ) + 1; {Do not Localize}
     end
     else
     begin
@@ -284,7 +284,7 @@ begin
 
   FlushOutputBuffer;
 
-  Lcrc32 := lowercase( GetValue( 'crc32', '' ) ) ; {Do not Localize}
+  Lcrc32 := Sys.lowercase( GetValue( 'crc32', '' ) ) ; {Do not Localize}
 
   if LPartSize <> LBytesDecoded then begin
     raise EIdMessageYencInvalidSizeException.Create( RSYencInvalidSize ) ;
@@ -319,7 +319,7 @@ var
   s: string;
   LSSize: Int64;
   LInput: char;
-  Loutput: char;
+  Loutput: Char;
   LEscape : Char;
   LCurrentLineLength: integer;
 
@@ -365,7 +365,7 @@ begin
   LEscape:=#$3D; {do not localize}
   LOutputBufferUsed:=0;
 
-  s := '=ybegin line=' + inttostr( Linesize ) + ' size=' + inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
+  s := '=ybegin line=' + Sys.inttostr( Linesize ) + ' size=' + Sys.inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
   todo;
 //  ADest.Write( s[1], length( s ) ) ;
 
@@ -373,7 +373,7 @@ begin
   begin
     LInput:=ReadByteFromInputBuffer;
     Loutput := char( byte( LInput ) + 42 ) ;
-    if Loutput in [#$00, #$0A, #$0D, #$3D, #$09, #$2E] then   {do not localize}
+    if  Loutput in [#$00, #$0A, #$0D, #$3D, #$09, #$2E] then   {do not localize}
     begin
       AddByteToOutputBuffer( LEscape) ;
       Loutput := char( byte( Loutput ) + 64 ) ;
@@ -397,7 +397,7 @@ begin
   end;
   FlushOutputBuffer;
   todo;
-//  s := EOL + '=yend size=' + inttostr( LSSize ) + ' crc32=' + GetCRC( ASrc, LSSize ) + EOL; {do not localize}
+//  s := EOL + '=yend size=' + Sys.inttostr( LSSize ) + ' crc32=' + GetCRC( ASrc, LSSize ) + EOL; {do not localize}
   ADest.Write(s);
 end;
 
