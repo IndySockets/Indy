@@ -88,8 +88,7 @@ interface
 uses
   Classes,
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdStackConsts, IdIOHandler, IdScheduler,
-  IdIOHandlerSocket, IdYarn,
-  SysUtils;
+  IdIOHandlerSocket, IdYarn;
 
 type
   TIdIOHandlerSocketClass = class of TIdIOHandlerSocket;
@@ -110,6 +109,7 @@ type
   end;
 
 implementation
+uses IdSys;
 
 { TIdServerIOHandlerSocket }
 
@@ -139,21 +139,21 @@ begin
         Result := LIOHandler;
         Break;
       end else begin
-        FreeAndNil(LIOHandler);
+        Sys.FreeAndNil(LIOHandler);
         Break;
       end;
     end;
   except
     on E: Exception do begin
     // if AListenerThread.Stopped then begin
-      FreeAndNil(LIOHandler);
+      Sys.FreeAndNil(LIOHandler);
       raise e;
     end;
     // end;
   end;
 
   if not LHasSelect then begin
-    FreeAndNil(LIOHandler);
+    Sys.FreeAndNil(LIOHandler);
   end;
 end;
 

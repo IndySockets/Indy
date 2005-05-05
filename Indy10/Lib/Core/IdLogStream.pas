@@ -59,10 +59,7 @@ type
   end;
 
 implementation
-
-uses
-  SysUtils;
-
+ uses IdSys;
 // TODO: This was orginally for VCL. For .Net what do we do? Convert back to
 // 7 bit? Log all? Logging all seems to be a disaster.
 // Text seems to be best, users are expecting text in this class. But
@@ -76,8 +73,8 @@ procedure TIdLogStream.Disconnect;
 begin
   inherited;
   if FreeStreams then begin
-    FreeAndNil(FReceiveStream);
-    FreeAndNil(FSendStream);
+    Sys.FreeAndNil(FReceiveStream);
+    Sys.FreeAndNil(FSendStream);
   end;
 end;
 
