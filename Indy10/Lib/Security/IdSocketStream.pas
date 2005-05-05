@@ -21,7 +21,7 @@ unit IdSocketStream;
 interface
 
 uses
-  System.IO, System.Net.Sockets, IdStack, System.Collections, IdGlobal, SysUtils;
+  System.IO, System.Net.Sockets, IdStack, System.Collections, IdGlobal;
 
 type
   TIdSocketStream = class(System.IO.Stream)
