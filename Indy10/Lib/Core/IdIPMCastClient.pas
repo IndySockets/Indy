@@ -41,12 +41,18 @@ interface
 
 uses
   Classes,
-  IdIPMCastBase, IdUDPBase, IdComponent, IdSocketHandle, IdThread, IdException;
+  IdException,
+  IdGlobal,
+  IdIPMCastBase,
+  IdUDPBase,
+  IdComponent,
+  IdSocketHandle,
+  IdThread;
 
 const
   DEF_IMP_THREADEDEVENT = False;
 type
-	TIPMCastReadEvent = procedure(Sender: TObject; AData: TStream; ABinding: TIdSocketHandle) of object;
+	TIPMCastReadEvent = procedure(Sender: TObject; const AData: TIdBytes; ABinding: TIdSocketHandle) of object;
 
   TIdIPMCastClient = class;
 
@@ -54,14 +60,15 @@ type
   protected
     IncomingData: TIdSocketHandle;
     FAcceptWait: integer;
-    FBuffer: TMemoryStream;
+    FBuffer: TIdBytes;
     FBufferSize: integer;
+    procedure Run; override;
   public
     FServer: TIdIPMCastClient;
     //
-    constructor Create(Owner: TIdIPMCastClient); reintroduce;
+    constructor Create(AOwner: TIdIPMCastClient); reintroduce;
     destructor Destroy; override;
-    procedure Run; override;
+
     procedure IPMCastRead;
     //
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
@@ -78,11 +85,11 @@ type
     FThreadedEvent: boolean;
     //
     procedure CloseBinding; override;
-    procedure DoIPMCastRead(AData: TStream; ABinding: TIdSocketHandle); virtual;
+    procedure DoIPMCastRead(const AData: TIdBytes; ABinding: TIdSocketHandle);virtual;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
     function GetDefaultPort: integer;
-    procedure PacketReceived(AData: TStream; ABinding: TIdSocketHandle);
+    procedure PacketReceived(const AData: TIdBytes; ABinding: TIdSocketHandle);
     procedure SetBindings(const Value: TIdSocketHandles);
     procedure SetDefaultPort(const AValue: integer);
     procedure InitComponent; override;
@@ -103,7 +110,9 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdResourceStringsProtocols, IdStack, IdStackConsts, IdStackBSDBase, IdGlobal,
+  IdResourceStringsProtocols,
+  IdStack,
+  IdStackConsts,
   IdSys;
 
 { TIdIPMCastClient }
@@ -119,7 +128,6 @@ end;
 procedure TIdIPMCastClient.CloseBinding;
 var
   i: integer;
-  Multicast  : TMultiCast;
 begin
   if Assigned(FCurrentBinding) then begin
     // Necessary here - cancels the recvfrom in the listener thread
@@ -127,9 +135,10 @@ begin
     for i := 0 to Bindings.Count - 1 do begin
       //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
       //Hope the following is correct for StringToTIn4Addr(), should be checked...
-      GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-      Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
-      GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_DROP_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+
+      //GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
+      GStack.DropMulticastMembership(Bindings[i].Handle,FMulticastGroup,'0.0.0.0');
+    //  GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_DROP_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
       Bindings[i].CloseSocket;
     end;
     FListenerThread.WaitFor;
@@ -138,7 +147,7 @@ begin
   end;
 end;
 
-procedure TIdIPMCastClient.DoIPMCastRead(AData: TStream; ABinding: TIdSocketHandle);
+procedure TIdIPMCastClient.DoIPMCastRead(const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
   if Assigned(OnIPMCastRead) then begin
     OnIPMCastRead(Self, AData, ABinding);
@@ -155,7 +164,6 @@ end;
 function TIdIPMCastClient.GetBinding: TIdSocketHandle;
 var
   i: integer;
-  Multicast  : TMultiCast;
 begin
   if not Assigned(FCurrentBinding) then
   begin
@@ -175,9 +183,11 @@ begin
       Bindings[i].Bind;
       //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
       //Hope the following is correct for StringToTIn4Addr(), should be checked...
-      GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-      Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
-      GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+
+//      GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
+//      Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
+//      GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+      GStack.AddMulticastMembership(Bindings[i].Handle,FMulticastGroup,Bindings[i].IP );
     end;
     FCurrentBinding := Bindings[0];
     FListenerThread := TIdIPMCastListenerThread.Create(Self);
@@ -191,7 +201,7 @@ begin
   result := FBindings.DefaultPort;
 end;
 
-procedure TIdIPMCastClient.PacketReceived(AData: TStream; ABinding: TIdSocketHandle);
+procedure TIdIPMCastClient.PacketReceived(const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
   FCurrentBinding := ABinding;
   DoIPMCastRead(AData, ABinding);
@@ -219,13 +229,13 @@ end;
 
 { TIdIPMCastListenerThread }
 
-constructor TIdIPMCastListenerThread.Create(Owner: TIdIPMCastClient);
+constructor TIdIPMCastListenerThread.Create(AOwner: TIdIPMCastClient);
 begin
   inherited Create(True);
   FAcceptWait := 1000;
-  FBuffer := TMemoryStream.Create;
-  FBufferSize := Owner.BufferSize;
-  FServer := Owner;
+  FBufferSize := AOwner.BufferSize;
+  SetLength(FBuffer,FBufferSize);
+  FServer := AOwner;
 end;
 
 destructor TIdIPMCastListenerThread.Destroy;
@@ -241,8 +251,9 @@ var
   ByteCount: Integer;
   LReadList: TIdSocketList;
   i: Integer;
-
+  LBuffer : TIdBytes;
 begin
+  SetLength(LBuffer,4096);
   // create a socket list to select for read
   LReadList := TIdSocketList.CreateSocketList;
 
@@ -264,26 +275,18 @@ begin
       if not Stopped then
       begin
         IncomingData := FServer.Bindings.BindingByHandle(TIdStackSocketHandle(LReadList[i]));
-        FBuffer.SetSize(FBufferSize);
-        ByteCount := GBSDStack.RecvFrom(IncomingData.Handle,
-          FBuffer.Memory^, FBufferSize, 0, PeerIP, PeerPort);
-        GBSDStack.CheckForSocketError(ByteCount);
-
+        ByteCount := IncomingData.RecvFrom(LBuffer,PeerIP, PeerPort);
         if ByteCount = 0 then
         begin
           raise EIdUDPReceiveErrorZeroBytes.Create(RSIPMCastReceiveError0);
         end;
-        FBuffer.SetSize(ByteCount);
-
-        //Some streams alter their position on SetSize
-        FBuffer.Position := 0;
+        SetLength(FBuffer,ByteCount);
+        CopyTIdBytes(LBuffer,0,FBuffer,0,ByteCount);
         IncomingData.SetPeer(PeerIP, PeerPort);
-
         if FServer.ThreadedEvent then
         begin
           IPMCastRead;
         end
-
         else
         begin
           Synchronize(IPMCastRead);

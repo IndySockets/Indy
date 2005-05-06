@@ -34,18 +34,13 @@ interface
 uses
   Classes,
   IdComponent, IdException, IdGlobal, IdSocketHandle,
-  IdStack {$IFDEF LINUX} ,Libc {$ENDIF}, IdStackBSDBase, IdSys;
+  IdStack, IdSys;
 
 const
   IPMCastLo = 224;
   IPMCastHi = 239;
 
 type
-  TMultiCast = record
-    IMRMultiAddr : TIdIn4Addr;   // IP multicast address of group */
-    IMRInterface : TIdIn4Addr;   // local IP address of interface */
-  end;
-
   TIdIPMCastBase = class(TIdComponent)
   protected
     FDsgnActive: Boolean;

@@ -59,7 +59,10 @@ interface
 
 uses
   Classes,
-  IdIPMCastBase, IdComponent, IdSocketHandle;
+  IdComponent,
+  IdGlobal,
+  IdIPMCastBase,
+  IdSocketHandle;
 
 const
   DEF_IMP_LOOPBACK = True;
@@ -76,14 +79,14 @@ type
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
     procedure Loaded; override;
-    procedure MulticastBuffer(AHost: string; const APort: Integer; var ABuffer; const AByteCount: integer);
+    procedure MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
     procedure SetLoopback(const AValue: Boolean); virtual;
-    procedure SetTTL(const Value: Byte); virtual;
-    procedure SetTTLOption(InBinding: TIdSocketHandle; const Value: Byte); virtual;
+    procedure SetTTL(const AValue: Byte); virtual;
+    procedure SetTTLOption(AInBinding: TIdSocketHandle; const AValue: Byte); virtual;
     procedure InitComponent; override;
   public
-    procedure Send(AData: string);
-    procedure SendBuffer(var ABuffer; const AByteCount: integer);
+    procedure Send(const AData: string); overload;
+    procedure Send(const ABuffer : TIdBytes); overload;
     destructor Destroy; override;
     //
     property Binding: TIdSocketHandle read GetBinding;
@@ -100,11 +103,10 @@ implementation
 { TIdIPMCastServer }
 
 uses
-  IdResourceStringsProtocols, IdStack,
-  IdStackBSDBase,
+  IdResourceStringsProtocols,
+  IdStack,
   IdStackConsts,
-  IdSys,
-  IdGlobal;
+  IdSys;
 
 procedure TIdIPMCastServer.InitComponent;
 begin
@@ -114,14 +116,11 @@ begin
 end;
 
 procedure TIdIPMCastServer.CloseBinding;
-var
-  Multicast: TMultiCast;
 begin
   //Multicast.IMRMultiAddr := GBSDStack.StringToTIn4Addr(FMulticastGroup);
   //Hope the following is correct for StringToTIn4Addr(), should be checked...
-  GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-  Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
-  GBSDStack.SetSocketOption(FBinding.Handle,Id_IPPROTO_IP, Id_IP_DROP_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+  GStack.DropMulticastMembership(FBinding.Handle,FMulticastGroup,Binding.IP);
+
   Sys.FreeAndNil(FBinding);
 end;
 
@@ -131,8 +130,7 @@ begin
 end;
 
 function TIdIPMCastServer.GetBinding: TIdSocketHandle;
-var
-  Multicast  : TMultiCast;
+
 begin
   if not Assigned(FBinding) then begin
     FBinding := TIdSocketHandle.Create(nil);
@@ -146,10 +144,7 @@ begin
     FBinding.Bind;
     //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
     //Hope the following is correct for StringToTIn4Addr(), should be checked...
-    GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
-    Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
-    GBSDStack.SetSocketOption(FBinding.Handle,Id_IPPROTO_IP,
-      Id_IP_ADD_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
+     GStack.AddMulticastMembership(FBinding.Handle,FMulticastGroup,Binding.IP);
     SetTTLOption(FBinding, FTimeToLive);
     Loopback := True;
   end;
@@ -166,60 +161,46 @@ begin
   Active := b;
 end;
 
-procedure TIdIPMCastServer.MulticastBuffer(AHost: string; const APort: Integer; var ABuffer; const AByteCount: integer);
-var LBuf : TIdBytes;
+procedure TIdIPMCastServer.MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
 begin
   // DS - if not IsValidMulticastGroup(FMulticastGroup) then
   EIdMCastNotValidAddress.IfFalse(IsValidMulticastGroup(AHost), RSIPMCastInvalidMulticastAddress);
-  SetLength(LBuf,AByteCount);
-  Move(ABuffer,LBuf[0],AByteCount);
-  Binding.SendTo(AHost, APort, LBuf);
+
+  Binding.SendTo(AHost, APort, ABuffer);
 end;
 
-procedure TIdIPMCastServer.Send(AData: string);
+procedure TIdIPMCastServer.Send(const AData: string);
 begin
-  MulticastBuffer(FMulticastGroup, FPort, PChar(AData)^, Length(AData));
+  MulticastBuffer(FMulticastGroup, FPort, ToBytes(AData));
 end;
 
-procedure TIdIPMCastServer.SendBuffer(var ABuffer; const AByteCount: integer);
+procedure TIdIPMCastServer.Send(const ABuffer : TIdBytes);
 begin
-  MulticastBuffer(FMulticastGroup, FPort, ABuffer, AByteCount);
+  MulticastBuffer(FMulticastGroup, FPort, ABuffer);
 end;
 
 procedure TIdIPMCastServer.SetLoopback(const AValue: Boolean);
-var
-  LThisLoopback: Integer;
 begin
   if FLoopback <> AValue then begin
     if FDsgnActive or (Assigned(Binding) and Binding.HandleAllocated) then begin
-      if AValue then begin
-        LThisLoopback := 1;
-      end else begin
-        LThisLoopback := 0;
-      end;
-      GBSDStack.SetSocketOption(Binding.Handle,Id_IPPROTO_IP, Id_IP_MULTICAST_LOOP, PChar(@LThisLoopback)
-       , SizeOf(LThisLoopback));
+      GStack.SetLoopBack(Binding.Handle,AValue);
     end;
     FLoopback := AValue;
   end;
 end;
 
-procedure TIdIPMCastServer.SetTTL(const Value: Byte);
+procedure TIdIPMCastServer.SetTTL(const AValue: Byte);
 begin
-  if (FTimeToLive <> Value) then begin
-    SetTTLOption(FBinding, Value);
-    FTimeToLive := Value;
+  if (FTimeToLive <> AValue) then begin
+    GStack.SetMulticastTTL(FBinding.Handle,AValue);
+    FTimeToLive := AValue;
   end;
 end;
 
-procedure TIdIPMCastServer.SetTTLOption(InBinding: TIdSocketHandle; const Value: Byte);
-var
-  ThisTTL: Integer;
+procedure TIdIPMCastServer.SetTTLOption(AInBinding: TIdSocketHandle; const AValue: Byte);
 begin
-  if (FDsgnActive or (Assigned(InBinding) and InBinding.HandleAllocated)) then begin
-    ThisTTL := Value;
-    GBSDStack.SetSocketOption(InBinding.Handle,Id_IPPROTO_IP,
-      Id_IP_MULTICAST_TTL, pchar(@ThisTTL), SizeOf(ThisTTL));
+  if (FDsgnActive or (Assigned(AInBinding) and AInBinding.HandleAllocated)) then begin
+    GStack.SetMulticastTTL(AInBinding.Handle,AValue);
   end;
 end;
 
