@@ -226,6 +226,9 @@ type
     function GetLocalAddress: string; override;
     function GetLocalAddresses: TIdStrings; override;
     procedure PopulateLocalAddresses; override;
+    //internal IP Mutlicasting membership stuff
+        procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption);
   public
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
                     const APort: Integer;
@@ -283,6 +286,14 @@ type
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
              AOptName: TIdSocketOption; AOptVal: Integer); overload;override;
     function SupportsIPv6:boolean; override;
+    //multicast stuff Kudzu permitted me to add here.
+    procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
+      const AValue : Byte); override;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean); override;
+    procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); override;
+    procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); override;
   end;
 
 
@@ -771,7 +782,72 @@ begin
   Result := LocalAddresses[0];
 end;
 
+procedure TIdStackDotNet.SetLoopBack(AHandle: TIdStackSocketHandle;
+  const AValue: Boolean);
+var LVal : Integer;
+begin
+  //necessary because SetSocketOption only accepts an integer
+  //see: http://groups-beta.google.com/group/microsoft.public.dotnet.languages.csharp/browse_thread/thread/6a35c6d9052cfc2b/f01fea11f9a24508?q=SetSocketOption+DotNET&rnum=2&hl=en#f01fea11f9a24508
+  if AValue then
+  begin
+    LVal := 1;
+  end
+  else
+  begin
+    LVal := 0;
+  end;
+  AHandle.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback , LVal);
+end;
 
+procedure TIdStackDotNet.DropMulticastMembership(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP: String);
+
+begin
+  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,SocketOptionName.DropMembership );
+end;
+
+procedure TIdStackDotNet.AddMulticastMembership(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP: String);
+begin
+  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,SocketOptionName.AddMembership);
+end;
+
+procedure TIdStackDotNet.SetMulticastTTL(AHandle: TIdStackSocketHandle;
+  const AValue: Byte);
+begin
+  AHandle.SetSocketOption(SocketOptionLevel.IP,
+		SocketOptionName.MulticastTimeToLive,AValue);
+end;
+
+procedure TIdStackDotNet.MembershipSockOpt(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP: String; const ASockOpt: TIdSocketOption);
+var LM4 : MulticastOption;
+   LM6 : IPv6MulticastOption;
+  LGroupIP, LLocalIP : System.Net.IPAddress;
+
+begin
+
+  LGroupIP := IPAddress.Parse(AGroupIP);
+  if LGroupIP.AddressFamily = AddressFamily.InterNetworkV6 then
+  begin
+    LM6  := IPv6MulticastOption.Create(LGroupIP);
+    AHandle.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, LM6);
+  end
+  else
+  begin
+    if ALocalIP.Length =0 then
+    begin
+      LM4 :=  System.Net.Sockets.MulticastOption.Create(LGroupIP);
+    end
+    else
+    begin
+      LLocalIP := IPAddress.Parse(ALocalIP);
+
+      LM4 :=  System.Net.Sockets.MulticastOption.Create(LGroupIP,LLocalIP);
+    end;
+    AHandle.SetSocketOption(SocketOptionLevel.IP, ASockOpt, LM4);
+   end;
+end;
 
 initialization
   GSocketListClass := TIdSocketListDotNet;

@@ -251,6 +251,16 @@ type
   PIdInAddr = ^TIdInAddr;
   TIdInAddr = {$IFDEF IPv6} TIdIn6Addr; {$ELSE} TIdIn4Addr; {$ENDIF}
 
+  //Do not change these structures or insist on objects
+  //because these are parameters to IP_ADD_MEMBERSHIP and IP_DROP_MEMBERSHIP
+  TIdIPMreq = packed record
+    IMRMultiAddr : TIdIn4Addr;   // IP multicast address of group */
+    IMRInterface : TIdIn4Addr;   // local IP address of interface */
+  end;
+  TIdIPv6Mreq = packed record
+    ipv6mr_multiaddr : TIdIn6Addr;  //IPv6 multicast addr
+    ipv6mr_interface : Cardinal;  //interface index
+  end;
   TIdStackBSDBase = class(TIdStack)
   protected
     procedure IPVersionUnsupported;
@@ -262,6 +272,9 @@ type
      const ABufferLength, AFlags: Integer): Integer; virtual; abstract;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
      virtual; abstract;
+     //internal for multicast membership stuff
+    procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String; const ASockOpt : Integer);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -312,6 +325,14 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AOverlapped: Boolean = False)
      : TIdStackSocketHandle; override;
+    //multicast stuff Kudzu permitted me to add here.
+    procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
+      const AValue : Byte); override;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean); override;
+    procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); override;
+    procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); override;
   end;
 
   EIdStackError = class (EIdException);
@@ -591,6 +612,70 @@ begin
    // must use pointer(ABuffer)^, can't use ABuffer[0], because ABuffer may have a 0 length
    WSSendTo(ASocket,pointer(ABuffer)^,Length(ABuffer),0,AIP,APort);
    Result := Length(ABuffer);
+end;
+
+procedure TIdStackBSDBase.DropMulticastMembership(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP : String);
+begin
+  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_DROP_MEMBERSHIP);
+end;
+
+procedure TIdStackBSDBase.AddMulticastMembership(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP : String);
+begin
+  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_ADD_MEMBERSHIP);
+end;
+
+procedure TIdStackBSDBase.SetMulticastTTL(AHandle: TIdStackSocketHandle;
+  const AValue: Byte);
+var
+  LThisTTL: Integer;
+begin
+  LThisTTL := AValue;
+  GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP,
+      Id_IP_MULTICAST_TTL, pchar(@LThisTTL), SizeOf(LThisTTL));
+end;
+
+procedure TIdStackBSDBase.SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean);
+var
+  LThisLoopback: Integer;
+begin
+  if AValue then begin
+    LThisLoopback := 1;
+  end else begin
+    LThisLoopback := 0;
+  end;
+  GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, Id_IP_MULTICAST_LOOP, PChar(@LThisLoopback)
+    , SizeOf(LThisLoopback));
+end;
+
+procedure TIdStackBSDBase.MembershipSockOpt(AHandle: TIdStackSocketHandle;
+  const AGroupIP, ALocalIP: String; const ASockOpt: Integer);
+var
+  LIP4 : TIdIPMreq;
+  LIP6 : TIdIPv6Mreq;
+begin
+  if IsValidIPv4MulticastGroup(AGroupIP) then
+  begin
+    GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRMultiAddr, Id_IPv4);
+    GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRInterface , Id_IPv4);
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP,
+      pchar(@LIP4), SizeOf(LIP4));
+  end
+  else
+  begin
+    if Self.IsValidIPv4MulticastGroup(AGroupIP) then
+    begin
+      GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP6.ipv6mr_multiaddr, Id_IPv6);
+      //this should be safe meaning any adaptor
+      //we can't support a localhost address in IPv6 because we can't get that
+      //and even if you could, you would have to convert it into a network adaptor
+      //index - Yuk
+      LIP6.ipv6mr_interface := 0;
+      GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, ASockOpt,
+        pchar(@LIP6), SizeOf(LIP6));
+    end;
+  end;
 end;
 
 end.

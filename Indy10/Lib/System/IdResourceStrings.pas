@@ -93,6 +93,7 @@ resourcestring
   RSInvalidPortRange = 'Invalid Port Range (%d - %d)';
   RSInvalidServiceName = '%s is not a valid service.';
   RSIPv6Unavailable = 'IPv6 unavailable';
+  RSInvalidIPv6Address = '%s is not a valid IPv6 address';
   RSIPVersionUnsupported = 'The requested IPVersion / Address family is not supported.';
   RSNotAllBytesSent = 'Not all bytes sent.';
   RSPackageSizeTooBig = 'Package Size Too Big.';

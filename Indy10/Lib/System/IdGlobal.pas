@@ -808,7 +808,7 @@ type
 
    //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
-
+  EIdInvalidIPv6Address = class (EIdException);
   {$IFNDEF DotNet}
   TBytes = array of Byte;
   {$ENDIF}
@@ -1064,6 +1064,7 @@ function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
 function IPv4ToHex(const AIPAddress: string; const ASDotted: Boolean = False): string;
 function IPv4ToOctal(const AIPAddress: string): string;
+function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;
 function IsASCII(const AByte: Byte): Boolean; overload;
 function IsASCII(const ABytes: TIdBytes): Boolean; overload;
 function IsASCIILDH(const AByte: Byte): Boolean; overload;
@@ -2174,6 +2175,21 @@ begin
     Result := Result + Sys.IntToHex(num, 2) + ':';
   end;
   SetLength(Result, Length(Result) - 1);
+end;
+
+function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;
+var
+  LAddress:string;
+  i:integer;
+begin
+  LAddress := MakeCanonicalIPv6Address(AIPAddress);
+  if LAddress='' then
+  begin
+    raise EIdInvalidIPv6Address.Create(Sys.Format(RSInvalidIPv6Address,[AIPAddress]));
+  end;
+  for i := 0 to 7 do begin
+    Result[i]:=Sys.StrToInt('$'+fetch(LAddress,':'),0);
+  end;
 end;
 
 function Max(AValueOne,AValueTwo: Integer): Integer;

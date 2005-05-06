@@ -291,6 +291,16 @@ type
              ): Integer; virtual; abstract;
     function SupportsIPv6:boolean; virtual; abstract;
 
+    //multicast stuff Kudzu permitted me to add here.
+    function IsValidIPv4MulticastGroup(const Value: string): Boolean;
+    function IsValidIPv6MulticastGroup(const Value: string): Boolean;
+    procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
+      const AValue : Byte); virtual; abstract;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean); virtual; abstract;
+    procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); virtual; abstract;
+    procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
+      const AGroupIP, ALocalIP : String); virtual; abstract;
     //
     // Properties
     //
@@ -323,7 +333,12 @@ var
 var
   GInstanceCount: Integer = 0;
   GStackCriticalSection: TIdCriticalSection;
-  
+
+//for IPv4 Multicast address chacking
+const
+  IPv4MCastLo = 224;
+  IPv4MCastHi = 239;
+
 procedure SetStackClass( AStackClass: TIdStackClass );
 begin
   GStackClass := AStackClass;
@@ -606,6 +621,124 @@ begin
   for i := 0 to 7 do begin
     Result[i] := NetworkToHost(AValue[i]);
   end;
+end;
+
+function TIdStack.IsValidIPv4MulticastGroup(const Value: string): Boolean;
+var
+  ThisIP: string;
+  s1: string;
+  ip1: integer;
+begin
+  Result := false;
+
+  if not GStack.IsIP(Value) then
+  begin
+    Exit;
+  end;
+  ThisIP := Value;
+  s1 := Fetch(ThisIP, '.');    {Do not Localize}
+  ip1 := Sys.StrToInt(s1);
+
+  if ((ip1 < IPv4MCastLo) or (ip1 > IPv4MCastHi)) then
+  begin
+    Exit;
+  end;
+  Result := true;
+end;
+
+function TIdStack.IsValidIPv6MulticastGroup(const Value: string): Boolean;
+var
+  LTmp : String;
+begin
+  Result := False;
+  LTmp := MakeCanonicalIPv6Address(Value);
+  if LTmp = '' then
+  begin
+    //not valid IP
+    Exit;
+  end;
+{ From "rfc 2373"
+
+2.7 Multicast Addresses
+
+   An IPv6 multicast address is an identifier for a group of nodes.  A
+   node may belong to any number of multicast groups.  Multicast
+   addresses have the following format:
+
+#
+   |   8    |  4 |  4 |                  112 bits                   |
+   +------ -+----+----+---------------------------------------------+
+   |11111111|flgs|scop|                  group ID                   |
+   +--------+----+----+---------------------------------------------+
+
+      11111111 at the start of the address identifies the address as
+      being a multicast address.
+
+                                    +-+-+-+-+
+      flgs is a set of 4 flags:     |0|0|0|T|
+                                    +-+-+-+-+
+
+         The high-order 3 flags are reserved, and must be initialized to
+         0.
+
+         T = 0 indicates a permanently-assigned ("well-known") multicast
+         address, assigned by the global internet numbering authority.
+
+         T = 1 indicates a non-permanently-assigned ("transient")
+         multicast address.
+
+      scop is a 4-bit multicast scope value used to limit the scope of
+      the multicast group.  The values are:
+
+         0  reserved
+         1  node-local scope
+         2  link-local scope
+         3  (unassigned)
+         4  (unassigned)
+         5  site-local scope
+         6  (unassigned)
+         7  (unassigned)
+         8  organization-local scope
+         9  (unassigned)
+         A  (unassigned)
+         B  (unassigned)
+         C  (unassigned)
+
+         D  (unassigned)
+         E  global scope
+         F  reserved
+
+      group ID identifies the multicast group, either permanent or
+      transient, within the given scope.
+
+   The "meaning" of a permanently-assigned multicast address is
+   independent of the scope value.  For example, if the "NTP servers
+   group" is assigned a permanent multicast address with a group ID of
+   101 (hex), then:
+
+      FF01:0:0:0:0:0:0:101 means all NTP servers on the same node as the
+      sender.
+
+      FF02:0:0:0:0:0:0:101 means all NTP servers on the same link as the
+      sender.
+
+      FF05:0:0:0:0:0:0:101 means all NTP servers at the same site as the
+      sender.
+
+      FF0E:0:0:0:0:0:0:101 means all NTP servers in the internet.
+
+   Non-permanently-assigned multicast addresses are meaningful only
+   within a given scope.  For example, a group identified by the non-
+   permanent, site-local multicast address FF15:0:0:0:0:0:0:101 at one
+   site bears no relationship to a group using the same address at a
+   different site, nor to a non-permanent group using the same group ID
+   with different scope, nor to a permanent group with the same group
+   ID.
+
+   Multicast addresses must not be used as source addresses in IPv6
+   packets or appear in any routing header.
+}
+   Result := Copy(LTmp,1,2)='FF';
 end;
 
 initialization

@@ -2029,6 +2029,11 @@ type
 		2 : ( AddressIn : SOCKADDR_IN; );
 		3 : ( AddressIn6 : SOCKADDR_IN6_OLD; );
 	end;
+  //The ipv6_mreq structure provides multicast group information for IPv6 addresses.
+  ipv6_mreq = packed record
+    ipv6mr_multiaddr : TIn6Addr;  //IPv6 multicast addr
+    ipv6mr_interface : Cardinal;  //interface index
+  end;
 
 // Structure to keep interface specific information
 	INTERFACE_INFO = packed record
