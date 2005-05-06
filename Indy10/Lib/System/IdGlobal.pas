@@ -1791,7 +1791,7 @@ end;
 function InMainThread: boolean;
 begin
   {$IFDEF DotNet}
-  Result := System.Threading.Thread.CurrentThread <> MainThread;
+  Result := System.Threading.Thread.CurrentThread = MainThread;
   {$ELSE}
   Result := GetCurrentThreadID = MainThreadID;
   {$ENDIF}
