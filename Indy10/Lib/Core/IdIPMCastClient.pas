@@ -110,7 +110,6 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdResourceStringsProtocols,
   IdStack,
   IdStackConsts,
   IdSys;

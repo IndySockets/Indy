@@ -146,6 +146,8 @@ uses
   IdIOHandlerStream,
   IdInterceptSimLog,
   IdInterceptThrottler,
+  IdIPMCastClient,
+  IdIPMCastServer,
   IdLogDebug,
   IdLogEvent,
   IdLogFile,
@@ -202,6 +204,7 @@ begin
    TIdTCPClient
    ,TIdUDPClient
    ,TIdCmdTCPClient
+   ,TIdIPMCastClient
    {$IFNDEF DOTNET}
    ,TIdIcmpClient
    {$ENDIF}
@@ -210,7 +213,8 @@ begin
    TIdUDPServer,
    TIdCmdTCPServer,
    TIdSimpleServer,
-   TIdTCPServer
+   TIdTCPServer,
+   TIdIPMCastServer
   ]);
   RegisterComponents(RSRegIndyIOHandlers,[
    TIdIOHandlerStack

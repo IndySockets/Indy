@@ -109,6 +109,7 @@ unit IdResourceStringsCore;
 interface
 
 resourcestring
+  RSNoBindingsSpecified = 'No bindings specified.';
   RSCannotAllocateSocket = 'Cannot allocate socket.';
   RSSocksUDPNotSupported = 'UDP is not support in this SOCKS version.';
   RSSocksRequestFailed = 'Request rejected or failed.';
@@ -158,6 +159,10 @@ resourcestring
   RSTransparentProxyCanNotSupportUDP = 'UDP Not supported by this proxy.';
   //Fibers
   RSFibersNotSupported = 'Fibers are not supported on this system.';
+  // TIdICMPCast
+  RSIPMCastInvalidMulticastAddress = 'The supplied IP address is not a valid multicast address [224.0.0.0 to 239.255.255.255].';
+  RSIPMCastNotSupportedOnWin32 = 'This function is not supported on Win32.';
+  RSIPMCastReceiveError0 = 'IP Broadcast Receive Error = 0.';
 
   // Log strings
   RSLogConnected = 'Connected.';

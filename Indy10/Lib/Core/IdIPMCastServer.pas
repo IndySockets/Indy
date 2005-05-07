@@ -103,7 +103,7 @@ implementation
 { TIdIPMCastServer }
 
 uses
-  IdResourceStringsProtocols,
+  IdResourceStringsCore,
   IdStack,
   IdStackConsts,
   IdSys;

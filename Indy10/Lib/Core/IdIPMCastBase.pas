@@ -73,7 +73,7 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdResourceStringsProtocols, IdStackConsts;
+  IdResourceStringsCore, IdStackConsts;
 
 { TIdIPMCastBase }
 

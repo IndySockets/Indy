@@ -72,8 +72,10 @@ uses
   IdComponent,
   IdGlobal,
   IdDsnPropEdBinding,
+  IdIPMCastClient,
   IdStack,
   IdSocketHandle,
+
   IdTCPServer,
   IdUDPServer,
     {$IFDEF Linux}
@@ -100,6 +102,11 @@ begin
         DefaultPort := TIdUDPServer(GetComponent(0)).DefaultPort;
         Value := GetListValues( TIdUDPServer(GetComponent(0)).Bindings);
       end;
+      if (GetComponent(0) is TIdIPMCastClient) then
+      begin
+        DefaultPort := TIdIPMCastClient(GetComponent(0)).DefaultPort;
+        Value := GetListValues( TIdIPMCastClient(GetComponent(0)).Bindings);
+      end;
     end;
     SetList(Value);
     if ShowModal = mrOk then
@@ -114,6 +121,10 @@ begin
         if (GetComponent(0) is TIdUDPServer) then
         begin
           FillHandleList(Value,TIdUDPServer(GetComponent(0)).Bindings);
+        end;
+        if (GetComponent(0) is TIdIPMCastClient) then
+        begin
+          FillHandleList(Value,TIdIPMCastClient(GetComponent(0)).Bindings);
         end;
       end;
     end;
@@ -158,6 +169,7 @@ procedure Register;
 begin
   RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdTCPServer, '', TIdPropEdBinding);    {Do not Localize}
    RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdUDPServer, '', TIdPropEdBinding);    {Do not Localize}
+   RegisterPropertyEditor(TypeInfo(TIdSocketHandles),TIdIPMCastClient,'',TIdPropEdBinding);  {Do not localize}
   RegisterComponentEditor(TIdBaseComponent, TIdBaseComponentEditor);
 end;
 
