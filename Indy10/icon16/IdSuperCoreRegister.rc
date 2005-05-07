@@ -1,0 +1,8 @@
+//IOHandlers
+TIdServerIOHandlerChain      BITMAP "TIdServerIOHandlerChain.bmp"
+
+//Misc
+TIdChainEngine                  BITMAP "TIdChainEngine.bmp"
+TIdSchedulerOfFiber           BITMAP "TIdSchedulerOfFiber.bmp"
+TIdFiberWeaverInline          BITMAP "TIdFiberWeaverInline.bmp"
+TIdFiberWeaverThreaded    BITMAP "TIdFiberWeaverThreaded.bmp"

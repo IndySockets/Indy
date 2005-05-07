@@ -564,6 +564,37 @@ Indy10/Lib/System/IndySystem90.res -text svneol=unset#unset
 Indy10/Lib/System/IndySystem90Net.bdsproj -text
 Indy10/Lib/System/IndySystem90Net.dpk -text
 Indy10/Lib/System/IndySystemK3.dpk -text
+Indy10/icon16/Blank.bmp -text svneol=unset#unset
+Indy10/icon16/BlankServer.bmp -text svneol=unset#unset
+Indy10/icon16/IdCoreRegister.rc -text
+Indy10/icon16/IdRegister.rc -text
+Indy10/icon16/IdSuperCoreRegister.rc -text
+Indy10/icon16/SASLBase.bmp -text svneol=unset#unset
+Indy10/icon16/TIDBINHEX40DECODER.bmp -text svneol=unset#unset
+Indy10/icon16/TIDBINHEX40ENCODER.bmp -text svneol=unset#unset
+Indy10/icon16/TIDCHARGENSERVER.bmp -text svneol=unset#unset
+Indy10/icon16/TIDCHARGENUDPSERVER.bmp -text svneol=unset#unset
+Indy10/icon16/TIDDATETIMESTAMP.bmp -text svneol=unset#unset
+Indy10/icon16/TIDDAYTIME.bmp -text svneol=unset#unset
+Indy10/icon16/TIDDAYTIMESERVER.bmp -text svneol=unset#unset
+Indy10/icon16/TIDDAYTIMEUDP.bmp -text svneol=unset#unset
+Indy10/icon16/TIDDAYTIMEUDPSERVER.bmp -text svneol=unset#unset
+Indy10/icon16/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
+Indy10/icon16/TIdChainEngine.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCmdTCPClient.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCmdTCPServer.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCoderMD2.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCoderMD4.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCoderMD5.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCompressionIntercept.bmp -text svneol=unset#unset
+Indy10/icon16/TIdConnectThroughHttpProxy.bmp -text svneol=unset#unset
+Indy10/icon16/TIdConnectionIntercept.bmp -text svneol=unset#unset
+Indy10/icon16/TIdConnectionInterceptOpenSSL.bmp -text svneol=unset#unset
+Indy10/icon16/TIdCookieManager.bmp -text svneol=unset#unset
+Indy10/icon16/TIdDecoderMIME.BMP -text svneol=unset#unset
+Indy10/icon16/makedcr.bat eol=crlf
+Indy10/icon16/tIdAntiFreeze.bmp -text svneol=unset#unset
+Indy10/icons/Bitmaps/BlankPurple.bmp -text svneol=unset#unset
 Indy10/icons/IdCompressorBorZLib.bmp -text svneol=unset#unset
 Indy10/icons/IdCoreRegister.rc -text
 Indy10/icons/IdRegister.rc -text
@@ -731,6 +762,25 @@ Indy10/icons/TidtimeUDPserver.bmp -text svneol=unset#unset
 Indy10/icons/Tidvcard.bmp -text svneol=unset#unset
 Indy10/icons/Tidwhois.bmp -text svneol=unset#unset
 Indy10/icons/TidwhoisServer.bmp -text svneol=unset#unset
+Indy10/icons/Work/16_weave.gif -text svneol=unset#image/gif
+Indy10/icons/Work/BaseTIdIntercept.bmp -text svneol=unset#unset
+Indy10/icons/Work/BlockBase.psp -text svneol=unset#unset
+Indy10/icons/Work/CoderMsg.bmp -text svneol=unset#unset
+Indy10/icons/Work/IdSASL.bmp -text svneol=unset#unset
+Indy10/icons/Work/Print.bmp -text svneol=unset#unset
+Indy10/icons/Work/chain.gif -text svneol=unset#image/gif
+Indy10/icons/Work/chain2.gif -text svneol=unset#image/gif
+Indy10/icons/Work/chain2White.gif -text svneol=unset#image/gif
+Indy10/icons/Work/pager.gif -text svneol=unset#image/gif
+Indy10/icons/Work/regsigns.gif -text svneol=unset#image/gif
+Indy10/icons/Work/sock[!!-~]1.wmf -text svneol=unset#unset
+Indy10/icons/Work/speedlimit.bmp -text svneol=unset#unset
+Indy10/icons/Work/speedlimit.gif -text svneol=unset#image/gif
+Indy10/icons/Work/speedlimit.psp -text svneol=unset#unset
+Indy10/icons/Work/speedlimit2.gif -text svneol=unset#image/gif
+Indy10/icons/Work/userskey.gif -text svneol=unset#image/gif
+Indy10/icons/Work/userskey2.gif -text svneol=unset#image/gif
+Indy10/icons/Work/yellow_weave.gif -text svneol=unset#image/gif
 Indy10/icons/makedcr.bat eol=crlf
 Indy10/icons/tIdAntiFreeze.bmp -text svneol=unset#unset
 Indy10/icons/tIdDecoderUUE.bmp -text svneol=unset#unset

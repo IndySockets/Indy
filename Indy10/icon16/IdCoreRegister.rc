@@ -1,0 +1,33 @@
+//Clients
+TIdTCPClient                 BITMAP "TIdTCPClient.bmp"
+TIdUDPClient                 BITMAP "TIdUDPClient.bmp"
+TIdIcmpClient                BITMAP "TIdIcmpClient.bmp"
+TIdCmdTCPClient              BITMAP "TIdCmdTCPClient.bmp"
+
+//Servers
+TIdTCPServer                 BITMAP "TIdTCPServer.bmp"
+TIdUDPServer                 BITMAP "TIdUDPServer.bmp"
+TIdSimpleServer              BITMAP "TIdSimpleServer.bmp"
+TIdCmdTCPServer              BITMAP "TIdCmdTCPServer.bmp"
+
+//IOHandlers
+TIdIOHandlerStack            BITMAP "TIdIOHandlerStack.bmp"
+TIdServerIOHandlerStack      BITMAP "TIdServerIOHandlerStack.bmp"
+TIdIOHandlerStream           BITMAP "TIdIOHandlerStream.bmp"
+
+//Intercepts
+TIdConnectionIntercept       BITMAP "TIdConnectionIntercept.bmp"
+TIdLogEvent                  BITMAP "TIdLogEvent.bmp"
+TIdLogFile                   BITMAP "TIdLogFile.bmp"
+TIdLogStream                 BITMAP "TIdLogStream.bmp"
+TIDLOGDEBUG                  BITMAP "TIDLOGDEBUG.BMP"
+TIdInterceptSimLog           BITMAP "TIdInterceptSimLog.bmp"
+TIdInterceptThrottler        BITMAP "TIdInterceptThrottler.bmp"
+
+//Misc
+TIdAntiFreeze                BITMAP "TIdAntiFreeze.bmp"
+TIdSocksInfo                 BITMAP "TIdSocksInfo.bmp"
+TIdSchedulerOfThreadDefault  BITMAP "TIdSchedulerOfThreadDefault.bmp"
+TIdSchedulerOfThreadPool     BITMAP "TIdSchedulerOfThreadPool.bmp"
+TIdThreadComponent           BITMAP "TIdThreadComponent.bmp"
+
