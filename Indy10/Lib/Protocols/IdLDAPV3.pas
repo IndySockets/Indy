@@ -23,7 +23,7 @@ Interface
 
 Uses
   Classes,
-  Contnrs;
+  IdContainers;
 
 
 Type
@@ -239,7 +239,7 @@ Type
     Property controlValue : String Read FControlValue Write FControlValue; // OPTIONAL
   End;
 
-  TIdLDAPV3ControlList = Class (TObjectList)
+  TIdLDAPV3ControlList = Class (TIdObjectList)
   Private
     Function GetControl(iIndex : Integer):TIdLDAPV3Control;
   Protected
@@ -273,7 +273,7 @@ Type
     Property vals : TIdLDAPV3AttributeValueSet Read FVals Write FVals;
   End;
 
-  TIdLDAPV3AttributeList = Class (TObjectList)
+  TIdLDAPV3AttributeList = Class (TIdObjectList)
   Private
     Function GetAttribute(iIndex : Integer):TIdLDAPV3Attribute;
   Protected
@@ -374,7 +374,7 @@ Type
     Property {2} final   : TIdLDAPV3LDAPString Read FFinal Write FFinal  ;
   End;
 
-  TIdLDAPV3SubstringList = Class (TObjectList)
+  TIdLDAPV3SubstringList = Class (TIdObjectList)
   Private
     Function GetSubstring(iIndex : Integer):TIdLDAPV3Substring;
   Protected
@@ -443,7 +443,7 @@ Type
     Property {9} extensibleMatch : TIdLDAPV3MatchingRuleAssertion Read FExtensibleMatch Write FExtensibleMatch;
   End;
 
-  TIdLDAPV3FilterList = Class (TObjectList)
+  TIdLDAPV3FilterList = Class (TIdObjectList)
   Private
     Function GetFilter(iIndex : Integer):TIdLDAPV3Filter;
   Protected
@@ -490,7 +490,7 @@ Type
     Property vals : TIdLDAPV3AttributeValueSet Read FVals Write FVals;
   End;
 
-  TIdLDAPV3PartialAttributeList = Class (TObjectList)
+  TIdLDAPV3PartialAttributeList = Class (TIdObjectList)
   Private
     Function GetPartialAttribute(iIndex : Integer):TIdLDAPV3PartialAttribute;
   Protected
@@ -543,7 +543,7 @@ Type
     Property modification : TIdLDAPV3AttributeTypeAndValues Read FModification Write FModification;
   End;
 
-  TIdLDAPV3ModificationList = Class (TObjectList)
+  TIdLDAPV3ModificationList = Class (TIdObjectList)
   Private
     Function GetModification(iIndex : Integer):TIdLDAPV3Modification;
   Protected
