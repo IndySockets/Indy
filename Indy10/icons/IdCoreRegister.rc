@@ -3,12 +3,14 @@ TIdTCPClient                 BITMAP "TIdTCPClient.bmp"
 TIdUDPClient                 BITMAP "TIdUDPClient.bmp"
 TIdIcmpClient                BITMAP "TIdIcmpClient.bmp"
 TIdCmdTCPClient              BITMAP "TIdCmdTCPClient.bmp"
+TIdIPMCastClient             BITMAP "TIdIMPCastClient.bmp"
 
 //Servers
 TIdTCPServer                 BITMAP "TIdTCPServer.bmp"
 TIdUDPServer                 BITMAP "TIdUDPServer.bmp"
 TIdSimpleServer              BITMAP "TIdSimpleServer.bmp"
 TIdCmdTCPServer              BITMAP "TIdCmdTCPServer.bmp"
+TIdIPMCastServer             BITMAP "TIdIMPCastServer.bmp"
 
 //IOHandlers
 TIdIOHandlerStack            BITMAP "TIdIOHandlerStack.bmp"
