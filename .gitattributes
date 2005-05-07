@@ -69,6 +69,7 @@ Indy10/Builder/VersionMarker/VersionMarker.fblz -text svneol=unset#unset
 Indy10/Builder/VersionMarker/VersionMarker.fbw -text
 Indy10/Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Indy10/Builder/VersionMarker/VersionMarker.ini -text
+Indy10/KB/IndyKB.hm3 -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
