@@ -442,10 +442,6 @@ uses
   IdIdentServer,
   IdIMAP4,
   IdIMAP4Server,
-  {$IFNDEF DOTNET}
-  IdIPMCastClient,
-  IdIPMCastServer,
-  {$ENDIF}
   IdIPWatch,
   IdIRC,
   IdIrcServer,
@@ -558,9 +554,6 @@ begin
    TIdHTTP,
    TIdIdent,
    TIdIMAP4,
-   {$IFNDEF DOTNET}
-   TIdIPMCastClient,
-   {$ENDIF}
    TIdIRC,
    TIdLPR,
    TIdNNTP,
@@ -611,9 +604,6 @@ begin
    TIdHTTPServer,
    TIdIdentServer,
    TIdIMAP4Server,
-   {$IFNDEF DOTNET}
-   TIdIPMCastServer,
-   {$ENDIF}
    TIdIRCServer,
    {$IFNDEF DOTNET}
    TIdMappedFTP,

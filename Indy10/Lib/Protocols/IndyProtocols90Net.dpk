@@ -160,6 +160,7 @@ contains
   IdMessageCoderQuotedPrintable in 'IdMessageCoderQuotedPrintable.pas',
   IdMessageCoderUUE in 'IdMessageCoderUUE.pas',
   IdMessageCoderXXE in 'IdMessageCoderXXE.pas',
+  IdMessageCoderYenc in 'IdMessageCoderYenc.pas',
   IdMessageCollection in 'IdMessageCollection.pas',
   IdMessageParts in 'IdMessageParts.pas',
   IdMultipartFormData in 'IdMultipartFormData.pas',
