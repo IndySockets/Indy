@@ -180,6 +180,12 @@ Indy10/Lib/Core/IndyCore90Net.dpk -text
 Indy10/Lib/Core/IndyCoreK3.dpk -text
 Indy10/Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
 Indy10/Lib/Core/Res/IdCreditsBitmap.rc -text
+Indy10/Lib/Core/Res/Maint/1sink.jpg -text svneol=unset#image/jpeg
+Indy10/Lib/Core/Res/Maint/1sinkCropped.jpg -text svneol=unset#image/jpeg
+Indy10/Lib/Core/Res/Maint/1sinkPlainCropped.jpg -text svneol=unset#image/jpeg
+Indy10/Lib/Core/Res/Maint/1sinkPlainCroppedRed.bmp -text svneol=unset#unset
+Indy10/Lib/Core/Res/Maint/1sinkPlainCroppedRed.jpg -text svneol=unset#image/jpeg
+Indy10/Lib/Core/Res/Maint/sinkdr.wav -text svneol=unset#unset
 Indy10/Lib/Core/Res/Sink.bmp -text svneol=unset#unset
 Indy10/Lib/Core/Res/TIDABOUTPICTURE.BMP -text svneol=unset#unset
 Indy10/Lib/Core/Res/makeres.bat eol=crlf
