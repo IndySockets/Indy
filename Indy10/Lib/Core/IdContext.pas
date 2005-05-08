@@ -87,6 +87,7 @@ type
     // therefore not be used
     FContextList: TThreadList;
     FConnection: TIdTCPConnection;
+    FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
     FOnBeforeRun: TIdContextBeforeRun;
     FOnAfterRun: TIdContextAfterRun;
@@ -129,6 +130,7 @@ constructor TIdContext.Create(
 begin
   inherited Create(AYarn);
   FConnection := AConnection;
+  FOwnsConnection:=True;
   FContextList := AList;
   if FContextList <> nil then begin
     FContextList.Add(Self);
@@ -140,7 +142,9 @@ begin
   if FContextList <> nil then begin
     FContextList.Remove(Self);
   end;
-  Sys.FreeAndNil(FConnection);
+  if FOwnsConnection then begin
+    Sys.FreeAndNil(FConnection);
+  end;
   inherited Destroy;
 end;
 
