@@ -172,6 +172,11 @@ implementation
 
 uses IdReplyRFC, IdSys;
 
+type
+
+  TIdContextAccess = class(TIdContext)
+  end;
+
 { Listening Thread }
 
 constructor TIdCmdTCPClientListeningThread.Create(AClient: TIdCmdTCPClient);
@@ -179,6 +184,7 @@ begin
   inherited Create(False);
   //
   FContext := TIdContext.Create(AClient, nil, nil);
+  TIdContextAccess(FContext).FOwnsConnection:=False;
   FClient := AClient;
   FreeOnTerminate := False;
 end;
