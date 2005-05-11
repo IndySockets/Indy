@@ -123,6 +123,7 @@ begin
   inherited;
   TIdYarnOfFiber(AYarn).Fiber.Task := ATask;
   // Last - Put it in the queue to be scheduled
+  Assert(FiberWeaver<>nil);
   FiberWeaver.Add(TIdYarnOfFiber(AYarn).Fiber);
 end;
 
