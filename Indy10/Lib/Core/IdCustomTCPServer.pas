@@ -715,7 +715,7 @@ begin
   if Contexts <> nil then begin
     with Contexts.LockList do try
       for i := 0 to Count - 1 do begin
-        // Dont call disconnect with true. Otheriwse it frees the IOHandler and the thread
+        // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
         // is still running which often causes AVs and other.
         TIdContext(Items[i]).Connection.Disconnect(False);
       end;
