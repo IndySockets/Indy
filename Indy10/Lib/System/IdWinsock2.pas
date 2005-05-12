@@ -266,21 +266,34 @@ type
 const
 
 // Protocols
-  ipproto_ip     =   0;             // dummy for IP
-  ipproto_icmp   =   1;             // control message protocol
-  ipproto_igmp   =   2;             // group management protocol
-  ipproto_ggp    =   3;             // gateway^2 (deprecated)
-  ipproto_tcp    =   6;             // TCP
-  ipproto_pup    =  12;             // pup
-  ipproto_udp    =  17;             // UDP - user datagram protocol
-  ipproto_idp    =  22;             // xns idp
-  ipproto_ipv6   =  41;             // IPv6
-  ipproto_nd     =  77;             // UNOFFICIAL net disk proto
-  ipproto_iclfxbm = 78;
+  ipproto_ip       =   0;             // dummy for IP
+  ipproto_hopopts  = 0;             // IPv6 Hop-by-Hop options - RFC 2292
+//RFC 2292 notes:
+//   Berkeley-derived IPv4 implementations also define IPPROTO_IP to be 0.
+//   This should not be a problem since IPPROTO_IP is used only with IPv4
+//   sockets and IPPROTO_HOPOPTS only with IPv6 sockets.
+  ipproto_icmp     =   1;             // control message protocol
+  ipproto_igmp     =   2;             // group management protocol
+  ipproto_ggp      =   3;             // gateway^2 (deprecated)
+  ipproto_tcp      =   6;             // TCP
+  ipproto_pup      =  12;             // pup
+  ipproto_udp      =  17;             // UDP - user datagram protocol
+  ipproto_idp      =  22;             // xns idp
+  ipproto_ipv6     =  41;             // IPv6
+  ipproto_routing  =  43;             // IPv6 Routing header - RFC 2292
+  ipproto_fragment =  44;             // IPv6 fragmentation header - RFC 2292
+  ipproto_esp      =  50;             // encapsulating security payload - RFC 2292
+  ipproto_ah       =  51;             // authentication header - RFC 2292
+  ipproto_icmpv6   =  58;             // ICMPv6 - RFC 2292
+  ipproto_none     =  59;             // IPv6 no next header - RFC 2292
+  ipproto_dstopts  =  60;             // IPv6 Destination options - RFC 2292
+  ipproto_nd       =  77;             // UNOFFICIAL net disk proto
+  ipproto_iclfxbm  =  78;
 
-  ipproto_raw    = 255;             // raw IP packet
-  ipproto_max    = 256;
+  ipproto_raw      = 255;             // raw IP packet
+  ipproto_max      = 256;
 
+const
 // Port/socket numbers: network standard functions
   ipport_echo        =   7;
   ipport_discard     =   9;
@@ -2055,7 +2068,294 @@ type
 	TINTERFACE_INFO_EX  = INTERFACE_INFO_EX;
 	LPINTERFACE_INFO_EX = ^INTERFACE_INFO_EX;
 
-// Possible flags for the  iiFlags - bitmask
+//RFC 3542 definitions
+//IPv6 Extension Headers
+   uint32_t = Cardinal;
+   uint16_t = word;
+   uint8_t = byte;
+  //* Hop-by-Hop options header */
+   ip6_hbh = packed record
+       ip6h_nxt : Byte;        //* next header */
+       ip6h_len : Byte;        //* length in units of 8 octets */
+          //* followed by options /
+    end;
+
+   //* Destination options header */
+   ip6_dest = packed record
+     ip6d_nxt : Byte;        //* next header */
+     ip6d_len : Byte;        //* length in units of 8 octets */
+         //* followed by options */
+   end;
+
+   //* Routing header */
+   ip6_rthdr = packed record
+        ip6r_nxt : Byte;        //* next header */
+        ip6r_len : Byte;        //* length in units of 8 octets */
+        ip6r_type : Byte;       //* routing type */
+        ip6r_segleft : Byte;    //* segments left */
+          //* followed by routing type specific data */
+   end;
+
+   //* Type 0 Routing header */
+   ip6_rthdr0 = packed record
+     ip6r0_nxt      : Byte;   //* next header */
+     ip6r0_len      : Byte;   //* length in units of 8 octets */
+     ip6r0_type     : Byte;   //* always zero */
+     ip6r0_segleft  : Byte;   //* segments left */
+     ip6r0_reserved : Cardinal;  //* reserved field */
+          //* followed by up to 127 struct in6_addr */
+   end;
+
+   //* Fragment header */
+   ip6_frag = packed record
+     ip6f_nxt : Byte;       //* next header */
+     ip6f_reserved : Byte;  //* reserved field */
+     ip6f_offlg : Word;     // *offset, reserved, and flag */
+     ip6f_ident : Cardinal; //* identification */
+   end;
+
+const
+  IP6F_OFF_MASK        = $f8ff;  //* mask out offset from ip6f_offlg */
+  IP6F_RESERVED_MASK   = $0600;  //* reserved bits in ip6f_offlg */
+  IP6F_MORE_FRAG       = $0100;  //* more-fragments flag */
+
+//IPv6 options - RFC3542
+type
+   //* IPv6 options */
+    ip6_opt = packed record
+        ip6o_type : uint8_t;
+        ip6o_len : uint8_t;
+    end;
+
+const
+      IP6_ALERT_MLD     = $0000;
+      IP6_ALERT_RSVP    = $0100;
+      IP6_ALERT_AN      = $0200;
+
+
+
+
+
+      //*
+      // * The high-order 3 bits of the option type define the behavior
+      // * when processing an unknown option and whether or not the option
+      // * content changes in flight.
+      // */
+
+//Macro translation of IP6OPT_TYPE
+function  IP6OPT_TYPE(const o : Byte) : byte;
+
+const
+      IP6OPT_TYPE_SKIP      = $00;
+      IP6OPT_TYPE_DISCARD   = $40;
+      IP6OPT_TYPE_FORCEICMP = $80;
+      IP6OPT_TYPE_ICMP      = $c0;
+      IP6OPT_MUTABLE        = $20;
+
+      IP6OPT_PAD1           = $00; //* 00 0 00000 */
+      IP6OPT_PADN           = $01; //* 00 0 00001 */
+
+      IP6OPT_JUMBO          = $c2 ;//* 11 0 00010 */
+      IP6OPT_NSAP_ADDR      = $c3;//* 11 0 00011 */
+      IP6OPT_TUNNEL_LIMIT   = $04;//* 00 0 00100 */
+      IP6OPT_ROUTER_ALERT   = $05;//* 00 0 00101 */
+
+type
+      //* Jumbo Payload Option */
+     ip6_opt_jumbo = packed record
+        ip6oj_type : uint8_t;
+        ip6oj_len : uint8_t;
+
+        ip6oj_jumbo_len: array[0..3] of uint8_t;
+      end;
+      
+const
+      IP6OPT_JUMBO_LEN   = 6;
+
+type
+      //* NSAP Address Option */
+       ip6_opt_nsap = packed record
+          ip6on_type : uint8_t;
+          ip6on_len : uint8_t;
+          ip6on_src_nsap_len : uint8_t;
+          ip6on_dst_nsap_len : uint8_t;
+          //* followed by source NSAP */
+          //* followed by destination NSAP */
+      end;
+
+      //* Tunnel Limit Option */
+      ip6_opt_tunnel = packed record
+        ip6ot_type : uint8_t;
+        ip6ot_len : uint8_t;
+        ip6ot_encap_limit : uint8_t;
+      end;
+
+      //* Router Alert Option */
+      ip6_opt_router = packed record
+        ip6or_type : uint8_t;
+        ip6or_len : uint8_t;
+        ip6or_value: array[0..1] of uint8_t
+      end;
+
+type
+
+  ip6_hdrctl = packed record
+    ip6_un1_flow:uint32_t; { 4 bits version, 8 bits TC, 20 bits flow-ID }
+    ip6_un1_plen:uint16_t; { payload length }
+    ip6_un1_nxt:uint8_t;  { next header }
+    ip6_un1_hlim:uint8_t; { hop limit }
+  end;
+
+
+  ip6_hdr = packed record
+  case integer of
+    0: (
+      ip6_un1:ip6_hdrctl;
+      ip6_src:in6_addr;   { source address }
+      ip6_dst:in6_addr;   { destination address }        
+      );
+    1: (
+      ip6_un2_vfc:uint8_t; { 4 bits version, top 4 bits tclass }
+      );
+   end;
+
+      icmp6_hdr = packed record
+             icmp6_type : uint8_t;   //* type field */
+            icmp6_code : uint8_t;   //* code field */
+            icmp6_cksum : uint16_t;  //* checksum field */
+        case Integer of
+          1: (icmp6_un_data32 : uint32_t); //* type-specific field */
+          2: (icmp6_un_data16 : array[0..1] of uint16_t); //* type-specific field */
+          3: (icmp6_un_data8 : array[0..3] of uint8_t);  //* type-specific field */
+      end;
+
+const
+//ICMPv6 Type and Code Values - rfc 3542
+      ICMP6_DST_UNREACH            = 1;
+      ICMP6_PACKET_TOO_BIG         = 2;
+      ICMP6_TIME_EXCEEDED          = 3;
+      ICMP6_PARAM_PROB             = 4;
+
+      ICMP6_INFOMSG_MASK  = $80;    ///* all informational messages */
+
+      ICMP6_ECHO_REQUEST        =  128;
+      ICMP6_ECHO_REPLY         =   129;
+
+      ICMP6_DST_UNREACH_NOROUTE    = 0; //* no route to destination */
+
+      ICMP6_DST_UNREACH_ADMIN      = 1; //* communication with
+                                        //  destination */
+                                        //* admin. prohibited */
+      ICMP6_DST_UNREACH_BEYONDSCOPE = 2; //* beyond scope of source address */
+      ICMP6_DST_UNREACH_ADDR       = 3; //* address unreachable */
+      ICMP6_DST_UNREACH_NOPORT     = 4; //* bad port */
+
+      ICMP6_TIME_EXCEED_TRANSIT    = 0; //* Hop Limit == 0 in  transit */
+      ICMP6_TIME_EXCEED_REASSEMBLY = 1; //* Reassembly time out */
+
+      ICMP6_PARAMPROB_HEADER       = 0; //* erroneous header field */
+      ICMP6_PARAMPROB_NEXTHEADER   = 1; //* unrecognized  Next Header */
+      ICMP6_PARAMPROB_OPTION       = 2; //* unrecognized  IPv6 option */
+
+//ICMPv6 Neighbor Discovery Definitions
+      ND_ROUTER_SOLICIT          = 133;
+      ND_ROUTER_ADVERT           = 134;
+      ND_NEIGHBOR_SOLICIT        = 135;
+      ND_NEIGHBOR_ADVERT         = 136;
+      ND_REDIRECT                = 137;
+
+type
+  Tnd_router_solicit = packed record     //* router solicitation */
+    nd_rs_hdr : icmp6_hdr;
+          //* could be followed by options */
+  end;
+  Tnd_router_advert = packed record
+    nd_ra_hdr: icmp6_hdr;
+    nd_ra_reachable: uint32_t;
+    nd_ra_retransmit: uint32_t;
+  end;
+
+  Tnd_neighbor_solicit = packed record   //* neighbor solicitation */
+     nd_ns_hdr : icmp6_hdr;
+      nd_ns_target : in6_addr; //* target address */
+          //* could be followed by options */
+  end;
+  Tnd_neighbor_advert = packed record    //* neighbor advertisement */
+    nd_na_hdr : icmp6_hdr;
+    nd_na_target : in6_addr; //* target address */
+          //* could be followed by options */
+  end;
+
+const
+   ND_OPT_SOURCE_LINKADDR      = 1;
+   ND_OPT_TARGET_LINKADDR      = 2;
+   ND_OPT_PREFIX_INFORMATION   = 3;
+   ND_OPT_REDIRECTED_HEADER    = 4;
+   ND_OPT_MTU                  = 5;
+
+type
+  nd_opt_prefix_info = packed record    //* prefix information */
+      nd_opt_pi_type : uint8_t;
+      nd_opt_pi_len : uint8_t;
+      nd_opt_pi_prefix_len : uint8_t;
+      nd_opt_pi_flags_reserved : uint8_t;
+      nd_opt_pi_valid_time : uint32_t;
+      nd_opt_pi_preferred_time : uint32_t;
+      nd_opt_pi_reserved2 : uint32_t;
+      nd_opt_pi_prefix : in6_addr;
+   end;
+
+const
+  ND_OPT_PI_FLAG_ONLINK       = $80;
+  ND_OPT_PI_FLAG_AUTO         = $40;
+
+type
+
+  nd_opt_rd_hdr = packed record         //* redirected header */
+     nd_opt_rh_type : uint8_t;
+     nd_opt_rh_len : uint8_t;
+     nd_opt_rh_reserved1 : uint16_t;
+     nd_opt_rh_reserved2 : uint32_t;
+     //* followed by IP header and data */
+  end;
+
+   Tnd_opt_mtu = packed record            //* MTU option */
+       nd_opt_mtu_type : uint8_t;
+       nd_opt_mtu_len : uint8_t;
+       nd_opt_mtu_reserved : uint16_t;
+       nd_opt_mtu_mtu : uint32_t;
+    end;
+
+// Multicast Listener Discovery Definitions
+const
+  MLD_LISTENER_QUERY         = 130;
+  MLD_LISTENER_REPORT        = 131;
+  MLD_LISTENER_REDUCTION     = 132;
+type
+  mld_hdr = packed record
+       mld_icmp6_hdr : icmp6_hdr;
+       mld_addr      : in6_addr; //* multicast address */
+  end;
+
+const
+  ND_NA_FLAG_ROUTER        = $00000080;
+  ND_NA_FLAG_SOLICITED     = $00000040;
+  ND_NA_FLAG_OVERRIDE      = $00000020;
+
+
+type
+  Tnd_redirect = packed record           //* redirect */
+    nd_rd_hdr : icmp6_hdr;
+    nd_rd_target : in6_addr; //* target address */
+    nd_rd_dst : in6_addr;    //* destination address */
+          //* could be followed by options */
+  end;
+  nd_opt_hdr = packed record         //* Neighbor discovery option header */
+      nd_opt_type : uint8_t;
+          nd_opt_len : uint8_t;      //* in units of 8 octets */
+          //* followed by option specific data */
+  end;
+      // Possible flags for the  iiFlags - bitmask
 
 const
 	IFF_UP           = $00000001;  // Interface is up
@@ -2063,6 +2363,7 @@ const
 	IFF_LOOPBACK     = $00000004;  // this is loopback interface
 	IFF_POINTTOPOINT = $00000008;  // this is point-to-point interface
 	IFF_MULTICAST    = $00000010;  // multicast is supported
+
 
 
 //=============================================================
@@ -4098,6 +4399,12 @@ begin
     end;
     snb_name[NETBIOS_NAME_LENGTH-1] := Port;
   end;
+end;
+
+//Macro translation of IP6OPT_TYPE
+function  IP6OPT_TYPE(const o : Byte) : byte;
+begin
+  Result := ((o) and $c0);
 end;
 
 initialization
