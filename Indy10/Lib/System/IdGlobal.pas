@@ -1041,6 +1041,9 @@ function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
   const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
 function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetchDelimDefault;
     const ADelete: Boolean = IdFetchDeleteDefault): string;
+
+procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
+
 function CurrentThreadId: TIdPID;
 function GetThreadHandle(AThread: TThread): THandle;
 //GetTickDiff required because GetTickCount will wrap
@@ -1116,6 +1119,17 @@ uses
 var
   GIdPorts: TList;
 {$ENDIF}
+
+
+procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
+begin
+  {$IFDEF DOTNET}
+     System.&Array.Clear(VBytes,0,ACount);
+  {$ELSE}
+     FilLChar(VBytes[0],ACount,AValue);
+  {$ENDIF}
+end;
+
 
 {$IFDEF DOTNET}
 const
