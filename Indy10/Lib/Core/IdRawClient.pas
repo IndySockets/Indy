@@ -16,15 +16,18 @@ unit IdRawClient;
 interface
 
 uses
+  IdGlobal,
   IdRawBase;
 
 type
   TIdRawClient = class(TIdRawBase)
+
   published
     property ReceiveTimeout;
     property Host;
     property Port;
     property Protocol;
+    property IPVersion : TIdIPVersion read FIPVersion write FIPVersion;
   end;
 
 implementation

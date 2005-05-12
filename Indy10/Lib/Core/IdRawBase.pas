@@ -101,6 +101,7 @@ type
     FPort: integer;
     FReceiveTimeout: integer;
     FProtocol: TIdSocketProtocol;
+    FIPVersion : TIdIPVersion;
     FTTL: Integer;
     //
     function GetBinding: TIdSocketHandle;
@@ -111,14 +112,10 @@ type
   public
     destructor Destroy; override;
     // TODO: figure out which ReceiveXXX functions we want
-     {$IFNDEF DotNetExclude}
-    function ReceiveBuffer(var ABuffer; const AByteCount: Integer; ATimeOut: integer = -1): integer;
-    {$ENDIF}
+    function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
     procedure Send(AData: string); overload;
     procedure Send(AHost: string; const APort: Integer; AData: string); overload;
-     {$IFNDEF DotNetExclude}
-    procedure Send(AHost: string; const APort: integer; var ABuffer; const ABufferSize: integer); overload;
-    {$ENDIF}
+    procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); overload;
     //
     property TTL: Integer read FTTL write SetTTL default GFTTL;
     property Binding: TIdSocketHandle read GetBinding;
@@ -130,6 +127,126 @@ type
     property Protocol: TIdSocketProtocol read FProtocol write FProtocol default Id_IPPROTO_RAW;
   end;
 
+
+const
+//header sizes----------------------------------------------------------------//
+  Id_ARP_HSIZE            = $1C;      // ARP header:             28 bytes
+  Id_DNS_HSIZE            = $0C;      // DNS header base:        12 bytes
+  Id_ETH_HSIZE            = $0E;      // Etherner header:        14 bytes
+  Id_ICMP_HSIZE           = $04;      // ICMP header base:        4 bytes
+  Id_ICMP_ECHO_HSIZE      = $08;      // ICMP_ECHO header:        8 bytes
+  Id_ICMP_MASK_HSIZE      = $0C;      // ICMP_MASK header:       12 bytes
+  Id_ICMP_UNREACH_HSIZE   = $08;      // ICMP_UNREACH header:     8 bytes
+  Id_ICMP_TIMEXCEED_HSIZE = $08;      // ICMP_TIMXCEED header:    8 bytes
+  Id_ICMP_REDIRECT_HSIZE  = $08;      // ICMP_REDIRECT header:    8 bytes
+  Id_ICMP_TS_HSIZE        = $14;      // ICMP_TIMESTAMP header:  20 bytes
+  Id_IGMP_HSIZE           = $08;      // IGMP header:             8 bytes
+  Id_IP_HSIZE             = $14;      // IP header:              20 bytes
+  Id_RIP_HSIZE            = $18;      // RIP header base:        24 bytes
+  Id_TCP_HSIZE            = $14;      // TCP header:             20 bytes
+  Id_UDP_HSIZE            = $08;      // UDP header:              8 bytes
+
+//fragmentation flags---------------------------------------------------------//
+  Id_IP_RF                = $8000;    // reserved fragment flag
+  Id_IP_DF                = $4000;    // dont fragment flag
+  Id_IP_MF                = $2000;    // more fragments flag
+  Id_IP_OFFMASK           = $1FFF;    // mask for fragmenting bits
+
+//TCP control flags-----------------------------------------------------------//
+  Id_TCP_FIN              = $01;
+  Id_TCP_SYN              = $02;
+  Id_TCP_RST              = $04;
+  Id_TCP_PUSH             = $08;
+  Id_TCP_ACK              = $10;
+  Id_TCP_URG              = $20;
+
+//ICMP types------------------------------------------------------------------//
+  Id_ICMP_ECHOREPLY       = 0;
+  Id_ICMP_UNREACH         = 3;
+  Id_ICMP_SOURCEQUENCH    = 4;
+  Id_ICMP_REDIRECT        = 5;
+  Id_ICMP_ECHO            = 8;
+  Id_ICMP_ROUTERADVERT    = 9;
+  Id_ICMP_ROUTERSOLICIT   = 10;
+  Id_ICMP_TIMXCEED        = 11;
+  Id_ICMP_PARAMPROB       = 12;
+  Id_ICMP_TSTAMP          = 13;
+  Id_ICMP_TSTAMPREPLY     = 14;
+  Id_ICMP_IREQ            = 15;
+  Id_ICMP_IREQREPLY       = 16;
+  Id_ICMP_MASKREQ         = 17;
+  Id_ICMP_MASKREPLY       = 18;
+
+//ICMP codes------------------------------------------------------------------//
+  Id_ICMP_UNREACH_NET               = 0;
+  Id_ICMP_UNREACH_HOST              = 1;
+  Id_ICMP_UNREACH_PROTOCOL          = 2;
+  Id_ICMP_UNREACH_PORT              = 3;
+  Id_ICMP_UNREACH_NEEDFRAG          = 4;
+  Id_ICMP_UNREACH_SRCFAIL           = 5;
+  Id_ICMP_UNREACH_NET_UNKNOWN       = 6;
+  Id_ICMP_UNREACH_HOST_UNKNOWN      = 7;
+  Id_ICMP_UNREACH_ISOLATED          = 8;
+  Id_ICMP_UNREACH_NET_PROHIB        = 9;
+  Id_ICMP_UNREACH_HOST_PROHIB       = 10;
+  Id_ICMP_UNREACH_TOSNET            = 11;
+  Id_ICMP_UNREACH_TOSHOST           = 12;
+  Id_ICMP_UNREACH_FILTER_PROHIB     = 13;
+  Id_ICMP_UNREACH_HOST_PRECEDENCE   = 14;
+  Id_ICMP_UNREACH_PRECEDENCE_CUTOFF = 15;
+  Id_ICMP_REDIRECT_NET              = 0;
+  Id_ICMP_REDIRECT_HOST             = 1;
+  Id_ICMP_REDIRECT_TOSNET           = 2;
+  Id_ICMP_REDIRECT_TOSHOST          = 3;
+  Id_ICMP_TIMXCEED_INTRANS          = 0;
+  Id_ICMP_TIMXCEED_REASS            = 1;
+  Id_ICMP_PARAMPROB_OPTABSENT       = 1;
+
+  ICMP_MIN                          = 8;
+
+//IGMP types------------------------------------------------------------------//
+  Id_IGMP_MEMBERSHIP_QUERY          = $11;    // membership query
+  Id_IGMP_V1_MEMBERSHIP_REPORT      = $12;    // v1 membership report
+  Id_IGMP_V2_MEMBERSHIP_REPORT      = $16;    // v2 membership report
+  Id_IGMP_LEAVE_GROUP               = $17;    // leave-group message
+
+//ethernet packet types-------------------------------------------------------//
+  Id_ETHERTYPE_PUP                  = $0200;    // PUP protocol
+  Id_ETHERTYPE_IP                   = $0800;    // IP protocol
+  Id_ETHERTYPE_ARP                  = $0806;    // ARP protocol
+  Id_ETHERTYPE_REVARP               = $8035;    // reverse ARP protocol
+  Id_ETHERTYPE_VLAN                 = $8100;    // IEEE 802.1Q VLAN tagging
+  Id_ETHERTYPE_LOOPBACK             = $9000;    // used to test interfaces
+
+//hardware address formats----------------------------------------------------//
+  Id_ARPHRD_ETHER                   = 1;        // ethernet hardware format
+
+//ARP operation types---------------------------------------------------------//
+  Id_ARPOP_REQUEST                  = 1;        // req to resolve address
+  Id_ARPOP_REPLY                    = 2;        // resp to previous request
+  Id_ARPOP_REVREQUEST               = 3;        // req protocol address given hardware
+  Id_ARPOP_REVREPLY                 = 4;        // resp giving protocol address
+  Id_ARPOP_INVREQUEST               = 8;        // req to identify peer
+  Id_ARPOP_INVREPLY                 = 9;        // resp identifying peer
+
+//RIP commands----------------------------------------------------------------//
+  Id_RIPCMD_REQUEST                 = 1;        // want info
+  Id_RIPCMD_RESPONSE                = 2;        // responding to request
+  Id_RIPCMD_TRACEON                 = 3;        // turn tracing on
+  Id_RIPCMD_TRACEOFF                = 4;        // turn it off
+  Id_RIPCMD_POLL                    = 5;        // like request, but anyone answers
+  Id_RIPCMD_POLLENTRY               = 6;        // like poll, but for entire entry
+  Id_RIPCMD_MAX                     = 7;
+
+//RIP versions----------------------------------------------------------------//
+  Id_RIPVER_0                       = 0;
+  Id_RIPVER_1                       = 1;
+  Id_RIPVER_2                       = 2;
+
+//----------------------------------------------------------------------------//
+  Id_MAX_IPOPTLEN                   = 40;
+  Id_IP_MAXPACKET                   = 65535;
+  Id_ETHER_ADDR_LEN                 = 6;
 implementation
 
 uses
@@ -149,6 +266,7 @@ end;
 function TIdRawBase.GetBinding: TIdSocketHandle;
 begin
   if not FBinding.HandleAllocated then begin
+    FBinding.IPVersion := Self.FIPVersion;
 {$IFDEF LINUX}
     FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocol);
 {$ELSE}
@@ -171,28 +289,24 @@ begin
   FBuffer.Size := AValue;
 end;
 
- {$IFNDEF DotNetExclude}
-function TIdRawBase.ReceiveBuffer(var ABuffer; const AByteCount: Integer; ATimeOut: integer = -1): integer;
-var LBuf : TIdBytes;
+function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
+var 
+  LIP : String;
+  LPort : Integer;
 begin
-  if (AByteCount > 0) and (@ABuffer <> nil) then begin
+  Result := 0;
     // TODO: pass flags to recv()
     if ATimeOut < 0 then
     begin
       ATimeOut := FReceiveTimeout;
     end;
-    SetLength(LBuf,AByteCount);
-    if Binding.Readable(ATimeOut) then begin
-      Result := Binding.Receive( LBuf);
-      Move(LBuf[0],ABuffer,AByteCount);
-    end else begin
-      Result := 0;
+    if Length(VBuffer)>0 then
+    begin
+      if Binding.Readable(ATimeOut) then begin
+        Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
+      end;
     end;
-  end else begin
-    Result := 0;
-  end;
 end;
-{$ENDIF}
 
 procedure TIdRawBase.Send(AHost: string; const APort: Integer; AData: string);
 begin
@@ -205,16 +319,11 @@ begin
   Send(Host, Port, AData);
 end;
 
- {$IFNDEF DotNetExclude}
-procedure TIdRawBase.Send(AHost: string; const APort: integer; var ABuffer; const ABufferSize: integer);
-var LBuf : TIdBytes;
+procedure TIdRawBase.Send(AHost: string; const APort: integer; const ABuffer : TIdBytes);
 begin
   AHost := GStack.ResolveHost(AHost);
-    SetLength(LBuf,ABufferSize);
-  Move(ABuffer,LBuf[0],ABufferSize);
-  Binding.SendTo(AHost, APort, LBuf);
+  Binding.SendTo(AHost, APort, ABuffer);
 end;
-{$ENDIF}
 
 procedure TIdRawBase.SetTTL(const Value: Integer);
 begin
@@ -230,6 +339,7 @@ begin
   ReceiveTimeout := GReceiveTimeout;
   FPort := Id_TIdRawBase_Port;
   FProtocol := Id_IPPROTO_RAW;
+  FIPVersion := Id_IPv4;
   FTTL := GFTTL;
 end;
 
