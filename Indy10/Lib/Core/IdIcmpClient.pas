@@ -79,6 +79,7 @@ type
   TReplyStatus = record
     BytesReceived: integer; // number of bytes in reply from host
     FromIpAddress: string;  // IP address of replying host
+    ToIpAddress : string;   //who receives it (i.e., us.  This is for multihorned machines
     MsgType: byte;
     SequenceId: word;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
@@ -282,10 +283,14 @@ begin
     begin
       with AReplyStatus do begin
         BytesReceived := BytesRead;
+
+        FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,12)));
+        ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,16)));
      //   FromIpAddress := GBSDStack.TranslateTInAddrToString(pip^.ip_src, Binding.IPVersion);
         MsgType := FBufReceive[LIpHeaderLen]; //picmp^.icmp_type;
         SequenceId := LActualSeqID;
         MsRoundTripTime := RTTime;
+        TimeToLive := FBufReceive[8];
     //    TimeToLive := pip^.ip_ttl;
       end;
     end;
