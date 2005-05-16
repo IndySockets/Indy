@@ -39,9 +39,9 @@ namespace Indy.Tests
 		public void AddMSecToTime()
 		{
 			DateTime TempTime = DateTime.Now;
-			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.AddMSecToTime(TempTime, 0), TempTime.AddMilliseconds(0)), "1");
-			NF.Assert.IsTrue(DateTime.Equals(((DateTime)IS.Sys.AddMSecToTime(TempTime, 1)), ((DateTime)TempTime.AddMilliseconds(1))), "2");
-			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.AddMSecToTime(TempTime, 10), TempTime.AddMilliseconds(10)), "3");
+			NF.Assert.AreEqual(IS.Sys.DateTimeToStr(IS.Sys.AddMSecToTime(TempTime, 0)), IS.Sys.DateTimeToStr(TempTime.AddMilliseconds(0)), "1");
+			NF.Assert.AreEqual(IS.Sys.DateTimeToStr(IS.Sys.AddMSecToTime(TempTime, 1)), IS.Sys.DateTimeToStr(TempTime.AddMilliseconds(1)), "2");
+			NF.Assert.AreEqual(IS.Sys.DateTimeToStr(IS.Sys.AddMSecToTime(TempTime, 10)), IS.Sys.DateTimeToStr(TempTime.AddMilliseconds(10)), "3");
 		}
 
 		[NF.Test]
@@ -126,7 +126,7 @@ namespace Indy.Tests
 		public void StrToDateTime()
 		{
 			DateTime Temp = DateTime.Now;
-			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.StrToDateTime(Temp.ToString()), Temp));
+			NF.Assert.AreEqual(IS.Sys.DateTimeToStr(IS.Sys.StrToDateTime(Temp.ToString())), IS.Sys.DateTimeToStr(Temp));
 		}
 
 		[NF.Test]
