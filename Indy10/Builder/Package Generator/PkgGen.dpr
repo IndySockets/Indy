@@ -118,7 +118,7 @@ begin
       finally Free; end;
 
       with TPackageD8Master.Create do try
-        Load(tablFile, 'DotNet=True and DesignUnit=False', True);
+        Load(tablFile, 'DelphiDotNet=True and DesignUnit=False', True);
         Generate([ctDelphi2005Net]);
       finally Free; end;
 
@@ -126,7 +126,7 @@ begin
         Load(tablFile, 'VCL=True and Pkg=''System'' and DesignUnit=False');
         Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005]);
         //
-        Load(tablFile, 'DotNet=True and Pkg=''System'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''System'' and DesignUnit=False');
         Generate([ctDelphi2005Net]);
       finally Free; end;
 
@@ -134,13 +134,13 @@ begin
         Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=False');
         Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005]);
         //
-        Load(tablFile, 'DotNet=True and Pkg=''Core'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=False');
         Generate([ctDelphi2005Net]);
         //
         Load(tablFile, 'VCL=True and Pkg=''Core'' and DesignUnit=True');
         GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005]);
         //
-        Load(tablFile, 'DotNet=True and Pkg=''Core'' and DesignUnit=True');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Core'' and DesignUnit=True');
         GenerateDT([ctDelphi2005Net]);
       finally Free; end;
 
@@ -148,22 +148,22 @@ begin
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=False');
         Generate([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005]);
 
-        Load(tablFile, 'DotNet=True and Pkg=''Protocols'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=False');
         Generate([ctDelphi2005Net]);
 
         Load(tablFile, 'VCL=True and Pkg=''Protocols'' and DesignUnit=True');
         GenerateDT([ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005]);
 
-        Load(tablFile, 'DotNet=True and Pkg=''Protocols'' and DesignUnit=True');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Protocols'' and DesignUnit=True');
         GenerateDT([ctDelphi2005Net]);
       finally Free; end;
 
       with TPackageSecurity.Create do try
 
-        Load(tablFile, 'DotNet=True and Pkg=''Security'' and DesignUnit=False');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Security'' and DesignUnit=False');
         Generate([ctDelphi2005Net]);
 
-        Load(tablFile, 'DotNet=True and Pkg=''Security'' and DesignUnit=True');
+        Load(tablFile, 'DelphiDotNet=True and Pkg=''Security'' and DesignUnit=True');
 
         GenerateDT([ctDelphi2005Net]);
       finally Free; end;
