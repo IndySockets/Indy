@@ -478,7 +478,6 @@ type
     FResponseCode: Integer;
     FRequest: TIdHTTPRequest;
     FResponse: TIdHTTPResponse;
-    FOnHeadersAvailable: TIdHTTPOnHeadersAvailable;
   public
     constructor Create(AConnection: TIdCustomHTTP);
     destructor Destroy; override;
@@ -489,8 +488,6 @@ type
     property ResponseCode: Integer read FResponseCode;
     property Request: TIdHTTPRequest read FRequest;
     property Response: TIdHTTPResponse read FResponse;
-    //
-    property OnHeadersAvailable: TIdHTTPOnHeadersAvailable read FOnHeadersAvailable write FOnHeadersAvailable;
   end;
 
   TIdCustomHTTP = class(TIdTCPClientCustom)
@@ -540,7 +537,6 @@ type
     function DoOnAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnProxyAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnRedirect(var Location: string; var VMethod: TIdHTTPMethod; RedirectCount: integer): boolean; virtual;
-    procedure DoOnHeadersAvailable(Sender: TObject; AHeaders: TIdHeaderList; var VContinue: Boolean);
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
@@ -862,14 +858,6 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.DoOnHeadersAvailable(Sender: TObject; AHeaders: TIdHeaderList; var VContinue: Boolean);
-begin
-  VContinue := True;
-  if Assigned(FOnHeadersAvailable) then begin
-    FOnHeadersAvailable(Self, AHeaders, VContinue);
-  end;
-end;
-
 procedure TIdCustomHTTP.SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
 var
   S: string;
@@ -1187,7 +1175,6 @@ begin
     LLocalHTTP := TIdHTTPProtocol.Create(Self);
 
     with LLocalHTTP do begin
-      OnHeadersAvailable := DoOnHeadersAvailable;
       Request.UserAgent := ARequest.UserAgent;
       Request.Host := ARequest.Host;
       Request.ContentLength := ARequest.ContentLength;
@@ -1780,8 +1767,8 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
   function HeadersCanContinue: Boolean;
   begin
     Result := True;
-    if Assigned(FOnHeadersAvailable) then begin
-      FOnHeadersAvailable(Self, Response.RawHeaders, Result);
+    if Assigned(FHTTP.OnHeadersAvailable) then begin
+      FHTTP.OnHeadersAvailable(FHTTP, Response.RawHeaders, Result);
     end;
   end;
 
