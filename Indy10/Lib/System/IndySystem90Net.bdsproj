@@ -171,6 +171,10 @@
 		</VersionInfoKeys>  
     
     
+    
+    
+    
+    
     <FileList>
       <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.Delphi" AssemblyName="Borland.Delphi" Version="9.0.1882.30496" LinkUnits="False"/>
       <File FileName="c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Borland.VclRtl" AssemblyName="Borland.VclRtl" Version="9.0.1882.30496" LinkUnits="False"/>
@@ -179,6 +183,9 @@
       <File FileName="IdComponent.pas" ContainerId="" ModuleName="IdComponent"/>
       <File FileName="IdException.pas" ContainerId="" ModuleName="IdException"/>
       <File FileName="IdGlobal.pas" ContainerId="" ModuleName="IdGlobal"/>
+      <File FileName="IdObjs.pas" ContainerId="" ModuleName="IdObjs"/>
+      <File FileName="IdObjsBase.pas" ContainerId="" ModuleName="IdObjsBase"/>
+      <File FileName="IdObjsVCL.pas" ContainerId="" ModuleName="IdObjsVCL"/>
       <File FileName="IdResourceStrings.pas" ContainerId="" ModuleName="IdResourceStrings"/>
       <File FileName="IdStack.pas" ContainerId="" ModuleName="IdStack"/>
       <File FileName="IdStackConsts.pas" ContainerId="" ModuleName="IdStackConsts"/>
@@ -187,11 +194,11 @@
       <File FileName="IdStreamRandomAccess.pas" ContainerId="" ModuleName="IdStreamRandomAccess"/>
       <File FileName="IdStreamVCL.pas" ContainerId="" ModuleName="IdStreamVCL"/>
       <File FileName="IdStreamVCLBase.pas" ContainerId="" ModuleName="IdStreamVCLBase"/>
-      <File FileName="IdStreamVCLDotNet.pas" ContainerId="" ModuleName="IdStreamVCLDotNet"/>
-      <File FileName="IdTStrings.pas" ContainerId="" ModuleName="IdTStrings"/>
-      <File FileName="IdSysNet.pas" ContainerId="" ModuleName="IdSysNet"/>
+      <File FileName="IdStreamVCLDotNET.pas" ContainerId="" ModuleName="IdStreamVCLDotNet"/>
       <File FileName="IdSys.pas" ContainerId="" ModuleName="IdSys"/>
       <File FileName="IdSysBase.pas" ContainerId="" ModuleName="IdSysBase"/>
+      <File FileName="IdSysVCL.pas" ContainerId="" ModuleName="IdSysVCL"/>
+      <File FileName="IdTStrings.pas" ContainerId="" ModuleName="IdTStrings"/>
     </FileList>
   </DelphiDotNet.Personality>
 </BorlandProject>
