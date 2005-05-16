@@ -37,7 +37,7 @@ contains
   IdGlobal in 'IdGlobal.pas',
   IdObjs in 'IdObjs.pas',
   IdObjsBase in 'IdObjsBase.pas',
-  IdObjsNET in 'IdObjsNET.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackConsts in 'IdStackConsts.pas',
@@ -49,7 +49,7 @@ contains
   IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
-  IdSysNet in 'IdSysNet.pas',
+  IdSysVCL in 'IdSysVCL.pas',
   IdTStrings in 'IdTStrings.pas';
 {$I IdSystem90ASM90.inc}
 
