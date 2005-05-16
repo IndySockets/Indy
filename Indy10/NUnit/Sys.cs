@@ -17,7 +17,7 @@ namespace Indy.Tests
 		{
 			NF.Assert.AreEqual(IS.Sys.Format("%s", new object[]{"Hello, World!"}), "Hello, World!");
 			NF.Assert.AreEqual(IS.Sys.Format("%d", 43), "43");
-			NF.Assert.AreEqual(IS.Sys.Format("%x", 255), "FF");
+			NF.Assert.AreEqual(IS.Sys.Format("%x", 255), "ff");
 		}
 
 		[NF.Test]
@@ -39,8 +39,9 @@ namespace Indy.Tests
 		public void AddMSecToTime()
 		{
 			DateTime TempTime = DateTime.Now;
-			NF.Assert.AreEqual(IS.Sys.AddMSecToTime(TempTime, 1000), TempTime.AddMilliseconds(1000));
-			NF.Assert.AreEqual(IS.Sys.AddMSecToTime(TempTime, 1000000), TempTime.AddMilliseconds(1000000));
+			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.AddMSecToTime(TempTime, 0), TempTime.AddMilliseconds(0)), "1");
+			NF.Assert.IsTrue(DateTime.Equals(((DateTime)IS.Sys.AddMSecToTime(TempTime, 1)), ((DateTime)TempTime.AddMilliseconds(1))), "2");
+			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.AddMSecToTime(TempTime, 10), TempTime.AddMilliseconds(10)), "3");
 		}
 
 		[NF.Test]
@@ -101,7 +102,7 @@ namespace Indy.Tests
 			ushort AMin = 15;
 			ushort ASec = 30;
 			ushort AMSec = 50;
-			NF.Assert.AreEqual(IS.Sys.EncodeTime(AHour, AMin, ASec, AMSec), new DateTime(0, 0, 0, AHour, AMin, ASec, AMSec));
+			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.EncodeTime(AHour, AMin, ASec, AMSec), new DateTime(1899, 12, 30, AHour, AMin, ASec, AMSec)));
 		}
 
 
@@ -111,7 +112,7 @@ namespace Indy.Tests
 			ushort AYear = 2005;
 			ushort AMonth = 3;
 			ushort ADay = 20;
-			NF.Assert.AreEqual(IS.Sys.EncodeDate(AYear, AMonth, ADay), new DateTime(AYear, AMonth, ADay));
+			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.EncodeDate(AYear, AMonth, ADay), new DateTime(AYear, AMonth, ADay)));
 		}
 
 		[NF.Test]
@@ -125,13 +126,13 @@ namespace Indy.Tests
 		public void StrToDateTime()
 		{
 			DateTime Temp = DateTime.Now;
-			NF.Assert.AreEqual(IS.Sys.StrToDateTime(Temp.ToString()), Temp);
+			NF.Assert.IsTrue(DateTime.Equals(IS.Sys.StrToDateTime(Temp.ToString()), Temp));
 		}
 
 		[NF.Test]
 		public void DayOfWeek()
 		{
-			NF.Assert.AreEqual(IS.Sys.DayOfWeek(DateTime.Now), DateTime.Now.DayOfWeek);
+			NF.Assert.AreEqual(IS.Sys.DayOfWeek(DateTime.Now), ((int)DateTime.Now.DayOfWeek) + 1);
 		}
 
 		[NF.Test]
@@ -183,7 +184,7 @@ namespace Indy.Tests
 		[NF.Test]
 		public void LowerCase()
 		{
-			NF.Assert.AreEqual(IS.Sys.LowerCase("Helo, World!"), "hello, world!");
+			NF.Assert.AreEqual(IS.Sys.LowerCase("Hello, World!"), "hello, world!");
 			NF.Assert.AreEqual(IS.Sys.LowerCase("a"), "a");
 		}
 
