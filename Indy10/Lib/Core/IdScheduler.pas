@@ -144,7 +144,7 @@ begin
       if Count = 0 then begin
         Break;
       end;
-      for i := 0 to Count - 1 do begin
+      for i := Count - 1 downto 0 do begin
         TerminateYarn(TIdYarn(Items[i]));
       end;
     finally FActiveYarns.UnlockList; end;
