@@ -254,6 +254,7 @@ procedure TIdSchedulerOfThread.TerminateYarn(AYarn: TIdYarn);
 var
   LYarn: TIdYarnOfThread;
 begin
+  Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
   if LYarn.Thread.Suspended then begin
     // If suspended, was created but never started
