@@ -1246,7 +1246,7 @@ begin
       Inc(Yr, 1900);
     end;
 
-    Result := Sys.EncodeDate(Yr, Mo, Dt);
+    Result := TDateTime(Sys.EncodeDate(Yr, Mo, Dt));
     // SG 26/9/00: Changed so that ANY time format is accepted
     if IndyPos('AM', Value)>0 then {do not localize}
     begin
@@ -1292,7 +1292,7 @@ begin
         end;
       end;
       {The date and time stamp returned}
-      Result := Result + Sys.EncodeTime(Ho, Min, Sec, 0);
+      Result := Result + TDateTime(Sys.EncodeTime(Ho, Min, Sec, 0));
     end;
     Value := Sys.TrimLeft(Value);
   except
@@ -1381,7 +1381,7 @@ begin
       Fetch(LBuffer,'.');
       LMSec := Sys.StrToInt(LBuffer,0);
       Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
+      Result := Result + TDateTime(Sys.EncodeTime(LHour,LMin,LSec,LMSec));
   end;
 end;
 

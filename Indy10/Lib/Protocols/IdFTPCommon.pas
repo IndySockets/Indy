@@ -1246,7 +1246,7 @@ begin
       Fetch(LBuffer,'.');
       LMSec := Sys.StrToInt(LBuffer,0);
       Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
+      Result := Result + TDateTime(Sys.EncodeTime(LHour,LMin,LSec,LMSec));
       if LOffset='' then
       begin
         Result := Result - OffsetFromUTC;

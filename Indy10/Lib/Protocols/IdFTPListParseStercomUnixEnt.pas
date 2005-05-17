@@ -213,7 +213,7 @@ begin
   end;
   LI.FileName := LBuf;
   LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
-  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,wSec,0);
+  LI.ModifiedDate := LI.ModifiedDate + TDateTime(Sys.EncodeTime(wHour,wMin,wSec,0));
   Result := True;
 end;
 
@@ -376,7 +376,7 @@ begin
   LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
   LHour := Sys.StrToInt(Copy(LBuf,1,2),0);
   LMin := Sys.StrToInt(Copy(LBuf,3,2),0);
-  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(LHour,LMin,0,0);
+  LI.ModifiedDate := LI.ModifiedDate + TDateTime(Sys.EncodeTime(LHour,LMin,0,0));
   Result := True;
 end;
 

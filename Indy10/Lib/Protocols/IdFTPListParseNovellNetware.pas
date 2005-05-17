@@ -235,7 +235,7 @@ begin
           wMin := Sys.StrToInt(Fetch(LBuf,':'),wMin);
         end;
         LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
-        LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,0,0);
+        LI.ModifiedDate := LI.ModifiedDate + TDateTime(Sys.EncodeTime(wHour,wMin,0,0));
         //Note that I doubt a file name can start with a space in Novel/
         //Netware.  Some code I've seen strips those off.
         for NameStartPos := NameStartIdx to Strs.Count -1 do
