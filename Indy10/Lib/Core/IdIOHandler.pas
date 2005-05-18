@@ -963,7 +963,7 @@ end;
 procedure TIdIOHandler.Write(AValue: Int64; AConvert: Boolean = True);
 begin
   if AConvert then begin
-    AValue := Integer(GStack.HostToNetwork(LongWord(AValue)));
+    AValue := GStack.HostToNetwork(AValue);
   end;
   Write(ToBytes(AValue));
 end;
@@ -1055,7 +1055,7 @@ begin
   ReadBytes(LBytes, SizeOf(Int64), False);
   Result := BytesToInt64(LBytes);
   if AConvert then begin
-    Result := Integer(GStack.NetworkToHost(LongWord(Result)));
+    Result := GStack.NetworkToHost(Result);
   end;
 end;
 
@@ -1227,6 +1227,8 @@ procedure TIdIOHandler.ReadBytes(
   AByteCount: Integer;
   AAppend: Boolean = True);
 begin
+  Assert(FInputBuffer<>nil);
+  
   if AByteCount > 0 then begin
     // Read from stack until we have enough data
     while FInputBuffer.Size < AByteCount do begin
