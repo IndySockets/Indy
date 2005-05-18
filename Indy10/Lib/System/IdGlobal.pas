@@ -2699,8 +2699,8 @@ begin
   {$IFDEF DotNet}
   Result := System.BitConverter.GetBytes(AValue);
   {$ELSE}
-  SetLength(Result, SizeOf(Shortint));
-  PShortint(@Result[0])^ := AValue;
+  SetLength(Result, SizeOf(SmallInt));
+  PSmallInt(@Result[0])^ := AValue;
   {$ENDIF}
 end;
 
@@ -2868,7 +2868,7 @@ begin
   {$IFDEF DotNet}
   Result := System.BitConverter.ToInt16(AValue, AIndex);
   {$ELSE}
-  Result := PShortint(@AValue[AIndex])^;
+  Result := PSmallInt(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
