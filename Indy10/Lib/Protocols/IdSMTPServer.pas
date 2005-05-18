@@ -954,7 +954,7 @@ begin
         ReplaceOld[6] := '$svripaddress';
         ReplaceNew[6] := ASender.Context.Binding.IP;
 
-        Sys.StringReplace(ReceivedString,ReplaceOld,ReplaceNew);
+        ReceivedString:=Sys.StringReplace(ReceivedString,ReplaceOld,ReplaceNew);
         WriteStringToStream(AMsg, ReceivedString + EOL);
        End;
       AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
