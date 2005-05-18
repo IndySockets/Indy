@@ -46,8 +46,11 @@ interface
 
 uses
   Classes,
+  IdSys,
   IdGlobal,
-  IdUDPServer, IdSocketHandle, IdGlobalProtocols;
+  IdUDPServer,
+  IdSocketHandle,
+  IdGlobalProtocols;
 
 type
   TIdMappedPortUDP = class(TIdUDPServer)
@@ -99,7 +102,7 @@ begin
     if rcvData <> '' then begin    {Do not Localize}
       Send (ABinding.PeerIP, ABinding.PeerPort, rcvData);
     end;
-  finally OutboundClient.Destroy; end;
+  finally Sys.FreeAndNil(OutboundClient); end;
 end;
 
 end.
