@@ -607,7 +607,7 @@ function TIdStackBSDBase.ReceiveFrom(ASocket: TIdStackSocketHandle;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
   ): Integer;
 begin
-   Result :=  CheckForSocketError(RecvFrom(ASocket,VBuffer[0],Length(VBuffer),0,VIP,VPort));
+   Result :=  CheckForSocketError(RecvFrom(ASocket,VBuffer[0],Length(VBuffer),0,VIP,VPort,AIPVersion));
 end;
 
 function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
