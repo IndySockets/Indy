@@ -303,11 +303,12 @@ type
 implementation
 
 uses
-  IdCoreGlobal,
+  IdGlobalCore,
   IdGlobal,
+  IdGlobalProtocols,
   IdException,
   IdCoderMIME,
-  IdResourceStrings,
+  IdResourceStringsProtocols,
   IdHeaderList;
 
 var
@@ -1076,10 +1077,12 @@ end;
 initialization
   g := TSSPIInterface.Create;
   if g.IsAvailable then
-    RegisterAuthenticationMethod('NTLM', TIdSSPINTLMAuthentication); {do not localize}
+   RegisterAuthenticationMethod('NTLM', TIdSSPINTLMAuthentication); {do not localize}
+   RegisterAuthenticationMethod('Negotiate', TIdSSPINTLMAuthentication); {do not localize}
 finalization
   if g.IsAvailable then
     UnregisterAuthenticationMethod('NTLM'); {do not localize}
+    UnregisterAuthenticationMethod('Negotiate'); {do not localize}
   g.Free;
 end.
 
