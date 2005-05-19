@@ -38,7 +38,11 @@ unit IdAuthenticationSSPI;
 interface
 
 uses
-  IdAuthentication, Windows, Classes, SysUtils,
+  IdAuthentication,
+  Windows,
+  Classes,
+  SysUtils,
+  IdSys,
   IdSSPI;
 
 const
@@ -919,9 +923,9 @@ end;
 
 destructor TIndySSPINTLMClient.Destroy;
 begin
-  fContext.Free;
-  fCredentials.Free;
-  fNTLMPackage.Free;
+  Sys.FreeAndNil(fContext);
+  Sys.FreeAndNil(fCredentials);
+  Sys.FreeAndNil(fNTLMPackage);
   inherited Destroy;
 end;
 
@@ -1083,6 +1087,6 @@ finalization
   if g.IsAvailable then
     UnregisterAuthenticationMethod('NTLM'); {do not localize}
     UnregisterAuthenticationMethod('Negotiate'); {do not localize}
-  g.Free;
+  Sys.FreeAndNil(g);
 end.
 
