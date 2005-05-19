@@ -387,6 +387,7 @@ procedure TIdStackBSDBase.TranslateStringToTInAddr(AIP: string;
   var AInAddr; const AIPVersion: TIdIPVersion);
 var
   i: integer;
+  LW : Word;
 begin
   case AIPVersion of
     Id_IPv4: begin
@@ -400,8 +401,13 @@ begin
     Id_IPv6: begin
       AIP := MakeCanonicalIPv6Address(AIP);
       with TIdIn6Addr(AInAddr) do begin
+      //We don't call HostToNetwork with an arguement such as:
+      // Sys.StrToInt('$'+Fetch(AIP, ':')
+      //because that can actually be a Cardinal or possibly an Int64 value
+      //and it may be clear which overloaded function should be called.
         for i := 0 to 7 do begin
-          s6_addr16[i] := HostToNetwork(Sys.StrToInt('$'+Fetch(AIP, ':')));    {Do not Localize}
+          LW :=  Sys.StrToInt('$'+Fetch(AIP, ':'));
+          s6_addr16[i] := HostToNetwork(LW);    {Do not Localize}
         end;
       end;
     end;
