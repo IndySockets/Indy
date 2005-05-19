@@ -1626,7 +1626,7 @@ begin
   begin
     for i := 0 to CommandHandlers.Count -1 do
     begin
-      if Sys.UpperCase(ASender.Params[0])=Sys.UpperCase(CommandHandlers.Items[i].Command) then
+      if TextIsSame(ASender.Params[0], CommandHandlers.Items[i].Command) then
       begin
         if CommandHandlers.Items[i].HelpVisible and ShouldShowCommand(ASender.Params[0]) then
         begin
@@ -2953,29 +2953,30 @@ end;
 
 procedure TIdFTPServer.CommandALLO(ASender: TIdCommand);
 var
-  s: string;
+  LALLOSize, s: string;
 begin
   with TIdFTPServerContext(ASender.Context) do
   begin
     if IsAuthenticated(ASender) then
     begin
-      s := Sys.UpperCase(ASender.UnparsedParams);
-      if s<>'' then
+      LALLOSize := '';
+      if Length(ASender.UnparsedParams) > 0 then
       begin
-        case s[1] of
-        'R':    {Do not Localize}
-           begin
-             if s[2] = #32 then begin
-               FALLOSize := Sys.StrToInt(Copy(s, 2, Length(s) - 2), 0);
-             end;
-           end;
-        else
-          FALLOSize := Sys.StrToInt(ASender.UnparsedParams, 0);
+        s := Sys.UpperCase(ASender.UnparsedParams);
+        if Length(s) > 1 then
+        begin
+          if (s[1] = 'R') and (s[2] = #32) then begin    {Do not Localize}
+          begin
+            LALLOSize := Copy(s, 3, Length(s) - 2);
+          end;
+        end else begin
+          LALLOSize := s;
         end;
-        CmdCommandSuccessful(ASender,200);
-      end
-      else
-      begin
+      end;
+      if LALLOSize <> '' then begin
+        FALLOSize := Sys.StrToInt(LALLOSize, 0);
+        CmdCommandSuccessful(ASender, 200);
+      end else begin
         ASender.Reply.SetReply(504, RSFTPInvalidForParam);
       end;
     end;
@@ -3200,7 +3201,7 @@ begin
           end
           else
           begin
-            if (Sys.UpperCase(ASender.CommandHandler.Command)='LIST') or (LSwitches <> '') then {do not localize}
+            if TextIsSame(ASender.CommandHandler.Command, 'LIST') or (LSwitches <> '') then {do not localize}
             begin
               ASender.Reply.SetReply(125, RSFTPDataConnList);
             end
@@ -3225,7 +3226,7 @@ end;
 
 procedure TIdFTPServer.DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean=False);
 var
-  LStrStream: TIdStreamVCL; //used for TMemoryStream is faster than StringStream
+  LMemStream: TStream; //used for TMemoryStream is faster than StringStream
   LCxt : TIdFTPServerContext;
   LCmdQueue : TIdStrings;  //This is for commands that are queued for after the data channel connection
   LLine : String;
@@ -3253,20 +3254,17 @@ const DEF_BLOCKSIZE = 10240;
   var LStrm : TIdStreamVCL;
     LM : TStream;
   begin
-    if AContext.DataMode = dmDeflate then
-    begin
+    if AContext.DataMode = dmDeflate then begin
       LM := TMemoryStream.Create;
-    end
-    else
-    begin
+    end else begin
       LM := TStream(LCxt.FDataChannel.Data);
     end;
     LStrm := TIdStreamVCL.Create(LM);
     try
       repeat
-          AContext.FDataChannel.FDataChannel.IOHandler.CheckForDisconnect(False);
-          AContext.FDataChannel.FDataChannel.IOHandler.ReadStream(LStrm, DEF_BLOCKSIZE, True);
-          CheckControlConnection(AContext,ACmdQueue);
+        AContext.FDataChannel.FDataChannel.IOHandler.CheckForDisconnect(False);
+        AContext.FDataChannel.FDataChannel.IOHandler.ReadStream(LStrm, DEF_BLOCKSIZE, True);
+        CheckControlConnection(AContext,ACmdQueue);
       until not AContext.FDataChannel.FDataChannel.IOHandler.Connected;
       if AContext.DataMode = dmDeflate then
       begin
@@ -3356,22 +3354,16 @@ const DEF_BLOCKSIZE = 10240;
     begin
       if AContext.FDataChannel.FDataChannel.IOHandler.Connected then
       begin
-
         AContext.FDataChannel.FDataChannel.IOHandler.WriteLn(AStrings[i]);
         if (i mod 10=0) and (i<> AStrings.Count-1) then
         begin
-          if AContext.FDataChannel.FDataChannel.IOHandler.Connected then
-          begin
-            CheckControlConnection(AContext,ACmdQueue);
-          end
-          else
-          begin
+          if AContext.FDataChannel.FDataChannel.IOHandler.Connected then begin
+            CheckControlConnection(AContext, ACmdQueue);
+          end else begin
             Break;
           end;
         end;
-      end
-      else
-      begin
+      end else begin
         Break;
       end;
     end;
@@ -3390,108 +3382,89 @@ begin
   end;
   try
     LCmdQueue := TIdStringList.Create;
-    LCxt.FDataChannel.InitOperation(AConnectMode);
-  try
     try
       try
+        LCxt.FDataChannel.InitOperation(AConnectMode);
         try
-          if LCxt.FDataChannel.Data is TStream then begin
-            LStrm := TIdStreamVCL.Create( LCxt.FDataChannel.Data as TStream);
-            try
+          try
+            if LCxt.FDataChannel.Data is TStream then begin
+              LStrm := TIdStreamVCL.Create(LCxt.FDataChannel.Data as TStream);
+              try
+                case LCxt.FDataChannel.FFtpOperation of
+                  ftpRetr:
+                    WriteToStream(LCxt, LCmdQueue, LStrm);
+                  ftpStor:
+                    ReadFromStream(LCxt, LCmdQueue, LStrm);
+                end;
+              finally
+                Sys.FreeAndNil(LStrm);
+              end;
+            end else begin
               case LCxt.FDataChannel.FFtpOperation of
                 ftpRetr:
                   if Assigned(LCxt.FDataChannel.Data) then
                   begin
-                    WriteToStream(LCxt,LCmdQueue,LStrm);
+                    WriteStrings(LCxt, LCmdQueue, LCxt.FDataChannel.Data as TIdStrings);
+           //       LCxt.FDataChannel.FDataChannel.IOHandler.WriteStrings(LCxt.FDataChannel.Data as TIdStrings);
                   end;
                 ftpStor:
-                begin
                   if Assigned(LCxt.FDataChannel.Data) then
                   begin
-                    ReadFromStream(LCxt,LCmdQueue,LStrm);
-                  end;
-                 end;
-               end;
-            finally
-              Sys.FreeAndNil(LStrm);
-            end;
-          end else begin
-            case LCxt.FDataChannel.FFtpOperation of
-              ftpRetr:
-                if Assigned(LCxt.FDataChannel.Data) then
-                begin
-                  WriteStrings(LCxt,LCmdQueue,LCxt.FDataChannel.Data as TIdStrings);
-           //       LCxt.FDataChannel.FDataChannel.IOHandler.WriteStrings(LCxt.FDataChannel.Data as TIdStrings);
-                end;
-              ftpStor:
-                begin
-                if Assigned(LCxt.FDataChannel.Data) then
-                  LStrStream := TIdStreamVCL.Create( TMemoryStream.Create,True);
-                  try
-                    LStrm := TIdStreamVCL.Create( LCxt.FDataChannel.Data as TStream);
+                    LMemStream := TMemoryStream.Create;
                     try
-                      ReadFromStream(LCxt,LCmdQueue,LStrm);
-                //    LCxt.FDataChannel.FDataChannel.IOHandler.ReadStream(LStrStream, -1, True);
-       //TODO;
-       //             SplitLines(LStrStream.Memory, LStrStream.Size,TIdStrings( LCxt.FDataChannel.FData));
+                      LStrm := TIdStreamVCL.Create(LMemStream);
+                      try
+                        ReadFromStream(LCxt, LCmdQueue, LStrm);
+        //TODO;
+        //              SplitLines(LMemStream.Memory, LMemStream.Size, TIdStrings(LCxt.FDataChannel.FData));
+                      finally
+                        Sys.FreeAndNil(LStrm);
+                      end;
                     finally
-                      Sys.FreeAndNil(LStrm);
+                      Sys.FreeAndNil(LMemStream);
                     end;
-                  finally
-                    Sys.FreeAndNil(LStrStream);
-                  end;
-                end;//ftpStor
-            end;//case
+                  end;//ftpStor
+              end;//case
+            end;
+          finally
+            if assigned(LCxt.FDataChannel.FDataChannel) then begin
+              LCxt.FDataChannel.FDataChannel.Disconnect;
+            end;
           end;
-        finally
-          Sys.FreeAndNil(LCxt.FDataChannel.FData );
+          LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FOKReply); //226
+        except
+          On E: Exception do
+          begin
+            if not (E is EIdSilentException) then begin
+              LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FErrorReply); //426
+            end;
+          end;
         end;
       finally
-        if assigned(LCxt.FDataChannel.FDataChannel) then
-        begin
-          LCxt.FDataChannel.FDataChannel.Disconnect;
+        ASender.Reply.Assign(LCxt.FDataChannel.FReply);
+        ASender.SendReply;
+        //now we have to handle the FIFO queue we had made
+        while LCmdQueue.Count > 0 do begin
+          LLine := LCmdQueue[0];
+          if not FCommandHandlers.HandleCommand(ASender.Context, LLine) then begin
+            DoReplyUnknownCommand(ASender.Context, LLine);
+          end;
+          if Assigned(ASender.Context.Connection) then begin
+            if not ASender.Context.Connection.Connected then begin
+              Break;
+            end;
+          end else begin
+            Break;
+          end;
+          LCmdQueue.Delete(0);
         end;
       end;
-      LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FOKReply); //226
-    except
-      On E: Exception do
-      begin
-        if E is EIdSilentException then
-        begin
-        end
-        else
-        begin
-          LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FErrorReply); //426
-        end;
-      end;
+    finally
+      Sys.FreeAndNil(LCmdQueue);
     end;
   finally
-  end;
-  finally
-    ASender.Reply.Assign(LCxt.FDataChannel.FReply);
-    ASender.SendReply;
+    Sys.FreeAndNil(LCxt.FDataChannel.FData);
     Sys.FreeAndNil(LCxt.FDataChannel);
-    //now we have to handle the FIFO queue we had made
-    repeat
-      if LCmdQueue.Count = 0 then
-      begin
-        Break;
-      end;
-      LLine := LCmdQueue[0];
-      if not FCommandHandlers.HandleCommand(ASender.Context, LLine) then begin
-        DoReplyUnknownCommand(ASender.Context, LLine);
-      end;
-      if Assigned(ASender.Context.Connection) then begin
-        if not ASender.Context.Connection.Connected then
-        begin
-          Break;
-        end;
-      end else begin
-        Break;
-      end;
-      LCmdQueue.Delete(0);
-    until False;
-    Sys.FreeAndNil(LCmdQueue);
   end;
 end;
 
@@ -3740,7 +3713,7 @@ var LCmd : String;
 begin
   LCmd := ASender.UnparsedParams;
   ASender.Reply.Clear;
-  if (Sys.UpperCase(Fetch(LCmd, ' ', False)) = 'MLST') then begin {do not localize}
+  if TextIsSame(Fetch(LCmd, ' ', False), 'MLST') then begin {do not localize}
     //just in case the user doesn't create a ListDirectory event.
     if not Assigned(FOnListDirectory) then begin
       ASender.Reply.SetReply(501, RSFTPOptNotRecog);
@@ -3917,7 +3890,7 @@ begin
              Exit;
            end;
         -1: begin
-              if Sys.UpperCase(LParam) = 'ALL' then begin { do not localize }
+              if TextIsSame(LParam, 'ALL') then begin { do not localize }
                 LF.FEPSVAll := True;
                 ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
               end else if GStack.SupportsIPv6 then begin
