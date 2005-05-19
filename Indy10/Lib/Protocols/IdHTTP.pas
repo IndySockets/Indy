@@ -1432,10 +1432,12 @@ begin
       OnSelectProxyAuthorization(self, Auth, AResponse.ProxyAuthenticate);
     end;
 
-    ProxyParams.Authentication := Auth.Create;
+    if Assigned(Auth) then begin
+      ProxyParams.Authentication := Auth.Create;
+    end;
   end;
 
-  result := Assigned(OnProxyAuthorization);
+  result := Assigned(ProxyParams.Authentication) and  Assigned(OnProxyAuthorization);
 
   // Clear password and reset autorization if previous failed
   if (AResponse.FResponseCode = 407) then begin
@@ -1741,7 +1743,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
           end;
         end;
       end;
-      raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
+\      raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
     finally
       Response.ContentStream := LTempStream;
       Sys.FreeAndNil(LRespStream);
