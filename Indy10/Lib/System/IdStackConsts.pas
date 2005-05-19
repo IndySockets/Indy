@@ -86,6 +86,7 @@ uses
   Libc;
  {$ENDIF}
  {$IFDEF MSWINDOWS}
+ IdWship6, //for some constants that supplement IdWinsock
   IdWinsock2;
  {$ENDIF}
  {$IFDEF DOTNET}
@@ -101,18 +102,40 @@ var
 
 const
   {$IFDEF DOTNET}
+    Id_IPV6_UNICAST_HOPS = System.Net.Sockets.SocketOptionName.IpTimeToLive;
+
+    Id_IPV6_MULTICAST_IF = System.Net.Sockets.SocketOptionName.MulticastInterface;
+    Id_IPV6_MULTICAST_HOPS = System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
+    Id_IPV6_MULTICAST_LOOP = System.Net.Sockets.SocketOptionName.MulticastLoopback;
+    Id_IPV6_ADD_MEMBERSHIP = System.Net.Sockets.SocketOptionName.SocketOptionName.AddMembership;
+    Id_IPV6_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.SocketOptionName.DropMembership;
+    Id_IPV6_PKTINFO = System.Net.Sockets.SocketOptionName.SocketOptionName.PacketInformation;
      Id_IP_MULTICAST_TTL =    System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
      Id_IP_MULTICAST_LOOP =   System.Net.Sockets.SocketOptionName.MulticastLoopback;
      Id_IP_ADD_MEMBERSHIP =   System.Net.Sockets.SocketOptionName.AddMembership;
       Id_IP_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.DropMembership;
   {$ENDIF}
   {$IFDEF LINUX}
+    Id_IPV6_UNICAST_HOPS = IPV6_UNICAST_HOPS;
+    Id_IPV6_MULTICAST_IF = IPV6_MULTICAST_IF;
+    Id_IPV6_MULTICAST_HOPS = IPV6_MULTICAST_HOPS;
+    Id_IPV6_MULTICAST_LOOP = IPV6_MULTICAST_LOOP;
+    Id_IPV6_ADD_MEMBERSHIP = IPV6_ADD_MEMBERSHIP;
+    Id_IPV6_DROP_MEMBERSHIP = IPV6_DROP_MEMBERSHIP;
+    Id_IPV6_PKTINFO = IPV6_PKTINFO;
     Id_IP_MULTICAST_TTL = IP_MULTICAST_TTL; // TODO integrate into IdStackConsts
     Id_IP_MULTICAST_LOOP = IP_MULTICAST_LOOP; // TODO integrate into IdStackConsts
     Id_IP_ADD_MEMBERSHIP = IP_ADD_MEMBERSHIP; // TODO integrate into IdStackConsts
     Id_IP_DROP_MEMBERSHIP = IP_DROP_MEMBERSHIP; // TODO integrate into IdStackConsts
   {$ENDIF}
   {$IFDEF MSWINDOWS}
+    Id_IPV6_UNICAST_HOPS = IPV6_UNICAST_HOPS;
+    Id_IPV6_MULTICAST_IF = IPV6_MULTICAST_IF;
+    Id_IPV6_MULTICAST_HOPS = IPV6_MULTICAST_HOPS;
+    Id_IPV6_MULTICAST_LOOP = IPV6_MULTICAST_LOOP;
+    Id_IPV6_ADD_MEMBERSHIP = IPV6_ADD_MEMBERSHIP;
+    Id_IPV6_DROP_MEMBERSHIP = IPV6_DROP_MEMBERSHIP;
+    Id_IPV6_PKTINFO = IPV6_PKTINFO;
     Id_IP_MULTICAST_TTL = 10; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
     Id_IP_MULTICAST_LOOP = 11; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
     Id_IP_ADD_MEMBERSHIP = 12; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
@@ -160,6 +183,7 @@ const
   Id_SOCK_RDM        = SOCK_RDM;         //4               /* reliably-delivered message */
   Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
   {$ELSE}
+
   Id_SOCK_STREAM     = SocketType.Stream;         // /* stream socket */
   Id_SOCK_DGRAM      = SocketType.Dgram;          // /* datagram socket */
   Id_SOCK_RAW        = SocketType.Raw;            // /* raw-protocol interface */
@@ -175,20 +199,38 @@ type
   
 const
   {$ifndef DOTNET}
-  Id_IPPROTO_IP = IPPROTO_IP;
+  Id_IPPROTO_GGP =  IPPROTO_GGP;
   Id_IPPROTO_ICMP = IPPROTO_ICMP;
+  Id_IPPROTO_ICMPV6 = IPPROTO_ICMPV6;
+  Id_IPPROTO_IDP = IPPROTO_IDP;
   Id_IPPROTO_IGMP = IPPROTO_IGMP;
+  Id_IPPROTO_IP = IPPROTO_IP;
+  Id_IPPROTO_IPv6 = IPPROTO_IPV6;
+  Id_IPPROTO_ND = IPPROTO_ND;
+  Id_IPPROTO_PUP = IPPROTO_PUP;
+  Id_IPPROTO_RAW = IPPROTO_RAW;
   Id_IPPROTO_TCP = IPPROTO_TCP;
   Id_IPPROTO_UDP = IPPROTO_UDP;
-  Id_IPPROTO_RAW = IPPROTO_RAW;
+
   Id_IPPROTO_MAX = IPPROTO_MAX;
   {$else}
-  Id_IPPROTO_IP = ProtocolType.IP;
-  Id_IPPROTO_ICMP = ProtocolType.Icmp;
-  Id_IPPROTO_IGMP = ProtocolType.Igmp;
-  Id_IPPROTO_TCP = ProtocolType.Tcp;
-  Id_IPPROTO_UDP = ProtocolType.Udp;
-  Id_IPPROTO_RAW = ProtocolType.Raw;
+  Id_IPPROTO_GGP = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
+  Id_IPPROTO_ICMP = ProtocolType.Icmp; //Internet Control Message Protocol.
+  Id_IPPROTO_IDP =  ProtocolType.Idp;   //IDP Protocol.
+  Id_IPPROTO_IGMP = ProtocolType.Igmp; //Internet Group Management Protocol.
+  Id_IPPROTO_IP = ProtocolType.IP;     //Internet Protocol.
+  Id_IPPROTO_IPv6 = ProtocolType.IPv6;
+  Id_IPPROTO_IPX =  ProtocolType.Ipx; //IPX Protocol.
+  Id_IPPROTO_ND  = ProtocolType.ND;  //Net Disk Protocol (unofficial).
+  Id_IPPROTO_PUP = ProtocolType.Pup; //PUP Protocol.
+  Id_IPPROTO_RAW = ProtocolType.Raw;  //Raw UP packet protocol.
+  Id_IPPROTO_SPX = ProtocolType.Spx;  //SPX Protocol.
+  Id_IPPROTO_SPXII = ProtocolType.SpxII; //SPX Version 2 Protocol.
+  Id_IPPROTO_TCP = ProtocolType.Tcp;  //Transmission Control Protocol.
+  Id_IPPROTO_UDP = ProtocolType.Udp;  //User Datagram Protocol.
+  Id_IPPROTO_UNKNOWN = ProtocolType.Unknown; //Unknown protocol.
+  Id_IPPROTO_UNSPECIFIED = ProtocolType.Unspecified; //unspecified protocol.
+
 //  Id_IPPROTO_MAX = ProtocolType.; ?????????????????????
   {$endif}
 
@@ -196,9 +238,15 @@ const
   {$ifndef DOTNET}
   Id_SOL_SOCKET = SOL_SOCKET;
   Id_SOL_IP  = IPPROTO_IP;
+  Id_SOL_IPv6 = IPPROTO_IPV6;
+  Id_SOL_TCP  = IPPROTO_TCP;
+  Id_SOL_UDP  = IPPROTO_UDP;
   {$else}
   Id_SOL_SOCKET = SocketOptionLevel.Socket;
   Id_SOL_IP = SocketOptionLevel.Ip;
+  Id_SOL_IPv6 = SocketOptionLevel.IPv6;
+  Id_SOL_TCP = SocketOptionLevel.Tcp;
+  Id_SOL_UDP = SocketOptionLevel.Udp;
   {$endif}
 
   // Socket options
@@ -268,9 +316,9 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$endif}
 
   {$ifndef DOTNET}
-  Id_IP_TTL              = IP_TTL;
+  Id_SO_IP_TTL              = IP_TTL;
   {$else}
-  Id_IP_TTL              = SocketOptionName.IpTimeToLive; //  Set the IP header time-to-live field.
+  Id_SO_IP_TTL              = SocketOptionName.IpTimeToLive; //  Set the IP header time-to-live field.
   {$endif}
 
   //

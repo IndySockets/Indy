@@ -86,6 +86,7 @@ const
 // Socket options at the IPPROTO_IPV6 level.
 //
 const
+  IPV6_UNICAST_HOPS      = 4 ; // Set/get IP unicast hop limit.
   IPV6_MULTICAST_IF      = 9 ;  // Set/get IP multicast interface.
   IPV6_MULTICAST_HOPS    = 10 ; // Set/get IP multicast ttl.
   IPV6_MULTICAST_LOOP    = 11 ; // Set/get IP multicast loopback.
@@ -93,7 +94,7 @@ const
   IPV6_DROP_MEMBERSHIP   = 13 ; // Drop an IP group membership.
   IPV6_JOIN_GROUP        = IPV6_ADD_MEMBERSHIP;
   IPV6_LEAVE_GROUP       = IPV6_DROP_MEMBERSHIP;
-
+  IPV6_PKTINFO           = 19;
 //
 // Socket options at the IPPROTO_UDP level.
 //
@@ -116,7 +117,12 @@ type
     ai_addr: psockaddr;
     ai_next: paddrinfo;
   end;
-
+///* Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP */
+  Pipv6_mreq = ^Tipv6_mreq;
+  Tipv6_mreq = packed record
+     ipv6mr_multiaddr : in6_addr; // IPv6 multicast address.
+     ipv6mr_interface : Cardinal;  //// Interface index.
+  end;
 
 //function getaddrinfo( NodeName: pchar; ServName: pchar; Hints: Paddrinfo; addrinfo: PPaddrinfo ) : integer; stdcall; external Wship6_dll;
 //function getnameinfo( sa: psockaddr; salen: cardinal; host: pchar; hostlen: cardinal; serv: pchar; servlen: cardinal;flags:integer ) : integer; stdcall; external Wship6_dll;
@@ -136,6 +142,7 @@ Type
  Tgetaddrinfo=function( NodeName: pchar; ServName: pchar; Hints: Paddrinfo; addrinfo: PPaddrinfo ) : integer; stdcall;
  Tgetnameinfo=function( sa: psockaddr; salen: cardinal; host: pchar; hostlen: cardinal; serv: pchar; servlen: cardinal;flags:integer ) : integer; stdcall;
  Tfreeaddrinfo=procedure(ai: Paddrinfo); stdcall;
+
 
 var
   getaddrinfo:Tgetaddrinfo=nil;

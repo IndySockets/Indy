@@ -610,7 +610,7 @@ function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
    // must use pointer(ABuffer)^, can't use ABuffer[0], because ABuffer may have a 0 length
-   WSSendTo(ASocket,pointer(ABuffer)^,Length(ABuffer),0,AIP,APort);
+   WSSendTo(ASocket,pointer(ABuffer)^,Length(ABuffer),0,AIP,APort,AIPVersion);
    Result := Length(ABuffer);
 end;
 
