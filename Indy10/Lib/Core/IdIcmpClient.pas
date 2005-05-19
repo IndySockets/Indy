@@ -62,9 +62,8 @@ uses
   IdGlobal,
   IdRawBase,
   IdRawClient,
-  //IdStackBSDBase,
   IdStackConsts,
-  SysUtils;
+  IdSys;
 
 const
   DEF_PACKET_SIZE = 32;
@@ -76,20 +75,28 @@ const
 type
   TReplyStatusTypes = (rsEcho, rsError, rsTimeOut, rsErrorUnreachable, rsErrorTTLExceeded);
 
-  TReplyStatus = record
-    BytesReceived: integer; // number of bytes in reply from host
-    FromIpAddress: string;  // IP address of replying host
-    ToIpAddress : string;   //who receives it (i.e., us.  This is for multihorned machines
-    MsgType: byte;
-    SequenceId: word;       // sequence id of ping reply
+  TReplyStatus = class(TObject)
+  protected
+    FBytesReceived: integer; // number of bytes in reply from host
+    FFromIpAddress: string;  // IP address of replying host
+    FToIpAddress : string;   //who receives it (i.e., us.  This is for multihorned machines
+    FMsgType: byte;
+    FSequenceId: word;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
-    MsRoundTripTime: longword; // ping round trip time in milliseconds
-    TimeToLive: byte;       // time to live
-    ReplyStatusType: TReplyStatusTypes;
+    FMsRoundTripTime: longword; // ping round trip time in milliseconds
+    FTimeToLive: byte;       // time to live
+    FReplyStatusType: TReplyStatusTypes;
+  public
+    property BytesReceived: integer read FBytesReceived write FBytesReceived; // number of bytes in reply from host
+    property FromIpAddress: string read FFromIpAddress write FFromIpAddress;  // IP address of replying host
+    property ToIpAddress : string read FToIpAddress write FToIpAddress;   //who receives it (i.e., us.  This is for multihorned machines
+    property MsgType: byte read FMsgType write FMsgType;
+    property SequenceId: word read FSequenceId write FSequenceId;       // sequence id of ping reply
+    // TODO: roundtrip time in ping reply should be float, not byte
+    property MsRoundTripTime: longword read FMsRoundTripTime write FMsRoundTripTime; // ping round trip time in milliseconds
+    property TimeToLive: byte read FTimeToLive write FTimeToLive;       // time to live
+    property ReplyStatusType: TReplyStatusTypes read FReplyStatusType write FReplyStatusType;
   end;
-
-  TCharBuf = array [1..MAX_PACKET_SIZE] of char;
-  TICMPDataBuffer = array [1..iDEFAULTPACKETSIZE] of byte;
 
   TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
@@ -104,13 +111,18 @@ type
     FReplydata: String;
     //
     function CalcCheckSum: word;
+    function DecodeIPv6Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
+    function DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
     function DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
     procedure DoReply(const AReplyStatus: TReplyStatus);
     procedure GetEchoReply;
     procedure InitComponent; override;
+    procedure PrepareEchoRequestIPv6(Buffer: String);
+    procedure PrepareEchoRequestIPv4(Buffer : String='');
     procedure PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
     procedure SendEchoRequest;
   public
+    destructor Destroy; override;
     procedure Ping(ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
     function Receive(ATimeOut: Integer): TReplyStatus;
     //
@@ -127,8 +139,7 @@ type
 implementation
 
 uses
-  IdExceptionCore, IdResourceStringsCore,
-  //IdRawHeaders,
+  IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack;
 
 { TIdIcmpClient }
@@ -163,52 +174,14 @@ end;
 
 procedure TIdIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
 begin
-  iDataSize := DEF_PACKET_SIZE + 8;
-  FillBytes(FbufIcmp, iDataSize, 0);
-  //icmp_type
-  FBufIcmp[0] := Id_ICMP_ECHO;
-  //icmp_code := 0;
-  FBufIcmp[1] := 0;
-  //skip checksum for now
-
-  //icmp_hun.echo.id := word(CurrentProcessId);
-  IdGlobal.CopyTIdWord(CurrentProcessId,FBufIcmp,4);
-  //icmp_hun.echo.seq := wSeqNo;
-  IdGlobal.CopyTIdWord(wSeqNo,FBufIcmp,6);
-  // icmp_dun.ts.otime := Ticks; - not an official thing but for Indy internal use
-  IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,8);
-  //data
-  IdGlobal.CopyTIdString(Buffer,FBufIcmp,12);
-  //now do the checksum
-  IdGlobal.CopyTIdWord(CalcCheckSum,FBufIcmp,2);
-{  pih := PIdIcmpHdr(@FbufIcmp[0]);
-  with pih^ do
+  if Self.IPVersion = Id_IPv4 then
   begin
-    icmp_type := Id_ICMP_ECHO;
-    icmp_code := 0;
-    icmp_hun.echo.id := word(CurrentProcessId);
-    icmp_hun.echo.seq := wSeqNo;
-    icmp_dun.ts.otime := Ticks;
-    i := Succ(sizeof(TIdIcmpHdr));
-    // SG 19/12/01: Changed the fill algoritm
-    BufferPos := 1;
-    while (i <= iDataSize) do
-    begin
-      // SG 19/12/01: Build the reply buffer
-      if BufferPos <= Length(Buffer) then
-      begin
-        FbufIcmp[i] := Byte(Buffer[BufferPos]);
-        inc(BufferPos);
-      end
-      else
-      begin
-        FbufIcmp[i] := Byte('E');    {Do not Localize}
-{      end;
-      Inc(i);
-    end;
-    icmp_sum := CalcCheckSum;
-  end;     }
-  // SG 25/1/02: Retarded wSeqNo increment to be able to check it against the response
+    PrepareEchoRequestIPv4(Buffer);
+  end
+  else
+  begin
+    PrepareEchoRequestIPv6(Buffer);
+  end;
 end;
 
 procedure TIdIcmpClient.SendEchoRequest;
@@ -217,84 +190,44 @@ begin
 end;
 
 function TIdIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
-var LIPHeaderLen:Cardinal;
-  RTTime: Cardinal;
-  LActualSeqID: word;
+
 begin
+  Result := False;
   if BytesRead = 0 then begin
     // Timed out
-    AReplyStatus.BytesReceived   := 0;
-    AReplyStatus.FromIpAddress   := '0.0.0.0';
-    AReplyStatus.MsgType         := 0;
-    AReplyStatus.SequenceId      := wSeqNo;
-    AReplyStatus.TimeToLive      := 0;
-    AReplyStatus.ReplyStatusType := rsTimeOut;
+    if Self.IPVersion = Id_IPv4 then
+    begin
+      AReplyStatus.BytesReceived   := 0;
+      AReplyStatus.FromIpAddress   := '0.0.0.0';
+      AReplyStatus.ToIpAddress     := '0.0.0.0';
+      AReplyStatus.MsgType         := 0;
+      AReplyStatus.SequenceId      := wSeqNo;
+      AReplyStatus.TimeToLive      := 0;
+      AReplyStatus.ReplyStatusType := rsTimeOut;
+    end
+    else
+    begin
+      AReplyStatus.BytesReceived   := 0;
+      AReplyStatus.FromIpAddress   := '::0';
+      AReplyStatus.ToIpAddress     := '::0';
+      AReplyStatus.MsgType         := 0;
+      AReplyStatus.SequenceId      := wSeqNo;
+      AReplyStatus.TimeToLive      := 0;
+      AReplyStatus.ReplyStatusType := rsTimeOut;
+    end;
     result := true;
   end else begin
     AReplyStatus.ReplyStatusType := rsError;
-    LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
-    if (BytesRead < LIpHeaderLen + ICMP_MIN) then begin
-      raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
-    end;
-    {$IFDEF LINUX}
-    // TODO: baffled as to why linux kernel sends back echo from localhost
-    {$ENDIF}
-    case FBufReceive[LIpHeaderLen] of
-      Id_ICMP_ECHOREPLY, Id_ICMP_ECHO:
-      begin
-        AReplyStatus.ReplyStatusType := rsEcho;
-        //                                                    SizeOf(picmp^)
-        FReplydata := BytesToString(FBufReceive,LIpHeaderLen + 8, Length(FbufReceive));
-        //Copy(FbufReceive, iIpHeaderLen + SizeOf(picmp^) + 1, Length(FbufReceive));
-        // result is only valid if the seq. number is correct
-      end;
-      Id_ICMP_UNREACH:
-        AReplyStatus.ReplyStatusType := rsErrorUnreachable;
-      Id_ICMP_TIMXCEED:
-        AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
-      else
-        raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
-    end;    // case
-    // check if we got a reply to the packet that was actually sent
-    case AReplyStatus.ReplyStatusType of    //
-      rsEcho:
-        begin
-          LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6);
-          result :=  LActualSeqID = wSeqNo;//;picmp^.icmp_hun.echo.seq  = wSeqNo;
-          RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8); //picmp^.icmp_dun.ts.otime;
-        end
-      else
-        begin
-          // not an echo reply: the original IP frame is contained withing the DATA section of the packet
-      //    pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
-           LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
-           RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8+8); //pOriginalICMP^.icmp_dun.ts.otime;
-           result :=  LActualSeqID = wSeqNo;
-          // move to offset
-      //    pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
-          // extract information from original ICMP frame
-     //     ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
-    //      RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
-    //      result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
-        end;
-    end;    // case
-
-    if result then
+    if Self.IPVersion = Id_IPv4 then
     begin
-      with AReplyStatus do begin
-        BytesReceived := BytesRead;
-
-        FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,12)));
-        ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,16)));
-     //   FromIpAddress := GBSDStack.TranslateTInAddrToString(pip^.ip_src, Binding.IPVersion);
-        MsgType := FBufReceive[LIpHeaderLen]; //picmp^.icmp_type;
-        SequenceId := LActualSeqID;
-        MsRoundTripTime := RTTime;
-        TimeToLive := FBufReceive[8];
-    //    TimeToLive := pip^.ip_ttl;
-      end;
+      DecodeIPv4Packet(BytesRead,AReplyStatus);
+    end
+    else
+    begin
+      DecodeIPv6Packet(BytesRead,AReplyStatus);
     end;
   end;
+
 end;
 
 {function TIdIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
@@ -410,6 +343,7 @@ var
   BytesRead : Integer;
   StartTime: Cardinal;
 begin
+  Result := Self.FReplyStatus;
   FillBytes(FbufReceive, sizeOf(FbufReceive),0);
   StartTime := Ticks;
   repeat
@@ -444,11 +378,199 @@ end;
 procedure TIdIcmpClient.InitComponent;
 begin
   inherited;
+  FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
   FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
   SetLength(FbufReceive,MAX_PACKET_SIZE+Id_IP_HSIZE);
   SetLength(FbufIcmp,MAX_PACKET_SIZE);
+end;
+
+destructor TIdIcmpClient.Destroy;
+begin
+  Sys.FreeAndNil(FReplyStatus);
+  inherited;
+end;
+
+function TIdIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal;
+  var AReplyStatus: TReplyStatus): boolean;
+var LIPHeaderLen:Cardinal;
+  RTTime: Cardinal;
+  LActualSeqID: word;
+  LIdx : Integer;
+  LIPv4 : TIdIPHdr;
+  LIcmp : TIdICMPHdr;
+begin
+    LIdx := 0;
+    LIPv4 := TIdIPHdr.Create;
+    LIcmp := TIdICMPHdr.Create;
+    try
+
+      LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
+      if (BytesRead < LIpHeaderLen + ICMP_MIN) then begin
+        raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
+      end;
+      LIPv4.ReadStruct(FBufReceive, LIdx);
+      LIdx := LIpHeaderLen;
+      LIcmp.ReadStruct(FBufReceive, LIdx);
+    {$IFDEF LINUX}
+    // TODO: baffled as to why linux kernel sends back echo from localhost
+    {$ENDIF}
+      case FBufReceive[LIpHeaderLen] of
+        Id_ICMP_ECHOREPLY, Id_ICMP_ECHO:
+        begin
+          AReplyStatus.ReplyStatusType := rsEcho;
+        //                                                    SizeOf(picmp^)
+          FReplydata := BytesToString(FBufReceive,LIpHeaderLen + 8, Length(FbufReceive));
+        //Copy(FbufReceive, iIpHeaderLen + SizeOf(picmp^) + 1, Length(FbufReceive));
+        // result is only valid if the seq. number is correct
+        end;
+        Id_ICMP_UNREACH:
+          AReplyStatus.ReplyStatusType := rsErrorUnreachable;
+        Id_ICMP_TIMXCEED:
+          AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
+        else
+          raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
+      end;    // case
+      // check if we got a reply to the packet that was actually sent
+      case AReplyStatus.ReplyStatusType of    //
+        rsEcho:
+        begin
+          LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6);
+          result :=  LActualSeqID = wSeqNo;//;picmp^.icmp_hun.echo.seq  = wSeqNo;
+          RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8); //picmp^.icmp_dun.ts.otime;
+        end
+        else
+        begin
+          // not an echo reply: the original IP frame is contained withing the DATA section of the packet
+      //    pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
+           LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
+           RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8+8); //pOriginalICMP^.icmp_dun.ts.otime;
+           result :=  LActualSeqID = wSeqNo;
+          // move to offset
+      //    pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
+          // extract information from original ICMP frame
+     //     ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
+    //      RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
+    //      result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
+        end;
+      end;    // case
+
+      if result then
+      begin
+        with AReplyStatus do begin
+          BytesReceived := BytesRead;
+
+          FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,12)));
+          ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,16)));
+          MsgType := FBufReceive[LIpHeaderLen]; //picmp^.icmp_type;
+          SequenceId := LActualSeqID;
+          MsRoundTripTime := RTTime;
+          TimeToLive := FBufReceive[8];
+    //    TimeToLive := pip^.ip_ttl;
+        end;
+      end;
+    finally
+      Sys.FreeAndNil(LIcmp);
+      Sys.FreeAndNil(LIPv4);
+    end;
+end;
+
+procedure TIdIcmpClient.PrepareEchoRequestIPv4(Buffer: String);
+begin
+  iDataSize := DEF_PACKET_SIZE + 8;
+  FillBytes(FbufIcmp, iDataSize, 0);
+  //icmp_type
+  FBufIcmp[0] := Id_ICMP_ECHO;
+  //icmp_code := 0;
+  FBufIcmp[1] := 0;
+  //skip checksum for now
+
+  //icmp_hun.echo.id := word(CurrentProcessId);
+  IdGlobal.CopyTIdWord(CurrentProcessId,FBufIcmp,4);
+  //icmp_hun.echo.seq := wSeqNo;
+  IdGlobal.CopyTIdWord(wSeqNo,FBufIcmp,6);
+  // icmp_dun.ts.otime := Ticks; - not an official thing but for Indy internal use
+  IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,8);
+  //data
+  IdGlobal.CopyTIdString(Buffer,FBufIcmp,12);
+  //now do the checksum
+  IdGlobal.CopyTIdWord(CalcCheckSum,FBufIcmp,2);
+{  pih := PIdIcmpHdr(@FbufIcmp[0]);
+  with pih^ do
+  begin
+    icmp_type := Id_ICMP_ECHO;
+    icmp_code := 0;
+    icmp_hun.echo.id := word(CurrentProcessId);
+    icmp_hun.echo.seq := wSeqNo;
+    icmp_dun.ts.otime := Ticks;
+    i := Succ(sizeof(TIdIcmpHdr));
+    // SG 19/12/01: Changed the fill algoritm
+    BufferPos := 1;
+    while (i <= iDataSize) do
+    begin
+      // SG 19/12/01: Build the reply buffer
+      if BufferPos <= Length(Buffer) then
+      begin
+        FbufIcmp[i] := Byte(Buffer[BufferPos]);
+        inc(BufferPos);
+      end
+      else
+      begin
+        FbufIcmp[i] := Byte('E');    {Do not Localize}
+{      end;
+      Inc(i);
+    end;
+    icmp_sum := CalcCheckSum;
+  end;     }
+  // SG 25/1/02: Retarded wSeqNo increment to be able to check it against the response
+
+end;
+
+procedure TIdIcmpClient.PrepareEchoRequestIPv6(Buffer: String);
+var LIPv6 : TIdicmp6_hdr;
+  LIdx : Integer;
+begin
+  LIPv6 := TIdicmp6_hdr.create;
+  try
+    LIdx := 0;
+    LIPv6.icmp6_type := ICMP6_ECHO_REQUEST;
+    LIPv6.icmp6_code := 0;
+    LIPv6.data.icmp6_un_data16[0] := word(CurrentProcessId);
+    LIPv6.data.icmp6_un_data16[1] := wSeqNo;
+    LIPv6.icmp6_cksum := 0;
+    LIPv6.WriteStruct(FBufIcmp,LIdx);
+    IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,LIdx);
+    Inc(LIdx,4);
+    CopyTIdString(Buffer,FBufIcmp,LIdx,Length(Buffer));
+    Inc(LIdx,Length(Buffer));
+    LIPv6.icmp6_cksum := GStack.HostToNetwork( CalcCheckSum);
+    //we have to write this twice, the second time with the checksum
+    //from the header (checksum = 0) and the data
+    LIdx := 0;
+    LIPv6.WriteStruct(FBufIcmp,LIdx);
+  finally
+    Sys.FreeAndNil(LIPv6);
+  end;
+end;
+
+function TIdIcmpClient.DecodeIPv6Packet(BytesRead: Cardinal;
+  var AReplyStatus: TReplyStatus): boolean;
+var
+ LIdx : Integer;
+  LIPv6 : TIdip6_hdr;
+  LIcmp : TIdICMPHdr;
+begin
+  LIdx := 0;
+  LIPv6 := TIdip6_hdr.Create;
+  LIcmp := TIdICMPHdr.Create;
+  try
+    LIPv6.ReadStruct(FBufReceive,LIdx);
+
+  finally
+    Sys.FreeAndNil(LIcmp);
+    Sys.FreeAndNil(LIPv6);
+  end;
 end;
 
 end.

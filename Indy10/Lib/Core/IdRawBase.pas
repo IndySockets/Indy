@@ -273,7 +273,14 @@ begin
     FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
 {$ENDIF}
   end;
-  GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_IP_TTL, FTTL);
+  if Self.FIPVersion = Id_IPv4 then
+  begin
+    GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
+  end
+  else
+  begin
+    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
+  end;
   Result := FBinding;
 end;
 
@@ -310,8 +317,8 @@ end;
 
 procedure TIdRawBase.Send(AHost: string; const APort: Integer; AData: string);
 begin
-  AHost := GStack.ResolveHost(AHost);
-  Binding.SendTo(AHost, APort, ToBytes(AData));
+  AHost := GStack.ResolveHost(AHost,FIPVersion);
+  Binding.SendTo(AHost, APort, ToBytes(AData),FIPVersion);
 end;
 
 procedure TIdRawBase.Send(AData: string);
@@ -321,14 +328,21 @@ end;
 
 procedure TIdRawBase.Send(AHost: string; const APort: integer; const ABuffer : TIdBytes);
 begin
-  AHost := GStack.ResolveHost(AHost);
-  Binding.SendTo(AHost, APort, ABuffer);
+  AHost := GStack.ResolveHost(AHost,FIPVersion);
+  Binding.SendTo(AHost, APort, ABuffer,FIPVersion);
 end;
 
 procedure TIdRawBase.SetTTL(const Value: Integer);
 begin
   FTTL := Value;
-   GStack.SetSocketOption(Binding.Handle,Id_SOL_IP,Id_IP_TTL, FTTL);
+  if FIPVersion = Id_IPv4 then
+  begin
+     GStack.SetSocketOption(Binding.Handle,Id_SOL_IP,Id_SO_IP_TTL, FTTL);
+  end
+  else
+  begin
+    GStack.SetSocketOption(Binding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
+  end;
 end;
 
 procedure TIdRawBase.InitComponent;
