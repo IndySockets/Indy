@@ -2885,24 +2885,29 @@ var
   LF : TIdFTPServerContext;
 begin
   LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
+  if LF.IsAuthenticated(ASender) then
+  begin
     if not Assigned(LF.FDataChannel) then
     begin
       ASender.Reply.SetReply(425,RSFTPCantOpenData);
       Exit;
     end;
-    if TextIsSame(ASender.CommandHandler.Command, 'STOU') then begin    {Do not Localize}
+    if TextIsSame(ASender.CommandHandler.Command, 'STOU') then
+    begin    {Do not Localize}
       LTmp1 := GetUniqueFileName('','Temp',''); {Do not localize}
       //THis is a standardized format
       ASender.Reply.SetReply(150, Sys.Format('FILE: %s',[LTmp1]));  {Do not translate}
-    end else begin
+    end
+    else
+    begin
       LTmp1 := ASender.UnparsedParams;
       ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
     end;
     LTmp1 := DoProcessPath(TIdFTPServerContext(ASender.Context), LTmp1);
     LAppend := TextIsSame(ASender.CommandHandler.Command, 'APPE');    {Do not Localize}
       //
-    if Assigned(FOnStoreFile) or Assigned(FFTPFileSystem) then begin
+    if Assigned(FOnStoreFile) or Assigned(FFTPFileSystem) then
+    begin
       LStream := nil;
       try
         if Assigned(FFTPFileSystem) then
@@ -2922,14 +2927,19 @@ begin
           Exit;
         end;
       end;
-      if Assigned(LStream) then begin
+      if Assigned(LStream) then
+      begin
         //Issued previously by ALLO cmd
-        if LF.ALLOSize > 0 then begin
+        if LF.ALLOSize > 0 then
+        begin
           LStream.Size := LF.FALLOSize;
         end;
-        if LAppend then begin
+        if LAppend then
+        begin
           LStream.Position := LStream.Size;
-        end else begin
+        end
+        else
+        begin
           LStream.Position := LF.FRESTPos;
           LF.FRESTPos:=0;
         end;
@@ -2942,10 +2952,14 @@ begin
         LF.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
         ASender.SendReply;
         DoDataChannelOperation(ASender,LF.SSCNOn);
-      end else begin
+      end
+      else
+      begin
         CmdFileActionAborted(ASender);
       end;
-    end else begin
+    end
+    else
+    begin
       CmdNotImplemented(ASender);
     end;
   end;
@@ -2966,17 +2980,21 @@ begin
         if Length(s) > 1 then
         begin
           if (s[1] = 'R') and (s[2] = #32) then begin    {Do not Localize}
-          begin
             LALLOSize := Copy(s, 3, Length(s) - 2);
           end;
-        end else begin
+        end
+        else
+        begin
           LALLOSize := s;
         end;
       end;
-      if LALLOSize <> '' then begin
+      if LALLOSize <> '' then
+      begin
         FALLOSize := Sys.StrToInt(LALLOSize, 0);
         CmdCommandSuccessful(ASender, 200);
-      end else begin
+      end
+      else
+      begin
         ASender.Reply.SetReply(504, RSFTPInvalidForParam);
       end;
     end;

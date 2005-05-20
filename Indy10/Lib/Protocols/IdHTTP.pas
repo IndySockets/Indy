@@ -1743,7 +1743,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
           end;
         end;
       end;
-\      raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
+      raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
     finally
       Response.ContentStream := LTempStream;
       Sys.FreeAndNil(LRespStream);
