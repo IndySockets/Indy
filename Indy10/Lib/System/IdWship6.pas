@@ -86,6 +86,8 @@ const
 // Socket options at the IPPROTO_IPV6 level.
 //
 const
+  IPV6_HDRINCL           = 2 ;  // int; header is included with data
+
   IPV6_UNICAST_HOPS      = 4 ; // Set/get IP unicast hop limit.
   IPV6_MULTICAST_IF      = 9 ;  // Set/get IP multicast interface.
   IPV6_MULTICAST_HOPS    = 10 ; // Set/get IP multicast ttl.
@@ -94,13 +96,19 @@ const
   IPV6_DROP_MEMBERSHIP   = 13 ; // Drop an IP group membership.
   IPV6_JOIN_GROUP        = IPV6_ADD_MEMBERSHIP;
   IPV6_LEAVE_GROUP       = IPV6_DROP_MEMBERSHIP;
-  IPV6_PKTINFO           = 19;
+  IPV6_PKTINFO           = 19; /// Receive packet information for ipv6
+  IPV6_HOPLIMIT          = 21; // Receive packet hop limit
+  IPV6_PROTECTION_LEVEL  = 23; // Set/get IPv6 protection level
 //
 // Socket options at the IPPROTO_UDP level.
 //
 const
   UDP_CHECKSUM_COVERAGE  = 20 ; // Set/get UDP-Lite checksum coverage.
 
+const
+  PROTECTION_LEVEL_RESTRICTED   = 10;  //* for Intranet apps      /*
+  PROTECTION_LEVEL_DEFAULT      = 20;  //* default level          /*
+  PROTECTION_LEVEL_UNRESTRICTED = 30;  //* for peer-to-peer apps  /*
 
 function gaiErrorToWsaError(const gaiError:integer):integer;
 
