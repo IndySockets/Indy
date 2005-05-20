@@ -81,6 +81,7 @@ type
     FFromIpAddress: string;  // IP address of replying host
     FToIpAddress : string;   //who receives it (i.e., us.  This is for multihorned machines
     FMsgType: byte;
+    FMsgCode : Byte;
     FSequenceId: word;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
     FMsRoundTripTime: longword; // ping round trip time in milliseconds
@@ -91,6 +92,7 @@ type
     property FromIpAddress: string read FFromIpAddress write FFromIpAddress;  // IP address of replying host
     property ToIpAddress : string read FToIpAddress write FToIpAddress;   //who receives it (i.e., us.  This is for multihorned machines
     property MsgType: byte read FMsgType write FMsgType;
+    property MsgCode : Byte read FMsgCode write FMsgCode;
     property SequenceId: word read FSequenceId write FSequenceId;       // sequence id of ping reply
     // TODO: roundtrip time in ping reply should be float, not byte
     property MsRoundTripTime: longword read FMsRoundTripTime write FMsRoundTripTime; // ping round trip time in milliseconds
@@ -220,11 +222,11 @@ begin
     AReplyStatus.ReplyStatusType := rsError;
     if Self.IPVersion = Id_IPv4 then
     begin
-      DecodeIPv4Packet(BytesRead,AReplyStatus);
+      Result := DecodeIPv4Packet(BytesRead,AReplyStatus);
     end
     else
     begin
-      DecodeIPv6Packet(BytesRead,AReplyStatus);
+      Result := DecodeIPv6Packet(BytesRead,AReplyStatus);
     end;
   end;
 
@@ -401,6 +403,7 @@ var LIPHeaderLen:Cardinal;
   LIPv4 : TIdIPHdr;
   LIcmp : TIdICMPHdr;
 begin
+  Result := False;
     LIdx := 0;
     LIPv4 := TIdIPHdr.Create;
     LIcmp := TIdICMPHdr.Create;
@@ -530,6 +533,7 @@ end;
 procedure TIdIcmpClient.PrepareEchoRequestIPv6(Buffer: String);
 var LIPv6 : TIdicmp6_hdr;
   LIdx : Integer;
+
 begin
   LIPv6 := TIdicmp6_hdr.create;
   try
@@ -558,18 +562,41 @@ function TIdIcmpClient.DecodeIPv6Packet(BytesRead: Cardinal;
   var AReplyStatus: TReplyStatus): boolean;
 var
  LIdx : Integer;
-  LIPv6 : TIdip6_hdr;
-  LIcmp : TIdICMPHdr;
+  LIcmp : TIdicmp6_hdr;
+  RTTime : Cardinal;
+  LActualSeqID : Word;
 begin
+  Result := False;
   LIdx := 0;
-  LIPv6 := TIdip6_hdr.Create;
-  LIcmp := TIdICMPHdr.Create;
+  LIcmp := TIdicmp6_hdr.Create;
   try
-    LIPv6.ReadStruct(FBufReceive,LIdx);
+    //NOte that IPv6 raw headers are not being returned.
+    LIcmp.ReadStruct(FBufReceive,LIdx);
+    case LIcmp.icmp6_type of
+      ICMP6_ECHO_REQUEST,
+      ICMP6_ECHO_REPLY :
+      begin
+        AReplyStatus.ReplyStatusType := rsEcho;
+        LActualSeqID := LIcmp.data.icmp6_un_data16[1];
+        Result := LActualSeqID = wSeqNo;
 
+        RTTime := Ticks - BytesToCardinal(FBufReceive, LIdx);
+      end;
+    end;
+      if result then
+      begin
+                          
+          AReplyStatus.BytesReceived := BytesRead;
+
+          AReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
+          AReplyStatus.MsgCode := LIcmp.icmp6_code;
+          AReplyStatus.SequenceId := LActualSeqID;
+          AReplyStatus.MsRoundTripTime := RTTime;
+        //  TimeToLive := FBufReceive[8];
+    //    TimeToLive := pip^.ip_ttl;
+     end;
   finally
     Sys.FreeAndNil(LIcmp);
-    Sys.FreeAndNil(LIPv6);
   end;
 end;
 

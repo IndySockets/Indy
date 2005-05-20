@@ -279,6 +279,9 @@ begin
   end
   else
   begin
+    //indicate we want all of the headers
+    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,1);
+    //set hop limit (or TTL as it was called in IPv4
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
   end;
   Result := FBinding;
