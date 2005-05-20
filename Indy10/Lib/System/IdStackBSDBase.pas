@@ -385,9 +385,11 @@ end;
 
 procedure TIdStackBSDBase.TranslateStringToTInAddr(AIP: string;
   var AInAddr; const AIPVersion: TIdIPVersion);
-var
-  i: integer;
-  LW : Word;
+//var
+//  i: integer;
+//  LW : Word;
+//  LIP : TIdIPv6Address;
+
 begin
   case AIPVersion of
     Id_IPv4: begin
@@ -399,8 +401,11 @@ begin
       end;
     end;
     Id_IPv6: begin
-      AIP := MakeCanonicalIPv6Address(AIP);
-      with TIdIn6Addr(AInAddr) do begin
+
+   //   AIP := MakeCanonicalIPv6Address(AIP);
+
+      TIdIPv6Address(TIdIn6Addr(AInAddr).s6_addr16) := HostToNetwork(IPv6ToIdIPv6Address(AIP) );
+{      with TIdIn6Addr(AInAddr) do begin
       //We don't call HostToNetwork with an arguement such as:
       // Sys.StrToInt('$'+Fetch(AIP, ':')
       //because that can actually be a Cardinal or possibly an Int64 value
@@ -408,8 +413,8 @@ begin
         for i := 0 to 7 do begin
           LW :=  Sys.StrToInt('$'+Fetch(AIP, ':'));
           s6_addr16[i] := HostToNetwork(LW);    {Do not Localize}
-        end;
-      end;
+{        end;
+      end;          }
     end;
     else begin
       IPVersionUnsupported;
