@@ -494,8 +494,6 @@ begin
       with Addr4 do begin
         sin_family := Id_PF_INET4;
        TranslateStringToTInAddr(AIP, sin_addr, Id_IPv4);
-       //TODO:  Renable when IPv6 is available
-     //   TranslateStringToTInAddr(AIP, sin_addr, Id_IPv4);
         sin_port := HToNs(APort);
       end;
       LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, @Addr4, SizeOf(Addr4));
