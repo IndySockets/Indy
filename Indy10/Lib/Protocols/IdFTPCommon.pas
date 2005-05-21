@@ -452,10 +452,10 @@ function RemoveDuplicatePathSyms(APath : String): String;
 {***
 EPLF time stamp processing
 ***}
-function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
-function EPLFDateToGMTDateTime(const AData: String): TDateTime;
-function GMTDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
-function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+function EPLFDateToLocalDateTime(const AData: String): TIdDateTIme;
+function EPLFDateToGMTDateTime(const AData: String): TIdDateTime;
+function GMTDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
 
 {***
 Misc parsing
@@ -499,24 +499,24 @@ function IsDDMonthYY(const AData : String; const ADelin : String) : Boolean;
 function IsMMDDYY(const AData : String; const ADelin : String) : Boolean;
 function IsYYYYMMDD(const AData : String) : Boolean;
 function Y2Year(const AYear : Integer): Integer;
-function DateYYMMDD(const AData: String): TDateTime;
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTime;
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTime;
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTime;
-function DateMMDDYY(const AData: String): TDateTime;
-function TimeHHMMSS(const AData : String):TDateTime;
-function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
+function DateYYMMDD(const AData: String): TIdDateTime;
+function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TIdDateTime;
+function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TIdDateTime;
+function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TIdDateTime;
+function DateMMDDYY(const AData: String): TIdDateTime;
+function TimeHHMMSS(const AData : String):TIdDateTime;
+function IsIn6MonthWindow(const AMDate : TIdDateTime):Boolean;
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
 function IsHHMMSS(const AData : String; const ADelin : String) : Boolean;
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
-function MVSDate(const AData: String): TDateTime;
-function AS400Date(const AData: String): TDateTime;
+function MVSDate(const AData: String): TIdDateTime;
+function AS400Date(const AData: String): TIdDateTime;
 
 //MDTM Set filedate support and SITE ZONE support
 function MinutesFromGMT : Integer;
-function MDTMOffset(const AOffs : String) : TDateTime;
-function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;
+function MDTMOffset(const AOffs : String) : TIdDateTime;
+function FTPDateTimeToMDTMD(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TIdDateTime;
 
 
 {***
@@ -1031,7 +1031,7 @@ end;
 
 {EPLF Date processing}
 
-function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
+function EPLFDateToLocalDateTime(const AData: String): TIdDateTime;
 {note - code stolen from TIdTime and mofied for our
 needs.}
 var LSecs : Int64;
@@ -1043,7 +1043,7 @@ begin
     -IdGlobalProtocols.TimeZoneBias;
 end;
 
-function EPLFDateToGMTDateTime(const AData: String): TDateTIme;
+function EPLFDateToGMTDateTime(const AData: String): TIdDateTime;
 {note - code stolen from TIdTime and mofied for our
 needs.}
 var LSecs : Int64;
@@ -1054,7 +1054,7 @@ begin
   Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(EPLF_BASE_DATE));
 end;
 
-function GMTDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+function GMTDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
 //const BASE_DATE = 2;
 const BASE_DATE = 25569;
 
@@ -1062,7 +1062,7 @@ begin
   Result := Sys.FloatToIntStr( extended(ADateTime - Int(BASE_DATE)) * 24 * 60 * 60);
 end;
 
-function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
 begin
   Result := Sys.FloatToIntStr(extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
@@ -1155,7 +1155,7 @@ begin
   Result := True;
 end;
 
-function MDTMOffset(const AOffs : String) : TDateTime;
+function MDTMOffset(const AOffs : String) : TIdDateTime;
 var
   LOffs : Integer;
 begin
@@ -1168,7 +1168,7 @@ begin
 end;
 
 function MinutesFromGMT : Integer;
-var LD : TDateTime;
+var LD : TIdDateTime;
     LHour, LMin, LSec, LMSec : Word;
 begin
   LD := IdGlobalProtocols.OffsetFromUTC;
@@ -1184,7 +1184,7 @@ begin
   end;
 end;
 
-function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
+function FTPDateTimeToMDTMD(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
 var LYear, LMonth, LDay,
     LHour, LMin, LSec, LMSec : Word;
     LOfs : Integer;
@@ -1211,7 +1211,7 @@ begin
   Result := Sys.StringReplace(Result,' ','0');
 end;
 
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TIdDateTime;
 var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
     LBuffer : String;
     LOffset : String;
@@ -1246,7 +1246,7 @@ begin
       Fetch(LBuffer,'.');
       LMSec := Sys.StrToInt(LBuffer,0);
       Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + TDateTime(Sys.EncodeTime(LHour,LMin,LSec,LMSec));
+      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
       if LOffset='' then
       begin
         Result := Result - OffsetFromUTC;
@@ -1370,7 +1370,7 @@ begin
   end;
 end;
 
-function DateYYMMDD(const AData: String): TDateTime;
+function DateYYMMDD(const AData: String): TIdDateTime;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LDelin : String;
@@ -1386,7 +1386,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTime;
+function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TIdDateTime;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
 
@@ -1400,7 +1400,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTime;
+function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TIdDateTime;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LMnth : String;
@@ -1422,7 +1422,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTime;
+function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TIdDateTime;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
 
@@ -1436,7 +1436,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateMMDDYY(const AData: String): TDateTime;
+function DateMMDDYY(const AData: String): TIdDateTime;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LDelin : String;
@@ -1452,7 +1452,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function TimeHHMMSS(const AData : String):TDateTime;
+function TimeHHMMSS(const AData : String):TIdDateTime;
 var LCHour, LCMin, LCSec, LCMSec : Word;
     LHour, LMin, LSec, LMSec : Word;
     LBuffer : String;
@@ -1512,7 +1512,7 @@ begin
   Result := Sys.EncodeTime(LHour,LMin,LSec,LMSec);
 end;
 
-function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
+function IsIn6MonthWindow(const AMDate : TIdDateTime):Boolean;
 //based on http://www.opengroup.org/onlinepubs/007908799/xbd/utilconv.html#usg
 //For dates, we display the time only if the date is within 6 monthes of the current
 //date.  Otherwise, we send the year.
@@ -1591,7 +1591,7 @@ begin
   end;
 end;
 
-function MVSDate(const AData: String): TDateTime;
+function MVSDate(const AData: String): TIdDateTime;
 var
     LYear, LMonth, LDay : Integer;
     LCYear, LCMonth, LCDay : Word;
@@ -1625,7 +1625,7 @@ begin
   Result := Sys.EncodeDate(LYear,LMonth,LDay);
 end;
 
-function AS400Date(const AData: String): TDateTime;
+function AS400Date(const AData: String): TIdDateTime;
 var LDelim : String;
     LBuffer : String;
 

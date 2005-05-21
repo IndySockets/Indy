@@ -358,7 +358,7 @@ var
   wYear, wMonth, wDay: Word;
  // wYear, LCurrentMonth, wMonth, wDay: Word;
   wHour, wMin, wSec, wMSec: Word;
-  ADate: TDateTime;
+  ADate: TIdDateTime;
   i: Integer;
   LI : TIdUnixFTPListItem;
 

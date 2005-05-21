@@ -214,8 +214,8 @@ RDIRENT.HEADER types:
 }
   TIdFSPStatInfo = class(TCollectionItem)
   protected
-      FModifiedDateGMT : TDateTime;
-    FModifiedDate: TDateTime;
+      FModifiedDateGMT : TIdDateTime;
+    FModifiedDate: TIdDateTime;
     //Size is Int64 in case FSP 3 has an expansion, otherise, it can only handle
     //file sizes up 4 GB's.  It's not a bug, it's a feature.
     FSize: Int64;
@@ -223,8 +223,8 @@ RDIRENT.HEADER types:
   published
     property ItemType :TIdDirItemType read FItemType write FItemType;
     property Size: Int64 read FSize write FSize;
-    property ModifiedDate: TDateTime read FModifiedDate write FModifiedDate;
-    property ModifiedDateGMT : TDateTime read FModifiedDateGMT write FModifiedDateGMT;
+    property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
+    property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
   end;
   TIdFSPListItem = class(TIdFSPStatInfo)
   protected
@@ -368,9 +368,9 @@ causes that directory can be listable even it do not have
     procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false); overload;
     procedure Put(const ASource: TIdStreamVCL; const ADestFile: string;
-       const AGMTTime : TDateTime=0); overload;
+       const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASource: TStream; const ADestFile: string;
-       const AGMTTime : TDateTime=0); overload;
+       const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
     property SystemDesc: string read FSystemDesc;
     property SystemServerLogs : Boolean read  FSystemServerLogs;
@@ -834,7 +834,7 @@ there is other problem (no access rights) return type of file is
 end;
 
 procedure TIdFSP.Put(const ASource: TIdStreamVCL; const ADestFile: string;
-  const AGMTTime: TDateTime);
+  const AGMTTime: TIdDateTime);
 var LUnixDate : Cardinal;
   LSendPacket : TIdFSPPacket;
   LRecvPacket :  TIdFSPPacket;
@@ -893,7 +893,7 @@ begin
 end;
 
 procedure TIdFSP.Put(const ASource: TStream; const ADestFile: string;
-  const AGMTTime: TDateTime);
+  const AGMTTime: TIdDateTime);
 var LStream : TIdStreamVCL;
 begin
   LStream := TIdStreamVCL.Create(ASource);

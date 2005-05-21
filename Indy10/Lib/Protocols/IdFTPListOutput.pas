@@ -95,7 +95,7 @@ unit IdFTPListOutput;
 
 interface
 
-uses IdFTPList, Classes, IdTStrings;
+uses IdFTPList, Classes, IdTStrings, IdSys;
 
 type
   //we can't use the standard FTP MLSD option types in the FTP Server
@@ -113,10 +113,10 @@ type
     FLinkedItemName : string;
     FNumberBlocks : Integer;
     FInode : Integer;
-    FLastAccessDate: TDateTime;
-    FLastAccessDateGMT: TDateTime;
-    FCreationDate: TDateTime;
-    FCreationDateGMT : TDateTime;
+    FLastAccessDate: TIdDateTime;
+    FLastAccessDateGMT: TIdDateTime;
+    FCreationDate: TIdDateTime;
+    FCreationDateGMT : TIdDateTime;
     //Unique ID for an item to prevent yourself from downloading something twice
     FUniqueID : String;
     //MLIST things
@@ -133,13 +133,13 @@ type
     property Inode : Integer read FInode write FInode;
       //Last Access time values are for MLSD data output and can be returned by the
       //MLST command
-    property LastAccessDate: TDateTime read FLastAccessDate write FLastAccessDate;
-    property LastAccessDateGMT : TDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
+    property LastAccessDate: TIdDateTime read FLastAccessDate write FLastAccessDate;
+    property LastAccessDateGMT : TIdDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
 
       //Creation time values are for MLSD data output and can be returned by the
       //MLST command
-    property CreationDate: TDateTime read FCreationDate write FCreationDate;
-    property CreationDateGMT : TDateTime read FCreationDateGMT write FCreationDateGMT;
+    property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
+    property CreationDateGMT : TIdDateTime read FCreationDateGMT write FCreationDateGMT;
     // If this is not blank, you can use this as a unique identifier for an item to prevent
     // yourself from downloading the same item twice (which is not easy to see with some
     // some FTP sites where symbolic links or similar things are used.
@@ -166,7 +166,7 @@ type
     FOutput : String;
     FDirFormat : TIdDirOutputFormat;
     FExportTotalLine : Boolean;
-    function GetLocalModTime(AItem : TIdFTPListOutputItem) : TDateTime; virtual;
+    function GetLocalModTime(AItem : TIdFTPListOutputItem) : TIdDateTime; virtual;
     function UnixItem(AItem : TIdFTPListOutputItem) : String; virtual;
     function Win32Item(AItem : TIdFTPListOutputItem) : String; virtual;
     function EPLFItem(AItem : TIdFTPListOutputItem) : String; virtual;
@@ -264,7 +264,7 @@ const
 implementation
 
 uses
-  IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings;
 
 type
   TDirEntry = class(TObject)
@@ -627,7 +627,7 @@ begin
 end;
 
 function TIdFTPListOutput.GetLocalModTime(
-  AItem: TIdFTPListOutputItem): TDateTime;
+  AItem: TIdFTPListOutputItem): TIdDateTime;
 begin
   if AItem.ModifiedDateGMT<>0 then
   begin
@@ -1456,7 +1456,7 @@ var
   LLinkNum : Integer;
   LFileName : String;
   LFormat : String;
-  LMTime : TDateTime;
+  LMTime : TIdDateTime;
 begin
 
   LFileName := IndyGetFileName(AItem.FileName);

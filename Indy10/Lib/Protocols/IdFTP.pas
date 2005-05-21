@@ -817,12 +817,12 @@ type
 
   TIdFTPTZInfo = class(TPersistent)
   protected
-    FGMTOffset : TDateTime;
+    FGMTOffset : TIdDateTime;
     FGMTOffsetAvailable : Boolean;
   public
     procedure Assign(Source: TPersistent); override;
   published
-    property GMTOffset : TDateTime read FGMTOffset write FGMTOffset;
+    property GMTOffset : TIdDateTime read FGMTOffset write FGMTOffset;
     property GMTOffsetAvailable : Boolean read FGMTOffsetAvailable write FGMTOffsetAvailable;
   end;
 
@@ -1022,7 +1022,7 @@ type
     procedure ExtListItem(ADest: TIdStrings; AFList : TIdFTPListItems; const AItem: string='');  overload;
     procedure ExtListItem(ADest: TIdStrings; const AItem: string = ''); overload;
     procedure ExtListItem(AFList : TIdFTPListItems; const AItem : String= ''); overload;
-    function  FileDate(const AFileName : String; const AsGMT : Boolean = False): TDateTime;
+    function  FileDate(const AFileName : String; const AsGMT : Boolean = False): TIdDateTime;
 
     procedure Login;
     procedure MakeDir(const ADirName: string);
@@ -1060,8 +1060,8 @@ type
     //GlobalScape FTP Pro uses this for multipart simultanious file uploading
     procedure CombineFiles(const ATargetFile : String; AFileParts : TIdStrings);
     //Set modified file time.
-    procedure SetModTime(const AFileName: String; const ALocalTime: TDateTime);
-    procedure SetModTimeGMT(const AFileName : String; const AGMTTime: TDateTime);
+    procedure SetModTime(const AFileName: String; const ALocalTime: TIdDateTime);
+    procedure SetModTimeGMT(const AFileName : String; const AGMTTime: TIdDateTime);
     // servers that support MDTM yyyymmddhhmmss[+-xxx] and also support LIST -T
     //This is true for servers that are known to support these even if they aren't
     //listed in the FEAT reply.
@@ -2917,7 +2917,7 @@ begin
 end;
 
 function TIdFTP.FileDate(const AFileName: String;
-  const AsGMT: Boolean): TDateTime;
+  const AsGMT: Boolean): TIdDateTime;
 var LBuf : String;
 begin
 //Do not use the FEAT list because some servers
@@ -3512,7 +3512,7 @@ Syntax 3;
 
 }
 procedure TIdFTP.SetModTime(const AFileName: String;
-  const ALocalTime: TDateTime);
+  const ALocalTime: TIdDateTime);
 begin
   //use MFMT instead of MDTM because that always takes the time as Universal
   //time (the most accurate).
@@ -3567,7 +3567,7 @@ begin
 end;
 
 procedure TIdFTP.SetModTimeGMT(const AFileName: String;
-  const AGMTTime: TDateTime);
+  const AGMTTime: TIdDateTime);
 
 begin
   //use MFMT instead of MDTM because that always takes the time as Universal

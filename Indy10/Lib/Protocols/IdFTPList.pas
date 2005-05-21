@@ -496,10 +496,10 @@ type
     FSizeAvail : Boolean;
     FModifiedAvail : Boolean;
 
-    FModifiedDate: TDateTime;
+    FModifiedDate: TIdDateTime;
     //the item below is for cases such as MLST output, EPLF, and Distinct format
     //which usually reports dates in GMT
-    FModifiedDateGMT : TDateTime;
+    FModifiedDateGMT : TIdDateTime;
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
 
@@ -514,7 +514,7 @@ type
     //property set methods
     procedure SetFileName(const AValue : String);
     //may be used by some descendent classes
-    property ModifiedDateGMT : TDateTime read FModifiedDateGMT write FModifiedDateGMT;
+    property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
   public
     procedure Assign(Source: TPersistent); override;
     constructor Create(AOwner: TCollection); override;
@@ -523,7 +523,7 @@ type
     property Data: string read FData write FData;
 
     property Size: Int64 read FSize write FSize;
-    property ModifiedDate: TDateTime read FModifiedDate write FModifiedDate;
+    property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
 
 
     property FileName: string read FFileName write SetFileName;

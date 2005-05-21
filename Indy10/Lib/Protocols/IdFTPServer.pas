@@ -784,7 +784,7 @@ type
   TOnGetFileSizeEvent = procedure(ASender: TIdFTPServerContext; const AFilename: string;
     var VFileSize: Int64) of object;
   TOnGetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFilename: string;
-    var VFileDate: TDateTime) of object;
+    var VFileDate: TIdDateTime) of object;
     //note we have to use a switches parameter because LIST in practice can have both a path and some
     //some switches such as -R for recursive.
   TOnListDirectoryEvent = procedure(ASender: TIdFTPServerContext; const APath: string;
@@ -804,7 +804,7 @@ type
   TOnCheckSumFile = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TStream) of object;
   TOnCacheChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String) of object;
   TOnVerifyChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String) of object;
-  TOnSetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFileName : String; var AFileTime : TDateTime) of object;
+  TOnSetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFileName : String; var AFileTime : TIdDateTime) of object;
   EIdFTPServerException = class(EIdException);
   EIdFTPServerNoOnListDirectory = class(EIdFTPServerException);
   EIdFTPImplicitTLSRequiresSSL = class(EIdFTPServerException);
@@ -1173,14 +1173,14 @@ type
     procedure DoOnMakeDirectory(AContext: TIdFTPServerContext; var VDirectory: string);
     procedure DoOnRemoveDirectory(AContext: TIdFTPServerContext; var VDirectory: string);
     procedure DoOnGetFileSize(ASender: TIdFTPServerContext; const AFilename: string; var VFileSize: Int64);
-    procedure DoOnGetFileDate(ASender: TIdFTPServerContext; const AFilename: string; var VFileDate: TDateTime);
-    procedure DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime); overload;
+    procedure DoOnGetFileDate(ASender: TIdFTPServerContext; const AFilename: string; var VFileDate: TIdDateTime);
+    procedure DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime); overload;
     procedure DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String); overload;
     procedure DoOnFileExistCheck(AContext: TIdFTPServerContext; const AFileName : String; var VExist : Boolean);
-    procedure DoOnSetModifiedTimeGMT(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
-    procedure DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime); overload;
+    procedure DoOnSetModifiedTimeGMT(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime);
+    procedure DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime); overload;
     procedure DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String); overload;
-    procedure DoOnSetCreationTimeGMT(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
+    procedure DoOnSetCreationTimeGMT(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime);
     procedure DoOnCRCFile(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TStream);
     procedure DoOnMD5Verify(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String);
     procedure DoOnMD5Cache(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String);
@@ -3957,7 +3957,7 @@ end;
 procedure TIdFTPServer.CommandMDTM(ASender: TIdCommand);
 var
   s: string;
-  LDate: TDateTime;
+  LDate: TIdDateTime;
   LF : TIdFTPServerContext;
   LSDate : String;
   LExists : Boolean;
@@ -4439,7 +4439,7 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
+procedure TIdFTPServer.DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime);
 begin
   if Assigned(Self.FTPFileSystem) then begin
     FTPFileSystem.SetModifiedFileDate(AContext, AFileName, VDateTime);
@@ -4450,14 +4450,14 @@ end;
 
 procedure TIdFTPServer.DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String);
 var
-  LTime : TDateTime;
+  LTime : TIdDateTime;
 begin
   LTime := FTPMLSToGMTDateTime(VDateTimeStr);
   Self.DoOnSetModifiedTime(AContext, AFileName, LTime);
   VDateTimeStr := FTPGMTDateTimeToMLS(LTime);
 end;
 
-procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
+procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime);
 begin
   if Assigned(Self.FTPFileSystem) then begin
  //   FTPFileSystem.SetModifiedFileDate(AContext,AFileName,VDateTime);
@@ -4468,7 +4468,7 @@ end;
 
 procedure TIdFTPServer.DoOnSetCreationTimeGMT(
   AContext: TIdFTPServerContext; const AFileName: String;
-  var VDateTime: TDateTime);
+  var VDateTime: TIdDateTime);
 begin
   if Assigned(FOnSetModifiedTime) then begin
     FOnSetCreationTime(AContext, AFileName, VDateTime);
@@ -4477,7 +4477,7 @@ end;
 
 procedure TIdFTPServer.DoOnSetModifiedTimeGMT(
   AContext: TIdFTPServerContext; const AFileName: String;
-  var VDateTime: TDateTime);
+  var VDateTime: TIdDateTime);
 begin
   if Assigned(FOnSetModifiedTime) then begin
     FOnSetModifiedTime(AContext, AFileName, VDateTime);
@@ -4486,7 +4486,7 @@ end;
 
 procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String);
 var
-  LTime : TDateTime;
+  LTime : TIdDateTime;
 begin
   LTime := FTPMLSToLocalDateTime(VDateTimeStr);
   DoOnSetModifiedTime(AContext, AFileName,LTime);
@@ -4722,7 +4722,7 @@ begin
 end;
 
 procedure TIdFTPServer.DoOnGetFileDate(ASender: TIdFTPServerContext;
-  const AFilename: string; var VFileDate: TDateTime);
+  const AFilename: string; var VFileDate: TIdDateTime);
 begin
   if Assigned(FFTPFileSystem) then begin
     FFTPFileSystem.GetFileDate(ASender, AFileName, VFileDate);

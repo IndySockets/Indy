@@ -47,7 +47,8 @@
 unit IdFTPListTypes;
 
 interface
-uses Classes, IdFTPList, IdTStrings;
+
+uses Classes, IdFTPList, IdTStrings, IdSys;
 
 type
   //these two are for OS/2 and other MS-DOS-like file system FTP servers
@@ -134,10 +135,10 @@ type
   end;
   TIdCreationDateFTPListItme = class(TIdFTPListItem)
   protected
-    FCreationDate: TDateTime;
+    FCreationDate: TIdDateTime;
   public
     constructor Create(AOwner: TCollection); override;
-    property CreationDate: TDateTime read FCreationDate write FCreationDate;
+    property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
 
   end;
   //for MLST output
@@ -145,9 +146,9 @@ type
   protected
     FAttributesAvail : Boolean;
     FAttributes :  TIdWin32ea;
-    FCreationDateGMT : TDateTime;
-    FLastAccessDate: TDateTime;
-    FLastAccessDateGMT : TDateTime;
+    FCreationDateGMT : TIdDateTime;
+    FLastAccessDate: TIdDateTime;
+    FLastAccessDateGMT : TIdDateTime;
     //Unique ID for an item to prevent yourself from downloading something twice
     FUniqueID : String;
     //MLIST things
@@ -159,10 +160,10 @@ type
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
     property ModifiedDateGMT;
-    property CreationDateGMT : TDateTime read FCreationDateGMT write FCreationDateGMT;
+    property CreationDateGMT : TIdDateTime read FCreationDateGMT write FCreationDateGMT;
 
-    property LastAccessDate: TDateTime read FLastAccessDate write FLastAccessDate;
-    property LastAccessDateGMT : TDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
+    property LastAccessDate: TIdDateTime read FLastAccessDate write FLastAccessDate;
+    property LastAccessDateGMT : TIdDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
 
     //Valid only with EPLF and MLST
     property UniqueID : string read FUniqueID write FUniqueID;
@@ -239,7 +240,8 @@ const
   IdFILE_ATTRIBUTE_ENCRYPTED            = $00004000;
   
 implementation
-uses IdFTPCommon, IdGlobal, IdSys;
+
+uses IdFTPCommon, IdGlobal;
 { TIdMinimalFTPListItem }
 
 constructor TIdMinimalFTPListItem.Create(AOwner: TCollection);

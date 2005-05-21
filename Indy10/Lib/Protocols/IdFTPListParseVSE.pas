@@ -43,7 +43,7 @@ interface
 uses
   Classes,
   IdFTPCommon,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings, IdSys;
 
 type
   TIdVSERootDirFTPListItem = class(TIdMinimalFTPListItem);
@@ -66,9 +66,9 @@ type
   TIdVSESubLibraryFTPListItem = class(TIdVSELibraryFTPListItem)
   protected
     FNumberRecs : Integer;
-    FCreationDate: TDateTime;
+    FCreationDate: TIdDateTime;
   public
-    property CreationDate: TDateTime read FCreationDate write FCreationDate;
+    property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
     property  NumberRecs : Integer read  FNumberRecs write  FNumberRecs;
   end;
   TIdFTPLPVSESubLibrary = class(TIdFTPListBase)
@@ -132,8 +132,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols,
-  IdSys;
+  IdGlobal, IdGlobalProtocols;
 
 { TIdFTPLPVSERootDir }
 
