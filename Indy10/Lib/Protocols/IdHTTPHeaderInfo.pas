@@ -92,9 +92,9 @@ Type
     FContentType: string;
     FContentVersion: string;
     FCustomHeaders: TIdHeaderList;
-    FDate: TDateTime;
-    FExpires: TDateTime;
-    FLastModified: TDateTime;
+    FDate: TIdDateTime;
+    FExpires: TIdDateTime;
+    FLastModified: TIdDateTime;
     FPragma: string;
     FHasContentLength: Boolean;
     //
@@ -130,9 +130,9 @@ Type
     property ContentType: string read FContentType write FContentType;
     property ContentVersion: string read FContentVersion write FContentVersion;
     property CustomHeaders: TIdHeaderList read FCustomHeaders write SetCustomHeaders;
-    property Date: TDateTime read FDate write FDate;
-    property Expires: TDateTime read FExpires write FExpires;
-    property LastModified: TDateTime read FLastModified write FLastModified;
+    property Date: TIdDateTime read FDate write FDate;
+    property Expires: TIdDateTime read FExpires write FExpires;
+    property LastModified: TIdDateTime read FLastModified write FLastModified;
     property Pragma: string read FPragma write FPragma;
   end;
 
