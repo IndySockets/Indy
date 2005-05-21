@@ -1101,6 +1101,7 @@ procedure SplitColumnsNoTrim(const AData: string; AStrings: TIdStrings; const AD
 procedure SplitColumns(const AData: string; AStrings: TIdStrings; const ADelim: string = ' ');    {Do not Localize}
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
 function TextIsSame(const A1: string; const A2: string): Boolean;
+function TextStartsWith(const S, SubS: string): Boolean;
 function IndyUpperCase(const A1: string): string;
 function IndyLowerCase(const A1: string): string;
 function IndyCompareStr(const A1: string; const A2: string): Integer;
@@ -3112,36 +3113,58 @@ function TextIsSame(const A1: string; const A2: string): Boolean;
 begin
   {$IFDEF DotNet}
   Result := A1.Compare(A1, A2, True) = 0;
-  {$else}
+  {$ELSE}
   Result := Sys.AnsiCompareText(A1, A2) = 0;
-  {$endif}
+  {$ENDIF}
+end;
+
+function TextStartsWith(const S, SubS: string): Boolean;
+{$IFNDEF DotNet}
+const
+  CSTR_EQUAL = 2;
+var
+  LLen: Integer;
+{$ENDIF}
+begin
+  {$IFDEF DotNet}
+  Result := System.String.Compare(S, 0, SubS, 0, Length(SubS), True) = 0;
+  {$ELSE}
+  LLen :=  Length(SubS);
+  {$IFDEF MSWINDOWS}
+  Result := (LLen <= Length(S)) and
+    (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE,
+      PChar(S), LLen, PChar(SubS), LLen) = CSTR_EQUAL);
+  {$ELSE}
+  Result := Sys.AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
+  {$ENDIF}
+  {$ENDIF}
 end;
 
 function IndyLowerCase(const A1: string): string;
 begin
   {$IFDEF DotNet}
   Result := A1.ToLower;
-  {$else}
+  {$ELSE}
   Result := Sys.AnsiLowerCase(A1);
-  {$endif}
+  {$ENDIF}
 end;
 
 function IndyUpperCase(const A1: string): string;
 begin
   {$IFDEF DotNet}
   Result := A1.ToUpper;
-  {$else}
+  {$ELSE}
   Result := Sys.AnsiUpperCase(A1);
-  {$endif}
+  {$ENDIF}
 end;
 
 function IndyCompareStr(const A1: string; const A2: string): Integer;
 begin
   {$IFDEF DotNet}
   Result := Sys.CompareStr(A1, A2);
-  {$else}
+  {$ELSE}
   Result := Sys.AnsiCompareStr(A1, A2);
-  {$endif}
+  {$ENDIF}
 end;
 
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
