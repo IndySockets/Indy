@@ -168,7 +168,7 @@ uses
   {$IFDEF DotNet}
   System.Runtime.CompilerServices,
   {$ENDIF}
-  IdGlobal, IdObjsFCL;
+  IdGlobal;
 
 {$IFDEF DotNet}
 var
