@@ -648,13 +648,15 @@ unit IdGlobal;
 
 interface
 
+// TODO -oMTW: Remove direct Classes dependency
+
 uses
   {$IFDEF DotNet}
   System.Collections.Specialized,
   System.net, System.net.Sockets, System.Diagnostics, System.Threading,
   System.IO, System.Text,
   {$ELSE}
-  //DotNET
+  // no DotNET
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Windows,
@@ -664,7 +666,7 @@ uses
   {$ENDIF}
   Classes,
   IdException,
-  IdSys, IdTStrings;
+  IdSys, IdObjs;
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units

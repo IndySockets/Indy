@@ -88,7 +88,7 @@ uses
   System.IO, // Necessary else System.IO below is confused with RTL System.
   {$ENDIF}
   Classes,
-  IdTStrings;
+  IdObjs;
 
 // ***********************************************************
 // TIdBaseComponent is the base class for all Indy components.
@@ -134,6 +134,12 @@ type
   // socket based components typically inherit directly from this. While socket components ineherit
   // from TIdComponent instead as it introduces OnWork, OnStatus, etc.
   TIdBaseComponent = class(TIdInitializerComponent)
+  private
+    function GetIsLoading: Boolean;
+    function GetIsDesignTime: Boolean;
+  protected
+    property IsLoading: Boolean read GetIsLoading;
+    property IsDesignTime: Boolean read GetIsDesignTime;
   public
     // This is here to catch components trying to override at compile time and not let them.
     // This does not work in .net, but we always test in VCL so this will catch it.
@@ -162,7 +168,7 @@ uses
   {$IFDEF DotNet}
   System.Runtime.CompilerServices,
   {$ENDIF}
-  IdGlobal;
+  IdGlobal, IdObjsFCL;
 
 {$IFDEF DotNet}
 var
@@ -276,9 +282,19 @@ end;
 {$IFDEF DotNetDistro}
 function TIdBaseComponent.CType(aStrings: StringCollection): TIdStrings;
 begin
-  Result := TIdCLRStrings.Create(aStrings);
+  Result := TIdStringList.Create(aStrings);
 end;
 {$ENDIF}
+
+function TIdBaseComponent.GetIsLoading: Boolean;
+begin
+  Result := (csLoading in ComponentState);
+end;
+
+function TIdBaseComponent.GetIsDesignTime: Boolean;
+begin
+  Result := (csDesigning in ComponentState);
+end;
 
 function TIdBaseComponent.GetVersion: string;
 begin

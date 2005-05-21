@@ -55,8 +55,8 @@ unit IdAntiFreezeBase;
 interface
 
 uses
-  Classes,
-  IdBaseComponent;
+  IdBaseComponent,
+  IdSys;
 
 const
   ID_Default_TIdAntiFreezeBase_Active = True;
@@ -100,8 +100,7 @@ implementation
 uses
   IdGlobal,
   IdResourceStrings,
-  IdException,
-  IdSys;
+  IdException;
 
 { TIdAntiFreezeBase }
 
@@ -124,7 +123,7 @@ end;
 procedure TIdAntiFreezeBase.InitComponent;
 begin
   inherited;
-  if not (csDesigning in ComponentState) then begin
+  if not IsDesignTime then begin
     EIdException.IfAssigned(GAntiFreeze, RSAntiFreezeOnlyOne);
     GAntiFreeze := Self;
   end;

@@ -64,7 +64,6 @@ unit IdComponent;
 interface
 
 uses
-  Classes,
   IdAntiFreezeBase, IdBaseComponent, IdGlobal, IdResourceStrings,
   IdStack;
 
