@@ -200,14 +200,15 @@ type
     FFirstLine: string;
     FBodyEncoded: Boolean;
     FMIMEBoundary: string;
+    function GetProperHeaderItem(const Line: string): string;
   public
     constructor Create(AOwner: TComponent); reintroduce; overload;
     constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
     function ReadBody(ADestStream: TIdStream;
       var VMsgEnd: Boolean): TIdMessageDecoder; override;
-    procedure CheckAndSetType(AContentType, AContentDisposition: string);
+    procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
     procedure ReadHeader; override;
-    function GetAttachmentFilename(AContentType, AContentDisposition: string): string;
+    function GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
     function RemoveInvalidCharsFromFilename(const AFilename: string): string;
     //
     property MIMEBoundary: string read FMIMEBoundary write FMIMEBoundary;
@@ -406,7 +407,7 @@ begin
     LContentTransferEncoding := FHeaders.Values['Content-Transfer-Encoding']; {Do not Localize}
     if LContentTransferEncoding = '' then begin
       LContentTransferEncoding := FHeaders.Values['Content-Type']; {Do not Localize}
-      if TextIsSame(Copy(LContentTransferEncoding, 1, 24), 'application/mac-binhex40') then begin  {Do not Localize}
+      if TextStartsWith(LContentTransferEncoding, 'application/mac-binhex40') then begin  {Do not Localize}
         LContentTransferEncoding := 'binhex40'; {do not localize}
       end;
     end;
@@ -520,7 +521,7 @@ begin
   finally Sys.FreeAndNil(LDecoder); end;
 end;
 
-function TIdMessageDecoderMIME.GetAttachmentFilename(AContentType, AContentDisposition: string): string;
+function TIdMessageDecoderMIME.GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
 var
   LValue: string;
   LPos: Integer;
@@ -553,7 +554,7 @@ begin
   end;
 end;
 
-procedure TIdMessageDecoderMIME.CheckAndSetType(AContentType, AContentDisposition: string);
+procedure TIdMessageDecoderMIME.CheckAndSetType(const AContentType: string; AContentDisposition: string);
 var
   LDisposition, LFileName: string;
 begin
@@ -566,20 +567,42 @@ begin
   //WARNING: Attachments may not necessarily have filenames!
   LFileName := GetAttachmentFilename(AContentType, AContentDisposition);
 
-  if TextIsSame(LDisposition, 'attachment') or (Length(LFileName) > 0) then begin {Do not Localize}
+  if TextIsSame(LDisposition, 'attachment') or (LFileName <> '') then begin {Do not Localize}
     {A filename is specified, so irrespective of type, this is an attachment...}
     FPartType := mcptAttachment;
     FFilename := LFileName;
   end else begin
     {No filename is specified, so see what type the part is...}
-    if TextIsSame(Copy(AContentType, 1, 5), MIMEGenericText) or
-      TextIsSame(Copy(AContentType, 1, 10), MIMEGenericMultiPart) then
+    if TextStartsWith(AContentType, MIMEGenericText) or
+      TextStartsWith(AContentType, MIMEGenericMultiPart) then
     begin
       FPartType := mcptText;
     end else begin
       FPartType := mcptAttachment;
     end;
   end;
+end;
+
+function TIdMessageDecoderMIME.GetProperHeaderItem(const Line: string): string;
+var
+  LPos, Idx, LLen: Integer;
+begin
+  LPos := Pos(':', Line);
+  if LPos = 0 then begin // the header line is invalid
+    Result := Line;
+    Exit;
+  end;
+
+  Idx := LPos - 1;
+  while (Idx > 0) and (Line[Idx] = ' ') do
+    Dec(Idx);
+
+  LLen := Length(Line);
+  Inc(LPos);
+  while (LPos <= LLen) and (Line[LPos] = ' ') do
+    Inc(LPos);
+
+  Result := Copy(Line, 1, Idx) + '=' + Copy(Line, LPos, MaxInt);
 end;
 
 procedure TIdMessageDecoderMIME.ReadHeader;
@@ -606,17 +629,17 @@ begin
           FHeaders[FHeaders.Count - 1] := FHeaders[FHeaders.Count - 1] + ' ' + Copy(LLine, 2, MaxInt);    {Do not Localize}
         end else begin
           //Make sure you change 'Content-Type :' to 'Content-Type:'
-          FHeaders.Add(Sys.ReplaceOnlyFirst( Sys.ReplaceOnlyFirst(Copy(LLine,2,MaxInt),': ','='),' =','=')); {Do not Localize}
+          FHeaders.Add(GetProperHeaderItem(Copy(LLine, 2, MaxInt))); {Do not Localize}
         end;
       end else begin
         //Make sure you change 'Content-Type :' to 'Content-Type:'
-        FHeaders.Add(Sys.ReplaceOnlyFirst(Sys.ReplaceOnlyFirst(LLine,': ','='),' =','='));    {Do not Localize}
+        FHeaders.Add(GetProperHeaderItem(LLine));    {Do not Localize}
       end;
     until False;
     s := FHeaders.Values['Content-Type'];    {do not localize}
     //CC: Need to detect on "multipart" rather than boundary, because only the
     //"multipart" bit will be visible later...
-    if TextIsSame(Copy(s, 1, 10), 'multipart/') then begin  {do not localize}
+    if TextStartsWith(s, 'multipart/') then begin  {do not localize}
       ABoundary := TIdMIMEBoundary.FindBoundary(s);
       if Owner is TIdMessage then begin
         if Length(ABoundary) > 0 then begin
