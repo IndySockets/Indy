@@ -777,7 +777,7 @@ end;
 function DateTimeToUnix(ADateTime: TIdDateTime): Cardinal;
 begin
   //example: DateTimeToUnix(now);
-  Result := Round(Double((ADateTime - UnixStartDate) * 86400));
+  Result := Round((ADateTime - UnixStartDate) * 86400);
 end;
 
 procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;

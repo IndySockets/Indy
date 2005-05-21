@@ -496,7 +496,7 @@ const
 
 function TimeStampInterval(const AStartStamp, AEndStamp: TIdDateTime): integer;
 begin
-  result := trunc(Double((AEndStamp - AStartStamp) * MSecsPerDay));
+  result := trunc((AEndStamp - AStartStamp) * MSecsPerDay);
 end;
 
 { //(Bas Gooijen) was:
