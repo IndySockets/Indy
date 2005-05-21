@@ -1747,7 +1747,7 @@ end;
 {$IFDEF DOTNET}
 function OffsetFromUTC: TIdDateTime;
 begin
-  Result := System.Timezone.CurrentTimezone.GetUTCOffset(Sys.now).TotalDays;
+  Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Sys.Now)).TotalDays;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
