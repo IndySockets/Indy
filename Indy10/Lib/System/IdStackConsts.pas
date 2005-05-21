@@ -107,9 +107,9 @@ const
     Id_IPV6_MULTICAST_IF = System.Net.Sockets.SocketOptionName.MulticastInterface;
     Id_IPV6_MULTICAST_HOPS = System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
     Id_IPV6_MULTICAST_LOOP = System.Net.Sockets.SocketOptionName.MulticastLoopback;
-    Id_IPV6_ADD_MEMBERSHIP = System.Net.Sockets.SocketOptionName.SocketOptionName.AddMembership;
-    Id_IPV6_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.SocketOptionName.DropMembership;
-    Id_IPV6_PKTINFO = System.Net.Sockets.SocketOptionName.SocketOptionName.PacketInformation;
+    Id_IPV6_ADD_MEMBERSHIP = System.Net.Sockets.SocketOptionName.AddMembership;
+    Id_IPV6_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.DropMembership;
+    Id_IPV6_PKTINFO =         System.Net.Sockets.SocketOptionName.PacketInformation;
      Id_IP_MULTICAST_TTL =    System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
      Id_IP_MULTICAST_LOOP =   System.Net.Sockets.SocketOptionName.MulticastLoopback;
      Id_IP_ADD_MEMBERSHIP =   System.Net.Sockets.SocketOptionName.AddMembership;
