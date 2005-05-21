@@ -462,7 +462,7 @@ type
   function CharRange(const AMin, AMax : Char): String;
   Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
   procedure CommaSeparatedToStringList(AList: TIdStrings; const Value:string);
-  function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
+  function CompareDateTime(const ADateTime1, ADateTime2 : TIdDateTime) : Integer;
   {
   These are for handling binary values that are in Network Byte order.  They call
   ntohs, ntols, htons, and htons which are required by SNTP and FSP
@@ -483,26 +483,26 @@ type
   //Used by IMAP4Server
   function CreateEmptyFile(const APathName : String) : Boolean;
 
-  function DateTimeToGmtOffSetStr(ADateTime: TDateTime; SubGMT: Boolean): string;
-  function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
-  Function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
+  function DateTimeToGmtOffSetStr(ADateTime: TIdDateTime; SubGMT: Boolean): string;
+  function DateTimeGMTToHttpStr(const GMTValue: TIdDateTime) : String;
+  Function DateTimeToInternetStr(const Value: TIdDateTime; const AIsGMT : Boolean = False) : String;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
   function FileSizeByName(const AFilename: string): Int64;
 
   //MLIST FTP DateTime conversion functions
-  function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
-  function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
+  function FTPMLSToGMTDateTime(const ATimeStamp : String):TIdDateTime;
+  function FTPMLSToLocalDateTime(const ATimeStamp : String):TIdDateTime;
 
-  function FTPGMTDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
-  function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
+  function FTPGMTDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
+  function FTPLocalDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
 
   function GetClockValue : Int64;
   function GetMIMETypeFromFile(const AFile: String): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): string;
-  function GetGMTDateByName(const AFileName : String) : TDateTime;
-  function GmtOffsetStrToDateTime(S: string): TDateTime;
-  function GMTToLocalDateTime(S: string): TDateTime;
+  function GetGMTDateByName(const AFileName : String) : TIdDateTime;
+  function GmtOffsetStrToDateTime(S: string): TIdDateTime;
+  function GMTToLocalDateTime(S: string): TIdDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: cardinal): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
@@ -523,7 +523,7 @@ type
   function Max(AValueOne,AValueTwo: Integer): Integer;
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
-  function OffsetFromUTC: TDateTime;
+  function OffsetFromUTC: TIdDateTime;
    function OrdFourByteToCardinal(AByte1, AByte2, AByte3, AByte4 : Byte): Cardinal;
 
 
@@ -536,19 +536,19 @@ type
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
   {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
-  function SetLocalTime(Value: TDateTime): boolean;
+  function SetLocalTime(Value: TIdDateTime): boolean;
 
   function StartsWith(const ANSIStr, APattern : String) : Boolean;
 
   function StrToCard(const AStr: String): Cardinal;
-  function StrInternetToDateTime(Value: string): TDateTime;
+  function StrInternetToDateTime(Value: string): TIdDateTime;
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
-  function TimeZoneBias: TDateTime;
+  function TimeZoneBias: TIdDateTime;
    //these are for FSP but may also help with MySQL
-  function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
-  function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
+  function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TIdDateTime;
+  function DateTimeToUnix(ADateTime: TIdDateTime): Cardinal;
 
   function TwoCharToWord(AChar1, AChar2: Char):Word;
   function UpCaseFirst(const AStr: string): string;
@@ -572,8 +572,8 @@ type
 var
   {$IFDEF LINUX}
   // For linux the user needs to set these variables to be accurate where used (mail, etc)
-  GOffsetFromUTC: TDateTime = 0;
-  GTimeZoneBias: TDateTime = 0;
+  GOffsetFromUTC: TIdDateTime = 0;
+  GTimeZoneBias: TIdDateTime = 0;
   GIdDefaultCharSet : TIdCharSet = idcsISO_8859_1;
   {$ENDIF}
 
@@ -590,8 +590,8 @@ var
 
 //This is from: http://www.swissdelphicenter.ch/en/showcode.php?id=844
 const
-  // Sets UnixStartDate to TDateTime of 01/01/1970
-  UNIXSTARTDATE : TDateTime = 25569.0;
+  // Sets UnixStartDate to TIdDateTime of 01/01/1970
+  UNIXSTARTDATE : TIdDateTime = 25569.0;
    {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
   TIME_BASEDATE = 2;
@@ -765,7 +765,7 @@ begin
 end;
 
 
-function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
+function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TIdDateTime;
 begin
    Result := (UnixDateTime / 86400) + UnixStartDate;
 {
@@ -774,10 +774,10 @@ From: http://homepages.borland.com/efg2lab/Library/UseNet/1999/0309b.txt
    //  Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
 end;
 
-function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
+function DateTimeToUnix(ADateTime: TIdDateTime): Cardinal;
 begin
   //example: DateTimeToUnix(now);
-  Result := Round((ADateTime - UnixStartDate) * 86400);
+  Result := Round(Double((ADateTime - UnixStartDate) * 86400));
 end;
 
 procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;
@@ -1103,7 +1103,7 @@ begin
 end;
 {$ENDIF}
 
-function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
+function CompareDateTime(const ADateTime1, ADateTime2 : TIdDateTime) : Integer;
 var
   LYear1, LYear2 : Word;
   LMonth1, LMonth2 : Word;
@@ -1163,7 +1163,7 @@ begin
 end;
 
 {This is an internal procedure so the StrInternetToDateTime and GMTToLocalDateTime can share common code}
-function RawStrInternetToDateTime(var Value: string): TDateTime;
+function RawStrInternetToDateTime(var Value: string): TIdDateTime;
 var
   i: Integer;
   Dt, Mo, Yr, Ho, Min, Sec: Word;
@@ -1246,7 +1246,7 @@ begin
       Inc(Yr, 1900);
     end;
 
-    Result := TDateTime(Sys.EncodeDate(Yr, Mo, Dt));
+    Result := Sys.EncodeDate(Yr, Mo, Dt);
     // SG 26/9/00: Changed so that ANY time format is accepted
     if IndyPos('AM', Value)>0 then {do not localize}
     begin
@@ -1292,7 +1292,7 @@ begin
         end;
       end;
       {The date and time stamp returned}
-      Result := Result + TDateTime(Sys.EncodeTime(Ho, Min, Sec, 0));
+      Result := Result + Sys.EncodeTime(Ho, Min, Sec, 0);
     end;
     Value := Sys.TrimLeft(Value);
   except
@@ -1327,7 +1327,7 @@ begin
 end;
 
 {This should never be localized}
-function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
+function DateTimeGMTToHttpStr(const GMTValue: TIdDateTime) : String;
 // should adhere to RFC 2616
 
 var
@@ -1342,7 +1342,7 @@ begin
 end;
 
 {This should never be localized}
-function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
+function DateTimeToInternetStr(const Value: TIdDateTime; const AIsGMT : Boolean = False) : String;
 var
   wDay,
   wMonth,
@@ -1355,12 +1355,12 @@ begin
                     DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
 end;
 
-function StrInternetToDateTime(Value: string): TDateTime;
+function StrInternetToDateTime(Value: string): TIdDateTime;
 begin
   Result := RawStrInternetToDateTime(Value);
 end;
 
-function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
+function FTPMLSToGMTDateTime(const ATimeStamp : String):TIdDateTime;
 var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
     LBuffer : String;
 begin
@@ -1381,11 +1381,11 @@ begin
       Fetch(LBuffer,'.');
       LMSec := Sys.StrToInt(LBuffer,0);
       Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + TDateTime(Sys.EncodeTime(LHour,LMin,LSec,LMSec));
+      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
   end;
 end;
 
-function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
+function FTPMLSToLocalDateTime(const ATimeStamp : String):TIdDateTime;
 begin
   Result := 0;
   if ATimeStamp <> '' then
@@ -1396,7 +1396,7 @@ begin
   end;
 end;
 
-function FTPGMTDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
+function FTPGMTDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
 var LYear, LMonth, LDay,
     LHour, LMin, LSec, LMSec : Word;
 
@@ -1417,9 +1417,9 @@ end;
 Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
 stamps based on GMT)
 }
-function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
+function FTPLocalDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
 begin
-  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffSetFromUTC,AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffSetFromUTC, AIncludeMSecs);
 end;
 
 
@@ -1681,7 +1681,7 @@ begin
   {$ENDIF}
 end;
 
-function GetGMTDateByName(const AFileName : String) : TDateTime;
+function GetGMTDateByName(const AFileName : String) : TIdDateTime;
  {$IFDEF WIN32}
 var LRec : TWin32FindData;
   LHandle : THandle;
@@ -1738,20 +1738,20 @@ begin
 end;
 
 {$IFDEF LINUX}
-function OffsetFromUTC: TDateTime;
+function OffsetFromUTC: TIdDateTime;
 begin
   //TODO: Fix OffsetFromUTC for Linux to be automatic from OS
   Result := GOffsetFromUTC;
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
-function OffsetFromUTC: TDateTime;
+function OffsetFromUTC: TIdDateTime;
 begin
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(Sys.now).TotalDays;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
-function OffsetFromUTC: TDateTime;
+function OffsetFromUTC: TIdDateTime;
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
@@ -1786,20 +1786,20 @@ begin
 end;
 
 {$IFDEF LINUX}
-function TimeZoneBias: TDateTime;
+function TimeZoneBias: TIdDateTime;
 begin
   //TODO: Fix TimeZoneBias for Linux to be automatic
   Result := GTimeZoneBias;
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
-function TimeZoneBias: TDateTime;
+function TimeZoneBias: TIdDateTime;
 begin
   Result := -OffsetFromUTC;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
-function TimeZoneBias: TDateTime;
+function TimeZoneBias: TIdDateTime;
 var
   ATimeZone: TTimeZoneInformation;
 begin
@@ -1853,21 +1853,21 @@ begin
 end;
 
 {$IFDEF LINUX}
-function SetLocalTime(Value: TDateTime): boolean;
+function SetLocalTime(Value: TIdDateTime): boolean;
 begin
   //TODO: Implement SetTime for Linux. This call is not critical.
   result := False;
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
-function SetLocalTime(Value: TDateTime): boolean;
+function SetLocalTime(Value: TIdDateTime): boolean;
 begin
   //TODO: Figure out how to do this
   result := False;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
-function SetLocalTime(Value: TDateTime): boolean;
+function SetLocalTime(Value: TIdDateTime): boolean;
 {I admit that this routine is a little more complicated than the one
 in Indy 8.0.  However, this routine does support Windows NT privillages
 meaning it will work if you have administrative rights under that OS
@@ -1930,7 +1930,7 @@ begin
   end;
 end;
 
-function DateTimeToGmtOffSetStr(ADateTime: TDateTime; SubGMT: Boolean): string;
+function DateTimeToGmtOffSetStr(ADateTime: TIdDateTime; SubGMT: Boolean): string;
 var
   AHour, AMin, ASec, AMSec: Word;
 begin
@@ -2140,7 +2140,7 @@ begin
   end;
 end;
 
-function GmtOffsetStrToDateTime(S: string): TDateTime;
+function GmtOffsetStrToDateTime(S: string): TIdDateTime;
 begin
   Result := 0.0;
   S := Copy(Sys.Trim(s), 1, 5);
@@ -2161,9 +2161,9 @@ begin
   end;
 end;
 
-function GMTToLocalDateTime(S: string): TDateTime;
+function GMTToLocalDateTime(S: string): TIdDateTime;
 var  {-Always returns date/time relative to GMT!!  -Replaces StrInternetToDateTime}
-  DateTimeOffset: TDateTime;
+  DateTimeOffset: TIdDateTime;
 begin
   if s = '' then
     begin

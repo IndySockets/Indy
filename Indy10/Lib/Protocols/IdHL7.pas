@@ -251,7 +251,7 @@ type
 
     // these fields are used for handling message response in synchronous mode
     FWaitingForAnswer: Boolean;
-    FWaitStop: TDatetime;
+    FWaitStop: TIdDateTime;
     FMsgReply: String;
     FReplyResponse: TSendResponse;
     FWaitEvent: TIdLocalEvent;
@@ -817,7 +817,7 @@ end;
 
 procedure TIdHL7.WaitForConnection(AMaxLength: Integer);
 var
-  LStopWaiting: TDateTime;
+  LStopWaiting: TIdDateTime;
 begin
   LStopWaiting := Sys.Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
   while not Connected and (LStopWaiting > Sys.Now) do
@@ -1170,7 +1170,7 @@ end;
 
 procedure TIdHL7ClientThread.Execute;
 var
-  LRecTime: TDateTime;
+  LRecTime: TIdDateTime;
 begin
   assert(assigned(self));
   try

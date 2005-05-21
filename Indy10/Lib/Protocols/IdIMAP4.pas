@@ -734,7 +734,7 @@ type
   TIdIMAP4SearchKeyArray = array of TIdIMAP4SearchKey;
 
   TIdIMAP4SearchRec = record
-    Date: TDateTime;
+    Date: TIdDateTime;
     Size: Integer;
     Text: String;
     SearchKey : TIdIMAP4SearchKey;
@@ -803,7 +803,7 @@ TIdIMAP4 = class(TIdMessageClient)
     //This function is needed because when using the regular DateToStr with dd/MMM/yyyy
     //(which is the IMAP needed convension) may give the month as the local language
     //three letter month instead of the English month needed.
-    function  DateToIMAPDateStr (const ADate: TDateTime): String;
+    function  DateToIMAPDateStr (const ADate: TIdDateTime): String;
     procedure StripCRLFs(var AText: string); overload; virtual;  //Allow users to optimise
     procedure StripCRLFs(ASourceStream, ADestStream: TStringStream); overload;
     { Parser Functions }
@@ -5796,7 +5796,7 @@ begin
     end;
 end;
 
-function TIdIMAP4.DateToIMAPDateStr(const ADate: TDateTime): String;
+function TIdIMAP4.DateToIMAPDateStr(const ADate: TIdDateTime): String;
 var LDay, LMonth, LYear : Word;
 begin
     {Do not use the global settings from the system unit here because:

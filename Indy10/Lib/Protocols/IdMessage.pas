@@ -403,7 +403,7 @@ type
     FContentType: string;
     FContentTransferEncoding: string;
     FContentDisposition: string;
-    FDate: TDateTime;
+    FDate: TIdDateTime;
     FIsEncoded : Boolean;
     FExtraHeaders: TIdHeaderList;
     FEncoding: TIdMessageEncoding;
@@ -504,7 +504,7 @@ type
     property ContentTransferEncoding: string read FContentTransferEncoding
      write FContentTransferEncoding;
     property ContentDisposition: string read FContentDisposition write FContentDisposition;
-    property Date: TDateTime read FDate write FDate;
+    property Date: TIdDateTime read FDate write FDate;
     //
     property Encoding: TIdMessageEncoding read FEncoding write SetEncoding;
     property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;

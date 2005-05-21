@@ -83,7 +83,7 @@ Implementation status
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdGlobalProtocols, IdTStrings, SysUtils;
+  Classes, IdGlobal, IdException, IdGlobalProtocols, IdTStrings, SysUtils, IdSys;
   //must keep for now
 
 Const
@@ -523,7 +523,7 @@ begin
   if Length(Expires) = 0 then begin
     FInternalVersion := cvNetscape;
     if FMax_Age >= 0 then begin
-      Expires := DateTimeGMTToHttpStr(Now - OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
+      Expires := DateTimeGMTToHttpStr(Sys.Now - OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
     end;
     // else   Free this cookie
   end;
@@ -623,15 +623,15 @@ var
   wDay,
   wMonth,
   wYear: Word;
-  ANow: TDatetime;
+  ANow: TIdDateTime;
 begin
   if FMax_Age > -1 then
   begin
-    ANow := Now + TimeZoneBias + FMax_Age / MSecsPerDay * 1000;
-    DecodeDate(ANow, wYear, wMonth, wDay);
+    ANow := Sys.Now + TimeZoneBias + FMax_Age / MSecsPerDay * 1000;
+    Sys.DecodeDate(ANow, wYear, wMonth, wDay);
     FExpires := Format('%s, %d-%s-%d %s GMT',    {do not localize}
-                   [wdays[DayOfWeek(ANow)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime('HH":"NN":"SS', ANow)]); {do not localize}
+                   [wdays[Sys.DayOfWeek(ANow)], wDay, monthnames[wMonth],
+                    wYear, Sys.FormatDateTime('HH":"NN":"SS', ANow)]); {do not localize}
   end;
 
   result := inherited GetCookie;

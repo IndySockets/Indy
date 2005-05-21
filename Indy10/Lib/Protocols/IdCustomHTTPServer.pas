@@ -345,7 +345,7 @@ type
   TIdHTTPSession = Class(TObject)
   protected
     FContent: TIdStrings;
-    FLastTimeStamp: TDateTime;
+    FLastTimeStamp: TIdDateTime;
     FLock: TIdCriticalSection;
     FOwner: TIdHTTPCustomSessionList;
     FSessionID: string;
@@ -364,7 +364,7 @@ type
     procedure Unlock;
     //
     property Content: TIdStrings read GetContent write SetContent;
-    property LastTimeStamp: TDateTime read FLastTimeStamp;
+    property LastTimeStamp: TIdDateTime read FLastTimeStamp;
     property RemoteHost: string read FRemoteHost;
     property SessionID: String read FSessionID;
   end;
@@ -494,13 +494,13 @@ const
 
   // Calculate the number of MS between two TimeStamps
 
-function TimeStampInterval(const AStartStamp, AEndStamp: TDateTime): integer;
+function TimeStampInterval(const AStartStamp, AEndStamp: TIdDateTime): integer;
 begin
-  result := trunc((AEndStamp - AStartStamp) * MSecsPerDay);
+  result := trunc(DateTime((AEndStamp - AStartStamp) * MSecsPerDay).ToOADate);
 end;
 
 { //(Bas Gooijen) was:
-function TimeStampInterval(StartStamp, EndStamp: TDateTime): integer;
+function TimeStampInterval(StartStamp, EndStamp: TIdDateTime): integer;
 var
   days: Integer;
   hour, min, s, ms: Word;
@@ -1278,8 +1278,8 @@ end;
 
 function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
 var
-  LFileDate : TDateTime;
-  LReqDate : TDateTime;
+  LFileDate : TIdDateTime;
+  LReqDate : TIdDateTime;
 begin
   LFileDate := Sys.FileAge(AFile);
   LReqDate := GMTToLocalDateTime(ARequestInfo.RawHeaders.Values['If-Modified-Since']);  {do not localize}

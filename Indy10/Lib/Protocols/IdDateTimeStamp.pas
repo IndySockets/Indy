@@ -118,7 +118,7 @@ interface
 uses
   Classes,
   IdBaseComponent,
-  SysConst {Import strings for days & months}, SysUtils ;
+  SysConst {Import strings for days & months}, SysUtils, IdSys;
 
 const
   // Some basic constants
@@ -323,9 +323,9 @@ type
     procedure AddMinutes(ANumber : Cardinal);
     procedure AddMonths(ANumber : Cardinal);
     procedure AddSeconds(ANumber : Cardinal);
-    procedure AddTDateTime(ADateTime : TDateTime);
+    procedure AddTDateTime(ADateTime : TIdDateTime);
     procedure AddTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
-    procedure AddTTimeStamp(ATimeStamp : TTimeStamp);
+    procedure AddTTimeStamp(ATimeStamp : TIdDateTimeStamp);
     procedure AddWeeks(ANumber : Cardinal);
     procedure AddYears(ANumber : Cardinal);
 
@@ -334,8 +334,8 @@ type
     function GetAsISO8601Week : String;
     function GetAsRFC822 : String;
 {TODO :    function GetAsRFC977DateTime : String;}
-    function GetAsTDateTime : TDateTime;
-    function GetAsTTimeStamp : TTimeStamp;
+    function GetAsTDateTime : TIdDateTime;
+    function GetAsTTimeStamp : TIdDateTimeStamp;
     function GetAsTimeOfDay : String; // HH:MM:SS
 
     function GetBeatOfDay : Integer;
@@ -362,8 +362,8 @@ type
     procedure SetFromDOSDateTime(ADate, ATime : Word);
     procedure SetFromISO8601(AString : String);
     procedure SetFromRFC822(AString : String);
-    procedure SetFromTDateTime(ADateTime : TDateTime);
-    procedure SetFromTTimeStamp(ATimeStamp : TTimeStamp);
+    procedure SetFromTDateTime(ADateTime : TIdDateTime);
+    procedure SetFromTTimeStamp(ATimeStamp : TIdDateTimeStamp);
 
     procedure SetDay(ANumber : Integer);
     procedure SetMillisecond(ANumber : Integer);
@@ -377,9 +377,9 @@ type
     procedure SubtractMinutes(ANumber : Cardinal);
     procedure SubtractMonths(ANumber : Cardinal);
     procedure SubtractSeconds(ANumber : Cardinal);
-    procedure SubtractTDateTime(ADateTime : TDateTime);
+    procedure SubtractTDateTime(ADateTime : TIdDateTime);
     procedure SubtractTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
-    procedure SubtractTTimeStamp(ATimeStamp : TTimeStamp);
+    procedure SubtractTTimeStamp(ATimeStamp : TIdDateTimeStamp);
     procedure SubtractWeeks(ANumber : Cardinal);
     procedure SubtractYears(ANumber : Cardinal);
 
@@ -391,8 +391,8 @@ type
     property AsISO8601Ordinal : String read GetAsISO8601Ordinal;
     property AsISO8601Week : String read GetAsISO8601Week;
     property AsRFC822 : String read GetAsRFC822;
-    property AsTDateTime : TDateTime read GetAsTDateTime;
-    property AsTTimeStamp : TTimeStamp read GetAsTTimeStamp;
+    property AsTDateTime : TIdDateTime read GetAsTDateTime;
+    property AsTTimeStamp : TIdDateTimeStamp read GetAsTTimeStamp;
     property AsTimeOfDay : String read GetAsTimeOfDay;
     property BeatOfDay : Integer read GetBeatOfDay;
     property Day : Integer read FDay write SetDay;
@@ -434,6 +434,43 @@ const
   MaxMinutesAdd : Cardinal = $FFFFFFFF div IdSecondsInMinute;
   DIGITS : String = '0123456789'; {Do not Localize}
 
+
+function DateTimeToTimeStamp(ADateTime: TIdDateTime): TIdDateTimeStamp;
+var
+  Year,
+  Month,
+  Day,
+  Hour,
+  Minute,
+  Second,
+  MSec: Word;
+begin
+  Sys.DecodeDate(ADateTime, Year, Month, Day);
+  Sys.DecodeTime(ADateTime, Hour, Minute, Second, MSec);
+  Result := TIdDateTimeStamp.Create;
+  Result.Zero;
+  Result.AddYears(Year);
+  Result.AddMonths(Month);
+  Result.AddDays(Day);
+  Result.AddHours(Hour);
+  Result.AddMinutes(Minute);
+  Result.AddSeconds(Second);
+  Result.AddMilliseconds(MSec);
+end;
+
+procedure ValidateTimeStamp(const ATimeStamp: TIdDateTimeStamp);
+begin
+  IdGlobal.ToDo;
+//  if (ATimeStamp.Time < 0) or (ATimeStamp.Date <= 0) then
+//    EIdExceptionBase.CreateFmt('''%d.%d'' is not a valid timestamp', [ATimeStamp.Date, ATimeStamp.Time]);
+end;
+
+function TimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TIdDateTime;
+begin
+  ValidateTimeStamp(ATimeStamp);
+  Result := Sys.EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.Day) +
+            Sys.EncodeTime(ATimeStamp.HourOf24Day, ATimeStamp.MinuteOfHour, ATimeStamp.SecondOfMinute, ATimeStamp.Millisecond);
+end;
 
 /////////////
 // IdDateTime
@@ -605,7 +642,8 @@ end;
 
 procedure TIdDateTimeStamp.AddTDateTime;
 begin
-  AddTTimeStamp(DateTimeToTimeStamp(ADateTime));
+// todo:
+//  AddTTimeStamp(DateTimeToTimeStamp(ADateTime));
 end;
 
 procedure TIdDateTimeStamp.AddTIdDateTimeStamp;
@@ -618,16 +656,8 @@ begin
 end;
 
 procedure TIdDateTimeStamp.AddTTimeStamp;
-var
-  TId : TIdDateTimeStamp;
 begin
-  TId := TIdDateTimeStamp.Create(Self);
-  try
-    TId.SetFromTTimeStamp(ATimeStamp);
-    Self.AddTIdDateTimeStamp(TId);
-  finally
-    TId.Free;
-  end;
+  AddTIdDateTimeStamp(ATimeStamp);
 end;
 
 procedure TIdDateTimeStamp.AddWeeks;
@@ -714,36 +744,8 @@ begin
 end;
 
 function TIdDateTimeStamp.GetAsTTimeStamp;
-var
-  NonLeap, Leap : Integer;
 begin
-  // Every four years is a leap year
-  Leap := FYear div 4;
-  // Every hundred is not
-  NonLeap := FYear div 100;
-  Leap := Leap - NonLeap;
-  // Every four-hundred is. 
-  NonLeap := FYear div 400;
-  Leap := Leap + NonLeap;
-  // Don't count the first year as whole    {Do not Localize}
-  NonLeap := (FYear - 1) - Leap;
-  result.Date := (Leap * IdDaysInLeapYear) + (NonLeap * IdDaysInYear) +
-    Integer(FDay);  // Not accurate for all dates (i.e., not Julian calender,
-    // < ~1500), but good enough for Internet use
-  if (FYear mod 4 = 0) then
-  begin
-    if (FYear mod 100) = 0 then
-    begin
-      if (FYear mod 400) = 0 then
-      begin
-        result.Date := result.Date - 1;
-      end;
-    end else
-    begin
-      result.Date := result.Date - 1;
-    end;
-  end;
-  result.Time := (FSecond * IdMillisecondsInSecond) + FMillisecond;
+  Result := Self;
 end;
 
 function TIdDateTimeStamp.GetAsTimeOfDay;
@@ -1169,11 +1171,12 @@ end;
 
 procedure TIdDateTimeStamp.SetFromTTimeStamp;
 begin
-  SetYear(1);
-  SetDay(1);
-  SetSecond(0);
-  SetMillisecond(ATimeStamp.Time);
-  SetDay(ATimeStamp.Date);
+  FDay := ATimeStamp.Day;
+  FMillisecond := ATimeStamp.Millisecond;
+  FIsLeapYear := ATimeStamp.IsLeapYear;
+  FSecond := ATimeStamp.Second;
+  FTimeZone := ATimeStamp.TimeZone;
+  FYear := ATimeStamp.Year;
 end;
 
 procedure TIdDateTimeStamp.SetDay;
@@ -1376,7 +1379,7 @@ end;
 
 procedure TIdDateTimeStamp.SubtractTDateTime;
 begin
-  SubtractTTimeStamp(DateTimeToTimeStamp(ADateTime));
+  SubtractTIdDateTimeStamp(DateTimeToTimeStamp(ADateTime));
 end;
 
 procedure TIdDateTimeStamp.SubtractTIdDateTimeStamp;
@@ -1389,16 +1392,8 @@ begin
 end;
 
 procedure TIdDateTimeStamp.SubtractTTimeStamp;
-var
-  TId : TIdDateTimeStamp;
 begin
-  TId := TIdDateTimeStamp.Create(Self);
-  try
-    TId.SetFromTTimeStamp(ATimeStamp);
-    Self.SubtractTIdDateTimeStamp(TId);
-  finally
-    TId.Free;
-  end;
+  SubtractTIdDateTimeStamp(ATimeStamp);
 end;
 
 procedure TIdDateTimeStamp.SubtractWeeks(ANumber : Cardinal);
