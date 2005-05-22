@@ -1083,11 +1083,11 @@ function IsOctal(const AString: string): Boolean; overload;
 function MakeCanonicalIPv4Address(const AAddr: string): string;
 function MakeCanonicalIPv6Address(const AAddr: string): string;
 function MakeDWordIntoIPv4Address(const ADWord: Cardinal): string;
-function Max(AValueOne,AValueTwo: Integer): Integer;
+function Max(const AValueOne,AValueTwo: Int64): Int64;
 {$IFNDEF DotNet}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
-function Min(AValueOne, AValueTwo: Integer): Integer;
+function Min(const AValueOne, AValueTwo: Int64): Int64;
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal = 0): Cardinal; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
 function PosInStrArray(const SearchStr: string; Contents: array of string;
@@ -2209,7 +2209,7 @@ begin
   end;
 end;
 
-function Max(AValueOne,AValueTwo: Integer): Integer;
+function Max(const AValueOne,AValueTwo: Int64): Int64;
 begin
   if AValueOne < AValueTwo then
   begin
@@ -2268,7 +2268,7 @@ begin
 End;
 {$ENDIF}
 
-function Min(AValueOne, AValueTwo: Integer): Integer;
+function Min(const AValueOne, AValueTwo: Int64): Int64;
 begin
   If AValueOne > AValueTwo then
   begin
