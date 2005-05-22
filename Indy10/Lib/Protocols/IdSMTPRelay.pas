@@ -239,6 +239,10 @@ type
     procedure SetSSLOptions(const Value: TIdSSLSupportOptions);
     //
     procedure InitComponent; override;
+
+    //
+    // holger: .NET compatibility change
+    property Port;                              
   public
     procedure Assign(Source: TPersistent); override;
     destructor Destroy; override;
