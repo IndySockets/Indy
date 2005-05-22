@@ -3250,21 +3250,17 @@ var
   LLine : String;
   LStrm : TIdStreamVCL;
 
-const DEF_BLOCKSIZE = 10240;
+const DEF_BLOCKSIZE = 10*10240;
       DEF_CHECKCMD_WAIT = 1;
 
   procedure CheckControlConnection(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings);
   var LLine : String;
   begin
-    AContext.Connection.IOHandler.CheckForDataOnSource(DEF_CHECKCMD_WAIT);
-    if not AContext.Connection.IOHandler.InputBufferIsEmpty then
-    begin
-      LLine := ReadCommandLine(AContext);
-      if LLine <> '' then begin
-         if not FDataChannelCommands.HandleCommand(AContext, LLine) then begin
-            ACmdQueue.Add(LLine);
-         end;
-      end;
+    LLine := ReadCommandLine(AContext);
+    if LLine <> '' then begin
+       if not FDataChannelCommands.HandleCommand(AContext, LLine) then begin
+          ACmdQueue.Add(LLine);
+       end;
     end;
   end;
 
