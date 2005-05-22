@@ -1,8 +1,22 @@
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log: }
+
 unit IdStruct;
 
 interface
+
 uses IdGlobal;
+
 type
+
   TIdStruct = class(TObject)
   public
     constructor create; virtual;
@@ -11,6 +25,7 @@ type
     procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); virtual;
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  virtual;
   end;
+
   TIdUnion = class(TIdStruct)
   protected
     FBuffer : TIdBytes;
@@ -21,6 +36,7 @@ type
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  override;
     property BytesLen : Integer read FBytesLen;
   end;
+
   TIdLongWord =class(TIdUnion)
   protected
     function Get_l: Cardinal;
