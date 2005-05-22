@@ -988,6 +988,10 @@ type
     function IsTitan : Boolean;
 	  function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
+
+    //
+    // holger: .NET compatibility change
+    property IPVersion;
   public
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TIdStrings);
