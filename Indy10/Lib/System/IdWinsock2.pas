@@ -830,6 +830,7 @@ type
     len: U_LONG;  { the length of the buffer }
     buf: PChar; { the pointer to the buffer }
   end {WSABUF};
+  TWSABUF =  WSABUF;
   PWSABUF = ^WSABUF;
   LPWSABUF = PWSABUF;
 
@@ -1455,6 +1456,15 @@ type
   PWSAMSG = ^TWSAMSG;
   LPWSAMSG = PWSAMSG;
 
+  _WSACMSGHDR = packed record
+     cmsg_len : Cardinal;//SIZE_T;
+     cmsg_level : Integer;
+     cmsg_type : Integer;
+  end;
+  TWSACMSGHDR = _WSACMSGHDR;
+  PWSACMSGHDR = ^TWSACMSGHDR;
+  LPWSACMSGHDR = PWSACMSGHDR;
+
 {$IFDEF UNICODE}
   WSANameSpace_Info   = TWSANameSpace_InfoW;
   TWSANameSpace_Info  = TWSANameSpace_InfoW;
@@ -1992,6 +2002,12 @@ const
   ip_add_membership  = 12; // add an IP group membership
   ip_drop_membership = 13; // drop an IP group membership
   ip_dontfragment    = 14; // don't fragment IP datagrams    {Do not Localize}
+  ip_add_source_membership = 15; // join IP group/source
+  ip_drop_source_membership = 16; // leave IP group/source
+  ip_block_source           = 17; // block IP group/source
+  ip_unblock_source         = 18; // unblock IP group/source 
+  ip_pktinfo                = 19; // receive packet information for ipv4
+  ip_receive_broadcast      = 22; // allow/block broadcast reception
 
   ip_default_multicast_ttl   = 1;    // normally limit m'casts to 1 hop    {Do not Localize}
   ip_default_multicast_loop  = 1;    // normally hear sends if a member
