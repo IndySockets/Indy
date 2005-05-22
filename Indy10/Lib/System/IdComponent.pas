@@ -96,8 +96,8 @@ type
 
   TWorkMode = (wmRead, wmWrite);
   TWorkInfo = record
-    Current: Integer;
-    Max: Integer;
+    Current: Int64;
+    Max: Int64;
     Level: Integer;
   end;
 
@@ -124,9 +124,9 @@ type
     property OnWorkBegin: TWorkBeginEvent read FOnWorkBegin write FOnWorkBegin;
     property OnWorkEnd: TWorkEndEvent read FOnWorkEnd write FOnWorkEnd;
   public
-    procedure BeginWork(AWorkMode: TWorkMode; const ASize: Integer = 0); virtual;
+    procedure BeginWork(AWorkMode: TWorkMode; const ASize: Int64 = 0); virtual;
     destructor Destroy; override;
-    procedure DoWork(AWorkMode: TWorkMode; const ACount: Integer); virtual;
+    procedure DoWork(AWorkMode: TWorkMode; const ACount: Int64); virtual;
     procedure EndWork(AWorkMode: TWorkMode); virtual;
     //
     property WorkTarget: TIdComponent read FWorkTarget write FWorkTarget;
@@ -167,7 +167,7 @@ begin
   end;
 end;
 
-procedure TIdComponent.BeginWork(AWorkMode: TWorkMode; const ASize: Integer = 0);
+procedure TIdComponent.BeginWork(AWorkMode: TWorkMode; const ASize: Int64 = 0);
 begin
   if FWorkTarget <> nil then begin
     FWorkTarget.BeginWork(AWorkMode, ASize);
@@ -183,7 +183,7 @@ begin
   end;
 end;
 
-procedure TIdComponent.DoWork(AWorkMode: TWorkMode; const ACount: Integer);
+procedure TIdComponent.DoWork(AWorkMode: TWorkMode; const ACount: Int64);
 begin
   if FWorkTarget <> nil then begin
     FWorkTarget.DoWork(AWorkMode, ACount);
