@@ -135,7 +135,7 @@ interface
 uses
   Classes,
   IdException,
-  IdTStrings,
+  IdObjs,
   IdSys;
 
 type
