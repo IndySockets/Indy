@@ -230,6 +230,8 @@ begin
   if ADest is TIdReply then begin
     LR := TIdReply(ADest);
     LR.Clear;
+
+    // holger: .NET compatibility change
     LR.Text.Assign(Self.Text);
     LR.Code := Self.Code;
   end else begin
