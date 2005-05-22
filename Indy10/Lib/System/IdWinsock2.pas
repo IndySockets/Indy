@@ -4163,6 +4163,25 @@ begin
   @TransmitFile:=@StubTransmitFile;
 end;
 *)
+
+{
+IMPORTANT COMMENT!!!  DO NOT REMOVE!!!!
+
+ Bob Quinn had noted:
+
+WSIoctl() fails with WSAEFAULT (10014):. On Microsoft's WinSock 2
+implementation for NT4 and Win95, many of the new WinSock 2 WSAIoctl() commands
+fail with WSAEFAULT (10014) unless valid pointers are provided for both input
+and output buffer arguments to buffers of at least 4-bytes in size, even when
+either an input or output buffer isn't required by the API (as indicated by the
+IOC_IN and IOC_OUT control code bits described in the WinSock 2 API
+specification
+
+See URL:  http://www.sockets.com/ws2_stat.htm
+
+Note that I did verify this on WindowsXP Professional with Service Pack 2 on May
+21, 2005
+}
 function ServiceQueryTransmitFile(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite: DWORD;
     nNumberOfBytesPerSend: DWORD; lpOverlapped: POverlapped;
     lpTransmitBuffers: PTransmitFileBuffers; dwReserved: DWORD): BOOL;
@@ -4171,9 +4190,11 @@ const GuidTransmitFile:
 var LStatus: Integer;
     LTransmitFile: TTransmitFileProc;
     LBytesSend: DWord;
+    LDummy1, LDummy2 : Cardinal;
+
 begin
   LStatus:=WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @GuidTransmitFile, sizeof(GuidTransmitFile),
-    @@LTransmitFile, sizeof(@LTransmitFile), @LBytesSend, nil, nil);
+    @@LTransmitFile, sizeof(@LTransmitFile), @LBytesSend, @LDummy1, @LDummy2);
   if LStatus=0 then begin
     result := LTransmitFile(hSocket, hFile, nNumberOfBytesToWrite,nNumberOfBytesPerSend,lpOverlapped,lpTransmitBuffers,dwReserved);
     if not result then begin
@@ -4191,9 +4212,10 @@ function ServiceQueryAcceptEx(sListenSocket, sAcceptSocket: TSocket;
 const GuidAcceptEx:TGuid=(D1:$b5367df1;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
 var LStatus : integer;
     LAcceptEx : TAcceptExProc;
+    LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(sListenSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @GuidAcceptEx, sizeof(GuidAcceptEx),
-    @@LAcceptEx, sizeof(@LAcceptEx), nil, nil, nil);
+    @@LAcceptEx, sizeof(@LAcceptEx), @LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
     result := LAcceptEx( sListenSocket, sAcceptSocket,
       lpOutputBuffer, dwReceiveDataLength, dwLocalAddressLength,
@@ -4212,9 +4234,10 @@ procedure ServiceQueryGetAcceptExSockaddrs(s : TSocket; lpOutputBuffer: Pointer;
 const GuidGetAcceptExSockaddrs:TGuid=(D1:$b5367df2;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
 var LStatus : integer;
     LGetAcceptExSockaddrs : TGetAcceptExSockaddrsProc;
+    LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(s,SIO_GET_EXTENSION_FUNCTION_POINTER,@GuidGetAcceptExSockaddrs, sizeof(GuidGetAcceptExSockaddrs),
-    @@LGetAcceptExSockaddrs, sizeof(@LGetAcceptExSockaddrs), nil, nil, nil);
+    @@LGetAcceptExSockaddrs, sizeof(@LGetAcceptExSockaddrs), @LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
      LGetAcceptExSockaddrs(lpOutputBuffer,dwReceiveDataLength, dwLocalAddressLength, dwRemoteAddressLength,
        LocalSockaddr, LocalSockaddrLength,RemoteSockaddr, RemoteSockaddrLength);
@@ -4242,9 +4265,10 @@ function ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Inte
 const GuidConnectEx:TGuid=(D1:$25a207b9;D2:$ddf3;D3:$4660;D4:($8e,$e9,$76,$e5,$8c,$74,$06,$3e));
 var LStatus : integer;
     LConnectEx : TConnectExProc;
+    LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(s,SIO_GET_EXTENSION_FUNCTION_POINTER,@GuidConnectEx, sizeof(GuidConnectEx),
-    @@LConnectEx, sizeof(@LConnectEx), nil, nil, nil);
+    @@LConnectEx, sizeof(@LConnectEx),@LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
     result := LConnectEx(s, name, namelen, lpSendBuffer, dwSendDataLength, lpdwBytesSent, lpOverlapped);
   end else begin
@@ -4256,9 +4280,10 @@ function DisconnectEx(const hSocket : TSocket; AOverlapped: Pointer; const dwFla
 const GuidDisConnectEx:TGuid=(D1:$7fda2e11;D2:$8630;D3:$436f;D4:($a0,$31,$f5,$36,$a6,$ee,$c1,$57));
 var LStatus : integer;
    LDisConnectEx : TDisConnectExProc;
+   LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(hSocket,SIO_GET_EXTENSION_FUNCTION_POINTER,@GuidDisConnectEx, sizeof(GuidDisConnectEx),
-    @@LDisConnectEx, sizeof(@LDisConnectEx), nil, nil, nil);
+    @@LDisConnectEx, sizeof(@LDisConnectEx), @LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
     result:=LDisConnectEx(hSocket, AOverlapped,dwFlags,dwReserved);
   end else begin
@@ -4270,9 +4295,10 @@ function WSARecvMsg( const s : TSocket; lpMsg : PWSAMSG; var lpNumberOfBytesRecv
 const GuidWSARecvMsg:TGuid=(D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
 var LStatus : integer;
     LWSARecvMsg : TWSARecvMsgProc;
+    LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(s, SIO_GET_EXTENSION_FUNCTION_POINTER, @GuidWSARecvMsg, sizeof(GuidWSARecvMsg),
-    @@LWSARecvMsg, sizeof(@LWSARecvMsg), nil, nil, nil);
+    @@LWSARecvMsg, sizeof(@LWSARecvMsg), @LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
     result := LWSARecvMsg(s, lpMsg, lpNumberOfBytesRecvd, AOverlapped, lpCompletionRoutine);
   end else begin
@@ -4289,9 +4315,10 @@ function TransmitPackets(hSocket: TSocket;
 const GuidTransmitPackets:TGUID=(D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
 var LStatus : integer;
     LTransmitPackets : TTransmitPacketsProc;
+    LDummy1, LDummy2, LDummy3 : Cardinal;
 begin
   LStatus:=WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @GuidTransmitPackets, sizeof(GuidTransmitPackets),
-    @@LTransmitPackets, sizeof(@LTransmitPackets), nil, nil, nil);
+    @@LTransmitPackets, sizeof(@LTransmitPackets), @LDummy1, @LDummy2, @LDummy3);
   if LStatus=0 then begin
     result := LTransmitPackets(hSocket, lpPacketArray, nElementCount, nSendSize, lpOverlapped, dwFlags);
   end else begin
