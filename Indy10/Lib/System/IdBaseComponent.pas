@@ -136,7 +136,7 @@ type
     // Create; variant is here to allow calls from VCL the same as from .net
     constructor Create; reintroduce; overload;
     // Must be an override and thus virtual to catch when created at design time
-    constructor Create(AOwner: TComponent); overload; override;
+    //constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
     {$IFDEF DotNetDistro}
       procedure BeginInit;
@@ -295,6 +295,7 @@ begin
   {$ENDIF}
 end;
 
+{$IFDEF DotNetDistro}
 procedure TIdInitializerComponent.BeginInit;
 begin
   FIsLoading := True;
@@ -304,6 +305,7 @@ procedure TIdInitializerComponent.EndInit;
 begin
   FIsLoading := False;
 end;
+{$ENDIF}
 
 { TIdBaseComponent }
 
