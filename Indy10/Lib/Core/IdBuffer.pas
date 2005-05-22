@@ -675,13 +675,13 @@ var
 begin
   if AByteCount = -1 then begin
     // Copy remaining
-    LAdded := AStream.VCLStream.Size - AStream.VCLStream.Position;
+    LAdded := AStream.Size - AStream.Position;
   end else if AByteCount = 0 then begin
     // Copy all
-    AStream.VCLStream.Position := 0;
-    LAdded := AStream.VCLStream.Size;
+    AStream.Position := 0;
+    LAdded := AStream.Size;
   end else begin
-    LAdded := Min(AByteCount, AStream.VCLStream.Size - AStream.VCLStream.Position);
+    LAdded := Min(AByteCount, AStream.Size - AStream.Position);
   end;
   if LAdded > 0 then begin
     LLength := Size;

@@ -1196,15 +1196,15 @@ var
   LBufSize: Integer;
 begin
   if ASize < 0 then begin //"-1" All form current position
-    LBufSize := AStream.VCLStream.Position;
-    ASize := AStream.VCLStream.Size;
+    LBufSize := AStream.Position;
+    ASize := AStream.Size;
     //todo1 is this step required?
-    AStream.VCLStream.Position := LBufSize;
+    AStream.Position := LBufSize;
     ASize := ASize - LBufSize;
   end
   else if ASize = 0 then begin //"0" ALL
-    ASize := AStream.VCLStream.Size;
-    AStream.VCLStream.Position := 0;
+    ASize := AStream.Size;
+    AStream.Position := 0;
   end;
   //else ">0" ACount bytes
   EIdIoHandlerRequiresLargeStream.IfTrue((ASize>High(Integer)) and (LargeStream=False));
@@ -1311,11 +1311,11 @@ var
   var
     LStreamPos: Int64;
   begin
-    LStreamPos := AStream.VCLStream.Position;
-    AStream.VCLStream.Size := ASize;
+    LStreamPos := AStream.Position;
+    AStream.Size := ASize;
     // Must reset to original size as in some cases size changes position
-    if AStream.VCLStream.Position <> LStreamPos then begin
-      AStream.VCLStream.Position := LStreamPos;
+    if AStream.Position <> LStreamPos then begin
+      AStream.Position := LStreamPos;
     end;
   end;
 
@@ -1331,7 +1331,7 @@ begin
   // Presize stream if we know the size - this reduces memory/disk allocations to one time
   // Have an option for this? user might not want to presize, eg for int64 files
   if AByteCount > -1 then begin
-    AdjustStreamSize(AStream, AStream.VCLStream.Position + AByteCount);
+    AdjustStreamSize(AStream, AStream.Position + AByteCount);
   end;
 
   if AReadUntilDisconnect then begin
@@ -1384,8 +1384,8 @@ begin
     end;
   finally
     EndWork(wmRead);
-    if AStream.VCLStream.Size > AStream.VCLStream.Position then begin
-      AStream.VCLStream.Size := AStream.VCLStream.Position;
+    if AStream.Size > AStream.Position then begin
+      AStream.Size := AStream.Position;
     end;
     LBuf := NIL;
   end;
@@ -1692,7 +1692,7 @@ begin
   LStream := TReadFileExclusiveStream.Create(AFile); try
     LIdStream := TIdStreamVCL.Create(LStream); try
       Write(LIdStream);
-      Result := LIdStream.VCLStream.Size;
+      Result := LIdStream.Size;
     finally Sys.FreeAndNil(LIdStream); end;
   finally Sys.FreeAndNil(LStream); end;
 end;
