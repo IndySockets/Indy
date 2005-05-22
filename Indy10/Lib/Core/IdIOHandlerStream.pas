@@ -139,7 +139,9 @@ unit IdIOHandlerStream;
 interface
 
 uses
+  {$IFNDEF DotNetDistro}
   Classes,
+  {$ENDIF}
   IdGlobal,
   IdIOHandler,
   IdStreamVCL,
@@ -148,11 +150,19 @@ uses
 type
   TIdIOHandlerStream = class;
   TIdIOHandlerStreamType = (stRead, stWrite, stReadWrite);
+  {$IFDEF DotNetDistro}
+  TIdOnGetStreams = procedure(
+    ASender: TIdIOHandlerStream;
+    var VReceiveStream: TIdStreamVCL;
+    var VSendStream: TIdStreamVCL
+    ) of object;
+  {$ELSE}
   TIdOnGetStreams = procedure(
     ASender: TIdIOHandlerStream;
     var VReceiveStream: TStream;
     var VSendStream: TStream
     ) of object;
+  {$ENDIF}
 
   TIdIOHandlerStream = class(TIdIOHandler)
   protected
@@ -162,15 +172,23 @@ type
     FSendIdStream: TIdStreamVCL;
     FStreamType: TIdIOHandlerStreamType;
     //
+    {$IFDEF DotNetDistro}
+    function GetReceiveStream: TIdStreamVCL;
+    function GetSendStream: TIdStreamVCL;
+    procedure SetReceiveStream(AStream: TIdStreamVCL);
+    procedure SetSendStream(AStream: TIdStreamVCL);
+    {$ELSE}
     function GetReceiveStream:TStream;
     function GetSendStream:TStream;
     procedure SetReceiveStream(AStream:TStream);
     procedure SetSendStream(AStream:TStream);
+    {$ENDIF}
     function ReadFromSource(
       ARaiseExceptionIfDisconnected: Boolean = True;
       ATimeout: Integer = IdTimeoutDefault;
       ARaiseExceptionOnTimeout: Boolean = True
       ): Integer; override;
+    procedure InitComponent; override;
   public
     procedure CheckForDataOnSource(
       ATimeout: Integer = 0
@@ -180,14 +198,18 @@ type
       AIgnoreBuffer: Boolean = False
       ); override;
 
+    {$IFDEF DotNetDistro}
+    constructor Create(
+      AReceiveStream: TIdStreamVCL;
+      ASendStream: TIdStreamVCL = nil
+      ); reintroduce; overload; virtual;
+    {$ELSE}
     constructor Create(
       AOwner: TComponent;
       AReceiveStream: TStream;
       ASendStream: TStream = nil
       ); reintroduce; overload; virtual;
-    constructor Create(
-      AOwner: TComponent
-      ); reintroduce; overload;
+    {$ENDIF}
     function Connected
       : Boolean;
       override;
@@ -200,8 +222,13 @@ type
       ABuffer: TIdBytes
       ); override;
     //
+    {$IFDEF DotNetDistro}
+    property ReceiveStream: TIdStreamVCL read FReceiveIdStream {write SetReceiveStream};
+    property SendStream: TIdStreamVCL read FSendIdStream {write SetSendStream};
+    {$ELSE}
     property ReceiveStream: TStream read GetReceiveStream {write SetReceiveStream};
     property SendStream: TStream read GetSendStream {write SetSendStream};
+    {$ENDIF}
   published
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
     property StreamType: TIdIOHandlerStreamType read FStreamType
@@ -234,8 +261,10 @@ begin
     ReceiveStream.Free;
     SendStream.Free;
   end;
+  {$IFNDEF DotNetDistro}
   Sys.FreeAndNil(FReceiveIdStream);
   Sys.FreeAndNil(FSendIdStream);
+  {$ENDIF}
 end;
 
 function TIdIOHandlerStream.Connected: Boolean;
@@ -248,14 +277,25 @@ begin
   end;
 end;
 
-constructor TIdIOHandlerStream.Create( AOwner: TComponent );
+{$IFDEF DotNetDistro}
+constructor TIdIOHandlerStream.Create(
+  AReceiveStream: TIdStreamVCL;
+  ASendStream: TIdStreamVCL = nil
+  );
 begin
-  inherited Create(AOwner);
+  inherited Create;
   FFreeStreams := True;
   //
   FStreamType := stReadWrite;
+  if (AReceiveStream <> nil) and (ASendStream = nil) then begin
+    FStreamType := stWrite;
+  end else if (AReceiveStream = nil) and (ASendStream <> nil) then begin
+    FStreamType := stRead;
+  end;
+  SetReceiveStream(AReceiveStream);
+  SetSendStream(ASendStream);
 end;
-
+{$ELSE}
 constructor TIdIOHandlerStream.Create(
   AOwner: TComponent;
   AReceiveStream: TStream;
@@ -274,22 +314,33 @@ begin
   SetReceiveStream(AReceiveStream);
   SetSendStream(ASendStream);
 end;
+{$ENDIF}
+
 
 procedure TIdIOHandlerStream.Open;
 var
+{$IFDEF DotNetDistro}
+  LReceiveStream, LSendStream: TIdStreamVCL;
+{$ELSE}
   LReceiveStream, LSendStream: TStream;
+{$ENDIF}
 begin
   inherited;
   if Assigned(OnGetStreams) then begin
     LReceiveStream := nil;
     LSendStream := nil;
     OnGetStreams(Self, LReceiveStream, LSendStream);
+    {$IFDEF DotNetDistro}
+      FReceiveIdStream := LReceiveStream;
+      FSendIdStream := LSendStream;
+    {$ELSE}
     if LReceiveStream <> nil then begin
       FReceiveIdStream := TIdStreamVCL.Create(LReceiveStream);
     end;
     if LSendStream <> nil then begin
       FSendIdStream := TIdStreamVCL.Create(LSendStream);
     end;
+    {$ENDIF}
   end;
 end;
 
@@ -311,7 +362,7 @@ begin
   if ReceiveStream <> nil then begin
     // We dont want to read the whole stream in at a time. If its a big file will consume way too
     // much memory by loading it all at once. So lets read it in chunks.
-    Result := Min(32 * 1024, FReceiveIdStream.VCLStream.Size - FReceiveIdStream.VCLStream.Position);
+    Result := Min(32 * 1024, FReceiveIdStream.Size - FReceiveIdStream.Position);
     if Result > 0 then begin
       SetLength(LBuffer, Result);
       FReceiveIdStream.ReadBytes(LBuffer, Result);
@@ -340,6 +391,27 @@ begin
   end;
 end;
 
+{$IFDEF DotNetDistro}
+function TIdIOHandlerStream.GetReceiveStream: TIdStreamVCL;
+begin
+  Result := FReceiveIdStream;
+end;
+
+function TIdIOHandlerStream.GetSendStream: TIdStreamVCL;
+begin
+  Result := FSendIdStream;
+end;
+
+procedure TIdIOHandlerStream.SetReceiveStream(AStream: TIdStreamVCL);
+begin
+  FReceiveIdStream := AStream;
+end;
+
+procedure TIdIOHandlerStream.SetSendStream(AStream: TIdStreamVCL);
+begin
+  FSendIdStream := AStream;
+end;
+{$ELSE}
 function TIdIOHandlerStream.GetReceiveStream: TStream;
 begin
   if FReceiveIdStream = nil then begin
@@ -372,6 +444,13 @@ begin
   if AStream <> nil then begin
     FSendIdStream := TIdStreamVCL.Create(AStream);
   end;
+end;
+{$ENDIF}
+
+procedure TIdIOHandlerStream.InitComponent;
+begin
+  inherited;
+  FStreamType := stReadWrite;
 end;
 
 end.
