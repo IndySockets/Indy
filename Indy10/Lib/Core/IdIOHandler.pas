@@ -514,7 +514,7 @@ uses
   Classes,
   IdException,
   IdAntiFreezeBase, IdBuffer, IdComponent, IdGlobal, IdExceptionCore,
-  IdIntercept, IdStreamVCL, IdSys, IdResourceStringsCore, IdTStrings;
+  IdIntercept, IdStreamVCL, IdSys, IdResourceStringsCore, IdObjs;
 
 const
   GRecvBufferSizeDefault = 32 * 1024;

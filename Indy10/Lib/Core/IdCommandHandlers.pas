@@ -164,8 +164,8 @@ unit IdCommandHandlers;
 interface
 
 uses
-  Classes, IdBaseComponent, IdComponent, IdReply, IdGlobal,
-  IdContext, IdReplyRFC, IdSys, IdTStrings;
+  IdBaseComponent, IdComponent, IdReply, IdGlobal,
+  IdContext, IdReplyRFC, IdSys, IdObjs, Classes;
 
 const
   IdEnabledDefault = True;
