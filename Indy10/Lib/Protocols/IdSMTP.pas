@@ -1,4 +1,4 @@
-{ $HDR$}
+#{ $HDR$}
 {**********************************************************************}
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
@@ -265,6 +265,10 @@ type
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+
+    //
+    // holger: .NET compatibility change, OnConnected being reintroduced 
+    property OnConnected;
   public
     destructor Destroy; override;
     procedure Assign(Source: TPersistent); override;
