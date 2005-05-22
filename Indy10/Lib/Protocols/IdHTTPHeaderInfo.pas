@@ -85,9 +85,9 @@ Type
     FConnection: string;
     FContentEncoding: string;
     FContentLanguage: string;
-    FContentLength: Integer;
-    FContentRangeEnd: Cardinal;
-    FContentRangeStart: Cardinal;
+    FContentLength: Int64;
+    FContentRangeEnd: Int64;
+    FContentRangeStart: Int64;
     FContentRangeInstanceLength: Cardinal;
     FContentType: string;
     FContentVersion: string;
@@ -102,7 +102,7 @@ Type
     procedure ProcessHeaders; virtual;
     procedure SetHeaders; virtual;
 
-    procedure SetContentLength(const AValue: Integer);
+    procedure SetContentLength(const AValue: Int64);
     procedure SetCustomHeaders(const AValue: TIdHeaderList);
     function GetHasContentRange: Boolean;
     function GetHasContentRangeInstance: Boolean;
@@ -120,10 +120,10 @@ Type
     property Connection: string read FConnection write FConnection;
     property ContentEncoding: string read FContentEncoding write FContentEncoding;
     property ContentLanguage: string read FContentLanguage write FContentLanguage;
-    property ContentLength: Integer read FContentLength write SetContentLength;
+    property ContentLength: Int64 read FContentLength write SetContentLength;
 
-    property ContentRangeEnd: Cardinal read FContentRangeEnd write FContentRangeEnd;
-    property ContentRangeStart: Cardinal read FContentRangeStart write FContentRangeStart;
+    property ContentRangeEnd: Int64 read FContentRangeEnd write FContentRangeEnd;
+    property ContentRangeStart: Int64 read FContentRangeStart write FContentRangeStart;
     property ContentRangeInstanceLength: Cardinal
       read FContentRangeInstanceLength write FContentRangeInstanceLength;
 
@@ -436,7 +436,7 @@ begin
   FCustomHeaders.Assign(AValue);
 end;
 
-procedure TIdEntityHeaderInfo.SetContentLength(const AValue: Integer);
+procedure TIdEntityHeaderInfo.SetContentLength(const AValue: Int64);
 begin
   FContentLength := AValue;
   FHasContentLength := FContentLength >= 0;

@@ -229,7 +229,7 @@ type
     function WriteFile(
       const AFile: String;
       AEnableTransferFile: Boolean = False
-      ): Cardinal;
+      ): Int64;
       override;
     //
     property Binding: TIdSocketHandle read FBinding;
@@ -368,7 +368,7 @@ begin
 end;
 
 function TIdIOHandlerSocket.WriteFile(const AFile: String;
- AEnableTransferFile: Boolean): Cardinal;
+ AEnableTransferFile: Boolean): Int64;
 var
   LProcessed: Boolean;
 begin

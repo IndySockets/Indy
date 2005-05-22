@@ -512,6 +512,7 @@ interface
 
 uses
   Classes,
+  IdException,
   IdAntiFreezeBase, IdBuffer, IdComponent, IdGlobal, IdExceptionCore,
   IdIntercept, IdStreamVCL, IdSys, IdResourceStringsCore, IdTStrings;
 
@@ -524,6 +525,10 @@ const
   Id_IOHandler_MaxCapturedLines = -1;
 
 type
+
+  EIdIoHandler = class(EIdException);
+  EIdIoHandlerRequiresLargeFiles = class(EIdIoHandler);
+
   TIdIOHandlerClass = class of TIdIOHandler;
 
   {
@@ -539,6 +544,8 @@ type
   Yes, I know this comment conflicts. Its being worked on.
   }
   TIdIOHandler = class(TIdComponent)
+  private
+    FLargeFiles: Boolean;
   protected
     FClosedGracefully: Boolean;
     FConnectTimeout: Integer;
@@ -650,7 +657,7 @@ type
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
     procedure Write(
       AStream: TIdStreamVCL;
-      ASize: Integer = 0;
+      ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       ); overload; virtual;
     procedure WriteRFCStrings(AStrings: TIdStrings; AWriteTerminator: Boolean = True);
@@ -659,7 +666,7 @@ type
     function WriteFile(
       const AFile: String;
       AEnableTransferFile: Boolean = False
-      ): Cardinal;
+      ): Int64;
       virtual;
     //
     // Read methods
@@ -705,7 +712,7 @@ type
     function ReadInt64(AConvert: Boolean = True): Int64;
     function ReadSmallInt(AConvert: Boolean = True): SmallInt;
     //
-    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: LongInt = -1;
+    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: Int64 = -1;
      AReadUntilDisconnect: Boolean = False); virtual;
     procedure ReadStrings(ADest: TIdStrings; AReadLinesCount: Integer = -1);
     //
@@ -738,6 +745,8 @@ type
     //
     // Is used by SuperCore
     property InputBuffer: TIdBuffer read FInputBuffer;
+    //currently an option, as LargeFile support changes the data format
+    property LargeFiles:Boolean read FLargeFiles write FLargeFiles;
     property MaxCapturedLines: Integer read FMaxCapturedLines write FMaxCapturedLines default Id_IOHandler_MaxCapturedLines;
     property Opened: Boolean read FOpened;
     property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut;
@@ -773,7 +782,7 @@ type
 implementation
 
 uses
-  IdStack, IdException, IdResourceStrings;
+  IdStack, IdResourceStrings;
 
 var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
@@ -1180,7 +1189,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(AStream: TIdStreamVCL; ASize: Integer = 0;
+procedure TIdIOHandler.Write(AStream: TIdStreamVCL; ASize: Int64 = 0;
  AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
@@ -1189,6 +1198,7 @@ begin
   if ASize < 0 then begin //"-1" All form current position
     LBufSize := AStream.VCLStream.Position;
     ASize := AStream.VCLStream.Size;
+    //todo1 is this step required?
     AStream.VCLStream.Position := LBufSize;
     ASize := ASize - LBufSize;
   end
@@ -1197,8 +1207,13 @@ begin
     AStream.VCLStream.Position := 0;
   end;
   //else ">0" ACount bytes
+  EIdIoHandlerRequiresLargeFiles.IfTrue((ASize>High(Integer)) and (LargeFiles=False));
   if AWriteByteCount then begin
+    if LargeFiles then begin
   	Write(ASize);
+    end else begin
+  	Write(Integer(ASize));
+    end;
   end;
 
   BeginWork(wmWrite, ASize); try
@@ -1284,17 +1299,17 @@ begin
    and Opened;
 end;
 
-procedure TIdIOHandler.ReadStream(AStream: TIdStreamVCL; AByteCount: Integer;
+procedure TIdIOHandler.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
   AReadUntilDisconnect: Boolean);
 var
   i: Integer;
   LBuf: TIdBytes;
   LBufSize: Integer;
-  LWorkCount: Integer;
+  LWorkCount: Int64;
 
-  procedure AdjustStreamSize(AStream: TIdStreamVCL; ASize: Integer);
+  procedure AdjustStreamSize(const AStream: TIdStreamVCL;const ASize: Int64);
   var
-    LStreamPos: LongInt;
+    LStreamPos: Int64;
   begin
     LStreamPos := AStream.VCLStream.Position;
     AStream.VCLStream.Size := ASize;
@@ -1307,14 +1322,21 @@ var
 begin
   if (AByteCount = -1) and (AReadUntilDisconnect = False) then begin
     // Read size from connection
+    //todo1 change stream format to int64?
+    if LargeFiles then begin
+    AByteCount := ReadInt64;
+    end else begin
     AByteCount := ReadInteger;
+    end;
   end;
   // Presize stream if we know the size - this reduces memory/disk allocations to one time
+  // Have an option for this? user might not want to presize, eg for int64 files
   if AByteCount > -1 then begin
     AdjustStreamSize(AStream, AStream.VCLStream.Position + AByteCount);
   end;
 
   if AReadUntilDisconnect then begin
+    //why start high then count down? change 'potential-work-to-do' to 'work-done'?
     LWorkCount := High(LWorkCount);
     BeginWork(wmRead);
   end else begin
@@ -1661,7 +1683,7 @@ begin
   end;
 end;
 
-function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolean): Cardinal;
+function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolean): Int64;
 var
 //TODO: There is a way in linux to dump a file to a socket as well. use it.
   LStream: TStream;
@@ -1700,6 +1722,7 @@ begin
   FSendBufferSize := GSendBufferSizeDefault;
   FMaxLineLength := IdMaxLineLengthDefault;
   FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
+  FLargeFiles := False;
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStream);
