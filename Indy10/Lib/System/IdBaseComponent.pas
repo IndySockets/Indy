@@ -87,7 +87,11 @@ uses
   System.Reflection,
   System.IO, // Necessary else System.IO below is confused with RTL System.
   {$ENDIF}
-  Classes,
+  {$IFDEF DotNetDistro}
+    System.ComponentModel,
+  {$ELSE}
+  {$ENDIF}
+  Classes, // TODO -oMtW: Make Stream like we did with TStrings
   IdObjs;
 
 // ***********************************************************
@@ -100,13 +104,23 @@ type
   //
   // TIdInitializerComponent implements InitComponent which all components must use to initialize
   // other members instead of overriding constructors.
+  {$IFDEF DotNetDistro}
+  TIdInitializerComponent = class(Component, ISupportInitialize)
+  {$ELSE}
   TIdInitializerComponent = class(TComponent)
+  {$ENDIF}
+  private
+    {$IFDEF DotNetDistro}
+    FIsLoading: Boolean;
+    {$ENDIF}
   protected
     {$IFDEF DotNet}
     // This event handler will take care about dynamically loaded assemblies after first initialization.
     class procedure AssemblyLoadEventHandler(sender: &Object; args: AssemblyLoadEventArgs); static;
     class procedure InitializeAssembly(AAssembly: Assembly);
     {$ENDIF}
+    function GetIsLoading: Boolean;
+    function GetIsDesignTime: Boolean;
     // This is here to handle both types of constructor initializations, VCL and .Net.
     // It is not abstract so that not all descendants are required to override it.
     procedure InitComponent; virtual;
@@ -116,13 +130,18 @@ type
     // DCCIL complain in IdIOHandler about possible polymorphics....
     constructor Create; overload; virtual;
     // Must be overriden here - but VCL version will catch offenders
-    constructor Create(AOwner: TComponent); overload; override;
     {$ELSE}
     // Statics to prevent overrides. For Create(AOwner) see TIdBaseComponent
     //
     // Create; variant is here to allow calls from VCL the same as from .net
     constructor Create; reintroduce; overload;
     // Must be an override and thus virtual to catch when created at design time
+    constructor Create(AOwner: TComponent); overload; override;
+    {$ENDIF}
+    {$IFDEF DotNetDistro}
+      procedure BeginInit;
+      procedure EndInit;
+    {$ELSE}
     constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
   end;
@@ -134,9 +153,6 @@ type
   // socket based components typically inherit directly from this. While socket components ineherit
   // from TIdComponent instead as it introduces OnWork, OnStatus, etc.
   TIdBaseComponent = class(TIdInitializerComponent)
-  private
-    function GetIsLoading: Boolean;
-    function GetIsDesignTime: Boolean;
   protected
     property IsLoading: Boolean read GetIsLoading;
     property IsDesignTime: Boolean read GetIsDesignTime;
@@ -187,6 +203,7 @@ begin
   {$ENDIF}
 end;
 
+{$IFNDEF DotNetDistro}
 constructor TIdInitializerComponent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -194,6 +211,7 @@ begin
   // so InitCopmonent will NOT be called twice.
   InitComponent;
 end;
+{$ENDIF}
 
 {$IFDEF DotNet}
 class procedure TIdInitializerComponent.AssemblyLoadEventHandler(sender: &Object;
@@ -254,6 +272,37 @@ begin
     end;
   end;
   {$ENDIF}
+  {$IFDEF DotNetDistro}
+  FIsLoading := False;
+  {$ENDIF}
+end;
+
+function TIdInitializerComponent.GetIsLoading: Boolean;
+begin
+  {$IFDEF DotNetDistro}
+  Result := FIsLoading;
+  {$ELSE}
+  Result := (csLoading in ComponentState);
+  {$ENDIF}
+end;
+
+function TIdInitializerComponent.GetIsDesignTime: Boolean;
+begin
+  {$IFDEF DotNetDistro}
+  Result := Self.DesignMode;
+  {$ELSE}
+  Result := (csDesigning in ComponentState);
+  {$ENDIF}
+end;
+
+procedure TIdInitializerComponent.BeginInit;
+begin
+  FIsLoading := True;
+end;
+
+procedure TIdInitializerComponent.EndInit;
+begin
+  FIsLoading := False;
 end;
 
 { TIdBaseComponent }
@@ -285,16 +334,6 @@ begin
   Result := TIdStringList.Create(aStrings);
 end;
 {$ENDIF}
-
-function TIdBaseComponent.GetIsLoading: Boolean;
-begin
-  Result := (csLoading in ComponentState);
-end;
-
-function TIdBaseComponent.GetIsDesignTime: Boolean;
-begin
-  Result := (csDesigning in ComponentState);
-end;
 
 function TIdBaseComponent.GetVersion: string;
 begin
