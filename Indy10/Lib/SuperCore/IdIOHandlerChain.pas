@@ -296,7 +296,7 @@ type
     function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
      ATimeout: Integer = IdTimeoutDefault;
      ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
-    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: Integer;
+    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
       AReadUntilDisconnect: Boolean);  override;
     // TODO: Allow ReadBuffer to by pass the internal buffer. Will it really
     // help? Only ReadBuffer would be able to use this optimiztion in most
@@ -316,7 +316,7 @@ type
 //    ): Cardinal; override;
     function WriteFile(
       const AFile: String;
-      AEnableTransferFile: Boolean): Cardinal; override;
+      AEnableTransferFile: Boolean): Int64; override;
 {    procedure Write(
       AStream: TIdStream;
       ASize: Integer = 0;
@@ -324,7 +324,7 @@ type
       override;  }
     procedure Write(
       AStream: TIdStreamVCL;
-      ASize: Integer = 0;
+      ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       ); override;
     procedure WriteDirect(
@@ -456,7 +456,7 @@ begin
   EIdException.Toss('Fall through error in ' + ClassName); {do not localize}
 end;
 
-procedure TIdIOHandlerChain.ReadStream(AStream: TIdStreamVCL; AByteCount: Integer;
+procedure TIdIOHandlerChain.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
       AReadUntilDisconnect: Boolean);
 begin
   if AReadUntilDisconnect then begin
@@ -538,7 +538,7 @@ end;
 
 function TIdIOHandlerChain.WriteFile(
       const AFile: String;
-      AEnableTransferFile: Boolean): Cardinal;
+      AEnableTransferFile: Boolean): Int64;
 var
   LWO:TIdWorkOpUnitWriteFile;
 begin
@@ -559,7 +559,7 @@ end;
 
 procedure TIdIOHandlerChain.Write(
       AStream: TIdStreamVCL;
-      ASize: Integer = 0;
+      ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       );
 var
