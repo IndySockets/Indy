@@ -48,7 +48,7 @@ unit IdFTPListTypes;
 
 interface
 
-uses Classes, IdFTPList, IdTStrings, IdSys;
+uses Classes, IdFTPList, IdSys, IdObjs;
 
 type
   //these two are for OS/2 and other MS-DOS-like file system FTP servers

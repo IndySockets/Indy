@@ -47,7 +47,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; //override;
   end;
 
 implementation
@@ -58,7 +58,7 @@ uses
 { TIdFTPLPGOS7 }
 
 class function TIdFTPLPGOS7.CheckListing(AListing: TIdStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String = ''; const ADetails: Boolean = true): boolean;
 
 var LData : String;
   {

@@ -202,11 +202,11 @@ unit IdFTPCommon;
 interface
 
 uses
-  Classes,
+  IdObjs,
+//  Classes,
   IdGlobal,
   IdGlobalProtocols,
-  IdSys,
-  IdTStrings;
+  IdSys;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);

@@ -135,7 +135,7 @@ unit IdFTPListParseBase;
 interface
 
 uses
-  Classes, IdFTPList, IdTStrings;
+  Classes, IdFTPList, IdObjs;
 
 type
 
