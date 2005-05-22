@@ -7,7 +7,7 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ Log:  13744: IdBlockCipherIntercept.pas 
+{ $Log:  13744: IdBlockCipherIntercept.pas 
 {
 {   Rev 1.4    5/12/2003 12:30:58 AM  GGrieve
 { Get compiling again with DotNet Changes

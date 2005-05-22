@@ -1,6 +1,17 @@
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log: }
+
 unit IdPOP4Server;
 {
-This is an expiriemental proposal based on Kudzu's idea.
+This is an experimental proposal based on Kudzu's idea.
 }
 interface
 uses

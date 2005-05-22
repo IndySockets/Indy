@@ -1,17 +1,13 @@
-unit IdContainers;
-
-{********************************************************************}
-{*  IdContainers.pas                                                 *}
-{*                                                                  *}
-{*  Provides compatibility with the Contnr.pas unit from            *}
-{*  Delphi 5 not found in Delphi 4.                                 *}
-{*                                                                  *}
-{*  Based on ideas from the Borland VCL Contnr.pas interface.       *}
-{*                                                                  *}
-{********************************************************************}
-
-{
-  $Log:  13772: IdContainers.pas 
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log:  13772: IdContainers.pas
 {
 {   Rev 1.7    10/26/2004 11:08:10 PM  JPMugaas
 { Updated refs.
@@ -48,11 +44,20 @@ unit IdContainers;
 {
 {   Rev 1.0    11/14/2002 02:16:14 PM  JPMugaas
 }
-
-
 {  Revision 1.0  2001-02-20 02:02:09-05  dsiders
   Initial revision
 }
+{********************************************************************}
+{*  IdContainers.pas                                                 *}
+{*                                                                  *}
+{*  Provides compatibility with the Contnr.pas unit from            *}
+{*  Delphi 5 not found in Delphi 4.                                 *}
+{*                                                                  *}
+{*  Based on ideas from the Borland VCL Contnr.pas interface.       *}
+{*                                                                  *}
+{********************************************************************}
+
+unit IdContainers;
 
 interface
 

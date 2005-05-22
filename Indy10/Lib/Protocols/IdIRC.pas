@@ -3,10 +3,11 @@
 { Unit archived using Team Coherence                                   }
 { Team Coherence is Copyright 2002 by Quality Software Components      }
 {                                                                      }
-{ For further inSys.Formation / comments, visit our WEB site at            }
+{ For further information / comments, visit our WEB site at            }
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
+{ $Log: }
 {
 //----------------------------------------------------------------------------//
   2003-11-Jul:
