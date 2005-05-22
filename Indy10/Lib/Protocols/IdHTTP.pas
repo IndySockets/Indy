@@ -1965,7 +1965,7 @@ begin
   if Assigned(AResponseContent) then begin
     LResponseLocation := AResponseContent.Position;
   end else begin
-    LResponseLocation := 0; // Just to avoid the waringing message
+    LResponseLocation := 0; // Just to avoid the warning message
   end;
 
   FAuthRetries := 0;
