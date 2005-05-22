@@ -132,7 +132,11 @@ begin
     LR := TIdReplyFTP(ADest);
     LR.ReplyFormat := ReplyFormat;
     LR.NumericCode := NumericCode;
-    LR.FText.Assign(Text);
+//    LR.FText.Assign(Text);
+
+    // holger: .NET compatibility change
+    LR.Text.Assign(Text);
+
   end else begin
     inherited;
   end;
