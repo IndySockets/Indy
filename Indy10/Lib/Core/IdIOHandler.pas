@@ -527,7 +527,7 @@ const
 type
 
   EIdIoHandler = class(EIdException);
-  EIdIoHandlerRequiresLargeFiles = class(EIdIoHandler);
+  EIdIoHandlerRequiresLargeStream = class(EIdIoHandler);
 
   TIdIOHandlerClass = class of TIdIOHandler;
 
@@ -545,7 +545,7 @@ type
   }
   TIdIOHandler = class(TIdComponent)
   private
-    FLargeFiles: Boolean;
+    FLargeStream: Boolean;
   protected
     FClosedGracefully: Boolean;
     FConnectTimeout: Integer;
@@ -746,7 +746,7 @@ type
     // Is used by SuperCore
     property InputBuffer: TIdBuffer read FInputBuffer;
     //currently an option, as LargeFile support changes the data format
-    property LargeFiles:Boolean read FLargeFiles write FLargeFiles;
+    property LargeStream:Boolean read FLargeStream write FLargeStream;
     property MaxCapturedLines: Integer read FMaxCapturedLines write FMaxCapturedLines default Id_IOHandler_MaxCapturedLines;
     property Opened: Boolean read FOpened;
     property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut;
@@ -1207,9 +1207,9 @@ begin
     AStream.VCLStream.Position := 0;
   end;
   //else ">0" ACount bytes
-  EIdIoHandlerRequiresLargeFiles.IfTrue((ASize>High(Integer)) and (LargeFiles=False));
+  EIdIoHandlerRequiresLargeStream.IfTrue((ASize>High(Integer)) and (LargeStream=False));
   if AWriteByteCount then begin
-    if LargeFiles then begin
+    if LargeStream then begin
   	Write(ASize);
     end else begin
   	Write(Integer(ASize));
@@ -1322,8 +1322,7 @@ var
 begin
   if (AByteCount = -1) and (AReadUntilDisconnect = False) then begin
     // Read size from connection
-    //todo1 change stream format to int64?
-    if LargeFiles then begin
+    if LargeStream then begin
     AByteCount := ReadInt64;
     end else begin
     AByteCount := ReadInteger;
@@ -1722,7 +1721,7 @@ begin
   FSendBufferSize := GSendBufferSizeDefault;
   FMaxLineLength := IdMaxLineLengthDefault;
   FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
-  FLargeFiles := False;
+  FLargeStream := False;
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStream);
