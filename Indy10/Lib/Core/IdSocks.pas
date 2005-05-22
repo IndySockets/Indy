@@ -224,6 +224,7 @@ type
     procedure MakeSocks5UDPAssociation(AHandle : TIdSocketHandle);
     procedure CloseSocks5UDPAssociation;
   public
+    destructor Destroy; override;
     procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;override;
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -1043,6 +1044,12 @@ begin
   end;
   LBuf := MakeUDPRequestPacket(ABuffer, AHost,APort);
   AHandle.Send(LBuf,0);
+end;
+
+destructor TIdSocksInfo.Destroy;
+begin
+ Sys.FreeAndNil(FUDPSocksAssociation);
+ inherited;
 end;
 
 end.
