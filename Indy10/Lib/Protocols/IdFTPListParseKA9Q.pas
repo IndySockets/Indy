@@ -42,7 +42,9 @@
 unit IdFTPListParseKA9Q;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdObjs;
+
 type
   TIdKA9QFTPListItem = class(TIdFTPListItem);
   TIdFTPLPKA9Q = class(TIdFTPListBaseHeader)

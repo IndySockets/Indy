@@ -45,7 +45,7 @@
 unit IdFTPListParseMVS;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 {
 This should work with IBM MVS, OS/390, and z/OS.
 

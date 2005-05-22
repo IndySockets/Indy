@@ -74,8 +74,7 @@ unit IdFTPListParseWindowsNT;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 {
 Note:

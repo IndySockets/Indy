@@ -31,7 +31,8 @@
 unit IdFTPListParseStercomUnixEnt;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdSterCommEntUxFTPListItem = class(TIdOwnerFTPListItem)

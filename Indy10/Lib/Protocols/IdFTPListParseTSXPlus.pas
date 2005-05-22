@@ -25,9 +25,9 @@
 unit IdFTPListParseTSXPlus;
 
 interface
+
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdTSXPlusFTPListItem = class(TIdMinimalFTPListItem)

@@ -73,7 +73,8 @@
 unit IdFTPListParseTOPS20;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItme);
@@ -93,7 +94,7 @@ const
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 
 { TIdFTPLPTOPS20 }

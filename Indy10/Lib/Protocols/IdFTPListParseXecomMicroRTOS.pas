@@ -37,8 +37,7 @@ unit IdFTPListParseXecomMicroRTOS;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs, Classes;
 
 type
    TIdXecomMicroRTOSTPListItem = class(TIdFTPListItem)

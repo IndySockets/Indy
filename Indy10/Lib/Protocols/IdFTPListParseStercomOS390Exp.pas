@@ -29,8 +29,7 @@ unit IdFTPListParseStercomOS390Exp;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdSterCommExpOS390FTPListItem = class(TIdFTPListItem)

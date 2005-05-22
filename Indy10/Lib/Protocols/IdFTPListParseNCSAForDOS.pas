@@ -44,7 +44,7 @@ unit IdFTPListParseNCSAForDOS;
 interface
 
 uses
-  Classes, IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdNCSAforDOSFTPListItem = class(TIdFTPListItem);

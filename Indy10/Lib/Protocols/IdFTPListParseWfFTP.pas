@@ -20,9 +20,9 @@
 unit IdFTPListParseWfFTP;
 
 interface
+
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 WfFTP is a FTP interface for BayNetwork's Wellfleet Routers.

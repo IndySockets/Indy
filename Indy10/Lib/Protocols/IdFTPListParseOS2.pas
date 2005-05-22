@@ -41,7 +41,8 @@
 unit IdFTPListParseOS2;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 
 {
 This parser is based on some data that I had managed to obtain second hand

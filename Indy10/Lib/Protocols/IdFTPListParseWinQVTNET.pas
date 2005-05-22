@@ -37,8 +37,7 @@ unit IdFTPListParseWinQVTNET;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 {
 This was tested with data obtained from WinQVT/Net Version 3.98.15 running
@@ -61,7 +60,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, 
   IdSys;
 
 { TIdFTPLPWinQVNet }

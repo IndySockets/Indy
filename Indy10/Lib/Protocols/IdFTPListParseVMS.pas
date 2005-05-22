@@ -74,8 +74,7 @@ VMS TCPWare, plus some non-multinet systems.
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdVMSFTPListItem = class(TIdOwnerFTPListItem)

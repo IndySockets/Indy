@@ -31,7 +31,8 @@
 unit IdFTPListParseCiscoIOS;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 {
 I think this FTP Server is embedded in the Cisco routers.
 

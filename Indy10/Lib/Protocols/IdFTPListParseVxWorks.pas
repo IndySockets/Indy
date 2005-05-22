@@ -35,7 +35,7 @@
 unit IdFTPListParseVxWorks;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdTStrings;
+uses IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdVxWorksFTPListItem = class(TIdFTPListItem);
@@ -52,7 +52,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPVxWorks }
 

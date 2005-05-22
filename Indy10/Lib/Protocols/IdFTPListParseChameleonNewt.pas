@@ -15,7 +15,9 @@
 unit IdFTPListParseChameleonNewt;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+
 type
   TIdChameleonNewtFTPListItem = class(TIdDOSBaseFTPListItem);
   TIdFTPLPChameleonNewt = class(TIdFTPLPBaseDOS)

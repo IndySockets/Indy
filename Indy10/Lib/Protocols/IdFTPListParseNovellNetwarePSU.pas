@@ -53,7 +53,8 @@
 unit IdFTPListParseNovellNetwarePSU;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdNovellPSU_DOSFTPListItem = class(TIdNovellBaseFTPListItem);

@@ -58,8 +58,7 @@ unit IdFTPListParseVM;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 IBM VM and z/VM parser

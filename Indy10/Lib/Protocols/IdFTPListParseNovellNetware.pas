@@ -53,7 +53,8 @@
 unit IdFTPListParseNovellNetware;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 {
 This parser should work with Netware 3 and 4.  It will probably work on later
 versions of Novell Netware as well.

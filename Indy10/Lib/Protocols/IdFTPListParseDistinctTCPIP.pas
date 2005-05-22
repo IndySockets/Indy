@@ -52,7 +52,7 @@
 unit IdFTPListParseDistinctTCPIP;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdDistinctTCPIPFTPListItem =  class(TIdDOSBaseFTPListItem)

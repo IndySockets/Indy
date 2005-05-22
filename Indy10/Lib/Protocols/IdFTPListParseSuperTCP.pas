@@ -22,9 +22,9 @@
 unit IdFTPListParseSuperTCP;
 
 interface
+
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdSuperTCPFTPListItem = class(TIdFTPListItem)

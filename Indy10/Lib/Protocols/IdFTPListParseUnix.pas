@@ -122,8 +122,7 @@ unit IdFTPListParseUnix;
 interface
 
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 Notes:

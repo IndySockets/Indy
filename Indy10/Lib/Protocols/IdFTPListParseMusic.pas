@@ -35,7 +35,8 @@
 unit IdFTPListParseMusic;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdMusicFTPListItem = class(TIdRecFTPListItem)

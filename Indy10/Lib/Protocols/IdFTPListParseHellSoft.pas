@@ -35,7 +35,8 @@
 unit IdFTPListParseHellSoft;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware, IdObjs;
 {
 This parser works just like Novell Netware's except that the detection is
 different.

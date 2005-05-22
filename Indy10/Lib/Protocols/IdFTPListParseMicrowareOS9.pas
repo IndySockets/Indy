@@ -37,7 +37,9 @@
 unit IdFTPListParseMicrowareOS9;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+
 type
   TIdMicrowareOS9FTPListItem = class(TIdOwnerFTPListItem)
   protected

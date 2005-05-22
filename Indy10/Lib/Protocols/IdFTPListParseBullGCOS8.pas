@@ -45,7 +45,8 @@
 unit IdFTPListParseBullGCOS8;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdFTPLPGOS8ListItem = class(TIdUnixPermFTPListItem);
@@ -61,7 +62,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPGOS8 }
 
@@ -148,7 +149,7 @@ begin
 
     LI.ModifiedDate := DateMMDDYY(Copy(AItem.Data, 27, 8));
     LBuf := Copy(AItem.Data, 36, 8);
-    if IsWhiteString(LBuf) = False then
+    if Length(Sys.Trim(LBuf)) > 0 then
     begin
       LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LBuf);
     end;

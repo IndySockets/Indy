@@ -25,9 +25,9 @@
 unit IdFTPListParseTandemGuardian;
 
 interface
+
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 This parser is based on the Tandem NonStop Server with a Guardian file system.
@@ -152,7 +152,7 @@ const
   TANDEM_GUARDIAN_ID = 'Tandem NonStop Guardian';
 
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdStrings, IdSys;
+uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdSys;
 
 { TIdFTPLPTandemGuardian }
 

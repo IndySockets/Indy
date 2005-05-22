@@ -41,9 +41,8 @@ unit IdFTPListParseVSE;
 interface
 
 uses
-  Classes,
-  IdFTPCommon,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings, IdSys;
+  IdFTPCommon, Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs, IdSys;
 
 type
   TIdVSERootDirFTPListItem = class(TIdMinimalFTPListItem);

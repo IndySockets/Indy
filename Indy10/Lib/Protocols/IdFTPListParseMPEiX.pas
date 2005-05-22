@@ -35,7 +35,9 @@
 unit IdFTPListParseMPEiX;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+
+uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)
   protected

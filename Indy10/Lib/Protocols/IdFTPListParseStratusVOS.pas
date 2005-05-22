@@ -25,9 +25,9 @@
 unit IdFTPListParseStratusVOS;
 
 interface
+
 uses
-  Classes,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdTStrings;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdStratusVOSFTPListItem = class(TIdFTPListItem)
