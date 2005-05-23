@@ -374,6 +374,13 @@ type
   //ICMPv6
   TIdicmp6_un = class(TIdUnion)
   protected
+      function Geticmp6_data16: uint16_t;
+    function Geticmp6_data8: uint8_t;
+    procedure Seticmp6_data16(const Value: uint16_t);
+    procedure Seticmp6_data8(const Value: uint8_t);
+    function Geticmp6_seq: uint16_t;
+    procedure Seticmp6_seq(const Value: uint16_t);
+
     function Geticmp6_un_data16(Index: Integer): uint16_t;
     function Geticmp6_un_data32: uint32_t;
     function Geticmp6_un_data8(Index: Integer): uint8_t;
@@ -389,7 +396,14 @@ type
     property icmp6_un_data32 : uint32_t read Geticmp6_un_data32 write Seticmp6_un_data32; //* type-specific field */
     property icmp6_un_data16[Index:Integer] : uint16_t read Geticmp6_un_data16 write Seticmp6_un_data16; //array 0-1 * type-specific field */
     property icmp6_un_data8[Index:Integer] : uint8_t read Geticmp6_un_data8 write Seticmp6_un_data8;  //array[0-3] * type-specific field */
-
+    property icmp6_data32 : uint32_t read Geticmp6_un_data32 write Seticmp6_un_data32;
+    property icmp6_data16 : uint16_t read Geticmp6_data16 write Seticmp6_data16;
+    property icmp6_data8  : uint8_t read Geticmp6_data8 write Seticmp6_data8;
+    property icmp6_pptr : uint32_t read Geticmp6_un_data32 write Seticmp6_un_data32;
+    property icmp6_mtu : uint32_t read Geticmp6_un_data32 write Seticmp6_un_data32;
+    property icmp6_id : uint16_t read Geticmp6_data16 write Seticmp6_data16;
+    property icmp6_seq : uint16_t read Geticmp6_seq write Seticmp6_seq;
+    property icmp6_maxdelay : uint16_t read Geticmp6_data16 write Seticmp6_data16;
   end;
   TIdicmp6_hdr = class(TIdStruct)
   protected
@@ -1731,6 +1745,36 @@ begin
    SetLength(FBuffer,FBytesLen);
 end;
 
+function TIdicmp6_un.Geticmp6_data8: uint8_t;
+begin
+  Result := FBuffer[0];
+end;
+
+procedure TIdicmp6_un.Seticmp6_data8(const Value: uint8_t);
+begin
+  FBuffer[0] := Value;
+end;
+
+function TIdicmp6_un.Geticmp6_data16: uint16_t;
+begin
+  Result := BytesToWord(FBuffer,0);
+end;
+
+procedure TIdicmp6_un.Seticmp6_data16(const Value: uint16_t);
+begin
+  CopyTIdWord(Value,FBuffer,0);
+end;
+
+function TIdicmp6_un.Geticmp6_seq: uint16_t;
+begin
+  Result := Geticmp6_un_data16(1);
+end;
+
+procedure TIdicmp6_un.Seticmp6_seq(const Value: uint16_t);
+begin
+  Seticmp6_un_data16(1, Value);
+end;
+
 { TIdicmp6_hdr }
 
 constructor TIdicmp6_hdr.create;
@@ -1747,7 +1791,7 @@ end;
 
 procedure TIdicmp6_hdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-   Assert(Length(ABytes)>=VIndex+10-1,'not enough bytes');
+   Assert(Length(ABytes)>=VIndex+8-1,'not enough bytes');
   inherited;
 {
     Ficmp6_type : uint8_t;   //* type field */
@@ -1759,8 +1803,8 @@ begin
   Inc(VIndex);
   FIcmp6_code := ABytes[VIndex];
   Inc(VIndex);
-  Ficmp6_cksum := BytesToCardinal(ABytes,VIndex);
-  Inc(VIndex,4);
+  Ficmp6_cksum := BytesToWord(ABytes,VIndex);
+  Inc(VIndex,2);
   Fdata.ReadStruct(ABytes,VIndex);
 end;
 
@@ -1773,16 +1817,17 @@ begin
     Ficmp6_cksum : uint16_t;  //* checksum field */
     Fdata : TIdicmp6_un;
 }
-  if Length(VBytes)<VIndex + 10 then
+  if Length(VBytes)<VIndex + 8 then
   begin
-    SetLength(VBytes,VIndex + 10);
+    SetLength(VBytes,VIndex + 8);
   end;
   VBytes[VIndex] := Ficmp6_type;
   Inc(VIndex);
   VBytes[VIndex] := FIcmp6_code;
   Inc(VIndex);
-  CopyTIdCardinal(Ficmp6_cksum,VBytes,VIndex);
-  Inc(VIndex,4);
+  CopyTIdWord(Ficmp6_cksum,VBytes,VIndex);
+  Inc(VIndex,2);
+
   Fdata.WriteStruct(VBytes,VIndex);
 end;
 
