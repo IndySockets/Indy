@@ -235,6 +235,7 @@ type
               const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     constructor Create; virtual;
     procedure Disconnect(ASocket: TIdStackSocketHandle); virtual; abstract;
+    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; virtual; abstract;
     class procedure Make;
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
@@ -301,6 +302,25 @@ type
       const AGroupIP, ALocalIP : String); virtual; abstract;
     procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String); virtual; abstract;
+    //I know this looks like an odd place to put a function for calculating a
+    //packet checksum.  There is a reason for it though.  The reason is that
+    //you need it for ICMPv6 and in Windows, you do that with some other stuff
+    //in the stack descendants
+    function CalcCheckSum(const AData : TIdBytes): word; virtual;
+    //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
+    //simply have the kernal write the checksum with something like this (RFC 2292):
+//
+//    int  offset = 2;
+//    setsockopt(fd, IPPROTO_IPV6, IPV6_CHECKSUM, &offset, sizeof(offset));
+//
+//  Note that this should be called
+    //IMMEDIATELY before you do a SendTo because the Local IPv6 address might change
+    procedure WriteChecksum(s : TIdStackSocketHandle;
+      var VBuffer : TIdBytes;
+      const AOffset : Integer;
+      const AIP : String;
+      const APort : Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     //
     // Properties
     //
@@ -739,6 +759,34 @@ begin
    packets or appear in any routing header.
 }
    Result := Copy(LTmp,1,2)='FF';
+end;
+
+function TIdStack.CalcCheckSum(const AData: TIdBytes): word;
+var i : Integer;
+  LSize : Integer;
+  LCRC : Cardinal;
+begin
+  LCRC := 0;
+  i := 0;
+
+  LSize := Length(AData);
+
+  while LSize >1 do
+  begin
+    LCRC := LCRC + IdGlobal.BytesToWord(AData,i);
+
+    Dec(LSize,2);
+    inc(i,2);
+
+  end;
+  if LSize>0 then
+  begin
+    LCRC := LCRC + AData[i];
+  end;
+  LCRC := (LCRC shr 16) + (LCRC and $ffff);  //(LCRC >> 16)
+  LCRC := LCRC + (LCRC shr 16);
+
+  Result := not Word(LCRC);
 end;
 
 initialization

@@ -219,6 +219,16 @@ type
 
   TIdStackWindows = class(TIdStackBSDBase)
   protected
+     procedure WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
+       const AIP: String;
+       const APort : Word;
+       var VSource;
+       var VDest);
+    procedure WriteChecksumIPv6(s : TIdStackSocketHandle;
+      var VBuffer : TIdBytes;
+      const AOffset : Integer;
+      const AIP : String;
+      const APort : Integer);
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure PopulateLocalAddresses; override;
@@ -285,7 +295,14 @@ type
       ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
       AOptVal: Integer); overload; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle; const Alevel, Aoptname: Integer; Aoptval: PChar; const Aoptlen: Integer ); overload; override;
+    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
     function SupportsIPv6:boolean; override;
+    procedure WriteChecksum(s : TIdStackSocketHandle;
+       var VBuffer : TIdBytes;
+      const AOffset : Integer;
+      const AIP : String;
+      const APort : Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
   TLinger = record
@@ -1072,7 +1089,120 @@ begin
   end;
 end;
 
+function TIdStackWindows.IOControl(const s: TIdStackSocketHandle;
+  const cmd: cardinal; var arg: cardinal): Integer;
+begin
+  Result := IdWinsock2.ioctlsocket(s,cmd,arg);
+end;
 
+procedure TIdStackWindows.WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
+  const AIP: String;
+  const APort : Word;
+  var VSource;
+  var VDest);
+var
+  Llocalif : SOCKADDR_STORAGE;
+  LPLocalIP : PSOCKADDR_IN6;
+  LAddr6:TSockAddrIn6;
+
+
+  Bytes : Cardinal;
+
+begin
+  if not IdIPv6Available then
+  begin
+    raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
+  end;
+  //make our LAddrInfo structure
+  FillChar(LAddr6, SizeOf(LAddr6), 0);
+  LAddr6.sin6_family := AF_INET6;
+  TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
+  Move(LAddr6.sin6_addr, VDest,SizeOf(in6_addr));
+  LAddr6.sin6_port := HToNs(APort);
+  LPLocalIP := @Llocalif;
+  // Find out which local interface for the destination
+  CheckForSocketError( WSAIoctl(ASocket, SIO_ROUTING_INTERFACE_QUERY,
+    @LAddr6, Cardinal(SizeOf(TSockAddrIn6) ), @Llocalif,
+    Cardinal(sizeof(Llocalif)), @bytes, nil, nil));
+  Move( LPLocalIP^.sin6_addr ,VSource,SizeOf(in6_addr));
+end;
+
+procedure TIdStackWindows.WriteChecksum(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: Integer; const AIPVersion: TIdIPVersion);
+begin
+  case AIPVersion of
+    Id_IPv4 : CopyTIdWord(CalcCheckSum(VBuffer),VBuffer,AOffset);
+    Id_IPv6 : WriteChecksumIPv6(s,VBuffer, AOffset, AIP, APort);
+  else
+    IPVersionUnsupported;
+  end;
+end;
+
+procedure TIdStackWindows.WriteChecksumIPv6(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: Integer);
+var LLocalIF : Tsockaddr_storage;
+  LSource : TIdIn6Addr;
+  LDest : TIdIn6Addr;
+  LTmp : TIdBytes;
+  LIdx : Integer;
+  LC : Cardinal;
+  LW : Word;
+{
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                         Source Address                        +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                      Destination Address                      +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   Upper-Layer Packet Length                   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      zero                     |  Next Header  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}
+begin
+
+  GWindowsStack.WSQuerryIPv6Route(s,AIP,APort,LSource,LDest);
+  SetLength(LTmp,Length(VBuffer)+40);
+
+  //16
+   Move(LSource,LTmp[0],SizeOf(LSource));
+  LIdx := SizeOf(LSource);
+  //32
+  Move(LDest,LTmp[LIdx],SizeOf(LDest));
+  LIdx := LIdx+SizeOf(LDest);
+  //use a word so you don't wind up using the wrong network byte order function
+  LC := Length(VBuffer);
+  CopyTIdCardinal(GStack.HostToNetwork(LC),LTmp,LIdx);
+  Inc(LIdx,4);
+  //36
+  //zero the next three bytes
+  FillChar(LTmp[LIdx],3,0);
+  Inc(LIdx,3);
+  //next header (protocol type determines it
+  LTmp[LIdx] := Id_IPPROTO_ICMPV6; // Id_IPPROTO_ICMP6;
+  Inc(LIdx);
+  //zero our checksum feild for now
+  VBuffer[2] := 0;
+  VBuffer[3] := 0;
+  //combine the two
+  CopyTIdBytes(VBuffer,0,LTmp,LIdx,Length(VBuffer));
+  LW := CalcCheckSum(LTmp);
+
+  CopyTIdWord(LW,VBuffer,AOffset);
+end;
 
 initialization
   GSocketListClass := TIdSocketListWindows;
