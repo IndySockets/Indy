@@ -2052,6 +2052,43 @@ type
   PSOCKADDR_IN6  = ^SOCKADDR_IN6;
   LPSOCKADDR_IN6 = ^SOCKADDR_IN6;
 
+////*
+// * Portable socket structure (RFC 2553).
+// */
+
+///*
+// * Desired design of maximum size and alignment.
+// * These are implementation specific.
+// */
+const
+  _SS_MAXSIZE       = 128;   // Maximum size
+  _SS_ALIGNSIZE    = (sizeof(int64));  // Desired alignment.
+///*
+// * Definitions used for sockaddr_storage structure paddings design.
+// */
+  _SS_PAD1SIZE     = (_SS_ALIGNSIZE - sizeof (short));
+ _SS_PAD2SIZE      = (_SS_MAXSIZE - (sizeof (short) + _SS_PAD1SIZE 
+                                                    + _SS_ALIGNSIZE));
+
+
+
+type
+  sockaddr_storage = packed record
+    ss_family : Word;               // Address family.
+    __ss_pad1 : array[0.._SS_PAD1SIZE-1] of byte;  // 6 byte pad, this is to make
+                                   // implementation specific pad up to
+                                   // alignment field that follows explicit
+                                   // in the data structure.
+    __ss_align : Int64;            // Field to force desired structure.
+    __ss_pad2 : array[00.._SS_PAD2SIZE-1] of byte;  // 112 byte pad to achieve desired size;
+                                   // _SS_MAXSIZE value minus size of
+                                   // ss_family, __ss_pad1, and
+                                   // __ss_align fields is 112.
+  end;
+  Tsockaddr_storage = sockaddr_storage;
+  Psockaddr_storage = ^Tsockaddr_storage;
+  LPWsockaddr_storage = Psockaddr_storage;
+
 	sockaddr_gen = packed record
 		case Integer of
 		1 : ( Address : SOCKADDR; );
