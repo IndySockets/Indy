@@ -1142,7 +1142,7 @@ end;
 procedure TIdStackWindows.WriteChecksumIPv6(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
   const APort: Integer);
-var LLocalIF : Tsockaddr_storage;
+var 
   LSource : TIdIn6Addr;
   LDest : TIdIn6Addr;
   LTmp : TIdBytes;
