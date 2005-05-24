@@ -192,7 +192,7 @@ uses
   IdReply,
   IdSys,
   IdTCPServer,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdCmdTCPServer = class;
