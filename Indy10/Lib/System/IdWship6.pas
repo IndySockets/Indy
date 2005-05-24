@@ -152,6 +152,19 @@ Type
  Tfreeaddrinfo=procedure(ai: Paddrinfo); stdcall;
 
 
+{type
+  WSAMSG = packed record
+    name: LPSOCKADDR;
+    namelen: integer;
+    lpBuffers: LPWSABUF;
+    dwBufferCount: Cardinal;
+    Control: WSABUF;
+    dwFlags: Cardinal;
+  end;
+  PWSAMSG  = ^WSAMSG;
+  LPWSAMSG = ^WSAMSG;    }
+
+
 var
   getaddrinfo:Tgetaddrinfo=nil;
   getnameinfo:Tgetnameinfo=nil;

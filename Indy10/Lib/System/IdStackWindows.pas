@@ -267,6 +267,12 @@ type
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
      const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+   function ReceiveMsg(ASocket: TIdStackSocketHandle;
+     var VBuffer, VMsgData: TIdBytes;
+     APkt :  TIdPacketInfo;
+     var VIP: string;
+      var VPort: Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
 
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
      const ABufferLength, AFlags: Integer; const AIP: string; const APort: integer; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -1200,6 +1206,95 @@ begin
   LW := CalcCheckSum(LTmp);
 
   CopyTIdWord(LW,VBuffer,AOffset);
+end;
+
+function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer,
+  VMsgData: TIdBytes; APkt: TIdPacketInfo; var VIP: string; var VPort: Integer;
+  const AIPVersion: TIdIPVersion): Cardinal;
+var
+  LSize: Cardinal;
+  LAddr4: TSockAddrIn;
+  LAddr6: TSockAddrIn6;
+  LMsg : TWSAMSG;
+  LMsgBuf : TWSABUF;
+  LControl : TIdBytes;
+
+  LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
+  LCurPt : Pin_pktinfo;
+  LCurPt6 : Pin6_pktinfo;
+begin
+  //This runs only on WIndowsXP or later
+ if (Win32MajorVersion>4) and (Win32MinorVersion > 0) then
+ begin
+
+   LSize := WSA_CMSG_LEN(Length(VBuffer));
+   SetLength( LControl,LSize);
+
+    LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
+    LMsgBuf.buf := @VBuffer[0];// @VMsgData[0];
+
+    FillChar(LMsg,SizeOf(LMsg),0);
+    LMsg.lpBuffers := @LMsgBuf;
+    LMsg.Control.Len := LSize;
+    LMsg.Control.buf := @LControl[0];
+    LMsg.dwBufferCount := 1;
+
+    case AIPVersion of
+      Id_IPv4: begin
+        LMsg.name := @LAddr4;
+        LMsg.namelen := SizeOf(LAddr4);
+
+        GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
+        VIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
+
+      VPort := NToHs(LAddr4.sin_port);
+      end;
+      Id_IPv6: begin
+        LMsg.name := @LAddr6;
+        LMsg.namelen := SizeOf(LAddr6);
+
+        CheckForSocketError( IdWinsock2.WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
+        VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
+
+        VPort := NToHs(LAddr6.sin6_port);
+      end;
+      else begin
+        Result := 0; // avoid warning
+        IPVersionUnsupported;
+      end;
+    end;
+    LCurCmsg := nil;
+    repeat
+       LCurCmsg := WSA_CMSG_NXTHDR(@LMsg,LCurCmsg);
+       if LCurCmsg=nil then
+       begin
+         break;
+       end;
+       case LCurCmsg^.cmsg_type of
+        IP_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO
+        //are both 19
+        begin
+          if AIPVersion = Id_IPv4 then
+          begin
+            LCurPt := WSA_CMSG_DATA(LCurCmsg);
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt^.ipi_addr,Id_IPv4);
+            APkt.DestIF := LCurPt^.ipi_ifindex;
+          end;
+          if AIPVersion = Id_IPv6 then
+          begin
+            LCurPt6 := WSA_CMSG_DATA(LCurCmsg);
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr,Id_IPv6);
+            APkt.DestIF := LCurPt6^.ipi6_ifindex;
+          end;
+        end;
+      end;
+    until False;
+  end
+  else
+  begin
+    Result :=  RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, VIP, VPort,
+     AIPVersion);
+  end;
 end;
 
 initialization

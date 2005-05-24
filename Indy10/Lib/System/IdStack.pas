@@ -180,6 +180,20 @@ type
     property LastError: Integer read FLastError;
   end;
 
+  TIdPacketInfo = class
+  protected
+    FSourceIP: String;
+    FDestIP: String;
+    FSourceIF: Cardinal;
+    FDestIF: Cardinal;
+    FTTL: Byte;
+  public
+    property TTL : Byte read FTTL write FTTL;
+    property SourceIP : String read FSourceIP write FSourceIP;
+    property SourceIF : Cardinal read FSourceIF write FSourceIF;
+    property DestIP : String read FDestIP write FDestIP;
+    property DestIF : Cardinal read FDestIF write FDestIF;
+  end;
   TIdSocketListClass = class of TIdSocketList;
 
   // Descend from only TObject. This objects is created a lot and should be fast
@@ -290,6 +304,12 @@ type
              const AOffset: Integer; const AIP: string; const APort: integer;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; virtual; abstract;
+    function ReceiveMsg(ASocket: TIdStackSocketHandle;
+     var VBuffer, VMsgData: TIdBytes;
+     APkt :  TIdPacketInfo;
+     var VIP: string;
+      var VPort: Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; virtual; abstract;
     function SupportsIPv6:boolean; virtual; abstract;
 
     //multicast stuff Kudzu permitted me to add here.
