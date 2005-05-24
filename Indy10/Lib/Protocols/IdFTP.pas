@@ -1046,7 +1046,7 @@ type
     procedure SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String; const ADestFile : String = '');
     procedure SiteToSiteDownload(const AFromSite: TIdFTP; const ASourceFile : String; const ADestFile : String = '');
     procedure DisconnectNotifyPeer; override;
-    procedure Quit; deprecated;
+    procedure Quit; //deprecated;
     function  Quote(const ACommand: String): SmallInt;
     procedure RemoveDir(const ADirName: string);
     procedure Rename(const ASourceFile, ADestFile: string);
