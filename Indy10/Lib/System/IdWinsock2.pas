@@ -1461,10 +1461,95 @@ type
      cmsg_level : Integer;
      cmsg_type : Integer;
   end;
+  WSACMSGHDR = _WSACMSGHDR;
   TWSACMSGHDR = _WSACMSGHDR;
   PWSACMSGHDR = ^TWSACMSGHDR;
   LPWSACMSGHDR = PWSACMSGHDR;
 
+const
+//from winnt.h
+//For 64 bit, these values will have to change
+
+  MAX_NATURAL_ALIGNMENT = sizeof(Cardinal);
+  MEMORY_ALLOCATION_ALIGNMENT =8;
+
+function TYPE_ALIGNMENT(const AInt : Cardinal): Cardinal;
+
+//*
+// * Alignment macros for header and data members of
+// * the control buffer.
+// */
+function WSA_CMSGHDR_ALIGN(length : Cardinal) : Cardinal;
+
+function WSA_CMSGDATA_ALIGN(length : Cardinal) : Cardinal;
+//*
+// *  WSA_CMSG_FIRSTHDR
+// *
+// *  Returns a pointer to the first ancillary data object,
+// *  or a null pointer if there is no ancillary data in the
+// *  control buffer of the WSAMSG structure.
+// *
+// *  LPCMSGHDR
+// *  WSA_CMSG_FIRSTHDR (
+// *      LPWSAMSG    msg
+// *      );
+// */
+function WSA_CMSG_FIRSTHDR(msg : LPWSAMSG):LPWSACMSGHDR;
+{/*
+ *  WSA_CMSG_NXTHDR
+ *
+ *  Returns a pointer to the next ancillary data object,
+ *  or a null if there are no more data objects.
+ *
+ *  LPCMSGHDR
+ *  WSA_CMSG_NEXTHDR (
+ *      LPWSAMSG        msg,
+ *      LPWSACMSGHDR    cmsg
+ *      );
+ */  }
+function WSA_CMSG_NXTHDR(msg : LPWSAMSG; cmsg : LPWSACMSGHDR) : LPWSACMSGHDR;
+{/*
+ *  WSA_CMSG_DATA
+ *
+ *  Returns a pointer to the first byte of data (what is referred 
+ *  to as the cmsg_data member though it is not defined in 
+ *  the structure).
+ *
+ *  u_char *
+ *  WSA_CMSG_DATA (
+ *      LPWSACMSGHDR   pcmsg
+ *      );
+ */               }
+
+function WSA_CMSG_DATA(cmsg : LPWSACMSGHDR) : Pointer;
+{/*
+ *  WSA_CMSG_SPACE
+ *
+ *  Returns total size of an ancillary data object given 
+ *  the amount of data. Used to allocate the correct amount 
+ *  of space.
+ *
+ *  SIZE_T
+ *  WSA_CMSG_SPACE (
+ *      SIZE_T length
+ *      );
+ */ }
+function WSA_CMSG_SPACE(length : Cardinal) : Cardinal;
+{
+/*
+ *  WSA_CMSG_LEN
+ *
+ *  Returns the value to store in cmsg_len given the amount of data.
+ *
+ *  SIZE_T
+ *  WSA_CMSG_LEN (
+ *      SIZE_T length
+ *  );
+ */  }
+function WSA_CMSG_LEN(length : Cardinal) : Cardinal;
+
+
+type
 {$IFDEF UNICODE}
   WSANameSpace_Info   = TWSANameSpace_InfoW;
   TWSANameSpace_Info  = TWSANameSpace_InfoW;
@@ -2363,7 +2448,7 @@ const
   ND_OPT_PI_FLAG_AUTO         = $40;
 
 type
-
+//sturc
   nd_opt_rd_hdr = packed record         //* redirected header */
      nd_opt_rh_type : uint8_t;
      nd_opt_rh_len : uint8_t;
@@ -2417,8 +2502,24 @@ const
 	IFF_POINTTOPOINT = $00000008;  // this is point-to-point interface
 	IFF_MULTICAST    = $00000010;  // multicast is supported
 
+type
+// structure for IP_PKTINFO option
+//
+  in_pktinfo = packed record
+     ipi_addr : TInAddr; // destination IPv4 address
+     ipi_ifindex : Cardinal; // received interface index
+  end;
+  Pin_pktinfo = ^in_pktinfo;
+  Tin_pktinfo = in_pktinfo;
 
-
+// structure for IPV6_PKTINFO option
+//
+  in6_pktinfo = packed record
+     ipi6_addr : TIn6Addr; // destination IPv6 address
+     ipi6_ifindex : Cardinal; // received interface index
+  end;
+  Pin6_pktinfo = ^in6_pktinfo;
+  Tin6_pktinfo = in6_pktinfo;
 //=============================================================
 
 {
@@ -4486,6 +4587,133 @@ function  IP6OPT_TYPE(const o : Byte) : byte;
 begin
   Result := ((o) and $c0);
 end;
+
+//This is an attempt to simulate a macro in Winnt.h
+
+function TYPE_ALIGNMENT(const AInt : Cardinal): Cardinal;
+begin
+  if AInt mod 4 <> 0 then
+  begin
+    Result := AInt and $FFFFFFFC + 4;
+  end
+  else
+  begin
+    Result := AInt;
+  end;
+end;
+
+///*
+// * Alignment macros for header and data members of
+// * the control buffer.
+// */
+function WSA_CMSGHDR_ALIGN(length : Cardinal) : Cardinal;
+begin
+  Result := ( ((length) + TYPE_ALIGNMENT(Cardinal(SizeOf(WSACMSGHDR)))-1) and
+     ( not (TYPE_ALIGNMENT(Cardinal(SizeOf(WSACMSGHDR)))-1)) );
+end;
+
+function WSA_CMSGDATA_ALIGN(length : Cardinal) : Cardinal;
+begin
+  Result := ( ((length) + MAX_NATURAL_ALIGNMENT-1) and
+            ( not (MAX_NATURAL_ALIGNMENT-1)) );
+end;
+//*
+// *  WSA_CMSG_FIRSTHDR
+// *
+// *  Returns a pointer to the first ancillary data object,
+// *  or a null pointer if there is no ancillary data in the
+// *  control buffer of the WSAMSG structure.
+// *
+// *  LPCMSGHDR
+// *  WSA_CMSG_FIRSTHDR (
+// *      LPWSAMSG    msg
+// *      );
+// */
+function WSA_CMSG_FIRSTHDR(msg : LPWSAMSG):LPWSACMSGHDR;
+begin
+  Result := nil;
+  if msg^.Control.len >= sizeof(_WSACMSGHDR) then
+  begin
+    Result := LPWSACMSGHDR(msg^.Control.buf);
+  end;
+end;
+
+{/*
+ *  WSA_CMSG_NXTHDR
+ *
+ *  Returns a pointer to the next ancillary data object,
+ *  or a null if there are no more data objects.
+ *
+ *  LPCMSGHDR
+ *  WSA_CMSG_NEXTHDR (
+ *      LPWSAMSG        msg,
+ *      LPWSACMSGHDR    cmsg
+ *      );
+ */  }
+function WSA_CMSG_NXTHDR(msg : LPWSAMSG; cmsg : LPWSACMSGHDR) : LPWSACMSGHDR;
+//originally, the cardinal typecast was ^u_char;
+begin
+  if cmsg=nil then begin
+    result:=WSA_CMSG_FIRSTHDR(msg);
+  end else begin
+  	if  ((Cardinal(cmsg) + WSA_CMSGHDR_ALIGN((cmsg)^.cmsg_len) + sizeof(WSACMSGHDR) ) >
+      Cardinal ((msg)^.Control.buf) + msg^.Control.len ) then begin
+  		result := nil;
+  	end else begin
+  	  result := LPWSACMSGHDR(Cardinal (cmsg) + WSA_CMSGHDR_ALIGN((cmsg)^.cmsg_len)) ;
+  	end;
+  end;
+end;
+
+{/*
+ *  WSA_CMSG_DATA
+ *
+ *  Returns a pointer to the first byte of data (what is referred 
+ *  to as the cmsg_data member though it is not defined in 
+ *  the structure).
+ *
+ *  u_char *
+ *  WSA_CMSG_DATA (
+ *      LPWSACMSGHDR   pcmsg
+ *      );
+ */               }
+
+function WSA_CMSG_DATA(cmsg : LPWSACMSGHDR) : Pointer;
+begin
+  Result := Pointer( Cardinal(cmsg) + WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) );
+end;
+{/*
+ *  WSA_CMSG_SPACE
+ *
+ *  Returns total size of an ancillary data object given 
+ *  the amount of data. Used to allocate the correct amount 
+ *  of space.
+ *
+ *  SIZE_T
+ *  WSA_CMSG_SPACE (
+ *      SIZE_T length
+ *      );
+ */ }
+function WSA_CMSG_SPACE(length : Cardinal) : Cardinal;
+begin
+  Result := (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length)))
+end;
+{
+/*
+ *  WSA_CMSG_LEN
+ *
+ *  Returns the value to store in cmsg_len given the amount of data.
+ *
+ *  SIZE_T
+ *  WSA_CMSG_LEN (
+ *      SIZE_T length
+ *  );
+ */  }
+function WSA_CMSG_LEN(length : Cardinal) : Cardinal;
+begin
+  Result := (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) + length)
+end;
+
 
 initialization
   FixupStubs;
