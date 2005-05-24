@@ -185,7 +185,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack, IdTStrings,
+  IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack, IdObjs,
   SyncObjs, IdSys,
   SysUtils, // Legal because this is a Windows only unit already
   Windows;
@@ -1104,8 +1104,6 @@ var
   Llocalif : SOCKADDR_STORAGE;
   LPLocalIP : PSOCKADDR_IN6;
   LAddr6:TSockAddrIn6;
-
-
   Bytes : Cardinal;
 
 begin

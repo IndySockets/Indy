@@ -67,7 +67,7 @@ uses
   Libc,
   IdStack,
   IdStackConsts,
-  IdTStrings,
+  IdObjs,
   IdGlobal,
   IdIPAddress,
   IdStackBSDBase;

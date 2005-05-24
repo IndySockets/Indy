@@ -193,7 +193,7 @@ interface
 
 uses
   Classes,
-  IdException, IdStack, IdStackConsts,IdTStrings, IdGlobal,
+  IdException, IdStack, IdStackConsts,IdObjs, IdGlobal,
   SyncObjs, IdSys;
 
 type

@@ -191,7 +191,7 @@ interface
 uses
   Classes,
   IdGlobal, IdStack, IdStackConsts,
-  IdTStrings,
+  IdObjs,
   System.Collections;
 
 type
