@@ -1,13 +1,112 @@
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log: }
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
+{
+  Prior revision history
+
+  Rev 1.13    10/26/2004 9:09:36 PM  JPMugaas
+    Updated references.
+
+  Rev 1.12    24/10/2004 21:25:18  ANeillans
+    Modifications to allow Username and Domain parts to be set.
+
+  Rev 1.11    24.08.2004 17:29:30  Andreas Hausladen
+    Fixed GetEMailAddresses
+    Lots of simple but effective optimizations
+
+  Rev 1.10    09/08/2004 08:17:08  ANeillans
+    Rename username property to user
+
+  Rev 1.9    08/08/2004 20:58:02  ANeillans
+    Added support for Username extraction.
+
+  Rev 1.8    23/04/2004 20:34:36  CCostelloe
+    Clarified a question in the code as to why a code path ended there
+
+  Rev 1.7    3/6/2004 5:45:00 PM  JPMugaas
+    Fixed problem obtaining the Text property for an E-Mail address with
+    no domain.
+
+  Rev 1.6    2004.02.03 5:45:08 PM  czhower
+      Name changes
+
+  Rev 1.5    24/01/2004 19:12:10  CCostelloe
+    Cleaned up warnings
+
+  Rev 1.4    10/12/2003 7:51:50 PM  BGooijen
+    Fixed Range Check Error
+
+  Rev 1.3    10/8/2003 9:50:24 PM  GGrieve
+    use IdDelete
+
+  Rev 1.2    6/10/2003 5:48:50 PM  SGrobety
+    DotNet updates
+
+  Rev 1.1    5/18/2003 02:30:36 PM  JPMugaas
+    Added some backdoors for the TIdDirectSMTP processing.
+
+  Rev 1.0    11/14/2002 02:19:44 PM  JPMugaas
+
+  2001-Aug-30 - Jim Gunkel
+    Fixed bugs that would occur with group names containing spaces
+    (box test 19) and content being located after the email
+    address (box test 33)
+
+  2001-Jul-11 - Allen O'Neill
+    Added hack to not allow recipient entries being added that are blank
+
+  2001-Jul-11 - Allen O'Neill
+    Added hack to accomodate a PERIOD (#46) in an email address -
+    this whole area needs to be looked at.
+
+  2001-Feb-03 - Peter Mee
+    Overhauled TIdEMailAddressItem.GetText to support non-standard textual
+    elements.
+
+  2001-Jan-29 - Peter Mee
+    Overhauled TIdEMailAddressList.SetEMailAddresses to support comments
+    and escaped characters and to ignore groups.
+
+  2001-Jan-28 - Peter Mee
+    Overhauled TIdEMailAddressItem.SetText to support comments and escaped
+    characters.
+
+  2000-Jun-10 - J. Peter Mugaas
+    started this unit to facilitate some Indy work including the
+    TIdEMailAddressItem and TIdEMailAddressList classes
+
+    The GetText and SetText were originally the ToArpa and FromArpa
+    functions in the TIdMessage component
+}
+{
+  Developer(s):
+    J. Peter Mugaas
+
+  Contributor(s):
+    Ciaran Costelloe
+    Bas Gooijen
+    Grahame Grieve
+    Stephane Grobety
+    Jim Gunkel
+    Andreas Hausladen
+    Peter Mee
+    Andy Neillans
+    Allen O'Neill
+}
 
 unit IdEMailAddress;
 
@@ -473,7 +572,7 @@ begin
           bInAddress := False;
           bAfterAt := False;
           FAddress := FAddress + TrimAllOf(' ' + TAB,   {do not localize}
-            Sys.Trim(Copy(AText, 1, nFirst - 1)));    
+            Sys.Trim(Copy(AText, 1, nFirst - 1)));
           IdDelete(AText, 1, nFirst);
         end;
         '@' : {do not localize}
@@ -560,7 +659,7 @@ begin
         end;
       end;
       {
-        Check for bracketted sections first: 
+        Check for bracketted sections first:
           ("<>" <> "" <"">) - all is ignored
       }
       if nBracketCount > 0 then
@@ -587,7 +686,7 @@ begin
         if bAddressInLT then
         begin
           {
-            If the address is enclosed, then only the '(', '.' & '>' 
+            If the address is enclosed, then only the '(', '.' & '>'
             need be looked for, trimming all content when found:
               domain  .  example >
           }
@@ -857,101 +956,5 @@ begin
     end;
   end;
 end;
-
-{
-  Developer(s):
-    J. Peter Mugaas
-
-  Contributor(s):
-    Ciaran Costelloe
-    Bas Gooijen
-    Grahame Grieve
-    Stephane Grobety
-    Jim Gunkel
-    Andreas Hausladen
-    Peter Mee
-    Andy Neillans
-    Allen O'Neill
-}
-{
-  $Log$
-}
-{
-  Prior revision history
-
-  Rev 1.13    10/26/2004 9:09:36 PM  JPMugaas
-    Updated references.
-
-  Rev 1.12    24/10/2004 21:25:18  ANeillans
-    Modifications to allow Username and Domain parts to be set.
-
-  Rev 1.11    24.08.2004 17:29:30  Andreas Hausladen
-    Fixed GetEMailAddresses
-    Lots of simple but effective optimizations
-
-  Rev 1.10    09/08/2004 08:17:08  ANeillans
-    Rename username property to user
-
-  Rev 1.9    08/08/2004 20:58:02  ANeillans
-    Added support for Username extraction.
-
-  Rev 1.8    23/04/2004 20:34:36  CCostelloe
-    Clarified a question in the code as to why a code path ended there
-
-  Rev 1.7    3/6/2004 5:45:00 PM  JPMugaas
-    Fixed problem obtaining the Text property for an E-Mail address with no
-    domain.
-
-  Rev 1.6    2004.02.03 5:45:08 PM  czhower
-      Name changes
-
-  Rev 1.5    24/01/2004 19:12:10  CCostelloe
-    Cleaned up warnings
-
-  Rev 1.4    10/12/2003 7:51:50 PM  BGooijen
-    Fixed Range Check Error
-
-  Rev 1.3    10/8/2003 9:50:24 PM  GGrieve
-    use IdDelete
-
-  Rev 1.2    6/10/2003 5:48:50 PM  SGrobety
-    DotNet updates
-
-  Rev 1.1    5/18/2003 02:30:36 PM  JPMugaas
-    Added some backdoors for the TIdDirectSMTP processing.
-
-  Rev 1.0    11/14/2002 02:19:44 PM  JPMugaas
-
-  2001-Aug-30 - Jim Gunkel
-    Fixed bugs that would occur with group names containing spaces
-    (box test 19) and content being located after the email
-    address (box test 33)
-
-  2001-Jul-11 - Allen O'Neill
-    Added hack to not allow recipient entries being added that are blank
-
-  2001-Jul-11 - Allen O'Neill
-    Added hack to accomodate a PERIOD (#46) in an email address -
-    this whole area needs to be looked at.
-
-  2001-Feb-03 - Peter Mee
-    Overhauled TIdEMailAddressItem.GetText to support non-standard textual
-    elements.
-
-  2001-Jan-29 - Peter Mee
-    Overhauled TIdEMailAddressList.SetEMailAddresses to support comments
-    and escaped characters and to ignore groups.
-
-  2001-Jan-28 - Peter Mee
-    Overhauled TIdEMailAddressItem.SetText to support comments and escaped
-    characters.
-
-  2000-Jun-10 - J. Peter Mugaas
-    started this unit to facilitate some Indy work including the
-    TIdEMailAddressItem and TIdEMailAddressList classes
-
-    The GetText and SetText were originally the ToArpa and FromArpa
-    functions in the TIdMessage component
-}
 
 end.

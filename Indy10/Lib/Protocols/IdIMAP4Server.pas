@@ -12,6 +12,126 @@
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
 }
+{
+  $Log$
+}
+{
+  Prior revision history
+
+  Rev 1.31    2/9/2005 11:44:20 AM  JPMugaas
+    Fixed compiler problem and removed some warnings about virtual
+    methods hiding stuff in the base class.
+
+  Rev 1.30    2/8/05 6:20:16 PM  RLebeau
+    Added additional overriden methods.
+
+  Rev 1.29    10/26/2004 11:08:06 PM  JPMugaas
+    Updated refs.
+
+  Rev 1.28    10/21/2004 1:49:12 PM  BGooijen
+    Raid 214213
+
+  Rev 1.27    09/06/2004 09:54:56  CCostelloe
+    Kylix 3 patch
+
+  Rev 1.26    2004.05.20 11:37:34 AM  czhower
+    IdStreamVCL
+
+  Rev 1.25    4/8/2004 11:49:56 AM  BGooijen
+    Fix for D5
+
+  Rev 1.24    03/03/2004 01:16:20  CCostelloe
+    Yet another check-in as part of continuing development
+
+  Rev 1.23    01/03/2004 23:32:24  CCostelloe
+    Another check-in as part of continuing development
+
+  Rev 1.22    3/1/2004 12:55:28 PM  JPMugaas
+    Updated for problem with new code.
+
+  Rev 1.21    26/02/2004 02:01:14  CCostelloe
+    Another intermediate check-in, approx half of functions are debugged
+
+  Rev 1.20    24/02/2004 10:34:50  CCostelloe
+    Storage-specific code moved to IdIMAP4ServerDemo
+
+  Rev 1.19    2/22/2004 12:09:54 AM  JPMugaas
+    Fixes for IMAP4Server compile failure in DotNET.  This also fixes
+    a potential problem where file handles can be leaked in the server
+    needlessly.
+
+  Rev 1.18    12/02/2004 02:40:56  CCostelloe
+    Minor bugfix
+
+  Rev 1.17    12/02/2004 02:24:30  CCostelloe
+    Completed revision, apart from parts support and BODYSTRUCTURE, not
+    yet debugged.
+
+  Rev 1.16    05/02/2004 00:25:32  CCostelloe
+    This version actually works!
+
+  Rev 1.15    2/4/2004 2:37:38 AM  JPMugaas
+    Moved more units down to the implementation clause in the units to
+    make them easier to compile.
+
+  Rev 1.14    2/3/2004 4:12:42 PM  JPMugaas
+    Fixed up units so they should compile.
+
+  Rev 1.13    1/29/2004 9:07:54 PM  JPMugaas
+    Now uses TIdExplicitTLSServer so it can take advantage of that framework.
+
+  Rev 1.12    1/21/2004 3:11:02 PM  JPMugaas
+    InitComponent
+
+  Rev 1.11    27/12/2003 22:28:48  ANeillans
+    Design fix, Login event only passed the username (first param)
+
+  Rev 1.10    2003.10.21 9:13:08 PM  czhower
+    Now compiles.
+
+  Rev 1.9    10/19/2003 6:00:24 PM  DSiders
+    Added localization coimments.
+
+  Rev 1.8    9/19/2003 03:29:58 PM  JPMugaas
+    Now should compile again.
+
+  Rev 1.7    07/09/2003 12:29:08  CCostelloe
+    Warning that variable LIO is declared but never used in
+    TIdIMAP4Server.DoCommandSTARTTLS fixed.
+
+  Rev 1.6    7/20/2003 6:20:06 PM  SPerry
+    Switched to IdCmdTCPServer, also some modifications
+
+  Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
+    Removed warnings, changed StartSSL to PassThrough:=false;
+
+  Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
+    Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now
+    enabled in the server-protocol-files
+
+  Rev 1.3    3/13/2003 09:49:20 AM  JPMugaas
+    Now uses an abstract SSL base class instead of OpenSSL so
+    3rd-party vendors can plug-in their products.
+
+  Rev 1.2    2/24/2003 09:03:14 PM  JPMugaas
+
+  Rev 1.1    2/6/2003 03:18:14 AM  JPMugaas
+    Updated components that compile with Indy 10.
+
+  Rev 1.0    11/13/2002 07:55:02 AM  JPMugaas
+
+  2002-Apr-21 - J. Berg
+    use fetch()
+
+  2000-May-18 - J. Peter Mugaas
+    Ported to Indy
+
+  2000-Jan-13 - MTL
+    Moved to new Palette Scheme (Winshoes Servers)
+
+  1999-Aug-26 - Ray Malone
+    Started unit
+}
 
 unit IdIMAP4Server;
 
@@ -31,7 +151,7 @@ unit IdIMAP4Server;
   COPY should preserve the date of the original message.
 
 
-  TODO (mine):
+  TODO (ccostelloe):
 
   Add a file recording the UIDVALIDITY in each mailbox.
 
@@ -49,7 +169,7 @@ unit IdIMAP4Server;
   Implement multiple-option FETCH commands (will need breaking out some
   options which are abbreviations into their subsets).
 
- Need some method of preserving flags permanently.
+  Need some method of preserving flags permanently.
 }
 
 {
@@ -2323,124 +2443,5 @@ begin
     OnCommandError(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
   end;
 end;
-
-{
-  Previous revision history
-
-  Rev 1.31    2/9/2005 11:44:20 AM  JPMugaas
-    Fixed compiler problem and removed some warnings about virtual
-    methods hiding stuff in the base class.
-
-  Rev 1.30    2/8/05 6:20:16 PM  RLebeau
-    Added additional overriden methods.
-
-  Rev 1.29    10/26/2004 11:08:06 PM  JPMugaas
-    Updated refs.
-
-  Rev 1.28    10/21/2004 1:49:12 PM  BGooijen
-    Raid 214213
-
-  Rev 1.27    09/06/2004 09:54:56  CCostelloe
-    Kylix 3 patch
-
-  Rev 1.26    2004.05.20 11:37:34 AM  czhower
-    IdStreamVCL
-
-  Rev 1.25    4/8/2004 11:49:56 AM  BGooijen
-    Fix for D5
-
-  Rev 1.24    03/03/2004 01:16:20  CCostelloe
-    Yet another check-in as part of continuing development
-
-  Rev 1.23    01/03/2004 23:32:24  CCostelloe
-    Another check-in as part of continuing development
-
-  Rev 1.22    3/1/2004 12:55:28 PM  JPMugaas
-    Updated for problem with new code.
-
-  Rev 1.21    26/02/2004 02:01:14  CCostelloe
-    Another intermediate check-in, approx half of functions are debugged
-
-  Rev 1.20    24/02/2004 10:34:50  CCostelloe
-    Storage-specific code moved to IdIMAP4ServerDemo
-
-  Rev 1.19    2/22/2004 12:09:54 AM  JPMugaas
-    Fixes for IMAP4Server compile failure in DotNET.  This also fixes
-    a potential problem where file handles can be leaked in the server
-    needlessly.
-
-  Rev 1.18    12/02/2004 02:40:56  CCostelloe
-    Minor bugfix
-
-
-  Rev 1.17    12/02/2004 02:24:30  CCostelloe
-    Completed revision, apart from parts support and BODYSTRUCTURE, not
-    yet debugged.
-
-  Rev 1.16    05/02/2004 00:25:32  CCostelloe
-    This version actually works!
-
-  Rev 1.15    2/4/2004 2:37:38 AM  JPMugaas
-    Moved more units down to the implementation clause in the units to
-    make them easier to compile.
-
-  Rev 1.14    2/3/2004 4:12:42 PM  JPMugaas
-    Fixed up units so they should compile.
-
-  Rev 1.13    1/29/2004 9:07:54 PM  JPMugaas
-    Now uses TIdExplicitTLSServer so it can take advantage of that framework.
-
-  Rev 1.12    1/21/2004 3:11:02 PM  JPMugaas
-    InitComponent
-
-  Rev 1.11    27/12/2003 22:28:48  ANeillans
-    Design fix, Login event only passed the username (first param)
-
-  Rev 1.10    2003.10.21 9:13:08 PM  czhower
-    Now compiles.
-
-  Rev 1.9    10/19/2003 6:00:24 PM  DSiders
-    Added localization coimments.
-
-  Rev 1.8    9/19/2003 03:29:58 PM  JPMugaas
-    Now should compile again.
-
-  Rev 1.7    07/09/2003 12:29:08  CCostelloe
-    Warning that variable LIO is declared but never used in
-    TIdIMAP4Server.DoCommandSTARTTLS fixed.
-
-  Rev 1.6    7/20/2003 6:20:06 PM  SPerry
-    Switched to IdCmdTCPServer, also some modifications
-
-  Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
-    Removed warnings, changed StartSSL to PassThrough:=false;
-
-  Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
-    Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now
-    enabled in the server-protocol-files
-
-  Rev 1.3    3/13/2003 09:49:20 AM  JPMugaas
-    Now uses an abstract SSL base class instead of OpenSSL so
-    3rd-party vendors can plug-in their products.
-
-  Rev 1.2    2/24/2003 09:03:14 PM  JPMugaas
-
-  Rev 1.1    2/6/2003 03:18:14 AM  JPMugaas
-    Updated components that compile with Indy 10.
-
-  Rev 1.0    11/13/2002 07:55:02 AM  JPMugaas
-
-  2002-Apr-21 - J. Berg
-    use fetch()
-
-  2000-May-18 - J. Peter Mugaas
-    Ported to Indy
-
-  2000-Jan-13 - MTL
-    Moved to new Palette Scheme (Winshoes Servers)
-
-  1999-Aug-26 - Ray Malone
-    Started unit
-}
 
 end.
