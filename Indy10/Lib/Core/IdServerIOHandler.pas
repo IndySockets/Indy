@@ -7,7 +7,7 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log:  11964: IdServerIOHandler.pas 
+{ $Log:  11964: IdServerIOHandler.pas
 {
 {   Rev 1.7    2003.10.11 5:49:56 PM  czhower
 { -VCL fixes for servers
@@ -57,9 +57,9 @@ type
   protected
     FScheduler: TIdScheduler;
   public
+    // This is a thread and not a yarn. Its the listener thread.
     function Accept(
       ASocket: TIdSocketHandle;
-      // This is a thread and not a yarn. Its the listener thread.
       AListenerThread: TIdThread;
       AYarn: TIdYarn
       ): TIdIOHandler;
