@@ -148,7 +148,7 @@ uses
   Classes,
   IdReply,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdReplyRFC = class(TIdReply)

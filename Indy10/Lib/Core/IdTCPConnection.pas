@@ -349,7 +349,7 @@ uses
   IdReply,
   IdSocketHandle,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdTCPConnection = class(TIdComponent)
