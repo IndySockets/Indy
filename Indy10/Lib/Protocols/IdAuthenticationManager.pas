@@ -36,7 +36,7 @@ Uses
   IdAuthentication,
   IdBaseComponent,
   IdSys,
-  IdTStrings,
+  IdObjs,
   IdURI;
 
 Type

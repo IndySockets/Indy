@@ -119,7 +119,7 @@ uses
   IdCoder,
   IdStreamVCL,
   IdStreamRandomAccess,
-  IdTStrings,
+  IdObjs,
   IdSys;
 
 type

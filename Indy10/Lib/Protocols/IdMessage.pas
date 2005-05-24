@@ -337,7 +337,7 @@ uses
   IdHeaderList,
   IdMessageParts,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdMessagePriority = (mpHighest, mpHigh, mpNormal, mpLow, mpLowest);

@@ -238,7 +238,7 @@ uses
   IdSASL,
   IdSASLCollection,
   IdSys,
-  IdTStrings,
+  IdObjs,
   IdUserPassProvider;
 
 type

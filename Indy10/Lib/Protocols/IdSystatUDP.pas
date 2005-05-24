@@ -39,7 +39,7 @@ unit IdSystatUDP;
   -Original version}
 
 interface
-uses Classes, IdAssignedNumbers, IdTStrings, IdUDPBase, IdUDPClient;
+uses Classes, IdAssignedNumbers, IdObjs, IdUDPBase, IdUDPClient;
 
 const DefIdSysUDPTimeout =  1000; //one second
 type

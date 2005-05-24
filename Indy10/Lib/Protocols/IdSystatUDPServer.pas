@@ -49,7 +49,7 @@ interface
 
 uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer, Classes,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdUDPSystatEvent = procedure (ABinding: TIdSocketHandle; AResults : TIdStrings) of object;

@@ -47,7 +47,7 @@ uses
   IdAssignedNumbers,
   IdTCPConnection,
   IdTCPClient,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdSystat = class(TIdTCPClientCustom)

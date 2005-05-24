@@ -117,7 +117,7 @@ uses
   Classes,
   IdAssignedNumbers,
   IdEMailAddress,
-  IdHeaderList, IdTCPClient, IdTStrings;
+  IdHeaderList, IdTCPClient, IdObjs;
 
 type
   TIdGopherMenuItem = class ( TCollectionItem )

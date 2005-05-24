@@ -62,7 +62,7 @@ uses
   Classes,
   IdGlobal,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdThreadSafe = class

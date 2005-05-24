@@ -120,7 +120,7 @@ uses
   IdResourceStringsProtocols,
   IdStreamVCL,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 const
   sContentTypeFormData = 'multipart/form-data; boundary=';            {do not localize}

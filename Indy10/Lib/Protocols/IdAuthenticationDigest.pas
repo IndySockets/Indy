@@ -56,7 +56,7 @@ Uses
   IdHashMessageDigest,
   IdHeaderList,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 Type
   EIdInvalidAlgorithm = class(EIdException);
@@ -249,9 +249,9 @@ begin
 
         for i:=lParams.Count-1 downto 0 do
         begin
-        f:=lParams.ValueFromIndex[i];
+        f:=lParams.Values[lParams.Names[i]];
         f:=RemoveQuote(f);
-        lParams.ValueFromIndex[i]:=f;
+        lParams.Values[lParams.Names[i]]:=f;
         end;
 
         FRealm := LParams.Values['realm'];

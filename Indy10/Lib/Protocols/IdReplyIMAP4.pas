@@ -132,7 +132,7 @@ uses
   Classes,
   IdReply,
   IdReplyRFC,
-  IdTStrings;
+  IdObjs;
 
 const
   IMAP_OK      = 'OK';      {Do not Localize}

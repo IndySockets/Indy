@@ -96,7 +96,7 @@ uses
   Classes,
   IdComponent,
   IdThread,
-  IdTStrings;
+  IdObjs;
 
 const
   IdIPAddrMonInterval = 500;

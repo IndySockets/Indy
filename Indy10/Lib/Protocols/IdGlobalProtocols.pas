@@ -389,7 +389,7 @@ uses
   IdCharsets,
   IdGlobal,
   IdException,
-  IdTStrings,
+  IdObjs,
   IdSys;
 
 const

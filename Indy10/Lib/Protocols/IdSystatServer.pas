@@ -58,7 +58,7 @@ uses
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdSystatEvent = procedure (AThread: TIdContext; AResults : TIdStrings) of object;

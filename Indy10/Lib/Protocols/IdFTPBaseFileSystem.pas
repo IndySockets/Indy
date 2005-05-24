@@ -82,13 +82,14 @@ unit IdFTPBaseFileSystem;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdException,
   IdFTPList,
   IdFTPListOutput,
   IdFTPServerContextBase,
-  IdSys;
+  IdSys,
+  Classes,
+  IdObjs;
 
 type
   TIdFTPBaseFileSystem = class(TIdBaseComponent)
@@ -112,7 +113,7 @@ type
     procedure SetModifiedFileDate(AContext : TIdFTPServerContextBase; const AFileName: String; var VDateTime: TIdDateTime); virtual; abstract;
     procedure GetCRCCalcStream(AContext : TIdFTPServerContextBase; const AFileName: string; var VStream : TStream); virtual; abstract;
     procedure CombineFiles(AContext : TIdFTPServerContextBase;
-      const ATargetFileName: string; AParts: TStrings); virtual; abstract;
+      const ATargetFileName: string; AParts: TIdStrings); virtual; abstract;
 
   end;
   EIdFileSystemException = class(EIdException);

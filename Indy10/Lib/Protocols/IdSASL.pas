@@ -55,7 +55,7 @@ uses
   IdTCPConnection,
   IdException,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdSASLResult = (srSuccess, srFailure, srAborted);

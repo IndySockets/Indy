@@ -64,7 +64,7 @@ interface
 
 uses
   Classes,
-  IdComponent, IdThread, IdTStrings;
+  IdComponent, IdThread, IdObjs;
 
 const
   IP_WATCH_HIST_MAX = 25;

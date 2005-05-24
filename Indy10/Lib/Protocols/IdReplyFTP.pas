@@ -87,7 +87,7 @@ uses
   IdReply,
   IdReplyRFC,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdReplyRFCFormat = (rfNormal, rfIndentMidLines);

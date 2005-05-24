@@ -143,7 +143,7 @@ uses
   Classes,
   IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdStreamVCL,
   IdMessage, IdMessageClient, IdReplyRFC, IdSys,
-  IdTCPServer, IdTCPConnection, IdTStrings;
+  IdTCPServer, IdTCPConnection, IdObjs;
 
 {
   2001-Dec - Chad Z. Hower a.k.a. Kudzu

@@ -26,7 +26,7 @@ interface
 uses
   Classes,
   IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers, IdIOHandler,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdIRC = class;

@@ -51,7 +51,7 @@ uses
   IdComponent,
   IdStrings,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdUserHandle = Cardinal;//ptr,object,collection.item.id or THandle

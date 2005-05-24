@@ -239,7 +239,7 @@ uses
   IdSASLCollection,
   IdSMTPBase,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdSMTPAuthenticationType = (atNone, atDefault, atSASL);

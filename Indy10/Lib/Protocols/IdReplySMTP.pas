@@ -121,7 +121,7 @@ uses
   IdReply,
   IdReplyRFC,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 const
   ValidClassChars = '245';

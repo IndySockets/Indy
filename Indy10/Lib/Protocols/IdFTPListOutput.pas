@@ -95,7 +95,7 @@ unit IdFTPListOutput;
 
 interface
 
-uses IdFTPList, Classes, IdTStrings, IdSys;
+uses IdFTPList, Classes, IdObjs, IdSys;
 
 type
   //we can't use the standard FTP MLSD option types in the FTP Server

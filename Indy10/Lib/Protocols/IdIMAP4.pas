@@ -504,7 +504,7 @@ uses
     IdCoderBinHex4,
     IdSASLCollection,
     IdSys,
-    IdTStrings,
+    IdObjs,
     IdMessageCollection;
 
 { MUTF7 }

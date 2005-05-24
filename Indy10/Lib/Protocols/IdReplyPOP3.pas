@@ -113,7 +113,7 @@ uses
   IdReply,
   IdException,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 const
   {do not change these strings unless you know what you are doing}

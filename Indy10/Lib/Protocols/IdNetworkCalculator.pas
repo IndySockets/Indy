@@ -35,7 +35,7 @@ uses
   Classes,
   IdBaseComponent,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
 

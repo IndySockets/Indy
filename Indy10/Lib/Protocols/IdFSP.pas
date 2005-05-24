@@ -79,7 +79,7 @@ uses
   IdStreamVCL,
   IdSys,
   IdThreadSafe,
-  IdTStrings,
+  IdObjs,
   IdUDPClient;
 
 {This is based on:

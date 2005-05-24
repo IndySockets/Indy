@@ -55,7 +55,7 @@ uses
   IdGlobal,
   IdException,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 Type
 

@@ -71,7 +71,7 @@ interface
 uses
   Classes,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdHeaderList = class(TIdStringList)

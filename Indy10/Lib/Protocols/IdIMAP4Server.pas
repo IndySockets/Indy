@@ -233,7 +233,7 @@ uses
   IdReply,
   IdReplyIMAP4,
   IdTCPConnection,
-  IdTStrings,
+  IdObjs,
   IdYarn;
 
 const

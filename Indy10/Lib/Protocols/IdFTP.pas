@@ -728,7 +728,7 @@ uses
   IdReplyRFC,
   IdReply,
   IdSocketHandle, IdStreamVCL, IdSys,
-  IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdTStrings, IdZLibCompressorBase;
+  IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdObjs, IdZLibCompressorBase;
 
 type
   //Added by SP

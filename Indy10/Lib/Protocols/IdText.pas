@@ -39,7 +39,7 @@ unit IdText;
 
 interface
 uses
-  IdMessageParts, Classes, IdTStrings;
+  IdMessageParts, Classes, IdObjs;
 
 type
   TIdText = class(TIdMessagePart)

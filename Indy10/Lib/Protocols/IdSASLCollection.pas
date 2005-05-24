@@ -47,7 +47,7 @@ uses
   IdSASL,
   IdSys,
   IdTCPConnection,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdSASLListEntry = class(TCollectionItem)

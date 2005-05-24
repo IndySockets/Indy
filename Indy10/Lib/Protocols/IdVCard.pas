@@ -67,7 +67,7 @@ interface
 uses
   Classes,
   IdBaseComponent,
-  IdTStrings;
+  IdObjs;
 
 { TODO:
 

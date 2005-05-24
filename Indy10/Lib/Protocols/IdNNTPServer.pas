@@ -155,7 +155,7 @@ uses
   Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
   IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSys,
-  IdTCPConnection, IdTCPServer, IdTStrings;
+  IdTCPConnection, IdTCPServer, IdObjs;
 
 (*
  For more information on NNTP visit http://www.faqs.org/rfcs/

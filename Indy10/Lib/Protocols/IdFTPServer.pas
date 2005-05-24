@@ -393,7 +393,7 @@
 {
 {   Rev 1.68    6/17/2003 03:16:36 PM  JPMugaas
 { I redid the help and site help implementations so that they list commands.
-{ It did mean loosing the FHelpText TStrings property but this should be more
+{ It did mean loosing the FHelpText TIdStrings property but this should be more
 { consistant with common practices.
 }
 {
@@ -723,7 +723,7 @@ uses
   IdFTPBaseFileSystem, IdFTPCommon,
   IdFTPList, IdFTPListOutput, IdFTPServerContextBase,  IdReply, IdReplyFTP,
   IdReplyRFC, IdScheduler, IdServerIOHandler, IdTCPConnection, IdCmdTCPServer,  IdTCPServer,
-   IdThread, IdTStrings, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSys;
+   IdThread, IdObjs, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSys;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);
@@ -1073,7 +1073,7 @@ type
     function FTPNormalizePath(const APath: String) : String;
     function MLSFEATLine(const AFactMask : TIdMLSDAttrs; const AFacts : TIdFTPFactOutputs) : String;
 
-    function HelpText(Cmds : TStrings) : String;
+    function HelpText(Cmds : TIdStrings) : String;
     function IsValidPermNumbers(const APermNos : String) : Boolean;
     procedure SetRFCReplyFormat(AReply : TIdReply);
     function CDUPDir(AContext : TIdFTPServerContext) : String;
@@ -1492,7 +1492,7 @@ end;
 procedure TIdFTPServer.CommandHELP(ASender: TIdCommand);
 var
   s : String;
-  LCmds : TStringList;
+  LCmds : TIdStringList;
   i : Integer;
   LExp : String;
 
@@ -1651,7 +1651,7 @@ begin
   else
   begin
     s := RSFTPHelpBegining+EOL;
-    LCmds := TStringList.Create;
+    LCmds := TIdStringList.Create;
     try
       //
       for i := 0 to CommandHandlers.Count -1 do
@@ -2342,7 +2342,7 @@ begin
       end;
       if (ACMD = 'MLSD') or (ACmd = 'MLST') then     {Do not translate}
       begin
-        LDirectoryList.MLISTOutputDir(ADirContents,ASender.MLSOpts);
+        LDirectoryList.MLISTOutputDir(ADirContents, ASender.MLSOpts);
       end
       else
       begin
@@ -4949,7 +4949,7 @@ begin
   end;
 end;
 
-function TIdFTPServer.HelpText(Cmds: TStrings): String;
+function TIdFTPServer.HelpText(Cmds: TIdStrings): String;
 var LRows : Integer;
   LMod : Integer;
   i : Integer;

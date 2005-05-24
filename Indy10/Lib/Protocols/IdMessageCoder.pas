@@ -84,7 +84,7 @@ uses
   IdStream,
   IdStreamRandomAccess,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdMessageCoderPartType = (mcptUnknown, mcptText, mcptAttachment);
