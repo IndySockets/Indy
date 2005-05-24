@@ -203,7 +203,7 @@ uses
   IdSys,
   IdTCPClient,
   IdTCPConnection,
-  IdTStrings,
+  IdObjs,
   IdUDPClient;
 
 

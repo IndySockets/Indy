@@ -83,7 +83,7 @@ Implementation status
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdGlobalProtocols, IdTStrings, SysUtils, IdSys;
+  Classes, IdGlobal, IdException, IdGlobalProtocols, IdObjs, SysUtils, IdSys;
   //must keep for now
 
 Const

@@ -35,7 +35,7 @@ interface
 
 uses
   Classes,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdMatchItem = class(TCollectionItem)

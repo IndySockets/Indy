@@ -116,7 +116,7 @@ uses
   Classes,
   IdException,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 type
    EIdEmailParseError = class(EIdException);

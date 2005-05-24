@@ -85,7 +85,7 @@ uses
   IdServerIOHandler,
   IdSys,
   IdTCPClient,
-  IdTStrings;
+  IdObjs;
 
 type
   TIdUseTLS = (

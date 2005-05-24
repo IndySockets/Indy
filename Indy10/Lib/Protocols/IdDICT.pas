@@ -52,7 +52,7 @@
 unit IdDICT;
 
 interface
-uses Classes, IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdTStrings;
+uses Classes, IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
 
 //TODO:  MIME should be integrated into this.
 //TODO: SASL mechanism support needs to coded

@@ -298,7 +298,7 @@ uses
     IdStackConsts,
     IdThread,
     IdDNSCommon,
-    IdTStrings;
+    IdObjs;
 
 type
   TIdDomainExpireCheckThread = class (TIdThread)
@@ -382,14 +382,14 @@ type
   private
     FCLabel : AnsiString;
     FRRs: TIdTextModeRRs;
-    FChildIndex: TStrings;
+    FChildIndex: TIdStrings;
     FParentNode: TIdDNTreeNode;
     FAutoSortChild: boolean;
     procedure SetCLabel(const Value: AnsiString);
     procedure SetRRs(const Value: TIdTextModeRRs);
     function GetNode(Index: integer): TIdDNTreeNode;
     procedure SetNode(Index: integer; const Value: TIdDNTreeNode);
-    procedure SetChildIndex(const Value: TStrings);
+    procedure SetChildIndex(const Value: TIdStrings);
     function GetFullName: string;
     function ConvertToDNString : string;
     function DumpAllBinaryData(var RecordCount:integer) : TIdBytes;
@@ -398,7 +398,7 @@ type
     property CLabel : AnsiString read FCLabel write SetCLabel;
     property RRs : TIdTextModeRRs read FRRs write SetRRs;
     property Children[Index : integer] : TIdDNTreeNode read GetNode write SetNode;
-    property ChildIndex : TStrings read FChildIndex write SetChildIndex;
+    property ChildIndex : TIdStrings read FChildIndex write SetChildIndex;
     property AutoSortChild : boolean read FAutoSortChild write FAutoSortChild;
     property FullName : string read GetFullName;
 
@@ -863,13 +863,14 @@ begin
   DNSs := TIdStringList.Create;
   try
     DNSs.Add(Self.ConvertToDNString);
-    DNSs.SaveToFile(Filename);
+    ToDo;
+//    DNSs.SaveToFile(Filename);
   finally
     DNSs.Free;
   end;
 end;
 
-procedure TIdDNTreeNode.SetChildIndex(const Value: TStrings);
+procedure TIdDNTreeNode.SetChildIndex(const Value: TIdStrings);
 begin
   Self.FChildIndex.Assign(Value);
 end;
@@ -896,7 +897,7 @@ end;
 procedure TIdDNTreeNode.SortChildren;
 begin
   Self.SubTree.BubbleSort(CompareItems);
-  TStringList(Self.FChildIndex).Sort;
+  TIdStringList(Self.FChildIndex).Sort;
 end;
 
 
@@ -1204,7 +1205,8 @@ begin
 
    if Result then begin
       FileStrings := TIdStringList.Create;
-      FileStrings.LoadFromFile(MasterFileName);
+      Todo;
+//      FileStrings.LoadFromFile(MasterFileName);
       Result := LoadZoneStrings(FileStrings, MasterFileName, Self.Handed_Tree);
       {
       Result := IsValidMasterFile;

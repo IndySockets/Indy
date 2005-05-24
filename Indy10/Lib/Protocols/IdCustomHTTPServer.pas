@@ -198,7 +198,7 @@ uses
   IdContext, IdException,
   IdGlobal, IdStack,
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer, IdTCPConnection, IdThread, IdCookie,
-  IdHTTPHeaderInfo, IdStackConsts, IdTStrings,
+  IdHTTPHeaderInfo, IdStackConsts, IdObjs,
   IdSys;
 
 type

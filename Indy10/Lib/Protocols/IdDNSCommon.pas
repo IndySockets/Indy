@@ -166,7 +166,7 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSys,
-  IdTStrings;
+  IdObjs;
 
 Resourcestring
   RSQueryMustProvideSOARecord = 'You have to provide a TIdRR_SOA object with Serial number and Name to progress IXFR. %d';
