@@ -1,220 +1,102 @@
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log:  11629: IdIMAP4Server.pas
 {
-{   Rev 1.31    2/9/2005 11:44:20 AM  JPMugaas
-{ Fixed compiler problem and removed some warnings about virtual methods hiding
-{ ostuff in the base class.
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
 }
-{
-{   Rev 1.30    2/8/05 6:20:16 PM  RLebeau
-{ Added additional overriden methods.
-}
-{
-{   Rev 1.29    10/26/2004 11:08:06 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.28    10/21/2004 1:49:12 PM  BGooijen
-{ Raid 214213
-}
-{
-{   Rev 1.27    09/06/2004 09:54:56  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.26    2004.05.20 11:37:34 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.25    4/8/2004 11:49:56 AM  BGooijen
-{ Fix for D5
-}
-{
-{   Rev 1.24    03/03/2004 01:16:20  CCostelloe
-{ Yet another check-in as part of continuing development
-}
-{
-{   Rev 1.23    01/03/2004 23:32:24  CCostelloe
-{ Another check-in as part of continuing development
-}
-{
-{   Rev 1.22    3/1/2004 12:55:28 PM  JPMugaas
-{ Updated for problem with new code.
-}
-{
-{   Rev 1.21    26/02/2004 02:01:14  CCostelloe
-{ Another intermediate check-in, approx half of functions are debugged
-}
-{
-{   Rev 1.20    24/02/2004 10:34:50  CCostelloe
-{ Storage-specific code moved to IdIMAP4ServerDemo
-}
-{
-{   Rev 1.19    2/22/2004 12:09:54 AM  JPMugaas
-{ Fixes for IMAP4Server compile failure in DotNET.  This also fixes a potential
-{ problem where file handles can be leaked in the server needlessly.
-}
-{
-{   Rev 1.18    12/02/2004 02:40:56  CCostelloe
-{ Minor bugfix
-}
-{
-{   Rev 1.17    12/02/2004 02:24:30  CCostelloe
-{ Completed revision, apart from parts support and BODYSTRUCTURE, not yet
-{ debugged.
-}
-{
-{   Rev 1.16    05/02/2004 00:25:32  CCostelloe
-{ This version actually works!
-}
-{
-{   Rev 1.15    2/4/2004 2:37:38 AM  JPMugaas
-{ Moved more units down to the implementation clause in the units to make them
-{ easier to compile.
-}
-{
-{   Rev 1.14    2/3/2004 4:12:42 PM  JPMugaas
-{ Fixed up units so they should compile.
-}
-{
-{   Rev 1.13    1/29/2004 9:07:54 PM  JPMugaas
-{ Now uses TIdExplicitTLSServer so it can take advantage of that framework.
-}
-{
-{   Rev 1.12    1/21/2004 3:11:02 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.11    27/12/2003 22:28:48  ANeillans
-{ Design fix, Login event only passed the username (first param)
-}
-{
-{   Rev 1.10    2003.10.21 9:13:08 PM  czhower
-{ Now compiles.
-}
-{
-    Rev 1.9    10/19/2003 6:00:24 PM  DSiders
-  Added localization coimments.
-}
-{
-{   Rev 1.8    9/19/2003 03:29:58 PM  JPMugaas
-{ Now should compile again.
-}
-{
-{   Rev 1.7    07/09/2003 12:29:08  CCostelloe
-{ Warning that variable 'LIO' is declared but never used in
-{ 'TIdIMAP4Server.DoCommandSTARTTLS' fixed.
-}
-{
-{   Rev 1.6    7/20/2003 6:20:06 PM  SPerry
-{ Switched to IdCmdTCPServer, also some modifications
-}
-{
-    Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
-  Removed warnings, changed StartSSL to PassThrough:=false;
-}
-{
-    Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
-  Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
-  the server-protocol-files
-}
-{
-{   Rev 1.3    3/13/2003 09:49:20 AM  JPMugaas
-{ Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-{ can plug-in their products.
-}
-{
-{   Rev 1.2    2/24/2003 09:03:14 PM  JPMugaas
-}
-{
-{   Rev 1.1    2/6/2003 03:18:14 AM  JPMugaas
-{ Updated components that compile with Indy 10.
-}
-{
-{   Rev 1.0    11/13/2002 07:55:02 AM  JPMugaas
-}
+
 unit IdIMAP4Server;
 
 {
-TODO (ex RFC 3501):
-Dont allow & to be used as a mailbox separator.
-Certain server data (unsolicited responses) MUST be recorded, see Server Responses section.
-UIDs must be unique to a mailbox AND any subsequent mailbox with the same name - record in a text file.
-\Recent cannot be changed by STORE or APPEND.
-COPY should preserve the date of the original message.
+  TODO (ex RFC 3501):
 
-TODO (mine):
-Add a file recording the UIDVALIDITY in each mailbox.
-Emails should be ordered in date order.
-Optional date/time param to be implemented in APPEND.
-Consider integrating IdUserAccounts into login mechanism (or per-user passwords).
-Implement utf mailbox encoding.
-Implement * in message numbers.
-Implement multiple-option FETCH commands (will need breaking out some options
- which are abbreviations into their subsets).
-Need some method of preserving flags permanently.
+  Dont allow & to be used as a mailbox separator.
 
-IMPLEMENTATION NOTES;
+  Certain server data (unsolicited responses) MUST be recorded,
+  see Server Responses section.
 
-Major rewrite started 2nd February 2004, Ciaran Costelloe, ccostelloe@flogas.ie.
-Prior to this, it was a simple wrapper class with a few problems.
+  UIDs must be unique to a mailbox AND any subsequent mailbox with
+  the same name - record in a text file.
 
-Note that IMAP servers should return BAD for an unknown command or invalid
-arguments (synthax errors and unsupported commands) and BAD if the command is
-valid but there was some problem in executing it (e.g. trying a change an
-email's flag if it is a read-only mailbox).
+  \Recent cannot be changed by STORE or APPEND.
 
-FUseDefaultMechanismsForUnassignedCommands defaults to True: if you set it to
-False, you need to implement command handlers for all the commands you need to
-implement.
-If True, this class implements a default mechanism and provides default
-behaviour for all commands.  It does not include any filesystem-specific
-functions, which you need to implement.
+  COPY should preserve the date of the original message.
 
-The default behaviour uses a default password of 'admin' - change this if
-you have any consideration for security!
 
-FSaferMode defaults to False: you should probably leave it False for testing,
-because this generates diagnostically-useful error messages.  However, setting
-it True generates minimal responses for the greeting and for login failures,
-making life more difficult for a hacker.  Warning: you should also implement
-one of the Indy-provided more-secure logins than the default plaintext
-password login!
+  TODO (mine):
 
-You may want to assign handlers to the OnBeforeCmd and OnBeforeSend events to
-easily log data in & out of the server.
+  Add a file recording the UIDVALIDITY in each mailbox.
 
-WARNING: TIdIMAP4PeerContext has a TIdMailBox which holds various status info,
-including UIDs in its message collection.  Do NOT use the message collection for
-loading messages into, or you may thrash message UIDs or flags!
+  Emails should be ordered in date order.
+
+  Optional date/time param to be implemented in APPEND.
+
+  Consider integrating IdUserAccounts into login mechanism
+  (or per-user passwords).
+
+  Implement utf mailbox encoding.
+
+  Implement * in message numbers.
+
+  Implement multiple-option FETCH commands (will need breaking out some
+  options which are abbreviations into their subsets).
+
+ Need some method of preserving flags permanently.
 }
 
 {
-2002-Apr-21 - J. Berg
-  -use fetch()
-2000-May-18 - J. Peter Mugaas
-  -Ported to Indy
-2000-Jan-13 - MTL
-  -Moved to new Palette Scheme (Winshoes Servers)
-1999-Aug-26 - Ray Malone
-  -Started unit
+  IMPLEMENTATION NOTES:
+
+  Major rewrite started 2nd February 2004, Ciaran Costelloe, ccostelloe@flogas.ie.
+  Prior to this, it was a simple wrapper class with a few problems.
+
+  Note that IMAP servers should return BAD for an unknown command or
+  invalid arguments (synthax errors and unsupported commands) and BAD
+  if the command is valid but there was some problem in executing
+  (e.g. trying a change an email's flag if it is a read-only mailbox).
+
+  FUseDefaultMechanismsForUnassignedCommands defaults to True: if you
+  set it to False, you need to implement command handlers for all the
+  commands you need to implement. If True, this class implements a
+  default mechanism and provides default behaviour for all commands.
+  It does not include any filesystem-specific functions, which you
+  need to implement.
+
+  The default behaviour uses a default password of 'admin' - change this
+  if you have any consideration for security!
+
+  FSaferMode defaults to False: you should probably leave it False for
+  testing, because this generates diagnostically-useful error messages.
+  However, setting it True generates minimal responses for the greeting
+  and for login failures, making life more difficult for a hacker.
+
+  WARNING: you should also implement one of the Indy-provided more-secure
+  logins than the default plaintext password login!
+
+  You may want to assign handlers to the OnBeforeCmd and OnBeforeSend
+  events to easily log data in & out of the server.
+
+  WARNING: TIdIMAP4PeerContext has a TIdMailBox which holds various
+  status info, including UIDs in its message collection.  Do NOT use the
+  message collection for loading messages into, or you may thrash message
+  UIDs or flags!
 }
 
 interface
 {$IFDEF INDY100}
-{$I Core\IdCompilerDefines.inc}
-{$IFDEF DOTNET}
-{$WARN UNIT_PLATFORM OFF}
-{$WARN SYMBOL_PLATFORM OFF}
-{$ENDIF}
+  {$I Core\IdCompilerDefines.inc}
+  {$IFDEF DOTNET}
+  {$WARN UNIT_PLATFORM OFF}
+  {$WARN SYMBOL_PLATFORM OFF}
+  {$ENDIF}
 {$ENDIF}
 
 uses
@@ -225,7 +107,7 @@ uses
   IdCommandHandlers,
   IdException,
   IdExplicitTLSClientServerBase,
-  IdIMAP4, //For some defines like TIdIMAP4ConnectionState
+  IdIMAP4,
   IdMailBox,
   IdMessage,
   IdReply,
@@ -616,7 +498,7 @@ begin
   Result.SetReply('BAD', 'Too many connections. Try again later.'); {do not localize}
 end;
 
-function TIdIMAP4Server.CreateReplyUnknownCommand: TIdReply; 
+function TIdIMAP4Server.CreateReplyUnknownCommand: TIdReply;
 begin
   Result := TIdReplyIMAP4.Create(nil, ReplyTexts);
   Result.SetReply('BAD', 'Unknown command'); {do not localize}
@@ -2441,5 +2323,124 @@ begin
     OnCommandError(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
   end;
 end;
+
+{
+  Previous revision history
+
+  Rev 1.31    2/9/2005 11:44:20 AM  JPMugaas
+    Fixed compiler problem and removed some warnings about virtual
+    methods hiding stuff in the base class.
+
+  Rev 1.30    2/8/05 6:20:16 PM  RLebeau
+    Added additional overriden methods.
+
+  Rev 1.29    10/26/2004 11:08:06 PM  JPMugaas
+    Updated refs.
+
+  Rev 1.28    10/21/2004 1:49:12 PM  BGooijen
+    Raid 214213
+
+  Rev 1.27    09/06/2004 09:54:56  CCostelloe
+    Kylix 3 patch
+
+  Rev 1.26    2004.05.20 11:37:34 AM  czhower
+    IdStreamVCL
+
+  Rev 1.25    4/8/2004 11:49:56 AM  BGooijen
+    Fix for D5
+
+  Rev 1.24    03/03/2004 01:16:20  CCostelloe
+    Yet another check-in as part of continuing development
+
+  Rev 1.23    01/03/2004 23:32:24  CCostelloe
+    Another check-in as part of continuing development
+
+  Rev 1.22    3/1/2004 12:55:28 PM  JPMugaas
+    Updated for problem with new code.
+
+  Rev 1.21    26/02/2004 02:01:14  CCostelloe
+    Another intermediate check-in, approx half of functions are debugged
+
+  Rev 1.20    24/02/2004 10:34:50  CCostelloe
+    Storage-specific code moved to IdIMAP4ServerDemo
+
+  Rev 1.19    2/22/2004 12:09:54 AM  JPMugaas
+    Fixes for IMAP4Server compile failure in DotNET.  This also fixes
+    a potential problem where file handles can be leaked in the server
+    needlessly.
+
+  Rev 1.18    12/02/2004 02:40:56  CCostelloe
+    Minor bugfix
+
+
+  Rev 1.17    12/02/2004 02:24:30  CCostelloe
+    Completed revision, apart from parts support and BODYSTRUCTURE, not
+    yet debugged.
+
+  Rev 1.16    05/02/2004 00:25:32  CCostelloe
+    This version actually works!
+
+  Rev 1.15    2/4/2004 2:37:38 AM  JPMugaas
+    Moved more units down to the implementation clause in the units to
+    make them easier to compile.
+
+  Rev 1.14    2/3/2004 4:12:42 PM  JPMugaas
+    Fixed up units so they should compile.
+
+  Rev 1.13    1/29/2004 9:07:54 PM  JPMugaas
+    Now uses TIdExplicitTLSServer so it can take advantage of that framework.
+
+  Rev 1.12    1/21/2004 3:11:02 PM  JPMugaas
+    InitComponent
+
+  Rev 1.11    27/12/2003 22:28:48  ANeillans
+    Design fix, Login event only passed the username (first param)
+
+  Rev 1.10    2003.10.21 9:13:08 PM  czhower
+    Now compiles.
+
+  Rev 1.9    10/19/2003 6:00:24 PM  DSiders
+    Added localization coimments.
+
+  Rev 1.8    9/19/2003 03:29:58 PM  JPMugaas
+    Now should compile again.
+
+  Rev 1.7    07/09/2003 12:29:08  CCostelloe
+    Warning that variable LIO is declared but never used in
+    TIdIMAP4Server.DoCommandSTARTTLS fixed.
+
+  Rev 1.6    7/20/2003 6:20:06 PM  SPerry
+    Switched to IdCmdTCPServer, also some modifications
+
+  Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
+    Removed warnings, changed StartSSL to PassThrough:=false;
+
+  Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
+    Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now
+    enabled in the server-protocol-files
+
+  Rev 1.3    3/13/2003 09:49:20 AM  JPMugaas
+    Now uses an abstract SSL base class instead of OpenSSL so
+    3rd-party vendors can plug-in their products.
+
+  Rev 1.2    2/24/2003 09:03:14 PM  JPMugaas
+
+  Rev 1.1    2/6/2003 03:18:14 AM  JPMugaas
+    Updated components that compile with Indy 10.
+
+  Rev 1.0    11/13/2002 07:55:02 AM  JPMugaas
+
+  2002-Apr-21 - J. Berg
+    use fetch()
+
+  2000-May-18 - J. Peter Mugaas
+    Ported to Indy
+
+  2000-Jan-13 - MTL
+    Moved to new Palette Scheme (Winshoes Servers)
+
+  1999-Aug-26 - Ray Malone
+    Started unit
+}
 
 end.
