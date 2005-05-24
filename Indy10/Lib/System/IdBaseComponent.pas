@@ -105,8 +105,10 @@ type
   // TIdInitializerComponent implements InitComponent which all components must use to initialize
   // other members instead of overriding constructors.
   {$IFDEF DotNetDistro}
+  TIdNativeComponent = Component;
   TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
+  TIdNativeComponent = TComponent;
   TIdInitializerComponent = class(TComponent)
   {$ENDIF}
   private
