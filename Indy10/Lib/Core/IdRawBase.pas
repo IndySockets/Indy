@@ -83,7 +83,10 @@ we don't want to impact anything else such as TIdICMPClient.
 {$I IdCompilerDefines.inc}
 uses
   Classes,
-  IdComponent, IdGlobal, IdSocketHandle,
+  IdComponent, IdGlobal, IdSocketHandle, IdStack,
+  {$IFDEF MSWINDOWS}
+  IdWship6,
+  {$ENDIF}
   IdStackConsts;
 
 const
@@ -103,6 +106,7 @@ type
     FProtocol: TIdSocketProtocol;
     FIPVersion : TIdIPVersion;
     FTTL: Integer;
+    FPkt : TIdPacketInfo;
     //
     function GetBinding: TIdSocketHandle;
     function GetBufferSize: Integer;
@@ -250,16 +254,15 @@ const
 implementation
 
 uses
-  IdStack,
-
-  SysUtils;
+  IdSys;
 
 { TIdRawBase }
 
 destructor TIdRawBase.Destroy;
 begin
-  FreeAndNil(FBinding);
-  FreeAndNil(FBuffer);
+  Sys.FreeAndNil(FBinding);
+  Sys.FreeAndNil(FBuffer);
+  Sys.FreeAndNil(FPkt);
   inherited;
 end;
 
@@ -279,7 +282,8 @@ begin
   end
   else
   begin
-    //indicate we want all of the headers
+
+    //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,1);
     //set hop limit (or TTL as it was called in IPv4
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
@@ -313,7 +317,31 @@ begin
     if Length(VBuffer)>0 then
     begin
       if Binding.Readable(ATimeOut) then begin
-        Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
+        if FIPVersion = Id_IPv4 then
+        begin
+          Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
+        end
+        else
+        begin
+        {
+        IMPORTANT!!!!
+
+        Do NOT call GStack.ReceiveMsg unless it is absolutely necessary.
+        The reasons are:
+
+        1) WSARecvMsg is only supported on WindowsXP or later.  I think Linux
+        might have a RecvMsg function as well but I'm not sure.
+        2) GStack.ReceiveMsg is not supported in the Microsoft NET framework 1.1.
+        It may be supported in later versions.
+
+          For IPv4
+        and raw sockets, it usually isn't because we get the raw header itself.
+
+        For IPv6 and raw sockets, we call this to get information about the destination
+        IP address and hopefully, the TTL (hop count).
+        }
+          Result := GStack.ReceiveMsg(Binding.Handle,VBuffer,FPkt,Id_IPv6);
+        end;
       end;
     end;
 end;
@@ -352,12 +380,14 @@ procedure TIdRawBase.InitComponent;
 begin
   inherited;
   FBinding := TIdSocketHandle.Create(nil);
+  FPkt := TIdPacketInfo.Create;
   BufferSize := Id_TIdRawBase_BufferSize;
   ReceiveTimeout := GReceiveTimeout;
   FPort := Id_TIdRawBase_Port;
   FProtocol := Id_IPPROTO_RAW;
   FIPVersion := Id_IPv4;
   FTTL := GFTTL;
+
 end;
 
 end.
