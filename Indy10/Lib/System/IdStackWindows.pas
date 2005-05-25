@@ -268,10 +268,8 @@ type
      const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
    function ReceiveMsg(ASocket: TIdStackSocketHandle;
-     var VBuffer, VMsgData: TIdBytes;
+     var VBuffer: TIdBytes;
      APkt :  TIdPacketInfo;
-     var VIP: string;
-      var VPort: Integer;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
 
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
@@ -1208,10 +1206,12 @@ begin
   CopyTIdWord(LW,VBuffer,AOffset);
 end;
 
-function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer,
-  VMsgData: TIdBytes; APkt: TIdPacketInfo; var VIP: string; var VPort: Integer;
+function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer : TIdBytes;
+  APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): Cardinal;
 var
+  LIP : String;
+  LPort : Integer;
   LSize: Cardinal;
   LAddr4: TSockAddrIn;
   LAddr6: TSockAddrIn6;
@@ -1245,18 +1245,18 @@ begin
         LMsg.namelen := SizeOf(LAddr4);
 
         GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
-        VIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
+        APkt.SourceIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
 
-      VPort := NToHs(LAddr4.sin_port);
+        APkt.SourcePort := NToHs(LAddr4.sin_port);
       end;
       Id_IPv6: begin
         LMsg.name := @LAddr6;
         LMsg.namelen := SizeOf(LAddr6);
 
         CheckForSocketError( IdWinsock2.WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
-        VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
+        APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
 
-        VPort := NToHs(LAddr6.sin6_port);
+        APkt.SourcePort := NToHs(LAddr6.sin6_port);
       end;
       else begin
         Result := 0; // avoid warning
@@ -1292,8 +1292,10 @@ begin
   end
   else
   begin
-    Result :=  RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, VIP, VPort,
+    Result :=  RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, LIP, LPort,
      AIPVersion);
+     APkt.SourceIP := LIP;
+     APkt.SourcePort := LPort;
   end;
 end;
 

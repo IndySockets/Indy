@@ -183,15 +183,21 @@ type
   TIdPacketInfo = class
   protected
     FSourceIP: String;
+    FSourcePort : Integer;
     FDestIP: String;
+    FDestPort : Integer;
     FSourceIF: Cardinal;
     FDestIF: Cardinal;
     FTTL: Byte;
   public
     property TTL : Byte read FTTL write FTTL;
+    //The computer that sent it to you
     property SourceIP : String read FSourceIP write FSourceIP;
+    property SourcePort : Integer read FSourcePort write FSourcePort;
     property SourceIF : Cardinal read FSourceIF write FSourceIF;
+    //you, the receiver - this is provided for multihorned machines
     property DestIP : String read FDestIP write FDestIP;
+    property DestPort : Integer read FDestPort write FDestPort;
     property DestIF : Cardinal read FDestIF write FDestIF;
   end;
   TIdSocketListClass = class of TIdSocketList;
@@ -305,10 +311,8 @@ type
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle;
-     var VBuffer, VMsgData: TIdBytes;
+     var VBuffer: TIdBytes;
      APkt :  TIdPacketInfo;
-     var VIP: string;
-      var VPort: Integer;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; virtual; abstract;
     function SupportsIPv6:boolean; virtual; abstract;
 
