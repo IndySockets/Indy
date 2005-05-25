@@ -197,7 +197,7 @@ type EIdLPRErrorException = class(EIdException);
 implementation
 
 uses
-  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
+  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdObjs;
 
 {*********************** TIdLPR **********************}
 procedure TIdLPR.InitComponent;
@@ -223,10 +223,10 @@ end;
 
 procedure TIdLPR.Print(AText: String);
 var
-  LStream: TStream;
+  LStream: TIdStream2;
   LIdStream: TIdStreamVCL;
 begin
-  LStream := TMemoryStream.Create;
+  LStream := TIdMemoryStream.Create;
   try
     LIdStream := TIdStreamVCL.Create(LStream);
     try
@@ -243,10 +243,10 @@ end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TStream;
+  LStream: TIdStream2;
   LIdStream: TIdStreamVCL;
 begin
-  LStream := TMemoryStream.Create;
+  LStream := TIdMemoryStream.Create;
   try
     LIdStream := TIdStreamVCL.Create(LStream);
     try

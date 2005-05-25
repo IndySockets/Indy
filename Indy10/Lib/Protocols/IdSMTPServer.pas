@@ -67,7 +67,8 @@ uses
   IdTCPServer,
   IdYarn,
   IdStack,
-  IdSys;
+  IdSys,
+  IdObjs;
 
 type
   EIdSMTPServerError = class(EIdException);
@@ -100,7 +101,7 @@ type
     var VAction : TIdMailFromReply) of object;
   TOnRcptToEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
     var VAction : TIdRCPToReply; var VForward : String) of object;
-  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg : TStream;
+  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg : TIdStream2;
     var LAction : TIdDataReply) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; AReceived : String) of object;
   TIdSMTPServer = class(TIdExplicitTLSServer)
@@ -885,8 +886,8 @@ end;
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
 var
   LS : TIdSMTPServerContext;
-  LStream: TStream;
-  AMsg : TStream;
+  LStream: TIdStream2;
+  AMsg : TIdStream2;
   LAction : TIdDataReply;
   ReceivedString : String;
   //we do it this way so we can take advantage of the StringBuilder
@@ -906,8 +907,8 @@ begin
     SetEnhReply(ASender.Reply,354, '',RSSMTPSvrStartData,(ASender.Context as TIdSMTPServerContext).EHLO);
     ASender.SendReply;
     LS.PipeLining := False;
-    LStream := TMemoryStream.Create;
-    AMsg    := TMemoryStream.Create;
+    LStream := TIdMemoryStream.Create;
+    AMsg    := TIdMemoryStream.Create;
     try
       LAction := dOk;
       ASender.Context.Connection.IOHandler.Capture(LStream, '.', True);    {Do not Localize}

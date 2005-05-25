@@ -139,7 +139,8 @@ unit IdIOHandlerStream;
 interface
 
 uses
-  Classes,
+  IdObjs,
+  IdBaseComponent,
   IdGlobal,
   IdIOHandler,
   IdStreamVCL,
@@ -150,8 +151,8 @@ type
   TIdIOHandlerStreamType = (stRead, stWrite, stReadWrite);
   TIdOnGetStreams = procedure(
     ASender: TIdIOHandlerStream;
-    var VReceiveStream: TStream;
-    var VSendStream: TStream
+    var VReceiveStream: TIdStream2;
+    var VSendStream: TIdStream2
     ) of object;
 
   TIdIOHandlerStream = class(TIdIOHandler)
@@ -162,10 +163,10 @@ type
     FSendIdStream: TIdStreamVCL;
     FStreamType: TIdIOHandlerStreamType;
     //
-    function GetReceiveStream:TStream;
-    function GetSendStream:TStream;
-    procedure SetReceiveStream(AStream:TStream);
-    procedure SetSendStream(AStream:TStream);
+    function GetReceiveStream: TIdStream2;
+    function GetSendStream: TIdStream2;
+    procedure SetReceiveStream(AStream: TIdStream2);
+    procedure SetSendStream(AStream: TIdStream2);
     function ReadFromSource(
       ARaiseExceptionIfDisconnected: Boolean = True;
       ATimeout: Integer = IdTimeoutDefault;
@@ -181,12 +182,12 @@ type
       ); override;
 
     constructor Create(
-      AOwner: TComponent;
-      AReceiveStream: TStream;
-      ASendStream: TStream = nil
+      AOwner: TIdNativeComponent;
+      AReceiveStream: TIdStream2;
+      ASendStream: TIdStream2 = nil
       ); reintroduce; overload; virtual;
     constructor Create(
-      AOwner: TComponent
+      AOwner: TIdNativeComponent
       ); reintroduce; overload;
     function Connected
       : Boolean;
@@ -200,8 +201,8 @@ type
       ABuffer: TIdBytes
       ); override;
     //
-    property ReceiveStream: TStream read GetReceiveStream {write SetReceiveStream};
-    property SendStream: TStream read GetSendStream {write SetSendStream};
+    property ReceiveStream: TIdStream2 read GetReceiveStream {write SetReceiveStream};
+    property SendStream: TIdStream2 read GetSendStream {write SetSendStream};
   published
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
     property StreamType: TIdIOHandlerStreamType read FStreamType
@@ -248,7 +249,7 @@ begin
   end;
 end;
 
-constructor TIdIOHandlerStream.Create( AOwner: TComponent );
+constructor TIdIOHandlerStream.Create( AOwner: TIdNativeComponent );
 begin
   inherited Create(AOwner);
   FFreeStreams := True;
@@ -257,9 +258,9 @@ begin
 end;
 
 constructor TIdIOHandlerStream.Create(
-  AOwner: TComponent;
-  AReceiveStream: TStream;
-  ASendStream: TStream = nil
+  AOwner: TIdNativeComponent;
+  AReceiveStream: TIdStream2;
+  ASendStream: TIdStream2 = nil
   );
 begin
   inherited Create(AOwner);
@@ -277,7 +278,7 @@ end;
 
 procedure TIdIOHandlerStream.Open;
 var
-  LReceiveStream, LSendStream: TStream;
+  LReceiveStream, LSendStream: TIdStream2;
 begin
   inherited;
   if Assigned(OnGetStreams) then begin
@@ -340,7 +341,7 @@ begin
   end;
 end;
 
-function TIdIOHandlerStream.GetReceiveStream: TStream;
+function TIdIOHandlerStream.GetReceiveStream: TIdStream2;
 begin
   if FReceiveIdStream = nil then begin
     Result := nil;
@@ -349,7 +350,7 @@ begin
   end;
 end;
 
-function TIdIOHandlerStream.GetSendStream: TStream;
+function TIdIOHandlerStream.GetSendStream: TIdStream2;
 begin
   if FSendIdStream = nil then begin
     Result := nil;
@@ -358,7 +359,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandlerStream.SetReceiveStream(AStream: TStream);
+procedure TIdIOHandlerStream.SetReceiveStream(AStream: TIdStream2);
 begin
   Sys.FreeAndNil(FReceiveIdStream);
   if AStream <> nil then begin
@@ -366,7 +367,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandlerStream.SetSendStream(AStream: TStream);
+procedure TIdIOHandlerStream.SetSendStream(AStream: TIdStream2);
 begin
   Sys.FreeAndNil(FSendIdStream);
   if AStream <> nil then begin

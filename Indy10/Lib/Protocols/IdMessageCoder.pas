@@ -330,7 +330,7 @@ end;
 
 procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TIdStream);
 var
-  LSrcStream: TStream;
+  LSrcStream: TIdStream2;
   LIdSrcStream: TIdStreamVCL;
 begin
   LSrcStream := TReadFileExclusiveStream.Create(AFileName); try

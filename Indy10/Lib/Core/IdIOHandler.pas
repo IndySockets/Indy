@@ -675,10 +675,10 @@ type
      ATabWidth: Integer = 8; AMaxLineLength: Integer = -1): String; virtual;
     // Capture
     // Not virtual because each calls PerformCapture which is virtual
-    procedure Capture(ADest: TStream); overload; // .Net overload
-    procedure Capture(ADest: TStream; ADelim: string;
+    procedure Capture(ADest: TIdStream2); overload; // .Net overload
+    procedure Capture(ADest: TIdStream2; ADelim: string;
               AIsRFCMessage: Boolean = True); overload;
-    procedure Capture(ADest: TStream; out VLineCount: Integer;
+    procedure Capture(ADest: TIdStream2; out VLineCount: Integer;
               const ADelim: string = '.'; AIsRFCMessage: Boolean = True);
               overload;
     procedure Capture(ADest: TIdStrings); overload; // .Net overload
@@ -1459,8 +1459,8 @@ begin
   try
     if ADest is TIdStrings then begin
       LStrings := TIdStrings(ADest);
-    end else if ADest is TStream then begin
-      LStream := TIdStreamVCL.Create(TStream(ADest));
+    end else if ADest is TIdStream2 then begin
+      LStream := TIdStreamVCL.Create(TIdStream2(ADest));
     end else begin
       EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
     end;
@@ -1602,13 +1602,13 @@ begin
   until False;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream; out VLineCount: Integer;
+procedure TIdIOHandler.Capture(ADest: TIdStream2; out VLineCount: Integer;
   const ADelim: string; AIsRFCMessage: Boolean);
 begin
   PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage);
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream; ADelim: string;
+procedure TIdIOHandler.Capture(ADest: TIdStream2; ADelim: string;
   AIsRFCMessage: Boolean);
 var
   LLineCount: Integer;
@@ -1684,7 +1684,7 @@ end;
 function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolean): Int64;
 var
 //TODO: There is a way in linux to dump a file to a socket as well. use it.
-  LStream: TStream;
+  LStream: TIdStream2;
   LIdStream: TIdStreamVCL;
 begin
   EIdFileNotFound.IfFalse(Sys.FileExists(AFile), Sys.Format(RSFileNotFound, [AFile]));
@@ -1723,7 +1723,7 @@ begin
   FLargeStream := False;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream);
+procedure TIdIOHandler.Capture(ADest: TIdStream2);
 var
   LLineCount: Integer;
 begin

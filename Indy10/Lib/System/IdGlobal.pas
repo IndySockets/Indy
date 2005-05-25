@@ -722,36 +722,32 @@ const
 
   //Portable Seek() arguments.  In general, use Position (possibly with Size)
   //instead of Seek.
-  {$IFDEF DotNet}
-  IdFromBeginning = soBeginning;
-  IdFromCurrent   = soCurrent;
-  IdFromEnd       = soEnd;
-  {$ELSE}
-  IdFromBeginning = soFromBeginning;
-  IdFromCurrent   = soFromCurrent;
-  IdFromEnd       = soFromEnd;
-  {$ENDIF}
+//  {$IFDEF DotNet}
+//  IdFromBeginning = soBeginning;
+//  IdFromCurrent   = soCurrent;
+//  IdFromEnd       = soEnd;
+//  {$ELSE}
+//  IdFromBeginning = soFromBeginning;
+//  IdFromCurrent   = soFromCurrent;
+//  IdFromEnd       = soFromEnd;
+//  {$ENDIF}
 
 type
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
-  TIdStringStream = class(TStringStream)
-  public
-    constructor Create(const ASrc: string); reintroduce;
-  end;
-  TAppendFileStream = class(TFileStream)
+  TAppendFileStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TReadFileExclusiveStream = class(TFileStream)
+  TReadFileExclusiveStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TReadFileNonExclusiveStream = class(TFileStream)
+  TReadFileNonExclusiveStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TFileCreateStream = class(TFileStream)
+  TFileCreateStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
@@ -869,15 +865,15 @@ type
   {$ENDIF}
 
   {$IFNDEF DotNet}
-  TSeekOrigin = word;
+//  TSeekOrigin = word;
   {$ENDIF}
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
   // without any $IFDEFs in the unit IdMultiPartFormData - in accordance with Indy Coding rules
-  TIdBaseStream = class (TStream)
+  TIdBaseStream = class (TIdStream2)
   protected
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; virtual; abstract;
+    function IdSeek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64; virtual; abstract;
     procedure IdSetSize(ASize: Int64); virtual; abstract;
     {$IFDEF DotNet}
     procedure SetSize(ASize: Int64); override;
@@ -888,7 +884,7 @@ type
     {$IFDEF DotNet}
     function Read(var VBuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
-    function Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    function Seek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64; override;
     {$ELSE}
     function Read(var VBuffer; ACount: Longint): Longint; override;
     function Write(const ABuffer; ACount: Longint): Longint; override;
@@ -1000,11 +996,11 @@ procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
 
 // Common Streaming routines
-function ReadStringFromStream(AStream: TStream; ASize: Integer = -1): string;
-procedure WriteStringToStream(AStream: TStream; const AStr: string);
-function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
-function ReadTIdBytesFromStream(AStream: TStream; ABytes: TIdBytes; Count: Integer): Integer;
-procedure WriteTIdBytesToStream(AStream: TStream; ABytes: TIdBytes);
+function ReadStringFromStream(AStream: TIdStream2; ASize: Integer = -1): string;
+procedure WriteStringToStream(AStream: TIdStream2; const AStr: string);
+function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
+function ReadTIdBytesFromStream(AStream: TIdStream2; ABytes: TIdBytes; Count: Integer): Integer;
+procedure WriteTIdBytesToStream(AStream: TIdStream2; ABytes: TIdBytes);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -1060,7 +1056,7 @@ function iif(ATest: Boolean; const ATrue: string; const AFalse: string = ''): st
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
-procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream2; Count: int64);
 {$IFNDEF DotNetExclude}
 function IsCurrentThread(AThread: TThread): boolean;
 {$ENDIF}
@@ -1132,47 +1128,9 @@ begin
   {$ENDIF}
 end;
 
-
-{$IFDEF DOTNET}
-const
-  fmOpenRead       = $0000;
-  fmOpenWrite      = $0001;
-  fmOpenReadWrite  = $0002;
-
-  fmShareCompat    = $0000 platform; // DOS compatibility mode is not portable
-  fmShareExclusive = $0010;
-  fmShareDenyWrite = $0020;
-  fmShareDenyRead  = $0030 platform; // write-only not supported on all platforms
-  fmShareDenyNone  = $0040;
-{$ELSE}
-{$IFDEF LINUX}
-const
-  fmOpenRead       = O_RDONLY;
-  fmOpenWrite      = O_WRONLY;
-  fmOpenReadWrite  = O_RDWR;
-//  fmShareCompat not supported
-  fmShareExclusive = $0010;
-  fmShareDenyWrite = $0020;
-//  fmShareDenyRead  not supported
-  fmShareDenyNone  = $0030;
-{$ENDIF}
-{$IFDEF MSWINDOWS}
-const
-  fmOpenRead       = $0000;
-  fmOpenWrite      = $0001;
-  fmOpenReadWrite  = $0002;
-
-  fmShareCompat    = $0000{$IFNDEF DELPHI5} platform{$ENDIF}; // DOS compatibility mode is not portable
-  fmShareExclusive = $0010;
-  fmShareDenyWrite = $0020;
-  fmShareDenyRead  = $0030{$IFNDEF DELPHI5} platform{$ENDIF}; // write-only not supported on all platforms
-  fmShareDenyNone  = $0040;
-{$ENDIF}
-{$ENDIF}
-
 constructor TFileCreateStream.Create(const AFile : String);
 begin
-  inherited Create(AFile,fmCreate);
+  inherited Create(AFile, fmCreate);
 end;
 
 constructor TAppendFileStream.Create(const AFile : String);
@@ -1794,7 +1752,7 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream2; Count: int64);
 begin
   {$IFDEF DotNet}
   Dest.Write(Src.Memory, Count);
@@ -2922,7 +2880,7 @@ begin
 //  Result := Word((AByte1 shl 8) and $FF00) or Word(AByte2 and $00FF);
 end;
 
-function ReadStringFromStream(AStream: TStream; ASize: Integer): string;
+function ReadStringFromStream(AStream: TIdStream2; ASize: Integer): string;
 {$IFDEF DotNet}
 var
   LBytes: TIdBytes;
@@ -2946,7 +2904,7 @@ begin
   end;
 end;
 
-function ReadTIdBytesFromStream(AStream: TStream; ABytes: TIdBytes; Count: Integer): Integer;
+function ReadTIdBytesFromStream(AStream: TIdStream2; ABytes: TIdBytes; Count: Integer): Integer;
 begin
   {$IFDEF DotNet}
   Result := AStream.Read(ABytes, 0, Min(Length(ABytes), Count));
@@ -2955,12 +2913,12 @@ begin
   {$ENDIF}
 end;
 
-function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
+function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
 begin
   Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
 end;
 
-procedure WriteTIdBytesToStream(AStream: TStream; ABytes: TIdBytes);
+procedure WriteTIdBytesToStream(AStream: TIdStream2; ABytes: TIdBytes);
 begin
   {$IFDEF DotNet}
   AStream.Write(ABytes, 0, Length(ABytes));
@@ -2969,7 +2927,7 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteStringToStream(AStream: TStream; const AStr :string);
+procedure WriteStringToStream(AStream: TIdStream2; const AStr :string);
 {$IFDEF DotNet}
 var
   LBytes: TIdBytes;
@@ -2987,7 +2945,7 @@ end;
 
 //    function IdRead(var Buffer: TIdByteArray; Offset, Count: Longint): Longint; virtual; abstract;
 //    function IdWrite(const Buffer: TIdByteArray; Offset, Count: Longint): Longint; virtual; abstract;
-//    function IdSeek(const Offset: Int64; Origin: TSeekOrigin): Int64; virtual; abstract;
+//    function IdSeek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; virtual; abstract;
 
 {$IFDEF DotNet}
 function TIdBaseStream.Read(var VBuffer: array of Byte; AOffset, ACount: Longint): Longint;
@@ -3006,7 +2964,7 @@ begin
   Result := IdWrite(ABuffer, AOffset, ACount);
 end;
 
-function TIdBaseStream.Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TIdBaseStream.Seek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64;
 begin
   Result := IdSeek(AOffset, AOrigin);
 end;
@@ -3166,19 +3124,6 @@ begin
     Result := (AString[ACharPos] = CR) or (AString[ACharPos] = LF);
   end;
 end;
-
-
-constructor TIdStringStream.Create(const ASrc: string);
-begin
-  {$IFDEF DotNet}
-  inherited Create('');
-  WriteString(ASrc);
-  Position := 0;
-  {$ELSE}
-  inherited Create(ASrc);
-  {$ENDIF}
-end;
-
 
 initialization
   // AnsiPos does not handle strings with #0 and is also very slow compared to Pos

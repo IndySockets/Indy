@@ -45,7 +45,7 @@ uses
   IdGlobal,
   IdTrivialFTPBase,
   IdSocketHandle,
-
+  IdObjs,
   IdUDPServer;
 
 type
@@ -55,9 +55,9 @@ type
   end;
 
   TAccessFileEvent = procedure (Sender: TObject; var FileName: String; const PeerInfo: TPeerInfo;
-    var GrantAccess: Boolean; var AStream: TStream; var FreeStreamOnComplete: Boolean) of object;
+    var GrantAccess: Boolean; var AStream: TIdStream2; var FreeStreamOnComplete: Boolean) of object;
   TTransferCompleteEvent = procedure (Sender: TObject; const Success: Boolean;
-    const PeerInfo: TPeerInfo; AStream: TStream; const WriteOperation: Boolean) of object;
+    const PeerInfo: TPeerInfo; AStream: TIdStream2; const WriteOperation: Boolean) of object;
 
   TIdTrivialFTPServer = class(TIdUDPServer)
   protected
@@ -70,7 +70,7 @@ type
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
-    procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; SourceStream: TStream; const WriteOperation: Boolean); virtual;
+    procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; SourceStream: TIdStream2; const WriteOperation: Boolean); virtual;
     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
     //    procedure DoUDPRead(AData: TStream; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
@@ -105,7 +105,7 @@ type
     procedure Execute; override;
   public
     constructor Create(AnOwner: TIdTrivialFTPServer; const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo;
-      AStream: TStream; const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer = 0); virtual;
+      AStream: TIdStream2; const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer = 0); virtual;
     destructor Destroy; override;
   end;
 
@@ -125,7 +125,7 @@ procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMo
 var
   CanRead,
   FreeOnComplete: Boolean;
-  SourceStream: TStream;
+  SourceStream: TIdStream2;
 begin
   CanRead := True;
   SourceStream := nil;
@@ -154,7 +154,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoTransferComplete(const Success: Boolean;
-  const PeerInfo: TPeerInfo; SourceStream: TStream; const WriteOperation: Boolean);
+  const PeerInfo: TPeerInfo; SourceStream: TIdStream2; const WriteOperation: Boolean);
 begin
   if Assigned(FOnTransferComplete) then
   begin
@@ -270,7 +270,7 @@ procedure TIdTrivialFTPServer.DoWriteFile(FileName: String;
 var
   CanWrite,
   FreeOnComplete: Boolean;
-  DestinationStream: TStream;
+  DestinationStream: TIdStream2;
 begin
   CanWrite := True;
   DestinationStream := nil;
@@ -312,7 +312,7 @@ end;
 
 constructor TIdTFTPServerThread.Create(AnOwner: TIdTrivialFTPServer;
   const Mode: TIdTFTPMode; const PeerInfo: TPeerInfo;
-  AStream: TStream; const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer);
+  AStream: TIdStream2; const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer);
 begin
   inherited Create(True);
   FStream := TIdStreamVCL.Create( AStream,True);

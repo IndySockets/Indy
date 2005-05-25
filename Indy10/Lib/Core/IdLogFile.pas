@@ -62,7 +62,6 @@ unit IdLogFile;
 interface
 
 uses
-  Classes,
   IdLogBase, IdStreamVCL;
 
 type
@@ -88,7 +87,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore, IdSys;
+  IdGlobal, IdException, IdResourceStringsCore, IdSys, IdBaseComponent, IdObjs;
 
 { TIdLogFile }
 
@@ -114,10 +113,10 @@ end;
 
 procedure TIdLogFile.Open;
 var
-  LStream: TStream;
-
+  LStream: TIdStream2;
 begin
-  if not (csDesigning in ComponentState) then begin
+  if not IsDesignTime then
+  begin
     LStream := TAppendFileStream.Create(Filename);
     try
       FFileStream := TIdStreamVCL.Create(LStream, True);

@@ -44,10 +44,10 @@ unit IdTrivialFTP;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdTrivialFTPBase,
-  IdUDPClient;
+  IdUDPClient,
+  IdObjs;
 
 const
   GTransferMode = tfOctet;
@@ -68,9 +68,9 @@ type
     procedure RaiseError(const errorpacket: string);
     procedure InitComponent; override;
   public
-    procedure Get(const ServerFile: String; DestinationStream: TStream); overload;
+    procedure Get(const ServerFile: String; DestinationStream: TIdStream2); overload;
     procedure Get(const ServerFile, LocalFile: String); overload;
-    procedure Put(SourceStream: TStream; const ServerFile: String); overload;
+    procedure Put(SourceStream: TIdStream2; const ServerFile: String); overload;
     procedure Put(const LocalFile, ServerFile: String); overload;
   published
     property TransferMode: TIdTFTPMode read FMode write FMode Default GTransferMode;
@@ -122,7 +122,7 @@ begin
   ReceiveTimeout := GReceiveTimeout;
 end;
 
-procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TStream);
+procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TIdStream2);
 var
   s: string;
   RcvTimeout,
@@ -202,9 +202,9 @@ end;
 
 procedure TIdTrivialFTP.Get(const ServerFile, LocalFile: String);
 var
-  fs: TFileStream;
+  fs: TIdFileStream;
 begin
-  fs := TFileStream.Create(LocalFile, fmCreate);
+  fs := TIdFileStream.Create(LocalFile, fmCreate);
   try
     Get(ServerFile, fs);
   finally
@@ -220,7 +220,7 @@ begin
   end;
 end;
 
-procedure TIdTrivialFTP.Put(SourceStream: TStream; const ServerFile: String);
+procedure TIdTrivialFTP.Put(SourceStream: TIdStream2; const ServerFile: String);
 var
   CurrentDataBlk,
   s: string;

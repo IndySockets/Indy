@@ -59,7 +59,7 @@ unit IdSASL_CRAM_MD5;
 interface
 
 uses
-  Classes, IdSASL,
+  IdSASL,
   IdSASLUserPass, IdCoderMIME;
 
 type
@@ -78,18 +78,19 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHashMessageDigest, IdHash, idBuffer,IdSys;
+  IdGlobal, IdGlobalProtocols, IdHashMessageDigest, IdHash, idBuffer, IdSys,
+  IdObjs;
 
 { TIdSASLCRAMMD5 }
 
 class function TIdSASLCRAMMD5.BuildKeydMD5Auth(const Password,  Challenge: string): string;
 var
   AKey, ASecret,
-  WorkBuffer, opad, ipad: TMemoryStream;
+  WorkBuffer, opad, ipad: TIdMemoryStream;
   Ahasher: TIdHashMessageDigest5;
   Buffer: T4x4LongWordRecord;
   // Hashes a stream and place the result in another stream
-  procedure _HashStream(Src, Dest: TMemoryStream; SrcSize: Integer);
+  procedure _HashStream(Src, Dest: TIdMemoryStream; SrcSize: Integer);
   begin
     Src.position := 0;
     Buffer := Ahasher.HashValue(Src);
@@ -102,7 +103,7 @@ var
     // Dest.Seek(0, soFromBeginning);
   end;
   // Takes an input stream (Pad) and XOR the beginning with another "key" stream
-  procedure _XORStringPad(Key, Pad: TMemoryStream);
+  procedure _XORStringPad(Key, Pad: TIdMemoryStream);
   var
     I: Integer;
 //    Selector: Integer;
@@ -120,11 +121,11 @@ var
   // Creates the necessary streams for the function
   procedure _IniStreams;
   begin
-    AKey := TMemoryStream.Create;
-    ASecret := TMemoryStream.Create;
-    WorkBuffer := TMemoryStream.Create;
-    opad := TMemoryStream.Create;
-    ipad := TMemoryStream.Create;
+    AKey := TIdMemoryStream.Create;
+    ASecret := TIdMemoryStream.Create;
+    WorkBuffer := TIdMemoryStream.Create;
+    opad := TIdMemoryStream.Create;
+    ipad := TIdMemoryStream.Create;
   end;
   // Release allocated streams
   procedure _ReleaseStreams;

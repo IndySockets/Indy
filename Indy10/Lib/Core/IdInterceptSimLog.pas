@@ -49,11 +49,11 @@ TODO: Can also change it to detect several EOLs and non binary and use :Lines:x
 interface
 
 uses
-  Classes,
-  IdGlobal, IdIntercept, IdStreamVCL;
+  IdGlobal, IdIntercept, IdStreamVCL, IdBaseComponent;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)
+  private
   protected
     FFilename: string;
     FStream: TIdStreamVCL;
@@ -64,7 +64,7 @@ type
       ABuffer: TIdBytes
       );
   public
-    procedure Connect(AConnection: TComponent); override;
+    procedure Connect(AConnection: TIdNativeComponent); override;
     procedure Disconnect; override;
     procedure Receive(var ABuffer: TIdBytes); override;
     procedure Send(var ABuffer: TIdBytes); override;
@@ -75,18 +75,18 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsCore, IdSys;
+  IdException, IdResourceStringsCore, IdSys, IdObjs;
 
 { TIdInterceptSimLog }
 
-procedure TIdInterceptSimLog.Connect(AConnection: TComponent);
+procedure TIdInterceptSimLog.Connect(AConnection: TIdNativeComponent);
 var
-  LStream: TStream;
+  LStream: TIdStream2;
 begin
   inherited;
   // Warning! This will overwrite any existing file. It makes no sense
   // to concatenate sim logs.
-  LStream := TFileStream.Create(Filename, fmCreate);
+  LStream := TIdFileStream.Create(Filename, fmCreate);
   try
     FStream := TIdStreamVCL.Create(LStream, True);
   except

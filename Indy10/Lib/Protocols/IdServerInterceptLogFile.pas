@@ -41,12 +41,12 @@ interface
 uses
   IdServerInterceptLogBase,
   IdGlobal,
-  Classes;
+  IdObjs;
 
 type
   TIdServerInterceptLogFile = class(TIdServerInterceptLogBase)
   protected
-    FFileStream:TFileStream;
+    FFileStream: TIdFileStream;
     FFilename:string;
   public
     procedure Init; override;
@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  IdSys;
+  IdSys, IdBaseComponent;
 
 { TIdServerInterceptLogFile }
 
@@ -72,7 +72,7 @@ end;
 procedure TIdServerInterceptLogFile.Init;
 begin
   inherited Init;
-  if not (csDesigning in ComponentState) then begin
+  if not IsDesignTime then begin
     if FFilename = '' then begin
       FFilename := Sys.ChangeFileExt(ParamStr(0), '.log'); {do not localize}  //BGO: TODO: Do we keep this, or maybe raise an exception?
     end;

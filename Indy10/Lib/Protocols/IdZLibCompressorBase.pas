@@ -128,7 +128,8 @@
 unit IdZLibCompressorBase;
 
 interface
-uses Classes, IdBaseComponent, IdIOHandler, IdStreamVCL;
+
+uses IdBaseComponent, IdIOHandler, IdStreamVCL, IdObjs;
 
 type
   TIdCompressionLevel = 0..9;

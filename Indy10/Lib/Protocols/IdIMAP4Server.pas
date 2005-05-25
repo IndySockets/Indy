@@ -2065,7 +2065,7 @@ end;
 procedure TIdIMAP4Server.DoCommandAPPEND(ASender: TIdCommand);
 var
   LUID: string;
-  LStream: TFileStream;
+  LStream: TIdFileStream;
   LIdStream: TIdStreamVCL;
   LFile: string;
   LTemp: string;
@@ -2127,7 +2127,7 @@ begin
     //Get the message...
     LFile := OnDefMechGetFileNameToWriteAppendMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
        TIdIMAP4PeerContext(ASender.Context).FMailBox.Name, LUID);
-    LStream := TFileStream.Create(LFile, fmCreate);
+    LStream := TIdFileStream.Create(LFile, fmCreate);
     LIdStream := TIdStreamVCL.Create(LStream);
     ASender.Context.Connection.IOHandler.ReadStream(LIdStream, LSize);
     if LFlags = '' then begin

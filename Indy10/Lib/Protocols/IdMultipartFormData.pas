@@ -144,11 +144,11 @@ type
     FCanFreeFieldObject: Boolean;
 
     function GetFieldSize: LongInt;
-    function GetFieldStream: TStream;
+    function GetFieldStream: TIdStream2;
     function GetFieldStrings: TIdStrings;
     procedure SetContentType(const Value: string);
     procedure SetFieldName(const Value: string);
-    procedure SetFieldStream(const Value: TStream);
+    procedure SetFieldStream(const Value: TIdStream2);
     procedure SetFieldStrings(const Value: TIdStrings);
     procedure SetFieldValue(const Value: string);
     procedure SetFieldObject(const Value: TObject);
@@ -160,7 +160,7 @@ type
     function FormatField: string;
     property ContentType: string read FContentType write SetContentType;
     property FieldName: string read FFieldName write SetFieldName;
-    property FieldStream: TStream read GetFieldStream write SetFieldStream;
+    property FieldStream: TIdStream2 read GetFieldStream write SetFieldStream;
     property FieldStrings: TIdStrings read GetFieldStrings write SetFieldStrings;
     property FieldObject: TObject read FFieldObject write SetFieldObject;
     property FileName: string read FFileName write SetFileName;
@@ -181,7 +181,7 @@ type
 
   TIdMultiPartFormDataStream = class(TIdBaseStream)
   protected
-    FInputStream: TStream;
+    FInputStream: TIdStream2;
     FBoundary: string;
     FRequestContentType: string;
     FCurrentItem: integer;
@@ -198,7 +198,7 @@ type
 
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
-    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64; override;
     procedure IdSetSize(ASize : Int64); override;
   public
     constructor Create;
@@ -342,8 +342,8 @@ begin
       AppendString(FInternalBuffer, LItem.FormatField);
 
       if Assigned(LItem.FieldObject) then begin
-        if (LItem.FieldObject is TStream) then begin
-          FInputStream := TStream(LItem.FieldObject);
+        if (LItem.FieldObject is TIdStream2) then begin
+          FInputStream := TIdStream2(LItem.FieldObject);
           FInputStream.Position := 0;
         end else begin
           if (LItem.FieldObject is TIdStrings) then begin
@@ -404,7 +404,7 @@ begin
   Result := LTotalRead;
 end;
 
-function TIdMultiPartFormDataStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+function TIdMultiPartFormDataStream.IdSeek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64;
 begin
   Result := 0;
   case AOrigin of
@@ -504,19 +504,19 @@ begin
     if FieldObject is TIdStrings then begin
       Result := Result + Length(TIdStrings(FieldObject).Text) + 2;
     end else begin
-      if FieldObject is TStream then begin
-        Result := Result + TStream(FieldObject).Size + 2;
+      if FieldObject is TIdStream2 then begin
+        Result := Result + TIdStream2(FieldObject).Size + 2;
       end;
     end;
   end;
 end;
 
-function TIdFormDataField.GetFieldStream: TStream;
+function TIdFormDataField.GetFieldStream: TIdStream2;
 begin
   Result := nil;
   if Assigned(FFieldObject) then begin
-    if (FFieldObject is TStream) then begin
-      Result := TStream(FFieldObject);
+    if (FFieldObject is TIdStream2) then begin
+      Result := TIdStream2(FFieldObject);
     end else begin
       raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
     end;
@@ -558,7 +558,7 @@ end;
 procedure TIdFormDataField.SetFieldObject(const Value: TObject);
 begin
   if Assigned(Value) then begin
-    if not ((Value is TStream) or (Value is TIdStrings)) then begin
+    if not ((Value is TIdStream2) or (Value is TIdStrings)) then begin
       raise EIdInvalidObjectType.Create(RSMFDIvalidObjectType);
     end;
   end;
@@ -574,7 +574,7 @@ begin
   GetFieldSize;
 end;
 
-procedure TIdFormDataField.SetFieldStream(const Value: TStream);
+procedure TIdFormDataField.SetFieldStream(const Value: TIdStream2);
 begin
   FieldObject := Value;
 end;

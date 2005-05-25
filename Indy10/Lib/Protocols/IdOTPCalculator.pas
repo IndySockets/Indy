@@ -72,7 +72,7 @@ uses
   IdHashSHA1,
   IdStreamVCL,
   IdSys,
-  Classes;
+  IdObjs;
 
 const
   Dictionary: array[0..2047] of string = (
@@ -384,7 +384,7 @@ class function TIdOTPCalculator.GenerateKeyMD4(const ASeed: string; const APassw
 var
   LMD4: TIdHashMessageDigest4;
   LMD4Hash: T4x4LongWordRecord;
-  LTmpMemStream: TIdStreamVCL;// TMemoryStream;
+  LTmpMemStream: TIdStreamVCL;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
@@ -395,7 +395,7 @@ begin
     L64Bit := (Int64(LMD4Hash[0] xor LMD4Hash[2]) shl 32) or (LMD4Hash[1] xor LMD4Hash[3]);
 
     for i := 1 to ACount do begin
-      LTmpMemStream := TIdStreamVCL.Create(TMemoryStream.Create, True);
+      LTmpMemStream := TIdStreamVCL.Create(TIdMemoryStream.Create, True);
       try
         L64Bit := ReverseEndian(L64Bit);
 
@@ -424,7 +424,7 @@ class function TIdOTPCalculator.GenerateKeyMD5(const ASeed: string; const APassw
 var
   LMD5: TIdHashMessageDigest5;
   LMD5Hash: T4x4LongWordRecord;
-  LTmpMemStream: TIdStreamVCL;// TMemoryStream;
+  LTmpMemStream: TIdStreamVCL;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
@@ -436,7 +436,7 @@ begin
 
     for i := 1 to ACount do begin
 
-      LTmpMemStream := TIdStreamVCL.Create( TMemoryStream.Create,True);
+      LTmpMemStream := TIdStreamVCL.Create( TIdMemoryStream.Create,True);
       try
         L64Bit := ReverseEndian(L64Bit);
 
@@ -477,7 +477,7 @@ begin
 
     for i := 1 to ACount do begin
 
-      LTmpMemStream := TIdStreamVCL.Create( TMemoryStream.Create,True);
+      LTmpMemStream := TIdStreamVCL.Create( TIdMemoryStream.Create,True);
       try
         L64Bit := ReverseEndian(L64Bit);
 
