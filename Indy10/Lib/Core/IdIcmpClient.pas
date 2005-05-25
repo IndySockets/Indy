@@ -128,7 +128,8 @@ type
     procedure SendEchoRequest;
   public
     destructor Destroy; override;
-    procedure Ping(ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
+    procedure Ping(ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize}
+    procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
     function Receive(ATimeOut: Integer): TReplyStatus;
     //
     property ReplyStatus: TReplyStatus read FReplyStatus;
@@ -179,7 +180,7 @@ end;
 
 procedure TIdIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
 begin
-  if Self.IPVersion = Id_IPv4 then
+  if IPVersion = Id_IPv4 then
   begin
     PrepareEchoRequestIPv4(Buffer);
   end
@@ -191,6 +192,7 @@ end;
 
 procedure TIdIcmpClient.SendEchoRequest;
 begin
+                  
   Send(Host, Port, FbufIcmp);
 end;
 
@@ -385,6 +387,7 @@ begin
   inherited;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
+  ProtocolIPv6 := Id_IPPROTO_ICMPv6;
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
   FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
   SetLength(FbufReceive,MAX_PACKET_SIZE+Id_IP_HSIZE);
@@ -552,10 +555,6 @@ begin
     CopyTIdString(Buffer,FBufIcmp,LIdx,Length(Buffer));
     Inc(LIdx,Length(Buffer));
     LIPv6.icmp6_cksum := GStack.HostToNetwork( CalcCheckSum);
-    //we have to write this twice, the second time with the checksum
-    //from the header (checksum = 0) and the data
-    LIdx := 0;
-    LIPv6.WriteStruct(FBufIcmp,LIdx);
   finally
     Sys.FreeAndNil(LIPv6);
   end;
@@ -621,6 +620,16 @@ begin
   finally
     Sys.FreeAndNil(LIcmp);
   end;
+end;
+
+procedure TIdIcmpClient.Send(AHost: string; const APort: integer;
+  const ABuffer: TIdBytes);
+var LBuffer : TIdBytes;
+begin
+  LBuffer := ABuffer;
+  AHost := GStack.ResolveHost(AHost,IPVersion);
+  GStack.WriteChecksum(Binding.Handle,LBuffer,2,AHost,APort,FIPVersion);
+  FBinding.SendTo(AHost, APort, ABuffer,IPVersion);
 end;
 
 end.
