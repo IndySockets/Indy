@@ -1468,7 +1468,7 @@ begin
   SetLength(Result, MAX_PATH);
 	i := GetTempPath(Length(Result), PChar(Result));
 	SetLength(Result, i);
-  IncludeTrailingSlash(Result);
+  Result:=Sys.IncludeTrailingPathDelimiter(Result);
 end;
 {$ENDIF}
 
@@ -1560,7 +1560,7 @@ begin
     else
     begin
       // uses the Indy function... not the Borland one
-      LFName := IncludeTrailingSlash(APath) + APrefix;
+      LFName := Sys.IncludeTrailingPathDelimiter(APath) + APrefix;
     end;
   end
   else
