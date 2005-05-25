@@ -1058,7 +1058,6 @@ function IdPorts: TList;
 function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer; overload;
 function iif(ATest: Boolean; const ATrue: string; const AFalse: string = ''): string; overload; { do not localize }
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
-function IncludeTrailingSlash(const APath: string): string;
 function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
 procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: int64);
@@ -1707,7 +1706,7 @@ begin
     {$IFDEF MSWINDOWS}
     SetLength(sLocation, MAX_PATH);
     SetLength(sLocation, GetWindowsDirectory(pchar(sLocation), MAX_PATH));
-    sLocation := IncludeTrailingSlash(sLocation);
+    sLocation := Sys.IncludeTrailingPathDelimiter(sLocation);
     if Sys.Win32Platform = VER_PLATFORM_WIN32_NT then begin
       sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
     end;
@@ -1784,25 +1783,6 @@ begin
   end else begin
     Result := AFalse;
   end;
-end;
-
-function IncludeTrailingSlash(const APath: string): string;
-begin
-  {for some odd reason, the IFDEF's were not working in Delphi 4
-  so as a workaround and to ensure some code is actually compiled into
-  the procedure, I use a series of $elses}
-  {$IFDEF VCL5O}
-  Result := IncludeTrailingBackSlash(APath);
-  {$ELSE}
-    {$IFDEF VCL6ORABOVE}
-    Result :=  Sys.IncludeTrailingPathDelimiter(APath);
-    {$ELSE}
-    Result := APath;
-    if not IsPathDelimiter(Result, Length(Result)) then begin
-      Result := Result + GPathDelim;
-    end;
-    {$ENDIF}
-  {$ENDIF}
 end;
 
 function InMainThread: boolean;
