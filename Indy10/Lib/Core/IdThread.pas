@@ -430,7 +430,7 @@ begin
   // Therefore we raise the exceptions manually on D5 and below
   {$IFNDEF DOTNET}
   if (ThreadID = 0) then begin
-    RaiseLastOSError;
+    Sys.RaiseLastOSError;
   end;
   {$ENDIF}
   {$ENDIF}
@@ -601,5 +601,9 @@ finalization
   // This call hangs if not all threads have been properly destroyed.
   // But without this, bad threads can often have worse results. Catch 22.
 //  TIdThread.WaitAllThreadsTerminated;
-//  FreeAndNil(GThreadCount);
+
+  {$IFDEF IDFREEONFINAL}
+  //only enable this if you know your code exits thread-clean
+  Sys.FreeAndNil(GThreadCount);
+  {$ENDIF}
 end.
