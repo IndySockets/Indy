@@ -27,7 +27,7 @@ type
     property Host;
     property Port;
     property Protocol;
-    property IPVersion : TIdIPVersion read FIPVersion write FIPVersion;
+    property IPVersion;
   end;
 
 implementation
