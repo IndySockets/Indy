@@ -42,7 +42,7 @@ unit IdHashMessageDigest;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdHash;
 
 type
@@ -65,8 +65,8 @@ type
     procedure MDCoder;
     procedure Reset;
   public
-    function HashValue(AStream: TStream): T4x4LongWordRecord; override;
-    function HashValue( AStream: TStream; const ABeginPos, AEndPos: Int64) : T4x4LongWordRecord; overload;
+    function HashValue(AStream: TIdStream2): T4x4LongWordRecord; override;
+    function HashValue( AStream: TIdStream2; const ABeginPos, AEndPos: Int64) : T4x4LongWordRecord; overload;
   end;
 
   TIdHashMessageDigest4 = class(TIdHashMessageDigest)
@@ -76,8 +76,8 @@ type
 
     procedure MDCoder; virtual;
   public
-    function HashValue(AStream: TStream): T4x4LongWordRecord; override;
-    function HashValue( AStream: TStream; const ABeginPos, AEndPos: Int64) : T4x4LongWordRecord; overload;
+    function HashValue(AStream: TIdStream2): T4x4LongWordRecord; override;
+    function HashValue( AStream: TIdStream2; const ABeginPos, AEndPos: Int64) : T4x4LongWordRecord; overload;
   end;
 
   TIdHashMessageDigest5 = class(TIdHashMessageDigest4)
@@ -166,7 +166,7 @@ begin
   end;
 end;
 
-function TIdHashMessageDigest2.HashValue(AStream: TStream): T4x4LongWordRecord;
+function TIdHashMessageDigest2.HashValue(AStream: TIdStream2): T4x4LongWordRecord;
 Var
   LStartPos: Integer;
   LSize: Int64;
@@ -203,7 +203,7 @@ begin
                  (FX[I*4+3] shl 24);
 end;
 
-function TIdHashMessageDigest2.HashValue(AStream: TStream; const ABeginPos,
+function TIdHashMessageDigest2.HashValue(AStream: TIdStream2; const ABeginPos,
   AEndPos: Int64): T4x4LongWordRecord;
 Var
   LStartPos: Integer;
@@ -329,7 +329,7 @@ begin
 end;
 {$Q+}
 
-function TIdHashMessageDigest4.HashValue(AStream: TStream): T4x4LongWordRecord;
+function TIdHashMessageDigest4.HashValue(AStream: TIdStream2): T4x4LongWordRecord;
 var
   LStartPos: Integer;
   LBitSize,
@@ -379,7 +379,7 @@ begin
   Result := FState;
 end;
 
-function TIdHashMessageDigest4.HashValue(AStream: TStream; const ABeginPos,
+function TIdHashMessageDigest4.HashValue(AStream: TIdStream2; const ABeginPos,
   AEndPos: Int64): T4x4LongWordRecord;
 var
   LStartPos: Integer;

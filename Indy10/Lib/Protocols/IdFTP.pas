@@ -735,7 +735,7 @@ type
   TIdCreateFTPList = procedure(ASender: TObject; Var VFTPList: TIdFTPListItems) of object;
 //  TIdCheckListFormat = procedure(ASender: TObject; const ALine: String; Var VListFormat: TIdFTPListFormat) of object;
   TOnAfterClientLogin = TNotifyEvent;
-  TIdFtpAfterGet = procedure (ASender: TObject; VStream: TStream) of object; //APR
+  TIdFtpAfterGet = procedure (ASender: TObject; VStream: TIdStream2) of object; //APR
   TIdOnDataChannelCreate = procedure (ASender: TObject; ADataChannel: TIdTCPConnection) of object;
   TIdOnDataChannelDestroy = procedure (ASender: TObject; ADataChannel: TIdTCPConnection) of object;
   TIdNeedAccountEvent = procedure (ASender: TObject; Var VAcct: string) of object;
@@ -962,8 +962,8 @@ type
     procedure SendTransferType;
     procedure SetTransferType(AValue: TIdFTPTransferType);
     procedure DoBeforeGet; virtual;
-    procedure DoBeforePut (AStream: TStream); virtual;
-    procedure DoAfterGet (AStream: TStream); virtual; //APR
+    procedure DoBeforePut (AStream: TIdStream2); virtual;
+    procedure DoAfterGet (AStream: TIdStream2); virtual; //APR
     procedure DoAfterPut; virtual;
     function IsValidOTPString(const AResponse:string):boolean;
     function GenerateOTP(const AResponse:string; const APassword:string):string;
@@ -1010,7 +1010,7 @@ type
     procedure Delete(const AFilename: string);
     procedure FileStructure(AStructure: TIdFTPDataStructure);
     procedure Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false); overload;
-    procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = false); overload;
+    procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
     procedure Help(var AHelpContents: TIdStringList; ACommand: String = '');
     procedure KillDataChannel; virtual;
@@ -1034,13 +1034,13 @@ type
     procedure SetCMDOpt(const ACMD, AOptions : String);
     procedure Put(const ASource: TIdStreamVCL; const ADestFile: string;
      const AAppend: boolean = false); overload;
-    procedure Put(const ASource: TStream; const ADestFile: string;
+    procedure Put(const ASource: TIdStream2; const ADestFile: string;
      const AAppend: boolean = false); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string = '';
      const AAppend: boolean = false); overload;
 
     procedure StoreUnique(const ASource: TIdStreamVCL); overload;
-    procedure StoreUnique(const ASource: TStream); overload;
+    procedure StoreUnique(const ASource: TIdStream2); overload;
     procedure StoreUnique(const ASourceFile: string); overload;
 
     procedure SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String; const ADestFile : String = '');
@@ -1399,7 +1399,7 @@ begin
   DoAfterGet(ADest.VCLStream ); //APR
 end;
 
-procedure TIdFTP.Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = False);
+procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = False);
 var
   LStream : TIdStreamVCL;
 begin
@@ -1418,7 +1418,7 @@ end;
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = False;
   AResume: Boolean = false);
 var
-  LDestStream: TFileStream;
+  LDestStream: TIdStream2;
 begin
 
     AResume := AResume and CanResume;
@@ -1448,7 +1448,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.DoBeforePut (AStream: TStream);
+procedure TIdFTP.DoBeforePut (AStream: TIdStream2);
 begin
   if Assigned(FOnBeforePut) then
   begin
@@ -1456,7 +1456,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.DoAfterGet (AStream: TStream);//APR
+procedure TIdFTP.DoAfterGet (AStream: TIdStream2);//APR
 Begin
   if Assigned(FOnAfterGet) then
   begin
@@ -1949,7 +1949,7 @@ begin
   DoAfterPut;
 end;
 
-procedure TIdFTP.Put(const ASource: TStream; const ADestFile: string;
+procedure TIdFTP.Put(const ASource: TIdStream2; const ADestFile: string;
  const AAppend: boolean = false);
 var LStream : TIdStreamVCL;
 begin
@@ -1964,7 +1964,7 @@ end;
 procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string='';
  const AAppend: boolean = false);
 var
-  LSourceStream: TFileStream;
+  LSourceStream: TIdStream2;
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;
@@ -1981,7 +1981,7 @@ begin
     InternalPut('STOU', ASource);  {Do not localize}
 end;
 
-procedure TIdFTP.StoreUnique(const ASource: TStream);
+procedure TIdFTP.StoreUnique(const ASource: TIdStream2);
 var LStream : TIdStreamVCL;
 begin
   LStream := TIdStreamVCL.Create(ASource);
@@ -1994,7 +1994,7 @@ end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
 var
-  LSourceStream: TFileStream;
+  LSourceStream: TIdStream2;
 begin
   LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
     StoreUnique(LSourceStream);

@@ -33,13 +33,13 @@ unit IdHashCRC;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdHash;
 
 type
   TIdHashCRC16 = class( TIdHash16 )
   public
-    function HashValue( AStream: TStream ) : Word; override;
+    function HashValue( AStream: TIdStream2 ) : Word; override;
     procedure HashStart(var VRunningHash : Word); override;
     procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
 
@@ -47,8 +47,8 @@ type
 
   TIdHashCRC32 = class( TIdHash32 )
   public
-    function HashValue( AStream: TStream ) : LongWord; override;
-    function HashValue( AStream: TStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;overload;
+    function HashValue( AStream: TIdStream2 ) : LongWord; override;
+    function HashValue( AStream: TIdStream2; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;overload;
     procedure HashStart(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
 
@@ -153,7 +153,7 @@ begin
   VRunningHash := 0;
 end;
 
-function TIdHashCRC16.HashValue( AStream: TStream ) : Word;
+function TIdHashCRC16.HashValue( AStream: TIdStream2 ) : Word;
 const
   BufSize = 1024; // Keep it small for dotNet
 var
@@ -173,7 +173,7 @@ end;
 
 { TIdHashCRC32 }
 
-function TIdHashCRC32.HashValue( AStream: TStream ) : LongWord;
+function TIdHashCRC32.HashValue( AStream: TIdStream2 ) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNet
 var
@@ -203,7 +203,7 @@ begin
   VRunningHash := $FFFFFFFF;
 end;
 
-function TIdHashCRC32.HashValue( AStream: TStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;
+function TIdHashCRC32.HashValue( AStream: TIdStream2; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNet
 var

@@ -796,12 +796,12 @@ type
   TOnCheckFileEvent = procedure(ASender: TIdFTPServerContext; const APathName: string; var VExist : Boolean) of object;
   TOnRenameFileEvent = procedure(ASender: TIdFTPServerContext; const ARenameFromFile,ARenameToFile: string) of object;
   TOnRetrieveFileEvent = procedure(ASender: TIdFTPServerContext; const AFileName: string;
-    var VStream: TStream) of object;
+    var VStream: TIdStream2) of object;
   TOnStoreFileEvent = procedure(ASender: TIdFTPServerContext; const AFileName: string;
-    AAppend: Boolean; var VStream: TStream) of object;
+    AAppend: Boolean; var VStream: TIdStream2) of object;
   TOnCombineFiles = procedure(ASender: TIdFTPServerContext; const ATargetFileName: string;
     AParts : TIdStrings) of object;
-  TOnCheckSumFile = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TStream) of object;
+  TOnCheckSumFile = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TIdStream2) of object;
   TOnCacheChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String) of object;
   TOnVerifyChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String) of object;
   TOnSetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFileName : String; var AFileTime : TIdDateTime) of object;
@@ -1181,7 +1181,7 @@ type
     procedure DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime); overload;
     procedure DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String); overload;
     procedure DoOnSetCreationTimeGMT(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TIdDateTime);
-    procedure DoOnCRCFile(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TStream);
+    procedure DoOnCRCFile(ASender: TIdFTPServerContext; const AFileName : String; var VStream : TIdStream2);
     procedure DoOnMD5Verify(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String);
     procedure DoOnMD5Cache(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String);
     procedure DoOnCombineFiles(ASender: TIdFTPServerContext; const ATargetFileName: string; AParts : TIdStrings);
@@ -1208,8 +1208,8 @@ type
     procedure DoConnect(AContext:TIdContext); override;
     procedure DoDisconnect(AContext:TIdContext); override;
     procedure ContextCreated(AContext:TIdContext); override;
-    function CalculateCRCHash(AStrm : TStream;const ABeginPos,AEndPos:cardinal): String;
-    function CalculateMD5Checksum(AStrm : TStream;const ABeginPos,AEndPos:Int64) : String;
+    function CalculateCRCHash(AStrm : TIdStream2;const ABeginPos,AEndPos:cardinal): String;
+    function CalculateMD5Checksum(AStrm : TIdStream2;const ABeginPos,AEndPos:Int64) : String;
     procedure DoOnDataPortBeforeBind(ASender : TIdFTPServerContext); virtual;
     procedure DoDataChannelOperation(ASender: TIdCommand;const AConnectMode : Boolean=False);virtual;
     procedure DoOnDataPortAfterBind(ASender : TIdFTPServerContext); virtual;
@@ -2823,7 +2823,7 @@ end;
 procedure TIdFTPServer.CommandRETR(ASender: TIdCommand);
 var
   s: string;
-  LStream: TStream;
+  LStream: TIdStream2;
   LF : TIdFTPServerContext;
 begin
   LF := TIdFTPServerContext(ASender.Context);
@@ -2879,7 +2879,7 @@ end;
 
 procedure TIdFTPServer.CommandSSAP(ASender: TIdCommand);
 var
-  LStream: TStream;
+  LStream: TIdStream2;
   LTmp1: string;
   LAppend: Boolean;
   LF : TIdFTPServerContext;
@@ -3244,9 +3244,9 @@ end;
 
 procedure TIdFTPServer.DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean=False);
 var
-  LMemStream: TStream; //used for TMemoryStream is faster than StringStream
+  LMemStream: TIdStream2;
   LCxt : TIdFTPServerContext;
-  LCmdQueue : TIdStrings;  //This is for commands that are queued for after the data channel connection
+  LCmdQueue : TIdStrings; 
   LLine : String;
   LStrm : TIdStreamVCL;
 
@@ -3266,12 +3266,12 @@ const DEF_BLOCKSIZE = 10*10240;
 
   procedure ReadFromStream(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStream : TIdStreamVCL);
   var LStrm : TIdStreamVCL;
-    LM : TStream;
+    LM : TIdStream2;
   begin
     if AContext.DataMode = dmDeflate then begin
-      LM := TMemoryStream.Create;
+      LM := TIdMemoryStream.Create;
     end else begin
-      LM := TStream(LCxt.FDataChannel.Data);
+      LM := TIdStream2(LCxt.FDataChannel.Data);
     end;
     LStrm := TIdStreamVCL.Create(LM);
     try
@@ -3298,11 +3298,11 @@ const DEF_BLOCKSIZE = 10*10240;
     const AIgnoreCompression : Boolean=False);
   var LBufSize : Int64;
     LStrm : TIdStreamVCL;
-    LOutStream : TStream;
+    LOutStream : TIdStream2;
   begin
     if (AContext.DataMode = dmDeflate) then
     begin
-      LOutStream := TMemoryStream.Create;
+      LOutStream := TIdMemoryStream.Create;
       LStrm := TIdStreamVCL.Create(LOutStream);
       try
         FCompressor.CompressFTPDeflate(AStream,
@@ -3351,7 +3351,7 @@ const DEF_BLOCKSIZE = 10*10240;
   begin
     if AContext.DataMode = dmDeflate then
     begin
-      LM := TIdStreamVCL.Create( TMemoryStream.Create, True);
+      LM := TIdStreamVCL.Create( TIdMemoryStream.Create, True);
       try
         for i := 0 to AStrings.Count-1 do
         begin
@@ -3401,8 +3401,8 @@ begin
         LCxt.FDataChannel.InitOperation(AConnectMode);
         try
           try
-            if LCxt.FDataChannel.Data is TStream then begin
-              LStrm := TIdStreamVCL.Create(LCxt.FDataChannel.Data as TStream);
+            if LCxt.FDataChannel.Data is TIdStream2 then begin
+              LStrm := TIdStreamVCL.Create(LCxt.FDataChannel.Data as TIdStream2);
               try
                 case LCxt.FDataChannel.FFtpOperation of
                   ftpRetr:
@@ -3424,7 +3424,7 @@ begin
                 ftpStor:
                   if Assigned(LCxt.FDataChannel.Data) then
                   begin
-                    LMemStream := TMemoryStream.Create;
+                    LMemStream := TIdMemoryStream.Create;
                     try
                       LStrm := TIdStreamVCL.Create(LMemStream);
                       try
@@ -4243,7 +4243,7 @@ begin
   end;
 end;
 
-function TIdFTPServer.CalculateCRCHash(AStrm : TStream;const ABeginPos,AEndPos:cardinal): String;
+function TIdFTPServer.CalculateCRCHash(AStrm : TIdStream2;const ABeginPos,AEndPos:cardinal): String;
 var
   value: Cardinal;
   IdHashCRC32: TIdHashCRC32;
@@ -4258,7 +4258,7 @@ begin
   end;
 end;
 
-function TIdFTPServer.CalculateMD5Checksum(AStrm : TStream;const ABeginPos,AEndPos:Int64) : String;
+function TIdFTPServer.CalculateMD5Checksum(AStrm : TIdStream2;const ABeginPos,AEndPos:Int64) : String;
 var LMD : TIdHashMessageDigest5;
 begin
   LMD := TIdHashMessageDigest5.Create;
@@ -4270,7 +4270,7 @@ begin
 end;
 
 procedure TIdFTPServer.CommandXCRC(ASender: TIdCommand);
-var LCalcStream : TStream;
+var LCalcStream : TIdStream2;
     LBuf : String;
     LFileName : String;
     LBeginPos, LEndPos : Cardinal;
@@ -4579,7 +4579,7 @@ begin
 end;
 
 function  TIdFTPServer.GetMD5Checksum(ASender : TIdFTPServerContext; const AFileName : String ) : String;
-var LCalcStream : TStream;
+var LCalcStream : TIdStream2;
 
 begin
   Result := '';
@@ -4688,7 +4688,7 @@ begin
 end;
 
 procedure TIdFTPServer.DoOnCRCFile(ASender: TIdFTPServerContext;
-  const AFileName: String; var VStream: TStream);
+  const AFileName: String; var VStream: TIdStream2);
 begin
   if Assigned(FTPFileSystem) then begin
     FTPFileSystem.GetCRCCalcStream(ASender, AFileName, VStream);
@@ -5405,7 +5405,7 @@ begin
 end;
 
 procedure TIdFTPServer.CommandXMD5(ASender: TIdCommand);
-var LCalcStream : TStream;
+var LCalcStream : TIdStream2;
     LBuf : String;
     LFileName : String;
     LBeginPos, LEndPos : Cardinal;

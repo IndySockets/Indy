@@ -45,7 +45,7 @@ unit IdHashSHA1;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdHash;
 
 const
@@ -60,7 +60,7 @@ type
     FCBuffer: T512BitRecord;
     procedure Coder;
   public
-    function HashValue(AStream: TStream): T5x4LongWordRecord; override;
+    function HashValue(AStream: TIdStream2): T5x4LongWordRecord; override;
   end;
 
 implementation
@@ -72,7 +72,7 @@ begin
   Result:= ((ALongword and $FF) shl 24) or ((ALongword and $FF00) shl 8) or ((ALongword and $FF0000) shr 8) or ((ALongword and $FF000000) shr 24);
 end;
 
-function TIdHashSHA1.HashValue(AStream: TStream): T5x4LongWordRecord;
+function TIdHashSHA1.HashValue(AStream: TIdStream2): T5x4LongWordRecord;
 var
   LSize: LongInt;
   LLenHi: LongWord;

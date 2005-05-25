@@ -89,7 +89,9 @@ uses
   IdBaseComponent,
   IdStream,
   IdStreamRandomAccess,
-  IdSys;
+  IdSys,
+  IdGlobal,
+  IdObjs;
 
 type
   TIdEncoder = class(TIdBaseComponent)
@@ -115,7 +117,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdStreamVCL;
+  IdGlobalProtocols, IdStreamVCL;
 
 { TIdDecoder }
 
@@ -131,7 +133,7 @@ end;
 class function TIdDecoder.DecodeString(const AIn: string): string;
 var
   LDestStream: TIdStreamVCL;
-  LStringStream: TStringStream;
+  LStringStream: TIdStringStream;
 begin
   with Create(nil) do try
     LStringStream := TIdStringStream.Create(''); try {Do not Localize}
@@ -149,7 +151,7 @@ end;
 
 function TIdEncoder.Encode(const ASrc: string): string;
 var
-  LStream: TStream;
+  LStream: TIdStream2;
   LIdStream: TIdStreamVCL;
 begin
   LStream := TIdStringStream.Create(ASrc); try

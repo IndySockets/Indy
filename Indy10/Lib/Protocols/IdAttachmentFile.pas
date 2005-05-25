@@ -32,15 +32,15 @@ unit IdAttachmentFile;
 interface
 
 uses
-  Classes,
   IdAttachment,
   IdMessageParts,
+  IdObjs,
   IdSys;
 
 type
   TIdAttachmentFile = class(TIdAttachment)
   protected
-    FTempFileStream: TFileStream;
+    FTempFileStream: TIdFileStream;
     FStoredPathName: String;
     FFileIsTempFile: Boolean;
     FAttachmentBlocked: Boolean;
@@ -48,9 +48,9 @@ type
     constructor Create(Collection: TIdMessageParts; const AFileName: String = ''); reintroduce;
     destructor Destroy; override;
 
-    function OpenLoadStream: TStream; override;
+    function OpenLoadStream: TIdStream2; override;
     procedure CloseLoadStream; override;
-    function PrepareTempStream: TStream; override;
+    function PrepareTempStream: TIdStream2; override;
     procedure FinishTempStream; override;
 
     procedure SaveToFile(const FileName: String); override;
@@ -101,19 +101,19 @@ begin
   end;
 end;
 
-function TIdAttachmentFile.OpenLoadStream: TStream;
+function TIdAttachmentFile.OpenLoadStream: TIdStream2;
 begin
   FTempFileStream := TReadFileExclusiveStream.Create(StoredPathName);
   Result := FTempFileStream;
 end;
 
-function TIdAttachmentFile.PrepareTempStream: TStream;
+function TIdAttachmentFile.PrepareTempStream: TIdStream2;
 begin
   if Assigned(Collection) then
     FStoredPathName := MakeTempFilename((TIdMessageParts(Collection).OwnerMessage as TIdMessage).AttachmentTempDirectory)
   else
     FStoredPathName := MakeTempFilename();
-  FTempFileStream := TFilestream.Create(FStoredPathName, fmCreate);
+  FTempFileStream := TIdFilestream.Create(FStoredPathName, fmCreate);
   Result := FTempFileStream;
   FFileIsTempFile := True;
 end;
@@ -126,6 +126,7 @@ begin
 end;
 
 initialization
-  RegisterClass(TIdAttachmentFile);
+//  MtW: Shouldn't be neccessary??
+//  RegisterClass(TIdAttachmentFile);
 
 end.

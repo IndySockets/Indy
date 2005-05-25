@@ -46,33 +46,33 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes, IdAttachment, IdMessageParts, IdGlobal;
+  Classes, IdObjs, IdAttachment, IdMessageParts, IdGlobal;
 
 type
   TIdAttachmentMemory = class(TIdAttachment)
   protected
-    FDataStream: TMemoryStream;
+    FDataStream: TIdMemoryStream;
     FDataStreamBeforeLoadPosition: Int64;
 
-    function GetDataStream: TStream;
+    function GetDataStream: TIdStream2;
     function GetDataString: string;
-    procedure SetDataStream(const Value: TStream);
+    procedure SetDataStream(const Value: TIdStream2);
     procedure SetDataString(const Value: string);
   public
     {CC: Bug fix, remove default values to resolve ambiguities with Create(TCollection).}
     {constructor Create(Collection: TIdMessageParts; const CopyFrom: TStream = nil); reintroduce; overload;
     constructor Create(Collection: TIdMessageParts; const CopyFrom: String = ''); reintroduce; overload;}
-    constructor Create(Collection: TIdMessageParts; const CopyFrom: TStream); reintroduce; overload;
+    constructor Create(Collection: TIdMessageParts; const CopyFrom: TIdStream2); reintroduce; overload;
     constructor Create(Collection: TIdMessageParts; const CopyFrom: String); reintroduce; overload;
     constructor Create(Collection: TCollection); overload; override;
     destructor Destroy; override;
 
-    property DataStream: TStream read GetDataStream write SetDataStream;
+    property DataStream: TIdStream2 read GetDataStream write SetDataStream;
     property DataString: string read GetDataString write SetDataString;
-    function OpenLoadStream: TStream; override;
+    function OpenLoadStream: TIdStream2; override;
     procedure CloseLoadStream; override;
     procedure FinishTempStream; override;
-    function PrepareTempStream: TStream; override;
+    function PrepareTempStream: TIdStream2; override;
   end;
 
 implementation
@@ -80,10 +80,10 @@ implementation
 { TIdAttachmentMemory }
 
 constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
-  const CopyFrom: TStream);
+  const CopyFrom: TIdStream2);
 begin
   inherited Create(Collection);
-  FDataStream := TMemoryStream.Create();
+  FDataStream := TIdMemoryStream.Create();
   if Assigned(CopyFrom) then begin
     FDataStream.CopyFrom(CopyFrom, CopyFrom.Size);
   end;
@@ -98,7 +98,7 @@ constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
   const CopyFrom: String);
 begin
   inherited Create(Collection);
-  FDataStream := TMemoryStream.Create;
+  FDataStream := TIdMemoryStream.Create;
   SetDataString(CopyFrom);
 end;
 
@@ -108,7 +108,7 @@ begin
   inherited;
 end;
 
-function TIdAttachmentMemory.GetDataStream: TStream;
+function TIdAttachmentMemory.GetDataStream: TIdStream2;
 begin
   Result := FDataStream;
 end;
@@ -126,14 +126,14 @@ begin
   end;
 end;
 
-function TIdAttachmentMemory.OpenLoadStream: TStream;
+function TIdAttachmentMemory.OpenLoadStream: TIdStream2;
 begin
   FDataStreamBeforeLoadPosition := DataStream.Position;
   DataStream.Position := 0;
   Result := DataStream;
 end;
 
-procedure TIdAttachmentMemory.SetDataStream(const Value: TStream);
+procedure TIdAttachmentMemory.SetDataStream(const Value: TIdStream2);
 begin
   FDataStream.CopyFrom(Value, Value.Size);
 end;
@@ -149,7 +149,7 @@ begin
   DataStream.Position := 0;
 end;
 
-function TIdAttachmentMemory.PrepareTempStream: TStream;
+function TIdAttachmentMemory.PrepareTempStream: TIdStream2;
 begin
   DataStream.Size := 0;
   Result := DataStream;
@@ -158,7 +158,7 @@ end;
 constructor TIdAttachmentMemory.Create(Collection: TCollection);
 begin
   inherited;
-  FDataStream := TMemoryStream.Create;
+  FDataStream := TIdMemoryStream.Create;
 end;
 
 initialization
