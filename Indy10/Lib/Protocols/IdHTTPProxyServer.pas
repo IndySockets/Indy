@@ -129,7 +129,8 @@ interface
 }
 
 uses
-  Classes,
+//  Classes,
+  IdObjs,
   IdAssignedNumbers,
   IdGlobal,
   IdHeaderList,
@@ -157,7 +158,7 @@ type
 }
   TIdHTTPProxyServer = class;
   TOnHTTPDocument = procedure(ASender: TIdHTTPProxyServer; const ADocument: string;
-   var VStream: TStream; const AHeaders: TIdHeaderList) of object;
+   var VStream: TIdStream2; const AHeaders: TIdHeaderList) of object;
 
   TIdHTTPProxyServer = class(TIdCmdTCPServer)
   protected
@@ -167,7 +168,7 @@ type
     procedure CommandPOST(ASender: TIdCommand);
     procedure CommandHEAD(ASender: TIdCommand);
     procedure CommandConnect(ASender: TIdCommand); // for ssl
-    procedure DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
+    procedure DoHTTPDocument(const ADocument: string; var VStream: TIdStream2; const AHeaders: TIdHeaderList);
     procedure InitializeCommandHandlers; override;
     procedure TransferData(ASrc: TIdTCPConnection; ADest: TIdTCPConnection; const ADocument: string;
       const ASize: Integer; const AHeaders: TIdHeaderList);
@@ -227,11 +228,11 @@ procedure TIdHTTPProxyServer.TransferData(
 // modify data. However we also need another option that writes as it captures.
 // Two modes? Intercept and not?
 var
-  LStream: TStream;
+  LStream: TIdStream2;
   LS : TIdStreamVCL;
 begin
   //TODO: Have an event to let the user perform stream creation
-  LStream := TMemoryStream.Create; try
+  LStream := TIdMemoryStream.Create; try
     LS := TIdStreamVCL.Create(LStream); try
       ASrc.IOHandler.ReadStream(LS, ASize, ASize = -1);
     finally Sys.FreeAndNil(LS); end;
@@ -288,13 +289,13 @@ var
   LRemoteHeaders: TIdHeaderList;
   LURI: TIdURI;
   LPageSize: Integer;
-  LPostStream: TMemoryStream;
+  LPostStream: TIdMemoryStream;
   LS : TIdStreamVCL;
 begin
   ASender.PerformReply := false;
   LHeaders := TIdHeaderList.Create; try
     ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LPostStream:=tmemorystream.Create; LS:= TIdStreamVCL.Create(LPostStream,False); try
+    LPostStream:= TIdMemorystream.Create; LS:= TIdStreamVCL.Create(LPostStream,False); try
       LPostStream.size:=Sys.StrToInt( LHeaders.Values['Content-Length'], 0 ); {Do not Localize}
       ASender.Context.Connection.IOHandler.ReadStream(LS,LPostStream.Size,false);
       LClient := TIdTCPClient.Create(nil); try
@@ -368,7 +369,7 @@ begin
   ReplyUnknownCommand.Text.Text := ''; // RS
 end;
 
-procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
+procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TIdStream2; const AHeaders: TIdHeaderList);
 begin
   if Assigned(OnHTTPDocument) then begin
     OnHTTPDocument(Self, ADocument, VStream, AHeaders);

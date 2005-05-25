@@ -20,13 +20,13 @@ unit IdHashElf;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdHash;
 
 type
   TIdHashElf = class( TIdHash32 )
   public
-    function HashValue( AStream: TStream ) : LongWord; override;
+    function HashValue( AStream: TIdStream2 ) : LongWord; override;
     procedure HashStart(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
 
@@ -54,7 +54,7 @@ begin
   VRunningHash := 0;
 end;
 
-function TIdHashElf.HashValue( AStream: TStream ) : LongWord;
+function TIdHashElf.HashValue( AStream: TIdStream2 ) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNET
 var

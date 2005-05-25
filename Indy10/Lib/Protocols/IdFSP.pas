@@ -365,11 +365,11 @@ causes that directory can be listable even it do not have
     procedure GetStatInfo(const APath : String);
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false;
       AResume: Boolean = false); overload;
-    procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = false); overload;
+    procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false); overload;
     procedure Put(const ASource: TIdStreamVCL; const ADestFile: string;
        const AGMTTime : TIdDateTime=0); overload;
-    procedure Put(const ASource: TStream; const ADestFile: string;
+    procedure Put(const ASource: TIdStream2; const ADestFile: string;
        const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
     property SystemDesc: string read FSystemDesc;
@@ -469,7 +469,7 @@ begin
   FConEstablished := False;
 end;
 
-procedure TIdFSP.Get(const ASourceFile: string; ADest: TStream;
+procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream2;
   AResume: Boolean);
 var LStream : TIdStreamVCL;
 begin
@@ -484,7 +484,7 @@ end;
 procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
   const ACanOverwrite: boolean; AResume: Boolean);
 var
-  LDestStream: TFileStream;
+  LDestStream: TIdStream2;
 begin
 
     if ACanOverwrite and (not AResume) then begin
@@ -892,7 +892,7 @@ begin
 
 end;
 
-procedure TIdFSP.Put(const ASource: TStream; const ADestFile: string;
+procedure TIdFSP.Put(const ASource: TIdStream2; const ADestFile: string;
   const AGMTTime: TIdDateTime);
 var LStream : TIdStreamVCL;
 begin
@@ -906,7 +906,7 @@ end;
 
 procedure TIdFSP.Put(const ASourceFile, ADestFile: string);
 var
-  LSourceStream: TFileStream;
+  LSourceStream: TIdStream2;
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;
