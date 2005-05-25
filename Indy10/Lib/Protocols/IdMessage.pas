@@ -395,6 +395,9 @@ type
    var AAttachment: TIdAttachment) of object;
 
   TIdMessage = class(TIdBaseComponent)
+  private
+    FAttachmentTempDirectory: string;
+    procedure SetAttachmentTempDirectory(const Value: string);
   protected
     FBccList: TIdEmailAddressList;
     FBody: TIdStrings;
@@ -526,6 +529,7 @@ type
     property LastGeneratedHeaders: TIdHeaderList read FLastGeneratedHeaders;
     property ConvertPreamble: Boolean read FConvertPreamble write FConvertPreamble;
     property ExceptionOnBlockedAttachments: Boolean read FExceptionOnBlockedAttachments write FExceptionOnBlockedAttachments default False;
+    property AttachmentTempDirectory: string read FAttachmentTempDirectory write SetAttachmentTempDirectory;
 
     // Events
     property OnInitializeISO: TIdInitializeIsoEvent read FOnInitializeISO write FOnInitializeISO;
@@ -559,7 +563,7 @@ uses
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
   IdMessageClient, IdAttachmentFile,
-  IdText;
+  IdText, IdSysNativeVCL, IdSysVCL;
 
 { TIdMIMEBoundary }
 
@@ -1265,6 +1269,16 @@ end;
 procedure TIdMessage.SetMsgID(const AValue: String);
 begin
   FMsgId := FixUpMsgID(AValue);
+end;
+
+procedure TIdMessage.SetAttachmentTempDirectory(const Value: string);
+begin
+  if Value <> AttachmentTempDirectory then begin
+    //FAttachmentTempDirectory := Sys.ExcludeTrailingPathDelimiter(Value);
+    FAttachmentTempDirectory := Value;
+    if (FAttachmentTempDirectory <> '') and (FAttachmentTempDirectory[Length(FAttachmentTempDirectory)] = GPathDelim) then
+      SetLength(FAttachmentTempDirectory, Length(FAttachmentTempDirectory) - 1);
+  end;
 end;
 
 end.
