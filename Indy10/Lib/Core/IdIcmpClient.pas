@@ -73,7 +73,10 @@ const
   Id_TIDICMP_ReceiveTimeout = 5000;
 
 type
-  TReplyStatusTypes = (rsEcho, rsError, rsTimeOut, rsErrorUnreachable, rsErrorTTLExceeded);
+  TReplyStatusTypes = (rsEcho,
+    rsError, rsTimeOut, rsErrorUnreachable,
+    rsErrorTTLExceeded,rsErrorPacketTooBig,
+    rsErrorParameter);
 
   TReplyStatus = class(TObject)
   protected
@@ -194,7 +197,7 @@ end;
 function TIdIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
 
 begin
-  Result := False;
+
   if BytesRead = 0 then begin
     // Timed out
     if Self.IPVersion = Id_IPv4 then
@@ -566,7 +569,7 @@ var
   RTTime : Cardinal;
   LActualSeqID : Word;
 begin
-  Result := False;
+
   LIdx := 0;
   LIcmp := TIdicmp6_hdr.Create;
   try
@@ -577,24 +580,44 @@ begin
       ICMP6_ECHO_REPLY :
       begin
         AReplyStatus.ReplyStatusType := rsEcho;
-        LActualSeqID := LIcmp.data.icmp6_un_data16[1];
-        Result := LActualSeqID = wSeqNo;
 
-        RTTime := Ticks - BytesToCardinal(FBufReceive, LIdx);
       end;
+      //group membership messages
+      ICMP6_MEMBERSHIP_QUERY : ;
+      ICMP6_MEMBERSHIP_REPORT : ;
+      ICMP6_MEMBERSHIP_REDUCTION :;
+      //errors
+      ICMP6_DST_UNREACH : AReplyStatus.ReplyStatusType := rsErrorUnreachable;
+      ICMP6_PACKET_TOO_BIG : AReplyStatus.ReplyStatusType := rsErrorPacketTooBig;
+      ICMP6_TIME_EXCEEDED : AReplyStatus.ReplyStatusType :=  rsErrorTTLExceeded;
+      ICMP6_PARAM_PROB :  AReplyStatus.ReplyStatusType := rsErrorParameter;
+    else
+      AReplyStatus.ReplyStatusType :=  rsError;
     end;
-      if result then
-      begin
-                          
-          AReplyStatus.BytesReceived := BytesRead;
+    AReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
+    AReplyStatus.MsgCode := LIcmp.icmp6_code;
+    //errors are values less than ICMP6_INFOMSG_MASK
+    if LIcmp.icmp6_type < ICMP6_INFOMSG_MASK then
+    begin
+      //read info from the original packet part
+      LIcmp.ReadStruct(FBufReceive,LIdx);
+    end;
+    LActualSeqID := LIcmp.data.icmp6_seq;
+    Result := LActualSeqID = wSeqNo;
 
-          AReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
-          AReplyStatus.MsgCode := LIcmp.icmp6_code;
-          AReplyStatus.SequenceId := LActualSeqID;
-          AReplyStatus.MsRoundTripTime := RTTime;
+    RTTime := Ticks - BytesToCardinal(FBufReceive, LIdx);
+    if result then
+    begin
+                          
+      AReplyStatus.BytesReceived := BytesRead;
+      AReplyStatus.SequenceId := LActualSeqID;
+      AReplyStatus.MsRoundTripTime := RTTime;
         //  TimeToLive := FBufReceive[8];
     //    TimeToLive := pip^.ip_ttl;
-     end;
+      AReplyStatus.TimeToLive := FPkt.TTL;
+      AReplyStatus.FromIpAddress := FPkt.SourceIP;
+      AReplyStatus.ToIpAddress := FPkt.DestIP;
+    end;
   finally
     Sys.FreeAndNil(LIcmp);
   end;
