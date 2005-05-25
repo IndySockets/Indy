@@ -480,8 +480,6 @@ type
 
 
   function CopyFileTo(const Source, Destination: string): Boolean;
-  //Used by IMAP4Server
-  function CreateEmptyFile(const APathName : String) : Boolean;
 
   function DateTimeToGmtOffSetStr(ADateTime: TIdDateTime; SubGMT: Boolean): string;
   function DateTimeGMTToHttpStr(const GMTValue: TIdDateTime) : String;
@@ -506,8 +504,6 @@ type
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: cardinal): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
-  //used by IdIMAP4Server
-  function IndyCopyFile(AFromFileName, AToFileName : String; const AFailIfExists : Boolean) : Boolean;
 
   function IndyStrToBool(const AString: String): Boolean;
   function IsDomain(const S: String): Boolean;
@@ -808,51 +804,6 @@ var LCard : Cardinal;
 begin
   LCard := GStack.HostToNetwork(ASource);
   CopyTIdCardinal(LCard,VDest,ADestIndex);
-end;
-
-{IndyCopyFile and  CreateEmptyFile are used by TIdIMAP4Server}
-
-function IndyCopyFile(AFromFileName, AToFileName : String; const AFailIfExists : Boolean) : Boolean;
-var
-  LStream : TStream;
-begin
-  if Sys.FileExists(AToFileName) and AFailIfExists then begin
-    Result := False;
-  end else begin
-    LStream := TReadFileExclusiveStream.Create(AFromFileName); try
-      with TFileCreateStream.Create(AToFileName) do try
-        CopyFrom(LStream, 0);
-      finally Free; end;
-    finally Sys.FreeAndNil(LStream); end;
-    Result := True;
-  end;
-end;
-
-function CreateEmptyFile(const APathName : String) : Boolean;
-{$IFDEF DOTNET}
-var LSTr : StreamWriter;
-{$ELSE}
-var LHandle : Integer;
-{$ENDIF}
-begin
-  Result := False;
-  {$IFDEF DOTNET}
-
-  LStr := System.IO.&File.CreateText(APathName);
-
-  if Assigned(LStr) then
-  begin
-    LStr.Close;
-    Result := True;
-  end;
-  {$ELSE}
-  LHandle := FileCreate(APathName);
-  if LHandle <> -1 then
-  begin
-    FileClose(LHandle);
-    Result := True;
-  end;
-  {$ENDIF}
 end;
 
 // BGO: TODO: Move somewhere else
