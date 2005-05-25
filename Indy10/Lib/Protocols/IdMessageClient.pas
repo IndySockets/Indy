@@ -972,7 +972,7 @@ var
       LDestStream := TIdTCPStream.Create(Self); try
         LEncoder := TIdMessageEncoder(TIdMessageEncoderMIME.Create(Self)); try
           LStrStream := TIdStreamVCL.Create(TIdStringStream.Create(''), True); try
-            ATextPart.Body.SaveToStream(LStrStream);
+            ATextPart.Body.SaveToStream(LStrStream.VCLStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally Sys.FreeAndNil(LStrStream); end;
@@ -1014,7 +1014,7 @@ begin
         end;
         try
           LStrStream := TIdStreamVCL.Create(TIdStringStream.Create(''), True); try
-            AMsg.Body.SaveToStream(LStrStream);
+            AMsg.Body.SaveToStream(LStrStream.VCLStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally
