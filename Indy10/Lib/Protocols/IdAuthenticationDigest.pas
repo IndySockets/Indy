@@ -267,7 +267,7 @@ begin
           FDomain.Add(Fetch(S));
         end;
         Fopaque := LParams.Values['opaque'];
-        FStale := Sys.AnsiCompareText(LParams.Values['stale'],'True')=1;
+        FStale := IndyCompareStr(LParams.Values['stale'],'True')=1;
         FAlgorithm := LParams.Values['algorithm'];
         FQopOptions.CommaText := Params.Values['qop'];
 
