@@ -4,6 +4,8 @@ Indy10/Builder/ClassParser.exe -text svneol=unset#unset
 Indy10/Builder/ClassParser.ini -text
 Indy10/Builder/ClassRenamer.exe -text svneol=unset#unset
 Indy10/Builder/ClassRenamer.ini -text
+Indy10/Builder/Package[!!-~]Generator/DModule.dfm -text
+Indy10/Builder/Package[!!-~]Generator/DModule.pas -text
 Indy10/Builder/Package[!!-~]Generator/Data/File.DB -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.FAM -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.PX -text svneol=unset#unset
