@@ -49,7 +49,7 @@ type
 
 implementation
 
-uses DataModule;
+uses DModule;
 
 { TPackageD7Core }
 

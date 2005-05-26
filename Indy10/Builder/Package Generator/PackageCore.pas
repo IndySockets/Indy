@@ -55,7 +55,7 @@ type
 implementation
 
 uses
-  Dialogs, DataModule;
+  Dialogs, DModule;
 
 { TPackageCore }
 

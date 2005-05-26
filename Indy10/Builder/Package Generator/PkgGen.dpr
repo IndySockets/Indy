@@ -80,11 +80,9 @@ program PkgGen;
 {$APPTYPE CONSOLE}
 
 uses
-  ExceptionLog,
   Classes,
   SysUtils,
   IdGlobal,
-  DataModule in 'DataModule.pas' {DM: TDataModule},
   Package in 'Package.pas',
   PackageVisualStudio in 'PackageVisualStudio.pas',
   PackageD8Master in 'PackageD8Master.pas',
@@ -93,7 +91,8 @@ uses
   PackageCore in 'PackageCore.pas',
   PackageProtocols in 'PackageProtocols.pas',
   PackageFTPParsers in 'PackageFTPParsers.pas',
-  PackageSecurity in 'PackageSecurity.pas';
+  PackageSecurity in 'PackageSecurity.pas',
+  DModule in 'DModule.pas';
 
 procedure Main;
 begin

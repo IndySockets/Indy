@@ -54,7 +54,7 @@ type
 
 implementation
 
-uses DataModule;
+uses DModule;
 
 { TPackageVisualStudio }
 
