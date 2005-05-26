@@ -311,8 +311,8 @@ type
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle;
-     var VBuffer: TIdBytes;
-     APkt :  TIdPacketInfo;
+      var VBuffer: TIdBytes;
+      APkt :  TIdPacketInfo;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; virtual; abstract;
     function SupportsIPv6:boolean; virtual; abstract;
 

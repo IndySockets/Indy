@@ -261,6 +261,11 @@ type
              var VIP: string; var VPort: Integer;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; override;
+    function ReceiveMsg(ASocket: TIdStackSocketHandle;
+      var VBuffer: TIdBytes;
+      APkt :  TIdPacketInfo;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
+
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
              const AOffset: Integer; const AIP: string; const APort: integer;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
@@ -294,6 +299,13 @@ type
       const AGroupIP, ALocalIP : String); override;
     procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String); override;
+    procedure WriteChecksum(s : TIdStackSocketHandle;
+      var VBuffer : TIdBytes;
+      const AOffset : Integer;
+      const AIP : String;
+      const APort : Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+
   end;
 
 
@@ -847,6 +859,43 @@ begin
     end;
     AHandle.SetSocketOption(SocketOptionLevel.IP, ASockOpt, LM4);
    end;
+end;
+
+function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; APkt: TIdPacketInfo;
+  const AIPVersion: TIdIPVersion): Cardinal;
+var LIP : String;
+  LPort : Integer;
+begin
+  Result := ReceiveFrom(ASocket,VBuffer,LIP,LPort,AIPVersion);
+  APkt.SourceIP := LIP;
+  APkt.SourcePort := LPort;
+end;
+
+procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: Integer; const AIPVersion: TIdIPVersion);
+
+begin
+  if AIPVersion = Id_IPv4 then
+  begin
+    CopyTIdWord(CalcCheckSum(VBuffer),VBuffer,AOffset);
+  end
+  else
+  begin
+{This is a todo because to do a checksum for ICMPv6, you need to obtain
+the address for the IP the packet will come from (querry the network interfaces).
+You then have to make a IPv6 pseudo header.  About the only other alternative is
+to have the kernal (or DotNET Framework generate the checksum but we don't have
+an API for it.
+
+I'm not sure if we have an API for it at all.  Even if we did, would it be worth
+doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
+in its enumerations.
+}
+    Todo;
+  end;
+
 end;
 
 initialization
