@@ -42,29 +42,29 @@ uses
    IdGlobal, IdRawHeaders, IdStack;
 
 // ARP
-function IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: word;
+procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: word;
   const AHwAddressLen, AProtocolLen: byte;
   const AnOpType: word;
   ASenderHw: TIdEtherAddr;
   ASenderPr: TIdInAddr;
   ATargetHw: TIdEtherAddr;
   ATargetPr: TIdInAddr;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
 // DNS
-{function IdRawBuildDns(AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: word;
-  const APayload; APayloadSize: integer; var ABuffer): boolean;
-}
+procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: word;
+  const APayload : TIdBytes;
+  var VBuffer : TIdBytes);
 // Ethernet
-function IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: word;
-  const APayload : TIdBytes;  var VBuffer : TIdBytes): boolean;
+procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: word;
+  const APayload : TIdBytes;  var VBuffer : TIdBytes);
 
 
 // ICMP
-function IdRawBuildIcmpEcho(AType, ACode: byte; AnId, ASeq: word;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
-function IdRawBuildIcmpMask(AType, ACode: byte; AnId, ASeq: word; AMask: longword;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
-function IdRawBuildIcmpRedirect(const AType, ACode: byte;
+procedure IdRawBuildIcmpEcho(AType, ACode: byte; AnId, ASeq: word;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
+procedure IdRawBuildIcmpMask(AType, ACode: byte; AnId, ASeq: word; AMask: longword;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
+procedure IdRawBuildIcmpRedirect(const AType, ACode: byte;
   AGateway: TIdInAddr;
   const AnOrigLen: word;
   const AnOrigTos: byte;
@@ -72,8 +72,8 @@ function IdRawBuildIcmpRedirect(const AType, ACode: byte;
   const AnOrigTtl, AnOrigProtocol: byte;
   AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
-function IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
+  var VBuffer : TIdBytes);
+procedure IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
   const AnOrigLen: word;
   const AnOrigTos: byte;
   const AnOrigId, AnOrigFrag: word;
@@ -81,68 +81,65 @@ function IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
   const AnOrigProtocol: byte;
   const AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
-function IdRawBuildIcmpTimestamp(const AType, ACode: byte;
+  var VBuffer : TIdBytes);
+procedure IdRawBuildIcmpTimestamp(const AType, ACode: byte;
   const AnId, ASeq: word;
   const AnOtime, AnRtime, ATtime: TIdNetTime;
   const APayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
-function IdRawBuildIcmpUnreach(AType, ACode: byte;
+  var VBuffer : TIdBytes);
+procedure IdRawBuildIcmpUnreach(AType, ACode: byte;
   AnOrigLen: word;
   AnOrigTos: byte; AnOrigId, AnOrigFrag: word;
   AnOrigTtl, AnOrigProtocol: byte;
   AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload, APayloadSize: integer;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 
 // IGMP
-function IdRawBuildIgmp(AType, ACode: byte;
+procedure IdRawBuildIgmp(AType, ACode: byte;
   AnIp: TIdInAddr;
   const APayload, APayloadSize: integer;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 
 // IP
 
-function IdRawBuildIp(ALen: word; ATos: byte; AnId, AFrag: word; ATtl, AProtocol: byte;
-  ASource, ADest: TIdInAddr; const APayload : TIdBytes; var VBuffer : TIdBytes; const AIdx : Integer = 0): boolean;
+procedure IdRawBuildIp(ALen: word; ATos: byte; AnId, AFrag: word; ATtl, AProtocol: byte;
+  ASource, ADest: TIdInAddr; const APayload : TIdBytes; var VBuffer : TIdBytes; const AIdx : Integer = 0);
 
 // RIP
-function IdRawBuildRip(const ACommand, AVersion: byte;
+procedure IdRawBuildRip(const ACommand, AVersion: byte;
   const ARoutingDomain, AnAddressFamily, ARoutingTag: word;
   const AnAddr, AMask, ANextHop, AMetric: longword;
   const APayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 // TCP
-function IdRawBuildTcp(const ASourcePort, ADestPort: word;
+procedure IdRawBuildTcp(const ASourcePort, ADestPort: word;
   const ASeq, AnAck: longword;
   const AControl: byte;
   const AWindowSize, AnUrgent: word;
   const APayload  : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 
 // UDP
-function IdRawBuildUdp(const ASourcePort, ADestPort: word;
+procedure IdRawBuildUdp(const ASourcePort, ADestPort: word;
   const APayload :TIdBytes;
-  var VBuffer :TIdBytes): boolean;
+  var VBuffer :TIdBytes);
   
 implementation
  uses IdSys;
 
-function IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: word;
+procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: word;
   const AHwAddressLen, AProtocolLen: byte;
   const AnOpType: word;
   ASenderHw: TIdEtherAddr;
   ASenderPr: TIdInAddr;
   ATargetHw: TIdEtherAddr;
   ATargetPr: TIdInAddr;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
 var
   HdrArp: TIdArpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
 
   LIdx := Id_ARP_HSIZE + Length(VBuffer);
@@ -175,19 +172,15 @@ begin
   finally
     Sys.FreeAndNil(HdrArp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: word;
+procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs, ANumAuthRecs, ANumAddRecs: word;
   const APayload : TIdBytes;
-  var VBuffer : TIdBytes) : boolean;
+  var VBuffer : TIdBytes);
 var
   HdrDns: TIdDnsHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
     LIdx := Length(APayload) +Id_DNS_HSIZE;
     if Length(VBuffer)<LIdx then
@@ -220,17 +213,15 @@ begin
   finally
     Sys.FreeAndNil(HdrDns);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: word;
-  const APayload : TIdBytes;  var VBuffer : TIdBytes): boolean;
+procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: word;
+  const APayload : TIdBytes;  var VBuffer : TIdBytes);
 var
   HdrEth: TIdEthernetHdr;
   LIdx : Integer;
 begin
   // init result
-  Result := FALSE;
   HdrEth:= TIdEthernetHdr.create;
   try
   // make sure VBuffer will be long enough
@@ -258,18 +249,16 @@ begin
   finally
     Sys.FreeAndNil(HdrEth);
   end;
-  Result := TRUE;
 end;
 
 // TODO: check nibbles in IP header
-function IdRawBuildIp(ALen: word; ATos: byte; AnId, AFrag: word; ATtl, AProtocol: byte;
-  ASource, ADest: TIdInAddr; const APayload : TIdBytes; var VBuffer : TIdBytes; const AIdx : Integer = 0): boolean;
+procedure IdRawBuildIp(ALen: word; ATos: byte; AnId, AFrag: word; ATtl, AProtocol: byte;
+  ASource, ADest: TIdInAddr; const APayload : TIdBytes; var VBuffer : TIdBytes; const AIdx : Integer = 0);
 var
   HdrIp: TIdIpHdr;
    LIdx : Integer;
 begin
   // init result
-  Result := FALSE;
   HdrIp :=  TIdIpHdr.create;
   // check input
   try
@@ -301,18 +290,14 @@ begin
   finally
     Sys.FreeANdNil(HdrIp);
   end;
-
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpEcho(AType, ACode: byte; AnId, ASeq: word;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
+procedure IdRawBuildIcmpEcho(AType, ACode: byte; AnId, ASeq: word;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
    LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
 
   // check input
   if Length(VBuffer)<Id_ICMP_ECHO_HSIZE+Length(APayload) then
@@ -340,24 +325,19 @@ begin
   finally
     Sys.FreeAndNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpMask(AType, ACode: byte; AnId, ASeq: word; AMask: longword;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
+procedure IdRawBuildIcmpMask(AType, ACode: byte; AnId, ASeq: word; AMask: longword;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
   if Length(VBuffer)<Id_ICMP_ECHO_HSIZE+Length(APayload) then
   begin
       SetLength(VBuffer,Id_ICMP_ECHO_HSIZE+Length(APayload));
   end;
-
   // construct header
   HdrIcmp:= TIdIcmpHdr.Create;
   try
@@ -366,7 +346,6 @@ begin
     HdrIcmp.icmp_hun.echo_id := GStack.HostToNetwork(AnId);
     HdrIcmp.icmp_hun.echo_seq := GStack.HostToNetwork(ASeq);
     HdrIcmp.icmp_dun.mask := GStack.HostToNetwork(AMask);
-
   // copy payload
     if  (Length(APayload) > 0) then
     begin
@@ -378,23 +357,21 @@ begin
   finally
     Sys.FreeANdNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpUnreach(AType, ACode: byte;
+procedure IdRawBuildIcmpUnreach(AType, ACode: byte;
   AnOrigLen: word;
   AnOrigTos: byte;
   AnOrigId, AnOrigFrag: word;
   AnOrigTtl, AnOrigProtocol: byte;
   AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload, APayloadSize: integer;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
+
 
   // check input
  if Length(VBuffer)<Id_ICMP_UNREACH_HSIZE+Id_IP_HSIZE+2 then
@@ -420,10 +397,9 @@ begin
   finally
     Sys.FreeAndNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
+procedure IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
   const AnOrigLen: word;
   const AnOrigTos: byte;
   const AnOrigId, AnOrigFrag: word;
@@ -431,14 +407,11 @@ function IdRawBuildIcmpTimeExceed(const AType, ACode: byte;
   const AnOrigProtocol: byte;
   const AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
   LIdx := Id_ICMP_TIMEXCEED_HSIZE+Length(AnOrigPayload)+Id_IP_HSIZE;
    if Length(VBuffer)<LIdx then
@@ -466,21 +439,17 @@ begin
   finally
     Sys.FreeAndNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpTimestamp(const AType, ACode: byte;
+procedure IdRawBuildIcmpTimestamp(const AType, ACode: byte;
   const AnId, ASeq: word;
   const AnOtime, AnRtime, ATtime: TIdNetTime;
   const APayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + Length(APayload);
   if Length(VBuffer)<LIdx then
@@ -511,10 +480,9 @@ begin
   finally
     Sys.FreeAndNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIcmpRedirect(const AType, ACode: byte;
+procedure IdRawBuildIcmpRedirect(const AType, ACode: byte;
   AGateway: TIdInAddr;
   const AnOrigLen: word;
   const AnOrigTos: byte;
@@ -522,14 +490,11 @@ function IdRawBuildIcmpRedirect(const AType, ACode: byte;
   const AnOrigTtl, AnOrigProtocol: byte;
   AnOrigSource, AnOrigDest: TIdInAddr;
   const AnOrigPayload : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
   LIdx := Id_ICMP_REDIRECT_HSIZE+Length(AnOrigPayload)+Id_IP_HSIZE;
    if Length(VBuffer)<LIdx then
@@ -556,20 +521,16 @@ begin
   finally
     Sys.FreeAndNil(HdrIcmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildIgmp(AType, ACode: byte;
+procedure IdRawBuildIgmp(AType, ACode: byte;
   AnIp: TIdInAddr;
   const APayload, APayloadSize: integer;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrIgmp: TIdIgmpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
    LIdx := 2+Id_IGMP_HSIZE;
    if Length(VBuffer)<LIdx then
@@ -596,20 +557,16 @@ begin
   finally
     Sys.FreeAndNil(HdrIgmp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildRip(const ACommand, AVersion: byte;
+procedure IdRawBuildRip(const ACommand, AVersion: byte;
   const ARoutingDomain, AnAddressFamily, ARoutingTag: word;
   const AnAddr, AMask, ANextHop, AMetric: longword;
-  const APayload : TIdBytes; var VBuffer : TIdBytes): boolean;
+  const APayload : TIdBytes; var VBuffer : TIdBytes);
 var
   HdrRip: TIdRipHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
 
    LIdx := Id_RIP_HSIZE+Length(APayload);
@@ -642,23 +599,19 @@ begin
   finally
     Sys.FreeAndNil(HdrRip);
   end;
-  Result := TRUE;
 end;
 
 // TODO: check nibbles in TCP header
-function IdRawBuildTcp(const ASourcePort, ADestPort: word;
+procedure IdRawBuildTcp(const ASourcePort, ADestPort: word;
   const ASeq, AnAck: longword;
   const AControl: byte;
   const AWindowSize, AnUrgent: word;
   const APayload  : TIdBytes;
-  var VBuffer : TIdBytes): boolean;
+  var VBuffer : TIdBytes);
 var
   HdrTcp: TIdTcpHdr;
   LIdx : Integer;
 begin
-  // init result
-  Result := FALSE;
-
   // check input
   LIdx := Id_TCP_HSIZE + Length(VBuffer);
   if Length(VBuffer)<LIdx then
@@ -691,18 +644,15 @@ begin
   finally
     Sys.FreeAndNil(HdrTcp);
   end;
-  Result := TRUE;
 end;
 
-function IdRawBuildUdp(const ASourcePort, ADestPort: word;
+procedure IdRawBuildUdp(const ASourcePort, ADestPort: word;
   const APayload :TIdBytes;
-  var VBuffer :TIdBytes): boolean;
+  var VBuffer :TIdBytes);
 var
   HdrUdp: TIdUdpHdr;
   LIdx : Integer;
 begin
-  Result := FALSE;
-
   // check input
   LIdx := Id_UDP_HSIZE + Length(APayload);
   if Length(VBuffer)< Lidx then
@@ -731,7 +681,6 @@ begin
   finally
     Sys.FreeAndNil(HdrUdp);
   end;
-  Result := TRUE;
 end;
 
 
