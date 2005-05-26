@@ -27,6 +27,7 @@ type
     property Host;
     property Port;
     property Protocol;
+    property ProtocolIPv6;
     property IPVersion;
   end;
 

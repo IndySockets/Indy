@@ -99,7 +99,6 @@ type
   TIdRawBase = class(TIdComponent)
   protected
     FBinding: TIdSocketHandle;
-    FBuffer: TMemoryStream;
     FHost: string;
     FPort: integer;
     FReceiveTimeout: integer;
@@ -110,29 +109,33 @@ type
     FPkt : TIdPacketInfo;
     //
     function GetBinding: TIdSocketHandle;
-    function GetBufferSize: Integer;
+
     procedure InitComponent; override;
      procedure SetIPVersion(const AValue: TIdIPVersion);
-    procedure SetBufferSize(const AValue: Integer);
     procedure SetTTL(const Value: Integer);
+//
+    // TODO: figure out which ReceiveXXX functions we want
+
     property IPVersion : TIdIPVersion read FIPVersion write SetIPVersion;
+
+    //
+    property Port: Integer read FPort write FPort default Id_TIdRawBase_Port;
+    property Protocol: TIdSocketProtocol read FProtocol write FProtocol default Id_IPPROTO_RAW;
+    property ProtocolIPv6 : TIdSocketProtocol read FProtocolIPv6 write FProtocolIPv6 ;
+     property TTL: Integer read FTTL write SetTTL default GFTTL;
+
   public
     destructor Destroy; override;
-    // TODO: figure out which ReceiveXXX functions we want
     function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
     procedure Send(AData: string); overload;
     procedure Send(AHost: string; const APort: Integer; AData: string); overload; virtual;
     procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); overload; virtual;
     //
-    property TTL: Integer read FTTL write SetTTL default GFTTL;
+
     property Binding: TIdSocketHandle read GetBinding;
     property ReceiveTimeout: integer read FReceiveTimeout write FReceiveTimeout Default GReceiveTimeout;
   published
-    property BufferSize: Integer read GetBufferSize write SetBufferSize default Id_TIdRawBase_BufferSize;
     property Host: string read FHost write FHost;
-    property Port: Integer read FPort write FPort default Id_TIdRawBase_Port;
-    property Protocol: TIdSocketProtocol read FProtocol write FProtocol default Id_IPPROTO_RAW;
-    property ProtocolIPv6 : TIdSocketProtocol read FProtocolIPv6 write FProtocolIPv6 ;
   end;
 
 
@@ -146,7 +149,7 @@ uses
 destructor TIdRawBase.Destroy;
 begin
   Sys.FreeAndNil(FBinding);
-  Sys.FreeAndNil(FBuffer);
+
   Sys.FreeAndNil(FPkt);
   inherited;
 end;
@@ -185,18 +188,6 @@ begin
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
   end;
   Result := FBinding;
-end;
-
-function TIdRawBase.GetBufferSize: Integer;
-begin
-  Result := FBuffer.Size;
-end;
-
-procedure TIdRawBase.SetBufferSize(const AValue: Integer);
-begin
-  if (FBuffer = nil) then
-    FBuffer := TMemoryStream.Create;
-  FBuffer.Size := AValue;
 end;
 
 function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
@@ -276,7 +267,6 @@ begin
   inherited;
   FBinding := TIdSocketHandle.Create(nil);
   FPkt := TIdPacketInfo.Create;
-  BufferSize := Id_TIdRawBase_BufferSize;
   ReceiveTimeout := GReceiveTimeout;
   FPort := Id_TIdRawBase_Port;
   FProtocol := Id_IPPROTO_RAW;

@@ -47,7 +47,16 @@
 {   Rev 1.0    11/13/2002 08:44:30 AM  JPMugaas
 }
 unit IdIcmpClient;
+{
+Note that we can NOT remove the DotNET IFDEFS from this unit.   The reason is
+that Microsoft NET Framework 1.1 does not support ICMPv6 and that's required
+for IPv6.  In Win32 and Linux, we definately can and want to support IPv6.
 
+If we support a later version of the NET framework that has a better API, I may
+consider revisiting this.
+
+}
+{$I IdCompilerDefines.inc}
 // SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 // SG 25/1/02: NOTE!!!
 // SG 25/1/02:   The component no longer use the timing informations contained
@@ -105,7 +114,7 @@ type
 
   TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
-  TIdIcmpClient = class(TIdRawClient)
+  TIdCustomIcmpClient = class(TIdRawClient)
   protected
     FbufReceive: TIdBytes;
     FbufIcmp: TIdBytes;
@@ -115,30 +124,41 @@ type
     FOnReply: TOnReplyEvent;
     FReplydata: String;
     //
-    function CalcCheckSum: word;
+    {$IFNDEF DOTNET}
     function DecodeIPv6Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
+    {$ENDIF}
     function DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
+
     function DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
     procedure DoReply(const AReplyStatus: TReplyStatus);
     procedure GetEchoReply;
     procedure InitComponent; override;
+    {$IFNDEF DOTNET}
     procedure PrepareEchoRequestIPv6(Buffer: String);
+    {$ENDIF}
     procedure PrepareEchoRequestIPv4(Buffer : String='');
     procedure PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
     procedure SendEchoRequest;
-  public
-    destructor Destroy; override;
-    procedure Ping(ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize}
-    procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
-    function Receive(ATimeOut: Integer): TReplyStatus;
+    //these are made public in the client
+    procedure InternalPing(const ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize}
     //
     property ReplyStatus: TReplyStatus read FReplyStatus;
     property ReplyData: string read FReplydata;
+  public
+    destructor Destroy; override;
+    procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
+    function Receive(ATimeOut: Integer): TReplyStatus;
+
+  end;
+  TIdIcmpClient = class(TIdCustomIcmpClient)
+  public
+    procedure Ping(const ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
   published
+    {$IFNDEF DOTNET}
+    property IPVersion;
+    {$ENDIF}
     property ReceiveTimeout default Id_TIDICMP_ReceiveTimeout;
     property Host;
-    property Port;
-    property Protocol Default Id_IPPROTO_ICMP;
     property OnReply: TOnReplyEvent read FOnReply write FOnReply;
   end;
 
@@ -148,38 +168,11 @@ uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack;
 
-{ TIdIcmpClient }
+{ TIdCustomIcmpClient }
 
-function TIdIcmpClient.CalcCheckSum: word;
-var i : Integer;
-  LSize : Integer;
-  LCRC : Cardinal;
+procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
 begin
-  LCRC := 0;
-  i := 0;
-
-    LSize := Length(FbufIcmp);
-
-  while LSize >1 do
-  begin
-    LCRC := LCRC + IdGlobal.BytesToWord(FbufIcmp,i);
-
-    Dec(LSize,2);
-    inc(i,2);
-
-  end;
-  if LSize>0 then
-  begin
-    LCRC := LCRC + FbufIcmp[i];
-  end;
-  LCRC := (LCRC shr 16) + (LCRC and $ffff);  //(LCRC >> 16)
-  LCRC := LCRC + (LCRC shr 16);
-
-  Result := not Word(LCRC);
-end;
-
-procedure TIdIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
-begin
+  {$IFNDEF DOTNET}
   if IPVersion = Id_IPv4 then
   begin
     PrepareEchoRequestIPv4(Buffer);
@@ -188,15 +181,18 @@ begin
   begin
     PrepareEchoRequestIPv6(Buffer);
   end;
+  {$ELSE}
+  PrepareEchoRequestIPv4(Buffer);
+  {$ENDIF}
 end;
 
-procedure TIdIcmpClient.SendEchoRequest;
+procedure TIdCustomIcmpClient.SendEchoRequest;
 begin
                   
   Send(Host, Port, FbufIcmp);
 end;
 
-function TIdIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
+function TIdCustomIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
 
 begin
 
@@ -225,6 +221,7 @@ begin
     result := true;
   end else begin
     AReplyStatus.ReplyStatusType := rsError;
+    {$IFNDEF DOTNET}
     if Self.IPVersion = Id_IPv4 then
     begin
       Result := DecodeIPv4Packet(BytesRead,AReplyStatus);
@@ -233,100 +230,19 @@ begin
     begin
       Result := DecodeIPv6Packet(BytesRead,AReplyStatus);
     end;
+    {$ELSE}
+     Result := DecodeIPv4Packet(BytesRead,AReplyStatus);
+    {$ENDIF}
   end;
 
 end;
 
-{function TIdIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
-var
-  RTTime: Cardinal;
-  pip, pOriginalIP: PIdIPHdr;
-  picmp, pOriginalICMP: PIdICMPHdr;
-  iIpHeaderLen: Cardinal;
-  ActualSeqID: word;
-begin
-  if BytesRead = 0 then begin
-    // Timed out
-    AReplyStatus.BytesReceived   := 0;
-    AReplyStatus.FromIpAddress   := '0.0.0.0';
-    AReplyStatus.MsgType         := 0;
-    AReplyStatus.SequenceId      := wSeqNo;
-    AReplyStatus.TimeToLive      := 0;
-    AReplyStatus.ReplyStatusType := rsTimeOut;
-    result := true;
-  end else begin
-    AReplyStatus.ReplyStatusType := rsError;
-    pip := PIdIPHdr(@FbufReceive[0]);
-    iIpHeaderLen := (FBufReceive[0] and $0F) * 4; //(pip^.ip_verlen and $0F) * 4;
-    if (BytesRead < iIpHeaderLen + ICMP_MIN) then begin
-      // RSICMPNotEnoughtBytes 'Not enough bytes received'
-      raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
-    end;
-
-
-    picmp := PIdICMPHdr(@FbufReceive[iIpHeaderLen]);
-    {$IFDEF LINUX}
-    // TODO: baffled as to why linux kernel sends back echo from localhost
-    {.$ENDIF}
-
-    // Check if we are reading the packet we are waiting for. if not, don't use it in treatement and discard it    {Do not Localize}
-{    case picmp^.icmp_type of
-      Id_ICMP_ECHOREPLY, Id_ICMP_ECHO:
-      begin
-        AReplyStatus.ReplyStatusType := rsEcho;
-        FReplydata :=       IdGlobal.BytesToString(FBufReceive,iIpHeaderLen + SizeOf(picmp^), Length(FbufReceive));
-        //Copy(FbufReceive, iIpHeaderLen + SizeOf(picmp^) + 1, Length(FbufReceive));
-        // result is only valid if the seq. number is correct
-      end;
-      Id_ICMP_UNREACH:
-        AReplyStatus.ReplyStatusType := rsErrorUnreachable;
-      Id_ICMP_TIMXCEED:
-        AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
-      else
-        raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
-    end;    // case
-    // check if we got a reply to the packet that was actually sent
-    case AReplyStatus.ReplyStatusType of    //
-      rsEcho:
-        begin
-
-          result :=   picmp^.icmp_hun.echo.seq  = wSeqNo;
-          ActualSeqID := picmp^.icmp_hun.echo.seq;
-          RTTime := Ticks - picmp^.icmp_dun.ts.otime;
-        end
-      else
-        begin
-          // not an echo reply: the original IP frame is contained withing the DATA section of the packet
-          pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
-          // move to offset
-          pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
-          // extract information from original ICMP frame
-          ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
-          RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
-          result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
-        end;
-    end;    // case
-
-    if result then
-    begin
-      with AReplyStatus do begin
-        BytesReceived := BytesRead;
-        FromIpAddress := GBSDStack.TranslateTInAddrToString(pip^.ip_src, Binding.IPVersion);
-        MsgType := picmp^.icmp_type;
-        SequenceId := ActualSeqID;
-        MsRoundTripTime := RTTime;
-        TimeToLive := pip^.ip_ttl;
-      end;
-    end;
-  end;
-end;  }
-
-procedure TIdIcmpClient.GetEchoReply;
+procedure TIdCustomIcmpClient.GetEchoReply;
 begin
   FReplyStatus := Receive(FReceiveTimeout);
 end;
 
-procedure TIdIcmpClient.Ping(ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
+procedure TIdCustomIcmpClient.InternalPing(const ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
 var
   RTTime: Cardinal;
 begin
@@ -345,7 +261,7 @@ begin
   Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
 end;
 
-function TIdIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
+function TIdCustomIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
 var
   BytesRead : Integer;
   StartTime: Cardinal;
@@ -375,32 +291,34 @@ begin
   until ATimeOut <= 0;
 end;
 
-procedure TIdIcmpClient.DoReply(const AReplyStatus: TReplyStatus);
+procedure TIdCustomIcmpClient.DoReply(const AReplyStatus: TReplyStatus);
 begin
   if Assigned(FOnReply) then begin
     FOnReply(Self, AReplyStatus);
   end;
 end;
 
-procedure TIdIcmpClient.InitComponent;
+procedure TIdCustomIcmpClient.InitComponent;
 begin
   inherited;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
+  {$IFNDEF DOTNET}
   ProtocolIPv6 := Id_IPPROTO_ICMPv6;
+  {$ENDIF}
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
   FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
   SetLength(FbufReceive,MAX_PACKET_SIZE+Id_IP_HSIZE);
   SetLength(FbufIcmp,MAX_PACKET_SIZE);
 end;
 
-destructor TIdIcmpClient.Destroy;
+destructor TIdCustomIcmpClient.Destroy;
 begin
   Sys.FreeAndNil(FReplyStatus);
   inherited;
 end;
 
-function TIdIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal;
+function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal;
   var AReplyStatus: TReplyStatus): boolean;
 var LIPHeaderLen:Cardinal;
   RTTime: Cardinal;
@@ -485,7 +403,7 @@ begin
     end;
 end;
 
-procedure TIdIcmpClient.PrepareEchoRequestIPv4(Buffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(Buffer: String);
 begin
   iDataSize := DEF_PACKET_SIZE + 8;
   FillBytes(FbufIcmp, iDataSize, 0);
@@ -503,40 +421,12 @@ begin
   IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,8);
   //data
   IdGlobal.CopyTIdString(Buffer,FBufIcmp,12);
-  //now do the checksum
-  IdGlobal.CopyTIdWord(CalcCheckSum,FBufIcmp,2);
-{  pih := PIdIcmpHdr(@FbufIcmp[0]);
-  with pih^ do
-  begin
-    icmp_type := Id_ICMP_ECHO;
-    icmp_code := 0;
-    icmp_hun.echo.id := word(CurrentProcessId);
-    icmp_hun.echo.seq := wSeqNo;
-    icmp_dun.ts.otime := Ticks;
-    i := Succ(sizeof(TIdIcmpHdr));
-    // SG 19/12/01: Changed the fill algoritm
-    BufferPos := 1;
-    while (i <= iDataSize) do
-    begin
-      // SG 19/12/01: Build the reply buffer
-      if BufferPos <= Length(Buffer) then
-      begin
-        FbufIcmp[i] := Byte(Buffer[BufferPos]);
-        inc(BufferPos);
-      end
-      else
-      begin
-        FbufIcmp[i] := Byte('E');    {Do not Localize}
-{      end;
-      Inc(i);
-    end;
-    icmp_sum := CalcCheckSum;
-  end;     }
-  // SG 25/1/02: Retarded wSeqNo increment to be able to check it against the response
+  //the checksum is done in a send override
 
 end;
 
-procedure TIdIcmpClient.PrepareEchoRequestIPv6(Buffer: String);
+{$IFNDEF DOTNET}
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(Buffer: String);
 var LIPv6 : TIdicmp6_hdr;
   LIdx : Integer;
 
@@ -560,7 +450,7 @@ begin
   end;
 end;
 
-function TIdIcmpClient.DecodeIPv6Packet(BytesRead: Cardinal;
+function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: Cardinal;
   var AReplyStatus: TReplyStatus): boolean;
 var
  LIdx : Integer;
@@ -622,7 +512,8 @@ begin
   end;
 end;
 
-procedure TIdIcmpClient.Send(AHost: string; const APort: integer;
+{$ENDIF}
+procedure TIdCustomIcmpClient.Send(AHost: string; const APort: integer;
   const ABuffer: TIdBytes);
 var LBuffer : TIdBytes;
 begin
@@ -630,6 +521,13 @@ begin
   AHost := GStack.ResolveHost(AHost,IPVersion);
   GStack.WriteChecksum(Binding.Handle,LBuffer,2,AHost,APort,FIPVersion);
   FBinding.SendTo(AHost, APort, ABuffer,IPVersion);
+end;
+
+{ TIdIcmpClient }
+
+procedure TIdIcmpClient.Ping(const ABuffer: String; SequenceID: word);
+begin
+  InternalPing(ABuffer,SequenceID);
 end;
 
 end.

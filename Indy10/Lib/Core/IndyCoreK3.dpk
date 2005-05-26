@@ -70,6 +70,7 @@ contains
   IdSimpleServer in 'IdSimpleServer.pas',
   IdSocketHandle in 'IdSocketHandle.pas',
   IdSocks in 'IdSocks.pas',
+  IdStruct in 'IdStruct.pas',
   IdSync in 'IdSync.pas',
   IdTCPClient in 'IdTCPClient.pas',
   IdTCPConnection in 'IdTCPConnection.pas',
