@@ -443,8 +443,7 @@ begin
     IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,LIdx);
     Inc(LIdx,4);
     CopyTIdString(Buffer,FBufIcmp,LIdx,Length(Buffer));
-    Inc(LIdx,Length(Buffer));
-    LIPv6.icmp6_cksum := GStack.HostToNetwork( CalcCheckSum);
+    
   finally
     Sys.FreeAndNil(LIPv6);
   end;
