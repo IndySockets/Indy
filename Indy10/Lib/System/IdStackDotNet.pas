@@ -256,7 +256,7 @@ type
       AOffset: Integer = 0;
       ASize: Integer = -1
       ): Integer; override;
-
+    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
              var VIP: string; var VPort: Integer;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
@@ -895,6 +895,12 @@ in its enumerations.
 }
     Todo;
   end;
+
+end;
+
+function TIdStackDotNet.IOControl(const s: TIdStackSocketHandle;
+  const cmd: cardinal; var arg: cardinal): Integer;
+begin
 
 end;
 
