@@ -347,6 +347,7 @@ type
     procedure Setts_rtime(const Value: TIdNetTime);
     procedure Setts_ttime(const Value: TIdNetTime);
   public
+     constructor create; override;
     property ts_otime: TIdNetTime read Getts_otime write Setts_otime;        // time message was sent, to calc roundtrip time
     property ts_rtime: TIdNetTime read Getts_rtime write Setts_rtime;
     property ts_ttime: TIdNetTime read Getts_ttime write Setts_ttime;
@@ -1086,6 +1087,13 @@ begin
   FBuffer[0] := Value;
 end;
 
+constructor TIdicmp_dun.create;
+begin
+  inherited;
+  FBytesLen := 4;
+  SetLength(FBuffer,FBytesLen);
+end;
+
 { TIdICMPHdr }
 
 constructor TIdICMPHdr.create;
@@ -1223,7 +1231,7 @@ begin
   Fip_src.ReadStruct(ABytes,VIndex);     // source address
   Fip_dst.ReadStruct(ABytes,VIndex);       // dest address
 
-  Fip_options:= BytesToCardinal(ABytes,VIndex);  // options + padding
+  Fip_options:=  BytesToCardinal(ABytes,VIndex);  // options + padding
   Inc(VIndex,4);
 end;
 

@@ -333,11 +333,12 @@ begin
     LIcmp := TIdICMPHdr.Create;
     try
 
-      LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
+    //  LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
       if (BytesRead < LIpHeaderLen + ICMP_MIN) then begin
         raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
       end;
       LIPv4.ReadStruct(FBufReceive, LIdx);
+                         LIpHeaderLen := (LIPv4.ip_verlen and $0F)*4;
       LIdx := LIpHeaderLen;
       LIcmp.ReadStruct(FBufReceive, LIdx);
     {$IFDEF LINUX}
