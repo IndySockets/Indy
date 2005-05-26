@@ -109,8 +109,8 @@ end;
 
 function TIdAttachmentFile.PrepareTempStream: TIdStream2;
 begin
-  if Assigned(Collection) then
-    FStoredPathName := MakeTempFilename((TIdMessageParts(Collection).OwnerMessage as TIdMessage).AttachmentTempDirectory)
+  if Assigned(Collection) and (TIdMessageParts(Collection).OwnerMessage is TIdMessage) then
+    FStoredPathName := MakeTempFilename(TIdMessage(TIdMessageParts(Collection).OwnerMessage).AttachmentTempDirectory)
   else
     FStoredPathName := MakeTempFilename();
   FTempFileStream := TIdFilestream.Create(FStoredPathName, fmCreate);
