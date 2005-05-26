@@ -3003,7 +3003,7 @@ end;
 
 function TIdBaseStream.Seek(AOffset: Longint; AOrigin: Word): Longint;
 begin
-  result := IdSeek(AOffset, AOrigin);
+  result := IdSeek(AOffset, TIdSeekOrigin(AOrigin));
 end;
 {$ENDIF}
 
