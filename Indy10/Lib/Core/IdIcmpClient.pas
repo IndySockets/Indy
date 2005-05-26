@@ -146,7 +146,8 @@ type
     property ReplyData: string read FReplydata;
   public
     destructor Destroy; override;
-    procedure Send(AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
+    procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
+    procedure Send(const ABuffer : TIdBytes); override;
     function Receive(ATimeOut: Integer): TReplyStatus;
 
   end;
@@ -333,14 +334,13 @@ begin
     LIcmp := TIdICMPHdr.Create;
     try
 
-    //  LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
+      LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
       if (BytesRead < LIpHeaderLen + ICMP_MIN) then begin
         raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
       end;
       LIPv4.ReadStruct(FBufReceive, LIdx);
-                         LIpHeaderLen := (LIPv4.ip_verlen and $0F)*4;
       LIdx := LIpHeaderLen;
-      LIcmp.ReadStruct(FBufReceive, LIdx);
+
     {$IFDEF LINUX}
     // TODO: baffled as to why linux kernel sends back echo from localhost
     {$ENDIF}
@@ -513,14 +513,34 @@ begin
 end;
 
 {$ENDIF}
-procedure TIdCustomIcmpClient.Send(AHost: string; const APort: integer;
+procedure TIdCustomIcmpClient.Send(const AHost: string; const APort: integer;
   const ABuffer: TIdBytes);
 var LBuffer : TIdBytes;
+  LIP : String;
 begin
   LBuffer := ABuffer;
-  AHost := GStack.ResolveHost(AHost,IPVersion);
-  GStack.WriteChecksum(Binding.Handle,LBuffer,2,AHost,APort,FIPVersion);
-  FBinding.SendTo(AHost, APort, ABuffer,IPVersion);
+  LIP := GStack.ResolveHost(AHost,IPVersion);
+  GStack.WriteChecksum(Binding.Handle,LBuffer,2,LIP,APort,FIPVersion);
+  FBinding.SendTo(LIP, APort, ABuffer,IPVersion);
+end;
+
+procedure TIdCustomIcmpClient.Send(const ABuffer: TIdBytes);
+var LBuffer : TIdBytes;
+  LIP : String;
+begin
+  LBuffer := ABuffer;
+  if Connected then
+  begin
+    GStack.WriteChecksum(Binding.Handle,LBuffer,2,Binding.PeerIP,0,FIPVersion);
+    FBinding.Send(LBuffer,0,-1);
+  end
+  else
+  begin
+     LIP := GStack.ResolveHost(Host,IPVersion);
+    GStack.WriteChecksum(Binding.Handle,LBuffer,2,LIP,Port,FIPVersion);
+    FBinding.SendTo(LIP, Port, LBuffer,IPVersion);
+  end;
+
 end;
 
 { TIdIcmpClient }
