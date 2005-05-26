@@ -46,6 +46,7 @@ contains
   IdStreamVCL in 'IdStreamVCL.pas',
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
+  IdStruct in 'IdStruct.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
   IdSysNativeVCL in 'IdSysNativeVCL.pas',
