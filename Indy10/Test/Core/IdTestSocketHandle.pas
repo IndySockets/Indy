@@ -1,10 +1,5 @@
 unit IdTestSocketHandle;
 
-//exposes a bug
-
-//function TIdStackWindows.WSGetServByPort(
-//bug returns invalid result
-
 interface
 
 uses
