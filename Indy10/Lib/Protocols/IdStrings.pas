@@ -47,8 +47,7 @@ unit IdStrings;
 interface
 
 uses
-  IdSys,
-  Classes;
+  IdSys;
 
 {
   2000-03-27  Pete Mee
