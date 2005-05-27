@@ -581,6 +581,7 @@ Indy10/Lib/System/IndySystem90Net.bdsproj -text
 Indy10/Lib/System/IndySystem90Net.dpk -text
 Indy10/Lib/System/IndySystemK3.dpk -text
 Indy10/NUnit/Sys.cs -text
+Indy10/Test/IdRegisterTests.pas -text
 Indy10/Test/Protocols/IdTestCoderHeader.pas -text
 Indy10/Test/TestDUnit/IdTest.pas -text
 Indy10/Test/TestDUnit/IndyDUnit.dpr -text
