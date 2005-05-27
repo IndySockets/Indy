@@ -587,6 +587,7 @@ Indy10/Test/ReadMe.txt -text svneol=native#unset
 Indy10/Test/TestDUnit/IdTest.pas -text
 Indy10/Test/TestDUnit/IndyDUnit.dpr -text
 Indy10/Test/TestDUnit/IndyDUnit.res -text svneol=unset#unset
+Indy10/Test/TestExample/IdTest.pas -text
 Indy10/icon16/Blank.bmp -text svneol=unset#unset
 Indy10/icon16/BlankServer.bmp -text svneol=unset#unset
 Indy10/icon16/IdCoreRegister.rc -text
