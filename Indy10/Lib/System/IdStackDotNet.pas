@@ -900,8 +900,13 @@ end;
 
 function TIdStackDotNet.IOControl(const s: TIdStackSocketHandle;
   const cmd: cardinal; var arg: cardinal): Integer;
-begin
+var LTmp : TIdBytes;
 
+begin
+  LTmp := ToBytes(arg);
+  s.IOControl(cmd, ToBytes(arg), LTmp);
+  arg := BytesToCardinal(LTmp);
+  Result := 0;
 end;
 
 initialization
