@@ -589,6 +589,7 @@ Indy10/Test/Core/IdTestThreadComponent.pas -text
 Indy10/Test/IdRegisterTests.pas -text
 Indy10/Test/Protocols/IdTestCoderHeader.pas -text
 Indy10/Test/Protocols/IdTestMessageCoderMime.pas -text
+Indy10/Test/Protocols/IdTestSMTPServer.pas -text
 Indy10/Test/ReadMe.txt -text svneol=native#unset
 Indy10/Test/System/IdTestSys.pas -text
 Indy10/Test/TestDUnit/IdTest.pas -text
