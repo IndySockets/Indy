@@ -4,6 +4,7 @@ interface
 
 uses
   //core
+  IdTestCmdTCPClient,
   IdTestSchedulerOfThreadPool,
   IdTestSocketHandle,
   IdTestThreadComponent,
