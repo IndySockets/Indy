@@ -160,6 +160,7 @@ Indy10/Lib/Core/IdTask.pas -text
 Indy10/Lib/Core/IdThread.pas -text
 Indy10/Lib/Core/IdThreadComponent.pas -text
 Indy10/Lib/Core/IdThreadSafe.pas -text
+Indy10/Lib/Core/IdTraceRoute.pas -text
 Indy10/Lib/Core/IdUDPBase.pas -text
 Indy10/Lib/Core/IdUDPClient.pas -text
 Indy10/Lib/Core/IdUDPServer.pas -text
