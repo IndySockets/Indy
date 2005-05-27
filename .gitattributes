@@ -581,6 +581,10 @@ Indy10/Lib/System/IndySystem90Net.bdsproj -text
 Indy10/Lib/System/IndySystem90Net.dpk -text
 Indy10/Lib/System/IndySystemK3.dpk -text
 Indy10/NUnit/Sys.cs -text
+Indy10/Test/Protocols/IdTestCoderHeader.pas -text
+Indy10/Test/TestDUnit/IdTest.pas -text
+Indy10/Test/TestDUnit/IndyDUnit.dpr -text
+Indy10/Test/TestDUnit/IndyDUnit.res -text svneol=unset#unset
 Indy10/icon16/Blank.bmp -text svneol=unset#unset
 Indy10/icon16/BlankServer.bmp -text svneol=unset#unset
 Indy10/icon16/IdCoreRegister.rc -text
