@@ -5,16 +5,14 @@ interface
 uses
   //core
   IdTestThreadComponent,
+  IdTestSocketHandle,
 
   //protocols
   IdTestCoderHeader,
 
   //system
-  IdTestSys,
+  IdTestSys;
 
-  //final item, just to use the semicolon
-  IdTest;
-  
 implementation
 
 end.
