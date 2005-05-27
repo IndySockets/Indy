@@ -4,6 +4,7 @@ interface
 
 uses
   //core
+  IdTestThreadComponent,
 
   //protocols
   IdTestCoderHeader,
