@@ -85,7 +85,7 @@ type
   TReplyStatusTypes = (rsEcho,
     rsError, rsTimeOut, rsErrorUnreachable,
     rsErrorTTLExceeded,rsErrorPacketTooBig,
-    rsErrorParameter);
+    rsErrorParameter,rsRedirect);
 
   TReplyStatus = class(TObject)
   protected
@@ -99,7 +99,13 @@ type
     FMsRoundTripTime: longword; // ping round trip time in milliseconds
     FTimeToLive: byte;       // time to live
     FReplyStatusType: TReplyStatusTypes;
+    FPacketNumber : Integer;//number in packet for TraceRoute
+    FHostName : String; //Hostname of computer that replied, used with TraceRoute
+    FMsg : String;
+    FRedirectTo : String; // valid only for rsRedirect
   public
+    property RedirectTo : String read FRedirectTo write FRedirectTo;
+    property Msg : String read FMsg write FMsg;
     property BytesReceived: integer read FBytesReceived write FBytesReceived; // number of bytes in reply from host
     property FromIpAddress: string read FFromIpAddress write FFromIpAddress;  // IP address of replying host
     property ToIpAddress : string read FToIpAddress write FToIpAddress;   //who receives it (i.e., us.  This is for multihorned machines
@@ -110,11 +116,16 @@ type
     property MsRoundTripTime: longword read FMsRoundTripTime write FMsRoundTripTime; // ping round trip time in milliseconds
     property TimeToLive: byte read FTimeToLive write FTimeToLive;       // time to live
     property ReplyStatusType: TReplyStatusTypes read FReplyStatusType write FReplyStatusType;
+    property HostName : String read FHostName write FHostName;
+    property PacketNumber : Integer read FPacketNumber write FPacketNumber;
   end;
 
   TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
   TIdCustomIcmpClient = class(TIdRawClient)
+  private
+    function GetPacketSize: Integer;
+    procedure SetPacketSize(const Value: Integer);
   protected
     FbufReceive: TIdBytes;
     FbufIcmp: TIdBytes;
@@ -130,7 +141,7 @@ type
     function DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
 
     function DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
-    procedure DoReply(const AReplyStatus: TReplyStatus);
+    procedure DoReply(const AReplyStatus: TReplyStatus); virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
     {$IFNDEF DOTNET}
@@ -144,6 +155,7 @@ type
     //
     property ReplyStatus: TReplyStatus read FReplyStatus;
     property ReplyData: string read FReplydata;
+    property PacketSize : Integer read GetPacketSize write SetPacketSize;
   public
     destructor Destroy; override;
     procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
@@ -158,6 +170,7 @@ type
     {$IFNDEF DOTNET}
     property IPVersion;
     {$ENDIF}
+    property PacketSize;
     property ReceiveTimeout default Id_TIDICMP_ReceiveTimeout;
     property Host;
     property OnReply: TOnReplyEvent read FOnReply write FOnReply;
@@ -169,6 +182,26 @@ uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack;
 
+resourcestring
+//Destination Address -3
+  RSICMPNetUnreachable  = 'net unreachable;';
+  RSICMPHostUnreachable = 'host unreachable;';
+  RSICMPProtUnreachable = 'protocol unreachable;';
+
+// Destination Address - 11
+  RSICMPTTLExceeded     = 'time to live exceeded in transit';
+  RSICMPFragAsmExceeded = 'fragment reassembly time exceeded.';
+//Parameter Problem - 12
+  RSICMPParamError      = 'Parameter Problem (offset %d)';
+//Source Quench Message -4
+  RSICMPSourceQuenchMsg = 'Source Quench Message';
+//Redirect Message
+  RSICMPRedirNet =        'Redirect datagrams for the Network.';
+  RSICMPRedirHost =       'Redirect datagrams for the Host.';
+  RSICMPRedirTOSNet =     'Redirect datagrams for the Type of Service and Network.';
+  RSICMPRedirTOSHost =    'Redirect datagrams for the Type of Service and Host.';
+//echo
+  RSICMPEcho = 'Echo';
 { TIdCustomIcmpClient }
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
@@ -188,9 +221,8 @@ begin
 end;
 
 procedure TIdCustomIcmpClient.SendEchoRequest;
-begin
-                  
-  Send(Host, Port, FbufIcmp);
+begin                  
+  Send(FbufIcmp);
 end;
 
 function TIdCustomIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
@@ -256,7 +288,10 @@ begin
   SendEchoRequest;
   GetEchoReply;
   RTTime := GetTickDiff(RTTime, Ticks);
-  Binding.CloseSocket;
+  if not Connected then
+  begin
+    Binding.CloseSocket;
+  end;
   FReplyStatus.MsRoundTripTime := RTTime;
   DoReply(FReplyStatus);
   Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
@@ -309,8 +344,7 @@ begin
   {$ENDIF}
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
   FReceiveTimeOut := Id_TIDICMP_ReceiveTimeout;
-  SetLength(FbufReceive,MAX_PACKET_SIZE+Id_IP_HSIZE);
-  SetLength(FbufIcmp,MAX_PACKET_SIZE);
+  PacketSize := MAX_PACKET_SIZE;
 end;
 
 destructor TIdCustomIcmpClient.Destroy;
@@ -357,6 +391,10 @@ begin
           AReplyStatus.ReplyStatusType := rsErrorUnreachable;
         Id_ICMP_TIMXCEED:
           AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
+        Id_ICMP_PARAMPROB :
+           AReplyStatus.ReplyStatusType := rsErrorParameter;
+        Id_ICMP_REDIRECT :
+          AReplyStatus.ReplyStatusType := rsRedirect;
         else
           raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
       end;    // case
@@ -375,6 +413,7 @@ begin
            LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
            RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8+8); //pOriginalICMP^.icmp_dun.ts.otime;
            result :=  LActualSeqID = wSeqNo;
+
           // move to offset
       //    pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
           // extract information from original ICMP frame
@@ -396,6 +435,43 @@ begin
           MsRoundTripTime := RTTime;
           TimeToLive := FBufReceive[8];
     //    TimeToLive := pip^.ip_ttl;
+    //now process our message stuff
+
+      case AReplyStatus.FMsgType of
+        Id_ICMP_UNREACH:
+        begin
+          case                 AReplyStatus.FMsgCode of
+            0 :AReplyStatus.Msg := RSICMPNetUnreachable;
+            1 :AReplyStatus.Msg := RSICMPHostUnreachable;
+            2 :AReplyStatus.Msg := RSICMPProtUnreachable;
+          end;
+        end;
+        Id_ICMP_TIMXCEED:
+        begin
+          case AReplyStatus.MsgCode of
+          0 : AReplyStatus.Msg :=  RSICMPTTLExceeded;
+          1 : AReplyStatus.Msg :=  RSICMPFragAsmExceeded;
+          end;
+        end;
+        Id_ICMP_PARAMPROB:
+        begin
+          AReplyStatus.Msg := Sys.Format(RSICMPParamError,[ReplyStatus.MsgCode]);
+        end;
+        Id_ICMP_REDIRECT :
+        begin
+          AReplyStatus.RedirectTo := MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( LIcmp.icmp_hun.gateway_s_l));
+          case AReplyStatus.MsgCode of
+            0 :  AReplyStatus.Msg :=  RSICMPRedirNet;
+            1 :  AReplyStatus.Msg := RSICMPRedirHost;
+            2 :  AReplyStatus.Msg :=  RSICMPRedirTOSNet;
+            3 :  AReplyStatus.Msg :=  RSICMPRedirTOSHost;
+          end;
+        end;
+        Id_ICMP_ECHOREPLY, Id_ICMP_ECHO :
+        begin
+          AReplyStatus.Msg := RSICMPEcho;
+        end;
+      end;
         end;
       end;
     finally
@@ -497,7 +573,7 @@ begin
     RTTime := Ticks - BytesToCardinal(FBufReceive, LIdx);
     if result then
     begin
-                          
+
       AReplyStatus.BytesReceived := BytesRead;
       AReplyStatus.SequenceId := LActualSeqID;
       AReplyStatus.MsRoundTripTime := RTTime;
@@ -541,6 +617,17 @@ begin
     FBinding.SendTo(LIP, Port, LBuffer,IPVersion);
   end;
 
+end;
+
+function TIdCustomIcmpClient.GetPacketSize: Integer;
+begin
+  Result := Length(FBufIcmp);
+end;
+
+procedure TIdCustomIcmpClient.SetPacketSize(const Value: Integer);
+begin
+  SetLength(FbufReceive,Value+Id_IP_HSIZE);
+  SetLength(FbufIcmp,Value);
 end;
 
 { TIdIcmpClient }
