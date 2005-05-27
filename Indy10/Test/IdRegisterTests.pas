@@ -4,11 +4,12 @@ interface
 
 uses
   //core
-  IdTestThreadComponent,
   IdTestSocketHandle,
+  IdTestThreadComponent,
 
   //protocols
   IdTestCoderHeader,
+  IdTestMessageCoderMime,
 
   //system
   IdTestSys;
