@@ -10,9 +10,9 @@ type
 
   TIdTestSys = class(TIdTest)
   published
-    procedure btTestStrToInt64;
-    procedure btTestFormat;
-    procedure btTestStringReplace;
+    procedure TestStrToInt64;
+    procedure TestFormat;
+    procedure TestStringReplace;
   end;
 
 implementation
@@ -21,7 +21,7 @@ const
  cLargeStr='6000000000';
  cLargeNum=6000000000;
 
-procedure TIdTestSys.btTestFormat;
+procedure TIdTestSys.TestFormat;
 var
  s:string;
 begin
@@ -29,7 +29,7 @@ begin
  assert(s=clargestr);
 end;
 
-procedure TIdTestSys.btTestStringReplace;
+procedure TIdTestSys.TestStringReplace;
 var
  s:string;
 begin
@@ -37,7 +37,7 @@ begin
  Assert(s='ab',s);
 end;
 
-procedure TIdTestSys.btTestStrToInt64;
+procedure TIdTestSys.TestStrToInt64;
 const
  cBadNumStr='abc';
  cDef=123;
