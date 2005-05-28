@@ -466,6 +466,9 @@ implementation
 
 uses
   IdResourceStringsCore,
+{$IFNDEF DotNetDistro}
+  IdStreamVCL,
+{$ENDIF}
   IdStack; //needed for byte order functions
 
 
@@ -670,6 +673,9 @@ procedure TIdBuffer.Write(
 var
   LAdded: Integer;
   LLength: Integer;
+{$IFNDEF DotNetDistro}
+  LStrm : TIdStreamVCL;
+{$ENDIF}
 begin
   if AByteCount = -1 then begin
     // Copy remaining
@@ -686,7 +692,16 @@ begin
     CheckAdd(LAdded,0);
     CompactHead;
     SetLength(FBytes, LLength + LAdded);
+    {$IFDEF DotNetDistro}
     AStream.Read(FBytes, LAdded, LLength);
+    {$ELSE}
+    LStrm := TIdStreamVCL.Create(AStream);
+    try
+      LStrm.ReadBytes(FBytes,LAdded,LLength);
+    finally
+      Sys.FreeAndNil(LStrm);
+    end;
+    {$ENDIF}
     Inc(FSize, LAdded);
   end;
 end;

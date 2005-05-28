@@ -780,6 +780,9 @@ type
 implementation
 
 uses
+  {$IFNDEF DotNetDistro}
+  IdStreamVCL,
+  {$ENDIF}
   IdStack, IdResourceStrings;
 
 var
@@ -1192,6 +1195,9 @@ procedure TIdIOHandler.Write(AStream: TIdStream2; ASize: Int64 = 0;
 var
   LBuffer: TIdBytes;
   LBufSize: Integer;
+{$IFNDEF DotNetDistro}
+  LStrm : TIdStreamVCL;
+{$ENDIF}
 begin
   if ASize < 0 then begin //"-1" All form current position
     LBufSize := AStream.Position;
@@ -1221,7 +1227,16 @@ begin
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
+       {$IFDEF DotNetDistro}
       LBufSize := AStream.Read(LBuffer, LBufSize, 0);
+      {$ELSE}
+      LStrm := TIdStreamVCL.Create(AStream);
+      try
+        LStrm.ReadBytes(LBuffer, LBufSize, 0);
+      finally
+        Sys.FreeAndNil(LStrm);
+      end;
+      {$ENDIF}
       if LBufSize = 0 then begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
