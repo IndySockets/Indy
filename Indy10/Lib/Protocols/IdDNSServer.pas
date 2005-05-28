@@ -1630,7 +1630,7 @@ var
                                 0 : begin
                                                LLRR_AAAA := TIdRR_AAAA.Create;
                                                LLRR_AAAA.RRName := SingleHostName;
-                                               LLRR_AAAA.Address := ConvertToVaildv6IP(EachLinePart.Strings[TagField + 1]);
+                                               LLRR_AAAA.Address := ConvertToValidv6IP(EachLinePart.Strings[TagField + 1]);
                                                LLRR_AAAA.TTL := LastTTL;
 
                                                UpdateTree(TreeRoot, LLRR_AAAA);

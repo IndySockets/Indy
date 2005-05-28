@@ -589,7 +589,7 @@ function DomainNameToDNSStr(ADomain : String): TIdBytes;
 function NormalStrToDNSStr(Str : String): TIdBytes;
 function IPAddrToDNSStr(IPAddress : String): TIdBytes;
 function IsValidIPv6(v6Address : String): boolean;
-function ConvertToVaildv6IP(OrgIP : String) : string;
+function ConvertToValidv6IP(OrgIP : String) : string;
 function ConvertToCanonical6IP(OrgIP : String) : string;
 function IPv6AAAAToDNSStr(const AIPv6Address : String): TIdBytes;
 function GetErrorStr(Code, Id :Integer): String;
@@ -823,7 +823,7 @@ begin
   end;
 end;
 
-function ConvertToVaildv6IP(OrgIP : String) : string;
+function ConvertToValidv6IP(OrgIP : String) : string;
 var
    All, Apart : string;
    Temps : TIdStrings;
@@ -872,7 +872,7 @@ var
   All, Apart: string;
 begin
   {Supposed OrgIp is valid IPV6 string}
-  All := ConvertToVaildv6IP(OrgIp);
+  All := ConvertToValidv6IP(OrgIp);
   Result := '';                      {do not localize}
   repeat
     Apart := Sys.Trim(Fetch(All, ':'));  {do not localize}
