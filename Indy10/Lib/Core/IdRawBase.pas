@@ -82,7 +82,6 @@ we don't want to impact anything else such as TIdICMPClient.
 }
 {$I IdCompilerDefines.inc}
 uses
-  Classes,
   IdComponent, IdGlobal, IdSocketHandle, IdStack,
   {$IFDEF MSWINDOWS}
   IdWship6,

@@ -134,8 +134,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdTCPConnection,
-  SysUtils;
+  IdGlobal, IdTCPConnection;
 
 { TIdCustomTime }
 

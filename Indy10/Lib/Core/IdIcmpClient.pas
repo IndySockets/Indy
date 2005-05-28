@@ -67,11 +67,11 @@ consider revisiting this.
 interface
 
 uses
-  Classes,
   IdGlobal,
   IdRawBase,
   IdRawClient,
   IdStackConsts,
+  IdBaseComponent,
   IdSys;
 
 const
@@ -120,7 +120,7 @@ type
     property PacketNumber : Integer read FPacketNumber write FPacketNumber;
   end;
 
-  TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
+  TOnReplyEvent = procedure(ASender: TIdNativeComponent; const AReplyStatus: TReplyStatus) of object;
 
   TIdCustomIcmpClient = class(TIdRawClient)
   protected

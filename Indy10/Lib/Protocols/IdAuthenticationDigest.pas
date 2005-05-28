@@ -49,7 +49,6 @@ unit IdAuthenticationDigest;
 interface
 
 Uses
-  Classes,
   IdAuthentication,
   IdException,
   IdGlobal,
@@ -61,7 +60,7 @@ Uses
 Type
   EIdInvalidAlgorithm = class(EIdException);
 
-  TIdDigestAuthentication = class(TIDAuthentication)
+  TIdDigestAuthentication = class(TIdAuthentication)
   protected
     FRealm: String;
     FStale: Boolean;
