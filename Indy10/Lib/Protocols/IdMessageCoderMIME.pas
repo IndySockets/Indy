@@ -192,7 +192,7 @@ uses
   IdMessage,
   IdStream,
   IdStreamRandomAccess,
-  IdSys;
+  IdSys, IdBaseComponent;
 
 type
   TIdMessageDecoderMIME = class(TIdMessageDecoder)
@@ -201,8 +201,8 @@ type
     FBodyEncoded: Boolean;
     FMIMEBoundary: string;
     function GetProperHeaderItem(const Line: string): string;
+    procedure InitComponent; override;
   public
-    constructor Create(AOwner: TComponent); reintroduce; overload;
     constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
     function ReadBody(ADestStream: TIdStream;
       var VMsgEnd: Boolean): TIdMessageDecoder; override;
@@ -356,33 +356,7 @@ end;
 
 { TIdCoderMIME }
 
-constructor TIdMessageDecoderMIME.Create(AOwner: TComponent);
-begin
-  inherited;
-  FBodyEncoded := False;
-  if AOwner is TIdMessage then begin
-    FMIMEBoundary := TIdMessage(AOwner).MIMEBoundary.Boundary;
-    {CC2: Check to see if this is an email of the type that is headers followed
-    by the body encoded in base64 or quoted-printable.  The problem with this type
-    is that the header may state it as MIME, but the MIME parts and their headers
-    will be encoded, so we won't find them - in this case, we will later take
-    all the info we need from the message header, and not try to take it from
-    the part header.}
-    if (TIdMessage(AOwner).ContentTransferEncoding <> '') and
-      {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
-      set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
-      the part header in plain-text.}
-      (not TextIsSame(TIdMessage(AOwner).ContentTransferEncoding, '8bit')) and  {do not localize}
-      (not TextIsSame(TIdMessage(AOwner).ContentTransferEncoding, '7bit')) and  {do not localize}
-      (not TextIsSame(TIdMessage(AOwner).ContentTransferEncoding, 'binary'))    {do not localize}
-      then
-    begin
-      FBodyEncoded := True;
-    end;
-  end;
-end;
-
-constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
+constructor TIdMessageDecoderMIME.Create(AOwner: TIdNativeComponent; const ALine: string);
 begin
   Create(AOwner);
   FFirstLine := ALine;
@@ -730,6 +704,32 @@ begin
       ADest.Write(s);
     end;
   finally Sys.FreeAndNil(LEncoder); end;
+end;
+
+procedure TIdMessageDecoderMIME.InitComponent;
+begin
+  inherited;
+  FBodyEncoded := False;
+  if Owner is TIdMessage then begin
+    FMIMEBoundary := TIdMessage(Owner).MIMEBoundary.Boundary;
+    {CC2: Check to see if this is an email of the type that is headers followed
+    by the body encoded in base64 or quoted-printable.  The problem with this type
+    is that the header may state it as MIME, but the MIME parts and their headers
+    will be encoded, so we won't find them - in this case, we will later take
+    all the info we need from the message header, and not try to take it from
+    the part header.}
+    if (TIdMessage(Owner).ContentTransferEncoding <> '') and
+      {CC2: added 8bit below, changed to TextIsSame.  Reason is that many emails
+      set the Content-Transfer-Encoding to 8bit, have multiple parts, and display
+      the part header in plain-text.}
+      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, '8bit')) and  {do not localize}
+      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, '7bit')) and  {do not localize}
+      (not TextIsSame(TIdMessage(Owner).ContentTransferEncoding, 'binary'))    {do not localize}
+      then
+    begin
+      FBodyEncoded := True;
+    end;
+  end;
 end;
 
 initialization

@@ -661,10 +661,10 @@ uses
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
-  {$IFNDEF DotNetExclude}
+  {$IFNDEF DotNetDistro} // was DotNetExclude
   SyncObjs,
-  {$ENDIF}
   Classes,
+  {$ENDIF}
   IdException,
   IdSys, IdObjs;
 
@@ -831,7 +831,11 @@ type
   {$ENDIF}
   {$IFDEF DotNet}
   TIdPID = LongWord;
+  {$IFDEF DotNetDistro}
+  TIdThreadPriority = ThreadPriority;
+  {$ELSE}
   TIdThreadPriority = TThreadPriority;
+  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF LINUX}
@@ -856,12 +860,12 @@ type
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
   {$IFNDEF VCL6ORABOVE}
-  TIdExtList=class(TList) // We use this hack-class, because TList has no .assign on Delphi 5.
+  TIdExtList=class(TIdList) // We use this hack-class, because TList has no .assign on Delphi 5.
   public                  // Do NOT add DataMembers to this class !!!
     procedure Assign(AList: TList);
   end;
   {$ELSE}
-  TIdExtList=class(TList);
+  TIdExtList=class(TIdList);
   {$ENDIF}
 
   {$IFNDEF DotNet}
@@ -1043,7 +1047,7 @@ function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetch
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
 function CurrentThreadId: TIdPID;
-function GetThreadHandle(AThread: TThread): THandle;
+function GetThreadHandle(AThread: TIdNativeThread): THandle;
 //GetTickDiff required because GetTickCount will wrap
 function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -1058,7 +1062,7 @@ function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
 procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream2; Count: int64);
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TThread): boolean;
+function IsCurrentThread(AThread: TIdNativeThread): boolean;
 {$ENDIF}
 function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
@@ -1088,7 +1092,7 @@ function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallIn
 function PosInStrArray(const SearchStr: string; Contents: array of string;
     const CaseSensitive: Boolean = True): Integer;
 function ServicesFilePath: string;
-procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure SetThreadPriority(AThread: TIdNativeThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
 procedure Sleep(ATime: cardinal);
 //in Integer(Strings.Objects[i]) - column position in AData
@@ -1574,7 +1578,7 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TThread): THandle;
+function GetThreadHandle(AThread: TIdNativeThread): THandle;
 begin
   {$IFDEF LINUX}
   Result := AThread.ThreadID;
@@ -1589,7 +1593,7 @@ end;
 
 {$IFDEF LINUX}
 function Ticks: Cardinal;
-var
+var                          
   tv: timeval;
 begin
   gettimeofday(tv, nil);
@@ -1762,7 +1766,7 @@ begin
 end;
 
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TThread): boolean;
+function IsCurrentThread(AThread: TIdNativeThread): boolean;
 begin
   Result := AThread.ThreadID = GetCurrentThreadID;
 end;
@@ -2299,7 +2303,7 @@ begin
 end;
 {$ENDIF}
 
-procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure SetThreadPriority(AThread: TIdNativeThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 begin
   {$IFDEF LINUX}
   // Linux only allows root to adjust thread priorities, so we just ingnore this call in Linux?

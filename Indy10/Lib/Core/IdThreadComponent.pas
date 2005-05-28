@@ -87,10 +87,10 @@ interface
 
 uses
   Classes,
-  IdBaseComponent, IdException, IdGlobal, IdSys, IdThread;
+  IdBaseComponent, IdException, IdGlobal, IdSys, IdThread, IdObjs;
 
 const
-  IdThreadComponentDefaultPriority = tpNormal;
+  IdThreadComponentDefaultPriority = tpIdNormal;
   IdThreadComponentDefaultStopMode = smTerminate;
 
 type

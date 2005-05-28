@@ -25,19 +25,15 @@ unit IdGlobalCore;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdGlobal;
 
 {$I IdCompilerDefines.inc}
 const
-  {$IFDEF MSWINDOWS}
-  tpListener = tpHighest;
-  {$ENDIF}
-  {$IFDEF DotNet}
-  tpListener = tpHighest;
-  {$ENDIF}
   {$IFDEF Linux}
-  tpListener = tpNormal;
+  tpListener = tpIdNormal;
+  {$ELSE}
+  tpListener = tpIdHighest;
   {$ENDIF}
 
 implementation

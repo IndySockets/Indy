@@ -156,7 +156,7 @@ interface
 
 uses
   Classes,
-  IdException, IdBaseComponent, IdGlobal, IdScheduler, IdSys,
+  IdException, IdBaseComponent, IdGlobal, IdScheduler, IdSys, IdObjs,
   IdThread, IdTask, IdYarn;
 
 type
@@ -203,7 +203,7 @@ type
     property ThreadPriority: TIdThreadPriority
       read FThreadPriority
       write FThreadPriority
-      default tpNormal;
+      default tpIdNormal;
   end;
 
 implementation
@@ -236,7 +236,7 @@ begin
    (FMaxThreads <> 0) and (ActiveYarns.IsCountLessThan(FMaxThreads + 1) = False)
    , RSchedMaxThreadEx);
   Result := TIdThreadWithTask.Create(nil, Sys.Format('%s User', [Name])); {do not localize}
-  if ThreadPriority <> tpNormal then begin
+  if ThreadPriority <> tpIdNormal then begin
     SetThreadPriority(Result, ThreadPriority);
   end;
 end;
@@ -270,7 +270,7 @@ end;
 procedure TIdSchedulerOfThread.InitComponent;
 begin
   inherited;
-  FThreadPriority := tpNormal;
+  FThreadPriority := tpIdNormal;
   FMaxThreads := 0;
 end;
 

@@ -161,7 +161,7 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdException, IdSys, IdYarn, IdTask, IdThreadSafe;
+  IdGlobal, IdException, IdSys, IdYarn, IdTask, IdThreadSafe, IdObjs;
 
 const
   IdWaitAllThreadsTerminatedCount = 1 * 60 * 1000;
@@ -179,7 +179,7 @@ type
 
   TIdThreadOptions = set of (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
 
-  TIdThread = class(TThread)
+  TIdThread = class(TIdNativeThread)
   protected
     FData: TObject;
     FLock: TIdCriticalSection;
@@ -442,7 +442,6 @@ destructor TIdThread.Destroy;
 begin
   FreeOnTerminate := False; //prevent destroy between Terminate & WaitFor
   Terminate;
-  inherited Destroy; //+WaitFor!
   try
     if itoReqCleanup in FOptions then begin
       Cleanup;
@@ -464,7 +463,8 @@ begin
       GThreadCount.Decrement;
     end;
   end;
-End;
+  inherited Destroy; //+WaitFor!
+end;
 
 procedure TIdThread.Start;
 begin

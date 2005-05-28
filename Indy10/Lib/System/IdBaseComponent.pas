@@ -90,8 +90,8 @@ uses
   {$IFDEF DotNetDistro}
     System.ComponentModel,
   {$ELSE}
+    Classes,
   {$ENDIF}
-  Classes, // TODO -oMtW: Make Stream like we did with TStrings
   IdObjs;
 
 // ***********************************************************
@@ -141,6 +141,7 @@ type
     //constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
     {$IFDEF DotNetDistro}
+      constructor Create(AOwner: &Object); overload; virtual;
       procedure BeginInit;
       procedure EndInit;
     {$ELSE}
@@ -173,7 +174,7 @@ type
     // instead of going through the namespace.unitname.unit.function syntax
     // that Delphi exports global methods as
     {$IFDEF DotNetDistro}
-    function CType(aStream: System.IO.Stream): TStream; overload;
+    function CType(aStream: System.IO.Stream): TIdStream2; overload;
     function CType(aStrings: StringCollection): TIdStrings; overload;
     function CType(aStrings: TIdStrings): StringCollection; overload;
     {$ENDIF}
@@ -194,6 +195,14 @@ var
 {$ENDIF}
 
 { TIdInitializerComponent }
+
+{$IFDEF DotNetDistro}
+constructor TIdInitializerComponent.Create(AOwner: &Object);
+begin
+  inherited Create;
+  InitComponent;
+end;
+{$ENDIF}
 
 constructor TIdInitializerComponent.Create;
 begin
@@ -326,9 +335,9 @@ end;
 {$ENDIF}
 
 {$IFDEF DotNetDistro}
-function TIdBaseComponent.CType(aStream: System.IO.Stream): TStream;
+function TIdBaseComponent.CType(aStream: System.IO.Stream): TIdStream2;
 begin
-  Result := TCLRStreamWrapper.Create(aStream);
+  Result := AStream
 end;
 {$ENDIF}
 
