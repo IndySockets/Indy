@@ -776,6 +776,8 @@ type
     procedure Enter;
     procedure Leave;
   end;
+  {$ELSE}
+   TCriticalSection = SyncObjs.TCriticalSection;
   {$ENDIF}
 
   TIdLocalEvent = class(TEvent)
@@ -852,7 +854,11 @@ type
   {$IFDEF DotNetDistro}
   THandle = Integer;
   {$ELSE}
-  THandle = Windows.THandle;
+    {$IFDEF DOTNET}
+    THandle = Integer;
+    {$ELSE}
+    THandle = Windows.THandle;
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DotNet}
