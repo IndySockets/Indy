@@ -89,7 +89,7 @@ uses
  IdWship6, //for some constants that supplement IdWinsock
   IdWinsock2;
  {$ENDIF}
- {$IFDEF DOTNET}
+ {$IFDEF DotNet}   
   System.Net.Sockets;
  {$ENDIF}
 
@@ -101,7 +101,7 @@ var
   Id_SO_False: Integer = 0;
 
 const
-  {$IFDEF DOTNET}
+  {$IFDEF DotNet}
     Id_IPV6_UNICAST_HOPS = System.Net.Sockets.SocketOptionName.IpTimeToLive;
 
     Id_IPV6_MULTICAST_IF = System.Net.Sockets.SocketOptionName.MulticastInterface;
