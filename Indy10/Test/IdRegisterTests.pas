@@ -11,6 +11,7 @@ uses
 
   //protocols
   IdTestCoderHeader,
+  IdTestCookie,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
 
