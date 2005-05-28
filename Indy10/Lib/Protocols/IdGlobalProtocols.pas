@@ -2629,8 +2629,7 @@ begin
   end;
 end;
 
-// everething that does not start with '.' is treathed as hostname    {Do not Localize}
-
+//everything that does not start with '.' is treated as hostname
 function IsHostname(const S: String): Boolean;
 begin
   Result := ((IndyPos('.', S) = 0) or (S[1] <> '.')) and NOT IsValidIP(S);    {Do not Localize}
