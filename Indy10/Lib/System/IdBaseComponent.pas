@@ -198,10 +198,8 @@ type
   end;
 
 {$IFNDEF DotNetDistro}
-{$IFDEF DOTNET}
 const
-   opRemove = Classes. opRemove;
-{$ENDIF}
+   opRemove = Classes.opRemove;
 {$ENDIF}
 
 implementation
