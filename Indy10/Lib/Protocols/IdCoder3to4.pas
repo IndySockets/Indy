@@ -221,7 +221,7 @@ begin
     LIn := ToBytes(AIn); // if in dotnet, convert to serialisable format
     LOut := InternalDecode(LIn, AStartPos, ABytes);
     // Write out data to stream
-    FStream.Write(LOut, 0, ABytes);
+    FStream.Write(LOut,ABytes);
   end;
 end;
 
