@@ -52,7 +52,8 @@
 unit IdDICT;
 
 interface
-uses Classes, IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
+
+uses IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
 
 //TODO:  MIME should be integrated into this.
 //TODO: SASL mechanism support needs to coded
@@ -77,7 +78,7 @@ type
     procedure InitComponent; override;
     function IsCapaSupported(const ACapa : String) : Boolean;
     procedure SetClient(const AValue : String);
-    procedure InternalGetList(const ACmd : String; AENtries : TCollection);
+    procedure InternalGetList(const ACmd : String; AENtries : TIdCollection);
     procedure InternalGetStrs(const ACmd : String; AStrs : TIdStrings);
   public
     destructor Destroy; override;
@@ -281,7 +282,7 @@ begin
 end;
 
 procedure TIdDICT.InternalGetList(const ACmd: String;
-  AENtries: TCollection);
+  AENtries: TIdCollection);
 var LEnt : TIdGeneric;
   LS : TIdStrings;
   i : Integer;

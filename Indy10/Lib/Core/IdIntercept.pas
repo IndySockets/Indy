@@ -65,8 +65,7 @@ unit IdIntercept;
 interface
 
 uses
-  Classes,
-  IdGlobal, IdBaseComponent, IdBuffer, IdException, IdSys;
+  IdGlobal, IdBaseComponent, IdBuffer, IdException, IdSys, IdObjs;
 
 type
   EIdInterceptCircularLink = class(EIdException);
@@ -79,7 +78,7 @@ type
 
   TIdConnectionIntercept = class(TIdBaseComponent)
   protected
-    FConnection: TComponent;
+    FConnection: TIdNativeComponent;
     FIntercept: TIdConnectionIntercept;
     FIsClient: Boolean;
     FData: TObject;
@@ -94,7 +93,7 @@ type
     procedure SetIntercept(AValue: TIdConnectionIntercept);
     //
   public
-    procedure Connect(AConnection: TComponent); virtual;
+    procedure Connect(AConnection: TIdNativeComponent); virtual;
     procedure Disconnect;
       virtual;
     procedure Receive(
@@ -104,7 +103,7 @@ type
       var ABuffer: TIdBytes
       ); virtual;
     //
-    property Connection: TComponent read FConnection;
+    property Connection: TIdNativeComponent read FConnection;
     property IsClient: Boolean read FIsClient;
     property Data: TObject read FData write FData; // user can use this to keep context
   published
@@ -118,7 +117,7 @@ type
   TIdServerIntercept = class(TIdBaseComponent)
   public
     procedure Init; virtual; abstract;
-    function Accept(AConnection: TComponent): TIdConnectionIntercept; virtual; abstract;
+    function Accept(AConnection: TIdNativeComponent): TIdConnectionIntercept; virtual; abstract;
   end;
 
 implementation
@@ -138,7 +137,7 @@ begin
   FConnection := nil;
 end;
 
-procedure TIdConnectionIntercept.Connect(AConnection: TComponent);
+procedure TIdConnectionIntercept.Connect(AConnection: TIdNativeComponent);
 begin
   FConnection := AConnection;
   if Assigned(OnConnect) then begin

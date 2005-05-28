@@ -36,15 +36,14 @@ unit IdLogStream;
 interface
 
 uses
-  Classes,
-  IdLogBase, IdStreamVCL;
+  IdLogBase, IdObjs, IdGlobal;
 
 type
   TIdLogStream = class(TIdLogBase)
   protected
     FFreeStreams: Boolean;
-    FReceiveStream: TIdStreamVCL;
-    FSendStream: TIdStreamVCL;
+    FReceiveStream: TIdStream2;
+    FSendStream: TIdStream2;
     //
     procedure InitComponent; override;
     procedure LogStatus(AText: string); override;
@@ -54,8 +53,8 @@ type
     procedure Disconnect; override;
     //
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
-    property ReceiveStream: TIdStreamVCL read FReceiveStream write FReceiveStream;
-    property SendStream: TIdStreamVCL read FSendStream write FSendStream;
+    property ReceiveStream: TIdStream2 read FReceiveStream write FReceiveStream;
+    property SendStream: TIdStream2 read FSendStream write FSendStream;
   end;
 
 implementation
@@ -87,14 +86,14 @@ end;
 procedure TIdLogStream.LogReceivedData(AText, AData: string);
 begin
   if FReceiveStream <> nil then begin
-    FReceiveStream.Write(AData);
+    WriteStringToStream(FReceiveStream, AData);
   end;
 end;
 
 procedure TIdLogStream.LogSentData(AText, AData: string);
 begin
   if FSendStream <> nil then begin
-    FSendStream.Write(AData);
+    WriteStringToStream(FSendStream, AData);
   end;
 end;
 

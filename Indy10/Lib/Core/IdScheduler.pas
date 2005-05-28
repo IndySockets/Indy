@@ -71,7 +71,6 @@ unit IdScheduler;
 interface
 
 uses
-  Classes,
   IdBaseComponent, IdSys, IdThread, IdTask, IdYarn, IdThreadSafe;
 
 type

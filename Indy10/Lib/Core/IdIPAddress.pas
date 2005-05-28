@@ -66,7 +66,6 @@ unit IdIPAddress;
 interface
 
 uses
-  Classes,
   IdGlobal,
   IdSys;
 

@@ -36,7 +36,6 @@ unit IdCoderUUE;
 interface
 
 uses
-  Classes,
   IdCoder00E, IdCoder3to4;
 
 type

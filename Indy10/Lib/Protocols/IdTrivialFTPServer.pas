@@ -40,7 +40,6 @@ unit IdTrivialFTPServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdTrivialFTPBase,
@@ -88,13 +87,12 @@ uses
   IdResourceStringsProtocols,
   IdStack,
   IdSys,
-  IdStreamVCL,
   IdUDPClient;
 
 type
-  TIdTFTPServerThread = class(TThread)
+  TIdTFTPServerThread = class(TIdNativeThread)
   private
-    FStream: TIdStreamVCL;
+    FStream: TIdStream2;
     FUDPClient: TIdUDPClient;
     FRequestedBlkSize: Integer;
     EOT,
@@ -148,7 +146,7 @@ begin
     else
       raise EIdTFTPAccessViolation.Create(Sys.Format(RSTFTPAccessDenied, [FileName]));
   except
-    on E: EFOpenError do
+    on E: Exception do
       raise EIdTFTPFileNotFound.Create(E.Message);
   end;
 end;
@@ -293,7 +291,7 @@ begin
     else
       raise EIdTFTPAccessViolation.Create(Sys.Format(RSTFTPAccessDenied, [FileName]));
   except
-    on E: EFCreateError do
+    on E: Exception do
       raise EIdTFTPAllocationExceeded.Create(E.Message);
   end;
 end;
@@ -315,7 +313,7 @@ constructor TIdTFTPServerThread.Create(AnOwner: TIdTrivialFTPServer;
   AStream: TIdStream2; const FreeStreamOnTerminate: boolean; const RequestedBlockSize: Integer);
 begin
   inherited Create(True);
-  FStream := TIdStreamVCL.Create( AStream,True);
+  FStream := AStream;
   FUDPClient := TIdUDPClient.Create(nil);
   with FUDPClient do
   begin
@@ -380,7 +378,7 @@ begin
           BlkCounter := Word(succ(BlkCounter));
           Response := WordToStr(GStack.NetworkToHost(Word(TFTP_DATA))) +
                       WordToStr(GStack.NetworkToHost(Word(BlkCounter)));
-          LBuf := ReadStringFromStream( FStream.VCLStream,Length(Response) - hdrsize);
+          LBuf := ReadStringFromStream( FStream,Length(Response) - hdrsize);
           i := Length(LBuf);
           Response := Response + LBuf;
           EOT := i < FUDPClient.BufferSize - hdrsize;
@@ -430,7 +428,7 @@ begin
           i := GStack.NetworkToHost(StrToWord(Copy(Buffer, 3, 2)));
           if i = Word(BlkCounter + 1) then
           begin
-            FStream.Write(Copy(Buffer,hdrsize+1, Length(Buffer)-hdrsize));
+            WriteStringToStream(FStream, Copy(Buffer,hdrsize+1, Length(Buffer)-hdrsize));
             Response := '';    {Do not Localize}
             BlkCounter := Word(succ(BlkCounter));
           end;
@@ -445,8 +443,8 @@ begin
   except
     on E: EIdTFTPException do
       SendError(FUDPClient, E);
-    on E: EWriteError do
-      SendError(FUDPClient, ErrAllocationExceeded, Sys.Format(RSTFTPDiskFull, [FStream.Position]));
+//    on E: EWriteError do
+//      SendError(FUDPClient, ErrAllocationExceeded, Sys.Format(RSTFTPDiskFull, [FStream.Position]));
     on E: Exception do
       SendError(FUDPClient, E);
   end;
@@ -458,7 +456,7 @@ var
 begin
   PeerInfo.PeerIP := FUDPClient.Host;
   PeerInfo.PeerPort := FUDPClient.Port;
-  FOwner.DoTransferComplete(EOT, PeerInfo, FStream.VCLStream, self is TIdTFTPServerReceiveFileThread);
+  FOwner.DoTransferComplete(EOT, PeerInfo, FStream, self is TIdTFTPServerReceiveFileThread);
 end;
 
 end.

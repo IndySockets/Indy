@@ -32,7 +32,6 @@ unit IdLogDebug;
 interface
 
 uses
-  Classes,
   IdLogBase;
 
 type

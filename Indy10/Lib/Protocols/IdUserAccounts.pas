@@ -44,7 +44,6 @@ unit IdUserAccounts;
 interface
 
 uses
-  Classes,
   IdException,
   IdGlobal,
   IdBaseComponent,
@@ -142,7 +141,7 @@ const
 type
   TIdUserManager = class;
 
-  TIdUserAccount = class(TCollectionItem)
+  TIdUserAccount = class(TIdCollectionItem)
   protected
     FAttributes: TIdStrings;
     FData: TObject;
@@ -154,7 +153,7 @@ type
     procedure SetAttributes(const AValue: TIdStrings);
     procedure SetPassword(const AValue: String); virtual;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     destructor Destroy; override;
     //
     function  CheckPassword(const APassword: String): Boolean; virtual;
@@ -168,7 +167,7 @@ type
     property  RealName: string read FRealName write FRealName;
   End;//TIdUserAccount
 
-  TIdUserAccounts = class(TOwnedCollection)
+  TIdUserAccounts = class(TIdOwnedCollection)
   protected
     FCaseSensitiveUsernames: Boolean;
     FCaseSensitivePasswords: Boolean;
@@ -329,7 +328,7 @@ begin
   end;
 end;
 
-constructor TIdUserAccount.Create(ACollection: TCollection);
+constructor TIdUserAccount.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FAttributes := TIdStringList.Create;

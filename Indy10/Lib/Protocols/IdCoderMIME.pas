@@ -28,7 +28,6 @@ unit IdCoderMIME;
 interface
 
 uses
-  Classes,
   IdCoder3to4;
 
 type

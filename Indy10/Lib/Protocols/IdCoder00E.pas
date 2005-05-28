@@ -33,7 +33,6 @@ unit IdCoder00E;
 interface
 
 uses
-  Classes,
   IdCoder3to4, IdGlobal, IdObjs;
 
 type

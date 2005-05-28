@@ -193,13 +193,12 @@ unit IdCustomHTTPServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext, IdException,
   IdGlobal, IdStack,
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer, IdTCPConnection, IdThread, IdCookie,
   IdHTTPHeaderInfo, IdStackConsts, IdObjs,
-  IdSys;
+  IdSys, IdBaseComponent;
 
 type
   // Enums
@@ -369,7 +368,7 @@ type
     property SessionID: String read FSessionID;
   end;
 
-  TIdHTTPCustomSessionList = class(TComponent)
+  TIdHTTPCustomSessionList = class(TIdBaseComponent)
   private
     FSessionTimeout: Integer;
     FOnSessionEnd: TOnSessionEndEvent;
@@ -469,12 +468,13 @@ type
   end;
   TIdHTTPDefaultSessionList = Class(TIdHTTPCustomSessionList)
   protected
-    SessionList: TThreadList;
+    SessionList: TIdThreadList;
     procedure RemoveSession(Session: TIdHTTPSession); override;
     // remove a session surgically when list already locked down (prevent deadlock)
-    procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TList);
+    procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TIdList);
+  protected
+    procedure InitComponent; override;
   public
-    Constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear; override;
     procedure Add(ASession: TIdHTTPSession); override;
@@ -487,7 +487,7 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandlerSocket, IdSSL, IdStreamVCL;
+  IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandlerSocket, IdSSL;
 
 const
   SessionCapacity = 128;
@@ -918,8 +918,8 @@ end;
 
 procedure TIdCustomHTTPServer.SetActive(AValue: Boolean);
 begin
-  if (not (csDesigning in ComponentState)) and (FActive <> AValue)
-      and (not (csLoading in ComponentState)) then begin
+  if (not IsDesignTime) and (FActive <> AValue)
+      and (not IsLoading) then begin
     if AValue then
     begin
       // starting server
@@ -954,7 +954,7 @@ end;
 procedure TIdCustomHTTPServer.SetSessionState(const Value: Boolean);
 begin
   // ToDo: Add thread multiwrite protection here
-  if (not ((csDesigning in ComponentState) or (csLoading in ComponentState))) and Active then
+  if (not (IsDesignTime or IsLoading)) and Active then
     raise EIdHTTPCannotSwitchSessionStateWhenActive.Create(RSHTTPCannotSwitchSessionStateWhenActive);
   FSessionState := Value;
 end;
@@ -1375,7 +1375,7 @@ end;
 
 procedure TIdHTTPDefaultSessionList.Clear;
 var
-  ASessionList: TList;
+  ASessionList: TIdList;
   i: Integer;
 begin
   ASessionList := SessionList.LockList;
@@ -1392,15 +1392,6 @@ begin
   finally
     SessionList.UnlockList;
   end;
-end;
-
-constructor TIdHTTPDefaultSessionList.Create(AOwner: TComponent);
-begin
-  inherited;
-
-  SessionList := TThreadList.Create;
-  SessionList.LockList.Capacity := SessionCapacity;
-  SessionList.UnlockList;
 end;
 
 function TIdHTTPDefaultSessionList.CreateSession(const RemoteIP, SessionID: String): TIdHTTPSession;
@@ -1431,7 +1422,7 @@ end;
 
 function TIdHTTPDefaultSessionList.GetSession(const SessionID, RemoteIP: string): TIdHTTPSession;
 var
-  ASessionList: TList;
+  ASessionList: TIdList;
   i: Integer;
   ASession: TIdHTTPSession;
 begin
@@ -1457,10 +1448,19 @@ begin
   end;
 end;
 
+procedure TIdHTTPDefaultSessionList.InitComponent;
+begin
+  inherited;
+
+  SessionList := TIdThreadList.Create;
+  SessionList.LockList.Capacity := SessionCapacity;
+  SessionList.UnlockList;
+end;
+
 procedure TIdHTTPDefaultSessionList.PurgeStaleSessions(PurgeAll: Boolean = false);
 var
   i: Integer;
-  aSessionList: TList;
+  aSessionList: TIdList;
 begin
   // S.G. 24/11/00: Added a way to force a session purge (Used when thread is terminated)
   // Get necessary data
@@ -1483,7 +1483,7 @@ end;
 
 procedure TIdHTTPDefaultSessionList.RemoveSession(Session: TIdHTTPSession);
 var
-  ASessionList: TList;
+  ASessionList: TIdList;
   Index: integer;
 begin
   ASessionList := SessionList.LockList;
@@ -1499,7 +1499,7 @@ begin
 end;
 
 procedure TIdHTTPDefaultSessionList.RemoveSessionFromLockedList(AIndex: Integer;
-  ALockedSessionList: TList);
+  ALockedSessionList: TIdList);
 begin
   TIdHTTPSession(ALockedSessionList[AIndex]).DoSessionEnd;
   // must set the owner to nil or the session will try to remove itself from the

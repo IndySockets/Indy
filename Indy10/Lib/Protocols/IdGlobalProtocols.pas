@@ -385,8 +385,8 @@ uses
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
-  Classes,
   IdCharsets,
+  IdBaseComponent,
   IdGlobal,
   IdException,
   IdObjs,
@@ -401,11 +401,11 @@ const
 
 type
   TIdReadLnFunction = function: string of object;
-  TStringEvent = procedure(ASender: TComponent; const AString: String);
+  TStringEvent = procedure(ASender: TIdNativeComponent; const AString: String);
 
   TIdMimeTable = class(TObject)
   protected
-    FOnBuildCache: TNotifyEvent;
+    FOnBuildCache: TIdNotifyEvent;
     FMIMEList: TIdStringList;
     FFileExt: TIdStringList;
     procedure BuildDefaultCache; virtual;
@@ -419,7 +419,7 @@ type
     constructor Create(Autofill: Boolean = True); reintroduce; virtual;
     destructor Destroy; override;
     //
-    property  OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
+    property  OnBuildCache: TIdNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
   TIdInterfacedObject = class (TInterfacedObject)

@@ -62,13 +62,13 @@ unit IdContainers;
 interface
 
 uses
-  Classes, IdObjs;
+  IdObjs;
 
 type
-  TIdSortCompare = function(AItem1, AItem2 : TObject):Integer;
+  TIdSortCompare = function(AItem1, AItem2 : TIdBaseObject):Integer;
   {TIdObjectList}
 
-  TIdObjectList = class(TList)
+  TIdObjectList = class(TIdList)
   private
     FOwnsObjects: Boolean;
   protected

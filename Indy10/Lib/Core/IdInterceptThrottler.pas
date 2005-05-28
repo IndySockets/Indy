@@ -36,7 +36,6 @@ unit IdInterceptThrottler;
 interface
 
 uses
-  Classes,
   IdComponent, IdIntercept, IdGlobal;
 
 type

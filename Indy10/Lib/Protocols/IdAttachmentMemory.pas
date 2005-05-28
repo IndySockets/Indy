@@ -46,7 +46,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes, IdObjs, IdAttachment, IdMessageParts, IdGlobal;
+  IdObjs, IdAttachment, IdMessageParts, IdGlobal;
 
 type
   TIdAttachmentMemory = class(TIdAttachment)
@@ -64,7 +64,7 @@ type
     constructor Create(Collection: TIdMessageParts; const CopyFrom: String = ''); reintroduce; overload;}
     constructor Create(Collection: TIdMessageParts; const CopyFrom: TIdStream2); reintroduce; overload;
     constructor Create(Collection: TIdMessageParts; const CopyFrom: String); reintroduce; overload;
-    constructor Create(Collection: TCollection); overload; override;
+    constructor Create(Collection: TIdCollection); overload; override;
     destructor Destroy; override;
 
     property DataStream: TIdStream2 read GetDataStream write SetDataStream;
@@ -155,12 +155,10 @@ begin
   Result := DataStream;
 end;
 
-constructor TIdAttachmentMemory.Create(Collection: TCollection);
+constructor TIdAttachmentMemory.Create(Collection: TIdCollection);
 begin
   inherited;
   FDataStream := TIdMemoryStream.Create;
 end;
 
-initialization
-  RegisterClasses([TIdAttachmentMemory]);
 end.

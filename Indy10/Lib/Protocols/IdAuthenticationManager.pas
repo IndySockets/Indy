@@ -32,7 +32,6 @@ unit IdAuthenticationManager;
 interface
 
 Uses
-  Classes,
   IdAuthentication,
   IdBaseComponent,
   IdSys,
@@ -40,28 +39,28 @@ Uses
   IdURI;
 
 Type
-  TIdAuthenticationItem = class(TCollectionItem)
+  TIdAuthenticationItem = class(TIdCollectionItem)
   protected
     FURI: TIdURI;
     FParams: TIdStringList;
     procedure SetParams(const Value: TIdStringList);
     procedure SetURI(const Value: TIdURI);
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     destructor Destroy; override;
 
     property URL: TIdURI read FURI write SetURI;
     property Params: TIdStringList read FParams write SetParams;
   end;
 
-  TIdAuthenticationCollection = class(TOwnedCollection)
+  TIdAuthenticationCollection = class(TIdOwnedCollection)
   protected
     function GetAuthItem(AIndex: Integer): TIdAuthenticationItem;
     procedure SetAuthItem(AIndex: Integer;
       const Value: TIdAuthenticationItem);
   public
     function Add: TIdAuthenticationItem;
-    constructor Create(AOwner: TPersistent);
+    constructor Create(AOwner: TIdPersistent);
     //
     property Items[AIndex: Integer]: TIdAuthenticationItem read GetAuthItem write SetAuthItem;
   end;
@@ -89,7 +88,7 @@ begin
   result := TIdAuthenticationItem.Create(self);
 end;
 
-constructor TIdAuthenticationCollection.Create(AOwner: TPersistent);
+constructor TIdAuthenticationCollection.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdAuthenticationItem);
 end;
@@ -133,7 +132,7 @@ end;
 
 { TIdAuthenticationItem }
 
-constructor TIdAuthenticationItem.Create(ACollection: TCollection);
+constructor TIdAuthenticationItem.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
 

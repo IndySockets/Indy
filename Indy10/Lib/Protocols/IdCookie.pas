@@ -83,7 +83,7 @@ Implementation status
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdGlobalProtocols, IdObjs, SysUtils, IdSys;
+  IdGlobal, IdException, IdGlobalProtocols, IdObjs, IdSys;
   //must keep for now
 
 Const
@@ -105,7 +105,7 @@ Type
     Base Cookie class as described in
     "Persistent Client State -- HTTP Cookies"
   }
-  TIdNetscapeCookie = class(TCollectionItem)
+  TIdNetscapeCookie = class(TIdCollectionItem)
   protected
     FCookieText: String;
     FDomain: String;
@@ -126,9 +126,9 @@ Type
 
     procedure LoadProperties(APropertyList: TIdStringList); virtual;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
 
     function IsValidCookie(AServerHost: String): Boolean; virtual;
 
@@ -156,7 +156,7 @@ Type
     procedure SetExpires(AValue: String); override;
     procedure LoadProperties(APropertyList: TIdStringList); override;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
 
     property Comment: String read FComment write FComment;
     property MaxAge: Int64 read FMax_Age write FMax_Age;
@@ -176,7 +176,7 @@ Type
     procedure SetPort(AIndex, AValue: Integer);
     function GetPort(AIndex: Integer): Integer;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
 
     property CommentURL: String read FCommentURL write FCommentURL;
     property Discard: Boolean read FDiscard write FDiscard;
@@ -190,7 +190,7 @@ Type
   protected
     function GetCookie: String; override;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     procedure AddAttribute(const Attribute, Value: String);
   end;
 
@@ -198,16 +198,16 @@ Type
 
   TIdCookieAccess = (caRead, caReadWrite);
 
-  TIdCookies = class(TOwnedCollection)
+  TIdCookies = class(TIdOwnedCollection)
   protected
     FCookieListByDomain: TIdCookieList;
-    FRWLock: TMultiReadExclusiveWriteSynchronizer;
+    FRWLock: TIdMultiReadExclusiveWriteSynchronizer;
 
     function GetCookie(const AName, ADomain: string): TIdCookieRFC2109;
     function GetItem(Index: Integer): TIdCookieRFC2109;
     procedure SetItem(Index: Integer; const Value: TIdCookieRFC2109);
   public
-    constructor Create(AOwner: TPersistent);
+    constructor Create(AOwner: TIdPersistent);
     destructor Destroy; override;
     function Add: TIdCookieRFC2109;
     function Add2: TIdCookieRFC2965;
@@ -237,7 +237,7 @@ Type
 implementation
 
 uses
-  IdAssignedNumbers;
+  IdAssignedNumbers, IdSysNet;
   
 { base functions used for construction of Cookie text }
 
@@ -274,7 +274,7 @@ end;
 
 { TIdNetscapeCookie }
 
-constructor TIdNetscapeCookie.Create(ACollection: TCollection);
+constructor TIdNetscapeCookie.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvNetscape;
@@ -307,7 +307,7 @@ begin
   end;
 end;
 
-procedure TIdNetscapeCookie.Assign(Source: TPersistent);
+procedure TIdNetscapeCookie.Assign(Source: TIdPersistent);
 begin
   if (Source <> nil) and (Source is TIdCookieRFC2109) then
   begin
@@ -328,7 +328,7 @@ begin
       Result := FDomain = RightStr(AServerHost, Length(FDomain));
     end
     else begin
-      result := CompareText(FDomain, DomainName(AServerHost)) = 0;
+      result := Sys.SameText(FDomain, DomainName(AServerHost));
       // result := IndyPos(FDomain, AServerHost) > 0;
     end;
   end;
@@ -406,8 +406,8 @@ begin
     try
       while Pos(';', AValue) > 0 do    {Do not Localize}
       begin
-        CookieProp.Add(Trim(Fetch(AValue, ';')));    {Do not Localize}
-        if (Pos(';', AValue) = 0) and (Length(AValue) > 0) then CookieProp.Add(Trim(AValue));    {Do not Localize}
+        CookieProp.Add(Sys.Trim(Fetch(AValue, ';')));    {Do not Localize}
+        if (Pos(';', AValue) = 0) and (Length(AValue) > 0) then CookieProp.Add(Sys.Trim(AValue));    {Do not Localize}
       end;
 
       if CookieProp.Count = 0 then CookieProp.Text := AValue;
@@ -419,22 +419,22 @@ begin
       for i := 0 to CookieProp.Count - 1 do
         if Pos('=', CookieProp[i]) = 0 then    {Do not Localize}
         begin
-          CookieProp[i] := UpperCase(CookieProp[i]);  // This is for cookie flags (secure)
+          CookieProp[i] := Sys.UpperCase(CookieProp[i]);  // This is for cookie flags (secure)
         end
         else begin
-          CookieProp[i] := UpperCase(CookieProp.Names[i]) + '=' + CookieProp.values[CookieProp.Names[i]];    {Do not Localize}
+          CookieProp[i] := Sys.UpperCase(CookieProp.Names[i]) + '=' + CookieProp.values[CookieProp.Names[i]];    {Do not Localize}
         end;
 
       LoadProperties(CookieProp);
     finally
-      FreeAndNil(CookieProp);
+      Sys.FreeAndNil(CookieProp);
     end;
   end;
 end;
 
 { TIdCookieRFC2109 }
 
-constructor TIdCookieRFC2109.Create(ACollection: TCollection);
+constructor TIdCookieRFC2109.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FMax_Age := GFMaxAge;
@@ -450,7 +450,7 @@ begin
       // date/time value. The correct format is Wdy, DD-Mon-YY HH:MM:SS GMT
 
       // AValue := StringReplace(AValue, '-', ' ', [rfReplaceAll]);    {Do not Localize}
-      FMax_Age := Trunc((GMTToLocalDateTime(AValue) - Now) * MSecsPerDay / 1000);
+      FMax_Age := Trunc((GMTToLocalDateTime(AValue) - Sys.Now) * MSecsPerDay / 1000);
     except end;
   end;
   inherited SetExpires(AValue);
@@ -502,7 +502,7 @@ begin
 
    if (FMax_Age > -1) and (Length(FExpires) = 0) then
    begin
-    result := AddCookieProperty('max-age', IntToStr(FMax_Age), result);    {Do not Localize}
+    result := AddCookieProperty('max-age', Sys.IntToStr(FMax_Age), result);    {Do not Localize}
   end;
 
   result := AddCookieProperty('comment', FComment, result);    {Do not Localize}
@@ -513,7 +513,7 @@ procedure TIdCookieRFC2109.LoadProperties(APropertyList: TIdStringList);
 begin
   inherited LoadProperties(APropertyList);
 
-  FMax_Age := StrToIntDef(APropertyList.values['MAX-AGE'], -1);    {Do not Localize}
+  FMax_Age := Sys.StrToInt(APropertyList.values['MAX-AGE'], -1);    {Do not Localize}
   FVersion := APropertyList.values['VERSION'];    {Do not Localize}
   FComment := APropertyList.values['COMMENT'];    {Do not Localize}
 
@@ -528,7 +528,7 @@ end;
 
 { TIdCookieRFC2965 }
 
-constructor TIdCookieRFC2965.Create(ACollection: TCollection);
+constructor TIdCookieRFC2965.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvRFC2965;
@@ -565,7 +565,7 @@ begin
         else begin
           for i := 0 to PortListAsString.Count - 1 do
           begin
-            PortList[i] := StrToInt(PortListAsString[i]);
+            PortList[i] := Sys.StrToInt(PortListAsString[i]);
           end;
         end;
       end;
@@ -603,7 +603,7 @@ end;
 
 { TIdServerCookie }
 
-constructor TIdServerCookie.Create(ACollection: TCollection);
+constructor TIdServerCookie.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvNetscape;
@@ -626,7 +626,7 @@ begin
   begin
     ANow := Sys.Now + TimeZoneBias + FMax_Age / MSecsPerDay * 1000;
     Sys.DecodeDate(ANow, wYear, wMonth, wDay);
-    FExpires := Format('%s, %d-%s-%d %s GMT',    {do not localize}
+    FExpires := Sys.Format('%s, %d-%s-%d %s GMT',    {do not localize}
                    [wdays[Sys.DayOfWeek(ANow)], wDay, monthnames[wMonth],
                     wYear, Sys.FormatDateTime('HH":"NN":"SS', ANow)]); {do not localize}
   end;
@@ -636,11 +636,11 @@ end;
 
 procedure TIdServerCookie.AddAttribute(const Attribute, Value: String);
 begin
-  if UpperCase(Attribute) = '$PATH' then    {Do not Localize}
+  if Sys.UpperCase(Attribute) = '$PATH' then    {Do not Localize}
   begin
     Path := Value;
   end;
-  if UpperCase(Attribute) = '$DOMAIN' then    {Do not Localize}
+  if Sys.UpperCase(Attribute) = '$DOMAIN' then    {Do not Localize}
   begin
     Domain := Value;
   end;
@@ -648,11 +648,11 @@ end;
 
 { TIdCookies }
 
-constructor TIdCookies.Create(AOwner: TPersistent);
+constructor TIdCookies.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdCookieRFC2109);
 
-  FRWLock := TMultiReadExclusiveWriteSynchronizer.Create;
+  FRWLock := TIdMultiReadExclusiveWriteSynchronizer.Create;
   FCookieListByDomain := TIdCookieList.Create;
 end;
 
@@ -666,8 +666,8 @@ begin
   begin
     FCookieListByDomain.Objects[i].Free;
   end;
-  FreeAndNil(FCookieListByDomain);
-  FreeAndNil(FRWLock);
+  Sys.FreeAndNil(FCookieListByDomain);
+  Sys.FreeAndNil(FRWLock);
   inherited Destroy;
 end;
 

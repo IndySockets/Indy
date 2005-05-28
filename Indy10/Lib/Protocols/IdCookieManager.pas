@@ -56,10 +56,10 @@ Details of implementation
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdCookie,
   IdSys,
+  IdObjs,
   IdURI;
 
 Type

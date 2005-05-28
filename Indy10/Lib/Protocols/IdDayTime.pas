@@ -40,7 +40,6 @@ unit IdDayTime;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdTCPClient;
 

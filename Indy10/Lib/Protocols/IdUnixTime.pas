@@ -16,7 +16,7 @@ unit IdUnixTime;
 
 interface
 uses
-  Classes, IdAssignedNumbers, IdTCPClient, IdTime;
+  IdAssignedNumbers, IdTCPClient, IdTime;
 {
 This is based on a description at
 http://amo.net/AtomicTimeZone/help/ATZS_Protocols.htm#Unix

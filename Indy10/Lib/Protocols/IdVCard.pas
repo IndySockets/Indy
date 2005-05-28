@@ -65,7 +65,6 @@ unit IdVCard;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdObjs;
 
@@ -92,7 +91,7 @@ VCards can not be saved. }
 type
 
   {This contains the object for Sound, Logo, Photo, Key, and Agent property}
-  TIdVCardEmbeddedObject = class (TPersistent)
+  TIdVCardEmbeddedObject = class (TIdPersistent)
   protected
     FObjectType : String;
     FObjectURL  : String;
@@ -117,7 +116,7 @@ type
   end;
 
   {VCard business information}
-  TIdVCardBusinessInfo = class ( TPersistent )
+  TIdVCardBusinessInfo = class ( TIdPersistent )
   protected
     FTitle : String;
     FRole : String;
@@ -141,7 +140,7 @@ type
   end;
 
   {Geographical information such as Latitude/Longitude and Time Zone}
-  TIdVCardGeog = class ( TPersistent )
+  TIdVCardGeog = class ( TIdPersistent )
   protected
     FLatitude : Real;
     FLongitude : Real;
@@ -160,12 +159,12 @@ type
      tpaCellular, tpaVideo, tpaBBS, tpaModem, tpaCar, tpaISDN, tpaPCS, tpaPager);
 
   { This encapsolates a telephone number }
-  TIdCardPhoneNumber = class ( TCollectionItem )
+  TIdCardPhoneNumber = class ( TIdCollectionItem )
   protected
     FPhoneAttributes: TIdPhoneAttributes;
     FNumber : String;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     {This is a descriptor for the phone number }
     property PhoneAttributes: TIdPhoneAttributes
@@ -176,12 +175,12 @@ type
 
   {Since a person can have more than one address, we put them into this
   collection}
-  TIdVCardTelephones = class ( TOwnedCollection )
+  TIdVCardTelephones = class ( TIdOwnedCollection )
   protected
     function GetItem ( Index: Integer ) : TIdCardPhoneNumber;
     procedure SetItem ( Index: Integer; const Value: TIdCardPhoneNumber );
   public
-    constructor Create ( AOwner : TPersistent ); reintroduce;
+    constructor Create ( AOwner : TIdPersistent ); reintroduce;
     function Add: TIdCardPhoneNumber;
     property Items [ Index: Integer ] : TIdCardPhoneNumber read GetItem write
       SetItem; default;
@@ -190,7 +189,7 @@ type
   {This encapsulates a person's address}    {Do not Localize}
   TIdCardAddressAttributes = set of ( tatHome, tatDomestic, tatInternational, tatPostal,
     tatParcel, tatWork, tatPreferred );
-  TIdCardAddressItem = class ( TCollectionItem )
+  TIdCardAddressItem = class ( TIdCollectionItem )
   protected
     FAddressAttributes : TIdCardAddressAttributes;
     FPOBox : String;
@@ -201,7 +200,7 @@ type
     FPostalCode : String;
     FNation : String;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     { attributes for this address such as Home or Work, postal, parcel, etc.}
     property AddressAttributes : TIdCardAddressAttributes read
@@ -225,27 +224,27 @@ type
   end;
 
   {Since a person can have more than one address, we put them into this collection}
-  TIdVCardAddresses = class ( TOwnedCollection )
+  TIdVCardAddresses = class ( TIdOwnedCollection )
   protected
     function GetItem ( Index: Integer ) : TIdCardAddressItem;
     procedure SetItem ( Index: Integer; const Value: TIdCardAddressItem );
   public
-    constructor Create ( AOwner : TPersistent ); reintroduce;
+    constructor Create ( AOwner : TIdPersistent ); reintroduce;
     function Add: TIdCardAddressItem;
     property Items [ Index: Integer ] : TIdCardAddressItem read GetItem write
       SetItem; default;
   end;
 
   {This type holds a mailing label }
-  TIdVCardMailingLabelItem = class ( TCollectionItem )
+  TIdVCardMailingLabelItem = class ( TIdCollectionItem )
   private
     FAddressAttributes : TIdCardAddressAttributes;
     FMailingLabel : TIdStrings;
     procedure SetMailingLabel(Value : TIdStrings);
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     { attributes for this mailing label such as Home or Work, postal, parcel,
       etc.}
@@ -256,12 +255,12 @@ type
   end;
 
   {This type holds the }
-  TIdVCardMailingLabels = class ( TOwnedCollection  )
+  TIdVCardMailingLabels = class ( TIdOwnedCollection  )
   protected
     function GetItem ( Index: Integer ) : TIdVCardMailingLabelItem;
     procedure SetItem ( Index: Integer; const Value: TIdVCardMailingLabelItem );
   public
-    constructor Create ( AOwner : TPersistent ); reintroduce;
+    constructor Create ( AOwner : TIdPersistent ); reintroduce;
     function Add : TIdVCardMailingLabelItem;
     property Items [ Index: Integer ] : TIdVCardMailingLabelItem read GetItem write SetItem; default;
   end;
@@ -281,16 +280,16 @@ type
     ematTelex, { Telex number }
     ematX400 ); { X.400 service }
 
-  {This object encapsolates an E-Mail address in a TCollection}
-  TIdVCardEMailItem = class (TCollectionItem)
+  {This object encapsolates an E-Mail address in a TIdCollection}
+  TIdVCardEMailItem = class (TIdCollectionItem)
   protected
     FEMailType : TIdVCardEMailType;
     FPreferred : Boolean;
     FAddress : String;
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     { This is the type of E-Mail address which defaults to Internet }
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property EMailType : TIdVCardEMailType read FEMailType write FEMailType;
     { Is this the person's prefered E-Mail address? }    {Do not Localize}
@@ -299,17 +298,17 @@ type
     property Address : String read FAddress write FAddress;
   end;
 
-  TIdVCardEMailAddresses = class ( TOwnedCollection  )
+  TIdVCardEMailAddresses = class ( TIdOwnedCollection  )
   protected
     function GetItem ( Index: Integer ) : TIdVCardEMailItem;
     procedure SetItem ( Index: Integer; const Value: TIdVCardEMailItem );
   public
-    constructor Create ( AOwner : TPersistent ); reintroduce;
+    constructor Create ( AOwner : TIdPersistent ); reintroduce;
     function Add: TIdVCardEMailItem;
     property Items [ Index: Integer ] : TIdVCardEMailItem read GetItem write SetItem; default;
   end;
 
-  TIdVCardName = class (TPersistent)
+  TIdVCardName = class (TIdPersistent)
   protected
     FFirstName : String;
     FSurName : String;
@@ -1174,7 +1173,7 @@ begin
   Result := TIdVCardEMailItem(inherited Add);
 end;
 
-constructor TIdVCardEMailAddresses.Create ( AOwner : TPersistent );
+constructor TIdVCardEMailAddresses.Create ( AOwner : TIdPersistent );
 begin
   inherited Create ( AOwner, TIdVCardEMailItem );
 end;
@@ -1192,7 +1191,7 @@ end;
 
 { TIdVCardEMailItem }
 
-procedure TIdVCardEMailItem.Assign(Source: TPersistent);
+procedure TIdVCardEMailItem.Assign(Source: TIdPersistent);
 var EMail : TIdVCardEMailItem;
 begin
   if ClassType <> Source.ClassType then
@@ -1208,7 +1207,7 @@ begin
   end;
 end;
 
-constructor TIdVCardEMailItem.Create(Collection: TCollection);
+constructor TIdVCardEMailItem.Create(Collection: TIdCollection);
 begin
   inherited;
   FEMailType := ematInternet;
@@ -1221,7 +1220,7 @@ begin
    Result := TIdCardAddressItem ( inherited Add );
 end;
 
-constructor TIdVCardAddresses.Create ( AOwner : TPersistent );
+constructor TIdVCardAddresses.Create ( AOwner : TIdPersistent );
 begin
    inherited Create ( AOwner, TIdCardAddressItem );
 end;
@@ -1244,7 +1243,7 @@ begin
   Result := TIdCardPhoneNumber ( inherited Add );
 end;
 
-constructor TIdVCardTelephones.Create ( AOwner : TPersistent );
+constructor TIdVCardTelephones.Create ( AOwner : TIdPersistent );
 begin
    inherited Create ( AOwner, TIdCardPhoneNumber );
 end;
@@ -1307,7 +1306,7 @@ end;
 
 { TIdVCardMailingLabelItem }
 
-procedure TIdVCardMailingLabelItem.Assign(Source: TPersistent);
+procedure TIdVCardMailingLabelItem.Assign(Source: TIdPersistent);
 var lbl : TIdVCardMailingLabelItem;
 begin
   if ClassType <> Source.ClassType then
@@ -1322,7 +1321,7 @@ begin
   end;
 end;
 
-constructor TIdVCardMailingLabelItem.Create(Collection: TCollection);
+constructor TIdVCardMailingLabelItem.Create(Collection: TIdCollection);
 begin
   inherited;
   FMailingLabel := TIdStringList.Create;
@@ -1346,7 +1345,7 @@ begin
   Result := TIdVCardMailingLabelItem ( inherited Add );
 end;
 
-constructor TIdVCardMailingLabels.Create(AOwner: TPersistent);
+constructor TIdVCardMailingLabels.Create(AOwner: TIdPersistent);
 begin
   inherited Create (AOwner, TIdVCardMailingLabelItem );
 end;
@@ -1384,7 +1383,7 @@ end;
 
 { TIdCardPhoneNumber }
 
-procedure TIdCardPhoneNumber.Assign(Source: TPersistent);
+procedure TIdCardPhoneNumber.Assign(Source: TIdPersistent);
 var Phone : TIdCardPhoneNumber;
 begin
   if ClassType <> Source.ClassType then
@@ -1401,7 +1400,7 @@ end;
 
 { TIdCardAddressItem }
 
-procedure TIdCardAddressItem.Assign(Source: TPersistent);
+procedure TIdCardAddressItem.Assign(Source: TIdPersistent);
 var Addr : TIdCardAddressItem;
 begin
   if ClassType <> Source.ClassType then

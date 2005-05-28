@@ -48,8 +48,7 @@ Original Author: Hadi Hariri
 interface
 
 uses
-	Classes,
-  IdAssignedNumbers,
+	IdAssignedNumbers,
   IdTCPClient;
 
 type

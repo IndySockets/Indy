@@ -18,7 +18,7 @@
 unit IdDayTimeUDP;
 
 interface
-uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
+uses IdAssignedNumbers, IdUDPBase, IdUDPClient;
 type
   TIdDayTimeUDP = class(TIdUDPClient)
   protected

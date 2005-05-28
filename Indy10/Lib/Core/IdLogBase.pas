@@ -36,8 +36,7 @@ unit IdLogBase;
 interface
 
 uses
-  Classes,
-  IdIntercept, IdGlobal, IdSocketHandle;
+  IdIntercept, IdGlobal, IdSocketHandle, IdObjs, IdBaseComponent;
 
 type
   TIdLogBase = class(TIdConnectionIntercept)
@@ -57,7 +56,7 @@ type
   public
     procedure Open; virtual;
     procedure Close; virtual;
-    procedure Connect(AConnection: TComponent); override;
+    procedure Connect(AConnection: TIdNativeComponent); override;
     destructor Destroy; override;
     procedure Disconnect; override;
     procedure Receive(var ABuffer: TIdBytes); override;
@@ -87,7 +86,7 @@ procedure TIdLogBase.Close;
 begin
 end;
 
-procedure TIdLogBase.Connect(AConnection: TComponent);
+procedure TIdLogBase.Connect(AConnection: TIdNativeComponent);
 begin
   if FActive then begin
     inherited Connect(AConnection);
@@ -170,7 +169,7 @@ end;
 
 procedure TIdLogBase.SetActive(AValue: Boolean);
 begin
-  if (csReading in ComponentState) then
+  if IsLoading then
     FStreamedActive := AValue
   else
     if FActive <> AValue then

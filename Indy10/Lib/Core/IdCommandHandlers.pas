@@ -165,7 +165,7 @@ interface
 
 uses
   IdBaseComponent, IdComponent, IdReply, IdGlobal,
-  IdContext, IdReplyRFC, IdSys, IdObjs, Classes;
+  IdContext, IdReplyRFC, IdSys, IdObjs;
 
 const
   IdEnabledDefault = True;
@@ -186,7 +186,7 @@ type
   TIdCommandHandlersExceptionEvent = procedure(ACommand: String; AContext: TIdContext) of object;
 
   { TIdCommandHandler }
-  TIdCommandHandler = class(TCollectionItem)
+  TIdCommandHandler = class(TIdCollectionItem)
   protected
     FCmdDelimiter: Char;
     FCommand: string;
@@ -215,7 +215,7 @@ type
     function Check(AData: string; AContext: TIdContext): boolean; virtual;
     procedure DoCommand(AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
     constructor Create(
-      ACollection: TCollection
+      ACollection: TIdCollection
       ); override;
     destructor Destroy; override;
     function GetNamePath: string; override;
@@ -245,7 +245,7 @@ type
   TIdCommandHandlerClass = class of TIdCommandHandler;
 
   { TIdCommandHandlers }
-  TIdCommandHandlers = class(TOwnedCollection)
+  TIdCommandHandlers = class(TIdOwnedCollection)
   protected
     FBase: TIdComponent;
     FExceptionReply: TIdReply;
@@ -261,7 +261,7 @@ type
     function GetItem(AIndex: Integer): TIdCommandHandler;
     // This is used instead of the OwnedBy property directly calling GetOwner because
     // D5 dies with internal errors and crashes
-    function GetOwnedBy: TPersistent;
+    function GetOwnedBy: TIdPersistent;
     procedure SetItem(AIndex: Integer; const AValue: TIdCommandHandler);
   public
     function Add: TIdCommandHandler;
@@ -281,7 +281,7 @@ type
     property Base: TIdComponent read FBase;
     property Items[AIndex: Integer]: TIdCommandHandler read GetItem write SetItem;
     // OwnedBy is used so as not to conflict with Owner in D6
-    property OwnedBy: TPersistent read GetOwnedBy;
+    property OwnedBy: TIdPersistent read GetOwnedBy;
     property ReplyClass : TIdReplyClass read FReplyClass;
     //
     property OnAfterCommandHandler: TIdAfterCommandHandlerEvent read FOnAfterCommandHandler
@@ -295,7 +295,7 @@ type
   end;
 
   { TIdCommand }
-  TIdCommand = class(TObject)
+  TIdCommand = class(TIdBaseObject)
   protected
     FCommandHandler: TIdCommandHandler;
     FDisconnect: Boolean;
@@ -404,7 +404,7 @@ begin
   Result := TIdCommandHandler(inherited Items[AIndex]);
 end;
 
-function TIdCommandHandlers.GetOwnedBy: TPersistent;
+function TIdCommandHandlers.GetOwnedBy: TIdPersistent;
 begin
   Result := GetOwner;
 end;
@@ -528,7 +528,7 @@ begin
 end;
 
 constructor TIdCommandHandler.Create(
-  ACollection: TCollection
+  ACollection: TIdCollection
   );
 begin
   inherited Create(ACollection);

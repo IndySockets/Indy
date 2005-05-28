@@ -190,7 +190,7 @@ var
 implementation
 
 uses
-  IdResourceStrings, IdStreamVCL;
+  IdResourceStrings;
 
 { TIdDecoderBinHex4 }
 

@@ -64,7 +64,6 @@ unit IdWhoIsServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;

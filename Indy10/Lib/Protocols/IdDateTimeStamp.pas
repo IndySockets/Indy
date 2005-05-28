@@ -116,7 +116,6 @@ Pete Mee
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   SysConst {Import strings for days & months}, SysUtils, IdSys;
 

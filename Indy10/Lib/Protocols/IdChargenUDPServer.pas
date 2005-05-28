@@ -36,7 +36,7 @@ unit IdChargenUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer, Classes;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
    TIdChargenUDPServer = class(TIdUDPServer)

@@ -221,8 +221,8 @@ unit IdIOHandlerStack;
 interface
 
 uses
-  Classes,
-  IdGlobal, IdSocketHandle, IdIOHandlerSocket, IdExceptionCore, IdStack, IdSys;
+  IdGlobal, IdSocketHandle, IdIOHandlerSocket, IdExceptionCore, IdStack, IdSys,
+  IdObjs;
 
 type
   TIdIOHandlerStack = class(TIdIOHandlerSocket)
@@ -253,7 +253,7 @@ uses
   IdTCPConnection, IdComponent, IdIOHandler;
 
 type
-  TIdConnectThread = class(TThread)
+  TIdConnectThread = class(TIdNativeThread)
   protected
     FBinding: TIdSocketHandle;
     FLastSocketError: Integer;

@@ -50,7 +50,6 @@ unit IdAuthentication;
 interface
 
 uses
-  Classes,
   IdHeaderList,
   IdGlobal,
   IdException,
@@ -64,7 +63,7 @@ Type
 
   TIdAuthWhatsNext = (wnAskTheProgram, wnDoRequest, wnFail);
 
-  TIdAuthentication = class(TPersistent)
+  TIdAuthentication = class(TIdPersistent)
   protected
     FCurrentStep: Integer;
     FParams: TIdHeaderList;
@@ -126,7 +125,7 @@ Uses
   IdCoderMIME, IdResourceStringsProtocols;
 
 Type
-  TAuthListObject = class(TObject)
+  TAuthListObject = class(TIdBaseObject)
     Auth: TIdAuthenticationClass;
   end;
 
@@ -177,7 +176,7 @@ end;
 
 constructor TIdAuthentication.Create;
 begin
-  inherited Create;
+  inherited;
   FParams := TIdHeaderList.Create;
 
   FCurrentStep := 0;

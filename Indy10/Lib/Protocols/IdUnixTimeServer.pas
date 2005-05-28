@@ -16,7 +16,6 @@ unit IdUnixTimeServer;
 
 interface
 uses
-  Classes,
   IdAssignedNumbers,
   IdCustomTCPServer,
   IdGlobalProtocols,

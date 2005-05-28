@@ -62,13 +62,13 @@ unit IdLogFile;
 interface
 
 uses
-  IdLogBase, IdStreamVCL;
+  IdLogBase, IdObjs;
 
 type
   TIdLogFile = class(TIdLogBase)
   protected
     FFilename: String;
-    FFileStream: TIdStreamVCL;
+    FFileStream: TIdStream2;
     //
     procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
     procedure LogReceivedData(AText: string; AData: string); override;
@@ -87,7 +87,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore, IdSys, IdBaseComponent, IdObjs;
+  IdGlobal, IdException, IdResourceStringsCore, IdSys, IdBaseComponent;
 
 { TIdLogFile }
 
@@ -117,23 +117,13 @@ var
 begin
   if not IsDesignTime then
   begin
-    LStream := TAppendFileStream.Create(Filename);
-    try
-      FFileStream := TIdStreamVCL.Create(LStream, True);
-    except
-      if FFileStream <> nil then begin
-        Sys.FreeAndNil(FFileStream);
-      end else begin
-        Sys.FreeAndNil(LStream);
-      end;
-      raise;
-    end;
+    FFileStream := TAppendFileStream.Create(Filename);
   end;
 end;
 
 procedure TIdLogFile.LogWriteString(AText: string);
 begin
-  FFileStream.Write(AText);
+  WriteStringToStream(FFileStream, AText);
 end;
 
 procedure TIdLogFile.LogFormat(AFormat: string; AArgs: array of const);

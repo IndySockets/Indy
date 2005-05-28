@@ -32,7 +32,7 @@ unit IdDayTimeUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer, Classes;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
    TIdDayTimeUDPServer = class(TIdUDPServer)

@@ -143,7 +143,6 @@ uses
   IdBaseComponent,
   IdGlobal,
   IdIOHandler,
-  IdStreamVCL,
   IdSys;
 
 type
@@ -159,8 +158,8 @@ type
   protected
     FFreeStreams: Boolean;
     FOnGetStreams: TIdOnGetStreams;
-    FReceiveIdStream: TIdStreamVCL;
-    FSendIdStream: TIdStreamVCL;
+    FReceiveStream: TIdStream2;
+    FSendStream: TIdStream2;
     FStreamType: TIdIOHandlerStreamType;
     //
     function GetReceiveStream: TIdStream2;
@@ -235,8 +234,6 @@ begin
     ReceiveStream.Free;
     SendStream.Free;
   end;
-  Sys.FreeAndNil(FReceiveIdStream);
-  Sys.FreeAndNil(FSendIdStream);
 end;
 
 function TIdIOHandlerStream.Connected: Boolean;
@@ -277,20 +274,10 @@ begin
 end;
 
 procedure TIdIOHandlerStream.Open;
-var
-  LReceiveStream, LSendStream: TIdStream2;
 begin
   inherited;
   if Assigned(OnGetStreams) then begin
-    LReceiveStream := nil;
-    LSendStream := nil;
-    OnGetStreams(Self, LReceiveStream, LSendStream);
-    if LReceiveStream <> nil then begin
-      FReceiveIdStream := TIdStreamVCL.Create(LReceiveStream);
-    end;
-    if LSendStream <> nil then begin
-      FSendIdStream := TIdStreamVCL.Create(LSendStream);
-    end;
+    OnGetStreams(Self, FReceiveStream, FSendStream);
   end;
 end;
 
@@ -312,10 +299,10 @@ begin
   if ReceiveStream <> nil then begin
     // We dont want to read the whole stream in at a time. If its a big file will consume way too
     // much memory by loading it all at once. So lets read it in chunks.
-    Result := Min(32 * 1024, FReceiveIdStream.VCLStream.Size - FReceiveIdStream.VCLStream.Position);
+    Result := Min(32 * 1024, FReceiveStream.Size - FReceiveStream.Position);
     if Result > 0 then begin
       SetLength(LBuffer, Result);
-      FReceiveIdStream.ReadBytes(LBuffer, Result);
+      FReceiveStream.Read(LBuffer, Result);
       if Intercept <> nil then begin
         Intercept.Receive(LBuffer);
         Result := Length(LBuffer);
@@ -337,41 +324,31 @@ begin
     if Intercept <> nil then begin
       Intercept.Send(ABuffer);
     end;
-    FSendIdStream.Write(ABuffer, Length(ABuffer));
+    FSendStream.Write(ABuffer, Length(ABuffer));
   end;
 end;
 
 function TIdIOHandlerStream.GetReceiveStream: TIdStream2;
 begin
-  if FReceiveIdStream = nil then begin
-    Result := nil;
-  end else begin
-    Result := FReceiveIdStream.VCLStream;
-  end;
+  Result := FReceiveStream;
 end;
 
 function TIdIOHandlerStream.GetSendStream: TIdStream2;
 begin
-  if FSendIdStream = nil then begin
-    Result := nil;
-  end else begin
-    Result := FSendIdStream.VCLStream;
-  end;
+  Result := FSendStream;
 end;
 
 procedure TIdIOHandlerStream.SetReceiveStream(AStream: TIdStream2);
 begin
-  Sys.FreeAndNil(FReceiveIdStream);
   if AStream <> nil then begin
-    FReceiveIdStream := TIdStreamVCL.Create(AStream);
+    FReceiveStream := AStream;
   end;
 end;
 
 procedure TIdIOHandlerStream.SetSendStream(AStream: TIdStream2);
 begin
-  Sys.FreeAndNil(FSendIdStream);
   if AStream <> nil then begin
-    FSendIdStream := TIdStreamVCL.Create(AStream);
+    FSendStream := AStream;
   end;
 end;
 
