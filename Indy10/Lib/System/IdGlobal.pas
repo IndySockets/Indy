@@ -833,7 +833,7 @@ type
   {$IFDEF DotNet}
   TIdPID = LongWord;
   {$IFDEF DotNetDistro}
-  TIdThreadPriority = ThreadPriority;
+  TIdThreadPriority = System.Threading.ThreadPriority;
   {$ELSE}
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
@@ -849,8 +849,10 @@ type
   THandle = Windows.THandle;
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF DotNet}
-  THandle = LongWord;
+  {$IFDEF DotNetDistro}
+  THandle = Integer;
+  {$ELSE}
+  THandle = Windows.THandle;
   {$ENDIF}
 
   {$IFDEF DotNet}
