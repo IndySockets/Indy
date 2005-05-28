@@ -86,7 +86,6 @@ unit IdThreadComponent;
 interface
 
 uses
-  Classes,
   IdBaseComponent, IdException, IdGlobal, IdSys, IdThread, IdObjs;
 
 const
@@ -157,7 +156,7 @@ type
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
-    procedure Synchronize(AMethod: TThreadMethod);
+    procedure Synchronize(AMethod: TIdThreadMethod);
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
     function WaitFor: LongWord;
@@ -430,8 +429,8 @@ end;
 
 procedure TIdThreadComponent.SetActive(const AValue: Boolean);
 begin
-  if ((csDesigning in ComponentState) = False)
-   and ((csLoading in ComponentState) = False) then begin
+  if (not IsDesignTime)
+   and (not IsLoading) then begin
     if Active <> AValue then begin
       if AValue then begin
         Start;
@@ -465,7 +464,7 @@ end;
 
 procedure TIdThreadComponent.Start;
 begin
-  if NOT (csDesigning in ComponentState) then begin
+  if NOT IsDesignTime then begin
     if Assigned(FThread) and FThread.Terminated then begin
       Sys.FreeAndNIL(FThread);
     end;
@@ -490,7 +489,7 @@ begin
   end;
 end;
 
-procedure TIdThreadComponent.Synchronize(AMethod: TThreadMethod);
+procedure TIdThreadComponent.Synchronize(AMethod: TIdThreadMethod);
 begin
   FThread.Synchronize(AMethod);
 end;
@@ -532,7 +531,7 @@ end;
 function TIdThreadComponent.GetActive: Boolean;
 begin
   Result := False;
-  if csDesigning in ComponentState then begin
+  if IsDesignTime then begin
     Result := FActive;
   end else if FThread <> nil then begin
     Result := IsRunning;

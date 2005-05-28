@@ -164,8 +164,7 @@ unit IdTCPClient;
 interface
 
 uses
-  Classes,
-  IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection;
+  IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection, IdObjs;
 
 type
   TIdTCPClientCustom = class(TIdTCPConnection)
@@ -178,14 +177,14 @@ type
     FDestination: string;
     FHost: string;
     FIPVersion: TIdIPVersion;
-    FOnConnected: TNotifyEvent;
+    FOnConnected: TIdNotifyEvent;
     FPassword: string;
     FPort: TIdPort;
     FReadTimeout: Integer;
     FUsername: string;
     //
-    FOnBeforeBind: TNotifyEvent;
-    FOnAfterBind: TNotifyEvent;
+    FOnBeforeBind: TIdNotifyEvent;
+    FOnAfterBind: TIdNotifyEvent;
     //
     procedure DoOnConnected; virtual;
     function MakeImplicitClientHandler: TIdIOHandler; virtual;
@@ -200,8 +199,8 @@ type
     procedure SetPort(const AValue: TIdPort); virtual;
     procedure SetIPVersion(const AValue: TIdIPVersion); virtual;
     //
-    procedure SetOnBeforeBind(const AValue: TNotifyEvent);
-    procedure SetOnAfterBind(const AValue: TNotifyEvent);
+    procedure SetOnBeforeBind(const AValue: TIdNotifyEvent);
+    procedure SetOnAfterBind(const AValue: TIdNotifyEvent);
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
     //
@@ -211,7 +210,7 @@ type
     property Port: TIdPort read FPort write SetPort;
     property Username: string read FUsername write FUsername;
     //
-    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
+    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
   public
     procedure Connect; overload; virtual;
     // This is overridden and not as default params so that descendants
@@ -229,8 +228,8 @@ type
 
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read FReadTimeout write SetReadTimeout;
-    property OnBeforeBind:TNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
-    property OnAfterBind:TNotifyEvent read FOnAfterBind write SetOnAfterBind;
+    property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
+    property OnAfterBind:TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
 
   published
   end;
@@ -403,7 +402,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetOnBeforeBind(const AValue: TNotifyEvent);
+procedure TIdTCPClientCustom.SetOnBeforeBind(const AValue: TIdNotifyEvent);
 begin
   FOnBeforeBind := AValue;
   if Socket <> nil then begin
@@ -411,7 +410,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetOnAfterBind(const AValue: TNotifyEvent);
+procedure TIdTCPClientCustom.SetOnAfterBind(const AValue: TIdNotifyEvent);
 begin
   FOnAfterBind := AValue;
   if Socket <> nil then begin

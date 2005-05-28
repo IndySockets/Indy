@@ -76,7 +76,6 @@ unit IdUDPServer;
 interface
 
 uses
-  Classes,
   IdComponent,
   IdException,
   IdGlobal,

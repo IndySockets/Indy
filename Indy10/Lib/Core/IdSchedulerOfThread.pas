@@ -155,7 +155,6 @@ Changes
 interface
 
 uses
-  Classes,
   IdException, IdBaseComponent, IdGlobal, IdScheduler, IdSys, IdObjs,
   IdThread, IdTask, IdYarn;
 

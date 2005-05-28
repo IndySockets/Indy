@@ -32,7 +32,6 @@ unit IdIPMCastBase;
 interface
 
 uses
-  Classes,
   IdComponent, IdException, IdGlobal, IdSocketHandle,
   IdStack, IdSys;
 
@@ -124,7 +123,7 @@ end;
 procedure TIdIPMCastBase.SetActive(const Value: Boolean);
 begin
   if Active <> Value then begin
-    if not ((csDesigning in ComponentState) or (csLoading in ComponentState)) then begin
+    if not (IsDesignTime or IsLoading) then begin
       if Value then begin
         GetBinding;
       end

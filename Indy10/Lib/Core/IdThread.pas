@@ -160,7 +160,6 @@ unit IdThread;
 interface
 
 uses
-  Classes,
   IdGlobal, IdException, IdSys, IdYarn, IdTask, IdThreadSafe, IdObjs;
 
 const
@@ -213,7 +212,7 @@ type
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
-    procedure Synchronize(Method: TThreadMethod); overload;
+    procedure Synchronize(Method: TIdThreadMethod); overload;
 //BGO:TODO    procedure Synchronize(Method: TMethod); overload;
     // Here to make virtual
     procedure Terminate; virtual;
@@ -548,7 +547,7 @@ begin
   Result := False;
 end;
 
-procedure TIdThread.Synchronize(Method: TThreadMethod);
+procedure TIdThread.Synchronize(Method: TIdThreadMethod);
 begin
   inherited Synchronize(Method);
 end;

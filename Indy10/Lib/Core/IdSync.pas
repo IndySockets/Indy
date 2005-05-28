@@ -71,8 +71,7 @@ interface
 // Author: Chad Z. Hower - a.k.a. Kudzu
 
 uses
-  Classes,
-  IdGlobal, IdThread;
+  IdGlobal, IdThread, IdObjs;
 
 type
   TIdSync = class(TObject)
@@ -84,7 +83,7 @@ type
     constructor Create; overload; virtual;
     constructor Create(AThread: TIdThread); overload; virtual;
     procedure Synchronize;
-    class procedure SynchronizeMethod(AMethod: TThreadMethod);
+    class procedure SynchronizeMethod(AMethod: TIdThreadMethod);
     //
     property Thread: TIdThread read FThread;
   end;
@@ -99,18 +98,18 @@ type
     procedure Notify;
     class procedure FreeThread;
     procedure WaitFor;
-    class procedure NotifyMethod(AMethod: TThreadMethod);
+    class procedure NotifyMethod(AMethod: TIdThreadMethod);
     //
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify;
   end;
 
   TIdNotifyMethod = class(TIdNotify)
   protected
-    FMethod: TThreadMethod;
+    FMethod: TIdThreadMethod;
     //
     procedure DoNotify; override;
   public
-    constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
+    constructor Create(AMethod: TIdThreadMethod); reintroduce; virtual;
   end;
   
 implementation
@@ -125,7 +124,7 @@ type
   TIdNotifyThread = class(TIdThread)
   protected
     FEvent: TIdLocalEvent;
-    FNotifications: TThreadList;
+    FNotifications: TIdThreadList;
   public
     procedure AddNotification(ASync: TIdNotify);
     constructor Create; reintroduce;
@@ -178,7 +177,7 @@ begin
   end;
 end;
 
-class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
+class procedure TIdNotify.NotifyMethod(AMethod: TIdThreadMethod);
 begin
   TIdNotifyMethod.Create(AMethod).Notify;
 end;
@@ -194,7 +193,7 @@ begin
   FThread.Synchronize(DoSynchronize);
 end;
 
-class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
+class procedure TIdSync.SynchronizeMethod(AMethod: TIdThreadMethod);
 begin
   with Create do try
     FThread.Synchronize(AMethod);
@@ -212,7 +211,7 @@ end;
 constructor TIdNotifyThread.Create;
 begin
   FEvent := TIdLocalEvent.Create;
-  FNotifications := TThreadList.Create;
+  FNotifications := TIdThreadList.Create;
   // Must be before - Thread starts running when we call inherited
   inherited Create(False, False,'IdNotify');
 end;
@@ -236,7 +235,7 @@ procedure TIdNotifyThread.Run;
 // NOTE: Be VERY careful with making changes to this proc. It is VERY delicate and the order
 // of execution is very important. Small changes can have drastic effects
 var
-  LNotifications: TList;
+  LNotifications: TIdList;
   LNotify: TIdNotify;
 begin
   FEvent.WaitForEver;
@@ -261,7 +260,7 @@ end;
 
 { TIdNotifyMethod }
 
-constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
+constructor TIdNotifyMethod.Create(AMethod: TIdThreadMethod);
 begin
   inherited Create;
   FMethod := AMethod;

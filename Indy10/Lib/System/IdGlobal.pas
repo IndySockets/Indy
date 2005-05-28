@@ -648,7 +648,7 @@ unit IdGlobal;
 
 interface
 
-// TODO -oMTW: Remove direct Classes dependency
+
 
 uses
   {$IFDEF DotNet}
@@ -661,7 +661,7 @@ uses
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
-  {$IFNDEF DotNetDistro} // was DotNetExclude
+  {$IFNDEF DotNetDistro}
   SyncObjs,
   Classes,
   {$ENDIF}

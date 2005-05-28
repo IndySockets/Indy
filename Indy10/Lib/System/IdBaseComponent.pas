@@ -128,8 +128,7 @@ type
     {$ENDIF}
     {$IFDEF DotNetDistro}
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); virtual;
-    procedure AssignTo(ASource: TIdPersistent); virtual;
-    function GetOwner: TIdNativeComponent;
+    procedure AssignTo(ASource: TIdPersistent); override;
     procedure Loaded; virtual;
     function GetName: string;
     procedure SetName(const AValue: string);
@@ -158,8 +157,6 @@ type
       procedure BeginInit;
       procedure EndInit;
       procedure FreeNotification(AComponent: TIdNativeComponent);
-      procedure Assign(Source: TIdPersistent); virtual;
-      property Owner: TIdNativeComponent read GetOwner;
       property Name: string read GetName write SetName;
       property Tag: &Object read FTag write FTag;
     {$ELSE}
@@ -232,15 +229,6 @@ begin
 end;
 
 procedure TIdInitializerComponent.AssignTo(ASource: TIdPersistent);
-begin
-end;
-
-function TIdInitializerComponent.GetOwner: TIdNativeComponent;
-begin
-  Result := nil;
-end;
-
-procedure TIdInitializerComponent.Assign(Source: TIdPersistent);
 begin
 end;
 

@@ -86,7 +86,6 @@ unit IdServerIOHandlerSocket;
 interface
 
 uses
-  Classes,
   IdSocketHandle, IdGlobal, IdThread, IdServerIOHandler, IdStackConsts, IdIOHandler, IdScheduler,
   IdIOHandlerSocket, IdYarn;
 

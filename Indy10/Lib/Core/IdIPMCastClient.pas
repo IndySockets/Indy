@@ -40,7 +40,6 @@ unit IdIPMCastClient;
 interface
 
 uses
-  Classes,
   IdException,
   IdGlobal,
   IdIPMCastBase,

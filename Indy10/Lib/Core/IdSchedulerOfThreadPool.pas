@@ -75,7 +75,6 @@ unit IdSchedulerOfThreadPool;
 interface
 
 uses
-  Classes,
   IdContext,
   IdScheduler,
   IdSchedulerOfThread,
@@ -187,7 +186,7 @@ procedure TIdSchedulerOfThreadPool.Init;
 begin
   inherited;
   FThreadPool := TIdThreadSafeList.Create;
-  if not (csDesigning in ComponentState) then begin
+  if not IsDesignTime then begin
     if PoolSize > 0 then begin
       with FThreadPool.LockList do try
         while Count < PoolSize do begin

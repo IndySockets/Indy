@@ -151,20 +151,19 @@ unit IdSocketHandle;
 interface
 
 uses
-  Classes, SyncObjs,
-  IdException, IdGlobal, IdStackConsts, IdStack, IdSys;
+  IdException, IdGlobal, IdStackConsts, IdStack, IdSys, IdObjs, IdBaseComponent;
 
 type
   TIdSocketHandle = class;
 
-  TIdSocketHandles = class(TOwnedCollection)
+  TIdSocketHandles = class(TIdOwnedCollection)
   protected
     FDefaultPort: TIdPort;
     //
     function GetItem(Index: Integer): TIdSocketHandle;
     procedure SetItem(Index: Integer; const Value: TIdSocketHandle);
   public
-    constructor Create(AOwner: TComponent); reintroduce;
+    constructor Create(AOwner: TIdNativeComponent); reintroduce;
     function Add: TIdSocketHandle; reintroduce;
     function BindingByHandle(const AHandle: TIdStackSocketHandle): TIdSocketHandle;
     property Items[Index: Integer]: TIdSocketHandle read GetItem write SetItem; default;
@@ -172,7 +171,7 @@ type
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
   end;
 
-  TIdSocketHandle = class(TCollectionItem)
+  TIdSocketHandle = class(TIdCollectionItem)
   protected
     FClientPortMin: Integer;
     FClientPortMax: Integer;
@@ -202,11 +201,11 @@ type
      const AProtocol: TIdSocketProtocol = Id_IPPROTO_IP);
 {$ENDIF}
     // Returns True if error was ignored (Matches iIgnore), false if no error occurred
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     procedure Bind;
     procedure CloseSocket; virtual;
     procedure Connect; virtual;
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     destructor Destroy; override;
 //    procedure GetSockOpt(level, optname: Integer; optval: PChar; optlen: Integer);
     procedure Listen(const anQueueCount: integer = 5);
@@ -392,7 +391,7 @@ begin
   end;
 end;
 
-constructor TIdSocketHandle.Create(ACollection: TCollection);
+constructor TIdSocketHandle.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FConnectionHandle := TCriticalSection.Create;
@@ -433,7 +432,7 @@ begin
   Result := CheckIsReadable(AMSec);
 end;
 
-procedure TIdSocketHandle.Assign(Source: TPersistent);
+procedure TIdSocketHandle.Assign(Source: TIdPersistent);
 var
   LSource: TIdSocketHandle;
 begin
@@ -550,7 +549,7 @@ begin
   end;
 end;
 
-constructor TIdSocketHandles.Create(AOwner: TComponent);
+constructor TIdSocketHandles.Create(AOwner: TIdNativeComponent);
 begin
   inherited Create(AOwner, TIdSocketHandle);
 end;

@@ -72,12 +72,12 @@ unit IdUDPClient;
 interface
 
 uses
-  Classes,
   IdUDPBase,
   IdGlobal,
   IdSocketHandle,
   IdSys,
-  IdCustomTransparentProxy;
+  IdCustomTransparentProxy,
+  IdObjs;
 
 type
   EIdMustUseOpenProxy = class(EIdUDPException);
@@ -85,8 +85,8 @@ type
   TIdUDPClient = class(TIdUDPBase)
   protected
     FProxyOpened : Boolean;
-    FOnConnected : TNotifyEvent;
-    FOnDisconnected: TNotifyEvent;
+    FOnConnected : TIdNotifyEvent;
+    FOnDisconnected: TIdNotifyEvent;
     FConnected : Boolean;
     FTransparentProxy: TIdCustomTransparentProxy;
     function UseProxy : Boolean;
@@ -121,8 +121,8 @@ type
     procedure SendBuffer(AHost: string; const APort: Integer;
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
-    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
-    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
+    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
+    property OnDisconnected: TIdNotifyEvent read FOnDisconnected write FOnDisconnected;
     property IPVersion;
     property Host;
     property Port;

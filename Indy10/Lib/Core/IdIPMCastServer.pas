@@ -58,7 +58,6 @@ unit IdIPMCastServer;
 interface
 
 uses
-  Classes,
   IdComponent,
   IdGlobal,
   IdIPMCastBase,
