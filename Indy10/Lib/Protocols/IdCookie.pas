@@ -323,12 +323,9 @@ begin
     result := AServerHost = FDomain;
   end else begin
     if IsHostname(AServerHost) then begin
-      if IsHostName(FDomain) then begin
-        //MSIE: if FDomain looks like "xxxx.yyyy.com", then AServerHost "zzzz.xxxx.yyyy.com" is valid
-        Result := FDomain = RightStr(AServerHost, Length(FDomain));
-      end else begin
-        result := FDomain = DomainName(AServerHost);
-      end;
+      //MSIE: if FDomain looks like "xxxx.yyyy.com", then AServerHost "zzzz.xxxx.yyyy.com" is valid
+      //also must allow 4.3.2.1=valid for domain=.2.1
+      Result := FDomain = RightStr(AServerHost, Length(FDomain));
     end
     else begin
       result := CompareText(FDomain, DomainName(AServerHost)) = 0;
