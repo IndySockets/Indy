@@ -32,7 +32,7 @@ unit IdQOTDUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer, Classes;
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
    TIdQotdUDPGetEvent = procedure (ABinding: TIdSocketHandle; var AQuote : String) of object;

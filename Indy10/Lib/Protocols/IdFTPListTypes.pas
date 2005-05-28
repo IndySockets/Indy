@@ -48,12 +48,12 @@ unit IdFTPListTypes;
 
 interface
 
-uses Classes, IdFTPList, IdSys, IdObjs;
+uses IdFTPList, IdSys, IdObjs;
 
 type
   //these two are for OS/2 and other MS-DOS-like file system FTP servers
   //that report attributes
-  TIdDOSAttributes = class(TPersistent)
+  TIdDOSAttributes = class(TIdPersistent)
   protected
     FRead_Only : Boolean;
     FFileAttributes: Cardinal;
@@ -70,7 +70,7 @@ type
     function GetNormal: Boolean;
     procedure SetNormal(const AValue: Boolean);
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     function GetAsString: String; virtual;
     function AddAttribute(const AString : String) : Boolean;
   published
@@ -118,7 +118,7 @@ type
   //For NLST and Cisco IOS
   TIdMinimalFTPListItem = class(TIdFTPListItem)
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
   end;
   //This is for some mainframe items which are based on records
   TIdRecFTPListItem = class(TIdFTPListItem)
@@ -137,7 +137,7 @@ type
   protected
     FCreationDate: TIdDateTime;
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
 
   end;
@@ -155,7 +155,7 @@ type
     FMLISTPermissions : String;
     function GetFact(const AName : String) : String;
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     destructor Destroy; override;
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
@@ -217,7 +217,7 @@ type
     FAttributes : TIdDOSAttributes;
     procedure SetAttributes(AAttributes : TIdDOSAttributes);
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     destructor Destroy; override;
     property Attributes : TIdDOSAttributes read FAttributes write SetAttributes;
   end;
@@ -244,7 +244,7 @@ implementation
 uses IdFTPCommon, IdGlobal;
 { TIdMinimalFTPListItem }
 
-constructor TIdMinimalFTPListItem.Create(AOwner: TCollection);
+constructor TIdMinimalFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   FSizeAvail := False;
@@ -253,7 +253,7 @@ end;
 
 { TIdMLSTFTPListItem }
 
-constructor TIdMLSTFTPListItem.Create(AOwner: TCollection);
+constructor TIdMLSTFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   FAttributesAvail := False;
@@ -280,7 +280,7 @@ end;
 
 { TIdDOSBaseFTPListItem }
 
-constructor TIdDOSBaseFTPListItem.Create(AOwner: TCollection);
+constructor TIdDOSBaseFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited Create(AOwner);
   FAttributes := TIdDOSAttributes.Create;
@@ -329,7 +329,7 @@ begin
   end;
 end;
 
-procedure TIdDOSAttributes.Assign(Source: TPersistent);
+procedure TIdDOSAttributes.Assign(Source: TIdPersistent);
 var LD : TIdDOSAttributes;
 begin
   if Source is TIdDOSAttributes then
@@ -492,7 +492,7 @@ end;
 
 { TIdCreationDateFTPListItme }
 
-constructor TIdCreationDateFTPListItme.Create(AOwner: TCollection);
+constructor TIdCreationDateFTPListItme.Create(AOwner: TIdCollection);
 begin
   inherited;
   SizeAvail := False;

@@ -64,19 +64,19 @@ unit IdMessageParts;
 interface
 
 uses
-  Classes,
   IdHeaderList,
   IdExceptionCore,
+  IdGlobal, IdObjs,
   IdSys;
 
 type
-  TOnGetMessagePartStream = procedure(AStream: TStream) of object;
+  TOnGetMessagePartStream = procedure(AStream: TIdStream2) of object;
 
   TIdMessagePartType = (mptText, mptAttachment);
   // if you add to this, please also adjust the case statement in
   // TIdMessageParts.CountParts;
 
-  TIdMessagePart = class(TCollectionItem)
+  TIdMessagePart = class(TIdCollectionItem)
   protected
     FBoundary: string;
     FBoundaryBegin: Boolean;
@@ -102,9 +102,9 @@ type
     procedure SetContentID(const Value: string); virtual;
     procedure SetContentLocation(const Value: string); virtual;
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     function  GetCharSet(AHeader: string): String;
     function  ResolveContentType(AContentType: string): string; //Fixes up ContentType
     class function PartType: TIdMessagePartType; virtual;
@@ -128,7 +128,7 @@ type
 
   TIdMessagePartClass = class of TIdMessagePart;
 
-  TIdMessageParts = class(TOwnedCollection)
+  TIdMessageParts = class(TIdOwnedCollection)
   protected
     FAttachmentEncoding: string;
     FAttachmentCount: integer;
@@ -137,19 +137,19 @@ type
     FTextPartCount: integer;
     //
     function GetItem(Index: Integer): TIdMessagePart;
-    function GetOwnerMessage: TPersistent;
+    function GetOwnerMessage: TIdPersistent;
     procedure SetAttachmentEncoding(const AValue: string);
     procedure SetItem(Index: Integer; const Value: TIdMessagePart);
   public
     function Add: TIdMessagePart;
     procedure CountParts;
-    constructor Create(AOwner: TPersistent); reintroduce;
+    constructor Create(AOwner: TIdPersistent); reintroduce;
     //
     property AttachmentCount: integer read FAttachmentCount;
     property AttachmentEncoding: string read FAttachmentEncoding write SetAttachmentEncoding;
     property Items[Index: Integer]: TIdMessagePart read GetItem write SetItem; default;
     property MessageEncoderInfo: TObject read FMessageEncoderInfo;
-    property OwnerMessage: TPersistent read GetOwnerMessage;
+    property OwnerMessage: TIdPersistent read GetOwnerMessage;
     property RelatedPartCount: integer read FRelatedPartCount;
     property TextPartCount: integer read FTextPartCount;
   end;
@@ -162,11 +162,11 @@ type
 implementation
 
 uses
-  IdMessage, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder;
+  IdMessage, IdGlobalProtocols, IdResourceStringsProtocols, IdMessageCoder;
 
 { TIdMessagePart }
 
-procedure TIdMessagePart.Assign(Source: TPersistent);
+procedure TIdMessagePart.Assign(Source: TIdPersistent);
 var
   mp: TIdMessagePart;
 begin
@@ -181,7 +181,7 @@ begin
   end;
 end;
 
-constructor TIdMessagePart.Create(Collection: TCollection);
+constructor TIdMessagePart.Create(Collection: TIdCollection);
 begin
   inherited;
   if ClassType = TIdMessagePart then begin
@@ -313,7 +313,7 @@ begin
   end;
 end;
 
-constructor TIdMessageParts.Create(AOwner: TPersistent);
+constructor TIdMessageParts.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdMessagePart);
   // Must set prop and not variable so it will initialize it
@@ -325,7 +325,7 @@ begin
   Result := TIdMessagePart(inherited GetItem(Index));
 end;
 
-function TIdMessageParts.GetOwnerMessage: TPersistent;
+function TIdMessageParts.GetOwnerMessage: TIdPersistent;
 begin
   //Result := TIdMessage(inherited GetOwner);
   Result := inherited GetOwner;

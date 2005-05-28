@@ -56,7 +56,7 @@ unit IdIdentServer;
         }
 
 interface
-uses IdAssignedNumbers, IdContext, IdCustomTCPServer, Classes;
+uses IdAssignedNumbers, IdContext, IdCustomTCPServer;
 
 const IdDefIdentQueryTimeOut = 60000; // 1 minute
 type  TIdIdentQueryEvent = procedure (AContext:TIdContext; AServerPort, AClientPort : Integer) of object;

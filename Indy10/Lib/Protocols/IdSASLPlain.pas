@@ -26,7 +26,7 @@ unit IdSASLPlain;
 
 interface
 uses
-  Classes, IdSASL,
+  IdSASL,
   IdSASLUserPass;
 
 type

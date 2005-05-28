@@ -47,7 +47,7 @@ unit IdMappedPOP3;
 
 interface
 uses
-  Classes, IdAssignedNumbers,
+  IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
   IdTCPServer;
 

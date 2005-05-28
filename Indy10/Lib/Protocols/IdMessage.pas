@@ -328,7 +328,6 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
   IdAttachment,
   IdBaseComponent,
   IdCoderHeader,
@@ -536,9 +535,9 @@ type
     property OnCreateAttachment: TIdCreateAttachmentEvent read FOnCreateAttachment write FOnCreateAttachment;
   End;
 
-  TIdMessageEvent = procedure(ASender : TComponent; var AMsg : TIdMessage) of object;
+  TIdMessageEvent = procedure(ASender : TIdNativeComponent; var AMsg : TIdMessage) of object;
 
-  TIdStringMessageEvent = procedure(ASender : TComponent; const AString : String; var AMsg : TIdMessage) of object;
+  TIdStringMessageEvent = procedure(ASender : TIdNativeComponent; const AString : String; var AMsg : TIdMessage) of object;
 
   EIdTextInvalidCount = class(EIdMessageException);
 

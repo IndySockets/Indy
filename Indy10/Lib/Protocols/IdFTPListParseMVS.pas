@@ -45,7 +45,7 @@
 unit IdFTPListParseMVS;
 
 interface
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 {
 This should work with IBM MVS, OS/390, and z/OS.
 
@@ -66,7 +66,7 @@ type
         FMVSNumberExtents: Integer;
     FMVSNumberTracks: Integer;
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     property Migrated : Boolean read FMigrated write FMigrated;
     property BlockSize : Integer read FBlockSize write FBlockSize;
     property RecLength;
@@ -84,7 +84,7 @@ type
     FMVSJobStatus : TIdJESJobStatus;
     FMVSJobSpoolFiles : Integer;
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     property JobStatus : TIdJESJobStatus read FMVSJobStatus write FMVSJobStatus;
     property JobSpoolFiles : Integer read FMVSJobSpoolFiles write FMVSJobSpoolFiles;
   end;
@@ -95,7 +95,7 @@ type
     FDetails : TIdStrings;
     procedure SetDetails(AValue : TIdStrings);
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     destructor Destroy; override;
     property Details : TIdStrings read FDetails write SetDetails;
     property JobStatus : TIdJESJobStatus read FJobStatus write FJobStatus;
@@ -693,7 +693,7 @@ end;
 
 { TIdMVSFTPListItem }
 
-constructor TIdMVSFTPListItem.Create(AOwner: TCollection);
+constructor TIdMVSFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   FSizeAvail := False;  //we can't get the file size from a MVS system
@@ -701,7 +701,7 @@ end;
 
 { TIdMVSJESIntFFTPListItem }
 
-constructor TIdMVSJESIntF2FTPListItem.Create(AOwner: TCollection);
+constructor TIdMVSJESIntF2FTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   FDetails := TIdStringList.Create;
@@ -720,7 +720,7 @@ end;
 
 { TIdMVSJESFTPListItem }
 
-constructor TIdMVSJESFTPListItem.Create(AOwner: TCollection);
+constructor TIdMVSJESFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
    Self.JobStatus := IdJESNotApplicable;

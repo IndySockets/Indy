@@ -60,7 +60,6 @@ unit IdRemoteCMDClient;
 interface
 
 uses
-  Classes,
   IdException, IdSys, IdTCPClient;
 
 const

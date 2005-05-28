@@ -40,7 +40,6 @@ unit IdSASLCollection;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdCoder,
   IdException,
@@ -50,22 +49,22 @@ uses
   IdObjs;
 
 type
-  TIdSASLListEntry = class(TCollectionItem)
+  TIdSASLListEntry = class(TIdCollectionItem)
   protected
     FSASL : TIdSASL;
     function GetDisplayName: String; override;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property SASL : TIdSASL read FSASL write FSASL;
   end;
 
-  TIdSASLEntries = class ( TOwnedCollection )
+  TIdSASLEntries = class ( TIdOwnedCollection )
   protected
     function GetItem ( Index: Integer ) : TIdSASLListEntry;
     procedure SetItem ( Index: Integer; const Value: TIdSASLListEntry );
   public
-    constructor Create ( AOwner : TPersistent ); reintroduce;
+    constructor Create ( AOwner : TIdPersistent ); reintroduce;
     function Add: TIdSASLListEntry;
     function LoginSASL(const ACmd: String;
       const AOkReplies, AContinueReplies: array of string;
@@ -81,7 +80,7 @@ type
       const AAuthString: String = 'AUTH') : TIdStrings; {do not localize}
     function FindSASL(const AServiceName: String): TIdSASL;
     function Insert(Index: Integer): TIdSASLListEntry;
-    procedure RemoveByComp(AComponent : TComponent);
+    procedure RemoveByComp(AComponent : TIdNativeComponent);
     function IndexOfComp(AItem : TIdSASL): Integer;
     property Items [ Index: Integer ] : TIdSASLListEntry read GetItem write
       SetItem; default;
@@ -106,7 +105,7 @@ uses
 
 { TIdSASLListEntry }
 
-procedure TIdSASLListEntry.Assign(Source: TPersistent);
+procedure TIdSASLListEntry.Assign(Source: TIdPersistent);
 begin
   if Source is TIdSASLListEntry then begin
     FSASL := TIdSASLListEntry(Source).SASL;
@@ -175,7 +174,7 @@ begin
   Result := TIdSASLListEntry ( inherited Add );
 end;
 
-constructor TIdSASLEntries.Create(AOwner: TPersistent);
+constructor TIdSASLEntries.Create(AOwner: TIdPersistent);
 begin
    inherited Create ( AOwner, TIdSASLListEntry );
 end;
@@ -210,12 +209,12 @@ var
   LE : TIdEncoderMIME;
   LD : TIdDecoderMIME;
   LSupportedSASL : TIdStrings;
-  LSASLList: TList;
+  LSASLList: TIdList;
   LSASL : TIdSASL;
 begin
   Result := False;
 
-  LSASLList := TList.Create;
+  LSASLList := TIdList.Create;
   try
     LSupportedSASL := ParseCapaReply(ACapaReply, AAuthString);
     try
@@ -362,7 +361,7 @@ begin
   end;
 end;
 
-procedure TIdSASLEntries.RemoveByComp(AComponent: TComponent);
+procedure TIdSASLEntries.RemoveByComp(AComponent: TIdNativeComponent);
 var i : Integer;
 begin
   for i := Count-1 downto 0 do

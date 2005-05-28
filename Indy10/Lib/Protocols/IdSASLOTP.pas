@@ -35,7 +35,6 @@ unit IdSASLOTP;
 
 interface
 uses
-  Classes,
   IdException,
   IdSASL,
   IdSASLUserPass;

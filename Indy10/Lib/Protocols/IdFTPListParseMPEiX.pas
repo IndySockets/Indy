@@ -36,14 +36,14 @@ unit IdFTPListParseMPEiX;
 
 interface
 
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)
   protected
     FLimit : Cardinal;
   public
-    constructor Create(AOwner: TCollection); override;
+    constructor Create(AOwner: TIdCollection); override;
     property RecLength;
     property RecFormat;
     property NumberRecs;
@@ -339,7 +339,7 @@ end;
 
 { TIdMPiXFTPListItem }
 
-constructor TIdMPiXFTPListItem.Create(AOwner: TCollection);
+constructor TIdMPiXFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   //MP/iX or HP3000 will not give you a modified date at all

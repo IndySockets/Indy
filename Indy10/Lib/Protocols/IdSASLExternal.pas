@@ -19,7 +19,7 @@ unit IdSASLExternal;
 
 interface
 uses
-  Classes, IdSASL, IdTCPConnection;
+  IdSASL, IdTCPConnection;
 
 {
   Implements RFC 2222: External SASL Mechanism

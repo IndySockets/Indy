@@ -93,7 +93,6 @@ unit IdIPAddrMon;
 interface
 
 uses
-  Classes,
   IdComponent,
   IdThread,
   IdObjs;
@@ -110,7 +109,7 @@ type
   protected
     FOwner: TObject;
     FInterval: Cardinal;
-    FOnTimerEvent: TNotifyEvent;
+    FOnTimerEvent: TIdNotifyEvent;
 
     procedure Run; override;
     procedure DoTimerEvent;
@@ -203,7 +202,7 @@ begin
       GetAdapterAddresses;
 
       // something changed at runtime
-      if (not (csDesigning in ComponentState)) and
+      if (not IsDesignTime) and
         ((FPreviousIPAddresses.Count <> FIPAddresses.Count) or
           (FPreviousIPAddresses.Text <> FIPAddresses.Text)) then
       begin
@@ -305,7 +304,7 @@ begin
       GetAdapterAddresses;
     end;
 
-    if not (csDesigning in ComponentState) then
+    if not IsDesignTime then
     begin
       if FActive then
       begin

@@ -102,8 +102,7 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols,
-  IdStreamVCL;
+  IdGlobalProtocols;
 
 { TIdHash32 }
 
@@ -112,11 +111,9 @@ var
   LStream: TIdStream2;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TIdMemoryStream.Create; try
-    with TIdStreamVCL.Create(LStream) do try
-      Write(ASrc);
-      VCLStream.Position := 0;
-      Result := HashValue(VCLStream);
-    finally Free; end;
+    WriteStringToStream(LStream, ASrc);
+    LStream.Position := 0;
+    Result := HashValue(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 
@@ -127,11 +124,9 @@ var
   LStream: TIdStream2;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TIdMemoryStream.Create; try
-    with TIdStreamVCL.Create(LStream) do try
-      Write(ASrc);
-      VCLStream.Position := 0;
-      Result := HashValue(VCLStream);
-    finally Free; end;
+    WriteStringToStream(LStream, ASrc);
+    LStream.Position := 0;
+    Result := HashValue(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 
@@ -142,11 +137,9 @@ var
   LStream: TIdStream2;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TIdMemoryStream.Create; try
-    with TIdStreamVCL.Create(LStream) do try
-      Write(ASrc);
-      VCLStream.Position := 0;
-      Result := HashValue(VCLStream);
-    finally Free; end;
+    WriteStringToStream(LStream, ASrc);
+    LStream.Position := 0;
+    Result := HashValue(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 
@@ -162,11 +155,9 @@ var
   LStream: TIdStream2;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TIdMemoryStream.Create; try
-    with TIdStreamVCL.Create(LStream) do try
-      Write(ASrc);
-      VCLStream.Position := 0;
-      Result := HashValue(VCLStream);
-    finally Free; end;
+    WriteStringToStream(LStream, ASrc);
+    LStream.Position := 0;
+    Result := HashValue(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 

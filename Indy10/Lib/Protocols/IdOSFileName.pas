@@ -32,7 +32,7 @@
 unit IdOSFileName;
 
 interface
-uses classes, IdBaseComponent, IdFTPCommon;
+uses IdBaseComponent, IdFTPCommon;
 
 function FileNameUnixToVMS(const AUnixFileName : String) : String;
 function FileNameVMSToUnix(const AVMSFileName : String) : String;

@@ -18,7 +18,7 @@
 unit IdQOTDUDP;
 
 interface
-uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
+uses IdAssignedNumbers, IdUDPBase, IdUDPClient;
 type
   TIdQOTDUDP = class(TIdUDPClient)
   protected

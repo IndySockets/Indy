@@ -108,8 +108,7 @@ unit IdCmdTCPClient;
 interface
 
 uses
-  Classes,
-  IdContext, IdGlobal, IdReply, IdThread, IdTCPClient, IdCommandHandlers;
+  IdContext, IdGlobal, IdReply, IdThread, IdTCPClient, IdCommandHandlers, IdObjs;
 
 type
   TIdCmdTCPClient = class;
@@ -140,8 +139,8 @@ type
   TIdCmdTCPClient = class(TIdTCPClient)
   protected
     FExceptionReply: TIdReply;
-    FOnConnect: TNotifyEvent;
-    FOnDisconnect: TNotifyEvent;
+    FOnConnect: TIdNotifyEvent;
+    FOnDisconnect: TIdNotifyEvent;
     FListeningThread: TIdCmdTCPClientListeningThread;
     FCommandHandlers: TIdCommandHandlers;
     FOnAfterCommandHandler: TIdCmdTCPClientAfterCommandHandlerEvent;
@@ -164,8 +163,8 @@ type
       read FOnAfterCommandHandler write FOnAfterCommandHandler;
     property OnBeforeCommandHandler: TIdCmdTCPClientBeforeCommandHandlerEvent
       read FOnBeforeCommandHandler write FOnBeforeCommandHandler;
-    property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
-    property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
+    property OnConnect: TIdNotifyEvent read FOnConnect write FOnConnect;
+    property OnDisconnect: TIdNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
 
 implementation

@@ -45,11 +45,11 @@ interface
 }
 
 uses
-  Classes,
   IdSys,
   IdGlobal,
   IdUDPServer,
   IdSocketHandle,
+  IdObjs,
   IdGlobalProtocols;
 
 type
@@ -57,7 +57,7 @@ type
   protected
     FMappedPort: Integer;
     FMappedHost: String;
-    FOnRequest: TNotifyEvent;
+    FOnRequest: TIdNotifyEvent;
     //
     procedure DoRequestNotify; virtual;
     procedure InitComponent; override;
@@ -65,7 +65,7 @@ type
   published
     property MappedHost: string read FMappedHost write FMappedHost;
     property MappedPort: Integer read FMappedPort write FMappedPort;
-    property OnRequest: TNotifyEvent read fOnRequest write fOnRequest;
+    property OnRequest: TIdNotifyEvent read fOnRequest write fOnRequest;
   end;
 
 implementation

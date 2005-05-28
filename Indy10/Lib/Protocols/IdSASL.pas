@@ -50,7 +50,6 @@ unit IdSASL;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdTCPConnection,
   IdException,
@@ -118,7 +117,7 @@ type
 
 
 var
-  GlobalSASLList: TThreadList;
+  GlobalSASLList: TIdThreadList;
   // this is used at design time to get a list of all
   // SASL mechanism components that are available
   // because they add at runtime as well, it must be a threadlist
@@ -170,7 +169,7 @@ begin
 end;
 
 initialization
-  GlobalSASLList := TThreadList.Create;
+  GlobalSASLList := TIdThreadList.Create;
 finalization
   Sys.FreeAndNil(GlobalSASLList);
 end.

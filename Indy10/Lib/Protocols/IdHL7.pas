@@ -126,12 +126,12 @@ unit IdHL7;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdContext,
   IdException,
   IdGlobal,
   IdTCPClient,
+  IdObjs,
   IdTCPConnection,
   IdTCPServer,
   IdSys;
@@ -193,7 +193,7 @@ type
   TIdHL7 = class;
   TIdHL7ConnCountEvent = procedure (ASender : TIdHL7; AConnCount : integer) of object;
 
-  TIdHL7ClientThread = class(TThread)
+  TIdHL7ClientThread = class(TIdNativeThread)
   Protected
     FClient: TIdTCPClient;
     FCloseEvent: TIdLocalEvent;
@@ -212,8 +212,8 @@ type
     FStatusDesc: String;
 
     // these queues hold messages when running in singlethread mode
-    FMsgQueue: TList;
-    FHndMsgQueue: TList;
+    FMsgQueue: TIdList;
+    FHndMsgQueue: TIdList;
 
     FAddress: String;
     FCommunicationMode: THL7CommunicationMode;
@@ -229,8 +229,8 @@ type
     FReceiveTimeout: Cardinal;
 
 
-    FOnConnect: TNotifyEvent;
-    FOnDisconnect: TNotifyEvent;
+    FOnConnect: TIdNotifyEvent;
+    FOnDisconnect: TIdNotifyEvent;
     FOnConnCountChange : TIdHL7ConnCountEvent;
     FOnMessageArrive: TMessageArriveEvent;
     FOnReceiveMessage: TMessageReceiveEvent;
@@ -397,8 +397,8 @@ type
     property IsListener: Boolean Read FIsListener Write SetIsListener Default DEFAULT_IS_LISTENER;
 
     // useful for application
-    property OnConnect: TNotifyEvent Read FOnConnect Write FOnConnect;
-    property OnDisconnect: TNotifyEvent Read FOnDisconnect Write FOnDisconnect;
+    property OnConnect: TIdNotifyEvent Read FOnConnect Write FOnConnect;
+    property OnDisconnect: TIdNotifyEvent Read FOnDisconnect Write FOnDisconnect;
     // this is called whenever OnConnect and OnDisconnect are called, and at other times, but only when server
     // it will be called after OnConnect and before OnDisconnect
     property OnConnCountChange : TIdHL7ConnCountEvent read FOnConnCountChange write FOnConnCountChange;
@@ -513,8 +513,8 @@ begin
   FServerConn := NIL;
   FClientThread := NIL;
   FClient := NIL;
-  FMsgQueue := TList.Create;
-  FHndMsgQueue := TList.Create;
+  FMsgQueue := TIdList.Create;
+  FHndMsgQueue := TIdList.Create;
   FWaitingForAnswer := False;
   FMsgReply := '';   {do not localize}
   FReplyResponse := srNone;
@@ -744,7 +744,7 @@ begin
 end;
 
 procedure TIdHL7.PreStop;
-  procedure JoltList(l: TList);
+  procedure JolTIdList(l: TIdList);
   var
     i: Integer;
     begin
@@ -762,8 +762,8 @@ begin
     assert(Assigned(FHndMsgQueue));
     FLock.Enter;
     try
-      JoltList(FMsgQueue);
-      JoltList(FHndMsgQueue);
+      JolTIdList(FMsgQueue);
+      JolTIdList(FHndMsgQueue);
     finally
       FLock.Leave;
       end;

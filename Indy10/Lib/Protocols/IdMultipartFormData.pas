@@ -114,11 +114,9 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
   IdGlobal,
   IdException,
   IdResourceStringsProtocols,
-  IdStreamVCL,
   IdSys,
   IdObjs;
 
@@ -134,7 +132,7 @@ const
 type
   TIdMultiPartFormDataStream = class;
 
-  TIdFormDataField = class(TCollectionItem)
+  TIdFormDataField = class(TIdCollectionItem)
   protected
     FFieldValue: string;
     FFileName: string;
@@ -154,7 +152,7 @@ type
     procedure SetFieldObject(const Value: TObject);
     procedure SetFileName(const Value: string);
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
     // procedure Assign(Source: TPersistent); override;
     function FormatField: string;
@@ -168,7 +166,7 @@ type
     property FieldSize: LongInt read GetFieldSize;
   end;
 
-  TIdFormDataFields = class(TCollection)
+  TIdFormDataFields = class(TIdCollection)
   protected
     FParentStream: TIdMultiPartFormDataStream;
     function GetFormDataField(AIndex: Integer): TIdFormDataField;
@@ -377,11 +375,7 @@ begin
     end;
 
     if Assigned(FInputStream) and (LTotalRead < ACount) then begin
-      with TIdStreamVCL.Create(FInputStream, False) do try
-        LCount := ReadBytes(VBuffer, ACount - LTotalRead, LBufferCount, False);
-      finally
-        Free;
-      end;   
+      LCount := FInputStream.Read(VBuffer, ACount - LTotalRead, LBufferCount);
 
       if LCount < (ACount - LTotalRead) then begin
         FInputStream.Position := 0;
@@ -457,7 +451,7 @@ end;
 
 { TIdFormDataField }
 
-constructor TIdFormDataField.Create(Collection: TCollection);
+constructor TIdFormDataField.Create(Collection: TIdCollection);
 begin
   inherited Create(Collection);
   FFieldObject := nil;

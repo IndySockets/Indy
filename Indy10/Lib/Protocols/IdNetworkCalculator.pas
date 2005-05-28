@@ -32,7 +32,6 @@ unit IdNetworkCalculator;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdSys,
   IdObjs;
@@ -56,10 +55,10 @@ type
   TIdIPAddressType = (IPLocalHost, IPLocalNetwork, IPReserved, IPInternetHost,
     IPPrivateNetwork, IPLoopback, IPMulticast, IPFutureUse, IPGlobalBroadcast);
 
-  TIpProperty = Class(TPersistent)
+  TIpProperty = Class(TIdPersistent)
   protected
     FReadOnly: boolean;
-    FOnChange: TNotifyEvent;
+    FOnChange: TIdNotifyEvent;
     FByteArray: array[0..31] of boolean;
     FDoubleWordValue: Longword;
 
@@ -71,7 +70,7 @@ type
     FByte1: byte;
     function GetAddressType: TIdIPAddressType;
     procedure SetReadOnly(const Value: boolean);
-    procedure SetOnChange(const Value: TNotifyEvent);
+    procedure SetOnChange(const Value: TIdNotifyEvent);
     function GetByteArray(Index: cardinal): boolean;
     procedure SetAsBinaryString(const Value: String);
     procedure SetAsDoubleWord(const Value: Longword);
@@ -85,7 +84,7 @@ type
     property ReadOnly: boolean read FReadOnly write SetReadOnly default false;
   public
     procedure SetAll(One, Two, Three, Four: Byte); virtual;
-    procedure Assign(Source: Tpersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     //
     property ByteArray[Index: cardinal]: boolean read GetByteArray write SetByteArray;
     property AddressType: TIdIPAddressType read GetAddressType;
@@ -97,7 +96,7 @@ type
     property AsDoubleWord: Longword read FDoubleWordValue write SetAsDoubleWord stored false;
     property AsBinaryString: String read FAsBinaryString write SetAsBinaryString stored false;
     property AsString: String read FAsString write SetAsString;
-    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
+    property OnChange: TIdNotifyEvent read FOnChange write SetOnChange;
   end;
 
   TIdNetworkCalculator = class(TIdBaseComponent)
@@ -107,12 +106,12 @@ type
     FNetworkMask: TIpProperty;
     FNetworkAddress: TIpProperty;
     FNetworkClass: TNetworkClass;
-    FOnChange: TNotifyEvent;
-    FOnGenIPList: TNotifyEvent;
+    FOnChange: TIdNotifyEvent;
+    FOnGenIPList: TIdNotifyEvent;
     function GetNetworkClassAsString: String;
     function GetIsAddressRoutable: Boolean;
-    procedure SetOnChange(const Value: TNotifyEvent);
-    procedure SetOnGenIPList(const Value: TNotifyEvent);
+    procedure SetOnChange(const Value: TIdNotifyEvent);
+    procedure SetOnGenIPList(const Value: TIdNotifyEvent);
     function GetListIP: TIdStrings;
     procedure SetNetworkAddress(const Value: TIpProperty);
     procedure SetNetworkMask(const Value: TIpProperty);
@@ -137,8 +136,8 @@ type
     property NetworkMask: TIpProperty read FNetworkMask write SetNetworkMask;
     property NetworkMaskLength: cardinal read FNetworkMaskLength write SetNetworkMaskLength
      default ID_NC_MASK_LENGTH;
-    property OnGenIPList: TNotifyEvent read FOnGenIPList write SetOnGenIPList;
-    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
+    property OnGenIPList: TIdNotifyEvent read FOnGenIPList write SetOnGenIPList;
+    property OnChange: TIdNotifyEvent read FOnChange write SetOnChange;
   end;
 
 implementation
@@ -218,7 +217,7 @@ begin
   if FListIP.Count = 0 then
   begin
     // prevent to start a long loop in the IDE (will lock delphi)
-    if (csDesigning in ComponentState) and (NumIP > 1024) then
+    if (IsDesignTime) and (NumIP > 1024) then
     begin
       FListIP.text := Sys.Format(RSNETCALConfirmLongIPList,[NumIP]);
     end
@@ -338,12 +337,12 @@ begin
   FNetworkMask.AsDoubleWord := LBuffer;
 end;
 
-procedure TIdNetworkCalculator.SetOnGenIPList(const Value: TNotifyEvent);
+procedure TIdNetworkCalculator.SetOnGenIPList(const Value: TIdNotifyEvent);
 begin
   FOnGenIPList := Value;
 end;
 
-procedure TIdNetworkCalculator.SetOnChange(const Value: TNotifyEvent);
+procedure TIdNetworkCalculator.SetOnChange(const Value: TIdNotifyEvent);
 begin
   FOnChange := Value;
 end;
@@ -374,7 +373,7 @@ end;
 
 { TIpProperty }
 
-procedure TIpProperty.Assign(Source: Tpersistent);
+procedure TIpProperty.Assign(Source: TIdPersistent);
 begin
   if Source is TIpProperty then
   with source as TIpProperty do
@@ -532,7 +531,7 @@ begin
   end;
 end;
 
-procedure TIpProperty.SetOnChange(const Value: TNotifyEvent);
+procedure TIpProperty.SetOnChange(const Value: TIdNotifyEvent);
 begin
   FOnChange := Value;
 end;

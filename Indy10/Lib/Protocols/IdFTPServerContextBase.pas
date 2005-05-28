@@ -17,7 +17,6 @@ unit IdFTPServerContextBase;
 
 interface
 uses
-  Classes,
   IdContext;
 
 {This is for a basic thread class that can be shared with the FTP File System component

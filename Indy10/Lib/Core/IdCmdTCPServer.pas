@@ -185,7 +185,6 @@ unit IdCmdTCPServer;
 interface
 
 uses
-  Classes,
   IdCommandHandlers,
   IdContext,
   IdIOHandler,
@@ -388,10 +387,10 @@ procedure TIdCmdTCPServer.SetActive(AValue: Boolean);
 var
   i, j: Integer;
   LDescr: TIdStrings;
-  LHelpList: TStringList;
+  LHelpList: TIdStringList;
   LHandler: TIdCommandHandler;
 begin
-  if (not (csDesigning in ComponentState)) and (not (csLoading in ComponentState))
+  if (not IsDesignTime) and (not IsLoading)
    and (not FActive) and (AValue) and (not FCommandHandlersInitialized) then begin
     // InitializeCommandHandlers must be called only at runtime, and only after streaming
     // has occured. This used to be in .Loaded and that worked for forms. It failed
@@ -403,7 +402,7 @@ begin
         Command := 'Help'; {do not localize}
         Description.Text := 'Displays commands that the servers supports.'; {do not localize}
         NormalReply.Assign(HelpReply);
-        LHelpList := TStringList.Create; try
+        LHelpList := TIdStringList.Create; try
           for i := 0 to CommandHandlers.Count - 1 do begin
             LHandler := CommandHandlers.Items[i];
             if LHandler.HelpVisible then

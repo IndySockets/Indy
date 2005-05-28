@@ -72,7 +72,6 @@ Original Author: Ozz Nixon
 }
 
 uses
-  Classes,
   IdCommandHandlers, IdCmdTCPServer, IdContext, IdServerIOHandler;
 
 type

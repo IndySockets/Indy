@@ -39,7 +39,7 @@
 unit IdFTPListParseBullGCOS7;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdObjs;
+uses IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdFTPLPGOS7 = class(TIdFTPLineOwnedList)

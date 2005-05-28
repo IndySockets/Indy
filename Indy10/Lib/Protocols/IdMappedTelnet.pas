@@ -33,7 +33,7 @@ unit IdMappedTelnet;
 
 interface
 uses
-  Classes, IdAssignedNumbers,
+  IdAssignedNumbers,
   IdMappedPortTCP, 
   IdTCPServer;
 

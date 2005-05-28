@@ -51,7 +51,6 @@ interface
 }
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;

@@ -38,7 +38,6 @@ unit IdRemoteCMDServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers, IdContext,IdTCPClient, IdCustomTCPServer;
 
 type

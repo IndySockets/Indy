@@ -37,7 +37,6 @@ unit IdQotd;
 interface
 
 uses
-   Classes,
    IdAssignedNumbers,
    IdTCPClient;
 

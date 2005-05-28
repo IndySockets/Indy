@@ -70,15 +70,15 @@ unit IdHTTPHeaderInfo;
 interface
 
 uses
-  Classes,
   IdAuthentication,
   IdGlobal,
   IdGlobalProtocols,
   IdHeaderList,
+  IdObjs,
   IdSys;
 
 Type
-  TIdEntityHeaderInfo = class(TPersistent)
+  TIdEntityHeaderInfo = class(TIdPersistent)
   protected
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
@@ -98,9 +98,10 @@ Type
     FPragma: string;
     FHasContentLength: Boolean;
     //
-    procedure AssignTo(Destination: TPersistent); override;
+    procedure AssignTo(Destination: TIdPersistent); override;
     procedure ProcessHeaders; virtual;
     procedure SetHeaders; virtual;
+    function GetOwner: TIdPersistent; override;
 
     procedure SetContentLength(const AValue: Int64);
     procedure SetCustomHeaders(const AValue: TIdHeaderList);
@@ -136,7 +137,7 @@ Type
     property Pragma: string read FPragma write FPragma;
   end;
 
-  TIdProxyConnectionInfo = class(TPersistent)
+  TIdProxyConnectionInfo = class(TIdPersistent)
   protected
     FAuthentication: TIdAuthentication;
     FPassword: string;
@@ -145,7 +146,7 @@ Type
     FUsername: string;
     FBasicByDefault: Boolean;
 
-    procedure AssignTo(Destination: TPersistent); override;
+    procedure AssignTo(Destination: TIdPersistent); override;
     procedure SetProxyPort(const Value: Integer);
     procedure SetProxyServer(const Value: string);
   public
@@ -182,7 +183,7 @@ Type
     FBasicByDefault: Boolean;
     FAuthentication: TIdAuthentication;
     //
-    procedure AssignTo(Destination: TPersistent); override;
+    procedure AssignTo(Destination: TIdPersistent); override;
     procedure ProcessHeaders; override;
     procedure SetHeaders; override;
   public
@@ -240,7 +241,7 @@ const
 
 constructor TIdEntityHeaderInfo.Create;
 begin
-  inherited Create;
+  inherited;
 
   FRawHeaders := TIdHeaderList.Create;
   FRawHeaders.FoldLength := 1024;
@@ -257,7 +258,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdEntityHeaderInfo.AssignTo(Destination: TPersistent);
+procedure TIdEntityHeaderInfo.AssignTo(Destination: TIdPersistent);
 begin
   if Destination is TIdEntityHeaderInfo then
   begin
@@ -453,11 +454,16 @@ begin
 end;
 
 
+function TIdEntityHeaderInfo.GetOwner: TIdPersistent;
+begin
+  Result := inherited GetOwner;
+end;
+
 { TIdProxyConnectionInfo }
 
 constructor TIdProxyConnectionInfo.Create;
 begin
-  inherited Create;
+  inherited;
   Clear;
 end;
 
@@ -470,7 +476,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdProxyConnectionInfo.AssignTo(Destination: TPersistent);
+procedure TIdProxyConnectionInfo.AssignTo(Destination: TIdPersistent);
 begin
   if Destination is TIdProxyConnectionInfo then
   begin
@@ -576,7 +582,7 @@ begin
   end;
 end;
 
-procedure TIdRequestHeaderInfo.AssignTo(Destination: TPersistent);
+procedure TIdRequestHeaderInfo.AssignTo(Destination: TIdPersistent);
 begin
   if Destination is TIdRequestHeaderInfo then
   begin

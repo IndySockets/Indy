@@ -40,7 +40,6 @@ unit IdRSH;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;
 
 type

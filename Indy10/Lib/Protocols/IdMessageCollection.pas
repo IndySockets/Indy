@@ -34,14 +34,14 @@ unit IdMessageCollection;
 interface
 
 uses
-  Classes,
   IdMessage,
+  IdObjs,
   IdSys;
 
 type
   TIdMessageItems = class of TIdMessageItem;
 
-  TIdMessageItem = class(TCollectionItem)
+  TIdMessageItem = class(TIdCollectionItem)
   protected
     FAttempt: Integer;
     FQueued: Boolean;
@@ -50,11 +50,11 @@ type
     //
     property Attempt: Integer read FAttempt write FAttempt;
     property Queued: Boolean read FQueued write FQueued;
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
   end;
 
-  TIdMessageCollection = class(TCollection)
+  TIdMessageCollection = class(TIdCollection)
   private
     function GetIdMessage(index: Integer): TIdMessage;
     procedure SetIdMessage(index: Integer; const Value: TIdMessage);

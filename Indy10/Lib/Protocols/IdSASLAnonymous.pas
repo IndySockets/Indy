@@ -18,7 +18,7 @@
 unit IdSASLAnonymous;
 
 interface
-uses Classes, IdSASL, IdTCPConnection;
+uses IdSASL, IdTCPConnection;
 
 {
 Implements RFC 2245

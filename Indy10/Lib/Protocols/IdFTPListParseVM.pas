@@ -58,7 +58,7 @@ unit IdFTPListParseVM;
 interface
 
 uses
-  Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 IBM VM and z/VM parser
@@ -79,7 +79,7 @@ type
   protected
     FNumberRecs : Integer;
   public
-     constructor Create(AOwner: TCollection); override;
+     constructor Create(AOwner: TIdCollection); override;
     property NumberRecs : Integer read FNumberRecs write FNumberRecs;
   end;
   TIdVMBFSFTPListItem = class(TIdFTPListItem);
@@ -524,7 +524,7 @@ end;
 
 { TIdVMVirtualReaderFTPListItem }
 
-constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TCollection);
+constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   //There's no size for things in a virtual reader

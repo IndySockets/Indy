@@ -41,7 +41,7 @@ unit IdFTPListParseVSE;
 interface
 
 uses
-  IdFTPCommon, Classes,
+  IdFTPCommon, 
   IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs, IdSys;
 
 type
@@ -108,7 +108,7 @@ type
   end;
   TIdVSEVTOCFTPListItem = class(TIdFTPListItem)
   public
-  constructor Create(AOwner: TCollection); override;
+  constructor Create(AOwner: TIdCollection); override;
   end;
   TIdFTPLPVSEVTOC = class(TIdFTPListBase)
   protected
@@ -618,7 +618,7 @@ end;
 
 { TIdVSEVTOCFTPListItem }
 
-constructor TIdVSEVTOCFTPListItem.Create(AOwner: TCollection);
+constructor TIdVSEVTOCFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   SizeAvail := False;

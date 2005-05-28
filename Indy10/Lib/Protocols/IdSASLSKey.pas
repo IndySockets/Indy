@@ -33,7 +33,7 @@
 unit IdSASLSKey;
 
 interface
-uses Classes, IdSASLUserPass, IdSASL;
+uses IdSASLUserPass, IdSASL;
 {
 S/KEY SASL mechanism based on RFC 2222.
 

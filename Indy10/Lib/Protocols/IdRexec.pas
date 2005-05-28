@@ -48,7 +48,6 @@ unit IdRexec;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdRemoteCMDClient,
   IdTCPClient;

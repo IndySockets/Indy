@@ -24,7 +24,6 @@ unit IdMessageCoderXXE;
 interface
 
 uses
-  Classes,
   IdMessageCoderUUE, IdMessageCoder, IdMessage;
 
 type

@@ -135,7 +135,7 @@ unit IdFTPListParseBase;
 interface
 
 uses
-  Classes, IdFTPList, IdObjs;
+  IdFTPList, IdObjs;
 
 type
 
@@ -162,7 +162,7 @@ type
     class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; virtual;
   end;
   TIdFTPListParseClass = class of TIdFTPListBase;
-  TIdFTPRegParseList = class(TList)
+  TIdFTPRegParseList = class(TIdList)
   protected
     function FindParserByDirData(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
     function FindParserByIdent(const AIdent : String) : TIdFTPListParseClass;

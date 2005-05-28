@@ -37,7 +37,7 @@
 unit IdIdent;
 
 interface
-uses Classes, IdAssignedNumbers, IdException, IdTCPClient;
+uses IdAssignedNumbers, IdException, IdTCPClient;
 { 2001 - Feb 12 - J. Peter Mugaas
          started this client
 

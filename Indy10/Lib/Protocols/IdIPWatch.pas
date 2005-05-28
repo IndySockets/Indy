@@ -63,7 +63,6 @@ Original Author: Dave Nosker - AfterWave Technologies (allbyte@jetlink.net)
 interface
 
 uses
-  Classes,
   IdComponent, IdThread, IdObjs;
 
 const
@@ -76,7 +75,7 @@ type
   protected
     FInterval: Integer;
     FSender: TObject;
-    FTimerEvent: TNotifyEvent;
+    FTimerEvent: TIdNotifyEvent;
     //
     procedure Run; override;
     procedure TimerEvent;
@@ -93,7 +92,7 @@ type
     FLocalIPHuntBusy: Boolean;
     FMaxHistoryEntries: Integer;
     FOnLineCount: Integer;
-    FOnStatusChanged: TNotifyEvent;
+    FOnStatusChanged: TIdNotifyEvent;
     FPreviousIP: string;
     FThread: TIdIPWatchThread;
     FWatchInterval: Cardinal;
@@ -121,7 +120,7 @@ type
     property HistoryFilename: string read FHistoryFilename write FHistoryFilename;
     property MaxHistoryEntries: Integer read FMaxHistoryEntries write SetMaxHistoryEntries
      default IP_WATCH_HIST_MAX;
-    property OnStatusChanged: TNotifyEvent read FOnStatusChanged write FOnStatusChanged;
+    property OnStatusChanged: TIdNotifyEvent read FOnStatusChanged write FOnStatusChanged;
     property WatchInterval: Cardinal read FWatchInterval write SetWatchInterval
      default IP_WATCH_INTERVAL;
   end;
@@ -212,7 +211,7 @@ begin
 
     if ((WasOnline) and (not FIsOnline)) or ((not WasOnline) and (FIsOnline)) then
     begin
-      if (not (csDesigning in ComponentState)) and Assigned(FOnStatusChanged) then
+      if (not IsDesignTime) and Assigned(FOnStatusChanged) then
       begin
         FOnStatusChanged(Self);
       end;
@@ -257,7 +256,7 @@ end;
 
 procedure TIdIPWatch.LoadHistory;
 begin
-  if not (csDesigning in ComponentState) then begin
+  if not IsDesignTime then begin
     FIPHistoryList.Clear;
     if (Sys.FileExists(FHistoryFilename)) and (FHistoryEnabled) then
     begin
@@ -282,7 +281,7 @@ end;
 
 procedure TIdIPWatch.SaveHistory;
 begin
-  if (not (csDesigning in ComponentState)) and FHistoryEnabled then begin
+  if (not IsDesignTime) and FHistoryEnabled then begin
     FIPHistoryList.SaveToFile(FHistoryFilename);
   end;
 end;
@@ -291,7 +290,7 @@ procedure TIdIPWatch.SetActive(Value: Boolean);
 begin
   if Value <> FActive then begin
     FActive := Value;
-    if not (csDesigning in ComponentState) then begin
+    if not IsDesignTime then begin
       if FActive then begin
         FThread := TIdIPWatchThread.Create;
         with FThread do begin

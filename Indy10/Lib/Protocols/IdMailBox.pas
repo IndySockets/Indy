@@ -44,7 +44,6 @@ unit IdMailBox;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
   IdMessage,
     IdException,

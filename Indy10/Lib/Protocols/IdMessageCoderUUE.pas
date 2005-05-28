@@ -75,7 +75,6 @@ unit IdMessageCoderUUE;
 interface
 
 uses
-  Classes,
   IdCoder3to4,
   IdMessageCoder,
   IdMessage,

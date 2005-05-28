@@ -42,8 +42,7 @@ unit IdServerInterceptLogBase;
 interface
 
 uses
-  Classes,
-  IdIntercept, IdGlobal, IdLogBase;
+  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent;
 
 type
   TIdServerInterceptLogBase = class(TIdServerIntercept)
@@ -56,7 +55,7 @@ type
     procedure InitComponent; override;
   public
     procedure Init; override;
-    function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
+    function Accept(AConnection: TIdNativeComponent): TIdConnectionIntercept; override;
     destructor Destroy;override;
     procedure DoLogWriteString(AText: string);virtual;abstract;
     procedure LogWriteString(AText: string);virtual;
@@ -84,7 +83,7 @@ uses
 
 { TIdServerInterceptLogFile }
 
-function TIdServerInterceptLogBase.Accept( AConnection: TComponent): TIdConnectionIntercept;
+function TIdServerInterceptLogBase.Accept( AConnection: TIdNativeComponent): TIdConnectionIntercept;
 begin
   Result:=TIdServerInterceptLogFileConnection.create(nil);
   TIdServerInterceptLogFileConnection(Result).FServerInterceptLog:=self;

@@ -69,7 +69,6 @@ unit IdHeaderList;
 interface
 
 uses
-  Classes,
   IdSys,
   IdObjs;
 

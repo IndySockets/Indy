@@ -48,7 +48,6 @@ Original Author: Ozz Nixon
 }
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;

@@ -36,7 +36,7 @@ unit IdFTPListParseAS400;
 
 interface
 
-uses Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdAS400FTPListItem = class(TIdOwnerFTPListItem);

@@ -37,7 +37,7 @@ unit IdFTPListParseXecomMicroRTOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs, Classes;
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
    TIdXecomMicroRTOSTPListItem = class(TIdFTPListItem)
@@ -45,7 +45,7 @@ type
      FMemStart: Cardinal;
      FMemEnd: Cardinal;
    public
-     constructor Create(AOwner: TCollection); override;
+     constructor Create(AOwner: TIdCollection); override;
      property MemStart: Cardinal read FMemStart write FMemStart;
      property MemEnd: Cardinal read FMemEnd write FMemEnd;
    end;
@@ -140,7 +140,7 @@ end;
 
 { TIdXecomMicroRTOSTPListItem }
 
-constructor TIdXecomMicroRTOSTPListItem.Create(AOwner: TCollection);
+constructor TIdXecomMicroRTOSTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   ModifiedAvail := False;
