@@ -503,6 +503,9 @@ uses
     IdCoderBinHex4,
     IdSASLCollection,
     IdSys,
+    {$IFNDEF DotNet}
+    IdStreamVCL,
+    {$ENDIF}
     IdObjs,
     IdMessageCollection,
     IdBaseComponent;
@@ -2936,7 +2939,11 @@ var
     LDestStream: TIdTCPStream;
     LTempStream: TIdMemoryStream;
     LTheBytes: TIdBytes;
+ {$IFNDEF DotNet}
+   LStr : TIdStreamVCL;
+ {$ENDIF}
 begin
+
     Result := False;
     CheckConnectionState([csAuthenticated, csSelected]);
     if Length(AMBName) <> 0 then begin                                          {Do not Localize}
@@ -2946,28 +2953,51 @@ begin
         end;
         LLength := AStream.Size;
         LTempStream := TIdMemoryStream.Create;
+       {$IFNDEF DotNet}
+        LStr := TIdStreamVCL.Create(LTempStream);
+       {$ENDIF}
         try
           //Hunt for CRLF.CRLF, if present then we need to remove it...
           SetLength(LTheBytes, 1);
           LTempStream.CopyFrom(AStream, LLength);
           for LN := 0 to LTempStream.Size-5 do begin
+              {$IFDEF DOTNET}
               LTempStream.Read(LTheBytes, 1, LN);
+              {$ELSE}
+              LStr.ReadBytes(LTheBytes, 1, LN);
+              {$ENDIF}
               if LTheBytes[0] <> 13 then begin
                   continue;
               end;
+               {$IFDEF DOTNET}
               LTempStream.Read(LTheBytes, 1, LN+1);
+              {$ELSE}
+              LStr.ReadBytes(LTheBytes, 1, LN+1);
+               {$ENDIF}
               if LTheBytes[0] <> 10 then begin
                   continue;
               end;
+               {$IFDEF DOTNET}
               LTempStream.Read(LTheBytes, 1, LN+2);
+               {$ELSE}
+               LStr.ReadBytes(LTheBytes, 1, LN+2);
+               {$ENDIF}
               if LTheBytes[0] <> Ord('.') then begin
                   continue;
               end;
+                {$IFDEF DOTNET}
               LTempStream.Read(LTheBytes, 1, LN+3);
+               {$ELSE}
+               LStr.ReadBytes(LTheBytes, 1, LN+3);
+               {$ENDIF}
               if LTheBytes[0] <> 13 then begin
                   continue;
               end;
+              {$IFDEF DOTNET}
               LTempStream.Read(LTheBytes, 1, LN+4);
+               {$ELSE}
+               LStr.ReadBytes(LTheBytes, 1, LN+4);
+               {$ENDIF}
               if LTheBytes[0] <> 10 then begin
                   continue;
               end;
@@ -3029,8 +3059,12 @@ begin
               end;
           end;
         finally
+ {$IFNDEF DotNet}
+            Sys.FreeAndNil( LStr);
+ {$ENDIF}
             Sys.FreeAndNil(LTempStream);
         end;
+
     end;
 end;
 
@@ -5991,7 +6025,7 @@ begin
   while LBytesRead < LNumSourceBytes do begin
       ASourceStream.Read(LByte,1);
       if ((LByte[0] <> 13) and (LByte[0] <> 10)) then begin
-          ADestStream.Write(LByte, 0, 1);
+          ADestStream.Write(LByte, 1);
       end;
       Inc(LBytesRead);
   end;
