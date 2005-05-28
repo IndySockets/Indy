@@ -165,7 +165,6 @@ unit IdStack;
 interface
 
 uses
-  Classes,
   IdException, IdStackConsts, IdObjs, IdGlobal, IdSys;
 
 type
