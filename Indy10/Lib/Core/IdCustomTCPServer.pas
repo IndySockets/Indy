@@ -452,7 +452,7 @@ uses
   IdGlobalCore,
   IdResourceStringsCore, IdReplyRFC,
   IdSchedulerOfThreadDefault, IdStack,
-  IdThreadSafe, System.ComponentModel;
+  IdThreadSafe;
 
 { TIdCustomTCPServer }
 

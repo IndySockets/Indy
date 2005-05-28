@@ -75,7 +75,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsCore, IdSys, IdObjsFCL;
+  IdException, IdResourceStringsCore, IdSys;
 
 { TIdInterceptSimLog }
 

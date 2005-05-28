@@ -78,21 +78,38 @@ type
   TIdTCPStream = class(TIdStream2)
   protected
     FConnection: TIdTCPConnection;
+    {$IFDEF DotNetDistro}
     function GetPosition: Int64; override;
+    {$ENDIF}
     function GetSize: Int64; override;
-    procedure SetSize(ASize: Int64); override;
+//  procedure SetSize(NewSize: Int64);
+    {$IFDEF DOTNET}
+    procedure SetSize(NewSize: Int64); override;
+    {$ELSE}
+    procedure SetSize(const NewSize: Int64); override;
+    {$ENDIF}
   public
     constructor Create(
       AConnection: TIdTCPConnection
       ); reintroduce;
+{$IFDEF DOTNET}
     function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
+{$ELSE}
+    function Read(var Buffer; Count: Longint): Longint;  override;
+    function Write(const Buffer; Count: Longint): Longint;  override;
+
+{$ENDIF}
     function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
     property Connection: TIdTCPConnection read FConnection;
   end;
 
 implementation
 
+{$IFNDEF DOTNET}
+uses SysUtils;
+
+{$ENDIF}
 { TIdTCPStream }
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection);
@@ -106,11 +123,14 @@ begin
   Result := 0;
 end;
 
+{$IFDEF DotNetDistro}
 function TIdTCPStream.GetPosition: Int64;
 begin
   Result := -1;
 end;
+{$ENDIF}
 
+{$IFDEF DOTNET}
 function TIdTCPStream.Read(var ABuffer: array of Byte; AOffset,
   ACount: Longint): Longint;
 var
@@ -121,16 +141,35 @@ begin
   ABuffer := TempBuff;
   Result := ACount;
 end;
+{$ELSE}
+function TIdTCPStream.Read(var Buffer; Count: Longint): Longint;
+var
+  TempBuff: TIdBytes;
+begin
+  SetLength(TempBuff,Count);
+
+  Connection.IOHandler.ReadBytes(TempBuff, Count, false);
+  Move(TempBuff,Buffer,Count);
+  Result := Count;
+end;
+{$ENDIF}
 
 function TIdTCPStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
 begin
   Result := 0;
 end;
 
-procedure TIdTCPStream.SetSize(ASize: Int64);
+{$IFDEF DOTNET}
+procedure TIdTCPStream.SetSize(NewSize: Int64);
+{$ELSE}
+procedure TIdTCPStream.SetSize(const NewSize: Int64);
+{$ENDIF}
+
 begin
 //
 end;
+
+{$IFDEF DOTNET}
 
 function TIdTCPStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
 begin
@@ -140,7 +179,13 @@ begin
   Connection.IOHandler.Write(ToBytes(ABuffer, ACount));
   Result := ACount - AOffset;
 end;
-
+{$ELSE}
+function TIdTCPStream.Write(const Buffer; Count: Longint): Longint;
+begin
+  Connection.IOHandler.Write(RawToBytes(Buffer,Count));
+  Result := Count;
+end;
+{$ENDIF}
 end.
 
 
