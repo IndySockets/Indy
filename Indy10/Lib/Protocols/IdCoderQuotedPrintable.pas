@@ -113,7 +113,7 @@ unit IdCoderQuotedPrintable;
   Rewrote the Encoder according to the new design}
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   IdCoder,
   IdObjs,
@@ -134,7 +134,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdObjsFCL;
+  IdGlobal, IdGlobalProtocols;
 
 
 { TIdDecoderQuotedPrintable }
@@ -241,7 +241,11 @@ begin
             WriteStringToStream(FStream, Char(b) + EOL);
             StripEOLChars;
           end else begin
+          {$IFDEF DOTNET}
             FStream.Write(Char(b));
+          {$ELSE}
+             FStream.Write(b,1);
+          {$ENDIF}
           end;
         end else begin
           //ignore soft line breaks -
