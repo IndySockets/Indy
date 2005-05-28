@@ -12,6 +12,7 @@ uses
   //protocols
   IdTestCoderHeader,
   IdTestMessageCoderMime,
+  IdTestSMTPServer,
 
   //system
   IdTestSys;
