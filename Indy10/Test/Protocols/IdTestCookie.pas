@@ -24,14 +24,24 @@ begin
 
  aCookie:=TIdNetscapeCookie.Create(nil);
  try
+ //subdomain should not be valid for other or parent
+ aCookie.Domain:='c1.b.a';
+
+ aSuccess:=aCookie.IsValidCookie('c2.b.a');
+ Assert(not aSuccess);
+
+ aSuccess:=aCookie.IsValidCookie('b.a');
+ Assert(not aSuccess);
+
  //should be valid for all subdomains
- aCookie.Domain:='.example.com';
+ aCookie.Domain:='.b.a';
 
- aSuccess:=aCookie.IsValidCookie('sub.example.com');
+ aSuccess:=aCookie.IsValidCookie('c.b.a');
  Assert(aSuccess);
 
- aSuccess:=aCookie.IsValidCookie('sub.sub.example.com');
+ aSuccess:=aCookie.IsValidCookie('d.c.b.a');
  Assert(aSuccess);
+
  finally
  Sys.FreeAndNil(aCookie);
  end;
