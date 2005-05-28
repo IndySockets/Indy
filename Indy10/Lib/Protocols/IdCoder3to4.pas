@@ -148,10 +148,9 @@ unit IdCoder3to4;
 interface
 
 uses
-  Classes,
   IdCoder,
   IdGlobal,
-  IdStreamRandomAccess,
+  idObjs,
   IdSys;
 
 type
@@ -163,7 +162,7 @@ type
     FFillChar: Char;
     function EncodeIdBytes(ABuffer: TIdBytes): TIdBytes;
   public
-    function Encode(ASrcStream: TIdStreamRandomAccess;
+    function Encode(ASrcStream: TIdStream2;
      const ABytes: Integer = MaxInt): string; override;
     //procedure EncodeUnit(const AIn1, AIn2, AIn3: Byte; var VOut: TIdBytes);
   published
@@ -222,7 +221,7 @@ begin
     LIn := ToBytes(AIn); // if in dotnet, convert to serialisable format
     LOut := InternalDecode(LIn, AStartPos, ABytes);
     // Write out data to stream
-    FStream.Write(LOut);
+    FStream.Write(LOut, 0, ABytes);
   end;
 end;
 
@@ -319,7 +318,7 @@ end;
 
 { TIdEncoder3to4 }
 
-function TIdEncoder3to4.Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: Integer = MaxInt): string;
+function TIdEncoder3to4.Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt): string;
 //TODO: Make this more efficient. Profile it to test, but maybe make single
 // calls to ReadBuffer then pull from memory
 var
@@ -338,7 +337,7 @@ begin
   LBufSize := Min(ASrcStream.Size - ASrcStream.Position, ABytes);
   if LBufSize > 0 then begin
     SetLength(LBuffer, LBufSize);
-    ASrcStream.ReadBytes(LBuffer, LBufSize);
+    ASrcStream.Read(LBuffer, LBufSize);
     Result := BytesToString(EncodeIdBytes(LBuffer));
   end else begin
     Result := '';

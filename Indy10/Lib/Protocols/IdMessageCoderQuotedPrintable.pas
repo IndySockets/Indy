@@ -44,12 +44,9 @@ interface
 //Written by C Costelloe, 23rd September 2003
 
 uses
-  Classes,
   IdMessageCoder,
   IdMessage,
-  IdStream,
-  IdStreamVCL,
-  IdStreamRandomAccess,
+  IdGlobal, IdObjs,
   IdSys;
 
   {Note: Decoding handled by IdMessageDecoderMIME}
@@ -57,7 +54,7 @@ uses
 type
   TIdMessageEncoderQuotedPrintable = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream); override;
+    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
   end;
 
   TIdMessageEncoderInfoQuotedPrintable = class(TIdMessageEncoderInfo)
@@ -68,7 +65,7 @@ type
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdGlobal, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
+  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
   IdCoderHeader;
 
 { TIdMessageEncoderInfoQuotedPrintable }
@@ -81,12 +78,12 @@ end;
 
 { TIdMessageEncoderQuotedPrintable }
 
-procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream);
+procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TIdStream2; ADest: TIdStream2);
 var
   LEncoder: TIdEncoderQuotedPrintable;
 begin
   LEncoder := TIdEncoderQuotedPrintable.Create(nil); try
-    ADest.Write(LEncoder.Encode(ASrc, ASrc.Size));
+    WriteStringToStream(ADest, LEncoder.Encode(ASrc, ASrc.Size));
   finally Sys.FreeAndNil(LEncoder); end;
 end;
 

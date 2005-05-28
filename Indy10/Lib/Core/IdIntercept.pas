@@ -90,7 +90,7 @@ type
     FOnSend: TIdInterceptStreamEvent;
     //
     procedure InitComponent; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetIntercept(AValue: TIdConnectionIntercept);
     //
   public
@@ -188,8 +188,8 @@ Begin
   end;
 End;
 
-procedure TIdConnectionIntercept.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdConnectionIntercept.Notification(AComponent: TIdNativeComponent;
+  Operation: TIdOperation);
 begin
   inherited Notification(AComponent, OPeration);
 

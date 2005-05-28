@@ -59,7 +59,6 @@ unit IdThreadSafe;
 interface
 
 uses
-  Classes,
   IdGlobal,
   IdSys,
   IdObjs;
@@ -188,16 +187,16 @@ type
     property Value: Double read GetValue write SetValue;
   end;
   //TODO: Later make this descend from TIdThreadSafe instead
-  TIdThreadSafeList = class(TThreadList)
+  TIdThreadSafeList = class(TIdThreadList)
   public
-    procedure Assign(AThreadList: TThreadList);overload;
-    procedure Assign(AList: TList);overload;
+    procedure Assign(AThreadList: TIdThreadList);overload;
+    procedure Assign(AList: TIdList);overload;
     // Here to make it virtual
     constructor Create; virtual;
     function IsCountLessThan(const AValue: Cardinal): Boolean;
     function IsEmpty: Boolean;
-    function Pop: TObject;
-    function Pull: TObject;
+    function Pop: TIdBaseObject;
+    function Pull: TIdBaseObject;
   End;
 
 implementation
@@ -490,7 +489,7 @@ begin
   finally UnlockList; end;
 end;
 
-procedure TIdThreadSafeList.Assign(AList: TList);
+procedure TIdThreadSafeList.Assign(AList: TIdList);
 var
   i: integer;
 begin
@@ -503,9 +502,9 @@ begin
   finally UnlockList; end;
 end;
 
-procedure TIdThreadSafeList.Assign(AThreadList: TThreadList);
+procedure TIdThreadSafeList.Assign(AThreadList: TIdThreadList);
 var
-  LList:TList;
+  LList:TIdList;
 begin
   LList := AThreadList.LockList; try
     Assign(LList);

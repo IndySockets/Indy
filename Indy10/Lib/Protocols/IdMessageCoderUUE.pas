@@ -79,9 +79,8 @@ uses
   IdCoder3to4,
   IdMessageCoder,
   IdMessage,
-  IdStreamVCL,
-  IdStream,
-  IdStreamRandomAccess,
+  IdGlobal,
+  IdObjs,
   IdSys;
 
 type
@@ -89,7 +88,7 @@ type
   protected
     FCodingType: string;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean): TIdMessageDecoder; override;
     property CodingType: string read FCodingType;
   end;
 
@@ -102,7 +101,7 @@ type
   protected
     FEncoderClass: TIdEncoder3to4Class;
   public
-    procedure Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream); override;
+    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
   end;
 
   TIdMessageEncoderUUE = class(TIdMessageEncoderUUEBase)
@@ -118,7 +117,7 @@ type
 implementation
 
 uses
-  IdCoderUUE, IdCoderXXE, IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols;
+  IdCoderUUE, IdCoderXXE, IdException, IdGlobalProtocols, IdResourceStringsProtocols;
 
 { TIdMessageDecoderInfoUUE }
 
@@ -142,7 +141,7 @@ end;
 
 { TIdMessageDecoderUUE }
 
-function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean): TIdMessageDecoder;
 var
   LDecoder: TIdDecoder4to3;
   LLine: string;
@@ -199,17 +198,17 @@ end;
 
 { TIdMessageEncoderUUEBase }
 
-procedure TIdMessageEncoderUUEBase.Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream);
+procedure TIdMessageEncoderUUEBase.Encode(ASrc: TIdStream2; ADest: TIdStream2);
 var
   LEncoder: TIdEncoder3to4;
 begin
   ASrc.Position := 0;
-  ADest.Write('begin ' + Sys.IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
+  WriteStringToStream(ADest, 'begin ' + Sys.IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
   LEncoder := FEncoderClass.Create(nil); try
-    while not ASrc.EOF do begin
-      ADest.Write(LEncoder.Encode(ASrc, 45) + EOL);
+    while ASrc.Position = (ASrc.Size - 1) do begin
+      WriteStringToStream(ADest, LEncoder.Encode(ASrc, 45) + EOL);
     end;
-    ADest.Write(LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
+    WriteStringToStream(ADest, LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
   finally Sys.FreeAndNil(LEncoder); end;
 end;
 

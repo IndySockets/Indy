@@ -208,7 +208,6 @@ interface
 }
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdCommandHandlers,
   IdContext,
@@ -222,6 +221,8 @@ uses
   IdServerIOHandler,
   IdMailBox,
   IdSys,
+  IdObjs,
+  IdBaseComponent,
   IdTCPConnection, IdYarn;
 
 {
@@ -251,7 +252,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
    // Any functions for vars
@@ -843,7 +844,7 @@ end;
 constructor TIdPOP3ServerContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdThreadList = nil
   );
 begin
   inherited;

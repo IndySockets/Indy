@@ -334,22 +334,20 @@ of bytes that is not freed between each call to WriteBytes.
 interface
 
 uses
-  Classes,
-  IdStreamVCL, //TODO: Remove dependency on IdStreamVCL and return to IdStream
-  IdGlobal, IdException, IdStream, IdSys;
+  IdGlobal, IdException, IdSys, IdObjs;
 
 type
   EIdNotEnoughDataInBuffer = class(EIdException);
   EIdTooMuchDataInBuffer = class(EIdException); // only 2GB is allowed -
 
-  TIdBufferBytesRemoved = procedure(ASender: TObject; ABytes: Integer) of object;
+  TIdBufferBytesRemoved = procedure(ASender: TIdBaseObject; ABytes: Integer) of object;
 
   // TIdBuffer is used as an internal buffer to isolate Indy from pointers and
   // memory allocations. It also allows optimizations to be kept in a single place.
   //
   // TIdBuffer is primarily used as a read/write buffer for the communication layer.
 
-  TIdBuffer = class(TObject)
+  TIdBuffer = class(TIdBaseObject)
   protected
     FBytes: TIdBytes;
     FEncoding: TIdEncoding;
@@ -388,7 +386,7 @@ type
     // will extract number of bytes and treat as AnsiString though WideString will be returned in DotNet
     function Extract(AByteCount: Integer = -1): string;
     // all 3 extract routines append to existing data, if any
-    procedure ExtractToStream(AStream: TIdStreamVCL; AByteCount: Integer = -1; const AIndex : Integer=-1);
+    procedure ExtractToStream(AStream: TIdStream2; AByteCount: Integer = -1; const AIndex : Integer=-1);
     procedure ExtractToIdBuffer( ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer=-1);
     procedure ExtractToBytes(
       var VBytes: TIdBytes;
@@ -415,7 +413,7 @@ type
       AIndex: Integer
       ): Byte;
     procedure Remove(AByteCount: Integer);
-    procedure SaveToStream(AStream: TIdStream);
+    procedure SaveToStream(AStream: TIdStream2);
         {
     Most of these now have an ADestIndex parameter.  If that is less than 0,
     we are writing data sequentially.
@@ -442,7 +440,7 @@ type
       ); overload;
 
     procedure Write(
-      AStream: TIdStreamVCL;
+      AStream: TIdStream2;
       AByteCount: Integer = 0
       ); overload;
     procedure Write(const AValue : Int64; const ADestIndex : Integer=-1); overload;  
@@ -606,7 +604,7 @@ begin
   ABuffer.Write(LBytes);
 end;
 
-procedure TIdBuffer.ExtractToStream(AStream: TIdStreamVCL; AByteCount: Integer = -1; const AIndex : Integer=-1);
+procedure TIdBuffer.ExtractToStream(AStream: TIdStream2; AByteCount: Integer = -1; const AIndex : Integer=-1);
 var LIndex : Integer;
   LBytes : TIdBytes;
 begin
@@ -666,7 +664,7 @@ begin
 end;
 
 procedure TIdBuffer.Write(
-  AStream: TIdStreamVCL;
+  AStream: TIdStream2;
   AByteCount: Integer
   );
 var
@@ -688,7 +686,7 @@ begin
     CheckAdd(LAdded,0);
     CompactHead;
     SetLength(FBytes, LLength + LAdded);
-    AStream.ReadBytes(FBytes, LAdded, LLength);
+    AStream.Read(FBytes, LAdded, LLength);
     Inc(FSize, LAdded);
   end;
 end;
@@ -773,7 +771,7 @@ begin
   Result := FBytes[FHeadIndex + AIndex];
 end;
 
-procedure TIdBuffer.SaveToStream(AStream: TIdStream);
+procedure TIdBuffer.SaveToStream(AStream: TIdStream2);
 begin
   CompactHead(False);
   AStream.Write(FBytes, Size);

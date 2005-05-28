@@ -174,11 +174,12 @@ interface
 
 uses
   IdCustomTransparentProxy,
-  Classes,
+  IdBaseComponent,
   IdGlobal,
   IdIOHandler,
   IdSocketHandle,
-  IdSys;
+  IdSys,
+  IdObjs;
 
 const
   IdDefTimeout = 0;
@@ -201,9 +202,9 @@ type
     FBoundPortMax: Integer;
     FBoundPortMin: Integer;
     FDefaultPort: Integer;
-    FOnBeforeBind: TNotifyEvent;
-    FOnAfterBind: TNotifyEvent;
-    FOnSocketAllocated: TNotifyEvent;
+    FOnBeforeBind: TIdNotifyEvent;
+    FOnAfterBind: TIdNotifyEvent;
+    FOnSocketAllocated: TIdNotifyEvent;
     FTransparentProxy: TIdCustomTransparentProxy;
     FUseNagle: Boolean;
     FIPVersion: TIdIPVersion;
@@ -213,7 +214,7 @@ type
     procedure DoAfterBind; virtual;
     procedure DoSocketAllocated; virtual;
     procedure InitComponent; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     function GetDestination: string; override;
     procedure SetDestination(const AValue: string); override;
     function GetTransparentProxy: TIdCustomTransparentProxy; virtual;
@@ -236,9 +237,9 @@ type
     property BoundPortMax: Integer read FBoundPortMax write FBoundPortMax;
     property BoundPortMin: Integer read FBoundPortMin write FBoundPortMin;
     // events
-    property OnBeforeBind:TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
-    property OnAfterBind:TNotifyEvent read FOnAfterBind write FOnAfterBind;
-    property OnSocketAllocated:TNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
+    property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind:TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnSocketAllocated:TIdNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
   published
     property BoundIP: string read FBoundIP write FBoundIP;
     property BoundPort: Integer read FBoundPort write FBoundPort default 0;
@@ -456,7 +457,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandlerSocket.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdIOHandlerSocket.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   if (Operation = opRemove) and (AComponent = FTransparentProxy) then begin
     FTransparentProxy := nil;

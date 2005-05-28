@@ -91,8 +91,8 @@ unit IdMappedFTP;
 interface
 
 uses
-  Classes, IdContext, IdAssignedNumbers, IdMappedPortTCP, IdStack, IdYarn,
-  IdTCPConnection,IdTCPServer, IdThread;
+  IdContext, IdAssignedNumbers, IdMappedPortTCP, IdStack, IdYarn,
+  IdTCPConnection,IdTCPServer, IdThread, IdObjs;
 
 type
   TIdMappedFtpDataThread = class;
@@ -115,7 +115,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     property FtpCommand: string read FFtpCommand write FFtpCommand;
     property FtpParams: string read FFtpParams write FFtpParams;
@@ -280,7 +280,7 @@ end; //TIdMappedPortTCP.DoExecute
 constructor TIdMappedFtpContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);

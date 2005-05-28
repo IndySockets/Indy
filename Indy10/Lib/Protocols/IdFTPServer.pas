@@ -719,11 +719,11 @@ TODO:
 interface
 
 uses
-  Classes, IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException, IdExplicitTLSClientServerBase,
-  IdFTPBaseFileSystem, IdFTPCommon,
+  IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException, IdExplicitTLSClientServerBase,
+  IdFTPBaseFileSystem, IdFTPCommon, IdBaseComponent,
   IdFTPList, IdFTPListOutput, IdFTPServerContextBase,  IdReply, IdReplyFTP,
   IdReplyRFC, IdScheduler, IdServerIOHandler, IdTCPConnection, IdCmdTCPServer,  IdTCPServer,
-   IdThread, IdObjs, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSys;
+  IdThread, IdObjs, IdUserAccounts,  IdYarn, IdZLibCompressorBase, IdSys;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);
@@ -820,7 +820,7 @@ type
   TIdOnPASV = procedure(ASender: TIdFTPServerContext; var VIP : String; var VPort : Word; const AIPVer : TIdIPVersion) of object;
 
   TIdFTPServer = class;
-  TIdFTPSecurityOptions = class(TPersistent)
+  TIdFTPSecurityOptions = class(TIdPersistent)
   protected
   // RFC 2577 Recommends these
   // Note that the current code already hides user ID's by
@@ -836,8 +836,8 @@ type
     FDisableSTATCommand : Boolean;
     FPermitCCC : Boolean;
   public
-    constructor Create;
-    procedure Assign(Source: TPersistent); override;
+    constructor Create; override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     //limit login attempts - some hackers will try guessing passwords from a dictionary
     property PasswordAttempts : Cardinal read FPasswordAttempts write FPasswordAttempts
@@ -877,7 +877,7 @@ type
     property PermitCCC : Boolean read FPermitCCC write FPermitCCC default DEF_FTP_PERMIT_CCC;
   end;
 
-  TIdDataChannel = class(TObject)
+  TIdDataChannel = class(TIdBaseObject)
   protected
     FNegotiateTLS : Boolean;
     FControlContext: TIdFTPServerContext;
@@ -890,7 +890,7 @@ type
     FServer : TIdFTPServer;
     FRequirePASVFromSameIP : Boolean;
     FStopped : Boolean;
-    FData : TObject;
+    FData : TIdBaseObject;
     procedure SetErrorReply(const AValue: TIdReplyRFC);
     procedure SetOKReply(const AValue: TIdReplyRFC);
     function GetPeerIP: String;
@@ -904,7 +904,7 @@ type
     property PeerIP : String read GetPeerIP;
     property PeerPort : Integer read GetPeerPort;
     property Stopped : Boolean read FStopped write FStopped;
-    property Data : TObject read FData write FData;
+    property Data : TIdBaseObject read FData write FData;
     property Server : TIdFTPServer read FServer;
     property OKReply: TIdReplyRFC read FOKReply write SetOKReply;
     property ErrorReply: TIdReplyRFC read FErrorReply write SetErrorReply;
@@ -948,8 +948,8 @@ type
     FZLibStratagy : Integer; //0 - default
     //
     procedure ResetZLibSettings;
-    procedure PortOnAfterBind(ASender : TObject);
-    procedure PortOnBeforeBind(ASender : TObject);
+    procedure PortOnAfterBind(ASender : TIdBaseObject);
+    procedure PortOnBeforeBind(ASender : TIdBaseObject);
     procedure SetUserSecurity(const Value: TIdFTPSecurityOptions);
     procedure CreateDataChannel(APASV: Boolean = False);
     function  IsAuthenticated(ASender: TIdCommand): Boolean;
@@ -958,7 +958,7 @@ type
     procedure ReInitialize; override;
 
   public
-    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil); override;
     destructor Destroy; override;
     property DataChannel : TIdDataChannel read FDataChannel;
     property Server : TIdFTPServer read FServer write FServer;
@@ -1193,7 +1193,7 @@ type
     procedure InitializeCommandHandlers; override;
     procedure ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
       var ADirContents: TIdStringList; ADetails: Boolean; const ACmd : String = 'LIST'; const ASwitches : String=''); {do not localize}
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetAnonymousAccounts(const AValue: TIdStringList);
     procedure SetUserAccounts(const AValue: TIdCustomUserManager);
     procedure SetFTPSecurityOptions(const AValue: TIdFTPSecurityOptions);
@@ -1302,7 +1302,7 @@ implementation
 
 uses
   IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols, IdGlobalProtocols,
-  IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle, IdStrings, IdStreamVCL,
+  IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle, IdStrings,
   IdTCPClient, IdEMailAddress, IdStack;
 
 const
@@ -1353,7 +1353,7 @@ const
   STATES : array [0..1] of string = ('ON','OFF'); {do not localize}
 
 { TIdFTPServer }
-constructor TIdFTPServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdFTPServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FUserSecurity := TIdFTPSecurityOptions.Create;
@@ -2387,7 +2387,7 @@ begin
   FSITECommands.Assign(AValue);
 end;
 
-procedure TIdFTPServer.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdFTPServer.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, Operation);
   if (Operation = opRemove) then begin
@@ -3248,7 +3248,7 @@ var
   LCxt : TIdFTPServerContext;
   LCmdQueue : TIdStrings; 
   LLine : String;
-  LStrm : TIdStreamVCL;
+  LStrm : TIdStream2;
 
 const DEF_BLOCKSIZE = 10*10240;
       DEF_CHECKCMD_WAIT = 1;
@@ -3264,29 +3264,26 @@ const DEF_BLOCKSIZE = 10*10240;
     end;
   end;
 
-  procedure ReadFromStream(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStream : TIdStreamVCL);
-  var LStrm : TIdStreamVCL;
-    LM : TIdStream2;
+  procedure ReadFromStream(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStream : TIdStream2);
+  var LM : TIdStream2;
   begin
     if AContext.DataMode = dmDeflate then begin
       LM := TIdMemoryStream.Create;
     end else begin
       LM := TIdStream2(LCxt.FDataChannel.Data);
     end;
-    LStrm := TIdStreamVCL.Create(LM);
     try
       repeat
         AContext.FDataChannel.FDataChannel.IOHandler.CheckForDisconnect(False);
-        AContext.FDataChannel.FDataChannel.IOHandler.ReadStream(LStrm, DEF_BLOCKSIZE, True);
+        AContext.FDataChannel.FDataChannel.IOHandler.ReadStream(LM, DEF_BLOCKSIZE, True);
         CheckControlConnection(AContext,ACmdQueue);
       until not AContext.FDataChannel.FDataChannel.IOHandler.Connected;
       if AContext.DataMode = dmDeflate then
       begin
         LStrm.Position := 0;
-        FCompressor.DecompressFTPDeflate(LStrm,AContext.ZLibWindowBits,AStream);
+        FCompressor.DecompressFTPDeflate(LM, AContext.ZLibWindowBits,AStream);
       end;
     finally
-      Sys.FreeAndNil(LStrm);
       if AContext.DataMode = dmDeflate then
       begin
         Sys.FreeAndNil(LM);
@@ -3294,31 +3291,23 @@ const DEF_BLOCKSIZE = 10*10240;
     end;
   end;
 
-  procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStream : TIdStreamVCL;
+  procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStream : TIdStream2;
     const AIgnoreCompression : Boolean=False);
   var LBufSize : Int64;
-    LStrm : TIdStreamVCL;
     LOutStream : TIdStream2;
   begin
     if (AContext.DataMode = dmDeflate) then
     begin
       LOutStream := TIdMemoryStream.Create;
-      LStrm := TIdStreamVCL.Create(LOutStream);
-      try
-        FCompressor.CompressFTPDeflate(AStream,
-        AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
-        AContext.ZLibMemLevel, AContext.ZLibStratagy,LStrm );
-      finally
-        Sys.FreeAndNil(LStrm);
-      end;
+      FCompressor.CompressFTPDeflate(AStream,
+      AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
+      AContext.ZLibMemLevel, AContext.ZLibStratagy,LOutStream );
       LOutStream.Position := 0;
     end
     else
     begin
-      LOutStream := AStream.VCLStream ;
+      LOutStream := AStream;
     end;
-
-    LStrm := TIdStreamVCL.Create(LOutStream);
     try
       repeat
         LBufSize := LOutStream.Size - LOutStream.Position;
@@ -3328,7 +3317,7 @@ const DEF_BLOCKSIZE = 10*10240;
         end;
         if LBufSize > 0 then
         begin
-          AContext.FDataChannel.FDataChannel.IOHandler.Write(LStrm,LBufSize,False);
+          AContext.FDataChannel.FDataChannel.IOHandler.Write(LOutStream,LBufSize,False);
           if AStream.Position < AStream.Size then
           begin
             CheckControlConnection(AContext,ACmdQueue);
@@ -3337,7 +3326,6 @@ const DEF_BLOCKSIZE = 10*10240;
       until (LBufSize=0) or
         (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
     finally
-      Sys.FreeAndNil(LStrm);
       if (AContext.DataMode = dmDeflate) then
       begin
         Sys.FreeAndNil(LOutStream);
@@ -3347,15 +3335,15 @@ const DEF_BLOCKSIZE = 10*10240;
 
   procedure WriteStrings(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings; AStrings : TIdStrings);
   var i : Integer;
-    LM : TIdStreamVCL;
+    LM : TIdStream2;
   begin
     if AContext.DataMode = dmDeflate then
     begin
-      LM := TIdStreamVCL.Create( TIdMemoryStream.Create, True);
+      LM := TIdMemoryStream.Create;
       try
         for i := 0 to AStrings.Count-1 do
         begin
-          WriteStringToStream(LM.VCLStream ,AStrings[i]+ EOL);
+          WriteStringToStream(LM, AStrings[i]+ EOL);
         end;
         LM.Position := 0;
         WriteToStream(AContext,ACmdQueue,LM,True);
@@ -3402,7 +3390,7 @@ begin
         try
           try
             if LCxt.FDataChannel.Data is TIdStream2 then begin
-              LStrm := TIdStreamVCL.Create(LCxt.FDataChannel.Data as TIdStream2);
+              LStrm := LCxt.FDataChannel.Data as TIdStream2;
               try
                 case LCxt.FDataChannel.FFtpOperation of
                   ftpRetr:
@@ -3426,14 +3414,9 @@ begin
                   begin
                     LMemStream := TIdMemoryStream.Create;
                     try
-                      LStrm := TIdStreamVCL.Create(LMemStream);
-                      try
-                        ReadFromStream(LCxt, LCmdQueue, LStrm);
+                      ReadFromStream(LCxt, LCmdQueue, LStrm);
         //TODO;
         //              SplitLines(LMemStream.Memory, LMemStream.Size, TIdStrings(LCxt.FDataChannel.FData));
-                      finally
-                        Sys.FreeAndNil(LStrm);
-                      end;
                     finally
                       Sys.FreeAndNil(LMemStream);
                     end;
@@ -6035,7 +6018,7 @@ end;
 
 { TIdFTPSecurityOptions }
 
-procedure TIdFTPSecurityOptions.Assign(Source: TPersistent);
+procedure TIdFTPSecurityOptions.Assign(Source: TIdPersistent);
 var LSrc : TIdFTPSecurityOptions;
 begin
   if Source is TIdFTPSecurityOptions then
@@ -6282,12 +6265,12 @@ begin
   end;
 end;
 
-procedure TIdFTPServerContext.PortOnAfterBind(ASender: TObject);
+procedure TIdFTPServerContext.PortOnAfterBind(ASender: TIdBaseObject);
 begin
   FServer.DoOnDataPortAfterBind(Self);
 end;
 
-procedure TIdFTPServerContext.PortOnBeforeBind(ASender: TObject);
+procedure TIdFTPServerContext.PortOnBeforeBind(ASender: TIdBaseObject);
 begin
   FServer.DoOnDataPortBeforeBind(Self);
 end;

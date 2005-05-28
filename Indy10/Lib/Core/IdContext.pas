@@ -71,7 +71,7 @@ unit IdContext;
 interface
 
 uses
-  Classes,
+  IdObjs,
   IdSocketHandle, IdSys, IdTCPConnection, IdTask, IdYarn;
 
 type
@@ -85,7 +85,7 @@ type
   protected
     // A list in which this context is registered, this can be nil, and should
     // therefore not be used
-    FContextList: TThreadList;
+    FContextList: TIdThreadList;
     FConnection: TIdTCPConnection;
     FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
@@ -99,7 +99,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); reintroduce; virtual;
     destructor Destroy; override;
     procedure RemoveFromList;
@@ -125,7 +125,7 @@ uses
 constructor TIdContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdThreadList = nil
   );
 begin
   inherited Create(AYarn);

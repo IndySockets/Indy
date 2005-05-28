@@ -143,9 +143,9 @@ unit IdSMTPRelay;
 interface
 
 uses
-  Classes, IdAssignedNumbers, IdException, IdExceptionCore,
+  IdAssignedNumbers, IdException, IdExceptionCore,
   IdEMailAddress, IdGlobal, IdHeaderList,
-  IdDNSResolver, IdMessage, IdMessageClient,
+  IdDNSResolver, IdMessage, IdMessageClient, IdBaseComponent,
   IdSMTPBase, IdReplySMTP, IdObjs, IdSys;
 
 const
@@ -153,7 +153,7 @@ const
 
 type
   TIdSMTPRelayStatusAction = (dmResolveMS, dmConnecting, dmConnected, dmSending, dmWorkBegin, dmWorkEndOK, dmWorkEndWithException);
-  TIdSMTPRelayStatus = procedure(Sender: TObject; AEMailAddress: TIdEmailAddressItem; Action: TIdSMTPRelayStatusAction) of Object;
+  TIdSMTPRelayStatus = procedure(Sender: TIdBaseObject; AEMailAddress: TIdEmailAddressItem; Action: TIdSMTPRelayStatusAction) of Object;
 
   EIdDirectSMTPCannotAssingHost = class(EIdException);
   EIdDirectSMTPCannotResolveMX = class(EIdException);
@@ -167,7 +167,7 @@ const
   DEF_SENT = False;
 
 type
-  TIdSMTPRelayStatusItem = class(TCollectionItem)
+  TIdSMTPRelayStatusItem = class(TIdCollectionItem)
   protected
     FSent: Boolean;
     FExceptionMessage: String;
@@ -180,7 +180,7 @@ type
     procedure SetEnhancedCode(const Value: TIdSMTPEnhancedCode);
     procedure SetReplyCode(const Value: Integer);
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
   published
     property EmailAddress: String read FEmailAddress write SetEmailAddress;
@@ -190,7 +190,7 @@ type
     property EnhancedCode: TIdSMTPEnhancedCode read FEnhancedCode write SetEnhancedCode;
   end;
 
-  TIdSMTPRelayStatusList = class(TOwnedCollection)
+  TIdSMTPRelayStatusList = class(TIdOwnedCollection)
   protected
     function GetItems(Index: Integer): TIdSMTPRelayStatusItem;
     procedure SetItems(Index: Integer; const Value: TIdSMTPRelayStatusItem);
@@ -201,7 +201,7 @@ type
 
   TIdSMTPRelay = class;
 
-  TIdSSLSupportOptions = class(TPersistent)
+  TIdSSLSupportOptions = class(TIdBaseComponent)
   protected
     FSSLSupport: TIdSSLSupport;
     FTryImplicitTLS: Boolean;
@@ -211,7 +211,7 @@ type
     procedure SetTryImplicitTLS(const Value: Boolean);
   public
     constructor Create(AOwner: TIdSMTPRelay);
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property SSLSupport : TIdSSLSupport read FSSLSupport write SetSSLSupport default DEF_SSL_SUPPORT;
     property TryImplicitTLS : Boolean read FTryImplicitTLS write SetTryImplicitTLS default DEF_TRY_IMPLICITTLS;
@@ -244,7 +244,7 @@ type
     // holger: .NET compatibility change
     property Port;                              
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     destructor Destroy; override;
     procedure DisconnectNotifyPeer; override;
     procedure Send (AMsg: TIdMessage); override;
@@ -267,7 +267,7 @@ uses
 
 { TIdSMTPRelay }
 
-procedure TIdSMTPRelay.Assign(Source: TPersistent);
+procedure TIdSMTPRelay.Assign(Source: TIdPersistent);
 begin
   if Source is TIdSMTPRelay then
   begin
@@ -601,7 +601,7 @@ end;
 
 { TIdSMTPRelayStatusItem }
 
-constructor TIdSMTPRelayStatusItem.Create(Collection: TCollection);
+constructor TIdSMTPRelayStatusItem.Create(Collection: TIdCollection);
 begin
   inherited Create(Collection);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
@@ -643,7 +643,7 @@ end;
 
 { TIdSSLSupportOptions }
 
-procedure TIdSSLSupportOptions.Assign(Source: TPersistent);
+procedure TIdSSLSupportOptions.Assign(Source: TIdPersistent);
 var
   LS: TIdSSLSupportOptions;
 begin
@@ -669,7 +669,7 @@ end;
 
 procedure TIdSSLSupportOptions.SetSSLSupport(const Value: TIdSSLSupport);
 begin
-  if (Value<>noSSL) and ((csLoading in FOwner.ComponentState)=False) then
+  if (Value<>noSSL) and (not IsLoading) then
   begin
     FOwner.CheckIfCanUseTLS;
   end;
@@ -686,7 +686,7 @@ end;
 
 procedure TIdSSLSupportOptions.SetTryImplicitTLS(const Value: Boolean);
 begin
-  if Value and ((csLoading in FOwner.ComponentState)=False) then
+  if Value and (not IsLoading) then
   begin
     FOwner.CheckIfCanUseTLS;
   end;

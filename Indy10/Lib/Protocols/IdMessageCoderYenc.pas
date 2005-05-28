@@ -72,8 +72,7 @@ unit IdMessageCoderYenc;
 interface
 
 uses
-  Classes,
-  IdMessageCoder, IdMessage, IdExceptionCore, IdStreamVCL, IdStream, IdStreamRandomAccess;
+  IdMessageCoder, IdMessage, IdExceptionCore, IdObjs, IdGlobal;
 
 type
   EIdMessageYencException = class( EIdMessageException ) ;
@@ -88,7 +87,7 @@ type
     FLine: integer;
     FSize: integer;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean ) : TIdMessageDecoder; override;
   end;
 
   TIdMessageDecoderInfoYenc = class( TIdMessageDecoderInfo )
@@ -98,7 +97,7 @@ type
 
   TIdMessageEncoderYenc = class( TIdMessageEncoder )
   public
-    procedure Encode( ASrc: TIdStreamRandomAccess; ADest: TIdStream ) ; override;
+    procedure Encode( ASrc: TIdStream2; ADest: TIdStream2 ) ; override;
   end;
 
   TIdMessageEncoderInfoYenc = class( TIdMessageEncoderInfo )
@@ -120,7 +119,6 @@ const
 implementation
 
 uses
-  IdGlobal,
   IdHashCRC, IdResourceStringsProtocols, IdSys;
 
 { TIdMessageDecoderInfoYenc }
@@ -193,7 +191,7 @@ begin
   end;
 end;   }
 
-function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder;
+function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream2; var AMsgEnd: Boolean ) : TIdMessageDecoder;
 var
   LLine: string;
   LLinepos: integer;
@@ -334,7 +332,7 @@ end;
 
 { TIdMessageEncoderYenc }
 
-procedure TIdMessageEncoderYenc.Encode( ASrc: TIdStreamRandomAccess; ADest: TIdStream ) ;
+procedure TIdMessageEncoderYenc.Encode( ASrc: TIdStream2; ADest: TIdStream2 ) ;
 const
   Linesize = 128;
 var
@@ -374,7 +372,7 @@ var
   begin
     if LInputBufferPos>=LInputBufferSize then begin
       LInputBufferPos:=0;
-      LInputBufferSize:=ASrc.ReadBytes( LInputBuffer, BUFLEN ) ;
+      LInputBufferSize:=ASrc.Read( LInputBuffer, BUFLEN ) ;
     end;
     result:=LInputBuffer[LInputBufferPos];
     inc(LInputBufferPos);
@@ -392,7 +390,7 @@ begin
   try
     LH.HashStart(LHash);
     s := '=ybegin line=' + Sys.inttostr( Linesize ) + ' size=' + Sys.inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
-    ADest.Write(s);
+    WriteStringToStream(ADest, s);
 
     for i := 0 to ASrc.Size - 1 do
     begin
@@ -427,7 +425,7 @@ begin
   finally
     Sys.FreeAndNil(LH);
   end;
-  ADest.Write(s);
+  WriteStringToStream(ADest, s);
 end;
 
 initialization

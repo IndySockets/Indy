@@ -140,8 +140,7 @@ unit IdNNTP;
 interface
 
 uses
-  Classes,
-  IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdStreamVCL,
+  IdAssignedNumbers, IdExplicitTLSClientServerBase, IdException, IdGlobal,
   IdMessage, IdMessageClient, IdReplyRFC, IdSys,
   IdTCPServer, IdTCPConnection, IdObjs;
 
@@ -274,11 +273,11 @@ type
      out AStatus : String);
     procedure ParseXHDRLine(ALine : String; out AMsg : String; out AHeaderData : String);
     procedure Post(AMsg: TIdMessage); overload;
-    procedure Post(AStream: TIdStreamVCL); overload;
+    procedure Post(AStream: TIdStream2); overload;
     function SendCmd(AOut: string; const AResponse: array of SmallInt): SmallInt; override;
     function SelectArticle(AMsgNo: Integer): Boolean;
     procedure SelectGroup(AGroup: string);
-    function TakeThis(AMsgID: string; AMsg: TIdStreamVCL): string;
+    function TakeThis(AMsgID: string; AMsg: TIdStream2): string;
     procedure XHDR(AHeader: string; AParam: string; AResponse: TIdStrings); overload;
     procedure XHDR(AHeader: string; AParam: string); overload;
     procedure XOVER(AParam: string; AResponse: TIdStrings); overload;
@@ -322,7 +321,6 @@ implementation
 
 uses
   IdComponent,
-  IdGlobal,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdSSL;
@@ -588,7 +586,7 @@ end;
       480 Transfer permission denied
       500 Command not understood
 *)
-function TIdNNTP.TakeThis(AMsgID: string; AMsg: TIdStreamVCL): string;
+function TIdNNTP.TakeThis(AMsgID: string; AMsg: TIdStream2): string;
 // This message assumes AMsg is "raw" and has already taken care of . to ..
 begin
   SendCmd('TAKETHIS ' + AMsgID, 239); {do not localize}
@@ -660,7 +658,7 @@ begin
   SendCmd('.', 240);
 end;
 
-procedure TIdNNTP.Post(AStream: TIdStreamVCL);
+procedure TIdNNTP.Post(AStream: TIdStream2);
 begin
   SendCmd('POST', 340); {do not localize}
   IOHandler.Write(AStream);

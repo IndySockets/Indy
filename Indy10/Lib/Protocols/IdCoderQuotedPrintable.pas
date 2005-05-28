@@ -115,10 +115,7 @@ unit IdCoderQuotedPrintable;
 interface
 
 uses
-  Classes,
   IdCoder,
-  IdStreamVCL,
-  IdStreamRandomAccess,
   IdObjs,
   IdSys;
 
@@ -131,13 +128,13 @@ type
 
   TIdEncoderQuotedPrintable = class(TIdEncoder)
   public
-    function Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: integer = MaxInt): string; override;
+    function Encode(ASrcStream: TIdStream2; const ABytes: integer = MaxInt): string; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, IdObjsFCL;
 
 
 { TIdDecoderQuotedPrintable }
@@ -210,11 +207,11 @@ begin
     end;
     if LPos = 0 then begin
       LLine := Copy(LBuffer, LBufferIndex, MAXINT);
-      FStream.Write(LLine);
+      WriteStringToStream(FStream, LLine);
       LBufferIndex := LBufferLen+1;
     end else begin
       LLine := Copy(LBuffer, LBufferIndex, LPos-LBufferIndex);
-      FStream.Write(LLine);
+      WriteStringToStream(FStream, LLine);
       LBufferIndex := LPos+1;
       // process any following hexidecimal representation
       if LBufferIndex <= LBufferLen then begin
@@ -241,7 +238,7 @@ begin
         if i > 0 then begin
           //if =20 + EOL, this is a hard line break after a space
           if (b = 32) and (LBufferIndex <= LBufferLen) and CharIsInEOF(LBuffer, LBufferIndex) then begin
-            FStream.Write(Char(b) + EOL);
+            WriteStringToStream(FStream, Char(b) + EOL);
             StripEOLChars;
           end else begin
             FStream.Write(Char(b));
@@ -256,7 +253,7 @@ begin
 end;
 
 { TIdEncoderQuotedPrintable }
-function TIdEncoderQuotedPrintable.Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: integer): string;
+function TIdEncoderQuotedPrintable.Encode(ASrcStream: TIdStream2; const ABytes: integer): string;
 const
   SafeChars = [#33..#60, #62..#126];
   HalfSafeChars = [#32, TAB];
@@ -307,8 +304,8 @@ begin
   st := TIdStringList.Create;
   SetLength(CurrentLine, 255);
   try
-    while not ASrcStream.EOF do begin
-      SourceLine := ASrcStream.ReadLn(-1, False);
+    while ASrcStream.Position = (ASrcStream.Size - 1) do begin
+      SourceLine := ReadLnFromStream(ASrcStream, -1, False);
       PossibleBreakPos := 1;
       CurrentPos := 1;
       SourceLen := length(SourceLine);

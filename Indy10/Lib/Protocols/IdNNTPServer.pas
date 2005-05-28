@@ -152,7 +152,6 @@ Original Author: Ozz Nixon (Winshoes 7)
 }
 
 uses
-  Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
   IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSys,
   IdTCPConnection, IdTCPServer, IdObjs;
@@ -230,7 +229,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     //
     property CurrentArticle: Integer read FCurrentArticle;
@@ -1854,7 +1853,7 @@ end;
 constructor TIdNNTPContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);

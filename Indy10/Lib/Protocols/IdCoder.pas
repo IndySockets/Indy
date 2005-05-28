@@ -85,10 +85,7 @@ unit IdCoder;
 interface
 
 uses
-  Classes,
   IdBaseComponent,
-  IdStream,
-  IdStreamRandomAccess,
   IdSys,
   IdGlobal,
   IdObjs;
@@ -97,18 +94,18 @@ type
   TIdEncoder = class(TIdBaseComponent)
   public
     function Encode(const ASrc: string): string; overload;
-    function Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: Integer = MaxInt)
+    function Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt)
      : string; overload; virtual; abstract;
     class function EncodeString(const AIn: string): string;
   end;
 
   TIdDecoder = class(TIdBaseComponent)
   protected
-    FStream: TIdStream;
+    FStream: TIdStream2;
   public
     procedure Decode(const AIn: string; const AStartPos: Integer = 1;
      const ABytes: Integer = -1); virtual; abstract;
-    procedure DecodeBegin(ADestStream: TIdStream); virtual;
+    procedure DecodeBegin(ADestStream: TIdStream2); virtual;
     procedure DecodeEnd; virtual;
     class function DecodeString(const AIn: string): string;
   end;
@@ -117,11 +114,11 @@ type
 implementation
 
 uses
-  IdGlobalProtocols, IdStreamVCL;
+  IdGlobalProtocols;
 
 { TIdDecoder }
 
-procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream);
+procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream2);
 begin
   FStream := ADestStream;
 end;
@@ -132,17 +129,14 @@ end;
 
 class function TIdDecoder.DecodeString(const AIn: string): string;
 var
-  LDestStream: TIdStreamVCL;
   LStringStream: TIdStringStream;
 begin
   with Create(nil) do try
     LStringStream := TIdStringStream.Create(''); try {Do not Localize}
-      LDestStream := TIdStreamVCL.Create(LStringStream); try
-        DecodeBegin(LDestStream); try
+        DecodeBegin(LStringStream); try
           Decode(AIn);
           Result := LStringStream.DataString;
         finally DecodeEnd; end;
-      finally Sys.FreeAndNil(LDestStream); end;
     finally Sys.FreeAndNil(LStringStream); end;
   finally Free; end;
 end;
@@ -152,12 +146,9 @@ end;
 function TIdEncoder.Encode(const ASrc: string): string;
 var
   LStream: TIdStream2;
-  LIdStream: TIdStreamVCL;
 begin
   LStream := TIdStringStream.Create(ASrc); try
-    LIdStream := TIdStreamVCL.Create(LStream); try
-      Result := Encode(LIdStream);
-    finally Sys.FreeAndNil(LIdStream); end;
+      Result := Encode(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 

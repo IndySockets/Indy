@@ -380,11 +380,10 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
-  IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication , IdAuthenticationManager,
-  IdMultipartFormData, IdGlobal, IdSys, IdObjs;
+  IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication, IdAuthenticationManager,
+  IdMultipartFormData, IdGlobal, IdSys, IdObjs, IdBaseComponent;
 
 type
   // TO DOCUMENTATION TEAM
@@ -537,7 +536,7 @@ type
     function DoOnAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnProxyAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnRedirect(var Location: string; var VMethod: TIdHTTPMethod; RedirectCount: integer): boolean; virtual;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
     procedure SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
@@ -670,7 +669,7 @@ implementation
 
 uses
   IdComponent, IdCoderMIME, IdTCPConnection, IdResourceStringsProtocols,
-  IdGlobalProtocols, IdIOHandler,IdIOHandlerSocket, IdStreamVCL;
+  IdGlobalProtocols, IdIOHandler,IdIOHandlerSocket;
 
 const
   ProtocolVersionString: array[TIdHTTPProtocolVersion] of string = ('1.0', '1.1'); {do not localize}
@@ -945,7 +944,7 @@ end;
 procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse);
 var
   Size: Integer;
-  LS : TIdStreamVCL;
+  LS : TIdStream2;
 
   function ChunkSize: integer;
   var
@@ -965,45 +964,40 @@ begin
 
   if Assigned(AResponse.ContentStream) then // Only for Get and Post
   begin
-    LS := TIdStreamVCL.Create(AResponse.ContentStream);
-    try
-      if AResponse.ContentLength > 0 then // If chunked then this is also 0
-      begin
-        try
-          IOHandler.ReadStream(LS, AResponse.ContentLength);
-        except
-          on E: EIdConnClosedGracefully do
-        end;
-      end
-      else
-      begin
-        if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
-        begin // Chunked
-          DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-          Size := ChunkSize;
-          while Size > 0 do
-          begin
-            IOHandler.ReadStream(LS, Size);
-            IOHandler.ReadLn; // blank line
-            Size := ChunkSize;
-          end;
+    if AResponse.ContentLength > 0 then // If chunked then this is also 0
+    begin
+      try
+        IOHandler.ReadStream(AResponse.ContentStream, AResponse.ContentLength);
+      except
+        on E: EIdConnClosedGracefully do
+      end;
+    end
+    else
+    begin
+      if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
+      begin // Chunked
+        DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+        Size := ChunkSize;
+        while Size > 0 do
+        begin
+          IOHandler.ReadStream(AResponse.ContentStream, Size);
           IOHandler.ReadLn; // blank line
-        end else begin
-          if not AResponse.HasContentLength then
-          begin
-            IOHandler.ReadStream(LS, -1, True);
-          end;
+          Size := ChunkSize;
+        end;
+        IOHandler.ReadLn; // blank line
+      end else begin
+        if not AResponse.HasContentLength then
+        begin
+          IOHandler.ReadStream(AResponse.ContentStream, -1, True);
         end;
       end;
-      if Assigned(Compressor) and (Response.ContentEncoding = 'deflate') then begin {do not localize}
-        LS.Position := 0;
-        Compressor.DecompressDeflateStream(LS);
-      end else if Assigned(Compressor) and (Response.ContentEncoding = 'gzip') then begin {do not localize}
-        LS.Position := 0;
-        Compressor.DecompressGZipStream(LS);
-      end;
-    finally
-      Sys.FreeAndNil(LS);
+    end;
+    if Assigned(Compressor) and (Response.ContentEncoding = 'deflate') then begin {do not localize}
+      AResponse.ContentStream.Position := 0;
+      Compressor.DecompressDeflateStream(AResponse.ContentStream);
+    end else if Assigned(Compressor) and (Response.ContentEncoding = 'gzip') then begin {do not localize}
+      AResponse.ContentStream.Position := 0;
+      Compressor.DecompressGZipStream(AResponse.ContentStream);
     end;
   end;
 
@@ -1140,7 +1134,6 @@ end;
 procedure TIdCustomHTTP.ConnectToHost(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
   LLocalHTTP: TIdHTTPProtocol;
-  LS : TIdStreamVCL;
 begin
   ARequest.FUseProxy := SetHostAndPort;
 
@@ -1228,12 +1221,7 @@ begin
 
   if IsStringInArray(ARequest.Method , [Id_HTTPMethodPost, Id_HTTPMethodPut]) then
   begin
-    LS := TIdStreamVCL.Create(ARequest.Source);
-    try
-      IOHandler.Write(LS, 0, false);
-    finally
-      Sys.FreeAndNil(LS);
-    end;
+    IOHandler.Write(ARequest.Source, 0, false);
   end;
 end;
 
@@ -1276,7 +1264,7 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdCustomHTTP.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, Operation);
   if Operation = opRemove then

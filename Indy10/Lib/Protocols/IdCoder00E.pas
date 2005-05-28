@@ -34,7 +34,7 @@ interface
 
 uses
   Classes,
-  IdCoder3to4, IdStreamVCL, IdStreamRandomAccess;
+  IdCoder3to4, IdGlobal, IdObjs;
 
 type
   TIdDecoder00E = class(TIdDecoder4to3)
@@ -45,7 +45,7 @@ type
 
   TIdEncoder00E = class(TIdEncoder3to4)
   public
-    function Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: Integer = MaxInt)
+    function Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt)
      : string; override;
   end;
 
@@ -67,7 +67,7 @@ end;
 
 { TIdEncoder00E }
 
-function TIdEncoder00E.Encode(ASrcStream: TIdStreamRandomAccess; const ABytes: integer): string;
+function TIdEncoder00E.Encode(ASrcStream: TIdStream2; const ABytes: integer): string;
 var
   LStart: Integer;
 begin

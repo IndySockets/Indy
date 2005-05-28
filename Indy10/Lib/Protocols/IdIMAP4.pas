@@ -487,7 +487,6 @@ Project -> Options -> Directories/Conditionals -> Search Path}
 
 uses
     IdMessage,
-    Classes,
     IdAssignedNumbers,
     IdMailBox,
     IdException,
@@ -505,7 +504,8 @@ uses
     IdSASLCollection,
     IdSys,
     IdObjs,
-    IdMessageCollection;
+    IdMessageCollection,
+    IdBaseComponent;
 
 { MUTF7 }
 
@@ -585,7 +585,7 @@ html version with a boundary at the start, in between, and at the end.
 TIdIMAP fills in the boundary in that case, and the FSubpart holds the
 info on the second part.  I call these multisection parts.}
 type
-TIdImapMessagePart = class(TCollectionItem)
+  TIdImapMessagePart = class(TIdCollectionItem)
   protected
     FBodyType: string;
     FBodySubType: string;
@@ -610,7 +610,7 @@ TIdImapMessagePart = class(TCollectionItem)
     property Boundary : string read FBoundary write FBoundary;
     property ParentPart: integer read FParentPart write FParentPart;
     property ImapPartNumber: string read FImapPartNumber write FImapPartNumber;
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
 end;
 
 type
@@ -619,7 +619,7 @@ type
     {CCB: Added for server disconnecting you if idle too long...}
     EIdDisconnectedProbablyIdledOut = class(EIdException);
 
-TIdImapMessageParts = class(TOwnedCollection)
+TIdImapMessageParts = class(TIdOwnedCollection)
   protected
     function  GetItem(Index: Integer): TIdImapMessagePart;
     procedure SetItem(Index: Integer; const Value: TIdImapMessagePart);
@@ -1284,7 +1284,6 @@ uses
     IdText,
     IdAttachment,
     IdResourceStringsProtocols,
-    IdStreamVCL,
     IdBuffer,
     IdAttachmentMemory,
     IdReplyIMAP4,
@@ -1625,7 +1624,7 @@ end;
 
 { TIdImapMessageParts }
 
-constructor TIdImapMessagePart.Create(Collection: TCollection);
+constructor TIdImapMessagePart.Create(Collection: TIdCollection);
 begin
     {Make sure these are initialised properly...}
     inherited Create(Collection);
@@ -2792,7 +2791,6 @@ var
     LLengthOfAMsgHeaders: integer;
     LLengthOfFileHeaders: integer;
     LLine: string;
-    LIdSourceStream: TIdStreamVCL;
 begin
     Result := False;
     CheckConnectionState([csAuthenticated, csSelected]);
@@ -2883,29 +2881,24 @@ begin
                 LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
                 LSourceStream := TReadFileNonExclusiveStream.Create(LTempPathname);
                 try
-                    LDestStream.Write(LHeadersAsString);
+                    WriteStringToStream(LDestStream, LHeadersAsString);
                     //Change from CopyFrom to WriteStream (I think) to get OnWork invoked, as we do elsewhere
                     //with LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);
                     //ReadStream uses OnWork, most other methods dont
-                    LIdSourceStream := TIdStreamVCL.Create(LSourceStream);
-                    try
-                        LIdSourceStream.VCLStream.Position := LLengthOfFileHeaders;
-                        LDestStream.Connection.IOHandler.Write(LIdSourceStream, LIdSourceStream.VCLStream.Size - LLengthOfFileHeaders);
-                        {Adding another CRLF so that the ending is CRLF.CRLFCRLF}
-                        LLine := EOL;
-                        LDestStream.Write(LLine);
+                    LSourceStream.Position := LLengthOfFileHeaders;
+                    LDestStream.Connection.IOHandler.Write(LSourceStream, LSourceStream.Size - LLengthOfFileHeaders);
+                    {Adding another CRLF so that the ending is CRLF.CRLFCRLF}
+                    LLine := EOL;
+                    WriteStringToStream(LDestStream, LLine);
 
-                        {WARNING: After we send the message (which should be exactly
-                        LLength bytes long), we need to send an EXTRA CRLF which is in
-                        addition to to count in LLength, because this CRLF terminates the
-                        APPEND command...}
-                        LDestStream.Write(LLine);
-                        LDestStream.Connection.OnWork := nil;
-                        LDestStream.Connection.OnWorkBegin := nil;
-                        LDestStream.Connection.OnWorkEnd := nil;
-                    finally
-                        Sys.FreeAndNil(LIdSourceStream);
-                    end;
+                    {WARNING: After we send the message (which should be exactly
+                    LLength bytes long), we need to send an EXTRA CRLF which is in
+                    addition to to count in LLength, because this CRLF terminates the
+                    APPEND command...}
+                    WriteStringToStream(LDestStream, LLine);
+                    LDestStream.Connection.OnWork := nil;
+                    LDestStream.Connection.OnWorkBegin := nil;
+                    LDestStream.Connection.OnWorkEnd := nil;
                 finally
                     Sys.FreeAndNil(LSourceStream);
                 end;
@@ -2942,7 +2935,6 @@ var
     LLength: integer;
     LDestStream: TIdTCPStream;
     LTempStream: TIdMemoryStream;
-    LIdTempStream: TIdStreamVCL;
     LTheBytes: TIdBytes;
 begin
     Result := False;
@@ -2955,92 +2947,87 @@ begin
         LLength := AStream.Size;
         LTempStream := TIdMemoryStream.Create;
         try
-            LIdTempStream := TIdStreamVCL.Create(LTempStream);
-            try
-                //Hunt for CRLF.CRLF, if present then we need to remove it...
-                SetLength(LTheBytes, 1);
-                LIdTempStream.VCLStream.CopyFrom(AStream, LLength);
-                for LN := 0 to LIdTempStream.Size-5 do begin
-                    LIdTempStream.ReadBytes(LTheBytes, 1, LN);
-                    if LTheBytes[0] <> 13 then begin
-                        continue;
-                    end;
-                    LIdTempStream.ReadBytes(LTheBytes, 1, LN+1);
-                    if LTheBytes[0] <> 10 then begin
-                        continue;
-                    end;
-                    LIdTempStream.ReadBytes(LTheBytes, 1, LN+2);
-                    if LTheBytes[0] <> Ord('.') then begin
-                        continue;
-                    end;
-                    LIdTempStream.ReadBytes(LTheBytes, 1, LN+3);
-                    if LTheBytes[0] <> 13 then begin
-                        continue;
-                    end;
-                    LIdTempStream.ReadBytes(LTheBytes, 1, LN+4);
-                    if LTheBytes[0] <> 10 then begin
-                        continue;
-                    end;
-                    //Found it.
-                    LLength := LN;
-                end;
+          //Hunt for CRLF.CRLF, if present then we need to remove it...
+          SetLength(LTheBytes, 1);
+          LTempStream.CopyFrom(AStream, LLength);
+          for LN := 0 to LTempStream.Size-5 do begin
+              LTempStream.Read(LTheBytes, 1, LN);
+              if LTheBytes[0] <> 13 then begin
+                  continue;
+              end;
+              LTempStream.Read(LTheBytes, 1, LN+1);
+              if LTheBytes[0] <> 10 then begin
+                  continue;
+              end;
+              LTempStream.Read(LTheBytes, 1, LN+2);
+              if LTheBytes[0] <> Ord('.') then begin
+                  continue;
+              end;
+              LTempStream.Read(LTheBytes, 1, LN+3);
+              if LTheBytes[0] <> 13 then begin
+                  continue;
+              end;
+              LTempStream.Read(LTheBytes, 1, LN+4);
+              if LTheBytes[0] <> 10 then begin
+                  continue;
+              end;
+              //Found it.
+              LLength := LN;
+          end;
 
 
-                {Some servers may want the message termination sequence CRLF.CRLF
-                and some may want CRLFCRLF so pass both by using CRLF.CRLFCRLF}
-                LLength := LLength + 2;
+          {Some servers may want the message termination sequence CRLF.CRLF
+          and some may want CRLFCRLF so pass both by using CRLF.CRLFCRLF}
+          LLength := LLength + 2;
 
-                LMsgLiteral := '{' + Sys.IntToStr(LLength) + '}';                   {Do not Localize}
-                {CC: The original code sent the APPEND command first, then followed it with the
-                message.  Maybe this worked with some server, but most send a
-                response like "+ Send the additional command..." between the two,
-                which was not expected by the client and caused an exception.}
+          LMsgLiteral := '{' + Sys.IntToStr(LLength) + '}';                   {Do not Localize}
+          {CC: The original code sent the APPEND command first, then followed it with the
+          message.  Maybe this worked with some server, but most send a
+          response like "+ Send the additional command..." between the two,
+          which was not expected by the client and caused an exception.}
 
-                //CC: Added double quotes around mailbox name, else mailbox names with spaces will cause server parsing error
-                LCmd := IMAP4Commands[cmdAppend] + ' "' + AMBName + '" ';       {Do not Localize}
-                if Length(LFlags) <> 0 then begin                               {Do not Localize}
-                    LCmd := LCmd + LFlags + ' ';                                {Do not Localize}
-                end;
-                LCmd := LCmd + LMsgLiteral;                                     {Do not Localize}
+          //CC: Added double quotes around mailbox name, else mailbox names with spaces will cause server parsing error
+          LCmd := IMAP4Commands[cmdAppend] + ' "' + AMBName + '" ';       {Do not Localize}
+          if Length(LFlags) <> 0 then begin                               {Do not Localize}
+              LCmd := LCmd + LFlags + ' ';                                {Do not Localize}
+          end;
+          LCmd := LCmd + LMsgLiteral;                                     {Do not Localize}
 
-                {Used to add the message to LCmd here.  Try sending the APPEND command, get
-                the + response, then send the message...}
-                SendCmd(NewCmdCounter, LCmd, []);
-                if LastCmdResult.Code = IMAP_CONT then begin
-                    LDestStream := TIdTCPStream.Create(Self);
-                    try
-                        LDestStream.Connection.OnWork := FOnWorkForPart;
-                        LDestStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                        LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
-                        LDestStream.Connection.IOHandler.Write(LIdTempStream, LLength);
-                        SetLength(LTheBytes, 7);
-                        LTheBytes[0] := 13;
-                        LTheBytes[1] := 10;
-                        LTheBytes[2] := Ord('.');
-                        LTheBytes[3] := 13;
-                        LTheBytes[4] := 10;
-                        LTheBytes[5] := 13;
-                        LTheBytes[6] := 10;
-                        LDestStream.Connection.IOHandler.WriteDirect(LTheBytes);
-                        {WARNING: After we send the message (which should be exactly
-                        LLength bytes long), we need to send an EXTRA CRLF which is in
-                        addition to to count in LLength, because this CRLF terminates the
-                        APPEND command...}
-                        SetLength(LTheBytes, 2);  //Should truncate LTheBytes to just a CRLF
-                        LDestStream.Connection.IOHandler.WriteDirect(LTheBytes);
-                        LDestStream.Connection.OnWork := nil;
-                        LDestStream.Connection.OnWorkBegin := nil;
-                        LDestStream.Connection.OnWorkEnd := nil;
-                    finally
-                        Sys.FreeAndNil(LDestStream);
-                    end;
-                    if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdAppend]], False) = IMAP_OK then begin
-                        Result := True;
-                    end;
-                end;
-            finally
-                Sys.FreeAndNil(LIdTempStream);
-            end;
+          {Used to add the message to LCmd here.  Try sending the APPEND command, get
+          the + response, then send the message...}
+          SendCmd(NewCmdCounter, LCmd, []);
+          if LastCmdResult.Code = IMAP_CONT then begin
+              LDestStream := TIdTCPStream.Create(Self);
+              try
+                  LDestStream.Connection.OnWork := FOnWorkForPart;
+                  LDestStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
+                  LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                  LDestStream.Connection.IOHandler.Write(LTempStream, LLength);
+                  SetLength(LTheBytes, 7);
+                  LTheBytes[0] := 13;
+                  LTheBytes[1] := 10;
+                  LTheBytes[2] := Ord('.');
+                  LTheBytes[3] := 13;
+                  LTheBytes[4] := 10;
+                  LTheBytes[5] := 13;
+                  LTheBytes[6] := 10;
+                  LDestStream.Connection.IOHandler.WriteDirect(LTheBytes);
+                  {WARNING: After we send the message (which should be exactly
+                  LLength bytes long), we need to send an EXTRA CRLF which is in
+                  addition to to count in LLength, because this CRLF terminates the
+                  APPEND command...}
+                  SetLength(LTheBytes, 2);  //Should truncate LTheBytes to just a CRLF
+                  LDestStream.Connection.IOHandler.WriteDirect(LTheBytes);
+                  LDestStream.Connection.OnWork := nil;
+                  LDestStream.Connection.OnWorkBegin := nil;
+                  LDestStream.Connection.OnWorkEnd := nil;
+              finally
+                  Sys.FreeAndNil(LDestStream);
+              end;
+              if GetInternalResponse(LastCmdCounter, [IMAP4Commands[cmdAppend]], False) = IMAP_OK then begin
+                  Result := True;
+              end;
+          end;
         finally
             Sys.FreeAndNil(LTempStream);
         end;
@@ -3253,7 +3240,6 @@ var
     LQuotedPrintableDecoder: TIdDecoderQuotedPrintable;
     LTextPart: integer;
     LBuffer: TIdStringStream;
-    LIdBuffer: TIdStreamVCL;
 begin
     Result := False;
     AText := '';                                                                {Do not Localize}
@@ -3327,16 +3313,11 @@ begin
                 LSourceStream.Connection.OnWorkEnd := FOnWorkEndForPart;
                 LBuffer := TIdStringStream.Create('');
                 try
-                    LIdBuffer := TIdStreamVCL.Create(LBuffer);
-                    try
-                        LSourceStream.Connection.IOHandler.ReadStream(LIdBuffer, LTextLength);  //ReadStream uses OnWork, most other methods dont
-                        LText := Copy(LBuffer.DataString, 1, LBuffer.Size);
-                        LSourceStream.Connection.OnWork := nil;
-                        LSourceStream.Connection.OnWorkBegin := nil;
-                        LSourceStream.Connection.OnWorkEnd := nil;
-                    finally
-                        Sys.FreeAndNil(LIdBuffer);
-                    end;
+                    LSourceStream.Connection.IOHandler.ReadStream(LBuffer, LTextLength);  //ReadStream uses OnWork, most other methods dont
+                    LText := Copy(LBuffer.DataString, 1, LBuffer.Size);
+                    LSourceStream.Connection.OnWork := nil;
+                    LSourceStream.Connection.OnWorkBegin := nil;
+                    LSourceStream.Connection.OnWorkEnd := nil;
                 finally
                     Sys.FreeAndNil(LBuffer);
                 end;
@@ -3739,14 +3720,14 @@ var
     LBase64Decoder: TIdDecoderMIME;
     LQuotedPrintableDecoder: TIdDecoderQuotedPrintable;
     LBinHex4Decoder: TIdDecoderBinHex4;
-    LIdMemoryStream: TIdStreamVCL;
-    LIdDestStream: TIdStreamVCL;
+    LIdMemoryStream: TIdStream2;
+    LIdDestStream: TIdStream2;
     bCreatedStream: Boolean;
     LMemoryStream: TIdMemoryStream;
     LBuffer: string;
     LPartSizeParam: string;
-    LIdUnstrippedStream: TIdStreamVCL;
-    LIdIntermediateStream: TIdStreamVCL;
+    LIdUnstrippedStream: TIdStream2;
+    LIdIntermediateStream: TIdStream2;
     LN: integer;
 {$IFDEF DOTNET}
     LTBytesPtr: TIdBytes;
@@ -3802,8 +3783,7 @@ begin
                     LMemoryStream := TIdMemoryStream.Create;
                     SetLength(LBuffer, ABufferLength);
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     {This is more complicated than quoted-printable because we
                     have to strip CRLFs that have been inserted by the MTA to
                     avoid overly long lines...}
@@ -3812,8 +3792,7 @@ begin
                     Sys.FreeAndNil(LUnstrippedStream);
                     LBase64Decoder := TIdDecoderMIME.Create(Self);
                     try
-                        LIdMemoryStream := TIdStreamVCL.Create(LMemoryStream);
-                        LBase64Decoder.DecodeBegin(LIdMemoryStream);
+                        LBase64Decoder.DecodeBegin(LMemoryStream);
 {$IFDEF DOTNET}
                         LBuffer := Copy(LStrippedStream.DataString, 1, LStrippedStream.Size);
                         LBase64Decoder.Decode(LBuffer);
@@ -3848,12 +3827,10 @@ begin
                     LMemoryStream := TIdMemoryStream.Create;
                     SetLength(LBuffer, ABufferLength);
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     LQuotedPrintableDecoder := TIdDecoderQuotedPrintable.Create(Self);
                     try
-                        LIdMemoryStream := TIdStreamVCL.Create(LMemoryStream);
-                        LQuotedPrintableDecoder.DecodeBegin(LIdMemoryStream);
+                        LQuotedPrintableDecoder.DecodeBegin(LMemoryStream);
 {$IFDEF DOTNET}
                         LBuffer := Copy(LUnstrippedStream.DataString, 1, LUnstrippedStream.Size);
                         LQuotedPrintableDecoder.Decode(LBuffer);
@@ -3885,12 +3862,10 @@ begin
                     LMemoryStream := TIdMemoryStream.Create;
                     SetLength(LBuffer, ABufferLength);
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     LBinHex4Decoder := TIdDecoderBinHex4.Create(Self);
                     try
-                        LIdMemoryStream := TIdStreamVCL.Create(LMemoryStream);
-                        LBinHex4Decoder.DecodeBegin(LIdMemoryStream);
+                        LBinHex4Decoder.DecodeBegin(LMemoryStream);
 {$IFDEF DOTNET}
                         LBuffer := Copy(LUnstrippedStream.DataString, 1, LUnstrippedStream.Size);
                         LBinHex4Decoder.Decode(LBuffer);
@@ -3924,8 +3899,7 @@ begin
                     //{Get a block of memory to read the part into...}
 {$IFDEF DOTNET}
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     SetLength(ABuffer, ABufferLength);
                     LBuffer := Copy(LUnstrippedStream.DataString, 1, LUnstrippedStream.Size);
                     for LN := 1 to ABufferLength do begin
@@ -3934,8 +3908,7 @@ begin
                     Sys.FreeAndNil(LUnstrippedStream);
 {$ELSE}
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     GetMem(ABuffer, ABufferLength);
                     LBuffer := LUnstrippedStream.DataString;
                     for LN := 1 to Length(LBuffer) do begin
@@ -3960,15 +3933,13 @@ begin
                     the line-length limit is not exceeded...}
                     SetLength(LBuffer, ABufferLength);
                     LUnstrippedStream := TIdStringStream.Create('');
-                    LIdUnstrippedStream := TIdStreamVCL.Create(LUnstrippedStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LUnstrippedStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     LStrippedStream := TIdStringStream.Create('');
                     StripCRLFs(LUnstrippedStream, LStrippedStream);
                     Sys.FreeAndNil(LUnstrippedStream);
                     LBase64Decoder := TIdDecoderMIME.Create(nil);
                     try
-                        LIdDestStream := TIdStreamVCL.Create(ADestStream);
-                        LBase64Decoder.DecodeBegin(LIdDestStream);
+                        LBase64Decoder.DecodeBegin(ADestStream);
 {$IFDEF DOTNET}
                         LStrippedStream.Position := 0;
                         LBuffer := Copy(LStrippedStream.DataString, 1, LStrippedStream.Size);
@@ -3983,12 +3954,10 @@ begin
                     Sys.FreeAndNil(LStrippedStream);
                 end else if TextIsSame(AContentTransferEncoding, 'quoted-printable') then begin  {Do not Localize}
                     LIntermediateStream := TIdStringStream.Create('');                             {Do not Localize}
-                    LIdIntermediateStream := TIdStreamVCL.Create(LIntermediateStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdIntermediateStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LIntermediateStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     LQuotedPrintableDecoder := TIdDecoderQuotedPrintable.Create(nil);
                     try
-                        LIdDestStream := TIdStreamVCL.Create(ADestStream);
-                        LQuotedPrintableDecoder.DecodeBegin(LIdDestStream);
+                        LQuotedPrintableDecoder.DecodeBegin(ADestStream);
 {$IFDEF DOTNET}
                         LBuffer := Copy(LIntermediateStream.DataString, 1, LIntermediateStream.Size);
                         LQuotedPrintableDecoder.Decode(LBuffer);
@@ -4002,12 +3971,10 @@ begin
                     Sys.FreeAndNil(LIntermediateStream);
                 end else if TextIsSame(AContentTransferEncoding, 'binhex40') then begin  {Do not Localize}
                     LIntermediateStream := TIdStringStream.Create('');                     {Do not Localize}
-                    LIdIntermediateStream := TIdStreamVCL.Create(LIntermediateStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdIntermediateStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(LIntermediateStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                     LBinHex4Decoder := TIdDecoderBinHex4.Create(Self);
                     try
-                        LIdDestStream := TIdStreamVCL.Create(ADestStream);
-                        LBinHex4Decoder.DecodeBegin(LIdDestStream);
+                        LBinHex4Decoder.DecodeBegin(ADestStream);
 {$IFDEF DOTNET}
                         LBuffer := Copy(LIntermediateStream.DataString, 1, LIntermediateStream.Size);
                         LBinHex4Decoder.Decode(LBuffer);
@@ -4021,8 +3988,7 @@ begin
                     Sys.FreeAndNil(LIntermediateStream);
                 end else begin
                     {Assume no encoding or something we cannot decode...}
-                    LIdDestStream := TIdStreamVCL.Create(ADestStream);
-                    LSourceStream.Connection.IOHandler.ReadStream(LIdDestStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.IOHandler.ReadStream(ADestStream, ABufferLength);  //ReadStream uses OnWork, most other methods dont
                 end;
                 Sys.FreeAndNil(LSourceStream);
                 if bCreatedStream then begin
@@ -4085,7 +4051,7 @@ var
     LStr: string;
     LSourceStream: TIdTCPStream;
     LDestStream: TIdStringStream;
-    LIdDestStream: TIdStreamVCL;
+    LIdDestStream: TIdStream2;
 begin
     IsNumberValid(AMsgNum);
     Result := False;
@@ -4099,8 +4065,7 @@ begin
               and (FLineStruct.ByteCount > 0)) then begin
                 LSourceStream := TIdTCPStream.Create(Self);
                 LDestStream := TIdStringStream.Create('');
-                LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                LSourceStream.Connection.IOHandler.ReadStream(LIdDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+                LSourceStream.Connection.IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
 
                 {CC2: Clear out body so don't get multiple copies of bodies}
                 AMsg.Headers.Clear;
@@ -4108,7 +4073,6 @@ begin
                 AMsg.ProcessHeaders;
                 Sys.FreeAndNil(LSourceStream);
                 Sys.FreeAndNil(LDestStream);
-                Sys.FreeAndNil(LIdDestStream);
                 LStr := ReadLnWait;  {Remove trailing line after the message, probably a ')' }
                 ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
                 if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch]], False) = IMAP_OK then begin
@@ -4124,7 +4088,6 @@ var
     LStr: string;
     LSourceStream: TIdTCPStream;
     LDestStream: TIdStringStream;
-    LIdDestStream: TIdStreamVCL;
 begin
     IsUIDValid(AMsgUID);
     Result := False;
@@ -4137,15 +4100,13 @@ begin
               and (FLineStruct.ByteCount > 0)) then begin
                 LSourceStream := TIdTCPStream.Create(Self);
                 LDestStream := TIdStringStream.Create('');
-                LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                LSourceStream.Connection.IOHandler.ReadStream(LIdDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+                LSourceStream.Connection.IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
                 {CC2: Clear out body so don't get multiple copies of bodies}
                 AMsg.Headers.Clear;
                 AMsg.Headers.Text := LDestStream.DataString;
                 AMsg.ProcessHeaders;
                 Sys.FreeAndNil(LSourceStream);
                 Sys.FreeAndNil(LDestStream);
-                Sys.FreeAndNil(LIdDestStream);
                 LStr := ReadLnWait;  {Remove trailing line after the message, probably a ')' }
                 ParseLastCmdResultButAppendInfo(LStr);  //There may be a UID or FLAGS in this
                 if GetInternalResponse(GetCmdCounter, [IMAP4Commands[cmdFetch], IMAP4Commands[cmdUID]], False) = IMAP_OK then begin
@@ -4175,7 +4136,6 @@ var
     LMessageLength: integer;
     LSourceStream: TIdTCPStream;
     LDestStream: TIdStringStream;
-    LIdDestStream: TIdStreamVCL;
 begin
     Result := False;
     CheckConnectionState(csSelected);
@@ -4202,16 +4162,14 @@ begin
                 LMessageLength := FLineStruct.ByteCount;
                 LSourceStream := TIdTCPStream.Create(Self);
                 LDestStream := TIdStringStream.Create('');
-                LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                LSourceStream.Connection.IOHandler.ReadStream(LIdDestStream, LMessageLength);  //ReadStream uses OnWork, most other methods dont
+                LSourceStream.Connection.IOHandler.ReadStream(LDestStream, LMessageLength);  //ReadStream uses OnWork, most other methods dont
 {$IFDEF DOTNET}
                 AHeaders.Text := Copy(LDestStream.DataString, 1, LDestStream.Size);
 {$ELSE}
-                AHeaders.Text := TIdStringStream(LIdDestStream.VCLStream).DataString;
+                AHeaders.Text := TIdStringStream(LDestStream).DataString;
 {$ENDIF}
                 Sys.FreeAndNil(LSourceStream);
                 Sys.FreeAndNil(LDestStream);
-                Sys.FreeAndNil(LIdDestStream);
             end;
         end;
         ReadLnWait;
@@ -4345,7 +4303,6 @@ var
     LTempPathname: string;
     LSourceStream: TIdTCPStream;
     LDestStream: TFileCreateStream;
-    LIdDestStream: TIdStreamVCL;
 begin
     Result := False;
     CheckConnectionState(csSelected);
@@ -4384,15 +4341,10 @@ begin
                 LTempPathname := MakeTempFilename;
                 LDestStream := TFileCreateStream.Create(LTempPathname);
                 try
-                    LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                    try
-                        LSourceStream.Connection.IOHandler.ReadStream(LIdDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
-                        LSourceStream.Connection.OnWork := nil;
-                        LSourceStream.Connection.OnWorkBegin := nil;
-                        LSourceStream.Connection.OnWorkEnd := nil;
-                    finally
-                        Sys.FreeAndNil(LIdDestStream);
-                    end;
+                    LSourceStream.Connection.IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
+                    LSourceStream.Connection.OnWork := nil;
+                    LSourceStream.Connection.OnWorkBegin := nil;
+                    LSourceStream.Connection.OnWorkEnd := nil;
                 finally
                     Sys.FreeAndNil(LDestStream);
                 end;
@@ -6030,26 +5982,18 @@ var
     LByte: TIdBytes;
     LNumSourceBytes: int64;
     LBytesRead: int64;
-    LSrcStrm, LDestStrm : TIdStreamVCL;
 begin
   SetLength(LByte,1);
-  LSrcStrm  := TIdStreamVCL.Create(ASourceStream);
-  LDestStrm := TIdStreamVCL.Create(ADestStream);
-  try
-    ASourceStream.Position := 0;
-    ADestStream.Size := 0;
-    LNumSourceBytes := ASourceStream.Size;
-    LBytesRead := 0;
-    while LBytesRead < LNumSourceBytes do begin
-        LSrcStrm.ReadBytes(LByte,1);
-        if ((LByte[0] <> 13) and (LByte[0] <> 10)) then begin
-            LDestStrm.Write(LByte);
-        end;
-        Inc(LBytesRead);
-    end;
-  finally
-    Sys.FreeAndNil( LSrcStrm );
-    Sys.FreeAndNil( LDestStrm );
+  ASourceStream.Position := 0;
+  ADestStream.Size := 0;
+  LNumSourceBytes := ASourceStream.Size;
+  LBytesRead := 0;
+  while LBytesRead < LNumSourceBytes do begin
+      ASourceStream.Read(LByte,1);
+      if ((LByte[0] <> 13) and (LByte[0] <> 10)) then begin
+          ADestStream.Write(LByte, 0, 1);
+      end;
+      Inc(LBytesRead);
   end;
 end;
 
@@ -6108,18 +6052,13 @@ const
     function ProcessTextPart(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
     var
         LDestStream: TIdStringStream;
-        LIdDestStream : TIdStreamVCL;
+        LIdDestStream : TIdStream2;
         Li: integer;
     begin
         try
             LDestStream := TIdStringStream.Create('');  {Do not Localize}
             try
-                LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                try
-                    Result := ADecoder.ReadBody(LIdDestStream, LMsgEnd);
-                finally
-                    Sys.FreeAndNil(LIdDestStream);
-                end;
+                Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
                 with TIdText.Create(AMsg.MessageParts) do begin
                     ContentType := ADecoder.Headers.Values[SContentType];
                     ContentID := ADecoder.Headers.Values['Content-ID'];  {Do not Localize}
@@ -6150,7 +6089,6 @@ const
         LDestStream: TIdStream2;
         Li: integer;
         LAttachment: TIdAttachment;
-        LIdDestStream: TIdStreamVCL;
     begin
         try
             Result := nil; // supress warnings
@@ -6160,12 +6098,7 @@ const
                 try
                     LDestStream := PrepareTempStream;
                     try
-                        LIdDestStream := TIdStreamVCL.Create(LDestStream);
-                        try
-                            Result := ADecoder.ReadBody(LIdDestStream, LMsgEnd);
-                        finally
-                            Sys.FreeAndNil(LIdDestStream);
-                        end;
+                        Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
                         ContentType := ADecoder.Headers.Values[SContentType];
                         ContentTransfer := ADecoder.Headers.Values['Content-Transfer-Encoding'];  {Do not Localize}
                         // dsiders 2001.12.01

@@ -226,7 +226,6 @@ unit IdPOP3;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
@@ -239,6 +238,7 @@ uses
   IdSASLCollection,
   IdSys,
   IdObjs,
+  IdBaseComponent,
   IdUserPassProvider;
 
 type
@@ -261,7 +261,7 @@ type
     function GetSupportsTLS: Boolean; override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
   public
     function CheckMessages: LongInt;
     procedure Connect; override;
@@ -588,8 +588,8 @@ begin
   Result := Username;
 end;
 
-procedure TIdPOP3.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdPOP3.Notification(AComponent: TIdNativeComponent;
+  Operation: TIdOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);

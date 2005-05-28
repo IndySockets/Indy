@@ -187,11 +187,9 @@ unit IdMessageCoderMIME;
 interface
 
 uses
-  Classes,
   IdMessageCoder,
   IdMessage,
-  IdStream,
-  IdStreamRandomAccess,
+  IdObjs, IdGlobal,
   IdSys, IdBaseComponent;
 
 type
@@ -203,8 +201,8 @@ type
     function GetProperHeaderItem(const Line: string): string;
     procedure InitComponent; override;
   public
-    constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
-    function ReadBody(ADestStream: TIdStream;
+    constructor Create(AOwner: TIdNativeComponent; const ALine: string); reintroduce; overload;
+    function ReadBody(ADestStream: TIdStream2;
       var VMsgEnd: Boolean): TIdMessageDecoder; override;
     procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
     procedure ReadHeader; override;
@@ -222,7 +220,7 @@ type
 
   TIdMessageEncoderMIME = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream); override;
+    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
   end;
 
   TIdMessageEncoderInfoMIME = class(TIdMessageEncoderInfo)
@@ -265,7 +263,7 @@ const
 implementation
 
 uses
-  IdCoder, IdCoderMIME, IdGlobal, IdException, IdGlobalProtocols, IdResourceStrings,
+  IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings,
   IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader;
 
 { TIdMIMEBoundaryStrings }
@@ -362,7 +360,7 @@ begin
   FFirstLine := ALine;
 end;
 
-function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream; var VMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream2; var VMsgEnd: Boolean): TIdMessageDecoder;
 var
   LContentTransferEncoding: string;
   LDecoder: TIdDecoder;
@@ -442,15 +440,15 @@ begin
             //In this case, we have to make sure we dont write out an EOL at the
             //end of the file.
             if LIsThisTheFirstLine then begin
-              ADestStream.Write(LLine);
+              WriteStringToStream(ADestStream, LLine);
               LIsThisTheFirstLine := False;
             end else begin
-              ADestStream.Write(EOL);
-              ADestStream.Write(LLine);
+              WriteStringToStream(ADestStream, EOL);
+              WriteStringToStream(ADestStream, LLine);
             end;
           end else begin
             LLine := LLine + EOL;
-            ADestStream.Write(LLine);
+            WriteStringToStream(ADestStream, LLine);
           end;
         // Data to decode
         end else begin
@@ -477,7 +475,7 @@ begin
             Delete(LLine, 1, 1);
           end;
           LLine := LLine + EOL;
-          ADestStream.Write(LLine);
+          WriteStringToStream(ADestStream, LLine);
         end else if LLine <> '' then begin
           LDecoder.Decode(LLine);
         end;
@@ -688,7 +686,7 @@ end;
 
 { TIdMessageEncoderMIME }
 
-procedure TIdMessageEncoderMIME.Encode(ASrc: TIdStreamRandomAccess; ADest: TIdStream);
+procedure TIdMessageEncoderMIME.Encode(ASrc: TIdStream2; ADest: TIdStream2);
 var
   s: string;
   LEncoder: TIdEncoderMIME;
@@ -701,7 +699,7 @@ begin
     while LSPos < LSSize do begin
       s := LEncoder.Encode(ASrc, 57) + EOL;
       Inc(LSPos,57);
-      ADest.Write(s);
+      WriteStringToStream(ADest, s);
     end;
   finally Sys.FreeAndNil(LEncoder); end;
 end;

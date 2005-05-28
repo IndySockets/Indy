@@ -189,7 +189,6 @@ unit IdStackDotNet;
 interface
 
 uses
-  Classes,
   IdGlobal, IdStack, IdStackConsts,
   IdObjs,
   System.Collections;

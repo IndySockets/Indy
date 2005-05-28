@@ -136,11 +136,10 @@ interface
 }
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext,
-  IdCustomTCPServer,
-  IdGlobal,  IdStack, IdSys, IdTCPConnection, IdTCPServer, IdYarn;
+  IdCustomTCPServer, IdObjs,
+  IdGlobal, IdStack, IdSys, IdTCPConnection, IdTCPServer, IdYarn;
 
 type
   TIdMappedPortTCP = class;
@@ -158,7 +157,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
     //
@@ -361,7 +360,7 @@ End;//OnDisconnect
 constructor TIdMappedPortContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TThreadList = nil
+  AList: TIdThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);

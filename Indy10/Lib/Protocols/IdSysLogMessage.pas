@@ -61,7 +61,7 @@ unit IdSysLogMessage;
 interface
 
 uses
-  IdGlobal, IdGlobalProtocols,  Classes, IdBaseComponent;
+  IdGlobal, IdGlobalProtocols, IdBaseComponent;
 
 type
 //  TIdSyslogSeverity = ID_SYSLOG_SEVERITY_EMERGENCY..ID_SYSLOG_SEVERITY_DEBUG;
@@ -101,7 +101,7 @@ type
               slInformational, {6 - informational }
               slDebug); {7 - debug-level messages }
 
-  TIdSysLogMsgPart = class(TPersistent)
+  TIdSysLogMsgPart = class(TIdPersistent)
   protected
     FPIDAvailable: Boolean;
     {we only use the text property as a basis for everything
@@ -121,7 +121,7 @@ type
     function PIDToStr(APID : Integer) : String; virtual;
 
   public
-    procedure Assign(Source: Tpersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property Text: String read FText write SetText;
     {These are part of the message property string so no need to store them}
@@ -167,7 +167,7 @@ type
 //    function NoToSeverity(ASev :  Word) : TIdSyslogSeverity; virtual;
      //extract the PID part into a SysLog PID including []
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     destructor Destroy; override;
     function EncodeMessage: String; virtual;
     procedure ReadFromBytes(const ASrc: TIdBytes; const APeer : String); virtual;
@@ -410,7 +410,7 @@ begin
 end;
 { TIdSysLogMessage }
 
-procedure TIdSysLogMessage.assign(Source: Tpersistent);
+procedure TIdSysLogMessage.assign(Source: TIdPersistent);
 var ms : TIdSysLogMessage;
 begin
   if Source is TIdSysLogMessage then
@@ -742,7 +742,7 @@ end;
 
 { TIdSysLogMsgPart }
 
-procedure TIdSysLogMsgPart.Assign(Source: Tpersistent);
+procedure TIdSysLogMsgPart.Assign(Source: TIdPersistent);
 var m : TIdSysLogMsgPart;
 begin
   if Source is TIdSysLogMsgPart then

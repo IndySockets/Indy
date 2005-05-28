@@ -178,7 +178,7 @@ unit IdSocks;
 interface
 
 uses
-  Classes, IdAssignedNumbers, IdException,
+  IdAssignedNumbers, IdException, IdBaseComponent,
   IdComponent, IdCustomTransparentProxy, IdGlobal, IdIOHandler,
   IdIOHandlerSocket, IdSocketHandle, IdSys;
 
@@ -203,7 +203,7 @@ type
       var VHost : String; var VPort : Integer): TIdBytes;
     function MakeUDPRequestPacket(const AData: TIdBytes;
       const AHost : String; const APort : Integer) : TIdBytes;
-    procedure AssignTo(ASource: TPersistent); override;
+    procedure AssignTo(ASource: TIdPersistent); override;
     function GetEnabled: Boolean; override;
     procedure InitComponent; override;
     procedure AuthenticateSocks5Connection(AIOHandler: TIdIOHandler);
@@ -255,7 +255,7 @@ uses
 
 { TIdSocksInfo }
 
-procedure TIdSocksInfo.AssignTo(ASource: TPersistent);
+procedure TIdSocksInfo.AssignTo(ASource: TIdPersistent);
 begin
   if ASource is TIdSocksInfo then begin
     inherited AssignTo(ASource);

@@ -73,38 +73,22 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdTCPConnection, IdStream;
+  IdGlobal, IdTCPConnection, IdObjs;
 
 type
-  TIdTCPStream = class(TIdStream)
+  TIdTCPStream = class(TIdStream2)
   protected
     FConnection: TIdTCPConnection;
+    function GetPosition: Int64; override;
+    function GetSize: Int64; override;
+    procedure SetSize(ASize: Int64); override;
   public
     constructor Create(
       AConnection: TIdTCPConnection
       ); reintroduce;
-    function ReadBytes(
-      var VBytes: TIdBytes;
-      ACount: Integer;
-      AOffset: Integer = 0;
-      AExceptionOnCountDiffer: Boolean = True
-      ): Integer; override;
-    function ReadLn(
-      AMaxLineLength: Integer = -1;
-      AExceptionIfEOF: Boolean = False
-      ): string; override;
-    function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
-         ATimeout: Integer = IdTimeoutDefault;
-         AMaxLineLength: Integer = -1): string;
-    function ReadString: string; override;
-    procedure Write(
-      const AValue: string
-      ); overload; override;
-    procedure Write(
-      const ABytes: TIdBytes;
-      ACount: Integer = -1
-      ); overload; override;
-    //
+    function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
+    function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
+    function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
     property Connection: TIdTCPConnection read FConnection;
   end;
 
@@ -118,41 +102,44 @@ begin
   FConnection := AConnection;
 end;
 
-function TIdTCPStream.ReadBytes(var VBytes: TIdBytes; ACount,
-  AOffset: Integer; AExceptionOnCountDiffer: Boolean): Integer;
+function TIdTCPStream.GetSize: Int64;
 begin
-  Connection.IOHandler.ReadBytes(VBytes, ACount);
+  Result := 0;
+end;
+
+function TIdTCPStream.GetPosition: Int64;
+begin
+  Result := -1;
+end;
+
+function TIdTCPStream.Read(var ABuffer: array of Byte; AOffset,
+  ACount: Longint): Longint;
+var
+  TempBuff: TIdBytes;
+begin
+  TempBuff := ABuffer;
+  Connection.IOHandler.ReadBytes(TempBuff, ACount, false);
+  ABuffer := TempBuff;
   Result := ACount;
 end;
 
-function TIdTCPStream.ReadLn(AMaxLineLength: Integer;
-  AExceptionIfEOF: Boolean): string;
+function TIdTCPStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
 begin
-  Result := Connection.IOHandler.ReadLn(EOL, -1, AMaxLineLength);
+  Result := 0;
 end;
 
-function TIdTCPStream.ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
-         ATimeout: Integer = IdTimeoutDefault;
-         AMaxLineLength: Integer = -1): string;
-{CC: This function is needed by the message decoders to read long "lines", e.g.
-binary-encoded attachments, where the whole attachment is just one line...}
+procedure TIdTCPStream.SetSize(ASize: Int64);
 begin
-  Result := Connection.IOHandler.ReadLnSplit(AWasSplit, ATerminator, ATimeout, AMaxLineLength);
+//
 end;
 
-function TIdTCPStream.ReadString: string;
+function TIdTCPStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
 begin
-  Result := Connection.IOHandler.ReadString(ReadInteger);
-end;
+  if AOffset > 0 then
+    ToDo;
 
-procedure TIdTCPStream.Write(const ABytes: TIdBytes; ACount: Integer);
-begin
-  Connection.IOHandler.Write(ABytes);
-end;
-
-procedure TIdTCPStream.Write(const AValue: string);
-begin
-  Connection.IOHandler.Write(AValue);
+  Connection.IOHandler.Write(ToBytes(ABuffer, ACount));
+  Result := ACount - AOffset;
 end;
 
 end.

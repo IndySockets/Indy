@@ -720,25 +720,24 @@ TODO: Chage the FTP demo to demonstrate the use of the new events and add proxy 
 interface
 
 uses
-  Classes,
   IdAssignedNumbers, IdGlobal, IdCustomTransparentProxy, IdExceptionCore,
   IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase, IdException,
   IdIOHandler, IdIOHandlerSocket,
-  IdReplyFTP,
+  IdReplyFTP, IdBaseComponent,
   IdReplyRFC,
   IdReply,
-  IdSocketHandle, IdStreamVCL, IdSys,
+  IdSocketHandle, IdSys,
   IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdObjs, IdZLibCompressorBase;
 
 type
   //Added by SP
-  TIdCreateFTPList = procedure(ASender: TObject; Var VFTPList: TIdFTPListItems) of object;
+  TIdCreateFTPList = procedure(ASender: TIdBaseObject; Var VFTPList: TIdFTPListItems) of object;
 //  TIdCheckListFormat = procedure(ASender: TObject; const ALine: String; Var VListFormat: TIdFTPListFormat) of object;
-  TOnAfterClientLogin = TNotifyEvent;
-  TIdFtpAfterGet = procedure (ASender: TObject; VStream: TIdStream2) of object; //APR
-  TIdOnDataChannelCreate = procedure (ASender: TObject; ADataChannel: TIdTCPConnection) of object;
-  TIdOnDataChannelDestroy = procedure (ASender: TObject; ADataChannel: TIdTCPConnection) of object;
-  TIdNeedAccountEvent = procedure (ASender: TObject; Var VAcct: string) of object;
+  TOnAfterClientLogin = TIdNotifyEvent;
+  TIdFtpAfterGet = procedure (ASender: TIdBaseObject; VStream: TIdStream2) of object; //APR
+  TIdOnDataChannelCreate = procedure (ASender: TIdBaseObject; ADataChannel: TIdTCPConnection) of object;
+  TIdOnDataChannelDestroy = procedure (ASender: TIdBaseObject; ADataChannel: TIdTCPConnection) of object;
+  TIdNeedAccountEvent = procedure (ASender: TIdBaseObject; Var VAcct: string) of object;
 
 
 const
@@ -783,7 +782,7 @@ will chop off a connection instead of closing it causing TIdFTP to wait forever 
 type
 
   TIdFTPBannerEvent = procedure (ASender: TObject; const AMsg : String) of object;
-  TIdFTPClientIdentifier = class (TPersistent)
+  TIdFTPClientIdentifier = class (TIdPersistent)
   protected
     FClientName : String;
     FClientVersion : String;
@@ -793,20 +792,20 @@ type
     procedure SetPlatformDescription(const AValue: String);
     function GetClntOutput: String;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property ClntOutput : String read GetClntOutput;
   published
     property ClientName : String read FClientName write SetClientName;
     property ClientVersion : String read FClientVersion write SetClientVersion;
     property PlatformDescription : String read FPlatformDescription write SetPlatformDescription;
   end;
-  TIdFtpProxySettings = class (TPersistent)
+  TIdFtpProxySettings = class (TIdPersistent)
   protected
     FHost, FUserName, FPassword: String;
     FProxyType: TIdFtpProxyType;
     FPort: Integer;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property  ProxyType: TIdFtpProxyType read FProxyType write FProxyType;
     property  Host: String read FHost write FHost;
@@ -815,12 +814,12 @@ type
     property  Port: Integer read FPort write FPort;
   End;//TIdFtpProxySettings
 
-  TIdFTPTZInfo = class(TPersistent)
+  TIdFTPTZInfo = class(TIdPersistent)
   protected
     FGMTOffset : TIdDateTime;
     FGMTOffsetAvailable : Boolean;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property GMTOffset : TIdDateTime read FGMTOffset write FGMTOffset;
     property GMTOffsetAvailable : Boolean read FGMTOffsetAvailable write FGMTOffsetAvailable;
@@ -857,15 +856,15 @@ type
     FDirectoryListing: TIdFTPListItems;
     FDirFormat : String;
     FListParserClass : TIdFTPListParseClass;
-    FOnAfterClientLogin: TNotifyEvent;
+    FOnAfterClientLogin: TIdNotifyEvent;
     FOnCreateFTPList: TIdCreateFTPList;
-    FOnBeforeGet: TNotifyEvent;
+    FOnBeforeGet: TIdNotifyEvent;
     FOnBeforePut: TIdFtpAfterGet;
     //in case someone needs to do something special with the data being uploaded
     FOnAfterGet: TIdFtpAfterGet; //APR
-    FOnAfterPut: TNotifyEvent; //JPM at Don Sider's suggestion
+    FOnAfterPut: TIdNotifyEvent; //JPM at Don Sider's suggestion
   	FOnNeedAccount: TIdNeedAccountEvent;
-    FOnCustomFTPProxy : TNotifyEvent;
+    FOnCustomFTPProxy : TIdNotifyEvent;
     FOnDataChannelCreate:TIdOnDataChannelCreate;
     FOnDataChannelDestroy:TIdOnDataChannelDestroy;
     FProxySettings: TIdFtpProxySettings;
@@ -892,10 +891,10 @@ type
 
     //dir events for some GUI programs.
     //The directory was Retrieved from the FTP server.
-    FOnRetrievedDir : TNotifyEvent;
+    FOnRetrievedDir : TIdNotifyEvent;
     //parsing is done only when DirectoryListing is referenced
-    FOnDirParseStart : TNotifyEvent;
-    FOnDirParseEnd : TNotifyEvent;
+    FOnDirParseStart : TIdNotifyEvent;
+    FOnDirParseEnd : TIdNotifyEvent;
 
     //we probably need an Abort flag so we know when an abort is sent.
     //It turns out that one server will send a 550 or 451 error followed by an
@@ -946,8 +945,8 @@ type
     //before issuing a PASV.  See: http://drftpd.mog.se/wiki/wiki.phtml?title=Distributed_PASV#PRE_Transfer_Command_for_Distributed_PASV_Transfers
     //for a discussion.
     procedure SendPret(const ACommand : String);
-    procedure InternalGet(const ACommand: string; ADest: TIdStreamVCL; AResume: Boolean = false);
-    procedure InternalPut(const ACommand: string; ASource: TIdStreamVCL; AFromBeginning: Boolean = true);
+    procedure InternalGet(const ACommand: string; ADest: TIdStream2; AResume: Boolean = false);
+    procedure InternalPut(const ACommand: string; ASource: TIdStream2; AFromBeginning: Boolean = true);
 //    procedure SetOnParseCustomListFormat(const AValue: TIdOnParseCustomListFormat);
     procedure SendPassive(var VIP: string; var VPort: integer);
     procedure SendPort(AHandle: TIdSocketHandle); overload;
@@ -978,7 +977,7 @@ type
     function ValidateInternalIsTLSFXP(AFromSite, AToSite: TIdFTP; const ATargetUsesPasv : Boolean): Boolean;
     procedure InitComponent; override;
     procedure SetUseTLS(AValue : TIdUseTLS); override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetDataPortProtection(AValue : TIdFTPDataPortSecurity);
     procedure SetAUTHCmd(const AValue : TAuthCmd);
     procedure SetUseCCC(const AValue: Boolean);
@@ -1009,7 +1008,6 @@ type
     destructor Destroy; override;
     procedure Delete(const AFilename: string);
     procedure FileStructure(AStructure: TIdFTPDataStructure);
-    procedure Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
     procedure Help(var AHelpContents: TIdStringList; ACommand: String = '');
@@ -1032,14 +1030,11 @@ type
     procedure MakeDir(const ADirName: string);
     procedure Noop;
     procedure SetCMDOpt(const ACMD, AOptions : String);
-    procedure Put(const ASource: TIdStreamVCL; const ADestFile: string;
-     const AAppend: boolean = false); overload;
     procedure Put(const ASource: TIdStream2; const ADestFile: string;
      const AAppend: boolean = false); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string = '';
      const AAppend: boolean = false); overload;
 
-    procedure StoreUnique(const ASource: TIdStreamVCL); overload;
     procedure StoreUnique(const ASource: TIdStream2); overload;
     procedure StoreUnique(const ASourceFile: string); overload;
 
@@ -1118,14 +1113,14 @@ type
     property OnCreateFTPList: TIdCreateFTPList read FOnCreateFTPList write FOnCreateFTPList;
     property OnAfterGet: TIdFtpAfterGet read FOnAfterGet write FOnAfterGet; //APR
 	  property OnNeedAccount: TIdNeedAccountEvent read FOnNeedAccount write FOnNeedAccount;
-    property OnCustomFTPProxy : TNotifyEvent read FOnCustomFTPProxy write FOnCustomFTPProxy;
+    property OnCustomFTPProxy : TIdNotifyEvent read FOnCustomFTPProxy write FOnCustomFTPProxy;
     property OnDataChannelCreate:TIdOnDataChannelCreate read FOnDataChannelCreate write FOnDataChannelCreate;
     property OnDataChannelDestroy:TIdOnDataChannelDestroy read FOnDataChannelDestroy write FOnDataChannelDestroy;
     //The directory was Retrieved from the FTP server.
-    property OnRetrievedDir : TNotifyEvent read FOnRetrievedDir write FOnRetrievedDir;
+    property OnRetrievedDir : TIdNotifyEvent read FOnRetrievedDir write FOnRetrievedDir;
     //parsing is done only when DirectoryLiusting is referenced
-    property OnDirParseStart : TNotifyEvent read FOnDirParseStart write FOnDirParseStart;
-    property OnDirParseEnd : TNotifyEvent read FOnDirParseEnd write FOnDirParseEnd;
+    property OnDirParseStart : TIdNotifyEvent read FOnDirParseStart write FOnDirParseStart;
+    property OnDirParseEnd : TIdNotifyEvent read FOnDirParseEnd write FOnDirParseEnd;
     property ReadTimeout default DEF_Id_FTP_READTIMEOUT;
   end;
 
@@ -1388,31 +1383,14 @@ begin
   end;
 end;
 
-procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false);
-begin
-  //for SSL FXP, we have to do it here because InternalGet is used by the LIST command
-  //where SSCN is ignored.
-  ClearSSCN;
-  AResume := AResume and CanResume;
-  DoBeforeGet; //APR
-  InternalGet('RETR ' + ASourceFile, ADest, AResume);   {do not localize}
-  DoAfterGet(ADest.VCLStream ); //APR
-end;
-
 procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = False);
-var
-  LStream : TIdStreamVCL;
 begin
   //for SSL FXP, we have to do it here because InternalGet is used by the LIST command
   //where SSCN is ignored.
   ClearSSCN;
   AResume := AResume and CanResume;
-  LStream := TIdStreamVCL.Create(ADest);
-  try
-    Get(ASourceFile, LStream, AResume);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
+  ADest.Position := 0;
+  Get(ASourceFile, ADest, AResume);
 end;
 
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = False;
@@ -1475,7 +1453,7 @@ end;
 procedure TIdFTP.ConstructDirListing;
 begin
   if not Assigned(FDirectoryListing) then begin
-    if not (csDesigning in ComponentState) then begin
+    if not IsDesignTime then begin
       DoFTPList;
     end;
     if not Assigned(FDirectoryListing) then begin
@@ -1493,7 +1471,6 @@ procedure TIdFTP.List(
 var
   LDest: TIdStringStream;
   LTrans : TIdFTPTransferType;
-  LStream : TIdStreamVCL;
 begin
   if FCanUseMLS then begin
     ExtListDir(ADest);
@@ -1509,9 +1486,7 @@ begin
   end;
   try
     LDest := TIdStringStream.Create(''); try
-      LStream := TIdStreamVCL.Create(LDest); try
-        InternalGet(Sys.Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LStream); {do not localize}
-      finally Sys.FreeAndNil(LStream); end;
+      InternalGet(Sys.Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LDest); {do not localize}
       Sys.FreeAndNil(FDirectoryListing);
       FListResult.Text := LDest.DataString;
       if ADest <> nil then begin
@@ -1593,7 +1568,7 @@ begin
 end;
 
 
-procedure TIdFTP.InternalPut(const ACommand: string; ASource: TIdStreamVCL; AFromBeginning: Boolean = true);
+procedure TIdFTP.InternalPut(const ACommand: string; ASource: TIdStream2; AFromBeginning: Boolean = true);
 var
   LIP: string;
   LPort: Integer;
@@ -1721,7 +1696,7 @@ begin
 end;
 
 
-procedure TIdFTP.InternalGet(const ACommand: string; ADest: TIdStreamVCL; AResume: Boolean = false);
+procedure TIdFTP.InternalGet(const ACommand: string; ADest: TIdStream2; AResume: Boolean = false);
 var
   LIP: string;
   LPort: Integer;
@@ -1755,7 +1730,7 @@ begin
         LPasvCl.Connect;
         try
           if AResume then begin
-            Self.SendCmd('REST ' + Sys.IntToStr(ADest.VCLStream.Position), [350]);   {do not localize}
+            Self.SendCmd('REST ' + Sys.IntToStr(ADest.Position), [350]);   {do not localize}
           end;
           Self.IOHandler.WriteLn(ACommand);
           Self.GetResponse([125, 150, 154]); //APR: Ericsson Switch FTP
@@ -1799,7 +1774,7 @@ begin
           SendPort(LPortSv.Binding);
         end;
         if AResume then begin
-          SendCmd('REST ' + Sys.IntToStr(ADest.VCLStream.Position), [350]);  {do not localize}
+          SendCmd('REST ' + Sys.IntToStr(ADest.Position), [350]);  {do not localize}
         end;
         SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
 
@@ -1936,29 +1911,17 @@ begin
   FDataChannel.OnWorkEnd := OnWorkEnd;
 end;
 
-procedure TIdFTP.Put(const ASource: TIdStreamVCL; const ADestFile: string;
+procedure TIdFTP.Put(const ASource: TIdStream2; const ADestFile: string;
  const AAppend: boolean = false);
 begin
   EIdFTPUploadFileNameCanNotBeEmpty.IfTrue(ADestFile = '', RSFTPFileNameCanNotBeEmpty);
-  DoBeforePut(ASource.VCLStream); //APR);
+  DoBeforePut(ASource); //APR);
   if AAppend then begin
     InternalPut('APPE ' + ADestFile, ASource, false);  {Do not localize}
   end else begin
     InternalPut('STOR ' + ADestFile, ASource);  {Do not localize}
   end;
   DoAfterPut;
-end;
-
-procedure TIdFTP.Put(const ASource: TIdStream2; const ADestFile: string;
- const AAppend: boolean = false);
-var LStream : TIdStreamVCL;
-begin
-  LStream := TIdStreamVCL.Create(ASource);
-  try
-    Put(LStream,ADestFile,AAppend);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
 end;
 
 procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string='';
@@ -1976,20 +1939,9 @@ begin
   finally Sys.FreeAndNil(LSourceStream); end;
 end;
 
-procedure TIdFTP.StoreUnique(const ASource: TIdStreamVCL);
-begin
-    InternalPut('STOU', ASource);  {Do not localize}
-end;
-
 procedure TIdFTP.StoreUnique(const ASource: TIdStream2);
-var LStream : TIdStreamVCL;
 begin
-  LStream := TIdStreamVCL.Create(ASource);
-  try
-    StoreUnique(LStream);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
+  InternalPut('STOU', ASource);  {Do not localize}
 end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
@@ -2180,18 +2132,14 @@ end;
 procedure TIdFTP.Help(var AHelpContents: TIdStringList; ACommand: String = ''); {do not localize}
 var
   LStream: TIdStringStream;
-  LIdStream : TIdStreamVCL;
+  LIdStream : TIdStream2;
 begin
   LStream := TIdStringStream.Create('');    {do not localize}
   try
     if SendCmd('HELP ' + ACommand, [211, 214, 500]) <> 500 then       {do not localize}
     begin
-      LIdStream := TIdStreamVCL.Create(LStream);
-      try
-        IOHandler.ReadStream(LIdStream, -1, True);
-      finally
-        Sys.FreeAndNil(LIdStream);
-      end;
+      LStream.Position := 0;
+      IOHandler.ReadStream(LStream, -1, True);
       AHelpContents.Text := LStream.DataString;
     end;
   finally
@@ -2616,7 +2564,7 @@ End;//
 
 { TIdFtpProxySettings }
 
-procedure TIdFtpProxySettings.Assign(Source: TPersistent);
+procedure TIdFtpProxySettings.Assign(Source: TIdPersistent);
 Begin
   if Source is TIdFtpProxySettings then begin
     with TIdFtpProxySettings(Source) do begin
@@ -2846,16 +2794,11 @@ end;
 procedure TIdFTP.ExtListDir(const ADest: TIdStrings=nil; const ADirectory: string='');
 var
   LDest: TIdStringStream;
-  LIdStream : TIdStreamVCL;
+  LIdStream : TIdStream2;
 begin
   LDest := TIdStringStream.Create('');
   try
-    LIdStream := TIdStreamVCL.Create(LDest);
-    try
-      InternalGet(Sys.Trim('MLSD ' + ADirectory), LIdStream);  {do not localize}
-    finally
-      Sys.FreeAndNil(LIdStream);
-    end;
+    InternalGet(Sys.Trim('MLSD ' + ADirectory), LIdStream);  {do not localize}
     Sys.FreeAndNil(FDirectoryListing);
     DoOnRetrievedDir;
     if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
@@ -3423,7 +3366,7 @@ end;
 
 { TIdFTPClientIdentifier }
 
-procedure TIdFTPClientIdentifier.Assign(Source: TPersistent);
+procedure TIdFTPClientIdentifier.Assign(Source: TIdPersistent);
 begin
   if Source is TIdFTPClientIdentifier then begin
     with TIdFTPClientIdentifier(Source) do begin
@@ -3652,7 +3595,7 @@ end;
 
 { TIdFTPTZInfo }
 
-procedure TIdFTPTZInfo.Assign(Source: TPersistent);
+procedure TIdFTPTZInfo.Assign(Source: TIdPersistent);
 begin
   if Source is TIdFTPTZInfo then begin
     with TIdFTPTZInfo(Source) do begin
@@ -3742,8 +3685,8 @@ begin
              IsTitan;
 end;
 
-procedure TIdFTP.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdFTP.Notification(AComponent: TIdNativeComponent;
+  Operation: TIdOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FCompressor) then begin
@@ -3793,7 +3736,7 @@ end;
 
 procedure TIdFTP.SetDataPortProtection(AValue: TIdFTPDataPortSecurity);
 begin
-  if csLoading in ComponentState then begin
+  if IsLoading then begin
     FDataPortProtection := AValue;
     Exit;
   end;
@@ -3806,7 +3749,7 @@ end;
 
 procedure TIdFTP.SetAUTHCmd(const AValue : TAuthCmd);
 begin
-  if csLoading in ComponentState then begin
+  if IsLoading then begin
     FAUTHCmd := AValue;
     Exit;
   end;
@@ -3820,7 +3763,7 @@ end;
 procedure TIdFTP.SetUseTLS(AValue: TIdUseTLS);
 begin
   inherited;
-  if csLoading in ComponentState then
+  if IsLoading then
   begin
     exit;
   end;
@@ -3834,7 +3777,7 @@ end;
 
 procedure TIdFTP.SetUseCCC(const AValue: Boolean);
 begin
-  if not (csLoading in ComponentState) then begin
+  if not IsLoading then begin
     EIdFTPNoCCCWOEncryption.IfTrue(FUseTLS=utNoTLSSupport, RSFTPNoCCCWOEncryption);
   end;
   FUseCCC := AValue;

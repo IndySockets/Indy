@@ -641,7 +641,6 @@ function TIdCustomHTTPServer.DoExecute(AContext:TIdContext): boolean;
 var
   LRequestInfo: TIdHTTPRequestInfo;
   LResponseInfo: TIdHTTPResponseInfo;
-  LP : TIdStreamVCL;
 
   procedure ReadCookiesFromRequestHeader;
   var
@@ -726,17 +725,13 @@ begin
               LRequestInfo.FPostStream := TIdStringStream.Create('');    {Do not Localize}
             end;
 
-            LP := TIdStreamVCL.Create(LRequestInfo.PostStream);
-            try
-              if LRequestInfo.ContentLength > 0 then begin
-                IOHandler.ReadStream(LP, LRequestInfo.ContentLength);
-              end else if LRequestInfo.CommandType = hcPOST then begin
-                if not LRequestInfo.HasContentLength then begin
-                  IOHandler.ReadStream(LP, -1, True);
-                end;
+            LRequestInfo.PostStream.Position := 0;
+            if LRequestInfo.ContentLength > 0 then begin
+              IOHandler.ReadStream(LRequestInfo.PostStream, LRequestInfo.ContentLength);
+            end else if LRequestInfo.CommandType = hcPOST then begin
+              if not LRequestInfo.HasContentLength then begin
+                IOHandler.ReadStream(LRequestInfo.PostStream, -1, True);
               end;
-            finally
-              Sys.FreeAndNil(LP);
             end;
 
             // reset back to 0 before reading the string from the post stream
@@ -1306,8 +1301,6 @@ begin
 end;
 
 procedure TIdHTTPResponseInfo.WriteContent;
-var
-  LS : TIdStreamVCL;
 begin
   if not HeaderHasBeenWritten then begin
     WriteHeader;
@@ -1317,12 +1310,8 @@ begin
     if ContentText <> '' then begin
       IOHandler.Write(ContentText);
     end else if Assigned(ContentStream) then begin
-      LS := TIdStreamVCL.Create(ContentStream);
-      try
-        IOHandler.Write(LS);
-      finally
-        Sys.FreeAndNil(LS);
-      end;
+      ContentStream.Position := 0;
+      IOHandler.Write(ContentStream);
     end else begin
       FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + Sys.IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
        + '</B></BODY></HTML>');    {Do not Localize}

@@ -227,7 +227,6 @@ unit IdSMTP;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdEMailAddress,
   IdException,
@@ -239,6 +238,8 @@ uses
   IdSASLCollection,
   IdSMTPBase,
   IdSys,
+  IdBaseComponent,
+  IdGlobal,
   IdObjs;
 
 type
@@ -264,14 +265,14 @@ type
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
 
     //
     // holger: .NET compatibility change, OnConnected being reintroduced 
     property OnConnected;
   public
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     function Authenticate: Boolean; virtual;
     procedure Connect; override;
     procedure Disconnect(AImmediate: Boolean); override;
@@ -302,7 +303,7 @@ implementation
 
 uses
   IdCoderMIME,
-  IdGlobal, IdGlobalProtocols,
+  IdGlobalProtocols,
   IdReplySMTP,
   IdSSL,
   IdResourceStringsProtocols,
@@ -310,7 +311,7 @@ uses
 
 { TIdSMTP }
 
-procedure TIdSMTP.Assign(Source: TPersistent);
+procedure TIdSMTP.Assign(Source: TIdPersistent);
 var
   LS: TIdSMTP;
 
@@ -516,8 +517,8 @@ begin
   Result := LastCmdResult.Text[0];
 end;
 
-procedure TIdSMTP.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdSMTP.Notification(AComponent: TIdNativeComponent;
+  Operation: TIdOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);

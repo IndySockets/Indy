@@ -64,13 +64,12 @@ unit IdCustomTransparentProxy;
 interface
 
 uses
-  Classes,
   IdComponent,
   IdException,
   IdGlobal,
   IdIOHandler,
   IdSocketHandle,
-  IdSys;
+  IdSys, IdBaseComponent;
 
 type
   EIdTransparentProxyCircularLink = class(EIdException);
@@ -86,11 +85,11 @@ type
     FUsername: String;
     FChainedProxy: TIdCustomTransparentProxy;
     //
-    procedure AssignTo(ASource: TPersistent); override;
+    procedure AssignTo(ASource: TIdPersistent); override;
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
@@ -123,7 +122,7 @@ uses
 
 { TIdCustomTransparentProxy }
 
-procedure TIdCustomTransparentProxy.AssignTo(ASource: TPersistent);
+procedure TIdCustomTransparentProxy.AssignTo(ASource: TIdPersistent);
 Begin
   if ASource is TIdCustomTransparentProxy then begin
     with TIdCustomTransparentProxy(ASource) do begin
@@ -168,7 +167,7 @@ procedure TIdCustomTransparentProxy.SetEnabled(AValue: Boolean);
 Begin
 End;
 
-procedure TIdCustomTransparentProxy.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdCustomTransparentProxy.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   if (Operation = opRemove) and (AComponent = FChainedProxy) then begin
     FChainedProxy := nil;

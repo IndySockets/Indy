@@ -79,9 +79,8 @@ unit IdLPR;
 interface
 
 uses
-  Classes,
-  IdAssignedNumbers, IdGlobal, IdException, IdStreamVCL, IdTCPClient, IdComponent,
-  IdSys;
+  IdAssignedNumbers, IdGlobal, IdException, IdTCPClient, IdComponent, 
+  IdSys, IdBaseComponent, IdObjs;
 
 type
   TIdLPRFileFormat =
@@ -104,7 +103,7 @@ const
   DEF_OUTPUTWIDTH = 0;
   DEF_MAILWHENPRINTED = False;
 type
-  TIdLPRControlFile = class(TPersistent)
+  TIdLPRControlFile = class(TIdPersistent)
   protected
     FBannerClass: String;			// 'C'    {Do not Localize}
     FHostName: String;				// 'H'    {Do not Localize}
@@ -123,7 +122,7 @@ type
     FMailWhenPrinted : Boolean; //mail me when you have printed the job
   public
     constructor Create;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property HostName: String read FHostName write FHostName;
   published
     property BannerClass: String read FBannerClass write FBannerClass;
@@ -173,7 +172,7 @@ type
     procedure CheckReply;
     function GetJobId: String;
     procedure SetJobId(JobId: String);
-    procedure InternalPrint(Data: TIdStreamVCL);
+    procedure InternalPrint(Data: TIdStream2);
     function GetControlData: String;
     procedure InitComponent; override;
   public
@@ -197,7 +196,7 @@ type EIdLPRErrorException = class(EIdException);
 implementation
 
 uses
-  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdObjs;
+  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
 
 {*********************** TIdLPR **********************}
 procedure TIdLPR.InitComponent;
@@ -224,18 +223,12 @@ end;
 procedure TIdLPR.Print(AText: String);
 var
   LStream: TIdStream2;
-  LIdStream: TIdStreamVCL;
 begin
   LStream := TIdMemoryStream.Create;
   try
-    LIdStream := TIdStreamVCL.Create(LStream);
-    try
-      LIdStream.Write(AText);
-      LIdStream.VCLStream.Position := 0;
-      InternalPrint(LIdStream);
-    finally
-      Sys.FreeAndNil(LIdStream);
-    end;
+    WriteStringToStream(LStream, AText);
+    LStream.Position := 0;
+    InternalPrint(LStream);
   finally
     Sys.FreeAndNil(LStream);
   end;
@@ -244,18 +237,12 @@ end;
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
   LStream: TIdStream2;
-  LIdStream: TIdStreamVCL;
 begin
   LStream := TIdMemoryStream.Create;
   try
-    LIdStream := TIdStreamVCL.Create(LStream);
-    try
-      LIdStream.Write(ABuffer);
-      LIdStream.VCLStream.Position := 0;
-      InternalPrint(LIdStream);
-    finally
-      Sys.FreeAndNil(LIdStream);
-    end;
+    LStream.Write(ABuffer, High(ABuffer));
+    LStream.Position := 0;
+    InternalPrint(LStream);
   finally
     Sys.FreeAndNil(LStream);
   end;
@@ -264,19 +251,13 @@ end;
 procedure TIdLPR.PrintFile(AFileName: String);
 var
   LStream: TReadFileExclusiveStream;
-  LIdStream : TIdStreamVCL;
   p: Integer;
 begin
   p := RPos(GPathDelim, AFileName);
   ControlFile.JobName := Copy(AFileName, p+1, Length(AFileName)-p);
   LStream := TReadFileExclusiveStream.Create(AFileName);
   try
-    LIdStream := TIdStreamVCL.Create(LStream);
-    try
-      InternalPrint(LIdStream);
-    finally
-      Sys.FreeAndNil(LIdStream);
-    end;
+    InternalPrint(LStream);
   finally
     Sys.FreeAndNil(LStream);
   end;
@@ -293,8 +274,7 @@ begin
     FJobId:=Sys.StrToInt(JobId);
 end;
 
-procedure TIdLPR.InternalPrint(Data: TIdStreamVCL);
-
+procedure TIdLPR.InternalPrint(Data: TIdStream2);
 begin
   try
     if Connected then
@@ -323,7 +303,7 @@ begin
       Write(#0);
       CheckReply;
       // Send data file
-      Write(#03 + Sys.IntToStr(Data.VCLStream.Size) +	' dfA'  + JobId +    {Do not Localize}
+      Write(#03 + Sys.IntToStr(Data.Size) +	' dfA'  + JobId +    {Do not Localize}
         ControlFile.HostName + LF);
       CheckReply;
       // Send data
@@ -536,7 +516,7 @@ begin
 end;
 
 { TIdLPRControlFile }
-procedure TIdLPRControlFile.Assign(Source: TPersistent);
+procedure TIdLPRControlFile.Assign(Source: TIdPersistent);
 var cnt : TIdLPRControlFile;
 begin
   if Source is TIdLPRControlFile then

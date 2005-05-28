@@ -338,7 +338,6 @@ Original Author and Maintainer:
 }
 
 uses
-  Classes,
   IdComponent,
   IdException,
   IdExceptionCore,
@@ -349,7 +348,8 @@ uses
   IdReply,
   IdSocketHandle,
   IdSys,
-  IdObjs;
+  IdObjs,
+  IdBaseComponent;
 
 type
   TIdTCPConnection = class(TIdComponent)
@@ -358,7 +358,7 @@ type
     FIOHandler: TIdIOHandler;
     FLastCmdResult: TIdReply;
     FManagedIOHandler: Boolean;
-    FOnDisconnected: TNotifyEvent;
+    FOnDisconnected: TIdNotifyEvent;
     FSocket: TIdIOHandlerSocket;
     FReplyClass: TIdReplyClass;
     //
@@ -366,13 +366,13 @@ type
     procedure DoOnDisconnected; virtual;
     procedure InitComponent; override;
     function GetReplyClass:TIdReplyClass; virtual;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
     procedure SetGreeting(AValue: TIdReply);
-    procedure WorkBeginEvent(ASender: TObject; AWorkMode: TWorkMode;
+    procedure WorkBeginEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode;
      AWorkCountMax: Integer);
-    procedure WorkEndEvent(ASender: TObject; AWorkMode: TWorkMode);
-    procedure WorkEvent(ASender: TObject; AWorkMode: TWorkMode;
+    procedure WorkEndEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode);
+    procedure WorkEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode;
      AWorkCount: Integer);
     procedure PrepareCmd(var aCmd: string); virtual;
   public
@@ -436,7 +436,7 @@ type
   published
     property IOHandler: TIdIOHandler read FIOHandler write SetIOHandler;
     // Events
-    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
+    property OnDisconnected: TIdNotifyEvent read FOnDisconnected write FOnDisconnected;
     property OnWork;
     property OnWorkBegin;
     property OnWorkEnd;
@@ -562,7 +562,7 @@ begin
   Result := GetResponse(AResponse);
 end;
 
-procedure TIdTCPConnection.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdTCPConnection.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FIOHandler) then begin

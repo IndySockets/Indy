@@ -395,12 +395,12 @@ unit IdMessageClient;
 interface
 
 uses
-  Classes,
   IdCoderMIME,
   IdExplicitTLSClientServerBase,
   IdGlobal,
   IdHeaderList,
   IdIOHandlerStream,
+  IdBaseComponent,
   IdMessage,
   IdSys,
   IdTCPClient,
@@ -416,7 +416,7 @@ type
        ARaiseExceptionOnTimeout: Boolean): Integer; override;
   public
     constructor Create(
-      AOwner: TComponent;
+      AOwner: TIdNativeComponent;
       AReceiveStream: TIdStream2;
       ASendStream: TIdStream2 = nil
     ); override;  //Should this be reintroduce instead of override?
@@ -461,7 +461,7 @@ uses
   IdCoder, IdCoder3to4, IdCoderBinHex4,
   IdCoderHeader, IdMessageCoder, IdComponent, IdException, IdResourceStringsProtocols,
   IdTCPConnection,
-  IdStreamVCL, IdTCPStream, IdStream,
+  IdTCPStream,  
   IdIOHandler, IdAttachmentFile,
   IdText, IdAttachment;
 
@@ -533,8 +533,7 @@ end;
 ////////////////////////
 
 constructor TIdIOHandlerStreamMsg.Create(
-  //AOwner: TComponent);
-  AOwner: TComponent;
+  AOwner: TIdNativeComponent;
   AReceiveStream: TIdStream2;
   ASendStream: TIdStream2 = nil
   );
@@ -660,65 +659,60 @@ var
   {Only set AUseBodyAsTarget to True if you want the input stream stored in TIdMessage.Body
   instead of TIdText.Body: this happens with some single-part messages.}
   var
-    LDestStream: TIdStreamVCL;
     LStringStream: TIdStringStream;
     i: integer;
     LTxt : TIdText;
   begin
     LStringStream := TIdStringStream.Create('');
     try
-      LDestStream := TIdStreamVCL.Create(LStringStream);
-      try
-        LParentPart := AMsg.MIMEBoundary.ParentPart;
-        Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
-        if AUseBodyAsTarget then begin
-          AMsg.Body.Text := LStringStream.DataString;
+      LParentPart := AMsg.MIMEBoundary.ParentPart;
+      Result := ADecoder.ReadBody(LStringStream, LMsgEnd);
+      if AUseBodyAsTarget then begin
+        AMsg.Body.Text := LStringStream.DataString;
+      end else begin
+        LTxt := TIdText.Create(AMsg.MessageParts);
+        LTxt.Body.Text := LStringStream.DataString;
+        RemoveLastBlankLine(LTxt.Body);
+        if AMsg.IsMsgSinglePartMime then begin
+          LTxt.ContentType := LTxt.ResolveContentType(AMsg.Headers.Values[SContentType]);
+          LTxt.Headers.Add('Content-Type: '+ AMsg.Headers.Values[SContentType]);     {do not localize}
+          LTxt.CharSet := LTxt.GetCharSet(AMsg.Headers.Values[SContentType]);       {do not localize}
+          LTxt.ContentTransfer := AMsg.Headers.Values[SContentTransferEncoding];    {do not localize}
+          LTxt.Headers.Add('Content-Transfer-Encoding: '+ AMsg.Headers.Values[SContentTransferEncoding]);   {do not localize}
+          LTxt.ContentID := AMsg.Headers.Values['Content-ID'];  {do not localize}
+          LTxt.ContentLocation := AMsg.Headers.Values['Content-Location'];  {do not localize}
         end else begin
-          LTxt := TIdText.Create(AMsg.MessageParts);
-          LTxt.Body.Text := LStringStream.DataString;
-          RemoveLastBlankLine(LTxt.Body);
-          if AMsg.IsMsgSinglePartMime then begin
-            LTxt.ContentType := LTxt.ResolveContentType(AMsg.Headers.Values[SContentType]);
-            LTxt.Headers.Add('Content-Type: '+ AMsg.Headers.Values[SContentType]);     {do not localize}
-            LTxt.CharSet := LTxt.GetCharSet(AMsg.Headers.Values[SContentType]);       {do not localize}
-            LTxt.ContentTransfer := AMsg.Headers.Values[SContentTransferEncoding];    {do not localize}
-            LTxt.Headers.Add('Content-Transfer-Encoding: '+ AMsg.Headers.Values[SContentTransferEncoding]);   {do not localize}
-            LTxt.ContentID := AMsg.Headers.Values['Content-ID'];  {do not localize}
-            LTxt.ContentLocation := AMsg.Headers.Values['Content-Location'];  {do not localize}
-          end else begin
-            LTxt.ContentType := LTxt.ResolveContentType(ADecoder.Headers.Values[SContentType]);
-            LTxt.Headers.Add('Content-Type: '+ ADecoder.Headers.Values[SContentType]);     {do not localize}
-            LTxt.CharSet := LTxt.GetCharSet(ADecoder.Headers.Values[SContentType]);        {do not localize}
-            LTxt.ContentTransfer := ADecoder.Headers.Values[SContentTransferEncoding]; {do not localize}
-            LTxt.Headers.Add('Content-Transfer-Encoding: '+ ADecoder.Headers.Values[SContentTransferEncoding]);  {do not localize}
-            LTxt.ContentID := ADecoder.Headers.Values['Content-ID'];  {do not localize}
-            LTxt.ContentLocation := ADecoder.Headers.Values['Content-Location'];  {do not localize}
-            LTxt.ExtraHeaders.NameValueSeparator := '=';                          {do not localize}
-            for i := 0 to ADecoder.Headers.Count-1 do begin
-              if LTxt.Headers.IndexOfName(ADecoder.Headers.Names[i]) < 0 then begin
-                LTxt.ExtraHeaders.Add(ADecoder.Headers.Strings[i]);
-              end;
+          LTxt.ContentType := LTxt.ResolveContentType(ADecoder.Headers.Values[SContentType]);
+          LTxt.Headers.Add('Content-Type: '+ ADecoder.Headers.Values[SContentType]);     {do not localize}
+          LTxt.CharSet := LTxt.GetCharSet(ADecoder.Headers.Values[SContentType]);        {do not localize}
+          LTxt.ContentTransfer := ADecoder.Headers.Values[SContentTransferEncoding]; {do not localize}
+          LTxt.Headers.Add('Content-Transfer-Encoding: '+ ADecoder.Headers.Values[SContentTransferEncoding]);  {do not localize}
+          LTxt.ContentID := ADecoder.Headers.Values['Content-ID'];  {do not localize}
+          LTxt.ContentLocation := ADecoder.Headers.Values['Content-Location'];  {do not localize}
+          LTxt.ExtraHeaders.NameValueSeparator := '=';                          {do not localize}
+          for i := 0 to ADecoder.Headers.Count-1 do begin
+            if LTxt.Headers.IndexOfName(ADecoder.Headers.Names[i]) < 0 then begin
+              LTxt.ExtraHeaders.Add(ADecoder.Headers.Strings[i]);
             end;
           end;
-          if TextIsSame(Copy(LTxt.ContentType, 1, 10), 'multipart/') then begin {do not localize}
-            LTxt.ParentPart := LPreviousParentPart;
-          end else begin
-            LTxt.ParentPart := LParentPart;
-          end;
-          if LTxt.ParentPart <> -1 then begin
-            LTxt.Boundary := AMsg.MIMEBoundary.FindBoundary(AMsg.MessageParts.Items[LTxt.ParentPart].Headers.Values[SContentType]);  {do not localize}
-          end else begin
-            LTxt.Boundary := AMsg.MIMEBoundary.FindBoundary(AMsg.Headers.Values[SContentType]);                                      {do not localize}
-          end;
         end;
-        ADecoder.Free;
-      finally Sys.FreeAndNil(LDestStream); end;
+        if TextIsSame(Copy(LTxt.ContentType, 1, 10), 'multipart/') then begin {do not localize}
+          LTxt.ParentPart := LPreviousParentPart;
+        end else begin
+          LTxt.ParentPart := LParentPart;
+        end;
+        if LTxt.ParentPart <> -1 then begin
+          LTxt.Boundary := AMsg.MIMEBoundary.FindBoundary(AMsg.MessageParts.Items[LTxt.ParentPart].Headers.Values[SContentType]);  {do not localize}
+        end else begin
+          LTxt.Boundary := AMsg.MIMEBoundary.FindBoundary(AMsg.Headers.Values[SContentType]);                                      {do not localize}
+        end;
+      end;
+      ADecoder.Free;
     finally Sys.FreeAndNil(LStringStream); end;
   end;
 
   function ProcessAttachment(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
   var
-    LStream: TIdStreamVCL;
     LDestStream: TIdStream2;
     i: integer;
     LAttachment: TIdAttachment;
@@ -730,9 +724,7 @@ var
     with LAttachment do begin
       try
         LDestStream := PrepareTempStream; try
-          LStream := TIdStreamVCL.Create(LDestStream); try
-            Result := ADecoder.ReadBody(LStream, LMsgEnd);
-          finally Sys.FreeAndNil(LStream); end;
+          Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
           if AMsg.IsMsgSinglePartMime then begin
             ContentType := ResolveContentType(AMsg.Headers.Values[SContentType]);    {do not localize}
             Headers.Add('Content-Type: '+ AMsg.Headers.Values[SContentType]);        {do not localize}
@@ -878,9 +870,9 @@ var
   i: Integer;
   LAttachment: TIdAttachment;
   LBoundary: string;
-  LDestStream: TIdStream;
-  LSrcStream: TIdStreamVCL;
-  LStrStream: TIdStreamVCL;
+  LDestStream: TIdStream2;
+  LSrcStream: TIdStream2;
+  LStrStream: TIdStream2;
   ISOCharset: string;
   HeaderEncoding: Char;  { B | Q }
   TransferEncoding: TTransfer;
@@ -920,8 +912,8 @@ var
   procedure WriteTextPart(ATextPart: TIdText);
   var
     LData: string;
-    LDestStream: TIdStream;
-    LStrStream: TIdStreamVCL;
+    LDestStream: TIdStream2;
+    LStrStream: TIdStream2;
     LBodyLine: String;
     i: Integer;
   begin
@@ -971,8 +963,8 @@ var
     end else if TextIsSame(ATextPart.ContentTransfer, 'base64') then begin  {do not localize}
       LDestStream := TIdTCPStream.Create(Self); try
         LEncoder := TIdMessageEncoder(TIdMessageEncoderMIME.Create(Self)); try
-          LStrStream := TIdStreamVCL.Create(TIdStringStream.Create(''), True); try
-            ATextPart.Body.SaveToStream(LStrStream.VCLStream);
+          LStrStream := TIdStringStream.Create(''); try
+            ATextPart.Body.SaveToStream(LStrStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally Sys.FreeAndNil(LStrStream); end;
@@ -1013,8 +1005,8 @@ begin
           LEncoder := TIdMessageEncoder(TIdMessageEncoderQuotedPrintable.Create(Self));
         end;
         try
-          LStrStream := TIdStreamVCL.Create(TIdStringStream.Create(''), True); try
-            AMsg.Body.SaveToStream(LStrStream.VCLStream);
+          LStrStream := TIdStringStream.Create(''); try
+            AMsg.Body.SaveToStream(LStrStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally
@@ -1079,12 +1071,11 @@ begin
               with LEncoder do
               try
                 Filename := TIdAttachment(AMsg.MessageParts[i]).Filename;
-                LSrcStream := TIdStreamVCL.Create(TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream);
+                LSrcStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
                 try
-                  Encode(LSrcStream, LDestStream);
+                Encode(LSrcStream, LDestStream);
                 finally
                   TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
-                  LSrcStream.Free;
                 end;
               finally
                 Free;
@@ -1244,27 +1235,25 @@ begin
               if ((TextIsSame(LAttachment.ContentTransfer, 'base64') = False) and {do not localize}
                (TextIsSame(LAttachment.ContentTransfer, 'quoted-printable') = False) and {do not localize}
                (TextIsSame(LAttachment.ContentTransfer, 'binhex40') = False)) then begin {do not localize}
-                LSrcStream := TIdStreamVCL.Create(TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream);
+                LSrcStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
                 try
-                  while GetLine(LSrcStream.VCLStream, LLine) do begin
-                    LDestStream.Write(LLine);
+                  while GetLine(LSrcStream, LLine) do begin
+                    WriteStringToStream(LDestStream, LLine);
                   end;
                 finally
                   TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
-                  LSrcStream.Free;
                 end;
               end else begin
                 if TextIsSame(LAttachment.ContentTransfer, 'binhex40') then begin  {do not localize}
                   //This is different, it has to create a header that includes CRC checks
                   LBinHex4Encoder := TIdEncoderBinHex4.Create(Self);
                   try
-                    LSrcStream := TIdStreamVCL.Create(TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream);
+                    LSrcStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
                     try
                       LBinHex4Encoder.EncodeFile(TIdAttachment(AMsg.MessageParts[i]).Filename,
                        LSrcStream, LDestStream);
                     finally
                       TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
-                      LSrcStream.Free;
                     end;
                   finally
                     LBinHex4Encoder.Free;
@@ -1277,12 +1266,11 @@ begin
                   end;
                   try
                     LEncoder.Filename := TIdAttachment(AMsg.MessageParts[i]).Filename;
-                    LSrcStream := TIdStreamVCL.Create(TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream);
+                    LSrcStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
                     try
                       LEncoder.Encode(LSrcStream, LDestStream);
                     finally
                       TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
-                      LSrcStream.Free;
                     end;
                   finally
                     LEncoder.Free;

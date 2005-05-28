@@ -220,7 +220,6 @@ interface
 {$ENDIF}
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdCmdTCPServer,
   IdContext,
@@ -290,7 +289,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
     property UsingTLS : boolean read GetUsingTLS;
@@ -502,7 +501,6 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStreamVCL,
   IdSys;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
@@ -624,7 +622,7 @@ begin
   Result.SetReply('BAD', 'Unknown command'); {do not localize}
 end;
 
-constructor TIdIMAP4PeerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdIMAP4PeerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FTagData := TIdIMAP4Tag.Create;
@@ -2066,7 +2064,6 @@ procedure TIdIMAP4Server.DoCommandAPPEND(ASender: TIdCommand);
 var
   LUID: string;
   LStream: TIdFileStream;
-  LIdStream: TIdStreamVCL;
   LFile: string;
   LTemp: string;
   LParams: TIdStringList;
@@ -2128,8 +2125,7 @@ begin
     LFile := OnDefMechGetFileNameToWriteAppendMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
        TIdIMAP4PeerContext(ASender.Context).FMailBox.Name, LUID);
     LStream := TIdFileStream.Create(LFile, fmCreate);
-    LIdStream := TIdStreamVCL.Create(LStream);
-    ASender.Context.Connection.IOHandler.ReadStream(LIdStream, LSize);
+    ASender.Context.Connection.IOHandler.ReadStream(LStream, LSize);
     if LFlags = '' then begin
       SendOkCompleted(ASender);
       //Update the next free UID in the .uid file...
@@ -2177,7 +2173,6 @@ begin
       LParams2.Free;
     end;
     LStream.Free;
-    LIdStream.Free;
     LParams.Free;
   end;
 end;

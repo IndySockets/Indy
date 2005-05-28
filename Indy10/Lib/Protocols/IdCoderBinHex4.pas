@@ -151,14 +151,12 @@ ContentTransfer := 'binhex40'.
 interface
 
 uses
-  Classes,
   IdException,
   IdCoder,
   IdCoder3to4,
   IdGlobal,
-  IdStream,
-  IdStreamRandomAccess,
-  IdSys;
+  IdSys,
+  IdObjs;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
@@ -168,7 +166,7 @@ type
     procedure InitComponent; override;
   public
     //We cannot override Encode because we need different parameters...
-    procedure EncodeFile(AFileName: string; ASrcStream: TIdStreamRandomAccess; ADestStream: TIdStream);
+    procedure EncodeFile(AFileName: string; ASrcStream: TIdStream2; ADestStream: TIdStream2);
   end;
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
   protected
@@ -331,7 +329,7 @@ begin
     LOut[LM] := LOut[LM+LN];
   end;
   SetLength(LOut, LForkLength);
-  FStream.Write(LOut);
+  FStream.Write(LOut, 0, LForkLength);
 end;
 
 { TIdEncoderBinHex4 }
@@ -372,7 +370,7 @@ begin
   end;
 end;
 
-procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TIdStreamRandomAccess; ADestStream: TIdStream);
+procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TIdStream2; ADestStream: TIdStream2);
 var
   LN: integer;
   LM: integer;
@@ -389,7 +387,7 @@ begin
   //Read in the attachment first...
   LSSize := ASrcStream.Size;
   SetLength(LFile, LSSize);
-  ASrcStream.ReadBytes(LFile, LSSize);
+  ASrcStream.Read(LFile, LSSize);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
   if Length(AFileName) > 255 then begin
@@ -476,7 +474,7 @@ begin
     Inc(LN);
   end;
 
-  ADestStream.Write(GBinHex4IdentificationString + EOL);
+  WriteStringToStream(ADestStream, GBinHex4IdentificationString + EOL);
   //Put back in our CRLFs.  A max of 64 chars are allowed per line.
   LBlocks := Length(LOutgoing); //The number of complete 64-char blocks
   LBlocks := LBlocks div 64; //The number of complete 64-char blocks

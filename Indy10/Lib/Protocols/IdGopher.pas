@@ -114,13 +114,12 @@ unit IdGopher;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdEMailAddress,
-  IdHeaderList, IdTCPClient, IdObjs;
+  IdHeaderList, IdTCPClient, IdObjs, IdBaseComponent;
 
 type
-  TIdGopherMenuItem = class ( TCollectionItem )
+  TIdGopherMenuItem = class(TIdCollectionItem)
   protected
     FTitle : String;
     FItemType : Char;
@@ -139,7 +138,7 @@ type
     function GetLocation : String;
     function GetGeog : String;
   public
-    constructor Create(ACollection: TCollection); override;
+    constructor Create(ACollection: TIdCollection); override;
     destructor Destroy; override;
     {This procedure updates several internal variables and should be done when
     all data has been added}
@@ -190,7 +189,7 @@ type
     {This Gopher+ information is used for prmoting users for Query data}
     property Ask : TIdHeaderList read FAsk;
   end;
-  TIdGopherMenu = class ( TCollection )
+  TIdGopherMenu = class ( TIdCollection )
   protected
     function GetItem ( Index: Integer ) : TIdGopherMenuItem;
     procedure SetItem ( Index: Integer; const Value: TIdGopherMenuItem );
@@ -250,7 +249,6 @@ implementation
 uses
   IdComponent, IdGlobal, IdException,
   IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
-  IdStreamVCL,
   IdSys,
   IdTCPConnection;
 
@@ -405,17 +403,11 @@ end;
 
 procedure TIdGopher.ProcessFile ( ADestStream : TIdStream2; APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
-var LS : TIdStreamVCL;
 begin
   BeginWork(wmRead,ExpectedLength);
   try
-    LS := TIdStreamVCL.Create(ADestStream);
-    try
-      IdGlobal.WriteStringToStream(ADestStream, APreviousData);
-      IOHandler.ReadStream(LS,-1,True);
-    finally
-      Sys.FreeAndNil(LS);
-    end;
+    IdGlobal.WriteStringToStream(ADestStream, APreviousData);
+    IOHandler.ReadStream(ADestStream,-1,True);
     ADestStream.Position := 0;
   finally
     EndWork(wmRead);
@@ -635,7 +627,7 @@ end;
 
 { TIdGopherMenuItem }
 
-constructor TIdGopherMenuItem.Create(ACollection: TCollection);
+constructor TIdGopherMenuItem.Create(ACollection: TIdCollection);
 begin
   inherited;
   FGopherBlock := TIdHeaderList.Create;

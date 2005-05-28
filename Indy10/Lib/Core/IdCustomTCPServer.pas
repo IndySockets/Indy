@@ -310,7 +310,7 @@ unit IdCustomTCPServer;
 interface
 
 uses
-  IdObjs, Classes, 
+  IdObjs, IdBaseComponent, 
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
@@ -356,19 +356,19 @@ type
     FImplicitIOHandler: Boolean;
     FIntercept: TIdServerIntercept;
     FIOHandler: TIdServerIOHandler;
-    FListenerThreads: TThreadList;
+    FListenerThreads: TIdThreadList; 
     FListenQueue: integer;
     FMaxConnections: Integer;
     FReuseSocket: TIdReuseSocket;
     FTerminateWaitTime: Integer;
-    FContexts: TThreadList;
+    FContexts: TIdThreadList;
     FOnBeforeConnect: TIdServerThreadEvent;
     FOnConnect: TIdServerThreadEvent;
     FOnDisconnect: TIdServerThreadEvent;
     FOnException: TIdServerThreadExceptionEvent;
     FOnExecute: TIdServerThreadEvent;
     FOnListenException: TIdListenExceptionEvent;
-    FOnAfterBind: TNotifyEvent;
+    FOnAfterBind: TIdNotifyEvent;
     FOnBeforeListenerRun: TIdNotifyThreadEvent;
     //
     procedure CheckActive;
@@ -391,7 +391,7 @@ type
     function GetDefaultPort: TIdPort;
     procedure InitComponent; override;
     procedure Loaded; override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation);
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
      override;
     // This is needed for POP3's APOP authentication.  For that,
     // you send a unique challenge to the client dynamically.
@@ -412,7 +412,7 @@ type
   public
     destructor Destroy; override;
     //
-    property Contexts: TThreadList read FContexts;
+    property Contexts: TIdThreadList read FContexts;
     property ContextClass:TIdContextClass read FContextClass write FContextClass;
     property ImplicitIOHandler: Boolean read FImplicitIOHandler;
     property ImplicitScheduler: Boolean read FImplicitScheduler;
@@ -425,7 +425,7 @@ type
     property ListenQueue: integer read FListenQueue write FListenQueue default IdListenQueueDefault;
     property MaxConnections: Integer read FMaxConnections write FMaxConnections default 0;
     // right after binding all sockets
-    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnBeforeListenerRun: TIdNotifyThreadEvent read FOnBeforeListenerRun write FOnBeforeListenerRun;
     property OnBeforeConnect: TIdServerThreadEvent read
        FOnBeforeConnect write FOnBeforeConnect;
@@ -452,13 +452,13 @@ uses
   IdGlobalCore,
   IdResourceStringsCore, IdReplyRFC,
   IdSchedulerOfThreadDefault, IdStack,
-  IdThreadSafe;
+  IdThreadSafe, System.ComponentModel;
 
 { TIdCustomTCPServer }
 
 procedure TIdCustomTCPServer.CheckActive;
 begin
-  if Active and (not (csDesigning in ComponentState)) and (not (csLoading in ComponentState))
+  if Active and (not IsDesignTime) and (not IsLoading)
     then begin
     raise EIdTCPServerError.Create(RSCannotPerformTaskWhileServerIsActive);
   end;
@@ -575,7 +575,7 @@ begin
   end;
 end;
 
-procedure TIdCustomTCPServer.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdCustomTCPServer.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, Operation);
   // Remove the reference to the linked components if they are deleted
@@ -594,10 +594,10 @@ end;
 procedure TIdCustomTCPServer.SetActive(AValue: Boolean);
 begin
    // At design time we just set the value and save it for run time
-  if (csDesigning in ComponentState)
+  if IsDesignTime
    // During loading we ignore it till all other properties are set. Loaded
    // will recall it to toggle it
-   or (csLoading in ComponentState)
+   or IsLoading
    then begin
     FActive := AValue;
   end else if FActive <> AValue then begin
@@ -683,7 +683,7 @@ procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
   i: Integer;
   LListenerThread: TIdListenerThread;
-  LListenerThreads: TList;
+  LListenerThreads: TIdList;
 Begin
   if FListenerThreads <> nil then begin
     LListenerThreads := FListenerThreads.LockList; try
@@ -746,7 +746,7 @@ procedure TIdCustomTCPServer.InitComponent;
 begin
   inherited;
   FBindings := TIdSocketHandles.Create(Self);
-  FContexts := TThreadList.Create;
+  FContexts := TIdThreadList.Create;
   FContextClass := TIdContext;
   //
   FTerminateWaitTime := 5000;
@@ -828,7 +828,7 @@ begin
     raise;
   end;
   DoAfterBind;
-  FListenerThreads := TThreadList.Create;
+  FListenerThreads := TIdThreadList.Create;
   for i := 0 to Bindings.Count - 1 do begin
     Bindings[i].Listen(FListenQueue);
     LListenerThread := TIdListenerThread.Create(Self, Bindings[i]);

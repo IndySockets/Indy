@@ -26,7 +26,7 @@ unit IdSASLUserPass;
 interface
 
 uses
-  IdResourceStringsProtocols, IdSASL, IdUserPassProvider, Classes,
+  IdResourceStringsProtocols, IdSASL, IdUserPassProvider, IdObjs, IdBaseComponent,
   IdException;
 
 type
@@ -34,7 +34,7 @@ type
   protected
     FUserPassProvider: TIdUserPassProvider;
     procedure SetUserPassProvider(const Value: TIdUserPassProvider);
-    procedure Notification(AComponent: TComponent; Operation: TOperation);
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
       override;
     function GetUsername: string;
     function GetPassword: string;
@@ -68,8 +68,8 @@ begin
   end;
 end;
 
-procedure TIdSASLUserPass.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdSASLUserPass.Notification(AComponent: TIdNativeComponent;
+  Operation: TIdOperation);
 begin
   if Operation = opRemove then begin
     if AComponent = FUserPassProvider then begin

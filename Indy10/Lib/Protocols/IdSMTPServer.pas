@@ -52,7 +52,6 @@ unit IdSMTPServer;
 
 interface
 uses
-  Classes,
   IdAssignedNumbers,
   IdCmdTCPServer,
   IdCommandHandlers,
@@ -68,6 +67,7 @@ uses
   IdYarn,
   IdStack,
   IdSys,
+  IdGlobal, 
   IdObjs;
 
 type
@@ -205,7 +205,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
     procedure CheckPipeLine;
@@ -231,7 +231,6 @@ implementation
 
 uses
   IdCoderMIME,
-  IdGlobal,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdSSL;
@@ -995,7 +994,7 @@ begin
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList);
+  AYarn: TIdYarn; AList: TIdThreadList);
 begin
   inherited;
   SMTPState := idSMTPNone;

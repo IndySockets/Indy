@@ -229,20 +229,15 @@ procedure TIdHTTPProxyServer.TransferData(
 // Two modes? Intercept and not?
 var
   LStream: TIdStream2;
-  LS : TIdStreamVCL;
 begin
   //TODO: Have an event to let the user perform stream creation
   LStream := TIdMemoryStream.Create; try
-    LS := TIdStreamVCL.Create(LStream); try
-      ASrc.IOHandler.ReadStream(LS, ASize, ASize = -1);
-    finally Sys.FreeAndNil(LS); end;
+    ASrc.IOHandler.ReadStream(LStream, ASize, ASize = -1);
     LStream.Position := 0;
     DoHTTPDocument(ADocument, LStream, AHeaders);
     // Need to recreate IdStream, DoHTTPDocument passes it as a var and user can change the
     // stream that is returned
-    LS := TIdStreamVCL.Create(LStream); try
-      ADest.IOHandler.Write(LS);
-    finally Sys.FreeAndNil(LS); end;
+    ADest.IOHandler.Write(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 
@@ -290,14 +285,14 @@ var
   LURI: TIdURI;
   LPageSize: Integer;
   LPostStream: TIdMemoryStream;
-  LS : TIdStreamVCL;
 begin
   ASender.PerformReply := false;
   LHeaders := TIdHeaderList.Create; try
     ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LPostStream:= TIdMemorystream.Create; LS:= TIdStreamVCL.Create(LPostStream,False); try
+    LPostStream:= TIdMemorystream.Create;
+    try
       LPostStream.size:=Sys.StrToInt( LHeaders.Values['Content-Length'], 0 ); {Do not Localize}
-      ASender.Context.Connection.IOHandler.ReadStream(LS,LPostStream.Size,false);
+      ASender.Context.Connection.IOHandler.ReadStream(LPostStream,LPostStream.Size,false);
       LClient := TIdTCPClient.Create(nil); try
         LURI := TIdURI.Create(ASender.Params.Strings[0]); try
           LClient.Port := Sys.StrToInt(LURI.Port, 80);
@@ -309,7 +304,7 @@ begin
           LClient.IOHandler.WriteLn('POST ' + LDocument + ' HTTP/1.0'); {Do not Localize}
           LClient.IOHandler.Write(LHeaders);
           LClient.IOHandler.WriteLn('');
-          LClient.IOHandler.Write(LS,0,false);
+          LClient.IOHandler.Write(LPostStream,0,false);
           LRemoteHeaders := TIdHeaderList.Create; try
             LClient.IOHandler.Capture(LRemoteHeaders, '');
             ASender.Context.Connection.IOHandler.Write(LRemoteHeaders);
@@ -319,7 +314,7 @@ begin
           finally Sys.FreeAndNil(LRemoteHeaders); end;
         finally LClient.Disconnect; end;
       finally Sys.FreeAndNil(LClient); end;
-    finally Sys.FreeAndNil(LPostStream); Sys.FreeAndNil(LS); end;
+    finally Sys.FreeAndNil(LPostStream); end;
   finally Sys.FreeAndNil(LHeaders); end;
 end;
 

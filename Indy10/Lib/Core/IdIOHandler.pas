@@ -510,10 +510,9 @@ unit IdIOHandler;
 interface
 
 uses
-  Classes,
   IdException,
-  IdAntiFreezeBase, IdBuffer, IdComponent, IdGlobal, IdExceptionCore,
-  IdIntercept, IdStreamVCL, IdSys, IdResourceStringsCore, IdObjs;
+  IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
+  IdIntercept, IdSys, IdResourceStringsCore, IdObjs;
 
 const
   GRecvBufferSizeDefault = 32 * 1024;
@@ -580,7 +579,7 @@ type
     procedure InterceptReceive(
       var VBuffer: TIdBytes
       );
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure PerformCapture(ADest: TObject; out VLineCount: Integer;
      const ADelim: string; AIsRFCMessage: Boolean); virtual;
     procedure RaiseConnClosedGracefully;
@@ -609,10 +608,10 @@ type
     procedure CheckForDataOnSource(ATimeout: Integer = 0); virtual; abstract;
     procedure Close; virtual;
     procedure CloseGracefully; virtual;
-    class function MakeDefaultIOHandler(AOwner: TComponent = nil)
+    class function MakeDefaultIOHandler(AOwner: TIdNativeComponent = nil)
      : TIdIOHandler;
     class function MakeIOHandler(ABaseType: TIdIOHandlerClass;
-     AOwner: TComponent = nil): TIdIOHandler;
+     AOwner: TIdNativeComponent = nil): TIdIOHandler;
     class procedure RegisterIOHandler;
     class procedure SetDefaultClass;
     function WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
@@ -655,7 +654,7 @@ type
     procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
     procedure Write(
-      AStream: TIdStreamVCL;
+      AStream: TIdStream2;
       ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       ); overload; virtual;
@@ -711,7 +710,7 @@ type
     function ReadInt64(AConvert: Boolean = True): Int64;
     function ReadSmallInt(AConvert: Boolean = True): SmallInt;
     //
-    procedure ReadStream(AStream: TIdStreamVCL; AByteCount: Int64 = -1;
+    procedure ReadStream(AStream: TIdStream2; AByteCount: Int64 = -1;
      AReadUntilDisconnect: Boolean = False); virtual;
     procedure ReadStrings(ADest: TIdStrings; AReadLinesCount: Integer = -1);
     //
@@ -731,7 +730,7 @@ type
     function InputBufferIsEmpty: Boolean;
     //
     // These two are direct access and do no reading of connection
-    procedure InputBufferToStream(AStream: TIdStreamVCL; AByteCount: Integer = -1);
+    procedure InputBufferToStream(AStream: TIdStream2; AByteCount: Integer = -1);
     function InputBufferAsString: string;
     //
     // Properties
@@ -785,7 +784,7 @@ uses
 
 var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
-  GIOHandlerClassList: TList = nil;
+  GIOHandlerClassList: TIdList = nil;
 
 { TIdIOHandler }
 
@@ -823,7 +822,7 @@ begin
   FOpened := True;
 end;
 
-procedure TIdIOHandler.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TIdIOHandler.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, OPeration);
   if (Operation = opRemove) and (AComponent = FIntercept) then begin
@@ -846,7 +845,7 @@ begin
   RegisterIOHandler;
 end;
 
-class function TIdIOHandler.MakeDefaultIOHandler(AOwner: TComponent = nil)
+class function TIdIOHandler.MakeDefaultIOHandler(AOwner: TIdNativeComponent = nil)
  : TIdIOHandler;
 begin
   Result := GIOHandlerClassDefault.Create(AOwner);
@@ -855,7 +854,7 @@ end;
 class procedure TIdIOHandler.RegisterIOHandler;
 begin
   if GIOHandlerClassList = nil then begin
-    GIOHandlerClassList := TList.Create;
+    GIOHandlerClassList := TIdList.Create;
   end;
 {$ifndef DotNetExclude}
   //TODO: Reenable this. Dot net wont allow class references as objects
@@ -870,7 +869,7 @@ end;
   Creates an IOHandler of type ABaseType, or descendant.
 }
 class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
- AOwner: TComponent = nil): TIdIOHandler;
+ AOwner: TIdNativeComponent = nil): TIdIOHandler;
 var
   i: Integer;
 begin
@@ -1188,7 +1187,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(AStream: TIdStreamVCL; ASize: Int64 = 0;
+procedure TIdIOHandler.Write(AStream: TIdStream2; ASize: Int64 = 0;
  AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
@@ -1222,7 +1221,7 @@ begin
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
-      LBufSize := AStream.ReadBytes(LBuffer, LBufSize, 0, False);
+      LBufSize := AStream.Read(LBuffer, LBufSize, 0);
       if LBufSize = 0 then begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
@@ -1298,7 +1297,7 @@ begin
    and Opened;
 end;
 
-procedure TIdIOHandler.ReadStream(AStream: TIdStreamVCL; AByteCount: Int64;
+procedure TIdIOHandler.ReadStream(AStream: TIdStream2; AByteCount: Int64;
   AReadUntilDisconnect: Boolean);
 var
   i: Integer;
@@ -1306,7 +1305,7 @@ var
   LBufSize: Integer;
   LWorkCount: Int64;
 
-  procedure AdjustStreamSize(const AStream: TIdStreamVCL;const ASize: Int64);
+  procedure AdjustStreamSize(const AStream: TIdStream2; const ASize: Int64);
   var
     LStreamPos: Int64;
   begin
@@ -1449,7 +1448,7 @@ procedure TIdIOHandler.PerformCapture(ADest: TObject;
   AIsRFCMessage: Boolean);
 var
   s: string;
-  LStream: TIdStreamVCL;
+  LStream: TIdStream2;
   LStrings: TIdStrings;
 begin
   VLineCount := 0;
@@ -1460,7 +1459,7 @@ begin
     if ADest is TIdStrings then begin
       LStrings := TIdStrings(ADest);
     end else if ADest is TIdStream2 then begin
-      LStream := TIdStreamVCL.Create(TIdStream2(ADest));
+      LStream := TIdStream2(ADest);
     end else begin
       EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
     end;
@@ -1489,7 +1488,7 @@ begin
         if LStrings <> nil then begin
           LStrings.Add(s);
         end else if LStream <> nil then begin
-          LStream.WriteLn(s);
+          WriteStringToStream(LStream, s);
         end;
       until False;
     finally EndWork(wmRead); end;
@@ -1630,7 +1629,7 @@ begin
   PerformCapture(ADest, LLineCount, ADelim, AIsRFCMessage);
 end;
 
-procedure TIdIOHandler.InputBufferToStream(AStream: TIdStreamVCL; AByteCount: Integer = -1);
+procedure TIdIOHandler.InputBufferToStream(AStream: TIdStream2; AByteCount: Integer = -1);
 begin
   FInputBuffer.ExtractToStream(AStream, AByteCount);
 end;
@@ -1685,14 +1684,11 @@ function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolea
 var
 //TODO: There is a way in linux to dump a file to a socket as well. use it.
   LStream: TIdStream2;
-  LIdStream: TIdStreamVCL;
 begin
   EIdFileNotFound.IfFalse(Sys.FileExists(AFile), Sys.Format(RSFileNotFound, [AFile]));
   LStream := TReadFileExclusiveStream.Create(AFile); try
-    LIdStream := TIdStreamVCL.Create(LStream); try
-      Write(LIdStream);
-      Result := LIdStream.Size;
-    finally Sys.FreeAndNil(LIdStream); end;
+      Write(LStream);
+      Result := LStream.Size;
   finally Sys.FreeAndNil(LStream); end;
 end;
 
