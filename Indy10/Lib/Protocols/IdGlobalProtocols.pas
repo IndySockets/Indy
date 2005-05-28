@@ -1625,7 +1625,7 @@ begin
   LF := FileInfo.Create(AFileName);
   Result := LF.Length;
   {$ELSE}
-  with TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite) do
+  with TIdFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite) do
   try
     Result := Size;
   finally Free; end;
