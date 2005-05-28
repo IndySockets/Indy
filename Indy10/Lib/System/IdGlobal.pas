@@ -806,6 +806,7 @@ type
 
    //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
+  EIdEndOfStream = class(EIdException);
   EIdInvalidIPv6Address = class (EIdException);
   {$IFNDEF DotNet}
   TBytes = array of Byte;
@@ -1000,6 +1001,7 @@ procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
 
 // Common Streaming routines
+function ReadLnFromStream(AStream: TIdStream2; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
 function ReadStringFromStream(AStream: TIdStream2; ASize: Integer = -1): string;
 procedure WriteStringToStream(AStream: TIdStream2; const AStr: string);
 function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
@@ -3126,6 +3128,88 @@ begin
     Result := False;
   end else begin
     Result := (AString[ACharPos] = CR) or (AString[ACharPos] = LF);
+  end;
+end;
+
+function ReadLnFromStream(AStream: TIdStream2; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
+//TODO: Continue to optimize this function. Its performance severely impacts
+// the coders
+const
+  LBUFMAXSIZE = 2048;
+var
+  LBufSize, LStringLen, LResultLen: LongInt;
+  LBuf: TIdBytes;
+ // LBuf: packed array [0..LBUFMAXSIZE] of Char;
+  LStrmPos, LStrmSize: Integer; //LBytesToRead = stream size - Position
+  LCrEncountered: Boolean;
+
+  function FindEOL(const ABuf: TIdBytes; var VLineBufSize: Integer; var VCrEncountered: Boolean): Integer;
+  var
+    i: Integer;
+  begin
+    Result := VLineBufSize; //EOL not found => use all
+    i := 0;
+    while i < VLineBufSize do begin
+      case ABuf[i] of
+        Ord(LF): begin
+            Result :=  i; {string size}
+            VCrEncountered := TRUE;
+            VLineBufSize := i+1;
+            break;
+          end;//LF
+        Ord(CR): begin
+            Result := i; {string size}
+            VCrEncountered := TRUE;
+            inc(i); //crLF?
+            if (i < VLineBufSize) and (ABuf[i] = Ord(LF)) then begin
+              VLineBufSize := i+1;
+            end else begin
+              VLineBufSize := i;
+            end;
+            break;
+          end;
+      end;
+      Inc(i);
+    end;
+  end;
+
+begin
+  Assert(AStream<>nil);
+
+  SetLength(LBuf, LBUFMAXSIZE);
+  if AMaxLineLength < 0 then begin
+    AMaxLineLength := MaxInt;
+  end;//if
+  LCrEncountered := FALSE;
+  Result := '';
+  { we store the stream size for the whole routine to prevent
+  so do not incur a performance penalty with TStream.Size.  It has
+  to use something such as Seek each time the size is obtained}
+  {4 seek vs 3 seek}
+  LStrmPos := AStream.Position;
+  LStrmSize:= AStream.Size;
+
+  if (LStrmSize - LStrmPos) > 0 then begin
+    while (LStrmPos < LStrmSize) and not LCrEncountered do begin
+      LBufSize := Min(LStrmSize - LStrmPos, LBUFMAXSIZE);
+      ReadTIdBytesFromStream(AStream, LBuf, LBufSize);
+      LStringLen := FindEOL(LBuf, LBufSize, LCrEncountered);
+      Inc(LStrmPos, LBufSize);
+
+      LResultLen := Length(Result);
+      if (LResultLen + LStringLen) > AMaxLineLength then begin
+        LStringLen := AMaxLineLength - LResultLen;
+        LCrEncountered := TRUE;
+        Dec(LStrmPos,LBufSize);
+        Inc(LStrmPos,LStringLen);
+      end; //if
+      Result := Result + BytesToString(LBuf, 0, LStringLen);
+      //SetLength(Result, LResultLen + LStringLen);
+      //Move(LBuf[0], PChar(Result)[LResultLen], LStringLen);
+    end;//while
+    AStream.Position := LStrmPos;
+  end else begin
+    EIdEndOfStream.IfTrue(AExceptionIfEOF, Sys.Format(RSEndOfStream, ['', LStrmPos]));
   end;
 end;
 

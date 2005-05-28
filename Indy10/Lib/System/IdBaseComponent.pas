@@ -105,21 +105,36 @@ type
   // TIdInitializerComponent implements InitComponent which all components must use to initialize
   // other members instead of overriding constructors.
   {$IFDEF DotNetDistro}
+  TIdInitializerComponent = class;
+  TIdPersistent = TIdInitializerComponent;
   TIdNativeComponent = Component;
+  TIdOperation = (opInsert, opRemove);
   TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
   TIdNativeComponent = TComponent;
+  TIdOperation = TOperation;
+  TIdPersistent = TPersistent;
   TIdInitializerComponent = class(TComponent)
   {$ENDIF}
   private
     {$IFDEF DotNetDistro}
     FIsLoading: Boolean;
+    FName: string;
+    FTag: &Object;
     {$ENDIF}
   protected
     {$IFDEF DotNet}
     // This event handler will take care about dynamically loaded assemblies after first initialization.
     class procedure AssemblyLoadEventHandler(sender: &Object; args: AssemblyLoadEventArgs); static;
     class procedure InitializeAssembly(AAssembly: Assembly);
+    {$ENDIF}
+    {$IFDEF DotNetDistro}
+    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); virtual;
+    procedure AssignTo(ASource: TIdPersistent); virtual;
+    function GetOwner: TIdNativeComponent;
+    procedure Loaded; virtual;
+    function GetName: string;
+    procedure SetName(const AValue: string);
     {$ENDIF}
     function GetIsLoading: Boolean;
     function GetIsDesignTime: Boolean;
@@ -144,6 +159,11 @@ type
       constructor Create(AOwner: &Object); overload; virtual;
       procedure BeginInit;
       procedure EndInit;
+      procedure FreeNotification(AComponent: TIdNativeComponent);
+      procedure Assign(Source: TIdPersistent); virtual;
+      property Owner: TIdNativeComponent read GetOwner;
+      property Name: string read GetName write SetName;
+      property Tag: &Object read FTag write FTag;
     {$ELSE}
     constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
@@ -202,6 +222,52 @@ begin
   inherited Create;
   InitComponent;
 end;
+
+procedure TIdInitializerComponent.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+begin
+  // TODO: does this need any implementation on .NET?
+end;
+
+procedure TIdInitializerComponent.FreeNotification(AComponent: TIdNativeComponent);
+begin
+  // TODO: does this need any implementation on .NET?
+end;
+
+procedure TIdInitializerComponent.AssignTo(ASource: TIdPersistent);
+begin
+end;
+
+function TIdInitializerComponent.GetOwner: TIdNativeComponent;
+begin
+  Result := nil;
+end;
+
+procedure TIdInitializerComponent.Assign(Source: TIdPersistent);
+begin
+end;
+
+procedure TIdInitializerComponent.Loaded;
+begin
+end;
+
+function TIdInitializerComponent.GetName: string;
+begin
+  if (FName = '') and (Site <> nil) then
+  begin
+    FName := Site.Name;
+  end;
+  Result := FName;
+end;
+
+procedure TIdInitializerComponent.SetName(const AValue: string);
+begin
+  if (FName = '') and (Site <> nil) then
+  begin
+    Site.Name := AValue;
+  end;
+  FName := AValue;
+end;
+
 {$ENDIF}
 
 constructor TIdInitializerComponent.Create;
@@ -315,6 +381,7 @@ end;
 procedure TIdInitializerComponent.EndInit;
 begin
   FIsLoading := False;
+  Loaded;
 end;
 {$ENDIF}
 

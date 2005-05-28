@@ -68,7 +68,7 @@ unit IdTelnetServer;
 interface
 
 uses
-  Classes,
+  IdObjs, IdSys, IdBaseComponent,
   IdAssignedNumbers, IdContext,
   IdCustomTCPServer,
   IdTCPConnection, IdYarn;
@@ -80,7 +80,7 @@ type
 
   // SG 16/02/2001: Moved the TTelnetData object from TIdPeerThread to custom TIdPeerThread descendant
 
-  TTelnetData = class(TObject)
+  TTelnetData = class(TIdBaseObject)
   public
     Username, Password: String;
     HUserToken: cardinal;
@@ -94,7 +94,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TThreadList = nil
+      AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
     Property TelnetData: TTelnetData read FTelnetData;
@@ -130,7 +130,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols, IdSys;
+  IdException, IdGlobal, IdResourceStringsProtocols;
 
 procedure TIdTelnetServer.InitComponent;
 begin
