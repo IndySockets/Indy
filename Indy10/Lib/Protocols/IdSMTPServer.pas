@@ -926,6 +926,7 @@ begin
       if ReceivedString <> '' then
        Begin
         // Parse the ReceivedString and replace any of the special 'tokens'
+        SetLength(ReplaceNew,7);
         SetLength(ReplaceOld,7);
         ReplaceOld[0] :=  '$hostname';  {do not localize}
         ReplaceNew[0] := GStack.HostByAddress(ASender.Context.Binding.PeerIP);
