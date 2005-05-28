@@ -329,7 +329,7 @@ begin
     LOut[LM] := LOut[LM+LN];
   end;
   SetLength(LOut, LForkLength);
-  FStream.Write(LOut, 0, LForkLength);
+  FStream.Write(LOut, LForkLength);
 end;
 
 { TIdEncoderBinHex4 }
