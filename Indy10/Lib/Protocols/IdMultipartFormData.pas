@@ -215,6 +215,9 @@ type
 implementation
 
 uses
+{$IFNDEF DOTNET}
+  IdStreamVCL,
+{$ENDIF}
   IdGlobalProtocols;
 
 { TIdMultiPartFormDataStream }
@@ -324,6 +327,9 @@ var
   LBufferCount: Integer;
   LRemaining : Integer;
   LItem: TIdFormDataField;
+{$IFNDEF DOTNET}
+  LStr : TIdStreamVCL;
+{$ENDIF}
 begin
   if not FInitialized then begin
     FInitialized := True;
@@ -375,8 +381,16 @@ begin
     end;
 
     if Assigned(FInputStream) and (LTotalRead < ACount) then begin
+      {$IFDEF DotNET}
       LCount := FInputStream.Read(VBuffer, ACount - LTotalRead, LBufferCount);
-
+      {$ELSE}
+       LStr := TIdStreamVCL.Create(FInputStream);
+       try
+         LCount := LStr.ReadBytes(VBuffer, ACount - LTotalRead, LBufferCount);
+       finally
+         Sys.FreeAndNil(LStr);
+       end;
+      {$ENDIF}
       if LCount < (ACount - LTotalRead) then begin
         FInputStream.Position := 0;
         FInputStream := nil;

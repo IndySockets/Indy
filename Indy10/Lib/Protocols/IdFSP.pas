@@ -834,7 +834,7 @@ begin
     SetLength(LSendPacket.FData, PrefPayloadSize);
     LSendPacket.Cmd := CC_UP_LOAD;
     repeat
-      LLen := ASource.Read(LSendPacket.FData,PrefPayloadSize,0);
+      LLen := ASource.Read(LSendPacket.FData,PrefPayloadSize);
       if LLen < PrefPayloadSize then
       begin
         if LLen = 0 then
