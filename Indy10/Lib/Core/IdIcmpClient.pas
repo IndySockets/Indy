@@ -123,9 +123,6 @@ type
   TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
   TIdCustomIcmpClient = class(TIdRawClient)
-  private
-    function GetPacketSize: Integer;
-    procedure SetPacketSize(const Value: Integer);
   protected
     FbufReceive: TIdBytes;
     FbufIcmp: TIdBytes;
@@ -149,13 +146,20 @@ type
     {$ENDIF}
     procedure PrepareEchoRequestIPv4(Buffer : String='');
     procedure PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
-    procedure SendEchoRequest;
+    procedure SendEchoRequest;   overload;
+    procedure SendEchoRequest(const AIP : String); overload;
+    function GetPacketSize: Integer;
+    procedure SetPacketSize(const Value: Integer);
+
     //these are made public in the client
-    procedure InternalPing(const ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize}
+    procedure InternalPing(const AIP : String; const ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize} overload;
+
     //
     property ReplyStatus: TReplyStatus read FReplyStatus;
     property ReplyData: string read FReplydata;
     property PacketSize : Integer read GetPacketSize write SetPacketSize;
+
+
   public
     destructor Destroy; override;
     procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
@@ -221,7 +225,7 @@ begin
 end;
 
 procedure TIdCustomIcmpClient.SendEchoRequest;
-begin                  
+begin
   Send(FbufIcmp);
 end;
 
@@ -273,28 +277,6 @@ end;
 procedure TIdCustomIcmpClient.GetEchoReply;
 begin
   FReplyStatus := Receive(FReceiveTimeout);
-end;
-
-procedure TIdCustomIcmpClient.InternalPing(const ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
-var
-  RTTime: Cardinal;
-begin
-  if SequenceID <> 0 then
-  begin
-    wSeqNo := SequenceID;
-  end;
-  PrepareEchoRequest(ABuffer);
-  RTTime := Ticks;
-  SendEchoRequest;
-  GetEchoReply;
-  RTTime := GetTickDiff(RTTime, Ticks);
-  if not Connected then
-  begin
-    Binding.CloseSocket;
-  end;
-  FReplyStatus.MsRoundTripTime := RTTime;
-  DoReply(FReplyStatus);
-  Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
 end;
 
 function TIdCustomIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
@@ -440,7 +422,7 @@ begin
       case AReplyStatus.FMsgType of
         Id_ICMP_UNREACH:
         begin
-          case                 AReplyStatus.FMsgCode of
+          case AReplyStatus.FMsgCode of
             0 :AReplyStatus.Msg := RSICMPNetUnreachable;
             1 :AReplyStatus.Msg := RSICMPHostUnreachable;
             2 :AReplyStatus.Msg := RSICMPProtUnreachable;
@@ -605,17 +587,10 @@ var LBuffer : TIdBytes;
   LIP : String;
 begin
   LBuffer := ABuffer;
-  if Connected then
-  begin
-    GStack.WriteChecksum(Binding.Handle,LBuffer,2,Binding.PeerIP,0,FIPVersion);
-    FBinding.Send(LBuffer,0,-1);
-  end
-  else
-  begin
+
      LIP := GStack.ResolveHost(Host,IPVersion);
     GStack.WriteChecksum(Binding.Handle,LBuffer,2,LIP,Port,FIPVersion);
     FBinding.SendTo(LIP, Port, LBuffer,IPVersion);
-  end;
 
 end;
 
@@ -630,11 +605,42 @@ begin
   SetLength(FbufIcmp,Value);
 end;
 
+procedure TIdCustomIcmpClient.InternalPing(const AIP, ABuffer: String;
+  SequenceID: word);
+var
+  RTTime: Cardinal;
+begin
+  if SequenceID <> 0 then
+  begin
+    wSeqNo := SequenceID;
+  end;
+  PrepareEchoRequest(ABuffer);
+  RTTime := Ticks;
+  SendEchoRequest(AIP);
+  GetEchoReply;
+  RTTime := GetTickDiff(RTTime, Ticks);
+
+    Binding.CloseSocket;
+
+  FReplyStatus.MsRoundTripTime := RTTime;
+  DoReply(FReplyStatus);
+  Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
+
+end;
+
+procedure TIdCustomIcmpClient.SendEchoRequest(const AIP: String);
+begin
+  Send(AIP,0,FbufIcmp);
+  Send(FbufIcmp);
+end;
+
 { TIdIcmpClient }
 
 procedure TIdIcmpClient.Ping(const ABuffer: String; SequenceID: word);
+var LIP : String;
 begin
-  InternalPing(ABuffer,SequenceID);
+  LIP := GStack.ResolveHost(Host,IPVersion);
+  InternalPing(LIP,ABuffer,SequenceID);
 end;
 
 end.

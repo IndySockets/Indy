@@ -7,6 +7,7 @@ type
 
   TIdTraceRoute = class(TIdCustomICMPClient)
   protected
+    FIPAddr : String;
     FResolveHostNames : Boolean;
     procedure DoReply(const AReplyStatus: TReplyStatus); override;
   public
@@ -52,7 +53,8 @@ var i : Integer;
 begin
    //LIP := GStack.ResolveHost(AHost,FIPVersion)
   PacketSize := 64;
-  Connect;
+//  Connect;
+  FIPAddr :=  GStack.ResolveHost(FIPAddr,FIPVersion);
   try
 
    LSeq := $100;
@@ -61,20 +63,17 @@ begin
    for i := 1 to 30 do
    begin
      ReplyStatus.PacketNumber := i;
-     InternalPing('',LSeq);
+     InternalPing(FIPAddr,'',LSeq);
      case ReplyStatus.ReplyStatusType of
        rsEcho : Break;
-       rsErrorTTLExceeded :
-       begin
-         Inc(LTTL);
-         TTL := LTTL;
-
-       end;
+       rsErrorTTLExceeded : ;
      end;
+     Inc(LTTL);
+     TTL := LTTL;
      LSeq := LSeq * 2;
    end;
   finally
-    Disconnect;
+//    Disconnect;
   end;
 end;
 

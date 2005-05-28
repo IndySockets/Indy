@@ -128,10 +128,7 @@ type
 
   public
     destructor Destroy; override;
-    procedure Connect; virtual;
-    procedure Disconnect; virtual;
-    function Connected: Boolean;
-    
+
     function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
     procedure Send(const AData: string); overload; virtual;
     procedure Send(const AData: TIdBytes); overload;  virtual;
@@ -252,15 +249,7 @@ end;
 
 procedure TIdRawBase.Send(const AData: TIdBytes);
 begin
-  if Connected then
-  begin
-    FBinding.Send(AData,0,-1);
-  end
-  else
-  begin
     Send(Host,Port,AData);
-  end;
-
 end;
 
 procedure TIdRawBase.Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes);
@@ -301,73 +290,8 @@ begin
   FIPVersion := AValue;
 end;
 
-function TIdRawBase.Connected: Boolean;
-begin
-  Result := FConnected;
-  if Result then begin
-    if Assigned(FBinding) then
-    begin
-      Result := FBinding.HandleAllocated;
-    end
-    else
-    begin
-      Result := False;
-    end;
-  end;
-end;
-
-procedure TIdRawBase.Connect;
-var LIP : String;
-begin
-  if IPVersion = Id_IPv6 then
-  begin
-    LIP :=  MakeCanonicalIPv6Address(Host);
-    if LIP<>'' then
-    begin
-      if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [Host]);
-      end;
-      LIP := GStack.ResolveHost(Host, FIPVersion);
-    end else begin
-      LIP := Host;
-    end;
-  end
-  else
-  begin
-    if not GStack.IsIP(Host) then begin
-      if Assigned(OnStatus) then begin
-        DoStatus(hsResolving, [Host]);
-      end;
-      LIP := GStack.ResolveHost(Host, FIPVersion);
-    end else begin
-      LIP := Host;
-    end;
-  end;
-  Binding.SetPeer(LIP,Port);
-  Binding.Connect;
-
-  DoStatus(hsConnected, [Host]);
-
-  FConnected := True;
-end;
-
-procedure TIdRawBase.Disconnect;
-begin
-  if Connected then
-  begin
-    DoStatus(hsDisconnecting);
-    FBinding.CloseSocket;
-    DoStatus(hsDisconnected);
-    FConnected := False;
-  end;
-end;
-
 procedure TIdRawBase.SetHost(const AValue: String);
 begin
-  if FHost<>AValue then
-  begin
-    Disconnect;
-  end;
   FHost := AValue;
 end;
 
