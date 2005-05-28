@@ -43,7 +43,7 @@ unit IdTimeUDP;
 
 interface
 
-uses Classes, IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
+uses IdAssignedNumbers, IdUDPBase, IdGlobalProtocols, IdUDPClient;
 
 type
   TIdCustomTimeUDP = class(TIdUDPClient)

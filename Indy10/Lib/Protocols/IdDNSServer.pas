@@ -280,7 +280,6 @@ unit IdDNSServer;
 interface
 
 uses
-    Classes,
     IdContainers,
     IdAssignedNumbers,
     IdSocketHandle,
@@ -305,7 +304,7 @@ type
   protected
     FInterval: Cardinal;
     FSender: TObject;
-    FTimerEvent: TNotifyEvent;
+    FTimerEvent: TIdNotifyEvent;
     FBusy : boolean;
     FDomain : string;
     FHost : string;
@@ -433,12 +432,12 @@ type
   protected
     FMyBinding: TIdSocketHandle;
     FMainBinding: TIdSocketHandle;
-    FMyData: TStream;
+    FMyData: TIdStream2;
     FData : string;
     FDataSize : integer;
     FServer: TIdDNS_UDPServer;
     procedure SetMyBinding(const Value: TIdSocketHandle);
-    procedure SetMyData(const Value: TStream);
+    procedure SetMyData(const Value: TIdStream2);
     procedure SetServer(const Value: TIdDNS_UDPServer);
     procedure ComposeErrorResult(var Final: TIdBytes;
               OriginalHeader: TDNSHeader; OriginalQuestion : TIdBytes;
@@ -461,7 +460,7 @@ type
     procedure SendData;
   public
      property MyBinding : TIdSocketHandle read FMyBinding write SetMyBinding;
-     property MyData: TStream read FMyData write SetMyData;
+     property MyData: TIdStream2 read FMyData write SetMyData;
      property Server : TIdDNS_UDPServer read FServer write SetServer;
 
      constructor Create(ACreateSuspended: Boolean = True;
@@ -3767,7 +3766,7 @@ begin
   FMyBinding := Value;
 end;
 
-procedure TIdDNS_ProcessThread.SetMyData(const Value: TStream);
+procedure TIdDNS_ProcessThread.SetMyData(const Value: TIdStream2);
 begin
   FMyData := Value;
 end;

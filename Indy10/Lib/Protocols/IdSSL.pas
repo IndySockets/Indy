@@ -60,14 +60,14 @@ unit IdSSL;
 interface
 
 uses
-  Classes,
   IdGlobal,
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,
   IdScheduler,
   IdServerIOHandler,
-  IdYarn;
+  IdYarn,
+  IdObjs;
 
 type
   //client
@@ -115,7 +115,7 @@ Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
 
 type
-  TIdSSLRegEntry = class(TCollectionItem)
+  TIdSSLRegEntry = class(TIdCollectionItem)
   protected
     FProductName : String;
     FVendor : String;
@@ -133,7 +133,7 @@ type
     property ClientClass : TIdClientSSLClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
   end;
-  TIdSSLRegistry = class(TCollection)
+  TIdSSLRegistry = class(TIdCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSLRegEntry;
     procedure SetItem ( Index: Integer; const Value: TIdSSLRegEntry );

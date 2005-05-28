@@ -59,7 +59,6 @@ unit IdSNPP;
 interface
 
 uses
-  Classes,
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,
   IdReplyRFC,
   IdSys,

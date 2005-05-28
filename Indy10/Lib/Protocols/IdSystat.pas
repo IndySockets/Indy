@@ -43,7 +43,6 @@ unit IdSystat;
 
 interface
 uses
-  Classes,
   IdAssignedNumbers,
   IdTCPConnection,
   IdTCPClient,

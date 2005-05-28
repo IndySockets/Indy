@@ -192,7 +192,6 @@ unit IdDNSResolver;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdBuffer,
   IdComponent,
@@ -273,7 +272,7 @@ type
   TResultSection = (rsAnswer,rsNameServer,rsAdditional);
   TResultSections = set of TResultSection;
 
-  TResultRecord = class(TCollectionItem) // Rename to REsourceRecord
+  TResultRecord = class(TIdCollectionItem) // Rename to REsourceRecord
   protected
     FRecType: TQueryRecordTypes;
     FRecClass: word;
@@ -283,7 +282,7 @@ type
     FRData: TIdBytes;
     FSection: TResultSection;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     // Parse the data (descendants only)
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); virtual;
     { TODO : This needs to change (to what? why?) }
@@ -304,7 +303,7 @@ type
     FIPAddress: String;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property IPAddress: string read FIPAddress;
   end;
 
@@ -316,7 +315,7 @@ type
     FAddress: string;
   public
     //TODO: implement AssignTo instead of Assign. (why?)
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
     //
     property Address : string read FAddress;
@@ -332,7 +331,7 @@ type
     function GetABit(AIndex: Integer): Byte;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     //
     property IPAddress: String read FIPAddress;
     property Protocol: Word read FProtocol;
@@ -346,7 +345,7 @@ type
     FPreference: Word;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
 
     property ExchangeServer: string read FExchangeServer;
     property Preference: word read FPreference;
@@ -356,9 +355,9 @@ type
   protected
     FText: TIdStrings;
   public
-    constructor Create(Collection: TCollection); override;
+    constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
     Property Text: TIdStrings read FText;
   end;
@@ -371,7 +370,7 @@ type
     FCPU: String;
     FOS: String;
   public
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
     property CPU: String read FCPU;
     property OS: String read FOS;
@@ -383,7 +382,7 @@ type
     FErrorMailbox: String;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property ResponsiblePersonMailbox: String read FResponsiblePerson;
     property ErrorMailbox: String read FErrorMailbox;
   end;
@@ -399,7 +398,7 @@ type
     FExpire: Cardinal;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
 
     property Primary: string read FMNAME;
     property ResponsiblePerson: string read FRNAME;
@@ -416,7 +415,7 @@ type
     FHostName: string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property HostName: string read FHostName;
   end;
 
@@ -439,7 +438,7 @@ type
     function CleanIdent(const aStr:string):string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     property OriginalName:string read FOriginalName;
     property Service: string read FService;
     property Protocol: string read FProtocol;
@@ -459,7 +458,7 @@ type
     FReplacement: string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
 
     property Order:integer read fOrder;
     property Preference:integer read fPreference;
@@ -469,7 +468,7 @@ type
     property Replacement:string read fReplacement;
   end;
 
-  TQueryResult = class(TCollection)
+  TQueryResult = class(TIdCollection)
   protected
     FDomainName: String;
     FQueryClass: Word;
@@ -482,7 +481,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     function Add(Answer: TIdBytes; var APos: Integer): TResultRecord;
     procedure Clear; reintroduce;
     procedure FilterBySection(const aKeep:TResultSections=[rsAnswer]);
@@ -618,7 +617,7 @@ begin
   Result := '';      {Do not Localize}
 end;
 
-procedure TRDATARecord.Assign(Source: TPersistent);
+procedure TRDATARecord.Assign(Source: TIdPersistent);
 begin
   inherited;
   if Source is TARecord then
@@ -639,7 +638,7 @@ end;
 
 { TMXRecord }
 
-procedure TMXRecord.Assign(Source: TPersistent);
+procedure TMXRecord.Assign(Source: TIdPersistent);
 begin
   inherited;
   if Source is TMXRecord then
@@ -649,7 +648,7 @@ begin
   end;
 end;
 
-procedure TNAMERecord.Assign(Source: TPersistent);
+procedure TNAMERecord.Assign(Source: TIdPersistent);
 begin
   inherited;
 
@@ -807,7 +806,7 @@ begin
   inherited SetItem(Index, Value);
 end;
 
-procedure TResultRecord.Assign(Source: TPersistent);
+procedure TResultRecord.Assign(Source: TIdPersistent);
 var
  aSource:TResultRecord;
 begin
@@ -859,7 +858,7 @@ begin
   FExchangeServer := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
 
-procedure TQueryResult.Assign(Source: TPersistent);
+procedure TQueryResult.Assign(Source: TIdPersistent);
 //TCollection.Assign doesn't create correct Item class.
 var
  i:Integer;
@@ -890,7 +889,7 @@ end;
 
 { TTextRecord }
 
-procedure TTextRecord.Assign(Source: TPersistent);
+procedure TTextRecord.Assign(Source: TIdPersistent);
 begin
   inherited;
   if Source is TTextRecord then
@@ -899,7 +898,7 @@ begin
   end;
 end;
 
-constructor TTextRecord.Create(Collection: TCollection);
+constructor TTextRecord.Create(Collection: TIdCollection);
 begin
   inherited;
   FText := TIdStringList.Create;
@@ -935,7 +934,7 @@ end;
 
 { TSOARecord }
 
-procedure TSOARecord.Assign(Source: TPersistent);
+procedure TSOARecord.Assign(Source: TIdPersistent);
 var
  aSource:TSOARecord;
 begin
@@ -968,7 +967,7 @@ end;
 
 { TWKSRecord }
 
-procedure TWKSRecord.Assign(Source: TPersistent);
+procedure TWKSRecord.Assign(Source: TIdPersistent);
 var
   aSource:TWKSRecord;
 begin
@@ -1002,7 +1001,7 @@ end;
 
 { TMINFORecord }
 
-procedure TMINFORecord.Assign(Source: TPersistent);
+procedure TMINFORecord.Assign(Source: TIdPersistent);
 var
  aSource:TMINFORecord;
 begin
@@ -1021,7 +1020,7 @@ end;
 
 { THINFORecord }
 
-procedure THINFORecord.Assign(Source: TPersistent);
+procedure THINFORecord.Assign(Source: TIdPersistent);
 var
  aSource:THINFORecord;
 begin
@@ -1040,7 +1039,7 @@ end;
 
 { TAAAARecord }
 
-procedure TAAAARecord.Assign(Source: TPersistent);
+procedure TAAAARecord.Assign(Source: TIdPersistent);
 begin
   inherited;
   if Source is TAAAARecord then
@@ -1625,7 +1624,7 @@ begin
  FPort := AValue;
 end;
 
-procedure TSRVRecord.Assign(Source: TPersistent);
+procedure TSRVRecord.Assign(Source: TIdPersistent);
 var
  aSource:TSRVRecord;
 begin
@@ -1685,7 +1684,7 @@ begin
   Self.FTarget := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
 
-procedure TNAPTRRecord.Assign(Source: TPersistent);
+procedure TNAPTRRecord.Assign(Source: TIdPersistent);
 var
  aSource:TNAPTRRecord;
 begin

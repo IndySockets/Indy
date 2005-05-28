@@ -48,7 +48,7 @@ unit IdSystatUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer, Classes,
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer,
   IdObjs;
 
 type

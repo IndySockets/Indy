@@ -159,7 +159,6 @@ unit IdDNSCommon;
 interface
 
 uses
-  Classes,
   IdContainers,
   IdException,
   IdGlobal,

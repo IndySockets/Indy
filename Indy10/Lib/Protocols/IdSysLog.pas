@@ -48,7 +48,7 @@ though.
 }
 interface
 
-uses Classes, IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
+uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
 
 type
   TIdSysLog = class(TIdUDPClient)

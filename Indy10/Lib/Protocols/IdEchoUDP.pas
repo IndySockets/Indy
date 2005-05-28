@@ -26,7 +26,7 @@
 unit IdEchoUDP;
 
 interface
-uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
+uses IdAssignedNumbers, IdUDPBase, IdUDPClient;
 type
   TIdEchoUDP = class(TIdUDPClient)
   protected

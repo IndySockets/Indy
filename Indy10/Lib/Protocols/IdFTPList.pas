@@ -474,7 +474,7 @@ than Unix permissions so they belong in a different property.
 interface
 
 uses
-  Classes, IdGlobal, IdException, IdFTPCommon, IdSys;
+  IdGlobal, IdObjs, IdException, IdFTPCommon, IdSys;
 
 { Indy TIdFtp extensions to support automatic parsing of FTP directory listings }
 
@@ -487,7 +487,7 @@ type
   TIdFTPListItems = class;
 
   // TIdFTPListItem stores an item in the FTP directory listing
-  TIdFTPListItem = class(TCollectionItem)
+  TIdFTPListItem = class(TIdCollectionItem)
   protected
     FSize: Int64;
     FData: string;
@@ -516,8 +516,8 @@ type
     //may be used by some descendent classes
     property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
   public
-    procedure Assign(Source: TPersistent); override;
-    constructor Create(AOwner: TCollection); override;
+    procedure Assign(Source: TIdPersistent); override;
+    constructor Create(AOwner: TIdCollection); override;
     destructor Destroy; override;
 
     property Data: string read FData write FData;
@@ -541,7 +541,7 @@ type
   TIdOnParseCustomListFormat = procedure(AItem: TIdFTPListItem) of object;
 
   // TFTPList is the container and parser for items in the directory listing
-  TIdFTPListItems = class(TCollection)
+  TIdFTPListItems = class(TIdCollection)
   protected
     FDirectoryName: string;
     //
@@ -561,7 +561,7 @@ Uses IdContainers, IdResourceStrings, IdStrings;
 
 { TFTPListItem }
 
-constructor TIdFTPListItem.Create(AOwner: TCollection);
+constructor TIdFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited Create(AOwner);
   Data := '';    {Do not Localize}
@@ -574,7 +574,7 @@ begin
     FModifiedAvail := True;
 end;
 
-procedure TIdFTPListItem.Assign(Source: TPersistent);
+procedure TIdFTPListItem.Assign(Source: TIdPersistent);
 Var
   Item: TIdFTPListItem;
 begin

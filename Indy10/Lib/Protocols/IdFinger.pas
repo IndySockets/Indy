@@ -56,7 +56,6 @@ unit IdFinger;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdTCPClient;
 

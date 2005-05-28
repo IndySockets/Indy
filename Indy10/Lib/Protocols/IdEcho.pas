@@ -58,7 +58,6 @@ unit IdEcho;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdTCPClient;
 

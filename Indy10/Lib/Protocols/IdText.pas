@@ -39,7 +39,7 @@ unit IdText;
 
 interface
 uses
-  IdMessageParts, Classes, IdObjs;
+  IdMessageParts, IdObjs;
 
 type
   TIdText = class(TIdMessagePart)
@@ -52,7 +52,7 @@ type
   public
     constructor Create(Collection: TIdMessageParts; ABody: TIdStrings = nil); reintroduce;
     destructor Destroy; override;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
     function  IsBodyEncodingRequired: Boolean;
 
     class function PartType: TIdMessagePartType; override;
@@ -71,7 +71,7 @@ const
 
 { TIdText }
 
-procedure TIdText.Assign(Source: TPersistent);
+procedure TIdText.Assign(Source: TIdPersistent);
 var mp : TIdText;
 begin
   if ClassType <> Source.ClassType then
@@ -150,6 +150,7 @@ begin
 end;
 
 initialization
-  RegisterClasses([TIdText]);
+
+//  RegisterClasses([TIdText]);
 end.
 

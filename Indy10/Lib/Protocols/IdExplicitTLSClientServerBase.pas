@@ -77,7 +77,6 @@ unit IdExplicitTLSClientServerBase;
 interface
 
 uses
-  Classes,
   IdCmdTCPServer,
   IdException,
   IdGlobal,
@@ -170,7 +169,7 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdSSL;
+  IdResourceStringsProtocols, IdSSL, IdBaseComponent;
 
 { TIdExplicitTLSServer }
 
@@ -201,9 +200,9 @@ end;
 
 procedure TIdExplicitTLSServer.SetUseTLS(AValue: TIdUseTLS);
 begin
-  if not Active or ( csDesigning in ComponentState) then
+  if not Active or (IsDesignTime) then
   begin
-    if csLoading in ComponentState then
+    if IsLoading then
     begin
       FUseTLS := AValue;
       exit;
@@ -394,7 +393,7 @@ procedure TIdExplicitTLSClient.SetUseTLS(AValue: TIdUseTLS);
 begin
   if not Connected then
   begin
-    if csLoading in ComponentState then
+    if IsLoading then
     begin
       FUseTLS := AValue;
       exit;

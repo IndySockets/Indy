@@ -72,11 +72,9 @@ unit IdFSP;
 interface
 
 uses
-  Classes,
   IdException,
   IdFTPList,
   IdGlobal,
-  IdStreamVCL,
   IdSys,
   IdThreadSafe,
   IdObjs,
@@ -212,7 +210,7 @@ RDIRENT.HEADER types:
   RDTYPE_DIR      0x02
   RDTYPE_SKIP     0x2A
 }
-  TIdFSPStatInfo = class(TCollectionItem)
+  TIdFSPStatInfo = class(TIdCollectionItem)
   protected
       FModifiedDateGMT : TIdDateTime;
     FModifiedDate: TIdDateTime;
@@ -232,7 +230,7 @@ RDIRENT.HEADER types:
   published
     property FileName: string read FFileName write FFileName;
   end;
-  TIdFSPListItems = class(TCollection)
+  TIdFSPListItems = class(TIdCollection)
   protected
     function GetItems(AIndex: Integer): TIdFSPListItem;
     procedure SetItems(AIndex: Integer; const Value: TIdFSPListItem);
@@ -366,9 +364,6 @@ causes that directory can be listable even it do not have
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false;
       AResume: Boolean = false); overload;
     procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
-    procedure Get(const ASourceFile: string; ADest: TIdStreamVCL; AResume: Boolean = false); overload;
-    procedure Put(const ASource: TIdStreamVCL; const ADestFile: string;
-       const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASource: TIdStream2; const ADestFile: string;
        const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
@@ -471,45 +466,6 @@ end;
 
 procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream2;
   AResume: Boolean);
-var LStream : TIdStreamVCL;
-begin
-  LStream := TIdStreamVCL.Create(ADest);
-  try
-    Get(ASourceFile,LStream,AResume);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
-end;
-
-procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
-  const ACanOverwrite: boolean; AResume: Boolean);
-var
-  LDestStream: TIdStream2;
-begin
-
-    if ACanOverwrite and (not AResume) then begin
-      Sys.DeleteFile(ADestFile);
-      LDestStream := TFileCreateStream.Create(ADestFile);
-    end
-    else begin
-      if (not ACanOverwrite) and AResume then begin
-        LDestStream := TAppendFileStream.Create(ADestFile);
-      end
-      else begin
-        raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
-      end;
-    end;
-
-
-  try
-    Get(ASourceFile, LDestStream, AResume);
-  finally
-    Sys.FreeAndNil(LDestStream);
-  end;
-end;
-
-procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStreamVCL;
-  AResume: Boolean);
 var LSendPacket : TIdFSPPacket;
     LRecvPacket :  TIdFSPPacket;
     LLen : Integer;
@@ -520,7 +476,7 @@ begin
   LRecvPacket :=  TIdFSPPacket.Create;
   try
     if AResume then begin
-       LSendPacket.FFilePosition := ADest.VCLStream.Position;
+       LSendPacket.FFilePosition := ADest.Position;
     end
     else
     begin
@@ -557,6 +513,34 @@ begin
     Sys.FreeAndNil(LRecvPacket);
   end;
 end;
+
+procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
+  const ACanOverwrite: boolean; AResume: Boolean);
+var
+  LDestStream: TIdStream2;
+begin
+    if ACanOverwrite and (not AResume) then begin
+      Sys.DeleteFile(ADestFile);
+      LDestStream := TFileCreateStream.Create(ADestFile);
+    end
+    else begin
+      if (not ACanOverwrite) and AResume then begin
+        LDestStream := TAppendFileStream.Create(ADestFile);
+      end
+      else begin
+        raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
+      end;
+    end;
+
+
+  try
+    Get(ASourceFile, LDestStream, AResume);
+  finally
+    Sys.FreeAndNil(LDestStream);
+  end;
+end;
+
+
 
 procedure TIdFSP.GetDirInfo(const ADIR: String);
 begin
@@ -833,7 +817,7 @@ there is other problem (no access rights) return type of file is
   end;
 end;
 
-procedure TIdFSP.Put(const ASource: TIdStreamVCL; const ADestFile: string;
+procedure TIdFSP.Put(const ASource: TIdStream2; const ADestFile: string;
   const AGMTTime: TIdDateTime);
 var LUnixDate : Cardinal;
   LSendPacket : TIdFSPPacket;
@@ -850,7 +834,7 @@ begin
     SetLength(LSendPacket.FData, PrefPayloadSize);
     LSendPacket.Cmd := CC_UP_LOAD;
     repeat
-      LLen := ASource.ReadBytes(LSendPacket.FData,PrefPayloadSize,0,False);
+      LLen := ASource.Read(LSendPacket.FData,PrefPayloadSize,0);
       if LLen < PrefPayloadSize then
       begin
         if LLen = 0 then
@@ -892,17 +876,7 @@ begin
 
 end;
 
-procedure TIdFSP.Put(const ASource: TIdStream2; const ADestFile: string;
-  const AGMTTime: TIdDateTime);
-var LStream : TIdStreamVCL;
-begin
-  LStream := TIdStreamVCL.Create(ASource);
-  try
-    Put(LStream,ADestFile,AGMTTime);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
-end;
+
 
 procedure TIdFSP.Put(const ASourceFile, ADestFile: string);
 var

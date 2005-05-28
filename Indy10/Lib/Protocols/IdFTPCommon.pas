@@ -203,7 +203,6 @@ interface
 
 uses
   IdObjs,
-//  Classes,
   IdGlobal,
   IdGlobalProtocols,
   IdSys;

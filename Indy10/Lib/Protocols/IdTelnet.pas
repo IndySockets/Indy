@@ -100,10 +100,10 @@ Date        Author Change.
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
+  IdObjs,
   IdStack,
   IdSys,
   IdTCPClient, IdThread;
@@ -231,8 +231,8 @@ type
     fThreadedEvent: Boolean;
     FOnDataAvailable: TIdTelnetDataAvailEvent;
     fIamTelnet: Boolean;
-    FOnDisconnect: TNotifyEvent;
-    FOnConnect: TNotifyEvent;
+    FOnDisconnect: TIdNotifyEvent;
+    FOnConnect: TIdNotifyEvent;
     FOnTelnetCommand: TIdTelnetCommandEvent;
     FTelnetThread: TIdTelnetReadThread;
     //
@@ -275,8 +275,8 @@ type
     property OnDataAvailable: TIdTelnetDataAvailEvent read FOnDataAvailable write FOnDataAvailable;
     property Terminal: string read fTerminal write fTerminal;
     property ThreadedEvent: Boolean read fThreadedEvent write fThreadedEvent default False;
-    property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
-    property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
+    property OnConnect: TIdNotifyEvent read FOnConnect write FOnConnect;
+    property OnDisconnect: TIdNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
 
   EIdTelnetError = class(EIdException);

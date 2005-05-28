@@ -88,7 +88,6 @@ uses
   IdFTPListOutput,
   IdFTPServerContextBase,
   IdSys,
-  Classes,
   IdObjs;
 
 type

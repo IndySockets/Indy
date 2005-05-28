@@ -113,7 +113,6 @@ unit IdEMailAddress;
 interface
 
 uses
-  Classes,
   IdException,
   IdSys,
   IdObjs;
@@ -122,7 +121,7 @@ type
    EIdEmailParseError = class(EIdException);
 
    { ToDo: look into alterations required for TIdEMailAddressItem.GetText }
-   TIdEMailAddressItem = class (TCollectionItem)
+   TIdEMailAddressItem = class (TIdCollectionItem)
    protected
      FAddress: string;
      FName: string;
@@ -134,7 +133,7 @@ type
      function GetUsername: string;
      procedure SetUsername(const AUsername: String);
    public
-     procedure Assign(Source: TPersistent); override;
+     procedure Assign(Source: TIdPersistent); override;
    published
      { This is the E-Mail address itself }
      property Address: string read FAddress write FAddress;
@@ -147,14 +146,14 @@ type
      property User: string read GetUsername write SetUsername;
    end;
 
-   TIdEMailAddressList = class (TOwnedCollection)
+   TIdEMailAddressList = class (TIdOwnedCollection)
    protected
      function GetItem(Index: Integer): TIdEMailAddressItem;
      procedure SetItem(Index: Integer; const Value: TIdEMailAddressItem);
      function GetEMailAddresses: string;
      procedure SetEMailAddresses(AList: string);
    public
-     constructor Create(AOwner: TPersistent); reintroduce;
+     constructor Create(AOwner: TIdPersistent); reintroduce;
      { List of formated addresses including the names from the collection }
      procedure FillTStrings(AStrings: TIdStrings);
      function Add: TIdEMailAddressItem;
@@ -273,7 +272,7 @@ end;
 
 { TIdEMailAddressItem }
 
-procedure TIdEMailAddressItem.Assign(Source: TPersistent);
+procedure TIdEMailAddressItem.Assign(Source: TIdPersistent);
 var
   Addr: TIdEMailAddressItem;
 begin
@@ -730,7 +729,7 @@ begin
   Result := TIdEMailAddressItem(inherited Add);
 end;
 
-constructor TIdEMailAddressList.Create(AOwner: TPersistent);
+constructor TIdEMailAddressList.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdEMailAddressItem);
 end;

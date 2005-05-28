@@ -40,7 +40,6 @@ unit IdSysLogServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers,
   IdBaseComponent,
   IdComponent,

@@ -54,7 +54,6 @@ unit IdSystatServer;
   -Original version}
 interface
 uses
-  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer,

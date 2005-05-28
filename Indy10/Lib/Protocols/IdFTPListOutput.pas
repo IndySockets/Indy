@@ -95,7 +95,7 @@ unit IdFTPListOutput;
 
 interface
 
-uses IdFTPList, Classes, IdObjs, IdSys;
+uses IdFTPList, IdObjs, IdSys;
 
 type
   //we can't use the standard FTP MLSD option types in the FTP Server
@@ -160,7 +160,7 @@ type
 
     property DirError : Boolean read FDirError write FDirError;
   end;
-  TIdFTPListOutput = class(TCollection)
+  TIdFTPListOutput = class(TIdCollection)
   protected
     FSwitches : String;
     FOutput : String;

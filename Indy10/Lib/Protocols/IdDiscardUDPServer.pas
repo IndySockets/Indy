@@ -20,7 +20,6 @@ unit IdDiscardUDPServer;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type

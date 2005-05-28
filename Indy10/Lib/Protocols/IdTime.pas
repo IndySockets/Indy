@@ -87,7 +87,7 @@ unit IdTime;
 interface
 
 uses
-  Classes, IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
+  IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
 
 const
 

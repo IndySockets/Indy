@@ -101,7 +101,6 @@ unit IdSMTPBase;
 interface
 
 uses
-  Classes,
   IdEMailAddress,
   IdMessage,
   IdMessageClient,
