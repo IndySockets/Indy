@@ -449,9 +449,10 @@ begin
   if ADest is TIdReplySMTP then
   begin
     LS := ADest as TIdReplySMTP;
+    //set code first as it possibly clears the reply
+    LS.Code := FCode;
     LS.EnhancedCode := FEnhancedCode;
     LS.Text.Assign(FText);
-    LS.Code := FCode;
   end else begin
     inherited;
   end;
