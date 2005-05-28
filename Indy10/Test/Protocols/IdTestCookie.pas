@@ -38,4 +38,8 @@ begin
 
 end;
 
+initialization
+
+  TIdTest.RegisterTest(TIdTestNetscapeCookie);
+
 end.
