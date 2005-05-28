@@ -108,6 +108,7 @@ type
   TIdInitializerComponent = class;
   TIdNativeComponent = Component;
   TIdOperation = (opInsert, opRemove);
+
   TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
   TIdNativeComponent = TComponent;
@@ -195,6 +196,13 @@ type
     {$ENDIF}
   published
   end;
+
+{$IFNDEF DotNetDistro}
+{$IFDEF DOTNET}
+const
+   opRemove = Classes. opRemove;
+{$ENDIF}
+{$ENDIF}
 
 implementation
 
