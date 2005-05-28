@@ -106,14 +106,12 @@ type
   // other members instead of overriding constructors.
   {$IFDEF DotNetDistro}
   TIdInitializerComponent = class;
-  TIdPersistent = TIdInitializerComponent;
   TIdNativeComponent = Component;
   TIdOperation = (opInsert, opRemove);
   TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
   TIdNativeComponent = TComponent;
   TIdOperation = TOperation;
-  TIdPersistent = TPersistent;
   TIdInitializerComponent = class(TComponent)
   {$ENDIF}
   private

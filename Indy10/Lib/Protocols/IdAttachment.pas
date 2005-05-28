@@ -48,8 +48,8 @@ unit IdAttachment;
 interface
 
 uses
-  Classes,
   IdMessageParts,
+  IdBaseComponent,
   IdSys,
   IdObjs;
 
@@ -87,7 +87,7 @@ type
     procedure SaveToFile(const FileName: String); virtual;
     procedure SaveToStream(const Stream: TIdStream2); virtual;
 
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
 
 
     property  FileName: String read FFileName write FFileName;
@@ -108,7 +108,7 @@ const
 
 { TIdAttachment }
 
-procedure TIdAttachment.Assign(Source: TPersistent);
+procedure TIdAttachment.Assign(Source: TIdPersistent);
 var
   mp: TIdAttachment;
 begin

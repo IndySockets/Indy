@@ -24,9 +24,8 @@ unit IdIRC;
 interface
 
 uses
-  Classes,
   IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers, IdIOHandler,
-  IdObjs;
+  IdObjs, IdGlobal;
 
 type
   TIdIRC = class;
@@ -141,8 +140,10 @@ type
 
 //============================================================================//
 
+  EComponentError = class(Exception);
+
   { TIdIRCReplies }
-  TIdIRCReplies = class(TPersistent)
+  TIdIRCReplies = class(TIdPersistent)
   protected
     FFinger: String;
     FVersion: String;
@@ -150,7 +151,7 @@ type
     FClientInfo: String;
   public
     constructor Create;
-    procedure Assign(Source: TPersistent); override;
+    procedure Assign(Source: TIdPersistent); override;
   published
     property Finger: String read FFinger write FFinger;
     property Version: String read FVersion write FVersion;
@@ -440,19 +441,19 @@ const
 implementation
 
 uses
-  IdGlobal, IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
-  IdStack, IdSys;
+  IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
+  IdStack, IdSys, IdBaseComponent;
 
 //============================================================================//
 { TIdIRCReplies }
 
 constructor TIdIRCReplies.Create;
 begin
-  inherited Create;
+  inherited;
   //
 end;
 
-procedure TIdIRCReplies.Assign(Source: TPersistent);
+procedure TIdIRCReplies.Assign(Source: TIdPersistent);
 begin
   if Source is TIdIRCReplies then
   begin
@@ -475,7 +476,7 @@ begin
   Port := IdPORT_IRC;
   FUserMode := [];
   //
-  if not (csDesigning in ComponentState) then
+  if not IsDesignTime then
   begin
     AssignIRCClientCommands;
   end;
@@ -529,7 +530,7 @@ begin
 
     SetNickname(FNickname);
     SetUsername(FUsername);
-  except
+  except              
     on E: EIdSocketError do begin
       raise EComponentError.Create(RSIRCCannotConnect);
     end;

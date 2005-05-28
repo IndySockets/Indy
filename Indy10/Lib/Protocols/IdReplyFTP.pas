@@ -83,7 +83,6 @@ unit IdReplyFTP;
 interface
 
 uses
-  Classes,
   IdReply,
   IdReplyRFC,
   IdSys,
@@ -101,10 +100,10 @@ type
     FReplyFormat : TIdReplyRFCFormat;
     function GetFormattedReply: TIdStrings; override;
     procedure SetFormattedReply(const AValue: TIdStrings); override;
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
   public
     constructor Create(
-      ACollection: TCollection = nil;
+      ACollection: TIdCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
     class function IsEndMarker(const ALine: string): Boolean; override;
@@ -114,7 +113,7 @@ type
 
   TIdRepliesFTP = class(TIdRepliesRFC)
   public
-    constructor Create(AOwner: TPersistent); override;
+    constructor Create(AOwner: TIdPersistent); override;
   end;
 
 implementation
@@ -124,7 +123,7 @@ uses
 
 { TIdReplyFTP }
 
-procedure TIdReplyFTP.AssignTo(ADest: TPersistent);
+procedure TIdReplyFTP.AssignTo(ADest: TIdPersistent);
 var
   LR: TIdReplyFTP;
 begin
@@ -143,11 +142,11 @@ begin
 end;
 
 constructor TIdReplyFTP.Create(
-  ACollection: TCollection = nil;
+  ACollection: TIdCollection = nil;
   AReplyTexts: TIdReplies = nil
   );
 begin
-  inherited;
+  inherited Create(ACollection, AReplyTexts);
   FReplyFormat := DEF_ReplyFormat;
 end;
 
@@ -234,7 +233,7 @@ end;
 
 { TIdRepliesFTP }
 
-constructor TIdRepliesFTP.Create(AOwner: TPersistent);
+constructor TIdRepliesFTP.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdReplyFTP);
 end;

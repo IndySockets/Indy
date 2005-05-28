@@ -109,7 +109,6 @@ unit IdReplyPOP3;
 interface
 
 uses
-  Classes,
   IdReply,
   IdException,
   IdSys,
@@ -145,7 +144,7 @@ type
   protected
     FEnhancedCode : String;
     //
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
     class function FindCodeTextDelin(const AText : String) : Integer;
     class function IsValidEnhancedCode(const AText : String; const AStrict : Boolean=False) : Boolean;
     class function ExtractTextPosArray(const AStr : String):Integer;
@@ -155,7 +154,7 @@ type
     procedure SetEnhancedCode(const AValue : String);
   public
     constructor Create(
-      ACollection: TCollection = nil;
+      ACollection: TIdCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
     destructor Destroy; override;
@@ -167,7 +166,7 @@ type
 
   TIdRepliesPOP3 = class(TIdReplies)
   public
-    constructor Create(AOwner: TPersistent); reintroduce;
+    constructor Create(AOwner: TIdPersistent); reintroduce;
   end;
 
   //This error is for POP3 Protocol reply exceptions
@@ -200,7 +199,7 @@ uses
 
 { TIdReplyPOP3 }
 
-procedure TIdReplyPOP3.AssignTo(ADest: TPersistent);
+procedure TIdReplyPOP3.AssignTo(ADest: TIdPersistent);
 var
   LR: TIdReplyPOP3;
 begin
@@ -227,7 +226,7 @@ begin
 end;
 
 constructor TIdReplyPOP3.Create(
-      ACollection: TCollection = nil;
+      ACollection: TIdCollection = nil;
       AReplyTexts: TIdReplies = nil
       );
 begin
@@ -437,7 +436,7 @@ end;
 
 { TIdRepliesPOP3 }
 
-constructor TIdRepliesPOP3.Create(AOwner: TPersistent);
+constructor TIdRepliesPOP3.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdReplyPOP3);
 end;

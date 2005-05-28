@@ -128,8 +128,8 @@ unit IdReplyIMAP4;
 }
 
 interface
+
 uses
-  Classes,
   IdReply,
   IdReplyRFC,
   IdObjs;
@@ -176,7 +176,7 @@ type
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
   public
     constructor Create(
-      ACollection: TCollection = nil;
+      ACollection: TIdCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
     destructor Destroy; override;
@@ -204,7 +204,7 @@ type
 
   TIdRepliesIMAP4 = class(TIdReplies)
   public
-    constructor Create(AOwner: TPersistent); reintroduce;
+    constructor Create(AOwner: TIdPersistent); reintroduce;
   end;
 
   //This error method came from the POP3 Protocol reply exceptions
@@ -234,7 +234,7 @@ begin
 end;
 
 constructor TIdReplyIMAP4.Create(
-  ACollection: TCollection = nil;
+  ACollection: TIdCollection = nil;
   AReplyTexts: TIdReplies = nil
   );
 begin
@@ -536,7 +536,7 @@ end;
 
 { TIdRepliesIMAP4 }
 
-constructor TIdRepliesIMAP4.Create(AOwner: TPersistent);
+constructor TIdRepliesIMAP4.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdReplyIMAP4);
 end;

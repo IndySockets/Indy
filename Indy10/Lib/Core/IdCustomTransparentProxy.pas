@@ -67,6 +67,7 @@ uses
   IdComponent,
   IdException,
   IdGlobal,
+  IdObjs,
   IdIOHandler,
   IdSocketHandle,
   IdSys, IdBaseComponent;

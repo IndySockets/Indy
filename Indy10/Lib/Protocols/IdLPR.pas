@@ -543,7 +543,7 @@ end;
 
 constructor TIdLPRControlFile.Create;
 begin
-  inherited Create;
+  inherited;
   try
     HostName := GStack.HostName;
   except

@@ -133,7 +133,6 @@ unit IdReply;
 interface
 
 uses
-  Classes,
   IdException,
   IdObjs,
   IdSys;
@@ -143,14 +142,14 @@ type
   //TODO: a streamed write only property will be registered to convert old DFMs
   // into the new one for old TextCode and to ignore NumericCode which has been
   // removed
-  TIdReply = class(TCollectionItem)
+  TIdReply = class(TIdCollectionItem)
   protected
     FCode: string;
     FFormattedReply: TIdStrings;
     FReplyTexts: TIdReplies;
     FText: TIdStrings;
     //
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
     procedure CommonInit;
     function GetFormattedReplyStrings: TIdStrings; virtual;
     function CheckIfCodeIsValid(const ACode: string): Boolean; virtual;
@@ -165,10 +164,10 @@ type
     procedure Clear; virtual;
     // Both creates are necessary. This base one is called by the collection editor at design time
     constructor Create(
-      ACollection: TCollection
+      ACollection: TIdCollection
       ); overload; override;
     constructor Create(
-      ACollection: TCollection;
+      ACollection: TIdCollection;
       AReplyTexts: TIdReplies
       ); reintroduce; overload; virtual;
     destructor Destroy; override;
@@ -192,7 +191,7 @@ type
 
   TIdReplyClass = class of TIdReply;
 
-  TIdReplies = class(TOwnedCollection)
+  TIdReplies = class(TIdOwnedCollection)
   protected
     function GetItem(Index: Integer): TIdReply;
     procedure SetItem(Index: Integer; const Value: TIdReply);
@@ -201,7 +200,7 @@ type
     function Add(ACode: Integer; AText: string): TIdReply; overload;
     function Add(ACode: string; AText: string): TIdReply; overload;
     constructor Create(
-      AOwner: TPersistent;
+      AOwner: TIdPersistent;
       const AReplyClass: TIdReplyClass
       ); reintroduce; virtual;
     function Find(
@@ -223,7 +222,7 @@ uses
 
 { TIdReply }
 
-procedure TIdReply.AssignTo(ADest: TPersistent);
+procedure TIdReply.AssignTo(ADest: TIdPersistent);
 var
   LR : TIdReply;
 begin
@@ -246,7 +245,7 @@ begin
 end;
 
 constructor TIdReply.Create(
-  ACollection: TCollection;
+  ACollection: TIdCollection;
   AReplyTexts: TIdReplies
   );
 begin
@@ -255,7 +254,7 @@ begin
   CommonInit;
 end;
 
-constructor TIdReply.Create(ACollection: TCollection);
+constructor TIdReply.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   CommonInit;
@@ -386,7 +385,7 @@ begin
   end;
 end;
 
-constructor TIdReplies.Create(AOwner: TPersistent; const AReplyClass:TIdReplyClass);
+constructor TIdReplies.Create(AOwner: TIdPersistent; const AReplyClass:TIdReplyClass);
 begin
   inherited Create(AOwner, AReplyClass);
 end;

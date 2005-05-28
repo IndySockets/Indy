@@ -145,7 +145,6 @@ unit IdReplyRFC;
 interface
 
 uses
-  Classes,
   IdReply,
   IdSys,
   IdObjs;
@@ -153,7 +152,7 @@ uses
 type
   TIdReplyRFC = class(TIdReply)
   protected
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
     function GetFormattedReply: TIdStrings; override;
     procedure SetFormattedReply(const AValue: TIdStrings); override;
@@ -165,8 +164,8 @@ type
 
   TIdRepliesRFC = class(TIdReplies)
   public
-    constructor Create(AOwner: TPersistent); reintroduce; overload; virtual;
-    constructor Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass); overload; override;
+    constructor Create(AOwner: TIdPersistent); reintroduce; overload; virtual;
+    constructor Create(AOwner: TIdPersistent; const AReplyClass: TIdReplyClass); overload; override;
     procedure UpdateText(AReply: TIdReply); override;
   end;
 
@@ -192,7 +191,7 @@ uses
 
 { TIdReplyRFC }
 
-procedure TIdReplyRFC.AssignTo(ADest: TPersistent);
+procedure TIdReplyRFC.AssignTo(ADest: TIdPersistent);
 var
   LR: TIdReplyRFC;
 begin
@@ -290,12 +289,12 @@ end;
 
 { TIdReplies }
 
-constructor TIdRepliesRFC.Create(AOwner: TPersistent);
+constructor TIdRepliesRFC.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdReplyRFC);
 end;
 
-constructor TIdRepliesRFC.Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass);
+constructor TIdRepliesRFC.Create(AOwner: TIdPersistent; const AReplyClass: TIdReplyClass);
 begin
   inherited Create(AOwner, AReplyClass);
 end;

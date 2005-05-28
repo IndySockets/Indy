@@ -836,7 +836,7 @@ type
     FDisableSTATCommand : Boolean;
     FPermitCCC : Boolean;
   public
-    constructor Create; override;
+    constructor Create; virtual;
     procedure Assign(Source: TIdPersistent); override;
   published
     //limit login attempts - some hackers will try guessing passwords from a dictionary
@@ -6043,7 +6043,7 @@ end;
 
 constructor TIdFTPSecurityOptions.Create;
 begin
-  inherited Create;
+  inherited;
     //limit login attempts - some hackers will try guessing passwords from a dictionary
   PasswordAttempts := DEF_FTP_PASSWORDATTEMPTS;
     //should slow-down a password guessing attack - note those dictionaries

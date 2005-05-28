@@ -61,7 +61,7 @@ unit IdSysLogMessage;
 interface
 
 uses
-  IdGlobal, IdGlobalProtocols, IdBaseComponent;
+  IdGlobal, IdGlobalProtocols, IdBaseComponent, IdObjs;
 
 type
 //  TIdSyslogSeverity = ID_SYSLOG_SEVERITY_EMERGENCY..ID_SYSLOG_SEVERITY_DEBUG;

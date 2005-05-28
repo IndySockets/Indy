@@ -116,7 +116,6 @@ unit IdReplySMTP;
 interface
 
 uses
-  Classes,
   IdException,
   IdReply,
   IdReplyRFC,
@@ -132,13 +131,13 @@ const
   PARTSEP = '.';
 
 type
-  TIdSMTPEnhancedCode = class(TPersistent)
+  TIdSMTPEnhancedCode = class(TIdPersistent)
   protected
     FStatusClass : Cardinal;
     FSubject : Cardinal;
     FDetails : Cardinal;
     FAvailable : Boolean;
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
     function IsValidReplyCode(const AText : String) : Boolean;
     function GetReplyAsStr : String;
     procedure SetReplyAsStr(const AText : String);
@@ -157,13 +156,13 @@ type
   TIdReplySMTP = class(TIdReplyRFC)
   protected
     FEnhancedCode : TIdSMTPEnhancedCode;
-    procedure AssignTo(ADest: TPersistent); override;
+    procedure AssignTo(ADest: TIdPersistent); override;
     procedure SetEnhancedCode(AValue : TIdSMTPEnhancedCode);
     function GetFormattedReply: TIdStrings; override;
     procedure SetFormattedReply(const AValue: TIdStrings); override;
   public
-    constructor Create(ACollection: TCollection); override;
-    constructor Create( ACollection: TCollection; AReplyTexts: TIdReplies ); override;
+    constructor Create(ACollection: TIdCollection); overload; override;
+    constructor Create( ACollection: TIdCollection; AReplyTexts: TIdReplies ); overload; override; 
     destructor Destroy; override;
     procedure RaiseReplyError; override;
     procedure SetEnhReply(const ANumericCode : Integer; const AEnhReply, AText : String);
@@ -173,7 +172,7 @@ type
 
   TIdRepliesSMTP = class(TIdRepliesRFC)
   public
-    constructor Create(AOwner: TPersistent); override;
+    constructor Create(AOwner: TIdPersistent); override;
   end;
 
   //note that this is here so we don't have to put this unit in an implementaiton clause
@@ -336,7 +335,7 @@ uses
 
 { TIdSMTPEnhancedCode }
 
-procedure TIdSMTPEnhancedCode.AssignTo(ADest: TPersistent);
+procedure TIdSMTPEnhancedCode.AssignTo(ADest: TIdPersistent);
 var LE : TIdSMTPEnhancedCode;
 begin
   if ADest is TIdSMTPEnhancedCode then
@@ -353,7 +352,7 @@ end;
 
 constructor TIdSMTPEnhancedCode.Create;
 begin
-  inherited Create;
+  inherited;
   FStatusClass := CLASS_DEF;
   FSubject := NODETAILS;
   FDetails := NODETAILS;
@@ -443,7 +442,7 @@ end;
 
 { TIdReplySMTP }
 
-procedure TIdReplySMTP.AssignTo(ADest: TPersistent);
+procedure TIdReplySMTP.AssignTo(ADest: TIdPersistent);
 var LS : TIdReplySMTP;
 begin
   if ADest is TIdReplySMTP then
@@ -458,13 +457,13 @@ begin
   end;
 end;
 
-constructor TIdReplySMTP.Create(ACollection: TCollection);
+constructor TIdReplySMTP.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
 end;
 
-constructor TIdReplySMTP.Create( ACollection: TCollection; AReplyTexts: TIdReplies );
+constructor TIdReplySMTP.Create( ACollection: TIdCollection; AReplyTexts: TIdReplies );
 begin
   inherited Create(ACollection, AReplyTexts);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
@@ -568,7 +567,7 @@ end;
 
 { TIdRepliesSMTP }
 
-constructor TIdRepliesSMTP.Create(AOwner: TPersistent);
+constructor TIdRepliesSMTP.Create(AOwner: TIdPersistent);
 begin
   inherited Create(AOwner, TIdReplySMTP);
 end;
