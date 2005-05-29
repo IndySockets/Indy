@@ -92,7 +92,7 @@ uses
   PackageProtocols in 'PackageProtocols.pas',
   PackageFTPParsers in 'PackageFTPParsers.pas',
   PackageSecurity in 'PackageSecurity.pas',
-  DModule in 'DModule.pas';
+  DataModule in 'DataModule.pas';
 
 procedure Main;
 begin

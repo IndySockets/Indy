@@ -54,7 +54,7 @@ type
 
 implementation
 
-uses DModule;
+uses DataModule;
 
 { TPackageVisualStudio }
 
@@ -162,10 +162,6 @@ begin
   Code('');
   Code('{%DelphiDotNetAssemblyCompiler ''$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll''}');
   // Dont seem to need .Delphi? But intenral errors when not included sometimes
-  Code('{%DelphiDotNetAssemblyCompiler ''c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll''}');
-  // Doesnt seem to need this either - likely the visual parts are here
-  //Code('{%DelphiDotNetAssemblyCompiler ''c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Vcl.dll''}');
-  Code('{%DelphiDotNetAssemblyCompiler ''c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll''}');
   Code('');
 end;
 
