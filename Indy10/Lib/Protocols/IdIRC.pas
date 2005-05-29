@@ -25,7 +25,7 @@ interface
 
 uses
   IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers, IdIOHandler,
-  IdObjs, IdGlobal;
+  IdObjs, IdGlobal, IdException;
 
 type
   TIdIRC = class;
@@ -140,7 +140,7 @@ type
 
 //============================================================================//
 
-  EComponentError = class(Exception);
+  EComponentError = class(EIdException);
 
   { TIdIRCReplies }
   TIdIRCReplies = class(TIdPersistent)
@@ -441,8 +441,8 @@ const
 implementation
 
 uses
-  IdException, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
-  IdStack, IdSys, IdBaseComponent;
+  IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
+  IdStack, IdBaseComponent, IdSys;
 
 //============================================================================//
 { TIdIRCReplies }
