@@ -41,7 +41,7 @@ type
 
 implementation
 
-uses DModule;
+uses DataModule;
 
 { TPackageSuperCore }
 

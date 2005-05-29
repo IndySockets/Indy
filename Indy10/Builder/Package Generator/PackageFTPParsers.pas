@@ -48,7 +48,7 @@ type
 implementation
 uses
   IdGlobal,
-  SysUtils, DModule;
+  SysUtils, DataModule;
 
 { TFTPParsers }
 

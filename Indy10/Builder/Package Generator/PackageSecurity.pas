@@ -30,7 +30,7 @@ type
   end;
 
 implementation
-uses DModule;
+uses DataModule;
 
 { TPackageSecurity }
 
