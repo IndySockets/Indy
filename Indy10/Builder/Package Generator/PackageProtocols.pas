@@ -74,7 +74,7 @@ type
 
 implementation
 
-uses DataModule;
+uses DModule;
 
 { TPackageProtocols }
 

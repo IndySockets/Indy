@@ -41,7 +41,7 @@ type
 
 implementation
 
-uses DataModule;
+uses DModule;
 
 { TPackageD8Master }
 
