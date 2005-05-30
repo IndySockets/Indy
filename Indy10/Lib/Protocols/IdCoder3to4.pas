@@ -408,12 +408,14 @@ begin
 
     //EncodeUnit(LIn1, LIn2, LIn3, LUnit);
     // inline
+    //possible to do a better assert than this?
+    Assert(Length(FCodingTable)>0);
     LUnit[0] := Ord(FCodingTable[((LIn1 shr 2) and 63) + 1]);
     LUnit[1] := Ord(FCodingTable[(((LIn1 shl 4) or (LIn2 shr 4)) and 63) + 1]);
     LUnit[2] := Ord(FCodingTable[(((LIn2 shl 2) or (LIn3 shr 6)) and 63) + 1]);
     LUnit[3] := Ord(FCodingTable[(Ord(LIn3) and 63) + 1]);
 
-    assert(LLen + 4 <= length(Result),
+    Assert(LLen + 4 <= length(Result),
       'TIdEncoder3to4.Encode: Calculated length exceeded (expected '+ {do not localize}
       Sys.IntToStr(4 * trunc((LBufSize + 2)/3)) +
       ', about to go '+                                               {do not localize}
