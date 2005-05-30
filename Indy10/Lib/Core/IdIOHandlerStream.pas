@@ -231,8 +231,8 @@ procedure TIdIOHandlerStream.Close;
 begin
   inherited;
   if FreeStreams then begin
-    ReceiveStream.Free;
-    SendStream.Free;
+    Sys.FreeAndNil(FReceiveStream);
+    Sys.FreeAndNil(FSendStream);
   end;
 end;
 
