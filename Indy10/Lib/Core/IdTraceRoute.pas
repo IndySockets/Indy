@@ -49,12 +49,13 @@ procedure TIdTraceRoute.Trace;
 var i : Integer;
   lSeq : Cardinal;
   LTTL : Integer;
- // LIP : String;
+
 begin
-   //LIP := GStack.ResolveHost(AHost,FIPVersion)
+
   PacketSize := 64;
-//  Connect;
-  FIPAddr :=  GStack.ResolveHost(FIPAddr,FIPVersion);
+//We do things this way because we only want to resolve the destination host name
+//only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
+  FIPAddr :=  GStack.ResolveHost(FHost,FIPVersion);
   try
 
    LSeq := $100;
