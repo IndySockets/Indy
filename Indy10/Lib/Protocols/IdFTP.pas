@@ -756,7 +756,7 @@ type
     fpcmUserPass,//USER user@firewalluser@hostname / PASS pass@firewallpass
     fpcmTransparent, //First use the USER and PASS command with the firewall username and password, and then with the target host username and password.
     fpcmUserHostFireWallID,  //USER hostuserId@hostname firewallUsername
-
+    fpcmNovellBorder, //Novell BorderManager Proxy
     fpcmHttpProxyWithFtp, //HTTP Proxy with FTP support. Will be supported in Indy 10
     fpcmCustomProxy // use OnCustomFTPProxy to customize the proxy login
   ); //TIdFtpProxyType
@@ -2336,6 +2336,7 @@ begin
     end;//fpcmNone
   fpcmUserSite:
     begin
+      //This also supports WinProxy
       if (Length(ProxySettings.UserName)>0) then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin {do not localize}
           SendCmd('PASS ' + ProxySettings.Password, 230); {do not localize}
@@ -2484,6 +2485,42 @@ begin
          end;
        end;
     end; //fpcmUserHostFireWallID
+  fpcmNovellBorder : //Novell Border PRoxy
+   begin
+{Done like this:
+
+USER ProxyUserName$ DestFTPUserName$DestFTPHostName
+
+PASS UsereDirectoryPassword$ DestFTPPassword
+
+Novell BorderManager 3.8 Proxy and Firewall Overview and Planning Guide
+Copyright © 1997-1998, 2001, 2002-2003, 2004 Novell, Inc. All rights reserved.
+===
+From a WS-FTP Pro firescript at:
+
+http://support.ipswitch.com/kb/WS-20050315-DM01.htm
+
+send ("USER %FwUserId$%HostUserId$%HostAddress") 
+
+//send ("PASS %FwPassword$%HostPassword")
+
+}
+       if SendCmd(Sys.Trim('USER '+ProxySettings.UserName+'$'+Username+'$'+FtpHost),[230, 331]) = 331 then    {do not localize}
+       begin
+         if SendCmd('PASS '+ProxySettings.UserName+'$'+GetLoginPassword,[230,232,202,332])=332 then
+         begin
+           if IsAccountNeeded then
+           begin
+	      	   if CheckAccount then begin
+               SendCmd('ACCT ' + FAccount, [202, 230, 500]);  {do not localize}
+             end
+	   	       else begin
+               RaiseExceptionForLastCmdResult
+             end;
+           end;
+         end;
+       end;
+   end;
   fpcmHttpProxyWithFtp :
     begin
 {GET ftp://XXX:YYY@indy.nevrona.com/ HTTP/1.0
