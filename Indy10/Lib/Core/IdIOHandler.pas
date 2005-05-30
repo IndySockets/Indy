@@ -580,7 +580,7 @@ type
       var VBuffer: TIdBytes
       );
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
-    procedure PerformCapture(ADest: TObject; out VLineCount: Integer;
+    procedure PerformCapture(const ADest: TObject; out VLineCount: Integer;
      const ADelim: string; AIsRFCMessage: Boolean); virtual;
     procedure RaiseConnClosedGracefully;
     procedure SetDestination(const AValue: string); virtual;
@@ -1458,7 +1458,7 @@ begin
   finally EndWork(wmRead); end;
 end;
 
-procedure TIdIOHandler.PerformCapture(ADest: TObject;
+procedure TIdIOHandler.PerformCapture(const ADest: TObject;
   out VLineCount: Integer; const ADelim: string;
   AIsRFCMessage: Boolean);
 var
@@ -1470,48 +1470,43 @@ begin
 
   LStream := nil;
   LStrings := nil;
-  try
-    if ADest is TIdStrings then begin
-      LStrings := TIdStrings(ADest);
-    end else if ADest is TIdStream2 then begin
-      LStream := TIdStream2(ADest);
-    end else begin
-      EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
-    end;
 
-    BeginWork(wmRead); try
-      repeat
-        s := ReadLn;
-        if s = ADelim then begin
-          Exit;
-        end;
-        // S.G. 6/4/2004: All the consumers to protect themselves against memory allocation attacks
-        if FMaxCapturedLines > 0 then  begin
-          if VLineCount > FMaxCapturedLines then begin
-            raise EIdMaxCaptureLineExceeded.Create(RSMaximumNumberOfCaptureLineExceeded);
-          end;
-        end;
-        // For RFC 822 retrieves
-        // No length check necessary, if only one byte it will be byte x + #0.
-        if AIsRFCMessage then begin
-          if (Copy(s, 1, 2) = '..') then begin
-            Delete(s, 1, 1);
-          end;
-        end;
-        // Write to output
-        Inc(VLineCount);
-        if LStrings <> nil then begin
-          LStrings.Add(s);
-        end else if LStream <> nil then begin
-          WriteStringToStream(LStream, s);
-        end;
-      until False;
-    finally EndWork(wmRead); end;
-  finally
-    if LStream <> nil then begin
-      Sys.FreeAndNil(LStream);
-    end;
+  if ADest is TIdStrings then begin
+    LStrings := TIdStrings(ADest);
+  end else if ADest is TIdStream2 then begin
+    LStream := TIdStream2(ADest);
+  end else begin
+    EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
   end;
+
+  BeginWork(wmRead); try
+    repeat
+      s := ReadLn;
+      if s = ADelim then begin
+        Exit;
+      end;
+      // S.G. 6/4/2004: All the consumers to protect themselves against memory allocation attacks
+      if FMaxCapturedLines > 0 then  begin
+        if VLineCount > FMaxCapturedLines then begin
+          raise EIdMaxCaptureLineExceeded.Create(RSMaximumNumberOfCaptureLineExceeded);
+        end;
+      end;
+      // For RFC 822 retrieves
+      // No length check necessary, if only one byte it will be byte x + #0.
+      if AIsRFCMessage then begin
+        if (Copy(s, 1, 2) = '..') then begin
+          Delete(s, 1, 1);
+        end;
+      end;
+      // Write to output
+      Inc(VLineCount);
+      if LStrings <> nil then begin
+        LStrings.Add(s);
+      end else if LStream <> nil then begin
+        WriteStringToStream(LStream, s);
+      end;
+    until False;
+  finally EndWork(wmRead); end;
 end;
 
 function TIdIOHandler.InputLn(const AMask: String; AEcho: Boolean;
