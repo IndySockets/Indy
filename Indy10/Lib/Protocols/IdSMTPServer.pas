@@ -101,9 +101,10 @@ type
     var VAction : TIdMailFromReply) of object;
   TOnRcptToEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
     var VAction : TIdRCPToReply; var VForward : String) of object;
-  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg : TIdStream2;
+  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream2;
     var LAction : TIdDataReply) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; AReceived : String) of object;
+
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
     //events
@@ -114,6 +115,10 @@ type
     FOnReceived : TOnReceived;
     //misc
     FServerName : String;
+    //
+    function CreateGreeting: TIdReply; override;
+    function CreateReplyUnknownCommand: TIdReply; override;
+    //
     function DoAuthLogin(ASender: TIdCommand; const Login:string): Boolean;
     //command handlers
     procedure CommandNOOP(ASender: TIdCommand);
@@ -239,7 +244,8 @@ uses
 
 procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
   const AReply: TIdReply);
-var LTmp : String;
+var
+  LTmp : String;
   i : Integer;
   LReply : TIdReply;
 const
@@ -247,34 +253,24 @@ const
 begin
   LTmp := ALine;
   //First make the first word uppercase
-  for i := 1 to Length(LTmp) do
-  begin
-    if CharIsInSet(LTmp,i,LWhiteSet) then
-    begin
+  for i := 1 to Length(LTmp) do begin
+    if CharIsInSet(LTmp, i, LWhiteSet) then begin
       Break;
-    end
-    else
-    begin
+    end else begin
       LTmp[i] := UpCase(LTmp[i]);
     end;
   end;
   try
-    if Assigned(AReply) then
-    begin
+    if Assigned(AReply) then begin
       LReply := AReply;
-    end
-    else
-    begin
-      LReply := FReplyClass.Create(nil, ReplyTexts);
+    end else begin
+      LReply := TIdReplySMTP.Create(nil, ReplyTexts);
       LReply.Assign(ReplyUnknownCommand);
     end;
 //    LReply.Text.Clear;
-   if (AContext as TIdSMTPServerContext).Ehlo then begin
-     (LReply as TIdReplySMTP).SetEnhReply(500, '5.0.0', Sys.Format(RSFTPCmdNotRecognized,[LTmp])); {do not localize}
-   end else begin
-     LReply.SetReply(500, Sys.Format(RSFTPCmdNotRecognized,[LTmp]));
-   end;
-//    LReply.Text.Add(Format(RSFTPCmdNotRecognized,[LTmp]));
+    SetEnhReply(LReply, 500, '5.0.0', Sys.Format(RSFTPCmdNotRecognized,[LTmp]), {do not localize}
+      TIdSMTPServerContext(AContext).Ehlo);
+//    LReply.Text.Add(Sys.Format(RSFTPCmdNotRecognized,[LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
@@ -285,8 +281,8 @@ end;
 
 procedure TIdSMTPServer.BadSequenceError(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,503,Id_EHR_PR_OTHER_PERM,RSSMTPSvrBadSequence,
-   (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 503, Id_EHR_PR_OTHER_PERM, RSSMTPSvrBadSequence,
+   TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.CmdSyntaxError(ASender: TIdCommand);
@@ -295,22 +291,31 @@ begin
   ASender.PerformReply := False;
 end;
 
-procedure TIdSMTPServer.CommandEHLO(ASender: TIdCommand);
-var LS : TIdReplySMTP;
-    LContext : TIdSMTPServerContext;
+function TIdSMTPServer.CreateGreeting: TIdReply;
 begin
-  LContext := ASender.Context as TIdSMTPServerContext;
-  LS := ASender.Reply as TIdReplySMTP;
-  LS.SetEnhReply(250,'',Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]));
-  if Assigned(FOnUserLogin) then
-  begin
-    LS.Text.Add('AUTH LOGIN');    {Do not Localize}
+  Result := TIdReplySMTP.Create(nil, ReplyTexts);
+  TIdReplySMTP(Result).SetEnhReply(220, '' ,RSSMTPSvrWelcome)
+end;
+
+function TIdSMTPServer.CreateReplyUnknownCommand: TIdReply;
+begin
+  Result := TIdReplySMTP.Create(nil, ReplyTexts);
+  TIdReplySMTP(Result).SetEnhReply(500, Id_EHR_PR_SYNTAX_ERR, 'Syntax Error'); {do not localize}
+end;
+
+procedure TIdSMTPServer.CommandEHLO(ASender: TIdCommand);
+var
+  LContext : TIdSMTPServerContext;
+begin
+  LContext := TIdSMTPServerContext(ASender.Context);
+  SetEnhReply(ASender.Reply, 250, '', Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]), True);
+  if Assigned(FOnUserLogin) then begin
+    ASender.Reply.Text.Add('AUTH LOGIN');    {Do not Localize}
   end;
-  LS.Text.Add('ENHANCEDSTATUSCODES'); {do not localize}
-  LS.Text.Add('PIPELINING'); {do not localize}
-  if FUseTLS in ExplicitTLSVals then
-  begin
-    LS.Text.Add('STARTTLS');    {Do not Localize}
+  ASender.Reply.Text.Add('ENHANCEDSTATUSCODES'); {do not localize}
+  ASender.Reply.Text.Add('PIPELINING'); {do not localize}
+  if FUseTLS in ExplicitTLSVals then begin
+    ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
   end;
   LContext.EHLO := True;
   LContext.SMTPState := idSMTPHelo;
@@ -344,10 +349,6 @@ begin
   FImplicitTLSProtPort := IdPORT_ssmtp;
   DefaultPort := IdPORT_SMTP;
   FServerName  := 'Indy SMTP Server'; {do not localize}
-  LS := (ReplyUnknownCommand as TIdReplySMTP);
-  LS.SetEnhReply(500, Id_EHR_PR_SYNTAX_ERR, 'Syntax Error'); {do not localize}
-  LS := (Greeting as TIdReplySMTP);
-  LS.SetEnhReply(220, '' ,RSSMTPSvrWelcome);
 end;
 
 
@@ -424,7 +425,8 @@ end;
 
 procedure TIdSMTPServer.MustUseTLS(ASender: TIdCommand);
 begin
-    SetEnhReply(ASender.Reply,530,Id_EHR_USE_STARTTLS,RSSMTPSvrReqSTARTTLS, (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 530, Id_EHR_USE_STARTTLS, RSSMTPSvrReqSTARTTLS,
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.CommandAUTH(ASender: TIdCommand);
@@ -458,27 +460,23 @@ begin
 end;
 
 procedure TIdSMTPServer.CommandHELO(ASender: TIdCommand);
-var LS : TIdSMTPServerContext;
+var
+  LContext : TIdSMTPServerContext;
 begin
-  LS := ASender.Context as TIdSMTPServerContext;
-    if LS.SMTPState <> idSMTPNone then
-    begin
-      BadSequenceError(ASender);
-      Exit;
-    end;
-
-  if Length(ASender.UnparsedParams) > 0 then
-  begin
-    ASender.Reply.SetReply(250,Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]));
-    LS.HELO := True;
-    LS.SMTPState := idSMTPHelo;
-    LS.HeloString := ASender.UnparsedParams;
-  end
-  else
-  begin
-    ASender.Reply.SetReply(501,RSSMTPSvrParmErr);
+  LContext := TIdSMTPServerContext(ASender.Context);
+  if LContext.SMTPState <> idSMTPNone then begin
+    BadSequenceError(ASender);
+    Exit;
   end;
-  LS.PipeLining := False;
+  if Length(ASender.UnparsedParams) > 0 then begin
+    ASender.Reply.SetReply(250, Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]));
+    LContext.HELO := True;
+    LContext.SMTPState := idSMTPHelo;
+    LContext.HeloString := ASender.UnparsedParams;
+  end else begin
+    ASender.Reply.SetReply(501, RSSMTPSvrParmErr);
+  end;
+  LContext.PipeLining := False;
 end;
 
 function TIdSMTPServer.DoAuthLogin(ASender: TIdCommand;
@@ -488,281 +486,268 @@ var
   LUsername, LPassword: string;
   LAuthFailed: Boolean;
   LAccepted: Boolean;
-  LS : TIdSMTPServerContext;
+  LContext : TIdSMTPServerContext;
 begin
-  LS := ASender.Context as TIdSMTPServerContext;
+  LContext := TIdSMTPServerContext(ASender.Context);
   Result := False;
   LAuthFailed := False;
-  TIdSMTPServerContext(ASender.Context).PipeLining := False;
-  if Sys.UpperCase(Login) = 'LOGIN' then    {Do not Localize}
-  begin // LOGIN USING THE LOGIN AUTH - BASE64 ENCODED
+  LContext.PipeLining := False;
+  if TextIsSame(Login, 'LOGIN') then begin   {Do not Localize}
+    // LOGIN USING THE LOGIN AUTH - BASE64 ENCODED
     s := TIdEncoderMIME.EncodeString('Username:');     {Do not Localize}
     //  s := SendRequest( '334 ' + s );    {Do not Localize}
-    ASender.Reply.SetReply (334, s);    {Do not Localize}
+    ASender.Reply.SetReply(334, s);    {Do not Localize}
     ASender.SendReply;
-    s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
-    if s <> '' then    {Do not Localize}
-    begin
+    s := Sys.Trim(LContext.Connection.IOHandler.ReadLn);
+    if s <> '' then begin   {Do not Localize}
       try
-        s := TIdDecoderMIME.DecodeString(s);
-
-        LUsername := s;
+        LUsername := TIdDecoderMIME.DecodeString(s);
         // What? Endcode this string literal?
         s := TIdEncoderMIME.EncodeString('Password:');    {Do not Localize}
         //    s := SendRequest( '334 ' + s );    {Do not Localize}
         ASender.Reply.SetReply(334, s);    {Do not Localize}
         ASender.SendReply;
         s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
-        if Length(s) = 0 then
-        begin
-          LAuthFailed := True;
-        end
-        else
-        begin
+        if Length(s) > 0 then begin
           LPassword := TIdDecoderMIME.DecodeString(s);
+        end else begin
+          LAuthFailed := True;
         end;
       // when TIdDecoderMime.DecodeString(s) raise a exception,catch it and set AuthFailed as true
       except
-        LAuthFailed := true;
+        LAuthFailed := True;
       end;
-    end
-    else
-    begin
+    end else begin
       LAuthFailed := True;
     end;
   end;
 
   // Add other login units here
 
-  if LAuthFailed then
-  begin
+  if LAuthFailed then begin
     Result := False;
     AuthFailed(ASender);
-  end
-  else
-  begin
+  end else begin
     LAccepted := False;
-    if Assigned(fOnUserLogin) then
-    begin
-      fOnUserLogin(LS,  LUsername, LPassword, LAccepted);
-    end
-    else
-    begin
+    if Assigned(FOnUserLogin) then begin
+      FOnUserLogin(LContext, LUsername, LPassword, LAccepted);
+    end else begin
       LAccepted := True;
     end;
-    LS.LoggedIn := LAccepted;
-    LS.Username := LUsername;
-    if not LAccepted then
-    begin
+    LContext.LoggedIn := LAccepted;
+    LContext.Username := LUsername;
+    if not LAccepted then begin
       AuthFailed(ASender);
-    end
-    else
-    begin
-      SetEnhReply(ASender.Reply,235,Id_EHR_SEC_OTHER_OK,' welcome ' + Sys.Trim(LUsername), (ASender.Context as TIdSMTPServerContext).EHLO);    {Do not Localize}
+    end else begin
+      SetEnhReply(ASender.Reply, 235, Id_EHR_SEC_OTHER_OK, ' welcome ' + Sys.Trim(LUsername), LContext.EHLO);    {Do not Localize}
       ASender.SendReply;
     end;
   end;
 end;
 
-procedure TIdSMTPServer.SetEnhReply(AReply: TIdReply;
-  const ANumericCode: Integer; const AEnhReply, AText: String; const IsEHLO: Boolean);
+procedure TIdSMTPServer.SetEnhReply(AReply: TIdReply; const ANumericCode: Integer;
+  const AEnhReply, AText: String; const IsEHLO: Boolean);
 begin
-  if (AReply is TIdReplySMTP) then
-   if IsEHLO then begin
-     (AReply as TIdReplySMTP).SetEnhReply(ANumericCode, AEnhReply, AText);
-   end else begin
-     AReply.SetReply(ANumericCode, AText);
-   end;
+  if IsEHLO and (AReply is TIdReplySMTP) then begin
+    TIdReplySMTP(AReply).SetEnhReply(ANumericCode, AEnhReply, AText);
+  end else begin
+    AReply.SetReply(ANumericCode, AText);
+  end;
 end;
 
 procedure TIdSMTPServer.AuthFailed(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,535,Id_EHR_SEC_OTHER_PERM,RSSMTPSvrAuthFailed, (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 535, Id_EHR_SEC_OTHER_PERM, RSSMTPSvrAuthFailed,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.AddrInvalid(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,500,Id_EHR_MSG_BAD_DEST, Sys.Format(RSSMTPSvrAddressError, [AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 500, Id_EHR_MSG_BAD_DEST, Sys.Format(RSSMTPSvrAddressError, [AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrNotWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
 begin
-  SetEnhReply(ASender.Reply,521,Id_EHR_SEC_DEL_NOT_AUTH,Sys.Format(RSSMTPUserNotLocal, [AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPUserNotLocal, [AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrValid(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,250, Id_EHR_MSG_VALID_DEST,Sys.Format(RSSMTPSvrAddressOk, [AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply,250, Id_EHR_MSG_VALID_DEST,Sys.Format(RSSMTPSvrAddressOk, [AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrNoRelaying(ASender: TIdCommand;
   const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply,550, Id_EHR_SEC_DEL_NOT_AUTH,Sys.Format( RSSMTPSvrNoRelay, [AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNoRelay, [AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrWillForward(ASender: TIdCommand; const AAddress : String = '');
 begin
 // Note, changed format from RSSMTPUserNotLocal as it now has two %s.
-  SetEnhReply(ASender.Reply,251, Id_EHR_MSG_VALID_DEST,Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 251, Id_EHR_MSG_VALID_DEST, Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrTooManyRecipients(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,250,Id_EHR_PR_TOO_MANY_RECIPIENTS_PERM, RSSMTPTooManyRecipients, (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply,250,Id_EHR_PR_TOO_MANY_RECIPIENTS_PERM, RSSMTPTooManyRecipients,
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrDisabledPerm(ASender: TIdCommand;
   const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply,550,Id_EHR_MB_DISABLED_PERM,Sys.Format(RSSMTPAccountDisabled,[AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_PERM, Sys.Format(RSSMTPAccountDisabled,[AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrDisabledTemp(ASender: TIdCommand;
   const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply,550,Id_EHR_MB_DISABLED_TEMP,Sys.Format(RSSMTPAccountDisabled,[AAddress]), (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_TEMP, Sys.Format(RSSMTPAccountDisabled,[AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.MailSubmitLimitExceeded(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,552,Id_EHR_MB_MSG_LEN_LIMIT,RSSMTPMsgLenLimit, (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 552, Id_EHR_MB_MSG_LEN_LIMIT, RSSMTPMsgLenLimit,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailSubmitLocalProcessingError(
   ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,451,Id_EHR_MD_OTHER_TRANS,RSSMTPLocalProcessingError, (ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 451, Id_EHR_MD_OTHER_TRANS, RSSMTPLocalProcessingError,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailSubmitOk(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,250,'',RSSMTPSvrOk,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 250, '', RSSMTPSvrOk, TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailSubmitStorageExceededFull(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,552,Id_EHR_MB_FULL,RSSMTPSvrExceededStorageAlloc,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 552, Id_EHR_MB_FULL, RSSMTPSvrExceededStorageAlloc,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailSubmitSystemFull(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,452,Id_EHR_MD_MAIL_SYSTEM_FULL,RSSMTPSvrInsufficientSysStorage,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 452, Id_EHR_MD_MAIL_SYSTEM_FULL, RSSMTPSvrInsufficientSysStorage,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailSubmitTransactionFailed(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,554,Id_EHR_MB_OTHER_STATUS_TRANS,RSSMTPSvrTransactionFailed,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 554, Id_EHR_MB_OTHER_STATUS_TRANS, RSSMTPSvrTransactionFailed,
+    TIdSMTPServerContext(ASender.Context).EHLO);
   ASender.SendReply;
 end;
 
 procedure TIdSMTPServer.MailFromAccept(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,250,Id_EHR_MSG_OTH_OK, Sys.Format(RSSMTPSvrAddressOk,[AAddress]),(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_OTH_OK, Sys.Format(RSSMTPSvrAddressOk,[AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.MailFromReject(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,250,Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNotPermitted,[AAddress]),(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNotPermitted,[AAddress]),
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.NoHello(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,501,Id_EHR_PR_OTHER_PERM, RSSMTPSvrNoHello,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 501, Id_EHR_PR_OTHER_PERM, RSSMTPSvrNoHello,
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.CommandMAIL(ASender: TIdCommand);
 var
   EMailAddress: TIdEMailAddressItem;
-  LS : TIdSMTPServerContext;
+  LContext : TIdSMTPServerContext;
   LM : TIdMailFromReply;
 begin
   //Note that unlike other protocols, it might not be possible
   //to completely disable MAIL FROM for people not using SSL
   //because SMTP is also used from server to server mail transfers.
-  LS := ASender.Context as TIdSMTPServerContext;
-  if LS.HELO Or LS.EHLO then // Looking for either HELO or EHLO
-  begin
-
+  LContext := TIdSMTPServerContext(ASender.Context);
+  if LContext.HELO or LContext.EHLO then begin // Looking for either HELO or EHLO
     //reset all information
-    LS.From := '';    {Do not Localize}
-    LS.RCPTList.Clear;
-
-    if Sys.Uppercase(Copy(ASender.UnparsedParams, 1, 5)) = 'FROM:' then    {Do not Localize}
-    begin
+    LContext.From := '';    {Do not Localize}
+    LContext.RCPTList.Clear;
+    if TextIsSame(Copy(ASender.UnparsedParams, 1, 5), 'FROM:') then begin   {Do not Localize}
       EMailAddress := TIdEMailAddressItem.Create(nil);
-      Try
-        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 6,Length(ASender.UnparsedParams)));
+      try
+        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 6, MaxInt));
         LM := mAccept;
-        if Assigned(FOnMailFrom) then
-        begin
-          FOnMailFrom(LS,EMailAddress.Address,LM);
+        if Assigned(FOnMailFrom) then begin
+          FOnMailFrom(LContext, EMailAddress.Address, LM);
         end;
         case LM of
           mAccept :
           begin
-            MailFromAccept(ASender,EMailAddress.Address);
-            LS.From := EMailAddress.Address;
-            LS.SMTPState := idSMTPMail;
+            MailFromAccept(ASender, EMailAddress.Address);
+            LContext.From := EMailAddress.Address;
+            LContext.SMTPState := idSMTPMail;
           end;
           mReject :
           begin
-            MailFromReject(ASender,EMailAddress.Text);
+            MailFromReject(ASender, EMailAddress.Text);
           end;
         end;
-      Finally
+      finally
        Sys.FreeAndNil(EMailAddress);
-      End;
-    end
-    else
-    begin
+      end;
+    end else begin
       InvalidSyntax(ASender);
     end;
-  end
-  else // No EHLO / HELO was received
-  begin
+  end else begin // No EHLO / HELO was received
     NoHello(ASender);
   end;
-  TIdSMTPServerContext(ASender.Context).CheckPipeLine;
+  LContext.CheckPipeLine;
 end;
 
 procedure TIdSMTPServer.InvalidSyntax(ASender: TIdCommand);
 begin
-  SetEnhReply(ASender.Reply,501,Id_EHR_PR_INVALID_CMD_ARGS,RSPOP3SvrInvalidSyntax,(ASender.Context as TIdSMTPServerContext).EHLO);
+  SetEnhReply(ASender.Reply, 501, Id_EHR_PR_INVALID_CMD_ARGS, RSPOP3SvrInvalidSyntax,
+    TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.CommandRCPT(ASender: TIdCommand);
 var
   EMailAddress: TIdEMailAddressItem;
-  LS : TIdSMTPServerContext;
+  LContext : TIdSMTPServerContext;
   LAction : TIdRCPToReply;
   LForward : String;
 begin
   LForward := '';
-  LS := ASender.Context as TIdSMTPServerContext;
-  if (LS.SMTPState <> idSMTPMail) AND (LS.SMTPState <> idSMTPRcpt) then
-  begin
+  LContext := TIdSMTPServerContext(ASender.Context);
+  if (LContext.SMTPState <> idSMTPMail) and (LContext.SMTPState <> idSMTPRcpt) then begin
     BadSequenceError(ASender);
     Exit;
   end;
-
-  if LS.HELO or LS.EHLO then
-  begin
-    if (Sys.Uppercase(Copy(ASender.UnparsedParams, 1, 3)) = 'TO:') then    {Do not Localize}
-    begin
+  if LContext.HELO or LContext.EHLO then begin
+    if TextIsSame(Copy(ASender.UnparsedParams, 1, 3), 'TO:') then begin   {Do not Localize}
       LAction :=  rRelayDenied;
       //do not change this in the OnRcptTo event unless one of the following
       //things is TRUE:
       //
       //1.  The user authenticated to the SMTP server
       //
-      //2.  The user has is from an IP address being served by the SMTP server.
+      //2.  The user is from an IP address being served by the SMTP server.
       //    Test the IP address for this.
       //
       //3.  Another SMTP server outside of your network is sending E-Mail to a
@@ -773,27 +758,25 @@ begin
       //you have a security hazard that spammers can abuse.
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
-        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 4,
-          Length(ASender.UnparsedParams)));
-        if Assigned(FOnRcptTo) then
-        begin
-          FOnRcptTo(LS,EMailAddress.Address,LAction,LForward);
+        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 4, MaxInt));
+        if Assigned(FOnRcptTo) then begin
+          FOnRcptTo(LContext, EMailAddress.Address, LAction, LForward);
           case LAction of
             rAddressOk :
             begin
               AddrValid(ASender, EMailAddress.Address);
-              LS.RCPTList.Add.Text := EMailAddress.Text;
-              LS.SMTPState := idSMTPRcpt;
+              LContext.RCPTList.Add.Text := EMailAddress.Text;
+              LContext.SMTPState := idSMTPRcpt;
             end;
             rRelayDenied :
             begin
-              AddrNoRelaying( ASender, EMailAddress.Address );
+              AddrNoRelaying(ASender, EMailAddress.Address);
             end;
             rWillForward :
             begin
-              AddrWillForward( ASender, EMailAddress.Address );
-              LS.RCPTList.Add.Text := EMailAddress.Text;
-              LS.SMTPState := idSMTPRcpt;
+              AddrWillForward(ASender, EMailAddress.Address);
+              LContext.RCPTList.Add.Text := EMailAddress.Text;
+              LContext.SMTPState := idSMTPRcpt;
             end;
             rNoForward : AddrNotWillForward(ASender, EMailAddress.Address, LForward);
             rTooManyAddresses : AddrTooManyRecipients(ASender);
@@ -802,51 +785,47 @@ begin
           else
             AddrInvalid(ASender, EMailAddress.Address);
           end;
-        end
-        else
-        begin
+        end else begin
           raise EIdSMTPServerNoRcptTo.Create(RSSMTPNoOnRcptTo);
         end;
       finally
        Sys.FreeAndNil(EMailAddress);
       end;
-    end
-    else
-    begin
-      SetEnhReply(ASender.Reply,501,Id_EHR_PR_SYNTAX_ERR,RSSMTPSvrParmErrRcptTo,(ASender.Context as TIdSMTPServerContext).EHLO);
+    end else begin
+      SetEnhReply(ASender.Reply, 501, Id_EHR_PR_SYNTAX_ERR,RSSMTPSvrParmErrRcptTo,
+        LContext.EHLO);
     end;
-  end
-  else // No EHLO / HELO was received
-  begin
+  end else begin // No EHLO / HELO was received
     NoHello(ASender);
   end;
-  TIdSMTPServerContext(ASender.Context).CheckPipeLine;
+  LContext.CheckPipeLine;
 end;
 
 procedure TIdSMTPServer.CommandSTARTTLS(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
-  LS : TIdSMTPServerContext;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
+  LContext : TIdSMTPServerContext;
 begin
-  LS := ASender.Context as TIdSMTPServerContext;
+  LContext := TIdSMTPServerContext(ASender.Context);
   if FUseTLS in ExplicitTLSVals then begin
-    if TIdSMTPServerContext(ASender.Context).UsingTLS then begin // we are already using TLS
-      Self.BadSequenceError(ASender);
+    if LContext.UsingTLS then begin // we are already using TLS
+      BadSequenceError(ASender);
       Exit;
     end;
-    SetEnhReply(ASender.Reply,220,Id_EHR_GENERIC_OK,RSSMTPSvrReadyForTLS, (ASender.Context as TIdSMTPServerContext).EHLO);
-
-    LS.PipeLining := False;
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-    LIO.Passthrough := False;
-    LS.SMTPState:=idSMTPNone; // to reset the state
-    LS.HELO:=false;           //
-    LS.EHLO:=false;           //
-    LS.Username := '';        //
-    LS.Password := '';         //
-    LS.LoggedIn:=false;       //
+    SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS,
+      LContext.EHLO);
+    LContext.PipeLining := False;
+    LIO := TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler);
+    LIO.PassThrough := False;
+    LContext.SMTPState := idSMTPNone; // to reset the state
+    LContext.HELO := False;           //
+    LContext.EHLO := False;           //
+    LContext.Username := '';        //
+    LContext.Password := '';         //
+    LContext.LoggedIn := False;       //
   end else begin
     CmdSyntaxError(ASender);
-    TIdSMTPServerContext(ASender.Context).PipeLining := False;
+    LContext.PipeLining := False;
   end;
 end;
 
@@ -864,108 +843,98 @@ begin
 end;
 
 procedure TIdSMTPServer.CommandRSET(ASender: TIdCommand);
-var LS : TIdSMTPServerContext;
+var
+  LContext : TIdSMTPServerContext;
 begin
-  LS := ASender.Context as TIdSMTPServerContext;
-  LS.RCPTList.Clear;
-  LS.From := '';    {Do not Localize}
-
-  if LS.Ehlo or LS.Helo then
-  begin
-      LS.SMTPState := idSMTPHelo;
-  end
-  else
-  begin
-      LS.SMTPState := idSMTPNone;
+  LContext := TIdSMTPServerContext(ASender.Context);
+  LContext.RCPTList.Clear;
+  LContext.From := '';    {Do not Localize}
+  if LContext.Ehlo or LContext.Helo then begin
+    LContext.SMTPState := idSMTPHelo;
+  end else begin
+    LContext.SMTPState := idSMTPNone;
   end;
-
-  LS.CheckPipeLine;
+  LContext.CheckPipeLine;
 end;
 
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
 var
-  LS : TIdSMTPServerContext;
+  LContext : TIdSMTPServerContext;
   LStream: TIdStream2;
   AMsg : TIdStream2;
   LAction : TIdDataReply;
-  ReceivedString : String;
+  LReceivedString : String;
   //we do it this way so we can take advantage of the StringBuilder
   //in DotNET.
   ReplaceOld,
   ReplaceNew : array of string;
 begin
-  ReceivedString := IdSMTPSvrReceivedString;
-  LS := ASender.Context as TIdSMTPServerContext;
-  if (LS.SMTPState <> idSMTPRcpt) then
-  begin
+  LReceivedString := IdSMTPSvrReceivedString;
+  LContext := TIdSMTPServerContext(ASender.Context);
+  if (LContext.SMTPState <> idSMTPRcpt) then begin
     BadSequenceError(ASender);
     Exit;
   end;
-  if LS.HELO or LS.EHLO then
-  begin
-    SetEnhReply(ASender.Reply,354, '',RSSMTPSvrStartData,(ASender.Context as TIdSMTPServerContext).EHLO);
+  if LContext.HELO or LContext.EHLO then begin
+    SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
     ASender.SendReply;
-    LS.PipeLining := False;
+    LContext.PipeLining := False;
     LStream := TIdMemoryStream.Create;
-    AMsg    := TIdMemoryStream.Create;
     try
-      LAction := dOk;
-      ASender.Context.Connection.IOHandler.Capture(LStream, '.', True);    {Do not Localize}
-      LStream.Position := 0;
-      if Assigned(OnReceived) then
-      begin
-        FOnReceived(LS, ReceivedString);
-      end;
-      if LS.FinalStage then
-       Begin
-        // If at the final delivery stage, add the Return-Path line for the received MAIL FROM line.
-        WriteStringToStream(AMsg, 'Received-Path: <' + LS.From + '>' + EOL); {do not localize}
-       End;
-
-      if ReceivedString <> '' then
-       Begin
-        // Parse the ReceivedString and replace any of the special 'tokens'
-        SetLength(ReplaceNew,7);
-        SetLength(ReplaceOld,7);
-        ReplaceOld[0] :=  '$hostname';  {do not localize}
-        ReplaceNew[0] := GStack.HostByAddress(ASender.Context.Binding.PeerIP);
-
-        ReplaceOld[1] :=  '$ipaddress';  {do not localize}
-        ReplaceNew[1] := ASender.Context.Binding.PeerIP;
-
-        ReplaceOld[2] := '$helo';        {do not localize}
-        ReplaceNew[2] :=  LS.HeloString;
-
-        if LS.EHLO then
-        begin
-          ReplaceOld[3] := '$protocol';   {do not localize}
-          ReplaceNew[3] := 'esmtp'; {do not localize}
-        end
-        else
-        begin
-          ReplaceOld[3] := '$protocol';   {do not localize}
-          ReplaceNew[3] := 'smtp'; {do not localize}
+      AMsg := TIdMemoryStream.Create;
+      try
+        LAction := dOk;
+        LContext.Connection.IOHandler.Capture(LStream, '.', True);    {Do not Localize}
+        LStream.Position := 0;
+        if Assigned(FOnReceived) then begin
+          FOnReceived(LContext, LReceivedString);
         end;
-        ReplaceOld[4] := '$servername'; {do not localize}
-        ReplaceNew[4] := FServerName;   {do not localize}
+        if LContext.FinalStage then begin
+          // If at the final delivery stage, add the Return-Path line for the received MAIL FROM line.
+          WriteStringToStream(AMsg, 'Received-Path: <' + LContext.From + '>' + EOL); {do not localize}
+        end;
+        if LReceivedString <> '' then begin
+          // Parse the ReceivedString and replace any of the special 'tokens'
+          SetLength(ReplaceNew, 7);
+          SetLength(ReplaceOld, 7);
 
-        ReplaceOld[5] := '$svrhostname';
-        ReplaceNew[5] := GStack.HostByAddress(ASender.Context.Binding.IP);
+          ReplaceOld[0] := '$hostname';  {do not localize}
+          ReplaceNew[0] := GStack.HostByAddress(LContext.Binding.PeerIP);
 
-        ReplaceOld[6] := '$svripaddress';
-        ReplaceNew[6] := ASender.Context.Binding.IP;
+          ReplaceOld[1] :=  '$ipaddress';  {do not localize}
+          ReplaceNew[1] := LContext.Binding.PeerIP;
 
-        ReceivedString:=Sys.StringReplace(ReceivedString,ReplaceOld,ReplaceNew);
-        WriteStringToStream(AMsg, ReceivedString + EOL);
-       End;
-      AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
-      if Assigned(OnMsgReceive) then
-      begin
-        FOnMsgReceive(LS,AMsg,LAction);
+          ReplaceOld[2] := '$helo';        {do not localize}
+          ReplaceNew[2] :=  LContext.HeloString;
+
+          ReplaceOld[3] := '$protocol';   {do not localize}
+          if LS.EHLO then begin
+            ReplaceNew[3] := 'esmtp'; {do not localize}
+          else else begin
+            ReplaceNew[3] := 'smtp'; {do not localize}
+          end;
+
+          ReplaceOld[4] := '$servername'; {do not localize}
+          ReplaceNew[4] := FServerName;   {do not localize}
+
+          ReplaceOld[5] := '$svrhostname';
+          ReplaceNew[5] := GStack.HostByAddress(LContext.Binding.IP);
+
+          ReplaceOld[6] := '$svripaddress';
+          ReplaceNew[6] := LContext.Binding.IP;
+
+          LReceivedString := Sys.StringReplace(LReceivedString, ReplaceOld, ReplaceNew);
+          WriteStringToStream(AMsg, LReceivedString + EOL);
+        end;
+        AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
+        if Assigned(OnMsgReceive) then begin
+          FOnMsgReceive(LContext, AMsg, LAction);
+        end;
+      finally
+        Sys.FreeAndNil(AMsg);
       end;
     finally
       Sys.FreeAndNil(LStream);
-      Sys.FreeAndNil(AMsg);
     end;
     case LAction of
     dOk                   : MailSubmitOk(ASender); //accept the mail message
@@ -975,35 +944,32 @@ begin
     dTransactionFailed    : MailSubmitTransactionFailed(ASender); //transaction failed
     dLimitExceeded        : MailSubmitLimitExceeded(ASender); //exceeded administrative limit
     end;
-  end
-  else // No EHLO / HELO was received
-  begin
-    Self.NoHello(ASender);
+  end else begin // No EHLO / HELO was received
+    NoHello(ASender);
   end;
-  TIdSMTPServerContext(ASender.Context).PipeLining := False;
+  LContext.PipeLining := False;
 end;
 
 { TIdSMTPServerContext }
 
 procedure TIdSMTPServerContext.CheckPipeLine;
 begin
-  if Connection.IOHandler.InputBufferIsEmpty=False then
-  begin
+  if not Connection.IOHandler.InputBufferIsEmpty then begin
     PipeLining := True;
   end;
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TIdThreadList);
+  AYarn: TIdYarn; AList: TThreadList);
 begin
   inherited;
   SMTPState := idSMTPNone;
-  From:='';
-  HELO:=false;
-  EHLO:=false;
-  Username:='';
-  Password:='';
-  LoggedIn:=false;
+  From := '';
+  HELO := False;
+  EHLO := False;
+  Username := '';
+  Password := '';
+  LoggedIn := False;
   Sys.FreeAndNil(FRCPTList);
   FRCPTList := TIdEMailAddressList.Create(nil);
 end;
@@ -1014,27 +980,20 @@ begin
   inherited;
 end;
 
-function TIdSMTPServerContext.GetUsingTLS: boolean;
+function TIdSMTPServerContext.GetUsingTLS: Boolean;
 begin
-  Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then
-  begin
-    Result:=not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
+  if Result then begin
+    Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
   end;
 end;
 
 procedure TIdSMTPServerContext.SetPipeLining(const AValue: Boolean);
 begin
-  if AValue and (PipeLining = False) then
-  begin
+  if AValue and (not PipeLining) then begin
     Connection.IOHandler.WriteBufferOpen;
-  end
-  else
-  begin
-    if (AValue=False) and PipeLining then
-    begin
-      Connection.IOHandler.WriteBufferClose;
-    end;
+  end else if (not AValue) and PipeLining then begin
+    Connection.IOHandler.WriteBufferClose;
   end;
   FPipeLining := AValue;
 end;
