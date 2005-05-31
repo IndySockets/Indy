@@ -7,13 +7,13 @@
 { http://www.TeamCoherence.com                                         }
 {**********************************************************************}
 {}
-{ $Log:  58416: IdFTPListTypes.pas 
+{ $Log:  58416: IdFTPListTypes.pas
 {
 {   Rev 1.6    3/23/2005 4:52:28 AM  JPMugaas
 { Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
-{ 
+{
 { http://www.raidenftpd.com/kb/kb000000049.htm
-{ 
+{
 { This returns Win32 file attributes including some that Borland does not
 { support.
 }
@@ -32,7 +32,7 @@
 }
 {
 {   Rev 1.2    6/27/2004 1:45:36 AM  JPMugaas
-{ Can now optionally support LastAccessTime like Smartftp's FTP Server could. 
+{ Can now optionally support LastAccessTime like Smartftp's FTP Server could.
 { I also made the MLST listing object and parser support this as well.
 }
 {
@@ -48,7 +48,8 @@ unit IdFTPListTypes;
 
 interface
 
-uses IdFTPList, IdSys, IdObjs;
+uses
+  IdFTPList, IdSys, IdObjs;
 
 type
   //these two are for OS/2 and other MS-DOS-like file system FTP servers
@@ -84,6 +85,7 @@ type
     property Hidden : Boolean read GetHidden write SetHidden;
     property Normal : Boolean read GetNormal write SetNormal;
   end;
+
   TIdWin32ea = class(TIdDOSAttributes)
   protected
     function GetDevice: Boolean;
@@ -93,7 +95,7 @@ type
     function GetSparseFile: Boolean;
     procedure SetSparseFile(const AValue: Boolean);
     //THis is also called a junction and it works like a Unix Symbolic link to a dir
-    function GetReparsePoint: Boolean;  
+    function GetReparsePoint: Boolean;
     procedure SetReparsePoint(const AValue: Boolean);
     function GetCompressed: Boolean;
     procedure SetCompressed(const AValue: Boolean);
@@ -115,11 +117,13 @@ type
     property NotContextIndexed : Boolean read GetNotContextIndexed write SetNotContextIndexed;
     property Encrypted : Boolean read GetEncrypted write SetEncrypted;
   end;
+
   //For NLST and Cisco IOS
   TIdMinimalFTPListItem = class(TIdFTPListItem)
   public
     constructor Create(AOwner: TIdCollection); override;
   end;
+
   //This is for some mainframe items which are based on records
   TIdRecFTPListItem = class(TIdFTPListItem)
   protected
@@ -133,7 +137,8 @@ type
 
   public
   end;
-  TIdCreationDateFTPListItme = class(TIdFTPListItem)
+
+  TIdCreationDateFTPListItem = class(TIdFTPListItem)
   protected
     FCreationDate: TIdDateTime;
   public
@@ -141,8 +146,9 @@ type
     property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
 
   end;
+
   //for MLST output
-  TIdMLSTFTPListItem = class(TIdCreationDateFTPListItme)
+  TIdMLSTFTPListItem = class(TIdCreationDateFTPListItem)
   protected
     FAttributesAvail : Boolean;
     FAttributes :  TIdWin32ea;
@@ -173,6 +179,7 @@ type
     property AttributesAvail : Boolean read FAttributesAvail write FAttributesAvail;
     property Attributes :  TIdWin32ea read FAttributes;
   end;
+
   //for some parsers that output an owner sometimes
   TIdOwnerFTPListItem = class(TIdFTPListItem)
   protected
@@ -180,6 +187,7 @@ type
   public
     property OwnerName : String read FOwnerName write FOwnerName;
   end;
+
   //This class type is used by Novell Netware,
   //Novell Print Services for Unix with DOS namespace, and HellSoft FTPD for Novell Netware
   TIdNovellBaseFTPListItem = class(TIdOwnerFTPListItem)
@@ -188,6 +196,7 @@ type
   public
     property NovellPermissions : string read FNovellPermissions write FNovellPermissions;
   end;
+
   //Bull GCOS 8 uses this and Unix will use a descendent
   TIdUnixPermFTPListItem = class(TIdOwnerFTPListItem)
   protected
@@ -210,7 +219,6 @@ type
     property GroupName: string read FGroupName write FGroupName;
     property LinkedItemName : string read FLinkedItemName write FLinkedItemName;
   end;
-
 
   TIdDOSBaseFTPListItem = class(TIdFTPListItem)
   protected
@@ -238,10 +246,12 @@ const
   IdFILE_ATTRIBUTE_OFFLINE              = $00001000;
   IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED  = $00002000;
   IdFILE_ATTRIBUTE_ENCRYPTED            = $00004000;
-  
+
 implementation
 
-uses IdFTPCommon, IdGlobal;
+uses
+  IdFTPCommon, IdGlobal;
+
 { TIdMinimalFTPListItem }
 
 constructor TIdMinimalFTPListItem.Create(AOwner: TIdCollection);
@@ -490,9 +500,9 @@ begin
   end;
 end;
 
-{ TIdCreationDateFTPListItme }
+{ TIdCreationDateFTPListItem }
 
-constructor TIdCreationDateFTPListItme.Create(AOwner: TIdCollection);
+constructor TIdCreationDateFTPListItem.Create(AOwner: TIdCollection);
 begin
   inherited;
   SizeAvail := False;
@@ -639,11 +649,8 @@ end;
 
 function TIdWin32ea.GetAsString: String;
 //we'll do this similarly to 4NT
-//
 //which renders the bits like this order:
-//
 //RHSADENTJPCOI
-
 begin
   Result := '';
   if Read_Only then
@@ -750,9 +757,9 @@ begin
   begin
     Result := Result + ' ';
   end;
-//In this order
-//
-//RHSADENTJPCOI
+
+  //In this order
+  //RHSADENTJPCOI
 end;
 
 end.
