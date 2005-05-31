@@ -85,7 +85,20 @@ type
   TReplyStatusTypes = (rsEcho,
     rsError, rsTimeOut, rsErrorUnreachable,
     rsErrorTTLExceeded,rsErrorPacketTooBig,
-    rsErrorParameter,rsRedirect);
+    rsErrorParameter,
+    rsErrorDatagramConversion,
+    rsErrorSecurityFailure,
+    rsSourceQuench,
+    rsRedirect,
+    rsTimeStamp,
+    rsInfoRequest,
+    rsAddressMaskRequest,
+    rsTraceRoute,
+    rsMobileHostReg,
+    rsMobileHostRedir,
+    rsIPv6WhereAreYou,
+    rsIPv6IAmHere,
+    rsSKIP);
 
   TReplyStatus = class(TObject)
   protected
@@ -206,6 +219,48 @@ resourcestring
   RSICMPRedirTOSHost =    'Redirect datagrams for the Type of Service and Host.';
 //echo
   RSICMPEcho = 'Echo';
+//timestamp
+  RSICMPTimeStamp = 'Timestamp';
+//information request
+  RSICMPInfoRequest = 'Information Request';
+//mask request
+  RSICMPMaskRequest = 'Address Mask Request';
+// Traceroute
+  RSICMPTracePacketForwarded = 'Outbound Packet successfully forwarded';
+  RSICMPTraceNoRoute = 'No route for Outbound Packet; packet discarded';
+//conversion errors
+
+
+  RSICMPConvUnknownUnspecError = 'Unknown/unspecified error';
+  RSICMPConvDontConvOptPresent = 'Don''t Convert option present';
+  RSICMPConvUnknownMandOptPresent =  'Unknown mandatory option present';
+  RSICMPConvKnownUnsupportedOptionPresent = 'Known unsupported option present';
+  RSICMPConvUnsupportedTransportProtocol = 'Unsupported transport protocol';
+  RSICMPConvOverallLengthExceeded = 'Overall length exceeded';
+  RSICMPConvIPHeaderLengthExceeded = 'IP header length exceeded';
+  RSICMPConvTransportProtocol_255 = 'Transport protocol > 255';
+  RSICMPConvPortConversionOutOfRange = 'Port conversion out of range';
+  RSICMPConvTransportHeaderLengthExceeded = 'Transport header length exceeded';
+  RSICMPConv32BitRolloverMissingAndACKSet = '32 Bit Rollover missing and ACK set';
+  RSICMPConvUnknownMandatoryTransportOptionPresent =      'Unknown mandatory transport option present';
+//mobile host redirect
+  RSICMPMobileHostRedirect = 'Mobile Host Redirect';
+//IPv6 - Where are you
+  RSICMPIPv6WhereAreYou    = 'IPv6 Where-Are-You';
+//IPv6 - I am here
+  RSICMPIPv6IAmHere        = 'IPv6 I-Am-Here';
+// Mobile Regestration request
+  RSICMPMobReg             = 'Mobile Registration Request';
+//Skip
+  RSICMPSKIP               = 'SKIP';
+//Security
+  RSICMPSecBadSPI          = 'Bad SPI';
+  RSICMPSecAuthenticationFailed = 'Authentication Failed';
+  RSICMPSecDecompressionFailed = 'Decompression Failed';
+  RSICMPSecDecryptionFailed = 'Decryption Failed';
+  RSICMPSecNeedAuthentication = 'Need Authentication';
+  RSICMPSecNeedAuthorization = 'Need Authorization';
+
 { TIdCustomIcmpClient }
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
@@ -377,6 +432,26 @@ begin
            AReplyStatus.ReplyStatusType := rsErrorParameter;
         Id_ICMP_REDIRECT :
           AReplyStatus.ReplyStatusType := rsRedirect;
+        Id_ICMP_TSTAMP, Id_ICMP_TSTAMPREPLY :
+           AReplyStatus.ReplyStatusType := rsTimeStamp;
+        Id_ICMP_IREQ, Id_ICMP_IREQREPLY :
+           AReplyStatus.ReplyStatusType := rsInfoRequest;
+        Id_ICMP_MASKREQ, Id_ICMP_MASKREPLY :
+           AReplyStatus.ReplyStatusType := rsAddressMaskRequest;
+        Id_ICMP_TRACEROUTE :
+           AReplyStatus.ReplyStatusType := rsTraceRoute;
+        Id_ICMP_DATAGRAM_CONV :
+           AReplyStatus.ReplyStatusType := rsErrorDatagramConversion;
+        Id_ICMP_MOB_HOST_REDIR :
+           AReplyStatus.ReplyStatusType := rsMobileHostRedir;
+        Id_ICMP_IPv6_WHERE_ARE_YOU :
+            AReplyStatus.ReplyStatusType := rsIPv6WhereAreYou;
+        Id_ICMP_IPv6_I_AM_HERE :
+          AReplyStatus.ReplyStatusType := rsIPv6IAmHere;
+        Id_ICMP_MOB_REG_REQ, Id_ICMP_MOB_REG_REPLY :
+          AReplyStatus.ReplyStatusType := rsMobileHostReg;
+        Id_ICMP_PHOTURIS :
+          AReplyStatus.ReplyStatusType := rsErrorSecurityFailure;
         else
           raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
       end;    // case
@@ -449,9 +524,71 @@ begin
             3 :  AReplyStatus.Msg :=  RSICMPRedirTOSHost;
           end;
         end;
+        Id_ICMP_SOURCEQUENCH :
+        begin
+          AReplyStatus.Msg := RSICMPSourceQuenchMsg;
+        end;
         Id_ICMP_ECHOREPLY, Id_ICMP_ECHO :
         begin
           AReplyStatus.Msg := RSICMPEcho;
+        end;
+        Id_ICMP_TSTAMP, Id_ICMP_TSTAMPREPLY:
+        begin
+          AReplyStatus.Msg := RSICMPTimeStamp;
+        end;
+        Id_ICMP_IREQ, Id_ICMP_IREQREPLY :
+        begin
+          AReplyStatus.Msg := RSICMPTimeStamp;
+        end;
+        Id_ICMP_MASKREQ, Id_ICMP_MASKREPLY :
+        begin
+          AReplyStatus.Msg :=   RSICMPMaskRequest;
+        end;
+        Id_ICMP_TRACEROUTE :
+        begin
+          case AReplyStatus.MsgCode of
+             Id_ICMP_TRACEROUTE_PACKET_FORWARDED : AReplyStatus.Msg := RSICMPTracePacketForwarded;
+             Id_ICMP_TRACEROUTE_NO_ROUTE : AReplyStatus.Msg := RSICMPTraceNoRoute;
+          end;
+        end;
+        Id_ICMP_DATAGRAM_CONV :
+        begin
+          case AReplyStatus.MsgCode of
+             Id_ICMP_CONV_UNSPEC : AReplyStatus.Msg := RSICMPTracePacketForwarded;
+             Id_ICMP_CONV_DONTCONV_OPTION : AReplyStatus.Msg := RSICMPTraceNoRoute;
+             Id_ICMP_CONV_UNKNOWN_MAN_OPTION : AReplyStatus.Msg := RSICMPConvUnknownMandOptPresent;
+             Id_ICMP_CONV_UNKNWON_UNSEP_OPTION  : AReplyStatus.Msg := RSICMPConvKnownUnsupportedOptionPresent;
+
+             Id_ICMP_CONV_UNSEP_TRANSPORT  : AReplyStatus.Msg := RSICMPConvUnsupportedTransportProtocol;
+             Id_ICMP_CONV_OVERALL_LENGTH_EXCEEDED : AReplyStatus.Msg := RSICMPConvOverallLengthExceeded;
+             Id_ICMP_CONV_IP_HEADER_LEN_EXCEEDED : AReplyStatus.Msg := RSICMPConvIPHeaderLengthExceeded;
+             Id_ICMP_CONV_TRANS_PROT_255  : AReplyStatus.Msg := RSICMPConvTransportProtocol_255;
+             Id_ICMP_CONV_PORT_OUT_OF_RANGE : AReplyStatus.Msg := RSICMPConvPortConversionOutOfRange;
+             Id_ICMP_CONV_TRANS_HEADER_LEN_EXCEEDED : AReplyStatus.Msg := RSICMPConvTransportHeaderLengthExceeded;
+             Id_ICMP_CONV_32BIT_ROLLOVER_AND_ACK : AReplyStatus.Msg := RSICMPConv32BitRolloverMissingAndACKSet;
+             Id_ICMP_CONV_UNKNOWN_MAN_TRANS_OPTION: AReplyStatus.Msg := RSICMPConvUnknownMandatoryTransportOptionPresent;
+          end;
+        end;
+        Id_ICMP_MOB_HOST_REDIR :
+          AReplyStatus.Msg :=  RSICMPMobileHostRedirect;
+        Id_ICMP_IPv6_WHERE_ARE_YOU :
+          AReplyStatus.Msg :=  RSICMPIPv6WhereAreYou;
+        Id_ICMP_IPv6_I_AM_HERE :
+          AReplyStatus.Msg := RSICMPIPv6IAmHere;
+        Id_ICMP_MOB_REG_REQ, Id_ICMP_MOB_REG_REPLY :
+          AReplyStatus.Msg := RSICMPIPv6IAmHere;
+        Id_ICMP_SKIP :
+          AReplyStatus.Msg := RSICMPSKIP;
+        Id_ICMP_PHOTURIS :
+        begin
+          case AReplyStatus.MsgCode of
+             Id_ICMP_BAD_SPI : AReplyStatus.Msg := RSICMPSecBadSPI;
+             Id_ICMP_AUTH_FAILED : AReplyStatus.Msg := RSICMPSecAuthenticationFailed;
+             Id_ICMP_DECOMPRESS_FAILED : AReplyStatus.Msg :=  RSICMPSecDecompressionFailed;
+             Id_ICMP_DECRYPTION_FAILED : AReplyStatus.Msg := RSICMPSecDecryptionFailed;
+             Id_ICMP_NEED_AUTHENTICATION : AReplyStatus.Msg := RSICMPSecNeedAuthentication;
+             Id_ICMP_NEED_AUTHORIZATION  : AReplyStatus.Msg := RSICMPSecNeedAuthorization;
+          end;
         end;
       end;
         end;

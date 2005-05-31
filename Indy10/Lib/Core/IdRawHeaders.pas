@@ -138,7 +138,15 @@ const
   Id_ICMP_IREQREPLY       = 16;
   Id_ICMP_MASKREQ         = 17;
   Id_ICMP_MASKREPLY       = 18;
-
+  Id_ICMP_TRACEROUTE      = 30;//RFC1393 Traceroute
+  Id_ICMP_DATAGRAM_CONV   = 31;//RFC1475
+  Id_ICMP_MOB_HOST_REDIR  = 32; // Mobile Host Redirect
+  Id_ICMP_IPv6_WHERE_ARE_YOU   = 33;
+  Id_ICMP_IPv6_I_AM_HERE  = 34;
+  Id_ICMP_MOB_REG_REQ     = 35;
+  Id_ICMP_MOB_REG_REPLY   = 36;
+  Id_ICMP_SKIP            = 39;
+  Id_ICMP_PHOTURIS        = 40; //Photuris  [RFC2521]
 //ICMP codes------------------------------------------------------------------//
   Id_ICMP_UNREACH_NET               = 0;
   Id_ICMP_UNREACH_HOST              = 1;
@@ -163,6 +171,32 @@ const
   Id_ICMP_TIMXCEED_INTRANS          = 0;
   Id_ICMP_TIMXCEED_REASS            = 1;
   Id_ICMP_PARAMPROB_OPTABSENT       = 1;
+
+  //  RFC 1393
+  Id_ICMP_TRACEROUTE_PACKET_FORWARDED         = 0;
+  Id_ICMP_TRACEROUTE_NO_ROUTE       = 1;
+
+  Id_ICMP_BAD_SPI                   = 0; //security parameter error 40
+  Id_ICMP_AUTH_FAILED               = 1;
+  Id_ICMP_DECOMPRESS_FAILED         = 2;
+  Id_ICMP_DECRYPTION_FAILED         = 3;
+  Id_ICMP_NEED_AUTHENTICATION       = 4;
+  Id_ICMP_NEED_AUTHORIZATION        = 5;
+
+  //RFC 1475 error codes
+ // The type for Conversion Failed is 31
+  Id_ICMP_CONV_UNSPEC               = 0;
+  Id_ICMP_CONV_DONTCONV_OPTION      = 1;
+  Id_ICMP_CONV_UNKNOWN_MAN_OPTION   = 2;
+  Id_ICMP_CONV_UNKNWON_UNSEP_OPTION  = 3;
+  Id_ICMP_CONV_UNSEP_TRANSPORT      = 4;
+  Id_ICMP_CONV_OVERALL_LENGTH_EXCEEDED = 5;
+  Id_ICMP_CONV_IP_HEADER_LEN_EXCEEDED = 6;
+  Id_ICMP_CONV_TRANS_PROT_255        = 7; //transport protocol > 255
+  Id_ICMP_CONV_PORT_OUT_OF_RANGE     = 8;
+  Id_ICMP_CONV_TRANS_HEADER_LEN_EXCEEDED = 9;
+  Id_ICMP_CONV_32BIT_ROLLOVER_AND_ACK   = 10;  //32 Bit Rollover missing and ACK set
+  Id_ICMP_CONV_UNKNOWN_MAN_TRANS_OPTION = 11;
 
   ICMP_MIN                          = 8;
 
