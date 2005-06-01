@@ -204,6 +204,19 @@ resourcestring
   RSICMPNetUnreachable  = 'net unreachable;';
   RSICMPHostUnreachable = 'host unreachable;';
   RSICMPProtUnreachable = 'protocol unreachable;';
+  RSICMPPortUnreachable = 'Port Unreachable';
+  RSICMPFragmentNeeded = 'Fragmentation Needed and Don''t Fragment was Set';
+  RSICMPSourceRouteFailed = 'Source Route Failed';
+  RSICMPDestNetUnknown = 'Destination Network Unknown';
+  RSICMPDestHostUnknown = 'Destination Host Unknown';
+  RSICMPSourceIsolated = 'Source Host Isolated';
+  RSICMPDestNetProhibitted = 'Communication with Destination Network is Administratively Prohibited';
+  RSICMPDestHostProhibitted = 'Communication with Destination Host is Administratively Prohibited';
+  RSICMPTOSNetUnreach =  'Destination Network Unreachable for Type of Service';
+  RSICMPTOSHostUnreach = 'Destination Host Unreachable for Type of Service';
+  RSICMPAdminProhibitted = 'Communication Administratively Prohibited';
+  RSICMPHostPrecViolation = 'Host Precedence Violation';
+  RSICMPPrecedenceCutoffInEffect =  'Precedence cutoff in effect';
 
 // Destination Address - 11
   RSICMPTTLExceeded     = 'time to live exceeded in transit';
@@ -425,7 +438,7 @@ begin
         // result is only valid if the seq. number is correct
         end;
         Id_ICMP_UNREACH:
-          AReplyStatus.ReplyStatusType := rsErrorUnreachable;
+            AReplyStatus.ReplyStatusType := rsErrorUnreachable;
         Id_ICMP_TIMXCEED:
           AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
         Id_ICMP_PARAMPROB :
@@ -498,9 +511,21 @@ begin
         Id_ICMP_UNREACH:
         begin
           case AReplyStatus.FMsgCode of
-            0 :AReplyStatus.Msg := RSICMPNetUnreachable;
-            1 :AReplyStatus.Msg := RSICMPHostUnreachable;
-            2 :AReplyStatus.Msg := RSICMPProtUnreachable;
+            Id_ICMP_UNREACH_NET :AReplyStatus.Msg := RSICMPNetUnreachable;
+            Id_ICMP_UNREACH_HOST :AReplyStatus.Msg := RSICMPHostUnreachable;
+            Id_ICMP_UNREACH_PROTOCOL :AReplyStatus.Msg := RSICMPProtUnreachable;
+            Id_ICMP_UNREACH_NEEDFRAG :AReplyStatus.Msg := RSICMPFragmentNeeded;
+            Id_ICMP_UNREACH_SRCFAIL       :AReplyStatus.Msg := RSICMPSourceRouteFailed;
+            Id_ICMP_UNREACH_NET_UNKNOWN   :AReplyStatus.Msg := RSICMPDestNetUnknown;
+            Id_ICMP_UNREACH_HOST_UNKNOWN  :AReplyStatus.Msg := RSICMPDestHostUnknown;
+            Id_ICMP_UNREACH_ISOLATED      :AReplyStatus.Msg := RSICMPSourceIsolated;
+            Id_ICMP_UNREACH_NET_PROHIB    :AReplyStatus.Msg := RSICMPDestNetProhibitted;
+            Id_ICMP_UNREACH_HOST_PROHIB   :AReplyStatus.Msg := RSICMPDestHostProhibitted;
+            Id_ICMP_UNREACH_TOSNET        :AReplyStatus.Msg := RSICMPTOSNetUnreach;
+            Id_ICMP_UNREACH_TOSHOST       :AReplyStatus.Msg := RSICMPTOSHostUnreach;
+            Id_ICMP_UNREACH_FILTER_PROHIB  :AReplyStatus.Msg := RSICMPAdminProhibitted;
+            Id_ICMP_UNREACH_HOST_PRECEDENCE  :AReplyStatus.Msg := RSICMPHostPrecViolation;
+            Id_ICMP_UNREACH_PRECEDENCE_CUTOFF  :AReplyStatus.Msg :=   RSICMPPrecedenceCutoffInEffect;
           end;
         end;
         Id_ICMP_TIMXCEED:
@@ -701,6 +726,20 @@ begin
       AReplyStatus.TimeToLive := FPkt.TTL;
       AReplyStatus.FromIpAddress := FPkt.SourceIP;
       AReplyStatus.ToIpAddress := FPkt.DestIP;
+      case  LIcmp.icmp6_type of
+      ICMP6_ECHO_REQUEST,
+      ICMP6_ECHO_REPLY :
+          AReplyStatus.Msg := RSICMPEcho;
+      ICMP6_DST_UNREACH :
+      begin
+        case LIcmp.icmp6_code of
+    //      ICMP6_DST_UNREACH_NOROUTE :AReplyStatus.Msg := RSICMPNoRoute;
+          ICMP6_DST_UNREACH_ADMIN : AReplyStatus.Msg := RSICMPAdminProhibitted;
+     //    ICMP6_DST_UNREACH_ADDR    RSICMPHostUnreachable = 'host unreachable;';
+      //    ICMP6_DST_UNREACH_NOPORT     RSICMPProtUnreachable = 'protocol unreachable;';
+        end;
+        end;
+      end;
     end;
   finally
     Sys.FreeAndNil(LIcmp);

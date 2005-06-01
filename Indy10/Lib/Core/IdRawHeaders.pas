@@ -173,7 +173,7 @@ const
   Id_ICMP_PARAMPROB_OPTABSENT       = 1;
 
   //  RFC 1393
-  Id_ICMP_TRACEROUTE_PACKET_FORWARDED         = 0;
+  Id_ICMP_TRACEROUTE_PACKET_FORWARDED  = 0;
   Id_ICMP_TRACEROUTE_NO_ROUTE       = 1;
 
   Id_ICMP_BAD_SPI                   = 0; //security parameter error 40
