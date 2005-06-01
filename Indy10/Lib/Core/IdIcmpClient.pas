@@ -217,12 +217,20 @@ resourcestring
   RSICMPAdminProhibitted = 'Communication Administratively Prohibited';
   RSICMPHostPrecViolation = 'Host Precedence Violation';
   RSICMPPrecedenceCutoffInEffect =  'Precedence cutoff in effect';
+    //for IPv6
+   RSICMPNoRouteToDest = 'no route to destination';
+   RSICMPAAdminDestProhibitted =  'communication with destination administratively prohibited';
 
-// Destination Address - 11
+  // Destination Address - 11
   RSICMPTTLExceeded     = 'time to live exceeded in transit';
+  RSICMPHopLimitExceeded = 'hop limit exceeded in transit';
   RSICMPFragAsmExceeded = 'fragment reassembly time exceeded.';
 //Parameter Problem - 12
   RSICMPParamError      = 'Parameter Problem (offset %d)';
+  //IPv6
+  RSICMPParamHeader = 'erroneous header field encountered (offset %d)';
+  RSICMPParamNextHeader = 'unrecognized Next Header type encountered (offset %d)';
+  RSICMPUnrecognizedOpt = 'unrecognized IPv6 option encountered (offset %d)';
 //Source Quench Message -4
   RSICMPSourceQuenchMsg = 'Source Quench Message';
 //Redirect Message
@@ -273,7 +281,8 @@ resourcestring
   RSICMPSecDecryptionFailed = 'Decryption Failed';
   RSICMPSecNeedAuthentication = 'Need Authentication';
   RSICMPSecNeedAuthorization = 'Need Authorization';
-
+//IPv6 Packet Too Big
+  RSICMPPacketTooBig = 'Packet Too Big (MTU = %d)';
 { TIdCustomIcmpClient }
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
@@ -730,15 +739,40 @@ begin
       ICMP6_ECHO_REQUEST,
       ICMP6_ECHO_REPLY :
           AReplyStatus.Msg := RSICMPEcho;
-      ICMP6_DST_UNREACH :
+      ICMP6_TIME_EXCEEDED :
       begin
         case LIcmp.icmp6_code of
-    //      ICMP6_DST_UNREACH_NOROUTE :AReplyStatus.Msg := RSICMPNoRoute;
+          ICMP6_TIME_EXCEED_TRANSIT :AReplyStatus.Msg := RSICMPHopLimitExceeded;
+          ICMP6_TIME_EXCEED_REASSEMBLY : AReplyStatus.Msg :=  RSICMPFragAsmExceeded;
+        end;
+      end;
+      ICMP6_DST_UNREACH :
+       begin
+         case LIcmp.icmp6_code of
+          ICMP6_DST_UNREACH_NOROUTE :AReplyStatus.Msg := RSICMPNoRouteToDest;
           ICMP6_DST_UNREACH_ADMIN : AReplyStatus.Msg := RSICMPAdminProhibitted;
-     //    ICMP6_DST_UNREACH_ADDR    RSICMPHostUnreachable = 'host unreachable;';
-      //    ICMP6_DST_UNREACH_NOPORT     RSICMPProtUnreachable = 'protocol unreachable;';
-        end;
-        end;
+          ICMP6_DST_UNREACH_ADDR : AReplyStatus.Msg :=  RSICMPHostUnreachable;
+          ICMP6_DST_UNREACH_NOPORT  : ReplyStatus.Msg := RSICMPProtUnreachable;
+
+         end;
+       end;
+      ICMP6_PACKET_TOO_BIG :
+         AReplyStatus.Msg := Sys.Format( RSICMPPacketTooBig, [LIcmp.data.icmp6_mtu ]);
+      ICMP6_PARAM_PROB :
+      begin
+         case LIcmp.icmp6_code of
+         ICMP6_PARAMPROB_HEADER      :
+           ReplyStatus.Msg := Sys.Format( RSICMPParamHeader,[ LIcmp.data.icmp6_pptr ]);
+         ICMP6_PARAMPROB_NEXTHEADER  :
+            ReplyStatus.Msg := Sys.Format(RSICMPParamNextHeader,[ LIcmp.data.icmp6_pptr ]);
+         ICMP6_PARAMPROB_OPTION      :
+           ReplyStatus.Msg :=  Sys.Format(RSICMPUnrecognizedOpt,[ LIcmp.data.icmp6_pptr ]);
+
+         end;
+      end;
+      ICMP6_MEMBERSHIP_QUERY : ;
+      ICMP6_MEMBERSHIP_REPORT : ;
+      ICMP6_MEMBERSHIP_REDUCTION :;
       end;
     end;
   finally
