@@ -340,7 +340,6 @@ begin
 end;
 
 procedure TIdSMTPServer.InitComponent;
-var LS : TIdReplySMTP;
 begin
   inherited;
   FContextClass := TIdSMTPServerContext;
@@ -908,9 +907,9 @@ begin
           ReplaceNew[2] :=  LContext.HeloString;
 
           ReplaceOld[3] := '$protocol';   {do not localize}
-          if LS.EHLO then begin
+          if LContext.EHLO then begin
             ReplaceNew[3] := 'esmtp'; {do not localize}
-          else else begin
+          end else begin
             ReplaceNew[3] := 'smtp'; {do not localize}
           end;
 
@@ -960,7 +959,7 @@ begin
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList);
+  AYarn: TIdYarn; AList: TIdThreadList);
 begin
   inherited;
   SMTPState := idSMTPNone;
