@@ -630,6 +630,8 @@ end;
 
 class procedure TIdStack.DecUsage;
 begin
+  Assert(GStackCriticalSection<>nil);
+  
   GStackCriticalSection.Acquire; try
     Dec(GInstanceCount);
     if GInstanceCount = 0 then begin
@@ -642,6 +644,8 @@ end;
 
 class procedure TIdStack.IncUsage;
 begin
+  Assert(GStackCriticalSection<>nil);
+  
   GStackCriticalSection.Acquire; try
     Inc(GInstanceCount);
     if GInstanceCount = 1 then begin
