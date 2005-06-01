@@ -221,7 +221,8 @@ resourcestring
     //for IPv6
    RSICMPNoRouteToDest = 'no route to destination';
    RSICMPAAdminDestProhibitted =  'communication with destination administratively prohibited';
-
+   RSICMPSourceFilterFailed = 'source address failed ingress/egress policy';
+   RSICMPRejectRoutToDest = 'reject route to destination';
   // Destination Address - 11
   RSICMPTTLExceeded     = 'time to live exceeded in transit';
   RSICMPHopLimitExceeded = 'hop limit exceeded in transit';
@@ -768,7 +769,8 @@ begin
           ICMP6_DST_UNREACH_ADMIN : AReplyStatus.Msg := RSICMPAdminProhibitted;
           ICMP6_DST_UNREACH_ADDR : AReplyStatus.Msg :=  RSICMPHostUnreachable;
           ICMP6_DST_UNREACH_NOPORT  : ReplyStatus.Msg := RSICMPProtUnreachable;
-
+          ICMP6_DST_UNREACH_SOURCE_FILTERING :  ReplyStatus.Msg := RSICMPSourceFilterFailed;
+          ICMP6_DST_UNREACH_REJCT_DST : ReplyStatus.Msg := RSICMPRejectRoutToDest;
          end;
        end;
       ICMP6_PACKET_TOO_BIG :

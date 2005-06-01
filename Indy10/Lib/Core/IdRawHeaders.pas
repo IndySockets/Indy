@@ -227,6 +227,8 @@ const
   ICMP6_DST_UNREACH_NOTNEIGHBOR = 2;  //* not a neighbor */
   ICMP6_DST_UNREACH_ADDR        = 3; //* address unreachable */
   ICMP6_DST_UNREACH_NOPORT      = 4; //* bad port */
+  ICMP6_DST_UNREACH_SOURCE_FILTERING = 5;  //source address failed ingress/egress policy
+  ICMP6_DST_UNREACH_REJCT_DST =  6; //reject route to destination
 
   ICMP6_TIME_EXCEED_TRANSIT     = 0; //* Hop Limit == 0 in transit */
   ICMP6_TIME_EXCEED_REASSEMBLY  = 1; //* Reassembly time out */
