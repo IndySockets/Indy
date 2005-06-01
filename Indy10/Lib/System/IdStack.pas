@@ -821,5 +821,7 @@ initialization
 finalization
   // Dont Free. If shutdown is from another Init section, it can cause GPF when stack
   // tries to access it. App will kill it off anyways, so just let it leak
-  // FreeAndNil(GStackCriticalSection);
+  {$IFDEF IDFREEONFINAL}
+  FreeAndNil(GStackCriticalSection);
+  {$ENDIF}
 end.
