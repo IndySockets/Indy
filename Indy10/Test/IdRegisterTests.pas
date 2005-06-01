@@ -12,10 +12,11 @@ uses
   //protocols
   IdTestCoderHeader,
   IdTestCoderMIME,
-  IdTestCoder3to4,
+  //IdTestCoder3to4,
   IdTestCookie,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
+  IdTestVCard,
 
   //system
   IdTestSys;
