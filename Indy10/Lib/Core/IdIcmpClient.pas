@@ -200,6 +200,7 @@ uses
   IdStack;
 
 resourcestring
+  RSICMPTimeout = 'Timeout';
 //Destination Address -3
   RSICMPNetUnreachable  = 'net unreachable;';
   RSICMPHostUnreachable = 'host unreachable;';
@@ -372,16 +373,30 @@ begin
     end
     else
     begin
+      FReplyStatus.Msg := RSICMPTimeout;
       // We caught a response that wasn't meant for this thread - so we must
       // make sure we don't report it as such in case we time out after this
-      result.BytesReceived   := 0;
-      result.FromIpAddress   := '0.0.0.0';    {Do not Localize}
-      result.MsgType         := 0;
-      result.SequenceId      := wSeqNo;
-      result.TimeToLive      := 0;
-      result.ReplyStatusType := rsTimeOut;
+      if Self.IPVersion = Id_IPv4 then
+      begin
+        FReplyStatus.BytesReceived   := 0;
+        FReplyStatus.FromIpAddress   := '0.0.0.0';
+        FReplyStatus.ToIpAddress     := '0.0.0.0';
+        FReplyStatus.MsgType         := 0;
+        FReplyStatus.SequenceId      := wSeqNo;
+        FReplyStatus.TimeToLive      := 0;
+        FReplyStatus.ReplyStatusType := rsTimeOut;
 
-      ATimeOut := Cardinal(ATimeOut) - GetTickDiff(StartTime, Ticks); // compute new timeout value
+      end
+      else
+      begin
+        FReplyStatus.BytesReceived   := 0;
+        FReplyStatus.FromIpAddress   := '::0';
+        FReplyStatus.ToIpAddress     := '::0';
+        FReplyStatus.MsgType         := 0;
+        FReplyStatus.SequenceId      := wSeqNo;
+        FReplyStatus.TimeToLive      := 0;
+        FReplyStatus.ReplyStatusType := rsTimeOut;
+      end;
     end;
   until ATimeOut <= 0;
 end;
