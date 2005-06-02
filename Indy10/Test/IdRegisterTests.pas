@@ -15,6 +15,7 @@ uses
   //IdTestCoder3to4,
   IdTestCookie,
   IdTestHttp,
+  IdTestMessage,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
   IdTestVCard,
