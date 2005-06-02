@@ -127,7 +127,6 @@ const
   sContentDisposition = 'Content-Disposition: form-data; name="%s"';  {do not localize}
   sFileNamePlaceHolder = '; filename="%s"';                           {do not localize}
   sContentTypePlaceHolder = 'Content-Type: %s';                       {do not localize}
-  sContentTransferEncoding = 'Content-Transfer-Encoding: binary';     {do not localize}
 
 type
   TIdMultiPartFormDataStream = class;
@@ -495,8 +494,7 @@ begin
     if Length(FileName) > 0 then begin
       Result := Sys.Format('--%s' + crlf + sContentDisposition +
         sFileNamePlaceHolder + crlf + sContentTypePlaceHolder +
-        crlf + sContentTransferEncoding + crlf + crlf,
-        [LBoundary, FieldName, FileName, ContentType]);
+        crlf + crlf, [LBoundary, FieldName, FileName, ContentType]);
       Exit;
     end;
   end;
