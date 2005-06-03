@@ -184,11 +184,18 @@ begin
   end
   else
   begin
-
+    {$IFNDEF DOTNET}
+    {
+    Microsoft NET Framework 1.1 may actually have the packetinfo option but that
+    will not do you any good because you need a RecvMsg function which is not
+    in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
+    }
     //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,1);
+    {$ENDIF}
     //set hop limit (or TTL as it was called in IPv4
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
+
   end;
   Result := FBinding;
 end;
