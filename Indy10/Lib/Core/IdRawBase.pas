@@ -158,6 +158,7 @@ begin
 end;
 
 function TIdRawBase.GetBinding: TIdSocketHandle;
+var LC : Cardinal;
 begin
   if not FBinding.HandleAllocated then begin
     FBinding.IPVersion := Self.FIPVersion;
@@ -195,7 +196,10 @@ begin
     {$ENDIF}
     //set hop limit (or TTL as it was called in IPv4
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
-
+    {$IFNDEF DOTNET}
+    LC := 1;
+    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_HOPLIMIT, LC);
+    {$ENDIF}
   end;
   Result := FBinding;
 end;
