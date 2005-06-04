@@ -1209,6 +1209,8 @@ end;
 function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer : TIdBytes;
   APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): Cardinal;
+type
+  PByte = ^Byte;
 var
   LIP : String;
   LPort : Integer;
@@ -1222,12 +1224,14 @@ var
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
   LCurPt : Pin_pktinfo;
   LCurPt6 : Pin6_pktinfo;
+  LByte : PByte;
 begin
   //This runs only on WIndowsXP or later
  if (Win32MajorVersion>4) and (Win32MinorVersion > 0) then
  begin
-
-   LSize := WSA_CMSG_LEN(Length(VBuffer));
+   //we call the macro twice because we specified two possible structures.
+   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
+   LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
    SetLength( LControl,LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
@@ -1265,12 +1269,12 @@ begin
     end;
     LCurCmsg := nil;
     repeat
-       LCurCmsg := WSA_CMSG_NXTHDR(@LMsg,LCurCmsg);
-       if LCurCmsg=nil then
-       begin
-         break;
-       end;
-       case LCurCmsg^.cmsg_type of
+      LCurCmsg := WSA_CMSG_NXTHDR(@LMsg,LCurCmsg);
+      if LCurCmsg=nil then
+      begin
+        break;
+      end;
+      case LCurCmsg^.cmsg_type of
         IP_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO
         //are both 19
         begin
@@ -1286,6 +1290,11 @@ begin
             APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr,Id_IPv6);
             APkt.DestIF := LCurPt6^.ipi6_ifindex;
           end;
+        end;
+        Id_IPV6_HOPLIMIT :
+        begin
+          LByte :=  PByte(WSA_CMSG_DATA(LCurCmsg));
+          APkt.TTL := LByte^;
         end;
       end;
     until False;
