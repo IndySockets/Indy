@@ -77,7 +77,7 @@ interface
 uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
-  TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItme);
+  TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItem);
   TIdFTPLPTOPS20 = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;

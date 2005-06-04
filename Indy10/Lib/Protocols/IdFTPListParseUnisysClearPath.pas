@@ -69,7 +69,7 @@ interface
 uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes,IdTStrings;
 
 type
-  TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItme)
+  TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
   protected
     FFileKind : String;
   public
