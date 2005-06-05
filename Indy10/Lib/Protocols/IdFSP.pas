@@ -349,6 +349,7 @@ causes that directory can be listable even it do not have
     procedure Connect; override; //this is so we can use it similarly to FTP
     procedure Disconnect; override;
     procedure Version;
+    procedure AbortCmd;
     procedure Delete(const AFilename: string);
     procedure RemoveDir(const ADirName: string);
     procedure Rename(const ASourceFile, ADestFile: string);
@@ -611,11 +612,12 @@ begin
       begin
         Break;
       end;
+      FDirectoryListing.ParseEntries( LRecvPacket.FData, LRecvPacket.FDataLen );
       if LRecvPacket.DataLen < Self.PrefPayloadSize then
       begin
         Break;
       end;
-    until FDirectoryListing.ParseEntries( LRecvPacket.FData, LRecvPacket.FDataLen );
+    until False;
   finally
     Sys.FreeAndNil(LSendPacket);
     Sys.FreeAndNil(LRecvPacket);
@@ -730,25 +732,30 @@ var
   LSendBuf : TIdBytes;
   LMSec : Integer;
 begin
+
   Inc(FSequence);
-  //we don't set the temp buff size here for speed.  
+  FAbortFlag.Value := False;
+  //we don't set the temp buff size here for speed.
   ACmdPacket.Key := FKey;
   ACmdPacket.Sequence := FSequence;
   LMSec := MINTIMEOUT;
   LSendBuf := ACmdPacket.WritePacket;
-    repeat
-      SendBuffer(LSendBuf);
+  repeat
 
+    //It's very important that you have some way of aborting this loop
+    //if you do not and the server does not reply, this can go for infinity.
+    //AbortCmd is ThreadSafe.
+    if not FAbortFlag.Value then
+    begin
+      SendBuffer(LSendBuf);
       if Assigned(FOnSend) then
       begin
         FOnSend(Self,ACmdPacket);
       end;
-
+      Sleep(5); //this is so we don't eat up all of the CPU
       LLen := ReceiveBuffer( VTempBuf, LMsec );
 
-        ARecvPacket.ReadPacket(VTempBuf,LLen);
-      
-
+      ARecvPacket.ReadPacket(VTempBuf,LLen);
       if ARecvPacket.FValid then
       begin
         if Assigned(FOnRecv) then
@@ -760,19 +767,27 @@ begin
           break;
         end;
       end;
-
-      LMSec := Round(LMSec * 1.5);
-      if LMSec > MAXTIMEOUT then
-      begin
-        LMSec := MAXTIMEOUT;
-      end;
-    until False;
-    FKey := ARecvPacket.Key;
-
-    if ARaiseException and (ARecvPacket.Cmd = CC_ERR) then
+    end
+    else
     begin
-      Raise EIdFSPProtException.Create( ParseASCIIZ(ARecvPacket.Data, ARecvPacket.DataLen));
+      Break;
     end;
+
+    LMSec := Round(LMSec * 1.5);
+    if LMSec > MAXTIMEOUT then
+    begin
+      LMSec := MAXTIMEOUT;
+    end;
+  until False;
+  if not FAbortFlag.Value then
+  begin
+    FKey := ARecvPacket.Key;
+  end;
+  FAbortFlag.Value := False;
+  if ARaiseException and (ARecvPacket.Cmd = CC_ERR) then
+  begin
+     Raise EIdFSPProtException.Create( ParseASCIIZ(ARecvPacket.Data, ARecvPacket.DataLen));
+  end;
 
 end;
 
@@ -1059,6 +1074,20 @@ begin
     raise EIdFSPPacketTooSmall.Create(RSFSPPacketTooSmall);
   end;
   FClientMaxPacketSize := AValue;
+end;
+
+procedure TIdFSP.AbortCmd;
+begin
+  FAbortFlag.Value := True;
+  repeat
+    Sleep(5);
+  //we need to wait until the SendCmd routine catches the Abort
+  //request so you don't get an AV in a worker thread.
+    if FAbortFlag.Value=False then
+    begin
+      Break;
+    end;
+  until False;
 end;
 
 { TIdFSPPacket }
