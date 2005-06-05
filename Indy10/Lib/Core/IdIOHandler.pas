@@ -1241,7 +1241,12 @@ begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
       SetLength(LBuffer, LBufSize);
-      Write(LBuffer);
+      {$IFDEF DOTNET}
+      AStream.Write(LBuffer);
+      {$ELSE}
+      AStream.Write(LBuffer[0], LBufSize);
+      {$ENDIF}
+
       Dec(ASize, LBufSize);
     end;
   finally
@@ -1390,7 +1395,11 @@ begin
         end;
       finally
         if i > 0 then begin
+          {$IFDEF DOTNET}
           AStream.Write(LBuf, i);
+          {$ELSE}
+          AStream.Write(LBuf[0], i);
+          {$ENDIF}
           Dec(LWorkCount, i);
         end;
       end;
