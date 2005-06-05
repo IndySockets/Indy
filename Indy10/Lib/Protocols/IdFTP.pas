@@ -1488,6 +1488,7 @@ begin
     LDest := TIdStringStream.Create(''); try
       InternalGet(Sys.Trim(iif(ADetails, 'LIST', 'NLST') + ' ' + ASpecifier), LDest); {do not localize}
       Sys.FreeAndNil(FDirectoryListing);
+      LDest.Position := 0;
       FListResult.Text := LDest.DataString;
       if ADest <> nil then begin
         ADest.Assign(FListResult);
@@ -2831,11 +2832,10 @@ end;
 procedure TIdFTP.ExtListDir(const ADest: TIdStrings=nil; const ADirectory: string='');
 var
   LDest: TIdStringStream;
-  LIdStream : TIdStream2;
 begin
   LDest := TIdStringStream.Create('');
   try
-    InternalGet(Sys.Trim('MLSD ' + ADirectory), LIdStream);  {do not localize}
+    InternalGet(Sys.Trim('MLSD ' + ADirectory), LDest);  {do not localize}
     Sys.FreeAndNil(FDirectoryListing);
     DoOnRetrievedDir;
     if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
