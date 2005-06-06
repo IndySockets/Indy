@@ -1390,7 +1390,7 @@ begin
   ClearSSCN;
   AResume := AResume and CanResume;
   ADest.Position := 0;
-  Get(ASourceFile, ADest, AResume);
+  InternalGet('RETR ' + ASourceFile, ADest, AResume);
 end;
 
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = False;
