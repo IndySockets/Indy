@@ -1521,6 +1521,22 @@ begin
   FDataChannel.IOHandler.Free;
   FDataChannel.IOHandler := nil;
   Sys.FreeAndNil(FDataChannel);
+  {
+This is a bug fix for servers will do something like this:
+
+[2] Mon 06Jun05 13:33:28 - (000007) PASV
+[6] Mon 06Jun05 13:33:28 - (000007) 227 Entering Passive Mode (192,168,1,107,4,22)
+[2] Mon 06Jun05 13:33:28 - (000007) RETR test.txt.txt
+[6] Mon 06Jun05 13:33:28 - (000007) 550 /test.txt.txt: No such file or directory.
+[2] Mon 06Jun05 13:34:28 - (000007) QUIT
+[6] Mon 06Jun05 13:34:28 - (000007) 221 Goodbye!
+[5] Mon 06Jun05 13:34:28 - (000007) Closing connection for user TEST (00:01:08 connected)
+  }
+  if  (Self.LastCmdResult.NumericCode div 100)>2 then
+  begin
+    DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
+    Exit;
+  end;
   DoStatus(ftpReady, [RSFTPStatusDoneTransfer]);
   // 226 = download successful, 225 = Abort successful}
   if FAbortFlag.Value then
@@ -2133,7 +2149,7 @@ end;
 procedure TIdFTP.Help(var AHelpContents: TIdStringList; ACommand: String = ''); {do not localize}
 var
   LStream: TIdStringStream;
-  LIdStream : TIdStream2;
+
 begin
   LStream := TIdStringStream.Create('');    {do not localize}
   try
