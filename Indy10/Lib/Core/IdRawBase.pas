@@ -169,22 +169,15 @@ begin
 {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
 {$ENDIF}
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
     end
     else
     begin
 {$IFDEF LINUX}
-      FBinding.AllocateSocket(Integer(Id_SOCK_RAW), ProtocolIPv6);
+      FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocolIPv6);
 {$ELSE}
-      FBinding.AllocateSocket(Id_SOCK_RAW, ProtocolIPv6);
+      FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
 {$ENDIF}
-    end;
-  end;
-  if Self.FIPVersion = Id_IPv4 then
-  begin
-    GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
-  end
-  else
-  begin
     {$IFNDEF DOTNET}
     {
     Microsoft NET Framework 1.1 may actually have the packetinfo option but that
@@ -192,14 +185,16 @@ begin
     in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
     }
     //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
-    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,1);
+    LC := 1;
+    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,LC);
     {$ENDIF}
     //set hop limit (or TTL as it was called in IPv4
     GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
     {$IFNDEF DOTNET}
-    LC := 1;
-    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_HOPLIMIT, LC);
+      LC := 1;
+      GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_HOPLIMIT, LC);
     {$ENDIF}
+    end;
   end;
   Result := FBinding;
 end;
@@ -217,10 +212,12 @@ begin
     end;
     if Length(VBuffer)>0 then
     begin
-      if Binding.Readable(ATimeOut) then begin
+  //    if Binding.Readable(ATimeOut) then begin
         if FIPVersion = Id_IPv4 then
         begin
           Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
+          FPkt.SourceIP := LIP;
+          FPkt.SourcePort := LPort;
         end
         else
         begin
@@ -241,10 +238,12 @@ begin
         For IPv6 and raw sockets, we call this to get information about the destination
         IP address and hopefully, the TTL (hop count).
         }
+
           Result := GStack.ReceiveMsg(Binding.Handle,VBuffer,FPkt,Id_IPv6);
         end;
+
       end;
-    end;
+  //  end;
 end;
 
 procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const AData: string);
