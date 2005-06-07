@@ -86,12 +86,14 @@ uses
   System.Threading,
   System.Reflection,
   System.IO, // Necessary else System.IO below is confused with RTL System.
-  {$ENDIF}
-  {$IFDEF DotNetDistro}
-    System.ComponentModel,
   {$ELSE}
-    Classes,
+  Classes,
   {$ENDIF}
+//  {$IFDEF DotNetDistro}
+//    System.ComponentModel,
+//  {$ELSE}
+//    Classes,
+//  {$ENDIF}
   IdObjs;
 
 // ***********************************************************
@@ -105,22 +107,13 @@ type
   // TIdInitializerComponent implements InitComponent which all components must use to initialize
   // other members instead of overriding constructors.
   {$IFDEF DotNetDistro}
-  TIdInitializerComponent = class;
-  TIdNativeComponent = Component;
-  TIdOperation = (opInsert, opRemove);
 
-  TIdInitializerComponent = class(Component, ISupportInitialize)
+//  TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
-  TIdNativeComponent = TComponent;
-  TIdOperation = TOperation;
-  TIdInitializerComponent = class(TComponent)
+//  TIdInitializerComponent = class(TIdNativeComponent)
   {$ENDIF}
+  TIdInitializerComponent = class(TIdNativeComponent)  
   private
-    {$IFDEF DotNetDistro}
-    FIsLoading: Boolean;
-    FName: string;
-    FTag: &Object;
-    {$ENDIF}
   protected
     {$IFDEF DotNet}
     // This event handler will take care about dynamically loaded assemblies after first initialization.
@@ -128,11 +121,11 @@ type
     class procedure InitializeAssembly(AAssembly: Assembly);
     {$ENDIF}
     {$IFDEF DotNetDistro}
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); virtual;
-    procedure AssignTo(ASource: TIdPersistent); override;
-    procedure Loaded; virtual;
-    function GetName: string;
-    procedure SetName(const AValue: string);
+//    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); virtual;
+//    procedure AssignTo(ASource: TIdPersistent); override;
+//    procedure Loaded; virtual;
+//    function GetName: string;
+//    procedure SetName(const AValue: string);
     {$ENDIF}
     function GetIsLoading: Boolean;
     function GetIsDesignTime: Boolean;
@@ -161,7 +154,7 @@ type
       property Name: string read GetName write SetName;
       property Tag: &Object read FTag write FTag;
     {$ELSE}
-    constructor Create(AOwner: TComponent); overload; override;
+    constructor Create(AOwner: TIdNativeComponent); overload; override;
     {$ENDIF}
   end;
 
@@ -198,8 +191,10 @@ type
   end;
 
 {$IFNDEF DotNetDistro}
+  {$IFDEF DOTNET}
 const
-   opRemove = Classes.opRemove;
+   opRemove = TIdOperation.opRemove;
+  {$ENDIF}
 {$ENDIF}
 
 implementation
@@ -273,7 +268,7 @@ begin
 end;
 
 {$IFNDEF DotNetDistro}
-constructor TIdInitializerComponent.Create(AOwner: TComponent);
+constructor TIdInitializerComponent.Create(AOwner: TIdNativeComponent);
 begin
   inherited Create(AOwner);
   // DCCIL will not call our other create from this one, only .Nets ancestor
@@ -413,3 +408,4 @@ begin
 end;
 
 end.
+
