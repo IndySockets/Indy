@@ -14,6 +14,7 @@ uses
   IdTestCoderMIME,
   //IdTestCoder3to4,
   IdTestCookie,
+  IdTestFtpServer,
   IdTestHttp,
   IdTestMessage,
   IdTestMessageCoderMime,
