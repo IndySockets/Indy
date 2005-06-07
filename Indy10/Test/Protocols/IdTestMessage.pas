@@ -22,7 +22,7 @@ var
  m:TIdMessage;
 const
  cAddress1='abc@example.com';
- cAddress2='xyz@example.com';
+ cAddress2='tuv.xyz@example.co.uk';
 begin
  m:=TIdMessage.Create(nil);
  try
