@@ -68,6 +68,7 @@ interface
 
 uses
   IdGlobal,
+  IdObjs,
   IdRawBase,
   IdRawClient,
   IdStackConsts,
@@ -137,6 +138,7 @@ type
 
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
+    FStartTime : Cardinal; //this is a fallabk if no packet is returned
     FbufReceive: TIdBytes;
     FbufIcmp: TIdBytes;
     wSeqNo: word;
@@ -162,7 +164,7 @@ type
     procedure SendEchoRequest;   overload;
     procedure SendEchoRequest(const AIP : String); overload;
     function GetPacketSize: Integer;
-    procedure SetPacketSize(const Value: Integer);
+    procedure SetPacketSize(const AValue: Integer);
 
     //these are made public in the client
     procedure InternalPing(const AIP : String; const ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize} overload;
@@ -314,6 +316,7 @@ begin
 
   if BytesRead = 0 then begin
     // Timed out
+    AReplyStatus.MsRoundTripTime :=  Ticks - FStartTime;
     if Self.IPVersion = Id_IPv4 then
     begin
       AReplyStatus.BytesReceived   := 0;
@@ -361,11 +364,11 @@ end;
 function TIdCustomIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
 var
   BytesRead : Integer;
-  StartTime: Cardinal;
 begin
+
   Result := Self.FReplyStatus;
   FillBytes(FbufReceive, sizeOf(FbufReceive),0);
-  StartTime := Ticks;
+  FStartTime := Ticks;
   repeat
     BytesRead := ReceiveBuffer(FbufReceive, ATimeOut);
     if DecodeResponse(BytesRead, Result) then
@@ -374,6 +377,7 @@ begin
     end
     else
     begin
+      FReplyStatus.MsRoundTripTime := Ticks - FStartTime;
       FReplyStatus.Msg := RSICMPTimeout;
       // We caught a response that wasn't meant for this thread - so we must
       // make sure we don't report it as such in case we time out after this
@@ -499,14 +503,14 @@ begin
         begin
           LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6);
           result :=  LActualSeqID = wSeqNo;//;picmp^.icmp_hun.echo.seq  = wSeqNo;
-          RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8); //picmp^.icmp_dun.ts.otime;
+          RTTime := GetTickDiff( BytesToCardinal( FBufReceive,LIpHeaderLen+8),Ticks); //picmp^.icmp_dun.ts.otime;
         end
         else
         begin
           // not an echo reply: the original IP frame is contained withing the DATA section of the packet
       //    pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
            LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
-           RTTime := Ticks - BytesToCardinal( FBufReceive,LIpHeaderLen+8+8); //pOriginalICMP^.icmp_dun.ts.otime;
+           RTTime := GetTickDiff( BytesToCardinal( FBufReceive,LIpHeaderLen+8+8),Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
            result :=  LActualSeqID = wSeqNo;
 
           // move to offset
@@ -688,8 +692,10 @@ begin
     LIPv6.WriteStruct(FBufIcmp,LIdx);
     IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,LIdx);
     Inc(LIdx,4);
-    CopyTIdString(Buffer,FBufIcmp,LIdx,Length(Buffer));
-    
+    if Length(Buffer)>0 then
+    begin
+      CopyTIdString(Buffer,FBufIcmp,LIdx,Length(Buffer));
+    end;
   finally
     Sys.FreeAndNil(LIPv6);
   end;
@@ -806,7 +812,7 @@ begin
   LBuffer := ABuffer;
   LIP := GStack.ResolveHost(AHost,IPVersion);
   GStack.WriteChecksum(Binding.Handle,LBuffer,2,LIP,APort,FIPVersion);
-  FBinding.SendTo(LIP, APort, ABuffer,IPVersion);
+  FBinding.SendTo(LIP, APort, LBuffer,IPVersion);
 end;
 
 procedure TIdCustomIcmpClient.Send(const ABuffer: TIdBytes);
@@ -826,30 +832,25 @@ begin
   Result := Length(FBufIcmp);
 end;
 
-procedure TIdCustomIcmpClient.SetPacketSize(const Value: Integer);
+procedure TIdCustomIcmpClient.SetPacketSize(const AValue: Integer);
 begin
-  SetLength(FbufReceive,Value+Id_IP_HSIZE);
-  SetLength(FbufIcmp,Value);
+  SetLength(FbufReceive,AValue+Id_IP_HSIZE);
+  SetLength(FbufIcmp,AValue);
 end;
 
 procedure TIdCustomIcmpClient.InternalPing(const AIP, ABuffer: String;
   SequenceID: word);
-var
-  RTTime: Cardinal;
+
 begin
   if SequenceID <> 0 then
   begin
     wSeqNo := SequenceID;
   end;
   PrepareEchoRequest(ABuffer);
-  RTTime := Ticks;
   SendEchoRequest(AIP);
   GetEchoReply;
-  RTTime := GetTickDiff(RTTime, Ticks);
+  Binding.CloseSocket;
 
-    Binding.CloseSocket;
-
-  FReplyStatus.MsRoundTripTime := RTTime;
   DoReply(FReplyStatus);
   Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
 
@@ -858,7 +859,7 @@ end;
 procedure TIdCustomIcmpClient.SendEchoRequest(const AIP: String);
 begin
   Send(AIP,0,FbufIcmp);
-  Send(FbufIcmp);
+//  Send(FbufIcmp);
 end;
 
 { TIdIcmpClient }
