@@ -22,6 +22,7 @@ uses
   IdTestVCard,
 
   //system
+  IdTestStreamHelper,
   IdTestSys;
 
 implementation
