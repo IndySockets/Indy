@@ -317,6 +317,8 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_SO_RCVTIMEO         = SO_RCVTIMEO;
   Id_SO_SNDTIMEO         = SO_SNDTIMEO;
   {$else}
+  Id_SO_RCVTIMEO         = SocketOptionName.ReceiveTimeout;
+  Id_SO_SNDTIMEO         = SocketOptionName.SendTimeout;
   {$endif}
 
   {$ifndef DOTNET}
