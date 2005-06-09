@@ -112,8 +112,6 @@ begin
 end;
 
 procedure TIdLogFile.Open;
-var
-  LStream: TIdStream2;
 begin
   if not IsDesignTime then
   begin

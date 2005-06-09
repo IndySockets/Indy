@@ -24,10 +24,12 @@ package IndySystem100Net;
 {$DESCRIPTION 'Indy 10 System'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
+{%File 'ModelSupport\default.txaPackage'}
 
 requires
-Borland.Delphi,
-Borland.VclRtl;
+  Borland.Delphi,
+  Borland.VclRtl,
+  System.Drawing;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
@@ -45,6 +47,7 @@ contains
   IdStreamVCLBase in 'IdStreamVCLBase.pas',
   IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
   IdTStrings in 'IdTStrings.pas';
+
 [assembly: AssemblyDescription('')]
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('')]

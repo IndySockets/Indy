@@ -42,16 +42,12 @@ contains
   IdStack in 'IdStack.pas',
   IdStackConsts in 'IdStackConsts.pas',
   IdStackDotNet in 'IdStackDotNet.pas',
-  IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
+  IdStreamHelper in 'IdStreamHelper.pas',
+  IdStreamHelperVCL in 'IdStreamHelperVCL.pas',
   IdStruct in 'IdStruct.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
-  IdSysVCL in 'IdSysVCL.pas',
-  IdTStrings in 'IdTStrings.pas';
+  IdSysVCL in 'IdSysVCL.pas';
 {$I IdSystem90ASM90.inc}
 
 end.

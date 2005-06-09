@@ -41,16 +41,12 @@ contains
   IdStackBSDBase in 'IdStackBSDBase.pas',
   IdStackConsts in 'IdStackConsts.pas',
   IdStackLinux in 'IdStackLinux.pas',
-  IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
+  IdStreamHelper in 'IdStreamHelper.pas',
+  IdStreamHelperVCL in 'IdStreamHelperVCL.pas',
   IdStruct in 'IdStruct.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
   IdSysNativeVCL in 'IdSysNativeVCL.pas',
-  IdSysVCL in 'IdSysVCL.pas',
-  IdTStrings in 'IdTStrings.pas';
+  IdSysVCL in 'IdSysVCL.pas';
 
 end.
