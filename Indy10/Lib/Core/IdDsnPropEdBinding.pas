@@ -61,7 +61,7 @@ unit IdDsnPropEdBinding;
 interface
  {$I IdCompilerDefines.inc}
 uses
-  IdTStrings,
+  IdObjs,
   {$IFDEF LINUX}
   Classes, IdSocketHandle, QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt, Types;
   {$ELSE}
@@ -564,7 +564,9 @@ begin
 end;
 
 procedure TIdPropEdBindingEntry.UpdateEditControls;
+ {$IFNDEF DOTNET}
 var i : Integer;
+{$ENDIF}
 begin
   if Assigned(FCurrentHandle) then
   begin
