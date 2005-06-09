@@ -218,7 +218,7 @@ type
       ACollection: TIdCollection
       ); override;
     destructor Destroy; override;
-    function GetNamePath: string; override;
+//    function GetNamePath: string; override;
     function NameIs(ACommand: string): Boolean;
     //
     property Data: TObject read FData write FData;
@@ -261,7 +261,7 @@ type
     function GetItem(AIndex: Integer): TIdCommandHandler;
     // This is used instead of the OwnedBy property directly calling GetOwner because
     // D5 dies with internal errors and crashes
-    function GetOwnedBy: TIdPersistent;
+//    function GetOwnedBy: TIdPersistent;
     procedure SetItem(AIndex: Integer; const AValue: TIdCommandHandler);
   public
     function Add: TIdCommandHandler;
@@ -281,7 +281,7 @@ type
     property Base: TIdComponent read FBase;
     property Items[AIndex: Integer]: TIdCommandHandler read GetItem write SetItem;
     // OwnedBy is used so as not to conflict with Owner in D6
-    property OwnedBy: TIdPersistent read GetOwnedBy;
+ //   property OwnedBy: TIdPersistent read GetOwnedBy;
     property ReplyClass : TIdReplyClass read FReplyClass;
     //
     property OnAfterCommandHandler: TIdAfterCommandHandlerEvent read FOnAfterCommandHandler
@@ -404,10 +404,12 @@ begin
   Result := TIdCommandHandler(inherited Items[AIndex]);
 end;
 
+{
 function TIdCommandHandlers.GetOwnedBy: TIdPersistent;
 begin
   Result := GetOwner;
 end;
+ }
 
 procedure TIdCommandHandlers.SetItem(AIndex: Integer; const AValue: TIdCommandHandler);
 begin
@@ -573,6 +575,7 @@ begin
   end;
 end;
 
+{
 function TIdCommandHandler.GetNamePath: string;
 begin
   if Collection <> nil then begin
@@ -582,7 +585,7 @@ begin
     Result := inherited GetNamePath;
   end;
 end;
-
+}
 function TIdCommandHandler.NameIs(ACommand: string): Boolean;
 begin
   Result := TextIsSame(ACommand, FName);
