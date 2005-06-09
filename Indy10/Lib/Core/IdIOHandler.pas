@@ -512,7 +512,7 @@ interface
 uses
   IdException,
   IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
-  IdIntercept, IdSys, IdResourceStringsCore, IdObjs;
+  IdIntercept, IdSys, IdResourceStringsCore, IdObjs, IdStreamHelper;
 
 const
   GRecvBufferSizeDefault = 32 * 1024;
@@ -1227,26 +1227,12 @@ begin
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
-       {$IFDEF DotNetDistro}
-      LBufSize := AStream.Read(LBuffer, LBufSize, 0);
-      {$ELSE}
-      LStrm := TIdStreamVCL.Create(AStream);
-      try
-        LStrm.ReadBytes(LBuffer, LBufSize, 0);
-      finally
-        Sys.FreeAndNil(LStrm);
-      end;
-      {$ENDIF}
+      LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
       if LBufSize = 0 then begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
       SetLength(LBuffer, LBufSize);
-      {$IFDEF DOTNET}
-      AStream.Write(LBuffer);
-      {$ELSE}
-      AStream.Write(LBuffer[0], LBufSize);
-      {$ENDIF}
-
+      TIdStreamHelper.Write(AStream, LBuffer);
       Dec(ASize, LBufSize);
     end;
   finally

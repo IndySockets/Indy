@@ -121,11 +121,6 @@ type
     class procedure InitializeAssembly(AAssembly: Assembly);
     {$ENDIF}
     {$IFDEF DotNetDistro}
-//    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); virtual;
-//    procedure AssignTo(ASource: TIdPersistent); override;
-//    procedure Loaded; virtual;
-//    function GetName: string;
-//    procedure SetName(const AValue: string);
     {$ENDIF}
     function GetIsLoading: Boolean;
     function GetIsDesignTime: Boolean;
@@ -147,12 +142,7 @@ type
     //constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
     {$IFDEF DotNetDistro}
-      constructor Create(AOwner: &Object); overload; virtual;
-      procedure BeginInit;
-      procedure EndInit;
-      procedure FreeNotification(AComponent: TIdNativeComponent);
-      property Name: string read GetName write SetName;
-      property Tag: &Object read FTag write FTag;
+      constructor Create(AOwner: &TIdNativeComponent); overload; override;
     {$ELSE}
     constructor Create(AOwner: TIdNativeComponent); overload; override;
     {$ENDIF}
@@ -213,48 +203,11 @@ var
 { TIdInitializerComponent }
 
 {$IFDEF DotNetDistro}
-constructor TIdInitializerComponent.Create(AOwner: &Object);
+constructor TIdInitializerComponent.Create(AOwner: TIdNativeComponent);
 begin
   inherited Create;
   InitComponent;
 end;
-
-procedure TIdInitializerComponent.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
-begin
-  // TODO: does this need any implementation on .NET?
-end;
-
-procedure TIdInitializerComponent.FreeNotification(AComponent: TIdNativeComponent);
-begin
-  // TODO: does this need any implementation on .NET?
-end;
-
-procedure TIdInitializerComponent.AssignTo(ASource: TIdPersistent);
-begin
-end;
-
-procedure TIdInitializerComponent.Loaded;
-begin
-end;
-
-function TIdInitializerComponent.GetName: string;
-begin
-  if (FName = '') and (Site <> nil) then
-  begin
-    FName := Site.Name;
-  end;
-  Result := FName;
-end;
-
-procedure TIdInitializerComponent.SetName(const AValue: string);
-begin
-  if (FName = '') and (Site <> nil) then
-  begin
-    Site.Name := AValue;
-  end;
-  FName := AValue;
-end;
-
 {$ENDIF}
 
 constructor TIdInitializerComponent.Create;
@@ -336,18 +289,11 @@ begin
     end;
   end;
   {$ENDIF}
-  {$IFDEF DotNetDistro}
-  FIsLoading := False;
-  {$ENDIF}
 end;
 
 function TIdInitializerComponent.GetIsLoading: Boolean;
 begin
-  {$IFDEF DotNetDistro}
-  Result := FIsLoading;
-  {$ELSE}
   Result := (csLoading in ComponentState);
-  {$ENDIF}
 end;
 
 function TIdInitializerComponent.GetIsDesignTime: Boolean;
@@ -358,19 +304,6 @@ begin
   Result := (csDesigning in ComponentState);
   {$ENDIF}
 end;
-
-{$IFDEF DotNetDistro}
-procedure TIdInitializerComponent.BeginInit;
-begin
-  FIsLoading := True;
-end;
-
-procedure TIdInitializerComponent.EndInit;
-begin
-  FIsLoading := False;
-  Loaded;
-end;
-{$ENDIF}
 
 { TIdBaseComponent }
 

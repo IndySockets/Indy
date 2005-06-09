@@ -42,7 +42,7 @@ unit IdServerInterceptLogBase;
 interface
 
 uses
-  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent;
+  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent, IdObjs;
 
 type
   TIdServerInterceptLogBase = class(TIdServerIntercept)
