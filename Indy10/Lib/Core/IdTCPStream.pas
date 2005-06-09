@@ -80,8 +80,9 @@ type
     FConnection: TIdTCPConnection;
     {$IFDEF DotNetDistro}
     function GetPosition: Int64; override;
-    {$ENDIF}
+
     function GetSize: Int64; override;
+     {$ENDIF}
 //  procedure SetSize(NewSize: Int64);
     {$IFDEF DOTNET}
     procedure SetSize(NewSize: Int64); override;
@@ -118,12 +119,14 @@ begin
   FConnection := AConnection;
 end;
 
+
+
+{$IFDEF DotNetDistro}
 function TIdTCPStream.GetSize: Int64;
 begin
   Result := 0;
 end;
 
-{$IFDEF DotNetDistro}
 function TIdTCPStream.GetPosition: Int64;
 begin
   Result := -1;

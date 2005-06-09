@@ -780,9 +780,6 @@ type
 implementation
 
 uses
-  {$IFNDEF DotNetDistro}
-  IdStreamVCL,
-  {$ENDIF}
   IdStack, IdResourceStrings;
 
 var
@@ -1195,9 +1192,7 @@ procedure TIdIOHandler.Write(AStream: TIdStream2; ASize: Int64 = 0;
 var
   LBuffer: TIdBytes;
   LBufSize: Integer;
-{$IFNDEF DotNetDistro}
-  LStrm : TIdStreamVCL;
-{$ENDIF}
+
 begin
   if ASize < 0 then begin //"-1" All form current position
     LBufSize := AStream.Position;
@@ -1381,11 +1376,7 @@ begin
         end;
       finally
         if i > 0 then begin
-          {$IFDEF DOTNET}
-          AStream.Write(LBuf, i);
-          {$ELSE}
-          AStream.Write(LBuf[0], i);
-          {$ENDIF}
+          TIdStreamHelper.Write(AStream,LBuf,i);
           Dec(LWorkCount, i);
         end;
       end;
