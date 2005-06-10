@@ -139,10 +139,11 @@ unit IdIOHandlerStream;
 interface
 
 uses
-  IdObjs,
   IdBaseComponent,
   IdGlobal,
   IdIOHandler,
+  IdObjs,
+  IdStreamHelper,
   IdSys;
 
 type
@@ -302,7 +303,7 @@ begin
     Result := Min(32 * 1024, FReceiveStream.Size - FReceiveStream.Position);
     if Result > 0 then begin
       SetLength(LBuffer, Result);
-      FReceiveStream.Read(LBuffer, Result);
+      TIdStreamHelper.ReadBytes(FReceiveStream,LBuffer,Result);
       if Intercept <> nil then begin
         Intercept.Receive(LBuffer);
         Result := Length(LBuffer);
@@ -324,7 +325,7 @@ begin
     if Intercept <> nil then begin
       Intercept.Send(ABuffer);
     end;
-    FSendStream.Write(ABuffer, Length(ABuffer));
+    TIdStreamHelper.Write(FSendStream,ABuffer);
   end;
 end;
 
