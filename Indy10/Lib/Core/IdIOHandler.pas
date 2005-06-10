@@ -1489,7 +1489,7 @@ begin
       if LStrings <> nil then begin
         LStrings.Add(s);
       end else if LStream <> nil then begin
-        WriteStringToStream(LStream, s);
+        WriteStringToStream(LStream, s+EOL);
       end;
     until False;
   finally EndWork(wmRead); end;
