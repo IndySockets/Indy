@@ -51,12 +51,11 @@ interface
 
 uses
   Classes,
-  SysUtils,
-  IdUDPBase,
-  IdUDPClient,
+    IdASN1Util,
+    IdObjs,
   IdException,
-  IdASN1Util,
-  IdTStrings;
+  IdUDPBase,
+  IdUDPClient;
 
 const
   //PDU type
@@ -150,6 +149,8 @@ type
 implementation
 
 uses
+  IdGlobal,
+  IdSys,
   IdStack;
 
 //Hernan Sanchez
@@ -162,13 +163,13 @@ begin
   for x:= 1 to 3 do
     begin
       t := '';    {Do not Localize}
-      s := StrScan(PChar(Host), '.');    {Do not Localize}
+      s := Copy(Host,IndyPos(Host, '.'),Length(Host));    {Do not Localize}
       t := Copy(Host, 1, (Length(Host) - Length(s)));
       Delete(Host, 1, (Length(Host) - Length(s) + 1));
-      i := StrTointDef(t, 0);
+      i := Sys.StrToint(t, 0);
       Result := Result + Chr(i);
     end;
-  i := StrTointDef(Host, 0);
+  i := Sys.StrToint(Host, 0);
   Result := Result + Chr(i);
 end;
 
@@ -237,12 +238,12 @@ var
 begin
   Pos:=2;
   Endpos:=ASNDecLen(Pos,buffer);
-  Self.version:=StrToIntDef(ASNItem(Pos,buffer,vt),0);
+  Self.version:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
   Self.community:=ASNItem(Pos,buffer,vt);
-  Self.PDUType:=StrToIntDef(ASNItem(Pos,buffer,vt),0);
-  Self.ID:=StrToIntDef(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorStatus:=StrToIntDef(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorIndex:=StrToIntDef(ASNItem(Pos,buffer,vt),0);
+  Self.PDUType:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ID:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ErrorStatus:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ErrorIndex:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
   ASNItem(Pos,buffer,vt);
   while Pos<Endpos do           // Decode MIB/Value pairs
     begin
@@ -278,10 +279,10 @@ begin
       case objType of
         ASN1_INT:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncInt(StrToIntDef(Self.MIBValue[n], 0)), objType);
+            ASNObject(ASNEncInt(Sys.StrToInt(Self.MIBValue[n], 0)), objType);
         ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncUInt(StrToIntDef(Self.MIBValue[n], 0)), objType);
+            ASNObject(ASNEncUInt(Sys.StrToInt(Self.MIBValue[n], 0)), objType);
         ASN1_OBJID:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
             ASNObject(MibToID(Self.MIBValue[n]), objType);
@@ -435,14 +436,14 @@ var
 begin
   Pos := 2;
   EndPos := ASNDecLen(Pos, Buffer);
-  Version := StrToIntDef(ASNItem(Pos, Buffer,vt), 0);
+  Version := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
   Community := ASNItem(Pos, Buffer,vt);
-  PDUType := StrToIntDef(ASNItem(Pos, Buffer,vt), PDUTRAP);
+  PDUType := Sys.StrToInt(ASNItem(Pos, Buffer,vt), PDUTRAP);
   Enterprise := IdToMIB(ASNItem(Pos, Buffer,vt));
   Host := ASNItem(Pos, Buffer,vt);
-  GenTrap := StrToIntDef(ASNItem(Pos, Buffer,vt), 0);
-  Spectrap := StrToIntDef(ASNItem(Pos, Buffer,vt), 0);
-  TimeTicks := StrToIntDef(ASNItem(Pos, Buffer,vt), 0);
+  GenTrap := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
+  Spectrap := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
+  TimeTicks := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
   ASNItem(Pos, Buffer,vt);
   while (Pos < EndPos) do
     begin

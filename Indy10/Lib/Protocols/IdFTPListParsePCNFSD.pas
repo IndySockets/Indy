@@ -19,7 +19,7 @@
 unit IdFTPListParsePCNFSD;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes,IdTStrings;
+uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
 This parser is a little more tolarant of stuff than others because of scanty samples.

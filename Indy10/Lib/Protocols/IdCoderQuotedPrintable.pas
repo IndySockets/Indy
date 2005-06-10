@@ -117,7 +117,7 @@ interface
 uses
   IdCoder,
   IdObjs,
-  IdStreamHelper,
+  IdStream,
   IdSys;
 
 type

@@ -1283,6 +1283,7 @@ uses
     IdGlobalProtocols,
     IdExceptionCore,
     IdStack,
+    IdStream,
     IdTCPStream,
     IdText,
     IdAttachment,
@@ -2939,9 +2940,7 @@ var
     LDestStream: TIdTCPStream;
     LTempStream: TIdMemoryStream;
     LTheBytes: TIdBytes;
- {$IFNDEF DotNet}
-   LStr : TIdStreamVCL;
- {$ENDIF}
+
 begin
 
     Result := False;
@@ -2953,51 +2952,39 @@ begin
         end;
         LLength := AStream.Size;
         LTempStream := TIdMemoryStream.Create;
-       {$IFNDEF DotNet}
-        LStr := TIdStreamVCL.Create(LTempStream);
-       {$ENDIF}
+
         try
           //Hunt for CRLF.CRLF, if present then we need to remove it...
           SetLength(LTheBytes, 1);
           LTempStream.CopyFrom(AStream, LLength);
           for LN := 0 to LTempStream.Size-5 do begin
-              {$IFDEF DOTNET}
-              LTempStream.Read(LTheBytes, 1, LN);
-              {$ELSE}
-              LStr.ReadBytes(LTheBytes, 1, LN);
-              {$ENDIF}
+
+              TIdStreamHelper.ReadBytes(LTempStream,LTheBytes, 1, LN);
+
               if LTheBytes[0] <> 13 then begin
                   continue;
               end;
-               {$IFDEF DOTNET}
-              LTempStream.Read(LTheBytes, 1, LN+1);
-              {$ELSE}
-              LStr.ReadBytes(LTheBytes, 1, LN+1);
-               {$ENDIF}
+
+              TIdStreamHelper.ReadBytes(LTempStream,LTheBytes, 1, LN+1);
+
               if LTheBytes[0] <> 10 then begin
                   continue;
               end;
-               {$IFDEF DOTNET}
-              LTempStream.Read(LTheBytes, 1, LN+2);
-               {$ELSE}
-               LStr.ReadBytes(LTheBytes, 1, LN+2);
-               {$ENDIF}
+
+             TIdStreamHelper.ReadBytes( LTempStream,LTheBytes, 1, LN+2);
+
               if LTheBytes[0] <> Ord('.') then begin
                   continue;
               end;
-                {$IFDEF DOTNET}
-              LTempStream.Read(LTheBytes, 1, LN+3);
-               {$ELSE}
-               LStr.ReadBytes(LTheBytes, 1, LN+3);
-               {$ENDIF}
+
+               TIdStreamHelper.ReadBytes( LTempStream,LTheBytes, 1, LN+3);
+
               if LTheBytes[0] <> 13 then begin
                   continue;
               end;
-              {$IFDEF DOTNET}
-              LTempStream.Read(LTheBytes, 1, LN+4);
-               {$ELSE}
-               LStr.ReadBytes(LTheBytes, 1, LN+4);
-               {$ENDIF}
+
+               TIdStreamHelper.ReadBytes( LTempStream,LTheBytes, 1, LN+4);
+
               if LTheBytes[0] <> 10 then begin
                   continue;
               end;
@@ -3059,10 +3046,7 @@ begin
               end;
           end;
         finally
- {$IFNDEF DotNet}
-            Sys.FreeAndNil( LStr);
- {$ENDIF}
-            Sys.FreeAndNil(LTempStream);
+           Sys.FreeAndNil(LTempStream);
         end;
 
     end;
@@ -3754,14 +3738,13 @@ var
     LBase64Decoder: TIdDecoderMIME;
     LQuotedPrintableDecoder: TIdDecoderQuotedPrintable;
     LBinHex4Decoder: TIdDecoderBinHex4;
-    LIdMemoryStream: TIdStream2;
-    LIdDestStream: TIdStream2;
+
+
     bCreatedStream: Boolean;
     LMemoryStream: TIdMemoryStream;
     LBuffer: string;
     LPartSizeParam: string;
-    LIdUnstrippedStream: TIdStream2;
-    LIdIntermediateStream: TIdStream2;
+
     LN: integer;
 {$IFDEF DOTNET}
     LTBytesPtr: TIdBytes;
@@ -4085,7 +4068,7 @@ var
     LStr: string;
     LSourceStream: TIdTCPStream;
     LDestStream: TIdStringStream;
-    LIdDestStream: TIdStream2;
+
 begin
     IsNumberValid(AMsgNum);
     Result := False;
@@ -6086,7 +6069,6 @@ const
     function ProcessTextPart(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
     var
         LDestStream: TIdStringStream;
-        LIdDestStream : TIdStream2;
         Li: integer;
     begin
         try

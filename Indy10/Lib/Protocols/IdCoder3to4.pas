@@ -151,7 +151,6 @@ uses
   IdCoder,
   IdGlobal,
   IdObjs,
-  IdStreamHelper,
   IdSys;
 
 type
@@ -191,7 +190,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings;
+  IdException, IdResourceStrings, IdStream;
 
 { TIdDecoder4to3 }
 

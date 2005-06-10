@@ -66,7 +66,7 @@ DIRECTORY_FORMAT=STANDARD does not need be supported because that is probably li
 If not, we'll deal with it given some data samples.
 }
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes,IdTStrings;
+uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
