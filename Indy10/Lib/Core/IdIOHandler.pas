@@ -512,7 +512,7 @@ interface
 uses
   IdException,
   IdAntiFreezeBase, IdBuffer, IdBaseComponent, IdComponent, IdGlobal, IdExceptionCore,
-  IdIntercept, IdSys, IdResourceStringsCore, IdObjs, IdStreamHelper;
+  IdIntercept, IdSys, IdResourceStringsCore, IdObjs, IdStream;
 
 const
   GRecvBufferSizeDefault = 32 * 1024;

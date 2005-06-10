@@ -473,7 +473,7 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdStreamHelper,
+  IdStream,
   IdStack; //needed for byte order functions
 
 procedure TIdBuffer.CheckAdd(AByteCount : Integer; const AIndex : Integer);

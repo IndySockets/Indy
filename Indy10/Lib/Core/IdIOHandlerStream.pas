@@ -143,7 +143,7 @@ uses
   IdGlobal,
   IdIOHandler,
   IdObjs,
-  IdStreamHelper,
+  IdStream,
   IdSys;
 
 type
