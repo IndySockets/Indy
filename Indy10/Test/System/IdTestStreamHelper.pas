@@ -7,7 +7,7 @@ uses
   IdTest,
   IdSys,
   IdGlobal,
-  IdStreamHelper;
+  IdStream;
 
 type
 
