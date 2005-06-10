@@ -131,7 +131,7 @@ begin
     LR := TIdReplyFTP(ADest);
     LR.ReplyFormat := ReplyFormat;
     LR.NumericCode := NumericCode;
-//    LR.FText.Assign(Text);
+//    LR.Text.Assign(Text);
 
     // holger: .NET compatibility change
     LR.Text.Assign(Text);
@@ -158,27 +158,27 @@ begin
   Result := GetFormattedReplyStrings;
   if NumericCode > 0 then begin
     LCode := Sys.IntToStr(NumericCode);
-    if FText.Count > 0 then begin
-      for i := 0 to FText.Count - 1 do begin
-        if i < FText.Count - 1 then begin
+    if Text.Count > 0 then begin
+      for i := 0 to Text.Count - 1 do begin
+        if i < Text.Count - 1 then begin
           if FReplyFormat = rfIndentMidLines then begin
             if i = 0 then begin
-              Result.Add(LCode + '-' + FText[i]);
+              Result.Add(LCode + '-' + Text[i]);
             end else begin
-              Result.Add(' ' + FText[i]);
+              Result.Add(' ' + Text[i]);
             end;
           end else begin
-            Result.Add(LCode + '-' + FText[i]);
+            Result.Add(LCode + '-' + Text[i]);
           end;
         end else begin
-          Result.Add(LCode + ' ' + FText[i]);
+          Result.Add(LCode + ' ' + Text[i]);
         end;
       end;
     end else begin
       Result.Add(LCode);
     end;
-  end else if FText.Count > 0 then begin
-    Result.AddStrings(FText);
+  end else if Text.Count > 0 then begin
+    Result.AddStrings(Text);
   end;
 end;
 

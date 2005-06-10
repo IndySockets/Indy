@@ -208,7 +208,7 @@ begin
     LR := TIdReplyPOP3(ADest);
     LR.Code := Code;
     LR.FEnhancedCode := EnhancedCode;
-    LR.FText.Assign(Text);
+    LR.Text.Assign(Text);
   end
   else
   begin
