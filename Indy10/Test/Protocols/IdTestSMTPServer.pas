@@ -42,28 +42,6 @@ const
   cTestPort=20202;
   cSpammerAddress='spammer@example.com';
 
-procedure TIdTestSMTPServer.CallbackMailFrom(ASender: TIdSMTPServerContext;
-  const AAddress: string; var VAction: TIdMailFromReply);
-begin
- if AAddress=cSpammerAddress then VAction:=mReject;
-end;
-
-procedure TIdTestSMTPServer.CallbackMsgReceive(
-  ASender: TIdSMTPServerContext; AMsg: TIdStream2;
-  var LAction: TIdDataReply);
-begin
- AMsg.Position:=0;
- //todo1 TIdIOHandlerStream.ReadFromSource fails here
- FReceivedMsg.LoadFromStream(AMsg);
-end;
-
-procedure TIdTestSMTPServer.CallbackRcptTo(ASender: TIdSMTPServerContext;
-  const AAddress: string; var VAction: TIdRCPToReply;
-  var VForward: string);
-begin
- VAction:=rAddressOk;
-end;
-
 procedure TIdTestSMTPServer.mySetup;
 begin
  Assert(FReceivedMsg=nil);
@@ -88,6 +66,42 @@ begin
  Sys.FreeAndNil(FClient);
  Sys.FreeAndNil(FServer);
  Sys.FreeAndNil(FReceivedMsg);
+end;
+
+procedure TIdTestSMTPServer.CallbackMailFrom(ASender: TIdSMTPServerContext;
+  const AAddress: string; var VAction: TIdMailFromReply);
+begin
+ if AAddress=cSpammerAddress then VAction:=mReject;
+end;
+
+procedure TIdTestSMTPServer.CallbackMsgReceive(
+  ASender: TIdSMTPServerContext; AMsg: TIdStream2;
+  var LAction: TIdDataReply);
+var
+ aList:TIdStringList;
+begin
+
+ //do a precheck here.
+ aList:=TIdStringList.Create;
+ try
+ AMsg.Position:=0;
+ aList.Text:=ReadStringFromStream(AMsg);
+ //should be at least headers for: received from subject to date
+ //if this fails, then client hasn't written correctly, or server hasn't read
+ Assert(aList.Count>=5);
+ finally
+ sys.FreeAndNil(aList);
+ end;
+
+ AMsg.Position:=0;
+ FReceivedMsg.LoadFromStream(AMsg);
+end;
+
+procedure TIdTestSMTPServer.CallbackRcptTo(ASender: TIdSMTPServerContext;
+  const AAddress: string; var VAction: TIdRCPToReply;
+  var VForward: string);
+begin
+ VAction:=rAddressOk;
 end;
 
 procedure TIdTestSMTPServer.TestGreeting;
