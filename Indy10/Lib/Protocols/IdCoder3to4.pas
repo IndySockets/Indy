@@ -150,7 +150,8 @@ interface
 uses
   IdCoder,
   IdGlobal,
-  idObjs,
+  IdObjs,
+  IdStreamHelper,
   IdSys;
 
 type
@@ -221,7 +222,7 @@ begin
     LIn := ToBytes(AIn); // if in dotnet, convert to serialisable format
     LOut := InternalDecode(LIn, AStartPos, ABytes);
     // Write out data to stream
-    FStream.Write(LOut,ABytes);
+    TIdStreamHelper.Write(FStream,LOut,ABytes);
   end;
 end;
 
@@ -337,7 +338,7 @@ begin
   LBufSize := Min(ASrcStream.Size - ASrcStream.Position, ABytes);
   if LBufSize > 0 then begin
     SetLength(LBuffer, LBufSize);
-    ASrcStream.Read(LBuffer, LBufSize);
+    TIdStreamHelper.ReadBytes(ASrcStream,LBuffer,LBufSize);
     Result := BytesToString(EncodeIdBytes(LBuffer));
   end else begin
     Result := '';
