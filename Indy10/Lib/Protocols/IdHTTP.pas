@@ -942,9 +942,6 @@ begin
 end;
 
 procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse);
-var
-  Size: Integer;
-  LS : TIdStream2;
 
   function ChunkSize: integer;
   var
@@ -960,6 +957,8 @@ var
     Result := Sys.StrToInt('$' + s, 0);
   end;
 
+var
+  Size: Integer;
 begin
 
   if Assigned(AResponse.ContentStream) then // Only for Get and Post
