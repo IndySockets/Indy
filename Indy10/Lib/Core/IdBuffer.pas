@@ -334,7 +334,10 @@ of bytes that is not freed between each call to WriteBytes.
 interface
 
 uses
-  IdGlobal, IdException, IdSys, IdObjs;
+  IdException,
+  IdGlobal,
+  IdObjs,
+  IdSys;
 
 type
   EIdNotEnoughDataInBuffer = class(EIdException);
@@ -348,6 +351,8 @@ type
   // TIdBuffer is primarily used as a read/write buffer for the communication layer.
 
   TIdBuffer = class(TIdBaseObject)
+  private
+    function GetAsString: string;
   protected
     FBytes: TIdBytes;
     FEncoding: TIdEncoding;
@@ -386,7 +391,7 @@ type
     // will extract number of bytes and treat as AnsiString though WideString will be returned in DotNet
     function Extract(AByteCount: Integer = -1): string;
     // all 3 extract routines append to existing data, if any
-    procedure ExtractToStream(AStream: TIdStream2; AByteCount: Integer = -1; const AIndex : Integer=-1);
+    procedure ExtractToStream(const AStream: TIdStream2;AByteCount: Integer = -1; const AIndex : Integer=-1);
     procedure ExtractToIdBuffer( ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer=-1);
     procedure ExtractToBytes(
       var VBytes: TIdBytes;
@@ -413,14 +418,14 @@ type
       AIndex: Integer
       ): Byte;
     procedure Remove(AByteCount: Integer);
-    procedure SaveToStream(AStream: TIdStream2);
+    procedure SaveToStream(const AStream: TIdStream2);
         {
     Most of these now have an ADestIndex parameter.  If that is less than 0,
     we are writing data sequentially.
 
     If ADestIndex is 0 or greater, you are setting bytes in a particular location in
     a random access manner.
-    
+
     }
     //we can't name this as a Write overload because
     //it would cause an abmigous overload error.
@@ -443,15 +448,15 @@ type
       AStream: TIdStream2;
       AByteCount: Integer = 0
       ); overload;
-    procedure Write(const AValue : Int64; const ADestIndex : Integer=-1); overload;  
+    procedure Write(const AValue : Int64; const ADestIndex : Integer=-1); overload;
     procedure Write(const AValue : Cardinal; const ADestIndex : Integer=-1); overload;
     procedure Write(const AValue : Word; const ADestIndex : Integer=-1); overload;
     procedure Write(const AValue : Byte; const ADestIndex : Integer=-1); overload;
     procedure Write(const AValue : TIdIPv6Address; const ADestIndex : Integer=-1); overload;
     //
     //Kudzu: I have removed the Bytes property. Do not add it back - it allowed "internal" access
-    // which caused comapacting or internal knoledge. Access via Extract or other such methods
-    // instead. Bytes could also be easily confused with FBytes intnernally and cause issues.
+    // which caused compacting or internal knowledge. Access via Extract or other such methods
+    // instead. Bytes could also be easily confused with FBytes internally and cause issues.
     //
     // Bytes also allowed direct acces without removing which could cause concurrency issues if
     // the reference was kept.
@@ -460,6 +465,8 @@ type
     property Encoding: TIdEncoding read FEncoding write FEncoding;
     property GrowthFactor: Integer read FGrowthFactor write FGrowthFactor;
     property Size: Integer read FSize;
+    //useful for testing
+    property AsString:string read GetAsString;
   end;
 
 implementation
@@ -468,9 +475,6 @@ uses
   IdResourceStringsCore,
   IdStreamHelper,
   IdStack; //needed for byte order functions
-
-
-{ TIdBuffer }
 
 procedure TIdBuffer.CheckAdd(AByteCount : Integer; const AIndex : Integer);
 begin
@@ -605,8 +609,9 @@ begin
   ABuffer.Write(LBytes);
 end;
 
-procedure TIdBuffer.ExtractToStream(AStream: TIdStream2; AByteCount: Integer = -1; const AIndex : Integer=-1);
-var LIndex : Integer;
+procedure TIdBuffer.ExtractToStream(const AStream: TIdStream2;AByteCount: Integer = -1; const AIndex : Integer=-1);
+var
+  LIndex : Integer;
   LBytes : TIdBytes;
 begin
   if AByteCount = -1 then begin
@@ -617,7 +622,7 @@ begin
   begin
     CompactHead;
     CheckByteCount(AByteCount,LIndex);
-    AStream.Write(FBytes, AByteCount);
+    TIdStreamHelper.Write(AStream,FBytes,AByteCount);
     Remove(AByteCount);
   end
   else
@@ -625,7 +630,7 @@ begin
     CheckByteCount(AByteCount,LIndex);
     SetLength(LBytes,AByteCount);
     CopyTIdBytes(FBytes,AIndex,LBytes,0,AByteCount);
-    AStream.Write(LBytes, AByteCount);
+    TIdStreamHelper.Write(AStream,LBytes,AByteCount);
   end;
 end;
 
@@ -773,10 +778,10 @@ begin
   Result := FBytes[FHeadIndex + AIndex];
 end;
 
-procedure TIdBuffer.SaveToStream(AStream: TIdStream2);
+procedure TIdBuffer.SaveToStream(const AStream: TIdStream2);
 begin
   CompactHead(False);
-  AStream.Write(FBytes, Size);
+  TIdStreamHelper.Write(AStream,FBytes,Size);
 end;
 
 function TIdBuffer.ExtractToIPv6(const AIndex: Integer): TIdIPv6Address;
@@ -1022,6 +1027,11 @@ begin
       end;
     end;
   end;
+end;
+
+function TIdBuffer.GetAsString: string;
+begin
+ Result:=BytesToString(FBytes);
 end;
 
 end.
