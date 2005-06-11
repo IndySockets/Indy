@@ -2,6 +2,8 @@ unit IdStream;
 
 interface
 
+{$I IdCompilerDefines.inc}
+
 uses
 {$IFDEF DotNet}
   IdStreamNET
