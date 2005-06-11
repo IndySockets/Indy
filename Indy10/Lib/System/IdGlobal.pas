@@ -1125,7 +1125,8 @@ implementation
 
 uses
   {$IFDEF LINUX} Libc, {$ENDIF}
-  IdResourceStrings;
+  IdResourceStrings,
+  IdStream;
 
 {$IFNDEF DotNet}
 var
@@ -2895,36 +2896,16 @@ begin
 end;
 
 function ReadStringFromStream(AStream: TIdStream2; ASize: Integer): string;
-{$IFDEF DotNet}
 var
   LBytes: TIdBytes;
-{$ENDIF}
 begin
-  if ASize < 0 then begin
-    ASize := AStream.Size;
-  end;
-  if ASize = 0 then begin
-    Result := '';
-  end else begin
-    {$IFDEF DotNet}
-    SetLength(LBytes, ASize);
-    ASize := AStream.Read(LBytes, 0, ASize);
-    Result := BytesToString(LBytes, 0, ASize);
-    {$ELSE}
-    SetLength(Result, ASize);
-    ASize := AStream.Read(Result[1], ASize);
-    SetLength(Result, ASize);
-    {$ENDIF}
-  end;
+  ASize := TIdStreamHelper.ReadBytes(AStream, LBytes, ASize);
+  Result := BytesToString(LBytes, 0, ASize);  // is the 0 right?
 end;
 
 function ReadTIdBytesFromStream(AStream: TIdStream2; ABytes: TIdBytes; Count: Integer): Integer;
 begin
-  {$IFDEF DotNet}
-  Result := AStream.Read(ABytes, 0, Min(Length(ABytes), Count));
-  {$ELSE}
-  Result := AStream.Read(ABytes[0], Min(Length(ABytes), Count));
-  {$ENDIF}
+  Result := TIdStreamHelper.ReadBytes(AStream, ABytes, Count);
 end;
 
 function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
@@ -2934,26 +2915,16 @@ end;
 
 procedure WriteTIdBytesToStream(AStream: TIdStream2; ABytes: TIdBytes);
 begin
-  {$IFDEF DotNet}
-  AStream.Write(ABytes, 0, Length(ABytes));
-  {$ELSE}
-  AStream.Write(ABytes[0], Length(ABytes));
-  {$ENDIF}
+  TIdStreamHelper.Write(AStream, ABytes);
 end;
 
 procedure WriteStringToStream(AStream: TIdStream2; const AStr :string);
-{$IFDEF DotNet}
 var
   LBytes: TIdBytes;
-{$ENDIF}
 begin
   if AStr <> '' then begin
-    {$IFDEF DotNet}
     LBytes := ToBytes(AStr);
-    AStream.Write(LBytes, 0, Length(LBytes));
-    {$ELSE}
-    AStream.Write(PChar(AStr)^, Length(AStr));
-    {$ENDIF}
+    TIdStreamHelper.Write(AStream, LBytes);
   end;
 end;
 

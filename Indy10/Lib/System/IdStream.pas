@@ -3,14 +3,14 @@ unit IdStream;
 interface
 
 uses
-{$IFDEF DotNetDistro}
+{$IFDEF DotNet}
   IdStreamNET
 {$ELSE}
   IdStreamVCL
 {$ENDIF};
 
 type
-{$IFDEF DotNetDistro}
+{$IFDEF DotNet}
   TIdStreamHelper = TIdStreamHelperNET;
 {$ELSE}
   TIdStreamHelper = TIdStreamHelperVCL;
