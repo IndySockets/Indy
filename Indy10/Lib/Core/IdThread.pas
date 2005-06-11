@@ -562,12 +562,12 @@ end;
 procedure TIdThreadWithTask.AfterRun;
 begin
   FTask.DoAfterRun;
-  inherited;
+  inherited AfterRun;
 end;
 
 procedure TIdThreadWithTask.BeforeRun;
 begin
-  inherited;
+  inherited BeforeRun;
   FTask.DoBeforeRun;
 end;
 
@@ -583,7 +583,7 @@ end;
 destructor TIdThreadWithTask.Destroy;
 begin
   Sys.FreeAndNil(FTask);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdThreadWithTask.Run;

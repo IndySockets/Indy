@@ -205,14 +205,14 @@ implementation
 
 constructor TIdThreadSafe.Create;
 begin
-  inherited;
+  inherited Create;
   FCriticalSection := TIdCriticalSection.Create;
 end;
 
 destructor TIdThreadSafe.Destroy;
 begin
   Sys.FreeAndNil(FCriticalSection);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdThreadSafe.Lock;
@@ -337,7 +337,7 @@ begin
   inherited Lock; try
     Sys.FreeAndNil(FValue);
   finally inherited Unlock; end;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdThreadSafeStringList.Empty: Boolean;

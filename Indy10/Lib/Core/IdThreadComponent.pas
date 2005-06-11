@@ -573,7 +573,7 @@ end;
 
 procedure TIdThreadComponent.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   StopMode := IdThreadComponentDefaultStopMode;
   Priority := IdThreadComponentDefaultPriority;
 end;
