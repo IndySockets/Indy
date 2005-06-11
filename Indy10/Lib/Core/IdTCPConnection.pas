@@ -564,7 +564,7 @@ end;
 
 procedure TIdTCPConnection.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
-  inherited;
+  inherited Notification(AComponent, Operation);
   if (Operation = opRemove) and (AComponent = FIOHandler) then begin
     FIOHandler := nil;
   end;
@@ -735,7 +735,7 @@ end;
 
 procedure TIdTCPConnection.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FReplyClass := GetReplyClass;
   FGreeting := FReplyClass.Create(nil, nil);
   FLastCmdResult := FReplyClass.Create(nil, nil);

@@ -34,7 +34,7 @@ uses IdResourceStringsCore;
 
 procedure TIdTCPServer.CheckOkToBeActive;
 begin
-  inherited;
+  inherited CheckOkToBeActive;
 
   if not Assigned( FOnExecute) then
   begin
