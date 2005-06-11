@@ -12,9 +12,10 @@ uses
   IdTestThreadComponent,
 
   //protocols
+  IdTestCoder3to4,
   IdTestCoderHeader,
   IdTestCoderMIME,
-  IdTestCoder3to4,
+  IdTestCoderQuotedPrintable,
   IdTestCookie,
   IdTestFtpServer,
   IdTestHttp,
