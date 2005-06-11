@@ -1,8 +1,6 @@
 library Indy.Sockets;
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
-{%DelphiDotNetAssemblyCompiler 'c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll'}
-{%DelphiDotNetAssemblyCompiler 'c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll'}
 
 
 uses
@@ -240,10 +238,7 @@ uses
   Indy.Sockets.IdStackConsts in 'Indy.Sockets.IdStackConsts.pas',
   Indy.Sockets.IdStackDotNet in 'Indy.Sockets.IdStackDotNet.pas',
   Indy.Sockets.IdStream in 'Indy.Sockets.IdStream.pas',
-  Indy.Sockets.IdStreamRandomAccess in 'Indy.Sockets.IdStreamRandomAccess.pas',
-  Indy.Sockets.IdStreamVCL in 'Indy.Sockets.IdStreamVCL.pas',
-  Indy.Sockets.IdStreamVCLBase in 'Indy.Sockets.IdStreamVCLBase.pas',
-  Indy.Sockets.IdStreamVCLDotNet in 'Indy.Sockets.IdStreamVCLDotNet.pas',
+  Indy.Sockets.IdStreamNET in 'Indy.Sockets.IdStreamNET.pas',
   Indy.Sockets.IdStrings in 'Indy.Sockets.IdStrings.pas',
   Indy.Sockets.IdStruct in 'Indy.Sockets.IdStruct.pas',
   Indy.Sockets.IdSync in 'Indy.Sockets.IdSync.pas',
@@ -261,7 +256,6 @@ uses
   Indy.Sockets.IdTCPConnection in 'Indy.Sockets.IdTCPConnection.pas',
   Indy.Sockets.IdTCPServer in 'Indy.Sockets.IdTCPServer.pas',
   Indy.Sockets.IdTCPStream in 'Indy.Sockets.IdTCPStream.pas',
-  Indy.Sockets.IdTStrings in 'Indy.Sockets.IdTStrings.pas',
   Indy.Sockets.IdTask in 'Indy.Sockets.IdTask.pas',
   Indy.Sockets.IdTelnet in 'Indy.Sockets.IdTelnet.pas',
   Indy.Sockets.IdTelnetServer in 'Indy.Sockets.IdTelnetServer.pas',
@@ -275,6 +269,7 @@ uses
   Indy.Sockets.IdTimeUDPServer in 'Indy.Sockets.IdTimeUDPServer.pas',
   Indy.Sockets.IdTlsClientOptions in 'Indy.Sockets.IdTlsClientOptions.pas',
   Indy.Sockets.IdTlsServerOptions in 'Indy.Sockets.IdTlsServerOptions.pas',
+  Indy.Sockets.IdTraceRoute in 'Indy.Sockets.IdTraceRoute.pas',
   Indy.Sockets.IdTrivialFTP in 'Indy.Sockets.IdTrivialFTP.pas',
   Indy.Sockets.IdTrivialFTPBase in 'Indy.Sockets.IdTrivialFTPBase.pas',
   Indy.Sockets.IdTrivialFTPServer in 'Indy.Sockets.IdTrivialFTPServer.pas',

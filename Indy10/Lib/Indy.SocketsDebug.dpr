@@ -1,8 +1,6 @@
 library Indy.SocketsDebug;
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
-{%DelphiDotNetAssemblyCompiler 'c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.Delphi.dll'}
-{%DelphiDotNetAssemblyCompiler 'c:\program files\common files\borland shared\bds\shared assemblies\3.0\Borland.VclRtl.dll'}
 
 
 uses
@@ -240,10 +238,7 @@ uses
   IdStackConsts in 'System\IdStackConsts.pas',
   IdStackDotNet in 'System\IdStackDotNet.pas',
   IdStream in 'System\IdStream.pas',
-  IdStreamRandomAccess in 'System\IdStreamRandomAccess.pas',
-  IdStreamVCL in 'System\IdStreamVCL.pas',
-  IdStreamVCLBase in 'System\IdStreamVCLBase.pas',
-  IdStreamVCLDotNet in 'System\IdStreamVCLDotNet.pas',
+  IdStreamNET in 'System\IdStreamNET.pas',
   IdStrings in 'Protocols\IdStrings.pas',
   IdStruct in 'System\IdStruct.pas',
   IdSync in 'Core\IdSync.pas',
@@ -261,7 +256,6 @@ uses
   IdTCPConnection in 'Core\IdTCPConnection.pas',
   IdTCPServer in 'Core\IdTCPServer.pas',
   IdTCPStream in 'Core\IdTCPStream.pas',
-  IdTStrings in 'System\IdTStrings.pas',
   IdTask in 'Core\IdTask.pas',
   IdTelnet in 'Protocols\IdTelnet.pas',
   IdTelnetServer in 'Protocols\IdTelnetServer.pas',
@@ -275,6 +269,7 @@ uses
   IdTimeUDPServer in 'Protocols\IdTimeUDPServer.pas',
   IdTlsClientOptions in 'Security\IdTlsClientOptions.pas',
   IdTlsServerOptions in 'Security\IdTlsServerOptions.pas',
+  IdTraceRoute in 'Core\IdTraceRoute.pas',
   IdTrivialFTP in 'Protocols\IdTrivialFTP.pas',
   IdTrivialFTPBase in 'Protocols\IdTrivialFTPBase.pas',
   IdTrivialFTPServer in 'Protocols\IdTrivialFTPServer.pas',
