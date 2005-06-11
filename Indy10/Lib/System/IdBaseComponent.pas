@@ -255,9 +255,9 @@ begin
         RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
       end;
       // Delphi 8 assemblies
-      if UnitType.Name = 'Unit' then begin
-        RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
-      end;
+//      if UnitType.Name = 'Unit' then begin
+//        RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
+//      end;
     end;
 end;
 {$ENDIF}
