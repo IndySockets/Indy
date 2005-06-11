@@ -78,7 +78,7 @@ uses
 
 procedure TIdIPMCastBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FMultiCastGroup := Id_IPMC_All_Systems;
 end;
 

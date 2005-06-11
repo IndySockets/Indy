@@ -117,7 +117,7 @@ uses
 
 procedure TIdIPMCastClient.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   BufferSize := ID_UDP_BUFFERSIZE;
   FThreadedEvent := DEF_IMP_THREADEDEVENT;
   FBindings := TIdSocketHandles.Create(Self);
