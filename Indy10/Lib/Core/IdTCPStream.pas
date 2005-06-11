@@ -75,33 +75,39 @@ uses
   IdGlobal, IdTCPConnection, IdObjs;
 
 type
+
   TIdTCPStream = class(TIdStream2)
   protected
     FConnection: TIdTCPConnection;
     {$IFDEF DotNetDistro}
     function GetPosition: Int64; override;
-
     function GetSize: Int64; override;
-     {$ENDIF}
-//  procedure SetSize(NewSize: Int64);
+    {$ENDIF}
     {$IFDEF DOTNET}
     procedure SetSize(NewSize: Int64); override;
     {$ELSE}
+    {$IFDEF DELPHI5}
+    procedure SetSize(NewSize: Longint); override;
+    {$ELSE}
     procedure SetSize(const NewSize: Int64); override;
+    {$ENDIF}
     {$ENDIF}
   public
     constructor Create(
       AConnection: TIdTCPConnection
       ); reintroduce;
-{$IFDEF DOTNET}
+    {$IFDEF DOTNET}
     function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
-{$ELSE}
+    {$ELSE}
     function Read(var Buffer; Count: Longint): Longint;  override;
     function Write(const Buffer; Count: Longint): Longint;  override;
-
-{$ENDIF}
+    {$ENDIF}
+    {$IFDEF DELPHI5}
+    function Seek(Offset: Longint; Origin: Word): Longint; override;
+    {$ELSE}
     function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
+    {$ENDIF}
     property Connection: TIdTCPConnection read FConnection;
   end;
 
@@ -109,17 +115,13 @@ implementation
 
 {$IFNDEF DOTNET}
 uses SysUtils;
-
 {$ENDIF}
-{ TIdTCPStream }
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection);
 begin
   inherited Create;
   FConnection := AConnection;
 end;
-
-
 
 {$IFDEF DotNetDistro}
 function TIdTCPStream.GetSize: Int64;
@@ -157,23 +159,29 @@ begin
 end;
 {$ENDIF}
 
+{$IFDEF DELPHI5}
+function TIdTCPStream.Seek(Offset: Longint; Origin: Word): Longint;
+{$ELSE}
 function TIdTCPStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
+{$ENDIF}
 begin
   Result := 0;
 end;
 
 {$IFDEF DOTNET}
-procedure TIdTCPStream.SetSize(NewSize: Int64);
+procedure TIdTCPStream.SetSize(NewSize: Int64); 
+{$ELSE}
+{$IFDEF DELPHI5}
+procedure TIdTCPStream.SetSize(NewSize: Longint);
 {$ELSE}
 procedure TIdTCPStream.SetSize(const NewSize: Int64);
 {$ENDIF}
-
+{$ENDIF}
 begin
 //
 end;
 
 {$IFDEF DOTNET}
-
 function TIdTCPStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
 begin
   if AOffset > 0 then
@@ -189,6 +197,7 @@ begin
   Result := Count;
 end;
 {$ENDIF}
+
 end.
 
 
