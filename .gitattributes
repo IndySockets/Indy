@@ -587,6 +587,7 @@ Indy10/Lib/System/IndySystemK3.dpk -text
 Indy10/NUnit/Sys.cs -text
 Indy10/Test/Core/IdTestBuffer.pas -text
 Indy10/Test/Core/IdTestCmdTCPClient.pas -text
+Indy10/Test/Core/IdTestIOHandler.pas -text
 Indy10/Test/Core/IdTestSchedulerOfThreadPool.pas -text
 Indy10/Test/Core/IdTestSocketHandle.pas -text
 Indy10/Test/Core/IdTestThreadComponent.pas -text
