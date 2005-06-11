@@ -537,7 +537,7 @@ end;
 destructor TIdBuffer.Destroy;
 begin
   Clear;
-  inherited;
+  inherited Destroy;
   //do only at the last moment
   TIdStack.DecUsage;
 end;
@@ -762,7 +762,7 @@ end;
 
 constructor TIdBuffer.Create;
 begin
-  inherited;
+  inherited Create;
   FEncoding := enANSI;
   FGrowthFactor := 2048;
   Clear;
