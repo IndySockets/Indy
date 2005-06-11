@@ -154,7 +154,7 @@ begin
   Sys.FreeAndNil(FBinding);
 
   Sys.FreeAndNil(FPkt);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdRawBase.GetBinding: TIdSocketHandle;
@@ -194,13 +194,14 @@ begin
       LC := 1;
       GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_HOPLIMIT, LC);
     {$ENDIF}
+
     end;
   end;
   Result := FBinding;
 end;
 
 function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
-var 
+var
   LIP : String;
   LPort : Integer;
 begin
@@ -212,15 +213,18 @@ begin
     end;
     if Length(VBuffer)>0 then
     begin
-  //    if Binding.Readable(ATimeOut) then begin
-        if FIPVersion = Id_IPv4 then
-        begin
+
+      if FIPVersion = Id_IPv4 then
+      begin
+        if Binding.Readable(ATimeOut) then begin
+
           Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
           FPkt.SourceIP := LIP;
           FPkt.SourcePort := LPort;
-        end
-        else
-        begin
+        end;
+      end
+      else
+      begin
         {
         IMPORTANT!!!!
 
@@ -239,11 +243,10 @@ begin
         IP address and hopefully, the TTL (hop count).
         }
 
-          Result := GStack.ReceiveMsg(Binding.Handle,VBuffer,FPkt,Id_IPv6);
-        end;
+         Result := GStack.ReceiveMsg(Binding.Handle,VBuffer,FPkt,Id_IPv6);
 
       end;
-  //  end;
+   end;
 end;
 
 procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const AData: string);
@@ -283,7 +286,7 @@ end;
 
 procedure TIdRawBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FBinding := TIdSocketHandle.Create(nil);
   FPkt := TIdPacketInfo.Create;
   ReceiveTimeout := GReceiveTimeout;

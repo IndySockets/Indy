@@ -110,7 +110,7 @@ end;
 
 procedure TIdLogBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FLogTime := True;
   ReplaceCRLF := True;
 end;

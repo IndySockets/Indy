@@ -70,7 +70,7 @@ implementation
 
 procedure TIdLogStream.Disconnect;
 begin
-  inherited;
+  inherited Disconnect;
   if FreeStreams then begin
     Sys.FreeAndNil(FReceiveStream);
     Sys.FreeAndNil(FSendStream);
@@ -79,7 +79,7 @@ end;
 
 procedure TIdLogStream.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FFreeStreams := True;
 end;
 

@@ -814,7 +814,7 @@ uses IdSys;
 
 procedure TIdSunB.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 //  Assert(Length(ABytes)>=VIndex+3,'not enough bytes');
   Fs_b1 := ABytes[VIndex];
   inc(VIndex);
@@ -828,7 +828,7 @@ end;
 
 procedure TIdSunB.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+4 then
   begin
     SetLength(VBytes,VIndex+4);
@@ -856,7 +856,7 @@ end;
 
 procedure TIdSunW.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+4 then
   begin
     SetLength(VBytes,VIndex+4);
@@ -871,7 +871,7 @@ end;
 
 procedure TIdICMPEcho.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 //   Assert(Length(ABytes)>=VIndex+3,'not enough bytes');
    Fid  := BytesToWord(ABytes,VIndex);
    inc(VIndex,2);
@@ -881,7 +881,7 @@ end;
 
 procedure TIdICMPEcho.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+4 then
   begin
     SetLength(VBytes,VIndex+4);
@@ -896,7 +896,7 @@ end;
 
 procedure TIdICMPFrag.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 //   Assert(Length(ABytes)>=VIndex+3,'not enough bytes');
    Fpad  := BytesToWord(ABytes,VIndex);
    inc(VIndex,2);
@@ -906,7 +906,7 @@ end;
 
 procedure TIdICMPFrag.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+4 then
   begin
     SetLength(VBytes,VIndex+4);
@@ -926,7 +926,7 @@ begin
     Frtime: TIdNetTime;
     Fttime: TIdNetTime;
 }
-  inherited;
+  inherited ReadStruct(ABytes,VIndex);
 //   Assert(Length(ABytes)>=VIndex+11,'not enough bytes');
     Fotime := BytesToCardinal(ABytes,VIndex);        // time message was sent, to calc roundtrip time
    inc(VIndex,4);
@@ -938,7 +938,7 @@ end;
 
 procedure TIdICMPTs.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+12 then
   begin
     SetLength(VBytes,VIndex+12);
@@ -1125,7 +1125,7 @@ end;
 
 constructor TIdicmp_dun.create;
 begin
-  inherited;
+  inherited create;
   FBytesLen := 4;
   SetLength(FBuffer,FBytesLen);
 end;
@@ -1134,14 +1134,14 @@ end;
 
 constructor TIdICMPHdr.create;
 begin
-  inherited;
+  inherited create;
     Ficmp_hun:= TIdicmp_hun.Create;
     Ficmp_dun:= TIdicmp_dun.create;
 end;
 
 procedure TIdICMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited create;
    Assert(Length(ABytes)>(VIndex+4+Ficmp_hun.BytesLen+ Ficmp_dun.BytesLen-1),
      'not enough bytes');
    Ficmp_type := ABytes[VIndex];
@@ -1170,7 +1170,7 @@ destructor TIdICMPHdr.Destroy;
 begin
   Sys.FreeAndNil(Ficmp_hun);
   Sys.FreeAndNil(Ficmp_dun);
-  inherited;
+  inherited Destroy;
 end;
 
 { TIdIPOptions }
@@ -1189,20 +1189,20 @@ end;
 
 constructor TIdIPOptions.Create;
 begin
-  inherited;
+  inherited Create;
   SetLength(Fipopt_list,Id_MAX_IPOPTLEN);
 end;
 
 procedure TIdIPOptions.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Assert(Length(ABytes)>=VIndex+Id_MAX_IPOPTLEN-1,'not enough bytes');
   CopyTIdBytes(ABytes,VIndex,Fipopt_list,0,Id_MAX_IPOPTLEN);
 end;
 
 procedure TIdIPOptions.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes,VIndex);
   if Length(VBytes)<VIndex+Id_MAX_IPOPTLEN then
   begin
     SetLength(VBytes,VIndex+Id_MAX_IPOPTLEN);
@@ -1230,7 +1230,7 @@ end;
 
 constructor TIdIPHdr.create;
 begin
-  inherited;
+  inherited create;
     Fip_src:= TIdInAddr.Create;
     Fip_dst:= TIdInAddr.create;
 end;
@@ -1239,12 +1239,12 @@ destructor TIdIPHdr.Destroy;
 begin
   Sys.FreeAndNil( Fip_src);
   Sys.FreeAndNil( Fip_dst);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   //Assert doesn't work as it should
 //   Assert(Length(ABytes)>=(VIndex+16+Fip_src.BytesLen+ Fip_dst.BytesLen-1),
 //     'not enough bytes');
@@ -1274,7 +1274,7 @@ end;
 procedure TIdIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 var LMinLen : Integer;
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   LMinLen := VIndex+16+Fip_src.BytesLen+ Fip_dst.BytesLen;
   if Length(VBytes)<VIndex+LMinLen then
   begin
@@ -1319,20 +1319,20 @@ end;
 
 constructor TIdTCPOptions.create;
 begin
-  inherited;
+  inherited create;
    SetLength ( Self.Ftcpopt_list,Id_MAX_IPOPTLEN);
 end;
 
 procedure TIdTCPOptions.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   CopyTIdBytes(ABytes,VIndex,Self.Ftcpopt_list,0,Id_MAX_IPOPTLEN);
   inc(VIndex,Id_MAX_IPOPTLEN);
 end;
 
 procedure TIdTCPOptions.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   CopyTIdBytes(Ftcpopt_list,0,VBytes,VIndex,Id_MAX_IPOPTLEN);
   inc(VIndex,Id_MAX_IPOPTLEN);
 end;
@@ -1341,7 +1341,7 @@ end;
 
 procedure TIdTCPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 //  Assert(Length(ABytes)>=VIndex+18-1,'not enough bytes');
   Ftcp_sport := BytesToWord(ABytes,VIndex);       // source port
   Inc(VIndex,2);
@@ -1365,7 +1365,7 @@ end;
 
 procedure TIdTCPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+18 then
   begin
     SetLength(VBytes,VIndex+18);
@@ -1394,7 +1394,7 @@ end;
 
 procedure TIdUDPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Assert(Length(ABytes)>VIndex+8,'not enough bytes');
   Fudp_sport := BytesToWord(ABytes,VIndex);        // source port
   Inc(VIndex,2);
@@ -1408,7 +1408,7 @@ end;
 
 procedure TIdUDPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes,VIndex);
   if Length(VBytes)<VIndex+8 then
   begin
     SetLength(VBytes,VIndex +8);
@@ -1428,13 +1428,13 @@ end;
 
 constructor TIdIGMPHdr.create;
 begin
-  inherited;
+  inherited create;
   Figmp_group := TIdInAddr.create;
 end;
 
 procedure TIdIGMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes,VIndex);
   Assert(Length(ABytes)>=VIndex+8+Figmp_group.BytesLen-1,'not enough bytes');
     Figmp_type := ABytes[VIndex];
     Inc(VIndex);
@@ -1447,7 +1447,7 @@ end;
 
 procedure TIdIGMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+8+Figmp_group.BytesLen then
   begin
     SetLength(VBytes,VIndex+8+Figmp_group.BytesLen);
@@ -1464,14 +1464,14 @@ end;
 destructor TIdIGMPHdr.Destroy;
 begin
    Sys.FreeAndNil(Figmp_group);
-  inherited;
+  inherited Destroy;
 end;
 
 { TIdEtherAddr }
 
 procedure TIdEtherAddr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Assert(Length(ABytes)>=VIndex+Length(Fether_addr_octet)-1,'not enough bytes');
   CopyTIdBytes(ABytes,VIndex,Self.Fether_addr_octet,0,Length(Fether_addr_octet));
   inc(VIndex,Length(Fether_addr_octet));
@@ -1487,7 +1487,7 @@ end;
 
 procedure TIdEtherAddr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(VBytes)<VIndex+Length(Fether_addr_octet) then
   begin
     SetLength(VBytes,VIndex+Length(Fether_addr_octet));
@@ -1504,7 +1504,7 @@ end;
 
 constructor TIdEtherAddr.create;
 begin
-  inherited;
+  inherited create;
   SetLength(Fether_addr_octet,Id_ETHER_ADDR_LEN);
 end;
 
@@ -1524,7 +1524,7 @@ end;
 
 constructor TIdEthernetHdr.create;
 begin
-  inherited;
+  inherited create;
   Fether_dhost:= TIdEtherAddr.create;
   Fether_shost:= TIdEtherAddr.create;
 end;
@@ -1532,7 +1532,7 @@ end;
 procedure TIdEthernetHdr.ReadStruct(const ABytes: TIdBytes;
   var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes,VIndex);
   Assert(Length(ABytes)<VIndex+(Id_ETHER_ADDR_LEN*2)-1,'not enough bytes');
   Fether_dhost.ReadStruct(ABytes,VIndex);            // destination ethernet address
   Fether_shost.ReadStruct(ABytes,VIndex);            // source ethernet address
@@ -1543,7 +1543,7 @@ end;
 procedure TIdEthernetHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 var Len : Integer;
 begin
-  inherited;
+  inherited WriteStruct(VBytes,VIndex);
   Len := VIndex+(Id_ETHER_ADDR_LEN*2);
     if Length(VBytes)<Len then
   begin
@@ -1559,7 +1559,7 @@ destructor TIdEthernetHdr.Destroy;
 begin
   Sys.FreeAndNil( Fether_dhost);
   Sys.FreeAndNil( Fether_shost);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdEthernetHdr.CopyFrom(const ASource: TIdEthernetHdr);
@@ -1573,7 +1573,7 @@ end;
 
 constructor TIdARPHdr.create;
 begin
-  inherited;
+  inherited create;
 
     Farp_sha:= TIdEtherAddr.create;                // sender hardware address
     Farp_spa:= TIdInAddr.create;                   // sender protocol address
@@ -1584,7 +1584,7 @@ end;
 procedure TIdARPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
   Assert(Length(ABytes)>=VIndex+(Id_ETHER_ADDR_LEN*2)+8-1,'not enough bytes');
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Farp_hrd := BytesToWord(ABytes,VIndex);  // format of hardware address
   Inc(VIndex,2);
   Farp_pro := BytesToWord(ABytes,VIndex); // format of protocol address
@@ -1606,7 +1606,7 @@ end;
 procedure TIdARPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 var Len : Integer;
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   Len := VIndex+(Id_ETHER_ADDR_LEN*2+8);
     if Length(VBytes)<Len then
   begin
@@ -1636,7 +1636,7 @@ begin
   Sys.FreeAndNil( Farp_spa);
   Sys.FreeAndNil( Farp_tha);
   Sys.FreeAndNil( Farp_tpa);
-  inherited;
+  inherited Destroy;
 end;
 
 { TIdDNSHdr }
@@ -1644,7 +1644,7 @@ end;
 procedure TIdDNSHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
   Assert(Length(ABytes)>=VIndex+12-1,'not enough bytes');
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Fdns_id := BytesToWord(ABytes,VIndex);      // DNS packet ID
   Inc(VIndex,2);
   Fdns_flags:= BytesToWord(ABytes,VIndex);  // DNS flags
@@ -1665,7 +1665,7 @@ begin
   begin
     SetLength(VBytes,VIndex + 12);
   end;
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(  Fdns_id,VBytes,VIndex);     // DNS packet ID
   Inc(VIndex,2);
   CopyTIdWord(  Fdns_flags,VBytes,VIndex);  // DNS flags
@@ -1685,7 +1685,7 @@ end;
 procedure TIdRIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
    Assert(Length(ABytes)>=VIndex+24-1,'not enough bytes');
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
     Frip_cmd:= ABytes[VIndex];            // RIP command
     Inc(VIndex);
     Frip_ver:= ABytes[VIndex];            // RIP version
@@ -1712,7 +1712,7 @@ begin
   begin
     SetLength(VBytes,VIndex + 24);
   end;
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Frip_cmd;            // RIP command
   Inc(VIndex);
   VBytes[VIndex] := Frip_ver;            // RIP version
@@ -1784,7 +1784,7 @@ end;
 
 constructor TIdicmp6_un.create;
 begin
-  inherited;
+  inherited create;
    FBytesLen := 4;
    SetLength(FBuffer,FBytesLen);
 end;
@@ -1823,20 +1823,20 @@ end;
 
 constructor TIdicmp6_hdr.create;
 begin
-  inherited;
+  inherited create;
    Fdata := TIdicmp6_un.create;
 end;
 
 destructor TIdicmp6_hdr.Destroy;
 begin
    Sys.FreeAndNil(Fdata);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdicmp6_hdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
    Assert(Length(ABytes)>=VIndex+8-1,'not enough bytes');
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 {
     Ficmp6_type : uint8_t;   //* type field */
     FIcmp6_code : uint8_t;   //* code field */
@@ -1854,7 +1854,7 @@ end;
 
 procedure TIdicmp6_hdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
 {
     Ficmp6_type : uint8_t;   //* type field */
     FIcmp6_code : uint8_t;   //* code field */
@@ -1880,7 +1880,7 @@ end;
 procedure TIdIp6_hdrctl.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
   Assert(Length(ABytes)>=VIndex+8-1,'not enough bytes');
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
 
   Fip6_un1_flow := BytesToCardinal(ABytes,VIndex); { 4 bits version, 8 bits TC, 20 bits flow-ID }
   Inc(VIndex,4);
@@ -1894,7 +1894,7 @@ end;
 
 procedure TIdIp6_hdrctl.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes,VIndex);
   if Length(VBytes)<VIndex + 8 then
   begin
     SetLength(VBytes,VIndex + 8);
@@ -1997,7 +1997,7 @@ end;
 
 constructor TIdip6_hdr.create;
 begin
-  inherited;
+  inherited create;
   FBytesLen := Id_IPv6_HSIZE;
   SetLength(FBuffer,Id_IPv6_HSIZE);
 end;
