@@ -111,6 +111,7 @@ begin
       Code('  designide,');
     end;
   end;
+  Code('  IndySystem' + GCompilerID[Compiler] + ',');
   Code('  IndyCore' + GCompilerID[Compiler] + ';');
   GenContains;
    //back door for embedding version information into an assembly
