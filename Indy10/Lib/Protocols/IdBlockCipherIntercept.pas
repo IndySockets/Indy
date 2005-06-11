@@ -194,7 +194,7 @@ end;
 
 procedure TIdBlockCipherIntercept.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FBlockSize := IdBlockCipherBlockSizeDefault;
   SetLength(FIncoming, 0);
 end;

@@ -53,7 +53,7 @@ implementation
 
 procedure TIdChargenUDPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_CHARGEN;
 end;
 
