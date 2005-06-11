@@ -413,7 +413,7 @@ End;
 destructor TIdSocketList.Destroy;
 begin
   Sys.FreeAndNil(FLock);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdSocketList.Lock;
@@ -438,7 +438,7 @@ end;
 constructor TIdStack.Create;
 begin
   // Here for .net
-  inherited;
+  inherited Create;
 end;
 
 function TIdStack.IsIP(AIP: string): Boolean;

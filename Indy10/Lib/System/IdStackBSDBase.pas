@@ -563,14 +563,14 @@ end;
 
 constructor TIdStackBSDBase.Create;
 begin
-  inherited;
+  inherited Create;
   GBSDStack := Self;
 end;
 
 destructor TIdStackBSDBase.Destroy;
 begin
   Sys.FreeAndNil(FLocalAddresses);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdStackBSDBase.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean;
