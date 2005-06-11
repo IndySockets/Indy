@@ -177,7 +177,7 @@ end;
 destructor TIdASN1Encoder.Destroy;
 begin
   FSequences.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdASN1Encoder.WriteToStream(Stream : TStream);
@@ -354,7 +354,7 @@ end;
 destructor TIdASN1Decoder.Destroy;
 begin
   FLengths.Free;
-  Inherited;
+  Inherited  Destroy;
 end;
 
 procedure TIdASN1Decoder.Check(bCondition: Boolean; const sMethod, sMessage: String);
