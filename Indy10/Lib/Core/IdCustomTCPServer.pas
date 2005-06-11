@@ -481,7 +481,7 @@ begin
   Sys.FreeAndNil(FBindings);
   //
   Sys.FreeAndNil(FContexts);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdCustomTCPServer.DoAfterBind;
@@ -744,7 +744,7 @@ end;
 
 procedure TIdCustomTCPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
   FContexts := TIdThreadList.Create;
   FContextClass := TIdContext;
@@ -852,7 +852,7 @@ end;
 
 procedure TIdListenerThread.AfterRun;
 begin
-  inherited;
+  inherited AfterRun;
   // Close just own binding. The rest will be closed from their coresponding
   // threads
   FBinding.CloseSocket;
@@ -860,7 +860,7 @@ end;
 
 procedure TIdListenerThread.BeforeRun;
 begin
-  inherited;
+  inherited BeforeRun;
   if Assigned(FOnBeforeRun) then begin
     FOnBeforeRun(Self);
   end;
