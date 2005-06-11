@@ -27,6 +27,7 @@ package dclIndyCore90Net;
 
 requires
   Borland.Studio.Vcl.Design,
+  IndySystem90Net,
   IndyCore90Net;
 
 contains

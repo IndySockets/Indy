@@ -27,6 +27,7 @@ package dclIndyCore60;
 requires
   vcl,
   designide,
+  IndySystem60,
   IndyCore60;
 
 contains

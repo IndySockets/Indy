@@ -84,6 +84,7 @@ contains
   IdThread in 'IdThread.pas',
   IdThreadComponent in 'IdThreadComponent.pas',
   IdThreadSafe in 'IdThreadSafe.pas',
+  IdTraceRoute in 'IdTraceRoute.pas',
   IdUDPBase in 'IdUDPBase.pas',
   IdUDPClient in 'IdUDPClient.pas',
   IdUDPServer in 'IdUDPServer.pas',

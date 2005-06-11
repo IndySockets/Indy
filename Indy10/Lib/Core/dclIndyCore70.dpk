@@ -27,6 +27,7 @@ package dclIndyCore70;
 requires
   vcl,
   designide,
+  IndySystem70,
   IndyCore70;
 
 contains

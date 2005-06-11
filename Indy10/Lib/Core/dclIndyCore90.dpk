@@ -28,6 +28,7 @@ package dclIndyCore90;
 
 requires
   designide,
+  IndySystem90,
   IndyCore90;
 
 contains

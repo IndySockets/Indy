@@ -26,6 +26,7 @@ package dclIndyCore50;
 
 requires
   Vcl50,
+  IndySystem50,
   IndyCore50;
 
 contains

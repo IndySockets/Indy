@@ -26,6 +26,7 @@ package dclIndyCoreK3;
 
 requires
   designide,
+  IndySystemK3,
   IndyCoreK3;
 
 contains
