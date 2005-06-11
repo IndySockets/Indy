@@ -126,7 +126,7 @@ end;
 
 procedure TIdAuthenticationManager.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FAuthentications := TIdAuthenticationCollection.Create(Self);
 end;
 

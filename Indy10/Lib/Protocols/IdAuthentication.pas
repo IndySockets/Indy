@@ -176,7 +176,7 @@ end;
 
 constructor TIdAuthentication.Create;
 begin
-  inherited;
+  inherited Create;
   FParams := TIdHeaderList.Create;
 
   FCurrentStep := 0;

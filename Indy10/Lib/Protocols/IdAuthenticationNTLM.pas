@@ -178,7 +178,7 @@ var
 begin
  if Value <> Username then
  begin
-   inherited;
+   inherited SetUserName(Value);
    i := Pos('\', Username);
    if i > -1 then
    begin
