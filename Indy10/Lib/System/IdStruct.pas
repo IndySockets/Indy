@@ -92,7 +92,7 @@ end;
 
 procedure TIdUnion.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited ReadStruct(ABytes, VIndex);
   Assert(Length(ABytes)>VIndex+FBytesLen-1,'not enough bytes');
   CopyTIdBytes(ABytes,VIndex,FBuffer,0,FBytesLen);
   Inc(VIndex,FBytesLen);
@@ -100,7 +100,7 @@ end;
 
 procedure TIdUnion.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
-  inherited;
+  inherited WriteStruct(VBytes, VIndex);
   if Length(FBuffer)<VIndex+FBytesLen then
   begin
     SetLength(FBuffer,Length(VBytes)+FBytesLen);
@@ -183,7 +183,7 @@ end;
 
 constructor TIdLongWord.create;
 begin
-  inherited;
+  inherited create;
    FBytesLen := 4;
    SetLength(FBuffer,FBytesLen);
 end;
