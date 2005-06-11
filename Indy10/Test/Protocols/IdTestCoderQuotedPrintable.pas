@@ -23,9 +23,10 @@ type
 
 implementation
 
+//this should be elsewhere, or a proper function
 function StrRight(const aStr:string;const aCount:integer):string;
 begin
-  Result:=Copy(aStr,Length(aStr)-aCount,aCount);
+  Result:=Copy(aStr,Length(aStr)-aCount+1,aCount);
 end;
 
 function TIdTestCoderQuotedPrintable.EncDec;
