@@ -38,7 +38,7 @@ failure if you have a computer with IP address and no DNS name at all.
       AReplyStatus.HostName := AReplyStatus.FromIpAddress;
     end;
   end;
-  inherited;
+  inherited DoReply(AReplyStatus);
 
 end;
 
@@ -52,13 +52,13 @@ var i : Integer;
 
 begin
 
-  PacketSize := 64;
+//  PacketSize := 64;
 //We do things this way because we only want to resolve the destination host name
 //only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
   FIPAddr :=  GStack.ResolveHost(FHost,FIPVersion);
   try
 
-   LSeq := $100;
+   LSeq := $1;
    LTTL := 1;
    TTL := LTTL;
    for i := 1 to 30 do
@@ -66,9 +66,12 @@ begin
      ReplyStatus.PacketNumber := i;
      InternalPing(FIPAddr,'',LSeq);
      case ReplyStatus.ReplyStatusType of
-       rsEcho : Break;
-       rsErrorTTLExceeded : ;
+       rsErrorTTLExceeded,
+       rsTimeout : ;
+     else
+       break;
      end;
+
      Inc(LTTL);
      TTL := LTTL;
      LSeq := LSeq * 2;
