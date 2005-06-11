@@ -139,6 +139,7 @@ type
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
     FStartTime : Cardinal; //this is a fallabk if no packet is returned
+    FPacketSize : Integer;
     FbufReceive: TIdBytes;
     FbufIcmp: TIdBytes;
     wSeqNo: word;
@@ -415,7 +416,7 @@ end;
 
 procedure TIdCustomIcmpClient.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
   {$IFNDEF DOTNET}
@@ -429,7 +430,7 @@ end;
 destructor TIdCustomIcmpClient.Destroy;
 begin
   Sys.FreeAndNil(FReplyStatus);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal;
@@ -670,7 +671,10 @@ begin
   // icmp_dun.ts.otime := Ticks; - not an official thing but for Indy internal use
   IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,8);
   //data
-  IdGlobal.CopyTIdString(Buffer,FBufIcmp,12);
+  if Length(Buffer)>0 then
+  begin
+    IdGlobal.CopyTIdString(Buffer,FBufIcmp,12);
+  end;
   //the checksum is done in a send override
 
 end;
@@ -829,13 +833,13 @@ end;
 
 function TIdCustomIcmpClient.GetPacketSize: Integer;
 begin
-  Result := Length(FBufIcmp);
+  Result := FPacketSize;
 end;
 
 procedure TIdCustomIcmpClient.SetPacketSize(const AValue: Integer);
 begin
-  SetLength(FbufReceive,AValue+Id_IP_HSIZE);
-  SetLength(FbufIcmp,AValue);
+
+  FPacketSize := AValue;
 end;
 
 procedure TIdCustomIcmpClient.InternalPing(const AIP, ABuffer: String;
@@ -845,6 +849,15 @@ begin
   if SequenceID <> 0 then
   begin
     wSeqNo := SequenceID;
+  end;
+  SetLength(FbufIcmp,FPacketSize);
+  if  Self.FIPVersion = Id_IPv4 then
+  begin
+    SetLength(FbufReceive,FPacketSize+Id_IP_HSIZE);
+  end
+  else
+  begin
+    SetLength(FbufReceive,FPacketSize+(Id_IPv6_HSIZE*2));
   end;
   PrepareEchoRequest(ABuffer);
   SendEchoRequest(AIP);
