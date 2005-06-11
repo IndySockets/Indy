@@ -801,7 +801,7 @@ begin
   Close;
   Sys.FreeAndNil(FRecvBuffer);
   Sys.FreeAndNil(FInputBuffer);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdIOHandler.AfterAccept;
@@ -1707,7 +1707,7 @@ end;
 
 procedure TIdIOHandler.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FRecvBufferSize := GRecvBufferSizeDefault;
   FSendBufferSize := GSendBufferSizeDefault;
   FMaxLineLength := IdMaxLineLengthDefault;
