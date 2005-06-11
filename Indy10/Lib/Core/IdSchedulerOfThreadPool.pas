@@ -144,7 +144,7 @@ begin
   //Assert(LThread<>nil);
 
   // inherited removes from ActiveYarns list and destroys yarn
-  inherited;
+  inherited ReleaseYarn(AYarn);
 
   with FThreadPool.LockList do try
     if (Count < PoolSize) and (LThread<>nil) then begin
@@ -164,7 +164,7 @@ end;
 procedure TIdSchedulerOfThreadPool.TerminateAllYarns;
 begin
   // inherited will kill off ActiveYarns
-  inherited;
+  inherited TerminateAllYarns;
   // ThreadPool is nil if never Initted
   if FThreadPool <> nil then begin
     // Now we have to kill off the pooled threads
@@ -184,7 +184,7 @@ end;
 
 procedure TIdSchedulerOfThreadPool.Init;
 begin
-  inherited;
+  inherited Init;
   FThreadPool := TIdThreadSafeList.Create;
   if not IsDesignTime then begin
     if PoolSize > 0 then begin

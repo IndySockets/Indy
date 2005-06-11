@@ -215,7 +215,7 @@ uses
 destructor TIdSchedulerOfThread.Destroy;
 begin
   TerminateAllYarns;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdSchedulerOfThread.StartYarn(
@@ -268,7 +268,7 @@ end;
 
 procedure TIdSchedulerOfThread.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FThreadPriority := tpIdNormal;
   FMaxThreads := 0;
 end;
@@ -289,7 +289,7 @@ end;
 destructor TIdYarnOfThread.Destroy;
 begin
   FScheduler.ReleaseYarn(Self);
-  inherited;
+  inherited Destroy;
 end;
 
 end.

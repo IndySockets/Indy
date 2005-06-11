@@ -115,7 +115,7 @@ uses
 destructor TIdScheduler.Destroy;
 begin
   Sys.FreeAndNil(FActiveYarns);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdScheduler.Init;
@@ -124,7 +124,7 @@ end;
 
 procedure TIdScheduler.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FActiveYarns := TIdThreadSafeList.Create;
 end;
 

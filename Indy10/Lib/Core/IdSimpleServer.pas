@@ -287,7 +287,7 @@ end;
 
 procedure TIdSimpleServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FAcceptWait := ID_ACCEPT_WAIT;
   FListenHandle := Id_INVALID_SOCKET;
 end;

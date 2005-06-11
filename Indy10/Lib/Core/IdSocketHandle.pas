@@ -301,7 +301,7 @@ destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
   Sys.FreeAndNil(FConnectionHandle);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdSocketHandle.Receive(var VBuffer: TIdBytes): Integer;
