@@ -6,6 +6,7 @@ uses
   //core
   IdTestBuffer,
   IdTestCmdTCPClient,
+  IdTestIOHandler,
   IdTestSchedulerOfThreadPool,
   IdTestSocketHandle,
   IdTestThreadComponent,
