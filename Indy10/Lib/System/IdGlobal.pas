@@ -846,11 +846,6 @@ type
   THandle = LongWord; //D6.System
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF MSWINDOWS}
-    {$IFNDEF VCL6ORABOVE}
-  THandle = Windows.THandle;
-    {$ENDIF}
-  {$ENDIF}
   {$IFDEF DotNetDistro}
   THandle = Integer;
   {$ELSE}
@@ -2922,10 +2917,10 @@ procedure WriteStringToStream(AStream: TIdStream2; const AStr :string);
 var
   LBytes: TIdBytes;
 begin
-  if AStr <> '' then begin
-    LBytes := ToBytes(AStr);
-    TIdStreamHelper.Write(AStream, LBytes);
-  end;
+  if AStr = '' then Exit;
+
+  LBytes := ToBytes(AStr);
+  TIdStreamHelper.Write(AStream, LBytes);
 end;
 
 //    function IdRead(var Buffer: TIdByteArray; Offset, Count: Longint): Longint; virtual; abstract;
