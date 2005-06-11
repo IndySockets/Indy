@@ -200,7 +200,7 @@ begin
     LR.NumericCode := NumericCode;
     LR.Text.Assign(Text);
   end else begin
-    inherited;
+    inherited AssignTo(ADest);
   end;
 end;
 
@@ -304,7 +304,7 @@ var
   LGenericNumCode: Integer;
   LReply: TIdReply;
 begin
-  inherited;
+  inherited UpdateText(AReply);
   // If text is still blank after inherited see if we can find a generic version
   if AReply.Text.Count = 0 then begin
     LGenericNumCode := (AReply.NumericCode div 100) * 100;

@@ -234,7 +234,7 @@ begin
     LR.Text.Assign(Self.Text);
     LR.Code := Self.Code;
   end else begin
-    inherited;
+    inherited AssignTo(ADest);
   end;
 end;
 
@@ -264,7 +264,7 @@ destructor TIdReply.Destroy;
 begin
   Sys.FreeAndNil(FText);
   Sys.FreeAndNil(FFormattedReply);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdReply.CommonInit;
