@@ -87,7 +87,7 @@ uses
 
 procedure TIdPropEdBinding.Edit;
 begin
-  inherited;
+  inherited Edit;
   with TIdPropEdBindingEntry.Create(nil) do
   try
     if PropCount > 0 then
@@ -151,7 +151,7 @@ procedure TIdPropEdBinding.SetValue(const Value: string);
 var
   IdSockets: TIdSocketHandles;
 begin
-  inherited;
+  inherited SetValue(Value);
   {$IFNDEF DOTNET}
   IdSockets := TIdSocketHandles(GetOrdValue);
   {$ELSE}
@@ -167,6 +167,7 @@ end;
 
 procedure Register;
 begin
+  
   RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdTCPServer, '', TIdPropEdBinding);    {Do not Localize}
    RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdUDPServer, '', TIdPropEdBinding);    {Do not Localize}
    RegisterPropertyEditor(TypeInfo(TIdSocketHandles),TIdIPMCastClient,'',TIdPropEdBinding);  {Do not localize}
