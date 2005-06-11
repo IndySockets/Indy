@@ -173,7 +173,7 @@ begin
   if (Operation = opRemove) and (AComponent = FChainedProxy) then begin
     FChainedProxy := nil;
   end;
-  inherited;
+  inherited Notification(AComponent,Operation);
 end;
 
 procedure TIdCustomTransparentProxy.SetChainedProxy(const AValue: TIdCustomTransparentProxy);
