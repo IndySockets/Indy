@@ -230,7 +230,7 @@ end;
 
 procedure TIdIOHandlerStream.Close;
 begin
-  inherited;
+  inherited Close;
   if FreeStreams then begin
     Sys.FreeAndNil(FReceiveStream);
     Sys.FreeAndNil(FSendStream);
@@ -276,7 +276,7 @@ end;
 
 procedure TIdIOHandlerStream.Open;
 begin
-  inherited;
+  inherited Open;
   if Assigned(OnGetStreams) then begin
     OnGetStreams(Self, FReceiveStream, FSendStream);
   end;

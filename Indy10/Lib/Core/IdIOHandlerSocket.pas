@@ -264,7 +264,7 @@ begin
   if FBinding <> nil then begin
     FBinding.CloseSocket;
   end;
-  inherited;
+  inherited Close;
 end;
 
 procedure TIdIOHandlerSocket.ConnectClient;
@@ -336,7 +336,7 @@ end;
 
 procedure TIdIOHandlerSocket.Open;
 begin
-  inherited;
+  inherited Open;
   if not Assigned(FBinding) then begin
     FBinding := TIdSocketHandle.Create(nil);
   end else begin
@@ -467,7 +467,7 @@ end;
 
 procedure TIdIOHandlerSocket.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FUseNagle := True;
   FIPVersion := ID_DEFAULT_IP_VERSION;
 end;

@@ -183,7 +183,7 @@ end;
 destructor TIdUDPBase.Destroy;
 begin
   Active := False;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdUDPBase.GetActive: Boolean;
@@ -231,7 +231,7 @@ end;
 
 procedure TIdUDPBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   BufferSize := ID_UDP_BUFFERSIZE;
   FReceiveTimeout := IdTimeoutInfinite;
   FIPVersion := ID_DEFAULT_IP_VERSION;
@@ -241,7 +241,7 @@ procedure TIdUDPBase.Loaded;
 var
   b: Boolean;
 begin
-  inherited;
+  inherited Loaded;
   b := FDsgnActive;
   FDsgnActive := False;
   Active := b;

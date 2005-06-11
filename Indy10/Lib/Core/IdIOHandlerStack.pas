@@ -334,7 +334,7 @@ var
   LIP: string;
   LIPVersion : TIdIPVersion;
 begin
-  inherited;
+  inherited ConnectClient;
   if Assigned(FTransparentProxy) then begin
     if FTransparentProxy.Enabled then begin
       LHost := FTransparentProxy.Host;
