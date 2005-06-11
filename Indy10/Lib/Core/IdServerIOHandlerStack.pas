@@ -78,7 +78,7 @@ implementation
 
 procedure TIdServerIOHandlerStack.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   IOHandlerSocketClass := TIdIOHandlerStack;
 end;
 

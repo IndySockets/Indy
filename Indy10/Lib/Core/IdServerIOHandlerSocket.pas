@@ -158,7 +158,7 @@ end;
 
 procedure TIdServerIOHandlerSocket.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   IOHandlerSocketClass := TIdIOHandlerSocket;
 end;
 
