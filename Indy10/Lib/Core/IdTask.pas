@@ -76,7 +76,7 @@ begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
   Sys.FreeAndNil(FData);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdTask.DoAfterRun;

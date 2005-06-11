@@ -493,7 +493,7 @@ End;//
 
 procedure TIdSocksInfo.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Authentication := ID_SOCKS_AUTH;
   Version := ID_SOCKS_VER;
   Port := IdPORT_SOCKS;
@@ -1049,7 +1049,7 @@ end;
 destructor TIdSocksInfo.Destroy;
 begin
  Sys.FreeAndNil(FUDPSocksAssociation);
- inherited;
+ inherited Destroy;
 end;
 
 end.
