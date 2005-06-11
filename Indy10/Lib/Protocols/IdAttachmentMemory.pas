@@ -105,7 +105,7 @@ end;
 destructor TIdAttachmentMemory.Destroy;
 begin
   FDataStream.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdAttachmentMemory.GetDataStream: TIdStream2;
@@ -157,7 +157,7 @@ end;
 
 constructor TIdAttachmentMemory.Create(Collection: TIdCollection);
 begin
-  inherited;
+  inherited Create(Collection);
   FDataStream := TIdMemoryStream.Create;
 end;
 

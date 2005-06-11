@@ -113,7 +113,7 @@ var
   mp: TIdAttachment;
 begin
   if not (Source is Self.ClassType) then begin
-    inherited;
+    inherited Assign(Source);
   end else begin
     mp := TIdAttachment(Source);
     {
@@ -184,7 +184,7 @@ end;
 
 procedure TIdAttachment.SetContentType(const Value: String);
 begin
-  inherited; // TODO: what is here? must we add 'name='?
+  inherited SetContentType(Value); // TODO: what is here? must we add 'name='?
 end;
 
 end.
