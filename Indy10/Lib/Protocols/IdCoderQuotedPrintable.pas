@@ -306,7 +306,8 @@ begin
   st := TIdStringList.Create;
   SetLength(CurrentLine, 255);
   try
-    while ASrcStream.Position = (ASrcStream.Size - 1) do begin
+    //ie while not eof
+    while (ASrcStream.Position < ASrcStream.Size) do begin
       SourceLine := ReadLnFromStream(ASrcStream, -1, False);
       PossibleBreakPos := 1;
       CurrentPos := 1;
