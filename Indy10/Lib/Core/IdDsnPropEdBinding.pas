@@ -519,7 +519,7 @@ begin
   begin
     FreeAndNil(GStack);
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdPropEdBindingEntry.PortDescription(
