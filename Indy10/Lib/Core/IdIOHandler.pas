@@ -1227,7 +1227,7 @@ begin
         raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
       SetLength(LBuffer, LBufSize);
-      TIdStreamHelper.Write(AStream, LBuffer);
+      Write(LBuffer);
       Dec(ASize, LBufSize);
     end;
   finally
