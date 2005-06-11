@@ -109,7 +109,7 @@ uses
 
 procedure TIdIPMCastServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FLoopback := DEF_IMP_LOOPBACK;
   FTimeToLive := DEF_IMP_TTL;
 end;
