@@ -228,7 +228,7 @@ begin
     FListeningThread.Terminate;
   end;
   //
-  inherited;
+  inherited Disconnect(AImmediate);
   //
   if Assigned(FOnDisconnect) then begin
   	FOnDisconnect(Self);
@@ -257,7 +257,7 @@ end;
 
 procedure TIdCmdTCPClient.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
 
   FExceptionReply := FReplyClass.Create(nil);
   ExceptionReply.SetReply(500, 'Unknown Internal Error'); {do not localize}

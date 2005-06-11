@@ -362,7 +362,7 @@ procedure TIdCmdTCPServer.DoConnect(AContext: TIdContext);
 var
   LGreeting: TIdReply;
 begin
-  inherited;
+  inherited DoConnect(AContext);
   // RLebeau - check the connection first in case the application
   // chose to disconnect the connection in the OnConnect event handler.
   if AContext.Connection.Connected then begin
@@ -378,7 +378,7 @@ end;
 
 procedure TIdCmdTCPServer.DoMaxConnectionsExceeded(AIOHandler: TIdIOHandler);
 begin
-  inherited;
+  inherited DoMaxConnectionsExceeded(AIOHandler);
   //Do not UpdateText here - in thread. Is done in constructor
   AIOHandler.Write(MaxConnectionReply.FormattedReply);
 end;
@@ -425,7 +425,7 @@ begin
       end;
     end;
   end;
-  inherited;
+  inherited SetActive(AValue);
 end;
 
 function TIdCmdTCPServer.CreateExceptionReply: TIdReply;
@@ -530,7 +530,7 @@ end;
 
 procedure TIdCmdTCPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FReplyClass := GetReplyClass;
 
   // Before Command handlers as they need FReplyTexts, but after FReplyClass is set
@@ -549,7 +549,7 @@ end;
 procedure TIdCmdTCPServer.CheckOkToBeActive;
 begin
   if CommandHandlers.Count = 0 then begin
-    inherited;
+    inherited CheckOkToBeActive;
   end;
 end;
 

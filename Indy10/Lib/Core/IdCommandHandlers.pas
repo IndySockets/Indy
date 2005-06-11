@@ -628,7 +628,7 @@ begin
   Sys.FreeAndNil(FReply);
   Sys.FreeAndNil(FResponse);
   Sys.FreeAndNil(FParams);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdCommand.DoCommand;
