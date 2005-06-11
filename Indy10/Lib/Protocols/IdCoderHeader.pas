@@ -106,6 +106,7 @@ type
 implementation
 
 uses
+  IdCoderMIME,
   IdGlobal,
   IdGlobalProtocols;
 
@@ -217,20 +218,6 @@ begin
   else Result := Sys.Format('%s', [EmailAddr.Address]);     {Do not Localize}
 end;
 
-function B64(AChar: Char): Byte;
-//TODO: Make this use the more efficient MIME Coder
-var
-  i: Integer;
-begin
-  for i := Low(base64_tbl) to High(base64_tbl) do begin
-    if AChar = base64_tbl[i] then begin
-      Result := i;
-      exit;
-    end;
-  end;
-  Result := 0;
-end;
-
 function DecodeHeader(Header: string):string;
 const
   WhiteSpace = LF+CR+CHAR32+TAB;
@@ -239,8 +226,7 @@ var
   HeaderEncoding,
   HeaderCharSet,
   s: string;
-  a3: array [1..3] of byte;
-  a4: array [1..4] of byte;
+  aDecoder:TIdDecoderMIMELineByLine;
   LEncodingStartPos,encodingendpos:Integer;
   LPreviousEncodingStartPos: integer;
   substring: string;
@@ -367,18 +353,14 @@ begin
           until (substring[i]='?') and (substring[i+1]='=')   {Do not Localize}
         end else if EncodingFound then
         begin
-          while Length(substring) >= 4 do
-          begin
-            a4[1] := b64(substring[1]);
-            a4[2] := b64(substring[2]);
-            a4[3] := b64(substring[3]);
-            a4[4] := b64(substring[4]);
-            a3[1] := Byte((a4[1] shl 2) or (a4[2] shr 4));
-            a3[2] := Byte((a4[2] shl 4) or (a4[3] shr 2));
-            a3[3] := Byte((a4[3] shl 6) or (a4[4] shr 0));
-            substring := Copy(substring, 5, Length(substring));
-            s := s + CHR(a3[1]) + CHR(a3[2]) + CHR(a3[3]);
-          end;
+           S := Copy(Substring,1,Length(Substring)-2);
+           aDecoder := TIdDecoderMIMELineByLine.Create(nil);
+           try
+              aDecoder.Clear;
+              S := aDecoder.DecodeString(S);
+           finally
+              Sys.FreeAndNil(aDecoder);
+           end;
         end;
 
         if EncodingFound then
@@ -728,7 +710,7 @@ begin
   end;
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
-  if HeaderEncoding='8' then begin //UpCase('8')='8'     {Do not Localize}
+  if HeaderEncoding='8' then begin     {Do not Localize}
       Result:=S;
       EXIT;
   end;//if
