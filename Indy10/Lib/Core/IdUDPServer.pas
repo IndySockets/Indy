@@ -185,7 +185,7 @@ destructor TIdUDPServer.Destroy;
 begin
   Active := False;
   Sys.FreeAndNil(FBindings);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
@@ -247,7 +247,7 @@ end;
 
 procedure TIdUDPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
 end;
 
@@ -305,7 +305,7 @@ end;
 destructor TIdUDPListenerThread.Destroy;
 begin
   SetLength(FBuffer,0);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdUDPListenerThread.Run;

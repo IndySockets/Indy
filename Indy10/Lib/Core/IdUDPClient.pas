@@ -245,7 +245,7 @@ end;
 
 procedure TIdUDPClient.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FProxyOpened := False;
   FConnected := False;
 end;
