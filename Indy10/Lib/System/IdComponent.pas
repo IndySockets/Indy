@@ -143,7 +143,7 @@ uses
 
 destructor TIdComponent.Destroy;
 begin
-  inherited;
+  inherited Destroy;
   // After inherited - do at last possible moment
   TIdStack.DecUsage;
 end;
@@ -213,7 +213,7 @@ end;
 
 procedure TIdComponent.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   TIdStack.IncUsage;
 end;
 
