@@ -58,7 +58,7 @@ uses
 
 procedure TIdInterceptThrottler.Receive(var ABuffer: TIdBytes);
 begin
-  inherited;
+  inherited Receive(ABuffer);
   if BitsPerSec > 0 then begin
     TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div BitsPerSec);
   end;
@@ -66,7 +66,7 @@ end;
 
 procedure TIdInterceptThrottler.Send(var ABuffer: TIdBytes);
 begin
-  inherited;
+  inherited Send(ABuffer);
   if BitsPerSec > 0 then begin
     TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div BitsPerSec);
   end;

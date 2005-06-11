@@ -81,7 +81,7 @@ uses
 
 procedure TIdInterceptSimLog.Connect(AConnection: TIdNativeComponent);
 begin
-  inherited;
+  inherited Connect(AConnection);
   // Warning! This will overwrite any existing file. It makes no sense
   // to concatenate sim logs.
   FStream := TIdFileStream.Create(Filename, fmCreate);
@@ -90,18 +90,18 @@ end;
 procedure TIdInterceptSimLog.Disconnect;
 begin
   Sys.FreeAndNil(FStream);
-  inherited;
+  inherited Disconnect;
 end;
 
 procedure TIdInterceptSimLog.Receive(var ABuffer: TIdBytes);
 begin
-  inherited;
+  inherited Receive(ABuffer);
   WriteRecord('Recv', ABuffer); {do not localize}
 end;
 
 procedure TIdInterceptSimLog.Send(var ABuffer: TIdBytes);
 begin
-  inherited;
+  inherited Send(ABuffer);
   WriteRecord('Send', ABuffer); {do not localize}
 end;
 

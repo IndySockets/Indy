@@ -199,7 +199,7 @@ end;
 
 procedure TIdConnectionIntercept.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FIsClient := True;
 end;
 
