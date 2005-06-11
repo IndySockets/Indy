@@ -595,6 +595,7 @@ Indy10/Test/IdRegisterTests.pas -text
 Indy10/Test/Protocols/IdTestCoder3to4.pas -text
 Indy10/Test/Protocols/IdTestCoderHeader.pas -text
 Indy10/Test/Protocols/IdTestCoderMIME.pas -text
+Indy10/Test/Protocols/IdTestCoderQuotedPrintable.pas -text
 Indy10/Test/Protocols/IdTestCookie.pas -text
 Indy10/Test/Protocols/IdTestFtpServer.pas -text
 Indy10/Test/Protocols/IdTestHttp.pas -text
