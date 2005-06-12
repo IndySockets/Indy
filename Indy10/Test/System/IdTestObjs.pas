@@ -9,6 +9,11 @@ uses
 
 type
 
+  TIdTestNativeComponent = class(TIdTest)
+  published
+    procedure TestOwner;
+  end;
+
   TIdTestStringStream = class(TIdTest)
   published
     procedure TestStream;
@@ -51,8 +56,24 @@ begin
 
 end;
 
+procedure TIdTestNativeComponent.TestOwner;
+//eg used to cause stack overflow in .net
+//also want to test when owner<>nil. eg add a c2.
+var
+ c,o:TIdNativeComponent;
+begin
+ c:=TIdTestNativeComponent.Create(nil);
+ try
+ o:=c.Owner;
+ Assert(o=nil);
+ finally
+ sys.FreeAndNil(c);
+ end;
+end;
+
 initialization
 
+  TIdTest.RegisterTest(TIdTestNativeComponent);
   TIdTest.RegisterTest(TIdTestStringStream);
 
 end.
