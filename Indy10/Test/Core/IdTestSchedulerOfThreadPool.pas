@@ -12,12 +12,12 @@ type
 
   TIdTestSchedulerOfThreadPool = class(TIdTest)
   published
-    procedure btTestFree;
+    procedure TestFree;
   end;
 
 implementation
 
-procedure TIdTestSchedulerOfThreadPool.btTestFree;
+procedure TIdTestSchedulerOfThreadPool.TestFree;
 //tests that a simple start/stop doesn't cause errors
 var
  //better to use a simple tcpserver?

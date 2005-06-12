@@ -19,12 +19,12 @@ type
 
   TIdTestCmdTCPClient = class(TIdTest)
   published
-    procedure btTestFree;
+    procedure TestFree;
   end;
 
 implementation
 
-procedure TIdTestCmdTCPClient.btTestFree;
+procedure TIdTestCmdTCPClient.TestFree;
 //this is to make sure a bug doesnt reappear. at one point, the
 //TIdCmdTCPClientListeningThread freed its owner.
 var
