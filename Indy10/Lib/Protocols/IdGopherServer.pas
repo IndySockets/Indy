@@ -109,7 +109,7 @@ uses
 
 procedure TIdGopherServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_GOPHER;
   fAdminEmail := '<gopher@domain.example>';    {Do not Localize}
 end;

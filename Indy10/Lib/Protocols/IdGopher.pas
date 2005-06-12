@@ -256,7 +256,7 @@ uses
 
 procedure TIdGopher.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_GOPHER;
 end;
 
@@ -629,7 +629,7 @@ end;
 
 constructor TIdGopherMenuItem.Create(ACollection: TIdCollection);
 begin
-  inherited;
+  inherited Create(ACollection);
   FGopherBlock := TIdHeaderList.Create;
   {we don't unfold or fold lines as headers in that block start with a space}    {Do not Localize}
   FGopherBlock.UnfoldLines := False;
@@ -647,7 +647,7 @@ begin
   Sys.FreeAndNil ( FAbstract );
   Sys.FreeAndNil ( FGopherBlock );
   Sys.FreeAndNil ( FViews );
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdGopherMenuItem.DoneSettingInfoBlock;
