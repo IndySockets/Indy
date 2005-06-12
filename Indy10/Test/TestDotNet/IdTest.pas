@@ -81,7 +81,8 @@ begin
 
       try
         aMethod.Invoke(aTest,[]);
-        RecordPass(aTest,aMethod.name);
+        //commented out, makes easier to see the fails
+        //RecordPass(aTest,aMethod.name);
       except
         on e:exception do
         begin
@@ -117,6 +118,7 @@ begin
   begin
     ie:=e as TargetInvocationException;
     WriteLn('    '+ie.InnerException.classname+':'+ie.InnerException.Message);
+    WriteLn(ie.InnerException.StackTrace);
   end else begin
     WriteLn('    '+e.classname);
   end;
