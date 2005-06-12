@@ -61,7 +61,7 @@ uses
 
 procedure TIdEncoderXXE.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCodingTable := GXXECodeTable;
   FFillChar := FCodingTable[1];
 end;
@@ -70,7 +70,7 @@ end;
 
 procedure TIdDecoderXXE.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FDecodeTable := GXXEDecodeTable;
   FFillChar := GXXECodeTable[1];
 end;

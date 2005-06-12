@@ -160,12 +160,12 @@ begin
   DeinitCompressors;
   FreeMem(FRecvBuf);
   FreeMem(FSendBuf);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdCompressionIntercept.Disconnect;
 begin
-  inherited;
+  inherited Disconnect;
   DeinitCompressors;
 end;
 

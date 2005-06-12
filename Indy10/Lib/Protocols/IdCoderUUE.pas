@@ -66,7 +66,7 @@ uses
 
 procedure TIdEncoderUUE.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCodingTable := GUUECodeTable;
   FFillChar := FCodingTable[1];
 end;
@@ -75,7 +75,7 @@ end;
 
 procedure TIdDecoderUUE.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FDecodeTable := GUUEDecodeTable;
   FFillChar := GUUECodeTable[1];
 end;

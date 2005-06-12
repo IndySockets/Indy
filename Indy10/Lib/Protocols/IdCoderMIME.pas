@@ -106,7 +106,7 @@ end;
 
 procedure TIdDecoderMIME.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FDecodeTable := GBase64DecodeTable;
   FCodingTable := GBase64CodeTable;
   FFillChar := '=';  {Do not Localize}
@@ -116,7 +116,7 @@ end;
 
 procedure TIdEncoderMIME.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCodingTable := GBase64CodeTable;
   FFillChar := '=';   {Do not Localize}
 end;

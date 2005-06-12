@@ -196,7 +196,7 @@ uses
 
 procedure TIdDecoderBinHex4.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FDecodeTable := GBinHex4DecodeTable;
   FCodingTable := GBinHex4CodeTable;
   FFillChar := '=';  {Do not Localize}
@@ -336,7 +336,7 @@ end;
 
 procedure TIdEncoderBinHex4.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCodingTable := GBinHex4CodeTable;
   FFillChar := '=';   {Do not Localize}
 end;
