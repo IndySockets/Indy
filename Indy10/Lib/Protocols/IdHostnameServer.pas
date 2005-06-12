@@ -36,7 +36,7 @@ Based on RFC 953
 }
 
 uses
-  Classes,
+  IdObjs,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -72,8 +72,8 @@ Type
     FOnCommandALLINGWAY:THostNameGetEvent;
     //
     function DoExecute(Thread: TIdContext): boolean; override;
+    procedure InitComponent; override;
   public
-    constructor Create(AOwner: TComponent); override;
   published
     property OnCommandHNAME: THostNameOneParmEvent read fOnCommandHNAME write fOnCommandHNAME;
     property OnCommandHADDR: THostNameOneParmEvent read fOnCommandHADDR write fOnCommandHADDR;
@@ -89,12 +89,13 @@ Type
 implementation
 
 uses
-  IdCoreGlobal,
-  IdGlobal;
+  IdGlobalCore,
+  IdGlobal,
+  IdSys;
 
-constructor TIdHostNameServer.Create(AOwner: TComponent);
+procedure TIdHostNameServer.InitComponent;
 begin
-  inherited Create(AOwner);
+  inherited InitComponent;
   DefaultPort := IdPORT_HOSTNAME;
 end;
 
@@ -107,7 +108,7 @@ begin
   while Thread.Connection.Connected do
   begin
     S := Thread.Connection.IOHandler.ReadLn;
-    sCmd := UpperCase ( Fetch ( s, CHAR32 ) );
+    sCmd := Sys.UpperCase ( Fetch ( s, CHAR32 ) );
     case Succ(PosInStrArray ( Uppercase ( sCmd ), KnownCommands ) ) of
       1 : {hname}
           if assigned ( OnCommandHNAME ) then
