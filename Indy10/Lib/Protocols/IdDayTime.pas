@@ -64,7 +64,7 @@ uses
 
 procedure TIdDayTime.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_DAYTIME;
 end;
 

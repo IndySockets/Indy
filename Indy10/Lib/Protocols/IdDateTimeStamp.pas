@@ -519,14 +519,14 @@ end;
 
 procedure TIdDateTimeStamp.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Zero;
   FTimeZone := 0;
 end;
 
 destructor TIdDateTimeStamp.Destroy;
 begin
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDateTimeStamp.AddDays;
