@@ -82,7 +82,7 @@ begin
       try
         aMethod.Invoke(aTest,[]);
         //commented out, makes easier to see the fails
-        //RecordPass(aTest,aMethod.name);
+        RecordPass(aTest,aMethod.name);
       except
         on e:exception do
         begin
@@ -102,7 +102,7 @@ procedure TIdBasicRunner.RecordPass(const aTest: TIdTest;
   const aMethod: string);
 begin
   inc(PassCount);
-  WriteLn('  Pass:'+aTest.classname+'.'+aMethod);
+  //WriteLn('  Pass:'+aTest.classname+'.'+aMethod);
 end;
 
 procedure TIdBasicRunner.RecordFail(const aTest: TIdTest; const aMethod: string;
