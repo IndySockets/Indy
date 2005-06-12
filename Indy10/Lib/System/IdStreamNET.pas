@@ -11,7 +11,7 @@ type
     class function ReadBytes(AStream: TIdStream2;
                          var VBytes: TIdBytes;
                              ACount: Integer = -1;
-                             AOffset: Integer = 1): Integer; static;
+                             AOffset: Integer = 0): Integer; static;
     class procedure Write(
           const AStream: TIdStream2;
           const ABytes: TIdBytes;
@@ -26,9 +26,18 @@ begin
   if ACount = -1 then begin
     ACount := AStream.Size - AStream.Position;
   end;
+  
+  //after adjusting for -1
+  if ACount=0 then begin
+    Result:=0;
+    Exit;
+  end;
+
   if Length(VBytes) < (AOffset+ACount) then begin
     SetLength(VBytes, AOffset+ACount);
   end;
+  //should be in stream.read
+  Assert(VBytes<>nil);
   Result := AStream.Read(VBytes, AOffset, ACount);
 end;
 
@@ -53,7 +62,7 @@ begin
     end;
     if aActual > 0 then
     begin
-      AStream.Write(ABytes[0], aActual);
+      AStream.Write(ABytes, aActual);
     end;
   end;
 end;
