@@ -14,6 +14,12 @@ type
 
   //reads and writes to its own inputbuffer, makes easy to test
   TIdLoopbackIOHandler = class(TIdIOHandler)
+  protected
+    function ReadFromSource(
+     ARaiseExceptionIfDisconnected: Boolean;
+     ATimeout: Integer;
+     ARaiseExceptionOnTimeout: Boolean
+     ): Integer; override;
   public
     procedure CheckForDataOnSource(ATimeout:Integer); override;
     procedure CheckForDisconnect(
@@ -23,11 +29,6 @@ type
     procedure WriteDirect(
       ABuffer: TIdBytes
       ); override;
-    function ReadFromSource(
-     ARaiseExceptionIfDisconnected: Boolean;
-     ATimeout: Integer;
-     ARaiseExceptionOnTimeout: Boolean
-     ): Integer; override;
   end;
 
   TIdTestIOHandler = class(TIdTest)
