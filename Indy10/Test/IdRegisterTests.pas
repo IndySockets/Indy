@@ -22,10 +22,7 @@ uses
   IdTestMessage,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
-  {$IFNDEF DOTNETDISTRO}
-  //currently fails bad
   IdTestVCard,
-  {$ENDIF}
 
   //system
   IdTestStreamHelper,
