@@ -66,6 +66,7 @@ interface
 
 uses
   IdBaseComponent,
+  IdSys,
   IdObjs;
 
 { TODO:
@@ -367,8 +368,8 @@ type
     FProductID : String;
     FUniqueID : String;
     FClassification : String;
-    FLastRevised : TDateTime;
-    FBirthDay : TDateTime;
+    FLastRevised : TIdDateTime;
+    FBirthDay : TIdDateTime;
     FPhoto : TIdVCardEmbeddedObject;
     FLogo  : TIdVCardEmbeddedObject;
     FSound : TIdVCardEmbeddedObject;
@@ -399,7 +400,7 @@ type
      VCard.}
     property Classification : String read FClassification write FClassification;
     { This is the person's birthday and possibly, time of birth}    {Do not Localize}
-    property BirthDay : TDateTime read FBirthDay write FBirthDay;
+    property BirthDay : TIdDateTime read FBirthDay write FBirthDay;
     { This is the person's name }    {Do not Localize}
     property FullName : TIdVCardName read FFullName write FFullName;
     { This is the E-Mail program used by the card's owner}    {Do not Localize}
@@ -435,8 +436,7 @@ implementation
 uses
   IdCoderQuotedPrintable,
   IdGlobal,
-  IdGlobalProtocols,
-  IdSys;
+  IdGlobalProtocols;
 
 const VCardProperties : array [1..28] of string = (
 'FN', 'N', 'NICKNAME', 'PHOTO',    {Do not Localize}
@@ -521,7 +521,7 @@ This assumes the date Time stamp will be like this:
 
 1997-11-15
 }
-Function ParseDateTimeStamp ( DateString : String ) : TDateTime;
+Function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
 var Year, Day, Month : Integer;
     Hour, Minute, Second : Integer;
 begin
