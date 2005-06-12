@@ -267,9 +267,12 @@ procedure TIdInitializerComponent.InitComponent;
 var
   LAssemblyList: array of Assembly;
   i: integer;
+  LR : ReflectionTypeLoadException;
+  LM : String;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
+  try
   // With .NET initialization sections are not called unless the unit is referenced. D.NET makes
   // initializations and globals part of a "Unit" class. So init sections wont get called unless
   // the Unit class is used. D8 EXEs are ok, but assemblies (ie VS.NET and probably asms in some
@@ -286,6 +289,36 @@ begin
 
     for i := low(LAssemblyList) to high(LAssemblyList) do begin
       initializeAssembly(LAssemblyList[i]);
+    end;
+  end;
+  except
+    on E : Exception do
+    begin
+      if E is ReflectionTypeLoadException then
+      begin
+
+        LR := E as ReflectionTypeLoadException;
+        LM := EOL;
+        LM := LM + 'Message:     '+  LR.Message + EOL;
+        LM := LM + 'Source:      '+ LR.Source + EOL;
+        LM := LM + 'Stack Trace: '+ LR.StackTrace + EOL;
+
+
+        for i := Low(LR.LoaderExceptions) to High(LR.LoaderExceptions) do
+        begin
+          LM := LM + EOL;
+          LM := LM + 'Error #'+i.ToString+EOL;
+          LM := LM + 'Message:     '+ LR.LoaderExceptions[i].Message+EOL;
+          LM := LM + 'Source:      '+ LR.LoaderExceptions[i].Source + EOL;
+          LM := LM + 'Stack Trace: '+ EOL+ LR.LoaderExceptions[i].StackTrace +EOL;
+
+        end;
+        raise Exception.Create('Load Error'+EOL+LM);
+      end
+      else
+      begin
+        raise;
+      end;
     end;
   end;
   {$ENDIF}
