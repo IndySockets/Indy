@@ -763,6 +763,9 @@ Indy10/Test/TestDUnit/IdTest.pas -text
 Indy10/Test/TestDUnit/IndyDUnit.dof -text
 Indy10/Test/TestDUnit/IndyDUnit.dpr -text
 Indy10/Test/TestDUnit/IndyDUnit.res -text svneol=unset#unset
+Indy10/Test/TestDotNet/IdTest.pas -text
+Indy10/Test/TestDotNet/IndyNetTest.bdsproj -text
+Indy10/Test/TestDotNet/IndyNetTest.dpr -text
 Indy10/Test/TestExample/IdTest.pas -text
 Indy10/icon16/Blank.bmp -text svneol=unset#unset
 Indy10/icon16/BlankServer.bmp -text svneol=unset#unset
