@@ -88,7 +88,7 @@ uses
 
 procedure TIdEcho.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_ECHO;
 end;
 

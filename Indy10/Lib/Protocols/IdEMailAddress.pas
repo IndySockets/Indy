@@ -278,7 +278,7 @@ var
 begin
   if ClassType <> Source.ClassType then
   begin
-    inherited;
+    inherited Assign(Source);
   end
   else
   begin

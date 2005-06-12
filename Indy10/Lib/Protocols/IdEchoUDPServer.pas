@@ -50,7 +50,7 @@ implementation
 
 procedure TIdEchoUDPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_ECHO;
 end;
 

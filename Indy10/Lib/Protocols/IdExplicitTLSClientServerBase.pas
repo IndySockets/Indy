@@ -175,13 +175,13 @@ uses
 
 procedure TIdExplicitTLSServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FUseTLS := DEF_USETLS;
 end;
 
 procedure TIdExplicitTLSServer.Loaded;
 begin
-  inherited;
+  inherited Loaded;
   if ((IOHandler is TIdServerIOHandler)=False) then
   begin
     SetUseTLS(utNoTLSSupport);
@@ -191,7 +191,7 @@ end;
 procedure TIdExplicitTLSServer.SetIOHandler(
   const AValue: TIdServerIOHandler);
 begin
-  inherited;
+  inherited SetIOHandler(AValue);
   if ((IOHandler is TIdServerIOHandlerSSLBase)=False) then
   begin
     SetUseTLS(utNoTLSSupport);
@@ -269,13 +269,13 @@ begin
         end;
       end;
   end;
-  inherited;
+  inherited Connect;
 
 end;
 
 procedure TIdExplicitTLSClient.InitComponent; 
 begin
-  inherited;
+  inherited InitComponent;
   FCapabilities := TIdStringList.Create;
   FUseTLS := DEF_USETLS;
 end;
@@ -283,7 +283,7 @@ end;
 destructor TIdExplicitTLSClient.Destroy;
 begin
   Sys.FreeAndNil(FCapabilities);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdExplicitTLSClient.DoOnTLSHandShakeFailed;
@@ -333,7 +333,7 @@ end;
 
 procedure TIdExplicitTLSClient.Loaded;
 begin
-  inherited;
+  inherited Loaded;
   if ((IOHandler is TIdSSLIOHandlerSocketBase)=False) then
   begin
     SetUseTLS(utNoTLSSupport);
@@ -379,7 +379,7 @@ end;
 
 procedure TIdExplicitTLSClient.SetIOHandler(AValue: TIdIOHandler);
 begin
-  inherited;
+  inherited SetIOHandler(AValue);
   if ((IOHandler is TIdSSLIOHandlerSocketBase)=False) then
   begin
     if FUseTLS <> utNoTLSSupport then

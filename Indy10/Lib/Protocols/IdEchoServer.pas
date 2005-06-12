@@ -72,7 +72,7 @@ implementation
 
 procedure TIdECHOServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_ECHO;
 end;
 
