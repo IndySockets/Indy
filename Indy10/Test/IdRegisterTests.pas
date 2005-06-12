@@ -27,7 +27,8 @@ uses
   //system
   IdTestStreamHelper,
   IdTestObjs,
-  IdTestSys;
+  IdTestSys,
+  IdTestStack;
 
 implementation
 
