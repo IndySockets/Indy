@@ -158,7 +158,7 @@ end;
 
 constructor TIdDefinition.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   FDefinition := TIdStringList.Create;
   FDB := TIdDBInfo.Create(nil);
 end;
@@ -167,7 +167,7 @@ destructor TIdDefinition.Destroy;
 begin
   Sys.FreeAndNil(FDB);
   Sys.FreeAndNil(FDefinition);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDefinition.SetDefinition(AValue: TIdStrings);

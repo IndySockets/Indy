@@ -78,7 +78,7 @@ uses
 
 procedure TIdDISCARDServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_DISCARD;
 end;
 

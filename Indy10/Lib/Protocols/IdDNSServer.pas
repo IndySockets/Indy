@@ -699,7 +699,7 @@ end;
 destructor TIdMWayTreeNode.Destroy;
 begin
   SubTree.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdMWayTreeNode.GetTreeNode(Index: integer): TIdMWayTreeNode;
@@ -780,7 +780,7 @@ destructor TIdDNTreeNode.Destroy;
 begin
   Self.FRRs.Free;
   Self.FChildIndex.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdDNTreeNode.DumpAllBinaryData(var RecordCount:integer): TIdBytes;
@@ -980,7 +980,7 @@ end;
 
 procedure TIdDNS_UDPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
 
   Self.FRootDNS_NET := TIdStringList.Create;
   Self.FRootDNS_NET.Add('209.92.33.150'); // nic.net         {do not localize}
@@ -1010,14 +1010,14 @@ end;
 
 destructor TIdDNS_UDPServer.Destroy;
 begin
-  Self.FCached_Tree.Free;
-  Self.FHanded_Tree.Free;
-  Self.FRootDNS_NET.Free;
-  Self.FHanded_DomainList.Free;
-  Self.FZoneMasterFiles.Free;
-  Self.FCS.Free;
-  Self.FGlobalCS.Free;
-  inherited;
+  Sys.FreeAndNil(Self.FCached_Tree);
+  Sys.FreeAndNil(Self.FHanded_Tree);
+  Sys.FreeAndNil(Self.FRootDNS_NET);
+  Sys.FreeAndNil(Self.FHanded_DomainList);
+  Sys.FreeAndNil(Self.FZoneMasterFiles);
+  Sys.FreeAndNil(Self.FCS);
+  Sys.FreeAndNil(Self.FGlobalCS);
+  inherited Destroy;
 end;
 
 procedure TIdDNS_UDPServer.DoAfterQuery(ABinding: TIdSocketHandle;
@@ -3230,7 +3230,7 @@ end;
 
 procedure TIdDNSServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Self.FAccessList := TIdStringList.Create;
   Self.FUDPTunnel := TIdDNS_UDPServer.Create(Self);
   Self.FTCPTunnel := TIdDNS_TCPServer.Create(Self);
@@ -3315,13 +3315,13 @@ end;
 
 procedure TIdDNS_TCPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Self.FAccessList := TIdStringList.Create;
 end;
 
 destructor TIdDNS_TCPServer.Destroy;
 begin
-  Self.FAccessList.Free;
+  Sys.FreeAndNil(Self.FAccessList);
   inherited Destroy;
 end;
 
@@ -3460,7 +3460,7 @@ begin
   //Self.CheckScheduler.TerminateAndWaitFor;
   Self.CheckScheduler.Terminate;
   Self.CheckScheduler.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDomainNameServerMapping.SetHost(const Value: string);
@@ -3581,7 +3581,7 @@ begin
          Self.Delete(Count);
      end;
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdDNSMap.GetItem(Index: Integer): TIdDomainNameServerMapping;
@@ -3655,7 +3655,7 @@ begin
   if Self.FMyData <> nil then begin
      Sys.FreeAndNil(Self.FMyData);
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDNS_ProcessThread.QueryDomain;
@@ -4118,7 +4118,7 @@ var
    BBinding : TIdSocketHandle;
    Binded : boolean;
 begin
-   inherited;
+   inherited DoUDPRead(AData, ABinding);
    ExternalQuery := BytesToString(AData);
 
    Binded := False;

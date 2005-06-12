@@ -36,7 +36,7 @@ implementation
 
 procedure TIdDayTimeUDP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_DAYTIME;
 end;
 

@@ -619,7 +619,7 @@ end;
 
 procedure TRDATARecord.Assign(Source: TIdPersistent);
 begin
-  inherited;
+  inherited Assign(Source);
   if Source is TARecord then
   begin
     FIPAddress := TARecord(Source).IPAddress;
@@ -628,7 +628,7 @@ end;
 
 procedure TRDATARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   if Length(RData) > 0 then
   begin
     FIPAddress := MakeDWordIntoIPv4Address( GStack.NetworkToHost( OrdFourByteToCardinal(RData[0], RData[1], RData[2], RData[3])));
@@ -640,7 +640,7 @@ end;
 
 procedure TMXRecord.Assign(Source: TIdPersistent);
 begin
-  inherited;
+  inherited Assign(Source);
   if Source is TMXRecord then
   begin
     FExchangeServer := TMXRecord(Source).ExchangeServer;
@@ -650,7 +650,7 @@ end;
 
 procedure TNAMERecord.Assign(Source: TIdPersistent);
 begin
-  inherited;
+  inherited Assign(Source);
 
   if Source is TNAMERecord then
   begin
@@ -793,7 +793,7 @@ end;
 destructor TQueryResult.destroy;
 begin
   Sys.FreeAndNil(FQueryPointerList);
-  inherited;
+  inherited destroy;
 end;
 
 function TQueryResult.GetItem(Index: Integer): TResultRecord;
@@ -823,13 +823,13 @@ begin
  end
  else
  begin
-   inherited;
+   inherited Assign(Source);
  end;
 end;
 
 destructor TResultRecord.Destroy;
 begin
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TResultRecord.Parse;
@@ -839,7 +839,7 @@ end;
 
 procedure TNAMERecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FHostName := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
 
@@ -852,7 +852,7 @@ end;
 
 procedure TMXRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FPreference := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos + 1]));
   Inc(Apos, 2);
   FExchangeServer := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
@@ -870,20 +870,20 @@ begin
   begin
     BeginUpdate;
     try
-    Clear;
-    for i:=0 to TQueryResult(Source).Count-1 do
-    begin
-      aRec:=TQueryResult(Source).Items[i];
-      aNew:=TResultRecordClass(aRec.ClassType).Create(Self);
-      aNew.Assign(aRec);
-    end;
+      Clear;
+      for i:=0 to TQueryResult(Source).Count-1 do
+      begin
+        aRec:=TQueryResult(Source).Items[i];
+        aNew:=TResultRecordClass(aRec.ClassType).Create(Self);
+        aNew.Assign(aRec);
+      end;
     finally
-    EndUpdate;
+      EndUpdate;
     end;
   end
   else
   begin
-    inherited;
+    inherited Assign(Source);
   end;
 end;
 
@@ -891,7 +891,7 @@ end;
 
 procedure TTextRecord.Assign(Source: TIdPersistent);
 begin
-  inherited;
+  inherited Assign(Source);
   if Source is TTextRecord then
   begin
     FText.Assign(TTextRecord(Source).Text);
@@ -900,14 +900,14 @@ end;
 
 constructor TTextRecord.Create(Collection: TIdCollection);
 begin
-  inherited;
+  inherited Create(Collection);
   FText := TIdStringList.Create;
 end;
 
 destructor TTextRecord.Destroy;
 begin
  Sys.FreeAndNil(FText);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TTextRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
@@ -929,7 +929,7 @@ begin
   begin
     FText.Add(Buffer);
   end;
-  inherited;
+  inherited Parse(CompleteMessage, APos);
 end;
 
 { TSOARecord }
@@ -938,7 +938,7 @@ procedure TSOARecord.Assign(Source: TIdPersistent);
 var
  aSource:TSOARecord;
 begin
-  inherited;
+  inherited Assign(Source);
   aSource:=Source as TSOARecord;
   FSerial:=aSource.Serial;
   FMinimumTTL:=aSource.MinimumTTL;
@@ -951,7 +951,7 @@ end;
 
 procedure TSOARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FMNAME := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
   FRNAME := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
   FSerial := GStack.NetworkToHost( OrdFourByteToCardinal(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
@@ -971,7 +971,7 @@ procedure TWKSRecord.Assign(Source: TIdPersistent);
 var
   aSource:TWKSRecord;
 begin
-  inherited;
+  inherited Assign(Source);
   aSource:=Source as TWKSRecord;
   FIPAddress:=aSource.IPAddress;
   FProtocol:=aSource.Protocol;
@@ -986,7 +986,7 @@ end;
 
 procedure TWKSRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FIPAddress := MakeDWordIntoIPv4Address( GStack.NetworkToHost( OrdFourByteToCardinal(RData[0], RData[1], RData[2], RData[3])));
     //Format('%d.%d.%d.%d',[Word(RData[0]), Word(RData[1]), Word(RData[2]), Word(RData[3])]);   {Do not Localize}
   FProtocol := Word(Rdata[4]);
@@ -1005,7 +1005,7 @@ procedure TMINFORecord.Assign(Source: TIdPersistent);
 var
  aSource:TMINFORecord;
 begin
-  inherited;
+  inherited Assign(Source);
   aSource:=Source as TMINFORecord;
   FResponsiblePerson:=aSource.ResponsiblePersonMailbox;
   FErrorMailbox:=aSource.ErrorMailbox;
@@ -1013,7 +1013,7 @@ end;
 
 procedure TMINFORecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FResponsiblePerson := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
   FErrorMailbox := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
@@ -1024,7 +1024,7 @@ procedure THINFORecord.Assign(Source: TIdPersistent);
 var
  aSource:THINFORecord;
 begin
-  inherited;
+  inherited Assign(Source);
   aSource:=Source as THINFORecord;
   FCPU:=aSource.CPU;
   FOS:=aSource.OS;
@@ -1032,7 +1032,7 @@ end;
 
 procedure THINFORecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   FCPU := (Collection as TQueryResult).NextDNSLabel(CompleteMessage, APos);
   FOS := (Collection as TQueryResult).NextDNSLabel(CompleteMessage, APos);
 end;
@@ -1041,7 +1041,7 @@ end;
 
 procedure TAAAARecord.Assign(Source: TIdPersistent);
 begin
-  inherited;
+  inherited Assign(Source);
   if Source is TAAAARecord then
   begin
     FAddress := TAAAARecord(Source).Address;
@@ -1052,7 +1052,7 @@ procedure TAAAARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var FIP6 : TIdIPv6Address;
   i : Integer;
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   if Length(RData) >= 15 then
   begin
      FIP6 := BytesToIPv6(RData);
@@ -1382,7 +1382,7 @@ end;
 
 procedure TIdDNSResolver.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_DOMAIN;
   FQueryResult := TQueryResult.Create;
   FDNSHeader := TDNSHeader.Create;
@@ -1628,7 +1628,7 @@ procedure TSRVRecord.Assign(Source: TIdPersistent);
 var
  aSource:TSRVRecord;
 begin
-  inherited;
+  inherited Assign(Source);
 
   if Source is TSRVRecord then
   begin
@@ -1657,7 +1657,7 @@ procedure TSRVRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var
  aName,aService,aProtocol:string;
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
 
   FOriginalName:=FName;
 
@@ -1688,7 +1688,7 @@ procedure TNAPTRRecord.Assign(Source: TIdPersistent);
 var
  aSource:TNAPTRRecord;
 begin
- inherited;
+ inherited Assign(Source);
 
  if Source is TNAPTRRecord then
  begin
@@ -1707,7 +1707,7 @@ procedure TNAPTRRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var
   aResult:TQueryResult;
 begin
-  inherited;
+  inherited Parse(CompleteMessage, APos);
   Self.fOrder := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
   Inc(Apos, 2);
 

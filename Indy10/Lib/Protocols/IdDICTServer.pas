@@ -126,7 +126,7 @@ implementation
 
 procedure TIdDICTServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_DICT;
 end;
 

@@ -236,7 +236,7 @@ destructor TIdDICT.Destroy;
 begin
   Sys.FreeAndNil(FSASLMechanisms);
   Sys.FreeAndNil(FCapabilities);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDICT.DisconnectNotifyPeer;
@@ -246,7 +246,7 @@ begin
       SendCmd('QUIT', 221);    {Do not Localize}
     end;
   finally
-    inherited;
+    inherited DisconnectNotifyPeer;
   end;
 end;
 
@@ -272,7 +272,7 @@ end;
 
 procedure TIdDICT.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCapabilities := TIdStringList.create;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FPort := IdPORT_DICT;

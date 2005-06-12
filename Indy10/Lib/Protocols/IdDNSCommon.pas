@@ -920,7 +920,7 @@ end;
 
 constructor TDNSHeader.Create;
 begin
-  inherited;
+  inherited Create;
   Randomize;
   FId := Random(65535);
 end;
@@ -1209,7 +1209,7 @@ end;
 
 constructor TIdTextModeResourceRecord.Create;
 begin
-  inherited;
+  inherited Create;
   Self.FRRDatas := TIdStringList.Create;
   Self.TTL := 0;
 end;
@@ -1217,7 +1217,7 @@ end;
 destructor TIdTextModeResourceRecord.Destroy;
 begin
   Self.FRRDatas.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdTextModeResourceRecord.GetValue(ParameterName: string): string;
@@ -1295,7 +1295,7 @@ end;
 destructor TIdTextModeRRs.Destroy;
 begin
   Self.FItemNames.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdTextModeRRs.GetItem(Index: Integer): TIdTextModeResourceRecord;
@@ -1349,7 +1349,7 @@ end;
 
 constructor TIdRR_CName.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'CName'; {do not localize}
@@ -1425,7 +1425,7 @@ end;
 
 constructor TIdRR_HINFO.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'HINFO'; {do not localize}
@@ -1509,7 +1509,7 @@ end;
 
 constructor TIdRR_MB.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'MB';  {do not localize}
@@ -1582,7 +1582,7 @@ end;
 
 constructor TIdRR_MG.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'MG';  {do not localize}
@@ -1666,7 +1666,7 @@ end;
 
 constructor TIdRR_MINFO.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'MINFO'; {do not localize}
@@ -1750,7 +1750,7 @@ end;
 
 constructor TIdRR_MR.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'MR';  {do not localize}
@@ -1832,7 +1832,7 @@ end;
 
 constructor TIdRR_MX.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'MX';  {do not localize}
@@ -1915,7 +1915,7 @@ end;
 
 constructor TIdRR_NS.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'NS';  {do not localize}
@@ -1988,7 +1988,7 @@ end;
 
 constructor TIdRR_PTR.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'PTR'; {do not localize}
@@ -2068,7 +2068,7 @@ end;
 
 constructor TIdRR_SOA.Create;
 begin
-  inherited;
+  inherited Create;
 
   SetLength(FAnswer, 0);
   Self.RRName := 'SOA'; {do not localize}
@@ -2223,7 +2223,7 @@ end;
 
 constructor TIdRR_A.Create;
 begin
-  inherited;
+  inherited Create;
   SetLength(Self.FAnswer, 0);
   Self.RRName := 'A';   {do not localize}
   Self.Address := '';
@@ -2296,7 +2296,7 @@ end;
 
 constructor TIdRR_AAAA.Create;
 begin
-inherited;
+  inherited Create;
   SetLength(Self.FAnswer, 0);
   Self.RRName := 'AAAA';  {do not localize}
   Self.Address := '';
@@ -2369,7 +2369,7 @@ end;
 
 constructor TIdRR_TXT.Create;
 begin
-  inherited;
+  inherited Create;
   SetLength(Self.FAnswer, 0);
   Self.RRName := 'TXT'; {do not localize}
   Self.TXT := '';
@@ -2412,7 +2412,7 @@ end;
 
 constructor TIdRR_WKS.Create;
 begin
-  inherited;
+  inherited Create;
   Self.RRName := 'WKS'; {do not localize}
   Self.TypeCode := TypeCode_WKS;
 end;
@@ -2421,7 +2421,7 @@ end;
 
 constructor TIdRR_Error.Create;
 begin
-   inherited;
+   inherited Create;
 
    Self.TypeCode := TypeCode_Error;
 end;

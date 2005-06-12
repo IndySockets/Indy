@@ -52,7 +52,7 @@ uses IdSys;
 
 procedure TIdDayTimeUDPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_DAYTIME;
   FTimeZone := 'EST';  {Do not Localize}
 end;
