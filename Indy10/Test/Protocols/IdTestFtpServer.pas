@@ -44,6 +44,7 @@ begin
  Assert(aStr='220 '+cGreeting);
 
  //ftp server should only process a command after crlf
+ //see TIdFTPServer.ReadCommandLine
  c.IOHandler.Write('U');
  aStr:=c.IOHandler.Readln;
  Assert(aStr='',aStr);
