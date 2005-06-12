@@ -92,7 +92,7 @@ uses
 procedure TIdPropEdSASL.Edit;
 var LF : TfrmSASLListEditor;
 begin
-  inherited;
+  inherited Edit;
   LF := TfrmSASLListEditor.Create(nil);
   try
     if PropCount > 0 then
@@ -153,7 +153,7 @@ end;
 
 procedure TIdPropEdSASL.SetValue(const Value: string);
 begin
-  inherited;
+  inherited SetValue(Value);
 end;
 
 end.

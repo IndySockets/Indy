@@ -126,7 +126,7 @@ end;
 
 destructor TfrmSASLListEditor.Destroy;
 begin
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TfrmSASLListEditor.GetList(const CopyTo: TIdSASLEntries);
