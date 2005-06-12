@@ -555,7 +555,7 @@ type
 
 procedure TIdCustomHTTPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FSessionState := Id_TId_HTTPServer_SessionState;
   DefaultPort := IdPORT_HTTP;
   ParseParams := Id_TId_HTTPServer_ParseParams;
@@ -948,7 +948,7 @@ begin
       FSessionList.Clear;
     end;
   end;
-  inherited;
+  inherited SetActive(AValue);
 end;
 
 procedure TIdCustomHTTPServer.SetSessionState(const Value: Boolean);
@@ -1022,7 +1022,7 @@ begin
   if Assigned(FOwner) then begin
     FOwner.RemoveSession(self);
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdHTTPSession.DoSessionEnd;
@@ -1062,7 +1062,7 @@ end;
 
 constructor TIdHTTPRequestInfo.Create;
 begin
-  inherited;
+  inherited Create;
   FCommandType := hcUnknown;
   FCookies := TIdServerCookies.Create(self);
   FParams  := TIdStringList.Create;
@@ -1103,7 +1103,7 @@ begin
   Sys.FreeAndNil(FCookies);
   Sys.FreeAndNil(FParams);
   Sys.FreeAndNil(FPostStream);
-  inherited;
+  inherited Destroy;
 end;
 
 { TIdHTTPResponseInfo }
@@ -1417,7 +1417,7 @@ destructor TIdHTTPDefaultSessionList.destroy;
 begin
   Clear;
   SessionList.free;
-  inherited;
+  inherited destroy;
 end;
 
 function TIdHTTPDefaultSessionList.GetSession(const SessionID, RemoteIP: string): TIdHTTPSession;
@@ -1450,7 +1450,7 @@ end;
 
 procedure TIdHTTPDefaultSessionList.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
 
   SessionList := TIdThreadList.Create;
   SessionList.LockList.Capacity := SessionCapacity;

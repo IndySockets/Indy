@@ -273,7 +273,7 @@ end;
 
 procedure TIdCookieManager.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FCookieCollection := TIdCookies.Create(self);
   DoOnCreate;
 end;
