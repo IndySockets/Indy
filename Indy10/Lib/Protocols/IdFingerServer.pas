@@ -82,7 +82,7 @@ uses IdGlobal, IdSys;
 
 procedure TIdFingerServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_FINGER;
 end;
 

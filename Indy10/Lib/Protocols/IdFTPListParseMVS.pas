@@ -695,7 +695,7 @@ end;
 
 constructor TIdMVSFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   FSizeAvail := False;  //we can't get the file size from a MVS system
 end;
 
@@ -703,14 +703,14 @@ end;
 
 constructor TIdMVSJESIntF2FTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   FDetails := TIdStringList.Create;
 end;
 
 destructor TIdMVSJESIntF2FTPListItem.Destroy;
 begin
   Sys.FreeAndNil(FDetails);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdMVSJESIntF2FTPListItem.SetDetails(AValue: TIdStrings);
@@ -722,7 +722,7 @@ end;
 
 constructor TIdMVSJESFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
    Self.JobStatus := IdJESNotApplicable;
 end;
 

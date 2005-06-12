@@ -341,7 +341,7 @@ end;
 
 constructor TIdMPiXFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   //MP/iX or HP3000 will not give you a modified date at all
   ModifiedAvail := False;
 end;

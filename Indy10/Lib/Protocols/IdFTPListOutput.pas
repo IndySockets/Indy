@@ -1671,7 +1671,7 @@ destructor TDirEntry.Destroy;
 begin
   Sys.FreeAndNil( FFileList );
   Sys.FreeAndNil( FSubDirs );
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TDirEntry.SortAscendFName;

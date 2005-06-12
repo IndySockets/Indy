@@ -142,7 +142,7 @@ end;
 
 constructor TIdXecomMicroRTOSTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   ModifiedAvail := False;
 end;
 

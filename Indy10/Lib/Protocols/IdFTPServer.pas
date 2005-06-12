@@ -1444,7 +1444,7 @@ end;
 procedure TIdFTPServer.InitComponent;
 begin
 
-  inherited;
+  inherited InitComponent;
   HelpReply.Code := ''; //we will handle the help ourselves
   FDataChannelCommands := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
   FSITECommands := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
@@ -6037,13 +6037,13 @@ begin
   end
   else
   begin
-    inherited;
+    inherited Assign(Source);
   end;
 end;
 
 constructor TIdFTPSecurityOptions.Create;
 begin
-  inherited;
+  inherited Create;
     //limit login attempts - some hackers will try guessing passwords from a dictionary
   PasswordAttempts := DEF_FTP_PASSWORDATTEMPTS;
     //should slow-down a password guessing attack - note those dictionaries

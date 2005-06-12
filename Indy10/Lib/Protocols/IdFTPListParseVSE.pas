@@ -620,7 +620,7 @@ end;
 
 constructor TIdVSEVTOCFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   SizeAvail := False;
 end;
 

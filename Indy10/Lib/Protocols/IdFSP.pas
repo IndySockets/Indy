@@ -449,7 +449,7 @@ begin
   Sys.FreeAndNil( FDirectoryListing );
   Sys.FreeAndNil( FStatInfo );
   Sys.FreeAndNil( FAbortFlag );
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdFSP.Disconnect;
@@ -550,7 +550,7 @@ end;
 
 procedure TIdFSP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_FSP;
   FSequence := 0;
   FKey := 0;

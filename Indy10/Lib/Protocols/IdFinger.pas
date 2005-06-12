@@ -95,7 +95,7 @@ uses
 
 procedure TIdFinger.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_FINGER;
 end;
 

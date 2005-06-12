@@ -256,7 +256,7 @@ uses
 
 constructor TIdMinimalFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   FSizeAvail := False;
   FModifiedAvail := False;
 end;
@@ -265,7 +265,7 @@ end;
 
 constructor TIdMLSTFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   FAttributesAvail := False;
   FAttributes :=  TIdWin32ea.Create;
 end;
@@ -273,7 +273,7 @@ end;
 destructor TIdMLSTFTPListItem.Destroy;
 begin
   Sys.FreeAndNil(FAttributes);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdMLSTFTPListItem.GetFact(const AName: String): String;
@@ -299,7 +299,7 @@ end;
 destructor TIdDOSBaseFTPListItem.Destroy;
 begin
   Sys.FreeAndNil(FAttributes);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdDOSBaseFTPListItem.SetAttributes(
@@ -504,7 +504,7 @@ end;
 
 constructor TIdCreationDateFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   SizeAvail := False;
   ModifiedAvail := False;
 end;

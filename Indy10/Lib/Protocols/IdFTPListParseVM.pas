@@ -526,7 +526,7 @@ end;
 
 constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TIdCollection);
 begin
-  inherited;
+  inherited Create(AOwner);
   //There's no size for things in a virtual reader
   Self.SizeAvail := False;
 end;

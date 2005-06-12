@@ -664,7 +664,7 @@ end;
 
 destructor TIdFTPListItem.Destroy;
 begin
-  inherited;
+  inherited Destroy;
 end;
 
 end.

@@ -1208,7 +1208,7 @@ end;
 
 procedure TIdFTP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   //
   FAutoLogin := True;
   FRegularProtPort := IdPORT_FTP;
@@ -2681,7 +2681,7 @@ end;
 
 procedure TIdFTP.SetIOHandler(AValue: TIdIOHandler);
 begin
-  inherited;
+  inherited SetIOHandler(AValue);
   EIdFTPWrongIOHandler.IfTrue((AValue <> nil) and (not (AValue is TIdIOHandlerSocket)), RSFTPIOHandlerWrong); // RS + EXCEPTION {do not localize}
   if AValue <> nil then begin
     // UseExtensionDataPort must be true for IPv6 connections.
@@ -3741,7 +3741,7 @@ end;
 procedure TIdFTP.Notification(AComponent: TIdNativeComponent;
   Operation: TIdOperation);
 begin
-  inherited;
+  inherited Notification(AComponent,Operation);
   if (Operation = opRemove) and (AComponent = FCompressor) then begin
     FCompressor := nil;
     if Connected then begin
@@ -3815,7 +3815,7 @@ end;
 
 procedure TIdFTP.SetUseTLS(AValue: TIdUseTLS);
 begin
-  inherited;
+  inherited SetUseTLS(AValue);
   if IsLoading then
   begin
     exit;
