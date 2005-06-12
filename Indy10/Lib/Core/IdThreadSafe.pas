@@ -165,16 +165,18 @@ type
     procedure Unlock; reintroduce;
     property Values[const AName: string]: string read GetValue write SetValue;
   end;
+
   TIdThreadSafeDateTime = class(TIdThreadSafe)
   protected
-    FValue : TDateTime;
-    function GetValue: TDateTime;
-    procedure SetValue(const AValue: TDateTime);
+    FValue : TIdDateTime;
+    function GetValue: TIdDateTime;
+    procedure SetValue(const AValue: TIdDateTime);
   public
-    procedure Add(const AValue : TDateTime);
-    procedure Subtract(const AValue : TDateTime);
-    property Value: TDateTime read GetValue write SetValue;
+    procedure Add(const AValue : TIdDateTime);
+    procedure Subtract(const AValue : TIdDateTime);
+    property Value: TIdDateTime read GetValue write SetValue;
   end;
+
   //In D7, a double is the same as a TDateTime.  In DotNET, it is not.
   TIdThreadSafeDouble = class(TIdThreadSafe)
   protected
@@ -542,7 +544,7 @@ end;
 
 { TIdThreadSafeDateTime }
 
-procedure TIdThreadSafeDateTime.Add(const AValue: TDateTime);
+procedure TIdThreadSafeDateTime.Add(const AValue: TIdDateTime);
 begin
   Lock;
   try
@@ -552,7 +554,7 @@ begin
   end;
 end;
 
-function TIdThreadSafeDateTime.GetValue: TDateTime;
+function TIdThreadSafeDateTime.GetValue: TIdDateTime;
 begin
   Lock;
   try
@@ -562,7 +564,7 @@ begin
   end;
 end;
 
-procedure TIdThreadSafeDateTime.SetValue(const AValue: TDateTime);
+procedure TIdThreadSafeDateTime.SetValue(const AValue: TIdDateTime);
 begin
   Lock;
   try
@@ -572,7 +574,7 @@ begin
   end;
 end;
 
-procedure TIdThreadSafeDateTime.Subtract(const AValue: TDateTime);
+procedure TIdThreadSafeDateTime.Subtract(const AValue: TIdDateTime);
 begin
   Lock;
   try
