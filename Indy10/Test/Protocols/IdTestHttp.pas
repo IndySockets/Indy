@@ -26,6 +26,8 @@ type
 implementation
 
 procedure TIdTestHTTP_01.CallbackExecute(AContext: TIdContext);
+//check that the server disconnecting the client doesn't cause
+//issues, eg memory leaks
 begin
   AContext.Connection.Disconnect;
 end;
