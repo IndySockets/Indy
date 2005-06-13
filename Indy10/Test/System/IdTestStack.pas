@@ -9,14 +9,16 @@ uses
 type
 	TIdTestStack = class(TIdTest)
 	published
-		procedure TestConversionSmallInt;
+		procedure TestConversionShortInt;
 	end;
 
 implementation
 
-procedure TIdTestStack.TestConversionSmallInt;
+procedure TIdTestStack.TestConversionShortInt;
+//he problem here is that smallint is being cast to int64 in .net,
+//whereas under win32 it's cast as word (which is the same size)
 var
-	TempInt: SmallInt;
+	TempInt: ShortInt;
 begin
 	TIdStack.IncUsage;
 	try
