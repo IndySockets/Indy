@@ -28,7 +28,9 @@ const
 
   cName='Holmes;Sherlock;;Mr';
   cFullName='Sherlock Holmes';
+  //should test with more variations here
   cCompany='Example Company';
+  cDivisions='Division 1;Division 2';
   cPhoneWorkVoice='+49 (555) 12345';
   cEmail='sherlock@example.com';
 
@@ -51,7 +53,7 @@ const
  +'VERSION:2.1'+cEol
  +'N:'+cName+cEol
  +'FN:'+cFullName+cEol
- +'ORG:'+cCompany+cEol
+ +'ORG:'+cCompany+';'+cDivisions+cEol
  +'TEL;WORK;VOICE:'+cPhoneWorkVoice+cEol
  +'ADR;WORK:'+cAddrPOBox+';'+cAddrExtended+';'+cAddrStreet+';'+cAddrLocality+';'+cAddrRegion+';'+cAddrPostCode+';'+cAddrNation+cEol
  //LABEL;WORK;ENCODING=QUOTED-PRINTABLE:Testroad 1=0D=0AEntenhausen 12345=0D=0ADeutschland
@@ -105,6 +107,11 @@ begin
  //ORG:ABC\, Inc.;North American Division;Marketing
  //todo1 add a test for parsing an escaped-comma. could be in ANY property
  Assert(aCard.BusinessInfo.Organization=cCompany);
+
+ aCard.BusinessInfo.Divisions.Delimiter:=';';
+ //delimitedtext adds quotes
+ //Assert(aCard.BusinessInfo.Divisions.DelimitedText=cDivisions);
+ Assert(aCard.BusinessInfo.Divisions.Count=2);
 
  finally
  Sys.FreeAndNil(aCard);
