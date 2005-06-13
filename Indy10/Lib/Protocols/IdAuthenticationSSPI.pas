@@ -40,7 +40,6 @@ interface
 uses
   IdAuthentication,
   Windows,
-  Classes,
   SysUtils,
   IdSys,
   IdSSPI;
@@ -89,7 +88,7 @@ const
   SEC_E_SECURITY_QOS_FAILED        = HRESULT($80090332);
 
 type
-  { ESSPIException }
+
   ESSPIException = class(Exception)
   public
     class function GetErrorMessageByNo(aErrorNo: LongWord): string;
@@ -99,8 +98,6 @@ type
   end;
 
   ESSPIInterfaceInitFailed = class(ESSPIException);
-
-  { TSSPIInterface }
 
   TSSPIInterface = class(TObject)
   private
@@ -119,8 +116,6 @@ type
     constructor Create;
     destructor Destroy; override;
   end;
-
-  { TSSPIPackages }
 
   TSSPIPackage = class(TObject)
   private
@@ -148,8 +143,6 @@ type
     constructor Create;
   end;
 
-  { TSSPICredentials }
-
   TSSPICredentialsUse = (scuInBound, scuOutBound, scuBoth);
 
   TSSPICredentials = class(TObject)
@@ -175,10 +168,7 @@ type
   public
     constructor Create(aPackage: TSSPIPackage);
     destructor Destroy; override;
-
   end;
-
-  { TSSPIWinNTCredentials }
 
   TSSPIWinNTCredentials = class(TSSPICredentials)
   protected
@@ -190,10 +180,7 @@ type
       aUserName, aPassword: string); overload;
   end;
 
-  { TSSPIContext }
-
   TSSPIContext = class(TObject)
-
   private
     fCredentials: TSSPICredentials;
     fHandle: CtxtHandle;
@@ -225,13 +212,9 @@ type
   public
     constructor Create(aCredentials: TSSPICredentials);
     destructor Destroy; override;
-
   end;
 
-  { TSSPIConnectionContext }
-
   TCustomSSPIConnectionContext = class(TSSPIContext)
-
   private
     fStatus: SECURITY_STATUS;
     fOutBuffDesc, fInBuffDesc: SecBufferDesc;
@@ -246,10 +229,8 @@ type
   public
     function UpdateAndGenerateReply(
       const aFromPeerToken: string; var aToPeerToken: string): Boolean;
-
   public
     constructor Create(aCredentials: TSSPICredentials);
-
   end;
 
   TSSPIClientConnectionContext = class(TCustomSSPIConnectionContext)
@@ -289,7 +270,6 @@ type
   protected
     FNTLMInfo: string;
     FSSPIClient: TIndySSPINTLMClient;
-
     procedure SetDomain(const Value: String);
     function GetDomain: String;
     procedure SetUserName(const Value: String); override;
@@ -297,10 +277,10 @@ type
     function DoNext: TIdAuthWhatsNext; override;
   public
     constructor Create; override;
+    destructor Destroy;override;
     function Authentication: string; override;
     function KeepAlive: Boolean; override;
     procedure Reset; override;
-
     property Domain: String read GetDomain write SetDomain;
   end;
 
@@ -818,21 +798,19 @@ begin
   { check credentials }
   CheckCredentials;
   { prepare input buffer }
-  with fInBuff do begin
-    cbBuffer := Length(aFromPeerToken);
-    pvBuffer := @(aFromPeerToken[1]);
-  end;
+  fInBuff.cbBuffer := Length(aFromPeerToken);
+  //Assert(Length(aFromPeerToken)>0);
+  if Length(aFromPeerToken)>0 then fInBuff.pvBuffer := @(aFromPeerToken[1]);
+
   { prepare output buffer }
-  with fOutBuff do begin
-    BufferType := SECBUFFER_TOKEN;
-    cbBuffer := Credentials.Package.MaxToken;
-    pvBuffer := AllocMem(cbBuffer);
-  end;
-  with fOutBuffDesc do begin
-    ulVersion := SECBUFFER_VERSION;
-    cBuffers := 1;
-    pBuffers := @fOutBuff;
-  end;
+  fOutBuff.BufferType := SECBUFFER_TOKEN;
+  fOutBuff.cbBuffer := Credentials.Package.MaxToken;
+  fOutBuff.pvBuffer := AllocMem(fOutBuff.cbBuffer);
+
+  fOutBuffDesc.ulVersion := SECBUFFER_VERSION;
+  fOutBuffDesc.cBuffers := 1;
+  fOutBuffDesc.pBuffers := @fOutBuff;
+
   try
     { do processing }
     fStatus := DoUpdateAndGenerateReply(fInBuffDesc, fOutBuffDesc, []);
@@ -980,6 +958,7 @@ begin
         FCurrentStep := 2;
         result := wnDoRequest;
       end;
+    //Authentication does the 2>3 progression
     3:
       begin
         FCurrentStep := 4;
@@ -1078,15 +1057,27 @@ begin
   inherited SetUserName(S);
 end;
 
+destructor TIdSSPINTLMAuthentication.Destroy;
+begin
+  Sys.FreeAndNil(FSSPIClient);
+  inherited;
+end;
+
 initialization
+
   g := TSSPIInterface.Create;
-  if g.IsAvailable then
-   RegisterAuthenticationMethod('NTLM', TIdSSPINTLMAuthentication); {do not localize}
-   RegisterAuthenticationMethod('Negotiate', TIdSSPINTLMAuthentication); {do not localize}
+  if g.IsAvailable then begin
+    RegisterAuthenticationMethod('NTLM', TIdSSPINTLMAuthentication); {do not localize}
+    RegisterAuthenticationMethod('Negotiate', TIdSSPINTLMAuthentication); {do not localize}
+  end;
+
 finalization
-  if g.IsAvailable then
+
+  if g.IsAvailable then begin
     UnregisterAuthenticationMethod('NTLM'); {do not localize}
     UnregisterAuthenticationMethod('Negotiate'); {do not localize}
+  end;
   Sys.FreeAndNil(g);
+
 end.
 
