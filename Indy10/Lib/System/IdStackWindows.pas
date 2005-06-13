@@ -1121,7 +1121,7 @@ begin
   TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
   Move(LAddr6.sin6_addr, VDest,SizeOf(in6_addr));
   LAddr6.sin6_port := HToNs(APort);
-  LPLocalIP := @Llocalif;
+  LPLocalIP := PSockAddr_in6(@Llocalif);
   // Find out which local interface for the destination
   CheckForSocketError( WSAIoctl(ASocket, SIO_ROUTING_INTERFACE_QUERY,
     @LAddr6, Cardinal(SizeOf(TSockAddrIn6) ), @Llocalif,
@@ -1220,11 +1220,11 @@ var
   LMsg : TWSAMSG;
   LMsgBuf : TWSABUF;
   LControl : TIdBytes;
-
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
   LCurPt : Pin_pktinfo;
   LCurPt6 : Pin6_pktinfo;
   LByte : PByte;
+  LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
  if (Win32MajorVersion>4) and (Win32MinorVersion > 0) then
@@ -1235,17 +1235,20 @@ begin
    SetLength( LControl,LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
-    LMsgBuf.buf := @VBuffer[0];// @VMsgData[0];
+    LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
 
     FillChar(LMsg,SizeOf(LMsg),0);
+
     LMsg.lpBuffers := @LMsgBuf;
+    LMsg.dwBufferCount := 1;
+
     LMsg.Control.Len := LSize;
     LMsg.Control.buf := @LControl[0];
-    LMsg.dwBufferCount := 1;
+
 
     case AIPVersion of
       Id_IPv4: begin
-        LMsg.name := @LAddr4;
+        LMsg.name :=  @LAddr4;
         LMsg.namelen := SizeOf(LAddr4);
 
         GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
@@ -1254,10 +1257,10 @@ begin
         APkt.SourcePort := NToHs(LAddr4.sin_port);
       end;
       Id_IPv6: begin
-        LMsg.name := @LAddr6;
+        LMsg.name := PSOCKADDR( @LAddr6);
         LMsg.namelen := SizeOf(LAddr6);
 
-        CheckForSocketError( IdWinsock2.WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
+        CheckForSocketError( IdWinsock2.WSARecvMsg(ASocket,@LMsg,Result,@LDummy,LPwsaoverlapped_COMPLETION_ROUTINE(@LDummy2)));
         APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
 
         APkt.SourcePort := NToHs(LAddr6.sin6_port);

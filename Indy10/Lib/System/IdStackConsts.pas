@@ -272,7 +272,8 @@ SocketOptionName.AddSourceMembership;//  Join a source group.
 SocketOptionName.BlockSource;//  Block data from a source.
 }
   Id_SO_BROADCAST        =  SocketOptionName.Broadcast;//  Permit sending broadcast messages on the socket.
-{
+  Id_SO_DEBUG            =  SocketOptionName.Debug;
+  {
 SocketOptionName.BsdUrgent;//  Use urgent data as defined in RFC-1222. This option can be set only once, and once set, cannot be turned off.
 SocketOptionName.ChecksumCoverage;//  Set or get UDP checksum coverage.
 SocketOptionName.Debug;//  Record debugging information.
