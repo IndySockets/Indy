@@ -1039,9 +1039,8 @@ function TIdIOHandler.ReadChar: Char;
 var
   LBytes: TIdBytes;
 begin
-//  Result := ReadString(1)[1];
-  ReadBytes(LBytes, 1, False);
-  Result := Char(LBytes[0]);
+  ReadBytes(LBytes, SizeOf(Char), False);
+  Result := BytesToChar(LBytes);
 end;
 
 function TIdIOHandler.ReadInteger(AConvert: boolean): Integer;
