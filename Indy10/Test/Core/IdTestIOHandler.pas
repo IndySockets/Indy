@@ -125,20 +125,25 @@ begin
 
  //integer types
 
+ Assert(io.FInputBuffer.Size=0);
  aSmall:=cSmall;
  io.Write(aSmall,True);
+ Assert(io.FInputBuffer.Size>0);
  aSmall:=io.ReadSmallInt(True);
  Assert(aSmall=cSmall);
+ Assert(io.FInputBuffer.Size=0);
 
  aInt:=cInt;
  io.Write(aInt,True);
  aInt:=io.ReadInteger(True);
  Assert(aInt=cInt);
+ Assert(io.FInputBuffer.Size=0);
 
  aCardinal:=cCard;
  io.Write(aCardinal,True);
  aCardinal:=io.ReadCardinal(True);
  Assert(aCardinal=cCard);
+ Assert(io.FInputBuffer.Size=0);
 
  aInt64:=cInt64;
  io.Write(aInt64,True);
@@ -152,11 +157,14 @@ begin
  io.Write(aChar);
  aChar:=io.ReadChar;
  Assert(aChar=cChar);
+ Assert(io.FInputBuffer.Size=0);
 
  aStr:=cStr;
  io.WriteLn(aStr);
+ Assert(io.FInputBuffer.Size>0);
  aStr:=io.Readln;
  Assert(aStr=cStr);
+ Assert(io.FInputBuffer.Size=0);
 
  finally
  Sys.FreeAndNil(io);
