@@ -1,13 +1,20 @@
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log:  56520: IdExceptionCore.pas 
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
 {
 {   Rev 1.3    09/06/2004 09:52:34  CCostelloe
 { Kylix 3 patch

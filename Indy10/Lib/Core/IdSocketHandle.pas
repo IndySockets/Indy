@@ -1,13 +1,20 @@
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log:  56386: IdSocketHandle.pas 
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
 {
 {   Rev 1.8    4/11/2005 2:17:46 PM  JPMugaas
 { Fix from Ben Taylor for where a pointer is used after it's freed causing an

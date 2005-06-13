@@ -1,16 +1,24 @@
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
+
 //TODO: Elim read/write methods - they are duped
 //TODO: See second uses comment
 
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log:  12000: IdTCPConnection.pas
 {
 {   Rev 1.68    3/7/2005 5:48:18 PM  JPMugaas
 { Made a backdoor so we can adjust command output in specific ways.
