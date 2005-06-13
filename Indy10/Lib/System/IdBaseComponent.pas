@@ -268,7 +268,7 @@ begin
 
       // Delphi 9 assemblies
       if (Pos('.Units', UnitType.Namespace) > 0) and (UnitType.Name <> '$map$') then begin
-        RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
+          RuntimeHelpers.RunClassConstructor(UnitType.TypeHandle);
       end;
       // Delphi 8 assemblies
 //      if UnitType.Name = 'Unit' then begin
@@ -304,7 +304,13 @@ begin
     Include(AppDomain.get_CurrentDomain.AssemblyLoad, TIdInitializerComponent.AssemblyLoadEventHandler);
 
     for i := low(LAssemblyList) to high(LAssemblyList) do begin
-      initializeAssembly(LAssemblyList[i]);
+      //We do things this way because we do not want to initialize stuff that is not
+      //ours.  That would cause errors.  It turns out that "AppDomain.get_CurrentDomain.GetAssemblies;" will
+      //list stuff that isn't ours.  Be careful.
+      if (Pos('Indy ',LAssemblyList[i].GetName.Name)=1) then
+      begin
+        initializeAssembly(LAssemblyList[i]);
+      end;
     end;
   end;
   except
