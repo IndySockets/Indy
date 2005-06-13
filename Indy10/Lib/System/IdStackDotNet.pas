@@ -712,7 +712,7 @@ end;
 
 function TIdStackDotNet.HostToNetwork(AValue: Word): Word;
 begin
-  Result := Word(IPAddress.HostToNetworkOrder(ShortInt(AValue)));
+  Result := Word(IPAddress.HostToNetworkOrder(SmallInt(AValue)));
 end;
 
 function TIdStackDotNet.HostToNetwork(AValue: LongWord): LongWord;
@@ -727,7 +727,7 @@ end;
 
 function TIdStackDotNet.NetworkToHost(AValue: Word): Word;
 begin
-  Result := Word(IPAddress.NetworkToHostOrder(ShortInt(AValue)));
+  Result := Word(IPAddress.NetworkToHostOrder(SmallInt(AValue)));
 end;
 
 function TIdStackDotNet.NetworkToHost(AValue: LongWord): LongWord;
