@@ -572,7 +572,7 @@ end;
 procedure ParseOrg ( OrgObj : TIdVCardBusinessInfo; OrgStr : String);
 begin
   { Organization name }
-  OrgObj.Organization := Fetch ( OrgStr );
+  OrgObj.Organization := Fetch ( OrgStr ,';');
   { Divisions }
   ParseDelinatorToTStrings ( OrgObj.Divisions, OrgStr, ';' );    {Do not Localize}
 end;
