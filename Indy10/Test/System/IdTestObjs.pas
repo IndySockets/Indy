@@ -51,9 +51,10 @@ begin
    Assert(aStream.DataString=cStr+cStr);
 
    //check overwrite
+   //win32 replaces the entire string
    aStream.Position:=0;
    aStream.WriteString(cStr2);
-   Assert(aStream.DataString=cStr2+cStr);
+   Assert(aStream.DataString=cStr2);
 
  finally
    Sys.FreeAndNil(aStream);
