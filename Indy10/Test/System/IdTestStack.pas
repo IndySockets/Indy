@@ -7,24 +7,25 @@ uses
 	IdStack;
 
 type
+
 	TIdTestStack = class(TIdTest)
 	published
-		procedure TestConversionShortInt;
+		procedure TestConversionSmallInt;
 	end;
 
 implementation
 
-procedure TIdTestStack.TestConversionShortInt;
-//he problem here is that smallint is being cast to int64 in .net,
-//whereas under win32 it's cast as word (which is the same size)
+procedure TIdTestStack.TestConversionSmallInt;
+//the problem here is that (without the cast) smallint is being cast to int64
+//is smallint ever actually used as a param?
 var
-	TempInt: ShortInt;
+	TempInt: SmallInt;
 begin
 	TIdStack.IncUsage;
 	try
 		TempInt := 55;
-		TempInt := GStack.HostToNetwork(TempInt);
-		TempInt := GStack.NetworkToHost(TempInt);
+		TempInt := GStack.HostToNetwork(Word(TempInt));
+		TempInt := GStack.NetworkToHost(Word(TempInt));
 		Assert(TempInt = 55);
 	finally
 		TIdStack.DecUsage;
@@ -32,5 +33,7 @@ begin
 end;
 
 initialization
+
 	TIdTest.RegisterTest(TIdTestStack);
+
 end.
