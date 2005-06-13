@@ -1,6 +1,25 @@
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
+
 unit IdTraceRoute;
 
 interface
+
 uses IdICMPClient, IdRawBase, IdRawClient, IdThread;
 
 type
@@ -18,7 +37,9 @@ type
   end;
 
 implementation
+
 uses IdStack;
+
 { TIdTraceRoute }
 
 procedure TIdTraceRoute.DoReply(const AReplyStatus: TReplyStatus);
