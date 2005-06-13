@@ -79,8 +79,10 @@ unit IdBaseComponent;
 
 interface
 
+
 uses
   {$IFDEF DotNet}
+  {$DEFINE IdDEBUG}
   System.ComponentModel.Design.Serialization,
   System.Collections.Specialized,
   System.Threading,
@@ -187,6 +189,11 @@ const
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF IdDEBUG}
+type
+   TIdDummyClass = class(TIdBaseComponent);
+{$ENDIF}
+
 implementation
 
 uses
@@ -199,6 +206,8 @@ uses
 var
   GInitsCalled: Integer = 0;
 {$ENDIF}
+
+
 
 { TIdInitializerComponent }
 
