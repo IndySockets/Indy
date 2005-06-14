@@ -252,7 +252,7 @@ type
       const aErrorsToIgnore: array of SECURITY_STATUS
       ): SECURITY_STATUS; override;
   public
-    function GenerateInitialChalenge(
+    function GenerateInitialChallenge(
       const aTargetName: string; var aToPeerToken: string): Boolean;
   public
     constructor Create(aCredentials: TSSPICredentials);
@@ -888,7 +888,7 @@ begin
   Result := DoInitialize(PChar(fTargetName), aIn, aOut, []);
 end;
 
-function TSSPIClientConnectionContext.GenerateInitialChalenge
+function TSSPIClientConnectionContext.GenerateInitialChallenge
   (const aTargetName: string; var aToPeerToken: string): Boolean;
 begin
   Release;
@@ -927,7 +927,7 @@ end;
 
 function TIndySSPINTLMClient.InitAndBuildType1Message: string;
 begin
-  fContext.GenerateInitialChalenge('', Result);
+  fContext.GenerateInitialChallenge('', Result);
 end;
 
 function TIndySSPINTLMClient.UpdateAndBuildType3Message
