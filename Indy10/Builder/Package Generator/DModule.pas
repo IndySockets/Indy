@@ -1,13 +1,20 @@
-{ $HDR$}
-{**********************************************************************}
-{ Unit archived using Team Coherence                                   }
-{ Team Coherence is Copyright 2002 by Quality Software Components      }
-{                                                                      }
-{ For further information / comments, visit our WEB site at            }
-{ http://www.TeamCoherence.com                                         }
-{**********************************************************************}
-{}
-{ $Log:  55375: DataModule.pas 
+{
+  $Project$
+  $Workfile$
+  $Revision$
+  $DateUTC$
+  $Id$
+
+  This file is part of the Indy (Internet Direct) project, and is offered
+  under the dual-licensing agreement described on the Indy website.
+  (http://www.indyproject.org/)
+
+  Copyright:
+   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
+}
+{
+  $Log$
+}
 {
 {   Rev 1.5    9/4/2004 10:46:20 AM  JPMugaas
 { Now some path settings were hard coded into the data module DFM causing
