@@ -60,7 +60,7 @@ resourcestring
   RSAAboutMenuItemName = 'About Internet &Direct (Indy) %s...';
 
   RSAAboutBoxVersion = 'Version %s';
-  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2003'#13#10
+  RSAAboutBoxCopyright = 'Copyright (c) 1993 - 2005'#13#10
    + IndyPitCrew;
 
   RSAAboutBoxPleaseVisit = 'For the latest updates and information please visit:';
