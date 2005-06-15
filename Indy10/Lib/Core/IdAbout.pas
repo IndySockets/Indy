@@ -21,6 +21,7 @@ implementation
 
 Procedure ShowAboutBox(const AProductName, AProductVersion : String);
 begin
+                                     
   TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
 end;
 

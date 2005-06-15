@@ -6,7 +6,7 @@ uses
   Dialogs, StdCtrls, ExtCtrls;
 
 type
-  TformAbout = class(TForm)
+  TfrmAbout = class(TForm)
   protected
     FimLogo : TImage;
     FlblCopyRight : TLabel;
@@ -37,9 +37,9 @@ uses
   IdDsnCoreResourceStrings,
   IdGlobal;
 
-class Procedure TformAbout.ShowAboutBox(const AProductName, AProductVersion : String);
+class Procedure TfrmAbout.ShowAboutBox(const AProductName, AProductVersion : String);
 begin
-  with TformAbout.Create(Application) do
+  with TfrmAbout.Create(Application) do
   try
     ProductName := AProductName;
     Version := Format ( RSAAboutBoxVersion, [ AProductVersion ] );
@@ -49,17 +49,28 @@ begin
   end;
 end;
 
-class Procedure TformAbout.ShowDlg;
+class Procedure TfrmAbout.ShowDlg;
 begin
   ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
 end;
 
-{ TformAbout }
+{ TfrmAbout }
 
-constructor TformAbout.Create(AOwner: TComponent);
+constructor TfrmAbout.Create(AOwner: TComponent);
 begin
   inherited CreateNew(AOwner,0);
+    ClientHeight := 372;
+  ClientWidth := 637;
 
+  PixelsPerInch := 96;
+  Constraints.MaxHeight := Height;
+  Constraints.MaxWidth := Width;
+  Constraints.MinHeight := Height;
+  Constraints.MinWidth := Width;
+
+
+
+  
   FimLogo := TImage.Create(Self);
   FlblCopyRight := TLabel.Create(Self);
   FlblName := TLabel.Create(Self);
@@ -67,7 +78,16 @@ begin
   FlblPleaseVisitUs := TLabel.Create(Self);
   FlblURL := TLabel.Create(Self);
   FbbtnOk := TButton.Create(Self);
-
+  Font.Color := clBtnText;
+  {$IFNDEF LINUX}
+  Font.Charset := DEFAULT_CHARSET;
+  Font.Name := 'MS Sans Serif';    {Do not Localize}
+  BorderStyle := bsDialog;
+  {$ELSE}
+  Font.Name := 'helvetica';    {Do not Localize}
+  BorderStyle := fbsDialog;
+  CenterForm;
+  {$ENDIF}
     Name := 'formAbout';
     Left := 0;
     Top := 0;
@@ -75,7 +95,7 @@ begin
     BorderIcons := [biSystemMenu];
     BorderStyle := bsDialog;
     Caption := RSAAboutFormCaption;
-    ClientHeight := 372;
+    Height := 372;
     ClientWidth := 643;
     Color := clBtnFace;
     Font.Charset := DEFAULT_CHARSET;
@@ -165,7 +185,7 @@ begin
     Name := 'lblPleaseVisitUs';
     Parent := Self;
     Left := 8;
-    Top := 280;
+    Top := 271;
     Width := 623;
     Height := 13;
     Alignment := taCenter;
@@ -179,22 +199,28 @@ begin
     Name := 'lblURL';
     Parent := Self;
     Left := 8;
-    Top := 296;
+    Top := 148;  // 288;
     Width := 623;
     Height := 13;
+  {$IFNDEF LINUX}
+    Font.Name := 'Tahoma';
     Cursor := crHandPoint;
+    Font.Color := clBtnHighlight;
+    OnClick := lblURLClick;
+    Font.Style := [fsUnderline];
+    Font.Charset := DEFAULT_CHARSET;
+  {$ENDIF}
     Alignment := taCenter;
     AutoSize := False;
-    Font.Charset := DEFAULT_CHARSET;
-    Font.Color := clBtnShadow;
     Font.Height := -11;
-    Font.Name := 'Tahoma';
-    Font.Style := [fsUnderline];
+
+
     ParentFont := False;
     Transparent := True;
     OnClick := lblURLClick;
     Caption := RSAAboutBoxIndyWebsite;
     Anchors := [akLeft, akTop, akRight];
+    BringToFront;
   end;
   with FbbtnOk do
   begin
@@ -213,29 +239,39 @@ begin
   end;
 end;
 
-function TformAbout.GetVersion: String;
+{$IFDEF LINUX}
+procedure TformAbout.CenterForm;
+//workaround for problem - form position does not work like in VCL
+begin
+ Left := (Screen.Width - Width) div 2;
+ Top  := (Screen.Height - Height) div 2;
+end;
+{$ENDIF}
+
+function TfrmAbout.GetVersion: String;
 begin
   Result :=  FlblVersion.Caption;
 end;
 
-function TformAbout.GetProductName: String;
+function TfrmAbout.GetProductName: String;
 begin
   Result := FlblName.Caption;
 end;
 
-procedure TformAbout.lblURLClick(Sender: TObject);
+procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
   {$IFNDEF LINUX}
   ShellAPI.shellExecute((Self as TControl).Handle,PChar('open'),PChar(FlblURL.Caption),nil,nil, 0);    {Do not Localize}
+              FlblURL.Font.Color := clBtnShadow;
   {$ENDIF}
 end;
 
-procedure TformAbout.SetVersion(const AValue: String);
+procedure TfrmAbout.SetVersion(const AValue: String);
 begin
   FlblVersion.Caption := AValue;
 end;
 
-procedure TformAbout.SetProductName(const AValue: String);
+procedure TfrmAbout.SetProductName(const AValue: String);
 begin
   FlblName.Caption := AValue;
 end;

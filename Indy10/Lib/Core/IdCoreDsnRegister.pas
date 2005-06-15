@@ -84,18 +84,12 @@ uses
   IdSocketHandle,
 
   IdTCPServer,
-  IdUDPServer,
-    {$IFDEF Linux}
-  QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList
-  {$ELSE}
-  Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList
-  {$ENDIF}
-  ;
+  IdUDPServer;
 
 procedure TIdPropEdBinding.Edit;
 begin
   inherited Edit;
-  with TIdPropEdBindingEntry.Create(nil) do
+  with TIdPropEdBindingEntry.Create do
   try
     if PropCount > 0 then
     begin
@@ -116,7 +110,7 @@ begin
       end;
     end;
     SetList(Value);
-    if ShowModal = mrOk then
+    if Execute then
     begin
       Value := GetList;
       if PropCount > 0 then
