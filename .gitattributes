@@ -124,6 +124,10 @@ Indy10/Lib/Core/IdCustomTransparentProxy.pas -text
 Indy10/Lib/Core/IdDsnBaseCmpEdt.pas -text
 Indy10/Lib/Core/IdDsnCoreResourceStrings.pas -text
 Indy10/Lib/Core/IdDsnPropEdBinding.pas -text
+Indy10/Lib/Core/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdDsnPropEdBindingNET.pas -text
+Indy10/Lib/Core/IdDsnPropEdBindingNET.resx -text
+Indy10/Lib/Core/IdDsnPropEdBindingVCL.pas -text
 Indy10/Lib/Core/IdExceptionCore.pas -text
 Indy10/Lib/Core/IdGlobalCore.pas -text
 Indy10/Lib/Core/IdIOHandler.pas -text
