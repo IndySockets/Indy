@@ -100,8 +100,11 @@ Indy10/Lib/Core/IconsDotNet/TIdUDPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdUDPServer.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IdAbout.pas -text
 Indy10/Lib/Core/IdAboutDotNET.TfrmAbout.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdAboutDotNET.pas -text
 Indy10/Lib/Core/IdAboutDotNET.resx -text
 Indy10/Lib/Core/IdAboutNET.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdAboutVCL.RES -text svneol=unset#unset
+Indy10/Lib/Core/IdAboutVCL.pas -text
 Indy10/Lib/Core/IdAntiFreeze.pas -text
 Indy10/Lib/Core/IdAssignedNumbers.pas -text
 Indy10/Lib/Core/IdBuffer.pas -text
