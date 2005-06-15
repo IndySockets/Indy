@@ -39,6 +39,7 @@ contains
   IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
   IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
+  IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
 
 end.
