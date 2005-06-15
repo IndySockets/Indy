@@ -59,7 +59,7 @@ end;
 constructor TfrmAbout.Create(AOwner: TComponent);
 begin
   inherited CreateNew(AOwner,0);
-    ClientHeight := 372;
+    Height := 372;
   ClientWidth := 637;
 
   PixelsPerInch := 96;
@@ -91,7 +91,7 @@ begin
     Name := 'formAbout';
     Left := 0;
     Top := 0;
-    Anchors := [];//[akLeft, akTop, akRight,akBottom];
+    Anchors := [akLeft, akTop, akRight,akBottom];
     BorderIcons := [biSystemMenu];
     BorderStyle := bsDialog;
     Caption := RSAAboutFormCaption;
@@ -198,10 +198,12 @@ begin
   begin
     Name := 'lblURL';
     Parent := Self;
+  //
     Left := 8;
-    Top := 148;  // 288;
+    Top := 288;
     Width := 623;
     Height := 13;
+    AutoSize := False;
   {$IFNDEF LINUX}
     Font.Name := 'Tahoma';
     Cursor := crHandPoint;
@@ -211,7 +213,7 @@ begin
     Font.Charset := DEFAULT_CHARSET;
   {$ENDIF}
     Alignment := taCenter;
-    AutoSize := False;
+    
     Font.Height := -11;
 
 
@@ -219,8 +221,8 @@ begin
     Transparent := True;
     OnClick := lblURLClick;
     Caption := RSAAboutBoxIndyWebsite;
-    Anchors := [akLeft, akTop, akRight];
-    BringToFront;
+      Anchors := [akLeft, akTop, akRight];
+    
   end;
   with FbbtnOk do
   begin
