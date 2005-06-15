@@ -48,14 +48,25 @@ var
  aActual:Integer;
 begin
   Assert(AStream<>nil);
+  Result:=0;
+  //check that offset<length(buffer)? offset+count?
+  //is there a need for this to be called with an offset into a nil buffer?
 
   aActual:=ACount;
   if aActual = -1 then begin
     aActual := AStream.Size - AStream.Position;
   end;
+
+  //this prevents eg reading 0 bytes at Offset=10 from allocating memory
+  if aActual=0 then begin
+    Exit;
+  end;
+
   if Length(VBytes) < (AOffset+aActual) then begin
     SetLength(VBytes, AOffset+aActual);
   end;
+
+  Assert(VBytes<>nil);
   Result := AStream.Read(VBytes[AOffset], aActual);
 end;
 
