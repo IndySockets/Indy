@@ -19,6 +19,7 @@ type
   TIdTestVCard = class(TIdTest)
   published
     procedure TestLoad;
+    procedure TestParseDateTime;
   end;
 
 implementation
@@ -117,6 +118,23 @@ begin
  Sys.FreeAndNil(aCard);
  Sys.FreeAndNil(aList);
  end;
+end;
+
+procedure TIdTestVCard.TestParseDateTime;
+const
+ cFormat='yyyy-mm-dd hh:nn:ss';
+ cDate1='1995-10-31T22:27:10Z';
+ cDate1b='1995-10-31 22:27:10';
+ cDate2='1997-11-15';
+ cDate2b='1997-11-15 00:00:00';
+var
+ aDate:TDateTime;
+begin
+ aDate:=ParseDateTimeStamp(cDate1);
+ Assert(Sys.FormatDateTime(cFormat,aDate)=cDate1b);
+
+ aDate:=ParseDateTimeStamp(cDate2);
+ Assert(Sys.FormatDateTime(cFormat,aDate)=cDate2b);
 end;
 
 initialization
