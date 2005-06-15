@@ -1433,11 +1433,16 @@ begin
 
   result := Assigned(ProxyParams.Authentication) and  Assigned(OnProxyAuthorization);
 
-  // Clear password and reset autorization if previous failed
+  {
+  this is commented out as it breaks SSPI proxy authentication.
+  it is normal and expected to get 407 responses during the negotiation.
+
+  // Clear password and reset authorization if previous failed
   if (AResponse.FResponseCode = 407) then begin
     ProxyParams.ProxyPassword := '';
     ProxyParams.Authentication.Reset;
   end;
+  }
 
   if Result then
   begin
@@ -1667,7 +1672,8 @@ begin
   begin
     FHTTP.SetCookies(AURI, Request);
   end;
-  // This is a wrokaround for some HTTP servers wich does not implement properly the HTTP protocol
+  // This is a workaround for some HTTP servers which do not implement
+  // the HTTP protocol properly
   FHTTP.IOHandler.WriteBufferOpen;
   try
     FHTTP.IOHandler.WriteLn(Request.Method+' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
@@ -1936,12 +1942,15 @@ function TIdCustomHTTP.Get(
 var
   LStream: TIdMemoryStream;
 begin
-  LStream := TIdMemoryStream.Create; try
+  LStream := TIdMemoryStream.Create;
+  try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
     // This is here instead of a TStringSream for .net conversions?
     Result := ReadStringFromStream(LStream);
-  finally Sys.FreeAndNil(LStream); end;
+  finally
+    Sys.FreeAndNil(LStream);
+  end;
 end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream2;
