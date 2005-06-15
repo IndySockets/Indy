@@ -431,12 +431,15 @@ type
     property Photo : TIdVCardEmbeddedObject read FPhoto;
     { Organization's logo}    {Do not Localize}
     property Logo  : TIdVCardEmbeddedObject read FLogo;
-    { A sound associated with the VCard such as how to pronounce a person's name  
+    { A sound associated with the VCard such as how to pronounce a person's name
       or something cute }
     property Sound : TIdVCardEmbeddedObject read FSound;
     { This is for an encryption key such as S/MIME, VeriSign, or PGP }
     property Key : TIdVCardEmbeddedObject read FKey;
   end;
+
+  //public for testing
+  function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
 
 implementation
 
@@ -528,18 +531,21 @@ This assumes the date Time stamp will be like this:
 
 1997-11-15
 }
-Function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
-var Year, Day, Month : Integer;
-    Hour, Minute, Second : Integer;
+function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
+var
+  Year, Day, Month : Integer;
+  Hour, Minute, Second : Integer;
 begin
     Year  := Sys.StrToInt ( Copy ( DateString, 1, 4 ) );
-    Month := Sys.StrToInt ( Copy (DateString, 5, 2 ) );
-    Day   := Sys.StrToInt ( Copy ( DateString, 7, 2 ) );
+    Month := Sys.StrToInt ( Copy (DateString, 6, 2 ) );
+    Day   := Sys.StrToInt ( Copy ( DateString, 9, 2 ) );
+
+    //where does 14 come from?
     if ( Length ( DateString ) > 14 ) then
     begin
-      Hour := Sys.StrToInt ( Copy ( DateString, 10, 2 ) );
-      Minute := Sys.StrToInt ( Copy ( DateString, 12, 2 ) );
-      Second := Sys.StrToInt ( Copy ( DateString, 14, 2 ) );
+      Hour := Sys.StrToInt ( Copy ( DateString, 12, 2 ) );
+      Minute := Sys.StrToInt ( Copy ( DateString, 15, 2 ) );
+      Second := Sys.StrToInt ( Copy ( DateString, 18, 2 ) );
     end //if ( Length ( DateString ) > 18 ) then
     else    { no date }
     begin
