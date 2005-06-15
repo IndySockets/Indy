@@ -98,7 +98,7 @@ uses
   Windows,
   {$ENDIF}
   {$IFDEF DOTNET}
-  Forms,
+  System.Windows.Forms,
   {$ENDIF}
   IdGlobal;
 
@@ -130,7 +130,7 @@ end;
 procedure TIdAntiFreeze.Process;
 begin
   //TODO: Handle ApplicationHasPriority
-  Application.ProcessMessages;
+  Application.DoEvents;
 end;
 {$ENDIF}
 
