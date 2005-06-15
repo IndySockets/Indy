@@ -26,12 +26,14 @@ package dclIndyCore90Net;
 {$IMPLICITBUILD OFF}
 
 requires
+  System.Windows.Forms,
   Borland.Studio.Vcl.Design,
   IndySystem90Net,
   IndyCore90Net;
 
 contains
   IdAbout in 'IdAbout.pas',
+  IdAboutDotNET in 'IdAboutDotNET.pas',
   IdAntiFreeze in 'IdAntiFreeze.pas',
   IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
   IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
