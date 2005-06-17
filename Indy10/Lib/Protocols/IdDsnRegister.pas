@@ -90,13 +90,7 @@ uses
   IdSocketHandle,
   IdTCPServer,
   IdUDPServer,
-  IdSASLCollection,
-    {$IFDEF Linux}
-  QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList
-  {$ELSE}
-  Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList
-  {$ENDIF}
-  ;
+  IdSASLCollection;
 
 procedure Register;
 begin

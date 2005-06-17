@@ -37,6 +37,7 @@ contains
   IdDsnResourceStrings in 'IdDsnResourceStrings.pas',
   IdDsnSASLListEditor in 'IdDsnSASLListEditor.pas',
   IdDsnSASLListEditorForm in 'IdDsnSASLListEditorForm.pas',
+  IdDsnSASLListEditorFormVCL in 'IdDsnSASLListEditorFormVCL.pas',
   IdRegister in 'IdRegister.pas';
 
 end.

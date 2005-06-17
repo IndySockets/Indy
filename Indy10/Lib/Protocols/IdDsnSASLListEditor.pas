@@ -50,7 +50,6 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  Classes,
   {$IFDEF VCL9ORABOVE}
      {$IFDEF DOTNET}
       Borland.Vcl.Design.DesignIntF,
@@ -79,19 +78,15 @@ type
 
 implementation
 uses
-  SysUtils,
   IdDICT,
   IdDsnResourceStrings, IdDsnSASLListEditorForm,
   IdIMAP4,
+  IdObjs,
   IdPOP3,
   IdSASL,
   IdSASLCollection,
   IdSMTP,
-  {$IFDEF LINUX}
-  QControls
-  {$ELSE}
-  Controls
-  {$ENDIF};
+  IdSys;
 
 
 { TIdPropEdSASL }
@@ -105,15 +100,15 @@ begin
     if PropCount > 0 then
     begin
 
-      if GetComponent(0) is TComponent then
+      if GetComponent(0) is TIdNativeComponent then
       begin
-        LF.SetComponentName(TComponent(GetComponent(0)).Name);
+        LF.SetComponentName(TIdNativeComponent(GetComponent(0)).Name);
       end;
 //      LF.SetComponentName(GetComponent(0).Name );
       if GetComponent(0) is TIdSMTP then
       begin
         LF.SetList(TIdSMTP(GetComponent(0)).SASLMechanisms);
-        if LF.ShowModal=mrOk then
+        if LF.Execute then
         begin
           LF.GetList(TIdSMTP(GetComponent(0)).SASLMechanisms);
         end;
@@ -121,7 +116,7 @@ begin
       if GetComponent(0) is TIdIMAP4 then
       begin
         LF.SetList(TIdIMAP4(GetComponent(0)).SASLMechanisms);
-        if LF.ShowModal=mrOk then
+        if LF.Execute then
         begin
           LF.GetList(TIdIMAP4(GetComponent(0)).SASLMechanisms);
         end;
@@ -129,7 +124,7 @@ begin
       if GetComponent(0) is TIdPOP3 then
       begin
         LF.SetList(TIdPOP3(GetComponent(0)).SASLMechanisms);
-        if LF.ShowModal=mrOk then
+        if LF.Execute then
         begin
           LF.GetList(TIdPOP3(GetComponent(0)).SASLMechanisms);
         end;
@@ -137,14 +132,14 @@ begin
       if GetComponent(0) is TIdDICT then
       begin
         LF.SetList(TIdDICT(GetComponent(0)).SASLMechanisms);
-        if LF.ShowModal=mrOk then
+        if LF.Execute then
         begin
           LF.GetList(TIdDICT(GetComponent(0)).SASLMechanisms);
         end;
       end;
     end;
   finally
-    FreeAndNil(LF);
+    Sys.FreeAndNil(LF);
   end;
 end;
 
