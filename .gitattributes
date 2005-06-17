@@ -428,6 +428,10 @@ Indy10/Lib/Protocols/IdDsnRegister.pas -text
 Indy10/Lib/Protocols/IdDsnResourceStrings.pas -text
 Indy10/Lib/Protocols/IdDsnSASLListEditor.pas -text
 Indy10/Lib/Protocols/IdDsnSASLListEditorForm.pas -text
+Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources -text svneol=unset#unset
+Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.pas -text
+Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.resx -text
+Indy10/Lib/Protocols/IdDsnSASLListEditorFormVCL.pas -text
 Indy10/Lib/Protocols/IdDummyUnit.pas -text
 Indy10/Lib/Protocols/IdEMailAddress.pas -text
 Indy10/Lib/Protocols/IdEcho.pas -text
