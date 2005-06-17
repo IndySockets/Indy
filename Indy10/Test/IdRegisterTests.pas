@@ -28,7 +28,8 @@ uses
   IdTestStreamHelper,
   IdTestObjs,
   IdTestSys,
-  IdTestStack;
+  IdTestStack,
+  IdTestBaseComponent;
 
 implementation
 
