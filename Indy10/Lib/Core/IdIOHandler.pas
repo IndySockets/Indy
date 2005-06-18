@@ -1102,6 +1102,10 @@ var
   LTermPos: Integer;
   LReadLnStartTime: Cardinal;
 begin
+  if ATimeout = IdTimeoutDefault then
+  begin
+    ATimeout := ReadTimeout;
+  end;
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
   end;
@@ -1719,6 +1723,7 @@ begin
   FMaxLineLength := IdMaxLineLengthDefault;
   FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
   FLargeStream := False;
+  FReadTimeOut := IdTimeoutDefault;
 end;
 
 procedure TIdIOHandler.Capture(ADest: TIdStream2);
