@@ -3,27 +3,34 @@ unit IdTestGlobal;
 interface
 
 uses
-	IdTest,
-	IdGlobal;
+  IdTest,
+  IdGlobal;
 
 type
-	TIdTestGlobal = class(TIdTest)
-	published
-		procedure TestToBytes;
-	end;
+
+  TIdTestGlobal = class(TIdTest)
+  published
+    procedure TestToBytes;
+  end;
 
 implementation
 
 procedure TIdTestGlobal.TestToBytes;
 const
-	cTestString1 = 'U';
+  cTestString1 = 'U';
 var
-	cTestBytes1 : TIdBytes;
+  aBytes : TIdBytes;
 begin
-//	cTestBytes1[0] := 85;
-	Assert(ToBytes(cTestString1)[0] = 85);
+  //test string
+  aBytes := ToBytes(cTestString1);
+  Assert(Length(aBytes)=1);
+  Assert(aBytes[0] = 85);
+
+  //todo, test other types
 end;
 
 initialization
-	TIdTest.RegisterTest(TIdTestGlobal);
+
+  TIdTest.RegisterTest(TIdTestGlobal);
+
 end.
