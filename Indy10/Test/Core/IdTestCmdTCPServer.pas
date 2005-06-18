@@ -7,18 +7,35 @@ uses
   IdGlobal,
   IdTCPClient,
   IdCmdTCPServer,
+  IdContext,
   IdIOHandlerStack,
   IdLogDebug,
+  IdCommandHandlers,
+
+System.Diagnostics,
+
   IdSys;
 
 type
 
   TIdTestCmdTCPServer = class(TIdTest)
+  private
+    procedure CommandTEST(ASender: TIdCommand);
+    procedure DoConnected(AContext:TIdContext);
   published
     procedure TestServer;
   end;
 
 implementation
+
+procedure TIdTestCmdTCPServer.DoConnected(AContext:TIdContext);
+begin
+end;
+
+procedure TIdTestCmdTCPServer.CommandTEST(ASender: TIdCommand);
+begin
+  ASender.Reply.SetReply(200, 'Hello, World!');
+end;
 
 procedure TIdTestCmdTCPServer.TestServer;
 var
@@ -33,19 +50,31 @@ begin
   aClient:= TIdTCPClient.Create(nil);
   aServer:= TIdCmdTCPServer.Create(nil);
   try
+Debugger.Launch;
     aServer.DefaultPort:=cTestPort;
+    AServer.OnConnect := DoConnected;
+    with AServer.CommandHandlers.Add do
+    begin
+      Command := 'TEST';
+      OnCommand := CommandTEST;
+    end;
     aServer.Greeting.Code := '200';
     aServer.Greeting.Text.Text := cGreetingText;
     Assert(aServer.Greeting.NumericCode<>0);
     aServer.Active:=True;
     aClient.Port:=cTestPort;
     aClient.Host:='127.0.0.1';
-    aClient.ReadTimeout:=60000;
+    aClient.ReadTimeout:=5000;
     aClient.Connect;
     aResponse:=aClient.GetResponse(200);
     Assert(aResponse = 200);
     aText := AClient.LastCmdResult.Text.Text;
     Assert(aText = cGreetingText+EOL, aText);
+    AClient.IOHandler.Write('TE');
+    Assert(AClient.IOHandler.ReadLn = '');
+    AClient.IOHandler.Write('ST' + EOL);
+    Assert(AClient.GetResponse(200) = 200);
+    Assert(AClient.LastCmdResult.Text.Text = 'Hello, World!' + EOL, '1');
     aClient.Disconnect;
   finally
     Sys.FreeAndNil(aClient);
