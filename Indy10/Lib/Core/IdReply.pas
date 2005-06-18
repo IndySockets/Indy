@@ -192,6 +192,7 @@ type
      write SetFormattedReply;
     property NumericCode: Integer read GetNumericCode write SetNumericCode;
   published
+    //warning: setting Code has a side-effect of calling Clear;
     property Code: string read FCode write SetCode;
     property Text: TIdStrings read FText write SetText;
   end;
