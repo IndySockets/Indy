@@ -36,6 +36,7 @@ type
     procedure RunStream(const io:TIdIOHandler;const aLarge:Boolean);
   published
     procedure TestReadWrite;
+    procedure TestReadLn;
     procedure TestStreamSize;
   end;
 
@@ -58,9 +59,8 @@ function TIdLoopbackIOHandler.ReadFromSource(
   ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
   ARaiseExceptionOnTimeout: Boolean): Integer;
 begin
- //this could still loop indef if caller wants >buffersize
- Assert(FInputBuffer.Size>0);
- Result:=FInputBuffer.Size;
+ //always report a timeout happened, ie there's no more data expected
+ Result:=-1;
 end;
 
 procedure TIdLoopbackIOHandler.WriteDirect(ABuffer: TIdBytes);
@@ -98,6 +98,42 @@ begin
 
 end;
 
+procedure TIdTestIOHandler.TestReadLn;
+//tests that read timeout happens
+var
+  io:TIdLoopbackIOHandler;
+  aStr:string;
+const
+  cPart='U';
+begin
+  io:=TIdLoopbackIOHandler.Create(nil);
+  try
+    io.Open;
+
+    //check with no data in buffer
+    aStr:=io.Readln;
+    Assert(aStr = '');
+
+    //check with some data in buffer
+    io.Write(cPart);
+    aStr:=io.Readln;
+    Assert(aStr = '');
+
+    //check that buffer still contains expected data
+    Assert(io.FInputBuffer.Size = 1, Sys.IntToStr(io.FInputBuffer.Size));
+
+    //complete the data line
+    io.WriteLn('');
+    aStr:=io.Readln;
+    Assert(aStr = cPart);
+    Assert(io.FInputBuffer.Size = 0);
+
+  finally
+    Sys.FreeAndNil(io);
+  end;
+
+end;
+
 procedure TIdTestIOHandler.TestReadWrite;
 //use specific cast variables in the write calls to ensure correct
 //overload is called
@@ -119,7 +155,6 @@ begin
  io:=TIdLoopbackIOHandler.Create(nil);
  try
  io.Open;
- io.ReadTimeout := 500;
  //should check with/without conversion parameter
  //should also check edge cases, eg high/low
 
@@ -159,16 +194,12 @@ begin
  Assert(aChar=cChar);
  Assert(io.FInputBuffer.Size=0);
 
- io.Write('U');
- Assert(io.ReadLn = '');
- Assert(io.FInputBuffer.Size = 1, Sys.IntToStr(io.FInputBuffer.Size));
- Assert(io.ReadChar = 'U');
- Assert(io.FInputBuffer.Size = 0);
+ //test normal readln
  aStr:=cStr;
  io.WriteLn(aStr);
  Assert(io.FInputBuffer.Size>0);
  aStr:=io.Readln;
- Assert(aStr=cStr);
+ Assert(aStr=cStr,aStr);
  Assert(io.FInputBuffer.Size=0);
 
  finally
