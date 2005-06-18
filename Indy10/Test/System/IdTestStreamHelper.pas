@@ -1,5 +1,12 @@
 unit IdTestStreamHelper;
 
+{
+note:
+under dotnet,
+  SetLength(aBuffer,0);
+doesnt set aBuffer=nil. win32 does. (this is done to release the buffer)
+}
+
 interface
 
 uses
@@ -46,10 +53,11 @@ begin
  aStream.Position:=0;
  aStr:=ReadStringFromStream(aStream);
  Assert(aStr=cText);
- SetLength(aBuffer,0);
+ aBuffer:=nil;
 
  //stream to buffer, positioned at eof
  aStream.Position:=aStream.Size;
+ Assert(aBuffer=nil);
  aCount:=TIdStreamHelper.ReadBytes(aStream,aBuffer);
  Assert(aBuffer=nil);
  Assert(aCount=0);
