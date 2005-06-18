@@ -4,8 +4,8 @@ interface
 
 uses
 	IdTest,
-	System.Diagnostics,
 	IdReplyRFC,
+	IdGlobal,
 	IdObjs,
 	IdSys;
 
@@ -33,8 +33,7 @@ begin
 			R1.Text.Text := CText;
 			R2.FormattedReply := R1.FormattedReply;
 			Assert(R2.Code = CCode, R2.Code);
-			Console.WriteLine('R2.Text = "{0}"', R2.Text.Text);
-			Assert(R2.Text.Text = CText, R2.Text.Text);
+			Assert(R2.Text.Text = CText + EOL, R2.Text.Text);
 		finally
 			Sys.FreeAndNil(R2);
 		end;
