@@ -25,6 +25,7 @@ var
 	s:TIdFTPServer;
 	c:TIdTCPClient;
 	aStr:string;
+  aIntercept:TIdLogDebug;
 const
 	cGreeting='HELLO';
 	cTestFtpPort=20021;
@@ -32,8 +33,9 @@ begin
 	s:=TIdFTPServer.Create(nil);
 	c:=TIdTCPClient.Create(nil);
 	try
-		c.IOHandler := TIdIOHandlerStack.Create;
-		c.IOHandler.Intercept := TIdLogDebug.Create;
+		c.CreateIOHandler;
+    aIntercept := TIdLogDebug.Create;
+		c.IOHandler.Intercept := aIntercept;
 		TIdLogDebug(c.IOHandler.Intercept).Active := true;
 
 		s.Greeting.Text.Text:=cGreeting;
@@ -66,6 +68,7 @@ begin
 		//typical quit='221 Goodbye.'
 
 	finally
+    Sys.FreeAndNil(aIntercept);
 		Sys.FreeAndNil(c);
 		Sys.FreeAndNil(s);
 	end;
