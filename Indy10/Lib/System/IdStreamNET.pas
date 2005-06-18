@@ -40,23 +40,30 @@ implementation
 
 class function TIdStreamHelperNET.ReadBytes(AStream: TIdStream2; var VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
+var
+ aActual:Integer;
 begin
-  if ACount = -1 then begin
-    ACount := AStream.Size - AStream.Position;
+  Assert(AStream<>nil);
+  Result:=0;
+  //check that offset<length(buffer)? offset+count?
+  //is there a need for this to be called with an offset into a nil buffer?
+
+  aActual:=ACount;
+  if aActual = -1 then begin
+    aActual := AStream.Size - AStream.Position;
   end;
-  
-  //after adjusting for -1
-  if ACount=0 then begin
-    Result:=0;
+
+  //this prevents eg reading 0 bytes at Offset=10 from allocating memory
+  if aActual=0 then begin
     Exit;
   end;
 
-  if Length(VBytes) < (AOffset+ACount) then begin
-    SetLength(VBytes, AOffset+ACount);
+  if Length(VBytes) < (AOffset+aActual) then begin
+    SetLength(VBytes, AOffset+aActual);
   end;
-  //should be in stream.read
+
   Assert(VBytes<>nil);
-  Result := AStream.Read(VBytes, AOffset, ACount);
+  Result := AStream.Read(VBytes, AOffset, AActual);
 end;
 
 class procedure TIdStreamHelperNET.Write(const AStream: TIdStream2;
