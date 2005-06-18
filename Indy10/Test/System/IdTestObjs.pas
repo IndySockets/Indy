@@ -3,6 +3,7 @@ unit IdTestObjs;
 interface
 
 uses
+  IdGlobal,
   IdSys,
   IdTest,
   IdObjs;
@@ -80,14 +81,15 @@ end;
 
 procedure TIdTestStringList.TestBasic;
 var
-  l:TIdStringList;
+  l,l2:TIdStringList;
   s:string;
 const
   cStr='123';
   cComma='1,2,3';
-  cMulti='1'+#13#10+'2'+#13#10+'3';
+  cMulti='1'+EOL+'2'+EOL+'3';
 begin
   l:=TIdStringList.Create;
+  l2:=TIdStringList.Create;
   try
     l.Text:=cStr;
     s:=l.CommaText;
@@ -99,9 +101,16 @@ begin
 
     l.CommaText:=cComma;
     s:=l.Text;
-    Assert(s=cMulti+#13#10);
+    Assert(s=cMulti+EOL);
+
+    //check that assign works
+    l.CommaText:=cComma;
+    l2.Assign(l);
+    s:=l.Text;
+    Assert(s=cMulti+EOL);
   finally
     Sys.FreeAndNil(l);
+    Sys.FreeAndNil(l2);
   end;
 end;
 
