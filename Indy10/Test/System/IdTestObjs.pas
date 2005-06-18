@@ -5,6 +5,7 @@ interface
 uses
   IdSys,
   IdTest,
+  IdStream,
   IdGlobal,
   IdObjs;
 
@@ -80,17 +81,17 @@ begin
  try
    //check write
    TempBuff := ToBytes(cStr);
-   aStream.Write(TempBuff, 0, Length(TempBuff));
+   TIdStreamHelper.Write(AStream, TempBuff, Length(TempBuff));
    Assert(aStream.Size = 3, Sys.IntToStr(aStream.Size));
    //check append
-   aStream.Write(TempBuff, 0, Length(TempBuff));
+   TIdStreamHelper.Write(AStream, TempBuff, Length(TempBuff));
    Assert(aStream.Size = 6, Sys.IntToStr(aStream.Size));
 
    //check overwrite
    //win32 replaces the entire string
    aStream.Position:=0;
    TempBuff := ToBytes(cStr2);
-   aStream.Write(TempBuff, 0, Length(TempBuff));
+   TIdStreamHelper.Write(AStream, TempBuff, Length(TempBuff));
    Assert(aStream.Position = Length(cStr2), Sys.IntToStr(aStream.Position));
    Assert(AStream.Size = Length(cStr2) + Length(cStr), Sys.IntToStr(AStream.Size));
 
