@@ -6,6 +6,7 @@ uses
   IdCoder3to4,
   IdObjs,
   IdSys,
+  IdGlobal,
   IdCoderBinHex4,
   IdTest;
 
@@ -20,19 +21,21 @@ implementation
 
 procedure TTestIdCoder3to4.TestCoder;
 var
- aCoder:TIdEncoder3to4;
- aStream:TIdStringStream;
- s:string;
+  aCoder: TIdEncoder3to4;
+  aStream: TIdMemoryStream;
+  s:string;
 begin
- aStream:=TIdStringStream.Create('abc');
- aCoder:=TIdEncoderBinHex4.Create(nil);
- try
- s:=aCoder.Encode(aStream,aStream.Size);
- Assert(s='B@*M');
- finally
- Sys.FreeAndNil(aStream);
- Sys.FreeAndNil(aCoder);
- end;
+  aStream := TIdMemoryStream.Create;
+  aCoder := TIdEncoderBinHex4.Create(nil);
+  try
+    WriteStringToStream(AStream, 'abc');
+    AStream.Position := 0;
+    s := aCoder.Encode(aStream, aStream.Size);
+    Assert(s = 'B@*M', s);
+  finally
+    Sys.FreeAndNil(aStream);
+    Sys.FreeAndNil(aCoder);
+  end;
 end;
 
 initialization
