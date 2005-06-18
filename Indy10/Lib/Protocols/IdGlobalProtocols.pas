@@ -407,23 +407,26 @@ const
    , 'Jun',  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
 type
+
   TIdReadLnFunction = function: string of object;
   TStringEvent = procedure(ASender: TIdNativeComponent; const AString: String);
 
   TIdMimeTable = class(TObject)
-  protected
+  private
+    FLoadTypesFromOS: Boolean;
     FOnBuildCache: TIdNotifyEvent;
     FMIMEList: TIdStringList;
     FFileExt: TIdStringList;
     procedure BuildDefaultCache; virtual;
   public
+    property LoadTypesFromOS:Boolean read FLoadTypesFromOS write FLoadTypesFromOS;
     procedure BuildCache; virtual;
     procedure AddMimeType(const Ext, MIMEType: string);
     function GetFileMIMEType(const AFileName: string): string;
-    function GetDefaultFileExt(Const MIMEType: string): string;
-    procedure LoadFromStrings(AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
-    procedure SaveToStrings(AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
-    constructor Create(Autofill: Boolean = True); reintroduce; virtual;
+    function GetDefaultFileExt(const MIMEType: string): string;
+    procedure LoadFromStrings(const AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
+    procedure SaveToStrings(const AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
+    constructor Create(const AutoFill: Boolean = True); reintroduce; virtual;
     destructor Destroy; override;
     //
     property  OnBuildCache: TIdNotifyEvent read FOnBuildCache write FOnBuildCache;
@@ -2213,7 +2216,7 @@ begin
 end;
 {$ENDIF}
 
-procedure FillMimeTable(AMIMEList : TIdStringList);
+procedure FillMimeTable(const AMIMEList : TIdStringList;const ALoadFromOS:Boolean=True);
 {$IFDEF MSWINDOWS}
 var
   reg: TRegistry;
@@ -2390,6 +2393,9 @@ begin
     Add('.sgm=text/sgml');    {Do not Localize}
     Add('.sgml=text/sgml');    {Do not Localize}
   end;
+
+  if not ALoadFromOS then Exit;
+
   {$IFDEF MSWINDOWS}
   // Build the file type/MIME type map
   Reg := CreateTRegistry; try
@@ -2516,21 +2522,22 @@ end;
 
 procedure TIdMimeTable.BuildDefaultCache;
 {This is just to provide some default values only}
-var LKeys : TIdStringList;
-
+var
+  LKeys : TIdStringList;
 begin
   LKeys := TIdStringList.Create;
   try
-    FillMIMETable(LKeys);
+    FillMIMETable(LKeys,LoadTypesFromOS);
     LoadFromStrings(LKeys);
   finally
     Sys.FreeAndNil(LKeys);
   end;
 end;
 
-constructor TIdMimeTable.Create(Autofill: boolean);
+constructor TIdMimeTable.Create(const Autofill: boolean);
 begin
   inherited Create;
+  FLoadTypesFromOS := True;
   FFileExt := TIdStringList.Create;
   FMIMEList := TIdStringList.Create;
   if Autofill then begin
@@ -2592,11 +2599,13 @@ begin
   end;  { if .. else }
 end;
 
-procedure TIdMimeTable.LoadFromStrings(AStrings: TIdStrings;const MimeSeparator: Char = '=');    {Do not Localize}
+procedure TIdMimeTable.LoadFromStrings(const AStrings: TIdStrings;const MimeSeparator: Char = '=');    {Do not Localize}
 var
   I   : Integer;
   Ext : string;
 begin
+  Assert(AStrings<>nil);
+
   FFileExt.Clear;
   FMIMEList.Clear;
   for I := 0 to AStrings.Count - 1 do
@@ -2610,11 +2619,13 @@ end;
 
 
 
-procedure TIdMimeTable.SaveToStrings(AStrings: TIdStrings;
+procedure TIdMimeTable.SaveToStrings(const AStrings: TIdStrings;
   const MimeSeparator: Char);
 var
   I : Integer;
 begin
+  Assert(AStrings<>nil);
+
   AStrings.Clear;
   for I := 0 to FFileExt.Count - 1 do
     AStrings.Add(FFileExt[I] + MimeSeparator + FMIMEList[I]);
