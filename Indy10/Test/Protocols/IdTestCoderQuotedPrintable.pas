@@ -7,6 +7,7 @@ interface
 uses
   IdCoderQuotedPrintable,
   IdStack,
+  System.Diagnostics,
   IdStream,
   IdTest,
   IdSys;
@@ -51,7 +52,7 @@ var
 const
  cStr='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
 begin
-
+Debugger.Launch;
  //should do a loop from 1..100?
  s:=cStr+#13#10;
  Assert(EncDec(s));
