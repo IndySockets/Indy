@@ -1267,7 +1267,10 @@ begin
         LLastActivity := Ticks;
       end;
       CheckForDisconnect(True, True);
-      EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout, RSReadTimeout);
+      if (   (Abs(GetTickDiff(LLastActivity, Ticks)) > ReadTimeout)
+           and (not ((ReadTimeout = IdTimeoutDefault) or (ReadTimeout = IdTimeoutInfinite)))
+           ) then
+        Exit;
     end;
     FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
   end else if AByteCount = -1 then begin
