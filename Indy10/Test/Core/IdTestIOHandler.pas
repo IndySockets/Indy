@@ -119,7 +119,7 @@ begin
  io:=TIdLoopbackIOHandler.Create(nil);
  try
  io.Open;
-
+ io.ReadTimeout := 500;
  //should check with/without conversion parameter
  //should also check edge cases, eg high/low
 
@@ -159,6 +159,11 @@ begin
  Assert(aChar=cChar);
  Assert(io.FInputBuffer.Size=0);
 
+ io.Write('U');
+ Assert(io.ReadLn = '');
+ Assert(io.FInputBuffer.Size = 1, Sys.IntToStr(io.FInputBuffer.Size));
+ Assert(io.ReadChar = 'U');
+ Assert(io.FInputBuffer.Size = 0);
  aStr:=cStr;
  io.WriteLn(aStr);
  Assert(io.FInputBuffer.Size>0);
