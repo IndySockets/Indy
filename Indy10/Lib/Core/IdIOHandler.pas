@@ -954,8 +954,11 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AValue: Char);
+var
+  TempValue: string;
 begin
-  Write(ToBytes(AValue));
+  TempValue := AValue;
+  Write(ToBytes(TempValue));
 end;
 
 procedure TIdIOHandler.Write(AValue: Cardinal; AConvert: boolean);
@@ -1044,10 +1047,10 @@ end;
 
 function TIdIOHandler.ReadChar: Char;
 var
-  LBytes: TIdBytes;
+  ResultString: string;
 begin
-  ReadBytes(LBytes, SizeOf(Char), False);
-  Result := BytesToChar(LBytes);
+  ResultString := ReadString(1);
+  Result := ResultString[1];
 end;
 
 function TIdIOHandler.ReadInteger(AConvert: boolean): Integer;
