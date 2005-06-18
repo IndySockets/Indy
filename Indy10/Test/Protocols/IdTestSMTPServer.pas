@@ -56,6 +56,7 @@ begin
 
  Assert(FClient=nil);
  FClient:=TIdSMTP.Create(nil);
+ FClient.ReadTimeout:=5000;
  FClient.Port:=cTestPort;
  FClient.Host:='127.0.0.1';
 
@@ -123,6 +124,7 @@ begin
 
  aClient.Port:=cTestPort;
  aClient.Host:='127.0.0.1';
+ aClient.ReadTimeout:=5000;
  aClient.Connect;
 
  s:=aClient.IOHandler.Readln;
