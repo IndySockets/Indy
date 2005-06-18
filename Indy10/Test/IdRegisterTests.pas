@@ -3,6 +3,14 @@ unit IdRegisterTests;
 interface
 
 uses
+  //system
+  IdTestGlobal,
+  IdTestStreamHelper,
+  IdTestObjs,
+  IdTestSys,
+  IdTestStack,
+  IdTestBaseComponent,
+
   //core
   IdTestBuffer,
   IdTestReplyRFC,
@@ -24,14 +32,7 @@ uses
   IdTestMessage,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
-  IdTestVCard,
-
-  //system
-  IdTestStreamHelper,
-  IdTestObjs,
-  IdTestSys,
-  IdTestStack,
-  IdTestBaseComponent;
+  IdTestVCard;
 
 implementation
 
