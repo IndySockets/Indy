@@ -2613,9 +2613,15 @@ begin
 end;
 
 function ToBytes(const AValue: Char): TIdBytes; overload;
+{$IFDEF DotNet}
+var
+  LChars: array[0..1] of char;
+{$ENDIF}
 begin
   {$IFDEF DotNet}
-  Result := System.BitConverter.GetBytes(AValue);
+  LChars[0] := AValue;
+  SetLength(Result, 1);
+  &Array.Copy(Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
   {$ELSE}
   SetLength(Result, SizeOf(Byte));
   Result[0] := Byte(AValue);
