@@ -3,9 +3,9 @@ unit IdTestObjs;
 interface
 
 uses
-  IdGlobal,
   IdSys,
   IdTest,
+  IdGlobal,
   IdObjs;
 
 type
@@ -21,6 +21,11 @@ type
   end;
 
   TIdTestStringStream = class(TIdTest)
+  published
+    procedure TestStream;
+  end;
+
+  TIdTestMemoryStream = class(TIdTest)
   published
     procedure TestStream;
   end;
@@ -46,7 +51,6 @@ begin
    //check write
    aStream.WriteString(cStr);
    Assert(aStream.DataString=cStr);
-
    //check append
    aStream.WriteString(cStr);
    Assert(aStream.DataString=cStr+cStr);
@@ -55,7 +59,40 @@ begin
    //win32 replaces the entire string
    aStream.Position:=0;
    aStream.WriteString(cStr2);
-   Assert(aStream.DataString=cStr2);
+   Assert(aStream.Position = Length(cStr2), Sys.IntToStr(aStream.Position));
+   Assert(aStream.DataString=cStr2, AStream.DataString);
+
+ finally
+   Sys.FreeAndNil(aStream);
+ end;
+
+end;
+
+procedure TIdTestMemoryStream.TestStream;
+var
+ aStream:TIdMemoryStream;
+ TempBuff: TIdBytes;
+const
+ cStr='123';
+ cStr2='abc';
+begin
+ aStream:=TIdMemoryStream.Create();
+ try
+   //check write
+   TempBuff := ToBytes(cStr);
+   aStream.Write(TempBuff, 0, Length(TempBuff));
+   Assert(aStream.Size = 3, Sys.IntToStr(aStream.Size));
+   //check append
+   aStream.Write(TempBuff, 0, Length(TempBuff));
+   Assert(aStream.Size = 6, Sys.IntToStr(aStream.Size));
+
+   //check overwrite
+   //win32 replaces the entire string
+   aStream.Position:=0;
+   TempBuff := ToBytes(cStr2);
+   aStream.Write(TempBuff, 0, Length(TempBuff));
+   Assert(aStream.Position = Length(cStr2), Sys.IntToStr(aStream.Position));
+   Assert(AStream.Size = Length(cStr2) + Length(cStr), Sys.IntToStr(AStream.Size));
 
  finally
    Sys.FreeAndNil(aStream);
@@ -81,15 +118,14 @@ end;
 
 procedure TIdTestStringList.TestBasic;
 var
-  l,l2:TIdStringList;
+  l:TIdStringList;
   s:string;
 const
   cStr='123';
   cComma='1,2,3';
-  cMulti='1'+EOL+'2'+EOL+'3';
+  cMulti='1'+#13#10+'2'+#13#10+'3';
 begin
   l:=TIdStringList.Create;
-  l2:=TIdStringList.Create;
   try
     l.Text:=cStr;
     s:=l.CommaText;
@@ -101,16 +137,9 @@ begin
 
     l.CommaText:=cComma;
     s:=l.Text;
-    Assert(s=cMulti+EOL);
-
-    //check that assign works
-    l.CommaText:=cComma;
-    l2.Assign(l);
-    s:=l.Text;
-    Assert(s=cMulti+EOL);
+    Assert(s=cMulti+#13#10);
   finally
     Sys.FreeAndNil(l);
-    Sys.FreeAndNil(l2);
   end;
 end;
 
@@ -118,6 +147,7 @@ initialization
 
   TIdTest.RegisterTest(TIdTestStringList);
   //TIdTest.RegisterTest(TIdTestNativeComponent);
+  TIdTest.RegisterTest(TIdTestMemoryStream);
   TIdTest.RegisterTest(TIdTestStringStream);
 
 end.
