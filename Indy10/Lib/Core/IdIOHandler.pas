@@ -1253,14 +1253,21 @@ procedure TIdIOHandler.ReadBytes(
   var VBuffer: TIdBytes;
   AByteCount: Integer;
   AAppend: Boolean = True);
+var
+  LLastActivity: Cardinal;
 begin
   Assert(FInputBuffer<>nil);
   
   if AByteCount > 0 then begin
     // Read from stack until we have enough data
+    LLastActivity := Ticks;
     while FInputBuffer.Size < AByteCount do begin
-      ReadFromSource(False);
+      if ReadFromSource(False, ReadTimeout, false) > 0 then
+      begin
+        LLastActivity := Ticks;
+      end;
       CheckForDisconnect(True, True);
+      EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout, RSReadTimeout);
     end;
     FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
   end else if AByteCount = -1 then begin
