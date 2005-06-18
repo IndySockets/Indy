@@ -5,6 +5,7 @@ interface
 uses
   IdTest,
   IdBaseComponent,
+  IdObjs,
   IdSys;
 
 type
