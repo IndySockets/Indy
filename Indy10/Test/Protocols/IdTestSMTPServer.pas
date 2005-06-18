@@ -180,6 +180,7 @@ begin
  //also check the "Received:" header
  //also check attachments
 
+ //currently breaks due to ioHandler rev26
  finally
  myTearDown;
  end;
