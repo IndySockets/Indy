@@ -1159,8 +1159,7 @@ begin
       // ReadLn needs to call this as data may exist in the buffer, but no EOL yet disconnected
       CheckForDisconnect(True, True);
       // Can only return -1 if timeout
-      FReadLnTimedOut := ReadFromSource(True, ATimeout, false) = -1;
-//      FReadLnTimedOut := ReadFromSource(True, ATimeout, ATimeout = IdTimeoutDefault) = -1;
+      FReadLnTimedOut := ReadFromSource(True, ATimeout, ATimeout <> IdTimeoutDefault) = -1;
       if (not FReadLnTimedOut) and (ATimeout >= 0) then begin
         if GetTickDiff(LReadLnStartTime, Ticks) >= Cardinal(ATimeout) then begin
           FReadLnTimedOut := True;
