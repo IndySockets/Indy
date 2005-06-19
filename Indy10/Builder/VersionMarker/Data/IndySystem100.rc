@@ -1,0 +1,31 @@
+1 VERSIONINFO 
+FILEVERSION 10,00,0,17
+PRODUCTVERSION 10,00,0,17
+FILEFLAGSMASK 0x3FL
+FILEFLAGS 0x00L
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "000104E4"
+  {
+   VALUE "CompanyName", "{COMPANY}\0"
+   VALUE "FileDescription", "{DESCRIPTION} - System Run-Time Package for Borland Delphi 2005\0"
+   VALUE "FileVersion", "{MAJORVER}.{MINORVER}.0.{POINTVER}\0"
+   VALUE "InternalName", "IndySystem100\0"
+   VALUE "LegalCopyright", "'{COPYRIGHT}\0"
+   VALUE "OriginalFilename", "IndySystem100.bpl\0"
+   VALUE "ProductName", "{TITLE}\0"
+   VALUE "ProductVersion", "{MAJORVER}.{MINORVER}.0.{POINTVER}\0"
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 0x0001, 1252
+ }
+
+}
