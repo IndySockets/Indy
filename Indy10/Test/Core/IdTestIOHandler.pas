@@ -158,8 +158,11 @@ begin
  //should check with/without conversion parameter
  //should also check edge cases, eg high/low
 
- //integer types
+ //test with no data in buffer
+ //aChar:=io.ReadChar;
+ //Assert(aChar=#0);
 
+ //integer types
  Assert(io.FInputBuffer.Size=0);
  aSmall:=cSmall;
  io.Write(aSmall,True);
