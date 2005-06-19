@@ -2792,6 +2792,7 @@ const
   cSizeOfChar=1;
 {$IFDEF DotNet}
 var
+  //aEnc:Encoding;
   aBytes:TIdBytes;
 {$ENDIF}
 begin
@@ -2801,6 +2802,11 @@ begin
   //ToChar requires a 2-byte array
   SetLength(aBytes,2);
   aBytes[0]:=aValue[0];
+
+  //to get mime working, may need something like this, ISO-8859-1 codepage
+  //aEnc:=Encoding.GetEncoding(1252);//28591);
+  //Result := aEnc.GetChars(aBytes,0,1)[0];
+
   Result := System.BitConverter.ToChar(ABytes, AIndex);
   {$ELSE}
   Result := Char(AValue[AIndex]);
