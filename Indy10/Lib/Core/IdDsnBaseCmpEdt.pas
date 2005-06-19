@@ -64,7 +64,7 @@ uses
   IdAbout,
   IdGlobal,
   IdDsnCoreResourceStrings,
-  SysUtils;
+  IdSys;
 
 { TIdBaseComponentEditor }
 
@@ -78,7 +78,7 @@ end;
 function TIdBaseComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := Format(RSAAboutMenuItemName, [gsIdVersion]);
+    0: Result := Sys.Format(RSAAboutMenuItemName, [gsIdVersion]);
   end;
 end;
 
