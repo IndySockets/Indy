@@ -7,6 +7,8 @@ uses
   IdIOHandler,
   IdObjs,
   IdStream,
+  IdExceptionCore,
+  IdResourceStringsCore,
   IdGlobal,
   IdSys;
 
@@ -61,6 +63,8 @@ function TIdLoopbackIOHandler.ReadFromSource(
 begin
  //always report a timeout happened, ie there's no more data expected
  Result:=-1;
+ EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout and (Result = -1), RSReadTimeout);
+ 
 end;
 
 procedure TIdLoopbackIOHandler.WriteDirect(ABuffer: TIdBytes);

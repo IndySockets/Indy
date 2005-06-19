@@ -18,16 +18,11 @@ type
   TIdTestCmdTCPServer = class(TIdTest)
   private
     procedure CommandTEST(ASender: TIdCommand);
-    procedure DoConnected(AContext:TIdContext);
   published
     procedure TestServer;
   end;
 
 implementation
-
-procedure TIdTestCmdTCPServer.DoConnected(AContext:TIdContext);
-begin
-end;
 
 procedure TIdTestCmdTCPServer.CommandTEST(ASender: TIdCommand);
 begin
@@ -48,19 +43,16 @@ begin
   aServer:= TIdCmdTCPServer.Create(nil);
   try
     aServer.DefaultPort:=cTestPort;
-    AServer.OnConnect := DoConnected;
     AServer.HelpReply.Code := '111';
-//    with AServer.CommandHandlers.Add do
-//    begin
-//      Command := 'TEST';
-//      OnCommand := CommandTEST;
-//    end;
+    with AServer.CommandHandlers.Add do
+    begin
+      Command := 'TEST';
+      OnCommand := CommandTEST;
+    end;
     aServer.Greeting.Code := '200';
     aServer.Greeting.Text.Text := cGreetingText;
     Assert(aServer.Greeting.NumericCode<>0);
     aServer.Active:=True;
-Console.WriteLine('Waiting for enter');
-Console.ReadLine;
     aClient.Port:=cTestPort;
     aClient.Host:='127.0.0.1';
     aClient.ReadTimeout:=5000;
