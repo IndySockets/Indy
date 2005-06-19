@@ -1116,11 +1116,6 @@ var
   LTermPos: Integer;
   LReadLnStartTime: Cardinal;
 begin
-  if ATimeout = IdTimeoutDefault then
-  begin
-    //setting this breaks TestSMTPServer.TestReceive
-    ATimeout := ReadTimeout;
-  end;
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
   end;
@@ -1204,6 +1199,7 @@ function TIdIOHandler.ReadLnWait(AFailCount: Integer = MaxInt): string;
 var
   LAttempts: Integer;
 begin
+// MtW: this is mostly used when empty lines could be send.
   Result := '';
   LAttempts := 0;
   while (Length(Result) = 0) and (LAttempts < AFailCount) do begin

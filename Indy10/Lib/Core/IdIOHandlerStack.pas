@@ -449,7 +449,8 @@ var
   LBuffer: TIdBytes;
 begin
   if ATimeout = IdTimeoutDefault then begin
-    if ReadTimeout = 0 then begin
+    if (ReadTimeout = IdTimeoutDefault)
+      or (ReadTimeout = 0) then begin // MtW: check for 0 too, for compatibility
       ATimeout := IdTimeoutInfinite;
     end else begin
       ATimeout := ReadTimeout;
