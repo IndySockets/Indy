@@ -2787,8 +2787,11 @@ end;
 {$ENDIF}
 
 function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0): Char;
+const
+  //don't use SizeOf(Char) as it's different depending on OS
+  cSizeOfChar=1;
 begin
-  Assert(Length(AValue) >= (SizeOf(Char)+AIndex));
+  Assert(Length(AValue) >= (cSizeOfChar+AIndex));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToChar(AValue, AIndex);
   {$ELSE}
