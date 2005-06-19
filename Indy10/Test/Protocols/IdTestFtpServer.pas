@@ -22,56 +22,57 @@ implementation
 
 procedure TIdTestFtpServer.TestBasic;
 var
-	s:TIdFTPServer;
-	c:TIdTCPClient;
-	aStr:string;
+  s:TIdFTPServer;
+  c:TIdTCPClient;
+  aStr:string;
   aIntercept:TIdLogDebug;
 const
-	cGreeting='HELLO';
-	cTestFtpPort=20021;
+  cGreeting='HELLO';
+  cTestFtpPort=20021;
 begin
-	s:=TIdFTPServer.Create(nil);
-	c:=TIdTCPClient.Create(nil);
-	try
-		c.CreateIOHandler;
+  s:=TIdFTPServer.Create(nil);
+  c:=TIdTCPClient.Create(nil);
+  try
+    c.CreateIOHandler;
     aIntercept := TIdLogDebug.Create;
-		c.IOHandler.Intercept := aIntercept;
-		TIdLogDebug(c.IOHandler.Intercept).Active := true;
+    c.IOHandler.Intercept := aIntercept;
+    aIntercept.Active := true;
+    try
+      s.Greeting.Text.Text:=cGreeting;
+      s.DefaultPort:=cTestFtpPort;
+      s.Active:=True;
 
-		s.Greeting.Text.Text:=cGreeting;
-		s.DefaultPort:=cTestFtpPort;
-		s.Active:=True;
+      c.Port:=cTestFtpPort;
+      c.Host:='127.0.0.1';
+      c.Connect;
+      c.IOHandler.ReadTimeout:=500;
 
-		c.Port:=cTestFtpPort;
-		c.Host:='127.0.0.1';
-		c.Connect;
-		c.IOHandler.ReadTimeout:=500;
+      //expect a greeting. typical="220 FTP Server Ready."
+      aStr:=c.IOHandler.Readln;
+      Assert(aStr = '220 ' + cGreeting, cGreeting);
 
-		//expect a greeting. typical="220 FTP Server Ready."
-		aStr:=c.IOHandler.Readln;
-		Assert(aStr = '220 ' + cGreeting, cGreeting);
+      //ftp server should only process a command after crlf
+      //see TIdFTPServer.ReadCommandLine
+      c.IOHandler.Write('U');
+      aStr:=c.IOHandler.Readln;
+      Assert(aStr='',aStr);
 
-		//ftp server should only process a command after crlf
-		//see TIdFTPServer.ReadCommandLine
-		c.IOHandler.Write('U');
-		aStr:=c.IOHandler.Readln;
-		Assert(aStr='',aStr);
+      //complete the rest of the command
+      c.IOHandler.WriteLn('SER ANONYMOUS');
+      aStr:=c.IOHandler.Readln;
+      Assert(aStr<>'',aStr);
 
-		//complete the rest of the command
-		c.IOHandler.WriteLn('SER ANONYMOUS');
-		aStr:=c.IOHandler.Readln;
-		Assert(aStr<>'',aStr);
-
-		//attempt to start a transfer when no datachannel setup.
-		//should give 550 error?
-
-		//typical quit='221 Goodbye.'
-
-	finally
+      //attempt to start a transfer when no datachannel setup.
+      //should give 550 error?
+      //typical quit='221 Goodbye.'
+    finally
+      aIntercept.Active := False;
+    end;
+  finally
     Sys.FreeAndNil(aIntercept);
-		Sys.FreeAndNil(c);
-		Sys.FreeAndNil(s);
-	end;
+    Sys.FreeAndNil(c);
+    Sys.FreeAndNil(s);
+  end;
 end;
 
 
