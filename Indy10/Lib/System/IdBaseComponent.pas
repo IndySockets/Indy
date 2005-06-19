@@ -92,6 +92,7 @@ uses
   {$DEFINE IdDEBUG}
   System.ComponentModel.Design.Serialization,
   System.Collections.Specialized,
+  System.ComponentModel,
   System.Threading,
   System.Reflection,
   System.IO, // Necessary else System.IO below is confused with RTL System.
@@ -120,6 +121,12 @@ type
 //  TIdInitializerComponent = class(Component, ISupportInitialize)
   {$ELSE}
 //  TIdInitializerComponent = class(TIdNativeComponent)
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  //IMPORTANT!!!
+  //Abstract classes should be hidden in the assembly designer.
+  //Otherwise, you get a mess.
+  [DesignTimeVisible(false), ToolboxItem(false)]
   {$ENDIF}
   TIdInitializerComponent = class(TIdNativeComponent)  
   private
@@ -157,9 +164,6 @@ type
     {$ENDIF}
   end;
 
-  {$IFDEF DotNet}
-  [RootDesignerSerializerAttribute('', '', False)]
-  {$ENDIF}
   // TIdBaseComponent is the base class for all Indy components. Utility components, and other non
   // socket based components typically inherit directly from this. While socket components ineherit
   // from TIdComponent instead as it introduces OnWork, OnStatus, etc.
@@ -194,11 +198,6 @@ type
 const
    opRemove = TIdOperation.opRemove;
   {$ENDIF}
-{$ENDIF}
-
-{$IFDEF IdDEBUG}
-type
-   TIdDummyClass = class(TIdBaseComponent);
 {$ENDIF}
 
 implementation
