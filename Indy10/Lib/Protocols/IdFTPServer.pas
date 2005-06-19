@@ -5531,14 +5531,18 @@ const
   TELNET_IP = #$FF#$F4;  //Interrupt process
   TELNET_DM = #$FF#$F2; //Data Mark
 begin
+  //we do it this way in case there's no data.  We don't want to stop
+  //a data channel operation if that's the case.
   Result := '';
+  AContext.Connection.IOHandler.CheckForDataOnSource(1);
+  if AContext.Connection.IOHandler.InputBufferIsEmpty then
+  begin
+    Exit;
+  end;
+  //we do
   State := tsData;
   repeat
-    AContext.Connection.IOHandler.CheckForDataOnSource(1);
-    if AContext.Connection.IOHandler.InputBufferIsEmpty then
-    begin
-      Exit;
-    end;
+
     c := AContext.Connection.IOHandler.ReadChar;
     case State of
 
