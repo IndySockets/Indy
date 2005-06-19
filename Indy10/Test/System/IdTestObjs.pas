@@ -131,15 +131,15 @@ begin
   try
     l.Text:=cStr;
     s:=l.CommaText;
-    Assert(s=cStr);
+    Assert(s=cStr, '1:' + s);
 
     l.Text:=cMulti;
     s:=l.CommaText;
-    Assert(s=cComma);
+    Assert(s=cComma, '2:' + s);
 
     l.CommaText:=cComma;
     s:=l.Text;
-    Assert(s=cMulti+#13#10);
+    Assert(s=cMulti+#13#10, '3:' + s);
   finally
     Sys.FreeAndNil(l);
   end;

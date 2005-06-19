@@ -49,15 +49,18 @@ begin
   try
     aServer.DefaultPort:=cTestPort;
     AServer.OnConnect := DoConnected;
-    with AServer.CommandHandlers.Add do
-    begin
-      Command := 'TEST';
-      OnCommand := CommandTEST;
-    end;
+    AServer.HelpReply.Code := '111';
+//    with AServer.CommandHandlers.Add do
+//    begin
+//      Command := 'TEST';
+//      OnCommand := CommandTEST;
+//    end;
     aServer.Greeting.Code := '200';
     aServer.Greeting.Text.Text := cGreetingText;
     Assert(aServer.Greeting.NumericCode<>0);
     aServer.Active:=True;
+Console.WriteLine('Waiting for enter');
+Console.ReadLine;
     aClient.Port:=cTestPort;
     aClient.Host:='127.0.0.1';
     aClient.ReadTimeout:=5000;

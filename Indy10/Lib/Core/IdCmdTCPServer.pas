@@ -550,7 +550,15 @@ end;
 
 function TIdCmdTCPServer.ReadCommandLine(AContext: TIdContext): string;
 begin
-  Result := AContext.Connection.IOHandler.ReadLn;
+  try
+    Result := AContext.Connection.IOHandler.ReadLn;
+  except
+    on E: Exception do
+    begin
+      Console.WriteLine('ERROR: {0}', [E.ToString]);
+      raise E;
+    end;
+  end;
 end;
 
 procedure TIdCmdTCPServer.CheckOkToBeActive;
