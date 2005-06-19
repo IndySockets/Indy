@@ -37,8 +37,11 @@ var
  d: TIdDecoderMIMELineByLine;
  TempStream: TIdMemoryStream;
 begin
+ //using class method
  s:=TIdDecoderMIMELineByLine.DecodeString(cEnc1);
  Assert(s=cDec1,s);
+
+ //using 'manually'
  d := TIdDecoderMIMELineByLine.Create;
  try
   TempStream := TIdMemoryStream.Create;
