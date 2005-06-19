@@ -226,6 +226,15 @@ Indy10/Lib/Core/dclIndyCore90Net.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpkl -text
 Indy10/Lib/Core/dclindycorek3.res -text svneol=unset#unset
+Indy10/Lib/Design/DsnIndy.bdsproj -text
+Indy10/Lib/Design/DsnIndy.dpr -text
+Indy10/Lib/Design/DsnIndy90.bdsproj -text
+Indy10/Lib/Design/DsnIndy90.dpr -text
+Indy10/Lib/Design/IdDsnCoreResourceStrings.pas -text
+Indy10/Lib/Design/IdDsnNETCompEditor.pas -text
+Indy10/Lib/Design/IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources -text svneol=unset#unset
+Indy10/Lib/Design/IdDsnPropEdBindingNET.pas -text
+Indy10/Lib/Design/IdDsnPropEdBindingNET.resx -text
 Indy10/Lib/FCL/IdCompilerDefines.inc -text
 Indy10/Lib/FCL/IdVers.inc -text
 Indy10/Lib/Indy.Sockets.bdsproj -text
