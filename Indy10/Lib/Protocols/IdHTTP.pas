@@ -602,6 +602,7 @@ type
     {Do we handle redirect requests or simply raise an exception and let the
      developer deal with it}
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default Id_TIdHTTP_HandleRedirects;
+    property RedirectCount:Integer read FRedirectCount write FRedirectCount;
     property ProtocolVersion: TIdHTTPProtocolVersion read FProtocolVersion write FProtocolVersion default Id_TIdHTTP_ProtocolVersion;
     {This is the maximum number of redirects we wish to handle, we limit this
      to prevent stack overflow due to recursion.  Recursion is safe ONLY if
@@ -1962,6 +1963,8 @@ procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
 var
   LResponseLocation: Integer;
 begin
+  FRedirectCount := 0;
+
   if Assigned(AResponseContent) then begin
     LResponseLocation := AResponseContent.Position;
   end else begin
@@ -2026,7 +2029,6 @@ begin
       Disconnect;
     end;
   end;
-  FRedirectCount := 0;
 end;
 
 end.
