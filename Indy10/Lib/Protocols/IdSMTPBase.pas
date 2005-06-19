@@ -193,6 +193,8 @@ begin
   FRegularProtPort := IdPORT_SMTP;
   FPipeLine := DEF_SMTP_PIPELINE;
   FUseEhlo:=IdDEF_UseEhlo;
+  FMailAgent := '';
+  FHeloName := '';
   Port := IdPORT_SMTP;
 end;
 
