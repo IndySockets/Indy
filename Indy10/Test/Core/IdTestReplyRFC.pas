@@ -32,13 +32,13 @@ begin
     R1.Code := CCode;
     R1.Text.Text := CText;
     aStr:=r1.FormattedReply.Text;
-    Assert(aStr=CCode+' '+CText+EOL);
+    Assert(aStr=CCode+' '+CText+EOL, '1:' + AStr);
 
     //check that assign works. eg used in TIdCmdTCPServer.DoConnect
     R2.Assign(R1);
-    Assert(R2.Code = CCode );
+    Assert(R2.Code = CCode, '2:' + R2.Code);
     aStr := R2.Text.Text;
-    Assert(aStr = CText + EOL, aStr);
+    Assert(aStr = CText + EOL, '3:' + aStr);
 
   finally
     Sys.FreeAndNil(R1);
