@@ -129,17 +129,22 @@ const
 begin
   l:=TIdStringList.Create;
   try
+    l.Text := '';
+    Assert(l.Count = 0, '0:' + Sys.IntToStr(l.Count));
+    Assert(l.CommaText = '', '1:' + l.CommaText);
+    Assert(l.Text = '', '2:' + l.Text);
+
     l.Text:=cStr;
     s:=l.CommaText;
-    Assert(s=cStr, '1:' + s);
+    Assert(s=cStr, '3:' + s);
 
     l.Text:=cMulti;
     s:=l.CommaText;
-    Assert(s=cComma, '2:' + s);
+    Assert(s=cComma, '4:' + s);
 
     l.CommaText:=cComma;
     s:=l.Text;
-    Assert(s=cMulti+#13#10, '3:' + s);
+    Assert(s=cMulti+#13#10, '5:' + s);
   finally
     Sys.FreeAndNil(l);
   end;
