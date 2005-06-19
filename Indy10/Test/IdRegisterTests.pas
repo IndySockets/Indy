@@ -14,9 +14,10 @@ uses
   //core
   IdTestBuffer,
   IdTestReplyRFC,
+  IdTestIOHandler,
+  IdTestTcpClient,
   IdTestCmdTCPClient,
   IdTestCmdTCPServer,
-  IdTestIOHandler,
   IdTestSchedulerOfThreadPool,
   IdTestSocketHandle,
   IdTestThreadComponent,

@@ -13,6 +13,7 @@ uses
   IdObjs,
   IdSMTP,
   IdSys,
+  IdLogFile,
   IdTest;
 
 type
@@ -59,11 +60,16 @@ begin
  FClient.ReadTimeout:=5000;
  FClient.Port:=cTestPort;
  FClient.Host:='127.0.0.1';
+ FClient.CreateIOHandler;
+ FClient.IOHandler.Intercept := TIdLogFile.Create;
+ TIdLogFile(FClient.IOHandler.Intercept).FileName := 'tcp.log';
+ TIdLogFile(FClient.IOHandler.Intercept).Open;
 
 end;
 
 procedure TIdTestSMTPServer.myTearDown;
 begin
+ TIdLogFile(FClient.IOHandler.Intercept).Close;
  Sys.FreeAndNil(FClient);
  Sys.FreeAndNil(FServer);
  Sys.FreeAndNil(FReceivedMsg);
@@ -221,7 +227,7 @@ begin
  //TIdSMTPServer.MailFromReject sets to 250
  //should be 550
  //currently responding 503, from TIdSMTPServer.BadSequenceError
- Assert(FClient.LastCmdResult.NumericCode=550);
+ Assert(FClient.LastCmdResult.NumericCode=550, FClient.LastCmdResult.FormattedReply.Text);
  //Assert(aClient.LastCmdResult.Code='550');
  //Bad sequence of commands
  //Assert(aClient.LastCmdResult.Text.Text='');

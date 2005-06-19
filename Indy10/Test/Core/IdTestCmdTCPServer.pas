@@ -11,9 +11,6 @@ uses
   IdIOHandlerStack,
   IdLogDebug,
   IdCommandHandlers,
-
-System.Diagnostics,
-
   IdSys;
 
 type
@@ -50,7 +47,6 @@ begin
   aClient:= TIdTCPClient.Create(nil);
   aServer:= TIdCmdTCPServer.Create(nil);
   try
-Debugger.Launch;
     aServer.DefaultPort:=cTestPort;
     AServer.OnConnect := DoConnected;
     with AServer.CommandHandlers.Add do
