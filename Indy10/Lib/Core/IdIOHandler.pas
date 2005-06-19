@@ -954,11 +954,15 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AValue: Char);
+begin
+  Write(ToBytes(AValue));
+{
 var
   TempValue: string;
 begin
   TempValue := AValue;
   Write(ToBytes(TempValue));
+}
 end;
 
 procedure TIdIOHandler.Write(AValue: Cardinal; AConvert: boolean);
@@ -1046,11 +1050,18 @@ begin
 end;
 
 function TIdIOHandler.ReadChar: Char;
+{
 var
   ResultString: string;
 begin
   ResultString := ReadString(1);
   Result := ResultString[1];
+}
+var
+  LBytes: TIdBytes;
+begin
+  ReadBytes(LBytes, 1, False);
+  Result := BytesToChar(LBytes);
 end;
 
 function TIdIOHandler.ReadInteger(AConvert: boolean): Integer;
@@ -1107,7 +1118,8 @@ var
 begin
   if ATimeout = IdTimeoutDefault then
   begin
-    ATimeout := ReadTimeout;
+    //setting this breaks TestSMTPServer.TestReceive
+    //ATimeout := ReadTimeout;
   end;
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
