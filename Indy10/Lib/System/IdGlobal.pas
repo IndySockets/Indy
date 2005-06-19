@@ -2621,7 +2621,7 @@ begin
   {$IFDEF DotNet}
   LChars[0] := AValue;
   SetLength(Result, 1);
-  &Array.Copy(Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
+  &Array.Copy(System.Text.Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
   {$ELSE}
   SetLength(Result, SizeOf(Byte));
   Result[0] := Byte(AValue);
