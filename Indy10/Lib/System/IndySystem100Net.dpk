@@ -28,8 +28,7 @@ package IndySystem100Net;
 
 requires
   Borland.Delphi,
-  Borland.VclRtl,
-  System.Drawing;
+  Borland.VclRtl;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
@@ -37,16 +36,19 @@ contains
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
+  IdObjs in 'IdObjs.pas',
+  IdObjsBase in 'IdObjsBase.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackConsts in 'IdStackConsts.pas',
   IdStackDotNet in 'IdStackDotNet.pas',
   IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
-  IdTStrings in 'IdTStrings.pas';
+  IdStreamNET in 'IdStreamNET.pas',
+  IdStruct in 'IdStruct.pas',
+  IdSys in 'IdSys.pas',
+  IdSysBase in 'IdSysBase.pas',
+  IdSysVCL in 'IdSysVCL.pas';
 
 [assembly: AssemblyDescription('')]
 [assembly: AssemblyConfiguration('')]
