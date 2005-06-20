@@ -756,8 +756,10 @@ Indy10/Lib/System/IdSystem90ASM90.inc -text
 Indy10/Lib/System/IdVers.inc -text
 Indy10/Lib/System/IdWinsock2.pas -text
 Indy10/Lib/System/IdWship6.pas -text
+Indy10/Lib/System/IndySystem100.bdsproj -text
 Indy10/Lib/System/IndySystem100.dpk -text
 Indy10/Lib/System/IndySystem100.rc -text
+Indy10/Lib/System/IndySystem100.res -text svneol=unset#unset
 Indy10/Lib/System/IndySystem100Net.bdsproj -text
 Indy10/Lib/System/IndySystem100Net.dpk -text
 Indy10/Lib/System/IndySystem110.dpk -text
