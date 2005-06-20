@@ -265,7 +265,7 @@ contains
   IdStackConsts in 'System\IdStackConsts.pas',
   IdStackDotNet in 'System\IdStackDotNet.pas',
   IdStream in 'System\IdStream.pas',
-  IdStreamVCL in 'System\IdStreamVCL.pas',
+  IdStreamNET in 'System\IdStreamNET.pas',
   IdStrings in 'Protocols\IdStrings.pas',
   IdStruct in 'System\IdStruct.pas',
   IdSync in 'Core\IdSync.pas',
