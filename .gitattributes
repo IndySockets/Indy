@@ -643,6 +643,7 @@ Indy10/Lib/Protocols/IdWhoIsServer.pas -text
 Indy10/Lib/Protocols/IdWhois.pas -text
 Indy10/Lib/Protocols/IdZLibCompressorBase.pas -text
 Indy10/Lib/Protocols/IddclProtocols90ASM90.inc -text
+Indy10/Lib/Protocols/IndyProtocols100.rc -text
 Indy10/Lib/Protocols/IndyProtocols40.dpk -text
 Indy10/Lib/Protocols/IndyProtocols40.res -text svneol=unset#unset
 Indy10/Lib/Protocols/IndyProtocols50.dpk -text
@@ -664,6 +665,7 @@ Indy10/Lib/Protocols/IndyProtocolsK3.dpk -text
 Indy10/Lib/Protocols/adler32.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/compress.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/crc32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/dclIndyProtocols100.rc -text
 Indy10/Lib/Protocols/dclIndyProtocols50.RES -text svneol=unset#unset
 Indy10/Lib/Protocols/dclIndyProtocols50.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocols50.rc -text
