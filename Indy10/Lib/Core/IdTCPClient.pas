@@ -211,6 +211,8 @@ type
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
     //
+    function GetReadTimeout: Integer;
+    //
     property Host: string read FHost write SetHost;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
     property Password: string read FPassword write FPassword;
@@ -234,7 +236,7 @@ type
     property BoundPortMin: Integer read FBoundPortMin write SetBoundPortMin;
 
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
-    property ReadTimeout: Integer read FReadTimeout write SetReadTimeout;
+    property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
     property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
     property OnAfterBind:TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
 
@@ -463,6 +465,15 @@ begin
   Host := AHost;
   Port := APort;
   Connect;
+end;
+
+function TIdTCPClientCustom.GetReadTimeout: Integer;
+begin
+  if IOHandler <> nil then begin
+    Result:=IOHandler.ReadTimeout;
+  end else begin
+    Result:=FReadTimeout;
+  end;
 end;
 
 end.
