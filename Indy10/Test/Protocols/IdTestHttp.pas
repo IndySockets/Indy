@@ -1,5 +1,7 @@
 unit IdTestHTTP;
 
+//todo: add tests for KeepAlive
+
 interface
 
 uses
