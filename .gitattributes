@@ -185,6 +185,7 @@ Indy10/Lib/Core/IdUDPClient.pas -text
 Indy10/Lib/Core/IdUDPServer.pas -text
 Indy10/Lib/Core/IdYarn.pas -text
 Indy10/Lib/Core/IddclCore90ASM90.inc -text
+Indy10/Lib/Core/IndyCore100.rc -text
 Indy10/Lib/Core/IndyCore50.RES -text svneol=unset#unset
 Indy10/Lib/Core/IndyCore50.dpk -text
 Indy10/Lib/Core/IndyCore50.rc -text
@@ -213,6 +214,7 @@ Indy10/Lib/Core/Res/Sink.bmp -text svneol=unset#unset
 Indy10/Lib/Core/Res/TIDABOUTPICTURE.BMP -text svneol=unset#unset
 Indy10/Lib/Core/Res/makeres.bat eol=crlf
 Indy10/Lib/Core/Res/sinkdr.wav -text svneol=unset#unset
+Indy10/Lib/Core/dclIndyCore100.rc -text
 Indy10/Lib/Core/dclIndyCore50.dpk -text
 Indy10/Lib/Core/dclIndyCore50.rc -text
 Indy10/Lib/Core/dclIndyCore50.res -text svneol=unset#unset
