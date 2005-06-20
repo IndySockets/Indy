@@ -32,7 +32,13 @@ Guidelines for writing unit tests:
     //good
     procedure TestRead;
 
+3) additional debug code should not be left in for 'release'. 
+   (by default) data should not be written to the test pc, eg log files.
+
 ---------------------------------
 ToDo:
-probably add Setup/TearDown virtuals.
-possibly add another layer to the component heirachy that defines the interface, eg virtual methods etc.
+
+add another layer to the component heirachy that defines the interface, eg virtual methods etc.
+add Setup/TearDown virtuals.
+add a mechanism for recording additional debug output.
+add a mechanism for supplying tests with configuration settings, eg address/user/password for a live email server to test against. suggest just a name=value stringlist and a DoConfig(TStringList);virtual method.
