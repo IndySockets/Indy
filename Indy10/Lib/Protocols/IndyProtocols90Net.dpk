@@ -26,8 +26,9 @@ package IndyProtocols90Net;
 {$IMPLICITBUILD OFF}
 
 requires
-Borland.Delphi,
-Borland.VclRtl,
+  System.Windows.Forms,
+  Borland.Delphi,
+  Borland.VclRtl,
   IndySystem90Net,
   IndyCore90Net;
 
