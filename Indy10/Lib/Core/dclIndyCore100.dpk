@@ -1,0 +1,46 @@
+package dclIndyCore100;
+
+{$R *.res}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+{%File 'ModelSupport\default.txaPackage'}
+
+requires
+  designide,
+  IndySystem100,
+  IndyCore100;
+
+contains
+  IdAbout in 'IdAbout.pas',
+  IdAboutVCL in 'IdAboutVCL.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
+  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
+  IdDsnPropEdBindingVCL in 'IdDsnPropEdBindingVCL.pas',
+  IdRegisterCore in 'IdRegisterCore.pas';
+
+end.

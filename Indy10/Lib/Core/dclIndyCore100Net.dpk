@@ -1,0 +1,66 @@
+package dclIndyCore100Net;
+
+{$ALIGN 0}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO ON}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS ON}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS ON}
+{$RANGECHECKS ON}
+{$REFERENCEINFO ON}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DESCRIPTION 'Indy 10 Core Design Time'}
+{$DESIGNONLY}
+{$IMPLICITBUILD OFF}
+{%File 'ModelSupport\default.txaPackage'}
+{%File 'ModelSupport\IdAbout\default.txaPackage'}
+{%File 'ModelSupport\IdAboutDotNET\default.txaPackage'}
+{%File 'ModelSupport\IdAntiFreeze\default.txaPackage'}
+{%File 'ModelSupport\IdCoreDsnRegister\default.txaPackage'}
+{%File 'ModelSupport\IdDsnBaseCmpEdt\default.txaPackage'}
+{%File 'ModelSupport\IdDsnCoreResourceStrings\default.txaPackage'}
+{%File 'ModelSupport\IdDsnPropEdBinding\default.txaPackage'}
+{%File 'ModelSupport\IdDsnPropEdBindingNET\default.txaPackage'}
+{%File 'ModelSupport\IdRegisterCore\default.txaPackage'}
+{%File 'ModelSupport\default.txvpck'}
+{%File 'ModelSupport\IdAbout\default.txvpck'}
+{%File 'ModelSupport\IdDsnPropEdBinding\default.txvpck'}
+{%File 'ModelSupport\IdDsnCoreResourceStrings\default.txvpck'}
+{%File 'ModelSupport\IdCoreDsnRegister\default.txvpck'}
+{%File 'ModelSupport\IdRegisterCore\default.txvpck'}
+{%File 'ModelSupport\IdDsnBaseCmpEdt\default.txvpck'}
+{%File 'ModelSupport\IdAboutDotNET\default.txvpck'}
+{%File 'ModelSupport\IdDsnPropEdBindingNET\default.txvpck'}
+{%File 'ModelSupport\IdAntiFreeze\default.txvpck'}
+
+requires
+  System.Windows.Forms,
+  Borland.Studio.Vcl.Design,
+  IndySystem100Net,
+  IndyCore100Net,
+  System.Drawing;
+
+contains
+  IdAbout in 'IdAbout.pas',
+  IdAboutDotNET in 'IdAboutDotNET.pas',
+  IdAntiFreeze in 'IdAntiFreeze.pas',
+  IdCoreDsnRegister in 'IdCoreDsnRegister.pas',
+  IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
+  IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
+  IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
+  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
+  IdRegisterCore in 'IdRegisterCore.pas';
+
+end.
