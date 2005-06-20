@@ -23,6 +23,7 @@ type
     FReceivedMsg:TIdMessage;
     FServer:TIdSMTPServer;
     FClient:TIdSMTP;
+    FDebug:TIdLogDebug;
     //replace setup/teardown with virtuals
     procedure mySetup;
     procedure myTearDown;
@@ -55,19 +56,22 @@ begin
   FServer.OnMailFrom:=CallbackMailFrom;
   FServer.DefaultPort:=cTestPort;
 
+  FDebug:=TIdLogDebug.Create;
+
   Assert(FClient=nil);
   FClient:=TIdSMTP.Create(nil);
   FClient.ReadTimeout:=5000;
   FClient.Port:=cTestPort;
   FClient.Host:='127.0.0.1';
   FClient.CreateIOHandler;
-  FClient.IOHandler.Intercept := TIdLogDebug.Create;
-  TIdLogDebug(FClient.IOHandler.Intercept).Active := True;
+  FClient.IOHandler.Intercept := FDebug;
+  FDebug.Active := True;
 end;
 
 procedure TIdTestSMTPServer.myTearDown;
 begin
-  TIdLogDebug(FClient.IOHandler.Intercept).Active := False;
+  FDebug.Active := False;
+  Sys.FreeAndNil(FDebug);
   Sys.FreeAndNil(FClient);
   Sys.FreeAndNil(FServer);
   Sys.FreeAndNil(FReceivedMsg);
