@@ -39,9 +39,8 @@ contains
   IdDsnBaseCmpEdt in 'IdDsnBaseCmpEdt.pas',
   IdDsnCoreResourceStrings in 'IdDsnCoreResourceStrings.pas',
   IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
-  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas' {IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET: System.Windows.Forms.Form},
+  IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
-
 {$I IddclCore90ASM90.inc}
 
 end.
