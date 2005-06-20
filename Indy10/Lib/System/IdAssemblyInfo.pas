@@ -1,24 +1,13 @@
-{
-  $Project$
-  $Workfile$
-  $Revision$
-  $DateUTC$
-  $Id$
-
-  This file is part of the Indy (Internet Direct) project, and is offered
-  under the dual-licensing agreement described on the Indy website.
-  (http://www.indyproject.org/)
-
-  Copyright:
-   (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
-  $Log$
-}
-{
-{   Rev 1.2    4/14/2005 4:19:18 PM  JPMugaas
-{ Update.
-}
+{ $HDR$}
+{**********************************************************************}
+{ Unit archived using Team Coherence                                   }
+{ Team Coherence is Copyright 2002 by Quality Software Components      }
+{                                                                      }
+{ For further information / comments, visit our WEB site at            }
+{ http://www.TeamCoherence.com                                         }
+{**********************************************************************}
+{}
+{ $Log:  116136: IdAssemblyInfo.pas 
 {
 {   Rev 1.1    3/3/2005 7:45:46 PM  JPMugaas
 { Various fixes.
@@ -48,7 +37,7 @@ uses
 // associated with an assembly.
 //
 [assembly: AssemblyTitle('Indy')]
-[assembly: AssemblyDescription('Internet Direct (Indy) 10.0.81 for Visual Studio .NET')]
+[assembly: AssemblyDescription('Internet Direct (Indy) 10.0.82 for Visual Studio .NET')]
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyProduct('Indy for Microsoft .NET Framework')]
@@ -67,7 +56,7 @@ uses
 // You can specify all the values or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
 
-[assembly: AssemblyVersion('10.0.81.*')]
+[assembly: AssemblyVersion('10.0.82.*')]
 
 //
 // In order to sign your assembly you must specify a key to use. Refer to the

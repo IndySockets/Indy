@@ -44,7 +44,6 @@ contains
   IdStackDotNet in 'IdStackDotNet.pas',
   IdStream in 'IdStream.pas',
   IdStreamNET in 'IdStreamNET.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
   IdStruct in 'IdStruct.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
