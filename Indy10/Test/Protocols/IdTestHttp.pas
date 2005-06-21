@@ -1,5 +1,11 @@
 unit IdTestHTTP;
 
+//todo test chunked Transfer-Encoding
+//http://www.faqs.org/rfcs/rfc2616.html
+//3.6 Transfer Codings, 19.4.6 Introduction of Transfer-Encoding
+
+//todo test gzip compression
+
 interface
 
 uses
@@ -29,12 +35,23 @@ type
     procedure TestKeepAlive;
   end;
 
+  TIdTestHTTP_Redirect = class(TIdTest)
+  private
+    procedure CallbackGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+  published
+    procedure TestRedirect;
+  end;
+
   //basic subclass that keeps statistics
   TIdHTTPStats = class(TIdHTTP)
   protected
     procedure DoOnConnected;override;
   public
+    //record actual tcp connections
     CountConnect:Integer;
+  end;
+
+  TIdHTTPServerStats = class(TIdHTTPServer)
   end;
 
   //this test shows a memory leak due to AResponse.KeepAlive being called in a
@@ -110,11 +127,8 @@ var
   c:TIdHTTPStats;
   aContent:string;
   aServer:TIdHTTPServer;
-  i:Integer;
 const
   cUrl='http://127.0.0.1:22280/';
-  //makes easier to get a fail (empty response)
-  cLoop=100;
 begin
   FServerConnectCount:=TIdThreadSafeInteger.Create;
   FRequestCount:=TIdThreadSafeInteger.Create;
@@ -128,26 +142,19 @@ begin
     aServer.DefaultPort:=22280;
     aServer.Active:=True;
 
-    //setting readtimeout makes this reliable. investigate why
-    c.ReadTimeout:=1000;
-
-    //firefox uses lowercase
     //seems to be the only place to specify on client
     c.Request.Connection:='keep-alive';
 
     //ensure content is different+correct for each request
-    for i:=1 to cLoop do
-    begin
     aContent:=c.Get(cUrl+'1');
     Assert(aContent='a',aContent);
 
     aContent:=c.Get(cUrl+'2');
     Assert(aContent='b',aContent);
-    end;
 
     Assert(c.CountConnect=1);
     Assert(FServerConnectCount.Value=1);
-    Assert(FRequestCount.Value=2*cLoop);
+    Assert(FRequestCount.Value=2);
   finally
     Sys.FreeAndNil(c);
     Sys.FreeAndNil(aServer);
@@ -162,9 +169,66 @@ begin
   Inc(CountConnect);
 end;
 
+procedure TIdTestHTTP_Redirect.CallbackGet(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+begin
+  if ARequestInfo.Document='/1' then AResponseInfo.Redirect('/2')
+  else if ARequestInfo.Document='/2' then AResponseInfo.ContentText:='b';
+end;
+
+procedure TIdTestHTTP_Redirect.TestRedirect;
+var
+  aClient:TIdHTTP;
+  aServer:TIdHTTPServer;
+  s:string;
+  aCorrectClass:boolean;
+  aClassName:string;
+begin
+  aClient:=TIdHTTP.Create;
+  aServer:=TIdHTTPServer.Create;
+  try
+  aServer.OnCommandGet:=CallbackGet;
+  aServer.DefaultPort:=22280;
+  aServer.Active:=True;
+
+  //this shouldnt be needed
+  aClient.ReadTimeout:=10000;
+
+  //first, try without redirects enabled. should get an exception.
+  aClient.HandleRedirects:=False;
+  try
+  aCorrectClass:=True;
+  s:=aClient.Get('http://127.0.0.1:22280/1');
+  Assert(False);//should not get here
+  except
+  //expect to get here
+  //check exception class. dont raise exception in except-block.
+  on e:Exception do
+   begin
+   aClassName:=e.ClassName;
+   aCorrectClass:=e is EIdHTTPProtocolException;
+   end;
+  end;
+  //also check code (302)
+  Assert(aCorrectClass,aClassName);
+
+  //now let indy handle the redirection instructions from the server
+  aClient.HandleRedirects:=True;
+  s:=aClient.Get('http://127.0.0.1:22280/1');
+  Assert(s='b',s);
+  //todo count should really be 1?
+  Assert(aClient.RedirectCount=1);
+
+  finally
+  Sys.FreeAndNil(aClient);
+  Sys.FreeAndNil(aServer);
+  end;
+end;
+
 initialization
 
   TIdTest.RegisterTest(TIdTestHTTP_01);
   TIdTest.RegisterTest(TIdTestHTTP_KeepAlive);
+  TIdTest.RegisterTest(TIdTestHTTP_Redirect);
 
 end.
