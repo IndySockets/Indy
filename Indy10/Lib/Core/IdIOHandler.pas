@@ -1261,24 +1261,14 @@ procedure TIdIOHandler.ReadBytes(
   var VBuffer: TIdBytes;
   AByteCount: Integer;
   AAppend: Boolean = True);
-var
-  LLastActivity: Cardinal;
 begin
   Assert(FInputBuffer<>nil);
-  
+
   if AByteCount > 0 then begin
     // Read from stack until we have enough data
-    LLastActivity := Ticks;
     while FInputBuffer.Size < AByteCount do begin
-      if ReadFromSource(False, ReadTimeout, false) > 0 then
-      begin
-        LLastActivity := Ticks;
-      end;
+      ReadFromSource(False);
       CheckForDisconnect(True, True);
-      if (   (Abs(GetTickDiff(LLastActivity, Ticks)) > ReadTimeout)
-           and (not ((ReadTimeout = IdTimeoutDefault) or (ReadTimeout = IdTimeoutInfinite)))
-           ) then
-        Exit;
     end;
     FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
   end else if AByteCount = -1 then begin
@@ -1329,28 +1319,30 @@ begin
    and Opened;
 end;
 
+procedure AdjustStreamSize(const AStream: TIdStream2; const ASize: Int64);
+var
+  LStreamPos: Int64;
+begin
+  LStreamPos := AStream.Position;
+  AStream.Size := ASize;
+  // Must reset to original size as in some cases size changes position
+  if AStream.Position <> LStreamPos then begin
+    AStream.Position := LStreamPos;
+  end;
+end;
+
 procedure TIdIOHandler.ReadStream(AStream: TIdStream2; AByteCount: Int64;
   AReadUntilDisconnect: Boolean);
 var
   i: Integer;
   LBuf: TIdBytes;
-  LBufSize: Integer;
   LWorkCount: Int64;
-
-  procedure AdjustStreamSize(const AStream: TIdStream2; const ASize: Int64);
-  var
-    LStreamPos: Int64;
-  begin
-    LStreamPos := AStream.Position;
-    AStream.Size := ASize;
-    // Must reset to original size as in some cases size changes position
-    if AStream.Position <> LStreamPos then begin
-      AStream.Position := LStreamPos;
-    end;
-  end;
-
+const
+  cSizeUnknown=-1;
 begin
-  if (AByteCount = -1) and (AReadUntilDisconnect = False) then begin
+  Assert(AStream<>nil);
+
+  if (AByteCount = cSizeUnknown) and (AReadUntilDisconnect = False) then begin
     // Read size from connection
     if LargeStream then begin
     AByteCount := ReadInt64;
@@ -1358,6 +1350,7 @@ begin
     AByteCount := ReadInteger;
     end;
   end;
+
   // Presize stream if we know the size - this reduces memory/disk allocations to one time
   // Have an option for this? user might not want to presize, eg for int64 files
   if AByteCount > -1 then begin
@@ -1365,7 +1358,6 @@ begin
   end;
 
   if AReadUntilDisconnect then begin
-    //why start high then count down? change 'potential-work-to-do' to 'work-done'?
     LWorkCount := High(LWorkCount);
     BeginWork(wmRead);
   end else begin
@@ -1375,15 +1367,15 @@ begin
 
   try
     // If data already exists in the buffer, write it out first.
+    // should this loop for all data in buffer up to workcount? not just one block?
     if FInputBuffer.Size > 0 then begin
       i := Min(FInputBuffer.Size, LWorkCount);
       FInputBuffer.ExtractToStream(AStream, i);
       Dec(LWorkCount, i);
     end;
 
-    LBufSize := Min(LWorkCount, RecvBufferSize);
     while Connected and (LWorkCount > 0) do begin
-      i := Min(LWorkCount, LBufSize);
+      i := Min(LWorkCount, RecvBufferSize);
       //TODO: Improve this - dont like the use of the exception handler
       //DONE -oAPR: Dont use a string, use a memory buffer or better yet the buffer itself.
       try
@@ -1417,7 +1409,7 @@ begin
     if AStream.Size > AStream.Position then begin
       AStream.Size := AStream.Position;
     end;
-    LBuf := NIL;
+    LBuf := nil;
   end;
 end;
 
@@ -1785,6 +1777,9 @@ begin
 end;
 
 initialization
+
 finalization
+
   Sys.FreeAndNil(GIOHandlerClassList)
+
 end.
