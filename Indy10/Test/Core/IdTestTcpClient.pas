@@ -1,5 +1,8 @@
 unit IdTestTcpClient;
 
+//todo add test to TIdCustomTCPServer to ensure OnDisconnect is called
+//when connection is closed, also when exception happens, eg graceful close
+
 {
 observations:
 
