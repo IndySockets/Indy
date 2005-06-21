@@ -1793,6 +1793,7 @@ begin
   // Handle Redirects
   if ((LResponseDigit = 3) and (Response.ResponseCode <> 304)) or (Response.Location <> '') then
   begin
+    Inc(FHTTP.FRedirectCount);
     // LLocation := TIdURI.URLDecode(Response.Location);
     LLocation := Response.Location;
 
@@ -1859,7 +1860,7 @@ begin
     if LResponseDigit <> 2 then begin
       case Response.ResponseCode of
         401:
-          begin // HTTP Server authorization requered
+          begin // HTTP Server authorization required
             if (FHTTP.AuthRetries >= FHTTP.MaxAuthRetries) or
                (not FHTTP.DoOnAuthorization(Request, Response)) then
             begin
@@ -1963,16 +1964,16 @@ procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
 var
   LResponseLocation: Integer;
 begin
+  //reset any counters
   FRedirectCount := 0;
+  FAuthRetries := 0;
+  FAuthProxyRetries := 0;
 
   if Assigned(AResponseContent) then begin
     LResponseLocation := AResponseContent.Position;
   end else begin
     LResponseLocation := 0; // Just to avoid the warning message
   end;
-
-  FAuthRetries := 0;
-  FAuthProxyRetries := 0;
 
   Request.URL := AURL;
   Request.Method := AMethod;
@@ -1981,7 +1982,6 @@ begin
 
   try
     repeat
-      Inc(FRedirectCount);
 
       PrepareRequest(Request);
       if IOHandler is TIdSSLIOHandlerSocketBase then begin
@@ -2000,7 +2000,6 @@ begin
 
       case FHTTPProto.ProcessResponse(AIgnoreReplies) of
         wnAuthRequest: begin
-            Dec(FRedirectCount);
             Request.URL := AURL;
           end;
         wnReadAndGo: begin
