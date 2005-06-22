@@ -89,5 +89,6 @@ contains
   IdUDPClient in 'IdUDPClient.pas',
   IdUDPServer in 'IdUDPServer.pas',
   IdYarn in 'IdYarn.pas';
+{$I IdCore90ASM90.inc}
 
 end.

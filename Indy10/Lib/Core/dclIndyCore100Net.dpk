@@ -41,5 +41,6 @@ contains
   IdDsnPropEdBinding in 'IdDsnPropEdBinding.pas',
   IdDsnPropEdBindingNET in 'IdDsnPropEdBindingNET.pas',
   IdRegisterCore in 'IdRegisterCore.pas';
+{$I IddclCore90ASM90.inc}
 
 end.
