@@ -271,14 +271,14 @@ type
 
   end;
 
-  TIdPOP3ServerNoParamEvent = procedure (ASender: TIdCommand) of object;
-  TIdPOP3ServerMessageNumberEvent = procedure (ASender: TIdCommand; AMessageNum :Integer) of object;
+  TIdPOP3ServerNoParamEvent = procedure (aCmd: TIdCommand) of object;
+  TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMessageNum :Integer) of object;
 
-  TIdPOP3ServerLogin = procedure (AThread :TIdContext; LThread : TIdPOP3ServerContext) of object;
+  TIdPOP3ServerLogin = procedure (aContext :TIdContext; aServerContext : TIdPOP3ServerContext) of object;
 
   //Note that we require the users valid password so we can hash it with the Challenge we greeted the user with.
-  TIdPOP3ServerAPOPCommandEvent = procedure (ASender: TIdCommand; AMailboxID :String; var VUsersPassword:String) of object;
-  TIdPOP3ServerTOPCommandEvent = procedure (ASender: TIdCommand; AMessageNum :Integer; ANumLines :Integer) of object;
+  TIdPOP3ServerAPOPCommandEvent = procedure (aCmd: TIdCommand; AMailboxID :String; var VUsersPassword:String) of object;
+  TIdPOP3ServerTOPCommandEvent = procedure (aCmd: TIdCommand; AMessageNum :Integer; ANumLines :Integer) of object;
 
   EIdPOP3ServerException = class(EIdException);
   EIdPOP3ImplicitTLSRequiresSSL = class(EIdPOP3ServerException);
@@ -286,7 +286,6 @@ type
 
   TIdPOP3Server = class(TIdExplicitTLSServer)
   protected
-
     fCommandLogin : TIdPOP3ServerLogin;
     fCommandList,
     fCommandRetr,
@@ -330,18 +329,19 @@ type
   published
     property DefaultPort default IdPORT_POP3;
     // These procedures / functions are exposed
-    property CheckUser   : TIdPOP3ServerLogin              read fCommandLogin write fCommandLogin;
-    property OnLIST      : TIdPOP3ServerMessageNumberEvent read fCommandList write fCommandList;
-    property OnRETR      : TIdPOP3ServerMessageNumberEvent read fCommandRetr write fCommandRetr;
-    property OnDELE      : TIdPOP3ServerMessageNumberEvent read fCommandDele write fCommandDele;
+    property OnCheckUser   : TIdPOP3ServerLogin              read fCommandLogin write fCommandLogin;
+    property OnList      : TIdPOP3ServerMessageNumberEvent read fCommandList write fCommandList;
+    property OnRetrieve      : TIdPOP3ServerMessageNumberEvent read fCommandRetr write fCommandRetr;
+    property OnDelete      : TIdPOP3ServerMessageNumberEvent read fCommandDele write fCommandDele;
     property OnUIDL      : TIdPOP3ServerMessageNumberEvent read fCommandUidl write fCommandUidl;
-    property OnSTAT      : TIdPOP3ServerNoParamEvent       read fCommandStat write fCommandStat;
-    property OnTOP       : TIdPOP3ServerTOPCommandEvent    read fCommandTop  write fCommandTop;
-    property OnRSET      : TIdPOP3ServerNoParamEvent       read fCommandRset write fCommandRset;
-    property OnQUIT      : TIdPOP3ServerNoParamEvent       read fCommandQuit write fCommandQuit;
+    property OnStat      : TIdPOP3ServerNoParamEvent       read fCommandStat write fCommandStat;
+    property OnTop      : TIdPOP3ServerTOPCommandEvent    read fCommandTop  write fCommandTop;
+    property OnReset      : TIdPOP3ServerNoParamEvent       read fCommandRset write fCommandRset;
+    property OnQuit      : TIdPOP3ServerNoParamEvent       read fCommandQuit write fCommandQuit;
     property OnAPOP      : TIdPOP3ServerAPOPCommandEvent   read fCommandApop write fCommandApop;
+
     property UseTLS;
-  End;
+  end;
 
 implementation
 
@@ -490,7 +490,7 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandPass(ASender: TIdCommand);
-Var
+var
   LThread: TIdPOP3ServerContext;
 begin
   LThread := TIdPOP3ServerContext(ASender.Context);
@@ -504,9 +504,9 @@ begin
     begin
       LThread.Password := ASender.Params.Strings[0];
     end;
-    if Assigned(CheckUser) then
+    if Assigned(OnCheckUser) then
     begin
-      CheckUser(ASender.Context, LThread);
+      OnCheckUser(ASender.Context, LThread);
     end;
   // User to set return state of LThread.State as required.
 
@@ -514,7 +514,7 @@ begin
     begin
       ASender.Reply.SetReply(ERR,RSPOP3SvrLoginFailed);
     end
-    Else
+    else
     begin
       ASender.Reply.SetReply(OK,RSPOP3SvrLoginOk);
     end;
@@ -552,7 +552,7 @@ begin
    Begin
     If Assigned(fCommandRetr) Then
     begin
-      OnRetr(ASender,Sys. StrToInt(Sys.Trim(ASender.Params.Text), -1));
+      OnRetrieve(ASender,Sys. StrToInt(Sys.Trim(ASender.Params.Text), -1));
     end
     Else
     begin
@@ -576,7 +576,7 @@ begin
     Begin
       Try
         Sys.StrToInt(Sys.Trim(ASender.Params.Text));
-        OnDele(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
+        OnDelete(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
       Except
         ASender.Reply.SetReply(ERR,RSPOP3SvrInvalidMsgNo);
       End;
@@ -690,14 +690,14 @@ begin
   Begin
     If Assigned(fCommandRSET) Then
     begin
-      OnRset(ASender);
+      OnReset(ASender);
     end
-    Else
+    else
     begin
       ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['RSET']));  {do not localize}
     end;
-  End
-  Else
+  end
+  else
   begin
     ASender.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
   end;
