@@ -80,6 +80,7 @@ Indy10/Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Indy10/Builder/VersionMarker/VersionMarker.ini -text
 Indy10/KB/IndyKB.hm3 -text svneol=unset#unset
 Indy10/Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
+Indy10/Lib/Core/AboutProg.res -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdCmdTCPServer.bmp -text svneol=unset#unset
@@ -105,13 +106,19 @@ Indy10/Lib/Core/IconsDotNet/TIdTCPServer.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdThreadComponent.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdUDPClient.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdUDPServer.bmp -text svneol=unset#unset
+Indy10/Lib/Core/IdAbout.TWinForm.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdAbout.TfrmAbout.resources -text svneol=unset#unset
 Indy10/Lib/Core/IdAbout.pas -text
+Indy10/Lib/Core/IdAbout.resources -text svneol=unset#unset
+Indy10/Lib/Core/IdAbout.resx -text
 Indy10/Lib/Core/IdAboutDotNET.TfrmAbout.resources -text svneol=unset#unset
 Indy10/Lib/Core/IdAboutDotNET.pas -text
+Indy10/Lib/Core/IdAboutDotNET.resources -text svneol=unset#unset
 Indy10/Lib/Core/IdAboutDotNET.resx -text
 Indy10/Lib/Core/IdAboutNET.resources -text svneol=unset#unset
 Indy10/Lib/Core/IdAboutVCL.RES -text svneol=unset#unset
 Indy10/Lib/Core/IdAboutVCL.pas -text
+Indy10/Lib/Core/IdAboutVCL.rc -text
 Indy10/Lib/Core/IdAntiFreeze.pas -text
 Indy10/Lib/Core/IdAssignedNumbers.pas -text
 Indy10/Lib/Core/IdBuffer.pas -text
@@ -187,12 +194,14 @@ Indy10/Lib/Core/IdUDPClient.pas -text
 Indy10/Lib/Core/IdUDPServer.pas -text
 Indy10/Lib/Core/IdYarn.pas -text
 Indy10/Lib/Core/IddclCore90ASM90.inc -text
+Indy10/Lib/Core/IndyCar.bmp -text svneol=unset#unset
 Indy10/Lib/Core/IndyCore100.bdsproj -text
 Indy10/Lib/Core/IndyCore100.dpk -text
 Indy10/Lib/Core/IndyCore100.rc -text
 Indy10/Lib/Core/IndyCore100.res -text svneol=unset#unset
 Indy10/Lib/Core/IndyCore100Net.bdsproj -text
 Indy10/Lib/Core/IndyCore100Net.dpk -text
+Indy10/Lib/Core/IndyCore110Net.dpk -text
 Indy10/Lib/Core/IndyCore50.RES -text svneol=unset#unset
 Indy10/Lib/Core/IndyCore50.dpk -text
 Indy10/Lib/Core/IndyCore50.rc -text
