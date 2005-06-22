@@ -602,12 +602,13 @@ type
     {Do we handle redirect requests or simply raise an exception and let the
      developer deal with it}
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default Id_TIdHTTP_HandleRedirects;
-    property RedirectCount:Integer read FRedirectCount write FRedirectCount;
-    property ProtocolVersion: TIdHTTPProtocolVersion read FProtocolVersion write FProtocolVersion default Id_TIdHTTP_ProtocolVersion;
+    //how many redirects were made in the last request
+    property RedirectCount:Integer read FRedirectCount;
     {This is the maximum number of redirects we wish to handle, we limit this
      to prevent stack overflow due to recursion.  Recursion is safe ONLY if
      prevented for continuing to infinity}
     property RedirectMaximum: Integer read FRedirectMax write FRedirectMax default Id_TIdHTTP_RedirectMax;
+    property ProtocolVersion: TIdHTTPProtocolVersion read FProtocolVersion write FProtocolVersion default Id_TIdHTTP_ProtocolVersion;
     // S.G. 6/4/2004: This is to prevent the server from responding with too many header lines
     property MaxHeaderLines: integer read FMaxHeaderLines write FMaxHeaderLines default Id_TIdHTTP_MaxHeaderLines;
     property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write FProxyParameters;
