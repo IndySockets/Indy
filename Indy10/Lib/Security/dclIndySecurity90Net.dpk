@@ -26,8 +26,6 @@ package dclIndySecurity90Net;
 {$IMPLICITBUILD OFF}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
   Borland.Studio.Vcl.Design,
   IndySystem90Net,
   IndyCore90Net,

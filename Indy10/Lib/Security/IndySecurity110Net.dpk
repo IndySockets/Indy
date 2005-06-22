@@ -43,5 +43,6 @@ contains
   IdSocketStream in 'IdSocketStream.pas',
   IdTlsClientOptions in 'IdTlsClientOptions.pas',
   IdTlsServerOptions in 'IdTlsServerOptions.pas';
+{$I IdSecurity90ASM90.inc}
 
 end.

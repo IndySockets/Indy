@@ -40,5 +40,6 @@ requires
 
 contains
   IdRegisterSecurity in 'IdRegisterSecurity.pas';
+{$I IddclSecurity90ASM90.inc}
 
 end.
