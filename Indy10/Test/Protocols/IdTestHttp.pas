@@ -15,11 +15,13 @@ uses
   {$IFDEF INDY_USE_ABBREVIA}
   IdCompressorAbbrevia,
   {$ENDIF}
+  {$IFNDEF DOTNETDISTRO}
+  IdCompressorZLibEx,
+  {$ENDIF}
+  IdZLibCompressorBase,
   IdObjs,
   IdLogDebug,
   IdCoderMime,
-  IdCompressorZLibEx,
-  IdZLibCompressorBase,
   IdSys,
   IdContext,
   IdTCPServer,
@@ -317,6 +319,8 @@ var
 begin
   {$IFDEF INDY_USE_ABBREVIA}
   aClass:=TIdCompressorAbbrevia;
+  {$ELSIF DOTNETDISTRO}
+  aClass:=nil;
   {$ELSE}
   aClass:=TIdCompressorZLibEx;
   {$ENDIF}
