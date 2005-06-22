@@ -24,13 +24,11 @@ package IndyCore100Net;
 {$DESCRIPTION 'Indy 10 Core'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl,
-  IndySystem100Net,
-  System.Drawing;
+Borland.Delphi,
+Borland.VclRtl,
+  IndySystem100Net;
 
 contains
   IdAssignedNumbers in 'IdAssignedNumbers.pas',
