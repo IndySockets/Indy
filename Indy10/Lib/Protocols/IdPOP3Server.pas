@@ -353,8 +353,7 @@ uses
   IdReplyPOP3,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStack
-  , SysUtils;
+  IdStack;
 
 procedure TIdPOP3Server.DoConnect(AContext: TIdContext);
 begin
@@ -680,7 +679,7 @@ begin
   // TODO: Need to make all use this form
   if IsAuthed(ASender, Assigned(fCommandStat)) then begin
     OnStat(aSender, xCount, xSize);
-    aSender.Reply.Text.Text := IntToStr(xCount) + ' ' + IntToStr(xSize);
+    aSender.Reply.Text.Text := Sys.IntToStr(xCount) + ' ' + Sys.IntToStr(xSize);
   end;
 end;
 
