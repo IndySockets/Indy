@@ -235,5 +235,6 @@ contains
   IdWhoIsServer in 'IdWhoIsServer.pas',
   IdWhois in 'IdWhois.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas';
+{$I IdProtocols90ASM90.inc}
 
 end.
