@@ -38,5 +38,6 @@ contains
   IdDsnSASLListEditorForm in 'IdDsnSASLListEditorForm.pas',
   IdDsnSASLListEditorFormNET in 'IdDsnSASLListEditorFormNET.pas',
   IdRegister in 'IdRegister.pas';
+{$I IddclProtocols90ASM90.inc}
 
 end.
