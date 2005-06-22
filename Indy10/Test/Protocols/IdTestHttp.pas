@@ -4,11 +4,22 @@ unit IdTestHTTP;
 //http://www.faqs.org/rfcs/rfc2616.html
 //3.6 Transfer Codings, 19.4.6 Introduction of Transfer-Encoding
 
-//todo test gzip compression
+//todo standardize http ports used
 
 interface
 
+//short term solution to allow trying alternate compression implementations
+{.$DEFINE INDY_USE_ABBREVIA}
+
 uses
+  {$IFDEF INDY_USE_ABBREVIA}
+  IdCompressorAbbrevia,
+  {$ENDIF}
+  IdObjs,
+  IdLogDebug,
+  IdCoderMime,
+  IdCompressorZLibEx,
+  IdZLibCompressorBase,
   IdSys,
   IdContext,
   IdTCPServer,
@@ -19,6 +30,27 @@ uses
   IdHTTP;
 
 type
+
+  {
+  GZip compression tested using apache 2.0
+  add following to httpd.conf to enable gzip on given types
+
+  LoadModule deflate_module modules/mod_deflate.so
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml
+  }
+  {
+  can test if a compressed stream is valid by renaming to .gz and
+  opening with compression utility, eg winrar
+
+  see also IdCompressorAbbrevia for a reimplementation
+  }
+  TIdTestHTTP_GZip = class(TIdTest)
+  private
+    procedure CallbackGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+  published
+    procedure TestCompress;
+    procedure TestGZip;
+  end;
 
   //http://www.io.com/~maus/HttpKeepAlive.html
   //re keep-alive, see TIdHTTPResponseInfo.WriteHeader. old comment, delete?
@@ -35,6 +67,7 @@ type
     procedure TestKeepAlive;
   end;
 
+  //tests that redirection commands are followed properly
   TIdTestHTTP_Redirect = class(TIdTest)
   private
     procedure CallbackGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
@@ -67,6 +100,20 @@ type
   end;
 
 implementation
+
+uses IdBaseComponent;
+
+const
+  //base64 encoding of gzipped 'hello world'
+  //used to test decompression
+  cHelloWorldGz='H4sIAAAAAAAAC8tIzcnJVyjPL8pJAQCFEUoNCwAAAA==';
+  //and what it decodes to
+  cHelloWorld='hello world';
+
+  //document on the server to ask for
+  cDocGZip='gz';
+  //content encoding constant
+  cEncodingGZip='gzip';
 
 procedure TIdTestHTTP_01.CallbackExecute(AContext: TIdContext);
 //check that the server disconnecting the client doesn't cause
@@ -216,12 +263,122 @@ begin
   aClient.HandleRedirects:=True;
   s:=aClient.Get('http://127.0.0.1:22280/1');
   Assert(s='b',s);
-  //todo count should really be 1?
   Assert(aClient.RedirectCount=1);
+
+  //todo test that RedirectMaximum is followed
 
   finally
   Sys.FreeAndNil(aClient);
   Sys.FreeAndNil(aServer);
+  end;
+end;
+
+{
+  //use to encode test data so it can be included in source easily
+  aEncode:=TIdEncoderMIME.Create;
+  aStream:=TIdMemoryStream.Create;
+  try
+  aStream.LoadFromFile('e:\test.txt');
+  s:=aEncode.Encode(aStream);
+  assert(s<>'');
+  finally
+  sys.FreeAndNil(aEncode);
+  end;
+  Exit;
+}
+
+procedure TIdTestHTTP_GZip.CallbackGet(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo;
+  AResponseInfo: TIdHTTPResponseInfo);
+//currently content has to be manually compressed
+//eg server doesnt auto-compress all "plain/text" content if client allows
+begin
+  if ARequestInfo.Document='/'+cDocGZip then
+    begin
+    //todo reply based on the requests ContentEncoding string
+    AResponseInfo.ContentEncoding:=cEncodingGZip;
+    AResponseInfo.ContentText:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
+    end
+  else
+    begin
+    AResponseInfo.ContentText:='error';
+    end;
+end;
+
+procedure TIdTestHTTP_GZip.TestCompress;
+//tests the client correctly decompressed gzip content received from server
+//todo also deflate?
+var
+  aClass:TIdZLibCompressorBaseClass;
+  aCompress:TIdZLibCompressorBase;
+  aClient:TIdHTTP;
+  aStream:TIdStringStream;
+  aServer:TIdHTTPServer;
+begin
+  {$IFDEF INDY_USE_ABBREVIA}
+  aClass:=TIdCompressorAbbrevia;
+  {$ELSE}
+  aClass:=TIdCompressorZLibEx;
+  {$ENDIF}
+
+  //todo test that server only returns compressed data if we ask for it
+
+  aServer:=TIdHTTPServer.Create;
+  aCompress:=aClass.Create;
+  aClient:=TIdHTTP.Create;
+  aStream:=TIdStringStream.Create('');
+  try
+    aServer.DefaultPort:=22280;
+    aServer.OnCommandGet:=Self.CallbackGet;
+    aServer.Active:=True;
+
+    aClient.Compressor:=aCompress;
+    //identity is due to existing code in http unit, may be changed/removed in future.
+    aClient.Request.AcceptEncoding := 'gzip, deflate, identity';
+    aClient.CreateIOHandler;
+    //aClient.HandleRedirects:=True;
+    //aClient.Request.UserAgent:='';
+
+    //can also test using an external web server, eg apache
+    //aClient.Get('http://192.168.1.100:22280/helloworld.txt',aStream);
+    aClient.Get('http://127.0.0.1:22280/'+cDocGZip,aStream);
+    Assert(aStream.DataString='hello world',aClass.ClassName);
+    //aStream.SaveToFile('e:\test.txt');
+  finally
+    Sys.FreeAndNil(aServer);
+    Sys.FreeAndNil(aStream);
+    Sys.FreeAndNil(aClient);
+    Sys.FreeAndNil(aCompress);
+  end;
+end;
+
+procedure TIdTestHTTP_GZip.TestGZip;
+//basic gzip functionality test. doesn't really belong in this http unit
+var
+  aClass:TIdZLibCompressorBaseClass;
+  aCompress:TIdZLibCompressorBase;
+  aStream:TIdStringStream;
+  s:string;
+begin
+  //string now contains a gz encoded test string
+  s:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
+
+  //better way to do? eg iterate and test all registered compression classes?
+  {$IFDEF INDY_USE_ABBREVIA}
+  aClass:=TIdCompressorAbbrevia;
+  {$ELSE}
+  aClass:=TIdCompressorZLibEx;
+  {$ENDIF}
+
+  aStream:=TIdStringStream.Create(s);
+  aCompress:=aClass.Create;
+  try
+    aStream.Position:=0;
+    aCompress.DecompressGZipStream(aStream);
+    Assert(aStream.DataString=cHelloWorld);
+  finally
+    Sys.FreeAndNil(aCompress);
+    Sys.FreeAndNil(aStream);
   end;
 end;
 
@@ -230,5 +387,6 @@ initialization
   TIdTest.RegisterTest(TIdTestHTTP_01);
   TIdTest.RegisterTest(TIdTestHTTP_KeepAlive);
   TIdTest.RegisterTest(TIdTestHTTP_Redirect);
+  TIdTest.RegisterTest(TIdTestHTTP_GZip);
 
 end.
