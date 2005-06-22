@@ -317,18 +317,21 @@ var
   aStream:TIdStringStream;
   aServer:TIdHTTPServer;
 begin
-  {$IFDEF INDY_USE_ABBREVIA}
-  aClass:=TIdCompressorAbbrevia;
-  {$ELSIF DOTNETDISTRO}
+  {$IFDEF DOTNETDISTRO}
   aClass:=nil;
   {$ELSE}
-  aClass:=TIdCompressorZLibEx;
+    {$IFDEF INDY_USE_ABBREVIA}
+    aClass:=TIdCompressorAbbrevia;
+    {$ELSE}
+    aClass:=TIdCompressorZLibEx;
+    {$ENDIF}
   {$ENDIF}
 
   //todo test that server only returns compressed data if we ask for it
 
-  aServer:=TIdHTTPServer.Create;
+  Assert(aClass<>nil);
   aCompress:=aClass.Create;
+  aServer:=TIdHTTPServer.Create;
   aClient:=TIdHTTP.Create;
   aStream:=TIdStringStream.Create('');
   try
@@ -368,12 +371,17 @@ begin
   s:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
 
   //better way to do? eg iterate and test all registered compression classes?
-  {$IFDEF INDY_USE_ABBREVIA}
-  aClass:=TIdCompressorAbbrevia;
+  {$IFDEF DOTNETDISTRO}
+  aClass:=nil;
   {$ELSE}
-  aClass:=TIdCompressorZLibEx;
+    {$IFDEF INDY_USE_ABBREVIA}
+    aClass:=TIdCompressorAbbrevia;
+    {$ELSE}
+    aClass:=TIdCompressorZLibEx;
+    {$ENDIF}
   {$ENDIF}
 
+  Assert(aClass<>nil);
   aStream:=TIdStringStream.Create(s);
   aCompress:=aClass.Create;
   try
