@@ -24,33 +24,12 @@ package dclIndyCore100Net;
 {$DESCRIPTION 'Indy 10 Core Design Time'}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
-{%File 'ModelSupport\IdAbout\default.txaPackage'}
-{%File 'ModelSupport\IdAboutDotNET\default.txaPackage'}
-{%File 'ModelSupport\IdAntiFreeze\default.txaPackage'}
-{%File 'ModelSupport\IdCoreDsnRegister\default.txaPackage'}
-{%File 'ModelSupport\IdDsnBaseCmpEdt\default.txaPackage'}
-{%File 'ModelSupport\IdDsnCoreResourceStrings\default.txaPackage'}
-{%File 'ModelSupport\IdDsnPropEdBinding\default.txaPackage'}
-{%File 'ModelSupport\IdDsnPropEdBindingNET\default.txaPackage'}
-{%File 'ModelSupport\IdRegisterCore\default.txaPackage'}
-{%File 'ModelSupport\default.txvpck'}
-{%File 'ModelSupport\IdAbout\default.txvpck'}
-{%File 'ModelSupport\IdDsnPropEdBinding\default.txvpck'}
-{%File 'ModelSupport\IdDsnCoreResourceStrings\default.txvpck'}
-{%File 'ModelSupport\IdCoreDsnRegister\default.txvpck'}
-{%File 'ModelSupport\IdRegisterCore\default.txvpck'}
-{%File 'ModelSupport\IdDsnBaseCmpEdt\default.txvpck'}
-{%File 'ModelSupport\IdAboutDotNET\default.txvpck'}
-{%File 'ModelSupport\IdDsnPropEdBindingNET\default.txvpck'}
-{%File 'ModelSupport\IdAntiFreeze\default.txvpck'}
 
 requires
   System.Windows.Forms,
   Borland.Studio.Vcl.Design,
   IndySystem100Net,
-  IndyCore100Net,
-  System.Drawing;
+  IndyCore100Net;
 
 contains
   IdAbout in 'IdAbout.pas',

@@ -1,7 +1,5 @@
 package dclIndyCore100;
 
-{$R *.res}
-{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -25,7 +23,6 @@ package dclIndyCore100;
 {$DESCRIPTION 'Indy 10 Core Design Time'}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
   designide,
