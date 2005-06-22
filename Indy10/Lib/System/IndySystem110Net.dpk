@@ -35,27 +35,19 @@ contains
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
+  IdObjs in 'IdObjs.pas',
+  IdObjsBase in 'IdObjsBase.pas',
+  IdObjsVCL in 'IdObjsVCL.pas',
   IdResourceStrings in 'IdResourceStrings.pas',
   IdStack in 'IdStack.pas',
   IdStackConsts in 'IdStackConsts.pas',
   IdStackDotNet in 'IdStackDotNet.pas',
   IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
-  IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLDotNet in 'IdStreamVCLDotNet.pas',
-  IdTStrings in 'IdTStrings.pas';
-[assembly: AssemblyDescription('')]
-[assembly: AssemblyConfiguration('')]
-[assembly: AssemblyCompany('')]
-[assembly: AssemblyProduct('')]
-[assembly: AssemblyCopyright('')]
-[assembly: AssemblyTrademark('')]
-[assembly: AssemblyCulture('')]
-[assembly: AssemblyTitle('')]
-[assembly: AssemblyVersion('10.0.0.*')]
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile('')]
-[assembly: AssemblyKeyName('')]
+  IdStreamNET in 'IdStreamNET.pas',
+  IdStruct in 'IdStruct.pas',
+  IdSys in 'IdSys.pas',
+  IdSysBase in 'IdSysBase.pas',
+  IdSysVCL in 'IdSysVCL.pas';
+{$I IdSystem90ASM90.inc}
 
 end.

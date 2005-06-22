@@ -24,11 +24,10 @@ package IndySystem100Net;
 {$DESCRIPTION 'Indy 10 System'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
-  Borland.Delphi,
-  Borland.VclRtl;
+Borland.Delphi,
+Borland.VclRtl;
 
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
@@ -49,18 +48,6 @@ contains
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
   IdSysVCL in 'IdSysVCL.pas';
-
-[assembly: AssemblyDescription('')]
-[assembly: AssemblyConfiguration('')]
-[assembly: AssemblyCompany('')]
-[assembly: AssemblyProduct('')]
-[assembly: AssemblyCopyright('')]
-[assembly: AssemblyTrademark('')]
-[assembly: AssemblyCulture('')]
-[assembly: AssemblyTitle('')]
-[assembly: AssemblyVersion('10.0.0.*')]
-[assembly: AssemblyDelaySign(false)]
-[assembly: AssemblyKeyFile('')]
-[assembly: AssemblyKeyName('')]
+{$I IdSystem90ASM90.inc}
 
 end.
