@@ -727,8 +727,14 @@ Indy10/Lib/Security/IdSocketStream.pas -text
 Indy10/Lib/Security/IdTlsClientOptions.pas -text
 Indy10/Lib/Security/IdTlsServerOptions.pas -text
 Indy10/Lib/Security/IddclSecurity90ASM90.inc -text
+Indy10/Lib/Security/IndySecurity100Net.bdsproj -text
+Indy10/Lib/Security/IndySecurity100Net.dpk -text
+Indy10/Lib/Security/IndySecurity110Net.dpk -text
 Indy10/Lib/Security/IndySecurity90Net.bdsproj -text
 Indy10/Lib/Security/IndySecurity90Net.dpk -text
+Indy10/Lib/Security/dclIndySecurity100Net.bdsproj -text
+Indy10/Lib/Security/dclIndySecurity100Net.dpk -text
+Indy10/Lib/Security/dclIndySecurity110Net.dpk -text
 Indy10/Lib/Security/dclIndySecurity90Net.bdsproj -text
 Indy10/Lib/Security/dclIndySecurity90Net.dpk -text
 Indy10/Lib/SuperCore/IconsDotNet/TIdChainEngine.bmp -text svneol=unset#unset
