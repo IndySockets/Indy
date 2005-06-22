@@ -136,10 +136,15 @@ unit IdZLibCompressorBase;
 
 interface
 
-uses IdBaseComponent, IdIOHandler, IdObjs;
+uses
+  IdBaseComponent,
+  IdIOHandler,
+  IdObjs;
 
 type
+
   TIdCompressionLevel = 0..9;
+
   TIdZLibCompressorBase = class(TIdBaseComponent)
   public
   //these call the standard InflateInit and DeflateInit
@@ -166,8 +171,9 @@ type
     procedure DecompressHTTPDeflate(AStream : TIdStream2; const AOutStream : TIdStream2=nil);
     //RFC 1952 complient input and output
     procedure DecompressGZipStream(AStream : TIdStream2; const AOutStream : TIdStream2=nil); virtual;
-
   end;
+
+  TIdZLibCompressorBaseClass = class of TIdZLibCompressorBase;
 
 implementation
 
@@ -215,6 +221,8 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AStream : TIdStream2; const
 var
   LBytes : TIdBytes;
 begin
+  Assert(AStream<>nil);
+  
   GotoDataStart;
   AStream.Seek(-2, IdFromCurrent);
   SetLength(LBytes, 2);
