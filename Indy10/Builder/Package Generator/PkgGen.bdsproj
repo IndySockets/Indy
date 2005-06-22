@@ -101,7 +101,7 @@
 			<Compiler Name="OptionTruncated">True</Compiler>
 			<Compiler Name="WideCharReduced">True</Compiler>
 			<Compiler Name="DuplicatesIgnored">True</Compiler>
-		</Compiler>
+			<Compiler Name="UnitInitSeq">True</Compiler><Compiler Name="LocalPInvoke">True</Compiler></Compiler>
 		<Linker>
 			<Linker Name="MapFile">3</Linker>
 			<Linker Name="OutputObjs">0</Linker>
@@ -121,7 +121,7 @@
 			<Directories Name="PackageDCPOutputDir"></Directories>
 			<Directories Name="SearchPath"></Directories>
 			<Directories Name="Packages">rtl;vcl;dbrtl;vcldb;vclx;adortl;dbxcds;dbexpress;vclib;ibxpress;IntrawebDB_72_90;Intraweb_72_90;xmlrtl;vclie;inet;inetdbbde;inetdbxpress;dclOffice2k;VclSmp;dsnap;soaprtl;inetdb;bdertl;vcldbx;webdsnap;websnap;vclactnband;vclshlctrls;dsnapcon;teeui;teedb;tee;Rave60VCL;BaseBBoxD9;MIMEBBoxD9;PGPBBoxD9;PKIBBoxD9;PGPMIMEBBoxD9;SFTPBBoxD9;SSHBBoxCliD9;SMIMEBBoxD9;SSHBBoxSrvD9;SSLBBoxSrvD9;elpackD9;PMemo6Pack9;PMemoU6Pack9;MiscUnits90;ImageTypes90;LowLevel90;IndySystem90;IndyProtocols90;tb2k_d9;vclSvComV6D9;DJcl;JvXPCtrlsD9R;JvStdCtrlsD9R;JvAppFrmD9R;JvCoreD9R;JvBandsD9R;JvCryptD9R;JvCtrlsD9R;JvCustomD9R;JvDBD9R;JvDlgsD9R;JvEDID9R;JvGlobusD9R;JvHMID9R;JvInspectorD9R;JvJansD9R;JvManagedThreadsD9R;JvCmpD9R;JvMMD9R;JvNetD9R;JvPageCompsD9R;JvPluginD9R;JvPrintPreviewD9R;JvSystemD9R;JvTimeFrameworkD9R;JvUIBD9R;JvValidatorsD9R;JvWizardD9R</Directories>
-			<Directories Name="Conditionals">EUREKALOG</Directories>
+			<Directories Name="Conditionals">EUREKALOG;EUREKALOG_VER5</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">False</Directories>
 		</Directories>
@@ -171,7 +171,7 @@
   </Delphi.Personality>
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=500
+EurekaLog Version=502
 Activate=1
 Activate Handle=1
 Save Log File=1

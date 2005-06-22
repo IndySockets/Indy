@@ -78,7 +78,7 @@ begin
     Code('  rtl;');
   end;
   GenContains;
-  if ACompiler = ctDelphi2005Net then
+  if ACompiler in DelphiNet then
   begin
     //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
@@ -87,44 +87,6 @@ begin
   end
   else
   begin
-    if ACompiler in DelphiNet then begin
-      Code('[assembly: AssemblyDescription('''')]');
-      Code('[assembly: AssemblyConfiguration('''')]');
-      Code('[assembly: AssemblyCompany('''')]');
-      Code('[assembly: AssemblyProduct('''')]');
-      Code('[assembly: AssemblyCopyright('''')]');
-      Code('[assembly: AssemblyTrademark('''')]');
-      Code('[assembly: AssemblyCulture('''')]');
-      Code('[assembly: AssemblyTitle('''')]');
-      // Major Version.Minor Version.Build Number.Revision
-      // * can be used to specify no more items are specified. ie 10.*
-      Code('[assembly: AssemblyVersion(''10.0.0.*'')]');
-      {
-      TODO: Sign it. Need to keep key private as well.
-      Use the attributes below to control which key is used for signing.
-      Notes:
-      (*) If no key is specified, the assembly is not signed.
-      (*) KeyName refers to a key that has been installed in the Crypto Service
-          Provider (CSP) on your machine. KeyFile refers to a file which contains
-          a key.
-      (*) If the KeyFile and the KeyName values are both specified, the
-          following processing occurs:
-          (1) If the KeyName can be found in the CSP, that key is used.
-          (2) If the KeyName does not exist and the KeyFile does exist, the key
-              in the KeyFile is installed into the CSP and used.
-      (*) In order to create a KeyFile, you can use the sn.exe (Strong Name) utility.
-          When specifying the KeyFile, the location of the KeyFile should be
-          relative to the project output directory. For example, if your KeyFile is
-          located in the project directory, you would specify the AssemblyKeyFile
-          attribute as [assembly: AssemblyKeyFile('mykey.snk')], provided your output
-          directory is the project directory (the default).
-      (*) Delay Signing is an advanced option - see the Microsoft .NET Framework
-          documentation for more information on this.
-    }
-    Code('[assembly: AssemblyDelaySign(false)]');
-    Code('[assembly: AssemblyKeyFile('''')]');
-    Code('[assembly: AssemblyKeyName('''')]');
-    end;
   end;
   WriteFile(DM.OutputPath + '\Lib\System\');
 end;

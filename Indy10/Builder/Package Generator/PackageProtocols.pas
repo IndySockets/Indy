@@ -100,8 +100,9 @@ begin
   else
   begin
     if ACompiler in DelphiNet then begin
-      Code('Borland.Delphi,');
-      Code('Borland.VclRtl,');
+      Code('  System.Windows.Forms,');
+      Code('  Borland.Delphi,');
+      Code('  Borland.VclRtl,');
     end else begin
       Code('  rtl,');
     end;
@@ -111,7 +112,7 @@ begin
   GenContains;
     //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
-  if Compiler = ctDelphi2005Net then
+  if ACompiler in DelphiNet then
   begin
     Code('{$I IdProtocols90ASM90.inc}');
   end;
@@ -156,7 +157,7 @@ begin
   GenContains;
     //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
-  if Compiler = ctDelphi2005Net then
+  if ACompiler in DelphiNet then
   begin
     Code('{$I IddclProtocols90ASM90.inc}');
   end;

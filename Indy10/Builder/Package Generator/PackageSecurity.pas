@@ -43,7 +43,7 @@ uses DModule;
 
 procedure TPackageSecurity.GenerateDT(ACompiler: TCompiler);
 begin
-  if ACompiler = ctDelphi2005Net then
+  if ACompiler in DelphiNet then
   begin
     inherited;
     FName := 'dclIndySecurity' + GCompilerID[Compiler];
@@ -53,8 +53,6 @@ begin
     Code('');
     Code('requires');
     if ACompiler in DelphiNet then begin
-      Code('  Borland.Delphi,');
-      Code('  Borland.VclRtl,');
       Code('  Borland.Studio.Vcl.Design,');
     end;
 
@@ -71,7 +69,7 @@ begin
     GenContains;
     //back door for embedding version information into an assembly
     //without having to do anything to the package directly.
-    if Compiler = ctDelphi2005Net then
+    if ACompiler in DelphiNet then
     begin
       Code('{$I IddclSecurity90ASM90.inc}');
     end;
@@ -81,7 +79,7 @@ end;
 
 procedure TPackageSecurity.Generate(ACompiler: TCompiler);
 begin
-  if ACompiler = ctDelphi2005Net then
+  if ACompiler in DelphiNet then
   begin
     inherited;
     FName := 'IndySecurity' + GCompilerID[Compiler];
@@ -105,7 +103,7 @@ begin
     GenContains;
     //back door for embedding version information into an assembly
     //without having to do anything to the package directly.
-    if Compiler = ctDelphi2005Net then
+    if ACompiler in DelphiNet then
     begin
       Code('{$I IdSecurity90ASM90.inc}');
     end;

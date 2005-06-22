@@ -64,11 +64,15 @@ type
    ctUnknown
    , ctDelphi5, ctDelphi6, ctDelphi7, ctDelphi2005
    , ctDelphi2005Net
+   , ctDelphi10
+   , ctDelphi10Net
+   , ctDelphi11
+   , ctDelphi11Net
    , ctDotNet // Visual Studio
    , ctKylix3);
 
 const
-   DelphiNet = [ctDelphi2005Net];
+   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net];
 
 type
   TPackage = class
@@ -107,6 +111,10 @@ const
   GCompilerID: array[TCompiler] of string
    = ('', '50', '60', '70', '90'
    , '90Net'
+   , '100'
+   , '100Net'
+   , '110'
+   , '110Net'
    , ''
    , 'K3');
 

@@ -87,7 +87,7 @@ begin
   GenContains;
   //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
-  if Compiler = ctDelphi2005Net then
+  if Compiler in DelphiNet then
   begin
     Code('{$I IdCore90ASM90.inc}');
   end;
@@ -111,6 +111,7 @@ begin
   if not (ACompiler in [ctDelphi5]) then begin
     if ACompiler in DelphiNet then
     begin
+      Code('  System.Windows.Forms,');
       Code('  Borland.Studio.Vcl.Design,');
     end
     else
@@ -123,7 +124,7 @@ begin
   GenContains;
    //back door for embedding version information into an assembly
   //without having to do anything to the package directly.
-  if Compiler = ctDelphi2005Net then
+  if Compiler in DelphiNet then
   begin
     Code('{$I IddclCore90ASM90.inc}');
   end;
