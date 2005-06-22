@@ -6,6 +6,8 @@ unit IdTestHTTP;
 
 //todo standardize http ports used
 
+{$I IdCompilerDefines.inc}
+
 interface
 
 //short term solution to allow trying alternate compression implementations
@@ -15,7 +17,7 @@ uses
   {$IFDEF INDY_USE_ABBREVIA}
   IdCompressorAbbrevia,
   {$ENDIF}
-  {$IFNDEF DOTNETDISTRO}
+  {$IFNDEF DOTNET}
   IdCompressorZLibEx,
   {$ENDIF}
   IdZLibCompressorBase,
@@ -317,7 +319,7 @@ var
   aStream:TIdStringStream;
   aServer:TIdHTTPServer;
 begin
-  {$IFDEF DOTNETDISTRO}
+  {$IFDEF DOTNET}
   aClass:=nil;
   {$ELSE}
     {$IFDEF INDY_USE_ABBREVIA}
@@ -371,7 +373,7 @@ begin
   s:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
 
   //better way to do? eg iterate and test all registered compression classes?
-  {$IFDEF DOTNETDISTRO}
+  {$IFDEF DOTNET}
   aClass:=nil;
   {$ELSE}
     {$IFDEF INDY_USE_ABBREVIA}
