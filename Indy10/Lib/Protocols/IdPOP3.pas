@@ -260,8 +260,8 @@ type
   protected
     FAuthType : TIdPOP3AuthenticationType;
     FAutoLogin: Boolean;
-    FGreetingBanner : String;
-    FHasCAPA: boolean;
+    FHasAPOP: Boolean;
+    FHasCAPA: Boolean;
     FSASLMechanisms : TIdSASLEntries;
     //
     function GetReplyClass:TIdReplyClass; override;
@@ -286,6 +286,7 @@ type
     function UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
     function Top(const AMsgNum: Integer; const ADest: TIdStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
+    property HasAPOP: boolean read FHasAPOP;
     property HasCAPA: boolean read FHasCAPA;
     function GetPassword: String;
     function GetUsername: String;
@@ -337,23 +338,16 @@ end;
 procedure TIdPOP3.Login;
 var
   S: String;
-  i: Integer;
 begin
   try
     if UseTLS in ExplicitTLSVals then begin
-      if SupportsTLS then
-      begin
-        if SendCmd('STLS','') = ST_OK then {Do not translate}
-        begin
+      if SupportsTLS then begin
+        if SendCmd('STLS','') = ST_OK then begin {Do not translate}
           TLSHandshake;
-        end
-        else
-        begin
+        end else begin
           ProcessTLSNegCmdFailed;
         end;
-      end
-      else
-      begin
+      end else begin
         ProcessTLSNotAvail;
       end;
     end;
@@ -361,34 +355,15 @@ begin
     case FAuthType of
     atAPOP:  //APR
       begin
-        S:= FGreetingBanner;  //read the initial greeting we stored
-        i:=Pos('<',S);    {Do not Localize}
-        if i>0 then begin
-           S:=Copy(S,i,MaxInt); //?: System.Delete(S,1,i-1);
-           i:=Pos('>',S);    {Do not Localize}
-           if i>0 then
-           begin
-             S:=Copy(S,1,i)
-           end
-           else begin
-             S:='';    {Do not Localize}
-           end;
-        end//if
-        else begin
-          S:=''; //no time-stamp    {Do not Localize}
-        end;
-
-        if Length(S) > 0 then
-        begin
+        if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
           try
-            S:=Sys.LowerCase(TIdHash128.AsHex(HashValue(S+Password)));
+            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(S+Password)));
           finally
             Free;
           end;//try
-          SendCmd('APOP '+Username+' '+S, ST_OK);    {Do not Localize}
-        end
-        else begin
+          SendCmd('APOP ' + Username + ' ' + S, ST_OK);    {Do not Localize}
+        end else begin
           raise EIdDoesNotSupportAPOP.Create(RSPOP3ServerDoNotSupportAPOP);
         end;
       end;
@@ -402,13 +377,12 @@ begin
         EIdSASLMechNeeded.IfTrue(FSASLMechanisms.Count = 0, RSASLRequired);
         FSASLMechanisms.LoginSASL('AUTH', [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
-  end;
+    end;
   except
     Disconnect;
     raise;
   end;
 end;
-
 
 procedure TIdPOP3.InitComponent;
 begin
@@ -452,11 +426,9 @@ end;
 function TIdPOP3.RetrieveRaw(const MsgNum: Integer; const Dest: TIdStrings):
   boolean;
 begin
-  result := (SendCmd('RETR ' + Sys.IntToStr(MsgNum),'')=ST_OK);    {Do not Localize}
-  if result then
-  begin
+  Result := (SendCmd('RETR ' + Sys.IntToStr(MsgNum), '') = ST_OK);    {Do not Localize}
+  if Result then begin
     IOHandler.Capture(Dest);
-    result := true;
   end;
 end;
 
@@ -529,14 +501,14 @@ end;
 function TIdPOP3.UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
 Begin
   if AMsgNum >= 0 then begin
-    Result:=SendCmd('UIDL ' + Sys.IntToStr(AMsgNum), '') = ST_OK;    {Do not Localize}
+    Result := SendCmd('UIDL ' + Sys.IntToStr(AMsgNum), '') = ST_OK;    {Do not Localize}
     if Result then
     begin
       ADest.Assign(LastCmdResult.Text);
     end;
   end
   else begin
-    Result:=SendCmd('UIDL','')=ST_OK;    {Do not Localize}
+    Result := SendCmd('UIDL', '') = ST_OK;    {Do not Localize}
     if Result then
     begin
       IOHandler.Capture(ADest);
@@ -615,17 +587,23 @@ begin
 end;
 
 procedure TIdPOP3.Connect;
+var
+  S: String;
+  I: Integer;
 begin
+  FHasAPOP := False;
   FHasCAPA := False;
+
   if UseTLS in ExplicitTLSVals then begin
     // TLS only enabled later in this case!
-    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
+    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
   end;
+
   if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
       case FUseTLS of
        utNoTLSSupport :
        begin
-        (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
+        (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
        end;
        utUseImplicitTLS :
        begin
@@ -633,17 +611,30 @@ begin
        end
        else
         if FUseTLS<>utUseImplicitTLS then begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
+         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
         end;
       end;
   end;
+
   inherited;
   GetResponse(ST_OK);
-  //we preserve the initial greeting text because that is needed by APOP
-  //and we call the CAPA command before the APOP command.  That could throw off
-  //code using LastCmdResult.Text[0] for parsing the timestamp.
-  //FGreetingBanner := LastCmdResult.Text[0];
-  FGreetingBanner := LastCmdResult.Text.Strings[0];
+
+  // the initial greeting text is needed to determine APOP availability
+  S := LastCmdResult.Text.Strings[0];  //read response
+  I := Pos('<', S);    {Do not Localize}
+  if i > 0 then begin
+    S := Copy(S, I, MaxInt); //?: System.Delete(S,1,i-1);
+    I := Pos('>', S);    {Do not Localize}
+    if I > 0 then begin
+      S := Copy(S, 1, I);
+    end else begin
+      S := '';    {Do not Localize}
+    end;
+  end else begin
+    S := ''; //no time-stamp    {Do not Localize}
+  end;
+
+  FHasAPOP := (Length(S) > 0);
   CAPA;
   if FAutoLogin then begin
     Login;
