@@ -57,6 +57,8 @@ type
     procedure UpdateBindingList;
     procedure UpdateEditControls;
     procedure FillComboBox(ACombo : System.Windows.Forms.ComboBox; AStrings :TIdStrings);
+    procedure SetCaption(const AValue : String);
+    function GetCaption : String;
   public
     constructor Create;
     function Execute : Boolean;
@@ -66,7 +68,7 @@ type
     property DefaultPort : Integer read FDefaultPort write FDefaultPort;
     property IPv4Addresses : TIdStrings read FIPv4Addresses write SetIPv4Addresses;
     property IPv6Addresses : TIdStrings read FIPv6Addresses write SetIPv6Addresses;
-
+    property Caption : String read GetCaption write SetCaption;
   end;
 
   [assembly: RuntimeRequiredAttribute(TypeOf(TIdDsnPropEdBindingNET))]
@@ -674,6 +676,16 @@ end;
 function TIdDsnPropEdBindingNET.Execute: Boolean;
 begin
   Result := Self.ShowDialog = System.Windows.Forms.DialogResult.OK;
+end;
+
+function TIdDsnPropEdBindingNET.GetCaption: String;
+begin
+  Result := Text;
+end;
+
+procedure TIdDsnPropEdBindingNET.SetCaption(const AValue: String);
+begin
+  Text := AValue;
 end;
 
 end.

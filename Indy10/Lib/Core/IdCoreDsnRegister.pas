@@ -73,7 +73,7 @@ type
 implementation
 
 uses
-  Classes,
+  IdObjs,
   IdDsnBaseCmpEdt,
   IdBaseComponent,
   IdComponent,
@@ -93,6 +93,7 @@ begin
   try
     if PropCount > 0 then
     begin
+      Caption := TIdNativeComponent(GetComponent(0)).Name;
       if (GetComponent(0) is TIdTCPServer) then
       begin
         DefaultPort := TIdTCPServer(GetComponent(0)).DefaultPort;

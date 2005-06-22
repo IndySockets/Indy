@@ -21,23 +21,26 @@ type
     function GetVersion: String;
     procedure SetVersion(const AValue: String);
   public
-    constructor Create(AOwner : TComponent); override;
-    class Procedure ShowAboutBox(const AProductName, AProductVersion : String);
-    class Procedure ShowDlg;
+    class procedure ShowDlg;
+    class procedure ShowAboutBox(const AProductName, AProductVersion: String);
+    constructor Create(AOwner : TComponent); overload; override;
+    constructor Create; overload; 
     property ProductName : String read GetProductName write SetProductName;
     property Version : String read GetVersion write SetVersion;
   end;
 
-
+Procedure ShowAboutBox(const AProductName, AProductVersion : String);
+Procedure ShowDlg;
 
 implementation
 {$R IdAboutVCL.RES}
 uses
   {$IFNDEF Linux}ShellApi, {$ENDIF}
   IdDsnCoreResourceStrings,
-  IdGlobal;
+  IdGlobal,
+  IdSys;
 
-class Procedure TfrmAbout.ShowAboutBox(const AProductName, AProductVersion : String);
+Procedure ShowAboutBox(const AProductName, AProductVersion : String);
 begin
   with TfrmAbout.Create(Application) do
   try
@@ -49,7 +52,7 @@ begin
   end;
 end;
 
-class Procedure TfrmAbout.ShowDlg;
+Procedure ShowDlg;
 begin
   ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
 end;
@@ -59,18 +62,7 @@ end;
 constructor TfrmAbout.Create(AOwner: TComponent);
 begin
   inherited CreateNew(AOwner,0);
-    Height := 372;
-  ClientWidth := 637;
 
-  PixelsPerInch := 96;
-  Constraints.MaxHeight := Height;
-  Constraints.MaxWidth := Width;
-  Constraints.MinHeight := Height;
-  Constraints.MinWidth := Width;
-
-
-
-  
   FimLogo := TImage.Create(Self);
   FlblCopyRight := TLabel.Create(Self);
   FlblName := TLabel.Create(Self);
@@ -78,25 +70,17 @@ begin
   FlblPleaseVisitUs := TLabel.Create(Self);
   FlblURL := TLabel.Create(Self);
   FbbtnOk := TButton.Create(Self);
-  Font.Color := clBtnText;
-  {$IFNDEF LINUX}
-  Font.Charset := DEFAULT_CHARSET;
-  Font.Name := 'MS Sans Serif';    {Do not Localize}
-  BorderStyle := bsDialog;
-  {$ELSE}
-  Font.Name := 'helvetica';    {Do not Localize}
-  BorderStyle := fbsDialog;
-  CenterForm;
-  {$ENDIF}
+
     Name := 'formAbout';
     Left := 0;
     Top := 0;
-    Anchors := [akLeft, akTop, akRight,akBottom];
+    Anchors := [];//[akLeft, akTop, akRight,akBottom];
     BorderIcons := [biSystemMenu];
     BorderStyle := bsDialog;
+
     Caption := RSAAboutFormCaption;
-    Height := 372;
-    ClientWidth := 643;
+    ClientHeight := 336;
+    ClientWidth := 554;
     Color := clBtnFace;
     Font.Charset := DEFAULT_CHARSET;
     Font.Color := clBtnText;
@@ -106,55 +90,36 @@ begin
     OldCreateOrder := False;
     Position := poScreenCenter;
     Scaled := True;
-    PixelsPerInch := 96;
+    Self.Constraints.MinHeight := Height;
+     Self.Constraints.MinWidth := Width;
+  //  PixelsPerInch := 96;
   with FimLogo do
   begin
     Name := 'imLogo';
     Parent := Self;
     Left := 0;
     Top := 0;
-    Width := 431;
-    Height := 267;
+    Width := 388;
+    Height := 240;
    // AutoSize := True;
-    Picture.Bitmap.LoadFromResourceName(HInstance, 'TIDKITCHENSINK');    {Do not Localize}
+    Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
     Transparent := True;
-  end;
-  with FlblCopyRight do
-  begin
-    Name := 'lblCopyRight';
-    Parent := Self;
-    Left := 438;
-    Top := 80;
-    Width := 195;
-    Height := 75;
-    Alignment := taCenter;
-    Anchors := [akLeft, akTop, akRight];
-    AutoSize := False;
-    Caption := RSAAboutBoxCopyright;
-    Font.Charset := DEFAULT_CHARSET;
-    Font.Color := clBtnText;
-    Font.Height := -11;
-    Font.Name := 'Times New Roman';
-    Font.Style := [fsBold];
-    ParentFont := False;
-    Transparent := True;
-    WordWrap := True;
   end;
   with FlblName do
   begin
     Name := 'lblName';
     Parent := Self;
-    Left := 438;
-    Top := 16;
-    Width := 193;
-    Height := 49;
+    Left := 390;
+    Top := 8;
+    Width := 160;
+    Height := 104;
     Alignment := taCenter;
     AutoSize := False;
     Anchors := [akLeft, akTop, akRight];
     Font.Charset := DEFAULT_CHARSET;
     Font.Color := clBtnText;
-    Font.Height := -19;
-    Font.Name := 'Times New Roman';
+    Font.Height := -16;
+    Font.Name := 'Verdana';
     Font.Style := [fsBold];
     ParentFont := False;
     Transparent := True;
@@ -165,71 +130,89 @@ begin
   begin
     Name := 'lblVersion';
     Parent := Self;
-    Left := 438;
-    Top := 56;
-    Width := 193;
-    Height := 13;
+    Left := 390;
+    Top := 72;
+    Width := 160;
+    Height := 40;
     Alignment := taCenter;
     AutoSize := False;
     Font.Charset := DEFAULT_CHARSET;
     Font.Color := clBtnText;
-    Font.Height := -13;
-    Font.Name := 'Times New Roman';
+    Font.Height := -15;
+    Font.Name := 'Verdana';
     Font.Style := [fsBold];
     ParentFont := False;
     Transparent := True;
     Anchors := [akLeft, akTop, akRight];
   end;
+  with FlblCopyRight do
+  begin
+    Name := 'lblCopyRight';
+    Parent := Self;
+    Left := 390;
+    Top := 128;
+    Width := 160;
+    Height := 112;
+    Alignment := taCenter;
+    Anchors := [akLeft, akTop, akRight];
+    AutoSize := False;
+    Caption := RSAAboutBoxCopyright;
+    Font.Charset := DEFAULT_CHARSET;
+    Font.Color := clBtnText;
+    Font.Height := -13;
+    Font.Name := 'Verdana';
+    Font.Style := [fsBold];
+    ParentFont := False;
+    Transparent := True;
+    WordWrap := True;
+  end;
+
+
   with FlblPleaseVisitUs do
   begin
     Name := 'lblPleaseVisitUs';
     Parent := Self;
     Left := 8;
-    Top := 271;
-    Width := 623;
-    Height := 13;
+    Top := 244;
+    Width := 540;
+    Height := 23;
     Alignment := taCenter;
     AutoSize := False;
     Transparent := True;
+    Font.Height := -13;
+    Font.Name := 'Verdana';
     Caption := RSAAboutBoxPleaseVisit;
     Anchors := [akLeft, akTop, akRight];
   end;
   with FlblURL do
   begin
     Name := 'lblURL';
-    Parent := Self;
-  //
     Left := 8;
-    Top := 288;
-    Width := 623;
-    Height := 13;
-    AutoSize := False;
-  {$IFNDEF LINUX}
-    Font.Name := 'Tahoma';
+    Top := 260;
+    Width := 540;
+    Height := 23;
+
     Cursor := crHandPoint;
-    Font.Color := clBtnHighlight;
-    OnClick := lblURLClick;
-    Font.Style := [fsUnderline];
-    Font.Charset := DEFAULT_CHARSET;
-  {$ENDIF}
     Alignment := taCenter;
-    
-    Font.Height := -11;
-
-
+    AutoSize := False;
+    Font.Charset := DEFAULT_CHARSET;
+    Font.Color := clBlue;
+    Font.Height := -13;
+    Font.Name := 'Verdana';
+    Font.Style := [fsUnderline];
     ParentFont := False;
-    Transparent := True;
+   Transparent := True;
     OnClick := lblURLClick;
     Caption := RSAAboutBoxIndyWebsite;
-      Anchors := [akLeft, akTop, akRight];
-    
+    Anchors := [akLeft, akTop, akRight];
+    Parent := Self;
   end;
   with FbbtnOk do
   begin
     Name := 'bbtnOk';
-    Parent := Self;
-    Left := 558;
-    Top := 338;
+
+    Left := 475;
+    Top := 302;
     Width := 75;
     Height := 25;
     Anchors := [akRight, akBottom];
@@ -237,18 +220,12 @@ begin
     Default := True;
     ModalResult := 1;
     TabOrder := 0;
-    Caption := RSOk;
+     Caption := RSOk;
+    Anchors := [akLeft, akTop, akRight];
+    Parent := Self;
+
   end;
 end;
-
-{$IFDEF LINUX}
-procedure TformAbout.CenterForm;
-//workaround for problem - form position does not work like in VCL
-begin
- Left := (Screen.Width - Width) div 2;
- Top  := (Screen.Height - Height) div 2;
-end;
-{$ENDIF}
 
 function TfrmAbout.GetVersion: String;
 begin
@@ -262,9 +239,9 @@ end;
 
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
-  {$IFNDEF LINUX}
+  {$IFDEF MSWINDOWS}
   ShellAPI.shellExecute((Self as TControl).Handle,PChar('open'),PChar(FlblURL.Caption),nil,nil, 0);    {Do not Localize}
-              FlblURL.Font.Color := clBtnShadow;
+  FlblURL.Font.Color := clPurple;
   {$ENDIF}
 end;
 
@@ -276,6 +253,29 @@ end;
 procedure TfrmAbout.SetProductName(const AValue: String);
 begin
   FlblName.Caption := AValue;
+end;
+
+class procedure TfrmAbout.ShowAboutBox(const AProductName,
+  AProductVersion: String);
+begin
+  with TfrmAbout.Create do
+  try
+     Version := Sys.Format ( RSAAboutBoxVersion, [AProductVersion] );
+     ProductName := AProductName;
+     ShowModal;
+  finally
+    Free;
+  end;
+end;
+
+class procedure TfrmAbout.ShowDlg;
+begin
+  ShowAboutBox(RSAAboutBoxCompName, gsIdVersion);
+end;
+
+constructor TfrmAbout.Create;
+begin
+  Create(nil);
 end;
 
 end.
