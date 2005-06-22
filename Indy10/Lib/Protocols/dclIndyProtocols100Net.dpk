@@ -24,14 +24,12 @@ package dclIndyProtocols100Net;
 {$DESCRIPTION 'Indy 10 Protocols Design Time'}
 {$DESIGNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
   IndyProtocols100Net,
   IndySystem100Net,
   IndyCore100Net,
-  dclIndyCore100Net,
-  System.Drawing;
+  dclIndyCore100Net;
 
 contains
   IdDsnRegister in 'IdDsnRegister.pas',

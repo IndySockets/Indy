@@ -24,15 +24,13 @@ package IndyProtocols100Net;
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
   System.Windows.Forms,
   Borland.Delphi,
   Borland.VclRtl,
   IndySystem100Net,
-  IndyCore100Net,
-  System.Drawing;
+  IndyCore100Net;
 
 contains
   IdASN1Util in 'IdASN1Util.pas',

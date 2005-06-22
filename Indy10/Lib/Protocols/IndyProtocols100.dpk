@@ -1,7 +1,5 @@
 package IndyProtocols100;
 
-{$R *.res}
-{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -25,7 +23,6 @@ package IndyProtocols100;
 {$DESCRIPTION 'Indy 10 Protocols'}
 {$RUNONLY}
 {$IMPLICITBUILD OFF}
-{%File 'ModelSupport\default.txaPackage'}
 
 requires
   rtl,
