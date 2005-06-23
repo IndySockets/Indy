@@ -3407,6 +3407,7 @@ begin
                 end;
               finally
                 Sys.FreeAndNil(LStrm);
+                LCxt.FDataChannel.Data:=nil;
               end;
             end else begin
               case LCxt.FDataChannel.FFtpOperation of
