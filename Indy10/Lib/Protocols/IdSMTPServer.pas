@@ -58,6 +58,7 @@
 unit IdSMTPServer;
 
 interface
+
 uses
   IdAssignedNumbers,
   IdCmdTCPServer,
@@ -74,13 +75,16 @@ uses
   IdYarn,
   IdStack,
   IdSys,
-  IdGlobal, 
+  IdGlobal,
   IdObjs;
 
 type
+
   EIdSMTPServerError = class(EIdException);
   EIdSMTPServerNoRcptTo = class(EIdSMTPServerError);
+
   TIdMailFromReply = (mAccept, mReject);
+
   TIdRCPToReply =
     (
     rAddressOk, //address is okay
@@ -92,6 +96,7 @@ type
     rDisabledPerm, //disabled permentantly - not accepting E-Mail
     rDisabledTemp //disabled temporarily - not accepting E-Mail
     );
+
   TIdDataReply =
     (
     dOk, //accept the mail message
@@ -101,7 +106,9 @@ type
     dTransactionFailed, //transaction failed
     dLimitExceeded  //exceeded administrative limit
     );
+
   TIdSMTPServerContext = class;
+
   TOnUserLoginEvent = procedure(ASender: TIdSMTPServerContext; const AUsername, APassword: string;
     var VAuthenticated: Boolean) of object;
   TOnMailFromEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
@@ -110,7 +117,7 @@ type
     var VAction : TIdRCPToReply; var VForward : String) of object;
   TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream2;
     var LAction : TIdDataReply) of object;
-  TOnReceived = procedure(ASender: TIdSMTPServerContext; AReceived : String) of object;
+  TOnReceived = procedure(ASender: TIdSMTPServerContext; var AReceived : String) of object;
 
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
@@ -198,6 +205,7 @@ type
   end;
 
   TIdSMTPState = (idSMTPNone,idSMTPHelo,idSMTPMail,idSMTPRcpt,idSMTPData);
+
   TIdSMTPServerContext = class(TIdContext)
   protected
     FSMTPState: TIdSMTPState;
@@ -356,7 +364,6 @@ begin
   DefaultPort := IdPORT_SMTP;
   FServerName  := 'Indy SMTP Server'; {do not localize}
 end;
-
 
 procedure TIdSMTPServer.InitializeCommandHandlers;
 var LCmd : TIdCommandHandler;
