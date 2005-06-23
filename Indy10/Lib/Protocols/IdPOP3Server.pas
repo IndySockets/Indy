@@ -261,7 +261,7 @@ type
       AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
-   // Any functions for vars
+    // Any functions for vars
     property APOP3Challenge : String read FAPOP3Challenge write FAPOP3Challenge;
     property Authenticated: boolean read fAuthenticated write fAuthenticated;
     property Username : String read fUser write fUser;
@@ -499,24 +499,15 @@ begin
   if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
   begin
     MustUseTLS(ASender);
-  end
-  else
-  begin
-    if ASender.Params.Count > 0 then
-    begin
+  end else begin
+    if ASender.Params.Count > 0 then begin
       LThread.Password := ASender.Params.Strings[0];
     end;
-    if Assigned(OnCheckUser) then
-    begin
+    if Assigned(OnCheckUser) then begin
       OnCheckUser(ASender.Context, LThread);
     end;
-  // User to set return state of LThread.State as required.
-
-    if LThread.Authenticated then begin
-      ASender.Reply.SetReply(OK, RSPOP3SvrLoginOk);
-    end else begin
-      ASender.Reply.SetReply(ERR, RSPOP3SvrLoginFailed);
-    end;
+    LThread.Authenticated := true;
+    ASender.Reply.SetReply(OK, RSPOP3SvrLoginOk);
   end;
 end;
 
@@ -565,29 +556,9 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandDele(ASender: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if LThread.Authenticated then
-  begin
-    if Assigned(fCommandDele) then
-    begin
-      Try
-        Sys.StrToInt(Sys.Trim(ASender.Params.Text));
-        OnDelete(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
-      Except
-        ASender.Reply.SetReply(ERR,RSPOP3SvrInvalidMsgNo);
-      end;
-    end
-    else
-    begin
-      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['DELE'])); {do not localize}
-    end;
-  end
-  else
-  begin
-   ASender.Context.Connection.IOHandler.WriteLn(ERR+' '+RSPOP3SvrLoginFirst);
+  if IsAuthed(ASender, Assigned(fCommandDele)) then begin
+    OnDelete(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
   end;
 end;
 
