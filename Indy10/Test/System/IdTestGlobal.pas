@@ -49,15 +49,16 @@ end;
 
 procedure TIdTestGlobal.TestToBytes;
 const
-  cTestString1 = 'U';
+  cTestString1 = 'UA';
   cTestChar = 'U';
 var
   aBytes : TIdBytes;
 begin
   //test string
   aBytes := ToBytes(cTestString1);
-  Assert(Length(aBytes)=1);
+  Assert(Length(aBytes)=2);
   Assert(aBytes[0] = 85);
+  Assert(aBytes[1] = 65);
 
   //test char
   aBytes := ToBytes(cTestChar);
