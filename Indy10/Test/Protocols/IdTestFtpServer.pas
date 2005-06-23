@@ -3,7 +3,9 @@ unit IdTestFtpServer;
 interface
 
 uses
+  IdGlobal,
   IdSys,
+  IdObjs,
   IdTest,
   IdTcpClient,
   IdIOHandlerStack,
@@ -14,11 +16,39 @@ uses
 type
 
   TIdTestFtpServer = class(TIdTest)
+  private
+    procedure CallbackStore(ASender: TIdFTPServerContext; const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
   published
     procedure TestBasic;
+    procedure TestMethods;
+  end;
+
+  TIdTestStream = class(TIdMemoryStream)
+  public
+    destructor Destroy;override;
   end;
 
 implementation
+
+const
+  cGreeting='HELLO';
+  cTestFtpPort=20021;
+  cContent='HELLO';
+  cUploadTo='file.txt';
+
+procedure TIdTestFtpServer.CallbackStore(ASender: TIdFTPServerContext;
+  const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
+var
+  s:string;
+begin
+  Assert(VStream=nil);
+  if AFileName=cUploadTo then
+   begin
+   VStream:=TIdTestStream.Create;
+   //s:=ReadStringFromStream(VStream);
+   //Assert(s=cContent);
+   end;
+end;
 
 procedure TIdTestFtpServer.TestBasic;
 var
@@ -26,9 +56,6 @@ var
   c:TIdTCPClient;
   aStr:string;
   aIntercept:TIdLogDebug;
-const
-  cGreeting='HELLO';
-  cTestFtpPort=20021;
 begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdTCPClient.Create(nil);
@@ -75,6 +102,64 @@ begin
   end;
 end;
 
+
+procedure TIdTestFtpServer.TestMethods;
+var
+  s:TIdFTPServer;
+  c:TIdFTP;
+  aStream:TIdStringStream;
+const
+  cTestFtpPort=20021;
+begin
+  s:=TIdFTPServer.Create(nil);
+  c:=TIdFTP.Create(nil);
+  try
+    s.Greeting.Text.Text:=cGreeting;
+    s.DefaultPort:=cTestFtpPort;
+    s.OnStoreFile:=CallbackStore;
+    s.Active:=True;
+
+    c.Port:=cTestFtpPort;
+    c.Host:='127.0.0.1';
+    c.CreateIOHandler;
+    c.IOHandler.ReadTimeout:=1000;
+    c.AutoLogin:=False;
+    c.Connect;
+
+    //check invalid login
+    //check valid login
+    //check allow/disallow anonymous login
+
+    s.AllowAnonymousLogin:=True;
+    c.Username:='anonymous';
+    c.Password:='bob@example.com';
+    c.Login;
+
+    //check stream upload 
+    aStream:=TIdStringStream.Create(cContent);
+    try
+    c.Put(aStream,cUploadTo);
+    finally
+    Sys.FreeAndNil(aStream);
+    end;
+
+    //check no dest filename
+    //check missing source file
+    //check file upload rejected by server
+
+    //check normal file upload. create a temp file? use c:\?
+    //c.Put('c:\test.txt',cUploadTo);
+
+  finally
+    Sys.FreeAndNil(c);
+    Sys.FreeAndNil(s);
+  end;
+end;
+
+destructor TIdTestStream.Destroy;
+begin
+  inherited;
+end;
 
 initialization
 
