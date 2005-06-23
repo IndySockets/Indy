@@ -260,7 +260,6 @@ type
       AYarn: TIdYarn;
       AList: TIdThreadList = nil
       ); override;
-    destructor Destroy; override;
     // Any functions for vars
     property APOP3Challenge : String read FAPOP3Challenge write FAPOP3Challenge;
     property Authenticated: boolean read fAuthenticated write fAuthenticated;
@@ -326,8 +325,6 @@ type
     function GetRepliesClass: TIdRepliesClass; override;
     procedure SendGreeting(AContext : TIdContext; AGreeting : TIdReply); override;
     procedure InitComponent; override;
-  public
-    destructor Destroy; override;
   published
     property DefaultPort default IdPORT_POP3;
     // These procedures / functions are exposed
@@ -534,24 +531,9 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandRetr(ASender: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if LThread.Authenticated then
-   begin
-    if Assigned(fCommandRetr) then
-    begin
-      OnRetrieve(ASender,Sys. StrToInt(Sys.Trim(ASender.Params.Text), -1));
-    end
-    else
-    begin
-      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['RETR'])); {do not localize}
-    end;
-  end
-  else
-  begin
-    ASender.Reply.SetReply(ERR,RSPOP3SvrLoginFirst);
+  if IsAuthed(aSender, assigned(fCommandRetr)) then begin
+    OnRetrieve(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)));
   end;
 end;
 
@@ -563,16 +545,9 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandQuit(ASender: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if LThread.Authenticated then
-  begin
-    if Assigned(fCommandQuit) then
-    begin
-      OnQuit(ASender)
-    end;
+  if Assigned(fCommandQuit) then begin
+    OnQuit(ASender)
   end;
 end;
 
@@ -655,24 +630,9 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandRset(ASender: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if LThread.Authenticated then
-  begin
-    if Assigned(fCommandRSET) then
-    begin
-      OnReset(ASender);
-    end
-    else
-    begin
-      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['RSET']));  {do not localize}
-    end;
-  end
-  else
-  begin
-    ASender.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
+  if IsAuthed(aSender, assigned(fCommandRSET)) then begin
+    OnReset(ASender);
   end;
 end;
 
@@ -764,11 +724,6 @@ begin
   DefaultPort := IdPORT_POP3;
 end;
 
-destructor TIdPOP3Server.Destroy;
-begin
-  inherited;
-end;
-
 function TIdPOP3Server.CreateExceptionReply: TIdReply;
 begin
   Result := TIdReplyPOP3.Create(nil, ReplyTexts);
@@ -822,16 +777,12 @@ begin
   fPassword := '';
 end;
 
-destructor TIdPOP3ServerContext.Destroy;
-begin
-  inherited;
-end;
-
 function TIdPOP3ServerContext.GetUsingTLS:boolean;
 begin
   Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then
-    Result:=not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  if result then begin
+    Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  end;
 end;
 
 procedure TIdPOP3Server.MustUseTLS(ASender: TIdCommand);
