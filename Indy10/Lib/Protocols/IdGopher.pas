@@ -229,11 +229,11 @@ type
     Function LoadExtendedDirectory ( PreviousData : String = '';    {Do not Localize}
      const ExpectedLength: Integer = 0) : TIdGopherMenu;
     {This processes the file when we retreive it and puts it in ADestStream. }
-    procedure ProcessFile ( ADestStream : TIdStream2; APreviousData : String = '';    {Do not Localize}
+    procedure ProcessFile ( ADestStream : TIdStream; APreviousData : String = '';    {Do not Localize}
       const ExpectedLength : Integer = 0);
     {For Gopher +, we call this routine when we get a -2 length which means,
     read until you see EOL+.+EOL}
-    Procedure ProcessTextFile ( ADestStream : TIdStream2;
+    Procedure ProcessTextFile ( ADestStream : TIdStream;
       APreviousData: String = ''; const ExpectedLength: Integer = 0);    {Do not Localize}
     procedure InitComponent; override;
   public
@@ -241,8 +241,8 @@ type
     Function GetMenu (ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
     Function Search(ASelector, AQuery : String) : TIdGopherMenu;
-    procedure GetFile (ASelector : String; ADestStream : TIdStream2; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
-    procedure GetTextFile(ASelector : String; ADestStream : TIdStream2; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
+    procedure GetFile (ASelector : String; ADestStream : TIdStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
+    procedure GetTextFile(ASelector : String; ADestStream : TIdStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
     Function GetExtendedMenu (ASelector : String; AView: String = '' ) : TIdGopherMenu;    {Do not Localize}
   published
     { Published declarations }
@@ -396,7 +396,7 @@ begin
   end; //try..finally
 end;
 
-procedure TIdGopher.ProcessTextFile(ADestStream : TIdStream2; APreviousData: String = '';    {Do not Localize}
+procedure TIdGopher.ProcessTextFile(ADestStream : TIdStream; APreviousData: String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0);
 begin
   IdGlobal.WriteStringToStream(ADestStream,APreviousData);
@@ -408,7 +408,7 @@ begin
   end;  //try..finally
 end;
 
-procedure TIdGopher.ProcessFile ( ADestStream : TIdStream2; APreviousData : String = '';    {Do not Localize}
+procedure TIdGopher.ProcessFile ( ADestStream : TIdStream; APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
 begin
   BeginWork(wmRead,ExpectedLength);
@@ -433,7 +433,7 @@ begin
   end; {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetFile (ASelector : String; ADestStream : TIdStream2;
+procedure TIdGopher.GetFile (ASelector : String; ADestStream : TIdStream;
   IsGopherPlus : Boolean = False;
   AView: String = '');    {Do not Localize}
 var Reply : Char;
@@ -557,7 +557,7 @@ begin
   end;  {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TIdStream2;
+procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TIdStream;
   IsGopherPlus: Boolean; AView: String);
 var Reply : Char;
     LengthBytes : Integer;  {length of the gopher items}
