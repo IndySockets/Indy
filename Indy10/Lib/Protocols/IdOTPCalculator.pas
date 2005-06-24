@@ -390,7 +390,7 @@ class function TIdOTPCalculator.GenerateKeyMD4(const ASeed: string; const APassw
 var
   LMD4: TIdHashMessageDigest4;
   LMD4Hash: T4x4LongWordRecord;
-  LTmpMemStream: TIdStream2;
+  LTmpMemStream: TIdStream;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
@@ -430,7 +430,7 @@ class function TIdOTPCalculator.GenerateKeyMD5(const ASeed: string; const APassw
 var
   LMD5: TIdHashMessageDigest5;
   LMD5Hash: T4x4LongWordRecord;
-  LTmpMemStream: TIdStream2;
+  LTmpMemStream: TIdStream;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
@@ -471,7 +471,7 @@ class function TIdOTPCalculator.GenerateKeySHA1(const ASeed: string; const APass
 var
   LSHA1: TIdHashSHA1;
   LSHA1Hash: T5x4LongWordRecord;
-  LTmpMemStream: TIdStream2;
+  LTmpMemStream: TIdStream;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
