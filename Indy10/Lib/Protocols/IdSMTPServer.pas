@@ -115,7 +115,7 @@ type
     var VAction : TIdMailFromReply) of object;
   TOnRcptToEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
     var VAction : TIdRCPToReply; var VForward : String) of object;
-  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream2;
+  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream;
     var LAction : TIdDataReply) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; var AReceived : String) of object;
 
@@ -873,8 +873,8 @@ end;
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
 var
   LContext : TIdSMTPServerContext;
-  LStream: TIdStream2;
-  AMsg : TIdStream2;
+  LStream: TIdStream;
+  AMsg : TIdStream;
   LAction : TIdDataReply;
   LReceivedString : String;
   //we do it this way so we can take advantage of the StringBuilder
