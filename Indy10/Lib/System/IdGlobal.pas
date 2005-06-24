@@ -884,7 +884,7 @@ type
   {$ENDIF}
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
   // without any $IFDEFs in the unit IdMultiPartFormData - in accordance with Indy Coding rules
-  TIdBaseStream = class (TIdStream2)
+  TIdBaseStream = class (TIdStream)
   protected
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
@@ -1011,12 +1011,12 @@ procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
 
 // Common Streaming routines
-function ReadLnFromStream(AStream: TIdStream2; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
-function ReadStringFromStream(AStream: TIdStream2; ASize: Integer = -1): string;
-procedure WriteStringToStream(AStream: TIdStream2; const AStr: string);
-function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
-function ReadTIdBytesFromStream(AStream: TIdStream2; ABytes: TIdBytes; Count: Integer): Integer;
-procedure WriteTIdBytesToStream(AStream: TIdStream2; ABytes: TIdBytes);
+function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
+function ReadStringFromStream(AStream: TIdStream; ASize: Integer = -1): string;
+procedure WriteStringToStream(AStream: TIdStream; const AStr: string);
+function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
+function ReadTIdBytesFromStream(AStream: TIdStream; ABytes: TIdBytes; Count: Integer): Integer;
+procedure WriteTIdBytesToStream(AStream: TIdStream; ABytes: TIdBytes);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -1072,7 +1072,7 @@ function iif(ATest: Boolean; const ATrue: string; const AFalse: string = ''): st
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
-procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream2; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: int64);
 {$IFNDEF DotNetExclude}
 function IsCurrentThread(AThread: TIdNativeThread): boolean;
 {$ENDIF}
@@ -1769,7 +1769,7 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream2; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: int64);
 begin
   {$IFDEF DotNet}
   Dest.Write(Src.Memory, Count);
@@ -2920,7 +2920,7 @@ begin
 //  Result := Word((AByte1 shl 8) and $FF00) or Word(AByte2 and $00FF);
 end;
 
-function ReadStringFromStream(AStream: TIdStream2; ASize: Integer): string;
+function ReadStringFromStream(AStream: TIdStream; ASize: Integer): string;
 var
   LBytes: TIdBytes;
 begin
@@ -2928,22 +2928,22 @@ begin
   Result := BytesToString(LBytes, 0, ASize);  // is the 0 right?
 end;
 
-function ReadTIdBytesFromStream(AStream: TIdStream2; ABytes: TIdBytes; Count: Integer): Integer;
+function ReadTIdBytesFromStream(AStream: TIdStream; ABytes: TIdBytes; Count: Integer): Integer;
 begin
   Result := TIdStreamHelper.ReadBytes(AStream, ABytes, Count);
 end;
 
-function ReadCharFromStream(AStream: TIdStream2; var AChar: Char): Integer;
+function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
 begin
   Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
 end;
 
-procedure WriteTIdBytesToStream(AStream: TIdStream2; ABytes: TIdBytes);
+procedure WriteTIdBytesToStream(AStream: TIdStream; ABytes: TIdBytes);
 begin
   TIdStreamHelper.Write(AStream, ABytes);
 end;
 
-procedure WriteStringToStream(AStream: TIdStream2; const AStr :string);
+procedure WriteStringToStream(AStream: TIdStream; const AStr :string);
 var
   LBytes: TIdBytes;
 begin
@@ -3135,7 +3135,7 @@ begin
   end;
 end;
 
-function ReadLnFromStream(AStream: TIdStream2; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
+function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
 //TODO: Continue to optimize this function. Its performance severely impacts
 // the coders
 const

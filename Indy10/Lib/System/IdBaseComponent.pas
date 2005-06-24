@@ -186,7 +186,7 @@ type
     // instead of going through the namespace.unitname.unit.function syntax
     // that Delphi exports global methods as
     {$IFDEF DotNetDistro}
-    function CType(aStream: System.IO.Stream): TIdStream2; overload;
+    function CType(aStream: System.IO.Stream): TIdStream; overload;
     function CType(aStrings: StringCollection): TIdStrings; overload;
     function CType(aStrings: TIdStrings): StringCollection; overload;
     {$ENDIF}
@@ -376,7 +376,7 @@ end;
 {$ENDIF}
 
 {$IFDEF DotNetDistro}
-function TIdBaseComponent.CType(aStream: System.IO.Stream): TIdStream2;
+function TIdBaseComponent.CType(aStream: System.IO.Stream): TIdStream;
 begin
   Result := AStream
 end;
