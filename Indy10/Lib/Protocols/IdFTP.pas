@@ -1061,7 +1061,7 @@ type
     procedure TransferMode(ATransferMode: TIdFTPTransferMode);
     procedure ReInitialize(ADelay: Cardinal = 10);
     procedure SetLang(const ALangTag : String);
-    function CRC(const AFIleName : String; const AStartPoint : Cardinal = 0; const AEndPoint : Cardinal=0) : Int64;
+    function CRC(const AFIleName : String; const AStartPoint : Cardinal = 0; const AEndPoint : Int64=0) : Int64;
     //file parts must be in order in TIdStrings parameter
     //GlobalScape FTP Pro uses this for multipart simultanious file uploading
     procedure CombineFiles(const ATargetFile : String; AFileParts : TIdStrings);
@@ -3027,9 +3027,8 @@ begin
   end;
 end;
 
-function TIdFTP.CRC(const AFIleName: String; const AStartPoint,
-  AEndPoint: Cardinal): Int64;
-
+function TIdFTP.CRC(const AFIleName : String; const AStartPoint : Cardinal = 0;
+  const AEndPoint : Int64=0) : Int64;
 var LCMD : String;
     LCRC : String;
 
