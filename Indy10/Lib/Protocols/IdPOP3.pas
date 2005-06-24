@@ -282,7 +282,7 @@ type
     function RetrieveMsgSize(const MsgNum: Integer): Integer;
     function RetrieveMailBoxSize: integer;
     function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStrings): boolean; overload;
-    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStream2): boolean; overload;
+    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStream): boolean; overload;
     function UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
     function Top(const AMsgNum: Integer; const ADest: TIdStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
@@ -431,7 +431,7 @@ begin
 end;
 
 function TIdPOP3.RetrieveRaw(const aMsgNo: Integer;
-  const aDest: TIdStream2): boolean;
+  const aDest: TIdStream): boolean;
 begin
   Result := (SendCmd('RETR ' + Sys.IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
