@@ -101,18 +101,18 @@ type
   TIdEncoder = class(TIdBaseComponent)
   public
     function Encode(const ASrc: string): string; overload;
-    function Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt)
+    function Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt)
      : string; overload; virtual; abstract;
     class function EncodeString(const AIn: string): string;
   end;
 
   TIdDecoder = class(TIdBaseComponent)
   protected
-    FStream: TIdStream2;
+    FStream: TIdStream;
   public
     procedure Decode(const AIn: string; const AStartPos: Integer = 1;
      const ABytes: Integer = -1); virtual; abstract;
-    procedure DecodeBegin(ADestStream: TIdStream2); virtual;
+    procedure DecodeBegin(ADestStream: TIdStream); virtual;
     procedure DecodeEnd; virtual;
     class function DecodeString(const AIn: string): string;
   end;
@@ -125,7 +125,7 @@ uses
 
 { TIdDecoder }
 
-procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream2);
+procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream);
 begin
   FStream := ADestStream;
 end;
@@ -153,7 +153,7 @@ end;
 
 function TIdEncoder.Encode(const ASrc: string): string;
 var
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   LStream := TIdMemoryStream.Create; try
       WriteStringToStream(LStream, ASrc);
