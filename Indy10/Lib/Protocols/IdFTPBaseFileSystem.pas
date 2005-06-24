@@ -112,12 +112,12 @@ type
     procedure ListDirectory(AContext : TIdFTPServerContextBase; const APath: string; ADirectoryListing: TIdFTPListOutput; const ACmd, ASwitches : String); virtual; abstract;
     procedure RenameFile(AContext : TIdFTPServerContextBase; const ARenameToFile: string); virtual; abstract;
     procedure DeleteFile(AContext : TIdFTPServerContextBase; const APathName: string); virtual; abstract;
-    procedure RetrieveFile(AContext : TIdFTPServerContextBase; const AFileName: string; var VStream: TIdStream2); virtual; abstract;
-    procedure StoreFile(AContext : TIdFTPServerContextBase; const AFileName: string; AAppend: Boolean; var VStream: TIdStream2); virtual; abstract;
+    procedure RetrieveFile(AContext : TIdFTPServerContextBase; const AFileName: string; var VStream: TIdStream); virtual; abstract;
+    procedure StoreFile(AContext : TIdFTPServerContextBase; const AFileName: string; AAppend: Boolean; var VStream: TIdStream); virtual; abstract;
     procedure MakeDirectory(AContext : TIdFTPServerContextBase; var VDirectory: string); virtual; abstract;
     procedure RemoveDirectory(AContext : TIdFTPServerContextBase; var VDirectory: string); virtual; abstract;
     procedure SetModifiedFileDate(AContext : TIdFTPServerContextBase; const AFileName: String; var VDateTime: TIdDateTime); virtual; abstract;
-    procedure GetCRCCalcStream(AContext : TIdFTPServerContextBase; const AFileName: string; var VStream : TIdStream2); virtual; abstract;
+    procedure GetCRCCalcStream(AContext : TIdFTPServerContextBase; const AFileName: string; var VStream : TIdStream); virtual; abstract;
     procedure CombineFiles(AContext : TIdFTPServerContextBase;
       const ATargetFileName: string; AParts: TIdStrings); virtual; abstract;
 
