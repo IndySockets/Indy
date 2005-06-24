@@ -33,7 +33,7 @@ uses
 type
   TIdHashElf = class( TIdHash32 )
   public
-    function HashValue( AStream: TIdStream2 ) : LongWord; override;
+    function HashValue( AStream: TIdStream ) : LongWord; override;
     procedure HashStart(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
 
@@ -61,7 +61,7 @@ begin
   VRunningHash := 0;
 end;
 
-function TIdHashElf.HashValue( AStream: TIdStream2 ) : LongWord;
+function TIdHashElf.HashValue( AStream: TIdStream ) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNET
 var
