@@ -255,11 +255,6 @@ type
     //
     function GetUsingTLS:boolean;
   public
-    constructor Create(
-      AConnection: TIdTCPConnection;
-      AYarn: TIdYarn;
-      AList: TIdThreadList = nil
-      ); override;
     // Any functions for vars
     property APOP3Challenge : String read FAPOP3Challenge write FAPOP3Challenge;
     property Authenticated: boolean read fAuthenticated write fAuthenticated;
@@ -296,22 +291,22 @@ type
     fCommandRset  : TIdPOP3ServerNoParamEvent;
     fCommandAPOP  : TIdPOP3ServerAPOPCommandEvent;
 
-    function IsAuthed(aSender: TIdCommand; aAssigned: boolean): boolean;
-    procedure MustUseTLS(ASender: TIdCommand);
+    function IsAuthed(aCmd: TIdCommand; aAssigned: boolean): boolean;
+    procedure MustUseTLS(aCmd: TIdCommand);
     // CommandHandlers
-    procedure CommandUser(ASender: TIdCommand); //
-    procedure CommandPass(ASender: TIdCommand); //
-    procedure CommandList(ASender: TIdCommand); //
-    procedure CommandRetr(ASender: TIdCommand); //
-    procedure CommandDele(ASender: TIdCommand); //
-    procedure CommandQuit(ASender: TIdCommand); //
-    procedure CommandAPOP(ASender: TIdCommand); //
-    procedure CommandStat(ASender: TIdCommand); //
-    procedure CommandRset(ASender: TIdCommand); //
-    procedure CommandTop(ASender: TIdCommand);  //
-    procedure CommandUIDL(ASender: TIdCommand); //
-    procedure CommandSTLS(ASender: TIdCommand); //
-    procedure CommandCAPA(ASender: TIdCommand); //
+    procedure CommandUser(aCmd: TIdCommand); //
+    procedure CommandPass(aCmd: TIdCommand); //
+    procedure CommandList(aCmd: TIdCommand); //
+    procedure CommandRetr(aCmd: TIdCommand); //
+    procedure CommandDele(aCmd: TIdCommand); //
+    procedure CommandQuit(aCmd: TIdCommand); //
+    procedure CommandAPOP(aCmd: TIdCommand); //
+    procedure CommandStat(aCmd: TIdCommand); //
+    procedure CommandRset(aCmd: TIdCommand); //
+    procedure CommandTop(aCmd: TIdCommand);  //
+    procedure CommandUIDL(aCmd: TIdCommand); //
+    procedure CommandSTLS(aCmd: TIdCommand); //
+    procedure CommandCAPA(aCmd: TIdCommand); //
 
     function CreateExceptionReply: TIdReply; override;
     function CreateGreeting: TIdReply; override;
@@ -469,111 +464,111 @@ end;
 
 { Command Handler Functions here }
 
-procedure TIdPOP3Server.CommandUser(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandUser(aCmd: TIdCommand);
 var
   LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context );
-  if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
+  LThread := TIdPOP3ServerContext(aCmd.Context );
+  if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
   begin
-    MustUseTLS(ASender);
+    MustUseTLS(aCmd);
   end
   else
   begin
-    if ASender.Params.Count > 0 then
+    if aCmd.Params.Count > 0 then
     begin
-        LThread.Username := ASender.Params.Strings[0];
+        LThread.Username := aCmd.Params.Strings[0];
     end;
-    ASender.Reply.SetReply(OK, RSPOP3SvrPasswordRequired);
+    aCmd.Reply.SetReply(OK, RSPOP3SvrPasswordRequired);
   end;
 end;
 
-procedure TIdPOP3Server.CommandPass(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandPass(aCmd: TIdCommand);
 var
   LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
+  LThread := TIdPOP3ServerContext(aCmd.Context);
+  if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
   begin
-    MustUseTLS(ASender);
+    MustUseTLS(aCmd);
   end else begin
-    if ASender.Params.Count > 0 then begin
-      LThread.Password := ASender.Params.Strings[0];
+    if aCmd.Params.Count > 0 then begin
+      LThread.Password := aCmd.Params.Strings[0];
     end;
     if Assigned(OnCheckUser) then begin
-      OnCheckUser(ASender.Context, LThread);
+      OnCheckUser(aCmd.Context, LThread);
     end;
     LThread.Authenticated := true;
-    ASender.Reply.SetReply(OK, RSPOP3SvrLoginOk);
+    aCmd.Reply.SetReply(OK, RSPOP3SvrLoginOk);
   end;
 end;
 
-procedure TIdPOP3Server.CommandList(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandList(aCmd: TIdCommand);
 var
   LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
+  LThread := TIdPOP3ServerContext(aCmd.Context);
   if LThread.Authenticated then
    begin
     if Assigned(fCommandList) then
     begin
-      OnList(ASender,Sys.StrToInt(Sys.Trim(ASender.Params.Text), -1));
+      OnList(aCmd,Sys.StrToInt(aCmd.Params.Text, -1));
     end
     else
     begin
-      ASender.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['LIST'])); {do not localize}
+      aCmd.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['LIST'])); {do not localize}
     end;
   end
   else
   begin
-    ASender.Reply.SetReply(ERR,RSPOP3SvrLoginFirst);
+    aCmd.Reply.SetReply(ERR,RSPOP3SvrLoginFirst);
   end;
 end;
 
-procedure TIdPOP3Server.CommandRetr(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandRetr(aCmd: TIdCommand);
 begin
-  if IsAuthed(aSender, assigned(fCommandRetr)) then begin
-    OnRetrieve(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)));
+  if IsAuthed(aCmd, assigned(fCommandRetr)) then begin
+    OnRetrieve(aCmd, Sys.StrToInt(aCmd.Params.Text));
   end;
 end;
 
-procedure TIdPOP3Server.CommandDele(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandDele(aCmd: TIdCommand);
 begin
-  if IsAuthed(ASender, Assigned(fCommandDele)) then begin
-    OnDelete(ASender, Sys.StrToInt(Sys.Trim(ASender.Params.Text)))
+  if IsAuthed(aCmd, Assigned(fCommandDele)) then begin
+    OnDelete(aCmd, Sys.StrToInt(aCmd.Params.Text))
   end;
 end;
 
-procedure TIdPOP3Server.CommandQuit(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandQuit(aCmd: TIdCommand);
 begin
   if Assigned(fCommandQuit) then begin
-    OnQuit(ASender)
+    OnQuit(aCmd)
   end;
 end;
 
-procedure TIdPOP3Server.CommandAPOP(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandAPOP(aCmd: TIdCommand);
 var
  LThread: TIdPOP3ServerContext;
  LValidPassword : String;
  LValidHash : String;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
+  LThread := TIdPOP3ServerContext(aCmd.Context);
   if not LThread.Authenticated then
   begin
-    if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
+    if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
     begin
-      MustUseTLS(ASender);
+      MustUseTLS(aCmd);
     end
     else
     begin
       if Assigned(fCommandAPOP) then
       begin
-       OnAPOP(ASender, ASender.Params.Strings[0], LValidPassword);
+       OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
        with TIdHashMessageDigest5.Create do
        try
          LValidHash := Sys.LowerCase(TIdHash128.AsHex(
            HashValue(LThread.APOP3Challenge + LValidPassword)));
-         if (LValidHash =ASender.Params[1]) then
+         if (LValidHash =aCmd.Params[1]) then
          begin
            LThread.Authenticated := true;
          end;
@@ -585,132 +580,121 @@ begin
        // User to set return state of LThread.State as required.
        if not LThread.Authenticated then
        begin
-         ASender.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
+         aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
        end
        else
        begin
-         ASender.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
+         aCmd.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
        end;
       end
       else
       begin
-        ASender.Reply.SetReply(ST_ERR,Sys.Format(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
+        aCmd.Reply.SetReply(ST_ERR,Sys.Format(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
       end;
     end;
   end
   else
   begin
-    ASender.Reply.SetReply(ST_ERR,RSPOP3SvrWrongState);
+    aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrWrongState);
   end;
 end;
 
-function TIdPOP3Server.IsAuthed(aSender: TIdCommand; aAssigned: boolean): boolean;
+function TIdPOP3Server.IsAuthed(aCmd: TIdCommand; aAssigned: boolean): boolean;
 begin
-  Result := TIdPOP3ServerContext(ASender.Context).Authenticated;
+  Result := TIdPOP3ServerContext(aCmd.Context).Authenticated;
   if Result then begin
     Result := aAssigned;
     if Result = false then begin
-      aSender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, [aSender.CommandHandler.Command])); {do not localize}
+      aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, [aCmd.CommandHandler.Command])); {do not localize}
     end;
   end else begin
-    aSender.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
+    aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
   end;
 end;
 
-procedure TIdPOP3Server.CommandStat(aSender: TIdCommand);
+procedure TIdPOP3Server.CommandStat(aCmd: TIdCommand);
 var
   xCount: Integer;
   xSize: Integer;
 begin
   // TODO: Need to make all use this form
-  if IsAuthed(ASender, Assigned(fCommandStat)) then begin
-    OnStat(aSender, xCount, xSize);
-    aSender.Reply.Text.Text := Sys.IntToStr(xCount) + ' ' + Sys.IntToStr(xSize);
+  if IsAuthed(aCmd, Assigned(fCommandStat)) then begin
+    OnStat(aCmd, xCount, xSize);
+    aCmd.Reply.Text.Text := Sys.IntToStr(xCount) + ' ' + Sys.IntToStr(xSize);
   end;
 end;
 
-procedure TIdPOP3Server.CommandRset(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandRset(aCmd: TIdCommand);
 begin
-  if IsAuthed(aSender, assigned(fCommandRSET)) then begin
-    OnReset(ASender);
+  if IsAuthed(aCmd, assigned(fCommandRSET)) then begin
+    OnReset(aCmd);
   end;
 end;
 
-procedure TIdPOP3Server.CommandTop(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandTop(aCmd: TIdCommand);
 var
   LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
+  LThread := TIdPOP3ServerContext(aCmd.Context);
   if LThread.Authenticated then
   begin
     if Assigned(fCommandTop) then
     begin
-      if (Sys.StrToInt(Sys.Trim(ASender.Params.Strings[0]), -1) <> -1) AND (Sys.StrToInt(Sys.Trim(ASender.Params.Strings[1]), -1) <> -1) then
+      if (Sys.StrToInt(aCmd.Params.Strings[0], -1) <> -1) AND (Sys.StrToInt(aCmd.Params.Strings[1], -1) <> -1) then
       begin
-        OnTop(ASender, Sys.StrToInt(ASender.Params.Strings[0]), Sys.StrToInt(ASender.Params.Strings[1]))
+        OnTop(aCmd, Sys.StrToInt(aCmd.Params.Strings[0]), Sys.StrToInt(aCmd.Params.Strings[1]))
       end else begin
-         ASender.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
+         aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
       end;
     end else begin
-      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['TOP'])); {do not localize}
+      aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['TOP'])); {do not localize}
     end;
   end else begin
-    ASender.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
+    aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
   end;
 end;
 
-procedure TIdPOP3Server.CommandUIDL(ASender: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
+procedure TIdPOP3Server.CommandUIDL(aCmd: TIdCommand);
 begin
-  LThread := TIdPOP3ServerContext(ASender.Context);
-  if LThread.Authenticated then
-  begin
-    if Assigned(fCommandUidl) then
-    begin
-       OnUidl(ASender,Sys.StrToInt(Sys.Trim(ASender.Params.Text), -1))
-    end else begin
-      ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['UIDL']));  {do not localize}
-    end
-  end else begin
-    ASender.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
+  if IsAuthed(aCmd, Assigned(fCommandUidl)) then begin
+    OnUidl(aCmd,Sys.StrToInt(aCmd.Params.Text, -1))
   end;
 end;
 
-procedure TIdPOP3Server.CommandSTLS(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandSTLS(aCmd: TIdCommand);
 var LIO : TIdSSLIOHandlerSocketBase;
 begin
   if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
-    if TIdPOP3ServerContext(ASender.Context).UsingTLS then begin // we are already using TLS
-      ASender.Reply.SetReply(ST_ERR, RSPOP3SvrNotPermittedWithTLS);    {Do not Localize}
+    if TIdPOP3ServerContext(aCmd.Context).UsingTLS then begin // we are already using TLS
+      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotPermittedWithTLS);    {Do not Localize}
       Exit;
     end;
-    if TIdPOP3ServerContext(ASender.Context).Authenticated then begin //STLS only allowed in auth-state
-      ASender.Reply.SetReply(ST_ERR, RSPOP3SvrNotInThisState);    {Do not Localize}
+    if TIdPOP3ServerContext(aCmd.Context).Authenticated then begin //STLS only allowed in auth-state
+      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrNotInThisState);    {Do not Localize}
       Exit;
     end;
-    ASender.Reply.SetReply(ST_OK, RSPOP3SvrbeginTLSNegotiation);
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
+    aCmd.Reply.SetReply(ST_OK, RSPOP3SvrbeginTLSNegotiation);
+    LIO := aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
     LIO.Passthrough := False;
   end else begin
-    ASender.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
+    aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
   end;
 end;
 
-procedure TIdPOP3Server.CommandCAPA(ASender: TIdCommand);
+procedure TIdPOP3Server.CommandCAPA(aCmd: TIdCommand);
 begin
-  ASender.Reply.SetReply(ST_OK, RSPOP3SvrCapaList);
-  ASender.SendReply;
+  aCmd.Reply.SetReply(ST_OK, RSPOP3SvrCapaList);
+  aCmd.SendReply;
   if Assigned(fCommandUidl) then
-    ASender.Context.Connection.IOHandler.WriteLn('UIDL'); {do not localize}
+    aCmd.Context.Connection.IOHandler.WriteLn('UIDL'); {do not localize}
   if (IOHandler is TIdServerIOHandlerSSLBase) and
     (FUseTLS in ExplicitTLSVals) then
   begin
-    ASender.Context.Connection.IOHandler.WriteLn('STLS'); {do not localize}
+    aCmd.Context.Connection.IOHandler.WriteLn('STLS'); {do not localize}
   end;
-  ASender.Context.Connection.IOHandler.WriteLn('USER'); {do not localize}
-//  ASender.Context.Connection.IOHandler.WriteLn('SASL ......');   // like 'SASL CRAM-MD5 KERBEROS_V4'
-  ASender.Context.Connection.IOHandler.WriteLn('.');
+  aCmd.Context.Connection.IOHandler.WriteLn('USER'); {do not localize}
+//  aCmd.Context.Connection.IOHandler.WriteLn('SASL ......');   // like 'SASL CRAM-MD5 KERBEROS_V4'
+  aCmd.Context.Connection.IOHandler.WriteLn('.');
 end;
 
 { Constructor / Destructors }
@@ -766,17 +750,6 @@ end;
 
 { TIdPOP3ServerContext }
 
-constructor TIdPOP3ServerContext.Create(
-  AConnection: TIdTCPConnection;
-  AYarn: TIdYarn;
-  AList: TIdThreadList = nil
-  );
-begin
-  inherited;
-  FUser := '';
-  fPassword := '';
-end;
-
 function TIdPOP3ServerContext.GetUsingTLS:boolean;
 begin
   Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
@@ -785,10 +758,10 @@ begin
   end;
 end;
 
-procedure TIdPOP3Server.MustUseTLS(ASender: TIdCommand);
+procedure TIdPOP3Server.MustUseTLS(aCmd: TIdCommand);
 begin
-  ASender.Context.Connection.IOHandler.WriteLn(ERR+' '+RSPOP3SvrMustUseSTLS);
-  ASender.Disconnect := True;
+  aCmd.Context.Connection.IOHandler.WriteLn(ERR+' '+RSPOP3SvrMustUseSTLS);
+  aCmd.Disconnect := True;
 end;
 
 procedure TIdPOP3Server.SendGreeting(AContext: TIdContext;
