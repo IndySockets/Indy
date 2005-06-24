@@ -448,7 +448,7 @@ type
     FResponseCode: Integer;
     FResponseText: string;
     FKeepAlive: Boolean;
-    FContentStream: TIdStream2;
+    FContentStream: TIdStream;
     FResponseVersion: TIdHTTPProtocolVersion;
     //
     function GetKeepAlive: Boolean;
@@ -459,7 +459,7 @@ type
     property ResponseText: string read FResponseText write FResponseText;
     property ResponseCode: Integer read GetResponseCode write FResponseCode;
     property ResponseVersion: TIdHTTPProtocolVersion read FResponseVersion write FResponseVersion;
-    property ContentStream: TIdStream2 read FContentStream write FContentStream;
+    property ContentStream: TIdStream read FContentStream write FContentStream;
   end;
 
   TIdHTTPRequest = class(TIdRequestHeaderInfo)
@@ -467,14 +467,14 @@ type
     FHTTP: TIdCustomHTTP;
     FURL: string;
     FMethod: TIdHTTPMethod;
-    FSourceStream: TIdStream2;
+    FSourceStream: TIdStream;
     FUseProxy: TIdHTTPConnectionType;
     FIPVersion: TIdIPVersion;
   public
     constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
     property URL: string read FURL write FURL;
     property Method: TIdHTTPMethod read FMethod write FMethod;
-    property Source: TIdStream2 read FSourceStream write FSourceStream;
+    property Source: TIdStream read FSourceStream write FSourceStream;
     property UseProxy: TIdHTTPConnectionType read FUseProxy;
     property IPVersion: TIdIPversion read FIPVersion write FIPVersion;
   end;
@@ -533,7 +533,7 @@ type
     procedure SetPort(const Value: integer); override;
 }
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
-      ASource, AResponseContent: TIdStream2; AIgnoreReplies: array of SmallInt); virtual;
+      ASource, AResponseContent: TIdStream; AIgnoreReplies: array of SmallInt); virtual;
     procedure InitComponent; override;
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
     procedure SetCookieManager(ACookieManager: TIdCookieManager);
@@ -562,26 +562,26 @@ type
   public
     destructor Destroy; override;
     procedure Options(AURL: string); overload;
-    procedure Get(AURL: string; AResponseContent: TIdStream2); overload;
-    procedure Get(AURL: string; AResponseContent: TIdStream2; AIgnoreReplies: array of SmallInt);
+    procedure Get(AURL: string; AResponseContent: TIdStream); overload;
+    procedure Get(AURL: string; AResponseContent: TIdStream; AIgnoreReplies: array of SmallInt);
      overload;
     function Get(AURL: string): string; overload;
     function Get(AURL: string; AIgnoreReplies: array of SmallInt): string; overload;
-    procedure Trace(AURL: string; AResponseContent: TIdStream2); overload;
+    procedure Trace(AURL: string; AResponseContent: TIdStream); overload;
     function Trace(AURL: string): string; overload;
     procedure Head(AURL: string);
 
     function Post(AURL: string; ASource: TIdStrings): string; overload;
-    function Post(AURL: string; ASource: TIdStream2): string; overload;
+    function Post(AURL: string; ASource: TIdStream): string; overload;
     function Post(AURL: string; ASource: TIdMultiPartFormDataStream): string; overload;
-    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream2); overload;
-    procedure Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream2); overload;
+    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream); overload;
+    procedure Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream); overload;
 
     {Post data provided by a stream, this is for submitting data to a server}
-    procedure Post(AURL: string; ASource, AResponseContent: TIdStream2); overload;
+    procedure Post(AURL: string; ASource, AResponseContent: TIdStream); overload;
 
-    function Put(AURL: string; ASource: TIdStream2): string; overload;
-    procedure Put(AURL: string; ASource, AResponseContent: TIdStream2); overload;
+    function Put(AURL: string; ASource: TIdStream): string; overload;
+    procedure Put(AURL: string; ASource, AResponseContent: TIdStream); overload;
 
     {This is an object that can compress and decompress HTTP Deflate encoding}
     property Compressor : TIdZLibCompressorBase read FCompressor write FCompressor;
@@ -704,12 +704,12 @@ begin
   DoRequest(Id_HTTPMethodOptions, AURL, nil, nil, []);
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream2);
+procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream);
 begin
   Get(AURL, AResponseContent, []);
 end;
 
-procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TIdStream2);
+procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TIdStream);
 begin
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
@@ -719,7 +719,7 @@ begin
   DoRequest(Id_HTTPMethodHead, AURL, nil, nil, []);
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TIdStream2);
+procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TIdStream);
 var
   OldProtocol: TIdHTTPProtocolVersion;
 begin
@@ -777,9 +777,9 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream2);
+procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream);
 var
-  LParams: TIdStream2;
+  LParams: TIdStream;
 begin
   // Usual posting request have default ContentType is application/x-www-form-urlencoded
   if (Request.ContentType = '') or (TextIsSame(Request.ContentType, 'text/html')) then {do not localize}
@@ -806,7 +806,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdStream2): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TIdStream): string;
 var
   LResponse: TIdStringStream;
 begin
@@ -819,12 +819,12 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TIdStream2);
+procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TIdStream);
 begin
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Put(AURL: string; ASource: TIdStream2): string;
+function TIdCustomHTTP.Put(AURL: string; ASource: TIdStream): string;
 var
   LResponse: TIdStringStream;
 begin
@@ -1557,17 +1557,17 @@ begin
 end;
 
 procedure TIdCustomHTTP.Post(AURL: string;
-  ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream2);
+  ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream);
 begin
   Request.ContentType := ASource.RequestContentType;
-  Post(AURL, TIdStream2(ASource), AResponseContent);
+  Post(AURL, TIdStream(ASource), AResponseContent);
 end;
 
 function TIdCustomHTTP.Post(AURL: string;
   ASource: TIdMultiPartFormDataStream): string;
 begin
   Request.ContentType := ASource.RequestContentType;
-  result := Post(AURL, TIdStream2(ASource));
+  result := Post(AURL, TIdStream(ASource));
 end;
 
 { TIdHTTPResponse }
@@ -1725,7 +1725,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     i: Integer;
     LResponseCode: Integer;
     LRespStream: TIdStringStream;
-    LTempStream: TIdStream2;
+    LTempStream: TIdStream;
   begin
     //Kudzu: Why should we override the user? User can set ReadTimeout. Respect theirs.
     //FHTTP.IOHandler.ReadTimeout := 2000; // Lets wait 2 seconds for any kind of content
@@ -1753,7 +1753,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
   procedure ReadContent;
   var
     LTempResponse: TIdStringStream;
-    LTempStream: TIdStream2;
+    LTempStream: TIdStream;
   begin
     LTempResponse := TIdStringStream.Create('');
     LTempStream := Response.ContentStream;
@@ -1954,14 +1954,14 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream2;
+procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream;
   AIgnoreReplies: array of SmallInt);
 begin
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
-  AURL: string; ASource, AResponseContent: TIdStream2;
+  AURL: string; ASource, AResponseContent: TIdStream;
   AIgnoreReplies: array of SmallInt);
 var
   LResponseLocation: Integer;

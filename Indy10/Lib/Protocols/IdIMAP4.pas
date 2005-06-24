@@ -852,7 +852,7 @@ TIdIMAP4 = class(TIdMessageClient)
       const APartNum: string;
       AUseUID: Boolean;
       AUsePeek: Boolean;
-      ADestStream: TIdStream2;
+      ADestStream: TIdStream;
       var ABuffer: TIdBytes;
       var ABufferLength: Integer;
       ADestFileNameAndPath: string = '';
@@ -861,7 +861,7 @@ TIdIMAP4 = class(TIdMessageClient)
     function  InternalRetrievePart(const AMsgNum: Integer;
       const APartNum: string;
       AUseUID: Boolean; AUsePeek: Boolean;
-      ADestStream: TIdStream2;
+      ADestStream: TIdStream;
       var ABuffer: PChar;
       var ABufferLength: Integer;
       ADestFileNameAndPath: string = '';
@@ -913,7 +913,7 @@ TIdIMAP4 = class(TIdMessageClient)
               const AFlags: TIdMessageFlagsSet = []): Boolean; overload;
     //The following are used for raw (unparsed) messages in a file or stream...
     function  AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = []): Boolean;
-    function  AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TIdStream2; const AFlags: TIdMessageFlagsSet = []): Boolean;
+    function  AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TIdStream; const AFlags: TIdMessageFlagsSet = []): Boolean;
     //Requests a checkpoint of the currently selected mailbox.  Does NOTHING on most servers.
     function  CheckMailBox: Boolean;
     //Checks if the message was read or not.
@@ -978,7 +978,7 @@ TIdIMAP4 = class(TIdMessageClient)
     function  Retrieve(const AMsgNum: Integer; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
     function  RetrieveNoDecodeToFile(const AMsgNum: Integer; ADestFile: string): Boolean;
-    function  RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TIdStream2): Boolean;
+    function  RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TIdStream): Boolean;
     //Retrieves all envelope of the selected mailbox to the specified TIdMessageCollection.
     function  RetrieveAllEnvelopes(AMsgList: TIdMessageCollection): Boolean;
     //Retrieves all headers of the selected mailbox to the specified TIdMessageCollection.
@@ -999,7 +999,7 @@ TIdIMAP4 = class(TIdMessageClient)
     {CC2: Following added for retrieving individual parts of a message...}
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')...}
     function  RetrievePart(const AMsgNum: Integer; const APartNum: string;
-              ADestStream: TIdStream2; AContentTransferEncoding: string = 'text'): Boolean; overload;        {Do not Localize}
+              ADestStream: TIdStream; AContentTransferEncoding: string = 'text'): Boolean; overload;        {Do not Localize}
 
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     {$IFDEF DOTNET}
@@ -1034,7 +1034,7 @@ TIdIMAP4 = class(TIdMessageClient)
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-              ADestStream: TIdStream2; AContentTransferEncoding: string = 'text'): Boolean; overload;        {Do not Localize}
+              ADestStream: TIdStream; AContentTransferEncoding: string = 'text'): Boolean; overload;        {Do not Localize}
 
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'
      without marking the message as "read"...}
@@ -1120,7 +1120,7 @@ TIdIMAP4 = class(TIdMessageClient)
     function  UIDRetrieve(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Retrieves a whole message "raw" and saves it to file, while marking it read.
     function  UIDRetrieveNoDecodeToFile(const AMsgUID: String; ADestFile: string): Boolean;
-    function  UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TIdStream2): Boolean;
+    function  UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TIdStream): Boolean;
     //Retrieves the message envelope, parses it, and discards the envelope.
     function  UIDRetrieveEnvelope(const AMsgUID: String; AMsg: TIdMessage): Boolean;
     //Retrieves the message envelope into a TIdStringList but does NOT parse it.
@@ -1134,7 +1134,7 @@ TIdIMAP4 = class(TIdMessageClient)
     function  UIDRetrieveStructure(const AMsgUID: String; AParts: TIdImapMessageParts): Boolean; overload;
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')...}
     function  UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-              var ADestStream: TIdStream2; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
+              var ADestStream: TIdStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
 
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     {$IFDEF DOTNET}
@@ -1169,7 +1169,7 @@ TIdIMAP4 = class(TIdMessageClient)
     {Retrieve a specific individual part of a message to a stream (part/sub-part like '2' or '2.3')
      without marking the message as "read"...}
     function  UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-              var ADestStream: TIdStream2; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
+              var ADestStream: TIdStream; AContentTransferEncoding: string = 'text'): Boolean; overload;    {Do not Localize}
 
     {Retrieve a specific individual part of a message where part is an integer or sub-part like '2.3'...}
     {$IFDEF DOTNET}
@@ -2937,7 +2937,7 @@ begin
     end;
 end;
 
-function  TIdIMAP4.AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TIdStream2; const AFlags: TIdMessageFlagsSet = []): Boolean;
+function  TIdIMAP4.AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TIdStream; const AFlags: TIdMessageFlagsSet = []): Boolean;
 var
     LFlags,
     LMsgLiteral: String;
@@ -3418,7 +3418,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePart(const AMsgNum: Integer; const APartNum: string;
-  ADestStream: TIdStream2; AContentTransferEncoding: string): Boolean;
+  ADestStream: TIdStream; AContentTransferEncoding: string): Boolean;
 var
   {$IFNDEF DOTNET}
     LDummy1: PChar;
@@ -3470,7 +3470,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.RetrievePartPeek(const AMsgNum: Integer; const APartNum: string;
-  ADestStream: TIdStream2; AContentTransferEncoding: string): Boolean;
+  ADestStream: TIdStream; AContentTransferEncoding: string): Boolean;
 var
   {$IFNDEF DOTNET}
     LDummy1: PChar;
@@ -3522,7 +3522,7 @@ end;
 
 // Retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePart(const AMsgUID: String; const APartNum: string;
-  var ADestStream: TIdStream2; AContentTransferEncoding: string): Boolean;
+  var ADestStream: TIdStream; AContentTransferEncoding: string): Boolean;
 var
   {$IFNDEF DOTNET}
     LDummy1: PChar;
@@ -3574,7 +3574,7 @@ end;
 
 // retrieve a specific individual part of a message
 function TIdIMAP4.UIDRetrievePartPeek(const AMsgUID: String; const APartNum: string;
-  var ADestStream: TIdStream2; AContentTransferEncoding: string): Boolean;
+  var ADestStream: TIdStream; AContentTransferEncoding: string): Boolean;
 var
   {$IFDEF DOTNET}
     LDummy1 : TIdBytes;
@@ -3722,7 +3722,7 @@ function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer;
   const APartNum: string;
   AUseUID: Boolean;
   AUsePeek: Boolean;
-  ADestStream: TIdStream2;
+  ADestStream: TIdStream;
   var ABuffer: TIdBytes;
   var ABufferLength: Integer;
   ADestFileNameAndPath: string;
@@ -3732,7 +3732,7 @@ function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer;
   const APartNum: string;
   AUseUID: Boolean;
   AUsePeek: Boolean;
-  ADestStream: TIdStream2;
+  ADestStream: TIdStream;
   var ABuffer: PChar;
   var ABufferLength: Integer;
   ADestFileNameAndPath: string;
@@ -4246,7 +4246,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TIdStream2): Boolean;
+function  TIdIMAP4.RetrieveNoDecodeToStream(const AMsgNum: Integer; AStream: TIdStream): Boolean;
 var
     LMsg: TIdMessage;
 begin
@@ -4296,7 +4296,7 @@ begin
 end;
 
 //Retrieves a whole message "raw" and saves it to file, while marking it read.
-function  TIdIMAP4.UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TIdStream2): Boolean;
+function  TIdIMAP4.UIDRetrieveNoDecodeToStream(const AMsgUID: String; AStream: TIdStream): Boolean;
 var
     LMsg: TIdMessage;
 begin
@@ -6109,7 +6109,7 @@ const
 
     function ProcessAttachment(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
     var
-        LDestStream: TIdStream2;
+        LDestStream: TIdStream;
         Li: integer;
         LAttachment: TIdAttachment;
     begin

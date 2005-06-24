@@ -179,7 +179,7 @@ type
     procedure CheckReply;
     function GetJobId: String;
     procedure SetJobId(JobId: String);
-    procedure InternalPrint(Data: TIdStream2);
+    procedure InternalPrint(Data: TIdStream);
     function GetControlData: String;
     procedure InitComponent; override;
   public
@@ -229,7 +229,7 @@ end;
 
 procedure TIdLPR.Print(AText: String);
 var
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   LStream := TIdMemoryStream.Create;
   try
@@ -243,7 +243,7 @@ end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   LStream := TIdMemoryStream.Create;
   try
@@ -281,7 +281,7 @@ begin
     FJobId:=Sys.StrToInt(JobId);
 end;
 
-procedure TIdLPR.InternalPrint(Data: TIdStream2);
+procedure TIdLPR.InternalPrint(Data: TIdStream);
 begin
   try
     if Connected then

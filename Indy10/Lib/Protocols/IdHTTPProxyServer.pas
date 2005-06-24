@@ -165,7 +165,7 @@ type
 }
   TIdHTTPProxyServer = class;
   TOnHTTPDocument = procedure(ASender: TIdHTTPProxyServer; const ADocument: string;
-   var VStream: TIdStream2; const AHeaders: TIdHeaderList) of object;
+   var VStream: TIdStream; const AHeaders: TIdHeaderList) of object;
 
   TIdHTTPProxyServer = class(TIdCmdTCPServer)
   protected
@@ -175,7 +175,7 @@ type
     procedure CommandPOST(ASender: TIdCommand);
     procedure CommandHEAD(ASender: TIdCommand);
     procedure CommandConnect(ASender: TIdCommand); // for ssl
-    procedure DoHTTPDocument(const ADocument: string; var VStream: TIdStream2; const AHeaders: TIdHeaderList);
+    procedure DoHTTPDocument(const ADocument: string; var VStream: TIdStream; const AHeaders: TIdHeaderList);
     procedure InitializeCommandHandlers; override;
     procedure TransferData(ASrc: TIdTCPConnection; ADest: TIdTCPConnection; const ADocument: string;
       const ASize: Integer; const AHeaders: TIdHeaderList);
@@ -235,7 +235,7 @@ procedure TIdHTTPProxyServer.TransferData(
 // modify data. However we also need another option that writes as it captures.
 // Two modes? Intercept and not?
 var
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   //TODO: Have an event to let the user perform stream creation
   LStream := TIdMemoryStream.Create; try
@@ -371,7 +371,7 @@ begin
   ReplyUnknownCommand.Text.Text := ''; // RS
 end;
 
-procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TIdStream2; const AHeaders: TIdHeaderList);
+procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TIdStream; const AHeaders: TIdHeaderList);
 begin
   if Assigned(OnHTTPDocument) then begin
     OnHTTPDocument(Self, ADocument, VStream, AHeaders);
