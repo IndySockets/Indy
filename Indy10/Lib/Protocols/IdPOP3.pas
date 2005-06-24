@@ -241,9 +241,7 @@ uses
   IdMessage,
   IdMessageClient,
   IdReply,
-  IdSASL,
-  IdSASLCollection,
-  IdSys,
+  IdSASL, IdSASLCollection, IdSys,
   IdObjs,
   IdBaseComponent,
   IdUserPassProvider;
@@ -283,14 +281,13 @@ type
     function RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveMsgSize(const MsgNum: Integer): Integer;
     function RetrieveMailBoxSize: integer;
-    function RetrieveRaw(const MsgNum: Integer; const Dest: TIdStrings): boolean;
+    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStrings): boolean; overload;
+    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStream2): boolean; overload;
     function UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
     function Top(const AMsgNum: Integer; const ADest: TIdStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
     property HasAPOP: boolean read FHasAPOP;
     property HasCAPA: boolean read FHasCAPA;
-    function GetPassword: String;
-    function GetUsername: String;
   published
     property AuthType : TIdPOP3AuthenticationType read FAuthType write FAuthType default DEF_ATYPE;
     property AutoLogin: Boolean read FAutoLogin write FAutoLogin;
@@ -424,12 +421,21 @@ begin
   Result := LastCmdResult.Code = ST_OK;
 end;
 
-function TIdPOP3.RetrieveRaw(const MsgNum: Integer; const Dest: TIdStrings):
+function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStrings):
   boolean;
 begin
-  Result := (SendCmd('RETR ' + Sys.IntToStr(MsgNum), '') = ST_OK);    {Do not Localize}
+  Result := (SendCmd('RETR ' + Sys.IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
-    IOHandler.Capture(Dest);
+    IOHandler.Capture(aDest);
+  end;
+end;
+
+function TIdPOP3.RetrieveRaw(const aMsgNo: Integer;
+  const aDest: TIdStream2): boolean;
+begin
+  Result := (SendCmd('RETR ' + Sys.IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
+  if Result then begin
+    IOHandler.Capture(aDest);
   end;
 end;
 
@@ -556,16 +562,6 @@ begin
 }
   FHasCapa := (FCapabilities.Count > 0);
  // ParseCapaReply(FCapabilities,'SASL');
-end;
-
-function TIdPOP3.GetPassword: String;
-begin
-  Result := Password;
-end;
-
-function TIdPOP3.GetUsername: String;
-begin
-  Result := Username;
 end;
 
 procedure TIdPOP3.Notification(AComponent: TIdNativeComponent;
