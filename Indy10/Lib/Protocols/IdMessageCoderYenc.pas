@@ -94,7 +94,7 @@ type
     FLine: integer;
     FSize: integer;
   public
-    function ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean ) : TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder; override;
   end;
 
   TIdMessageDecoderInfoYenc = class( TIdMessageDecoderInfo )
@@ -104,7 +104,7 @@ type
 
   TIdMessageEncoderYenc = class( TIdMessageEncoder )
   public
-    procedure Encode( ASrc: TIdStream2; ADest: TIdStream2 ) ; override;
+    procedure Encode( ASrc: TIdStream; ADest: TIdStream ) ; override;
   end;
 
   TIdMessageEncoderInfoYenc = class( TIdMessageEncoderInfo )
@@ -198,7 +198,7 @@ begin
   end;
 end;   }
 
-function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream2; var AMsgEnd: Boolean ) : TIdMessageDecoder;
+function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder;
 var
   LLine: string;
   LLinepos: integer;
@@ -339,7 +339,7 @@ end;
 
 { TIdMessageEncoderYenc }
 
-procedure TIdMessageEncoderYenc.Encode( ASrc: TIdStream2; ADest: TIdStream2 ) ;
+procedure TIdMessageEncoderYenc.Encode( ASrc: TIdStream; ADest: TIdStream ) ;
 const
   Linesize = 128;
 var

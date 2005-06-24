@@ -101,10 +101,10 @@ type
     // Dont use TIdHeaderList for FHeaders - we dont know that they will all be like MIME.
     FHeaders: TIdStrings;
     FPartType: TIdMessageCoderPartType;
-    FSourceStream: TIdStream2;
+    FSourceStream: TIdStream;
     procedure InitComponent; override;
   public
-    function ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean): TIdMessageDecoder; virtual; abstract;
+    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; virtual; abstract;
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
@@ -115,7 +115,7 @@ type
     property FreeSourceStream: Boolean read FFreeSourceStream write FFreeSourceStream;
     property Headers: TIdStrings read FHeaders;
     property PartType: TIdMessageCoderPartType read FPartType;
-    property SourceStream: TIdStream2 read FSourceStream write FSourceStream;
+    property SourceStream: TIdStream read FSourceStream write FSourceStream;
   end;
 
   TIdMessageDecoderInfo = class
@@ -144,8 +144,8 @@ type
     //
     procedure InitComponent; override;
   public
-    procedure Encode(const AFilename: string; ADest: TIdStream2); overload;
-    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); overload; virtual; abstract;
+    procedure Encode(const AFilename: string; ADest: TIdStream); overload;
+    procedure Encode(ASrc: TIdStream; ADest: TIdStream); overload; virtual; abstract;
   published
     property Filename: string read FFilename write FFilename;
     property PermissionCode: integer read FPermissionCode write FPermissionCode;
@@ -333,9 +333,9 @@ end;
 
 { TIdMessageEncoder }
 
-procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TIdStream2);
+procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TIdStream);
 var
-  LSrcStream: TIdStream2;
+  LSrcStream: TIdStream;
 begin
   LSrcStream := TReadFileExclusiveStream.Create(AFileName); try
     Encode(LSrcStream, ADest);

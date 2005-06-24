@@ -483,13 +483,13 @@ type
     function  IsBodyEmpty: Boolean;
 
     procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
-    procedure LoadFromStream(AStream: TIdStream2; const AHeadersOnly: Boolean = False);
+    procedure LoadFromStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
 
     function  ExtractCharSet(AContentType: string): string;
     procedure ProcessHeaders;
 
     procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False);
-    procedure SaveToStream(AStream: TIdStream2; const AHeadersOnly: Boolean = False);
+    procedure SaveToStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
 
     procedure DoCreateAttachment(const AHeaders: TIdStrings;
       var VAttachment: TIdAttachment); virtual;
@@ -1155,7 +1155,7 @@ begin
   finally Sys.FreeAndNil(LStream); end;
 end;
 
-procedure TIdMessage.LoadFromStream(AStream: TIdStream2; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.LoadFromStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
 begin
   // clear message properties, headers before loading
   Clear;
@@ -1175,7 +1175,7 @@ begin
   finally Sys.FreeAndNil(LStream); end;
 end;
 
-procedure TIdMessage.SaveToStream(AStream: TIdStream2; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.SaveToStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
 var
   LMsgClient: TIdMessageClient;
   LIOHandler: TIdIOHandlerStream;

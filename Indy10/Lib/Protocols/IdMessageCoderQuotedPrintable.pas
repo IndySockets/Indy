@@ -61,7 +61,7 @@ uses
 type
   TIdMessageEncoderQuotedPrintable = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
+    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
   end;
 
   TIdMessageEncoderInfoQuotedPrintable = class(TIdMessageEncoderInfo)
@@ -85,7 +85,7 @@ end;
 
 { TIdMessageEncoderQuotedPrintable }
 
-procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TIdStream2; ADest: TIdStream2);
+procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TIdStream; ADest: TIdStream);
 var
   LEncoder: TIdEncoderQuotedPrintable;
 begin

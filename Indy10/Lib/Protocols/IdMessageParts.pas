@@ -77,7 +77,7 @@ uses
   IdSys;
 
 type
-  TOnGetMessagePartStream = procedure(AStream: TIdStream2) of object;
+  TOnGetMessagePartStream = procedure(AStream: TIdStream) of object;
 
   TIdMessagePartType = (mptText, mptAttachment);
   // if you add to this, please also adjust the case statement in

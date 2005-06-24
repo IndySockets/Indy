@@ -94,7 +94,7 @@ type
   protected
     FCodingType: string;
   public
-    function ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean): TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
     property CodingType: string read FCodingType;
   end;
 
@@ -107,7 +107,7 @@ type
   protected
     FEncoderClass: TIdEncoder3to4Class;
   public
-    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
+    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
   end;
 
   TIdMessageEncoderUUE = class(TIdMessageEncoderUUEBase)
@@ -147,7 +147,7 @@ end;
 
 { TIdMessageDecoderUUE }
 
-function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream2; var AMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder;
 var
   LDecoder: TIdDecoder4to3;
   LLine: string;
@@ -204,7 +204,7 @@ end;
 
 { TIdMessageEncoderUUEBase }
 
-procedure TIdMessageEncoderUUEBase.Encode(ASrc: TIdStream2; ADest: TIdStream2);
+procedure TIdMessageEncoderUUEBase.Encode(ASrc: TIdStream; ADest: TIdStream);
 var
   LEncoder: TIdEncoder3to4;
 begin

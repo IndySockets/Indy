@@ -209,7 +209,7 @@ type
     procedure InitComponent; override;
   public
     constructor Create(AOwner: TIdNativeComponent; const ALine: string); reintroduce; overload;
-    function ReadBody(ADestStream: TIdStream2;
+    function ReadBody(ADestStream: TIdStream;
       var VMsgEnd: Boolean): TIdMessageDecoder; override;
     procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
     procedure ReadHeader; override;
@@ -227,7 +227,7 @@ type
 
   TIdMessageEncoderMIME = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStream2; ADest: TIdStream2); override;
+    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
   end;
 
   TIdMessageEncoderInfoMIME = class(TIdMessageEncoderInfo)
@@ -367,7 +367,7 @@ begin
   FFirstLine := ALine;
 end;
 
-function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream2; var VMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream; var VMsgEnd: Boolean): TIdMessageDecoder;
 var
   LContentTransferEncoding: string;
   LDecoder: TIdDecoder;
@@ -693,7 +693,7 @@ end;
 
 { TIdMessageEncoderMIME }
 
-procedure TIdMessageEncoderMIME.Encode(ASrc: TIdStream2; ADest: TIdStream2);
+procedure TIdMessageEncoderMIME.Encode(ASrc: TIdStream; ADest: TIdStream);
 var
   s: string;
   LEncoder: TIdEncoderMIME;

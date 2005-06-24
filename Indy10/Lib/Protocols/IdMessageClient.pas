@@ -424,8 +424,8 @@ type
   public
     constructor Create(
       AOwner: TIdNativeComponent;
-      AReceiveStream: TIdStream2;
-      ASendStream: TIdStream2 = nil
+      AReceiveStream: TIdStream;
+      ASendStream: TIdStream = nil
     ); override;  //Should this be reintroduce instead of override?
     function Readable(AMSec: integer = IdTimeoutDefault): Boolean; override;
 end;
@@ -448,7 +448,7 @@ type
   public
     destructor Destroy; override;
     procedure ProcessMessage(AMsg: TIdMessage; AHeaderOnly: Boolean = False); overload;
-    procedure ProcessMessage(AMsg: TIdMessage; AStream: TIdStream2; AHeaderOnly: Boolean = False); overload;
+    procedure ProcessMessage(AMsg: TIdMessage; AStream: TIdStream; AHeaderOnly: Boolean = False); overload;
     procedure ProcessMessage(AMsg: TIdMessage; const AFilename: string; AHeaderOnly: Boolean = False); overload;
     procedure SendMsg(AMsg: TIdMessage; AHeadersOnly: Boolean = False); overload; virtual;
     //
@@ -541,8 +541,8 @@ end;
 
 constructor TIdIOHandlerStreamMsg.Create(
   AOwner: TIdNativeComponent;
-  AReceiveStream: TIdStream2;
-  ASendStream: TIdStream2 = nil
+  AReceiveStream: TIdStream;
+  ASendStream: TIdStream = nil
   );
 begin
   inherited Create(AOwner, AReceiveStream, ASendStream);
@@ -720,7 +720,7 @@ var
 
   function ProcessAttachment(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
   var
-    LDestStream: TIdStream2;
+    LDestStream: TIdStream;
     i: integer;
     LAttachment: TIdAttachment;
   begin
@@ -877,9 +877,9 @@ var
   i: Integer;
   LAttachment: TIdAttachment;
   LBoundary: string;
-  LDestStream: TIdStream2;
-  LSrcStream: TIdStream2;
-  LStrStream: TIdStream2;
+  LDestStream: TIdStream;
+  LSrcStream: TIdStream;
+  LStrStream: TIdStream;
   ISOCharset: string;
   HeaderEncoding: Char;  { B | Q }
   TransferEncoding: TTransfer;
@@ -887,7 +887,7 @@ var
   LLine: string;
   LX: integer;
 
-  function GetLine(ASrcStream: TIdStream2; var ALine: string): Boolean;
+  function GetLine(ASrcStream: TIdStream; var ALine: string): Boolean;
   {Gets the next character, adding an extra '.' if line starts with a '.'}
   var
     LChar: Char;
@@ -919,8 +919,8 @@ var
   procedure WriteTextPart(ATextPart: TIdText);
   var
     LData: string;
-    LDestStream: TIdStream2;
-    LStrStream: TIdStream2;
+    LDestStream: TIdStream;
+    LStrStream: TIdStream;
     LBodyLine: String;
     i: Integer;
   begin
@@ -1352,7 +1352,7 @@ begin
   end;
 end;
 
-procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; AStream: TIdStream2; AHeaderOnly: Boolean = False);
+procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; AStream: TIdStream; AHeaderOnly: Boolean = False);
 begin
   IOHandler := TIdIOHandlerStreamMsg.Create(nil, AStream);
   try
@@ -1373,7 +1373,7 @@ end;
 
 procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; const AFilename: string; AHeaderOnly: Boolean = False);
 var
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   LStream := TReadFileExclusiveStream.Create(AFileName); try
     ProcessMessage(AMsg, LStream, AHeaderOnly);
