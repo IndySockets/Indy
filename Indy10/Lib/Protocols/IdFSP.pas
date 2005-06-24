@@ -371,8 +371,8 @@ causes that directory can be listable even it do not have
     procedure GetStatInfo(const APath : String);
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false;
       AResume: Boolean = false); overload;
-    procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
-    procedure Put(const ASource: TIdStream2; const ADestFile: string;
+    procedure Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = false); overload;
+    procedure Put(const ASource: TIdStream; const ADestFile: string;
        const AGMTTime : TIdDateTime=0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
     property SystemDesc: string read FSystemDesc;
@@ -472,7 +472,7 @@ begin
   FConEstablished := False;
 end;
 
-procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream2;
+procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream;
   AResume: Boolean);
 var LSendPacket : TIdFSPPacket;
     LRecvPacket :  TIdFSPPacket;
@@ -525,7 +525,7 @@ end;
 procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
   const ACanOverwrite: boolean; AResume: Boolean);
 var
-  LDestStream: TIdStream2;
+  LDestStream: TIdStream;
 begin
     if ACanOverwrite and (not AResume) then begin
       Sys.DeleteFile(ADestFile);
@@ -839,7 +839,7 @@ there is other problem (no access rights) return type of file is
   end;
 end;
 
-procedure TIdFSP.Put(const ASource: TIdStream2; const ADestFile: string;
+procedure TIdFSP.Put(const ASource: TIdStream; const ADestFile: string;
   const AGMTTime: TIdDateTime);
 var LUnixDate : Cardinal;
   LSendPacket : TIdFSPPacket;
@@ -902,7 +902,7 @@ end;
 
 procedure TIdFSP.Put(const ASourceFile, ADestFile: string);
 var
-  LSourceStream: TIdStream2;
+  LSourceStream: TIdStream;
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;

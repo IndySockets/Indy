@@ -439,12 +439,12 @@ type
   protected
     FMyBinding: TIdSocketHandle;
     FMainBinding: TIdSocketHandle;
-    FMyData: TIdStream2;
+    FMyData: TIdStream;
     FData : string;
     FDataSize : integer;
     FServer: TIdDNS_UDPServer;
     procedure SetMyBinding(const Value: TIdSocketHandle);
-    procedure SetMyData(const Value: TIdStream2);
+    procedure SetMyData(const Value: TIdStream);
     procedure SetServer(const Value: TIdDNS_UDPServer);
     procedure ComposeErrorResult(var Final: TIdBytes;
               OriginalHeader: TDNSHeader; OriginalQuestion : TIdBytes;
@@ -467,7 +467,7 @@ type
     procedure SendData;
   public
      property MyBinding : TIdSocketHandle read FMyBinding write SetMyBinding;
-     property MyData: TIdStream2 read FMyData write SetMyData;
+     property MyData: TIdStream read FMyData write SetMyData;
      property Server : TIdDNS_UDPServer read FServer write SetServer;
 
      constructor Create(ACreateSuspended: Boolean = True;
@@ -3773,7 +3773,7 @@ begin
   FMyBinding := Value;
 end;
 
-procedure TIdDNS_ProcessThread.SetMyData(const Value: TIdStream2);
+procedure TIdDNS_ProcessThread.SetMyData(const Value: TIdStream);
 begin
   FMyData := Value;
 end;
