@@ -20,8 +20,8 @@ type
 implementation
 
 const
- cEnc1: string='TWFya3RlaW5m/GhydW5nIGVpbmVzIHb2bGxpZyBuZXVlbiBLb256ZXB0cw==';
- cDec1 = 'Markteinführung eines völlig neuen Konzepts';
+ cEnc1: string = 'VGhpcyBpcyBhIHNpbXBsZSB0ZXN0IGZvciBNSU1FIGVuY29kaW5nIHNpbXBsZSBzdHJpbmdzLg==';
+ cDec1 = 'This is a simple test for MIME encoding simple strings.';
 
 procedure TIdTestCoderMIME.TestDecodeMIME;
 var
