@@ -495,7 +495,6 @@ function TIdPOP3.RetrieveMsgSize(const MsgNum: Integer): Integer;
 var
   s: string;
 begin
-  Result := -1;
   // Returns the size of the message. if an error ocurrs, returns -1.
   SendCmd('LIST ' + Sys.IntToStr(MsgNum), ST_OK);    {Do not Localize}
   // RL - ignore the message number, grab just the octets,

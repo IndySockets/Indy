@@ -618,24 +618,17 @@ end;
 
 procedure TIdPOP3Server.CommandTop(aCmd: TIdCommand);
 var
-  LThread: TIdPOP3ServerContext;
+  xMsgNo: integer;
+  xLines: integer;
 begin
-  LThread := TIdPOP3ServerContext(aCmd.Context);
-  if LThread.Authenticated then
-  begin
-    if Assigned(fCommandTop) then
-    begin
-      if (Sys.StrToInt(aCmd.Params.Strings[0], -1) <> -1) AND (Sys.StrToInt(aCmd.Params.Strings[1], -1) <> -1) then
-      begin
-        OnTop(aCmd, Sys.StrToInt(aCmd.Params.Strings[0]), Sys.StrToInt(aCmd.Params.Strings[1]))
-      end else begin
-         aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
-      end;
+  if IsAuthed(aCmd, Assigned(fCommandTop)) then begin
+    xMsgNo := Sys.StrToInt(aCmd.Params.Strings[0], 0);
+    xLines := Sys.StrToInt(aCmd.Params.Strings[1], 0);
+    if (xMsgNo < 1) or (xLines < 1) then begin
+      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
     end else begin
-      aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['TOP'])); {do not localize}
+      OnTop(aCmd, xMsgNo, xLines);
     end;
-  end else begin
-    aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
   end;
 end;
 
