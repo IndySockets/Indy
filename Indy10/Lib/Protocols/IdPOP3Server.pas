@@ -266,13 +266,13 @@ type
 
   TIdPOP3ServerNoParamEvent = procedure (aCmd: TIdCommand) of object;
   TIdPOP3ServerStatEvent = procedure(aCmd: TIdCommand; out oCount: integer; out oSize: integer) of object;
-  TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMessageNum :Integer) of object;
+  TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMsgNo :Integer) of object;
 
   TIdPOP3ServerLogin = procedure (aContext :TIdContext; aServerContext : TIdPOP3ServerContext) of object;
 
   //Note that we require the users valid password so we can hash it with the Challenge we greeted the user with.
   TIdPOP3ServerAPOPCommandEvent = procedure (aCmd: TIdCommand; AMailboxID :String; var VUsersPassword:String) of object;
-  TIdPOP3ServerTOPCommandEvent = procedure (aCmd: TIdCommand; AMessageNum :Integer; ANumLines :Integer) of object;
+  TIdPOP3ServerTOPCommandEvent = procedure (aCmd: TIdCommand; AMsgNo :Integer; ANumLines :Integer) of object;
 
   EIdPOP3ServerException = class(EIdException);
   EIdPOP3ImplicitTLSRequiresSSL = class(EIdPOP3ServerException);
@@ -504,24 +504,9 @@ begin
 end;
 
 procedure TIdPOP3Server.CommandList(aCmd: TIdCommand);
-var
-  LThread: TIdPOP3ServerContext;
 begin
-  LThread := TIdPOP3ServerContext(aCmd.Context);
-  if LThread.Authenticated then
-   begin
-    if Assigned(fCommandList) then
-    begin
-      OnList(aCmd,Sys.StrToInt(aCmd.Params.Text, -1));
-    end
-    else
-    begin
-      aCmd.Reply.SetReply(ERR,Sys.Format(RSPOP3SVRNotHandled, ['LIST'])); {do not localize}
-    end;
-  end
-  else
-  begin
-    aCmd.Reply.SetReply(ERR,RSPOP3SvrLoginFirst);
+  if IsAuthed(aCmd, Assigned(fCommandList)) then begin
+    OnList(aCmd,Sys.StrToInt(aCmd.Params.Text, -1));
   end;
 end;
 
