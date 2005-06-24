@@ -661,7 +661,7 @@ type
     procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
     procedure Write(
-      AStream: TIdStream2;
+      AStream: TIdStream;
       ASize: Int64 = 0;
       AWriteByteCount: Boolean = False
       ); overload; virtual;
@@ -681,10 +681,10 @@ type
      ATabWidth: Integer = 8; AMaxLineLength: Integer = -1): String; virtual;
     // Capture
     // Not virtual because each calls PerformCapture which is virtual
-    procedure Capture(ADest: TIdStream2); overload; // .Net overload
-    procedure Capture(ADest: TIdStream2; ADelim: string;
+    procedure Capture(ADest: TIdStream); overload; // .Net overload
+    procedure Capture(ADest: TIdStream; ADelim: string;
               AIsRFCMessage: Boolean = True); overload;
-    procedure Capture(ADest: TIdStream2; out VLineCount: Integer;
+    procedure Capture(ADest: TIdStream; out VLineCount: Integer;
               const ADelim: string = '.'; AIsRFCMessage: Boolean = True);
               overload;
     procedure Capture(ADest: TIdStrings); overload; // .Net overload
@@ -717,7 +717,7 @@ type
     function ReadInt64(AConvert: Boolean = True): Int64;
     function ReadSmallInt(AConvert: Boolean = True): SmallInt;
     //
-    procedure ReadStream(AStream: TIdStream2; AByteCount: Int64 = -1;
+    procedure ReadStream(AStream: TIdStream; AByteCount: Int64 = -1;
      AReadUntilDisconnect: Boolean = False); virtual;
     procedure ReadStrings(ADest: TIdStrings; AReadLinesCount: Integer = -1);
     //
@@ -737,7 +737,7 @@ type
     function InputBufferIsEmpty: Boolean;
     //
     // These two are direct access and do no reading of connection
-    procedure InputBufferToStream(AStream: TIdStream2; AByteCount: Integer = -1);
+    procedure InputBufferToStream(AStream: TIdStream; AByteCount: Integer = -1);
     function InputBufferAsString: string;
     //
     // Properties
@@ -1208,7 +1208,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(AStream: TIdStream2; ASize: Int64 = 0;
+procedure TIdIOHandler.Write(AStream: TIdStream; ASize: Int64 = 0;
  AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
@@ -1319,7 +1319,7 @@ begin
    and Opened;
 end;
 
-procedure AdjustStreamSize(const AStream: TIdStream2; const ASize: Int64);
+procedure AdjustStreamSize(const AStream: TIdStream; const ASize: Int64);
 var
   LStreamPos: Int64;
 begin
@@ -1331,7 +1331,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.ReadStream(AStream: TIdStream2; AByteCount: Int64;
+procedure TIdIOHandler.ReadStream(AStream: TIdStream; AByteCount: Int64;
   AReadUntilDisconnect: Boolean);
 var
   i: Integer;
@@ -1472,7 +1472,7 @@ procedure TIdIOHandler.PerformCapture(const ADest: TObject;
   AIsRFCMessage: Boolean);
 var
   s: string;
-  LStream: TIdStream2;
+  LStream: TIdStream;
   LStrings: TIdStrings;
 begin
   VLineCount := 0;
@@ -1482,8 +1482,8 @@ begin
 
   if ADest is TIdStrings then begin
     LStrings := TIdStrings(ADest);
-  end else if ADest is TIdStream2 then begin
-    LStream := TIdStream2(ADest);
+  end else if ADest is TIdStream then begin
+    LStream := TIdStream(ADest);
   end else begin
     EIdObjectTypeNotSupported.Toss(RSObjectTypeNotSupported);
   end;
@@ -1620,13 +1620,13 @@ begin
   until False;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TIdStream2; out VLineCount: Integer;
+procedure TIdIOHandler.Capture(ADest: TIdStream; out VLineCount: Integer;
   const ADelim: string; AIsRFCMessage: Boolean);
 begin
   PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage);
 end;
 
-procedure TIdIOHandler.Capture(ADest: TIdStream2; ADelim: string;
+procedure TIdIOHandler.Capture(ADest: TIdStream; ADelim: string;
   AIsRFCMessage: Boolean);
 var
   LLineCount: Integer;
@@ -1648,7 +1648,7 @@ begin
   PerformCapture(ADest, LLineCount, ADelim, AIsRFCMessage);
 end;
 
-procedure TIdIOHandler.InputBufferToStream(AStream: TIdStream2; AByteCount: Integer = -1);
+procedure TIdIOHandler.InputBufferToStream(AStream: TIdStream; AByteCount: Integer = -1);
 begin
   FInputBuffer.ExtractToStream(AStream, AByteCount);
 end;
@@ -1702,7 +1702,7 @@ end;
 function TIdIOHandler.WriteFile(const AFile: String; AEnableTransferFile: Boolean): Int64;
 var
 //TODO: There is a way in linux to dump a file to a socket as well. use it.
-  LStream: TIdStream2;
+  LStream: TIdStream;
 begin
   EIdFileNotFound.IfFalse(Sys.FileExists(AFile), Sys.Format(RSFileNotFound, [AFile]));
   LStream := TReadFileExclusiveStream.Create(AFile); try
@@ -1739,7 +1739,7 @@ begin
   FReadTimeOut := IdTimeoutDefault;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TIdStream2);
+procedure TIdIOHandler.Capture(ADest: TIdStream);
 var
   LLineCount: Integer;
 begin
