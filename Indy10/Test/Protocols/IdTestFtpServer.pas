@@ -17,6 +17,7 @@ type
 
   TIdTestFtpServer = class(TIdTest)
   private
+    procedure CallbackRetrieve(ASender: TIdFTPServerContext; const AFileName: string; var VStream: TIdStream2);
     procedure CallbackStore(ASender: TIdFTPServerContext; const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
   published
     procedure TestBasic;
@@ -35,6 +36,25 @@ const
   cTestFtpPort=20021;
   cContent='HELLO';
   cUploadTo='file.txt';
+  cGoodFilename='good.txt';
+  cUnknownFilename='unknown.txt';
+  cErrorFilename='error.txt';
+
+procedure TIdTestFtpServer.CallbackRetrieve(ASender: TIdFTPServerContext;
+  const AFileName: string; var VStream: TIdStream2);
+begin
+ if AFileName=cGoodFilename then
+   begin
+   VStream:=TIdStringStream.Create(cContent);
+   end
+ else if AFileName=cErrorFilename then
+   begin
+   Assert(False);
+   end
+ else if AFileName=cUnknownFilename then
+   begin
+   end;
+end;
 
 procedure TIdTestFtpServer.CallbackStore(ASender: TIdFTPServerContext;
   const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
@@ -117,6 +137,7 @@ begin
     s.Greeting.Text.Text:=cGreeting;
     s.DefaultPort:=cTestFtpPort;
     s.OnStoreFile:=CallbackStore;
+    s.OnRetrieveFile:=CallbackRetrieve;
     s.Active:=True;
 
     c.Port:=cTestFtpPort;
@@ -135,7 +156,7 @@ begin
     c.Password:='bob@example.com';
     c.Login;
 
-    //check stream upload 
+    //check stream upload
     aStream:=TIdStringStream.Create(cContent);
     try
     c.Put(aStream,cUploadTo);
@@ -145,11 +166,32 @@ begin
 
     //check no dest filename
     //check missing source file
-    //check file upload rejected by server
+    //check file upload rejected by server. eg out of space?
 
     //check normal file upload. create a temp file? use c:\?
     //c.Put('c:\test.txt',cUploadTo);
 
+    //test resume
+    //test download unknown file
+
+    aStream:=TIdStringStream.Create('');
+    try
+    //test download to stream
+    c.Get(cGoodFilename,aStream);
+    Assert(aStream.DataString=cContent);
+
+    //test exception on server gets sent to client
+    aStream.Size:=0;
+    try
+    c.Get(cUnknownFilename,aStream);
+    Assert(False);
+    except
+    //expect to be here
+    end;
+
+    finally
+    Sys.FreeAndNil(aStream);
+    end;
   finally
     Sys.FreeAndNil(c);
     Sys.FreeAndNil(s);
