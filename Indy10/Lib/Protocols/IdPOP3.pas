@@ -467,6 +467,8 @@ function TIdPOP3.RetrieveMailBoxSize: integer;
 var
   CurrentLine: string;
 begin
+  // Kudzu: Why is this needed? Stat returns this value....
+  //
   // Returns the size of the mailbox. Issues a LIST command and then
   // sums up each message size. The message sizes are returned in the format
   // 1 1400 2 405 3 100 etc....
@@ -496,13 +498,10 @@ begin
   Result := -1;
   // Returns the size of the message. if an error ocurrs, returns -1.
   SendCmd('LIST ' + Sys.IntToStr(MsgNum), ST_OK);    {Do not Localize}
-  s := LastCmdResult.Text[0];
-  if Length(s) > 0 then begin
-    // RL - ignore the message number, grab just the octets,
-    // and ignore everything else that may be present
-    Fetch(s);
-    Result := Sys.StrToInt(Fetch(s), -1);
-  end;
+  // RL - ignore the message number, grab just the octets,
+  // and ignore everything else that may be present
+  Fetch(s);
+  Result := Sys.StrToInt(Fetch(s), -1);
 end;
 
 function TIdPOP3.UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
