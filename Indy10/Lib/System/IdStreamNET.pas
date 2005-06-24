@@ -26,19 +26,19 @@ uses
 type
   TIdStreamHelperNET = class
   public
-    class function ReadBytes(AStream: TIdStream2;
+    class function ReadBytes(AStream: TIdStream;
                          var VBytes: TIdBytes;
                              ACount: Integer = -1;
                              AOffset: Integer = 0): Integer; static;
     class procedure Write(
-          const AStream: TIdStream2;
+          const AStream: TIdStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1); static;
   end;
 
 implementation
 
-class function TIdStreamHelperNET.ReadBytes(AStream: TIdStream2; var VBytes: TIdBytes;
+class function TIdStreamHelperNET.ReadBytes(AStream: TIdStream; var VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
 var
  aActual:Integer;
@@ -66,7 +66,7 @@ begin
   Result := AStream.Read(VBytes, AOffset, AActual);
 end;
 
-class procedure TIdStreamHelperNET.Write(const AStream: TIdStream2;
+class procedure TIdStreamHelperNET.Write(const AStream: TIdStream;
   const ABytes: TIdBytes; const ACount: Integer);
 var
  aActual:Integer;
