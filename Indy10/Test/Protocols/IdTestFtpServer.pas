@@ -58,8 +58,8 @@ end;
 
 procedure TIdTestFtpServer.CallbackStore(ASender: TIdFTPServerContext;
   const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
-var
-  s:string;
+//var
+//  s:string;
 begin
   Assert(VStream=nil);
   if AFileName=cUploadTo then
