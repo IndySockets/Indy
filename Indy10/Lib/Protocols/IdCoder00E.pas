@@ -51,7 +51,7 @@ type
 
   TIdEncoder00E = class(TIdEncoder3to4)
   public
-    function Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt)
+    function Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt)
      : string; override;
   end;
 
@@ -73,7 +73,7 @@ end;
 
 { TIdEncoder00E }
 
-function TIdEncoder00E.Encode(ASrcStream: TIdStream2; const ABytes: integer): string;
+function TIdEncoder00E.Encode(ASrcStream: TIdStream; const ABytes: integer): string;
 var
   LStart: Integer;
 begin

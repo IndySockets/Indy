@@ -243,7 +243,7 @@ type
   TOnCreateSession = procedure(ASender:TIdContext;
    var VHTTPSession: TIdHTTPSession) of object;
   TOnCreatePostStream = procedure(AContext: TIdContext;
-   var VPostStream: TIdStream2) of object;
+   var VPostStream: TIdStream) of object;
   TIdHTTPCommandEvent = procedure(AContext:TIdContext;
    ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo) of object;
   TIdHTTPInvalidSessionEvent = procedure(AContext: TIdContext;
@@ -261,7 +261,7 @@ type
     FAuthExists: Boolean;
     FCookies: TIdServerCookies;
     FParams: TIdStrings;
-    FPostStream: TIdStream2;
+    FPostStream: TIdStream;
     FRawHTTPCommand: string;
     FRemoteIP: string;
     FSession: TIdHTTPSession;
@@ -289,7 +289,7 @@ type
     property Cookies: TIdServerCookies read FCookies;
     property Document: string read FDocument write FDocument; // writable for isapi compatibility. Use with care
     property Params: TIdStrings read FParams;
-    property PostStream: TIdStream2 read FPostStream write FPostStream;
+    property PostStream: TIdStream read FPostStream write FPostStream;
     property RawHTTPCommand: string read FRawHTTPCommand;
     property RemoteIP: String read FRemoteIP;
     property UnparsedParams: string read FUnparsedParams write FUnparsedParams; // writable for isapi compatibility. Use with care
@@ -305,7 +305,7 @@ type
     FConnection: TIdTCPConnection;
     FResponseNo: Integer;
     FCookies: TIdServerCookies;
-    FContentStream: TIdStream2;
+    FContentStream: TIdStream;
     FContentText: string;
     FCloseConnection: Boolean;
     FFreeContentStream: Boolean;
@@ -335,7 +335,7 @@ type
     //
     property AuthRealm: string read FAuthRealm write FAuthRealm;
     property CloseConnection: Boolean read FCloseConnection write SetCloseConnection;
-    property ContentStream: TIdStream2 read FContentStream write FContentStream;
+    property ContentStream: TIdStream read FContentStream write FContentStream;
     property ContentText: string read FContentText write FContentText;
     property Cookies: TIdServerCookies read FCookies write SetCookies;
     property FreeContentStream: Boolean read FFreeContentStream write FFreeContentStream;
@@ -424,10 +424,10 @@ type
      AResponseInfo: TIdHTTPResponseInfo); virtual;
     procedure DoCommandOther(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo); virtual;
-    procedure CreatePostStream(ASender: TIdContext; var VPostStream: TIdStream2); virtual;
+    procedure CreatePostStream(ASender: TIdContext; var VPostStream: TIdStream); virtual;
     procedure DoConnect(AContext: TIdContext); override;
     procedure DoCreatePostStream(ASender: TIdContext;
-     var VPostStream: TIdStream2);
+     var VPostStream: TIdStream);
     function DoExecute(AContext:TIdContext): Boolean; override;
     procedure SetActive(AValue: Boolean); override;
     procedure SetSessionState(const Value: Boolean);
@@ -967,7 +967,7 @@ begin
 end;
 
 procedure TIdCustomHTTPServer.DoCreatePostStream(ASender: TIdContext;
-  var VPostStream: TIdStream2);
+  var VPostStream: TIdStream);
 begin
   if Assigned(OnCreatePostStream) then begin
     OnCreatePostStream(ASender, VPostStream);
@@ -975,7 +975,7 @@ begin
 end;
 
 procedure TIdCustomHTTPServer.CreatePostStream(ASender: TIdContext;
-  var VPostStream: TIdStream2);
+  var VPostStream: TIdStream);
 begin
   DoCreatePostStream(ASender, VPostStream);
 end;

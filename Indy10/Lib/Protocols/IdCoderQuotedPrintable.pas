@@ -136,7 +136,7 @@ type
 
   TIdEncoderQuotedPrintable = class(TIdEncoder)
   public
-    function Encode(ASrcStream: TIdStream2; const ABytes: integer = MaxInt): string; override;
+    function Encode(ASrcStream: TIdStream; const ABytes: integer = MaxInt): string; override;
   end;
 
 implementation
@@ -262,7 +262,7 @@ begin
 end;
 
 { TIdEncoderQuotedPrintable }
-function TIdEncoderQuotedPrintable.Encode(ASrcStream: TIdStream2; const ABytes: integer): string;
+function TIdEncoderQuotedPrintable.Encode(ASrcStream: TIdStream; const ABytes: integer): string;
 const
   SafeChars = [#33..#60, #62..#126];
   HalfSafeChars = [#32, TAB];

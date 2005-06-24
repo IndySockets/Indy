@@ -173,7 +173,7 @@ type
     procedure InitComponent; override;
   public
     //We cannot override Encode because we need different parameters...
-    procedure EncodeFile(AFileName: string; ASrcStream: TIdStream2; ADestStream: TIdStream2);
+    procedure EncodeFile(AFileName: string; ASrcStream: TIdStream; ADestStream: TIdStream);
   end;
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
   protected
@@ -377,7 +377,7 @@ begin
   end;
 end;
 
-procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TIdStream2; ADestStream: TIdStream2);
+procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TIdStream; ADestStream: TIdStream);
 var
   LN: integer;
   LM: integer;

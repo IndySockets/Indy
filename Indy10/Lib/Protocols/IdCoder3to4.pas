@@ -169,7 +169,7 @@ type
     FFillChar: Char;
     function EncodeIdBytes(ABuffer: TIdBytes): TIdBytes;
   public
-    function Encode(ASrcStream: TIdStream2;
+    function Encode(ASrcStream: TIdStream;
      const ABytes: Integer = MaxInt): string; override;
     //procedure EncodeUnit(const AIn1, AIn2, AIn3: Byte; var VOut: TIdBytes);
   published
@@ -325,7 +325,7 @@ end;
 
 { TIdEncoder3to4 }
 
-function TIdEncoder3to4.Encode(ASrcStream: TIdStream2; const ABytes: Integer = MaxInt): string;
+function TIdEncoder3to4.Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt): string;
 //TODO: Make this more efficient. Profile it to test, but maybe make single
 // calls to ReadBuffer then pull from memory
 var
