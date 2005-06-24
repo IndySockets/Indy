@@ -75,9 +75,9 @@ type
     procedure RaiseError(const errorpacket: string);
     procedure InitComponent; override;
   public
-    procedure Get(const ServerFile: String; DestinationStream: TIdStream2); overload;
+    procedure Get(const ServerFile: String; DestinationStream: TIdStream); overload;
     procedure Get(const ServerFile, LocalFile: String); overload;
-    procedure Put(SourceStream: TIdStream2; const ServerFile: String); overload;
+    procedure Put(SourceStream: TIdStream; const ServerFile: String); overload;
     procedure Put(const LocalFile, ServerFile: String); overload;
   published
     property TransferMode: TIdTFTPMode read FMode write FMode Default GTransferMode;
@@ -129,7 +129,7 @@ begin
   ReceiveTimeout := GReceiveTimeout;
 end;
 
-procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TIdStream2);
+procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TIdStream);
 var
   s: string;
   RcvTimeout,
@@ -227,7 +227,7 @@ begin
   end;
 end;
 
-procedure TIdTrivialFTP.Put(SourceStream: TIdStream2; const ServerFile: String);
+procedure TIdTrivialFTP.Put(SourceStream: TIdStream; const ServerFile: String);
 var
   CurrentDataBlk,
   s: string;
