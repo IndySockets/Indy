@@ -63,7 +63,7 @@ type
   private
   protected
     FFilename: string;
-    FStream: TIdStream2;
+    FStream: TIdStream;
     //
     procedure SetFilename(AValue: string);
     procedure WriteRecord(
