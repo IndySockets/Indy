@@ -741,7 +741,7 @@ type
   TIdCreateFTPList = procedure(ASender: TIdBaseObject; Var VFTPList: TIdFTPListItems) of object;
 //  TIdCheckListFormat = procedure(ASender: TObject; const ALine: String; Var VListFormat: TIdFTPListFormat) of object;
   TOnAfterClientLogin = TIdNotifyEvent;
-  TIdFtpAfterGet = procedure (ASender: TIdBaseObject; VStream: TIdStream2) of object; //APR
+  TIdFtpAfterGet = procedure (ASender: TIdBaseObject; VStream: TIdStream) of object; //APR
   TIdOnDataChannelCreate = procedure (ASender: TIdBaseObject; ADataChannel: TIdTCPConnection) of object;
   TIdOnDataChannelDestroy = procedure (ASender: TIdBaseObject; ADataChannel: TIdTCPConnection) of object;
   TIdNeedAccountEvent = procedure (ASender: TIdBaseObject; Var VAcct: string) of object;
@@ -952,8 +952,8 @@ type
     //before issuing a PASV.  See: http://drftpd.mog.se/wiki/wiki.phtml?title=Distributed_PASV#PRE_Transfer_Command_for_Distributed_PASV_Transfers
     //for a discussion.
     procedure SendPret(const ACommand : String);
-    procedure InternalGet(const ACommand: string; ADest: TIdStream2; AResume: Boolean = false);
-    procedure InternalPut(const ACommand: string; ASource: TIdStream2; AFromBeginning: Boolean = true);
+    procedure InternalGet(const ACommand: string; ADest: TIdStream; AResume: Boolean = false);
+    procedure InternalPut(const ACommand: string; ASource: TIdStream; AFromBeginning: Boolean = true);
 //    procedure SetOnParseCustomListFormat(const AValue: TIdOnParseCustomListFormat);
     procedure SendPassive(var VIP: string; var VPort: integer);
     procedure SendPort(AHandle: TIdSocketHandle); overload;
@@ -968,8 +968,8 @@ type
     procedure SendTransferType;
     procedure SetTransferType(AValue: TIdFTPTransferType);
     procedure DoBeforeGet; virtual;
-    procedure DoBeforePut (AStream: TIdStream2); virtual;
-    procedure DoAfterGet (AStream: TIdStream2); virtual; //APR
+    procedure DoBeforePut (AStream: TIdStream); virtual;
+    procedure DoAfterGet (AStream: TIdStream); virtual; //APR
     procedure DoAfterPut; virtual;
     function IsValidOTPString(const AResponse:string):boolean;
     function GenerateOTP(const AResponse:string; const APassword:string):string;
@@ -994,11 +994,12 @@ type
     function IsTitan : Boolean;
 	  function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
-
+    function GetSupportsVerification : Boolean;
     //
     // holger: .NET compatibility change
     property IPVersion;
   public
+
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TIdStrings);
     //this function transparantly handles OTP based on the Last command response
@@ -1015,7 +1016,7 @@ type
     destructor Destroy; override;
     procedure Delete(const AFilename: string);
     procedure FileStructure(AStructure: TIdFTPDataStructure);
-    procedure Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = false); overload;
+    procedure Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
     procedure Help(var AHelpContents: TIdStringList; ACommand: String = '');
     procedure KillDataChannel; virtual;
@@ -1037,12 +1038,12 @@ type
     procedure MakeDir(const ADirName: string);
     procedure Noop;
     procedure SetCMDOpt(const ACMD, AOptions : String);
-    procedure Put(const ASource: TIdStream2; const ADestFile: string;
+    procedure Put(const ASource: TIdStream; const ADestFile: string;
      const AAppend: boolean = false); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string = '';
      const AAppend: boolean = false); overload;
 
-    procedure StoreUnique(const ASource: TIdStream2); overload;
+    procedure StoreUnique(const ASource: TIdStream); overload;
     procedure StoreUnique(const ASourceFile: string); overload;
 
     procedure SiteToSiteUpload(const AToSite : TIdFTP; const ASourceFile : String; const ADestFile : String = '');
@@ -1061,7 +1062,12 @@ type
     procedure TransferMode(ATransferMode: TIdFTPTransferMode);
     procedure ReInitialize(ADelay: Cardinal = 10);
     procedure SetLang(const ALangTag : String);
-    function CRC(const AFIleName : String; const AStartPoint : Cardinal = 0; const AEndPoint : Int64=0) : Int64;
+    function CRC(const AFIleName : String; const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Int64;
+    //verify file was uploaded, this is more comprehensive than the above
+    function VerifyFile(ALocalFile : TIdStream; const ARemoteFile : String;
+      const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Boolean; overload;
+    function VerifyFile(const ALocalFile, ARemoteFile : String;
+      const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Boolean; overload;
     //file parts must be in order in TIdStrings parameter
     //GlobalScape FTP Pro uses this for multipart simultanious file uploading
     procedure CombineFiles(const ATargetFile : String; AFileParts : TIdStrings);
@@ -1073,6 +1079,7 @@ type
     //listed in the FEAT reply.
     function IsServerMDTZAndListTForm : Boolean;
     //
+    property SupportsVerification : Boolean read GetSupportsVerification;
     property CanResume: Boolean read ResumeSupported;
     property DirectoryListing: TIdFTPListItems read GetDirectoryListing;
     property DirFormat : String read FDirFormat;
@@ -1390,7 +1397,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream2; AResume: Boolean = False);
+procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = False);
 begin
   //for SSL FXP, we have to do it here because InternalGet is used by the LIST command
   //where SSCN is ignored.
@@ -1403,7 +1410,7 @@ end;
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = False;
   AResume: Boolean = false);
 var
-  LDestStream: TIdStream2;
+  LDestStream: TIdStream;
 begin
 
     AResume := AResume and CanResume;
@@ -1433,7 +1440,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.DoBeforePut (AStream: TIdStream2);
+procedure TIdFTP.DoBeforePut (AStream: TIdStream);
 begin
   if Assigned(FOnBeforePut) then
   begin
@@ -1441,7 +1448,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.DoAfterGet (AStream: TIdStream2);//APR
+procedure TIdFTP.DoAfterGet (AStream: TIdStream);//APR
 Begin
   if Assigned(FOnAfterGet) then
   begin
@@ -1592,7 +1599,7 @@ This is a bug fix for servers will do something like this:
 end;
 
 
-procedure TIdFTP.InternalPut(const ACommand: string; ASource: TIdStream2; AFromBeginning: Boolean = true);
+procedure TIdFTP.InternalPut(const ACommand: string; ASource: TIdStream; AFromBeginning: Boolean = true);
 var
   LIP: string;
   LPort: Integer;
@@ -1720,7 +1727,7 @@ begin
 end;
 
 
-procedure TIdFTP.InternalGet(const ACommand: string; ADest: TIdStream2; AResume: Boolean = false);
+procedure TIdFTP.InternalGet(const ACommand: string; ADest: TIdStream; AResume: Boolean = false);
 var
   LIP: string;
   LPort: Integer;
@@ -1935,7 +1942,7 @@ begin
   FDataChannel.OnWorkEnd := OnWorkEnd;
 end;
 
-procedure TIdFTP.Put(const ASource: TIdStream2; const ADestFile: string;
+procedure TIdFTP.Put(const ASource: TIdStream; const ADestFile: string;
  const AAppend: boolean = false);
 begin
   EIdFTPUploadFileNameCanNotBeEmpty.IfTrue(ADestFile = '', RSFTPFileNameCanNotBeEmpty);
@@ -1951,7 +1958,7 @@ end;
 procedure TIdFTP.Put(const ASourceFile: string; const ADestFile: string='';
  const AAppend: boolean = false);
 var
-  LSourceStream: TIdStream2;
+  LSourceStream: TIdStream;
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;
@@ -1963,14 +1970,14 @@ begin
   finally Sys.FreeAndNil(LSourceStream); end;
 end;
 
-procedure TIdFTP.StoreUnique(const ASource: TIdStream2);
+procedure TIdFTP.StoreUnique(const ASource: TIdStream);
 begin
   InternalPut('STOU', ASource);  {Do not localize}
 end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
 var
-  LSourceStream: TIdStream2;
+  LSourceStream: TIdStream;
 begin
   LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
     StoreUnique(LSourceStream);
@@ -3027,7 +3034,7 @@ begin
   end;
 end;
 
-function TIdFTP.CRC(const AFIleName : String; const AStartPoint : Cardinal = 0;
+function TIdFTP.CRC(const AFIleName : String; const AStartPoint : Int64 = 0;
   const AEndPoint : Int64=0) : Int64;
 var LCMD : String;
     LCRC : String;
@@ -3874,6 +3881,46 @@ begin
       Result :=  FAccount<>'';
     end;
   end;
+end;
+
+function TIdFTP.GetSupportsVerification: Boolean;
+//we can use one of three commands for verifying a file or stream
+begin
+  Result := Connected;
+  if Result then
+  begin
+    Result := IsExtSupported('XSHA1') or IsExtSupported('XMD5') or
+      IsExtSupported('XCRC');
+  end;
+end;
+
+function TIdFTP.VerifyFile(const ALocalFile, ARemoteFile: String;
+  const AStartPoint, AEndPoint: Int64): Boolean;
+var
+  LLocalStream: TIdStream;
+  LRemoteFileName : String;
+begin
+  LRemoteFileName := ARemoteFile;
+  if LRemoteFileName = '' then begin
+    LRemoteFileName := Sys.ExtractFileName(ARemoteFile);
+  end;
+  LLocalStream := TReadFileNonExclusiveStream.Create(ALocalFile); try
+    VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AEndPoint);
+  finally Sys.FreeAndNil(LLocalStream); end;
+end;
+
+function TIdFTP.VerifyFile(ALocalFile: TIdStream; const ARemoteFile: String;
+  const AStartPoint, AEndPoint: Int64): Boolean;
+var LRemoteCRC : String;
+begin
+  if IsExtSupported('XSHA1') then
+  begin
+    LRemoteCRC := '';
+  end
+  else
+  begin
+  end;
+  ALocalFile.Position := AStartPoint;
 end;
 
 end.
