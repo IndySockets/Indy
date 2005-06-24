@@ -75,7 +75,7 @@ type
   TIdLogFile = class(TIdLogBase)
   protected
     FFilename: String;
-    FFileStream: TIdStream2;
+    FFileStream: TIdStream;
     //
     procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
     procedure LogReceivedData(AText: string; AData: string); override;

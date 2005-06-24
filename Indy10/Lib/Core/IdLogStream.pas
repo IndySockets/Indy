@@ -49,8 +49,8 @@ type
   TIdLogStream = class(TIdLogBase)
   protected
     FFreeStreams: Boolean;
-    FReceiveStream: TIdStream2;
-    FSendStream: TIdStream2;
+    FReceiveStream: TIdStream;
+    FSendStream: TIdStream;
     //
     procedure InitComponent; override;
     procedure LogStatus(AText: string); override;
@@ -60,8 +60,8 @@ type
     procedure Disconnect; override;
     //
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
-    property ReceiveStream: TIdStream2 read FReceiveStream write FReceiveStream;
-    property SendStream: TIdStream2 read FSendStream write FSendStream;
+    property ReceiveStream: TIdStream read FReceiveStream write FReceiveStream;
+    property SendStream: TIdStream read FSendStream write FSendStream;
   end;
 
 implementation

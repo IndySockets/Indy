@@ -83,7 +83,7 @@ uses
 
 type
 
-  TIdTCPStream = class(TIdStream2)
+  TIdTCPStream = class(TIdStream)
   protected
     FConnection: TIdTCPConnection;
     {$IFDEF DotNetDistro}
