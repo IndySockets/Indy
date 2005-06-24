@@ -121,7 +121,7 @@ type
    EIdEmailParseError = class(EIdException);
 
    { ToDo: look into alterations required for TIdEMailAddressItem.GetText }
-   TIdEMailAddressItem = class (TIdCollectionItem)
+   TIdEMailAddressItem = class(TIdCollectionItem)
    protected
      FAddress: string;
      FName: string;
@@ -134,6 +134,9 @@ type
      procedure SetUsername(const AUsername: String);
    public
      procedure Assign(Source: TIdPersistent); override;
+     constructor Create; reintroduce; overload;
+     constructor Create(aCollection: TIdCollection); overload; override;
+     constructor Create(aText: string); reintroduce; overload;
    published
      { This is the E-Mail address itself }
      property Address: string read FAddress write FAddress;
@@ -720,6 +723,22 @@ begin
     // No special characters, so assume a simple address
     FAddress := AText;
   end;
+end;
+
+constructor TIdEMailAddressItem.Create;
+begin
+  inherited Create(nil);
+end;
+
+constructor TIdEMailAddressItem.Create(aCollection: TIdCollection);
+begin
+  inherited Create(aCollection);
+end;
+
+constructor TIdEMailAddressItem.Create(aText: string);
+begin
+  inherited Create(nil);
+  Text := aText;
 end;
 
 { TIdEMailAddressList }

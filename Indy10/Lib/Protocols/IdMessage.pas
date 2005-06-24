@@ -722,9 +722,9 @@ begin
   FHeaders := TIdHeaderList.Create;
   FFromList := TIdEmailAddressList.Create(Self);
   FReplyTo := TIdEmailAddressList.Create(Self);
-  FSender := TIdEmailAddressItem.Create(nil);
+  FSender := TIdEmailAddressItem.Create;
   FExtraHeaders := TIdHeaderList.Create;
-  FReceiptRecipient := TIdEmailAddressItem.Create(nil);
+  FReceiptRecipient := TIdEmailAddressItem.Create;
   NoDecode := ID_MSG_NODECODE;
   FMIMEBoundary := TIdMIMEBoundary.Create;
   FLastGeneratedHeaders := TIdHeaderList.Create;
