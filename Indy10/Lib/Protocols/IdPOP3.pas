@@ -260,6 +260,7 @@ type
   protected
     FAuthType : TIdPOP3AuthenticationType;
     FAutoLogin: Boolean;
+    FAPOPToken : String; 
     FHasAPOP: Boolean;
     FHasCAPA: Boolean;
     FSASLMechanisms : TIdSASLEntries;
@@ -358,7 +359,7 @@ begin
         if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(S+Password)));
+            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(FAPOPToken+Password)));
           finally
             Free;
           end;//try
@@ -633,7 +634,7 @@ begin
   end else begin
     S := ''; //no time-stamp    {Do not Localize}
   end;
-
+  FAPOPToken := S;
   FHasAPOP := (Length(S) > 0);
   CAPA;
   if FAutoLogin then begin
