@@ -55,9 +55,9 @@ type
     constructor Create(Collection: TIdMessageParts; const AFileName: String = ''); reintroduce;
     destructor Destroy; override;
 
-    function OpenLoadStream: TIdStream2; override;
+    function OpenLoadStream: TIdStream; override;
     procedure CloseLoadStream; override;
-    function PrepareTempStream: TIdStream2; override;
+    function PrepareTempStream: TIdStream; override;
     procedure FinishTempStream; override;
 
     procedure SaveToFile(const FileName: String); override;
@@ -108,13 +108,13 @@ begin
   end;
 end;
 
-function TIdAttachmentFile.OpenLoadStream: TIdStream2;
+function TIdAttachmentFile.OpenLoadStream: TIdStream;
 begin
   FTempFileStream := TReadFileExclusiveStream.Create(StoredPathName);
   Result := FTempFileStream;
 end;
 
-function TIdAttachmentFile.PrepareTempStream: TIdStream2;
+function TIdAttachmentFile.PrepareTempStream: TIdStream;
 begin
   if Assigned(Collection) and (TIdMessageParts(Collection).OwnerMessage is TIdMessage) then
     FStoredPathName := MakeTempFilename(TIdMessage(TIdMessageParts(Collection).OwnerMessage).AttachmentTempDirectory)

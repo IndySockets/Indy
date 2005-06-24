@@ -80,7 +80,7 @@ type
     //  3) this will be called - first OpenLoadStream, to get a stream
     //  4) when the message is fully encoded, CloseLoadStream is called
     //     to close the stream. The Attachment implementation decides what to do
-    function OpenLoadStream: TIdStream2; virtual; abstract;
+    function OpenLoadStream: TIdStream; virtual; abstract;
     procedure CloseLoadStream; virtual; abstract;
 
     // for save handling
@@ -89,10 +89,10 @@ type
     //  2) PrepareTempStream is called
     //  3) stuff is loaded
     //  4) FinishTempStream is called of the newly created attachment
-    function  PrepareTempStream: TIdStream2; virtual; abstract;
+    function  PrepareTempStream: TIdStream; virtual; abstract;
     procedure FinishTempStream; virtual; abstract;
     procedure SaveToFile(const FileName: String); virtual;
-    procedure SaveToStream(const Stream: TIdStream2); virtual;
+    procedure SaveToStream(const Stream: TIdStream); virtual;
 
     procedure Assign(Source: TIdPersistent); override;
 
@@ -171,9 +171,9 @@ begin
   end;
 end;
 
-procedure TIdAttachment.SaveToStream(const Stream: TIdStream2);
+procedure TIdAttachment.SaveToStream(const Stream: TIdStream);
 var
-  os: TIdStream2;
+  os: TIdStream;
 begin
   os := OpenLoadStream;
   try
