@@ -36,12 +36,12 @@ type
   //currently just implements gzip decompression. 
   TIdCompressorAbbrevia = class(TIdZLibCompressorBase)
   public
-    procedure DecompressGZipStream(AStream : TIdStream2; const AOutStream : TIdStream2=nil); override;
+    procedure DecompressGZipStream(AStream : TIdStream; const AOutStream : TIdStream=nil); override;
   end;
 
 implementation
 
-procedure TIdCompressorAbbrevia.DecompressGZipStream(AStream: TIdStream2; const AOutStream: TIdStream2);
+procedure TIdCompressorAbbrevia.DecompressGZipStream(AStream: TIdStream; const AOutStream: TIdStream);
 var
   aGz:TAbGzipStreamHelper;
   aDest:TIdMemoryStream;
