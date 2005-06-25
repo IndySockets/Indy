@@ -92,7 +92,7 @@ type
     function  PrepareTempStream: TIdStream; virtual; abstract;
     procedure FinishTempStream; virtual; abstract;
     procedure SaveToFile(const FileName: String); virtual;
-    procedure SaveToStream(const Stream: TIdStream); virtual;
+    procedure SaveToStream(AStream: TIdStream); virtual;
 
     procedure Assign(Source: TIdPersistent); override;
 
@@ -171,13 +171,13 @@ begin
   end;
 end;
 
-procedure TIdAttachment.SaveToStream(const Stream: TIdStream);
+procedure TIdAttachment.SaveToStream(AStream: TIdStream);
 var
   os: TIdStream;
 begin
   os := OpenLoadStream;
   try
-    Stream.CopyFrom(os, 0);
+    AStream.CopyFrom(os, 0);
   finally
     CloseLoadStream;
   end;
