@@ -17,8 +17,8 @@ type
 
   TIdTestFtpServer = class(TIdTest)
   private
-    procedure CallbackRetrieve(ASender: TIdFTPServerContext; const AFileName: string; var VStream: TIdStream2);
-    procedure CallbackStore(ASender: TIdFTPServerContext; const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
+    procedure CallbackRetrieve(ASender: TIdFTPServerContext; const AFileName: string; var VStream: TIdStream);
+    procedure CallbackStore(ASender: TIdFTPServerContext; const AFileName: string; AAppend: Boolean; var VStream: TIdStream);
   published
     procedure TestBasic;
     procedure TestMethods;
@@ -41,7 +41,7 @@ const
   cErrorFilename='error.txt';
 
 procedure TIdTestFtpServer.CallbackRetrieve(ASender: TIdFTPServerContext;
-  const AFileName: string; var VStream: TIdStream2);
+  const AFileName: string; var VStream: TIdStream);
 begin
  if AFileName=cGoodFilename then
    begin
@@ -57,7 +57,7 @@ begin
 end;
 
 procedure TIdTestFtpServer.CallbackStore(ASender: TIdFTPServerContext;
-  const AFileName: string; AAppend: Boolean; var VStream: TIdStream2);
+  const AFileName: string; AAppend: Boolean; var VStream: TIdStream);
 //var
 //  s:string;
 begin

@@ -29,7 +29,7 @@ type
     procedure myTearDown;
     procedure CallbackRcptTo(ASender: TIdSMTPServerContext; const AAddress : string;
       var VAction : TIdRCPToReply; var VForward : string);
-    procedure CallbackMsgReceive(ASender: TIdSMTPServerContext; AMsg : TIdStream2;var LAction : TIdDataReply);
+    procedure CallbackMsgReceive(ASender: TIdSMTPServerContext; AMsg : TIdStream;var LAction : TIdDataReply);
     procedure CallbackMailFrom(ASender: TIdSMTPServerContext; const AAddress : string;
       var VAction : TIdMailFromReply);
   published
@@ -84,7 +84,7 @@ begin
 end;
 
 procedure TIdTestSMTPServer.CallbackMsgReceive(
-  ASender: TIdSMTPServerContext; AMsg: TIdStream2;
+  ASender: TIdSMTPServerContext; AMsg: TIdStream;
   var LAction: TIdDataReply);
 var
   aList:TIdStringList;
