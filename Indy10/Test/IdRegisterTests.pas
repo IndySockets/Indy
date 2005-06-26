@@ -30,9 +30,12 @@ uses
   IdTestCookie,
   IdTestFtpServer,
   IdTestHttp,
+  IdTestMD5Hash,
+  IdTestSHA1Hash,
   IdTestMessage,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
+  IdTestHttpServer,
   IdTestVCard;
 
 implementation
