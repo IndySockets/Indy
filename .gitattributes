@@ -833,8 +833,10 @@ Indy10/Test/Protocols/IdTestCookie.pas -text
 Indy10/Test/Protocols/IdTestFtpServer.pas -text
 Indy10/Test/Protocols/IdTestHttp.pas -text
 Indy10/Test/Protocols/IdTestHttpServer.pas -text
+Indy10/Test/Protocols/IdTestMD5Hash.pas -text
 Indy10/Test/Protocols/IdTestMessage.pas -text
 Indy10/Test/Protocols/IdTestMessageCoderMime.pas -text
+Indy10/Test/Protocols/IdTestSHA1Hash.pas -text
 Indy10/Test/Protocols/IdTestSMTPServer.pas -text
 Indy10/Test/Protocols/IdTestVCard.pas -text
 Indy10/Test/ReadMe.txt -text svneol=native#unset
