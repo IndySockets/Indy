@@ -67,7 +67,8 @@ type
     FCBuffer: T512BitRecord;
     procedure Coder;
   public
-    function HashValue(AStream: TIdStream): T5x4LongWordRecord; override;
+    function HashValue(AStream: TIdStream): T5x4LongWordRecord;  overload; override;
+    function HashValue( AStream: TIdStream; const ABeginPos, AEndPos: Int64) :  T5x4LongWordRecord;  overload;
   end;
 
 implementation
@@ -345,6 +346,62 @@ begin
   FCheckSum[2]:= FCheckSum[2] + C;
   FCheckSum[3]:= FCheckSum[3] + D;
   FCheckSum[4]:= FCheckSum[4] + E;
+end;
+
+function TIdHashSHA1.HashValue(AStream: TIdStream; const ABeginPos,
+  AEndPos: Int64): T5x4LongWordRecord;
+var
+  LSize: LongInt;
+  LLenHi: LongWord;
+  LLenLo: LongWord;
+  i: Integer;
+begin
+  FCheckSum[0] := $67452301;
+  FCheckSum[1] := $EFCDAB89;
+  FCheckSum[2] := $98BADCFE;
+  FCheckSum[3] := $10325476;
+  FCheckSum[4] := $C3D2E1F0;
+  LLenHi := 0;
+  LLenLo := 0;
+  repeat
+    LSize := AStream.Read(FCBuffer,BufferSize);
+    Inc(LLenLo,LSize*8);
+    if LLenLo < LongWord(LSize*8) then
+    begin
+      Inc(LLenHi);
+    end;
+    if LSize < BufferSize then begin
+      FCBuffer[LSize] := $80;
+      if LSize >= BufferSize - 8 then begin
+        for i := LSize + 1 to Pred(BufferSize) do
+        begin
+          FCBuffer[i] := 0;
+        end;
+        Coder;
+        LSize := -1;
+      end;
+      for i := LSize + 1 to Pred(BufferSize - 8) do
+      begin
+        FCBuffer[i] := 0;
+      end;
+      FCBuffer[BufferSize-8] := LLenHi shr 24;
+      FCBuffer[BufferSize-7] := (LLenHi shr 16) and $FF;
+      FCBuffer[BufferSize-6] := (LLenHi shr 8) and $FF;
+      FCBuffer[BufferSize-5] := LLenHi and $FF;
+      FCBuffer[BufferSize-4] := LLenLo shr 24;
+      FCBuffer[BufferSize-3] := (LLenLo shr 16) and $FF;
+      FCBuffer[BufferSize-2] := (LLenLo shr 8) and $FF;
+      FCBuffer[BufferSize-1] := LLenLo and $FF;
+      LSize := 0;
+    end;
+    Coder;
+  until LSize < BufferSize;
+  FCheckSum[0] := SwapLongWord(FCheckSum[0]);
+  FCheckSum[1] := SwapLongWord(FCheckSum[1]);
+  FCheckSum[2] := SwapLongWord(FCheckSum[2]);
+  FCheckSum[3] := SwapLongWord(FCheckSum[3]);
+  FCheckSum[4] := SwapLongWord(FCheckSum[4]);
+  Result:=FCheckSum;
 end;
 
 end.

@@ -348,8 +348,10 @@ begin
 
   // A straight assignment would be by ref on dotNET.
   for I := 0 to 3 do
+  begin
     FState[I] := MD4_INIT_VALUES[I];
-
+  end;
+  
   while LSize - AStream.Position >= 64 do
   begin
     AStream.Read(FCBuffer, 64);
@@ -366,7 +368,9 @@ begin
   if LStartPos > 56 then
   begin
     for I := LStartPos to 63 do
+    begin
       FCBuffer[I] := 0;
+    end;
     MDCoder;
     LStartPos := 0;
   end;
@@ -424,14 +428,17 @@ begin
   if LStartPos > 56 then
   begin
     for I := LStartPos to 63 do
+    begin
       FCBuffer[I] := 0;
+    end;
     MDCoder;
     LStartPos := 0;
   end;
   // Pad with zeroes. Leave room for the 64 bit size value.
   for I := LStartPos to 55 do
+  begin
     FCBuffer[I] := 0;
-
+  end;
   // Append the Number of bits processed.
   LBitSize := LSize * 8;
   for I := 56 to 63 do
@@ -480,11 +487,12 @@ begin
   D := FState[3];
 
   for i := 0 to 15 do
+  begin
     x[i] := FCBuffer[i*4+0] +
             (FCBuffer[i*4+1] shl 8) +
             (FCBuffer[i*4+2] shl 16) +
             (FCBuffer[i*4+3] shl 24);
-
+  end;
   { Round 1 }
   { Note:
       (x and y) or ( (not x) and z)
