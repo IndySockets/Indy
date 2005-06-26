@@ -1168,7 +1168,7 @@ implementation
 
 uses
   IdComponent, IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
-  IdSSL, IdGlobalProtocols,
+  IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA1, IdHashMessageDigest,
   IdStack, IdSimpleServer,
    IdOTPCalculator;
 
@@ -3905,22 +3905,116 @@ begin
     LRemoteFileName := Sys.ExtractFileName(ARemoteFile);
   end;
   LLocalStream := TReadFileNonExclusiveStream.Create(ALocalFile); try
-    VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AEndPoint);
+    Result := VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AEndPoint);
   finally Sys.FreeAndNil(LLocalStream); end;
 end;
 
 function TIdFTP.VerifyFile(ALocalFile: TIdStream; const ARemoteFile: String;
   const AStartPoint, AEndPoint: Int64): Boolean;
 var LRemoteCRC : String;
+  LLocalCRC : String;
+  LCmd : String;
+  LEndPos : Int64;
+  LHashMD5 : TIdHashMessageDigest5;
+  LHashSHA1 : TIdHashSHA1;
+  LHashCRC : TIdHashCRC32;
+  LHashType : Integer; //0 - XSHA1, 1 - XMD5, 2 - XCRC
 begin
+  Result := False;
+  LLocalCRC := '';
+  LRemoteCRC := '';
+  LEndPos := AEndPoint;
+  if LEndPos = 0 then
+  begin
+    LEndPos := ALocalFile.Size;
+  end;
+  ALocalFile.Position := AStartPoint;
+
   if IsExtSupported('XSHA1') then
   begin
-    LRemoteCRC := '';
+     LHashType := 0;
+    LCmd := 'XSHA1 ';
   end
   else
   begin
+    if IsExtSupported('XMD5') then
+    begin
+     LHashType := 1;
+      LCmd := 'XMD5 ';
+    end
+    else
+    begin
+      LHashType := 2;
+      LCmd := 'XCRC ';
+    end;
   end;
-  ALocalFile.Position := AStartPoint;
+
+
+   LCmd := LCMD + '"'+ ARemoteFile+'" '+ Sys.IntToStr(ALocalFile.Position);
+   if (AEndPoint > 0) and (AEndPoint < ALocalFile.Size) then
+   begin
+     LCmd := LCmd + ' ' +Sys.IntToStr(AEndPoint);
+   end;
+
+    if SendCMD(LCMD) = 250 then
+    begin
+       LRemoteCRC := Sys.UpperCase( Sys.Trim(LastCmdResult.Text.Text));
+       IdDelete(LRemoteCRC, 1, IndyPos(' ', LRemoteCRC)); // delete the response
+    end;
+    case LHashType of
+      0 : //XSHA1
+      begin
+         LHashSHA1 := TIdHashSHA1.Create;
+         try
+           if AEndPoint=0 then
+           begin
+             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,ALocalFile.Size)));
+           end
+           else
+           begin
+             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,LEndPos)) );
+           end;
+         finally
+           Sys.FreeAndNil(LHashMD5);
+         end;
+      end;
+      1 : //XMD5
+      begin
+         LHashMD5 := TIdHashMessageDigest5.Create;
+         try
+           if (AEndPoint =0) or (AEndPoint>ALocalFile.Size) then
+           begin
+             LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,AStartPoint,ALocalFile.Size)));
+           end
+           else
+           begin
+             LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,0,LEndPos)));
+           end;
+         finally
+           Sys.FreeAndNil(LHashMD5);
+         end;
+         Result := LLocalCRC = LRemoteCRC;
+      end;
+      2 : //XCRC
+      begin
+         LHashCRC := TIdHashCRC32.Create;
+         try
+           if AEndPoint=0 then
+           begin
+             LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,0,ALocalFile.Size-1),4));
+           end
+           else
+           begin
+             LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,AStartPoint,LEndPos),4) );
+           end;
+         finally
+           Sys.FreeAndNil(LHashMD5);
+         end;
+      end;
+    end;
+
+
+
 end;
 
 end.
