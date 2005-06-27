@@ -67,10 +67,10 @@ var
   aStr:string;
 begin
   aStr:=AContext.Connection.IOHandler.Readln;
-  if (aStr<>'') and FServerShouldEcho then
-    begin
+  if FServerShouldEcho then
+  begin
     AContext.Connection.IOHandler.WriteLn(aStr);
-    end;
+  end;
 end;
 
 procedure TIdTestTcpClient.TestTimeouts;
@@ -96,6 +96,7 @@ begin
 
       LResult:=FClient.IOHandler.Readln;
       Assert(LResult = '');
+      Assert(FClient.IOHandler.ReadLnTimedOut);
 
       FServerShouldEcho := True;
       FClient.IOHandler.WriteLn('Hello, World!');
