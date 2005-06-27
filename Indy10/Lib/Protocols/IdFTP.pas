@@ -1065,9 +1065,9 @@ type
     function CRC(const AFIleName : String; const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Int64;
     //verify file was uploaded, this is more comprehensive than the above
     function VerifyFile(ALocalFile : TIdStream; const ARemoteFile : String;
-      const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Boolean; overload;
+      const AStartPoint : Int64 = 0; const AByteCount : Int64=0) : Boolean; overload;
     function VerifyFile(const ALocalFile, ARemoteFile : String;
-      const AStartPoint : Int64 = 0; const AEndPoint : Int64=0) : Boolean; overload;
+      const AStartPoint : Int64 = 0; const AByteCount : Int64=0) : Boolean; overload;
     //file parts must be in order in TIdStrings parameter
     //GlobalScape FTP Pro uses this for multipart simultanious file uploading
     procedure CombineFiles(const ATargetFile : String; AFileParts : TIdStrings);
@@ -3895,7 +3895,7 @@ begin
 end;
 
 function TIdFTP.VerifyFile(const ALocalFile, ARemoteFile: String;
-  const AStartPoint, AEndPoint: Int64): Boolean;
+  const AStartPoint, AByteCount: Int64): Boolean;
 var
   LLocalStream: TIdStream;
   LRemoteFileName : String;
@@ -3905,30 +3905,33 @@ begin
     LRemoteFileName := Sys.ExtractFileName(ARemoteFile);
   end;
   LLocalStream := TReadFileNonExclusiveStream.Create(ALocalFile); try
-    Result := VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AEndPoint);
+    Result := VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AByteCount);
   finally Sys.FreeAndNil(LLocalStream); end;
 end;
 
 function TIdFTP.VerifyFile(ALocalFile: TIdStream; const ARemoteFile: String;
-  const AStartPoint, AEndPoint: Int64): Boolean;
+  const AStartPoint, AByteCount: Int64): Boolean;
 var LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
-  LEndPos : Int64;
+  LByteCount : Int64;
   LHashMD5 : TIdHashMessageDigest5;
   LHashSHA1 : TIdHashSHA1;
   LHashCRC : TIdHashCRC32;
   LHashType : Integer; //0 - XSHA1, 1 - XMD5, 2 - XCRC
+  LMaxLen : Integer;
 begin
   Result := False;
   LLocalCRC := '';
   LRemoteCRC := '';
-  LEndPos := AEndPoint;
-  if LEndPos = 0 then
+   ALocalFile.Position := AStartPoint;
+  LByteCount := AByteCount;
+
+  LMaxLen := ALocalFile.Size - AStartPoint;
+  if (LByteCount = 0) or (LByteCount > LMaxLen) then
   begin
-    LEndPos := ALocalFile.Size;
+    LByteCount := LMaxLen;
   end;
-  ALocalFile.Position := AStartPoint;
 
   if IsExtSupported('XSHA1') then
   begin
@@ -3950,10 +3953,10 @@ begin
   end;
 
 
-   LCmd := LCMD + '"'+ ARemoteFile+'" '+ Sys.IntToStr(ALocalFile.Position);
-   if (AEndPoint > 0) and (AEndPoint < ALocalFile.Size) then
+   LCmd := LCMD + '"'+ ARemoteFile+'" '+ Sys.IntToStr(AStartPoint);
+   if (AByteCount > 0) and (AByteCount < LMaxLen) then
    begin
-     LCmd := LCmd + ' ' +Sys.IntToStr(AEndPoint);
+     LCmd := LCmd + ' ' +Sys.IntToStr(AByteCount);
    end;
 
     if SendCMD(LCMD) = 250 then
@@ -3966,14 +3969,7 @@ begin
       begin
          LHashSHA1 := TIdHashSHA1.Create;
          try
-           if AEndPoint=0 then
-           begin
-             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,ALocalFile.Size)));
-           end
-           else
-           begin
-             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,LEndPos)) );
-           end;
+             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,LByteCount)) );
          finally
            Sys.FreeAndNil(LHashMD5);
          end;
@@ -3982,14 +3978,8 @@ begin
       begin
          LHashMD5 := TIdHashMessageDigest5.Create;
          try
-           if (AEndPoint =0) or (AEndPoint>ALocalFile.Size) then
-           begin
-             LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,AStartPoint,ALocalFile.Size)));
-           end
-           else
-           begin
-             LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,0,LEndPos)));
-           end;
+
+           LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,AStartPoint,LByteCount)));
          finally
            Sys.FreeAndNil(LHashMD5);
          end;
@@ -3999,14 +3989,7 @@ begin
       begin
          LHashCRC := TIdHashCRC32.Create;
          try
-           if AEndPoint=0 then
-           begin
-             LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,0,ALocalFile.Size-1),4));
-           end
-           else
-           begin
-             LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,AStartPoint,LEndPos),4) );
-           end;
+             LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,AStartPoint,LByteCount),4) );
          finally
            Sys.FreeAndNil(LHashMD5);
          end;
