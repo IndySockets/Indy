@@ -80,7 +80,10 @@ end;
 procedure TIdTestSMTPServer.CallbackMailFrom(ASender: TIdSMTPServerContext;
   const AAddress: string; var VAction: TIdMailFromReply);
 begin
-  if AAddress=cSpammerAddress then VAction:=mReject;
+  if AAddress=cSpammerAddress then
+  begin
+    VAction:=mReject;
+  end;
 end;
 
 procedure TIdTestSMTPServer.CallbackMsgReceive(
@@ -218,19 +221,28 @@ begin
         //want to ignore the exception here
         //EIdSMTPReplyError
         //check class,content
+        on E : Exception do
+        begin
+          //You can NOT do:
+          //
+          //Assert(FClient.LastCmdResult.NumericCode = 550, FClient.LastCmdResult.FormattedReply.Text);
+          //
+          //because the exception may be from a line in a pipelined sequence and
+          //LastCmdResult probably contains the result from the last command in the pipelined
+          //sequence
+          if E is EIdSMTPReplyError then
+          begin
+            with (E as EIdSMTPReplyError) do
+            begin
+              Assert( (E as EIdSMTPReplyError).ErrorCode = 500, (E as EIdSMTPReplyError).Message);
+            end;
+          end;
+        end;
       end;
     finally
       Sys.FreeAndNil(aMessage);
     end;
 
-
-    //TIdSMTPServer.MailFromReject sets to 250
-    //should be 550
-    //currently responding 503, from TIdSMTPServer.BadSequenceError
-    Assert(FClient.LastCmdResult.NumericCode = 550, FClient.LastCmdResult.FormattedReply.Text);
-    //Assert(aClient.LastCmdResult.Code = '550');
-    //Bad sequence of commands
-    //Assert(aClient.LastCmdResult.Text.Text = '');
   finally
     myTearDown;
   end;
