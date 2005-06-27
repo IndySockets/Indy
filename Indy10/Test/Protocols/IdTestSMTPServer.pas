@@ -234,7 +234,7 @@ begin
           begin
             with (E as EIdSMTPReplyError) do
             begin
-              Assert( (E as EIdSMTPReplyError).ErrorCode = 500, (E as EIdSMTPReplyError).Message);
+              Assert( (E as EIdSMTPReplyError).ErrorCode = 550, (E as EIdSMTPReplyError).Message);
             end;
           end;
         end;
