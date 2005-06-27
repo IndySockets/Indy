@@ -48,6 +48,9 @@ type
 
   see also IdCompressorAbbrevia for a reimplementation
   }
+  //Note that you can NOT do this test at all in DotNET because
+  //we currently have no Indy code for it.
+  {$IFNDEF DOTNET}
   TIdTestHTTP_GZip = class(TIdTest)
   private
     procedure CallbackGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
@@ -55,7 +58,7 @@ type
     procedure TestCompress;
     procedure TestGZip;
   end;
-
+  {$ENDIF}
   //http://www.io.com/~maus/HttpKeepAlive.html
   //re keep-alive, see TIdHTTPResponseInfo.WriteHeader. old comment, delete?
   TIdTestHTTP_KeepAlive = class(TIdTest)
@@ -291,6 +294,7 @@ end;
   Exit;
 }
 
+{$IFNDEF DOTNET}
 procedure TIdTestHTTP_GZip.CallbackGet(AContext: TIdContext;
   ARequestInfo: TIdHTTPRequestInfo;
   AResponseInfo: TIdHTTPResponseInfo);
@@ -395,12 +399,14 @@ begin
     Sys.FreeAndNil(aStream);
   end;
 end;
+{$ENDIF}
 
 initialization
 
   TIdTest.RegisterTest(TIdTestHTTP_01);
   TIdTest.RegisterTest(TIdTestHTTP_KeepAlive);
   TIdTest.RegisterTest(TIdTestHTTP_Redirect);
+  {$IFNDEF DOTNET}
   TIdTest.RegisterTest(TIdTestHTTP_GZip);
-
+  {$ENDIF}
 end.
