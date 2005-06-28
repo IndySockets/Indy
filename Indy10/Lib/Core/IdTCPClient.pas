@@ -210,6 +210,7 @@ type
     procedure SetOnAfterBind(const AValue: TIdNotifyEvent);
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
+    procedure InitComponent; override;
     //
     function GetReadTimeout: Integer;
     //
@@ -264,6 +265,12 @@ uses
   IdComponent, IdResourceStringsCore, IdIOHandlerSocket;
 
 { TIdTCPClientCustom }
+
+procedure TIdTCPClientCustom.InitComponent;
+begin
+  inherited InitComponent;
+  FReadTimeOut := IdTimeoutDefault;
+end;
 
 procedure TIdTCPClientCustom.Connect;
 begin

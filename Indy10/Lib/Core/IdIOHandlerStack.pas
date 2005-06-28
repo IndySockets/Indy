@@ -446,11 +446,12 @@ function TIdIOHandlerStack.ReadFromSource(
 // This must be the ONLY call to RECV - all data goes thru this method
 var
   LByteCount: Integer;
+  TempInt: Integer;
   LBuffer: TIdBytes;
 begin
   if ATimeout = IdTimeoutDefault then begin
     if (ReadTimeout = IdTimeoutDefault)
-      or (ReadTimeout = 0) then begin // MtW: check for 0 too, for compatibility
+      {or (ReadTimeout = 0) }then begin // MtW: check for 0 too, for compatibility
       ATimeout := IdTimeoutInfinite;
     end else begin
       ATimeout := ReadTimeout;
@@ -463,13 +464,21 @@ begin
     LByteCount := 0;
     repeat
       if Readable(ATimeout) then begin
-        if Assigned(FRecvBuffer) then begin
+        {if Assigned(FRecvBuffer) then }begin
           // No need to call AntiFreeze, the Readable does that.
           if BindingAllocated then begin
             // TODO: Whey are we reallocating LBuffer every time? This should
             // be a one time operation per connection.
+//            TempInt := Binding.Handle.Available; 
             SetLength(LBuffer, RecvBufferSize); try
               LByteCount := Binding.Receive(LBuffer);
+//		Assert(TempInt = LByteCount, 'Poll result = ' + Sys.IntToStr(TempInt) + ', LByteCount = ' + Sys.IntToStr(LByteCount));
+              if LByteCount = 0 then
+              begin
+//                Assert(LBuffer[0] = 0, 'LBuffer[0] = ' + Sys.IntToStr(LBuffer[0]));
+              end;
+              Assert(LByteCount > 0, 'LByteCount = 0!');
+//WriteLn('After receive, LByteCount = ' + Sys.IntToStr(LByteCount));
               SetLength(LBuffer, LByteCount);
               if LByteCount > 0 then begin
                 if Intercept <> nil then begin
@@ -490,10 +499,10 @@ begin
           end else begin
             EIdClosedSocket.Toss(RSStatusDisconnected);
           end;
-        end else begin
+        end; {else begin
           LByteCount := 0;
           EIdException.IfTrue(ARaiseExceptionIfDisconnected, RSNotConnected);
-        end;
+        end;}
         FClosedGracefully := LByteCount = 0;
         // Check here as other side may have closed connection
         CheckForDisconnect(ARaiseExceptionIfDisconnected);
@@ -504,6 +513,7 @@ begin
         Result := -1;
         Break;
       end;
+   Sleep(10);
     until (LByteCount <> 0) or (BindingAllocated = False);
   end else begin
     if ARaiseExceptionIfDisconnected then begin

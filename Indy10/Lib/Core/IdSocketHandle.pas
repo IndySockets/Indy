@@ -437,6 +437,12 @@ begin
     end;
   end;
   Result := CheckIsReadable(AMSec);
+
+if Result then
+begin
+  Result := Handle.Available > 0;
+end;
+
 end;
 
 procedure TIdSocketHandle.Assign(Source: TIdPersistent);
