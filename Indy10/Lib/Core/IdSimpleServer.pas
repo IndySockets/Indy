@@ -273,7 +273,7 @@ begin
     with Binding do begin
       if FAbortedRequested = False then begin
         while (FAbortedRequested = False) and (Result = False) do begin
-          Result := Readable(AcceptWait);
+          Result := Select(AcceptWait);
         end;
       end;
       if Result then begin
