@@ -695,6 +695,7 @@ begin
       repeat
         with AContext.Connection do begin
           LInputLine := IOHandler.ReadLn;
+          Assert(not IOHandler.ReadLnTimedOut);
           LRawHTTPCommand := LInputLine;
           i := RPos(' ', LInputLine, -1);    {Do not Localize}
           if i = 0 then begin
