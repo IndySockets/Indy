@@ -351,6 +351,7 @@ type
       const AIP : String;
       const APort : Integer;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+     function DataAvailable(AHandle : TIdStackSocketHandle) : Integer; virtual; abstract;
     //
     // Properties
     //

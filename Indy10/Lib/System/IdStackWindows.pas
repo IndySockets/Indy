@@ -314,6 +314,7 @@ type
       const AIP : String;
       const APort : Integer;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+   function DataAvailable(AHandle : TIdStackSocketHandle) : Integer; override;
   end;
 
   TLinger = record
@@ -1316,6 +1317,13 @@ begin
      APkt.SourceIP := LIP;
      APkt.SourcePort := LPort;
   end;
+end;
+
+function TIdStackWindows.DataAvailable(AHandle: TIdStackSocketHandle): Integer;
+var l : U_Long;
+begin
+   CheckForSocketError(ioctlsocket(AHandle,FIONREAD,l));
+  Result := Integer(l);
 end;
 
 initialization

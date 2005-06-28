@@ -311,7 +311,7 @@ type
       const AIP : String;
       const APort : Integer;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-
+    function DataAvailable(AHandle : TIdStackSocketHandle) : Integer;  override;
   end;
 
 
@@ -913,6 +913,11 @@ begin
   s.IOControl(cmd, ToBytes(arg), LTmp);
   arg := BytesToCardinal(LTmp);
   Result := 0;
+end;
+
+function TIdStackDotNet.DataAvailable(AHandle: TIdStackSocketHandle): Integer;
+begin
+  Result := AHandle.Available;
 end;
 
 initialization
