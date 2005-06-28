@@ -407,7 +407,7 @@ end;
 
 function TIdPOP3.GetReplyClass:TIdReplyClass;
 begin
-  result:=TIdReplyPOP3;
+  Result := TIdReplyPOP3;
 end;
 
 procedure TIdPOP3.KeepAlive;
@@ -499,6 +499,7 @@ begin
   SendCmd('LIST ' + Sys.IntToStr(MsgNum), ST_OK);    {Do not Localize}
   // RL - ignore the message number, grab just the octets,
   // and ignore everything else that may be present
+  s := LastCmdResult.Text[0];
   Fetch(s);
   Result := Sys.StrToInt(Fetch(s), -1);
 end;
