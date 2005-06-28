@@ -182,6 +182,10 @@ WriteLn('Connected');
      {$IFDEF DOTNET}
 WriteLn('LoggedOn');
      {$ENDIF}
+ {$IFDEF DOTNET}
+WriteLn('PORT Mode tests');
+ {$ENDIF}
+     repeat
     //check stream upload
     aStream:=TIdMemoryStream.Create;
     try
@@ -209,6 +213,9 @@ WriteLn('Put done.');
     try
     //test download to stream
     c.Get(cGoodFilename,aStream);
+ {$IFDEF DOTNET}
+WriteLn('Get done.');
+ {$ENDIF}
 //    Assert(aStream.DataString=cContent);
 
     //test exception on server gets sent to client
@@ -223,6 +230,15 @@ WriteLn('Put done.');
     finally
     Sys.FreeAndNil(aStream);
     end;
+      if c.Passive then
+      begin
+        break;
+      end;
+ {$IFDEF DOTNET}
+WriteLn('PASV Mode tests');
+ {$ENDIF}
+      c.Passive := True;
+    until False;
   finally
     Sys.FreeAndNil(c);
     Sys.FreeAndNil(s);
