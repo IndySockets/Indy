@@ -5535,7 +5535,8 @@ begin
   //we do it this way in case there's no data.  We don't want to stop
   //a data channel operation if that's the case.
   Result := '';
-  if AContext.Connection.Socket.Readable(1) then
+  AContext.Connection.IOHandler.CheckForDataOnSource(1);
+  if AContext.Connection.IOHandler.InputBufferIsEmpty then
   begin
     Exit;
   end;
