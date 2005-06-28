@@ -40,6 +40,8 @@ const
   cUnknownFilename='unknown.txt';
   cErrorFilename='error.txt';
 
+{$I IdCompilerDefines.inc}
+
 procedure TIdTestFtpServer.CallbackRetrieve(ASender: TIdFTPServerContext;
   const AFileName: string; var VStream: TIdStream);
 begin
@@ -92,27 +94,39 @@ begin
       c.Port:=cTestFtpPort;
       c.Host:='127.0.0.1';
       c.Connect;
+       {$IFDEF DOTNET}
 WriteLn('Connected');
+      {$ENDIF}
       c.IOHandler.ReadTimeout:=500;
 
       //expect a greeting. typical="220 FTP Server Ready."
       aStr:=c.IOHandler.Readln;
+       {$IFDEF DOTNET}
 WriteLn('ReadLn(1)');
+       {$ENDIF}
       Assert(aStr = '220 ' + cGreeting, cGreeting);
 
       //ftp server should only process a command after crlf
       //see TIdFTPServer.ReadCommandLine
       c.IOHandler.Write('U');
-WriteLn('Write(''U'')');
+      {$IFDEF DOTNET}
+        WriteLn('Write(''U'')');
+      {$ENDIF}
       aStr:=c.IOHandler.Readln;
-WriteLn('ReadLn(2)');
+      {$IFDEF DOTNET}
+      WriteLn('ReadLn(2)');
+      {$ENDIF}
       Assert(aStr='',aStr);
 
       //complete the rest of the command
       c.IOHandler.WriteLn('SER ANONYMOUS');
-WriteLn('WriteLn(2)');
+      {$IFDEF DOTNET}
+      WriteLn('WriteLn(2)');
+      {$ENDIF}
       aStr:=c.IOHandler.Readln;
-WriteLn('ReadLn(3)');
+      {$IFDEF DOTNET}
+      WriteLn('ReadLn(3)');
+      {$ENDIF}
       Assert(aStr<>'',aStr);
 
       //attempt to start a transfer when no datachannel setup.
@@ -140,7 +154,9 @@ begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdFTP.Create(nil);
   try
+     {$IFDEF DOTNET}
 WriteLn('   TestMethods');
+     {$ENDIF}
     s.Greeting.Text.Text:=cGreeting;
     s.DefaultPort:=cTestFtpPort;
     s.OnStoreFile:=CallbackStore;
@@ -152,7 +168,9 @@ WriteLn('   TestMethods');
     c.IOHandler.ReadTimeout:=1000;
     c.AutoLogin:=False;
     c.Connect;
+     {$IFDEF DOTNET}
 WriteLn('Connected');
+      {$ENDIF}
     //check invalid login
     //check valid login
     //check allow/disallow anonymous login
@@ -161,7 +179,9 @@ WriteLn('Connected');
     c.Username:='anonymous';
     c.Password:='bob@example.com';
     c.Login;
+     {$IFDEF DOTNET}
 WriteLn('LoggedOn');
+     {$ENDIF}
     //check stream upload
     aStream:=TIdMemoryStream.Create;
     try
@@ -172,7 +192,9 @@ aStream.Position := 0;
     finally
     Sys.FreeAndNil(aStream);
     end;
+ {$IFDEF DOTNET}
 WriteLn('Put done.');
+ {$ENDIF}
     //check no dest filename
     //check missing source file
     //check file upload rejected by server. eg out of space?
