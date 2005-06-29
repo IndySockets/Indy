@@ -23,6 +23,7 @@ uses
   IdTestThreadComponent,
 
   //protocols
+  IdTestGlobalProtocols,
   IdTestCoder3to4,
   IdTestCoderHeader,
   IdTestCoderMIME,
