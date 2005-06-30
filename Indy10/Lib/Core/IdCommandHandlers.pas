@@ -452,7 +452,7 @@ begin
 
     try
       //if code<>'' before DoCommand, then it breaks exception handling
-      Assert(Reply.Code='');
+      Assert(Reply.Code<>'');
       DoCommand;
 
       if Reply.Code = '' then
