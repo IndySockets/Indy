@@ -4,6 +4,8 @@ interface
 
 uses
   IdTest,
+  IdObjs,
+  IdSys,
   IdGlobal;
 
 type
@@ -12,9 +14,22 @@ type
   published
     procedure TestToBytes;
     procedure TestBytesToChar;
+    procedure TestReadStringFromStream;
   end;
 
 implementation
+
+procedure TIdTestGlobal.TestReadStringFromStream;
+var
+  TempStream: TIdMemoryStream;
+begin
+  TempStream := TIdMemoryStream.Create;
+  try
+    Assert(ReadStringFromStream(TempStream) = '');
+  finally
+    Sys.FreeAndNil(TempStream);
+  end;
+end;
 
 procedure TIdTestGlobal.TestBytesToChar;
 var
