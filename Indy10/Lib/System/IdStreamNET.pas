@@ -45,6 +45,10 @@ var
 begin
   Assert(AStream<>nil);
   Result:=0;
+  if VBytes = nil then
+  begin
+    SetLength(VBytes, 0);
+  end;
   //check that offset<length(buffer)? offset+count?
   //is there a need for this to be called with an offset into a nil buffer?
 

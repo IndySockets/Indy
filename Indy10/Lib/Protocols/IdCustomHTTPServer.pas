@@ -730,7 +730,7 @@ begin
             LRequestInfo.PostStream := nil;
             CreatePostStream(AContext, LRequestInfo.FPostStream);
             if LRequestInfo.FPostStream = nil then begin
-              LRequestInfo.FPostStream := TIdStringStream.Create('');    {Do not Localize}
+              LRequestInfo.FPostStream := TIdMemoryStream.Create;    {Do not Localize}
             end;
 
             LRequestInfo.PostStream.Position := 0;
@@ -741,7 +741,6 @@ begin
                 IOHandler.ReadStream(LRequestInfo.PostStream, -1, True);
               end;
             end;
-
             // reset back to 0 before reading the string from the post stream
             LRequestInfo.PostStream.Position := 0;
             LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream);
@@ -749,7 +748,6 @@ begin
             // reset back to 0 for the OnCommand... event handler
             LRequestInfo.PostStream.Position := 0;
             LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
-
             // GET data - may exist with POSTs also
             LRequestInfo.QueryParams := LInputLine;
             LInputLine := Fetch(LRequestInfo.FQueryParams, '?');    {Do not Localize}

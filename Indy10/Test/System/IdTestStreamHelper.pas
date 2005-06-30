@@ -59,7 +59,7 @@ begin
  aStream.Position:=aStream.Size;
  Assert(aBuffer=nil);
  aCount:=TIdStreamHelper.ReadBytes(aStream,aBuffer);
- Assert(aBuffer=nil);
+ Assert(Length(aBuffer) = 0);
  Assert(aCount=0);
 
  //stream to buffer
@@ -75,9 +75,9 @@ begin
  aStream.Size:=0;
  TIdStreamHelper.Write(aStream,aBuffer);
  aStream.Position:=0;
- TIdStreamHelper.ReadBytes(aStream,aBuffer,1,5);
+ TIdStreamHelper.ReadBytes(aStream,aBuffer,Length(cText),0);
  aStr:=BytesToString(aBuffer);
- Assert(aStr='0123406789');
+ Assert(aStr=cText, aStr);
 
  //test buffer to stream using count
  aBuffer:=ToBytes(cText);
