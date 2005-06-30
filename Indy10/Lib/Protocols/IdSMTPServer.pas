@@ -409,6 +409,7 @@ begin
   LCmd.Command := 'RCPT';    {Do not Localize}
   LCmd.CmdDelimiter := ' ';    {Do not Localize}
   LCmd.OnCommand := CommandRcpt;
+  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_VALID_DEST,'', False);
   SetEnhReply(LCmd.ExceptionReply,550,Id_EHR_MSG_BAD_DEST,'', False);
 
   LCmd := CommandHandlers.Add;
@@ -416,12 +417,14 @@ begin
   LCmd.Command := 'MAIL';    {Do not Localize}
   LCmd.CmdDelimiter := ' ';    {Do not Localize}
   LCmd.OnCommand := CommandMail;
+  SetEnhReply(LCmd.NormalReply, 250, Id_EHR_MSG_OTH_OK,'',False);
   SetEnhReply(LCmd.ExceptionReply,451,Id_EHR_MSG_BAD_SENDER_ADDR,'', False);
 
   LCmd := CommandHandlers.Add;
   // DATA <CRLF>
   LCmd.Command := 'DATA'; {Do not Localize}
   LCmd.OnCommand := CommandDATA;
+  SetEnhReply(LCmd.NormalReply , 354, '', RSSMTPSvrStartData, False);
   SetEnhReply(LCmd.ExceptionReply, 451, Id_EHR_PR_OTHER_TEMP, 'Internal Error' , False); {do not localize}
 
   LCmd := CommandHandlers.Add;
@@ -433,6 +436,8 @@ begin
   LCmd := CommandHandlers.Add;
   // STARTTLS <CRLF>
   LCmd.Command := 'STARTTLS';    {Do not Localize}
+  SetEnhReply(LCmd.NormalReply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS,
+      False);
   LCmd.OnCommand := CommandStartTLS;
 end;
 
