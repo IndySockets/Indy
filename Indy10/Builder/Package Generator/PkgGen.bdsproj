@@ -160,9 +160,7 @@
 		<VersionInfoKeys>
 			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
-		</VersionInfoKeys>  
-    
-    <Excluded_Packages>
+		</VersionInfoKeys>  <Excluded_Packages>
       <Excluded_Packages Name="C:\WINDOWS\system32\JvCustomD9R.bpl">JVCL Custom Controls Runtime Package</Excluded_Packages>
       <Excluded_Packages Name="C:\jvcl\packages\d9\JvDBD9D.bpl">JVCL Database Components</Excluded_Packages>
       <Excluded_Packages Name="C:\Program Files\EldoS\SecureBlackbox\Packages\SMIMEBBoxD9.bpl">EldoS SMIMEBlackbox</Excluded_Packages>
