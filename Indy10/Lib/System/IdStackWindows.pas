@@ -308,6 +308,7 @@ type
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle; const Alevel, Aoptname: Integer; Aoptval: PChar; const Aoptlen: Integer ); overload; override;
     function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
     function SupportsIPv6:boolean; override;
+    function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     procedure WriteChecksum(s : TIdStackSocketHandle;
        var VBuffer : TIdBytes;
       const AOffset : Integer;
@@ -1315,6 +1316,17 @@ begin
      AIPVersion);
      APkt.SourceIP := LIP;
      APkt.SourcePort := LPort;
+  end;
+end;
+
+function TIdStackWindows.CheckIPVersionSupport(
+  const AIPVersion: TIdIPVersion): boolean;
+var LTmpSocket:TIdStackSocketHandle;
+begin
+  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Id_SOCK_STREAM, Id_IPPROTO_IP );
+  result:=LTmpSocket<>Id_INVALID_SOCKET;
+  if LTmpSocket<>Id_INVALID_SOCKET then begin
+    WSCloseSocket(LTmpSocket);
   end;
 end;
 

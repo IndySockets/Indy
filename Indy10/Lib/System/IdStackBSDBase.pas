@@ -285,7 +285,7 @@ type
   public
     constructor Create; override;
     destructor Destroy; override;
-    function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; {virtual;}
+    function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; virtual; abstract;
     procedure RaiseSocketError(AErr: integer);
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes)
      : Integer; override;
@@ -578,21 +578,6 @@ destructor TIdStackBSDBase.Destroy;
 begin
   Sys.FreeAndNil(FLocalAddresses);
   inherited Destroy;
-end;
-
-function TIdStackBSDBase.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean;
-var LTmpSocket:TIdStackSocketHandle;
-begin
-  //TODO: Take out IFDEFs if the Linux version gives correct result under Windows...
-{$IFDEF LINUX}
-  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP );
-{$ELSE}
-  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Id_SOCK_STREAM, Id_IPPROTO_IP );
-{$ENDIF}
-  result:=LTmpSocket<>Id_INVALID_SOCKET;
-  if LTmpSocket<>Id_INVALID_SOCKET then begin
-    WSCloseSocket(LTmpSocket);
-  end;
 end;
 
 function TIdStackBSDBase.Receive(ASocket: TIdStackSocketHandle;

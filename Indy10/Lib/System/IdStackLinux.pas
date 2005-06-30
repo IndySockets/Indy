@@ -107,6 +107,9 @@ type
   End;//TIdSocketList
 
   TIdStackLinux = class(TIdStackBSDBase)
+  private
+    procedure SetSocketOption(ASocket: TIdStackSocketHandle;
+      ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
   protected
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
@@ -165,6 +168,7 @@ type
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
       const Alevel, Aoptname: Integer; Aoptval: PChar; const Aoptlen: Integer ); overload; override;
     function SupportsIPv6: boolean; override;
+    function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     constructor Create; override;
     destructor Destroy; override;
   end;
@@ -991,6 +995,24 @@ begin
     FreeMem(LPInfo);
   end;
 }
+end;
+
+procedure TIdStackLinux.SetSocketOption(ASocket: TIdStackSocketHandle;
+  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
+begin
+  inherited;
+
+end;
+
+function TIdStackLinux.CheckIPVersionSupport(
+  const AIPVersion: TIdIPVersion): boolean;
+var LTmpSocket:TIdStackSocketHandle;
+begin
+  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP );
+  result:=LTmpSocket<>Id_INVALID_SOCKET;
+  if LTmpSocket<>Id_INVALID_SOCKET then begin
+    WSCloseSocket(LTmpSocket);
+  end;
 end;
 
 initialization
