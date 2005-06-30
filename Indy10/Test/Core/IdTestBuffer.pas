@@ -6,6 +6,7 @@ uses
   IdTest,
   IdObjs,
   IdSys,
+  IdGlobal,
   IdBuffer;
 
 type
@@ -24,15 +25,15 @@ const
 procedure TIdTestBuffer.TestBufferToStream;
 var
  aBuffer:TIdBuffer;
- aStream:TIdStringStream;
+ aStream:TIdMemoryStream;
 begin
  aBuffer:=TIdBuffer.Create;
- aStream:=TIdStringStream.Create('');
+ aStream:=TIdMemoryStream.Create;
  try
  aBuffer.Write(cString);
-
  aBuffer.SaveToStream(aStream);
- Assert(aStream.DataString=cString);
+ aStream.Position := 0;
+ Assert(ReadStringFromStream(aStream)=cString);
  Assert(aBuffer.Size=5);
 
  //extract with index=-1 and >0 to test execution paths
@@ -40,18 +41,21 @@ begin
  //index>-1 doesn't delete data from buffer
  aStream.Size:=0;
  aBuffer.ExtractToStream(aStream,2,3);
- Assert(aStream.DataString='45');
+ aStream.Position := 0;
+ Assert(ReadStringFromStream(aStream)='45');
  Assert(aBuffer.Size=5);
 
  //does delete data from buffer
  aStream.Size:=0;
  aBuffer.ExtractToStream(aStream,3);
- Assert(aStream.DataString='123');
+ aStream.Position := 0;
+ Assert(ReadStringFromStream(aStream)='123');
  Assert(aBuffer.Size=2);
 
  aStream.Size:=0;
  aBuffer.ExtractToStream(aStream,2);
- Assert(aStream.DataString='45');
+ aStream.Position := 0;
+ Assert(ReadStringFromStream(aStream)='45');
  Assert(aBuffer.Size=0);
 
  finally
@@ -63,23 +67,23 @@ end;
 procedure TIdTestBuffer.TestStreamToBuffer;
 var
  aBuffer:TIdBuffer;
- aStream:TIdStringStream;
+ aStream:TIdMemoryStream;
 begin
  aBuffer:=TIdBuffer.Create;
- aStream:=TIdStringStream.Create('');
+ aStream:=TIdMemoryStream.Create;
  try
- aStream.WriteString(cString);
+   WriteStringToStream(AStream, cString);
  aStream.Position:=0;
 
  //copy specific
  aBuffer.Write(aStream,2);
  Assert(aStream.Position=2);
  Assert(aBuffer.AsString='12');
-
+// aStream.Position := 0;
  //copy remaining
  aBuffer.Write(aStream,-1);
  Assert(aStream.Position=5);
- Assert(aBuffer.AsString=cString);
+ Assert(aBuffer.AsString=cString, aBuffer.AsString);
 
  //copy all. ensure stream position is >0,<size
  aBuffer.Clear;
