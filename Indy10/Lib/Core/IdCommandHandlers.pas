@@ -451,6 +451,13 @@ begin
     PerformReply := True;
 
     try
+      if (LCommand.Reply.Code ='')  and (Self.NormalReply.Code<>'') then
+      begin
+        if Reply.Code = '' then
+        begin
+          Reply.Assign(Self.NormalReply);
+        end;
+      end;
       //if code<>'' before DoCommand, then it breaks exception handling
       Assert(Reply.Code<>'');
       DoCommand;
@@ -474,9 +481,10 @@ begin
           end;
           // If still no go, from server
           // Can be nil though. Typically only servers pass it in
-          if (Reply.Code = '') and (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
+          if (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
             Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
           end;
+
           if Reply.Code <> '' then begin
             Reply.Text.Add(E.Message);
             SendReply;
