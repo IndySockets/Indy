@@ -234,7 +234,7 @@ uses
 
 {
 We can not port APOP to NET due to the use of GetSystemClock and a process ID
-Kudzu: Why not? .NEt can get these.....
+Kudzu: Why not? .NET can get these.....
 }
 
 const
@@ -293,19 +293,19 @@ type
     function IsAuthed(aCmd: TIdCommand; aAssigned: boolean): boolean;
     procedure MustUseTLS(aCmd: TIdCommand);
     // CommandHandlers
-    procedure CommandUser(aCmd: TIdCommand); //
-    procedure CommandPass(aCmd: TIdCommand); //
-    procedure CommandList(aCmd: TIdCommand); //
-    procedure CommandRetr(aCmd: TIdCommand); //
-    procedure CommandDele(aCmd: TIdCommand); //
-    procedure CommandQuit(aCmd: TIdCommand); //
-    procedure CommandAPOP(aCmd: TIdCommand); //
-    procedure CommandStat(aCmd: TIdCommand); //
-    procedure CommandRset(aCmd: TIdCommand); //
-    procedure CommandTop(aCmd: TIdCommand);  //
-    procedure CommandUIDL(aCmd: TIdCommand); //
-    procedure CommandSTLS(aCmd: TIdCommand); //
-    procedure CommandCAPA(aCmd: TIdCommand); //
+    procedure CommandUser(aCmd: TIdCommand);
+    procedure CommandPass(aCmd: TIdCommand);
+    procedure CommandList(aCmd: TIdCommand);
+    procedure CommandRetr(aCmd: TIdCommand);
+    procedure CommandDele(aCmd: TIdCommand);
+    procedure CommandQuit(aCmd: TIdCommand);
+    procedure CommandAPOP(aCmd: TIdCommand);
+    procedure CommandStat(aCmd: TIdCommand);
+    procedure CommandRset(aCmd: TIdCommand);
+    procedure CommandTop(aCmd: TIdCommand);
+    procedure CommandUIDL(aCmd: TIdCommand);
+    procedure CommandSTLS(aCmd: TIdCommand);
+    procedure CommandCAPA(aCmd: TIdCommand);
 
     function CreateExceptionReply: TIdReply; override;
     function CreateGreeting: TIdReply; override;
@@ -459,9 +459,7 @@ begin
   if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
   begin
     MustUseTLS(aCmd);
-  end
-  else
-  begin
+  end else begin
     if aCmd.Params.Count > 0 then begin
       LThread.fUsername := aCmd.Params.Strings[0];
     end;
