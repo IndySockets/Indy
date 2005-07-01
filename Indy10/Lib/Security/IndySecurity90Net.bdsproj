@@ -5,7 +5,7 @@
       <Option Name="Personality">DelphiDotNet.Personality</Option>
       <Option Name="ProjectType"></Option>
       <Option Name="Version">1.0</Option>
-      <Option Name="GUID">{3A5A4B51-E53D-44DE-92F1-E14D215EC08C}</Option>
+      <Option Name="GUID">{E3BE76C6-4519-4F2F-9CA6-ECC0402D96F2}</Option>
     </Option>
   </PersonalityInfo>
   <DelphiDotNet.Personality>
@@ -24,7 +24,17 @@
       <File FileName="IndySystem90Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndySystem90Net" AssemblyName="IndySystem90Net" LinkUnits="False"/>
       <File FileName="IndyCore90Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndyCore90Net" AssemblyName="IndyCore90Net" LinkUnits="False"/>
       <File FileName="IndyProtocols90Net.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="IndyProtocols90Net" AssemblyName="IndyProtocols90Net" LinkUnits="False"/>
+      <File FileName="Mono.Security.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Mono.Security" AssemblyName="Mono.Security" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Data.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System.Data" AssemblyName="System.Data" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.XML.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System.XML" AssemblyName="System.XML" Version="1.0.5000.0" LinkUnits="False"/>
       <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.Drawing.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System.Drawing" AssemblyName="system.drawing" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="IdCarrierStream.pas" ContainerId="" ModuleName="IdCarrierStream"/>
+      <File FileName="IdIOHandlerTls.pas" ContainerId="" ModuleName="IdIOHandlerTls"/>
+      <File FileName="IdServerIOHandlerTls.pas" ContainerId="" ModuleName="IdServerIOHandlerTls"/>
+      <File FileName="IdSocketStream.pas" ContainerId="" ModuleName="IdSocketStream"/>
+      <File FileName="IdTlsClientOptions.pas" ContainerId="" ModuleName="IdTlsClientOptions"/>
+      <File FileName="IdTlsServerOptions.pas" ContainerId="" ModuleName="IdTlsServerOptions"/>
     </FileList>
     <FileVersion>
       <FileVersion Name="Version">7.0</FileVersion>
@@ -133,8 +143,8 @@
       <Directories Name="UnitOutputDir"></Directories>
       <Directories Name="PackageDLLOutputDir"></Directories>
       <Directories Name="PackageDCPOutputDir"></Directories>
-      <Directories Name="SearchPath"></Directories>
-      <Directories Name="Packages"></Directories>
+      <Directories Name="SearchPath">c:\program files\common files\borland shared\bds\shared assemblies\3.0;W:\Source\Indy10\Lib\Security;w:\source\indy10\lib\security;c:\windows\microsoft.net\framework\v1.1.4322</Directories>
+      <Directories Name="Packages">c:\windows\microsoft.net\framework\v1.1.4322\System.Drawing.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.XML.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.Data.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.dll;w:\source\indy10\lib\security\Mono.Security.dll;W:\Source\Indy10\Lib\Security\IndyProtocols90Net.dll;W:\Source\Indy10\Lib\Security\IndyCore90Net.dll;W:\Source\Indy10\Lib\Security\IndySystem90Net.dll;Borland.VclRtl;Borland.Delphi</Directories>
       <Directories Name="Conditionals"></Directories>
       <Directories Name="DebugSourceDirs"></Directories>
       <Directories Name="UsePackages">False</Directories>

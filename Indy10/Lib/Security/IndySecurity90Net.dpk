@@ -34,7 +34,8 @@ requires
   Mono.Security,
   System,
   System.Data,
-  System.XML;
+  System.XML,
+  System.Drawing;
 
 contains
   IdCarrierStream in 'IdCarrierStream.pas',
@@ -43,6 +44,7 @@ contains
   IdSocketStream in 'IdSocketStream.pas',
   IdTlsClientOptions in 'IdTlsClientOptions.pas',
   IdTlsServerOptions in 'IdTlsServerOptions.pas';
+
 {$I IdSecurity90ASM90.inc}
 
 end.
