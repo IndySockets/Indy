@@ -10,6 +10,7 @@ interface
 
 uses
   System.Reflection,
+  System.Threading,
   IdObjs,
   IdBaseComponent;
 
@@ -18,18 +19,28 @@ type
   TIdTest = class;
   TIdTestClass = class of TIdTest;
 
+  TOutputStringProcedure = procedure(const AString: string);
+
   TIdTest = class(TIdBaseComponent)
+  private
+    FOnOutputString: TOutputStringProcedure;
   public
+    procedure OutputLn(const ALine: string);
     class procedure RegisterTest(const aClass:TIdTestClass);
     class function TestList:TIdList;
+    property OnOutputString: TOutputStringProcedure read FOnOutputString write FOnOutputString;
   end;
 
   TIdBasicRunner = class(TObject)
   private
+    FLockObj: &Object;
+    FDebugInfo: Boolean;
     procedure WriteLn(const aStr:string);
     procedure RecordPass(const aTest:TIdTest;const aMethod:string);
     procedure RecordFail(const aTest:TIdTest;const aMethod:string;const e:exception);
+    procedure WriteString(const AString: string);
   public
+    constructor Create;
     PassCount:integer;
     FailCount:integer;
     procedure Execute;
@@ -55,6 +66,44 @@ begin
   Result:=FRegisterList;
 end;
 
+procedure TIdTest.OutputLn(const ALine: string);
+begin
+  if FOnOutputString <> nil then
+  begin
+    FOnOutputString(ALine + Environment.NewLine);
+  end;
+end;
+
+{ TIdBasicRunner }
+
+constructor TIdBasicRunner.Create;
+  function ShouldOutputDebuggingInfo: Boolean;
+  var
+    I: Integer;
+  begin
+    Result := False;
+    for I := 0 to Environment.GetCommandLineArgs.Length - 1 do
+      Result := Result or (Environment.GetCommandLineArgs[i].ToLower = '/debug');
+  end;
+begin
+  inherited;
+  FLockObj := &Object.Create;
+  FDebugInfo := ShouldOutputDebuggingInfo;
+end;
+
+procedure TIdBasicRunner.WriteString(const AString: string);
+begin
+  if FDebugInfo then
+  begin
+    Monitor.Enter(FLockObj);
+    try
+      Console.Write(AString);
+    finally
+      Monitor.Exit(FLockObj);
+    end;
+  end;
+end;
+
 procedure TIdBasicRunner.Execute;
 var
   aMethods:array of methodinfo;
@@ -70,6 +119,7 @@ begin
   for aTestCount:=0 to TIdTest.TestList.Count-1 do
   begin
     aTest:=TIdTest.TestList[aTestCount] as TIdTest; //aClass.Create();
+    aTest.OnOutputString := WriteString;
     aMethods:=aTest.GetType.GetMethods;
 
     WriteLn('Test:'+aTest.classname);
@@ -102,7 +152,7 @@ procedure TIdBasicRunner.RecordPass(const aTest: TIdTest;
   const aMethod: string);
 begin
   inc(PassCount);
-  //WriteLn('  Pass:'+aTest.classname+'.'+aMethod);
+  WriteStr('  Pass:'+aTest.classname+'.'+aMethod + Environment.NewLine);
 end;
 
 procedure TIdBasicRunner.RecordFail(const aTest: TIdTest; const aMethod: string;
@@ -126,7 +176,12 @@ end;
 
 procedure TIdBasicRunner.WriteLn(const aStr: string);
 begin
-  Console.WriteLine(aStr);
+  Monitor.Enter(FLockObj);
+  try
+    Console.WriteLn(AStr);
+  finally
+    Monitor.Exit(FLockObj);
+  end;
 end;
 
 end.
