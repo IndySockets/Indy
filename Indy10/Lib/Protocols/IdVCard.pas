@@ -439,7 +439,7 @@ type
   end;
 
   //public for testing
-  function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
+  function ParseDateTimeStamp(const DateString:string):TIdDateTime;
 
 implementation
 
@@ -531,11 +531,22 @@ This assumes the date Time stamp will be like this:
 
 1997-11-15
 }
-function ParseDateTimeStamp ( DateString : String ) : TIdDateTime;
+function ParseDateTimeStamp(const DateString:string):TIdDateTime;
 var
   Year, Day, Month : Integer;
   Hour, Minute, Second : Integer;
 begin
+
+  //outlook format = 20050531T195358Z
+  if Copy(DateString,9,1)='T' then begin
+    Year  := Sys.StrToInt ( Copy ( DateString, 1, 4 ) );
+    Month := Sys.StrToInt ( Copy (DateString, 5, 2 ) );
+    Day   := Sys.StrToInt ( Copy ( DateString, 7, 2 ) );
+    Hour := Sys.StrToInt ( Copy ( DateString, 10, 2 ) );
+    Minute := Sys.StrToInt ( Copy ( DateString, 12, 2 ) );
+    Second := Sys.StrToInt ( Copy ( DateString, 14, 2 ) );
+    Result := Sys.EncodeDate(Year, Month, Day) + Sys.EncodeTime(Hour, Minute, Second,0);
+  end else begin
     Year  := Sys.StrToInt ( Copy ( DateString, 1, 4 ) );
     Month := Sys.StrToInt ( Copy (DateString, 6, 2 ) );
     Day   := Sys.StrToInt ( Copy ( DateString, 9, 2 ) );
@@ -555,13 +566,15 @@ begin
     end; // else .. if ( Length ( DateString ) > 18 ) then
 //    DateStamp.AsISO8601Calender := DateString;
     Result := Sys.EncodeDate(Year, Month, Day) + Sys.EncodeTime(Hour, Minute, Second,0);
+  end;
 end;
 
 {This function returns a stringList with an item's attributes    
 and sets value to the value of the item - everything in the stringlist is
 capitalized to facilitate parsing which is Case-Insensitive}
-Function GetAttributesAndValue (data : String; var value : String) : TIdStringList;
-var Buff, Buff2 : String;
+function GetAttributesAndValue(data : String; var value : String) : TIdStringList;
+var
+  Buff, Buff2 : String;
 begin
   Result := TIdStringList.Create;
   if IndyPos(':',Data) <> 0 then    {Do not Localize}
