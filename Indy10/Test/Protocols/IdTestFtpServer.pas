@@ -40,8 +40,6 @@ const
   cUnknownFilename='unknown.txt';
   cErrorFilename='error.txt';
 
-{$I IdCompilerDefines.inc}
-
 procedure TIdTestFtpServer.CallbackRetrieve(ASender: TIdFTPServerContext;
   const AFileName: string; var VStream: TIdStream);
 begin
@@ -94,39 +92,28 @@ begin
       c.Port:=cTestFtpPort;
       c.Host:='127.0.0.1';
       c.Connect;
-       {$IFDEF DOTNET}
-WriteLn('Connected');
-      {$ENDIF}
+OutputLn('Connected');
       c.IOHandler.ReadTimeout:=500;
 
       //expect a greeting. typical="220 FTP Server Ready."
       aStr:=c.IOHandler.Readln;
-       {$IFDEF DOTNET}
-WriteLn('ReadLn(1)');
-       {$ENDIF}
+
+OutputLn('ReadLn(1)');
       Assert(aStr = '220 ' + cGreeting, cGreeting);
 
       //ftp server should only process a command after crlf
       //see TIdFTPServer.ReadCommandLine
       c.IOHandler.Write('U');
-      {$IFDEF DOTNET}
-        WriteLn('Write(''U'')');
-      {$ENDIF}
+      OutputLn('Write(''U'')');
       aStr:=c.IOHandler.Readln;
-      {$IFDEF DOTNET}
-      WriteLn('ReadLn(2)');
-      {$ENDIF}
+      OutputLn('ReadLn(2)');
       Assert(aStr='',aStr);
 
       //complete the rest of the command
       c.IOHandler.WriteLn('SER ANONYMOUS');
-      {$IFDEF DOTNET}
-      WriteLn('WriteLn(2)');
-      {$ENDIF}
+      OutputLn('WriteLn(2)');
       aStr:=c.IOHandler.Readln;
-      {$IFDEF DOTNET}
-      WriteLn('ReadLn(3)');
-      {$ENDIF}
+      OutputLn('ReadLn(3)');
       Assert(aStr<>'',aStr);
 
       //attempt to start a transfer when no datachannel setup.
@@ -154,9 +141,7 @@ begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdFTP.Create(nil);
   try
-     {$IFDEF DOTNET}
-WriteLn('   TestMethods');
-     {$ENDIF}
+OutputLn('   TestMethods');
     s.Greeting.Text.Text:=cGreeting;
     s.DefaultPort:=cTestFtpPort;
     s.OnStoreFile:=CallbackStore;
@@ -168,9 +153,7 @@ WriteLn('   TestMethods');
     c.IOHandler.ReadTimeout:=1000;
     c.AutoLogin:=False;
     c.Connect;
-     {$IFDEF DOTNET}
-WriteLn('Connected');
-      {$ENDIF}
+OutputLn('Connected');
     //check invalid login
     //check valid login
     //check allow/disallow anonymous login
@@ -179,12 +162,8 @@ WriteLn('Connected');
     c.Username:='anonymous';
     c.Password:='bob@example.com';
     c.Login;
-     {$IFDEF DOTNET}
-WriteLn('LoggedOn');
-     {$ENDIF}
- {$IFDEF DOTNET}
-WriteLn('PORT Mode tests');
- {$ENDIF}
+OutputLn('LoggedOn');
+OutputLn('PORT Mode tests');
      repeat
     //check stream upload
     aStream:=TIdMemoryStream.Create;
@@ -196,9 +175,8 @@ aStream.Position := 0;
     finally
     Sys.FreeAndNil(aStream);
     end;
- {$IFDEF DOTNET}
-WriteLn('Put done.');
- {$ENDIF}
+
+OutputLn('Put done.');
     //check no dest filename
     //check missing source file
     //check file upload rejected by server. eg out of space?
@@ -213,9 +191,7 @@ WriteLn('Put done.');
     try
     //test download to stream
     c.Get(cGoodFilename,aStream);
- {$IFDEF DOTNET}
-WriteLn('Get done.');
- {$ENDIF}
+OutputLn('Get done.');
 //    Assert(aStream.DataString=cContent);
 
     //test exception on server gets sent to client
@@ -234,9 +210,8 @@ WriteLn('Get done.');
       begin
         break;
       end;
- {$IFDEF DOTNET}
-WriteLn('PASV Mode tests');
- {$ENDIF}
+
+OutputLn('PASV Mode tests');
       c.Passive := True;
     until False;
   finally
