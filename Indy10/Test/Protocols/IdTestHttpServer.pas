@@ -48,23 +48,27 @@ var
   HttpCli: TIdHttp;
   TcpCli: TIdTcpClient;
   TempString: string;
+  aDebug:TIdLogDebug;
+  aIntercept:TIdServerInterceptLogFile;
 begin
   HttpSrv := TIdHttpServer.Create;
+  aIntercept := TIdServerInterceptLogFile.Create;
   try
     HttpSrv.OnCommandGet := HandleSimpleGet;
     HttpSrv.DefaultPort := 1234;
     HttpSrv.OnException := HandleException;
-    HttpSrv.Intercept := TIdServerInterceptLogFile.Create;
-    TIdServerInterceptLogFile(HttpSrv.Intercept).FileName := 'w:\httpsrv.log';
+    HttpSrv.Intercept := aIntercept;
+    aIntercept.FileName := 'w:\httpsrv.log';
     HttpSrv.Active := True;
     try
+      aDebug := TIdLogDebug.Create;
       TcpCli := TIdTcpClient.Create;
       try
         TcpCli.Host := '127.0.0.1';
         TcpCli.Port := 1234;
 //        TcpCli.ReadTimeout := 250;
-        TcpCli.IOHandler := TIdIOHandlerStack.Create;
-        TcpCli.IOHandler.Intercept := TIdLogDebug.Create;
+        TcpCli.CreateIOHandler;
+        TcpCli.IOHandler.Intercept := aDebug;
         TIdLogDebug(TcpCli.IOHandler.Intercept).Active := True;
         TcpCli.Connect;
         TcpCli.IOHandler.WriteLn('GET /index.html HTTP/1.1');
@@ -91,12 +95,14 @@ begin
         Assert(HttpCli.Get('http://127.0.0.1:1234/index.html') = 'Hello, World!');
       finally
         Sys.FreeAndNil(HttpCli);
+        Sys.FreeAndNil(aDebug);
       end;
     finally
       HttpSrv.Active := False;
     end;
   finally
     Sys.FreeAndNil(HttpSrv);
+    Sys.FreeAndNil(aIntercept);
   end;
 end;
 
