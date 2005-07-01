@@ -192,7 +192,7 @@ begin
 //      GBSDStack.TranslateStringToTInAddr(FMulticastGroup, Multicast.IMRMultiAddr, Id_IPv4);
 //      Multicast.IMRInterface.S_addr :=  Id_INADDR_ANY;
 //      GBSDStack.SetSocketOption(Bindings[i].Handle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP, pchar(@Multicast), SizeOf(Multicast));
-      GStack.AddMulticastMembership(Bindings[i].Handle,FMulticastGroup,Bindings[i].IP );
+      GStack.AddMulticastMembership(Bindings[i].Handle,FMulticastGroup,Bindings[i].IP, Bindings[i].IPVersion );
     end;
     FCurrentBinding := Bindings[0];
     FListenerThread := TIdIPMCastListenerThread.Create(Self);
