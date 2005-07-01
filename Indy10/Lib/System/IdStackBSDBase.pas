@@ -281,7 +281,8 @@ type
      virtual; abstract;
      //internal for multicast membership stuff
     procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String; const ASockOpt : Integer);
+      const AGroupIP, ALocalIP : String; const ASockOpt : Integer;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -334,12 +335,13 @@ type
      : TIdStackSocketHandle; override;
     //multicast stuff Kudzu permitted me to add here.
     procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
-      const AValue : Byte); override;
-    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean); override;
+      const AValue : Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String); override;
+      const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String); override;
+      const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
   EIdStackError = class (EIdException);
@@ -618,28 +620,51 @@ begin
 end;
 
 procedure TIdStackBSDBase.DropMulticastMembership(AHandle: TIdStackSocketHandle;
-  const AGroupIP, ALocalIP : String);
+  const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_DROP_MEMBERSHIP);
+  if AIPVersion=Id_IPv4 then
+  begin
+    MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_DROP_MEMBERSHIP);
+  end
+  else
+  begin
+     MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IPV6_DROP_MEMBERSHIP, AIPVersion);
+  end;
 end;
 
 procedure TIdStackBSDBase.AddMulticastMembership(AHandle: TIdStackSocketHandle;
-  const AGroupIP, ALocalIP : String);
+  const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_ADD_MEMBERSHIP);
+  if AIPVersion=Id_IPv4 then
+  begin
+    MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IP_ADD_MEMBERSHIP, AIPVersion);
+  end
+  else
+  begin
+    MembershipSockOpt(AHandle,AGroupIP,ALocalIP,Id_IPV6_ADD_MEMBERSHIP, AIPVersion);
+  end;
 end;
 
 procedure TIdStackBSDBase.SetMulticastTTL(AHandle: TIdStackSocketHandle;
-  const AValue: Byte);
+  const AValue: Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LThisTTL: Integer;
 begin
   LThisTTL := AValue;
-  GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP,
+  if AIPVersion = Id_IPv4 then
+  begin
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP,
       Id_IP_MULTICAST_TTL, pchar(@LThisTTL), SizeOf(LThisTTL));
+  end
+  else
+  begin
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IPv6,
+     Id_IPV6_MULTICAST_HOPS, pchar(@LThisTTL), SizeOf(LThisTTL));
+  end;
 end;
 
-procedure TIdStackBSDBase.SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean);
+procedure TIdStackBSDBase.SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LThisLoopback: Integer;
 begin
@@ -648,12 +673,21 @@ begin
   end else begin
     LThisLoopback := 0;
   end;
-  GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, Id_IP_MULTICAST_LOOP, PChar(@LThisLoopback)
-    , SizeOf(LThisLoopback));
+  if AIPVersion = Id_IPv4 then
+  begin
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, Id_IP_MULTICAST_LOOP, PChar(@LThisLoopback)
+      , SizeOf(LThisLoopback));
+  end
+  else
+  begin
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IPv6, Id_IPV6_MULTICAST_LOOP, PChar(@LThisLoopback)
+      , SizeOf(LThisLoopback));
+  end;
 end;
 
 procedure TIdStackBSDBase.MembershipSockOpt(AHandle: TIdStackSocketHandle;
-  const AGroupIP, ALocalIP: String; const ASockOpt: Integer);
+  const AGroupIP, ALocalIP: String;  const ASockOpt: Integer;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LIP4 : TIdIPMreq;
   LIP6 : TIdIPv6Mreq;
@@ -667,7 +701,7 @@ begin
   end
   else
   begin
-    if Self.IsValidIPv4MulticastGroup(AGroupIP) then
+    if Self.IsValidIPv6MulticastGroup(AGroupIP) then
     begin
       GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP6.ipv6mr_multiaddr, Id_IPv6);
       //this should be safe meaning any adaptor
@@ -675,7 +709,7 @@ begin
       //and even if you could, you would have to convert it into a network adaptor
       //index - Yuk
       LIP6.ipv6mr_interface := 0;
-      GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, ASockOpt,
+      GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IPv6, ASockOpt,
         pchar(@LIP6), SizeOf(LIP6));
     end;
   end;

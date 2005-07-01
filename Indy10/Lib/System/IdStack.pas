@@ -326,12 +326,13 @@ type
     function IsValidIPv4MulticastGroup(const Value: string): Boolean;
     function IsValidIPv6MulticastGroup(const Value: string): Boolean;
     procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
-      const AValue : Byte); virtual; abstract;
-    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean); virtual; abstract;
+      const AValue : Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String); virtual; abstract;
+      const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String); virtual; abstract;
+      const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     //I know this looks like an odd place to put a function for calculating a
     //packet checksum.  There is a reason for it though.  The reason is that
     //you need it for ICMPv6 and in Windows, you do that with some other stuff
