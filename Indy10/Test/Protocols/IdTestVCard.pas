@@ -127,6 +127,8 @@ const
  cDate1b='1995-10-31 22:27:10';
  cDate2='1997-11-15';
  cDate2b='1997-11-15 00:00:00';
+ cOutlookFormat='20050531T195358Z';
+ cOutlookFormatb='2005-05-31 19:53:58';
 var
  aDate:TDateTime;
 begin
@@ -135,6 +137,9 @@ begin
 
  aDate:=ParseDateTimeStamp(cDate2);
  Assert(Sys.FormatDateTime(cFormat,aDate)=cDate2b);
+
+ aDate:=ParseDateTimeStamp(cOutlookFormat);
+ Assert(Sys.FormatDateTime(cFormat,aDate)=cOutlookFormatb);
 end;
 
 initialization
