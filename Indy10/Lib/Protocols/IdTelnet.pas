@@ -435,7 +435,6 @@ procedure TIdTelnet.Negotiate(const Buf: String);
 var
   LCount: Integer;
   bOffset   : Integer;
-  nOffset   : Integer;
   B         : Char;
   nBuf      : String;
   sbBuf     : String;
@@ -444,7 +443,6 @@ var
   SendBuf   : String;
 begin
   bOffset := 1;
-  nOffset := 0;
   sbCount := 1;
   CurrentSB := 1;
   nbuf := '';    {Do not Localize}
@@ -467,8 +465,7 @@ begin
           TNC_IAC:
             begin
               State := tnsData;
-              inc(nOffset);
-              nbuf[nOffset] := TNC_IAC;
+              nbuf := nbuf + b;
             end;
           TNC_WILL:
             State := tnsIAC_WILL;
