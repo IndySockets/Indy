@@ -3914,76 +3914,131 @@ function TIdFTP.VerifyFile(ALocalFile: TIdStream; const ARemoteFile: String;
 var LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
-  LByteCount : Int64;
   LHashMD5 : TIdHashMessageDigest5;
   LHashSHA1 : TIdHashSHA1;
   LHashCRC : TIdHashCRC32;
   LHashType : Integer; //0 - XSHA1, 1 - XMD5, 2 - XCRC
-  LMaxLen : Integer;
+  LByteCount : Int64;  //used instead of AByteCount so you we don't exceed the file size
+{
+This procedure can use three possible commands to verify file integriety and the
+syntax does very amoung these.  The commands are:
+
+XSHA1 - get SHA1 checksum for a file or file part
+XMD5 - get MD5 checksum for a file or file part
+XCRC - get CRC32 checksum
+
+The command preference is from first to last (going from longest length to shortest).
+
+}
 begin
-  Result := False;
   LLocalCRC := '';
   LRemoteCRC := '';
-   ALocalFile.Position := AStartPoint;
-  LByteCount := AByteCount;
 
-  LMaxLen := ALocalFile.Size - AStartPoint;
-  if (LByteCount = 0) or (LByteCount > LMaxLen) then
+  if AStartPoint >-1 then
   begin
-    LByteCount := LMaxLen;
+    ALocalFile.Position := AStartPoint;
   end;
+  
+  LByteCount := (ALocalFile.Size - AStartPoint);
+  if (LByteCount > AByteCount) and (AByteCount >0) then
+  begin
+    LByteCount := AByteCount;
+  end;
+
 
   if IsExtSupported('XSHA1') then
   begin
      LHashType := 0;
-    LCmd := 'XSHA1 ';
   end
   else
   begin
     if IsExtSupported('XMD5') then
     begin
      LHashType := 1;
-      LCmd := 'XMD5 ';
     end
     else
     begin
       LHashType := 2;
-      LCmd := 'XCRC ';
     end;
   end;
 
-
-   LCmd := LCMD + '"'+ ARemoteFile+'" '+ Sys.IntToStr(AStartPoint);
-   if (AByteCount > 0) and (AByteCount < LMaxLen) then
-   begin
-     LCmd := LCmd + ' ' +Sys.IntToStr(AByteCount);
-   end;
-
-    if SendCMD(LCMD) = 250 then
-    begin
-       LRemoteCRC := Sys.UpperCase( Sys.Trim(LastCmdResult.Text.Text));
-       IdDelete(LRemoteCRC, 1, IndyPos(' ', LRemoteCRC)); // delete the response
-    end;
     case LHashType of
       0 : //XSHA1
       begin
          LHashSHA1 := TIdHashSHA1.Create;
          try
-             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,LByteCount)) );
+             LLocalCRC := Sys.UpperCase(  TIdHashSHA1.AsHex( LHashSHA1.HashValue(ALocalFile,AStartPoint,AStartPoint+LByteCount)));
          finally
            Sys.FreeAndNil(LHashMD5);
+         end;
+         //XMD5 "filename" startpos endpos
+         //I think there's two syntaxes to this:
+         //
+         //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
+         //
+         //or what's used by some other servers if "FEAT line contains XMD5"
+         //
+         //XCRC "filename" [startpos] [number of bytes to calc]
+
+         if IndexOfFeatLine('XSHA1 filename;start;end')>-1 then
+         begin
+           LCMD := 'XSHA1 "'+ARemoteFile+'" '+Sys.IntToStr(AStartPoint)+' '+Sys.IntToStr( AStartPoint+LByteCOunt-1 );
+         end
+         else
+         begin
+           //BlackMoon FTP Server uses this one.
+           LCMD := 'XSHA1 "'+ARemoteFile+'"';
+           if AByteCount >0 then
+           begin
+             LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint)+' '+Sys.IntToStr(LByteCount);
+           end
+           else
+           begin
+             if AStartPoint >0 then
+             begin
+               LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint);
+             end;
+           end;
          end;
       end;
       1 : //XMD5
       begin
          LHashMD5 := TIdHashMessageDigest5.Create;
          try
-
-           LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,AStartPoint,LByteCount)));
+           LLocalCRC := Sys.UpperCase(  TIdHashMessageDigest5.AsHex( LHashMD5.HashValue(ALocalFile,AStartPoint,AStartPoint+LByteCount)));
          finally
            Sys.FreeAndNil(LHashMD5);
          end;
-         Result := LLocalCRC = LRemoteCRC;
+
+         //XMD5 "filename" startpos endpos
+         //I think there's two syntaxes to this:
+         //
+         //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
+         //
+         //or what's used by some other servers if "FEAT line contains XMD5"
+         //
+         //XCRC "filename" [startpos] [number of bytes to calc]
+
+         if IndexOfFeatLine('XMD5 filename;start;end')>-1 then
+         begin
+           LCMD := 'XMD5 "'+ARemoteFile+'" '+Sys.IntToStr(AStartPoint)+' '+Sys.IntToStr( AStartPoint+LByteCOunt-1 );
+         end
+         else
+         begin
+           //BlackMoon FTP Server uses this one.
+           LCMD := 'XMD5 "'+ARemoteFile+'"';
+           if AByteCount >0 then
+           begin
+             LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint)+' '+Sys.IntToStr(LByteCount);
+           end
+           else
+           begin
+             if AStartPoint >0 then
+             begin
+               LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint);
+             end;
+           end;
+         end;
       end;
       2 : //XCRC
       begin
@@ -3993,11 +4048,26 @@ begin
          finally
            Sys.FreeAndNil(LHashMD5);
          end;
+         LCMD := 'XCRC "'+ARemoteFile+'"';
+           if AByteCount >0 then
+           begin
+             LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint)+' '+Sys.IntToStr(LByteCount);
+           end
+           else
+           begin
+             if AStartPoint >0 then
+             begin
+               LCMD := LCMD + ' '+Sys.IntToStr(AStartPoint);
+             end;
+           end;
       end;
     end;
-
-
-
+    if SendCMD(LCMD) = 250 then
+    begin
+       LRemoteCRC := Sys.UpperCase( Sys.Trim(LastCmdResult.Text.Text));
+       IdDelete(LRemoteCRC, 1, IndyPos(' ', LRemoteCRC)); // delete the response
+    end;
+    Result := LLocalCRC = LRemoteCRC;
 end;
 
 end.
