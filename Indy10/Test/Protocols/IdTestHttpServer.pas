@@ -58,7 +58,7 @@ begin
     HttpSrv.DefaultPort := 1234;
     HttpSrv.OnException := HandleException;
     HttpSrv.Intercept := aIntercept;
-    aIntercept.FileName := 'w:\httpsrv.log';
+    aIntercept.FileName := '\indytest_httpserver.log';
     HttpSrv.Active := True;
     try
       aDebug := TIdLogDebug.Create;
