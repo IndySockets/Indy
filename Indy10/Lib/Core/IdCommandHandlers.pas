@@ -468,8 +468,9 @@ begin
         end;
       // UpdateText here in case user wants to add to it. SendReply also gets it in case
       // a different reply is sent (ie exception, etc), or the user changes the code in the event
+
       Reply.UpdateText;
-//         Response.Assign(Self.Response); This was unnessecary! and wrong
+
     except
       on E: Exception do begin
         if PerformReply then begin
