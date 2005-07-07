@@ -1,9 +1,14 @@
 unit IdAboutVCL;
 
 interface
+{$I IdCompilerDefines.inc}
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ExtCtrls;
+  {$IFDEF LINUX}
+  QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Types, Qt,
+  {$ELSE}
+  Windows, Messages, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms,
+  {$ENDIF}
+  Classes, SysUtils;
 
 type
   TfrmAbout = class(TForm)
