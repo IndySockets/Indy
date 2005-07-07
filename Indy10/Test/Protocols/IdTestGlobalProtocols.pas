@@ -10,12 +10,20 @@ uses
   IdTest;
 
 type
+
   TIdTestGlobalProtocols = class(TIdTest)
   published
     procedure TestRPos;
+    procedure TestStrToWord;
   end;
 
 implementation
+
+procedure TIdTestGlobalProtocols.TestStrToWord;
+begin
+  //edge case
+  StrToWord('');
+end;
 
 procedure TIdTestGlobalProtocols.TestRPos;
 begin
@@ -24,5 +32,7 @@ begin
 end;
 
 initialization
+
   TIdTest.RegisterTest(TIdTestGlobalProtocols);
+
 end.
