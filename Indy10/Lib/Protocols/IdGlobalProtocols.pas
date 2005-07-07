@@ -856,18 +856,18 @@ end;
 
 function StrToWord(const Value: String): Word;
 begin
-  {$IFDEF DOTNET}
   if Length(Value)>1 then
   begin
+    {$IFDEF DOTNET}
     Result := TwoCharToWord(Value[1],Value[2]);
+    {$ELSE}
+    Result := Word(pointer(@Value[1])^);
+    {$ENDIF}
   end
   else
   begin
     Result := 0;
   end;
-  {$ELSE}
-  Result := Word(pointer(@Value[1])^);
-  {$ENDIF}
 end;
 
 function WordToStr(const Value: Word): String;
