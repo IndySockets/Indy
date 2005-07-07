@@ -512,22 +512,31 @@ begin
   LContext.PipeLining := False;
   if TextIsSame(Login, 'LOGIN') then begin   {Do not Localize}
     // LOGIN USING THE LOGIN AUTH - BASE64 ENCODED
-    s := TIdEncoderMIME.EncodeString('Username:');     {Do not Localize}
+    with TIdEncoderMIME.Create do try
+      // Encoding a string literal?
+      s := Encode('Username:');     {Do not Localize}
+    finally Free; end;
     //  s := SendRequest( '334 ' + s );    {Do not Localize}
     ASender.Reply.SetReply(334, s);    {Do not Localize}
     ASender.SendReply;
     s := Sys.Trim(LContext.Connection.IOHandler.ReadLn);
     if s <> '' then begin   {Do not Localize}
       try
-        LUsername := TIdDecoderMIME.DecodeString(s);
+        with TIdDecoderMIME.Create do try
+          LUsername := DecodeString(s);
+        finally Free; end;
         // What? Endcode this string literal?
-        s := TIdEncoderMIME.EncodeString('Password:');    {Do not Localize}
+        with TIdEncoderMIME.Create do try
+          s := Encode('Password:');    {Do not Localize}
+        finally Free; end;
         //    s := SendRequest( '334 ' + s );    {Do not Localize}
         ASender.Reply.SetReply(334, s);    {Do not Localize}
         ASender.SendReply;
         s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
         if Length(s) > 0 then begin
-          LPassword := TIdDecoderMIME.DecodeString(s);
+          with TIdDecoderMIME.Create do try
+            LPassword := DecodeString(s);
+          finally Free; end;
         end else begin
           LAuthFailed := True;
         end;

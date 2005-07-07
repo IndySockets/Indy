@@ -954,7 +954,9 @@ var
         if (LBodyLine <> '') and (LBodyLine[1] = '.') then begin           {do not localize}
           ATextPart.Body[i] := '.' + LBodyLine;                            {do not localize}
         end;
-        LData := TIdEncoderQuotedPrintable.EncodeString(ATextPart.Body[i] + EOL);
+        with TIdEncoderQuotedPrintable.Create do try
+          LData := Encode(ATextPart.Body[i] + EOL);
+        finally Free; end;
         if TransferEncoding = iso2022jp then begin
           IOHandler.Write(Encode2022JP(LData))
         end else begin

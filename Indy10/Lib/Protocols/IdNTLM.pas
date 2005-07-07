@@ -256,7 +256,9 @@ begin
   SetLength(S, SizeOf(Type_1_Message));
   UniqueString(S);
   Move(Type_1_Message, S[1], SizeOf(Type_1_Message));
-  result := TIdEncoderMIME.EncodeString(S + UpperCase(AHost) + UpperCase(ADomain));
+  with TIdEncoderMIME.Create do try
+    result := Encode(S + UpperCase(AHost) + UpperCase(ADomain));
+  finally Free; end;
 end;
 
 function BuildType3Message(ADomain, AHost, AUsername: WideString; APassword, ANonce: String): String;
@@ -303,7 +305,9 @@ begin
 
   SetLength(S, SizeOf(Type3));
   Move(Type3, S[1], SizeOf(Type3));
-  result := TIdEncoderMIME.EncodeString(S + ADomain + AUsername + AHost + lm_password + nt_password);
+  with TIdEncoderMIME.Create do try
+    result := Encode(S + ADomain + AUsername + AHost + lm_password + nt_password);
+  finally Free; end;
 end;
 
 end.

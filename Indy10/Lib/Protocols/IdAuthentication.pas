@@ -268,8 +268,10 @@ end;
 
 function TIdBasicAuthentication.Authentication: String;
 begin
-  result := 'Basic ' {do not localize}
-    + TIdEncoderMIME.EncodeString(Username + ':' + Password);  {do not localize}
+  with TIdEncoderMIME.Create do try
+    result := 'Basic ' {do not localize}
+      + Encode(Username + ':' + Password);  {do not localize}
+  finally Free; end;
 end;
 
 function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;

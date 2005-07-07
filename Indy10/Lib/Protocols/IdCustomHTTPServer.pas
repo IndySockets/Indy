@@ -796,7 +796,9 @@ begin
             LRequestInfo.FAuthExists := (Length(s) > 0);
             if LRequestInfo.AuthExists then begin
               if TextIsSame(Fetch(s, ' '), 'Basic') then begin    {Do not Localize}
-                s := TIdDecoderMIME.DecodeString(s);
+                with TIdDecoderMIME.Create do try
+                  s := DecodeString(s);
+                finally Free; end;
                 LRequestInfo.FAuthUsername := Fetch(s, ':');    {Do not Localize}
                 LRequestInfo.FAuthPassword := s;
               end else begin

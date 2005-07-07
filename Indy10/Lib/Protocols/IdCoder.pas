@@ -103,7 +103,6 @@ type
     function Encode(const ASrc: string): string; overload;
     function Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt)
      : string; overload; virtual; abstract;
-    class function EncodeString(const AIn: string): string;
   end;
 
   TIdDecoder = class(TIdBaseComponent)
@@ -112,9 +111,10 @@ type
   public
     procedure Decode(const AIn: string; const AStartPos: Integer = 1;
      const ABytes: Integer = -1); virtual; abstract;
+    // This is not an overload as it is "Encapselated" for one time encoding, not progressive
+    function DecodeString(const aIn: string): string;
     procedure DecodeBegin(ADestStream: TIdStream); virtual;
     procedure DecodeEnd; virtual;
-    class function DecodeString(const AIn: string): string;
   end;
   TIdDecoderClass = class of TIdDecoder;
 
@@ -125,6 +125,21 @@ uses
 
 { TIdDecoder }
 
+function TIdDecoder.DecodeString(const aIn: string): string;
+var
+  LStream: TIdMemoryStream;
+begin
+  with Create(nil) do try
+    LStream := TIdMemoryStream.Create; try {Do not Localize}
+      DecodeBegin(LStream); try
+        Decode(AIn);
+        LStream.Position := 0;
+        Result := ReadStringFromStream(LStream);
+      finally DecodeEnd; end;
+    finally Sys.FreeAndNil(LStream); end;
+  finally Free; end;
+end;
+
 procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream);
 begin
   FStream := ADestStream;
@@ -132,21 +147,6 @@ end;
 
 procedure TIdDecoder.DecodeEnd;
 begin
-end;
-
-class function TIdDecoder.DecodeString(const AIn: string): string;
-var
-  LStream: TIdMemoryStream;
-begin
-  with Create(nil) do try
-    LStream := TIdMemoryStream.Create; try {Do not Localize}
-        DecodeBegin(LStream); try
-          Decode(AIn);
-          LStream.Position := 0;
-          Result := ReadStringFromStream(LStream);
-        finally DecodeEnd; end;
-    finally Sys.FreeAndNil(LStream); end;
-  finally Free; end;
 end;
 
 { TIdEncoder }
@@ -160,13 +160,6 @@ begin
       LStream.Position := 0;
       Result := Encode(LStream);
   finally Sys.FreeAndNil(LStream); end;
-end;
-
-class function TIdEncoder.EncodeString(const AIn: string): string;
-begin
-  with Create(nil) do try
-    Result := Encode(AIn);
-  finally Free; end;
 end;
 
 end.

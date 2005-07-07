@@ -149,7 +149,9 @@ begin
           Sys.Abort;
         end;
 
-        S := TIdDecoderMIME.DecodeString(FNTLMInfo);
+        with TIdDecoderMIME.Create do try
+          S := DecodeString(FNTLMInfo);
+        finally Free; end;
         move(S[1], type2, sizeof(type2));
         Delete(S, 1, sizeof(type2));
 

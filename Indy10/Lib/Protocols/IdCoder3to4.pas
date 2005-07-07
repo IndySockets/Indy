@@ -167,11 +167,10 @@ type
   protected
     FCodingTable: string;
     FFillChar: Char;
-    function EncodeIdBytes(ABuffer: TIdBytes): TIdBytes;
   public
+    function EncodeIdBytes(ABuffer: TIdBytes): TIdBytes;
     function Encode(ASrcStream: TIdStream;
      const ABytes: Integer = MaxInt): string; override;
-    //procedure EncodeUnit(const AIn1, AIn2, AIn3: Byte; var VOut: TIdBytes);
   published
     property CodingTable: string read FCodingTable;
     property FillChar: Char read FFillChar write FFillChar;

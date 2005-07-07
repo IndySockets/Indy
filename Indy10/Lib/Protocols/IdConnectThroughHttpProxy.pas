@@ -94,7 +94,10 @@ var
 Begin
   AIOHandler.WriteLn(Sys.Format('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
   if ALogin then begin
-    AIOHandler.WriteLn(Sys.Format('Proxy-authorization: basic %s', [TIdEncoderMIME.EncodeString(Username + ':' + Password)]));  {do not localize}
+    with TIdEncoderMIME.Create do try
+      AIOHandler.WriteLn('Proxy-authorization: basic '
+       + Encode(Username + ':' + Password));  {do not localize}
+    finally Free; end;
   end;
   AIOHandler.WriteLn;
   LStatus:=AIOHandler.ReadLn;
