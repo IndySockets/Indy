@@ -165,15 +165,19 @@ function TIdDecoder.DecodeString(const aIn: string): string;
 var
   LStream: TIdMemoryStream;
 begin
-  with Create(nil) do try
-    LStream := TIdMemoryStream.Create; try {Do not Localize}
-      DecodeBegin(LStream); try
-        Decode(AIn);
-        LStream.Position := 0;
-        Result := ReadStringFromStream(LStream);
-      finally DecodeEnd; end;
-    finally Sys.FreeAndNil(LStream); end;
-  finally Free; end;
+  LStream := TIdMemoryStream.Create;
+  try
+    DecodeBegin(LStream);
+    try
+      Decode(AIn);
+      LStream.Position := 0;
+      Result := ReadStringFromStream(LStream);
+    finally
+      DecodeEnd;
+    end;
+  finally
+    Sys.FreeAndNil(LStream);
+  end;
 end;
 
 procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream);
@@ -184,8 +188,6 @@ end;
 procedure TIdDecoder.DecodeEnd;
 begin
 end;
-
-{ TIdEncoder }
 
 function TIdEncoder.Encode(const ASrc: string): string;
 var
