@@ -274,7 +274,6 @@ procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage;
 var
   LError : TIdReplySMTP;
   I, LFailedRecips : Integer;
-  LRecipOk: Boolean;
 
   function SetupErrorReply(AClient : TIdMessageClient) : TIdReplySMTP;
   begin
@@ -319,24 +318,23 @@ begin
         LError := SetupErrorReply(Self);
       end;
     end;
-    //DATA - last in the batch
-    if PosInSmallIntArray(GetResponse([]), DATA_ACCEPT) = -1 then begin
-      if not Assigned(LError) then begin
-        LError := SetupErrorReply(Self);
-      end;
-      LError.RaiseReplyError;
+
+   //DATA - last in the batch 
+    if PosInSmallIntArray(GetResponse([]), DATA_ACCEPT) <> -1 then begin
+      SendMsg(AMsg); 
+      SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize} 
+    end else begin 
+      if not Assigned(LError) then begin 
+        LError := SetupErrorReply(Self); 
+      end; 
+      SendCmd(RSET_CMD); 
+    end; 
+    if Assigned(LError) then begin 
+      LError.RaiseReplyError; 
     end;
-    if Assigned(LError) then begin
-      //cancel the message send - there was an error in the replies
-      SendCmd('.');
-      //raise the exception from the first error code
-      LError.RaiseReplyError;
-    end else begin
-      SendMsg(AMsg);
-      SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize}
-    end;
+
   finally
-    FreeAndNil(LError);
+    Sys.FreeAndNil(LError);
   end;
 end;
 
