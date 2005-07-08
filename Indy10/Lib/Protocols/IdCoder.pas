@@ -98,12 +98,15 @@ uses
   IdObjs;
 
 type
+
   TIdEncoder = class(TIdBaseComponent)
   public
     function Encode(const ASrc: string): string; overload;
     function Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt)
      : string; overload; virtual; abstract;
   end;
+
+  TIdEncoderClass = class of TIdEncoder;
 
   TIdDecoder = class(TIdBaseComponent)
   protected
@@ -116,14 +119,47 @@ type
     procedure DecodeBegin(ADestStream: TIdStream); virtual;
     procedure DecodeEnd; virtual;
   end;
+
   TIdDecoderClass = class of TIdDecoder;
+
+  //these replace class functions for encode/decode
+  //they cant be used as .net cant handle class functions that refer to Self
+  //so instead pass the class as a parameter
+  function EncodeString(const aClass:TIdEncoderClass;const aIn:string):string;
+  function DecodeString(const aClass:TIdDecoderClass;const aIn:string):string;
 
 implementation
 
 uses
   IdGlobalProtocols;
 
-{ TIdDecoder }
+function EncodeString(const aClass:TIdEncoderClass;const aIn:string):string;
+var
+  aCoder:TIdEncoder;
+begin
+  Assert(aClass<>nil);
+
+  aCoder:=aClass.Create;
+  try
+    Result:=aCoder.Encode(aIn);
+  finally
+    Sys.FreeAndNil(aCoder);
+  end;
+end;
+
+function DecodeString(const aClass:TIdDecoderClass;const aIn:string):string;
+var
+  aCoder:TIdDecoder;
+begin
+  Assert(aClass<>nil);
+
+  aCoder:=aClass.Create;
+  try
+    Result:=aCoder.DecodeString(aIn);
+  finally
+    Sys.FreeAndNil(aCoder);
+  end;
+end;
 
 function TIdDecoder.DecodeString(const aIn: string): string;
 var
