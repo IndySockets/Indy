@@ -15,6 +15,7 @@ type
     procedure TestToBytes;
     procedure TestBytesToChar;
     procedure TestReadStringFromStream;
+    procedure TestReadTIdBytesFromStream;
   end;
 
 implementation
@@ -81,6 +82,26 @@ begin
   Assert(aBytes[0] = 85);
 
   //todo, test other types
+end;
+
+procedure TIdTestGlobal.TestReadTIdBytesFromStream;
+var
+  aStream:TIdMemoryStream;
+  aBytes:TIdBytes;
+  aStr:string;
+const
+  cStr='123';
+begin
+  aStream:=TIdMemoryStream.Create;
+  try
+  WriteStringToStream(aStream,cStr);
+  aStream.Position:=0;
+  ReadTIdBytesFromStream(aStream,aBytes,-1);
+  aStr:=BytesToString(aBytes);
+  Assert(aStr=cStr);
+  finally
+  Sys.FreeAndNil(aStream);
+  end;
 end;
 
 initialization
