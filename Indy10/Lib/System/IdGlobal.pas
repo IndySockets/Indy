@@ -1015,8 +1015,8 @@ function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExc
 function ReadStringFromStream(AStream: TIdStream; ASize: Integer = -1): string;
 procedure WriteStringToStream(AStream: TIdStream; const AStr: string);
 function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
-function ReadTIdBytesFromStream(AStream: TIdStream; ABytes: TIdBytes; Count: Integer): Integer;
-procedure WriteTIdBytesToStream(AStream: TIdStream; ABytes: TIdBytes);
+function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
+procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -2928,7 +2928,7 @@ begin
   Result := BytesToString(LBytes, 0, ASize);  // is the 0 right?
 end;
 
-function ReadTIdBytesFromStream(AStream: TIdStream; ABytes: TIdBytes; Count: Integer): Integer;
+function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
 begin
   Result := TIdStreamHelper.ReadBytes(AStream, ABytes, Count);
 end;
@@ -2938,7 +2938,7 @@ begin
   Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
 end;
 
-procedure WriteTIdBytesToStream(AStream: TIdStream; ABytes: TIdBytes);
+procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes);
 begin
   TIdStreamHelper.Write(AStream, ABytes);
 end;
