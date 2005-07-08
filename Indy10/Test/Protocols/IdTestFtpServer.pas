@@ -92,28 +92,28 @@ begin
       c.Port:=cTestFtpPort;
       c.Host:='127.0.0.1';
       c.Connect;
-OutputLn('Connected');
+//OutputLn('Connected');
       c.IOHandler.ReadTimeout:=500;
 
       //expect a greeting. typical="220 FTP Server Ready."
       aStr:=c.IOHandler.Readln;
 
-OutputLn('ReadLn(1)');
+//OutputLn('ReadLn(1)');
       Assert(aStr = '220 ' + cGreeting, cGreeting);
 
       //ftp server should only process a command after crlf
       //see TIdFTPServer.ReadCommandLine
       c.IOHandler.Write('U');
-      OutputLn('Write(''U'')');
+//OutputLn('Write(''U'')');
       aStr:=c.IOHandler.Readln;
-      OutputLn('ReadLn(2)');
+//OutputLn('ReadLn(2)');
       Assert(aStr='',aStr);
 
       //complete the rest of the command
       c.IOHandler.WriteLn('SER ANONYMOUS');
-      OutputLn('WriteLn(2)');
+//OutputLn('WriteLn(2)');
       aStr:=c.IOHandler.Readln;
-      OutputLn('ReadLn(3)');
+//OutputLn('ReadLn(3)');
       Assert(aStr<>'',aStr);
 
       //attempt to start a transfer when no datachannel setup.
@@ -141,7 +141,7 @@ begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdFTP.Create(nil);
   try
-OutputLn('   TestMethods');
+//OutputLn('   TestMethods');
     s.Greeting.Text.Text:=cGreeting;
     s.DefaultPort:=cTestFtpPort;
     s.OnStoreFile:=CallbackStore;
@@ -153,7 +153,7 @@ OutputLn('   TestMethods');
     c.IOHandler.ReadTimeout:=1000;
     c.AutoLogin:=False;
     c.Connect;
-OutputLn('Connected');
+//OutputLn('Connected');
     //check invalid login
     //check valid login
     //check allow/disallow anonymous login
@@ -162,21 +162,20 @@ OutputLn('Connected');
     c.Username:='anonymous';
     c.Password:='bob@example.com';
     c.Login;
-OutputLn('LoggedOn');
-OutputLn('PORT Mode tests');
-     repeat
+//OutputLn('LoggedOn');
+//OutputLn('PORT Mode tests');
+    repeat
     //check stream upload
     aStream:=TIdMemoryStream.Create;
     try
       WriteStringToStream(aStream, cContent);
-aStream.Position := 0;
-    c.Put(aStream,cUploadTo);
-     
+      aStream.Position := 0;
+      c.Put(aStream,cUploadTo);
     finally
-    Sys.FreeAndNil(aStream);
+      Sys.FreeAndNil(aStream);
     end;
 
-OutputLn('Put done.');
+//OutputLn('Put done.');
     //check no dest filename
     //check missing source file
     //check file upload rejected by server. eg out of space?
@@ -191,7 +190,7 @@ OutputLn('Put done.');
     try
     //test download to stream
     c.Get(cGoodFilename,aStream);
-OutputLn('Get done.');
+//OutputLn('Get done.');
 //    Assert(aStream.DataString=cContent);
 
     //test exception on server gets sent to client
@@ -211,7 +210,7 @@ OutputLn('Get done.');
         break;
       end;
 
-OutputLn('PASV Mode tests');
+//OutputLn('PASV Mode tests');
       c.Passive := True;
     until False;
   finally
