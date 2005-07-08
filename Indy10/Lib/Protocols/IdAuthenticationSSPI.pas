@@ -46,6 +46,7 @@ interface
 
 uses
   IdAuthentication,
+  IdCoder,
   Windows,
   SysUtils,
   IdSys,
@@ -998,7 +999,7 @@ begin
           FSSPIClient.SetCredentialsAsCurrentUser
         else
           FSSPIClient.SetCredentials(Domain, Username, Password);
-        result := 'NTLM ' + TIdEncoderMIME.EncodeString(FSSPIClient.InitAndBuildType1Message);  {Do not translate}
+        result := 'NTLM ' + EncodeString(TIdEncoderMIME,FSSPIClient.InitAndBuildType1Message);  {Do not translate}
         FNTLMInfo := '';    {Do not translate}
       end;
     2:
@@ -1015,8 +1016,8 @@ begin
           Abort;
         end;
 
-        S := TIdDecoderMIME.DecodeString(FNTLMInfo);
-        result := 'NTLM ' + TIdEncoderMIME.EncodeString(FSSPIClient.UpdateAndBuildType3Message(S));  {Do not translate}
+        S := DecodeString(TIdDecoderMIME,FNTLMInfo);
+        result := 'NTLM ' + EncodeString(TIdEncoderMIME,FSSPIClient.UpdateAndBuildType3Message(S));  {Do not translate}
         FCurrentStep := 3;
       end;
     3: begin
