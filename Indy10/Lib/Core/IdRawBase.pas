@@ -165,7 +165,9 @@ begin
 end;
 
 function TIdRawBase.GetBinding: TIdSocketHandle;
+{$IFNDEF DOTNET}
 var LC : Cardinal;
+{$ENDIF}
 begin
   if not FBinding.HandleAllocated then begin
     FBinding.IPVersion := Self.FIPVersion;
