@@ -23,6 +23,7 @@ uses
   IdZLibCompressorBase,
   IdObjs,
   IdLogDebug,
+  IdCoder,
   IdCoderMime,
   IdSys,
   IdContext,
@@ -305,7 +306,7 @@ begin
     begin
     //todo reply based on the requests ContentEncoding string
     AResponseInfo.ContentEncoding:=cEncodingGZip;
-    AResponseInfo.ContentText:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
+    AResponseInfo.ContentText:=DecodeString(TIdDecoderMIME,cHelloWorldGz);
     end
   else
     begin
@@ -374,7 +375,7 @@ var
   s:string;
 begin
   //string now contains a gz encoded test string
-  s:=TIdDecoderMIME.DecodeString(cHelloWorldGz);
+  s:=DecodeString(TIdDecoderMIME,cHelloWorldGz);
 
   //better way to do? eg iterate and test all registered compression classes?
   {$IFDEF DOTNET}

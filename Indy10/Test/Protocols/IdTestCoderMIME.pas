@@ -3,6 +3,7 @@ unit IdTestCoderMIME;
 interface
 
 uses
+  IdCoder,
   IdCoderMIME,
   IdSys,
   IdGlobal,
@@ -27,7 +28,7 @@ procedure TIdTestCoderMIME.TestDecodeMIME;
 var
  s:string;
 begin
- s:=TIdDecoderMIME.DecodeString(cEnc1);
+ s:=DecodeString(TIdDecoderMIME,cEnc1);
  Assert(s=cDec1);
 end;
 
@@ -38,7 +39,7 @@ var
  TempStream: TIdMemoryStream;
 begin
  //using class method
- s:=TIdDecoderMIMELineByLine.DecodeString(cEnc1);
+ s:=DecodeString(TIdDecoderMIMELineByLine,cEnc1);
  Assert(s=cDec1,s);
 
  //using 'manually'

@@ -5,6 +5,7 @@ interface
 //http://www.freesoft.org/CIE/RFC/1521/6.htm
 
 uses
+  IdCoder,
   IdCoderQuotedPrintable,
   IdStack,
   IdStream,
@@ -35,8 +36,8 @@ var
  aEnc,aDec:string;
  aExpect:string;
 begin
- aEnc:=TIdEncoderQuotedPrintable.EncodeString(aStr);
- aDec:=TIdDecoderQuotedPrintable.DecodeString(aEnc);
+ aEnc:=EncodeString(TIdEncoderQuotedPrintable,aStr);
+ aDec:=DecodeString(TIdDecoderQuotedPrintable,aEnc);
 
  //seems that it adds a crlf if not already there
  if StrRight(aStr,2)=#13#10 then aExpect:=aStr
