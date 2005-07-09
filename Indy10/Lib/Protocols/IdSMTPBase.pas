@@ -112,7 +112,6 @@ uses
   IdMessage,
   IdMessageClient,
   IdReply,
-  IdReplySMTP,
   IdSys,
   IdTCPClient;
 
@@ -130,6 +129,7 @@ const
   MAILFROM_ACCEPT : SmallInt = 250;
   DATA_ACCEPT : SmallInt = 354;
   DATA_PERIOD_ACCEPT : SmallInt = 250;
+  RSET_ACCEPT : SmallInt = 250;
 
 const
   RSET_CMD = 'RSET';            {do not localize}
@@ -157,11 +157,10 @@ type
     procedure SetPipeline(const AValue: Boolean);
     procedure StartTLS;
 
-     function SetupErrorReply : TIdReplySMTP;
     function FailedRecipientCanContinue(const AAddress: string): Boolean;
     //No pipeline send methods
     function WriteRecipientNoPipelining(const AEmailAddress: TIdEmailAddressItem): Boolean;
-    function WriteRecipientsNoPipelining(AList: TIdEmailAddressList) : Boolean;
+    procedure WriteRecipientsNoPipelining(AList: TIdEmailAddressList);
     procedure SendNoPipelining(AMsg: TIdMessage; ARecipients : TIdEMailAddressList); overload;
     //pipeline send methods
     procedure WriteRecipientPipeLine(const AEmailAddress: TIdEmailAddressItem);
@@ -184,7 +183,7 @@ implementation
 uses
   IdAssignedNumbers, IdException, IdGlobal,
   IdExplicitTLSClientServerBase,
-  IdGlobalProtocols, IdIOHandler,
+  IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,
   IdStack; //required as we need to get the local computer DNS hostname.
 
@@ -259,37 +258,20 @@ begin
   end;
 end;
 
-procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage;
-  ARecipients: TIdEMailAddressList);
-var LError : TIdReplySMTP;
+procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
 begin
+  SendCmd(RSET_CMD);
+  SendCmd(MAILFROM_CMD + ' <' + AMsg.From.Address + '>', MAILFROM_ACCEPT);    {Do not Localize}
   try
-    SendCmd(RSET_CMD);    {Do not Localize}
-    SendCmd(MAILFROM_CMD + ' <' + AMsg.From.Address + '>', MAILFROM_ACCEPT);    {Do not Localize}
-    if WriteRecipientsNoPipelining(ARecipients) then
-    begin
-      if SendCmd(DATA_CMD) = DATA_ACCEPT then   {Do not Localize}
-      begin
-        SendMsg(AMsg);
-        SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize}
-      end
-      else
-      begin
-        LError := SetupErrorReply;
-      end;
-    end
-    else
-    begin
-      LError := SetupErrorReply;
-
-    end;
-    if Assigned(LError) then
-    begin
+    WriteRecipientsNoPipelining(ARecipients);
+    SendCmd(DATA_CMD, DATA_ACCEPT);
+    SendMsg(AMsg);
+    SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize}
+  except
+    on E: EIdSMTPReplyError do begin
       SendCmd(RSET_CMD);
-      LError.RaiseReplyError;
+      raise;
     end;
-  finally
-    Sys.FreeAndNil(LError);
   end;
 end;
 
@@ -298,6 +280,14 @@ procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage;
 var
   LError : TIdReplySMTP;
   I, LFailedRecips : Integer;
+
+  function SetupErrorReply: TIdReplySMTP;
+  begin
+    Result := TIdReplySMTP.Create(nil);
+    Result.Text.Text := LastCmdResult.Text.Text;
+    Result.NumericCode := LastCmdResult.NumericCode;
+    Result.EnhancedCode.ReplyAsStr := (LastCmdResult as TIdReplySMTP).EnhancedCode.ReplyAsStr;
+  end;
 
 begin
   LError := nil;
@@ -312,10 +302,14 @@ begin
       IOHandler.WriteBufferClose;
     end;
     //RSET
-    GetResponse([]);
+    if PosInSmallIntArray(GetResponse([]), RSET_ACCEPT) = -1 then begin
+      LError := SetupErrorReply;
+    end;
     //MAIL FROM:
     if PosInSmallIntArray(GetResponse([]), MAILFROM_ACCEPT) = -1 then begin
-      LError := SetupErrorReply;
+      if not Assigned(LError) then begin
+        LError := SetupErrorReply;
+      end;
     end;
     //RCPT TO:
     if ARecipients.Count > 0 then begin
@@ -334,22 +328,23 @@ begin
         LError := SetupErrorReply;
       end;
     end;
-
-   //DATA - last in the batch 
+    //DATA - last in the batch
     if PosInSmallIntArray(GetResponse([]), DATA_ACCEPT) <> -1 then begin
-      SendMsg(AMsg); 
-      SendCmd('.', DATA_PERIOD_ACCEPT);    {Do not Localize} 
-    end else begin 
-      if not Assigned(LError) then begin 
-        LError := SetupErrorReply; 
-      end; 
-
-    end; 
-    if Assigned(LError) then begin
-      SendCmd(RSET_CMD); 
-      LError.RaiseReplyError; 
+      SendMsg(AMsg);
+      if PosInSmallIntArray(SendCmd('.'), DATA_PERIOD_ACCEPT) = -1 then begin {Do not Localize}
+        if not Assigned(LError) then begin
+          LError := SetupErrorReply;
+        end;
+      end;
+    end else begin
+      if not Assigned(LError) then begin
+        LError := SetupErrorReply;
+      end;
     end;
-
+    if Assigned(LError) then begin
+      SendCmd(RSET_CMD);
+      LError.RaiseReplyError;
+    end;
   finally
     Sys.FreeAndNil(LError);
   end;
@@ -411,15 +406,12 @@ begin
   IOHandler.WriteLn(RCPTTO_CMD + '<' + AEMailAddress.Address + '>');
 end;
 
-function TIdSMTPBase.WriteRecipientsNoPipelining(
-  AList: TIdEmailAddressList) : Boolean;
+procedure TIdSMTPBase.WriteRecipientsNoPipelining(AList: TIdEmailAddressList);
 var
   I, LFailedRecips: Integer;
   LContinue: Boolean;
 begin
-  Result := False;
   if AList.Count > 0 then begin
-    Result := True;
     LFailedRecips := 0;
     LContinue := True;
     for I := 0 to AList.Count - 1 do begin
@@ -432,8 +424,7 @@ begin
       end;
     end;
     if (not LContinue) or (LFailedRecips = AList.Count) then begin
-      Result := False;
-    //  LastCmdResult.RaiseReplyError;
+      LastCmdResult.RaiseReplyError;
     end;
   end;
 end;
@@ -455,14 +446,6 @@ begin
   end else begin
     SendNoPipelining(AMsg, ARecipients);
   end;
-end;
-
-function TIdSMTPBase.SetupErrorReply: TIdReplySMTP;
-begin
-    Result := TIdReplySMTP.Create(nil);
-    Result.Text.Text := LastCmdResult.Text.Text;
-    Result.NumericCode := LastCmdResult.NumericCode;
-    Result.EnhancedCode.ReplyAsStr := (LastCmdResult as TIdReplySMTP).EnhancedCode.ReplyAsStr;
 end;
 
 end.
