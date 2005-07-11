@@ -174,7 +174,6 @@ end;
 procedure TIdTrivialFTPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   wOp: Word;
-  s,
   LBuf,
   FileName: String;
   RequestedBlkSize: integer;
@@ -183,20 +182,20 @@ var
 begin
   inherited DoUDPRead(AData, ABinding);
   try
-    s := BytesToString(AData);
+    LBuf := BytesToString(AData);
     wOp := StrToWord(Copy(LBuf,1,2));
     wOp := GStack.NetworkToHost(wOp);
     //delete wOp from the request.
-    IdDelete(s,1,2);
+    IdDelete(LBuf,1,2);
     if wOp IN [TFTP_RRQ, TFTP_WRQ] then
     begin
-      FileName := Fetch(s, #0);
-      Mode := StrToMode(Fetch(s, #0));
+      FileName := Fetch(LBuf, #0);
+      Mode := StrToMode(Fetch(LBuf, #0));
       RequestedBlkSize := 0;
-      if (Copy(s,1,Length(sBlockSize))=sBlockSize) then
+      if (Copy(LBuf,1,Length(sBlockSize))=sBlockSize) then
       begin
-        Fetch(s, #0);
-        RequestedBlkSize := Sys.StrToInt(Fetch(s, #0));
+        Fetch(LBuf, #0);
+        RequestedBlkSize := Sys.StrToInt(Fetch(LBuf, #0));
       end;
       PeerInfo.PeerIP := ABinding.PeerIP;
       PeerInfo.PeerPort := ABinding.PeerPort;
@@ -385,7 +384,7 @@ begin
           BlkCounter := Word(succ(BlkCounter));
           Response := WordToStr(GStack.NetworkToHost(Word(TFTP_DATA))) +
                       WordToStr(GStack.NetworkToHost(Word(BlkCounter)));
-          LBuf := ReadStringFromStream( FStream,Length(Response) - hdrsize);
+          LBuf := ReadStringFromStream( FStream,FUDPClient.BufferSize - hdrsize);
           i := Length(LBuf);
           Response := Response + LBuf;
           EOT := i < FUDPClient.BufferSize - hdrsize;
