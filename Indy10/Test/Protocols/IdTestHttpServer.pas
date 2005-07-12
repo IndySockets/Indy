@@ -18,28 +18,79 @@ uses
   IdTest;
 
 type
+
   TIdTestHttpServer = class(TIdTest)
   private
     FException: Exception;
     procedure HandleSimpleGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
     procedure HandleException(AContext:TIdContext; AException: Exception);
   published
+    procedure TestRange;
     procedure TestSimpleGet;
   end;
 
 implementation
+
+const
+  cSmallRangeStart=5000;
+  //arbitrary number larger than cardinal
+  cLargeRangeStart=5000000000;
+  cSimpleContent='hello';
 
 procedure TIdTestHttpServer.HandleException(AContext:TIdContext; AException: Exception);
 begin
   if FException = nil then
   begin
     FException := AException;
-  end; 
+  end;
 end;
 
 procedure TIdTestHttpServer.HandleSimpleGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
 begin
-  AResponseInfo.ContentText := 'Hello, World!';
+ if ARequestInfo.Document='/smallrange' then
+   begin
+   Assert(ARequestInfo.ContentRangeStart=cSmallRangeStart);
+   Assert(ARequestInfo.ContentRangeEnd=cSmallRangeStart+1);
+   AResponseInfo.ContentText:='OK';
+   end
+ else if ARequestInfo.Document='/largerange' then
+   begin
+   Assert(ARequestInfo.ContentRangeStart=cLargeRangeStart);
+   Assert(ARequestInfo.ContentRangeEnd=cLargeRangeStart+1);
+   AResponseInfo.ContentText:='OK';
+   end
+ else
+   begin
+   AResponseInfo.ContentText := cSimpleContent;
+   end;
+end;
+
+procedure TIdTestHttpServer.TestRange;
+var
+  aServer:TIdHttpServer;
+  aClient:TIdHttp;
+  s:string;
+begin
+  aServer:=TIdHTTPServer.Create;
+  aClient:=TIdHTTP.Create;
+  try
+    aServer.DefaultPort:=22280;
+    aServer.OnCommandGet:=Self.HandleSimpleGet;
+    aServer.Active:=True;
+
+    aClient.Request.ContentRangeStart:=cSmallRangeStart;
+    aClient.Request.ContentRangeEnd:=cSmallRangeStart+1;
+    s:=aClient.Get('http://127.0.0.1:22280/smallrange');
+    Assert(s='OK',s);
+
+    aClient.Request.ContentRangeStart:=cLargeRangeStart;
+    aClient.Request.ContentRangeEnd:=cLargeRangeStart+1;
+    s:=aClient.Get('http://127.0.0.1:22280/largerange');
+    Assert(s='OK',s);
+  finally
+    Sys.FreeAndNil(aClient);
+    Sys.FreeAndNil(aServer);
+  end;
 end;
 
 procedure TIdTestHttpServer.TestSimpleGet;
@@ -92,7 +143,8 @@ begin
       HttpCli := TIdHttp.Create;
       try
         HttpCli.ReadTimeout := 2500;
-        Assert(HttpCli.Get('http://127.0.0.1:1234/index.html') = 'Hello, World!');
+        TempString:=HttpCli.Get('http://127.0.0.1:1234/index.html');
+        Assert(TempString = cSimpleContent);
       finally
         Sys.FreeAndNil(HttpCli);
         Sys.FreeAndNil(aDebug);
