@@ -241,6 +241,8 @@ Type
 
 implementation
 
+uses IdSysVCL;
+
 const
   DefaultUserAgent = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
 
@@ -352,9 +354,9 @@ begin
       lCRange := Fetch(lRangeDecode, '/');
       lILength := Fetch(lRangeDecode);
 
-      FContentRangeStart := Sys.StrToInt(Fetch(lCRange, '-'), 0);
-      FContentRangeEnd := Sys.StrToInt(lCRange, 0);
-      FContentRangeInstanceLength := Sys.StrToInt(lILength, 0);
+      FContentRangeStart := Sys.StrToInt64(Fetch(lCRange, '-'), 0);
+      FContentRangeEnd := Sys.StrToInt64(lCRange, 0);
+      FContentRangeInstanceLength := Sys.StrToInt64(lILength, 0);
     end;
 
     FDate := GMTToLocalDateTime(Values['Date']); {do not localize}
