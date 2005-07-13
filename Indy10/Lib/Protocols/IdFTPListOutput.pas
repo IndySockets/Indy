@@ -109,7 +109,8 @@ type
   //because we support some minimal things that the user can't set.
   //We have the manditory items to make it harder for the user to mess up.
 
-  TIdFTPFactOutput = (ItemType,Modify,Size,Perm,Unique,UnixMODE,UnixOwner,UnixGroup,CreateTime,LastAccessTime);
+  TIdFTPFactOutput = (ItemType,Modify,Size,Perm,Unique,UnixMODE,UnixOwner,
+    UnixGroup,CreateTime,LastAccessTime,WinAttribs);
   TIdFTPFactOutputs = set of TIdFTPFactOutput;
   TIdDirOutputFormat = (doUnix, doWin32, doEPLF);
   TIdFTPListOutputItem = class(TIdFTPListItem)
@@ -133,6 +134,8 @@ type
     FUnixOwnerPermissions: string;
     FUnixOtherPermissions: string;
     FUnixinode : Integer;
+
+    FWinAttribs : Cardinal;
     //an error has been reported in the DIR listing itself for an item
     FDirError : Boolean;
   public
@@ -155,6 +158,11 @@ type
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
     property ModifiedDateGMT;
+    //Windows NT File Attributes (just like what is reported by RaidenFTPD
+    //BlackMoon FTP Server, and Serv-U
+    //On the server side, you deal with it as a number right from the Win32 FindFirst,
+    //FindNext functions.  Easy
+    property WinAttribs : Cardinal read FWinAttribs write FWinAttribs;
     //MLIST Permissions
     property MLISTPermissions : string read FMLISTPermissions write FMLISTPermissions;
     property UnixOwnerPermissions: string read FUnixOwnerPermissions write FUnixOwnerPermissions;
@@ -1291,6 +1299,11 @@ begin
           Result := Result + 'windows.lastaccesstime='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
         end;
       end;
+    end;
+
+    if WinAttribs in AMLstOpts then  {do not localize}
+    begin
+      Result := Result + 'win32.ea=0x'+ Sys.IntToHex(AItem.WinAttribs,8)+';';
     end;
     Result := Result + ' ' + AItem.FileName;
   end

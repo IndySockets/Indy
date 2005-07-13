@@ -741,7 +741,8 @@ type
     mlsdPerms,
     mlsdUnixModes,
     mlsdFileCreationTime,
-    mlsdFileLastAccessTime);
+    mlsdFileLastAccessTime,
+    mlsdWin32Attributes);
 
   TIdMLSDAttrs = set of TIdMLSDAttr;
 
@@ -2277,6 +2278,10 @@ begin
   if mlsdFileLastAccessTime in FMLSDFacts then
   begin
     LFTPCx.MLSOpts := LFTPCX.MLSOpts +  [LastAccessTime];
+  end;
+  if mlsdWin32Attributes in FMLSDFacts then
+  begin
+    LFTPCx.MLSOpts := LFTPCX.MLSOpts + [WinAttribs];
   end;
   //MS-DOS mode on for MS-DOS
   if Self.FDirFormat = ftpdfDOS then
@@ -5105,6 +5110,18 @@ begin
           Result := Result + ';';
         end;
       end;
+      if IdFTPServer.mlsdWin32Attributes in FMLSDFacts then
+      begin
+        Result := Result + 'windows.lastaccesstime';  {Do not translate}
+        if WinAttribs in AFacts then {Do not translate}
+        begin
+          Result := Result + '*;';  {Do not translate}
+        end
+        else
+        begin
+          Result := Result + ';';
+        end;
+      end;
 end;
 
 procedure TIdFTPServer.DoOnClientID(ASender: TIdFTPServerContext;
@@ -5813,8 +5830,8 @@ var
   LCxt : TIdFTPServerContext;
 
 const
-  LVALIDOPTS : array [0..9] of string =
-  ('type', 'size', 'modify', 'UNIX.mode', 'UNIX.owner', 'UNIX.group', 'unique', 'perm', 'create','windows.lastaccesstime'); {Do not localize}
+  LVALIDOPTS : array [0..10] of string =
+  ('type', 'size', 'modify', 'UNIX.mode', 'UNIX.owner', 'UNIX.group', 'unique', 'perm', 'create','windows.lastaccesstime','win32.ea'); {Do not localize}
 
   function ParseMLSParms(ASvr : TIdFTPServer; const AParms : String) : TIdFTPFactOutputs;
   var Ls : String;
@@ -5858,6 +5875,10 @@ const
         9 : if mlsdFileLastAccessTime in ASvr.FMLSDFacts then
             begin
               Result := Result + [LastAccessTime];
+            end;
+        10 : if  IdFTPServer.mlsdWin32Attributes in ASvr.FMLSDFacts then
+            begin
+              Result := Result + [WinAttribs];
             end;
       end;
     until False;
