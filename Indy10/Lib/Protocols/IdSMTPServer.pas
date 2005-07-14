@@ -79,7 +79,6 @@ uses
   IdObjs;
 
 type
-
   EIdSMTPServerError = class(EIdException);
   EIdSMTPServerNoRcptTo = class(EIdSMTPServerError);
 
@@ -118,6 +117,7 @@ type
   TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream;
     var LAction : TIdDataReply) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; var AReceived : String) of object;
+  TOnSMTPEvent = procedure(ASender: TIdSMTPServerContext) of object;
 
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
@@ -127,6 +127,7 @@ type
     FOnRcptTo : TOnRcptToEvent;
     FOnMsgReceive : TOnMsgReceive;
     FOnReceived : TOnReceived;
+    FOnReset: TOnSMTPEvent;
     //misc
     FServerName : String;
     //
@@ -198,6 +199,7 @@ type
     property OnMailFrom : TOnMailFromEvent read FOnMailFrom write FOnMailFrom;
     property OnRcptTo : TOnRcptToEvent read FOnRcptTo write FOnRcptTo;
     property OnReceived: TOnReceived read FOnReceived write FOnReceived;
+    property OnReset: TOnSMTPEvent read FOnReset write FOnReset;
     //properties
     property ServerName : String read FServerName write FServerName;
     property DefaultPort default IdPORT_SMTP;
@@ -505,6 +507,8 @@ var
   LAuthFailed: Boolean;
   LAccepted: Boolean;
   LContext : TIdSMTPServerContext;
+  LEncoder: TIdEncoderMIME;
+  LDecoder: TIdDecoderMIME;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
   Result := False;
@@ -512,39 +516,40 @@ begin
   LContext.PipeLining := False;
   if TextIsSame(Login, 'LOGIN') then begin   {Do not Localize}
     // LOGIN USING THE LOGIN AUTH - BASE64 ENCODED
-    with TIdEncoderMIME.Create do try
-      // Encoding a string literal?
-      s := Encode('Username:');     {Do not Localize}
-    finally Free; end;
-    //  s := SendRequest( '334 ' + s );    {Do not Localize}
-    ASender.Reply.SetReply(334, s);    {Do not Localize}
-    ASender.SendReply;
-    s := Sys.Trim(LContext.Connection.IOHandler.ReadLn);
-    if s <> '' then begin   {Do not Localize}
+    try
+      LEncoder := TIdEncoderMIME.Create;
       try
-        with TIdDecoderMIME.Create do try
-          LUsername := DecodeString(s);
-        finally Free; end;
-        // What? Endcode this string literal?
-        with TIdEncoderMIME.Create do try
-          s := Encode('Password:');    {Do not Localize}
-        finally Free; end;
-        //    s := SendRequest( '334 ' + s );    {Do not Localize}
+        // Encoding a string literal?
+        s := LEncoder.Encode('Username:');     {Do not Localize}
+        //  s := SendRequest( '334 ' + s );    {Do not Localize}
         ASender.Reply.SetReply(334, s);    {Do not Localize}
         ASender.SendReply;
-        s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
-        if Length(s) > 0 then begin
-          with TIdDecoderMIME.Create do try
-            LPassword := DecodeString(s);
-          finally Free; end;
+        s := Sys.Trim(LContext.Connection.IOHandler.ReadLn);
+        if s <> '' then begin   {Do not Localize}
+          LDecoder := TIdDecoderMIME.Create;
+          try
+            LUsername := LDecoder.DecodeString(s);
+            // What? Encode this string literal?
+            s := LEncoder.Encode('Password:');    {Do not Localize}
+            ASender.Reply.SetReply(334, s);    {Do not Localize}
+            ASender.SendReply;
+            s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
+            if s <> '' then begin
+              LPassword := LDecoder.DecodeString(s);
+            end else begin
+              LAuthFailed := True;
+            end;
+          // when TIdDecoderMime.DecodeString(s) raise a exception,catch it and set AuthFailed as true
+          finally
+            Sys.FreeAndNil(LDecoder);
+          end;
         end else begin
           LAuthFailed := True;
         end;
-      // when TIdDecoderMime.DecodeString(s) raise a exception,catch it and set AuthFailed as true
-      except
-        LAuthFailed := True;
+      finally
+        Sys.FreeAndNil(LEncoder);
       end;
-    end else begin
+    except
       LAuthFailed := True;
     end;
   end;
@@ -882,6 +887,9 @@ begin
     LContext.SMTPState := idSMTPNone;
   end;
   LContext.CheckPipeLine;
+  if Assigned(FOnReset) then begin
+    FOnReset(LContext);
+  end;
 end;
 
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
