@@ -1525,7 +1525,7 @@ begin
   LTime := MonthNames[month] + Sys.FormatDateTime(' dd', LMTime);    {Do not Localize}
   if (IndyPos(SWITCH_BOTH_TIME_YEAR,Switches)>0) then
   begin
-    LTime := LTime + Sys.FormatDateTime(' hh:nn:ss yyyy', AItem.ModifiedDate);    {Do not Localize}
+    LTime := LTime + Sys.FormatDateTime(' hh:nn:ss yyyy',LMTime);    {Do not Localize}
   end
   else
   begin
