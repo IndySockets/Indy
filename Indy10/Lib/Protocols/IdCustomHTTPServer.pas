@@ -231,12 +231,14 @@ const
   HTTPRequestStrings: array[0..ord(high(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS'); {do not localize}
 
 type
+
   // Forwards
   TIdHTTPSession = Class;
   TIdHTTPCustomSessionList = Class;
   TIdHTTPRequestInfo = Class;
   TIdHTTPResponseInfo = Class;
   TIdCustomHTTPServer = Class;
+
   //events
   TOnSessionEndEvent = procedure(Sender: TIdHTTPSession) of object;
   TOnSessionStartEvent = procedure(Sender: TIdHTTPSession) of object;
@@ -249,6 +251,7 @@ type
   TIdHTTPInvalidSessionEvent = procedure(AContext: TIdContext;
     ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
     var VContinueProcessing: Boolean; const AInvalidSessionID: String) of object;
+
   //objects
   EIdHTTPServerError = class(EIdException);
   EIdHTTPHeaderAlreadyWritten = class(EIdHTTPServerError);
@@ -473,9 +476,10 @@ type
     property OnCommandOther: TIdHTTPCommandEvent read FOnCommandOther
      write FOnCommandOther;
   end;
+
   TIdHTTPDefaultSessionList = Class(TIdHTTPCustomSessionList)
   protected
-    SessionList: TIdThreadList;
+    FSessionList: TIdThreadList;
     procedure RemoveSession(Session: TIdHTTPSession); override;
     // remove a session surgically when list already locked down (prevent deadlock)
     procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TIdList);
@@ -483,6 +487,7 @@ type
     procedure InitComponent; override;
   public
     destructor Destroy; override;
+    property SessionList:TIdThreadList read FSessionList;
     procedure Clear; override;
     procedure Add(ASession: TIdHTTPSession); override;
     procedure PurgeStaleSessions(PurgeAll: Boolean = false); override;
@@ -666,7 +671,7 @@ var
         if S <> '' then
           LRequestInfo.Cookies.AddSrcCookie(S);
       end;
-    finally LRawCookies.Free; end;
+    finally Sys.FreeAndNil(LRawCookies); end;
   end;
 
   function GetRemoteIP(ASocket: TIdIOHandlerSocket): String;
@@ -888,7 +893,7 @@ begin
   result := Assigned(ASession);
   if result then
   begin
-    ASession.free;
+    Sys.FreeAndNil(ASession);
   end;
 end;
 
@@ -1025,8 +1030,8 @@ begin
 // the TIdHTTPDefaultSessionList.RemoveSessionFromLockedList method
 // Why? It calls this function and this code gets executed?
   DoSessionEnd;
-  FContent.Free;
-  FLock.Free;
+  Sys.FreeAndNil(FContent);
+  Sys.FreeAndNil(FLock);
   if Assigned(FOwner) then begin
     FOwner.RemoveSession(self);
   end;
@@ -1424,7 +1429,7 @@ end;
 destructor TIdHTTPDefaultSessionList.destroy;
 begin
   Clear;
-  SessionList.free;
+  Sys.FreeAndNil(FSessionList);
   inherited destroy;
 end;
 
@@ -1460,9 +1465,9 @@ procedure TIdHTTPDefaultSessionList.InitComponent;
 begin
   inherited InitComponent;
 
-  SessionList := TIdThreadList.Create;
-  SessionList.LockList.Capacity := SessionCapacity;
-  SessionList.UnlockList;
+  FSessionList := TIdThreadList.Create;
+  FSessionList.LockList.Capacity := SessionCapacity;
+  FSessionList.UnlockList;
 end;
 
 procedure TIdHTTPDefaultSessionList.PurgeStaleSessions(PurgeAll: Boolean = false);
