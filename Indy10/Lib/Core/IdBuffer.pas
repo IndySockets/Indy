@@ -1038,7 +1038,7 @@ end;
 
 function TIdBuffer.GetAsString: string;
 begin
- Result:=BytesToString(FBytes);
+ Result:=BytesToString(FBytes,0,FSize);
 end;
 
 end.
