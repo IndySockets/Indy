@@ -5925,7 +5925,11 @@ const
     end;
     if LastAccessTime in AFacts then
     begin
-      Result := Result + 'windows.lastaccesstime';  {Do not translate}
+      Result := Result + 'windows.lastaccesstime;';  {Do not translate}
+    end;
+    if IdFTPListOutput.WinAttribs in AFacts then
+    begin
+      Result := Result + 'win32.ea'; {Do not translate}
     end;
   end;
 
@@ -6182,7 +6186,6 @@ begin
   Sys.FreeAndNil(FErrorReply);
   Sys.FreeAndNil(FReply);
   FDataChannel.IOHandler.Free;
-//  FDataChannel.IOHandler := nil;
   Sys.FreeAndNil(FDataChannel);
   inherited Destroy;
 end;
