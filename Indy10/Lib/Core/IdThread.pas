@@ -267,6 +267,7 @@ type
   end;
 
   TIdThreadClass = class of TIdThread;
+  TIdThreadWithTaskClass = class of TIdThreadWithTask;
 
 var
   // GThreadCount shoudl be in implementation as it is not needed outside of
