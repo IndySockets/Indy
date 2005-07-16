@@ -184,6 +184,7 @@ type
   protected
     FMaxThreads: Integer;
     FThreadPriority: TIdThreadPriority;
+    FThreadClass: TIdThreadWithTaskClass;
     //
     procedure InitComponent; override;
   public
@@ -202,6 +203,7 @@ type
     procedure TerminateYarn(
       AYarn: TIdYarn
       ); override;
+    property ThreadClass:TIdThreadWithTaskClass read FThreadClass write FThreadClass;
   published
     property MaxThreads: Integer
       read FMaxThreads
@@ -238,10 +240,12 @@ end;
 
 function TIdSchedulerOfThread.NewThread: TIdThreadWithTask;
 begin
+  Assert(FThreadClass<>nil);
+
   EIdSchedulerMaxThreadsExceeded.IfTrue(
    (FMaxThreads <> 0) and (ActiveYarns.IsCountLessThan(FMaxThreads + 1) = False)
    , RSchedMaxThreadEx);
-  Result := TIdThreadWithTask.Create(nil, Sys.Format('%s User', [Name])); {do not localize}
+  Result := FThreadClass.Create(nil, Sys.Format('%s User', [Name])); {do not localize}
   if ThreadPriority <> tpIdNormal then begin
     SetThreadPriority(Result, ThreadPriority);
   end;
@@ -278,6 +282,7 @@ begin
   inherited InitComponent;
   FThreadPriority := tpIdNormal;
   FMaxThreads := 0;
+  FThreadClass := TIdThreadWithTask;
 end;
 
 { TIdYarnOfThread }
