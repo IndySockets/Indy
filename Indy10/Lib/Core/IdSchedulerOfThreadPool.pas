@@ -99,6 +99,7 @@ type
   public
     function AcquireYarn: TIdYarn;override;
     destructor Destroy; override;
+    procedure InitComponent; override;
     procedure Init; override;
     function NewThread: TIdThreadWithTask;override;
     procedure ReleaseYarn(AYarn: TIdYarn);override;
@@ -192,7 +193,8 @@ end;
 procedure TIdSchedulerOfThreadPool.Init;
 begin
   inherited Init;
-  FThreadPool := TIdThreadSafeList.Create;
+  Assert(FThreadPool<>nil);
+
   if not IsDesignTime then begin
     if PoolSize > 0 then begin
       with FThreadPool.LockList do try
@@ -208,6 +210,12 @@ function TIdSchedulerOfThreadPool.NewThread: TIdThreadWithTask;
 begin
   Result := inherited NewThread;
   Result.StopMode := smSuspend;
+end;
+
+procedure TIdSchedulerOfThreadPool.InitComponent;
+begin
+  inherited;
+  FThreadPool := TIdThreadSafeList.Create;
 end;
 
 end.
