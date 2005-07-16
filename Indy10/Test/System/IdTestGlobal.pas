@@ -6,6 +6,7 @@ uses
   IdTest,
   IdObjs,
   IdSys,
+  IdException,
   IdGlobal;
 
 type
@@ -16,6 +17,7 @@ type
     procedure TestBytesToChar;
     procedure TestReadStringFromStream;
     procedure TestReadTIdBytesFromStream;
+    procedure TestBytesToString;
   end;
 
 implementation
@@ -102,6 +104,53 @@ begin
   finally
   Sys.FreeAndNil(aStream);
   end;
+end;
+
+procedure TIdTestGlobal.TestBytesToString;
+var
+  aBytes:TIdBytes;
+  aStr:string;
+  aExpected:Boolean;
+const
+  cStr='12345';
+begin
+  aBytes := ToBytes(cStr);
+
+  aStr:=BytesToString(aBytes);
+  Assert(aStr=cStr);
+
+  aStr:=BytesToString(aBytes,0,0);
+  Assert(aStr='');
+
+  aStr:=BytesToString(aBytes,0,1);
+  Assert(aStr='1');
+
+  aStr:=BytesToString(aBytes,1,1);
+  Assert(aStr='2');
+
+  aStr:=BytesToString(aBytes,4,1);
+  Assert(aStr='5');
+
+  aStr:=BytesToString(aBytes,0,5);
+  Assert(aStr=cStr);
+
+  //start past end of buffer
+  aExpected:=False;
+  try
+  aStr:=BytesToString(aBytes,5,1);
+  Assert(aStr='5');
+  except
+  on e:Exception do
+   begin
+   aExpected:=e is EIdRangeException;
+   end;
+  end;
+  Assert(aExpected);
+
+  //read past end of buffer
+  aStr:=BytesToString(aBytes,0,10);
+  Assert(aStr=cStr);
+
 end;
 
 initialization
