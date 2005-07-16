@@ -588,7 +588,7 @@ begin
   // Remove the reference to the linked components if they are deleted
   if (Operation = opRemove) then begin
     if (AComponent = Scheduler) then begin
-      TerminateAllThreads;
+      //should this be FScheduler?
       Scheduler := nil;
     end else if (AComponent = FIntercept) then begin
       FIntercept := nil;
