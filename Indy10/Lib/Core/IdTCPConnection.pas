@@ -531,6 +531,7 @@ begin
         IOHandler.Close;
         DoOnDisconnected;
         DoStatus(hsDisconnected);
+        //FIOHandler.InputBuffer.Clear;
       end;
     end;
   end;
@@ -575,6 +576,7 @@ begin
   inherited Notification(AComponent, Operation);
   if (Operation = opRemove) and (AComponent = FIOHandler) then begin
     FIOHandler := nil;
+    FSocket := nil;
   end;
 end;
 
