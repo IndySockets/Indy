@@ -3641,10 +3641,10 @@ begin
     //MFF
     LTmp := MFFPREFIX;  {Do not localize}
     if Assigned(FOnSetCreationTime) then begin
-      LTmp := LTmp + 'CreateTime;'; {Do not Localize}
+      LTmp := LTmp + 'Create;'; {Do not Localize}
     end;
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
-      LTmp := LTmp + 'ModifyTime;';  {Do not Localize}
+      LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
     if LTmp <> MFFPREFIX then begin
       ASender.Reply.Text.Add(LTmp);
@@ -3713,7 +3713,7 @@ begin
       ASender.Reply.Text.Add('XCRC filename;start;end');  {Do not Localize}
       ASender.Reply.Text.Add('XMD5 filename;start;end');  {Do not Localize}
     end;
-    ASender.Reply.Text.Add('Compliance Level: 20020101 (IETF mlst-14)'); {Do not Localize}
+    ASender.Reply.Text.Add('Compliance Level: 20020901 (IETF mlst-16)'); {Do not Localize}
     ASender.Reply.Text.Add(RSFTPCmdExtsSupportedEnd);
   end;
 end;
@@ -5112,7 +5112,7 @@ begin
       end;
       if IdFTPServer.mlsdWin32Attributes in FMLSDFacts then
       begin
-        Result := Result + 'windows.lastaccesstime';  {Do not translate}
+        Result := Result + 'Win32.ea';  {Do not translate}
         if WinAttribs in AFacts then {Do not translate}
         begin
           Result := Result + '*;';  {Do not translate}
