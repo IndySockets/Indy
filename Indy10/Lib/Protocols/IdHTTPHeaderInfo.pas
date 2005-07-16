@@ -241,8 +241,6 @@ Type
 
 implementation
 
-uses IdSysVCL;
-
 const
   DefaultUserAgent = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
 
