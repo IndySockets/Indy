@@ -108,6 +108,9 @@ type
   // exception will be available using the InnerException member
   EIdWrapperException = class (EIdException);
 
+  //used for index out of range
+  EIdRangeException = class(EIdException);
+
   // Other shared exceptions
   EIdSocketHandleError = class(EIdException);
   EIdBlockingNotSupported = class(EIdException);
