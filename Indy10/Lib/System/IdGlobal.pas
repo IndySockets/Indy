@@ -2882,7 +2882,7 @@ end;
 function BytesToString(ABytes: TIdBytes; AStartIndex: Integer; AMaxCount: Integer): string;
 begin
   if ((Length(ABytes) > 0) or (AStartIndex <> 0)) then begin
-    EIdException.IfNotInRange(AStartIndex, 0, Length(ABytes) - 1, 'Index out of bounds.'); {do not localize}
+    EIdRangeException.IfNotInRange(AStartIndex, 0, Length(ABytes) - 1, 'Index out of bounds.'); {do not localize}
   end;
   AMaxCount := Min(Length(ABytes) - AStartIndex, AMaxCount);
   {$IFDEF DotNet}
