@@ -257,7 +257,7 @@ type
     constructor Create(
       ATask: TIdTask = nil;
       AName: string = ''
-      ); reintroduce;
+      ); reintroduce; virtual;
     destructor Destroy;
       override;
     //
