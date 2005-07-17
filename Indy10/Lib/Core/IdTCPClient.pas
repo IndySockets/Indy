@@ -174,6 +174,7 @@ uses
   IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection, IdObjs;
 
 type
+
   TIdTCPClientCustom = class(TIdTCPConnection)
   protected
     FBoundIP: String;
@@ -276,6 +277,9 @@ procedure TIdTCPClientCustom.Connect;
 begin
   // Do not call Connected here, it will call CheckDisconnect
   EIdAlreadyConnected.IfTrue(Connected, RSAlreadyConnected);
+
+  EIdHostRequired.IfTrue(Host='');
+  EIdPortRequired.IfTrue(Port=0);
 
   if IOHandler = nil then begin
     IOHandler := MakeImplicitClientHandler;
