@@ -126,6 +126,8 @@ type
   EIdReadLnMaxLineLengthExceeded = class(EIdException);
 
   // TIdTCPConnection exceptions
+  EIdPortRequired = class(EIdException);
+  EIdHostRequired = class(EIdException);
   EIdTCPConnectionError = class(EIdException);
   EIdObjectTypeNotSupported = class(EIdTCPConnectionError);
   EIdInterceptPropIsNil = class(EIdTCPConnectionError);
