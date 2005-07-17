@@ -35,6 +35,9 @@ Guidelines for writing unit tests:
 3) additional debug code should not be left in for 'release'. 
    (by default) data should not be written to the test pc, eg log files.
 
+4) don't raise exceptions in except-blocks, causes memory leak in delphi
+
+
 ---------------------------------
 ToDo:
 
