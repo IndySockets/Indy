@@ -44,6 +44,8 @@ interface
 
 uses
   IdTest,
+  IdStack,
+  IdExceptionCore,
   IdTcpClient,
   IdObjs,
   IdSys,
@@ -58,6 +60,7 @@ type
     procedure DoServerExecute(AContext: TIdContext);
   published
     procedure TestTimeouts;
+    procedure TestConnectErrors;
   end;
 
 implementation
@@ -70,6 +73,65 @@ begin
   if FServerShouldEcho then
   begin
     AContext.Connection.IOHandler.WriteLn(aStr);
+  end;
+end;
+
+procedure TIdTestTcpClient.TestConnectErrors;
+//checks that exceptions are raised as expected
+var
+  aClient:TIdTCPClient;
+  aExpected:Boolean;
+begin
+
+  aClient:=TIdTCPClient.Create(nil);
+  try
+
+  //no host given
+  try
+  aExpected:=False;
+  aClient.Port:=80;
+  aClient.Host:='';
+  aClient.Connect;
+  except
+  on e:Exception do
+   begin
+   aExpected:=e is EIdHostRequired;
+   end;
+  end;
+  Assert(aExpected);
+
+  //no port given
+  try
+  aExpected:=False;
+  aClient.Port:=0;
+  aClient.Host:='127.0.0.1';
+  aClient.Connect;
+  except
+  on e:Exception do
+   begin
+   aExpected:=e is EIdPortRequired;
+   end;
+  end;
+  Assert(aExpected);
+
+  //hoping that this port is unused (its the max port number)
+  try
+  aExpected:=False;
+  aClient.Port:=65535;
+  aClient.Host:='127.0.0.1';
+  //odd. specifying timeout gives EIdNotASocket
+  //aClient.ConnectTimeout:=500;
+  aClient.Connect;
+  except
+  on e:Exception do
+   begin
+   aExpected:=e is EIdSocketError;
+   end;
+  end;
+  Assert(aExpected);
+
+  finally
+  Sys.FreeAndNil(aClient);
   end;
 end;
 
