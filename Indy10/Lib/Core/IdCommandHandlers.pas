@@ -447,43 +447,39 @@ begin
         SplitColumns(AUnparsedParams, Params, Self.FParamDelimiter);
       end;
     end;
-
     PerformReply := True;
-
     try
-      if (LCommand.Reply.Code ='')  and (Self.NormalReply.Code<>'') then
-      begin
-        if Reply.Code = '' then
-        begin
+      if (LCommand.Reply.Code ='')  and (Self.NormalReply.Code<>'') then begin
+        if Reply.Code = '' then begin
           Reply.Assign(Self.NormalReply);
         end;
       end;
       //if code<>'' before DoCommand, then it breaks exception handling
-      Assert(Reply.Code<>'');
+      Assert(Reply.Code <> '');
       DoCommand;
 
-      if Reply.Code = '' then
-        begin
+      if Reply.Code = '' then begin
         Reply.Assign(Self.NormalReply);
-        end;
+      end;
       // UpdateText here in case user wants to add to it. SendReply also gets it in case
       // a different reply is sent (ie exception, etc), or the user changes the code in the event
-
       Reply.UpdateText;
-
     except
       on E: Exception do begin
+        // If there is an unhandled exception, we override all replies
+        // If nothing specified to override with, we throw the exception again.
+        // If the user wants a custom value on exception other, its their responsibility
+        // to catch it before it reaches us
+        Reply.Clear;
         if PerformReply then begin
-          // Try from command handler first
-          if Reply.Code = '' then begin
-            Reply.Assign(Self.ExceptionReply);
-          end;
+        // Try from command handler first
+          if ExceptionReply.Code <> '' then begin
+            Reply.Assign(ExceptionReply);
           // If still no go, from server
           // Can be nil though. Typically only servers pass it in
-          if (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
+          end else if (TIdCommandHandlers(Collection).FExceptionReply <> nil) then begin
             Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
           end;
-
           if Reply.Code <> '' then begin
             Reply.Text.Add(E.Message);
             SendReply;
