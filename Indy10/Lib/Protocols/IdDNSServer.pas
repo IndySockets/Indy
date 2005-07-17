@@ -3434,7 +3434,11 @@ begin
       exit;
     end;
 
+    {$IFDEF DotNetDistro}
+    TimerEvent(Self);
+    {$ELSE}
     Synchronize(TimerEvent);
+    {$ENDIF}
   end;
 end;
 
