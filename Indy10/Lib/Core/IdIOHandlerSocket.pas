@@ -344,6 +344,7 @@ end;
 procedure TIdIOHandlerSocket.Open;
 begin
   inherited Open;
+
   if not Assigned(FBinding) then begin
     FBinding := TIdSocketHandle.Create(nil);
   end else begin
@@ -351,6 +352,8 @@ begin
   end;
   FBinding.ClientPortMin := BoundPortMin;
   FBinding.ClientPortMax := BoundPortMax;
+
+  //if the IOHandler is used to accept connections then port+host will be empty
   if (Host <> '') and (Port > 0) then begin
     ConnectClient;
   end;
