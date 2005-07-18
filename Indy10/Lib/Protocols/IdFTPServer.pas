@@ -3665,6 +3665,9 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
+    if Assigned(FOnSetATTRIB) then begin
+      LTmp := LTmp + 'win32.ea;'; {Do not localize}
+    end;
     if LTmp <> MFFPREFIX then begin
       ASender.Reply.Text.Add(LTmp);
     end;
@@ -4547,6 +4550,8 @@ var
   LValue : String;
   s : String;
   LF : TIdFTPServerContext;
+  LAUth : Boolean;
+  LAttr : Cardinal;
 begin
   LF := TIdFTPServerContext(ASender.Context);
   //this may need to change if we make more facts to modify
@@ -4560,22 +4565,33 @@ begin
     LFacts := TIdStringList.Create;
     try
       LFileName := ParseFacts(ASender.UnparsedParams,LFacts);
-      if LFacts.Values['ModifyTime']<>'' then  {Do not translate}
+      if LFacts.Values['Modify']<>'' then  {Do not translate}
       begin
         if Assigned(FOnSetModifiedTime) then
         begin
-          LValue := LFacts.Values['ModifyTime'];  {Do not translate}
+          LValue := LFacts.Values['Modify'];  {Do not translate}
           DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-          s := s + Sys.Format('ModifyTime=%s;',[LValue]); {Do not translate}
+          s := s + Sys.Format('Modify=%s;',[LValue]); {Do not translate}
         end;
       end;
-      if LFacts.Values['CreateTime']<>'' then    {Do not translate}
+      if LFacts.Values['Create']<>'' then    {Do not translate}
       begin
          if Assigned(FOnSetModifiedTime) then
          begin
-           LValue := LFacts.Values['CreateTime'];   {Do not translate}
+           LValue := LFacts.Values['Create'];   {Do not translate}
            DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-           s := s + Sys.Format('CreateTime=%s;',[LValue]);  {Do not translate}
+           s := s + Sys.Format('Create=%s;',[LValue]);  {Do not translate}
+         end;
+      end;
+      if LFacts.Values['win32.ea']<>'' then    {Do not translate}
+      begin
+         if Assigned(FOnSetATTRIB) then
+         begin
+           LValue := LFacts.Values['win32.ea'];   {Do not translate}
+           LAttr := Sys.StrToInt(LValue,0);
+           DoOnSetATTRIB(LF,LAttr,LFileName,LAuth);
+           LValue := '0x'+Sys.IntToHex(LAttr,8);
+           s := s + Sys.Format('win32.ea=%s;',[LValue]);  {Do not translate}
          end;
       end;
       if s <> '' then
