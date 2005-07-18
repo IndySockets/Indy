@@ -3665,6 +3665,14 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
+    if Assigned(FOnSetATTRIB) then
+    begin
+      LTmp := LTmp + 'Win32.ea;';
+    end;
+    if Assigned(Self.FOnSiteCHMOD) then
+    begin
+      LTmp := LTmp + 'Unix.mode;';
+    end;
     if LTmp <> MFFPREFIX then begin
       ASender.Reply.Text.Add(LTmp);
     end;
@@ -3703,7 +3711,25 @@ begin
     //then be stuck with a situation where everyone has to use it down the road.
     //This would amount to the same mess we had with "Mozilla" in the HTTP
     //User-Agent header feild.
-    ASender.Reply.Text.Add('SITE ZONE'); {do not localize}
+    //also list other supported site commands;
+     LTmp := 'SITE ZONE';
+    if Assigned(Self.FOnSetATTRIB) then
+    begin
+      LTmp := LTmp + ';ATTRIB';
+    end;
+    if Assigned(Self.FOnSiteUMASK) then
+    begin
+      LTmp := LTmp + 'UMASK';
+    end;
+    if Assigned(Self.FOnSiteCHMOD) then
+    begin
+      LTmp := LTmp + ';CHMOD';
+    end;
+    if Self.FDirFormat = ftpdfDOS then
+    begin
+      LTmp := LTmp + ';DIRSTYLE';
+    end;
+    ASender.Reply.Text.Add(LTmp); {do not localize}
     //SIZE
     if Assigned(FOnGetFileSize) or Assigned(FFTPFileSystem) then begin
       ASender.Reply.Text.Add('SIZE'); {do not localize}
@@ -4547,6 +4573,9 @@ var
   LValue : String;
   s : String;
   LF : TIdFTPServerContext;
+  LAttrib : Cardinal;
+  LAuth : Boolean;
+  LCHMOD : Integer;
 begin
   LF := TIdFTPServerContext(ASender.Context);
   //this may need to change if we make more facts to modify
@@ -4560,23 +4589,47 @@ begin
     LFacts := TIdStringList.Create;
     try
       LFileName := ParseFacts(ASender.UnparsedParams,LFacts);
-      if LFacts.Values['ModifyTime']<>'' then  {Do not translate}
+      if LFacts.Values['Modify']<>'' then  {Do not translate}
       begin
         if Assigned(FOnSetModifiedTime) then
         begin
-          LValue := LFacts.Values['ModifyTime'];  {Do not translate}
-          DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-          s := s + Sys.Format('ModifyTime=%s;',[LValue]); {Do not translate}
+          LValue := LFacts.Values['Modify'];  {Do not translate}
+          DoOnSetModifiedTime(LF,LFileName,LValue);
+          s := s + Sys.Format('Modify=%s;',[LValue]); {Do not translate}
         end;
       end;
-      if LFacts.Values['CreateTime']<>'' then    {Do not translate}
+      if LFacts.Values['Create']<>'' then    {Do not translate}
       begin
          if Assigned(FOnSetModifiedTime) then
          begin
-           LValue := LFacts.Values['CreateTime'];   {Do not translate}
-           DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-           s := s + Sys.Format('CreateTime=%s;',[LValue]);  {Do not translate}
+           LValue := LFacts.Values['Create'];   {Do not translate}
+           DoOnSetCreationTime(LF,LFileName,LValue);
+           s := s + Sys.Format('Create=%s;',[LValue]);  {Do not translate}
          end;
+      end;
+      if LFacts.Values['Win32.ea']<>'' then
+      begin
+        if Assigned(Self.FOnSetATTRIB) then
+        begin
+          LValue := LFacts.Values['Win32.ea'];  {Do not localize}
+          LAttrib := Sys.StrToInt(LValue);
+          DoOnSetAttrib(LF,LAttrib,LFileName,LAuth);
+          LValue := '0x'+Sys.IntToHex(LAttrib,8);
+          s := s + Sys.Format('Win32.ea=%s;',[LValue]);  {Do not translate}
+        end;
+      end;
+      if LFacts.Values['Unix.mode']<>'' then
+      begin
+        LValue := LFacts.Values['Unix.mode'];  {Do not localize}
+        if Assigned(Self.FOnSiteCHMOD) then
+        begin
+          If IsValidPermNumbers(LValue) then begin
+            LCHMOD := Sys.StrToInt(LValue);
+            DoOnSiteCHMOD(LF,LCHMOD,LFileName,LAuth);
+            LValue := Sys.Format('%.4d',[LCHMOD]);
+            s := s + Sys.Format('Unix.mode=%s;',[LValue]);  {Do not translate}
+          end;
+        end;
       end;
       if s <> '' then
       begin
@@ -4935,7 +4988,7 @@ begin
   LCx := ASender.Context as TIdFTPServerContext;
   if LCx.IsAuthenticated(ASender) then
   begin
-    if Assigned(FOnCRCFile) or (Assigned(FTPFileSystem)) then
+    if Assigned(FOnSiteUMASK) then
     begin
       if ASender.Params.Count > 0 then begin
         If IsValidPermNumbers(ASender.Params[0]) then begin
