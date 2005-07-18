@@ -131,34 +131,28 @@ function TIdServerIOHandlerSocket.Accept(
   ): TIdIOHandler;
 var
   LIOHandler: TIdIOHandlerSocket;
-  LHasSelect: Boolean;
 begin
-  LIOHandler := IOHandlerSocketClass.Create(nil);
-  LIOHandler.Open;
+  Assert(ASocket<>nil);
+  Assert(AListenerThread<>nil);
+  Assert(AYarn<>nil);
+
   Result := nil;
-  LHasSelect := false;
-  while not AListenerThread.Stopped do try
-    LHasSelect := ASocket.Select(250);
-    if LHasSelect then begin
+  LIOHandler := IOHandlerSocketClass.Create(nil);
+  try
+
+  LIOHandler.Open;
+  while not AListenerThread.Stopped do begin
+    if ASocket.Select(250) then begin
       if LIOHandler.Binding.Accept(ASocket.Handle) then begin
         LIOHandler.AfterAccept;
         Result := LIOHandler;
-        Break;
-      end else begin
-        Sys.FreeAndNil(LIOHandler);
+        LIOHandler:=nil;
         Break;
       end;
     end;
-  except
-    on E: Exception do begin
-    // if AListenerThread.Stopped then begin
-      Sys.FreeAndNil(LIOHandler);
-      raise e;
-    end;
-    // end;
   end;
 
-  if not LHasSelect then begin
+  finally
     Sys.FreeAndNil(LIOHandler);
   end;
 end;
