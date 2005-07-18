@@ -254,6 +254,7 @@ end;
 
 function TIdSimpleServer.Listen: Boolean;
 begin
+  Assert(IOHandler<>nil);
   Result := False;
   if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
     if not FListening then begin
