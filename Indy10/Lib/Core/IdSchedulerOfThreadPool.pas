@@ -96,10 +96,10 @@ type
   protected
     FPoolSize: Integer;
     FThreadPool: TIdThreadSafeList;
+    procedure InitComponent; override;
   public
     function AcquireYarn: TIdYarn;override;
     destructor Destroy; override;
-    procedure InitComponent; override;
     procedure Init; override;
     function NewThread: TIdThreadWithTask;override;
     procedure ReleaseYarn(AYarn: TIdYarn);override;
