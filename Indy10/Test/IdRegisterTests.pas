@@ -19,6 +19,7 @@ uses
   IdTestCmdTCPClient,
   IdTestCmdTCPServer,
   IdTestSchedulerOfThreadPool,
+  IdTestSimpleServer,
   IdTestSocketHandle,
   IdTestThreadComponent,
 
