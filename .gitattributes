@@ -821,6 +821,7 @@ Indy10/Test/Core/IdTestIOHandler.pas -text
 Indy10/Test/Core/IdTestReply.pas -text
 Indy10/Test/Core/IdTestReplyRFC.pas -text
 Indy10/Test/Core/IdTestSchedulerOfThreadPool.pas -text
+Indy10/Test/Core/IdTestSimpleServer.pas -text
 Indy10/Test/Core/IdTestSocketHandle.pas -text
 Indy10/Test/Core/IdTestTcpClient.pas -text
 Indy10/Test/Core/IdTestThreadComponent.pas -text
