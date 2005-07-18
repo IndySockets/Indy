@@ -735,6 +735,10 @@ resourcestring
 
   RSFTPImplicitTLSRequiresSSL = 'Implicit FTP requires that IOHandler be set to a TIdServerIOHandlerSSL.';
 
+  //%s number of attributes changes
+  RSFTPSiteATTRIBMsg = 'site attrib';
+  RSFTPSiteATTRIBInvalid = ' failed, invalid attribute.';
+  RSFTPSiteATTRIBDone = ' done, total %s attributes changed.';
   //%s is the umask number
   RSFTPUMaskIs = 'Current UMASK is %.3d';
   //first %d is the new value, second one is the old value

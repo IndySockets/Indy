@@ -778,10 +778,15 @@ type
   TIdFTPServerContext = class;
   //data port binding events
   TOnDataPortBind = procedure(ASender : TIdFTPServerContext) of object;
+  //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
+  //to do the same thing as a chmod.  MFF is to "Modify a file fact".
+  TOnSetATTRIB = procedure(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean) of object;
   //Note that VAuth : Boolean is used because you may want to deny permission for
   //users to change their Unix permissions or UMASK - which is done in anonymous FTP
   TOnSiteUMASK = procedure(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean) of object;
-  TOnSiteCHMOD = procedure(ASender: TIdFTPServerContext; const APermissions : Integer; const AFileName : String; var VAUth : Boolean) of object;
+  //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
+  //to do the same thing as a chmod.  MFF is to "Modify a file fact".
+  TOnSiteCHMOD = procedure(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean) of object;
   TOnCustomPathProcess = procedure(ASender: TIdFTPServerContext; var VPath : String) of object;
   //
   TOnUserLoginEvent = procedure(ASender: TIdFTPServerContext; const AUsername, APassword: string;
@@ -1055,6 +1060,7 @@ type
     FOnLoginSuccessBanner : TIdOnBanner;
     FOnLoginFailureBanner : TIdOnBanner;
     FOnQuitBanner : TIdOnBanner;
+    FOnSetATTRIB : TOnSetATTRIB;
     FOnSiteUMASK : TOnSiteUMASK;
     FOnSiteCHMOD : TOnSiteCHMOD;
 
@@ -1169,6 +1175,9 @@ type
     procedure CommandSiteDIRSTYLE(ASender : TIdCommand);
     //used by FTP Voyager
     procedure CommandSiteZONE(ASender : TIdCommand);
+    //supported by RaidenFTP - http://www.raidenftpd.com/kb/kb000000049.htm
+    procedure CommandSiteATTRIB(ASender : TIdCommand);
+
     // end site commands
 
     procedure CommandOptsMLST(ASender : TIdCommand);
@@ -1193,8 +1202,10 @@ type
     procedure DoOnMD5Verify(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String);
     procedure DoOnMD5Cache(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String);
     procedure DoOnCombineFiles(ASender: TIdFTPServerContext; const ATargetFileName: string; AParts : TIdStrings);
+
+    procedure DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteUMASK(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean);
-    procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; const APermissions : Integer; const AFileName : String; var VAUth : Boolean);
+    procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean);
 
     procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);
     procedure SetUseTLS(AValue: TIdUseTLS); override;
@@ -1279,6 +1290,7 @@ type
     property OnSetCreationTime : TOnSetFileDateEvent read FOnSetCreationTime write FOnSetCreationTime;
     property OnSetModifiedTime : TOnSetFileDateEvent read FOnSetModifiedTime write FOnSetModifiedTime;
     property OnFileExistCheck : TOnCheckFileEvent read FOnFileExistCheck write FOnFileExistCheck;
+    property OnSetATTRIB : TOnSetATTRIB read FOnSetATTRIB write FOnSetATTRIB;
     property OnSiteUMASK : TOnSiteUMASK read FOnSiteUMASK write FOnSiteUMASK;
     property OnSiteCHMOD : TOnSiteCHMOD read FOnSiteCHMOD write FOnSiteCHMOD;
     {
@@ -1311,7 +1323,7 @@ implementation
 uses
   IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols, IdGlobalProtocols,
   IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle, IdStrings,
-  IdTCPClient, IdEMailAddress, IdStack;
+  IdTCPClient, IdEMailAddress, IdStack, IdFTPListTypes;
 
 const
   //THese commands need some special treatment in the Indy 10 FTP Server help system
@@ -2206,6 +2218,13 @@ begin
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.OnCommand := CommandSiteHELP;
   LCmd.Description.Text := 'Syntax: SITE HELP [ <sp> <string> ]'; {do not localize}
+  //SITE ATTRIB<SP>Attribs<SP>FileName<CRLF>
+  LCmd := FSITECommands.Add;
+  LCmd.Command := 'ATTRIB';    {Do not Localize}
+  LCmd.OnCommand := CommandSiteATTRIB;
+  LCmd.ExceptionReply.NumericCode := 501;
+  LCmd.Description.Text := 'Syntax: SITE ATTRIB<SP>Attribs<SP>Filename'; {do not localize}
+
   //SITE UMASK<SP>[mask]
   LCmd := FSITECommands.Add;
   LCmd.Command := 'UMASK';    {Do not Localize}
@@ -4781,22 +4800,118 @@ begin
   end;
 end;
 
+procedure TIdFTPServer.CommandSiteATTRIB(ASender : TIdCommand);
+var
+  LCx : TIdFTPServerContext;
+  LFileName,
+  LAttrs : String;
+  LAttrVal : Cardinal;
+  LPermitted : Boolean;
+
+  function ValidAttribStr(const AAttrib : String) : Boolean;
+  var i : Integer;
+  begin
+    Result := Copy(AAttrib,1,1)='+';
+    if Result then
+    begin
+      Result := Length(AAttrib)>1;
+      if result then
+      begin
+        if AAttrib = '+N' then
+        begin
+          Exit;
+        end;
+        for i := 2 to Length(AAttrib) do
+        begin
+          if not CharIsInSet(AAttrib,i,'RASH') then
+          begin
+            Result := False;
+            break;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+begin
+  LCx := ASender.Context as TIdFTPServerContext;
+  if LCx.IsAuthenticated(ASender) then
+  begin
+    if Assigned( OnSetAttrib ) then begin
+      LFileName := ASender.UnparsedParams;
+      LAttrs := Fetch(LFileName);
+      LPermitted := True;
+      LAttrs := Sys.UpperCase(LAttrs);
+      if Copy(LAttrs,1,1)='+' then
+      begin
+        if ValidAttribStr(LAttrs) then
+        begin
+          LAttrVal := 0;
+          ASender.Reply.Clear;
+          ASender.Reply.SetReply(220,'');
+          if IndyPos('R',LATTRS)>0 then
+          begin
+            LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_READONLY;
+            ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_READONLY'); {Do not localize}
+          end;
+          if IndyPos('A',LATTRS)>0 then
+          begin
+            LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_ARCHIVE;
+            ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_ARCHIVE'); {Do not localize}
+          end;
+          if IndyPos('S',LATTRS)>0 then
+          begin
+            LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_SYSTEM;
+            ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_SYSTEM'); {Do not localize}
+          end;
+          if IndyPos('H',LATTRS)>0 then
+          begin
+            LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_HIDDEN;
+            ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_HIDDEN'); {Do not localize}
+          end;
+          if IndyPos('N',LATTRS)>0 then
+          begin
+            LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_NORMAL;
+            ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_NORMAL'); {Do not localize}
+          end;
+          ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+Sys.Format(RSFTPSiteATTRIBDone,[Sys.IntToStr(Length(LAttrs)-1)]));
+          Self.DoOnSetATTRIB(LCx,LAttrVal,LFileName,LPermitted);
+        end
+        else
+        begin
+          ASender.Reply.SetReply(550,RSFTPSiteATTRIBInvalid);
+          Exit;
+        end;
+        if not LPermitted then begin
+          ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+        end;
+      end else begin
+        CmdNotImplemented(ASender);
+      end;
+    end else begin
+      ASender.Reply.Assign(FReplyUnknownSITECommand);
+    end;
+  end;
+end;
+
 procedure TIdFTPServer.CommandSiteCHMOD(ASender: TIdCommand);
 var
   LCx : TIdFTPServerContext;
   LPermitted : Boolean;
   LFileName : String;
   LPerms : String;
+  LPermNo : Integer;
 begin
   LCx := ASender.Context as TIdFTPServerContext;
   if LCx.IsAuthenticated(ASender) then
   begin
-    if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then begin
+    if Assigned( OnSiteCHMOD ) or Assigned(FTPFileSystem) then begin
       LFileName := ASender.UnparsedParams;
       LPerms := Fetch(LFileName);
       If IsValidPermNumbers(LPerms) then begin
         LPermitted := True;
-        DoOnSiteCHMOD(LCx, Sys.StrToInt(LPerms,0), DoProcessPath(LCx,LFileName), LPermitted);
+        LPermNo := Sys.StrToInt(LPerms,0);
+        DoOnSiteCHMOD(LCx, LPermNo, DoProcessPath(LCx,LFileName), LPermitted);
         if LPermitted then begin
           ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
         end else begin
@@ -4869,8 +4984,16 @@ begin
   end;
 end;
 
+procedure TIdFTPServer.DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
+begin
+  if Assigned( FOnSetATTRIB) then
+  begin
+    FOnSetATTRIB(ASender, VAttr, AFileName, VAUth);
+  end;
+end;
+
 procedure TIdFTPServer.DoOnSiteCHMOD(ASender: TIdFTPServerContext;
-  const APermissions: Integer; const AFileName: String;
+ var APermissions: Integer; const AFileName: String;
   var VAUth: Boolean);
 begin
   if Assigned(FOnSiteCHMOD) then
@@ -4923,7 +5046,10 @@ begin
     s := RSFTPSITECmdsSupported+EOL;
     LCmds := TIdStringList.Create;
     try
-
+      if Assigned(OnSetAttrib) then
+      begin
+        LCmds.Add('ATTRIB'); {Do not translate}
+      end;
       if Assigned(OnSiteCHMOD) then
       begin
          LCmds.Add('CHMOD'); {Do not translate}
@@ -4994,6 +5120,7 @@ var
 begin
   LCmd := ASender.UnparsedParams;
   ASender.Reply.Clear;
+  ASender.PerformReply := False;
   if not FSITECommands.HandleCommand(ASender.Context, LCmd) then begin
      ASender.Reply.NumericCode := 500;
      CmdSyntaxError(ASender.Context, ASender.CommandHandler.Command + ' ' + LCmd, ASender.Reply);
