@@ -789,7 +789,7 @@ type
   TOnSiteCHMOD = procedure(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean) of object;
   TOnCustomPathProcess = procedure(ASender: TIdFTPServerContext; var VPath : String) of object;
   //
-  TOnUserLoginEvent = procedure(ASender: TIdFTPServerContext; const AUsername, APassword: string;
+  TOnFTPUserLoginEvent = procedure(ASender: TIdFTPServerContext; const AUsername, APassword: string;
     var AAuthenticated: Boolean) of object;
   TOnAfterUserLoginEvent = procedure(ASender: TIdFTPServerContext) of object;
 
@@ -1035,7 +1035,7 @@ type
     FDefaultDataPort : Integer;
     FUserAccounts: TIdCustomUserManager;
     FOnAfterUserLogin: TOnAfterUserLoginEvent;
-    FOnUserLogin: TOnUserLoginEvent;
+    FOnUserLogin: TOnFTPUserLoginEvent;
     FOnChangeDirectory: TOnDirectoryEvent;
     FOnGetFileSize: TOnGetFileSizeEvent;
     FOnGetFileDate:TOnGetFileDateEvent;
@@ -1274,7 +1274,7 @@ type
     property OnChangeDirectory: TOnDirectoryEvent read FOnChangeDirectory write FOnChangeDirectory;
     property OnGetFileSize: TOnGetFileSizeEvent read FOnGetFileSize write FOnGetFileSize;
     property OnGetFileDate: TOnGetFileDateEvent read FOnGetFileDate write FOnGetFileDate;
-    property OnUserLogin: TOnUserLoginEvent read FOnUserLogin write FOnUserLogin;
+    property OnUserLogin: TOnFTPUserLoginEvent read FOnUserLogin write FOnUserLogin;
     property OnListDirectory: TOnListDirectoryEvent read FOnListDirectory write FOnListDirectory;
     property OnDataPortBeforeBind : TOnDataPortBind read FOnDataPortBeforeBind write FOnDataPortBeforeBind;
     property OnDataPortAfterBind : TOnDataPortBind read FOnDataPortAfterBind write FOnDataPortAfterBind;
@@ -1315,7 +1315,7 @@ type
 
   {This is used internally for some Telnet sequence parsing}
 type
-  TIdTelnetState = (tsData, tsCheckCR, tsIAC, tsWill, tsDo, tsWont, tsDont,
+  TIdFTPTelnetState = (tsData, tsCheckCR, tsIAC, tsWill, tsDo, tsWont, tsDont,
     tsNegotiate, tsNegotiateData, tsNegotiateIAC, tsInterrupt, tsInterruptIAC);
 
 implementation
@@ -3665,9 +3665,6 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
-    if Assigned(FOnSetATTRIB) then begin
-      LTmp := LTmp + 'win32.ea;'; {Do not localize}
-    end;
     if LTmp <> MFFPREFIX then begin
       ASender.Reply.Text.Add(LTmp);
     end;
@@ -4550,8 +4547,6 @@ var
   LValue : String;
   s : String;
   LF : TIdFTPServerContext;
-  LAUth : Boolean;
-  LAttr : Cardinal;
 begin
   LF := TIdFTPServerContext(ASender.Context);
   //this may need to change if we make more facts to modify
@@ -4565,33 +4560,22 @@ begin
     LFacts := TIdStringList.Create;
     try
       LFileName := ParseFacts(ASender.UnparsedParams,LFacts);
-      if LFacts.Values['Modify']<>'' then  {Do not translate}
+      if LFacts.Values['ModifyTime']<>'' then  {Do not translate}
       begin
         if Assigned(FOnSetModifiedTime) then
         begin
-          LValue := LFacts.Values['Modify'];  {Do not translate}
+          LValue := LFacts.Values['ModifyTime'];  {Do not translate}
           DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-          s := s + Sys.Format('Modify=%s;',[LValue]); {Do not translate}
+          s := s + Sys.Format('ModifyTime=%s;',[LValue]); {Do not translate}
         end;
       end;
-      if LFacts.Values['Create']<>'' then    {Do not translate}
+      if LFacts.Values['CreateTime']<>'' then    {Do not translate}
       begin
          if Assigned(FOnSetModifiedTime) then
          begin
-           LValue := LFacts.Values['Create'];   {Do not translate}
+           LValue := LFacts.Values['CreateTime'];   {Do not translate}
            DoOnSetModifiedTime(LF,ASender.UnParsedParams,LValue);
-           s := s + Sys.Format('Create=%s;',[LValue]);  {Do not translate}
-         end;
-      end;
-      if LFacts.Values['win32.ea']<>'' then    {Do not translate}
-      begin
-         if Assigned(FOnSetATTRIB) then
-         begin
-           LValue := LFacts.Values['win32.ea'];   {Do not translate}
-           LAttr := Sys.StrToInt(LValue,0);
-           DoOnSetATTRIB(LF,LAttr,LFileName,LAuth);
-           LValue := '0x'+Sys.IntToHex(LAttr,8);
-           s := s + Sys.Format('win32.ea=%s;',[LValue]);  {Do not translate}
+           s := s + Sys.Format('CreateTime=%s;',[LValue]);  {Do not translate}
          end;
       end;
       if s <> '' then
@@ -5677,7 +5661,7 @@ function TIdFTPServer.ReadCommandLine(AContext: TIdContext): string;
 var
   c : char;
   i : Integer;
-  State: TIdTelnetState;
+  State: TIdFTPTelnetState;
   lb : Byte;
 const
 {

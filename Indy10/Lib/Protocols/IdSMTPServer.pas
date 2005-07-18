@@ -108,7 +108,7 @@ type
 
   TIdSMTPServerContext = class;
 
-  TOnUserLoginEvent = procedure(ASender: TIdSMTPServerContext; const AUsername, APassword: string;
+  TOnSMTPUserLoginEvent = procedure(ASender: TIdSMTPServerContext; const AUsername, APassword: string;
     var VAuthenticated: Boolean) of object;
   TOnMailFromEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
     var VAction : TIdMailFromReply) of object;
@@ -122,7 +122,7 @@ type
   TIdSMTPServer = class(TIdExplicitTLSServer)
   protected
     //events
-    FOnUserLogin : TOnUserLoginEvent;
+    FOnUserLogin : TOnSMTPUserLoginEvent;
     FOnMailFrom : TOnMailFromEvent;
     FOnRcptTo : TOnRcptToEvent;
     FOnMsgReceive : TOnMsgReceive;
@@ -195,7 +195,7 @@ type
   published
     //events
     property OnMsgReceive : TOnMsgReceive read FOnMsgReceive write FOnMsgReceive;
-    property OnUserLogin : TOnUserLoginEvent read FOnUserLogin write FOnUserLogin;
+    property OnUserLogin : TOnSMTPUserLoginEvent read FOnUserLogin write FOnUserLogin;
     property OnMailFrom : TOnMailFromEvent read FOnMailFrom write FOnMailFrom;
     property OnRcptTo : TOnRcptToEvent read FOnRcptTo write FOnRcptTo;
     property OnReceived: TOnReceived read FOnReceived write FOnReceived;

@@ -544,7 +544,7 @@ type
 
   end;
 
-  TIdOnGetCustomListFormat = procedure(AItem: TIdFTPListItem; var VText: string) of object;
+  TIdFTPListOnGetCustomListFormat = procedure(AItem: TIdFTPListItem; var VText: string) of object;
   TIdOnParseCustomListFormat = procedure(AItem: TIdFTPListItem) of object;
 
   // TFTPList is the container and parser for items in the directory listing
