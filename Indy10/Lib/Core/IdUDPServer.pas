@@ -333,11 +333,7 @@ begin
       if FServer.ThreadedEvent then begin
         UDPRead;
       end else begin
-      {$IFDEF DotNetDistro}
-        UDPRead;
-      {$ELSE}
         Synchronize(UDPRead);
-      {$ENDIF}
       end;
     end;
   except
@@ -349,11 +345,7 @@ begin
       if FServer.ThreadedEvent then begin
           UDPException;
       end else begin
-        {$IFDEF DotNetDistro}
-          UDPException;
-        {$ELSE}
           Synchronize(UDPException);
-        {$ENDIF}
       end;
     end;
   end;
