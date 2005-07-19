@@ -132,9 +132,9 @@ function TIdServerIOHandlerSocket.Accept(
 var
   LIOHandler: TIdIOHandlerSocket;
 begin
+  //using a custom scheduler, AYarn may be nil, so don't assert 
   Assert(ASocket<>nil);
   Assert(AListenerThread<>nil);
-  Assert(AYarn<>nil);
 
   Result := nil;
   LIOHandler := IOHandlerSocketClass.Create(nil);
