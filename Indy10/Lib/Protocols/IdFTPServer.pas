@@ -4541,7 +4541,7 @@ begin
       LFileName := ASender.UnparsedParams;
       LTimeStr := Fetch(LFileName);
       DoOnSetModifiedTime(LF,LFileName,LTimeStr);
-      ASender.Reply.SetReply(213,Sys.Format('ModifyTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
+      ASender.Reply.SetReply(213,Sys.Format('Modify=%s %s',[LTimeStr,LFileName])); {Do not translate}
     end else begin
       CmdSyntaxError(ASender);
     end;
