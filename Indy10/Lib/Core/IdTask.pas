@@ -32,8 +32,10 @@ uses
   IdYarn;
 
 type
+
   TIdTask = class(TObject)
   protected
+    FBeforeRunDone:Boolean;
     FData: TObject;
     FYarn: TIdYarn;
     //
@@ -52,12 +54,15 @@ type
     procedure DoAfterRun;
     procedure DoBeforeRun;
     function DoRun: Boolean;
+    //BeforeRunDone property to allow flexibility in alternative schedulers
+    property BeforeRunDone:Boolean read FBeforeRunDone;
     //
     property Data: TObject read FData write FData;
     property Yarn: TIdYarn read FYarn;
   end;
 
 implementation
+
 uses IdGlobal;
 
 { TIdTask }
@@ -76,6 +81,7 @@ constructor TIdTask.Create(
 begin
   inherited Create;
   FYarn := AYarn;
+  FBeforeRunDone := False;
 end;
 
 destructor TIdTask.Destroy;
@@ -93,6 +99,7 @@ end;
 
 procedure TIdTask.DoBeforeRun;
 begin
+  FBeforeRunDone := True;
   BeforeRun;
 end;
 
