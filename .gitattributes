@@ -530,6 +530,9 @@ Indy10/Lib/Protocols/IdGopher.pas -text
 Indy10/Lib/Protocols/IdGopherConsts.pas -text
 Indy10/Lib/Protocols/IdGopherServer.pas -text
 Indy10/Lib/Protocols/IdHL7.pas -text
+Indy10/Lib/Protocols/IdHMAC.pas -text
+Indy10/Lib/Protocols/IdHMACMD5.pas -text
+Indy10/Lib/Protocols/IdHMACSHA1.pas -text
 Indy10/Lib/Protocols/IdHTTP.pas -text
 Indy10/Lib/Protocols/IdHTTPHeaderInfo.pas -text
 Indy10/Lib/Protocols/IdHTTPProxyServer.pas -text
