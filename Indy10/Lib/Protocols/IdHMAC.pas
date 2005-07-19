@@ -26,7 +26,7 @@ type
   public
     constructor Create; virtual;
     destructor Destroy; override;
-    function HashValue(const ABuffer: TIdBytes) : TIdBytes;
+    function HashValue(const ABuffer: TIdBytes; const ATruncateTo: Integer = -1) : TIdBytes; // for now, supply in bytes
     property HashSize: Integer read FHashSize;
     property BlockSize: Integer read FBlockSize;
     property HashName: string read FHashName;
@@ -74,7 +74,7 @@ begin
   inherited;
 end;
 
-function TIdHMAC.HashValue(const ABuffer: TIdBytes): TIdBytes;
+function TIdHMAC.HashValue(const ABuffer: TIdBytes; const ATruncateTo: Integer = -1): TIdBytes;
 const
   CInnerPad : Byte = $36;
   COuterPad : Byte = $5C;
@@ -105,6 +105,10 @@ begin
   SetLength(TempBuffer1, 0);
   SetLength(TempBuffer2, 0);
   SetLength(LKey, 0);
+  if ATruncateTo > -1 then
+  begin
+    SetLength(Result, ATruncateTo);
+  end;
 end;
 
 procedure TIdHMAC.InitKey;
