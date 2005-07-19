@@ -197,15 +197,20 @@ type
   end;
   //TODO: Later make this descend from TIdThreadSafe instead
   TIdThreadSafeList = class(TIdThreadList)
+  private
+    FOwnsObjects: Boolean;
   public
     procedure Assign(AThreadList: TIdThreadList);overload;
     procedure Assign(AList: TIdList);overload;
     // Here to make it virtual
     constructor Create; virtual;
+    destructor Destroy; override;
     function IsCountLessThan(const AValue: Cardinal): Boolean;
     function IsEmpty: Boolean;
     function Pop: TIdBaseObject;
     function Pull: TIdBaseObject;
+    procedure ClearAndFree;
+    property OwnsObjects:Boolean read FOwnsObjects write FOwnsObjects;
   End;
 
 implementation
@@ -523,6 +528,27 @@ end;
 constructor TIdThreadSafeList.Create;
 begin
   inherited Create;
+  OwnsObjects:=False;
+end;
+
+procedure TIdThreadSafeList.ClearAndFree;
+var
+  LList:TIdList;
+  i:Integer;
+begin
+  LList := LockList; try
+  for i := 0 to LList.Count-1 do
+    begin
+    TObject(LList[i]).Free;
+    end;
+  LList.Clear;
+  finally UnlockList; end;
+end;
+
+destructor TIdThreadSafeList.Destroy;
+begin
+  if OwnsObjects then ClearAndFree;
+  inherited;
 end;
 
 { TIdThreadSafeBoolean }
