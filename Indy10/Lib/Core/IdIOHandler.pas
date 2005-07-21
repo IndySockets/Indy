@@ -634,7 +634,7 @@ type
     // This is the main write function which all other default implementations
     // use. If default implementations are used, this must be implemented.
     procedure WriteDirect(
-      ABuffer: TIdBytes
+      aBuffer: TIdBytes
       ); virtual;
 
     procedure Open; virtual;
@@ -1763,11 +1763,7 @@ begin
   WriteBufferOpen(-1);
 end;
 
-procedure TIdIOHandler.WriteDirect(ABuffer: TIdBytes);
-//note: currently code in this method is not called
-//(subclass does not call inherited) (see TIdIOHandlerStack, used by win32)
-//this may need to be refactored to either remove this code,
-//or subclass to call inherited.
+procedure TIdIOHandler.WriteDirect(aBuffer: TIdBytes);
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
@@ -1779,7 +1775,5 @@ end;
 initialization
 
 finalization
-
   Sys.FreeAndNil(GIOHandlerClassList)
-
 end.
