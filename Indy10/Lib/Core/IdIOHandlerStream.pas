@@ -166,8 +166,8 @@ type
   protected
     FFreeStreams: Boolean;
     FOnGetStreams: TIdOnGetStreams;
-    FReceiveStream: TIdStream;
-    FSendStream: TIdStream;
+    fReceiveStream: TIdStream;
+    fSendStream: TIdStream;
     FStreamType: TIdIOHandlerStreamType;
     //
     function GetReceiveStream: TIdStream;
@@ -205,7 +205,7 @@ type
       override;
     function Readable(AMSec: integer = IdTimeoutDefault): boolean; override;
     procedure WriteDirect(
-      ABuffer: TIdBytes
+      aBuffer: TIdBytes
       ); override;
     //
     property ReceiveStream: TIdStream read GetReceiveStream {write SetReceiveStream};
@@ -225,14 +225,17 @@ implementation
 
 procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
 begin
-    {All that we are doing here is implementing the base class's abstract function}
+  // All that we are doing here is implementing the base class's abstract function
 end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(
   ARaiseExceptionIfDisconnected: Boolean = True;
   AIgnoreBuffer: Boolean = False);
 begin
-    {All that we are doing here is implementing the base class's abstract function}
+  fClosedGracefully := (fSendStream = nil) and (fReceiveStream = nil);
+  if fClosedGracefully and ARaiseExceptionIfDisconnected then begin
+    RaiseConnClosedGracefully;
+  end;
 end;
 
 procedure TIdIOHandlerStream.Close;
@@ -325,14 +328,13 @@ begin
 end;
 
 procedure TIdIOHandlerStream.WriteDirect(
-  ABuffer: TIdBytes
+  aBuffer: TIdBytes
   );
 begin
-  if SendStream <> nil then begin
-    if Intercept <> nil then begin
-      Intercept.Send(ABuffer);
-    end;
-    TIdStreamHelper.Write(FSendStream,ABuffer);
+  inherited WriteDirect(aBuffer);
+  Intercept.Send(ABuffer);
+  if fSendStream <> nil then begin
+    TIdStreamHelper.Write(fSendStream, aBuffer);
   end;
 end;
 
