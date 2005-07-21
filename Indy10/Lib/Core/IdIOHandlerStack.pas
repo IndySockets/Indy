@@ -247,7 +247,7 @@ type
     // In TIdIOHandlerStack, WriteBytes must be the ONLY call to
     // WriteToDestination - all data goes thru this method
     procedure WriteDirect(
-      ABuffer: TIdBytes
+      aBuffer: TIdBytes
       ); override;
   published
     property ReadTimeout default IdDefTimeout;
@@ -410,18 +410,14 @@ begin
 end;
 
 procedure TIdIOHandlerStack.WriteDirect(
-  ABuffer: TIdBytes
+  aBuffer: TIdBytes
   );
 var
   LCount: Integer;
   LPos: Integer;
   LSize: Integer;
 begin
-  // Check if disconnected
-  CheckForDisconnect(True, True);
-  if Intercept <> nil then begin
-    Intercept.Send(ABuffer);
-  end;
+  inherited WriteDirect(aBuffer);
   LSize := Length(ABuffer);
   LPos := 0;
   repeat
