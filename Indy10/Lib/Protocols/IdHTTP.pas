@@ -512,7 +512,7 @@ type
     FAuthenticationManager: TIdAuthenticationManager;
     FProtocolVersion: TIdHTTPProtocolVersion;
 
-    {this is an internal counter for redirercts}
+    {this is an internal counter for redirects}
     FRedirectCount: Integer;
     FRedirectMax: Integer;
     FHandleRedirects: Boolean;
@@ -706,11 +706,15 @@ end;
 
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream);
 begin
+  Assert(AResponseContent<>nil);
+
   Get(AURL, AResponseContent, []);
 end;
 
 procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TIdStream);
 begin
+  Assert(AResponseContent<>nil);
+
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
 
@@ -723,6 +727,9 @@ procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TIdStream)
 var
   OldProtocol: TIdHTTPProtocolVersion;
 begin
+  Assert(ASource<>nil);
+  Assert(AResponseContent<>nil);
+
   // PLEASE READ CAREFULLY
 
   // Currently when issuing a POST, IdHTTP will automatically set the protocol
@@ -750,6 +757,8 @@ var
   LPos: integer;
   LStr: string;
 begin
+  Assert(AStrings<>nil);
+
   for i := 0 to AStrings.Count - 1 do begin
     //AStrings[i] := AStrings.Names[i] + AStrings.NameValueSeparator + TIdURI.ParamsEncode(AStrings.ValueFromIndex[i]);
     LStr := AStrings[i];
@@ -781,6 +790,9 @@ procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings; AResponseContent
 var
   LParams: TIdStream;
 begin
+  Assert(ASource<>nil);
+  Assert(AResponseContent<>nil);
+
   // Usual posting request have default ContentType is application/x-www-form-urlencoded
   if (Request.ContentType = '') or (TextIsSame(Request.ContentType, 'text/html')) then {do not localize}
     Request.ContentType := 'application/x-www-form-urlencoded'; {do not localize}
@@ -797,6 +809,8 @@ function TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings): string;
 var
   LResponse: TIdStringStream;
 begin
+  Assert(ASource<>nil);
+
   LResponse := TIdStringStream.Create('');
   try
     Post(AURL, ASource, LResponse);
@@ -810,6 +824,8 @@ function TIdCustomHTTP.Post(AURL: string; ASource: TIdStream): string;
 var
   LResponse: TIdStringStream;
 begin
+  Assert(ASource<>nil);
+
   LResponse := TIdStringStream.Create('');
   try
     Post(AURL, ASource, LResponse);
@@ -821,6 +837,9 @@ end;
 
 procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TIdStream);
 begin
+  Assert(ASource<>nil);
+  Assert(AResponseContent<>nil);
+
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
@@ -828,6 +847,8 @@ function TIdCustomHTTP.Put(AURL: string; ASource: TIdStream): string;
 var
   LResponse: TIdStringStream;
 begin
+  Assert(ASource<>nil);
+
   LResponse := TIdStringStream.Create('');
   try
     Put(AURL, ASource, LResponse);
@@ -1119,6 +1140,8 @@ end;
 
 procedure TIdCustomHTTP.CheckAndConnect(AResponse: TIdHTTPResponse);
 begin
+  Assert(AResponse<>nil);
+
   if not AResponse.KeepAlive then begin
     Disconnect;
   end;
@@ -1559,6 +1582,9 @@ end;
 procedure TIdCustomHTTP.Post(AURL: string;
   ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream);
 begin
+  Assert(ASource<>nil);
+  Assert(AResponseContent<>nil);
+
   Request.ContentType := ASource.RequestContentType;
   Post(AURL, TIdStream(ASource), AResponseContent);
 end;
@@ -1566,6 +1592,8 @@ end;
 function TIdCustomHTTP.Post(AURL: string;
   ASource: TIdMultiPartFormDataStream): string;
 begin
+  Assert(ASource<>nil);
+
   Request.ContentType := ASource.RequestContentType;
   result := Post(AURL, TIdStream(ASource));
 end;
@@ -1957,6 +1985,8 @@ end;
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream;
   AIgnoreReplies: array of SmallInt);
 begin
+  Assert(AResponseContent<>nil);
+
   DoRequest(Id_HTTPMethodGet, AURL, nil, AResponseContent, AIgnoreReplies);
 end;
 
