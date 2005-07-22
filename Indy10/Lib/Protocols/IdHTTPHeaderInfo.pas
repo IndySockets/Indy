@@ -94,7 +94,7 @@ type
     FContentLength: Int64;
     FContentRangeEnd: Int64;
     FContentRangeStart: Int64;
-    FContentRangeInstanceLength: Cardinal;
+    FContentRangeInstanceLength: Int64;
     FContentType: string;
     FContentVersion: string;
     FCustomHeaders: TIdHeaderList;

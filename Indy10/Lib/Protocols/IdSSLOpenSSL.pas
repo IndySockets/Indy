@@ -413,9 +413,7 @@ type
      ATimeout: Integer = IdTimeoutDefault;
      ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
   public
-    procedure WriteDirect(
-      ABuffer: TIdBytes
-      ); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
     destructor Destroy; override;
     function Clone :  TIdSSLIOHandlerSocketBase; override;
     procedure StartSSL; override;
@@ -1323,7 +1321,7 @@ begin
   end;
 end;
 
-procedure TIdSSLIOHandlerSocketOpenSSL.WriteDirect(
+procedure TIdSSLIOHandlerSocketOpenSSL.WriteDirect(var
   ABuffer: TIdBytes
   );
 var
