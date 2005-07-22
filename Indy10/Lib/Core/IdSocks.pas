@@ -407,7 +407,8 @@ begin
   SetLength(LBuf, 255);
   MakeSocks5Request(AIOHandler, AHost, APort, $01, LBuf, Pos);
 
-  AIOHandler.WriteDirect(ToBytes(LBuf, pos)); // send the connection packet
+  LBuf:=ToBytes(LBuf, Pos);
+  AIOHandler.WriteDirect(LBuf); // send the connection packet
   try
     AIOHandler.ReadBytes(LBuf, 5, False);    // Socks server replies on connect, this is the first part
   except
