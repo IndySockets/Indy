@@ -16,59 +16,57 @@
   $Log$
 }
 {
-    Rev 1.9    2/16/2005 7:58:56 AM  DSiders
+  Rev 1.9    2/16/2005 7:58:56 AM  DSiders
   Modified TIdRequestHeaderInfo to restore the Range property.
   Modified TIdRequestHeaderInfo methods AssignTo, Clear, ProcessHeaders, and
-  SetHeaders to include Range property.
+    SetHeaders to include Range property.
 }
 {
-    Rev 1.8    11/11/2004 12:55:38 AM  DSiders
+  Rev 1.8    11/11/2004 12:55:38 AM  DSiders
   Modified TIdEntityHeaderInfo to fix problems with content-range header
-  handling.
+    handling.
   Added ContentRangeInstanceLength property.
   Added HasContentRange property (read-ony).
   Added HasContentRangeInstance property (read-only).
   Moved reading and writing methods to ProcessHeaders and SetHeaders in
-  TIdEntityHeaderInfo.
+    TIdEntityHeaderInfo.
 }
 {
-{   Rev 1.7    6/8/2004 10:35:46 AM  BGooijen
-{ fixed overflow
+  Rev 1.7    6/8/2004 10:35:46 AM  BGooijen
+  fixed overflow
 }
 {
-{   Rev 1.6    2004.02.03 5:43:46 PM  czhower
-{ Name changes
+  Rev 1.6    2004.02.03 5:43:46 PM  czhower
+  Name changes
 }
 {
-{   Rev 1.5    1/22/2004 7:10:08 AM  JPMugaas
-{ Tried to fix AnsiSameText depreciation.
+{
+  Rev 1.5    1/22/2004 7:10:08 AM  JPMugaas
+  Tried to fix AnsiSameText depreciation.
 }
 {
-{   Rev 1.4    13.1.2004 ã. 17:17:44  DBondzhev
-{ moved few methods into protected section to remove some warnings
+  Rev 1.4    13.1.2004 ã. 17:17:44  DBondzhev
+  moved few methods into protected section to remove some warnings
 }
 {
-    Rev 1.3    10/17/2003 12:09:28 AM  DSiders
+  Rev 1.3    10/17/2003 12:09:28 AM  DSiders
   Added localization comments.
 }
 {
-{   Rev 1.2    20/4/2003 3:46:34 PM  SGrobety
-{ Fix to previous fix... (Dumb me)
+  Rev 1.2    20/4/2003 3:46:34 PM  SGrobety
+  Fix to previous fix... (Dumb me)
 }
 {
-{   Rev 1.1    20/4/2003 3:33:58 PM  SGrobety
-{ Changed Content-type default in TIdEntityHeaderInfo back to empty string and
-{ changed the default of the response object. Solved compatibility issue with
-{ Netscape servers
+  Rev 1.1    20/4/2003 3:33:58 PM  SGrobety
+  Changed Content-type default in TIdEntityHeaderInfo back to empty string
+    and changed the default of the response object. Solved compatibility
+    issue with Netscape servers
 }
 {
-{   Rev 1.0    11/13/2002 07:54:24 AM  JPMugaas
+  Rev 1.0    11/13/2002 07:54:24 AM  JPMugaas
 }
 {
   HTTP Header definition - RFC 2616
-
-  Copyright: (c) Chad Z. Hower and The Indy Pit Crew.
-
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
 }
 
@@ -84,7 +82,8 @@ uses
   IdObjs,
   IdSys;
 
-Type
+type
+
   TIdEntityHeaderInfo = class(TIdPersistent)
   protected
     FCacheControl: String;
@@ -132,8 +131,7 @@ Type
 
     property ContentRangeEnd: Int64 read FContentRangeEnd write FContentRangeEnd;
     property ContentRangeStart: Int64 read FContentRangeStart write FContentRangeStart;
-    property ContentRangeInstanceLength: Cardinal
-      read FContentRangeInstanceLength write FContentRangeInstanceLength;
+    property ContentRangeInstanceLength: Int64 read FContentRangeInstanceLength write FContentRangeInstanceLength;
 
     property ContentType: string read FContentType write FContentType;
     property ContentVersion: string read FContentVersion write FContentVersion;
@@ -215,8 +213,8 @@ Type
   end;
 
   TIdResponseHeaderInfo = class(TIdEntityHeaderInfo)
-  private
   protected
+    FAcceptRanges: string;
     FLocation: string;
     FServer: string;
     FProxyConnection: string;
@@ -225,13 +223,15 @@ Type
     //
     procedure SetProxyAuthenticate(const Value: TIdHeaderList);
     procedure SetWWWAuthenticate(const Value: TIdHeaderList);
-
+    procedure SetAcceptRanges(const Value: string);
     procedure ProcessHeaders; override;
+    procedure SetHeaders; override;
   public
     procedure Clear; override;
     constructor Create; override;
     destructor Destroy; override;
   published
+    property AcceptRanges: string read FAcceptRanges write SetAcceptRanges;
     property Location: string read FLocation write FLocation;
     property ProxyConnection: string read FProxyConnection write FProxyConnection;
     property ProxyAuthenticate: TIdHeaderList read FProxyAuthenticate write SetProxyAuthenticate;
@@ -248,11 +248,10 @@ const
 
 constructor TIdEntityHeaderInfo.Create;
 begin
-  inherited;
+  inherited Create;
 
   FRawHeaders := TIdHeaderList.Create;
   FRawHeaders.FoldLength := 1024;
-
   FCustomHeaders := TIdHeaderList.Create;
 
   Clear;
@@ -286,7 +285,9 @@ begin
     end;
   end
   else
+  begin
     inherited AssignTo(Destination);
+  end;
 end;
 
 procedure TIdEntityHeaderInfo.Clear;
@@ -404,14 +405,7 @@ begin
       Values['Content-Length'] := Sys.IntToStr(FContentLength); {do not localize}
     end;
 
-    if HasContentRange or HasContentRangeInstance then
-    begin
-      Values['Content-Range'] := 'bytes ' + {do not localize}
-        iif(HasContentRange,
-          Sys.Format('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*') + '/' + {do not localize}
-        iif(HasContentRangeInstance,
-          Sys.Format('%d', [FContentRangeInstanceLength]), '*'); {do not localize}
-    end;
+    { removed setting Content-Range header for entities... deferred to response }
 
     if Length(FCacheControl) > 0 then
     begin
@@ -425,15 +419,13 @@ begin
     begin
       Values['Expires'] := DateTimeGMTToHttpStr(FExpires); {do not localize}
     end;
-
     if Length(FPragma) > 0 then
     begin
       Values['Pragma'] := FPragma; {do not localize}
     end;
-
     if FCustomHeaders.Count > 0 then
     begin
-      // Append Custom headers
+      // append custom headers
       Text := Text + FCustomHeaders.Text;
     end;
   end;
@@ -470,7 +462,7 @@ end;
 
 constructor TIdProxyConnectionInfo.Create;
 begin
-  inherited;
+  inherited Create;
   Clear;
 end;
 
@@ -496,7 +488,10 @@ begin
       FBasicByDefault := Self.FBasicByDefault;
     end;
   end
-  else inherited AssignTo(Destination);
+  else
+  begin
+    inherited AssignTo(Destination);
+  end;
 end;
 
 procedure TIdProxyConnectionInfo.Clear;
@@ -518,9 +513,8 @@ begin
       S := Authentication.Authentication;
       if Length(S) > 0 then
       begin
-        Values['Proxy-Authorization'] := S; {do not localize}
-      end
-      else
+        Values['Proxy-Authorization'] := S;             {do not localize}
+      end;
     end
     else
     begin
@@ -547,14 +541,18 @@ end;
 procedure TIdProxyConnectionInfo.SetProxyPort(const Value: Integer);
 begin
   if Value <> FPort then
+  begin
     Sys.FreeAndNil(FAuthentication);
+  end;
   FPort := Value;
 end;
 
 procedure TIdProxyConnectionInfo.SetProxyServer(const Value: string);
 begin
   if not TextIsSame(Value, FServer) then
+  begin
     Sys.FreeAndNil(FAuthentication);
+  end;
   FServer := Value;
 end;
 
@@ -615,7 +613,9 @@ begin
     end;
   end
   else
+  begin
     inherited AssignTo(Destination);
+  end;
 end;
 
 procedure TIdRequestHeaderInfo.Clear;
@@ -729,7 +729,7 @@ begin
   begin
     Sys.FreeAndNil(FAuthentication);
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 { TIdResponseHeaderInfo }
@@ -740,6 +740,7 @@ begin
   FContentType := 'text/html';  {do not localize}
   FWWWAuthenticate := TIdHeaderList.Create;
   FProxyAuthenticate := TIdHeaderList.Create;
+  FAcceptRanges := '';
 end;
 
 destructor TIdResponseHeaderInfo.Destroy;
@@ -764,26 +765,57 @@ begin
   inherited ProcessHeaders;
   with FRawHeaders do
   begin;
-    FLocation := Values['Location'];                {do not localize}
-    FServer := Values['Server'];                    {do not localize}
-    FProxyConnection := Values['Proxy-Connection']; {do not localize}
+    FLocation := Values['Location'];                  {do not localize}
+    FServer := Values['Server'];                      {do not localize}
+    FProxyConnection := Values['Proxy-Connection'];   {do not localize}
 
     FWWWAuthenticate.Clear;
-    Extract('WWW-Authenticate', FWWWAuthenticate);   {do not localize}
+    Extract('WWW-Authenticate', FWWWAuthenticate);    {do not localize}
 
     FProxyAuthenticate.Clear;
-    Extract('Proxy-Authenticate', FProxyAuthenticate); {do not localize}
+    Extract('Proxy-Authenticate', FProxyAuthenticate);{do not localize}
+
+    FAcceptRanges := Values['Accept-Ranges'];         {do not localize}
+  end;
+end;
+
+procedure TIdResponseHeaderInfo.SetHeaders;
+var
+  sCR: String;
+  sCI: String;
+begin
+  inherited SetHeaders;
+
+  {
+    setting the content-range header is allowed in server responses...
+    moved here TIdEntityHeaderInfo
+  }
+  if (HasContentRange or HasContentRangeInstance) then
+  begin
+    sCR := iif(HasContentRange,
+      Sys.Format('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*');
+    sCI := iif(HasContentRangeInstance,
+      Sys.Format('%d', [FContentRangeInstanceLength]), '*');
+
+    RawHeaders.Values['Content-Range'] := 'bytes ' + sCR + '/' + sCI;
+  end;
+  if Length(FAcceptRanges) > 0 then
+  begin
+    RawHeaders.Values['Accept-Ranges'] := FAcceptRanges;
   end;
 end;
 
 procedure TIdResponseHeaderInfo.Clear;
 begin
   inherited Clear;
+
   // S.G. 20/4/2003: Default to text/HTML
   FContentType := 'text/html';  {do not localize}
 
   FLocation := '';
   FServer := '';
+  FAcceptRanges := '';
+
   if Assigned(FProxyAuthenticate) then
   begin
     FProxyAuthenticate.Clear;
@@ -793,6 +825,11 @@ begin
   begin
     FWWWAuthenticate.Clear;
   end;
+end;
+
+procedure TIdResponseHeaderInfo.SetAcceptRanges(const Value: string);
+begin
+  FAcceptRanges := Value;
 end;
 
 end.
