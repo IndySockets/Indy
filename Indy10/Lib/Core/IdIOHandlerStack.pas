@@ -247,7 +247,7 @@ type
     // In TIdIOHandlerStack, WriteBytes must be the ONLY call to
     // WriteToDestination - all data goes thru this method
     procedure WriteDirect(
-      aBuffer: TIdBytes
+      var aBuffer: TIdBytes
       ); override;
   published
     property ReadTimeout default IdDefTimeout;
@@ -410,7 +410,7 @@ begin
 end;
 
 procedure TIdIOHandlerStack.WriteDirect(
-  aBuffer: TIdBytes
+  var aBuffer: TIdBytes
   );
 var
   LCount: Integer;

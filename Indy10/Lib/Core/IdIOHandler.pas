@@ -634,7 +634,7 @@ type
     // This is the main write function which all other default implementations
     // use. If default implementations are used, this must be implemented.
     procedure WriteDirect(
-      aBuffer: TIdBytes
+      var aBuffer: TIdBytes
       ); virtual;
 
     procedure Open; virtual;
@@ -1763,7 +1763,7 @@ begin
   WriteBufferOpen(-1);
 end;
 
-procedure TIdIOHandler.WriteDirect(aBuffer: TIdBytes);
+procedure TIdIOHandler.WriteDirect(var aBuffer: TIdBytes);
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);

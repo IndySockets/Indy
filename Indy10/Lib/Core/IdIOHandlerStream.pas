@@ -205,7 +205,7 @@ type
       override;
     function Readable(AMSec: integer = IdTimeoutDefault): boolean; override;
     procedure WriteDirect(
-      aBuffer: TIdBytes
+      var aBuffer: TIdBytes
       ); override;
     //
     property ReceiveStream: TIdStream read GetReceiveStream {write SetReceiveStream};
@@ -328,11 +328,10 @@ begin
 end;
 
 procedure TIdIOHandlerStream.WriteDirect(
-  aBuffer: TIdBytes
+  var aBuffer: TIdBytes
   );
 begin
   inherited WriteDirect(aBuffer);
-  Intercept.Send(ABuffer);
   if fSendStream <> nil then begin
     TIdStreamHelper.Write(fSendStream, aBuffer);
   end;
