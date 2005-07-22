@@ -7,6 +7,7 @@ uses
   IdIOHandler,
   IdObjs,
   IdStream,
+  IdIntercept,
   IdExceptionCore,
   IdResourceStringsCore,
   IdGlobal,
@@ -28,9 +29,12 @@ type
      ARaiseExceptionIfDisconnected: Boolean;
      AIgnoreBuffer: Boolean
      ); override;
-    procedure WriteDirect(
-      ABuffer: TIdBytes
-      ); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
+  end;
+
+  TIdExampleIntercept = class(TIdConnectionIntercept)
+  public
+    procedure Send(var ABuffer: TIdBytes); override;
   end;
 
   TIdTestIOHandler = class(TIdTest)
@@ -40,12 +44,16 @@ type
     procedure TestReadWrite;
     procedure TestReadLn;
     procedure TestStreamSize;
+    procedure TestIntercept;
   end;
 
 implementation
 
 const
- cStr='abc123';
+  cStr='abc123';
+  //for intercept test
+  cPlain='abcdef';
+  cEncoded='123456';
 
 procedure TIdLoopbackIOHandler.CheckForDataOnSource(ATimeout: Integer);
 begin
@@ -64,13 +72,13 @@ begin
  //always report a timeout happened, ie there's no more data expected
  Result:=-1;
  EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout and (Result = -1), RSReadTimeout);
- 
+
 end;
 
-procedure TIdLoopbackIOHandler.WriteDirect(ABuffer: TIdBytes);
+procedure TIdLoopbackIOHandler.WriteDirect(var ABuffer: TIdBytes);
 begin
- // inherited;
- FInputBuffer.Write(abuffer);
+  inherited;
+  FInputBuffer.Write(abuffer);
 end;
 
 procedure TIdTestIOHandler.RunStream(const io: TIdIOHandler;const aLarge:Boolean);
@@ -99,6 +107,31 @@ begin
  finally
  Sys.FreeAndNil(aStream);
  end;
+
+end;
+
+procedure TIdTestIOHandler.TestIntercept;
+var
+  io:TIdLoopbackIOHandler;
+  aStr:string;
+  aIntercept:TIdExampleIntercept;
+begin
+  io:=TIdLoopbackIOHandler.Create(nil);
+  aIntercept:=TIdExampleIntercept.Create;
+  try
+    io.Intercept:=aIntercept;
+    io.Open;
+
+    //check that the intercept actually changes data that gets written 
+    io.Write(cPlain);
+    aStr:=io.InputBuffer.AsString;
+    Assert(aStr=cEncoded,aStr);
+
+    //todo also test with writebuffer
+  finally
+    Sys.FreeAndNil(io);
+    Sys.FreeAndNil(aIntercept);
+  end;
 
 end;
 
@@ -231,6 +264,12 @@ begin
  Sys.FreeAndNil(io);
  end;
 
+end;
+
+procedure TIdExampleIntercept.Send(var ABuffer: TIdBytes);
+begin
+  //inherited;
+  ABuffer:=ToBytes(cEncoded);
 end;
 
 initialization
