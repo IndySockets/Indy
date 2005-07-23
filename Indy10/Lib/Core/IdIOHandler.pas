@@ -808,6 +808,7 @@ begin
   Close;
   Sys.FreeAndNil(FRecvBuffer);
   Sys.FreeAndNil(FInputBuffer);
+  Sys.FreeAndNil(FWriteBuffer);
   inherited Destroy;
 end;
 
