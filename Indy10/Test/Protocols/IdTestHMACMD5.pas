@@ -1,5 +1,7 @@
 unit IdTestHMACMD5;
 
+//examples are from http://www.ietf.org/rfc/rfc2202.txt
+
 interface
 
 uses
@@ -10,9 +12,9 @@ type
   private
     FHash: TIdHMACMD5;
   protected
-    procedure Execute; override;
+    procedure SetUp; override;
+    procedure TearDown; override;
   public
-    constructor Create; virtual;
     function GenerateByteArray(AValue: Byte; ACount: Integer) : TIdBytes;
   published
     procedure TestIETF1;
@@ -26,25 +28,16 @@ type
 
 implementation
 
-
-{ TIdTestHMACMD5 }
-
-constructor TIdTestHMACMD5.Create;
+procedure TIdTestHMACMD5.SetUp;
 begin
   inherited;
-  FHash := TIdHMACMD5.Create;
+  FHash:=TIdHMACMD5.Create;
 end;
 
-procedure TIdTestHMACMD5.Execute;
+procedure TIdTestHMACMD5.TearDown;
 begin
+  Sys.FreeAndNil(fhash);
   inherited;
-//  TestIETF1;
-  TestIETF2;
-//  TestIETF3;
-//  TestIETF4;
-//  TestIETF5;
-//  TestIETF6;
-//  TestIETF7;
 end;
 
 function TIdTestHMACMD5.GenerateByteArray(AValue: Byte;
@@ -78,48 +71,30 @@ procedure TIdTestHMACMD5.TestIETF2;
 var
   LByteArray: TIdBytes;
 begin
+  //FHash:=TIdHMACMD5.Create;
   FHash.Key := ToBytes('Jefe');
   LByteArray := ToBytes('what do ya want for nothing?');
   LByteArray := FHash.HashValue(LByteArray);
   Assert(Sys.LowerCase(ToHex(LByteArray)) = '750c783e6ab0b503eaa86e310a5db738');
   SetLength(LByteArray, 0);
+  //Sys.FreeAndNil(FHash);
 end;
 
 procedure TIdTestHMACMD5.TestIETF3;
 var
   LByteArray: TIdBytes;
 begin
-  FHash.Key := GenerateByteArray($61, 16);
+  FHash.Key := GenerateByteArray($aa, 16);
   LByteArray := GenerateByteArray($DD, 50);
   LByteArray := FHash.HashValue(LByteArray);
   Assert(Sys.LowerCase(ToHex(LByteArray)) = '56be34521d144c88dbb8c733f0e8b3f6');
-end;
-
-procedure TIdTestHMACMD5.TestIETF6;
-var
-  LByteArray: TIdBytes;
-begin
-  FHash.Key := GenerateByteArray($AA, 80);
-  LByteArray := ToBytes('Test Using Larger Than Block-Size Key - Hash Key First');
-  LByteArray := FHash.HashValue(LByteArray);
-  Assert(Sys.LowerCase(ToHex(LByteArray)) = '6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd');
-end;
-
-procedure TIdTestHMACMD5.TestIETF7;
-var
-  LByteArray: TIdBytes;
-begin
-  FHash.Key := GenerateByteArray($AA, 88);
-  LByteArray := ToBytes('Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data');
-  LByteArray := FHash.HashValue(LByteArray);
-  Assert(Sys.LowerCase(ToHex(LByteArray)) = '6f630fad67cda0ee1fb1f562db3aa53e');
 end;
 
 procedure TIdTestHMACMD5.TestIETF4;
 var
   LByteArray: TIdBytes;
 begin
-  SetLength(LByteArray, 20);
+  SetLength(LByteArray, 25);
   LByteArray[0] := $01;
   LByteArray[1] := $02;
   LByteArray[2] := $03;
@@ -147,6 +122,7 @@ begin
   LByteArray[24] := $19;
   FHash.Key := LByteArray;
   LByteArray := GenerateByteArray($CD, 50);
+  LByteArray := FHash.HashValue(LByteArray);
   Assert(Sys.LowerCase(ToHex(LByteArray)) = '697eaf0aca3a3aea3a75164746ffaa79');
 end;
 
@@ -155,11 +131,34 @@ var
   LByteArray: TIdBytes;
 begin
   FHash.Key := GenerateByteArray($0C, 16);
+
   LByteArray := ToBytes('Test With Truncation');
   LByteArray := FHash.HashValue(LByteArray);
   Assert(Sys.LowerCase(ToHex(LByteArray)) = '56461ef2342edc00f9bab995690efd4c');
+
+  LByteArray := ToBytes('Test With Truncation');
   LByteArray := FHash.HashValue(LByteArray, 12);
   Assert(Sys.LowerCase(ToHex(LByteArray)) = '56461ef2342edc00f9bab995');
+end;
+
+procedure TIdTestHMACMD5.TestIETF6;
+var
+  LByteArray: TIdBytes;
+begin
+  FHash.Key := GenerateByteArray($AA, 80);
+  LByteArray := ToBytes('Test Using Larger Than Block-Size Key - Hash Key First');
+  LByteArray := FHash.HashValue(LByteArray);
+  Assert(Sys.LowerCase(ToHex(LByteArray)) = '6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd');
+end;
+
+procedure TIdTestHMACMD5.TestIETF7;
+var
+  LByteArray: TIdBytes;
+begin
+  FHash.Key := GenerateByteArray($AA, 80);
+  LByteArray := ToBytes('Test Using Larger Than Block-Size Key and Larger Than One Block-Size Data');
+  LByteArray := FHash.HashValue(LByteArray);
+  Assert(Sys.LowerCase(ToHex(LByteArray)) = '6f630fad67cda0ee1fb1f562db3aa53e');
 end;
 
 initialization
