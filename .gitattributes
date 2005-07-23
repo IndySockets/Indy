@@ -836,6 +836,7 @@ Indy10/Test/Protocols/IdTestCoderQuotedPrintable.pas -text
 Indy10/Test/Protocols/IdTestCookie.pas -text
 Indy10/Test/Protocols/IdTestFtpServer.pas -text
 Indy10/Test/Protocols/IdTestGlobalProtocols.pas -text
+Indy10/Test/Protocols/IdTestHMACMD5.pas -text
 Indy10/Test/Protocols/IdTestHttp.pas -text
 Indy10/Test/Protocols/IdTestHttpServer.pas -text
 Indy10/Test/Protocols/IdTestMD5Hash.pas -text
