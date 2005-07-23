@@ -194,7 +194,7 @@ interface
 resourcestring
 
   // General
-  RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
+ 
   RSIOHandlerPropInvalid = 'IOHandler value is not valid';
 
   //FSP
