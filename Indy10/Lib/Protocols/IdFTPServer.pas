@@ -4790,7 +4790,7 @@ procedure TIdFTPServer.DoOnGetFileDate(ASender: TIdFTPServerContext;
 begin
   if Assigned(FFTPFileSystem) then begin
     FFTPFileSystem.GetFileDate(ASender, AFileName, VFileDate);
-    VFileDate := VFileDate - OffSetFromUTC;
+    VFileDate := VFileDate - Sys.OffSetFromUTC;
   end else if Assigned(FOnGetFileDate) then begin
     FOnGetFileDate(ASender, AFileName, VFileDate);
   end;

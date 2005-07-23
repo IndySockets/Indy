@@ -490,10 +490,6 @@ type
 
 
   function CopyFileTo(const Source, Destination: string): Boolean;
-
-  function DateTimeToGmtOffSetStr(ADateTime: TIdDateTime; SubGMT: Boolean): string;
-  function DateTimeGMTToHttpStr(const GMTValue: TIdDateTime) : String;
-  Function DateTimeToInternetStr(const Value: TIdDateTime; const AIsGMT : Boolean = False) : String;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
   function FileSizeByName(const AFilename: string): Int64;
@@ -529,7 +525,6 @@ type
   function Max(AValueOne,AValueTwo: Integer): Integer;
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
-  function OffsetFromUTC: TIdDateTime;
    function OrdFourByteToCardinal(AByte1, AByte2, AByte3, AByte4 : Byte): Cardinal;
 
 
@@ -1288,33 +1283,6 @@ begin
 end;
 
 {This should never be localized}
-function DateTimeGMTToHttpStr(const GMTValue: TIdDateTime) : String;
-// should adhere to RFC 2616
-
-var
-  wDay,
-  wMonth,
-  wYear: Word;
-begin
-  Sys.DecodeDate(GMTValue, wYear, wMonth, wDay);
-  Result := Sys.Format('%s, %.2d %s %.4d %s %s',    {do not localize}
-                   [wdays[Sys.DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
-                    wYear, Sys.FormatDateTime('HH":"NN":"SS', GMTValue), 'GMT']);  {do not localize}
-end;
-
-{This should never be localized}
-function DateTimeToInternetStr(const Value: TIdDateTime; const AIsGMT : Boolean = False) : String;
-var
-  wDay,
-  wMonth,
-  wYear: Word;
-begin
-  Sys.DecodeDate(Value, wYear, wMonth, wDay);
-  Result := Sys.Format('%s, %d %s %d %s %s',    {do not localize}
-                   [ wdays[Sys.DayOfWeek(Value)], wDay, monthnames[wMonth],
-                    wYear, Sys.FormatDateTime('HH":"NN":"SS', Value),  {do not localize}
-                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
-end;
 
 function StrInternetToDateTime(Value: string): TIdDateTime;
 begin
@@ -1353,7 +1321,7 @@ begin
   begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := Result + OffSetFromUTC;
+    Result := Result + Sys.OffSetFromUTC;
   end;
 end;
 
@@ -1380,7 +1348,7 @@ stamps based on GMT)
 }
 function FTPLocalDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
 begin
-  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffSetFromUTC, AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(ATimeStamp - Sys.OffSetFromUTC, AIncludeMSecs);
 end;
 
 
@@ -1698,49 +1666,6 @@ begin
   end; //else ... f ( Len > Length ( st ) ) or ( Len < 0 ) then
 end;
 
-{$IFDEF LINUX}
-function OffsetFromUTC: TIdDateTime;
-begin
-  //TODO: Fix OffsetFromUTC for Linux to be automatic from OS
-  Result := GOffsetFromUTC;
-end;
-{$ENDIF}
-{$IFDEF DOTNET}
-function OffsetFromUTC: TIdDateTime;
-begin
-  Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Sys.Now)).TotalDays;
-end;
-{$ENDIF}
-{$IFDEF MSWINDOWS}
-function OffsetFromUTC: TIdDateTime;
-var
-  iBias: Integer;
-  tmez: TTimeZoneInformation;
-begin
-  Case GetTimeZoneInformation(tmez) of
-    TIME_ZONE_ID_INVALID:
-      raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
-    TIME_ZONE_ID_UNKNOWN  :
-       iBias := tmez.Bias;
-    TIME_ZONE_ID_DAYLIGHT :
-      iBias := tmez.Bias + tmez.DaylightBias;
-    TIME_ZONE_ID_STANDARD :
-      iBias := tmez.Bias + tmez.StandardBias;
-    else
-      raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
-  end;
-  {We use ABS because EncodeTime will only accept positve values}
-  Result := EncodeTime(Abs(iBias) div 60, Abs(iBias) mod 60, 0, 0);
-  {The GetTimeZone function returns values oriented towards convertin
-   a GMT time into a local time.  We wish to do the do the opposit by returning
-   the difference between the local time and GMT.  So I just make a positive
-   value negative and leave a negative value as positive}
-  if iBias > 0 then begin
-    Result := 0 - Result;
-  end;
-end;
-{$ENDIF}
-
 function StrToCard(const AStr: String): Cardinal;
 begin
   Result := Sys.StrToInt64(Sys.Trim(AStr),0);
@@ -1756,7 +1681,7 @@ end;
 {$IFDEF DOTNET}
 function TimeZoneBias: TIdDateTime;
 begin
-  Result := -OffsetFromUTC;
+  Result := -Sys.OffsetFromUTC;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
@@ -1888,27 +1813,6 @@ begin
   Result := Sys.LowerCase(Sys.TrimLeft(AStr));
   if Result <> '' then begin   {Do not Localize}
     Result[1] := UpCase(Result[1]);
-  end;
-end;
-
-function DateTimeToGmtOffSetStr(ADateTime: TIdDateTime; SubGMT: Boolean): string;
-var
-  AHour, AMin, ASec, AMSec: Word;
-begin
-  if (ADateTime = 0.0) and SubGMT then
-  begin
-    Result := 'GMT'; {do not localize}
-    Exit;
-  end;
-  Sys.DecodeTime(ADateTime, AHour, AMin, ASec, AMSec);
-  Result := Sys.Format(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
-  if ADateTime < 0.0 then
-  begin
-    Result[1] := '-'; {do not localize}
-  end
-  else
-  begin
-    Result[1] := '+';  {do not localize}
   end;
 end;
 
@@ -2146,7 +2050,7 @@ begin
       Result := Result - DateTimeOffset;
     end;
     // Apply local offset
-    Result := Result + OffSetFromUTC;
+    Result := Result + Sys.OffSetFromUTC;
     end;
 end;
 

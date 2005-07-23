@@ -1204,7 +1204,7 @@ begin
     end;
     if FLastModified > 0 then
     begin
-      Values['Last-Modified'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
+      Values['Last-Modified'] := Sys.DateTimeGMTToHttpStr(FLastModified); {do not localize}
     end;
 
     if AuthRealm <> '' then {Do not Localize}

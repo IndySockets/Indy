@@ -429,7 +429,7 @@ begin
   CopyBytesToHostCardinal(AData,VI,LC);
 
    VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
-   VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
+   VL.FModifiedDate := VL.FModifiedDateGMT + Sys.OffSetFromUTC;
    VI := VI + 4;
 
     CopyBytesToHostCardinal(AData,VI,LC);

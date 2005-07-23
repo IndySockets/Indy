@@ -3568,7 +3568,7 @@ begin
         if Self.FTZInfo.FGMTOffsetAvailable then
         begin
           //send it relative to the server's time-zone
-          SendCmd('MDTM '+ FTPDateTimeToMDTMD(ALocalTime - OffSetFromUTC + FTZInfo.FGMTOffset,False,False)+ ' '+AFileName,[253]); {do not localize}
+          SendCmd('MDTM '+ FTPDateTimeToMDTMD(ALocalTime - Sys.OffSetFromUTC + FTZInfo.FGMTOffset,False,False)+ ' '+AFileName,[253]); {do not localize}
         end
         else
         begin
@@ -3616,7 +3616,7 @@ begin
       if (IndexOfFeatLine('MDTM YYYYMMDDHHMMSS[+-TZ] filename')>0) or {do not localize}
        IsOldServU or IsBPFTP then
       begin
-        SendCmd('MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC,False,True)+ ' '+AFileName,[253]); {do not localize}
+        SendCmd('MDTM '+ FTPDateTimeToMDTMD(AGMTTime + Sys.OffSetFromUTC,False,True)+ ' '+AFileName,[253]); {do not localize}
       end
       else
       begin
@@ -3628,7 +3628,7 @@ begin
         end
         else
         begin
-          SendCmd('MDTM '+ FTPDateTimeToMDTMD(AGMTTime + OffSetFromUTC,False,False)+ ' '+AFileName,[253]); {do not localize}
+          SendCmd('MDTM '+ FTPDateTimeToMDTMD(AGMTTime + Sys.OffSetFromUTC,False,False)+ ' '+AFileName,[253]); {do not localize}
         end;
       end;
     end;

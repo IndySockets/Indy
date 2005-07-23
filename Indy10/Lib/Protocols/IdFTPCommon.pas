@@ -1177,7 +1177,7 @@ function MinutesFromGMT : Integer;
 var LD : TIdDateTime;
     LHour, LMin, LSec, LMSec : Word;
 begin
-  LD := IdGlobalProtocols.OffsetFromUTC;
+  LD := Sys.OffsetFromUTC;
   if LD < 0.0 then
   begin
     Sys.DecodeTime(LD,LHour, LMin, LSec,LMSec);
@@ -1255,7 +1255,7 @@ begin
       Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
       if LOffset='' then
       begin
-        Result := Result - OffsetFromUTC;
+        Result := Result - Sys.OffsetFromUTC;
       end
       else
       begin
