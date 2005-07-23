@@ -34,6 +34,8 @@ uses
   IdTestHttp,
   IdTestMD5Hash,
   IdTestSHA1Hash,
+  IdTestHMACMD5,
+  IdTestHMACSHA1,
   IdTestMessage,
   IdTestMessageCoderMime,
   IdTestSMTPServer,
