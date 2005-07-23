@@ -527,7 +527,7 @@ begin
   if Length(Expires) = 0 then begin
     FInternalVersion := cvNetscape;
     if FMax_Age >= 0 then begin
-      Expires := DateTimeGMTToHttpStr(Sys.Now - OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
+      Expires := Sys.DateTimeGMTToHttpStr(Sys.Now - Sys.OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
     end;
     // else   Free this cookie
   end;

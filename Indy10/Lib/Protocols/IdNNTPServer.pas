@@ -404,7 +404,7 @@ begin
     if Sys.UpperCase(LTimeStr)='GMT' then {do not localize}
     begin
       // Apply local offset
-      Result := Result + OffSetFromUTC;
+      Result := Result + Sys.OffSetFromUTC;
     end;
   end else begin
     Result := 0;
@@ -972,7 +972,7 @@ begin
     begin
       if (Sys.UpperCase(ASender.Params[2]) = 'GMT') then {Do not translate}
       begin
-        LDate := LDate + OffSetFromUTC;
+        LDate := LDate + Sys.OffSetFromUTC;
         if (ASender.Params.Count > 3) then
         begin
           LDist := ASender.Params[3];
@@ -1014,7 +1014,7 @@ begin
     begin
       if (Sys.UpperCase(ASender.Params[3]) = 'GMT') then {Do not translate}
       begin
-        LDate := LDate + OffSetFromUTC;
+        LDate := LDate + Sys.OffSetFromUTC;
         if (ASender.Params.Count > 4) then
         begin
           LDist := ASender.Params[4];

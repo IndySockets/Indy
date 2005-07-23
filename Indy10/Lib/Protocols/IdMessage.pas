@@ -917,9 +917,9 @@ begin
     Values['References'] := References; {do not localize}
 
     if UseNowForDate then begin
-      Values['Date'] := DateTimeToInternetStr(Sys.Now); {do not localize}
+      Values['Date'] := Sys.DateTimeToInternetStr(Sys.Now); {do not localize}
     end else begin
-      Values['Date'] := DateTimeToInternetStr(Self.Date); {do not localize}
+      Values['Date'] := Sys.DateTimeToInternetStr(Self.Date); {do not localize}
     end;
 
     // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)

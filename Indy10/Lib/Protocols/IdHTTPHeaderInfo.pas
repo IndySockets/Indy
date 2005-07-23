@@ -413,11 +413,11 @@ begin
     end;
     if FDate > 0 then
     begin
-      Values['Date'] := DateTimeGMTToHttpStr(FDate); {do not localize}
+      Values['Date'] := Sys.DateTimeGMTToHttpStr(FDate); {do not localize}
     end;
     if FExpires > 0 then
     begin
-      Values['Expires'] := DateTimeGMTToHttpStr(FExpires); {do not localize}
+      Values['Expires'] := Sys.DateTimeGMTToHttpStr(FExpires); {do not localize}
     end;
     if Length(FPragma) > 0 then
     begin
@@ -691,7 +691,7 @@ begin
     // use 'Last-Modified' entity header in the conditional request
     if FLastModified > 0 then
     begin
-      Values['If-Modified-Since'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
+      Values['If-Modified-Since'] := Sys.DateTimeGMTToHttpStr(FLastModified); {do not localize}
     end;
 
     if Assigned(Authentication) then
