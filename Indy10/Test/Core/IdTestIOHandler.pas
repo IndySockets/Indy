@@ -45,6 +45,7 @@ type
     procedure TestReadLn;
     procedure TestStreamSize;
     procedure TestIntercept;
+    procedure TestWriteBuffered;
   end;
 
 implementation
@@ -122,12 +123,12 @@ begin
     io.Intercept:=aIntercept;
     io.Open;
 
-    //check that the intercept actually changes data that gets written 
+    //check that the intercept actually changes data that gets written
     io.Write(cPlain);
     aStr:=io.InputBuffer.AsString;
     Assert(aStr=cEncoded,aStr);
 
-    //todo also test with writebuffer
+    //todo test nested intercepts
   finally
     Sys.FreeAndNil(io);
     Sys.FreeAndNil(aIntercept);
@@ -268,8 +269,47 @@ end;
 
 procedure TIdExampleIntercept.Send(var ABuffer: TIdBytes);
 begin
-  //inherited;
+  inherited;
   ABuffer:=ToBytes(cEncoded);
+end;
+
+procedure TIdTestIOHandler.TestWriteBuffered;
+var
+  io:TIdLoopbackIOHandler;
+  aStr:string;
+  aIntercept:TIdExampleIntercept;
+begin
+  io:=TIdLoopbackIOHandler.Create(nil);
+  aIntercept:=TIdExampleIntercept.Create;
+  try
+    io.Open;
+
+    Assert(not io.WriteBufferingActive);
+    io.WriteBufferOpen;
+    Assert(io.WriteBufferingActive);
+
+    //write some data. it should not be sent
+    io.Write(cStr);
+    aStr:=io.InputBuffer.AsString;
+    Assert(aStr='');
+
+    //flush the buffer. data should now be sent
+    io.WriteBufferFlush;
+    aStr:=io.InputBuffer.AsString;
+    Assert(aStr=cStr);
+
+    io.WriteBufferClose;
+
+    //todo test threshhold. currently not implemented
+
+    //leave the writebuffer open, to check for memory leaks
+    io.WriteBufferOpen;
+    //if writebuffer has contents when iohandler closed, should it
+    //be flushed by iohandler?
+  finally
+    Sys.FreeAndNil(io);
+    Sys.FreeAndNil(aIntercept);
+  end;
 end;
 
 initialization
