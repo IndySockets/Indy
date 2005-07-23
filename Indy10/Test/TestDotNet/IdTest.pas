@@ -24,6 +24,9 @@ type
   TIdTest = class(TIdBaseComponent)
   private
     FOnOutputString: TOutputStringProcedure;
+  protected
+    procedure SetUp; virtual;
+    procedure TearDown; virtual;
   public
     procedure OutputLn(const ALine: string);
     class procedure RegisterTest(const aClass:TIdTestClass);
@@ -137,7 +140,12 @@ begin
 
       try
         WriteLn('  ' + aMethod.Name);
+        aTest.SetUp;
+        try
         aMethod.Invoke(aTest,[]);
+        finally
+        aTest.TearDown;
+        end;
         //commented out, makes easier to see the fails
         RecordPass(aTest,aMethod.name);
       except
@@ -189,6 +197,14 @@ begin
   finally
     Monitor.Exit(FLockObj);
   end;
+end;
+
+procedure TIdTest.SetUp;
+begin
+end;
+
+procedure TIdTest.TearDown;
+begin
 end;
 
 end.
