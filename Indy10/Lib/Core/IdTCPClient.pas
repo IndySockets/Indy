@@ -157,7 +157,7 @@
 }
 {
 {   Rev 1.2    12/6/2002 02:11:42 PM  JPMugaas
-{ Protected Port and Host properties added to TCPClient because those are
+{ Protected Port and Host properties added to TIdTCPClient because those are
 { needed by protocol implementations.  Socket property added to TCPConnection.
 }
 {
@@ -259,6 +259,7 @@ type
     property OnBeforeBind;
     property OnAfterBind;
   end;
+  TCPClient = TIdTCPClient;
 
 implementation
 
