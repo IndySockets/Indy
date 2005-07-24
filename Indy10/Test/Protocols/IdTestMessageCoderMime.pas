@@ -31,7 +31,7 @@ begin
 
  //space is only invalid on win95 etc
  s:=d.RemoveInvalidCharsFromFilename('a b.txt');
- Assert(s='a b.txt',s);
+ Assert(s='a_b.txt',s);
  
  finally
  Sys.FreeAndNil(d);
