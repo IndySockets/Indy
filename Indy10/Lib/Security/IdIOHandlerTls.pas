@@ -56,7 +56,7 @@ type
     procedure StartSSL; override;
     function Clone : TIdSSLIOHandlerSocketBase; override;
     function Connected: Boolean; override;
-    procedure WriteDirect(ABuffer: TIdBytes); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
   published
     property Options: TIdTlsClientOptions read FOptions write SetOptions;
     property OnValidateCertificate: CertificateValidationCallback read FOnValidateCertificate write SetOnValidateCertificate;
@@ -243,7 +243,7 @@ begin
   inherited;
 end;
 
-procedure TIdIOHandlerTls.WriteDirect(ABuffer: TIdBytes);
+procedure TIdIOHandlerTls.WriteDirect(var ABuffer: TIdBytes);
 begin
   if Intercept <> nil then
   begin

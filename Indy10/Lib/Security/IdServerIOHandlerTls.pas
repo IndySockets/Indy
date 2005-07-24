@@ -71,7 +71,7 @@ type
     procedure AfterAccept; override;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean; AIgnoreBuffer: Boolean); override;
     function Clone: TIdSSLIOHandlerSocketBase; override;
-    procedure WriteDirect(ABuffer: TIdBytes); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
     procedure Close; override;
   published
     property Options: TIdTlsServerOptions read FOptions write FOptions;
@@ -250,7 +250,7 @@ begin
   inherited;
 end;
 
-procedure TIdServerSideIOHandlerTls.WriteDirect(ABuffer: TIdBytes);
+procedure TIdServerSideIOHandlerTls.WriteDirect(var ABuffer: TIdBytes);
 begin
   if Intercept <> nil then
     Intercept.Send(ABuffer);
