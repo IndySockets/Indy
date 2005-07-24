@@ -29,10 +29,15 @@ begin
  s:=d.RemoveInvalidCharsFromFilename(':a:b:');
  Assert(s='_a_b_',s);
 
+ {
+ should this routine be platform specific?
+ eg under nt-based system, space is a valid character?
+ or is this an invalid test?
  //space is only invalid on win95 etc
  s:=d.RemoveInvalidCharsFromFilename('a b.txt');
- Assert(s='a_b.txt',s);
- 
+ Assert(s='a b.txt',s);
+ }
+
  finally
  Sys.FreeAndNil(d);
  end;
