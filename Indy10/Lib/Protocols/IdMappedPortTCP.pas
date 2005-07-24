@@ -134,6 +134,7 @@
 {   Rev 1.0    11/13/2002 07:56:42 AM  JPMugaas
 }
 unit IdMappedPortTCP;
+
 interface
 {
 2001-12-xx - Andrew P.Rybin
@@ -150,7 +151,8 @@ uses
 
 type
   TIdMappedPortTCP = class;
-  TIdMappedPortContext = class (TIdContext)
+
+  TIdMappedPortContext = class(TIdContext)
   protected
     FOutboundClient: TIdTCPConnection;//was TIdTCPClient
     FReadList: TIdSocketList;
@@ -175,13 +177,13 @@ type
 
     property  ReadList: TIdSocketList read FReadList;
     property  DataAvailList: TIdSocketList read FDataAvailList;
-  End;//TIdMappedPortContext
+  end;//TIdMappedPortContext
 
   TIdMappedPortOutboundConnectEvent = procedure(AContext:TIdContext; AException: Exception) of object;//E=NIL-OK
 
-  TIdMappedPortTCP = class(TIdTCPServer)
+  TIdMappedPortTCP = class(TIdCustomTCPServer)
   protected
-    FMappedHost: String;
+    FMappedHost: string;
     FMappedPort: Integer;
 
     //AThread.Connection.Server & AThread.OutboundClient
