@@ -47,7 +47,8 @@ contains
   IdStruct in 'IdStruct.pas',
   IdSys in 'IdSys.pas',
   IdSysBase in 'IdSysBase.pas',
-  IdSysVCL in 'IdSysVCL.pas';
+  IdSysVCL in 'IdSysVCL.pas',
+  IdSysVCLNET in 'IdSysVCLNET.pas';
 {$I IdSystem90ASM90.inc}
 
 end.
