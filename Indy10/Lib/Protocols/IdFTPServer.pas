@@ -3766,6 +3766,7 @@ end;
 procedure TIdFTPServer.CommandOPTS(ASender: TIdCommand);
 var LCmd : String;
 begin
+
   LCmd := ASender.UnparsedParams;
   ASender.Reply.Clear;
   if TextIsSame(Fetch(LCmd, ' ', False), 'MLST') then begin {do not localize}
@@ -3777,6 +3778,11 @@ begin
   end;
   if not FOPTSCommands.HandleCommand(ASender.Context, LCmd) then begin
     ASender.Reply.SetReply(501, RSFTPOptNotRecog);
+  end
+  else
+  begin
+    //we don't want an extra 200 reply.
+    ASender.PerformReply := False;
   end;
 end;
 
