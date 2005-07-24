@@ -3987,7 +3987,8 @@ begin
   // QClass = 3  => CH, we suppor "CHAOS" class now, but only "version.bind." info.
   //                    from 2004/6/28
   // QClass = 4  => HS.
-
+  RRData     := nil;
+  TempAnswer := nil;
   TempDomain := IndyLowerCase(Question);
 
   case QClass of

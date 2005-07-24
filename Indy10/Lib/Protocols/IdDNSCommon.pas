@@ -1328,6 +1328,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName), 1) <> '.' then
@@ -1338,7 +1339,7 @@ begin
      begin
        QName := Self.RRName;
      end;
-     
+
      RRData := DomainNameToDNSStr((Self.CName));
 
      Result := DomainNameToDNSStr((QName));
@@ -1489,6 +1490,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -1562,6 +1564,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -1730,6 +1733,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -1895,6 +1899,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -1968,6 +1973,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -2202,6 +2208,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(Self.FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -2275,6 +2282,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(self.FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
@@ -2349,6 +2357,7 @@ var
    QName: string;
    RRData: TIdBytes;
 begin
+  RRData := nil;
   if Length(FAnswer) = 0 then begin
      SetLength(Result, 0);
      if Copy(Self.RRName, Length(Self.RRName),1) <> '.' then
