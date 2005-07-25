@@ -259,7 +259,10 @@ type
     property OnBeforeBind;
     property OnAfterBind;
   end;
+  //Temp IFDEF till we change aliaser
+  {$IFNDEF DotNetDistro}
   TIdTCPClient = TCPClient;
+  {$endif}
 
 implementation
 
