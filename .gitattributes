@@ -274,6 +274,7 @@ Indy10/Lib/FCL/IdCompilerDefines.inc -text
 Indy10/Lib/FCL/IdVers.inc -text
 Indy10/Lib/FCL/Indy.Sockets.bdsproj -text
 Indy10/Lib/FCL/Indy.Sockets.dpr -text
+Indy10/Lib/FCL/Mono.Security.dll -text svneol=unset#unset
 Indy10/Lib/Indy.Sockets.bdsproj -text
 Indy10/Lib/Indy.Sockets.dpr -text
 Indy10/Lib/Indy.SocketsDebug.bdsproj -text
