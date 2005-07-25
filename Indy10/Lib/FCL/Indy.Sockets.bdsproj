@@ -115,12 +115,12 @@
 			<Linker Name="ExeDescription"></Linker>
 		</Linker>
 		<Directories>
-			<Directories Name="OutputDir"></Directories>
+			<Directories Name="OutputDir">w:\source\indy10\lib\fcl\</Directories>
 			<Directories Name="UnitOutputDir"></Directories>
 			<Directories Name="PackageDLLOutputDir"></Directories>
 			<Directories Name="PackageDCPOutputDir"></Directories>
-			<Directories Name="SearchPath">c:\windows\microsoft.net\framework\v1.1.4322</Directories>
-			<Directories Name="Packages">c:\windows\microsoft.net\framework\v1.1.4322\System.dll</Directories>
+			<Directories Name="SearchPath">c:\windows\microsoft.net\framework\v1.1.4322;w:\source\indy10\lib\fcl</Directories>
+			<Directories Name="Packages">w:\source\indy10\lib\fcl\Mono.Security.dll;c:\windows\microsoft.net\framework\v1.1.4322\System.dll</Directories>
 			<Directories Name="Conditionals">DotNetDistro</Directories>
 			<Directories Name="DebugSourceDirs"></Directories>
 			<Directories Name="UsePackages">True</Directories>
@@ -171,8 +171,14 @@
 		</VersionInfoKeys>  
     
     
+    
+    
+    
+    
+    
     <FileList>
       <File FileName="$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="System" AssemblyName="System" Version="1.0.5000.0" LinkUnits="False"/>
+      <File FileName="Mono.Security.dll" ContainerId="DelphiDotNetAssemblyCompiler" ModuleName="Mono.Security" AssemblyName="Mono.Security" Version="1.0.5000.0" LinkUnits="False"/>
       <File FileName="Indy.Sockets.IdASN1Util.pas" ContainerId="" ModuleName="Indy.Sockets.IdASN1Util"/>
       <File FileName="Indy.Sockets.IdAllFTPListParsers.pas" ContainerId="" ModuleName="Indy.Sockets.IdAllFTPListParsers"/>
       <File FileName="Indy.Sockets.IdAntiFreezeBase.pas" ContainerId="" ModuleName="Indy.Sockets.IdAntiFreezeBase"/>

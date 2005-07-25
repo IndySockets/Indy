@@ -1,6 +1,7 @@
 library Indy.Sockets;
 
 {%DelphiDotNetAssemblyCompiler '$(SystemRoot)\microsoft.net\framework\v1.1.4322\System.dll'}
+{%DelphiDotNetAssemblyCompiler 'Mono.Security.dll'}
 
 
 uses
