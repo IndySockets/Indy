@@ -5296,7 +5296,7 @@ begin
           Result := Result + ';';
         end;
       end;
-      if IdFTPServer.mlsdWin32Attributes in FMLSDFacts then
+      if mlsdWin32Attributes in FMLSDFacts then
       begin
         Result := Result + 'Win32.ea';  {Do not translate}
         if WinAttribs in AFacts then {Do not translate}
@@ -6062,7 +6062,7 @@ const
             begin
               Result := Result + [LastAccessTime];
             end;
-        10 : if  IdFTPServer.mlsdWin32Attributes in ASvr.FMLSDFacts then
+        10 : if mlsdWin32Attributes in ASvr.FMLSDFacts then
             begin
               Result := Result + [WinAttribs];
             end;
