@@ -47,7 +47,7 @@
 			<Compiler Name="UnitAliases">WinTypes=Borland.Vcl.Windows;WinProcs=Borland.Vcl.Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;</Compiler>
 			<Compiler Name="NamespacePrefix">Borland.Vcl;Indy.Sockets</Compiler>
 			<Compiler Name="GenerateDocumentation">False</Compiler>
-			<Compiler Name="DefaultNamespace">Indy.Sockets</Compiler>
+			<Compiler Name="DefaultNamespace"></Compiler>
 			<Compiler Name="SymbolDeprecated">True</Compiler>
 			<Compiler Name="SymbolLibrary">True</Compiler>
 			<Compiler Name="SymbolPlatform">True</Compiler>
