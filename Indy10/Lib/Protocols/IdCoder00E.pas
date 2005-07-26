@@ -75,11 +75,13 @@ end;
 
 function TIdEncoder00E.Encode(ASrcStream: TIdStream; const ABytes: integer): string;
 var
-  LStart: Integer;
+  LStart, LSize: Int64;
 begin
-  LStart := Integer(ASrcStream.Position);
+  LStart := ASrcStream.Position;
   Result := inherited Encode(ASrcStream, ABytes);
-  Result := FCodingTable[Integer(ASrcStream.Position) - LStart + 1] + Result;
+  LSize := ASrcStream.Position-LStart;
+  Assert(LSize<High(Integer));
+  Result := FCodingTable[Integer(LSize) + 1] + Result;
 end;
 
 end.
