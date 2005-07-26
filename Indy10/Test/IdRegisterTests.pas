@@ -28,6 +28,7 @@ uses
   IdTestCoder3to4,
   IdTestCoderHeader,
   IdTestCoderMIME,
+  IdTestCoderUUE,
   IdTestCoderQuotedPrintable,
   IdTestCookie,
   IdTestFtpServer,
