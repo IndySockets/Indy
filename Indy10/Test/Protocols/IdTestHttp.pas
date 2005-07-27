@@ -4,6 +4,10 @@ unit IdTestHTTP;
 //http://www.faqs.org/rfcs/rfc2616.html
 //3.6 Transfer Codings, 19.4.6 Introduction of Transfer-Encoding
 
+//todo test downloading a file to a stream, where there is a redirect from the
+//original url to the actual download url. ie ensure that no data is save to
+//stream until the redirecting has finished being handled
+
 //todo standardize http ports used
 
 {$I IdCompilerDefines.inc}
