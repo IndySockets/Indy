@@ -3311,8 +3311,8 @@ const DEF_BLOCKSIZE = 10*10240;
       until not AContext.FDataChannel.FDataChannel.IOHandler.Connected;
       if AContext.DataMode = dmDeflate then
       begin
-        LStrm.Position := 0;
-        FCompressor.DecompressFTPDeflate(LM, AContext.ZLibWindowBits,AStream);
+        LM.Position := 0;
+        FCompressor.DecompressFTPDeflate(LM, AStream, AContext.ZLibWindowBits);
       end;
     finally
       if AContext.DataMode = dmDeflate then
@@ -3330,9 +3330,9 @@ const DEF_BLOCKSIZE = 10*10240;
     if (AContext.DataMode = dmDeflate) then
     begin
       LOutStream := TIdMemoryStream.Create;
-      FCompressor.CompressFTPDeflate(AStream,
+      FCompressor.CompressFTPDeflate(AStream, LOutStream,
       AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
-      AContext.ZLibMemLevel, AContext.ZLibStratagy,LOutStream );
+      AContext.ZLibMemLevel, AContext.ZLibStratagy );
       LOutStream.Position := 0;
     end
     else

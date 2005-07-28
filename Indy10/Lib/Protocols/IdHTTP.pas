@@ -969,6 +969,11 @@ begin
 end;
 
 procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse);
+var LS : TIdStream;
+  LDecMeth : Integer;
+  //0 - no compression was used or we can't support that feature
+  //1 - deflate
+  //2 - gzip
 
   function ChunkSize: integer;
   var
@@ -987,46 +992,77 @@ procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse);
 var
   Size: Integer;
 begin
+  LDecMeth := 0;
+  //we need to determine what type of decompression may need to used
+  //before we read from the IOHandler.  If there is compression,
+  //then we use the LM stream to hold the compressed data that was downloaded
+  //and decompress it.  If no compression is used, LS will equal ContentStream
+  if Assigned(Compressor) then
+  begin
+     if (Response.ContentEncoding = 'deflate') then
+     begin
+       LDecMeth := 1;
+     end;
+     if (Response.ContentEncoding = 'gzip') then
+     begin
+       LDecMeth := 2;
+     end;
+  end;
 
   if Assigned(AResponse.ContentStream) then // Only for Get and Post
   begin
-    if AResponse.ContentLength > 0 then // If chunked then this is also 0
+    if LDecMeth > 0 then
     begin
-      try
-        IOHandler.ReadStream(AResponse.ContentStream, AResponse.ContentLength);
-      except
-        on E: EIdConnClosedGracefully do
-      end;
+      LS :=  TIdMemoryStream.Create;
     end
     else
     begin
-      if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
-      begin // Chunked
-        DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-        Size := ChunkSize;
-        while Size > 0 do
-        begin
-          IOHandler.ReadStream(AResponse.ContentStream, Size);
-          IOHandler.ReadLn; // blank line
-          Size := ChunkSize;
+      LS := AResponse.ContentStream;
+    end;
+    try
+      if AResponse.ContentLength > 0 then // If chunked then this is also 0
+      begin
+        try
+          IOHandler.ReadStream(LS, AResponse.ContentLength);
+        except
+          on E: EIdConnClosedGracefully do
         end;
-        IOHandler.ReadLn; // blank line
-      end else begin
-        if not AResponse.HasContentLength then
-        begin
-          IOHandler.ReadStream(AResponse.ContentStream, -1, True);
+      end
+      else
+      begin
+        if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
+        begin // Chunked
+          DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+          Size := ChunkSize;
+          while Size > 0 do
+          begin
+            IOHandler.ReadStream(LS, Size);
+            IOHandler.ReadLn; // blank line
+            Size := ChunkSize;
+          end;
+          IOHandler.ReadLn; // blank line
+        end else begin
+          if not AResponse.HasContentLength then
+          begin
+            IOHandler.ReadStream(LS, -1, True);
+          end;
         end;
       end;
-    end;
-    if Assigned(Compressor) and (Response.ContentEncoding = 'deflate') then begin {do not localize}
-      AResponse.ContentStream.Position := 0;
-      Compressor.DecompressDeflateStream(AResponse.ContentStream);
-    end else if Assigned(Compressor) and (Response.ContentEncoding = 'gzip') then begin {do not localize}
-      AResponse.ContentStream.Position := 0;
-      Compressor.DecompressGZipStream(AResponse.ContentStream);
+      if LDecMeth > 0 then
+      begin
+        LS.Position := 0;
+      end;
+      case LDecMeth of
+        1 :  Compressor.DecompressDeflateStream(LS,AResponse.ContentStream);
+        2 :  Compressor.DecompressGZipStream(LS,AResponse.ContentStream);
+      end;
+    finally
+      if LDecMeth > 0 then
+      begin
+        Sys.FreeAndNil(LS);
+      end;
     end;
   end;
-
 end;
 
 function IsStringInArray(const aStr:string;const aArray:array of string):boolean;

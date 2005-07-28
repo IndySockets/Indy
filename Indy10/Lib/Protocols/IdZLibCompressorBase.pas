@@ -148,29 +148,36 @@ type
   TIdZLibCompressorBase = class(TIdBaseComponent)
   public
   //these call the standard InflateInit and DeflateInit
-    procedure DeflateStream(AStream : TIdStream; const ALevel : TIdCompressionLevel=0; const AOutStream : TIdStream=nil); virtual; abstract;
-    procedure InflateStream(AStream : TIdStream; const AOutStream : TIdStream=nil); virtual; abstract;
+    procedure DeflateStream(AInStream, AOutStream : TIdStream;
+      const ALevel : TIdCompressionLevel=0); virtual; abstract;
+    procedure InflateStream(AInStream, AOutStream : TIdStream); virtual; abstract;
 
     //VAdler32 is for the benefit of people needing the Adler32 for uncompressed data
     //these call the standard InflateInit2 and DeflateInit2
-    procedure CompressStream(AStream : TIdStream; const ALevel : TIdCompressionLevel; const AWindowBits, AMemLevel,
-      AStrategy: Integer; AOutStream : TIdStream); virtual; abstract;
+    procedure CompressStream(AInStream, AOutStream : TIdStream;
+      const ALevel : TIdCompressionLevel;
+      const AWindowBits, AMemLevel, AStrategy: Integer); virtual; abstract;
 
-    procedure DecompressStream(AStream : TIdStream; const AWindowBits : Integer; const AOutStream : TIdStream=nil); virtual; abstract;
+    procedure DecompressStream(AInStream, AOutStream : TIdStream;
+      const AWindowBits : Integer); virtual; abstract;
 
-    procedure DecompressDeflateStream(AStream : TIdStream; const AOutStream : TIdStream=nil); virtual;
+    procedure DecompressDeflateStream(AInStream, AOutStream : TIdStream); virtual;
 
     //RFC 1950 complient input and output
-    procedure CompressFTPDeflate(AStream : TIdStream; const ALevel, AWindowBits, AMemLevel,
-      AStrategy: Integer; const AOutStream : TIdStream=nil);
-    procedure CompressFTPToIO(AStream : TIdStream; AIOHandler : TIdIOHandler; const ALevel, AWindowBits, AMemLevel,
-      AStrategy: Integer); virtual; abstract;
-    procedure DecompressFTPFromIO(AIOHandler : TIdIOHandler; const AWindowBits : Integer; AOutputStream : TIdStream); virtual; abstract;
-    procedure DecompressFTPDeflate(AStream : TIdStream; const AWindowBits : Integer; const AOutStream : TIdStream=nil);
-    procedure CompressHTTPDeflate(AStream : TIdStream; const ALevel : TIdCompressionLevel; const AOutStream : TIdStream=nil);
-    procedure DecompressHTTPDeflate(AStream : TIdStream; const AOutStream : TIdStream=nil);
+    procedure CompressFTPDeflate(AInStream, AOutStream : TIdStream;
+      const ALevel, AWindowBits, AMemLevel, AStrategy: Integer);
+    procedure CompressFTPToIO(AInStream : TIdStream;
+      AIOHandler : TIdIOHandler;
+      const ALevel, AWindowBits, AMemLevel, AStrategy: Integer); virtual; abstract;
+    procedure DecompressFTPFromIO(AIOHandler : TIdIOHandler; AOutputStream : TIdStream;
+       const AWindowBits : Integer); virtual; abstract;
+    procedure DecompressFTPDeflate(AInStream, AOutStream : TIdStream;
+      const AWindowBits : Integer);
+    procedure CompressHTTPDeflate(AInStream, AOutStream : TIdStream;
+      const ALevel : TIdCompressionLevel);
+    procedure DecompressHTTPDeflate(AInStream, AOutStream : TIdStream);
     //RFC 1952 complient input and output
-    procedure DecompressGZipStream(AStream : TIdStream; const AOutStream : TIdStream=nil); virtual;
+    procedure DecompressGZipStream(AInStream, AOutStream : TIdStream); virtual;
   end;
 
   TIdZLibCompressorBaseClass = class of TIdZLibCompressorBase;
@@ -181,7 +188,7 @@ uses
   IdException,
   IdGlobal;
 
-procedure TIdZLibCompressorBase.DecompressGZipStream(AStream : TIdStream; const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TIdStream);
 
   procedure GotoDataStart;
   var LFlags:TIdBytes; //used as a byte
@@ -191,56 +198,56 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AStream : TIdStream; const 
     SetLength(LFlags,1);
     SetLength(LExtra,2);
     SetLength(LNullFindChar,1);
-    AStream.Seek(3,IdFromCurrent);
-    AStream.Read(LFlags,1);
-    AStream.Seek(6,IdFromCurrent);
+    AInStream.Seek(3,IdFromCurrent);
+    AInStream.Read(LFlags,1);
+    AInStream.Seek(6,IdFromCurrent);
     // at pos 10 now
 
     if LFlags[0] and $4 = $4 then begin // FEXTRA
-      AStream.Read(LExtra,2);
-      AStream.Seek( BytesToWord( LExtra), IdFromCurrent);
+      AInStream.Read(LExtra,2);
+      AInStream.Seek( BytesToWord( LExtra), IdFromCurrent);
     end;
 
     if LFlags[0] and $8 = $8 then begin // FNAME
       repeat
-        AStream.Read(LNullFindChar, 1);
+        AInStream.Read(LNullFindChar, 1);
       until LNullFindChar[0]=0;
     end;
 
     if LFlags[0] and $10 = $10 then begin // FCOMMENT
       repeat
-        AStream.Read(LNullFindChar, 1);
+        AInStream.Read(LNullFindChar, 1);
       until LNullFindChar[0]=0;
     end;
 
     if LFlags[0] and $2 = $2 then begin // FHCRC
-      AStream.Seek(2, IdFromCurrent); // CRC16
+      AInStream.Seek(2, IdFromCurrent); // CRC16
     end;
   end;
 
 var
   LBytes : TIdBytes;
 begin
-  Assert(AStream<>nil);
-  
+  Assert(AInStream<>nil);
+
   GotoDataStart;
-  AStream.Seek(-2, IdFromCurrent);
+  AInStream.Seek(-2, IdFromCurrent);
   SetLength(LBytes, 2);
   LBytes[0] := $78; //7=32K blocks, 8=deflate
   LBytes[1] := $9C;
-  AStream.Write(LBytes, 2);
-  AStream.Seek(-2, IdFromCurrent);
-  AStream.size := AStream.size - 8; // remove the CRC32 and the size
-  InflateStream(AStream, AOutStream);
+  AInStream.Write(LBytes, 2);
+  AInStream.Seek(-2, IdFromCurrent);
+  AInStream.size := AInStream.size - 8; // remove the CRC32 and the size
+  InflateStream(AInStream, AOutStream);
 end;
 
-procedure TIdZLibCompressorBase.DecompressDeflateStream(AStream : TIdStream; const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.DecompressDeflateStream(AInStream, AOutStream : TIdStream);
 begin
-  AStream.Seek(10, IdFromCurrent); // skip junk at front
-  InflateStream(AStream,AOutStream);
+  AInStream.Seek(10, IdFromCurrent); // skip junk at front
+  InflateStream(AInStream,AOutStream);
 end;
 
-procedure TIdZLibCompressorBase.DecompressFTPDeflate(AStream : TIdStream; const AWindowBits : Integer; const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.DecompressFTPDeflate(AInStream, AOutStream : TIdStream; const AWindowBits : Integer);
 var
   LWinBits : Integer;
 begin
@@ -256,24 +263,23 @@ begin
     LWinBits := Abs( LWinBits) + 32;
   end;
 
-  DecompressStream(AStream,LWinBits,AOutStream);
+  DecompressStream(AInStream,AOutStream,LWinBits);
 end;
 
-procedure TIdZLibCompressorBase.CompressFTPDeflate(AStream : TIdStream;
-  const ALevel, AWindowBits, AMemLevel,
-      AStrategy: Integer;const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.CompressFTPDeflate(AInStream, AOutStream : TIdStream;
+      const ALevel, AWindowBits, AMemLevel, AStrategy: Integer);
 begin
-  CompressStream(AStream,ALevel, AWindowBits, AMemLevel,
-      AStrategy,AOutStream);
+  CompressStream(AInStream,AOutStream, ALevel, AWindowBits, AMemLevel,
+      AStrategy);
 
 end;
 
-procedure TIdZLibCompressorBase.CompressHTTPDeflate(AStream : TIdStream; const ALevel : TIdCompressionLevel; const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.CompressHTTPDeflate(AInStream, AOutStream : TIdStream; const ALevel : TIdCompressionLevel);
 begin
-  DeflateStream(AStream,ALevel,AOutStream);
+  DeflateStream(AInStream,AOutStream, ALevel);
 end;
 
-procedure TIdZLibCompressorBase.DecompressHTTPDeflate(AStream: TIdStream;const AOutStream : TIdStream=nil);
+procedure TIdZLibCompressorBase.DecompressHTTPDeflate(AInStream, AOutStream : TIdStream);
 var
   LBCmp : TIdBytes; //used as Byte
   LFlags : TIdBytes; //used as Byte
@@ -284,14 +290,14 @@ begin
   SetLength(LBCmp,1);
   SetLength(LFlags,1);
   SetLength(LDict,4);
-  LOrgPos := AStream.Position;
-  AStream.Read(LBCmp,1);
-  AStream.Read(LFlags,1);
+  LOrgPos := AInStream.Position;
+  AInStream.Read(LBCmp,1);
+  AInStream.Read(LFlags,1);
   EIdException.IfFalse(((LBCmp[0] * 256)+LFlags[0] ) mod 31 = 0,'Error - invalid header'); {do not localize}
-  AStream.Read(LDict,4);
-  AStream.Position := LOrgPos;
-  InflateStream(AStream,AOutStream);
-  AStream.Position := LOrgPos;
+  AInStream.Read(LDict,4);
+  AInStream.Position := LOrgPos;
+  InflateStream(AInStream,AOutStream);
+  AInStream.Position := LOrgPos;
 end;
 
 end.
