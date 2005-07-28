@@ -1771,7 +1771,7 @@ begin
           if FCurrentTransferMode = dmStream then begin
             LPasvCl.IOHandler.ReadStream(ADest, -1, True);
           end else begin
-            FCompressor.DecompressFTPFromIO( LPasvCl.IOHandler, FZLibWindowBits, ADest);
+            FCompressor.DecompressFTPFromIO( LPasvCl.IOHandler, ADest, FZLibWindowBits);
       //      ReadCompressedData(FCompressor, ADest, LPasvCl.IOHandler, FZLibWindowBits);
           end;
         finally
@@ -1817,7 +1817,7 @@ begin
         if FCurrentTransferMode = dmStream then begin
           FDataChannel.IOHandler.ReadStream(ADest, -1, True);
         end else begin
-          FCompressor.DecompressFTPFromIO( FDataChannel.IOHandler, FZLibWindowBits, ADest);
+          FCompressor.DecompressFTPFromIO( FDataChannel.IOHandler, ADest, FZLibWindowBits);
  //         ReadCompressedData(FCompressor, ADest, FDataChannel.IOHandler, FZLibWindowBits);
         end;
       finally
