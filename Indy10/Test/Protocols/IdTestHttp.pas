@@ -30,6 +30,7 @@ uses
   IdCoder,
   IdCoderMime,
   IdSys,
+  IdGlobal,
   IdContext,
   IdTCPServer,
   IdThreadSafe,
@@ -64,6 +65,7 @@ type
     procedure TestGZip;
   end;
   {$ENDIF}
+
   //http://www.io.com/~maus/HttpKeepAlive.html
   //re keep-alive, see TIdHTTPResponseInfo.WriteHeader. old comment, delete?
   TIdTestHTTP_KeepAlive = class(TIdTest)
@@ -111,6 +113,18 @@ type
     procedure TestMemoryLeak;
   end;
 
+  TIdTestHTTP_02 = class(TIdTest)
+  private
+    FServer:TIdHTTPServer;
+    FClient:TIdHTTP;
+    procedure CallbackGet(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+  protected
+    procedure SetUp;override;
+    procedure TearDown;override;
+  published
+    procedure TestRedirectedDownload;
+  end;
+
 implementation
 
 uses IdBaseComponent;
@@ -126,6 +140,8 @@ const
   cDocGZip='gz';
   //content encoding constant
   cEncodingGZip='gzip';
+
+  cRedirectData='data';
 
 procedure TIdTestHTTP_01.CallbackExecute(AContext: TIdContext);
 //check that the server disconnecting the client doesn't cause
@@ -406,9 +422,63 @@ begin
 end;
 {$ENDIF}
 
+procedure TIdTestHTTP_02.CallbackGet(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo);
+begin
+  if ARequestInfo.Document='/redirect' then
+    begin
+    AResponseInfo.ContentText:='message';
+    AResponseInfo.Redirect('/download');
+    end
+  else if ARequestInfo.Document='/download' then
+    begin
+    AResponseInfo.ContentText:=cRedirectData;
+    end;
+end;
+
+procedure TIdTestHTTP_02.SetUp;
+begin
+  inherited;
+  FServer:=TIdHTTPServer.Create;
+  FServer.DefaultPort:=22280;
+  FServer.OnCommandGet:=Self.CallbackGet;
+
+  FClient:=TIdHTTP.Create;
+end;
+
+procedure TIdTestHTTP_02.TearDown;
+begin
+  Sys.FreeAndNil(FServer);
+  Sys.FreeAndNil(FClient);
+  inherited;
+end;
+
+procedure TIdTestHTTP_02.TestRedirectedDownload;
+//this shows that when requesting a download from a server, content
+//from the redirecting page is not included in the data from the
+//actual download
+var
+  s:TIdMemoryStream;
+  aStr:string;
+begin
+  FServer.Active:=True;
+
+  s:=TIdMemoryStream.Create;
+  try
+    FClient.HandleRedirects:=True;
+    FClient.Get('http://127.0.0.1:22280/redirect?download',s);
+    s.Position:=0;
+    aStr:=ReadStringFromStream(s);
+    Assert(aStr=cRedirectData);
+  finally
+    sys.FreeAndNil(s);
+  end;
+end;
+
 initialization
 
   TIdTest.RegisterTest(TIdTestHTTP_01);
+  TIdTest.RegisterTest(TIdTestHTTP_02);
   TIdTest.RegisterTest(TIdTestHTTP_KeepAlive);
   TIdTest.RegisterTest(TIdTestHTTP_Redirect);
   {$IFNDEF DOTNET}
