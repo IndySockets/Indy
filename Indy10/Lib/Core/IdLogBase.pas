@@ -124,6 +124,7 @@ end;
 
 procedure TIdLogBase.Loaded;
 begin
+  inherited Loaded;
   Active := FStreamedActive;
 end;
 
