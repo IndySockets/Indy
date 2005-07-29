@@ -481,7 +481,15 @@ begin
             Reply.Assign(TIdCommandHandlers(Collection).FExceptionReply);
           end;
           if Reply.Code <> '' then begin
-            Reply.Text.Add(E.Message);
+          //done this way in case an exception message has more than one line.
+          //otherwise you could get something like this:
+          //
+          // 550 System Error.  Code: 2
+          // The system cannot find the file specified
+          //
+          //and the second line would throw off some clients.  
+            Reply.Text.Text := E.Message;
+            //Reply.Text.Add(E.Message);
             SendReply;
           end else begin
             raise;
