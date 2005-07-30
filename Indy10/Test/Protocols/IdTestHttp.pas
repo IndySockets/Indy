@@ -391,7 +391,7 @@ procedure TIdTestHTTP_GZip.TestGZip;
 var
   aClass:TIdZLibCompressorBaseClass;
   aCompress:TIdZLibCompressorBase;
-  aStream:TIdStringStream;
+  aStream,aOutStream:TIdStringStream;
   s:string;
 begin
   //string now contains a gz encoded test string
@@ -410,14 +410,16 @@ begin
 
   Assert(aClass<>nil);
   aStream:=TIdStringStream.Create(s);
+  aOutStream:=TIdStringStream.Create('');
   aCompress:=aClass.Create;
   try
     aStream.Position:=0;
-    aCompress.DecompressGZipStream(aStream);
-    Assert(aStream.DataString=cHelloWorld);
+    aCompress.DecompressGZipStream(aStream,aOutStream);
+    Assert(aOutStream.DataString=cHelloWorld);
   finally
     Sys.FreeAndNil(aCompress);
     Sys.FreeAndNil(aStream);
+    Sys.FreeAndNil(aOutStream);
   end;
 end;
 {$ENDIF}
