@@ -1,12 +1,15 @@
 unit IdTestHTTP;
 
+{
+http://www.schroepl.net/cgi-bin/http_trace.pl
+useful to test exactly what headers a web server is receiving from the http client
+allows you to check that the headers that http client writes are actually received
+by the server, ie not modified by a proxy/firewall after they leave your pc
+}
+
 //todo test chunked Transfer-Encoding
 //http://www.faqs.org/rfcs/rfc2616.html
 //3.6 Transfer Codings, 19.4.6 Introduction of Transfer-Encoding
-
-//todo test downloading a file to a stream, where there is a redirect from the
-//original url to the actual download url. ie ensure that no data is save to
-//stream until the redirecting has finished being handled
 
 //todo standardize http ports used
 
