@@ -138,6 +138,7 @@ interface
 
 uses
   IdBaseComponent,
+  IdStream,
   IdIOHandler,
   IdObjs;
 
@@ -199,7 +200,7 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TId
     SetLength(LExtra,2);
     SetLength(LNullFindChar,1);
     AInStream.Seek(3,IdFromCurrent);
-    AInStream.Read(LFlags,1);
+    TIdStreamHelper.ReadBytes(AInStream,LFlags,1);
     AInStream.Seek(6,IdFromCurrent);
     // at pos 10 now
 
@@ -235,7 +236,7 @@ begin
   SetLength(LBytes, 2);
   LBytes[0] := $78; //7=32K blocks, 8=deflate
   LBytes[1] := $9C;
-  AInStream.Write(LBytes, 2);
+  TIdStreamHelper.Write(AInStream,LBytes,2);
   AInStream.Seek(-2, IdFromCurrent);
   AInStream.size := AInStream.size - 8; // remove the CRC32 and the size
   InflateStream(AInStream, AOutStream);
