@@ -472,7 +472,7 @@ type
     property Encoding: TIdEncoding read FEncoding write FEncoding;
     property GrowthFactor: Integer read FGrowthFactor write FGrowthFactor;
     property Size: Integer read FSize;
-    //useful for testing
+    //useful for testing. returns buffer as string without extraction.
     property AsString:string read GetAsString;
   end;
 
