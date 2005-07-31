@@ -776,6 +776,13 @@ const AAlwaysValidOpts : array [0..2] of string =
 
 type
   TIdFTPServerContext = class;
+  //The final parameter could've been one item but I decided against that
+  //because occaisionally, you might have a situation where you need to specify
+  //the "type" fact to be several different things.
+  //
+  //http://www.ietf.org/internet-drafts/draft-ietf-ftpext-mlst-16.txt
+  TIdOnMLST = procedure(ASender : TIdFTPServerContext;const APath: string;
+    ADirectoryListing: TIdFTPListOutput) of object;
   //data port binding events
   TOnDataPortBind = procedure(ASender : TIdFTPServerContext) of object;
   //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
@@ -1075,6 +1082,7 @@ type
     FCustomSystID : String;
     FReplyUnknownSITECommand : TIdReply;
     FCompressor : TIdZLibCompressorBase;
+    FOnMLST : TIdOnMLST;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
       var VPort : Word; const AIPVersion : TIdIPVersion);
     procedure DoOnPASVReply(ASender : TIdFTPServerContext; var VIP : String;
@@ -1307,6 +1315,7 @@ type
     }
     property OnPASVBeforeBind : TIdOnPASV read FOnPASVBeforeBind write FOnPASVBeforeBind;
     property OnPASVReply : TIdOnPASV read FOnPASVReply write FOnPASVReply;
+    property OnMLST : TIdOnMLST read FOnMLST write FOnMLST;
     property SITECommands: TIdCommandHandlers read FSITECommands write SetSITECommands;
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
@@ -4456,16 +4465,36 @@ procedure TIdFTPServer.CommandMLST(ASender: TIdCommand);
 var LStream : TIdStringList;
     i : Integer;
     LF : TIdFTPServerContext;
+    LPath : String;
+    LDir : TIdFTPListOutput;
 begin
   if not Assigned(OnListDirectory) then begin
-    CmdSyntaxError(ASender);
-    Exit;
+    if not Assigned(FOnMLST) then
+    begin
+      CmdSyntaxError(ASender);
+      Exit;
+    end;
   end;
   LF := TIdFTPServerContext(ASender.Context);
   if LF.IsAuthenticated(ASender) then begin
     LStream := TIdStringList.Create;
     try
-      ListDirectory(LF, DoProcessPath(LF, ASender.UnparsedParams), LStream, True, 'MLST');  {Do not translate}
+      LPath := DoProcessPath(LF, ASender.UnparsedParams);
+      if Assigned(FOnMLST) then
+      begin
+        LDir := TIdFTPListOutput.Create;
+        try
+          FOnMLST(LF,LPath,LDir);
+          LDir.MLISTOutputDir(LStream,LF.MLSOpts);
+        finally
+          Sys.FreeAndNil(LDir);
+        end;
+      end
+      else
+      begin
+        //this part is kept just for backwards compatibility
+        ListDirectory(LF, LPath, LStream, True, 'MLST');  {Do not translate}
+      end;
       ASender.Reply.Clear;
       SetRFCReplyFormat(ASender.Reply);
       ASender.Reply.NumericCode := 250;
