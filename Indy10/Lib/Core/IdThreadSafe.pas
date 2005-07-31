@@ -217,8 +217,6 @@ type
 
 implementation
 
-uses Classes;
-
 { TIdThreadSafe }
 
 constructor TIdThreadSafe.Create;
@@ -557,7 +555,7 @@ end;
 
 function TIdThreadSafeList.Count: Integer;
 var
-  aList:TList;
+  aList:TIdList;
 begin
   aList:=LockList;
   try
