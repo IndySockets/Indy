@@ -195,6 +195,7 @@ type
     procedure Subtract(const AValue : Double);
     property Value: Double read GetValue write SetValue;
   end;
+
   //TODO: Later make this descend from TIdThreadSafe instead
   TIdThreadSafeList = class(TIdThreadList)
   private
@@ -206,6 +207,7 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
     function IsCountLessThan(const AValue: Cardinal): Boolean;
+    function Count:Integer;
     function IsEmpty: Boolean;
     function Pop: TIdBaseObject;
     function Pull: TIdBaseObject;
@@ -214,6 +216,8 @@ type
   End;
 
 implementation
+
+uses Classes;
 
 { TIdThreadSafe }
 
@@ -549,6 +553,18 @@ destructor TIdThreadSafeList.Destroy;
 begin
   if OwnsObjects then ClearAndFree;
   inherited;
+end;
+
+function TIdThreadSafeList.Count: Integer;
+var
+  aList:TList;
+begin
+  aList:=LockList;
+  try
+    Result:=aList.Count;
+  finally
+    UnlockList;
+  end;
 end;
 
 { TIdThreadSafeBoolean }
