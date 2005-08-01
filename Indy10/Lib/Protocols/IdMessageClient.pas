@@ -468,7 +468,7 @@ uses
   IdCoder, IdCoder3to4, IdCoderBinHex4,
   IdCoderHeader, IdMessageCoder, IdComponent, IdException, IdResourceStringsProtocols,
   IdTCPConnection,
-  IdTCPStream,  
+  IdTCPStream,
   IdIOHandler, IdAttachmentFile,
   IdText, IdAttachment;
 
@@ -688,6 +688,7 @@ var
           LTxt.Headers.Add('Content-Transfer-Encoding: '+ AMsg.Headers.Values[SContentTransferEncoding]);   {do not localize}
           LTxt.ContentID := AMsg.Headers.Values['Content-ID'];  {do not localize}
           LTxt.ContentLocation := AMsg.Headers.Values['Content-Location'];  {do not localize}
+          LTxt.ContentDescription := AMsg.Headers.Values['Content-Description'];  {do not localize}
         end else begin
           LTxt.ContentType := LTxt.ResolveContentType(ADecoder.Headers.Values[SContentType]);
           LTxt.Headers.Add('Content-Type: '+ ADecoder.Headers.Values[SContentType]);     {do not localize}
@@ -696,6 +697,7 @@ var
           LTxt.Headers.Add('Content-Transfer-Encoding: '+ ADecoder.Headers.Values[SContentTransferEncoding]);  {do not localize}
           LTxt.ContentID := ADecoder.Headers.Values['Content-ID'];  {do not localize}
           LTxt.ContentLocation := ADecoder.Headers.Values['Content-Location'];  {do not localize}
+          LTxt.ContentDescription := ADecoder.Headers.Values['Content-Description'];  {do not localize}
           LTxt.ExtraHeaders.NameValueSeparator := '=';                          {do not localize}
           for i := 0 to ADecoder.Headers.Count-1 do begin
             if LTxt.Headers.IndexOfName(ADecoder.Headers.Names[i]) < 0 then begin
@@ -748,6 +750,7 @@ var
             ContentDisposition := AMsg.Headers.Values['Content-Disposition']; {do not localize}
             ContentID := AMsg.Headers.Values['Content-ID'];                   {do not localize}
             ContentLocation := AMsg.Headers.Values['Content-Location'];       {do not localize}
+            ContentDescription := AMsg.Headers.Values['Content-Description'];  {do not localize}
           end else begin
             ContentType := ResolveContentType(ADecoder.Headers.Values[SContentType]);    {do not localize}
             Headers.Add('Content-Type: '+ ADecoder.Headers.Values[SContentType]);        {do not localize}
@@ -772,6 +775,7 @@ var
             ContentDisposition := ADecoder.Headers.Values['Content-Disposition']; {do not localize}
             ContentID := ADecoder.Headers.Values['Content-ID'];                   {do not localize}
             ContentLocation := ADecoder.Headers.Values['Content-Location'];       {do not localize}
+            ContentDescription := ADecoder.Headers.Values['Content-Description'];  {do not localize}
             ExtraHeaders.NameValueSeparator := '=';                               {do not localize}
             for i := 0 to ADecoder.Headers.Count-1 do begin
               if Headers.IndexOfName(ADecoder.Headers.Names[i]) < 0 then begin
@@ -1113,7 +1117,7 @@ begin
           //Secondly, if AMsg.MessageParts.TextPartCount > 0, he may have put the
           //message text in the part, so don't convert the body.
           //Thirdly, if AMsg.MessageParts.Count = 0, then it has no other parts
-          //anyway: in this case, output it without boundaries. 
+          //anyway: in this case, output it without boundaries.
           //if (AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0)) then begin
           if (AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0) and (AMsg.MessageParts.Count > 0)) then begin
             //CC2: There is no text part, the user has not changed ConvertPreamble from
