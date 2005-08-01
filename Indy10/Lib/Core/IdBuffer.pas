@@ -902,7 +902,7 @@ begin
   end;
   LVal := GStack.HostToNetwork(AValue);
   CopyTIdWord(LVal,FBytes,LIndex);
-  if LIndex>FSize then
+  if LIndex>=FSize then
   begin
     FSize := LIndex +2;
   end;
@@ -921,7 +921,7 @@ begin
     LIndex := ADestIndex;
   end;
   FBytes[LIndex] := AValue;
-  if LIndex>FSize then
+  if LIndex>=FSize then
   begin
     FSize := LIndex +1;
   end;
@@ -943,7 +943,7 @@ begin
   end;
   LVal := GStack.HostToNetwork(AValue);
   CopyTIdIPV6Address(LVal,FBytes,LIndex);
-  if LIndex>FSize then
+  if LIndex>=FSize then
   begin
     FSize := LIndex +16;
   end;
@@ -967,7 +967,7 @@ begin
   end;
   LVal := GStack.HostToNetwork(AValue);
   CopyTIdInt64(LVal, FBytes, LIndex);
-  if LIndex > FSize then
+  if LIndex >= FSize then
   begin
     FSize := LIndex + LSize;
   end;
@@ -989,7 +989,7 @@ begin
   end;
   LVal := GStack.HostToNetwork(AValue);
   CopyTIdCardinal(LVal,FBytes,LIndex);
-  if LIndex>FSize then
+  if LIndex>=FSize then
   begin
     FSize := LIndex +4;
   end;
@@ -1030,7 +1030,7 @@ begin
     else
     begin
       CopyTIdBytes(ABytes, 0, FBytes, LIndex, LByteLength);
-      if LIndex>FSize then
+      if LIndex>=FSize then
       begin
         FSize := LIndex +LByteLength;
       end;
