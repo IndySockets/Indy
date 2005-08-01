@@ -24,7 +24,7 @@
 { Added Index parameter to several functions so you can use TIdBuffer in a
 { random access manner instead of in a sequential manner.  This is good for
 { some fixed-packet or data types.
-{ 
+{
 { Added functions for reading and writing various types to TIdBuffer which use
 { Byte Order functions.  This should facilitate a lot of development as this
 { gets used more.
@@ -950,25 +950,25 @@ begin
 end;
 
 procedure TIdBuffer.Write(const AValue: Int64; const ADestIndex: Integer);
-var LVal : Int64;
+var
+  LVal : Int64;
   LIndex : Integer;
 begin
-  if ADestIndex<0 then
+  if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes,LIndex + SizeOf(Int64));
+    SetLength(FBytes, LIndex + SizeOf(Int64));
   end
   else
   begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
-  CopyTIdCardinal(LVal,FBytes,LIndex);
-  if LIndex>FSize then
+  CopyTIdInt64(LVal, FBytes, LIndex);
+  if LIndex > FSize then
   begin
-    FSize := LIndex +8;
+    FSize := LIndex + SizeOf(Int64);
   end;
-
 end;
 
 procedure TIdBuffer.Write(const AValue: Cardinal;
@@ -979,7 +979,7 @@ begin
   if ADestIndex<0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes,LIndex + SizeOf(Cardinal));
+    SetLength(FBytes, LIndex + SizeOf(Cardinal));
   end
   else
   begin
