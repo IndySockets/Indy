@@ -190,6 +190,9 @@ end;
 destructor TIdUDPBase.Destroy;
 begin
   Active := False;
+  //double check that binding gets freed.
+  //sometimes possible that binding is allocated, but active=false
+  CloseBinding;
   inherited Destroy;
 end;
 
