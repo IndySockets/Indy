@@ -83,6 +83,8 @@ type
     //    procedure DoUDPRead(AData: TStream; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
   public
+    //should deactivate server, check all threads finished, before destroying
+    function ActiveThreads:Integer;
     destructor Destroy;override;
   published
     property OnReadFile: TAccessFileEvent read FOnReadFile write FOnReadFile;
@@ -319,6 +321,14 @@ end;
 
 destructor TIdTrivialFTPServer.Destroy;
 begin
+  {
+  if (not ThreadedEvent) and (ActiveThreads>0) then
+    begin
+    //some kind of error/warning about deadlock?
+    //raise CantFreeYet?
+    end;
+  }
+  
   //wait for threads to finish before we shutdown
   //should we set thread[i].terminated, or just wait?
   while FThreadList.Count>0 do
@@ -328,6 +338,11 @@ begin
 
   Sys.FreeAndNil(FThreadList);
   inherited;
+end;
+
+function TIdTrivialFTPServer.ActiveThreads: Integer;
+begin
+  Result:=FThreadList.Count;
 end;
 
 { TIdTFTPServerThread }
