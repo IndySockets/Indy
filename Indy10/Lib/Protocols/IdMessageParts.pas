@@ -85,7 +85,6 @@ type
   // if you add to this, please also adjust the case statement in
   // TIdMessageParts.CountParts;
 
-  { TODO: Add ContentDescription property from RFC 2045 Section 8 }
   TIdMessagePart = class(TIdCollectionItem)
   protected
     FBoundary: string;
@@ -102,15 +101,17 @@ type
     FOnGetMessagePartStream: TOnGetMessagePartStream;
     FParentPart: Integer;
     //
-    function  GetContentType: string; virtual; //Content-Type
-    function  GetContentTransfer: string; virtual;//Content-Transfer-Encoding
-    function  GetContentID: string; virtual;//Content-ID
-    function  GetContentLocation: string; virtual; //Content-Location
+    function  GetContentType: string; virtual;
+    function  GetContentTransfer: string; virtual;
+    function  GetContentID: string; virtual;
+    function  GetContentLocation: string; virtual;
+    function  GetContentDescription: string;
     procedure SetContentType(const Value: string); virtual;
     procedure SetContentTransfer(const Value: string); virtual;
     procedure SetExtraHeaders(const Value: TIdHeaderList);
     procedure SetContentID(const Value: string); virtual;
     procedure SetContentLocation(const Value: string); virtual;
+    procedure SetContentDescription(const Value: string);
   public
     constructor Create(Collection: TIdCollection); override;
     destructor Destroy; override;
@@ -123,17 +124,18 @@ type
     property BoundaryBegin: Boolean read FBoundaryBegin write FBoundaryBegin;
     property BoundaryEnd: Boolean read FBoundaryEnd write FBoundaryEnd;
     property IsEncoded: Boolean read fIsEncoded;
-    property OnGetMessagePartStream: TOnGetMessagePartStream read FOnGetMessagePartStream
-      write FOnGetMessagePartStream;
+    property OnGetMessagePartStream: TOnGetMessagePartStream 
+      read FOnGetMessagePartStream write FOnGetMessagePartStream;
     property Headers: TIdHeaderList read FHeaders;
   published
+    property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;
+    property CharSet: string read FCharSet write FCharSet;
+    property ParentPart: integer read FParentPart write FParentPart;
     property ContentTransfer: string read FContentTransfer write FContentTransfer;
     property ContentType: string read FContentType write FContentType;
-    property CharSet: string read FCharSet write FCharSet;
-    property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;
     property ContentID: string read GetContentID write SetContentID;
     property ContentLocation: string read GetContentLocation write SetContentLocation;
-    property ParentPart: integer read FParentPart write FParentPart;
+    property ContentDescription: string read GetContentDescription write SetContentDescription;
   end;
 
   TIdMessagePartClass = class of TIdMessagePart;
@@ -180,13 +182,14 @@ procedure TIdMessagePart.Assign(Source: TIdPersistent);
 var
   mp: TIdMessagePart;
 begin
-  if ClassType <> Source.ClassType then begin
+  if ClassType <> Source.ClassType then 
+  begin
     inherited;
-  end else begin
+  end 
+  else 
+  begin
     mp := TIdMessagePart(Source);
-    // RLebeau 10/17/2003
     Headers.Assign(mp.Headers);
-
     ExtraHeaders.Assign(mp.ExtraHeaders);
   end;
 end;
@@ -194,7 +197,8 @@ end;
 constructor TIdMessagePart.Create(Collection: TIdCollection);
 begin
   inherited;
-  if ClassType = TIdMessagePart then begin
+  if ClassType = TIdMessagePart then 
+  begin
     raise EIdCanNotCreateMessagePart.Create(RSTIdMessagePartCreate);
   end;
   FIsEncoded := False;
@@ -207,7 +211,7 @@ destructor TIdMessagePart.Destroy;
 begin
   FHeaders.Free;
   FExtraHeaders.Free;
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdMessagePart.GetContentID: string;
@@ -234,20 +238,23 @@ function TIdMessagePart.ResolveContentType(AContentType: string): string;
 var
   LTemp: string;
 begin
-  //This extracts 'text/plain' from 'text/plain; charset="xyz"; boundary="123"'
-  //or, if '', it finds the correct default value for MIME messages.
-  Result := '';  //Default for non-MIME messages
+  // This extracts 'text/plain' from 'text/plain; charset="xyz"; boundary="123"'
+  // or, if '', it finds the correct default value for MIME messages.
+  Result := '';  // Default for non-MIME messages
   if AContentType <> '' then begin
     Result := Sys.Trim(Fetch(AContentType, ';'));  {do not localize}
   end else begin
-    //If it is MIME, then we need to find the correct default...
-    if TIdMessage(TIdMessageParts(Collection).OwnerMessage).Encoding = meMIME then begin
-      //The default default...
+    // If it is MIME, then we need to find the correct default...
+    if TIdMessage(TIdMessageParts(Collection).OwnerMessage).Encoding = meMIME then 
+    begin
+      // The default default...
       Result := 'text/plain';            {do not localize}
-      //There is an exception if we are a child of multipart/digest...
-      if ParentPart <> -1 then begin
+      // There is an exception if we are a child of multipart/digest...
+      if ParentPart <> -1 then 
+      begin
         LTemp := TIdMessagePart(Collection.Items[ParentPart]).Headers.Values['Content-Type'];  {do not localize}
-        if IndyPos('multipart/digest', Sys.LowerCase(LTemp)) > 0 then begin  {do not localize}
+        if IndyPos('multipart/digest', Sys.LowerCase(LTemp)) > 0 then {do not localize}
+        begin
           Result := 'message/rfc822';  {do not localize}
         end;
       end;
@@ -306,8 +313,10 @@ begin
   FAttachmentCount := 0;
   FRelatedPartCount := 0;
   FTextPartCount := 0;
-  for i := 0 to Count - 1 do begin
-    if Length(TIdMessagePart(Items[i]).ContentID) > 0 then begin
+  for i := 0 to Count - 1 do 
+  begin
+    if Length(TIdMessagePart(Items[i]).ContentID) > 0 then 
+    begin
       Inc(FRelatedPartCount);
     end;
     case TIdMessagePart(Items[i]).PartType of
@@ -337,7 +346,7 @@ end;
 
 function TIdMessageParts.GetOwnerMessage: TIdPersistent;
 begin
-  //Result := TIdMessage(inherited GetOwner);
+  // Result := TIdMessage(inherited GetOwner);
   Result := inherited GetOwner;
 end;
 
@@ -352,20 +361,33 @@ begin
   inherited SetItem(Index, Value);
 end;
 
-  // TODO: class function (used in TIdMessage too)
+// TODO: class function (used in TIdMessage too)
 function  ExtractHeaderSubItem(const AHeaderLine,ASubItem: String): String;
 var
   S: String;
 begin
   S := AHeaderLine;
   FetchCaseInsensitive(S, ASubItem);    {do not localize}
-  if (S>'') and (S[1] = '"') then begin {do not localize}
+  if (S>'') and (S[1] = '"') then       {do not localize}
+  begin 
     Delete(s, 1, 1);
     Result := Fetch(s, '"');            {do not localize}
   // Sometimes its not in quotes
-  end else begin
+  end 
+  else 
+  begin
     Result := Fetch(s, ';');
   end;
+end;
+
+procedure TIdMessagePart.SetContentDescription(const Value: string);
+begin
+  Headers.Values['Content-Description'] := Value; {do not localize}
+end;
+
+function TIdMessagePart.GetContentDescription: string;
+begin
+  Result := Headers.Values['Content-Description']; {do not localize}
 end;
 
 end.
