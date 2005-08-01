@@ -240,7 +240,7 @@ uses
   IdTCPServer,
   IdThread,
   IdTCPConnection,
-  IdIntercept, 
+  IdIntercept,
   IdIOHandlerSocket,
   IdSSL,
   IdSocks,
@@ -458,12 +458,14 @@ type
     procedure InitComponent; override;
   public
     procedure Init; override;
+
+    // AListenerThread is a thread and not a yarn. Its the listener thread.
     function Accept(
       ASocket: TIdSocketHandle;
-      // This is a thread and not a yarn. Its the listener thread.
       AListenerThread: TIdThread;
       AYarn: TIdYarn
       ): TIdIOHandler; override;
+
 //    function Accept(ASocket: TIdSocketHandle; AThread: TIdThread) : TIdIOHandler;  override;
 
     destructor Destroy; override;
