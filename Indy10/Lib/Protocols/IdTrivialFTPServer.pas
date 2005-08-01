@@ -49,6 +49,7 @@ interface
 uses
   IdAssignedNumbers,
   IdGlobal,
+  IdThreadSafe,
   IdTrivialFTPBase,
   IdSocketHandle,
   IdObjs,
@@ -63,10 +64,11 @@ type
   TAccessFileEvent = procedure (Sender: TObject; var FileName: String; const PeerInfo: TPeerInfo;
     var GrantAccess: Boolean; var AStream: TIdStream; var FreeStreamOnComplete: Boolean) of object;
   TTransferCompleteEvent = procedure (Sender: TObject; const Success: Boolean;
-    const PeerInfo: TPeerInfo; AStream: TIdStream; const WriteOperation: Boolean) of object;
+    const PeerInfo: TPeerInfo; var AStream: TIdStream; const WriteOperation: Boolean) of object;
 
   TIdTrivialFTPServer = class(TIdUDPServer)
   protected
+    FThreadList:TIdThreadSafeList;
     FOnTransferComplete: TTransferCompleteEvent;
     FOnReadFile,
     FOnWriteFile: TAccessFileEvent;
@@ -76,10 +78,12 @@ type
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
-    procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; SourceStream: TIdStream; const WriteOperation: Boolean); virtual;
+    procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; var SourceStream: TIdStream; const WriteOperation: Boolean); virtual;
     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
     //    procedure DoUDPRead(AData: TStream; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
+  public
+    destructor Destroy;override;
   published
     property OnReadFile: TAccessFileEvent read FOnReadFile write FOnReadFile;
     property OnWriteFile: TAccessFileEvent read FOnWriteFile write FOnWriteFile;
@@ -123,6 +127,7 @@ procedure TIdTrivialFTPServer.InitComponent;
 begin
   inherited;
   DefaultPort := IdPORT_TFTP;
+  FThreadList := TIdThreadSafeList.Create;
 end;
 
 procedure TIdTrivialFTPServer.DoReadFile(FileName: String; const Mode: TIdTFTPMode;
@@ -159,7 +164,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoTransferComplete(const Success: Boolean;
-  const PeerInfo: TPeerInfo; SourceStream: TIdStream; const WriteOperation: Boolean);
+  const PeerInfo: TPeerInfo;var SourceStream: TIdStream; const WriteOperation: Boolean);
 begin
   if Assigned(FOnTransferComplete) then
   begin
@@ -167,7 +172,7 @@ begin
   end
   else
   begin
-    SourceStream.Free; // free the stream regardless, unless the component user steps up to the plate
+    Sys.FreeAndNil(SourceStream); // free the stream regardless, unless the component user steps up to the plate
   end;
 end;
 
@@ -312,6 +317,19 @@ begin
   end;
 end;
 
+destructor TIdTrivialFTPServer.Destroy;
+begin
+  //wait for threads to finish before we shutdown
+  //should we set thread[i].terminated, or just wait?
+  while FThreadList.Count>0 do
+    begin
+    Sleep(100);
+    end;
+
+  Sys.FreeAndNil(FThreadList);
+  inherited;
+end;
+
 { TIdTFTPServerThread }
 
 constructor TIdTFTPServerThread.Create(AnOwner: TIdTrivialFTPServer;
@@ -332,6 +350,7 @@ begin
   FFreeStrm := FreeStreamOnTerminate;
   FOwner := AnOwner;
   FreeOnTerminate := True;
+  FOwner.FThreadList.Add(Self);
   Resume;
 end;
 
@@ -341,8 +360,18 @@ begin
   begin
     Sys.FreeAndNil(FStream);
   end;
-  Synchronize(TransferComplete);
-  FUDPClient.Free;
+
+  if FOwner.ThreadedEvent then
+    begin
+    TransferComplete
+    end
+  else
+    begin
+    Synchronize(TransferComplete);
+    end;
+
+  Sys.FreeAndNil(FUDPClient);
+  FOwner.FThreadList.Remove(Self);
   inherited;
 end;
 
