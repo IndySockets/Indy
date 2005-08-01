@@ -41,6 +41,7 @@ uses
   IdTestMessageCoderMime,
   IdTestSMTPServer,
   IdTestHttpServer,
+  IdTestTrivialFTP,
   IdTestVCard;
 
 implementation
