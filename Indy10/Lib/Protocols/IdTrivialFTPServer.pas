@@ -324,16 +324,20 @@ begin
   {
   if (not ThreadedEvent) and (ActiveThreads>0) then
     begin
-    //some kind of error/warning about deadlock?
+    //some kind of error/warning about deadlock or possible AV due to
+    //soon-to-be invalid pointer in the threads? (FOwner: TIdTrivialFTPServer;)
     //raise CantFreeYet?
     end;
   }
-  
+
   //wait for threads to finish before we shutdown
   //should we set thread[i].terminated, or just wait?
-  while FThreadList.Count>0 do
+  if ThreadedEvent then
     begin
-    Sleep(100);
+    while FThreadList.Count>0 do
+      begin
+      Sleep(100);
+      end;
     end;
 
   Sys.FreeAndNil(FThreadList);
