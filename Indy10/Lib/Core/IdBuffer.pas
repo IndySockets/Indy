@@ -951,13 +951,15 @@ end;
 
 procedure TIdBuffer.Write(const AValue: Int64; const ADestIndex: Integer);
 var
-  LVal : Int64;
-  LIndex : Integer;
+  LVal: Int64;
+  LIndex: Integer;
+  LSize: Integer;
 begin
+  LSize := SizeOf(Int64);
   if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes, LIndex + SizeOf(Int64));
+    SetLength(FBytes, LIndex + LSize);
   end
   else
   begin
@@ -967,7 +969,7 @@ begin
   CopyTIdInt64(LVal, FBytes, LIndex);
   if LIndex > FSize then
   begin
-    FSize := LIndex + SizeOf(Int64);
+    FSize := LIndex + LSize;
   end;
 end;
 
