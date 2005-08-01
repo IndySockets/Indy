@@ -6086,6 +6086,7 @@ const
                     ContentType := ADecoder.Headers.Values[SContentType];
                     ContentID := ADecoder.Headers.Values['Content-ID'];  {Do not Localize}
                     ContentLocation := ADecoder.Headers.Values['Content-Location'];  {Do not Localize}
+                    ContentDescription := ADecoder.Headers.Values['Content-Description']; {Do not Localize}
                     ExtraHeaders.NameValueSeparator := '=';  {Do not Localize}
                     for Li := 0 to ADecoder.Headers.Count-1 do begin
                         if Headers.IndexOfName(ADecoder.Headers.Names[Li]) < 0 then begin
@@ -6124,10 +6125,10 @@ const
                         Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
                         ContentType := ADecoder.Headers.Values[SContentType];
                         ContentTransfer := ADecoder.Headers.Values['Content-Transfer-Encoding'];  {Do not Localize}
-                        // dsiders 2001.12.01
                         ContentDisposition := ADecoder.Headers.Values['Content-Disposition'];  {Do not Localize}
                         ContentID := ADecoder.Headers.Values['Content-ID'];  {Do not Localize}
                         ContentLocation := ADecoder.Headers.Values['Content-Location'];  {Do not Localize}
+                        ContentDescription := ADecoder.Headers.Values['Content-Description']; {Do not Localize}
                         Filename := ADecoder.Filename;
                         ExtraHeaders.NameValueSeparator := '=';  {Do not Localize}
                         for Li := 0 to ADecoder.Headers.Count-1 do begin
