@@ -245,7 +245,6 @@ end;
 
 destructor TIdIPMCastListenerThread.Destroy;
 begin
-  Sys.FreeAndNil(FBuffer);
   inherited Destroy;
 end;
 
