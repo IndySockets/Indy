@@ -695,8 +695,8 @@ begin
   if IsValidIPv4MulticastGroup(AGroupIP) then
   begin
     GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRMultiAddr, Id_IPv4);
-    GBSDStack.TranslateStringToTInAddr(AGroupIP, LIP4.IMRInterface , Id_IPv4);
-    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, Id_IP_ADD_MEMBERSHIP,
+    LIP4.IMRInterface.S_addr := Id_INADDR_ANY;
+    GBSDStack.SetSocketOption(AHandle,Id_IPPROTO_IP, ASockOpt,
       pchar(@LIP4), SizeOf(LIP4));
   end
   else
