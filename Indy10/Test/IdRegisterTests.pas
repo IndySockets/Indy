@@ -15,6 +15,7 @@ uses
   IdTestBuffer,
   IdTestReplyRFC,
   IdTestIOHandler,
+  IdTestIPMCastServer,
   IdTestTcpClient,
   IdTestCmdTCPClient,
   IdTestCmdTCPServer,
