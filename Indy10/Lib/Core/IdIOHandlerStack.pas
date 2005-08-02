@@ -250,7 +250,7 @@ type
       var aBuffer: TIdBytes
       ); override;
   published
-    property ReadTimeout default IdDefTimeout;
+    property ReadTimeout;
   end;
 
 implementation
