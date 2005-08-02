@@ -81,6 +81,8 @@ type
     FLoopback: Boolean;
     FTimeToLive: Byte;
     //
+    procedure ApplyLoopback;
+    procedure ApplyTimeToLive;
     procedure CloseBinding; override;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
@@ -88,7 +90,6 @@ type
     procedure MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
     procedure SetLoopback(const AValue: Boolean); virtual;
     procedure SetTTL(const AValue: Byte); virtual;
-    procedure SetTTLOption(AInBinding: TIdSocketHandle; const AValue: Byte); virtual;
     procedure InitComponent; override;
   public
     procedure Send(const AData: string); overload;
@@ -121,13 +122,31 @@ begin
   FTimeToLive := DEF_IMP_TTL;
 end;
 
+procedure TIdIPMCastServer.Loaded;
+var
+  b: Boolean;
+begin
+  inherited Loaded;
+  b := FDsgnActive;
+  FDsgnActive := False;
+  Active := b;
+end;
+
+destructor TIdIPMCastServer.Destroy;
+begin
+	Active := False;
+  inherited Destroy;
+end;
+
 procedure TIdIPMCastServer.CloseBinding;
 begin
   //Multicast.IMRMultiAddr := GBSDStack.StringToTIn4Addr(FMulticastGroup);
   //Hope the following is correct for StringToTIn4Addr(), should be checked...
-  GStack.DropMulticastMembership(FBinding.Handle,FMulticastGroup,Binding.IP,Binding.IPVersion);
-
-  Sys.FreeAndNil(FBinding);
+  if FBinding<>nil then
+    begin
+    GStack.DropMulticastMembership(FBinding.Handle,FMulticastGroup,FBinding.IP,FBinding.IPVersion);
+    Sys.FreeAndNil(FBinding);
+    end;
 end;
 
 function TIdIPMCastServer.GetActive: Boolean;
@@ -136,7 +155,6 @@ begin
 end;
 
 function TIdIPMCastServer.GetBinding: TIdSocketHandle;
-
 begin
   if not Assigned(FBinding) then begin
     FBinding := TIdSocketHandle.Create(nil);
@@ -150,21 +168,11 @@ begin
     FBinding.Bind;
     //Multicast.IMRMultiAddr :=  GBSDStack.StringToTIn4Addr(FMulticastGroup);
     //Hope the following is correct for StringToTIn4Addr(), should be checked...
-     GStack.AddMulticastMembership(FBinding.Handle,FMulticastGroup,Binding.IP,Binding.IPVersion);
-    SetTTLOption(FBinding, FTimeToLive);
-    Loopback := True;
+    GStack.AddMulticastMembership(FBinding.Handle,FMulticastGroup,FBinding.IP,FBinding.IPVersion);
+    ApplyTimeToLive;
+    ApplyLoopback;
   end;
   Result := FBinding;
-end;
-
-procedure TIdIPMCastServer.Loaded;
-var
-  b: Boolean;
-begin
-  inherited Loaded;
-  b := FDsgnActive;
-  FDsgnActive := False;
-  Active := b;
 end;
 
 procedure TIdIPMCastServer.MulticastBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
@@ -188,32 +196,31 @@ end;
 procedure TIdIPMCastServer.SetLoopback(const AValue: Boolean);
 begin
   if FLoopback <> AValue then begin
-    if FDsgnActive or (Assigned(Binding) and Binding.HandleAllocated) then begin
-      GStack.SetLoopBack(Binding.Handle,AValue,Binding.IPVersion);
-    end;
     FLoopback := AValue;
+    ApplyLoopback;
   end;
 end;
 
 procedure TIdIPMCastServer.SetTTL(const AValue: Byte);
 begin
   if (FTimeToLive <> AValue) then begin
-    GStack.SetMulticastTTL(FBinding.Handle,AValue,FBinding.IPVersion);
     FTimeToLive := AValue;
+    ApplyTimeToLive;
   end;
 end;
 
-procedure TIdIPMCastServer.SetTTLOption(AInBinding: TIdSocketHandle; const AValue: Byte);
+procedure TIdIPMCastServer.ApplyLoopback;
 begin
-  if (FDsgnActive or (Assigned(AInBinding) and AInBinding.HandleAllocated)) then begin
-    GStack.SetMulticastTTL(AInBinding.Handle,AValue);
+  if FDsgnActive and (Assigned(FBinding) and FBinding.HandleAllocated) then begin
+    GStack.SetLoopBack(FBinding.Handle,FLoopback,FBinding.IPVersion);
   end;
 end;
 
-destructor TIdIPMCastServer.Destroy;
+procedure TIdIPMCastServer.ApplyTimeToLive;
 begin
-	Active := False;
-  inherited Destroy;
+  if FDsgnActive and (Assigned(FBinding) and FBinding.HandleAllocated) then begin
+    GStack.SetMulticastTTL(FBinding.Handle,FTimeToLive,FBinding.IPVersion);
+  end;
 end;
 
 end.
