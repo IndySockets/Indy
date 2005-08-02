@@ -754,7 +754,7 @@ type
     property LargeStream:Boolean read FLargeStream write FLargeStream;
     property MaxCapturedLines: Integer read FMaxCapturedLines write FMaxCapturedLines default Id_IOHandler_MaxCapturedLines;
     property Opened: Boolean read FOpened;
-    property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut;
+    property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut default IdTimeoutDefault;
     property ReadLnTimedout:boolean read fReadLnTimedout ;
     property WriteBufferThreshhold: Integer read FWriteBufferThreshhold;
     //
