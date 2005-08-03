@@ -207,9 +207,9 @@ uses
 
 procedure Register;
 begin
-  RegisterClassAlias(TCPClient, 'TIdTCPClient');
+  RegisterClassAlias(TIdTCPClient, 'TCPClient');
   RegisterComponents(RSRegIndyClients, [
-   TCPClient
+   TIdTCPClient
    ,TIdUDPClient
    ,TIdCmdTCPClient
    ,TIdIPMCastClient

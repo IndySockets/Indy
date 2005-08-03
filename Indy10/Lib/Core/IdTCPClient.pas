@@ -245,7 +245,7 @@ type
   published
   end;
 
-  TCPClient = class(TIdTCPClientCustom)
+  TIdTCPClient = class(TIdTCPClientCustom)
   published
     property BoundIP;
     property BoundPort;
@@ -260,8 +260,9 @@ type
     property OnAfterBind;
   end;
   //Temp IFDEF till we change aliaser
+  // Temp - reversed it for code freeze - will rereverse later.
   {$IFNDEF DotNetDistro}
-  TIdTCPClient = TCPClient;
+  TCPClient = TIdTCPClient;
   {$endif}
 
 implementation
