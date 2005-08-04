@@ -794,6 +794,7 @@ type
   //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
   //to do the same thing as a chmod.  MFF is to "Modify a file fact".
   TOnSiteCHMOD = procedure(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean) of object;
+
   TOnCustomPathProcess = procedure(ASender: TIdFTPServerContext; var VPath : String) of object;
   //
   TOnFTPUserLoginEvent = procedure(ASender: TIdFTPServerContext; const AUsername, APassword: string;
@@ -825,6 +826,8 @@ type
   TOnCacheChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String) of object;
   TOnVerifyChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String) of object;
   TOnSetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFileName : String; var AFileTime : TIdDateTime) of object;
+  //This is just to be efficient with the SITE UTIME command
+  TOnSiteUTIME = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VLastAccessTime, VLastModTime, VCreateDate : TIdDateTime) of object;
   EIdFTPServerException = class(EIdException);
   EIdFTPServerNoOnListDirectory = class(EIdFTPServerException);
   EIdFTPImplicitTLSRequiresSSL = class(EIdFTPServerException);
@@ -1083,6 +1086,7 @@ type
     FReplyUnknownSITECommand : TIdReply;
     FCompressor : TIdZLibCompressorBase;
     FOnMLST : TIdOnMLST;
+    FOnSiteUTIME : TOnSiteUTIME;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
       var VPort : Word; const AIPVersion : TIdIPVersion);
     procedure DoOnPASVReply(ASender : TIdFTPServerContext; var VIP : String;
@@ -1185,7 +1189,8 @@ type
     procedure CommandSiteZONE(ASender : TIdCommand);
     //supported by RaidenFTP - http://www.raidenftpd.com/kb/kb000000049.htm
     procedure CommandSiteATTRIB(ASender : TIdCommand);
-
+    //McFTP client uses this to set the time stamps for a file.
+    procedure CommandSiteUTIME(ASender : TIdCommand);
     // end site commands
 
     procedure CommandOptsMLST(ASender : TIdCommand);
@@ -1316,6 +1321,7 @@ type
     property OnPASVBeforeBind : TIdOnPASV read FOnPASVBeforeBind write FOnPASVBeforeBind;
     property OnPASVReply : TIdOnPASV read FOnPASVReply write FOnPASVReply;
     property OnMLST : TIdOnMLST read FOnMLST write FOnMLST;
+    property OnSiteUTIME : TOnSiteUTIME read FOnSiteUTIME write FOnSiteUTIME;
     property SITECommands: TIdCommandHandlers read FSITECommands write SetSITECommands;
     property MLSDFacts : TIdMLSDAttrs read  FMLSDFacts write FMLSDFacts;
     property OnClientID : TIdOnClientID read FOnClientID write FOnClientID;
@@ -2259,7 +2265,16 @@ begin
   LCmd.ExceptionReply.NumericCode := 530;
   LCmd.OnCommand := CommandSiteZONE;
   LCmd.Description.Text := 'Syntax: SITE ZONE (returns the server offset from GMT)'; {do not localize}
-
+  //SITE UTIME
+  LCmd := FSITECommands.Add;
+  LCmd.Command := 'UTIME'; {Do not localize}
+  LCmd.NormalReply.NumericCode := 200;
+  LCmd.NormalReply.Text.Text :=  'Date/time changed okay.';
+  LCmd.ExceptionReply.NumericCode := 530;
+  LCmd.OnCommand := CommandSiteUTIME;
+  LCmd.Description.Text := 
+  'Syntax:  SITE UTIME <file> <access-time> <modification-time> <creation time>'+CR+LF+ {do not localize}
+  '         Each timestamp must be in the format YYYYMMDDhhmmss';          {do not localize}
   //OPTS settings
   LCmd := FOPTSCommands.Add;
   LCmd.Command := 'MLST';  {Do not localize}
@@ -3065,7 +3080,7 @@ begin
       if Assigned(FOnRenameFile) or Assigned( FTPFileSystem) then
       begin
         ASender.Reply.SetReply(350, RSFTPFileActionPending);
-        FRNFR := s;
+        FRNFR := DoProcessPath(TIdFTPServerContext(ASender.Context),s);
       end
       else
       begin
@@ -3086,7 +3101,7 @@ begin
     s := ASender.UnparsedParams;
     if Assigned(FFTPFileSystem) or Assigned(FOnRenameFile) then
     begin
-      DoOnRenameFile(LF, LF.FRNFR, s);
+      DoOnRenameFile(LF, LF.FRNFR, DoProcessPath(LF,s));
       ASender.Reply.NumericCode := 250;
     end else begin
       CmdNotImplemented(ASender);
@@ -3137,7 +3152,7 @@ begin
   if LF.IsAuthenticated(ASender) then
   begin
     if Assigned(FOnDeleteFile) or Assigned(FTPFileSystem) then begin
-      DoOnDeleteFile(LF, ASender.UnparsedParams);
+      DoOnDeleteFile(LF, DoProcessPath(LF,ASender.UnparsedParams));
       ASender.Reply.SetReply(250, RSFTPFileActionCompleted);
     end else begin
       CmdNotImplemented(ASender);
@@ -3738,6 +3753,10 @@ begin
     begin
       LTmp := LTmp + ';DIRSTYLE';
     end;
+    if Assigned(OnSiteUTIME) or Assigned(OnSetModifiedTime) then
+    begin
+      LTmp := LTmp + ';UTIME';
+    end;
     ASender.Reply.Text.Add(LTmp); {do not localize}
     //SIZE
     if Assigned(FOnGetFileSize) or Assigned(FFTPFileSystem) then begin
@@ -4074,6 +4093,7 @@ begin
     LSDate := Fetch(s);
     if IsMDTMDate(LSDate) then
     begin
+
       s := DoProcessPath(LF, ASender.UnparsedParams );
       DoOnFileExistCheck(LF,s, LExists);
       if not LExists then
@@ -4574,6 +4594,7 @@ begin
   if LF.IsAuthenticated(ASender) then begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LFileName := ASender.UnparsedParams;
+      LFileName := DoProcessPath(LF,LFileName);
       LTimeStr := Fetch(LFileName);
       DoOnSetModifiedTime(LF,LFileName,LTimeStr);
       ASender.Reply.SetReply(213,Sys.Format('Modify=%s %s',[LTimeStr,LFileName])); {Do not translate}
@@ -4592,6 +4613,7 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then
     begin
       LFileName := ASender.UnparsedParams;
+      LFileName := DoProcessPath(LF,LFileName);
       LTimeStr := Fetch(LFileName);
       DoOnSetCreationTime(LF,LFileName,LTimeStr);
       ASender.Reply.SetReply(213, Sys.Format('CreateTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
@@ -4624,6 +4646,7 @@ begin
     LFacts := TIdStringList.Create;
     try
       LFileName := ParseFacts(ASender.UnparsedParams,LFacts);
+      LFileName := DoProcessPath(LF,LFileName);
       if LFacts.Values['Modify']<>'' then  {Do not translate}
       begin
         if Assigned(FOnSetModifiedTime) then
@@ -4770,7 +4793,7 @@ procedure TIdFTPServer.DoOnMD5Verify(ASender: TIdFTPServerContext;
   const AFileName, ACheckSum: String);
 begin
   if Assigned(OnMD5Verify) then begin
-    OnMD5Verify(ASender, AFileName, AChecksum);
+    OnMD5Verify(ASender,AFileName, AChecksum);
   end;
 end;
 
@@ -4963,7 +4986,9 @@ begin
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_NORMAL'); {Do not localize}
           end;
           ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+Sys.Format(RSFTPSiteATTRIBDone,[Sys.IntToStr(Length(LAttrs)-1)]));
+          LFileName := DoProcessPath(LCx,LFileName);
           Self.DoOnSetATTRIB(LCx,LAttrVal,LFileName,LPermitted);
+
         end
         else
         begin
@@ -4978,6 +5003,114 @@ begin
       end;
     end else begin
       ASender.Reply.Assign(FReplyUnknownSITECommand);
+    end;
+  end;
+end;
+
+procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
+var
+  LCxt : TIdFTPServerContext;
+  LPermitted : Boolean;
+  LFileName : String;
+  LIdx : Integer;
+  LDateCount : Integer;
+  LAccessTime, LModTime, LCreateTime : TDateTime;
+  i : Integer;
+begin
+{
+This is used by NcFTP like this:
+
+SITE UTIME test.txt 20050731224504 20050731041205 20050731035940 UTC
+
+where the first date is the "Last Access Time"
+the second date is the "Last Modified Time"
+and the final date is the "Creation File Time"
+
+I think the third parameter is optional.
+
+The final parameter is "UTC"
+}
+  LAccessTime := 0;
+  LModTime := 0;
+  LCreateTime := 0;
+  LCxt := ASender.Context as TIdFTPServerContext;
+  if LCxt.IsAuthenticated(ASender) then
+  begin
+    if Assigned(OnSiteUTIME) or Assigned(OnSetModifiedTime) then
+    begin
+      LDateCount := 0;
+      LIdx := ASender.Params.Count - 1;
+      if ASender.Params.Count >2 then
+      begin
+        LPermitted := True;
+        if Sys.UpperCase( ASender.Params[LIdx] ) = 'UTC' then
+        begin
+          //figure out how many dates we have and where the end of the filename is
+          Dec(LIdx);
+          Inc(LDateCount);
+          if IsValidTimeStamp(ASender.Params[LIdx]) then
+          begin
+            Dec(LIdx);
+            Inc(LDateCount);
+            if IsValidTimeStamp(ASender.Params[LIdx]) then
+            begin
+              Dec(LIdx);
+              Inc(LDateCount);
+            end;
+          end
+          else
+          begin
+            //before the period, there must be a date
+            CmdSyntaxError(ASender);
+            Exit;
+          end;
+          //now extract the date
+          LAccessTime := FTPMLSToGMTDateTime(ASender.Params[LIdx]);
+          if LDateCount >1 then
+          begin
+            LModTime := FTPMLSToGMTDateTime(ASender.Params[LIdx+1]);
+          end;
+          if LDateCount >2 then
+          begin
+             LCreateTime := FTPMLSToGMTDateTime(ASender.Params[LIdx+2]);
+          end;
+          //extract filename including any spaces
+          LFileName := '';
+          for i := 0 to LIdx-1 do
+          begin
+            LFileName := LFileName + ' '+ASender.Params[i];
+          end;
+          IdDelete(LFileName,1,1);
+          LFileName := DoProcessPath(LCxt,LFileName);
+          //now do it
+          if Assigned(Self.FOnSiteUTIME) then
+          begin
+            FOnSiteUTIME(Lcxt,LFileName,LAccessTime,LModTime,LCreateTime);
+          end
+          else
+          begin
+            if (LModTime <> 0) and Assigned(FOnSetModifiedTime) then
+            begin
+              FOnSetModifiedTime(Lcxt,LFileName,LModTime);
+            end;
+            if (LCreateTime <> 0) and Assigned( FOnSetCreationTime ) then
+            begin
+              FOnSetCreationTime(Lcxt,LFileName,LCreateTime);
+            end;
+          end;
+          if LPermitted then begin
+            ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
+          end else begin
+            ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+          end;
+        end
+        else
+        begin
+          CmdSyntaxError(ASender);
+        end;
+      end;
+    end else begin
+      CmdNotImplemented(ASender);
     end;
   end;
 end;
@@ -6267,6 +6400,8 @@ begin
   end;
   ReportSettings(LCxt,ASender.Reply);
 end;
+
+
 
 { TIdFTPSecurityOptions }
 
