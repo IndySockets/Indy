@@ -29,7 +29,7 @@ type
     class procedure ShowDlg;
     class procedure ShowAboutBox(const AProductName, AProductVersion: String);
     constructor Create(AOwner : TComponent); overload; override;
-    constructor Create; overload; 
+    constructor Create; reintroduce; overload; 
     property ProductName : String read GetProductName write SetProductName;
     property Version : String read GetVersion write SetVersion;
   end;
