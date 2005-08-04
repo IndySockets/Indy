@@ -373,12 +373,15 @@ begin
   // RLebeau - check the connection first in case the application
   // chose to disconnect the connection in the OnConnect event handler.
   if AContext.Connection.Connected then begin
-    ReplyTexts.UpdateText(Greeting);
-    LGreeting := FReplyClass.Create(nil); try // SendGreeting calls TIdReply.GetFormattedReply
-      LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
-      SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
-    finally
-      Sys.FreeAndNil(LGreeting);
+    if Greeting.ReplyExists then begin
+
+      ReplyTexts.UpdateText(Greeting);
+      LGreeting := FReplyClass.Create(nil); try // SendGreeting calls TIdReply.GetFormattedReply
+        LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
+        SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
+      finally
+        Sys.FreeAndNil(LGreeting);
+      end;
     end;
   end;
 end;
