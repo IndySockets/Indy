@@ -500,6 +500,7 @@ function StripNo(const AData : String): String;
 {**
 Date parsing and processing
 **}
+function IsValidTimeStamp(const AString : String) : Boolean;
 function IsMDTMDate(const ADate : String) : Boolean;
 function IsDDMonthYY(const AData : String; const ADelin : String) : Boolean;
 function IsMMDDYY(const AData : String; const ADelin : String) : Boolean;
@@ -1074,6 +1075,43 @@ begin
 end;
 
 {Date routines}
+function IsValidTimeStamp(const AString : String) : Boolean;
+var LMonth, LDay, LHour, LMin, LSec : Integer;
+    LMSecPart : String;
+
+begin
+  //  1234 56 78  90 12 34
+  //  ---------- ---------
+  //  1998 11 07  08 52 15
+ // LYear :=  Sys.StrToInt( Copy( LBuffer,1,4),0);
+  LMonth := Sys.StrToInt(Copy(AString,5,2),0);
+  if (LMonth < 1) or (LMonth > 12) then
+  begin
+    Exit;
+  end;
+  LDay := Sys.StrToInt(Copy(AString,7,2),0);
+  if (LDay < 1) or (LDay > 31) then
+  begin
+    Exit;
+  end;
+  LHour := Sys.StrToInt(Copy(AString,9,2),0);
+  if (LHour < 0) or (LHour > 24) then
+  begin
+    Exit;
+  end;
+  LMin := Sys.StrToInt(Copy(AString,11,2),0);
+  if (LMin < 0) or (LMin > 59) then
+  begin
+    Exit;
+  end;
+  LSec := Sys.StrToInt(Copy(AString,13,2),0);
+  if (LSec < 0) or (LSec > 59) then
+  begin
+    Exit;
+  end;
+  Result := True;
+end;
+
 function IsMDTMDate(const ADate : String) : Boolean;
 {
 Note from FTP Voyager knowlege base:
@@ -1129,36 +1167,7 @@ begin
   begin
     Exit;
   end;
-  //  1234 56 78  90 12 34
-  //  ---------- ---------
-  //  1998 11 07  08 52 15
- // LYear :=  Sys.StrToInt( Copy( LBuffer,1,4),0);
-  LMonth := Sys.StrToInt(Copy(LBuffer,5,2),0);
-  if (LMonth < 1) or (LMonth > 12) then
-  begin
-    Exit;
-  end;
-  LDay := Sys.StrToInt(Copy(LBuffer,7,2),0);
-  if (LDay < 1) or (LDay > 31) then
-  begin
-    Exit;
-  end;
-  LHour := Sys.StrToInt(Copy(LBuffer,9,2),0);
-  if (LHour < 0) or (LHour > 24) then
-  begin
-    Exit;
-  end;
-  LMin := Sys.StrToInt(Copy(LBuffer,11,2),0);
-  if (LMin < 0) or (LMin > 59) then
-  begin
-    Exit;
-  end;
-  LSec := Sys.StrToInt(Copy(LBuffer,13,2),0);
-  if (LSec < 0) or (LSec > 59) then
-  begin
-    Exit;
-  end;
-  Result := True;
+  Result := IsValidTimeStamp(LBuffer);
 end;
 
 function MDTMOffset(const AOffs : String) : TIdDateTime;
