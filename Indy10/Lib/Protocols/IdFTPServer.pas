@@ -740,6 +740,8 @@ type
   TIdMLSDAttr = (mlsdUniqueID,
     mlsdPerms,
     mlsdUnixModes,
+    mlsdUnixOwner,
+    mlsdUnixGroup,
     mlsdFileCreationTime,
     mlsdFileLastAccessTime,
     mlsdWin32Attributes);
@@ -2304,7 +2306,15 @@ begin
   //
   if mlsdUnixModes in FMLSDFacts then
   begin
-    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixMODE,UnixOwner,UnixGroup];
+    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixMODE];
+  end;
+  if mlsdUnixOwner in FMLSDFacts then
+  begin
+    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixOwner];
+  end;
+  if mlsdUnixGroup in FMLSDFacts then
+  begin
+    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixGroup];
   end;
   if mlsdFileCreationTime in FMLSDFacts then
   begin
@@ -5415,6 +5425,9 @@ begin
         begin
           Result := Result + ';';
         end;
+      end;
+      if mlsdUnixOwner in FMLSDFacts then
+      begin
         Result := Result + 'UNIX.owner'; {Do not translate}
         if UnixOwner in AFacts then {Do not translate}
         begin
@@ -5424,6 +5437,9 @@ begin
         begin
           Result := Result + ';';
         end;
+      end;
+      if mlsdUnixGroup in FMLSDFacts then
+      begin
         Result := Result + 'UNIX.group';  {Do not translate}
         if UnixGroup in AFacts then {Do not translate}
         begin
@@ -5434,6 +5450,7 @@ begin
           Result := Result + ';';
         end;
       end;
+
       if mlsdUniqueID in FMLSDFacts then
       begin
         Result := Result + 'unique'; {Do not translate}
@@ -6200,11 +6217,11 @@ const
             begin
               Result := Result + [UnixMODE]; //UnixMode
             end;
-        4 : if mlsdUnixModes in ASvr.FMLSDFacts then
+        4 : if mlsdUnixOwner in ASvr.FMLSDFacts then
             begin
               Result := Result + [UnixOwner]; //UNIX.owner
             end;
-        5 : if mlsdUnixModes in ASvr.FMLSDFacts then
+        5 : if mlsdUnixGroup in ASvr.FMLSDFacts then
             begin
               Result := Result + [UnixGroup]; //UNIX.group
             end;
