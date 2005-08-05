@@ -1,5 +1,7 @@
 unit IdTestFtpServer;
 
+//todo test commands return 'not logged in' error correctly
+
 interface
 
 uses
@@ -8,20 +10,30 @@ uses
   IdObjs,
   IdTest,
   IdTcpClient,
+  IdFTPListOutput,
   IdIOHandlerStack,
   IdLogDebug,
   IdFtp,
+  IdThreadSafe,
   IdFtpServer;
 
 type
 
   TIdTestFtpServer = class(TIdTest)
   private
+    FDirectory:TIdThreadSafeString;
     procedure CallbackRetrieve(ASender: TIdFTPServerContext; const AFileName: string; var VStream: TIdStream);
     procedure CallbackStore(ASender: TIdFTPServerContext; const AFileName: string; AAppend: Boolean; var VStream: TIdStream);
+    procedure CallbackListDirectory(ASender: TIdFTPServerContext; const APath: string;
+      ADirectoryListing: TIdFTPListOutput; const ACmd : String; const ASwitches : string);
+    procedure CallbackChangeDirectory(ASender: TIdFTPServerContext; var VDirectory: string);
+  protected
+    procedure Setup;override;
+    procedure TearDown;override;
   published
     procedure TestBasic;
     procedure TestMethods;
+    procedure TestBasic2;
   end;
 
   TIdTestStream = class(TIdMemoryStream)
@@ -34,11 +46,38 @@ implementation
 const
   cGreeting='HELLO';
   cTestFtpPort=20021;
-  cContent='HELLO';
+  cContent='MYCONTENT';
+  cPathOk='okpath';
+  cPathError='errorpath';
   cUploadTo='file.txt';
   cGoodFilename='good.txt';
   cUnknownFilename='unknown.txt';
   cErrorFilename='error.txt';
+
+procedure TIdTestFtpServer.CallbackChangeDirectory(
+  ASender: TIdFTPServerContext; var VDirectory: string);
+begin
+  FDirectory.Value:=VDirectory;
+end;
+
+procedure TIdTestFtpServer.CallbackListDirectory(
+  ASender: TIdFTPServerContext; const APath: string;
+  ADirectoryListing: TIdFTPListOutput; const ACmd, ASwitches: string);
+var
+  aItem:TIdFTPListOutputItem;
+begin
+  if APath=cPathError then
+    begin
+    end
+  else if APath=cPathOk then
+    begin
+    aItem:=ADirectoryListing.Add;
+    aItem.FileName:='file1.txt';
+    //int64 filesize
+    aItem.Size:=5000000000;
+    aItem.ModifiedDate:=Sys.Now;
+    end;
+end;
 
 procedure TIdTestFtpServer.CallbackRetrieve(ASender: TIdFTPServerContext;
   const AFileName: string; var VStream: TIdStream);
@@ -70,78 +109,127 @@ begin
    end;
 end;
 
+procedure TIdTestFtpServer.Setup;
+begin
+  inherited;
+  FDirectory:=TIdThreadSafeString.Create;
+end;
+
+procedure TIdTestFtpServer.TearDown;
+begin
+  Sys.FreeAndNil(FDirectory);
+  inherited;
+end;
+
 procedure TIdTestFtpServer.TestBasic;
 var
   s:TIdFTPServer;
   c:TIdTCPClient;
   aStr:string;
-  aIntercept:TIdLogDebug;
 begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdTCPClient.Create(nil);
   try
+    s.Greeting.Text.Text:=cGreeting;
+    s.DefaultPort:=cTestFtpPort;
+    s.AllowAnonymousLogin:=True;
+    s.OnListDirectory:=CallbackListDirectory;
+    s.Active:=True;
+
+    c.Port:=cTestFtpPort;
+    c.Host:='127.0.0.1';
     c.CreateIOHandler;
-    aIntercept := TIdLogDebug.Create;
-    c.IOHandler.Intercept := aIntercept;
-    aIntercept.Active := true;
-    try
-      s.Greeting.Text.Text:=cGreeting;
-      s.DefaultPort:=cTestFtpPort;
-      s.Active:=True;
+    c.ReadTimeout:=500;
+    c.Connect;
 
-      c.Port:=cTestFtpPort;
-      c.Host:='127.0.0.1';
-      c.Connect;
-//OutputLn('Connected');
-      c.IOHandler.ReadTimeout:=500;
+    //expect a greeting. typical="220 FTP Server Ready."
+    aStr:=c.IOHandler.Readln;
+    Assert(aStr = '220 ' + cGreeting, cGreeting);
 
-      //expect a greeting. typical="220 FTP Server Ready."
-      aStr:=c.IOHandler.Readln;
+    //ftp server should only process a command after crlf
+    //see TIdFTPServer.ReadCommandLine
+    c.IOHandler.Write('U');
+    aStr:=c.IOHandler.Readln;
+    Assert(aStr='',aStr);
 
-//OutputLn('ReadLn(1)');
-      Assert(aStr = '220 ' + cGreeting, cGreeting);
+    //complete the rest of the command
+    c.IOHandler.WriteLn('SER ANONYMOUS');
+    aStr:=c.IOHandler.Readln;
+    Assert(aStr<>'',aStr);
 
-      //ftp server should only process a command after crlf
-      //see TIdFTPServer.ReadCommandLine
-      c.IOHandler.Write('U');
-//OutputLn('Write(''U'')');
-      aStr:=c.IOHandler.Readln;
-//OutputLn('ReadLn(2)');
-      Assert(aStr='',aStr);
+    c.IOHandler.WriteLn('PASS a@b.com');
+    aStr:=c.IOHandler.Readln;
+    Assert(aStr<>'',aStr);
 
-      //complete the rest of the command
-      c.IOHandler.WriteLn('SER ANONYMOUS');
-//OutputLn('WriteLn(2)');
-      aStr:=c.IOHandler.Readln;
-//OutputLn('ReadLn(3)');
-      Assert(aStr<>'',aStr);
+    //attempt to start a transfer when no datachannel setup.
+    //should give 550 error?
+    //typical quit='221 Goodbye.'
 
-      //attempt to start a transfer when no datachannel setup.
-      //should give 550 error?
-      //typical quit='221 Goodbye.'
-    finally
-      aIntercept.Active := False;
-    end;
+    //test commands that aren't currently in the ftp client?
+    c.IOHandler.WriteLn('NLST');
+    aStr:=c.IOHandler.Readln;
+    //Assert(aStr<>'',aStr);
   finally
-    Sys.FreeAndNil(aIntercept);
     Sys.FreeAndNil(c);
     Sys.FreeAndNil(s);
   end;
 end;
 
 
+procedure TIdTestFtpServer.TestBasic2;
+var
+  s:TIdFTPServer;
+  c:TIdFTP;
+  //aStr:string;
+  aList:TIdStringList;
+begin
+  s:=TIdFTPServer.Create;
+  c:=TIdFTP.Create;
+  try
+    s.Greeting.Text.Text:=cGreeting;
+    s.DefaultPort:=cTestFtpPort;
+    s.AllowAnonymousLogin:=True;
+    s.Greeting.Text.Text:=cGreeting;
+    s.OnListDirectory:=Self.CallbackListDirectory;
+    s.OnChangeDirectory:=Self.CallbackChangeDirectory;
+    s.Active:=True;
+
+    c.Port:=cTestFtpPort;
+    c.Host:='127.0.0.1';
+    c.Username:='anonymous';
+    c.Password:='a@b.com';
+    c.Connect;
+
+    Assert(c.Greeting.Text.Text=cGreeting+EOL);
+
+    aList:=TIdStringList.Create;
+    try
+    c.List(aList);
+    Assert(aList.Count>0);
+
+    c.ChangeDir(cPathError);
+
+    aList.Clear;
+    c.List(aList);
+    finally
+    Sys.FreeAndNil(aList);
+    end;
+
+  finally
+    Sys.FreeAndNil(c);
+    Sys.FreeAndNil(s);
+  end;
+end;
+
 procedure TIdTestFtpServer.TestMethods;
 var
   s:TIdFTPServer;
   c:TIdFTP;
   aStream:TIdMemoryStream;
-const
-  cTestFtpPort=20021;
 begin
   s:=TIdFTPServer.Create(nil);
   c:=TIdFTP.Create(nil);
   try
-//OutputLn('   TestMethods');
     s.Greeting.Text.Text:=cGreeting;
     s.DefaultPort:=cTestFtpPort;
     s.OnStoreFile:=CallbackStore;
@@ -153,7 +241,7 @@ begin
     c.IOHandler.ReadTimeout:=1000;
     c.AutoLogin:=False;
     c.Connect;
-//OutputLn('Connected');
+
     //check invalid login
     //check valid login
     //check allow/disallow anonymous login
@@ -162,8 +250,7 @@ begin
     c.Username:='anonymous';
     c.Password:='bob@example.com';
     c.Login;
-//OutputLn('LoggedOn');
-//OutputLn('PORT Mode tests');
+
     repeat
     //check stream upload
     aStream:=TIdMemoryStream.Create;
@@ -175,7 +262,6 @@ begin
       Sys.FreeAndNil(aStream);
     end;
 
-//OutputLn('Put done.');
     //check no dest filename
     //check missing source file
     //check file upload rejected by server. eg out of space?
@@ -190,8 +276,7 @@ begin
     try
     //test download to stream
     c.Get(cGoodFilename,aStream);
-//OutputLn('Get done.');
-//    Assert(aStream.DataString=cContent);
+    //Assert(aStream.DataString=cContent);
 
     //test exception on server gets sent to client
 {    aStream.Size:=0;
