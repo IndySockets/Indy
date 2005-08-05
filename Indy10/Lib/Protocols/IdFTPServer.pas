@@ -796,6 +796,10 @@ type
   //note that the CHMOD value is now a VAR because we also want to support a "MFF UNIX.mode="
   //to do the same thing as a chmod.  MFF is to "Modify a file fact".
   TOnSiteCHMOD = procedure(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean) of object;
+  //chown as an option can specify group
+  TOnSiteCHOWN = procedure(ASender: TIdFTPServerContext; var AOwner, AGroup : String; const AFileName : String; var VAUth : Boolean) of object;
+
+  TOnSiteCHGRP = procedure(ASender: TIdFTPServerContext; var AGroup : String; const AFileName : String; var VAUth : Boolean) of object;
 
   TOnCustomPathProcess = procedure(ASender: TIdFTPServerContext; var VPath : String) of object;
   //
@@ -828,8 +832,10 @@ type
   TOnCacheChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String) of object;
   TOnVerifyChecksum = procedure(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String) of object;
   TOnSetFileDateEvent = procedure(ASender: TIdFTPServerContext; const AFileName : String; var AFileTime : TIdDateTime) of object;
-  //This is just to be efficient with the SITE UTIME command
-  TOnSiteUTIME = procedure(ASender: TIdFTPServerContext; const AFileName : String; var VLastAccessTime, VLastModTime, VCreateDate : TIdDateTime) of object;
+  //This is just to be efficient with the SITE UTIME command and for setting the windows.lastaccesstime fact
+  TOnSiteUTIME = procedure(ASender: TIdFTPServerContext; const AFileName : String;
+    var VLastAccessTime, VLastModTime, VCreateDate : TIdDateTime;
+    var VAUth : Boolean) of object;
   EIdFTPServerException = class(EIdException);
   EIdFTPServerNoOnListDirectory = class(EIdFTPServerException);
   EIdFTPImplicitTLSRequiresSSL = class(EIdFTPServerException);
@@ -1075,6 +1081,8 @@ type
     FOnSetATTRIB : TOnSetATTRIB;
     FOnSiteUMASK : TOnSiteUMASK;
     FOnSiteCHMOD : TOnSiteCHMOD;
+    FOnSiteCHOWN : TOnSiteCHOWN;
+    FOnSiteCHGRP : TOnSiteCHGRP;
 
     FOnCustomPathProcess : TOnCustomPathProcess;
 
@@ -1185,6 +1193,10 @@ type
     //site commands - Unix
     procedure CommandSiteUMASK(ASender : TIdCommand);
     procedure CommandSiteCHMOD(ASender : TIdCommand);
+    //SITE CHOWN - supported by some Unix servers
+    procedure CommandSiteCHOWN(ASender : TIdCommand);
+    //SITE CHGRP - supported by some Unix servers
+    procedure CommandSiteCHGRP(ASender : TIdCommand);
     //site commans - MS IIS
     procedure CommandSiteDIRSTYLE(ASender : TIdCommand);
     //used by FTP Voyager
@@ -1221,7 +1233,8 @@ type
     procedure DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteUMASK(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean);
     procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean);
-
+    procedure DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner, AGroup : String; const AFileName : String; var VAUth : Boolean);
+    procedure DoOnSiteCHGRP(ASender: TIdFTPServerContext; var AGroup : String; const AFileName : String; var VAUth : Boolean);
     procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure InitializeCommandHandlers; override;
@@ -1308,6 +1321,8 @@ type
     property OnSetATTRIB : TOnSetATTRIB read FOnSetATTRIB write FOnSetATTRIB;
     property OnSiteUMASK : TOnSiteUMASK read FOnSiteUMASK write FOnSiteUMASK;
     property OnSiteCHMOD : TOnSiteCHMOD read FOnSiteCHMOD write FOnSiteCHMOD;
+    property OnSiteCHOWN : TOnSiteCHOWN read FOnSiteCHOWN write FOnSiteCHOWN;
+    property OnSiteCHGRP : TOnSiteCHGRP read FOnSiteCHGRP write FOnSiteCHGRP;
     {
     READ THIS!!!
 
@@ -2254,6 +2269,20 @@ begin
   LCmd.OnCommand := CommandSiteCHMOD;
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.Description.Text := 'Syntax: SITE CHMOD<SP>Permission numbers<SP>Filename'; {do not localize}
+  //additional Unix server commands that aren't supported but should be supported, IMAO
+  //SITE CHOWN<SP>Owner[:Group]<SP>Filename<CRLF>
+  LCmd := FSITECommands.Add;
+  LCmd.Command := 'CHOWN';   {Do not Localize}
+  LCmd.OnCommand := CommandSiteCHOWN;
+  LCmd.ExceptionReply.NumericCode := 501;
+  LCmd.Description.Text := 'Syntax: SITE CHOWN<SP>Owner[:Group]<SP>Filename<CRLF>'; {do not localize}
+  //SITE CHGRP<SP>Group<SP>Filename<CRLF>
+  LCmd := FSITECommands.Add;
+  LCmd.Command := 'CHGRP';   {Do not Localize}
+  LCmd.OnCommand := CommandSiteCHGRP;
+  LCmd.ExceptionReply.NumericCode := 501;
+  LCmd.Description.Text := 'Syntax: SITE CHGRP<SP>Group<SP>Filename<CRLF>'; {do not localize}
+
   //Microsoft IIS SITE commands
   //SITE DIRSTYLE
   LCmd := FSITECommands.Add;
@@ -3699,13 +3728,25 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
-    if Assigned(FOnSetATTRIB) then
-    begin
-      LTmp := LTmp + 'Win32.ea;';
-    end;
     if Assigned(Self.FOnSiteCHMOD) then
     begin
       LTmp := LTmp + 'Unix.mode;';
+    end;
+    if Assigned(Self.FOnSiteCHOWN) then
+    begin
+      LTmp := LTmp + 'Unix.owner;';
+    end;
+    if Assigned(Self.FOnSiteCHGRP) then
+    begin
+      LTmp := LTmp + 'Unix.group;';
+    end;
+    if Assigned(FOnSiteUTIME) then
+    begin
+      LTmp := LTmp + 'Windows.lastaccesstime;';
+    end;
+    if Assigned(FOnSetATTRIB) then
+    begin
+      LTmp := LTmp + 'Win32.ea;';
     end;
     if LTmp <> MFFPREFIX then begin
       ASender.Reply.Text.Add(LTmp);
@@ -3766,6 +3807,14 @@ begin
     if Assigned(OnSiteUTIME) or Assigned(OnSetModifiedTime) then
     begin
       LTmp := LTmp + ';UTIME';
+    end;
+    if Assigned(OnSiteCHOWN) then
+    begin
+      LTmp := LTmp + ';CHOWN';
+    end;
+    if Assigned(OnSiteCHGRP) then
+    begin
+      LTmp := LTmp + ';CHGRP';
     end;
     ASender.Reply.Text.Add(LTmp); {do not localize}
     //SIZE
@@ -4642,8 +4691,13 @@ var
   LF : TIdFTPServerContext;
   LAttrib : Cardinal;
   LAuth : Boolean;
+  LDummyDate1, LDummyDate2 : TIdDateTime;
+  LDate : TIdDateTime;
   LCHMOD : Integer;
+  LDummy : String;
 begin
+  LAuth := True;
+  LDummy := ''; //empty value for passing a var in case we need to do that
   LF := TIdFTPServerContext(ASender.Context);
   //this may need to change if we make more facts to modify
   if not Assigned(FOnSetModifiedTime) then
@@ -4697,6 +4751,35 @@ begin
             LValue := Sys.Format('%.4d',[LCHMOD]);
             s := s + Sys.Format('Unix.mode=%s;',[LValue]);  {Do not translate}
           end;
+        end;
+      end;
+      if LFacts.Values['Unix.owner']<>'' then  {Do not localize}
+      begin
+        LValue := LFacts.Values['Unix.owner'];   {Do not localize}
+        if Assigned(Self.FOnSiteCHOWN) then begin
+          DoOnSiteCHOWN(LF,LValue,LDummy,LFileName,LAuth);
+          s := s + Sys.Format('Unix.owner=%s;',[LValue]); {Do not localize}
+        end;
+      end;
+      if LFacts.Values['Unix.group']<>'' then  {Do not localize}
+      begin
+        LValue := LFacts.Values['Unix.group'];   {Do not localize}
+        if Assigned(Self.FOnSiteCHGRP) then begin
+          DoOnSiteCHGRP(LF,LValue,LFileName,LAuth);
+          s := s + Sys.Format('Unix.group=%s;',[LValue]);  {Do not localize}
+        end;
+      end;
+      if LFacts.Values['Windows.lastaccesstime']<>'' then
+      begin
+        LValue := LFacts.Values['Windows.lastaccesstime'];
+        if Assigned(FOnSiteUTIME) then
+        begin
+          LDate := FTPMLSToGMTDateTime(LValue);
+          LDummyDate1 := 0;
+          LDummyDate2 := 0;
+          FOnSiteUTIME(LF,LFileName,LDate,LDummyDate1,LDummyDate2,LAuth);
+          LValue := FTPGMTDateTimeToMLS(LDate);
+          s := s + Sys.Format('Windows.lastaccesstime=%s;',[LValue]);
         end;
       end;
       if s <> '' then
@@ -5040,6 +5123,7 @@ I think the third parameter is optional.
 
 The final parameter is "UTC"
 }
+  LPermitted := True;
   LAccessTime := 0;
   LModTime := 0;
   LCreateTime := 0;
@@ -5095,7 +5179,7 @@ The final parameter is "UTC"
           //now do it
           if Assigned(Self.FOnSiteUTIME) then
           begin
-            FOnSiteUTIME(Lcxt,LFileName,LAccessTime,LModTime,LCreateTime);
+            FOnSiteUTIME(Lcxt,LFileName,LAccessTime,LModTime,LCreateTime,LPermitted);
           end
           else
           begin
@@ -5125,6 +5209,76 @@ The final parameter is "UTC"
   end;
 end;
 
+procedure TIdFTPServer.DoOnSiteCHGRP(ASender: TIdFTPServerContext;
+  var AGroup: String; const AFileName: String; var VAUth: Boolean);
+begin
+  if Assigned(FOnSiteCHGRP) then
+  begin
+    FOnSiteCHGRP(ASender,AGroup,AFileName,VAuth);
+  end;
+end;
+
+procedure TIdFTPServer.DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner,
+  AGroup: String; const AFileName: String; var VAUth: Boolean);
+begin
+  if Assigned(FOnSiteCHOWN) then
+  begin
+    OnSiteCHOWN(ASender,AOwner,AGroup,AFileName,VAuth);
+  end;
+end;
+
+procedure TIdFTPServer.CommandSiteCHOWN(ASender: TIdCommand);
+var
+  LCx : TIdFTPServerContext;
+  LPermitted : Boolean;
+  LFileName : String;
+  LOwner, LGroup : string;
+begin
+
+  LCx := ASender.Context as TIdFTPServerContext;
+  if LCx.IsAuthenticated(ASender) then
+  begin
+    if Assigned( OnSiteCHOWN) then
+    begin
+      LPermitted := True;
+      LFileName := ASender.UnparsedParams;
+      LGroup := Fetch(LFileName);
+      LOwner := Fetch(LGroup,':');
+      DoOnSiteCHOWN(LCx,LOwner,LGroup,DoProcessPath(LCx,LFileName),LPermitted);
+      if LPermitted then begin
+        ASender.Reply.SetReply(220, Sys.Format(RSFTPCmdSuccessful,[ASender.RawLine]));
+      end else begin
+        ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+      end;
+    end;
+  end;
+end;
+
+procedure TIdFTPServer.CommandSiteCHGRP(ASender: TIdCommand);
+var
+  LCx : TIdFTPServerContext;
+  LPermitted : Boolean;
+  LFileName : String;
+  LGroup : String;
+begin
+  LCx := ASender.Context as TIdFTPServerContext;
+  if LCx.IsAuthenticated(ASender) then
+  begin
+    if Assigned( Self.FOnSiteCHGRP) then
+    begin
+      LPermitted := True;
+      LFileName := ASender.UnparsedParams;
+      LGroup := Fetch(LFileName);
+      DoOnSiteCHGRP(LCx,LGroup,DoProcessPath(LCx,LFileName),LPermitted);
+      if LPermitted then begin
+        ASender.Reply.SetReply(200, Sys.Format(RSFTPCmdSuccessful,[ASender.RawLine]));
+      end else begin
+        ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+      end;
+    end;
+  end;
+end;
+
 procedure TIdFTPServer.CommandSiteCHMOD(ASender: TIdCommand);
 var
   LCx : TIdFTPServerContext;
@@ -5144,7 +5298,7 @@ begin
         LPermNo := Sys.StrToInt(LPerms,0);
         DoOnSiteCHMOD(LCx, LPermNo, DoProcessPath(LCx,LFileName), LPermitted);
         if LPermitted then begin
-          ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
+          ASender.Reply.SetReply(220, RSFTPCHMODSuccessful);
         end else begin
           ASender.Reply.SetReply(553, RSFTPPermissionDenied);
         end;
@@ -5372,7 +5526,7 @@ begin
       begin
         Result := Result + ';'
       end;
-      Result := Result + 'type'; {Do not translate}
+      Result := Result + 'Type'; {Do not translate}
       if ItemType in AFacts then {Do not translate}
       begin
         Result := Result + '*;';  {Do not translate}
@@ -5383,7 +5537,7 @@ begin
       end;
       if mlsdPerms in FMLSDFacts then
       begin
-        Result := Result + 'perm'; {Do not translate}
+        Result := Result + 'Perm'; {Do not translate}
         if Perm in AFacts then {Do not translate}
         begin
           Result := Result + '*;';  {Do not translate}
@@ -5395,7 +5549,7 @@ begin
       end;
       if mlsdFileCreationTime in FMLSDFacts then
       begin
-        Result := Result + 'create';  {Do not translate}
+        Result := Result + 'Create';  {Do not translate}
         if CreateTime in AFacts then {Do not translate}
         begin
           Result := Result + '*;';  {Do not translate}
@@ -5405,7 +5559,7 @@ begin
           Result := Result + ';';
         end;
       end;
-      Result := Result + 'modify';  {Do not translate}
+      Result := Result + 'Modify';  {Do not translate}
       if Modify in AFacts then
       begin
         Result := Result + '*;';
@@ -5453,7 +5607,7 @@ begin
 
       if mlsdUniqueID in FMLSDFacts then
       begin
-        Result := Result + 'unique'; {Do not translate}
+        Result := Result + 'Unique'; {Do not translate}
         if Unique in AFacts then {Do not translate}
         begin
           Result := Result + '*;';  {Do not translate}
@@ -5465,7 +5619,7 @@ begin
       end;
       if mlsdFileLastAccessTime in FMLSDFacts then
       begin
-        Result := Result + 'windows.lastaccesstime';  {Do not translate}
+        Result := Result + 'Windows.lastaccesstime';  {Do not translate}
         if CreateTime in AFacts then {Do not translate}
         begin
           Result := Result + '*;';  {Do not translate}
@@ -6417,8 +6571,6 @@ begin
   end;
   ReportSettings(LCxt,ASender.Reply);
 end;
-
-
 
 { TIdFTPSecurityOptions }
 
