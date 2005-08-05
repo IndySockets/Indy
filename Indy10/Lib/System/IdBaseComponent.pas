@@ -157,11 +157,7 @@ type
     // Must be an override and thus virtual to catch when created at design time
     //constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
-    {$IFDEF DotNetDistro}
-      constructor Create(AOwner: &TIdNativeComponent); overload; override;
-    {$ELSE}
     constructor Create(AOwner: TIdNativeComponent); overload; override;
-    {$ENDIF}
   end;
 
   // TIdBaseComponent is the base class for all Indy components. Utility components, and other non
@@ -213,29 +209,18 @@ var
   GInitsCalled: Integer = 0;
 {$ENDIF}
 
-
-
 { TIdInitializerComponent }
-
-{$IFDEF DotNetDistro}
-constructor TIdInitializerComponent.Create(AOwner: TIdNativeComponent);
-begin
-  inherited Create;
-  InitComponent;
-end;
-{$ENDIF}
 
 constructor TIdInitializerComponent.Create;
 begin
-  {$IFDEF DotNet}
-  inherited Create; // Explicit just in case since are not an override
+  {-$IFDEF DotNet}
+  inherited Create(nil); // Explicit just in case since are not an override
   InitComponent;
-  {$ELSE}
-  Create(nil);
-  {$ENDIF}
+  {-$ELSE}
+//  Create(nil);
+  {-$ENDIF}
 end;
 
-{$IFNDEF DotNetDistro}
 constructor TIdInitializerComponent.Create(AOwner: TIdNativeComponent);
 begin
   inherited Create(AOwner);
@@ -243,7 +228,6 @@ begin
   // so InitCopmonent will NOT be called twice.
   InitComponent;
 end;
-{$ENDIF}
 
 {$IFDEF DotNet}
 class procedure TIdInitializerComponent.AssemblyLoadEventHandler(sender: &Object;
