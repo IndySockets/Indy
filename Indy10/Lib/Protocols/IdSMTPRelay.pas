@@ -162,7 +162,7 @@ type
   TIdSMTPRelayStatusAction = (dmResolveMS, dmConnecting, dmConnected, dmSending, dmWorkBegin, dmWorkEndOK, dmWorkEndWithException);
   TIdSMTPRelayStatus = procedure(Sender: TIdBaseObject; AEMailAddress: TIdEmailAddressItem; Action: TIdSMTPRelayStatusAction) of Object;
 
-  EIdDirectSMTPCannotAssingHost = class(EIdException);
+  EIdDirectSMTPCannotAssignHost = class(EIdException);
   EIdDirectSMTPCannotResolveMX = class(EIdException);
 
   TIdSSLSupport = (NoSSL, SupportSSL, RequireSSL);
@@ -249,7 +249,7 @@ type
 
     //
     // holger: .NET compatibility change
-    property Port;                              
+    property Port;
   public
     procedure Assign(Source: TIdPersistent); override;
     destructor Destroy; override;
@@ -568,7 +568,7 @@ end;
 
 procedure TIdSMTPRelay.SetHost(const Value: String);
 begin
-  raise EIdDirectSMTPCannotAssingHost.Create(RSDirSMTPCantAssignHost);
+  raise EIdDirectSMTPCannotAssignHost.Create(RSDirSMTPCantAssignHost);
 end;
 
 procedure TIdSMTPRelay.SetOnStatus(const Value: TIdSMTPRelayStatus);
