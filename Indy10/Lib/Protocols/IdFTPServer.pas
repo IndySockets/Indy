@@ -1097,6 +1097,7 @@ type
     FCompressor : TIdZLibCompressorBase;
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
+    function SupportTaDirSwitches(ACxt : TIdFTPServerContext) : Boolean;
     function IngoreLastPathDelin(const APath : String) : String;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
       var VPort : Word; const AIPVersion : TIdIPVersion);
@@ -2399,6 +2400,7 @@ begin
 
   if Assigned(FOnListDirectory) or Assigned(FFTPFileSystem) then begin
     LDirectoryList := TIdFTPListOutput.Create; try
+
       case FDirFormat of
       ftpdfEPLF :  LDirectoryList.DirFormat := doEPLF;
       ftpdfDOS  :
@@ -2421,6 +2423,25 @@ begin
         end;
       else
         LDirectoryList.DirFormat := DoUnix;
+      end;
+      //someone might be using the STAT -l to get a dir without a data channel
+      if IndyPos('l',ASwitches)>0 then
+      begin
+        LDirectoryList.Switches := LDirectoryList.Switches + 'l';
+      end;
+      //we do things this way because the 'a' and 'T' swithces only make sense
+      //when listing Unix dirs.
+      if Self.SupportTaDirSwitches(ASender) then
+      begin
+
+        if IndyPos('a',ASwitches)>0 then
+        begin
+          LDirectoryList.Switches := LDirectoryList.Switches + 'a';
+        end;
+        if IndyPos('T',ASwitches)>0 then
+        begin
+          LDirectoryList.Switches := LDirectoryList.Switches + 'T';
+        end;
       end;
       LDirectoryList.ExportTotalLine := True;
       LPathSep := '/';    {Do not Localize}
@@ -3217,7 +3238,7 @@ begin
   if LF.IsAuthenticated(ASender) then begin
     S := IngoreLastPathDelin(S);
     s := DoProcessPath(LF,ASender.UnparsedParams);
-//    s := ProcessPath(LF.CurrentDir, ASender.UnparsedParams);
+
     if Assigned(FFTPFileSystem) or Assigned(FOnRemoveDirectory) then
     begin
       DoOnRemoveDirectory(LF, s);
@@ -3237,7 +3258,6 @@ begin
   if LF.IsAuthenticated(ASender) then begin
     S := IngoreLastPathDelin(S);
     S := DoProcessPath(LF, ASender.UnparsedParams );
- //     S := ProcessPath(LF.FCurrentDir, ASender.UnparsedParams);
     DoOnMakeDirectory(LF, s);
     ASender.Reply.SetReply(257, RSFTPFileActionCompleted);
   end;
@@ -3709,7 +3729,14 @@ begin
     //This is not proper but FTP Voyager uses it to determine if the -T parameter
     //will work.
     if Assigned(FOnListDirectory) then begin
-      ASender.Reply.Text.Add('LIST -laT'); {Do not translate}
+      //we do things this way because the 'a' and 'T' swithces only make sense
+      //when listing Unix dirs.
+      LTmp := 'LIST -l';    {Do not translate}
+      if SupportTaDirSwitches( TIdFTPServerContext(ASender.Context)) then
+      begin
+        LTmp := LTmp + 'aT';  {Do not translate}
+      end;
+      ASender.Reply.Text.Add(LTmp); {do not localize}
     end;
     //MDTM
     if Assigned(FOnGetFileDate) or Assigned(FFTPFileSystem) then begin
@@ -3841,7 +3868,14 @@ begin
     //treat a STAT -l as a LIST command, only it's sent on the control connection.
     //Some versions of Flash FXP can also use this as an option to improve efficiency.
     if Assigned(FOnListDirectory) then begin
-      ASender.Reply.Text.Add('STAT -laT'); {do not localize}
+        //we do things this way because the 'a' and 'T' swithces only make sense
+      //when listing Unix dirs.
+      LTmp := 'STAT -l';   {Do not translate}
+      if SupportTaDirSwitches(  TIdFTPServerContext(ASender.Context)) then
+      begin
+        LTmp := LTmp + 'aT';   {Do not translate}
+      end;
+      ASender.Reply.Text.Add(LTmp); {do not localize}
     end;
     //TVFS
     if FPathProcessing <> ftppCustom then begin
@@ -6645,6 +6679,33 @@ begin
   if Result = '' then
   begin
     Result := '/';
+  end;
+end;
+
+function TIdFTPServer.SupportTaDirSwitches(ACxt : TIdFTPServerContext): Boolean;
+begin
+  Result := True;
+  if (FDirFormat = ftpdfCustom ) or (FDirFormat = ftpdfEPLF) then
+  begin
+    Result := False;
+    Exit;
+  end;
+  if (FDirFormat = ftpdfDOS ) then
+  begin
+    if (ACxt.FMSDOSMode) then
+    begin
+      Result := False;
+    end;
+  end;
+  if (FDirFOrmat = ftpdfOSDependent) then
+  begin
+    if (GOSType=otWindows) or (GOSType=otDotNET) then
+    begin
+      if (ACxt.FMSDOSMode) then
+      begin
+        Result := False;
+      end;
+    end;
   end;
 end;
 
