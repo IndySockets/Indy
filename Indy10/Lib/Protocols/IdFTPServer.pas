@@ -1097,6 +1097,7 @@ type
     FCompressor : TIdZLibCompressorBase;
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
+    function IngoreLastPathDelin(const APath : String) : String;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
       var VPort : Word; const AIPVersion : TIdIPVersion);
     procedure DoOnPASVReply(ASender : TIdFTPServerContext; var VIP : String;
@@ -2694,12 +2695,17 @@ begin
   LF := TIdFTPServerContext(ASender.Context);
   s := ASender.UnparsedParams;
   if LF.IsAuthenticated(ASender) then begin
+    s := IngoreLastPathDelin(s);
     if Assigned(OnChangeDirectory) or Assigned(FFTPFileSystem) then begin
-      if s = '..' then begin
+      if  s = '..' then begin
         s := CDUPDir(LF);
       end else begin
-        s := DoProcessPath(LF,s);
+        if s = '.' then
+        begin
+          s := LF.CurrentDir;
+        end;
       end;
+      s := DoProcessPath(LF,s);
       s := RemoveDuplicatePathSyms(s);
       DoOnChangeDirectory(LF, s);
       LF.CurrentDir := s;
@@ -2718,6 +2724,7 @@ begin
   LF := TIdFTPServerContext(ASender.Context);
   if LF.IsAuthenticated(ASender) then begin
     s := CDUPDir(LF);
+    s := DoProcessPath(LF,s);
     if Assigned(FOnChangeDirectory) or Assigned(FFTPFileSystem) then begin
       DoOnChangeDirectory(LF, s);
       LF.FCurrentDir := s;
@@ -3208,6 +3215,7 @@ var
 begin
   LF := ASender.Context as TIdFTPServerContext;
   if LF.IsAuthenticated(ASender) then begin
+    S := IngoreLastPathDelin(S);
     s := DoProcessPath(LF,ASender.UnparsedParams);
 //    s := ProcessPath(LF.CurrentDir, ASender.UnparsedParams);
     if Assigned(FFTPFileSystem) or Assigned(FOnRemoveDirectory) then
@@ -3227,6 +3235,7 @@ var
 begin
   LF := ASender.Context as TIdFTPServerContext;
   if LF.IsAuthenticated(ASender) then begin
+    S := IngoreLastPathDelin(S);
     S := DoProcessPath(LF, ASender.UnparsedParams );
  //     S := ProcessPath(LF.FCurrentDir, ASender.UnparsedParams);
     DoOnMakeDirectory(LF, s);
@@ -6570,6 +6579,73 @@ begin
     LCxt.ResetZLibSettings;
   end;
   ReportSettings(LCxt,ASender.Reply);
+end;
+
+function TIdFTPServer.IngoreLastPathDelin(const APath: String): String;
+//This internal function is needed becaus epath processing is different in Windows
+//than in Linux.  The path separators on a FTP server on either system will be different.
+//
+//On Windows machines, both '/' and '\'
+//
+//On a Linux machine, a FTP server would probably only use '/' because '\' is a valid
+//filename char.
+var i : Integer;
+  LPathProcessing : TIdFTPPathProcessing;
+begin
+  Result := APath;
+  i := Length(Result);
+  if FPathProcessing <> ftpOSDependent then
+  begin
+     LPathProcessing :=  FPathProcessing;
+  end
+  else
+  begin
+    case GOSType of
+      otLinux :
+      begin
+        LPathProcessing :=  ftppUnix;
+      end;
+      otUnknown :
+      begin
+        LPathProcessing := ftppCustom;
+      end
+    else
+      LPathProcessing := ftppDOS;
+    end;
+  end;
+  case LPathProcessing of
+    ftppDOS :
+    begin
+      if Result <>'' then
+      begin
+        if CharIsInSet(Result,i,'/\') then
+        begin
+          IdDelete(Result,i,1);
+        end;
+
+      end;
+    end;
+    ftppUnix :
+    begin
+      if Result <>'' then
+      begin
+        if Copy(Result,i,1)='/' then
+        begin
+          IdDelete(Result,i,1);
+        end;
+      end;
+    end;
+    ftppCustom :
+    begin
+      Exit;
+    end;
+  end;
+  //Done so that something like "cd /" or "cd \" will go to
+  //the main directory
+  if Result = '' then
+  begin
+    Result := '/';
+  end;
 end;
 
 { TIdFTPSecurityOptions }
