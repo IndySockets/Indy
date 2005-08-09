@@ -1076,10 +1076,10 @@ end;
 
 {Date routines}
 function IsValidTimeStamp(const AString : String) : Boolean;
-var LMonth, LDay, LHour, LMin, LSec : Integer;
-    LMSecPart : String;
-
+var
+  LMonth, LDay, LHour, LMin, LSec : Integer;
 begin
+  Result:=False;
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
@@ -1128,8 +1128,8 @@ If the client provides this info FTP Serv-U takes care to convert the date and t
 
 An example, showing how to set the time if the client is in the Eastern US during summer time: “MDTM 19980719103029-240”. This sets the date and time to 19 July 1998, 10:30am 29 seconds, and indicates the client is 240 behind UT
 }
-var LMonth, LDay, LHour, LMin, LSec : Integer;
-    LBuffer, LMSecPart : String;
+var
+  LBuffer, LMSecPart : String;
 begin
   Result := False;
   LBuffer := ADate;
