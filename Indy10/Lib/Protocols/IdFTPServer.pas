@@ -5135,7 +5135,8 @@ begin
           ASender.Reply.SetReply(553, RSFTPPermissionDenied);
         end;
       end else begin
-        CmdNotImplemented(ASender);
+        ASender.Reply.SetReply(550,RSFTPSiteATTRIBInvalid);
+        Exit;
       end;
     end else begin
       ASender.Reply.Assign(FReplyUnknownSITECommand);
