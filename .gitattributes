@@ -282,6 +282,8 @@ Indy10/Lib/Indy.SocketsDebug.dpr -text
 Indy10/Lib/Indy100Net.dpk -text
 Indy10/Lib/Indy110Net.dpk -text
 Indy10/Lib/Indy90Net.dpk -text
+Indy10/Lib/Protocols/DelphiZLib.cpp -text svneol=native#unset
+Indy10/Lib/Protocols/DelphiZLib.lib -text svneol=unset#unset
 Indy10/Lib/Protocols/IconsDotNet/TIdBlockCipherIntercept.bmp -text svneol=unset#unset
 Indy10/Lib/Protocols/IconsDotNet/TIdChargenServer.bmp -text svneol=unset#unset
 Indy10/Lib/Protocols/IconsDotNet/TIdChargenUDPServer.bmp -text svneol=unset#unset
