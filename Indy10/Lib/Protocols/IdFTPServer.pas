@@ -6060,7 +6060,8 @@ begin
       ASender.Reply.SetReply(501, Sys.Format(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
       Exit;
     end;
-    VIP := TIdIOHandlerSocket(LF.Connection.IOHandler).Binding.IP;
+    VIP := LF.Connection.Socket.Binding.IP;
+
     VPort := FDefaultDataPort;
     VIPVersion := LF.Connection.Socket.IPVersion;
     DoOnPASVBeforeBind(LF, VIP, VPort, VIPVersion);
