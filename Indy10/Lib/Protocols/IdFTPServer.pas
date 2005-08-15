@@ -5145,6 +5145,55 @@ begin
 end;
 
 procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
+
+
+  procedure TrygFTPSyntax( ACxt : TIdFTPServerContext;ASender: TIdCommand);
+  var LgMTime : TIdDateTime;
+    LgPermitted : Boolean;
+    LFileName : String;
+    LDummy1, LDummy2 : TIdDateTime;
+  begin
+  //this is for gFTP Syntax
+  //such as: "SITE UTIME 20050815041129 /.bashrc"
+    LgPermitted := True;
+    if ASender.Params.Count = 0 then
+    begin
+      CmdSyntaxError(ASender);
+      Exit;
+    end;
+    if IsValidTimeStamp(ASender.Params[0]) then
+    begin
+      LFileName := ASender.UnparsedParams;
+      //This is local Time
+      LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - Sys.OffSetFromUTC;
+      LFileName := DoProcessPath(ACxt,LFileName);
+      if Assigned(FOnSiteUTIME) then
+      begin
+        //indicate that both creation time and last access time should not be set
+        LDummy1 := 0;
+        LDummy2 := 0;
+        FOnSiteUTIME(Acxt,LFileName,LDummy1, LgMTime,LDummy2,LgPermitted);
+
+      end
+      else
+      begin
+       if Assigned(FOnSetModifiedTime) then
+        begin
+          FOnSetModifiedTime(Acxt,LFileName, LgMTime);
+        end;
+      end;
+      if LgPermitted then begin
+        ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
+      end else begin
+        ASender.Reply.SetReply(553, RSFTPPermissionDenied);
+      end;
+    end
+    else
+    begin
+      CmdSyntaxError(ASender);
+    end;
+  end;
+
 var
   LCxt : TIdFTPServerContext;
   LPermitted : Boolean;
@@ -5153,6 +5202,7 @@ var
   LDateCount : Integer;
   LAccessTime, LModTime, LCreateTime : TDateTime;
   i : Integer;
+
 begin
 {
 This is used by NcFTP like this:
@@ -5166,6 +5216,12 @@ and the final date is the "Creation File Time"
 I think the third parameter is optional.
 
 The final parameter is "UTC"
+
+gFTP does something different.  It does something like:
+
+SITE UTIME 20050815041129 /.bashrc
+
+where the timestamp is probably in based on the local time.
 }
   LPermitted := True;
   LAccessTime := 0;
@@ -5198,8 +5254,7 @@ The final parameter is "UTC"
           end
           else
           begin
-            //before the period, there must be a date
-            CmdSyntaxError(ASender);
+            TrygFTPSyntax(LCxt,ASender);
             Exit;
           end;
           //now extract the date
@@ -5244,11 +5299,16 @@ The final parameter is "UTC"
         end
         else
         begin
-          CmdSyntaxError(ASender);
+          TrygFTPSyntax(LCxt,ASender);
         end;
+      end
+      else
+      begin
+        TrygFTPSyntax(LCxt,ASender);
       end;
     end else begin
-      CmdNotImplemented(ASender);
+      TrygFTPSyntax(LCxt,ASender);
+//      CmdNotImplemented(ASender);
     end;
   end;
 end;
