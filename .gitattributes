@@ -922,7 +922,7 @@ Indy10/icon16/TIDNETWORKCALCULATOR.bmp -text svneol=unset#unset
 Indy10/icon16/TIDNNTP.bmp -text svneol=unset#unset
 Indy10/icon16/TIDNNTPSERVER.bmp -text svneol=unset#unset
 Indy10/icon16/TIDPOP3.bmp -text svneol=unset#unset
-Indy10/icon16/TIDPOP3Server.bmp -text
+Indy10/icon16/TIDPOP3Server.bmp -text svneol=unset#unset
 Indy10/icon16/TIDQOTD.bmp -text svneol=unset#unset
 Indy10/icon16/TIDQOTDSERVER.bmp -text svneol=unset#unset
 Indy10/icon16/TIDQOTDUDP.bmp -text svneol=unset#unset
