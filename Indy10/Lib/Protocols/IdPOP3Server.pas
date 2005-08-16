@@ -735,13 +735,13 @@ begin
     LThread := TIdPOP3ServerContext(AContext);
     LGreeting := TIdReplyPOP3.Create(nil);
     try
-      LThread.APOP3Challenge := '<'+
+      LThread.APOP3Challenge := '<'+   {do not localize}
               Sys.IntToStr(Abs( CurrentProcessId )) +
-        '.'+Sys.IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';
+        '.'+Sys.IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';    {do not localize}
       if AGreeting.Text.Count > 0 then begin
-        LGreeting.Text.Add(AGreeting.Text[0] + ' ' + LThread.APOP3Challenge);
+        LGreeting.Text.Add(AGreeting.Text[0] + ' ' + LThread.APOP3Challenge);   {do not localize}
       end else begin
-        LGreeting.Text.Add('Welcome ' + LThread.APOP3Challenge); {do not localize}
+        LGreeting.Text.Add(RSPOP3SvrWelcomeAPOP + LThread.APOP3Challenge);
       end;
       LGreeting.Code := OK;
       AContext.Connection.IOHandler.Write(LGreeting.FormattedReply);

@@ -559,7 +559,7 @@ begin
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
           ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID
-           + ' article retrieved - head and body follow');  {do not localize}
+           + RSNNTPRetreivedArticleFollows);  
           ASender.SendReply;
           OnArticleByNo(LThread, LMsgNo);
         end else begin
@@ -606,8 +606,8 @@ begin
         LMsgID := '';
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID
-           + ' article retrieved - body follows');  {do not localize}
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID  {Do not localize}
+           + RSNNTPRetreivedBodyFollows);  {do not localize}
           ASender.SendReply;
           OnBodyByNo(LThread, LMsgNo);
         end else begin
@@ -726,8 +726,8 @@ begin
         LMsgID := '';
         OnCheckMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
-           ' article retrieved - head follows');  {do not localize}
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {do not localize}
+          RSNNTPRetreivedHeaderFollows);  {do not localize}
           ASender.SendReply;
           OnHeadByNo(LThread, LMsgNo);
         end else begin
@@ -759,7 +759,7 @@ begin
       FOnIHaveCheck(LThread,LMsgID,LAccept);
       if LAccept then
       begin
-        ASender.Reply.SetReply(335,'News to me!  <CRLF.CRLF> to end.'); {do not localize}
+        ASender.Reply.SetReply(335,RSNTTPNewsToMeSendArticle); 
         ASender.SendReply;
         LErrorText := '';
         OnPost(TIdNNTPContext(ASender.Context), LAccept, LErrorText);
@@ -790,8 +790,8 @@ begin
       LMsgNo := LThread.CurrentArticle;
       LMsgID := RawNavigate(LThread,OnPrevArticle);
       if LMsgID<>'' then begin
-        ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
-          ' article retrieved - request text separately');  {do not localize}
+        ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
+          RSNTTPArticleRetrievedRequestTextSeparately);  {do not localize}
       end else begin
         ASender.Reply.NumericCode := 430;
       end;
@@ -883,7 +883,7 @@ begin
     end
     else
     begin
-      ASender.Reply.SetReply(412,'Not currently in newsgroup'); {do not localize}
+      ASender.Reply.SetReply(412,RSNTTPNotInNewsgroup); {do not localize}
     end;
   end else ASender.Reply.NumericCode := 500;
 end;
@@ -1051,7 +1051,7 @@ begin
     LMsgID := RawNavigate(LThread,OnPrevArticle);
     if LMsgID<>'' then begin
       ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
-        ' article retrieved - request text separately'); {do not localize}
+        RSNTTPArticleRetrievedRequestTextSeparately); {do not localize}
     end else begin
       ASender.Reply.NumericCode := 430;
     end;
@@ -1187,8 +1187,8 @@ begin
         OnStatMsgNo(LThread, LMsgNo, LMsgID);
         if (Length(LMsgID) > 0) then begin
           LThread.FCurrentArticle := LMsgNo;
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
-            ' article retrieved - statistics only');  {do not localize}
+          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {Do not localize}
+            RSNNTPRetreivedAStaticstsOnly);  {do not localize}
           ASender.SendReply;
         end else begin
           ASender.Reply.NumericCode := 430;
@@ -1773,56 +1773,56 @@ begin
 
   with ReplyTexts do begin
     // 100s
-    Add(100, 'help text follows');                                          {do not localize}
-    Add(199, 'debug output');                                               {do not localize}
+    Add(100, RSNTTPReplyHelpTextFollows);                                          {do not localize}
+    Add(199, RSNTTPReplyDebugOutput);                                               {do not localize}
 
     // 200s
-    Add(200, 'server ready - posting allowed');                             {do not localize}
-    Add(201, 'server ready - no posting allowed');                          {do not localize}
-    Add(202, 'slave status noted');                                         {do not localize}
-    Add(205, 'closing connection - goodbye!');                              {do not localize}
-    Add(215, 'list of newsgroups follows');                                 {do not localize}
-    Add(221, 'Headers follow');                                             {do not localize}
-    Add(224, 'Overview information follows');                               {do not localize}
-    Add(225, 'Headers follow');                                             {do not localize}
-    Add(231, 'list of new newsgroups follows');                             {do not localize}
-    Add(235, 'article transferred ok');                                     {do not localize}
-    Add(240, 'article posted ok');                                          {do not localize}
-    Add(281,'Authentication accepted');                                     {do not localize}
+    Add(200, RSNNTPReplySvrReadyPostingAllowed);
+    Add(201, RSNNTPReplySvrReadyNoPostingAllowed);
+    Add(202, RSNNTPReplySlaveStatus);
+    Add(205, RSNNTPReplyClosingGoodby);
+    Add(215, RSNNTPReplyNewsgroupsFollow);
+    Add(221, RSNNTPReplyHeadersFollow);
+    Add(224, RSNNTPReplyOverViewInfoFollows);
+    Add(225, RSNNTPReplyHeadersFollow);
+    Add(231, RSNNTPReplyNewNewsgroupsFollow);
+    Add(235, RSNNTPReplyArticleTransferedOk);                                     {do not localize}
+    Add(240, RSNNTPReplyArticlePostedOk);                                          {do not localize}
+    Add(281, RSNNTPReplyAuthAccepted);                                     {do not localize}
 
     // 300s
-    Add(335, 'send article to be transferred. End with <CR-LF>.<CR-LF>');   {do not localize}
-    Add(340, 'send article to be posted. End with <CR-LF>.<CR-LF>');        {do not localize}
-    Add(381, 'More authentication information required');                   {do not localize}
-    Add(382,'Continue with TLS negotiation');                               {do not localize}
+    Add(335, RSNNTPReplySendArtTransfer);
+    Add(340, RSNNTPReplySendArtPost);
+    Add(381, RSNNTPReplyMoreAuthRequired);
+    Add(382, RSNNTPReplyContinueTLSNegot);                               {do not localize}
 
     // 400s
-    Add(400, 'service discontinued');                                       {do not localize}
-    Add(403, 'TLS temporarily not available');                              {do not localize}
-    Add(411, 'no such news group');                                         {do not localize}
-    Add(412, 'no newsgroup has been selected');                             {do not localize}
-    Add(420, 'no current article has been selected');                       {do not localize}
-    Add(421, 'no next article in this group');                              {do not localize}
-    Add(422, 'no previous article in this group');                          {do not localize}
-    Add(423, 'no such article number in this group');                       {do not localize}
-    Add(430, 'no such article found');                                      {do not localize}
-    Add(435, 'article not wanted - do not send it');                        {do not localize}
-    Add(436, 'transfer failed - try again later');                          {do not localize}
-    Add(437, 'article rejected - do not try again.');                       {do not localize}
-    Add(440, 'posting not allowed');                                        {do not localize}
-    Add(441, 'posting failed');                                             {do not localize}
-    Add(450, 'Authorization required for this command');                    {do not localize}
-    Add(452, 'Authorization rejected');                                     {do not localize}
-    Add(480, 'Authentication required');                                    {do not localize}
-    Add(482, 'Authentication rejected');                                    {do not localize}
-    Add(483, 'Strong encryption layer is required');                        {do not localize}
+    Add(400, RSNNTPReplyServiceDiscont);                                       {do not localize}
+    Add(403, RSNNTPReplyTLSTempUnavail);                              {do not localize}
+    Add(411, RSNNTPReplyNoSuchNewsgroup);
+    Add(412, RSNNTPReplyNoNewsgroupSel);
+    Add(420, RSNNTPReplyNoArticleSel);
+    Add(421, RSNNTPReplyNoNextArt);
+    Add(422, RSNNTPReplyNoPrevArt);
+    Add(423, RSNNTPReplyNoArtNumber);
+    Add(430, RSNNTPReplyNoArtFound);
+    Add(435, RSNNTPReplyArtNotWanted);
+    Add(436,RSNNTPReplyTransferFailed);
+    Add(437,RSNNTPReplyArtRejected);
+    Add(440,RSNNTPReplyNoPosting);
+    Add(441,RSNNTPReplyPostingFailed);
+    Add(450,RSNNTPReplyAuthorizationRequired);
+    Add(452,RSNNTPReplyAuthorizationRejected);
+    Add(480,RSNNTPReplyAuthRejected);                                    {do not localize}
+    Add(482,RSNNTPReplyAuthRejected);
+    Add(483,RSNNTPReplyStrongEncryptionRequired);                        {do not localize}
 
     // 500s
-    Add(500, 'command not recognized');                                     {do not localize}
-    Add(501, 'command syntax error');                                       {do not localize}
-    Add(502, 'access restriction or permission denied');                    {do not localize}
-    Add(503, 'program fault - command not performed');                      {do not localize}
-    Add(580, 'Security layer already active');                              {do not localize}
+    Add(500,RSNNTPReplyCommandNotRec);
+    Add(501,RSNNTPReplyCommandSyntax);
+    Add(502,RSNNTPReplyPermDenied);
+    Add(503, RSNNTPReplyProgramFault);
+    Add(580,RSNNTPReplySecAlreadyActive);
   end;
 end;
 
@@ -1997,7 +1997,7 @@ end;
 procedure TIdNNTPServer.CommandListExtensions(ASender: TIdCommand);
 
 begin
-  ASender.Reply.SetReply( 202,'Extensions supported:'); {do not localize}
+  ASender.Reply.SetReply( 202,RSNNTPExtSupported); {do not localize}
   ASender.SendReply;
   if (IOHandler is TIdServerIOHandlerSSLBase) and (ImplicitTLS=False) then
   begin

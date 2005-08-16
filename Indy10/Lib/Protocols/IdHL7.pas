@@ -490,7 +490,7 @@ procedure TIdHL7.InitComponent;
 begin
   inherited;
 
-  raise EIdException.create('IdHL7 is broken in Indy 10 for the present'); {do not localize}
+  raise EIdException.create(RSHL7Broken); {do not localize}
 
   // partly redundant initialization of properties
 
@@ -835,19 +835,19 @@ procedure TIdHL7.CheckSynchronousSendResult(AResult: TSendResponse; AMsg: String
 begin
   case AResult of
     srNone:
-      raise EHL7CommunicationError.Create(Name, 'Internal error in IdHL7.pas: SynchronousSend returned srNone'); {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalsrNone);
     srError:
       raise EHL7CommunicationError.Create(Name, AMsg);
     srNoConnection:
-      raise EHL7CommunicationError.Create(Name, 'Not connected'); {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrNotConn);
     srSent:
       // cause this should only be returned asynchronously
-      raise EHL7CommunicationError.Create(Name, 'Internal error in IdHL7.pas: SynchronousSend returned srSent');  {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalsrSent);
     srOK:; // all ok
     srTimeout:
-      raise EHL7CommunicationError.Create(Name, 'No response from remote system'); {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrNoResponse);
     else
-      raise EHL7CommunicationError.Create(Name, 'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ' + Sys.IntToStr(Ord(AResult))); {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalUnknownVal + Sys.IntToStr(Ord(AResult))); {do not localize}
     end;
 end;
 

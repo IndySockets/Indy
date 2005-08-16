@@ -849,7 +849,7 @@ var
 begin
   Assert(ASource<>nil);
 
-  LResponse := TIdStringStream.Create('');
+  LResponse := TIdStringStream.Create('');   {do not localize}
   try
     Put(AURL, ASource, LResponse);
   finally
@@ -867,7 +867,7 @@ function TIdCustomHTTP.Trace(AURL: string): string;
 var
   Stream: TIdStringStream;
 begin
-  Stream := TIdStringStream.Create('');
+  Stream := TIdStringStream.Create('');  {do not localize}
   try
     Trace(AURL, Stream);
     Result := Stream.DataString;
@@ -986,7 +986,7 @@ var LS : TIdStream;
     begin
       s := Copy(s, 1, j - 1);
     end;
-    Result := Sys.StrToInt('$' + s, 0);
+    Result := Sys.StrToInt('$' + s, 0);      {do not localize}
   end;
 
 var
@@ -999,11 +999,11 @@ begin
   //and decompress it.  If no compression is used, LS will equal ContentStream
   if Assigned(Compressor) then
   begin
-     if (Response.ContentEncoding = 'deflate') then
+     if (Response.ContentEncoding = 'deflate') then   {do not localize}
      begin
        LDecMeth := 1;
      end;
-     if (Response.ContentEncoding = 'gzip') then
+     if (Response.ContentEncoding = 'gzip') then   {do not localize}
      begin
        LDecMeth := 2;
      end;
@@ -1128,7 +1128,7 @@ begin
           if Length(FURI.Port) > 0 then begin
           {  FURI.Port:=FURI.Port; } // do nothing, as the port is already filled in.
           end else begin
-            raise EIdUnknownProtocol.Create('');
+            raise EIdUnknownProtocol.Create(RSHTTPUnknownProtocol);
           end;
         end;
       end;
@@ -1139,7 +1139,7 @@ begin
 
     if ARequest.Method = Id_HTTPMethodOptions then
     begin
-      if TextIsSame(LURI.Document, '*') then
+      if TextIsSame(LURI.Document, '*') then      {do not localize}
       begin
         ARequest.URL := LURI.Document;
       end;
@@ -1165,7 +1165,7 @@ begin
     end;
 
     if FURI.Port <> Sys.IntToStr(IdPORT_HTTP) then begin
-      ARequest.Host := FURI.Host + ':' + FURI.Port
+      ARequest.Host := FURI.Host + ':' + FURI.Port;    {do not localize}
     end else begin
       ARequest.Host := FURI.Host;
     end;
@@ -1745,7 +1745,7 @@ begin
     for i := 0 to Request.RawHeaders.Count - 1 do
       if Length(Request.RawHeaders.Strings[i]) > 0 then
         FHTTP.IOHandler.WriteLn(Request.RawHeaders.Strings[i]);
-    FHTTP.IOHandler.WriteLn('');
+    FHTTP.IOHandler.WriteLn('');     {do not localize}
     FHTTP.IOHandler.WriteBufferClose;
   except
     FHTTP.IOHandler.WriteBufferCancel;

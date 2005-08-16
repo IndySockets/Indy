@@ -279,6 +279,7 @@ resourcestring
   RSHTTPHTTPVersionNotSupported = 'HTTP version not supported';
   RSHTTPUnknownResponseCode = 'Unknown Response Code';
   // HTTP Other
+  RSHTTPUnknownProtocol = 'Unknown Protocol';
   RSHTTPMethodRequiresVersion = 'Request method requires HTTP version 1.1';
   RSHTTPHeaderAlreadyWritten = 'Header has already been written.';
   RSHTTPErrorParsingCommand = 'Error in parsing command.';
@@ -541,7 +542,63 @@ resourcestring
   RSNNTPServerNotRecognized = 'Command not recognized';
   RSNNTPServerGoodBye = 'Goodbye';
   RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
-  {IdGopherServer}
+  RSNNTPRetreivedArticleFollows = ' article retrieved - head and body follow';
+  RSNNTPRetreivedBodyFollows = ' article retrieved - body follows';
+  RSNNTPRetreivedHeaderFollows =  ' article retrieved - head follows';
+  RSNNTPRetreivedAStaticstsOnly = ' article retrieved - statistics only';
+  RSNTTPNewsToMeSendArticle = 'News to me!  <CRLF.CRLF> to end.';
+  RSNTTPArticleRetrievedRequestTextSeparately = ' article retrieved - request text separately';
+  RSNTTPNotInNewsgroup = 'Not currently in newsgroup';
+  RSNNTPExtSupported = 'Extensions supported:';
+  
+  //IdNNTPServer reply messages
+  RSNTTPReplyHelpTextFollows = 'help text follows';
+   RSNTTPReplyDebugOutput =  'debug output';
+   
+  RSNNTPReplySvrReadyPostingAllowed =  'server ready - posting allowed';
+  RSNNTPReplySvrReadyNoPostingAllowed =  'server ready - no posting allowed';
+  RSNNTPReplySlaveStatus =  'slave status noted';
+  RSNNTPReplyClosingGoodby = 'closing connection - goodbye!';
+  RSNNTPReplyNewsgroupsFollow = 'list of newsgroups follows';
+  RSNNTPReplyHeadersFollow =  'Headers follow';
+  RSNNTPReplyOverViewInfoFollows =  'Overview information follows';
+  RSNNTPReplyNewNewsgroupsFollow =  'list of new newsgroups follows';
+  RSNNTPReplyArticleTransferedOk =  'article transferred ok';
+  RSNNTPReplyArticlePostedOk =  'article posted ok';
+  RSNNTPReplyAuthAccepted = 'Authentication accepted';
+
+  RSNNTPReplySendArtTransfer = 'send article to be transferred. End with <CR-LF>.<CR-LF>';
+  RSNNTPReplySendArtPost =  'send article to be posted. End with <CR-LF>.<CR-LF>';
+  RSNNTPReplyMoreAuthRequired = 'More authentication information required';
+  RSNNTPReplyContinueTLSNegot = 'Continue with TLS negotiation';
+
+  RSNNTPReplyServiceDiscont =  'service discontinued';
+  RSNNTPReplyTLSTempUnavail =  'TLS temporarily not available';
+  RSNNTPReplyNoSuchNewsgroup =  'no such news group';
+  RSNNTPReplyNoNewsgroupSel =  'no newsgroup has been selected';
+  RSNNTPReplyNoArticleSel =  'no current article has been selected';
+  RSNNTPReplyNoNextArt =  'no next article in this group';
+  RSNNTPReplyNoPrevArt =  'no previous article in this group';
+  RSNNTPReplyNoArtNumber =  'no such article number in this group';
+  RSNNTPReplyNoArtFound =  'no such article found';
+  RSNNTPReplyArtNotWanted =  'article not wanted - do not send it';
+  RSNNTPReplyTransferFailed =  'transfer failed - try again later';
+  RSNNTPReplyArtRejected =  'article rejected - do not try again.';
+  RSNNTPReplyNoPosting =  'posting not allowed';
+  RSNNTPReplyPostingFailed =  'posting failed';
+  RSNNTPReplyAuthorizationRequired =  'Authorization required for this command';
+  RSNNTPReplyAuthorizationRejected = 'Authorization rejected';
+  RSNNTPReplyAuthRejected =  'Authentication required';
+  RSNNTPReplyStrongEncryptionRequired =  'Strong encryption layer is required';
+
+  RSNNTPReplyCommandNotRec =  'command not recognized';
+  RSNNTPReplyCommandSyntax =  'command syntax error';
+  RSNNTPReplyPermDenied =  'access restriction or permission denied';
+  RSNNTPReplyProgramFault = 'program fault - command not performed';
+  RSNNTPReplySecAlreadyActive =  'Security layer already active';
+
+
+ {IdGopherServer}
   RSGopherServerNoProgramCode = 'Error: No program code to return request!';
 
   {IdSyslog}
@@ -629,7 +686,7 @@ resourcestring
   RSPOP3SvrInternalError = 'Unknown Internal Error';
   RSPOP3SvrHelpFollows = 'Help follows';
   RSPOP3SvrTooManyCons = 'Too many connections. Try again later.';
-
+  RSPOP3SvrWelcomeAPOP = 'Welcome ';
   // TIdCoder3to4
   RSUnevenSizeInDecodeStream = 'Uneven size in DecodeToStream.';
   RSUnevenSizeInEncodeStream = 'Uneven size in Encode.';
@@ -830,7 +887,15 @@ resourcestring
   RSHL7NoConnectionFound       = 'Server Connection not locatable when sending message';
   RSHL7WaitForAnswer           = 'You cannot send a message while you are still waiting for an answer';
   RSMFDIvalidObjectType        = 'Unsupported object type. You can assign only one of the following types or their descendants: TStrings, TStream.';
+  //TIdHL7 error messages
+  RSHL7ErrInternalsrNone =  'Internal error in IdHL7.pas: SynchronousSend returned srNone';
+  RSHL7ErrNotConn =   'Not connected';
+  RSHL7ErrInternalsrSent =  'Internal error in IdHL7.pas: SynchronousSend returned srSent';
+  RSHL7ErrNoResponse =  'No response from remote system';
+  RSHL7ErrInternalUnknownVal =  'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ';
+  RSHL7Broken = 'IdHL7 is broken in Indy 10 for the present';
 
+  
   { TIdURI exceptions }
   RSURINoProto                 = 'Protocol field is empty';
   RSURINoHost                  = 'Host field is empty';
