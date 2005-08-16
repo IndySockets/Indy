@@ -33,6 +33,8 @@ TIDTIME                                BITMAP "TIDTIME.BMP"
 
 TIdTimeUDP                             BITMAP "TIdTimeUDP.bmp"
 TIDTRIVIALFTP                          BITMAP "TIDTRIVIALFTP.BMP"
+TIdUnixTime                            BITMAP "TIdUnixTime.bmp"
+TIdUnixTimeUDP                         BITMAP "TIdUnixTimeUDP.bmp"
 TIDWHOIS                               BITMAP "TIDWHOIS.BMP"
 TIdSMTPRelay                           BITMAP "TIdSMTPRelay.bmp"
 
@@ -78,7 +80,8 @@ TIdSyslogServer                        BITMAP "TIdSyslogServer.bmp"
 TIdSystatServer                        BITMAP "TIdSystatServer.bmp"
 TIdSystatUDPServer                     BITMAP "TIdSystatUDPServer.bmp"
 TIdSocksServer                         BITMAP "TIdSocksServer.bmp"
-
+TIdUnixTimeServer                      BITMAP "TIdUnixTimeServer.bmp"
+TIdUnixTimeUDPServer                   BITMAP "TIdUnixTimeUDPServer.bmp"
 
 /* Indy IOHandlers */
 TIdServerIOHandlerSSL                  BITMAP "TIdServerIOHandlerSSL.bmp"
@@ -133,4 +136,4 @@ TIdMessageEncoderYenc                  BITMAP "TIdMessageEncoderYenc.bmp"
 TIdUserManager                         BITMAP "TIdUserManager.bmp"
 TIdSysLogMessage                       BITMAP "TIdSysLogMessage.bmp"
 TIdHL7                                 BITMAP "TIdHL7.bmp"
-TIdCompressorBorZLib                   BITMAP "TIdCompressorBorZLib.bmp"
+TIdCompressorZLibEx                    BITMAP "TIdCompressorZLibEx.bmp"
