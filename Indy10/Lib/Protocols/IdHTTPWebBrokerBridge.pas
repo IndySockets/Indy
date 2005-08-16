@@ -63,11 +63,19 @@ interface
 uses
   Classes,
   HTTPApp,
-  IdContext, IdCustomHTTPServer, IdTCPServer, IdIOHandlerSocket,
+  IdContext, IdCustomHTTPServer, IdException, IdTCPServer, IdIOHandlerSocket,
   {$IFDEF CLR}System.Text,{$ENDIF}
   WebBroker;
 
 type
+  EWBBException = class(EIdException);
+  EWBBInvalidIdxGetDateVariable = class(EWBBException);
+  EWBBInvalidIdxSetDateVariable = class(EWBBException );
+  EWBBInvalidIdxGetIntVariable = class(EWBBException );
+  EWBBInvalidIdxSetIntVariable = class(EWBBException );
+  EWBBInvalidIdxGetStrVariable = class(EWBBException);
+  EWBBInvalidIdxSetStringVar = class(EWBBException);
+  EWBBInvalidStringVar = class(EWBBException);
   TIdHTTPAppRequest = class(TWebRequest)
   protected
     FRequestInfo   : TIdHTTPRequestInfo;
@@ -149,8 +157,20 @@ type
 implementation
 
 uses
-  IdBuffer, IdException, IdHTTPHeaderInfo, IdGlobal, IdCookie, IdStream,
-  SysUtils, Math, IdStreamVCL;
+  IdBuffer,  IdHTTPHeaderInfo, IdGlobal, IdCookie, IdStream,
+  SysUtils, Math;
+
+//TODO:  Not sure where these really should go.  They should not be in the main packages
+//because this is dependant upon something that those really arent.
+
+resourcestring
+  RSWBBInvalidIdxGetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetDateVariable';
+  RSWBBInvalidIdxSetDateVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetDateVariable';
+  RSWBBInvalidIdxGetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetIntegerVariable';
+  RSWBBInvalidIdxSetIntVariable = 'Invalid Index %s in TIdHTTPAppResponse.SetIntegerVariable';
+  RSWBBInvalidIdxGetStrVariable = 'Invalid Index %s in TIdHTTPAppResponse.GetStringVariable';
+  RSWBBInvalidStringVar = 'TIdHTTPAppResponse.SetStringVariable: Cannot set the version';
+  RSWBBInvalidIdxSetStringVar = 'Invalid Index %s in TIdHTTPAppResponse.SetStringVariable';
 
 type
   // Make HandleRequest accessible
@@ -408,7 +428,7 @@ begin
     INDEX_RESP_Expires          : Result := FResponseInfo.Expires;
     INDEX_RESP_LastModified     : Result := FResponseInfo.LastModified;
   else
-    raise EIdException.Create('Invalid Index ' + inttostr(Index) + ' in TIdHTTPAppResponse.GetDateVariable'); {do not localize}
+    raise EWBBInvalidIdxGetDateVariable.Create( Format( RSWBBInvalidIdxGetDateVariable,[inttostr(Index)]));
   end;
 end;
 
@@ -420,7 +440,7 @@ begin
     INDEX_RESP_Expires          : FResponseInfo.Expires := Value;
     INDEX_RESP_LastModified     : FResponseInfo.LastModified := Value;
   else
-    raise EIdException.Create('Invalid Index ' + inttostr(Index) + ' in TIdHTTPAppResponse.SetDateVariable'); {do not localize}
+    raise EWBBInvalidIdxSetDateVariable.Create(Format(RSWBBInvalidIdxSetDateVariable,[inttostr(Index) ]));
   end;
 end;
 
@@ -430,7 +450,7 @@ begin
   case Index of
     INDEX_RESP_ContentLength: Result := FResponseInfo.ContentLength;
   else
-    raise EIdException.Create('Invalid Index ' + inttostr(Index) + ' in TIdHTTPAppResponse.GetIntegerVariable');  {do not localize}
+    raise EWBBInvalidIdxGetIntVariable.Create( Format( RSWBBInvalidIdxGetIntVariable,[inttostr(Index)]));
   end;
 end;
 
@@ -440,7 +460,7 @@ begin
   case Index of
     INDEX_RESP_ContentLength: FResponseInfo.ContentLength := Value;
   else
-    raise EIdException.Create('Invalid Index ' + inttostr(Index) + ' in TIdHTTPAppResponse.SetIntegerVariable');  {do not localize}
+    raise EWBBInvalidIdxSetIntVariable.Create( Format(RSWBBInvalidIdxSetIntVariable,[inttostr(Index)]));  {do not localize}
   end;
 end;
 
@@ -461,8 +481,7 @@ begin
     INDEX_RESP_DerivedFrom       :Result := FResponseInfo.CustomHeaders.Values['Derived-From']; {do not localize}
     INDEX_RESP_Title             :Result := FResponseInfo.CustomHeaders.Values['Title'];        {do not localize}
   else
-    raise EIdException.Create('Invalid Index ' + IntToStr(Index) +  {do not localize}
-     ' in TIdHTTPAppResponse.GetStringVariable');                   {do not localize}
+    raise EWBBInvalidIdxGetStrVariable.Create(Format(RSWBBInvalidIdxGetStrVariable,[ IntToStr(Index)]));
   end;
 end;
 
@@ -470,7 +489,7 @@ procedure TIdHTTPAppResponse.SetStringVariable(Index: Integer; const Value: stri
 begin
   //TODO: resource string these
   case Index of
-    INDEX_RESP_Version           :EIdException.Create('TIdHTTPAppResponse.SetStringVariable: Cannot set the version');  {do not localize}
+    INDEX_RESP_Version           :EWBBInvalidStringVar.Create(RSWBBInvalidStringVar);
     INDEX_RESP_ReasonString      :FResponseInfo.ResponseText := Value;
     INDEX_RESP_Server            :FResponseInfo.Server := Value;
     INDEX_RESP_WWWAuthenticate   :FResponseInfo.WWWAuthenticate.Text := Value;
@@ -483,8 +502,7 @@ begin
     INDEX_RESP_DerivedFrom       :FResponseInfo.CustomHeaders.Values['Derived-From'] := Value;  {do not localize}
     INDEX_RESP_Title             :FResponseInfo.CustomHeaders.Values['Title'] := Value; {do not localize}
   else
-    raise EIdException.Create('Invalid Index ' + IntToStr(Index) +  {do not localize}
-     ' in TIdHTTPAppResponse.SetStringVariable');                   {do not localize}
+    raise EWBBInvalidIdxSetStringVar.Create( Format(RSWBBInvalidIdxSetStringVar,[IntToStr(Index)]));                   {do not localize}
   end;
 end;
 
@@ -505,15 +523,9 @@ begin
 end;
 
 procedure TIdHTTPAppResponse.SendStream(AStream: TStream);
-var
-  LStream : TIdStreamVCL;
 begin
-  LStream := TIdStreamVCL.Create(AStream);
-  try
-    FThread.Connection.IOHandler.Write(LStream);
-  finally
-    FreeAndNil(LStream);
-  end;
+
+  FThread.Connection.IOHandler.Write(AStream);
 end;
 
 function TIdHTTPAppResponse.Sent: Boolean;
@@ -564,7 +576,7 @@ end;
 procedure TIdHTTPWebBrokerBridge.InitComponent;
 begin
   inherited;
-  FOkToProcessCommand := True;
+ // FOkToProcessCommand := True;
 end;
 
 procedure TIdHTTPWebBrokerBridge.DoCommandGet(AThread: TIdContext;
