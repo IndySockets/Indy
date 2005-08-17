@@ -1,6 +1,7 @@
 /* Client components */
 TIDDAYTIME                             BITMAP "TIDDAYTIME.BMP"
 TiddaytimeUDP                          BITMAP "TiddaytimeUDP.bmp"
+TIdDICT                                BITMAP "TIdDICT.bmp"
 TIDDNSRESOLVER                         BITMAP "TIDDNSRESOLVER.BMP"
 TIDECHO                                BITMAP "TIDECHO.BMP"
 TIdEchoUDP                             BITMAP "TIdEchoUDP.BMP"
