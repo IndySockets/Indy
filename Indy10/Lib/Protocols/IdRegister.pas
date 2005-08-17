@@ -268,6 +268,7 @@ interface
   {$R IconsDotNet\TIdFinger.bmp}
   {$R IconsDotNet\TIdFingerServer.bmp}
   {$R IconsDotNet\TIdFTP.bmp}
+  {$R IconsDotNet\TIdFSP.bmp}
   {$R IconsDotNet\TIdFTPFileSystem.bmp}
   {$R IconsDotNet\TIdFTPServer.bmp}
   {$R IconsDotNet\TIdGopher.bmp}
@@ -283,8 +284,6 @@ interface
   {$R IconsDotNet\TIdIMAP4Server.bmp}
   {$R IconsDotNet\TIdIMFDecoder.bmp}
   {$R IconsDotNet\TIdIMFEncoder.bmp}
-  {$R IconsDotNet\TIdIMPCastClient.bmp}
-  {$R IconsDotNet\TIdIMPCastServer.bmp}
   {$R IconsDotNet\TIdIOHandlerChain.bmp}
   {$R IconsDotNet\TIdIOHandlerSocket.bmp}
   {$R IconsDotNet\TIdIOHandlerThrottle.bmp}
@@ -376,6 +375,10 @@ interface
   {$R IconsDotNet\TIdVCard.bmp}
   {$R IconsDotNet\TIdWhois.bmp}
   {$R IconsDotNet\TIdWhoIsServer.bmp}
+  {$R IconsDotNet\TIdUnixTime.bmp}
+  {$R IconsDotNet\TIdUnixTimeServer.bmp}
+  {$R IconsDotNet\TIdUnixTimeUDP.bmp}
+  {$R IconsDotNet\TIdUnixTimeUDPServer.bmp}
 {$ELSE}
   {$IFDEF Borland}
     {$R IdRegister.dcr}

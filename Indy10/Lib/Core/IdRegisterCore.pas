@@ -197,6 +197,9 @@ uses
   {$R IconsDotNet\TIdThreadComponent.bmp}
   {$R IconsDotNet\TIdUDPClient.bmp}
   {$R IconsDotNet\TIdUDPServer.bmp}
+  {$R IconsDotNet\TIdIPMCastClient.bmp}
+  {$R IconsDotNet\TIdIPMCastServer.bmp}
+   {$R IconsDotNet\TIdSocksInfo.bmp}
 {$ELSE}
   {$IFDEF Borland}
     {$R IdCoreRegister.dcr}
