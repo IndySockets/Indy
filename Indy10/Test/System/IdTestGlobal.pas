@@ -18,6 +18,7 @@ type
     procedure TestReadStringFromStream;
     procedure TestReadTIdBytesFromStream;
     procedure TestBytesToString;
+    procedure TestPosIdx;
   end;
 
 implementation
@@ -151,6 +152,26 @@ begin
   aStr:=BytesToString(aBytes,0,10);
   Assert(aStr=cStr);
 
+end;
+
+procedure TIdTestGlobal.TestPosIdx;
+var
+  i:Integer;
+begin
+  i:=PosIdx('1234','12345',4);
+  Assert(i=0);
+
+  i:=PosIdx('23','12345',0);
+  Assert(i=2);
+
+  i:=PosIdx('23','12345',2);
+  Assert(i=2);
+
+  i:=PosIdx('a','12345',2);
+  Assert(i=0);
+
+  i:=PosIdx('123','1');
+  Assert(i=0);
 end;
 
 initialization
