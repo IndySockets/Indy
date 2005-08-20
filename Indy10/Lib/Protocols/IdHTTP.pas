@@ -1020,28 +1020,27 @@ begin
       LS := AResponse.ContentStream;
     end;
     try
-      if AResponse.ContentLength > 0 then // If chunked then this is also 0
-      begin
-        try
-          IOHandler.ReadStream(LS, AResponse.ContentLength);
-        except
-          on E: EIdConnClosedGracefully do
-        end;
-      end
-      else
-      begin
-        if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
-        begin // Chunked
-          DoStatus(hsStatusText, [RSHTTPChunkStarted]);
-          Size := ChunkSize;
-          while Size > 0 do
-          begin
-            IOHandler.ReadStream(LS, Size);
-            IOHandler.ReadLn; // blank line
-            Size := ChunkSize;
-          end;
+      if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
+      begin // Chunked
+        DoStatus(hsStatusText, [RSHTTPChunkStarted]);
+        Size := ChunkSize;
+        while Size > 0 do
+        begin
+          IOHandler.ReadStream(LS, Size);
           IOHandler.ReadLn; // blank line
-        end else begin
+          Size := ChunkSize;
+        end;
+        IOHandler.ReadLn; // blank line
+      end else begin
+        if AResponse.ContentLength > 0 then // If chunked then this is also 0
+        begin
+          try
+            IOHandler.ReadStream(LS, AResponse.ContentLength);
+          except
+            on E: EIdConnClosedGracefully do
+          end;
+        end
+        else begin
           if not AResponse.HasContentLength then
           begin
             IOHandler.ReadStream(LS, -1, True);
