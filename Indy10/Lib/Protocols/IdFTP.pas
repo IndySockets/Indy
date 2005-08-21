@@ -56,12 +56,12 @@
 {
 {   Rev 1.119    3/9/2005 9:15:46 PM  JPMugaas
 { Changes submitted by Craig Peterson, Scooter Software  He noted this:
-{ 
+{
 { "We had a user who's FTP server prompted for account info after a
 { regular login, so I had to add an explicit Account string property and
 { an OnNeedAccount event that we could use for a prompt."  This does break any
 { code using TIdFTP.Account.
-{ 
+{
 { TODO:  See about integrating Account Info into the proxy login sequences.
 }
 {
@@ -88,15 +88,15 @@
 {
 {   Rev 1.114    3/7/2005 10:40:10 PM  JPMugaas
 { Improvements:
-{ 
-{ 1) Removed some duplicate code.  
+{
+{ 1) Removed some duplicate code.
 { 2) ABOR should now be properly handled outside of a data operation.
 { 3) I added a UseOOBAbort read-write public property for controlling how the
 { ABOR command is sent.  If true, the Telnet sequences are sent or if false,
 { the ABOR without sequences is sent.  This is set to false by default because
 { one FTP client (SmartFTP recently removed the Telnet sequences from their
-{ program).  
-{ 
+{ program).
+{
 { This code is expiriemental.
 }
 {
@@ -109,13 +109,13 @@
 { Fix for some compiler warnings having to do with TStream.Read being platform
 { specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
 { instead of TStream.  I also made appropriate adjustments to other units for
-{ this. 
+{ this.
 }
 {
 {   Rev 1.111    2/24/2005 6:46:36 AM  JPMugaas
 { Clarrified remarks I made and added a few more comments about syntax in
 { particular cases in the set modified file date procedures.
-{ 
+{
 { That's really been a ball....NOT!!!!
 }
 {
@@ -158,9 +158,9 @@
 }
 {
 {   Rev 1.102    11/5/2004 1:54:42 AM  JPMugaas
-{ Minor adjustment - should not detect TitanFTPD better (tested at: 
+{ Minor adjustment - should not detect TitanFTPD better (tested at:
 { ftp.southrivertech.com).
-{ 
+{
 { If MLSD is being used, SITE ZONE will not be issued.  It's not needed because
 { the MLSD spec indicates the time is based on GMT.
 }
@@ -168,10 +168,10 @@
 {   Rev 1.101    10/27/2004 12:58:08 AM  JPMugaas
 { Improvement from Tobias Giesen http://www.superflexible.com
 { His notation is below:
-{ 
+{
 { "here's a fix for TIdFTP.IndexOfFeatLine. It does not work the
 { way it is used in TIdFTP.SetModTime, because it only
-{ compares the first word of the FeatLine." 
+{ compares the first word of the FeatLine."
 }
 {
 {   Rev 1.100    10/26/2004 9:19:10 PM  JPMugaas
@@ -180,7 +180,7 @@
 {
 {   Rev 1.99    9/16/2004 3:24:04 AM  JPMugaas
 { TIdFTP now compresses to the IOHandler and decompresses from the IOHandler.
-{ 
+{
 { Noted some that the ZLib code is based was taken from ZLibEx.
 }
 {
@@ -905,7 +905,7 @@ type
 
     //we probably need an Abort flag so we know when an abort is sent.
     //It turns out that one server will send a 550 or 451 error followed by an
-    //ABOR successfull 
+    //ABOR successfull
     FAbortFlag : TIdThreadSafeBoolean;
 
 	  FAccount: string;
@@ -1020,8 +1020,10 @@ type
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
     procedure Help(var AHelpContents: TIdStringList; ACommand: String = '');
     procedure KillDataChannel; virtual;
-    procedure List; overload; //.NET Overload
-    procedure List(  //.NET Overload
+    //.NET Overload
+    procedure List; overload;
+    //.NET Overload
+    procedure List(
       const ASpecifier: string;
       ADetails: Boolean = True); overload;
     procedure List(
