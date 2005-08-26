@@ -683,6 +683,7 @@ Indy10/Lib/Protocols/IdVCard.pas -text
 Indy10/Lib/Protocols/IdWebDAV.pas -text
 Indy10/Lib/Protocols/IdWhoIsServer.pas -text
 Indy10/Lib/Protocols/IdWhois.pas -text
+Indy10/Lib/Protocols/IdZLib.pas -text
 Indy10/Lib/Protocols/IdZLibCompressorBase.pas -text
 Indy10/Lib/Protocols/IddclProtocols90ASM90.inc -text
 Indy10/Lib/Protocols/IndyProtocols100.bdsproj -text
