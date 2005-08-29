@@ -99,7 +99,7 @@ uses
   IdIntercept,
   IdTCPClient,
   IdTCPConnection,
-  IdZLibEx;
+  IdZLib;
 
 type
   EIdCompressionException = class(EIdException);
@@ -180,8 +180,8 @@ procedure TIdCompressionIntercept.InitCompressors;
 begin
   if not Assigned(FCompressRec.zalloc) then
   begin
-    FCompressRec.zalloc := zcalloc;
-    FCompressRec.zfree := zcfree;
+    FCompressRec.zalloc := IdZLib.zlibAllocMem;
+    FCompressRec.zfree := IdZLib.zlibFreeMem;
     if deflateInit_(FCompressRec, FCompressionLevel, zlib_Version, SizeOf(FCompressRec)) <> Z_OK then
     begin
       raise EIdCompressorInitFailure.Create(RSZLCompressorInitializeFailure);
@@ -189,8 +189,8 @@ begin
   end;
   if not Assigned(FDecompressRec.zalloc) then
   begin
-    FDecompressRec.zalloc := zcalloc;
-    FDecompressRec.zfree := zcfree;
+    FDecompressRec.zalloc := IdZLib.zlibAllocMem;
+    FDecompressRec.zfree := IdZLib.zlibFreeMem;
     if inflateInit_(FDecompressRec, zlib_Version, SizeOf(FDecompressRec)) <> Z_OK then
     begin
       raise EIdDecompressorInitFailure.Create(RSZLDecompressorInitializeFailure);

@@ -242,7 +242,8 @@ contains
   IdVCard in 'IdVCard.pas',
   IdWhoIsServer in 'IdWhoIsServer.pas',
   IdWhois in 'IdWhois.pas',
+  IdZLib in 'IdZLib.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas',
-  IdZLibEx in 'IdZLibEx.pas';
+  IdZLibConst in 'IdZLibConst.pas';
 
 end.
