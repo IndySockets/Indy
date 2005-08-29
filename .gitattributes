@@ -712,6 +712,53 @@ Indy10/Lib/Protocols/IndyProtocols90.res -text svneol=unset#unset
 Indy10/Lib/Protocols/IndyProtocols90Net.bdsproj -text
 Indy10/Lib/Protocols/IndyProtocols90Net.dpk -text
 Indy10/Lib/Protocols/IndyProtocolsK3.dpk -text
+Indy10/Lib/Protocols/ZLib/ZLib.pas -text
+Indy10/Lib/Protocols/ZLib/ZLibConst.pas -text
+Indy10/Lib/Protocols/ZLib/adler32.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/adler32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/build.bat eol=crlf
+Indy10/Lib/Protocols/ZLib/compress.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/compress.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/crc32.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/crc32.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/crc32.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/deflate.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/deflate.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/deflate.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/example.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/example.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/example.tds -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/gzio.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/gzio.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/infback.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/infback.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/inffast.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inffast.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inffast.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/inffixed.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inflate.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inflate.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inflate.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/inftrees.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inftrees.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/inftrees.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/minigzip.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/minigzip.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/minigzip.tds -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/readme.txt -text svneol=native#unset
+Indy10/Lib/Protocols/ZLib/trees.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/trees.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/trees.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/uncompr.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/uncompr.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/zconf.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/zconf.in.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/zlib.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/zlib.lib -text svneol=unset#unset
+Indy10/Lib/Protocols/ZLib/zlibd32.mak -text
+Indy10/Lib/Protocols/ZLib/zutil.c -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/zutil.h -text svneol=LF#unset
+Indy10/Lib/Protocols/ZLib/zutil.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/adler32.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/compress.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/crc32.obj -text svneol=unset#unset
