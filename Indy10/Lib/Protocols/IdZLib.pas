@@ -383,6 +383,13 @@ procedure zlibFreeMem(AppData, Block: Pointer); cdecl;
 //compress stream; tries to use direct memory access on input stream
   //adapted from "Enhanced zlib implementation"
   //by Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
+
+//Note that unlike other things in this unit, you specify things with number
+//values.  This is deliberate on my part because some things in Indy rely on
+//API's where you specify the ZLib parameter as a number.  This is for the
+//utmost flexibility.  In the FTP server, you can actually specify something
+//like a compression level.
+//The WinBits parameter is extremely powerful so do not underestimate it.
 procedure CompressStream(InStream, OutStream: TStream;
   const level: Integer = Z_DEFAULT_COMPRESSION;
   const WinBits : Integer = MAX_WBITS;
@@ -390,6 +397,9 @@ procedure CompressStream(InStream, OutStream: TStream;
   const Stratagy : Integer = Z_DEFAULT_STRATEGY);
 procedure DecompressStream(InStream, OutStream: TStream); overload;
 //this is for where we know what the stream's WindowBits setting should be
+//Note that this does have special handling for ZLIB values greater than
+//32.  I'm trying to treat it as the inflateInit2_ call would.  I don't think
+//InflateBack uses values greater than 16 so you have to make a workaround.
 procedure DecompressStream(InStream, OutStream: TStream;
   const AWindowBits : Integer); overload;
 // Direct ZLib access
@@ -1079,9 +1089,7 @@ ZEXTERN uLong ZEXPORT crc32_combine OF((uLong crc1, uLong crc2, z_off_t len2));
 }
 
 implementation
-
-uses ZLibConst;
-
+uses IdZLibConst;
 {$L adler32.obj}
 {$L compress.obj}
 {$L crc32.obj}
