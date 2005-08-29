@@ -737,11 +737,16 @@ Indy10/Lib/Protocols/dclIndyProtocols90Net.bdsproj -text
 Indy10/Lib/Protocols/dclIndyProtocols90Net.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocolsK3.dpk -text
 Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/example.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/gzio.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/infback.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inffast.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inflate.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inftrees.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/minigzip.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/trees.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/uncompr.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/zutil.obj -text svneol=unset#unset
 Indy10/Lib/Security/IdCarrierStream.pas -text
 Indy10/Lib/Security/IdIOHandlerTls.pas -text
 Indy10/Lib/Security/IdRegisterSecurity.pas -text
