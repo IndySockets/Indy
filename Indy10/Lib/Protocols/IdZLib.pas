@@ -104,6 +104,18 @@ linking to the zlib.so.1 file.  This might not work with some older Linux
 distributions that are unsupported and have older ZLib versions.  I do not
 know because I have not tested those.
 
+Aug 26, 2005 - J. Peter Mugaas
+- I changed the ZLib exception class to have an error code property so
+developers can diagnose errors better than they used to.
+- CCheck and DCheck now raise exceptions with the error message from the ZLib
+library itself instead of the 'error' message.  This is obtained through the
+zError function I exposed yesterday.
+
+Aug 27, 2005 - J. Peter Mugaas
+-Added vernum constant
+-Added Z_NUL constant
+- Added Z_BLOCK constant
+
 Note that I did use "Enhanced zlib implementation" from:
   Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
 as a reference to help with some new callback functions with inflate and for
@@ -148,6 +160,7 @@ type
 //    int     done;       /* true when done reading gzip header (not used
 //                           when writing a gzip file) */
 //} gz_header;
+  PgzHeaderRec = ^TgzHeaderRec;
   TgzHeaderRec = packed record
     text : Integer;        //* true if compressed data believed to be text */
     time : Cardinal;       //* modification time */
@@ -298,13 +311,15 @@ procedure DecompressToUserBuf(const InBuf: Pointer; InBytes: Integer;
 
 const
   zlib_version = '1.2.3';
+  ZLIB_VERNUM = $1230;
 
   Z_NO_FLUSH      = 0;
   Z_PARTIAL_FLUSH = 1; // * will be removed, use Z_SYNC_FLUSH instead *
   Z_SYNC_FLUSH    = 2;
   Z_FULL_FLUSH    = 3;
   Z_FINISH        = 4;
-
+  Z_BLOCK         = 5;
+  
   Z_OK            = 0;
   Z_STREAM_END    = 1;
   Z_NEED_DICT     = 2;
@@ -331,12 +346,52 @@ const
 
   Z_DEFLATED = 8;
 
+  Z_NULL     = 0;  //* for initializing zalloc, zfree, opaque */
 
+  //winbit constants
+  MAX_WBITS = 15;   //standard zlib stream - { 32K LZ77 window }
+  GZIP_WINBITS = MAX_WBITS + 16; //GZip format
+  //negative values mean do not add any headers
+  //adapted from "Enhanced zlib implementation"
+  //by Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
+  RAW_WBITS = -MAX_WBITS; //raw stream (without any header)
+
+  MAX_MEM_LEVEL = 9;
+  DEF_MEM_LEVEL = 8; { if MAX_MEM_LEVEL > 8 }
+    
 type
-  EZlibError = class(Exception);
+  EZlibError = class(Exception)
+  {JPM Additions, we need to be able to provide diangostic info
+  in an exception}
+  protected
+    FErrorCode : Integer;
+  public
+    constructor CreateError(const AError : Integer);
+    property ErrorCode : Integer read FErrorCode;
+  end;
   ECompressionError = class(EZlibError);
   EDecompressionError = class(EZlibError);
 
+//ZLib error functions.  They raise an exception for ZLib codes less than zero
+function DCheck(code: Integer): Integer;
+function CCheck(code: Integer): Integer;
+
+//generic callback procedures for inflate and deflate calls
+function zlibAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; cdecl;
+procedure zlibFreeMem(AppData, Block: Pointer); cdecl;
+
+//compress stream; tries to use direct memory access on input stream
+  //adapted from "Enhanced zlib implementation"
+  //by Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
+procedure CompressStream(InStream, OutStream: TStream;
+  const level: Integer = Z_DEFAULT_COMPRESSION;
+  const WinBits : Integer = MAX_WBITS;
+  const MemLevel : Integer = MAX_MEM_LEVEL;
+  const Stratagy : Integer = Z_DEFAULT_STRATEGY);
+procedure DecompressStream(InStream, OutStream: TStream); overload;
+//this is for where we know what the stream's WindowBits setting should be
+procedure DecompressStream(InStream, OutStream: TStream;
+  const AWindowBits : Integer); overload;
 // Direct ZLib access
 
 // deflate compresses data
@@ -1365,14 +1420,20 @@ function CCheck(code: Integer): Integer;
 begin
   Result := code;
   if code < 0 then
-    raise ECompressionError.Create('error'); //!!
+  begin
+    raise ECompressionError.CreateError(code);
+  end;
+//    raise ECompressionError.Create('error'); //!!
 end;
 
 function DCheck(code: Integer): Integer;
 begin
   Result := code;
   if code < 0 then
-    raise EDecompressionError.Create('error');  //!!
+  begin
+    raise EDecompressionError.CreateError(code);
+ //   raise EDecompressionError.Create('error');  //!!
+  end;
 end;
 
 procedure CompressBuf(const InBuf: Pointer; InBytes: Integer;
@@ -1645,5 +1706,350 @@ begin
   Result := FZRec.total_out;
 end;
 
+
+{ EZlibError }
+
+constructor EZlibError.CreateError(const AError: Integer);
+begin
+  inherited Create( zError(AError) );
+  FErrorCode := AError;
+end;
+
+//compress stream; tries to use direct memory access on input stream
+  //adapted from "Enhanced zlib implementation"
+  //by Gabriel Corneanu <gabrielcorneanu(AT)yahoo.com>
+
+const WINBITARRAY : Array[0..2] of Integer = ( MAX_WBITS, GZIP_WINBITS, RAW_WBITS);
+
+
+
+function DMAOfStream(AStream: TStream; out Available: integer): Pointer;
+begin
+  if AStream.inheritsFrom(TCustomMemoryStream) then
+    Result := TCustomMemoryStream(AStream).Memory
+  else if AStream.inheritsFrom(TStringStream) then
+    Result := Pointer(TStringStream(AStream).DataString)
+  else
+    Result := nil;
+  if Result <> nil then
+  begin
+    //what if integer overflow?
+    Available := AStream.Size - AStream.Position;
+    Inc(Integer(Result), AStream.Position);
+  end
+  else Available := 0;
+end;
+
+function CanResizeDMAStream(AStream: TStream): boolean;
+begin
+  Result := AStream.inheritsFrom(TMemoryStream) or
+            AStream.inheritsFrom(TStringStream);
+end;
+
+//internal type for InflateBack function calls
+const
+  WindowSize = 1 shl MAX_WBITS;
+  
+type
+  PZBack = ^TZBack;
+  TZBack = record
+    InStream  : TStream;
+    OutStream : TStream;
+    InMem     : PChar; //direct memory access
+    InMemSize : integer;
+    ReadBuf   : array[word] of char;
+    Window    : array[0..WindowSize] of char;
+  end;
+
+//these are callback functions for InflateBack functions
+function Strm_in_func(BackObj: PZBack; var buf: PByte): Integer; cdecl;
+var
+  S : TStream;
+
+begin
+  S := BackObj.InStream; //help optimizations
+  if BackObj.InMem <> nil then
+  begin
+    //direct memory access if available!
+    buf := Pointer(BackObj.InMem);
+    //what if integer overflow?
+    Result := S.Size - S.Position;
+    S.Seek(Result, soFromCurrent);
+  end
+  else
+  begin
+    buf    := @BackObj.ReadBuf;
+    Result := S.Read(buf^, SizeOf(BackObj.ReadBuf));
+  end;
+end;
+
+function Strm_out_func(BackObj: PZBack; buf: PByte; size: Integer): Integer; cdecl;
+begin
+  Result := BackObj.OutStream.Write(buf^, size) - size;
+end;
+
+///tries to get the stream info
+//strm.next_in and available_in needs enough data!
+//strm should not contain an initialized inflate
+
+function TryStreamType(var strm: TZStreamRec; gzheader: PgzHeaderRec; const AWinBitsValue : Integer): boolean;
+var
+  InitBuf: PChar;
+  InitIn : integer;
+begin
+    InitBuf := strm.next_in;
+    InitIn  := strm.avail_in;
+  DCheck(inflateInit2_(strm, AWinBitsValue, zlib_version,SizeOf(TZStreamRec) ));
+
+  if (AWinBitsValue = GZIP_WINBITS) and (gzheader <> nil) then
+    DCheck(inflateGetHeader(strm, gzheader^));
+
+  Result := inflate(strm, Z_BLOCK) = Z_OK;
+  DCheck(inflateEnd(strm));
+
+  if Result then
+  begin
+    exit;
+  end;
+      //rollback
+      strm.next_in  := InitBuf;
+      strm.avail_in := InitIn;
+end;
+
+function  CheckInitInflateStream(var strm: TZStreamRec; gzheader: PgzHeaderRec): Integer; overload;
+var
+  i : Integer;
+
+begin
+  if strm.next_out = nil then
+    //needed for reading, but not used
+    strm.next_out := strm.next_in;
+
+  try
+
+    for i := Low(WINBITARRAY) to High(WINBITARRAY) do
+    begin
+      Result := WINBITARRAY[0];
+      if TryStreamType(strm,gzheader, Result) then
+      begin
+        exit;
+      end;
+
+    end;
+    Result := -MAX_WBITS;
+  finally
+    
+  end;
+end;
+
+
+
+procedure DecompressStream(InStream, OutStream: TStream);
+var
+  strm   : TZStreamRec;
+  BackObj: PZBack;
+begin
+  FillChar(strm, sizeof(strm), 0);
+  GetMem(BackObj, SizeOf(BackObj^));
+  try
+    //direct memory access if possible!
+    BackObj.InMem := DMAOfStream(InStream, BackObj.InMemSize);
+
+    BackObj.InStream  := InStream;
+    BackObj.OutStream := OutStream;
+
+    //use our own function for reading
+    strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
+    strm.next_out := @BackObj.Window;
+    strm.avail_out := 0;
+
+    CheckInitInflateStream(strm, nil);
+
+    strm.next_out := nil;
+    strm.avail_out := 0;
+    DCheck(inflateBackInit_(strm, MAX_WBITS, BackObj.Window, zlib_version,SizeOf( TZStreamRec )));
+    try
+      DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
+      //seek back when unused data
+      InStream.Seek(-strm.avail_in, soFromCurrent);
+      //now trailer can be checked
+    finally
+      DCheck(inflateBackEnd(strm));
+    end;
+  finally
+    FreeMem(BackObj);
+  end;
+end;
+
+procedure DecompressStream(InStream, OutStream: TStream;
+  const AWindowBits : Integer);
+var
+  strm   : TZStreamRec;
+  BackObj: PZBack;
+  LWindowBits : Integer;
+begin
+  LWindowBits := AWindowBits;
+  FillChar(strm, sizeof(strm), 0);
+  GetMem(BackObj, SizeOf(BackObj^));
+  try
+    //direct memory access if possible!
+    BackObj.InMem := DMAOfStream(InStream, BackObj.InMemSize);
+
+    BackObj.InStream  := InStream;
+    BackObj.OutStream := OutStream;
+
+    //use our own function for reading
+    strm.avail_in := Strm_in_func(BackObj, PByte(strm.next_in));
+    strm.next_out := @BackObj.Window;
+     strm.avail_out := 0;
+    //note that you can not use a WinBits parameter greater than 32 with
+    //InflateBackInit.  That was used in the inflate functions
+    //for automatic detection of header bytes and trailer bytes.
+    //Se lets try this ugly workaround for it.
+    if AWindowBits > 32 then
+    begin
+      LWindowBits := Abs(AWindowBits - 32);
+
+      if not TryStreamType(strm,nil,LWindowBits) then
+      begin
+        if TryStreamType(strm,nil,LWindowBits + 16) then
+        begin
+          LWindowBits := LWindowBits + 16;
+
+        end
+        else
+        begin
+          TryStreamType(strm,nil,-LWindowBits );
+
+        end;
+      end;
+    end;
+    strm.next_out := nil;
+    strm.avail_out := 0;
+    DCheck(inflateBackInit_(strm,LWindowBits, BackObj.Window,
+      zlib_version,SizeOf( TZStreamRec )));
+    try
+      DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
+      //seek back when unused data
+      InStream.Seek(-strm.avail_in, soFromCurrent);
+      //now trailer can be checked
+    finally
+      DCheck(inflateBackEnd(strm));
+    end;
+  finally
+    FreeMem(BackObj);
+  end;
+end;
+
+type
+  TMemStreamHack = class(TMemoryStream);
+function ExpandStream(AStream: TStream; const ACapacity : Int64): boolean;
+begin
+  Result := true;
+  AStream.Size := ACapacity;
+  if AStream.InheritsFrom(TMemoryStream) then
+  begin
+    AStream.Size := TMemStreamHack(AStream).Capacity;
+  end;
+end;
+
+procedure CompressStream(InStream, OutStream: TStream;
+  const level: Integer = Z_DEFAULT_COMPRESSION;
+  const WinBits : Integer = MAX_WBITS;
+  const MemLevel : Integer = MAX_MEM_LEVEL;
+  const Stratagy : Integer = Z_DEFAULT_STRATEGY);
+
+const
+  //64 KB buffer
+  BufSize = 65536;
+var
+  strm   : TZStreamRec;
+  InBuf, OutBuf : PChar;
+  UseInBuf, UseOutBuf : boolean;
+  LastOutCount : integer;
+  procedure WriteOut;
+  begin
+    if UseOutBuf then
+    begin
+      if LastOutCount > 0 then
+      begin
+        OutStream.Write(OutBuf^, LastOutCount - strm.avail_out);
+      end;
+      strm.avail_out := BufSize;
+      strm.next_out  := OutBuf;
+    end
+    else
+    begin
+      if (strm.avail_out = 0) then
+      begin
+        ExpandStream(OutStream, OutStream.Size + BufSize);
+      end;
+      OutStream.Seek(LastOutCount - strm.avail_out, soFromCurrent);
+      strm.next_out  := DMAOfStream(OutStream, strm.avail_out);
+      //because we can't really know how much resize is increasing!
+    end;
+    LastOutCount := strm.avail_out;
+  end;
+var
+  Finished : boolean;
+begin
+  FillChar(strm, sizeof(strm), 0);
+
+  InBuf          := nil;
+  OutBuf         := nil;
+  LastOutCount   := 0;
+
+  strm.next_in   := DMAOfStream(InStream, strm.avail_in);
+  UseInBuf := strm.next_in = nil;
+
+  if UseInBuf then
+    GetMem(InBuf, BufSize);
+
+  UseOutBuf := not ( CanResizeDMAStream(OutStream));
+  if UseOutBuf then GetMem(OutBuf, BufSize);
+
+  CCheck(deflateInit2_(strm, level, Z_DEFLATED, WinBits,MemLevel,Stratagy,zlib_version, SizeOf(TZStreamRec)));
+  try
+    repeat
+      if strm.avail_in = 0 then
+      begin
+        if UseInBuf then
+        begin
+          strm.avail_in := InStream.Read(InBuf^, BufSize);
+          strm.next_in  := InBuf;
+        end;
+        if strm.avail_in = 0 then break;
+      end;
+      if strm.avail_out = 0 then WriteOut;
+
+      CCheck(deflate(strm, Z_NO_FLUSH));
+    until false;
+
+    repeat
+      Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
+      WriteOut;
+    until Finished;
+
+    if not UseOutBuf then
+    begin
+      //truncate when using direct output
+      OutStream.Size := OutStream.Position;
+    end;
+
+    //adjust position of the input stream
+    if UseInBuf then
+      //seek back when unused data
+      InStream.Seek(-strm.avail_in, soFromCurrent)
+    else
+      //simple seek
+      InStream.Seek(strm.total_in, soFromCurrent);
+
+    CCheck(deflateEnd(strm));
+  finally
+    if InBuf <> nil then FreeMem(InBuf);
+    if OutBuf <> nil then FreeMem(OutBuf);
+  end;
+
+end;
 
 end.

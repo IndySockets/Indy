@@ -258,13 +258,22 @@ begin
   compression.  One says to include the headers while an older one says do not
   include the headers.
   }
-  LWinBits := AWindowBits;
+  LWinBits :=  AWindowBits ;
+{
+
+
+     windowBits can also be greater than 15 for optional gzip decoding. Add
+   32 to windowBits to enable zlib and gzip decoding with automatic header
+   detection, or add 16 to decode only the gzip format (the zlib format will
+   return a Z_DATA_ERROR).
+}
   if LWinBits > 0 then
   begin
     LWinBits := Abs( LWinBits) + 32;
   end;
 
   DecompressStream(AInStream,AOutStream,LWinBits);
+
 end;
 
 procedure TIdZLibCompressorBase.CompressFTPDeflate(AInStream, AOutStream : TIdStream;
