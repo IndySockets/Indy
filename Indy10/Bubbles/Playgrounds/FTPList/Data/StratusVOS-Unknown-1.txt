@@ -1,0 +1,23 @@
+Files: 4 Blocks: 609
+w    158 stm       90-05-19 11:53:44  acctng.cobol
+w    145 fix-4096  90-05-19 14:44:46  acctng.pm
+w    145 stm       90-05-19 11:42:51  make_reports.cobol
+w    161 fix-4096  90-05-19 11:42:43  sort_list.pm
+Dirs: 0
+Links: 0
+#From: Manual Name: VOS STREAMS TCP/IP User’s Guide
+#
+#Part Number: R421
+#
+#Revision Number: 00
+#
+#VOS Release Number: 14.1.0
+#
+#Printing Date: July 1999
+#
+#Stratus Computer (DE), Inc.
+#
+#111 Powdermill Road
+#Maynard, Massachusetts 01754-3409
+#
+#© 1999 by Stratus Computer Systems, S. a. r. l., Luxembourg. All rights reserved.

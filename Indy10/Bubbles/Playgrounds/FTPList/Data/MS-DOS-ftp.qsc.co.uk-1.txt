@@ -1,0 +1,4 @@
+10-11-00  05:14PM       <DIR>          incoming
+08-26-00  10:59PM       <DIR>          logs
+10-24-02  02:18PM       <DIR>          pub
+# Microsoft FTP Service (Version 4.0).  SYST indicated Windows_NT version 4.0

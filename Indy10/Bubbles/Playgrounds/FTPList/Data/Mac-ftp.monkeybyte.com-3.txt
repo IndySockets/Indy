@@ -1,0 +1,28 @@
+-r--r--r--           0  5409713  5409713 Jun 14  1956 a3_install.exe
+-r--r--r--           0  6118640  6118640 Jun 14  1956 ar_install.exe
+-r--r--r--           0  3976682  3976682 Jun 14  1956 atv_patch.EXE
+-r--r--r--           0  2567257  2567257 Jun 14  1956 bl_install.exe
+-r--r--r--           0  3065159  3065159 Jun 14  1956 bp_install.exe
+-r--r--r--           0  5882529  5882529 Feb 13 21:24 dna_demo_install.zip
+-r--r--r--           0  4494466  4494466 Jun 14  1956 ds_demo_install.EXE
+-r--r--r--           0    47311    47311 Jun 14  1956 freecell_screen_2.gif
+-r--r--r--           0  2828009  2828009 Apr 18 13:14 gp_install.exe
+-r--r--r--           0  2139740  2139740 Jun 14  1956 kg_install.exe
+-r--r--r--           0 16115380 16115380 Jan 14 11:31 lwninja_chapter4.exe
+-r--r--r--           0 21011318 21011318 Jan 14 11:32 lwninja_chapter5.exe
+-r--r--r--           0 28404281 28404281 Jan 14 11:51 lwn_demo.exe
+-r--r--r--           0 20429162 20429162 Jun 14  1956 mh_demo_install.exe
+dr--r--r--               folder        2 Oct 31 12:24 mh_update Folder
+-r--r--r--           0   173834   173834 Jun 14  1956 mh_update.zip
+dr--r--r--               folder        3 Oct 31 12:24 MonkeyMath
+-r--r--r--           0    14454    14454 Jun 14  1956 MonkeyMath.zip
+-r--r--r--           0 12421982 12421982 Jun 14  1956 nv_demo_install.exe
+-r--r--r--           0  1441152  1441152 Jun 14  1956 pr_install.exe
+-r--r--r--           0  4884600  4884600 Jun 14  1956 pw_demo_install.exe
+-r--r--r--           0  4896599  4896599 Jun 14  1956 sc_install.exe
+-r--r--r--           0  1750426  1750426 Aug 26  1953 vp_demo_install.exe
+-r--r--r--           0   567324   567324 Oct 10  2001 WAInstallA01.EXE
+-r--r--r--           0   568255   568255 Oct 12  2001 WAInstallAlpha.EXE
+-r--r--r--           0  3692343  3692343 Jun 14  1956 za_install.exe
+-r--r--r--           0  3505691  3505691 Sep 18  2001 za_patch.zip
+#WinOS DIR

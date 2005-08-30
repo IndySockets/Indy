@@ -1,0 +1,3 @@
+TXK1VTOC  JOB06349  OUTPUT    4 Spool Files
+TXK1J     JOB06327  OUTPUT    5 Spool Files
+#From:  http://www.workers.com.br/manuais/html/tcpacces/tn/tn05/tn05jes.htm

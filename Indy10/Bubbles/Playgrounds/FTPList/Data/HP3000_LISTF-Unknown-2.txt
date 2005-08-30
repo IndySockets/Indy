@@ -1,0 +1,20 @@
+ACCOUNT = MYACCT      GROUP= MYGROUP]
+
+FILENAME   CODE               -----------LOGICAL RECORD---------
+
+                              SIZE      TYP      EOF      LIMIT
+
+AFILE                         80B      FA       800      204800
+
+AFILE123                      80B      FA       800      204800
+
+AFILE124                      80B      FA       800      204800
+
+AFILENAM                      80B      FA       800      204800
+
+AFILEXX                       80B      FA       800      204800
+
+#From: HP ARPA File Transfer Protocol User’s Guide
+#      HP 3000 MPE/iX Computer Systems
+#      Edition 6
+#From: http://www.docs.hp.com/mpeix/onlinedocs/36957-90159/36957-90159.html

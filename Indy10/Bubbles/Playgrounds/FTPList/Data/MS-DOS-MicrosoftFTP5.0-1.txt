@@ -1,0 +1,6 @@
+12-11-02  11:59AM       <DIR>          Apps
+12-11-02  12:43PM                   43 Copy of FClear.gif
+03-27-02  12:43PM                   43 FClear.gif
+# sent by Jeff Easton
+# in reference to a problem he had noted in the MS-DOS parser.  The bug was that the name was being
+# parsed relative to the first 43 in the time field instead of the 43 size value column.

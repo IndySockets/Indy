@@ -1,0 +1,91 @@
+
+
+Files: 39  Blocks: 481
+
+ w      2  stm       04-11-17 10:14:30  .bash_history
+ w      1  stm       04-09-07 08:59:55  .bashrc
+ w      0  seq       03-07-07 12:53:03  .last_updated
+ w      0  seq       01-08-14 17:39:49  _SWSLE_M12
+ w      4  stm       03-06-22 18:54:13  abbreviations
+ w      1  seq       03-06-10 09:52:34  backup_sys_files.cm
+ w     44  fix-4096  04-09-14 17:50:04  ccache.070C867A.kp
+ w    165  fix-4096  04-09-14 17:50:19  ccache.2.pm
+ w     44  fix-4096  04-09-14 17:31:26  ccache.kp
+ w    165  fix-4096  04-09-14 17:31:06  ccache.pm
+ w      1  seq       03-05-21 08:49:42  ddu_m12.cm
+ w      2  seq       03-05-21 09:07:25  ddu_m12.out
+ w     19  seq       00-02-18 12:06:17  emacs_keystroke_macros
+ w      1  stm       03-12-09 12:46:32  fill_disk.c
+ w      1  seq       04-08-13 09:56:32  fix_limits.cm
+ w      1  seq       00-07-28 16:28:16  go.cm
+ w      2  seq       03-07-02 13:10:58  install_pthreads.cm
+ w      2  stm       04-11-20 19:26:49  logfile
+ w      1  seq       00-08-10 12:44:46  make_tar.cm
+ w      1  seq       03-07-11 11:23:34  notices
+ w      2  seq       01-11-12 13:50:30  pg_mq_changes.cmpf
+ w      4  stm       03-10-06 15:55:17  samba_stuff.tar.gz
+ w      1  seq       00-03-24 11:23:58  shorthand_definitions
+ w      1  seq       04-03-05 12:53:40  sslman.cm
+ w      1  seq       04-03-05 12:49:52  sslman.sh
+ w      1  seq       04-08-13 18:24:03  start_up.cm
+ w      1  seq       01-12-03 14:38:53  start_up.emacs
+ w      1  seq       92-09-29 20:09:55  start_up.sql
+ w      1  seq       95-03-24 17:39:31  start_up.sun_xterm.emacs
+ w      1  seq       01-11-29 14:15:41  start_up.v103.emacs
+ w      1  seq       96-09-04 13:24:21  start_up.v105.emacs
+ w      1  seq       97-02-27 16:20:11  start_up.vt220.emacs
+ w      1  seq       97-02-27 09:30:56  start_up.vt320.emacs
+ w      1  stm       02-01-22 15:58:15  stcp1582.tar.gz
+ w      1  seq       04-03-05 12:46:02  test_sslman.cm
+ w      1  seq       04-03-05 12:48:29  test_sslman.sh
+ w      1  seq       04-03-05 12:52:20  test_sslman2.cm
+ w      1  seq       04-03-05 12:52:43  test_sslman2.sh
+ w      2  stm       04-11-03 13:47:11  winsz.pm
+
+
+Dirs: 23
+
+ m      2  04-09-13 15:13:29  .ccache
+ m      1  04-11-05 20:36:30  .ssh
+ m      1  04-02-25 16:27:43  0.97c
+ m      2  03-09-03 13:39:13  autoconf
+ m      3  03-09-03 13:13:05  autoconf.old
+ m    173  04-11-23 12:05:42  build_farm
+ m      3  04-02-25 16:16:25  fixes.0.97c
+ m      1  04-02-25 16:22:39  fixes.0.97c.8000
+ m      1  03-09-03 13:33:41  install_mq
+ m      1  03-09-03 13:31:53  install_mqp
+ m      6  03-09-03 13:12:19  library
+ m      5  03-09-03 13:34:23  library.hppa
+ m      1  03-09-03 13:35:48  POSIX_ACL
+ m      1  03-09-03 13:35:56  pthreads
+ m      2  03-09-03 13:28:46  sec102
+ m      2  03-09-03 13:28:42  smoke
+ m      1  03-09-03 13:35:46  system
+ m      1  03-09-03 14:51:18  system.orig
+ m      1  03-09-03 13:33:41  test_pl1
+ m      3  04-01-05 15:50:56  test_posix
+ m      2  04-09-24 10:20:57  testcvs
+ m      3  04-06-11 15:46:19  v105
+ m     12  04-11-23 08:24:11  waste_basket
+
+
+Links: 12
+
+03-02-19 07:08:07  bf ->  %swsle#m12_user>Stratus>Green>build_farm 
+03-01-02 10:01:27  CCVS ->  %swsle#m12_test>perennial>CCVS 
+02-03-11 09:19:18  gcc ->  %swsle#m12_multi>Stratus>Green>gcc 
+01-11-08 11:04:45  mq ->  %swsle#m12_user>Stratus>Green>install_mq 
+01-11-08 13:13:54  mqp ->  %swsle#m12_user>Stratus>Green>install_mqp 
+04-02-25 13:47:59  porting_base ->  %es#sc14>products>openssl>porting_base 
+00-10-16 17:41:53  rona ->  %swsle#m12_user>Stratus>Ron_Alexander 
+00-03-27 12:14:02  samba ->  %swsle#m12_multi>Stratus>Green>samba 
+00-02-15 06:59:09  start_up.v103a.emacs ->  %swsle#m12_user>Stratus>Green>start_up.v103.emacs 
+04-06-09 16:55:45  start_up.v109.emacs ->  %swsle#m12_user>Stratus>Green>start_up.v105.emacs 
+00-08-02 20:57:45  start_up.vt100.emacs ->  %swsle#m12_user>Stratus>Green>start_up.vt220.emacs 
+03-06-20 11:38:48  t_simple_threads.pm ->  %swsle#m12_user>Stratus>Green>pthreads>test>t_simple_threads.pm 
+
+#Contributed by Paul Green, Senior Technical Consultant, Stratus Technologies.
+#swslem13 FTP server (OS TCP/IP) ready.
+#Using command:
+#ls

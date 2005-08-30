@@ -1,0 +1,18 @@
+.            <DIR>     11-29-2004  22:04 .
+..           <DIR>     11-29-2004  22:04 ..
+wrar341.exe  1164112   11-22-2004  15:34 wrar341.exe
+test         <DIR>     11-29-2004  22:14 test
+TESTDI~1     <DIR>     11-29-2004  22:16 Test Dir
+TEST~1       <DIR>     11-29-2004  22:52  Test
+#Using SuperTCP 7.1 under Windows 2000
+#ftp> quote syst
+#215 Microsoft Windows 5.0 system type.
+#ftp> quote pwd
+#257 "C:\DATA\" is the current working directory.
+#214- The following commands are accepted:
+#abor    allo    help    mode    noop    pass    pasv    port
+#quit    rein    stat    stru    syst    type    user
+#  The following require that you be logged in:
+#appe    cdup    cwd     dele    list    mkd     nlst    pwd
+#retr    rmd     rnfr    rnto    smnt    stor    stou
+#214  Please send complaints/bugs to: System Administrator.

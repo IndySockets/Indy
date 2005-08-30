@@ -1,0 +1,2 @@
+-------r--         326  1391972  1392298 Nov 22  1995 MegaPhone.sit
+drwxrwxr-x               folder        2 May 10  1996 network

@@ -1,0 +1,11 @@
+
+ Start    End    length     File name
+------------------------------------------
+ 80000   9FFFF   131072   m0622210
+ A0000   A0B7F     2882   ECE221.CGI
+ A0B80   BD36F   116671   RWMLAB42.WEB
+
+ ** Total 3 files, 250736 bytes **
+
+#AWC86 FTP server (MicroRTOS 2.10) ready.
+#from: http://home.xecom.com/AppNotes/MicroRTOS_FTP.htm

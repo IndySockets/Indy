@@ -1,0 +1,16 @@
+09-06-00  02:38AM               295605 bdeinst.zip
+10-21-00  04:22PM                 3460 checkserial.zip
+07-03-01  04:42PM                16018 gpihlp.zip
+01-09-01  03:56PM              1790232 gpinst.exe
+07-14-01  09:51AM              2593722 GPInst.zip
+11-30-01  03:07PM                53878 gpl.zip
+05-19-02  03:25PM                17352 Tcscc.zip
+10-24-02  02:38PM              1510021 TCTrack_manual.pdf
+07-03-01  05:39PM               395507 tcvcs.zip
+10-24-02  02:50PM              2253937 TCVcs_manual.pdf
+06-19-02  06:48AM               582781 UpgradeGPV.zip
+06-19-02  06:50AM               907900 UpgradeTrk.zip
+09-20-00  03:54PM                 8139 vb_addin.zip
+09-26-00  05:04PM                 8275 vbextension.zip
+04-04-01  06:04PM               538089 vcl30.zip
+# Microsoft FTP Service (Version 4.0).  SYST indicated Windows_NT version 4.0

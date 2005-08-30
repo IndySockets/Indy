@@ -1,0 +1,22 @@
+total 0
+- [RWCEAFMS] NFAUUser                          192 Apr 27  2002 HEADER.html
+d [RWCEAFMS] jrd                               512 Jan 11 04:26 allupdates
+d [RWCEAFMS] jrd                               512 Dec 18  2002 apps
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsuk00
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsuk2001
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsuk99
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsus2000
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsus2001
+d [RWCEAFMS] jrd                               512 Mar 27  2002 bsus2002
+d [RWCEAFMS] jrd                               512 Oct 21  2001 bsus99
+d [RWCEAFMS] jrd                               512 Oct 21  2001 drivers
+d [RWCEAFMS] jrd                               512 Oct 24  2001 freebird
+d [RWCEAFMS] jrd                               512 Apr 30  2002 kermit
+d [RWCEAFMS] jrd                               512 Oct 21  2001 macipx
+d [RWCEAFMS] jrd                               512 Jan 04 13:41 misc
+d [RWCEAFMS] jrd                               512 Oct 21  2001 netwatch
+d [RWCEAFMS] jrd                               512 Nov 05  2002 netwire
+d [RWCEAFMS] jrd                               512 Oct 21  2001 odi
+d [RWCEAFMS] jrd                               512 Oct 21  2001 pktdrvr
+d [RWCEAFMS] jrd                               512 Jan 04 13:42 rfc
+d [RWCEAFMS] jrd                               512 Aug 08  2002 UnixWare

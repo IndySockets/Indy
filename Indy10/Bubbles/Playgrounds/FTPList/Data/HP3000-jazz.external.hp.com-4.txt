@@ -1,0 +1,10 @@
+ PATH= /FTPGUEST/PUB/dist/cvs/
+
+ CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+           1B  BA     1163776 2147483647   1     4560  1  *  cvs.tar
+           1B  BA     8668672 2147483647   1    33872  1  *  cvsroot.tar
+           1B  BA       75776 2147483647   1      304  1  *  cvsweb.tar
+
+

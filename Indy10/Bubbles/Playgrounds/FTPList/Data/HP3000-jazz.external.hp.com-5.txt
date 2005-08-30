@@ -1,0 +1,12 @@
+ PATH= /FTPGUEST/PUB/dist/java/
+
+ CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+           1B  BAL         63       1024   1       16  1  *  JDK117.web55.tar
+           1B  BAL         63       1024   1       16  1  *  JDK117.web60.tar
+           1B  BA    22084608 2147483647   1    86272  4  *  JDK12.web60.tar
+           1B  BA    12806144 2147483647   1    50032  1 32  jdk122_patch.tar
+           1B  BA     4677632 2147483647   1    18272  1 32  jvm.tar
+
+

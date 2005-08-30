@@ -1,0 +1,43 @@
+total 0
+- [RWCEAFMS] jrd                            242688 Sep 13  2000 15_io159.ppt
+- [RWCEAFMS] jrd                           1076224 Sep 13  2000 20_tut184.ppt
+- [RWCEAFMS] jrd                            745984 Sep 13  2000 72_RW600.ppt
+- [RWCEAFMS] jrd                              8048 Sep 15  2000 address1.gif
+- [RWCEAFMS] jrd                           5884928 Sep 13  2000 brainshare00.ppt
+- [RWCEAFMS] jrd                          15164416 Sep 13  2000 BS2000_Hackers_Backdoor.ppt
+- [RWCEAFMS] jrd                              3639 Sep 15  2000 bslogo2.gif
+- [RWCEAFMS] jrd                               231 Sep 15  2000 bullet.gif
+- [RWCEAFMS] jrd                            542208 Sep 15  2000 Deploying_ZENworks_Inventory.ppt
+- [RWCEAFMS] jrd                           6864896 Sep 15  2000 DirCommerce2000.ppt
+- [RWCEAFMS] jrd                            431104 Sep 15  2000 DL117_UK.ppt
+- [RWCEAFMS] jrd                           2104320 Jul 19  2000 io117.ppt
+- [RWCEAFMS] jrd                          11445016 Sep 15  2000 io121.zip
+- [RWCEAFMS] jrd                           1162752 Sep 15  2000 io137.ppt
+- [RWCEAFMS] jrd                           5209600 Sep 15  2000 io145.ppt
+- [RWCEAFMS] jrd                           1336320 Sep 15  2000 io156.ppt
+- [RWCEAFMS] jrd                           1515008 Sep 15  2000 io157.ppt
+- [RWCEAFMS] jrd                             15360 Jul 19  2000 jrdlaw.ppt
+- [RWCEAFMS] jrd                             11506 Sep 15  2000 menu.html
+- [RWCEAFMS] jrd                             20065 Sep 15  2000 orig-index.html
+- [RWCEAFMS] jrd                           1361408 Sep 15  2000 pquest_brainshare_uk_2000.ppt
+- [RWCEAFMS] jrd                           2171904 Sep 15  2000 Rw101_pr.ppt
+- [RWCEAFMS] jrd                              1435 Sep 15  2000 Salford Software Ltd.htm
+- [RWCEAFMS] jrd                                26 Sep 15  2000 Salford_Software_Ltd_files
+- [RWCEAFMS] jrd                            742912 Sep 15  2000 ScheMax.ppt
+- [RWCEAFMS] jrd                              1435 Sep 15  2000 ssl.htm
+- [RWCEAFMS] jrd                               412 Sep 15  2000 topbar.html
+- [RWCEAFMS] jrd                           2668544 Sep 15  2000 tut126.ppt
+- [RWCEAFMS] jrd                           1431040 Sep 15  2000 tut128.ppt
+- [RWCEAFMS] jrd                            820224 Jul 17  2000 tut136.ppt
+- [RWCEAFMS] jrd                           2893824 Jul 17  2000 tut161.ppt
+- [RWCEAFMS] jrd                            997376 Sep 15  2000 tut174.ppt
+- [RWCEAFMS] jrd                           1029632 Jul 22  2000 tut176.ppt
+- [RWCEAFMS] jrd                           1971200 Sep 15  2000 tut191.ppt
+- [RWCEAFMS] jrd                           2110976 Sep 15  2000 tut200c.ppt
+- [RWCEAFMS] jrd                            800256 Sep 15  2000 TUT213.ppt
+- [RWCEAFMS] jrd                           1711616 Sep 15  2000 tut260UK.ppt
+- [RWCEAFMS] jrd                           1218560 Sep 15  2000 tut262.ppt
+- [RWCEAFMS] jrd                            586240 Sep 15  2000 TUT268_PR.PPT
+- [RWCEAFMS] jrd                            470016 Sep 15  2000 TUT273_UK.ppt
+d [RWCEAFMS] jrd                               512 Oct 21  2001 Salford Software Ltd_files
+#/bsuk00

@@ -1,0 +1,12 @@
+-[R----F-]  1 szandi        534 Apr 05  2001 virscan.reg
+-[R----F-]  1 szandi        146 Apr 05  2001 readme.txt
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220-Welcome to our experimental ftp server!
+#220-This FTP service is at ftp.hit.bme.hu.
+#220-Anonymous access for our students only (max. 3).
+#220-This is our NOVELL server HIT.
+#220-You are user nr.2 (max. 8).
+#220-Local time is Fri Jan  4 01:18:08 2003.
+#220-Maximum idle time is 5 minutes.
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220 hit FTP Server for NW 3.1x, 4.xx  (v1.10), (c) 1994 HellSoft.

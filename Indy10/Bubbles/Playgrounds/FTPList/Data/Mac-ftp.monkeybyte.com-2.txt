@@ -1,0 +1,23 @@
+-r--r--r--      214334  5784494  5998828 Feb 13  1956 ar_install
+-r--r--r--       74404  4272672  4347076 Jul 16  1956 atv_patch
+-r--r--r--      250406  2088705  2339111 Dec  6  1955 bl_install
+-r--r--r--     3189124        0  3189124 Nov 11  1998 BP_Backgrounds
+-r--r--r--         318  1867875  1868193 Nov 11  1953 bp_backgrounds.sit
+-r--r--r--      214334  3158507  3372841 Feb 15  1956 bp_install
+-r--r--r--      250406   606575   856981 Dec  6  1955 dc_install
+-r--r--r--      103695  1477849  1581544 Jul 16  1956 DS 5.1.2 Update.sea
+-r--r--r--       25090  1269812  1294902 Mar  1  1955 DSDemo 5.1.2 Update.sea
+-r--r--r--      250406  7495372  7745778 Dec  6  1955 ds_install
+-r--r--r--           0  3460088  3460088 Jan 23 18:38 Galactica.sit
+-r--r--r--           0  3854486  3854486 May  8 21:41 Galactica2.1b8.sit
+-r--r--r--           0  3454356  3454356 Aug  8 10:21 ga_special.sit
+-r--r--r--           0  2723006  2723006 Apr 19 18:05 gpatrol.sit
+-r--r--r--           0  6562988  6562988 Jan  2  1956 js_patch.sit
+-r--r--r--      250406  1170745  1421151 Dec  7  1955 kg_install
+-r--r--r--      250406 19819499 20069905 Dec 22  1955 mh_demo_install_new
+-r--r--r--           0   134700   134700 Mar 26  1956 mh_update.sit
+-r--r--r--      250406   126081   376487 Dec  6  1955 mt_install
+-r--r--r--      250406   788232  1038638 Jan 19  1956 pr_install
+-r--r--r--      250406  4021538  4271944 Dec 26 08:34 sc_install
+-r--r--r--           0   306415   306415 Oct  1  2001 vp_demo.sit
+#MacOS DIR

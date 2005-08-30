@@ -1,0 +1,8 @@
+Volume Unit    Referred Ext UsedRecfm Lrecl BlkSz Dsorg Dsname
+WRKLB2 3380   1997/07/02  1    1 F       80    80  PS  TEST.A
+WRKLB2 3380   1997/07/09  4    7 F       80    80  PO  TEST.PDS
+WRKLB2 3380   1997/07/09  2    3 VB      60   256  PO  TEST.PDSV
+WRKLB2 3380   1997/05/09  1    1 F       80    80  PO  TEST.DATA
+WRKLB2 3380   1997/07/01 16   17 V      200  3120  PS  TEST.XYZ
+WRKLB2 3380   1997/07/01 16   17 VB     200 32000  PS  TEST.XYZ1
+# From:  http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/F1AA2032/1.5.15?SHELF=&DT=20001127174124

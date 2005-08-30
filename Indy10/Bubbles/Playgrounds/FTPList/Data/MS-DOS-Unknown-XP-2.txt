@@ -1,0 +1,11 @@
+12-21-02  04:18PM                    0 AUTOEXEC.BAT
+01-18-01  12:57AM                 2185 CFGQUIET.INI
+12-21-02  04:18PM                    0 CONFIG.SYS
+12-23-02  08:01PM       <DIR>          Documents and Settings
+12-22-02  04:45PM       <DIR>          download
+12-23-02  08:04PM       <DIR>          Inetpub
+12-22-02  02:10PM       <DIR>          Program Files
+12-22-02  01:52PM       <DIR>          webApps
+12-22-02  07:00PM       <DIR>          WINDOWS
+12-22-02  04:17PM       <DIR>          WUTemp
+#XP Pro, dutch language:

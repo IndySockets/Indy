@@ -1,0 +1,6 @@
+- - -----0 SEPT         SYSADMIN         AUG 26, 1997 SEQ1
+- - -----0 SEPT         SYSADMIN         AUG 26, 1997 SEQ2
+# From: FTP 7 - File Transfer Protocol    
+# This was a presentation that was made available in PDF form
+# http://www.bull.com/servers/gcos7/ce7/ftp7-en.pdf
+# reconstructed from screen-shots displayed in the presentation

@@ -1,0 +1,20 @@
+total 0
+- [RWCEAFMS]          0                       1576 Feb 08  2000 00README
+- [RWCEAFMS]          0                        742 Jan 03  2001 00INDEX
+- [RWCEAFMS] tjhamalainen                  1020928 Sep 25  2001 winntnw.exe
+d [RWCEAFMS] Okkola                            512 Aug 17 03:42 WINDOWS
+d [RWCEAFMS] Backup                            512 Aug 17 03:47 linux
+d [RWCEAFMS] Okkola                            512 Aug 17 03:48 corel
+d [RWCEAFMS] Kulokari                          512 Aug 17 03:49 MSprod
+d [RWCEAFMS] Kulokari                          512 Aug 17 03:49 WIN95
+d [RWCEAFMS] Okkola                            512 Aug 17 03:56 HARDWARE
+d [RWCEAFMS] manager                           512 Aug 17 04:07 MAC
+d [RWCEAFMS] Kirkinen                          512 Aug 17 04:09 winnt
+d [RWCEAFMS] Okkola                            512 Aug 17 04:16 atkos
+d [RWCEAFMS] Supervisor                        512 Aug 17 04:16 MSDOS
+d [RWCEAFMS] Okkola                            512 Aug 17 04:25 NOVELL
+d [RWCEAFMS] Okkola                            512 Aug 17 04:29 DOC
+d [RWCEAFMS] Okkola                            512 Aug 17 04:30 ADM
+d [RWCEAFMS] Kulokari                          512 Aug 17 04:30 win2000
+d [RWCEAFMS] tjhamalainen                      512 Aug 17 04:30 WinXP
+d [RWCEAFMS] tjhamalainen                      512 Aug 17 04:33 OOffice

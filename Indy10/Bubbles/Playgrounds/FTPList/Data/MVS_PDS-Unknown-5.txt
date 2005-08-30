@@ -1,0 +1,7 @@
+Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode
+$AAAA     000670 000025          00 FO             RN RU            24    24  
+#BBBB     000670 000025 $AAAA    00 FO             RN RU            24    24  
+BNNTP     070590 002C0D          00 FO                              31    ANY  
+CCCCC     000168 00002C          00 FO                              24    24  
+DDDDD     00A3D0 000101          00 FO                              24    24  
+DDDDD2    00BA58 001B14          00 FO                              24    24  

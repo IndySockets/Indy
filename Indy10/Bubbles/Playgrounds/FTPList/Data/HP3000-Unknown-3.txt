@@ -1,0 +1,8 @@
+
+     PATH= /SYS/WORK/temp/
+     CODE    --------LOGICAL RECORD--------         ----SPACE----   FILENAME
+
+     SIZE    TYP   EOF    LIMIT         R/B     SECTORS  #X  MX
+     80B     FA    13820  13820         16       4320    17   8     TESTDATA
+
+#From: "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems, Edition 6"

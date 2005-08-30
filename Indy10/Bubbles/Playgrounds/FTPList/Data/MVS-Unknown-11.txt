@@ -1,0 +1,6 @@
+Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+OVH101 3390   1997/02/20  1   60  FB      80 23200  PO  MICSFILE.CLIST
+OVH131 3390   1997/02/20  1    1  FB      80 23200  PO  MICSFILE.MSGS
+##TCPFTP IBM MVS V3R1 at EPAIBM.RTPNC.EPA.GOV, 12:53:53 on 1997/02/20
+#epaibm.rtpnc.epa.gov
+#from: http://www.flora.org/lynx-dev/html/month021997/msg00660.html

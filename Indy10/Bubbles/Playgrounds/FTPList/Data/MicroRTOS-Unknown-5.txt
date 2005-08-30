@@ -1,0 +1,12 @@
+
+ Start    End    length     File name
+------------------------------------------
+ 80000   9FFFF   131072   mRTOS210
+ A0000   A0B7F     2882   AWC86.CGI
+ A0B80   BD36F   116671   realtime.web
+ BD370   BE88F     5354   <deleted file>
+
+ ** Total 4 files, 256144 bytes **
+
+#AWC86 FTP server (MicroRTOS 2.10) ready.
+#from: http://groups.google.com/groups?q=MicroRTOS+FTP+Server&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=vl7%256.144014%24qv3.40387668%40nnrp5-w.sbc.net&rnum=1

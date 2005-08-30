@@ -1,0 +1,73 @@
+02-05-05  01:44PM       <DIR>          test1
+#Date: Sat, 05 Feb 2005 14:04:44 +0800
+#From: "Michael J. Leaver" <spam@mjleaver.com>
+#Organization: 2BrightSparks
+#User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.3) Gecko/20040913
+# Thunderbird/0.8 Mnenhy/0.6.0.101 via ELKNews 1.2
+#X-Accept-Language: en-us, en
+#MIME-Version: 1.0
+#Newsgroups: atozedsoftware.indy.protocol.ftp
+#Subject: IIS FTP on W2k3, Indy 10, directory listing problem
+#Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+#Content-Transfer-Encoding: 7bit
+#Message-ID: <537C901580BEE240spam@mjleaver.com>
+#Lines: 15
+#Path: vsoft
+#
+#Hi, I'm having a problem with the FTP service on Windows 2003. If it's 
+#configured to return directory listings in Unix format, then there is no 
+#problem. However, if it's configured to return listings in MS-DOS format 
+#(the default) then there is a problem.
+#
+#It doesn't support MLSD/MLST. The output, for example, for doing a list 
+#command is:
+#
+#02-05-05  01:44PM       <DIR>          test1
+#
+#Indy is taking this entire string as the filename.
+#
+#Any ideas?
+#
+#Thanks
+#
+#---
+#Date: Sat, 05 Feb 2005 14:41:41 +0800
+#From: "Michael J. Leaver" <spam@mjleaver.com>
+#Organization: 2BrightSparks
+#User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.3) #Gecko/20040913
+# Thunderbird/0.8 Mnenhy/0.6.0.101 via ELKNews 1.2
+#X-Accept-Language: en-us, en
+#MIME-Version: 1.0
+#Newsgroups: atozedsoftware.indy.protocol.ftp
+#Subject: Re: IIS FTP on W2k3, Indy 10, directory listing problem
+#References: <537C901580BEE240spam@mjleaver.com>
+#In-Reply-To: <537C901580BEE240spam@mjleaver.com>
+#Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+#Content-Transfer-Encoding: 7bit
+#Message-ID: <CE2767E780BEE240spam@mjleaver.com>
+#Lines: 23
+#Path: vsoft
+#
+#Michael J. Leaver wrote:
+#> Hi, I'm having a problem with the FTP service on Windows 2003. If it's 
+#> configured to return directory listings in Unix format, then there is no 
+#> problem. However, if it's configured to return listings in MS-DOS format 
+#> (the default) then there is a problem.
+#> 
+#> It doesn't support MLSD/MLST. The output, for example, for doing a list 
+#> command is:
+#> 
+#> 02-05-05  01:44PM       <DIR>          test1
+#> 
+#> Indy is taking this entire string as the filename.
+#> 
+#> Any ideas?
+#> 
+#> Thanks
+#
+#After investigating further, it appears this problem is only occurring 
+#if the directory has only one sub-directory in it. There are no problems 
+#if there is more than one file or sub-directory, or if there's just one 
+#file in there.
+#
+#HTH

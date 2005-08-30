@@ -1,0 +1,7 @@
+total 0         
+-[RWCEAFMS]     smithx            6650 Nov 05 12:02 xtmlocal.dat
+-[RWCEAFMS]     smithx            6650 Nov 05 12:02 xtmlocal.ndx
+-[RWCEAFMS]     smithx            6650 Nov 05 12:02 xtmparam.ini
+-[RWCEAFMS]     smithx            6650 Nov 05 12:02 xtmzone.ini
+#cgs_grad FTP Server (Netware V4.11) ready 
+#from: http://it.cgu.edu/help/ftpunix.html

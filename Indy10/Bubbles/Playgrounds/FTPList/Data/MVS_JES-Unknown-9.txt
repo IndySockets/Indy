@@ -1,0 +1,2 @@
+OSDATA    JOB04193  OUTPUT    5 Spool Files
+#From:  http://www.infotech.siu.edu/mfsys/howto/mvstcp.htm

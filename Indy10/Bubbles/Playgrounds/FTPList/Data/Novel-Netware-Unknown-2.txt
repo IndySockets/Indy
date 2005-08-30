@@ -1,0 +1,4 @@
+- [R----F-] supervisor              258 Jun 17 93 12:22 ftpgreet.txt 
+d [R----F-] supervisor              512 Mar 29 93 14:57 csn.faq   
+#http://groups.google.com/groups?q=Novell+Netware+FTP+Server+DIR&start=20&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1993Nov19.155455.59502%40dickens.com&rnum=21
+#FTP Server for Novell Netware 3.11

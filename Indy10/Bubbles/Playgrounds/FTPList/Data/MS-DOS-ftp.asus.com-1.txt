@@ -1,0 +1,4 @@
+08-15-02  12:19AM       <DIR>          incoming
+08-31-02  12:37PM       <DIR>          pub
+08-30-02  10:57PM                  132 test
+08-30-02  11:00PM               386531 test.log

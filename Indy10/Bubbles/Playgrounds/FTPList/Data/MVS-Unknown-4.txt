@@ -1,0 +1,4 @@
+Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+Error determining attributes                            MERROR.GDG
+X00023 3390   2000/07/14  1    1  FB     377 27898  PS  MERROR.GDG.G0001V00
+#http://groups.google.com/groups?q=MVS+Directory+list+FTP&start=10&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3A7F0F60.533D2B0B%40hotmail.com&rnum=15

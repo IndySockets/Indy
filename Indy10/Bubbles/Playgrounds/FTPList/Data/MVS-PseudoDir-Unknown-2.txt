@@ -1,0 +1,10 @@
+Volume Unit     Date  Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+WTLSTG 3380K  05/13/96  1    9  FB      80  6160  PO  CLIST
+WTLSTG 3380K  05/13/96  1   10  FB      80  6160  PO  ISPPLIB
+Pseudo Directory                                      TEST
+#z/OS Pseudo directory mode
+#From: 
+#Communications Server for z/OS V1R2 TCP/IP Implementation Guide
+#Volume 2: UNIX Applications
+#URL:  http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
+#

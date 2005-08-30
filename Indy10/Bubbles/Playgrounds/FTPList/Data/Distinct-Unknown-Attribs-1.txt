@@ -1,0 +1,6 @@
+-wa--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+# Part of the Attribute testing noted in DistinctFormatAttribs.txt

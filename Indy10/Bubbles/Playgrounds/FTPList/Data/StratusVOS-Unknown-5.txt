@@ -1,0 +1,5 @@
+w     17  rel-48    02-06-19 18:08:52  cos_cha_pm.vf
+w    548  rel-67    02-08-26 16:52:58  cos_dpa_plan.vf
+w     10  rel-70    00-06-08 13:16:24  cos_ma_sxcdule.vf
+#http://groups.google.com/groups?q=Stratus+ftp+rel&hl=en&lr=&selm=9Lpa9.10094%24fl6.1123470%40news1.west.cox.net&rnum=5
+#continuum series with OS 14.2.2ah

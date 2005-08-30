@@ -1,0 +1,8 @@
+
+Files: 3, Blocks: 104
+
+w         56 stm       03-05-22 10:07:25  choice.pm
+w         20 fix-4096  01-01-25 18:54:33  date_test.pm
+w         28 fix-4096  02-10-24 11:49:25  hello.pm
+
+#From: http://groups.google.com/groups?q=stm+Stratus+ftp&hl=en&lr=&selm=3ECCDDA3.F315A68A%40cvs.com&rnum=1

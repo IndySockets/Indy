@@ -1,0 +1,43 @@
+-[R----F-]  1 supervis      167 Oct 25  1998 anonlogo.txt
+d[R----F-]  1 anonymou      512 Jun 26  2002 pongor
+d[R----F-]  1 supervis      512 Feb 20  2002 bajor
+d[R----F-]  1 supervis      512 Nov 22 12:56 omnetpp
+d[R----F-]  1 anonymou      512 Oct 30  2000 do
+d[R----F-]  1 supervis      512 Oct 14  1999 vargaa
+d[R----F-]  1 anonymou      512 Sep 23 07:45 simon
+d[R----F-]  1 anonymou      512 Dec 11  1998 budai
+d[R----F-]  1 anonymou      512 Sep 27  1999 boroven
+d[R----F-]  1 anonymou      512 Sep 09 19:35 jereb
+d[R----F-]  1 anonymou      512 Nov 13  2001 dallos
+d[R----F-]  1 supervis      512 Dec 05  1995 class
+d[R----F-]  1 supervis      512 Dec 16 09:19 telek
+d[R----F-]  1 supervis      512 Dec 13  2000 bozoki
+d[R----F-]  1 supervis      512 Sep 10 09:25 kovacsi
+d[R----F-]  1 supervis      512 Oct 08 11:46 pfliegel
+d[R----F-]  1 supervis      512 Oct 31  2000 gruber
+d[R----F-]  1 supervis      512 Mar 03  1999 csacsi
+d[R----F-]  1 supervis      512 Jun 18  2002 mihaly
+d[R----F-]  1 supervis      512 Feb 03  1997 lencse
+d[R----F-]  1 supervis      512 Nov 27 11:30 vgy
+d[R----F-]  1 supervis      512 Oct 03 15:00 jakab
+d[R----F-]  1 szandi        512 Dec 09  1998 ferencz
+d[R----F-]  1 supervis      512 May 25  2000 izso
+d[R----F-]  1 supervis      512 Nov 28 10:46 szandi
+d[R----F-]  1 supervis      512 Oct 25  1999 papay
+d[R----F-]  1 elekv         512 Sep 12  1997 elekv
+d[R----F-]  1 supervis      512 Sep 24  1997 szekely
+d[R----F-]  1 supervis      512 Oct 14 12:46 elek
+d[R----F-]  1 supervis      512 Mar 31  1998 granat
+d[R----F-]  1 szandi        512 Sep 20 11:02 nemeth
+d[R----F-]  1 szandi        512 Apr 05  2001 antivir
+d[R----F-]  1 supervis      512 Nov 05  2001 filp
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220-Welcome to our experimental ftp server!
+#220-This FTP service is at ftp.hit.bme.hu.
+#220-Anonymous access for our students only (max. 3).
+#220-This is our NOVELL server HIT.
+#220-You are user nr.2 (max. 8).
+#220-Local time is Fri Jan  4 01:18:08 2003.
+#220-Maximum idle time is 5 minutes.
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220 hit FTP Server for NW 3.1x, 4.xx  (v1.10), (c) 1994 HellSoft.

@@ -1,0 +1,3 @@
+prog1    exe     2,563,136 06-10-99  10:00a
+temp         <dir>         01-27-97   3:41p
+#From TotalCommander help file

@@ -1,0 +1,27 @@
+total 0
+- [RWCEAFMS]          0                        398 Aug 27  1998 00INDEX
+- [RWCEAFMS]          0                        381 Jan 26  1994 00INDEX.7
+- [RWCEAFMS]          0                     206616 Mar 01  1995 HTMLASST.ZIP
+- [RWCEAFMS]          0                      21743 Oct 01  1994 DEADLOCK.TXT
+- [RWCEAFMS]          0                      17592 Dec 19  1994 WINDR2.TXT
+- [RWCEAFMS]          0                       2550 Oct 01  1994 VLMWIN.TXT
+- [RWCEAFMS]          0                      12698 Oct 01  1994 WINVLM.TXT
+- [RWCEAFMS]          0                       1260 Feb 07  1995 WINOHJE.TXT
+d [RWCEAFMS] Okkola                            512 Aug 17 03:42 GRAPHICS
+d [RWCEAFMS] Okkola                            512 Aug 17 03:44 DRIVERS
+d [RWCEAFMS] Okkola                            512 Aug 17 03:44 DESKTOP
+d [RWCEAFMS] Okkola                            512 Aug 17 03:44 UTIL
+d [RWCEAFMS] Okkola                            512 Aug 17 03:45 HYPERTXT
+d [RWCEAFMS] Okkola                            512 Aug 17 03:45 NT
+d [RWCEAFMS] Okkola                            512 Aug 17 03:45 DOC
+d [RWCEAFMS] Okkola                            512 Aug 17 03:45 TEXTPROC
+d [RWCEAFMS] Harjuniemi                        512 Aug 17 03:45 NLS
+d [RWCEAFMS] tjhamalainen                      512 Aug 17 03:46 INTERNET
+d [RWCEAFMS] Okkola                            512 Aug 17 03:46 HWT
+d [RWCEAFMS] tjhamalainen                      512 Aug 17 03:46 MAIL
+d [RWCEAFMS] Kirkinen                          512 Aug 17 03:46 nwclient
+d [RWCEAFMS] Okkola                            512 Aug 17 03:46 TCPIP
+d [RWCEAFMS] Supervisor                        512 Aug 17 03:46 PRINTERS
+d [RWCEAFMS] Okkola                            512 Aug 17 03:46 DEMOS
+d [RWCEAFMS] tjhamalainen                      512 Aug 17 03:46 Programs
+d [RWCEAFMS] Harjuniemi                        512 Aug 17 03:47 SYSTEM

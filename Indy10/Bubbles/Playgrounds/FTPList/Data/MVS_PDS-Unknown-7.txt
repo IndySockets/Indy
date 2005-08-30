@@ -1,0 +1,7 @@
+Name     VV.MM   Created       Changed      Size  Init   Mod   Id
+XXXXXXXX  01.00 1990/11/01 1990/11/01 11:42     2     2     0 XXXXXX2
+XXXXXXX   01.01 1997/04/23 1997/05/02 14:59   242   234    23 XXXXXX  
+XXXXXXX   01.12 1988/10/21 1989/09/28 10:52    54    50    18 XXXXXX  
+XXXXXXX2                                                              
+XXXXXXX   01.01 1988/10/20 1988/10/21 08:33    64    33     1 XXXXXX  
+#textual library:  Sample from Dale Ingold from private E-Mail correspondance.

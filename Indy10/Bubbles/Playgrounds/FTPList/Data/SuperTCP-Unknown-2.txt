@@ -1,0 +1,13 @@
+.               <DIR>           11/16/94        17:16
+..              <DIR>           11/16/94        17:16
+INSTALL         <DIR>           11/16/94        17:17
+CMT             <DIR>           11/21/94        10:17
+DESIGN1.DOC          11264      05/11/95        14:20
+README.TXT            1045      05/10/95        11:01
+WPKIT1.EXE          960338      06/21/95        17:01
+CMT.CSV                  0      07/06/95        14:56
+#http://www.mit.edu/afs/sipb/project/mozilla/src/mozilla/netwerk/streamconv/converters/parse-ftp/3-guess.in
+#SYST type is probably "MS Windows"
+#The author notes this:
+#I couldn't find any SuperTCP or Chameleon/Newt FTP servers, so the
+#following is based on guesswork from the mirror.pl and lynx projects.

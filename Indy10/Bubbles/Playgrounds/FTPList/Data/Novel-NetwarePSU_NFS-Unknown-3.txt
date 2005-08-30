@@ -1,0 +1,6 @@
+-rw------- 1 root wheel   512  Oct 14,  99 8:45 pm deleted.sav
+-rw------- 1 root wheel   3166 Oct 14,  99 8:45 pm vol$log.err
+-rw------- 1 bill support 1285 Oct 14,  99 9:55 pm 123456789.123456
+drw------- 2 mary support 512  Oct 14,  99 7:33 pm locktst
+drwxr-xr-x 1 root wheel   512  Oct 14,  99 4:33 pm brief
+#from: http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/hpyvrshh.html

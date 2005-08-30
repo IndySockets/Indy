@@ -1,0 +1,6 @@
+d  [R----F--]        supervisor    512    Aug 02 20:22  public
+d  [R----F--]        supervisor    512    Aug 09 11:12  misc
+d  [R----F--]        supervisor    512    Aug 02 15:23  software
+d  [R----F--]        supervisor    512    Aug 02 12:34  windows
+   [R----F--]        supervisor   1123    Aug 05 8:12   driver.drv
+#From: http://ww2.mcgill.ca/cc/howto/ip02.htm

@@ -1,0 +1,12 @@
+                 5           DIR   04-01-96   16:31  .
+                 5           DIR   04-01-96   16:31  ..
+               136      A          04-24-96   10:36  a.cmd
+               532      A          11-01-96   19:11  AUTOEXEC.BAK
+               351      A          11-11-96   22:22  AUTOEXEC.BAT
+                 0           DIR   02-18-94   19:47  BC
+             79836      A          11-19-96   19:08  w.txt
+                 0           DIR   08-14-95   13:23  wayne
+                 0           DIR   11-24-95   14:01  windows
+                 0           DIR   08-07-95   21:20  www
+                 0           DIR   12-11-95   13:55  z
+#From: http://groups.google.com/groups?q=OS/2+DIR+format&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=32933d01.68617396%40ntserv02&rnum=7

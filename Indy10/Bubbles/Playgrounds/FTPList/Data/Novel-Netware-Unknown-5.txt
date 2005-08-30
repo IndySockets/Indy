@@ -1,0 +1,3 @@
+- [RWCEAFMS] supervisor 971 Dec 23 10:02 acad.pwd
+#NetWare v3.12
+#From: http://pride.nwsc.k12.ar.us/~high/help/books/unw312/ch30.htm

@@ -1,0 +1,5 @@
+MYUSRIDA JOB05444 OUTPUT 3 spool Files
+MYUSRIDB JOB05766 OUTPUT 6 spool Files
+MYUSRIDC JOB06023 ACTIVE
+MYUSRIDD JOB06045 INPUT -HELD-
+#From:  http://www.wright.edu/cats/docs/docroom/mainframe/mvsftp.htm

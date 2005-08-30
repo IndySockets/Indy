@@ -1,0 +1,135 @@
+08-09-02  02:01PM                  330 00INDEX.TXT
+01-20-03  01:47PM       <DIR>          Bonus
+01-20-03  01:47PM       <DIR>          contrib
+01-20-03  01:47PM       <DIR>          Help
+05-31-02  02:12PM              2957105 sttr3.exe
+05-31-02  02:36PM              2986291 sttr4.exe
+05-31-02  02:37PM              2991063 sttr5.exe
+05-31-02  02:37PM              3028797 Sttr6.EXE
+05-31-02  12:56PM              2934923 sttrc.exe
+05-31-02  12:57PM              2981821 sttrd.exe
+05-31-02  12:58PM              2980109 sttre.exe
+05-31-02  12:59PM              2982771 SttrF.exe
+01-20-03  01:47PM       <DIR>          TechTips
+01-20-03  01:47PM       <DIR>          test
+01-21-03  03:26PM       <DIR>          updates
+
+.\Bonus:
+08-09-02  02:01PM                  189 00INDEX.TXT
+06-07-00  10:40AM                 4751 GOODHASH.DPR
+06-21-00  10:33AM                 4050 OPBCD2.PAS
+11-14-00  10:55AM                 3722 QrStBar.pas
+06-21-00  10:33AM                 2051 readme.txt
+01-13-99  01:22PM               462668 srinst.exe
+06-21-00  10:33AM                 6699 STANUITY.ZIP
+06-21-00  10:33AM                 7611 STMATRIX.ZIP
+06-21-00  10:33AM                 8722 STMLR.ZIP
+06-21-00  10:33AM                 2297 STSTRB.ZIP
+
+.\Help:
+08-09-02  02:01PM                   63 00index.txt
+05-23-00  09:32AM               813116 StHlp16.zip
+05-23-00  09:32AM               753029 StHlpBcb.zip
+05-23-00  09:32AM               768547 SYSTOOLS.zip
+
+.\TechTips:
+08-09-02  02:01PM                   60 00INDEX.TXT
+01-02-02  06:57PM                37376 TechTip 20010713-SysTools-Very large text files.doc
+
+.\test:
+05-31-02  12:33PM                 7147 TASSIGN.DPR
+05-31-02  12:33PM                10275 tastro.dpr
+05-31-02  12:33PM                 5011 TBITS.DPR
+05-31-02  12:33PM                 2807 TBITS2.DPR
+05-31-02  12:33PM                 1317 TBITS3.DPR
+05-31-02  12:33PM                 6272 TCOLL.DPR
+05-31-02  12:33PM                 4399 TCOLL2.DPR
+05-31-02  12:33PM                 3929 TDICT.DPR
+05-31-02  12:33PM                 1671 TDICT2.DPR
+05-31-02  12:33PM                 2141 TDICT3.DPR
+05-31-02  12:33PM                  999 TDQUE.DPR
+05-31-02  12:33PM                  659 TEST.TXT
+05-31-02  12:33PM                13043 TESTBCD.DPR
+05-31-02  12:33PM                 1788 TESTDATE.DPR
+05-31-02  12:33PM                15194 TESTOSTR.DPR
+05-31-02  12:33PM                 8682 TESTSTRL.DPR
+05-31-02  12:33PM                 8710 TESTSTRS.DPR
+05-31-02  12:33PM                 3884 TEXPR.DPR
+05-31-02  12:33PM                 4707 THASH.DPR
+05-31-02  12:33PM                 2524 TLARR.DPR
+05-31-02  12:33PM                 3165 TLARR2.DPR
+05-31-02  12:33PM                 5789 TLARR3.DPR
+05-31-02  12:33PM                 3531 TLARR4.DPR
+05-31-02  12:33PM                 2971 TLIST.DPR
+05-31-02  12:33PM                 2564 TLIST2.DPR
+05-31-02  12:33PM                  944 TLIST3.DPR
+05-31-02  12:33PM                 1888 TLIST4.DPR
+05-31-02  12:33PM                 1427 TLIST5.DPR
+05-31-02  12:33PM                 9787 tpqueue.dpr
+05-31-02  12:33PM                 3294 TSORT.DPR
+05-31-02  12:33PM                 1767 TSORT2.DPR
+05-31-02  12:33PM                11512 tstat.dpr
+05-31-02  12:33PM                 2131 TSTUTIL.PAS
+05-31-02  12:33PM                 5817 TTREE.DPR
+05-31-02  12:33PM                 4378 TVARR.DPR
+
+.\updates:
+03-09-00  02:59PM                  849 00index.bak
+08-09-02  02:01PM                  907 00index.txt
+01-04-99  02:46PM               359999 or217-1.exe
+08-02-96  01:01AM                 1421 st101.txt
+10-21-96  01:02AM                 1685 st102.txt
+05-13-97  07:45PM                 2825 st103.txt
+08-14-97  01:04AM                  729 st104.txt
+10-22-97  09:37AM                  843 st105.txt
+03-02-98  02:06AM                 2358 st106.txt
+03-02-98  03:53PM              2191245 st106p.exe
+07-16-98  03:18PM                 1910 st201.txt
+12-23-98  03:02AM                 2450 st202.txt
+03-31-99  04:17PM                 1136 ST203.TXT
+09-01-99  02:04AM                 1395 St204.txt
+03-08-00  03:04AM                12544 St204Bcb5.TXT
+09-02-99  01:32PM              5120512 St204p.exe
+03-08-00  06:24PM              2270201 St204pBcb5.EXE
+09-02-99  01:40PM              1454080 St204pd.EXE
+09-02-99  01:40PM              1454080 St204pd.W02
+09-02-99  01:40PM              1454080 St204pd.W03
+09-02-99  01:40PM               758279 St204pd.W04
+05-12-00  03:01AM                 4025 st301.txt
+08-09-00  11:02AM                 3417 st302.txt
+07-26-01  01:49PM                 3175 st303.txt
+07-16-01  06:01PM              9737688 ST303p.EXE
+07-16-01  06:00PM              1454080 ST303pd.EXE
+07-16-01  06:00PM              1454080 ST303pd.W02
+07-16-01  06:00PM              1454080 ST303pd.W03
+07-16-01  06:00PM              1454080 ST303pd.W04
+07-16-01  06:00PM              1454080 ST303pd.W05
+07-16-01  06:00PM              1454080 ST303pd.W06
+07-16-01  06:00PM              1013212 ST303pd.W07
+07-20-00  09:19AM                12751 ST3fix.txt
+03-07-02  05:06PM                 1826 ST401.TXT
+03-25-02  04:59PM             11249394 ST401p.EXE
+03-25-02  05:00PM              1454080 ST401pd.EXE
+03-25-02  05:00PM              1454080 ST401pd.W02
+03-25-02  05:00PM              1454080 ST401pd.W03
+03-25-02  05:00PM              1454080 ST401pd.W04
+03-25-02  05:00PM              1454080 ST401pd.W05
+03-25-02  05:00PM              1454080 ST401pd.W06
+03-25-02  05:00PM              1454080 ST401pd.W07
+03-25-02  05:00PM              1076608 ST401pd.W08
+01-02-03  09:25AM                44614 st402.htm
+09-25-02  11:17AM             12136710 st402p.exe
+09-25-02  11:18AM              1454080 st402pd.exe
+09-25-02  11:18AM              1454080 st402pd.w02
+09-25-02  11:18AM              1454080 st402pd.w03
+09-25-02  11:18AM              1454080 st402pd.w04
+09-25-02  11:18AM              1454080 st402pd.w05
+09-25-02  11:18AM              1454080 st402pd.w06
+09-25-02  11:18AM              1454080 st402pd.w07
+09-25-02  11:18AM              1454080 st402pd.w08
+09-25-02  11:18AM               504201 st402pd.w09
+#Microsoft IIS in Unix list mode.
+#ftp> quote site dirstyle
+#MSDOS-like directory output is on
+# DIR - pub/systools
+# DIR -R

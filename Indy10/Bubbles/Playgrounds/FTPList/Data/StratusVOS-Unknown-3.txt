@@ -1,0 +1,4 @@
+w     17  rel-48    02-06-19 18:08:52  cos_cha_pm.vf
+w    548  rel-67    02-08-26 16:52:58  cos_dpa_plan.vf
+w     10  rel-70    00-06-08 13:16:24  cos_ma_sxcdule.vf
+#From: http://groups.google.com/groups?q=Stratus+VOS+stm&hl=en&lr=&selm=A2A34F15EE916148BC4C4748223E67A4027C2B27%40EXNA4.stratus.com&rnum=5

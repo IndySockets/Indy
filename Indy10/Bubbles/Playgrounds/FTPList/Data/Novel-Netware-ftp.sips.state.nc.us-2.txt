@@ -1,0 +1,9 @@
+total 0
+- [RWCEAFMS] Sbrown                       19437573 Aug 07  2001 zfd3pt3a.exe
+- [RWCEAFMS] Sbrown                          23587 Aug 04  2000 readme.pdf
+- [RWCEAFMS] Sbrown                        9143832 Aug 06  2001 ORKTools.exe
+- [RWCEAFMS] Sbrown                       47330667 Jun 25  2001 zfd3sp1.exe
+- [RWCEAFMS] Sbrown                       13680961 Aug 02  2001 w9x33e.exe
+- [RWCEAFMS] Sbrown                       35190272 Jun 21  2001 c1.exe
+- [RWCEAFMS] Sbrown                       14246243 Mar 23  2001 wnt48e.exe
+- [RWCEAFMS] Sbrown                          48640 Aug 08  2001 ITS State of NC.doc

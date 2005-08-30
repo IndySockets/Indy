@@ -1,0 +1,13 @@
+d-a--        10134        Apr 19       11-27      test.exe
+#Distinct FTP Server component sample data extracted from:
+#FTP Server
+#ActiveX Control
+#
+#File Transfer Protocol
+#(RFC 959)
+#ActiveX Control
+#for Microsoftâ Windowsä
+#Version 4.01
+#Copyright Ó 1996 - 1998 by Distinct Corporation
+#All rights reserved
+#'  ' in filename probably intentional

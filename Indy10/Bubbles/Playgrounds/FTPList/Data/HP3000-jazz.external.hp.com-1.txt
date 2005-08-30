@@ -1,0 +1,11 @@
+ PATH= /FTPGUEST/PUB/
+
+ CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+           1B  BA         605 2147483647   1       16  1  *  .sh_history
+          16W  HBD          0   67107839   1       32  1  *  dist/
+           1B  BA           0 2147483647   1        0  0  *  index.html
+
+
+#HP ARPA FTP Server [A0009O15] (C) Hewlett-Packard Co. 2000 [PASV SUPPORT]

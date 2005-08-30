@@ -1,0 +1,6 @@
+- m        SEPT         DAT              AUG 25, 1997 MEMBER0
+- m        SEPT         DAT              JUN 10, 1997 MEMBER1
+# From: FTP 7 - File Transfer Protocol    
+# This was a presentation that was made available in PDF form
+# http://www.bull.com/servers/gcos7/ce7/ftp7-en.pdf
+# reconstructed from screen-shots displayed in the presentation

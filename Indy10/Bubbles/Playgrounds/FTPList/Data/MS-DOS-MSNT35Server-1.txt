@@ -1,0 +1,16 @@
+01-29-97  03:13PM                   46 #remote.cmd#
+01-30-97  09:43PM       <DIR>          .
+01-30-97  09:43PM       <DIR>          ..
+01-29-97  12:35PM       <DIR>          bin
+01-20-97  01:15PM                 1514 brent.pmc
+01-09-97  04:09PM                 2307 channel
+01-29-97  11:29PM                   74 diff1
+01-29-97  11:30PM                   76 diff2
+01-09-97  06:42PM       <DIR>          trash
+01-02-97  05:50PM              8366080 tstrel.tar
+01-04-97  12:38PM                 1426 w.ph
+01-04-97  12:38PM                 1522 w.ph.orig
+01-08-97  11:20AM       <DIR>          why_is_nt_this_way
+01-23-97  06:36PM       <DIR>          Windows
+#http://www.hpl.hp.co.uk/people/ange/archives/archives-97/ange-ftp-lovers-archive/0006.html
+#220 ntbox Windows NT FTP Server (Version 3.5).

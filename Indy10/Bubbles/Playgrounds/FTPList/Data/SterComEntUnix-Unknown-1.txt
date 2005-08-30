@@ -1,0 +1,6 @@
+-C--E-----FTP B BCC3I1       7670  1294495 Jan 13 07:42 ConEnt file
+-C--E-----FTS B BCC3I1       7670  1294495 Jan 13 07:42 ConEnt file2
+-AR--M----TCP B ceunix      17570  2313708 Mar 29 08:56 ALL_SHORT1.zip
+#Obtained from comments in the FileZilla FTP directory list parsing source code
+#directorylistingparser.cpp
+#No GNU code was

@@ -1,0 +1,21 @@
+
+
+Files: 6  Blocks: 5
+
+ w      0  seq       04-07-23 12:23:10  zz._aaaYpIOZx7ybDkoW
+ w      1  seq       04-10-06 09:38:25  zz._aaaYpIOZyj4bDaW9
+ w      1  seq       04-11-09 12:51:28  zz._aaaYpIOZypybDihj
+ w      1  seq       04-11-23 14:44:20  zz.dataoutput.temp.txt
+ w      1  seq       04-11-23 10:00:02  zzFf.temp.txt
+ w      1  seq       04-11-23 12:00:03  zzYY.temp.txt
+
+
+Dirs: 0
+
+
+
+Links: 0
+
+
+#Stratus VOS OS TCP/IP
+#Sent by John Cassidy,  EuroConex Technologies Ltd.

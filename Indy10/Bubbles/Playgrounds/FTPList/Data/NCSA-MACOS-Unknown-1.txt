@@ -1,0 +1,8 @@
+Desktop Folder/
+The Beauty of Fractals Lab/
+##http://www.networkcomputing.com/unixworld/grabbag/08.lst.html#L2A
+#Sample session:
+#MAC NCSA
+#Macintosh Resident FTP server, ready
+#
+#Note that this ONLY gives file names and a "/" if it's a dir

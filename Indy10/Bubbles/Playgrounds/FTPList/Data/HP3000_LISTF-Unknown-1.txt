@@ -1,0 +1,15 @@
+ACCOUNT = MYACCT             GROUP = MYGROUP]
+
+FILENAME   CODE               -----------LOGICAL RECORD-----------
+
+                              SIZE     TYP       EOF      LIMIT
+
+NSCREEN1                      256B      FA       800      10000
+
+NSCREEN2                       80B      FA       500      14000
+
+NSPROGX PROG                 1934W      VB       4551      9480
+
+PROGRAMX                      256B      FA        700      1350
+
+#From: "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems, Edition 6"

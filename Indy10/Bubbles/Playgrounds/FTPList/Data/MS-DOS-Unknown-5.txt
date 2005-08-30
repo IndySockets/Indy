@@ -1,0 +1,7 @@
+07-23-96  05:56AM       <DIR>          .
+07-23-96  05:56AM       <DIR>          ..
+07-23-96  05:56AM                  121  patmcron
+07-23-96  05:56AM                  118 patmcron2
+#What if space added before " patmcron"
+#May be NT 3.51
+#http://groups.google.com/groups?q=Windows+NT+3.51+FTP+Server+DIR&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=31F8025E.41A3%40imsi.com&rnum=7

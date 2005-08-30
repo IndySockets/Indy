@@ -1,0 +1,8 @@
+
+PATH= /SYS/PUB/
+     CODE    --------LOGICAL RECORD--------         ----SPACE----   FILENAME
+
+     SIZE    TYP   EOF    LIMIT         R/B     SECTORS  #X  MX
+      80B     FA    38    2147483647     1       16       1  32     bytestrm
+
+#From: "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems, Edition 6"

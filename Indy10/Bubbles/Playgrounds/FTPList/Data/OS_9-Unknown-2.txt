@@ -1,0 +1,9 @@
+                          Directory of proj 11:46:14
+ Owner    Last modified  Attributes Sector Bytecount Name
+–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  1.78    92/02/22 2007   ––ewrewr      F8       128 mine
+# dir proj
+#From:  OS-9 Internet, Software Reference Manual
+#Copyright W 1992 Microware Systems Corporation.
+#Found at: www.ab.com/manuals/abs/17716411.pdf
+#OS–9 ftp server V1.0 ready

@@ -1,0 +1,21 @@
+
+
+Files: 6  Blocks: 13
+
+ w      3  seq       04-08-18 11:20:32  abbreviations
+ w      1  seq       04-08-18 11:22:39  start_up.cm
+ w      1  seq       04-08-18 11:20:15  start_up.emacs
+ w      2  stm       04-10-08 14:32:00  test.obj
+ w      1  seq       04-10-08 14:31:57  test.pl1
+ w      5  stm       04-10-08 14:32:03  test.pm
+
+
+Dirs: 0
+
+
+Links: 0
+
+
+#Charlie Spitzer
+#stratus customer service
+#Stratus Technologies Bermuda Ltd. 

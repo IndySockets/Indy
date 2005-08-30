@@ -1,0 +1,14 @@
+Volume Unit  Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+Pseudo Directory                                      DB2
+Pseudo Directory                                      ESA4
+Pseudo Directory                                      ISPF
+Pseudo Directory                                      ISPFESA
+WTLSTG 3380K  05/13/96  1    1  VB     136 23476  PS  PRINT
+Pseudo Directory                                      SPFLOG1
+Pseudo Directory                                      SPFTEMP1
+#z/OS Pseudo directory mode
+#From: 
+#Communications Server for z/OS V1R2 TCP/IP Implementation Guide
+#Volume 2: UNIX Applications
+#URL:  http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
+#

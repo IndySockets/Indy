@@ -1,0 +1,19 @@
+-wa--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+#Timestamp test with createtest.txt.  
+#Corresponding local Dir entry:
+#12/29/2002  01:42p                  23 CreateTest.txt
+#I suspect that this server returns the timestamp as GMT
+#The SMTP GMT offset here is -500 (Eastern Standard Time in West Virginia using daylight savings time)
+#
+#Local list:
+#12/29/2002  01:42p      <DIR>          .
+#12/29/2002  01:42p      <DIR>          ..
+#12/29/2002  02:00a                  60  Readme.txt
+#12/29/2002  01:56a               7,665 01-BG-980.pdf
+#04/27/2002  09:45p             520,750 15585_sample_application.zip
+#12/29/2002  01:42p                  23 CreateTest.txt
+#12/29/2002  01:51a      <DIR>          test

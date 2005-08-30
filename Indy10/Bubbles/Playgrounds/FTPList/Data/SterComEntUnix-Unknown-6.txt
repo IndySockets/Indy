@@ -1,0 +1,6 @@
+-C--E-----FTP B 204739      23754      895 Aug 26 01:31 WACH820.000000066.pgp
+-C--E-----FTP B 204739      45109      895 Aug 26 02:31 WACH820.000000066.pgp
+-C--E-----FTP B 204739      41174      895 Aug 26 03:31 WACH820.000000066.pgp
+-C--------FTP B 204739       8549      895 Aug 26 04:31 WACH820.000000066.pgp
+Total number of batches listed: 4
+#Contributed by Jeff Easton

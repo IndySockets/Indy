@@ -1,0 +1,7 @@
+- [R----F--] grb0.ou=2102.ou=2100.ou=psc.      976 Aug 16  2000 ws_ftp.ini
+- [R----F--] grb0.ou=2102.ou=2100.ou=psc.   634504 May 23 15:37 scr55en.exe
+- [R----F--] cjw3.ou=2102.ou=2100.ou=psc.  2806239 Dec 16 09:00 provider.txt
+- [R----F--] grb0.ou=2102.ou=2100.ou=psc.     3431 Sep 16 08:44 sendwork.vbs
+- [R----F--] grb0.ou=2102.ou=2100.ou=psc.  6517302 Feb 11 10:15 hs_prvdr.txt
+- [R----F--] j4w.ou=2102.ou=2100.ou=psc.        99 May 15  2000 physst~1.txt
+#Novell Netware v4.11

@@ -1,0 +1,4 @@
+Files: 1, Blocks: 8
+
+w          8 seq       99-07-28 08:45:12  F_erlg.99-07-27
+#From: ftp://ftp.stratus.com/pub/vos/doc/answers/file_info.txt

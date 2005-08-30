@@ -1,0 +1,9 @@
+drwx------ 1 BUILTIN AACKERMAN 0 May 11 16:17 .
+drwx------ 1 BUILTIN BUILTIN 0 May 11 16:17 ..
+drwx------ 1 BUILTIN AACKERMAN 0 Apr 24 13:51 Acrobat Reader
+drwx------ 1 BUILTIN AACKERMAN 0 Mar 13 2000 Aladdin
+drwx------ 1 BUILTIN AACKERMAN 0 Jan 7 1999 Apple QuickTime 3.0
+drwx------ 1 BUILTIN AACKERMAN 0 Mar 19 12:27 CEC32
+-rwx------ 1 BUILTIN AACKERMAN 2871 May 23 1999 CGI Test Cases.html
+-rwx------ 1 BUILTIN AACKERMAN 328672 Jul 7 1998 cgminivw.exe
+# http://fetchsoftworks.com/ubb/Forum2/HTML/000098.html

@@ -1,0 +1,26 @@
+access.txt        1,067 21:24 10/24/93   alias.gw            806 16:32 10/15/93
+alias               806  0:12 10/25/93   arc/                     0:33  1/01/80
+areas.gw            118 16:33 10/15/93   astclock.com      2,547 12:30  5/22/85
+asyat.nos            46 16:44 10/15/93   atpac.nos            33 16:35 10/15/93
+autoexec.bak      2,459 18:08 11/22/93   autoexec.org      3,489 16:27 10/15/93
+autoexec.nos      2,518 23:42 12/15/93   autoexec.bat        163 23:07 10/24/93
+bm.rc               361  2:26  9/02/88   command.com      47,845  5:00  4/09/91
+config.sys          125 17:24 11/08/93   diff.exe          7,102 16:46  4/18/88
+diskpark.ref      2,176 16:19  3/14/87   diskpark.com      1,871 13:51  3/11/87
+domain.bak          465 23:35  2/08/94   domain.sav          505 23:26  2/27/94
+domain.txt          505 23:26  2/27/94   dos/                     0:47 12/24/90
+drivers/                18:30  8/30/92   finger/                  0:35  1/01/80
+ftpusers          2,513 18:56  2/04/94   grep.exe          6,706 16:47  4/18/88
+ifcent.nos          101 16:36 10/15/93   kedit/                   0:37  1/01/80
+mirror.fil       50,176  1:02  8/14/92   nos/                     0:51 12/24/90
+nu.hlp           10,919 16:51  1/03/89   nu.exe          141,178 16:51  1/03/89
+nudemo.bat        4,912 16:00  3/01/87   pctools/                 0:35  1/01/80
+pkunzip.exe      23,528  1:10  3/15/90   procomm/                 0:32  1/01/80
+public/                  0:40  1/01/80   rewrite.gw          233 16:33 10/15/93
+runnet.bat          165 18:15 11/22/93   runpro.bat           26 18:12  9/14/87
+spool/                   0:37  1/01/80   tmp20.$$$             0 17:12  3/26/94
+wdplus/                  0:33  1/01/80   
+43 files. 11,642,880 bytes free. Disk size 32,602,112 bytes.
+#
+# KA9Q NOS FTP version 911229 WG7J v1.09 (K2MF v1.08 - 8088)
+# http://www-uk.hpl.hp.com/people/ange/archives/archives-95/efs-bugs-archive/0056.html

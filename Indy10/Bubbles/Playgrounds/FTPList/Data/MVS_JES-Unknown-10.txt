@@ -1,0 +1,2 @@
+OSDATA   JOB04193  ACTIVE
+#From:  http://www.infotech.siu.edu/mfsys/howto/mvstcp.htm

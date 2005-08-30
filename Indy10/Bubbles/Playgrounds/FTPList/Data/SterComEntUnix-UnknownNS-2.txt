@@ -1,0 +1,8 @@
+ACME    00000020 00000152 <test batch>       990926-1431 CD   FTP ASC
+ACME    00000019 00000152 <test batch>       990926-1435 CD   FTP ASC
+ACME    00000014 00000606 <cmuadded locally> 990929-1306 A R TCP BIN
+ACME    00000013 00000606 <orders>           990929-1308 A R TCP EBC
+ACME    00000004 00000606 <orders>           990929-1309 A R TCP ASC
+Total Number of batches listed: 5
+#"Connect:Enterprise® UNIX Remote User’s Guide Version 2.1 " Copyright
+#1999, 2002, 2003 Sterling Commerce, Inc.

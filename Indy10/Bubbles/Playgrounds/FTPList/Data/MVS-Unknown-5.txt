@@ -1,0 +1,7 @@
+Volume Unit     Date  Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+STG002 3380E  01/11/94  1    1  VB      84  4096  PS  MIME.$README
+STG007 3380E  01/20/94  1    1  FB      80  4000  PS  MIME.BASE64DC.ASM
+STG006 3380E  01/10/94  1    1  FB      80  3200  PS  MSDOS.$README
+Migrated                                              MSDOS.ALIAS.CMD
+Migrated                                              MSDOS.ALIAS.COM
+# http://groups.google.com/groups?q=MVS+FTP+Server+list&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=5005%40mutt.mdavcr.mda.ca&rnum=8

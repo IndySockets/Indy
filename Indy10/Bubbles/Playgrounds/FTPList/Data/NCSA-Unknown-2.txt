@@ -1,0 +1,6 @@
+s10a               16246 02-20-94  23:08
+cart-sou.tar      263806 04-19-94  13:47
+729088 Bytes Available
+##http://www.networkcomputing.com/unixworld/grabbag/08.lst.html#L2A
+#Sample session:
+#PC Resident FTP 2.2TN/TC-D server, ready

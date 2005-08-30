@@ -1,0 +1,5 @@
+USERIDF    JOB10072  OUTPUT    2 Spool Files
+USERIDG    JOB10300  OUTPUT    0 Spool Files
+USERIDG    JOB10320  OUTPUT    2 Spool Files
+USERID1    TSU02913  ACTIVE
+#From: http://groups.google.com/groups?q=MVS+JES+FTP+DIR+Output&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=9709088763.AA876336590%40mail.nwrdc.fsu.edu&rnum=2

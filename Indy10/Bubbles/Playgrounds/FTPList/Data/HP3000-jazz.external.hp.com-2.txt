@@ -1,0 +1,15 @@
+ PATH= /FTPGUEST/PUB/dist/
+
+ CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+          16W  HBD          0   67107839   1       32  1  *  apache/
+          16W  HBD          0   67107839   1       32  1  *  cvs/
+          16W  HBD          0   67107839   1       32  1  *  java/
+ NMPRG   128W  FB         635        635   1      640  1  8  mover635.bin
+           1B  BA    11810048 2147483647   1    46144  1 32  mpekxr8.std
+           1B  BA     2129408 2147483647   1     8320  1  *  patchix55.store
+           1B  BA     2795520 2147483647   1    10928  1  *  patchix60.store
+           1B  BA         115 2147483647   1       16  1  *  testfile
+
+

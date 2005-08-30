@@ -1,0 +1,9 @@
+ PATH= /PH/SAPHP/
+
+ CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+        1024B  FA           1     204800   1       16  1 32  TOTO
+
+
+#Lost source info.

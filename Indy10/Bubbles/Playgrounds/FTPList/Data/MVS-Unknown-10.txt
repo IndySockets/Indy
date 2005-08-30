@@ -1,0 +1,6 @@
+Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+SBOX02 3390   **NONE**    1    1  FB      80 27920  PO  'TCPIPB.TEMP.FILES'
+SBOX02 3390   **NONE**    1    1  FB      80 27920  PO  'TCPIPB.TEMP2.FILES'
+SBOX02 3390   **NONE**    1    1  FB      80 27920  PO  'TCPIPB.TEMP3.FILES'
+#From: Communications Server for z/OS V1R2 TCP/IP Implementation Guide Volume 2: UNIX Applications
+#URL: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf

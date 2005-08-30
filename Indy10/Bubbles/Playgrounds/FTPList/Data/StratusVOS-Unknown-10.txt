@@ -1,0 +1,16 @@
+
+
+Files: 1  Blocks: 1
+
+ w      1  seq       04-10-29 10:35:19  temp_._aaaO.04-10-29
+
+
+Dirs: 0
+
+
+
+Links: 0
+
+
+#Stratus VOS SFTP 
+#Send by John Cassidy,  EuroConex Technologies Ltd.

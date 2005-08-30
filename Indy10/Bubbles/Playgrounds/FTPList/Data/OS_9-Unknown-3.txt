@@ -1,0 +1,12 @@
+                            Directory of . 10:52:50
+ Owner    Last modified  Attributes Sector Bytecount Name
+–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  1.78    92/04/03 1306   –––wr–wr     104       248 .login
+  0.0     92/02/22 2007   d–ewrewr      F4        96 PROJ
+  1.78    92/02/22 1052   ––––––wr   78030       212 aschartnew.c
+  1.78    92/03/12 0841   ––––––wr     124     56984 mbox
+  1.78    92/03/12 0840   ––––––wr     10C      9939 srcfile
+#From:  OS-9 Internet, Software Reference Manual
+#Copyright W 1992 Microware Systems Corporation.
+#Found at: www.ab.com/manuals/abs/17716411.pdf
+#OS–9 ftp server V1.0 ready

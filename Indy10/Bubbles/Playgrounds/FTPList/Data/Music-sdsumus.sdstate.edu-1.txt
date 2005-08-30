@@ -1,0 +1,5 @@
+  File name             RlenRf  Size  Read       Write     By      Attrbs #Recs
+ABC                       47VC    2K 08JAN03 24SEP96 14:30 $000000  CR        5
+PUB\                   <DIR>      2K 0000000 24SEP96 14:30 $PUB000            0
+#ftp> quote syst
+#215 MUSIC/SP is the operating system of this server. System name: MUSIC

@@ -1,0 +1,8 @@
+-[RWCEAFMS] server1          3166     Sept 14, 99 2:30 pm vol$log.err
+-[RWCEAFMS] bill             1285     Sept 14, 99 3:39 pm 1234567.123
+d[RWCEAFMS] supervisor       512     Sept 14, 99 4:20 pm deleted.sav
+d[RWCEAFMS] mary            512    Sept 14, 99 8:50 pm locktst
+d[RWCEAFMS] root            512    Sept 14, 99 8:55 pm brief
+#from: http://www.novell.com/documentation/lg/nw5/docui/index.html#../usprint/unixpenu/data/hpyvrshh.html
+#Netware 5.0
+#NetWare Print Services for UNIX, FTP File Transfer Service

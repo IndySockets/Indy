@@ -1,0 +1,7 @@
+Name      VV.MM  Created   Changed  Time     Size    Init  Mod  ID
+TEST      01.00  92/02/28  92/02/28 10:09       5       5    0  EDJAFFE
+TESTFIND  01.01  94/12/30  94/12/31 16:23    1514    1514  252  EDJAFFE
+TESTLONG  01.01  94/12/31  94/12/31 16:24       8       8    1  EDJAFFE
+TESTSWB   01.04  95/01/18  95/06/19 12:21      27      26   18  EDJAFFE
+TESTSYM   01.00  96/08/21  96/08/21 13:52       6       6    0  EDJAFFE
+#From: http://groups.google.com/groups?q=IBM+FTP+Server+DIR&start=40&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=edjaffeDxur4y.28K%40netcom.com&rnum=48

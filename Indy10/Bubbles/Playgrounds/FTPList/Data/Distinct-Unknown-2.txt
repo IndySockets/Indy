@@ -1,0 +1,6 @@
+-wa--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+d----           0  Dec 29,2002   6:51  test
+#Distinct TCP/IP FTP Server ready.
+#Distinct FTP Server-32 Version 3.0

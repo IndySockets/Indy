@@ -1,0 +1,3 @@
+Volume Unit     Date  Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+DMLS03 3390   09/11/92  3    4  VB     256  6233  PS  RFCINDEX
+# http://groups.google.com/groups?q=MVS+Directory+list+FTP&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=10920917103801/0003858921NA1EM%40mcimail.com&rnum=1

@@ -1,0 +1,4 @@
+-r--r--r--           0   348160   348160 Mar  6  2001 Monster Hunter.exe
+-r--r--r--           0     1695     1695 Apr  9  2001 Update_ReadMe.txt
+# "/WinOS/mh_update Folder/" is current directory.
+#Dir WinOS - MacOS Peter's Server

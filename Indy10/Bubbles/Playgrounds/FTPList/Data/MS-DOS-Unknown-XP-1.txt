@@ -1,0 +1,5 @@
+12-30-02  07:56PM              3439242 APR.ZIP
+12-30-02  08:14PM              3128320 SMSCLI.exe
+12-30-02  08:14PM              1090560 smsMail.exe
+12-30-02  08:14PM               780800 SvcNewsSender.exe
+#Windows XP with IIS

@@ -1,0 +1,21 @@
+_dat         <DIR>        06-13-1998  11:40
+_sys         <DIR>        06-13-1998  11:40
+bin          <DIR>        06-13-1998  11:40
+etc          <DIR>        06-13-1998  11:40
+nws          <DIR>        06-13-1998  11:40
+tmp          <DIR>        06-13-1998  11:40
+src          <DIR>        06-13-1998  11:40
+www          <DIR>        06-13-1998  11:40
+app          <DIR>        06-13-1998  11:40
+man          <DIR>        06-13-1998  11:40
+out          <DIR>        09-15-1998  09:09
+battlog.log         10380 01-04-1999  13:06
+autoexec.bat          266 11-15-1998  22:50
+bigfile.zip       1157682 01-02-1999  12:48
+telnet.exe         208160 12-31-1998  11:21
+config.tel            199 12-31-1998  15:34
+ftp.exe            131696 12-31-1998  11:22
+.                  317440 Bytes Available
+#LXTCP - a FTP Server for the HP200LX Palmtop - I think it is MS-DOS based
+#Note that the server is derrived from one included with the Public Domain NCSA Telnet
+#http://www.technoir.nu/hplx/hplx-l/9901/msg00058.html

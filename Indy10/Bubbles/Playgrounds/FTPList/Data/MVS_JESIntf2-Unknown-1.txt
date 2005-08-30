@@ -1,0 +1,7 @@
+JOBNAME  JOBID    OWNER    STATUS CLASS
+ASCHINT  STC00968 IBMUSER  ACTIVE STC
+ASCHINT  STC00966 IBMUSER  ACTIVE STC
+ASCHINT  STC00965 IBMUSER  ACTIVE STC
+ASCHINT  STC00964 IBMUSER  ACTIVE STC
+#From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
+#Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf

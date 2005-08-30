@@ -1,0 +1,5 @@
+ka9q/         18:23  5/04/93      hamradio/      10:23  1/02/93 
+util/         12:32  1/12/93      docs/          13:14  6/07/93
+readme  2,32  11:20  1/03/93 
+5 files 
+#http://wwwnt.if.pwr.wroc.pl/up/mtk/2001/wasilewski_grzegorz/ftp/VASFTP.HTM

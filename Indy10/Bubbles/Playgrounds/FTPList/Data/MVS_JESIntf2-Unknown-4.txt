@@ -1,0 +1,7 @@
+JOBNAME  JOBID    OWNER    STATUS CLASS
+BPXAS    STC02133 ++++++++ OUTPUT STC      RC=000 2 spool
+BPXAS    STC00916 ++++++++ OUTPUT STC      RC=000 2 spool
+BPXAS    STC02132 ++++++++ ACTIVE STC
+BPXAS    STC02131 ++++++++ ACTIVE STC
+#From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
+#Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf

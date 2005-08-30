@@ -1,0 +1,42 @@
+
+
+Files: 8  Blocks: 280275
+
+ w     10  fix-4096  04-11-24 11:29:12  fixed
+ w      0  msg       04-11-24 11:29:42  mq
+ w 158238  seq       04-11-24 11:27:32  newe
+ w 121217  stm       04-11-24 11:27:35  newes
+ w    809  rel-32767 04-11-24 11:28:46  rel
+ w      1  rel-10    04-11-24 11:28:18  rel10
+ w      0  svr       04-11-24 11:29:25  sq
+ w      0  sv1       04-11-24 11:30:02  sq-1way
+
+
+Dirs: 2
+
+ m      1  04-11-24 11:30:35  more_source
+ m      1  04-11-24 11:30:25  test
+
+
+Links: 3
+
+04-11-24 11:30:51  seq ->  %vse1#m11_mas>Stratus>Newman>seq
+04-11-24 11:30:51  seq1 ->  %vse1#m11_mas>Stratus>Newman>seq1
+04-11-24 11:30:51  seq2 ->  %vse1#m11_mas>Stratus>Newman>seq2
+
+#Contributed by Otto Newman, Stratus Technologies
+#
+#His notes are below:
+#
+#There are two ftps that run on VOS, which run with a streams 
+#TCP stack and an OS embedded TCP.
+#
+#The id banner is a little different for each, but most everything 
+#else is the same. 
+#
+#Transmit sizes are shown in terms of bytes which are blocks * 4096.
+# 
+#There are some type extensions to support different file types 
+#(type sequential).  VOS has sequential, relative, fixed, stream,
+# message_queue, and server_queues - there's an example of each 
+#in the dir below.

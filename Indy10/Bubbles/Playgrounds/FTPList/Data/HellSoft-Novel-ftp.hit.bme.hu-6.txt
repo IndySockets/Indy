@@ -1,0 +1,24 @@
+-[R----F-]  1 lencse       1139 Nov 24  1994 feladato
+-[R----F-]  1 lencse       1683 Sep 20  1994 pas_lab.1
+-[R----F-]  1 lencse       1619 Sep 28  1994 pas_gyak.2
+-[R----F-]  1 lencse       1692 Oct 03  1994 pas_lab.2
+-[R----F-]  1 lencse       1465 Oct 13  1994 pas_gyak.3
+-[R----F-]  1 lencse        832 Oct 26  1994 pas_lab.3
+-[R----F-]  1 lencse       4000 Oct 27  1994 pas_gyak.4
+-[R----F-]  1 lencse       3453 Oct 26  1994 pas_lab.4
+-[R----F-]  1 lencse      43208 Dec 01  1994 osszes.ek
+-[R----F-]  1 lencse      38684 Nov 28  1994 osszes.nek
+-[R----F-]  1 lencse       1922 Jan 04  1980 elvalasz.pas
+-[R----F-]  1 lencse       2058 Nov 17  1994 levelek.pas
+-[R----F-]  1 lencse       2149 Dec 01  1994 szambe.pas
+-[R----F-]  1 lencse      14851 Jan 01  1980 v1988-89.pas
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220-Welcome to our experimental ftp server!
+#220-This FTP service is at ftp.hit.bme.hu.
+#220-Anonymous access for our students only (max. 3).
+#220-This is our NOVELL server HIT.
+#220-You are user nr.2 (max. 8).
+#220-Local time is Fri Jan  4 01:18:08 2003.
+#220-Maximum idle time is 5 minutes.
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220 hit FTP Server for NW 3.1x, 4.xx  (v1.10), (c) 1994 HellSoft.

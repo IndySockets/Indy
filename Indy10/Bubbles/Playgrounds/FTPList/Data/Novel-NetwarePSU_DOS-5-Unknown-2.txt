@@ -1,0 +1,6 @@
+-[RWCEAFMS]  supervisor 349  Oct 20, 99 10:31 pm file
+-[RWCEAFMS]  supervisor 3    Oct 21, 99 12:45 pm symdir
+-[RWCEAFMS]  supervisor 4    Oct 21, 99 12:45 pm symlink
+d[RWCEAFMS]  supervisor 512  Oct 20, 99 10:31 pm dir
+#from: http://www.novell.com/documentation/lg/nw5/docui/index.html#../usprint/unixpenu/data/hpyvrshh.html
+#Netware 5.0

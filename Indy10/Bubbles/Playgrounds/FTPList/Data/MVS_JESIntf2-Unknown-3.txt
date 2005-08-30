@@ -1,0 +1,11 @@
+JOBNAME  JOBID    OWNER    STATUS CLASS
+DDNTEST  JOB02080 BTHOMPS  OUTPUT A     RC=000
+--------
+         ID STEPNAME PROCSTEP C DDNAME BYTE-COUNT
+         001 JES2             X JESMSGLG    1351
+         002 JES2             X JESJCL       548
+         003 JES2             X JESYSMSG    1596
+         004 STEP01           X OUTPUT      1389
+4 spool files
+#From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
+#Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf

@@ -1,0 +1,19 @@
+total 0
+- [RWCEAFMS] Sennis                          22532 Jul 26 14:45 indexlist2.txt
+d [RWCEAFMS] CWisuths                          512 Aug 15 02:32 TEST
+d [RWCEAFMS] Jcheney                           512 Aug 15 03:19 Zen 3
+d [RWCEAFMS] Supervisor                        512 Aug 08  2001 HARDWARE
+d [RWCEAFMS] Jcheney                           512 Aug 08  2001 Y2k
+d [RWCEAFMS] Supervisor                        512 Oct 18  2001 OS
+d [RWCEAFMS] CWisuths                          512 Aug 12 11:07 Security
+d [RWCEAFMS] Jcheney                           512 Aug 15 00:38 Archived Files
+d [RWCEAFMS] Jcheney                           512 Aug 15 00:40 Graphics
+d [RWCEAFMS] Supervisor                        512 Jun 20 14:29 APPS
+d [RWCEAFMS] Supervisor                        512 Aug 15 02:28 SIUG
+d [RWCEAFMS] Supervisor                        512 Aug 15 00:40 GENERAL
+d [RWCEAFMS] Supervisor                        512 Jun 20 15:11 CCS
+d [RWCEAFMS] Supervisor                        512 Aug 15 00:40 INTEL
+d [RWCEAFMS] Supervisor                        512 Aug 15 02:36 VANTIVE
+d [RWCEAFMS] Supervisor                        512 Aug 15 02:28 SCDATA
+d [RWCEAFMS] Supervisor                        512 Jan 30 14:23 ADS
+d [RWCEAFMS] Supervisor                        512 May 30 11:06 temp

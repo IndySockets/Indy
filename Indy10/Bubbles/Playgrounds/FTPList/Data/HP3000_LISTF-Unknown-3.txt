@@ -1,0 +1,5 @@
+ACCOUNT=  SYS         GROUP=  WORK
+FILENAME  CODE  ------------LOGICAL RECORD-----------  ----SPACE----
+                  SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+SA0LIST           132B  FA       79509     100000   1    41008 29  8
+#From: http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=5rte42%24mae%40hpuerci.atl.hp.com&rnum=9&prev=/groups%3Fq%3DMPE/iX%2BFTP%2BDIR%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26selm%3D5rte42%2524mae%2540hpuerci.atl.hp.com%26rnum%3D9

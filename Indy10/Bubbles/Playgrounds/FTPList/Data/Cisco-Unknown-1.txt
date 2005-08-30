@@ -1,0 +1,14 @@
+syslogd.1
+syslogd.2
+syslogd.3
+syslogd.4
+syslogd.5
+syslogd.6
+syslogd.7
+syslogd.8
+syslogd.9
+syslogd.cur
+#Note that for the Cisco ISO router FTP Server, you specify a dir
+#that clients can access with something such as "ftp-server topdir disk0:/syslogd.dir".
+#Note that you have to restrict a user to a specif area.
+#My guess is that this server is oriented towards reading only specific files such as syslog output.

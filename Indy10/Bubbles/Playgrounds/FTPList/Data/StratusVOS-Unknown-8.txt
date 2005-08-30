@@ -1,0 +1,6 @@
+
+Files: 3, Blocks: 104
+
+w         56 fix-4096  03-05-22 10:10:27  choice.pm
+#From: http://groups.google.com/groups?q=stm+Stratus+ftp&hl=en&lr=&selm=3ECCDDA3.F315A68A%40cvs.com&rnum=1
+#cvs_dev>ls *.pm

@@ -1,0 +1,9 @@
+- rwx rwx ---     1076480 02/24/98 09:54:17  ftptest1      1meg
+- rwx rwx ---        1280 02/24/98 09:54:53  uid           log
+- rwx rwx ---     1076480 02/10/98 08:28:02  uid           newfile
+- rwx rwx ---        1280 02/24/98 09:54:55  uid           null1
+- rwx rwx ---        1280 02/24/98 09:55:05  uid           null2
+d rwx rwx ---           0 02/25/98           ftptest2      catalog1
+- rwx rwx ---        1280 05/06/98 10:12:10  uid           testbcd
+#Reconstructed from FTP 8 Administrator's and User's Guide 
+#which is available at: http://www.bull.com/us/cd_doc/cd_doc_data/rj05a03.pdf

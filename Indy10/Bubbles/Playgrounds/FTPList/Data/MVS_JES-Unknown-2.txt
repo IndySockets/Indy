@@ -1,0 +1,2 @@
+MYJOB     JOB26494  OUTPUT    5 Spool Files
+#From: http://groups.google.com/groups?q=MVS+JES+FTP+DIR+Output&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=4qf4b8%246i7%40dsk92.itg.ti.com&rnum=1

@@ -1,0 +1,4 @@
+-C--E-----FTP B QUA1I1      18128       41 Aug 12 13:56 QUADTEST
+-C--E-----FTP A QUA1I1      18128       41 Aug 12 13:56 QUADTEST2
+#These are from the  The Jakarta Project test cases CVS code.  Only
+#the string constants from a test case are used.

@@ -1,0 +1,9 @@
+
+ Start    End    length     File name
+------------------------------------------
+ 80000   9FFFF   131072   m0622210
+
+ ** Total 1 files, 131072 bytes **
+
+#AWC86 FTP server (MicroRTOS 2.10) ready.
+#from: http://home.xecom.com/AppNotes/MicroRTOS_FTP.htm

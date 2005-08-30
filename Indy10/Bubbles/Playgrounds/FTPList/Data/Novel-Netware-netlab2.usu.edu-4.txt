@@ -1,0 +1,8 @@
+total 0
+- [RWCEAFMS] jrd                             20417 Sep 15  2000 index.html
+- [RWCEAFMS] jrd                             12584 Sep 15  2000 menu.html
+- [RWCEAFMS] jrd                               606 Sep 15  2000 topbar.html
+d [RWCEAFMS] jrd                               512 Oct 21  2001 index_files
+d [RWCEAFMS] jrd                               512 Oct 21  2001 menu_files
+d [RWCEAFMS] jrd                               512 Oct 21  2001 topbar_files
+#"/bsuk00/salford software ltd_files"

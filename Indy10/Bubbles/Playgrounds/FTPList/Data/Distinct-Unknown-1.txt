@@ -1,0 +1,4 @@
+d----           0  Apr  1,1995   9:00  jpmugaas
+d----           0  Apr  1,1995   9:00  test
+#Distinct TCP/IP FTP Server ready.
+#Distinct FTP Server-32 Version 3.0

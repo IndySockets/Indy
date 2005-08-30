@@ -1,0 +1,5 @@
+ALFREDCA  JOB03192  OUTPUT    3 Spool Files 
+ALFREDCA  JOB03193  OUTPUT    0 Spool Files 
+ALFREDCA  JOB03194  INPUT 
+#From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
+#Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf

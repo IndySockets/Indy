@@ -1,0 +1,2 @@
+No jobs found on JES queue
+#From:  http://www.infotech.siu.edu/mfsys/howto/mvstcp.htm

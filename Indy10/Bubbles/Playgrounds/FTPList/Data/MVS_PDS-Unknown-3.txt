@@ -1,0 +1,16 @@
+ Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode
+@XADFTT1  0009F0 000A11 TEXTTR   00 FO                              31    ANY
+@XADFTT2  0009F0 000A11 TEXTTR   00 FO                              31    ANY
+@XADFTT3  0009F0 000A11 TEXTTR   00 FO                              31    ANY
+@XATXDRA  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXDSA  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXIFA  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXIFI  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXPSA  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXSCH  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXSTF  003998 00090C TEXTPOP  00 FO                              31    ANY
+@XATXZSL  005500 00080F TEXTACTI 00 FO                              31    ANY
+ACOMMAND  001420 00020A          00 FO                              31    ANY
+AFORM     001AC0 00021F          00 FO                              31    ANY
+#List the members of a partitioned data set containing load modules:
+#From:  http://publibz.boulder.ibm.com:80/cgi-bin/bookmgr_OS390/BOOKS/F1AA2032/1.5.15?SHELF=&DT=20001127174124

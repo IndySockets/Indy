@@ -1,0 +1,6 @@
+MYUSRIDA JOB05444 OUTPUT 3 spool Files                                        
+MYUSRIDB JOB05766 OUTPUT 6 spool Files                                        
+MYUSRIDC JOB05832 OUTPUT 6 spool Files                                        
+MYUSRIDD JOB05946 ACTIVE                                                      
+MYUSRIDE JOB06021 INPUT                 -HELD- 
+#From:  http://www.system.missouri.edu/itss/ss/$doc/ftp.html

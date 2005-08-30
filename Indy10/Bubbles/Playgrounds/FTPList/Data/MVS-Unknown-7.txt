@@ -1,0 +1,21 @@
+Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+Migrated                                                XXXXXXXX
+XXXXXX 3390   2002/09/05  1    1  VB     259  6000  PS  XXXXX.XXXX
+Migrated                                                XXXXXX.XXXXXXX
+Migrated                                                XXXXX
+Migrated                                                XXX.XXXXXXX
+Migrated                                                XXXXXXXX
+Migrated                                                XXXX.XXX
+Migrated                                                XXXXXXX.XXXXXXX
+Migrated                                                XXX.XXXX
+Migrated                                                XXXXXX
+Migrated                                                XXXXXX.XXX
+Migrated                                                XXXXXX.XXXX
+Migrated                                                XXXX.XXXXXXX
+XXXXXX 3390   2002/09/04  1    1  VB    4092  4096  PO  XXXXXXX.XXXXX.XXXXXXX
+XXXXXX 3390   2002/08/30  1    7  FB      80  3120  PO  XXXXXXX.XXXX.XXXXXXX
+XXXXXX 3390   2002/02/26  1    1  VBA    255  3600  PS  XXXXXXXX.XXXX
+Migrated                                                XXXXXX.XXXX
+Migrated                                                XXXXXXX.XXX
+XXXXXX 3390   **NONE**    1   15  ?        0     0 NONE XXXXXXX.XXX
+#From: Dale Ingold,MVS Host Group, SAS Institute Inc. - Private E-Mail

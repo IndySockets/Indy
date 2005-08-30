@@ -1,0 +1,128 @@
+
+
+Files: 1  Blocks: 3
+
+ w      3  seq       04-11-19 13:39:21  stats.out
+
+
+Dirs: 33
+
+ m      1  92-03-02 08:56:30  .NextTrash
+ m      1  93-03-22 13:52:43  _mis
+ m      1  95-03-14 15:43:49  _office
+ m      1  02-07-10 14:05:05  beeper_stats_dir
+ m      1  01-07-23 08:03:30  beeper_stats_dir.save
+ m      1  03-04-10 11:56:57  boggle
+ m      1  92-03-02 08:56:21  break_handling
+ m      4  04-11-22 15:26:11  bug_mail
+ m      2  99-01-06 01:08:24  cac_call_stats
+ m      3  04-11-19 13:37:54  calls
+ m      3  04-06-30 12:06:26  closed_calls
+ m      5  03-04-10 11:57:26  con
+ m      1  03-04-10 11:57:28  conferences
+ m      2  92-03-02 08:56:26  config
+ m     16  03-05-06 13:08:41  doc
+ m      1  93-01-12 13:05:57  ftx
+ m      1  92-03-02 08:56:25  jyacc
+ m      1  04-04-07 10:16:39  mqseries
+ m      1  93-08-17 11:50:52  multics
+ m      1  97-01-07 17:04:22  new_mail
+ m      1  92-03-02 08:55:53  next
+ m      1  92-03-02 08:56:31  NextAnswers
+ m      1  92-03-02 08:56:24  optical_disks
+ m      1  92-03-02 08:56:27  pmrs
+ m      3  04-07-20 10:09:07  private
+ m      1  92-03-02 08:56:30  rpc
+ m      3  04-09-20 13:10:56  samples
+ m      1  04-07-02 08:04:18  SOS
+ m      1  96-03-01 13:56:47  status_reports
+ m      3  04-10-18 08:25:55  system
+ m      8  04-11-02 13:14:23  tools
+ m      3  04-08-30 11:51:08  work
+ m      1  03-05-06 15:55:58  www
+
+
+Links: 87
+
+03-05-13 12:12:46  .bash_history ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>sy');
++stem>.bash_history
+94-12-18 11:55:23  .newsrc ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>system>.
++newsrc'
+03-05-13 12:12:41  .profile ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>system>
++.profile
+94-12-18 11:54:59  _edit.r1.12 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.r1.12
+94-12-18 11:54:39  _edit.r1.17 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.r1.17
+94-12-18 11:54:43  _edit.t1.17 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.t1.17
+94-12-18 11:54:42  _edit.t1.18 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.t1.18
+94-12-18 11:54:57  _edit.t1.18.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>ju
++nque>_edit.t1.18.1
+94-12-18 11:54:44  _edit.t1.18.2 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>ju
++nque>_edit.t1.18.2
+94-12-18 11:55:09  _edit.t1.18.5.2 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>
++junque>_edit.t1.18.5.2
+94-12-18 11:55:08  _edit.t1.18.5.2.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitze
++r>junque>_edit.t1.18.5.2.1
+94-12-18 11:55:14  _edit.t1.18.5.2.2 ->
+%phx_cac#m2_user>Stratus>Charles_Spitze
++r>junque>_edit.t1.18.5.2.2
+94-12-18 11:54:54  _edit.t1.22 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.t1.22
+94-12-18 11:54:57  _edit.t1.22.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>ju
++nque>_edit.t1.22.1
+94-12-18 11:55:03  _edit.t1.3 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junqu
++e>_edit.t1.3
+94-12-18 11:54:38  _edit.t1.3.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>jun
++que>_edit.t1.3.1
+94-12-18 11:55:07  _edit.t1.42 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.t1.42
+94-12-18 11:55:05  _edit.t1.44 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junq
++ue>_edit.t1.44
+94-12-18 11:54:40  _edit.t1.44.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>ju
++nque>_edit.t1.44.1
+94-12-18 11:55:01  _edit.t1.5 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junqu
++e>_edit.t1.5
+94-12-18 11:55:01  _edit.t1.7 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junqu
++e>_edit.t1.7
+94-12-18 11:55:03  _edit.t1.7.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>jun
++que>_edit.t1.7.1
+94-12-18 11:54:58  _edit.t2.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>junqu
++e>_edit.t2.1
+97-01-27 11:18:37  _edit.telnet.1.15 ->
+%phx_cac#m2_user>Stratus>Charles_Spitze
++r>junque>_edit.telnet.1.15
+03-04-10 11:56:55  _edit.telnet.1.6 ->
+%phx_cac#m2_mas>Stratus>Charles_Spitzer>
++waste_basket>_edit.telnet.1.6
+94-12-18 11:55:13  _edit.vterm1.1 ->
+%phx_cac#m2_user>Stratus>Charles_Spitzer>j
++unque>_edit.vterm1.1
+
+#Charlie Spitzer
+#stratus customer service
+#Stratus Technologies Bermuda Ltd. 

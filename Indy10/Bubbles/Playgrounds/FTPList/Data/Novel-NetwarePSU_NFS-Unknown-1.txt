@@ -1,0 +1,8 @@
+-rw------ - 1 root wheel   349  Oct 20, 99 10:39 pm file
+-rw------ - 2 root wheel   349  Oct 21, 99 12:45 pm hardlink
+-rw------ - 1 bill support  4    Oct 21, 99 12:45 pm symlink - > file
+drw------ - 1 mary support 3    Oct 21, 99 12:45 pm symdir - > dir
+drw------ - 2 mary support 512  Oct 20, 99 10:31 am dir
+drwxr-xr- x 3 root wheel   512  Oct 21, 99 12:45 am harddir
+#Novel Netware with NFS Name space
+#http://www.novell.com/documentation/lg/nw42/unixpenu/data/tut0i3h5.html#cnovdocsdocenglishnw42unixpenudatahpyvrshhhtml

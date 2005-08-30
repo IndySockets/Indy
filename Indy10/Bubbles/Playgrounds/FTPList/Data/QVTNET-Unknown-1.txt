@@ -1,0 +1,10 @@
+ space.txt                     20  01-03-2003 10:14
+12345678.txt                    0  01-03-2003 10:24
+file n.txt                     20  01-03-2003 10:39
+ftp.dir/                        0  01-03-2003 12:40
+ftptest/                        0  01-03-2003 10:13
+noext                           0  10-23-2003 12:20
+readme.txt                     20  01-03-2003 10:13
+test.txt                        0  10-23-2003 01:01
+#FTP server (WinQVT/Net v3.9) ready.
+#Version 3.98.15

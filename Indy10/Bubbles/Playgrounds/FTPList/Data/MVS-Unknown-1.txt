@@ -1,0 +1,6 @@
+Volume Unit  Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+OVH025 3380   12/29/95  1   60  FB      80 23200  PO  MICSFILE.CLIST
+USS018 3380   12/18/95  1   15  VB     259  8000  PS  NFS.DOC
+Migrated                                              OAQPS.INTERIM.CNTYIM.V1.DATA.D052093
+AIR030 3380   12/13/95  1   18  FB      80  3600  PS  OAQPS.INTERIM.PLNTNAME.DATA
+# http://groups.google.com/groups?q=MVS+Directory+list+FTP&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=10920917103801/0003858921NA1EM%40mcimail.com&rnum=1

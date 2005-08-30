@@ -1,0 +1,22 @@
+-[R----F-]  1 filp        34515 Sep 25  2001 info_0.zip
+-[R----F-]  1 filp        31138 Sep 25  2001 info_1.zip
+-[R----F-]  1 filp        49270 Sep 25  2001 info_2.zip
+-[R----F-]  1 filp        19941 Sep 25  2001 info_3.zip
+-[R----F-]  1 filp        65361 Oct 02  2001 info_4.zip
+-[R----F-]  1 filp        31277 Oct 02  2001 info_5.zip
+-[R----F-]  1 filp        24314 Nov 05  2001 info_6.zip
+-[R----F-]  1 filp        77491 Nov 05  2001 info_7.zip
+-[R----F-]  1 filp        65839 Nov 05  2001 info_8.zip
+-[R----F-]  1 filp        22024 Nov 05  2001 info_09.zip
+-[R----F-]  1 filp        64391 Nov 05  2001 info11.zip
+-[R----F-]  1 filp       108672 Nov 05  2001 info_10.zip
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220-Welcome to our experimental ftp server!
+#220-This FTP service is at ftp.hit.bme.hu.
+#220-Anonymous access for our students only (max. 3).
+#220-This is our NOVELL server HIT.
+#220-You are user nr.2 (max. 8).
+#220-Local time is Fri Jan  4 01:18:08 2003.
+#220-Maximum idle time is 5 minutes.
+#220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#220 hit FTP Server for NW 3.1x, 4.xx  (v1.10), (c) 1994 HellSoft.

@@ -1,0 +1,5 @@
+-r--r--r--           0     5886     5886 Oct 21  1999 Mbd license.txt
+-r--r--r--           0    19148    19148 Dec 28  2000 MonkeyMath.prc
+-r--r--r--           0      374      374 Dec 28  2000 ReadMe.txt
+#
+#257 "/WinOS/MonkeyMath/" is current directory.
