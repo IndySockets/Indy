@@ -1,0 +1,11 @@
+
+LOCAL:[ANONYMOUS.SSH]
+
+TTERMP23.ZIP;1           1843  20-OCT-1999 09:23 [ANONYMOUS] (RW,RWED,,)
+TTSSH151.ZIP;1            536  20-OCT-1999 09:23 [ANONYMOUS] (RW,RWED,,)
+
+
+Total of 2379 blocks in 2 files.
+#220 Thuban.AC.HMC.Edu MultiNet FTP Server Process V4.3(16) at Sun 12-Jan-2003 7:59PM-PST
+#ftp> cd ssh
+#250 Connected to LOCAL:[ANONYMOUS.SSH].

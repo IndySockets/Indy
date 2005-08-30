@@ -1,0 +1,25 @@
+CONFIG     <Sub Library>          38          54   98/01/24   10:54
+SAVE       <Sub Library>          32          46   98/01/24   10:54
+PROD       <Sub Library>        6259      85,306   98/04/01   18:48
+SCEECICS   <Sub Library>          34          98   98/01/24   10:54
+SCEECICD   <Sub Library>           0           1   98/01/24   10:54
+SCEEBASE   <Sub Library>        5855      49,460   98/01/24   10:54
+SCEEBASD   <Sub Library>           0           1   98/01/24   10:54
+CICSR      <Sub Library>           0           1   98/01/24   10:55
+DBASE      <Sub Library>          86       6,526   98/01/24   10:55
+COMM       <Sub Library>           0           1   98/01/24   10:55
+COMM2      <Sub Library>           0           1   98/01/24   10:55
+AFP        <Sub Library>           0           1   98/01/24   10:55
+GEN1       <Sub Library>         735      29,452   98/01/24   17:40
+GEN1D      <Sub Library>           0           1   98/01/24   17:43
+TCPIPCFG   <Sub Library>          12          17   98/01/24   18:41
+HTML       <Sub Library>         102       3,497   98/01/24   18:51
+PTCPIP     <Sub Library>          71       2,502   98/03/08   15:55
+TCPIP      <Sub Library>         400       5,850   98/03/08   16:36
+LSBCFG     <Sub Library>           8          21   98/03/27   00:27
+ASN510     <Sub Library>          24         895   98/04/16   18:20
+DRSTEST    <Sub Library>           1           7   98/05/05   10:30
+LSB130F    <Sub Library>         245       4,747   98/05/18   12:40
+GPSTEMP    <Sub Library>           0           1   99/02/17   21:04
+#From: TCP/IP for VSE User's Guide Version 1 Release 4.0A
+#URL:  http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf

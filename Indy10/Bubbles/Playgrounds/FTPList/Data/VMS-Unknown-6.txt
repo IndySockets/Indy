@@ -1,0 +1,68 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.MSDOS]
+
+ACV.ZIP;1                  38  22-MAY-1989 17:19
+ALARM34.ZIP;1              32  17-MAY-1989 01:11
+AME86-72.ZIP;1             51  17-MAY-1989 01:11
+ANYWHERE.ZIP;1             38  17-MAY-1989 01:11
+AUTOPARK.ZIP;1              9  22-MAY-1989 17:19
+BAUD.ZIP;1                  4  22-MAY-1989 17:19
+BYE.COM;1                   1  17-MAY-1989 01:11
+CASSETTE.ZIP;1             30  17-MAY-1989 01:11
+CC20.ZIP;1                 35  18-JAN-1990 09:32
+CDD.ZIP;1                   9  17-MAY-1989 01:11
+CDVIRB.ZIP;1               85  17-MAY-1989 01:11
+CHK4BOMB.ZIP;1             21  22-MAY-1989 17:20
+CHKDIR.ZIP;1               18  17-MAY-1989 01:11
+CLRTSR.ZIP;1               22  17-MAY-1989 01:11
+COLOR.ZIP;1                26  22-MAY-1989 17:20
+COUNTRY.ZIP;1              33  22-MAY-1989 17:20
+COVERLA.ZIP;1               4  17-MAY-1989 01:11
+CPUID.ZIP;1                21  17-MAY-1989 01:11
+DAC.ZIP;1                  66  17-MAY-1989 01:11
+DED206.ZIP;1               90  17-MAY-1989 01:11
+DIBEM03.ZIP;1              29  17-MAY-1989 01:11
+DJINN48.ZIP;1             155  17-MAY-1989 01:11
+DOG206.ZIP;1               70  18-JAN-1990 09:33
+DVICEMAP.ZIP;1              6  17-MAY-1989 01:12
+DVORAK.ZIP;1                4  17-MAY-1989 01:12
+EMACS39E.ZIP;1            276   8-JUN-1989 00:08
+FV.ZIP;1                   12  17-MAY-1989 01:12
+HISTORY.ZIP;1              66  22-MAY-1989 17:20
+JOBSDV42.ZIP;1             80   9-SEP-1989 23:12
+MAPMEM.ZIP;1               22  17-MAY-1989 01:12
+MLRB23.ZIP;1               73  17-MAY-1989 01:12
+PATCH.ZIP;1                30  17-MAY-1989 01:12
+PR11.ZIP;1                 37  17-MAY-1989 01:12
+PSETUP.ZIP;1               33  22-MAY-1989 17:20
+RAIND100.ZIP;1             25  18-JAN-1990 09:32
+RB-BUFFR.ZIP;1             39  22-MAY-1989 17:20
+RBCALC.ZIP;1               29  17-MAY-1989 01:12
+RB_QT22.ZIP;1             108  18-JAN-1990 09:33
+RDIR.ZIP;1                106  22-MAY-1989 17:20
+RESPORTS.ZIP;1              6  17-MAY-1989 01:12
+RING10.ZIP;1               22  18-JAN-1990 09:33
+RR.ZIP;1                    3  22-MAY-1989 17:20
+RX50.ZIP;1                 15   1-JUN-1989 00:55
+SBTEX.ZIP;1               546  17-MAY-1989 01:12
+SEDTDOC.ZIP;1             174  17-MAY-1989 01:12
+SEDTDRV.ZIP;1             191  17-MAY-1989 01:12
+SEDTEXE.ZIP;1             161  17-MAY-1989 01:12
+SETRAM.ZIP;1                4  17-MAY-1989 01:12
+SHOWMEM.ZIP;1              23  22-MAY-1989 17:20
+SKI12A.ZIP;1               48  17-MAY-1989 01:12
+STRING.ZIP;1                9  17-MAY-1989 01:12
+TODO27D.ZIP;1             134  17-MAY-1989 01:12
+TODOCAL.ZIP;1              22  17-MAY-1989 01:12
+TPULIB.ZIP;1               27  17-MAY-1989 01:12
+VIS20.ZIP;1                34  18-JAN-1990 09:33
+WHICH20.ZIP;1              38  18-JAN-1990 09:33
+WIDTH.ZIP;1                 2  22-MAY-1989 17:21
+WSS322R.ZIP;1             376  17-MAY-1989 01:12
+WUTIL311.ZIP;1            212  17-MAY-1989 01:13
+Total of 3880 blocks in 59 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

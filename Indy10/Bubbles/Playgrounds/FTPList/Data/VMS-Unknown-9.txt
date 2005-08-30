@@ -1,0 +1,47 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.UPLOADS]
+
+ASK11.ZIP;1                27  30-AUG-1990 13:36
+AWK300.ZIP;1              170   2-JUL-1990 17:04
+AWK_REV3.ZIP;1             28   2-JUL-1990 17:03
+CC21.ZIP;1                 36   3-AUG-1990 08:36
+DAT13.ZIP;1                22  30-AUG-1990 13:36
+GAWK211.ZIP;1             389   2-JUL-1990 17:05
+LHARC113.EXE;1             68   2-JAN-1990 21:30
+MC132.ZIP;1               361   2-JUL-1990 17:04
+NEWFILES.;1                 5   2-JUL-1990 17:02
+PKZ110EU.EXE;1            274   2-JUL-1990 17:02
+PKZF10.EXE;1               52  18-JAN-1990 09:32
+RABIT02.ZIP;1              12  30-OCT-1990 15:47
+RAIND111.ZIP;1             28   2-JUL-1990 17:04
+RB_QT23.ZIP;1             111   3-AUG-1990 08:36
+REMD9001.ZIP;1             52   2-JUL-1990 17:03
+REMD9002.ZIP;1             40   2-JUL-1990 17:03
+REMD9003.ZIP;1             33   2-JUL-1990 17:03
+REMD9004.ZIP;1             66   2-JUL-1990 17:03 
+REMD9005.ZIP;1             54   2-JUL-1990 17:05
+REMD9006.ZIP;1             31   2-JUL-1990 17:05
+REMD9007.ZIP;1             43   3-AUG-1990 08:35
+REMD9008.ZIP;1             76  22-SEP-1990 14:35
+REMD9009.ZIP;1             27   2-OCT-1990 07:41
+REMD9010.ZIP;1             47   3-NOV-1990 14:11
+REMD9011.ZIP;1             37   1-DEC-1990 12:54
+REMD9012.ZIP;1             29  31-DEC-1990 12:25
+REMD9101.ZIP;1             57   2-FEB-1991 11:34
+REMD9102.ZIP;1             37  28-FEB-1991 07:59
+RING13.ZIP;1               25  30-AUG-1990 13:36
+RX50SRC.ZIP;1              37  22-SEP-1990 14:35
+RX50XT.DIF;1               12  22-SEP-1990 14:35
+TETRIS.ZIP;1               81  18-FEB-1991 12:52
+TRF.ZIP;1                  20  11-JAN-1990 22:51
+UNZIP.ARC;1                51  24-FEB-1990 22:36
+UNZIP.ZIP;1                35  24-FEB-1990 22:36
+WSSI405A.ZIP;1            254  18-JAN-1990 09:33
+WSSI405B.ZIP;1            256  18-JAN-1990 09:33
+WUTIL32.ZIP;1             189   2-JUL-1990 17:03
+Total of 3172 blocks in 38 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

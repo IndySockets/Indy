@@ -1,0 +1,17 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.ARC]
+
+ARC601.EXE;1              272  17-MAY-1989 00:49
+PK361.EXE;1               234  17-MAY-1989 00:49
+PKFIND.ZIP;1               15  22-MAY-1989 17:17
+PKZ102.EXE;1              266  18-JAN-1990 09:32
+PKZFIND.ZIP;1              23  22-MAY-1989 17:17
+RALUUCOD.ZIP;1             54  17-MAY-1989 00:50
+UUPIECES.ZIP;1             52  10-SEP-1989 15:57
+UUSPACES.ZIP;1              9  22-MAY-1989 17:17
+Total of 925 blocks in 8 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

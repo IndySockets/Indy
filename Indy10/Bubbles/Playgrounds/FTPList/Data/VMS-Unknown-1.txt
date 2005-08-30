@@ -1,0 +1,33 @@
+
+USR:[ANONYMOUS]
+
+AMIGA-SIG.DIR;1             2  22-OCT-1989 18:01 
+CAM-1.ZIP;1               299   4-SEP-1991 09:53
+CAM-2.ZIP;1               628   4-SEP-1991 09:57
+CAM-3.ZIP;1               574   4-SEP-1991 10:05
+CAM-4.ZIP;1               567   4-SEP-1991 10:13
+FILE.CLD;1                  7   1-NOV-1989 19:37
+FILE.EXE;7                 31  11-FEB-1990 23:38
+FILE.HLP;1                 15   1-NOV-1989 22:24
+FILE.SHARE;1              124   8-APR-1990 23:39
+FTP_SERVER.LOG;7603         0  29-OCT-1991 20:45
+IBMPC-SIG.DIR;1             1  13-OCT-1989 20:02
+IDSBBS.BCK_Z;1            670  28-AUG-1991 22:13
+INFO-DEC-MICRO.DIR;1        2   2-MAY-1989 21:08
+IRHOSTS.;1               8771  16-JUN-1990 01:50
+IRHOSTS.VMS_LZW;2        2876   2-AUG-1990 11:00
+LZCOMP.EXE;1              142  27-JAN-1989 10:03
+LZDCMP.EXE;1              136  27-JAN-1989 10:03
+MM014.A;1                 672  30-SEP-1991 15:35
+NETSERVER.LOG;1             3   4-APR-1990 21:42
+PAGAN.DIR;1                 1   6-JUL-1990 13:13
+TALK010.A;1               928  30-JAN-1990 22:24
+TALK010.FETCH-INFORMATION;2 1  30-JAN-1990 22:33
+TINYMUD.EXE;61             24  17-SEP-1989 02:59
+XYZZY.DIR;1                 1   2-MAY-1989 21:13
+Total of 16475 blocks in 24 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

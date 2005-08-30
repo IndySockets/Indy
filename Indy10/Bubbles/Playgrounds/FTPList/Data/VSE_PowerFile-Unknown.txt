@@ -1,0 +1,23 @@
+VSE3270.00117.00    48502           0             0   3 L
+GPSPREC.00160.00       8            0             0   3 L
+GPSPREC.00161.00       8            0             0   3 L
+PROB1707.00753.00      8            0             0   3 L
+PAUSE.00755.00         4            0             0   3 L SYSTCPIP
+PROB1838.01205.00      8            0             0   3 L
+PROB1838.01206.00      9            0             0   3 L
+VTAMSTRT.00777.00     20            0             0   3 *
+CICSICCF.00778.00     58            0             0   3 *
+FTPD.01186.00         12            0             0   3 D
+TCPPROD.01130.00      10            0             0   3 * ERIC
+TCPPROD.01125.00       8            0             0   3 L
+ASSEMBLE.00094.00      0            0             0   3 H SYSTCPIP
+DFHDCTC2.00323.00    117            0             0   3 H BASS
+DFHFCTC2.00324.00     50            0             0   3 H BASS
+DFHPCTC2.00325.00     50            0             0   3 H BASS
+DFHPPTC2.00326.00     49            0             0   3 H BASS
+DFHSITC2.00327.00     99            0             0   3 H BASS
+CICS2.00328.00        12            0             0   3 H BASS
+CICSEEB2.00329.00    163            0             0   3 H BASS
+CICSTOR.00553.00     154            0             0   3 L SYSTCPIP
+#From: TCP/IP for VSE User's Guide Version 1 Release 4.0A
+#URL:  http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf

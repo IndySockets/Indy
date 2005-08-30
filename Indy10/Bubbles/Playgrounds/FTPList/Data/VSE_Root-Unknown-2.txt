@@ -1,0 +1,5 @@
+G1SFCAT   <VSAM Catalog>
+HTML      <Library>
+POWER     <Power Queues>
+TRANSP4   <Directory>
+#From: http://groups.google.com/groups?q=FTP+VSE+LIST+directory&start=90&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=2B5EE937C26AD21193DC00E02906B16303B125%40wopr.dowlinggroup.com&rnum=95

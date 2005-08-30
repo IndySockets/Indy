@@ -1,0 +1,15 @@
+
+LOCAL:[ANONYMOUS]
+
+DURON.DIR;1                 1   6-NOV-2002 08:39 [ANONYMOUS] (RWE,RWE,RE,RE)
+FORTRAN.DIR;1               1  16-MAR-2000 13:52 [ANONYMOUS] (RWE,RWE,RE,RE)
+INFO-EV-ARCHIVE.DIR;1
+                            1   8-NOV-1993 22:21 [ANONYMOUS] (RWE,RWE,RE,RE)
+MAPLE.DIR;1                 1  13-JAN-1997 15:13 [ANONYMOUS] (RWE,RWE,RE,RE)
+RADIUS.DIR;1                1  27-AUG-1996 19:52 [ANONYMOUS] (RWE,RWE,RE,RE)
+SSH.DIR;1                   1  20-OCT-1999 09:25 [ANONYMOUS] (RWE,RWE,RE,RE)
+VNC.DIR;1                   1  17-AUG-1999 21:53 [ANONYMOUS] (RWE,RWE,RE,RE)
+
+
+Total of 7 blocks in 7 files.
+#220 Thuban.AC.HMC.Edu MultiNet FTP Server Process V4.3(16) at Sun 12-Jan-2003 7:59PM-PST

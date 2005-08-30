@@ -1,0 +1,9 @@
+
+DUA8:[ANON_FTP.LZW]
+
+LZCOMP.EXE;1               61  18-OCT-1990 14:32 [SYS,SYSTEM] (RE,RE,RE,RE)
+LZDCMP.EXE;1               60  18-OCT-1990 14:32 [SYS,SYSTEM] (RE,RE,RE,RE)
+LZW.COM;1                 384  17-MAR-1992 15:58 [SYS,SYSTEM] (RE,RE,RE,RE)
+
+
+Total of 505 blocks in 3 files.

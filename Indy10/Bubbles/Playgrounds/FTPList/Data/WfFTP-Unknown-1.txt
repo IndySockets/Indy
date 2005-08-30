@@ -1,0 +1,31 @@
+
+ Volume - drive 1:
+ Directory of 1:
+
+File Name            Size    Date     Day       Time
+------------------------------------------------------
+startup.cfg          2116  03/06/03  Thur.    07:38:50
+configPppChap        2996  03/12/03  Wed.     16:43:58 
+bgpOspf.log         32428  03/20/03  Thur.    13:08:26 
+an.exe            7112672  03/20/03  Thur.    13:18:09
+bcc.help           492551  03/20/03  Thur.    13:21:43 
+debug.al            12319  03/20/03  Thur.    13:22:46
+install.bat        236499  03/20/03  Thur.    13:22:54
+ti.cfg                132  03/20/03  Thur.    13:23:09
+log2.log            32428  03/20/03  Thur.    14:31:46
+configFrRip           386  07/18/03  Fri.     12:02:25
+config               1720  07/25/03  Fri.     08:52:00
+hosts                  17  09/04/03  Thur.    15:56:51
+
+ 33554432 bytes - Total size
+ 25627726 bytes - Available free space
+ 17672120 bytes - Contiguous free space 226 ASCII Transfer Complete.
+#Obtained from:
+#
+#Configuration Guide
+#Contivity Secure IP Services Gateway
+#
+#CG040301
+#from Nortell Networks
+#Dated March 2004
+#

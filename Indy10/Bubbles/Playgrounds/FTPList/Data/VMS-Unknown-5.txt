@@ -1,0 +1,37 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.DIGESTS]
+
+DIG8710.ZIP;1              57  17-MAY-1989 00:54
+DIG8711.ZIP;1              37  17-MAY-1989 00:54
+DIG8712.ZIP;1              72  17-MAY-1989 00:54
+DIG8801.ZIP;1              64  17-MAY-1989 00:54
+DIG8802.ZIP;1              35  17-MAY-1989 00:54
+DIG8803.ZIP;1              23  17-MAY-1989 00:54
+DIG8804.ZIP;1              57  17-MAY-1989 00:54
+DIG8805.ZIP;1              52  17-MAY-1989 00:54
+DIG8806.ZIP;1              45  17-MAY-1989 00:54
+DIG8807.ZIP;1              19  17-MAY-1989 00:54
+DIG8808.ZIP;1              53  17-MAY-1989 00:54
+DIG8809.ZIP;1              89  17-MAY-1989 00:54
+DIG8810.ZIP;1              47  17-MAY-1989 00:54
+DIG8811.ZIP;1              39  17-MAY-1989 00:54
+DIG8812.ZIP;1              10  17-MAY-1989 00:54
+DIG8901.ZIP;1              51  17-MAY-1989 00:54
+DIG8902.TXT;1              94  17-MAY-1989 00:54
+DIG8902.ZIP;1              47  17-MAY-1989 00:54
+DIG8903.ZIP;1              55  17-MAY-1989 00:54
+DIG8904.TXT;1              24  17-MAY-1989 00:54
+DIG8904.ZIP;1              14  17-MAY-1989 00:54
+DIG8905.ZIP;1              49   9-SEP-1989 23:12
+DIG8906.ZIP;1              17   9-SEP-1989 23:12
+DIG8907.ZIP;1              38   9-SEP-1989 23:12
+DIG8908.ZIP;1              34   9-SEP-1989 23:12
+REMD8910.ZIP;1            137  11-JAN-1990 22:50
+REMD8911.ZIP;1            110  11-JAN-1990 22:50
+REMD8912.ZIP;1            143  11-JAN-1990 22:51
+Total of 1512 blocks in 28 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

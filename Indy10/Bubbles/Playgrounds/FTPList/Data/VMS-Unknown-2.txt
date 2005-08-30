@@ -1,0 +1,20 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO]
+
+AAAFILES.TXT;5             33  20-JAN-1990 14:03
+AAREADME.1ST;2             11  10-SEP-1989 15:56
+ARC.DIR;1                   1  16-MAY-1989 23:52
+COMM.DIR;1                  1  16-MAY-1989 23:52
+CPM.DIR;1                   1   2-MAY-1989 21:10
+DIGESTS.DIR;1               2  16-MAY-1989 23:56
+GAMES.DIR;1                 1  16-MAY-1989 23:52
+MSDOS.DIR;1                 4   2-MAY-1989 21:11
+PROG.DIR;1                  1  16-MAY-1989 23:52
+TEXT.DIR;1                  1   2-MAY-1989 21:13
+UPLOADS.DIR;1               3   2-MAY-1989 21:13
+Total of 59 blocks in 11 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

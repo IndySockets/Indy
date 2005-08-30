@@ -1,0 +1,8 @@
+
+DISK$SHARE:[ANONYMOUS]
+
+FTP_SERVER.LOG;2    %RMS-E-PRV, insufficient privilege or file protection violation
+
+
+Total of 0 blocks in 1 file.
+#220 titan.ksc.nasa.gov MultiNet FTP Server Process V4.0(16) at Sun 12-Jan-03 12:11PM-EST

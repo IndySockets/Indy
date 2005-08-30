@@ -1,0 +1,11 @@
+
+ANONYMOUS:[000000]
+
+.MESSAGE;1               1 12-NOV-1999 07:48 [ANONYMOUS] (RWED,RWED,RE,RE)
+LIST_ARCHIVES.DIR;1
+                         1 11-NOV-1999 09:28 [ANONYMOUS] (RWE,RWE,RE,RE)
+MADGOAT.DIR;1            1 11-NOV-1999 09:28 [ANONYMOUS] (RWE,RWE,RE,RE)
+MX.DIR;1                 1 11-NOV-1999 09:28 [ANONYMOUS] (RWE,RWE,RE,RE)
+
+Total of 4 Files, 4 Blocks.
+#ftp.madgoat.com HGFTP server V3.1 ready.

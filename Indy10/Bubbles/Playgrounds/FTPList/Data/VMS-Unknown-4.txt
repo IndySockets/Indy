@@ -1,0 +1,22 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.COMM]
+
+BEXE_200.ZIP;1            549  17-MAY-1989 00:51
+BEXE_220.ZIP;1            489  31-MAY-1989 00:27
+DECMINI.ZIP;1              86  17-MAY-1989 00:51
+HOST.ZIP;1                 38  17-MAY-1989 00:51
+KER229A.ZIP;1             147  17-MAY-1989 00:51
+KERD232A.ZIP;1            296  17-MAY-1989 00:51
+KERE232A.ZIP;1            155  17-MAY-1989 00:51
+KERUTL.ZIP;1               19  17-MAY-1989 00:51
+LCTERM.ZIP;1               97  17-MAY-1989 00:51
+ODEC_501.ZIP;1             17  17-MAY-1989 00:51
+PIBTERM.ZIP;1             419  22-MAY-1989 17:19
+TCII321.ZIP;1              78  17-MAY-1989 00:51
+VDEC_024.ZIP;1             10  17-MAY-1989 00:51
+Total of 2400 blocks in 13 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

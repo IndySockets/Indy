@@ -1,0 +1,16 @@
+  size          date       time       name
+--------       ------     ------    --------
+ 1165625    FEB-19-2001  12:17:38   VXWORKS
+     512    AUG-30-2000  16:29:38   SYS               <DIR>
+     512    AUG-30-2000  16:29:46   DATA              <DIR>
+     512    AUG-30-2000  16:29:52   LOG               <DIR>
+     512    AUG-30-2000  16:30:04   BATCH             <DIR>
+     512    AUG-30-2000  16:30:12   TEST              <DIR>
+ 3314445    FEB-16-2001  13:21:42   AUTOSCAN.OUT
+    4922    NOV-28-2000  11:44:16   CLZCONT.HEX
+     512    DEC-19-2000  14:34:24   DIA               <DIR>
+12204032    JAN-25-2001  17:52:16   STUFF.ZIP
+       6    FEB-16-2001  14:29:26   STARTUP.TXT
+      32    FEB-19-2001  11:59:12   STARTME
+value = 0 = 0x0
+#From:  http://groups.google.com/groups?q=VxWorks+date+time+name+FTP&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3a93b197.104164821%40news.ronet.de&rnum=1

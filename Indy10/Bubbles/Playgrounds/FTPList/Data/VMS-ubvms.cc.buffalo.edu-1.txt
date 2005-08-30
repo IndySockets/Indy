@@ -1,0 +1,15 @@
+
+SYS$SYSDEVICE:[FTP]
+
+AXP.DIR;1                   1  17-OCT-1997 20:15 [TKSLEN] (RWE,RWE,,R)
+HOME_PAGE_LISTING.DIR;1
+                            1  17-OCT-1997 20:16 [TKSLEN] (RWE,RWE,,R)
+KERBEROS_5.DIR;1            1  17-OCT-1997 20:16 [TKSLEN] (RWE,RWE,,R)
+MASLIB.DIR;1                1  18-NOV-1997 14:40 [TKSLEN] (RWE,RWE,,R)
+MULTINET.DIR;1              1  17-OCT-1997 20:16 [TKSLEN] (RWE,RWE,,R)
+PUB.DIR;1                   1  14-AUG-1999 12:23 [ANONYMOUS] (RWE,RWE,RE,R)
+USER_WRITTEN_SYSTEM_SERVICE.DIR;1
+                            1  17-OCT-1997 20:14 [TKSLEN] (RWE,RWE,,R)
+
+
+Total of 7 blocks in 7 files.

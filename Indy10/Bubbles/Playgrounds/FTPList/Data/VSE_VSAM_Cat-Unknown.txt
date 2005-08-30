@@ -1,0 +1,9 @@
+CICS.AUTO.STATS.A          97/11/25   12:00            0  E
+CICS.AUTO.STATS.B          97/11/25   12:00            0  E
+CICS.CSD                   97/11/25   12:00       854000  K
+CICS.DUMPA                 97/11/25   02:08            0  E
+CICS.DUMPB                 97/12/02   12:00            0  E
+CICS.RSD                   97/11/25   12:00    129014000  K
+CICS.TD.INTRA              97/11/25   14:47            0  E
+#From: TCP/IP for VSE User's Guide Version 1 Release 4.0A
+#URL:  http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf

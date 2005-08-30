@@ -1,0 +1,9 @@
+
+Directory ANON:[PUB.MICHAEL]
+
+DIRBYDATE.ZIP;1      [USER,AI26]                      (RWED,RWED,RE,E)
+
+Total of 1 file.
+
+#From: http://groups.google.com/groups?q=VMS+UCX+FTP+Server+DIR&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=96090518231983%40a400.sternwarte.uni-erlangen.de&rnum=3
+#The poster mentioned he was using: UCX 3.3

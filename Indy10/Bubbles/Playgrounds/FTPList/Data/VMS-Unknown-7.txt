@@ -1,0 +1,25 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.PROG]
+
+AWK212.ZIP;1              148  18-JAN-1990 09:32
+AWK_REV.ZIP;1              28  18-JAN-1990 09:32
+DISKCACH.ZIP;1             58  17-MAY-1989 01:14
+FLOW.ASM;1                  9   9-SEP-1989 23:13
+GRAPHTPU.ZIP;1             50  17-MAY-1989 01:14
+RBDEMO3.PAS;1               4  17-MAY-1989 01:14
+RBDEMO3.ZIP;1              38  17-MAY-1989 01:14
+RBIODIF.ZIP;1             117  17-MAY-1989 01:14
+RBTPUS.ZIP;1               31  17-MAY-1989 01:14
+SHIP.;1                     5   9-SEP-1989 23:13
+TC2PAT.ARC;1               48   9-SEP-1989 23:12
+TC2PAT2.ZIP;1              53  18-JAN-1990 09:33
+TC2PATRB.ZIP;2             20  18-JAN-1990 09:33
+TD1PAT.ARC;1               23   9-SEP-1989 23:12
+UNSHIP.;1                   6   9-SEP-1989 23:13
+XONXOFF.ASM;1              11   9-SEP-1989 23:13
+Total of 649 blocks in 16 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

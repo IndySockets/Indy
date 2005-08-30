@@ -1,0 +1,15 @@
+
+LOCAL:[ANONYMOUS.VNC]
+
+VNCVIEWER-ALPHAVMS071.ZIP;1
+                          170  17-AUG-1999 21:51 [ANONYMOUS] (RW,RWED,,)
+VNCVIEWER-VAXVMS071.ZIP;1
+                           79  17-AUG-1999 21:51 [ANONYMOUS] (RW,RWED,,)
+
+
+Total of 249 blocks in 2 files.
+#220 Thuban.AC.HMC.Edu MultiNet FTP Server Process V4.3(16) at Sun 12-Jan-2003 7:59PM-PST
+#ftp> cd vnc
+#250 Connected to LOCAL:[ANONYMOUS.VNC].
+#ftp> quote syst
+#215 VMS MultiNet V4.3(91)

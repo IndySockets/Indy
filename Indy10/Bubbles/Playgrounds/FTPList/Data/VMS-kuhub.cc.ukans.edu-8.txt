@@ -1,0 +1,8 @@
+
+DUA8:[ANON_FTP.KANREN]
+
+MCI.PS;1                  203  21-JUL-1993 15:08 [SYS,SYSTEM] (RE,RE,RE,RE)
+SPRED10.PS;1              168  19-OCT-1993 16:02 [SYS,SYSTEM] (RE,RE,RE,RE)
+
+
+Total of 371 blocks in 2 files.

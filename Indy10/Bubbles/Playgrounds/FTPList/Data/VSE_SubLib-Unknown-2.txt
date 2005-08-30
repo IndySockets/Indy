@@ -1,0 +1,5 @@
+README.B                   80          1  99/07/09  13:33  F
+FILE1.TXT                 160          1  99/07/16  10:55  F
+README.TXT                 80          1  99/07/09  15:10  F
+TEST.TXT                   80          1  99/07/16  08:44  F
+#From: http://groups.google.com/groups?q=FTP+VSE+LIST+directory&start=90&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=2B5EE937C26AD21193DC00E02906B16303B125%40wopr.dowlinggroup.com&rnum=95

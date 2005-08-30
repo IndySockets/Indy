@@ -1,0 +1,5 @@
+DEFAULT.MODEL.ESDS.SAM                       99/02/09  18:27           0 E
+HP2IBM                                       98/10/26  12:00           0 K
+INTAP01                                      99/04/22  12:00       46360 E
+INTAR02                                      99/04/22  18:27           0 E
+#http://groups.google.com/groups?q=VSE+FTP+DIR&hl=en&lr=lang_en&ie=UTF-8&oe=utf-8&selm=0033E396.CE21233%40ccmail.eu.sony.co.jp&rnum=10

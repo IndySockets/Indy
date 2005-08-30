@@ -1,0 +1,7 @@
+
+DUA8:[ANON_FTP.KERMIT]
+
+KERM_311.EXE;1            362   7-JAN-1992 10:38 [SYS,SYSTEM] (RE,RE,RE,RE)
+
+
+Total of 362 blocks in 1 file.

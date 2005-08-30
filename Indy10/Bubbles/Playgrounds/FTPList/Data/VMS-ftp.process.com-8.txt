@@ -1,0 +1,15 @@
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE]
+
+DOCUMENTATION.DIR;1
+                           1   7-MAR-2002 12:19:37.45
+RELEASE_NOTES.DIR;1
+                           2   9-MAY-2001 23:35:35.19
+RSX.DIR;1                  1   9-MAY-2001 23:36:01.62
+RT.DIR;1                   1   9-MAY-2001 23:36:17.10
+TSX.DIR;1                  1   9-MAY-2001 23:36:33.38
+VMS.DIR;1          %RMS-E-PRV, insufficient privilege or file protection violation
+
+Total of 6 files, 6 blocks.

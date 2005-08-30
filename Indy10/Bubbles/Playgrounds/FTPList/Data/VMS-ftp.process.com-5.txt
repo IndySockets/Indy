@@ -1,0 +1,9 @@
+
+
+
+Directory ANONYMOUS_ROOT:[000000.MOZILLA]
+
+AAAREADME.TXT;1            1   6-SEP-2002 11:52:14.40
+OBSOLETE.DIR;1             1   6-SEP-2002 11:52:20.61
+
+Total of 2 files, 2 blocks.

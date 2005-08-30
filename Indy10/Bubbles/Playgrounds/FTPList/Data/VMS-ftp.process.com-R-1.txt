@@ -1,0 +1,3834 @@
+
+
+
+Directory ANONYMOUS_ROOT:[000000]
+
+.WELCOME;1                 2  13-FEB-2002 23:32:40.47
+DECUS.DIR;1                1   9-MAY-2001 22:18:51.69
+INFORMATION.DIR;1          1   9-MAY-2001 22:23:42.78
+MADGOAT.DIR;1              2   9-MAY-2001 22:23:44.85
+MOZILLA.DIR;1              1  21-JUN-2001 14:57:51.38
+README.TXT;4               2  18-APR-2000 10:40:39.90
+SSH.DIR;1                  1  22-JUN-2002 15:11:12.71
+SUPPORT.DIR;1              3   9-MAY-2001 22:29:45.02
+TCPWARE.DIR;1              1   9-MAY-2001 23:34:10.92
+VMS-FREEWARE.DIR;1         1   9-MAY-2001 23:58:31.39
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS]
+
+.MESSAGE;2                 1  30-MAR-1997 18:02:18.52
+AUSTRALIA_97.DIR;1         1   9-MAY-2001 22:18:52.39
+EUROPE_2000.DIR;1          1   9-MAY-2001 22:19:41.56
+EUROPE_96.DIR;1            1   9-MAY-2001 22:19:46.90
+EUROPE_97.DIR;1            1   9-MAY-2001 22:19:55.40
+FALL_93.DIR;1              1   9-MAY-2001 22:19:56.99
+FALL_94.DIR;1              1   9-MAY-2001 22:19:59.34
+FALL_95.DIR;1              1   9-MAY-2001 22:20:04.84
+FALL_96.DIR;1              1   9-MAY-2001 22:20:10.68
+FALL_97.DIR;1              3   9-MAY-2001 22:20:22.13
+FALL_98.DIR;1              1   9-MAY-2001 22:20:48.10
+IRELAND_99.DIR;1           1   9-MAY-2001 22:20:58.89
+MAY_98.DIR;1               1   9-MAY-2001 22:21:38.06
+SPRING_94.DIR;1            1   9-MAY-2001 22:21:51.99
+SPRING_95.DIR;1            1   9-MAY-2001 22:21:55.07
+SPRING_96.DIR;1            9   9-MAY-2001 22:22:05.23
+SPRING_97.DIR;1            2   9-MAY-2001 22:22:45.21
+SPRING_99.DIR;1            1   9-MAY-2001 22:23:14.09
+TS.DIR;1                   1   9-MAY-2001 22:23:16.63
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.AUSTRALIA_97]
+
+DHCP.PPT;2               467  20-OCT-1997 16:19:56.84
+IPV6.PPT;2               521  20-OCT-1997 16:20:00.41
+PURVEYOR.PPT;2          1070  20-OCT-1997 16:20:03.58
+ROUTING.PPT;1            630  20-OCT-1997 16:20:09.13
+TCP-OVERVIEW.PPT;2       950  20-OCT-1997 16:20:11.53
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.EUROPE_2000]
+
+DHCP_FAILOVER.PPT;1
+                         501   6-APR-2000 13:50:19.00
+DNSINTRO.PPT;1           676   6-APR-2000 10:53:18.00
+PROTOCOLS_SEMINAR.PPT;1
+                        1262   6-APR-2000 10:52:47.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.EUROPE_96]
+
+.MESSAGE;1                 2   1-OCT-1996 20:45:29.96
+IPV6INTRO_PPT.ZIP;1
+                          67  18-DEC-2000 19:05:04.78
+IPV6INTRO_PS.ZIP;1      1190  18-DEC-2000 19:05:54.05
+NTTCPIP_PPT.ZIP;1        428  18-DEC-2000 19:05:07.26
+NTTCPIP_PS.ZIP;1        1815  18-DEC-2000 19:06:32.90
+TCPIPINTRO_PPT.ZIP;1
+                          82  18-DEC-2000 19:05:29.63
+TCPIPINTRO_PS.ZIP;1
+                        1522  18-DEC-2000 19:07:55.70
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.EUROPE_97]
+
+DHCP.PPT;1               351   4-SEP-1997 18:07:42.40
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_93]
+
+DECUS_F93_IN019_PS.ZIP;1
+                          97  18-DEC-2000 16:46:40.49
+DECUS_F93_IN032_PS.ZIP;1
+                          44  18-DEC-2000 16:46:45.11
+DECUS_F93_NE130_PS.ZIP;1
+                          90  18-DEC-2000 16:46:47.32
+DECUS_F93_NE135_PS.ZIP;1
+                          87  18-DEC-2000 16:46:51.10
+DECUS_F93_UN063_PS.ZIP;1
+                          31  18-DEC-2000 16:46:54.52
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_94]
+
+DECUS_F94_NE004_EXAMPLES.TXT;1
+                          36   9-DEC-1994 16:22:29.00
+DECUS_F94_NE004_PS.ZIP;1
+                         113  18-DEC-2000 16:47:13.43
+DECUS_F94_NE005_EXAMPLES.TXT;1
+                          27   9-DEC-1994 16:25:26.00
+DECUS_F94_NE005_PS.ZIP;1
+                         127  18-DEC-2000 16:47:19.59
+DECUS_F94_NE027_PS.ZIP;1
+                          84  18-DEC-2000 16:47:26.23
+DECUS_F94_NE030_PS.ZIP;1
+                         128  18-DEC-2000 16:47:29.12
+DECUS_F94_NE054_MOSAIC_EXAMPLE_PS.ZIP;1
+                        1219  18-DEC-2000 16:47:49.68
+DECUS_F94_NE054_PS.ZIP;1
+                         482  18-DEC-2000 16:47:34.56
+DECUS_F94_NE074_PS.ZIP;1
+                         105  18-DEC-2000 16:49:49.64
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_95]
+
+DECUS_F95_EM014_PS.ZIP;1
+                         233  18-DEC-2000 16:50:23.23
+DECUS_F95_GW012.PPT;1
+                         128  11-DEC-1995 19:54:49.76
+DECUS_F95_GW012_PS.ZIP;1
+                          59  18-DEC-2000 16:50:33.38
+DECUS_F95_IN017_PS.ZIP;1
+                         548  18-DEC-2000 16:50:36.01
+DECUS_F95_IN025.PPT;1
+                        1085  11-DEC-1995 19:54:14.17
+DECUS_F95_IN025_PS.ZIP;1
+                         693  18-DEC-2000 16:51:07.72
+DECUS_F95_NE059_EXAMPLES.TXT;1
+                          27   1-DEC-1995 15:42:19.50
+DECUS_F95_NE059_PS.ZIP;1
+                         287  18-DEC-2000 16:51:45.98
+F95EM014_PS.ZIP;1        233  18-DEC-2000 16:51:57.63
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_96]
+
+DECUS_F96_PROG_PPT.ZIP;1
+                         187  18-DEC-2000 17:43:16.75
+DECUS_F96_PROG_PS.ZIP;1
+                        2621  18-DEC-2000 17:10:13.03
+DECUS_F96_PROG_QIO_EXAMPLE.TXT;1
+                          36   8-NOV-1996 15:11:27.35
+F96IN011_PPT.ZIP;1       125  18-DEC-2000 17:43:25.83
+F96IN011_PS.ZIP;1        752  18-DEC-2000 17:12:30.04
+F96IN022_PPT.ZIP;1       194  18-DEC-2000 17:43:33.19
+F96IN022_PS.ZIP;1        259  18-DEC-2000 17:13:06.83
+F96NM001_PPT.ZIP;1        53  18-DEC-2000 17:43:42.40
+F96NM001_PS.ZIP;1        106  18-DEC-2000 17:13:20.16
+F96NM077_PPT.ZIP;1        75  18-DEC-2000 17:43:45.91
+F96NM077_PS.ZIP;1        148  18-DEC-2000 17:13:25.65
+F96SM032_PPT.ZIP;1        74  18-DEC-2000 17:43:49.10
+F96SM032_PS.ZIP;1        111  18-DEC-2000 17:13:32.42
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_97]
+
+DECUS_F97_IN039_PPT.ZIP;1
+                         106  18-DEC-2000 17:36:30.78
+DECUS_F97_IN039_PS.ZIP;1
+                         741  18-DEC-2000 17:26:44.79
+DECUS_F97_UN013.TXT;1
+                           2   6-NOV-1997 16:33:30.74
+DECUS_F97_UN013_PPT.ZIP;1
+                         177  18-DEC-2000 17:36:34.97
+DECUS_F97_UN013_PS.ZIP;1
+                        1392  18-DEC-2000 17:27:26.98
+DECUS_F97_VS022.DOC;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DECUS_F97_VS022.TXT;2
+                           2  24-NOV-1997 12:53:55.25
+DECUS_F97_VS022_PS.ZIP;1
+                         182  18-DEC-2000 17:28:36.81
+DECUS_F97_VS023.DOC;1
+                         488  24-NOV-1997 12:50:34.00
+DECUS_F97_VS023.TXT;2
+                           2  24-NOV-1997 12:54:07.35
+DECUS_F97_VS023_PS.ZIP;1
+                         109  18-DEC-2000 17:28:42.84
+DECUS_F97_VS025.DOC;1
+                         491  24-NOV-1997 12:50:38.00
+DECUS_F97_VS025.TXT;1
+                           2  24-NOV-1997 12:53:38.82
+DECUS_F97_VS025_PS.ZIP;1
+                         141  18-DEC-2000 17:28:46.41
+INTERNAL_README.TXT;1
+                           1   8-JUL-1999 14:09:47.44
+MXINTRO_PPT.ZIP;1         93  18-DEC-2000 17:36:41.65
+NE003_PROG_INTRO_PPT.ZIP;1
+                         115  18-DEC-2000 17:36:46.70
+NE003_PROG_INTRO_PS.ZIP;1
+                        1071  18-DEC-2000 17:28:50.46
+NE004_PROG_SOCKET_PPT.ZIP;1
+                         147  18-DEC-2000 17:36:52.68
+NE005_PROG_LIBRARY_PPT.ZIP;1
+                          92  18-DEC-2000 17:37:01.43
+NE006_PROG_QIO_PPT.ZIP;1
+                         133  18-DEC-2000 17:37:06.16
+TCP_IP_PROGRAMMING_QIO.TXT;2
+                          36  15-MAY-1997 13:41:25.07
+TCP_IP_PROGRAMMING_SOCK.TXT;2
+                          27  15-MAY-1997 13:43:06.48
+TCP_IP_PROTOCOLS_PPT.ZIP;1
+                         367  18-DEC-2000 17:37:12.29
+TCP_IP_PROTOCOLS_PS.ZIP;1
+                        6739  18-DEC-2000 17:29:31.87
+ZI076880.;1               73  18-DEC-2000 17:36:04.63
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.FALL_98]
+
+DECUS_F98_NE114.TXT;1
+                           3  15-OCT-1998 10:47:48.81
+DECUS_F98_NE114_PPT.ZIP;1
+                          98  18-DEC-2000 17:46:05.66
+DECUS_F98_NE114_PS.ZIP;1
+                        1233  18-DEC-2000 17:48:20.65
+PROGRAMMING95_PPT.ZIP;1
+                         439  18-DEC-2000 17:46:20.29
+PROGRAMMING_PPT.ZIP;1
+                         280  18-DEC-2000 17:46:09.78
+PROGRAMMING_QIO.TXT;1
+                          36  15-MAY-1997 13:41:25.07
+PROGRAMMING_SOCK.TXT;1
+                          27  15-MAY-1997 13:43:06.48
+PROTOCOLS95_PPT.ZIP;1
+                         511  18-DEC-2000 17:46:51.48
+PROTOCOLS_PPT.ZIP;1
+                         320  18-DEC-2000 17:46:40.37
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.IRELAND_99]
+
+DHCP.ABSTRACT;1            2  12-MAY-1999 17:12:32.83
+DHCP.PPT;1               495  21-MAY-1999 11:38:47.00
+DHCP_PS.ZIP;1           1402  18-DEC-2000 17:52:36.60
+DNSINTRO.PPT;1          1139  21-MAY-1999 11:38:48.00
+DNSINTRO_PS.ZIP;1       1482  18-DEC-2000 17:53:46.40
+DNS_INTRO.ABSTRACT;1
+                           3  12-MAY-1999 17:14:28.57
+PROGRAMMING_QIO.TXT;2
+                          38  21-MAY-1999 18:29:03.44
+PROGRAMMING_SOCK.TXT;2
+                          27  21-MAY-1999 18:29:19.82
+PROG_SOCK.ABSTRACT;1
+                           2  12-MAY-1999 17:11:58.02
+PROG_SOCK.PPT;1          862  21-MAY-1999 11:38:49.00
+PROG_SOCK_PS.ZIP;1      1941  18-DEC-2000 17:54:57.90
+TCP_IP_PROGRAMMING.PPT;1
+                        2322  21-MAY-1999 11:38:50.00
+TCP_IP_PROGRAMMING_PS.ZIP;1
+                        7150  18-DEC-2000 17:56:21.20
+TCP_IP_PROG_SEMINAR.ABSTRACT;1
+                           4  12-MAY-1999 17:34:05.44
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.MAY_98]
+
+IPV6.PPT;1               490  23-APR-1998 12:08:18.75
+TCP_IP_PROTOCOLS.PPT;1
+                        3164  23-APR-1998 12:08:35.34
+TCP_OVERVIEW.PPT;1       910  23-APR-1998 12:09:32.34
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.SPRING_94]
+
+DECUS_S94_IN020_PS.ZIP;1
+                          97  18-DEC-2000 18:04:31.74
+DECUS_S94_IN027_PS.ZIP;1
+                         482  18-DEC-2000 18:04:35.72
+DECUS_S94_IN032_PS.ZIP;1
+                         122  18-DEC-2000 18:04:51.96
+DECUS_S94_IP005_PS.ZIP;1
+                         111  18-DEC-2000 18:04:59.07
+DECUS_S94_NE032_PS.ZIP;1
+                          90  18-DEC-2000 18:05:05.49
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.SPRING_95]
+
+DECUS_S95_IN002.PPT;1
+                        5056   5-MAY-1995 17:48:16.08
+DECUS_S95_IN002.ZIP;1
+                         294   5-MAY-1995 18:49:01.69
+DECUS_S95_IN002_PS.ZIP;1
+                        2069  18-DEC-2000 18:07:37.21
+DECUS_S95_NE022_PS.ZIP;1
+                         787  18-DEC-2000 18:09:40.09
+DECUS_S95_NE041_PS.ZIP;1
+                         743  18-DEC-2000 18:10:16.27
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.SPRING_96]
+
+DECUS_S96_IN009_PS.ZIP;1
+                         809  18-DEC-2000 18:14:58.39
+DECUS_S96_NE0035_PS.ZIP;1
+                          69  18-DEC-2000 18:15:31.27
+DECUS_S96_NE0036_PS.ZIP;1
+                          66  18-DEC-2000 18:15:34.86
+DECUS_S96_NE005_PS.ZIP;1
+                         745  18-DEC-2000 18:15:37.40
+DECUS_S96_NE035_EXAMPLES.TXT;1
+                          27  30-MAY-1996 14:57:34.47
+DECUS_S96_NE036_EXAMPLES.TXT;1
+                          36  30-MAY-1996 14:58:10.86
+DECUS_S96_NM008_PS.ZIP;1
+                        1113  18-DEC-2000 18:16:08.29
+IN009-1.GIF;1             24  31-MAY-1996 16:37:16.00
+IN009-1.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-10.GIF;1            25  31-MAY-1996 16:37:17.00
+IN009-10.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-11.GIF;1            29  31-MAY-1996 16:37:17.00
+IN009-11.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-12.GIF;1            30  31-MAY-1996 16:37:17.00
+IN009-12.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-13.GIF;1            30  31-MAY-1996 16:37:18.00
+IN009-13.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-14.GIF;1            29  31-MAY-1996 16:37:18.00
+IN009-14.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-15.GIF;1            77  31-MAY-1996 16:37:18.00
+IN009-15.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-16.GIF;1            28  31-MAY-1996 16:37:19.00
+IN009-16.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-17.GIF;1            33  31-MAY-1996 16:37:19.00
+IN009-17.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-18.GIF;1            30  31-MAY-1996 16:37:19.00
+IN009-18.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-19.GIF;1            28  31-MAY-1996 16:37:20.00
+IN009-19.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-2.GIF;1             30  31-MAY-1996 16:37:20.00
+IN009-2.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-20.GIF;1            28  31-MAY-1996 16:37:20.00
+IN009-20.HTML;1            3  31-MAY-1996 18:42:46.00
+IN009-21.GIF;1            30  31-MAY-1996 16:37:21.00
+IN009-21.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-22.GIF;1            28  31-MAY-1996 16:37:21.00
+IN009-22.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-23.GIF;1            28  31-MAY-1996 16:37:21.00
+IN009-23.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-24.GIF;1            32  31-MAY-1996 16:37:22.00
+IN009-24.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-25.GIF;1            28  31-MAY-1996 16:37:22.00
+IN009-25.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-26.GIF;1            28  31-MAY-1996 16:37:22.00
+IN009-26.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-27.GIF;1            24  31-MAY-1996 16:37:22.00
+IN009-27.HTML;1            3  31-MAY-1996 18:42:47.00
+IN009-3.GIF;1             31  31-MAY-1996 16:37:23.00
+IN009-3.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-4.GIF;1             29  31-MAY-1996 16:37:23.00
+IN009-4.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-5.GIF;1             29  31-MAY-1996 16:37:23.00
+IN009-5.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-6.GIF;1             30  31-MAY-1996 16:37:24.00
+IN009-6.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-7.GIF;1             30  31-MAY-1996 16:37:24.00
+IN009-7.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-8.GIF;1             26  31-MAY-1996 16:37:25.00
+IN009-8.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-9.GIF;1             32  31-MAY-1996 16:37:25.00
+IN009-9.HTML;1             3  31-MAY-1996 18:42:46.00
+IN009-TOC.HTML;1           3  31-MAY-1996 19:13:58.00
+NE005-1.GIF;1             38  31-MAY-1996 19:17:23.00
+NE005-1.HTML;1             3  31-MAY-1996 19:33:57.00
+NE005-10.GIF;1            30  31-MAY-1996 19:17:24.00
+NE005-10.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-11.GIF;1            39  31-MAY-1996 19:17:24.00
+NE005-11.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-12.GIF;1            41  31-MAY-1996 19:17:24.00
+NE005-12.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-13.GIF;1            43  31-MAY-1996 19:17:25.00
+NE005-13.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-14.GIF;1            43  31-MAY-1996 19:17:25.00
+NE005-14.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-15.GIF;1            37  31-MAY-1996 19:17:25.00
+NE005-15.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-16.GIF;1            42  31-MAY-1996 19:17:25.00
+NE005-16.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-17.GIF;1            38  31-MAY-1996 19:17:26.00
+NE005-17.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-18.GIF;1            43  31-MAY-1996 19:17:26.00
+NE005-18.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-19.GIF;1            42  31-MAY-1996 19:17:26.00
+NE005-19.HTML;1            4  31-MAY-1996 19:33:57.00
+NE005-2.GIF;1             41  31-MAY-1996 19:17:27.00
+NE005-2.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-20.GIF;1            43  31-MAY-1996 19:17:27.00
+NE005-20.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-21.GIF;1            44  31-MAY-1996 19:17:27.00
+NE005-21.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-22.GIF;1            45  31-MAY-1996 19:17:27.00
+NE005-22.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-23.GIF;1            43  31-MAY-1996 19:17:28.00
+NE005-23.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-24.GIF;1            32  31-MAY-1996 19:17:28.00
+NE005-24.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-25.GIF;1            36  31-MAY-1996 19:17:28.00
+NE005-25.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-26.GIF;1            36  31-MAY-1996 19:17:29.00
+NE005-26.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-27.GIF;1            37  31-MAY-1996 19:17:29.00
+NE005-27.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-28.GIF;1            42  31-MAY-1996 19:17:29.00
+NE005-28.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-29.GIF;1            41  31-MAY-1996 19:17:29.00
+NE005-29.HTML;1            4  31-MAY-1996 19:33:58.00
+NE005-3.GIF;1             42  31-MAY-1996 19:17:30.00
+NE005-3.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-30.GIF;1            44  31-MAY-1996 19:17:30.00
+NE005-30.HTML;1            3  31-MAY-1996 19:33:58.00
+NE005-4.GIF;1             40  31-MAY-1996 19:17:30.00
+NE005-4.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-5.GIF;1             41  31-MAY-1996 19:17:31.00
+NE005-5.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-6.GIF;1             45  31-MAY-1996 19:17:31.00
+NE005-6.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-7.GIF;1             44  31-MAY-1996 19:17:31.00
+NE005-7.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-8.GIF;1             45  31-MAY-1996 19:17:31.00
+NE005-8.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-9.GIF;1             43  31-MAY-1996 19:17:32.00
+NE005-9.HTML;1             4  31-MAY-1996 19:33:57.00
+NE005-TOC.HTML;1           3  31-MAY-1996 19:35:39.00
+NEXT.GIF;1                 4  31-MAY-1996 17:23:45.00
+PREV.GIF;1                 4  31-MAY-1996 17:23:45.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.SPRING_97]
+
+DECUS_S97_CC007_PPT.ZIP;1
+                         156  18-DEC-2000 18:53:41.93
+DECUS_S97_CC007_PS.ZIP;1
+                        1536  18-DEC-2000 18:23:15.42
+DECUS_S97_CG002_PPT.ZIP;1
+                         163  18-DEC-2000 18:53:49.28
+DECUS_S97_CG002_PS.ZIP;1
+                        1057  18-DEC-2000 18:24:16.60
+DECUS_S97_IN024_PPT.ZIP;1
+                         100  18-DEC-2000 18:53:56.47
+DECUS_S97_IN024_PS.ZIP;1
+                         818  18-DEC-2000 18:25:04.28
+IN022-TCPIP_PPT.ZIP;1
+                         126  18-DEC-2000 18:54:02.99
+IN022-TCPIP_PS.ZIP;1
+                         757  18-DEC-2000 18:25:44.49
+IN023-IPV6_PPT.ZIP;1
+                          88  18-DEC-2000 18:54:10.70
+IN023-IPV6_PS.ZIP;1
+                         512  18-DEC-2000 18:26:19.12
+IN027-DHCP_PPT.ZIP;1
+                          75  18-DEC-2000 18:54:15.28
+IN027-DHCP_PS.ZIP;1
+                         152  18-DEC-2000 18:26:40.40
+IN028_PROG_INTRO_PPT.ZIP;1
+                         110  18-DEC-2000 18:54:18.44
+IN028_PROG_INTRO_PS.ZIP;1
+                        1087  18-DEC-2000 18:26:46.87
+IN029_PROG_SOCK_PPT.ZIP;1
+                         132  18-DEC-2000 18:54:23.82
+IN029_PROG_SOCK_PS.ZIP;1
+                        2397  18-DEC-2000 18:27:42.73
+IN029_SOCKET_EXAMPLES.TXT;2
+                          27  15-MAY-1997 13:39:56.31
+TCP_IP_PROGRAMMING_PPT.ZIP;1
+                         277  18-DEC-2000 18:54:29.67
+TCP_IP_PROGRAMMING_PS.ZIP;1
+                        6541  18-DEC-2000 18:29:37.22
+TCP_IP_PROGRAMMING_QIO.TXT;2
+                          36  15-MAY-1997 13:41:25.07
+TCP_IP_PROGRAMMING_SOCK.TXT;2
+                          27  15-MAY-1997 13:43:06.48
+TCP_IP_PROTOCOLS_PPT.ZIP;1
+                         380  18-DEC-2000 18:54:42.75
+TCP_IP_PROTOCOLS_PS.ZIP;1
+                        7535  18-DEC-2000 18:34:59.56
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.SPRING_99]
+
+PROGRAMMING_SEMINAR_PPT.ZIP;1
+                         427  18-DEC-2000 19:03:19.50
+PROTOCOLS_SEMINAR_PPT.ZIP;1
+                         282  18-DEC-2000 19:03:38.82
+S99_IN109_PPT.ZIP;1
+                         174  18-DEC-2000 19:03:53.64
+S99_IN110_PPT.ZIP;1
+                         100  18-DEC-2000 19:03:58.26
+TCP_SOCKET_CLIENT.C;1
+                          16  12-JUN-1999 16:04:20.81
+TCP_SOCKET_SERVER.C;1
+                          18  12-JUN-1999 16:04:26.39
+
+
+
+Directory ANONYMOUS_ROOT:[000000.DECUS.TS]
+
+TCP_IP-PART_I.PS;1       248   9-NOV-1994 10:54:29.00
+TCP_IP-PART_II.PS;1
+                         622   9-NOV-1994 10:54:58.00
+TCP_IP-PART_III.PS;1
+                         429   9-NOV-1994 10:55:21.00
+TCP_IP-PART_IV.PS;1
+                         398   9-NOV-1994 10:55:42.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.INFORMATION]
+
+NFSV3.PS;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.MADGOAT]
+
+.MESSAGE;3                 2  30-NOV-1999 20:36:07.65
+KILL.ZIP;1               111  22-APR-1997 08:39:24.98
+MDMLIB.ZIP;1             160   4-NOV-1998 13:16:54.46
+MGBOOK.ZIP;1             334  22-APR-1997 08:39:27.97
+MGFTP.README;1             1  29-DEC-2001 02:23:15.88
+MGFTP.ZIP;4             8085  10-NOV-2001 15:12:13.84
+MGPCX.ZIP;2              339  29-OCT-1997 21:36:42.87
+MG_FINGER.ZIP;1          216  22-APR-1997 08:41:32.57
+MMK.ZIP;9                756   6-NOV-2002 15:36:34.22
+MMKTEST-ALPHA_ONLY.ZIP;2
+                         756   8-AUG-2002 02:23:23.53
+NETLIB020.ZIP;1         1266  22-APR-1997 08:41:52.03
+NETLIB021.ZIP;1          872  24-JUL-1997 10:20:03.28
+NETLIB022-G.ZIP;1        911  18-FEB-2000 13:50:53.79
+NETLIB022.ZIP;6          911  13-MAR-2000 21:05:30.60
+NETLIB022_F.ZIP;1        906  29-DEC-1998 16:18:13.63
+NETLIB023.ZIP;4         1054   5-FEB-2002 02:23:16.34
+NEWSRDR.ZIP;3           2619   4-NOV-1998 13:17:51.69
+NSQUERY.ZIP;1            257  22-APR-1997 08:43:28.62
+SEND.ZIP;1               280  22-APR-1997 08:43:37.09
+UNZIP.ALPHA_EXE;3        309   5-SEP-2002 02:23:10.00
+UNZIP.EXE;3              200   5-SEP-2002 02:23:14.55
+WATCHER.ZIP;5            785   2-APR-2002 12:09:42.67
+WATCHER030.ZIP;1         757   5-FEB-1999 23:56:26.71
+WATCHER031-1.ZIP;1       782   7-MAR-2000 23:52:20.34
+WATCHER031.ZIP;1         780  28-APR-1999 17:29:56.10
+WATCHER_T031.ZIP;1       779   4-MAR-1999 10:56:57.63
+
+
+
+Directory ANONYMOUS_ROOT:[000000.MOZILLA]
+
+AAAREADME.TXT;1            1   6-SEP-2002 11:52:14.40
+OBSOLETE.DIR;1             1   6-SEP-2002 11:52:20.61
+
+
+
+Directory ANONYMOUS_ROOT:[000000.MOZILLA.OBSOLETE]
+
+09X.DIR;1                  1  22-JUN-2002 17:56:01.03
+LIBNSPR4_110_ALPHA.SO;1
+                         826  22-JUN-2002 17:57:38.54
+LIBNSPR4_CSWB_10.SO;1
+                         826  22-JUN-2002 17:58:04.83
+LIBNSPR4_CSWB_11B.SO;1
+                         826  25-JUL-2002 11:51:06.00
+LIBNSPR4_MOZILLA_100.SO;1
+                         826   5-JUN-2002 10:24:21.82
+
+
+
+Directory ANONYMOUS_ROOT:[000000.MOZILLA.OBSOLETE.09X]
+
+LIBNSPR4_MOZILLA_091.SO;1
+                         778  21-JUN-2001 14:58:05.17
+LIBNSPR4_MOZILLA_092.SO;1
+                         778   3-JUL-2001 14:00:01.73
+LIBNSPR4_MOZILLA_093.SO;1
+                         778   3-AUG-2001 23:26:20.80
+LIBNSPR4_MOZILLA_094.SO;1
+                         785  17-SEP-2001 12:27:31.68
+LIBNSPR4_MOZILLA_095.SO;1
+                         785  15-OCT-2001 10:17:34.59
+LIBNSPR4_MOZILLA_096.SO;1
+                         785  27-NOV-2001 01:27:35.92
+LIBNSPR4_MOZILLA_097.SO;1
+                         785   8-JAN-2002 13:57:58.83
+LIBNSPR4_MOZILLA_098.SO;1
+                         796   5-FEB-2002 11:45:17.51
+LIBNSPR4_MOZILLA_099.SO;1
+                         817  22-MAR-2002 17:57:26.16
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SSH]
+
+DOCS.DIR;1                 2  22-JUN-2002 15:11:53.74
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SSH.DOCS]
+
+HTML.DIR;1                 2  22-JUN-2002 15:13:41.61
+SSH_HTML_DOCS.ZIP;1
+                         248  21-JUN-2002 15:50:34.00
+SSH_OPENVMS.PDF;1       1595  21-JUN-2002 15:25:21.00
+SSH_PDF_DOCS.ZIP;1       741  21-JUN-2002 15:49:10.00
+SSH_RELEASE_NOTES.TXT;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+SSH_RELEASE_NOTESV1.TXT;1
+                          35  21-JUN-2002 17:59:28.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SSH.DOCS.HTML]
+
+CH1.HTM;1                 22  21-JUN-2002 15:24:33.00
+CH2.HTM;1                 26  21-JUN-2002 15:24:35.00
+CH3.HTM;1                 21  21-JUN-2002 15:24:36.00
+CH4.HTM;1                 99  21-JUN-2002 15:24:38.00
+CH5.HTM;1                 84  21-JUN-2002 15:24:41.00
+CH6.HTM;1                127  21-JUN-2002 15:24:44.00
+CH7.HTM;1                 42  21-JUN-2002 15:24:47.00
+CH8.HTM;1                 21  21-JUN-2002 15:24:49.00
+FIG8-1.GIF;1              19  21-JUN-2002 15:24:56.00
+FIG8-2.GIF;1              18  21-JUN-2002 15:25:00.00
+FIG8-3.GIF;1              18  21-JUN-2002 15:25:02.00
+FIG9-1.GIF;1              33  21-JUN-2002 15:25:03.00
+FRONTMR.HTM;1             20  21-JUN-2002 15:25:05.00
+HTINDEX.HTM;1             39  21-JUN-2002 15:25:07.00
+HTTOC.HTM;1               10  21-JUN-2002 15:25:11.00
+INDEX.HTM;1                1  21-JUN-2002 15:25:13.00
+NAVINDEX.GIF;1             2  21-JUN-2002 15:25:15.00
+NAVNEXT.GIF;1              2  21-JUN-2002 15:25:16.00
+NAVPREV.GIF;1              2  21-JUN-2002 15:25:18.00
+NAVTOC.GIF;1               2  21-JUN-2002 15:25:19.00
+SSH_PRE.HTM;1             23  21-JUN-2002 15:25:40.00
+SSH_RC.HTM;1               8  21-JUN-2002 15:25:43.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT]
+
+50.DIR;1                   1   9-MAY-2001 22:29:45.32
+50_3B.DIR;1                1   9-MAY-2001 22:29:45.98
+50_4.DIR;1                 1   9-MAY-2001 22:29:46.89
+51_3.DIR;1                 1   9-MAY-2001 22:29:47.51
+51_4.DIR;1                 5   9-MAY-2001 22:30:22.57
+51_5.DIR;1                 7   9-MAY-2001 22:38:46.71
+52_3.DIR;1                 6   9-MAY-2001 22:53:58.71
+53_2.DIR;1                 5   9-MAY-2001 23:11:07.93
+53_3.DIR;1                 3   9-MAY-2001 23:20:35.03
+54_1_BETA.DIR;1            1   9-MAY-2001 23:23:11.46
+54_2_BETA.DIR;1            1   9-MAY-2001 23:23:33.69
+54_3.DIR;1                 2   9-MAY-2001 23:23:34.80
+55_3.DIR;1                 2   9-MAY-2001 23:30:53.73
+56_2.DIR;1                 2   7-AUG-2002 18:29:46.99
+CUSTOMER_SPECIFIC.DIR;1
+                           1   9-MAY-2001 23:30:59.21
+DHCPTEST.EXE_AXP;1       370  17-NOV-1998 18:25:34.00
+FREEWARE.ZIP;1         39914  20-MAY-1996 15:01:36.00
+FSS.DIR;1                  1   9-MAY-2001 23:32:19.11
+FSSADMN.ZIP;1           4847  22-MAY-1997 12:21:02.32
+FSS_TES.ZIP;2            585  22-MAY-1997 12:20:27.13
+FTP_RT.TAR;1             500   9-NOV-1995 11:51:32.00
+INTRANET.EXAMPLE;1         2  23-APR-1996 10:43:16.00
+IPADDRESSWORKS.DIR;1
+                           1   9-MAY-2001 23:33:51.40
+KEYCHECK.EXE;1           399  14-DEC-1999 11:06:18.34
+MULTINET.STB;1            63  26-FEB-1997 11:47:28.00
+README.TXT;1               2  11-AUG-1994 09:52:49.30
+README1.NPS;1             14   8-MAY-1996 15:26:59.03
+TCPDUMP.ZIP;1           1477   3-AUG-1999 21:48:14.00
+TCPWARE-FINGER-EXAMPLES.ZIP;1
+                          67   3-JUN-1998 09:49:05.00
+TES32.ZIP;1             1441  22-MAY-1997 12:20:41.55
+UNSUPPORTED.DIR;1          1   9-MAY-2001 23:34:07.84
+UNZIP.ALPHA_EXE;5        309  21-FEB-2002 11:41:52.71
+UNZIP.VAX_EXE;4          200  21-FEB-2002 11:41:41.07
+VAX55_DECC_RTL.DIR;1
+                           1   3-DEC-2002 17:58:46.00
+ZIP-ALPHA.EXE;1          208  10-SEP-1993 12:52:54.00
+ZIP-VAX.EXE;1            107  10-SEP-1993 12:52:34.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.50]
+
+00SUMMARY.TXT;2           26  24-AUG-1995 12:07:03.89
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.50_3B]
+
+00SUMMARY.TXT;28          30  19-DEC-1996 10:34:54.56
+X.COM;2            %%RMS-E-PRV, insufficient privilege or file protection violation
+X.COM;1            %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.50_4]
+
+00SUMMARY.TXT;17          25  11-SEP-1996 16:33:29.84
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.51_3]
+
+00SUMMARY.TXT;1            2  29-MAY-1996 14:14:12.71
+CNFS_V513A_AXP.INC;1
+                        7119  28-MAY-1996 11:00:58.00
+CNFS_V513A_VAX.INC;1
+                        2772  23-MAY-1996 14:57:20.00
+DRIVERS_V513A.INC;2
+                        7308  29-MAY-1996 11:48:29.00
+LPD_V513A_VAX.INC;1
+                         378  21-MAY-1996 23:44:01.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.51_4]
+
+00SUMMARY.TXT;55          70  13-MAR-1997 22:31:35.00
+DHCPD_V514P010.A;1      1575  21-AUG-1996 17:24:37.00
+DRIVERS_V514P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V514P020.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V514P021.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V514P030.A;1
+                        7308  16-SEP-1996 11:09:42.00
+DRIVERS_V514P040.A;1
+                        7434  17-SEP-1996 17:13:44.00
+DRIVERS_V514P050.A;1
+                        7623   4-NOV-1996 16:58:29.00
+DRIVERS_V514P060.A;1
+                        7623  21-NOV-1996 11:28:02.00
+DRIVERS_V515P070.A;2
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V515P080.A;2
+                        7812   3-FEB-1997 10:23:22.00
+FSS_V51_VAX_VMS6UP.INC;1
+                        5355  12-JUN-1996 13:47:21.00
+FTPD_DTP_V514P010.A;1
+                        1008  12-JUL-1996 22:04:58.00
+GATED_V514P010.A;1     14112  13-AUG-1996 14:04:07.00
+GATED_V514P020.A;1     14112  16-AUG-1996 14:42:34.00
+LPD_V514P010.A;1         882  16-JUL-1996 12:58:17.00
+LPD_V514P020.A;1         630  29-JUL-1996 11:19:25.00
+LPS_V514P010.A;1         315  30-SEP-1996 14:37:40.00
+NAMED_V514P010.A;1      2331  12-AUG-1996 14:01:45.00
+NAMED_V514P020.A;1      2331  12-AUG-1996 18:04:24.00
+NETCP_V514P010.A;1      2772   3-JUL-1996 11:38:27.00
+NETCP_V514P020.A;1      2772   6-AUG-1996 19:57:01.00
+NETCP_V514P020.ZIP;1
+                        1028  10-SEP-1997 14:49:35.85
+NETCP_V514P030.A;1      2583  13-NOV-1996 11:10:44.00
+NETCP_V514P040.A;6      4599  10-JUN-1997 18:48:28.00
+NETCU_V514P010.A;1      6741   4-SEP-1996 13:02:47.00
+NETCU_V514P020.A;1      6741   5-NOV-1996 16:55:04.48
+NFSD_V514P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V514P020.A;2  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V514P030.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V514P040.A;4  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P060.A;1       5418  25-FEB-1997 09:56:05.00
+NTPD_V514P010.A;2        819  31-JUL-1996 16:40:17.00
+POP3_V514A_AXP.INC;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514A_VAX.INC;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514B_AXP.INC;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514B_VAX.INC;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514P030.A;2  %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514P040.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V514P050.A;1       1890   2-AUG-1996 16:28:17.00
+PPPD_V514P010.A;1       1764   7-AUG-1996 14:23:09.00
+RCP_V515P010.A;3        1197   8-OCT-1996 15:45:13.00
+README.TXT;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+RON.INC;1               5355  16-JUL-1996 15:34:10.63
+RPCGEN_V514P010.A;1
+                        2205  20-JUN-1996 15:29:53.00
+RSH_V514P010.A;1        1071  21-JUN-1996 16:47:03.00
+SET_PROBE.EXE_AXP;1
+                          12  14-JUN-1996 11:11:08.72
+SET_PROBE.EXE_VAX;1
+                         120  14-JUN-1996 10:35:14.00
+SMTP_V514P010.A;1       2646  23-SEP-1996 12:35:03.00
+SMTP_V514P020.A;1       2646  27-NOV-1996 15:45:09.00
+SNMPD_V514A_AXP.INC;1
+                        1701   7-JUN-1996 10:59:21.00
+SNMPD_V514A_VAX.INC;1
+                         819   7-JUN-1996 10:59:17.00
+SNMPD_V514P010.A;5      1575  23-OCT-1996 17:11:26.00
+TELNET_V514P010.A;1
+                        2898  11-JUL-1996 09:33:48.00
+TELNET_V514P020.A;2
+                        2646  23-OCT-1996 16:57:51.00
+TFTPD_V514P010.A;1       441  13-AUG-1996 16:25:25.00
+TSSYM_V514P010.A;1       504  23-JUL-1996 10:46:23.00
+TSSYM_V514P010.ZIP;1
+                         146  10-SEP-1997 16:43:34.05
+VMSLPRSMB_V514P010.A;1
+                         630   9-AUG-1996 12:23:42.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.51_5]
+
+00SUMMARY.TXT;121        143  21-JAN-1998 14:42:15.70
+CNFS_V515P010.A;4      11403   4-DEC-1996 17:04:39.00
+CNFS_V515P020.A;2      11403  30-DEC-1996 17:03:22.00
+DHCPD_V515P010.A;1      1575   5-SEP-1996 12:45:27.00
+DHCPD_V515P020.A;1      1575  17-DEC-1996 14:18:12.00
+DHCPD_V515P030.A;1      1575  13-JAN-1997 13:20:01.00
+DHCPD_V515P040.A;1      1575  31-JAN-1997 16:55:15.00
+DHCPD_V515P050.A;1      1701  28-FEB-1997 15:24:48.00
+DHCPD_V515P051.A;1      1701   5-MAR-1997 15:47:36.00
+DNS_CONTROL.COM;1         61  11-OCT-1996 12:03:33.75
+DNS_MAIN_V515P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DNS_MAIN_V515P020.A;4
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DNS_MAIN_V515P030.A;1
+                        2079   3-SEP-1997 15:40:55.00
+DRIVERS_V515P010.A;1
+                        7308  16-SEP-1996 14:51:43.00
+DRIVERS_V515P020.A;1
+                        7308  27-SEP-1996 15:24:42.00
+DRIVERS_V515P030.A;2
+                        7308  17-OCT-1996 14:02:01.00
+DRIVERS_V515P050.A;1
+                        7812  27-NOV-1996 23:25:50.00
+DRIVERS_V515P060.A;1
+                        7812  23-DEC-1996 14:04:11.00
+DRIVERS_V515P070.A;2
+                        7812  16-JAN-1997 11:54:32.00
+DRIVERS_V515P080.A;2
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V515P090.A;1
+                        7812   7-JAN-1998 09:18:08.00
+DRIVERS_V515P090.ZIP;1
+                        3162  28-APR-1998 13:45:59.30
+FSSEXE_V515P010.A;5
+                       28287   4-MAR-1997 15:12:39.00
+FTPD_DTP_V515P010.A;2
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_DTP_V515P020.A;2
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_V515P020.A;1       1764   4-NOV-1996 09:16:15.00
+FTP_V515.ZIP;1          1551  27-APR-1998 17:22:59.00
+FTP_V515P010.A;1   %%RMS-E-PRV, insufficient privilege or file protection violation
+FTP_V515P020.A;1   %%RMS-E-PRV, insufficient privilege or file protection violation
+FTP_V515P031.A;2   %%RMS-E-PRV, insufficient privilege or file protection violation
+FTP_V515P040.A;1        2583  21-JAN-1997 13:05:54.00
+GATED_V515P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+GATED_V515P020.A;1     14112  18-SEP-1996 17:05:29.00
+LPD_V515P010.A;2        1134  19-NOV-1996 23:13:06.00
+LPD_V515P020.A;1        1134  26-FEB-1997 13:24:07.00
+LPD_V515P031.A;1        1134   3-APR-1997 18:08:03.00
+LPRSMB_V515P010.A;1
+                         630   9-DEC-1996 18:24:08.00
+LPRSMB_V515P011.A;1
+                         630   8-MAR-1997 17:42:44.00
+NAMED_V515P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+NAMED_V515P011.A;2 %%RMS-E-PRV, insufficient privilege or file protection violation
+NAMED_V515P040.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+NAMED_V515P050.A;1      2646  17-FEB-1997 22:47:09.00
+NETCP_DEBUG.AXP;2       2205  26-FEB-1997 13:47:04.00
+NETCP_V515P010.A;1      2772  13-NOV-1996 12:47:20.00
+NETCP_V515P020.A;9      2709   5-MAR-1997 14:22:41.00
+NETCP_V515P030.A;1      3780  29-MAY-1997 14:45:35.00
+NETCU_V515P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+NETCU_V515P020.A;3      6552   3-DEC-1996 13:28:04.00
+NFSD_V515P020.A;2  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P041.A;2  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P050.A;4  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P051.A;3  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P060.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P060.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V515P070.A;1       5292  16-OCT-1997 18:28:42.48
+NOL_CNFS.A;1           11403  19-DEC-1996 19:40:59.26
+NSLOOKUP_V515P010.A;1
+                        1197  28-OCT-1996 16:26:42.00
+NTPD_V515P010.A;1        819  15-NOV-1996 15:15:46.00
+NTPD_V515P010.ZIP;1
+                         175   1-JUL-1998 11:05:56.12
+POP3_V515P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V515P020.A;1       1890  21-NOV-1996 15:34:47.00
+POP3_V515P031.A;3       1890  31-DEC-1996 18:48:53.00
+POP3_V515P040.A;1       1890  20-MAR-1997 14:58:29.00
+PPPD_V515P010.A;1       1764  22-AUG-1996 16:33:58.00
+PPPD_V515P020.A;1       1764  23-SEP-1996 16:20:33.00
+PPPD_V515P030.A;1       1764  17-OCT-1996 13:36:36.00
+PPPD_V515P040.A;1       1764  30-OCT-1996 12:29:34.00
+PPPD_V515P050.A;1       1764  13-DEC-1996 14:37:45.00
+RCP_V515P010.A;3        1197   8-OCT-1996 15:45:13.00
+README.TXT;5       %%RMS-E-PRV, insufficient privilege or file protection violation
+README.TXT;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V515P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V515P020.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V515P030.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V515P040.A;1       2646  14-JAN-1997 14:43:30.00
+SMTP_V515P050.A;1       2646  25-MAR-1997 11:29:42.00
+SMTP_V515P060.A;1       2646  11-JUN-1997 11:06:26.00
+SOCKLIB_V515P010.A;5
+                        1953  25-FEB-1997 07:38:35.20
+TSSYM_V515P010.A;1       504  26-AUG-1996 13:41:03.00
+TSSYM_V515P020.A;1       567  21-JAN-1997 15:34:09.00
+VMSLPRSMB_V515P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+VMSLPRSMB_V515P020.A;1
+                         693  26-DEC-1996 09:31:55.00
+VMSLPRSMB_V515P030.A;1
+                         693  24-FEB-1997 11:49:22.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.52_3]
+
+00SUMMARY.TXT;18          63  22-JUL-1998 15:17:06.00
+00SUMMARY.TXT;17          64  25-MAR-1998 13:21:32.46
+CNFS_V523P020.A;2      12033  11-SEP-1997 18:18:33.00
+DHCPD_V523P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+DHCPD_V523P010.ZIP;1
+                         558  21-MAY-1997 15:11:26.85
+DHCPD_V523P020.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+DHCPD_V523P021.A;1      1701   8-SEP-1997 21:49:12.00
+DNIP_V523P010.A;1        441   3-SEP-1997 14:32:06.00
+DNIP_V523P010.ZIP;1
+                          97   4-SEP-1997 09:57:07.83
+DNS_MAIN_V523P010.A;3
+                        2016   6-AUG-1997 14:22:23.00
+DNS_MAIN_V523P010.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V523P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V523P030.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V523P030.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V523P040.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V523P050.A;1
+                        6678  18-DEC-1997 16:26:34.00
+DRIVERS_V523P050.ZIP;1
+                        2689  15-JAN-1998 10:41:20.50
+FSSEXE_V523P020.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+FSSEXE_V523P040.A;1
+                       28665   3-SEP-1997 13:41:33.00
+FSSEXE_V523P040.ZIP;1
+                        9250  18-NOV-1997 14:51:23.19
+FTPD_V523P010.A;1       1827   3-NOV-1997 13:02:44.00
+NAMED_V523P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+NAMED_V523P011.A;1      4977  28-APR-1997 12:10:08.00
+NAMED_V523P011.ZIP;1
+                        1649   4-SEP-1997 14:53:46.26
+NET_V523P010.A;1   %%RMS-E-PRV, insufficient privilege or file protection violation
+NET_V523P020.A;1       11277  20-MAR-1998 09:52:50.00
+NET_V523P030.A;1       10269  25-JAN-1999 10:12:34.00
+NET_V523P030.README;4
+                           4  25-JAN-1999 09:14:42.90
+NET_V523P030.ZIP;1      3808   5-FEB-1999 17:33:08.45
+NFSD_V523P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V523P020.A;1       5670   4-SEP-1998 11:42:41.00
+NPS_CONTROL_V523P010.INC;1
+                         189   6-MAY-1997 14:30:42.00
+NPS_V523P020.A;1         126  12-MAY-1997 16:24:23.38
+NPS_V523P020.ZIP;1        14  14-AUG-1997 15:54:13.15
+NTPD_V523P010.A;1       2457  29-AUG-1997 18:50:02.00
+POP3_V523P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V523P020.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V523P030.A;1       1890  10-SEP-1997 11:08:46.00
+POP3_V523P030.ZIP;1
+                         353   9-OCT-1997 14:35:40.62
+QXDRVEXE_V523P020.A;1
+                        8694  12-SEP-1997 16:00:58.00
+QXDRVEXE_V523P020.ZIP;1
+                        1659  22-JAN-1998 18:00:38.00
+SMTP_V523P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P021.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P021.ZIP;1
+                        1529   3-JUL-1997 17:41:17.00
+SMTP_V523P030.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P040.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P040.ZIP;1
+                        1506  16-SEP-1997 13:20:07.64
+SMTP_V523P050.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P060.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+SMTP_V523P070.A;1       4410   6-NOV-1997 13:10:58.00
+SOCKLIB_V523P010.A;1
+                        2079  24-JUN-1997 11:51:41.00
+SOCKLIB_V523P020.A;1
+                        2016  20-MAR-1998 10:20:40.00
+SOCKLIB_V523P020.README;7
+                           4  20-MAR-1998 10:20:03.60
+SOCKLIB_V523P020.ZIP;1
+                         650  19-APR-1999 15:24:34.77
+TCPDUMP020.A;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+TCPDUMP030.A;4          4851   9-OCT-1997 19:07:01.00
+TELNET_V523P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TELNET_V523P020.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TELNET_V523P021.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TELNET_V523P030.A;1
+                        3465   2-SEP-1997 17:17:41.00
+TELNET_V523P030.ZIP;1
+                        1084  22-SEP-1997 11:50:37.96
+TFTPD_V523P012.A;1       630   4-AUG-1997 15:44:00.00
+TSSYM_V523P010.A;1       567  10-JUL-1997 01:11:05.00
+VMSLPRSMB_V523P010.A;1
+                         693  28-AUG-1997 13:46:46.00
+VMSLPRSMB_V523P010.ZIP;1
+                         215   1-APR-1998 11:57:32.52
+VMSLPRSMB_V523P020.A;1
+                         693   1-OCT-1997 09:13:43.00
+VMSLPRSMB_V523P030.A;1
+                         819   7-OCT-1998 11:21:53.00
+VMSLPRSMB_V523P030.README;1
+                           6   6-OCT-1998 17:35:42.00
+VMSLPRSMB_V523P030.ZIP;1
+                         230   9-OCT-1998 16:42:07.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.53_2]
+
+00SUMMARY.TXT;144         47  11-SEP-1998 16:48:28.02
+DHCPD_V532P010.A;1 %%RMS-E-PRV, insufficient privilege or file protection violation
+DHCPD_V532P020.A;1      1827   7-APR-1998 18:20:09.00
+DHCPD_V532P020.README;6
+                           3   7-APR-1998 18:18:39.12
+DHCPD_V532P020.ZIP;1
+                         573  15-MAY-1998 09:53:42.85
+DRIVERS.README;1           1   3-OCT-2002 15:33:54.03
+FTPD_V532P010.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_V532P010.README;12
+                           5   4-NOV-1997 08:28:26.00
+FTPD_V532P020.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_V532P020.README;5
+                           6   6-JAN-1998 12:33:05.52
+FTPD_V532P020.ZIP;1
+                         671   5-MAR-1998 16:47:36.77
+FTPD_V532P030.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_V532P030.README;6
+                           7  10-MAR-1998 11:25:30.30
+FTPD_V532P030.ZIP;1
+                         674  14-APR-1998 13:08:55.05
+FTPD_V532P040.A;1  %%RMS-E-PRV, insufficient privilege or file protection violation
+FTPD_V532P040.README;3
+                          11  14-MAY-1998 10:55:49.73
+FTPD_V532P040.ZIP;1
+                         677  28-MAY-1998 12:05:39.00
+FTPD_V532P060.A;1       1827  11-SEP-1998 08:13:09.00
+FTPD_V532P060.README;5
+                          12  10-SEP-1998 15:44:24.51
+FTPD_V532P060.ZIP;1
+                         673  29-SEP-1998 18:10:52.71
+FTP_V532P050.A;1        6111  30-JUL-1998 14:41:44.00
+FTP_V532P050.README;7
+                          13  30-JUL-1998 14:20:38.94
+GATED_V532P011.A;1     14112  29-APR-1998 17:53:27.00
+GATED_V532P011.README;1
+                           3  22-APR-1998 10:58:37.99
+GATED_V532P011.ZIP;1
+                        5268  30-APR-1998 14:01:59.86
+IMAP_V532P010.A;1       6048  25-MAY-1998 04:17:49.00
+IMAP_V532P010.README;1
+                           2  25-MAY-1998 04:17:12.24
+IMAP_V532P010.ZIP;1
+                        2369  27-MAY-1998 11:02:32.60
+LPD_V532P010.A;1        1134  18-MAY-1998 15:48:52.00
+LPD_V532P010.README;3
+                           3  18-MAY-1998 15:48:14.60
+LPD_V532P010.ZIP;1       414   7-DEC-1998 10:08:43.44
+NAMED_V532P010.A;1      4788  14-JAN-1998 13:30:54.00
+NAMED_V532P010.README;3
+                           3  14-JAN-1998 13:29:06.89
+NAMED_V532P010.ZIP;1
+                        1641   5-MAR-1998 14:14:24.52
+NETCP_V532P010.A;1      2898  22-DEC-1997 12:19:06.00
+NETCP_V532P010.README;1
+                           3  22-DEC-1997 12:18:31.34
+NETCP_V532P020.A;1      2898  22-JAN-1998 16:52:28.00
+NETCP_V532P020.README;2
+                           4  22-JAN-1998 16:46:59.83
+NETCP_V532P020.ZIP;1
+                        1101   3-FEB-1998 12:41:19.21
+NETCP_V533P020.A;2      2898  11-NOV-1998 17:27:14.00
+NETCP_V533P020.README;3
+                           4  10-NOV-1998 17:25:45.66
+NETCP_V533P020.ZIP;2
+                        1082   5-FEB-1999 16:56:43.26
+NFSD_V532P010.A;1       5544  27-MAR-1998 10:33:55.00
+NFSD_V532P010.README;1
+                           3  26-MAR-1998 15:33:29.35
+NFSD_V532P010.ZIP;1
+                        1666  24-APR-1998 15:02:56.25
+OBSOLETE.DIR;1             1   9-MAY-2001 23:17:52.58
+POP3_V532P010.A;1       1890  12-MAR-1998 15:05:09.00
+POP3_V532P010.README;8
+                           3  12-MAR-1998 14:55:15.21
+POP3_V532P010.ZIP;1
+                         359   7-DEC-1998 10:13:40.20
+RSH_V532P010.A;1        1386  14-APR-1998 09:50:43.00
+RSH_V532P010.README;1
+                           3  14-APR-1998 09:50:42.65
+RSH_V532P010.ZIP;1       440  28-MAY-1998 11:55:51.00
+VMSLPRSMB_V532P010.A;1
+                         693  19-MAY-1998 09:38:14.00
+VMSLPRSMB_V532P010.README;2
+                           3  19-MAY-1998 09:34:55.97
+VMSLPRSMB_V532P010.ZIP;1
+                         217   7-DEC-1998 10:16:51.04
+X.COM;6            %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.53_2.OBSOLETE]
+
+DRIVERS_V532P010.A;1
+                        6678  24-NOV-1997 14:09:29.00
+DRIVERS_V532P010.README;1
+                           2  24-NOV-1997 12:49:55.02
+DRIVERS_V532P020.A;1
+                        6804  13-JAN-1998 11:43:30.85
+DRIVERS_V532P020.README;1
+                           5   5-JAN-1998 18:05:01.92
+DRIVERS_V532P040.A;1
+                        6678  23-MAR-1998 13:35:51.00
+DRIVERS_V532P040.README;4
+                           6  23-MAR-1998 11:00:44.65
+DRIVERS_V532P040.ZIP;1
+                        2712  26-MAR-1998 16:41:12.32
+DRIVERS_V532P050.A;1
+                        6804  19-MAY-1998 15:17:17.00
+DRIVERS_V532P050.README;3
+                           6  19-MAY-1998 15:16:48.71
+DRIVERS_V532P050.ZIP;1
+                        2726  28-MAY-1998 12:02:07.00
+DRIVERS_V532P060.A;1
+                        6804   3-AUG-1998 10:57:12.00
+DRIVERS_V532P060.README;1
+                           6   3-AUG-1998 10:32:57.09
+DRIVERS_V532P060.ZIP;1
+                        2728  30-NOV-1998 11:00:52.06
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.53_3]
+
+00SUMMARY.TXT;9           15   1-MAR-1999 14:52:30.48
+ACECLIENT_V533P010.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+ACECLIENT_V533P010.ZIP;1
+                         310  23-OCT-1998 10:35:53.24
+CNFS_V533P010.README;1
+                           4   1-SEP-1999 13:58:28.52
+CNFS_V533P010.ZIP;1
+                        4390   8-OCT-1999 11:33:14.36
+DNS_MAIN_V533P011.README;4
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DNS_MAIN_V533P011.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DNS_MAIN_V533P012.README;1
+                           3  16-FEB-1999 14:32:21.29
+DNS_MAIN_V533P012.ZIP;1
+                         674  16-FEB-1999 16:26:09.26
+DRIVERS_V533P050.README;1
+                           6  14-DEC-1999 10:32:33.32
+DRIVERS_V533P050.ZIP;1
+                        2761  20-DEC-1999 16:08:40.58
+FTPD_PIP_V533P020.README;1
+                           2   6-MAY-1999 15:47:27.24
+FTPD_PIP_V533P020.ZIP;1
+                         496  14-MAY-1999 10:35:37.39
+IMAP_V533P020.README;1
+                           7  19-AUG-1999 11:50:07.00
+IMAP_V533P020.ZIP;1
+                        2579  10-SEP-1999 16:33:26.00
+LPRSMB_V533P020.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+LPRSMB_V533P020.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NETCP_V533P030.README;7
+                           5  23-APR-1999 10:16:59.90
+NETCP_V533P030.ZIP;1
+                        1085  10-MAY-1999 10:52:45.01
+OBSOLETE.DIR;1             2   9-MAY-2001 23:21:40.95
+POP3_V533P022.README;1
+                           9  16-JUN-1999 12:27:35.89
+POP3_V533P022.ZIP;1
+                         367   7-JUL-1999 09:49:04.68
+SOCKLIB_V533P010.README;7
+                           2   2-AUG-1999 18:07:08.34
+SOCKLIB_V533P010.ZIP;1
+                         703  20-SEP-1999 09:57:23.48
+TELNET_V533P020.README;3
+                           3  16-APR-1999 13:10:32.82
+TELNET_V533P020.ZIP;1
+                        1094   5-MAY-1999 10:26:29.20
+VMSLPRSMB_V533P010.README;7
+                           3  16-JUL-1998 14:32:44.09
+VMSLPRSMB_V533P010.ZIP;1
+                         222  11-AUG-1998 11:10:15.00
+VMSLPRSMB_V533P030.README;3
+                           7  29-JUN-1999 16:48:10.48
+VMSLPRSMB_V533P030.ZIP;1
+                         231   1-JUL-1999 07:51:53.20
+X.COM;9            %%RMS-E-PRV, insufficient privilege or file protection violation
+XNTP_V533P010.README;1
+                           4   3-AUG-1999 10:40:11.78
+XNTP_V533P010.ZIP;1
+                        1551  14-SEP-1999 13:06:43.76
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.53_3.OBSOLETE]
+
+DRIVERS_V533P010.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V533P010.ZIP;1
+                        2703  14-OCT-1998 11:47:50.34
+DRIVERS_V533P020.README;1
+                           3  20-NOV-1998 16:53:27.53
+DRIVERS_V533P020.ZIP;1
+                        2729   1-DEC-1998 18:01:11.60
+DRIVERS_V533P030.README;1
+                           4  20-MAY-1999 16:14:32.58
+DRIVERS_V533P030.ZIP;1
+                        2747   7-JUN-1999 11:35:40.36
+DRIVERS_V533P040.README;1
+                           5  30-JUN-1999 15:57:09.77
+DRIVERS_V533P040.ZIP;1
+                        3594   2-JUL-1999 08:15:02.71
+FTPD_PIP_V533P010.README;1
+                           2  24-MAR-1999 15:14:32.04
+FTPD_PIP_V533P010.ZIP;1
+                         355  26-APR-1999 11:31:51.51
+IMAP_V533P010.README;1
+                           5  18-JUN-1999 16:49:53.00
+IMAP_V533P010.ZIP;1
+                        2573  21-JUN-1999 10:26:47.83
+NETCP_V533P010.README;1
+                           2  22-JUL-1998 15:42:57.95
+NETCP_V533P010.ZIP;1
+                        1078  11-AUG-1998 11:00:40.00
+NETCP_V533P020.README;1
+                           4  10-NOV-1998 17:25:45.66
+NETCP_V533P020.ZIP;1
+                        1082   5-FEB-1999 16:56:43.26
+POP3_V533P010.README;1
+                           3  21-JUL-1998 16:58:08.01
+POP3_V533P010.ZIP;1
+                         359  11-AUG-1998 11:08:30.00
+POP3_V533P020.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V533P020.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+POP3_V533P021.README;1
+                           7   6-APR-1999 18:03:26.53
+POP3_V533P021.ZIP;1
+                         363  19-MAY-1999 14:32:33.12
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.54_1_BETA]
+
+FTP_LISTENER.EXE-AXP;2
+                         144  31-AUG-1999 15:49:49.72
+FTP_LISTENER.EXE-VAX;2
+                          73  31-AUG-1999 15:50:44.98
+FTP_PATCH.A;1           5859   3-SEP-1999 15:50:29.00
+FTP_SERVER.EXE-AXP;1
+                         285  18-AUG-1999 16:37:37.28
+FTP_SERVER.EXE-VAX;1
+                         161  18-AUG-1999 14:57:32.00
+NAMED.EXE-AXP;1          944  24-AUG-1999 16:05:58.93
+NAMED.EXE-VAX;1          489  24-AUG-1999 16:12:10.00
+SMTP.PDF;1               462  30-AUG-1999 13:30:59.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.54_2_BETA]
+
+FTP_SERVER.EXE;16        295  27-SEP-1999 14:35:55.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.54_3]
+
+DHCP_V543P040.README;5
+                           7   9-MAR-2000 17:11:50.14
+DHCP_V543P040.ZIP;1
+                        1346  16-MAR-2000 13:39:04.30
+DRIVERS_V553P010.README;1
+                           8  12-AUG-2001 17:33:59.10
+FTP_V543P190.README;1
+                          18   2-DEC-2002 10:32:50.47
+FTP_V543P190.ZIP;1      2491   2-DEC-2002 12:53:39.16
+IMAP_V543P011.README;1
+                           7  31-AUG-2001 18:06:12.39
+IMAP_V543P011.ZIP;1
+                        2587  31-AUG-2001 19:17:32.40
+NAMED_V543P033.README;1
+                           8  18-FEB-2000 11:50:40.00
+NAMED_V543P033.ZIP;1
+                        2427  25-FEB-2000 07:48:52.00
+NETCP_V553P010.README;6
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSACP_V543P040.README;1
+                           7  12-JUL-2001 06:17:37.56
+NFSACP_V543P040.ZIP;1
+                        3929  16-JUL-2001 19:24:42.94
+OBSOLETE.DIR;1             8   9-MAY-2001 23:25:37.19
+RPCXDR_V543P010.README;1
+                           3  31-OCT-2000 19:31:57.22
+RPCXDR_V543P010.ZIP;1
+                         358   3-NOV-2000 02:15:19.77
+SMTP_V543P090.README;1
+                          11  26-NOV-2002 09:52:36.64
+SMTP_V543P090.ZIP;1
+                        2187   2-DEC-2002 12:00:47.01
+SNMPD_V543P020.README;7
+                           2   6-MAR-2000 12:07:14.73
+SNMPD_V543P020.ZIP;1
+                         735   8-MAY-2000 18:17:00.58
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.54_3.OBSOLETE]
+
+DHCP_V543P030.README;1
+                           7   1-FEB-2000 13:11:25.16
+DHCP_V543P030.ZIP;1
+                        1344  15-FEB-2000 14:23:03.45
+DRIVERS_V543P010.README;1
+                           8  19-JAN-2000 16:50:52.92
+DRIVERS_V543P010.ZIP;1
+                        2765  21-JAN-2000 15:18:22.43
+DRIVERS_V543P020.README;1
+                           9  28-FEB-2000 14:21:21.15
+DRIVERS_V543P020.ZIP;1
+                        3713   3-MAR-2000 09:04:09.22
+DRIVERS_V543P022.README;1
+                           8  24-MAY-2000 13:20:58.00
+DRIVERS_V543P022.ZIP;1
+                        4191  24-MAY-2000 19:38:35.00
+DRIVERS_V543P030.README;1
+                           9  30-JUN-2000 15:32:56.67
+DRIVERS_V543P030.ZIP;1
+                        3628   6-JUL-2000 11:22:46.54
+DRIVERS_V543P041.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V543P041.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V543P042.README;1
+                          10   8-DEC-2000 16:18:28.08
+DRIVERS_V543P042.ZIP;1
+                        3878   8-DEC-2000 17:13:04.82
+DRIVERS_V543P051.README;1
+                          11   2-FEB-2001 14:23:25.63
+DRIVERS_V543P051.ZIP;1
+                        4286  16-FEB-2001 16:08:29.90
+FTP_CONTROL.COM;1         29   5-NOV-1999 11:32:00.61
+FTP_V543P010.README;1
+                           2  15-DEC-1999 16:03:27.76
+FTP_V543P010.ZIP;1      2474  20-DEC-1999 16:28:10.51
+FTP_V543P020.README;1
+                           3  29-DEC-1999 15:28:36.71
+FTP_V543P020.ZIP;1      2473  30-DEC-1999 23:18:56.00
+FTP_V543P021.README;1
+                           3  14-JAN-2000 17:37:19.07
+FTP_V543P021.ZIP;1      2474  17-JAN-2000 09:13:07.32
+FTP_V543P030.README;1
+                           5  16-FEB-2000 17:03:21.71
+FTP_V543P030.ZIP;1      2477  17-FEB-2000 16:15:25.06
+FTP_V543P040.README;1
+                           6  29-FEB-2000 10:13:39.54
+FTP_V543P040.ZIP;1      2479  13-MAR-2000 15:41:49.76
+FTP_V543P050.README;1
+                           6  19-APR-2000 13:57:29.52
+FTP_V543P050.ZIP;1      2478  19-APR-2000 17:22:39.82
+FTP_V543P051.README;1
+                           6  28-APR-2000 14:45:10.86
+FTP_V543P051.ZIP;1      2479  28-APR-2000 17:00:32.95
+FTP_V543P060.README;1
+                           7   5-MAY-2000 15:11:36.53
+FTP_V543P060.ZIP;1      2480   9-MAY-2000 16:19:09.54
+FTP_V543P070.README;1
+                           8  22-MAY-2000 16:21:52.61
+FTP_V543P070.ZIP;1      2482  26-MAY-2000 16:20:03.00
+FTP_V543P080.README;1
+                           9   6-JUN-2000 10:48:17.67
+FTP_V543P080.ZIP;1      2481   6-JUN-2000 17:26:30.39
+FTP_V543P090.README;1
+                          12  21-JUN-2000 08:50:56.00
+FTP_V543P090.ZIP;1      2483  21-JUN-2000 13:21:27.00
+FTP_V543P100.README;1
+                          13  11-JUL-2000 14:06:52.42
+FTP_V543P100.ZIP;1      2484  11-JUL-2000 17:16:01.39
+FTP_V543P110.README;1
+                          13  31-JUL-2000 17:16:54.72
+FTP_V543P110.ZIP;1      2482   2-AUG-2000 11:17:40.55
+FTP_V543P130.README;1
+                          14  16-JAN-2001 10:22:28.19
+FTP_V543P130.ZIP;1      2483  16-JAN-2001 11:26:19.30
+FTP_V543P140.README;1
+                          14   2-MAR-2001 09:03:01.30
+FTP_V543P140.ZIP;1      2483   2-MAR-2001 13:53:40.28
+FTP_V543P150.A;1        7623  27-MAR-2001 14:56:49.00
+FTP_V543P150.README;1
+                          15  27-MAR-2001 14:56:22.46
+FTP_V543P150.ZIP;1      2483  27-MAR-2001 16:24:41.91
+FTP_V543P160.README;1
+                          15  25-APR-2001 11:46:55.84
+FTP_V543P160.ZIP;1      2486   3-MAY-2001 10:07:30.09
+FTP_V543P170.README;1
+                          17  28-JUN-2001 09:38:24.96
+FTP_V543P170.ZIP;1      2490  28-JUN-2001 16:15:46.30
+NAMED_V543P010.README;1
+                           3  26-OCT-1999 14:08:20.42
+NAMED_V543P010.ZIP;1
+                        2151  27-OCT-1999 14:43:51.89
+NAMED_V543P031.README;1
+                           8   7-FEB-2000 13:38:15.15
+NAMED_V543P031.ZIP;1
+                        2259   9-FEB-2000 11:19:39.15
+NETCP_V543P010.README;1
+                           2  21-JUN-2000 17:39:09.20
+NETCP_V543P010.ZIP;1
+                        1086  23-JUN-2000 13:41:55.78
+NFSACP_V543P030.README;1
+                           6  29-NOV-2000 16:33:55.75
+NFSACP_V543P030.ZIP;1
+                        3940   5-DEC-2000 11:14:42.46
+SMTP_V543P010.README;1
+                           2   4-AUG-2000 12:20:31.36
+SMTP_V543P010.ZIP;1
+                        1307   8-AUG-2000 18:02:39.32
+SMTP_V543P011.README;1
+                           3  27-OCT-2000 14:54:18.25
+SMTP_V543P011.ZIP;1
+                        1697  30-OCT-2000 23:47:20.02
+SMTP_V543P050.README;1
+                           8  18-DEC-2000 16:16:57.00
+SMTP_V543P050.ZIP;1
+                        2289  18-DEC-2000 16:18:24.00
+SMTP_V543P051.README;1
+                           8  10-JAN-2001 16:03:07.75
+SMTP_V543P051.ZIP;1
+                        2088  11-JAN-2001 09:49:04.49
+SMTP_V543P060.README;1
+                           8  18-APR-2001 14:55:19.24
+SMTP_V543P060.ZIP;1
+                        2087  23-APR-2001 16:00:05.51
+SMTP_V543P070.README;1
+                          10  12-SEP-2001 15:02:25.00
+SMTP_V543P070.ZIP;1
+                        2099  17-SEP-2001 12:25:29.00
+SMTP_V543P080.README;1
+                          10  21-MAR-2002 15:10:52.00
+SMTP_V543P080.ZIP;1
+                        2127  22-MAR-2002 17:18:19.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.55_3]
+
+DRIVERS_V553P050.README;1
+                          12   5-FEB-2003 15:04:11.65
+DRIVERS_V553P050.ZIP;1
+                        3419   6-FEB-2003 18:47:24.82
+FTP.README;1               1  20-SEP-2002 09:29:32.43
+IPP_V553P020.README;1
+                          14   6-FEB-2002 16:02:36.00
+IPP_V553P020.ZIP;1      2728   6-FEB-2002 17:48:30.00
+NETCP_V553P010.README;6
+                           3  21-FEB-2002 15:47:11.66
+NETCP_V553P010.ZIP;1
+                        1088  21-FEB-2002 17:56:23.74
+OBSOLETE.DIR;1             3   4-JUL-2001 13:17:32.80
+SMTP_V553P020.README;2
+                           5  21-MAR-2002 14:50:41.00
+SMTP_V553P020.ZIP;1
+                        1491  22-MAR-2002 17:19:10.00
+SNMPD.README;2             1   7-JAN-2003 11:38:48.86
+SSH_V553P050.README;1
+                           9   9-SEP-2002 15:41:22.60
+SSH_V553P050.ZIP;1     12109  10-SEP-2002 16:01:20.65
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.55_3.OBSOLETE]
+
+DRIVERS_V553P010.README;1
+                           8  12-AUG-2001 17:33:59.10
+DRIVERS_V553P010.ZIP;1
+                        3392  15-AUG-2001 16:54:38.65
+DRIVERS_V553P023.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V553P023.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+DRIVERS_V553P040.README;1
+                          11  19-JUN-2002 08:45:48.84
+DRIVERS_V553P040.ZIP;1
+                        3277  19-JUN-2002 15:17:35.87
+DRIVERS_V553P041.README;1
+                          12  22-AUG-2002 16:58:20.00
+DRIVERS_V553P041.ZIP;1
+                        3498  26-AUG-2002 10:07:10.66
+FTP_V553P010.README;1
+                           2   3-MAY-2001 09:08:59.94
+FTP_V553P010.ZIP;1       686   3-MAY-2001 12:55:26.39
+FTP_V553P020.README;1
+                           3  29-JUN-2001 15:50:09.55
+FTP_V553P020.ZIP;1      2718   4-JUL-2001 13:18:06.71
+FTP_V553P030.README;1
+                           4   5-SEP-2001 15:12:47.80
+FTP_V553P030.ZIP;1      2722   6-SEP-2001 13:47:31.69
+FTP_V553P050.README;1
+                           8  31-JAN-2002 16:05:29.02
+FTP_V553P050.ZIP;1      2726   1-FEB-2002 17:30:46.29
+FTP_V553P062.README;1
+                          13   6-MAY-2002 16:49:38.81
+FTP_V553P062.ZIP;1      2762  16-MAY-2002 21:31:39.65
+FTP_V553P070.README;1
+                          17  28-JUN-2002 15:36:40.00
+FTP_V553P070.ZIP;1      2772  28-JUN-2002 16:18:54.79
+FTP_V553P071.README;1
+                          20  13-AUG-2002 15:37:27.14
+FTP_V553P071.ZIP;1      2729  14-AUG-2002 13:50:34.19
+HG_V553P020.README;3
+                           1  26-APR-2002 13:19:29.74
+HG_V553P020.README;2
+                           1  26-APR-2002 13:19:29.74
+HG_V553P020.README;1
+                           1  26-APR-2002 13:19:29.74
+HG_V553P020.ZIP;3          6  29-APR-2002 11:53:50.13
+HG_V553P020.ZIP;2          6  29-APR-2002 11:53:50.13
+HG_V553P020.ZIP;1          6  29-APR-2002 11:53:50.13
+SMTP_V553P010.README;1
+                           3  17-SEP-2001 12:45:34.95
+SMTP_V553P010.ZIP;1
+                         726  17-SEP-2001 12:57:52.43
+SNMPD_V553P010.README;1
+                           2   7-NOV-2001 13:08:14.00
+SNMPD_V553P010.ZIP;1
+                         983   7-NOV-2001 16:49:07.00
+SNMPD_V553P011.README;1
+                           2  13-FEB-2002 08:58:43.89
+SNMPD_V553P011.ZIP;1
+                         980  13-FEB-2002 14:22:28.48
+SSH_V553P010.README;1
+                           4   2-JAN-2002 10:32:38.79
+SSH_V553P010.ZIP;1      4382   2-JAN-2002 17:28:07.10
+SSH_V553P020.README;1
+                           7  19-FEB-2002 10:02:06.43
+SSH_V553P020.ZIP;1     12086  19-FEB-2002 11:52:35.47
+SSH_V553P030.README;1
+                           8   9-JUL-2002 13:35:39.50
+SSH_V553P030.ZIP;1     12091  11-JUL-2002 10:16:57.01
+SSH_V553P040.README;1
+                           8  12-JUL-2002 17:41:39.27
+SSH_V553P040.ZIP;1     12086   6-AUG-2002 10:45:32.60
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.56_2]
+
+DRIVERS_V562P040.README;1
+                           8  12-JUN-2003 14:40:10.15
+DRIVERS_V562P040.ZIP;1
+                        2632  12-JUN-2003 16:32:44.50
+FTP_V562P050.README;1
+                          33  29-MAR-2004 11:26:41.21
+FTP_V562P050.ZIP;1      2790  29-MAR-2004 16:02:35.79
+NAMED_V562P010.README;1
+                           9   5-DEC-2002 23:22:06.37
+NAMED_V562P010.ZIP;1
+                        3334  13-DEC-2002 19:52:52.07
+NFSDV3_V562P020.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSDV3_V562P020.ZIP;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+OBSOLETE.DIR;1             3   9-JAN-2003 11:28:23.22
+SMTP_V562P010.README;1
+                           5  25-NOV-2002 17:06:35.19
+SMTP_V562P010.ZIP;1
+                         835   2-DEC-2002 11:59:33.61
+SNMPD_V562P030.README;1
+                           3   6-FEB-2003 08:34:54.43
+SNMPD_V562P030.ZIP;1
+                        1038  10-FEB-2003 14:03:29.08
+SSH_V562P032-DOC.ZIP;1
+                        1169  24-JUN-2003 12:02:12.00
+SSH_V562P032.README;2
+                          20   9-JUN-2003 13:06:39.00
+SSH_V562P032.ZIP;1    115927  27-JUN-2003 10:21:53.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.56_2.OBSOLETE]
+
+DRIVERS_V562P010.README;1
+                           2  24-JUL-2002 11:30:03.55
+DRIVERS_V562P010.ZIP;1
+                         314   7-AUG-2002 18:21:21.49
+DRIVERS_V562P020.README;1
+                           3   5-FEB-2003 15:07:50.58
+DRIVERS_V562P020.ZIP;1
+                         624   6-FEB-2003 18:21:45.13
+DRIVERS_V562P030.README;1
+                           6  30-APR-2003 16:08:54.00
+DRIVERS_V562P030.ZIP;1
+                         796  30-APR-2003 17:31:31.00
+FTP_V562P010.README;1
+                          22  19-SEP-2002 16:10:19.01
+FTP_V562P010.ZIP;1      2740  20-SEP-2002 09:19:51.68
+FTP_V562P020.README;1
+                          22  26-NOV-2002 09:12:16.56
+FTP_V562P020.ZIP;1      2778   2-DEC-2002 12:03:34.51
+FTP_V562P030.README;1
+                          29  10-FEB-2003 14:32:43.00
+FTP_V562P030.ZIP;1      2751  11-FEB-2003 11:43:50.00
+SNMPD_V562P010.README;1
+                           2   6-JAN-2003 15:53:02.10
+SNMPD_V562P010.ZIP;1
+                        1011   7-JAN-2003 11:33:24.06
+SNMPD_V562P020.README;1
+                           3  16-JAN-2003 09:33:54.29
+SNMPD_V562P020.ZIP;1
+                        1014  22-JAN-2003 17:29:17.96
+SSH_V562P010.README;1
+                          12  25-SEP-2002 10:30:17.00
+SSH_V562P010.ZIP;1     63926  26-SEP-2002 17:06:02.94
+SSH_V562P020.README;1
+                          19  21-JAN-2003 16:15:44.93
+SSH_V562P020.ZIP;1     80722  28-JAN-2003 16:19:14.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.CUSTOMER_SPECIFIC]
+
+NAMED.EXE;1              918   3-APR-2001 15:02:33.00
+NET_V543P010.A;1   %%RMS-E-PRV, insufficient privilege or file protection violation
+NET_V543P010.README;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NET_V543P010.ZIP;1      3191  20-DEC-2000 17:19:44.81
+NFSACP.EXE;3            1049  30-MAR-2001 17:31:23.00
+NFSACP_EXE.README;1
+                           1  30-MAR-2001 16:26:28.32
+NFSACP_V553P010.A;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+NFSD_V532P011.A;1       5355   1-APR-2003 11:36:26.43
+TSSYM.ZIP;1              137   4-MAY-2001 09:27:56.00
+TSSYM_V533P010.A;1       504   7-APR-2000 15:49:35.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.FSS]
+
+FSSADMIN.DIR;1             1   9-MAY-2001 23:32:19.52
+FSSCON.EXE;1             145   6-MAR-1997 16:34:18.00
+FSSUTIL.ZIP;1            105   3-AUG-1995 09:42:54.58
+FSSUTL.EXE;1             120  18-MAR-1996 16:12:36.39
+FSS_V503D_VAX.INC;1
+                        5229   1-NOV-1995 14:42:03.00
+FSS_V503E_AXP.INC;1
+                       10080  29-DEC-1995 14:24:29.00
+FSS_V505A_VAX_JPM.INC;1
+                        5040   6-OCT-1995 11:19:47.00
+FSS_V505_AXP_JPM.INC;3
+                        9387  21-SEP-1995 12:40:00.00
+NPSUTL.EXE;1             129   8-MAY-1996 15:26:47.91
+PKUNZIP.EXE;1             58   3-AUG-1995 09:42:35.87
+README.TXT;2               2  19-JUN-1996 14:21:34.55
+README1.FSS;1             13  19-JUN-1996 14:21:39.55
+README1.NPS;1             14   8-MAY-1996 15:26:59.03
+RON.INC;1               5355  16-JUL-1996 15:34:10.63
+TES.EXE;1                100  18-MAR-1996 16:12:40.97
+TESMON.EXE;1              41  18-MAR-1996 16:12:43.48
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.IPADDRESSWORKS]
+
+IPAW_WITH_TCPWARE.TXT;1
+                          18  15-NOV-1999 10:16:41.67
+
+
+
+Directory ANONYMOUS_ROOT:[000000.SUPPORT.VAX55_DECC_RTL]
+
+AACRT060.A;1            7371   6-MAY-1996 14:37:58.00
+CRT060.RELEASE_NOTES;1
+                         179  19-FEB-1996 11:45:56.00
+CRT060_REF_INST.TXT;1
+                         196   6-OCT-1993 20:11:50.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE]
+
+DOCUMENTATION.DIR;1
+                           1   7-MAR-2002 12:19:37.45
+RELEASE_NOTES.DIR;1
+                           2   9-MAY-2001 23:35:35.19
+RSX.DIR;1                  1   9-MAY-2001 23:36:01.62
+RT.DIR;1                   1   9-MAY-2001 23:36:17.10
+TSX.DIR;1                  1   9-MAY-2001 23:36:33.38
+VMS.DIR;1          %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION]
+
+HTML.DIR;1                 1   7-MAR-2002 11:59:09.97
+INSTALL.PDF;1           2173  31-JUL-2002 13:36:27.85
+MANAGE.PDF;1           12029  31-JUL-2002 13:36:30.90
+MASTERINDEX.PDF;1       4408  31-JUL-2002 13:36:45.40
+NETCU.PDF;1             3310  31-JUL-2002 13:36:50.85
+PROGRAM.PDF;1           7238  31-JUL-2002 13:36:55.11
+TCPWARE_MANAGE_GUIDE_SSH1_SERVER_CH25.PDF;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TCPWARE_MANAGE_GUIDE_SSH2_SERVER_CH26.PDF;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TCPWARE_SSH_INSTALL_GUIDE_CH4.PDF;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TCPWARE_USER_GUIDE_SCR_FILE_XFER_CH17.PDF;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+TCPWARE_USER_GUIDE_SSH_CLIENT_CH16.PDF;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+USER.PDF;1              9563  31-JUL-2002 13:37:04.39
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML]
+
+55.DIR;1                   1  29-JAN-2003 14:04:51.35
+INSTALLATION.DIR;1         2   7-MAR-2002 12:01:57.55
+MANAGEMENT.DIR;1          12   7-MAR-2002 12:02:02.87
+NETCU.DIR;1                2   7-MAR-2002 12:02:25.64
+PROGRAMMER.DIR;1           7   7-MAR-2002 12:02:30.32
+TCPWARE-DOCS.ZIP;1      4699  31-JUL-2002 13:54:39.96
+TCPWARE.HTML;10            6  27-JUN-2003 14:06:32.29
+TCPWARE.HTML;9             6  27-JUN-2003 13:26:21.37
+TCPWARE.HTML;8             4  10-JUN-2003 13:29:33.56
+TCPWARE.HTML;7             4  25-FEB-2003 12:32:28.60
+TCPWARE.HTML;6             4  25-FEB-2003 12:31:18.27
+TCPWARE.HTML;5             4  25-FEB-2003 12:30:54.64
+TCPWARE.HTML;4             3  10-FEB-2003 15:51:44.28
+TCPWARE.HTML;3             3  29-JAN-2003 14:11:59.09
+TCPWARE.HTML;2             2  31-JUL-2002 13:37:17.10
+TCPWARE_RELEASE_NOTES.TXT;1
+                         109  31-JUL-2002 13:37:17.53
+USER_GUIDE.DIR;1           5   7-MAR-2002 12:02:45.05
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55]
+
+INSTALLATION.DIR;1         1  29-JAN-2003 14:05:02.17
+MANAGEMENT.DIR;1           6  29-JAN-2003 14:05:22.95
+NETCU.DIR;1                1  29-JAN-2003 14:07:53.30
+PROGRAMMER.DIR;1           3  29-JAN-2003 14:08:11.77
+RELEASE_NOTES.TXT;1
+                   %%RMS-E-PRV, insufficient privilege or file protection violation
+USER.DIR;1                 3  29-JAN-2003 14:09:05.66
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55.INSTALLATION]
+
+APPA.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+APPB.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+APPC.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH01.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH02.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH03.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH04.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH05.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH06.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+COPYRIGHT.HTM;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIGC-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+HTINDEX.HTM;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTTOC.HTM;1        %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVINDEX.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVNEXT.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVPREV.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOC.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOP.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55.MANAGEMENT]
+
+APPA.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+APPB.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+APPC.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH01.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH02.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH03.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH04.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH05.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH06.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH07.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH08.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH09.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH10.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH11.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH12.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH13.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH14.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH15.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH16.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH17.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH18.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH19.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH20.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH21.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH22.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH23.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH230034.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+CH230035.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+CH24.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH25.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH26.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH27.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH28.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH29.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH30.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+COPYRIGHT.HTM;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG10-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-2.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-26.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-3.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-4.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-5.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-6.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG14-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG14-2.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG14-3.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG18-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG20-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG22-2.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG23-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG25-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG27-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG28-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG28-2.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG28-3.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-6.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-7.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG6-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-6.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-7.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG7-8.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG9-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG9-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+HTINDEX.HTM;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTTOC.HTM;1        %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVINDEX.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVNEXT.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVPREV.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOC.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOP.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55.NETCU]
+
+CH01.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH02.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH03.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+COPYRIGHT.HTM;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-179.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-39.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-41.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG2-43.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTINDEX.HTM;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTTOC.HTM;1        %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVINDEX.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVNEXT.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVPREV.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOC.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOP.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55.PROGRAMMER]
+
+APPA.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH01.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH02.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH03.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH04.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH05.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH06.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH07.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH08.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH09.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH10.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH11.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH12.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH13.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH14.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH15.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH16.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH17.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH18.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH19.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH20.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+COPYRIGHT.HTM;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG12-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-2_X1.GIF;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-6.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG4-6.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG6-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG6-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG6-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG9-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+HTINDEX.HTM;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTTOC.HTM;1        %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVINDEX.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVNEXT.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVPREV.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOC.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOP.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.55.USER]
+
+APPA.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+APPB.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH01.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH02.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH03.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH04.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH05.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH06.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH07.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH08.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH09.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH10.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH11.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH12.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH13.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH14.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH15.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+CH16.HTM;1         %%RMS-E-PRV, insufficient privilege or file protection violation
+COPYRIGHT.HTM;1    %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG1-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG10-1.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-10.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-11.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-12.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-13.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-4.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-5.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-5A.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-6.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-8.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG3-9.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG5-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-1.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-2.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+FIG8-3.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+GLOSSARY.HTM;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+HTINDEX.HTM;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+HTTOC.HTM;1        %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVINDEX.GIF;1     %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVNEXT.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVPREV.GIF;1      %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOC.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+NAVTOP.GIF;1       %%RMS-E-PRV, insufficient privilege or file protection violation
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.INSTALLATION]
+
+APPA.HTM;2                22  31-JUL-2002 13:37:18.32
+APPB.HTM;2                66  31-JUL-2002 13:37:18.85
+APPC.HTM;1               167  13-JUN-2001 09:32:58.37
+CH01.HTM;2                29  31-JUL-2002 13:37:19.38
+CH02.HTM;2                40  31-JUL-2002 13:37:19.87
+CH03.HTM;2               128  31-JUL-2002 13:37:20.35
+CH04.HTM;2               285  31-JUL-2002 13:37:20.98
+CH05.HTM;2                71  31-JUL-2002 13:37:21.72
+CH050000.GIF;1             9  31-JUL-2002 13:37:22.26
+CH06.HTM;2                69  31-JUL-2002 13:37:22.71
+COPYRI$9E1.HTM;1          62  13-JUN-2001 09:33:10.69
+COPYRIGHT.HTM;1           62  13-JUN-2001 09:33:22.09
+FIG5-1.GIF;1              15  13-JUN-2001 09:33:23.56
+FIG5-2.GIF;1              13  13-JUN-2001 09:33:24.40
+FIGC-1.GIF;1               4  13-JUN-2001 09:33:25.06
+FRONT.HTM;1               58  31-JUL-2002 13:37:23.21
+HTINDEX.HTM;2             26  31-JUL-2002 13:37:23.70
+HTTOC.HTM;2               25  31-JUL-2002 13:37:24.20
+NAVINDEX.GIF;2             2  31-JUL-2002 13:37:24.69
+NAVNEXT.GIF;2              2  31-JUL-2002 13:37:25.19
+NAVPREV.GIF;2              2  31-JUL-2002 13:37:25.67
+NAVTOC.GIF;2               2  31-JUL-2002 13:37:26.14
+NAVTOP.GIF;2               1  31-JUL-2002 13:37:26.60
+PREFACE.HTM;1             25  31-JUL-2002 13:37:27.04
+RC.HTM;1                   9  31-JUL-2002 13:37:27.50
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.MANAGEMENT]
+
+APPA.HTM;2                29  31-JUL-2002 13:37:28.05
+APPB.HTM;2                79  31-JUL-2002 13:37:28.55
+APPC.HTM;2               121  31-JUL-2002 13:37:29.09
+CH01.HTM;2                49  31-JUL-2002 13:37:29.68
+CH02.HTM;2                64  31-JUL-2002 13:37:30.18
+CH03.HTM;2               156  31-JUL-2002 13:37:30.69
+CH04.HTM;2               340  31-JUL-2002 13:37:31.29
+CH040000.GIF;1            16  31-JUL-2002 13:37:32.08
+CH05.HTM;2               127  31-JUL-2002 13:37:32.53
+CH050001.GIF;1            10  31-JUL-2002 13:37:33.29
+CH050002.GIF;1            12  31-JUL-2002 13:37:33.72
+CH050003.GIF;1             9  31-JUL-2002 13:37:34.24
+CH050004.GIF;1             9  31-JUL-2002 13:37:34.65
+CH050005.GIF;1            11  31-JUL-2002 13:37:35.10
+CH050006.GIF;1             8  31-JUL-2002 13:37:35.51
+CH06.HTM;2                12  31-JUL-2002 13:37:35.98
+CH060007.GIF;1            13  31-JUL-2002 13:37:36.48
+CH07.HTM;2                59  31-JUL-2002 13:37:36.93
+CH070008.GIF;1            11  31-JUL-2002 13:37:37.43
+CH08.HTM;2                68  31-JUL-2002 13:37:37.88
+CH080009.GIF;1             9  31-JUL-2002 13:37:38.41
+CH080010.GIF;1             8  31-JUL-2002 13:37:38.85
+CH080011.GIF;1             9  31-JUL-2002 13:37:39.42
+CH080012.GIF;1            15  31-JUL-2002 13:37:39.84
+CH080013.GIF;1            15  31-JUL-2002 13:37:40.32
+CH080014.GIF;1            16  31-JUL-2002 13:37:40.73
+CH080015.GIF;1            15  31-JUL-2002 13:37:41.20
+CH080016.GIF;1            17  31-JUL-2002 13:37:41.64
+CH09.HTM;2               371  31-JUL-2002 13:37:42.09
+CH090017.GIF;1             6  31-JUL-2002 13:37:42.87
+CH090018.GIF;1             7  31-JUL-2002 13:37:43.32
+CH090019.GIF;1             6  31-JUL-2002 13:37:43.77
+CH10.HTM;2               170  31-JUL-2002 13:37:44.28
+CH100020.GIF;1            11  31-JUL-2002 13:37:45.12
+CH100021.GIF;1            10  31-JUL-2002 13:37:45.62
+CH11.HTM;2                60  31-JUL-2002 13:37:46.14
+CH110022.GIF;1            15  31-JUL-2002 13:37:46.69
+CH12.HTM;2               175  31-JUL-2002 13:37:47.20
+CH13.HTM;2               206  31-JUL-2002 13:37:47.87
+CH130023.GIF;1             3  31-JUL-2002 13:37:48.63
+CH130024.GIF;1             4  31-JUL-2002 13:37:49.15
+CH130025.GIF;1             4  31-JUL-2002 13:37:49.66
+CH130026.GIF;1             5  31-JUL-2002 13:37:50.17
+CH130027.GIF;1             3  31-JUL-2002 13:37:50.67
+CH130028.GIF;1             4  31-JUL-2002 13:37:51.19
+CH14.HTM;2               171  31-JUL-2002 13:37:51.70
+CH15.HTM;2               215  31-JUL-2002 13:37:52.35
+CH150029.GIF;1             8  31-JUL-2002 13:37:53.07
+CH150030.GIF;1            10  31-JUL-2002 13:37:53.58
+CH150031.GIF;1            12  31-JUL-2002 13:37:54.09
+CH16.HTM;2                47  31-JUL-2002 13:37:54.60
+CH17.HTM;2               218  31-JUL-2002 13:37:55.15
+CH18.HTM;2                41  31-JUL-2002 13:37:55.91
+CH19.HTM;2                74  31-JUL-2002 13:37:56.45
+CH190032.GIF;1            10  31-JUL-2002 13:37:57.17
+CH20.HTM;2                32  31-JUL-2002 13:37:57.70
+CH21.HTM;2                34  31-JUL-2002 13:37:58.20
+CH210033.GIF;1             7  31-JUL-2002 13:37:58.70
+CH22.HTM;2                61  31-JUL-2002 13:37:59.19
+CH220005.GIF;1            29  20-JUL-2000 15:49:05.46
+CH23.HTM;2                65  31-JUL-2002 13:37:59.73
+CH230034.GIF;2            29  31-JUL-2002 13:38:00.30
+CH230035.GIF;2            25  31-JUL-2002 13:38:00.81
+CH24.HTM;2                75  31-JUL-2002 13:38:01.31
+CH240036.GIF;1            10  31-JUL-2002 13:38:01.86
+CH25.HTM;1               108  13-JUN-2001 09:50:17.18
+CH26.HTM;2                22  31-JUL-2002 13:38:02.35
+CH27.HTM;2                14  31-JUL-2002 13:38:02.81
+CH270037.GIF;1             9  31-JUL-2002 13:38:03.25
+CH28.HTM;2                23  31-JUL-2002 13:38:03.70
+CH280006.GIF;1             2  20-JUL-2000 15:49:14.31
+CH280007.GIF;1             2  20-JUL-2000 15:49:14.87
+CH280008.GIF;1             2  20-JUL-2000 15:49:15.51
+CH280009.GIF;1             2  20-JUL-2000 15:49:16.03
+CH29.HTM;2                22  31-JUL-2002 13:38:04.22
+CH290038.GIF;1            15  31-JUL-2002 13:38:04.68
+CH30.HTM;2               196  31-JUL-2002 13:38:05.14
+CH300039.GIF;1             5  31-JUL-2002 13:38:05.77
+CH300040.GIF;1             6  31-JUL-2002 13:38:06.25
+CH300041.GIF;1             7  31-JUL-2002 13:38:06.76
+COPYRIGHT.HTM;1           62  13-JUN-2001 09:51:55.02
+FIG1-1.GIF;1               7  13-JUN-2001 09:49:36.15
+FIG1-2.GIF;1              11  13-JUN-2001 09:49:36.65
+FIG10-1.GIF;1             15  13-JUN-2001 09:48:39.99
+FIG12-1.GIF;1              7  13-JUN-2001 09:48:35.23
+FIG12-2.GIF;1              5  13-JUN-2001 09:48:35.78
+FIG12-26.GIF;1             9  13-JUN-2001 09:49:54.51
+FIG12-3.GIF;1              4  13-JUN-2001 09:48:36.26
+FIG12-4.GIF;1              7  13-JUN-2001 09:48:36.75
+FIG12-5.GIF;1             12  13-JUN-2001 09:48:37.34
+FIG12-6.GIF;1              5  13-JUN-2001 09:48:37.86
+FIG12.26$5NGIF;1           4  13-JUN-2001 09:49:55.10
+FIG14-1.GIF;1              8  13-JUN-2001 09:48:32.26
+FIG14-2.GIF;1             11  13-JUN-2001 09:48:32.84
+FIG14-3.GIF;1             13  13-JUN-2001 09:48:33.34
+FIG18-1.GIF;1             12  13-JUN-2001 09:48:29.31
+FIG2-1.GIF;1              40  13-JUN-2001 09:49:03.31
+FIG2-2.GIF;1               9  13-JUN-2001 09:52:43.01
+FIG20-1.GIF;1              7  13-JUN-2001 09:52:28.25
+FIG22-2.GIF;1             12  13-JUN-2001 09:47:12.06
+FIG23-1.GIF;1             17  13-JUN-2001 09:51:22.48
+FIG25-1.GIF;1             17  13-JUN-2001 09:47:27.93
+FIG27-1.GIF;1             16  13-JUN-2001 09:47:36.28
+FIG28-1.GIF;1              5  13-JUN-2001 09:47:44.66
+FIG28-2.GIF;1              8  13-JUN-2001 09:47:51.72
+FIG28-3.GIF;1              8  13-JUN-2001 09:47:58.79
+FIG4-1.GIF;1              11  13-JUN-2001 09:48:57.89
+FIG4-3.GIF;1              16  13-JUN-2001 09:48:58.46
+FIG4-4.GIF;1               9  13-JUN-2001 09:48:59.25
+FIG4-5.GIF;1              11  13-JUN-2001 09:48:59.85
+FIG4-6.GIF;1              16  13-JUN-2001 09:49:00.45
+FIG4-7.GIF;1               9  13-JUN-2001 09:49:01.23
+FIG5-1.GIF;1              17  13-JUN-2001 09:48:55.91
+FIG6-1.GIF;1              15  13-JUN-2001 09:48:53.85
+FIG7-1.GIF;1              18  13-JUN-2001 09:48:46.77
+FIG7-2.GIF;1               8  13-JUN-2001 09:48:47.40
+FIG7-3.GIF;1               5  13-JUN-2001 09:48:48.08
+FIG7-4.GIF;1              24  13-JUN-2001 09:48:48.60
+FIG7-5.GIF;1              24  13-JUN-2001 09:48:49.40
+FIG7-6.GIF;1              24  13-JUN-2001 09:48:50.21
+FIG7-7.GIF;1              25  13-JUN-2001 09:48:51.01
+FIG7-8.GIF;1              26  13-JUN-2001 09:48:51.91
+FIG8-1.GIF;1              11  13-JUN-2001 09:48:44.06
+FIG8-2.GIF;1              15  13-JUN-2001 09:48:44.57
+FIG8-3.GIF;1               9  13-JUN-2001 09:48:45.08
+FIG9-1.GIF;1               9  13-JUN-2001 09:48:41.81
+FIG9-2.GIF;1              18  13-JUN-2001 09:48:42.37
+FRONT.HTM;1               58  31-JUL-2002 13:38:07.21
+HTINDEX.HTM;2            273  31-JUL-2002 13:38:07.67
+HTTOC.HTM;2               75  31-JUL-2002 13:38:08.43
+NAVINDEX.GIF;2             2  31-JUL-2002 13:38:08.99
+NAVNEXT.GIF;2              2  31-JUL-2002 13:38:09.42
+NAVPREV.GIF;2              2  31-JUL-2002 13:38:09.89
+NAVTOC.GIF;2               2  31-JUL-2002 13:38:10.34
+NAVTOP.GIF;2               1  31-JUL-2002 13:38:10.79
+NEWCH25.HTM;1            101  31-JUL-2002 13:38:11.22
+PP4.HTM;1                  3  31-JUL-2002 13:38:11.84
+PP6.HTM;1                  4  31-JUL-2002 13:38:12.28
+PREFACE.HTM;1             27  31-JUL-2002 13:38:12.81
+RC.HTM;1                   9  31-JUL-2002 13:38:13.32
+SSH2_SVR.HTM;1            83  31-JUL-2002 13:38:13.85
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.NETCU]
+
+CH01.HTM;2                97  31-JUL-2002 13:38:14.40
+CH02.HTM;2               598  31-JUL-2002 13:38:14.91
+CH020000.GIF;1            18  31-JUL-2002 13:38:15.96
+CH020001.GIF;1            18  31-JUL-2002 13:38:16.43
+CH020002.GIF;1            41  31-JUL-2002 13:38:16.83
+CH020003.GIF;1            12  31-JUL-2002 13:38:17.35
+CH03.HTM;2                44  31-JUL-2002 13:38:17.79
+COPYRI$9E1.HTM;1          62  13-JUN-2001 09:54:03.82
+COPYRIGHT.HTM;1           62  13-JUN-2001 09:53:52.85
+FIG2-179.GIF;1             7  13-JUN-2001 09:53:43.27
+FIG2-39.GIF;1             16  13-JUN-2001 09:53:40.51
+FIG2-41.GIF;1             24  13-JUN-2001 09:53:41.37
+FIG2-43.GIF;1             73  13-JUN-2001 09:53:42.06
+FRONT.HTM;1               58  31-JUL-2002 13:38:18.27
+HTINDEX.HTM;2             85  31-JUL-2002 13:38:18.78
+HTTOC.HTM;2                6  31-JUL-2002 13:38:19.30
+NAVINDEX.GIF;2             2  31-JUL-2002 13:38:19.78
+NAVNEXT.GIF;2              2  31-JUL-2002 13:38:20.20
+NAVPREV.GIF;2              2  31-JUL-2002 13:38:20.65
+NAVTOC.GIF;2               2  31-JUL-2002 13:38:21.08
+NAVTOP.GIF;2               1  31-JUL-2002 13:38:21.52
+PREFACE.HTM;1             24  31-JUL-2002 13:38:21.94
+RC.HTM;1                   9  31-JUL-2002 13:38:22.37
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.PROGRAMMER]
+
+APPA.HTM;2               235  31-JUL-2002 13:38:22.88
+APPA0020.GIF;1             2  20-JUL-2000 15:49:44.53
+CH01.HTM;2               123  31-JUL-2002 13:38:23.59
+CH010000.GIF;1            15  31-JUL-2002 13:38:24.16
+CH010001.GIF;1            12  31-JUL-2002 13:38:24.61
+CH02.HTM;2                19  31-JUL-2002 13:38:25.08
+CH03.HTM;2               144  31-JUL-2002 13:38:25.65
+CH030000.GIF;1             2  20-JUL-2000 15:49:51.32
+CH030001.GIF;1             2  20-JUL-2000 15:49:52.14
+CH030002.GIF;2             5  31-JUL-2002 13:38:26.25
+CH030003.GIF;2             6  31-JUL-2002 13:38:26.74
+CH030004.GIF;2             5  31-JUL-2002 13:38:27.31
+CH030005.GIF;2             5  31-JUL-2002 13:38:27.90
+CH030006.GIF;2             5  31-JUL-2002 13:38:28.39
+CH030007.GIF;2             6  31-JUL-2002 13:38:28.84
+CH030008.GIF;1             2  20-JUL-2000 15:49:56.32
+CH04.HTM;2               116  31-JUL-2002 13:38:29.31
+CH040008.GIF;1             5  31-JUL-2002 13:38:29.90
+CH040009.GIF;2             6  31-JUL-2002 13:38:30.40
+CH040010.GIF;2             6  31-JUL-2002 13:38:30.86
+CH040011.GIF;2             5  31-JUL-2002 13:38:31.37
+CH040012.GIF;2             5  31-JUL-2002 13:38:31.86
+CH040013.GIF;2             6  31-JUL-2002 13:38:32.35
+CH040014.GIF;1             2  20-JUL-2000 15:50:02.26
+CH040015.GIF;1             2  20-JUL-2000 15:50:02.80
+CH040016.GIF;1             2  20-JUL-2000 15:50:03.39
+CH05.HTM;2               151  31-JUL-2002 13:38:32.82
+CH050014.GIF;1             5  31-JUL-2002 13:38:33.43
+CH050015.GIF;1             5  31-JUL-2002 13:38:33.91
+CH050016.GIF;1             5  31-JUL-2002 13:38:34.52
+CH050017.GIF;1             5  31-JUL-2002 13:38:35.05
+CH050018.GIF;1             5  31-JUL-2002 13:38:35.63
+CH06.HTM;2               163  31-JUL-2002 13:38:36.26
+CH060019.GIF;1             5  31-JUL-2002 13:38:36.90
+CH060020.GIF;1             5  31-JUL-2002 13:38:37.39
+CH060021.GIF;1             5  31-JUL-2002 13:38:37.84
+CH07.HTM;2               151  31-JUL-2002 13:38:38.34
+CH08.HTM;2                13  31-JUL-2002 13:38:38.98
+CH09.HTM;2                80  31-JUL-2002 13:38:39.50
+CH090022.GIF;1             6  31-JUL-2002 13:38:40.08
+CH10.HTM;2                40  31-JUL-2002 13:38:40.53
+CH11.HTM;2                29  31-JUL-2002 13:38:41.02
+CH12.HTM;2                71  31-JUL-2002 13:38:41.49
+CH120023.GIF;1             8  31-JUL-2002 13:38:42.03
+CH13.HTM;2                37  31-JUL-2002 13:38:42.49
+CH14.HTM;2                27  31-JUL-2002 13:38:43.06
+CH15.HTM;2                54  31-JUL-2002 13:38:43.54
+CH16.HTM;2                73  31-JUL-2002 13:38:44.10
+CH17.HTM;2                21  31-JUL-2002 13:38:44.61
+CH18.HTM;2                89  31-JUL-2002 13:38:45.10
+CH19.HTM;2                97  31-JUL-2002 13:38:45.67
+CH20.HTM;2                30  31-JUL-2002 13:38:46.23
+COPYRI$9E1.HTM;1          62  13-JUN-2001 09:59:04.75
+COPYRIGHT.HTM;1           62  13-JUN-2001 09:58:09.82
+FIG1-1.GIF;1               8  13-JUN-2001 09:55:49.72
+FIG1-2.GIF;1               7  13-JUN-2001 09:59:07.24
+FIG12-1.GIF;1              8  13-JUN-2001 09:57:38.99
+FIG3-1.GIF;1               4  13-JUN-2001 09:55:59.35
+FIG3-2.GIF;1               8  13-JUN-2001 09:56:06.72
+FIG3-2_X1.GIF;1            8  13-JUN-2001 09:59:18.00
+FIG3-3.GIF;1               4  13-JUN-2001 09:56:14.10
+FIG3-4.GIF;1               5  13-JUN-2001 09:56:21.41
+FIG3-5.GIF;1               8  13-JUN-2001 09:56:28.81
+FIG3-6.GIF;1              10  13-JUN-2001 09:56:38.55
+FIG4-1.GIF;1               4  13-JUN-2001 09:56:46.51
+FIG4-2.GIF;1               5  13-JUN-2001 09:56:53.80
+FIG4-3.GIF;1               7  13-JUN-2001 09:57:01.16
+FIG4-4.GIF;1               4  13-JUN-2001 09:57:08.53
+FIG4-5.GIF;1               8  13-JUN-2001 09:57:16.07
+FIG4-6.GIF;1               5  13-JUN-2001 09:57:25.19
+FIG5-1.GIF;1               8  13-JUN-2001 09:57:27.67
+FIG5-2.GIF;1               4  13-JUN-2001 09:57:28.31
+FIG5-3.GIF;1               8  13-JUN-2001 09:57:28.99
+FIG5-4.GIF;1               8  13-JUN-2001 09:57:29.51
+FIG5-5.GIF;1               5  13-JUN-2001 09:57:30.03
+FIG6-1.GIF;1               6  13-JUN-2001 09:57:31.75
+FIG6-2.GIF;1               7  13-JUN-2001 09:57:32.24
+FIG6-3.GIF;1               4  13-JUN-2001 09:57:32.86
+FIG9-1.GIF;1               5  13-JUN-2001 09:57:36.03
+FRONT.HTM;1               58  31-JUL-2002 13:38:46.72
+HTINDEX.HTM;2            160  31-JUL-2002 13:38:47.23
+HTTOC.HTM;2               30  31-JUL-2002 13:38:47.95
+NAVINDEX.GIF;2             2  31-JUL-2002 13:38:48.45
+NAVNEXT.GIF;2              2  31-JUL-2002 13:38:48.91
+NAVPREV.GIF;2              2  31-JUL-2002 13:38:49.34
+NAVTOC.GIF;2               2  31-JUL-2002 13:38:49.76
+NAVTOP.GIF;2               1  31-JUL-2002 13:38:50.18
+PREFACE.HTM;1             26  31-JUL-2002 13:38:50.66
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.DOCUMENTATION.HTML.USER_GUIDE]
+
+APPA.HTM;2                36  31-JUL-2002 13:38:51.19
+APPB.HTM;2               137  31-JUL-2002 13:38:51.71
+CH01.HTM;2                32  31-JUL-2002 13:38:52.38
+CH010000.GIF;1            10  31-JUL-2002 13:38:52.90
+CH010001.GIF;1            10  31-JUL-2002 13:38:53.34
+CH010002.GIF;1            11  31-JUL-2002 13:38:53.77
+CH02.HTM;2                65  31-JUL-2002 13:38:54.20
+CH03.HTM;2               270  31-JUL-2002 13:38:54.80
+CH030003.GIF;1            31  31-JUL-2002 13:38:55.52
+CH030004.GIF;1            22  31-JUL-2002 13:38:55.98
+CH030005.GIF;1            18  31-JUL-2002 13:38:56.42
+CH030006.GIF;1            13  31-JUL-2002 13:38:56.87
+CH030007.GIF;1            34  31-JUL-2002 13:38:57.35
+CH030008.GIF;1            37  31-JUL-2002 13:38:57.81
+CH030009.GIF;1            11  31-JUL-2002 13:38:58.34
+CH030010.GIF;1            37  31-JUL-2002 13:38:58.78
+CH030011.GIF;1            13  31-JUL-2002 13:38:59.24
+CH04.HTM;2                22  31-JUL-2002 13:38:59.71
+CH05.HTM;2                90  31-JUL-2002 13:39:00.15
+CH050012.GIF;1            21  31-JUL-2002 13:39:00.74
+CH050013.GIF;1            24  31-JUL-2002 13:39:01.25
+CH06.HTM;2                24  31-JUL-2002 13:39:01.79
+CH07.HTM;2                25  31-JUL-2002 13:39:02.26
+CH08.HTM;2                19  31-JUL-2002 13:39:02.75
+CH09.HTM;2                18  31-JUL-2002 13:39:03.19
+CH10.HTM;2                30  31-JUL-2002 13:39:03.62
+CH11.HTM;2                21  31-JUL-2002 13:39:04.09
+CH12.HTM;2               239  31-JUL-2002 13:39:04.54
+CH13.HTM;2                30  31-JUL-2002 13:39:05.32
+CH14.HTM;2                47  31-JUL-2002 13:39:05.79
+CH15.HTM;2                 4  31-JUL-2002 13:39:06.27
+CH16.HTM;2               128  31-JUL-2002 13:39:06.71
+CH160014.GIF;1             7  31-JUL-2002 13:39:07.29
+CH160015.GIF;1             6  31-JUL-2002 13:39:07.73
+CH160016.GIF;1             7  31-JUL-2002 13:39:08.22
+CH17.HTM;1                44  31-JUL-2002 13:39:08.68
+COPYRI$9E1.HTM;1          62  13-JUN-2001 10:05:53.97
+COPYRIGHT.HTM;1           62  13-JUN-2001 10:05:13.11
+FIG1-1.GIF;1              18  13-JUN-2001 10:00:57.54
+FIG1-2.GIF;1              14  13-JUN-2001 10:01:09.56
+FIG1-3.GIF;1              19  13-JUN-2001 10:01:23.89
+FIG10-1.GIF;1             12  13-JUN-2001 10:03:52.63
+FIG3-1.GIF;1              20  13-JUN-2001 10:01:47.70
+FIG3-10.GIF;1             16  13-JUN-2001 10:02:48.22
+FIG3-11.GIF;1             51  13-JUN-2001 10:02:56.02
+FIG3-12.GIF;1             57  13-JUN-2001 10:03:03.89
+FIG3-13.GIF;1             18  13-JUN-2001 10:03:12.38
+FIG3-2.GIF;1              35  13-JUN-2001 10:01:58.09
+FIG3-3.GIF;1              30  13-JUN-2001 10:02:07.77
+FIG3-4.GIF;1              37  13-JUN-2001 10:02:15.89
+FIG3-5.GIF;1              12  13-JUN-2001 10:02:24.85
+FIG3-5A.GIF;1             13  13-JUN-2001 10:02:32.17
+FIG3-6.GIF;1              25  13-JUN-2001 10:03:53.29
+FIG3-8.GIF;1              86  13-JUN-2001 10:03:54.10
+FIG3-9.GIF;1              51  13-JUN-2001 10:02:39.90
+FIG5-1.GIF;1              23  13-JUN-2001 10:03:21.39
+FIG5-2.GIF;1              27  13-JUN-2001 10:03:30.01
+FIG8-1.GIF;1              16  13-JUN-2001 10:03:36.88
+FIG8-2.GIF;1              13  13-JUN-2001 10:03:37.80
+FIG8-3.GIF;1              16  13-JUN-2001 10:03:38.34
+FRONT.HTM;1               58  31-JUL-2002 13:39:09.14
+GLOSSARY.HTM;2            87  31-JUL-2002 13:39:09.63
+HTINDEX.HTM;2             98  31-JUL-2002 13:39:10.23
+HTTOC.HTM;2               19  31-JUL-2002 13:39:10.75
+NAVINDEX.GIF;2             2  31-JUL-2002 13:39:11.19
+NAVNEXT.GIF;2              2  31-JUL-2002 13:39:11.62
+NAVPREV.GIF;2              2  31-JUL-2002 13:39:12.06
+NAVTOC.GIF;2               2  31-JUL-2002 13:39:12.54
+NAVTOP.GIF;2               1  31-JUL-2002 13:39:12.98
+PREFACE.HTM;1             25  31-JUL-2002 13:39:13.44
+RC.HTM;1                   9  31-JUL-2002 13:39:14.07
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.RELEASE_NOTES]
+
+TCPWARE0412_RELEASE_NOTES.PS;1
+                         321   4-JUL-1994 11:29:38.40
+TCPWARE0412_RELEASE_NOTES.TXT;1
+                         133   4-JUL-1994 11:29:16.90
+TCPWARE0413_RELEASE_NOTES.PS;1
+                         438  11-NOV-1994 09:48:44.26
+TCPWARE0413_RELEASE_NOTES.TXT;1
+                         195  11-NOV-1994 09:48:30.79
+TCPWARE0503_RELEASE_NOTES.PS;1
+                         595  20-JUN-1995 11:38:47.03
+TCPWARE0503_RELEASE_NOTES.TXT;1
+                         262  20-JUN-1995 11:39:37.63
+TCPWARE0514_RELEASE_NOTES.HTML;1
+                         194  14-JUN-1996 10:06:28.37
+TCPWARE0514_RELEASE_NOTES.PS;1
+                         582  15-MAY-1996 16:20:56.76
+TCPWARE0514_RELEASE_NOTES.TXT;1
+                         247  15-MAY-1996 16:21:12.49
+TCPWARE0515_RELEASE_NOTES.PS;1
+                         725  27-SEP-1996 10:03:45.00
+TCPWARE0515_RELEASE_NOTES.TXT;1
+                         317  27-SEP-1996 10:00:55.00
+TCPWARE0523_RELEASE_NOTES.PS;1
+                         664  11-APR-1997 14:59:34.00
+TCPWARE0523_RELEASE_NOTES.TXT;1
+                         290  11-APR-1997 14:58:09.00
+TCPWARE0532_RELEASE_NOTES.PS;1
+                         406  20-NOV-1997 19:00:41.56
+TCPWARE0532_RELEASE_NOTES.TXT;1
+                         162  20-NOV-1997 19:01:08.94
+TCPWARE0533_RELEASE_NOTES.PS;1
+                         684   4-JUN-1998 15:47:17.00
+TCPWARE0533_RELEASE_NOTES.TXT;1
+                         304  11-DEC-1998 11:27:21.25
+TCPWARE0543_RELEASE_NOTES.TXT;1
+                         171  21-OCT-1999 18:03:19.07
+TCPWARE0553_RELEASE_NOTES.TXT;1
+                         151  10-MAY-2001 12:27:50.13
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.RSX]
+
+FTP-RSX_V2_2-5_SIM.PS;1
+                        1037  19-JUL-1995 12:01:24.00
+TCPWARERSX.ZIP;1         341  28-MAY-1996 12:25:03.00
+TCPWARERSX_AXP.ZIP;1
+                         341  28-MAY-1996 12:29:38.00
+TCPWARE_FOR_RSX_V2_2-5_SIM.PS;1
+                        1215  19-JUL-1995 12:05:05.00
+TELNET-RSX_V2_2-5_SIM.PS;1
+                         838  19-JUL-1995 12:45:44.00
+UNZIP-AXP.EXE;1          249  25-JUL-1995 11:58:18.00
+UNZIP-VAX.EXE;1          290  25-JUL-1995 11:58:28.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.RT]
+
+FTP.DIR;1                  2   9-MAY-2001 23:36:17.47
+TELNET.DIR;1               1   9-MAY-2001 23:36:28.13
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.RT.FTP]
+
+ACCNTS.TXT;3               1  10-JAN-1989 17:37:14.00
+CNFNET.TXT;4               2  10-JAN-1989 17:36:57.00
+ENATST.SAV;1              15  13-FEB-1991 17:58:55.00
+FTPD.MAP;1                14  13-FEB-1991 17:58:28.00
+FTPD.SAV;1                39  13-FEB-1991 17:58:31.00
+FTPDX.MAP;1               13  13-FEB-1991 17:58:34.00
+FTPDX.SAV;1               38  13-FEB-1991 17:58:37.00
+FTPLIB.OBJ;1              31  13-FEB-1991 17:59:04.00
+FTPULB.COM;3               2  12-FEB-1991 20:09:48.00
+HOSTS.TXT;7                3  10-JAN-1989 17:54:10.00
+INSDBG.OBJ;1               3  13-FEB-1991 17:59:01.00
+INSLIB.OBJ;1              38  13-FEB-1991 17:58:58.00
+INSRSX.OBJ;1              11  31-MAR-1986 17:34:09.00
+INSULB.COM;8               2   5-JAN-1989 17:01:11.00
+PSCPSW.SAV;1               4  13-FEB-1991 17:58:40.00
+SAMPLE.COM;3               1   3-JAN-1989 10:21:09.00
+SAMPLE.FOR;12              7  13-FEB-1991 14:29:22.00
+UFTP.MAP;1                18  13-FEB-1991 17:58:10.00
+UFTP.SAV;1                48  13-FEB-1991 17:58:13.00
+UFTPS.MAP;1               20  13-FEB-1991 17:58:16.00
+UFTPS.SAV;1               50  13-FEB-1991 17:58:19.00
+UFTPX.MAP;1               15  13-FEB-1991 17:58:22.00
+UFTPX.SAV;1               45  13-FEB-1991 17:58:25.00
+VMFENT.MAC;2               5  13-FEB-1991 12:00:25.00
+XQ.SYS;1                   8  13-FEB-1991 17:58:43.00
+XQX.SYS;1                  8  13-FEB-1991 17:58:49.00
+XU.SYS;2                  12  17-FEB-1991 15:26:46.00
+XUX.SYS;2                 12  17-FEB-1991 15:27:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.RT.TELNET]
+
+HOSTS.TXT;27               2   4-MAR-1988 16:43:18.00
+PSCPSW.SAV;3               4  14-MAR-1988 17:50:43.00
+SAMPLE.COM;5               1   8-SEP-1987 11:53:45.00
+SAMPLE.FOR;9              10  21-AUG-1987 17:34:04.00
+TDEBUG.OBJ;1               4  10-MAR-1988 14:31:05.00
+TELLIB.OBJ;1              67  10-MAR-1988 14:31:01.00
+TELNET.MAP;1              29  10-MAR-1988 14:30:28.00
+TELNET.SAV;1              79  10-MAR-1988 14:30:24.00
+TP.SYS;1                   5  10-MAR-1988 14:30:35.00
+TPX.SYS;1                  5  10-MAR-1988 14:30:45.00
+XQ.SYS;1                   8  10-MAR-1988 14:30:38.00
+XQTEST.SAV;1              14  10-MAR-1988 14:30:54.00
+XQTEST.TXT;1               7  13-FEB-1987 13:27:37.00
+XQX.SYS;1                  8  10-MAR-1988 14:30:48.00
+XU.SYS;1                  12  10-MAR-1988 14:30:41.00
+XUTEST.SAV;1              14  10-MAR-1988 14:30:58.00
+XUX.SYS;1                 12  10-MAR-1988 14:30:51.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.TSX]
+
+DISPLA.IND;1               1   9-MAR-1994 18:24:48.00
+KIT.DIR;1                  2   9-MAY-2001 23:36:33.94
+MFTP.IND;1                15   9-MAR-1994 18:17:48.00
+README.TXT;2               1  14-JUN-1996 09:27:03.06
+
+
+
+Directory ANONYMOUS_ROOT:[000000.TCPWARE.TSX.KIT]
+
+CNFNET.TXT;1               2  24-JUL-1989 19:37:11.00
+DSCRDD.MAC;18              7   2-NOV-1990 17:18:42.00
+ENATST.SAV;1              15   2-NOV-1990 16:59:54.00
+FLTEST.COM;5               2  31-JUL-1989 12:42:17.00
+FLTEST.FOR;5               5   2-NOV-1990 16:35:29.00
+FTPD.MAP;1                 7   2-NOV-1990 16:50:40.00
+FTPD.SAV;1                27   2-NOV-1990 16:50:18.00
+FTPD.TSX;4                 1  24-JUL-1989 16:00:04.00
+FTPDL.COM;5                1  24-JUL-1989 12:09:55.00
+FTPDLB.OBJ;1              48   2-NOV-1990 16:50:23.00
+FTPLIB.OBJ;1              36   2-NOV-1990 16:50:34.00
+FTPLOG.MAC;17             14  26-JUL-1989 16:32:02.00
+FTPULB.COM;6               2  27-SEP-1990 16:54:02.00
+HOSTS.TXT;1                1  24-JUL-1989 19:36:49.00
+IN.TSX;1                   5   2-NOV-1990 16:59:59.00
+INSDEF.MAC;2               3   2-NOV-1990 16:44:02.00
+INSJOB.MAP;1              12   2-NOV-1990 17:00:22.00
+INSJOB.SAV;1              31   2-NOV-1990 17:00:04.00
+INSJOB.TSX;1               1   2-NOV-1990 17:01:35.00
+LOGSUB.MAC;15             17   2-NOV-1990 16:39:15.00
+NETCU.SAV;1               15   2-NOV-1990 17:00:09.00
+NULLOG.OBJ;1               1   2-NOV-1990 16:50:14.00
+README.TXT;1               2  14-JUN-1996 09:38:48.33
+TELLIB.OBJ;1              27   2-NOV-1990 16:54:17.00
+TELNET.MAP;1               9   2-NOV-1990 16:54:22.00
+TELNET.SAV;1              26   2-NOV-1990 16:54:12.00
+TELNTD.MAC;12              6   2-NOV-1990 17:20:03.00
+UFTP.MAP;1                13   2-NOV-1990 16:50:44.00
+UFTP.SAV;1                37   2-NOV-1990 16:50:28.00
+XQ.TSX;1                   8   2-NOV-1990 17:00:14.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE]
+
+.WELCOME;1                 1  26-MAR-2001 21:56:54.60
+FILESERV.DIR;1            22   9-MAY-2001 23:58:32.13
+FILESERV.README;45       200   7-MAY-2004 01:28:10.37
+FREE-VMS.DIR;1             1  10-MAY-2001 00:07:15.90
+FREEWARE_CD.DIR;1          1  10-MAY-2001 00:07:25.82
+MATHOG.DIR;1               4  14-OCT-2001 16:22:58.78
+NARNIA.DIR;1               2  10-MAY-2001 00:08:11.64
+UNSUPPORTED.DIR;1          1  10-MAY-2001 00:10:35.74
+UNZIP.ALPHA_EXE;1        309  21-FEB-2002 11:41:52.71
+UNZIP.VAX_EXE;1          200  21-FEB-2002 11:41:41.07
+WASD.DIR;1                32  10-MAY-2001 00:10:57.93
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.FILESERV]
+
+A2PS.ZIP;1               172  22-MAY-1998 16:47:14.82
+ADA-BOOKREADER-DOCS.ZIP;1
+                       14540   5-JUL-1995 09:29:27.01
+ADV_PIPE.ZIP;1            77  11-AUG-1997 09:44:53.54
+ADV_RUNUSR.ZIP;1         229  11-AUG-1997 09:48:31.16
+APRT.ZIP;1                13  13-MAY-1994 07:49:35.77
+ARCHIE.ZIP;1             336  19-AUG-1994 23:26:33.58
+ASK.ZIP;1                 56  12-OCT-1995 13:04:16.85
+ATG_EDT.ZIP;1             66  13-MAY-1994 07:49:58.47
+ATG_EVE.ZIP;1             63  13-MAY-1994 07:50:09.18
+ATG_FT_PATCH.ZIP;1        54  13-MAY-1994 07:50:26.78
+ATR_DAEMON.ZIP;1          30  21-SEP-1994 11:08:30.63
+AXP-DRIVER-EXAMPLE.ZIP;1
+                          33  13-MAY-1994 07:50:34.35
+BAT.ZIP;1                138  11-FEB-2004 22:43:11.31
+BITNET.ZIP;1              23  13-MAY-1994 07:50:58.20
+BLISS-ARTICLE-PS.ZIP;1
+                         119  13-MAY-1994 07:51:12.42
+BLISS-ARTICLE.PS;1       375  13-MAY-1994 07:51:27.30
+BLISS-INTRO.ZIP;1         36  13-MAY-1994 07:52:45.17
+BLOCKING.ZIP;1            38   6-JUN-1995 14:11:10.52
+BOOKMAN.ZIP;1            112  12-OCT-1995 15:09:33.70
+BOSS.ZIP;1               443  25-SEP-1996 09:32:00.93
+C-FORMAT.ZIP;1            31  13-MAY-1994 07:54:43.66
+C-KERMIT-V5A-190-AXP-OBJS.ZIP;1
+                        1332   8-JAN-1995 01:19:50.48
+C-KERMIT-V5A-190-SRC.ZIP;1
+                        1716   8-JAN-1995 01:20:09.20
+C-KERMIT-V5A-190-VAX-OBJS.ZIP;1
+                         802   8-JAN-1995 01:19:59.63
+C-KERMIT-V5A-DOC.ZIP;1
+                         692  13-MAY-1994 08:10:56.18
+C-KERMIT-V5A.README;1
+                           1   8-JAN-1995 01:35:09.76
+CALLABLE-PING.ZIP;1
+                         250  15-OCT-2001 22:12:37.71
+CARDREADER.ZIP;1          53  13-MAY-1994 08:12:45.09
+CATDOC.ZIP;1              42   4-JUN-1998 16:24:32.54
+CD-ROM.ZIP;1             172  13-MAY-1994 08:12:52.62
+CD.ZIP;1                1184  13-APR-2000 12:05:00.00
+CD_PLAYER.ZIP;1          124  13-SEP-1994 13:52:00.94
+CHARM.ZIP;1               99   5-OCT-1998 08:17:07.55
+CHKLGI.ZIP;1             255  11-AUG-1997 09:51:49.65
+CHOWN.ZIP;1               49  29-MAR-1996 12:31:04.00
+CLAIM.ZIP;1               60  13-MAY-1994 08:14:08.91
+CLEAR_ERRORS.ZIP;1        50  21-OCT-2003 08:19:00.35
+CLRREF.ZIP;1              26  13-MAY-1994 08:14:24.03
+CLUE$SDA_VAX.ZIP;1       438  20-MAR-1998 20:40:39.28
+CMEM.ZIP;1                77  10-MAY-1995 16:37:53.07
+CMPDIR.ZIP;1             121  29-APR-2004 20:08:14.08
+COMPARE_DIR.ZIP;1        269   9-JAN-1996 16:30:01.71
+COMPRESS.ZIP;1           172  13-MAY-1994 08:14:33.69
+CRS.ZIP;1                481  11-SEP-1995 16:19:19.89
+CTRL-VERIFY.ZIP;1         35  21-SEP-1994 11:38:19.69
+CVTLIS.ZIP;1              94  12-APR-2002 01:23:52.05
+DATE.ZIP;1                36  14-JUN-1994 08:23:47.51
+DBS-BUILD_LIBRARIES.ZIP;1
+                         688   3-JUN-2004 13:51:15.93
+DBS-ETHERWATCH.ZIP;2
+                         304   3-JUN-2004 13:51:30.29
+DBS-ETHERWATCH.ZIP;1
+                         210  24-OCT-1994 08:43:53.32
+DBS-LATWATCH.ZIP;1       230  24-OCT-1994 08:44:22.35
+DBS-NETUTILS.ZIP;1       235  16-JUN-1994 15:50:33.20
+DBS-ODSM.ZIP;1           148  16-JUN-1994 15:50:35.75
+DBS-PATCH.ZIP;2          298   3-JUN-2004 13:51:37.20
+DBS-PATCH.ZIP;1          135  16-JUN-1994 15:50:37.99
+DBS-SCANLOCKS.ZIP;1
+                         217   3-JUN-2004 13:51:43.95
+DBS-SYSRTL.ZIP;2         284   3-JUN-2004 13:51:49.10
+DBS-SYSRTL.ZIP;1         342  27-JUL-1994 14:55:34.92
+DBS-TAPEUTILS.ZIP;1
+                         158  28-NOV-1994 15:18:47.66
+DCL-EXPAND.ZIP;1          14  29-DEC-2002 15:30:14.40
+DCLCOMPLETE.ZIP;1         63   5-AUG-1994 01:37:00.67
+DCLKEYS.ZIP;1             34  26-MAR-2000 13:33:05.79
+DCL_DATABASE.ZIP;1        42  16-JUN-1994 15:16:00.15
+DCL_RECALL.ZIP;1          43  13-MAY-1994 08:17:17.84
+DECNET.ZIP;1              72  13-MAY-1994 08:17:27.80
+DECW_COOKBOOK.ZIP;1
+                          65  13-MAY-1994 08:17:37.08
+DELIVER.ZIP;1            417  17-NOV-1994 14:37:54.17
+DELTREE.ZIP;1            202  12-NOV-1998 12:35:43.48
+DFIND.ZIP;1              130  11-SEP-1995 15:40:40.31
+DIRUTL.ZIP;1             114  13-MAY-1994 08:18:36.24
+DISM32.ZIP;1            1133  13-MAY-1994 08:18:55.76
+DISPATCH.ZIP;1            46  13-MAY-1994 08:22:33.50
+DRLOGIN.ZIP;1            102   3-FEB-1995 09:52:59.04
+DSNLINK_NEW.ZIP;1        123  28-FEB-2001 07:28:26.42
+DVIDVI.ZIP;1             161  13-MAY-1994 08:23:39.86
+DX.HLP;1                  30  13-MAY-1994 08:24:02.36
+DX.ZIP;1                2904  13-APR-2000 12:05:00.00
+ED.ZIP;1                 726  17-AUG-1994 22:48:12.73
+EPM.ZIP;1                137  11-APR-2000 11:58:44.99
+EPYT.ZIP;1               145  13-MAY-1994 08:34:19.14
+ESET.ZIP;1               115   7-OCT-1997 16:49:36.93
+ETHERMON.ZIP;1          2180  13-MAY-1994 08:34:54.92
+EXECSYMB.ZIP;1           610  15-JUL-1994 06:23:35.48
+EXTENDED_DIVISION.ZIP;1
+                          10  13-MAY-1994 08:43:07.40
+EXTENDED_MULTIPLICATION.ZIP;1
+                          10  13-MAY-1994 08:43:11.70
+EXTRACT.ZIP;1            389  24-MAY-1997 00:15:27.21
+EZSAVE.ZIP;1            2735  16-FEB-2000 16:46:14.35
+FAL.ZIP;1                  7  13-MAY-1994 08:43:14.84
+FDEL.ZIP;1                60   9-DEC-2002 11:38:35.70
+FGREP-1-1.ZIP;1          268  13-MAY-1994 08:43:17.21
+FILE.ZIP;1               161  13-MAY-1994 08:44:12.03
+FILESERV_TOOLS.ZIP;1
+                          89  13-MAY-1994 08:44:41.44
+FILES_INFO.ZIP;1          75  27-NOV-1994 14:57:32.13
+FIND.ZIP;1               394   1-DEC-1994 14:46:40.21
+FLEX.ZIP;1              2196   5-AUG-1997 15:39:19.01
+FLIST.ZIP;1              215  24-FEB-2004 13:30:16.04
+FLORIAN.ZIP;1             73  13-MAY-1994 08:49:06.67
+FRAGMENT.ZIP;1            12  26-MAR-2000 13:42:03.79
+FREE.ZIP;1                29   8-JAN-2002 16:18:30.41
+FREE_RSN.ZIP;1            16  13-MAY-1994 08:49:25.91
+FTP_MIRROR.ZIP;1          58   8-NOV-2002 11:01:55.76
+FTS.ZIP;1                510  13-MAY-1994 08:49:29.46
+GAWK-DOC.ZIP;1          1744  27-MAY-1997 15:05:19.68
+GAWK.ZIP;1              5449  11-JUL-2002 20:56:54.00
+GETCMD.ZIP;2             139   5-MAR-2004 17:21:20.79
+GETLKI.ZIP;1              40  13-MAY-1994 08:57:36.24
+GETUAI.ZIP;1              99  29-MAR-1996 13:47:59.23
+GLOGIN.ZIP;1              16  24-OCT-1996 07:38:09.73
+GNU-ISPELL.ZIP;1        2263  13-MAY-1994 08:57:48.08
+GRAB.ZIP;1               135   8-MAR-2003 20:04:46.66
+GREP.ZIP;1               901  13-MAY-1994 09:04:50.80
+GZIP-1-2-4.ZIP;1        1022  13-MAY-1994 09:06:56.70
+GZIP-1-2-4B.ZIP;1        818  21-FEB-2001 13:19:07.98
+HEADERS.ZIP;1             40  13-MAY-1994 09:09:16.08
+HELP$ROUTINE.ZIP;1        10  13-MAY-1994 09:09:25.97
+HEXIFY.ZIP;1              37  13-MAY-1994 09:09:31.34
+HGFTP.ZIP;3             8307  29-MAR-2004 22:29:11.00
+HGLOGIN.ZIP;1            154  11-FEB-2004 22:44:22.48
+HGSD.ZIP;1               227  12-FEB-2004 01:06:56.48
+HINDEX.ZIP;1             102  19-NOV-2003 17:15:09.40
+HPLASER.ZIP;1             53  13-MAY-1994 09:09:42.21
+HPWD.ZIP;1                78  13-MAY-1994 09:09:59.05
+HTTP_SERVER.ZIP;1       1839   4-MAR-1998 13:37:09.66
+ICALC.ZIP;1              156  13-APR-2000 17:10:08.93
+IDEZR.ZIP;1             1878   6-FEB-2003 20:30:33.15
+IMGID.ZIP;1               50  29-MAR-1996 12:48:02.57
+INTERNET-MENU.ZIP;1
+                         104  13-MAY-1994 09:10:14.46
+INVISIBLE.ZIP;1           17  10-MAR-1998 19:48:24.00
+JED.ZIP;1               2496  13-MAY-1994 09:10:34.81
+JNET_LINKWATCH.ZIP;1
+                          65  13-MAY-1994 09:16:41.96
+JOBLOG.ZIP;1             309  23-MAR-1995 22:25:14.70
+JOB_DAEMON.ZIP;1          33   2-APR-1997 15:04:45.48
+JUMP.ZIP;1               308  26-NOV-2002 01:05:21.82
+KEYS.ZIP;1                47  13-MAY-1994 09:17:17.31
+KFE.ZIP;1                 54  13-MAY-1994 09:17:24.80
+KILL.ZIP;1               111  13-MAY-1994 09:17:34.10
+LABELS.ZIP;1               7  13-MAY-1994 09:17:52.54
+LASER.ZIP;1              608  13-MAY-1994 09:17:55.08
+LAST.ZIP;1               212  11-AUG-1998 13:20:59.98
+LASTCMD.ZIP;1             24   3-JUN-1995 07:13:33.15
+LAVDRIVER.ZIP;1           27  13-MAY-1994 09:19:44.40
+LIBSEARCH.ZIP;1          310   8-AUG-1994 10:20:53.47
+LIST.ZIP;1               253  11-FEB-1998 10:44:33.52
+LNMLOOKUP.ZIP;1          122   3-FEB-1997 07:38:41.95
+LNMTOOL.ZIP;1            410  19-NOV-2003 17:28:17.47
+LOGGER.ZIP;1              74  13-MAY-1994 09:20:24.65
+LOGIN.ZIP;1               23  13-MAY-1994 09:20:34.65
+LOGINOUT-HOOKS.ZIP;1
+                          90  13-MAY-1994 09:20:40.67
+LOOK.ZIP;1               258   5-FEB-1996 14:23:48.40
+LOOP.ZIP;1               157  15-APR-2000 14:18:04.14
+LWW-DECWDISP.ZIP;1        29  26-JUL-2003 22:08:21.38
+LWW-FUNCT-KEYS.ZIP;1
+                         168  26-JUL-2003 22:08:22.72
+LWW-MODIFY-ATTRIB.ZIP;1
+                         535  26-JUL-2003 22:08:26.81
+LWW-PERSONA-DECW.ZIP;1
+                         129  26-JUL-2003 22:08:39.82
+LWW-PERSONA.ZIP;1        553  26-JUL-2003 22:08:43.04
+LWW-USERINFO.ZIP;2       117  29-APR-2004 20:08:24.66
+LZW.ZIP;1                 72  13-MAY-1994 09:21:35.22
+MAIL.ZIP;1               264  13-MAY-1994 09:21:55.21
+MAILCOUNT.ZIP;1           59  28-SEP-2000 16:04:40.84
+MAILSHR_PATCH.ZIP;1
+                          15  22-JUL-1998 14:11:06.67
+MAILUAF.ZIP;1            137  27-APR-1995 08:41:38.48
+MAILUAF_RLB.ZIP;1         89  13-MAY-1994 09:22:39.74
+MAKE-3-60.ZIP;1          541  13-MAY-1994 09:22:50.72
+MAKE-PERRY.ZIP;1         422  13-MAY-1994 09:24:10.06
+MAKE.ZIP;1               278  13-MAY-1994 09:25:25.04
+MBOX.ZIP;1                47  30-APR-1998 09:31:19.50
+MDMLIB.ZIP;1             252  13-MAY-1994 09:26:54.55
+MENU.ZIP;1               215  13-MAY-1994 09:27:35.78
+MESSAGE.;1                 1  13-JAN-1999 15:35:32.29
+MFTU.ZIP;1               119  30-JUL-1994 00:12:00.16
+MGBOOK.ZIP;1             334  10-FEB-1996 02:14:31.51
+MGFTP.CLD;1               10  10-NOV-2001 15:06:05.73
+MGFTP.ZIP;1                1  19-DEC-2001 22:55:01.04
+MGFTP026.RELEASE_NOTES;1
+                         103  11-AUG-2000 08:23:13.86
+MGPCX.ZIP;1              332   4-FEB-2002 12:44:54.70
+MG_FINGER.ZIP;1          216   3-OCT-1996 15:33:02.46
+MLSEARCH.ZIP;1           252  19-FEB-1998 16:26:53.84
+MLU021.ZIP;1             353  13-MAY-1994 09:39:59.88
+MMK.ZIP;2                790   7-MAY-2004 01:26:12.30
+MODIFY.ZIP;1             311  13-MAY-1994 09:42:23.87
+MONMODE.ZIP;1             12  13-MAY-1994 09:43:19.94
+MORE.ZIP;1               113  28-FEB-2003 00:23:14.31
+MOSAIC.ZIP;1            2025  11-JAN-1995 16:37:56.98
+MOST.ZIP;1               508  13-MAY-1994 09:43:23.94
+MP.ZIP;1                 216  15-JUN-1995 15:48:58.93
+MPEG_PLAY.ZIP;1         1227  18-OCT-1996 18:14:46.71
+MTX.ZIP;1                243   6-JUN-1998 09:53:52.95
+MWAIT.ZIP;1               75  13-MAY-1994 09:45:03.87
+MX-DIGEST.ZIP;1          139   6-JAN-2000 18:08:41.90
+MXSUM.ZIP;1               28   3-APR-1996 09:18:12.32
+NBS.ZIP;1                 68  27-FEB-2002 12:57:04.23
+NDS_VMSSERV.ZIP;1        137  13-MAY-1994 09:45:59.16
+NETLIB021.ZIP;1          872  18-JUL-1997 12:57:11.87
+NETLIB022.ZIP;1          922  19-JAN-1999 05:30:24.74
+NETLIB023.ZIP;1         1054   5-FEB-2002 02:23:16.34
+NEWSLETTER.ZIP;1         102  13-MAY-1994 09:47:58.30
+NEWSRDR.ZIP;1           2619  25-OCT-1998 05:30:34.21
+NOTICE.ZIP;1             128  31-AUG-1998 22:03:57.10
+NSQUERY.ZIP;1            257  17-JAN-1995 15:46:07.39
+OBJECT.ZIP;1              39  13-MAY-1994 09:58:04.93
+ODS-2-READER-FOR-OSF-1.ZIP;1
+                          19  21-SEP-1994 11:46:36.87
+ODS-2-READER.ZIP;1        83  13-MAY-1994 09:58:11.83
+ODS2.ZIP;1               939  27-SEP-2001 12:30:17.68
+OMI.ZIP;1               1880   1-JUN-2001 14:22:03.75
+PACKASM.ZIP;1            172  13-MAY-1994 09:58:27.71
+PACKASM_OBJ_EXE.ZIP;1
+                         288  13-MAY-1994 09:58:58.64
+PARALYZE.ZIP;1            77  13-MAY-1994 09:59:40.46
+PASLIB.ZIP;1             285  31-JUL-1996 13:22:07.86
+PASSWORD.ZIP;1           121  14-JUN-1994 08:23:48.68
+PATCH_MAILSHR_ON_VMS_N_AXP_15_H1.ZIP;1
+                          53   5-AUG-1994 02:19:51.09
+PATCH_MAILSHR_ON_VMS_N_AXP_1_5.ZIP;1
+                          53  13-MAY-1994 09:59:52.16
+PATCH_MAILSHR_ON_VMS_N_AXP_61.ZIP;1
+                          53  24-JUN-1994 06:53:11.92
+PBM_TEX.ZIP;1            218  13-MAY-1994 10:00:05.20
+PCAL.ZIP;1               514  17-NOV-1994 14:28:20.84
+PC_DCL.ZIP;1             324  24-APR-1997 13:01:50.52
+PDUMP.ZIP;1               41  13-MAY-1994 10:01:37.77
+PERF_METER.ZIP;1         188   9-NOV-2000 08:39:41.05
+PERMANENT.ZIP;1           23  13-MAY-1994 10:01:59.28
+PERSONA.ZIP;1             81  28-APR-1999 16:20:31.41
+PINE.ZIP;1             16794  14-NOV-1997 12:40:06.21
+POSTMAN.ZIP;1             39   7-OCT-1999 08:39:31.43
+PPPD_KIT.ZIP;1           930  17-OCT-1997 13:53:30.97
+PQM.ZIP;1                257  31-DEC-2000 22:06:51.50
+PRCPRV.ZIP;1              11  13-MAY-1994 10:02:04.81
+PRIVDCL.ZIP;1            113   5-AUG-1997 16:02:26.74
+PROBE.ZIP;1              692  24-JUL-1997 09:46:15.13
+PROFILE.ZIP;1            263  13-MAY-1994 10:02:09.82
+PROJECT.ZIP;1            145  14-JUN-1994 11:20:14.54
+PROTO.ZIP;1              154  25-MAY-1996 00:25:45.16
+PSTAT.ZIP;1              215  13-MAY-1994 10:04:33.65
+PSTOTEXT.ZIP;1           320   6-JUN-1998 09:13:51.60
+PSUTILS.ZIP;1            466  21-MAY-1998 17:34:39.23
+QLOGIN.ZIP;1             158  13-MAY-1994 10:06:43.90
+QUE_MON.ZIP;1            231  13-MAY-1994 10:07:24.26
+QUOTA.ZIP;1               32  13-MAY-1994 10:08:08.32
+RAMDRIVER.ZIP;1           58  29-MAY-1994 22:10:53.92
+RCARD.ZIP;1              133  17-MAY-1999 17:55:28.58
+REMIND-DCL.ZIP;1          25  30-JUL-1994 00:33:35.54
+REMIND.ZIP;1             151  13-MAY-2001 22:51:13.35
+REMOTE.ZIP;1              73  29-JAN-1998 12:19:10.74
+RF.ZIP;1                  13  21-SEP-1994 11:21:10.57
+RMS_INTERFACE.ZIP;1
+                         351  13-MAY-1994 10:10:51.60
+S-LANG.ZIP;1             618  13-MAY-1994 10:12:06.55
+SAFETY015.ZIP;1         7234  18-OCT-2000 21:55:54.16
+SAMBA-0227A.ZIP;1      28002   1-APR-2003 22:42:06.65
+SCAN4.ZIP;1               59  23-JUN-1994 16:42:45.51
+SCANUAF.ZIP;1            286  13-MAY-1994 10:16:02.57
+SCREEN.ZIP;1             102  12-OCT-1995 13:12:37.31
+SD.ZIP;1                  29  13-MAY-1994 10:17:10.97
+SDA_EXTENSIONS_DOC.ZIP;1
+                        1262  20-MAR-1998 20:39:00.39
+SDCL.ZIP;1               291  18-OCT-2000 17:06:44.13
+SED.ZIP;1                768  13-MAY-1994 10:17:16.76
+SEND.ZIP;1               280   4-MAR-1996 10:45:32.47
+SESSION_NOTES.ZIP;1
+                          11  13-MAY-1994 10:19:47.03
+SETUP.ZIP;1              189  13-MAY-1994 10:20:02.12
+SETUSER.ZIP;1             30  18-JAN-1995 08:52:09.71
+SET_EXE.ZIP;1              7  13-FEB-1996 10:51:56.39
+SET_PRCNAM.ZIP;1          42  17-SEP-1999 09:05:46.95
+SHELP.ZIP;1              198  13-MAY-1994 10:21:01.42
+SHOWCUSERS.ZIP;1          55  17-NOV-1994 14:19:59.79
+SHRCOMMON.ZIP;1           49  13-MAY-1994 10:21:34.00
+SHS.ZIP;1                229  23-OCT-1995 13:08:28.39
+SIXEL_PRINT.ZIP;1        116  13-MAY-1994 10:21:54.70
+SKL.ZIP;1                 30   9-DEC-2002 11:38:32.53
+SLAVE.ZIP;1               39   6-JUN-1995 12:15:01.56
+SLMOD.ZIP;1              207  13-MAY-1994 10:22:20.90
+SMORE.ZIP;1               31  16-JAN-1996 15:29:28.01
+SOCKETSHR.ZIP;1          653  26-JAN-1995 13:40:35.64
+SORT_DISKQUOTA.ZIP;1
+                          10  13-MAY-1994 10:23:02.70
+SPELL.ZIP;1              568  17-JAN-1997 13:57:54.19
+SPELL_DICTIONARY.ZIP;1
+                        1086  13-MAY-1994 10:25:07.53
+SPLOIN.ZIP;1             107   6-SEP-1994 16:36:32.22
+STATUS.ZIP;1             414  13-MAY-1994 10:29:02.12
+STB.ZIP;1                 15  13-MAY-1994 10:30:28.05
+STRINGS.ZIP;1             79   8-FEB-1995 12:50:58.08
+SUPERVISOR.ZIP;1        1277  27-JUN-1994 08:59:36.13
+SWIM.ZIP;1               193  13-MAY-1994 10:33:47.93
+SWITCH.ZIP;1             226  21-SEP-1994 09:43:58.34
+SYMBOL.ZIP;1             137  13-MAY-1994 10:34:53.53
+SYMBOLS.ZIP;1            234   3-FEB-1997 07:55:57.35
+SYSALF.ZIP;1              11  13-MAY-1994 10:35:20.86
+SYSLOGD.ZIP;1            172  30-AUG-1995 15:09:52.34
+TACC.ZIP;1                12  11-SEP-1995 16:19:24.91
+TAIL.ZIP;1               127  28-SEP-2001 16:57:56.30
+TAPE.ZIP;1                60  13-MAY-1994 10:35:24.32
+TCPIPSYM.ZIP;1            72  19-MAY-1995 16:19:13.04
+TCSH603.ZIP;1           1087  20-JUN-1994 14:29:19.34
+TERMINALS.ZIP;1          167  17-NOV-1994 14:20:00.99
+TESTDEV.ZIP;1             98  27-JAN-1997 21:09:47.08
+TM.ZIP;1                 451  13-MAY-1994 10:35:46.14
+TPU-C-EXAMPLE.ZIP;1
+                           7  11-AUG-1998 16:03:17.40
+TQE.ZIP;1                 36  20-JUN-2000 08:47:03.27
+TRF-LIB$SEARCH.ZIP;1
+                           9  26-JUL-2003 22:22:07.34
+TSCON.ZIP;1              371  13-MAY-1994 10:36:49.74
+TURBO.ZIP;1               23  13-MAY-1994 10:37:43.46
+UAF.ZIP;1                500   1-DEC-1994 14:30:26.28
+UNARJ241.ZIP;1           194  13-MAY-1994 10:38:22.35
+UNMACRO.ZIP;1            202  13-MAY-1994 10:38:49.23
+UNMESSAGE.ZIP;1           41  13-MAY-1994 10:39:23.56
+UNSDL.ZIP;1              189  13-MAY-1994 10:39:35.76
+UNZIP.BCK;1            15200  21-FEB-2002 09:39:38.78
+UNZIP.ZIP;1             3919  21-FEB-2002 11:38:34.14
+UUCODE.ZIP;1              79  29-MAR-1996 10:41:24.58
+UUNUKE.ZIP;1              10  14-JUN-1994 08:23:52.52
+VAX_STRIPE_DRIVER.ZIP;1
+                         106  14-JUN-1994 08:23:53.73
+VDD64.ZIP;1              123   3-SEP-2002 22:28:07.87
+VDSTEP2.ZIP;1             84  20-AUG-1994 14:05:05.00
+VDS_AXP.ZIP;1            388  13-MAY-1994 10:55:57.70
+VDS_VAX.ZIP;1           1043  13-MAY-1994 10:57:03.22
+VERB.ZIP;1               131  27-MAR-2002 16:21:01.83
+VERSION.ZIP;1             43  13-MAY-1994 11:02:50.59
+VIEWFILE.ZIP;2           483  29-APR-2004 20:08:32.47
+VIRTUAL.ZIP;1             24  16-JAN-1996 15:42:26.61
+VMSTAR.ZIP;1             932  30-NOV-2001 00:17:22.07
+VMSTPCE.ZIP;1            140  13-MAY-1994 11:04:15.96
+VMS_SHARE.ZIP;1          257   8-AUG-1994 08:01:05.79
+VMS_UNSHARE.ZIP;1         18  11-AUG-1994 13:49:10.83
+VNC333R1VMS010.ZIP;1
+                        2200  10-SEP-2000 11:24:18.30
+VNC333R1VMS011.ZIP;1
+                        2204  20-SEP-2000 09:25:01.67
+VQM.ZIP;1                242  13-MAY-1994 11:05:28.23
+WATCH.README;1             1  13-MAY-1994 11:30:59.98
+WATCHER.ZIP;1            785   2-APR-2002 12:09:42.67
+WHO4VMS.ZIP;1             96  24-APR-1997 13:04:37.70
+X11KIT.ZIP;1            3275  15-FEB-1995 08:34:28.13
+XAUTOLOCK.ZIP;1          188  23-OCT-1997 00:53:48.04
+XDVI.ZIP;1               622  13-MAY-1994 11:10:07.54
+XE.ZIP;1                 106  13-MAY-1994 11:11:56.28
+XE_KIT.ZIP;1              59  13-MAY-1994 11:12:16.44
+XFIG-2-1-6.ZIP;1        2942  13-MAY-1994 11:12:30.98
+ZDEC.ZIP;1                 9  30-JAN-2004 01:00:23.90
+ZIP.ZIP;1               2483  15-APR-2000 14:05:12.49
+ZMENU.ZIP;1             3241  16-FEB-2000 16:43:31.11
+ZOO210.ZIP;1             657  13-MAY-1994 11:26:03.08
+ZT.ZIP;1                 108  12-SEP-1995 18:14:22.61
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.FREE-VMS]
+
+BTRAN.TAR;1              980  27-JAN-1997 21:05:29.09
+IGNORANCE.ZIP;1           63  16-OCT-2001 11:34:25.48
+MESSAGE.;1                 1   8-OCT-1996 10:14:06.64
+NEWLIB.DIR;1               1  16-OCT-2001 11:35:53.50
+ODS2-W95NT.ZIP;1         166  16-OCT-2001 11:34:27.00
+ODS2.TXT;1                57  16-OCT-2001 11:35:23.56
+STR.TAR;1                360  27-JAN-1997 21:04:39.41
+STR.TAR-GZ;1             153  16-OCT-2001 11:35:29.22
+TESTING.DIR;1              1  10-MAY-2001 00:07:16.63
+VMSBACKUP-HANDY.TXT;1
+                          78  16-OCT-2001 11:35:25.26
+VMSBACKUP.README;2         2  16-OCT-2001 11:35:36.31
+VMSBACKUP.README;1         3   8-OCT-1996 19:56:09.03
+VMSBACKUP4-1-1.ZIP;1
+                          42  16-OCT-2001 11:34:28.94
+VMSBACKUP4-1.TAR;2       120  16-OCT-2001 11:35:32.29
+VMSBACKUP4-1.TAR;1       120  24-JAN-1997 12:58:16.31
+VMSBACKUP4-1.ZIP;1        40  27-JAN-1997 21:07:41.13
+VMSOPT.ZIP;1               7  16-OCT-2001 11:35:20.72
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.FREE-VMS.NEWLIB]
+
+.MESSAGE;1                 2  16-OCT-2001 11:36:19.94
+COPYING.NEWLIB;1          11  16-OCT-2001 11:36:22.72
+NEWLIB-1_6-1_6_1.DIFF-GZ;1
+                         693  16-OCT-2001 11:36:25.82
+NEWLIB-1_6.TAR-GZ;1
+                        2359  16-OCT-2001 11:36:34.51
+NEWLIB-1_6_1-1_7_0.DIFF-GZ;1
+                         610  16-OCT-2001 11:36:57.02
+NEWLIB-1_6_1.TAR-GZ;1
+                        2754  16-OCT-2001 11:37:01.49
+NEWLIB-1_7_0-1_7_1.PATCH;1
+                           1  16-OCT-2001 11:37:20.31
+NEWLIB-1_7_0.TAR-GZ;1
+                        2840  16-OCT-2001 11:37:21.12
+NEWLIB-1_7_1.TAR-GZ;1
+                        2853  16-OCT-2001 11:37:38.35
+NEWLIB-1_8_0.TAR-GZ;1
+                        3160  16-OCT-2001 11:38:11.50
+NEWLIB-1_8_1.TAR-GZ;1
+                        3451  16-OCT-2001 11:38:25.95
+NEWLIB.TAR-GZ;1          954  16-OCT-2001 11:38:47.66
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.FREEWARE_CD]
+
+BLISS.DIR;1                1  10-MAY-2001 00:07:26.25
+MESSAGE.;1                 1  15-DEC-1994 16:31:03.49
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.FREEWARE_CD.BLISS]
+
+BLISS_ALPHA.ZIP;1      15669  25-JAN-1999 15:09:56.01
+BLISS_DOCS.ZIP;1        1795  15-DEC-1994 16:59:35.53
+BLISS_PAK.COM;1            2  28-OCT-1994 14:34:00.02
+BLISS_VAX.ZIP;1          764  15-DEC-1994 16:59:46.59
+MESSAGE.;1                 1  25-JAN-1999 15:44:25.72
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.MATHOG]
+
+AAA_CONTENTS.TXT;2         5  14-OCT-2001 17:03:03.32
+AUCTION.ZIP;1             32  14-OCT-2001 16:23:39.24
+CHANGEALL.COM;2            4  14-OCT-2001 17:03:04.37
+DEFINE_UNIX.COM;2          1  14-OCT-2001 17:03:05.38
+DELETEDIRTREE.COM;2
+                           4  14-OCT-2001 17:03:22.72
+FAKE_UNIX.COM;2            3  14-OCT-2001 17:03:06.55
+FIELDEXTRACTOR.COM;2
+                          10  14-OCT-2001 17:03:07.48
+FIX_UNIXNAME.COM;2        16  14-OCT-2001 17:03:08.68
+FULL_FAKE_UNIX.COM;2
+                           6  14-OCT-2001 17:03:09.87
+GHOSTSCRIPT.ZIP;1      28406  14-OCT-2001 16:23:47.64
+GIBBS.ZIP;1              237  14-OCT-2001 16:25:32.45
+GLE_3_3H_VMS_ALPHA.ZIP;1
+                       10586  14-OCT-2001 16:25:34.22
+GNUPG1_0_2_VMS.ZIP;1
+                          60  14-OCT-2001 16:26:18.90
+GNUPG1_0_4_VMS.ZIP;1
+                        9238  14-OCT-2001 16:26:20.29
+GNU_M4-1_4_VMS.ZIP;1
+                        1633  14-OCT-2001 16:26:12.26
+ICALCV.ZIP;1             128  14-OCT-2001 16:26:55.98
+MACBIN_XBIN_VMS.ZIP;1
+                          39  14-OCT-2001 16:26:57.36
+MAILEXTRACT.ZIP;1         45  14-OCT-2001 16:27:00.05
+MAIL_MAI_TOOLS.ZIP;1
+                          42  14-OCT-2001 16:26:58.67
+MAKE_OPT_FROM_OLB.COM;2
+                           9  14-OCT-2001 17:03:12.58
+MMAIL.COM;2               15  14-OCT-2001 17:03:11.44
+MNEWS.COM;2                9  14-OCT-2001 17:03:13.90
+MOVEMENT.ZIP;1             6  14-OCT-2001 16:27:04.40
+NETPIPE-2_4BETA.ZIP;1
+                         126  14-OCT-2001 16:27:05.20
+NETPIPE_2_3.ZIP;1        138  14-OCT-2001 16:27:07.15
+PAGEIT.COM;2               8  14-OCT-2001 17:03:14.88
+PATCH_WITH_DIFF.COM;2
+                           3  14-OCT-2001 17:03:15.84
+PGSQL_VMS_PARTIAL_PORT.ZIP;1
+                       16873  14-OCT-2001 16:27:10.82
+PHYLO_WIN_VMS.ZIP;1
+                        1637  14-OCT-2001 16:28:13.54
+PRINT_TO_WINDOWS.ZIP;1
+                           9  14-OCT-2001 16:28:19.32
+PSCAL.ZIP;1              113  14-OCT-2001 16:28:20.46
+REP_CLIENT2.ZIP;1          9  14-OCT-2001 16:28:21.77
+RTFTOHTML.ZIP;1          816  14-OCT-2001 16:28:22.84
+SAFDEC.KBD;2               3  14-OCT-2001 17:03:16.88
+SERVERCONFIG.ZIP;1        52  14-OCT-2001 16:28:27.29
+SMBCLIENT.ZIP;1          473  14-OCT-2001 16:28:29.24
+SUBDIRSIZE.COM;2           2  14-OCT-2001 17:03:17.79
+SYSUAF_TO_NAMES.COM;2
+                           8  14-OCT-2001 17:03:19.59
+TCONTROL.ZIP;1            26  14-OCT-2001 16:28:33.60
+TEE.C;2                    3  14-OCT-2001 17:03:20.58
+TESTURLS_FETCH_HTTP.ZIP;1
+                          39  14-OCT-2001 16:28:35.87
+VMSHELPINDEX.ZIP;1       120  14-OCT-2001 16:28:40.61
+VMS_MPACK_1_5.TAR;1
+                         100  14-OCT-2001 16:28:38.26
+VMS_TO_UNIX.C;2            9  14-OCT-2001 17:03:21.70
+X11PERF_15.ZIP;1         243  14-OCT-2001 16:28:41.95
+XBIN.ZIP;1              1027  14-OCT-2001 16:28:43.71
+XLDLAS.ZIP;1            2005  14-OCT-2001 16:28:49.32
+XTERM021_MODERN.ZIP;1
+                        5221  14-OCT-2001 16:28:59.03
+XTERM_VMS_122.ZIP;1
+                        5348  14-OCT-2001 16:29:16.56
+XTERM_VMS_122_TOP.ZIP;1
+                        1686  14-OCT-2001 16:29:36.62
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA]
+
+AAAREADME.TXT;1            6  18-APR-1997 09:49:00.00
+ASKOPER.ZIP;1             16  27-JAN-1993 15:48:00.00
+BROADCASTCLASS.ZIP;1
+                          13  27-JAN-1993 16:06:00.00
+COM.DIR;1                  2  10-MAY-2001 00:08:12.92
+CSWING.README;1            5  19-NOV-1994 13:07:00.00
+CSWING_V376_AXPEXE.ZIP;1
+                         528  17-MAR-1997 13:08:00.00
+CSWING_V376_AXPOBJ.ZIP;1
+                        1239  17-MAR-1997 13:08:00.00
+CSWING_V376_SRCDOC.ZIP;1
+                         762  17-MAR-1997 13:08:00.00
+CSWING_V376_VAXEXE.ZIP;1
+                         379  17-MAR-1997 13:07:00.00
+CSWING_V376_VAXOBJ.ZIP;1
+                         568  17-MAR-1997 13:07:00.00
+DECUS_VS036.PS;1         556  13-MAY-1994 15:17:00.00
+DECUS_VS037.PS;1         604  13-MAY-1994 15:18:00.00
+DYNPRI.ZIP;1              42  19-MAY-1994 09:27:00.00
+LINKS.;1                   1  20-MAY-1993 14:39:00.00
+MAIL_EDIT_V1-4.ZIP;1
+                          77  23-NOV-1994 16:14:00.00
+MAIL_EDIT_V1-8.ZIP;1
+                          25   4-APR-1997 11:59:00.00
+MASTER.ZIP;1              76  27-JAN-1993 16:00:00.00
+MOST.ZIP;1               398  16-OCT-1993 16:23:00.00
+OSUWEB.DIR;1               1  10-MAY-2001 00:08:58.33
+SYSMGT.ZIP;1             442  15-APR-1993 11:24:00.00
+SYSTAT.ZIP;1             147  31-MAY-1995 12:37:00.00
+UNIX.DIR;1                 3  10-MAY-2001 00:09:08.83
+UNSUPP.DIR;1               1  10-MAY-2001 00:09:25.88
+UNZIP.ALPHA_EXE;1        249   9-FEB-1994 05:33:00.00
+UNZIP.DOC;1               37   9-FEB-1994 16:29:00.00
+UNZIP.VAX_EXE;1          290   9-FEB-1994 06:09:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA.COM]
+
+AAAREADME.TXT;1            5  19-DEC-1996 08:46:00.00
+AUTH.COM;1                 3  11-NOV-1993 12:56:00.00
+BINARY.COM;1               2   9-APR-1993 10:42:00.00
+CLOCK_SYNCH.COM;1          3  17-NOV-1993 10:18:00.00
+DECTERMTITLE.COM;1         2  16-NOV-1993 17:03:00.00
+DISK.COM;1                 6   8-MAY-1992 16:27:00.00
+DISK_MOUNTER.COM;1         4  27-SEP-1996 13:37:00.00
+DISK_WATCHER.COM;1        13  12-MAR-1992 08:36:00.00
+FALL_BACK.COM;1            4   9-JAN-1995 16:49:00.00
+FILE_BY_FID.COM;1          2  30-OCT-1990 13:50:00.00
+LINKS.;1                   1  20-SEP-1993 18:39:00.00
+MAILMAINT.COM;1            9  15-NOV-1993 09:27:00.00
+MAIL_EDIT.COM;1           12  10-FEB-1994 11:47:00.00
+MEM.COM;1                 14   8-FEB-1991 14:03:00.00
+MENU.COM;1                74   8-JAN-1996 10:30:00.00
+PMP.COM;1                  7   4-MAY-1991 16:05:00.00
+REPLACE.COM;1              4   2-APR-1997 15:36:00.00
+RMSGLOBUF.COM;1           12  22-NOV-1993 11:32:00.00
+SPRING_FORWARD.COM;1
+                           5   9-JAN-1995 16:00:00.00
+STATS.COM;1                6   9-APR-1993 10:57:00.00
+SYSFILES.COM;1             4   9-APR-1993 10:40:00.00
+SYSGENCOMP.COM;1           3  20-MAR-1998 14:24:00.00
+TELL.COM;1                 8  17-AUG-1993 10:21:00.00
+TRMPRINT.COM;1             2   9-APR-1993 11:00:00.00
+VT2XXDEF.COM;1            11   9-APR-1993 10:30:00.00
+WILDCMD.COM;1              8  11-NOV-1991 13:56:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA.OSUWEB]
+
+ACCESSES_DAT.COM;1         5   7-AUG-1996 16:24:00.00
+EXAMPLE_FORM.HTML;1
+                           5  28-AUG-1996 10:48:00.00
+EXAMPLE_TMAIL_FORM.HTML;1
+                           5  28-AUG-1996 10:44:00.00
+EXAMPLE_TMAIL_FORM.TMAIL;1
+                           2  28-AUG-1996 10:45:00.00
+HTTP_OWLS.COM;1            6   7-NOV-1996 16:25:00.00
+HTTP_USER_REMAPS.COM;1
+                           3   6-DEC-1996 11:32:00.00
+HTTP_USER_REMAPS.CONF;1
+                           2  19-DEC-1996 08:43:00.00
+REDIRFORM.COM;1            4  17-APR-1997 12:15:00.00
+SAMPLE.HTML;1             10   7-OCT-1996 13:05:00.00
+TIGER-HEAD.GIF;1          26  26-JAN-1996 16:53:00.00
+USERCHANGED.COM;1          5  19-DEC-1996 08:52:00.00
+WARNING.COM;1              6   2-MAY-1997 13:10:00.00
+WWWATCHER.COM;1            7  13-MAY-1996 12:17:00.00
+WWWSETUP.COM;1             8  28-AUG-1996 10:47:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA.UNIX]
+
+BY_PRI.;1                  1   2-NOV-1995 15:42:00.00
+CHECK_DISKS.;1             1   3-NOV-1995 10:15:00.00
+CHECK_MOD.;1               1   3-NOV-1995 10:15:00.00
+COPY.;1                    7   2-NOV-1995 15:42:00.00
+DISPLAY_KSH.;1             1   2-NOV-1995 15:42:00.00
+EXTRA_LABS.;1              1   2-NOV-1995 15:42:00.00
+FIND_KSH.;1                1   2-NOV-1995 15:42:00.00
+FIND_KSH2.;1               1   3-NOV-1995 10:15:00.00
+FIND_KSH2.OLD;1            1   3-NOV-1995 10:15:00.00
+FIND_KSH3.;1               1   3-NOV-1995 10:16:00.00
+FTP_SERVER.LOG;1          14   2-NOV-1995 15:41:00.00
+GREETING.;1                2   3-NOV-1995 10:16:00.00
+JUNK1.;1                   1   2-NOV-1995 15:42:00.00
+JUNK2.;1                   1   2-NOV-1995 15:42:00.00
+JUNK3.;1                   1   2-NOV-1995 15:42:00.00
+JUNK4.;1                   1   2-NOV-1995 15:42:00.00
+JUNK4.BACK;1               1   3-NOV-1995 10:16:00.00
+LAB1.;1                  138   2-NOV-1995 15:42:00.00
+LOTSA_FILES.;1             1   3-NOV-1995 10:16:00.00
+MBOX.;1                    1   3-NOV-1995 10:16:00.00
+MY_CRON.;1                 1   3-NOV-1995 10:16:00.00
+NAMES.;1                   1   2-NOV-1995 15:42:00.00
+NUMBERS.;1                 1   2-NOV-1995 15:42:00.00
+QP.;1                      4   2-NOV-1995 16:28:00.00
+R2.;1                      1   2-NOV-1995 15:42:00.00
+RESPONSE.;1                1   2-NOV-1995 15:42:00.00
+SAFE_VI.;1                 1   3-NOV-1995 10:16:00.00
+SIMPLE.;1                  1   2-NOV-1995 15:42:00.00
+SORT_SSELF.;1              1   2-NOV-1995 15:42:00.00
+STUFF.;1                   1   2-NOV-1995 15:42:00.00
+XXX.;1                     1   2-NOV-1995 15:42:00.00
+XXX.OLD;1                  1   2-NOV-1995 15:42:00.00
+XYZ.;1                     1   2-NOV-1995 15:43:00.00
+YYY.;1                     1   2-NOV-1995 15:43:00.00
+YYYY.;1                    1   2-NOV-1995 15:43:00.00
+ZZ.;1                      4   3-NOV-1995 10:16:00.00
+ZZ.OLD;1                   4   3-NOV-1995 10:16:00.00
+ZZ.TOP;1                   1   3-NOV-1995 10:16:00.00
+ZZ.X;1                     1   3-NOV-1995 10:16:00.00
+ZZ.X$5NOLD$5N3;1           1   3-NOV-1995 10:16:00.00
+ZZ.X$5NOLD$5N4;1           1   3-NOV-1995 10:16:00.00
+ZZ.X$5NOLD$5N5;1           1   3-NOV-1995 10:16:00.00
+ZZ.X$5NOLD$5N6;1           1   3-NOV-1995 10:16:00.00
+ZZ.X$5NOLD$5N7;1           1   3-NOV-1995 10:16:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA.UNSUPP]
+
+AAAREADME.TXT;1            2  12-MAY-1995 15:34:00.00
+ALPHA-LOGO-ROOT.GIF;1
+                         156  30-JUN-1993 17:28:00.00
+ALPHA-LOGO.GIF;1          30  30-JUN-1993 17:16:00.00
+ARCHIE.ZIP;1             339  23-JUL-1993 12:47:00.00
+CALCULATOR.ZIP;1         283  15-OCT-1993 10:34:00.00
+CONQUEST.ZIP;1          1993  18-JUN-1997 15:11:00.00
+DIFF_PATCH.ZIP;1         263  22-SEP-1993 14:53:00.00
+ETAPE.ZIP;1              420  21-DEC-1994 12:05:00.00
+ETHERMON.ZIP;1          2356   9-JUL-1993 13:18:00.00
+GOPHER2_1_3-CLIENT.ZIP;1
+                         688  29-MAR-1996 10:20:00.00
+GOPHER_CLIENT.ZIP;1
+                        3005  15-APR-1996 12:10:00.00
+LINKS.;1                   1  20-MAY-1993 14:39:00.00
+PH.ZIP;1                 438  23-JUL-1993 12:46:00.00
+PVTIGER.GIF;1            577  15-NOV-1993 12:23:00.00
+PVTIGER.JPG;1            686   7-SEP-1993 13:57:00.00
+TIGER.GIF;1               46  19-FEB-1993 15:22:00.00
+ZMODEM.ZIP;1             405  21-JUN-1994 15:22:00.00
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.UNSUPPORTED]
+
+00README.TXT;1             1  11-JAN-1996 16:03:31.65
+MESSAGE.;1                 1   8-JUN-1994 15:32:10.73
+NETPBM-1JAN96-VMS.README;1
+                           2   9-JAN-1996 16:48:37.45
+NETPBM-1JAN96-VMS.ZIP;1
+                        2950  29-JAN-1996 13:11:56.33
+WUSAGE-3_2-VMS.README;1
+                           1   9-JAN-1996 16:48:40.83
+WUSAGE-3_2-VMS.ZIP;1
+                          86  29-JAN-1996 13:15:19.43
+XV-3_10A-VMS.README;1
+                           2   9-JAN-1996 16:48:53.24
+XV-3_10A-VMS.ZIP;1      4886   1-FEB-1996 18:04:15.82
+
+
+
+Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.WASD]
+
+AJPV011.TXT;2              5   9-AUG-2002 01:23:33.21
+AJPV011.ZIP;2             77   9-AUG-2002 01:23:35.08
+CGILIB161.TXT;1            3  23-MAY-2001 09:05:20.02
+CGILIB161.ZIP;1          216  23-MAY-2001 09:05:21.75
+DCL.C;1                  477  25-APR-2002 01:23:20.84
+FCGIPLUS100.TXT;3          4   3-JUL-2003 01:23:28.91
+FCGIPLUS100.ZIP;3        111   3-JUL-2003 01:23:31.18
+HTDIR010.TXT;1             3  30-DEC-2002 01:23:19.43
+HTDIR010.ZIP;1          3287   9-MAY-2004 01:23:19.38
+HTDIR011C.TXT;2           10   1-MAY-2003 01:23:28.92
+HTDIR011C.ZIP;2         4971   1-MAY-2003 01:23:31.44
+HTROOT615UPD-AXP.TXT;1
+                           8  26-JUL-2000 00:32:00.00
+HTROOT615UPD-AXP.ZIP;1
+                        1166  25-JUL-2000 08:20:00.00
+HTROOT615UPD-VAX.TXT;1
+                           8  26-JUL-2000 00:32:00.00
+HTROOT615UPD-VAX.ZIP;1
+                         817  25-JUL-2000 08:20:00.00
+HTROOT702UPD-AXP.TXT;1
+                          21  25-NOV-2000 02:27:00.00
+HTROOT702UPD-AXP.ZIP;1
+                        3405  25-NOV-2000 02:11:00.00
+HTROOT702UPD-VAX.TXT;1
+                          21  25-NOV-2000 02:27:00.00
+HTROOT702UPD-VAX.ZIP;1
+                        2405  25-NOV-2000 02:20:00.00
+HTROOT711-AXP.TXT;1
+                          18  28-JAN-2001 13:19:00.00
+HTROOT711-AXP.ZIP;1
+                        4063  27-JAN-2001 09:00:00.00
+HTROOT711-VAX.TXT;1
+                          18  28-JAN-2001 13:21:00.00
+HTROOT711-VAX.ZIP;1
+                        1999  27-JAN-2001 09:10:00.00
+HTROOT711.TXT;1           91  28-JAN-2001 13:18:00.00
+HTROOT711.ZIP;1         6548  27-JAN-2001 09:15:00.00
+HTROOT711UPD-AXP.TXT;1
+                          21  28-JAN-2001 14:15:00.00
+HTROOT711UPD-AXP.ZIP;1
+                        3459  28-JAN-2001 13:59:00.00
+HTROOT711UPD-VAX.TXT;1
+                          21  28-JAN-2001 14:15:00.00
+HTROOT711UPD-VAX.ZIP;1
+                        2463  28-JAN-2001 14:07:00.00
+HTROOT712UPD-AXP.TXT;2
+                          23  15-JUL-2001 01:23:28.28
+HTROOT712UPD-AXP.ZIP;1
+                        3548  14-JUL-2001 01:23:29.37
+HTROOT712UPD-VAX.TXT;2
+                          22  15-JUL-2001 01:23:31.49
+HTROOT712UPD-VAX.ZIP;1
+                        2470  14-JUL-2001 01:24:32.31
+HTROOT720-AXP.TXT;2
+                          18  15-JUL-2001 01:23:37.76
+HTROOT720-AXP.ZIP;2
+                        4302  15-JUL-2001 01:23:41.01
+HTROOT720-VAX.TXT;2
+                          18  15-JUL-2001 01:24:49.58
+HTROOT720-VAX.ZIP;2
+                        1999  15-JUL-2001 01:24:52.87
+HTROOT720.TXT;2           87  15-JUL-2001 01:25:26.42
+HTROOT720.ZIP;2         6827  15-JUL-2001 01:25:31.17
+HTROOT721-AXP.TXT;1
+                          18  13-NOV-2001 14:16:12.23
+HTROOT721-AXP.ZIP;1
+                        4310  13-NOV-2001 14:16:14.80
+HTROOT721-VAX.TXT;1
+                          18  13-NOV-2001 14:16:46.76
+HTROOT721-VAX.ZIP;1
+                        2009  13-NOV-2001 14:16:49.16
+HTROOT721.TXT;1           86  13-NOV-2001 14:17:06.75
+HTROOT721.ZIP;1         6835  13-NOV-2001 14:17:10.75
+HTROOT721UPD-AXP.TXT;1
+                          22  13-NOV-2001 14:17:52.32
+HTROOT721UPD-AXP.ZIP;1
+                        3886  13-NOV-2001 14:17:54.78
+HTROOT721UPD-VAX.TXT;1
+                          23  13-NOV-2001 14:18:21.73
+HTROOT721UPD-VAX.ZIP;1
+                        2755  13-NOV-2001 14:18:24.15
+HTROOT722-AXP.TXT;1
+                          18  15-APR-2002 21:04:37.50
+HTROOT722-AXP.ZIP;1
+                        4477  15-APR-2002 21:04:40.24
+HTROOT722-VAX.TXT;1
+                          18  15-APR-2002 21:05:16.19
+HTROOT722-VAX.ZIP;1
+                        2028  15-APR-2002 21:05:18.68
+HTROOT722.TXT;1           87  15-APR-2002 21:05:37.24
+HTROOT722.ZIP;1         6911  15-APR-2002 21:05:41.46
+HTROOT722UPD-AXP.TXT;1
+                          26  15-APR-2002 21:06:32.03
+HTROOT722UPD-AXP.ZIP;1
+                        4127  15-APR-2002 21:06:34.81
+HTROOT722UPD-VAX.TXT;1
+                          26  15-APR-2002 21:07:06.32
+HTROOT722UPD-VAX.ZIP;1
+                        2873  15-APR-2002 21:07:09.60
+HTROOT723UPD-AXP.TXT;2
+                          28  14-JUL-2002 01:23:31.07
+HTROOT723UPD-AXP.ZIP;2
+                        4855  14-JUL-2002 01:23:33.95
+HTROOT723UPD-VAX.TXT;2
+                          28  14-JUL-2002 01:24:07.46
+HTROOT723UPD-VAX.ZIP;2
+                        3601  14-JUL-2002 01:24:10.42
+HTROOT800-AXP.TXT;6
+                          20  17-JUL-2002 01:23:28.33
+HTROOT800-AXP.ZIP;6
+                        4839  17-JUL-2002 01:23:30.99
+HTROOT800-VAX.TXT;6
+                          20  17-JUL-2002 01:24:04.79
+HTROOT800-VAX.ZIP;6
+                        2173  17-JUL-2002 01:24:07.37
+HTROOT800.TXT;6           86  17-JUL-2002 01:24:26.87
+HTROOT800.ZIP;6         7297  17-JUL-2002 01:24:31.32
+HTROOT810-AXP.TXT;1
+                          20  19-DEC-2002 23:00:41.03
+HTROOT810-AXP.ZIP;1
+                        4885  19-DEC-2002 23:00:43.39
+HTROOT810-VAX.TXT;1
+                          20  19-DEC-2002 23:01:15.19
+HTROOT810-VAX.ZIP;1
+                        2229  19-DEC-2002 23:01:17.59
+HTROOT810.TXT;1           88  19-DEC-2002 23:02:06.12
+HTROOT810.ZIP;1         7574  19-DEC-2002 23:02:10.49
+HTROOT811-AXP.TXT;1
+                          20  13-JAN-2003 01:23:24.17
+HTROOT811-AXP.ZIP;1
+                        4903  13-JAN-2003 01:23:26.58
+HTROOT811-VAX.TXT;1
+                          21  13-JAN-2003 01:23:58.32
+HTROOT811-VAX.ZIP;1
+                        2234  13-JAN-2003 01:24:00.70
+HTROOT811.TXT;1           91  13-JAN-2003 01:24:18.90
+HTROOT811.ZIP;1         7617  13-JAN-2003 01:24:23.01
+HTROOT820-AXP.TXT;1
+                          21  14-APR-2003 01:23:21.30
+HTROOT820-AXP.ZIP;1
+                        5047  14-APR-2003 01:23:23.92
+HTROOT820-VAX.TXT;1
+                          21  14-APR-2003 01:25:01.55
+HTROOT820-VAX.ZIP;1
+                        2309  14-APR-2003 01:25:04.15
+HTROOT820.TXT;2           91  15-APR-2003 01:23:23.90
+HTROOT820.ZIP;2         7725  15-APR-2003 01:23:28.58
+HTROOT830-AXP.TXT;2
+                          21   4-JUL-2003 01:23:29.93
+HTROOT830-AXP.ZIP;1
+                        5174   3-JUL-2003 01:23:38.31
+HTROOT830-VAX.TXT;2
+                          21   4-JUL-2003 01:23:32.37
+HTROOT830-VAX.ZIP;1
+                        2359   3-JUL-2003 01:25:03.19
+HTROOT830.TXT;2           92   4-JUL-2003 01:23:34.76
+HTROOT830.ZIP;2         7962   4-JUL-2003 01:23:39.27
+HTROOT831-AXP.TXT;2
+                          21  20-AUG-2003 01:23:17.63
+HTROOT831-AXP.ZIP;1
+                        5198  19-AUG-2003 01:23:22.29
+HTROOT831-VAX.TXT;2
+                          21  20-AUG-2003 01:23:20.04
+HTROOT831-VAX.ZIP;1
+                        2362  19-AUG-2003 01:23:58.49
+HTROOT831.TXT;2           92  20-AUG-2003 01:23:22.40
+HTROOT831.ZIP;1         8006  19-AUG-2003 01:24:21.36
+HTROOT832-AXP.TXT;2
+                          21  14-OCT-2003 01:23:17.70
+HTROOT832-AXP.ZIP;2
+                        5263  14-OCT-2003 01:23:20.09
+HTROOT832-VAX.TXT;2
+                          21  14-OCT-2003 01:23:55.33
+HTROOT832-VAX.ZIP;2
+                        2390  14-OCT-2003 01:23:57.68
+HTROOT832.TXT;2           92  14-OCT-2003 01:24:18.34
+HTROOT832.ZIP;2         8024  14-OCT-2003 01:24:22.44
+HTROOT840-AXP.TXT;1
+                          21   5-JAN-2004 01:23:22.53
+HTROOT840-AXP.ZIP;1
+                        5401   5-JAN-2004 01:23:24.89
+HTROOT840-VAX.TXT;1
+                          21   5-JAN-2004 01:24:00.19
+HTROOT840-VAX.ZIP;1
+                        2444   5-JAN-2004 01:24:02.77
+HTROOT840.TXT;1           94   5-JAN-2004 01:24:22.12
+HTROOT840.ZIP;1         8136   5-JAN-2004 01:24:26.22
+HTROOT843-AXP.TXT;2
+                          21  14-MAR-2004 01:23:23.33
+HTROOT843-AXP.ZIP;1
+                        5400  13-MAR-2004 01:23:21.26
+HTROOT843-VAX.TXT;2
+                          21  14-MAR-2004 01:23:25.93
+HTROOT843-VAX.ZIP;1
+                        2444  13-MAR-2004 01:23:57.55
+HTROOT843.TXT;2           94  14-MAR-2004 01:23:28.32
+HTROOT843.ZIP;1         8170  13-MAR-2004 01:24:21.05
+HTROOT844-AXP.TXT;2
+                          21  18-MAY-2004 01:23:19.50
+HTROOT844-AXP.ZIP;2
+                        5402  18-MAY-2004 01:23:21.83
+HTROOT844-VAX.TXT;2
+                          21  18-MAY-2004 01:23:56.29
+HTROOT844-VAX.ZIP;2
+                        2443  18-MAY-2004 01:23:58.96
+HTROOT844.TXT;2           95  18-MAY-2004 01:24:23.74
+HTROOT844.ZIP;2         8197  18-MAY-2004 01:24:28.03
+HTTPD72B1.TXT;1           20  28-JAN-2001 14:33:00.00
+HTTPD72B1.ZIP;1         3476  28-JAN-2001 06:37:00.00
+HTTPD72B2.TXT;1           20   6-MAR-2001 00:30:28.24
+HTTPD72B2.ZIP;1         2862   6-MAR-2001 00:30:32.59
+HTTPD72B3.TXT;1           18  10-APR-2001 22:13:27.23
+HTTPD72B3.ZIP;1         2551  10-APR-2001 22:13:29.53
+HTTPD72B4.TXT;2           20  24-APR-2001 01:23:27.91
+HTTPD72B4.ZIP;2         2781  24-APR-2001 01:23:31.04
+HTTPD72B5.TXT;2           20  15-MAY-2001 01:23:20.98
+HTTPD72B5.ZIP;2         2834  15-MAY-2001 01:23:23.28
+HTTPD801_SNAPSHOT.TXT;5
+                           7  11-AUG-2002 01:23:33.68
+HTTPD801_SNAPSHOT.ZIP;5
+                         515  11-AUG-2002 01:23:36.99
+HTTPD80B1.TXT;3           19  20-DEC-2001 01:23:25.56
+HTTPD80B1.ZIP;3         2603  20-DEC-2001 01:23:28.02
+HTTPD80B2.TXT;6            0  25-JAN-2002 01:23:29.45
+HTTPD80B2.ZIP;4         2618   5-JAN-2002 01:23:22.21
+HTTPD80B3.TXT;2           19  25-JAN-2002 01:23:31.35
+HTTPD80B3.ZIP;2         2663  25-JAN-2002 01:23:34.15
+HTTPD80B5.TXT;1           19  15-APR-2002 21:07:35.17
+HTTPD80B5.ZIP;1         2756  15-APR-2002 21:07:38.00
+HTTPD80B6.TXT;2           19   6-MAY-2002 01:23:20.50
+HTTPD80B6.ZIP;2         2831   6-MAY-2002 01:23:22.89
+HTTPD80B7.TXT;2           19  27-MAY-2002 01:23:22.43
+HTTPD80B7.ZIP;2         2849  27-MAY-2002 01:23:25.04
+HTTPD83B1.TXT;1           15   2-JUN-2003 01:23:28.39
+HTTPD83B1.ZIP;1         2163   2-JUN-2003 01:23:30.67
+HTTPD83B2.TXT;2           15  18-JUN-2003 01:23:34.31
+HTTPD83B2.ZIP;2         2170  18-JUN-2003 01:23:36.82
+HTTPD83B3.TXT;3           15  26-JUN-2003 01:23:28.50
+HTTPD83B3.ZIP;3         2332  26-JUN-2003 01:23:30.88
+HTTPD85B1.TXT;1           15   8-MAY-2004 01:23:18.54
+HTTPD85B1.ZIP;1         2419   8-MAY-2004 01:23:20.91
+HTTPD85B2.TXT;2           15  17-MAY-2004 01:25:12.14
+HTTPD85B2.ZIP;2         2420  17-MAY-2004 01:25:14.57
+HYPERDIG021A.TXT;1        12  25-OCT-2000 07:33:00.00
+HYPERDIG021A.ZIP;1       665  25-OCT-2000 07:30:00.00
+HYPERSPIXX201-AXP.TXT;1
+                          23  28-JAN-2001 13:48:00.00
+HYPERSPIXX201-AXP.ZIP;1
+                        2227  26-JAN-2001 23:04:00.00
+HYPERSPIXX201.TXT;1
+                          64  28-JAN-2001 13:48:00.00
+HYPERSPIXX201.ZIP;1
+                        3735  26-JAN-2001 23:07:00.00
+INDEX.HTML;124            58  18-MAY-2004 01:25:18.04
+INSTALL_SECURE_11.TXT;1
+                           2  19-DEC-2002 23:04:32.31
+INSTALL_SECURE_11.ZIP;1
+                          42  19-DEC-2002 23:04:33.77
+MD5DIGEST.TXT;2            5  15-JUL-2001 01:27:21.86
+MD5DIGEST.ZIP;2           52  15-JUL-2001 01:27:24.14
+MGD.C;1                   35  15-APR-2002 21:08:08.92
+MINDIT.GIF;1               3  26-MAR-2000 20:15:00.00
+OVMSRING.GIF;1            14  16-MAY-1999 19:31:00.00
+PERLWASD100.TXT;2          5  18-JUL-2002 01:23:33.68
+PERLWASD100.ZIP;2         93  18-JUL-2002 01:23:35.69
+PERLWASD110.TXT;2          6   5-AUG-2002 01:23:40.86
+PERLWASD110.ZIP;2        164   5-AUG-2002 01:23:43.17
+PERLWASD120.TXT;2          7  10-JAN-2003 01:23:22.04
+PERLWASD120.ZIP;2        188  10-JAN-2003 01:23:23.99
+PERLWASD121.TXT;2          7  19-MAY-2003 01:23:31.46
+PERLWASD121.ZIP;2        232  19-MAY-2003 01:23:33.60
+PHPJONES406A.TXT;2         5  25-JAN-2002 01:23:59.74
+PHPJONES406A.ZIP;2      1108  25-JAN-2002 01:24:01.91
+PHPWASD100.TXT;3           0  29-JAN-2002 01:23:28.53
+PHPWASD100.ZIP;2          89  25-JAN-2002 01:24:18.50
+PHPWASD101.TXT;1           6  29-JAN-2002 01:23:30.21
+PHPWASD101.ZIP;1          91  29-JAN-2002 01:23:32.63
+PHPWASD101A.TXT;2          7  20-APR-2002 01:23:25.91
+PHPWASD101A.ZIP;2        107  20-APR-2002 01:23:28.20
+PHPWASD110.TXT;3           6   6-JAN-2003 01:23:17.94
+PHPWASD110.ZIP;3         111   6-JAN-2003 01:23:19.72
+PHPWASD111.TXT;3           7  16-JAN-2003 01:23:17.82
+PHPWASD111.ZIP;3         119  16-JAN-2003 01:23:19.86
+PHPWASD112.TXT;2           7  19-MAY-2003 01:23:40.01
+PHPWASD112.ZIP;2         119  19-MAY-2003 01:23:42.47
+PHPWASD120.TXT;4           7  23-FEB-2004 01:23:19.09
+PHPWASD120.ZIP;3         122  23-FEB-2004 01:23:21.06
+PHPWASD121.TXT;2           7   4-MAR-2004 01:23:23.13
+PHPWASD121.ZIP;1         124   3-MAR-2004 01:23:27.29
+QUERY322.TXT;3             3  23-MAY-2001 09:05:28.46
+QUERY322.ZIP;3           251  23-MAY-2001 09:05:30.14
+RTESET011C.TXT;2           6   1-MAY-2003 01:25:10.06
+RTESET011C.ZIP;2         101   1-MAY-2003 01:25:12.13
+SWISHE21DEV21-AXP.TXT;7
+                          38  31-MAY-2001 01:23:25.40
+SWISHE21DEV21-AXP.ZIP;7
+                        2315  31-MAY-2001 01:23:28.44
+SWISHE21DEV21-VAX.TXT;7
+                          38  31-MAY-2001 01:23:57.03
+SWISHE21DEV21-VAX.ZIP;7
+                        1898  31-MAY-2001 01:24:00.23
+SWISHE21DEV21A-AXP.TXT;3
+                          38   9-JUN-2001 01:23:25.70
+SWISHE21DEV21A-AXP.ZIP;3
+                        2342   9-JUN-2001 01:23:28.52
+SWISHE21DEV21A-VAX-ZIP.TXT;1
+                           0   7-JUN-2001 01:23:58.85
+SWISHE21DEV21A-VAX.TXT;3
+                          38   9-JUN-2001 01:23:55.15
+SWISHE21DEV21A-VAX.ZIP;3
+                        1919   9-JUN-2001 01:23:57.93
+SWISHE21DEV21AAXPP.TXT;1
+                           0   7-JUN-2001 01:24:27.59
+SWISHE21DEV21_010708-AXP.TXT;2
+                          41   9-JUL-2001 01:23:39.64
+SWISHE21DEV21_010708-AXP.ZIP;2
+                        2551   9-JUL-2001 01:23:46.30
+SWISHE21DEV21_010708-VAX.TXT;2
+                          41   9-JUL-2001 01:24:37.87
+SWISHE21DEV21_010708-VAX.ZIP;2
+                        2093   9-JUL-2001 01:24:42.01
+SWISHE21DEV22_010912-AXP.TXT;2
+                          43  13-SEP-2001 01:23:23.87
+SWISHE21DEV22_010912-AXP.ZIP;2
+                        2929  13-SEP-2001 01:23:26.56
+SWISHE21DEV22_010912-VAX.TXT;2
+                          43  13-SEP-2001 01:24:01.94
+SWISHE21DEV22_010912-VAX.ZIP;2
+                        2396  13-SEP-2001 01:24:04.66
+SWISHE21DEV25_020106-AXP.TXT;1
+                          49   8-JAN-2002 01:23:31.65
+SWISHE21DEV25_020106-AXP.ZIP;1
+                        3404   8-JAN-2002 01:23:35.92
+SWISHE21DEV25_020106-VAX.TXT;1
+                          49   8-JAN-2002 01:24:23.29
+SWISHE21DEV25_020106-VAX.ZIP;1
+                        2849   8-JAN-2002 01:24:28.62
+SWISHE221-AXP.TXT;1
+                          61  19-DEC-2002 23:04:38.17
+SWISHE221-AXP.ZIP;1
+                        4166  19-DEC-2002 23:04:41.72
+SWISHE221-VAX.TXT;1
+                          61  19-DEC-2002 23:05:24.83
+SWISHE221-VAX.ZIP;1
+                        3503  19-DEC-2002 23:05:28.28
+UNZIP-ALPHA.EXE;3        315  14-MAY-2001 01:23:53.09
+UNZIP-VAX.EXE;1          195  18-NOV-1999 08:12:00.00
+UNZIP_VAX.EXE;2          205  14-MAY-2001 01:23:57.60
+VMSETI141.TXT;1            6  28-JAN-2001 13:44:00.00
+VMSETI141.ZIP;1          459  26-JAN-2001 21:56:00.00
+VMSETI142.TXT;1            5   5-MAR-2001 00:31:13.78
+VMSETI142.ZIP;1          395   5-MAR-2001 00:31:16.69
+VMSETI150.TXT;2            6   2-JAN-2003 01:23:22.28
+VMSETI150.ZIP;2          746   2-JAN-2003 01:23:24.11
+VMSETI151.TXT;1            6  26-JAN-2003 01:23:31.15
+VMSETI151.ZIP;1          747  26-JAN-2003 01:23:33.04
+VMSETI152.TXT;4            6  24-MAR-2004 01:23:19.20
+VMSETI152.ZIP;3          733   9-MAY-2004 01:23:42.28
+WASDSCRIPTS140-AXP.TXT;1
+                           5  28-JAN-2001 13:55:00.00
+WASDSCRIPTS140-AXP.ZIP;1
+                         781  26-JAN-2001 04:28:00.00
+WASDSCRIPTS140-VAX.TXT;1
+                           5  28-JAN-2001 13:55:00.00
+WASDSCRIPTS140-VAX.ZIP;1
+                         362  26-JAN-2001 04:29:00.00
+WASDSCRIPTS140.TXT;1
+                          11  28-JAN-2001 13:55:00.00
+WASDSCRIPTS140.ZIP;1
+                         611  26-JAN-2001 04:28:00.00
+WASDSCRIPTS151-AXP.TXT;1
+                           5  19-DEC-2002 23:06:08.98
+WASDSCRIPTS151-VAX.TXT;1
+                           5  19-DEC-2002 23:06:10.78
+WASDSCRIPTS151.TXT;1
+                          11  19-DEC-2002 23:06:12.57
+WASDSCRIPTS160-AXP.TXT;2
+                           6  21-FEB-2004 01:23:23.88
+WASDSCRIPTS160-AXP.ZIP;1
+                        1071  20-FEB-2004 01:23:36.38
+WASDSCRIPTS160-VAX.TXT;2
+                           5  21-FEB-2004 01:23:25.62
+WASDSCRIPTS160-VAX.ZIP;1
+                         427  20-FEB-2004 01:23:50.61
+WASDSCRIPTS160.TXT;2
+                          11  21-FEB-2004 01:23:27.41
+WASDSCRIPTS160.ZIP;1
+                         803  20-FEB-2004 01:24:00.76
+WWWCOUNT253-AXP.TXT;1
+                          11  28-JAN-2001 13:46:00.00
+WWWCOUNT253-AXP.ZIP;1
+                         459  26-JAN-2001 22:31:00.00
+WWWCOUNT253-VAX.TXT;1
+                          11  28-JAN-2001 13:47:00.00
+WWWCOUNT253-VAX.ZIP;1
+                         233  26-JAN-2001 22:32:00.00
+WWWCOUNT253.TXT;1         46  28-JAN-2001 13:47:00.00
+WWWCOUNT253.ZIP;1       1387  26-JAN-2001 22:31:00.00
+WWWCOUNT254-AVAXZIP.TXT;2
+                           0  18-JUL-2002 01:23:40.26
+WWWCOUNT254-AXP.TXT;2
+                          11  18-JUL-2002 01:23:41.82
+WWWCOUNT254-AXP.ZIP;2
+                         547  18-JUL-2002 01:23:44.22
+WWWCOUNT254-VAX-ZIP.TXT;2
+                           0  18-JUL-2002 01:23:54.15
+WWWCOUNT254-VAX.TXT;2
+                          11  18-JUL-2002 01:23:55.73
+WWWCOUNT254-VAX.ZIP;2
+                         231  18-JUL-2002 01:23:58.00
+WWWCOUNT254.TXT;2         46  18-JUL-2002 01:24:04.71
+WWWCOUNT254.ZIP;2       1391  18-JUL-2002 01:24:08.24
+YAHMAIL150-AXP.TXT;1
+                           6  28-JAN-2001 13:41:00.00
+YAHMAIL150-AXP.ZIP;1
+                         520  19-JAN-2001 03:08:00.00
+YAHMAIL150-VAX.TXT;1
+                           6  28-JAN-2001 13:41:00.00
+YAHMAIL150-VAX.ZIP;1
+                         258  19-JAN-2001 03:08:00.00
+YAHMAIL150.TXT;1          12  28-JAN-2001 13:41:00.00
+YAHMAIL150.ZIP;1         678  30-JAN-2001 09:39:00.00
+YAHMAIL151-AXP.TXT;2
+                           6  25-JAN-2002 01:24:23.31
+YAHMAIL151-AXP.ZIP;1
+                         553  24-JAN-2002 01:24:17.97
+YAHMAIL151-VAX.TXT;2
+                           6  25-JAN-2002 01:24:25.97
+YAHMAIL151-VAX.ZIP;1
+                         255  24-JAN-2002 01:24:30.24
+YAHMAIL151.TXT;2          12  25-JAN-2002 01:24:28.93
+YAHMAIL151.ZIP;1         678  24-JAN-2002 01:24:39.75
+YAHMAIL153-AXP.TXT;1
+                           6  10-MAR-2002 01:23:25.74
+YAHMAIL153-AXP.ZIP;1
+                         573  10-MAR-2002 01:23:28.16
+YAHMAIL153-VAX.TXT;1
+                           6  10-MAR-2002 01:23:38.03
+YAHMAIL153-VAX.ZIP;1
+                         258  10-MAR-2002 01:23:40.18
+YAHMAIL153.TXT;1          12  10-MAR-2002 01:23:47.06
+YAHMAIL153.ZIP;1         684  10-MAR-2002 01:23:49.13
+YAHMAIL160-AXP.TXT;1
+                           7  15-APR-2002 21:08:12.55
+YAHMAIL160-AXP.ZIP;1
+                         601  15-APR-2002 21:08:15.02
+YAHMAIL160-VAX.TXT;1
+                           6  15-APR-2002 21:08:26.12
+YAHMAIL160-VAX.ZIP;1
+                         274  15-APR-2002 21:08:28.43
+YAHMAIL160.TXT;3          13  17-APR-2002 01:23:21.94
+YAHMAIL160.ZIP;5         747  25-MAY-2002 01:23:18.95
+YAHMAIL163-AXP.TXT;2
+                           7  27-JUN-2002 01:23:25.41
+YAHMAIL163-AXP.ZIP;2
+                         611  27-JUN-2002 01:23:27.43
+YAHMAIL163-VAX.TXT;2
+                           6  27-JUN-2002 01:23:36.56
+YAHMAIL163-VAX.ZIP;2
+                         279  27-JUN-2002 01:23:38.58
+YAHMAIL163.TXT;2          14  27-JUN-2002 01:23:48.40
+YAHMAIL163.ZIP;2         748  27-JUN-2002 01:23:50.43
+YAHMAIL164-AXP.TXT;1
+                           7  19-DEC-2002 23:06:14.68
+YAHMAIL164-AXP.ZIP;1
+                         613  19-DEC-2002 23:06:16.65
+YAHMAIL164-VAX.TXT;1
+                           6  19-DEC-2002 23:06:28.53
+YAHMAIL164-VAX.ZIP;1
+                         281  19-DEC-2002 23:06:30.67
+YAHMAIL164.TXT;1          14  19-DEC-2002 23:06:37.65
+YAHMAIL164.ZIP;1         761  19-DEC-2002 23:06:39.96
+YAHMAIL170-AXP.TXT;2
+                           7   7-MAR-2003 01:23:27.69
+YAHMAIL170-AXP.ZIP;2
+                         627   7-MAR-2003 01:23:29.90
+YAHMAIL170-VAX.TXT;2
+                           7   7-MAR-2003 01:23:39.83
+YAHMAIL170-VAX.ZIP;2
+                         287   7-MAR-2003 01:23:41.91
+YAHMAIL170.TXT;2          13   7-MAR-2003 01:23:54.92
+YAHMAIL170.ZIP;2         768   7-MAR-2003 01:23:57.08
+YAHMAIL171-AXP.TXT;2
+                           7   2-APR-2003 01:23:23.39
+YAHMAIL171-AXP.ZIP;2
+                         658   2-APR-2003 01:23:25.69
+YAHMAIL171-VAX.TXT;2
+                           7   2-APR-2003 01:23:36.32
+YAHMAIL171-VAX.ZIP;2
+                         316   2-APR-2003 01:23:41.85
+YAHMAIL171.TXT;2          14   2-APR-2003 01:24:15.88
+YAHMAIL171.ZIP;2         795   2-APR-2003 01:24:18.66
+YAHMAIL180-AXP.TXT;2
+                           7   4-MAR-2004 01:23:25.24
+YAHMAIL180-AXP.ZIP;2
+                         833   4-MAR-2004 01:23:27.29
+YAHMAIL180-VAX.TXT;2
+                           7   4-MAR-2004 01:23:38.04
+YAHMAIL180-VAX.ZIP;2
+                         382   4-MAR-2004 01:23:40.04
+YAHMAIL180.TXT;2          13   4-MAR-2004 01:23:47.50
+YAHMAIL180.ZIP;2         960   4-MAR-2004 01:23:49.48
+YAHMAIL_STARTUP.COM;1
+                           8   3-FEB-2003 01:23:29.42
+YAHMAIL_STARTUP_81.TXT;3
+                           2  21-DEC-2002 01:23:22.35
+YAHMAIL_STARTUP_81.ZIP;3
+                           5  21-DEC-2002 01:23:23.82
+
+Total of 326 files, 372671 blocks.
+
+Grand total of 87 directories, 2593 files, 2220036 blocks.
+#Received:   220 delta.process.com (192.42.95.126) FTP-OpenVMS FTPD V5.6-2 (c) 2002 Process Software<EOL>
+#Sent:       USER anonymous<EOL>
+#Received:   331 Send ident as password.<EOL>
+#Sent:       PASS oma00215@Mail.wvnet.edu<EOL>
+#Received:   230-Thanks for stopping by.<EOL>
+#Received:   230-<EOL>230-Note: If you're looking for MultiNet related files, please try<EOL>230-ftp.multinet.process.com.<EOL>230-<EOL>230-Here's a roadmap for what's available:<EOL>230-<EOL>230-Subdirectory    Contents<EOL>230-------------    --------<EOL>230-DECUS           The session notes for talks given by Process<EOL>230-                  Software Corporation personnel at recent<EOL>230-                  DECUS National Events.<EOL>230-SUPPORT         Update kits for TCPware for OpenVMS - check<EOL>230-                  out the 00SUMMARY.TXT file in this subdirectory<EOL>230-                  for more details.<EOL>230-TCPWARE         Contains various TCPware related subdirectories.<EOL>230-<EOL>230-VMS-FREEWARE    Hunter Goatley's VMS Freeware archive, plus mirrors<EOL>230-                  of the WASD web server and other freeware packages<EOL>230-<EOL>230-Other files and directories exist.<EOL>230-<EOL>230 User logged in, proceed.<EOL>
+#Sent:       TYPE I<EOL>
+#Received:   200 TYPE command okay.<EOL>
+#Sent:       SYST<EOL>
+#Received:   215 VMS TCPware V5.6-2<EOL>
+#Sent:       PORT 129,71,136,103,15,243<EOL>
+#Received:   200 PORT command okay.<EOL>
+#Sent:       LIST [...]<EOL>
+#Received:   150 Opening data connection for directory [...].<EOL>
+#Received:   226 Closing data connection.<EOL>

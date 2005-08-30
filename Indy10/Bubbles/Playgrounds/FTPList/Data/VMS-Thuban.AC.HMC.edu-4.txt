@@ -1,0 +1,14 @@
+
+LOCAL:[ANONYMOUS.RADIUS]
+
+AAAREADME.LIS;1             6  16-JUN-1998 11:13 [ANONYMOUS] (RW,RWED,,RE)
+DICTIONARY.DAT;1            7  10-APR-1995 07:44 [ANONYMOUS] (RW,RWED,,RE)
+RADIUS-VMS-2000.ZIP;1
+                          307  25-JUL-2000 14:52 [ANONYMOUS] (RW,RWED,,)
+RADIUS-VMS.ZIP;2          384  27-AUG-1996 10:05 [ANONYMOUS] (RW,RWED,,RE)
+
+
+Total of 704 blocks in 4 files.
+#220 Thuban.AC.HMC.Edu MultiNet FTP Server Process V4.3(16) at Sun 12-Jan-2003 7:59PM-PST
+#ftp> cd radius
+#250 Connected to LOCAL:[ANONYMOUS.RADIUS].

@@ -1,0 +1,13 @@
+
+USR:[ANONYMOUS.INFO-DEC-MICRO.TEXT]
+
+CB081589.ZIP;1             10  10-SEP-1989 15:58
+DECBBS.LST;1               13  17-MAY-1989 01:15
+HDALERT.TXT;1              15  11-DEC-1988 23:26
+OB-MAC.TXT;1                9  11-DEC-1988 23:22
+Total of 47 blocks in 4 files.
+#obtained from:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=50&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=1991Oct31.021136.26792%40usceast.cs.scarolina.edu&rnum=51
+#
+#220 DRYCAS.CLUB.CC.CMU.EDU MultiNet FTP Server Process 3.0(12) at 
+#Tue 29-Oct-91 8:44PM-EST
+#Connected to DRYCAS.CLUB.CC.CMU.EDU. 

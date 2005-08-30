@@ -1,0 +1,14 @@
+VSE.RECORDER.FILE                97/11/24  12:00         1024 S
+VSE.HARDCOPY.FILE                97/11/24  12:00         1024 S
+VSE.POWER.DATA.FILE              98/02/19  12:00         1024 D
+VSE.POWER.ACCOUNT.FILE           99/01/18  12:00         1024 D
+VSESP.JOB.MANAGER.FILE           98/02/19  12:00         1024 S
+Z9999994.VSAMDSPC.TAF9D957.TC570788 97/11/24 12:00       1024 V
+VSE.DUMP.LIBRARY                 97/11/24  12:00         1024 S
+ICCF.LIBRARY                     97/11/24  12:00         1024 D
+INFO.ANALYSIS.DUMP.MGNT.FILE     98/11/16  12:00         1024 S
+INFO.ANALYSIS.EXT.RTNS.FILE      97/11/24  12:00         1024 S
+WORK.HIST.FILE                   98/02/19  12:00         1024 S
+SYS.NEW.RES                      98/02/19  12:00         1024 S
+#From: TCP/IP for VSE User's Guide Version 1 Release 4.0A
+#URL:  http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf

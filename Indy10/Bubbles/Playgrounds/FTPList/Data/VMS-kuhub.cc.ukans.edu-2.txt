@@ -1,0 +1,15 @@
+
+DUA8:[ANON_FTP.ANU_V60-3]
+
+LZDCMP.EXE;1               60  18-OCT-1990 14:32 [SYS,SYSTEM] (RE,RE,RE,RE)
+NEWS_V60-3_DIST.BCK_Z;1
+                         2460  15-MAR-1991 09:41 [SYS,SYSTEM] (RE,RE,RE,RE)
+NEWS_V60-3_DOC.BCK_Z;1
+                         2752  15-MAR-1991 09:41 [SYS,SYSTEM] (RE,RE,RE,RE)
+NEWS_V60-3_PATCH.DIFF;1
+                           40  10-APR-1992 13:36 [SYS,SYSTEM] (RE,RE,RE,RE)
+NEWS_V60-3_SRC.BCK_Z;1
+                         1631  15-MAR-1991 09:41 [SYS,SYSTEM] (RE,RE,RE,RE)
+
+
+Total of 6943 blocks in 5 files.

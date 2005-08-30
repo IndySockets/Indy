@@ -1,0 +1,9 @@
+DFHFCTC2.PHASE  2088       3  99/02/23  15:16   99/02/23   15:36  S
+DFHRDTSP.PHASE   396       1  98/01/24  12:04                     S
+DFHTCTSP.PHASE   5544      6  98/01/24  11:35   98/01/24   12:04  S
+DTRTERM1.PHASE  140        1  98/01/24  12:04                     S
+DTRIIST.PROC    80         1  98/04/16  17:20   98/04/16   17:51  F
+DTRINNW.PROC    80         1  98/04/16  17:18   98/04/16   18:32  F
+DLM1.PROFDIT1  160         1  98/11/05  16:19                     F
+#From: TCP/IP for VSE User's Guide Version 1 Release 4.0A
+#URL:  http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf

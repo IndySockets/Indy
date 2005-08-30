@@ -1,0 +1,6 @@
+DUA0:[ROHDATEN]1MEBRHT.RAW;1                 17/18         1-FEB-1994 15:14
+DUA0:[ROHDATEN]1MECLH1.RAW;1                 17/18         1-FEB-1994 15:14
+DUA0:[ROHDATEN]ZSSN.RAW;1                    17/18         2-NOV-1993 16:11
+##http://www.networkcomputing.com/unixworld/grabbag/08.lst.html#L2A
+#Sample session:
+#VMS with DIR *.RAW

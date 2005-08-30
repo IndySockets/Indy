@@ -1,0 +1,7 @@
+
+Directory A400$DKA300:[ANONYMOUS.PUB.MICHAEL]
+
+vms_dir_2.DIR;1  1 19-NOV-2001 [root,root] (RWE,RWE,RE,RE)
+
+#Synthasized from an item in FilleZilla source-code comment.  There's no time
+#in this listing.

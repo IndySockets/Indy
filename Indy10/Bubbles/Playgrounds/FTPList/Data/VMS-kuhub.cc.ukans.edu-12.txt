@@ -1,0 +1,8 @@
+
+DUA8:[ANON_FTP.PATCH]
+
+LZDCMP.EXE;1               60  18-OCT-1990 14:32 [SYS,SYSTEM] (RE,RE,RE,RE)
+PATCH.BCK_Z;1             285  11-DEC-1990 14:59 [SYS,SYSTEM] (RE,RE,RE,RE)
+
+
+Total of 345 blocks in 2 files.

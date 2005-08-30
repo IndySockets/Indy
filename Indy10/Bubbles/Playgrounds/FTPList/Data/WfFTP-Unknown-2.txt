@@ -1,0 +1,22 @@
+
+ Volume - drive 2:
+ Directory of 2:
+
+File Name             Size    Date     Day      Time
+------------------------------------------------------
+config.isp           45016  08/22/97  Fri.    17:05:51
+startup.cfg           7472  08/24/97  Sun.    23:31:31
+asnboot.exe         237212  08/24/97  Sun.    23:31:41
+asndiag.exe         259268  08/24/97  Sun.    23:32:28
+debug.al             12372  08/24/97  Sun.    23:33:17
+ti_asn.cfg             504  08/24/97  Sun.    23:33:31
+install.bat         189114  08/24/97  Sun.    23:33:41
+config               50140  04/20/98  Mon.    22:08:01
+
+ 4194304 bytes - Total size
+ 3375190 bytes - Available free space
+ 3239088 bytes - Contiguous free space
+
+
+#Obtained from:
+#From: http://www.insecure.org/sploits/bay-networks.baynets.html

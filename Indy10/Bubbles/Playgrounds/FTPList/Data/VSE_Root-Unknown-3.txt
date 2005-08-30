@@ -1,0 +1,6 @@
+HP2IBM    <VSAM Catalog>
+IBM2HP    <VSAM Catalog>
+INTAP01   Entry Seq VSAM
+INTAR02   Entry Seq VSAM
+POWER     <Power Queues>
+#http://groups.google.com/groups?q=VSE+FTP+DIR&hl=en&lr=lang_en&ie=UTF-8&oe=utf-8&selm=0033E396.CE21233%40ccmail.eu.sony.co.jp&rnum=10
