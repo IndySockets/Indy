@@ -1,0 +1,16 @@
+total 5239
+-rw-r--r--   1 60       26          3701 Apr 17  1997 Act1.sps
+-rw-r--r--   1 60       26          3333 Apr 17  1997 Act_code.sps
+-rw-r--r--   1 60       26         22821 Apr 17  1997 Actcod81.sps
+-rw-r--r--   1 60       26          6103 Apr 17  1997 Actcode.sps
+-rw-r--r--   1 60       26          4194 Apr 17  1997 Actp.sps
+-rw-r--r--   1 60       26         13698 Apr 17  1997 Auactp72.sps
+-rw-r--r--   1 60       26          6465 Apr 17  1997 Fincodes.sps
+-rw-r--r--   1 60       26        119444 Apr 15  1997 MOT.exe
+-rw-r--r--   1 60       26        499359 Oct  2  1996 iariw3b.exe
+-rw-r--r--   1 60       26        361917 Oct  2  1996 iariword.exe
+-rw-r--r--   1 60       26        618745 Oct  2  1996 iariwp52.exe
+-rw-r--r--   1 0        26        153088 Jan  6  2000 timeseq.exe
+-rw-r--r--   1 60       26       1594710 Apr 21  1997 win9552.exe
+-rw-r--r--   1 60       26       1873198 Apr 21  1997 ziptools.exe
+#thunder.stmarys.ca FTP server (Compaq Tru64 UNIX Version 5.60) ready.

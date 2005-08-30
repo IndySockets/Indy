@@ -1,0 +1,11 @@
+total 98
+drwx------+   7 Administ mkpasswd    86016 Feb  9 18:04 bin
+-rwxrwxrwx    1 Administ mkpasswd       57 Feb  9 14:15 cygwin.bat
+-rwxrwxrwx    1 Administ mkpasswd      766 Feb  9 17:57 cygwin.ico
+drwxrwxrwx+  14 Administ mkpasswd     8192 Feb  9 17:56 lib
+drwxrwxrwx+   2 Administ mkpasswd        0 Feb  9 14:13 sbin
+drwxrwxrwx+   4 Administ mkpasswd        0 Feb  9 18:01 tmp
+drwxrwxrwx+  19 Administ mkpasswd     4096 Feb  9 17:57 usr
+#Note:  obtained from Windows 2000 running CygWin
+#This is not from a FTP server but is from the ls -l command.
+#Most servers emulate this form.

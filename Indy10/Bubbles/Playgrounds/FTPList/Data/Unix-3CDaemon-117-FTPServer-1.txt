@@ -1,0 +1,7 @@
+D--------- 1 owner group         0 Dec 24 03:33 .
+D--------- 1 owner group         0 Dec 24 03:33 ..
+D--------- 1 owner group         0 Oct 23 11:35 Adobe
+D--------- 1 owner group         0 Oct 23 18:43 install
+---------- 1 owner group     32768 Oct 23 18:48 ~DF2273.tmp
+#3Com FTP Server Version 1.1
+#available at http://support.3com.com/software/utilities_for_windows_32_bit.htm

@@ -1,0 +1,3051 @@
+drwxr-xr-x   2 ftpuser  ftpusers       512 Nov 23  1998 lost+found
+drwxr-xr-x  20 ftpuser  ftpusers       512 Jul 23  2002 pub
+
+./lost+found:
+
+./pub:
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jul 23  2001 about
+drwxr-xr-x   4 ftpuser  ftpusers       512 Aug 24  2000 appcenter
+drwxr-xr-x   5 ftpuser  ftpusers       512 Aug 24  2000 appserver
+drwxrw-r-x   5 ftpuser  ftpusers       512 Jul  2  2001 bcppbuilder
+drwxr-xr-x   4 ftpuser  ftpusers       512 Mar 10  1998 bde
+drwxr-xr-x   3 ftpuser  ftpusers       512 Jun 27  2000 borcon_videos
+drwxr-xr-x   6 ftpuser  ftpusers       512 Mar 25  1998 borlandcpp
+drwxr-xr-x   5 ftpuser  ftpusers       512 Sep 16 16:29 delphi
+drwxr-xr-x   4 ftpuser  ftpusers       512 May 14  2001 entera
+drwxr-xr-x   4 ftpuser  ftpusers       512 Mar 12  2001 interbase
+drwxr-xr-x  13 ftpuser  ftpusers       512 Dec 18 15:31 jbuilder
+drwxr-xr-x   5 ftpuser  ftpusers       512 May 31  2001 jdatastore
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jul  2  2001 kylix
+drwxr-xr-x   3 ftpuser  ftpusers       512 Jul  9  2002 optimizeit
+drwxr-xr-x   3 ftpuser  ftpusers       512 Mar 21  1998 otherprod
+drwxr-xr-x   3 ftpuser  ftpusers       512 Mar 10  1998 pascal
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct 30  1998 vbssl
+drwxr-xr-x   5 ftpuser  ftpusers       512 Aug 24  2000 visibroker
+
+./pub/about:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Jul 23  2001 bear_stearns
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 press
+
+./pub/about/bear_stearns:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul 23  2001 audio
+
+./pub/about/bear_stearns/audio:
+-rw-r--r--   1 ftpuser  ftpusers        32 Jul 23  2001 company85.ram
+-rw-r--r--   1 ftpuser  ftpusers   5318863 Jul 23  2001 company85.rm
+
+./pub/about/press:
+-rwxr-xr-x   1 ftpuser  ftpusers     17344 Mar 23  1998 10-q.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     30390 Mar 23  1998 10-q2n~1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32895 Mar 23  1998 14a.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     62811 Mar 23  1998 annual.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       469 Mar 24  1998 index.txt
+
+./pub/appcenter:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Nov 18  1998 devsupport
+-rwxr-xr-x   1 ftpuser  ftpusers       311 Dec  4  1998 postdir.logfile
+drwxr-xr-x   4 ftpuser  ftpusers       512 Sep  7  1999 techpubs
+
+./pub/appcenter/devsupport:
+
+./pub/appcenter/techpubs:
+-rwxr-xr-x   1 ftpuser  ftpusers       158 Sep  7  1999 WS_FTP.LOG
+drwxr-xr-x   4 ftpuser  ftpusers       512 Sep  7  1999 appcenter10
+drwxr-xr-x   6 ftpuser  ftpusers       512 Sep  7  1999 appcenter15
+
+./pub/appcenter/techpubs/appcenter10:
+-rwxr-xr-x   1 ftpuser  ftpusers   2631680 Sep  7  1999 acgetstart_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers   4579995 Sep  7  1999 acusersguide_1.0.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 getstart
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/appcenter/techpubs/appcenter10/getstart:
+-rwxr-xr-x   1 ftpuser  ftpusers   2631680 Sep  7  1999 acgetstart_1.0.pdf
+
+./pub/appcenter/techpubs/appcenter10/usersguide:
+-rwxr-xr-x   1 ftpuser  ftpusers   4579995 Sep  7  1999 acusersguide_1.0.pdf
+
+./pub/appcenter/techpubs/appcenter15:
+-rwxr-xr-x   1 ftpuser  ftpusers    962285 Sep  7  1999 2appcenter.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers     39161 Sep  7  1999 2readrtip.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    963404 Sep  7  1999 acstandalone.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 config
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 entera
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 getstart
+-rwxr-xr-x   1 ftpuser  ftpusers       347 Sep  7  1999 postdir.logfile
+-rwxr-xr-x   1 ftpuser  ftpusers     36106 Sep  7  1999 readrtip.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+-rw-r--r--   1 ftpuser  ftpusers       722 Oct 27  1998 ws_ftp.log
+
+./pub/appcenter/techpubs/appcenter15/config:
+-rwxr-xr-x   1 ftpuser  ftpusers       205 Sep  7  1999 WS_FTP.LOG
+-rwxr-xr-x   1 ftpuser  ftpusers   2800164 Sep  7  1999 acconfig_1.5.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    681732 Sep  7  1999 acconfig_1.5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       385 Sep  7  1999 postfileftp.logfile
+
+./pub/appcenter/techpubs/appcenter15/entera:
+-rwxr-xr-x   1 ftpuser  ftpusers    841626 Sep  7  1999 acentera_1.5.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    393441 Sep  7  1999 acentera_1.5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       385 Sep  7  1999 postfileftp.logfile
+
+./pub/appcenter/techpubs/appcenter15/getstart:
+-rwxr-xr-x   1 ftpuser  ftpusers   3237085 Sep  7  1999 acgetstart_1.5.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    521996 Sep  7  1999 acgetstart_1.5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       393 Sep  7  1999 postfileftp.logfile
+
+./pub/appcenter/techpubs/appcenter15/usersguide:
+-rwxr-xr-x   1 ftpuser  ftpusers   3448455 Oct 27  1998 acusersgguide_1.5.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers   7366558 Sep  7  1999 acusersguide_1.5.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers   1670404 Sep  7  1999 acusersguide_1.5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       401 Sep  7  1999 postfileftp.logfile
+
+./pub/appserver:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec  4  1998 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec  4  1998 papers
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 techpubs
+
+./pub/appserver/devsupport:
+
+./pub/appserver/papers:
+
+./pub/appserver/techpubs:
+drwxr-xr-x   7 ftpuser  ftpusers       512 Sep  7  1999 appserver10
+-rwxr-xr-x   1 ftpuser  ftpusers       335 Sep  7  1999 postdir.logfile
+
+./pub/appserver/techpubs/appserver10:
+-rwxr-xr-x   1 ftpuser  ftpusers    884314 Sep  7  1999 2appserver.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers     40288 Sep  7  1999 2readrtip.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 console
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  4  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 roadmap
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec  2  1998 sampleapp
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/appserver/techpubs/appserver10/console:
+-rwxr-xr-x   1 ftpuser  ftpusers    881304 Sep  7  1999 3console.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers   6731687 Sep  7  1999 asconsole_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    861921 Sep  7  1999 asconsole_1.0.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       389 Sep  7  1999 postfileftp.logfile
+
+./pub/appserver/techpubs/appserver10/install:
+-rwxr-xr-x   1 ftpuser  ftpusers   3870542 Oct  4  1999 asinstall_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    748314 Sep  7  1999 asinstall_1.0.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       389 Sep  7  1999 postfileftp.logfile
+
+./pub/appserver/techpubs/appserver10/roadmap:
+-rwxr-xr-x   1 ftpuser  ftpusers    983242 Sep  7  1999 asroadmap_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    357589 Sep  7  1999 asroadmap_1.0.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       389 Sep  7  1999 postfileftp.logfile
+
+./pub/appserver/techpubs/appserver10/sampleapp:
+
+./pub/appserver/techpubs/appserver10/usersguide:
+-rwxr-xr-x   1 ftpuser  ftpusers   2164326 Sep  7  1999 asusersguide_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers    625055 Sep  7  1999 asusersguide_1.0.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       401 Sep  7  1999 postfileftp.logfile
+
+./pub/bcppbuilder:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul  2  2001 cb5trial
+drwxr-xr-x   5 ftpuser  ftpusers       512 Mar 11  1998 devsupport
+drwxrwxr-x   6 ftpuser  ftpusers      1536 Mar 21  2000 techpubs
+
+./pub/bcppbuilder/cb5trial:
+-rwxr-xr-x   1 ftpuser  ftpusers 144207335 Jul  2  2001 CBuilder5Trial.exe
+
+./pub/bcppbuilder/devsupport:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 11  1998 archive
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 11  1998 general
+drwxr-xr-x   6 ftpuser  ftpusers       512 Nov  8 15:11 patches
+
+./pub/bcppbuilder/devsupport/archive:
+
+./pub/bcppbuilder/devsupport/general:
+
+./pub/bcppbuilder/devsupport/patches:
+-rwxr-xr-x   1 ftpuser  ftpusers    242312 Sep 15  1999 TLIBIMP.ZIP
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct 23  1998 bcpp3
+drwxr-xr-x   5 ftpuser  ftpusers       512 Aug 18  1999 bcpp4
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 16  2001 bcpp5
+drwxrwxr-x   2 ftpuser  ftpusers       512 Nov  8 15:14 bcpp6
+-rwxr-xr-x   1 ftpuser  ftpusers       285 Mar 31  1998 index.txt
+
+./pub/bcppbuilder/devsupport/patches/bcpp3:
+-rwxr-xr-x   1 ftpuser  ftpusers    705193 Oct 23  1998 BCB3P1CS.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    680631 Oct 23  1998 BCB3P1PR.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    680822 Oct 23  1998 BCB3P1ST.EXE
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 23  1998 deutsch
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 23  1998 english
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 23  1998 francais
+-rwxr-xr-x   1 ftpuser  ftpusers       362 Oct 23  1998 postdir.logfile
+-rwxr-xr-x   1 ftpuser  ftpusers     17163 Oct 23  1998 readmeCS.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13425 Oct 23  1998 readmePR.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13522 Oct 23  1998 readmeST.txt
+
+./pub/bcppbuilder/devsupport/patches/bcpp3/deutsch:
+-rwxr-xr-x   1 ftpuser  ftpusers    386215 Oct 23  1998 BCB3P1CS.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    361653 Oct 23  1998 BCB3P1PR.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    521716 Oct 23  1998 BCB3P1ST.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers     18292 Oct 23  1998 READMECS.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     14344 Oct 23  1998 READMEPR.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     14442 Oct 23  1998 READMEST.TXT
+
+./pub/bcppbuilder/devsupport/patches/bcpp3/english:
+-rwxr-xr-x   1 ftpuser  ftpusers    705193 Oct 23  1998 BCB3P1CS.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    680631 Oct 23  1998 BCB3P1PR.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    680822 Oct 23  1998 BCB3P1ST.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers     17742 Oct 23  1998 READMECS.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     17742 Oct 23  1998 READMECS.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13835 Oct 23  1998 READMEPR.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     13835 Oct 23  1998 READMEPR.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13940 Oct 23  1998 READMEST.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     13940 Oct 23  1998 READMEST.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     17742 Oct 23  1998 readmeCS.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13835 Oct 23  1998 readmePR.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     13940 Oct 23  1998 readmeST.txt
+
+./pub/bcppbuilder/devsupport/patches/bcpp3/francais:
+-rwxr-xr-x   1 ftpuser  ftpusers    386516 Oct 23  1998 BCB3P1CS.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    361954 Oct 23  1998 BCB3P1PR.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers    520886 Oct 23  1998 BCB3P1ST.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers     18540 Oct 23  1998 READMECS.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     14514 Oct 23  1998 READMEPR.TXT
+-rwxr-xr-x   1 ftpuser  ftpusers     14616 Oct 23  1998 READMEST.TXT
+
+./pub/bcppbuilder/devsupport/patches/bcpp4:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 18  1999 deutsch
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 18  1999 english
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 18  1999 francais
+
+./pub/bcppbuilder/devsupport/patches/bcpp4/deutsch:
+-rw-r--r--   1 ftpuser  ftpusers  13329616 Aug 18  1999 BCB4EUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  13456967 Aug 18  1999 BCB4PUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  13021096 Aug 18  1999 BCB4SUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers      6074 Aug 18  1999 UPD1RDME.TXT
+-rw-r--r--   1 ftpuser  ftpusers     94832 Aug 18  1999 fixes.html
+
+./pub/bcppbuilder/devsupport/patches/bcpp4/english:
+-rw-r--r--   1 ftpuser  ftpusers  13109508 Aug 18  1999 BCB4EUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  13234107 Aug 18  1999 BCB4PUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  12800138 Aug 18  1999 BCB4SUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers      5766 Aug 18  1999 UPD1RDME.TXT
+-rw-r--r--   1 ftpuser  ftpusers     90408 Aug 18  1999 fixes.html
+
+./pub/bcppbuilder/devsupport/patches/bcpp4/francais:
+-rw-r--r--   1 ftpuser  ftpusers  13355650 Aug 18  1999 BCB4EUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  13482620 Aug 18  1999 BCB4PUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers  13046478 Aug 18  1999 BCB4SUP1.EXE
+-rw-r--r--   1 ftpuser  ftpusers      6384 Aug 18  1999 UPD1RDME.TXT
+-rw-r--r--   1 ftpuser  ftpusers     90408 Aug 18  1999 fixes.html
+
+./pub/bcppbuilder/devsupport/patches/bcpp5:
+-rw-r--r--   1 ftpuser  ftpusers   9175003 Jan 16  2001 BCB5ADOUpgrade1.exe
+-rw-r--r--   1 ftpuser  ftpusers  12257814 Aug 23  2000 BCB5EntUpdate1.exe
+-rw-r--r--   1 ftpuser  ftpusers  12257651 Aug 23  2000 BCB5ProUpdate1.exe
+-rw-r--r--   1 ftpuser  ftpusers  12170462 Aug 23  2000 BCB5StdUpdate1.exe
+
+./pub/bcppbuilder/devsupport/patches/bcpp6:
+-rwxr-xr-x   1 ftpuser  ftpusers  22642989 Nov  8 15:14 BCB6_ENT_Upd_3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  22642937 Nov  8 15:14 BCB6_PRO_Upd_3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  22298478 Nov  8 15:15 BCB6_STD_Upd_3.exe
+
+./pub/bcppbuilder/techpubs:
+-rw-r--r--   1 ftpuser  ftpusers    903767 Feb 25  2000 b5bde.zip
+-rw-r--r--   1 ftpuser  ftpusers     25308 Feb 25  2000 b5cg.zip
+-rw-r--r--   1 ftpuser  ftpusers    193439 Feb 25  2000 b5com.zip
+-rw-r--r--   1 ftpuser  ftpusers         0 Feb 25  2000 b5com_e.zip
+-rw-r--r--   1 ftpuser  ftpusers      8086 Feb 25  2000 b5com_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    181754 Feb 25  2000 b5cw.zip
+-rw-r--r--   1 ftpuser  ftpusers    117103 Feb 25  2000 b5dap_e.zip
+-rw-r--r--   1 ftpuser  ftpusers     88330 Feb 25  2000 b5dap_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     30312 Feb 25  2000 b5dap_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    659606 Feb 25  2000 b5dbd_e.zip
+-rw-r--r--   1 ftpuser  ftpusers    437334 Feb 25  2000 b5dbd_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     16523 Feb 25  2000 b5dbd_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     71236 Feb 25  2000 b5dbx.zip
+-rw-r--r--   1 ftpuser  ftpusers    753074 Feb 25  2000 b5dd.zip
+-rw-r--r--   1 ftpuser  ftpusers  12470030 Feb 25  2000 b5ent.zip
+-rw-r--r--   1 ftpuser  ftpusers    389962 Feb 25  2000 b5errs.zip
+-rw-r--r--   1 ftpuser  ftpusers     15293 Feb 25  2000 b5ibc.zip
+-rw-r--r--   1 ftpuser  ftpusers    345440 Feb 25  2000 b5ibx.zip
+-rw-r--r--   1 ftpuser  ftpusers    987145 Feb 25  2000 b5ide.zip
+-rw-r--r--   1 ftpuser  ftpusers         0 Feb 25  2000 b5ide_e.zip
+-rw-r--r--   1 ftpuser  ftpusers    953683 Feb 25  2000 b5ide_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     45177 Feb 25  2000 b5img.zip
+-rw-r--r--   1 ftpuser  ftpusers     20683 Feb 25  2000 b5ite.zip
+-rw-r--r--   1 ftpuser  ftpusers    356914 Feb 25  2000 b5lang.zip
+-rw-r--r--   1 ftpuser  ftpusers  17501408 Feb 25  2000 b5ms.zip
+-rw-r--r--   1 ftpuser  ftpusers     87720 Feb 25  2000 b5new.zip
+-rw-r--r--   1 ftpuser  ftpusers    367298 Feb 25  2000 b5nm.zip
+-rw-r--r--   1 ftpuser  ftpusers   2203357 Feb 25  2000 b5ocx.zip
+-rw-r--r--   1 ftpuser  ftpusers      6896 Feb 25  2000 b5oh.zip
+-rw-r--r--   1 ftpuser  ftpusers    306830 Feb 25  2000 b5oplr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3840 Feb 25  2000 b5pce.zip
+-rw-r--r--   1 ftpuser  ftpusers  11311012 Feb 25  2000 b5pro.zip
+-rw-r--r--   1 ftpuser  ftpusers    409920 Feb 25  2000 b5prog.zip
+-rw-r--r--   1 ftpuser  ftpusers    230224 Feb 25  2000 b5qr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3065 Feb 25  2000 b5rdw.zip
+-rw-r--r--   1 ftpuser  ftpusers    613172 Feb 25  2000 b5rtl.zip
+-rw-r--r--   1 ftpuser  ftpusers    908398 Feb 25  2000 b5scl.zip
+-rw-r--r--   1 ftpuser  ftpusers     21308 Feb 25  2000 b5sqb.zip
+-rw-r--r--   1 ftpuser  ftpusers      3052 Feb 25  2000 b5sqm.zip
+-rw-r--r--   1 ftpuser  ftpusers   7372967 Feb 25  2000 b5std.zip
+-rw-r--r--   1 ftpuser  ftpusers    176611 Feb 25  2000 b5tasm.zip
+-rw-r--r--   1 ftpuser  ftpusers    673932 Feb 25  2000 b5tc.zip
+-rw-r--r--   1 ftpuser  ftpusers    101751 Feb 25  2000 b5tool.zip
+-rw-r--r--   1 ftpuser  ftpusers     77917 Feb 25  2000 b5ts.zip
+-rw-r--r--   1 ftpuser  ftpusers   5112774 Feb 25  2000 b5vcl_e.zip
+-rw-r--r--   1 ftpuser  ftpusers   4246735 Feb 25  2000 b5vcl_p.zip
+-rw-r--r--   1 ftpuser  ftpusers   2954896 Feb 25  2000 b5vcl_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     29683 Feb 25  2000 b5ws.zip
+-rw-r--r--   1 ftpuser  ftpusers     10815 Mar 13  2000 b5x1.zip
+-rw-r--r--   1 ftpuser  ftpusers      8199 Feb 25  2000 b5xtra.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 21  2000 bcb1
+drwxr-xr-x   2 ftpuser  ftpusers       512 May  2  2000 bcb3
+drwxr-xr-x   2 ftpuser  ftpusers       512 May  2  2000 bcb4
+drwxr-xr-x   2 ftpuser  ftpusers      1536 Jun 15  2000 bcb5
+-rwxr-xr-x   1 ftpuser  ftpusers   3880912 Feb 25  2000 bcbhde02.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   3825264 Feb 25  2000 bcbhfr02.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   5661937 Feb 25  2000 bcbhlp01.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   3716098 Feb 25  2000 bcbhlp02.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    240216 Feb 25  2000 bcbprn01.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers     87905 Feb 25  2000 bcbprn01.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    117157 Feb 25  2000 dap4ent.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     43493 Feb 25  2000 dap4pro.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     22797 Feb 25  2000 dap4std.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    578479 Feb 25  2000 dbd4ent.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    441287 Feb 25  2000 dbd4pro.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     73397 Feb 25  2000 dbd4std.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       728 Feb 25  2000 index.txt
+-rw-r--r--   1 ftpuser  ftpusers     53307 Feb 25  2000 new4bcb.zip
+-rw-r--r--   1 ftpuser  ftpusers       340 Feb 25  2000 postfileftp.logfile
+
+./pub/bcppbuilder/techpubs/bcb1:
+
+./pub/bcppbuilder/techpubs/bcb3:
+-rw-r--r--   1 ftpuser  ftpusers   3880912 May  2  2000 bcbhde02.zip
+-rw-r--r--   1 ftpuser  ftpusers   3825264 May  2  2000 bcbhfr02.zip
+-rw-r--r--   1 ftpuser  ftpusers   5742517 May  2  2000 bcbhlp01.zip
+-rw-r--r--   1 ftpuser  ftpusers   3740250 May  2  2000 bcbhlp02.zip
+-rw-r--r--   1 ftpuser  ftpusers    240216 May  2  2000 bcbprn01.pdf
+-rw-r--r--   1 ftpuser  ftpusers     92956 May  2  2000 bcbprn01.zip
+
+./pub/bcppbuilder/techpubs/bcb4:
+-rw-r--r--   1 ftpuser  ftpusers    748381 May  2  2000 b4ent.zip
+-rw-r--r--   1 ftpuser  ftpusers    484728 May  2  2000 b4pro.zip
+-rw-r--r--   1 ftpuser  ftpusers     95527 May  2  2000 b4std.zip
+-rw-r--r--   1 ftpuser  ftpusers    117157 May  2  2000 dap4ent.zip
+-rw-r--r--   1 ftpuser  ftpusers     43493 May  2  2000 dap4pro.zip
+-rw-r--r--   1 ftpuser  ftpusers     22797 May  2  2000 dap4std.zip
+-rw-r--r--   1 ftpuser  ftpusers    578479 May  2  2000 dbd4ent.zip
+-rw-r--r--   1 ftpuser  ftpusers    441287 May  2  2000 dbd4pro.zip
+-rw-r--r--   1 ftpuser  ftpusers     73397 May  2  2000 dbd4std.zip
+-rw-r--r--   1 ftpuser  ftpusers     53307 May  2  2000 new4bcb.zip
+
+./pub/bcppbuilder/techpubs/bcb5:
+-rw-r--r--   1 ftpuser  ftpusers   5070823 Jun 15  2000 b5ado.zip
+-rw-r--r--   1 ftpuser  ftpusers    909443 Jun 15  2000 b5bde.zip
+-rw-r--r--   1 ftpuser  ftpusers     25422 Jun 15  2000 b5cg.zip
+-rw-r--r--   1 ftpuser  ftpusers    189937 Jun 15  2000 b5com.zip
+-rw-r--r--   1 ftpuser  ftpusers      8124 Jun 15  2000 b5com_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    188661 Jun 15  2000 b5ctool.zip
+-rw-r--r--   1 ftpuser  ftpusers    182851 Jun 15  2000 b5cw.zip
+-rw-r--r--   1 ftpuser  ftpusers    117560 Jun 15  2000 b5dap_e.zip
+-rw-r--r--   1 ftpuser  ftpusers     88683 Jun 15  2000 b5dap_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     30466 Jun 15  2000 b5dap_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    659692 Jun 15  2000 b5dbd_e.zip
+-rw-r--r--   1 ftpuser  ftpusers    437002 Jun 15  2000 b5dbd_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     16657 Jun 15  2000 b5dbd_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     71592 Jun 15  2000 b5dbx.zip
+-rw-r--r--   1 ftpuser  ftpusers    757539 Jun 15  2000 b5dd.zip
+-rw-r--r--   1 ftpuser  ftpusers  12903838 Jun 15  2000 b5ent.zip
+-rw-r--r--   1 ftpuser  ftpusers    393202 Jun 15  2000 b5errs.zip
+-rw-r--r--   1 ftpuser  ftpusers     15364 Jun 15  2000 b5ibc.zip
+-rw-r--r--   1 ftpuser  ftpusers    350155 Jun 15  2000 b5ibx.zip
+-rw-r--r--   1 ftpuser  ftpusers    995397 Jun 15  2000 b5ide.zip
+-rw-r--r--   1 ftpuser  ftpusers    959266 Jun 15  2000 b5ide_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     45884 Jun 15  2000 b5img.zip
+-rw-r--r--   1 ftpuser  ftpusers     20781 Jun 15  2000 b5ite.zip
+-rw-r--r--   1 ftpuser  ftpusers    359372 Jun 15  2000 b5lang.zip
+-rw-r--r--   1 ftpuser  ftpusers  17647608 Jun 15  2000 b5ms.zip
+-rw-r--r--   1 ftpuser  ftpusers    226941 Jun 15  2000 b5ms97.zip
+-rw-r--r--   1 ftpuser  ftpusers     88158 Jun 15  2000 b5new.zip
+-rw-r--r--   1 ftpuser  ftpusers    369500 Jun 15  2000 b5nm.zip
+-rw-r--r--   1 ftpuser  ftpusers   2243246 Jun 15  2000 b5ocx.zip
+-rw-r--r--   1 ftpuser  ftpusers      6935 Jun 15  2000 b5oh.zip
+-rw-r--r--   1 ftpuser  ftpusers    310327 Jun 15  2000 b5oplr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3870 Jun 15  2000 b5pce.zip
+-rw-r--r--   1 ftpuser  ftpusers  11721584 Jun 15  2000 b5pro.zip
+-rw-r--r--   1 ftpuser  ftpusers    412452 Jun 15  2000 b5prog.zip
+-rw-r--r--   1 ftpuser  ftpusers    231715 Jun 15  2000 b5qr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3098 Jun 15  2000 b5rdw.zip
+-rw-r--r--   1 ftpuser  ftpusers     31011 Jun 15  2000 b5rn.zip
+-rw-r--r--   1 ftpuser  ftpusers    618255 Jun 15  2000 b5rtl.zip
+-rw-r--r--   1 ftpuser  ftpusers    913290 Jun 15  2000 b5scl.zip
+-rw-r--r--   1 ftpuser  ftpusers     21418 Jun 15  2000 b5sqb.zip
+-rw-r--r--   1 ftpuser  ftpusers      3082 Jun 15  2000 b5sqm.zip
+-rw-r--r--   1 ftpuser  ftpusers   7746834 Jun 15  2000 b5std.zip
+-rw-r--r--   1 ftpuser  ftpusers    178051 Jun 15  2000 b5tasm.zip
+-rw-r--r--   1 ftpuser  ftpusers    678158 Jun 15  2000 b5tc.zip
+-rw-r--r--   1 ftpuser  ftpusers    102331 Jun 15  2000 b5tool.zip
+-rw-r--r--   1 ftpuser  ftpusers     84273 Jun 15  2000 b5ts.zip
+-rw-r--r--   1 ftpuser  ftpusers   5243678 Jun 15  2000 b5vcl_e.zip
+-rw-r--r--   1 ftpuser  ftpusers   4355130 Jun 15  2000 b5vcl_p.zip
+-rw-r--r--   1 ftpuser  ftpusers   3040384 Jun 15  2000 b5vcl_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     29902 Jun 15  2000 b5ws.zip
+-rw-r--r--   1 ftpuser  ftpusers     10906 Jun 15  2000 b5x1.zip
+-rw-r--r--   1 ftpuser  ftpusers      8237 Jun 15  2000 b5xtra.zip
+
+./pub/bde:
+drwxr-xr-x   6 ftpuser  ftpusers       512 Aug 17  1999 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 10  1998 papers
+
+./pub/bde/devsupport:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 archive
+drwxr-xr-x   2 ftpuser  ftpusers      2048 Mar 24  1998 general
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun 30  1998 patches
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Aug 17  1999 test
+drwxr-xr-x   2 ftpuser  ftpusers      1536 Aug 17  2001 updates
+
+./pub/bde/devsupport/archive:
+-rwxr-xr-x   1 ftpuser  ftpusers     60277 Mar 20  1998 bdearchive.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       259 Mar 24  1998 index.txt
+
+./pub/bde/devsupport/general:
+-rwxr-xr-x   1 ftpuser  ftpusers    198711 Mar 20  1998 addpswd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32057 Mar 20  1998 addpswd_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     24265 Mar 20  1998 addpswdcb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    317966 Mar 20  1998 allbde32exes.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     73288 Mar 20  1998 bdedemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   2451488 Mar 20  1998 bdedemo3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    208950 Mar 20  1998 bdeerr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    116196 Mar 20  1998 bdeerr32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11271 Mar 20  1998 bdeerror.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    328442 Mar 20  1998 bdenet.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6366 Mar 20  1998 bdeproc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    141794 Mar 20  1998 bdereg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10628 Mar 20  1998 bdereg_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     19456 Mar 20  1998 bdereged.exe
+-rwxr-xr-x   1 ftpuser  ftpusers     10301 Mar 20  1998 bi10.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     92154 Mar 20  1998 bi11.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     48180 Mar 20  1998 bi12.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2197 Mar 20  1998 bi15.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2510 Mar 20  1998 bi16.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     24893 Mar 20  1998 bi21.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10068 Mar 20  1998 bi9.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    136482 Mar 20  1998 conect32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    119164 Mar 20  1998 connect.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     19968 Mar 20  1998 createib.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    223593 Mar 20  1998 createib.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12908 Mar 20  1998 createib_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     15970 Mar 20  1998 createibcb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10514 Mar 20  1998 dbase01.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11264 Mar 20  1998 dbase02.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     13629 Mar 20  1998 dblogin.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    238642 Mar 20  1998 delcfg32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   2443715 Mar 20  1998 demo35d.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1303398 Mar 20  1998 demo35da.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1140339 Mar 20  1998 demo35db.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     28672 Mar 20  1998 dtutil32.exe
+-rwxr-xr-x   1 ftpuser  ftpusers     12980 Mar 20  1998 errortbl.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    232998 Mar 20  1998 fat32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5439 Mar 20  1998 filter1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5142 Mar 20  1998 ftable.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1692 Mar 20  1998 ftblex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     39936 Mar 20  1998 ibusers.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    203840 Mar 20  1998 ibusers.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     28489 Mar 20  1998 ibusers_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8686 Mar 20  1998 idapitok.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7201 Mar 27  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     22528 Mar 20  1998 inmem.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    230760 Mar 20  1998 inmemdel.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     15422 Mar 20  1998 inmemdel_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8067 Mar 20  1998 inmemdelcb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     94937 Mar 20  1998 kdbf.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2092 Mar 20  1998 nodbc16.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2221 Mar 20  1998 nodbc32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     56289 Mar 20  1998 oppdox1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1590 Mar 20  1998 packex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     28160 Mar 20  1998 pxrest.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    206577 Mar 20  1998 pxrest.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     19136 Mar 20  1998 pxrest_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    195784 Mar 20  1998 pxrestex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     96515 Mar 20  1998 snip16ex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    107623 Mar 20  1998 snip32ex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    238873 Mar 20  1998 snipit16.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    257491 Mar 20  1998 snipit32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3737 Mar 20  1998 tablechanged.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    276038 Mar 20  1998 tableint.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6493 Mar 20  1998 tablpack.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     99840 Mar 20  1998 tblstruct.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    402216 Mar 20  1998 tutil32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     42835 Mar 20  1998 tutil32c.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11473 Mar 20  1998 tutil32cb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    178610 Mar 20  1998 tutil32cbe.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    148839 Mar 20  1998 tutil32d.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     17624 Mar 20  1998 tutil32d_package.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    262204 Mar 20  1998 tutil4.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     70690 Mar 20  1998 tutl252.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    307710 Mar 20  1998 tutl32ce.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    141588 Mar 20  1998 tutl32ex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    109351 Mar 20  1998 utlapi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8958 Mar 20  1998 vc4bde32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     49145 Mar 20  1998 winrest.zip
+
+./pub/bde/devsupport/patches:
+-rwxr-xr-x   1 ftpuser  ftpusers     78547 Jun 30  1998 dbclient.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       243 Jun 30  1998 index.txt
+
+./pub/bde/devsupport/updates:
+-rw-r--r--   1 ftpuser  ftpusers    589312 Apr 27  2000 IDAPI32.DLL
+-rwxr-xr-x   1 ftpuser  ftpusers   1530084 Mar 20  1998 bde251.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1572970 Mar 20  1998 bde252.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   2429291 Mar 20  1998 bde312.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1302057 Mar 20  1998 bde312a.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1126924 Mar 20  1998 bde312b.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   2443533 Mar 20  1998 bde35f.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1305377 Mar 20  1998 bde35fa.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1138178 Oct 29  1998 bde35fb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  10398566 Mar 20  1998 bde451_en.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  10527180 Mar 20  1998 bde451_fr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  10545856 Mar 20  1998 bde451_ge.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  10507697 Mar 20  1998 bde451_it.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  10508050 Mar 20  1998 bde451_sp.zip
+-rw-r--r--   1 ftpuser  ftpusers  12438674 Apr  5  1999 bde501en.exe
+-rw-r--r--   1 ftpuser  ftpusers  12408383 Apr  5  1999 bde501en.zip
+-rw-r--r--   1 ftpuser  ftpusers  12349073 Apr  5  1999 bde501fr.exe
+-rw-r--r--   1 ftpuser  ftpusers  12318782 Apr  5  1999 bde501fr.zip
+-rw-r--r--   1 ftpuser  ftpusers  12290928 Apr  5  1999 bde501ge.exe
+-rw-r--r--   1 ftpuser  ftpusers  11956736 Apr  6  1999 bde501ge.zip
+-rw-r--r--   1 ftpuser  ftpusers  11865988 Aug 18  1999 bde510en.exe
+-rw-r--r--   1 ftpuser  ftpusers  11961146 Sep  8  1999 bde510fr.exe
+-rw-r--r--   1 ftpuser  ftpusers  11956495 Sep  8  1999 bde510ge.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  11895034 Feb 16  2000 bde511en.exe
+-rw-r--r--   1 ftpuser  ftpusers  12021905 Apr  7  2000 bde511fr.exe
+-rw-r--r--   1 ftpuser  ftpusers  12039880 Mar 23  2000 bde511ge.exe
+-rw-r--r--   1 ftpuser  ftpusers  12063983 Jul 17  1998 bde5_en.zip
+-rw-r--r--   1 ftpuser  ftpusers  12151937 Aug  3  1998 bde5_fr.zip
+-rw-r--r--   1 ftpuser  ftpusers  12105300 Aug  3  1998 bde5_ge.zip
+-rw-r--r--   1 ftpuser  ftpusers  11925186 Jul 17  1998 bde5_upg.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  10269420 Mar 20  1998 bde_upg.exe
+-rw-r--r--   1 ftpuser  ftpusers   9690245 Aug 17  2001 bdemm52ef.exe
+-rw-r--r--   1 ftpuser  ftpusers   9683069 Aug 17  2001 bdemm52eg.exe
+-rw-r--r--   1 ftpuser  ftpusers   9676931 Aug  3  2001 bdemm52ent.exe
+-rw-r--r--   1 ftpuser  ftpusers   7987857 Aug 17  2001 bdemm52pf.exe
+-rw-r--r--   1 ftpuser  ftpusers   7983747 Aug 17  2001 bdemm52pg.exe
+-rw-r--r--   1 ftpuser  ftpusers   7974537 Aug  3  2001 bdemm52pro.exe
+-rw-r--r--   1 ftpuser  ftpusers   9545859 Oct  6  2000 bdemm5ef.exe
+-rw-r--r--   1 ftpuser  ftpusers   9549955 Oct  6  2000 bdemm5eg.exe
+-rw-r--r--   1 ftpuser  ftpusers   9580163 Sep 22  2000 bdemm5ent.exe
+-rw-r--r--   1 ftpuser  ftpusers   7845513 Oct  6  2000 bdemm5pf.exe
+-rw-r--r--   1 ftpuser  ftpusers   7851145 Oct  6  2000 bdemm5pg.exe
+-rw-r--r--   1 ftpuser  ftpusers   7878793 Sep 22  2000 bdemm5pro.exe
+-rw-r--r--   1 ftpuser  ftpusers    215689 Nov 19  1999 idsql32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1618 Mar 24  1998 index.txt
+-rw-r--r--   1 ftpuser  ftpusers    197710 Jul 26  2000 sqlora8_512.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     99062 Mar 20  1998 tutil311.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    100902 Mar 20  1998 tutil312.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    100915 Mar 20  1998 tutil35.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    103112 Mar 20  1998 tutil40.zip
+
+./pub/bde/papers:
+
+./pub/borcon_videos:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun 27  2000 1998
+
+./pub/borcon_videos/1998:
+-rw-r--r--   1 ftpuser  ftpusers  96882344 Jun 27  2000 CAMELOT.AVI
+-rw-r--r--   1 ftpuser  ftpusers      1156 Jun 27  2000 Index.html
+
+./pub/borlandcpp:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 10  1998 cases
+drwxr-xr-x   6 ftpuser  ftpusers       512 Mar 25  1998 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 10  1998 papers
+drwxr-xr-x   4 ftpuser  ftpusers       512 Mar 30  2000 techpubs
+
+./pub/borlandcpp/cases:
+
+./pub/borlandcpp/devsupport:
+drwxr-xr-x   7 ftpuser  ftpusers       512 Mar 21  1998 archive
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Mar 25  1998 general
+drwxr-xr-x   9 ftpuser  ftpusers       512 Mar 21  1998 patches
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 25  1998 tasm
+
+./pub/borlandcpp/devsupport/archive:
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Mar 25  1998 dos
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 dpmi
+drwxr-xr-x   3 ftpuser  ftpusers       512 Mar 24  1998 os2
+drwxr-xr-x   2 ftpuser  ftpusers      1536 Mar 24  1998 owl_examples
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Apr 24  1998 turbovision
+
+./pub/borlandcpp/devsupport/archive/dos:
+-rwxr-xr-x   1 ftpuser  ftpusers    268366 Mar 24  1998 bgikit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3447 Mar 24  1998 clock.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     26945 Mar 24  1998 cmouse.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     14716 Mar 24  1998 cpptsr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1140 Mar 24  1998 crit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1692 Mar 24  1998 ctrlc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       767 Mar 24  1998 cursor.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2460 Mar 24  1998 detmode.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1352 Mar 19  1998 dosisr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     71276 Mar 24  1998 fonts.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       380 Mar 24  1998 ftime.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       376 Mar 24  1998 getvect.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3933 Mar 24  1998 graphics.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       762 Mar 24  1998 gray.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1161 Mar 24  1998 grdump.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1110 Mar 24  1998 harderr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    256296 Mar 24  1998 helppc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     58055 Mar 24  1998 herc0990.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1360 Mar 24  1998 hilite.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3778 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers       672 Mar 24  1998 int.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2833 Mar 24  1998 int21.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     29166 Mar 24  1998 interp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       673 Mar 24  1998 intrpt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1704 Mar 24  1998 isr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       486 Mar 24  1998 kbstuff.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       644 Mar 24  1998 mcmvsmem.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1811 Mar 24  1998 noclrbgi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9995 Mar 24  1998 par256.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1308 Mar 24  1998 prtgrap.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3369 Mar 24  1998 putgenv.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1662 Mar 24  1998 restart.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2285 Mar 24  1998 scancode.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4479 Mar 24  1998 sem.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5122 Mar 24  1998 serial.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1524 Mar 24  1998 setdev.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     69869 Mar 24  1998 spawnbgi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2553 Mar 24  1998 stkused.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       358 Mar 24  1998 strstrea.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12460 Mar 24  1998 tabs.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       364 Mar 24  1998 timezone.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       915 Mar 24  1998 tsr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     24333 Mar 24  1998 tsr_c.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     33285 Mar 25  1998 tsrmcb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       673 Mar 24  1998 vararg.zip
+
+./pub/borlandcpp/devsupport/archive/dpmi:
+-rwxr-xr-x   1 ftpuser  ftpusers      1113 Mar 19  1998 32isr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     22564 Mar 19  1998 bueh16.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     46775 Mar 19  1998 callit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1122 Mar 24  1998 cbreak.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1257 Mar 19  1998 d32dll.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3228 Mar 19  1998 d32hook.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3979 Mar 19  1998 dpmi07.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     35524 Mar 19  1998 dpmiinst.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    138518 Mar 19  1998 dpmip1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     57862 Mar 19  1998 dpmiv1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8130 Mar 19  1998 fl2pp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2455 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      5598 Mar 19  1998 int32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     20383 Mar 19  1998 isr71.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2201 Mar 19  1998 linear.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1039 Mar 19  1998 m32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2955 Mar 19  1998 mouse32.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     42323 Mar 19  1998 pp10e1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    129567 Mar 24  1998 pwrpak.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3654 Mar 19  1998 rseg16.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10497 Mar 19  1998 rtldlx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     55437 Mar 19  1998 tduser.zip
+
+./pub/borlandcpp/devsupport/archive/os2:
+-rwxr-xr-x   1 ftpuser  ftpusers       648 Mar 24  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     24792 Mar 19  1998 notebook.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     77761 Mar 19  1998 os2dde1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     35703 Mar 19  1998 os2start.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 patches
+-rwxr-xr-x   1 ftpuser  ftpusers    652585 Mar 19  1998 tdgx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     81139 Mar 19  1998 tlink.zip
+
+./pub/borlandcpp/devsupport/archive/os2/patches:
+-rwxr-xr-x   1 ftpuser  ftpusers      6756 Mar 19  1998 bcos2p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    220145 Mar 19  1998 bcos2p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6679 Mar 19  1998 bcos2p3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       489 Mar 24  1998 index.txt
+
+./pub/borlandcpp/devsupport/archive/owl_examples:
+-rwxr-xr-x   1 ftpuser  ftpusers    158490 Mar 19  1998 256capp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5006 Mar 19  1998 3dbttn.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2860 Mar 19  1998 acchelp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12685 Mar 19  1998 bi7.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12931 Mar 19  1998 bi8.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4145 Mar 19  1998 bitsave.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2875 Mar 19  1998 childdlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     20916 Mar 19  1998 combtr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3865 Mar 19  1998 copylz.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    128404 Mar 19  1998 ctlbar.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     94460 Mar 19  1998 ctldlt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    344080 Mar 19  1998 ctlpct.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     37019 Mar 19  1998 ctltxt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3512 Mar 19  1998 ddispatc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1488 Mar 19  1998 dlgicon.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     54488 Mar 19  1998 dlgmain.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4117 Mar 19  1998 dualdial.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5785 Mar 19  1998 dynmenu.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5169 Mar 19  1998 fontcdlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7555 Mar 19  1998 groups.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5371 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers    108084 Mar 19  1998 lallen.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3194 Mar 19  1998 lboxtran.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     19364 Mar 19  1998 logo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21445 Mar 19  1998 logo2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    138585 Mar 19  1998 mdiall.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5309 Mar 19  1998 mdibar.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2699 Mar 19  1998 mdidlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4762 Mar 19  1998 mdimenu.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     60153 Mar 19  1998 mpd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4539 Mar 19  1998 o2acchlp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6696 Mar 19  1998 o2mdidlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5680 Mar 19  1998 o2mdimnu.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5181 Mar 19  1998 o2splash.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     65159 Mar 19  1998 opencdlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    129771 Mar 19  1998 owl2dib.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    110900 Mar 19  1998 owlbwcc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    169288 Mar 19  1998 owlcct.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32706 Mar 19  1998 owldlgs.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     63518 Mar 19  1998 owldrp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     79016 Mar 19  1998 owlhoo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     79255 Mar 19  1998 owllst.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     70752 Mar 19  1998 owlopn.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     88910 Mar 19  1998 owlsnd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6203 Mar 19  1998 owlsound.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     78504 Mar 19  1998 owltim.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     70474 Mar 19  1998 owlwav.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10882 Mar 19  1998 owlxfr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2613 Mar 24  1998 owmdlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5950 Mar 24  1998 ownerlb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2770 Mar 19  1998 scroller.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5138 Mar 19  1998 sdibar.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     60810 Mar 24  1998 setbit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     33548 Mar 24  1998 setfont.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     60235 Mar 24  1998 sndwave.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32584 Mar 19  1998 stsbar.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    399323 Mar 24  1998 switch.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     35694 Mar 24  1998 tasklist.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     42359 Mar 19  1998 tlclas.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4093 Mar 19  1998 transmdi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4011 Mar 19  1998 transp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    101196 Mar 19  1998 trantest.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     69605 Mar 19  1998 uae.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3408 Mar 19  1998 validate.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       934 Mar 19  1998 wstop.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     39729 Mar 19  1998 xfer.zip
+
+./pub/borlandcpp/devsupport/archive/turbovision:
+-rwxr-xr-x   1 ftpuser  ftpusers      2290 Mar 24  1998 color1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2154 Mar 24  1998 desklogo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2605 Mar 24  1998 dlgdraw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2315 Mar 24  1998 dlgmode.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7102 Mar 24  1998 dlgrez.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     15007 Mar 24  1998 dskstr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1104 Mar 24  1998 dumb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3775 Mar 24  1998 emodal.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1899 Mar 24  1998 helpde.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3348 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     87350 Mar 24  1998 lbox.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2725 Mar 24  1998 listbox.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1651 Mar 24  1998 menunest.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3156 Mar 24  1998 menuz.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9463 Mar 24  1998 mess1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2570 Mar 24  1998 msgs.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6988 Mar 24  1998 numinp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1073 Mar 24  1998 ovrlay.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4895 Mar 24  1998 persist.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2086 Mar 24  1998 popup1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5502 Mar 24  1998 popupx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2011 Mar 24  1998 radio.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6206 Mar 24  1998 resource.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2973 Mar 24  1998 statbo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3116 Mar 24  1998 strmdlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1860 Mar 24  1998 tback.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5282 Mar 24  1998 testhelp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4252 Mar 24  1998 tlbh.zip
+-rw-r--r--   1 ftpuser  ftpusers    237343 Apr 24  1998 tv.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2750 Mar 24  1998 tvalid.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21202 Mar 24  1998 tvalt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1884 Mar 24  1998 tvexit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7092 Mar 24  1998 tvfix.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3485 Mar 24  1998 tvmemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6689 Mar 24  1998 tvsample.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     13021 Mar 24  1998 tvserial.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2285 Mar 24  1998 txtdlg.zip
+
+./pub/borlandcpp/devsupport/general:
+-rwxr-xr-x   1 ftpuser  ftpusers     27990 Mar 24  1998 bc40exam.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2346 Mar 24  1998 bc40ow.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     49875 Mar 24  1998 bc4grps.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     13215 Mar 24  1998 bcwdemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8980 Mar 24  1998 cdll.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     22877 Mar 24  1998 dllhwnd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    147396 Mar 24  1998 easygrep.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       559 Mar 24  1998 eof.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       790 Mar 24  1998 exewrite.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    177664 Mar 21  1998 faqcpp.doc
+-rwxr-xr-x   1 ftpuser  ftpusers    199519 Mar 21  1998 faqcpp.rtf
+-rwxr-xr-x   1 ftpuser  ftpusers    147115 Mar 21  1998 faqcpp.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     22243 Mar 24  1998 farstr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       430 Mar 24  1998 fgets.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8933 Mar 24  1998 fheap.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4102 Mar 24  1998 filecomp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2347 Mar 24  1998 filehand.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9566 Mar 24  1998 helpmenu.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3137 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      2334 Mar 24  1998 iter.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2978 Mar 24  1998 iterate.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1435 Mar 24  1998 loadbmp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       982 Mar 24  1998 makecur.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9213 Mar 24  1998 manycurs.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12925 Mar 24  1998 mditbar.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1310 Mar 24  1998 member.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1959 Mar 24  1998 memptr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1881 Mar 24  1998 popupfnc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11457 Mar 24  1998 printw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11039 Mar 24  1998 ptrarrys.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7086 Mar 24  1998 scrolctl.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2434 Mar 24  1998 syntax.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2815 Mar 24  1998 tdump.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3797 Mar 24  1998 template.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   2171251 Mar 21  1998 tgdemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  36301554 Mar 21  1998 tool2.avi
+-rwxr-xr-x   1 ftpuser  ftpusers    349982 Mar 24  1998 w21code.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     38761 Mar 24  1998 xfind.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3114 Mar 24  1998 xproj.zip
+
+./pub/borlandcpp/devsupport/patches:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 bc4_0
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 bc4_02
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 bc4_5
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 25  1998 bc5
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Mar 25  1998 other
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 25  1998 tasm
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 turbocpp
+
+./pub/borlandcpp/devsupport/patches/bc4_0:
+-rwxr-xr-x   1 ftpuser  ftpusers      3051 Mar 19  1998 bc4p01.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    130009 Mar 19  1998 bc4p02.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    449602 Mar 19  1998 bc4p03.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     64433 Mar 19  1998 bc4p04.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5637 Mar 19  1998 bc4p05.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     65168 Mar 19  1998 bc4p06.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       764 Mar 24  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      9786 Mar 19  1998 wildargs.zip
+
+./pub/borlandcpp/devsupport/patches/bc4_02:
+-rwxr-xr-x   1 ftpuser  ftpusers      5952 Mar 19  1998 bc42p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3260 Mar 19  1998 bc42p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6735 Mar 19  1998 bc42p3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9488 Mar 19  1998 bc42p4.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11429 Mar 19  1998 bc42p5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6647 Mar 19  1998 bc42p6.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       726 Mar 24  1998 index.txt
+
+./pub/borlandcpp/devsupport/patches/bc4_5:
+-rwxr-xr-x   1 ftpuser  ftpusers     58328 Mar 20  1998 bc451p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    563707 Mar 19  1998 bc45m7.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     31904 Mar 19  1998 bc45p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    465402 Mar 19  1998 bc45p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1028186 Mar 19  1998 bc45p3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     20134 Mar 19  1998 bc45px.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     37711 Mar 19  1998 bc45xp1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    187949 Mar 19  1998 cgbc45p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       823 Mar 24  1998 index.txt
+
+./pub/borlandcpp/devsupport/patches/bc5:
+-rwxr-xr-x   1 ftpuser  ftpusers    986699 Mar 19  1998 bc501p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21493 Mar 19  1998 bc50p1.txt
+-rwxr-xr-x   1 ftpuser  ftpusers   1567837 Mar 19  1998 bc50p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     20216 Mar 19  1998 bc50p2.txt
+-rwxr-xr-x   1 ftpuser  ftpusers   1011927 Mar 19  1998 bc50p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    684473 Mar 24  1998 bcwhlp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2664 Mar 19  1998 dllmix.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      2483 Mar 19  1998 dllmix.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3139 Mar 19  1998 dllmixex.txt
+-rwxr-xr-x   1 ftpuser  ftpusers    734153 Mar 19  1998 dllmixex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1356 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     62817 Mar 25  1998 owlex.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32256 Mar 19  1998 patch-nt.exe
+-rwxr-xr-x   1 ftpuser  ftpusers     76250 Mar 19  1998 patch-nt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     61035 Mar 19  1998 patch.exe
+-rwxr-xr-x   1 ftpuser  ftpusers     59295 Mar 19  1998 patch.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    112640 Mar 19  1998 patchw32.dll
+
+./pub/borlandcpp/devsupport/patches/other:
+-rwxr-xr-x   1 ftpuser  ftpusers     11595 Mar 19  1998 bc20p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     18744 Mar 19  1998 bc20p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6527 Mar 19  1998 bc30p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9573 Mar 19  1998 bc30p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12027 Mar 19  1998 bc30p3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     15665 Mar 19  1998 bc31p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     52925 Mar 19  1998 bc31p2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9089 Mar 19  1998 bc31p3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21416 Mar 19  1998 bc31p4.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     73371 Mar 19  1998 clspt1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10189 Mar 19  1998 dppp1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6728 Mar 19  1998 dppp2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     29021 Mar 19  1998 dppp3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1441 Mar 19  1998 fixarr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2153 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     76805 Mar 19  1998 pvupdate.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6801 Mar 19  1998 rwpat1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    109251 Mar 19  1998 rwpt1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4347 Mar 19  1998 statpat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     20853 Mar 25  1998 svga.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     29900 Mar 19  1998 td386.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6956 Mar 25  1998 td386pat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1283 Mar 25  1998 tddebug.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7165 Mar 24  1998 tdwin.zip
+
+./pub/borlandcpp/devsupport/patches/tasm:
+-rwxr-xr-x   1 ftpuser  ftpusers       291 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     51481 Mar 21  1998 ta4p01.zip
+
+./pub/borlandcpp/devsupport/patches/turbocpp:
+-rwxr-xr-x   1 ftpuser  ftpusers       755 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      8395 Mar 24  1998 server.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11080 Mar 19  1998 tc21pat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     37364 Mar 19  1998 tc2pat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4743 Mar 19  1998 tc45p1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     40323 Mar 19  1998 tcppt1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6927 Mar 19  1998 tcppt2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    107324 Mar 19  1998 tcppt3.zip
+
+./pub/borlandcpp/devsupport/tasm:
+-rwxr-xr-x   1 ftpuser  ftpusers      7187 Mar 25  1998 exetrash.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       839 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      1097 Mar 24  1998 int_9.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11704 Mar 25  1998 pharlap.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9542 Mar 25  1998 shellx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4410 Mar 24  1998 smallblk.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     28749 Mar 24  1998 snap.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     27419 Mar 25  1998 tdconvrt.zip
+
+./pub/borlandcpp/papers:
+
+./pub/borlandcpp/techpubs:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 30  2000 bcc502
+drwxr-xr-x   2 ftpuser  ftpusers       512 May 15  2000 bcc55
+-rwxr-xr-x   1 ftpuser  ftpusers       235 Mar 27  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers    125943 Mar 20  1998 owl50tut.zip
+
+./pub/borlandcpp/techpubs/bcc502:
+-rw-r--r--   1 ftpuser  ftpusers      3844 Mar 30  2000 bcopen.zip
+-rw-r--r--   1 ftpuser  ftpusers      4082 Mar 30  2000 bothopen.zip
+-rw-r--r--   1 ftpuser  ftpusers    125943 Mar 30  2000 owl50tut.zip
+-rw-r--r--   1 ftpuser  ftpusers      1161 Mar 30  2000 owlex.zip
+
+./pub/borlandcpp/techpubs/bcc55:
+-rw-r--r--   1 ftpuser  ftpusers    188661 May 15  2000 b5ctool.zip
+-rw-r--r--   1 ftpuser  ftpusers      4992 May 15  2000 cmdread.txt
+
+./pub/delphi:
+drwxr-xr-x   5 ftpuser  ftpusers       512 Feb 22  1999 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 10  1998 papers
+drwxr-xr-x   8 ftpuser  ftpusers       512 Jul 19  2001 techpubs
+
+./pub/delphi/devsupport:
+drwxr-xr-x   3 ftpuser  ftpusers      1024 Mar 27  1998 general
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 21  1998 patches
+drwxr-xr-x   7 ftpuser  ftpusers       512 Oct 18 15:40 updates
+
+./pub/delphi/devsupport/general:
+-rwxr-xr-x   1 ftpuser  ftpusers      3959 Mar 20  1998 aboutd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     67367 Mar 20  1998 allfaq.zip
+-rwxr-xr-x   1 ftpuser  ftpusers  21013234 Mar 20  1998 avidphcm.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   7142279 Mar 20  1998 aviintro.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8742 Mar 20  1998 bi42.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6550 Mar 20  1998 curred.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    260314 Mar 20  1998 d2_comp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    385314 Mar 20  1998 d2_db.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11680 Mar 20  1998 d2_q&a.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     39704 Mar 20  1998 del&pb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     61475 Mar 20  1998 del&vb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7671 Mar 20  1998 del_qi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   6966870 Mar 21  1998 delcar2.avi
+-rwxr-xr-x   1 ftpuser  ftpusers   1238466 Mar 20  1998 delphi.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 delphi1
+-rwxr-xr-x   1 ftpuser  ftpusers      6722 Mar 20  1998 delsec09.faq
+-rwxr-xr-x   1 ftpuser  ftpusers      9105 Mar 20  1998 dlib.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9135 Mar 20  1998 dllentry.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     50682 Mar 20  1998 dlpgrp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1900 Mar 27  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      1188 Mar 20  1998 lbox.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    167833 Mar 20  1998 lcscmp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     48098 Mar 20  1998 multim.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    184320 Mar 20  1998 objlang.zip
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 roifinl2.doc
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 sara1.avi
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 sara2.avi
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 sara3.avi
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 sara4.avi
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 sara5.avi
+-rwxr-xr-x   1 ftpuser  ftpusers      2022 Mar 20  1998 string.zip
+-rwxr-xr-x   1 ftpuser  ftpusers         0 Mar 20  1998 vb2del.txt
+
+./pub/delphi/devsupport/general/delphi1:
+-rwxr-xr-x   1 ftpuser  ftpusers     10178 Mar 21  1998 basics.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    125601 Mar 21  1998 bpvbx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     23752 Mar 21  1998 delsec07.faq
+-rwxr-xr-x   1 ftpuser  ftpusers      3884 Mar 21  1998 delsec08.faq
+-rwxr-xr-x   1 ftpuser  ftpusers     11075 Mar 21  1998 drivei.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    110849 Mar 21  1998 fpeek.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    217498 Mar 21  1998 hotmap.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       588 Mar 24  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      3948 Mar 21  1998 mdi_bgrd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   3734972 Mar 21  1998 vclref.zip
+
+./pub/delphi/devsupport/patches:
+
+./pub/delphi/devsupport/updates:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 10  2001 adoexpress
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 24  1998 delphi1
+drwxr-xr-x   4 ftpuser  ftpusers       512 Feb 22  1999 delphi4
+drwxr-xr-x   4 ftpuser  ftpusers       512 Nov 12 17:00 delphi5
+drwxr-xr-x   2 ftpuser  ftpusers       512 Nov  8 16:45 delphi7
+
+./pub/delphi/devsupport/updates/adoexpress:
+-rwxr-xr-x   1 ftpuser  ftpusers  16232862 Feb 16  2000 D5ADOUpgrade.exe
+-rw-r--r--   1 ftpuser  ftpusers   1782003 Jan 10  2001 d5adoupdate2.exe
+
+./pub/delphi/devsupport/updates/delphi1:
+-rwxr-xr-x   1 ftpuser  ftpusers    178086 Mar 21  1998 delcspat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    138913 Mar 21  1998 delpatch.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       403 Mar 24  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     72179 Mar 21  1998 vclpatch.zip
+
+./pub/delphi/devsupport/updates/delphi4:
+-rwxr-xr-x   1 ftpuser  ftpusers   8342672 Oct 27  1998 d4cupd1.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  27694759 Oct 26  1998 d4cupd2.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   4999826 Feb 22  1999 d4cupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   7456536 Oct 27  1998 d4pupd1.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  22226797 Oct 27  1998 d4pupd2.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   3854912 Feb 22  1999 d4pupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   6916352 Oct 27  1998 d4supd1.exe
+-rwxr-xr-x   1 ftpuser  ftpusers  15128140 Oct 26  1998 d4supd2.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   3677962 Feb 22  1999 d4supd3.exe
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 26  1999 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 26  1999 german
+-rwxr-xr-x   1 ftpuser  ftpusers   5897172 Oct 26  1998 webbrokerupgrade.exe
+
+./pub/delphi/devsupport/updates/delphi4/french:
+-rwxr-xr-x   1 ftpuser  ftpusers   8122456 Dec 14  1998 d4cupd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  28474146 Dec 14  1998 d4cupd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   5047796 Mar 26  1999 d4cupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   7440640 Dec 14  1998 d4pupd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  22906015 Dec 14  1998 d4pupd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   3898628 Mar 26  1999 d4pupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   6914216 Dec 14  1998 d4supd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  15634143 Dec 14  1998 d4supd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   3722996 Mar 26  1999 d4supd3.exe
+-rw-r--r--   1 ftpuser  ftpusers   6075653 Dec 14  1998 webbrokerupgrade.exe
+
+./pub/delphi/devsupport/updates/delphi4/german:
+-rwxr-xr-x   1 ftpuser  ftpusers   8130896 Nov 24  1998 d4cupd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  28480252 Nov 24  1998 d4cupd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   5048807 Mar 26  1999 d4cupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   7449576 Nov 24  1998 d4pupd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  22922144 Nov 24  1998 d4pupd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   3899916 Mar 26  1999 d4pupd3.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   6922504 Nov 24  1998 d4supd1.exe
+-rw-r--r--   1 ftpuser  ftpusers  15651007 Nov 24  1998 d4supd2.exe
+-rw-r--r--   1 ftpuser  ftpusers   3724267 Mar 26  1999 d4supd3.exe
+-rw-r--r--   1 ftpuser  ftpusers   6108492 Nov 24  1998 webbrokerupgrade.exe
+
+./pub/delphi/devsupport/updates/delphi5:
+-rw-r--r--   1 ftpuser  ftpusers  29280139 Mar 23  2000 D5EntUpdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  26357995 Mar 23  2000 D5ProUpdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  19566614 Mar 23  2000 D5StdUpdate.exe
+-rw-r--r--   1 ftpuser  ftpusers    147560 Nov 12 17:00 d5vb33corbapatch.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr  3  2000 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 23  2000 german
+
+./pub/delphi/devsupport/updates/delphi5/french:
+-rw-r--r--   1 ftpuser  ftpusers  28603060 Apr  3  2000 d5entupdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  25658706 Apr  3  2000 d5proupdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  18574226 Apr  3  2000 d5stdupdate.exe
+
+./pub/delphi/devsupport/updates/delphi5/german:
+-rw-r--r--   1 ftpuser  ftpusers  29952445 Mar 23  2000 d5entupdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  26976984 Mar 23  2000 d5proupdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  19919729 Mar 23  2000 d5stdupdate.exe
+-rw-r--r--   1 ftpuser  ftpusers     12610 Mar 23  2000 upd1rdme.txt
+
+./pub/delphi/devsupport/updates/delphi7:
+-rw-r--r--   1 ftpuser  ftpusers    776833 Nov  8 16:45 d7regupdate.zip
+
+./pub/delphi/papers:
+
+./pub/delphi/techpubs:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr  6  2000 delphi1
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 27  1998 delphi2
+drwxr-xr-x   2 ftpuser  ftpusers       512 May  2  2000 delphi3
+drwxr-xr-x   2 ftpuser  ftpusers      1024 May  2  2000 delphi4
+drwxr-xr-x   4 ftpuser  ftpusers      2048 Aug 14  2000 delphi5
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 27  2002 delphi6
+
+./pub/delphi/techpubs/delphi1:
+-rw-r--r--   1 ftpuser  ftpusers       346 Apr  6  2000 index.txt
+-rw-r--r--   1 ftpuser  ftpusers   1057906 Apr  6  2000 objlang.zip
+-rw-r--r--   1 ftpuser  ftpusers   3734972 Apr  6  2000 vclref.zip
+
+./pub/delphi/techpubs/delphi2:
+-rwxr-xr-x   1 ftpuser  ftpusers  12026697 Mar 27  1998 allhelp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    453671 Mar 27  1998 cwg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     25031 Mar 27  1998 dbexplor.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1238466 Mar 27  1998 delphi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12687 Mar 27  1998 ibctrls.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     65773 Mar 27  1998 imagedit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       841 Mar 27  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers    546506 Apr 23  1998 obpascal.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   1814901 Apr 23  1998 vcl.zip
+-rwxr-xr-x   1 ftpuser  ftpusers   7962743 Apr 23  1998 win32.zip
+
+./pub/delphi/techpubs/delphi3:
+-rw-r--r--   1 ftpuser  ftpusers    745005 May  2  2000 d3bde.zip
+-rw-r--r--   1 ftpuser  ftpusers   8542913 May  2  2000 d3cs.zip
+-rw-r--r--   1 ftpuser  ftpusers    757576 May  2  2000 d3dd.zip
+-rw-r--r--   1 ftpuser  ftpusers   1216992 May  2  2000 d3extra.zip
+-rw-r--r--   1 ftpuser  ftpusers   1248849 May  2  2000 d3ib.zip
+-rw-r--r--   1 ftpuser  ftpusers  15751872 May  2  2000 d3ms.zip
+-rw-r--r--   1 ftpuser  ftpusers    330198 May  2  2000 d3nia.zip
+-rw-r--r--   1 ftpuser  ftpusers   2292746 May  2  2000 d3ocx.zip
+-rw-r--r--   1 ftpuser  ftpusers    122837 May  2  2000 d3ole.zip
+-rw-r--r--   1 ftpuser  ftpusers    189940 May  2  2000 d3qr.zip
+-rw-r--r--   1 ftpuser  ftpusers     18291 May  2  2000 d3rn.zip
+-rw-r--r--   1 ftpuser  ftpusers    400706 May  2  2000 d3tc.zip
+
+./pub/delphi/techpubs/delphi4:
+-rw-r--r--   1 ftpuser  ftpusers      5370 May  2  2000 d4rn.zip
+-rw-r--r--   1 ftpuser  ftpusers    926570 May  2  2000 del4hlp.zip
+-rw-r--r--   1 ftpuser  ftpusers   1007598 May  2  2000 del4hlpd.zip
+-rw-r--r--   1 ftpuser  ftpusers    946848 May  2  2000 del4hlpf.zip
+-rw-r--r--   1 ftpuser  ftpusers    297273 May  2  2000 del4op.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     15481 Nov  2  1998 deploy.txt
+-rw-r--r--   1 ftpuser  ftpusers      4880 May  2  2000 deploy.zip
+-rw-r--r--   1 ftpuser  ftpusers   5520037 May  2  2000 devguide.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1577 Nov  2  1998 index.txt
+-rw-r--r--   1 ftpuser  ftpusers       348 Nov  2  1998 postfileftp.logfile
+-rw-r--r--   1 ftpuser  ftpusers   4136404 May  2  2000 qr3help.zip
+-rw-r--r--   1 ftpuser  ftpusers    231765 May  2  2000 qreport3.zip
+-rw-r--r--   1 ftpuser  ftpusers   5209252 May  2  2000 vclhcs_d.zip
+-rw-r--r--   1 ftpuser  ftpusers   5151411 May  2  2000 vclhcs_f.zip
+-rw-r--r--   1 ftpuser  ftpusers   4946352 May  2  2000 vclhlpcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4074602 May  2  2000 vclhlppr.zip
+-rw-r--r--   1 ftpuser  ftpusers   4362702 May  2  2000 vclhlppw.zip
+-rw-r--r--   1 ftpuser  ftpusers   3722664 May  2  2000 vclhlpst.zip
+-rw-r--r--   1 ftpuser  ftpusers   4279126 May  2  2000 vclhpr_d.zip
+-rw-r--r--   1 ftpuser  ftpusers   4236295 May  2  2000 vclhpr_f.zip
+-rw-r--r--   1 ftpuser  ftpusers   4583006 May  2  2000 vclhpw_d.zip
+-rw-r--r--   1 ftpuser  ftpusers   4547493 May  2  2000 vclhpw_f.zip
+-rw-r--r--   1 ftpuser  ftpusers   3903197 May  2  2000 vclhst_d.zip
+-rw-r--r--   1 ftpuser  ftpusers   3876062 May  2  2000 vclhst_f.zip
+
+./pub/delphi/techpubs/delphi5:
+-rw-r--r--   1 ftpuser  ftpusers    285341 Jun 22  2000 TextEditorTutorial.zip
+-rw-r--r--   1 ftpuser  ftpusers  10334247 Jun 23  2000 d5ado.zip
+-rw-r--r--   1 ftpuser  ftpusers    909443 Jun 22  2000 d5bde.zip
+-rw-r--r--   1 ftpuser  ftpusers    181023 Jun 22  2000 d5com.zip
+-rw-r--r--   1 ftpuser  ftpusers      8011 Jun 22  2000 d5com_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    126486 Jun 22  2000 d5corba.zip
+-rw-r--r--   1 ftpuser  ftpusers    176323 Jun 22  2000 d5cw.zip
+-rw-r--r--   1 ftpuser  ftpusers    128685 Jun 22  2000 d5dap_e.zip
+-rw-r--r--   1 ftpuser  ftpusers     90700 Jun 22  2000 d5dap_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     30792 Jun 22  2000 d5dap_s.zip
+-rw-r--r--   1 ftpuser  ftpusers    473242 Aug 14  2000 d5dbd_a.zip
+-rw-r--r--   1 ftpuser  ftpusers    658567 Jun 22  2000 d5dbd_e.zip
+-rw-r--r--   1 ftpuser  ftpusers    431776 Jun 22  2000 d5dbd_p.zip
+-rw-r--r--   1 ftpuser  ftpusers     16673 Jun 22  2000 d5dbd_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     71568 Jun 22  2000 d5dbx.zip
+-rw-r--r--   1 ftpuser  ftpusers    757539 Jun 22  2000 d5dd.zip
+-rw-r--r--   1 ftpuser  ftpusers  11717963 Jun 22  2000 d5ent.zip
+-rw-r--r--   1 ftpuser  ftpusers     15457 Jun 22  2000 d5ibc.zip
+-rw-r--r--   1 ftpuser  ftpusers    342086 Jun 22  2000 d5ibx.zip
+-rw-r--r--   1 ftpuser  ftpusers    994760 Jun 22  2000 d5ide.zip
+-rw-r--r--   1 ftpuser  ftpusers    961152 Jun 22  2000 d5ide_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     45852 Jun 22  2000 d5img.zip
+-rw-r--r--   1 ftpuser  ftpusers     19632 Jun 22  2000 d5ite.zip
+-rw-r--r--   1 ftpuser  ftpusers  17638023 Jun 22  2000 d5ms.zip
+-rw-r--r--   1 ftpuser  ftpusers    225113 Jun 22  2000 d5ms97.zip
+-rw-r--r--   1 ftpuser  ftpusers     52684 Jun 22  2000 d5new.zip
+-rw-r--r--   1 ftpuser  ftpusers    327505 Jun 22  2000 d5nm.zip
+-rw-r--r--   1 ftpuser  ftpusers   2243251 Jun 22  2000 d5ocx.zip
+-rw-r--r--   1 ftpuser  ftpusers      6825 Jun 22  2000 d5oh.zip
+-rw-r--r--   1 ftpuser  ftpusers    308653 Jun 22  2000 d5oplr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3699 Jun 22  2000 d5pce.zip
+-rw-r--r--   1 ftpuser  ftpusers  10106887 Jun 22  2000 d5pro.zip
+-rw-r--r--   1 ftpuser  ftpusers    393168 Jun 22  2000 d5prog.zip
+-rw-r--r--   1 ftpuser  ftpusers    231718 Jun 22  2000 d5qr.zip
+-rw-r--r--   1 ftpuser  ftpusers      3182 Jun 22  2000 d5rdw.zip
+-rw-r--r--   1 ftpuser  ftpusers     30686 Jun 22  2000 d5rn.zip
+-rw-r--r--   1 ftpuser  ftpusers     21273 Jun 22  2000 d5sqb.zip
+-rw-r--r--   1 ftpuser  ftpusers      3006 Jun 22  2000 d5sqm.zip
+-rw-r--r--   1 ftpuser  ftpusers   5651562 Jun 22  2000 d5std.zip
+-rw-r--r--   1 ftpuser  ftpusers    693224 Jun 22  2000 d5tc.zip
+-rw-r--r--   1 ftpuser  ftpusers     81206 Jun 22  2000 d5ts.zip
+-rw-r--r--   1 ftpuser  ftpusers   5281044 Jun 22  2000 d5vcl_a.zip
+-rw-r--r--   1 ftpuser  ftpusers   6219072 Jun 22  2000 d5vcl_e.zip
+-rw-r--r--   1 ftpuser  ftpusers   5111188 Jun 22  2000 d5vcl_p.zip
+-rw-r--r--   1 ftpuser  ftpusers   3395904 Jun 22  2000 d5vcl_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     30374 Jun 22  2000 d5ws.zip
+-rw-r--r--   1 ftpuser  ftpusers     10906 Jun 22  2000 d5x1.zip
+-rw-r--r--   1 ftpuser  ftpusers      6815 Jun 22  2000 d5xtra.zip
+-rw-r--r--   1 ftpuser  ftpusers    180812 Jun 22  2000 del5come.zip
+-rw-r--r--   1 ftpuser  ftpusers    180812 Jun 22  2000 del5comp.zip
+-rw-r--r--   1 ftpuser  ftpusers    175180 Jun 22  2000 del5cw.zip
+-rw-r--r--   1 ftpuser  ftpusers    127976 Jun 22  2000 del5dape.zip
+-rw-r--r--   1 ftpuser  ftpusers     88296 Jun 22  2000 del5dapp.zip
+-rw-r--r--   1 ftpuser  ftpusers     30436 Jun 22  2000 del5daps.zip
+-rw-r--r--   1 ftpuser  ftpusers    471194 Jun 22  2000 del5dbda.zip
+-rw-r--r--   1 ftpuser  ftpusers    655155 Jun 22  2000 del5dbde.zip
+-rw-r--r--   1 ftpuser  ftpusers    429316 Jun 22  2000 del5dbdp.zip
+-rw-r--r--   1 ftpuser  ftpusers     52294 Jun 22  2000 del5new.zip
+-rw-r--r--   1 ftpuser  ftpusers    306630 Jun 22  2000 del5op.zip
+-rw-r--r--   1 ftpuser  ftpusers    391039 Jun 22  2000 del5prog.zip
+-rw-r--r--   1 ftpuser  ftpusers   5237030 Jun 22  2000 del5vcla.zip
+-rw-r--r--   1 ftpuser  ftpusers   6169593 Jun 22  2000 del5vcle.zip
+-rw-r--r--   1 ftpuser  ftpusers   5062077 Jun 22  2000 del5vclp.zip
+-rw-r--r--   1 ftpuser  ftpusers   3366638 Jun 22  2000 del5vcls.zip
+-rw-r--r--   1 ftpuser  ftpusers    968536 Jun 22  2000 delphi5.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun 22  2000 dg
+-rw-r--r--   1 ftpuser  ftpusers   8873353 Jun 22  2000 hlpup_a.zip
+-rw-r--r--   1 ftpuser  ftpusers  10191691 Jun 22  2000 hlpup_e.zip
+-rw-r--r--   1 ftpuser  ftpusers   8618528 Jun 22  2000 hlpup_p.zip
+-rw-r--r--   1 ftpuser  ftpusers   5290621 Jun 22  2000 hlpup_s.zip
+-rw-r--r--   1 ftpuser  ftpusers     18811 Jun 22  2000 ite.zip
+-rw-r--r--   1 ftpuser  ftpusers   1366807 Sep 28  1999 opgl.zip
+-rw-r--r--   1 ftpuser  ftpusers   1366807 Jun 22  2000 oplg.zip
+-rw-r--r--   1 ftpuser  ftpusers       663 Jun 22  2000 postfileftp.logfile
+-rw-r--r--   1 ftpuser  ftpusers       891 Jun 22  2000 psock.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun 22  2000 qs
+-rw-r--r--   1 ftpuser  ftpusers    226619 Jun 22  2000 quickrpt.zip
+-rw-r--r--   1 ftpuser  ftpusers         0 Jun 22  2000 robftp.test
+-rw-r--r--   1 ftpuser  ftpusers     73882 Jun 22  2000 teamsrc.zip
+-rw-r--r--   1 ftpuser  ftpusers    688845 Jun 22  2000 teechart.zip
+-rw-r--r--   1 ftpuser  ftpusers      1876 Jun 22  2000 update_log.txt
+-rw-r--r--   1 ftpuser  ftpusers     29468 Jun 22  2000 winsight.zip
+
+./pub/delphi/techpubs/delphi5/dg:
+-rw-r--r--   1 ftpuser  ftpusers  15941359 Jun 22  2000 dg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   6794771 Jun 22  2000 dg.zip
+
+./pub/delphi/techpubs/delphi5/qs:
+-rw-r--r--   1 ftpuser  ftpusers   7105028 Jun 22  2000 qs.pdf
+-rw-r--r--   1 ftpuser  ftpusers    802659 Jun 22  2000 qs.zip
+
+./pub/delphi/techpubs/delphi6:
+-rw-r--r--   1 ftpuser  ftpusers    802470 Feb 27  2002 UsingWebSnap.pdf
+-rw-r--r--   1 ftpuser  ftpusers    415530 Feb 27  2002 UsingWebSnap.zip
+-rw-r--r--   1 ftpuser  ftpusers   2433094 Feb 27  2002 d61ent.zip
+-rw-r--r--   1 ftpuser  ftpusers    947473 Feb 27  2002 d61per.zip
+-rw-r--r--   1 ftpuser  ftpusers   2258258 Feb 27  2002 d61pro.zip
+-rw-r--r--   1 ftpuser  ftpusers  17029272 Feb 27  2002 d62ent.zip
+-rw-r--r--   1 ftpuser  ftpusers   6306923 Feb 27  2002 d62per.zip
+-rw-r--r--   1 ftpuser  ftpusers  14709572 Feb 27  2002 d62pro.zip
+-rw-r--r--   1 ftpuser  ftpusers  15882126 Feb 27  2002 d6ent.zip
+-rw-r--r--   1 ftpuser  ftpusers   7871680 Feb 27  2002 d6fe-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers   5950069 Feb 27  2002 d6fp-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers   3483464 Feb 27  2002 d6fs-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers  11506624 Feb 27  2002 d6ge-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers   9189603 Feb 27  2002 d6gp-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers   5826535 Feb 27  2002 d6gs-u1.zip
+-rw-r--r--   1 ftpuser  ftpusers   5924388 Feb 27  2002 d6per.zip
+-rw-r--r--   1 ftpuser  ftpusers  13233780 Feb 27  2002 d6pro.zip
+-rw-r--r--   1 ftpuser  ftpusers       350 Feb 27  2002 postfileftp.logfile
+
+./pub/entera:
+drwxr-xr-x   3 ftpuser  ftpusers       512 May 14  2001 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 29  1998 papers
+
+./pub/entera/devsupport:
+drwxr-xr-x   6 ftpuser  ftpusers       512 Dec 16  1998 patches
+
+./pub/entera/devsupport/patches:
+drwxr-xr-x  17 ftpuser  ftpusers       512 Dec 16  1998 32POSTSP
+drwxr-xr-x   6 ftpuser  ftpusers       512 Dec 16  1998 32SP
+drwxr-xr-x  11 ftpuser  ftpusers       512 Jan 21  1999 40
+drwxr-xr-x   6 ftpuser  ftpusers       512 Dec 16  1998 401
+
+./pub/entera/devsupport/patches/32POSTSP:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_31
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_33
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_34
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_35
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_36
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_37
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_38
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_39
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_40
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_41
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_42
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_43
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_44
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_46
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 32_48
+-rw-r--r--   1 ftpuser  ftpusers     35328 Dec 16  1998 32readme.doc
+-rw-r--r--   1 ftpuser  ftpusers       306 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32POSTSP/32_31:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    761410 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_33:
+-rwxr-xr-x   1 ftpuser  ftpusers    835811 Dec 16  1998 EP32_33.EXE
+-rw-r--r--   1 ftpuser  ftpusers       326 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32POSTSP/32_34:
+-rwxr-xr-x   1 ftpuser  ftpusers   1213117 Dec 16  1998 EP32D_34.EXE
+-rw-r--r--   1 ftpuser  ftpusers       330 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32POSTSP/32_35:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   3686550 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_36:
+-rwxr-xr-x   1 ftpuser  ftpusers    841597 Dec 16  1998 EP32spd_36.exe
+-rw-r--r--   1 ftpuser  ftpusers       338 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32POSTSP/32_37:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   4145982 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_38:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers     66730 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_39:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    540098 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_40:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    468734 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_41:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers  16458790 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_42:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers     84986 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_43:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1533330 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_44:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1082574 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_46:
+-rw-r--r--   1 ftpuser  ftpusers       318 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   3459358 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/32POSTSP/32_48:
+-rwxr-xr-x   1 ftpuser  ftpusers    742090 Dec 16  1998 EP32spt_48.exe
+-rw-r--r--   1 ftpuser  ftpusers       338 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32SP:
+-rw-r--r--   1 ftpuser  ftpusers     37376 Dec 16  1998 32SPreadme.doc
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 AIX
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 HP
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 NT
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 SOLARIS
+-rw-r--r--   1 ftpuser  ftpusers       298 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32SP/AIX:
+-rw-r--r--   1 ftpuser  ftpusers  26076755 Dec 16  1998 SP_aix.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers  23902053 Dec 16  1998 SP_rtAIX.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers       620 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32SP/HP:
+-rw-r--r--   1 ftpuser  ftpusers  28791587 Dec 16  1998 SP_hp800.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers  20819123 Dec 16  1998 SP_rtHP.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers       616 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32SP/NT:
+-rwxr-xr-x   1 ftpuser  ftpusers    375296 Dec 16  1998 BROKER.EXE
+-rwxr-xr-x   1 ftpuser  ftpusers   7132083 Dec 16  1998 SETUPEX.EXE
+-rw-r--r--   1 ftpuser  ftpusers       592 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/32SP/SOLARIS:
+-rw-r--r--   1 ftpuser  ftpusers  15959227 Dec 16  1998 SP_rtSOL.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers  23479347 Dec 16  1998 SP_solar.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers       660 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/40:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_01
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_02
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_03
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_04
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_05
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_06
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_07
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_08
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 19  1999 40_09
+-rw-r--r--   1 ftpuser  ftpusers     26624 Jan 21  1999 40readme.doc
+-rw-r--r--   1 ftpuser  ftpusers       282 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/40/40_01:
+-rw-r--r--   1 ftpuser  ftpusers     79061 Feb 19  1999 40_01installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    191250 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_02:
+-rw-r--r--   1 ftpuser  ftpusers    292818 Feb 19  1999 40_02installer.Z
+-rw-r--r--   1 ftpuser  ftpusers    562618 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_03:
+-rw-r--r--   1 ftpuser  ftpusers   1891339 Feb 19  1999 40_03installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   4081232 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_04:
+-rw-r--r--   1 ftpuser  ftpusers   2469610 Feb 19  1999 40_04installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   4837080 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_05:
+-rw-r--r--   1 ftpuser  ftpusers     98575 Feb 19  1999 40_05installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    208780 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_06:
+-rw-r--r--   1 ftpuser  ftpusers    363305 Feb 19  1999 40_06installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    792780 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_07:
+-rw-r--r--   1 ftpuser  ftpusers    339509 Feb 19  1999 40_07installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    685736 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_08:
+-rw-r--r--   1 ftpuser  ftpusers    524370 Feb 19  1999 40_08installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       294 Dec 16  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1274832 Dec 16  1998 installer
+
+./pub/entera/devsupport/patches/40/40_09:
+-rw-r--r--   1 ftpuser  ftpusers    114791 Feb 19  1999 40_09installer.Z
+-rw-r--r--   1 ftpuser  ftpusers       489 Jan 21  1999 README
+-rw-r--r--   1 ftpuser  ftpusers      1021 Jan 21  1999 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    229900 Jan 21  1999 installer
+
+./pub/entera/devsupport/patches/401:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 401_02
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 401_03
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 401_04
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 16  1998 401_06
+-rw-r--r--   1 ftpuser  ftpusers     24064 Dec 16  1998 401readme.doc
+-rw-r--r--   1 ftpuser  ftpusers       290 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/401/401_02:
+-rwxr-xr-x   1 ftpuser  ftpusers    806400 Dec 16  1998 EP401_2.EXE
+-rw-r--r--   1 ftpuser  ftpusers       310 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/401/401_03:
+-rwxr-xr-x   1 ftpuser  ftpusers    856374 Dec 16  1998 EP401_3.EXE
+-rw-r--r--   1 ftpuser  ftpusers       310 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/401/401_04:
+-rwxr-xr-x   1 ftpuser  ftpusers    851753 Dec 16  1998 EP401_4.EXE
+-rw-r--r--   1 ftpuser  ftpusers       310 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/devsupport/patches/401/401_06:
+-rwxr-xr-x   1 ftpuser  ftpusers    736432 Dec 16  1998 EP401_6.EXE
+-rw-r--r--   1 ftpuser  ftpusers       310 Dec 16  1998 WS_FTP.LOG
+
+./pub/entera/papers:
+-rwxr-xr-x   1 ftpuser  ftpusers   2024189 Oct 29  1998 corba-dce.rtf
+-rwxr-xr-x   1 ftpuser  ftpusers       331 Oct 29  1998 postfileftp.logfile
+
+./pub/interbase:
+drwxr-xr-x   6 ftpuser  ftpusers       512 Jan 14 18:20 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 20  2001 techpubs
+
+./pub/interbase/devsupport:
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jan 14 18:25 ib70patch
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 22  2001 ibx
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun  4  2002 interclient
+drwxr-xr-x   2 ftpuser  ftpusers      2048 Mar 12  2001 open_source
+
+./pub/interbase/devsupport/ib70patch:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 14 18:25 linux
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 14 18:20 windows
+
+./pub/interbase/devsupport/ib70patch/linux:
+-rw-r--r--   1 ftpuser  ftpusers   1900402 Jan 14 18:25 ibserver
+
+./pub/interbase/devsupport/ib70patch/windows:
+-rw-r--r--   1 ftpuser  ftpusers   1880064 Jan 14 18:20 ibserver.exe
+
+./pub/interbase/devsupport/ibx:
+-rw-r--r--   1 ftpuser  ftpusers   2433134 Mar 22  2001 IBXBCB452Upd.EXE
+-rw-r--r--   1 ftpuser  ftpusers   2303090 Mar 22  2001 IBXDP452Upd.EXE
+-rw-r--r--   1 ftpuser  ftpusers     10917 Mar 22  2001 IBXUpd452rdme.txt
+-rw-r--r--   1 ftpuser  ftpusers      8785 Mar 22  2001 french_45resources.zip
+-rw-r--r--   1 ftpuser  ftpusers     13353 Mar 22  2001 german_45resources.zip
+
+./pub/interbase/devsupport/interclient:
+-rw-r--r--   1 ftpuser  ftpusers    758387 Jun  4  2002 ic251patch.zip
+
+./pub/interbase/devsupport/open_source:
+-rwxr-xr-x   1 ftpuser  ftpusers   2687408 Mar 12  2001 20001winJRE12.exe
+-rw-r--r--   1 ftpuser  ftpusers   3241211 Mar 12  2001 IBCSN60.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    799242 Mar 12  2001 IBConsole320.txt
+-rw-r--r--   1 ftpuser  ftpusers    799242 Mar 12  2001 IBConsole320_oct9.txt
+-rw-r--r--   1 ftpuser  ftpusers    799242 Mar 12  2001 IBConsole320_oct9.zip
+-rw-r--r--   1 ftpuser  ftpusers    648741 Mar 12  2001 IBConsole_src.ZIP
+-rw-r--r--   1 ftpuser  ftpusers     35296 Mar 12  2001 IBX_DPackages.zip
+-rw-r--r--   1 ftpuser  ftpusers    152721 Mar 12  2001 IBX_Packages.zip
+-rw-r--r--   1 ftpuser  ftpusers   1136158 Mar 12  2001 IC160001LinuxJRE12.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1329234 Mar 12  2001 IC160001SolarisJRE12.tar.gz
+-rwxr-xr-x   1 ftpuser  ftpusers   2746981 Mar 12  2001 IC160001WinJRE12.exe
+-rw-r--r--   1 ftpuser  ftpusers   3190778 Mar 12  2001 IC16_sources.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3683616 Mar 12  2001 IC16_sources.zip
+-rw-r--r--   1 ftpuser  ftpusers   1134334 Mar 12  2001 IC20001LinuxJRE12.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1254210 Mar 12  2001 IC20001SolarisJRE12.tar.gz
+-rwxr-xr-x   1 ftpuser  ftpusers   2761099 Mar 12  2001 IC20001winJRE12.exe
+-rw-r--r--   1 ftpuser  ftpusers   3207435 Mar 12  2001 IC20_sources.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3687127 Mar 12  2001 IC20_sources.zip
+-rw-r--r--   1 ftpuser  ftpusers     14841 Mar 12  2001 IbHPUXPatch.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers     14391 Mar 12  2001 IbHpuxPatch.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers     14005 Mar 12  2001 IbLinuxPatch.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers     23745 Mar 12  2001 IbNWPatch.ZIP
+-rw-r--r--   1 ftpuser  ftpusers     54420 Mar 12  2001 IbSCOPatch.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers      9986 Mar 12  2001 IbSolarisPatch.tar.Z
+-rw-r--r--   1 ftpuser  ftpusers     23287 Mar 12  2001 IbWinPatch.ZIP
+-rw-r--r--   1 ftpuser  ftpusers     23409 Mar 12  2001 IbWinPatch.zip
+-rw-r--r--   1 ftpuser  ftpusers   3368362 Mar 12  2001 InterBaseCS_LI-V6.0-1.i386.pkg
+-rw-r--r--   1 ftpuser  ftpusers   3261812 Mar 12  2001 InterBaseCS_LI-V6.0-1.i386.rpm
+-rw-r--r--   1 ftpuser  ftpusers   3225600 Mar 12  2001 InterBaseCS_LI-V6.0.1.tar
+-rw-r--r--   1 ftpuser  ftpusers   3215360 Mar 12  2001 InterBaseCS_LI-V6.0.tar
+-rw-r--r--   1 ftpuser  ftpusers   3241580 Mar 12  2001 InterBaseCS_LI-V6_0-1_i386.pkg
+-rw-r--r--   1 ftpuser  ftpusers   3142644 Mar 12  2001 InterBaseSS_LI-V6.0-1.i386.rpm
+-rw-r--r--   1 ftpuser  ftpusers   3102720 Mar 12  2001 InterBaseSS_LI-V6.0.1.tar
+-rw-r--r--   1 ftpuser  ftpusers   3102720 Mar 12  2001 InterBaseSS_LI-V6.0.tar
+-rw-r--r--   1 ftpuser  ftpusers   3259032 Mar 12  2001 InterBase_SO-V6.0.1.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3945781 Mar 12  2001 InterBase_WI-V6.0-client.ZIP
+-rw-r--r--   1 ftpuser  ftpusers   5481513 Mar 12  2001 InterBase_WI-V6.0-server.ZIP
+-rw-r--r--   1 ftpuser  ftpusers   3632380 Mar 12  2001 InterBase_WI-V6.0.1-client.ZIP
+-rw-r--r--   1 ftpuser  ftpusers   5091102 Mar 12  2001 InterBase_WI-V6.0.1-server.ZIP
+-rw-r--r--   1 ftpuser  ftpusers   1254210 Mar 12  2001 SolarisJRE2.01
+-rw-r--r--   1 ftpuser  ftpusers   7921338 Mar 12  2001 ib60src.ZIP
+-rw-r--r--   1 ftpuser  ftpusers   6693747 Mar 12  2001 ib60src.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3830278 Mar 12  2001 ib_client_6_0_1
+-rw-r--r--   1 ftpuser  ftpusers   3830278 Mar 12  2001 ib_client_6_0_1.zip
+-rw-r--r--   1 ftpuser  ftpusers   5366010 Mar 12  2001 ib_server_6_0_1.zip
+-rw-r--r--   1 ftpuser  ftpusers   7372922 Mar 12  2001 ib_source601.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   8559620 Mar 12  2001 ib_source601.zip
+-rw-r--r--   1 ftpuser  ftpusers     36784 Mar 12  2001 ib_tools_src.ZIP
+-rw-r--r--   1 ftpuser  ftpusers     29671 Mar 12  2001 ib_tools_src.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers     43704 Mar 12  2001 interbase6.jpg
+-rw-r--r--   1 ftpuser  ftpusers   1134334 Mar 12  2001 linuxIC2.01
+-rw-r--r--   1 ftpuser  ftpusers   1122915 Mar 12  2001 linux_JRE12.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3215360 Mar 12  2001 linuxclassic_li-v6.0.tar
+-rw-r--r--   1 ftpuser  ftpusers   3102720 Mar 12  2001 linuxsuperserver_li-v6.0.tar
+-rw-r--r--   1 ftpuser  ftpusers   1244465 Mar 12  2001 solarisJRE12.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2468967 Mar 12  2001 unix_sources.tar.gz
+-rwxr-xr-x   1 ftpuser  ftpusers   2687408 Mar 12  2001 winFRE12.exe
+-rwxr-xr-x   1 ftpuser  ftpusers   2687408 Mar 12  2001 winJRE12.exe
+-rw-r--r--   1 ftpuser  ftpusers   5489968 Mar 12  2001 win_sources.zip
+-rw-r--r--   1 ftpuser  ftpusers   2761099 Mar 12  2001 windowsIC2.01
+
+./pub/interbase/techpubs:
+-rw-r--r--   1 ftpuser  ftpusers    436383 Nov 16  2000 InterBase60_MigrationGuide.zip
+-rw-r--r--   1 ftpuser  ftpusers    392192 Nov 16  2000 embedded_installation_guide.pdf
+-rw-r--r--   1 ftpuser  ftpusers   8312377 Nov 16  2000 ib55docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2394461 Nov 16  2000 ib_4_0_docs_tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  10530848 Nov 16  2000 ib_b60_doc.zip
+-rw-r--r--   1 ftpuser  ftpusers    499201 Feb 20  2001 tutorial.zip
+
+./pub/jbuilder:
+drwxr-xr-x   9 ftpuser  ftpusers       512 Jul 29  2002 devsupport
+drwxr-xr-x   4 ftpuser  ftpusers       512 Dec  5  2000 jb4foundation
+drwxr-xr-x   5 ftpuser  ftpusers       512 Sep  7  2001 jb5personal
+drwxr-xr-x   5 ftpuser  ftpusers       512 Feb 21  2002 jb6enterprise
+drwxr-xr-x   5 ftpuser  ftpusers       512 Feb 21  2002 jb6personal
+drwxr-xr-x   6 ftpuser  ftpusers       512 Aug 20 09:28 jb7enterprise
+drwxr-xr-x   6 ftpuser  ftpusers       512 Aug  7  2002 jb7personal
+drwxr-xr-x   5 ftpuser  ftpusers       512 Jan 29 09:18 jb8enterprise
+drwxr-xr-x   4 ftpuser  ftpusers       512 Feb  3 11:08 jb8personal
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul 29  2002 jbuilder5
+drwxr-xr-x   5 ftpuser  ftpusers       512 Nov 20 16:00 techpubs
+
+./pub/jbuilder/devsupport:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 11  1998 archive
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 11  1998 general
+drwxr-xr-x   5 ftpuser  ftpusers       512 Apr 19  1999 jb10updates
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Jul 29  2002 jbuilder4
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Jul 29  2002 jbuilder5
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 13  2002 jbuilder6
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 11  1998 patches
+
+./pub/jbuilder/devsupport/archive:
+
+./pub/jbuilder/devsupport/general:
+
+./pub/jbuilder/devsupport/jb10updates:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr 19  1999 jb10cs
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr 19  1999 jb10pro
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr 19  1999 jb10std
+
+./pub/jbuilder/devsupport/jb10updates/jb10cs:
+-rw-r--r--   1 ftpuser  ftpusers   5562236 Apr 19  1999 jb101cs.exe
+
+./pub/jbuilder/devsupport/jb10updates/jb10pro:
+-rw-r--r--   1 ftpuser  ftpusers   5458840 Apr 19  1999 jb101pro.exe
+-rw-r--r--   1 ftpuser  ftpusers   5425200 Apr 19  1999 patch.1
+-rw-r--r--   1 ftpuser  ftpusers   5423907 Apr 19  1999 patch.2
+-rw-r--r--   1 ftpuser  ftpusers   5424542 Apr 19  1999 patch.3
+-rw-r--r--   1 ftpuser  ftpusers   5423724 Apr 19  1999 patch.4
+-rw-r--r--   1 ftpuser  ftpusers   5423138 Apr 19  1999 patch.5
+
+./pub/jbuilder/devsupport/jb10updates/jb10std:
+-rw-r--r--   1 ftpuser  ftpusers   4943413 Apr 19  1999 jb101std.exe
+-rw-r--r--   1 ftpuser  ftpusers   4809899 Apr 19  1999 patch.1
+-rw-r--r--   1 ftpuser  ftpusers   4811041 Apr 19  1999 patch.2
+-rw-r--r--   1 ftpuser  ftpusers   4810955 Apr 19  1999 patch.3
+-rw-r--r--   1 ftpuser  ftpusers   4809981 Apr 19  1999 patch.4
+-rw-r--r--   1 ftpuser  ftpusers   4811610 Apr 19  1999 patch.5
+
+./pub/jbuilder/devsupport/jbuilder4:
+-rw-r--r--   1 ftpuser  ftpusers     61440 Jul 29  2002 EjbGrpBuild.tar
+-rw-r--r--   1 ftpuser  ftpusers     18540 Jul 29  2002 EjbGrpBuild.zip
+-rw-r--r--   1 ftpuser  ftpusers      3440 Jul 29  2002 JB4ArchiveBuilderFixRev2.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers      3760 Jul 29  2002 JB4ArchiveBuilderFixRev2.zip
+-rw-r--r--   1 ftpuser  ftpusers      5913 Jul 29  2002 cx.zip
+-rw-r--r--   1 ftpuser  ftpusers   2300838 Jul 29  2002 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2385920 Jul 29  2002 database.tar
+-rw-r--r--   1 ftpuser  ftpusers   1320774 Jul 29  2002 database.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1322733 Jul 29  2002 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   3534540 Jul 29  2002 enterprise.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2477584 Jul 29  2002 enterprise.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2479729 Jul 29  2002 enterprise.zip
+-rw-r--r--   1 ftpuser  ftpusers   3775922 Jul 29  2002 java-jb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2631901 Jul 29  2002 java-jb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2634381 Jul 29  2002 java-jb.zip
+-rw-r--r--   1 ftpuser  ftpusers   2631901 Jul 29  2002 javajb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2634381 Jul 29  2002 javajb.zip
+-rw-r--r--   1 ftpuser  ftpusers  14865268 Jul 29  2002 jb4pdfdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  14667291 Jul 29  2002 jb4pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2092779 Jul 29  2002 jb_opentools.jar
+-rw-r--r--   1 ftpuser  ftpusers   2099200 Jul 29  2002 jb_opentools.tar
+-rw-r--r--   1 ftpuser  ftpusers   1953443 Jul 29  2002 jb_opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   1499182 Jul 29  2002 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1576960 Jul 29  2002 jdspg.tar
+-rw-r--r--   1 ftpuser  ftpusers    683390 Jul 29  2002 jdspg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    684642 Jul 29  2002 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   4757185 Jul 29  2002 pg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2847925 Jul 29  2002 pg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2853023 Jul 29  2002 pg.zip
+-rw-r--r--   1 ftpuser  ftpusers       686 Jul 29  2002 postfileftp.logfile
+-rw-r--r--   1 ftpuser  ftpusers  14009708 Jul 29  2002 ref.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4894274 Jul 29  2002 ref.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4906571 Jul 29  2002 ref.zip
+
+./pub/jbuilder/devsupport/jbuilder5:
+-rw-r--r--   1 ftpuser  ftpusers   2301037 Jul 29  2002 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1320832 Jul 29  2002 database.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1322823 Jul 29  2002 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   1100708 Jul 29  2002 distributed.pdf
+-rw-r--r--   1 ftpuser  ftpusers    809036 Jul 29  2002 distributed.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    809741 Jul 29  2002 distributed.zip
+-rw-r--r--   1 ftpuser  ftpusers   2003245 Jul 29  2002 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1410495 Jul 29  2002 enterprisejb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1411972 Jul 29  2002 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1271824 Jul 29  2002 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    620118 Jul 29  2002 gsjava.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    621075 Jul 29  2002 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers    435316 Jul 29  2002 jb5_en_all_001.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    435835 Jul 29  2002 jb5_en_all_001.zip
+-rw-r--r--   1 ftpuser  ftpusers  16044191 Jul 29  2002 jb5pdfdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  15932256 Jul 29  2002 jb5pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2426880 Jul 29  2002 jb_opentools.tar
+-rw-r--r--   1 ftpuser  ftpusers   2262242 Jul 29  2002 jb_opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   1502892 Jul 29  2002 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    685964 Jul 29  2002 jdspg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    687248 Jul 29  2002 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   1243250 Jul 29  2002 opentools.pdf
+-rw-r--r--   1 ftpuser  ftpusers    762760 Jul 29  2002 opentools.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    763585 Jul 29  2002 opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   5973025 Jul 29  2002 pg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3817584 Jul 29  2002 pg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3822357 Jul 29  2002 pg.zip
+-rw-r--r--   1 ftpuser  ftpusers   1934148 Jul 29  2002 qs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1547275 Jul 29  2002 qs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1548452 Jul 29  2002 qs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1748897 Jul 29  2002 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1497097 Jul 29  2002 teamdev.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1497688 Jul 29  2002 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   3240985 Jul 29  2002 webapp.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2514148 Jul 29  2002 webapp.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2515949 Jul 29  2002 webapp.zip
+-rw-r--r--   1 ftpuser  ftpusers   1361007 Jul 29  2002 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1045777 Jul 29  2002 xml.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1046704 Jul 29  2002 xml.zip
+
+./pub/jbuilder/devsupport/jbuilder6:
+-rw-r--r--   1 ftpuser  ftpusers    449350 Feb 13  2002 jb6_all_001.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    448670 Feb 13  2002 jb6_all_001.zip
+
+./pub/jbuilder/devsupport/patches:
+
+./pub/jbuilder/jb4foundation:
+drwxr-xr-x   5 ftpuser  ftpusers       512 Dec 15  2000 unix
+drwxr-xr-x   5 ftpuser  ftpusers       512 Dec 15  2000 windows
+
+./pub/jbuilder/jb4foundation/unix:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 german
+-rw-r--r--   1 ftpuser  ftpusers  39380184 Nov  6  2000 jb4docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4201331 Nov  6  2000 jb4samples.tar.gz
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 spanish
+
+./pub/jbuilder/jb4foundation/unix/french:
+-rw-r--r--   1 ftpuser  ftpusers  40558008 Dec 15  2000 jb4docs_fr.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4340854 Dec 15  2000 jb4samples_fr.tar.gz
+
+./pub/jbuilder/jb4foundation/unix/german:
+-rw-r--r--   1 ftpuser  ftpusers  43048747 Dec 15  2000 jb4docs_de.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4397328 Dec 15  2000 jb4samples_de.tar.gz
+
+./pub/jbuilder/jb4foundation/unix/spanish:
+-rw-r--r--   1 ftpuser  ftpusers  39960379 Dec 15  2000 jb4docs_es.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4296153 Dec 15  2000 jb4samples_es.tar.gz
+
+./pub/jbuilder/jb4foundation/windows:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 german
+-rw-r--r--   1 ftpuser  ftpusers  39826829 Nov  6  2000 jb4docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4643272 Nov  6  2000 jb4samples.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 15  2000 spanish
+
+./pub/jbuilder/jb4foundation/windows/french:
+-rw-r--r--   1 ftpuser  ftpusers  41028620 Dec 15  2000 jb4docs_fr.zip
+-rw-r--r--   1 ftpuser  ftpusers   4591069 Dec 15  2000 jb4samples_fr.zip
+
+./pub/jbuilder/jb4foundation/windows/german:
+-rw-r--r--   1 ftpuser  ftpusers  43530809 Dec 15  2000 jb4docs_de.zip
+-rw-r--r--   1 ftpuser  ftpusers   4870663 Dec 15  2000 jb4samples_de.zip
+
+./pub/jbuilder/jb4foundation/windows/spanish:
+-rw-r--r--   1 ftpuser  ftpusers  40440776 Dec 15  2000 jb4docs_es.zip
+-rw-r--r--   1 ftpuser  ftpusers   4758622 Dec 15  2000 jb4samples_es.zip
+
+./pub/jbuilder/jb5personal:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul 18  2001 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  6  2001 german
+-rw-r--r--   1 ftpuser  ftpusers  60191324 Jul  9  2001 jb5docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  60441580 Jul  9  2001 jb5docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4472155 Jul  9  2001 jb5samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4705158 Jul  9  2001 jb5samples.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  2001 spanish
+
+./pub/jbuilder/jb5personal/french:
+-rw-r--r--   1 ftpuser  ftpusers  64297329 Jul 18  2001 fr_jb5docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  64548071 Jul 18  2001 fr_jb5docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4641139 Jul 18  2001 fr_jb5samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4873629 Jul 18  2001 fr_jb5samples.zip
+
+./pub/jbuilder/jb5personal/german:
+-rw-r--r--   1 ftpuser  ftpusers  65840851 Sep  6  2001 jb5docs_de.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  66201474 Sep  6  2001 jb5docs_de.zip
+-rw-r--r--   1 ftpuser  ftpusers   4596695 Sep  6  2001 jb5samples_de.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4829597 Sep  6  2001 jb5samples_de.zip
+
+./pub/jbuilder/jb5personal/spanish:
+-rw-r--r--   1 ftpuser  ftpusers  66222920 Sep  7  2001 jb5docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  66474230 Sep  7  2001 jb5docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4665183 Sep  7  2001 jb5samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4896978 Sep  7  2001 jb5samples.zip
+
+./pub/jbuilder/jb6enterprise:
+-rw-r--r--   1 ftpuser  ftpusers  30238482 Jan  2  2002 extras.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 21  2002 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb  7  2002 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 21  2002 japanese
+-rw-r--r--   1 ftpuser  ftpusers  60093470 Jan  2  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4845531 Jan  2  2002 jb6samples.zip
+
+./pub/jbuilder/jb6enterprise/french:
+-rw-r--r--   1 ftpuser  ftpusers  30238482 Feb 21  2002 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  64988160 Feb 21  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4868631 Feb 21  2002 jb6samples.zip
+
+./pub/jbuilder/jb6enterprise/german:
+-rw-r--r--   1 ftpuser  ftpusers  30238482 Feb  7  2002 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  71936979 Feb  7  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4850333 Feb  7  2002 jb6samples.zip
+
+./pub/jbuilder/jb6enterprise/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  30238482 Feb 21  2002 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  65257425 Feb 21  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4871520 Feb 21  2002 jb6samples.zip
+
+./pub/jbuilder/jb6personal:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb  7  2002 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb  7  2002 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb 21  2002 japanese
+-rw-r--r--   1 ftpuser  ftpusers  59957678 Jan  2  2002 jb6docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  59941221 Jan  2  2002 jb6docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  60079688 Jan  2  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4718940 Jan  2  2002 jb6samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   4714217 Jan  2  2002 jb6samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4831749 Jan  2  2002 jb6samples.zip
+
+./pub/jbuilder/jb6personal/french:
+-rw-r--r--   1 ftpuser  ftpusers  64833486 Feb  7  2002 jb6docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  64973000 Feb  7  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4738234 Feb  7  2002 jb6samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4853471 Feb  7  2002 jb6samples.zip
+
+./pub/jbuilder/jb6personal/german:
+-rw-r--r--   1 ftpuser  ftpusers  71777212 Feb  7  2002 jb6docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  71920892 Feb  7  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4718854 Feb  7  2002 jb6samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4834246 Feb  7  2002 jb6samples.zip
+
+./pub/jbuilder/jb6personal/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  65106385 Feb 21  2002 jb6docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  65245356 Feb 21  2002 jb6docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4743820 Feb 21  2002 jb6samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4859451 Feb 21  2002 jb6samples.zip
+
+./pub/jbuilder/jb7enterprise:
+-rw-r--r--   1 ftpuser  ftpusers  30977494 Jul  2  2002 extras.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 20 09:29 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  7  2002 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 16 15:56 japanese
+-rw-r--r--   1 ftpuser  ftpusers  59097593 Jul  2  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5501115 Jul  2  2002 jb7samples.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug 13 09:30 spanish
+
+./pub/jbuilder/jb7enterprise/french:
+-rw-r--r--   1 ftpuser  ftpusers  30977494 Aug 20 09:28 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  60993637 Aug 20 09:29 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5532342 Aug 20 09:30 jb7samples.zip
+
+./pub/jbuilder/jb7enterprise/german:
+-rw-r--r--   1 ftpuser  ftpusers  30977494 Aug  7  2002 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  61322340 Aug  7  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5310929 Aug  7  2002 jb7samples.zip
+
+./pub/jbuilder/jb7enterprise/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  30977494 Aug 16 15:55 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  62225969 Aug 16 15:56 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5569966 Aug 16 15:56 jb7samples.zip
+
+./pub/jbuilder/jb7enterprise/spanish:
+-rw-r--r--   1 ftpuser  ftpusers  30977618 Aug 13 09:29 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  61804718 Aug 13 09:30 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5327216 Aug 13 09:30 jb7samples.zip
+
+./pub/jbuilder/jb7personal:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  2  2002 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  5  2002 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul 24  2002 japanese
+-rw-r--r--   1 ftpuser  ftpusers  58790060 Jun 26  2002 jb7docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  58775035 Jun 26  2002 jb7docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  58918896 Jun 26  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5193560 Jun 26  2002 jb7samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   5186530 Jun 26  2002 jb7samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5313650 Jun 26  2002 jb7samples.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  7  2002 spanish
+
+./pub/jbuilder/jb7personal/french:
+-rw-r--r--   1 ftpuser  ftpusers  60676175 Aug  2  2002 jb7docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  60660739 Aug  2  2002 jb7docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  60805667 Aug  2  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5214843 Aug  2  2002 jb7samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   5208232 Aug  2  2002 jb7samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5335646 Aug  2  2002 jb7samples.zip
+
+./pub/jbuilder/jb7personal/german:
+-rw-r--r--   1 ftpuser  ftpusers  61191877 Aug  5  2002 jb7docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  61176895 Aug  5  2002 jb7docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  61321116 Aug  5  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5192363 Aug  5  2002 jb7samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   5185557 Aug  5  2002 jb7samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5312592 Aug  5  2002 jb7samples.zip
+
+./pub/jbuilder/jb7personal/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  62095613 Jul 24  2002 jb7_jp_docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  62080070 Jul 24  2002 jb7_jp_docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  62224915 Jul 24  2002 jb7_jp_docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5448508 Jul 24  2002 jb7_jp_samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   5282117 Jul 24  2002 jb7_jp_samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5568888 Jul 24  2002 jb7_jp_samples.zip
+
+./pub/jbuilder/jb7personal/spanish:
+-rw-r--r--   1 ftpuser  ftpusers  61674739 Aug  7  2002 jb7docs.sit
+-rw-r--r--   1 ftpuser  ftpusers  61659172 Aug  7  2002 jb7docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  61804126 Aug  7  2002 jb7docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5206442 Aug  7  2002 jb7samples.sit
+-rw-r--r--   1 ftpuser  ftpusers   5199471 Aug  7  2002 jb7samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5326600 Aug  7  2002 jb7samples.zip
+
+./pub/jbuilder/jb8enterprise:
+-rw-r--r--   1 ftpuser  ftpusers  72376952 Dec  2 14:31 extras.zip
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 28 16:37 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 29 09:21 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jan 28 16:18 japanese
+-rw-r--r--   1 ftpuser  ftpusers  68044128 Dec  2 14:32 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5603256 Dec  2 14:32 jb8samples.zip
+
+./pub/jbuilder/jb8enterprise/french:
+-rw-r--r--   1 ftpuser  ftpusers  72376952 Jan 28 16:36 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  69142808 Jan 28 16:37 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5711524 Jan 28 16:37 jb8samples.zip
+
+./pub/jbuilder/jb8enterprise/german:
+-rw-r--r--   1 ftpuser  ftpusers  72376952 Jan 29 09:20 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  68821546 Jan 29 09:21 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5662323 Jan 29 09:21 jb8samples.zip
+
+./pub/jbuilder/jb8enterprise/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  72376952 Jan 28 16:17 extras.zip
+-rw-r--r--   1 ftpuser  ftpusers  72500839 Jan 28 16:18 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5655670 Jan 28 16:18 jb8samples.zip
+
+./pub/jbuilder/jb8personal:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb  3 11:11 german
+drwxr-xr-x   2 ftpuser  ftpusers       512 Feb  3 11:04 japanese
+-rw-r--r--   1 ftpuser  ftpusers  69377531 Dec 18 15:32 jb8docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  69514504 Dec 18 15:34 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5513924 Dec 18 15:34 jb8samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5633399 Dec 18 15:34 jb8samples.zip
+
+./pub/jbuilder/jb8personal/german:
+-rw-r--r--   1 ftpuser  ftpusers  68708830 Feb  3 11:10 jb8docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  68821855 Feb  3 11:11 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5578312 Feb  3 11:11 jb8samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5662632 Feb  3 11:11 jb8samples.zip
+
+./pub/jbuilder/jb8personal/japanese:
+-rw-r--r--   1 ftpuser  ftpusers  72386058 Feb  3 11:03 jb8docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  72499507 Feb  3 11:04 jb8docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   5575383 Feb  3 11:04 jb8samples.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5654338 Feb  3 11:04 jb8samples.zip
+
+./pub/jbuilder/jbuilder5:
+-rw-r--r--   1 ftpuser  ftpusers   2301037 Jul 29  2002 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1320832 Jul 29  2002 database.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1322823 Jul 29  2002 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   1100708 Jul 29  2002 distributed.pdf
+-rw-r--r--   1 ftpuser  ftpusers    809036 Jul 29  2002 distributed.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    809741 Jul 29  2002 distributed.zip
+-rw-r--r--   1 ftpuser  ftpusers   2003245 Jul 29  2002 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1410495 Jul 29  2002 enterprisejb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1411972 Jul 29  2002 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1271824 Jul 29  2002 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    620118 Jul 29  2002 gsjava.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    621075 Jul 29  2002 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers    435316 Jul 29  2002 jb5_en_all_001.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    435835 Jul 29  2002 jb5_en_all_001.zip
+
+./pub/jbuilder/techpubs:
+drwxr-xr-x   2 ftpuser  ftpusers      1536 Mar 12  2002 jbuilder6
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Sep  6 16:50 jbuilder7
+drwxr-xr-x   6 ftpuser  ftpusers      1024 Dec  3 16:45 jbuilder8
+
+./pub/jbuilder/techpubs/jbuilder6:
+-rw-r--r--   1 ftpuser  ftpusers   4053636 Mar  6  2002 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2730186 Mar 12  2002 bajb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2732815 Mar  6  2002 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   2472586 Dec 20  2001 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1358106 Nov 12  2001 database.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1360156 Nov 12  2001 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   2362199 Dec 20  2001 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1423997 Nov 12  2001 designui.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1426348 Nov 12  2001 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers    872550 Dec 20  2001 distributed.pdf
+-rw-r--r--   1 ftpuser  ftpusers    554259 Nov 12  2001 distributed.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    554981 Nov 12  2001 distributed.zip
+-rw-r--r--   1 ftpuser  ftpusers   2877346 Dec 20  2001 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1939869 Nov 12  2001 enterprisejb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1941749 Nov 12  2001 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1346726 Dec 20  2001 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    632984 Nov 12  2001 gsjava.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    633855 Nov 12  2001 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2583257 Dec 20  2001 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1751104 Nov 12  2001 introjb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1753183 Nov 12  2001 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  16850105 Nov 12  2001 jb6pdfdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  16726323 Nov 12  2001 jb6pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1544748 Dec 20  2001 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    641062 Nov 12  2001 jdspg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    642285 Nov 12  2001 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   2027874 Jan 21  2002 mobilesetdocs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1506240 Jan 21  2002 mobilesetdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1507347 Jan 21  2002 mobilesetdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1204138 Dec 20  2001 opentools.pdf
+-rw-r--r--   1 ftpuser  ftpusers    683344 Nov 12  2001 opentools.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    684136 Nov 12  2001 opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   1641959 Dec 20  2001 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1340812 Nov 12  2001 teamdev.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1341323 Nov 12  2001 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   3711283 Dec 20  2001 webapp.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2820674 Nov 12  2001 webapp.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2822399 Nov 12  2001 webapp.zip
+-rw-r--r--   1 ftpuser  ftpusers    385013 Dec  7  2001 websvcs-docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1382400 Dec 20  2001 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers    998153 Nov 12  2001 xml.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    999183 Nov 12  2001 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder7:
+-rw-r--r--   1 ftpuser  ftpusers   5307021 May 20  2002 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3626311 May 20  2002 bajb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3630265 May 20  2002 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   2722146 May 20  2002 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1643837 May 20  2002 database.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1645846 May 20  2002 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   2683648 May 20  2002 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1738889 May 20  2002 designui.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1741243 May 20  2002 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   4103306 May 20  2002 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2767603 May 20  2002 enterprisejb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   2754262 May 20  2002 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1443313 May 20  2002 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    732920 May 20  2002 gsjava.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    733983 May 20  2002 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2747219 May 20  2002 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1981854 May 20  2002 introjb.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1983801 May 20  2002 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  20694505 May 20  2002 jb7pdfdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  20557595 May 20  2002 jb7pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1721584 May 20  2002 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    822395 May 20  2002 jdspg.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    823719 May 20  2002 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   2523729 Sep  6 16:50 mobilesetdocs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1948837 Sep  6 16:50 mobilesetdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1950279 Sep  6 16:50 mobilesetdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1726013 May 20  2002 opentools.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1085377 May 20  2002 opentools.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1086528 May 20  2002 opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   1011193 May 20  2002 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers    675668 May 20  2002 teamdev.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    676412 May 20  2002 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   4598898 May 20  2002 webapp.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3579030 May 20  2002 webapp.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3580865 May 20  2002 webapp.zip
+-rw-r--r--   1 ftpuser  ftpusers   1257426 May 20  2002 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers    921825 May 20  2002 websvcs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    922671 May 20  2002 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1491475 May 20  2002 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1102544 May 20  2002 xml.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1102907 May 20  2002 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder8:
+-rw-r--r--   1 ftpuser  ftpusers   6495970 Dec  3 16:45 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4567559 Dec  3 16:45 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   2712749 Dec  3 16:45 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1626883 Dec  3 16:45 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   2898341 Dec  3 16:45 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1772137 Dec  3 16:45 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   4655689 Dec  3 16:45 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3197640 Dec  3 16:45 enterprisejb.zip
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Dec 20 15:25 french
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Dec 20 14:50 german
+-rw-r--r--   1 ftpuser  ftpusers   1433309 Dec  3 16:45 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    720800 Dec  3 16:45 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2407391 Dec  3 16:45 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1825695 Dec  3 16:45 introjb.zip
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Dec 20 15:20 japanese
+-rw-r--r--   1 ftpuser  ftpusers  24135990 Dec  3 16:45 jb8pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2279112 Dec  3 16:45 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    694926 Dec  3 16:45 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   2523729 Dec  3 16:45 mobilesetdocs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1950279 Dec  3 16:45 mobilesetdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1690548 Dec  3 16:45 opentools.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1070545 Dec  3 16:45 opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers       367 Dec  3 16:45 postfileftp.logfile
+drwxr-xr-x   2 ftpuser  ftpusers      1024 Jan 14 15:40 spanish
+-rw-r--r--   1 ftpuser  ftpusers   1808516 Dec  3 16:45 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1345599 Dec  3 16:45 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   5410880 Dec  3 16:45 webapps.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4194010 Dec  3 16:45 webapps.zip
+-rw-r--r--   1 ftpuser  ftpusers   2608243 Dec  3 16:45 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1718653 Dec  3 16:45 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1820078 Dec  3 16:45 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1404476 Dec  3 16:45 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder8/french:
+-rw-r--r--   1 ftpuser  ftpusers   6907055 Dec 20 15:25 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4949993 Dec 20 15:25 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   3210293 Dec 20 15:25 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2135650 Dec 20 15:25 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   3192938 Dec 20 15:25 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2153314 Dec 20 15:25 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   5369659 Dec 20 15:25 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3892684 Dec 20 15:25 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1583335 Dec 20 15:25 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    883939 Dec 20 15:25 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2578798 Dec 20 15:25 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1997060 Dec 20 15:25 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  27375219 Dec 20 15:25 jb8pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1868163 Dec 20 15:25 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1081438 Dec 20 15:25 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   2040361 Dec 20 15:25 opentools.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1387918 Dec 20 15:25 opentools.zip
+-rw-r--r--   1 ftpuser  ftpusers   2015500 Dec 20 15:25 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1552021 Dec 20 15:25 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   4955046 Dec 20 15:25 webapps.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3913207 Dec 20 15:25 webapps.zip
+-rw-r--r--   1 ftpuser  ftpusers   2351291 Dec 20 15:25 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1808092 Dec 20 15:25 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2042581 Dec 20 15:25 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1620145 Dec 20 15:25 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder8/german:
+-rw-r--r--   1 ftpuser  ftpusers   7305471 Dec 20 14:50 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4865513 Dec 20 14:50 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   3456436 Dec 20 14:50 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1983698 Dec 20 14:50 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   3320758 Dec 20 14:50 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2059989 Dec 20 14:50 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   5475619 Dec 20 14:50 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3700739 Dec 20 14:50 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1715210 Dec 20 14:50 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    848103 Dec 20 14:50 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2394387 Dec 20 14:50 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1712935 Dec 20 14:50 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  25758485 Dec 20 14:50 jb8pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1826357 Dec 20 14:50 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1049174 Dec 20 14:50 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   1976686 Dec 20 14:50 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1459199 Dec 20 14:50 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   4949312 Dec 20 14:50 webapps.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3648886 Dec 20 14:50 webapps.zip
+-rw-r--r--   1 ftpuser  ftpusers   2432539 Dec 20 14:50 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1786494 Dec 20 14:50 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2074061 Dec 20 14:50 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1573452 Dec 20 14:50 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder8/japanese:
+-rw-r--r--   1 ftpuser  ftpusers   8763123 Dec 20 15:20 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   6548846 Dec 20 15:20 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   3329341 Dec 20 15:20 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2052726 Dec 20 15:20 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   3543005 Dec 20 15:20 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2298784 Dec 20 15:20 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   6876809 Dec 20 15:20 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   5231307 Dec 20 15:20 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1912708 Dec 20 15:20 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1124556 Dec 20 15:20 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2905153 Dec 20 15:20 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2243278 Dec 20 15:20 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  32419806 Dec 20 15:20 jb8pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2096058 Dec 20 15:20 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1218331 Dec 20 15:20 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   2036147 Dec 20 15:20 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1527530 Dec 20 15:20 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   6041735 Dec 20 15:20 webapps.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4849472 Dec 20 15:20 webapps.zip
+-rw-r--r--   1 ftpuser  ftpusers   2821919 Dec 20 15:20 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2154255 Dec 20 15:20 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   2608190 Dec 20 15:20 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2100418 Dec 20 15:20 xml.zip
+
+./pub/jbuilder/techpubs/jbuilder8/spanish:
+-rw-r--r--   1 ftpuser  ftpusers   5661272 Jan 14 15:40 bajb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3726846 Jan 14 15:40 bajb.zip
+-rw-r--r--   1 ftpuser  ftpusers   2351879 Jan 14 15:40 database.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1286496 Jan 14 15:40 database.zip
+-rw-r--r--   1 ftpuser  ftpusers   2578935 Jan 14 15:40 designui.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1573069 Jan 14 15:40 designui.zip
+-rw-r--r--   1 ftpuser  ftpusers   4370646 Jan 14 15:40 enterprisejb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2946894 Jan 14 15:40 enterprisejb.zip
+-rw-r--r--   1 ftpuser  ftpusers   1379887 Jan 14 15:40 gsjava.pdf
+-rw-r--r--   1 ftpuser  ftpusers    618078 Jan 14 15:40 gsjava.zip
+-rw-r--r--   1 ftpuser  ftpusers   2154286 Jan 14 15:40 introjb.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1534183 Jan 14 15:40 introjb.zip
+-rw-r--r--   1 ftpuser  ftpusers  20896242 Jan 14 15:40 jb8pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1846690 Jan 14 15:40 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1167238 Jan 14 15:40 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   1731981 Jan 14 15:40 teamdev.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1293564 Jan 14 15:40 teamdev.zip
+-rw-r--r--   1 ftpuser  ftpusers   4287276 Jan 14 15:40 webapps.pdf
+-rw-r--r--   1 ftpuser  ftpusers   3217577 Jan 14 15:40 webapps.zip
+-rw-r--r--   1 ftpuser  ftpusers   1792004 Jan 14 15:40 websvcs.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1248551 Jan 14 15:40 websvcs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1615746 Jan 14 15:40 xml.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1213443 Jan 14 15:40 xml.zip
+
+./pub/jdatastore:
+drwxr-xr-x   2 ftpuser  ftpusers       512 May 31  2001 devsupport
+drwxr-xr-x   3 ftpuser  ftpusers       512 Apr 24  2001 downloads
+drwxr-xr-x   7 ftpuser  ftpusers       512 Jul 12  2002 techpubs
+
+./pub/jdatastore/devsupport:
+-rw-r--r--   1 ftpuser  ftpusers   8057477 May 31  2001 jds403unix.zip
+-rw-r--r--   1 ftpuser  ftpusers   8266998 May 31  2001 jds403win.zip
+
+./pub/jdatastore/downloads:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr 24  2001 35trial
+
+./pub/jdatastore/downloads/35trial:
+-rw-r--r--   1 ftpuser  ftpusers   6139367 Apr 24  2001 jdatastore351_unix.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   6330549 Apr 24  2001 jdatastore351_win.zip
+
+./pub/jdatastore/techpubs:
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jul 28  1999 jdatastore3
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jun 23  2000 jdatastore3-5
+drwxr-xr-x   4 ftpuser  ftpusers       512 Oct 19  1999 jdatastore3-s
+drwxr-xr-x   2 ftpuser  ftpusers       512 Dec 18  2000 jdatastore4
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul 12  2002 jdatastore6
+
+./pub/jdatastore/techpubs/jdatastore3:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  7  1999 pg
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  7  1999 ref
+
+./pub/jdatastore/techpubs/jdatastore3/pg:
+-rw-r--r--   1 ftpuser  ftpusers   3292364 Oct  7  1999 pg.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1220177 Oct  7  1999 pg.zip
+-rw-r--r--   1 ftpuser  ftpusers       194 Jul 28  1999 postfileftp.logfile
+
+./pub/jdatastore/techpubs/jdatastore3/ref:
+-rw-r--r--   1 ftpuser  ftpusers   8916953 Oct  7  1999 ref.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4271154 Oct  7  1999 ref.zip
+
+./pub/jdatastore/techpubs/jdatastore3-5:
+-rw-r--r--   1 ftpuser  ftpusers  22599680 Jun 23  2000 jds35docs-de.tar
+-rw-r--r--   1 ftpuser  ftpusers   6944157 Jun 23  2000 jds35docs-de.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   7600084 Jun 23  2000 jds35docs-de.zip
+-rw-r--r--   1 ftpuser  ftpusers  15185920 Jun 23  2000 jds35docs-es.tar
+-rw-r--r--   1 ftpuser  ftpusers   5685471 Jun 23  2000 jds35docs-es.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   5841572 Jun 23  2000 jds35docs-es.zip
+-rw-r--r--   1 ftpuser  ftpusers  22947840 Jun 23  2000 jds35docs-fr.tar
+-rw-r--r--   1 ftpuser  ftpusers   6620782 Jun 23  2000 jds35docs-fr.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   7277855 Jun 23  2000 jds35docs-fr.zip
+-rw-r--r--   1 ftpuser  ftpusers  17831936 Jun 23  2000 jds35docs.tar
+-rw-r--r--   1 ftpuser  ftpusers   5995521 Jun 23  2000 jds35docs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   6138913 Jun 23  2000 jds35docs.zip
+-rw-r--r--   1 ftpuser  ftpusers   4021760 Jun 23  2000 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    883818 Jun 23  2000 jdspg.zip
+-rw-r--r--   1 ftpuser  ftpusers   9276848 Jun 23  2000 ref.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4312228 Jun 23  2000 ref.zip
+
+./pub/jdatastore/techpubs/jdatastore3-s:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 19  1999 jdspg
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 31  2000 ref
+
+./pub/jdatastore/techpubs/jdatastore3-s/jdspg:
+-rw-r--r--   1 ftpuser  ftpusers   4002952 Oct 19  1999 jdspg.pdf
+-rw-r--r--   1 ftpuser  ftpusers    867620 Oct 19  1999 jdspg.zip
+
+./pub/jdatastore/techpubs/jdatastore3-s/ref:
+-rw-r--r--   1 ftpuser  ftpusers   9439935 Mar 31  2000 ref.pdf
+-rw-r--r--   1 ftpuser  ftpusers   4416166 Mar 31  2000 ref.zip
+
+./pub/jdatastore/techpubs/jdatastore4:
+-rw-r--r--   1 ftpuser  ftpusers   9836326 Dec 18  2000 jdsref.pdf
+-rw-r--r--   1 ftpuser  ftpusers   9840640 Dec 18  2000 jdsref.tar
+-rw-r--r--   1 ftpuser  ftpusers   4636384 Dec 18  2000 jdsref.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   4641560 Dec 18  2000 jdsref.zip
+
+./pub/jdatastore/techpubs/jdatastore6:
+-rw-r--r--   1 ftpuser  ftpusers   1644480 Jul 12  2002 database.pdf.gz
+-rw-r--r--   1 ftpuser  ftpusers   1645846 Jul 12  2002 database.zip
+-rw-r--r--   1 ftpuser  ftpusers    684614 Jul 12  2002 jdspg.pdf.gz
+-rw-r--r--   1 ftpuser  ftpusers    694926 Jul 12  2002 jdspg.zip
+
+./pub/kylix:
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jan 18  2002 devsupport
+drwxr-xr-x   3 ftpuser  ftpusers       512 Jul  2  2001 techpubs
+
+./pub/kylix/devsupport:
+-rw-r--r--   1 ftpuser  ftpusers     22379 Mar  7  2001 borpretest.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers     96820 Apr 11  2001 desprop50562.tar.gz
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar  7  2001 glibc_patches
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  9 16:40 loki_install
+-rw-r--r--   1 ftpuser  ftpusers     43494 Jan 18  2002 patch_debugger.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers     49945 Jan 18  2002 patch_mysql.tar.gz
+
+./pub/kylix/devsupport/glibc_patches:
+-rw-r--r--   1 ftpuser  ftpusers  74728938 Mar  7  2001 glibc_mandrake.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  64946927 Mar  7  2001 glibc_redhat.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  15018232 Mar  7  2001 glibc_suse.tar.gz
+
+./pub/kylix/devsupport/loki_install:
+-rw-r--r--   1 ftpuser  ftpusers   3851935 Apr 11  2001 kylix_install_source-1.0.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3562468 Jan 11  2002 kylix_install_source-2_0_tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3923119 Aug  9 16:40 kylix_install_source-3_0_tar.gz
+
+./pub/kylix/techpubs:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 22  2001 kylix1
+-rw-r--r--   1 ftpuser  ftpusers       331 Jul  2  2001 postdir.logfile
+
+./pub/kylix/techpubs/kylix1:
+-rw-r--r--   1 ftpuser  ftpusers   7685559 Oct 22  2001 Kylix1HelpUpdate-DE_DD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7944276 Oct 22  2001 Kylix1HelpUpdate-DE_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7123529 Oct 22  2001 Kylix1HelpUpdate-FR_DD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7368283 Oct 22  2001 Kylix1HelpUpdate-FR_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   6812820 Jul 31  2001 Kylix1HelpUpdate_DD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7054862 Jul 31  2001 Kylix1HelpUpdate_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers    639605 Jul 31  2001 Kylix1LinkFix.tgz
+
+./pub/optimizeit:
+drwxr-xr-x   4 ftpuser  ftpusers       512 Nov  8 15:00 techpubs
+
+./pub/optimizeit/techpubs:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Jul  9  2002 optimizeit42
+drwxr-xr-x   2 ftpuser  ftpusers       512 Nov  8 15:00 optimizeit5
+
+./pub/optimizeit/techpubs/optimizeit42:
+-rw-r--r--   1 ftpuser  ftpusers    659726 Jul  9  2002 code_coverage.pdf
+-rw-r--r--   1 ftpuser  ftpusers    337259 Jul  9  2002 code_coverage.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    337758 Jul  9  2002 code_coverage.zip
+-rw-r--r--   1 ftpuser  ftpusers   1530498 Jul  9  2002 oi42pdfdocs.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   1515430 Jul  9  2002 oi42pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1004110 Jul  9  2002 profiler.pdf
+-rw-r--r--   1 ftpuser  ftpusers    696396 Jul  9  2002 profiler.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    696983 Jul  9  2002 profiler.zip
+-rw-r--r--   1 ftpuser  ftpusers    715330 Jul  9  2002 thread_debugger.pdf
+-rw-r--r--   1 ftpuser  ftpusers    496034 Jul  9  2002 thread_debugger.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers    496446 Jul  9  2002 thread_debugger.zip
+
+./pub/optimizeit/techpubs/optimizeit5:
+-rw-r--r--   1 ftpuser  ftpusers    652125 Nov  8 15:00 code_coverage.pdf
+-rw-r--r--   1 ftpuser  ftpusers    396060 Nov  8 15:00 code_coverage.zip
+-rw-r--r--   1 ftpuser  ftpusers   1978973 Nov  8 15:00 oi5pdfdocs.zip
+-rw-r--r--   1 ftpuser  ftpusers   1396806 Nov  8 15:00 profiler.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1048595 Nov  8 15:00 profiler.zip
+-rw-r--r--   1 ftpuser  ftpusers    835554 Nov  8 15:00 thread_debugger.pdf
+-rw-r--r--   1 ftpuser  ftpusers    534362 Nov  8 15:00 thread_debugger.zip
+
+./pub/otherprod:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Mar 21  1998 devsupport
+
+./pub/otherprod/devsupport:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 27  1998 misc
+
+./pub/otherprod/devsupport/misc:
+-rwxr-xr-x   1 ftpuser  ftpusers       337 Mar 27  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers    202574 Mar 21  1998 pkz204g.exe
+-rwxr-xr-x   1 ftpuser  ftpusers    179601 Mar 21  1998 tdsvga.zip
+
+./pub/pascal:
+drwxr-xr-x   4 ftpuser  ftpusers       512 May 14  2001 devsupport
+
+./pub/pascal/devsupport:
+drwxr-xr-x   2 ftpuser  ftpusers      5632 Mar 25  1998 general
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 25  1998 patches
+
+./pub/pascal/devsupport/general:
+-rwxr-xr-x   1 ftpuser  ftpusers    246144 Mar 20  1998 10tlst.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1460 Mar 20  1998 2data.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       870 Mar 20  1998 2menus.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5038 Mar 20  1998 3dlife.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1924 Mar 20  1998 animate.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2112 Mar 20  1998 asmobj.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     43904 Mar 20  1998 async1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2571 Mar 20  1998 bank.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    260864 Mar 20  1998 bgi256.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11227 Mar 20  1998 bi3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2538 Mar 20  1998 bi4.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7072 Mar 20  1998 bi5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6767 Mar 20  1998 bi6.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1927 Mar 20  1998 bigarray.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1885 Mar 20  1998 bigstuff.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     14530 Mar 20  1998 blaise.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4514 Mar 20  1998 bmp256.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1576 Mar 20  1998 bmpdesk2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2166 Mar 20  1998 bmppaint.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     65644 Mar 20  1998 bptools.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1865 Mar 20  1998 breaknow.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1449 Mar 20  1998 broadcas.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4500 Mar 20  1998 btree1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       994 Mar 20  1998 bufstuff.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1380 Mar 20  1998 burnin.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5357 Mar 20  1998 calunit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1032 Mar 20  1998 center.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     17919 Mar 20  1998 chain.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1658 Mar 20  1998 childctl.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     38216 Mar 20  1998 chngicon.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2074 Mar 20  1998 cmos.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     14632 Mar 20  1998 cmous2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1448 Mar 20  1998 combodlg.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       772 Mar 20  1998 comm.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       624 Mar 20  1998 compat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2627 Mar 20  1998 cpasdemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5982 Mar 20  1998 cpuid.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3124 Mar 20  1998 data.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1288 Mar 20  1998 database.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4697 Mar 20  1998 dates.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2342 Mar 20  1998 dbaseb.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5019 Mar 20  1998 dbinfo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       826 Mar 20  1998 dblclick.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1521 Mar 20  1998 debugger.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       923 Mar 20  1998 deskblit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2661 Mar 20  1998 diffver.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       770 Mar 20  1998 directw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5056 Mar 20  1998 diskinf3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8587 Mar 20  1998 diskinfo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32865 Mar 20  1998 dlgkbhnd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1948 Mar 20  1998 dlgwin.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1266 Mar 20  1998 dlgwind2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       583 Mar 20  1998 dllexp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5504 Mar 20  1998 docdem.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3060 Mar 20  1998 dos.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3004 Mar 20  1998 doscrt.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1216 Mar 20  1998 dotime.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1197 Mar 20  1998 doubconv.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1302 Mar 20  1998 drawbits.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1957 Mar 20  1998 drives.fax
+-rwxr-xr-x   1 ftpuser  ftpusers       957 Mar 20  1998 editdown.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       336 Mar 20  1998 editor.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3620 Mar 20  1998 egasav.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8086 Mar 20  1998 enhkbd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1441 Mar 20  1998 error.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     16376 Mar 20  1998 execsw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5703 Mar 20  1998 extend.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12225 Mar 20  1998 extend3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2564 Mar 20  1998 extend6.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2407 Mar 20  1998 extend7.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9494 Mar 20  1998 fastwr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       600 Mar 20  1998 flushkey.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1496 Mar 20  1998 fontinfo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6181 Mar 20  1998 formline.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4096 Mar 20  1998 frame3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       610 Mar 20  1998 functest.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1902 Mar 20  1998 fviewer.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3345 Mar 20  1998 general.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1380 Mar 20  1998 getput.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       769 Mar 20  1998 getserno.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4733 Mar 20  1998 graphin.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1161 Mar 20  1998 heapary.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     65112 Mar 20  1998 heapspy.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1788 Mar 20  1998 hint.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9217 Mar 20  1998 hook.com
+-rwxr-xr-x   1 ftpuser  ftpusers      2573 Mar 20  1998 hpplot.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7167 Mar 20  1998 ibmcom.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     28487 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      1562 Mar 20  1998 inputpal.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      7138 Mar 20  1998 int24.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3387 Mar 20  1998 io.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9256 Mar 20  1998 joystk.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     30571 Mar 20  1998 keyint.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       562 Mar 20  1998 keystuff.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      2107 Mar 20  1998 labelpas.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2894 Mar 20  1998 lbsettab.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       566 Mar 20  1998 linker.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1531 Mar 20  1998 linklist.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      7383 Mar 20  1998 linklst2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3657 Mar 20  1998 links.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       553 Mar 20  1998 list1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     66355 Mar 20  1998 listbox5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1708 Mar 20  1998 listbx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1390 Mar 20  1998 listsel.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1436 Mar 20  1998 loadbmps.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       779 Mar 20  1998 mac.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2247 Mar 20  1998 math.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1545 Mar 20  1998 mdi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2263 Mar 20  1998 mdi_kb.pas
+-rwxr-xr-x   1 ftpuser  ftpusers       621 Mar 20  1998 mdiactiv.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      5258 Mar 20  1998 mdisplsh.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1251 Mar 20  1998 memory.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       980 Mar 20  1998 memswap.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1000 Mar 20  1998 menu.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4126 Mar 20  1998 menuadd.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      2061 Mar 20  1998 menubox.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1491 Mar 20  1998 menudemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1194 Mar 20  1998 menustat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1852 Mar 20  1998 message.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1219 Mar 20  1998 minhook.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       699 Mar 20  1998 minmax.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    174936 Mar 20  1998 miscti.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1259 Mar 20  1998 mixlang.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     16233 Mar 20  1998 mmsystem.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8131 Mar 20  1998 modem.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3636 Mar 20  1998 modemfax.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4887 Mar 20  1998 modemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10391 Mar 20  1998 modemx.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     39977 Mar 20  1998 mouse.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    133120 Mar 20  1998 mousprot.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     58941 Mar 20  1998 multi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       921 Mar 20  1998 myedit.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    102020 Mar 20  1998 ned103.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     52544 Mar 20  1998 newfont.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     58419 Mar 20  1998 newrtm.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1122 Mar 20  1998 numwrit2.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      3524 Mar 20  1998 obja.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     11776 Mar 20  1998 odbc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2864 Mar 20  1998 oop.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    546270 Mar 20  1998 ooppas.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10104 Mar 20  1998 openfi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1414 Mar 20  1998 overlays.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       758 Mar 20  1998 owltab.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1268 Mar 20  1998 ownrdraw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       844 Mar 20  1998 palette.lzh
+-rwxr-xr-x   1 ftpuser  ftpusers      2373 Mar 20  1998 palette.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    322366 Mar 20  1998 pas_all.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     34214 Mar 20  1998 pchart.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21403 Mar 20  1998 pcxshw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    129841 Mar 20  1998 phello.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5260 Mar 20  1998 pick.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1571 Mar 20  1998 picklst.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     64038 Mar 20  1998 player.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     21855 Mar 20  1998 plife.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5808 Mar 20  1998 print_it.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    104727 Mar 20  1998 printbmp.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2273 Mar 20  1998 printer2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5074 Mar 20  1998 printer3.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1442 Mar 20  1998 prntpw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       513 Mar 20  1998 proccall.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       412 Mar 20  1998 profiler.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1559 Mar 20  1998 protint.pas
+-rwxr-xr-x   1 ftpuser  ftpusers    350134 Mar 20  1998 pxe3m.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     73175 Mar 20  1998 qwik55.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       548 Mar 20  1998 rand2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1213 Mar 20  1998 readext.pas
+-rwxr-xr-x   1 ftpuser  ftpusers       797 Mar 20  1998 readonly.txt
+-rwxr-xr-x   1 ftpuser  ftpusers      2610 Mar 20  1998 readwrte.pas
+-rwxr-xr-x   1 ftpuser  ftpusers       225 Mar 20  1998 reboot.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3527 Mar 20  1998 rgb.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1191 Mar 20  1998 rubber.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       822 Mar 20  1998 script.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4867 Mar 20  1998 scroll1.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1654 Mar 20  1998 scroll3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     24900 Mar 20  1998 sdi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1691 Mar 20  1998 sfirst.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      8372 Mar 20  1998 sortin.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6756 Mar 20  1998 splash.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4697 Mar 20  1998 spool.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1973 Mar 20  1998 status.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1922 Mar 20  1998 status3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       765 Mar 20  1998 stick.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3308 Mar 20  1998 stream15.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       478 Mar 20  1998 string.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5120 Mar 20  1998 strobj.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       704 Mar 20  1998 syntax.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     17840 Mar 20  1998 syscolor.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       681 Mar 20  1998 tabtext.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     26496 Mar 20  1998 talk.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2184 Mar 20  1998 tbdata.txt
+-rwxr-xr-x   1 ftpuser  ftpusers     12047 Mar 20  1998 tdta.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     32212 Mar 20  1998 tess-5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     50279 Mar 20  1998 tess-d.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4999 Mar 20  1998 textio.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2881 Mar 20  1998 textstr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       542 Mar 20  1998 ticker.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      3198 Mar 20  1998 ticker2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     55680 Mar 20  1998 timage.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       922 Mar 20  1998 timecall.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2233 Mar 20  1998 topmost.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      2681 Mar 20  1998 topten.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     68736 Mar 20  1998 tp-asm.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     27690 Mar 20  1998 tp-tsr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      9438 Mar 20  1998 tpenv.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    133632 Mar 20  1998 tppcv.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     66773 Mar 20  1998 tppcw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12579 Mar 20  1998 tprat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     13772 Mar 20  1998 tprat5.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      5705 Mar 20  1998 tptimer.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     15862 Mar 20  1998 tptool.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12384 Mar 20  1998 tpuobj.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4494 Mar 20  1998 tpw.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2028 Mar 20  1998 tpwcombo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     36747 Mar 20  1998 tpwpxeng.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2465 Mar 20  1998 transfer.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     61824 Mar 20  1998 tsrsrc.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4322 Mar 20  1998 tvbgi.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    165376 Mar 20  1998 tvgr70.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1618 Mar 20  1998 tvscroll.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3365 Mar 20  1998 twodlgs.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      1373 Mar 20  1998 twoprogs.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2095 Mar 20  1998 ui.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       913 Mar 20  1998 uicurpat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2304 Mar 20  1998 units.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1623 Mar 20  1998 valid.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     10336 Mar 20  1998 vector.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       912 Mar 20  1998 version.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     36680 Mar 20  1998 vgapal.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      3814 Mar 20  1998 viewtext.pas
+-rwxr-xr-x   1 ftpuser  ftpusers      5632 Mar 20  1998 vol.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     18368 Mar 20  1998 win87em.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     12838 Mar 20  1998 wincrt2.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      4709 Mar 20  1998 windemo.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1365 Mar 20  1998 winfont.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     67910 Mar 20  1998 wingif.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       522 Mar 20  1998 winwait.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     94691 Mar 20  1998 wndw55.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1665 Mar 20  1998 writenlf.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1258 Mar 20  1998 writestr.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       757 Mar 20  1998 wsound.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       520 Mar 20  1998 wvsprnt1.pas
+-rwxr-xr-x   1 ftpuser  ftpusers     29528 Mar 20  1998 xdump.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     24694 Mar 20  1998 xgraf.zip
+
+./pub/pascal/devsupport/patches:
+-rwxr-xr-x   1 ftpuser  ftpusers       932 Mar 20  1998 crtpat1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       935 Mar 20  1998 delay6.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2638 Mar 20  1998 demofix.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       707 Mar 20  1998 editpat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1072 Mar 25  1998 index.txt
+-rwxr-xr-x   1 ftpuser  ftpusers       716 Mar 20  1998 int60.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       970 Mar 20  1998 netfix.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      2958 Mar 20  1998 pxsrchfd.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1668 Mar 20  1998 td1pat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      6495 Mar 20  1998 tdovlpat.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     99248 Mar 20  1998 tpwn31.zip
+-rwxr-xr-x   1 ftpuser  ftpusers     42078 Mar 20  1998 upgrade.zip
+
+./pub/vbssl:
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct 30  1998 techpubs
+
+./pub/vbssl/techpubs:
+-rwxr-xr-x   1 ftpuser  ftpusers       323 Oct  9  1998 postdir.logfile
+-rwxr-xr-x   1 ftpuser  ftpusers       325 Oct  9  1998 postfileftp.logfile
+drwxr-xr-x   4 ftpuser  ftpusers       512 Oct  9  1998 vbssl30
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbssl32
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbssl33
+
+./pub/vbssl/techpubs/vbssl30:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbcpp
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbj
+
+./pub/vbssl/techpubs/vbssl30/vbcpp:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+
+./pub/vbssl/techpubs/vbssl30/vbcpp/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       635 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    247154 Sep  7  1999 vbcppsslprogrammer_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       444 Oct  9  1998 ws_ftp.log
+
+./pub/vbssl/techpubs/vbssl30/vbj:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+
+./pub/vbssl/techpubs/vbssl30/vbj/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       615 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    233751 Sep  7  1999 vbjsslprogrammer_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       428 Oct  9  1998 ws_ftp.log
+
+./pub/vbssl/techpubs/vbssl32:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+
+./pub/vbssl/techpubs/vbssl32/programmer:
+-rw-r--r--   1 ftpuser  ftpusers   1512898 Sep  7  1999 vbsslprogrammer_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       806 Oct  9  1998 ws_ftp.log
+
+./pub/vbssl/techpubs/vbssl33:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep 15  1999 programmer
+
+./pub/vbssl/techpubs/vbssl33/programmer:
+-rw-r--r--   1 ftpuser  ftpusers    833414 Sep 15  1999 vbsslprogrammer_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers    423478 Sep 15  1999 vbsslprogrammer_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers      1518 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker:
+drwxr-xr-x   2 ftpuser  ftpusers       512 May 30  1998 devsupport
+drwxr-xr-x   2 ftpuser  ftpusers       512 May 30  1998 papers
+-rwxr-xr-x   1 ftpuser  ftpusers       313 Oct  9  1998 postdir.logfile
+drwxr-xr-x   8 ftpuser  ftpusers       512 Sep  7  1999 techpubs
+
+./pub/visibroker/devsupport:
+
+./pub/visibroker/papers:
+
+./pub/visibroker/techpubs:
+-rw-r--r--   1 ftpuser  ftpusers       453 Dec  4  1998 WS_FTP.LOG
+drwxr-xr-x   4 ftpuser  ftpusers       512 Sep  7  1999 addons
+-rw-r--r--   1 ftpuser  ftpusers      9716 Sep  7  1999 index.html
+drwxr-xr-x   4 ftpuser  ftpusers       512 Oct 30  1998 its
+-rwxr-xr-x   1 ftpuser  ftpusers       138 Oct  9  1998 postdirftp.logfile
+drwxr-xr-x   6 ftpuser  ftpusers       512 Oct 30  1998 vbcpp
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct 30  1998 vbgate
+drwxr-xr-x   5 ftpuser  ftpusers       512 Dec  4  1998 vbj
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct 30  1998 vbnes
+
+./pub/visibroker/techpubs/addons:
+-rw-r--r--   1 ftpuser  ftpusers     13312 Sep  7  1999 2addons.fm
+-rw-r--r--   1 ftpuser  ftpusers    990932 Sep  7  1999 2addons.pdf
+-rw-r--r--   1 ftpuser  ftpusers     40250 Sep  7  1999 2readrtip.pdf
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct 30  1998 itscodesync
+drwxr-xr-x   5 ftpuser  ftpusers       512 Dec  4  1998 itstransfuse
+
+./pub/visibroker/techpubs/addons/itscodesync:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 itscodesync10
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 itscodesync11
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep 17  1998 usersguide
+
+./pub/visibroker/techpubs/addons/itscodesync/itscodesync10:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/visibroker/techpubs/addons/itscodesync/itscodesync10/usersguide:
+-rw-r--r--   1 ftpuser  ftpusers       757 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    695443 Sep  7  1999 itscodesync_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       518 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/addons/itscodesync/itscodesync11:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/visibroker/techpubs/addons/itscodesync/itscodesync11/usersguide:
+-rw-r--r--   1 ftpuser  ftpusers    668909 Sep  7  1999 itscodesync_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    332311 Sep  7  1999 itscodesync_1.1.zip
+-rwxr-xr-x   1 ftpuser  ftpusers    678219 Oct  9  1998 itscs.pdf
+
+./pub/visibroker/techpubs/addons/itscodesync/usersguide:
+-rwxr-xr-x   1 ftpuser  ftpusers    695443 Sep 17  1998 itscodesync_1.0.pdf
+
+./pub/visibroker/techpubs/addons/itstransfuse:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 itstransfuse10b
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 itstransfuse11
+-rwxr-xr-x   1 ftpuser  ftpusers       383 Dec  4  1998 postdir.logfile
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep 17  1998 usersguide
+
+./pub/visibroker/techpubs/addons/itstransfuse/itstransfuse10b:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/visibroker/techpubs/addons/itstransfuse/itstransfuse10b/usersguide:
+-rw-r--r--   1 ftpuser  ftpusers       783 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1491151 Sep  7  1999 itstransfuse_1.0b.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       538 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/addons/itstransfuse/itstransfuse11:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 usersguide
+
+./pub/visibroker/techpubs/addons/itstransfuse/itstransfuse11/usersguide:
+-rw-r--r--   1 ftpuser  ftpusers   2283432 Sep  7  1999 itstransfuse_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    753806 Sep  7  1999 itstransfuse_1.1.zip
+
+./pub/visibroker/techpubs/addons/itstransfuse/usersguide:
+-rwxr-xr-x   1 ftpuser  ftpusers   1491151 Sep 17  1998 itstransfuse_1.0b.pdf
+
+./pub/visibroker/techpubs/its:
+drwxr-xr-x   8 ftpuser  ftpusers       512 Dec  4  1998 its10
+drwxr-xr-x   7 ftpuser  ftpusers       512 Sep  7  1999 its11
+-rwxr-xr-x   1 ftpuser  ftpusers       333 Oct 27  1998 postdir.logfile
+
+./pub/visibroker/techpubs/its/its10:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 admin
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 dataaccess
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 images
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/its/its10/admin:
+-rw-r--r--   1 ftpuser  ftpusers       955 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1001033 Sep  7  1999 itsadmin_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       772 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its10/dataaccess:
+-rw-r--r--   1 ftpuser  ftpusers      1035 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    561143 Sep  7  1999 itsdataaccess_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       842 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its10/images:
+-rw-r--r--   1 ftpuser  ftpusers      7258 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers      2286 Sep  7  1999 bolus.gif
+-rw-r--r--   1 ftpuser  ftpusers       458 Sep  7  1999 downloads.gif
+-rw-r--r--   1 ftpuser  ftpusers       373 Sep  7  1999 feedback.gif
+-rw-r--r--   1 ftpuser  ftpusers       776 Sep  7  1999 get_acrobat.gif
+-rw-r--r--   1 ftpuser  ftpusers       451 Sep  7  1999 membership.gif
+-rw-r--r--   1 ftpuser  ftpusers       491 Sep  7  1999 newsgroups.gif
+-rw-r--r--   1 ftpuser  ftpusers      2070 Sep  7  1999 pd_its.gif
+-rw-r--r--   1 ftpuser  ftpusers      1286 Sep  7  1999 pdfbooks.gif
+-rw-r--r--   1 ftpuser  ftpusers      1752 Sep  7  1999 previousbooks.gif
+-rw-r--r--   1 ftpuser  ftpusers       416 Sep  7  1999 products.gif
+-rw-r--r--   1 ftpuser  ftpusers     10066 Sep  7  1999 pspbrwse.jbf
+-rw-r--r--   1 ftpuser  ftpusers       361 Sep  7  1999 search.gif
+
+./pub/visibroker/techpubs/its/its10/install:
+-rw-r--r--   1 ftpuser  ftpusers       987 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    419663 Sep  7  1999 itsinstall_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       800 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its10/programmer:
+-rw-r--r--   1 ftpuser  ftpusers      1035 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    894300 Sep  7  1999 itsprogrammer_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       842 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its10/reference:
+-rw-r--r--   1 ftpuser  ftpusers      1019 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    421108 Sep  7  1999 itsreference_1.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       828 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its11:
+-rw-r--r--   1 ftpuser  ftpusers     14336 Sep  7  1999 2its.fm
+-rw-r--r--   1 ftpuser  ftpusers    964263 Sep  7  1999 2its.pdf
+-rw-r--r--   1 ftpuser  ftpusers     40227 Sep  7  1999 2readrtip.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 admin
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 dataaccess
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+-rw-r--r--   1 ftpuser  ftpusers     15360 Sep  7  1999 itsstandalone.fm
+-rw-r--r--   1 ftpuser  ftpusers    966364 Sep  7  1999 itsstandalone.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+-rw-r--r--   1 ftpuser  ftpusers     34844 Sep  7  1999 readrtip.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+-rw-r--r--   1 ftpuser  ftpusers     36109 Dec  4  1998 sareadrtip.pdf
+-rw-r--r--   1 ftpuser  ftpusers      1056 Oct 27  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/its/its11/admin:
+-rw-r--r--   1 ftpuser  ftpusers   2303588 Sep  7  1999 itsadmin_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    531038 Sep  7  1999 itsadmin_1.1.zip
+
+./pub/visibroker/techpubs/its/its11/dataaccess:
+-rw-r--r--   1 ftpuser  ftpusers    565936 Sep  7  1999 itsdataaccess_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    299852 Sep  7  1999 itsdataaccess_1.1.zip
+
+./pub/visibroker/techpubs/its/its11/install:
+-rw-r--r--   1 ftpuser  ftpusers    986821 Sep  7  1999 itsinstall_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    230142 Sep  7  1999 itsinstall_1.1.zip
+
+./pub/visibroker/techpubs/its/its11/programmer:
+-rw-r--r--   1 ftpuser  ftpusers   2794902 Sep  7  1999 itsprogrammer_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1289426 Sep  7  1999 itsprogrammer_1.1.zip
+
+./pub/visibroker/techpubs/its/its11/reference:
+-rw-r--r--   1 ftpuser  ftpusers   1569764 Sep  7  1999 itsreference_1.1.pdf
+-rw-r--r--   1 ftpuser  ftpusers    736266 Sep  7  1999 itsreference_1.1.zip
+
+./pub/visibroker/techpubs/vbcpp:
+-rwxr-xr-x   1 ftpuser  ftpusers     10286 Sep 17  1998 index.html
+-rwxr-xr-x   1 ftpuser  ftpusers       343 Oct  9  1998 postdir.logfile
+drwxr-xr-x   4 ftpuser  ftpusers       512 Oct  9  1998 vbcpp20
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct  9  1998 vbcpp30
+drwxr-xr-x   6 ftpuser  ftpusers       512 Sep  7  1999 vbcpp32
+drwxr-xr-x   5 ftpuser  ftpusers       512 Sep  7  1999 vbcpp33
+
+./pub/visibroker/techpubs/vbcpp/vbcpp20:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/vbcpp/vbcpp20/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       657 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   2369501 Sep  7  1999 vbcppprogrammer_2.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       456 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp20/reference:
+-rw-r--r--   1 ftpuser  ftpusers       647 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    541944 Sep  7  1999 vbcppreference_2.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       448 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp30:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/vbcpp/vbcpp30/install:
+-rw-r--r--   1 ftpuser  ftpusers       629 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1292566 Sep  7  1999 vbcppinstall_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       434 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp30/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   2830928 Sep  7  1999 vbcppprogrammer_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       458 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp30/reference:
+-rw-r--r--   1 ftpuser  ftpusers       649 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1733037 Sep  7  1999 vbcppreference_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       450 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp32:
+-rw-r--r--   1 ftpuser  ftpusers       569 Dec  4  1998 WS_FTP.LOG
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 images
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+-rw-r--r--   1 ftpuser  ftpusers     28246 Sep  7  1999 releasenotes.html
+-rwxr-xr-x   1 ftpuser  ftpusers       390 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp32/images:
+-rw-r--r--   1 ftpuser  ftpusers      1590 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers      8721 Sep  7  1999 vbProdBan.gif
+-rw-r--r--   1 ftpuser  ftpusers      6636 Sep  7  1999 vbcppProdBan.gif
+
+./pub/visibroker/techpubs/vbcpp/vbcpp32/install:
+-rw-r--r--   1 ftpuser  ftpusers       629 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1271180 Sep  7  1999 vbcppinstall_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       434 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp32/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   2223021 Sep  7  1999 vbcppprogrammer_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       458 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp32/reference:
+-rw-r--r--   1 ftpuser  ftpusers       649 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1912610 Sep  7  1999 vbcppreference_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       450 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp33:
+-rw-r--r--   1 ftpuser  ftpusers     13312 Sep  7  1999 2vbcpp.fm
+-rw-r--r--   1 ftpuser  ftpusers    990701 Sep  7  1999 2vbcpp.pdf
+-rw-r--r--   1 ftpuser  ftpusers       234 Sep  7  1999 Readme.txt
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+-rw-r--r--   1 ftpuser  ftpusers     40178 Sep  7  1999 readrtip.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/vbcpp/vbcpp33/install:
+-rw-r--r--   1 ftpuser  ftpusers   1884029 Sep  7  1999 vbcinstall_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers    547213 Sep  7  1999 vbcinstall_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       426 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp33/programmer:
+-rw-r--r--   1 ftpuser  ftpusers   4721188 Sep  7  1999 vbcprogrammer_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers   2158158 Sep  7  1999 vbcprogrammer_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       450 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbcpp/vbcpp33/reference:
+-rw-r--r--   1 ftpuser  ftpusers   2689766 Sep  7  1999 vbcreference_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1322799 Sep  7  1999 vbcreference_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       442 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbgate:
+-rwxr-xr-x   1 ftpuser  ftpusers       349 Oct  9  1998 postdir.logfile
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbgate30
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbgate32
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 vbgate33
+
+./pub/visibroker/techpubs/vbgate/vbgate30:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 gatekeeper
+
+./pub/visibroker/techpubs/vbgate/vbgate30/gatekeeper:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    644689 Sep  7  1999 vbgatekeeper_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       454 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbgate/vbgate32:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 gatekeeper
+
+./pub/visibroker/techpubs/vbgate/vbgate32/gatekeeper:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1235365 Sep  7  1999 vbgatekeeper_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       454 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbgate/vbgate33:
+-rw-r--r--   1 ftpuser  ftpusers     11264 Sep  7  1999 2vbgate.fm
+-rw-r--r--   1 ftpuser  ftpusers    989217 Sep  7  1999 2vbgate.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 gatekeeper
+-rw-r--r--   1 ftpuser  ftpusers     40182 Sep  7  1999 readrtip.pdf
+
+./pub/visibroker/techpubs/vbgate/vbgate33/gatekeeper:
+-rw-r--r--   1 ftpuser  ftpusers  11510890 Sep  7  1999 vbgatekeeper_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers    834934 Sep  7  1999 vbgatekeeper_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       454 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj:
+-rw-r--r--   1 ftpuser  ftpusers       333 Dec  4  1998 postdir.logfile
+drwxr-xr-x   5 ftpuser  ftpusers       512 Oct  9  1998 vbj30
+drwxr-xr-x   5 ftpuser  ftpusers       512 Sep  7  1999 vbj32
+drwxr-xr-x   6 ftpuser  ftpusers       512 Sep  7  1999 vbj33
+
+./pub/visibroker/techpubs/vbj/vbj30:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/vbj/vbj30/install:
+-rw-r--r--   1 ftpuser  ftpusers       597 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1346216 Sep  7  1999 vbjinstall_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       410 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj30/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       627 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1817901 Sep  7  1999 vbjprogrammer_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       434 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj30/reference:
+-rw-r--r--   1 ftpuser  ftpusers       617 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1370950 Sep  7  1999 vbjreference_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       426 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj32:
+-rw-r--r--   1 ftpuser  ftpusers       545 Dec  4  1998 WS_FTP.LOG
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 reference
+-rw-r--r--   1 ftpuser  ftpusers     34754 Sep  7  1999 releasenotes.html
+-rwxr-xr-x   1 ftpuser  ftpusers       374 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj32/install:
+-rw-r--r--   1 ftpuser  ftpusers       597 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   1302042 Sep  7  1999 vbjinstall_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       410 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj32/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       627 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   8244111 Sep  7  1999 vbjprogrammer_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       434 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj32/reference:
+-rw-r--r--   1 ftpuser  ftpusers       617 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers   2505041 Sep  7  1999 vbjreference_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       426 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33:
+-rw-r--r--   1 ftpuser  ftpusers     13312 Sep  7  1999 2vbj.fm
+-rw-r--r--   1 ftpuser  ftpusers    990416 Sep  7  1999 2vbj.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  9  1998 idlref
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 install
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 programmer
+-rw-r--r--   1 ftpuser  ftpusers     40172 Sep  7  1999 readrtip.pdf
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 reference
+
+./pub/visibroker/techpubs/vbj/vbj33/idlref:
+
+./pub/visibroker/techpubs/vbj/vbj33/install:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  9  1998 install
+-rw-r--r--   1 ftpuser  ftpusers   1926144 Sep  7  1999 vbjinstall_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers    540513 Sep  7  1999 vbjinstall_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       408 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33/install/install:
+-rwxr-xr-x   1 ftpuser  ftpusers   1082828 Oct  9  1998 vbjinstall_3.3.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       410 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33/programmer:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  9  1998 programmer
+-rw-r--r--   1 ftpuser  ftpusers  11551597 Sep  7  1999 vbjprogrammer_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1690946 Sep  7  1999 vbjprogrammer_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       432 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33/programmer/programmer:
+-rwxr-xr-x   1 ftpuser  ftpusers   2404335 Oct  9  1998 vbjprogrammer_3.3.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       440 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33/reference:
+-rw-r--r--   1 ftpuser  ftpusers       395 Dec  4  1998 postfileftp.logfile
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct  9  1998 reference
+-rw-r--r--   1 ftpuser  ftpusers   2692237 Sep  7  1999 vbjreference_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers   1295824 Sep  7  1999 vbjreference_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       424 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbj/vbj33/reference/reference:
+-rwxr-xr-x   1 ftpuser  ftpusers   4677139 Oct  9  1998 vbjreference_3.3.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       430 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbnes:
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbnes30
+drwxr-xr-x   3 ftpuser  ftpusers       512 Oct  9  1998 vbnes32
+drwxr-xr-x   3 ftpuser  ftpusers       512 Sep  7  1999 vbnes33
+
+./pub/visibroker/techpubs/vbnes/vbnes30:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+
+./pub/visibroker/techpubs/vbnes/vbnes30/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    722946 Sep  7  1999 vbnesprogrammer_3.0.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       458 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbnes/vbnes32:
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+
+./pub/visibroker/techpubs/vbnes/vbnes32/programmer:
+-rw-r--r--   1 ftpuser  ftpusers       659 Dec  4  1998 WS_FTP.LOG
+-rw-r--r--   1 ftpuser  ftpusers    818144 Sep  7  1999 vbnesprogrammer_3.2.pdf
+-rwxr-xr-x   1 ftpuser  ftpusers       458 Oct  9  1998 ws_ftp.log
+
+./pub/visibroker/techpubs/vbnes/vbnes33:
+-rw-r--r--   1 ftpuser  ftpusers     12288 Sep  7  1999 2vbnaev.fm
+-rw-r--r--   1 ftpuser  ftpusers    989300 Sep  7  1999 2vbnaev.pdf
+drwxr-xr-x   2 ftpuser  ftpusers       512 Sep  7  1999 programmer
+-rw-r--r--   1 ftpuser  ftpusers     40182 Sep  7  1999 readrtip.pdf
+
+./pub/visibroker/techpubs/vbnes/vbnes33/programmer:
+-rw-r--r--   1 ftpuser  ftpusers    831281 Sep  7  1999 vbnesprogrammer_3.3.pdf
+-rw-r--r--   1 ftpuser  ftpusers    469415 Sep  7  1999 vbnesprogrammer_3.3.zip
+-rwxr-xr-x   1 ftpuser  ftpusers       456 Oct  9  1998 ws_ftp.log
+#NcFTP Server using the -R parameter

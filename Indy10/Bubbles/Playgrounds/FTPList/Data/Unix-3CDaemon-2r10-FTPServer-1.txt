@@ -1,0 +1,12 @@
+drwxrwxrwx 1 owner group         0 Oct 24 11:41 .
+drwxrwxrwx 1 owner group         0 Oct 24 11:41 ..
+-rwxrwxrwx 1 owner group     22269 Oct 24 11:41 draft-fordh-ftp-ssl-firewall-01.txt
+-rwxrwxrwx 1 owner group     53972 Oct 24 11:41 draft-ietf-ftpext-data-connection-assurance-00.txt
+-rwxrwxrwx 1 owner group     21889 Oct 24 11:41 draft-ietf-ftpext-utf-8-option-00.txt
+-rwxrwxrwx 1 owner group     49568 Oct 24 11:42 draft-murray-auth-ftp-ssl-10.txt
+-rwxrwxrwx 1 owner group     49976 Oct 24 12:15 draft-saul-ftp-plus-00.txt
+-rwxrwxrwx 1 owner group     25162 Oct 24 11:42 draft-somers-ftp-mfxx-00.txt
+drwxrwxrwx 1 owner group         0 Oct 23 19:39 testdir
+-rwxrwxrwx 1 owner group     54514 Oct 24 12:32 WinLDAP.zip
+#220 3Com 3CDaemon FTP Server Version 2.0
+#215 UNIX Type: L8

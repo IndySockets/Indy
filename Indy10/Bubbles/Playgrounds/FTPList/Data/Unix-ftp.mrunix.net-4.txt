@@ -1,0 +1,7 @@
+-r--r--r--   1 root     wheel       33801 Feb  7  1999 BillSux.jpg
+-r--r--r--   1 root     console    450961 Mar 18  1999 bzip2-0.9.0c.tar.gz
+-r--r--r--   1 root     wheel      104985 Feb  7  1999 gd1.2.tar.Z
+-r--r--r--   1 root     root       142513 Jul 12  1999 gd1.3.tar.Z
+-r--r--r--   1 root     wheel      189937 Feb  7  1999 mrtg-2.5.4c.tar.gz
+-r--r--r--   1 root     wheel      282185 Feb  7  1999 nmap-2.03.tgz
+-rw-r--r--   1 root     root      9239158 Sep 12 17:57 postgresql-7.2.2.tar.gz

@@ -1,0 +1,19 @@
+d---------   1 owner    group               0 Sep 20  1996 bussys
+d---------   1 owner    group               0 Sep 23  1996 deskapps
+d---------   1 owner    group               0 Jan  4  0:53 developr
+----------   1 owner    group            8012 Sep 11  1996 dirmap.htm
+----------   1 owner    group            4368 Sep 11  1996 dirmap.txt
+----------   1 owner    group             712 Aug 25  1994 disclaimer.txt
+d---------   1 owner    group               0 Jan 14 19:02 KBHelp
+----------   1 owner    group         8411832 Jan 30 11:10 ls-lR.txt
+----------   1 owner    group         1096885 Jan 30 11:10 ls-lR.Z
+----------   1 owner    group          908157 Jan 30 11:10 LS-LR.ZIP
+d---------   1 owner    group               0 Oct 20  1995 MSCorp
+d---------   1 owner    group               0 Oct 27  1996 msdownload
+d---------   1 owner    group               0 Oct 11  1995 peropsys
+d---------   1 owner    group               0 Nov 30  1995 Products
+d---------   1 owner    group               0 Oct 28  1996 Services
+d---------   1 owner    group               0 May 30  1996 Softlib
+d---------   1 owner    group               0 Apr  8  1996 solutions
+#http://www.hpl.hp.co.uk/people/ange/archives/archives-97/ange-ftp-lovers-archive/0006.html
+#220 ftp Microsoft FTP Service (Version 3.0).

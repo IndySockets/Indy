@@ -1,0 +1,6 @@
+total 0
+drwxrwxrwx  1  owner group         0 Oct  2 18:22 02100202
+drwxrwxrwx  1  owner group         0 Oct 13  7:39 02101215
+drwxrwxrwx  1  owner group         0 Oct 16  4:39 02101512
+drwxrwxrwx  1  owner group         0 Sep 23 22:15 dos
+drwxrwxrwx  1  owner group         0 Sep 23 21:57 nos

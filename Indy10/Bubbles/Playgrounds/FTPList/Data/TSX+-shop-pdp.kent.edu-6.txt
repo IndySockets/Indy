@@ -1,0 +1,18 @@
+
+      aslink.exe     53        as6800.exe     63        as6801.exe     64
+      as6804.exe     61        as6805.exe     62        as6809.exe     69
+      as6811.exe     65        asz80 .exe     66        as8085.exe     60
+
+Directory [du3:/cug292/pcdsk4/*.*] / 9 Files / 563 Blocks
+
+#Obtained from: http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
+#Connected to shop-pdp.kent.edu.
+#220-RFTP-11   V01.22  11-Dec-1992
+#    Remote FTP Server shop-pdp.kent.edu [131.123.1.153]
+#    No RFTP Message File
+#220 Server Ready
+#Name (shop-pdp.kent.edu:): anonymous
+#331 Password required for user anonymous
+#Password:
+#230-Logged into Default Directory - du3:
+#230-Message to User anonymous

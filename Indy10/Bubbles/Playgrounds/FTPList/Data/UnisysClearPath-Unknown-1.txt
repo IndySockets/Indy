@@ -1,0 +1,16 @@
+Report for: (UC)A ON PACK
+A                       SEQDATA    84 03/08/1998  15:32
+A/B                     SEQDATA    84 06/09/1998  12:03
+A/B/C                   SEQDATA    84 06/09/1998  12:03
+A/C                     SEQDATA    84 06/09/1998  12:03
+A/C/C                   SEQDATA    84 06/09/1998  12:04
+A/C/C/D                 SEQDATA    84 06/09/1998  12:04
+          6 Files     504 Octets
+#ClearPath Enterprise
+#Servers
+#TCP/IP Distributed Systems Services
+#Operations Guide
+#ClearPath MCP Release 9.0
+#April 2004
+#© 2004 Unisys Corporation.
+#All rights reserved.

@@ -1,0 +1,136 @@
+-r-xr-xr-x   1 owner    group             330 Aug  9  2002 00INDEX.TXT
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 Bonus
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 contrib
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 Help
+-r-xr-xr-x   1 owner    group         2957105 May 31  2002 sttr3.exe
+-r-xr-xr-x   1 owner    group         2986291 May 31  2002 sttr4.exe
+-r-xr-xr-x   1 owner    group         2991063 May 31  2002 sttr5.exe
+-r-xr-xr-x   1 owner    group         3028797 May 31  2002 Sttr6.EXE
+-r-xr-xr-x   1 owner    group         2934923 May 31  2002 sttrc.exe
+-r-xr-xr-x   1 owner    group         2981821 May 31  2002 sttrd.exe
+-r-xr-xr-x   1 owner    group         2980109 May 31  2002 sttre.exe
+-r-xr-xr-x   1 owner    group         2982771 May 31  2002 SttrF.exe
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 TechTips
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 test
+dr-xr-xr-x   1 owner    group               0 Jan 21 15:26 updates
+
+./Bonus:
+-r-xr-xr-x   1 owner    group             189 Aug  9  2002 00INDEX.TXT
+-r-xr-xr-x   1 owner    group            4751 Jun  7  2000 GOODHASH.DPR
+-r-xr-xr-x   1 owner    group            4050 Jun 21  2000 OPBCD2.PAS
+-r-xr-xr-x   1 owner    group            3722 Nov 14  2000 QrStBar.pas
+-r-xr-xr-x   1 owner    group            2051 Jun 21  2000 readme.txt
+-r-xr-xr-x   1 owner    group          462668 Jan 13  1999 srinst.exe
+-r-xr-xr-x   1 owner    group            6699 Jun 21  2000 STANUITY.ZIP
+-r-xr-xr-x   1 owner    group            7611 Jun 21  2000 STMATRIX.ZIP
+-r-xr-xr-x   1 owner    group            8722 Jun 21  2000 STMLR.ZIP
+-r-xr-xr-x   1 owner    group            2297 Jun 21  2000 STSTRB.ZIP
+
+./Help:
+-r-xr-xr-x   1 owner    group              63 Aug  9  2002 00index.txt
+-r-xr-xr-x   1 owner    group          813116 May 23  2000 StHlp16.zip
+-r-xr-xr-x   1 owner    group          753029 May 23  2000 StHlpBcb.zip
+-r-xr-xr-x   1 owner    group          768547 May 23  2000 SYSTOOLS.zip
+
+./TechTips:
+-r-xr-xr-x   1 owner    group              60 Aug  9  2002 00INDEX.TXT
+-r-xr-xr-x   1 owner    group           37376 Jan  2  2002 TechTip 20010713-SysTools-Very large text files.doc
+
+./test:
+-r-xr-xr-x   1 owner    group            7147 May 31  2002 TASSIGN.DPR
+-r-xr-xr-x   1 owner    group           10275 May 31  2002 tastro.dpr
+-r-xr-xr-x   1 owner    group            5011 May 31  2002 TBITS.DPR
+-r-xr-xr-x   1 owner    group            2807 May 31  2002 TBITS2.DPR
+-r-xr-xr-x   1 owner    group            1317 May 31  2002 TBITS3.DPR
+-r-xr-xr-x   1 owner    group            6272 May 31  2002 TCOLL.DPR
+-r-xr-xr-x   1 owner    group            4399 May 31  2002 TCOLL2.DPR
+-r-xr-xr-x   1 owner    group            3929 May 31  2002 TDICT.DPR
+-r-xr-xr-x   1 owner    group            1671 May 31  2002 TDICT2.DPR
+-r-xr-xr-x   1 owner    group            2141 May 31  2002 TDICT3.DPR
+-r-xr-xr-x   1 owner    group             999 May 31  2002 TDQUE.DPR
+-r-xr-xr-x   1 owner    group             659 May 31  2002 TEST.TXT
+-r-xr-xr-x   1 owner    group           13043 May 31  2002 TESTBCD.DPR
+-r-xr-xr-x   1 owner    group            1788 May 31  2002 TESTDATE.DPR
+-r-xr-xr-x   1 owner    group           15194 May 31  2002 TESTOSTR.DPR
+-r-xr-xr-x   1 owner    group            8682 May 31  2002 TESTSTRL.DPR
+-r-xr-xr-x   1 owner    group            8710 May 31  2002 TESTSTRS.DPR
+-r-xr-xr-x   1 owner    group            3884 May 31  2002 TEXPR.DPR
+-r-xr-xr-x   1 owner    group            4707 May 31  2002 THASH.DPR
+-r-xr-xr-x   1 owner    group            2524 May 31  2002 TLARR.DPR
+-r-xr-xr-x   1 owner    group            3165 May 31  2002 TLARR2.DPR
+-r-xr-xr-x   1 owner    group            5789 May 31  2002 TLARR3.DPR
+-r-xr-xr-x   1 owner    group            3531 May 31  2002 TLARR4.DPR
+-r-xr-xr-x   1 owner    group            2971 May 31  2002 TLIST.DPR
+-r-xr-xr-x   1 owner    group            2564 May 31  2002 TLIST2.DPR
+-r-xr-xr-x   1 owner    group             944 May 31  2002 TLIST3.DPR
+-r-xr-xr-x   1 owner    group            1888 May 31  2002 TLIST4.DPR
+-r-xr-xr-x   1 owner    group            1427 May 31  2002 TLIST5.DPR
+-r-xr-xr-x   1 owner    group            9787 May 31  2002 tpqueue.dpr
+-r-xr-xr-x   1 owner    group            3294 May 31  2002 TSORT.DPR
+-r-xr-xr-x   1 owner    group            1767 May 31  2002 TSORT2.DPR
+-r-xr-xr-x   1 owner    group           11512 May 31  2002 tstat.dpr
+-r-xr-xr-x   1 owner    group            2131 May 31  2002 TSTUTIL.PAS
+-r-xr-xr-x   1 owner    group            5817 May 31  2002 TTREE.DPR
+-r-xr-xr-x   1 owner    group            4378 May 31  2002 TVARR.DPR
+
+./updates:
+-r-xr-xr-x   1 owner    group             849 Mar  9  2000 00index.bak
+-r-xr-xr-x   1 owner    group             907 Aug  9  2002 00index.txt
+-r-xr-xr-x   1 owner    group          359999 Jan  4  1999 or217-1.exe
+-r-xr-xr-x   1 owner    group            1421 Aug  2  1996 st101.txt
+-r-xr-xr-x   1 owner    group            1685 Oct 21  1996 st102.txt
+-r-xr-xr-x   1 owner    group            2825 May 13  1997 st103.txt
+-r-xr-xr-x   1 owner    group             729 Aug 14  1997 st104.txt
+-r-xr-xr-x   1 owner    group             843 Oct 22  1997 st105.txt
+-r-xr-xr-x   1 owner    group            2358 Mar  2  1998 st106.txt
+-r-xr-xr-x   1 owner    group         2191245 Mar  2  1998 st106p.exe
+-r-xr-xr-x   1 owner    group            1910 Jul 16  1998 st201.txt
+-r-xr-xr-x   1 owner    group            2450 Dec 23  1998 st202.txt
+-r-xr-xr-x   1 owner    group            1136 Mar 31  1999 ST203.TXT
+-r-xr-xr-x   1 owner    group            1395 Sep  1  1999 St204.txt
+-r-xr-xr-x   1 owner    group           12544 Mar  8  2000 St204Bcb5.TXT
+-r-xr-xr-x   1 owner    group         5120512 Sep  2  1999 St204p.exe
+-r-xr-xr-x   1 owner    group         2270201 Mar  8  2000 St204pBcb5.EXE
+-r-xr-xr-x   1 owner    group         1454080 Sep  2  1999 St204pd.EXE
+-r-xr-xr-x   1 owner    group         1454080 Sep  2  1999 St204pd.W02
+-r-xr-xr-x   1 owner    group         1454080 Sep  2  1999 St204pd.W03
+-r-xr-xr-x   1 owner    group          758279 Sep  2  1999 St204pd.W04
+-r-xr-xr-x   1 owner    group            4025 May 12  2000 st301.txt
+-r-xr-xr-x   1 owner    group            3417 Aug  9  2000 st302.txt
+-r-xr-xr-x   1 owner    group            3175 Jul 26  2001 st303.txt
+-r-xr-xr-x   1 owner    group         9737688 Jul 16  2001 ST303p.EXE
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.EXE
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.W02
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.W03
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.W04
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.W05
+-r-xr-xr-x   1 owner    group         1454080 Jul 16  2001 ST303pd.W06
+-r-xr-xr-x   1 owner    group         1013212 Jul 16  2001 ST303pd.W07
+-r-xr-xr-x   1 owner    group           12751 Jul 20  2000 ST3fix.txt
+-r-xr-xr-x   1 owner    group            1826 Mar  7  2002 ST401.TXT
+-r-xr-xr-x   1 owner    group        11249394 Mar 25  2002 ST401p.EXE
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.EXE
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W02
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W03
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W04
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W05
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W06
+-r-xr-xr-x   1 owner    group         1454080 Mar 25  2002 ST401pd.W07
+-r-xr-xr-x   1 owner    group         1076608 Mar 25  2002 ST401pd.W08
+-r-xr-xr-x   1 owner    group           44614 Jan  2  9:25 st402.htm
+-r-xr-xr-x   1 owner    group        12136710 Sep 25  2002 st402p.exe
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.exe
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w02
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w03
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w04
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w05
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w06
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w07
+-r-xr-xr-x   1 owner    group         1454080 Sep 25  2002 st402pd.w08
+-r-xr-xr-x   1 owner    group          504201 Sep 25  2002 st402pd.w09
+-r-xr-xr-x   1 owner    group            3622 Sep 18  2001 usrmgdfm.zip
+#Microsoft IIS in Unix list mode.
+#ftp> quote site dirstyle
+#200 MSDOS-like directory output is off
+# DIR - pub/systools
+# DIR -R

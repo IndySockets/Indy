@@ -1,0 +1,12 @@
+Report for: (UC)A ON PACK
+
+UCF/CONFIG/SAMPLE/TSA             SEQDATA            1428 09/22/1998 18:37
+
+FF990628/BD/0009942/0009943/000PRINT
+                                  BACKUPPRINTER      7200 01/01/2000 04:22
+          2 Files     8628 Octets
+#ClearPath Enterprise
+#http://article.gmane.org/gmane.text.xml.cocoon.devel/24912
+#This person obtained this from the TotalCommander HelpFile.
+#and the header and footer were from UnisysClearPath-Unknown-1.txt
+#with minor adjustments

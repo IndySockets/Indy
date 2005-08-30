@@ -1,0 +1,4 @@
+-r--r--r--   0526478   128  Dec 30 2002  DE292000
+#This shows an overflow error in the count column.  That and the size are crammed together.
+#Thanks Andrew P. Rybin for reporting this one.
+#Extra Space maybe a copy error or a space starting the file name.

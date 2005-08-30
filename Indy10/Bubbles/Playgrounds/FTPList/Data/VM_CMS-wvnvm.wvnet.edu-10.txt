@@ -1,0 +1,13 @@
+PASSWORD EXEC     V         71         47          1 10/09/95  8:43:08 -
+PCP      NOTES    V         69         26          1 10/07/95 12:05:44 -
+PROFILE  EXEC     V         71         32          1  9/10/95 10:01:40 -
+REXXWAIT MODULE   V      54080          3         14  4/15/94  7:01:03 -
+RPIPASS  ASSEMBLE F         80        338          7 10/02/95 18:57:43 -
+RPIPASS  MODULE   V       1464          3          1  9/15/95 10:08:15 -
+RPIVAL   MODULE   V        280          3          1  5/16/95 18:06:20 -
+RXSOCKET MODULE   V      36888          2         10  6/06/94 21:14:22 -
+TCPA2E   REXX     V         72         56          1  1/05/93 18:34:55 -
+TCPE2A   REXX     V         72         56          1  1/05/93 18:34:56 -
+TSSCHP   EXEC     V         72        249          3  9/15/95 16:41:38 -
+TSSCHPD  EXEC     V         72        395          4  9/16/95  8:45:12 -
+

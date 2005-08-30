@@ -1,0 +1,11 @@
+-rwx------  1 bkc      other         184 Aug  2 17:54 index.htm
+drwx---r-x  2 bkc      other         512 Sep 21 13:10 ADOBE
+drwx---r-x  2 supervis other         512 Sep 21 13:12 DEMOS
+drwx---r-x  2 supervis other         512 Sep 21 13:12 FREEBIES
+drwx---r-x  2 bkc      other         512 Sep 21 13:14 MISC
+drwx---r-x  2 bkc      other         512 Sep 21 13:15 PUB
+drwx---r-x  2 supervis other         512 Sep 21 13:15 UPDATES
+drwx------  2 supervis other         512 Oct 17 16:37 UPLOADS
+-rwx---r--  1 bkc      other        2778 Aug  2 17:55 x.htm
+#UNIX Type: L8 Version: NetWare MurkWorks, Inc. 1.79
+#This is a Netware Deamon that emulates Unix

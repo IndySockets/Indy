@@ -1,0 +1,7 @@
+total 448
+drwxr-xr-x   5 5743     bin           96 May 10 10:35 .
+drwxr-xr-x   3 5743     bin           96 May 10 10:35 ..
+-rwxr-xr-x   1 5743     bin       227552 May  9 19:13 N6Setup.exe
+drwxr-xr-x   2 5743     bin           96 May 10 10:35 cck
+drwxr-xr-x   2 5743     bin           96 May 10 10:35 sea
+drwxr-xr-x   2 5743     bin         1024 May 10 10:35 xpi

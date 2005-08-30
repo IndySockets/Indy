@@ -1,0 +1,6 @@
+JIMTEST           DIR        -          -          -  4/12/94  9:16:01 -
+TEST_DIR          DIR        -          -          -  4/15/94 11:21:35 -
+GIS_L             DIR        -          -          -  4/15/94 14:48:12 -
+LANWORKS          DIR        -          -          -  4/15/94 14:48:20 -
+#FTPSERVE IBM VM V2R3 at UBVM.cc.buffalo.edu, 14:51:12 EDT FRIDAY 04/15/94
+#from: http://groups.google.com/groups?q=Minidisk+FTP+DIR&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=LSTSRV-L%2594041515004165%40UGA.CC.UGA.EDU&rnum=5

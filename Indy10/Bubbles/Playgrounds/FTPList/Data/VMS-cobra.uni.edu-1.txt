@@ -1,0 +1,10 @@
+
+BIG:[ANONYMOUS]
+
+CLEANUP.SH;6              179  18-JUL-2001 11:17 [ISCS,ANONYMOUS] (RWED,RWED,,)
+COINS.DIR;1                 9  21-DEC-1994 07:38 [ISCS,ANONYMOUS] (RWE,RE,,)
+HELP.TXT;6                  5  30-JAN-1998 12:58 [ISCS,ANONYMOUS] (RWED,RWED,,)
+INDEX.TXT;1                 0  23-JUN-1994 07:53 [ISCS,ANONYMOUS] (RWED,RWED,,)
+
+
+Total of 193 blocks in 4 files.

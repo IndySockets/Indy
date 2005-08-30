@@ -1,0 +1,10 @@
+drwx------  1     NT AUTHORITY     NT AUTHORITY          0 Jun 13 20:09 Config.Msi
+drwx------  1          BUILTIN     NT AUTHORITY          0 Feb 29 14:41 Documents and Settings
+-rwx------  1          BUILTIN     NT AUTHORITY        564 Oct 11  2003 os643467.bin
+-rwx------  1            staff                   805306368 Jun 11 21:20 pagefile.sys
+drwx------  1          BUILTIN     NT AUTHORITY          0 Jun 13 20:09 Program Files
+drwx------  1          BUILTIN     NT AUTHORITY          0 Dec  7  2001 System Volume Information
+drwx------  1          BUILTIN          BUILTIN          0 Nov 16  2001 _Restore
+#220  FTP server (Hummingbird Ltd. (HCLFTPD) Version 9.0.0.0) ready.
+#Note that there is some extra spaces in the group and sometimes the owner
+#Most of the listing is withheld for security reasons.

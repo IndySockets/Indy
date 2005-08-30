@@ -1,0 +1,4 @@
+-r-xr-xr-x   1 owner    group            1207 Feb 28 19:01 Serial #.txt
+-r-xr-xr-x   1 owner    group            8386 Oct 18 16:25 WinISO.v5.3-JaZZ.NFO
+-r-xr-xr-x   1 owner    group         1239066 Feb 28 18:17 WINISO53.EXE
+

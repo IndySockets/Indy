@@ -1,0 +1,4 @@
+-rwxrwxrwx  1 ftp      ftp           121 Apr 26  2001 Fender_Cal-2001_SCP_2.csv
+-rwxrwxrwx  1 ftp      ftp          3691 Sep 13  2001 Locutus_P10_2001_52.csv
+-rwxrwxrwx  1 ftp      ftp           225 Jan 10  2001 Annabl_2001_6.csv
+#From:  article posted in borland.public.delphi.internet.winsock (message ID:  <Xns9280A1963E061pepessaes@207.105.83.65>) Author: "pepe@ssa" <pepe@ssa.es>

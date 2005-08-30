@@ -1,0 +1,14 @@
+total 74
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Jul 25  2002 .
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Oct 27  2002 ..
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 11  2003 .dsmscm.ZMP00003
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 11  2003 .dsmscm.ZMP99999
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 30  2003 .dsmscm.ZPHIFI
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Jul 25  2002 java
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Aug 20  2003 javaext
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Dec 10  2003 jdbc
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Sep 12  2003 nssjava
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Dec 10  2003 nssoap
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Jul 25  2002 webserver
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Oct 23  2003 xml
+-r--r--r--   1 SUPER.SUPER      SUPER       1194 Dec 11  2003 zzDSMSCM.Managed

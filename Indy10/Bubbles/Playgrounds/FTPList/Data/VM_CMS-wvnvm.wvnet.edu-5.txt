@@ -1,0 +1,21 @@
+BOOKMGR  COUNT    V          4          1          1  9/26/02 10:31:08 -
+BOOKMGR  HISTORY  F         40        207          3 11/11/97 21:38:40 -
+BOOKMGR  LOG      V         35          2          1  4/03/97 16:17:41 -
+CF       HTML     V      24768          1          7  6/30/01 19:15:22 -
+CMSGUI            DIR        -          -          -  2/21/97 12:06:59 -
+EBD      SYS      V          1          0          0  4/29/00 12:45:09 -
+HTM      $DEFAULT V          1          0          0  5/14/00 22:25:27 -
+HTML     $DEFAULT V          1          0          0 11/24/00 17:24:30 -
+HTML     FOLDER   V          1          0          0  6/23/01 11:48:30 -
+INDEX    HTM      V          1          0          0  3/30/02 10:35:02 -
+MAIN     COUNT    V          2          1          1  4/07/97 11:03:53 -
+MAIN     HISTORY  F         40          7          1  4/07/97 11:03:57 -
+MLBSURVE HTML     V      10200          1          3  6/30/01 19:19:55 -
+MONO1    JPG      V      25115          1          7  3/08/02 23:15:47 -
+MONO11   JPG      V      25115          1          7  3/08/02 23:18:17 -
+MY       RESUME   V      56320          1         14 12/25/01 21:33:35 -
+PIQ               DIR        -          -          -  6/12/97 15:34:11 -
+RFC               DIR        -          -          -  2/22/97 10:13:29 -
+SMOOTH   SANDY    V       5110          1          2  5/14/00 22:26:07 -
+WEB      HTM      V       1182          1          1  4/29/00  0:37:04 -
+WS_FTP   LOG      V          1          0          0  5/14/00 22:27:13 -

@@ -1,0 +1,4 @@
+-rwx------ 1  staff      47797 Jun 10 13:49 BOOTLOG.TXT
+-rwx------ 1  staff      92870 Jul 11  1995 COMMAND.COM
+#Hummingbird's Exceed (Win95/NT X server)
+#http://www-uk.hpl.hp.com/people/ange/archives/archives-97/efs-help-archive/0026.html

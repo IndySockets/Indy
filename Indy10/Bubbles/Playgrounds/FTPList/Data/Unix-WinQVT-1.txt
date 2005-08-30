@@ -1,0 +1,5 @@
+drwxrwxrwx 1 nobody system            0  Oct 11 13:53 .
+drwxrwxrwx 1 nobody system            0  Oct 11 13:53 ..
+drwxrwxrwx 1 nobody system            0  Oct 11 13:53 pub
+-rwxrwxrwx 1 nobody system       173263  Sep  8 05:20 WylburFiles.pdf
+#Windows 2000 running WinQVT/NET 5.1.3

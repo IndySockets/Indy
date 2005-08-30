@@ -1,0 +1,12 @@
+AUTHORS           DIR        -          -          - 1999-09-20 10:31:11 -
+HARRINGTON        DIR        -          -          - 1997-02-12 15:33:28 -
+PICS              DIR        -          -          - 2000-10-12 15:43:23 -
+SYSFILE           DIR        -          -          - 2000-07-20 17:48:01 -
+VMNNTP            DIR        -          -          - 2002-08-27 14:59:51 -
+WELCNVT  EXEC     V         72          9          1 1999-09-20 17:16:18 -
+WELCOME  EREADME  F         80         21          1 1999-12-27 16:19:00 -
+WELCOME  README   V         82         21          1 1999-12-27 16:19:04 -
+#ftp> quote syst
+#215-z/VM Version 4 Release 3.0, service level 0202 (64-bit)
+#    VM/CMS Level 19, Service Level 202
+#215 VM is the operating system of this server.

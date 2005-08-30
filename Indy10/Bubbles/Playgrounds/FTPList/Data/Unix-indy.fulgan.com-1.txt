@@ -1,0 +1,11 @@
+total 13
+drwxrw-rw- 1 root  root    0 Aug  4 04:02 .
+drwxrw-rw- 1 root  root    0 Aug  4 04:02 ..
+d--x------ 1 root  root  512 Aug  4 18:27 bin
+dr-x-w---- 1 root  root  512 Aug  4 18:27 pub
+d--------- 1 root  root  512 Aug  4 18:27 usr
+drwxrw-rw- 1 root  root    0 Sep 12  2003 aspnet_client
+drwxrw-rw- 1 root  root    0 Aug  4 04:03 Indy10
+drwxrw-rw- 1 root  root    0 Aug  4 04:02 Indy9
+drwxrw-rw- 1 root  root    0 Jun 17 16:16 SSL
+drwxrw-rw- 1 root  root    0 Aug  4 04:03 ZIP

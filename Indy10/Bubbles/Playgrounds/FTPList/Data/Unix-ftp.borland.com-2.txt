@@ -1,0 +1,5 @@
+-rw-r--r--   1 ftpuser  ftpusers  29280139 Mar 23  2000 D5EntUpdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  26357995 Mar 23  2000 D5ProUpdate.exe
+-rw-r--r--   1 ftpuser  ftpusers  19566614 Mar 23  2000 D5StdUpdate.exe
+drwxr-xr-x   2 ftpuser  ftpusers       512 Apr  3  2000 french
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar 23  2000 german

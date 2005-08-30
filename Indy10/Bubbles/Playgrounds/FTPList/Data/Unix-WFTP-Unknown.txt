@@ -1,0 +1,1 @@
+-rwxrwxrwx   1 noone    nogroup      322 Aug 19  1996 message.ftp

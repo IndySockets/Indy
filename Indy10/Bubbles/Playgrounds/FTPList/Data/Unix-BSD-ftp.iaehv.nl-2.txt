@@ -1,0 +1,5 @@
+total 7
+drwxr-xr-x    3 0  wheel   512 Mar  4  1999 usenet
+drwxr-xr-x  241 0  wheel  6144 Feb  1 18:59 users
+#ftp> quote syst
+#215 UNIX Type: L8 Version: BSD-199506

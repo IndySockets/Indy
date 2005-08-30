@@ -1,0 +1,9 @@
+-rwx------  1 bkc      other         184 Aug  2 17:54 index.htm
+drwx---r-x  2 supervis other         512 Sep 21 13:12 ..
+drwx---r-x  2 bkc      other         512 Sep 21 13:12 FTPD
+drwx---r-x  2 bkc      other         512 Sep 21 13:12 TCONSOLE
+drwx---r-x  2 bkc      other         512 Sep 21 13:12 TN3270CE
+drwx---r-x  2 bkc      other         512 Sep 21 13:12 WSOCK
+#UNIX Type: L8 Version: NetWare MurkWorks, Inc. 1.79
+#This is a Netware Deamon that emulates Unix
+#Demos dir

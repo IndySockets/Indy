@@ -1,0 +1,7 @@
+dr-xr-xr-x   1 owner    group               0 Jan 20 13:47 updates
+
+./updates:
+-r-xr-xr-x   1 owner    group              21 Aug  9  2002 00INDEX.TXT
+-r-xr-xr-x   1 owner    group           10407 Aug 22  2001 stk1fix.txt
+#Microsoft IIS 5.0 using recursive listing -R parameter in Unix list
+#mode.

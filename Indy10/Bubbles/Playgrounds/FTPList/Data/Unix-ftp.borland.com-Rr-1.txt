@@ -1,0 +1,33 @@
+drwxr-xr-x   3 ftpuser  ftpusers       512 Jul  2  2001 techpubs
+drwxr-xr-x   4 ftpuser  ftpusers       512 Jan 18  2002 devsupport
+
+./techpubs:
+-rw-r--r--   1 ftpuser  ftpusers       331 Jul  2  2001 postdir.logfile
+drwxr-xr-x   2 ftpuser  ftpusers       512 Oct 22  2001 kylix1
+
+./techpubs/kylix1:
+-rw-r--r--   1 ftpuser  ftpusers    639605 Jul 31  2001 Kylix1LinkFix.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7054862 Jul 31  2001 Kylix1HelpUpdate_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   6812820 Jul 31  2001 Kylix1HelpUpdate_DD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7368283 Oct 22  2001 Kylix1HelpUpdate-FR_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7123529 Oct 22  2001 Kylix1HelpUpdate-FR_DD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7944276 Oct 22  2001 Kylix1HelpUpdate-DE_SD.tgz
+-rw-r--r--   1 ftpuser  ftpusers   7685559 Oct 22  2001 Kylix1HelpUpdate-DE_DD.tgz
+
+./devsupport:
+-rw-r--r--   1 ftpuser  ftpusers     49945 Jan 18  2002 patch_mysql.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers     43494 Jan 18  2002 patch_debugger.tar.gz
+drwxr-xr-x   2 ftpuser  ftpusers       512 Aug  9 16:40 loki_install
+drwxr-xr-x   2 ftpuser  ftpusers       512 Mar  7  2001 glibc_patches
+-rw-r--r--   1 ftpuser  ftpusers     96820 Apr 11  2001 desprop50562.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers     22379 Mar  7  2001 borpretest.tar.gz
+
+./devsupport/loki_install:
+-rw-r--r--   1 ftpuser  ftpusers   3923119 Aug  9 16:40 kylix_install_source-3_0_tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3562468 Jan 11  2002 kylix_install_source-2_0_tar.gz
+-rw-r--r--   1 ftpuser  ftpusers   3851935 Apr 11  2001 kylix_install_source-1.0.tar.gz
+
+./devsupport/glibc_patches:
+-rw-r--r--   1 ftpuser  ftpusers  15018232 Mar  7  2001 glibc_suse.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  64946927 Mar  7  2001 glibc_redhat.tar.gz
+-rw-r--r--   1 ftpuser  ftpusers  74728938 Mar  7  2001 glibc_mandrake.tar.gz

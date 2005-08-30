@@ -1,0 +1,7 @@
+dr-xr-xr-x   2 root     wheel        4096 Mar 19  1999 bin
+dr-xr-xr-x   2 root     wheel        4096 Jul 22  2000 etc
+dr-xr-xr-x   2 root     wheel        4096 Dec  3  1993 incoming
+dr-xr-xr-x   2 root     wheel        4096 Nov 17  1993 lib
+dr-xr-xr-x   5 root     wheel        4096 Dec 27  2001 pub
+dr-xr-xr-x   3 root     wheel        4096 Aug 30  1993 usr
+-r-xr-xr-x   1 root     wheel         318 Oct 22  2001 welcome.msg

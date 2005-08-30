@@ -1,0 +1,11 @@
+d--x------ 1 ftp ftp          0 May  5  2000 ..
+---------- 1 ftp ftp    3638806 Feb  8  2001 httpbooksrc.zip
+---------- 1 ftp ftp      88378 Feb  8  2001 Login.zip
+---------- 1 ftp ftp      17410 Feb  8  2001 noz.zip
+---------- 1 ftp ftp       1427 Feb  8  2001 passfileformat.txt
+---------- 1 ftp ftp      60918 Feb  8  2001 pconvert.zip
+---------- 1 ftp ftp      42151 Feb  8  2001 qstat.zip
+---------- 1 ftp ftp      40679 Feb  8  2001 relaytest.zip
+---------- 1 ftp ftp      52335 Feb  8  2001 rxparse.zip
+#Hethmon Brothers FTP Server ** BETA 2.0 **. Ready for new user.
+#OS/2 FTP Server emulating Unix

@@ -1,0 +1,12 @@
+total 96
+        55 drwxr-xr-x   8 5743     other       8192 Dec 10  2001 .
+         2 drwxr-xr-x   8 5743     other       8192 Dec 10  2001 ..
+     23031 drwx--x--x   2 5743     other       8192 May 20  2002 .prt
+     33025 -r--r--r--   1 root     other        351 Aug  8  2000 Welcome
+     33024 lrwxrwxrwx   1 root     other          9 Dec 10  2001 bin -> ./usr/bin
+       192 dr-xr-xr-x   2 root     other         96 Aug  8  2000 dev
+       197 dr-xr-xr-x   2 root     other       8192 Aug  8  2000 etc
+       206 dr-xr-xr-x   3 root     sys           96 Aug  8  2000 opt
+       211 drwxr-xr-x  34 5743     bin         8192 Aug 27 13:05 pub
+       212 dr-xr-xr-x   5 root     other         96 Aug  8  2000 usr
+#Using the -i swich.  That causes the inode to be printed.

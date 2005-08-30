@@ -1,0 +1,12 @@
+total 96
+drwxr-xr-x   8    8192 Dec 10  2001 .
+drwxr-xr-x   8    8192 Dec 10  2001 ..
+drwx--x--x   2    8192 May 20  2002 .prt
+-r--r--r--   1     351 Aug  8  2000 Welcome
+lrwxrwxrwx   1       9 Dec 10  2001 bin -> ./usr/bin
+dr-xr-xr-x   2      96 Aug  8  2000 dev
+dr-xr-xr-x   2    8192 Aug  8  2000 etc
+dr-xr-xr-x   3      96 Aug  8  2000 opt
+drwxr-xr-x  34    8192 Aug 27 13:05 pub
+dr-xr-xr-x   5      96 Aug  8  2000 usr
+# using -g and o switches.

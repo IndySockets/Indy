@@ -1,0 +1,7 @@
+total 22
+drwx--x--x   2 hevasymantec-ftp5  hevasymantec-ftp3  4608 Nov 14 09:19 comwrap
+drwxr-xr-x   2 root               other               512 Sep 29  2000 dev
+dr-xr-xr-x   2 root               other               512 Sep 25  2000 etc
+drwx--x--x  44 hevasymantec-ftp5  hevasymantec-ftp3  3072 Jan 20 17:18 misc
+drwxrwsr-x  26 hevasymantec-ftp5  hevasymantec-ftp3  1024 Dec 02 06:13 public
+#FileDrive 2.1

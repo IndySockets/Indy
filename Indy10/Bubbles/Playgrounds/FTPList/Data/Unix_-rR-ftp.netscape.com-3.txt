@@ -1,0 +1,58 @@
+.:
+total 96
+drwxr-xr-x   4 5743     2           4096 Dec  9 16:40 win32
+drwxr-xr-x   5 5743     2           4096 Nov 25 13:16 ..
+drwxr-xr-x   3 5743     2           4096 Nov 15 14:34 .
+
+./win32:
+total 1568
+drwxr-xr-x   2 5743     2           4096 Jan 22 10:36 sea
+drwxr-xr-x   2 5743     2           4096 Dec  9 16:40 bfkprv
+-rw-r--r--   1 5743     2         224841 Dec  9 16:23 NSSetup.xpi
+-rw-r--r--   1 5743     2         235904 Dec  9 16:23 NSSetup.jar
+-rw-r--r--   1 5743     2         251088 Dec  9 16:22 NSSetup.exe
+drwxr-xr-x   3 5743     2           4096 Nov 15 14:34 ..
+drwxr-xr-x   4 5743     2           4096 Dec  9 16:40 .
+
+./win32/sea:
+total 91552
+-rw-r--r--   1 5743     2        32378064 Dec  9 16:25 NSSetupB.exe
+-r--r--r--   1 5743     2        14450384 Jan 22 10:36 NS701base.exe
+drwxr-xr-x   4 5743     2           4096 Dec  9 16:40 ..
+drwxr-xr-x   2 5743     2           4096 Jan 22 10:36 .
+
+./win32/bfkprv:
+total 63552
+-rw-r--r--   1 5743     2         877719 Nov 21 16:33 xpcom.xpi
+-rw-r--r--   1 5743     2        1272932 Nov 21 16:33 winamp.zip
+-rw-r--r--   1 5743     2        1296329 Nov 21 16:33 viewpoint.zip
+-rw-r--r--   1 5743     2         248152 Nov 21 16:33 talkback.xpi
+-rw-r--r--   1 5743     2         477180 Nov 21 16:33 spellchk.xpi
+-rw-r--r--   1 5743     2         422619 Nov 21 16:33 skinclas.xpi
+-rw-r--r--   1 5743     2          61512 Nov 21 16:33 regus.xpi
+-rw-r--r--   1 5743     2          55197 Nov 21 16:33 regca.xpi
+-rw-r--r--   1 5743     2              8 Nov 21 16:33 recommended.start
+-rw-r--r--   1 5743     2              8 Nov 21 16:33 recommended.end
+-rw-r--r--   1 5743     2         662290 Nov 21 16:33 psm.xpi
+-rw-r--r--   1 5743     2        3706780 Nov 21 16:32 nsrp8.zip
+-rw-r--r--   1 5743     2         668245 Nov 21 16:32 nim.xpi
+-rw-r--r--   1 5743     2        1755660 Nov 21 16:32 mail.xpi
+-rw-r--r--   1 5743     2         866971 Nov 21 16:32 langenus.xpi
+-rw-r--r--   1 5743     2        11643863 Nov 21 16:32 jre140_01i.zip
+-rw-r--r--   1 5743     2          32213 Nov 21 16:32 hpprint.xpi
+-rw-r--r--   1 5743     2              8 Nov 21 16:32 full.start
+-rw-r--r--   1 5743     2              8 Nov 21 16:32 full.end
+-rw-r--r--   1 5743     2         413776 Nov 21 16:32 flash.xpi
+-rw-r--r--   1 5743     2          26447 Nov 21 16:32 deflenus.xpi
+-rw-r--r--   1 5743     2              8 Nov 21 16:32 custom.start
+-rw-r--r--   1 5743     2              8 Nov 21 16:32 custom.end
+-rw-r--r--   1 5743     2          19329 Nov 21 16:32 cdt.xpi
+-rw-r--r--   1 5743     2        6997515 Nov 21 16:32 browser.xpi
+-rw-r--r--   1 5743     2         385066 Nov 21 16:31 artext.xpi
+-rw-r--r--   1 5743     2         269400 Nov 21 16:31 aod.xpi
+-rw-r--r--   1 5743     2          63597 Nov 21 16:31 NSUninst.zip
+drwxr-xr-x   4 5743     2           4096 Dec  9 16:40 ..
+drwxr-xr-x   2 5743     2           4096 Dec  9 16:40 .
+#ftp.netscape.com
+#using DIR -rR 
+# Recursive - sort in reverse order

@@ -1,0 +1,2 @@
+crw-rw-rw-   1 0        1        105,  1 Aug  8  2000 ticotsord
+#Extracted from sample data already checked in.  We want to see if detection works properly with this.

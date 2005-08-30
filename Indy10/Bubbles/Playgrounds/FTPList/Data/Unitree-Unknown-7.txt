@@ -1,0 +1,469 @@
+ency:
+-rw-r--r--      1 se2nl     g664     AR  common   15760680 Jan  2  1994 V1023937.A024294
+-rw-r--r--      1 se2nl     g664     AR  common   15735556 Jan  2  1994 V1024295.A024625
+-rw-r--r--      1 se2nl     g664     AR  common   15737824 Jan  2  1994 V1024626.A027776
+-rw-r--r--      1 se2nl     g664     AR  common   15739964 Jan  2  1994 V1027777.A030363
+-rw-r--r--      1 se2nl     g664     AR  common   15734060 Jan  2  1994 V1030364.A030930
+-rw-r--r--      1 se2nl     g664     AR  common   15771852 Jan  2  1994 V1030931.A031422
+-rw-r--r--      1 se2nl     g664     AR  common   15770304 Jan  2  1994 V1031423.A031839
+-rw-r--r--      1 se2nl     g664     AR  common   15747588 Jan  2  1994 V1031840.A032354
+-rw-r--r--      1 se2nl     g664     AR  common   15734604 Jan  2  1994 V1032355.A033026
+-rw-r--r--      1 se2nl     g664     AR  common    1493520 Jan  2  1994 V1033027.A033089
+
+ency.0001:
+-rw-------      1 se2nl     g664     AR  common   15760680 Apr 19  1995 V1023937.A024294
+-rw-------      1 se2nl     g664     AR  common   15735556 Apr 19  1995 V1024295.A024625
+-rw-------      1 se2nl     g664     AR  common   15737824 Apr 19  1995 V1024626.A027776
+-rw-------      1 se2nl     g664     AR  common   15739964 Apr 19  1995 V1027777.A030363
+-rw-------      1 se2nl     g664     AR  common   15734060 Apr 19  1995 V1030364.A030930
+-rw-------      1 se2nl     g664     AR  common   15771852 Apr 19  1995 V1030931.A031422
+-rw-------      1 se2nl     g664     AR  common   15770304 Apr 19  1995 V1031423.A031839
+-rw-------      1 se2nl     g664     AR  common   15747588 Apr 19  1995 V1031840.A032354
+-rw-------      1 se2nl     g664     AR  common   15734604 Apr 19  1995 V1032355.A033026
+-rw-------      1 se2nl     g664     AR  common    1493520 Apr 19  1995 V1033027.A033089
+
+ency.0002:
+-rw-r--r--      1 se2nl     g664     AR  common   15760712 Jan  2  1994 V1033090.A033722
+-rw-r--r--      1 se2nl     g664     AR  common   15741464 Jan  2  1994 V1033723.A034448
+-rw-r--r--      1 se2nl     g664     AR  common   15762252 Jan  2  1994 V1034449.A034948
+-rw-r--r--      1 se2nl     g664     AR  common   15772192 Jan  2  1994 V1034949.A035482
+-rw-r--r--      1 se2nl     g664     AR  common   15756784 Jan  2  1994 V1035483.A035961
+-rw-r--r--      1 se2nl     g664     AR  common   15753532 Jan  2  1994 V1035962.A036618
+-rw-r--r--      1 se2nl     g664     AR  common   15751208 Jan  2  1994 V1036619.A037283
+-rw-r--r--      1 se2nl     g664     AR  common   15767296 Jan  2  1994 V1037284.A037845
+-rw-r--r--      1 se2nl     g664     AR  common   14499196 Jan  2  1994 V1037846.A038395
+
+ency.0003:
+-rw-r--r--      1 se2nl     g664     AR  common   16498560 Jan  2  1994 V1038396.A039087
+-rw-r--r--      1 se2nl     g664     AR  common   15784948 Jan  2  1994 V1039088.A039444
+-rw-r--r--      1 se2nl     g664     AR  common   15743120 Jan  2  1994 V1039445.A039931
+-rw-r--r--      1 se2nl     g664     AR  common   15741956 Jan  2  1994 V1039932.A040588
+-rw-r--r--      1 se2nl     g664     AR  common   15749592 Jan  2  1994 V1040589.A041209
+-rw-r--r--      1 se2nl     g664     AR  common   15737680 Jan  2  1994 V1041210.A041856
+-rw-r--r--      1 se2nl     g664     AR  common   15741272 Jan  2  1994 V1041857.A042488
+-rw-r--r--      1 se2nl     g664     AR  common   15738016 Jan  2  1994 V1042489.A043022
+-rw-r--r--      1 se2nl     g664     AR  common   15738404 Jan  2  1994 V1043023.A043606
+-rw-r--r--      1 se2nl     g664     AR  common    1349020 Jan  2  1994 V1043607.A043652
+
+ency.0004:
+-rw-r--r--      1 se2nl     g664     AR  common   15744548 Jan  2  1994 V1043653.A044261
+-rw-r--r--      1 se2nl     g664     AR  common   15740480 Jan  2  1994 V1044262.A044755
+-rw-r--r--      1 se2nl     g664     AR  common   15774396 Jan  2  1994 V1044756.A045161
+-rw-r--r--      1 se2nl     g664     AR  common   15737504 Jan  2  1994 V1045162.A045591
+-rw-r--r--      1 se2nl     g664     AR  common   15752640 Jan  2  1994 V1045592.A046144
+-rw-r--r--      1 se2nl     g664     AR  common   15750940 Jan  2  1994 V1046145.A046546
+-rw-r--r--      1 se2nl     g664     AR  common   15759304 Jan  2  1994 V1046547.A046929
+-rw-r--r--      1 se2nl     g664     AR  common   15781708 Jan  2  1994 V1046930.A047407
+-rw-r--r--      1 se2nl     g664     AR  common   12324820 Jan  2  1994 V1047408.A047879
+
+ency.0005:
+-rw-r--r--      1 se2nl     g664     AR  common   15753756 Jan  2  1994 V1047880.A048359
+-rw-r--r--      1 se2nl     g664     AR  common   15760948 Jan  2  1994 V1048360.A048859
+-rw-r--r--      1 se2nl     g664     AR  common   15732796 Jan  2  1994 V1048860.A049354
+-rw-r--r--      1 se2nl     g664     AR  common   15733256 Jan  2  1994 V1049355.A050099
+-rw-r--r--      1 se2nl     g664     AR  common   15751800 Jan  2  1994 V1050100.A051165
+-rw-r--r--      1 se2nl     g664     AR  common   15740208 Jan  2  1994 V1051166.A052395
+-rw-r--r--      1 se2nl     g664     AR  common   15745500 Jan  2  1994 V1052396.A057375
+-rw-r--r--      1 se2nl     g664     AR  common   15738724 Jan  2  1994 V1057376.A060060
+-rw-r--r--      1 se2nl     g664     AR  common   15743504 Jan  2  1994 V1060061.A063527
+-rw-r--r--      1 se2nl     g664     AR  common    1453880 Jan  2  1994 V1063528.A063898
+
+ency.0006:
+-rw-r--r--      1 se2nl     g664     AR  common   15746012 Jan  2  1994 V1063899.A067647
+-rw-r--r--      1 se2nl     g664     AR  common   15736800 Jan  2  1994 V1067648.A068430
+-rw-r--r--      1 se2nl     g664     AR  common   15731372 Jan  2  1994 V1068431.A069054
+-rw-r--r--      1 se2nl     g664     AR  common   15748520 Jan  2  1994 V1069055.A069677
+-rw-r--r--      1 se2nl     g664     AR  common   15747720 Jan  2  1994 V1069678.A070260
+-rw-r--r--      1 se2nl     g664     AR  common   15771800 Jan  2  1994 V1070261.A070746
+-rw-r--r--      1 se2nl     g664     AR  common   15734136 Jan  2  1994 V1070747.A071190
+-rw-r--r--      1 se2nl     g664     AR  common   15747204 Jan  2  1994 V1071191.A071701
+-rw-r--r--      1 se2nl     g664     AR  common   15753180 Jan  2  1994 V1071702.A072233
+-rw-r--r--      1 se2nl     g664     AR  common   12969540 Jan  2  1994 V1072234.A072651
+
+ency.0007:
+-rw-r--r--      1 se2nl     g664     AR  common   15732108 Jan  2  1994 V1072652.A073228
+-rw-r--r--      1 se2nl     g664     AR  common   15749576 Jan  2  1994 V1073229.A073737
+-rw-r--r--      1 se2nl     g664     AR  common   15762868 Jan  2  1994 V1073738.A074167
+-rw-r--r--      1 se2nl     g664     AR  common   15738436 Jan  2  1994 V1074168.A074625
+-rw-r--r--      1 se2nl     g664     AR  common   15757468 Jan  2  1994 V1074626.A075109
+-rw-r--r--      1 se2nl     g664     AR  common   15744124 Jan  2  1994 V1075110.A075584
+-rw-r--r--      1 se2nl     g664     AR  common   15734924 Jan  2  1994 V1075585.A076004
+-rw-r--r--      1 se2nl     g664     AR  common   15744216 Jan  2  1994 V1076005.A076408
+-rw-r--r--      1 se2nl     g664     AR  common   15755376 Jan  2  1994 V1076409.A076796
+-rw-r--r--      1 se2nl     g664     AR  common    8105796 Jan  2  1994 V1076797.A076994
+
+ency.0008:
+-rw-r--r--      1 se2nl     g664     AR  common   15756552 Jan  2  1994 V1076995.A077403
+-rw-r--r--      1 se2nl     g664     AR  common   15731628 Jan  2  1994 V1077404.A077809
+-rw-r--r--      1 se2nl     g664     AR  common   15737604 Jan  2  1994 V1077810.A078147
+-rw-r--r--      1 se2nl     g664     AR  common   15736080 Jan  2  1994 V1078148.A078614
+-rw-r--r--      1 se2nl     g664     AR  common   15760920 Jan  2  1994 V1078615.A079003
+-rw-r--r--      1 se2nl     g664     AR  common   15754592 Jan  2  1994 V1079004.A079464
+-rw-r--r--      1 se2nl     g664     AR  common   15743704 Jan  2  1994 V1079465.A079874
+-rw-r--r--      1 se2nl     g664     AR  common   15745684 Jan  2  1994 V1079875.A081087
+-rw-r--r--      1 se2nl     g664     AR  common   15737180 Jan  2  1994 V1081088.A082705
+-rw-r--r--      1 se2nl     g664     AR  common    1342388 Jan  2  1994 V1082706.A082793
+
+ency.0009:
+-rw-r--r--      1 se2nl     g664     AR  common   15743524 Jan  2  1994 V1082794.A084293
+-rw-r--r--      1 se2nl     g664     AR  common   15743748 Jan  2  1994 V1084294.A085681
+-rw-r--r--      1 se2nl     g664     AR  common   15744652 Jan  2  1994 V1085682.A087167
+-rw-r--r--      1 se2nl     g664     AR  common   15743956 Jan  2  1994 V1087168.A088442
+-rw-r--r--      1 se2nl     g664     AR  common   15744920 Jan  2  1994 V1088443.A089682
+-rw-r--r--      1 se2nl     g664     AR  common   15736028 Jan  2  1994 V1089683.A091077
+-rw-r--r--      1 se2nl     g664     AR  common   15745176 Jan  2  1994 V1091078.A094832
+-rw-r--r--      1 se2nl     g664     AR  common   15774928 Jan  2  1994 V1094833.A096371
+-rw-r--r--      1 se2nl     g664     AR  common   15743548 Jan  2  1994 V1096372.A097729
+-rw-r--r--      1 se2nl     g664     AR  common   12081260 Jan  2  1994 V1097730.A098859
+
+ency.0010:
+-rw-r--r--      1 se2nl     g664     AR  common   15739768 Jan  2  1994 V1098860.A099993
+-rw-r--r--      1 se2nl     g664     AR  common   15742356 Jan  2  1994 V1099994.A101300
+-rw-r--r--      1 se2nl     g664     AR  common   15735664 Jan  2  1994 V1101301.A102734
+-rw-r--r--      1 se2nl     g664     AR  common   15761852 Jan  2  1994 V1102735.A103898
+-rw-r--r--      1 se2nl     g664     AR  common   15734744 Jan  2  1994 V1103899.A105169
+-rw-r--r--      1 se2nl     g664     AR  common   15743428 Jan  2  1994 V1105170.A106522
+-rw-r--r--      1 se2nl     g664     AR  common   15740576 Jan  2  1994 V1106523.A107760
+-rw-r--r--      1 se2nl     g664     AR  common   15742916 Jan  2  1994 V1107761.A108984
+-rw-r--r--      1 se2nl     g664     AR  common   15737456 Jan  2  1994 V1108985.A110301
+-rw-r--r--      1 se2nl     g664     AR  common    7697024 Jan  2  1994 V1110302.A111042
+
+ency.0011:
+-rw-r--r--      1 se2nl     g664     AR  common   15732340 Jan  3  1994 V1111043.A112301
+-rw-r--r--      1 se2nl     g664     AR  common   15730784 Jan  3  1994 V1112302.A113921
+-rw-r--r--      1 se2nl     g664     AR  common   15737496 Jan  3  1994 V1113922.A115634
+-rw-r--r--      1 se2nl     g664     AR  common   15761420 Jan  3  1994 V1115635.A117491
+-rw-r--r--      1 se2nl     g664     AR  common   15755208 Jan  3  1994 V1117492.A119917
+-rw-r--r--      1 se2nl     g664     AR  common   15740232 Jan  3  1994 V1119918.A121345
+-rw-r--r--      1 se2nl     g664     AR  common   15740044 Jan  3  1994 V1121346.A123009
+-rw-r--r--      1 se2nl     g664     AR  common   15747140 Jan  3  1994 V1123010.A124809
+-rw-r--r--      1 se2nl     g664     AR  common   15747292 Jan  3  1994 V1124810.A126064
+-rw-r--r--      1 se2nl     g664     AR  common   15737052 Jan  3  1994 V1126065.A126803
+-rw-r--r--      1 se2nl     g664     AR  common    5670156 Jan  3  1994 V1126804.A126960
+
+ency.0012:
+-rw-r--r--      1 se2nl     g664     AR  common   15743648 Jan  3  1994 V1126961.A127382
+-rw-r--r--      1 se2nl     g664     AR  common   15754416 Jan  3  1994 V1127383.A127790
+-rw-r--r--      1 se2nl     g664     AR  common   15749352 Jan  3  1994 V1127791.A128212
+-rw-r--r--      1 se2nl     g664     AR  common   15741748 Jan  3  1994 V1128213.A128693
+-rw-r--r--      1 se2nl     g664     AR  common   15751200 Jan  3  1994 V1128694.A129182
+-rw-r--r--      1 se2nl     g664     AR  common   15735800 Jan  3  1994 V1129183.A129597
+-rw-r--r--      1 se2nl     g664     AR  common   15757104 Jan  3  1994 V1129598.A129935
+-rw-r--r--      1 se2nl     g664     AR  common   15749956 Jan  3  1994 V1129936.A130428
+-rw-r--r--      1 se2nl     g664     AR  common   14220724 Jan  3  1994 V1130429.A130946
+
+ency.0013:
+-rw-r--r--      1 se2nl     g664     AR  common   15738656 Jan  4  1994 V1130947.A131487
+-rw-r--r--      1 se2nl     g664     AR  common   15755856 Jan  4  1994 V1131488.A132008
+-rw-r--r--      1 se2nl     g664     AR  common   15735396 Jan  4  1994 V1132009.A132534
+-rw-r--r--      1 se2nl     g664     AR  common   15732064 Jan  4  1994 V1132535.A133054
+-rw-r--r--      1 se2nl     g664     AR  common   15747296 Jan  4  1994 V1133055.A133577
+-rw-r--r--      1 se2nl     g664     AR  common   15744844 Jan  4  1994 V1133578.A134070
+-rw-r--r--      1 se2nl     g664     AR  common   15750620 Jan  4  1994 V1134071.A134547
+-rw-r--r--      1 se2nl     g664     AR  common   15739240 Jan  4  1994 V1134548.A134957
+-rw-r--r--      1 se2nl     g664     AR  common   15737928 Jan  4  1994 V1134958.A135444
+-rw-r--r--      1 se2nl     g664     AR  common    6652096 Jan  4  1994 V1135445.A135624
+
+ency.0014:
+-rw-r--r--      1 se2nl     g664     AR  common   15756168 Jan  4  1994 V1135625.A136054
+-rw-r--r--      1 se2nl     g664     AR  common   15757692 Jan  4  1994 V1136055.A136478
+-rw-r--r--      1 se2nl     g664     AR  common   15759252 Jan  4  1994 V1136479.A136819
+-rw-r--r--      1 se2nl     g664     AR  common   15756884 Jan  4  1994 V1136820.A137197
+-rw-r--r--      1 se2nl     g664     AR  common   15747712 Jan  4  1994 V1137198.A137668
+-rw-r--r--      1 se2nl     g664     AR  common   15772832 Jan  4  1994 V1137669.A138028
+-rw-r--r--      1 se2nl     g664     AR  common   15746112 Jan  4  1994 V1138029.A138400
+-rw-r--r--      1 se2nl     g664     AR  common   15747860 Jan  4  1994 V1138401.A138907
+-rw-r--r--      1 se2nl     g664     AR  common   12750752 Jan  4  1994 V1138908.A140656
+
+ency.0015:
+-rw-r--r--      1 se2nl     g664     AR  common   15735960 Jan  4  1994 V1140657.A142590
+-rw-r--r--      1 se2nl     g664     AR  common   15743476 Jan  4  1994 V1142591.A144228
+-rw-r--r--      1 se2nl     g664     AR  common   15735240 Jan  4  1994 V1144229.A146122
+-rw-r--r--      1 se2nl     g664     AR  common   15760044 Jan  4  1994 V1146123.A148128
+-rw-r--r--      1 se2nl     g664     AR  common   15736792 Jan  4  1994 V1148129.A150398
+-rw-r--r--      1 se2nl     g664     AR  common   15734064 Jan  4  1994 V1150399.A152357
+-rw-r--r--      1 se2nl     g664     AR  common   15737988 Jan  4  1994 V1152358.A153487
+-rw-r--r--      1 se2nl     g664     AR  common   15730768 Jan  4  1994 V1153488.A157059
+-rw-r--r--      1 se2nl     g664     AR  common   15732380 Jan  4  1994 V1157060.A162294
+-rw-r--r--      1 se2nl     g664     AR  common   11781064 Jan  4  1994 V1162295.A166013
+
+ency.0016:
+-rw-r--r--      1 se2nl     g664     AR  common   15738196 Jan  4  1994 V1166014.A168863
+-rw-r--r--      1 se2nl     g664     AR  common   15731232 Jan  4  1994 V1168864.A171550
+-rw-r--r--      1 se2nl     g664     AR  common   15731640 Jan  4  1994 V1171551.A175402
+-rw-r--r--      1 se2nl     g664     AR  common   15737520 Jan  4  1994 V1175403.A178765
+-rw-r--r--      1 se2nl     g664     AR  common   15733352 Jan  4  1994 V1178766.A182831
+-rw-r--r--      1 se2nl     g664     AR  common   15751536 Jan  4  1994 V1182832.A184578
+-rw-r--r--      1 se2nl     g664     AR  common   15737700 Jan  4  1994 V1184579.A188077
+-rw-r--r--      1 se2nl     g664     AR  common   15736936 Jan  4  1994 V1188078.A191970
+-rw-r--r--      1 se2nl     g664     AR  common   15772596 Jan  4  1994 V1191971.A194142
+-rw-r--r--      1 se2nl     g664     AR  common   15732400 Jan  4  1994 V1194143.A196428
+-rw-r--r--      1 se2nl     g664     AR  common    1742424 Jan  4  1994 V1196429.A196594
+
+ency.0017:
+-rw-r--r--      1 se2nl     g664     AR  common   15760544 Jan  4  1994 V1196595.A199204
+-rw-r--r--      1 se2nl     g664     AR  common   15734084 Jan  4  1994 V1199205.A201812
+-rw-r--r--      1 se2nl     g664     AR  common   15736632 Jan  4  1994 V1201813.A205186
+-rw-r--r--      1 se2nl     g664     AR  common   15738764 Jan  4  1994 V1205187.A209259
+-rw-r--r--      1 se2nl     g664     AR  common   15732092 Jan  4  1994 V1209260.A212389
+-rw-r--r--      1 se2nl     g664     AR  common   15732596 Jan  4  1994 V1212390.A215529
+-rw-r--r--      1 se2nl     g664     AR  common   15737520 Jan  4  1994 V1215530.A217818
+-rw-r--r--      1 se2nl     g664     AR  common   15741424 Jan  4  1994 V1217819.A221473
+-rw-r--r--      1 se2nl     g664     AR  common   11755408 Jan  4  1994 V1221474.A223333
+
+ency.0018:
+-rw-r--r--      1 se2nl     g664     AR  common   15730704 Jan  4  1994 V1223335.A226300
+-rw-r--r--      1 se2nl     g664     AR  common   15764876 Jan  4  1994 V1226301.A229811
+-rw-r--r--      1 se2nl     g664     AR  common   15732924 Jan  4  1994 V1229812.A233459
+-rw-r--r--      1 se2nl     g664     AR  common   15757176 Jan  4  1994 V1233460.A235769
+-rw-r--r--      1 se2nl     g664     AR  common   15734100 Jan  4  1994 V1235770.A239418
+-rw-r--r--      1 se2nl     g664     AR  common   15748736 Jan  4  1994 V1239419.A243115
+-rw-r--r--      1 se2nl     g664     AR  common   15738288 Jan  4  1994 V1243116.A246155
+-rw-r--r--      1 se2nl     g664     AR  common   15730952 Jan  4  1994 V1246156.A250273
+-rw-r--r--      1 se2nl     g664     AR  common   15738868 Jan  4  1994 V1250274.A253114
+-rw-r--r--      1 se2nl     g664     AR  common   12365540 Jan  4  1994 V1253115.A255182
+
+ency.0019:
+-rw-r--r--      1 se2nl     g664     AR  common   15739044 Jan  5  1994 V1255183.A258737
+-rw-r--r--      1 se2nl     g664     AR  common   15732132 Jan  5  1994 V1258738.A261409
+-rw-r--r--      1 se2nl     g664     AR  common   15736356 Jan  5  1994 V1261410.A265513
+-rw-r--r--      1 se2nl     g664     AR  common   15733296 Jan  5  1994 V1265514.A271113
+-rw-r--r--      1 se2nl     g664     AR  common   15735436 Jan  5  1994 V1271114.A278712
+-rw-r--r--      1 se2nl     g664     AR  common   15734316 Jan  5  1994 V1278713.A283998
+-rw-r--r--      1 se2nl     g664     AR  common   15733960 Jan  5  1994 V1283999.A290160
+-rw-r--r--      1 se2nl     g664     AR  common   15732304 Jan  5  1994 V1290161.A296202
+-rw-r--r--      1 se2nl     g664     AR  common   15734172 Jan  5  1994 V1296203.A301684
+-rw-r--r--      1 se2nl     g664     AR  common   13106652 Jan  5  1994 V1301685.A305461
+
+ency.0020:
+-rw-r--r--      1 se2nl     g664     AR  common   15731024 Jan  5  1994 V1305462.A312167
+-rw-r--r--      1 se2nl     g664     AR  common   15736048 Jan  5  1994 V1312168.A321211
+-rw-r--r--      1 se2nl     g664     AR  common   15730688 Jan  5  1994 V1321212.A325687
+-rw-r--r--      1 se2nl     g664     AR  common   15731344 Jan  5  1994 V1325688.A329118
+-rw-r--r--      1 se2nl     g664     AR  common   15732340 Jan  5  1994 V1329119.A332157
+-rw-r--r--      1 se2nl     g664     AR  common   15731172 Jan  5  1994 V1332158.A335553
+-rw-r--r--      1 se2nl     g664     AR  common   15731204 Jan  5  1994 V1335554.A338681
+-rw-r--r--      1 se2nl     g664     AR  common    7384324 Jan  5  1994 V1338682.A340136
+
+ency.0021:
+-rw-r--r--      1 se2nl     g664     AR  common   15733880 Jan 10  1994 V1340195.A344510
+-rw-r--r--      1 se2nl     g664     AR  common   15738752 Jan 10  1994 V1344511.A348056
+-rw-r--r--      1 se2nl     g664     AR  common   15736892 Jan 10  1994 V1348057.A352084
+-rw-r--r--      1 se2nl     g664     AR  common   15739640 Jan 10  1994 V1352085.A355896
+-rw-r--r--      1 se2nl     g664     AR  common   15733260 Jan 10  1994 V1355897.A359582
+-rw-r--r--      1 se2nl     g664     AR  common   15737784 Jan 10  1994 V1359583.A362936
+-rw-r--r--      1 se2nl     g664     AR  common   15735052 Jan 10  1994 V1362937.A365598
+-rw-r--r--      1 se2nl     g664     AR  common   15734680 Jan 10  1994 V1365599.A369322
+-rw-r--r--      1 se2nl     g664     AR  common   15734628 Jan 10  1994 V1369323.A372620
+-rw-r--r--      1 se2nl     g664     AR  common   11983696 Jan 10  1994 V1372621.A374324
+
+ency.0022:
+-rw-r--r--      1 se2nl     g664     AR  common   15737860 Jan 10  1994 V1374325.A377022
+-rw-r--r--      1 se2nl     g664     AR  common   15737536 Jan 10  1994 V1377023.A380090
+-rw-r--r--      1 se2nl     g664     AR  common   15752688 Jan 10  1994 V1380091.A383327
+-rw-r--r--      1 se2nl     g664     AR  common   15738404 Jan 10  1994 V1383328.A386361
+-rw-r--r--      1 se2nl     g664     AR  common   15760968 Jan 10  1994 V1386362.A388906
+-rw-r--r--      1 se2nl     g664     AR  common    1293664 Jan 10  1994 V1388907.A389027
+
+ency.0023:
+-rw-r--r--      1 se2nl     g664     AR  common   15737600 Jan 10  1994 V1389078.A391310
+-rw-r--r--      1 se2nl     g664     AR  common   15730724 Jan 10  1994 V1391311.A393605
+-rw-r--r--      1 se2nl     g664     AR  common   15732316 Jan 10  1994 V1393606.A396118
+-rw-r--r--      1 se2nl     g664     AR  common   15733224 Jan 10  1994 V1396119.A398741
+-rw-r--r--      1 se2nl     g664     AR  common   15734404 Jan 10  1994 V1398742.A401234
+-rw-r--r--      1 se2nl     g664     AR  common   15740200 Jan 10  1994 V1401235.A404518
+-rw-r--r--      1 se2nl     g664     AR  common   15764952 Jan 10  1994 V1404519.A406849
+-rw-r--r--      1 se2nl     g664     AR  common   15735944 Jan 10  1994 V1406850.A409114
+-rw-r--r--      1 se2nl     g664     AR  common   15734064 Jan 10  1994 V1409115.A411225
+-rw-r--r--      1 se2nl     g664     AR  common   12002176 Jan 10  1994 V1411226.A413323
+
+ency.0024:
+-rw-r--r--      1 se2nl     g664     AR  common   15740024 Jan 10  1994 V1413324.A417001
+-rw-r--r--      1 se2nl     g664     AR  common   15738756 Jan 10  1994 V1417002.A419915
+-rw-r--r--      1 se2nl     g664     AR  common   15736412 Jan 10  1994 V1419916.A423072
+-rw-r--r--      1 se2nl     g664     AR  common   15731876 Jan 10  1994 V1423073.A425563
+-rw-r--r--      1 se2nl     g664     AR  common   15736524 Jan 10  1994 V1425564.A427791
+-rw-r--r--      1 se2nl     g664     AR  common   15731808 Jan 10  1994 V1427792.A429868
+-rw-r--r--      1 se2nl     g664     AR  common   15735060 Jan 10  1994 V1429869.A432914
+-rw-r--r--      1 se2nl     g664     AR  common   11391964 Jan 10  1994 V1432915.A435076
+
+ency.0025:
+-rw-r--r--      1 se2nl     g664     AR  common   15731152 Jan 12  1994 V1435127.A438012
+-rw-r--r--      1 se2nl     g664     AR  common   15733224 Jan 12  1994 V1438013.A440724
+-rw-r--r--      1 se2nl     g664     AR  common   15733432 Jan 12  1994 V1440725.A445766
+-rw-r--r--      1 se2nl     g664     AR  common   15738308 Jan 12  1994 V1445767.A449325
+-rw-r--r--      1 se2nl     g664     AR  common   15732636 Jan 12  1994 V1449326.A454565
+-rw-r--r--      1 se2nl     g664     AR  common   15737976 Jan 12  1994 V1454566.A459323
+-rw-r--r--      1 se2nl     g664     AR  common   15735220 Jan 12  1994 V1459324.A462932
+-rw-r--r--      1 se2nl     g664     AR  common   15735720 Jan 12  1994 V1462933.A466434
+-rw-r--r--      1 se2nl     g664     AR  common   15736304 Jan 12  1994 V1466435.A469583
+-rw-r--r--      1 se2nl     g664     AR  common   14445468 Jan 12  1994 V1469584.A472382
+
+ency.0026:
+-rw-r--r--      1 se2nl     g664     AR  common   15736772 Jan 12  1994 V1472383.A474507
+-rw-r--r--      1 se2nl     g664     AR  common   15737048 Jan 12  1994 V1474508.A476508
+-rw-r--r--      1 se2nl     g664     AR  common   15736404 Jan 12  1994 V1476509.A481455
+-rw-r--r--      1 se2nl     g664     AR  common   15736908 Jan 12  1994 V1481456.A490500
+-rw-r--r--      1 se2nl     g664     AR  common   15733092 Jan 12  1994 V1490501.A495691
+-rw-r--r--      1 se2nl     g664     AR  common   15738876 Jan 12  1994 V1495692.A498790
+-rw-r--r--      1 se2nl     g664     AR  common   15732216 Jan 12  1994 V1498791.A501550
+-rw-r--r--      1 se2nl     g664     AR  common   15735780 Jan 12  1994 V1501551.A505645
+-rw-r--r--      1 se2nl     g664     AR  common   15731588 Jan 12  1994 V1505646.A509126
+-rw-r--r--      1 se2nl     g664     AR  common   15116204 Jan 12  1994 V1509127.A512343
+
+ency.0027:
+-rw-r--r--      1 se2nl     g664     AR  common   15731836 Jan 12  1994 V1512344.A515469
+-rw-r--r--      1 se2nl     g664     AR  common   15740132 Jan 12  1994 V1515470.A518856
+-rw-r--r--      1 se2nl     g664     AR  common   15734840 Jan 12  1994 V1518857.A523515
+-rw-r--r--      1 se2nl     g664     AR  common   15734132 Jan 12  1994 V1523516.A529637
+-rw-r--r--      1 se2nl     g664     AR  common   15737620 Jan 12  1994 V1529638.A534457
+-rw-r--r--      1 se2nl     g664     AR  common   15734816 Jan 12  1994 V1534458.A538600
+-rw-r--r--      1 se2nl     g664     AR  common   15732132 Jan 12  1994 V1538601.A541542
+-rw-r--r--      1 se2nl     g664     AR  common   15733648 Jan 12  1994 V1541543.A544576
+-rw-r--r--      1 se2nl     g664     AR  common   15732580 Jan 12  1994 V1544577.A547883
+-rw-r--r--      1 se2nl     g664     AR  common   15099448 Jan 12  1994 V1547884.A551183
+
+ency.0028:
+-rw-------      1 se2nl     g664     AR  common   15735660 Sep  7  1995 V1551184.A555621
+-rw-------      1 se2nl     g664     AR  common   15730924 Sep  7  1995 V1555622.A559707
+-rw-------      1 se2nl     g664     AR  common   15734788 Sep  7  1995 V1559708.A563186
+-rw-------      1 se2nl     g664     AR  common   15731484 Sep  7  1995 V1563187.A566037
+-rw-------      1 se2nl     g664     AR  common   15735684 Sep  7  1995 V1566038.A569477
+-rw-------      1 se2nl     g664     AR  common   15736772 Sep  7  1995 V1569478.A572246
+-rw-------      1 se2nl     g664     AR  common   15738064 Sep  7  1995 V1572247.A575748
+-rw-------      1 se2nl     g664     AR  common   15731740 Sep  7  1995 V1575749.A580304
+-rw-------      1 se2nl     g664     AR  common    1381960 Sep  7  1995 V1580305.A580734
+
+ency.0029:
+-rw-------      1 se2nl     g664     AR  common   15731884 Sep  8  1995 V1580771.A584382
+-rw-------      1 se2nl     g664     AR  common   15732688 Sep  8  1995 V1584383.A587312
+-rw-------      1 se2nl     g664     AR  common   15735132 Sep  8  1995 V1587313.A591306
+-rw-------      1 se2nl     g664     AR  common   15735736 Sep  8  1995 V1591307.A595596
+-rw-------      1 se2nl     g664     AR  common   15738492 Sep  8  1995 V1595597.A598959
+-rw-------      1 se2nl     g664     AR  common   15734868 Sep  8  1995 V1598960.A602152
+-rw-------      1 se2nl     g664     AR  common   15735664 Sep  8  1995 V1602153.A605550
+-rw-------      1 se2nl     g664     AR  common   14120416 Sep  8  1995 V1605551.A608265
+
+ency.0030:
+-rw-------      1 se2nl     g664     AR  common   15734712 Sep  8  1995 V1608316.A612044
+-rw-------      1 se2nl     g664     AR  common   15731480 Sep  8  1995 V1612045.A614236
+-rw-------      1 se2nl     g664     AR  common   15732836 Sep  8  1995 V1614237.A616908
+-rw-------      1 se2nl     g664     AR  common   15731716 Sep  8  1995 V1616909.A619565
+-rw-------      1 se2nl     g664     AR  common   15736468 Sep  8  1995 V1619566.A622220
+-rw-------      1 se2nl     g664     AR  common   15734772 Sep  8  1995 V1622221.A624827
+-rw-------      1 se2nl     g664     AR  common   15734776 Sep  8  1995 V1624828.A627687
+-rw-------      1 se2nl     g664     AR  common    8170800 Sep  8  1995 V1627688.A629154
+
+ency.0031:
+-rw-------      1 se2nl     g664     AR  common   15734544 Sep  8  1995 V1629179.A632080
+-rw-------      1 se2nl     g664     AR  common   15735212 Sep  8  1995 V1632081.A634829
+-rw-------      1 se2nl     g664     AR  common   15734280 Sep  8  1995 V1634830.A637623
+-rw-------      1 se2nl     g664     AR  common   15733156 Sep  8  1995 V1637624.A640142
+-rw-------      1 se2nl     g664     AR  common   15734204 Sep  8  1995 V1640143.A642157
+-rw-------      1 se2nl     g664     AR  common   15738444 Sep  8  1995 V1642158.A644214
+-rw-------      1 se2nl     g664     AR  common   15735708 Sep  8  1995 V1644215.A646158
+-rw-------      1 se2nl     g664     AR  common   13487308 Sep  8  1995 V1646159.A647841
+
+ency.0032:
+-rw-------      1 se2nl     g664     AR  common   15734252 Dec 18  1995 V1647845.A649835
+-rw-------      1 se2nl     g664     AR  common   15737112 Dec 18  1995 V1649836.A651786
+-rw-------      1 se2nl     g664     AR  common   15735900 Dec 18  1995 V1651787.A653826
+-rw-------      1 se2nl     g664     AR  common   15730688 Dec 18  1995 V1653827.A655899
+-rw-------      1 se2nl     g664     AR  common   15733088 Dec 18  1995 V1655900.A658253
+-rw-------      1 se2nl     g664     AR  common   15730884 Dec 18  1995 V1658254.A660473
+-rw-------      1 se2nl     g664     AR  common   15740240 Dec 18  1995 V1660474.A662792
+-rw-------      1 se2nl     g664     AR  common    9300220 Jan  3  1996 V1662793.A664359
+
+ency.0033:
+-rw-------      1 se2nl     g664     AR  common   15732188 Jul  1  1996 V1664407.A667165
+-rw-------      1 se2nl     g664     AR  common   15737068 Jul  1  1996 V1667166.A669432
+-rw-------      1 se2nl     g664     AR  common   15734360 Jul  1  1996 V1669433.A672371
+-rw-------      1 se2nl     g664     AR  common   15732392 Jul  1  1996 V1672372.A674981
+-rw-------      1 se2nl     g664     AR  common   15732380 Jul  1  1996 V1674982.A677209
+-rw-------      1 se2nl     g664     AR  common   15735872 Jul  1  1996 V1677210.A679398
+-rw-------      1 se2nl     g664     AR  common   15733812 Jul  1  1996 V1679399.A681649
+-rw-------      1 se2nl     g664     AR  common   10079796 Jul  1  1996 V1681650.A683181
+
+ency.0034:
+-rw-------      1 se2nl     g664     AR  common   15737176 Sep 16  1996 V1683196.A685573
+-rw-------      1 se2nl     g664     AR  common   15732708 Sep 16  1996 V1685574.A687826
+-rw-------      1 se2nl     g664     AR  common   15163260 Sep 16  1996 V1687827.A690263
+
+ency.0035:
+-rw-------      1 se2nl     g664     AR  common     696148 Jul  3  1997 V1690286.A690425
+-rw-------      1 se2nl     g664     AR  common    4614352 Jul  3  1997 V1690458.A691095
+-rw-------      1 se2nl     g664     AR  common    5219192 Jul  3  1997 V1691117.A691926
+-rw-------      1 se2nl     g664     AR  common    8276200 Jul  3  1997 V1691937.A693252
+-rw-------      1 se2nl     g664     AR  common    3054056 Jul  3  1997 V1693282.A693901
+-rw-------      1 se2nl     g664     AR  common    3302000 Jul  3  1997 V1693952.A694541
+-rw-------      1 se2nl     g664     AR  common    3770660 Jul  3  1997 V1694563.A695262
+-rw-------      1 se2nl     g664     AR  common    3541312 Jul  3  1997 V1695287.A695946
+-rw-------      1 se2nl     g664     AR  common    3082640 Jul  3  1997 V1695956.A696552
+-rw-------      1 se2nl     g664     AR  common    4580732 Jul  3  1997 V1696576.A697318
+-rw-------      1 se2nl     g664     AR  common    6753676 Jul  3  1997 V1697349.A698627
+-rw-------      1 se2nl     g664     AR  common    3386884 Jul  3  1997 V1698615.A699201
+-rw-------      1 se2nl     g664     AR  common    2830180 Jul  3  1997 V1699214.A699884
+-rw-------      1 se2nl     g664     AR  common    3124944 Jul  3  1997 V1699942.A700763
+-rw-------      1 se2nl     g664     AR  common    2177672 Jul  3  1997 V1700794.A701241
+-rw-------      1 se2nl     g664     AR  common    2832204 Jul  3  1997 V1701266.A701884
+-rw-------      1 se2nl     g664     AR  common    2701244 Jul  3  1997 V1701900.A702463
+-rw-------      1 se2nl     g664     AR  common    4221804 Jul  3  1997 V1702509.A703444
+-rw-------      1 se2nl     g664     AR  common    2279752 Jul  3  1997 V1703467.A704003
+-rw-------      1 se2nl     g664     AR  common    3894372 Jul  3  1997 V1704045.A704689
+-rw-------      1 se2nl     g664     AR  common    4285500 Jul  3  1997 V1704714.A705359
+-rw-------      1 se2nl     g664     AR  common    3676312 Jul  3  1997 V1705384.A706030
+-rw-------      1 se2nl     g664     AR  common    4427912 Jul  3  1997 V1705959.A706694
+-rw-------      1 se2nl     g664     AR  common    3966072 Jul  3  1997 V1706722.A707369
+-rw-------      1 se2nl     g664     AR  common    4167140 Jul  3  1997 V1707392.A708041
+
+ency.0036:
+-rw-------      1 se2nl     g664     AR  common    3946164 Jul  3  1997 V1708066.A708710
+-rw-------      1 se2nl     g664     AR  common    3409396 Jul  3  1997 V1708736.A709285
+-rw-------      1 se2nl     g664     AR  common    4785500 Jul  3  1997 V1709306.A710050
+-rw-------      1 se2nl     g664     AR  common    3431624 Jul  3  1997 V1710102.A710720
+-rw-------      1 se2nl     g664     AR  common    3888696 Jul  3  1997 V1710741.A711387
+-rw-------      1 se2nl     g664     AR  common    3757140 Jul  3  1997 V1711411.A712058
+-rw-------      1 se2nl     g664     AR  common    4085636 Jul  3  1997 V1712087.A712732
+-rw-------      1 se2nl     g664     AR  common    6716968 Jul  3  1997 V1712757.A714049
+-rw-------      1 se2nl     g664     AR  common    3231852 Jul  3  1997 V1714099.A714741
+-rw-------      1 se2nl     g664     AR  common    3838048 Jul  3  1997 V1714767.A715412
+-rw-------      1 se2nl     g664     AR  common    3625172 Jul  3  1997 V1715438.A716082
+-rw-------      1 se2nl     g664     AR  common    3526800 Jul  3  1997 V1716101.A716656
+-rw-------      1 se2nl     g664     AR  common    4077900 Jul  3  1997 V1716677.A717365
+-rw-------      1 se2nl     g664     AR  common    3263556 Jul  3  1997 V1717374.A717900
+-rw-------      1 se2nl     g664     AR  common    7235620 Nov  5 09:39 V1717934.A719203
+-rw-------      1 se2nl     g664     AR  common    4197984 Nov  5 09:40 V1719311.A720197
+-rw-------      1 se2nl     g664     AR  common    4200540 Nov  5 09:40 V1720221.A720867
+-rw-------      1 se2nl     g664     AR  common    3437200 Nov  5 09:41 V1720901.A721442
+
+ency.0037:
+-rw-------      1 se2nl     g664     AR  common    3705312 Nov  5 09:45 V1721475.A722111
+-rw-------      1 se2nl     g664     AR  common    7195480 Nov  5 09:46 V1722141.A723451
+-rw-------      1 se2nl     g664     AR  common    3066768 Nov  5 09:46 V1723491.A724025
+-rw-------      1 se2nl     g664     AR  common    4735432 Nov  5 09:47 V1724057.A724888
+-rw-------      1 se2nl     g664     AR  common    3360356 Nov  5 09:47 V1724927.A725557
+-rw-------      1 se2nl     g664     AR  common    2826272 Nov  5 09:47 V1725596.A726198
+-rw-------      1 se2nl     g664     AR  common    3801692 Nov  5 09:48 V1726211.A726898
+-rw-------      1 se2nl     g664     AR  common    3166372 Nov  5 09:48 V1726933.A727472
+
+ency.0038:
+-rw-------      1 se2nl     g664     AR  common    8521892 Jan  2 13:57 V1727507.A729480
+-rw-------      1 se2nl     g664     AR  common    4363016 Jan  2 13:57 V1729543.A730517
+-rw-------      1 se2nl     g664     AR  common    3390020 Jan  2 13:58 V1730525.A731474
+-rw-------      1 se2nl     g664     AR  common    2747056 Jan  2 13:58 V1731486.A732192
+-rw-------      1 se2nl     g664     AR  common    6152240 Jan  2 13:59 V1732231.A733577
+-rw-------      1 se2nl     g664     AR  common    5845656 Jan  2 13:59 V1733624.A734748
+-rw-------      1 se2nl     g664     AR  common    7592592 Mar 13 13:18 V1734776.A736184
+-rw-------      1 se2nl     g664     AR  common    6499036 Mar 13 13:19 V1736347.A737524
+-rw-------      1 se2nl     g664     AR  common    7534148 Mar 13 13:20 V1737553.A739035
+-rw-------      1 se2nl     g664     AR  common    2519956 Mar 13 13:20 V1739082.A739607
+-rw-------      1 se2nl     g664     AR  common    3558020 Mar 13 13:22 V1739656.A740278
+-rw-------      1 se2nl     g664     AR  common    3484064 Mar 13 13:25 V1740327.A740956
+-rw-------      1 se2nl     g664     AR  common    3384516 Mar 13 13:26 V1740997.A741630
+-rw-------      1 se2nl     g664     AR  common    4076884 Mar 13 13:26 V1741663.A742309
+
+encytemp:
+
+libtemp:
+#from:  http://voycrs.gsfc.nasa.gov/heliopause/internal/unitree/se2nlv1.html
+#UniTree+ Version 2.0.218 Thu Jun 13 15:01:13 CDT 1996

@@ -1,0 +1,9 @@
+total 338718
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Sep 09  2003 .
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Oct 27  2002 ..
+-rwxr-xr-x   1 SUPER.SUPER      SUPER        821 Sep 09  2003 UpdateLicense.sh
+-rw-rw-rw-   1 SUPER.SUPER      SUPER       8679 Sep 09  2003 license.bea
+-rw-rw-rw-   1 SUPER.SUPER      SUPER    173369655 Sep 09  2003 pj_server701_generic.jar
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Sep 09  2003 utils
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Sep 09  2003 weblogic700
+-rw-rw-rw-   1 SUPER.SUPER      SUPER      28425 Sep 09  2003 weblogic700sp1_hpns_supp.jar

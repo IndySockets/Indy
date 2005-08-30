@@ -1,0 +1,6 @@
+total 5
+drwxr-xr-x  4 0    wheel  512 Jul 23  2001 pub
+dr-xr-xr-x  2 204  wheel  512 Feb 19  2001 test
+dr-xr-xr-x  2 204  wheel  512 Nov 28  2000 software
+dr-xr-xr-x  2 204  wheel  512 Feb 25  1999 bin
+dr-xr-xr-x  2 204  wheel  512 Feb 25  1999 etc

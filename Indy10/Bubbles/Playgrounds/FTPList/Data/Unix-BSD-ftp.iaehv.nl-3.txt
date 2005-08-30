@@ -1,0 +1,4 @@
+total 1
+dr-xr-xr-x  2 204  wheel  512 Jul 23  2001 nl
+#ftp> quote syst
+#215 UNIX Type: L8 Version: BSD-199506

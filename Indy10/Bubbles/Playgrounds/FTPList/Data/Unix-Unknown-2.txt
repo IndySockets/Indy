@@ -1,0 +1,53 @@
+lrwxrwxrwx   1 root     root           13 Aug 17  1998 helpdesk -> user/services
+
+
+/bin/ls: bin: Permission denied
+/bin/ls: etc: Permission denied
+lib:
+total 726
+-rwxr-xr-x   1 root     root        39980 May  8  1998 ld-2.0.7.so
+lrwxrwxrwx   1 root     root           11 Aug 19  1998 ld-linux.so.2 -> ld-2.0.7.so
+-rwxr-xr-x   1 root     root       645788 May  8  1998 libc-2.0.7.so
+lrwxrwxrwx   1 root     root           13 Aug 19  1998 libc.so.6 -> libc-2.0.7.so
+-rwxr-xr-x   1 root     root        18964 May  8  1998 libnsl-2.0.7.so
+lrwxrwxrwx   1 root     root           15 Aug 19  1998 libnsl.so.1 -> libnsl-2.0.7.so
+-rwxr-xr-x   1 root     root        29292 May  8  1998 libnss_files-2.0.7.so
+lrwxrwxrwx   1 root     root           21 Aug 19  1998 libnss_files.so.1 -> libnss_files-2.0.7.so
+
+lost+found:
+total 0
+
+mirrors:
+total 2
+drwxr-xr-x   3 root     root         1024 Feb 19  1999 linux
+drwxr-xr-x   3 root     root         1024 Jan 13  1999 microsoft
+
+msgs:
+total 1
+-rw-rw-r--   1 root     root          357 Feb 23  1999 welcome.msg
+
+pub:
+total 14
+drwxr-xr-x   6 root     root         1024 Aug 17  1998 MSDOS
+drwxr-xr-x   4 root     root         1024 Aug 17  1998 Mac
+drwxr-xr-x   2 root     root         1024 Aug 17  1998 biblio
+drwxr-sr-x   2 root     ftp          1024 Mar 20  2001 blackboard
+drwxr-sr-x   2 root     ftp          1024 Sep 29  1998 cslg
+drwxrwxrwx  36 root     root         4096 Nov 30 05:45 incoming
+drwxr-sr-x   9 root     ftp          3072 Nov 18 16:22 netcore
+drwxr-xr-x   4 root     root         1024 Aug 17  1998 papers
+lrwxrwxrwx   1 root     root            8 Aug 17  1998 transfer -> incoming
+drwxr-xr-x   5 root     root         1024 May 22  2002 umtools
+
+user:
+total 312
+drwx------   2 root     root         8192 Feb  5  2000 .tags
+drwxr-xr-x   2 10228    root         8192 Feb  5  2000 banner
+drwxr-xr-x   8 10074    root         8192 Feb  5  2000 fred
+drwxr-xr-x   2 root     root         8192 Feb  5  2000 lost+found
+drwxr-xr-x   2 13836    root         8192 Feb  5  2000 ncoe
+-rw-r-----   1 root     20           8192 Feb  5  2000 quota.group
+-rw-r-----   1 root     20         950272 Nov 21 21:46 quota.user
+drwxr-xr-x   7 23846    root         8192 Feb  5  2000 services
+#Version 6.4/OpenBSD/Linux-ftpd-0.16)
+#Using the * parameter

@@ -1,0 +1,4 @@
+/usr/local/unitree/162/bin/ddir (0 bytes).
+drwxr-xr-x  2 6076   423   DK   common   8192 Apr 12 10:42 .trash
+#from:  http://www.ncsa.uiuc.edu/UserInfo/Resources/Hardware/UniTree/Doc/
+# UniTree Version (2.1)

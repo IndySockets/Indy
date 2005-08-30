@@ -1,0 +1,9 @@
+-r--r--r--   1 axis     public    1253  Jul  2 13:47 ftp_bsd
+-r--r--r--   1 axis     public    2158  Jul  2 13:47 makepros
+-r--r--r--   1 axis     public    1094  Jul  2 13:47 printcap.ftp
+-r--r--r--   1 axis     public    1073  Jul  2 13:47 printcap.lpd
+-r--r--r--   1 axis     public    1111  Jul  2 13:47 printcap.pro
+-r--r--r--   1 axis     public    7942  Jul  2 13:47 prosbsd.c
+#Axis NPS 53X FTP Printer Server V4.26 Jul 01 1995 ready.
+#From: http://www.hpl.hp.co.uk/people/ange/archives/archives-96/efs-bugs-archive/0006.html
+#

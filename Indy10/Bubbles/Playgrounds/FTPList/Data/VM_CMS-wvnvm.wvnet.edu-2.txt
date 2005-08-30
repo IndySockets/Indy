@@ -1,0 +1,16 @@
+ABOUTME  HTM      V        118         44          1  3/04/01  8:12:26 -
+CCBO     GIF      V        512          3          1  3/03/01  4:25:57 -
+CLSTBX   GIF      V        560          6          1  3/03/01  4:25:59 -
+DELPHI   COUNT    V          2          1          1  4/29/01 13:32:39 -
+DELPHI   LOG      V         32         11          1  4/29/01 13:32:39 -
+FNTCBO   GIF      V        512          3          1  3/03/01  4:26:00 -
+FNTLSTBX GIF      V        584          5          1  3/03/01  4:26:02 -
+INDEX    HTML     V        118         45          1  3/03/01  7:20:40 -
+JPM      HTML     V        162        229          4  3/26/01 11:21:26 -
+JPMCOMP  ZIP      V        536         99         13  3/03/01  4:26:30 -
+JPMOPEN  ZIP      V        536       1295        163 11/01/01  8:47:55 -
+LEGALDIC ZIP      V       4192         18         18  7/04/01  1:20:40 -
+MAN      COUNT    V          1          1          1  4/27/01 20:43:23 -
+MUGAAS   JPG      V        584         20          3  3/03/01  5:45:34 -
+MYWORK   HTM      V        118         30          1  3/03/01  7:20:41 -
+WCUSERS           DIR        -          -          -  9/15/99 20:36:40 -

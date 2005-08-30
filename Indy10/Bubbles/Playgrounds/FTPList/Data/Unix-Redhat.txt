@@ -1,0 +1,5 @@
+drwx------    3 500      500          4096 Dec 07 01:02 Desktop
+-rw-r--r--    1 500      500        116979 Dec 10 01:40 IdFTPList.pas
+-rw-r--r--    1 500      500            16 Dec 10 01:40 LoopTest.txt
+-rw-r--r--    1 500      500          3123 Dec 10 01:40 Meeting.txt
+

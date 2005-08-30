@@ -1,0 +1,40 @@
+
+      m00ext.c        1        m00pst.c       11        m00adr.c        5
+      m00mch.c        7        m6800 .h        3        as6800.cmp      1
+      as6800.lnk      1        as6800.bld      3        as6800.prj      1
+      bldm00.ac       1        lnkm00.ac       1        t6800 .asm     15
+      t6800e.asm      2        t6800l.asm      4        t6800s.asm     10
+      m01ext.c        1        m01pst.c       13        m01adr.c        5
+      m01mch.c        9        m6801 .h        3        as6801.cmp      1
+      as6801.lnk      1        as6801.bld      3        as6801.prj      1
+      bldm01.ac       1        lnkm01.ac       1        t6801 .asm     18
+      t6801e.asm      2        t6801l.asm      4        t6801s.asm     10
+      m09ext.c        1        m09pst.c       17        m09adr.c        9
+      m09mch.c       14        m6809 .h        5        as6809.cmp      1
+      as6809.lnk      1        as6809.bld      3        as6809.prj      1
+      bldm09.ac       1        lnkm09.ac       1        t6809 .asm     39
+      t6809e.asm      5        t6809l.asm      5        m11ext.c        1
+      m11pst.c       14        m11adr.c        6        m11mch.c       12
+      m6811 .h        3        as6811.cmp      1        as6811.lnk      1
+      as6811.bld      3        as6811.prj      1        bldm11.ac       1
+      lnkm11.ac       1        t6811 .asm     33        t6811e.asm      1
+      t6811l.asm      4        t6811s.asm     13        z80ext.c        1
+      z80pst.c        8        z80adr.c        8        z80mch.c       19
+      z80   .h        5        asz80 .cmp      1        asz80 .lnk      1
+      asz80 .bld      3        asz80 .prj      1        bldz80.ac       1
+      lnkz80.ac       1        tz80  .asm     53        tz80l .asm      2
+      rx02  .d01      5
+
+Directory [du3:/cug292/pcdsk1/*.*] / 73 Files / 446 Blocks
+
+#Obtained from: http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
+#Connected to shop-pdp.kent.edu.
+#220-RFTP-11   V01.22  11-Dec-1992
+#    Remote FTP Server shop-pdp.kent.edu [131.123.1.153]
+#    No RFTP Message File
+#220 Server Ready
+#Name (shop-pdp.kent.edu:): anonymous
+#331 Password required for user anonymous
+#Password:
+#230-Logged into Default Directory - du3:
+#230-Message to User anonymous

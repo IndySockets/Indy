@@ -1,0 +1,5 @@
+total 3
+-rw-r--r--   1 0        31           129 Jan  2  1997 .message
+dr-xr-xr-x   2 0        0            512 Aug 20  2000 bin
+drwxr-xr-x   2 60       26           512 Aug 23  2001 iatur
+#thunder.stmarys.ca FTP server (Compaq Tru64 UNIX Version 5.60) ready.

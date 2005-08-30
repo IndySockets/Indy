@@ -1,0 +1,14 @@
+-rw-r-----   1 gooijen  httpd       21042 Mar 29 23:55   uptime.jpg
+-rw-r-----   1 gooijen  httpd       19211 Apr  1 00:43 LEKKEN!!!!.htm
+-rw-r-----   1 gooijen  httpd       81777 Apr 13 15:43 MemCheck.pas
+-rw-r-----   1 gooijen  httpd       24244 Jun 10 12:51 hoofdletter.jpg
+-rw-r-----   1 gooijen  httpd      397300 Aug  9 17:09 inf1.rar
+-rw-r-----   1 gooijen  httpd        1708 May 28 20:26 irri1.jpg
+-rw-r-----   1 gooijen  httpd        5610 May 28 20:26 irri2.jpg
+-rw-r-----   1 gooijen  httpd        3881 May 28 20:26 irri3.jpg
+-rw-r-----   1 gooijen  httpd       23402 Aug 31  2001 mark.jpg
+-rw-r-----   1 gooijen  httpd       60207 Jan  9  2002 plaatje.jpg
+-rw-r-----   1 gooijen  httpd           4 Oct  6  2001 test.htm
+-rw-r-----   1 gooijen  httpd           9 Jul 19 09:13 tt
+-rw-r-----   1 gooijen  httpd           0 Jul 19 09:13 ttt
+-rw-r-----   1 gooijen  httpd        1234 May 25  2000 welcome.htm

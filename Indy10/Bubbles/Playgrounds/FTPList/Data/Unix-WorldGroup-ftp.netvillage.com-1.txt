@@ -1,0 +1,3 @@
+dr-xr-xr-x  1 .     .            0 May 17  1999 library
+#Syst: WORLDGROUP Type: L8 Version: 3.30
+#Running Worldgroup by Galacticomm, Version 3.30

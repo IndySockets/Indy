@@ -1,0 +1,3 @@
+drwxr-xr-x      2 se2nl     g664     DK  common       8192 Dec 29  1993 encytemp (Empty)
+#from:  http://voycrs.gsfc.nasa.gov/heliopause/internal/unitree/se2nlvoyager.html
+#UniTree+ Version 2.0.218 Thu Jun 13 15:01:13 CDT 1996

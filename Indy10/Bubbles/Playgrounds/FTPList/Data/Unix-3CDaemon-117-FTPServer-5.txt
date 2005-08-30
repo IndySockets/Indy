@@ -1,0 +1,19 @@
+D--------- 1 owner group         0 Oct 23 18:43 .
+D--------- 1 owner group         0 Oct 23 18:43 ..
+---------- 1 owner group        95 Mar 31 16:07 DATA.TAG
+---------- 1 owner group    414767 Mar 31 16:07 DATA1.CAB
+---------- 1 owner group      4881 Mar 31 16:07 LANGUAGE.DAT
+---------- 1 owner group       353 Mar 31 16:07 LAYOUT.BIN
+---------- 1 owner group       958 Mar 31 16:07 OS.DAT
+---------- 1 owner group    162278 Mar 31 16:07 SETUP.BMP
+---------- 1 owner group     49152 Mar 31 16:07 SETUP.EXE
+---------- 1 owner group        48 Mar 31 16:07 SETUP.INI
+---------- 1 owner group     54544 Mar 31 16:07 SETUP.INS
+---------- 1 owner group    286699 Mar 31 16:07 _INST32I.EX_
+---------- 1 owner group      8704 Mar 31 16:07 _ISDEL.EXE
+---------- 1 owner group     11776 Mar 31 16:07 _SETUP.DLL
+---------- 1 owner group    188170 Mar 31 16:07 _SYS1.CAB
+---------- 1 owner group      9618 Mar 31 16:07 _USER1.CAB
+# /install/
+#3Com FTP Server Version 1.1
+#available at http://support.3com.com/software/utilities_for_windows_32_bit.htm

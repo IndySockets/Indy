@@ -1,0 +1,23 @@
+lrwxrwxrwx   1 root     other          7 Nov 16  2001 bin -> usr/bin
+
+dev:
+total 16
+
+etc:
+total 16
+
+incoming:
+total 16
+
+opt:
+total 6
+dr-xr-xr-x   3 root     other        512 Apr 13  2001 .
+dr-xr-xr-x   8 root     other        512 Jun 20 14:15 ..
+dr-xr-xr-x   3 root     other        512 Apr 13  2001 SENSwftp
+
+pub:
+total 6
+
+usr:
+total 6
+#using the * parameter

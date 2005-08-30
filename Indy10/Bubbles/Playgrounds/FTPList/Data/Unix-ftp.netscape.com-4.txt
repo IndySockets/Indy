@@ -1,0 +1,9 @@
+total 64
+dr-xr-xr-x   2 0        1           4096 Aug  8  2000 .
+drwxr-xr-x   8 5743     1           4096 Dec 10  2001 ..
+crw-rw-rw-   1 0        1         11, 42 Aug  8  2000 tcp
+crw-rw-rw-   1 0        1        105,  1 Aug  8  2000 ticotsord
+crw-rw-rw-   1 0        1         11, 41 Aug  8  2000 udp
+crw-rw-rw-   1 0        1         13, 12 Aug  8  2000 zero
+# ftp.netscape.com - User=anonymous - password=anonymous
+# change directory to /dev

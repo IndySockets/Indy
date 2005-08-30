@@ -1,0 +1,15 @@
+d--x------ 1 ftp ftp          5 Mar 21  1999 ..
+d--x------ 1 ftp ftp          0 Feb 16  2002 beta
+---------- 1 ftp ftp    1550521 May  5  2000 Ftpd106.zip
+---------- 1 ftp ftp      55463 May  5  2000 HRxMail.zip
+---------- 1 ftp ftp      34950 May  5  2000 HRxPass.zip
+d--x------ 1 ftp ftp          0 Aug 23  2002 inetmail-1.x
+d--x------ 1 ftp ftp          0 Feb  8  2001 misc
+d--x------ 1 ftp ftp          0 May  2  2002 perseus
+d--x------ 1 ftp ftp          0 Feb  8  2001 rfcs
+d--x------ 1 ftp ftp          0 Feb  8  2001 scripts
+d--x------ 1 ftp ftp          0 Feb  8  2001 tcpip
+d--x------ 1 ftp ftp          0 May  5  2000 testcase
+d--x------ 1 ftp ftp          0 Feb  7  2001 tools
+#Hethmon Brothers FTP Server ** BETA 2.0 **. Ready for new user.
+#OS/2 FTP Server emulating Unix

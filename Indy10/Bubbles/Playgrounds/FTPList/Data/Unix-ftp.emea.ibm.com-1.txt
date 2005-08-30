@@ -1,0 +1,13 @@
+total 136
+drwx--x--x   2 HEITZ    USER        8192 Mar  5  2002 bin
+drwxr-xr-x   4 HEITZ    USER        8192 May  8  2002 cadcam
+drwx--x--x   2 HEITZ    USER        8192 May 17  2002 dev
+drwxr-xr-x  24 HEITZ    USER        8192 Oct 17 10:20 fromibm
+drwx-wx-wx   2 HEITZ    USER        8192 Nov  1 00:00 logdir
+drwxr-xr-x   6 HEITZ    USER        8192 Sep 26 10:00 pub
+-r--r--r--   1 HEITZ    USER         315 Jun 27 15:17 readme.txt
+drwxr-xr-x  15 HEITZ    USER        8192 May  8  2002 toibm
+drwx--x--x   3 HEITZ    USER        8192 May 31  2001 usr
+#FTPD1 IBM FTP CS V1R2 at MCEFTP, 07:13:53 on 2002-11-16
+#Syst description: UNIX is the operating system of this server.  FTP Server is running on z/OS.
+#This is using HFS (Hierarchical File System).

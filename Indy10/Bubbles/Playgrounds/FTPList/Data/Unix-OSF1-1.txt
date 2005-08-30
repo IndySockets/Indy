@@ -1,0 +1,3 @@
+-rwxrwxr-x   1 root     clinicom 2147483648 Feb  2 12:37 MUMPS.DAT
+#220 foopfi1 FTP server (OSF/1 Version 5.60) ready.
+#http://groups.google.com/groups?q=OSF+FTP+Server+DIR&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=x6BHPCA%2BfBZxEwBR%40smstechs.demon.co.uk&rnum=6

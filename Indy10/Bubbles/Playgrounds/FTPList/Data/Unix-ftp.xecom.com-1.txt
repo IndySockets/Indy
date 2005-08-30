@@ -1,0 +1,18 @@
+total 39
+-rw-r--r--  1 root     staff         412 May  2  2000 .message
+-rw-r--r--  1 root     daemon          0 May  2  2000 .msg.login
+-rw-r--r--  1 root     daemon        412 May  2  2000 .msg.proftpd
+drwxr-xr-x  2 root     daemon        512 Jan 21  1997 RCS
+dr-xr-xr-x  2 root     daemon        512 Jun 23  1998 bin
+dr-xr-xr-x  2 root     daemon        512 Jun 20  1992 dev
+dr-xr-xr-x  2 root     daemon        512 Mar 22  1999 etc
+lrwxrwxrwx  1 root     daemon         15 Aug 14  2001 ftp -> /files/home/ftp
+drwxr-xr-x  2 root     daemon        512 Apr 13  2000 pointer
+drwxr-sr-x 78 root     other       14336 Dec 12 17:39 pub
+drwxr-xr-x439 root     daemon      10752 Dec 12 17:39 pub2
+drwxr-sr-x  6 root     other        1024 Oct 29 07:32 pub3
+drwxr-xr-x  6 root     wheel         512 Sep 29 22:01 pub4
+drwxr-xr-x 71 root     wheel        1536 Dec 12 17:39 pub5
+drwxr-xr-x  2 root     daemon        512 Oct 26  1992 tmp
+dr-xr-xr-x  3 root     daemon        512 Jun 20  1992 usr
+#tango FTP server (Version 6.106 Mon Mar 22 21:51:06 PST 1999) ready.

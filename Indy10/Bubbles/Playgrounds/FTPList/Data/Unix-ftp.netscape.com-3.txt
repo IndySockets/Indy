@@ -1,0 +1,12 @@
+total 320
+drwxr-xr-x   8 5743     1           4096 Dec 10  2001 ./
+drwxr-xr-x   8 5743     1           4096 Dec 10  2001 ../
+drwx--x--x   2 5743     1           4096 May 20  2002 .prt/
+-r--r--r--   1 0        1            351 Aug  8  2000 Welcome
+lrwxrwxrwx   1 0        1              9 Jun 12  2002 bin -> ./usr/bin/
+dr-xr-xr-x   2 0        1           4096 Aug  8  2000 dev/
+dr-xr-xr-x   2 0        1           4096 Aug  8  2000 etc/
+dr-xr-xr-x   3 0        3           4096 Aug  8  2000 opt/
+drwxr-xr-x  34 5743     2           4096 Aug 27 13:05 pub/
+dr-xr-xr-x   5 0        1           4096 Aug  8  2000 usr/
+#I was using DIR -F.  LS -F will cause the list to have a '/' at the end of a dir and a symlink pointer will also have this for a dir

@@ -1,0 +1,20 @@
+total 122
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Oct 27  2002 .
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Apr 29 15:30 ..
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 11  2003 .dsmscm.ZMP00003
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 11  2003 .dsmscm.ZMP99999
+-r--r--r--   1 SUPER.SUPER      SUPER         43 Dec 30  2003 .dsmscm.ZPHIFI
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Sep 09  2003 bea
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Oct 08  2003 bin
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Dec 11  2003 ccs
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Oct 07  2003 include
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Apr 24  2003 lib
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 May 01  2003 local
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Feb 02 10:01 mgr
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Dec 11  2003 rogue
+drwxr-xr-x   1 SUPER.SUPER      SUPER       4096 Dec 11  2003 rogue6.1
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Dec 11  2003 share
+drwxrwxr-x   1 SUPER.SUPER      SUPER       4096 Jul 25  2002 tandem
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Apr 24  2003 tmp
+drwxrwxrwx   1 SUPER.SUPER      SUPER       4096 Apr 29 15:28 ucb
+-r--r--r--   1 SUPER.SUPER      SUPER       1194 Dec 11  2003 zzDSMSCM.Managed

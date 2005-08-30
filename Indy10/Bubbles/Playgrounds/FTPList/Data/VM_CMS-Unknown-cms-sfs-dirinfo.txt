@@ -1,0 +1,45 @@
+ADMS              DIR        -          -          -  2/03/02  8:45:27 -
+AREACODE TXT      V         71         23          1 12/08/99 13:59:43 -
+BIOG     OLDDATA  V        152        965         23  1/07/99 13:31:07 -
+CLHELP   HTML     V        760        220          4  5/24/01 13:07:23 -
+CSTY              DIR        -          -          -  2/03/02  8:45:27 -
+DGRAUD   SAMPLE   V        131        120          3 10/31/97 15:26:40 -
+DGRCLASS DAT      V         26        688          5  5/26/98 13:36:04 -
+DOCUMENTS         DIR        -          -          -  2/03/02  8:45:30 -
+DOCWATCH          DIR        -          -          -  2/03/02  8:45:30 -
+EDATE    VMARC    F         80        144          3  6/10/98 12:58:20 -
+ESTIMATES         DIR        -          -          -  2/03/02  8:45:30 -
+FA11200A STUDINFO F       2264        981        543  8/19/99 11:22:40 -
+FA11200A XFRCRDT  F       2088         54         28  8/19/99  9:14:00 -
+GOARCH   80       V        119       3594         46  3/25/99 16:31:39 -
+HELP              DIR        -          -          -  2/03/02  8:45:30 -
+PREVDGRS OLDDATA  V         68        201          3  1/07/99 13:31:18 -
+PROFILE  SEXEC    V         72         72          1 12/15/99  9:35:26 -
+PROJECTS          DIR        -          -          -  2/03/02  8:46:06 -
+QDI      REXX     V         80        345          3 11/23/98  9:31:31 -
+QDI      XEDIT    V         71        200          2 11/23/98  9:31:27 -
+RM900SM  SCRIPT   V         72         82          1 11/15/99 14:04:59 -
+RS27CRS  DATA     V         87       2941         19  7/08/99 12:55:58 -
+RS27ROOM DATA     V         17        110          1  7/08/99 12:56:05 -
+RS52     MERGE    V         76          1          1 11/22/99 10:05:27 -
+TELREG            DIR        -          -          -  2/03/02  8:46:06 -
+TEMP              DIR        -          -          -  2/03/02  8:46:07 -
+TEST              DIR        -          -          -  2/03/02  8:46:07 -
+TESTFILE TXT      V         52          8          1  9/19/02  9:29:35 -
+TTHELP   HTML     V         86        311          2  6/27/01 17:12:52 -
+UA211    DGRCLASS F         26        765          5 11/12/98 15:18:23 -
+UVICDGRS OLDDATA  V        268       1076         20  1/07/99 13:31:27 -
+WEBTST            DIR        -          -          -  2/03/02  8:46:07 -
+WEBVOTE           DIR        -          -          -  2/03/02  8:46:07 -
+Y2K               DIR        -          -          -  2/03/02  8:46:08 -
+Y2KHELP           DIR        -          -          -  2/03/02  8:46:09 -
+3T00     FLASH    V        244      12126         95  6/25/99 14:21:00 -
+3T00S    FLASH    V      32768         12         93  7/05/99 10:39:49 -
+CONVDF   VOTERLST V         80      54944        919  9/26/02 11:14:07 -
+RE10410C TEMP     F         80        943         19  9/26/02 11:26:34 -
+RM900AR  TEMP     F         80       1238         25  9/26/02 11:27:18 -
+RECLAUTH TEMP     F         80        267          6  9/26/02 11:28:36 -
+RM900AP  PLIOPT   V         72       3168         29  9/27/02 10:37:11 -
+ELECT168 VOTERLST V         91      54923       1067 10/08/02 14:06:27 -
+UA3002-1 LISTING  V         76        662         10  9/27/02 13:01:02 -
+#Sent in private E-Mail from: Michael Motek

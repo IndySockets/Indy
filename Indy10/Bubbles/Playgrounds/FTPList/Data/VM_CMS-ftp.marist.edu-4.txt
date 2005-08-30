@@ -1,0 +1,10 @@
+CAMPUS   TIF      V       8192       3172       3606 2000-10-06 17:20:37 -
+ROTUNDA  TIF      V       8192       5745       8750 2000-10-06 17:28:25 -
+STUDENT  TIF      V       8192       5017       8557 2000-10-06 17:31:26 -
+#ftp> quote syst
+#215-z/VM Version 4 Release 3.0, service level 0202 (64-bit)
+#    VM/CMS Level 19, Service Level 202
+#215 VM is the operating system of this server.
+#
+#ftp> cd pics
+#250 SFS working directory is ACADEM:ANONYMOU.PICS

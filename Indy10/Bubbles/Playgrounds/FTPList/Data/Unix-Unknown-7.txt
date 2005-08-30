@@ -1,0 +1,15 @@
+total 118
+-rw-rw-r--   1 aero         137 Oct 31 14:00 Imakefile
+-rw-rw-r--   1 aero         154 Oct 31 14:12 Makefile
+-rw-rw-r--   1 aero         796 Oct 31 14:00 README.Z
+-rw-rw-r--   1 aero          80 Oct 31 14:00 cfg.examp.a
+-rw-rw-r--   1 aero         268 Oct 31 14:00 cfg.examp.b
+drwxrwxr-x   2 aero         352 Feb  8 09:01 icons
+-rw-rw-r--   1 aero          21 Oct 31 14:00 patchlevel.h
+-rw-rw-r--   1 aero        1964 Oct 31 14:00 xdesk.1.Z
+-rw-rw-r--   1 aero       23005 Oct 31 11:46 xdesk.Z
+-rw-rw-r--   1 aero        6256 Oct 31 14:00 xdesk.c.Z
+-rw-rw-r--   1 aero         134 Oct 31 14:00 xdesk.h.Z
+-rw-rw-r--   1 aero       22055 Oct 31 14:00 xdesk.shar.Z
+#From:  http://groups.google.com/groups?q=Amiga+FTP+Server+DIR&start=10&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=44544%40nigel.ee.udel.edu&rnum=19
+#I don't know what server this is but it looks like Unix.  Note that the owner entry is missing.

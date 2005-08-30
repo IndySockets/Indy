@@ -1,0 +1,9 @@
+total 5
+dr-xr-xr-x  2 204  wheel  512 Feb 25 10:37:00 1999 bin
+dr-xr-xr-x  2 204  wheel  512 Feb 25 10:24:49 1999 etc
+drwxr-xr-x  4 0    wheel  512 Jul 23 15:15:31 2001 pub
+dr-xr-xr-x  2 204  wheel  512 Nov 28 09:30:43 2000 software
+dr-xr-xr-x  2 204  wheel  512 Feb 19 17:06:32 2001 test
+#ftp> quote syst
+#215 UNIX Type: L8 Version: BSD-199506
+#using -T switch

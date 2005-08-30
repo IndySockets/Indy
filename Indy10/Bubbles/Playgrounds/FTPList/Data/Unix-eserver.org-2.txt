@@ -1,0 +1,8 @@
+-rwxr-xr-x   1 owner    group         22949 Nov 01  1996 !Readme.txt
+drwx-w--w-   1 owner    group             0 Aug 27 19:45 admin
+drwxr-x---   1 owner    group             0 Dec 26 08:20 mac
+drwxr-x---   1 owner    group             0 Aug 05 12:13 members_only
+drwxr-x---   1 owner    group             0 Sep 10 11:58 projects
+drwxr-xr-x   1 owner    group             0 Jul 25 13:04 Temporary Items
+drwxr-xr-x   1 owner    group             0 Aug 22  1999 wintel
+#UNIX AppleShare IP FTP Server

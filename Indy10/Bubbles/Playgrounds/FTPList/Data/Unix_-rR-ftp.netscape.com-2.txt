@@ -1,0 +1,11 @@
+.:
+total 96
+drwxr-xr-x   2 5743     2           4096 Jul 25  2001 1.2
+drwxr-xr-x  20 5743     2           4096 Jul 25  2001 ..
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 .
+
+./1.2:
+total 288
+-rw-r--r--   1 5743     2          98426 Jul 25  2001 sd_32en12.exe
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 ..
+drwxr-xr-x   2 5743     2           4096 Jul 25  2001 .

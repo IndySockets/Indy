@@ -1,0 +1,17 @@
+-rwx---A--  1 user    group         2179 Jan  1  1980 baCaptionSlot.class
+-rwx---A--  1 user    group         5793 Jan  1  1980 baMixerSlot.class
+-rwx---A--  1 user    group         4765 Jan  1  1980 baPAGroup.class
+-rwx---A--  1 user    group         5731 Jan  1  1980 baPAHome.class
+-rwx---A--  1 user    group         4841 Jan  1  1980 baPARemote.class
+-rwx---A--  1 user    group         5413 Jan  1  1980 baTimerSlot.class
+-rwx---A--  1 user    group        17287 Jan  1  1980 biblio.gif
+-rwx---A--  1 user    group         2896 Jan  1  1980 edit1.html
+-rwx---A--  1 user    group         3101 Jan  1  1980 gn_hg1.gif
+-rwx---A--  1 user    group         2941 Jan  1  1980 gr_edit1.html
+-rwx---A--  1 user    group          433 Jan  1  1980 group.html
+-rwx---A--  1 user    group          981 Jan  1  1980 hilfe.html
+-rwx---A--  1 user    group         8382 Jan  1  1980 home.gif
+-rwx---A--  1 user    group          453 Jan  1  1980 index.html
+-rwx---A--  1 user    group          439 Jan  1  1980 remote.html
+-rwx---A--  1 user    group         3605 Jan  1  1980 system.html
+# A bug in VxWorks 5.3.1 FTP Server - note that it emulates Unix

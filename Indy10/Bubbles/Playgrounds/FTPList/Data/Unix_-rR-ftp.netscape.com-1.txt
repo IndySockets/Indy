@@ -1,0 +1,35 @@
+.:
+total 128
+drwxr-xr-x   2 5743     2           4096 May  1  2002 releases
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 english
+drwxr-xr-x  34 5743     2           4096 Aug 27 13:05 ..
+drwxr-xr-x   4 5743     2           4096 Mar 15  2002 .
+
+./releases:
+total 64
+drwxr-xr-x   4 5743     2           4096 Mar 15  2002 ..
+drwxr-xr-x   2 5743     2           4096 May  1  2002 .
+
+./english:
+total 96
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 pdk
+drwxr-xr-x   4 5743     2           4096 Mar 15  2002 ..
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 .
+
+./english/pdk:
+total 96
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 windows
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 ..
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 .
+
+./english/pdk/windows:
+total 96
+drwxr-xr-x   2 5743     2           4096 Jul 25  2001 win32
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 ..
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 .
+
+./english/pdk/windows/win32:
+total 864
+-rw-r--r--   1 5743     2         402119 Jul 25  2001 mpdk.zip
+drwxr-xr-x   3 5743     2           4096 Jul 25  2001 ..
+drwxr-xr-x   2 5743     2           4096 Jul 25  2001 .

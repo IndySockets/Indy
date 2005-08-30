@@ -1,0 +1,18 @@
+
+      asxxxx.get      6        asxxxx.bug      7        ascis .mod      2
+      pcdsk1.dsk    650        pcdsk2.dsk    650        pcdsk3.dsk    650
+      pcdsk4.dsk    650
+
+Directory [du3:/cug292/*.*] / 7 Files / 2615 Blocks
+
+#Obtained from: http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
+#Connected to shop-pdp.kent.edu.
+#220-RFTP-11   V01.22  11-Dec-1992
+#    Remote FTP Server shop-pdp.kent.edu [131.123.1.153]
+#    No RFTP Message File
+#220 Server Ready
+#Name (shop-pdp.kent.edu:): anonymous
+#331 Password required for user anonymous
+#Password:
+#230-Logged into Default Directory - du3:
+#230-Message to User anonymous

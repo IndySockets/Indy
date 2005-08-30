@@ -1,0 +1,6 @@
+--a-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+# Part of the Attribute testing noted in DistinctFormatAttribs.txt

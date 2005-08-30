@@ -1,0 +1,7 @@
+total 96
+drwxr-xr-x   3 HEITZ    USER        8192 Dec  3  2001 CommonStore
+drwxr-xr-x   4 HEITZ    USER        8192 Dec  3  2001 OS400
+drwxr-xr-x   2 HEITZ    USER        8192 Dec  3  2001 act2000
+drwxr-xr-x   2 HEITZ    USER        8192 Dec  3  2001 adint
+drwxr-xr-x   6 HEITZ    USER        8192 Jul 29 10:02 commonstore
+drwxr-xr-x   2 HEITZ    USER        8192 Dec  3  2001 tmp

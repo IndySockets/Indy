@@ -1,0 +1,4 @@
+total 1067
+drwxrwxrwx  1  owner group         0 Sep 30 17:18 qb
+-rwxrwxrwx  1  owner group   1092080 Sep 30 17:29 qb45.zip
+drwxrwxrwx  1  owner group         0 Sep 23 22:15 web

@@ -1,0 +1,5 @@
+total 33
+1008201 33 -rw-r--r--  1 204  wheel  32871 Mar  4 16:45:27 1999 nl-ftp
+#ftp> quote syst
+#215 UNIX Type: L8 Version: BSD-199506
+#using -s, i, T switches

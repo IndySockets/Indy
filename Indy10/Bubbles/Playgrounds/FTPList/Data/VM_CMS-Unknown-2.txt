@@ -1,0 +1,18 @@
+GIS-L    DBINDEX  V        223       3061         71  4/15/94 14:51:52 -
+GIS-L    DBNAMES  F         80         12          1  4/15/94 14:51:53 -
+GIS-L    DIGEST   V         88       2127         20  4/15/94 14:51:50 -
+GIS-L    LOG9402A V        471      13039        142  4/15/94 14:52:21 -
+GIS-L    LOG9402B V        143      12235        137  4/15/94 14:52:17 -
+GIS-L    LOG9402C V        318      11768        129  4/15/94 14:52:14 -
+GIS-L    LOG9402D V        451      10508        118  4/15/94 14:52:12 -
+GIS-L    LOG9403A V        633      12501        140  4/15/94 14:52:09 -
+GIS-L    LOG9403B V        644      10319        112  4/15/94 14:52:06 -
+GIS-L    LOG9403C V        673      10814        117  4/15/94 14:52:04 -
+GIS-L    LOG9403D V        625      12704        136  4/15/94 14:52:02 -
+GIS-L    LOG9403E V        336       2915         33  4/15/94 14:51:59 -
+GIS-L    LOG9404A V        237      14269        155  4/15/94 14:51:58 -
+GIS-L    LOG9404B V        220       9879        109  4/15/94 14:51:55 -
+GIS-L    LOG9404C V         88       2158         23  4/15/94 14:51:51 -
+GIS-L    SUBJECTS V        110         42          1  4/15/94 14:51:50 -
+#FTPSERVE IBM VM V2R3 at UBVM.cc.buffalo.edu, 14:51:12 EDT FRIDAY 04/15/94
+#from: http://groups.google.com/groups?q=Minidisk+FTP+DIR&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=LSTSRV-L%2594041515004165%40UGA.CC.UGA.EDU&rnum=5

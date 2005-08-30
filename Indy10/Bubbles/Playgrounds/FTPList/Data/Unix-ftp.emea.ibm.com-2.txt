@@ -1,0 +1,6 @@
+total 80
+drwxr-xr-x   3 HEITZ    USER        8192 Nov 15 15:04 BMW
+drwxr-xr-x   6 HEITZ    USER        8192 Dec  3  2001 as400
+drwxr-xr-x   8 HEITZ    USER        8192 Jul 29 09:59 ide
+drwxr-xr-x   3 HEITZ    DE#07949    8192 Jul 11 10:00 mvs
+-rw-r-----   1 HEITZ    DE#07949    4739 Sep 20 14:00 smit.log

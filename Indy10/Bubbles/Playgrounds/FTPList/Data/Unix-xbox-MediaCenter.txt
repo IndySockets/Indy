@@ -1,0 +1,4 @@
+dr-xr-xr-x    1 ftp      ftp            1 Feb 23 00:00 C:
+dr-xr-xr-x    1 ftp      ftp            1 Feb 23 00:00 D:
+dr-xr-xr-x    1 ftp      ftp            1 Feb 23 00:00 E:
+dr-xr-xr-x    1 ftp      ftp            1 Feb 23 00:00 F:

@@ -1,0 +1,11 @@
+$READ-ME FIRST    V         72         25          1  9/30/93  0:14:04 PUBLIC
+RMAC     HELPCMS  V         79        133          2 11/21/88 19:31:03 PUBLIC
+RMAC     MODULE   V      18000          3          5 11/21/88 19:19:15 PUBLIC
+RMAC     SCRIPT   V         76        172          2 11/21/88 19:29:09 PUBLIC
+WMAC     ASSEMBLE F         80       2480         49 10/06/91  0:31:14 PUBLIC
+WMAC     HELPCMS  V         79        189          3 11/21/88 19:52:59 PUBLIC
+WMAC     MODULE   V      21976          3          6  5/25/89  0:29:48 PUBLIC
+WMAC     SCRIPT   V         76        235          3 11/21/88 19:52:24 PUBLIC
+XFER     READ-ME  V         67         39          1  9/25/91 20:48:43 PUBLIC
+XMDMGEN  C        V         70         62          1 10/06/91  0:35:29 PUBLIC
+XMDMTAB  ASSEMBLE F         80         46          1  7/14/88 22:44:33 PUBLIC

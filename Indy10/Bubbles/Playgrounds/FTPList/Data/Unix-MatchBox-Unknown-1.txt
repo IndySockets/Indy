@@ -1,0 +1,19 @@
+-r--r--r--   1 axis     public     706  Jan 21 09.17 account
+-rw-r--r--   1 root     root      6187  Oct  9 18.20 config
+-r--r--r--   1 axis     public    6133  Apr 20  9.51 defaults
+-r--r--r--   1 axis     public    1079  Apr 30 11.01 help
+-r--r--r--   1 axis     public     435  Oct  9 11.01 status
+--w--w--w-   1 axis     public       0  Oct 18 08.22 prX  (X = 1..8)
+-r--r--r--   1 axis     public   53831  Jul  2 13:47 axinstall
+-r--r--r--   1 axis     public   38326  Jul  2 13:47 read.me
+-r--r--r--   1 axis     public    1383  Jul  2 13:47 vi.doc
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 aix/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 bsd/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 mvs/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 npipe/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 pctcp/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 snmp/
+dr-xr-xr-x   2 axis     public     512  Jul  2 13:51 sysv/
+#Axis NPS 53X FTP Printer Server V4.26 Jul 01 1995 ready.
+#From: http://www.hpl.hp.co.uk/people/ange/archives/archives-96/efs-bugs-archive/0006.html
+#

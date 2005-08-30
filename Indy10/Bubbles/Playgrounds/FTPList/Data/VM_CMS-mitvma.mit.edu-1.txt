@@ -1,0 +1,6 @@
+CONNECT  WAV      V        369          1          1  1/10/02 13:49:50 ANO191
+CSB021   $DEFAULT V       8192         74         57  1/10/02 11:00:49 ANO191
+FORM1    $DEFAULT V         34       1055          6  7/26/01 11:17:38 ANO191
+KAL-SFX2 CUE      V         74          1          1  7/29/00 22:47:24 ANO191
+REGSTUD  $DEFAULT V         80       3296         66  7/26/01 11:17:39 ANO191
+RPUPACUN PC       V         81       1412         17  7/26/01 11:13:33 ANO191

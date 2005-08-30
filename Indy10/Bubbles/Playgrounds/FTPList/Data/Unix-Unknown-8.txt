@@ -1,0 +1,2 @@
+drwx------  1            staff                           0 Sep  9  1997 .
+#http://www-uk.hpl.hp.com/people/ange/archives/archives-98/efs-bugs-archive/0045.html

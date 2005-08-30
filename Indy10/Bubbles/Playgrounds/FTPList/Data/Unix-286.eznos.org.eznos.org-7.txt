@@ -1,0 +1,5 @@
+total 0
+drwxrwxrwx  1  owner group         0 Sep 23 21:58 drdos
+drwxrwxrwx  1  owner group         0 Sep 23 21:57 ezdrv
+drwxrwxrwx  1  owner group         0 Sep 23 22:14 eznos
+drwxrwxrwx  1  owner group         0 Sep 23 22:50 freedos

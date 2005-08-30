@@ -1,0 +1,2 @@
+-rw------- 1 strauss staff AR smith  39  Feb  18  11:23 file1
+-rw------- 1 strauss staff DK adams  39  Feb  18  11:23 file2
