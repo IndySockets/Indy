@@ -50,7 +50,11 @@ type
     property FlagsProt : String read FFlagsProt write FFlagsProt;
     property ProtIndicator : String read FProtIndicator write FProtIndicator;
   end;
-  TIdFTPLPSterCommEntUx = class(TIdFTPListBase)
+  TIdFTPLPSterComEntBase = class(TIdFTPListBaseHeader)
+  protected
+    class function IsFooter(const AData : String): Boolean; override;
+  end;
+  TIdFTPLPSterCommEntUx = class(TIdFTPLPSterComEntBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
       class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
@@ -59,18 +63,18 @@ type
     class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdSterCommEntUxNSFTPListItem = class(TIdOwnerFTPListItem);
-  TIdFTPLPSterCommEntUxNS = class(TIdFTPListBaseHeader)
+  TIdFTPLPSterCommEntUxNS = class(TIdFTPLPSterComEntBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
     class procedure StripPlus(var VString : String);
-    class function IsFooter(const AData : String): Boolean; override;
+
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
     class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdSterCommEntUxRootFTPListItem = class(TIdMinimalFTPListItem);
-  TIdFTPLPSterCommEntUxRoot = class(TIdFTPListBaseHeader)
+  TIdFTPLPSterCommEntUxRoot = class(TIdFTPLPSterComEntBase)
   protected
    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
     class function IsFooter(const AData : String): Boolean; override;
@@ -319,14 +323,6 @@ begin
   Result := STIRCOMUNIXNS;
 end;
 
-class function TIdFTPLPSterCommEntUxNS.IsFooter(
-  const AData: String): Boolean;
-begin
-  Result := (IndyPos('Total Number of ', AData) > 0) and  {do not localize}
-    (IndyPos(' batch', AData) > 0) and (IndyPos('listed:', AData) > 0); {do not localize}
-end;
-
-
 class function TIdFTPLPSterCommEntUxNS.MakeNewItem(
   AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
@@ -467,6 +463,17 @@ begin
   //mailboxes are just subdirs
   AItem.ItemType := ditDirectory;
   Result := True;
+end;
+
+{ TIdFTPLPSterComEntBase }
+
+class function TIdFTPLPSterComEntBase.IsFooter(const AData: String): Boolean;
+var LData : String;
+begin
+  LData :=  Sys.UpperCase(AData);
+  Result := (IndyPos('TOTAL NUMBER OF ', LData) > 0) and  {do not localize}
+    (IndyPos(' BATCH', LData) > 0) and (IndyPos('LISTED:', LData) > 0); {do not localize}
+
 end;
 
 initialization
