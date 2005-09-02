@@ -109,6 +109,7 @@ contains
   IdFTPListParseTOPS20 in 'IdFTPListParseTOPS20.pas',
   IdFTPListParseTSXPlus in 'IdFTPListParseTSXPlus.pas',
   IdFTPListParseTandemGuardian in 'IdFTPListParseTandemGuardian.pas',
+  IdFTPListParseUnisysClearPath in 'IdFTPListParseUnisysClearPath.pas',
   IdFTPListParseUnix in 'IdFTPListParseUnix.pas',
   IdFTPListParseVM in 'IdFTPListParseVM.pas',
   IdFTPListParseVMS in 'IdFTPListParseVMS.pas',
