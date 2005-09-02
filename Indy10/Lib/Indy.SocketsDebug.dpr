@@ -94,6 +94,7 @@ uses
   IdFTPListParseTOPS20 in 'Protocols\IdFTPListParseTOPS20.pas',
   IdFTPListParseTSXPlus in 'Protocols\IdFTPListParseTSXPlus.pas',
   IdFTPListParseTandemGuardian in 'Protocols\IdFTPListParseTandemGuardian.pas',
+  IdFTPListParseUnisysClearPath in 'Protocols\IdFTPListParseUnisysClearPath.pas',
   IdFTPListParseUnix in 'Protocols\IdFTPListParseUnix.pas',
   IdFTPListParseVM in 'Protocols\IdFTPListParseVM.pas',
   IdFTPListParseVMS in 'Protocols\IdFTPListParseVMS.pas',

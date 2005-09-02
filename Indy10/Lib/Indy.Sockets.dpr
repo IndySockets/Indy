@@ -94,6 +94,7 @@ uses
   Indy.Sockets.IdFTPListParseTOPS20 in 'Indy.Sockets.IdFTPListParseTOPS20.pas',
   Indy.Sockets.IdFTPListParseTSXPlus in 'Indy.Sockets.IdFTPListParseTSXPlus.pas',
   Indy.Sockets.IdFTPListParseTandemGuardian in 'Indy.Sockets.IdFTPListParseTandemGuardian.pas',
+  Indy.Sockets.IdFTPListParseUnisysClearPath in 'Indy.Sockets.IdFTPListParseUnisysClearPath.pas',
   Indy.Sockets.IdFTPListParseUnix in 'Indy.Sockets.IdFTPListParseUnix.pas',
   Indy.Sockets.IdFTPListParseVM in 'Indy.Sockets.IdFTPListParseVM.pas',
   Indy.Sockets.IdFTPListParseVMS in 'Indy.Sockets.IdFTPListParseVMS.pas',
