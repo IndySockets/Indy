@@ -535,6 +535,8 @@ Indy10/Builder/VersionMarker/VersionMarker.fbw -text
 Indy10/Builder/VersionMarker/VersionMarker.fbz2 -text svneol=unset#unset
 Indy10/Builder/VersionMarker/VersionMarker.ini -text
 Indy10/KB/IndyKB.hm3 -text svneol=unset#unset
+Indy10/Lib/Clean.bat eol=crlf
+Indy10/Lib/Computil.dpr -text
 Indy10/Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
 Indy10/Lib/Core/AboutProg.res -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
@@ -725,6 +727,12 @@ Indy10/Lib/FCL/IdVers.inc -text
 Indy10/Lib/FCL/Indy.Sockets.bdsproj -text
 Indy10/Lib/FCL/Indy.Sockets.dpr -text
 Indy10/Lib/FCL/Mono.Security.dll -text svneol=unset#unset
+Indy10/Lib/Fullc4.bat eol=crlf
+Indy10/Lib/Fullc5.bat eol=crlf
+Indy10/Lib/Fullc6.bat eol=crlf
+Indy10/Lib/Fulld5.bat eol=crlf
+Indy10/Lib/Fulld6.bat eol=crlf
+Indy10/Lib/Fulld7.bat eol=crlf
 Indy10/Lib/Indy.Sockets.bdsproj -text
 Indy10/Lib/Indy.Sockets.dpr -text
 Indy10/Lib/Indy.SocketsDebug.bdsproj -text
@@ -1336,6 +1344,7 @@ Indy10/Lib/System/IndySystem90.res -text svneol=unset#unset
 Indy10/Lib/System/IndySystem90Net.bdsproj -text
 Indy10/Lib/System/IndySystem90Net.dpk -text
 Indy10/Lib/System/IndySystemK3.dpk -text
+Indy10/Lib/lspFix.dpr -text
 Indy10/NUnit/Sys.cs -text
 Indy10/Other/Protocols/IdCompressorAbbrevia.pas -text
 Indy10/Test/Core/IdTestBuffer.pas -text
