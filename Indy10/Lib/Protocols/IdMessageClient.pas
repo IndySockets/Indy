@@ -443,6 +443,7 @@ type
     procedure SendBody(AMsg: TIdMessage); virtual;
     procedure SendHeader(AMsg: TIdMessage); virtual;
     procedure WriteBodyText(AMsg: TIdMessage); virtual;
+    procedure EncodeAndWriteText(const ABody: TIdStrings);
     procedure WriteFoldedLine(const ALine : string);
     procedure InitComponent; override;
   public
@@ -985,7 +986,7 @@ var
       finally Sys.FreeAndNil(LDestStream); end;
     end else begin
       LX := ATextPart.Body.Count;
-      IOHandler.Write(ATextPart.Body);
+      EncodeAndWriteText(ATextPart.Body);
       { No test for last line break necessary because IOHandler.Write(TIdStrings) uses WriteLn. }
     end;
   end;
@@ -1387,13 +1388,21 @@ begin
 end;
 
 procedure TIdMessageClient.WriteBodyText(AMsg: TIdMessage);
+begin
+  EncodeAndWriteText(AMsg.Body);
+end;
+
+procedure TIdMessageClient.EncodeAndWriteText(const ABody: TIdStrings);
 var
   i: integer;
   LBodyLine: String;
 begin
-  for i := 0 to AMsg.Body.Count - 1 do begin
-    LBodyLine := AMsg.Body[i];
-    if Copy(AMsg.Body[i], 1, 1) = '.' then  {do not localize}
+  Assert(ABody<>nil);
+  Assert(IOHandler<>nil);
+
+  for i := 0 to ABody.Count - 1 do begin
+    LBodyLine := ABody[i];
+    if Copy(ABody[i], 1, 1) = '.' then  {do not localize}
     begin
       IOHandler.WriteLn('.' + LBodyLine);   {do not localize}
     end
