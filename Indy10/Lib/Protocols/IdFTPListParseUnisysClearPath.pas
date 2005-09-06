@@ -73,7 +73,7 @@ DIRECTORY_FORMAT=STANDARD does not need be supported because that is probably li
 If not, we'll deal with it given some data samples.
 }
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
+uses IdObjs, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
@@ -172,7 +172,7 @@ begin
       //size
       if IsNumeric(s[2]) then
       begin
-        LI.Size := StrToIntDef(s[2],0);
+        LI.Size := Sys.StrToInt(s[2],0);
         AItem.SizeAvail := True;
         //creation date
         if IsMMDDYY(s[3],'/') then
