@@ -733,6 +733,7 @@ Indy10/Lib/Fullc6.bat eol=crlf
 Indy10/Lib/Fulld5.bat eol=crlf
 Indy10/Lib/Fulld6.bat eol=crlf
 Indy10/Lib/Fulld7.bat eol=crlf
+Indy10/Lib/Fulld9.bat eol=crlf
 Indy10/Lib/Indy.Sockets.bdsproj -text
 Indy10/Lib/Indy.Sockets.dpr -text
 Indy10/Lib/Indy.SocketsDebug.bdsproj -text
