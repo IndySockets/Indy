@@ -23,54 +23,53 @@ if exist ..\D6\*.* call clean.bat ..\D6\
 if (%NDD6%)==() goto enderror
 if (%NDWINSYS%)==() goto enderror
 
+ECHO ****************
+ECHO  Compile System
+ECHO ****************
+CD System
+%NDD6%\Bin\dcc32.exe IndySystem60.dpk /Oobjs /m /h /w /N..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+copy *60.bpl ..\..\D6 >nul
+copy *60.dcp ..\..\D6 >nul
+if errorlevel 1 goto enderror
+copy ..\..\D6\IndySystem60.bpl %NDWINSYS% >nul
+CD ..
+
 ECHO **************
 ECHO  Compile Core    
 ECHO **************
 CD Core
-%NDD6%\Bin\dcc32.exe IndyCore60.dpk /Oobjs /m /h /w /N..\..\D6 /LE..\..\D6 /LN..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+%NDD6%\Bin\dcc32.exe IndyCore60.dpk /Oobjs /m /h /w /N..\..\D6 /U..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
+%NDD6%\Bin\dcc32.exe dclIndyCore60.dpk /Oobjs /m /h /w /z /N..\..\D6 /U..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+if errorlevel 1 goto enderror
+copy *60.bpl ..\..\D6 >nul
+copy *60.dcp ..\..\D6 >nul
 copy ..\..\D6\IndyCore60.bpl %NDWINSYS% >nul
-%NDD6%\Bin\dcc32.exe dclIndyCore60.dpk /Oobjs /m /h /w /N..\..\D6 /L..\..\D6\IndyCore60.dcp /U..\..\D6 /LE..\..\D6 /LN..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
-if errorlevel 1 goto enderror
-copy ..\D6\dclIndyCore60.bpl %NDWINSYS% >nul
+copy ..\..\D6\dclIndyCore60.bpl %NDWINSYS% >nul
 CD ..
 
-REM ***************************************************
-REM Compile Runtime Package Indy60
-REM ***************************************************
-REM IdCompressionIntercept.pas has to be compiled separately from Indy60 because of a DCC32 bug.  The bug
-REM also appears when doing a full build.
-%NDD6%\bin\dcc32.exe IdCompressionIntercept.pas /Oobjs /m /h /w /N..\D6 /LE..\D6 /LN..\D6 /U..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+ECHO *******************
+ECHO  Compile Protocols
+ECHO *******************
+CD Protocols
 
-%NDD6%\bin\dcc32.exe Indy60.dpk /Oobjs /m /h /w /N..\D6 /LE..\D6 /LN..\D6 /U..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
-if errorlevel 1 goto enderror
-copy ..\D6\Indy60.bpl %NDWINSYS% >nul
-
-REM ***************************************************
-REM Compile Design-time Package dclIndy60
-REM ***************************************************
-%NDD6%\bin\dcc32.exe dclIndy60.dpk /Oobjs /m /h /w /N..\D6 /LE..\D6 /LN..\D6 /L..\D6\Indy60.dcp /U..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+ECHO ************************
+ECHO  IdCompressionIntercept
+ECHO ************************
+%NDD6%\Bin\dcc32.exe -B -M -N..\..\D6 /U..\..\D6 -H -W -Z IdCompressionIntercept.pas -$d-l-
 if errorlevel 1 goto enderror
 
-REM ***************************************************
-REM Clean-up
-REM ***************************************************
-del ..\D6\dclIndy60.dcu >nul
-del ..\D6\dclIndy60.dcp >nul
-del ..\D6\Indy60.dcu >nul
-del ..\D6\Indy60.bpl >nul
-del ..\D6\IndyCore60.dcu >nul
-del ..\D6\IndyCore60.bpl >nul
-del ..\D6\dclIndyCore60.dcu >nul
-del ..\D6\dclIndyCore60.dcp >nul
-del ..\D6\IdAbout.dcu >nul
-del ..\D6\IdDsnPropEdBinding.dcu >nul
-del ..\D6\IdDsnCoreResourceStrings.dcu >nul
-del ..\D6\IdDsnBaseCmpEdt.dcu >nul
-del ..\D6\IdDsnSASLListEditorForm.dcu >nul
-del ..\D6\IdDsnSASLListEditor.dcu > nul
-del ..\D6\IdDsnRegister.dcu >nul
-del ..\D6\IdRegister.dcu >nul
+%NDD6%\Bin\dcc32.exe IndyProtocols60.dpk /Oobjs /m /h /w /N..\..\D6 /U..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDD6%\Bin\dcc32.exe dclIndyProtocols60.dpk /Oobjs /m /h /w /N..\..\D6 /U..\..\D6 -$d-l-n+p+r-s-t-w- %2 %3 %4
+if errorlevel 1 goto enderror
+
+copy *60.bpl ..\..\D6 >nul
+copy *60.dcp ..\..\D6 >nul
+copy ..\..\D6\IndyProtocols60.bpl %NDWINSYS% >nul
+copy ..\..\D6\dclIndyProtocols60.bpl %NDWINSYS% >nul
+CD ..
+
 goto endok
 :enderror
 call clean
