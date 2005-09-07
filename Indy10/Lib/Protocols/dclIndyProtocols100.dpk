@@ -1,5 +1,6 @@
 package dclIndyProtocols100;
 
+{$R *.res}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}

@@ -1,5 +1,6 @@
 package dclIndyCore60;
 
+{$R *.res}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
