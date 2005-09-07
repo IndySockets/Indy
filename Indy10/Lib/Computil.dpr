@@ -190,7 +190,7 @@ begin
       SetPath('NDD8','Software\Borland\Delphi\8.0');
     end;
     woSetupD9: begin
-      SetPath('NDD9','Software\Borland\Delphi\9.0');
+      SetPath('NDD9','Software\Borland\BDS\3.0');
     end;
     woSetupC1: begin
       SetPath('NDC1','Software\Borland\C++Builder\1.0');
