@@ -49,7 +49,7 @@ begin
     FName := 'dclIndySecurity' + GCompilerID[Compiler];
     FDesc := 'Security';
     GenHeader;
-    GenOptions;
+    GenOptions(True);
     Code('');
     Code('requires');
     if ACompiler in DelphiNet then begin

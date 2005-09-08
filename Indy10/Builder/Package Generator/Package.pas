@@ -227,9 +227,15 @@ begin
   // Align
   if FCompiler in [ctDelphi2005] then begin
     Code('{$ALIGN 8}');
-  end else if FCompiler in DelphiNet then begin
-    Code('{$ALIGN 0}');
-  end;
+  end
+  else
+    if FCompiler in DelphiNet then begin
+      Code('{$ALIGN 0}');
+    end
+    else
+    begin
+      Code('{$R *.res}');
+    end;
   Code('{$ASSERTIONS ON}');
   Code('{$BOOLEVAL OFF}');
   Code('{$DEBUGINFO ON}');
