@@ -468,11 +468,13 @@ var
   procedure RelayInternalSend(const AMsg: TIdMessage;const AEmailAddresses: TIdEMailAddressList);
   var
     ServerIndex: Integer;
+    EMailSent : Boolean;
   begin
     if AEmailAddresses.Count = 0 then
     begin
       Exit;
     end;
+    EMailSent := False;
     if Assigned(FOnDirectSMTPStatus) then
     begin
       FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmWorkBegin);
@@ -486,40 +488,48 @@ var
         ResolveMXServers(AEMailAddresses[0].Address);
       	ServerIndex := 0;
 
-	      if Assigned(FOnDirectSMTPStatus) then
-        begin
-          FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmConnecting);
-        end;
-        while (ServerIndex <= FMXServerList.Count - 1) and (not Connected) do
-        begin
+        while (ServerIndex <= FMXServerList.Count - 1) And Not EMailSent Do
+         Begin
           FHost := FMXServerList[ServerIndex];
-          Connect(AEmailAddresses[0]);
-        end;
-        if not Connected then
+          Try
+           If Connected then
+            Disconnect;
+           if Assigned(FOnDirectSMTPStatus) then
+           begin
+             FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmConnecting);
+           end;
+           Connect(AEmailAddresses[0]);
+           if Assigned(FOnDirectSMTPStatus) then
+           begin
+             FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmConnected);
+           end;
+           if Assigned(FOnDirectSMTPStatus) then
+           begin
+             FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmSending);
+           end;
+           if Sys.Trim(MailAgent) <> '' then
+           begin
+             AMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
+           end;
+           InternalSend(AMsg, AEmailAddresses);
+           EMailSent := True;
+           With FStatusList.Add do
+           begin
+             EmailAddress := AEmailAddresses[0].Address;
+             Sent := True;
+           end;
+      	   if Assigned(FOnDirectSMTPStatus) then
+           begin
+             FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmWorkEndOK);
+           end;
+          Except
+           // Sit on the error, and move on to the next server.
+           Inc(ServerIndex);
+          End; 
+         End;
+        if not Connected and not EMailSent then // If we were unable to connect to all the servers, throw exception
         begin
            raise EIdTCPConnectionError.Create(Sys.Format(RSDirSMTPCantConnectToSMTPSvr, [AEmailAddresses[0].Address]));
-        end;
-       	if Assigned(FOnDirectSMTPStatus) then
-        begin
-          FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmConnected);
-        end;
-      	if Assigned(FOnDirectSMTPStatus) then
-        begin
-          FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmSending);
-        end;
-        if MailAgent <>'' then
-        begin
-          AMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
-        end;
-        InternalSend(AMsg, AEmailAddresses);
-        With FStatusList.Add do
-        begin
-          EmailAddress := AEmailAddresses[0].Address;
-          Sent := True;
-        end;
-      	if Assigned(FOnDirectSMTPStatus) then
-        begin
-          FOnDirectSMTPStatus(Self, AEmailAddresses[0], dmWorkEndOK);
         end;
       except
         on E: Exception do
