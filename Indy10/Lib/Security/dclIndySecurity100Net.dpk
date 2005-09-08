@@ -22,7 +22,7 @@ package dclIndySecurity100Net;
 {$MINENUMSIZE 1}
 {$IMAGEBASE $400000}
 {$DESCRIPTION 'Indy 10 Security'}
-{$RUNONLY}
+{$DESIGNONLY}
 {$IMPLICITBUILD OFF}
 
 requires
