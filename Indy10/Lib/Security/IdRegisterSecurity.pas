@@ -29,6 +29,9 @@ interface
 uses
   Classes;
 
+ {$R IconsDotNet\TIdIOHandlerTls.bmp}
+ {$R IconsDotNet\TIdServerIOHandlerTls.bmp}
+
 // Procedures
   procedure Register;
 
