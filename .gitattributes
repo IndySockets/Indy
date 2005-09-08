@@ -1254,6 +1254,8 @@ Indy10/Lib/Protocols/minigzip.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/trees.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/uncompr.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/zutil.obj -text svneol=unset#unset
+Indy10/Lib/Security/IconsDotNet/TIdIOHandlerTls.bmp -text svneol=unset#unset
+Indy10/Lib/Security/IconsDotNet/TIdServerIOHandlerTls.bmp -text svneol=unset#unset
 Indy10/Lib/Security/IdCarrierStream.pas -text
 Indy10/Lib/Security/IdIOHandlerTls.pas -text
 Indy10/Lib/Security/IdRegisterSecurity.pas -text
