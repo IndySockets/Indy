@@ -128,6 +128,7 @@ begin
 
   //maybe, we are dealing with this pattern
   //2002-09-02  18:48       <DIR>          DOS dir 2
+  //
   //or
   //2002-09-02  19:06                9,730 DOS file 2
   //
@@ -148,8 +149,25 @@ begin
       (IsSubDirContentsBanner(AListing[i])=False) then
     begin
       SData := Sys.UpperCase(AListing[i]);
-      sDir := Sys.Trim(Copy(SData, 25, 7));
-      sSize := Sys.StringReplace(Sys.Trim(Copy(SData, 31, 8)), ',', '');    {Do not Localize}
+      sDir := Copy(SData, 25, 5);
+      //maybe this is two spacs off.  We don't use TrimLeft at this point
+      //because we can't assume that this is a valid WIndows FTP Service listing.
+
+      if sDir = '  <DI' then    {do not localize}
+      begin
+        sDir := Copy(SData, 27, 5);
+      end;
+      sDir := Sys.TrimLeft(sDir);
+      //This is a workaround for large file sizes such as:
+
+      //09-08-05  10:22AM            628551680 Test.txt
+      //09-08-05  10:23AM            628623360 Test2.txt
+
+      if IsNumeric(Sys.TrimLeft(sDir)) then
+      begin
+        sDir := '';
+      end;
+      sSize := Sys.StringReplace(Sys.TrimLeft(Copy(SData, 20, 19)), ',', '');    {Do not Localize}
       //VM/BFS does share the date/time format as MS-DOS for the first two columns
   //    if ((CharIsInSet(SData, 3, ['/', '-'])) and (CharIsInSet(SData, 6, ['/', '-']))) then
       if IsMMDDYY(Copy(SData,1,8),'-') or IsMMDDYY(Copy(SData,1,8),'/') then
@@ -195,6 +213,7 @@ begin
 It might be like this:
 02-16-2005  04:16AM       <DIR>          pub
 02-14-2005  07:22AM              9112103 ethereal-setup-0.10.9.exe
+
           }
             if (sDir = '<DIR>') then  {do not localize}
             begin
@@ -203,7 +222,7 @@ It might be like this:
             else
             begin
               if ((sDir = '') and    {Do not Localize}
-               (Sys.StrToInt(sSize, -1) <> -1)) then
+               (Sys.StrToInt64(sSize, -1) <> -1)) then
               begin
                 Result := IsVMBFS(SData)=False;
               end;
