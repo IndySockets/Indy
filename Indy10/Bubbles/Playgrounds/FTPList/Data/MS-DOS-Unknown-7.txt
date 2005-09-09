@@ -1,0 +1,6 @@
+09-08-05  10:22AM            628551680 Test.txt
+09-08-05  10:23AM            628623360 Test2.txt
+#Jeff Eaton
+#
+#Anyway, I think I have found that if the byte size of all files in a folder 
+#are greater than 9 digits, it does not find any files.
