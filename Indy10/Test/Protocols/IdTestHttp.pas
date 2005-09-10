@@ -339,6 +339,7 @@ end;
 
 procedure TIdTestHTTP_GZip.TestCompress;
 //tests the client correctly decompressed gzip content received from server
+//basically the same as TestGZip but with the httpclient+server too
 //todo also deflate?
 var
   aClass:TIdZLibCompressorBaseClass;
@@ -390,11 +391,13 @@ begin
 end;
 
 procedure TIdTestHTTP_GZip.TestGZip;
-//basic gzip functionality test. doesn't really belong in this http unit
+//basic gzip functionality test.
+//doesn't really belong in this http unit
 var
   aClass:TIdZLibCompressorBaseClass;
   aCompress:TIdZLibCompressorBase;
-  aStream,aOutStream:TIdStringStream;
+  //dont use stringstream as it acts differently
+  aStream,aOutStream:TIdMemoryStream;
   s:string;
 begin
   //string now contains a gz encoded test string
@@ -412,13 +415,16 @@ begin
   {$ENDIF}
 
   Assert(aClass<>nil);
-  aStream:=TIdStringStream.Create(s);
-  aOutStream:=TIdStringStream.Create('');
+  aStream:=TIdMemoryStream.Create;
+  WriteStringToStream(aStream,s);
+  aOutStream:=TIdMemoryStream.Create;
   aCompress:=aClass.Create;
   try
     aStream.Position:=0;
     aCompress.DecompressGZipStream(aStream,aOutStream);
-    Assert(aOutStream.DataString=cHelloWorld);
+    aOutStream.Position:=0;
+    s:=ReadStringFromStream(aOutStream);
+    Assert(s=cHelloWorld,s);
   finally
     Sys.FreeAndNil(aCompress);
     Sys.FreeAndNil(aStream);
