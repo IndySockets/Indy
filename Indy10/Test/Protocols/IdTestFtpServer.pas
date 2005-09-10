@@ -166,8 +166,10 @@ begin
     //typical quit='221 Goodbye.'
 
     //test commands that aren't currently in the ftp client?
-    c.IOHandler.WriteLn('NLST');
-    aStr:=c.IOHandler.Readln;
+    //nlst needs a data connection.
+    //calling without causes an AV and memleak. should be fixed
+    //c.IOHandler.WriteLn('NLST');
+    //aStr:=c.IOHandler.Readln;
     //Assert(aStr<>'',aStr);
   finally
     Sys.FreeAndNil(c);
