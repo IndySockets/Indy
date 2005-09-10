@@ -33,34 +33,29 @@ uses
 
 type
 
-  //currently just implements gzip decompression. 
+  //currently just implements gzip decompression.
   TIdCompressorAbbrevia = class(TIdZLibCompressorBase)
   public
-    procedure DecompressGZipStream(AStream : TIdStream; const AOutStream : TIdStream=nil); override;
+    procedure DecompressGZipStream(AInStream, AOutStream : TIdStream); override;
   end;
 
 implementation
 
-procedure TIdCompressorAbbrevia.DecompressGZipStream(AStream: TIdStream; const AOutStream: TIdStream);
+procedure TIdCompressorAbbrevia.DecompressGZipStream(AInStream, AOutStream : TIdStream);
 var
   aGz:TAbGzipStreamHelper;
-  aDest:TIdMemoryStream;
   aType:TAbArchiveType;
 begin
   //no inherited;
 
-  aType:=VerifyGZip(AStream);
+  aType:=VerifyGZip(AInStream);
   Assert(aType=atGzip);
 
-  aGz:=TAbGzipStreamHelper.Create(aStream);
-  aDest:=TIdMemoryStream.Create;
+  aGz:=TAbGzipStreamHelper.Create(AInStream);
   try
-  aGz.ExtractItemData(aDest);
-  AStream.Size:=0;
-  AStream.CopyFrom(aDest,0);
+  aGz.ExtractItemData(AOutStream);
   finally
   Sys.FreeAndNil(aGz);
-  Sys.FreeAndNil(aDest);
   end;
 end;
 
