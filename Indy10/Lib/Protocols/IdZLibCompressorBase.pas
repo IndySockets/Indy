@@ -199,9 +199,14 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TId
     SetLength(LFlags,1);
     SetLength(LExtra,2);
     SetLength(LNullFindChar,1);
+
+    //skip id1,id2,CompressionMethod (CM should=8)
     AInStream.Seek(3,IdFromCurrent);
+    //read Flag
     TIdStreamHelper.ReadBytes(AInStream,LFlags,1);
+    //skip mtime,xfl,os
     AInStream.Seek(6,IdFromCurrent);
+
     // at pos 10 now
 
     if LFlags[0] and $4 = $4 then begin // FEXTRA
