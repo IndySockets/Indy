@@ -3331,6 +3331,7 @@ begin
         begin
           //it should be safe to assume that the FDataChannel object exists because
           //we checked it earlier
+          Assert(FDataChannel<>nil);
           FDataChannel.Data := LStream;
           FDataChannel.FFtpOperation := ftpRetr;
           FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
