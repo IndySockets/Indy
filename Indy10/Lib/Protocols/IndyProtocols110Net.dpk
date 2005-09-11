@@ -102,6 +102,7 @@ contains
   IdFTPListParseNovellNetware in 'IdFTPListParseNovellNetware.pas',
   IdFTPListParseNovellNetwarePSU in 'IdFTPListParseNovellNetwarePSU.pas',
   IdFTPListParseOS2 in 'IdFTPListParseOS2.pas',
+  IdFTPListParsePCNFSD in 'IdFTPListParsePCNFSD.pas',
   IdFTPListParseStercomOS390Exp in 'IdFTPListParseStercomOS390Exp.pas',
   IdFTPListParseStercomUnixEnt in 'IdFTPListParseStercomUnixEnt.pas',
   IdFTPListParseStratusVOS in 'IdFTPListParseStratusVOS.pas',
