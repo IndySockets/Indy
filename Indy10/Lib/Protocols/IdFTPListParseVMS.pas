@@ -255,7 +255,21 @@ begin
     if (IndyPos('.DIR;', LBuffer) > 0) then {do not localize}
     begin
       AItem.ItemType := ditDirectory;
-      AItem.FileName := Fetch(LBuffer,'.');
+      //note that you can NOT simply do a Fetch('.') to extract the dir name
+      //you use with a CD because the period is also a separator between pathes
+      //
+      //e.g.
+      //
+      //[VMSSERV.FILES]ALARM.DIR;1      1/3          5-MAR-1993 18:09
+      if IndyPos(PATH_FILENAME_SEP_VMS,LBuffer)=0 then
+      begin
+        LBuf2 := '';
+      end
+      else
+      begin
+        LBuf2 := Fetch(LBuffer,PATH_FILENAME_SEP_VMS) + PATH_FILENAME_SEP_VMS; {Do not localize}
+      end;
+      AItem.FileName := LBuf2 + Fetch(LBuffer,'.');
       AItem.LocalFileName := Sys.LowerCase(AItem.FileName);
     end
     else
@@ -294,12 +308,7 @@ begin
             AItem.SizeAvail := False;
             AItem.ModifiedAvail := False;
           end;
-{          //File Size
-          LBuffer := LCols[0];
-          LBuffer := Fetch(LBuffer,'/');
-          AItem.NumberBlocks :=  Sys.StrToInt(LBuffer,0);
-          AItem.Size := Sys.StrToInt(LBuffer,0)* 512; //512 is the size of a VMS block
-}        end
+        end
         else
         begin
           LOwnerIdx := 0;
