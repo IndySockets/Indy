@@ -42,6 +42,8 @@ type
   end;
   TIdFTPLPSuperTCP = class(TIdFTPListBase)
   protected
+    class function IsValidWin32FileName(const AFileName : String): Boolean;
+    class function IsValidMSDOSFileName(const AFileName : String): Boolean;
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
@@ -87,7 +89,11 @@ begin
     LBuf := AListing[i];
     //filename and extension - we assume an 8.3 filename type because
     //Windows 3.1 only supports that.
-    Fetch(LBuf);
+    Result := IsValidMSDOSFileName( Fetch(LBuf));
+    if not result then
+    begin
+      Exit;
+    end;
     LBuf := Sys.TrimLeft(LBuf);
     //<DIR> or file size
     LBuf2 := Fetch(LBuf);
@@ -107,6 +113,16 @@ begin
       LBuf2 := Fetch(LBuf);
       Result := IsHHMMSS(LBuf2,':');
     end;
+    if Result then
+    begin
+        //long filename in Win32
+        //if nothing, a Windows 3.1 server probably
+      if LBuf <>'' then
+      begin
+
+        Result := IsValidWin32FileName(LBuf);
+      end;
+    end;
     if not result then
     begin
       break;
@@ -117,6 +133,74 @@ end;
 class function TIdFTPLPSuperTCP.GetIdent: String;
 begin
    Result := 'SuperTCP';
+end;
+
+class function TIdFTPLPSuperTCP.IsValidMSDOSFileName(
+  const AFileName: String): Boolean;
+const
+  VALID_DOS_CHARS =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrtstuvwxyz0123456789_$~!#%&-{}()@'''+#180;
+var LFileName, LExt :String;
+  i : Integer;
+begin
+  Result := False;
+  if (AFileName = CUR_DIR) or (AFileName = PARENT_DIR) then
+  begin
+    Result := True;
+    Exit;
+  end;
+  LExt := AFileName;
+  LFileName := Fetch(LExt,'.');
+  if (Length(LFileName)>0) and (Length(LFileName)<9) then
+  begin
+    for i := 1 to Length(LFileName) do
+    begin
+      if IndyPos(LFileName[i],VALID_DOS_CHARS)=0 then
+      begin
+        Exit;
+      end;
+    end;
+    for i := 1 to Length(LExt) do
+    begin
+      if IndyPos(LExt[i],VALID_DOS_CHARS)=0 then
+      begin
+        Exit;
+      end;
+    end;
+    Result := True;
+  end;
+end;
+
+class function TIdFTPLPSuperTCP.IsValidWin32FileName(
+  const AFileName: String): Boolean;
+//from: http://linux-ntfs.sourceforge.net/ntfs/concepts/filename_namespace.html
+const WIN32_INVALID_CHARS  = '"*/:<>?\|' + #0;
+    WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32
+
+var 
+  i : Integer;
+begin
+  Result := False;
+  if (AFileName = CUR_DIR) or (AFileName = PARENT_DIR) then
+  begin
+    Result := True;
+    Exit;
+  end;
+  if Length(AFileName)>0 then
+  begin
+    if IndyPos(AFileName[Length(AFileName)], WIN32_INVALID_LAST)>0 then
+    begin
+      Exit;
+    end;
+    for i := 1 to Length(AFileName) do
+    begin
+      if IndyPos(AFileName[i], WIN32_INVALID_CHARS)>0 then
+      begin
+        Exit;
+      end;
+    end;
+    Result := True;
+  end;
 end;
 
 class function TIdFTPLPSuperTCP.MakeNewItem(

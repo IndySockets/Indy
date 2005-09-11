@@ -30,6 +30,7 @@ uses
   IdFTPListParseNovellNetware,
   IdFTPListParseNovellNetwarePSU,
   IdFTPListParseOS2,
+  IdFTPListParsePCNFSD,
   IdFTPListParseStercomOS390Exp,
   IdFTPListParseStercomUnixEnt,
   IdFTPListParseStratusVOS,

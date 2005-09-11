@@ -26,7 +26,7 @@
 unit IdFTPListParsePCNFSD;
 
 interface
-uses classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
+uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
 This parser is a little more tolarant of stuff than others because of scanty samples.
@@ -79,10 +79,10 @@ begin
       //last col -time
       i := s.Count - 1;
       LBuf := s[i];
-      if CharIsInSet(LBuf,Length(LBuf),['a','p']) then
+      if CharIsInSet(LBuf,Length(LBuf),'ap') then   {do not localize}
       begin
-        LBuf := Fetch(LBuf,'a');
-        LBuf := Fetch(LBuf,'p');
+        LBuf := Fetch(LBuf,'a');          {Do not localize}
+        LBuf := Fetch(LBuf,'p');          {Do not localize}
         if IsHHMMSS(LBuf,':') then
         begin
           dec(i);
@@ -122,7 +122,7 @@ end;
 
 class function TIdFTPLPPCNFSD.GetIdent: String;
 begin
-  Result := 'PC-NFSD';
+  Result := 'PC-NFSD';   {Do not localize}
 end;
 
 class function TIdFTPLPPCNFSD.MakeNewItem(
@@ -172,7 +172,7 @@ begin
           LI.ModifiedDate := DateMMDDYY(s[i]);
           Inc(i);
           //time
-          if CharIsInSet(s[i],Length(s[i]),['a','p']) then
+          if CharIsInSet(s[i],Length(s[i]),'ap') then  {Do not localize}
           begin
             LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(s[i]);
             Result := True;
