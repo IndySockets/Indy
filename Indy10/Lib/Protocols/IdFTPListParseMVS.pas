@@ -241,6 +241,8 @@ var i : Integer;
 //but you can not get MVS DEVINFO macro so you do not have enough information
 //to work with.
 begin
+  AItem.ModifiedAvail := False;
+  AItem.SizeAvail := False;
   LI := AItem as TIdMVSFTPListItem;
   if IsMVSMigrated(AItem.Data) then
   begin
@@ -272,6 +274,7 @@ begin
         if IsNumeric(s[2][1]) then
         begin
           LI.ModifiedDate :=  MVSDate(s[2]);
+            LI.ModifiedAvail := True;
         end;
       end;
       if s.Count >3 then
@@ -437,6 +440,8 @@ Hope this is helpful.
 Ralph
 }
 begin
+  AItem.ModifiedAvail := False;
+  AItem.SizeAvail := False;
   s := TIdStringList.Create;
   try
     SplitColumns(AItem.Data,s);
@@ -453,6 +458,7 @@ begin
         if s.Count > 4 then
         begin
           AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(s[4]);
+          AItem.ModifiedAvail := True;
         end;
       end;
     end;
@@ -523,6 +529,8 @@ ALFREDCA  JOB03194  INPUT
 var LBuf : String;
   LI : TIdMVSJESFTPListItem;
 begin
+  AItem.ModifiedAvail := False;
+  AItem.SizeAvail := False;
   LI := AItem as TIdMVSJESFTPListItem;
   //owner
   LBuf := AItem.Data;
@@ -612,6 +620,8 @@ var LBuf, LNo : String;
   LI : TIdMVSJESIntF2FTPListItem;
 begin
   LI := AItem as TIdMVSJESIntF2FTPListItem;
+  LI.ModifiedAvail := False;
+  LI.SizeAvail := False;
   LI.FileName := Sys.Trim(Copy(AItem.Data,10,8));
   LI.OwnerName := Sys.Trim(Copy(AItem.Data,19,7));
   if IsLineStr(LI.OwnerName) then

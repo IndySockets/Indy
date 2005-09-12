@@ -206,6 +206,9 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
 
 }
   LI := AItem as TIdOwnerFTPListItem;
+  LI.ModifiedAvail := False;
+  LI.SizeAvail := False;
+  
   LBuffer := AItem.Data;
   LI.OwnerName := Fetch(LBuffer);
 
@@ -215,7 +218,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
     LI.Size := Sys.StrToInt64(FetchLength(LBuffer,9),0);
-
+    LI.SizeAvail := True;
     LBuffer := Sys.TrimLeft(LBuffer);
   end;
   //Sometimes the date and time feilds will not present
@@ -229,6 +232,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
     if LDate <> '' then
     begin
       LI.ModifiedDate := AS400Date(LDate);
+       LI.ModifiedAvail := True;
     end;
     LTime := Sys.Trim(StrPart(LBuffer,8));
     if (LBuffer <> '') and (LBuffer[1]<>' ') then
