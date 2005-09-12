@@ -154,36 +154,54 @@
   {$DEFINE DotNetExclude}
 {$ENDIF}
 
-// Kylix
-//
-//Important:  Don't use CompilerVersion here as
-//$IF's are evaluated before $IFDEF's
-//and Kylix 1 does not have CompilerVersion defined at all.
-{$IFDEF LINUX}
-  {$IFDEF CONDITIONALEXPRESSIONS}
-    {$IF RTLVersion = 14.0}
-      {$DEFINE KYLIX1}
-      {$DEFINE KYLIX1ORABOVE}
-    {$IFEND}
-    {$IF RTLVersion = 14.2}
-      {$DEFINE KYLIX2}
-      {$DEFINE USEZLIBUNIT}
-      {$DEFINE KYLIX1ORABOVE}
-      {$DEFINE KYLIX2ORABOVE}
-    {$IFEND}
-    {$IF RTLVersion = 14.5}
-      {$DEFINE KYLIX3}
-      {$DEFINE USEZLIBUNIT}
-      {$DEFINE KYLIX1ORABOVE}
-      {$DEFINE KYLIX2ORABOVE}
-      {$DEFINE KYLIX3ORABOVE}
-    {$IFEND}
-  {$ENDIF}
+
+{$IFDEF FPC}
+  {$MODE DELPHI}
   {$DEFINE VCL4ORABOVE}
   {$DEFINE VCL5ORABOVE}
+  {$DEFINE DELPHI}
+  {$DEFINE DELPHI7}
+  {$DEFINE OVERLOADING}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE VCL6ORABOVE}
-  {$DEFINE VCL60}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL7O}
+  {$DEFINE USEZLIBUNIT}
 {$ENDIF}
 
+// Kylix
+//
+//Important:  Don't use CompilerVersion here as
+// $IF's are evaluated before $IFDEF's
+//and Kylix 1 does not have CompilerVersion defined at all.
+
+{$IFNDEF FPC}
+  {$IFDEF LINUX}
+    {$IFDEF CONDITIONALEXPRESSIONS}
+      {$IF RTLVersion = 14.0}
+        {$DEFINE KYLIX1}
+        {$DEFINE KYLIX1ORABOVE}
+      {$IFEND}
+      {$IF RTLVersion = 14.2}
+        {$DEFINE KYLIX2}
+        {$DEFINE USEZLIBUNIT}
+        {$DEFINE KYLIX1ORABOVE}
+        {$DEFINE KYLIX2ORABOVE}
+      {$IFEND}
+      {$IF RTLVersion = 14.5}
+        {$DEFINE KYLIX3}
+        {$DEFINE USEZLIBUNIT}
+        {$DEFINE KYLIX1ORABOVE}
+        {$DEFINE KYLIX2ORABOVE}
+        {$DEFINE KYLIX3ORABOVE}
+      {$IFEND}
+    {$ENDIF}
+    {$DEFINE VCL4ORABOVE}
+    {$DEFINE VCL5ORABOVE}
+    {$DEFINE OPTIONALPARAMS}
+    {$DEFINE SAMETEXT}
+    {$DEFINE VCL6ORABOVE}
+    {$DEFINE VCL60}
+  {$ENDIF}
+{$ENDIF}
