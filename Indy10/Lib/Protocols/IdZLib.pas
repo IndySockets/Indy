@@ -125,7 +125,135 @@ compatible with Borland's original ZLIB.pas header.
 
 }
 unit IdZLib;
+//note that we can't reference IdCompilerDefines for the moment.
 
+// Delphi 4
+{$IFDEF VER120}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL40}
+  {$DEFINE DELPHI4}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE MSWINDOWS}
+{$ENDIF}
+
+// C++ Builder 4
+{$IFDEF VER125}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL40}
+  {$DEFINE CBUILDER4}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE MSWINDOWS}
+{$ENDIF}
+
+// Delphi 5 & CBuilder 5
+{$IFDEF VER130}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL5}
+  {$IFDEF BCB}
+    {$DEFINE CBUILDER5}
+  {$ELSE}
+    {$DEFINE DELPHI5}
+  {$ENDIF}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE MSWINDOWS}
+{$ENDIF}
+
+//Delphi 6
+{$IFDEF VER140}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$IFDEF BCB}
+    {$DEFINE CBUILDER6}
+    {$DEFINE ALLOW_NAMED_THREADS}
+  {$ELSE}
+    {$DEFINE DELPHI6}
+  {$ENDIF}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL60}
+{$ENDIF}
+
+//Delphi 7
+{$IFDEF VER150}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL70}
+  {$IFDEF BCB}
+    {$DEFINE CBUILDER7}
+  {$ELSE}
+    {$DEFINE DELPHI7}
+  {$ENDIF}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+{$ENDIF}
+
+//Delphi 8
+{$IFDEF VER160}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL8ORABOVE}
+  {$DEFINE VCL80}
+  {$DEFINE DELPHI8}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+{$ENDIF}
+
+//Delphi 9
+{$IFDEF VER170}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL8ORABOVE}
+  {$DEFINE VCL9ORABOVE}
+  {$DEFINE VCL90}
+  {$DEFINE DELPHI9}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+{$ENDIF}
+
+//Delphi 10
+{$IFDEF VER180}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL8ORABOVE}
+  {$DEFINE VCL9ORABOVE}
+  {$DEFINE VCL10ORABOVE}
+  {$DEFINE VCL10}
+  {$DEFINE DELPHI10}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+{$ENDIF}
+
+//Delphi 11
+{$IFDEF VER190}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL8ORABOVE}
+  {$DEFINE VCL9ORABOVE}
+  {$DEFINE VCL10ORABOVE}
+  {$DEFINE VCL11ORABOVE}
+  {$DEFINE VCL11}
+  {$DEFINE DELPHI11}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+{$ENDIF}
 interface
 
 uses SysUtils, Classes;
@@ -931,12 +1059,15 @@ function inflateBackEnd (var strm : TZStreamRec) : Integer;
 function zlibCompileFlags : Cardinal;
 {$IFDEF LINUX} cdecl; {$ENDIF}
 //const char * zError (int err);
+
 function  zError (err : Integer) : PChar;
 {$IFDEF LINUX} cdecl; {$ENDIF}
 //int inflateSyncPoint (z_streamp z);
+
 function inflateSyncPoint(var z : TZStreamRec) : Integer;
 {$IFDEF LINUX} cdecl; {$ENDIF}
 //const uLongf * get_crc_table (void);
+
 function  get_crc_table : PLongInt;
 {$IFDEF LINUX} cdecl; {$ENDIF}
 
@@ -1116,6 +1247,7 @@ function deflateInit_(var strm: TZStreamRec; level: Integer; version: PChar;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateInit_';
 {$ENDIF}
+
 function deflate(var strm: TZStreamRec; flush: Integer): Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1123,6 +1255,7 @@ function deflate(var strm: TZStreamRec; flush: Integer): Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflate';
 {$ENDIF}
+
 function deflateEnd(var strm: TZStreamRec): Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1130,6 +1263,7 @@ function deflateEnd(var strm: TZStreamRec): Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateEnd';
 {$ENDIF}
+
 // inflate decompresses data
 function inflateInit_(var strm: TZStreamRec; version: PChar;
   recsize: Integer): Integer; 
@@ -1139,6 +1273,7 @@ function inflateInit_(var strm: TZStreamRec; version: PChar;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateInit_';
 {$ENDIF}
+
 function inflate(var strm: TZStreamRec; flush: Integer): Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1146,6 +1281,7 @@ function inflate(var strm: TZStreamRec; flush: Integer): Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflate';
 {$ENDIF}
+
 function inflateEnd(var strm: TZStreamRec): Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1153,6 +1289,7 @@ function inflateEnd(var strm: TZStreamRec): Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateEnd';
 {$ENDIF}
+
 function inflateReset(var strm: TZStreamRec): Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1170,6 +1307,7 @@ function deflateInit2_(var strm: TZStreamRec; level : Integer; method : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateInit2_';
 {$ENDIF}
+
 function deflateSetDictionary (var strm: TZStreamRec; const dictionary : PChar;
   dictLength : Cardinal) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1178,6 +1316,7 @@ function deflateSetDictionary (var strm: TZStreamRec; const dictionary : PChar;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateSetDictionary';
 {$ENDIF}
+
 function deflateCopy (var dest : TZStreamRec; var source : TZStreamRec)
  : Integer;
 {$IFDEF MSWINDOWS}
@@ -1186,6 +1325,7 @@ function deflateCopy (var dest : TZStreamRec; var source : TZStreamRec)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateCopyy';
 {$ENDIF}
+
 function deflateReset (var strm : TZStreamRec) : Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1193,6 +1333,7 @@ function deflateReset (var strm : TZStreamRec) : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateReset';
 {$ENDIF}
+
 function deflateParams (var strm : TZStreamRec; level : Integer;
   strategy : Integer) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1201,6 +1342,7 @@ function deflateParams (var strm : TZStreamRec; level : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateParams';
 {$ENDIF}
+
 function deflateTune(var strm : TZStreamRec; good_length : Integer;
   max_lazy : Integer; nice_length : Integer; max_chain : Integer) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1209,6 +1351,7 @@ function deflateTune(var strm : TZStreamRec; good_length : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateTune';
 {$ENDIF}
+
 function deflateBound(var strm : TZStreamRec; sourceLen : Cardinal) : Cardinal;
 {$IFDEF MSWINDOWS}
   external;
@@ -1216,6 +1359,7 @@ function deflateBound(var strm : TZStreamRec; sourceLen : Cardinal) : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateBound';
 {$ENDIF}
+
 function deflatePrime(var strm : TZStreamRec; bits : Integer; value : Integer)
   : Integer;
 {$IFDEF MSWINDOWS}
@@ -1224,6 +1368,7 @@ function deflatePrime(var strm : TZStreamRec; bits : Integer; value : Integer)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflatePrime';
 {$ENDIF}
+
 function deflateSetHeader(var strm : TZStreamRec; var head : TgzHeaderRec)
   : Integer;
 {$IFDEF MSWINDOWS}
@@ -1232,6 +1377,7 @@ function deflateSetHeader(var strm : TZStreamRec; var head : TgzHeaderRec)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'deflateSetHeader';
 {$ENDIF}
+
 function inflateInit2_(var strm : TZStreamRec; windowBits : Integer;
   version: PChar; recsize: Integer) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1240,6 +1386,7 @@ function inflateInit2_(var strm : TZStreamRec; windowBits : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateInit2_';
 {$ENDIF}
+
 function inflateSetDictionary (var strm : TZStreamRec; const dictionary : PChar;
   dictLength : Cardinal) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1248,6 +1395,7 @@ function inflateSetDictionary (var strm : TZStreamRec; const dictionary : PChar;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateSetDictionary';
 {$ENDIF}
+
 function inflateSync (var strm : TZStreamRec) : Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1255,6 +1403,7 @@ function inflateSync (var strm : TZStreamRec) : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateSync';
 {$ENDIF}
+
 function inflateCopy (var dest : TZStreamRec; var source : TZStreamRec)
   : Integer;
 {$IFDEF MSWINDOWS}
@@ -1263,6 +1412,7 @@ function inflateCopy (var dest : TZStreamRec; var source : TZStreamRec)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateCopy';
 {$ENDIF}
+
 function inflatePrime (var strm : TZStreamRec; bits : Integer; value : Integer)
   : Integer;
 {$IFDEF MSWINDOWS}
@@ -1271,6 +1421,7 @@ function inflatePrime (var strm : TZStreamRec; bits : Integer; value : Integer)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflatePrime';
 {$ENDIF}
+
 function inflateGetHeader (var strm : TZStreamRec; var head : TgzHeaderRec)
  : Integer;
 {$IFDEF MSWINDOWS}
@@ -1279,6 +1430,7 @@ function inflateGetHeader (var strm : TZStreamRec; var head : TgzHeaderRec)
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateGetHeader';
 {$ENDIF}
+
 function inflateBackInit_(var strm : TZStreamRec; windowBits : Integer;
   window : PChar; version: PChar; recsize: Integer) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1287,6 +1439,7 @@ function inflateBackInit_(var strm : TZStreamRec; windowBits : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateBackInit_';
 {$ENDIF}
+
 function inflateBack(var strm : TZStreamRec;
   in_fn : TInFunc; in_desc : Pointer;
   fn_out : TOutFunc; out_desc : Pointer) : Integer;
@@ -1296,6 +1449,7 @@ function inflateBack(var strm : TZStreamRec;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateBack';
 {$ENDIF}
+
 function inflateBackEnd (var strm : TZStreamRec) : Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1303,6 +1457,7 @@ function inflateBackEnd (var strm : TZStreamRec) : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateBack';
 {$ENDIF}
+
 function zlibCompileFlags : Cardinal;
 {$IFDEF MSWINDOWS}
   external;
@@ -1310,6 +1465,7 @@ function zlibCompileFlags : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'zlibCompileFlags';
 {$ENDIF}
+
 function  zError (err : Integer) : PChar;
 {$IFDEF MSWINDOWS}
   external;
@@ -1317,6 +1473,7 @@ function  zError (err : Integer) : PChar;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'zError';
 {$ENDIF}
+
 function inflateSyncPoint(var z : TZStreamRec) : Integer;
 {$IFDEF MSWINDOWS}
   external;
@@ -1324,6 +1481,7 @@ function inflateSyncPoint(var z : TZStreamRec) : Integer;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'inflateSyncPoint';
 {$ENDIF}
+
 function  get_crc_table : PLongInt;
 {$IFDEF MSWINDOWS}
   external;
@@ -1331,6 +1489,7 @@ function  get_crc_table : PLongInt;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'get_crc_table';
 {$ENDIF}
+
 function compress (dest : PChar;  var destLen : Cardinal;
   const source : PChar; sourceLen : Cardinal) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1339,6 +1498,7 @@ function compress (dest : PChar;  var destLen : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'compress';
 {$ENDIF}
+
 function compress2(dest : PChar; var destLen : Cardinal;
   const source : PChar;  sourceLen : Cardinal;
   level : Integer) : Integer;
@@ -1348,6 +1508,7 @@ function compress2(dest : PChar; var destLen : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'compress2';
 {$ENDIF}
+
 function compressBound ( sourceLen : Cardinal) : Cardinal;
 {$IFDEF MSWINDOWS}
   external;
@@ -1355,6 +1516,7 @@ function compressBound ( sourceLen : Cardinal) : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'compressBound';
 {$ENDIF}
+
 function uncompress(dest : PChar; var destLen : Cardinal;
   const source : PChar; sourceLen : Cardinal) : Integer;
 {$IFDEF MSWINDOWS}
@@ -1363,6 +1525,7 @@ function uncompress(dest : PChar; var destLen : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'uncompress';
 {$ENDIF}
+
 function adler32 (adler : Cardinal; const buf : PChar; len : Cardinal) : Cardinal;
 {$IFDEF MSWINDOWS}
   external;
@@ -1370,6 +1533,7 @@ function adler32 (adler : Cardinal; const buf : PChar; len : Cardinal) : Cardina
 {$IFDEF LINUX}
   cdecl; external zlibso name 'adler32';
 {$ENDIF}
+
 function  adler32_combine(adler1 : Cardinal;  adler2 : Cardinal;
    len2 : LongInt) : Cardinal;
 {$IFDEF MSWINDOWS}
@@ -1378,6 +1542,7 @@ function  adler32_combine(adler1 : Cardinal;  adler2 : Cardinal;
 {$IFDEF LINUX}
   cdecl; external zlibso name 'adler32_combine';
 {$ENDIF}
+
 function crc32 (crc : Cardinal; const buf : PChar; len : Cardinal) : Cardinal;
 {$IFDEF MSWINDOWS}
   external;
