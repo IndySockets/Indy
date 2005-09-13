@@ -1924,6 +1924,7 @@ const
   WindowSize = 1 shl MAX_WBITS;
   
 type
+  PByte = ^Byte;
   PZBack = ^TZBack;
   TZBack = record
     InStream  : TStream;
