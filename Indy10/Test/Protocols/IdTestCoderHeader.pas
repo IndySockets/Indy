@@ -37,8 +37,11 @@ var
 begin
 
  //from TIdMessage.GenerateHeader
- s := DecodeHeader(cIn1);
- Assert(s = cOut1);
+ //s := DecodeHeader(cIn1);
+ //Assert(s = cOut1);
+
+ s:=DecodeHeader('=?iso-8859-1?q?this=20is=20some=20text?=');
+ Assert(s='this is some text',s);
  //edge case
 { s:=DecodeHeader('');
  Assert(s='');
