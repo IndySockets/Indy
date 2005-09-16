@@ -2119,11 +2119,11 @@ begin
     FLineStruct := TIdIMAPLineStruct.Create;
     FCapabilities := TIdStringList.Create;
     FMUTF7 := TIdMUTF7.Create;
-{$IFNDEF DOTNET}
+
     //Todo:  Not sure which number is appropriate.  Should be tested further.
     FImplicitTLSProtPort := IdPORT_IMAP4S;
     FRegularProtPort := IdPORT_IMAP4;
-{$ENDIF}
+
     FOnWorkForPart := nil;
     FOnWorkBeginForPart := nil;
     FOnWorkEndForPart := nil;
