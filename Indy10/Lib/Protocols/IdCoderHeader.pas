@@ -74,6 +74,8 @@
 }
 unit IdCoderHeader;
 
+//refer http://www.faqs.org/rfcs/rfc2047.html
+
 //TODO: Optimize and restructure code
 //TODO: Redo this unit to fit with the new coders and use the exisiting MIME stuff
 
@@ -88,6 +90,7 @@ unit IdCoderHeader;
  - Fixed multiple QP decoding in single header.
 11-10-2001 - J. Peter Mugaas
   - tiny fix for 8bit header encoding suggested by Andrew P.Rybin}
+
 interface
 
 uses
@@ -96,7 +99,7 @@ uses
 
 type
   TTransfer = (bit7, bit8, iso2022jp);
-  
+
 // Procs
   function EncodeAddressItem(EmailAddr:TIdEmailAddressItem; const HeaderEncoding: Char;
     TransferHeader: TTransfer; MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
