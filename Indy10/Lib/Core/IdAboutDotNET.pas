@@ -145,7 +145,6 @@ begin
   // 
   Self.lblURL.Anchor := (System.Windows.Forms.AnchorStyles(((System.Windows.Forms.AnchorStyles.Top 
     or System.Windows.Forms.AnchorStyles.Left) or System.Windows.Forms.AnchorStyles.Right)));
-  Self.lblURL.LinkColor := System.Drawing.SystemColors.ControlLightLight;
   Self.lblURL.Location := System.Drawing.Point.Create(8, 296);
   Self.lblURL.Name := 'lblURL';
   Self.lblURL.Size := System.Drawing.Size.Create(623, 13);
@@ -153,7 +152,6 @@ begin
   Self.lblURL.TabStop := True;
   Self.lblURL.Text := 'LinkLabel1';
   Self.lblURL.TextAlign := System.Drawing.ContentAlignment.TopCenter;
-  Self.lblURL.VisitedLinkColor := System.Drawing.SystemColors.ControlDarkDark;
   Include(Self.lblURL.LinkClicked, Self.lblURL_LinkClicked);
   // 
   // TfrmAbout
@@ -241,6 +239,7 @@ begin
   try
      Version := Sys.Format ( RSAAboutBoxVersion, [AProductVersion] );
      ProductName := AProductName;
+     Text := AProductName;
      ShowDialog;
   finally
     Dispose;
