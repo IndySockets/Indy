@@ -302,9 +302,9 @@ interface
   {$R IconsDotNet\TIdMBCSEncoder.bmp}
   {$R IconsDotNet\TIdMessage.bmp}
   {$R IconsDotNet\TIdMessageDecoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageDecoderYENC.bmp}
+  {$R IconsDotNet\TIdMessageDecoderYenc.bmp}
   {$R IconsDotNet\TIdMessageEncoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageEncoderYENC.bmp}
+  {$R IconsDotNet\TIdMessageEncoderYenc.bmp}
   {$R IconsDotNet\TIdNetworkCalculator.bmp}
   {$R IconsDotNet\TIdNNTP.bmp}
   {$R IconsDotNet\TIdNNTPServer.bmp}
@@ -409,9 +409,7 @@ uses
      IdCompressorZLibEx,
      {$ENDIF}
    {$ENDIF}
-  {$IFNDEF DOTNET}
   IdConnectThroughHttpProxy,
-  {$ENDIF}
   IdCookieManager,
   IdResourceStringsCore,
   IdDateTimeStamp,
@@ -423,13 +421,11 @@ uses
   IdDICTServer,
   IdDiscardServer,
   IdDiscardUDPServer,
-  {$IFNDEF DOTNET}
+
   IdDsnRegister,
-  {$ENDIF}
-  {$IFNDEF DOTNET}
+
   IdDNSResolver,
   IdDNSServer,
-  {$ENDIF}
   IdDsnCoreResourceStrings,
   IdEcho,
   IdEchoServer,
@@ -464,10 +460,8 @@ uses
   IdMappedPortUDP,
   IdMessage,
   IdMessageCoderMIME,
-  {$IFNDEF DOTNET}
   IdMessageCoderYenc,
   IdNetworkCalculator,
-  {$ENDIF}
   IdNNTP,
   IdNNTPServer,
   IdPOP3,
@@ -494,14 +488,16 @@ uses
   IdServerInterceptLogFile,
   IdServerIOHandler,
   IdSMTP,
-  {$IFNDEF DOTNET}
+
   IdSMTPRelay,
-  {$ENDIF}
+
   IdSMTPServer,
-   {$IFNDEF DOTNET}
-  IdSNMP,
+
+
 
   IdSNPP,
+  {$IFNDEF DOTNET}
+  IdSNMP,
   IdSNTP,
   IdSocksServer,
   {$ENDIF}
@@ -522,10 +518,10 @@ uses
   IdTimeServer,
   IdTimeUDP,
   IdTimeUDPServer,
-  {$IFNDEF DOTNET}
+
   IdTrivialFTP,
   IdTrivialFTPServer,
-  {$ENDIF}
+
 //TODO:  IdTunnelMaster,
 //TODO:  IdTunnelSlave,
   IdUnixTime,
@@ -534,10 +530,7 @@ uses
   IdUnixTimeUDPServer,
   IdUserAccounts,
   IdUserPassProvider,
-  {$IFNDEF DOTNET}
   IdVCard,
-  {$ENDIF}
-
   IdWhois,
   IdWhoIsServer;
 
@@ -550,10 +543,7 @@ begin
    TIdDayTime,
    TIdDayTimeUDP,
    TIdDICT,
-
-   {$IFNDEF DOTNET}
    TIdDNSResolver,
-   {$ENDIF}
    TIdEcho,
    TIdEchoUDP,
 
@@ -573,13 +563,14 @@ begin
    TIdRexec,
    TIdRSH,
    TIdSMTP,
-   {$IFNDEF DOTNET}
    TIdSMTPRelay,
-
+   {$IFNDEF DOTNET}
    TIdSNMP,
+   {$ENDIF}
    TIdSNPP,
+  {$IFNDEF DOTNET}
    TIdSNTP,
-    {$ENDIF}
+  {$ENDIF}
    TIdSysLog,
    TIdSystat,
    TIdSystatUDP,
@@ -587,9 +578,7 @@ begin
    TIdTime,
 
    TIdTimeUDP,
-   {$IFNDEF DOTNET}
    TIdTrivialFTP,
-   {$ENDIF}
    TIdUnixTime,
    TIdUnixTimeUDP,
    TIdWhois]);
@@ -602,9 +591,7 @@ begin
    TIdDICTServer,
    TIdDISCARDServer,
    TIdDiscardUDPServer,
-   {$IFNDEF DOTNET}
    TIdDNSServer,
-   {$ENDIF}
    TIdECHOServer,
    TIdEchoUDPServer,
    TIdFingerServer,
@@ -615,13 +602,11 @@ begin
    TIdIdentServer,
    TIdIMAP4Server,
    TIdIRCServer,
-   {$IFNDEF DOTNET}
    TIdMappedFTP,
    TIdMappedPOP3,
    TIdMappedPortTCP,
    TIdMappedPortUDP,
    TIdMappedTelnet,
-   {$ENDIF}
    TIdNNTPServer,
    TIdPOP3Server,
    TIdQOTDServer,
@@ -638,8 +623,9 @@ begin
    TIdTelnetServer,
    TIdTimeServer,
    TIdTimeUDPServer,
-   {$IFNDEF DOTNET}
+
    TIdTrivialFTPServer,
+    {$IFNDEF DOTNET}
    //TODO:  TIdTunnelMaster,
    //TODO: TIdTunnelSlave,
    {$ENDIF}
@@ -675,9 +661,7 @@ begin
    TIdUserPassProvider
    ]);
   RegisterComponents(RSRegIndyMisc, [
-  {$IFNDEF DOTNET}
    TIdConnectThroughHttpProxy,
-   {$ENDIF}
    {$IFDEF WIN32}
      {$IFNDEF DOTNET}
      TIdCompressorZLibEx,
@@ -688,9 +672,8 @@ begin
    TIdEncoderUUE,
    TIdEncoderXXE,
    TIdEncoderQuotedPrintable,
-{$IFNDEF DOTNET}
+
    TIdDateTimeStamp,
-{$ENDIF}
    TIdDecoderMIME,
    TIdDecoderUUE,
    TIdDecoderXXE,
@@ -702,17 +685,17 @@ begin
    TIdMessage,
    TIdMessageDecoderMIME,
    TIdMessageEncoderMIME,
-   {$IFNDEF DOTNET}
+
    TIdMessageDecoderYenc,
    TIdMessageEncoderYenc,
 
    TIdNetworkCalculator,
-    {$ENDIF}
+
    TIdSysLogMessage,
    TIdUserManager,
-   {$IFNDEF DOTNET}
+
    TIdVCard,
-    {$ENDIF}
+
    TIdMessage
    ]);
 end;

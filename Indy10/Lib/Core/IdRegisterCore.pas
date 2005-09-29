@@ -141,9 +141,7 @@ implementation
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFNDEF DOTNET}
   IdIcmpClient,
-  {$ENDIF}
   IdSocks,
 
   IdDsnCoreResourceStrings,
@@ -179,7 +177,7 @@ uses
   {$R IconsDotNet\TIdCmdTCPClient.bmp}
   {$R IconsDotNet\TIdCmdTCPServer.bmp}
   {$R IconsDotNet\TIdConnectionIntercept.bmp}
-  {$R IconsDotNet\TIdICMPClient.bmp}
+  {$R IconsDotNet\TIdIcmpClient.bmp}
   {$R IconsDotNet\TIdInterceptSimLog.bmp}
   {$R IconsDotNet\TIdInterceptThrottler.bmp}
   {$R IconsDotNet\TIdIOHandlerStack.bmp}
@@ -210,15 +208,14 @@ uses
 
 procedure Register;
 begin
-  RegisterClassAlias(TIdTCPClient, 'TCPClient');
+
   RegisterComponents(RSRegIndyClients, [
    TIdTCPClient
    ,TIdUDPClient
    ,TIdCmdTCPClient
    ,TIdIPMCastClient
-   {$IFNDEF DOTNET}
+
    ,TIdIcmpClient
-   {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers, [
    TIdUDPServer,
