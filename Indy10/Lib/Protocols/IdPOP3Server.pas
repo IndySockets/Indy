@@ -364,65 +364,76 @@ begin
     OnCommand := CommandUSER;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'PASS';  {do not localize}
     OnCommand := CommandPass;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'LIST';  {do not localize}
     OnCommand := CommandList;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'RETR';  {do not localize}
     OnCommand := CommandRetr;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'DELE';  {do not localize}
     OnCommand := CommandDele;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'UIDL';  {do not localize}
     OnCommand := CommandUIDL;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'STAT';  {do not localize}
     OnCommand := CommandSTAT;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := False;
   end;
   with CommandHandlers.Add do begin
     Command := 'TOP'; {do not localize}
     OnCommand := CommandTOP;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'NOOP';  {do not localize}
     NormalReply.SetReply(OK, RSPOP3SvrNoOp);
     ExceptionReply.Code := ERR;
+    ParseParams := False;
   end;
   with CommandHandlers.Add do begin
     Command := 'APOP';  {do not localize}
     OnCommand := CommandAPOP;
     NormalReply.Code := OK;
     ExceptionReply.Code := ERR;
+    ParseParams := True;
   end;
   with CommandHandlers.Add do begin
     Command := 'RSET';  {do not localize}
     NormalReply.SetReply(OK, RSPOP3SvrReset);
     ExceptionReply.Code := ERR;
     OnCommand := CommandRset;
+    ParseParams := False;
   end;
 
   with CommandHandlers.Add do begin
@@ -431,6 +442,7 @@ begin
     Disconnect := True;
     NormalReply.SetReply(OK, RSPOP3SvrClosingConnection);
     ExceptionReply.Code := ERR;
+    ParseParams := False;
   end;
 
   with CommandHandlers.Add do begin
@@ -603,13 +615,15 @@ var
   xLines: integer;
 begin
   if IsAuthed(aCmd, Assigned(fCommandTop)) then begin
-    xMsgNo := Sys.StrToInt(aCmd.Params.Strings[0], 0);
-    xLines := Sys.StrToInt(aCmd.Params.Strings[1], 0);
-    if (xMsgNo < 1) or (xLines < 1) then begin
-      aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
-    end else begin
-      OnTop(aCmd, xMsgNo, xLines);
+    if aCmd.Params.Count = 2 then begin
+      xMsgNo := Sys.StrToInt(aCmd.Params.Strings[0], 0);
+      xLines := Sys.StrToInt(aCmd.Params.Strings[1], -1);
+      if (xMsgNo >= 1) and (xLines >= 0) then begin
+        OnTop(aCmd, xMsgNo, xLines);
+        Exit;
+      end;
     end;
+    aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrInvalidSyntax);
   end;
 end;
 
