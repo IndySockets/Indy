@@ -290,7 +290,7 @@ begin
       //We do things this way because we do not want to initialize stuff that is not
       //ours.  That would cause errors.  It turns out that "AppDomain.get_CurrentDomain.GetAssemblies;" will
       //list stuff that isn't ours.  Be careful.
-      if (Pos('Indy ',LAssemblyList[i].GetName.Name)=1) then
+      if (Pos('Indy',LAssemblyList[i].GetName.Name)=1) then
       begin
         initializeAssembly(LAssemblyList[i]);
       end;
