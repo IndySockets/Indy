@@ -5201,7 +5201,7 @@ var
   LFileName : String;
   LIdx : Integer;
   LDateCount : Integer;
-  LAccessTime, LModTime, LCreateTime : TDateTime;
+  LAccessTime, LModTime, LCreateTime : TIdDateTime;
   i : Integer;
 
 begin
