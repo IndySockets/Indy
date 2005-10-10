@@ -1379,7 +1379,7 @@ var
   LLastError: Integer;
 begin
   if ATimeout = IdTimeoutDefault then begin
-    if ReadTimeOut = 0 then begin
+	if (ReadTimeout = IdTimeoutDefault) or (ReadTimeOut = 0) then begin
       ATimeout := IdTimeoutInfinite;
     end else begin
       ATimeout := FReadTimeout;
@@ -1395,18 +1395,19 @@ begin
         if Assigned(FRecvBuffer) then begin
           // No need to call AntiFreeze, the Readable does that.
           if BindingAllocated then begin
-            SetLength(LBuffer,RecvBufferSize);
+            SetLength(LBuffer, RecvBufferSize);
             try
               LByteCount := Recv(LBuffer);
-              SetLength(LBuffer,LByteCount);
+              SetLength(LBuffer, LByteCount);
+              if LByteCount > 0 then begin
                 if Intercept <> nil then begin
                   Intercept.Receive(LBuffer);
                   LByteCount := Length(LBuffer);
                 end;
-              FRecvBuffer.Write(LBuffer);
-          //    WriteBuffer(LBuffer^,LByteCount);
+                FRecvBuffer.Write(LBuffer);
+              end;
             finally
-              SetLength(LBuffer,0);
+              SetLength(LBuffer, 0);
             end;
           end else begin
             raise EIdClosedSocket.Create(RSStatusDisconnected);
@@ -2120,8 +2121,7 @@ begin
   Result := '';
   EVP_MD := Fingerprint;
   for I := 0 to EVP_MD.Length - 1 do begin
-    if I <> 0 then
-    begin
+    if I <> 0 then begin
       Result := Result + ':';    {Do not Localize}
     end;
     Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
@@ -2130,12 +2130,9 @@ end;
 
 function TIdX509.RnotBefore:TDateTime;
 begin
-  if FX509=nil then
-  begin
+  if FX509 = nil then begin
     Result := 0
-  end
-  else
-  begin
+  end else begin
     Result := UTCTime2DateTime(IdSslX509GetNotBefore(FX509));
   end;
 end;
@@ -2143,12 +2140,9 @@ end;
 
 function TIdX509.RnotAfter:TDateTime;
 begin
-  if FX509=nil then
-  begin
-    Result := 0;
-  end
-  else
-  begin
+  if FX509 = nil then begin
+    Result := 0
+  end else begin
     Result := UTCTime2DateTime(IdSslX509GetNotAfter(FX509));
   end;
 end;
