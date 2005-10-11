@@ -210,19 +210,19 @@ procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TId
     // at pos 10 now
 
     if LFlags[0] and $4 = $4 then begin // FEXTRA
-      AInStream.Read(LExtra,2);
+      TIdStreamHelper.ReadBytes(AInStream,LExtra,2);
       AInStream.Seek( BytesToWord( LExtra), IdFromCurrent);
     end;
 
     if LFlags[0] and $8 = $8 then begin // FNAME
       repeat
-        AInStream.Read(LNullFindChar, 1);
+        TIdStreamHelper.ReadBytes(AInStream,LNullFindChar,1);
       until LNullFindChar[0]=0;
     end;
 
     if LFlags[0] and $10 = $10 then begin // FCOMMENT
       repeat
-        AInStream.Read(LNullFindChar, 1);
+        TIdStreamHelper.ReadBytes(AInStream,LNullFindChar,1);
       until LNullFindChar[0]=0;
     end;
 
@@ -300,16 +300,15 @@ var
   LFlags : TIdBytes; //used as Byte
   LDict : TIdBytes; //used as Cardinal
   LOrgPos : Int64;
-
 begin
   SetLength(LBCmp,1);
   SetLength(LFlags,1);
   SetLength(LDict,4);
   LOrgPos := AInStream.Position;
-  AInStream.Read(LBCmp,1);
-  AInStream.Read(LFlags,1);
+  TIdStreamHelper.ReadBytes(AInStream,LBCmp,1);
+  TIdStreamHelper.ReadBytes(AInStream,LFlags,1);
   EIdException.IfFalse(((LBCmp[0] * 256)+LFlags[0] ) mod 31 = 0,'Error - invalid header'); {do not localize}
-  AInStream.Read(LDict,4);
+  TIdStreamHelper.ReadBytes(AInStream,LDict,4);
   AInStream.Position := LOrgPos;
   InflateStream(AInStream,AOutStream);
   AInStream.Position := LOrgPos;
