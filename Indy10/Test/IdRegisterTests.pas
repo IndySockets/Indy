@@ -34,6 +34,7 @@ uses
   IdTestCookie,
   IdTestFtpServer,
   IdTestHttp,
+  IdTestIMAP4,
   IdTestMD5Hash,
   IdTestSHA1Hash,
   IdTestHMACMD5,
