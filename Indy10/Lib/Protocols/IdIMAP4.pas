@@ -815,7 +815,7 @@ TIdIMAP4 = class(TIdMessageClient)
     //three letter month instead of the English month needed.
     function  DateToIMAPDateStr (const ADate: TIdDateTime): String;
     procedure StripCRLFs(var AText: string); overload; virtual;  //Allow users to optimise
-    procedure StripCRLFs(ASourceStream, ADestStream: TIdStringStream); overload;
+    procedure StripCRLFs(const ASourceStream, ADestStream: TIdStream); overload;
     { Parser Functions }
     procedure ParseImapPart(ABodyStructure: string;
               AImapParts: TIdImapMessageParts; AThisImapPart: TIdImapMessagePart;
@@ -6001,7 +6001,7 @@ begin
     Result := Sys.Format('%2.d',[LDay]) + '-' + Sys.UpperCase(monthnames[LMonth]) + '-' + Sys.Format('%4.d',[LYear]);    {Do not Localize}
 end;
 
-procedure TIdIMAP4.StripCRLFs(ASourceStream, ADestStream: TIdStringStream);
+procedure TIdIMAP4.StripCRLFs(const ASourceStream, ADestStream: TIdStream);
 var
     LByte: TIdBytes;
     LNumSourceBytes: int64;
@@ -6013,9 +6013,9 @@ begin
   LNumSourceBytes := ASourceStream.Size;
   LBytesRead := 0;
   while LBytesRead < LNumSourceBytes do begin
-      ASourceStream.Read(LByte,1);
+      TIdStreamHelper.ReadBytes(ASourceStream,LByte,1);
       if ((LByte[0] <> 13) and (LByte[0] <> 10)) then begin
-          ADestStream.Write(LByte, 1);
+          TIdStreamHelper.Write(ADestStream,LByte,1);
       end;
       Inc(LBytesRead);
   end;
