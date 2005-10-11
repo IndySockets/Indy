@@ -18,8 +18,6 @@ type
 
 implementation
 
-uses SysUtils;
-
 procedure TIdTestSimpleServer.TestListen;
 var
  aServer:TIdSimpleServer;
@@ -34,8 +32,8 @@ begin
   //with no iohandler assigned, should get an assertion
   aServer.Listen;
   except
-   on e:Exception do
-    aExpect:=e is EAssertionFailed;
+   //
+   aExpect:=True;
   end;
   Assert(aExpect);
 
