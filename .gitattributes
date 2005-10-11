@@ -1376,6 +1376,7 @@ Indy10/Test/Protocols/IdTestHMACMD5.pas -text
 Indy10/Test/Protocols/IdTestHMACSHA1.pas -text
 Indy10/Test/Protocols/IdTestHttp.pas -text
 Indy10/Test/Protocols/IdTestHttpServer.pas -text
+Indy10/Test/Protocols/IdTestIMAP4.pas -text
 Indy10/Test/Protocols/IdTestMD5Hash.pas -text
 Indy10/Test/Protocols/IdTestMessage.pas -text
 Indy10/Test/Protocols/IdTestMessageCoderMime.pas -text
