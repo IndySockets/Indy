@@ -1214,7 +1214,7 @@ procedure TIdIOHandler.Write(AStream: TIdStream; ASize: Int64 = 0;
 var
   LBuffer: TIdBytes;
   LBufSize: Integer;
-
+  LBufferingStarted: Boolean;
 begin
   if ASize < 0 then begin //"-1" All form current position
     LBufSize := AStream.Position;
@@ -1229,32 +1229,47 @@ begin
   end;
   //else ">0" ACount bytes
   EIdIoHandlerRequiresLargeStream.IfTrue((ASize>High(Integer)) and (LargeStream=False));
-  if AWriteByteCount then begin
-    if LargeStream then begin
-  	Write(ASize);
-    end else begin
-  	Write(Integer(ASize));
-    end;
-  end;
 
-  BeginWork(wmWrite, ASize); try
-    while ASize > 0 do begin
-      SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
-      LBufSize := Min(ASize, FSendBufferSize);
-      // Do not use ReadBuffer. Some source streams are real time and will not
-      // return as much data as we request. Kind of like recv()
-      // NOTE: We use .Size - size must be supported even if real time
-      LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
-      if LBufSize = 0 then begin
-        raise EIdNoDataToRead.Create(RSIdNoDataToRead);
+  LBufferingStarted := not WriteBufferingActive;
+  if LBufferingStarted then
+    WriteBufferOpen;
+  try
+    if AWriteByteCount then begin
+      if LargeStream then begin
+        Write(ASize);
+      end else begin
+        Write(Integer(ASize));
       end;
-      SetLength(LBuffer, LBufSize);
-      Write(LBuffer);
-      Dec(ASize, LBufSize);
     end;
-  finally
-    EndWork(wmWrite);
-    LBuffer := nil;
+
+    BeginWork(wmWrite, ASize); try
+      while ASize > 0 do begin
+        SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
+        LBufSize := Min(ASize, FSendBufferSize);
+        // Do not use ReadBuffer. Some source streams are real time and will not
+        // return as much data as we request. Kind of like recv()
+        // NOTE: We use .Size - size must be supported even if real time
+        LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
+         if LBufSize = 0 then begin
+          raise EIdNoDataToRead.Create(RSIdNoDataToRead);
+        end;
+        SetLength(LBuffer, LBufSize);
+        Write(LBuffer);
+        Dec(ASize, LBufSize);
+      end;
+    finally
+      EndWork(wmWrite);
+      LBuffer := nil;
+    end;
+    if LBufferingStarted then
+      WriteBufferClose;
+  except
+    on E: Exception do
+    begin
+      if LBufferingStarted then
+        WriteBufferCancel;
+      raise;
+    end;
   end;
 end;
 
