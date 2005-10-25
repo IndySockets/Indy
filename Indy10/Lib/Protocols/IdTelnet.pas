@@ -239,7 +239,6 @@ type
     FOnDataAvailable: TIdTelnetDataAvailEvent;
     fIamTelnet: Boolean;
     FOnDisconnect: TIdNotifyEvent;
-    FOnConnect: TIdNotifyEvent;
     FOnTelnetCommand: TIdTelnetCommandEvent;
     FTelnetThread: TIdTelnetReadThread;
     //
@@ -271,7 +270,7 @@ type
     //
     destructor Destroy; override;
     procedure Connect; override;
-    procedure Disconnect(AImmediate: Boolean); override;
+    procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure SendCh(Ch: Char);
 
     property TelnetThread: TIdTelnetReadThread read FTelnetThread;
@@ -282,7 +281,6 @@ type
     property OnDataAvailable: TIdTelnetDataAvailEvent read FOnDataAvailable write FOnDataAvailable;
     property Terminal: string read fTerminal write fTerminal;
     property ThreadedEvent: Boolean read fThreadedEvent write fThreadedEvent default False;
-    property OnConnect: TIdNotifyEvent read FOnConnect write FOnConnect;
     property OnDisconnect: TIdNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
 
@@ -293,13 +291,14 @@ type
 implementation
 
 uses
+  IdResourceStringsCore,
   IdResourceStringsProtocols;
 
 constructor TIdTelnetReadThread.Create(AClient: TIdTelnet);
 begin
   inherited Create(False);
   FClient := AClient;
-  FreeOnTerminate:= FALSE; //other way TRUE
+  FreeOnTerminate := FALSE; //other way TRUE
 end;
 
 procedure TIdTelnetReadThread.Run;
@@ -366,13 +365,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdTelnet.Disconnect(AImmediate: Boolean);
+procedure TIdTelnet.Disconnect(ANotifyPeer: Boolean);
 begin
   if Assigned(FTelnetThread) then begin
     FTelnetThread.Terminate;
   end;
   IAmTelnet := False;
-  inherited;
+  inherited Disconnect(ANotifyPeer);
   if Assigned(FOnDisconnect) then begin
     FOnDisconnect(Self);
   end;
@@ -393,16 +392,13 @@ end;
 
 procedure TIdTelnet.Connect;
 begin
-  inherited;
+  inherited Connect;
   try
-    if Assigned(FOnConnect) then begin
-      OnConnect(SELF);
-    end;
     // create the reading thread and assign the current Telnet object to it
     FTelnetThread := TIdTelnetReadThread.Create(SELF);
   except
     Disconnect(True);
-    raise EIdTelnetClientConnectError.Create(RSTELNETCLIConnectError);  // translate
+    raise EIdTelnetClientConnectError.Create(RSNoCreateListeningThread);  // translate
   end;
 end;
 
