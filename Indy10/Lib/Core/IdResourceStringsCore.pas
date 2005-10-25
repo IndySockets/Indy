@@ -202,6 +202,8 @@ resourcestring
 
   RSTCPServerSchedulerAlreadyActive = 'Cannot change the scheduler while the server is Active.';
   RSUDPMustUseProxyOpen = 'You must use proxyOpen';
+
+  RSNoCreateListeningThread = 'Cannot create listening thread.';
   
 implementation
 
