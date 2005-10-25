@@ -146,8 +146,6 @@ type
   TIdCmdTCPClient = class(TIdTCPClient)
   protected
     FExceptionReply: TIdReply;
-    FOnConnect: TIdNotifyEvent;
-    FOnDisconnect: TIdNotifyEvent;
     FListeningThread: TIdCmdTCPClientListeningThread;
     FCommandHandlers: TIdCommandHandlers;
     FOnAfterCommandHandler: TIdCmdTCPClientAfterCommandHandlerEvent;
@@ -161,7 +159,7 @@ type
   public
     procedure Connect; override;
     destructor Destroy; override;
-    procedure Disconnect(AImmediate: Boolean); override;
+    procedure Disconnect(ANotifyPeer: Boolean); override;
   published
     property CommandHandlers: TIdCommandHandlers read FCommandHandlers write FCommandHandlers;
     property ExceptionReply: TIdReply read FExceptionReply write SetExceptionReply;
@@ -170,9 +168,10 @@ type
       read FOnAfterCommandHandler write FOnAfterCommandHandler;
     property OnBeforeCommandHandler: TIdCmdTCPClientBeforeCommandHandlerEvent
       read FOnBeforeCommandHandler write FOnBeforeCommandHandler;
-    property OnConnect: TIdNotifyEvent read FOnConnect write FOnConnect;
-    property OnDisconnect: TIdNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
+
+  EIdCmdTCPClientError = class(EIdException);
+  EIdCmdTCPClientConnectError = class(EIdCmdTCPClientError);
 
 implementation
 
@@ -222,24 +221,22 @@ procedure TIdCmdTCPClient.Connect;
 begin
   inherited Connect;
   //
-  if Assigned(FOnConnect) then
-  begin
-    OnConnect(Self);
+  try
+    FListeningThread := TIdCmdTCPClientListeningThread.Create(Self);
+  except
+    Disconnect(True);
+    raise EIdCmdTCPClientConnectError.Create(RSNoCreateListeningThread);  // translate
   end;
-  FListeningThread := TIdCmdTCPClientListeningThread.Create(Self);
 end;
 
-procedure TIdCmdTCPClient.Disconnect(AImmediate: Boolean);
+procedure TIdCmdTCPClient.Disconnect(ANotifyPeer: Boolean);
 begin
   if Assigned(FListeningThread) then begin
     FListeningThread.Terminate;
   end;
   //
-  inherited Disconnect(AImmediate);
+  inherited Disconnect(ANotifyPeer);
   //
-  if Assigned(FOnDisconnect) then begin
-  	FOnDisconnect(Self);
-  end;
   if Assigned(FListeningThread) then begin
     FListeningThread.WaitFor;
   end;
