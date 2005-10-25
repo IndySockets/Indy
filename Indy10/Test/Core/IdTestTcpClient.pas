@@ -45,10 +45,13 @@ interface
 uses
   IdTest,
   IdStack,
+  IdComponent,
+  IdGlobal,
   IdExceptionCore,
   IdTcpClient,
   IdObjs,
   IdSys,
+  IdThreadSafe,
   IdTcpServer,
   IdContext;
 
@@ -56,14 +59,44 @@ type
 
   TIdTestTcpClient = class(TIdTest)
   private
+    FList:TIdThreadSafeStringList;
     FServerShouldEcho: Boolean;
     procedure DoServerExecute(AContext: TIdContext);
+    procedure CallbackConnect(Sender:TObject);
+    procedure CallbackDisconnect(Sender:TObject);
+    procedure CallbackStatus(ASender: TObject; const AStatus: TIdStatus; const AStatusText: string);
   published
     procedure TestTimeouts;
     procedure TestConnectErrors;
+    procedure TestEvent;
   end;
 
 implementation
+
+procedure TIdTestTcpClient.CallbackConnect(Sender: TObject);
+var
+ astr:string;
+begin
+ aStr:='OnConnect: Sender='+sender.Classname;
+ FList.Add(astr);
+end;
+
+procedure TIdTestTcpClient.CallbackDisconnect(Sender: TObject);
+var
+ astr:string;
+begin
+ aStr:='OnDisconnect: Sender='+Sender.ClassName;
+ FList.Add(astr);
+end;
+
+procedure TIdTestTcpClient.CallbackStatus(ASender: TObject;
+  const AStatus: TIdStatus; const AStatusText: string);
+var
+ astr:string;
+begin
+ aStr:='OnStatus: Sender='+ASender.ClassName+' Text='+AStatusText;
+ FList.Add(aStr);
+end;
 
 procedure TIdTestTcpClient.DoServerExecute(AContext: TIdContext);
 var
@@ -74,6 +107,15 @@ begin
   begin
     AContext.Connection.IOHandler.WriteLn(aStr);
   end;
+
+  if aStr='normal' then
+   begin
+   AContext.Connection.IOHandler.WriteLn('reply');
+   end
+  else if aStr='dropme' then
+   begin
+   AContext.Connection.Disconnect;
+   end;
 end;
 
 procedure TIdTestTcpClient.TestConnectErrors;
@@ -133,6 +175,97 @@ begin
   finally
   Sys.FreeAndNil(aClient);
   end;
+end;
+
+function ListToCommaText(const aSafe:TIdThreadSafeStringList):string;
+begin
+ with aSafe.Lock do
+  try
+  Result:=CommaText;
+  finally
+  aSafe.Unlock;
+  end;
+
+end;
+
+procedure ListToDebug(const aList:TIdStringList);
+var
+  i:Integer;
+begin
+  for i:=0 to aList.Count-1 do
+    begin
+    DebugOutput(aList[i]);
+    end;
+end;
+
+procedure SafeListToDebug(const aSafe:TIdThreadSafeStringList);
+var
+ aList:TIdStringList;
+begin
+ aList:=aSafe.Lock;
+ try
+ ListToDebug(aList);
+ finally
+ aSafe.Unlock;
+ end;
+end;
+
+procedure TIdTestTcpClient.TestEvent;
+var
+ aClient:TIdTCPClient;
+ aServer:TIdTCPServer;
+ aStr:string;
+ //TIdIOHandlerStack.CheckForDisconnect( commented disconnect
+begin
+ FList:=TIdThreadSafeStringList.Create;
+ aClient:=TIdTCPClient.Create;
+ aServer:=TIdTCPServer.Create;
+ try
+ aServer.OnExecute:=Self.DoServerExecute;
+ aServer.DefaultPort:=12121;
+ aServer.Active:=True;
+
+ aClient.OnStatus:=Self.CallbackStatus;
+ aClient.OnDisconnected:=Self.CallbackDisconnect;
+ aClient.OnConnected:=Self.CallbackConnect;
+ aClient.Host:='127.0.0.1';
+ aClient.Port:=12121;
+
+ //scenario #1
+ DebugOutput('Client Disconnects:');
+
+ FList.Clear;
+
+ aClient.Connect;
+ aClient.IOHandler.WriteLn('normal');
+ aStr:=aClient.IOHandler.Readln;
+ aClient.Disconnect;
+
+ SafeListToDebug(FList);
+
+ //scenario #2
+ DebugOutput('Server Disconnects:');
+
+ FList.Clear;
+
+ try
+ aClient.Connect;
+ aClient.IOHandler.WriteLn('dropme');
+ aStr:=aClient.IOHandler.Readln;
+ except
+ //ignore the graceful disconnect exception
+ end;
+
+ SafeListToDebug(FList);
+
+ //aStr:=ListToCommaText(FList);
+ //Assert(aStr='',aStr);
+
+ finally
+ sys.FreeAndNil(aClient);
+ sys.FreeAndNil(aServer);
+ sys.FreeAndNil(FList);
+ end;
 end;
 
 procedure TIdTestTcpClient.TestTimeouts;
