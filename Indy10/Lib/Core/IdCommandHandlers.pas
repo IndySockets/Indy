@@ -313,7 +313,7 @@ type
     FResponse: TIdStrings;
     FContext: TIdContext;
     FUnparsedParams: string;
-    FSendEmptyResponse: Boolean
+    FSendEmptyResponse: Boolean;
     //
     procedure DoCommand; virtual;
     procedure SetReply(AValue: TIdReply);
