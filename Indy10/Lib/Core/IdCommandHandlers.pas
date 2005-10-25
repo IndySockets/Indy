@@ -313,6 +313,7 @@ type
     FResponse: TIdStrings;
     FContext: TIdContext;
     FUnparsedParams: string;
+    FSendEmptyResponse: Boolean
     //
     procedure DoCommand; virtual;
     procedure SetReply(AValue: TIdReply);
@@ -331,6 +332,7 @@ type
     property Response: TIdStrings read FResponse write SetResponse;
     property Context: TIdContext read FContext;
     property UnparsedParams: string read FUnparsedParams;
+    property SendEmptyResponse: Boolean read FSendEmptyResponse write FSendEmptyResponse;
   end;//TIdCommand
 
 implementation
@@ -506,7 +508,7 @@ begin
       SendReply;
     end;
 
-    if Response.Count > 0 then begin
+    if (Response.Count > 0) or SendEmptyResponse then begin
       AContext.Connection.WriteRFCStrings(Response);
     end else if Self.Response.Count > 0 then begin
       AContext.Connection.WriteRFCStrings(Self.Response);
@@ -604,6 +606,7 @@ begin
   end;
 end;
 }
+
 function TIdCommandHandler.NameIs(ACommand: string): Boolean;
 begin
   Result := TextIsSame(ACommand, FName);
