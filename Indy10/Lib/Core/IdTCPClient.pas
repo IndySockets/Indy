@@ -220,8 +220,6 @@ type
     property Password: string read FPassword write FPassword;
     property Port: TIdPort read FPort write SetPort;
     property Username: string read FUsername write FUsername;
-    //
-    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
   public
     procedure Connect; overload; virtual;
     // This is overridden and not as default params so that descendants
@@ -231,18 +229,19 @@ type
     procedure Connect(const AHost: string); overload;
     procedure Connect(const AHost: string; const APort: Integer); overload;
     function ConnectAndGetAll: string; virtual;
-
+    //
     property BoundIP: string read FBoundIP write SetBoundIP;
     property BoundPort: Integer read FBoundPort write SetBoundPort default 0;
     property BoundPortMax: Integer read FBoundPortMax write SetBoundPortMax;
     property BoundPortMin: Integer read FBoundPortMin write SetBoundPortMin;
-
+    //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
     property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
     property OnAfterBind:TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
-
+    //
   published
+    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
   end;
 
   TIdTCPClient = class(TIdTCPClientCustom)
@@ -252,7 +251,6 @@ type
     property ConnectTimeout;
     property Host;
     property IPVersion;
-    property OnConnected;
     property Port;
     property ReadTimeout;
 
@@ -486,9 +484,9 @@ end;
 function TIdTCPClientCustom.GetReadTimeout: Integer;
 begin
   if IOHandler <> nil then begin
-    Result:=IOHandler.ReadTimeout;
+    Result := IOHandler.ReadTimeout;
   end else begin
-    Result:=FReadTimeout;
+    Result := FReadTimeout;
   end;
 end;
 
