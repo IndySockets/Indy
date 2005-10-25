@@ -159,6 +159,7 @@ interface
 
 uses
   IdException,
+  IdStream,
   IdCoder,
   IdCoder3to4,
   IdGlobal,
@@ -394,7 +395,7 @@ begin
   //Read in the attachment first...
   LSSize := ASrcStream.Size;
   SetLength(LFile, LSSize);
-  ASrcStream.Read(LFile, LSSize);
+  TIdStreamHelper.ReadBytes(ASrcStream,LFile,LSSize);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
   if Length(AFileName) > 255 then begin
