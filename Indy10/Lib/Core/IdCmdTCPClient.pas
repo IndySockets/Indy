@@ -115,7 +115,15 @@ unit IdCmdTCPClient;
 interface
 
 uses
-  IdContext, IdGlobal, IdReply, IdThread, IdTCPClient, IdCommandHandlers, IdObjs;
+  IdContext,
+  IdException,
+  IdGlobal,
+  IdReply,
+  IdResourceStringsCore,
+  IdThread,
+  IdTCPClient,
+  IdCommandHandlers,
+  IdObjs;
 
 type
   TIdCmdTCPClient = class;
