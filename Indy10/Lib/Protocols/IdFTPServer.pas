@@ -6847,15 +6847,20 @@ begin
   FOKReply := TIdReplyRFC.Create(nil);
   FErrorReply := TIdReplyRFC.Create(nil);
   FReply := TIdReplyRFC.Create(nil);
-  FRequirePASVFromSameIP:=ARequirePASVFromSameIP;
+  FRequirePASVFromSameIP := ARequirePASVFromSameIP;
   FControlContext := AControlContext;
-  FServer:=AServer;
+  FServer := AServer;
+
   if APASV then begin
     FDataChannel := TIdSimpleServer.Create(nil);
-    TIdSimpleServer(FDataChannel).BoundIP := TIdIOHandlerSocket(FControlContext.Connection.IOHandler).Binding.IP;
-    TIdSimpleServer(FDataChannel).BoundPort := AServer.DefaultDataPort;
-    TIdSimpleServer(FDataChannel).OnBeforeBind := AControlContext.PortOnBeforeBind;
-    TIdSimpleServer(FDataChannel).OnAfterBind := AControlContext.PortOnAfterBind;
+    with TIdSimpleServer(FDataChannel) do begin
+      BoundIP := FControlContext.Connection.Socket.Binding.IP;
+      BoundPort := AServer.DefaultDataPort;
+      BoundPortMin := AServer.PASVBoundPortMin;
+      BoundPortMax := AServer.PASVBoundPortMax;
+      OnBeforeBind := AControlContext.PortOnBeforeBind;
+      OnAfterBind := AControlContext.PortOnAfterBind;
+    end;
   end else begin
     FDataChannel := TIdTCPClient.Create(nil);
   end;
@@ -6870,7 +6875,7 @@ begin
     // always uses a ssl iohandler, but passthrough is true...
   end else
   begin
-    FDataChannel.IOHandler :=  FServer.IOHandler.MakeClientIOHandler( nil ); //TIdIOHandlerStack.Create(nil);
+    FDataChannel.IOHandler := FServer.IOHandler.MakeClientIOHandler( nil );
     LIO := FDataChannel.IOHandler as TIdIOHandlerSocket;
   end;
   LIO.OnBeforeBind := AControlContext.PortOnBeforeBind;
@@ -6878,6 +6883,7 @@ begin
   LIO.BoundIP := TIdIOHandlerSocket(FControlContext.Connection.IOHandler).Binding.IP;
   LIO.IPVersion := TIdIOHandlerSocket(FControlContext.Connection.IOHandler).Binding.IPVersion;
   FDataChannel.IOHandler := LIO;
+
   //we have to do it this way because the TCPClient for the dataport
   //must be bound to a default port
   LIO.BoundPort := AServer.DefaultDataPort;
@@ -6887,10 +6893,9 @@ begin
   end;
 
   if LIO is TIdSSLIOHandlerSocketBase then begin
-    LIOSSL := TIdSSLIOHandlerSocketBase(LIO);
     case AControlContext.DataProtection of
       ftpdpsClear: begin
-          LIOSSL.PassThrough := true;
+          TIdSSLIOHandlerSocketBase(LIO).PassThrough := true;
         end;
       ftpdpsPrivate: begin
           FNegotiateTLS := True;
