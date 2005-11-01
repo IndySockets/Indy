@@ -6840,7 +6840,6 @@ constructor TIdDataChannel.Create(APASV: Boolean;
   const ARequirePASVFromSameIP: Boolean; AServer: TIdFTPServer);
 var
   LIO: TIdIOHandlerSocket;
-  LIOSSL : TIdSSLIOHandlerSocketBase;
 begin
   inherited Create;
   FNegotiateTLS := False;
