@@ -1,0 +1,6 @@
+  size         date         time         name
+--------     ------     ------       --------
+         0      thedate   thetime     thedirname              <DIR>
+ thesize      thedate   thetime     thefilename
+
+http://groups.google.com/groups?q=VxWorks+FTP+Server+list&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=slrn73rfie.1g2.chc%40nasa2.ksc.nasa.gov&rnum=2

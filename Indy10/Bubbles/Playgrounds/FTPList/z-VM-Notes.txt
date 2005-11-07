@@ -1,0 +1,99 @@
+W:\>ftp ftp.marist.edu
+Connected to vm.marist.edu.
+220-Welcome to FTP.Marist.edu
+
+    All usage logged. Usage restricted.
+    FTPSERVE IBM VM Level 430 at VM.MARIST.EDU, 05:14:47 EST SATURDAY 2003-01-25
+
+220 Connection will close if idle for more than 5 minutes.
+User (vm.marist.edu:(none)): anonymous
+230-
+
+    Listserv logs for certain lists are available via CD ACADEM:listname.
+
+    Lists that they are available for are:
+
+    ADSM-L        ftp://vm.marist.edu/academ:adsm-l./
+    CLINTON       ftp://vm.marist.edu/academ:clinton./
+    CMSPIP-L      ftp://vm.marist.edu/academ:cmspip-l./
+    CONCORD       ftp://vm.marist.edu/academ:concord./
+    REPUB-L       ftp://vm.marist.edu/academ:repub-l./
+    SAS-L         ftp://vm.marist.edu/academ:sas-l./
+    VM-UTIL       ftp://vm.marist.edu/academ:vm-util./
+    LINUX-VM      ftp://vm.marist.edu/academ:linux-vm./
+    MVS-OE        ftp://vm.marist.edu/academ:mvs-oe./
+
+    For example: (Note the trailing .)
+
+    CD ACADEM:ADSM-L.
+
+    Due to limitations of Netscape, you may need to append ";type=a"
+    to the end of a URL when obtaining a file.
+
+    CMS Pipelines RLD available as
+
+                  ftp://vm.marist.edu/academ:pipeline/eweb./
+
+230 ANONYMOU logged in; working directory = ACADEM:ANONYMOU.
+ftp> dir
+200 Port request OK.
+125 List started OK
+AUTHORS           DIR        -          -          - 1999-09-20 10:31:11 -
+HARRINGTON        DIR        -          -          - 1997-02-12 15:33:28 -
+PICS              DIR        -          -          - 2000-10-12 15:43:23 -
+SYSFILE           DIR        -          -          - 2000-07-20 17:48:01 -
+VMNNTP            DIR        -          -          - 2002-08-27 14:59:51 -
+WELCNVT  EXEC     V         72          9          1 1999-09-20 17:16:18 -
+WELCOME  EREADME  F         80         21          1 1999-12-27 16:19:00 -
+WELCOME  README   V         82         21          1 1999-12-27 16:19:04 -
+250 List completed successfully.
+ftp: 608 bytes received in 0.12Seconds 5.07Kbytes/sec.
+ftp> cd authors
+250 SFS working directory is ACADEM:ANONYMOU.AUTHORS
+ftp> dir
+200 Port request OK.
+125 List started OK
+CHILDREN TXT      V        280        310         20 1993-08-06 14:20:00 -
+250 List completed successfully.
+ftp: 76 bytes received in 0.03Seconds 2.53Kbytes/sec.
+ftp> cd harrington
+250 SFS working directory is ACADEM:ANONYMOU.HARRINGTON
+ftp> dir
+200 Port request OK.
+125 List started OK
+PROJECT  PDF      V        984         10          3 1997-06-15 11:15:02 -
+250 List completed successfully.
+ftp: 76 bytes received in 0.07Seconds 1.09Kbytes/sec.
+ftp> dir
+200 Port request OK.
+125 List started OK
+CAMPUS   TIF      V       8192       3172       3606 2000-10-06 17:20:37 -
+ROTUNDA  TIF      V       8192       5745       8750 2000-10-06 17:28:25 -
+STUDENT  TIF      V       8192       5017       8557 2000-10-06 17:31:26 -
+250 List completed successfully.
+ftp: 228 bytes received in 0.10Seconds 2.28Kbytes/sec.
+ftp> cd sysfile
+250 SFS working directory is ACADEM:ANONYMOU.SYSFILE
+ftp> dir
+200 Port request OK.
+125 List started OK
+SYSFILE  VMARC    F         80       2001         40 2000-07-20 17:47:35 -
+250 List completed successfully.
+ftp: 76 bytes received in 0.04Seconds 1.90Kbytes/sec.
+ftp> cd vmnntp
+250 SFS working directory is ACADEM:ANONYMOU.VMNNTP
+ftp> dir
+200 Port request OK.
+125 List started OK
+NNTP     VMARC    F         80       5814        114 2002-08-27  1:14:37 -
+250 List completed successfully.
+ftp: 76 bytes received in 0.03Seconds 2.53Kbytes/sec.
+ftp> quote syst
+215-z/VM Version 4 Release 3.0, service level 0202 (64-bit)
+    VM/CMS Level 19, Service Level 202
+215 VM is the operating system of this server.
+ftp> quit
+221 Quit command received. Goodbye.
+
+
+

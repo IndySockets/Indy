@@ -505,6 +505,7 @@ Indy10/Bubbles/Playgrounds/FTPList/QVTNET-41.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/SessionNotes3Com11.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Unix-LS-Rl-Test.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Unix-Recursive-Data.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/WarFTPD-Notes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/box.dpr -text
 Indy10/Bubbles/Playgrounds/FTPList/box.res -text svneol=unset#unset
 Indy10/Bubbles/Playgrounds/FTPList/boxMLSD.dpr -text
@@ -522,8 +523,14 @@ Indy10/Bubbles/Playgrounds/FTPList/ftplistmain.pas -text
 Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.dfm -text
 Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.pas -text
 Indy10/Bubbles/Playgrounds/FTPList/toad.xkl.com-sessionNotes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/vxWorksNotes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/xkleten.paulallen.com-Notes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/z-VM-Notes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/zVMNotes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.crt -text
 Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.pem -text
+Indy10/Bubbles/Playgrounds/FTPServer/Cert/WSScert.pem -text
+Indy10/Bubbles/Playgrounds/FTPServer/Cert/WSSkey.pem -text
 Indy10/Bubbles/Playgrounds/FTPServer/FTPServer_console1.dpr -text
 Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.dfm -text
 Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.pas -text
@@ -548,6 +555,7 @@ Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlaygroundTest.dpr -text
 Indy10/Bubbles/Playgrounds/TCPServer/web/Jedi.gif -text svneol=unset#image/gif
 Indy10/Bubbles/Playgrounds/TCPServer/web/OSLogo.gif -text svneol=unset#image/gif
 Indy10/Bubbles/Playgrounds/TCPServer/web/index.html -text svneol=unset#text/html
+Indy10/Bubbles/Playgrounds/TCPServer/web/winshoes_logo.gif -text svneol=unset#image/gif
 Indy10/Bubbles/README.txt -text svneol=native#unset
 Indy10/Bubbles/boxtests/BreakApartTest.pas -text
 Indy10/Bubbles/boxtests/ChainClients.dfm -text

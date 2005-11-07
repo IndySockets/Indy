@@ -1,0 +1,57 @@
+D:\Program Files\War-ftpd\FTPRoot\pub>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 Jgaa's Fan Club FTP service ready
+User (127.0.0.1:(none)): anonymous
+331 User name okay. Give your full Email address as password.
+Password:
+230 User  logged in.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls (347 bytes).
+total 15
+drwxrw-rw- 1 root  root     0 Feb  1 20:11 .
+drwxrw-rw- 1 root  root     0 Feb  1 20:11 ..
+drwxrw-rw- 1 root  root     0 Apr 17  2002 bin
+drwxrw-rw- 1 root  root     0 Feb  1 20:15 pub
+drwxrw-rw- 1 root  root     0 Apr 17  2002 upload
+drwxrw-rw- 1 root  root     0 Apr 17  2002 usr
+-rwxrw-rw- 1 root  root  4096 Feb  1 20:11 test
+226 Transfer complete. 347 bytes in 0.01 sec. (33.887 Kb/s)
+ftp: 347 bytes received in 0.01Seconds 34.70Kbytes/sec.
+ftp> cd pub
+250 "/pub": is current directory.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls (193 bytes).
+total 4
+drwxrw-rw- 1 root  root  0 Feb  1 20:15 .
+drwxrw-rw- 1 root  root  0 Feb  1 20:15 ..
+-rwxrw-rw- 1 root  root  0 Feb  1 20:15 blank.txt
+drwxrw-rw- 1 root  root  0 Feb  1 20:14 test
+226 Transfer complete. 193 bytes in 0.01 sec. (18.848 Kb/s)
+ftp: 193 bytes received in 0.01Seconds 19.30Kbytes/sec.
+ftp> cd /bin
+250 "/bin": is current directory.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls (96 bytes).
+total 2
+drwxrw-rw- 1 root  root  0 Apr 17  2002 .
+drwxrw-rw- 1 root  root  0 Apr 17  2002 ..
+226 Transfer complete. 96 bytes in 0.01 sec. (9.375 Kb/s)
+ftp: 96 bytes received in 0.01Seconds 9.60Kbytes/sec.
+ftp> dir /
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls (347 bytes).
+total 15
+drwxrw-rw- 1 root  root     0 Feb  1 20:11 .
+drwxrw-rw- 1 root  root     0 Feb  1 20:11 ..
+drwxrw-rw- 1 root  root     0 Apr 17  2002 bin
+drwxrw-rw- 1 root  root     0 Feb  1 20:15 pub
+drwxrw-rw- 1 root  root     0 Apr 17  2002 upload
+drwxrw-rw- 1 root  root     0 Apr 17  2002 usr
+-rwxrw-rw- 1 root  root  4096 Feb  1 20:11 test
+226 Transfer complete. 347 bytes in 0.01 sec. (33.887 Kb/s)
+ftp: 347 bytes received in 0.01Seconds 34.70Kbytes/sec.
+ftp> quit
+221 Goodbye. Control connection closed.

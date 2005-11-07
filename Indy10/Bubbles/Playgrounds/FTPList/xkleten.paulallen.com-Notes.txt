@@ -1,0 +1,96 @@
+ftp> open XKLeTen.paulallen.com
+Connected to XKLeTen.paulallen.com.
+220- xkleten.paulallen.com FTP Server Process 8(50)-1 at 17-Feb-2003 06:13:38
+220-
+220-   Welcome to our file server.
+220-   Logins to ANONYMOUS are permitted; for the password, please
+220-   provide your e-mail address.
+220-
+220-   No use will be made of the logged information for unsolicited e-mail.
+220-
+220-   All file retrievals and deposits are logged.  You may disconnect now
+220-   if you do not wish to have your transactions logged.
+220-
+220-   Please leave the system as you found it.
+220-
+220
+User (XKLeTen.paulallen.com:(none)): anonymous
+331 ANONYMOUS user ok, send identification as password.
+Password:
+230- User ANONYMOUS, job 8, logged in at
+230- 17-Feb-2003 06:13:52.
+230-
+230- Welcome!  You are logged in to a Tops-20 system, probably not familiar
+230- to you.  We therefore offer this short note on directory and file naming
+230- conventions:
+230-
+230- A file name consists of 2 required parts, and several optional parts, of
+230- which 3 are important to you as an FTP user.  These 5 parts together are
+230-
+230- device:<directory>filename.filetype.generation
+230-
+230- where the punctuation is required.  The DEVICE:, <DIRECTORY>, and GENERATION
+230- fields are optional, defaulting to current device and directory and latest
+230- generation of the file.  File names are NOT in general case-sensitive.
+230-
+230- <DIRECTORY> may have subparts, separated by dots.  All the following are
+230- syntactically valid directory specifications (though they may not exist on
+230- this particular system):
+230-
+230- <FOO>  or  <FOO.BAR>  or  <FOO.BAR.QUUX>  or  <SRC.7.MONITOR.BUILD>
+230-
+230- GENERATION is numeric; it may take the special values 0 (latest generation),
+230- -1 (new, next higher generation), -2 (oldest generation), and -3 (wildcard
+230- for all generations), as well as specific numeric generations.
+230-
+230- DEVICE: usually represents the name of a file system.
+230-
+230- Wildcards are specified as * (match 0 or more characters) and % (match 1
+230- single character).  To obtain all the command files in a directory, you
+230- would ask for the retrieval of
+230-
+230- *.CMD.*
+230-
+230- To obtain the latest version of all the files with a 1-character FILETYPE,
+230- you would request
+230-
+230- *.%.0
+230-
+230- Please contact the systems staff at this host if you have problems with
+230- or questions about Tops-20 file names and FTP.
+230
+ftp> dir
+200 Port 15.15 at host 129.71.189.173 accepted.
+150 List started.
+PS:<ANONYMOUS>
+00-FTP-README.TXT.1
+DECUS-FILES.DIR.1
+LETTER.TXT.1
+LS-LR.DIR.1
+226 Transfer completed.
+ftp: 83 bytes received in 0.00Seconds 83000.00Kbytes/sec.
+ftp> cd ps:<decus>
+250 Connected to PS:<DECUS>.
+ftp> dir
+200 Port 15.70 at host 129.71.189.173 accepted.
+150 List started.
+PS:<DECUS>
+DECUS-FILES.DIR.1
+LIB10.DIRECTORY.1
+LIB20.DIRECTORY.1
+LS-LR.DIR.1
+226 Transfer completed.
+ftp: 82 bytes received in 0.01Seconds 8.20Kbytes/sec.
+ftp> cd ..
+331 Default name accepted. Send password to connect to it.
+ftp> dir
+200 Port 15.71 at host 129.71.189.173 accepted.
+150 List started.
+? No files match this specification (600114) -
+226 Transfer completed.
+ftp: 49 bytes received in 0.00Seconds 49000.00Kbytes/sec.
+ftp> get decus-files.dir.1
+200 Port 15.73 at host 129.71.189.173 accepted.
+150 ASCII retrieve of <DECUS>DECUS-FILES.DIR.1 (245 pages) started.
+226 Transfer completed. 626813 (8) bytes transferred.
+ftp: 626813 bytes received in 56.32Seconds 11.13Kbytes/sec.
