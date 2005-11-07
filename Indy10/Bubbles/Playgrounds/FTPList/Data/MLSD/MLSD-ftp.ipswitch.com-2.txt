@@ -1,0 +1,8 @@
+size=0;type=cdir;perm=el;create=20020207224420;modify=20020207224424; .
+size=0;type=pdir;perm=el;create=20020207224420;modify=20020207224424; ..
+size=0;type=dir;perm=el;create=20020207224421;modify=20020207224421; beta
+size=0;type=dir;perm=el;create=20020207224421;modify=20020207224421; misc
+size=0;type=dir;perm=el;create=20020207224422;modify=20020207224422; msdos
+size=0;type=dir;perm=el;create=20020207224423;modify=20020207224423; trumpet
+size=0;type=dir;perm=el;create=20020207224424;modify=20020207224424; win3
+size=0;type=dir;perm=el;create=20020207224424;modify=20020410022423; win32

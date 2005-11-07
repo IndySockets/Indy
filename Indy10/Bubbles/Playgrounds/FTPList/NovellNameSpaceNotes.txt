@@ -1,0 +1,87 @@
+D:\>ftp ftp.sips.state.nc.us
+Connected to ncwan01.sips.state.nc.us.
+220 Service Ready for new User
+User (ncwan01.sips.state.nc.us:(none)): anonymous
+230 User anonymous Logged in Successfully
+ftp> quote stat
+211-  Client IP Address     129.71.185.235
+211-  User                  anonymous
+211-  Name Space            LONG
+211-  Current Directory     /
+211-  Current Server        NCWAN01
+211-  Transfer Type         ASCII
+211-  Files Sent            0
+211-  Files Received        0
+211-  Bytes Sent            0.000 KBytes
+211-  Bytes Received        0.000 KBytes
+211-  Avg Transfer Rate     0.000 KBytes/sec
+211-  Session Time          0 Hr 0 Min 8 Sec
+211-  Last Command          USER
+211 End of Status
+ftp> dir
+200 PORT Command OK
+150 Opening data connection
+total 0
+d [RWCEAFMS] CWisuths                          512 Jan 02 01:43 TEST
+d [RWCEAFMS] Jcheney                           512 Jan 02 02:30 Zen 3
+d [RWCEAFMS] Supervisor                        512 Aug 08  2001 HARDWARE
+d [RWCEAFMS] Jcheney                           512 Aug 08  2001 Y2k
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 OS
+d [RWCEAFMS] CWisuths                          512 Sep 23  2002 Security
+d [RWCEAFMS] Jcheney                           512 Jan 02 01:30 Archived Files
+d [RWCEAFMS] Jcheney                           512 Jan 02 01:37 Graphics
+d [RWCEAFMS] CWisuths                          512 Jan 02 01:47 WEB
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 APPS
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:39 SIUG
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 GENERAL
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 CCS
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 INTEL
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:47 VANTIVE
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 SCDATA
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 ADS
+d [RWCEAFMS] Supervisor                        512 Oct 24  2002 temp
+226 Transfer Complete
+ftp: 1295 bytes received in 0.16Seconds 8.04Kbytes/sec.
+ftp> quote site dos
+200 Desired Name Space Set to "DOS"
+ftp> quote stat
+211-  Client IP Address     129.71.185.235
+211-  User                  anonymous
+211-  Name Space            DOS
+211-  Current Directory     /
+211-  Current Server        NCWAN01
+211-  Transfer Type         ASCII
+211-  Files Sent            0
+211-  Files Received        0
+211-  Bytes Sent            0.000 KBytes
+211-  Bytes Received        0.000 KBytes
+211-  Avg Transfer Rate     0.000 KBytes/sec
+211-  Session Time          0 Hr 0 Min 25 Sec
+211-  Last Command          SITE
+211 End of Status
+ftp> dir
+200 PORT Command OK
+150 Opening data connection
+total 0
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 os
+d [RWCEAFMS] CWisuths                          512 Jan 02 01:43 test
+d [RWCEAFMS] Jcheney                           512 Jan 02 02:30 zen_3~1
+d [RWCEAFMS] Supervisor                        512 Aug 08  2001 hardware
+d [RWCEAFMS] Jcheney                           512 Aug 08  2001 y2k
+d [RWCEAFMS] CWisuths                          512 Sep 23  2002 security
+d [RWCEAFMS] Jcheney                           512 Jan 02 01:30 archiv~1
+d [RWCEAFMS] Jcheney                           512 Jan 02 01:37 graphics
+d [RWCEAFMS] CWisuths                          512 Jan 02 01:47 web
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 apps
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:39 siug
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 general
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 ccs
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 intel
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:47 vantive
+d [RWCEAFMS] Supervisor                        512 Jan 02 01:37 scdata
+d [RWCEAFMS] Supervisor                        512 Sep 17  2002 ads
+d [RWCEAFMS] Supervisor                        512 Oct 24  2002 temp
+226 Transfer Complete
+ftp: 1291 bytes received in 0.17Seconds 7.55Kbytes/sec.
+ftp> quit
+221 Closing Session

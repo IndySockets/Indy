@@ -1,0 +1,27 @@
+Connected to 127.0.0.1.
+220 j-vi69hvk7kprd5 FTP server (QVT/Net 4.1) ready.
+User (127.0.0.1:(none)): anonymous
+331 Guest login OK, please send real ident as password.
+Password:
+230 Guest login OK, access restrictions apply.
+ftp> dir
+200 PORT command successful.
+150 Opened data connection for 'ls' (127.0.0.1,3844) (0 bytes).
+drwxrwxrwx 1 nobody system            0  Jan  3 12:40 .
+drwxrwxrwx 1 nobody system            0  Jan  3 12:40 ..
+-rwxrwxrwx 1 nobody system           20  Jan  3 10:14  space.txt
+-rwxrwxrwx 1 nobody system            0  Jan  3 10:24 12345678.txt
+-rwxrwxrwx 1 nobody system            0  Jan  3 10:25 123456789.txt
+-rwxrwxrwx 1 nobody system           20  Jan  3 10:39 File N.txt
+drwxrwxrwx 1 nobody system            0  Jan  3 12:40 ftp.dir
+drwxrwxrwx 1 nobody system            0  Jan  3 11:37 ftptest
+-rwxrwxrwx 1 nobody system            0  Oct 23 12:16 ma.n.s
+-rwxrwxrwx 1 nobody system            0  Oct 23 12:20 noext
+-rwxrwxrwx 1 nobody system           20  Jan  3 10:13 readme.txt
+-rwxrwxrwx 1 nobody system            0  Oct 23 01:01 test.txt
+226 Transfer complete.
+ftp: 763 bytes received in 0.01Seconds 76.30Kbytes/sec.
+ftp> quit
+221 Goodbye.
+#FTP server (WinQVT/Net v3.9) ready.
+#Version 3.98.15

@@ -1,0 +1,26 @@
+D--------- 1 owner group         0 Dec 24 03:33 .
+D--------- 1 owner group         0 Dec 24 03:33 ..
+D--------- 1 owner group         0 Oct 23 11:35 Adobe
+D--------- 1 owner group         0 Oct 23 18:43 install
+---------- 1 owner group     32768 Oct 23 18:48 ~DF2273.tmp
+===
+[2003.10.23 19:06:53.664] Connecting to 127.0.0.1:21
+[2003.10.23 19:06:53.664] Connected to 127.0.0.1:21 in 0.000000 seconds, Waiting for Server Response
+[2003.10.23 19:06:53.674] 220 3Com FTP Server Version 1.1
+[2003.10.23 19:06:53.674] Host type (1): Automatic detect
+[2003.10.23 19:06:53.674] USER jpmugaas
+[2003.10.23 19:06:53.704] 331 User name ok, need password
+[2003.10.23 19:06:53.704] PASS (hidden)
+[2003.10.23 19:06:53.714] 230 User logged in
+[2003.10.23 19:06:53.714] SYST
+[2003.10.23 19:06:53.754] 215 Windows/NT L8
+[2003.10.23 19:06:53.754] PWD
+[2003.10.23 19:06:53.754] 257 "/" is current directory
+[2003.10.23 19:06:53.754] TYPE A
+[2003.10.23 19:06:53.774] 200 Type set to A.
+[2003.10.23 19:06:53.784] PORT 127,0,0,1,16,176
+[2003.10.23 19:06:53.784] 200 PORT command successful.
+[2003.10.23 19:06:53.784] LIST
+[2003.10.23 19:06:53.795] 150 File status OK ; about to open data connection
+2003.10.23 19:06:53.805] # transferred 276 bytes in 0.010 seconds, 215.315 Kbps ( 26.914 Kbps), transfer succeeded.
+[2003.10.23 19:06:53.805] 226 Closing data connection

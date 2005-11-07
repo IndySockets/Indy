@@ -1,0 +1,159 @@
+Connected to ftp.gftp.netscape.com.
+220 ftpnscp.newaol.com FTP server (SunOS 5.8) ready.
+User (ftp.gftp.netscape.com:(none)): anonymous
+331 Guest login ok, send your complete e-mail address as password.
+Password:
+230 Guest login ok, access restrictions apply.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 576
+drwxr-xr-x   8 5743     other       4096 Dec 10  2001 .
+drwxr-xr-x   8 5743     other       4096 Dec 10  2001 ..
+drwx--x--x   2 5743     other       4096 May 20  2002 .prt
+-r--r--r--   1 root     other        351 Aug  8  2000 Welcome
+lrwxrwxrwx   1 root     other          9 Nov 19 17:02 bin -> ./usr/bin
+dr-xr-xr-x   2 root     other       4096 Aug  8  2000 dev
+dr-xr-xr-x   2 root     other       4096 Aug  8  2000 etc
+dr-xr-xr-x   3 root     sys         4096 Aug  8  2000 opt
+drwxr-xr-x  34 5743     bin         4096 Aug 27 13:05 pub
+dr-xr-xr-x   5 root     other       4096 Aug  8  2000 usr
+226 ASCII Transfer complete.
+ftp: 616 bytes received in 0.10Seconds 6.16Kbytes/sec.
+ftp> cd pub
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 784
+drwxr-xr-x  34 5743     bin         4096 Aug 27 13:05 .
+drwxr-xr-x   8 5743     other       4096 Dec 10  2001 ..
+drwx--x--x   2 5743     bin         4096 Nov 25 16:15 .prt
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 acadia
+drwx--x--x   6 5743     bin         4096 Jul 12  2002 blind
+drwxr-xr-x   4 5743     bin         4096 Jul 25  2001 calendar
+drwxr-xr-x   9 5743     bin         4096 Jul 25  2001 cck
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 cdk
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 collabra
+drwxr-xr-x  33 5743     bin         4096 Aug 13  2001 communicator
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 compuserve
+drwxr-xr-x   6 5743     bin         4096 Jul 25  2001 cooltalk
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 cosmo
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 japanese
+drwxr-xr-x   4 5743     bin         4096 Jul 25  2001 jsdebug
+-rw-r--r--   1 5743     bin        30469 Jul 25  2001 ls-lR.gz
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 mcd
+drwxr-xr-x   4 5743     bin         4096 Mar 15  2002 mozilla
+drwxr-xr-x   3 5743     bin         4096 May 17  2002 netscape
+drwxr-xr-x  16 5743     bin         4096 Jul 16  2002 netscape6
+drwxr-xr-x  12 5743     bin         4096 Sep 25 11:04 netscape7
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 netscape_isp
+drwxr-xr-x   2 5743     bin         4096 Jul 25  2001 ngt_developer_release
+drwxr-xr-x   6 5743     bin         4096 Jul 25  2001 nim
+drwx--x--x   2 5743     bin         4096 May 22  2002 omega
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 patch
+drwxr-xr-x   2 5743     bin         4096 Jul 25  2001 powerpack
+drwx--x--x   3 5743     bin         4096 Jan 27 14:36 radio
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 screensavers
+drwxr-xr-x   6 5743     bin         4096 Jul 25  2001 sdk
+drwxr-xr-x   2 5743     bin         4096 Jul 25  2001 smart
+drwxr-xr-x  20 5743     bin         4096 Jul 25  2001 smartdownload
+drwxr-xr-x   4 5743     bin         4096 Jul 25  2001 unsupported
+drwxr-xr-x   4 5743     bin         4096 Jul 25  2001 visualjs
+drwxr-xr-x   3 5743     bin         4096 Jul 25  2001 vjscdk
+226 ASCII Transfer complete.
+ftp: 2223 bytes received in 0.24Seconds 9.26Kbytes/sec.
+ftp> cd netscape7
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 96
+drwxr-xr-x  12 5743     bin         4096 Sep 25 11:04 .
+drwxr-xr-x  34 5743     bin         4096 Aug 27 13:05 ..
+drwxr-xr-x   4 5743     bin         4096 Aug 27 15:31 chinese_cn
+drwxr-xr-x   8 5743     bin         4096 Dec 17 13:11 english
+drwxr-xr-x   4 5743     bin         4096 Nov 26 10:06 english_ca
+drwxr-xr-x   3 5743     bin         4096 Aug 27 14:53 english_uk
+drwxr-xr-x   5 5743     bin         4096 Nov 26 10:10 french
+drwxr-xr-x   7 5743     bin         4096 Dec 17 13:29 german
+drwxr-xr-x   8 5743     bin         4096 Dec 17 13:47 japanese
+drwxr-xr-x   3 5743     bin         4096 Sep 25 11:04 portuguese_br
+drwxr-xr-x   3 5743     bin         4096 Aug 27 18:59 spanish
+drwxr-xr-x   3 5743     bin         4096 Aug 27 17:16 themes
+226 ASCII Transfer complete.
+ftp: 768 bytes received in 0.22Seconds 3.49Kbytes/sec.
+ftp> cd english
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 64
+drwxr-xr-x   8 5743     bin         4096 Dec 17 13:11 .
+drwxr-xr-x  12 5743     bin         4096 Sep 25 11:04 ..
+drwxr-xr-x   5 5743     bin         4096 Aug 23 16:18 7.0
+drwxr-xr-x   5 5743     bin         4096 Nov 25 13:16 7.01
+drwx--x--x   5 5743     bin         4096 Dec 17 13:12 7.01_bdp
+drwxr-xr-x   5 5743     bin         4096 May 13  2002 7.0_PR1
+drwx--x--x   5 5743     bin         4096 Aug 28 14:54 7.0_bdp
+drwx--x--x   5 5743     bin         4096 Dec 11 10:23 7.0_sbc
+226 ASCII Transfer complete.
+ftp: 497 bytes received in 0.09Seconds 5.52Kbytes/sec.
+ftp> cd 7.01
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 40
+drwxr-xr-x   5 5743     bin         4096 Nov 25 13:16 .
+drwxr-xr-x   8 5743     bin         4096 Dec 17 13:11 ..
+drwxr-xr-x   4 5743     bin         4096 Nov 15 14:35 mac
+drwxr-xr-x   3 5743     bin         4096 Nov 15 14:34 unix
+drwxr-xr-x   3 5743     bin         4096 Nov 15 14:34 windows
+226 ASCII Transfer complete.
+ftp: 307 bytes received in 0.05Seconds 6.14Kbytes/sec.
+ftp> cd windows
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 24
+drwxr-xr-x   3 5743     bin         4096 Nov 15 14:34 .
+drwxr-xr-x   5 5743     bin         4096 Nov 25 13:16 ..
+drwxr-xr-x   4 5743     bin         4096 Dec  9 16:40 win32
+226 ASCII Transfer complete.
+ftp: 186 bytes received in 0.03Seconds 6.20Kbytes/sec.
+ftp> cd win32
+250 CWD command successful.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for /bin/ls.
+total 1568
+drwxr-xr-x   4 5743     bin         4096 Dec  9 16:40 .
+drwxr-xr-x   3 5743     bin         4096 Nov 15 14:34 ..
+-rw-r--r--   1 5743     bin       251088 Dec  9 16:22 NSSetup.exe
+-rw-r--r--   1 5743     bin       235904 Dec  9 16:23 NSSetup.jar
+-rw-r--r--   1 5743     bin       224841 Dec  9 16:23 NSSetup.xpi
+drwxr-xr-x   2 5743     bin         4096 Dec  9 16:40 bfkprv
+drwxr-xr-x   2 5743     bin         4096 Jan 22 10:36 sea
+226 ASCII Transfer complete.
+ftp: 449 bytes received in 0.08Seconds 5.61Kbytes/sec.
+ftp> quit
+221 Goodbye.
+
+D:\>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

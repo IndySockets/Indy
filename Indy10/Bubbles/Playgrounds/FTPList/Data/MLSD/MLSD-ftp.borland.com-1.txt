@@ -1,0 +1,3 @@
+type=cdir;modify=19981123211428;UNIX.mode=0755 /
+type=dir;modify=19981123195623;UNIX.mode=0755 lost+found
+type=dir;modify=20020723185444;UNIX.mode=0755 pub

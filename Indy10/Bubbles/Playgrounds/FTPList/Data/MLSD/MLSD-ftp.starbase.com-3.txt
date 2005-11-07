@@ -1,0 +1,4 @@
+size=0;type=cdir;perm=el;create=20010207101342;modify=20020819101226; .
+size=0;type=pdir;perm=el;create=20010207101342;modify=20020819101226; ..
+size=6755855;type=file;perm=r;create=20030208111526;modify=20001020080600; STDOORS.zip
+size=0;type=dir;perm=el;create=20020819101226;modify=20020819102714; website

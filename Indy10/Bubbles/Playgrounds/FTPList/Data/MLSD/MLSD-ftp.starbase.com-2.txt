@@ -1,0 +1,5 @@
+size=0;type=cdir;perm=el;create=20010207102204;modify=20010207102218; .
+size=0;type=pdir;perm=el;create=20010207102204;modify=20010207102218; ..
+size=9680808;type=file;perm=r;create=20030208111911;modify=20000606131100; StarGate-runtime.exe
+size=2615626;type=file;perm=r;create=20030208111913;modify=20000606131200; stargate-runtime.tar.gz
+size=359;type=file;perm=r;create=20030208111913;modify=20000606131200; StarGateRunTime.txt

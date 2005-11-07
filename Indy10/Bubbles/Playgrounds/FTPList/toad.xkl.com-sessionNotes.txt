@@ -1,0 +1,108 @@
+D:\>ftp toad.xkl.com
+Connected to toad.xkl.com.
+220- toad.xkl.com FTP Server Process 8(50)-1 at Mon, 17 Feb 2003 05:57:55 -0800
+(PST)
+220
+User (toad.xkl.com:(none)): anonymous
+331 ANONYMOUS user ok, send identification as password.
+Password:
+230- User ANONYMOUS, job 13, logged in at
+230- Mon, 17 Feb 2003 05:58:07 -0800 (PST).
+230-
+230- Welcome!  You are logged in to a Tops-20 system, probably not familiar
+230- to you.  We therefore offer this short note on directory and file naming
+230- conventions:
+230-
+230- A file name consists of 2 required parts, and several optional parts, of
+230- which 3 are important to you as an FTP user.  These 5 parts together are
+230-
+230- device:<directory>filename.filetype.generation
+230-
+230- where the punctuation is required.  The DEVICE:, <DIRECTORY>, and GENERATION
+230- fields are optional, defaulting to current device and directory and latest
+230- generation of the file.  File names are NOT in general case-sensitive.
+230-
+230- <DIRECTORY> may have subparts, separated by dots.  All the following are
+230- syntactically valid directory specifications (though they may not exist on
+230- this particular system):
+230-
+230- <FOO>  or  <FOO.BAR>  or  <FOO.BAR.QUUX>  or  <SRC.7.MONITOR.BUILD>
+230-
+230- GENERATION is numeric; it may take the special values 0 (latest generation),
+230- -1 (new, next higher generation), -2 (oldest generation), and -3 (wildcard
+230- for all generations), as well as specific numeric generations.
+230-
+230- DEVICE: usually represents the name of a file system.
+230-
+230- Wildcards are specified as * (match 0 or more characters) and % (match 1
+230- single character).  To obtain all the command files in a directory, you
+230- would ask for the retrieval of
+230-
+230- *.CMD.*
+230-
+230- To obtain the latest version of all the files with a 1-character FILETYPE,
+230- you would request
+230-
+230- *.%.0
+230-
+230- Please contact the systems staff at this host if you have problems with
+230- or questions about Tops-20 file names and FTP.
+230
+200 Port 14.219 at host 129.71.189.173 accepted.
+150 List started.
+TOAD:<ANONYMOUS>
+ARCH-PART1.PS.1
+ARCH-PART2.PS.1
+ARCH-PART3.PS.1
+ARCH-PART4.PS.1
+ARCH-PART5.PS.1
+EMACS.README.1
+EMACS.TAPE.1
+IDDT.EXE.1
+INSTALL.MEM.1
+MIDAS.EXE.1
+T20ASM1.PS.1
+T20ASM2.PS.1
+T20ASM3.PS.1
+T20ASM4.PS.1
+T20ASM5.PS.1
+T20ASM6.PS.1
+T20ASM7.PS.1
+TECORD.INFO.1
+TYPREL.PAS.1
+226 Transfer completed.
+ftp: 300 bytes received in 0.00Seconds 300000.00Kbytes/sec.
+ftp> quote syst
+215 TOPS20
+ftp>
+ftp> dir *.info.*
+200 Port 14.220 at host 129.71.189.173 accepted.
+150 List started.
+<ANONYMOUS>TECORD.INFO.1;P775200;A,91,28-Apr-1989 18:07:19,28-Apr-1989 18:07:19,
+16-Jan-2003 19:57:00
+226 Transfer completed.
+ftp: 102 bytes received in 0.00Seconds 102000.00Kbytes/sec.
+ftp> dir *.ps.*
+200 Port 14.221 at host 129.71.189.173 accepted.
+150 List started.
+TOAD:<ANONYMOUS>
+ARCH-PART1.PS.1
+ARCH-PART2.PS.1
+ARCH-PART3.PS.1
+ARCH-PART4.PS.1
+ARCH-PART5.PS.1
+T20ASM1.PS.1
+T20ASM2.PS.1
+T20ASM3.PS.1
+T20ASM4.PS.1
+T20ASM5.PS.1
+T20ASM6.PS.1
+T20ASM7.PS.1
+226 Transfer completed.
+ftp: 201 bytes received in 0.00Seconds 201000.00Kbytes/sec.
+ftp> dir *.mem.*
+200 Port 14.223 at host 129.71.189.173 accepted.
+150 List started.
+<ANONYMOUS>INSTALL.MEM.1;P775252;A,210,10-Apr-1990 13:17:41,10-Apr-1990 13:18:26,11-Jan-2003 11:34:26
+226 Transfer completed.
+ftp: 103 bytes received in 0.00Seconds 103000.00Kbytes/sec.

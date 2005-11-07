@@ -1,0 +1,50 @@
+ftp> open iggy
+Connected to iggy.
+220 iggy OS–9 ftp server V1.0 ready
+Name (iggy:ellen): ellen
+Password (iggy:ellen ):
+331 password required for ellen
+230 user ellen logged in
+ftp>
+
+From:  OS-9 Internet, Software Reference Manual
+Copyright W 1992 Microware Systems Corporation.
+Found at: www.ab.com/manuals/abs/17716411.pdf
+
+200 PORT command ok
+150 Opening data connection for dir –ea (192.9.200.58,1046) (0 bytes).
+                            Directory of . 11:44:44
+ Owner    Last modified  Attributes Sector Bytecount Name
+–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  1.78    92/04/03 1306   –––wr–wr     104       248 .login
+  0.0     92/02/22 2007   d–ewrewr      F4        96 PROJ
+  1.78    92/03/12 0841   ––––––wr     124     56984 mbox
+  1.78    92/03/12 0840   ––––––wr     10C      9939 srcfile
+226 Transfer complete
+477 bytes received in 0.19 seconds (2.45 Kbytes/s)
+
+ftp> dir proj
+200 PORT command ok
+150 Opening data connection for dir –ea proj (192.9.200.58,1047) (0 bytes).
+                          Directory of proj 11:46:14
+ Owner    Last modified  Attributes Sector Bytecount Name
+–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  1.78    92/02/22 2007   ––ewrewr      F8       128 mine
+226 Transfer complete
+234 bytes received in 0.11 seconds (2.08 Kbytes/s)
+
+ftp> dir
+200 PORT command ok
+150 Opening data connection for dir –ea (192.9.200.58,1058) (0 bytes).
+                            Directory of . 10:52:50
+ Owner    Last modified  Attributes Sector Bytecount Name
+–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  1.78    92/04/03 1306   –––wr–wr     104       248 .login
+  0.0     92/02/22 2007   d–ewrewr      F4        96 PROJ
+  1.78    92/02/22 1052   ––––––wr   78030       212 aschartnew.c
+  1.78    92/03/12 0841   ––––––wr     124     56984 mbox
+  1.78    92/03/12 0840   ––––––wr     10C      9939 srcfile
+226 Transfer complete
+541 bytes received in 0.21 seconds (2.52 Kbytes/s)
+ftp>
+

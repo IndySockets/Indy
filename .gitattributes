@@ -3,6 +3,7 @@ Indy10/Bubbles/BubbleData/BreakApart/BreakApart.dat -text
 Indy10/Bubbles/BubbleData/ChainedHTTPClient/ChainedHTTPClient.ini -text
 Indy10/Bubbles/BubbleData/DateTimeStamp/DateTimeStamp.dat -text
 Indy10/Bubbles/BubbleData/EmailAddress/EmailAddress.dat -text
+Indy10/Bubbles/BubbleData/ExtraHeaders/test.bmp -text svneol=unset#unset
 Indy10/Bubbles/BubbleData/GMTToLocalDateTime/GMTToLocalDateTimeProc.dat -text
 Indy10/Bubbles/BubbleData/HTTPClient/HTTPClient.ini -text
 Indy10/Bubbles/BubbleData/HTTPServer/99-BG-1518.pdf -text svneol=unset#application/pdf
@@ -20,7 +21,11 @@ Indy10/Bubbles/BubbleData/Hash/abc.dat -text
 Indy10/Bubbles/BubbleData/Hash/abc.ini -text
 Indy10/Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.dat -text
 Indy10/Bubbles/BubbleData/Hash/abcdefghijklmnopqrstuvwxyz.ini -text
+Indy10/Bubbles/BubbleData/Hash/message[!!-~]digest.dat -text
+Indy10/Bubbles/BubbleData/Hash/message[!!-~]digest.ini -text
 Indy10/Bubbles/BubbleData/HeaderCoder/headers.ini -text
+Indy10/Bubbles/BubbleData/MakeCanonicalIPv6Address/MakeCanonicalIPv6Address.dat -text
+Indy10/Bubbles/BubbleData/ProcessPath/ProcessPath.dat -text
 Indy10/Bubbles/Playgrounds/FTPList/AS400-Unknown-Help[!!-~]output.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/CiscoNotes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-1.txt -text svneol=native#unset
@@ -90,6 +95,13 @@ Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-1.txt -text svneol=native#u
 Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-2.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-3.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/KA9Q-Unknown-4.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-1.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.borland.com-2.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-1.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.ipswitch.com-2.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-1.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-2.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Data/MLSD/MLSD-ftp.starbase.com-3.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-MSNT35Server-1.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-MicrosoftFTP5.0-1.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/MS-DOS-Unknown-1.txt -text svneol=native#unset
@@ -485,6 +497,11 @@ Indy10/Bubbles/Playgrounds/FTPList/Data/WfFTP-Unknown-2.txt -text svneol=native#
 Indy10/Bubbles/Playgrounds/FTPList/DistinctFormatAttribs.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/DistinctManualExcerpt.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/HitSessionNotes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Netscape-Notes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/NovellNameSpaceNotes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/OS-9-Notes.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/QVTNET-41.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/SessionNotes3Com11.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/box.dpr -text
 Indy10/Bubbles/Playgrounds/FTPList/box.res -text svneol=unset#unset
 Indy10/Bubbles/Playgrounds/FTPList/boxMLSD.dpr -text
@@ -501,6 +518,7 @@ Indy10/Bubbles/Playgrounds/FTPList/ftplistmain.dfm -text
 Indy10/Bubbles/Playgrounds/FTPList/ftplistmain.pas -text
 Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.dfm -text
 Indy10/Bubbles/Playgrounds/FTPList/ftplistmainMLSD.pas -text
+Indy10/Bubbles/Playgrounds/FTPList/toad.xkl.com-sessionNotes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.crt -text
 Indy10/Bubbles/Playgrounds/FTPServer/Cert/CAcert.pem -text
 Indy10/Bubbles/Playgrounds/FTPServer/FTPServer_console1.dpr -text
@@ -509,8 +527,25 @@ Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestMain.pas -text
 Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.dpr -text
 Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.ini -text
 Indy10/Bubbles/Playgrounds/FTPServer/FileSYstemTestSvr.res -text svneol=unset#unset
+Indy10/Bubbles/Playgrounds/QuotdCore/quotd.dpr -text
+Indy10/Bubbles/Playgrounds/QuotdCore/quotd.res -text svneol=unset#unset
+Indy10/Bubbles/Playgrounds/QuotdCore/quotdNoRF.dpr -text
+Indy10/Bubbles/Playgrounds/QuotdCore/quotdNoRF.res -text svneol=unset#unset
+Indy10/Bubbles/Playgrounds/QuotdCore/quotemain.dfm -text
+Indy10/Bubbles/Playgrounds/QuotdCore/quotemain.pas -text
+Indy10/Bubbles/Playgrounds/QuotdCore/quotemainNoRF.dfm -text
+Indy10/Bubbles/Playgrounds/QuotdCore/quotemainNoRF.pas -text
+Indy10/Bubbles/Playgrounds/Readme.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/TCPServer/Global.pas -text
+Indy10/Bubbles/Playgrounds/TCPServer/Main.dfm -text
+Indy10/Bubbles/Playgrounds/TCPServer/Main.pas -text
+Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlayground.dpr -text
+Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlayground.res -text svneol=unset#unset
+Indy10/Bubbles/Playgrounds/TCPServer/TCPServerPlaygroundTest.dpr -text
+Indy10/Bubbles/Playgrounds/TCPServer/web/Jedi.gif -text svneol=unset#image/gif
+Indy10/Bubbles/Playgrounds/TCPServer/web/OSLogo.gif -text svneol=unset#image/gif
 Indy10/Bubbles/Playgrounds/TCPServer/web/index.html -text svneol=unset#text/html
+Indy10/Bubbles/README.txt -text svneol=native#unset
 Indy10/Bubbles/boxtests/BreakApartTest.pas -text
 Indy10/Bubbles/boxtests/ChainClients.dfm -text
 Indy10/Bubbles/boxtests/ChainClients.pas -text
@@ -544,9 +579,23 @@ Indy10/Bubbles/boxtests/HashBox.pas -text
 Indy10/Bubbles/boxtests/HeaderCoder.pas -text
 Indy10/Bubbles/boxtests/HeaderListTest.pas -text
 Indy10/Bubbles/boxtests/IPAddressForm.dfm -text
+Indy10/Bubbles/boxtests/IPAddressForm.pas -text
+Indy10/Bubbles/boxtests/IPv4.pas -text
+Indy10/Bubbles/boxtests/IPv6.pas -text
 Indy10/Bubbles/boxtests/IdHL7Tests.pas -text
 Indy10/Bubbles/boxtests/IdReadLineStream.pas -text
 Indy10/Bubbles/boxtests/IdStreamTest.pas -text
+Indy10/Bubbles/boxtests/MakeCanonicalIPv6AddressBox.dfm -text
+Indy10/Bubbles/boxtests/MakeCanonicalIPv6AddressBox.pas -text
+Indy10/Bubbles/boxtests/ProcessPath.pas -text
+Indy10/Bubbles/boxtests/RexecTest.pas -text
+Indy10/Bubbles/boxtests/SMTPBox.pas -text
+Indy10/Bubbles/boxtests/SNTPBox.pas -text
+Indy10/Bubbles/boxtests/SaveToLoadFromFileTests.pas -text
+Indy10/Bubbles/boxtests/TCPServer.dfm -text
+Indy10/Bubbles/boxtests/TCPServer.pas -text
+Indy10/Bubbles/boxtests/TimeClient.pas -text
+Indy10/Bubbles/boxtests/UDPBox.pas -text
 Indy10/Builder/ClassList.txt -text svneol=native#unset
 Indy10/Builder/ClassParser.exe -text svneol=unset#unset
 Indy10/Builder/ClassParser.ini -text

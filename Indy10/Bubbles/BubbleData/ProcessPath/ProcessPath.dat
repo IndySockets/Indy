@@ -1,0 +1,50 @@
+
+The format of this data file is as follows:
+
+Each data set begins with a line starting with a colon (:).
+The three lines following this are the parameters to the
+ProcessPath function: Base Path, Path and Delimiter.  The
+fourth line is the expected result.
+
+The five lines that make up a single test must be together.
+Any lines preceding the first test (i.e., these ones) and
+any lines after the fifth line of a test and the start of the
+next test can be utilised for comments and will be ignored.
+Additionally, text after the colon will also be ignored.
+
+: A wacky start. ;-)
+ABasePath
+APath
+ADelimiter
+ABasePathADelimiterAPath
+
+: No base path
+
+Path
+/
+Path
+
+: Base but no path
+BasePath
+
+/
+BasePath/
+
+: Both BasePath and Path
+BasePath
+Path
+/
+BasePath/Path
+
+: Multiple delimiters in base path, no path
+Dir1/Dir2/Dir3/Dir4
+
+/
+Dir1/Dir2/Dir3/Dir4/
+
+: Multiple delimiters in base path with path
+Dir1/Dir2/Dir3/Dir4
+Path
+/
+Dir1/Dir2/Dir3/Dir4/Path
+

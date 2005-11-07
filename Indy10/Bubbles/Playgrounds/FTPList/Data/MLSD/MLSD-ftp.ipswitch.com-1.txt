@@ -1,0 +1,9 @@
+size=0;type=cdir;perm=el;create=20020207220715;modify=20021004134949; .
+size=0;type=pdir;perm=el;create=20020207220715;modify=20021004134949; ..
+size=13733;type=file;perm=r;create=20000310170900;modify=20000310170900; filelist.txt
+size=0;type=dir;perm=el;create=20020207224350;modify=20021011174938; ipswitch
+size=0;type=dir;perm=el;create=20020207224420;modify=20020207224424; pub
+size=0;type=dir;perm=el;create=20020207221339;modify=20020207221339; users
+size=322;type=file;perm=r;create=20000310170900;modify=20000310170900; win3.qif
+size=758;type=file;perm=r;create=20000313211100;modify=20000313211100; win95.qif
+size=758;type=file;perm=r;create=20000310171000;modify=20000310171000; winNT.qif
