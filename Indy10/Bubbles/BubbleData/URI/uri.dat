@@ -1,0 +1,272 @@
+Format of this file is as follows:
+
+Each section begins with a line starting with a colon (:).
+
+The first line is the URI that is input or the text Components
+to indicate that the component parts should be the input.  The
+second line is the URI that should be output using the URI
+property.  The third line is the full URI.  The following lines
+are the components of the URI in the following order: protocol, 
+host, path, document, port, username, password, parameters, bookmark.
+
+Lines following these until the next line beginning with
+a colon (and the text folowing the colon on that line) can
+be used for comments.
+
+: Test 1, Basic, with trailing slash missing.
+http://www.nevrona.com
+http://www.nevrona.com/
+http://www.nevrona.com/
+http
+www.nevrona.com
+/
+
+
+
+
+
+
+
+
+: Test 2, Reverse basic
+Components
+http://www.nevrona.com/
+http://www.nevrona.com/
+http
+www.nevrona.com
+/
+
+
+
+
+
+
+
+
+: Test 3, Add a document
+ftp://www.nevrona.com/document
+ftp://www.nevrona.com/document
+ftp://www.nevrona.com/document
+ftp
+www.nevrona.com
+/
+document
+
+
+
+
+
+
+: Test 4, Reverse document
+Components
+ftp://www.nevrona.com/document
+ftp://www.nevrona.com/document
+ftp
+www.nevrona.com
+/
+document
+
+
+
+
+
+
+: Test 5, Add a path
+http://www.nevrona.com/path/document
+http://www.nevrona.com/path/document
+http://www.nevrona.com/path/document
+http
+www.nevrona.com
+/path/
+document
+
+
+
+
+
+
+: Test 6, Reverse path
+http://www.nevrona.com/path/document
+http://www.nevrona.com/path/document
+http://www.nevrona.com/path/document
+http
+www.nevrona.com
+/path/
+document
+
+
+
+
+
+
+: Test 7, Path, but no document
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http
+www.nevrona.com
+/path/
+
+
+
+
+
+
+
+: Test 8, Reverse test 7
+Components
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http
+www.nevrona.com
+/path/
+
+
+
+
+
+
+
+: Test 9, Path, but no document
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http
+www.nevrona.com
+/path/
+
+
+
+
+
+
+
+: Test 10, Reverse 9
+Components
+http://www.nevrona.com/path/
+http://www.nevrona.com/path/
+http
+www.nevrona.com
+/path/
+
+
+
+
+
+
+
+: Test 11, Multiple paths
+http://www.nevrona.com/path1/path2/path3/path4/
+http://www.nevrona.com/path1/path2/path3/path4/
+http://www.nevrona.com/path1/path2/path3/path4/
+http
+www.nevrona.com
+/path1/path2/path3/path4/
+
+
+
+
+
+
+
+: Test 12, Reverse 11
+Components
+http://www.nevrona.com/path1/path2/path3/path4/
+http://www.nevrona.com/path1/path2/path3/path4/
+http
+www.nevrona.com
+/path1/path2/path3/path4/
+
+
+
+
+
+
+
+: Test 13, CGI
+http://www.nevrona.com/cgi-bin/example.cgi?parameter=1&parameter=2
+http://www.nevrona.com/cgi-bin/example.cgi?parameter=1&parameter=2
+http://www.nevrona.com/cgi-bin/example.cgi?parameter=1&parameter=2
+http
+www.nevrona.com
+/cgi-bin/
+example.cgi
+
+
+
+?parameter=1&parameter=2
+
+
+
+: Test 14, Reverse 13
+Components
+http://www.nevrona.com/cgi-bin/example.cgi?parameter=1&parameter=2
+http://www.nevrona.com/cgi-bin/example.cgi?parameter=1&parameter=2
+http
+www.nevrona.com
+/cgi-bin/
+example.cgi
+
+
+
+?parameter=1&parameter=2
+
+
+
+: Test 15, Component flexing without parameters
+http://username:password@www.nevrona.com:12345/path1/path2/path3/path4/document#bookmark
+http://www.nevrona.com:12345/path1/path2/path3/path4/document
+http://username:password@www.nevrona.com:12345/path1/path2/path3/path4/document#bookmark
+http
+www.nevrona.com
+/path1/path2/path3/path4/
+document
+12345
+username
+password
+
+bookmark
+
+
+: Test 16, Component flexing without parameters
+Components
+http://www.nevrona.com:12345/path1/path2/path3/path4/document
+http://username:password@www.nevrona.com:12345/path1/path2/path3/path4/document#bookmark
+http
+www.nevrona.com
+/path1/path2/path3/path4/
+document
+12345
+username
+password
+
+bookmark
+
+: Test 17, Component flexing with parameters
+http://username:password@www.nevrona.com:12345/path1/path2/path3/path4/document?parameter=32&parameter=43#bookmark
+http://www.nevrona.com:12345/path1/path2/path3/path4/document?parameter=32&parameter=43
+http://username:password@www.nevrona.com:12345/path1/path2/path3/path4/document?parameter=32&parameter=43#bookmark
+http
+www.nevrona.com
+/path1/path2/path3/path4/
+document
+12345
+username
+password
+?parameter=32&parameter=43
+bookmark
+
+
+: Test 18, Real world example reported as erroring.
+ftp://aUser:aPassword@some.place.org:12345/aPath/aDocum
+ftp://some.place.org:12345/aPath/aDocum
+ftp://aUser:aPassword@some.place.org:12345/aPath/aDocum
+ftp
+some.place.org
+/aPath/
+aDocum
+12345
+aUser
+aPassword
+
+

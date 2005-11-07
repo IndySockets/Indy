@@ -26,6 +26,7 @@ Indy10/Bubbles/BubbleData/Hash/message[!!-~]digest.ini -text
 Indy10/Bubbles/BubbleData/HeaderCoder/headers.ini -text
 Indy10/Bubbles/BubbleData/MakeCanonicalIPv6Address/MakeCanonicalIPv6Address.dat -text
 Indy10/Bubbles/BubbleData/ProcessPath/ProcessPath.dat -text
+Indy10/Bubbles/BubbleData/URI/uri.dat -text
 Indy10/Bubbles/Playgrounds/FTPList/AS400-Unknown-Help[!!-~]output.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/CiscoNotes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/Data/AS400-Unknown-1.txt -text svneol=native#unset
@@ -502,6 +503,8 @@ Indy10/Bubbles/Playgrounds/FTPList/NovellNameSpaceNotes.txt -text svneol=native#
 Indy10/Bubbles/Playgrounds/FTPList/OS-9-Notes.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/QVTNET-41.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/SessionNotes3Com11.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Unix-LS-Rl-Test.txt -text svneol=native#unset
+Indy10/Bubbles/Playgrounds/FTPList/Unix-Recursive-Data.txt -text svneol=native#unset
 Indy10/Bubbles/Playgrounds/FTPList/box.dpr -text
 Indy10/Bubbles/Playgrounds/FTPList/box.res -text svneol=unset#unset
 Indy10/Bubbles/Playgrounds/FTPList/boxMLSD.dpr -text
@@ -596,6 +599,9 @@ Indy10/Bubbles/boxtests/TCPServer.dfm -text
 Indy10/Bubbles/boxtests/TCPServer.pas -text
 Indy10/Bubbles/boxtests/TimeClient.pas -text
 Indy10/Bubbles/boxtests/UDPBox.pas -text
+Indy10/Bubbles/boxtests/URIBox.dfm -text
+Indy10/Bubbles/boxtests/URIBox.pas -text
+Indy10/Bubbles/boxtests/URIBox2.pas -text
 Indy10/Builder/ClassList.txt -text svneol=native#unset
 Indy10/Builder/ClassParser.exe -text svneol=unset#unset
 Indy10/Builder/ClassParser.ini -text

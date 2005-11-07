@@ -1,0 +1,106 @@
+
+total 8
+drwxr-xr-x   5 5413     5413         4096 Nov 19 02:32 public_html
+
+public_html:
+total 184
+-rw-r--r--   1 5413     5413         8471 Nov 19 02:56 aboutme.html
+drwxr-xr-x   2 5413     5413         4096 Nov 19 02:31 files
+drwxr-xr-x   2 5413     5413         4096 Nov 19 02:25 images
+-rw-r--r--   1 5413     5413         7135 Nov 21 07:09 index.html
+-rw-r--r--   1 5413     5413         9887 Nov 19 02:56 links.html
+drwxr-xr-x   2 5413     5413         4096 Nov 19 02:27 nav
+-rw-r--r--   1 5413     5413        22224 Nov 19 02:56 openjpm.html
+-rw-r--r--   1 5413     5413         9134 Nov 19 02:56 pgpkey.html
+-rw-r--r--   1 5413     5413        11872 Nov 19 02:56 programming.html
+
+public_html/files:
+total 1464
+-rw-r--r--   1 5413     5413       663598 Nov 19 02:31 jpmopen.zip
+-rw-r--r--   1 5413     5413        73668 Nov 19 02:32 legaldic.zip
+
+public_html/images:
+total 200
+-rw-r--r--   1 5413     5413         1010 Nov 19 02:24 103x132.gif
+-rw-r--r--   1 5413     5413          635 Nov 19 02:24 150x109.gif
+-rw-r--r--   1 5413     5413          684 Nov 19 02:24 160x120.gif
+-rw-r--r--   1 5413     5413          857 Nov 19 02:24 205x150.gif
+-rw-r--r--   1 5413     5413         1091 Nov 19 02:24 269x194.gif
+-rw-r--r--   1 5413     5413         6345 Nov 19 02:24 car.jpg
+-rw-r--r--   1 5413     5413         1244 Nov 19 02:24 ccbo.gif
+-rw-r--r--   1 5413     5413         3021 Nov 19 02:24 clstbx.gif
+-rw-r--r--   1 5413     5413         1223 Nov 19 02:24 fntcbo.gif
+-rw-r--r--   1 5413     5413         2370 Nov 19 02:24 fntlstbx.gif
+-rw-r--r--   1 5413     5413        10741 Nov 19 02:24 mugaas.jpg
+-rw-r--r--   1 5413     5413        26492 Nov 19 02:25 nth_theme_science_coding_bg.gif
+-rw-r--r--   1 5413     5413           77 Nov 19 02:25 nth_theme_science_coding_bullet_l.gif
+-rw-r--r--   1 5413     5413          181 Nov 19 02:25 nth_theme_science_coding_bullet_s.gif
+-rw-r--r--   1 5413     5413          500 Nov 19 02:25 nth_theme_science_coding_hr.gif
+-rw-r--r--   1 5413     5413          712 Nov 19 02:25 nth_theme_science_coding_new.gif
+
+public_html/nav:
+total 584
+-rw-r--r--   1 5413     5413         4502 Nov 19 02:25 nav_1_aboutme_bhb.gif
+-rw-r--r--   1 5413     5413         4698 Nov 19 02:25 nav_1_favorite_bhb.gif
+-rw-r--r--   1 5413     5413         4042 Nov 19 02:25 nav_1_index_bhb.gif
+-rw-r--r--   1 5413     5413         3966 Nov 19 02:25 nav_1_links_bhb.gif
+-rw-r--r--   1 5413     5413         5071 Nov 19 02:25 nav_1_openjpm_bhb.gif
+-rw-r--r--   1 5413     5413         4434 Nov 19 02:25 nav_1_pgpkey_bhb.gif
+-rw-r--r--   1 5413     5413         4502 Nov 19 02:25 nav_1_profile_bhb.gif
+-rw-r--r--   1 5413     5413         4698 Nov 19 02:25 nav_1_programming_bhb.gif
+-rw-r--r--   1 5413     5413         4283 Nov 19 02:25 nav_1_theme_1_bhb.gif
+-rw-r--r--   1 5413     5413         4319 Nov 19 02:25 nav_1_theme_2_bhb.gif
+-rw-r--r--   1 5413     5413         4434 Nov 19 02:25 nav_1_theme_3_bhb.gif
+-rw-r--r--   1 5413     5413         4434 Nov 19 02:25 nav_1_theme_4_bhb.gif
+-rw-r--r--   1 5413     5413         1471 Nov 19 02:25 nav_2_13_tv.gif
+-rw-r--r--   1 5413     5413         1678 Nov 19 02:25 nav_2_13_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:25 nav_2_aboutme_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:25 nav_2_aboutme_btn_homer.gif
+-rw-r--r--   1 5413     5413         1550 Nov 19 02:25 nav_2_aboutme_tv.gif
+-rw-r--r--   1 5413     5413         1441 Nov 19 02:25 nav_2_aboutme_tvh.gif
+-rw-r--r--   1 5413     5413         1802 Nov 19 02:25 nav_2_aboutme_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_favorite_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_favorite_btn_homer.gif
+-rw-r--r--   1 5413     5413         1683 Nov 19 02:26 nav_2_favorite_tv.gif
+-rw-r--r--   1 5413     5413         1565 Nov 19 02:26 nav_2_favorite_tvh.gif
+-rw-r--r--   1 5413     5413         2005 Nov 19 02:26 nav_2_favorite_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_links_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_links_btn_homer.gif
+-rw-r--r--   1 5413     5413         1276 Nov 19 02:26 nav_2_links_tv.gif
+-rw-r--r--   1 5413     5413         1167 Nov 19 02:26 nav_2_links_tvh.gif
+-rw-r--r--   1 5413     5413         1408 Nov 19 02:26 nav_2_links_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_openjpm_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_openjpm_btn_homer.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_pgpkey_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_pgpkey_btn_homer.gif
+-rw-r--r--   1 5413     5413         1533 Nov 19 02:26 nav_2_pgpkey_tv.gif
+-rw-r--r--   1 5413     5413         1416 Nov 19 02:26 nav_2_pgpkey_tvh.gif
+-rw-r--r--   1 5413     5413         1755 Nov 19 02:26 nav_2_pgpkey_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_profile_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_profile_btn_homer.gif
+-rw-r--r--   1 5413     5413         1550 Nov 19 02:26 nav_2_profile_tv.gif
+-rw-r--r--   1 5413     5413         1441 Nov 19 02:26 nav_2_profile_tvh.gif
+-rw-r--r--   1 5413     5413         1802 Nov 19 02:26 nav_2_profile_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_programming_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_programming_btn_homer.gif
+-rw-r--r--   1 5413     5413         1683 Nov 19 02:26 nav_2_programming_tv.gif
+-rw-r--r--   1 5413     5413         1565 Nov 19 02:26 nav_2_programming_tvh.gif
+-rw-r--r--   1 5413     5413         2005 Nov 19 02:26 nav_2_programming_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:26 nav_2_theme_1_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:26 nav_2_theme_1_btn_homer.gif
+-rw-r--r--   1 5413     5413         1438 Nov 19 02:26 nav_2_theme_1_tv.gif
+-rw-r--r--   1 5413     5413         1326 Nov 19 02:26 nav_2_theme_1_tvh.gif
+-rw-r--r--   1 5413     5413         1648 Nov 19 02:27 nav_2_theme_1_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:27 nav_2_theme_2_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:27 nav_2_theme_2_btn_homer.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:27 nav_2_theme_3_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:27 nav_2_theme_3_btn_homer.gif
+-rw-r--r--   1 5413     5413         1533 Nov 19 02:27 nav_2_theme_3_tv.gif
+-rw-r--r--   1 5413     5413         1416 Nov 19 02:27 nav_2_theme_3_tvh.gif
+-rw-r--r--   1 5413     5413         1755 Nov 19 02:27 nav_2_theme_3_tvr.gif
+-rw-r--r--   1 5413     5413         1306 Nov 19 02:27 nav_2_theme_4_btn_home.gif
+-rw-r--r--   1 5413     5413         1440 Nov 19 02:27 nav_2_theme_4_btn_homer.gif
+-rw-r--r--   1 5413     5413         1533 Nov 19 02:27 nav_2_theme_4_tv.gif
+-rw-r--r--   1 5413     5413         1416 Nov 19 02:27 nav_2_theme_4_tvh.gif
+-rw-r--r--   1 5413     5413         1755 Nov 19 02:27 nav_2_theme_4_tvr.gif
+#ls -Rl
