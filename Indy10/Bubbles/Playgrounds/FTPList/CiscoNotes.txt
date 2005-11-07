@@ -1,0 +1,32 @@
+FTPclient% ftp FTProuter
+Connected to FTProuter.cisco.com.
+220 FTProuter IOS-FTP server (version 1.00) ready.
+Name (FTProuter:me): aa
+331 Password required for 'aa'.
+Password:
+230 Logged in.
+Remote system type is Cisco.
+ftp> pwd
+257 "disk0:/syslogd.dir/" is current directory.
+ftp> dir
+200 PORT command successful.
+150 Opening ASCII mode data connection for file list.
+syslogd.1
+syslogd.2
+syslogd.3
+syslogd.4
+syslogd.5
+syslogd.6
+syslogd.7
+syslogd.8
+syslogd.9
+syslogd.cur
+226 Transfer complete.
+ftp> bin
+200 Type set to I.
+ftp> get syslogd.1
+200 PORT command successful.
+150 Opening BINARY mode data connection for syslogd.1 (607317 bytes).
+226 Transfer complete.
+607317 bytes received in 7.7 seconds (77 Kbytes/s)
+ftp>

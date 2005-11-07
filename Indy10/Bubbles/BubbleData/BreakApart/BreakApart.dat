@@ -1,0 +1,111 @@
+Format of this file is as follows:
+
+Each section begins with a line starting with a colon (:).
+
+The first line after the colon is the test data to enter 
+the BreakApart function and the second line is the break
+string to enter the BreakApart function.  The third line
+is the expected number of results.
+
+Following these three lines are the results expected of the
+BreakApart, one per entry expected in the resulting TStrings
+list.
+
+Comments may be placed between each test and after the colon
+of the starting line.
+
+:  Test 1: Split Test at the s.
+Test
+s
+2
+Te
+t
+
+: Test 2: Split Test at the J... i.e, don't split it.
+Test
+J
+1
+Test
+
+: Test 3: Split long string in half
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTJTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+J
+2
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+
+: Test 4: Split short string into multiple pieces
+TJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJTJT
+J
+39
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+T
+
+
+: Test 5: String of only the break - 17 empty strings
+JJJJJJJJJJJJJJJJ
+J
+17
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+: Test 6: Multi-character string.
+ApartApartA
+part
+3
+A
+A
+A
+

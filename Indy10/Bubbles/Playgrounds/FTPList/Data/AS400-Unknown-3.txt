@@ -1,0 +1,5 @@
+QSYS            45056 20/08/97 07:44:48 *FILE      QACJINFO.FILE
+QSYS                                    *MEM       QACJINFO.FILE/QACJINFO.MBR
+QSYS            12288 20/08/97 07:43:35 *FILE      QACM0TRC.FILE
+QSYS             8192 20/08/97 07:43:35 *FILE      QADALO.FILE
+#From: http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=36e5f335%40news1.us.ibm.net&rnum=3&prev=/groups%3Fq%3DAS400%2BFTP%2BLIST%2Bformat%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26selm%3D36e5f335%2540news1.us.ibm.net%26rnum%3D3

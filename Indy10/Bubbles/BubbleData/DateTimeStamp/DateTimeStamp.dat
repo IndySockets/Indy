@@ -1,0 +1,308 @@
+Format of this file is as follows:
+
+Each section begins with a line starting with a colon (:).
+
+The first one or two characters of the second line indicates
+the action to be performed:
+N - None
+A - Add
+S - Subtract
+I - Convert from RFC 822, a.k.a. Internet format
+i - Convert to RFC 822
+V - Convert from ISO 8601 (V is for VCalender)
+v1 - Convert to ISO 8601 Calender format
+v2 - Convert to ISO 8601 Ordinal format
+v3 - Convert to ISO 8601 Week format
+T - Convert to TTimeStamp (no ouput needed - it's calculated)
+The rest of the first line consits of the addition, subtraction,
+or conversion format as necessary.
+
+The third line consists of the initial values given to
+the TIdDateTimeStamp.  This will be in a relevant format to
+the test.
+
+The fourth line is the output to be expected.
+
+The format for basic dates uses letters as follows (case sensitive):
+Year (Y), Day of year (D), Second (S), Millisecond (L), Time Zone (Z),
+24 Hour (H), 12 Hour (h), Week (W), Day of week (w), Month (M), Day
+of Month (d), Minute of Day (m), Minute Of Hour (U), Second of Minute
+(s) and Beat time (B) respectively.  The Year, Day, Millisecond, and
+Time Zone options are valid for all three strings. The Beat Time,
+Day of Week, Day of Month and Minute of Hour are only valid for
+output.  All others are valid for commands and output.  Note: that
+for initialisation, only those items appearing are set, the others
+are left to their defaults.  For commands, only those items listed
+are performed and for output, only those items listed are checked for.
+
+Note on Seconds and Milliseconds: The first second / millisecond of
+the day is zero.
+
+Note on Time Zones: The zones are given as an offset of minutes from 
+GMT.  So +60 is Middle European Time, whereas -60 is British Summer Time.
+
+Weekday numbers: w1 = Sunday, w2 = Monday, w3 = Tuesday, w4 = Wednesday,
+w5 = Thursday, w6 = Friday, w7 = Saturday.
+
+Quick summary: Line 1 is a colon.  Line 3 initialises the date/time.
+Line 4 is the expected output.  Line 2 is the action taken place that
+should get from Line 3 to Line 4.
+
+: Test 1 - Ensure year zero, day zero does not exist.
+N
+Y0 D0 S0 L0 Z0
+Y1 D1 S0 L0 Z0 B41 W1 w2
+
+: Test 2 - Ensure year zero, day zero does not exist.
+S L1
+Y1 D1 S0 L0 Z0
+Y-1 D365 S86399 L999 Z0 B41
+
+: Test 3 - Simple addition of years.
+A Y1
+Y1 D1
+Y2 D1
+
+: Test 4 - Simple addition of years
+A Y4
+Y1 D1
+Y5 D1
+
+: Test 5 - Simple addition of days
+A D1
+
+D2
+
+: Test 6 - Simple addition of days
+A D100
+
+D101
+
+: Test 7 - Simple addition of seconds
+A S1
+
+S1
+
+: Test 8 - Simple addition of seconds
+A S40
+
+S40
+
+: Test 9 - Simple addition of milliseconds
+A L1
+
+L1
+
+: Test 10 - Simple addition of milliseconds
+A L200
+
+L200
+
+: Test 11 - Simple addition of Months
+A M1
+
+M2 d1
+
+: Test 12 - Simple addition of Months
+A M12
+
+Y2 M1 D1 d1
+
+: Test 13 - Simple addition of Weeks
+A W1
+
+W2 w2
+
+: Test 14 - Simple addition of Weeks
+A W50
+
+W51 w2
+
+: Test 15 - Beat time test
+N
+Z60
+B0
+
+: Test 16 - Beat time test
+S S1
+Z60
+B999
+
+: Test 17 - Leap year test
+A M1 D28
+Y1996
+M2 d29
+
+: Test 18 - Non-leap year test.
+A M1 D28
+Y1997
+M3 d1
+
+: Test 19 - One-hundred year non-leap year.
+A M1 D28
+Y2100
+M3 d1
+
+: Test 20 - Four-hundred year leap year.
+A M1 D28
+Y2000
+M2 d29
+
+: Test 21 - Convert from Internet Format
+I
+Mon, 2 Oct 2000 08:25:57
+w2 d2 M10 Y2000 h8 U25 s57
+
+: Test 22 - Convert from Internet Format
+I
+Sat, 2 Dec 2000 08:25:57
+w7 d2 M12 Y2000 h8 U25 s57
+
+: Test 23 - Convert from Internet Format
+I
+Tue, 2 Oct 2001 08:25:57
+w3 d2 M10 Y2001 H8 U25 s57
+
+: Test 24 - Convert from Internet Format
+I
+1 Jan 2006 08:25:57
+Y2006 d1 h8 U25 s57
+
+: Test 25 - Convert from Internet Format
+I
+1 Jan 2034 08:25:57
+Y2034 d1 h8 U25 s57
+
+: Test 26 - Add huge number of years.
+A Y2147483646
+
+Y2147483647 M1 d1
+
+: Test 27 - Add huge number of days.
+A D2147483646
+
+Y5879611 M7 d11
+
+: Test 28 - Add huge number of seconds.
+A S2147483647
+Y1970 D1
+Y2038 M1 d19 H3 U14 s7
+
+: Test 29 - Add huge number of milliseconds.
+A L2147483647
+
+Y1 M1 d25 H20 U31 s23 L647
+
+: Test 30  - Convert to Internet Format, first day of 1970, GMT.
+i
+Y1970
+Thu, 1 Jan 1970 00:00:00 +0000
+
+: Test 31 - Convert to Internet Format, first day of 2000, GMT.
+i
+Y2000
+Sat, 1 Jan 2000 00:00:00 +0000
+
+: Test 32 - Convert to Internet Format, 29 Feb 2000, GMT.
+i
+Y2000 D60 S60000
+Tue, 29 Feb 2000 16:40:00 +0000
+
+: Test 33 - Convert to Internet Format '29 Feb' 2001, GMT.
+i
+Y2001 D60 S10000
+Thu, 1 Mar 2001 02:46:40 +0000
+
+: Test 34 - Convert to Internet Format, Middle European Time zone.
+i
+Y2001 Z60 S45015
+Mon, 1 Jan 2001 12:30:15 +0100
+
+: Test 35 - Convert to Internet Format, Pacific Standard Time.
+i
+Y2001 Z-480 S39015
+Mon, 1 Jan 2001 10:50:15 -0800
+
+: Test 36 - Convert to ISO 8601 Calender
+v1
+Y2000 S39015
+2000-1-1T10:50:15
+
+: Test 37 - Convert to ISO 8601 Ordinal
+v2
+Y2000 S39015
+2000-1T10:50:15
+
+: Test 38 - Convert to ISO 8601 Week
+v3
+Y2000 S39015
+2000-W1-7T10:50:15
+
+: Test 39 - Convert from ISO 8601 Calender format
+V
+2000-1-1T12:35:15
+Y2000 M1 d1 H12 U35 s15
+
+: Test 40 - Convert from ISO 8601 Week format
+V
+2004-W14-5T12:35:15
+Y2004 W14 w5 H12 U35 s15
+
+: Test 41 - Convert from ISO 8601 Ordinal format
+V
+2004-145T12:35:15
+Y2004 D145 H12 U35 s15
+
+: Test 42 - Output as TTimeStamp
+T
+
+
+
+: Test 43 - Output as TTimeStamp
+T
+Y2
+
+
+: Test 44 - Output as TTimeStamp
+T
+Y3
+
+
+: Test 45 - Output as TTimeStamp
+T
+Y4
+
+
+: Test 46 - Output as TTimeStamp
+T
+Y100
+
+
+: Test 47 - Output as TTimeStamp
+T
+Y400
+
+
+: Test 48 - Output as TTimeStamp
+T
+Y1970
+
+
+:Test 49 - Output as TTimeStamp
+T
+Y2000 D1
+
+
+:Test 50 - Output as TTimeStamp
+T
+Y2000 M3 d1
+
+
+:Test 51 - Output as TTimeStamp
+T
+Y1999 D365
+
+: Test 52 - Convert timestamp with a missing space from Internet Format
+I
+Wed,08 Jan 2003 08:09:16 PM
+Y2003 d8 M1 H20 U9 s16

@@ -1,0 +1,592 @@
+QSYS            12288 06/12/00 16:36:51 *FILE      QAANZLOG
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDBND
+QSYS            16384 06/12/00 16:36:51 *FILE      QABNDMBA
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDMCO
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDMEX
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDMIM
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDMPR
+QSYS             8192 06/12/00 16:36:51 *FILE      QABNDMRE
+QSYS            20480 06/12/00 16:36:51 *FILE      QABNDMSI
+QSYS            45056 06/12/00 16:37:57 *FILE      QACJINFO
+QSYS                                    *MEM       QACJINFO.QACJINFO
+QSYS            12288 06/12/00 16:36:51 *FILE      QACM0TRC
+QSYS             8192 06/12/00 16:36:51 *FILE      QADALO
+QSYS            53248 06/12/00 16:48:37 *FILE      QADBCCST
+QSYS            24576 06/12/00 16:36:51 *FILE      QADBCKCL
+QSYS                                    *MEM       QADBCKCL.QADBCKCL
+QSYS            65536 06/12/00 16:48:36 *FILE      QADBFCST
+QSYS           425984 06/12/00 16:48:31 *FILE      QADBFDEP
+QSYS          6733824 06/12/00 16:36:51 *FILE      QADBIATR
+QSYS                                    *MEM       QADBIATR.QADBIATR
+QSYS         60780544 06/12/00 16:48:38 *FILE      QADBIFLD
+QSYS          6586368 06/12/00 16:36:51 *FILE      QADBILFI
+QSYS                                    *MEM       QADBILFI.QADBILFI
+QSYS            12288 06/12/00 16:36:51 *FILE      QADBKATR
+QSYS                                    *MEM       QADBKATR.QADBKATR
+QSYS          1171456 06/12/00 16:48:39 *FILE      QADBKFLD
+QSYS           262144 06/12/00 16:36:51 *FILE      QADBLDEP
+QSYS                                    *MEM       QADBLDEP.QADBLDEP
+QSYS           278528 06/12/00 16:36:51 *FILE      QADBLDNC
+QSYS                                    *MEM       QADBLDNC.QADBLDNC
+QSYS            24576 06/12/00 16:36:51 *FILE      QADBLPKG
+QSYS                                    *MEM       QADBLPKG.QADBLPKG
+QSYS            61440 06/12/00 16:48:34 *FILE      QADBPKG
+QSYS            32768 06/12/00 16:36:51 *FILE      QADBRKCL
+QSYS                                    *MEM       QADBRKCL.QADBRKCL
+QSYS            57344 06/12/00 16:36:51 *FILE      QADBRKPA
+QSYS                                    *MEM       QADBRKPA.QADBRKPA
+QSYS            57344 06/12/00 16:36:51 *FILE      QADBRKPN
+QSYS                                    *MEM       QADBRKPN.QADBRKPN
+QSYS           294912 06/12/00 16:36:51 *FILE      QADBXATR
+QSYS                                    *MEM       QADBXATR.QADBXATR
+QSYS            90112 06/12/00 16:36:51 *FILE      QADBXDIC
+QSYS                                    *MEM       QADBXDIC.QADBXDIC
+QSYS           491520 06/12/00 16:36:51 *FILE      QADBXFIL
+QSYS                                    *MEM       QADBXFIL.QADBXFIL
+QSYS           262144 06/12/00 16:36:51 *FILE      QADBXLFI
+QSYS                                    *MEM       QADBXLFI.QADBXLFI
+QSYS           245760 06/12/00 16:36:51 *FILE      QADBXLFN
+QSYS                                    *MEM       QADBXLFN.QADBXLFN
+QSYS            57344 06/12/00 16:48:32 *FILE      QADBXRDBD
+QSYS                                    *MEM       QADBXRDBD.QADBXRDBD
+QSYS          1626112 06/12/00 16:48:29 *FILE      QADBXREF
+QSYS            28672 06/12/00 16:36:51 *FILE      QADBXRMTNM
+QSYS                                    *MEM       QADBXRMTNM.QADBXRMTNM
+QSYS             8192 06/12/00 16:36:51 *FILE      QADPGMAD
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSHLR
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPAUD
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPDBR
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPDE
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPDOC
+QSYS            20480 06/12/00 16:36:51 *FILE      QADSPFFD
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPFLR
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPJRN
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPJR2
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPJR3
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPJR4
+QSYS            24576 06/12/00 16:36:51 *FILE      QADSPOBJ
+QSYS            12288 06/12/00 16:36:51 *FILE      QADSPPGM
+QSYS            16384 06/12/00 16:36:51 *FILE      QADSPPTF
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPUPA
+QSYS            20480 06/12/00 16:36:51 *FILE      QADSPUPB
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPUPG
+QSYS             8192 06/12/00 16:36:51 *FILE      QADSPUPO
+QSYS             8192 06/12/00 16:36:51 *FILE      QADXERLG
+QSYS             8192 06/13/00 18:15:56 *FILE      QADXERL4
+QSYS             8192 06/12/00 16:36:51 *FILE      QADXJRNL
+QSYS             8192 06/13/00 18:15:51 *FILE      QADXJRN4
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDACCP
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDBASI
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDBSC
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDCMN
+QSYS             8192 06/12/00 16:36:51 *FILE      QAFDCSEQ
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDCST
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDDDM
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDDKT
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDDSP
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDICF
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDJOIN
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDLGL
+QSYS            32768 06/12/00 16:36:51 *FILE      QAFDMBR
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDMBRL
+QSYS             8192 06/12/00 16:36:51 *FILE      QAFDNGP
+QSYS            20480 06/12/00 16:36:51 *FILE      QAFDPHY
+QSYS            24576 06/12/00 16:36:51 *FILE      QAFDPRT
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDRFMT
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDSAV
+QSYS             8192 06/12/00 16:36:51 *FILE      QAFDSELO
+QSYS            12288 06/12/00 16:36:51 *FILE      QAFDSPOL
+QSYS            16384 06/12/00 16:36:51 *FILE      QAFDTAP
+QSYS             8192 06/12/00 16:36:51 *FILE      QAFDTRG
+QSYS            32768 06/12/00 16:36:51 *FILE      QAFSDDS
+QSYS                                    *MEM       QAFSDDS.QFMADIR
+QSYS                                    *MEM       QAFSDDS.QFMADIRP
+QSECOFR         20480 06/12/00 16:36:51 *FILE      QAFSSETU
+QSECOFR                                 *MEM       QAFSSETU.QAFSSETU
+QSYS             8192 06/12/00 16:36:51 *FILE      QAIDDSSPIA
+QSYS             8192 06/12/00 16:36:51 *FILE      QAIDDSSPIO
+QSYS            12288 06/12/00 16:36:51 *FILE      QAIFTRCF
+QSYS            12288 06/12/00 16:36:51 *FILE      QAJBACG
+QSECOFR         12288 06/13/00 18:15:51 *FILE      QAJBACG4
+QSYS             8192 06/12/00 16:36:51 *FILE      QALZAKEY
+QSYS            32768 06/12/00 16:37:57 *FILE      QALZALIC
+QSYS                                    *MEM       QALZALIC.QALZALIC
+QSYS             8192 06/12/00 16:36:51 *FILE      QALZALK
+QSECOFR          8192 06/13/00 18:15:55 *FILE      QALZALK4
+QSYS             8192 06/12/00 16:36:51 *FILE      QALZALL
+QSECOFR          8192 06/13/00 18:15:54 *FILE      QALZALL4
+QSYS             8192 06/12/00 16:36:51 *FILE      QALZALU
+QSECOFR          8192 06/13/00 18:15:51 *FILE      QALZALU4
+QSYS            12288 06/12/00 16:36:51 *FILE      QAMHJLPR
+QSYS             8192 06/12/00 16:36:51 *FILE      QAMHJLSC
+QSYS             8192 06/12/00 16:36:51 *FILE      QAMODFAF
+QSYS             8192 06/12/00 16:36:51 *FILE      QAMODPAF
+QSYS            16384 06/12/00 16:36:51 *FILE      QAMODVAF
+QSYS             8192 06/12/00 16:36:51 *FILE      QANFDNTF
+QSYS           659456 06/12/00 16:37:57 *FILE      QANMMIB
+QSYS                                    *MEM       QANMMIB.IBMAPPN
+QSYS                                    *MEM       QANMMIB.IBMCLTM
+QSYS                                    *MEM       QANMMIB.IBMNV6SA
+QSYS                                    *MEM       QANMMIB.IBMRWS
+QSYS                                    *MEM       QANMMIB.IBMSNMPSA
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOBJAUT
+QSYS             8192 06/12/00 16:36:51 *FILE      QAOCRMTDFN
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOJRSTO
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOJSAVO
+QSYS             8192 06/12/00 16:36:51 *FILE      QAOKNCKO
+QSYS             8192 06/12/00 16:36:51 *FILE      QAOPOUFL
+QSYS             8192 06/12/00 16:36:51 *FILE      QAOSDIRB
+QSYS            28672 06/12/00 16:36:51 *FILE      QAOSDIRF
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSDIRO
+QSYS            32768 06/12/00 16:36:51 *FILE      QAOSDIRX
+QSYS             8192 06/12/00 16:36:51 *FILE      QAOSDSTO
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSILIN
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSILOT
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSIQDL
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSIRCV
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSIREF
+QSYS            12288 06/12/00 16:36:51 *FILE      QAOSIRTV
+QSYS            69632 06/12/00 16:38:40 *FILE      QAPMAPPN
+QSYS            12288 06/12/00 16:38:40 *FILE      QAPMASYN
+QSYS            16384 06/12/00 16:38:40 *FILE      QAPMBSC
+QSYS            12288 06/12/00 16:38:41 *FILE      QAPMBUS
+QSYS            16384 06/12/00 16:38:41 *FILE      QAPMCIOP
+QSYS            12288 06/12/00 16:38:41 *FILE      QAPMCONF
+QSYS            20480 06/12/00 16:38:41 *FILE      QAPMDDI
+QSYS            20480 06/12/00 16:38:42 *FILE      QAPMDDS
+QSYS                                    *MEM       QAPMDDS.QAPMLSCD
+QSYS            24576 06/12/00 16:38:42 *FILE      QAPMDIOP
+QSYS            16384 06/12/00 16:38:42 *FILE      QAPMDISK
+QSYS            12288 06/12/00 16:38:42 *FILE      QAPMDMPT
+QSYS            20480 06/12/00 16:38:43 *FILE      QAPMECL
+QSYS            20480 06/12/00 16:38:43 *FILE      QAPMETH
+QSYS            16384 06/12/00 16:38:43 *FILE      QAPMFRLY
+QSYS            16384 06/12/00 16:38:43 *FILE      QAPMHDLC
+QSYS            16384 06/12/00 16:38:44 *FILE      QAPMIDLC
+QSYS            20480 06/12/00 16:38:44 *FILE      QAPMIOPD
+QSYS            32768 06/12/00 16:38:44 *FILE      QAPMJOBS
+QSYS            16384 06/12/00 16:38:44 *FILE      QAPMLAPD
+QSYS            16384 06/12/00 16:38:45 *FILE      QAPMLIOP
+QSYS            20480 06/12/00 16:38:45 *FILE      QAPMMIOP
+QSYS            16384 06/12/00 16:38:45 *FILE      QAPMPOOL
+QSYS            12288 06/12/00 16:38:45 *FILE      QAPMRESP
+QSYS            12288 06/12/00 16:38:46 *FILE      QAPMRWS
+QSYS            12288 06/12/00 16:38:46 *FILE      QAPMSAP
+QSYS            20480 06/12/00 16:38:46 *FILE      QAPMSBSD
+QSYS            36864 06/12/00 16:38:46 *FILE      QAPMSCOL
+QSYS                                    *MEM       QAPMSCOL.QAPMSCOL
+QSYS            45056 06/12/00 16:38:47 *FILE      QAPMSNA
+QSYS            12288 06/12/00 16:38:47 *FILE      QAPMSNADS
+QSYS            36864 06/12/00 16:38:47 *FILE      QAPMSSCD
+QSYS                                    *MEM       QAPMSSCD.QAPMSSCD
+QSYS            16384 06/12/00 16:38:48 *FILE      QAPMSTND
+QSYS            16384 06/12/00 16:38:48 *FILE      QAPMSTNE
+QSYS            16384 06/12/00 16:38:48 *FILE      QAPMSTNL
+QSYS            16384 06/12/00 16:38:48 *FILE      QAPMSTNY
+QSYS           110592 06/12/00 16:38:49 *FILE      QAPMSYS
+QSYS            12288 06/12/00 16:38:49 *FILE      QAPMTSK
+QSYS            20480 06/12/00 16:38:49 *FILE      QAPMX25
+QSYS            20480 06/12/00 16:36:51 *FILE      QAPRERLG
+QSYS            12288 06/12/00 16:36:51 *FILE      QAPRTELG
+QSYS            12288 06/12/00 16:36:51 *FILE      QAPTACG
+QSYS            12288 06/13/00 18:15:52 *FILE      QAPTACG4
+QSYS            36864 06/12/00 16:37:57 *FILE      QAPZACT
+QSYS                                    *MEM       QAPZACT.QAPZACT
+QSYS             8192 06/12/00 16:36:51 *FILE      QAPZCMPL
+QSYS            12288 06/12/00 16:36:51 *FILE      QAPZCOVER
+QSYS            49152 06/12/00 16:38:39 *FILE      QAPZOBJ
+QSYS                                    *MEM       QAPZOBJ.QAPZOBJ
+QSYS            40960 06/12/00 16:37:57 *FILE      QAPZOBJ2
+QSYS                                    *MEM       QAPZOBJ2.QAPZOBJ2
+QSYS            53248 06/12/00 16:38:37 *FILE      QAPZPTF
+QSYS                                    *MEM       QAPZPTF.QAPZPTF
+QSYS            32768 06/12/00 16:38:37 *FILE      QAPZPTF2
+QSYS                                    *MEM       QAPZPTF2.QAPZPTF2
+QSYS            32768 06/12/00 16:38:37 *FILE      QAPZPTF3
+QSYS                                    *MEM       QAPZPTF3.QAPZPTF3
+QSYS            32768 06/12/00 16:37:57 *FILE      QAPZPTF4
+QSYS                                    *MEM       QAPZPTF4.QAPZPTF4
+QSYS            49152 06/12/00 16:38:37 *FILE      QAPZREQ
+QSYS                                    *MEM       QAPZREQ.QAPZREQ
+QSYS            32768 06/12/00 16:38:38 *FILE      QAPZREQ2
+QSYS                                    *MEM       QAPZREQ2.QAPZREQ2
+QSYS            49152 06/12/00 16:38:38 *FILE      QAPZSYM
+QSYS                                    *MEM       QAPZSYM.QAPZSYM
+QSYS            32768 06/12/00 16:38:38 *FILE      QAPZSYM2
+QSYS                                    *MEM       QAPZSYM2.QAPZSYM2
+QSYS            24576 06/12/00 16:36:51 *FILE      QAQQDBMN
+QSYS             8192 06/12/00 16:36:51 *FILE      QARCLDLO
+QSYS            20480 06/12/00 16:36:51 *FILE      QARZALLF
+QSYS            20480 06/12/00 16:36:51 *FILE      QARZDCMN
+QSYS            16384 06/12/00 16:36:51 *FILE      QARZDCSA
+QSYS            16384 06/12/00 16:36:51 *FILE      QARZDLWS
+QSYS            12288 06/12/00 16:36:51 *FILE      QARZDPRC
+QSYS            16384 06/12/00 16:36:51 *FILE      QARZDSTG
+QSYS             8192 06/12/00 16:36:51 *FILE      QARZDTRA
+QSYS            16384 06/12/00 16:36:51 *FILE      QARZLCOF
+QSYS            12288 06/12/00 16:36:51 *FILE      QASAVOBJ
+QSYS            16384 06/12/00 16:36:51 *FILE      QASCCMNT
+QSYS             8192 06/12/00 16:36:51 *FILE      QASCCPY
+QSYS            12288 06/12/00 16:36:51 *FILE      QASRRSTO
+QSYS            40960 06/12/00 16:37:57 *FILE      QASUPTEL
+QSYS                                    *MEM       QASUPTEL.QASUPTEL
+QSYS            12288 06/12/00 16:36:51 *FILE      QASXCAOF
+QSYS             8192 06/12/00 16:36:51 *FILE      QASXFXOF
+QSYS            16384 06/12/00 16:36:51 *FILE      QASXPBOF
+QSYS             8192 06/12/00 16:36:51 *FILE      QASXSDOF
+QSYS             8192 06/12/00 16:36:51 *FILE      QASXTXOF
+QSYS            12288 06/12/00 16:36:51 *FILE      QASYADJE
+QSYS            12288 06/13/00 18:12:49 *FILE      QASYADJ4
+QSYS            12288 06/12/00 16:36:51 *FILE      QASYAFJE
+QSYS            12288 06/13/00 18:12:34 *FILE      QASYAFJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYAPJE
+QSYS             8192 06/13/00 18:12:34 *FILE      QASYAPJ4
+QSYS            16384 06/12/00 16:36:51 *FILE      QASYCAJE
+QSYS            16384 06/13/00 18:12:35 *FILE      QASYCAJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYCDJE
+QSYS             8192 06/13/00 18:12:35 *FILE      QASYCDJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYCHKI
+QSYS            12288 06/12/00 16:36:51 *FILE      QASYCOJE
+QSYS            12288 06/13/00 18:12:35 *FILE      QASYCOJ4
+QSYS            12288 06/12/00 16:36:51 *FILE      QASYCPJE
+QSYS            12288 06/13/00 18:12:36 *FILE      QASYCPJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYCQJE
+QSYS             8192 06/13/00 18:12:36 *FILE      QASYCQJ4
+QSYS            12288 06/12/00 16:36:51 *FILE      QASYDOJE
+QSYS            12288 06/13/00 18:12:36 *FILE      QASYDOJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYDSJE
+QSYS             8192 06/13/00 18:12:37 *FILE      QASYDSJ4
+QSYS             8192 06/12/00 16:36:51 *FILE      QASYGSJE
+QSYS             8192 06/13/00 18:12:37 *FILE      QASYGSJ4
+QSYS            12288 06/12/00 16:36:52 *FILE      QASYIPJE
+QSYS            12288 06/13/00 18:12:38 *FILE      QASYIPJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYJDJE
+QSYS             8192 06/13/00 18:12:38 *FILE      QASYJDJ4
+QSYS            12288 06/12/00 16:36:52 *FILE      QASYJSJE
+QSYS            12288 06/13/00 18:12:38 *FILE      QASYJSJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYLDJE
+QSYS            12288 06/13/00 18:12:34 *FILE      QASYLDJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYMLJE
+QSYS             8192 06/13/00 18:12:33 *FILE      QASYMLJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYNAJE
+QSYS             8192 06/13/00 18:12:28 *FILE      QASYNAJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYNDJE
+QSYS            12288 06/13/00 18:12:29 *FILE      QASYNDJ4
+QSYS             8192 06/12/00 16:36:52 *FILE      QASYNEJE
+QSYS             8192 06/13/00 18:12:29 *FILE      QASYNEJ4
+QSYS            12288 06/12/00 16:36:52 *FILE      QASYOMJE
+QSYS            12288 06/13/00 18:12:29 *FILE      QASYOMJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYORJE
+QSYS            12288 06/13/00 18:12:30 *FILE      QASYORJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYOWJE
+QSYS            12288 06/13/00 18:12:30 *FILE      QASYOWJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYO1JE
+QSYS             8192 06/13/00 18:12:31 *FILE      QASYO1J4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYO2JE
+QSYS            12288 06/13/00 18:12:31 *FILE      QASYO2J4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYO3JE
+QSYS            12288 06/13/00 18:12:31 *FILE      QASYO3J4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYPAJE
+QSYS             8192 06/13/00 18:12:32 *FILE      QASYPAJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYPGJE
+QSYS            16384 06/13/00 18:12:32 *FILE      QASYPGJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYPOJE
+QSYS            12288 06/13/00 18:12:32 *FILE      QASYPOJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYPSJE
+QSYS             8192 06/13/00 18:12:33 *FILE      QASYPSJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYPWJE
+QSYS             8192 06/13/00 18:12:39 *FILE      QASYPWJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYRAJE
+QSYS            12288 06/13/00 18:12:39 *FILE      QASYRAJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYRJJE
+QSYS             8192 06/13/00 18:12:39 *FILE      QASYRJJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYROJE
+QSYS            12288 06/13/00 18:12:45 *FILE      QASYROJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYRPJE
+QSYS             8192 06/13/00 18:12:45 *FILE      QASYRPJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYRQJE
+QSYS             8192 06/13/00 18:12:46 *FILE      QASYRQJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYRUJE
+QSYS             8192 06/13/00 18:12:46 *FILE      QASYRUJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYRZJE
+QSYS            12288 06/13/00 18:12:46 *FILE      QASYRZJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYSDJE
+QSYS            12288 06/13/00 18:12:47 *FILE      QASYSDJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYSEJE
+QSYS             8192 06/13/00 18:12:47 *FILE      QASYSEJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYSFJE
+QSYS            12288 06/13/00 18:12:47 *FILE      QASYSFJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYSMJE
+QSYS            12288 06/13/00 18:12:49 *FILE      QASYSMJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYSOJE
+QSYS             8192 06/13/00 18:12:49 *FILE      QASYSOJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYSTJE
+QSYS            12288 06/13/00 18:12:48 *FILE      QASYSTJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYSVJE
+QSYS             8192 06/13/00 18:12:48 *FILE      QASYSVJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVAJE
+QSYS             8192 06/13/00 18:12:48 *FILE      QASYVAJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVCJE
+QSYS            12288 06/13/00 18:12:44 *FILE      QASYVCJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVFJE
+QSYS            12288 06/13/00 18:12:44 *FILE      QASYVFJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVLJE
+QSYS             8192 06/13/00 18:12:40 *FILE      QASYVLJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVNJE
+QSYS            12288 06/13/00 18:12:40 *FILE      QASYVNJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVPJE
+QSYS             8192 06/13/00 18:12:40 *FILE      QASYVPJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYVRJE
+QSYS            12288 06/13/00 18:12:41 *FILE      QASYVRJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVSJE
+QSYS             8192 06/13/00 18:12:41 *FILE      QASYVSJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QASYVUJE
+QSYS             8192 06/13/00 18:12:41 *FILE      QASYVUJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYVVJE
+QSYS            12288 06/13/00 18:12:42 *FILE      QASYVVJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYYCJE
+QSYS            12288 06/13/00 18:12:42 *FILE      QASYYCJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYYRJE
+QSYS            12288 06/13/00 18:12:42 *FILE      QASYYRJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYZCJE
+QSYS            12288 06/13/00 18:12:43 *FILE      QASYZCJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYZMJE
+QSYS            12288 06/13/00 18:12:43 *FILE      QASYZMJ4
+QSYS            12288 06/12/00 16:37:04 *FILE      QASYZRJE
+QSYS            12288 06/13/00 18:12:43 *FILE      QASYZRJ4
+QSYS             8192 06/12/00 16:37:04 *FILE      QATACOF
+QSYS             8192 06/12/00 16:37:04 *FILE      QATADOF
+QSYS            12288 06/12/00 16:37:04 *FILE      QATAIOF
+QSYS             8192 06/12/00 16:37:04 *FILE      QATAVOF
+QSECOFR         65536 06/15/00 13:12:30 *FILE      QATODBT
+QSECOFR                                 *MEM       QATODBT.BOOTPTAB
+QSYS             8192 06/12/00 16:37:04 *FILE      QATOSLOG
+QSYS             8192 06/13/00 18:20:14 *FILE      QATOSLO4
+QSYS            12288 06/12/00 16:37:04 *FILE      QATRCJOB
+QSECOFR         45056 06/13/00 18:11:51 *FILE      QAUS2DET
+QSECOFR                                 *MEM       QAUS2DET.QAUS2DET
+QSECOFR         36864 06/13/00 18:11:51 *FILE      QAUS2SUM
+QSECOFR                                 *MEM       QAUS2SUM.QAUS2SUM
+QSECOFR         20480 06/13/00 18:11:52 *FILE      QAUS2SYS
+QSECOFR                                 *MEM       QAUS2SYS.QAUS2SYS
+QSYS            12288 06/12/00 16:37:04 *FILE      QAVOLSTA
+QSYS            12288 06/12/00 16:37:04 *FILE      QAWCTPJE
+QSECOFR         12288 06/13/00 18:15:52 *FILE      QAWCTPJ4
+QSYS          2813952 06/12/00 16:37:57 *FILE      QAWPZSFNT
+QSYS                                    *MEM       QAWPZSFNT.FOIL10
+QSYS                                    *MEM       QAWPZSFNT.FOIL12
+QSYS                                    *MEM       QAWPZSFNT.FOIL16
+QSYS                                    *MEM       QAWPZSFNT.FOIL20
+QSYS                                    *MEM       QAWPZSFNT.HELV06
+QSYS                                    *MEM       QAWPZSFNT.HELV07
+QSYS                                    *MEM       QAWPZSFNT.HELV08
+QSYS                                    *MEM       QAWPZSFNT.HELV08B
+QSYS                                    *MEM       QAWPZSFNT.HELV08I
+QSYS                                    *MEM       QAWPZSFNT.HELV09
+QSYS                                    *MEM       QAWPZSFNT.HELV09B
+QSYS                                    *MEM       QAWPZSFNT.HELV09I
+QSYS                                    *MEM       QAWPZSFNT.HELV09X
+QSYS                                    *MEM       QAWPZSFNT.HELV10
+QSYS                                    *MEM       QAWPZSFNT.HELV10B
+QSYS                                    *MEM       QAWPZSFNT.HELV10I
+QSYS                                    *MEM       QAWPZSFNT.HELV10X
+QSYS                                    *MEM       QAWPZSFNT.HELV11
+QSYS                                    *MEM       QAWPZSFNT.HELV11B
+QSYS                                    *MEM       QAWPZSFNT.HELV11I
+QSYS                                    *MEM       QAWPZSFNT.HELV11X
+QSYS                                    *MEM       QAWPZSFNT.HELV12
+QSYS                                    *MEM       QAWPZSFNT.HELV12B
+QSYS                                    *MEM       QAWPZSFNT.HELV12I
+QSYS                                    *MEM       QAWPZSFNT.HELV12X
+QSYS                                    *MEM       QAWPZSFNT.HELV14
+QSYS                                    *MEM       QAWPZSFNT.HELV14B
+QSYS                                    *MEM       QAWPZSFNT.HELV14I
+QSYS                                    *MEM       QAWPZSFNT.HELV14X
+QSYS                                    *MEM       QAWPZSFNT.HELV16
+QSYS                                    *MEM       QAWPZSFNT.HELV16B
+QSYS                                    *MEM       QAWPZSFNT.HELV18
+QSYS                                    *MEM       QAWPZSFNT.HELV18B
+QSYS                                    *MEM       QAWPZSFNT.HELV20
+QSYS                                    *MEM       QAWPZSFNT.HELV20B
+QSYS                                    *MEM       QAWPZSFNT.HELV24B
+QSYS                                    *MEM       QAWPZSFNT.LGOT06
+QSYS                                    *MEM       QAWPZSFNT.LGOT07
+QSYS                                    *MEM       QAWPZSFNT.LGOT08
+QSYS                                    *MEM       QAWPZSFNT.LGOT08B
+QSYS                                    *MEM       QAWPZSFNT.LGOT09
+QSYS                                    *MEM       QAWPZSFNT.LGOT09B
+QSYS                                    *MEM       QAWPZSFNT.LGOT09I
+QSYS                                    *MEM       QAWPZSFNT.LGOT09X
+QSYS                                    *MEM       QAWPZSFNT.LGOT10
+QSYS                                    *MEM       QAWPZSFNT.LGOT10B
+QSYS                                    *MEM       QAWPZSFNT.LGOT10I
+QSYS                                    *MEM       QAWPZSFNT.LGOT10X
+QSYS                                    *MEM       QAWPZSFNT.LGOT11
+QSYS                                    *MEM       QAWPZSFNT.LGOT12
+QSYS                                    *MEM       QAWPZSFNT.LGOT12B
+QSYS                                    *MEM       QAWPZSFNT.LGOT12I
+QSYS                                    *MEM       QAWPZSFNT.LGOT12X
+QSYS                                    *MEM       QAWPZSFNT.LGOT14
+QSYS                                    *MEM       QAWPZSFNT.LGOT14B
+QSYS                                    *MEM       QAWPZSFNT.LGOT18
+QSYS                                    *MEM       QAWPZSFNT.LGOT18B
+QSYS                                    *MEM       QAWPZSFNT.SYMB08
+QSYS                                    *MEM       QAWPZSFNT.SYMB10
+QSYS                                    *MEM       QAWPZSFNT.SYMB12
+QSYS                                    *MEM       QAWPZSFNT.SYMB14
+QSYS                                    *MEM       QAWPZSFNT.SYMB18
+QSYS                                    *MEM       QAWPZSFNT.TIME06
+QSYS                                    *MEM       QAWPZSFNT.TIME07
+QSYS                                    *MEM       QAWPZSFNT.TIME08
+QSYS                                    *MEM       QAWPZSFNT.TIME08B
+QSYS                                    *MEM       QAWPZSFNT.TIME08I
+QSYS                                    *MEM       QAWPZSFNT.TIME09
+QSYS                                    *MEM       QAWPZSFNT.TIME09B
+QSYS                                    *MEM       QAWPZSFNT.TIME09I
+QSYS                                    *MEM       QAWPZSFNT.TIME09X
+QSYS                                    *MEM       QAWPZSFNT.TIME10
+QSYS                                    *MEM       QAWPZSFNT.TIME10B
+QSYS                                    *MEM       QAWPZSFNT.TIME10I
+QSYS                                    *MEM       QAWPZSFNT.TIME10X
+QSYS                                    *MEM       QAWPZSFNT.TIME11
+QSYS                                    *MEM       QAWPZSFNT.TIME11B
+QSYS                                    *MEM       QAWPZSFNT.TIME11I
+QSYS                                    *MEM       QAWPZSFNT.TIME11X
+QSYS                                    *MEM       QAWPZSFNT.TIME12
+QSYS                                    *MEM       QAWPZSFNT.TIME12B
+QSYS                                    *MEM       QAWPZSFNT.TIME12I
+QSYS                                    *MEM       QAWPZSFNT.TIME12X
+QSYS                                    *MEM       QAWPZSFNT.TIME14
+QSYS                                    *MEM       QAWPZSFNT.TIME14B
+QSYS                                    *MEM       QAWPZSFNT.TIME14I
+QSYS                                    *MEM       QAWPZSFNT.TIME14X
+QSYS                                    *MEM       QAWPZSFNT.TIME16
+QSYS                                    *MEM       QAWPZSFNT.TIME16B
+QSYS                                    *MEM       QAWPZSFNT.TIME18
+QSYS                                    *MEM       QAWPZSFNT.TIME18B
+QSYS                                    *MEM       QAWPZSFNT.TIME20B
+QSYS                                    *MEM       QAWPZSFNT.TIME24B
+QSYS           237568 06/12/00 16:37:57 *FILE      QAWPZTAD
+QSYS                                    *MEM       QAWPZTAD.QWPZFTB
+QSYS                                    *MEM       QAWPZTAD.QWPZPRO
+QSYS            32768 06/12/00 16:37:04 *FILE      QAXXDBF
+QSYS                                    *MEM       QAXXDBF.QAXXDBF
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEASM
+QSYS            12288 06/12/00 16:37:04 *FILE      QAYPEBASE
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPECICFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPECOCFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEDASD
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEDSRV
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEEVENT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEFQCFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEHMON
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEHTOT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEHWCFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEHWMAP
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELBRKT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELCPLX
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELICI
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELJOB
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELLIC
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELMET
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELMI
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELNAMT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPELNUMT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEMBRKT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEMICPX
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEMII
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEMIPTR
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEMIUSR
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPENLIC
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPENMI
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEPGFLT
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEPPANE
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEPSUM
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEPWDW
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEREF
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPERLS
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPERMPM
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPERMSL
+QSYS            16384 06/12/00 16:37:04 *FILE      QAYPERUNI
+QSYS            12288 06/12/00 16:37:04 *FILE      QAYPESAR
+QSYS            12288 06/12/00 16:37:04 *FILE      QAYPESEGI
+QSYS            20480 06/12/00 16:37:04 *FILE      QAYPESTATS
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPESTCFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPES36
+QSYS            12288 06/12/00 16:37:04 *FILE      QAYPETASKI
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPETIDX
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPETRCFG
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEUNKWN
+QSYS             8192 06/12/00 16:37:04 *FILE      QAYPEUSRDF
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCADEV
+QSYS                                    *MEM       QAZCADEV.QAZCADEV
+QSYS            45056 06/12/00 16:37:04 *FILE      QAZCADIR
+QSYS                                    *MEM       QAZCADIR.QAZCADIR
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCADRL
+QSYS                                    *MEM       QAZCADRL.QAZCADRL
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCADSK
+QSYS                                    *MEM       QAZCADSK.QAZCADSK
+QSYS            45056 06/12/00 16:37:04 *FILE      QAZCAFS
+QSYS                                    *MEM       QAZCAFS.QAZCAFS
+QSYS            45056 06/12/00 16:37:04 *FILE      QAZCAMSC
+QSYS                                    *MEM       QAZCAMSC.QAZCAMSC
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCANET
+QSYS                                    *MEM       QAZCANET.QAZCANET
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCAPRC
+QSYS                                    *MEM       QAZCAPRC.QAZCAPRC
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCAPRT
+QSYS                                    *MEM       QAZCAPRT.QAZCAPRT
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCAPTN
+QSYS                                    *MEM       QAZCAPTN.QAZCAPTN
+QSYS            45056 06/12/00 16:37:04 *FILE      QAZCASFW
+QSYS                                    *MEM       QAZCASFW.QAZCASFW
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCASFX
+QSYS                                    *MEM       QAZCASFX.QAZCASFX
+QSYS            36864 06/12/00 16:37:04 *FILE      QAZCASTG
+QSYS                                    *MEM       QAZCASTG.QAZCASTG
+QSYS            12288 06/12/00 16:37:04 *FILE      QAZDCFLG
+QSYS            12288 06/13/00 18:15:52 *FILE      QAZDCFL4
+QSYS            12288 06/12/00 16:37:04 *FILE      QAZDERLG
+QSYS            12288 06/13/00 18:15:53 *FILE      QAZDERL4
+QSYS            12288 06/12/00 16:37:04 *FILE      QAZDJRNL
+QSYS            12288 06/13/00 18:15:53 *FILE      QAZDJRN4
+QSYS             8192 06/12/00 16:37:04 *FILE      QAZDRTLG
+QSYS             8192 06/13/00 18:15:54 *FILE      QAZDRTL4
+QSYS             8192 06/12/00 16:37:04 *FILE      QAZDSYLG
+QSYS             8192 06/13/00 18:15:54 *FILE      QAZDSYL4
+QSYS             8192 06/12/00 16:37:05 *FILE      QAZMFCF
+QSYS             8192 06/13/00 18:15:56 *FILE      QAZMFCF4
+QSYS             8192 06/12/00 16:37:05 *FILE      QAZMFER
+QSYS             8192 06/13/00 18:15:56 *FILE      QAZMFER4
+QSYS             8192 06/12/00 16:37:05 *FILE      QAZMFLG
+QSYS             8192 06/13/00 18:15:55 *FILE      QAZMFLG4
+QSYS             8192 06/12/00 16:37:05 *FILE      QAZMFSY
+QSYS             8192 06/13/00 18:15:55 *FILE      QAZMFSY4
+QSECOFR        462848 06/12/00 16:37:57 *FILE      QCZLIBFILE
+QSECOFR                                 *MEM       QCZLIBFILE.QCZLIBFILE
+QSECOFR        172032 06/12/00 16:37:57 *FILE      QPXLIBFILE
+QSECOFR                                 *MEM       QPXLIBFILE.QPXLIBFILE
+QUSER          565248 06/13/00 13:39:52 *FILE      QPZ1B28037
+QSECOFR         24576 06/15/00 12:27:16 *FILE      QPZ1CBTP
+QSECOFR                                 *MEM       QPZ1CBTP.CONFIG
+QSECOFR         32768 06/15/00 12:27:12 *FILE      QPZ1CTFP
+QSECOFR                                 *MEM       QPZ1CTFP.CONFIG
+QSECOFR         20480 06/13/00 13:40:21 *FILE      QPZ1F36775
+QSECOFR                                 *MEM       QPZ1F36775.QSYSERV
+QSECOFR         20480 06/13/00 13:41:28 *FILE      QPZ1F40317
+QSECOFR                                 *MEM       QPZ1F40317.QFPZSR
+QSECOFR         28672 06/13/00 13:15:56 *FILE      QPZ1F40597
+QSECOFR                                 *MEM       QPZ1F40597.Q5BSS
+QSECOFR         28672 06/13/00 13:44:53 *FILE      QPZ1F45726
+QSECOFR                                 *MEM       QPZ1F45726.QSQCLI
+QSECOFR         28672 06/13/00 13:45:19 *FILE      QPZ1F47197
+QSECOFR                                 *MEM       QPZ1F47197.QTOSUTIL
+QSECOFR         98304 06/13/00 13:46:40 *FILE      QPZ1F51194
+QSECOFR                                 *MEM       QPZ1F51194.QP0FSR
+QSECOFR                                 *MEM       QPZ1F51194.QSRGENSE
+FTP            741376 02/11/02 15:48:31 *FILE      VPI12968X5
+FTP                                     *MEM       VPI12968X5.TXT
+FTP           1462272 02/11/02 15:48:34 *FILE      VSV12968X5
+FTP                                     *MEM       VSV12968X5.TXT
+#return from SYST command in DOS ftp:215 OS/400 is the remote operating system. The TCP/IP version is "V3R7M0".
+#Using command SITE NAMEFMT 0

@@ -1,0 +1,4 @@
+/QDLS/ARM          0 11/09/95 07:19:30 DIR
+/QDLS/ARM-VOL1     0 06/23/95 16:39:43 DIR
+/QDLS/ARMM         0 08/04/95 14:32:03 DIR
+#From: http://groups.google.com/groups?q=AS400+FTP+LIST+format&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3264740F.B52%40mother.com&rnum=4

@@ -1,0 +1,24 @@
+214-Server-FTP commands follow:
+214-Unsupported commands marked with an *.
+214-ABOR, ACCT*, ADDM, ADDV, ALLO*, APPE, CDUP, CRTL, CRTP, CRTS, CWD,
+214-DELE, DLTF, DLTL, HELP, LIST, MKD, MODE, NLST, NOOP, PASS,
+214-PASV, PORT, PWD, QUIT, RCMD, REIN, REST*, RETR, RMD, RNFR
+214-RNTO, SITE, STAT, STOR, STOU, STRU, SYST, TIME, TYPE, USER,
+214-XCUP, XCWD, XMKD, XPWD, XRMD.
+214-The data representation type may be ASCII(A), EBCDIC(E), binary IMAGE(I),
+214-DBCS_ASCII(B), DBCS_EBCDIC(F) or CCSID(C).
+214-Data structure must be file(F) or record(R).  Mode can be stream (S) or block (B).
+214-If this connection is not used more than 300 seconds, the session will end.
+214-Name Format 0 :
+214-File identifiers have three components: File, library, and member.
+214-Library and file components are separated by the / delimiter.
+214-File and member components are separated by the . delimiter.
+214-Example:  Library/file.member.
+214-Name Format 1 :
+214-Directory levels separated by the / delimiter.
+214-Database files use format: /QSYS.lib/Libname.lib/Fname.file/Mname.mbr
+214-Documents (files) stored in folders use format: /QDLS/folder/document.ext
+214-HFS files use format: /ifmname/ifmdependentnamingformat
+214-Integrated File Systems include: "root" (/), QOpenSys, QLANSrv.
+214-Integrated File System files use format: /fsname/fsdependentnamingformat
+214 For information about a specific command, enter HELP <command>.

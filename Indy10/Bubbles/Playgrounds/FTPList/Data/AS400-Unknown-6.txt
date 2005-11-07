@@ -1,0 +1,74 @@
+MSECOFR      44060672 05/10/02 09:22:25 *FILE      #541_NT
+MSECOFR                                 *MEM       #541_NT.TXT
+MSECOFR     305160192 05/10/02 09:20:08 *FILE      BLD736NT
+MSECOFR                                 *MEM       BLD736NT.TXT
+MSECOFR          8192 08/10/00 14:05:14 *FILE      BOX310
+MSECOFR                                 *MEM       BOX310.BOX310
+MSECOFR         20480 10/19/01 16:30:22 *FILE      CNANAME
+MSECOFR                                 *MEM       CNANAME.CNANAME
+MSECOFR         20480 10/19/01 16:30:18 *FILE      INVNAME
+MSECOFR                                 *MEM       INVNAME.INVNAME
+QUSER           24576 09/16/02 10:26:08 *FILE      PIMFRC
+QUSER                                   *MEM       PIMFRC.PIMFRC
+JASONJ          16384 10/11/00 15:26:51 *FILE      PIMFRCPF
+JASONJ                                  *MEM       PIMFRCPF.PIMFRCPF
+QPGMR           90112 10/11/00 19:50:39 *FILE      QAAPFILE
+QPGMR                                   *MEM       QAAPFILE.QAAPF1X1
+QPGMR                                   *MEM       QAAPFILE.QAAPF1X2
+QPGMR                                   *MEM       QAAPFILE.QAAPF2X2
+QPGMR          143360 10/11/00 19:50:46 *FILE      QAAPFILE$
+QPGMR                                   *MEM       QAAPFILE$.QAAPF1X1
+QPGMR                                   *MEM       QAAPFILE$.QAAPF1X2
+QPGMR                                   *MEM       QAAPFILE$.QAAPF2X2
+QPGMR           57344 10/11/00 19:50:44 *FILE      QAAPFILE#
+QPGMR                                   *MEM       QAAPFILE#.QAAPF1X1
+QPGMR                                   *MEM       QAAPFILE#.QAAPF1X2
+QPGMR                                   *MEM       QAAPFILE#.QAAPF2X2
+QPGMR           81920 10/11/00 19:50:42 *FILE      QAAPFILE@
+QPGMR                                   *MEM       QAAPFILE@.QAAPF1X1
+QPGMR                                   *MEM       QAAPFILE@.QAAPF1X2
+QPGMR                                   *MEM       QAAPFILE@.QAAPF2X2
+QSYS            32768 06/13/00 10:19:34 *FILE      QAOEFFVL
+QSYS                                    *MEM       QAOEFFVL.QAOEFFVL
+QSYS             4096 06/12/00 16:42:34 *FILE      QAPZCOVER
+QPGMR           28672 10/11/00 19:45:14 *FILE      QASUUSRPMT
+QPGMR                                   *MEM       QASUUSRPMT.QASUUSRPMT
+QPGMR           24576 10/11/00 19:48:59 *FILE      QAUOOPT
+QPGMR                                   *MEM       QAUOOPT.QAUOOPT
+QSYS           565248 06/13/00 18:04:25 *FILE      QBFCDBIF
+QPGMR           86016 07/21/02 18:17:57 *FILE      QCLSRC
+QPGMR                                   *MEM       QCLSRC.L1
+QPGMR                                   *MEM       QCLSRC.QPADEV0001
+QPGMR                                   *MEM       QCLSRC.QPADEV0008
+QPGMR                                   *MEM       QCLSRC.QWCSWTRS
+QPGMR                                   *MEM       QCLSRC.T6
+QPGMR            8192 06/13/00 10:19:34 *FILE      QCMDSRC
+QPGMR           28672 06/13/00 10:19:34 *FILE      QDDSSRC
+QPGMR                                   *MEM       QDDSSRC.QDSIGNON
+QPGMR           45056 10/11/00 19:56:26 *FILE      QDNOOPT
+QPGMR                                   *MEM       QDNOOPT.QDNOOPT
+QSYS             8192 06/13/00 10:19:34 *FILE      QEWCSRC
+QSYS             8192 06/13/00 10:19:34 *FILE      QEWLSRC
+QPGMR            8192 06/13/00 10:19:34 *FILE      QFMTSRC
+QPGMR           20480 10/11/00 19:49:24 *FILE      QINVFILE
+QPGMR                                   *MEM       QINVFILE.QADZINVF
+QPGMR           36864 10/11/00 19:49:26 *FILE      QINVREC
+QPGMR                                   *MEM       QINVREC.QADZINVR
+QPGMR            8192 06/13/00 10:19:34 *FILE      QMNUSRC
+QPGMR           36864 10/11/00 19:49:55 *FILE      QORDDTL
+QPGMR                                   *MEM       QORDDTL.QADZORDD
+QPGMR           20480 10/11/00 19:49:51 *FILE      QORDFILE
+QPGMR                                   *MEM       QORDFILE.QADZORDF
+QPGMR           36864 10/11/00 19:49:54 *FILE      QORDHDR
+QPGMR                                   *MEM       QORDHDR.QADZORDH
+QPGMR            8192 06/13/00 10:19:34 *FILE      QPNLSRC
+QPGMR            8192 06/13/00 10:19:34 *FILE      QREXSRC
+QPGMR           36864 10/11/00 19:49:28 *FILE      QSALEREC
+QPGMR                                   *MEM       QSALEREC.QADZSALE
+QPGMR            8192 06/13/00 10:19:34 *FILE      QSRVSRC
+QPGMR            8192 06/13/00 10:19:34 *FILE      QTBLSRC
+QPGMR            4096 10/11/00 19:45:07 *FILE      QTXTSRC
+MSECOFR        176128 05/23/01 09:54:20 *FILE      SECURITY
+MSECOFR                                 *MEM       SECURITY.SECURITY
+#return from SYST command in DOS ftp:215 OS/400 is the remote operating system. The TCP/IP version is "V3R7M0".
+#Using command SITE NAMEFMT 0

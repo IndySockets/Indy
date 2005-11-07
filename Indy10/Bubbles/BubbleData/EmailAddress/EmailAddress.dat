@@ -1,0 +1,353 @@
+Format of this file is as follows:
+
+If the line's first character is a colon (:), then that is the start
+of a definition.  (The rest of the line can be used as a comment.)
+
+The line after the colon is the line to be interpretted.
+
+The second line after the colon is the number of expected addresses.
+
+For each expected address another pair of lines is present.  The first
+line is the expected address and the second line is the expected name.
+Note that if no name or no address is expected, then the line must
+appear but be blank.
+
+Lines after these are the e-mail addresses put back together in modern
+format.
+
+
+:  Test 1: Test of a simple address
+someguy@domain.example
+1
+someguy@domain.example
+
+someguy@domain.example
+
+:  Test 2: Test of another simple address.
+<someguy@domain.example>
+1
+someguy@domain.example
+
+someguy@domain.example
+
+:  Test 3: Test of a quoted section
+"Some Guy" <someguy@domain.example>
+1
+someguy@domain.example
+Some Guy
+Some Guy <someguy@domain.example>
+
+:  Test 4: Test of a Bracketted section (a comment)
+(To be ignored) <someguy@domain.example>
+1
+someguy@domain.example
+
+someguy@domain.example
+
+:  Test 5: Test of both bracket and quoted sections together
+"Some Guy" (To be ignored) <someguy@domain.example>
+1
+someguy@domain.example
+Some Guy
+Some Guy <someguy@domain.example>
+
+:  Test 6: Test of a bracketted section inside the e-mail address.
+<someguy(ignore)@domain.example>
+1
+someguy@domain.example
+
+someguy@domain.example
+
+:  Test 7: Test of a lots of brackets with escaped brackets
+(Brackets to ignore) "Some Guy (Brackets to be retained)" (Brackets (nested) and brackets \(not nested\)to ignore) <someguy(ignore)@domain.example(ignore)>
+1
+someguy@domain.example
+Some Guy (Brackets to be retained)
+"Some Guy (Brackets to be retained)" <someguy@domain.example>
+
+
+: Test 8: Test of quoted e-mail address.
+<"Some Guy"@domain.example>
+1
+Some Guy@domain.example
+
+<"Some Guy"@domain.example>
+
+:  Test 9: Test of silly quoted-address (but remaining valid)
+"Some Guy with \"quotes\" in \"quotes\"" <"Some Guy @ domain.example with \"quotes\""@domain.example>
+1
+Some Guy @ domain.example with "quotes"@domain.example
+Some Guy with "quotes" in "quotes"
+"Some Guy with \"quotes\" in \"quotes\"" <"Some Guy @ domain.example with \"quotes\""@domain.example>
+
+:  Test 10: Test to ignore would-be signals inside quotes & brackets.
+"Some <,>()@ Guy" (Brackets ,"<> to be ignored) <someguy(<>,@")@domain.example>
+1
+someguy@domain.example
+Some <,>()@ Guy
+"Some <,>()@ Guy" <someguy@domain.example>
+
+:  Test 11: Simple dual-address line
+firstguy@domain.example, secondguy@domain.example
+2
+firstguy@domain.example
+
+secondguy@domain.example
+
+firstguy@domain.example
+secondguy@domain.example
+
+:  Test 12: Second simple dual-address line.
+<firstguy@domain.example>, secondguy@domain.example
+2
+firstguy@domain.example
+
+secondguy@domain.example
+
+firstguy@domain.example
+secondguy@domain.example
+
+
+:  Test 13: Third simple dual-address line.
+<firstguy@domain.example>, <secondguy@domain.example>
+2
+firstguy@domain.example
+
+secondguy@domain.example
+
+firstguy@domain.example
+secondguy@domain.example
+
+
+:  Test 14: Fourth simple dual-address line.
+firstguy@domain.example, <secondguy@domain.example>
+2
+firstguy@domain.example
+
+secondguy@domain.example
+
+firstguy@domain.example
+secondguy@domain.example
+
+
+:  Test 15: Dual-addresses with names
+"First guy" <firstguy@domain.example>, "Second guy" <secondguy@domain.example>
+2
+firstguy@domain.example
+First guy
+secondguy@domain.example
+Second guy
+First guy <firstguy@domain.example>
+Second guy <secondguy@domain.example>
+
+
+: Test 16: Throw in a couple (!) of comments
+(Ignore this bracket) "First (To be kept) guy" (Ignore) <(ignore)firstguy(ignore)@(ignore)domain(ignore).(ignore)example(ignore)>, "Second (To be kept) guy" <(ignore)secondguy(ignore)@(ignore)domain(ignore).(ignore)example(ignore)>
+2
+firstguy@domain.example
+First (To be kept) guy
+secondguy@domain.example
+Second (To be kept) guy
+"First (To be kept) guy" <firstguy@domain.example>
+"Second (To be kept) guy" <secondguy@domain.example>
+
+
+: Test 17: Real-world example (Bug 262 with names changed), apparently this format can be produced by Eudora's Redirect command.  Also the '.' character forces the quotation of the name.
+"First G. Guy" <firstgguy@domain.example> (by way of <Second Guy> <secondguy@domain.example>)
+1
+firstgguy@domain.example
+First G. Guy
+"First G. Guy" <firstgguy@domain.example>
+
+:  Test 18: Test of a single address containing spaces in the domain
+<someguy@  domain		.  	example	  	 >
+1
+someguy@domain.example
+
+someguy@domain.example
+
+: Test 19: A group containing one address
+One Group: "First Guy" <firstguy@domain.example>;
+1
+firstguy@domain.example
+First Guy
+First Guy <firstguy@domain.example>
+
+: Test 20: A group containing two addresses
+One group: "First Guy" <firstguy@domain.example>, "Second Guy" <secondguy@domain.example> ;
+2
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second Guy
+First Guy <firstguy@domain.example>
+Second Guy <secondguy@domain.example>
+
+
+: Test 21: An empty group
+Empty group: ;
+0
+
+: Test 22: Two groups
+One group: "First Guy" <firstguy@domain.example>, "Second Guy" <secondguy@domain.example>; Second group: "Third guy" <thirdguy@domain.example>, "Fourth guy" <fourthguy@domain.example> ;
+4
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second Guy
+thirdguy@domain.example
+Third guy
+fourthguy@domain.example
+Fourth guy
+First Guy <firstguy@domain.example>
+Second Guy <secondguy@domain.example>
+Third guy <thirdguy@domain.example>
+Fourth guy <fourthguy@domain.example>
+
+
+:  Test 23: address outside of groups
+One group: "First Guy" <firstguy@domain.example>, "Second guy" <secondguy@domain.example>; "Third guy" <thirdguy@domain.example>
+3
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second guy
+thirdguy@domain.example
+Third guy
+First Guy <firstguy@domain.example>
+Second guy <secondguy@domain.example>
+Third guy <thirdguy@domain.example>
+
+
+: Test 24: Sublime
+Their lordships: "Madam elevated" <elevatedmadam@lords.example>, "His wigship" <eveningred@lords.example> ;  Their regalnesses: "\"One\"" <one@regal.example>, "Other \"One\"" <otherone@regal.example> ;
+4
+elevatedmadam@lords.example
+Madam elevated
+eveningred@lords.example
+His wigship
+one@regal.example
+"One"
+otherone@regal.example
+Other "One"
+Madam elevated <elevatedmadam@lords.example>
+His wigship <eveningred@lords.example>
+"\"One\"" <one@regal.example>
+"Other \"One\"" <otherone@regal.example>
+
+
+: Test 25: Ridiculous
+(Ingore some text) One group: (These are the first group (nested bracket) escaped brackets \(\)) "First Guy with \"quotes\"" <(some text to be ignored)first(ignore)guy(ignore)@	(ignore)	domain  .  (ignore)  example	>	, 	(ignore) "Second Guy with brackets (to be kept) <these as well>" <secondguy@domain.example>	;	Group Two : "Third Guy" <thirdguy@long.domain.too.short.yet.domain.example>; Empty Group: ; "Fourth Guy" <fourth(outside groups)guy@	domain	.	example	>
+4
+firstguy@domain.example
+First Guy with "quotes"
+secondguy@domain.example
+Second Guy with brackets (to be kept) <these as well>
+thirdguy@long.domain.too.short.yet.domain.example
+Third Guy
+fourthguy@domain.example
+Fourth Guy
+"First Guy with \"quotes\"" <firstguy@domain.example>
+"Second Guy with brackets (to be kept) <these as well>" <secondguy@domain.example>
+Third Guy <thirdguy@long.domain.too.short.yet.domain.example>
+Fourth Guy <fourthguy@domain.example>
+
+
+:  Test 26: Format forgotten to test...
+First Guy <firstguy@domain.example>
+1
+firstguy@domain.example
+First Guy
+First Guy <firstguy@domain.example>
+
+
+:  Test 27: Now with silly spaces & brackets
+	(Ignore)	First Guy		(Ignore)	 		 	 <firstguy@	 	 	domain	 	 	.		 	 example 	 	>
+1
+firstguy@domain.example
+First Guy
+First Guy <firstguy@domain.example>
+
+
+: Test 28: Multiple forgotten format
+First Guy <firstguy@domain.example>, Second Guy <secondguy@domain.example>
+2
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second Guy
+First Guy <firstguy@domain.example>
+Second Guy <secondguy@domain.example>
+
+
+: Test 29: Interchangeable formats
+First Guy <firstguy@domain.example>, "Second Guy" <secondguy@domain.example>, thirdguy@domain.example
+3
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second Guy
+thirdguy@domain.example
+
+First Guy <firstguy@domain.example>
+Second Guy <secondguy@domain.example>
+thirdguy@domain.example
+
+
+: Test 30 : Old, depraciated format - must never generate but must support for extraction
+"First Guy" firstguy@domain.example
+1
+firstguy@domain.example
+First Guy
+First Guy <firstguy@domain.example>
+
+: Test 31 : Multiple old format
+"First Guy" firstguy@domain.example, "Second guy" secondguy@domain.example
+2
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second guy
+First Guy <firstguy@domain.example>
+Second guy <secondguy@domain.example>
+
+
+: Test 32 : Interchangeable formats
+"First Guy" firstguy@domain.example, "Second Guy" <secondguy@domain.example>, Third Guy <thirdguy@domain.example>, fourthguy@domain.example, <fifthguy@domain.example>
+5
+firstguy@domain.example
+First Guy
+secondguy@domain.example
+Second Guy
+thirdguy@domain.example
+Third Guy
+fourthguy@domain.example
+
+fifthguy@domain.example
+
+First Guy <firstguy@domain.example>
+Second Guy <secondguy@domain.example>
+Third Guy <thirdguy@domain.example>
+fourthguy@domain.example
+fifthguy@domain.example
+
+: Test 33 : Spaces after email address when bracketed comment is removed
+johndoe@abc.company.co.uk (John Doe)
+1
+johndoe@abc.company.co.uk
+
+johndoe@abc.company.co.uk
+
+: Test 34 : Spaces before email address when bracketed comment is removed
+(John Doe) johndoe@abc.company.co.uk
+1
+johndoe@abc.company.co.uk
+
+johndoe@abc.company.co.uk
+
+: Test 35 : TIdEMailAddressItem.SetText - BUG
+SMS News Service<sms@skt2.ufanet.ru>
+1
+sms@skt2.ufanet.ru
+SMS News Service
+SMS News Service <sms@skt2.ufanet.ru>

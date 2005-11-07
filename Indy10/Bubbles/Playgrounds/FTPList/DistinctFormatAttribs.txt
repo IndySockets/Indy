@@ -1,0 +1,522 @@
+Note that this was an expiriment I conducted with the Distinct FTP Server by playing around with
+the file attributes on " readme.txt".
+
+Note for security reasons, I have altered the pathes recorded and also the local address reported
+by the server.
+
+===
+c:\Distinct\jpmugaas>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 *************** Distinct TCP/IP FTP Server ready.
+User (127.0.0.1:(none)): jpmugaas
+331 Password required for jpmugaas.
+Password:
+230 User jpmugaas logged in.
+ftp> cd jpmugaas
+200 CWD to '/jpmugaas' okay.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +r
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +s
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--as-          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>dir
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+ Directory of c:\Distinct\jpmugaas
+
+12/29/2002  01:42p      <DIR>          .
+12/29/2002  01:42p      <DIR>          ..
+12/29/2002  01:56a               7,665 01-BG-980.pdf
+04/27/2002  09:45p             520,750 15585_sample_application.zip
+12/29/2002  01:42p                  23 CreateTest.txt
+12/29/2002  01:51a      <DIR>          test
+               3 File(s)        528,438 bytes
+               3 Dir(s)  37,677,455,360 bytes free
+
+c:\Distinct\jpmugaas>attribute " readme.txt" +h
+'attribute' is not recognized as an internal or external command,
+operable program or batch file.
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +h
+Not resetting system file - c:\Distinct\jpmugaas\ Readme.txt
+
+c:\Distinct\jpmugaas>attrib " readme.txt" -s
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +h
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> exit
+Invalid command.
+ftp> quit
+221 Goodbye.
+
+c:\Distinct\jpmugaas>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 *************** Distinct TCP/IP FTP Server ready.
+User (127.0.0.1:(none)): jpmugaas
+331 Password required for jpmugaas.
+Password:
+230 User jpmugaas logged in.
+ftp> cd jpmugaas
+200 CWD to '/jpmugaas' okay.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" -h -a
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-----          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +a
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" -r
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa--          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> quit
+221 Goodbye.
+
+c:\Distinct\jpmugaas>
+
+===
+Conclusion, the attribute part of the dir listing is tied to the original file attributes
+in Win32 like this:
+
+w - can write
+a - archive bit
+s - system file
+h - hidden file
+
+Now with the directory, test:
+
+===
+c:\Distinct\jpmugaas>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 *************** Distinct TCP/IP FTP Server ready.
+User (127.0.0.1:(none)): jpmugaas
+331 Password required for jpmugaas.
+Password:
+230 User jpmugaas logged in.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+d----           0  Apr  1,1995   9:00  jpmugaas
+d----           0  Apr  1,1995   9:00  test
+226 Transfer complete.
+ftp: 94 bytes received in 0.02Seconds 4.70Kbytes/sec.
+ftp> cd jpmugaas
+200 CWD to '/jpmugaas' okay.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test +r
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -r +h
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.02Seconds 13.75Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -h +s
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -s
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test +a
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-h          60  Dec 29,2002   7:00   readme.txt
+-wa--        7665  Dec 29,2002   6:56  01-bg-980.pdf
+-wa--      520750  Apr 28,2002   2:45  15585_sample_application.zip
+-wa--          23  Dec 29,2002  18:42  createtest.txt
+d----           0  Dec 29,2002   6:51  test
+226 Transfer complete.
+ftp: 275 bytes received in 0.01Seconds 27.50Kbytes/sec.
+ftp> quit
+221 Goodbye.
+
+c:\Distinct\jpmugaas>
+===
+
+Conclusion, the dir stuff does not change with attributes.
+
+Now, lets move onto the Unix format.  Again, we play with the attributes in " readme.txt":
+===
+c:\Distinct\jpmugaas>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 *************** Distinct TCP/IP FTP Server ready.
+User (127.0.0.1:(none)): jpmugaas
+331 Password required for jpmugaas.
+Password:
+230 User jpmugaas logged in.
+ftp> cd jpmugaas
+200 CWD to '/jpmugaas' okay.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +r
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+--a-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.03Seconds 11.67Kbytes/sec.
+ftp> ! attrib " readme.txt" -r -a
+File not found - readme.txt
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" -r -a
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-w--------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" +a +s
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-was------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib " readme.txt" -s +h
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-h-----   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+c:\Distinct\jpmugaas>attrib " readme.txt" -h
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> quit
+221 Goodbye.
+
+c:\Distinct\jpmugaas>
+===
+Conclusion, this server is mistakenly reporting the MS-DOS attributes instead of proper Unix permissions.
+
+Now let's repeat the tests with the test dir.
+===
+c:\Distinct\jpmugaas>ftp 127.0.0.1
+Connected to 127.0.0.1.
+220 *************** Distinct TCP/IP FTP Server ready.
+User (127.0.0.1:(none)): jpmugaas
+331 Password required for jpmugaas.
+Password:
+230 User jpmugaas logged in.
+ftp> cd jpmugaas
+200 CWD to '/jpmugaas' okay.
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.02Seconds 17.50Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test +r
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -r -a
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test +a +h
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -h +s
+
+c:\Distinct\jpmugaas>dir
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+ Directory of c:\Distinct\jpmugaas
+
+12/29/2002  01:42p      <DIR>          .
+12/29/2002  01:42p      <DIR>          ..
+12/29/2002  02:00a                  60  Readme.txt
+12/29/2002  01:56a               7,665 01-BG-980.pdf
+04/27/2002  09:45p             520,750 15585_sample_application.zip
+12/29/2002  01:42p                  23 CreateTest.txt
+               4 File(s)        528,498 bytes
+               2 Dir(s)  37,682,504,704 bytes free
+
+c:\Distinct\jpmugaas>exit
+ftp> dir
+200 PORT command okay.
+150 Opening data connection.
+-wa-------   1 owner    group         60 Dec 29  7:00  readme.txt
+-wa-------   1 owner    group       7665 Dec 29  6:56 01-bg-980.pdf
+-wa-------   1 owner    group     520750 Apr 28  2:45 15585_sample_application.zip
+-wa-------   1 owner    group         23 Dec 29 18:42 createtest.txt
+d---------   1 owner    group          0 Dec 29  6:51 test
+226 Transfer complete.
+ftp: 350 bytes received in 0.01Seconds 35.00Kbytes/sec.
+ftp> !
+[Removed at Stephane Grob?ty's request because of a false alarm with SNORT]
+
+c:\Distinct\jpmugaas>attrib test -s
+
+c:\Distinct\jpmugaas>exit
+ftp> quit
+221 Goodbye.
+
+c:\Distinct\jpmugaas>
+===
+Conclusion, attributes do not effect the "Unix permissions" being reported.  Again, let me point out that 
+the permissions are not valid Unix permissions at all.
+

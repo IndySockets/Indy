@@ -1,0 +1,339 @@
+D:\>ftp ftp.hit.bme.hu
+Connected to hit.hit.bme.hu.
+220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+220-Welcome to our experimental ftp server!
+220-This FTP service is at ftp.hit.bme.hu.
+220-Anonymous access for our students only (max. 3).
+220-This is our NOVELL server HIT.
+220-You are user nr.2 (max. 8).
+220-Local time is Fri Jan  4 01:18:08 2003.
+220-Maximum idle time is 5 minutes.
+220-* * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+220 hit FTP Server for NW 3.1x, 4.xx  (v1.10), (c) 1994 HellSoft.
+User (hit.hit.bme.hu:(none)): anonymous
+331 Anonymous Login OK, send id as password.
+Password:
+230-User Logged, Read Only Access.
+230-Es most magyarul:
+230-Ezen a szerveren oktatassal kapcsolatos anyagokat talalhatsz.
+230-A szerver csak olvashato.
+230-Ez az FTP szerver az ftp.hit.bme.hu gepen talalhato.
+230 Home Directory: /SYS/ANONFTP
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 supervis      167 Oct 25  1998 anonlogo.txt
+d[R----F-]  1 anonymou      512 Jun 26  2002 pongor
+d[R----F-]  1 supervis      512 Feb 20  2002 bajor
+d[R----F-]  1 supervis      512 Nov 22 12:56 omnetpp
+d[R----F-]  1 anonymou      512 Oct 30  2000 do
+d[R----F-]  1 supervis      512 Oct 14  1999 vargaa
+d[R----F-]  1 anonymou      512 Sep 23 07:45 simon
+d[R----F-]  1 anonymou      512 Dec 11  1998 budai
+d[R----F-]  1 anonymou      512 Sep 27  1999 boroven
+d[R----F-]  1 anonymou      512 Sep 09 19:35 jereb
+d[R----F-]  1 anonymou      512 Nov 13  2001 dallos
+d[R----F-]  1 supervis      512 Dec 05  1995 class
+d[R----F-]  1 supervis      512 Dec 16 09:19 telek
+d[R----F-]  1 supervis      512 Dec 13  2000 bozoki
+d[R----F-]  1 supervis      512 Sep 10 09:25 kovacsi
+d[R----F-]  1 supervis      512 Oct 08 11:46 pfliegel
+d[R----F-]  1 supervis      512 Oct 31  2000 gruber
+d[R----F-]  1 supervis      512 Mar 03  1999 csacsi
+d[R----F-]  1 supervis      512 Jun 18  2002 mihaly
+d[R----F-]  1 supervis      512 Feb 03  1997 lencse
+d[R----F-]  1 supervis      512 Nov 27 11:30 vgy
+d[R----F-]  1 supervis      512 Oct 03 15:00 jakab
+d[R----F-]  1 szandi        512 Dec 09  1998 ferencz
+d[R----F-]  1 supervis      512 May 25  2000 izso
+d[R----F-]  1 supervis      512 Nov 28 10:46 szandi
+d[R----F-]  1 supervis      512 Oct 25  1999 papay
+d[R----F-]  1 elekv         512 Sep 12  1997 elekv
+d[R----F-]  1 supervis      512 Sep 24  1997 szekely
+d[R----F-]  1 supervis      512 Oct 14 12:46 elek
+d[R----F-]  1 supervis      512 Mar 31  1998 granat
+d[R----F-]  1 szandi        512 Sep 20 11:02 nemeth
+d[R----F-]  1 szandi        512 Apr 05  2001 antivir
+d[R----F-]  1 supervis      512 Nov 05  2001 filp
+226 Transfer complete.
+ftp: 1741 bytes received in 3.17Seconds 0.55Kbytes/sec.
+ftp> cd filp
+250 "/SYS/ANONFTP/FILP" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 filp        34515 Sep 25  2001 info_0.zip
+-[R----F-]  1 filp        31138 Sep 25  2001 info_1.zip
+-[R----F-]  1 filp        49270 Sep 25  2001 info_2.zip
+-[R----F-]  1 filp        19941 Sep 25  2001 info_3.zip
+-[R----F-]  1 filp        65361 Oct 02  2001 info_4.zip
+-[R----F-]  1 filp        31277 Oct 02  2001 info_5.zip
+-[R----F-]  1 filp        24314 Nov 05  2001 info_6.zip
+-[R----F-]  1 filp        77491 Nov 05  2001 info_7.zip
+-[R----F-]  1 filp        65839 Nov 05  2001 info_8.zip
+-[R----F-]  1 filp        22024 Nov 05  2001 info_09.zip
+-[R----F-]  1 filp        64391 Nov 05  2001 info11.zip
+-[R----F-]  1 filp       108672 Nov 05  2001 info_10.zip
+226 Transfer complete.
+ftp: 686 bytes received in 0.42Seconds 1.63Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 supervis      167 Oct 25  1998 anonlogo.txt
+d[R----F-]  1 anonymou      512 Jun 26  2002 pongor
+d[R----F-]  1 supervis      512 Feb 20  2002 bajor
+d[R----F-]  1 supervis      512 Nov 22 12:56 omnetpp
+d[R----F-]  1 anonymou      512 Oct 30  2000 do
+d[R----F-]  1 supervis      512 Oct 14  1999 vargaa
+d[R----F-]  1 anonymou      512 Sep 23 07:45 simon
+d[R----F-]  1 anonymou      512 Dec 11  1998 budai
+d[R----F-]  1 anonymou      512 Sep 27  1999 boroven
+d[R----F-]  1 anonymou      512 Sep 09 19:35 jereb
+d[R----F-]  1 anonymou      512 Nov 13  2001 dallos
+d[R----F-]  1 supervis      512 Dec 05  1995 class
+d[R----F-]  1 supervis      512 Dec 16 09:19 telek
+d[R----F-]  1 supervis      512 Dec 13  2000 bozoki
+d[R----F-]  1 supervis      512 Sep 10 09:25 kovacsi
+d[R----F-]  1 supervis      512 Oct 08 11:46 pfliegel
+d[R----F-]  1 supervis      512 Oct 31  2000 gruber
+d[R----F-]  1 supervis      512 Mar 03  1999 csacsi
+d[R----F-]  1 supervis      512 Jun 18  2002 mihaly
+d[R----F-]  1 supervis      512 Feb 03  1997 lencse
+d[R----F-]  1 supervis      512 Nov 27 11:30 vgy
+d[R----F-]  1 supervis      512 Oct 03 15:00 jakab
+d[R----F-]  1 szandi        512 Dec 09  1998 ferencz
+d[R----F-]  1 supervis      512 May 25  2000 izso
+d[R----F-]  1 supervis      512 Nov 28 10:46 szandi
+d[R----F-]  1 supervis      512 Oct 25  1999 papay
+d[R----F-]  1 elekv         512 Sep 12  1997 elekv
+d[R----F-]  1 supervis      512 Sep 24  1997 szekely
+d[R----F-]  1 supervis      512 Oct 14 12:46 elek
+d[R----F-]  1 supervis      512 Mar 31  1998 granat
+d[R----F-]  1 szandi        512 Sep 20 11:02 nemeth
+d[R----F-]  1 szandi        512 Apr 05  2001 antivir
+d[R----F-]  1 supervis      512 Nov 05  2001 filp
+226 Transfer complete.
+ftp: 1741 bytes received in 0.82Seconds 2.12Kbytes/sec.
+ftp> cd elekv
+250 "/SYS/ANONFTP/ELEKV" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 elekv      126855 Jun 25  1997 jhsn.z
+226 Transfer complete.
+ftp: 53 bytes received in 0.04Seconds 1.33Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP" is current directory.
+ftp> quote stat
+211-FTP Server for Novell Netware 3.1x, 4.xx (v1.10) status:
+211-Connected to: ip188214.dialup.wvnet.edu
+211-Logged as: HIT/anonymous
+211-Using community: Anonymous
+211-Maximum Idle Time: 5 (min)
+211-Read Only Access
+211-ASCII Transfer Mode Selected.
+211-Using DOS name space.
+211 End of FTP Server Status.
+ftp> quote site mac
+550 Cannot find MAC name space on current volume.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 supervis      167 Oct 25  1998 anonlogo.txt
+d[R----F-]  1 anonymou      512 Jun 26  2002 pongor
+d[R----F-]  1 supervis      512 Feb 20  2002 bajor
+d[R----F-]  1 supervis      512 Nov 22 12:56 omnetpp
+d[R----F-]  1 anonymou      512 Oct 30  2000 do
+d[R----F-]  1 supervis      512 Oct 14  1999 vargaa
+d[R----F-]  1 anonymou      512 Sep 23 07:45 simon
+d[R----F-]  1 anonymou      512 Dec 11  1998 budai
+d[R----F-]  1 anonymou      512 Sep 27  1999 boroven
+d[R----F-]  1 anonymou      512 Sep 09 19:35 jereb
+d[R----F-]  1 anonymou      512 Nov 13  2001 dallos
+d[R----F-]  1 supervis      512 Dec 05  1995 class
+d[R----F-]  1 supervis      512 Dec 16 09:19 telek
+d[R----F-]  1 supervis      512 Dec 13  2000 bozoki
+d[R----F-]  1 supervis      512 Sep 10 09:25 kovacsi
+d[R----F-]  1 supervis      512 Oct 08 11:46 pfliegel
+d[R----F-]  1 supervis      512 Oct 31  2000 gruber
+d[R----F-]  1 supervis      512 Mar 03  1999 csacsi
+d[R----F-]  1 supervis      512 Jun 18  2002 mihaly
+d[R----F-]  1 supervis      512 Feb 03  1997 lencse
+d[R----F-]  1 supervis      512 Nov 27 11:30 vgy
+d[R----F-]  1 supervis      512 Oct 03 15:00 jakab
+d[R----F-]  1 szandi        512 Dec 09  1998 ferencz
+d[R----F-]  1 supervis      512 May 25  2000 izso
+d[R----F-]  1 supervis      512 Nov 28 10:46 szandi
+d[R----F-]  1 supervis      512 Oct 25  1999 papay
+d[R----F-]  1 elekv         512 Sep 12  1997 elekv
+d[R----F-]  1 supervis      512 Sep 24  1997 szekely
+d[R----F-]  1 supervis      512 Oct 14 12:46 elek
+d[R----F-]  1 supervis      512 Mar 31  1998 granat
+d[R----F-]  1 szandi        512 Sep 20 11:02 nemeth
+d[R----F-]  1 szandi        512 Apr 05  2001 antivir
+d[R----F-]  1 supervis      512 Nov 05  2001 filp
+226 Transfer complete.
+ftp: 1741 bytes received in 0.83Seconds 2.10Kbytes/sec.
+ftp> cd lencse
+250 "/SYS/ANONFTP/LENCSE" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+d[R----F-]  1 lencse        512 Nov 14  1996 mintapro
+d[R----F-]  1 lencse        512 Mar 04  1999 omnetpp
+d[R----F-]  1 lencse        512 Feb 03  1997 fddi
+226 Transfer complete.
+ftp: 160 bytes received in 0.55Seconds 0.29Kbytes/sec.
+ftp> cd mintapro
+250 "/SYS/ANONFTP/LENCSE/MINTAPRO" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 lencse       2155 Oct 03  1996 3gy
+-[R----F-]  1 lencse       2010 Oct 15  1996 beszur_r.pas
+-[R----F-]  1 lencse        574 Jan 01  1980 buborek.pas
+-[R----F-]  1 lencse       1013 Oct 15  1996 kiv_rend.pas
+-[R----F-]  1 lencse       4756 Oct 24  1996 nagyhazi.txt
+-[R----F-]  1 lencse       1794 Oct 31  1996 zh3.pas
+-[R----F-]  1 lencse       1253 Oct 31  1996 szures.pas
+-[R----F-]  1 lencse        633 Nov 14  1996 readme
+-[R----F-]  1 lencse        453 Nov 14  1996 bin_ker.pas
+-[R----F-]  1 lencse        955 Nov 14  1996 kwiksort.pas
+-[R----F-]  1 lencse        716 Nov 14  1996 rekord.pas
+d[R----F-]  1 lencse        512 Nov 14  1996 pas94
+d[R----F-]  1 lencse        512 Nov 14  1996 pas95
+226 Transfer complete.
+ftp: 727 bytes received in 0.41Seconds 1.77Kbytes/sec.
+ftp> cd pas94
+250 "/SYS/ANONFTP/LENCSE/MINTAPRO/PAS94" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 lencse       1139 Nov 24  1994 feladato
+-[R----F-]  1 lencse       1683 Sep 20  1994 pas_lab.1
+-[R----F-]  1 lencse       1619 Sep 28  1994 pas_gyak.2
+-[R----F-]  1 lencse       1692 Oct 03  1994 pas_lab.2
+-[R----F-]  1 lencse       1465 Oct 13  1994 pas_gyak.3
+-[R----F-]  1 lencse        832 Oct 26  1994 pas_lab.3
+-[R----F-]  1 lencse       4000 Oct 27  1994 pas_gyak.4
+-[R----F-]  1 lencse       3453 Oct 26  1994 pas_lab.4
+-[R----F-]  1 lencse      43208 Dec 01  1994 osszes.ek
+-[R----F-]  1 lencse      38684 Nov 28  1994 osszes.nek
+-[R----F-]  1 lencse       1922 Jan 04  1980 elvalasz.pas
+-[R----F-]  1 lencse       2058 Nov 17  1994 levelek.pas
+-[R----F-]  1 lencse       2149 Dec 01  1994 szambe.pas
+-[R----F-]  1 lencse      14851 Jan 01  1980 v1988-89.pas
+226 Transfer complete.
+ftp: 796 bytes received in 0.43Seconds 1.85Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP/LENCSE/MINTAPRO" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 lencse       2155 Oct 03  1996 3gy
+-[R----F-]  1 lencse       2010 Oct 15  1996 beszur_r.pas
+-[R----F-]  1 lencse        574 Jan 01  1980 buborek.pas
+-[R----F-]  1 lencse       1013 Oct 15  1996 kiv_rend.pas
+-[R----F-]  1 lencse       4756 Oct 24  1996 nagyhazi.txt
+-[R----F-]  1 lencse       1794 Oct 31  1996 zh3.pas
+-[R----F-]  1 lencse       1253 Oct 31  1996 szures.pas
+-[R----F-]  1 lencse        633 Nov 14  1996 readme
+-[R----F-]  1 lencse        453 Nov 14  1996 bin_ker.pas
+-[R----F-]  1 lencse        955 Nov 14  1996 kwiksort.pas
+-[R----F-]  1 lencse        716 Nov 14  1996 rekord.pas
+d[R----F-]  1 lencse        512 Nov 14  1996 pas94
+d[R----F-]  1 lencse        512 Nov 14  1996 pas95
+226 Transfer complete.
+ftp: 727 bytes received in 0.40Seconds 1.81Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP/LENCSE" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+d[R----F-]  1 lencse        512 Nov 14  1996 mintapro
+d[R----F-]  1 lencse        512 Mar 04  1999 omnetpp
+d[R----F-]  1 lencse        512 Feb 03  1997 fddi
+226 Transfer complete.
+ftp: 160 bytes received in 0.48Seconds 0.33Kbytes/sec.
+ftp> cd fddi
+250 "/SYS/ANONFTP/LENCSE/FDDI" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+d[R----F-]  1 lencse        512 Jun 21  1997 traces
+226 Transfer complete.
+ftp: 53 bytes received in 0.06Seconds 0.88Kbytes/sec.
+ftp>
+ftp> cd traces
+250 "/SYS/ANONFTP/LENCSE/FDDI/TRACES" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 lencse     554567 Feb 06  1997 nr_58.arj
+226 Transfer complete.
+ftp: 56 bytes received in 0.06Seconds 0.93Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP/LENCSE/FDDI" is current directory.
+ftp> cd ..
+250 "/SYS/ANONFTP/LENCSE" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+d[R----F-]  1 lencse        512 Nov 14  1996 mintapro
+d[R----F-]  1 lencse        512 Mar 04  1999 omnetpp
+d[R----F-]  1 lencse        512 Feb 03  1997 fddi
+226 Transfer complete.
+ftp: 160 bytes received in 0.43Seconds 0.37Kbytes/sec.
+ftp> cd ..
+250 "/SYS/ANONFTP" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 supervis      167 Oct 25  1998 anonlogo.txt
+d[R----F-]  1 anonymou      512 Jun 26  2002 pongor
+d[R----F-]  1 supervis      512 Feb 20  2002 bajor
+d[R----F-]  1 supervis      512 Nov 22 12:56 omnetpp
+d[R----F-]  1 anonymou      512 Oct 30  2000 do
+d[R----F-]  1 supervis      512 Oct 14  1999 vargaa
+d[R----F-]  1 anonymou      512 Sep 23 07:45 simon
+d[R----F-]  1 anonymou      512 Dec 11  1998 budai
+d[R----F-]  1 anonymou      512 Sep 27  1999 boroven
+d[R----F-]  1 anonymou      512 Sep 09 19:35 jereb
+d[R----F-]  1 anonymou      512 Nov 13  2001 dallos
+d[R----F-]  1 supervis      512 Dec 05  1995 class
+d[R----F-]  1 supervis      512 Dec 16 09:19 telek
+d[R----F-]  1 supervis      512 Dec 13  2000 bozoki
+d[R----F-]  1 supervis      512 Sep 10 09:25 kovacsi
+d[R----F-]  1 supervis      512 Oct 08 11:46 pfliegel
+d[R----F-]  1 supervis      512 Oct 31  2000 gruber
+d[R----F-]  1 supervis      512 Mar 03  1999 csacsi
+d[R----F-]  1 supervis      512 Jun 18  2002 mihaly
+d[R----F-]  1 supervis      512 Feb 03  1997 lencse
+d[R----F-]  1 supervis      512 Nov 27 11:30 vgy
+d[R----F-]  1 supervis      512 Oct 03 15:00 jakab
+d[R----F-]  1 szandi        512 Dec 09  1998 ferencz
+d[R----F-]  1 supervis      512 May 25  2000 izso
+d[R----F-]  1 supervis      512 Nov 28 10:46 szandi
+d[R----F-]  1 supervis      512 Oct 25  1999 papay
+d[R----F-]  1 elekv         512 Sep 12  1997 elekv
+d[R----F-]  1 supervis      512 Sep 24  1997 szekely
+d[R----F-]  1 supervis      512 Oct 14 12:46 elek
+d[R----F-]  1 supervis      512 Mar 31  1998 granat
+d[R----F-]  1 szandi        512 Sep 20 11:02 nemeth
+d[R----F-]  1 szandi        512 Apr 05  2001 antivir
+d[R----F-]  1 supervis      512 Nov 05  2001 filp
+226 Transfer complete.
+ftp: 1741 bytes received in 0.86Seconds 2.02Kbytes/sec.
+ftp> cd antivir
+250 "/SYS/ANONFTP/ANTIVIR" is current directory.
+ftp> dir
+200 Command Accepted.
+150 Opening ASCII data connection.
+-[R----F-]  1 szandi        534 Apr 05  2001 virscan.reg
+-[R----F-]  1 szandi        146 Apr 05  2001 readme.txt
+226 Transfer complete.
+ftp: 115 bytes received in 0.54Seconds 0.21Kbytes/sec.
+ftp> quit
+221 Goodbye.

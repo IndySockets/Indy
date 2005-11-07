@@ -1,0 +1,2 @@
+BAILEYSE     5263360 06/11/97 12:27:39 *FILE     BPTFSAVF
+#owner size date time type name
