@@ -86,6 +86,8 @@ uses
   IdComponent,
   IdException,
   IdGlobal,
+  IdGlobalCore,
+  IdObjs,
   IdSocketHandle,
   IdStackConsts,
   IdSys,
@@ -192,7 +194,6 @@ destructor TIdUDPServer.Destroy;
 begin
   Active := False;
   Sys.FreeAndNil(FBindings);
-  Sys.FreeAndNil(FThreads);
   Sys.FreeAndNil(FListenerThreads);
   inherited Destroy;
 end;
@@ -320,7 +321,7 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  i, PeerPort, ByteCount: Integer;
+  PeerPort, ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped

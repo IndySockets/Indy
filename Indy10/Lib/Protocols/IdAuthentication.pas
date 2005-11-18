@@ -157,7 +157,7 @@ begin
     end;
   end
   else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Format(RSHTTPAuthAlreadyRegistered,
+    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Sys.Format(RSHTTPAuthAlreadyRegistered,
       [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]));
   end;
 end;
