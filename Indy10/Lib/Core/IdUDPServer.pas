@@ -175,6 +175,10 @@ var
   i: integer;
   LListenerThreads: TIdList;
 begin
+  //this check is because of the extra CloseBinding in TIdUDPBase.Destroy,
+  //after we have already freed it. TIdUDPBase.Destroy should be improved.
+  if FListenerThreads=nil then Exit;
+
   LListenerThreads := FListenerThreads.LockList; try
     for i := 0 to LListenerThreads.Count - 1 do begin
       with TIdUDPListenerThread(LListenerThreads[i]) do begin
