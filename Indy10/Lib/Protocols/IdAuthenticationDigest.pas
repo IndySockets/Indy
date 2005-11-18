@@ -98,52 +98,45 @@ uses
 
 destructor TIdDigestAuthentication.Destroy;
 begin
-  if Assigned(FDomain) then
-  begin
-    Sys.FreeAndNil( FDomain );
-  end;
-  if Assigned(FQopOptions) then
-  begin
-    Sys.FreeAndNil(FQopOptions);
-  end;
+  Sys.FreeAndNil(FDomain);
+  Sys.FreeAndNil(FQopOptions);
   inherited Destroy;
 end;
 
 function TIdDigestAuthentication.Authentication: String;
 
   function ResultString(s: String): String;
-  Var
+  var
     MDValue: T4x4LongWordRecord;
     LHash : TIdBytes;
     i: Integer;
     S1: String;
   begin
-    with TIdHashMessageDigest5.Create do begin
+    with TIdHashMessageDigest5.Create do try
       MDValue := HashValue(S);
-      Free;
-    end;
-    LHash := ToBytes(MDValue[0]);
-    AppendBytes(LHash,ToBytes(MDValue[1]));
-    AppendBytes(LHash,ToBytes(MDValue[2]));
-    AppendBytes(LHash,ToBytes(MDValue[3]));
+    finally Free end;
+    SetLength(LHash, 16);
+    CopyTIdLongWord(MDValue[0], LHash, 0);
+    CopyTIdLongWord(MDValue[1], LHash, 4);
+    CopyTIdLongWord(MDValue[2], LHash, 8);
+    CopyTIdLongWord(MDValue[3], LHash, 12);
     for i := 0 to 15 do begin
       S1 := S1 + Sys.Format('%02x', [LHash[i]]);
     end;
-    while Pos(' ', S1) > 0 do 
-    begin
+    while Pos(' ', S1) > 0 do begin
       S1[Pos(' ', S1)] := '0';
     end;
-    result := IndyLowerCase(S1); //Stupid uppercase, cost me a whole day to figure this one out
+    Result := IndyLowerCase(S1); //Stupid uppercase, cost me a whole day to figure this one out
   end;
 
-var LstrA1, LstrA2, LstrCNonce, LstrResponse: string;
-
+var
+  LstrA1, LstrA2, LstrCNonce, LstrResponse: string;
 begin
-  result := '';    {do not localize}
+  Result := '';    {do not localize}
   case FCurrentStep of
     0:
       begin
-        result := 'Digest'; //Just be save with this one
+        Result := 'Digest'; //Just be save with this one
       end;
     1:
       begin
@@ -152,54 +145,42 @@ begin
         LstrCNonce := ResultString(Sys.DateTimeToStr(Sys.Now));
 
         LstrA1 := ResultString(Username + ':' + FRealm + ':' + Password);
-        if TextIsSame(FAlgorithm, 'MD5-sess') then
-        begin
+        if TextIsSame(FAlgorithm, 'MD5-sess') then begin
           LstrA1 := ResultString(LstrA1 + ':' + Fnonce + ':' + LstrCNonce);
         end;
-        if FQopOptions.IndexOf('auth-int') > -1 then
-        begin
+        if FQopOptions.IndexOf('auth-int') > -1 then begin
           LstrA2 := ResultString(FMethod + ':' + FUri + ':' + ResultString(FPostbody.CommaText))
-        end
-        else
-        begin
+        end else begin
           LstrA2 := ResultString(FMethod + ':' + FUri);
         end;
         LstrResponse := LstrA1 + ':' + Fnonce + ':';
-        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then //Qop header present
-        begin
+        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then begin //Qop header present
           LstrResponse := LstrResponse + Sys.IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':';
-          if FQopOptions.IndexOf('auth-int') > -1 then
-          begin
+          if FQopOptions.IndexOf('auth-int') > -1 then begin
             LstrResponse := LstrResponse + 'auth-int:';
-          end
-          else
-          begin
+          end else begin
             LstrResponse := LstrResponse + 'auth:';
           end;
         end;
         LstrResponse := LstrResponse + LstrA2;
         LstrResponse := ResultString(LStrResponse);
 
-        result := result + 'Digest ' + {do not localize}
+        Result := Result + 'Digest ' + {do not localize}
           'username="' + Username + '", ' + {do not localize}
           'realm="' + FRealm + '", ' +  {do not localize}
           'nonce="' + FNonce + '", ' + {do not localize}
           'algorithm="' + FAlgorithm + '", ' + {do not localize}
           'uri="' + Furi + '", ';
-        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then //Qop header present
-        begin
-          if FQopOptions.IndexOf('auth-int') > -1 then
-          begin
-            result := result + 'qop="auth-int", '
-          end
-          else
-          begin
-            result := result + 'qop="auth", ';
+        if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then begin //Qop header present
+          if FQopOptions.IndexOf('auth-int') > -1 then begin
+            Result := Result + 'qop="auth-int", '
+          end else begin
+            Result := Result + 'qop="auth", ';
           end;
-          result := result + 'nc=' + Sys.IntToHex(FNoncecount, 8) + ', ' +
+          Result := Result + 'nc=' + Sys.IntToHex(FNoncecount, 8) + ', ' +
             'cnonce="' + LstrCNonce + '", ';
         end;
-        result := result + 'response="' + LstrResponse + '", ' +
+        Result := Result + 'response="' + LstrResponse + '", ' +
           'opaque="' + FOpaque + '"';
         Inc(FNoncecount);
         FCurrentStep := 0;
@@ -209,19 +190,21 @@ end;
 
 function RemoveQuote(const aStr:string):string;
 begin
- if (Length(aStr)>=2) and (aStr[1]='"') and (astr[Length(aStr)]='"') then
-  Result:=Copy(aStr,2,Length(astr)-2)
- else
-  Result:=aStr;
+  if (Length(aStr)>=2) and (aStr[1]='"') and (astr[Length(aStr)]='"') then begin
+    Result := Copy(aStr, 2, Length(astr)-2)
+  end else begin
+    Result := aStr;
+  end;
 end;
 
 function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
-var S, LstrTempNonce: String;
-    LParams: TIdStringList;
-    f:string;
-    i:Integer;
+var
+  S, LstrTempNonce: String;
+  LParams: TIdStringList;
+  f: String;
+  i: Integer;
 begin
-  result := wnDoRequest;
+  Result := wnDoRequest;
 
   case FCurrentStep of
     0:
@@ -229,71 +212,65 @@ begin
         //gather info
         if not Assigned(FDomain) then begin
           FDomain := TIdStringList.Create;
-        end
-        else
-        begin
+        end else begin
           FDomain.Clear;
         end;
         if not Assigned(FQopOptions) then begin
           FQopOptions := TIdStringList.Create;
-        end
-        else
-        begin
+        end else begin
           FQopOptions.Clear;
         end;
-        S := ReadAuthInfo('Digest');
 
+        S := ReadAuthInfo('Digest');
         Fetch(S);
 
         LParams := TIdStringList.Create;
         try
+          while Length(S) > 0 do begin
+            f := Fetch(S, ', ');
+            LParams.Add(f);
+          end;
 
-        while Length(S) > 0 do begin
-          f:=Fetch(S, ', ');
-          LParams.Add(f);
-        end;
+          for i := lParams.Count-1 downto 0 do
+          begin
+            f := lParams.Values[lParams.Names[i]];
+            f := RemoveQuote(f);
+            LParams.Values[LParams.Names[i]] := f;
+          end;
 
-        for i:=lParams.Count-1 downto 0 do
-        begin
-        f:=lParams.Values[lParams.Names[i]];
-        f:=RemoveQuote(f);
-        lParams.Values[lParams.Names[i]]:=f;
-        end;
+          FRealm := LParams.Values['realm'];
+          LStrTempnonce := LParams.Values['nonce'];
+          if FNonce <> LstrTempNonce then
+          begin
+            FnonceCount := 1;
+            FNonce := LstrTempNonce;
+          end;
 
-        FRealm := LParams.Values['realm'];
-        LStrTempnonce := LParams.Values['nonce'];
-        if not (FNonce = LstrTempNonce) then
-        begin
-          FnonceCount := 1;
-          FNonce := LstrTempNonce;
-        end;
-        S := LParams.Values['domain'];
-        while Length(S) > 0 do
-        begin
-          FDomain.Add(Fetch(S));
-        end;
-        Fopaque := LParams.Values['opaque'];
-        FStale := IndyCompareStr(LParams.Values['stale'],'True')=1;
-        FAlgorithm := LParams.Values['algorithm'];
-        FQopOptions.CommaText := Params.Values['qop'];
+          S := LParams.Values['domain'];
+          while Length(S) > 0 do begin
+            FDomain.Add(Fetch(S));
+          end;
 
-        if not TextIsSame(FAlgorithm, 'MD5') then begin
-          //FAlgorithm:='MD5';
-          raise EIdInvalidAlgorithm.Create(RSHTTPAuthInvalidHash);
-        end;
+          Fopaque := LParams.Values['opaque'];
+          FStale := IndyCompareStr(LParams.Values['stale'], 'True') = 1;
+          FAlgorithm := LParams.Values['algorithm'];
+          FQopOptions.CommaText := Params.Values['qop'];
+
+          if not TextIsSame(FAlgorithm, 'MD5') then begin
+            //FAlgorithm:='MD5';
+            raise EIdInvalidAlgorithm.Create(RSHTTPAuthInvalidHash);
+          end;
 
         finally
-        Sys.FreeAndNil(lParams);
+          Sys.FreeAndNil(LParams);
         end;
 
         FCurrentStep := 1;
 
-        if (Length(Username) > 0) then
-        begin
-          result := wnDoRequest;
-        end
-        else begin
-          result := wnAskTheProgram;
+        if Length(Username) > 0 then begin
+          Result := wnDoRequest;
+        end else begin
+          Result := wnAskTheProgram;
         end;
       end;
   end;
