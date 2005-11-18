@@ -344,7 +344,7 @@ type
   public
     constructor Create(AServer: TIdCustomTCPServer; ABinding: TIdSocketHandle); reintroduce;
     //
-    property Binding: TIdSocketHandle read FBinding write FBinding;
+    property Binding: TIdSocketHandle read FBinding;
     property Server: TIdCustomTCPServer read FServer;
     property OnBeforeRun: TIdNotifyThreadEvent read FOnBeforeRun write FOnBeforeRun;
   End;
@@ -488,6 +488,8 @@ begin
   Sys.FreeAndNil(FBindings);
   //
   Sys.FreeAndNil(FContexts);
+  Sys.FreeAndNil(FListenerThreads);
+  //
   inherited Destroy;
 end;
 
@@ -600,7 +602,7 @@ end;
 
 procedure TIdCustomTCPServer.SetActive(AValue: Boolean);
 begin
-   // At design time we just set the value and save it for run time
+  // At design time we just set the value and save it for run time
   if IsDesignTime
    // During loading we ignore it till all other properties are set. Loaded
    // will recall it to toggle it
@@ -689,25 +691,20 @@ end;
 procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
   i: Integer;
-  LListenerThread: TIdListenerThread;
   LListenerThreads: TIdList;
 Begin
-  if FListenerThreads <> nil then begin
-    LListenerThreads := FListenerThreads.LockList; try
-      for i:= 0 to LListenerThreads.Count - 1 do begin
-        LListenerThread := TIdListenerThread(LListenerThreads[i]);
-        with LListenerThread do begin
-          // Stop listening
-          Terminate;
-          Binding.CloseSocket;
-          // Tear down Listener thread
-          WaitFor;
-          Free;
-        end;
+  LListenerThreads := FListenerThreads.LockList; try
+    for i:= 0 to LListenerThreads.Count - 1 do begin
+      with TIdListenerThread(LListenerThreads[i]) do begin
+        // Stop listening
+        Terminate;
+        Binding.CloseSocket;
+        // Tear down Listener thread
+        WaitFor;
+        Free;
       end;
-    finally FListenerThreads.UnlockList; end;
-    Sys.FreeAndNil(FListenerThreads);
-  end;
+    end;
+  finally FListenerThreads.UnlockList; end;
 end;
 
 procedure TIdCustomTCPServer.TerminateAllThreads;
@@ -758,6 +755,7 @@ begin
   //
   FTerminateWaitTime := 5000;
   FListenQueue := IdListenQueueDefault;
+  FListenerThreads := TIdThreadList.Create;
   //TODO: When reestablished, use a sleeping thread instead
 //  fSessionTimer := TTimer.Create(self);
 end;
@@ -835,7 +833,6 @@ begin
     raise;
   end;
   DoAfterBind;
-  FListenerThreads := TIdThreadList.Create;
   for i := 0 to Bindings.Count - 1 do begin
     Bindings[i].Listen(FListenQueue);
     LListenerThread := TIdListenerThread.Create(Self, Bindings[i]);
