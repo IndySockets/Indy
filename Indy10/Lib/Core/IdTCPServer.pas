@@ -22,19 +22,21 @@
 unit IdTCPServer;
 
 interface
+
 uses IdCustomTCPServer;
 
 type
   EIdTCPNoOnExecute = class(EIdTCPServerError);
+
   TIdTCPServer = class(TIdCustomTCPServer)
   protected
      procedure CheckOkToBeActive;  override;
-  public
   published
     property OnExecute;
   end;
 
 implementation
+
 uses IdResourceStringsCore;
 
 { TIdTCPServer }
@@ -42,12 +44,7 @@ uses IdResourceStringsCore;
 procedure TIdTCPServer.CheckOkToBeActive;
 begin
   inherited CheckOkToBeActive;
-
-  if not Assigned( FOnExecute) then
-  begin
-    raise EIdTCPNoOnExecute.Create(RSNoOnExecute);
-  end;
-
+  EIdTCPNoOnExecute.IfFalse(Assigned(FOnExecute), RSNoOnExecute);
 end;
 
 end.
