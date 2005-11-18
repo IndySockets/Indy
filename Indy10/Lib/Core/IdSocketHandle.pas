@@ -443,15 +443,15 @@ procedure TIdSocketHandle.Assign(Source: TIdPersistent);
 var
   LSource: TIdSocketHandle;
 begin
-  if ClassType <> Source.ClassType then begin
-    inherited
-  end else begin
+  if Source is TIdSocketHandle then begin
     LSource := TIdSocketHandle(Source);
     FIP := LSource.FIP;
     Port := LSource.Port;
     FPeerIP := LSource.FPeerIP;
     FPeerPort := LSource.FPeerPort;
     FIPVersion := LSource.IPVersion;
+  end else begin
+    inherited
   end;
 end;
 
