@@ -63,8 +63,7 @@ uses
   IdSys,
   IdObjs;
 
-Type
-
+type
   TIdAuthenticationSchemes = (asBasic, asDigest, asNTLM, asUnknown);
   TIdAuthSchemeSet = set of TIdAuthenticationSchemes;
 
@@ -128,19 +127,19 @@ Type
 
 implementation
 
-Uses
+uses
   IdCoderMIME, IdResourceStringsProtocols;
 
-Type
+type
   TAuthListObject = class(TIdBaseObject)
     Auth: TIdAuthenticationClass;
   end;
 
-Var
+var
   AuthList: TIdStringList = nil;
 
 procedure RegisterAuthenticationMethod(MethodName: String; AuthClass: TIdAuthenticationClass);
-Var
+var
   LAuthItem: TAuthListObject;
 begin
   if not Assigned(AuthList) then begin
@@ -150,10 +149,15 @@ begin
   if AuthList.IndexOf(MethodName) < 0 then begin
     LAuthItem := TAuthListObject.Create;
     LAuthItem.Auth := AuthClass;
-    AuthList.AddObject(MethodName, LAuthItem);
+    try
+      AuthList.AddObject(MethodName, LAuthItem);
+    except
+      Sys.FreeAndNil(LAuthItem);
+      raise;
+    end;
   end
   else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Sys.Format(RSHTTPAuthAlreadyRegistered,
+    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Format(RSHTTPAuthAlreadyRegistered,
       [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]));
   end;
 end;
@@ -269,8 +273,7 @@ end;
 function TIdBasicAuthentication.Authentication: String;
 begin
   with TIdEncoderMIME.Create do try
-    result := 'Basic ' {do not localize}
-      + Encode(Username + ':' + Password);  {do not localize}
+    Result := 'Basic ' + Encode(Username + ':' + Password); {do not localize}
   finally Free; end;
 end;
 
