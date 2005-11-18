@@ -119,9 +119,7 @@ procedure TIdAttachment.Assign(Source: TIdPersistent);
 var
   mp: TIdAttachment;
 begin
-  if not (Source is Self.ClassType) then begin
-    inherited Assign(Source);
-  end else begin
+  if Source is TIdAttachment then begin
     mp := TIdAttachment(Source);
     {
     ContentTransfer := mp.ContentTransfer;
@@ -135,6 +133,8 @@ begin
 
     ExtraHeaders.Assign(mp.ExtraHeaders);
     FileName := mp.FileName;
+  end else begin
+    inherited;
   end;
 end;
 
