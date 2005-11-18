@@ -102,28 +102,26 @@ type
 
   TIdUDPListenerThread = class(TIdThread)
   protected
-    FIncomingData: TIdSocketHandle;
+    FBinding: TIdSocketHandle;
     FAcceptWait: integer;
     FBuffer: TIdBytes;
-    FBufferSize: integer;
-    FReadList: TIdSocketList;
 
     FCurrentException: String;
     FCurrentExceptionClass: TClass;
     //
     procedure AfterRun; override;
-    procedure BeforeRun; override;
     procedure Run; override;
   public
     FServer: TIdUDPServer;
     //
-    constructor Create(const ABufferSize: integer; Owner: TIdUDPServer); reintroduce;
+    constructor Create(AOwner: TIdUDPServer; ABinding: TIdSocketHandle); reintroduce;
     destructor Destroy; override;
 
     procedure UDPRead;
     procedure UDPException;
     //
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
+    property Binding: TIdSocketHandle read FBinding;
   published
   end;
 
@@ -131,21 +129,19 @@ type
   protected
     FBindings: TIdSocketHandles;
     FCurrentBinding: TIdSocketHandle;
-    FListenerThread: TIdUDPListenerThread;
+    FListenerThreads: TIdThreadList;
     FOnUDPRead: TUDPReadEvent;
     FOnUDPException : TIdUDPExceptionEvent;
     FThreadedEvent: boolean;
     //
     procedure BroadcastEnabledChanged; override;
     procedure CloseBinding; override;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
     procedure DoOnUDPException(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);  virtual;
+    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
     function GetDefaultPort: integer;
     procedure InitComponent; override;
-    procedure PacketReceived(AData: TIdBytes; ABinding: TIdSocketHandle);
-    procedure ExceptionRaised(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
     procedure SetBindings(const Value: TIdSocketHandles);
     procedure SetDefaultPort(const AValue: integer);
   public
@@ -175,38 +171,43 @@ end;
 procedure TIdUDPServer.CloseBinding;
 var
   i: integer;
+  LListenerThreads: TIdList;
 begin
-  if Assigned(FCurrentBinding) then begin
-    // Necessary here - cancels the recvfrom in the listener thread
-    FListenerThread.Stop;
-    for i := 0 to Bindings.Count - 1 do begin
-      Bindings[i].CloseSocket;
+  LListenerThreads := FListenerThreads.LockList; try
+    for i := 0 to LListenerThreads.Count - 1 do begin
+      with TIdUDPListenerThread(LListenerThreads[i]) do begin
+        // Stop listening
+        Stop;
+        Binding.CloseSocket;
+        // Tear down Listener thread
+        WaitFor;
+        Free;
+      end;
     end;
-    FListenerThread.WaitFor;
-    Sys.FreeAndNil(FListenerThread);
-    FCurrentBinding := nil;
-  end;
+  finally FListenerThreads.UnlockList; end;
+  FCurrentBinding := nil;
 end;
 
 destructor TIdUDPServer.Destroy;
 begin
   Active := False;
   Sys.FreeAndNil(FBindings);
+  Sys.FreeAndNil(FThreads);
+  Sys.FreeAndNil(FListenerThreads);
   inherited Destroy;
-end;
-
-procedure TIdUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
-begin
-  if assigned(OnUDPRead) then begin
-    OnUDPRead(Self, AData, ABinding);
-  end;
 end;
 
 procedure TIdUDPServer.DoOnUDPException(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
 begin
-  if Assigned(FOnUDPException) then
-  begin
-    OnUDPException(Self,ABinding,AMessage,AExceptionClass);
+  if Assigned(FOnUDPException) then begin
+    OnUDPException(Self, ABinding, AMessage, AExceptionClass);
+  end;
+end;
+
+procedure TIdUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+begin
+  if Assigned(OnUDPRead) then begin
+    OnUDPRead(Self, AData, ABinding);
   end;
 end;
 
@@ -216,32 +217,53 @@ begin
   Result := inherited GetActive;
   if not Result then begin
     if Assigned(FCurrentBinding) then begin
-      if FCurrentBinding.HandleAllocated then begin
-        result:=true;
-      end;
+      Result := FCurrentBinding.HandleAllocated;
     end;
   end;
 end;
 
 function TIdUDPServer.GetBinding: TIdSocketHandle;
 var
+  LListenerThread: TIdUDPListenerThread;
   i: integer;
 begin
   if FCurrentBinding = nil then begin
     if Bindings.Count < 1 then begin
       Bindings.Add;
     end;
-    for i := 0 to Bindings.Count - 1 do begin
+
+    // Set up listener threads
+    i := 0;
+    try
+      while i < Bindings.Count do begin
+        with Bindings[i] do begin
 {$IFDEF LINUX}
-      Bindings[i].AllocateSocket(Integer(Id_SOCK_DGRAM));
+          AllocateSocket(Integer(Id_SOCK_DGRAM));
 {$ELSE}
-      Bindings[i].AllocateSocket(Id_SOCK_DGRAM);
+          AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
-      Bindings[i].Bind;
+          Bind;
+        end;
+        Inc(i);
+      end;
+    except
+      Dec(i); // the one that failed doesn't need to be closed
+      while i >= 0 do begin
+        Bindings[i].CloseSocket;
+        Dec(i);
+      end;
+      raise;
+    end;
+    for i := 0 to Bindings.Count - 1 do begin
+      LListenerThread := TIdUDPListenerThread.Create(Self, Bindings[i]);
+      LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(i + 1); {do not localize}
+      //Todo: Implement proper priority handling for Linux
+      //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
+      LListenerThread.Priority := tpListener;
+      FListenerThreads.Add(LListenerThread);
+      LListenerThread.Start;
     end;
     FCurrentBinding := Bindings[0];
-    FListenerThread := TIdUDPListenerThread.Create(BufferSize, Self);
-    FListenerThread.Start;
     BroadcastEnabledChanged;
   end;
   Result := FCurrentBinding;
@@ -256,23 +278,12 @@ procedure TIdUDPServer.InitComponent;
 begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
-end;
-
-procedure TIdUDPServer.PacketReceived(AData: TIdBytes;
-  ABinding: TIdSocketHandle);
-begin
-  FCurrentBinding := ABinding;
-  DoUDPRead(AData, ABinding);
-end;
-
-procedure TIdUDPServer.ExceptionRaised(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
-begin
-  FCurrentBinding := ABinding;
-  DoOnUDPException(ABinding,AMessage, AExceptionClass );
+  FListenerThreads := TIdThreadList.Create;
 end;
 
 procedure TIdUDPServer.SetBindings(const Value: TIdSocketHandles);
 begin
+  // TODO: update the listener threads as well
   FBindings.Assign(Value);
 end;
 
@@ -283,35 +294,26 @@ end;
 
 { TIdUDPListenerThread }
 
-// TODO: get rid of buffersize arg... there's no reason why this thread can't simply check its owner's buffersize property    {Do not Localize}
 procedure TIdUDPListenerThread.AfterRun;
 begin
-  FReadList.Free;
+  inherited AfterRun;
+  // Close just own binding. The rest will be closed from their
+  // coresponding threads
+  FBinding.CloseSocket;
 end;
 
-procedure TIdUDPListenerThread.BeforeRun;
-var
-  i: integer;
-begin
-  // fill list of socket handles
-  FReadList := TIdSocketList.CreateSocketList;
-  for i := 0 to FServer.Bindings.Count - 1 do begin
-    FReadList.Add(FServer.Bindings[i].Handle);
-  end;
-end;
-
-constructor TIdUDPListenerThread.Create(const ABufferSize: integer; Owner: TIdUDPServer);
+constructor TIdUDPListenerThread.Create(AOwner: TIdUDPServer; ABinding: TIdSocketHandle);
 begin
   inherited Create(True);
   FAcceptWait := 1000;
-  FBufferSize := ABufferSize;
-  SetLength(FBuffer,FBufferSize);
-  FServer := Owner;
+  FBinding := ABinding;
+  FServer := AOwner;
+  SetLength(FBuffer, 0);
 end;
 
 destructor TIdUDPListenerThread.Destroy;
 begin
-  SetLength(FBuffer,0);
+  SetLength(FBuffer, 0);
   inherited Destroy;
 end;
 
@@ -320,16 +322,14 @@ var
   PeerIP: string;
   i, PeerPort, ByteCount: Integer;
 begin
-  FReadList.SelectRead(AcceptWait);
-  for i := 0 to FReadList.Count - 1 do try
-    // Doublecheck to see if we've been stopped    {Do not Localize}
+  if FBinding.Select(AcceptWait) then try
+    // Doublecheck to see if we've been stopped
     // Depending on timing - may not reach here if it is in ancestor run when thread is stopped
     if not Stopped then begin
-      FIncomingData := FServer.Bindings.BindingByHandle(TIdStackSocketHandle(FReadList[i]));
-      SetLength(FBuffer,FBufferSize);
-      ByteCount := GStack.ReceiveFrom(FIncomingData.Handle,FBuffer,PeerIP,PeerPort,FIncomingData.IPVersion );
-      SetLength(FBuffer,ByteCount);
-      FIncomingData.SetPeer(PeerIP, PeerPort,FIncomingData.IPVersion);
+      SetLength(FBuffer, FServer.BufferSize);
+      ByteCount := GStack.ReceiveFrom(FBinding.Handle, FBuffer, PeerIP, PeerPort, FBinding.IPVersion);
+      SetLength(FBuffer, ByteCount);
+      FBinding.SetPeer(PeerIP, PeerPort, FBinding.IPVersion);
       if FServer.ThreadedEvent then begin
         UDPRead;
       end else begin
@@ -343,9 +343,9 @@ begin
       FCurrentException := E.Message;
       FCurrentExceptionClass := E.ClassType;
       if FServer.ThreadedEvent then begin
-          UDPException;
+        UDPException;
       end else begin
-          Synchronize(UDPException);
+        Synchronize(UDPException);
       end;
     end;
   end;
@@ -353,12 +353,12 @@ end;
 
 procedure TIdUDPListenerThread.UDPRead;
 begin
-  FServer.PacketReceived(FBuffer, FIncomingData);
+  FServer.DoUDPRead(FBuffer, FBinding);
 end;
 
 procedure TIdUDPListenerThread.UDPException;
 begin
-  FServer.ExceptionRaised(FIncomingData,FCurrentException,FCurrentExceptionClass);
+  FServer.DoOnUDPException(FBinding, FCurrentException, FCurrentExceptionClass);
 end;
 
 end.
