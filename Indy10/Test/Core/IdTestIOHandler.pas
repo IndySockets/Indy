@@ -46,6 +46,7 @@ type
     procedure TestStreamSize;
     procedure TestIntercept;
     procedure TestWriteBuffered;
+    procedure TestBuffered;
   end;
 
 implementation
@@ -108,6 +109,28 @@ begin
  finally
  Sys.FreeAndNil(aStream);
  end;
+
+end;
+
+procedure TIdTestIOHandler.TestBuffered;
+var
+  io:TIdLoopbackIOHandler;
+begin
+  io:=TIdLoopbackIOHandler.Create(nil);
+  try
+    io.Open;
+    io.WriteBufferOpen(2);
+
+    //check that writes less than buffer size arent sent
+    io.Write('1');
+    Assert(io.InputBufferAsString='');
+
+    //write >1 buffersize of data, check all is sent
+    io.Write('2345');
+    Assert(io.InputBufferAsString='1234');
+  finally
+    Sys.FreeAndNil(io);
+  end;
 
 end;
 
