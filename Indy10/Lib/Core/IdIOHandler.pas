@@ -1690,10 +1690,9 @@ begin
       FWriteBuffer.Write(ABuffer);
       if (FWriteBuffer.Size >= WriteBufferThreshhold)
        and (WriteBufferThreshhold > 0) then begin
-        // TODO: Maybe? instead of flushing - Write until buffer is smaller than
-        // Threshold.
-        // That is do at least one physical send.
+        repeat
         WriteBufferFlush(WriteBufferThreshhold);
+        until FWriteBuffer.Size<WriteBufferThreshhold;
       end;
     end;
   end;
