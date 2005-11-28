@@ -418,6 +418,9 @@ var
   LSize: Integer;
 begin
   inherited WriteDirect(aBuffer);
+
+  Assert(Binding<>nil);
+
   LSize := Length(ABuffer);
   LPos := 0;
   repeat
