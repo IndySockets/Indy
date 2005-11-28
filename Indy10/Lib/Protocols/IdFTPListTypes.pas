@@ -16,41 +16,36 @@
   $Log$
 }
 {
-{   Rev 1.6    3/23/2005 4:52:28 AM  JPMugaas
-{ Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
-{
-{ http://www.raidenftpd.com/kb/kb000000049.htm
-{
-{ This returns Win32 file attributes including some that Borland does not
-{ support.
+  Rev 1.6    3/23/2005 4:52:28 AM  JPMugaas
+    Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
+
+    http://www.raidenftpd.com/kb/kb000000049.htm
+
+    This returns Win32 file attributes including some that Borland does not
+    support.
+
+  Rev 1.5    12/8/2004 8:35:18 AM  JPMugaas
+    Minor class restructure to support Unisys ClearPath.
+
+  Rev 1.4    11/29/2004 2:45:30 AM  JPMugaas
+    Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
+    by the Distinct32, OS/2, and Chameleon FTP list parsers.
+
+  Rev 1.3    10/26/2004 9:27:34 PM  JPMugaas
+    Updated references.
+
+  Rev 1.2    6/27/2004 1:45:36 AM  JPMugaas
+    Can now optionally support LastAccessTime like Smartftp's FTP Server could.
+    I also made the MLST listing object and parser support this as well.
+
+  Rev 1.1    6/4/2004 2:11:00 PM  JPMugaas
+    Added an indexed read-only Facts property to the MLST List Item so you can
+    get information that we didn't parse elsewhere.  MLST is extremely flexible.
+
+  Rev 1.0    4/20/2004 2:43:20 AM  JPMugaas
+    Abstract FTPList objects for reuse.
 }
-{
-{   Rev 1.5    12/8/2004 8:35:18 AM  JPMugaas
-{ Minor class restructure to support Unisys ClearPath.
-}
-{
-{   Rev 1.4    11/29/2004 2:45:30 AM  JPMugaas
-{ Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
-{ by the Distinct32, OS/2, and Chameleon FTP list parsers.
-}
-{
-{   Rev 1.3    10/26/2004 9:27:34 PM  JPMugaas
-{ Updated references.
-}
-{
-{   Rev 1.2    6/27/2004 1:45:36 AM  JPMugaas
-{ Can now optionally support LastAccessTime like Smartftp's FTP Server could.
-{ I also made the MLST listing object and parser support this as well.
-}
-{
-{   Rev 1.1    6/4/2004 2:11:00 PM  JPMugaas
-{ Added an indexed read-only Facts property to the MLST List Item so you can
-{ get information that we didn't parse elsewhere.  MLST is extremely flexible.
-}
-{
-{   Rev 1.0    4/20/2004 2:43:20 AM  JPMugaas
-{ Abstract FTPList objects for reuse.
-}
+
 unit IdFTPListTypes;
 
 interface
@@ -59,8 +54,7 @@ uses
   IdFTPList, IdSys, IdObjs;
 
 type
-  //these two are for OS/2 and other MS-DOS-like file system FTP servers
-  //that report attributes
+  { For FTP servers using OS/2 and other MS-DOS-like file systems that report file attributes }
   TIdDOSAttributes = class(TIdPersistent)
   protected
     FRead_Only : Boolean;
@@ -84,7 +78,7 @@ type
   published
     property FileAttributes : Cardinal read FFileAttributes write FFileAttributes;
     property AsString : String read GetAsString;
-    //can't be ReadOnly because that's a reserved word
+    // can't be ReadOnly because that's a reserved word
     property Read_Only : Boolean read GetRead_Only write SetRead_Only;
     property Archive : Boolean read GetArchive write SetArchive;
     property System : Boolean read GetSystem write SetSystem;
@@ -93,6 +87,8 @@ type
     property Normal : Boolean read GetNormal write SetNormal;
   end;
 
+  { Win32 Extended Attributes as in WIN32_FIND_DATA data structure in the Windows API.
+    Analagous to the System.IO.FileAttributes enumeration in .Net }
   TIdWin32ea = class(TIdDOSAttributes)
   protected
     function GetDevice: Boolean;
@@ -101,7 +97,7 @@ type
     procedure SetTemporary(const AValue: Boolean);
     function GetSparseFile: Boolean;
     procedure SetSparseFile(const AValue: Boolean);
-    //THis is also called a junction and it works like a Unix Symbolic link to a dir
+    // this is also called a junction and it works like a Unix Symbolic link to a dir
     function GetReparsePoint: Boolean;
     procedure SetReparsePoint(const AValue: Boolean);
     function GetCompressed: Boolean;
@@ -145,6 +141,7 @@ type
   public
   end;
 
+  { listing formats that include Creation timestamp information }
   TIdCreationDateFTPListItem = class(TIdFTPListItem)
   protected
     FCreationDate: TIdDateTime;
@@ -154,7 +151,7 @@ type
 
   end;
 
-  //for MLST output
+  // for MLST, MLSD listing outputs
   TIdMLSTFTPListItem = class(TIdCreationDateFTPListItem)
   protected
     FAttributesAvail : Boolean;
@@ -187,7 +184,7 @@ type
     property Attributes :  TIdWin32ea read FAttributes;
   end;
 
-  //for some parsers that output an owner sometimes
+  // for some parsers that output an owner sometimes
   TIdOwnerFTPListItem = class(TIdFTPListItem)
   protected
     FOwnerName : String;
@@ -195,8 +192,8 @@ type
     property OwnerName : String read FOwnerName write FOwnerName;
   end;
 
-  //This class type is used by Novell Netware,
-  //Novell Print Services for Unix with DOS namespace, and HellSoft FTPD for Novell Netware
+  { This class type is used by Novell Netware, Novell Print Services for
+    Unix with DOS namespace, and HellSoft FTPD for Novell Netware }
   TIdNovellBaseFTPListItem = class(TIdOwnerFTPListItem)
   protected
     FNovellPermissions : String;
@@ -204,7 +201,7 @@ type
     property NovellPermissions : string read FNovellPermissions write FNovellPermissions;
   end;
 
-  //Bull GCOS 8 uses this and Unix will use a descendent
+  // Bull GCOS 8 uses this and Unix will use a descendent
   TIdUnixPermFTPListItem = class(TIdOwnerFTPListItem)
   protected
     FUnixGroupPermissions: string;
@@ -215,6 +212,7 @@ type
     property UnixGroupPermissions: string read FUnixGroupPermissions write FUnixGroupPermissions;
     property UnixOtherPermissions: string read FUnixOtherPermissions write FUnixOtherPermissions;
   end;
+
   // Unix and Novell Netware Print Services for Unix with NFS namespace need to use this
   TIdUnixBaseFTPListItem = class(TIdUnixPermFTPListItem)
   protected
