@@ -655,8 +655,6 @@ unit IdGlobal;
 
 interface
 
-
-
 uses
   {$IFDEF DotNet}
   System.Collections.Specialized,
@@ -758,6 +756,7 @@ type
   public
     constructor Create(const AFile : String);
   end;
+
   {$IFDEF DotNet}
   // dotNET implementation
   TWaitResult = (wrSignaled, wrTimeout, wrAbandoned, wrError);
@@ -817,6 +816,7 @@ type
   EIdCorruptServicesFile = class(EIdException);
   EIdEndOfStream = class(EIdException);
   EIdInvalidIPv6Address = class (EIdException);
+
   {$IFNDEF DotNet}
   TBytes = array of Byte;
   {$ENDIF}
@@ -1005,7 +1005,7 @@ procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 {$ENDIF}
 
 // TIdBytes utilities
-function BytesToString(ABytes: TIdBytes; AStartIndex: Integer = 0; AMaxCount: Integer = MaxInt): string; overload;
+function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0; AMaxCount: Integer = MaxInt): string;
 procedure AppendBytes(var VBytes: TIdBytes; AAdd: TIdBytes);
 procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
@@ -2879,22 +2879,22 @@ begin
   {$ENDIF}
 end;
 
-function BytesToString(ABytes: TIdBytes; AStartIndex: Integer; AMaxCount: Integer): string;
+function BytesToString(const AValue: TIdBytes; AStartIndex: Integer; AMaxCount: Integer): string;
 begin
-  if ((Length(ABytes) > 0) or (AStartIndex <> 0)) then begin
-    EIdRangeException.IfNotInRange(AStartIndex, 0, Length(ABytes) - 1, 'Index out of bounds.'); {do not localize}
+  if ((Length(AValue) > 0) or (AStartIndex <> 0)) then begin
+    EIdRangeException.IfNotInRange(AStartIndex, 0, Length(AValue) - 1, 'Index out of bounds.'); {do not localize}
   end;
-  AMaxCount := Min(Length(ABytes) - AStartIndex, AMaxCount);
+  AMaxCount := Min(Length(AValue) - AStartIndex, AMaxCount);
   {$IFDEF DotNet}
   // For .NET we need to convert from a single byte char per stream into a double byte per char
   // string.
-  Result := System.Text.Encoding.ASCII.GetString(ABytes, AStartIndex, AMaxCount);
+  Result := System.Text.Encoding.ASCII.GetString(AValue, AStartIndex, AMaxCount);
   {$ELSE}
   // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
   // With MBCS we still map 1:1
   SetLength(Result, AMaxCount);
   if AMaxCount > 0 then begin
-    Move(ABytes[AStartIndex], Result[1], AMaxCount);
+    Move(AValue[AStartIndex], Result[1], AMaxCount);
   end;
   {$ENDIF}
 end;
