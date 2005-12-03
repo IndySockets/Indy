@@ -2129,11 +2129,7 @@ var
   s: String;
 {$ENDIF}
 begin
-  { Protect if someone is allready filled (custom MomeConst) }
-  if not Assigned(AMIMEList) then
-  begin
-    Exit;
-  end;
+  Assert(AMIMEList<>nil);
   if AMIMEList.Count > 0 then
   begin
     Exit;
@@ -2309,32 +2305,18 @@ begin
       if Reg.OpenKeyReadOnly('\') then  {do not localize}
       begin
         Reg.GetKeyNames(KeyList);
-      //  reg.Closekey;
       end;
-      // get a list of registered extentions
       for i := 0 to KeyList.Count - 1 do
       begin
         if Copy(KeyList[i], 1, 1) = '.' then   {do not localize}
         begin
-          if reg.OpenKeyReadOnly(KeyList[i]) then
+          if reg.OpenKeyReadOnly('\'+KeyList[i]) then {do not localize}
           begin
             s := Reg.ReadString('Content Type');  {do not localize}
-{          if Reg.ValueExists('Content Type') then  {do not localize}
-{          begin
-            FFileExt.Values[KeyList[i]] := Reg.ReadString('Content Type');  {do not localize}
-{          end;   }
-
-{ for some odd reason, the code above was triggering a memory leak inside
-the TIdHTTPServer demo program even though simply testing the MIME Table
-alone did not cause a memory leak.  That is what I found in my leak testing..
-Got me <shrug>.
-
-}
             if Length(s) > 0 then
             begin
               AMIMEList.Values[KeyList[i]] := s;
             end;
-//            reg.CloseKey;
           end;
         end;
       end;
@@ -2344,14 +2326,12 @@ Got me <shrug>.
         KeyList.Clear;
 
         Reg.GetKeyNames(KeyList);
-  //      reg.Closekey;
         for i := 0 to KeyList.Count - 1 do
         begin
           if Reg.OpenKeyreadOnly('\MIME\Database\Content Type\' + KeyList[i]) then {do not localize}
           begin
             s := reg.ReadString('Extension');  {do not localize}
             AMIMEList.Values[s] := KeyList[i];
-    //        Reg.CloseKey;
           end;
         end;
       end;
