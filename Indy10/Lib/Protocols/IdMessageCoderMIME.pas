@@ -267,7 +267,7 @@ const
   {Per Microsoft KnowledgeBase article KB 177506, the following are the only Windows chars permitted:}
   // MtW: this MSKB article is WRONG !! try for example the כ
   ValidWindowsFilenameChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890^&''@{}[],$=!-#()%.+~_' +
-                              'אבגדהטיךכלםמןעףפץצשתûü'; {do not localize}
+                              'ואבגדהטיךכלםמןעףפץצשתûü'; {do not localize}
 
 implementation
 
