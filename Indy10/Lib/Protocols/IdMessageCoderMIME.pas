@@ -265,7 +265,9 @@ const
   MIMEGenericMultiPart = 'multipart/'; {do not localize}
   MIME7Bit = '7bit'; {do not localize}
   {Per Microsoft KnowledgeBase article KB 177506, the following are the only Windows chars permitted:}
-  ValidWindowsFilenameChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890^&''@{}[],$=!-#()%.+~_'; {do not localize}
+  // MtW: this MSKB article is WRONG !! try for example the כ
+  ValidWindowsFilenameChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890^&''@{}[],$=!-#()%.+~_' +
+                              'אבגדהטיךכלםמןעףפץצשתûü'; {do not localize}
 
 implementation
 
