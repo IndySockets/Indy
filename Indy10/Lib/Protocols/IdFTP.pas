@@ -1415,17 +1415,21 @@ var
   LDestStream: TIdStream;
 begin
 
-    AResume := AResume and CanResume;
-    if ACanOverwrite and (not AResume) then begin
-      Sys.DeleteFile(ADestFile);
-      LDestStream := TFileCreateStream.Create(ADestFile);
+  AResume := AResume and CanResume;
+  if ACanOverwrite and (not AResume) then begin
+    Sys.DeleteFile(ADestFile);
+    LDestStream := TFileCreateStream.Create(ADestFile);
+  end else begin
+    if (not ACanOverwrite) and AResume then begin
+      LDestStream := TAppendFileStream.Create(ADestFile);
     end else begin
-      if (not ACanOverwrite) and AResume then begin
-        LDestStream := TAppendFileStream.Create(ADestFile);
-      end else begin
+      if Sys.FileExists(ADestFile) then begin
         raise EIdFTPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
+      end else begin
+        LDestStream := TFileCreateStream.Create(ADestFile);
       end;
     end;
+  end;
 
   try
     Get(ASourceFile, LDestStream, AResume);
