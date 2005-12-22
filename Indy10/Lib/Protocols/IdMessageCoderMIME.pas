@@ -264,10 +264,8 @@ const
   MIMEGenericText = 'text/'; {do not localize}
   MIMEGenericMultiPart = 'multipart/'; {do not localize}
   MIME7Bit = '7bit'; {do not localize}
-  {Per Microsoft KnowledgeBase article KB 177506, the following are the only Windows chars permitted:}
-  // MtW: this MSKB article is WRONG !! try for example the כ
-  ValidWindowsFilenameChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890^&''@{}[],$=!-#()%.+~_' +
-                              'ואבגדהטיךכלםמןעףפץצשתûü'; {do not localize}
+  // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
+  InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 
 implementation
 
@@ -654,7 +652,8 @@ begin
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
   for LN := 1 to Length(Result) do begin
-    if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
+  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
+    if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;
   end;
