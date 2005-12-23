@@ -17,7 +17,7 @@
 }
 {
 {   Rev 1.53    29/12/2004 11:01:56  CCostelloe
-{ IsMsgSinglePartMime Sys.Now cleared in TIdMessage.Clear.
+{ IsMsgSinglePartMime now cleared in TIdMessage.Clear.
 }
 {
 {   Rev 1.52    28/11/2004 20:06:28  CCostelloe
@@ -44,7 +44,7 @@
 {   Rev 1.47    6/9/04 5:38:48 PM  RLebeau
 { Updated ClearHeader() to clear the MsgId and UID properties.
 { 
-{ Updated SetUseSys.NowForDate() to support AValue being set to False
+{ Updated SetUseNowForDate() to support AValue being set to False
 }
 {
 {   Rev 1.46    16/05/2004 18:54:42  CCostelloe
@@ -110,7 +110,7 @@
 }
 {
 {   Rev 1.29    08/01/2004 23:43:40  CCostelloe
-{ LoadFromFile/SaveToFile Sys.Now work in D7 again
+{ LoadFromFile/SaveToFile now work in D7 again
 }
 {
 {   Rev 1.28    1/7/04 11:07:16 PM  RLebeau
@@ -180,7 +180,7 @@
 }
 {
 {   Rev 1.11    26/09/2003 00:29:34  CCostelloe
-{ IdMessage.Encoding Sys.Now set when email decoded; XXencoded emails Sys.Now decoded;
+{ IdMessage.Encoding now set when email decoded; XXencoded emails now decoded;
 { logic added to GenerateHeader
 }
 {
@@ -195,7 +195,7 @@
 }
 {
 {   Rev 1.8    11/07/2003 01:11:02  CCostelloe
-{ GenerateHeader changed from function to procedure, results Sys.Now put in
+{ GenerateHeader changed from function to procedure, results now put in
 { LastGeneratedHeaders.  Better for user (can see headers sent) and code still
 { efficient.
 }
@@ -211,7 +211,7 @@
 }
 {
 {   Rev 1.5    6/3/2003 10:46:54 PM  JPMugaas
-{ In-Reply-To header Sys.Now supported.
+{ In-Reply-To header now supported.
 }
 {
     Rev 1.4    1/27/2003 10:07:46 PM  DSiders
@@ -252,32 +252,32 @@ unit IdMessage;
     down from the message-level to the MessagePart level, where it belongs.
 2004-04-20 Ciaran Costelloe
   - Added support for multiple From addresses (per RFC 2822, section 3.6.2) by
-    adding a FromList field.  The previous From field Sys.Now maps to FromList[0].
+    adding a FromList field.  The previous From field now maps to FromList[0].
 2003-10-04 Ciaran Costelloe (see comments starting CC4)
 2003-09-20 Ciaran Costelloe (see comments starting CC2)
   - Added meDefault, meXX to TIdMessageEncoding.
-    Code Sys.Now sets TIdMessage.Encoding when it decodes an email.
-    Modified TIdMIMEBoundary to work as a straight stack, Sys.Now Push/Pops ParentPart also.
+    Code now sets TIdMessage.Encoding when it decodes an email.
+    Modified TIdMIMEBoundary to work as a straight stack, now Push/Pops ParentPart also.
     Added meDefault, meXX to TIdMessageEncoding.
     Moved logic from SendBody to GenerateHeader, added extra logic to avoid exceptions:
-      Change any encodings we dont kSys.Now to base64
+      Change any encodings we dont know to base64
       We dont support attachments in an encoded body, change it to a supported combination
     Made changes to support ConvertPreamble and MIME message bodies with a
       ContentTransferEncoding of base64, quoted-printable.
-    ProcessHeaders Sys.Now decodes BCC list.
+    ProcessHeaders now decodes BCC list.
 2003-09-02 Ciaran Costelloe
   - Added fix to FindBoundary suggested by Juergen Haible to remove trailing space
     after boundary added by some clients.
 2003-07-10 Ciaran Costelloe
   - Added LastGeneratedHeaders property, see comments starting CC.  Changed
-    GenerateHeader from function to procedure, it Sys.Now puts the generated headers
+    GenerateHeader from function to procedure, it now puts the generated headers
     into LastGeneratedHeaders, which is where dependant units should take the
     results from.  This ensures that the headers that were generated are
     recorded, which some users' programs may need.
 2002-12-09 Andrew Neillans
   - Removed X-Library line
 2002-08-30 Andrew P.Rybin
-  - Sys.Now InitializeISO is IdMessage method
+  - Now InitializeISO is IdMessage method
 2001-12-27 Andrew P.Rybin
   Custom InitializeISO, ExtractCharSet
 2001-Oct-29 Don Siders
@@ -699,7 +699,7 @@ begin
   Headers.Clear;
   ExtraHeaders.Clear;
   FMIMEBoundary.Clear;
-//  UseSys.NowForDate := ID_MSG_USESys.NowFORDATE;
+//  UseNowForDate := ID_MSG_USENOWFORDATE;
   Flags := [];
   MsgId := '';
   UID := '';
@@ -801,7 +801,7 @@ begin
     end;
   end;
   for LN := 0 to MessageParts.Count-1 do begin
-    {Change any encodings we don't kSys.Now to base64 for MIME and UUE for PlainText...}
+    {Change any encodings we don't know to base64 for MIME and UUE for PlainText...}
     LEncoding := MessageParts[LN].ContentTransfer;
     if LEncoding <> '' then begin
       if Encoding = meMIME then begin
@@ -832,7 +832,7 @@ begin
     end;
   end;
   if Encoding = meMIME then begin
-    //HH: Generate Boundary here so we kSys.Now it in the headers
+    //HH: Generate Boundary here so we know it in the headers
     LMIMEBoundary := IdMIMEBoundaryStrings.IndyMIMEBoundary;
     //CC: Moved this logic up from SendBody to here, where it fits better...
     if Length(ContentType) = 0 then begin
