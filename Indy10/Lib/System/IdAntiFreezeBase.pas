@@ -56,14 +56,12 @@
 }
 unit IdAntiFreezeBase;
 
-// TODO: Remove this when D.NET problem is resolved
-{$I IdCompilerDefines.inc}
 
 interface
-
+// TODO: Remove this when D.NET problem is resolved
+{$I IdCompilerDefines.inc}
 uses
-  IdBaseComponent,
-  IdSys;
+  IdBaseComponent;
 
 const
   ID_Default_TIdAntiFreezeBase_Active = True;
