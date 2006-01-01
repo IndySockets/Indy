@@ -1213,8 +1213,15 @@ begin
 end;
 
 procedure TIdDateTimeStamp.SetFromTDateTime;
+var
+  aStamp:TIdDateTimeStamp;
 begin
-  SetFromTTimeStamp(DateTimeToTimeStamp(ADateTime));
+  aStamp:=DateTimeToTimeStamp(ADateTime);
+  try
+    SetFromTTimeStamp(aStamp);
+  finally
+    Sys.FreeAndNil(aStamp);
+  end;
 end;
 
 procedure TIdDateTimeStamp.SetFromTTimeStamp;
