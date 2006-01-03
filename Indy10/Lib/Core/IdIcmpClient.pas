@@ -176,30 +176,30 @@ type
 
     //these are made public in the client
     procedure InternalPing(const AIP : String; const ABuffer: String = ''; SequenceID: word = 0);   {Do not Localize} overload;
-
     //
-    property ReplyStatus: TReplyStatus read FReplyStatus;
-    property ReplyData: string read FReplydata;
     property PacketSize : Integer read GetPacketSize write SetPacketSize;
-
+    property ReplyData: string read FReplydata;
+    property ReplyStatus: TReplyStatus read FReplyStatus;
 
   public
     destructor Destroy; override;
     procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
     procedure Send(const ABuffer : TIdBytes); override;
     function Receive(ATimeOut: Integer): TReplyStatus;
-
   end;
+
   TIdIcmpClient = class(TIdCustomIcmpClient)
   public
     procedure Ping(const ABuffer: String = ''; SequenceID: word = 0);    {Do not Localize}
+    property ReplyData;
+    property ReplyStatus;
   published
+    property Host;
     {$IFNDEF DOTNET}
     property IPVersion;
     {$ENDIF}
     property PacketSize;
     property ReceiveTimeout default Id_TIDICMP_ReceiveTimeout;
-    property Host;
     property OnReply: TOnReplyEvent read FOnReply write FOnReply;
   end;
 
