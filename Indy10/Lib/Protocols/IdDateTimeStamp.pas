@@ -14,21 +14,21 @@
 }
 {
   $Log$
-}
-{
-{   Rev 1.3    2004.02.03 5:45:04 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/21/2004 1:57:38 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    10/12/2003 2:01:46 PM  BGooijen
-{ Compiles in DotNet
-}
-{
-{   Rev 1.0    11/14/2002 02:16:44 PM  JPMugaas
+
+
+    Rev 1.3    2004.02.03 5:45:04 PM  czhower
+  Name changes
+
+
+    Rev 1.2    1/21/2004 1:57:38 PM  JPMugaas
+  InitComponent
+
+
+    Rev 1.1    10/12/2003 2:01:46 PM  BGooijen
+  Compiles in DotNet
+
+
+    Rev 1.0    11/14/2002 02:16:44 PM  JPMugaas
 }
 unit IdDateTimeStamp;
 
@@ -121,6 +121,7 @@ Pete Mee
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdBaseComponent,
