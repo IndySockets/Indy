@@ -989,11 +989,11 @@ begin
 
   tmpIdCIOpenSSL := TIdSSLIOHandlerSocketOpenSSL.Create(nil);
   tmpIdCIOpenSSL.PassThrough := true;
-  tmpIdCIOpenSSL.fIsPeer := True;
   tmpIdCIOpenSSL.Open;
   if tmpIdCIOpenSSL.Binding.Accept(ASocket.Handle) then begin
   //we need to pass the SSLOptions for the saocket from the server
-    tmpIdCIOpenSSL.fxSSLOptions.Free;
+    Sys.FreeAndNil(tmpIdCIOpenSSL.fxSSLOptions);
+    tmpIdCIOpenSSL.fIsPeer := True;
     tmpIdCIOpenSSL.fxSSLOptions := fxSSLOptions;
     tmpIdCIOpenSSL.fSSLSocket := TIdSSLSocket.Create(self);
     tmpIdCIOpenSSL.fSSLContext := fSSLContext;
