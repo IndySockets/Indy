@@ -61,6 +61,19 @@ type
     tablFilePkg: TStringField;
     tablFileDesignUnit: TBooleanField;
     tablFileFTPParser: TBooleanField;
+    tablFileDescrShort: TStringField;
+    tablFileProtocol: TStringField;
+    tablFileRelease: TBooleanField;
+    tablFileReleaseNative: TBooleanField;
+    tablFileReleaseDotNet: TBooleanField;
+    tablFileReleaseComment: TStringField;
+    tablFileBubbleExists: TBooleanField;
+    tablFileIFDEFPermitted: TBooleanField;
+    tablFileOwners: TStringField;
+    tablFileFPC: TBooleanField;
+    tablFileFPCListInPkg: TBooleanField;
+    tablFileFPCHasRegProc: TBooleanField;
+    tablFileFPCHasLRSFile: TBooleanField;
   private
   protected
     FDataPath : String;
