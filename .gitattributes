@@ -630,6 +630,15 @@ Indy10/Builder/Package[!!-~]Generator/Data/File.TV -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.VAL -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/DistPasFileList.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
+Indy10/Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
+Indy10/Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.dfm -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.pas -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBMain.dfm -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBMain.pas -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.dfm -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGenMgrDModDS.pas -text
 Indy10/Builder/Package[!!-~]Generator/Package.pas -text
 Indy10/Builder/Package[!!-~]Generator/PackageCore.pas -text
 Indy10/Builder/Package[!!-~]Generator/PackageD8Master.pas -text
