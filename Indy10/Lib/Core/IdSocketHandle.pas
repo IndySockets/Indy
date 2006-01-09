@@ -191,7 +191,7 @@ type
     FReadSocketList: TIdSocketList;
     FOverLapped:boolean;
     FIPVersion: TIdIPVersion;
-    FConnectionHandle: TCriticalSection;
+    FConnectionHandle: TIdCriticalSection;
     //
     function BindPortReserved: Boolean;
     procedure SetOverLapped(const AValue:boolean);
@@ -401,7 +401,7 @@ end;
 constructor TIdSocketHandle.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
-  FConnectionHandle := TCriticalSection.Create;
+  FConnectionHandle := TIdCriticalSection.Create;
   Reset;
   FClientPortMin := 0;
   FClientPortMax := 0;
