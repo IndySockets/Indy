@@ -692,17 +692,18 @@ procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
   i: Integer;
   LListenerThreads: TIdList;
+  aThread:TIdListenerThread;
 Begin
   LListenerThreads := FListenerThreads.LockList; try
-    for i:= 0 to LListenerThreads.Count - 1 do begin
-      with TIdListenerThread(LListenerThreads[i]) do begin
-        // Stop listening
-        Terminate;
-        Binding.CloseSocket;
-        // Tear down Listener thread
-        WaitFor;
-        Free;
-      end;
+    for i:= LListenerThreads.Count - 1 downto 0 do begin
+      aThread:=TIdListenerThread(LListenerThreads[i]);
+      LListenerThreads.Delete(i);
+      // Stop listening
+      aThread.Terminate;
+      aThread.Binding.CloseSocket;
+      // Tear down Listener thread
+      aThread.WaitFor;
+      Sys.FreeAndNil(aThread);
     end;
   finally FListenerThreads.UnlockList; end;
 end;
