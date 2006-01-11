@@ -711,6 +711,7 @@ end;
 procedure TIdCustomTCPServer.TerminateAllThreads;
 var
   i: Integer;
+  aContext:TIdContext;
 begin
   // TODO:  reimplement support for TerminateWaitTimeout
 
@@ -720,9 +721,12 @@ begin
   if Contexts <> nil then begin
     with Contexts.LockList do try
       for i := 0 to Count - 1 do begin
+        aContext:=TIdContext(Items[i]);
+        Assert(aContext<>nil);
+        Assert(aContext.Connection<>nil,aContext.Classname);
         // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
         // is still running which often causes AVs and other.
-        TIdContext(Items[i]).Connection.Disconnect(False);
+        aContext.Connection.Disconnect(False);
       end;
     finally Contexts.UnLockList; end;
   end;
