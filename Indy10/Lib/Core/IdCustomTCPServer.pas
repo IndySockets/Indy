@@ -781,6 +781,12 @@ begin
       Scheduler := nil;
     end;
   end;
+
+  if IOHandler<>nil then
+    begin
+    IOHandler.Shutdown;
+    end;
+  
 end;
 
 procedure TIdCustomTCPServer.Startup;
@@ -797,14 +803,16 @@ begin
       end;
     end;
   end;
+
   // Setup IOHandler
   if not Assigned(FIOHandler) then begin
     IOHandler := TIdServerIOHandlerStack.Create(self);  {TIdServerIOHandlerStack.Create(self);}
     FImplicitIOHandler := True;
   end;
+
   //
   IOHandler.Init;
-  //
+
   // Set up scheduler
   if Scheduler = nil then begin
     Scheduler := TIdSchedulerOfThreadDefault.Create(Self);
@@ -813,6 +821,7 @@ begin
     FImplicitScheduler := true;
   end;
   Scheduler.Init;
+
   // Set up listener threads
   i := 0;
   try
@@ -889,6 +898,9 @@ var
   LPeer: TIdTCPConnection;
   LYarn: TIdYarn;
 begin
+  Assert(Server<>nil);
+  Assert(Server.IOHandler<>nil);
+
   LContext := nil;
   LPeer := nil;
   LYarn := nil;
