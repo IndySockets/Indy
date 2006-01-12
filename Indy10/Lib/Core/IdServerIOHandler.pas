@@ -70,25 +70,18 @@ type
       AYarn: TIdYarn
       ): TIdIOHandler;
       virtual;
-    function MakeClientIOHandler(
-      AYarn: TIdYarn
-      ): TIdIOHandler;
-      virtual;
+    function MakeClientIOHandler(AYarn: TIdYarn): TIdIOHandler; virtual;
     // Init is called when the server goes active
     procedure Init; virtual;
+    procedure Shutdown; virtual;
     // SetScheduler is called by the user (normally TCPServer) automatically
-    procedure SetScheduler(
-      AScheduler: TIdScheduler
-      ); virtual;
+    procedure SetScheduler(AScheduler: TIdScheduler); virtual;
   end;
 
 implementation
 
-{ TIdServerIOHandler }
-
 procedure TIdServerIOHandler.Init;
 begin
-  //
 end;
 
 function TIdServerIOHandler.Accept(
@@ -100,20 +93,18 @@ begin
   Result := nil;
 end;
 
-function TIdServerIOHandler.MakeClientIOHandler(
-  AYarn: TIdYarn
-  ): TIdIOHandler;
+function TIdServerIOHandler.MakeClientIOHandler(AYarn: TIdYarn): TIdIOHandler;
 begin
   Result := nil;
 end;
 
-procedure TIdServerIOHandler.SetScheduler(
-  AScheduler: TIdScheduler
-  );
+procedure TIdServerIOHandler.SetScheduler(AScheduler: TIdScheduler);
 begin
   FScheduler:=AScheduler;
 end;
 
-
+procedure TIdServerIOHandler.Shutdown;
+begin
+end;
 
 end.
