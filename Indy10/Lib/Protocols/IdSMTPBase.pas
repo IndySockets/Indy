@@ -161,12 +161,12 @@ type
     //No pipeline send methods
     function WriteRecipientNoPipelining(const AEmailAddress: TIdEmailAddressItem): Boolean;
     procedure WriteRecipientsNoPipelining(AList: TIdEmailAddressList);
-    procedure SendNoPipelining(AMsg: TIdMessage; ARecipients : TIdEMailAddressList); overload;
+    procedure SendNoPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); overload;
     //pipeline send methods
     procedure WriteRecipientPipeLine(const AEmailAddress: TIdEmailAddressItem);
     procedure WriteRecipientsPipeLine(AList: TIdEmailAddressList);
-    procedure SendPipelining(AMsg: TIdMessage; ARecipients : TIdEMailAddressList);
-    procedure InternalSend(AMsg: TIdMessage; ARecipients : TIdEMailAddressList); overload;
+    procedure SendPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
+    procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); overload;
   public
     procedure Send(AMsg: TIdMessage); virtual; abstract;
   published
@@ -258,10 +258,10 @@ begin
   end;
 end;
 
-procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
+procedure TIdSMTPBase.SendNoPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
 begin
   SendCmd(RSET_CMD);
-  SendCmd(MAILFROM_CMD + ' <' + AMsg.From.Address + '>', MAILFROM_ACCEPT);    {Do not Localize}
+  SendCmd(MAILFROM_CMD + ' <' + AFrom + '>', MAILFROM_ACCEPT);    {Do not Localize}
   try
     WriteRecipientsNoPipelining(ARecipients);
     SendCmd(DATA_CMD, DATA_ACCEPT);
@@ -275,8 +275,7 @@ begin
   end;
 end;
 
-procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage;
-  ARecipients: TIdEMailAddressList);
+procedure TIdSMTPBase.SendPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
 var
   LError : TIdReplySMTP;
   I, LFailedRecips : Integer;
@@ -295,7 +294,7 @@ begin
     IOHandler.WriteBufferOpen;
     try
       IOHandler.WriteLn(RSET_CMD);
-      IOHandler.WriteLn(MAILFROM_CMD + ' <' + AMsg.From.Address + '>');
+      IOHandler.WriteLn(MAILFROM_CMD + ' <' + AFrom + '>');
       WriteRecipientsPipeLine(ARecipients);
       IOHandler.WriteLn(DATA_CMD);
     finally
@@ -390,8 +389,7 @@ begin
   end;
 end;
 
-function TIdSMTPBase.WriteRecipientNoPipelining(
-  const AEmailAddress: TIdEmailAddressItem): Boolean;
+function TIdSMTPBase.WriteRecipientNoPipelining(const AEmailAddress: TIdEmailAddressItem): Boolean;
 var
   LReply: SmallInt;
 begin
@@ -399,8 +397,7 @@ begin
   Result := PosInSmallIntArray(LReply, RCPTTO_ACCEPT) <> -1;
 end;
 
-procedure TIdSMTPBase.WriteRecipientPipeLine(
-  const AEmailAddress: TIdEmailAddressItem);
+procedure TIdSMTPBase.WriteRecipientPipeLine(const AEmailAddress: TIdEmailAddressItem);
 begin
   //we'll read the reply - LATER
   IOHandler.WriteLn(RCPTTO_CMD + '<' + AEMailAddress.Address + '>');
@@ -438,13 +435,12 @@ begin
   end;
 end;
 
-procedure TIdSMTPBase.InternalSend(AMsg: TIdMessage;
-  ARecipients: TIdEMailAddressList);
+procedure TIdSMTPBase.InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
 begin
   if Pipeline and (Capabilities.IndexOf(CAPAPIPELINE) > -1) then begin
-    SendPipelining(AMsg, ARecipients);
+    SendPipelining(AMsg, AFrom, ARecipients);
   end else begin
-    SendNoPipelining(AMsg, ARecipients);
+    SendNoPipelining(AMsg, AFrom, ARecipients);
   end;
 end;
 
