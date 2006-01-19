@@ -447,7 +447,7 @@ begin
   SendCMD('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
 
-class procedure TIdSMTP.QuickSend (const AHost, ASubject, ATo, AFrom, AText : String);
+class procedure TIdSMTP.QuickSend(const AHost, ASubject, ATo, AFrom, AText : String);
 var
   LSMTP: TIdSMTP;
   LMsg: TIdMessage;
@@ -483,14 +483,10 @@ begin
   //LRecipients := TIdEMailAddressList.Create(nil);
   LRecipients := TIdEMailAddressList.Create(Self);
   try
-    LRecipients.EMailAddresses := AMsg.Recipients.EMailAddresses;
-    if AMsg.CCList.Count > 0 then begin
-      LRecipients.EMailAddresses := LRecipients.EMailAddresses + ', ' + AMsg.CCList.EMailAddresses;
-    end;
-    if AMsg.BccList.Count > 0 then begin
-      LRecipients.EMailAddresses := LRecipients.EMailAddresses + ', ' + AMsg.BccList.EMailAddresses;
-    end;
-    InternalSend(AMsg, LRecipients);
+    LRecipients.AddItems(AMsg.Recipients);
+    LRecipients.AddItems(AMsg.CCList);
+    LRecipients.AddItems(AMsg.BccList)
+    InternalSend(AMsg, AMsg.From.Address, LRecipients);
   finally
     Sys.FreeAndNil(LRecipients);
   end;
@@ -555,7 +551,7 @@ end;
 
 procedure TIdSMTP.Disconnect(AImmediate: Boolean);
 begin
-  inherited;
+  inherited Disconnect(AImmediate);
   FDidAuthenticate := False;
 end;
 
