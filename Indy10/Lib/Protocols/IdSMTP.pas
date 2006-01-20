@@ -485,7 +485,7 @@ begin
   try
     LRecipients.AddItems(AMsg.Recipients);
     LRecipients.AddItems(AMsg.CCList);
-    LRecipients.AddItems(AMsg.BccList)
+    LRecipients.AddItems(AMsg.BccList);
     InternalSend(AMsg, AMsg.From.Address, LRecipients);
   finally
     Sys.FreeAndNil(LRecipients);
