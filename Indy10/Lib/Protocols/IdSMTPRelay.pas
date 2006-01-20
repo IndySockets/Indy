@@ -235,6 +235,7 @@ type
     FPipeline : Boolean;
     FUseEHLO : Boolean;
     FSSLOptions : TIdSSLSupportOptions;
+    FRelaySender: String;
     procedure Connect(AEMailAddress : TIdEMailAddressItem); reintroduce;
     procedure ResolveMXServers(AAddress:String);
     procedure SetDNSServer(const Value: String);
@@ -403,7 +404,7 @@ begin
   end
   else
   begin
-    raise EIdDirectSMTPCannotResolveMX.Create(Format(RSDirSMTPInvalidEMailAddress,[AAddress]));
+    raise EIdDirectSMTPCannotResolveMX.Create(Sys.Format(RSDirSMTPInvalidEMailAddress,[AAddress]));
   end;
   IdDNSResolver1 := TIdDNSResolver.Create(Self);
   try
