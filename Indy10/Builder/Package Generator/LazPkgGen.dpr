@@ -3,6 +3,8 @@ program LazPkgGen;
 {$APPTYPE CONSOLE}
 
 uses
+  ShellAPI,
+  Windows,
   ExceptionLog,
   Classes,
   SysUtils,
@@ -105,7 +107,7 @@ The format is like this:
 ===
 }
 //i is a var that this procedure will cmanage for the main loop.
-procedure WriteEntry(var VEntryCount : Integer; var VOutput : String);
+procedure WriteLRSEntry(var VEntryCount : Integer; var VOutput : String);
 var s : String;
 begin
   Inc(VEntryCount);
@@ -128,7 +130,7 @@ begin
   VOUtput := VOUtput + s;
 end;
 
-function MakePackage(const AWhere: string; const APackageName : String; const AFileName : String) : String;
+function MakeLRS(const AWhere: string; const APackageName : String; const AFileName : String) : String;
 var i : Integer;
   s : String;
   LS : TStrings;
@@ -149,7 +151,7 @@ begin
 
     if DM.tablFilePkg.Value = APackageName then
     begin
-      WriteEntry(i,s);
+      WriteLRSEntry(i,s);
     end;
     DM.tablFile.Next;
   end;
@@ -159,37 +161,170 @@ begin
   Result := StringReplace(Result,'{%FILES}',s,[rfReplaceAll]);
 end;
 
-procedure WriteFile(const AWhere: string; const AFileName : String; const APkgName : String; const AOutPath : String);
+procedure WriteFile(const AContents, AFileName : String);
+var
+  LCodeOld: string;
+begin
+  if FileExists(AFileName) then begin
+    with TStringList.Create do try
+      LoadFromFile(AFileName);
+      LCodeOld := Text;
+    finally Free; end;
+  end;
+ // Only write out the code if its different. This prevents unnecessary checkins as well
+  // as not requiring user to lock all packages
+
+  if (LCodeOld = '') or (LCodeOld <> AContents) then begin
+    with TStringList.Create do try
+      Text := AContents;
+      SaveToFile(AFileName);
+    finally Free; end;
+  end;
+end;
+
+procedure MakeFPCPackage(const AWhere: string; const AFileName : String;
+  const APkgName : String; const AOutPath : String;
+  const AAddPlatUnits : Boolean = False);
+var s, LS : TStringList;
+  Lst : String;
+  i : Integer;
+  LTemp : String;
+  LF : AnsiString;
+  LR : Integer;
+begin
+  DM.tablFile.Filter := AWhere;
+  DM.tablFile.Filtered := True;
+  DM.tablFile.First;
+  s := TStringList.Create;
+  try
+    while not DM.tablFile.Eof do
+    begin
+      if DM.tablFilePkg.Value = APkgName then
+      begin
+        s.Add(DM.tablFileFileName.Value );
+      end;
+      DM.tablFile.Next;
+    end;
+    //construct our make file
+    LS := TStringList.Create;
+    try
+      LS.LoadFromFile('W:\Source\Indy10\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LTemp := LS.Text;
+    finally
+      FreeAndNil(LS);
+    end;
+
+    //now make our package file.  This is basically a dummy unit that lists
+
+     Lst := '';
+     for i := 0 to s.Count -1 do
+     begin
+       if (i = s.Count -1) then
+       begin
+         if AAddPlatUnits then
+         begin
+           Lst := Lst  +'  '+s[i]+ ' $(PLATUNITS)'+EOL;
+         end
+         else
+         begin
+           LSt := Lst +'  '+s[i]+EOL;
+         end;
+       end
+       else
+       begin
+          LSt := Lst + '  '+s[i]+' \'+EOL;
+       end;
+     end;
+
+     Lst := 'implicitunits='+TrimLeft(Lst);
+     LTemp := StringReplace(LTemp,'{%FILES}',LSt,[rfReplaceAll]);
+     WriteFile(LTemp,AOutPath+ '\Makefile.fpc');
+
+    //all of the files.
+     for i := 0 to s.Count -1 do
+     begin
+       if (i = s.Count -1)  then
+       begin
+         s[i] := '  '+s[i]+';';
+       end
+       else
+       begin
+          s[i] := '  '+s[i]+',';
+       end;
+     end;
+
+     s.Insert(0,'uses');
+     s.Insert(0,'');
+     s.Insert(0,'interface');
+     s.Insert(0,'unit '+AFileName+';');
+     //
+     s.Add('');
+     s.Add('implementation');
+     s.Add('');
+     s.Add('end.');
+     WriteFile(s.text,AOutPath+ '\' + AFileName+'.pas');
+     LF := AOutPath;
+     //note that for FPCMake, you need to have an enviornment variable
+     //called FPCDIR
+     //it should be something like "FPCDIR=c:\lazarus\pp"
+     LR := ShellExecute(0, PChar('open'),
+       PChar('C:\lazarus\pp\bin\i386-win32\fpcmake.exe'),
+       PChar('-v'), PAnsiChar(LF),
+        SW_SHOW);
+//LR := ShellExecute(HINstance, 'open', PChar('cmd.exe'), PChar('/K C:\lazarus\pp\bin\i386-win32\fpcmake.exe -v'), PChar(LF), SW_SHOW);
+     if LR < 32 then
+       case LR of
+         0 :
+           raise Exception.Create('The operating system is out of memory or resources.');
+         ERROR_FILE_NOT_FOUND	:
+           raise Exception.Create('The specified file was not found. ');
+         ERROR_PATH_NOT_FOUND	:
+           raise Exception.Create('The specified path was not found.');
+         ERROR_BAD_FORMAT	:
+           raise Exception.Create('The .exe file is invalid (non-Microsoft Win32 .exe or error in .exe image). ');
+         SE_ERR_ACCESSDENIED	:
+           raise Exception.Create('The operating system denied access to the specified file.');
+         SE_ERR_ASSOCINCOMPLETE :
+           raise Exception.Create('	The file name association is incomplete or invalid. ');
+         SE_ERR_DDEBUSY	:
+           raise Exception.Create('The Dynamic Data Exchange (DDE) transaction could not be completed because other DDE transactions were being processed.');
+         SE_ERR_DDEFAIL	:
+           raise Exception.Create('The DDE transaction failed.');
+         SE_ERR_DDETIMEOUT :
+           raise Exception.Create('The DDE transaction could not be completed because the request timed out.');
+         SE_ERR_DLLNOTFOUND	:
+           raise Exception.Create('The specified dynamic-link library (DLL) was not found.');
+//SE_ERR_FNF	: raise Exception.Create('The specified file was not found.');
+//SE_ERR_NOASSOC	: raise Exception.Create('There is no application associated with the given file name extension. This error will also be returned if you attempt to print a file that is not printable.');
+          SE_ERR_OOM	:
+            raise Exception.Create('There was not enough memory to complete the operation.');
+//SE_ERR_PNF	: raise Exception.Create('The specified path was not found. ');
+         SE_ERR_SHARE :
+           raise Exception.Create('A sharing violation occurred.');
+     end;
+  finally
+    FreeAndNil(s);
+  end;
+  DM.tablFile.Filtered := False;
+end;
+
+procedure Writelpk(const AWhere: string; const AFileName : String; const APkgName : String; const AOutPath : String);
 var
   LCodeOld: string;
   LNewCode : String;
   LPathname: string;
 begin
   LPathname := AOutPath + '\' + AFileName;
-  LCodeOld := '';
-  if FileExists(LPathname) then begin
-    with TStringList.Create do try
-      LoadFromFile(LPathname);
-      LCodeOld := Text;
-    finally Free; end;
-  end;
-  LNewCode := MakePackage(AWhere,APkgName,AFileName);
-  // Only write out the code if its different. This prevents unnecessary checkins as well
-  // as not requiring user to lock all packages
-  if (LCodeOld = '') or (LCodeOld <> LNewCode) then begin
-    with TStringList.Create do try
-      Text := LNewCode;
-      SaveToFile(LPathName);
-    finally Free; end;
-  end;
-    WriteLn('Generated ' + AFileName);
+
+  LNewCode := MakeLRS(AWhere,APkgName,AFileName);
+  WriteFile(LNewCode,LPathName);
 end;
 
 procedure MakeFileDistList;
 var s : TStringList;
   Lst : String;
 begin
-  DM.tablFile.Filter := 'FPC=True';
+  DM.tablFile.Filter := 'FPC=True and DesignUnit=False';
   DM.tablFile.Filtered := True;
   DM.tablFile.First;
   s := TStringList.Create;
@@ -203,11 +338,31 @@ begin
         LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.lrs';
         s.Add(LSt);
       end;
-      WriteLn(LSt);
       DM.tablFile.Next;
     end;
-    s.SaveToFile('W:\Source\Indy\Indy10FPC\Lib\FileList.txt');
+    s.SaveToFile('W:\Source\Indy\Indy10FPC\Lib\RTFileList.txt');
 
+  finally
+    FreeAndNil(s);
+  end;
+  DM.tablFile.Filtered := False;
+  DM.tablFile.Filter := 'FPC=True and DesignUnit=True';
+  DM.tablFile.Filtered := True;
+  DM.tablFile.First;
+  s := TStringList.Create;
+  try
+    while not DM.tablFile.Eof do
+    begin
+      LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
+      s.Add(LSt);
+      if DM.tablFile.FieldByName('FPCHasLRSFile').AsBoolean then
+      begin
+        LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.lrs';
+        s.Add(LSt);
+      end;
+      DM.tablFile.Next;
+    end;
+    s.SaveToFile('W:\Source\Indy\Indy10FPC\Lib\DTFileList.txt');
   finally
     FreeAndNil(s);
   end;
@@ -222,13 +377,17 @@ begin
       // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
       DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
       tablFile.Open;
-      WriteFile('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System','w:\source\Indy\Indy10FPC\Lib\System');
-      WriteFile('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorelaz.lpk','Core','w:\source\Indy\Indy10FPC\Lib\Core');
-      WriteFile('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',          'w:\source\Indy\Indy10FPC\Lib\Core');
-      WriteFile('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolslaz.lpk',  'Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
-      WriteFile('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System','w:\source\Indy\Indy10FPC\Lib\System',True);
+   //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System','w:\source\Indy\Indy10FPC\Lib\System');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
+//    WriteLPK      ('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',          'w:\source\Indy\Indy10FPC\Lib\Core');
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolsfpc',  'Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
       MakeFileDistList;
     end;
-  finally FreeAndNil(DM); end;
+  finally
+    FreeAndNil(DM);
+  end;
   ReadLn;
 end.
