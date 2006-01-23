@@ -1,0 +1,40 @@
+#   Makefile.fpc for indycorefpc 10.2.0.1
+
+[package]
+name=indyprotocolsfpc
+version=10.2.0.1
+main=indy
+
+
+[compiler]
+includedir=../Inc
+unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
+unitdir=../System/lib/$(CPU_TARGET)-$(OS_TARGET) ../Core/lib/$(CPU_TARGET)-$(OS_TARGET)
+options=-gl
+
+[target]
+units=indyprotocolsfpc
+rsts=IdResourceStringsProtocols
+{%FILES}
+
+[clean]
+files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(PPUEXT)) \
+      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(RSTEXT)) \
+      $(wildcard *$(OEXT)) $(wildcard *$(PPUEXT)) $(wildcard *$(RSTEXT))
+
+[requires]
+packages=indysystemfpc,indycorefpc
+packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$(OS_TARGET)/
+
+#[install]
+[shared]	
+build=n
+
+[rules]
+.PHONY: cleartarget all
+
+cleartarget:
+        -$(DEL) $(COMPILER_UNITTARGETDIR)/indyprotocolsfpc$(PPUEXT)
+
+all: cleartarget $(COMPILER_UNITTARGETDIR) indyprotocolsfpc$(PPUEXT)
