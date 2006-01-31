@@ -916,6 +916,7 @@ begin
     LContext.PipeLining := False;
     LStream := TIdMemoryStream.Create;
     try
+      // RLebeau: TODO - do not even create the stream if the OnMsgReceive event is not assigned
       AMsg := TIdMemoryStream.Create;
       try
         LAction := dOk;
@@ -962,7 +963,8 @@ begin
           WriteStringToStream(AMsg, LReceivedString + EOL);
         end;
         AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
-        if Assigned(OnMsgReceive) then begin
+        AMsg.Position := 0; // RLebeau: CopyFrom() does not reset the Position
+        if Assigned(FOnMsgReceive) then begin
           FOnMsgReceive(LContext, AMsg, LAction);
         end;
       finally
