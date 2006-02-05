@@ -165,7 +165,12 @@ end;
 procedure TIdSimpleServer.BeginListen;
 begin
   if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
-    TIdIOHandlerSocket(IOHandler).TransparentProxy.Bind(FIOHandler, BoundPort);
+    if Assigned(Binding) then
+    begin
+      TIdIOHandlerSocket(IOHandler).Binding.IP := BoundIP;
+      TIdIOHandlerSocket(IOHandler).TransparentProxy.Bind(FIOHandler, BoundPort);
+      TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(FIOHandler,15);
+    end;
   end else begin
    // Must be before IOHandler as it resets it
    if not Assigned(Binding) then begin

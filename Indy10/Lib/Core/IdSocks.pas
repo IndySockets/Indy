@@ -636,13 +636,13 @@ begin
       case LType of
         1 : begin
               //IPv4
-              TIdIOHandlerSocket(AIOHandler).binding.SetBinding( Sys.IntToStr(LBuf[0])+'.'+Sys.IntToStr(LBuf[1])+'.'+Sys.IntToStr(LBuf[2])+'.'+Sys.IntToStr(LBuf[3]) ,LBuf[4]*256+LBuf[5],Id_IPv4);
+              TIdIOHandlerSocket(AIOHandler).binding.SetPeer( Sys.IntToStr(LBuf[0])+'.'+Sys.IntToStr(LBuf[1])+'.'+Sys.IntToStr(LBuf[2])+'.'+Sys.IntToStr(LBuf[3]) ,LBuf[4]*256+LBuf[5],Id_IPv4);
             end;
         3 : begin
               TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
             end;
         4 : begin
-              TIdIOHandlerSocket(AIOHandler).binding.SetBinding( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
+              TIdIOHandlerSocket(AIOHandler).binding.SetPeer( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
             end;
       end;
     except
@@ -718,7 +718,7 @@ begin
       3 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
     else
     //IPv6
-      TIdIOHandlerSocket(AIOHandler).binding.SetBinding( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
+      TIdIOHandlerSocket(AIOHandler).binding.SetPeer( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
     end;
   end;
 end;
