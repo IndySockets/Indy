@@ -194,12 +194,11 @@ type
 
 constructor TIdCmdTCPClientListeningThread.Create(AClient: TIdCmdTCPClient);
 begin
-  inherited Create(False);
-  //
-  FContext := TIdContext.Create(AClient, nil, nil);
-  TIdContextAccess(FContext).FOwnsConnection:=False;
   FClient := AClient;
-  FreeOnTerminate := False;
+  FContext := TIdContext.Create(AClient, nil, nil);
+  TIdContextAccess(FContext).FOwnsConnection := False;
+  //
+  inherited Create(False);
 end;
 
 destructor TIdCmdTCPClientListeningThread.Destroy;
