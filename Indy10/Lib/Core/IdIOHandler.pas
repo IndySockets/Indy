@@ -628,15 +628,11 @@ type
     // using WriteBuffers. This should be the only call to WriteDirect
     // unless the calls that bypass this are aware of WriteBuffering or are
     // intended to bypass it.
-    procedure Write(
-      ABuffer: TIdBytes
-      ); overload; virtual;
+    procedure Write(ABuffer: TIdBytes); overload; virtual;
     // This is the main write function which all other default implementations
     // use. If default implementations are used, this must be implemented.
-    procedure WriteDirect(
-      var aBuffer: TIdBytes
-      ); virtual;
-
+    procedure WriteDirect(var ABuffer: TIdBytes); virtual;
+    //
     procedure Open; virtual;
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; virtual;
     //
@@ -704,6 +700,9 @@ type
              ATimeout: Integer = IdTimeoutDefault;
              AMaxLineLength: Integer = -1)
              : string; overload; virtual;
+    //RLebeau: added for RFC 822 retrieves
+    function ReadLnRFC(var VMsgEnd: Boolean): string; overload; // .Net overload
+    function ReadLnRFC(const ATerminator: string; var VMsgEnd: Boolean): string; overload;
     function ReadLnWait(AFailCount: Integer = MaxInt): string; virtual;
     // Added for retrieving lines over 16K long}
     function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
@@ -840,10 +839,12 @@ end;
 
 procedure TIdIOHandler.SetIntercept(AValue: TIdConnectionIntercept);
 begin
-  FIntercept := AValue;
-  // add self to the Intercept's free notification list
-  if Assigned(FIntercept) then begin
-    FIntercept.FreeNotification(Self);
+  if (AValue <> FIntercept) then begin
+    FIntercept := AValue;
+    // add self to the Intercept's free notification list
+    if Assigned(FIntercept) then begin
+      FIntercept.FreeNotification(Self);
+    end;
   end;
 end;
 
@@ -1177,6 +1178,26 @@ begin
   SetLength(Result, LTermPos);
 end;
 
+function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean): string;
+begin
+Result := ReadLnRFC(LF, VMsgEnd);
+end;
+
+function TIdIOHandler.ReadLnRFC(const ATerminator: string; var VMsgEnd: Boolean): string;
+begin
+  Result := ReadLn(ATerminator);
+  // Do not use ATerminator since always ends with . (standard)
+  if Result = '.' then {do not localize}
+  begin
+    VMsgEnd := True;
+    Exit;
+  end;
+  if (Result <> '') and (Result[1] = '.') then begin {do not localize}
+    Delete(Result, 1, 1);
+  end;
+  VMsgEnd := False;
+end;
+
 function TIdIOHandler.ReadLnSplit(
   var AWasSplit: Boolean;
   ATerminator: string = LF;
@@ -1210,7 +1231,7 @@ begin
 end;
 
 procedure TIdIOHandler.Write(AStream: TIdStream; ASize: Int64 = 0;
- AWriteByteCount: Boolean = FALSE);
+  AWriteByteCount: Boolean = FALSE);
 var
   LBuffer: TIdBytes;
   LBufSize: Integer;
@@ -1227,22 +1248,26 @@ begin
     ASize := AStream.Size;
     AStream.Position := 0;
   end;
+
   //else ">0" ACount bytes
-  EIdIoHandlerRequiresLargeStream.IfTrue((ASize>High(Integer)) and (LargeStream=False));
+  EIdIoHandlerRequiresLargeStream.IfTrue((ASize > High(Integer)) and (not LargeStream));
 
   LBufferingStarted := not WriteBufferingActive;
-  if LBufferingStarted then
+  if LBufferingStarted then begin
     WriteBufferOpen;
+  end;
+
   try
     if AWriteByteCount then begin
       if LargeStream then begin
-        Write(ASize);
+      	Write(ASize);
       end else begin
-        Write(Integer(ASize));
+      	Write(Integer(ASize));
       end;
     end;
 
-    BeginWork(wmWrite, ASize); try
+    BeginWork(wmWrite, ASize);
+    try
       while ASize > 0 do begin
         SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
         LBufSize := Min(ASize, FSendBufferSize);
@@ -1250,7 +1275,7 @@ begin
         // return as much data as we request. Kind of like recv()
         // NOTE: We use .Size - size must be supported even if real time
         LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
-         if LBufSize = 0 then begin
+        if LBufSize = 0 then begin
           raise EIdNoDataToRead.Create(RSIdNoDataToRead);
         end;
         SetLength(LBuffer, LBufSize);
@@ -1261,15 +1286,14 @@ begin
       EndWork(wmWrite);
       LBuffer := nil;
     end;
-    if LBufferingStarted then
+    if LBufferingStarted then begin
       WriteBufferClose;
-  except
-    on E: Exception do
-    begin
-      if LBufferingStarted then
-        WriteBufferCancel;
-      raise;
     end;
+  except
+    if LBufferingStarted then begin
+      WriteBufferCancel;
+    end;
+    raise;
   end;
 end;
 
@@ -1361,9 +1385,9 @@ begin
   if (AByteCount = cSizeUnknown) and (AReadUntilDisconnect = False) then begin
     // Read size from connection
     if LargeStream then begin
-    AByteCount := ReadInt64;
+      AByteCount := ReadInt64;
     end else begin
-    AByteCount := ReadInteger;
+      AByteCount := ReadInteger;
     end;
   end;
 
@@ -1678,9 +1702,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.Write(
-  ABuffer: TIdBytes
-  );
+procedure TIdIOHandler.Write(ABuffer: TIdBytes);
 begin
   if Length(ABuffer) > 0 then begin
     if FWriteBuffer = nil then begin
@@ -1691,8 +1713,8 @@ begin
       if (FWriteBuffer.Size >= WriteBufferThreshhold)
        and (WriteBufferThreshhold > 0) then begin
         repeat
-        WriteBufferFlush(WriteBufferThreshhold);
-        until FWriteBuffer.Size<WriteBufferThreshhold;
+          WriteBufferFlush(WriteBufferThreshhold);
+        until FWriteBuffer.Size < WriteBufferThreshhold;
       end;
     end;
   end;
