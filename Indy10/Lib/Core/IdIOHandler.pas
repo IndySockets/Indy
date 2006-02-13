@@ -701,8 +701,7 @@ type
              AMaxLineLength: Integer = -1)
              : string; overload; virtual;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean): string; overload; // .Net overload
-    function ReadLnRFC(const ATerminator: string; var VMsgEnd: Boolean): string; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string = LF; const ADelim: String = '.'): string;
     function ReadLnWait(AFailCount: Integer = MaxInt): string; virtual;
     // Added for retrieving lines over 16K long}
     function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
@@ -1178,16 +1177,11 @@ begin
   SetLength(Result, LTermPos);
 end;
 
-function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean): string;
+function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string = LF; const ADelim: String = '.'): string;
 begin
-Result := ReadLnRFC(LF, VMsgEnd);
-end;
-
-function TIdIOHandler.ReadLnRFC(const ATerminator: string; var VMsgEnd: Boolean): string;
-begin
-  Result := ReadLn(ATerminator);
+  Result := ReadLn(ALineTerminator);
   // Do not use ATerminator since always ends with . (standard)
-  if Result = '.' then {do not localize}
+  if Result = ADelim then
   begin
     VMsgEnd := True;
     Exit;
