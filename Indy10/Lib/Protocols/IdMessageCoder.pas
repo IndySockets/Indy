@@ -109,6 +109,8 @@ type
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
     function ReadLn(const ATerminator: string = LF): string;
+    //RLebeau: added for RFC 822 retrieves
+    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String = LF; const ADelim: String = '.'): String;
     destructor Destroy; override;
     //
     property Filename: string read FFilename;
@@ -274,12 +276,28 @@ begin
   Result := '';
   if SourceStream is TIdTCPStream then begin
     repeat
-      Result := Result + TIdTcpStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator);
-    until LWasSplit = False;
+      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator);
+    until (not LWasSplit);
   end else begin
     Result := ReadLnFromStream(SourceStream);
   end;
 end;
+
+function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String = LF; const ADelim: String = '.'): String;
+begin
+  Result := ReadLn(ALineTerminator);
+  // Do not use ATerminator since always ends with . (standard)
+  if Result = ADelim then {do not localize}
+  begin
+    VMsgEnd := True;
+    Exit;
+  end;
+  if (Result <> '') and (Result[1] = '.') then begin {do not localize}
+    IdDelete(Result, 1, 1);
+  end;
+  VMsgEnd := False;
+end;
+
 
 { TIdMessageEncoderInfo }
 
