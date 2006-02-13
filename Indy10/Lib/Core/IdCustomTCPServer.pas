@@ -363,7 +363,7 @@ type
     FImplicitIOHandler: Boolean;
     FIntercept: TIdServerIntercept;
     FIOHandler: TIdServerIOHandler;
-    FListenerThreads: TIdThreadList; 
+    FListenerThreads: TIdThreadList;
     FListenQueue: integer;
     FMaxConnections: Integer;
     FReuseSocket: TIdReuseSocket;
@@ -385,6 +385,7 @@ type
     procedure ContextDisconnected(AContext: TIdContext); virtual;
     procedure DoAfterBind; virtual;
     procedure DoBeforeConnect(AContext: TIdContext); virtual;
+    procedure DoBeforeListenerRun(AThread: TIdThread); virtual;
     procedure DoConnect(AContext: TIdContext); virtual;
     procedure DoDisconnect(AContext: TIdContext); virtual;
     procedure DoException(AContext: TIdContext; AException: Exception);
@@ -465,8 +466,7 @@ uses
 
 procedure TIdCustomTCPServer.CheckActive;
 begin
-  if Active and (not IsDesignTime) and (not IsLoading)
-    then begin
+  if Active and (not IsDesignTime) and (not IsLoading) then begin
     raise EIdTCPServerError.Create(RSCannotPerformTaskWhileServerIsActive);
   end;
 end;
@@ -480,8 +480,12 @@ destructor TIdCustomTCPServer.Destroy;
 begin
   Active := False;
 
-  if (FIOHandler <> nil) and FImplicitIOHandler then begin
-    Sys.FreeAndNil(FIOHandler);
+  if FIOHandler <> nil then begin
+    if FImplicitIOHandler then begin
+      Sys.FreeAndNil(FIOHandler);
+    end else begin
+      FIOHandler := nil;
+    end;
   end;
 
   // Destroy bindings first
@@ -602,12 +606,10 @@ end;
 
 procedure TIdCustomTCPServer.SetActive(AValue: Boolean);
 begin
-  // At design time we just set the value and save it for run time
-  if IsDesignTime
-   // During loading we ignore it till all other properties are set. Loaded
-   // will recall it to toggle it
-   or IsLoading
-   then begin
+  // At design time we just set the value and save it for run time.
+  // During loading we ignore it till all other properties are set.
+  // Loaded will recall it to toggle it
+  if IsDesignTime or IsLoading then begin
     FActive := AValue;
   end else if FActive <> AValue then begin
     if AValue then begin
@@ -631,10 +633,12 @@ end;
 
 procedure TIdCustomTCPServer.SetIntercept(const AValue: TIdServerIntercept);
 begin
-  FIntercept := AValue;
-  // Add self to the intercept's notification list
-  if Assigned(FIntercept) then begin
-    FIntercept.FreeNotification(Self);
+  if FIntercept <> AValue then begin
+    FIntercept := AValue;
+    // Add self to the intercept's notification list
+    if Assigned(FIntercept) then begin
+      FIntercept.FreeNotification(Self);
+    end;
   end;
 end;
 
@@ -674,44 +678,51 @@ end;
 
 procedure TIdCustomTCPServer.SetIOHandler(const AValue: TIdServerIOHandler);
 begin
-  if Assigned(FIOHandler) and FImplicitIOHandler then begin
-    FImplicitIOHandler := False;
-    Sys.FreeAndNil(FIOHandler);
-  end;
-  FIOHandler := AValue;
-  if AValue <> nil then begin
-    AValue.FreeNotification(Self);
-  end;
-  if FIOHandler <> nil then begin
-    FIOHandler.SetScheduler(FScheduler);
+  if FIOHandler <> AValue then begin
+    if Assigned(FIOHandler) and FImplicitIOHandler then begin
+      FImplicitIOHandler := False;
+      Sys.FreeAndNil(FIOHandler);
+    end;
+    FIOHandler := AValue;
+    if FIOHandler <> nil then begin
+      FIOHandler.FreeNotification(Self);
+      FIOHandler.SetScheduler(FScheduler);
+    end;
   end;
 end;
 
 //APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
 procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
-  i: Integer;
+  i, NumOk: Integer;
   LListenerThreads: TIdList;
-  aThread:TIdListenerThread;
 Begin
+  NumOk := 0; // RLebeau 2/13/2006
   LListenerThreads := FListenerThreads.LockList; try
-    for i:= LListenerThreads.Count - 1 downto 0 do begin
-      aThread:=TIdListenerThread(LListenerThreads[i]);
-      LListenerThreads.Delete(i);
-      // Stop listening
-      aThread.Terminate;
-      aThread.Binding.CloseSocket;
-      // Tear down Listener thread
-      aThread.WaitFor;
-      Sys.FreeAndNil(aThread);
+    for i := 0 to LListenerThreads.Count - 1 do begin
+      with TIdListenerThread(LListenerThreads[i]) do begin
+        // Stop listening
+        Terminate;
+        Binding.CloseSocket;
+        // Tear down Listener thread
+        WaitFor;
+        Free;
+      end;
+      Inc(NumOk); // RLebeau 2/13/2006
     end;
-  finally FListenerThreads.UnlockList; end;
+  finally
+    // RLebeau 2/13/2006: remove the threads that were successfully terminated
+    for i := 0 to NumOk-1 do begin
+      LListenerThreads.Delete(i);
+    end;
+    FListenerThreads.UnlockList;
+  end;
 end;
 
 procedure TIdCustomTCPServer.TerminateAllThreads;
 var
   i: Integer;
-  aContext:TIdContext;
+  LContext: TIdContext;
 begin
   // TODO:  reimplement support for TerminateWaitTimeout
 
@@ -721,12 +732,12 @@ begin
   if Contexts <> nil then begin
     with Contexts.LockList do try
       for i := 0 to Count - 1 do begin
-        aContext:=TIdContext(Items[i]);
-        Assert(aContext<>nil);
-        Assert(aContext.Connection<>nil,aContext.Classname);
+        LContext := TIdContext(Items[i]);
+        Assert(LContext<>nil);
+        Assert(LContext.Connection<>nil, LContext.ClassName);
         // Dont call disconnect with true. Otherwise it frees the IOHandler and the thread
         // is still running which often causes AVs and other.
-        aContext.Connection.Disconnect(False);
+        LContext.Connection.Disconnect(False);
       end;
     finally Contexts.UnLockList; end;
   end;
@@ -745,10 +756,16 @@ begin
   end;
 end;
 
-procedure TIdCustomTCPServer.DoMaxConnectionsExceeded(
-  AIOHandler: TIdIOHandler
-  );
+procedure TIdCustomTCPServer.DoBeforeListenerRun(AThread: TIdThread);
 begin
+  if Assigned(OnBeforeListenerRun) then begin
+    OnBeforeListenerRun(AThread);
+  end;
+end;
+
+procedure TIdCustomTCPServer.DoMaxConnectionsExceeded(AIOHandler: TIdIOHandler);
+begin
+//
 end;
 
 procedure TIdCustomTCPServer.InitComponent;
@@ -782,10 +799,9 @@ begin
     end;
   end;
 
-  if IOHandler<>nil then
-    begin
+  if IOHandler <> nil then begin
     IOHandler.Shutdown;
-    end;
+  end;
   
 end;
 
@@ -797,28 +813,25 @@ begin
   // Set up bindings
   if Bindings.Count = 0 then begin
     Bindings.Add; // IPv4
-    if GStack.SupportsIPv6 then begin // maybe add a property too, so
-      with Bindings.Add do begin      // the developer can switch it on/off
-        IPVersion := Id_IPv6;
-      end;
+    if GStack.SupportsIPv6 then begin
+      // maybe add a property too, so the developer can switch it on/off
+      Bindings.Add.IPVersion := Id_IPv6;
     end;
   end;
-
   // Setup IOHandler
   if not Assigned(FIOHandler) then begin
-    IOHandler := TIdServerIOHandlerStack.Create(self);  {TIdServerIOHandlerStack.Create(self);}
+    IOHandler := TIdServerIOHandlerStack.Create(Self);
     FImplicitIOHandler := True;
   end;
-
   //
   IOHandler.Init;
-
+  //
   // Set up scheduler
   if Scheduler = nil then begin
     Scheduler := TIdSchedulerOfThreadDefault.Create(Self);
     // Useful in debugging and for thread names
     Scheduler.Name := Name + 'Scheduler';   {do not localize}
-    FImplicitScheduler := true;
+    FImplicitScheduler := True;
   end;
   Scheduler.Init;
 
@@ -828,9 +841,8 @@ begin
     while i < Bindings.Count do begin
       with Bindings[i] do begin
         AllocateSocket;
-        if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux))
-          then begin
-             SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR,Id_SO_True);
+        if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
+          SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
         end;
         Bind;
       end;
@@ -851,7 +863,7 @@ begin
     Bindings[i].Listen(FListenQueue);
     LListenerThread := TIdListenerThread.Create(Self, Bindings[i]);
     LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(i + 1); {do not localize}
-    LListenerThread.OnBeforeRun := OnBeforeListenerRun;
+    LListenerThread.OnBeforeRun := DoBeforeListenerRun;
     //Todo: Implement proper priority handling for Linux
     //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
     LListenerThread.Priority := tpListener;
@@ -922,9 +934,9 @@ begin
 
     // LastRcvTimeStamp := Now;  // Added for session timeout support
     // ProcessingTimeout := False;
-    if (Server.MaxConnections > 0) // Check MaxConnections
-     and (TIdThreadSafeList(Server.Contexts).IsCountLessThan(Server.MaxConnections) = False)
-     then begin
+
+    // Check MaxConnections
+    if (Server.MaxConnections > 0) and not TIdThreadSafeList(Server.Contexts).IsCountLessThan(Server.MaxConnections) then begin
       FServer.DoMaxConnectionsExceeded(LIOHandler);
       LPeer.Disconnect;
       Sys.Abort;
