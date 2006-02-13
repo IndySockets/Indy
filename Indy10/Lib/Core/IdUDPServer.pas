@@ -86,7 +86,6 @@ uses
   IdComponent,
   IdException,
   IdGlobal,
-  IdGlobalCore,
   IdObjs,
   IdSocketHandle,
   IdStackConsts,
@@ -105,7 +104,7 @@ type
   TIdUDPListenerThread = class(TIdThread)
   protected
     FBinding: TIdSocketHandle;
-    FAcceptWait: integer;
+    FAcceptWait: Integer;
     FBuffer: TIdBytes;
 
     FCurrentException: String;
@@ -159,9 +158,13 @@ type
 
 implementation
 
+uses IdGlobalCore;
+
+{$I IdCompilerDefines.inc}
+
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var
-  i: integer;
+  i: Integer;
 begin
   if Assigned(FCurrentBinding) then begin
     for i := 0 to Bindings.Count - 1 do begin
@@ -172,13 +175,10 @@ end;
 
 procedure TIdUDPServer.CloseBinding;
 var
-  i: integer;
+  i, NumOk: Integer;
   LListenerThreads: TIdList;
 begin
-  //this check is because of the extra CloseBinding in TIdUDPBase.Destroy,
-  //after we have already freed it. TIdUDPBase.Destroy should be improved.
-  if FListenerThreads=nil then Exit;
-
+  NumOk := 0; // RLebeau 2/13/2006
   LListenerThreads := FListenerThreads.LockList; try
     for i := 0 to LListenerThreads.Count - 1 do begin
       with TIdUDPListenerThread(LListenerThreads[i]) do begin
@@ -189,8 +189,15 @@ begin
         WaitFor;
         Free;
       end;
+      Inc(NumOk);
     end;
-  finally FListenerThreads.UnlockList; end;
+  finally
+    // RLebeau 2/13/2006: remove the threads that were successfully terminated
+    for i := 0 to NumOk-1 do begin
+      LListenerThreads.Delete(i);
+    end;
+    FListenerThreads.UnlockList;
+  end;
   FCurrentBinding := nil;
 end;
 
@@ -230,11 +237,15 @@ end;
 function TIdUDPServer.GetBinding: TIdSocketHandle;
 var
   LListenerThread: TIdUDPListenerThread;
-  i: integer;
+  i: Integer;
 begin
   if FCurrentBinding = nil then begin
-    if Bindings.Count < 1 then begin
-      Bindings.Add;
+    if Bindings.Count = 0 then begin
+      Bindings.Add; // IPv4
+      if GStack.SupportsIPv6 then begin
+        // maybe add a property too, so the developer can switch it on/off
+        Bindings.Add.IPVersion := Id_IPv6;
+      end;
     end;
 
     // Set up listener threads
@@ -274,9 +285,9 @@ begin
   Result := FCurrentBinding;
 end;
 
-function TIdUDPServer.GetDefaultPort: integer;
+function TIdUDPServer.GetDefaultPort: Integer;
 begin
-  result := FBindings.DefaultPort;
+  Result := FBindings.DefaultPort;
 end;
 
 procedure TIdUDPServer.InitComponent;
@@ -325,7 +336,7 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  PeerPort, ByteCount: Integer;
+  i, PeerPort, ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped
