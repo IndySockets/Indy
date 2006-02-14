@@ -27,7 +27,11 @@ files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
 packages=indysystemfpc,indycorefpc
 packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)/:../Core/lib/$(CPU_TARGET)-$(OS_TARGET)/
 
-#[install]
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indyprotocolsfpc
+
 [shared]	
 build=n
 

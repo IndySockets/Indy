@@ -5,6 +5,8 @@ name=indysystemfpc
 version=10.2.0.1
 main=indy
 
+[require]
+packages=fcl
 
 [compiler]
 includedir=../Inc
@@ -16,58 +18,77 @@ options=-gl
 units=indysystemfpc
 rsts=IdResourceStrings
 {%FILES}
+
+
 [clean]
 files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
       $(wildcard $(COMPILER_UNITTARGETDIR)/*$(PPUEXT)) \
       $(wildcard $(COMPILER_UNITTARGETDIR)/*$(RSTEXT)) \
       $(wildcard *$(OEXT)) $(wildcard *$(PPUEXT)) $(wildcard *$(RSTEXT))
 
-#[install]
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indysystemfpc
+
 [shared]	
 build=n
 
 [prerules]
-ifeq ($(OS_TARGET),solaris)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),qnx)
-endif
-ifeq ($(OS_TARGET),netware)
-endif
-ifeq ($(OS_TARGET),netwlibc)
-endif
-ifeq ($(OS_TARGET),macos)
-endif
-ifeq ($(OS_TARGET),darwin)
-endif
-ifeq ($(OS_TARGET),go32v1)
-endif
-ifeq ($(OS_TARGET),go32v2)
-endif
-ifeq ($(OS_TARGET),watcom)
-endif
-ifeq ($(OS_TARGET),linux)
-PLATUNITS=IdStackUnix IdStackBSDBase IdSysLinux
-endif
-ifeq ($(OS_TARGET),freebsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),netbsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),openbsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),win32)
-PLATUNITS=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6
-endif
-ifeq ($(OS_TARGET),os2)
-endif
 ifeq ($(OS_TARGET),amiga)
 endif
 ifeq ($(OS_TARGET),atari)
 endif
 ifeq ($(OS_TARGET),beos)
+endif
+ifeq ($(OS_TARGET),darwin)
+endif
+ifeq ($(OS_TARGET),emx)
+endif
+ifeq ($(OS_TARGET),freebsd)
+PLATUNITS=IdStackUnix IdStackBSDBase
+endif
+ifeq ($(OS_TARGET),go32v1)
+endif
+ifeq ($(OS_TARGET),go32v2)
+endif
+ifeq ($(OS_TARGET),linux)
+PLATUNITS=IdStackUnix IdStackBSDBase IdSysLinux
+endif
+ifeq ($(OS_TARGET),macos)
+endif
+ifeq ($(OS_TARGET),morphos)
+endif
+ifeq ($(OS_TARGET),netbsd)
+PLATUNITS=IdStackUnix IdStackBSDBase
+endif
+ifeq ($(OS_TARGET),netware)
+endif
+ifeq ($(OS_TARGET),netwlibc)
+endif
+ifeq ($(OS_TARGET),openbsd)
+PLATUNITS=IdStackUnix IdStackBSDBase
+endif
+ifeq ($(OS_TARGET),os2)
+endif
+ifeq ($(OS_TARGET),palmos)
+endif
+ifeq ($(OS_TARGET),qnx)
+endif
+ifeq ($(OS_TARGET),solaris)
+PLATUNITS=IdStackUnix IdStackBSDBase
+endif
+ifeq ($(OS_TARGET),watcom)
+endif
+ifeq ($(OS_TARGET),win32)
+PLATUNITS=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+endif
+ifeq ($(OS_TARGET),win64)
+PLATUNITS=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+endif
+ifeq ($(OS_TARGET),wince)
+endif
+ifeq ($(OS_TARGET),wdosx)
 endif
 [rules]
 .PHONY: cleartarget all

@@ -24,11 +24,17 @@ files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
       $(wildcard *$(OEXT)) $(wildcard *$(PPUEXT)) $(wildcard *$(RSTEXT))
 
 [requires]
-packages=indysystemfpc
+packages=indysystemfpc fcl
 packagedir=../System/lib/$(CPU_TARGET)-$(OS_TARGET)
-#[install]
+
+[install]
+fpcpackage=y
+fpcsubdir=packages/extra
+buildunit=indycorefpc
+
 [shared]	
 build=n
+
 [rules]
 .PHONY: cleartarget all
 
