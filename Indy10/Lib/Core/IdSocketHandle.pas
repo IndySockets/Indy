@@ -189,7 +189,7 @@ type
     FPort: TIdPort;
     FPeerPort: TIdPort;
     FReadSocketList: TIdSocketList;
-    FOverLapped:boolean;
+    FOverLapped: Boolean;
     FIPVersion: TIdIPVersion;
     FConnectionHandle: TIdCriticalSection;
     //
@@ -255,9 +255,6 @@ uses
 
 { TIdSocketHandle }
 
-//procedure TIdSocketHandle.AllocateSocket(
-// const ASocketType: TIdSocketType = Id_SOCK_STREAM;
-// const AProtocol: TIdSocketProtocol = Id_IPPROTO_IP);
 procedure TIdSocketHandle.AllocateSocket(
  const ASocketType: TIdSocketType;
  const AProtocol: TIdSocketProtocol);
@@ -268,7 +265,7 @@ begin
     Reset;
   end;
   // Set property so it calls the writer
-  SetHandle(GStack.NewSocketHandle(ASocketType, AProtocol, FIPVersion ,FOverLapped));
+  SetHandle(GStack.NewSocketHandle(ASocketType, AProtocol, FIPVersion, FOverLapped));
 end;
 
 procedure TIdSocketHandle.CloseSocket;
@@ -308,6 +305,7 @@ destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
   Sys.FreeAndNil(FConnectionHandle);
+  Sys.FreeAndNil(FReadSocketList);
   inherited Destroy;
 end;
 
@@ -389,8 +387,8 @@ var
 begin
   Reset;
   LAcceptedSocket := GStack.Accept(ASocket, FIP, FPort, FIPVersion);
-  result := (LAcceptedSocket <> Id_INVALID_SOCKET);
-  if result then begin
+  Result := (LAcceptedSocket <> Id_INVALID_SOCKET);
+  if Result then begin
     SetHandle(LAcceptedSocket);
     // UpdateBindingLocal is necessary as it may be listening on multiple IPs/Ports
     UpdateBindingLocal;
@@ -402,6 +400,7 @@ constructor TIdSocketHandle.Create(ACollection: TIdCollection);
 begin
   inherited Create(ACollection);
   FConnectionHandle := TIdCriticalSection.Create;
+  FReadSocketList := TIdSocketList.CreateSocketList;
   Reset;
   FClientPortMin := 0;
   FClientPortMax := 0;
@@ -474,7 +473,7 @@ begin
   end;
   FPeerIP := '';
   FPeerPort := 0;
-  FIPVersion := ID_DEFAULT_IP_VERSION ;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
 end;
 
 function TIdSocketHandle.TryBind: Boolean;
@@ -515,12 +514,13 @@ end;
 
 procedure TIdSocketHandle.SetHandle(AHandle: TIdStackSocketHandle);
 begin
+  if FHandle <> Id_INVALID_SOCKET then begin
+    FReadSocketList.Remove(FHandle);
+  end;
   FHandle := AHandle;
-  FHandleAllocated := Handle <> Id_INVALID_SOCKET;
-  Sys.FreeAndNil(FReadSocketList);
-  if HandleAllocated then begin
-    FReadSocketList := TIdSocketList.CreateSocketList;
-    FReadSocketList.Add(Handle);
+  FHandleAllocated := FHandle <> Id_INVALID_SOCKET;
+  if FHandleAllocated then begin
+    FReadSocketList.Add(FHandle);
   end;
 end;
 
