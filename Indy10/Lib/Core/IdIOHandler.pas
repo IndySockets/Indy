@@ -1274,6 +1274,7 @@ begin
         end;
         SetLength(LBuffer, LBufSize);
         Write(LBuffer);
+        DoWork(wmWrite, LBufSize);
         Dec(ASize, LBufSize);
       end;
     finally
