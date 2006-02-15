@@ -694,12 +694,13 @@ end;
 //APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
 procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
-  i, NumOk: Integer;
+  i: Integer;
   LListenerThreads: TIdList;
 Begin
-  NumOk := 0; // RLebeau 2/13/2006
-  LListenerThreads := FListenerThreads.LockList; try
-    for i := 0 to LListenerThreads.Count - 1 do begin
+  LListenerThreads := FListenerThreads.LockList;
+  try
+    i := 0;
+    while i < LListenerThreads.Count do begin
       with TIdListenerThread(LListenerThreads[i]) do begin
         // Stop listening
         Terminate;
@@ -708,14 +709,13 @@ Begin
         WaitFor;
         Free;
       end;
-      Inc(NumOk); // RLebeau 2/13/2006
+      Inc(i); // RLebeau 2/14/2006
     end;
   finally
-    // RLebeau 2/13/2006: remove the threads that were successfully terminated
-    if NumOk > 0 then begin
-      for i:=NumOk-1 downto 0 do begin
-        LListenerThreads.Delete(i);
-      end;
+    // RLebeau 2/14/2006: remove the threads that were successfully terminated
+    while i > 0 do begin
+      LListenerThreads.Delete(i-1);
+      Dec(i);
     end;
     FListenerThreads.UnlockList;
   end;
