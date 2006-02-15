@@ -697,9 +697,9 @@ var
   i: Integer;
   LListenerThreads: TIdList;
 Begin
+  i := 0;
   LListenerThreads := FListenerThreads.LockList;
   try
-    i := 0;
     while i < LListenerThreads.Count do begin
       with TIdListenerThread(LListenerThreads[i]) do begin
         // Stop listening
