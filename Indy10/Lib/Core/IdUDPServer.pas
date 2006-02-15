@@ -338,7 +338,7 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  i, PeerPort, ByteCount: Integer;
+  PeerPort, ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped
