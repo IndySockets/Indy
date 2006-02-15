@@ -175,30 +175,35 @@ end;
 
 procedure TIdUDPServer.CloseBinding;
 var
-  i, NumOk: Integer;
+  i: Integer;
   LListenerThreads: TIdList;
 begin
-  NumOk := 0; // RLebeau 2/13/2006
-  LListenerThreads := FListenerThreads.LockList; try
-    for i := 0 to LListenerThreads.Count - 1 do begin
-      with TIdUDPListenerThread(LListenerThreads[i]) do begin
-        // Stop listening
-        Stop;
-        Binding.CloseSocket;
-        // Tear down Listener thread
-        WaitFor;
-        Free;
+  // RLebeau 2/14/2006: TIdUDPBase.Destroy() calls CloseBinding()
+  if Assigned(FListenerThreads) then
+  begin
+    LListenerThreads := FListenerThreads.LockList;
+    try
+      i := 0;
+      while i < LListenerThreads.Count do
+      begin
+        with TIdUDPListenerThread(LListenerThreads[i]) do begin
+          // Stop listening
+          Stop;
+          Binding.CloseSocket;
+          // Tear down Listener thread
+          WaitFor;
+          Free;
+        end;
+        Inc(i);
       end;
-      Inc(NumOk);
-    end;
-  finally
-    // RLebeau 2/13/2006: remove the threads that were successfully terminated
-    if NumOk > 0 then begin
-      for i := NumOk-1 downto 0 do begin
-        LListenerThreads.Delete(i);
+    finally
+      // RLebeau 2/13/2006: remove the threads that were successfully terminated
+      while i > 0 do begin
+        LListenerThreads.Delete(i-1);
+        Dec(i);
       end;
+      FListenerThreads.UnlockList;
     end;
-    FListenerThreads.UnlockList;
   end;
   FCurrentBinding := nil;
 end;
@@ -338,7 +343,7 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  PeerPort, ByteCount: Integer;
+  i, PeerPort, ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped
