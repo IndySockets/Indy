@@ -713,7 +713,7 @@ Begin
   finally
     // RLebeau 2/13/2006: remove the threads that were successfully terminated
     if NumOk > 0 then begin
-      for NumOk-1 downto 0 do begin
+      for i:=NumOk-1 downto 0 do begin
         LListenerThreads.Delete(i);
       end;
     end;
