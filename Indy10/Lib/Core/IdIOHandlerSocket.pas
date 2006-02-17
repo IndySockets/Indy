@@ -177,8 +177,6 @@ unit IdIOHandlerSocket;
 
 interface
 
-{$I IdCompilerDefines.inc}
-
 uses
   IdCustomTransparentProxy,
   IdBaseComponent,
@@ -408,37 +406,33 @@ begin
   // In the case when the ASocks points to an object with owner it is treated as component on form.
 
   if Assigned(AProxy) then begin
-    if NOT Assigned(AProxy.Owner) then begin
+    if not Assigned(AProxy.Owner) then begin
       if Assigned(FTransparentProxy) then begin
         if Assigned(FTransparentProxy.Owner) then begin
           FTransparentProxy := nil;
         end;
       end;
       LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
-      // SG: was:
-      // LClass := Pointer(AProxy.ClassType);
-      if Assigned(FTransparentProxy) then begin
-        if FTransparentProxy.ClassType <> LClass then begin
-          Sys.FreeAndNIL(FTransparentProxy);
-          FTransparentProxy := LClass.Create(NIL);
-        end;
-      end else begin
-        FTransparentProxy := LClass.Create(NIL);
+      if Assigned(FTransparentProxy) and (FTransparentProxy.ClassType <> LClass) then begin
+        Sys.FreeAndNil(FTransparentProxy);
+      end;
+      if not Assigned(FTransparentProxy) then begin
+        FTransparentProxy := LClass.Create(nil);
       end;
       FTransparentProxy.Assign(AProxy);
     end else begin
-      if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-        Sys.FreeAndNIL(FTransparentProxy);//tmp obj
+      if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+        Sys.FreeAndNil(FTransparentProxy);
       end;
       FTransparentProxy := AProxy;
-      FTransparentProxy.FreeNotification(SELF);
+      FTransparentProxy.FreeNotification(Self);
     end;
   end
   else begin
-    if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      Sys.FreeAndNIL(FTransparentProxy);//tmp obj
+    if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+      Sys.FreeAndNil(FTransparentProxy);
     end else begin
-      FTransparentProxy := NIL; //remove link
+      FTransparentProxy := nil; //remove link
     end;
   end;
 end;
@@ -447,7 +441,7 @@ function TIdIOHandlerSocket.GetTransparentProxy: TIdCustomTransparentProxy;
 begin
   // Necessary at design time for Borland SOAP support
   if FTransparentProxy = nil then begin
-    FTransparentProxy :=  TIdSocksInfo.Create(nil); //default
+    FTransparentProxy := TIdSocksInfo.Create(nil); //default
   end;
   Result := FTransparentProxy;
 end;
