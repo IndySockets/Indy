@@ -142,7 +142,8 @@ resourcestring
   RSNotConnected = 'Not Connected';
   RSObjectTypeNotSupported = 'Object type not supported.';
   RSIdNoDataToRead = 'No data to read.';
-  RSReadTimeout = 'Read Timeout';
+  RSReadTimeout = 'Read timed out.';
+  RSAcceptTimeout = 'Accept timed out.';
   RSReadLnMaxLineLengthExceeded = 'Max line length exceeded.';
   RSConnectTimeout = 'Connect timed out.';
   RSICMPNotEnoughtBytes = 'Not enough bytes received';
@@ -155,7 +156,6 @@ resourcestring
   RSCannotPerformTaskWhileServerIsActive = 'Cannot perform task while server is active.';
   RSThreadClassNotSpecified = 'Thread Class Not Specified.';
   RSMaximumNumberOfCaptureLineExceeded = 'Maximum number of line allowed exceeded'; // S.G. 6/4/2004: IdIOHandler.DoCapture
-
 
   RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
   RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
@@ -205,6 +205,8 @@ resourcestring
 
   RSNoCreateListeningThread = 'Cannot create listening thread.';
   
+  RSInterceptIsDifferent = 'The IOHandler already has a different Intercept assigned';
+
 implementation
 
 end.
