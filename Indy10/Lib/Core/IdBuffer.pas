@@ -336,8 +336,6 @@ of bytes that is not freed between each call to WriteBytes.
 -Kudzu
 }
 
-{$I IdCompilerDefines.inc}
-
 interface
 
 uses
