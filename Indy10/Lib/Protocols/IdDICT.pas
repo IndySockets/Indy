@@ -60,7 +60,8 @@ unit IdDICT;
 
 interface
 
-uses IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
+uses
+  IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
 
 //TODO:  MIME should be integrated into this.
 //TODO: SASL mechanism support needs to coded
@@ -133,9 +134,9 @@ begin
   try
     inherited Connect;
     GetResponse(220);
-    if LastCmdResult.Text.Count>0 then
+    if LastCmdResult.Text.Count > 0 then
     begin
-    // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
+      // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
       LBuf := LastCmdResult.Text[0];
       //server
       FServer := Sys.TrimRight(Fetch(LBuf,'<'));
@@ -164,7 +165,7 @@ begin
         begin
           with TIdHashMessageDigest5.Create do
           try
-            S:=Sys.LowerCase(TIdHash128.AsHex(HashValue(LBuf+Password)));
+            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(LBuf+Password)));
           finally
             Free;
           end;//try
@@ -174,7 +175,7 @@ begin
     end
     else
     begin
-       FSASLMechanisms.LoginSASL('SASLAUTH', ['230'], ['330'], Self, FCapabilities,''); {do not localize}
+       FSASLMechanisms.LoginSASL('SASLAUTH', ['230'], ['330'], Self, FCapabilities, ''); {do not localize}
     end;
     if FTryMIME and IsCapaSupported('MIME') then {do not localize}
     begin
@@ -288,9 +289,9 @@ begin
   FClient := Sys.Format(DEF_CLIENT_FMT, [gsIdVersion]);
 end;
 
-procedure TIdDICT.InternalGetList(const ACmd: String;
-  AENtries: TIdCollection);
-var LEnt : TIdGeneric;
+procedure TIdDICT.InternalGetList(const ACmd: String; AENtries: TIdCollection);
+var
+  LEnt : TIdGeneric;
   LS : TIdStrings;
   i : Integer;
   s : String;
@@ -298,14 +299,14 @@ begin
   AEntries.Clear;
   LS := TIdStringList.Create;
   try
-    Self.InternalGetStrs(ACmd,LS);
+    InternalGetStrs(ACmd,LS);
     for i := 0 to LS.Count - 1 do
     begin
       LEnt := AENtries.Add as TIdGeneric;
       s := LS[i];
       LEnt.Name := Fetch(s);
-      Fetch(s,'"');
-      LEnt.Desc := Fetch(s,'"');
+      Fetch(s, '"');
+      LEnt.Desc := Fetch(s, '"');
     end;
   finally
     Sys.FreeAndNil(LS);
@@ -316,7 +317,7 @@ procedure TIdDICT.InternalGetStrs(const ACmd: String; AStrs: TIdStrings);
 begin
   AStrs.Clear;
   SendCmd(ACmd);
-  if (LastCmdResult.NumericCode div 100)=1 then
+  if (LastCmdResult.NumericCode div 100) = 1 then
   begin
     IOHandler.Capture(AStrs);
     GetInternalResponse;
@@ -324,16 +325,14 @@ begin
 end;
 
 function TIdDICT.IsCapaSupported(const ACapa: String): Boolean;
-var i : Integer;
-  LCapa : String;
+var
+  i : Integer;
 begin
-  LCapa := Sys.UpperCase(ACapa);
   Result := False;
-  for i := 0 to FCapabilities.Count -1 do
+  for i := 0 to FCapabilities.Count-1 do
   begin
-    Result := LCapa = Sys.UpperCase(FCapabilities[i]);
-    if Result then
-    begin
+    Result := TextIsSame(ACapa, FCapabilities[i]);
+    if Result then begin
       Break;
     end;
   end;
@@ -341,7 +340,8 @@ end;
 
 procedure TIdDICT.Match(const AWord, ADBName, AStrat: String;
   AResults: TIdMatchList);
-var LS : TIdStrings;
+var
+  LS : TIdStrings;
   i : Integer;
   s : String;
   LM : TIdMatchItem;
@@ -355,8 +355,8 @@ begin
       s := LS[i];
       LM := AResults.Add;
       LM.DB := Fetch(s);
-      Fetch(s,'"');
-      LM.Word := Fetch(s,'"');
+      Fetch(s, '"');
+      LM.Word := Fetch(s, '"');
     end;
   finally
     Sys.FreeAndNil(LS);
