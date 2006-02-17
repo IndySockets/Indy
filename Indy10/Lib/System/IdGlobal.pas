@@ -660,8 +660,6 @@ uses
   System.Collections.Specialized,
   System.net, System.net.Sockets, System.Diagnostics, System.Threading,
   System.IO, System.Text,
-  {$ELSE}
-  // no DotNET
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Windows,
@@ -871,8 +869,8 @@ type
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
   {$IFNDEF VCL6ORABOVE}
-  TIdExtList=class(TIdList) // We use this hack-class, because TList has no .assign on Delphi 5.
-  public                  // Do NOT add DataMembers to this class !!!
+  TIdExtList = class(TIdList) // We use this hack-class, because TList has no .assign on Delphi 5.
+  public                      // Do NOT add DataMembers to this class !!!
     procedure Assign(AList: TList);
   end;
   {$ELSE}
@@ -956,10 +954,7 @@ const
   POWER_4 = $FFFFFFFF;
 
 // To and From Bytes conversion routines
-function ToBytes(
-  const AValue: string;
-  const AEncoding: TIdEncoding = enANSI
-  ): TIdBytes; overload;
+function ToBytes(const AValue: string; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
 function ToBytes(const AValue: Char): TIdBytes; overload;
 function ToBytes(const AValue: Integer): TIdBytes; overload;
 function ToBytes(const AValue: Short): TIdBytes; overload;
@@ -1022,27 +1017,17 @@ function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
 
 procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
-    var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
+
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
-    var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
 
-procedure CopyTIdWord(const ASource: Word;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-
-procedure CopyTIdLongWord(const ASource: LongWord;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-
-procedure CopyTIdCardinal(const ASource: Cardinal;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-
-procedure CopyTIdInt64(const ASource: Int64;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-
-procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address;
-    var VDest: TIdBytes; const ADestIndex: Integer);
-
-procedure CopyTIdString(const ASource: String;
-    var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
+procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdCardinal(const ASource: Cardinal; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
 
 // Need to change prob not to use this set
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
@@ -1101,8 +1086,7 @@ function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): 
 function Min(const AValueOne, AValueTwo: Int64): Int64;
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal = 0): Cardinal; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
-function PosInStrArray(const SearchStr: string; Contents: array of string;
-    const CaseSensitive: Boolean = True): Integer;
+function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 function ServicesFilePath: string;
 procedure SetThreadPriority(AThread: TIdNativeThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
@@ -1113,6 +1097,7 @@ procedure SplitColumns(const AData: string; AStrings: TIdStrings; const ADelim: 
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
 function TextIsSame(const A1: string; const A2: string): Boolean;
 function TextStartsWith(const S, SubS: string): Boolean;
+function TextEndsWith(const S, SubS: string): Boolean;
 function IndyUpperCase(const A1: string): string;
 function IndyLowerCase(const A1: string): string;
 function IndyCompareStr(const A1: string; const A2: string): Integer;
@@ -1374,27 +1359,28 @@ var
 begin
   LBuf :=  Sys.Trim(AIPAddress);
   Result := ByteToOctal( Sys.StrToInt(Fetch(LBuf, '.', True), 0));
-  for i := 0 to 2 do
-  begin
+  for i := 0 to 2 do begin
     Result := Result + '.' + ByteToOctal(Sys.StrToInt(Fetch(LBuf, '.', True), 0));
   end;
 end;
 
 procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
-    var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
 begin
   {$IFDEF DotNet}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
   {$ELSE}
-  //if this assert fails, then it indicates an attempted read-past-end-of-buffer.
-  Assert(ALength<=Length(aSource));
+  //if these asserts fail, then it indicates an attempted buffer overrun.
+  Assert(ASourceIndex>=0);
+  Assert((ASourceIndex+ALength)<=Length(ASource));
   Move(ASource[ASourceIndex], VDest[ADestIndex], ALength);
   {$ENDIF}
 end;
 
 procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
-var LWord : TIdBytes;
+var
+  LWord : TIdBytes;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
@@ -1405,10 +1391,10 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdLongWord(const ASource: LongWord;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
-var LWord : TIdBytes;
+var
+  LWord : TIdBytes;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
@@ -1419,10 +1405,10 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdInt64(const ASource: Int64;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
-var LWord : TIdBytes;
+var
+  LWord : TIdBytes;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
@@ -1433,10 +1419,10 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
-var i : Integer;
+var
+  i : Integer;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
@@ -1448,10 +1434,10 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdCardinal(const ASource: Cardinal;
-    var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdCardinal(const ASource: Cardinal; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
-var LCard : TIdBytes;
+var
+  LCard : TIdBytes;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
@@ -1463,7 +1449,7 @@ begin
 end;
 
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
-    var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
+  var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
 begin
   {$IFDEF DotNet}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
@@ -1473,20 +1459,23 @@ begin
 end;
 
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes;
-    const ADestIndex: Integer; ALength: Integer = -1);
+  const ADestIndex: Integer; ALength: Integer = -1);
 {$IFDEF DotNet}
-var LStr : TIdBytes;
+var
+  LStr : TIdBytes;
 {$ENDIF}
 begin
   if ALength < 0 then begin
     ALength := Length(ASource);
   end;
-  {$IFDEF DotNet}
-  LStr := ToBytes(ASource);
-  System.array.Copy(LStr, 0, VDest, ADestIndex, ALength);
-  {$ELSE}
-  Move(ASource[1], VDest[ADestIndex], ALength);
-  {$ENDIF}
+  if ALength > 0 then begin
+    {$IFDEF DotNet}
+    LStr := ToBytes(ASource);
+    System.array.Copy(LStr, 0, VDest, ADestIndex, ALength);
+    {$ELSE}
+    Move(ASource[1], VDest[ADestIndex], ALength);
+    {$ENDIF}
+  end;
 end;
 
 procedure DebugOutput(const AText: string);
@@ -3067,24 +3056,45 @@ begin
 end;
 
 function TextStartsWith(const S, SubS: string): Boolean;
-{$IFNDEF DotNet}
-const
-  CSTR_EQUAL = 2;
 var
   LLen: Integer;
+begin
+  LLen := Length(SubS);
+  {$IFDEF DotNet}
+  Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
+  {$ELSE}
+  Result := LLen <= Length(S);
+  if Result then begin
+    {$IFDEF MSWINDOWS}
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, PChar(S), LLen, PChar(SubS), LLen) = 2;
+    {$ELSE}
+    Result := Sys.AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
+    {$ENDIF}
+  end;
+  {$ENDIF}
+end;
+
+function TextEndsWith(const S, SubS: string): Boolean;
+var
+  LLen: Integer;
+{$IFDEF MSWINDOWS}
+  P: PChar;
 {$ENDIF}
 begin
+  LLen := Length(SubS);
   {$IFDEF DotNet}
-  Result := System.String.Compare(S, 0, SubS, 0, Length(SubS), True) = 0;
+  Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
   {$ELSE}
-  LLen :=  Length(SubS);
-  {$IFDEF MSWINDOWS}
-  Result := (LLen <= Length(S)) and
-    (CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE,
-      PChar(S), LLen, PChar(SubS), LLen) = CSTR_EQUAL);
-  {$ELSE}
-  Result := Sys.AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
-  {$ENDIF}
+  Result := LLen <= Length(S);
+  if Result then begin
+    {$IFDEF MSWINDOWS}
+    P := PChar(S);
+    Inc(P, Length(S)-LLen);
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P, LLen, PChar(SubS), LLen) = 2;
+    {$ELSE}
+    Result := Sys.AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
+    {$ENDIF}
+  end;
   {$ENDIF}
 end;
 
@@ -3121,7 +3131,7 @@ begin
   if ACharPos > Length(AString) then begin
     Result := False;
   end else begin
-    Result := IndyPos( AString[ACharPos], ASet)>0;
+    Result := IndyPos(AString[ACharPos], ASet) > 0;
   end;
 end;
 
