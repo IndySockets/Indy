@@ -121,7 +121,6 @@ Pete Mee
 }
 
 interface
-{$i IdCompilerDefines.inc}
 
 uses
   IdBaseComponent,
@@ -1215,9 +1214,9 @@ end;
 
 procedure TIdDateTimeStamp.SetFromTDateTime;
 var
-  aStamp:TIdDateTimeStamp;
+  aStamp: TIdDateTimeStamp;
 begin
-  aStamp:=DateTimeToTimeStamp(ADateTime);
+  aStamp := DateTimeToTimeStamp(ADateTime);
   try
     SetFromTTimeStamp(aStamp);
   finally
