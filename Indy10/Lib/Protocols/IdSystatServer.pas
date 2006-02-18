@@ -16,50 +16,43 @@
   $Log$
 }
 {
-{   Rev 1.7    12/2/2004 4:23:58 PM  JPMugaas
-{ Adjusted for changes in Core.
+  Rev 1.7    12/2/2004 4:23:58 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.6    10/26/2004 10:49:20 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.5    2004.02.03 5:44:30 PM  czhower
+  Name changes
+
+  Rev 1.4    1/21/2004 4:04:04 PM  JPMugaas
+  InitComponent
+
+  Rev 1.3    2/24/2003 10:29:50 PM  JPMugaas
+
+  Rev 1.2    1/17/2003 07:10:58 PM  JPMugaas
+  Now compiles under new framework.
+
+  Rev 1.1    1/8/2003 05:53:54 PM  JPMugaas
+  Switched stuff to IdContext.
+
+  Rev 1.0    11/13/2002 08:02:28 AM  JPMugaas
 }
-{
-{   Rev 1.6    10/26/2004 10:49:20 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.5    2004.02.03 5:44:30 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    1/21/2004 4:04:04 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.3    2/24/2003 10:29:50 PM  JPMugaas
-}
-{
-{   Rev 1.2    1/17/2003 07:10:58 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.1    1/8/2003 05:53:54 PM  JPMugaas
-{ Switched stuff to IdContext.
-}
-{
-{   Rev 1.0    11/13/2002 08:02:28 AM  JPMugaas
-}
+
 unit IdSystatServer;
-{*******************************************************}
-{                                                       }
-{       Indy Systat Client TIdSystatServer              }
-{                                                       }
-{       Copyright (C) 2002 Winshoes Working Group       }
-{       Original author J. Peter Mugaas                 }
-{       2002-August-13                                  }
-{       Based on RFC 866                                }
-{                                                       }
-{*******************************************************}
-{Note that this protocol is officially called Active User}
-{2002-Aug-13  J. Peter Mugaas
-  -Original version}
+
+{
+  Indy Systat Client TIdSystatServer
+
+  Copyright (C) 2002 Winshoes Working Group
+  Original author J. Peter Mugaas
+  2002-August-13
+  Based on RFC 866
+  Note that this protocol is officially called Active User
+}
+
 interface
+
 uses
   IdAssignedNumbers,
   IdContext,
