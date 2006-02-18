@@ -16,14 +16,15 @@
   $Log$
 }
 {
-{   Rev 1.0    4/6/2003 04:35:12 PM  JPMugaas
+  Rev 1.0    4/6/2003 04:35:12 PM  JPMugaas
 }
 {
-Note that this unit is for defining Base classes for SSH implementers.
+  Note that this unit is for defining Base classes for SSH implementers.
 
-Much of this is a Cut and Paste job from Indy 10's Base SSL classes.  We make
-this separate in case we have to treat SSH far differently than SSL.
+  Much of this is a Cut and Paste job from Indy 10's Base SSL classes.  We make
+  this separate in case we have to treat SSH far differently than SSL.
 }
+
 unit IdSSH;
 
 interface

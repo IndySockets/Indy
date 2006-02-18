@@ -16,52 +16,43 @@
   $Log$
 }
 {
-{   Rev 1.11    2004.02.03 5:45:36 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.10    10/5/2003 11:44:06 PM  GGrieve
-{ Rmove IdContainers
-}
-{
-{   Rev 1.9    9/18/2003 10:20:28 AM  JPMugaas
-{ Updated for new API.
-}
-{
-    Rev 1.8    3/30/2003 12:38:56 AM  BGooijen
+  Rev 1.11    2004.02.03 5:45:36 PM  czhower
+  Name changes
+
+  Rev 1.10    10/5/2003 11:44:06 PM  GGrieve
+  Remove IdContainers
+
+  Rev 1.9    9/18/2003 10:20:28 AM  JPMugaas
+  Updated for new API.
+
+  Rev 1.8    3/30/2003 12:38:56 AM  BGooijen
   Removed warning
-}
-{
-    Rev 1.7    3/30/2003 12:15:12 AM  BGooijen
+
+  Rev 1.7    3/30/2003 12:15:12 AM  BGooijen
   Added MakeFTPSvrPort/MakeFTPSvrPasv
-}
-{
-    Rev 1.6    3/23/2003 11:44:24 PM  BGooijen
+
+  Rev 1.6    3/23/2003 11:44:24 PM  BGooijen
   Added MakeClientIOHandler(ATheThread:TIdThreadHandle ):...
-}
-{
-    Rev 1.5    3/14/2003 10:00:36 PM  BGooijen
+
+  Rev 1.5    3/14/2003 10:00:36 PM  BGooijen
   Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
   the server-protocol-files
-}
-{
-{   Rev 1.3    3/13/2003 09:14:44 PM  JPMugaas
-{ Added property suggested by Henrick Hellström (StreamSec) for checking a
-{ certificate against a URL provided by a user.
-}
-{
-{   Rev 1.2    3/13/2003 11:55:44 AM  JPMugaas
-{ Updated registration framework to give more information.
-}
-{
-    Rev 1.1    3/13/2003 4:08:42 PM  BGooijen
+
+  Rev 1.3    3/13/2003 09:14:44 PM  JPMugaas
+  Added property suggested by Henrick Hellström (StreamSec) for checking a
+  certificate against a URL provided by a user.
+
+  Rev 1.2    3/13/2003 11:55:44 AM  JPMugaas
+  Updated registration framework to give more information.
+
+  Rev 1.1    3/13/2003 4:08:42 PM  BGooijen
   classes -> Classes
+
+  Rev 1.0    3/13/2003 09:51:18 AM  JPMugaas
+  Abstract SSL class to permit the clients and servers to use OpenSSL or
+  third-party components SSL IOHandler.
 }
-{
-{   Rev 1.0    3/13/2003 09:51:18 AM  JPMugaas
-{ Abstract SSL class to permit the clients and servers to use OpenSSL or
-{ third-party components SSL IOHandler.
-}
+
 unit IdSSL;
 
 interface
