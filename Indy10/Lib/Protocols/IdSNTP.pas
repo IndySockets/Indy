@@ -16,38 +16,26 @@
   $Log$
 }
 {
-{   Rev 1.6    2/8/2005 6:28:02 AM  JPMugaas
-{ Should now work properly.  I omitted a feild when outputting bytes from the
-{ packet object.  OOPS!!!
-}
-{
-    Rev 1.5    6/1/2004 9:09:00 PM  DSiders
-  Correct calculation for RoundTripDelay as per RFC 2030 errata.
-}
-{
-{   Rev 1.4    2/9/2004 11:26:46 AM  JPMugaas
-{ Fixed some bugs reading the time.  SHould work.
-}
-{
-{   Rev 1.3    2/8/2004 4:15:54 PM  JPMugaas
-{ SNTP ported to DotNET.
-}
-{
-{   Rev 1.2    2004.02.03 5:44:24 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.1    1/21/2004 4:03:42 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 08:01:12 AM  JPMugaas
-}
-unit IdSNTP;
+  Rev 1.6    2/8/2005 6:28:02 AM  JPMugaas
+  Should now work properly.  I omitted a feild when outputting bytes from the
+  packet object.  OOPS!!!
 
-{*
-  Winshoe SNTP (Simple Network Time Protocol)
-  Behaves more or less according to RFC-2030
+  Rev 1.5    6/1/2004 9:09:00 PM  DSiders
+  Correct calculation for RoundTripDelay as per RFC 2030 errata.
+
+  Rev 1.4    2/9/2004 11:26:46 AM  JPMugaas
+  Fixed some bugs reading the time.  SHould work.
+
+  Rev 1.3    2/8/2004 4:15:54 PM  JPMugaas
+  SNTP ported to DotNET.
+
+  Rev 1.2    2004.02.03 5:44:24 PM  czhower
+  Name changes
+
+  Rev 1.1    1/21/2004 4:03:42 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:01:12 AM  JPMugaas
 
   2002 Jan 21 Don
     Added suggestions from R. Brian Lindahl.
@@ -78,8 +66,14 @@ unit IdSNTP;
 	2000 Jan 13 MTL
   	Moved to new Palette Tab scheme (Winshoes Clients)
     1999
+}
 
-  	R. Brian Lindahl - Original Author
+unit IdSNTP;
+
+{*
+  Winshoe SNTP (Simple Network Time Protocol)
+  Behaves more or less according to RFC-2030
+  R. Brian Lindahl - Original Author
 *}
 
 interface
