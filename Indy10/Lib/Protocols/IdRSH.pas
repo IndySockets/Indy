@@ -16,33 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.3    2004.02.03 5:44:16 PM  czhower
-{ Name changes
+  Rev 1.3    2004.02.03 5:44:16 PM  czhower
+  Name changes
+
+  Rev 1.2    2004.01.22 5:58:54 PM  czhower
+  IdCriticalSection
+
+  Rev 1.1    1/21/2004 3:27:22 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 07:59:56 AM  JPMugaas
+
+  -2001.02.15 - J. Peter Mugaas
+  Started this unit
 }
-{
-{   Rev 1.2    2004.01.22 5:58:54 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.1    1/21/2004 3:27:22 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 07:59:56 AM  JPMugaas
-}
+
 unit IdRSH;
 
-(*******************************************************}
--2001.02.15 - J. Peter Mugaas
-              Started this unit
-{                                                       }
-{       Indy Execute Client TIdRSH                      }
-{                                                       }
-{       Copyright (C) 2001 Indy Pit Crew                }
-{       Original author J. Peter Mugaas                 }
-{       2001-February-15                                }
-{                                                       }
-{*******************************************************)
+{
+  Indy Execute Client TIdRSH
+  Copyright (C) 2001 Indy Pit Crew
+  Original author J. Peter Mugaas
+  2001-February-15
+}
 
 interface
 

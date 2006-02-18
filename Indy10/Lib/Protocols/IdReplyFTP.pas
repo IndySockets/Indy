@@ -16,75 +16,61 @@
   $Log$
 }
 {
-{   Rev 1.15    2/8/05 6:09:56 PM  RLebeau
-{ Updated GetFormattedReply() to call Sys.IntToStr() only once.
-}
-{
-{   Rev 1.14    10/26/2004 10:39:54 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.13    8/8/04 12:28:04 AM  RLebeau
-{ Bug fix for SetFormattedReply() to better conform to RFC 959
-}
-{
-{   Rev 1.12    6/20/2004 8:30:28 PM  JPMugaas
-{ TIdReply was ignoring Formatted Output in some strings used in output.
-}
-{
-{   Rev 1.11    5/18/04 2:42:30 PM  RLebeau
-{ Changed TIdRepliesFTP to derive from TIdRepliesRFC, and changed constructor
-{ back to using 'override'
-}
-{
-{   Rev 1.10    5/17/04 9:52:36 AM  RLebeau
-{ Changed TIdRepliesFTP constructor to use 'reintroduce' instead
-}
-{
-{   Rev 1.9    5/16/04 5:27:56 PM  RLebeau
-{ Added TIdRepliesFTP class
-}
-{
-{   Rev 1.8    2004.02.03 5:45:46 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.7    2004.01.29 12:07:52 AM  czhower
-{ .Net constructor problem fix.
-}
-{
-{   Rev 1.6    1/20/2004 10:03:26 AM  JPMugaas
-{ Fixed a problem with a server where there was a line with only one " ".  It
-{ was throwing things off.  Fixed by checking to see if a line <4 chars is
-{ actually a number.
-}
-{
-{   Rev 1.5    1/3/2004 8:05:46 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.4    10/26/2003 04:25:46 PM  JPMugaas
-{ Fixed a bug where a line such as:
-{ 
-{ "     Version wu-2.6.2-11.73.1" would be considered the end of a command
-{ response.
-}
-{
-{   Rev 1.3    2003.10.18 9:42:12 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.2    2003.09.20 10:38:38 AM  czhower
-{ Bug fix to allow clearing code field (Return to default value)
-}
-{
-    Rev 1.1    5/30/2003 9:23:44 PM  BGooijen
+  Rev 1.15    2/8/05 6:09:56 PM  RLebeau
+  Updated GetFormattedReply() to call Sys.IntToStr() only once.
+
+  Rev 1.14    10/26/2004 10:39:54 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.13    8/8/04 12:28:04 AM  RLebeau
+  Bug fix for SetFormattedReply() to better conform to RFC 959
+
+  Rev 1.12    6/20/2004 8:30:28 PM  JPMugaas
+  TIdReply was ignoring Formatted Output in some strings used in output.
+
+  Rev 1.11    5/18/04 2:42:30 PM  RLebeau
+  Changed TIdRepliesFTP to derive from TIdRepliesRFC, and changed constructor
+  back to using 'override'
+
+  Rev 1.10    5/17/04 9:52:36 AM  RLebeau
+  Changed TIdRepliesFTP constructor to use 'reintroduce' instead
+
+  Rev 1.9    5/16/04 5:27:56 PM  RLebeau
+  Added TIdRepliesFTP class
+
+  Rev 1.8    2004.02.03 5:45:46 PM  czhower
+  Name changes
+
+  Rev 1.7    2004.01.29 12:07:52 AM  czhower
+  .Net constructor problem fix.
+
+  Rev 1.6    1/20/2004 10:03:26 AM  JPMugaas
+  Fixed a problem with a server where there was a line with only one " ".  It
+  was throwing things off.  Fixed by checking to see if a line <4 chars is
+  actually a number.
+
+  Rev 1.5    1/3/2004 8:05:46 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.4    10/26/2003 04:25:46 PM  JPMugaas
+  Fixed a bug where a line such as:
+
+  "     Version wu-2.6.2-11.73.1" would be considered the end of a command
+  response.
+
+  Rev 1.3    2003.10.18 9:42:12 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.2    2003.09.20 10:38:38 AM  czhower
+  Bug fix to allow clearing code field (Return to default value)
+
+  Rev 1.1    5/30/2003 9:23:44 PM  BGooijen
   Changed TextCode to Code
+
+  Rev 1.0    5/26/2003 12:21:10 PM  JPMugaas
 }
-{
-{   Rev 1.0    5/26/2003 12:21:10 PM  JPMugaas
-}
+
 unit IdReplyFTP;
 
 interface

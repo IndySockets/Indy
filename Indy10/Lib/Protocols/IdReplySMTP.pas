@@ -16,108 +16,85 @@
   $Log$
 }
 {
-{   Rev 1.24    10/26/2004 10:39:54 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.23    10/4/2004 3:16:44 PM  BGooijen
-{ Added constructor
-}
-{
-{   Rev 1.22    8/3/2004 11:49:56 AM  JPMugaas
-{ Fix for issue where 2.0.0 was always being set even if it should not have
-{ been set.
-}
-{
-{   Rev 1.21    7/27/2004 7:18:20 PM  JPMugaas
-{ Fixed the TIdReplySMTP object as per Bas's suggestion.  He told me that we
-{ were overriding the wrong object.
-{ 
-{ I also fixed the Assign so it will work properly.
-}
-{
-{   Rev 1.20    7/24/04 1:04:48 PM  RLebeau
-{ Bug fix for TIdReplySMTP.AssignTo(). The logic was backwards
-}
-{
-{   Rev 1.19    5/31/04 12:47:02 PM  RLebeau
-{ Bug fixes for TIdSMTPEnhancedCode.AssignTo() and TIdReplySMTP.AssignTo()
-}
-{
-{   Rev 1.18    5/18/04 2:39:52 PM  RLebeau
-{ Changed TIdRepliesSMTP constructor back to using 'override'
-}
-{
-{   Rev 1.17    5/18/04 11:21:54 AM  RLebeau
-{ Changed TIdRepliesSMTP constructor to use 'reintroduce' instead
-}
-{
-{   Rev 1.16    5/16/04 5:27:32 PM  RLebeau
-{ Added TIdRepliesSMTP class
-}
-{
-{   Rev 1.15    2004.02.03 5:45:44 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.14    2004.01.29 12:07:54 AM  czhower
-{ .Net constructor problem fix.
-}
-{
-{   Rev 1.13    2004.01.23 10:09:54 PM  czhower
-{ REmoved unneded check because of CharIsInSet functinoalty. Also was a short
-{ circuit which is not permitted.
-}
-{
-{   Rev 1.12    1/22/2004 4:23:02 PM  JPMugaas
-{ Undid a set change that didn't work.
-}
-{
-{   Rev 1.11    1/22/2004 4:51:40 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.10    1/3/2004 8:05:54 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.9    2003.10.18 9:42:14 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-    Rev 1.8    10/17/2003 12:58:54 AM  DSiders
+  Rev 1.24    10/26/2004 10:39:54 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.23    10/4/2004 3:16:44 PM  BGooijen
+  Added constructor
+
+  Rev 1.22    8/3/2004 11:49:56 AM  JPMugaas
+  Fix for issue where 2.0.0 was always being set even if it should not have
+  been set.
+
+  Rev 1.21    7/27/2004 7:18:20 PM  JPMugaas
+  Fixed the TIdReplySMTP object as per Bas's suggestion.  He told me that we
+  were overriding the wrong object.
+
+  I also fixed the Assign so it will work properly.
+
+  Rev 1.20    7/24/04 1:04:48 PM  RLebeau
+  Bug fix for TIdReplySMTP.AssignTo(). The logic was backwards
+
+  Rev 1.19    5/31/04 12:47:02 PM  RLebeau
+  Bug fixes for TIdSMTPEnhancedCode.AssignTo() and TIdReplySMTP.AssignTo()
+
+  Rev 1.18    5/18/04 2:39:52 PM  RLebeau
+  Changed TIdRepliesSMTP constructor back to using 'override'
+
+  Rev 1.17    5/18/04 11:21:54 AM  RLebeau
+  Changed TIdRepliesSMTP constructor to use 'reintroduce' instead
+
+  Rev 1.16    5/16/04 5:27:32 PM  RLebeau
+  Added TIdRepliesSMTP class
+
+  Rev 1.15    2004.02.03 5:45:44 PM  czhower
+  Name changes
+
+  Rev 1.14    2004.01.29 12:07:54 AM  czhower
+  .Net constructor problem fix.
+
+  Rev 1.13    2004.01.23 10:09:54 PM  czhower
+  REmoved unneded check because of CharIsInSet functinoalty. Also was a short
+  circuit which is not permitted.
+
+  Rev 1.12    1/22/2004 4:23:02 PM  JPMugaas
+  Undid a set change that didn't work.
+
+  Rev 1.11    1/22/2004 4:51:40 PM  SPerry
+  fixed set problems
+
+  Rev 1.10    1/3/2004 8:05:54 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.9    2003.10.18 9:42:14 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.8    10/17/2003 12:58:54 AM  DSiders
   Added localization comments.
+
+  Rev 1.7    2003.09.20 10:38:42 AM  czhower
+  Bug fix to allow clearing code field (Return to default value)
+
+  Rev 1.6    6/5/2003 04:54:24 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.5    5/30/2003 8:46:28 PM  BGooijen
+
+  Rev 1.4    5/26/2003 12:22:08 PM  JPMugaas
+
+  Rev 1.3    5/25/2003 03:45:16 AM  JPMugaas
+
+  Rev 1.2    5/25/2003 02:46:16 AM  JPMugaas
+
+  Rev 1.1    5/23/2003 04:52:30 AM  JPMugaas
+  Work started on TIdDirectSMTP to support enhanced error codes.
+
+  Rev 1.0    5/22/2003 05:24:52 PM  JPMugaas
+  RFC 2034 descendant of TIdRFCReply for IdSMTP.  This also includes some
+  extended error code constants.
 }
-{
-{   Rev 1.7    2003.09.20 10:38:42 AM  czhower
-{ Bug fix to allow clearing code field (Return to default value)
-}
-{
-{   Rev 1.6    6/5/2003 04:54:24 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-    Rev 1.5    5/30/2003 8:46:28 PM  BGooijen
-}
-{
-{   Rev 1.4    5/26/2003 12:22:08 PM  JPMugaas
-}
-{
-{   Rev 1.3    5/25/2003 03:45:16 AM  JPMugaas
-}
-{
-{   Rev 1.2    5/25/2003 02:46:16 AM  JPMugaas
-}
-{
-{   Rev 1.1    5/23/2003 04:52:30 AM  JPMugaas
-{ Work started on TIdDirectSMTP to support enhanced error codes.
-}
-{
-{   Rev 1.0    5/22/2003 05:24:52 PM  JPMugaas
-{ RFC 2034 descendant of TIdRFCReply for IdSMTP.  This also includes some
-{ extended error code constants.
-}
+
 unit IdReplySMTP;
 
 interface
@@ -169,7 +146,7 @@ type
     procedure SetFormattedReply(const AValue: TIdStrings); override;
   public
     constructor Create(ACollection: TIdCollection); overload; override;
-    constructor Create( ACollection: TIdCollection; AReplyTexts: TIdReplies ); overload; override; 
+    constructor Create( ACollection: TIdCollection; AReplyTexts: TIdReplies ); overload; override;
     destructor Destroy; override;
     procedure RaiseReplyError; override;
     procedure SetEnhReply(const ANumericCode : Integer; const AEnhReply, AText : String);

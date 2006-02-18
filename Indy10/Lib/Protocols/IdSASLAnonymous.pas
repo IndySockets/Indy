@@ -16,26 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.1    1/21/2004 4:03:08 PM  JPMugaas
-{ InitComponent
+  Rev 1.1    1/21/2004 4:03:08 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:00:12 AM  JPMugaas
+
+  5-20-2002 - Started this unit.
 }
-{
-{   Rev 1.0    11/13/2002 08:00:12 AM  JPMugaas
-}
+
 unit IdSASLAnonymous;
 
 interface
-uses IdSASL, IdTCPConnection;
+
+uses
+  IdSASL, IdTCPConnection;
 
 {
-Implements RFC 2245
-
-Anonymous SASL Mechanism
-
-Oxymoron if you ask me :-).
-
-5-20-2002 - Started this unit.
+  Implements RFC 2245
+  Anonymous SASL Mechanism
+  Oxymoron if you ask me :-).
 }
+
 type
   TIdSASLAnonymous = class(TIdSASL)
   protected

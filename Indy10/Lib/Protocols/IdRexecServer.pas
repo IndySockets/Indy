@@ -16,31 +16,35 @@
   $Log$
 }
 {
-{   Rev 1.2    1/21/2004 3:27:20 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    1/31/2003 02:32:10 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.0    11/13/2002 07:59:50 AM  JPMugaas
-}
-unit IdRexecServer;
+  Rev 1.2    1/21/2004 3:27:20 PM  JPMugaas
+  InitComponent
 
-{based on
-  http://www.winsock.com/hypermail/winsock2/2235.html
- http://www.private.org.il/mini-tcpip.faq.html}
-{ 2001, Feb  17 - J. Peter Mugaas
+  Rev 1.1    1/31/2003 02:32:10 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.0    11/13/2002 07:59:50 AM  JPMugaas
+
+  2001, Feb  17 - J. Peter Mugaas
     moved much of the code into IdRemoteCMDServer so it can be
     reused in IdRSHServer
+
   2001, Feb 15 - J. Peter Mugaas
     made methods for error and sucess command results
+
   2001, Feb 14 - J. Peter Mugaas
     started this unit
+}
 
-This is based on the IdRexec.pas unit and
-programming comments at http://www.abandoned.org/nemon/rexeclib.py}
+unit IdRexecServer;
+
+{
+  based on
+  http://www.winsock.com/hypermail/winsock2/2235.html
+  http://www.private.org.il/mini-tcpip.faq.html
+
+  This is based on the IdRexec.pas unit and
+  programming comments at http://www.abandoned.org/nemon/rexeclib.py
+}
 
 interface
 

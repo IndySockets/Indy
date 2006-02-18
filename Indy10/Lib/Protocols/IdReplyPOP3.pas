@@ -16,101 +16,81 @@
   $Log$
 }
 {
-{   Rev 1.21    10/26/2004 10:39:54 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.20    5/17/04 9:50:52 AM  RLebeau
-{ Changed TIdRepliesPOP3 constructor to use 'reintroduce' instead
-}
-{
-{   Rev 1.19    5/16/04 5:26:58 PM  RLebeau
-{ Added TIdRepliesPOP3 class
-}
-{
-{   Rev 1.18    2004.04.15 12:49:46 PM  czhower
-{ Fixed bug in TIdReplyPOP3.IsEndMarker
-}
-{
-{   Rev 1.17    2004.02.03 5:45:44 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.16    2004.01.29 12:07:52 AM  czhower
-{ .Net constructor problem fix.
-}
-{
-{   Rev 1.15    2004.01.22 5:52:54 PM  czhower
-{ Visibilty fix + TextIsSame
-}
-{
-{   Rev 1.14    1/3/2004 8:05:50 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.13    22/12/2003 00:45:58  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.12    2003.10.18 9:42:12 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.11    2003.09.20 10:38:40 AM  czhower
-{ Bug fix to allow clearing code field (Return to default value)
-}
-{
-{   Rev 1.10    6/8/2003 03:26:00 AM  JPMugaas
-{ AssignTo added for object assignment.
-}
-{
-{   Rev 1.9    6/8/2003 02:59:24 AM  JPMugaas
-{ RFC 2449 and RFC 3206 support.
-}
-{
-{   Rev 1.8    6/5/2003 04:54:22 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.7    6/4/2003 04:06:52 PM  JPMugaas
-{ Started preliminary worki on RFC 3206 and RFC 2449.   
-{ 
-{ Removed an old GetInternetResponse override that is no longer needed and
-{ causes its own problems.
-{ 
-{ Now uses string reply codes using Kudzu's new overloaded methods so mapping
-{ to integers is no longer needed.  The integers used in mapping have been
-{ removed.
-}
-{
-    Rev 1.6    5/30/2003 9:06:44 PM  BGooijen
+  Rev 1.21    10/26/2004 10:39:54 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.20    5/17/04 9:50:52 AM  RLebeau
+  Changed TIdRepliesPOP3 constructor to use 'reintroduce' instead
+
+  Rev 1.19    5/16/04 5:26:58 PM  RLebeau
+  Added TIdRepliesPOP3 class
+
+  Rev 1.18    2004.04.15 12:49:46 PM  czhower
+  Fixed bug in TIdReplyPOP3.IsEndMarker
+
+  Rev 1.17    2004.02.03 5:45:44 PM  czhower
+  Name changes
+
+  Rev 1.16    2004.01.29 12:07:52 AM  czhower
+  .Net constructor problem fix.
+
+  Rev 1.15    2004.01.22 5:52:54 PM  czhower
+  Visibilty fix + TextIsSame
+
+  Rev 1.14    1/3/2004 8:05:50 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.13    22/12/2003 00:45:58  CCostelloe
+  .NET fixes
+
+  Rev 1.12    2003.10.18 9:42:12 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.11    2003.09.20 10:38:40 AM  czhower
+  Bug fix to allow clearing code field (Return to default value)
+
+  Rev 1.10    6/8/2003 03:26:00 AM  JPMugaas
+  AssignTo added for object assignment.
+
+  Rev 1.9    6/8/2003 02:59:24 AM  JPMugaas
+  RFC 2449 and RFC 3206 support.
+
+  Rev 1.8    6/5/2003 04:54:22 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.7    6/4/2003 04:06:52 PM  JPMugaas
+  Started preliminary worki on RFC 3206 and RFC 2449.
+
+  Removed an old GetInternetResponse override that is no longer needed and
+  causes its own problems.
+
+  Now uses string reply codes using Kudzu's new overloaded methods so mapping
+  to integers is no longer needed.  The integers used in mapping have been
+  removed.
+
+  Rev 1.6    5/30/2003 9:06:44 PM  BGooijen
   uses CheckIfCodeIsValid now
+
+  Rev 1.5    5/26/2003 04:28:28 PM  JPMugaas
+  Removed GenerateReply and ParseResponse calls because those functions are
+  being removed.
+
+  Rev 1.4    2003.05.26 10:51:42 PM  czhower
+  Removed RFC / non POP3 parsing
+
+  Rev 1.3    5/26/2003 12:22:06 PM  JPMugaas
+
+  Rev 1.2    5/25/2003 02:40:56 AM  JPMugaas
+
+  Rev 1.1    5/20/2003 10:58:28 AM  JPMugaas
+  SetReplyExceptionCode now validated by TIdReplyPOP3.  This way, it can only
+  accept our integer codes for +OK, -ERR, and +.
+
+  Rev 1.0    5/19/2003 04:28:10 PM  JPMugaas
+  TIdReply decendant for POP3.
 }
-{
-{   Rev 1.5    5/26/2003 04:28:28 PM  JPMugaas
-{ Removed GenerateReply and ParseResponse calls because those functions are
-{ being removed. 
-}
-{
-{   Rev 1.4    2003.05.26 10:51:42 PM  czhower
-{ Removed RFC / non POP3 parsing
-}
-{
-{   Rev 1.3    5/26/2003 12:22:06 PM  JPMugaas
-}
-{
-{   Rev 1.2    5/25/2003 02:40:56 AM  JPMugaas
-}
-{
-{   Rev 1.1    5/20/2003 10:58:28 AM  JPMugaas
-{ SetReplyExceptionCode now validated by TIdReplyPOP3.  This way, it can only
-{ accept our integer codes for +OK, -ERR, and +.
-}
-{
-{   Rev 1.0    5/19/2003 04:28:10 PM  JPMugaas
-{ TIdReply decendant for POP3.
-}
+
 unit IdReplyPOP3;
 
 interface

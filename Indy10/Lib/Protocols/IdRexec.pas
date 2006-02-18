@@ -16,41 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.2    1/21/2004 3:27:18 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.1    4/4/2003 8:02:58 PM  BGooijen
+  Rev 1.2    1/21/2004 3:27:18 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    4/4/2003 8:02:58 PM  BGooijen
   made host published
+
+  Rev 1.0    11/13/2002 07:59:46 AM  JPMugaas
+
+  -2001.05.18 - J. Peter Mugaas
+  I removed the property for forcing client ports
+  into a specific range.  This was not necessary
+  for Rexec.  It is required for the TIdRSH Component
+
+  -2001.02.15 - J. Peter Mugaas
+  I moved most of the Rexec code to
+  TIdRemoteCMDClient and TIdRexec now inherits
+  from that class.  This change was necessary to
+  reduce duplicate code with a new addition, IdRSH.
+
+  -2001.02.14 - J. Peter Mugaas
+  Made it more complient with Rexec servers
+  and handled the #0 or error indicator
+
+  -2001.02.13 - Modified by Kudzu
+
+  -2000.10.24 - Original Author: Laurence LIew
 }
-{
-{   Rev 1.0    11/13/2002 07:59:46 AM  JPMugaas
-}
+
 unit IdRexec;
 
-(*******************************************************}
--2001.05.18 - J. Peter Mugaas
-              I removed the property for forcing client ports
-              into a specific range.  This was not necessary
-              for Rexec.  It is required for the TIdRSH Component
--2001.02.15 - J. Peter Mugaas
-              I moved most of the Rexec code to
-              TIdRemoteCMDClient and TIdRexec now inherits
-              from that class.  This change was necessary to
-              reduce duplicate code with a new addition, IdRSH.
--2001.02.14 - J. Peter Mugaas
-              Made it more complient with Rexec servers
-              and handled the #0 or error indicator
--2001.02.13 - Modified by Kudzu
--2000.10.24 - Original Author: Laurence LIew
-{                                                       }
-{       Indy Rexec Client TIdRexec                      }
-{                                                       }
-{       Copyright (C) 2001 Winshoes Working Group       }
-{       Original author Laurence LIew                   }
-{       2000-October-24                                 }
-{                                                       }
-{*******************************************************)
+{
+  Indy Rexec Client TIdRexec
+  Copyright (C) 2001 Winshoes Working Group
+  Original author Laurence LIew
+  2000-October-24
+ }
 
 interface
 

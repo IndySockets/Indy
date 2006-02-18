@@ -16,42 +16,41 @@
   $Log$
 }
 {
-{   Rev 1.3    10/26/2004 10:55:32 PM  JPMugaas
-{ Updated refs.
+  Rev 1.3    10/26/2004 10:55:32 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.2    2004.02.03 5:44:18 PM  czhower
+  Name changes
+
+  Rev 1.1    1/21/2004 3:11:34 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:00:06 AM  JPMugaas
+
+  2002 - 5-19 - J. Peter Mugaas
+    started this class definition for Indy 10.
+
+  2002 - 08  - J.M. Berg
+    reworked, restructured a bit, made work with Indy 9 (most changes
+      are in other units though)
 }
 {
-{   Rev 1.2    2004.02.03 5:44:18 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.1    1/21/2004 3:11:34 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 08:00:06 AM  JPMugaas
-}
-{
+  SASL Base mechanism for Indy.
+  See RFC 2222
 
-SASL Base mechanism for Indy.
-See RFC 2222
+  This class is not useful in and of itself.  It is for deriving descendant classes
+  for implementing reusable SASL authentication mechanism classes for components
+  such as IdPOP3, IdSMTP, and IdIMAP4.
 
-2002 - 5-19 - J. Peter Mugaas
-  started this class definition for Indy 10.
-2002 - 08  - J.M. Berg
-  reworked, restructured a bit, made work with Indy 9 (most changes
-    are in other units though)
+  But since they tie into the SASLList, its not restricted to message clients.
 
-This class is not useful in and of itself.  It is for deriving descendant classes
-for implementing reusable SASL authentication mechanism classes for components
-such as IdPOP3, IdSMTP, and IdIMAP4.
-But since they tie into the SASLList, its not restricted to message clients.
-
-Descendant classes will be responsible for implementing the SASL mechanism
-completely and holding any data required for authentication, unless descend
-from the UserPass mechanism and link to a UserPass provider.
+  Descendant classes will be responsible for implementing the SASL mechanism
+  completely and holding any data required for authentication, unless descend
+  from the UserPass mechanism and link to a UserPass provider.
 }
 
 {$BOOLEVAL OFF}
+
 unit IdSASL;
 
 interface

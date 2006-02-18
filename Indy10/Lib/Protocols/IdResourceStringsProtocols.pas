@@ -16,185 +16,147 @@
   $Log$
 }
 {
-{   Rev 1.11    1/9/2005 6:08:30 PM  JPMugaas
-{ New FSP Messages.
-}
-{
-{   Rev 1.10    24.08.2004 18:01:42  Andreas Hausladen
-{ Added AttachmentBlocked property to TIdAttachmentFile.
-}
-{
-{   Rev 1.9    7/29/2004 2:15:32 AM  JPMugaas
-{ New property for controlling what AUTH command is sent.  Fixed some minor
-{ issues with FTP properties.  Some were not set to defaults causing
-{ unpredictable results -- OOPS!!!
-}
-{
-{   Rev 1.8    7/28/2004 8:26:48 AM  JPMugaas
-{ Further work on the SMTP Server.  Not tested yet.
-}
-{
-{   Rev 1.7    7/16/2004 4:28:44 AM  JPMugaas
-{ CCC Support in TIdFTP to complement that capability in TIdFTPServer.
-}
-{
-{   Rev 1.6    7/13/2004 3:31:20 AM  JPMugaas
-{ Messages for a new FTP server feature, CCC.
-}
-{
-{   Rev 1.5    6/20/2004 8:17:20 PM  JPMugaas
-{ Message for FTP Deflate FXP.
-}
-{
-{   Rev 1.4    6/16/04 12:52:36 PM  RLebeau
-{ Changed wording of RSPOP3SvrInternalError
-}
-{
-{   Rev 1.2    3/2/2004 6:38:58 AM  JPMugaas
-{ Stuff for more comprehensive help in the FTP Server.
-}
-{
-{   Rev 1.1    2/3/2004 4:12:28 PM  JPMugaas
-{ Fixed up units so they should compile.
-}
-{
-{   Rev 1.0    2004.02.03 7:46:06 PM  czhower
-{ New names
-}
-{
-{   Rev 1.26    2/1/2004 4:47:50 AM  JPMugaas
-{ Resource strings from the MappedPort units.
-}
-{
-{   Rev 1.25    1/5/2004 11:53:32 PM  JPMugaas
-{ Some messages moved to resource strings.  Minor tweeks.  EIdException no
-{ longer raised.
-}
-{
-{   Rev 1.24    30/12/2003 23:27:22  CCostelloe
-{ Added RSIMAP4DisconnectedProbablyIdledOut
-}
-{
-{   Rev 1.23    11/28/2003 4:10:10 PM  JPMugaas
-{ RS for empty names in FTP upload.
-}
-{
-{   Rev 1.22    11/13/2003 5:44:38 PM  VVassiliev
-{ Add RSQueryInvalidIpV6 for DNSResolver
-}
-{
-{   Rev 1.21    10/20/2003 12:58:18 PM  JPMugaas
-{ Exception messages moved to RS.
-}
-{
-    Rev 1.20    10/17/2003 1:15:26 AM  DSiders
+  Rev 1.11    1/9/2005 6:08:30 PM  JPMugaas
+  New FSP Messages.
+
+  Rev 1.10    24.08.2004 18:01:42  Andreas Hausladen
+  Added AttachmentBlocked property to TIdAttachmentFile.
+
+  Rev 1.9    7/29/2004 2:15:32 AM  JPMugaas
+  New property for controlling what AUTH command is sent.  Fixed some minor
+  issues with FTP properties.  Some were not set to defaults causing
+  unpredictable results -- OOPS!!!
+
+  Rev 1.8    7/28/2004 8:26:48 AM  JPMugaas
+  Further work on the SMTP Server.  Not tested yet.
+
+  Rev 1.7    7/16/2004 4:28:44 AM  JPMugaas
+  CCC Support in TIdFTP to complement that capability in TIdFTPServer.
+
+  Rev 1.6    7/13/2004 3:31:20 AM  JPMugaas
+  Messages for a new FTP server feature, CCC.
+
+  Rev 1.5    6/20/2004 8:17:20 PM  JPMugaas
+  Message for FTP Deflate FXP.
+
+  Rev 1.4    6/16/04 12:52:36 PM  RLebeau
+  Changed wording of RSPOP3SvrInternalError
+
+  Rev 1.2    3/2/2004 6:38:58 AM  JPMugaas
+  Stuff for more comprehensive help in the FTP Server.
+
+  Rev 1.1    2/3/2004 4:12:28 PM  JPMugaas
+  Fixed up units so they should compile.
+
+  Rev 1.0    2004.02.03 7:46:06 PM  czhower
+  New names
+
+  Rev 1.26    2/1/2004 4:47:50 AM  JPMugaas
+  Resource strings from the MappedPort units.
+
+  Rev 1.25    1/5/2004 11:53:32 PM  JPMugaas
+  Some messages moved to resource strings.  Minor tweeks.  EIdException no
+  longer raised.
+
+  Rev 1.24    30/12/2003 23:27:22  CCostelloe
+  Added RSIMAP4DisconnectedProbablyIdledOut
+
+  Rev 1.23    11/28/2003 4:10:10 PM  JPMugaas
+  RS for empty names in FTP upload.
+
+  Rev 1.22    11/13/2003 5:44:38 PM  VVassiliev
+  Add RSQueryInvalidIpV6 for DNSResolver
+
+  Rev 1.21    10/20/2003 12:58:18 PM  JPMugaas
+  Exception messages moved to RS.
+
+  Rev 1.20    10/17/2003 1:15:26 AM  DSiders
   Added resource strings used in Message Client, HTTP, IMAP4.
-}
-{
-{   Rev 1.19    2003.10.14 1:28:00 PM  czhower
-{ DotNet
-}
-{
-{   Rev 1.18    10/9/2003 10:15:46 AM  JPMugaas
-{ FTP SSCN FXP Message.
-}
-{
-{   Rev 1.17    9/8/2003 02:24:36 AM  JPMugaas
-{ New message for custom FTP Proxy support.
-}
-{
-    Rev 1.16    8/10/2003 11:05:22 AM  BGooijen
+
+  Rev 1.19    2003.10.14 1:28:00 PM  czhower
+  DotNet
+
+  Rev 1.18    10/9/2003 10:15:46 AM  JPMugaas
+  FTP SSCN FXP Message.
+
+  Rev 1.17    9/8/2003 02:24:36 AM  JPMugaas
+  New message for custom FTP Proxy support.
+
+  Rev 1.16    8/10/2003 11:05:22 AM  BGooijen
   fixed typo
+
+  Rev 1.15    6/17/2003 03:14:38 PM  JPMugaas
+  FTP Structured help message.
+
+  Rev 1.14    6/17/2003 09:08:00 AM  JPMugaas
+  Improved SITE HELP handling.
+
+  Rev 1.13    10/6/2003 4:07:14 PM  SGrobety
+  IdCoder3to4 addition for exception handling
+
+  Rev 1.12    6/9/2003 05:14:54 AM  JPMugaas
+  Fixed crical error.
+  Supports HDR and OVER commands defined in
+  http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-18.txt if feature
+  negotiation indicates that they are supported.
+  Added XHDR data parsing routine.
+  Added events for when we receive a line of data with XOVER or XHDR as per
+  John Jacobson's request.
+
+  Rev 1.11    6/8/2003 02:59:26 AM  JPMugaas
+  RFC 2449 and RFC 3206 support.
+
+  Rev 1.10    5/22/2003 05:26:08 PM  JPMugaas
+  RFC 2034
+
+  Rev 1.9    5/19/2003 08:12:46 PM  JPMugaas
+  Strings for IdPOP3Reply unit.
+
+  Rev 1.8    5/8/2003 03:18:20 PM  JPMugaas
+  Flattened ou the SASL authentication API, made a custom descendant of SASL
+  enabled TIdMessageClient classes.
+
+  Rev 1.7    5/8/2003 02:18:12 AM  JPMugaas
+  Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
+  mechanisms missing more consistant, made IdPOP3 support feature feature
+  negotiation, and consolidated some duplicate code.
+
+  Rev 1.6    3/27/2003 05:46:44 AM  JPMugaas
+  Updated framework with an event if the TLS negotiation command fails.
+  Cleaned up some duplicate code in the clients.
+
+  Rev 1.5    3/19/2003 02:42:18 AM  JPMugaas
+  Added more strings for the SMTP server.
+
+  Rev 1.4    3/17/2003 02:28:32 PM  JPMugaas
+  Updated with some TLS strings.
+
+  Rev 1.3    3/9/2003 02:11:48 PM  JPMugaas
+  Removed server support for MODE B and MODE C.  It turns out that we do not
+  support those modes properly.  We only implemented Stream mode.  We now
+  simply return a 504 for modes we don't support instead of a 200 okay.  This
+  was throwing off Opera 7.02.
+
+  Rev 1.2    2/24/2003 07:55:16 PM  JPMugaas
+  Added /bin/ls strings to make the server look mroe like Unix.
+
+  Rev 1.1    2/16/2003 10:51:00 AM  JPMugaas
+  Attempt to implement:
+
+  http://www.ietf.org/internet-drafts/draft-ietf-ftpext-data-connection-assuranc
+  e-00.txt
+
+  Currently commented out because it does not work.
+
+  Rev 1.0    11/13/2002 07:59:36 AM  JPMugaas
 }
-{
-{   Rev 1.15    6/17/2003 03:14:38 PM  JPMugaas
-{ FTP Structured help message.
-}
-{
-{   Rev 1.14    6/17/2003 09:08:00 AM  JPMugaas
-{ Improved SITE HELP handling.
-}
-{
-{   Rev 1.13    10/6/2003 4:07:14 PM  SGrobety
-{ IdCoder3to4 addition for exception handling
-}
-{
-{   Rev 1.12    6/9/2003 05:14:54 AM  JPMugaas
-{ Fixed crical error.
-{ Supports HDR and OVER commands defined in
-{ http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-18.txt if feature
-{ negotiation indicates that they are supported.
-{ Added XHDR data parsing routine.
-{ Added events for when we receive a line of data with XOVER or XHDR as per
-{ John Jacobson's request.
-}
-{
-{   Rev 1.11    6/8/2003 02:59:26 AM  JPMugaas
-{ RFC 2449 and RFC 3206 support.
-}
-{
-{   Rev 1.10    5/22/2003 05:26:08 PM  JPMugaas
-{ RFC 2034
-}
-{
-{   Rev 1.9    5/19/2003 08:12:46 PM  JPMugaas
-{ Strings for IdPOP3Reply unit.
-}
-{
-{   Rev 1.8    5/8/2003 03:18:20 PM  JPMugaas
-{ Flattened ou the SASL authentication API, made a custom descendant of SASL
-{ enabled TIdMessageClient classes.
-}
-{
-{   Rev 1.7    5/8/2003 02:18:12 AM  JPMugaas
-{ Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
-{ mechanisms missing more consistant, made IdPOP3 support feature feature
-{ negotiation, and consolidated some duplicate code.
-}
-{
-{   Rev 1.6    3/27/2003 05:46:44 AM  JPMugaas
-{ Updated framework with an event if the TLS negotiation command fails.
-{ Cleaned up some duplicate code in the clients.
-}
-{
-{   Rev 1.5    3/19/2003 02:42:18 AM  JPMugaas
-{ Added more strings for the SMTP server.
-}
-{
-{   Rev 1.4    3/17/2003 02:28:32 PM  JPMugaas
-{ Updated with some TLS strings.
-}
-{
-{   Rev 1.3    3/9/2003 02:11:48 PM  JPMugaas
-{ Removed server support for MODE B and MODE C.  It turns out that we do not
-{ support those modes properly.  We only implemented Stream mode.  We now
-{ simply return a 504 for modes we don't support instead of a 200 okay.  This
-{ was throwing off Opera 7.02.
-}
-{
-{   Rev 1.2    2/24/2003 07:55:16 PM  JPMugaas
-{ Added /bin/ls strings to make the server look mroe like Unix.
-}
-{
-{   Rev 1.1    2/16/2003 10:51:00 AM  JPMugaas
-{ Attempt to implement:
-{
-{ http://www.ietf.org/internet-drafts/draft-ietf-ftpext-data-connection-assuranc
-{ e-00.txt
-{
-{ Currently commented out because it does not work.
-}
-{
-{   Rev 1.0    11/13/2002 07:59:36 AM  JPMugaas
-}
+
 unit IdResourceStringsProtocols;
 
 interface
 
 resourcestring
-
   // General
- 
   RSIOHandlerPropInvalid = 'IOHandler value is not valid';
 
   //FSP
@@ -550,11 +512,11 @@ resourcestring
   RSNTTPArticleRetrievedRequestTextSeparately = ' article retrieved - request text separately';
   RSNTTPNotInNewsgroup = 'Not currently in newsgroup';
   RSNNTPExtSupported = 'Extensions supported:';
-  
+
   //IdNNTPServer reply messages
   RSNTTPReplyHelpTextFollows = 'help text follows';
    RSNTTPReplyDebugOutput =  'debug output';
-   
+
   RSNNTPReplySvrReadyPostingAllowed =  'server ready - posting allowed';
   RSNNTPReplySvrReadyNoPostingAllowed =  'server ready - no posting allowed';
   RSNNTPReplySlaveStatus =  'slave status noted';

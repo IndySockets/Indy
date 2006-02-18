@@ -16,123 +16,98 @@
   $Log$
 }
 {
-    Rev 1.26    3/23/2005 3:01:56 PM  DSiders
+  Rev 1.26    3/23/2005 3:01:56 PM  DSiders
   Modified TIdReplyIMAP4.Destroy to call inherited destructor.
-}
-{
-{   Rev 1.25    20/01/2005 11:02:00  CCostelloe
-{ Now compiles, also updated to suit change in IdReply
-}
-{
-{   Rev 1.24    1/19/05 5:21:52 PM  RLebeau
-{ added Destructor to free the FExtra object
-{ 
-{ Removed label from SetFormattedReply()
-}
-{
-{   Rev 1.23    10/26/2004 10:39:54 PM  JPMugaas
-{ Updated refs.
-}
-{
-    Rev 1.22    6/11/2004 9:38:30 AM  DSiders
-  Added "Do not Localize" comments.
-}
-{
-{   Rev 1.21    5/17/04 9:53:00 AM  RLebeau
-{ Changed TIdRepliesIMAP4 constructor to use 'reintroduce' instead
-}
-{
-{   Rev 1.20    5/16/04 5:31:24 PM  RLebeau
-{ Added constructor to TIdRepliesIMAP4 class
-}
-{
-{   Rev 1.19    03/03/2004 01:16:56  CCostelloe
-{ Yet another check-in as part of continuing development
-}
-{
-{   Rev 1.18    26/02/2004 02:02:22  CCostelloe
-{ A few updates to support IdIMAP4Server development
-}
-{
-{   Rev 1.17    05/02/2004 00:26:06  CCostelloe
-{ Changes to support TIdIMAP4Server
-}
-{
-{   Rev 1.16    2/3/2004 4:12:34 PM  JPMugaas
-{ Fixed up units so they should compile.
-}
-{
-{   Rev 1.15    2004.01.29 12:07:52 AM  czhower
-{ .Net constructor problem fix.
-}
-{
-{   Rev 1.14    1/3/2004 8:05:48 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.13    22/12/2003 00:45:40  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.12    03/12/2003 09:48:34  CCostelloe
-{ IsItANumber and IsItAValidSequenceNumber made public for use by TIdIMAP4.
-}
-{
-{   Rev 1.11    28/11/2003 21:02:46  CCostelloe
-{ Fixes for Courier IMAP
-}
-{
-{   Rev 1.10    22/10/2003 12:18:06  CCostelloe
-{ Split out DoesLineHaveExpectedResponse for use by other functions in IdIMAP4.
-}
-{
-    Rev 1.9    10/19/2003 5:57:12 PM  DSiders
-  Added localization comments.
-}
-{
-{   Rev 1.8    18/10/2003 22:33:00  CCostelloe
-{ RemoveUnsolicitedResponses added.
-}
-{
-{   Rev 1.7    20/09/2003 19:36:42  CCostelloe
-{ Multiple changes to clear up older issues
-}
-{
-{   Rev 1.6    2003.09.20 10:38:40 AM  czhower
-{ Bug fix to allow clearing code field (Return to default value)
-}
-{
-{   Rev 1.5    18/06/2003 21:57:00  CCostelloe
-{ Rewrote SetFormattedReply.  Compiles and works.  Needs tidying up, as does
-{ IdIMAP4.
-}
-{
-{   Rev 1.4    17/06/2003 01:38:12  CCostelloe
-{ Updated to suit LoginSASL changes.  Compiles OK.
-}
-{
-{   Rev 1.3    15/06/2003 08:41:48  CCostelloe
-{ Bug fix: i was undefined in SetFormattedReply in posted version, changed to LN
-}
-{
-{   Rev 1.2    12/06/2003 10:26:14  CCostelloe
-{ Unfinished but compiles.  Checked in to show problem with Get/SetNumericCode.
-}
-{
-{   Rev 1.1    6/5/2003 04:54:26 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.0    5/27/2003 03:03:54 AM  JPMugaas
-}
-unit IdReplyIMAP4;
 
-{
+  Rev 1.25    20/01/2005 11:02:00  CCostelloe
+  Now compiles, also updated to suit change in IdReply
+
+  Rev 1.24    1/19/05 5:21:52 PM  RLebeau
+  added Destructor to free the FExtra object
+
+  Removed label from SetFormattedReply()
+
+  Rev 1.23    10/26/2004 10:39:54 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.22    6/11/2004 9:38:30 AM  DSiders
+  Added "Do not Localize" comments.
+
+  Rev 1.21    5/17/04 9:53:00 AM  RLebeau
+  Changed TIdRepliesIMAP4 constructor to use 'reintroduce' instead
+
+  Rev 1.20    5/16/04 5:31:24 PM  RLebeau
+  Added constructor to TIdRepliesIMAP4 class
+
+  Rev 1.19    03/03/2004 01:16:56  CCostelloe
+  Yet another check-in as part of continuing development
+
+  Rev 1.18    26/02/2004 02:02:22  CCostelloe
+  A few updates to support IdIMAP4Server development
+
+  Rev 1.17    05/02/2004 00:26:06  CCostelloe
+  Changes to support TIdIMAP4Server
+
+  Rev 1.16    2/3/2004 4:12:34 PM  JPMugaas
+  Fixed up units so they should compile.
+
+  Rev 1.15    2004.01.29 12:07:52 AM  czhower
+  .Net constructor problem fix.
+
+  Rev 1.14    1/3/2004 8:05:48 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.13    22/12/2003 00:45:40  CCostelloe
+  .NET fixes
+
+  Rev 1.12    03/12/2003 09:48:34  CCostelloe
+  IsItANumber and IsItAValidSequenceNumber made public for use by TIdIMAP4.
+
+  Rev 1.11    28/11/2003 21:02:46  CCostelloe
+  Fixes for Courier IMAP
+
+  Rev 1.10    22/10/2003 12:18:06  CCostelloe
+  Split out DoesLineHaveExpectedResponse for use by other functions in IdIMAP4.
+
+  Rev 1.9    10/19/2003 5:57:12 PM  DSiders
+  Added localization comments.
+
+  Rev 1.8    18/10/2003 22:33:00  CCostelloe
+  RemoveUnsolicitedResponses added.
+
+  Rev 1.7    20/09/2003 19:36:42  CCostelloe
+  Multiple changes to clear up older issues
+
+  Rev 1.6    2003.09.20 10:38:40 AM  czhower
+  Bug fix to allow clearing code field (Return to default value)
+
+  Rev 1.5    18/06/2003 21:57:00  CCostelloe
+  Rewrote SetFormattedReply.  Compiles and works.  Needs tidying up, as does
+  IdIMAP4.
+
+  Rev 1.4    17/06/2003 01:38:12  CCostelloe
+  Updated to suit LoginSASL changes.  Compiles OK.
+
+  Rev 1.3    15/06/2003 08:41:48  CCostelloe
+  Bug fix: i was undefined in SetFormattedReply in posted version, changed to LN
+
+  Rev 1.2    12/06/2003 10:26:14  CCostelloe
+  Unfinished but compiles.  Checked in to show problem with Get/SetNumericCode.
+
+  Rev 1.1    6/5/2003 04:54:26 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.0    5/27/2003 03:03:54 AM  JPMugaas
+
   2003-Sep-26: CC2: Added Extra property.
+
   2003-Oct-18: CC3: Added RemoveUnsolicitedResponses function.
+
   2003-Nov-28: CC4: Fixes for Courier IMAP server.
 }
+
+unit IdReplyIMAP4;
 
 interface
 

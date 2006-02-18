@@ -16,29 +16,31 @@
   $Log$
 }
 {
-{   Rev 1.2    1/21/2004 3:27:22 PM  JPMugaas
-{ InitComponent
+  Rev 1.2    1/21/2004 3:27:22 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    1/31/2003 02:32:14 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.0    11/13/2002 08:00:02 AM  JPMugaas
 }
-{
-{   Rev 1.1    1/31/2003 02:32:14 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.0    11/13/2002 08:00:02 AM  JPMugaas
-}
+
 unit IdRSHServer;
 
-{based on
- http://www.private.org.il/mini-tcpip.faq.html}
-{ 2001, Feb  17 - J. Peter Mugaas
+{
+  based on
+  http://www.private.org.il/mini-tcpip.faq.html
+
+  2001, Feb  17 - J. Peter Mugaas
     based this unit on the simplied IdRexec unit with extremely
     minor modifications (the parameters for our event had to be modified
     to better represent what they are in this protocol.  The only difference
-    between this protocol and Rexec is that the server handles authoriation differently
-    and the port is different.  In RSH, authentication is usually done by refusing connections
-    from ports which are NOT reserved, and from .rhosts files in Unix.
+    between this protocol and Rexec is that the server handles authoriation
+    differently and the port is different.  In RSH, authentication is usually
+    done by refusing connections from ports which are NOT reserved, and from
+    .rhosts files in Unix.
 
-WARNING:
+  WARNING:
     RSH should ONLY be considered for computer systems behind a firewall as there
     are no passwords and it is easy to falsify user names (you even have to evesdrop
     on network traffic to do it. Even then, you should consider other protocols.
@@ -50,14 +52,16 @@ WARNING:
     The only reason we provide this component is to complement the RSH client
     and it does have one merit (CVS is partly based on it).  I personally have
     agonized over writing this component at all due to these risks.
-
 }
+
 interface
 
 uses
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;
 
-Const RSH_FORCEPORTSINRANGE = True;
+const
+  RSH_FORCEPORTSINRANGE = True;
+
 type
   TIdRSHCommandEvent = procedure (AThread: TIdContext;
    AStdError : TIdTCPClient; AClientUserName, AHostUserName, ACommand : String) of object;
