@@ -16,20 +16,18 @@
   $Log$
 }
 {
-{   Rev 1.0    2004.02.03 3:14:52 PM  czhower
-{ Move and updates
-}
-{
-    Rev 1.2    10/15/2003 9:43:20 PM  DSiders
+  Rev 1.0    2004.02.03 3:14:52 PM  czhower
+  Move and updates
+
+  Rev 1.2    10/15/2003 9:43:20 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    1-10-2003 19:44:28  BGooijen
+  fixed leak in CloseLibrary()
+
+  Rev 1.0    11/13/2002 09:03:24 AM  JPMugaas
 }
-{
-{   Rev 1.1    1-10-2003 19:44:28  BGooijen
-{ fixed leak in CloseLibrary()
-}
-{
-{   Rev 1.0    11/13/2002 09:03:24 AM  JPMugaas
-}
+
 unit IdWship6;
 
 interface

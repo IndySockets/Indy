@@ -19,6 +19,7 @@
 unit IdStreamVCL;
 
 interface
+
 {$I IdCompilerDefines.inc}
 
 uses
