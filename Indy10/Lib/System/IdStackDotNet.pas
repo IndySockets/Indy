@@ -16,181 +16,141 @@
   $Log$
 }
 {
-{   Rev 1.8    10/26/2004 8:12:30 PM  JPMugaas
-{ Now uses TIdStrings and TIdStringList for portability.
-}
-{
-    Rev 1.7    6/11/2004 8:28:56 AM  DSiders
+  Rev 1.8    10/26/2004 8:12:30 PM  JPMugaas
+  Now uses TIdStrings and TIdStringList for portability.
+
+  Rev 1.7    6/11/2004 8:28:56 AM  DSiders
   Added "Do not Localize" comments.
+
+  Rev 1.6    5/14/2004 12:14:50 PM  BGooijen
+  Fix for weird dotnet bug when querying the local binding
+
+  Rev 1.5    4/18/04 2:45:54 PM  RLebeau
+  Conversion support for Int64 values
+
+  Rev 1.4    2004.03.07 11:45:26 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.3    3/6/2004 5:16:30 PM  JPMugaas
+  Bug 67 fixes.  Do not write to const values.
+
+  Rev 1.2    2/10/2004 7:33:26 PM  JPMugaas
+  I had to move the wrapper exception here for DotNET stack because Borland's
+  update 1 does not permit unlisted units from being put into a package.  That
+  now would report an error and I didn't want to move IdExceptionCore into the
+  System package.
+
+  Rev 1.1    2/4/2004 8:48:30 AM  JPMugaas
+  Should compile.
+
+  Rev 1.0    2004.02.03 3:14:46 PM  czhower
+  Move and updates
+
+  Rev 1.32    2/1/2004 6:10:54 PM  JPMugaas
+  GetSockOpt.
+
+  Rev 1.31    2/1/2004 3:28:32 AM  JPMugaas
+  Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
+  that will work the same in the DotNET as elsewhere.  This is required to
+  reenable IPWatch.
+
+  Rev 1.30    1/31/2004 1:12:54 PM  JPMugaas
+  Minor stack changes required as DotNET does support getting all IP addresses
+  just like the other stacks.
+
+  Rev 1.29    2004.01.22 2:46:52 PM  czhower
+  Warning fixed.
+
+  Rev 1.28    12/4/2003 3:14:54 PM  BGooijen
+  Added HostByAddress
+
+  Rev 1.27    1/3/2004 12:22:14 AM  BGooijen
+  Added function SupportsIPv6
+
+  Rev 1.26    1/2/2004 4:24:08 PM  BGooijen
+  This time both IPv4 and IPv6 work
+
+  Rev 1.25    02/01/2004 15:58:00  HHariri
+  fix for bind
+
+  Rev 1.24    12/31/2003 9:52:00 PM  BGooijen
+  Added IPv6 support
+
+  Rev 1.23    10/28/2003 10:12:36 PM  BGooijen
+  DotNet
+
+  Rev 1.22    10/26/2003 10:31:16 PM  BGooijen
+  oops, checked in debug version <g>, this is the right one
+
+  Rev 1.21    10/26/2003 5:04:26 PM  BGooijen
+  UDP Server and Client
+
+  Rev 1.20    10/21/2003 11:03:50 PM  BGooijen
+  More SendTo, ReceiveFrom
+
+  Rev 1.19    10/21/2003 9:24:32 PM  BGooijen
+  Started on SendTo, ReceiveFrom
+
+  Rev 1.18    10/19/2003 5:21:30 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.17    10/11/2003 4:16:40 PM  BGooijen
+  Compiles again
+
+  Rev 1.16    10/5/2003 9:55:28 PM  BGooijen
+  TIdTCPServer works on D7 and DotNet now
+
+  Rev 1.15    10/5/2003 3:10:42 PM  BGooijen
+  forgot to clone the Sockets list in some Select methods, + added Listen and
+  Accept
+
+  Rev 1.14    10/5/2003 1:52:14 AM  BGooijen
+  Added typecasts with network ordering calls, there are required for some
+  reason
+
+  Rev 1.13    10/4/2003 10:39:38 PM  BGooijen
+  Renamed WSXXX functions in implementation section too
+
+  Rev 1.12    04/10/2003 22:32:00  HHariri
+  moving of WSNXXX method to IdStack and renaming of the DotNet ones
+
+  Rev 1.11    04/10/2003 21:28:42  HHariri
+  Netowkr ordering functions
+
+  Rev 1.10    10/3/2003 11:02:02 PM  BGooijen
+  fixed calls to Socket.Select
+
+  Rev 1.9    10/3/2003 11:39:38 PM  GGrieve
+  more work
+
+  Rev 1.8    10/3/2003 12:09:32 AM  BGooijen
+  DotNet
+
+  Rev 1.7    10/2/2003 8:23:52 PM  BGooijen
+  .net
+
+  Rev 1.6    10/2/2003 8:08:52 PM  BGooijen
+  .Connect works not in .net
+
+  Rev 1.5    10/2/2003 7:31:20 PM  BGooijen
+  .net
+
+  Rev 1.4    10/2/2003 6:12:36 PM  GGrieve
+  work in progress (hardly started)
+
+  Rev 1.3    2003.10.01 9:11:24 PM  czhower
+  .Net
+
+  Rev 1.2    2003.10.01 5:05:18 PM  czhower
+  .Net
+
+  Rev 1.1    2003.10.01 1:12:40 AM  czhower
+  .Net
+
+  Rev 1.0    2003.09.30 10:35:40 AM  czhower
+  Initial Checkin
 }
-{
-{   Rev 1.6    5/14/2004 12:14:50 PM  BGooijen
-{ Fix for weird dotnet bug when querying the local binding
-}
-{
-{   Rev 1.5    4/18/04 2:45:54 PM  RLebeau
-{ Conversion support for Int64 values
-}
-{
-{   Rev 1.4    2004.03.07 11:45:26 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.3    3/6/2004 5:16:30 PM  JPMugaas
-{ Bug 67 fixes.  Do not write to const values.
-}
-{
-{   Rev 1.2    2/10/2004 7:33:26 PM  JPMugaas
-{ I had to move the wrapper exception here for DotNET stack because Borland's
-{ update 1 does not permit unlisted units from being put into a package.  That
-{ now would report an error and I didn't want to move IdExceptionCore into the
-{ System package.
-}
-{
-{   Rev 1.1    2/4/2004 8:48:30 AM  JPMugaas
-{ Should compile.
-}
-{
-{   Rev 1.0    2004.02.03 3:14:46 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.32    2/1/2004 6:10:54 PM  JPMugaas
-{ GetSockOpt.
-}
-{
-{   Rev 1.31    2/1/2004 3:28:32 AM  JPMugaas
-{ Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
-{ that will work the same in the DotNET as elsewhere.  This is required to
-{ reenable IPWatch.
-}
-{
-{   Rev 1.30    1/31/2004 1:12:54 PM  JPMugaas
-{ Minor stack changes required as DotNET does support getting all IP addresses
-{ just like the other stacks.
-}
-{
-{   Rev 1.29    2004.01.22 2:46:52 PM  czhower
-{ Warning fixed.
-}
-{
-{   Rev 1.28    12/4/2003 3:14:54 PM  BGooijen
-{ Added HostByAddress
-}
-{
-{   Rev 1.27    1/3/2004 12:22:14 AM  BGooijen
-{ Added function SupportsIPv6
-}
-{
-{   Rev 1.26    1/2/2004 4:24:08 PM  BGooijen
-{ This time both IPv4 and IPv6 work
-}
-{
-{   Rev 1.25    02/01/2004 15:58:00  HHariri
-{ fix for bind
-}
-{
-{   Rev 1.24    12/31/2003 9:52:00 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.23    10/28/2003 10:12:36 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.22    10/26/2003 10:31:16 PM  BGooijen
-{ oops, checked in debug version <g>, this is the right one
-}
-{
-{   Rev 1.21    10/26/2003 5:04:26 PM  BGooijen
-{ UDP Server and Client
-}
-{
-{   Rev 1.20    10/21/2003 11:03:50 PM  BGooijen
-{ More SendTo, ReceiveFrom
-}
-{
-{   Rev 1.19    10/21/2003 9:24:32 PM  BGooijen
-{ Started on SendTo, ReceiveFrom
-}
-{
-{   Rev 1.18    10/19/2003 5:21:30 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.17    10/11/2003 4:16:40 PM  BGooijen
-{ Compiles again
-}
-{
-{   Rev 1.16    10/5/2003 9:55:28 PM  BGooijen
-{ TIdTCPServer works on D7 and DotNet now
-}
-{
-{   Rev 1.15    10/5/2003 3:10:42 PM  BGooijen
-{ forgot to clone the Sockets list in some Select methods, + added Listen and
-{ Accept
-}
-{
-{   Rev 1.14    10/5/2003 1:52:14 AM  BGooijen
-{ Added typecasts with network ordering calls, there are required for some
-{ reason
-}
-{
-{   Rev 1.13    10/4/2003 10:39:38 PM  BGooijen
-{ Renamed WSXXX functions in implementation section too
-}
-{
-{   Rev 1.12    04/10/2003 22:32:00  HHariri
-{ moving of WSNXXX method to IdStack and renaming of the DotNet ones
-}
-{
-{   Rev 1.11    04/10/2003 21:28:42  HHariri
-{ Netowkr ordering functions
-}
-{
-{   Rev 1.10    10/3/2003 11:02:02 PM  BGooijen
-{ fixed calls to Socket.Select
-}
-{
-{   Rev 1.9    10/3/2003 11:39:38 PM  GGrieve
-{ more work
-}
-{
-{   Rev 1.8    10/3/2003 12:09:32 AM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.7    10/2/2003 8:23:52 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.6    10/2/2003 8:08:52 PM  BGooijen
-{ .Connect works not in .net
-}
-{
-{   Rev 1.5    10/2/2003 7:31:20 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.4    10/2/2003 6:12:36 PM  GGrieve
-{ work in progress (hardly started)
-}
-{
-{   Rev 1.3    2003.10.01 9:11:24 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.2    2003.10.01 5:05:18 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.1    2003.10.01 1:12:40 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.0    2003.09.30 10:35:40 AM  czhower
-{ Initial Checkin
-}
+
 unit IdStackDotNet;
 
 interface

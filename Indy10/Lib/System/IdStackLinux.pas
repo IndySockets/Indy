@@ -16,55 +16,45 @@
   $Log$
 }
 {
-{   Rev 1.7    10/26/2004 8:20:04 PM  JPMugaas
-{ Fixed some oversights with conversion.  OOPS!!!
+  Rev 1.7    10/26/2004 8:20:04 PM  JPMugaas
+  Fixed some oversights with conversion.  OOPS!!!
+
+  Rev 1.6    10/26/2004 8:12:32 PM  JPMugaas
+  Now uses TIdStrings and TIdStringList for portability.
+
+  Rev 1.5    12/06/2004 15:17:20  CCostelloe
+  Restructured to correspond with IdStackWindows, now works.
+
+  Rev 1.4    07/06/2004 21:31:02  CCostelloe
+  Kylix 3 changes
+
+  Rev 1.3    4/18/04 10:43:22 PM  RLebeau
+  Fixed syntax error
+
+  Rev 1.2    4/18/04 10:29:46 PM  RLebeau
+  Renamed Int64Parts structure to TIdInt64Parts
+
+  Rev 1.1    4/18/04 2:47:28 PM  RLebeau
+  Conversion support for Int64 values
+
+  Removed WSHToNs(), WSNToHs(), WSHToNL(), and WSNToHL() methods, obsolete
+
+  Rev 1.0    2004.02.03 3:14:48 PM  czhower
+  Move and updates
+
+  Rev 1.3    10/19/2003 5:35:14 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.2    2003.10.01 9:11:24 PM  czhower
+  .Net
+
+  Rev 1.1    7/5/2003 07:25:50 PM  JPMugaas
+  Added functions to the Linux stack which use the new TIdIPAddress record type
+  for IP address parameters.  I also fixed a compile bug.
+
+  Rev 1.0    11/13/2002 08:59:24 AM  JPMugaas
 }
-{
-{   Rev 1.6    10/26/2004 8:12:32 PM  JPMugaas
-{ Now uses TIdStrings and TIdStringList for portability.
-}
-{
-{   Rev 1.5    12/06/2004 15:17:20  CCostelloe
-{ Restructured to correspond with IdStackWindows, now works.
-}
-{
-{   Rev 1.4    07/06/2004 21:31:02  CCostelloe
-{ Kylix 3 changes
-}
-{
-{   Rev 1.3    4/18/04 10:43:22 PM  RLebeau
-{ Fixed syntax error
-}
-{
-{   Rev 1.2    4/18/04 10:29:46 PM  RLebeau
-{ Renamed Int64Parts structure to TIdInt64Parts
-}
-{
-{   Rev 1.1    4/18/04 2:47:28 PM  RLebeau
-{ Conversion support for Int64 values
-{ 
-{ Removed WSHToNs(), WSNToHs(), WSHToNL(), and WSNToHL() methods, obsolete
-}
-{
-{   Rev 1.0    2004.02.03 3:14:48 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.3    10/19/2003 5:35:14 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.2    2003.10.01 9:11:24 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.1    7/5/2003 07:25:50 PM  JPMugaas
-{ Added functions to the Linux stack which use the new TIdIPAddress record type
-{ for IP address parameters.  I also fixed a compile bug.
-}
-{
-{   Rev 1.0    11/13/2002 08:59:24 AM  JPMugaas
-}
+
 unit IdStackLinux;
 
 interface

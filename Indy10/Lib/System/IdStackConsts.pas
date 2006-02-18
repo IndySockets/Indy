@@ -16,78 +16,65 @@
   $Log$
 }
 {
-{   Rev 1.0    2004.02.07 12:25:16 PM  czhower
-{ Recheckin to fix case of filename
+  Rev 1.0    2004.02.07 12:25:16 PM  czhower
+  Recheckin to fix case of filename
+
+  Rev 1.1    2/7/2004 5:20:06 AM  JPMugaas
+  Added some constants that were pasted from other places.  DotNET uses the
+  standard Winsock 2 error consstants.  We don't want to link to IdWInsock or
+  Windows though because that causes other problems.
+
+  Rev 1.0    2004.02.03 3:14:44 PM  czhower
+  Move and updates
+
+  Rev 1.12    2003.12.28 6:53:46 PM  czhower
+  Added some consts.
+
+  Rev 1.11    10/28/2003 9:14:54 PM  BGooijen
+  .net
+
+  Rev 1.10    10/19/2003 10:46:18 PM  BGooijen
+  Added more consts
+
+  Rev 1.9    10/19/2003 9:15:28 PM  BGooijen
+  added some SocketOptionName consts for dotnet
+
+  Rev 1.8    10/19/2003 5:21:30 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.7    10/2/2003 7:31:18 PM  BGooijen
+  .net
+
+  Rev 1.6    2003.10.02 10:16:32 AM  czhower
+  .Net
+
+  Rev 1.5    2003.10.01 5:05:18 PM  czhower
+  .Net
+
+  Rev 1.4    2003.10.01 1:12:40 AM  czhower
+  .Net
+
+  Rev 1.3    2003.09.30 12:09:38 PM  czhower
+  DotNet changes.
+
+  Rev 1.2    9/29/2003 10:28:30 PM  BGooijen
+  Added constants for DotNet
+
+  Rev 1.1    12-14-2002 14:58:34  BGooijen
+  Added definition for Id_SOCK_RDM and Id_SOCK_SEQPACKET
+
+  Rev 1.0    11/13/2002 08:59:14 AM  JPMugaas
 }
-{
-{   Rev 1.1    2/7/2004 5:20:06 AM  JPMugaas
-{ Added some constants that were pasted from other places.  DotNET uses the
-{ standard Winsock 2 error consstants.  We don't want to link to IdWInsock or
-{ Windows though because that causes other problems.
-}
-{
-{   Rev 1.0    2004.02.03 3:14:44 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.12    2003.12.28 6:53:46 PM  czhower
-{ Added some consts.
-}
-{
-{   Rev 1.11    10/28/2003 9:14:54 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.10    10/19/2003 10:46:18 PM  BGooijen
-{ Added more consts
-}
-{
-{   Rev 1.9    10/19/2003 9:15:28 PM  BGooijen
-{ added some SocketOptionName consts for dotnet
-}
-{
-{   Rev 1.8    10/19/2003 5:21:30 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.7    10/2/2003 7:31:18 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.6    2003.10.02 10:16:32 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.5    2003.10.01 5:05:18 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.4    2003.10.01 1:12:40 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.3    2003.09.30 12:09:38 PM  czhower
-{ DotNet changes.
-}
-{
-{   Rev 1.2    9/29/2003 10:28:30 PM  BGooijen
-{ Added constants for DotNet
-}
-{
-{   Rev 1.1    12-14-2002 14:58:34  BGooijen
-{ Added definition for Id_SOCK_RDM and Id_SOCK_SEQPACKET
-}
-{
-{   Rev 1.0    11/13/2002 08:59:14 AM  JPMugaas
-}
+
 unit IdStackConsts;
 
 {$I IdCompilerDefines.inc}
 
 interface
 
-{This should be the only unit except OS Stack units that reference
-Winsock or lnxsock}
+{ This should be the only unit except OS Stack units that reference
+  Winsock or lnxsock }
+
 uses
  {$IFDEF LINUX}
   Libc;
@@ -96,7 +83,7 @@ uses
  IdWship6, //for some constants that supplement IdWinsock
   IdWinsock2;
  {$ENDIF}
- {$IFDEF DotNet}   
+ {$IFDEF DotNet}
   System.Net.Sockets;
  {$ENDIF}
 
@@ -152,7 +139,7 @@ const
     Id_IP_ADD_MEMBERSHIP = 12; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
     Id_IP_DROP_MEMBERSHIP = 13; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
   {$ENDIF}
-  
+
 
 (*
   There seems to be an error in the correct values of multicast values in IdWinsock

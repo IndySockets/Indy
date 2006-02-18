@@ -16,639 +16,497 @@
   $Log$
 }
 {
-{   Rev 1.54    2/9/2005 8:45:38 PM  JPMugaas
-{ Should work.
-}
-{
-{   Rev 1.53    2/8/05 6:37:38 PM  RLebeau
-{ Added default value to ASize parameter of ReadStringFromStream()
-}
-{
-{   Rev 1.52    2/8/05 5:57:10 PM  RLebeau
-{ added AppendString(), CopyTIdLongWord(), and CopyTIdString() functions
-}
-{
-{   Rev 1.51    1/31/05 6:01:40 PM  RLebeau
-{ Renamed GetCurrentThreadHandle() to CurrentThreadId() and changed the return
-{ type from THandle to to TIdPID.
-{
-{ Reworked conditionals for SetThreadName() and updated the implementation to
-{ support naming threads under DotNet.
-}
-{
-{   Rev 1.50    1/27/05 3:40:04 PM  RLebeau
-{ Updated BytesToShort() to actually use the AIndex parameter that was added
-{ earlier.
-}
-{
-{   Rev 1.49    1/24/2005 7:35:36 PM  JPMugaas
-{ Foxed ma,e om CopyTIdIPV6Address/
-}
-{
-{   Rev 1.48    1/17/2005 7:26:44 PM  JPMugaas
-{ Made an IPv6 address byte copy function.
-}
-{
-{   Rev 1.47    1/15/2005 6:01:38 PM  JPMugaas
-{ Removed some new procedures for extracting  int values from a TIdBytes and
-{ made some other procedures have an optional index paramter.
-}
-{
-{   Rev 1.46    1/13/05 11:11:20 AM  RLebeau
-{ Changed BytesToRaw() to pass TIdBytes by 'const' rather than by 'var'
-}
-{
-{   Rev 1.45    1/8/2005 3:56:58 PM  JPMugaas
-{ Added routiens for copying integer values to and from TIdBytes.  These are
-{ useful for some protocols.
-}
-{
-{   Rev 1.44    24/11/2004 16:26:24  ANeillans
-{ GetTickCount corrected, as per Paul Cooper's post in
-{ atozedsoftware.indy.general.
-}
-{
-{   Rev 1.43    11/13/04 10:47:28 PM  RLebeau
-{ Fixed compiler errors
-}
-{
-{   Rev 1.42    11/12/04 1:02:42 PM  RLebeau
-{ Added RawToBytesF() and BytesToRaw() functions
-{ 
-{ Added asserts to BytesTo...() functions
-}
-{
-{   Rev 1.41    10/26/2004 8:20:02 PM  JPMugaas
-{ Fixed some oversights with conversion.  OOPS!!!
-}
-{
-{   Rev 1.40    10/26/2004 8:00:54 PM  JPMugaas
-{ Now uses TIdStrings for DotNET portability.
-}
-{
-{   Rev 1.39    2004.10.26 7:35:16 PM  czhower
-{ Moved IndyCat to CType in IdBaseComponent
-}
-{
-{   Rev 1.38    24/10/2004 21:29:52  ANeillans
-{ Corrected error in GetTickCount,
-{ was Result := Trunc(nTime / (Freq * 1000))
-{ should be Result := Trunc((nTime / Freq) * 1000)
-}
-{
-{   Rev 1.37    20/10/2004 01:08:20  CCostelloe
-{ Bug fix
-}
-{
-{   Rev 1.36    28.09.2004 20:36:58  Andreas Hausladen
-{ Works now with Delphi 5
-}
-{
-    Rev 1.35    9/23/2004 11:36:04 PM  DSiders
+  Rev 1.54    2/9/2005 8:45:38 PM  JPMugaas
+  Should work.
+
+  Rev 1.53    2/8/05 6:37:38 PM  RLebeau
+  Added default value to ASize parameter of ReadStringFromStream()
+
+  Rev 1.52    2/8/05 5:57:10 PM  RLebeau
+  added AppendString(), CopyTIdLongWord(), and CopyTIdString() functions
+
+  Rev 1.51    1/31/05 6:01:40 PM  RLebeau
+  Renamed GetCurrentThreadHandle() to CurrentThreadId() and changed the return
+  type from THandle to to TIdPID.
+
+  Reworked conditionals for SetThreadName() and updated the implementation to
+  support naming threads under DotNet.
+
+  Rev 1.50    1/27/05 3:40:04 PM  RLebeau
+  Updated BytesToShort() to actually use the AIndex parameter that was added
+  earlier.
+
+  Rev 1.49    1/24/2005 7:35:36 PM  JPMugaas
+  Foxed ma,e om CopyTIdIPV6Address/
+
+  Rev 1.48    1/17/2005 7:26:44 PM  JPMugaas
+  Made an IPv6 address byte copy function.
+
+  Rev 1.47    1/15/2005 6:01:38 PM  JPMugaas
+  Removed some new procedures for extracting  int values from a TIdBytes and
+  made some other procedures have an optional index paramter.
+
+  Rev 1.46    1/13/05 11:11:20 AM  RLebeau
+  Changed BytesToRaw() to pass TIdBytes by 'const' rather than by 'var'
+
+  Rev 1.45    1/8/2005 3:56:58 PM  JPMugaas
+  Added routiens for copying integer values to and from TIdBytes.  These are
+  useful for some protocols.
+
+  Rev 1.44    24/11/2004 16:26:24  ANeillans
+  GetTickCount corrected, as per Paul Cooper's post in
+  atozedsoftware.indy.general.
+
+  Rev 1.43    11/13/04 10:47:28 PM  RLebeau
+  Fixed compiler errors
+
+  Rev 1.42    11/12/04 1:02:42 PM  RLebeau
+  Added RawToBytesF() and BytesToRaw() functions
+
+  Added asserts to BytesTo...() functions
+
+  Rev 1.41    10/26/2004 8:20:02 PM  JPMugaas
+  Fixed some oversights with conversion.  OOPS!!!
+
+  Rev 1.40    10/26/2004 8:00:54 PM  JPMugaas
+  Now uses TIdStrings for DotNET portability.
+
+  Rev 1.39    2004.10.26 7:35:16 PM  czhower
+  Moved IndyCat to CType in IdBaseComponent
+
+  Rev 1.38    24/10/2004 21:29:52  ANeillans
+  Corrected error in GetTickCount,
+  was Result := Trunc(nTime / (Freq * 1000))
+  should be Result := Trunc((nTime / Freq) * 1000)
+
+  Rev 1.37    20/10/2004 01:08:20  CCostelloe
+  Bug fix
+
+  Rev 1.36    28.09.2004 20:36:58  Andreas Hausladen
+  Works now with Delphi 5
+
+  Rev 1.35    9/23/2004 11:36:04 PM  DSiders
   Modified Ticks function (Win32) to correct RangeOverflow error.  (Reported by
   Mike Potter)
-}
-{
-{   Rev 1.34    24.09.2004 02:16:04  Andreas Hausladen
-{ Added ReadTIdBytesFromStream and ReadCharFromStream function to supress .NET
-{ warnings.
-}
-{
-{   Rev 1.33    9/5/2004 2:55:00 AM  JPMugaas
-{ function BytesToWord(const AValue: TIdBytes): Word; was not listed in the
-{ interface.
-}
-{
-{   Rev 1.32    04.09.2004 17:12:56  Andreas Hausladen
-{ New PosIdx function (without pointers)
-}
-{
-{   Rev 1.31    27.08.2004 22:02:20  Andreas Hausladen
-{ Speed optimization ("const" for string parameters)
-{ rewritten PosIdx function with AStartPos = 0 handling
-{ new ToArrayF() functions (faster in native code because the TIdBytes array
-{ must have the required len before the ToArrayF function is called)
-}
-{
-{   Rev 1.30    24.08.2004 19:48:28  Andreas Hausladen
-{ Some optimizations
-{ Removed IFDEF for IdDelete and IdInsert
-}
-{
-{   Rev 1.29    8/17/2004 2:54:08 PM  JPMugaas
-{ Fix compiler warning about widening operends.  Int64 can sometimes incur a
-{ performance penalty.
-}
-{
-{   Rev 1.28    8/15/04 5:57:06 PM  RLebeau
-{ Tweaks to PosIdx()
-}
-{
-{   Rev 1.27    7/23/04 10:13:16 PM  RLebeau
-{ Updated ReadStringFromStream() to resize the result using the actual number
-{ of bytes read from the stream
-}
-{
-    Rev 1.26    7/18/2004 2:45:38 PM  DSiders
+
+  Rev 1.34    24.09.2004 02:16:04  Andreas Hausladen
+  Added ReadTIdBytesFromStream and ReadCharFromStream function to supress .NET
+  warnings.
+
+  Rev 1.33    9/5/2004 2:55:00 AM  JPMugaas
+  function BytesToWord(const AValue: TIdBytes): Word; was not listed in the
+  interface.
+
+  Rev 1.32    04.09.2004 17:12:56  Andreas Hausladen
+  New PosIdx function (without pointers)
+
+  Rev 1.31    27.08.2004 22:02:20  Andreas Hausladen
+  Speed optimization ("const" for string parameters)
+  rewritten PosIdx function with AStartPos = 0 handling
+  new ToArrayF() functions (faster in native code because the TIdBytes array
+  must have the required len before the ToArrayF function is called)
+
+  Rev 1.30    24.08.2004 19:48:28  Andreas Hausladen
+  Some optimizations
+  Removed IFDEF for IdDelete and IdInsert
+
+  Rev 1.29    8/17/2004 2:54:08 PM  JPMugaas
+  Fix compiler warning about widening operends.  Int64 can sometimes incur a
+  performance penalty.
+
+  Rev 1.28    8/15/04 5:57:06 PM  RLebeau
+  Tweaks to PosIdx()
+
+  Rev 1.27    7/23/04 10:13:16 PM  RLebeau
+  Updated ReadStringFromStream() to resize the result using the actual number
+  of bytes read from the stream
+
+  Rev 1.26    7/18/2004 2:45:38 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.25    7/9/04 4:25:20 PM  RLebeau
-{ Renamed ToBytes(raw) to RawToBytes() to fix an ambiquity error with
-{ ToBytes(TIdBytes)
-}
-{
-{   Rev 1.24    7/9/04 4:07:06 PM  RLebeau
-{ Compiler fix for TIdBaseStream.Write()
-}
-{
-{   Rev 1.23    09/07/2004 22:17:52  ANeillans
-{ Fixed IdGlobal.pas(761) Error: ';', ')' or '=' expected but ':=' found
-}
-{
-{   Rev 1.22    7/8/04 11:56:10 PM  RLebeau
-{ Added additional parameters to BytesToString()
-{
-{ Bug fix for ReadStringFromStream()
-{
-{ Updated TIdBaseStream.Write() to use ToBytes()
-}
-{
-{   Rev 1.21    7/8/04 4:22:36 PM  RLebeau
-{ Added ToBytes() overload for raw pointers under non-DotNet platfoms.
-}
-{
-{   Rev 1.20    2004.07.03 19:39:38  czhower
-{ UTF8
-}
-{
-{   Rev 1.19    6/15/2004 7:18:06 PM  JPMugaas
-{ IdInsert for stuff needing to call the Insert procedure.
-}
-{
-{   Rev 1.18    2004.06.13 8:06:46 PM  czhower
-{ .NET update
-}
-{
-    Rev 1.17    6/11/2004 8:28:30 AM  DSiders
+
+  Rev 1.25    7/9/04 4:25:20 PM  RLebeau
+  Renamed ToBytes(raw) to RawToBytes() to fix an ambiquity error with
+  ToBytes(TIdBytes)
+
+  Rev 1.24    7/9/04 4:07:06 PM  RLebeau
+  Compiler fix for TIdBaseStream.Write()
+
+  Rev 1.23    09/07/2004 22:17:52  ANeillans
+  Fixed IdGlobal.pas(761) Error: ';', ')' or '=' expected but ':=' found
+
+  Rev 1.22    7/8/04 11:56:10 PM  RLebeau
+  Added additional parameters to BytesToString()
+
+  Bug fix for ReadStringFromStream()
+
+  Updated TIdBaseStream.Write() to use ToBytes()
+
+  Rev 1.21    7/8/04 4:22:36 PM  RLebeau
+  Added ToBytes() overload for raw pointers under non-DotNet platfoms.
+
+  Rev 1.20    2004.07.03 19:39:38  czhower
+  UTF8
+
+  Rev 1.19    6/15/2004 7:18:06 PM  JPMugaas
+  IdInsert for stuff needing to call the Insert procedure.
+
+  Rev 1.18    2004.06.13 8:06:46 PM  czhower
+  .NET update
+
+  Rev 1.17    6/11/2004 8:28:30 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.16    2004.06.08 7:11:14 PM  czhower
-{ Typo fix.
-}
-{
-{   Rev 1.15    2004.06.08 6:34:48 PM  czhower
-{ .NET bug with Ticks workaround.
-}
-{
-{   Rev 1.14    07/06/2004 21:30:32  CCostelloe
-{ Kylix 3 changes
-}
-{
-{   Rev 1.13    5/3/04 12:17:44 PM  RLebeau
-{ Updated ToBytes(string) and BytesToString() under DotNet to use
-{ System.Text.Encoding.ASCII instead of AnsiEncoding
-}
-{
-{   Rev 1.12    4/24/04 12:41:36 PM  RLebeau
-{ Conversion support to/from TIdBytes for Char values
-}
-{
-{   Rev 1.11    4/18/04 2:45:14 PM  RLebeau
-{ Conversion support to/from TIdBytes for Int64 values
-}
-{
-{   Rev 1.10    2004.04.08 4:50:06 PM  czhower
-{ Comments
-}
-{
-{   Rev 1.9    2004.04.08 1:45:42 AM  czhower
-{ tiny string optimization
-}
-{
-{   Rev 1.8    4/7/2004 3:20:50 PM  JPMugaas
-{ PosIdx was not working in DotNET.  In DotNET, it was returning a Pos value
-{ without adding the startvalue -1.  It was throwing off the FTP list parsers.
-{
-{ Two uneeded IFDEF's were removed.
-}
-{
-{   Rev 1.7    2004.03.13 5:51:28 PM  czhower
-{ Fixed stack overflow in Sleep for .net
-}
-{
-{   Rev 1.6    3/6/2004 5:16:02 PM  JPMugaas
-{ Bug 67 fixes.  Do not write to const values.
-}
-{
-{   Rev 1.5    3/6/2004 4:54:12 PM  JPMugaas
-{ Write to const bug fix.
-}
-{
-{   Rev 1.4    2/17/2004 12:02:44 AM  JPMugaas
-{ A few routines that might be needed later for RFC 3490 support.
-}
-{
-{   Rev 1.3    2/16/2004 1:56:04 PM  JPMugaas
-{ Moved some routines here to lay the groundwork for RFC 3490 support.  Started
-{ work on RFC 3490 support.
-}
-{
-{   Rev 1.2    2/11/2004 5:12:30 AM  JPMugaas
-{ Moved IPv6 address definition here.
-{
-{ I also made a function for converting a TIdBytes to an IPv6 address.
-}
-{
-{   Rev 1.1    2004.02.03 3:15:52 PM  czhower
-{ Updates to move to System.
-}
-{
-{   Rev 1.0    2004.02.03 2:28:30 PM  czhower
-{ Move
-}
-{
-{   Rev 1.91    2/1/2004 11:16:04 PM  BGooijen
-{ ToBytes
-}
-{
-{   Rev 1.90    2/1/2004 1:28:46 AM  JPMugaas
-{ Disabled IdPort functionality in DotNET.  It can't work there in it's current
-{ form and trying to get it to work will introduce more problems than it
-{ solves.  It was only used by the bindings editor and we did something
-{ different in DotNET so IdPorts wouldn't used there.
-}
-{
-{   Rev 1.89    2004.01.31 1:51:10 AM  czhower
-{ IndyCast for VB.
-}
-{
-{   Rev 1.88    30/1/2004 4:47:46 PM  SGrobety
-{ Added "WriteMemoryStreamToStream" to take care of Win32/dotnet difference in
-{ the TMemoryStream.Memory type and the Write buffer parameter
-}
-{
-{   Rev 1.87    1/30/2004 11:59:24 AM  BGooijen
-{ Added WriteTIdBytesToStream, because we can convert almost everything to
-{ TIdBytes, and TIdBytes couldn't be written to streams easily
-}
-{
-{   Rev 1.86    2004.01.27 11:44:36 PM  czhower
-{ .Net Updates
-}
-{
-{   Rev 1.85    2004.01.27 8:15:54 PM  czhower
-{ Fixed compile error + .net helper.
-}
-{
-{   Rev 1.84    27/1/2004 1:55:10 PM  SGrobety
-{ TIdStringStream introduced to fix a bug in DOTNET TStringStream
-{ implementation.
-}
-{
-{   Rev 1.83    2004.01.27 1:42:00 AM  czhower
-{ Added parameter check
-}
-{
-{   Rev 1.82    25/01/2004 21:55:40  CCostelloe
-{ Added portable IdFromBeginning/FromCurrent/FromEnd, to be used instead of
-{ soFromBeginning/soBeginning, etc.
-}
-{
-{   Rev 1.81    24/01/2004 20:18:46  CCostelloe
-{ Added IndyCompareStr (to be used in place of AnsiCompareStr for .NET
-{ compatibility)
-}
-{
-{   Rev 1.80    2004.01.23 9:56:30 PM  czhower
-{ CharIsInSet now checks length and returns false if no character.
-}
-{
-{   Rev 1.79    2004.01.23 9:49:40 PM  czhower
-{ CharInSet no longer accepts -1, was unneeded and redundant.
-}
-{
-{   Rev 1.78    1/22/2004 5:47:46 PM  SPerry
-{ fixed CharIsInSet
-}
-{
-{   Rev 1.77    2004.01.22 5:33:46 PM  czhower
-{ TIdCriticalSection
-}
-{
-{   Rev 1.76    2004.01.22 3:23:18 PM  czhower
-{ IsCharInSet
-}
-{
-{   Rev 1.75    2004.01.22 2:00:14 PM  czhower
-{ iif change
-}
-{
-{   Rev 1.74    14/01/2004 00:17:34  CCostelloe
-{ Added IndyLowerCase/IndyUpperCase to replace AnsiLowerCase/AnsiUpperCase for
-{ .NET code
-}
-{
-{   Rev 1.73    1/11/2004 9:50:54 PM  BGooijen
-{ Added ToBytes function for Socks
-}
-{
-{   Rev 1.72    2003.12.31 7:32:40 PM  czhower
-{ InMainThread now for .net too.
-}
-{
-{   Rev 1.71    2003.12.29 6:48:38 PM  czhower
-{ TextIsSame
-}
-{
-{   Rev 1.70    2003.12.28 1:11:04 PM  czhower
-{ Conditional typo fixed.
-}
-{
-{   Rev 1.69    2003.12.28 1:05:48 PM  czhower
-{ .Net changes.
-}
-{
-{   Rev 1.68    5/12/2003 9:11:00 AM  GGrieve
-{ Add WriteStringToStream
-}
-{
-{   Rev 1.67    5/12/2003 12:32:48 AM  GGrieve
-{ fix DotNet warnings
-}
-{
-{   Rev 1.66    22/11/2003 12:03:02 AM  GGrieve
-{ fix IdMultiPathFormData.pas implementation
-}
-{
-{   Rev 1.65    11/15/2003 1:15:36 PM  VVassiliev
-{ Move AppendByte from IdDNSCommon to IdCoreGlobal
-}
-{
-{   Rev 1.64    10/28/2003 8:43:48 PM  BGooijen
-{ compiles, and removed call to setstring
-}
-{
-{   Rev 1.63    2003.10.24 10:44:50 AM  czhower
-{ IdStream implementation, bug fixes.
-}
-{
-{   Rev 1.62    10/18/2003 4:53:18 PM  BGooijen
-{ Added ToHex
-}
-{
-{   Rev 1.61    2003.10.17 6:17:24 PM  czhower
-{ Some parts moved to stream
-}
-{
-    Rev 1.60    10/15/2003 8:28:16 PM  DSiders
+
+  Rev 1.16    2004.06.08 7:11:14 PM  czhower
+  Typo fix.
+
+  Rev 1.15    2004.06.08 6:34:48 PM  czhower
+  .NET bug with Ticks workaround.
+
+  Rev 1.14    07/06/2004 21:30:32  CCostelloe
+  Kylix 3 changes
+
+  Rev 1.13    5/3/04 12:17:44 PM  RLebeau
+  Updated ToBytes(string) and BytesToString() under DotNet to use
+  System.Text.Encoding.ASCII instead of AnsiEncoding
+
+  Rev 1.12    4/24/04 12:41:36 PM  RLebeau
+  Conversion support to/from TIdBytes for Char values
+
+  Rev 1.11    4/18/04 2:45:14 PM  RLebeau
+  Conversion support to/from TIdBytes for Int64 values
+
+  Rev 1.10    2004.04.08 4:50:06 PM  czhower
+  Comments
+
+  Rev 1.9    2004.04.08 1:45:42 AM  czhower
+  tiny string optimization
+
+  Rev 1.8    4/7/2004 3:20:50 PM  JPMugaas
+  PosIdx was not working in DotNET.  In DotNET, it was returning a Pos value
+  without adding the startvalue -1.  It was throwing off the FTP list parsers.
+
+  Two uneeded IFDEF's were removed.
+
+  Rev 1.7    2004.03.13 5:51:28 PM  czhower
+  Fixed stack overflow in Sleep for .net
+
+  Rev 1.6    3/6/2004 5:16:02 PM  JPMugaas
+  Bug 67 fixes.  Do not write to const values.
+
+  Rev 1.5    3/6/2004 4:54:12 PM  JPMugaas
+  Write to const bug fix.
+
+  Rev 1.4    2/17/2004 12:02:44 AM  JPMugaas
+  A few routines that might be needed later for RFC 3490 support.
+
+  Rev 1.3    2/16/2004 1:56:04 PM  JPMugaas
+  Moved some routines here to lay the groundwork for RFC 3490 support.  Started
+  work on RFC 3490 support.
+
+  Rev 1.2    2/11/2004 5:12:30 AM  JPMugaas
+  Moved IPv6 address definition here.
+
+  I also made a function for converting a TIdBytes to an IPv6 address.
+
+  Rev 1.1    2004.02.03 3:15:52 PM  czhower
+  Updates to move to System.
+
+  Rev 1.0    2004.02.03 2:28:30 PM  czhower
+  Move
+
+  Rev 1.91    2/1/2004 11:16:04 PM  BGooijen
+  ToBytes
+
+  Rev 1.90    2/1/2004 1:28:46 AM  JPMugaas
+  Disabled IdPort functionality in DotNET.  It can't work there in it's current
+  form and trying to get it to work will introduce more problems than it
+  solves.  It was only used by the bindings editor and we did something
+  different in DotNET so IdPorts wouldn't used there.
+
+  Rev 1.89    2004.01.31 1:51:10 AM  czhower
+  IndyCast for VB.
+
+  Rev 1.88    30/1/2004 4:47:46 PM  SGrobety
+  Added "WriteMemoryStreamToStream" to take care of Win32/dotnet difference in
+  the TMemoryStream.Memory type and the Write buffer parameter
+
+  Rev 1.87    1/30/2004 11:59:24 AM  BGooijen
+  Added WriteTIdBytesToStream, because we can convert almost everything to
+  TIdBytes, and TIdBytes couldn't be written to streams easily
+
+  Rev 1.86    2004.01.27 11:44:36 PM  czhower
+  .Net Updates
+
+  Rev 1.85    2004.01.27 8:15:54 PM  czhower
+  Fixed compile error + .net helper.
+
+  Rev 1.84    27/1/2004 1:55:10 PM  SGrobety
+  TIdStringStream introduced to fix a bug in DOTNET TStringStream
+  implementation.
+
+  Rev 1.83    2004.01.27 1:42:00 AM  czhower
+  Added parameter check
+
+  Rev 1.82    25/01/2004 21:55:40  CCostelloe
+  Added portable IdFromBeginning/FromCurrent/FromEnd, to be used instead of
+  soFromBeginning/soBeginning, etc.
+
+  Rev 1.81    24/01/2004 20:18:46  CCostelloe
+  Added IndyCompareStr (to be used in place of AnsiCompareStr for .NET
+  compatibility)
+
+  Rev 1.80    2004.01.23 9:56:30 PM  czhower
+  CharIsInSet now checks length and returns false if no character.
+
+  Rev 1.79    2004.01.23 9:49:40 PM  czhower
+  CharInSet no longer accepts -1, was unneeded and redundant.
+
+  Rev 1.78    1/22/2004 5:47:46 PM  SPerry
+  fixed CharIsInSet
+
+  Rev 1.77    2004.01.22 5:33:46 PM  czhower
+  TIdCriticalSection
+
+  Rev 1.76    2004.01.22 3:23:18 PM  czhower
+  IsCharInSet
+
+  Rev 1.75    2004.01.22 2:00:14 PM  czhower
+  iif change
+
+  Rev 1.74    14/01/2004 00:17:34  CCostelloe
+  Added IndyLowerCase/IndyUpperCase to replace AnsiLowerCase/AnsiUpperCase for
+  .NET code
+
+  Rev 1.73    1/11/2004 9:50:54 PM  BGooijen
+  Added ToBytes function for Socks
+
+  Rev 1.72    2003.12.31 7:32:40 PM  czhower
+  InMainThread now for .net too.
+
+  Rev 1.71    2003.12.29 6:48:38 PM  czhower
+  TextIsSame
+
+  Rev 1.70    2003.12.28 1:11:04 PM  czhower
+  Conditional typo fixed.
+
+  Rev 1.69    2003.12.28 1:05:48 PM  czhower
+  .Net changes.
+
+  Rev 1.68    5/12/2003 9:11:00 AM  GGrieve
+  Add WriteStringToStream
+
+  Rev 1.67    5/12/2003 12:32:48 AM  GGrieve
+  fix DotNet warnings
+
+  Rev 1.66    22/11/2003 12:03:02 AM  GGrieve
+  fix IdMultiPathFormData.pas implementation
+
+  Rev 1.65    11/15/2003 1:15:36 PM  VVassiliev
+  Move AppendByte from IdDNSCommon to IdCoreGlobal
+
+  Rev 1.64    10/28/2003 8:43:48 PM  BGooijen
+  compiles, and removed call to setstring
+
+  Rev 1.63    2003.10.24 10:44:50 AM  czhower
+  IdStream implementation, bug fixes.
+
+  Rev 1.62    10/18/2003 4:53:18 PM  BGooijen
+  Added ToHex
+
+  Rev 1.61    2003.10.17 6:17:24 PM  czhower
+  Some parts moved to stream
+
+  Rev 1.60    10/15/2003 8:28:16 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.59    2003.10.14 9:27:12 PM  czhower
-{ Fixed compile erorr with missing )
-}
-{
-{   Rev 1.58    10/14/2003 3:31:04 PM  SPerry
-{ Modified ByteToHex() and IPv4ToHex
-}
-{
-{   Rev 1.57    10/13/2003 5:06:46 PM  BGooijen
-{ Removed local constant IdOctalDigits in favor of the unit constant. - attempt
-{ 2
-}
-{
-    Rev 1.56    10/13/2003 10:07:12 AM  DSiders
+
+  Rev 1.59    2003.10.14 9:27:12 PM  czhower
+  Fixed compile erorr with missing )
+
+  Rev 1.58    10/14/2003 3:31:04 PM  SPerry
+  Modified ByteToHex() and IPv4ToHex
+
+  Rev 1.57    10/13/2003 5:06:46 PM  BGooijen
+  Removed local constant IdOctalDigits in favor of the unit constant. - attempt
+  2
+
+  Rev 1.56    10/13/2003 10:07:12 AM  DSiders
   Reverted prior change; local constant for IdOctalDigits is restored.
-}
-{
-    Rev 1.55    10/12/2003 11:55:42 AM  DSiders
+
+  Rev 1.55    10/12/2003 11:55:42 AM  DSiders
   Removed local constant IdOctalDigits in favor of the unit constant.
-}
-{
-{   Rev 1.54    2003.10.11 5:47:22 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.53    10/8/2003 10:14:34 PM  GGrieve
-{ add WriteStringToStream
-}
-{
-{   Rev 1.52    10/8/2003 9:55:30 PM  GGrieve
-{ Add IdDelete
-}
-{
-{   Rev 1.51    10/7/2003 11:33:30 PM  GGrieve
-{ Fix ReadStringFromStream
-}
-{
-{   Rev 1.50    10/7/2003 10:07:30 PM  GGrieve
-{ Get IdHTTP compiling for DotNet
-}
-{
-{   Rev 1.49    6/10/2003 5:48:48 PM  SGrobety
-{ DotNet updates
-}
-{
-{   Rev 1.48    10/5/2003 12:26:46 PM  BGooijen
-{ changed parameter names at some places
-}
-{
-{   Rev 1.47    10/4/2003 7:08:26 PM  BGooijen
-{ added some conversion routines type->TIdBytes->type, and fixed existing ones
-}
-{
-{   Rev 1.46    10/4/2003 3:53:40 PM  BGooijen
-{ added some ToBytes functions
-}
-{
-{   Rev 1.45    04/10/2003 13:38:28  HHariri
-{ Write(Integer) support
-}
-{
-{   Rev 1.44    10/3/2003 10:44:54 PM  BGooijen
-{ Added WriteBytesToStream
-}
-{
-{   Rev 1.43    2003.10.02 8:29:14 PM  czhower
-{ Changed names of byte conversion routines to be more readily understood and
-{ not to conflict with already in use ones.
-}
-{
-{   Rev 1.42    10/2/2003 5:15:16 PM  BGooijen
-{ Added Grahame's functions
-}
-{
-{   Rev 1.41    10/1/2003 8:02:20 PM  BGooijen
-{ Removed some ifdefs and improved code
-}
-{
-{   Rev 1.40    2003.10.01 9:10:58 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.39    2003.10.01 2:46:36 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.38    2003.10.01 2:30:36 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.37    2003.10.01 12:30:02 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.35    2003.10.01 1:12:32 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.34    2003.09.30 7:37:14 PM  czhower
-{ Typo fix.
-}
-{
-{   Rev 1.33    30/9/2003 3:58:08 PM  SGrobety
-{ More .net updates
-}
-{
-{   Rev 1.31    2003.09.30 3:19:30 PM  czhower
-{ Updates for .net
-}
-{
-{   Rev 1.30    2003.09.30 1:22:54 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.29    2003.09.30 12:09:36 PM  czhower
-{ DotNet changes.
-}
-{
-{   Rev 1.28    2003.09.30 10:36:02 AM  czhower
-{ Moved stack creation to IdStack
-{ Added DotNet stack.
-}
-{
-{   Rev 1.27    9/29/2003 03:03:28 PM  JPMugaas
-{ Changed CIL to DOTNET.
-}
-{
-{   Rev 1.26    9/28/2003 04:22:00 PM  JPMugaas
-{ IFDEF'ed out MemoryPos in NET because that will not work there.
-}
-{
-{   Rev 1.25    9/26/03 11:20:50 AM  RLebeau
-{ Updated defines used with SetThreadName() to allow it to work under BCB6.
-}
-{
-{   Rev 1.24    9/24/2003 11:42:42 PM  JPMugaas
-{ Minor changes to help compile under NET
-}
-{
-{   Rev 1.23    2003.09.20 10:25:42 AM  czhower
-{ Added comment and chaned for D6 compat.
-}
-{
-{   Rev 1.22    9/18/2003 07:43:12 PM  JPMugaas
-{ Moved GetThreadHandle to IdGlobals so the ThreadComponent can be in this
-{ package.
-}
-{
-{   Rev 1.21    9/8/2003 11:44:38 AM  JPMugaas
-{ Fix for problem that was introduced in an optimization.
-}
-{
-{   Rev 1.20    2003.08.19 1:54:34 PM  czhower
-{ Removed warning
-}
-{
-{   Rev 1.19    11/8/2003 6:25:44 PM  SGrobety
-{ IPv4ToDWord: Added overflow checking disabling ($Q+) and changed "* 256"  by
-{ "SHL 8".
-}
-{
-{   Rev 1.18    2003.07.08 2:41:42 PM  czhower
-{ This time I saved the file before checking in.
-}
-{
-{   Rev 1.16    7/1/2003 03:39:38 PM  JPMugaas
-{ Started numeric IP function API calls for more efficiency.
-}
-{
-{   Rev 1.15    2003.07.01 3:49:56 PM  czhower
-{ Added SetThreadName
-}
-{
-    Rev 1.14    7/1/2003 12:03:56 AM  BGooijen
+
+  Rev 1.54    2003.10.11 5:47:22 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.53    10/8/2003 10:14:34 PM  GGrieve
+  add WriteStringToStream
+
+  Rev 1.52    10/8/2003 9:55:30 PM  GGrieve
+  Add IdDelete
+
+  Rev 1.51    10/7/2003 11:33:30 PM  GGrieve
+  Fix ReadStringFromStream
+
+  Rev 1.50    10/7/2003 10:07:30 PM  GGrieve
+  Get IdHTTP compiling for DotNet
+
+  Rev 1.49    6/10/2003 5:48:48 PM  SGrobety
+  DotNet updates
+
+  Rev 1.48    10/5/2003 12:26:46 PM  BGooijen
+  changed parameter names at some places
+
+  Rev 1.47    10/4/2003 7:08:26 PM  BGooijen
+  added some conversion routines type->TIdBytes->type, and fixed existing ones
+
+  Rev 1.46    10/4/2003 3:53:40 PM  BGooijen
+  added some ToBytes functions
+
+  Rev 1.45    04/10/2003 13:38:28  HHariri
+  Write(Integer) support
+
+  Rev 1.44    10/3/2003 10:44:54 PM  BGooijen
+  Added WriteBytesToStream
+
+  Rev 1.43    2003.10.02 8:29:14 PM  czhower
+  Changed names of byte conversion routines to be more readily understood and
+  not to conflict with already in use ones.
+
+  Rev 1.42    10/2/2003 5:15:16 PM  BGooijen
+  Added Grahame's functions
+
+  Rev 1.41    10/1/2003 8:02:20 PM  BGooijen
+  Removed some ifdefs and improved code
+
+  Rev 1.40    2003.10.01 9:10:58 PM  czhower
+  .Net
+
+  Rev 1.39    2003.10.01 2:46:36 PM  czhower
+  .Net
+
+  Rev 1.38    2003.10.01 2:30:36 PM  czhower
+  .Net
+
+  Rev 1.37    2003.10.01 12:30:02 PM  czhower
+  .Net
+
+  Rev 1.35    2003.10.01 1:12:32 AM  czhower
+  .Net
+
+  Rev 1.34    2003.09.30 7:37:14 PM  czhower
+  Typo fix.
+
+  Rev 1.33    30/9/2003 3:58:08 PM  SGrobety
+  More .net updates
+
+  Rev 1.31    2003.09.30 3:19:30 PM  czhower
+  Updates for .net
+
+  Rev 1.30    2003.09.30 1:22:54 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.29    2003.09.30 12:09:36 PM  czhower
+  DotNet changes.
+
+  Rev 1.28    2003.09.30 10:36:02 AM  czhower
+  Moved stack creation to IdStack
+  Added DotNet stack.
+
+  Rev 1.27    9/29/2003 03:03:28 PM  JPMugaas
+  Changed CIL to DOTNET.
+
+  Rev 1.26    9/28/2003 04:22:00 PM  JPMugaas
+  IFDEF'ed out MemoryPos in NET because that will not work there.
+
+  Rev 1.25    9/26/03 11:20:50 AM  RLebeau
+  Updated defines used with SetThreadName() to allow it to work under BCB6.
+
+  Rev 1.24    9/24/2003 11:42:42 PM  JPMugaas
+  Minor changes to help compile under NET
+
+  Rev 1.23    2003.09.20 10:25:42 AM  czhower
+  Added comment and chaned for D6 compat.
+
+  Rev 1.22    9/18/2003 07:43:12 PM  JPMugaas
+  Moved GetThreadHandle to IdGlobals so the ThreadComponent can be in this
+  package.
+
+  Rev 1.21    9/8/2003 11:44:38 AM  JPMugaas
+  Fix for problem that was introduced in an optimization.
+
+  Rev 1.20    2003.08.19 1:54:34 PM  czhower
+  Removed warning
+
+  Rev 1.19    11/8/2003 6:25:44 PM  SGrobety
+  IPv4ToDWord: Added overflow checking disabling ($Q+) and changed "* 256"  by
+  "SHL 8".
+
+  Rev 1.18    2003.07.08 2:41:42 PM  czhower
+  This time I saved the file before checking in.
+
+  Rev 1.16    7/1/2003 03:39:38 PM  JPMugaas
+  Started numeric IP function API calls for more efficiency.
+
+  Rev 1.15    2003.07.01 3:49:56 PM  czhower
+  Added SetThreadName
+
+  Rev 1.14    7/1/2003 12:03:56 AM  BGooijen
   Added functions to switch between IPv6 addresses in string and in
   TIdIPv6Address form
-}
-{
-{   Rev 1.13    6/30/2003 06:33:58 AM  JPMugaas
-{ Fix for range check error.
-}
-{
-{   Rev 1.12    6/27/2003 04:43:30 PM  JPMugaas
-{ Made IPv4ToDWord overload that returns a flag for an error message.
-{ Moved MakeCanonicalIPv4Address code into IPv4ToDWord because most of that
-{ simply reduces IPv4 addresses into a DWord.  That also should make the
-{ function more useful in reducing various alternative forms of IPv4 addresses
-{ down to DWords.
-}
-{
-{   Rev 1.11    6/27/2003 01:19:38 PM  JPMugaas
-{ Added MakeCanonicalIPv4Address for converting various IPv4 address forms
-{ (mentioned at http://www.pc-help.org/obscure.htm) into a standard dotted IP
-{ address.  Hopefully, we should soon support octal and hexidecimal addresses.
-}
-{
-{   Rev 1.9    6/27/2003 04:36:08 AM  JPMugaas
-{ Function for converting DWord to IP adcdress.
-}
-{
-{   Rev 1.8    6/26/2003 07:54:38 PM  JPMugaas
-{ Routines for converting standard dotted IPv4 addresses into dword,
-{ hexidecimal, and octal forms.
-}
-{
-    Rev 1.7    5/11/2003 11:57:06 AM  BGooijen
+
+  Rev 1.13    6/30/2003 06:33:58 AM  JPMugaas
+  Fix for range check error.
+
+  Rev 1.12    6/27/2003 04:43:30 PM  JPMugaas
+  Made IPv4ToDWord overload that returns a flag for an error message.
+  Moved MakeCanonicalIPv4Address code into IPv4ToDWord because most of that
+  simply reduces IPv4 addresses into a DWord.  That also should make the
+  function more useful in reducing various alternative forms of IPv4 addresses
+  down to DWords.
+
+  Rev 1.11    6/27/2003 01:19:38 PM  JPMugaas
+  Added MakeCanonicalIPv4Address for converting various IPv4 address forms
+  (mentioned at http://www.pc-help.org/obscure.htm) into a standard dotted IP
+  address.  Hopefully, we should soon support octal and hexidecimal addresses.
+
+  Rev 1.9    6/27/2003 04:36:08 AM  JPMugaas
+  Function for converting DWord to IP adcdress.
+
+  Rev 1.8    6/26/2003 07:54:38 PM  JPMugaas
+  Routines for converting standard dotted IPv4 addresses into dword,
+  hexidecimal, and octal forms.
+
+  Rev 1.7    5/11/2003 11:57:06 AM  BGooijen
   Added RaiseLastOSError
+
+  Rev 1.6    4/28/2003 03:19:00 PM  JPMugaas
+  Made a function for obtaining the services file FQN.  That's in case
+  something else besides IdPorts needs it.
+
+  Rev 1.5    2003.04.16 10:06:42 PM  czhower
+  Moved DebugOutput to IdCoreGlobal
+
+  Rev 1.4    12/29/2002 2:15:30 PM  JPMugaas
+  GetCurrentThreadHandle function created as per Bas's instructions.  Moved
+  THandle to IdCoreGlobal for this function.
+
+  Rev 1.3    12-15-2002 17:02:58  BGooijen
+  Added comments to TIdExtList
+
+  Rev 1.2    12-15-2002 16:45:42  BGooijen
+  Added TIdList
+
+  Rev 1.1    29/11/2002 10:08:50 AM  SGrobety    Version: 1.1
+  Changed GetTickCount to use high-performance timer if available under windows
+
+  Rev 1.0    21/11/2002 12:36:18 PM  SGrobety    Version: Indy 10
+
+  Rev 1.0    11/13/2002 08:41:24 AM  JPMugaas
 }
-{
-{   Rev 1.6    4/28/2003 03:19:00 PM  JPMugaas
-{ Made a function for obtaining the services file FQN.  That's in case
-{ something else besides IdPorts needs it.
-}
-{
-{   Rev 1.5    2003.04.16 10:06:42 PM  czhower
-{ Moved DebugOutput to IdCoreGlobal
-}
-{
-{   Rev 1.4    12/29/2002 2:15:30 PM  JPMugaas
-{ GetCurrentThreadHandle function created as per Bas's instructions.  Moved
-{ THandle to IdCoreGlobal for this function.
-}
-{
-{   Rev 1.3    12-15-2002 17:02:58  BGooijen
-{ Added comments to TIdExtList
-}
-{
-{   Rev 1.2    12-15-2002 16:45:42  BGooijen
-{ Added TIdList
-}
-{
-{   Rev 1.1    29/11/2002 10:08:50 AM  SGrobety    Version: 1.1
-{ Changed GetTickCount to use high-performance timer if available under windows
-}
-{
-{   Rev 1.0    21/11/2002 12:36:18 PM  SGrobety    Version: Indy 10
-}
-{
-{   Rev 1.0    11/13/2002 08:41:24 AM  JPMugaas
-}
+
 unit IdGlobal;
 
 {$I IdCompilerDefines.inc}

@@ -16,155 +16,122 @@
   $Log$
 }
 {
-{   Rev 1.7    1/17/2005 7:25:48 PM  JPMugaas
-{ Moved some stack management code here to so that we can reuse it in
-{ non-TIdComponent classes.
-{ Made HostToNetwork and NetworkToHost byte order overload functions for IPv6
-{ addresses.
-}
-{
-{   Rev 1.6    10/26/2004 8:12:30 PM  JPMugaas
-{ Now uses TIdStrings and TIdStringList for portability.
-}
-{
-{   Rev 1.5    6/30/2004 12:41:14 PM  BGooijen
-{ Added SetStackClass
-}
-{
-    Rev 1.4    6/11/2004 8:28:50 AM  DSiders
+  Rev 1.7    1/17/2005 7:25:48 PM  JPMugaas
+  Moved some stack management code here to so that we can reuse it in
+  non-TIdComponent classes.
+  Made HostToNetwork and NetworkToHost byte order overload functions for IPv6
+  addresses.
+
+  Rev 1.6    10/26/2004 8:12:30 PM  JPMugaas
+  Now uses TIdStrings and TIdStringList for portability.
+
+  Rev 1.5    6/30/2004 12:41:14 PM  BGooijen
+  Added SetStackClass
+
+  Rev 1.4    6/11/2004 8:28:50 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.3    4/18/04 2:45:38 PM  RLebeau
-{ Conversion support for Int64 values
-}
-{
-{   Rev 1.2    2004.03.07 11:45:22 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.1    3/6/2004 5:16:20 PM  JPMugaas
-{ Bug 67 fixes.  Do not write to const values.
-}
-{
-{   Rev 1.0    2004.02.03 3:14:42 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.39    2/1/2004 6:10:50 PM  JPMugaas
-{ GetSockOpt.
-}
-{
-{   Rev 1.38    2/1/2004 3:28:24 AM  JPMugaas
-{ Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
-{ that will work the same in the DotNET as elsewhere.  This is required to
-{ reenable IPWatch.
-}
-{
-{   Rev 1.37    2/1/2004 1:54:56 AM  JPMugaas
-{ Missapplied fix.  IP 0.0.0.0 should now be accepted.
-}
-{
-{   Rev 1.36    1/31/2004 4:39:12 PM  JPMugaas
-{ Removed empty methods.
-}
-{
-{   Rev 1.35    1/31/2004 1:13:04 PM  JPMugaas
-{ Minor stack changes required as DotNET does support getting all IP addresses
-{ just like the other stacks.
-}
-{
-{   Rev 1.34    2004.01.22 5:59:10 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.33    1/18/2004 11:15:52 AM  JPMugaas
-{ IsIP was not handling "0" in an IP address.  This caused the address
-{ "127.0.0.1" to be treated as a hostname.
-}
-{
-{   Rev 1.32    12/4/2003 3:14:50 PM  BGooijen
-{ Added HostByAddress
-}
-{
-{   Rev 1.31    1/3/2004 12:21:44 AM  BGooijen
-{ Added function SupportsIPv6
-}
-{
-{   Rev 1.30    12/31/2003 9:54:16 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.29    2003.12.31 3:47:42 PM  czhower
-{ Changed to use TextIsSame
-}
-{
-{   Rev 1.28    10/21/2003 9:24:32 PM  BGooijen
-{ Started on SendTo, ReceiveFrom
-}
-{
-{   Rev 1.27    10/19/2003 5:21:28 PM  BGooijen
-{ SetSocketOption
-}
-{
-    Rev 1.26    10/15/2003 7:21:02 PM  DSiders
+
+  Rev 1.3    4/18/04 2:45:38 PM  RLebeau
+  Conversion support for Int64 values
+
+  Rev 1.2    2004.03.07 11:45:22 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.1    3/6/2004 5:16:20 PM  JPMugaas
+  Bug 67 fixes.  Do not write to const values.
+
+  Rev 1.0    2004.02.03 3:14:42 PM  czhower
+  Move and updates
+
+  Rev 1.39    2/1/2004 6:10:50 PM  JPMugaas
+  GetSockOpt.
+
+  Rev 1.38    2/1/2004 3:28:24 AM  JPMugaas
+  Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
+  that will work the same in the DotNET as elsewhere.  This is required to
+  reenable IPWatch.
+
+  Rev 1.37    2/1/2004 1:54:56 AM  JPMugaas
+  Missapplied fix.  IP 0.0.0.0 should now be accepted.
+
+  Rev 1.36    1/31/2004 4:39:12 PM  JPMugaas
+  Removed empty methods.
+
+  Rev 1.35    1/31/2004 1:13:04 PM  JPMugaas
+  Minor stack changes required as DotNET does support getting all IP addresses
+  just like the other stacks.
+
+  Rev 1.34    2004.01.22 5:59:10 PM  czhower
+  IdCriticalSection
+
+  Rev 1.33    1/18/2004 11:15:52 AM  JPMugaas
+  IsIP was not handling "0" in an IP address.  This caused the address
+  "127.0.0.1" to be treated as a hostname.
+
+  Rev 1.32    12/4/2003 3:14:50 PM  BGooijen
+  Added HostByAddress
+
+  Rev 1.31    1/3/2004 12:21:44 AM  BGooijen
+  Added function SupportsIPv6
+
+  Rev 1.30    12/31/2003 9:54:16 PM  BGooijen
+  Added IPv6 support
+
+  Rev 1.29    2003.12.31 3:47:42 PM  czhower
+  Changed to use TextIsSame
+
+  Rev 1.28    10/21/2003 9:24:32 PM  BGooijen
+  Started on SendTo, ReceiveFrom
+
+  Rev 1.27    10/19/2003 5:21:28 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.26    10/15/2003 7:21:02 PM  DSiders
   Added resource strings in TIdStack.Make.
+
+  Rev 1.25    2003.10.11 5:51:02 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.24    10/5/2003 9:55:30 PM  BGooijen
+  TIdTCPServer works on D7 and DotNet now
+
+  Rev 1.23    04/10/2003 22:31:56  HHariri
+  moving of WSNXXX method to IdStack and renaming of the DotNet ones
+
+  Rev 1.22    10/2/2003 7:31:18 PM  BGooijen
+  .net
+
+  Rev 1.21    10/2/2003 6:05:16 PM  GGrieve
+  DontNet
+
+  Rev 1.20    2003.10.02 10:16:30 AM  czhower
+  .Net
+
+  Rev 1.19    2003.10.01 9:11:20 PM  czhower
+  .Net
+
+  Rev 1.18    2003.10.01 5:05:16 PM  czhower
+  .Net
+
+  Rev 1.17    2003.10.01 2:30:40 PM  czhower
+  .Net
+
+  Rev 1.16    2003.10.01 12:30:08 PM  czhower
+  .Net
+
+  Rev 1.14    2003.10.01 1:37:36 AM  czhower
+  .Net
+
+  Rev 1.12    9/30/2003 7:15:46 PM  BGooijen
+  IdCompilerDefines.inc is included now
+
+  Rev 1.11    2003.09.30 1:23:04 PM  czhower
+  Stack split for DotNet
 }
-{
-{   Rev 1.25    2003.10.11 5:51:02 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.24    10/5/2003 9:55:30 PM  BGooijen
-{ TIdTCPServer works on D7 and DotNet now
-}
-{
-{   Rev 1.23    04/10/2003 22:31:56  HHariri
-{ moving of WSNXXX method to IdStack and renaming of the DotNet ones
-}
-{
-{   Rev 1.22    10/2/2003 7:31:18 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.21    10/2/2003 6:05:16 PM  GGrieve
-{ DontNet
-}
-{
-{   Rev 1.20    2003.10.02 10:16:30 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.19    2003.10.01 9:11:20 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.18    2003.10.01 5:05:16 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.17    2003.10.01 2:30:40 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.16    2003.10.01 12:30:08 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.14    2003.10.01 1:37:36 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.12    9/30/2003 7:15:46 PM  BGooijen
-{ IdCompilerDefines.inc is included now
-}
-{
-{   Rev 1.11    2003.09.30 1:23:04 PM  czhower
-{ Stack split for DotNet
-}
+
 unit IdStack;
 
 {$I IdCompilerDefines.inc}
@@ -639,7 +606,7 @@ end;
 class procedure TIdStack.DecUsage;
 begin
   Assert(GStackCriticalSection<>nil);
-  
+
   GStackCriticalSection.Acquire; try
     Dec(GInstanceCount);
     if GInstanceCount = 0 then begin
@@ -653,7 +620,7 @@ end;
 class procedure TIdStack.IncUsage;
 begin
   Assert(GStackCriticalSection<>nil);
-  
+
   GStackCriticalSection.Acquire; try
     Inc(GInstanceCount);
     if GInstanceCount = 1 then begin

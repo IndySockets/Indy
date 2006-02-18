@@ -16,76 +16,62 @@
   $Log$
 }
 {
-{   Rev 1.10    08.11.2004 ã. 20:00:46  DBondzhev
-{ changed TObject to &Object
-}
-{
-{   Rev 1.9    07.11.2004 ã. 18:17:54  DBondzhev
-{ This contains fix for proper call to unit initialization sections.
-}
-{
-{   Rev 1.8    2004.11.06 10:55:00 PM  czhower
-{ Fix for Delphi 2005.
-}
-{
-{   Rev 1.7    2004.10.26 9:07:30 PM  czhower
-{ More .NET implicit conversions
-}
-{
-{   Rev 1.6    2004.10.26 7:51:58 PM  czhower
-{ Fixed ifdef and renamed TCLRStrings to TIdCLRStrings
-}
-{
-{   Rev 1.5    2004.10.26 7:35:16 PM  czhower
-{ Moved IndyCat to CType in IdBaseComponent
-}
-{
-{   Rev 1.4    04.10.2004 13:15:06  Andreas Hausladen
-{ Thread Safe Unit initialization
-}
-{
-    Rev 1.3    6/11/2004 8:28:26 AM  DSiders
+  Rev 1.10    08.11.2004 ã. 20:00:46  DBondzhev
+  changed TObject to &Object
+
+  Rev 1.9    07.11.2004 ã. 18:17:54  DBondzhev
+  This contains fix for proper call to unit initialization sections.
+
+  Rev 1.8    2004.11.06 10:55:00 PM  czhower
+  Fix for Delphi 2005.
+
+  Rev 1.7    2004.10.26 9:07:30 PM  czhower
+  More .NET implicit conversions
+
+  Rev 1.6    2004.10.26 7:51:58 PM  czhower
+  Fixed ifdef and renamed TCLRStrings to TIdCLRStrings
+
+  Rev 1.5    2004.10.26 7:35:16 PM  czhower
+  Moved IndyCat to CType in IdBaseComponent
+
+  Rev 1.4    04.10.2004 13:15:06  Andreas Hausladen
+  Thread Safe Unit initialization
+
+  Rev 1.3    6/11/2004 8:28:26 AM  DSiders
   Added "Do not Localize" comments.
+
+  Rev 1.2    2004.04.16 9:18:34 PM  czhower
+  .NET fix to call initialization sections. Code taken from IntraWeb.
+
+  Rev 1.1    2004.02.03 3:15:50 PM  czhower
+  Updates to move to System.
+
+  Rev 1.0    2004.02.03 2:28:26 PM  czhower
+  Move
+
+  Rev 1.4    2004.01.25 11:35:02 PM  czhower
+  IFDEF fix for .net.
+
+  Rev 1.3    2004.01.25 10:56:44 PM  czhower
+  Bug fix for InitComponent at design time.
+
+  Rev 1.2    2004.01.20 10:03:20 PM  czhower
+  InitComponent
+
+  Rev 1.1    2003.12.23 7:33:00 PM  czhower
+  .Net change.
+
+  Rev 1.0    11/13/2002 08:38:26 AM  JPMugaas
 }
-{
-{   Rev 1.2    2004.04.16 9:18:34 PM  czhower
-{ .NET fix to call initialization sections. Code taken from IntraWeb.
-}
-{
-{   Rev 1.1    2004.02.03 3:15:50 PM  czhower
-{ Updates to move to System.
-}
-{
-{   Rev 1.0    2004.02.03 2:28:26 PM  czhower
-{ Move
-}
-{
-{   Rev 1.4    2004.01.25 11:35:02 PM  czhower
-{ IFDEF fix for .net.
-}
-{
-{   Rev 1.3    2004.01.25 10:56:44 PM  czhower
-{ Bug fix for InitComponent at design time.
-}
-{
-{   Rev 1.2    2004.01.20 10:03:20 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.1    2003.12.23 7:33:00 PM  czhower
-{ .Net change.
-}
-{
-{   Rev 1.0    11/13/2002 08:38:26 AM  JPMugaas
-}
+
 unit IdBaseComponent;
+
 // Kudzu: This unit is permitted to viloate IFDEF restriction to harmonize
 // VCL / .Net difference at the base level.
 
 {$I IdCompilerDefines.inc}
 
 interface
-
 
 uses
   {$IFDEF DotNet}
@@ -128,7 +114,7 @@ type
   //Otherwise, you get a mess.
   [DesignTimeVisible(false), ToolboxItem(false)]
   {$ENDIF}
-  TIdInitializerComponent = class(TIdNativeComponent)  
+  TIdInitializerComponent = class(TIdNativeComponent)
   private
   protected
     {$IFDEF DotNet}
