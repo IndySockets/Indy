@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    2/7/2004 7:20:18 PM  JPMugaas
-{ DotNET to go!! and YES - I want fries with that :-).
+  Rev 1.4    2/7/2004 7:20:18 PM  JPMugaas
+  DotNET to go!! and YES - I want fries with that :-).
+
+  Rev 1.3    2004.02.03 5:44:38 PM  czhower
+  Name changes
+
+  Rev 1.2    10/25/2003 06:52:18 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+  Rev 1.1    2003.10.12 6:36:48 PM  czhower
+  Now compiles.
+
+  Rev 1.0    11/13/2002 08:03:38 AM  JPMugaas
 }
-{
-{   Rev 1.3    2004.02.03 5:44:38 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    10/25/2003 06:52:18 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.  
-}
-{
-{   Rev 1.1    2003.10.12 6:36:48 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.0    11/13/2002 08:03:38 AM  JPMugaas
-}
+
 unit IdTrivialFTPBase;
 
 interface

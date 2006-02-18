@@ -16,36 +16,30 @@
   $Log$
 }
 {
-{   Rev 1.7    2/8/05 6:08:04 PM  RLebeau
-{ Changed CheckOptionAck() to use TextIsSame() instead of SameText()
+  Rev 1.7    2/8/05 6:08:04 PM  RLebeau
+  Changed CheckOptionAck() to use TextIsSame() instead of SameText()
+
+  Rev 1.6    7/23/04 6:41:50 PM  RLebeau
+  TFileStream access right tweak for Put()
+
+  Rev 1.5    2/7/2004 7:25:58 PM  JPMugaas
+  Deleted error msg code in error packet.  OOPS!!!
+
+  Rev 1.4    2/7/2004 7:20:16 PM  JPMugaas
+  DotNET to go!! and YES - I want fries with that :-).
+
+  Rev 1.3    2004.02.03 5:44:38 PM  czhower
+  Name changes
+
+  Rev 1.2    1/21/2004 4:21:04 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    2003.10.12 6:36:46 PM  czhower
+  Now compiles.
+
+  Rev 1.0    11/13/2002 08:03:32 AM  JPMugaas
 }
-{
-{   Rev 1.6    7/23/04 6:41:50 PM  RLebeau
-{ TFileStream access right tweak for Put()
-}
-{
-{   Rev 1.5    2/7/2004 7:25:58 PM  JPMugaas
-{ Deleted error msg code in error packet.  OOPS!!!
-}
-{
-{   Rev 1.4    2/7/2004 7:20:16 PM  JPMugaas
-{ DotNET to go!! and YES - I want fries with that :-).
-}
-{
-{   Rev 1.3    2004.02.03 5:44:38 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/21/2004 4:21:04 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    2003.10.12 6:36:46 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.0    11/13/2002 08:03:32 AM  JPMugaas
-}
+
 unit IdTrivialFTP;
 
 interface
