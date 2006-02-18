@@ -16,45 +16,36 @@
   $Log$
 }
 {
-{   Rev 1.9    10.10.2004 13:46:00  ARybin
-{ dont add default port to URI
-}
-{
-{   Rev 1.8    2004.02.03 5:44:40 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.7    2004.01.22 5:27:24 PM  czhower
-{ Fixed compile errors.
-}
-{
-{   Rev 1.6    1/22/2004 4:06:56 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.5    10/5/2003 11:44:24 PM  GGrieve
-{ Use IsLeadChar
-}
-{
-    Rev 1.4    6/9/2003 9:35:58 PM  BGooijen
+  Rev 1.9    10.10.2004 13:46:00  ARybin
+  dont add default port to URI
+
+  Rev 1.8    2004.02.03 5:44:40 PM  czhower
+  Name changes
+
+  Rev 1.7    2004.01.22 5:27:24 PM  czhower
+  Fixed compile errors.
+
+  Rev 1.6    1/22/2004 4:06:56 PM  SPerry
+  fixed set problems
+
+  Rev 1.5    10/5/2003 11:44:24 PM  GGrieve
+  Use IsLeadChar
+
+  Rev 1.4    6/9/2003 9:35:58 PM  BGooijen
   %00 is valid now too
+
+  Rev 1.3    2003.05.09 10:30:16 PM  czhower
+
+  Rev 1.2    2003.04.11 9:41:34 PM  czhower
+
+  Rev 1.1    29/11/2002 9:56:10 AM  SGrobety    Version: 1.1
+  Changed URL encoding
+
+  Rev 1.0    21/11/2002 12:42:52 PM  SGrobety    Version: Indy 10
+
+  Rev 1.0    11/13/2002 08:04:10 AM  JPMugaas
 }
-{
-{   Rev 1.3    2003.05.09 10:30:16 PM  czhower
-}
-{
-{   Rev 1.2    2003.04.11 9:41:34 PM  czhower
-}
-{
-{   Rev 1.1    29/11/2002 9:56:10 AM  SGrobety    Version: 1.1
-{ Changed URL encoding
-}
-{
-{   Rev 1.0    21/11/2002 12:42:52 PM  SGrobety    Version: Indy 10
-}
-{
-{   Rev 1.0    11/13/2002 08:04:10 AM  JPMugaas
-}
+
 unit IdURI;
 
 {Details of implementation
@@ -71,7 +62,7 @@ unit IdURI;
  - Fixed bug that was leaving the bookmark in the document when no ? or =
     parameters existed.
 2001-Feb-18 Doychin Bondzhev
- - Added UserName and Password to support URI's like    
+ - Added UserName and Password to support URI's like
     http://username:password@hostname:port/path/document#bookmark
 }
 
