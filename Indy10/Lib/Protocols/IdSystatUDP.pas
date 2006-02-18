@@ -16,34 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.3    10/26/2004 10:49:20 PM  JPMugaas
-{ Updated ref.
+  Rev 1.3    10/26/2004 10:49:20 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.2    2004.02.03 5:44:30 PM  czhower
+  Name changes
+
+  Rev 1.1    1/21/2004 4:04:06 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:02:36 AM  JPMugaas
 }
-{
-{   Rev 1.2    2004.02.03 5:44:30 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.1    1/21/2004 4:04:06 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 08:02:36 AM  JPMugaas
-}
+
 unit IdSystatUDP;
-{*******************************************************}
-{                                                       }
-{       Indy Systat Client TIdSystatUDP                 }
-{                                                       }
-{       Copyright (C) 2002 Winshoes Working Group       }
-{       Original author J. Peter Mugaas                 }
-{       2002-August-13                                  }
-{       Based on RFC 866                                }
-{                                                       }
-{*******************************************************}
-{Note that this protocol is officially called Active User}
-{2002-Aug-13  J. Peter Mugaas
-  -Original version}
+
+{
+  Indy Systat Client TIdSystatUDP
+
+  Copyright (C) 2002 Winshoes Working Group
+  Original author J. Peter Mugaas
+  2002-August-13
+  Based on RFC 866
+  Note that this protocol is officially called Active User
+}
 
 interface
 uses IdAssignedNumbers, IdObjs, IdUDPBase, IdUDPClient;
