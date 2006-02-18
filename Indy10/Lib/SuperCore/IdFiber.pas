@@ -16,145 +16,112 @@
   $Log$
 }
 {
-    Rev 1.3    6/11/2004 8:39:48 AM  DSiders
+  Rev 1.3    6/11/2004 8:39:48 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.2    2004.04.22 11:45:16 PM  czhower
-{ Bug fixes
-}
-{
-{   Rev 1.1    2004.02.09 9:16:34 PM  czhower
-{ Updated to compile and match lib changes.
-}
-{
-{   Rev 1.0    2004.02.03 12:38:48 AM  czhower
-{ Move
-}
-{
-{   Rev 1.8    2003.10.24 1:00:04 PM  czhower
-{ Name change
-}
-{
-{   Rev 1.7    2003.10.21 12:19:20 AM  czhower
-{ TIdTask support and fiber bug fixes.
-}
-{
-{   Rev 1.6    2003.10.19 2:50:38 PM  czhower
-{ Fiber cleanup
-}
-{
-{   Rev 1.5    2003.10.19 1:04:26 PM  czhower
-{ Updates
-}
-{
-{   Rev 1.3    2003.10.11 5:43:12 PM  czhower
-{ Chained servers now functional.
-}
-{
-{   Rev 1.2    2003.09.19 10:09:38 PM  czhower
-{ Next stage of fiber support in servers.
-}
-{
-{   Rev 1.1    2003.09.19 3:01:34 PM  czhower
-{ Changed to emulate IdThreads Run behaviour
-}
-{
-{   Rev 1.0    8/16/2003 11:09:14 AM  JPMugaas
-{ Moved from Indy Core dir as part of package reorg
-}
-{
-    Rev 1.25    7/2/2003 2:06:40 PM  BGooijen
+
+  Rev 1.2    2004.04.22 11:45:16 PM  czhower
+  Bug fixes
+
+  Rev 1.1    2004.02.09 9:16:34 PM  czhower
+  Updated to compile and match lib changes.
+
+  Rev 1.0    2004.02.03 12:38:48 AM  czhower
+  Move
+
+  Rev 1.8    2003.10.24 1:00:04 PM  czhower
+  Name change
+
+  Rev 1.7    2003.10.21 12:19:20 AM  czhower
+  TIdTask support and fiber bug fixes.
+
+  Rev 1.6    2003.10.19 2:50:38 PM  czhower
+  Fiber cleanup
+
+  Rev 1.5    2003.10.19 1:04:26 PM  czhower
+  Updates
+
+  Rev 1.3    2003.10.11 5:43:12 PM  czhower
+  Chained servers now functional.
+
+  Rev 1.2    2003.09.19 10:09:38 PM  czhower
+  Next stage of fiber support in servers.
+
+  Rev 1.1    2003.09.19 3:01:34 PM  czhower
+  Changed to emulate IdThreads Run behaviour
+
+  Rev 1.0    8/16/2003 11:09:14 AM  JPMugaas
+  Moved from Indy Core dir as part of package reorg
+
+  Rev 1.25    7/2/2003 2:06:40 PM  BGooijen
   changed IdSupportsFibers to TIdFiberBase.HaveFiberSupport
-}
-{
-    Rev 1.24    7/1/2003 8:34:14 PM  BGooijen
+
+  Rev 1.24    7/1/2003 8:34:14 PM  BGooijen
   Added function IdSupportsFibers
   Fiber-functions are now loaded on runtime
-}
-{
-{   Rev 1.23    2003.06.30 7:33:50 PM  czhower
-{ Fix to exception handling.
-}
-{
-{   Rev 1.22    2003.06.30 6:52:20 PM  czhower
-{ Exposed FiberWeaver has a property.
-}
-{
-{   Rev 1.21    2003.06.03 11:05:02 PM  czhower
-{ Modified ProcessInThisFiber to support error flag return.
-}
-{
-{   Rev 1.20    2003.06.03 8:01:38 PM  czhower
-{ Completed fiber exception handling.
-}
-{
-{   Rev 1.19    2003.05.27 10:27:08 AM  czhower
-{ Put back original exception handling.
-}
-{
-    Rev 1.18    5/16/2003 3:48:24 PM  BGooijen
+
+  Rev 1.23    2003.06.30 7:33:50 PM  czhower
+  Fix to exception handling.
+
+  Rev 1.22    2003.06.30 6:52:20 PM  czhower
+  Exposed FiberWeaver has a property.
+
+  Rev 1.21    2003.06.03 11:05:02 PM  czhower
+  Modified ProcessInThisFiber to support error flag return.
+
+  Rev 1.20    2003.06.03 8:01:38 PM  czhower
+  Completed fiber exception handling.
+
+  Rev 1.19    2003.05.27 10:27:08 AM  czhower
+  Put back original exception handling.
+
+  Rev 1.18    5/16/2003 3:48:24 PM  BGooijen
   Added FreeOnTerminate
-}
-{
-    Rev 1.17    4/17/2003 7:40:00 PM  BGooijen
+
+  Rev 1.17    4/17/2003 7:40:00 PM  BGooijen
   Added AAutoStart for fibers
-}
-{
-{   Rev 1.16    2003.04.17 7:44:56 PM  czhower
-}
-{
-{   Rev 1.15    2003.04.14 10:54:08 AM  czhower
-{ Fiber specific exceptions
-}
-{
-{   Rev 1.14    2003.04.12 11:53:56 PM  czhower
-{ Added DoExecute
-}
-{
-    Rev 1.13    4/11/2003 1:46:58 PM  BGooijen
+
+  Rev 1.16    2003.04.17 7:44:56 PM  czhower
+
+  Rev 1.15    2003.04.14 10:54:08 AM  czhower
+  Fiber specific exceptions
+
+  Rev 1.14    2003.04.12 11:53:56 PM  czhower
+  Added DoExecute
+
+  Rev 1.13    4/11/2003 1:46:58 PM  BGooijen
   added ProcessInThisFiber and WaitForFibers to TIdFiberWeaverBase
-}
-{
-{   Rev 1.12    2003.04.10 11:21:42 PM  czhower
-{ Yield support
-}
-{
-{   Rev 1.9    2003.03.27 1:29:14 AM  czhower
-{ Exception frame swapping.
-}
-{
-{   Rev 1.7    3/22/2003 09:45:28 PM  JPMugaas
-{ Now should compile under D4.
-}
-{
-{   Rev 1.6    2003.03.13 1:25:18 PM  czhower
-{ Moved check for parent fiber to SwitchTo
-}
-{
-    Rev 1.5    3/13/2003 10:18:12 AM  BGooijen
+
+  Rev 1.12    2003.04.10 11:21:42 PM  czhower
+  Yield support
+
+  Rev 1.9    2003.03.27 1:29:14 AM  czhower
+  Exception frame swapping.
+
+  Rev 1.7    3/22/2003 09:45:28 PM  JPMugaas
+  Now should compile under D4.
+
+  Rev 1.6    2003.03.13 1:25:18 PM  czhower
+  Moved check for parent fiber to SwitchTo
+
+  Rev 1.5    3/13/2003 10:18:12 AM  BGooijen
   Server side fibers, bug fixes
+
+  Rev 1.4    2003.02.18 1:25:04 PM  czhower
+  Added exception if user tries to SwitchTo a completed fiber.
+
+  Rev 1.3    2003.01.17 2:32:12 PM  czhower
+
+  Rev 1.2    1-1-2003 16:25:10  BGooijen
+  The property ParentFiber can now be written to
+  Added class function TIdFiberBase.GetCurrentFiberBase, which returns the
+  current TIdFiber
+
+  Rev 1.1    12-28-2002 12:01:18  BGooijen
+  Made a public read only property: ParentFiber
+
+  Rev 1.0    11/13/2002 08:44:18 AM  JPMugaas
 }
-{
-{   Rev 1.4    2003.02.18 1:25:04 PM  czhower
-{ Added exception if user tries to SwitchTo a completed fiber.
-}
-{
-{   Rev 1.3    2003.01.17 2:32:12 PM  czhower
-}
-{
-{   Rev 1.2    1-1-2003 16:25:10  BGooijen
-{ The property ParentFiber can now be written to
-{ Added class function TIdFiberBase.GetCurrentFiberBase, which returns the
-{ current TIdFiber
-}
-{
-{   Rev 1.1    12-28-2002 12:01:18  BGooijen
-{ Made a public read only property: ParentFiber
-}
-{
-{   Rev 1.0    11/13/2002 08:44:18 AM  JPMugaas
-}
+
 unit IdFiber;
 
 interface

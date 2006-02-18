@@ -16,40 +16,35 @@
   $Log$
 }
 {
-    Rev 1.4    6/11/2004 8:39:56 AM  DSiders
+  Rev 1.4    6/11/2004 8:39:56 AM  DSiders
   Added "Do not Localize" comments.
+
+  Rev 1.3    2004-04-23 19:46:52  Mattias
+  TTempThread now uses WaitForFibers instead of sleep
+
+  Rev 1.2    2004.04.22 11:45:18 PM  czhower
+  Bug fixes
+
+  Rev 1.1    2004.02.09 9:16:40 PM  czhower
+  Updated to compile and match lib changes.
+
+  Rev 1.0    2004.02.03 12:38:54 AM  czhower
+  Move
+
+  Rev 1.2    2003.10.21 12:19:22 AM  czhower
+  TIdTask support and fiber bug fixes.
+
+  Rev 1.1    2003.10.19 4:38:32 PM  czhower
+  Updates
 }
-{
-{   Rev 1.3    2004-04-23 19:46:52  Mattias
-{ TTempThread now uses WaitForFibers instead of sleep
-}
-{
-{   Rev 1.2    2004.04.22 11:45:18 PM  czhower
-{ Bug fixes
-}
-{
-{   Rev 1.1    2004.02.09 9:16:40 PM  czhower
-{ Updated to compile and match lib changes.
-}
-{
-{   Rev 1.0    2004.02.03 12:38:54 AM  czhower
-{ Move
-}
-{
-{   Rev 1.2    2003.10.21 12:19:22 AM  czhower
-{ TIdTask support and fiber bug fixes.
-}
-{
-{   Rev 1.1    2003.10.19 4:38:32 PM  czhower
-{ Updates
-}
+
 unit IdFiberWeaverThreaded;
 
 interface
 
 uses
   Classes,
-IdFiberWeaverInline,
+  IdFiberWeaverInline,
   IdThread, IdSchedulerOfThread, IdFiberWeaver, IdFiber;
 
 type

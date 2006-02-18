@@ -16,13 +16,13 @@
   $Log$
 }
 {
-{   Rev 1.0    2004.02.03 12:38:50 AM  czhower
-{ Move
+  Rev 1.0    2004.02.03 12:38:50 AM  czhower
+  Move
+
+  Rev 1.0    2003.10.19 2:50:54 PM  czhower
+  Fiber cleanup
 }
-{
-{   Rev 1.0    2003.10.19 2:50:54 PM  czhower
-{ Fiber cleanup
-}
+
 unit IdFiberWeaver;
 
 interface

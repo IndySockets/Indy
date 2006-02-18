@@ -16,181 +16,138 @@
   $Log$
 }
 {
-{   Rev 1.6    9/16/2004 8:11:40 PM  JPMugaas
-{ Should compile again.
-}
-{
-    Rev 1.5    6/11/2004 8:39:58 AM  DSiders
+  Rev 1.6    9/16/2004 8:11:40 PM  JPMugaas
+  Should compile again.
+
+  Rev 1.5    6/11/2004 8:39:58 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.4    2004.05.06 1:47:26 PM  czhower
-{ Now uses IndexOf
-}
-{
-{   Rev 1.3    2004.04.13 10:37:56 PM  czhower
-{ Updates
-}
-{
-{   Rev 1.2    2004.03.07 11:46:08 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.1    2004.02.09 9:16:44 PM  czhower
-{ Updated to compile and match lib changes.
-}
-{
-{   Rev 1.0    2004.02.03 12:38:56 AM  czhower
-{ Move
-}
-{
-{   Rev 1.6    2003.10.24 10:37:38 AM  czhower
-{ IdStream
-}
-{
-{   Rev 1.5    2003.10.19 4:38:32 PM  czhower
-{ Updates
-}
-{
-{   Rev 1.4    2003.10.19 2:50:40 PM  czhower
-{ Fiber cleanup
-}
-{
-{   Rev 1.3    2003.10.14 11:17:02 PM  czhower
-{ Updates to match core changes.
-}
-{
-{   Rev 1.2    2003.10.11 5:43:30 PM  czhower
-{ Chained servers now functional.
-}
-{
-{   Rev 1.1    2003.09.19 10:09:40 PM  czhower
-{ Next stage of fiber support in servers.
-}
-{
-{   Rev 1.0    8/16/2003 11:09:08 AM  JPMugaas
-{ Moved from Indy Core dir as part of package reorg
-}
-{
-{   Rev 1.49    2003.07.17 4:42:06 PM  czhower
-{ More IOCP improvements.
-}
-{
-{   Rev 1.45    2003.07.14 11:46:46 PM  czhower
-{ IOCP now passes all bubbles.
-}
-{
-{   Rev 1.43    2003.07.14 1:10:52 AM  czhower
-{ Now passes all bubble tests for chained stack.
-}
-{
-    Rev 1.41    7/7/2003 1:34:06 PM  BGooijen
+
+  Rev 1.4    2004.05.06 1:47:26 PM  czhower
+  Now uses IndexOf
+
+  Rev 1.3    2004.04.13 10:37:56 PM  czhower
+  Updates
+
+  Rev 1.2    2004.03.07 11:46:08 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.1    2004.02.09 9:16:44 PM  czhower
+  Updated to compile and match lib changes.
+
+  Rev 1.0    2004.02.03 12:38:56 AM  czhower
+  Move
+
+  Rev 1.6    2003.10.24 10:37:38 AM  czhower
+  IdStream
+
+  Rev 1.5    2003.10.19 4:38:32 PM  czhower
+  Updates
+
+  Rev 1.4    2003.10.19 2:50:40 PM  czhower
+  Fiber cleanup
+
+  Rev 1.3    2003.10.14 11:17:02 PM  czhower
+  Updates to match core changes.
+
+  Rev 1.2    2003.10.11 5:43:30 PM  czhower
+  Chained servers now functional.
+
+  Rev 1.1    2003.09.19 10:09:40 PM  czhower
+  Next stage of fiber support in servers.
+
+  Rev 1.0    8/16/2003 11:09:08 AM  JPMugaas
+  Moved from Indy Core dir as part of package reorg
+
+  Rev 1.49    2003.07.17 4:42:06 PM  czhower
+  More IOCP improvements.
+
+  Rev 1.45    2003.07.14 11:46:46 PM  czhower
+  IOCP now passes all bubbles.
+
+  Rev 1.43    2003.07.14 1:10:52 AM  czhower
+  Now passes all bubble tests for chained stack.
+
+  Rev 1.41    7/7/2003 1:34:06 PM  BGooijen
   Added WriteFile(...)
-}
-{
-    Rev 1.40    7/3/2003 2:03:52 PM  BGooijen
+
+  Rev 1.40    7/3/2003 2:03:52 PM  BGooijen
   IOCP works server-side now
-}
-{
-{   Rev 1.39    2003.06.30 5:41:54 PM  czhower
-{ -Fixed AV that occurred sometimes when sockets were closed with chains
-{ -Consolidated code that was marked by a todo for merging as it no longer
-{ needed to be separate
-{ -Removed some older code that was no longer necessary
-{
-{ Passes bubble tests.
-}
-{
-    Rev 1.38    6/29/2003 10:56:26 PM  BGooijen
+
+  Rev 1.39    2003.06.30 5:41:54 PM  czhower
+  -Fixed AV that occurred sometimes when sockets were closed with chains
+  -Consolidated code that was marked by a todo for merging as it no longer
+  needed to be separate
+  -Removed some older code that was no longer necessary
+
+  Passes bubble tests.
+
+  Rev 1.38    6/29/2003 10:56:26 PM  BGooijen
   Removed .Memory from the buffer, and added some extra methods
-}
-{
-{   Rev 1.37    2003.06.25 4:30:02 PM  czhower
-{ Temp hack fix for AV problem. Working on real solution now.
-}
-{
-    Rev 1.36    6/24/2003 11:17:44 PM  BGooijen
+
+  Rev 1.37    2003.06.25 4:30:02 PM  czhower
+  Temp hack fix for AV problem. Working on real solution now.
+
+  Rev 1.36    6/24/2003 11:17:44 PM  BGooijen
   change in TIdIOHandlerChain.ReadLn, LTermPos= 0 is now handled differently
-}
-{
-{   Rev 1.35    23/6/2003 22:33:18  GGrieve
-{ fix CheckForDataOnSource - specify timeout
-}
-{
-{   Rev 1.34    6/22/2003 11:22:22 PM  JPMugaas
-{ Should now compile.
-}
-{
-    Rev 1.33    6/4/2003 1:08:40 AM  BGooijen
+
+  Rev 1.35    23/6/2003 22:33:18  GGrieve
+  fix CheckForDataOnSource - specify timeout
+
+  Rev 1.34    6/22/2003 11:22:22 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.33    6/4/2003 1:08:40 AM  BGooijen
   Added CheckForDataOnSource and removed some (duplicate) code
-}
-{
-    Rev 1.32    6/3/2003 8:07:20 PM  BGooijen
+
+  Rev 1.32    6/3/2003 8:07:20 PM  BGooijen
   Added TIdIOHandlerChain.AllData
-}
-{
-    Rev 1.31    5/11/2003 2:37:58 PM  BGooijen
+
+  Rev 1.31    5/11/2003 2:37:58 PM  BGooijen
   Bindings are updated now
-}
-{
-    Rev 1.30    5/11/2003 12:00:08 PM  BGooijen
-}
-{
-    Rev 1.29    5/11/2003 12:03:16 AM  BGooijen
-}
-{
-{   Rev 1.28    2003.05.09 10:59:24 PM  czhower
-}
-{
-{   Rev 1.27    2003.04.22 9:48:50 PM  czhower
-}
-{
-{   Rev 1.25    2003.04.17 11:01:14 PM  czhower
-}
-{
-{   Rev 1.19    2003.04.10 10:51:04 PM  czhower
-}
-{
-    Rev 1.18    4/2/2003 3:39:26 PM  BGooijen
+
+  Rev 1.30    5/11/2003 12:00:08 PM  BGooijen
+
+  Rev 1.29    5/11/2003 12:03:16 AM  BGooijen
+
+  Rev 1.28    2003.05.09 10:59:24 PM  czhower
+
+  Rev 1.27    2003.04.22 9:48:50 PM  czhower
+
+  Rev 1.25    2003.04.17 11:01:14 PM  czhower
+
+  Rev 1.19    2003.04.10 10:51:04 PM  czhower
+
+  Rev 1.18    4/2/2003 3:39:26 PM  BGooijen
   Added Intercepts
-}
-{
-    Rev 1.17    3/29/2003 5:53:52 PM  BGooijen
+
+  Rev 1.17    3/29/2003 5:53:52 PM  BGooijen
   added AfterAccept
-}
-{
-    Rev 1.16    3/27/2003 2:57:58 PM  BGooijen
+
+  Rev 1.16    3/27/2003 2:57:58 PM  BGooijen
   Added a RawWrite for streams, implemented WriteStream, changed
   WriteToDestination to use TIdWorkOpUnitWriteBuffer
-}
-{
-{   Rev 1.15    2003.03.26 12:20:28 AM  czhower
-{ Moved visibility of execute to protected.
-}
-{
-    Rev 1.14    3/25/2003 11:07:58 PM  BGooijen
+
+  Rev 1.15    2003.03.26 12:20:28 AM  czhower
+  Moved visibility of execute to protected.
+
+  Rev 1.14    3/25/2003 11:07:58 PM  BGooijen
   ChainEngine descends now from TIdBaseComponent
-}
-{
-{   Rev 1.13    3/25/2003 01:33:48 AM  JPMugaas
-{ Fixed compiler warnings.
-}
-{
-    Rev 1.12    3/24/2003 11:03:50 PM  BGooijen
+
+  Rev 1.13    3/25/2003 01:33:48 AM  JPMugaas
+  Fixed compiler warnings.
+
+  Rev 1.12    3/24/2003 11:03:50 PM  BGooijen
   Various fixes to readln:
-   - uses connection default now
-   - doesn't raise an exception on timeout any more
-}
-{
-{   Rev 1.11    2003.03.13 1:22:58 PM  czhower
-{ Typo fixed. lenth --> Length
-}
-{
-    Rev 1.10    3/13/2003 10:18:20 AM  BGooijen
+  - uses connection default now
+  - doesn't raise an exception on timeout any more
+
+  Rev 1.11    2003.03.13 1:22:58 PM  czhower
+  Typo fixed. lenth --> Length
+
+  Rev 1.10    3/13/2003 10:18:20 AM  BGooijen
   Server side fibers, bug fixes
-}
-{
-    Rev 1.9    3/2/2003 12:36:22 AM  BGooijen
+
+  Rev 1.9    3/2/2003 12:36:22 AM  BGooijen
   Added woReadBuffer and TIdWorkOpUnitReadBuffer to read a buffer. Now
   ReadBuffer doesn't use ReadStream any more.
   TIdIOHandlerChain.ReadLn now supports MaxLineLength (splitting, and
@@ -199,47 +156,38 @@
   stopped the last time.
   Added basic support for timeouts (probably only on read operations, and maybe
   connect), accuratie of timeout is currently 500msec.
-}
-{
-    Rev 1.8    2/28/2003 10:15:16 PM  BGooijen
+
+  Rev 1.8    2/28/2003 10:15:16 PM  BGooijen
   bugfix: changed some occurrences of FRecvBuffer to FInputBuffer
-}
-{
-    Rev 1.7    2/27/2003 10:11:12 PM  BGooijen
-}
-{
-    Rev 1.6    2/26/2003 1:08:52 PM  BGooijen
-}
-{
-    Rev 1.5    2/25/2003 10:36:28 PM  BGooijen
+
+  Rev 1.7    2/27/2003 10:11:12 PM  BGooijen
+
+  Rev 1.6    2/26/2003 1:08:52 PM  BGooijen
+
+  Rev 1.5    2/25/2003 10:36:28 PM  BGooijen
   Added more opcodes, methods, and moved opcodes to separate files.
-}
-{
-{   Rev 1.4    2003.02.25 9:02:32 PM  czhower
-{ Hand off to Bas
-}
-{
-{   Rev 1.3    2003.02.25 1:36:04 AM  czhower
-}
-{
-{   Rev 1.2    2002.12.11 11:00:58 AM  czhower
-}
-{
-{   Rev 1.1    2002.12.07 12:26:06 AM  czhower
-}
-{
-{   Rev 1.0    11/13/2002 08:45:00 AM  JPMugaas
+
+  Rev 1.4    2003.02.25 9:02:32 PM  czhower
+  Hand off to Bas
+
+  Rev 1.3    2003.02.25 1:36:04 AM  czhower
+
+  Rev 1.2    2002.12.11 11:00:58 AM  czhower
+
+  Rev 1.1    2002.12.07 12:26:06 AM  czhower
+
+  Rev 1.0    11/13/2002 08:45:00 AM  JPMugaas
 }
 unit IdIOHandlerChain;
 
 interface
 
 uses
-  Classes
-  , IdBaseComponent, IdBuffer, IdGlobal, IdIOHandler, IdIOHandlerSocket
-  , IdFiber, IdThreadSafe, IdWorkOpUnit, IdStackConsts, IdWinsock2, IdThread
-  , IdFiberWeaver, IdStream, IdStreamVCL
-  , Windows;
+  Classes,
+  IdBaseComponent, IdBuffer, IdGlobal, IdIOHandler, IdIOHandlerSocket,
+  IdFiber, IdThreadSafe, IdWorkOpUnit, IdStackConsts, IdWinsock2, IdThread,
+  IdFiberWeaver, IdStream, IdStreamVCL,
+  Windows;
 
 type
   TIdConnectMode = (cmNonBlock, cmIOCP);

@@ -16,67 +16,51 @@
   $Log$
 }
 {
-    Rev 1.2    6/11/2004 8:40:10 AM  DSiders
+  Rev 1.2    6/11/2004 8:40:10 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.1    2004.02.09 9:16:54 PM  czhower
-{ Updated to compile and match lib changes.
-}
-{
-{   Rev 1.0    2004.02.03 12:39:08 AM  czhower
-{ Move
-}
-{
-{   Rev 1.17    2003.10.19 2:50:42 PM  czhower
-{ Fiber cleanup
-}
-{
-{   Rev 1.16    2003.10.11 5:44:02 PM  czhower
-{ Chained servers now functional.
-}
-{
-{   Rev 1.15    2003.07.17 4:42:06 PM  czhower
-{ More IOCP improvements.
-}
-{
-{   Rev 1.14    2003.07.17 3:55:18 PM  czhower
-{ Removed IdIOChainEngineIOCP and merged it into TIdChaingEngine in
-{ IdIOHandlerChain.pas.
-}
-{
-{   Rev 1.10    2003.07.14 12:54:32 AM  czhower
-{ Fixed graceful close detection if it occurs after connect.
-}
-{
-{   Rev 1.9    2003.07.10 7:40:24 PM  czhower
-{ Comments
-}
-{
-    Rev 1.8    7/5/2003 11:47:12 PM  BGooijen
+
+  Rev 1.1    2004.02.09 9:16:54 PM  czhower
+  Updated to compile and match lib changes.
+
+  Rev 1.0    2004.02.03 12:39:08 AM  czhower
+  Move
+
+  Rev 1.17    2003.10.19 2:50:42 PM  czhower
+  Fiber cleanup
+
+  Rev 1.16    2003.10.11 5:44:02 PM  czhower
+  Chained servers now functional.
+
+  Rev 1.15    2003.07.17 4:42:06 PM  czhower
+  More IOCP improvements.
+
+  Rev 1.14    2003.07.17 3:55:18 PM  czhower
+  Removed IdIOChainEngineIOCP and merged it into TIdChaingEngine in
+  IdIOHandlerChain.pas.
+
+  Rev 1.10    2003.07.14 12:54:32 AM  czhower
+  Fixed graceful close detection if it occurs after connect.
+
+  Rev 1.9    2003.07.10 7:40:24 PM  czhower
+  Comments
+
+  Rev 1.8    7/5/2003 11:47:12 PM  BGooijen
   Added TIdWorkOpUnitCheckForDisconnect and TIdWorkOpUnitWriteFile
-}
-{
-    Rev 1.7    4/23/2003 8:22:20 PM  BGooijen
-}
-{
-{   Rev 1.6    2003.04.22 9:48:50 PM  czhower
-}
-{
-{   Rev 1.5    2003.04.20 9:12:20 PM  czhower
-}
-{
-{   Rev 1.5    2003.04.19 3:14:14 PM  czhower
-}
-{
-{   Rev 1.4    2003.04.17 7:45:02 PM  czhower
-}
-{
-    Rev 1.2    3/27/2003 2:43:04 PM  BGooijen
+
+  Rev 1.7    4/23/2003 8:22:20 PM  BGooijen
+
+  Rev 1.6    2003.04.22 9:48:50 PM  czhower
+
+  Rev 1.5    2003.04.20 9:12:20 PM  czhower
+
+  Rev 1.5    2003.04.19 3:14:14 PM  czhower
+
+  Rev 1.4    2003.04.17 7:45:02 PM  czhower
+
+  Rev 1.2    3/27/2003 2:43:04 PM  BGooijen
   Added woWriteStream and woWriteBuffer
-}
-{
-    Rev 1.1    3/2/2003 12:36:24 AM  BGooijen
+
+  Rev 1.1    3/2/2003 12:36:24 AM  BGooijen
   Added woReadBuffer and TIdWorkOpUnitReadBuffer to read a buffer. Now
   ReadBuffer doesn't use ReadStream any more.
   TIdIOHandlerChain.ReadLn now supports MaxLineLength (splitting, and
@@ -85,19 +69,18 @@
   stopped the last time.
   Added basic support for timeouts (probably only on read operations, and maybe
   connect), accuratie of timeout is currently 500msec.
-}
-{
-    Rev 1.0    2/25/2003 10:45:46 PM  BGooijen
+
+  Rev 1.0    2/25/2003 10:45:46 PM  BGooijen
   Opcode files, some of these were in IdIOHandlerChain.pas
 }
+
 unit IdWorkOpUnit;
 
 interface
 
 uses
-  IdFiber, IdIOHandlerSocket, IdStackConsts, IdWinsock2, IdGlobal
-  , SysUtils
-  , Windows;
+  IdFiber, IdIOHandlerSocket, IdStackConsts, IdWinsock2, IdGlobal,
+  SysUtils, Windows;
 
 type
   TIdWorkOpUnit = class;

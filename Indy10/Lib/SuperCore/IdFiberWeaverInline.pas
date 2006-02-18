@@ -16,133 +16,102 @@
   $Log$
 }
 {
-    Rev 1.2    6/11/2004 8:39:52 AM  DSiders
+  Rev 1.2    6/11/2004 8:39:52 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.1    2004.02.09 9:16:38 PM  czhower
-{ Updated to compile and match lib changes.
-}
-{
-{   Rev 1.0    2004.02.03 12:38:52 AM  czhower
-{ Move
-}
-{
-{   Rev 1.2    2003.11.04 3:51:20 PM  czhower
-{ Update to sync TC
-}
-{
-{   Rev 1.1    2003.10.21 12:19:22 AM  czhower
-{ TIdTask support and fiber bug fixes.
-}
-{
-{   Rev 1.0    2003.10.19 2:50:54 PM  czhower
-{ Fiber cleanup
-}
-{
-{   Rev 1.4    2003.10.19 1:04:26 PM  czhower
-{ Updates
-}
-{
-{   Rev 1.3    2003.10.11 5:43:20 PM  czhower
-{ Chained servers now functional.
-}
-{
-{   Rev 1.2    2003.09.19 10:09:40 PM  czhower
-{ Next stage of fiber support in servers.
-}
-{
-{   Rev 1.1    2003.08.20 1:46:22 PM  czhower
-{ Update to compile.
-}
-{
-{   Rev 1.0    8/16/2003 11:09:12 AM  JPMugaas
-{ Moved from Indy Core dir as part of package reorg
-}
-{
-    Rev 1.8    7/26/2003 12:20:02 PM  BGooijen
+
+  Rev 1.1    2004.02.09 9:16:38 PM  czhower
+  Updated to compile and match lib changes.
+
+  Rev 1.0    2004.02.03 12:38:52 AM  czhower
+  Move
+
+  Rev 1.2    2003.11.04 3:51:20 PM  czhower
+  Update to sync TC
+
+  Rev 1.1    2003.10.21 12:19:22 AM  czhower
+  TIdTask support and fiber bug fixes.
+
+  Rev 1.0    2003.10.19 2:50:54 PM  czhower
+  Fiber cleanup
+
+  Rev 1.4    2003.10.19 1:04:26 PM  czhower
+  Updates
+
+  Rev 1.3    2003.10.11 5:43:20 PM  czhower
+  Chained servers now functional.
+
+  Rev 1.2    2003.09.19 10:09:40 PM  czhower
+  Next stage of fiber support in servers.
+
+  Rev 1.1    2003.08.20 1:46:22 PM  czhower
+  Update to compile.
+
+  Rev 1.0    8/16/2003 11:09:12 AM  JPMugaas
+  Moved from Indy Core dir as part of package reorg
+
+  Rev 1.8    7/26/2003 12:20:02 PM  BGooijen
   Small fix to prevent some exceptions
-}
-{
-{   Rev 1.7    2003.06.30 7:33:50 PM  czhower
-{ Fix to exception handling.
-}
-{
-{   Rev 1.6    2003.06.25 1:25:58 AM  czhower
-{ Small changes.
-}
-{
-{   Rev 1.4    2003.06.03 11:05:02 PM  czhower
-{ Modified ProcessInThisFiber to support error flag return.
-}
-{
-{   Rev 1.3    2003.04.17 7:44:58 PM  czhower
-}
-{
-    Rev 1.2    4/11/2003 6:37:38 PM  BGooijen
+
+  Rev 1.7    2003.06.30 7:33:50 PM  czhower
+  Fix to exception handling.
+
+  Rev 1.6    2003.06.25 1:25:58 AM  czhower
+  Small changes.
+
+  Rev 1.4    2003.06.03 11:05:02 PM  czhower
+  Modified ProcessInThisFiber to support error flag return.
+
+  Rev 1.3    2003.04.17 7:44:58 PM  czhower
+
+  Rev 1.2    4/11/2003 6:37:38 PM  BGooijen
   ProcessInThisFiber and WaitForFibers are now overridden here
-}
-{
-{   Rev 1.1    2003.04.10 10:51:06 PM  czhower
-}
-{
-    Rev 1.14    3/27/2003 12:34:02 PM  BGooijen
+
+  Rev 1.1    2003.04.10 10:51:06 PM  czhower
+
+  Rev 1.14    3/27/2003 12:34:02 PM  BGooijen
   very little clean-up
-}
-{
-{   Rev 1.13    2003.03.27 1:31:18 AM  czhower
-{ Removal of hack cast.
-}
-{
-{   Rev 1.12    2003.03.27 1:29:16 AM  czhower
-{ Exception frame swapping.
-}
-{
-{   Rev 1.11    2003.03.27 12:45:58 AM  czhower
-{ Fixed AV relating to preparation changes for exception frame swapping
-}
-{
-{   Rev 1.10    2003.03.27 12:18:06 AM  czhower
-}
-{
-    Rev 1.9    3/26/2003 8:37:50 PM  BGooijen
+
+  Rev 1.13    2003.03.27 1:31:18 AM  czhower
+  Removal of hack cast.
+
+  Rev 1.12    2003.03.27 1:29:16 AM  czhower
+  Exception frame swapping.
+
+  Rev 1.11    2003.03.27 12:45:58 AM  czhower
+  Fixed AV relating to preparation changes for exception frame swapping
+
+  Rev 1.10    2003.03.27 12:18:06 AM  czhower
+
+  Rev 1.9    3/26/2003 8:37:50 PM  BGooijen
   Added WaitForFibers
-}
-{
-{   Rev 1.8    2003.03.26 12:48:30 AM  czhower
-}
-{
-{   Rev 1.7    3/25/2003 01:58:20 PM  JPMugaas
-{ Fixed a type-error.
-}
-{
-{   Rev 1.6    3/25/2003 01:27:56 AM  JPMugaas
-{ Made a custom exception class that descends from EIdSIlentException so that
-{ the component does not always raise an exception in the server if there's no
-{ client connection.
-}
-{
-{   Rev 1.5    2003.03.16 12:49:32 PM  czhower
-}
-{
-    Rev 1.4    3/13/2003 10:18:14 AM  BGooijen
+
+  Rev 1.8    2003.03.26 12:48:30 AM  czhower
+
+  Rev 1.7    3/25/2003 01:58:20 PM  JPMugaas
+  Fixed a type-error.
+
+  Rev 1.6    3/25/2003 01:27:56 AM  JPMugaas
+  Made a custom exception class that descends from EIdSIlentException so that
+  the component does not always raise an exception in the server if there's no
+  client connection.
+
+  Rev 1.5    2003.03.16 12:49:32 PM  czhower
+
+  Rev 1.4    3/13/2003 10:18:14 AM  BGooijen
   Server side fibers, bug fixes
+
+  Rev 1.3    12-15-2002 17:08:00  BGooijen
+  Removed  AssignList, and added a hack-cast to use .Assign
+
+  Rev 1.2    2002.12.07 11:10:30 PM  czhower
+  Removed unneeded code.
+
+  Rev 1.1    12-6-2002 20:34:10  BGooijen
+  Now compiles on Delphi 5
+
+  Rev 1.0    11/13/2002 08:44:26 AM  JPMugaas
 }
-{
-{   Rev 1.3    12-15-2002 17:08:00  BGooijen
-{ Removed  AssignList, and added a hack-cast to use .Assign
-}
-{
-{   Rev 1.2    2002.12.07 11:10:30 PM  czhower
-{ Removed unneeded code.
-}
-{
-{   Rev 1.1    12-6-2002 20:34:10  BGooijen
-{ Now compiles on Delphi 5
-}
-{
-{   Rev 1.0    11/13/2002 08:44:26 AM  JPMugaas
-}
+
 unit IdFiberWeaverInline;
 
 interface
