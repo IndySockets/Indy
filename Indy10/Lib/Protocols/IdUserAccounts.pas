@@ -16,27 +16,22 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 10:51:40 PM  JPMugaas
-{ Updated ref.
-}
-{
-    Rev 1.4    7/6/2004 4:53:46 PM  DSiders
+  Rev 1.5    10/26/2004 10:51:40 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.4    7/6/2004 4:53:46 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
-}
-{
-{   Rev 1.3    2004.02.03 5:44:40 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    2004.01.22 2:05:16 PM  czhower
-{ TextIsSame
-}
-{
-{   Rev 1.1    1/21/2004 4:21:08 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 08:04:16 AM  JPMugaas
+
+  Rev 1.3    2004.02.03 5:44:40 PM  czhower
+  Name changes
+
+  Rev 1.2    2004.01.22 2:05:16 PM  czhower
+  TextIsSame
+
+  Rev 1.1    1/21/2004 4:21:08 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:04:16 AM  JPMugaas
 }
 unit IdUserAccounts;
 {

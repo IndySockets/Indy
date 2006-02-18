@@ -16,15 +16,13 @@
   $Log$
 }
 {
-    Rev 1.2    7/6/2004 4:53:52 PM  DSiders
+  Rev 1.2    7/6/2004 4:53:52 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
-}
-{
-{   Rev 1.1    4/12/2003 10:24:10 PM  GGrieve
-{ Fix to Compile
-}
-{
-{   Rev 1.0    11/13/2002 08:04:22 AM  JPMugaas
+
+  Rev 1.1    4/12/2003 10:24:10 PM  GGrieve
+  Fix to Compile
+
+  Rev 1.0    11/13/2002 08:04:22 AM  JPMugaas
 }
 unit IdUserAccountsOTP;
 {*******************************************************}
