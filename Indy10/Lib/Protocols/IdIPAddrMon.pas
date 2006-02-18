@@ -16,42 +16,35 @@
   $Log$
 }
 {
-{   Rev 1.7    10/26/2004 10:20:04 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.6    2004.02.03 5:45:14 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.5    1/31/2004 1:18:40 PM  JPMugaas
-{ Illiminated Todo; item so it should work in DotNET.
-}
-{
-{   Rev 1.4    1/21/2004 3:11:04 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.3    10/19/2003 4:51:34 PM  DSiders
+  Rev 1.7    10/26/2004 10:20:04 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.6    2004.02.03 5:45:14 PM  czhower
+  Name changes
+
+  Rev 1.5    1/31/2004 1:18:40 PM  JPMugaas
+  Illiminated Todo; item so it should work in DotNET.
+
+  Rev 1.4    1/21/2004 3:11:04 PM  JPMugaas
+  InitComponent
+
+  Rev 1.3    10/19/2003 4:51:34 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.2    2003.10.12 3:53:12 PM  czhower
-{ compile todos
-}
-{
-    Rev 1.1    3/5/2003 11:41:14 PM  BGooijen
+
+  Rev 1.2    2003.10.12 3:53:12 PM  czhower
+  compile todos
+
+  Rev 1.1    3/5/2003 11:41:14 PM  BGooijen
   Added IdCoreGlobal to the uses, this file was needed for the call to
   Sleep(...)
-}
-{
-    Rev 1.0    12/28/2002 3:04:52 PM  DSiders
+
+  Rev 1.0    12/28/2002 3:04:52 PM  DSiders
   Initial revision.
 }
+
 unit IdIPAddrMon;
 
 {
-
   TIdIPAddrMon
 
   Monitors adapters known to the IP protocol stack for changes in any
@@ -70,13 +63,11 @@ unit IdIPAddrMon;
   The thread instance is created and freed when the value in Active is
   changed.
 
-
   TIdIPAddrMonEvent
 
   An procedure use to handle notifications from the component. Includes
   parameters that represent the adapter number, previous IP or '<unknown>',
   and the current IP or '<unknown>'.
-
 
   TIdIPAddrMonThread
 
@@ -87,14 +78,12 @@ unit IdIPAddrMon;
   fires the timer event.  Sleep is called in increments to allow checking
   for Terminated when a long Interval has been specified.
 
-
   Original Author:
 
   Don Siders, Integral Systems, Fri 27 Dec 2002
 
   Donated to the Internet Direct (Indy) Project for use under the
   terms of the Indy Dual License.
-
 }
 
 interface

@@ -16,65 +16,62 @@
   $Log$
 }
 {
-{   Rev 1.10    2004.02.03 5:43:56 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.9    1/21/2004 3:11:20 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.8    10/19/2003 5:23:20 PM  DSiders
+  Rev 1.10    2004.02.03 5:43:56 PM  czhower
+  Name changes
+
+  Rev 1.9    1/21/2004 3:11:20 PM  JPMugaas
+  InitComponent
+
+  Rev 1.8    10/19/2003 5:23:20 PM  DSiders
   Added localization comments.
+
+  Rev 1.7    2003.10.18 9:42:08 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.6    8/2/2003 05:03:46 AM  JPMugaas
+  Hopefully should now support IRCS (IRC over TLS/SSL)
+
+  Rev 1.5    7/18/2003 4:26:30 PM  SPerry
+  New IRC server using command handlers
+
+  Rev 1.4    2/24/2003 09:07:18 PM  JPMugaas
+
+  Rev 1.3    1/17/2003 07:10:36 PM  JPMugaas
+  Now compiles under new framework.
+
+  Rev 1.2    1-1-2003 20:13:22  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.1    12/7/2002 06:43:02 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 07:55:52 AM  JPMugaas
+
+  2002-10-July: Sergio Perry
+    -Switched to using TIdCmdServer
+
+  2002-17-Aug: Bas Gooijen
+    -Changed to DoXXXXX
+
+  2000-15-May:  Renamed events to Id Prefix
+
+  2000-22-Apr: J Peter Mugass
+    -Ported to Indy
+
+  2000-13-Jan MTL
+    -Moved to new Palette Scheme (Winshoes Servers)
+
+  1999-13-Apr
+    -Final Version
 }
-{
-{   Rev 1.7    2003.10.18 9:42:08 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.6    8/2/2003 05:03:46 AM  JPMugaas
-{ Hopefully should now support IRCS (IRC over TLS/SSL)
-}
-{
-{   Rev 1.5    7/18/2003 4:26:30 PM  SPerry
-{ New IRC server using command handlers
-}
-{
-{   Rev 1.4    2/24/2003 09:07:18 PM  JPMugaas
-}
-{
-{   Rev 1.3    1/17/2003 07:10:36 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.2    1-1-2003 20:13:22  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.1    12/7/2002 06:43:02 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 07:55:52 AM  JPMugaas
-}
+
 unit IdIrcServer;
 
 interface
 
 {
-2002-10-July: Sergio Perry
-  -Switched to using TIdCmdServer
-2002-17-Aug: Bas Gooijen
-  -Changed to DoXXXXX
-2000-15-May:  Renamed events to Id Prefix
-2000-22-Apr: J Peter Mugass
-  -Ported to Indy
-2000-13-Jan MTL
-  -Moved to new Palette Scheme (Winshoes Servers)
-1999-13-Apr
-  -Final Version
-Original Author: Ozz Nixon
+  Original Author: Ozz Nixon
   -RFC 1459 - Internet Relay Chat
 }
 

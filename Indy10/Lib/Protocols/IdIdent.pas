@@ -16,42 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.6    2004.02.03 5:43:46 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.5    1/21/2004 3:10:36 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.4    3/27/2003 3:42:00 PM  BGooijen
+  Rev 1.6    2004.02.03 5:43:46 PM  czhower
+  Name changes
+
+  Rev 1.5    1/21/2004 3:10:36 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    3/27/2003 3:42:00 PM  BGooijen
   Changed because some properties are moved to IOHandler
+
+  Rev 1.3    2/24/2003 09:00:34 PM  JPMugaas
+
+  Rev 1.2    12/8/2002 07:25:18 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.1    12/6/2002 05:30:00 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 07:54:40 AM  JPMugaas
+
+  2001 - Feb 12 - J. Peter Mugaas
+    started this client
 }
-{
-{   Rev 1.3    2/24/2003 09:00:34 PM  JPMugaas
-}
-{
-{   Rev 1.2    12/8/2002 07:25:18 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:00 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 07:54:40 AM  JPMugaas
-}
+
 unit IdIdent;
 
-interface
-uses IdAssignedNumbers, IdException, IdTCPClient;
-{ 2001 - Feb 12 - J. Peter Mugaas
-         started this client
-
+{
   This is the Ident client which is based on RFC 1413.
 }
+
+interface
+
+uses IdAssignedNumbers, IdException, IdTCPClient;
+
 const
   IdIdentQryTimeout = 60000;
+
 type
   EIdIdentException = class(EIdException);
   EIdIdentReply = class(EIdIdentException);
@@ -94,6 +94,7 @@ uses
 
 const IdentErrorText : Array[0..3] of string =
   ('INVALID-PORT', 'NO-USER', 'HIDDEN-USER', 'UNKNOWN-ERROR');    {Do not Localize}
+
 { TIdIdent }
 
 procedure TIdIdent.InitComponent;

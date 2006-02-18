@@ -16,56 +16,53 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 11:08:04 PM  JPMugaas
-{ Updated refs.
+  Rev 1.5    10/26/2004 11:08:04 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    2004.02.03 5:43:54 PM  czhower
+  Name changes
+
+  Rev 1.3    2/1/2004 3:33:46 AM  JPMugaas
+  Reenabled.  SHould work in DotNET.
+
+  Rev 1.2    1/21/2004 3:11:12 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    2003.10.12 4:03:58 PM  czhower
+  compile todos
+
+  Rev 1.0    11/13/2002 07:55:32 AM  JPMugaas
+
+  2000-Dec-22 Kudzu
+    -Changed from a TTimer to a sleeping thread to eliminate the reference to ExtCtrls. This was the
+    only unit in all of Indy that used this unit and caused the pkg to rely on extra pkgs.
+    -Changed Enabled to Active to be more consistent
+    -Active now also defaults to false to be more consistent
+
+  2000-MAY-10 Hadi Hariri
+    -Added new feature to Force Check of status
+
+  2000-Apr-23 Hadi Hariri
+    -Converted to Indy
+
+  2000-Mar-01 Johannes Berg <johannes@sipsolutions.com>
+    - new property HistoryFilename
+    - new property MaxHistoryEntries
+    - new property HistoryEnabled
+
+  2000-Jan-13 MTL
+    -Moved to new Palette Scheme (Winshoes Misc)
 }
-{
-{   Rev 1.4    2004.02.03 5:43:54 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    2/1/2004 3:33:46 AM  JPMugaas
-{ Reenabled.  SHould work in DotNET.
-}
-{
-{   Rev 1.2    1/21/2004 3:11:12 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    2003.10.12 4:03:58 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.0    11/13/2002 07:55:32 AM  JPMugaas
-}
+
 unit IdIPWatch;
 
 {
   Simple component determines Online status,
   returns current IP address, and (optionally) keeps history on
-  IP's issued.   
+  IP's issued.
 
-2000-Dec-22 Kudzu
-  -Changed from a TTimer to a sleeping thread to eliminate the reference to ExtCtrls. This was the
-   only unit in all of Indy that used this unit and caused the pkg to rely on extra pkgs.
-  -Changed Enabled to Active to be more consistent
-  -Active now also defaults to false to be more consistent
-2000-MAY-10 Hadi Hariri
-  -Added new feature to Force Check of status
-2000-Apr-23 Hadi Hariri
-  -Converted to Indy
-2000-Mar-01 Johannes Berg <johannes@sipsolutions.com>
-  - new property HistoryFilename
-  - new property MaxHistoryEntries
-  - new property HistoryEnabled
-2000-Jan-13 MTL
-  -Moved to new Palette Scheme (Winshoes Misc)
-Original Author: Dave Nosker - AfterWave Technologies (allbyte@jetlink.net)
+  Original Author: Dave Nosker - AfterWave Technologies (allbyte@jetlink.net)
 }
-
-//TODO: We are feature frozen now, but this should probably be moved to the GUI pkg in the future
-// (GUI Pkg will be a new pkg in 8.100 that links to forms etc and deals with things other than
-// just communications).
 
 interface
 
