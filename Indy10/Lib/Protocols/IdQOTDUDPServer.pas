@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:44:14 PM  czhower
-{ Name changes
+  Rev 1.4    2004.02.03 5:44:14 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 3:27:16 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/24/2003 02:54:56 PM  JPMugaas
+  These should now work with the new code.
+
+  Rev 1.1    2003.10.24 10:38:30 AM  czhower
+  UDP Server todos
+
+  Rev 1.0    11/13/2002 07:58:52 AM  JPMugaas
 }
-{
-{   Rev 1.3    1/21/2004 3:27:16 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    10/24/2003 02:54:56 PM  JPMugaas
-{ These should now work with the new code.
-}
-{
-{   Rev 1.1    2003.10.24 10:38:30 AM  czhower
-{ UDP Server todos
-}
-{
-{   Rev 1.0    11/13/2002 07:58:52 AM  JPMugaas
-}
+
 unit IdQOTDUDPServer;
 
 interface

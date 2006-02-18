@@ -16,21 +16,20 @@
   $Log$
 }
 {
-{   Rev 1.3    1/21/2004 3:27:12 PM  JPMugaas
-{ InitComponent
+  Rev 1.3    1/21/2004 3:27:12 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    12/8/2002 07:25:44 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.1    12/6/2002 05:30:28 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 07:58:34 AM  JPMugaas
 }
-{
-{   Rev 1.2    12/8/2002 07:25:44 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:28 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 07:58:34 AM  JPMugaas
-}
+
 unit IdQotd;
+
 {*******************************************************}
 {                                                       }
 {       Indy QUOTD Client TIdQOTD                       }
