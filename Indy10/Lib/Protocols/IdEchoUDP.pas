@@ -16,24 +16,25 @@
   $Log$
 }
 {
-{   Rev 1.3    2004.02.03 5:45:06 PM  czhower
-{ Name changes
+  Rev 1.3    2004.02.03 5:45:06 PM  czhower
+  Name changes
+
+  Rev 1.2    1/21/2004 3:27:50 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    1/3/2004 12:59:52 PM  JPMugaas
+  These should now compile with Kudzu's change in IdCoreGlobal.
+
+  Rev 1.0    11/14/2002 02:19:34 PM  JPMugaas
 }
-{
-{   Rev 1.2    1/21/2004 3:27:50 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    1/3/2004 12:59:52 PM  JPMugaas
-{ These should now compile with Kudzu's change in IdCoreGlobal.
-}
-{
-{   Rev 1.0    11/14/2002 02:19:34 PM  JPMugaas
-}
+
 unit IdEchoUDP;
 
 interface
-uses IdAssignedNumbers, IdUDPBase, IdUDPClient;
+
+uses
+  IdAssignedNumbers, IdUDPBase, IdUDPClient;
+
 type
   TIdEchoUDP = class(TIdUDPClient)
   protected

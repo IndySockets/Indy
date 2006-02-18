@@ -16,48 +16,48 @@
   $Log$
 }
 {
-{   Rev 1.6    12/2/2004 4:23:54 PM  JPMugaas
-{ Adjusted for changes in Core.
+  Rev 1.6    12/2/2004 4:23:54 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.5    1/21/2004 2:29:40 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    2/24/2003 08:41:24 PM  JPMugaas
+  Should compile with new code.
+
+  Rev 1.3    1/17/2003 05:35:02 PM  JPMugaas
+  Now compiles with new design.
+
+  Rev 1.2    1/9/2003 07:10:56 AM  JPMugaas
+  Changed Finger server API so developers do not have to mess with the Context
+  and Connnection objects.
+
+  Rev 1.1    1-1-2003 20:13:02  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.0    11/14/2002 02:19:56 PM  JPMugaas
+
+  2000-May-15  J. Peter Mugaas
+    -Added verbose querry event to complement TIdFinger
+
+  2000-Apr-22  J Peter Mugass
+    -Ported to Indy
+
+  2000-Jan-13  MTL
+    -Moved to new Palette Scheme (Winshoes Servers)
+
+  1999-Apr-13
+    -Final Version
 }
-{
-{   Rev 1.5    1/21/2004 2:29:40 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.4    2/24/2003 08:41:24 PM  JPMugaas
-{ Should compile with new code.
-}
-{
-{   Rev 1.3    1/17/2003 05:35:02 PM  JPMugaas
-{ Now compiles with new design.
-}
-{
-{   Rev 1.2    1/9/2003 07:10:56 AM  JPMugaas
-{ Changed Finger server API so developers do not have to mess with the Context
-{ and Connnection objects.
-}
-{
-{   Rev 1.1    1-1-2003 20:13:02  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.0    11/14/2002 02:19:56 PM  JPMugaas
-}
+
+
 unit IdFingerServer;
 
-interface
-
 {
-2000-May-15  J. Peter Mugaas
-  -Added verbose querry event to complement TIdFinger
-2000-Apr-22  J Peter Mugass
-  -Ported to Indy
-2000-Jan-13  MTL
-  -Moved to new Palette Scheme (Winshoes Servers)
-1999-Apr-13
-  -Final Version
-Original Author: Ozz Nixon
+  Original Author: Ozz Nixon
 }
+
+interface
 
 uses
   IdAssignedNumbers,

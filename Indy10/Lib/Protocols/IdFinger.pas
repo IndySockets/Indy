@@ -16,32 +16,34 @@
   $Log$
 }
 {
-{   Rev 1.6    2004.02.03 5:45:10 PM  czhower
-{ Name changes
+  Rev 1.6    2004.02.03 5:45:10 PM  czhower
+  Name changes
+
+  Rev 1.5    1/21/2004 2:29:38 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    2/24/2003 08:41:20 PM  JPMugaas
+  Should compile with new code.
+
+  Rev 1.3    12/8/2002 07:58:54 PM  JPMugaas
+  Now compiles properly.
+
+  Rev 1.2    12/8/2002 07:26:38 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.1    12/6/2002 05:29:34 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/14/2002 02:19:50 PM  JPMugaas
+
+  2000-April-30  J. Peter Mugaas
+  -adjusted CompleteQuery to permit recursive finger queries such
+   as "test@test.com@example.com".  I had mistakenly assumed that
+   everything after the first @ was the host name.
+  -Added option for verbose output request from server - note that
+   many do not support this.
 }
-{
-{   Rev 1.5    1/21/2004 2:29:38 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.4    2/24/2003 08:41:20 PM  JPMugaas
-{ Should compile with new code.
-}
-{
-{   Rev 1.3    12/8/2002 07:58:54 PM  JPMugaas
-{ Now compiles properly.
-}
-{
-{   Rev 1.2    12/8/2002 07:26:38 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.1    12/6/2002 05:29:34 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/14/2002 02:19:50 PM  JPMugaas
-}
+
 unit IdFinger;
 
 {*******************************************************}
@@ -54,12 +56,7 @@ unit IdFinger;
 {       Based on RFC 1288                               }
 {                                                       }
 {*******************************************************}
-{2000-April-30  J. Peter Mugaas
-  -adjusted CompleteQuery to permit recursive finger queries such
-   as "test@test.com@example.com".  I had mistakenly assumed that
-   everything after the first @ was the host name.
-  -Added option for verbose output request from server - note that
-   many do not support this.}
+
 interface
 
 uses

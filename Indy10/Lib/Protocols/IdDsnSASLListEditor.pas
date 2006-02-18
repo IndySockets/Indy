@@ -16,33 +16,28 @@
   $Log$
 }
 {
-{   Rev 1.6    9/5/2004 3:16:58 PM  JPMugaas
-{ Should work in D9 DotNET.
+  Rev 1.6    9/5/2004 3:16:58 PM  JPMugaas
+  Should work in D9 DotNET.
+
+  Rev 1.5    3/8/2004 10:14:56 AM  JPMugaas
+  Property editor for SASL mechanisms now supports TIdDICT.
+
+  Rev 1.4    2/26/2004 8:53:16 AM  JPMugaas
+  Hack to restore the property editor for SASL mechanisms.
+
+  Rev 1.3    1/25/2004 3:11:08 PM  JPMugaas
+  SASL Interface reworked to make it easier for developers to use.
+  SSL and SASL reenabled components.
+
+  Rev 1.2    10/12/2003 1:49:30 PM  BGooijen
+  Changed comment of last checkin
+
+  Rev 1.1    10/12/2003 1:43:30 PM  BGooijen
+  Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+  Rev 1.0    11/14/2002 02:19:08 PM  JPMugaas
 }
-{
-{   Rev 1.5    3/8/2004 10:14:56 AM  JPMugaas
-{ Property editor for SASL mechanisms now supports TIdDICT.
-}
-{
-{   Rev 1.4    2/26/2004 8:53:16 AM  JPMugaas
-{ Hack to restore the property editor for SASL mechanisms.
-}
-{
-{   Rev 1.3    1/25/2004 3:11:08 PM  JPMugaas
-{ SASL Interface reworked to make it easier for developers to use.
-{ SSL and SASL reenabled components.
-}
-{
-{   Rev 1.2    10/12/2003 1:49:30 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.1    10/12/2003 1:43:30 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.0    11/14/2002 02:19:08 PM  JPMugaas
-}
+
 unit IdDsnSASLListEditor;
 
 interface
@@ -55,12 +50,12 @@ uses
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
     {$ELSE}
        Dsgnintf;

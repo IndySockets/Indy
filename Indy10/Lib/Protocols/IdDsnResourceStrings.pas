@@ -16,23 +16,28 @@
   $Log$
 }
 {
-{   Rev 1.0    11/14/2002 02:19:02 PM  JPMugaas
+  Rev 1.0    11/14/2002 02:19:02 PM  JPMugaas
 }
+
 unit IdDsnResourceStrings;
-{This is only for resource strings that appear in the design-time editors in the main Indy package}
+
+{ This is only for resource strings that appear in the design-time editors in the main Indy package }
+
 interface
+
 resourcestring
   {Binding Editor stuff}
+
   {
   Note to translators - Please Read!!!
 
-  & symbol before a letter or number.  This is rendered as that chractor being
+   & symbol before a letter or number.  This is rendered as that chractor being
   underlined.  In addition, the charactor after the & symbol along with the ALT
   key enables a user to move to that control.  Since these are on one form, be
   careful to ensure that the same letter or number does not have a & before it
   in more than one string, otherwise an ALT key sequence will be broken.
-
   }
+
   {Design time SASLList Hints}
   RSADlgSLMoveUp = 'Move Up';
   RSADlgSLMoveDown = 'Move Down';

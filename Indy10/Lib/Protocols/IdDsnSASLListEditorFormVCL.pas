@@ -16,48 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.7    9/8/2004 10:10:40 PM  JPMugaas
-{ Now should work properly in DotNET versions of Delphi.
-}
-{
-{   Rev 1.6    9/5/2004 3:16:58 PM  JPMugaas
-{ Should work in D9 DotNET.
-}
-{
-{   Rev 1.5    2/26/2004 8:53:22 AM  JPMugaas
-{ Hack to restore the property editor for SASL mechanisms.
-}
-{
-{   Rev 1.4    1/25/2004 3:11:10 PM  JPMugaas
-{ SASL Interface reworked to make it easier for developers to use.
-{ SSL and SASL reenabled components.
-}
-{
-    Rev 1.3    10/19/2003 6:05:38 PM  DSiders
+  Rev 1.7    9/8/2004 10:10:40 PM  JPMugaas
+  Now should work properly in DotNET versions of Delphi.
+
+  Rev 1.6    9/5/2004 3:16:58 PM  JPMugaas
+  Should work in D9 DotNET.
+
+  Rev 1.5    2/26/2004 8:53:22 AM  JPMugaas
+  Hack to restore the property editor for SASL mechanisms.
+
+  Rev 1.4    1/25/2004 3:11:10 PM  JPMugaas
+  SASL Interface reworked to make it easier for developers to use.
+  SSL and SASL reenabled components.
+
+  Rev 1.3    10/19/2003 6:05:38 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.2    10/12/2003 1:49:30 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.1    10/12/2003 1:43:30 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.0    11/14/2002 02:19:14 PM  JPMugaas
-}
-{
+
+  Rev 1.2    10/12/2003 1:49:30 PM  BGooijen
+  Changed comment of last checkin
+
+  Rev 1.1    10/12/2003 1:43:30 PM  BGooijen
+  Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+  Rev 1.0    11/14/2002 02:19:14 PM  JPMugaas
+
   2002-08 Johannes Berg
-    Form for the SASL List Editor. It doesn't use a DFM/XFM to be
-    more portable between Delphi/Kylix versions, and to make less
-    trouble maintaining it.
+  Form for the SASL List Editor. It doesn't use a DFM/XFM to be
+  more portable between Delphi/Kylix versions, and to make less
+  trouble maintaining it.
 }
+
 unit IdDsnSASLListEditorFormVCL;
 
 interface
 
 {$I IdCompilerDefines.inc}
+
 uses
   {$IFDEF Linux}
   QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,

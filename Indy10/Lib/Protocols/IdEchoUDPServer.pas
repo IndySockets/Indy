@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:45:08 PM  czhower
-{ Name changes
+  Rev 1.4    2004.02.03 5:45:08 PM  czhower
+  Name changes
+
+  Rev 1.3    1/22/2004 7:10:04 AM  JPMugaas
+  Tried to fix AnsiSameText depreciation.
+
+  Rev 1.2    1/21/2004 3:27:52 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    10/23/2003 03:50:52 AM  JPMugaas
+  TIdEchoUDP Ported.
+
+  Rev 1.0    11/14/2002 02:19:38 PM  JPMugaas
 }
-{
-{   Rev 1.3    1/22/2004 7:10:04 AM  JPMugaas
-{ Tried to fix AnsiSameText depreciation.
-}
-{
-{   Rev 1.2    1/21/2004 3:27:52 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    10/23/2003 03:50:52 AM  JPMugaas
-{ TIdEchoUDP Ported.
-}
-{
-{   Rev 1.0    11/14/2002 02:19:38 PM  JPMugaas
-}
+
 unit IdEchoUDPServer;
 
 interface
@@ -72,5 +69,5 @@ end;
 
 end.
 
- 
+
 

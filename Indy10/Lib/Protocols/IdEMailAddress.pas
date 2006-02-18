@@ -16,8 +16,6 @@
   $Log$
 }
 {
-  Prior revision history
-
   Rev 1.13    10/26/2004 9:09:36 PM  JPMugaas
     Updated references.
 
@@ -61,37 +59,40 @@
 
   Rev 1.0    11/14/2002 02:19:44 PM  JPMugaas
 
-2001-Aug-30 - Jim Gunkel
-    Fixed bugs that would occur with group names containing spaces
-    (box test 19) and content being located after the email
-    address (box test 33)
+  2001-Aug-30 - Jim Gunkel
+      Fixed bugs that would occur with group names containing spaces
+      (box test 19) and content being located after the email
+      address (box test 33)
 
-2001-Jul-11 - Allen O'Neill
-    Added hack to not allow recipient entries being added that are blank
+  2001-Jul-11 - Allen O'Neill
+      Added hack to not allow recipient entries being added that are blank
 
-2001-Jul-11 - Allen O'Neill
-    Added hack to accomodate a PERIOD (#46) in an email address -
-    this whole area needs to be looked at.
+  2001-Jul-11 - Allen O'Neill
+      Added hack to accomodate a PERIOD (#46) in an email address -
+      this whole area needs to be looked at.
 
-2001-Feb-03 - Peter Mee
-    Overhauled TIdEMailAddressItem.GetText to support non-standard textual
-    elements.
+  2001-Feb-03 - Peter Mee
+      Overhauled TIdEMailAddressItem.GetText to support non-standard textual
+      elements.
 
-2001-Jan-29 - Peter Mee
-    Overhauled TIdEMailAddressList.SetEMailAddresses to support comments
-    and escaped characters and to ignore groups.
+  2001-Jan-29 - Peter Mee
+      Overhauled TIdEMailAddressList.SetEMailAddresses to support comments
+      and escaped characters and to ignore groups.
 
-2001-Jan-28 - Peter Mee
-    Overhauled TIdEMailAddressItem.SetText to support comments and escaped
-    characters.
+  2001-Jan-28 - Peter Mee
+      Overhauled TIdEMailAddressItem.SetText to support comments and escaped
+      characters.
 
-2000-Jun-10 - J. Peter Mugaas
-    started this unit to facilitate some Indy work including the
-    TIdEMailAddressItem and TIdEMailAddressList classes
+  2000-Jun-10 - J. Peter Mugaas
+      started this unit to facilitate some Indy work including the
+      TIdEMailAddressItem and TIdEMailAddressList classes
 
-    The GetText and SetText were originally the ToArpa and FromArpa
-    functions in the TIdMessage component
+      The GetText and SetText were originally the ToArpa and FromArpa
+      functions in the TIdMessage component
 }
+
+unit IdEMailAddress;
+
 {
   Developer(s):
     J. Peter Mugaas
@@ -107,8 +108,6 @@
     Andy Neillans
     Allen O'Neill
 }
-
-unit IdEMailAddress;
 
 interface
 
@@ -146,7 +145,7 @@ type
      property Text: string read GetText write SetText;
      {Extracted domain for some types of E-Mail processing}
      property Domain: string read GetDomain write SetDomain;
-     property User: string read GetUsername write SetUsername;     
+     property User: string read GetUsername write SetUsername;
    end;
 
    TIdEMailAddressList = class (TIdOwnedCollection)
