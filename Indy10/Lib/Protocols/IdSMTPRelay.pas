@@ -16,135 +16,114 @@
   $Log$
 }
 {
-{   Rev 1.9    1/4/2005 5:27:20 PM  JPMugaas
-{ Removed Windows unit from uses clause.
-}
-{
-{   Rev 1.8    04/01/2005 15:34:18  ANeillans
-{ Renamed InternalSend to RelayInternalSend, as it was conflicting with
-{ InternalSend in IdSMTPBase, and no e-mails were ever being sent.
-{ Some formatting and spelling corrections
-}
-{
-{   Rev 1.7    10/26/2004 10:55:34 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.6    2004.03.06 1:31:52 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.5    2004.02.07 4:57:20 PM  czhower
-{ Fixed warning.
-}
-{
-{   Rev 1.4    2004.02.03 5:45:48 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/21/2004 4:03:26 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.2    11/4/2003 10:22:56 PM  DSiders
+  Rev 1.9    1/4/2005 5:27:20 PM  JPMugaas
+  Removed Windows unit from uses clause.
+
+  Rev 1.8    04/01/2005 15:34:18  ANeillans
+  Renamed InternalSend to RelayInternalSend, as it was conflicting with
+  InternalSend in IdSMTPBase, and no e-mails were ever being sent.
+  Some formatting and spelling corrections
+
+  Rev 1.7    10/26/2004 10:55:34 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.6    2004.03.06 1:31:52 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.5    2004.02.07 4:57:20 PM  czhower
+  Fixed warning.
+
+  Rev 1.4    2004.02.03 5:45:48 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 4:03:26 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    11/4/2003 10:22:56 PM  DSiders
   Use IdException for exceptions moved to the unit.
-}
-{
-{   Rev 1.1    2003.10.18 9:42:14 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.0    6/15/2003 03:27:18 PM  JPMugaas
-{ Renamed IdDirect SMTP to IdSMTPRelay.
-}
-{
-{   Rev 1.15    6/15/2003 01:09:30 PM  JPMugaas
-{ Now uses new base class in TIdSMTPBase.  I removed the old original
-{ unoptimized code that made a connection for each recipient for better
-{ maintenance and because I doubt anyone would use that anyway.
-}
-{
-{   Rev 1.14    6/5/2003 04:54:16 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.13    5/26/2003 12:21:50 PM  JPMugaas
-}
-{
-{   Rev 1.12    5/25/2003 03:54:12 AM  JPMugaas
-}
-{
-{   Rev 1.11    5/25/2003 01:41:08 AM  JPMugaas
-{ Sended changed to Sent.  TryImplicitTLS now will only be true if
-{ UseSSL<>NoSSL.  UseEHLO=False will now disable TLS usage and TLS usage being
-{ set causes UseEHLO to be true.  StatusItem collection Items now have default
-{ values for Sent and ReplyCode.
-}
-{
-{   Rev 1.10    5/25/2003 12:40:34 AM  JPMugaas
-{ Published events from TIdExplicitTLSClient to be consistant with other
-{ components in Indy and for any custom handling of certain TLS negotiatiation
-{ problems.
-}
-{
-{   Rev 1.9    5/25/2003 12:17:16 AM  JPMugaas
-{ Now can support SSL (either requiring SSL or using it if available).  This is
-{ in addition, it can optionally support ImplicitTLS (note that I do not
-{ recommend this because that is depreciated -and the port for it was
-{ deallocated and this does incur a performance penalty with an additional
-{ connect attempt - and possibly a timeout in some firewall situations).
-}
-{
-    Rev 1.8    5/23/2003 7:48:12 PM  BGooijen
+
+  Rev 1.1    2003.10.18 9:42:14 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.0    6/15/2003 03:27:18 PM  JPMugaas
+  Renamed IdDirect SMTP to IdSMTPRelay.
+
+  Rev 1.15    6/15/2003 01:09:30 PM  JPMugaas
+  Now uses new base class in TIdSMTPBase.  I removed the old original
+  unoptimized code that made a connection for each recipient for better
+  maintenance and because I doubt anyone would use that anyway.
+
+  Rev 1.14    6/5/2003 04:54:16 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.13    5/26/2003 12:21:50 PM  JPMugaas
+
+  Rev 1.12    5/25/2003 03:54:12 AM  JPMugaas
+
+  Rev 1.11    5/25/2003 01:41:08 AM  JPMugaas
+  Sended changed to Sent.  TryImplicitTLS now will only be true if
+  UseSSL<>NoSSL.  UseEHLO=False will now disable TLS usage and TLS usage being
+  set causes UseEHLO to be true.  StatusItem collection Items now have default
+  values for Sent and ReplyCode.
+
+  Rev 1.10    5/25/2003 12:40:34 AM  JPMugaas
+  Published events from TIdExplicitTLSClient to be consistant with other
+  components in Indy and for any custom handling of certain TLS negotiatiation
+  problems.
+
+  Rev 1.9    5/25/2003 12:17:16 AM  JPMugaas
+  Now can support SSL (either requiring SSL or using it if available).  This is
+  in addition, it can optionally support ImplicitTLS (note that I do not
+  recommend this because that is depreciated -and the port for it was
+  deallocated and this does incur a performance penalty with an additional
+  connect attempt - and possibly a timeout in some firewall situations).
+
+  Rev 1.8    5/23/2003 7:48:12 PM  BGooijen
   TIdSMTPRelayStatusItem.FEnhancedCode object was not created
+
+  Rev 1.7    5/23/2003 05:02:42 AM  JPMugaas
+
+  Rev 1.6    5/23/2003 04:52:22 AM  JPMugaas
+  Work started on TIdSMTPRelay to support enhanced error codes.
+
+  Rev 1.5    5/18/2003 02:31:50 PM  JPMugaas
+  Reworked some things so IdSMTP and IdDirectSMTP can share code including
+  stuff for pipelining.
+
+  Rev 1.4    4/28/2003 03:36:22 PM  JPMugaas
+  Revered back to the version I checked in earlier because of my API changes to
+  the DNS classes.
+
+  Rev 1.2    4/28/2003 07:00:02 AM  JPMugaas
+  Should now compile.
+
+  Rev 1.1    12/6/2002 02:35:22 PM  JPMugaas
+  Now compiles with Indy 10.
+
+  Rev 1.0    11/14/2002 02:17:28 PM  JPMugaas
 }
-{
-{   Rev 1.7    5/23/2003 05:02:42 AM  JPMugaas
-}
-{
-{   Rev 1.6    5/23/2003 04:52:22 AM  JPMugaas
-{ Work started on TIdSMTPRelay to support enhanced error codes.
-}
-{
-{   Rev 1.5    5/18/2003 02:31:50 PM  JPMugaas
-{ Reworked some things so IdSMTP and IdDirectSMTP can share code including
-{ stuff for pipelining.
-}
-{
-{   Rev 1.4    4/28/2003 03:36:22 PM  JPMugaas
-{ Revered back to the version I checked in earlier because of my API changes to
-{ the DNS classes.
-}
-{
-{   Rev 1.2    4/28/2003 07:00:02 AM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.1    12/6/2002 02:35:22 PM  JPMugaas
-{ Now compiles with Indy 10.
-}
-{
-{   Rev 1.0    11/14/2002 02:17:28 PM  JPMugaas
-}
+
 unit IdSMTPRelay;
 
 {
-	Original Author: Maximiliano Di Rienzo
-   dirienzo@infovia.com.ar
-   Variation of the TIdSMTP that connects directly with the recipient's SMTP server
-   and delivers the message, it doesn't use a relay SMTP server to deliver the message.
+  Original Author: Maximiliano Di Rienzo
+    dirienzo@infovia.com.ar
+    Variation of the TIdSMTP that connects directly with the recipient's SMTP server
+    and delivers the message, it doesn't use a relay SMTP server to deliver the message.
 
-   Hides the procs Connect and Disconnect (protected now) because these are called internally
-   to connect to the dynamically resolved host based on the MX server of the recipient's domain.
-   The procs related to the auth schema have been removed because they aren't needed.
+    Hides the procs Connect and Disconnect (protected now) because these are called
+    internally to connect to the dynamically resolved host based on the MX server of the
+    recipient's domain. The procs related to the auth schema have been removed because
+    they aren't needed.
 
-   Introduces the property
-    	property StatusList:TIdSMTPRelayStatusList;
-   it's a collection containing the status of each recipient's address after the Send method is called
+    Introduces the property
+      property StatusList:TIdSMTPRelayStatusList;
+    it's a collection containing the status of each recipient's address after the Send
+    method is called
 
-   and the event
-    	property OnDirectSMTPStatus:TIdSMTPRelayStatus;
-	to keep track of the status as the sending is in progress.
+    and the event
+      property OnDirectSMTPStatus:TIdSMTPRelayStatus;
+    to keep track of the status as the sending is in progress.
 }
 
 interface
