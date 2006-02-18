@@ -16,60 +16,48 @@
   $Log$
 }
 {
-{   Rev 1.13    12/2/2004 4:24:00 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.12    2004.02.03 5:44:32 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.11    2004.01.22 2:33:58 PM  czhower
-{ Matched visibility of DoConnect
-}
-{
-{   Rev 1.10    1/21/2004 4:20:52 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.9    2003.10.21 9:13:16 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.8    9/19/2003 04:27:02 PM  JPMugaas
-{ Removed IdFTPServer so Indy can compile with Kudzu's new changes.
-}
-{
-    Rev 1.7    7/6/2003 7:55:36 PM  BGooijen
+  Rev 1.13    12/2/2004 4:24:00 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.12    2004.02.03 5:44:32 PM  czhower
+  Name changes
+
+  Rev 1.11    2004.01.22 2:33:58 PM  czhower
+  Matched visibility of DoConnect
+
+  Rev 1.10    1/21/2004 4:20:52 PM  JPMugaas
+  InitComponent
+
+  Rev 1.9    2003.10.21 9:13:16 PM  czhower
+  Now compiles.
+
+  Rev 1.8    9/19/2003 04:27:02 PM  JPMugaas
+  Removed IdFTPServer so Indy can compile with Kudzu's new changes.
+
+  Rev 1.7    7/6/2003 7:55:36 PM  BGooijen
   Removed unused units from the uses
+
+  Rev 1.6    2/24/2003 10:32:50 PM  JPMugaas
+
+  Rev 1.5    1/17/2003 07:11:04 PM  JPMugaas
+  Now compiles under new framework.
+
+  Rev 1.4    1/17/2003 04:05:40 PM  JPMugaas
+  Now compiles under new design.
+
+  Rev 1.3    1/9/2003 06:09:42 AM  JPMugaas
+  Updated for IdContext API change.
+
+  Rev 1.2    1/8/2003 05:53:58 PM  JPMugaas
+  Switched stuff to IdContext.
+
+  Rev 1.1    12/7/2002 06:43:36 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 08:02:56 AM  JPMugaas
 }
-{
-{   Rev 1.6    2/24/2003 10:32:50 PM  JPMugaas
-}
-{
-{   Rev 1.5    1/17/2003 07:11:04 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.4    1/17/2003 04:05:40 PM  JPMugaas
-{ Now compiles under new design.
-}
-{
-{   Rev 1.3    1/9/2003 06:09:42 AM  JPMugaas
-{ Updated for IdContext API change.
-}
-{
-{   Rev 1.2    1/8/2003 05:53:58 PM  JPMugaas
-{ Switched stuff to IdContext.
-}
-{
-{   Rev 1.1    12/7/2002 06:43:36 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 08:02:56 AM  JPMugaas
-}
+
 unit IdTelnetServer;
 
 interface
