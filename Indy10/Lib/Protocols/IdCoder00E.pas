@@ -16,25 +16,22 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.05.20 1:39:26 PM  czhower
-{ Last of the IdStream updates
+  Rev 1.4    2004.05.20 1:39:26 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.3    2004.05.20 11:37:20 AM  czhower
+  IdStreamVCL
+
+  Rev 1.2    2004.05.20 11:13:16 AM  czhower
+  More IdStream conversions
+
+  Rev 1.1    2003.06.13 6:57:10 PM  czhower
+  Speed improvement
+
+  Rev 1.0    2003.06.13 4:59:36 PM  czhower
+  Initial checkin
 }
-{
-{   Rev 1.3    2004.05.20 11:37:20 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.2    2004.05.20 11:13:16 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.1    2003.06.13 6:57:10 PM  czhower
-{ Speed improvement
-}
-{
-{   Rev 1.0    2003.06.13 4:59:36 PM  czhower
-{ Initial checkin
-}
+
 unit IdCoder00E;
 
 interface

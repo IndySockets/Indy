@@ -16,108 +16,91 @@
   $Log$
 }
 {
-{   Rev 1.20    10/26/2004 11:08:10 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.19    27.08.2004 22:03:22  Andreas Hausladen
-{ Optimized encoders
-{ speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.18    24/08/2004 10:33:44  CCostelloe
-{ Was too slow (~45 mins for 2MB down to ~1sec)
-}
-{
-{   Rev 1.17    2004.05.20 1:39:22 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.16    2004.05.20 11:37:10 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.15    2004.05.20 11:13:14 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.14    2004.05.19 3:06:54 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.13    2/19/2004 11:52:02 PM  JPMugaas
-{ Removed IFDEF's.  Moved some functions into IdGlobalProtocols for reuse
-{ elsewhere.
-}
-{
-{   Rev 1.12    2004.02.03 5:45:00 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.11    2004.02.03 2:12:06 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.10    1/22/2004 3:59:14 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.9    11/10/2003 7:41:30 PM  BGooijen
-{ Did all todo's ( TStream to TIdStream mainly )
-}
-{
-{   Rev 1.8    2003.10.17 6:14:44 PM  czhower
-{ Fix to match new IdStream
-}
-{
-{   Rev 1.7    2003.10.12 3:38:26 PM  czhower
-{ Added path to .inc
-}
-{
-{   Rev 1.6    10/12/2003 1:33:42 PM  BGooijen
-{ Compiles on D7 now too
-}
-{
-{   Rev 1.5    10/12/2003 12:02:50 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.4    6/13/2003 12:07:44 PM  JPMugaas
-{ QP was broken again.
-}
-{
-{   Rev 1.3    6/13/2003 07:58:50 AM  JPMugaas
-{ Should now compile with new decoder design.
-}
-{
-{   Rev 1.2    6/13/2003 06:17:06 AM  JPMugaas
-{ Should now compil,e.
-}
-{
-{   Rev 1.1    12.6.2003 ã. 12:00:28  DBondzhev
-{ Fix for . at the begining of new line
-}
-{
-{   Rev 1.0    11/14/2002 02:15:00 PM  JPMugaas
-}
-unit IdCoderQuotedPrintable;
+  Rev 1.20    10/26/2004 11:08:10 PM  JPMugaas
+  Updated refs.
 
-{
- 2002-08-13/14 - Johannes Berg
-   completely rewrote the Encoder. May do the Decoder later.
-   The encoder will add an EOL to the end of the file if it had no EOL
-   at start. I can't avoid this due to the design of IdStream.ReadLn,
-   but its also no problem, because in transmission this would happen
-   anyway.
- 9-17-2001 - J. Peter Mugaas
-  made the interpretation of =20 + EOL to mean a hard line break
-  soft line breaks are now ignored.  It does not make much sense
-  in plain text.  Soft breaks do not indicate the end of paragraphs unlike
-  hard line breaks that do end paragraphs.
- 3-24-2001 - J. Peter Mugaas
-  Rewrote the Decoder according to a new design.
- 3-25-2001 - J. Peter Mugaas
-  Rewrote the Encoder according to the new design}
+  Rev 1.19    27.08.2004 22:03:22  Andreas Hausladen
+  Optimized encoders
+  speed optimization ("const" for string parameters)
+
+  Rev 1.18    24/08/2004 10:33:44  CCostelloe
+  Was too slow (~45 mins for 2MB down to ~1sec)
+
+  Rev 1.17    2004.05.20 1:39:22 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.16    2004.05.20 11:37:10 AM  czhower
+  IdStreamVCL
+
+  Rev 1.15    2004.05.20 11:13:14 AM  czhower
+  More IdStream conversions
+
+  Rev 1.14    2004.05.19 3:06:54 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.13    2/19/2004 11:52:02 PM  JPMugaas
+  Removed IFDEF's.  Moved some functions into IdGlobalProtocols for reuse
+  elsewhere.
+
+  Rev 1.12    2004.02.03 5:45:00 PM  czhower
+  Name changes
+
+  Rev 1.11    2004.02.03 2:12:06 PM  czhower
+  $I path change
+
+  Rev 1.10    1/22/2004 3:59:14 PM  SPerry
+  fixed set problems
+
+  Rev 1.9    11/10/2003 7:41:30 PM  BGooijen
+  Did all todo's ( TStream to TIdStream mainly )
+
+  Rev 1.8    2003.10.17 6:14:44 PM  czhower
+  Fix to match new IdStream
+
+  Rev 1.7    2003.10.12 3:38:26 PM  czhower
+  Added path to .inc
+
+  Rev 1.6    10/12/2003 1:33:42 PM  BGooijen
+  Compiles on D7 now too
+
+  Rev 1.5    10/12/2003 12:02:50 PM  BGooijen
+  DotNet
+
+  Rev 1.4    6/13/2003 12:07:44 PM  JPMugaas
+  QP was broken again.
+
+  Rev 1.3    6/13/2003 07:58:50 AM  JPMugaas
+  Should now compile with new decoder design.
+
+  Rev 1.2    6/13/2003 06:17:06 AM  JPMugaas
+  Should now compil,e.
+
+  Rev 1.1    12.6.2003 ã. 12:00:28  DBondzhev
+  Fix for . at the begining of new line
+
+  Rev 1.0    11/14/2002 02:15:00 PM  JPMugaas
+
+  2002-08-13/14 - Johannes Berg
+    completely rewrote the Encoder. May do the Decoder later.
+    The encoder will add an EOL to the end of the file if it had no EOL
+    at start. I can't avoid this due to the design of IdStream.ReadLn,
+    but its also no problem, because in transmission this would happen
+    anyway.
+
+  9-17-2001 - J. Peter Mugaas
+    made the interpretation of =20 + EOL to mean a hard line break
+    soft line breaks are now ignored.  It does not make much sense
+    in plain text.  Soft breaks do not indicate the end of paragraphs unlike
+    hard line breaks that do end paragraphs.
+
+  3-24-2001 - J. Peter Mugaas
+    Rewrote the Decoder according to a new design.
+
+  3-25-2001 - J. Peter Mugaas
+    Rewrote the Encoder according to the new design
+}
+
+unit IdCoderQuotedPrintable;
 
 interface
 

@@ -16,46 +16,40 @@
   $Log$
 }
 {
-{   Rev 1.7    10/26/2004 11:08:10 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.6    28.09.2004 21:35:28  Andreas Hausladen
-{ Added TIdObjectList.Assign method for missing Delphi 5 TList.Assign
-}
-{
-{   Rev 1.5    1/4/2004 12:09:00 AM  BGooijen
-{ Commented out Notify, this doesn't exist in DotNet, and doesn't do anything
-{ anyways
-}
-{
-{   Rev 1.4    3/13/2003 11:10:52 AM  JPMugaas
-{ Fixed warning message.
-}
-{
-{   Rev 1.3    2/8/2003 04:33:34 AM  JPMugaas
-{ Commented out a free statement in the TIdObjectList.Notify method because it
-{ was causing instability in some new IdFTPList code I was working on.
-{ Added a TStringList descendent object that implements a buble sort.  That
-{ should require less memory than a QuickSort.  This also replaces the
-{ TStrings.CustomSort because that is not supported in D4.
-}
-{
-{   Rev 1.2    2/7/2003 10:33:48 AM  JPMugaas
-{ Added BoubleSort to TIdObjectList to facilitate some work.
-}
-{
-{   Rev 1.1    12/2/2002 04:32:30 AM  JPMugaas
-{ Fixed minor compile errors.
-}
-{
-{   Rev 1.0    11/14/2002 02:16:14 PM  JPMugaas
-}
-{  Revision 1.0  2001-02-20 02:02:09-05  dsiders
+  Rev 1.7    10/26/2004 11:08:10 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.6    28.09.2004 21:35:28  Andreas Hausladen
+  Added TIdObjectList.Assign method for missing Delphi 5 TList.Assign
+
+  Rev 1.5    1/4/2004 12:09:00 AM  BGooijen
+  Commented out Notify, this doesn't exist in DotNet, and doesn't do anything
+  anyways
+
+  Rev 1.4    3/13/2003 11:10:52 AM  JPMugaas
+  Fixed warning message.
+
+  Rev 1.3    2/8/2003 04:33:34 AM  JPMugaas
+  Commented out a free statement in the TIdObjectList.Notify method because it
+  was causing instability in some new IdFTPList code I was working on.
+  Added a TStringList descendent object that implements a buble sort.  That
+  should require less memory than a QuickSort.  This also replaces the
+  TStrings.CustomSort because that is not supported in D4.
+
+  Rev 1.2    2/7/2003 10:33:48 AM  JPMugaas
+  Added BoubleSort to TIdObjectList to facilitate some work.
+
+  Rev 1.1    12/2/2002 04:32:30 AM  JPMugaas
+  Fixed minor compile errors.
+
+  Rev 1.0    11/14/2002 02:16:14 PM  JPMugaas
+
+  Revision 1.0  2001-02-20 02:02:09-05  dsiders
   Initial revision
 }
+
 {********************************************************************}
-{*  IdContainers.pas                                                 *}
+{*  IdContainers.pas                                                *}
 {*                                                                  *}
 {*  Provides compatibility with the Contnr.pas unit from            *}
 {*  Delphi 5 not found in Delphi 4.                                 *}

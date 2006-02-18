@@ -16,28 +16,36 @@
   $Log$
 }
 {
-{   Rev 1.5    2004.10.27 9:17:46 AM  czhower
-{ For TIdStrings
+  Rev 1.5    2004.10.27 9:17:46 AM  czhower
+  For TIdStrings
+
+  Rev 1.4    7/28/04 11:43:32 PM  RLebeau
+  Bug fix for CleanupCookieList()
+
+  Rev 1.3    2004.02.03 5:45:02 PM  czhower
+  Name changes
+
+  Rev 1.2    1/22/2004 7:10:02 AM  JPMugaas
+  Tried to fix AnsiSameText depreciation.
+
+  Rev 1.1    2004.01.21 1:04:54 PM  czhower
+  InitComponenet
+
+  Rev 1.0    11/14/2002 02:16:26 PM  JPMugaas
+
+  2001-Mar-31 Doychin Bondzhev
+  - Added new method AddCookie2 that is called when we have Set-Cookie2 as response
+  - The common code in AddCookie and AddCookie2 is now in DoAdd
+
+  2001-Mar-24 Doychin Bondzhev
+  - Added OnNewCookie event
+    This event is called for every new cookie. Can be used to ask the user program
+    do we have to store this cookie in the cookie collection
+  - Added new method AddCookie
+    This calls the OnNewCookie event and if the result is true it adds the new cookie
+    in the collection
 }
-{
-{   Rev 1.4    7/28/04 11:43:32 PM  RLebeau
-{ Bug fix for CleanupCookieList()
-}
-{
-{   Rev 1.3    2004.02.03 5:45:02 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/22/2004 7:10:02 AM  JPMugaas
-{ Tried to fix AnsiSameText depreciation.
-}
-{
-{   Rev 1.1    2004.01.21 1:04:54 PM  czhower
-{ InitComponenet
-}
-{
-{   Rev 1.0    11/14/2002 02:16:26 PM  JPMugaas
-}
+
 unit IdCookieManager;
 
 {
@@ -45,19 +53,6 @@ unit IdCookieManager;
 
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
   Copyright: (c) Chad Z. Hower and The Indy Team.
-
-Details of implementation
--------------------------
-
-2001-Mar-31 Doychin Bondzhev
- - Added new method AddCookie2 that is called when we have Set-Cookie2 as response
- - The common code in AddCookie and AddCookie2 is now in DoAdd
-2001-Mar-24 Doychin Bondzhev
- - Added OnNewCookie event
-   This event is called for every new cookie. Can be used to ask the user program do we have to store this
-   cookie in the cookie collection
- - Added new method AddCookie
-   This calls the OnNewCookie event and if the result is true it adds the new cookie in the collection
 }
 
 interface
@@ -182,7 +177,7 @@ begin
   else LDomain := ACookie.Domain;
 
   ACookie.Domain := LDomain;
-  
+
   if ACookie.IsValidCookie(AHost) then
   begin
     if DoOnNewCookie(ACookie) then

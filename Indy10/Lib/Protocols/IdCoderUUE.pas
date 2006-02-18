@@ -16,28 +16,24 @@
   $Log$
 }
 {
-{   Rev 1.6    1/21/2004 1:44:16 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.5    10/16/2003 11:11:18 PM  DSiders
+  Rev 1.6    1/21/2004 1:44:16 PM  JPMugaas
+  InitComponent
+
+  Rev 1.5    10/16/2003 11:11:18 PM  DSiders
   Added localization comments.
+
+  Rev 1.4    2003.06.13 6:57:12 PM  czhower
+  Speed improvement
+
+  Rev 1.2    6/13/2003 07:58:48 AM  JPMugaas
+  Should now compile with new decoder design.
+
+  Rev 1.1    2003.06.13 3:41:20 PM  czhower
+  Optimizaitions.
+
+  Rev 1.0    11/14/2002 02:15:06 PM  JPMugaas
 }
-{
-{   Rev 1.4    2003.06.13 6:57:12 PM  czhower
-{ Speed improvement
-}
-{
-{   Rev 1.2    6/13/2003 07:58:48 AM  JPMugaas
-{ Should now compile with new decoder design.
-}
-{
-{   Rev 1.1    2003.06.13 3:41:20 PM  czhower
-{ Optimizaitions.
-}
-{
-{   Rev 1.0    11/14/2002 02:15:06 PM  JPMugaas
-}
+
 unit IdCoderUUE;
 
 interface

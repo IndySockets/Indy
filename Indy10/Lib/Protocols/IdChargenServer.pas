@@ -16,35 +16,32 @@
   $Log$
 }
 {
-{   Rev 1.4    12/2/2004 4:23:48 PM  JPMugaas
-{ Adjusted for changes in Core.
+  Rev 1.4    12/2/2004 4:23:48 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.3    1/21/2004 1:49:34 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    1/17/2003 05:35:28 PM  JPMugaas
+  Now compiles with new design.
+
+  Rev 1.1    1-1-2003 20:12:40  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.0    11/14/2002 02:14:02 PM  JPMugaas
+
+  2000-Apr-17 Kudzu
+    Converted to Indy
+    Improved efficiency
 }
-{
-{   Rev 1.3    1/21/2004 1:49:34 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    1/17/2003 05:35:28 PM  JPMugaas
-{ Now compiles with new design.
-}
-{
-{   Rev 1.1    1-1-2003 20:12:40  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.0    11/14/2002 02:14:02 PM  JPMugaas
-}
+
 unit IdChargenServer;
 
-interface
-
 {
-2000-Apr-17 Kudzu
-  Converted to Indy
-  Improved efficiency
-
-Original Author: Ozz Nixon
+  Original Author: Ozz Nixon
 }
+
+interface
 
 uses
   IdAssignedNumbers,

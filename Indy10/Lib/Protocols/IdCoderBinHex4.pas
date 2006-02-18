@@ -16,143 +16,135 @@
   $Log$
 }
 {
-{   Rev 1.7    10/6/2004 10:47:00 PM  BGooijen
-{ changed array indexer from 64 to 32 bit, it gave errors in dotnet, and making
-{ >2GB arrays is not done anyways
+  Rev 1.7    10/6/2004 10:47:00 PM  BGooijen
+  changed array indexer from 64 to 32 bit, it gave errors in dotnet, and making
+  >2GB arrays is not done anyways
+
+  Rev 1.6    2004.05.20 1:39:28 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.5    2004.05.20 11:37:24 AM  czhower
+  IdStreamVCL
+
+  Rev 1.4    2004.05.19 3:06:56 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.3    2004.02.03 5:45:50 PM  czhower
+  Name changes
+
+  Rev 1.2    1/21/2004 1:19:58 PM  JPMugaas
+  InitComponent.
+
+  Rev 1.1    16/01/2004 18:00:26  CCostelloe
+  This is now working code.
+
+  Rev 1.0    14/01/2004 00:46:14  CCostelloe
+  An implementation of Apple's BinHex4 encoding.  It is a "work-in-progress",
+  it does not yet work properly, only checked in as a placeholder.
 }
-{
-{   Rev 1.6    2004.05.20 1:39:28 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.5    2004.05.20 11:37:24 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.4    2004.05.19 3:06:56 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.3    2004.02.03 5:45:50 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/21/2004 1:19:58 PM  JPMugaas
-{ InitComponent.
-}
-{
-{   Rev 1.1    16/01/2004 18:00:26  CCostelloe
-{ This is now working code.
-}
-{
-{   Rev 1.0    14/01/2004 00:46:14  CCostelloe
-{ An implementation of Apple's BinHex4 encoding.  It is a "work-in-progress",
-{ it does not yet work properly, only checked in as a placeholder.
-}
+
 unit IdCoderBinHex4;
 
 {
-Written by Ciaran Costelloe, ccostelloe@flogas.ie, December 2003.  Based on
-TIdCoderMIME, derived from TIdCoder3to4, derived from TIdCoder.
+  Written by Ciaran Costelloe, ccostelloe@flogas.ie, December 2003.
+  Based on TIdCoderMIME, derived from TIdCoder3to4, derived from TIdCoder.
 
-DESCRIPTION:
+  DESCRIPTION:
 
-This is an implementation of the BinHex 4.0 decoder used particularly by Apple.
-It is defined in RFC 1741.  It is a variant of a 3-to-4 decoder, but it uses
-character 90 for sequences of repeating characters, allowing some compression,
-but thereby not allowing it to be mapped in as another 3-to-4 decoder.
-Per the RFC, it must be encapsulated in a MIME part (it cannot be directly coded
-inline in an email "body"), the part is strictly defined to have a header entry
-(with the appropriate "myfile.ext"):
-    Content-Type: application/mac-binhex40; name="myfile.ext"
-After the header, the part MUST start with the text (NOT indented):
-    (This file must be converted with BinHex 4.0)
-This allows the option AND the ambiguity of identifying it by either the
-Content-Type OR by the initial text line.  However, it is also stated that any
-text before the specified text line must be ignored, implying the line does not
-have to be the first - an apparent contradiction.
-The encoded file then follows, split with CRLFs (to avoid lines that are too long
-for emails) that must be discarded.
-The file starts with a colon (:), a header, followed by the file contents, and
-ending in another colon.
-There is also an interesting article on the web, "BinHex 4.0 Definition by Peter
-N Lewis, Aug 1991", which has very useful information on what is implemeted in
-practice, and seems to come with the good provenance of bitter experience.
-From RFC 1741:
---------------------------------------------------------------------
-      1) 8 bit encoding of the file:
+  This is an implementation of the BinHex 4.0 decoder used particularly by Apple.
+  It is defined in RFC 1741.  It is a variant of a 3-to-4 decoder, but it uses
+  character 90 for sequences of repeating characters, allowing some compression,
+  but thereby not allowing it to be mapped in as another 3-to-4 decoder.
+  Per the RFC, it must be encapsulated in a MIME part (it cannot be directly coded
+  inline in an email "body"), the part is strictly defined to have a header entry
+  (with the appropriate "myfile.ext"):
+      Content-Type: application/mac-binhex40; name="myfile.ext"
+  After the header, the part MUST start with the text (NOT indented):
+      (This file must be converted with BinHex 4.0)
+  This allows the option AND the ambiguity of identifying it by either the
+  Content-Type OR by the initial text line.  However, it is also stated that any
+  text before the specified text line must be ignored, implying the line does not
+  have to be the first - an apparent contradiction.
+  The encoded file then follows, split with CRLFs (to avoid lines that are too long
+  for emails) that must be discarded.
+  The file starts with a colon (:), a header, followed by the file contents, and
+  ending in another colon.
+  There is also an interesting article on the web, "BinHex 4.0 Definition by Peter
+  N Lewis, Aug 1991", which has very useful information on what is implemeted in
+  practice, and seems to come with the good provenance of bitter experience.
 
-   Byte:    Length of FileName (1->63)
-   Bytes:   FileName ("Length" bytes)
-   Byte:    Version
-   Long:    Type
-   Long:    Creator
-   Word:    Flags (And $F800)
-   Long:    Length of Data Fork
-   Long:    Length of Resource Fork
-   Word:    CRC
-   Bytes:   Data Fork ("Data Length" bytes)
-   Word:    CRC
-   Bytes:   Resource Fork ("Rsrc Length" bytes)
-   Word:    CRC
+ From RFC 1741:
 
-      2) Compression of repetitive characters.
+        1) 8 bit encoding of the file:
 
-   ($90 is the marker, encoding is made for 3->255 characters)
+    Byte:    Length of FileName (1->63)
+    Bytes:   FileName ("Length" bytes)
+    Byte:    Version
+    Long:    Type
+    Long:    Creator
+    Word:    Flags (And $F800)
+    Long:    Length of Data Fork
+    Long:    Length of Resource Fork
+    Word:    CRC
+    Bytes:   Data Fork ("Data Length" bytes)
+    Word:    CRC
+    Bytes:   Resource Fork ("Rsrc Length" bytes)
+    Word:    CRC
 
-   00 11 22 33 44 55 66 77   -> 00 11 22 33 44 55 66 77
-   11 22 22 22 22 22 22 33   -> 11 22 90 06 33
-   11 22 90 33 44            -> 11 22 90 00 33 44
+        2) Compression of repetitive characters.
 
-   The whole file is considered as a stream of bits.  This stream will
-   be divided in blocks of 6 bits and then converted to one of 64
-   characters contained in a table.  The characters in this table have
-   been chosen for maximum noise protection.  The format will start
-   with a ":" (first character on a line) and end with a ":".
-   There will be a maximum of 64 characters on a line.  It must be
-   preceded, by this comment, starting in column 1 (it does not start
-   in column 1 in this document):
+    ($90 is the marker, encoding is made for 3->255 characters)
 
-    (This file must be converted with BinHex 4.0)
+    00 11 22 33 44 55 66 77   -> 00 11 22 33 44 55 66 77
+    11 22 22 22 22 22 22 33   -> 11 22 90 06 33
+    11 22 90 33 44            -> 11 22 90 00 33 44
 
-   Any text before this comment is to be ignored.
+    The whole file is considered as a stream of bits.  This stream will
+    be divided in blocks of 6 bits and then converted to one of 64
+    characters contained in a table.  The characters in this table have
+    been chosen for maximum noise protection.  The format will start
+    with a ":" (first character on a line) and end with a ":".
+    There will be a maximum of 64 characters on a line.  It must be
+    preceded, by this comment, starting in column 1 (it does not start
+    in column 1 in this document):
 
-   The characters used are:
+      (This file must be converted with BinHex 4.0)
 
-    !"#$%&'()*+,- 012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr
+    Any text before this comment is to be ignored.
 
---------------------------------------------------------------------
-IMPLEMENTATION NOTES:
+    The characters used are:
 
-There are older variants referred to in RFC 1741, but I have only come
-across encodings in current use as separate MIME parts, which this
-implementation is targetted at.
+      !"#$%&'()*+,- 012345689@ABCDEFGHIJKLMNPQRSTUVXYZ[`abcdefhijklmpqr
 
-When encoding into BinHex4, you do NOT have to implement the run-length
-encoding (the character 90 for sequences of repeating characters), and
-this encoder does not do it.  The CRC values generated in the header have
-NOT been tested (because this decoder ignores them).
+  IMPLEMENTATION NOTES:
 
-The decoder has to allow for the run-length encoding.  The decoder works
-irrespective of whether it is preceded by the identification string
-or not (GBinHex4IdentificationString below).  The string to be decoded must
-include the starting and ending colons.  It can deal with embedded CR and LFs.
-Unlike base64 and quoted-printable, we cannot decode line-by-line cleanly,
-because the lines do not contain a clean number of 4-byte blocks due to the
-first line starting with a colon, leaving 63 bytes on that line, plus you have
-the problem of dealing with the run-length encoding and stripping the header.
-If the attachment only has a data fork, it is saved; if only a resource fork,
-it is saved; if both, only the data fork is saved.  The decoder does NOT
-check that the CRC values are correct.
+  There are older variants referred to in RFC 1741, but I have only come
+  across encodings in current use as separate MIME parts, which this
+  implementation is targetted at.
 
-Indy units use the content-type to decide if the part is BinHex4:
-    Content-Type: application/mac-binhex40; name="myfile.ext"
+  When encoding into BinHex4, you do NOT have to implement the run-length
+  encoding (the character 90 for sequences of repeating characters), and
+  this encoder does not do it.  The CRC values generated in the header have
+  NOT been tested (because this decoder ignores them).
 
-WARNING: This code only implements BinHex4.0 when used as a part in a
-MIME-encoded email.  To have a part encoded, set the parts
-ContentTransfer := 'binhex40'.
+  The decoder has to allow for the run-length encoding.  The decoder works
+  irrespective of whether it is preceded by the identification string
+  or not (GBinHex4IdentificationString below).  The string to be decoded must
+  include the starting and ending colons.  It can deal with embedded CR and LFs.
+  Unlike base64 and quoted-printable, we cannot decode line-by-line cleanly,
+  because the lines do not contain a clean number of 4-byte blocks due to the
+  first line starting with a colon, leaving 63 bytes on that line, plus you have
+  the problem of dealing with the run-length encoding and stripping the header.
+  If the attachment only has a data fork, it is saved; if only a resource fork,
+  it is saved; if both, only the data fork is saved.  The decoder does NOT
+  check that the CRC values are correct.
 
---------------------------------------------------------------------
+  Indy units use the content-type to decide if the part is BinHex4:
+      Content-Type: application/mac-binhex40; name="myfile.ext"
+
+  WARNING: This code only implements BinHex4.0 when used as a part in a
+  MIME-encoded email.  To have a part encoded, set the parts
+  ContentTransfer := 'binhex40'.
 }
 
 interface

@@ -16,185 +16,144 @@
   $Log$
 }
 {
-{   Rev 1.42    3/14/05 11:45:50 AM  RLebeau
-{ Buf fix for DoExecute() not not filling in the TIdHTTPRequestInfo.FormParams
-{ correctly.
-{ 
-{ Removed LImplicitPostStream variable from DoExecute(), no longer used. 
-{ TIdHTTPRequestInfo takes ownership of the PostStream anyway, so no need to
-{ free it early.  This also allows the PostStream to always be available in the
-{ OnCommand... event handlers.
-}
-{
-{   Rev 1.41    2/9/05 2:11:02 AM  RLebeau
-{ Removed compiler hint
-}
-{
-{   Rev 1.40    2/9/05 1:19:26 AM  RLebeau
-{ Fixes for Compiler errors
-}
-{
-{   Rev 1.39    2/8/05 6:47:46 PM  RLebeau
-{ updated OnCommandOther to have ARequestInfo and AResponseInfo parameters
-}
-{
-{   Rev 1.38    12/16/04 2:15:20 AM  RLebeau
-{ Another DoExecute() update
-}
-{
-{   Rev 1.37    12/15/04 9:03:50 PM  RLebeau
-{ Renamed TIdHTTPRequestInfo.DecodeCommand() to DecodeHTTPCommand() and made it
-{ into a standalone function.
-}
-{
-{   Rev 1.36    12/15/04 4:17:42 PM  RLebeau
-{ Updated DoExecute() to call LRequestInfo.DecodeCommand()
-}
-{
-{   Rev 1.35    12/2/2004 4:23:48 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.34    10/26/2004 8:59:32 PM  JPMugaas
-{ Updated with new TStrings references for more portability.
-}
-{
-{   Rev 1.33    2004.05.20 11:37:12 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.32    5/6/04 3:19:00 PM  RLebeau
-{ Added extra comments
-}
-{
-{   Rev 1.31    2004.04.18 12:52:06 AM  czhower
-{ Big bug fix with server disconnect and several other bug fixed that I found
-{ along the way.
-}
-{
-{   Rev 1.30    2004.04.08 1:46:32 AM  czhower
-{ Small Optimizations
-}
-{
-{   Rev 1.29    7/4/2004 4:10:44 PM  SGrobety
-{ Small fix to keep it synched with the IOHandler properties
-}
-{
-{   Rev 1.28    6/4/2004 5:15:02 PM  SGrobety
-{ Implemented MaximumHeaderLineCount property (default to 1024)
-}
-{
-{   Rev 1.27    2004.02.03 5:45:02 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.26    1/27/2004 3:58:52 PM  SPerry
-{ StringStream ->IdStringStream
-}
-{
-{   Rev 1.25    2004.01.22 5:58:58 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.24    1/22/2004 8:26:28 AM  JPMugaas
-{ Ansi* calls changed.
-}
-{
-{   Rev 1.23    1/21/2004 1:57:30 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.22    21.1.2004 ã. 13:22:18  DBondzhev
-{ Fix for Dccil bug
-}
-{
-{   Rev 1.21    10/25/2003 06:51:44 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.  
-}
-{
-{   Rev 1.20    2003.10.24 10:43:02 AM  czhower
-{ TIdSTream to dos
-}
-{
-    Rev 1.19    10/19/2003 11:49:40 AM  DSiders
+  Rev 1.42    3/14/05 11:45:50 AM  RLebeau
+  Buf fix for DoExecute() not not filling in the TIdHTTPRequestInfo.FormParams
+  correctly.
+
+  Removed LImplicitPostStream variable from DoExecute(), no longer used.
+  TIdHTTPRequestInfo takes ownership of the PostStream anyway, so no need to
+  free it early.  This also allows the PostStream to always be available in the
+  OnCommand... event handlers.
+
+  Rev 1.41    2/9/05 2:11:02 AM  RLebeau
+  Removed compiler hint
+
+  Rev 1.40    2/9/05 1:19:26 AM  RLebeau
+  Fixes for Compiler errors
+
+  Rev 1.39    2/8/05 6:47:46 PM  RLebeau
+  updated OnCommandOther to have ARequestInfo and AResponseInfo parameters
+
+  Rev 1.38    12/16/04 2:15:20 AM  RLebeau
+  Another DoExecute() update
+
+  Rev 1.37    12/15/04 9:03:50 PM  RLebeau
+  Renamed TIdHTTPRequestInfo.DecodeCommand() to DecodeHTTPCommand() and made it
+  into a standalone function.
+
+  Rev 1.36    12/15/04 4:17:42 PM  RLebeau
+  Updated DoExecute() to call LRequestInfo.DecodeCommand()
+
+  Rev 1.35    12/2/2004 4:23:48 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.34    10/26/2004 8:59:32 PM  JPMugaas
+  Updated with new TStrings references for more portability.
+
+  Rev 1.33    2004.05.20 11:37:12 AM  czhower
+  IdStreamVCL
+
+  Rev 1.32    5/6/04 3:19:00 PM  RLebeau
+  Added extra comments
+
+  Rev 1.31    2004.04.18 12:52:06 AM  czhower
+  Big bug fix with server disconnect and several other bug fixed that I found
+  along the way.
+
+  Rev 1.30    2004.04.08 1:46:32 AM  czhower
+  Small Optimizations
+
+  Rev 1.29    7/4/2004 4:10:44 PM  SGrobety
+  Small fix to keep it synched with the IOHandler properties
+
+  Rev 1.28    6/4/2004 5:15:02 PM  SGrobety
+  Implemented MaximumHeaderLineCount property (default to 1024)
+
+  Rev 1.27    2004.02.03 5:45:02 PM  czhower
+  Name changes
+
+  Rev 1.26    1/27/2004 3:58:52 PM  SPerry
+  StringStream ->IdStringStream
+
+  Rev 1.25    2004.01.22 5:58:58 PM  czhower
+  IdCriticalSection
+
+  Rev 1.24    1/22/2004 8:26:28 AM  JPMugaas
+  Ansi* calls changed.
+
+  Rev 1.23    1/21/2004 1:57:30 PM  JPMugaas
+  InitComponent
+
+  Rev 1.22    21.1.2004 ã. 13:22:18  DBondzhev
+  Fix for Dccil bug
+
+  Rev 1.21    10/25/2003 06:51:44 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+  Rev 1.20    2003.10.24 10:43:02 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.19    10/19/2003 11:49:40 AM  DSiders
   Added localization comments.
-}
-{
-    Rev 1.18    10/17/2003 12:05:40 AM  DSiders
+
+  Rev 1.18    10/17/2003 12:05:40 AM  DSiders
   Corrected spelling error in resource string.
-}
-{
-{   Rev 1.17    10/15/2003 11:10:16 PM  GGrieve
-{ DotNet changes
-}
-{
-{   Rev 1.16    2003.10.12 3:37:58 PM  czhower
-{ Now compiles again.
-}
-{
-    Rev 1.15    6/24/2003 11:38:50 AM  BGooijen
+
+  Rev 1.17    10/15/2003 11:10:16 PM  GGrieve
+  DotNet changes
+
+  Rev 1.16    2003.10.12 3:37:58 PM  czhower
+  Now compiles again.
+
+  Rev 1.15    6/24/2003 11:38:50 AM  BGooijen
   Fixed ssl support
-}
-{
-    Rev 1.14    6/18/2003 11:44:04 PM  BGooijen
+
+  Rev 1.14    6/18/2003 11:44:04 PM  BGooijen
   Moved ServeFile and SmartServeFile to TIdHTTPResponseInfo.
   Added TIdHTTPResponseInfo.HTTPServer field
-}
-{
-{   Rev 1.13    05.6.2003 ã. 11:11:12  DBondzhev
-{ Socket exceptions should  not be stopped after DoCommandGet.
-}
-{
-    Rev 1.12    4/9/2003 9:38:40 PM  BGooijen
+
+  Rev 1.13    05.6.2003 ã. 11:11:12  DBondzhev
+  Socket exceptions should  not be stopped after DoCommandGet.
+
+  Rev 1.12    4/9/2003 9:38:40 PM  BGooijen
   fixed av on FSessionList.PurgeStaleSessions(Terminated);
-}
-{
-{   Rev 1.11    20/3/2003 19:49:24  GGrieve
-{ Define SmartServeFile
-}
-{
-    Rev 1.10    3/13/2003 10:21:14 AM  BGooijen
+
+  Rev 1.11    20/3/2003 19:49:24  GGrieve
+  Define SmartServeFile
+
+  Rev 1.10    3/13/2003 10:21:14 AM  BGooijen
   Changed result of function .execute
-}
-{
-    Rev 1.9    2/25/2003 10:43:36 AM  BGooijen
+
+  Rev 1.9    2/25/2003 10:43:36 AM  BGooijen
   removed unneeded assignment
-}
-{
-    Rev 1.8    2/25/2003 10:38:46 AM  BGooijen
+
+  Rev 1.8    2/25/2003 10:38:46 AM  BGooijen
   The Serversoftware wasn't send to the client, because of duplicate properties
   (.Server and .ServerSoftware).
+
+  Rev 1.7    2/24/2003 08:20:50 PM  JPMugaas
+  Now should compile with new code.
+
+  Rev 1.6    11.2.2003 13:36:14  TPrami
+  - Fixed URL get paremeter handling (SeeRFC 1866 section 8.2.1.)
+
+  Rev 1.5    1/17/2003 05:35:20 PM  JPMugaas
+  Now compiles with new design.
+
+  Rev 1.4    1-1-2003 20:12:44  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.3    12-15-2002 13:08:38  BGooijen
+  simplified TimeStampInterval
+
+  Rev 1.2    6/12/2002 10:59:34 AM  SGrobety    Version: 1.1
+  Made to work with Indy 10
+
+  Rev 1.0    21/11/2002 12:41:04 PM  SGrobety    Version: Indy 10
+
+  Rev 1.0    11/14/2002 02:16:32 PM  JPMugaas
 }
-{
-{   Rev 1.7    2/24/2003 08:20:50 PM  JPMugaas
-{ Now should compile with new code.
-}
-{
-{   Rev 1.6    11.2.2003 13:36:14  TPrami
-{ - Fixed URL get paremeter handling (SeeRFC 1866 section 8.2.1.)
-}
-{
-{   Rev 1.5    1/17/2003 05:35:20 PM  JPMugaas
-{ Now compiles with new design.
-}
-{
-{   Rev 1.4    1-1-2003 20:12:44  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.3    12-15-2002 13:08:38  BGooijen
-{ simplified TimeStampInterval
-}
-{
-{   Rev 1.2    6/12/2002 10:59:34 AM  SGrobety    Version: 1.1
-{ Made to work with Indy 10
-}
-{
-{   Rev 1.0    21/11/2002 12:41:04 PM  SGrobety    Version: Indy 10
-}
-{
-{   Rev 1.0    11/14/2002 02:16:32 PM  JPMugaas
-}
+
 unit IdCustomHTTPServer;
 
 interface
@@ -215,9 +174,6 @@ const
   Id_TId_HTTPServer_KeepAlive = false;
   Id_TId_HTTPServer_ParseParams = True;
   Id_TId_HTTPServer_SessionState = False;
-  {This probably should be something else but I don't know what
-  I have fixed a problem which was caused by a timeout of 0 so I am extremely
-  suspecious of this}      // S.G. 5/12/2002: <--- who wrote this note and what is it refering to ?
   Id_TId_HTTPSessionTimeOut = 0;
   Id_TId_HTTPAutoStartSession = False;
 

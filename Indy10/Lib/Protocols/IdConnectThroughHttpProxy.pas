@@ -16,37 +16,32 @@
   $Log$
 }
 {
-{   Rev 1.6    11/12/2004 11:31:06 AM  JPMugaas
-{ IPv6 expansions.
-}
-{
-{   Rev 1.5    2004.02.03 5:45:00 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.4    10/19/2003 11:48:12 AM  DSiders
+  Rev 1.6    11/12/2004 11:31:06 AM  JPMugaas
+  IPv6 expansions.
+
+  Rev 1.5    2004.02.03 5:45:00 PM  czhower
+  Name changes
+
+  Rev 1.4    10/19/2003 11:48:12 AM  DSiders
   Added localization comments.
-}
-{
-    Rev 1.3    4/5/2003 7:27:48 PM  BGooijen
+
+  Rev 1.3    4/5/2003 7:27:48 PM  BGooijen
   Checks for errors, added authorisation
-}
-{
-    Rev 1.2    4/1/2003 4:14:22 PM  BGooijen
+
+  Rev 1.2    4/1/2003 4:14:22 PM  BGooijen
   Fixed + cleaned up
+
+  Rev 1.1    2/24/2003 08:20:46 PM  JPMugaas
+  Now should compile with new code.
+
+  Rev 1.0    11/14/2002 02:16:10 PM  JPMugaas
 }
-{
-{   Rev 1.1    2/24/2003 08:20:46 PM  JPMugaas
-{ Now should compile with new code.
-}
-{
-{   Rev 1.0    11/14/2002 02:16:10 PM  JPMugaas
-}
+
 unit IdConnectThroughHttpProxy;
 
 {
-implements:
-http://www.web-cache.com/Writings/Internet-Drafts/draft-luotonen-web-proxy-tunneling-01.txt
+  implements:
+  http://www.web-cache.com/Writings/Internet-Drafts/draft-luotonen-web-proxy-tunneling-01.txt
 }
 
 interface
@@ -55,7 +50,6 @@ uses
   IdCustomTransparentProxy, IdGlobal, IdIOHandler;
 
 type
-  // TODO: [APR] Please, complete this class and put it in other unit...
   TIdConnectThroughHttpProxy = class(TIdCustomTransparentProxy)
   protected
     FEnabled: Boolean;

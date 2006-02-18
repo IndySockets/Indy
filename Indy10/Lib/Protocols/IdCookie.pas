@@ -16,76 +16,72 @@
   $Log$
 }
 {
-{   Rev 1.6    2004.10.27 9:17:46 AM  czhower
-{ For TIdStrings
+  Rev 1.6    2004.10.27 9:17:46 AM  czhower
+  For TIdStrings
+
+  Rev 1.5    10/26/2004 11:08:08 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    13.04.2004 12:56:44  ARybin
+  M$ IE behavior
+
+  Rev 1.3    2004.02.03 5:45:00 PM  czhower
+  Name changes
+
+  Rev 1.2    2004.01.22 6:09:02 PM  czhower
+  IdCriticalSection
+
+  Rev 1.1    1/22/2004 7:09:58 AM  JPMugaas
+  Tried to fix AnsiSameText depreciation.
+
+  Rev 1.0    11/14/2002 02:16:20 PM  JPMugaas
+
+  Mar-31-2001 Doychin Bondzhev
+  - Changes in the class heirarchy to implement Netscape specification[Netscape],
+      RFC 2109[RFC2109] & 2965[RFC2965]
+
+  Feb-2001 Doychin Bondzhev
+  - Initial release
 }
-{
-{   Rev 1.5    10/26/2004 11:08:08 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    13.04.2004 12:56:44  ARybin
-{ M$ IE behavior 
-}
-{
-{   Rev 1.3    2004.02.03 5:45:00 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    2004.01.22 6:09:02 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.1    1/22/2004 7:09:58 AM  JPMugaas
-{ Tried to fix AnsiSameText depreciation.
-}
-{
-{   Rev 1.0    11/14/2002 02:16:20 PM  JPMugaas
-}
+
 unit IdCookie;
 
 {
   Implementation of the HTTP State Management Mechanism as specified in RFC 2109, 2965.
-
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
   Copyright: (c) Chad Z. Hower and The Indy Team.
 
-Details of implementation
--------------------------
-Mar-31-2001 Doychin Bondzhev
- - Chages in the class heirarchy to implement Netscape specification[Netscape], RFC 2109[RFC2109] & 2965[RFC2965]
-    TIdNetscapeCookie - The base code used in all cookies. It implments cookies as proposed by Netscape
-    TIdCookieRFC2109 - The RFC 2109 implmentation. Not used too much.
-    TIdCookieRFC2965 - The RFC 2965 implmentation. Not used yet or at least I don't know any HTTP server that supports   
-      this specification.
-    TIdServerCooke - Used in the HTTP server compoenent.
+  TIdNetscapeCookie - The base code used in all cookies. It implments cookies
+  as proposed by Netscape
 
-Feb-2001 Doychin Bondzhev
- - Initial release
+  TIdCookieRFC2109 - The RFC 2109 implmentation. Not used too much.
 
-REFERENCES
--------------------
- [Netscape] "Persistent Client State -- HTTP Cookies", available at
+  TIdCookieRFC2965 - The RFC 2965 implmentation. Not used yet or at least I don't
+    know any HTTP server that supports this specification.
+
+  TIdServerCooke - Used in the HTTP server compoenent.
+
+  REFERENCES
+  -------------------
+  [Netscape] "Persistent Client State -- HTTP Cookies", available at
             <http://www.netscape.com/newsref/std/cookie_spec.html>,
             undated.
 
- [RFC2109]  Kristol, D. and L. Montulli, "HTTP State Management
+  [RFC2109]  Kristol, D. and L. Montulli, "HTTP State Management
             Mechanism", RFC 2109, February 1997.
 
- [RFC2965]  Kristol, D. and L. Montulli, "HTTP State Management
+  [RFC2965]  Kristol, D. and L. Montulli, "HTTP State Management
             Mechanism", RFC 2965, October 2000.
 
+  Implementation status
+  --------------------------
 
-Implementation status
---------------------------
-
- [Netscape] - 100%
- [RFC2109]  - 100% (there is still some code to write and debugging)
- [RFC2965]  -  70% (client and server cookie generation is not ready)
-
+  [Netscape] - 100%
+  [RFC2109]  - 100% (there is still some code to write and debugging)
+  [RFC2965]  -  70% (client and server cookie generation is not ready)
 }
 
-// TODO: Make this unit to implement compleatly [Netscape], [RFC2109] & [RFC2965]
+// TODO: Make this unit to implement completely [Netscape], [RFC2109] & [RFC2965]
 
 interface
 

@@ -16,140 +16,111 @@
   $Log$
 }
 {
-{   Rev 1.30    15.09.2004 22:38:22  Andreas Hausladen
-{ Added "Delphi 7.1 compiler warning bug" fix code
-}
-{
-{   Rev 1.29    27.08.2004 22:03:22  Andreas Hausladen
-{ Optimized encoders
-{ speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.28    7/8/04 5:09:04 PM  RLebeau
-{ Updated Encode() to remove use of local TIdBytes variable
-}
-{
-{   Rev 1.27    2004.05.20 1:39:20 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.26    2004.05.20 11:37:08 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.25    2004.05.20 11:13:12 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.24    2004.05.19 3:06:54 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.23    2004.03.12 7:54:18 PM  czhower
-{ Removed old commented out code.
-}
-{
-{   Rev 1.22    11/03/2004 22:36:14  CCostelloe
-{ Bug fix (1 to 3 spurious extra characters at the end of UUE encoded messages,
-{ see comment starting CC3.
-}
-{
-{   Rev 1.21    2004.02.03 5:44:56 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.20    28/1/2004 6:22:16 PM  SGrobety
-{ Removed base 64 encoding stream length check is stream size was provided
-}
-{
-{   Rev 1.19    16/01/2004 17:47:48  CCostelloe
-{ Restructured slightly to allow IdCoderBinHex4 reuse some of its code
-}
-{
-{   Rev 1.18    02/01/2004 20:59:28  CCostelloe
-{ Fixed bugs to get ported code to work in Delphi 7 (changes marked CC2)
-}
-{
-{   Rev 1.17    11/10/2003 7:54:14 PM  BGooijen
-{ Did all todo's ( TStream to TIdStream mainly )
-}
-{
-{   Rev 1.16    2003.10.24 10:43:02 AM  czhower
-{ TIdSTream to dos
-}
-{
-{   Rev 1.15    22/10/2003 12:25:36  HHariri
-{ Stephanes changes
-}
-{
-    Rev 1.14    10/16/2003 11:10:18 PM  DSiders
+  Rev 1.30    15.09.2004 22:38:22  Andreas Hausladen
+  Added "Delphi 7.1 compiler warning bug" fix code
+
+  Rev 1.29    27.08.2004 22:03:22  Andreas Hausladen
+  Optimized encoders
+  speed optimization ("const" for string parameters)
+
+  Rev 1.28    7/8/04 5:09:04 PM  RLebeau
+  Updated Encode() to remove use of local TIdBytes variable
+
+  Rev 1.27    2004.05.20 1:39:20 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.26    2004.05.20 11:37:08 AM  czhower
+  IdStreamVCL
+
+  Rev 1.25    2004.05.20 11:13:12 AM  czhower
+  More IdStream conversions
+
+  Rev 1.24    2004.05.19 3:06:54 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.23    2004.03.12 7:54:18 PM  czhower
+  Removed old commented out code.
+
+  Rev 1.22    11/03/2004 22:36:14  CCostelloe
+  Bug fix (1 to 3 spurious extra characters at the end of UUE encoded messages,
+  see comment starting CC3.
+
+  Rev 1.21    2004.02.03 5:44:56 PM  czhower
+  Name changes
+
+  Rev 1.20    28/1/2004 6:22:16 PM  SGrobety
+  Removed base 64 encoding stream length check is stream size was provided
+
+  Rev 1.19    16/01/2004 17:47:48  CCostelloe
+  Restructured slightly to allow IdCoderBinHex4 reuse some of its code
+
+  Rev 1.18    02/01/2004 20:59:28  CCostelloe
+  Fixed bugs to get ported code to work in Delphi 7 (changes marked CC2)
+
+  Rev 1.17    11/10/2003 7:54:14 PM  BGooijen
+  Did all todo's ( TStream to TIdStream mainly )
+
+  Rev 1.16    2003.10.24 10:43:02 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.15    22/10/2003 12:25:36  HHariri
+  Stephanes changes
+
+  Rev 1.14    10/16/2003 11:10:18 PM  DSiders
   Added localization comments, whitespace.
+
+  Rev 1.13    2003.10.11 10:00:12 PM  czhower
+  Compiles again
+
+  Rev 1.12    10/5/2003 4:31:02 PM  GGrieve
+  use ToBytes for Cardinal to Bytes conversion
+
+  Rev 1.11    10/4/2003 9:12:18 PM  GGrieve
+  DotNet
+
+  Rev 1.10    2003.06.24 12:02:10 AM  czhower
+  Coders now decode properly again.
+
+  Rev 1.9    2003.06.23 10:53:16 PM  czhower
+  Removed unused overriden methods.
+
+  Rev 1.8    2003.06.13 6:57:10 PM  czhower
+  Speed improvement
+
+  Rev 1.7    2003.06.13 3:41:18 PM  czhower
+  Optimizaitions.
+
+  Rev 1.6    2003.06.13 2:24:08 PM  czhower
+  Speed improvement
+
+  Rev 1.5    10/6/2003 5:37:02 PM  SGrobety
+  Bug fix in decoders.
+
+  Rev 1.4    6/6/2003 4:50:30 PM  SGrobety
+  Reworked the 3to4decoder for performance and stability.
+  Note that encoders haven't been touched. Will come later. Another problem:
+  input is ALWAYS a string. Should be a TStream.
+
+  1/ Fix: added filtering for #13,#10 and #32 to the decoding mechanism.
+  2/ Optimization: Speed the decoding by a factor 7-10 AND added filtering ;)
+  Could still do better by using a pointer and a stiding window by a factor 2-3.
+  3/ Improvement: instead of writing everything to the output stream, there is
+  an internal buffer of 4k. It should speed things up when working on large
+  data (no large chunk of memory pre-allocated while keeping a decent perf by
+  not requiring every byte to be written separately).
+
+  Rev 1.3    28/05/2003 10:06:56  CCostelloe
+  StripCRLFs changes stripped out at the request of Chad
+
+  Rev 1.2    20/05/2003 02:01:00  CCostelloe
+
+  Rev 1.1    20/05/2003 01:44:12  CCostelloe
+  Bug fix: decoder code altered to ensure that any CRLFs inserted by an MTA are
+  removed
+
+  Rev 1.0    11/14/2002 02:14:36 PM  JPMugaas
 }
-{
-{   Rev 1.13    2003.10.11 10:00:12 PM  czhower
-{ Compiles again
-}
-{
-{   Rev 1.12    10/5/2003 4:31:02 PM  GGrieve
-{ use ToBytes for Cardinal to Bytes conversion
-}
-{
-{   Rev 1.11    10/4/2003 9:12:18 PM  GGrieve
-{ DotNet
-}
-{
-{   Rev 1.10    2003.06.24 12:02:10 AM  czhower
-{ Coders now decode properly again.
-}
-{
-{   Rev 1.9    2003.06.23 10:53:16 PM  czhower
-{ Removed unused overriden methods.
-}
-{
-{   Rev 1.8    2003.06.13 6:57:10 PM  czhower
-{ Speed improvement
-}
-{
-{   Rev 1.7    2003.06.13 3:41:18 PM  czhower
-{ Optimizaitions.
-}
-{
-{   Rev 1.6    2003.06.13 2:24:08 PM  czhower
-{ Speed improvement
-}
-{
-{   Rev 1.5    10/6/2003 5:37:02 PM  SGrobety
-{ Bug fix in decoders.
-}
-{
-{   Rev 1.4    6/6/2003 4:50:30 PM  SGrobety
-{ Reworked the 3to4decoder for performance and stability.
-{ Note that encoders haven't been touched. Will come later. Another problem:
-{ input is ALWAYS a string. Should be a TStream.
-{
-{ 1/ Fix: added filtering for #13,#10 and #32 to the decoding mechanism.
-{ 2/ Optimization: Speed the decoding by a factor 7-10 AND added filtering ;)
-{ Could still do better by using a pointer and a stiding window by a factor 2-3.
-{ 3/ Improvement: instead of writing everything to the output stream, there is
-{ an internal buffer of 4k. It should speed things up when working on large
-{ data (no large chunk of memory pre-allocated while keeping a decent perf by
-{ not requiring every byte to be written separately).
-}
-{
-{   Rev 1.3    28/05/2003 10:06:56  CCostelloe
-{ StripCRLFs changes stripped out at the request of Chad
-}
-{
-{   Rev 1.2    20/05/2003 02:01:00  CCostelloe
-}
-{
-{   Rev 1.1    20/05/2003 01:44:12  CCostelloe
-{ Bug fix: decoder code altered to ensure that any CRLFs inserted by an MTA are
-{ removed
-}
-{
-{   Rev 1.0    11/14/2002 02:14:36 PM  JPMugaas
-}
+
 unit IdCoder3to4;
 
 interface
