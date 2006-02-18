@@ -16,69 +16,55 @@
   $Log$
 }
 {
-{   Rev 1.15    12/2/2004 4:23:58 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-    Rev 1.14    5/30/2004 7:50:44 PM  DSiders
+  Rev 1.15    12/2/2004 4:23:58 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.14    5/30/2004 7:50:44 PM  DSiders
   Corrected case in ancestor for TIdCustomSocksServer.
-}
-{
-{   Rev 1.13    2004.03.03 10:28:48 AM  czhower
-{ Removed warnings.
-}
-{
-{   Rev 1.12    2004.02.03 5:44:24 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.11    1/21/2004 4:03:44 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.10    2003.10.21 9:13:14 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.9    2003.10.12 7:23:52 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.8    9/19/2003 04:27:04 PM  JPMugaas
-{ Removed IdFTPServer so Indy can compile with Kudzu's new changes.
-}
-{
-{   Rev 1.7    9/16/2003 11:59:16 PM  JPMugaas
-{ Should compile.
-}
-{
-    Rev 1.6    1/20/2003 1:15:38 PM  BGooijen
+
+  Rev 1.13    2004.03.03 10:28:48 AM  czhower
+  Removed warnings.
+
+  Rev 1.12    2004.02.03 5:44:24 PM  czhower
+  Name changes
+
+  Rev 1.11    1/21/2004 4:03:44 PM  JPMugaas
+  InitComponent
+
+  Rev 1.10    2003.10.21 9:13:14 PM  czhower
+  Now compiles.
+
+  Rev 1.9    2003.10.12 7:23:52 PM  czhower
+  Compile todos
+
+  Rev 1.8    9/19/2003 04:27:04 PM  JPMugaas
+  Removed IdFTPServer so Indy can compile with Kudzu's new changes.
+
+  Rev 1.7    9/16/2003 11:59:16 PM  JPMugaas
+  Should compile.
+
+  Rev 1.6    1/20/2003 1:15:38 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
+
+  Rev 1.5    1/17/2003 07:10:54 PM  JPMugaas
+  Now compiles under new framework.
+
+  Rev 1.4    1/9/2003 06:09:36 AM  JPMugaas
+  Updated for IdContext API change.
+
+  Rev 1.3    1/8/2003 05:53:50 PM  JPMugaas
+  Switched stuff to IdContext.
+
+  Rev 1.2    12-8-2002 18:08:56  BGooijen
+  Changed to use TIdIOHandlerStack for the .IPVersion
+
+  Rev 1.1    12/7/2002 06:43:26 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 08:01:18 AM  JPMugaas
 }
-{
-{   Rev 1.5    1/17/2003 07:10:54 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.4    1/9/2003 06:09:36 AM  JPMugaas
-{ Updated for IdContext API change.
-}
-{
-{   Rev 1.3    1/8/2003 05:53:50 PM  JPMugaas
-{ Switched stuff to IdContext.
-}
-{
-{   Rev 1.2    12-8-2002 18:08:56  BGooijen
-{ Changed to use TIdIOHandlerStack for the .IPVersion
-}
-{
-{   Rev 1.1    12/7/2002 06:43:26 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 08:01:18 AM  JPMugaas
-}
+
 {*****************************************************************************}
 {*                              IdSocksServer.pas                            *}
 {*****************************************************************************}
