@@ -16,82 +16,65 @@
   $Log$
 }
 {
-{   Rev 1.13    2004.02.03 5:43:58 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.12    2/2/2004 4:56:26 PM  JPMugaas
-{ DotNET with fries and a Coke :-)
-}
-{
-{   Rev 1.11    1/21/2004 3:11:28 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.10    2003.11.29 10:18:56 AM  czhower
-{ Updated for core change to InputBuffer.
-}
-{
-{   Rev 1.9    2003.10.21 9:13:10 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.8    9/19/2003 03:30:02 PM  JPMugaas
-{ Now should compile again.
-}
-{
-{   Rev 1.7    3/6/2003 5:08:50 PM  SGrobety
-{ Updated the read buffer methodes to fit the new core (InputBuffer ->
-{ InputBufferAsString + call to CheckForDataOnSource)
-}
-{
-    Rev 1.6    4/3/2003 7:56:56 PM  BGooijen
-  Added TODO item.
-}
-{
-{   Rev 1.5    2/24/2003 09:14:32 PM  JPMugaas
-}
-{
-{   Rev 1.4    1/17/2003 06:52:42 PM  JPMugaas
-{ Now compiles with new framework.
-}
-{
-{   Rev 1.3    1-8-2003 22:20:38  BGooijen
-{ these compile (TIdContext)
-}
-{
-{   Rev 1.2    12/16/2002 06:59:08 PM  JPMugaas
-{ MLSD added as a command requiring a data command.  
-}
-{
-{   Rev 1.1    12/7/2002 06:43:06 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 07:56:34 AM  JPMugaas
-}
-{-----------------------------------------------------------------------------
- Unit Name: IdMappedFTP
- Author:    Andrew P.Rybin [magicode@mail.ru]
- Creation:  14.12.2001
- Version:   0.0.0
- Purpose:
- History:
-  2001.12.14 - beta preview (but FTPVC work fine ;-)
+  Rev 1.13    2004.02.03 5:43:58 PM  czhower
+  Name changes
 
- Th (rfc959):
+  Rev 1.12    2/2/2004 4:56:26 PM  JPMugaas
+  DotNET with fries and a Coke :-)
+
+  Rev 1.11    1/21/2004 3:11:28 PM  JPMugaas
+  InitComponent
+
+  Rev 1.10    2003.11.29 10:18:56 AM  czhower
+  Updated for core change to InputBuffer.
+
+  Rev 1.9    2003.10.21 9:13:10 PM  czhower
+  Now compiles.
+
+  Rev 1.8    9/19/2003 03:30:02 PM  JPMugaas
+  Now should compile again.
+
+  Rev 1.7    3/6/2003 5:08:50 PM  SGrobety
+  Updated the read buffer methodes to fit the new core (InputBuffer ->
+  InputBufferAsString + call to CheckForDataOnSource)
+
+  Rev 1.6    4/3/2003 7:56:56 PM  BGooijen
+  Added TODO item.
+
+  Rev 1.5    2/24/2003 09:14:32 PM  JPMugaas
+
+  Rev 1.4    1/17/2003 06:52:42 PM  JPMugaas
+  Now compiles with new framework.
+
+  Rev 1.3    1-8-2003 22:20:38  BGooijen
+  these compile (TIdContext)
+
+  Rev 1.2    12/16/2002 06:59:08 PM  JPMugaas
+  MLSD added as a command requiring a data command.
+
+  Rev 1.1    12/7/2002 06:43:06 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 07:56:34 AM  JPMugaas
+
+  2001.12.14 - beta preview (but FTPVC work fine ;-)
+}
+{
+  Author:    Andrew P.Rybin [magicode@mail.ru]
+
+  Th (rfc959):
+
   1) EOL = #13#10  [#10 last char]
   2) reply = IntCode (three digit number) ' ' text
-  3) PORT h1,h2,h3,h4,p1,p2 -> Client Listen >>'200 Port command successful.'    
+  3) PORT h1,h2,h3,h4,p1,p2 -> Client Listen >>'200 Port command successful.'
   4) PASV -> Server Listen >>'227 Entering Passive Mode (%d,%d,%d,%d,%d,%d).'
- Err:
-   426 RSFTPDataConnClosedAbnormally
 
- !!! PROBLEM with PORT (Listen)
------------------------------------------------------------------------------}
+  Err:
+    426 RSFTPDataConnClosedAbnormally
+}
 
-//BGO: TODO: convert TIdMappedFtpDataThread to a context.
+// BGO: TODO: convert TIdMappedFtpDataThread to a context.
 
 unit IdMappedFTP;
 

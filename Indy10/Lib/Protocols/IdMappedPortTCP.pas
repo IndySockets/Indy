@@ -16,132 +16,105 @@
   $Log$
 }
 {
-{   Rev 1.28    12/2/2004 4:23:54 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.27    11/15/04 11:32:22 AM  RLebeau
-{ Changed OutboundConnect() to assign the TIdTcpClient.ConnectTimeout property
-{ instead of the IOHandler.ConnectTimeout property.
-}
-{
-{   Rev 1.26    10/6/2004 10:22:12 PM  BGooijen
-{ Removed PEVerify errors in this unit
-}
-{
-{   Rev 1.25    8/2/04 5:55:00 PM  RLebeau
-{ Updated TIdMappedPortContext.OutboundConnect() with ConnectTimeout property
-{ change.
-}
-{
-{   Rev 1.24    3/1/04 7:17:02 PM  RLebeau
-{ Minor correction to previous change
-}
-{
-{   Rev 1.23    3/1/04 7:14:34 PM  RLebeau
-{ Updated TIdMappedPortContext.OutboundConnect() to call CreateIOHandler()
-{ before attempting to use the outbound client's IOHandler property.
-}
-{
-{   Rev 1.22    2004.02.03 5:43:58 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.21    2/1/2004 4:23:32 AM  JPMugaas
-{ Should now compile in DotNET.
-}
-{
-{   Rev 1.20    1/21/2004 3:11:30 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.19    12/14/03 7:16:20 PM  RLebeau
-{ Typo fixes when accessing OutboudClient.IOHandler
-}
-{
-{   Rev 1.18    2003.11.29 10:19:04 AM  czhower
-{ Updated for core change to InputBuffer.
-}
-{
-{   Rev 1.17    2003.10.21 9:13:10 PM  czhower
-{ Now compiles.
-}
-{
-    Rev 1.16    10/19/2003 5:25:10 PM  DSiders
+  Rev 1.28    12/2/2004 4:23:54 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.27    11/15/04 11:32:22 AM  RLebeau
+  Changed OutboundConnect() to assign the TIdTcpClient.ConnectTimeout property
+  instead of the IOHandler.ConnectTimeout property.
+
+  Rev 1.26    10/6/2004 10:22:12 PM  BGooijen
+  Removed PEVerify errors in this unit
+
+  Rev 1.25    8/2/04 5:55:00 PM  RLebeau
+  Updated TIdMappedPortContext.OutboundConnect() with ConnectTimeout property
+  change.
+
+  Rev 1.24    3/1/04 7:17:02 PM  RLebeau
+  Minor correction to previous change
+
+  Rev 1.23    3/1/04 7:14:34 PM  RLebeau
+  Updated TIdMappedPortContext.OutboundConnect() to call CreateIOHandler()
+  before attempting to use the outbound client's IOHandler property.
+
+  Rev 1.22    2004.02.03 5:43:58 PM  czhower
+  Name changes
+
+  Rev 1.21    2/1/2004 4:23:32 AM  JPMugaas
+  Should now compile in DotNET.
+
+  Rev 1.20    1/21/2004 3:11:30 PM  JPMugaas
+  InitComponent
+
+  Rev 1.19    12/14/03 7:16:20 PM  RLebeau
+  Typo fixes when accessing OutboudClient.IOHandler
+
+  Rev 1.18    2003.11.29 10:19:04 AM  czhower
+  Updated for core change to InputBuffer.
+
+  Rev 1.17    2003.10.21 9:13:10 PM  czhower
+  Now compiles.
+
+  Rev 1.16    10/19/2003 5:25:10 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.15    2003.10.18 9:42:10 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.14    2003.10.12 4:04:00 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.13    9/19/2003 03:30:06 PM  JPMugaas
-{ Now should compile again.
-}
-{
-{   Rev 1.12    04.06.2003 14:09:28  ARybin
-{ updated for new IoHandler behavior
-}
-{
-{   Rev 1.11    3/6/2003 5:08:46 PM  SGrobety
-{ Updated the read buffer methodes to fit the new core (InputBuffer ->
-{ InputBufferAsString + call to CheckForDataOnSource)
-}
-{
-{   Rev 1.10    28.05.2003 17:35:34  ARybin
-{ right bug fix
-}
-{
-{   Rev 1.9    28.05.2003 16:55:30  ARybin
-{ bug fix
-}
-{
-{   Rev 1.8    5/26/2003 12:23:46 PM  JPMugaas
-}
-{
-    Rev 1.7    4/3/2003 7:26:10 PM  BGooijen
+
+  Rev 1.15    2003.10.18 9:42:10 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.14    2003.10.12 4:04:00 PM  czhower
+  compile todos
+
+  Rev 1.13    9/19/2003 03:30:06 PM  JPMugaas
+  Now should compile again.
+
+  Rev 1.12    04.06.2003 14:09:28  ARybin
+  updated for new IoHandler behavior
+
+  Rev 1.11    3/6/2003 5:08:46 PM  SGrobety
+  Updated the read buffer methodes to fit the new core (InputBuffer ->
+  InputBufferAsString + call to CheckForDataOnSource)
+
+  Rev 1.10    28.05.2003 17:35:34  ARybin
+  right bug fix
+
+  Rev 1.9    28.05.2003 16:55:30  ARybin
+  bug fix
+
+  Rev 1.8    5/26/2003 12:23:46 PM  JPMugaas
+
+  Rev 1.7    4/3/2003 7:26:10 PM  BGooijen
   Re-enabled .ConnectTimeout and .Connect
-}
-{
-{   Rev 1.6    3/21/2003 11:45:36 AM  JPMugaas
-{ Added OnBeforeConnect method so the TIdMappedPort component is more flexible.
-}
-{
-{   Rev 1.5    2/24/2003 09:14:38 PM  JPMugaas
-}
-{
-    Rev 1.4    1/20/2003 1:15:32 PM  BGooijen
+
+  Rev 1.6    3/21/2003 11:45:36 AM  JPMugaas
+  Added OnBeforeConnect method so the TIdMappedPort component is more flexible.
+
+  Rev 1.5    2/24/2003 09:14:38 PM  JPMugaas
+
+  Rev 1.4    1/20/2003 1:15:32 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
+
+  Rev 1.3    1/17/2003 06:45:12 PM  JPMugaas
+  Now compiles with new framework.
+
+  Rev 1.2    1-8-2003 22:20:40  BGooijen
+  these compile (TIdContext)
+
+  Rev 1.1    12/7/2002 06:43:10 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 07:56:42 AM  JPMugaas
+
+  2001-12-xx - Andrew P.Rybin
+    -new architecture
+
+  2002-02-02 - Andrew P.Rybin
+    -DoDisconnect fix
 }
-{
-{   Rev 1.3    1/17/2003 06:45:12 PM  JPMugaas
-{ Now compiles with new framework.
-}
-{
-{   Rev 1.2    1-8-2003 22:20:40  BGooijen
-{ these compile (TIdContext)
-}
-{
-{   Rev 1.1    12/7/2002 06:43:10 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 07:56:42 AM  JPMugaas
-}
+
 unit IdMappedPortTCP;
 
 interface
-{
-2001-12-xx - Andrew P.Rybin
-  -new architecture
-2002-02-02 - Andrew P.Rybin
-  -DoDisconnect fix
-}
 
 uses
   IdAssignedNumbers,

@@ -16,39 +16,33 @@
   $Log$
 }
 {
-{   Rev 1.4    11/15/04 11:32:50 AM  RLebeau
-{ Bug fix for OutboundConnect() assigning the IOHandler.ConnectTimeout property
-{ before the IOHandler has been assigned.
+  Rev 1.4    11/15/04 11:32:50 AM  RLebeau
+  Bug fix for OutboundConnect() assigning the IOHandler.ConnectTimeout property
+  before the IOHandler has been assigned.
+
+  Rev 1.3    11/14/04 11:40:00 AM  RLebeau
+  Removed typecast in OutboundConnect()
+
+  Rev 1.2    2004.02.03 5:45:52 PM  czhower
+  Name changes
+
+  Rev 1.1    2/2/2004 4:12:02 PM  JPMugaas
+  Should now compile in DotNET.
+
+  Rev 1.0    2/1/2004 4:22:50 AM  JPMugaas
+  Components from IdMappedPort are now in their own units.
 }
-{
-{   Rev 1.3    11/14/04 11:40:00 AM  RLebeau
-{ Removed typecast in OutboundConnect()
-}
-{
-{   Rev 1.2    2004.02.03 5:45:52 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.1    2/2/2004 4:12:02 PM  JPMugaas
-{ Should now compile in DotNET.
-}
-{
-{   Rev 1.0    2/1/2004 4:22:50 AM  JPMugaas
-{ Components from IdMappedPort are now in their own units.
-}
+
 unit IdMappedTelnet;
 
 interface
+
 uses
   IdAssignedNumbers,
-  IdMappedPortTCP, 
+  IdMappedPortTCP,
   IdTCPServer;
 
 type
-  //=============================================================================
-  // * Telnet *
-  //=============================================================================
-
   TIdMappedTelnetThread = class (TIdMappedPortContext)
   protected
     FAllowedConnectAttempts: Integer;
@@ -89,8 +83,8 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsProtocols, IdIOHandlerSocket, IdTCPClient, IdSys;
-//=============================================================================
+  IdGlobal, IdException, IdResourceStringsProtocols,
+  IdIOHandlerSocket, IdTCPClient, IdSys;
 
 const
   NAMESEP = #0+#9+' :';

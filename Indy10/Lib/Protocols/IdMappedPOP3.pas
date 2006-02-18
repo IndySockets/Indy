@@ -16,53 +16,44 @@
   $Log$
 }
 {
-{   Rev 1.6    2/8/05 5:58:32 PM  RLebeau
-{ Updated InitComponent() to call TIdReply.SetReply() instead of setting the
-{ Code and Text properties individually
+  Rev 1.6    2/8/05 5:58:32 PM  RLebeau
+  Updated InitComponent() to call TIdReply.SetReply() instead of setting the
+  Code and Text properties individually
+
+  Rev 1.5    11/15/04 11:31:20 AM  RLebeau
+  Bug fix for OutboundConnect() assigning the IOHandler.ConnectTimeout property
+  before the IOHandler has been assigned.
+
+  Rev 1.4    11/14/04 11:39:24 AM  RLebeau
+  Updated OutboundConnect() to send the Greeting
+
+  Rev 1.3    5/18/04 1:02:02 PM  RLebeau
+  Removed GetReplyClass() and GetRepliesClass() overrides.
+
+  Rev 1.2    5/16/04 5:28:40 PM  RLebeau
+  Added GetReplyClass() and GetRepliesClass() overrides.
+
+  Rev 1.1    2004.02.03 5:45:52 PM  czhower
+  Name changes
+
+  Rev 1.0    2/2/2004 4:11:36 PM  JPMugaas
+  Recased to be consistant with IdPOP3 and IdPOP3Server.  I also fixed several
+  bugs that could cause AV's.
+
+  Rev 1.0    2/1/2004 4:22:48 AM  JPMugaas
+  Components from IdMappedPort are now in their own units.
 }
-{
-{   Rev 1.5    11/15/04 11:31:20 AM  RLebeau
-{ Bug fix for OutboundConnect() assigning the IOHandler.ConnectTimeout property
-{ before the IOHandler has been assigned.
-}
-{
-{   Rev 1.4    11/14/04 11:39:24 AM  RLebeau
-{ Updated OutboundConnect() to send the Greeting
-}
-{
-{   Rev 1.3    5/18/04 1:02:02 PM  RLebeau
-{ Removed GetReplyClass() and GetRepliesClass() overrides.
-}
-{
-{   Rev 1.2    5/16/04 5:28:40 PM  RLebeau
-{ Added GetReplyClass() and GetRepliesClass() overrides.
-}
-{
-{   Rev 1.1    2004.02.03 5:45:52 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.0    2/2/2004 4:11:36 PM  JPMugaas
-{ Recased to be consistant with IdPOP3 and IdPOP3Server.  I also fixed several
-{ bugs that could cause AV's.
-}
-{
-{   Rev 1.0    2/1/2004 4:22:48 AM  JPMugaas
-{ Components from IdMappedPort are now in their own units.
-}
+
 unit IdMappedPOP3;
 
 interface
+
 uses
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
   IdTCPServer;
 
 type
-  //=============================================================================
-  // * P O P 3 *
-  // USER username#host:port
-  //=============================================================================
 
   TIdMappedPOP3Thread = class (TIdMappedTelnetThread)
   protected
@@ -137,7 +128,7 @@ var
 Begin
   //don`t call inherited, NEW behavior
   with TIdMappedPOP3(Server) do begin
-    Connection.IOHandler.Write(Greeting.FormattedReply);   
+    Connection.IOHandler.Write(Greeting.FormattedReply);
 
     FOutboundClient := TIdTCPClient.Create(NIL);
     with TIdTcpClient(FOutboundClient) do begin

@@ -16,37 +16,34 @@
   $Log$
 }
 {
-{   Rev 1.4    2/4/2004 2:47:38 AM  JPMugaas
-{ MOved SysUtils down to the implemenation uses clause.
+  Rev 1.4    2/4/2004 2:47:38 AM  JPMugaas
+  MOved SysUtils down to the implemenation uses clause.
+
+  Rev 1.3    24/01/2004 21:45:36  CCostelloe
+  InitCOmponent -> InitComponent (removes a warning)
+
+  Rev 1.2    1/21/2004 3:11:26 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    22/12/2003 00:44:34  CCostelloe
+  .NET fixes
+
+  Rev 1.0    11/13/2002 07:56:28 AM  JPMugaas
+
+  2001-FEB-27 IC:
+    First version, most of the needed MailBox features are implemented,
+    next version should include a MailBox list structure that will hold
+    an entire account mail box structure with the updated information.
+
+  2001-MAY-05 IC:
 }
-{
-{   Rev 1.3    24/01/2004 21:45:36  CCostelloe
-{ InitCOmponent -> InitComponent (removes a warning)
-}
-{
-{   Rev 1.2    1/21/2004 3:11:26 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    22/12/2003 00:44:34  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.0    11/13/2002 07:56:28 AM  JPMugaas
-}
+
 unit IdMailBox;
 
-{*
-
+{
   IdMailBox (Created for use with the IdIMAP4 unit)
   By Idan Cohen i_cohen@yahoo.com
-
-  2001-FEB-27 IC: First version, most of the needed MailBox features are implemented,
-                  next version should include a MailBox list structure that will hold
-                  an entire account mail box structure with the updated information.
-  2001-MAY-05 IC:
-
-*}
+}
 
 interface
 
