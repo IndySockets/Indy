@@ -16,13 +16,14 @@
   $Log$
 }
 {
-{   Rev 1.1    12/7/2002 06:43:48 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
+  Rev 1.1    12/7/2002 06:43:48 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+
+  Rev 1.0    11/13/2002 08:04:00 AM  JPMugaas
 }
-{
-{   Rev 1.0    11/13/2002 08:04:00 AM  JPMugaas
-}
+
 unit IdTunnelSlave;
 
 interface

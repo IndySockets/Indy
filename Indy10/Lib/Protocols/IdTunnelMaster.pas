@@ -16,13 +16,14 @@
   $Log$
 }
 {
-{   Rev 1.1    12/7/2002 06:43:42 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
+  Rev 1.1    12/7/2002 06:43:42 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+
+  Rev 1.0    11/13/2002 08:03:54 AM  JPMugaas
 }
-{
-{   Rev 1.0    11/13/2002 08:03:54 AM  JPMugaas
-}
+
 unit IdTunnelMaster;
 
 interface
@@ -241,7 +242,7 @@ begin
       NumberOfServicesType: begin
          Value := flConnectedServices;
       end;
-    
+
       NumberOfConnectionsType: begin
         Value := fNumberOfConnectionsValue;
       end;
