@@ -16,177 +16,138 @@
   $Log$
 }
 {
-{   Rev 1.42    2/1/05 12:36:36 AM  RLebeau
-{ Removed CommandHandlersEnabled property, no longer used
-}
-{
-{   Rev 1.41    12/2/2004 9:26:42 PM  JPMugaas
-{ Bug fix.
-}
-{
-{   Rev 1.40    2004.10.27 9:20:04 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.39    10/26/2004 8:42:58 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-{   Rev 1.38    6/21/04 10:07:14 PM  RLebeau
-{ Updated .DoConnect() to make sure the connection is still connected before
-{ then sending the Greeting
-}
-{
-    Rev 1.37    6/20/2004 12:01:44 AM  DSiders
+  Rev 1.42    2/1/05 12:36:36 AM  RLebeau
+  Removed CommandHandlersEnabled property, no longer used
+
+  Rev 1.41    12/2/2004 9:26:42 PM  JPMugaas
+  Bug fix.
+
+  Rev 1.40    2004.10.27 9:20:04 AM  czhower
+  For TIdStrings
+
+  Rev 1.39    10/26/2004 8:42:58 PM  JPMugaas
+  Should be more portable with new references to TIdStrings and TIdStringList.
+
+  Rev 1.38    6/21/04 10:07:14 PM  RLebeau
+  Updated .DoConnect() to make sure the connection is still connected before
+  then sending the Greeting
+
+  Rev 1.37    6/20/2004 12:01:44 AM  DSiders
   Added "Do Not Localize" comments.
-}
-{
-{   Rev 1.36    6/16/04 12:37:06 PM  RLebeau
-{ more compiler errors
-}
-{
-{   Rev 1.35    6/16/04 12:30:32 PM  RLebeau
-{ compiler errors
-}
-{
-{   Rev 1.34    6/16/04 12:12:26 PM  RLebeau
-{ Updated ExceptionReply, Greeting, HelpReply, MaxConnectionReply, and
-{ ReplyUnknownCommand properties to use getter methods that call virtual Create
-{ methods which descendants can override for class-specific initializations
-}
-{
-{   Rev 1.33    5/16/04 5:16:52 PM  RLebeau
-{ Added setter methods to ExceptionReply, HelpReply, and ReplyTexts properties
-}
-{
-{   Rev 1.32    4/19/2004 5:39:58 PM  BGooijen
-{ Added comment
-}
-{
-{   Rev 1.31    4/18/2004 11:58:44 PM  BGooijen
-{ Wasn't thread safe
-}
-{
-{   Rev 1.30    3/3/2004 4:59:38 AM  JPMugaas
-{ Updated for new properties.
-}
-{
-{   Rev 1.29    2004.03.01 5:12:24 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.28    2004.02.29 9:43:08 PM  czhower
-{ Added ReadCommandLine.
-}
-{
-{   Rev 1.27    2004.02.29 8:17:18 PM  czhower
-{ Minor cosmetic changes to code.
-}
-{
-{   Rev 1.26    2004.02.03 4:17:08 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.25    03/02/2004 01:49:22  CCostelloe
-{ Added DoReplyUnknownCommand to allow TIdIMAP4Server set a correct reply for
-{ unknown commands
-}
-{
-{   Rev 1.24    1/29/04 9:43:16 PM  RLebeau
-{ Added setter methods to various TIdReply properties
-}
-{
-{   Rev 1.23    2004.01.20 10:03:22 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.22    1/5/2004 2:35:36 PM  JPMugaas
-{ Removed of object in method declarations.
-}
-{
-{   Rev 1.21    1/5/04 10:12:58 AM  RLebeau
-{ Fixed Typos in OnBeforeCommandHandler and OnAfterCommandHandler events
-}
-{
-{   Rev 1.20    1/4/04 8:45:34 PM  RLebeau
-{ Added OnBeforeCommandHandler and OnAfterCommandHandler events
-}
-{
-{   Rev 1.19    1/1/2004 9:33:22 PM  BGooijen
-{ the abstract class TIdReply was created sometimes, fixed that
-}
-{
-{   Rev 1.18    2003.10.18 9:33:26 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.17    2003.10.18 8:03:58 PM  czhower
-{ Defaults for codes
-}
-{
-    Rev 1.16    8/31/2003 11:49:40 AM  BGooijen
+
+  Rev 1.36    6/16/04 12:37:06 PM  RLebeau
+  more compiler errors
+
+  Rev 1.35    6/16/04 12:30:32 PM  RLebeau
+  compiler errors
+
+  Rev 1.34    6/16/04 12:12:26 PM  RLebeau
+  Updated ExceptionReply, Greeting, HelpReply, MaxConnectionReply, and
+  ReplyUnknownCommand properties to use getter methods that call virtual Create
+  methods which descendants can override for class-specific initializations
+
+  Rev 1.33    5/16/04 5:16:52 PM  RLebeau
+  Added setter methods to ExceptionReply, HelpReply, and ReplyTexts properties
+
+  Rev 1.32    4/19/2004 5:39:58 PM  BGooijen
+  Added comment
+
+  Rev 1.31    4/18/2004 11:58:44 PM  BGooijen
+  Wasn't thread safe
+
+  Rev 1.30    3/3/2004 4:59:38 AM  JPMugaas
+  Updated for new properties.
+
+  Rev 1.29    2004.03.01 5:12:24 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.28    2004.02.29 9:43:08 PM  czhower
+  Added ReadCommandLine.
+
+  Rev 1.27    2004.02.29 8:17:18 PM  czhower
+  Minor cosmetic changes to code.
+
+  Rev 1.26    2004.02.03 4:17:08 PM  czhower
+  For unit name changes.
+
+  Rev 1.25    03/02/2004 01:49:22  CCostelloe
+  Added DoReplyUnknownCommand to allow TIdIMAP4Server set a correct reply for
+  unknown commands
+
+  Rev 1.24    1/29/04 9:43:16 PM  RLebeau
+  Added setter methods to various TIdReply properties
+
+  Rev 1.23    2004.01.20 10:03:22 PM  czhower
+  InitComponent
+
+  Rev 1.22    1/5/2004 2:35:36 PM  JPMugaas
+  Removed of object in method declarations.
+
+  Rev 1.21    1/5/04 10:12:58 AM  RLebeau
+  Fixed Typos in OnBeforeCommandHandler and OnAfterCommandHandler events
+
+  Rev 1.20    1/4/04 8:45:34 PM  RLebeau
+  Added OnBeforeCommandHandler and OnAfterCommandHandler events
+
+  Rev 1.19    1/1/2004 9:33:22 PM  BGooijen
+  the abstract class TIdReply was created sometimes, fixed that
+
+  Rev 1.18    2003.10.18 9:33:26 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.17    2003.10.18 8:03:58 PM  czhower
+  Defaults for codes
+
+  Rev 1.16    8/31/2003 11:49:40 AM  BGooijen
   removed FReplyClass, this was also in TIdTCPServer
-}
-{
-    Rev 1.15    7/9/2003 10:55:24 PM  BGooijen
+
+  Rev 1.15    7/9/2003 10:55:24 PM  BGooijen
   Restored all features
-}
-{
-{   Rev 1.14    7/9/2003 04:36:08 PM  JPMugaas
-{ You now can override the TIdReply with your own type.  This should illiminate
-{ some warnings about some serious issues.  TIdReply is ONLY a base class with
-{ virtual methods.
-}
-{
-{   Rev 1.13    2003.07.08 2:26:02 PM  czhower
-{ Sergio's update
-}
-{
-{   Rev 1.0    7/7/2003 7:06:44 PM  SPerry
-{ Component that uses command handlers
-}
-{
-{   Rev 1.0    7/6/2003 4:47:32 PM  SPerry
-{ Units that use Command handlers
-}
-{
-    Adapted to IdCommandHandlers.pas SPerry
-}
-{
-    Rev 1.7    4/4/2003 8:08:00 PM  BGooijen
+
+  Rev 1.14    7/9/2003 04:36:08 PM  JPMugaas
+  You now can override the TIdReply with your own type.  This should illiminate
+  some warnings about some serious issues.  TIdReply is ONLY a base class with
+  virtual methods.
+
+  Rev 1.13    2003.07.08 2:26:02 PM  czhower
+  Sergio's update
+
+  Rev 1.0    7/7/2003 7:06:44 PM  SPerry
+  Component that uses command handlers
+
+  Rev 1.0    7/6/2003 4:47:32 PM  SPerry
+  Units that use Command handlers
+
+  Adapted to IdCommandHandlers.pas SPerry
+
+  Rev 1.7    4/4/2003 8:08:00 PM  BGooijen
   moved some consts from tidtcpserver here
-}
-{
-    Rev 1.6    3/23/2003 11:22:24 PM  BGooijen
+
+  Rev 1.6    3/23/2003 11:22:24 PM  BGooijen
   Moved some code to HandleCommand
-}
-{
-    Rev 1.5    3/22/2003 1:46:36 PM  BGooijen
+
+  Rev 1.5    3/22/2003 1:46:36 PM  BGooijen
   Removed unused variables
-}
-{
-    Rev 1.4    3/20/2003 12:18:30 PM  BGooijen
+
+  Rev 1.4    3/20/2003 12:18:30 PM  BGooijen
   Moved ReplyExceptionCode from TIdTCPServer to TIdCmdTCPServer
-}
-{
-    Rev 1.3    3/20/2003 12:14:18 PM  BGooijen
+
+  Rev 1.3    3/20/2003 12:14:18 PM  BGooijen
   Re-enabled Server.ReplyException
-}
-{
-{   Rev 1.2    2/24/2003 07:21:50 PM  JPMugaas
-{ Now compiles with new core code restructures.
-}
-{
-    Rev 1.1    1/23/2003 11:06:10 AM  BGooijen
-}
-{
-    Rev 1.0    1/20/2003 12:48:40 PM  BGooijen
+
+  Rev 1.2    2/24/2003 07:21:50 PM  JPMugaas
+  Now compiles with new core code restructures.
+
+  Rev 1.1    1/23/2003 11:06:10 AM  BGooijen
+
+  Rev 1.0    1/20/2003 12:48:40 PM  BGooijen
   Tcpserver with command handlers, these were originally in TIdTcpServer, but
   are now moved here
 }
+
 unit IdCmdTCPServer;
 
 interface

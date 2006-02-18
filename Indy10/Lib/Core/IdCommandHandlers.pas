@@ -16,157 +16,126 @@
   $Log$
 }
 {
-{   Rev 1.36    2/1/05 12:37:48 AM  RLebeau
-{ Removed IdCommandHandlersEnabledDefault variable, no longer used.
-}
-{
-{   Rev 1.35    1/3/05 4:43:20 PM  RLebeau
-{ Changed use of AnsiSameText() to use TextIsSame() instead
-}
-{
-{   Rev 1.34    12/17/04 12:54:04 PM  RLebeau
-{ Updated TIdCommandHandler.Check() to not match misspelled commands when a
-{ CmdDelimiter is specified.
-}
-{
-{   Rev 1.33    12/10/04 1:48:04 PM  RLebeau
-{ Bug fix for TIdCommandHandler.DoCommand()
-}
-{
-{   Rev 1.32    10/26/2004 8:42:58 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-{   Rev 1.31    6/17/2004 2:19:50 AM  JPMugaas
-{ Problem with unparsed parameters.  The initial deliniator between the command
-{ and reply was being added to Unparsed Params leading some strange results and
-{ command failures.
-}
-{
-{   Rev 1.30    6/6/2004 11:44:34 AM  JPMugaas
-{ Removed a temporary workaround for a Telnet Sequences issue in the
-{ TIdFTPServer.  That workaround is no longer needed as we fixed the issue
-{ another way.
-}
-{
-{   Rev 1.29    5/16/04 5:20:22 PM  RLebeau
-{ Removed local variable from TIdCommandHandler constructor, no longer used
-}
-{
-{   Rev 1.28    2004.03.03 3:19:52 PM  czhower
-{ sorted
-}
-{
-{   Rev 1.27    3/3/2004 4:59:40 AM  JPMugaas
-{ Updated for new properties.
-}
-{
-{   Rev 1.26    3/2/2004 8:10:36 AM  JPMugaas
-{ HelpHide renamed to HelpVisable.
-}
-{
-{   Rev 1.25    3/2/2004 6:37:36 AM  JPMugaas
-{ Updated with properties for more comprehensive help systems.
-}
-{
-{   Rev 1.24    2004.03.01 7:13:40 PM  czhower
-{ Comaptibilty fix.
-}
-{
-{   Rev 1.23    2004.03.01 5:12:26 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.22    2004.02.29 9:49:06 PM  czhower
-{ Bug fix, and now responses are also write buffered.
-}
-{
-{   Rev 1.21    2004.02.03 4:17:10 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.20    1/29/04 10:00:40 PM  RLebeau
-{ Added setter methods to various TIdReply properties
-}
-{
-{   Rev 1.19    2003.12.31 7:31:58 PM  czhower
-{ AnsiSameText --> TextIsSame
-}
-{
-    Rev 1.18    10/19/2003 11:36:52 AM  DSiders
+  Rev 1.36    2/1/05 12:37:48 AM  RLebeau
+  Removed IdCommandHandlersEnabledDefault variable, no longer used.
+
+  Rev 1.35    1/3/05 4:43:20 PM  RLebeau
+  Changed use of AnsiSameText() to use TextIsSame() instead
+
+  Rev 1.34    12/17/04 12:54:04 PM  RLebeau
+  Updated TIdCommandHandler.Check() to not match misspelled commands when a
+  CmdDelimiter is specified.
+
+  Rev 1.33    12/10/04 1:48:04 PM  RLebeau
+  Bug fix for TIdCommandHandler.DoCommand()
+
+  Rev 1.32    10/26/2004 8:42:58 PM  JPMugaas
+  Should be more portable with new references to TIdStrings and TIdStringList.
+
+  Rev 1.31    6/17/2004 2:19:50 AM  JPMugaas
+  Problem with unparsed parameters.  The initial deliniator between the command
+  and reply was being added to Unparsed Params leading some strange results and
+  command failures.
+
+  Rev 1.30    6/6/2004 11:44:34 AM  JPMugaas
+  Removed a temporary workaround for a Telnet Sequences issue in the
+  TIdFTPServer.  That workaround is no longer needed as we fixed the issue
+  another way.
+
+  Rev 1.29    5/16/04 5:20:22 PM  RLebeau
+  Removed local variable from TIdCommandHandler constructor, no longer used
+
+  Rev 1.28    2004.03.03 3:19:52 PM  czhower
+  sorted
+
+  Rev 1.27    3/3/2004 4:59:40 AM  JPMugaas
+  Updated for new properties.
+
+  Rev 1.26    3/2/2004 8:10:36 AM  JPMugaas
+  HelpHide renamed to HelpVisable.
+
+  Rev 1.25    3/2/2004 6:37:36 AM  JPMugaas
+  Updated with properties for more comprehensive help systems.
+
+  Rev 1.24    2004.03.01 7:13:40 PM  czhower
+  Comaptibilty fix.
+
+  Rev 1.23    2004.03.01 5:12:26 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.22    2004.02.29 9:49:06 PM  czhower
+  Bug fix, and now responses are also write buffered.
+
+  Rev 1.21    2004.02.03 4:17:10 PM  czhower
+  For unit name changes.
+
+  Rev 1.20    1/29/04 10:00:40 PM  RLebeau
+  Added setter methods to various TIdReply properties
+
+  Rev 1.19    2003.12.31 7:31:58 PM  czhower
+  AnsiSameText --> TextIsSame
+
+  Rev 1.18    10/19/2003 11:36:52 AM  DSiders
   Added localization comments where setting response codes.
-}
-{
-{   Rev 1.17    2003.10.18 9:33:26 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.16    2003.10.18 8:07:12 PM  czhower
-{ Fixed bug with defaults.
-}
-{
-{   Rev 1.15    2003.10.18 8:03:58 PM  czhower
-{ Defaults for codes
-}
-{
-{   Rev 1.14    10/5/2003 03:06:18 AM  JPMugaas
-{ Should compile.
-}
-{
-    Rev 1.13    8/9/2003 3:52:44 PM  BGooijen
+
+  Rev 1.17    2003.10.18 9:33:26 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.16    2003.10.18 8:07:12 PM  czhower
+  Fixed bug with defaults.
+
+  Rev 1.15    2003.10.18 8:03:58 PM  czhower
+  Defaults for codes
+
+  Rev 1.14    10/5/2003 03:06:18 AM  JPMugaas
+  Should compile.
+
+  Rev 1.13    8/9/2003 3:52:44 PM  BGooijen
   TIdCommandHandlers can now create any TIdCommandHandler descendant. this
   makes it possible to override TIdCommandHandler.check and check for the
   command a different way ( binary commands, protocols where the string doesn't
   start with the command )
-}
-{
-{   Rev 1.12    8/2/2003 2:22:54 PM  SPerry
-{ Fixed OnCommandHandlersException problem
-}
-{
-{   Rev 1.11    8/2/2003 1:43:08 PM  SPerry
-{ Modifications to get command handlers to work
-}
-{
-{   Rev 1.9    7/30/2003 10:18:30 PM  SPerry
-{ Fixed AV when creating commandhandler (again) -- for some reason the bug
-{ fixed in Rev. 1.7 was still there.
-}
-{
-{   Rev 1.8    7/30/2003 8:31:58 PM  SPerry
-{ Fixed AV with LFReplyClass.
-}
-{
-    Rev 1.4    7/9/2003 10:55:26 PM  BGooijen
+
+  Rev 1.12    8/2/2003 2:22:54 PM  SPerry
+  Fixed OnCommandHandlersException problem
+
+  Rev 1.11    8/2/2003 1:43:08 PM  SPerry
+  Modifications to get command handlers to work
+
+  Rev 1.9    7/30/2003 10:18:30 PM  SPerry
+  Fixed AV when creating commandhandler (again) -- for some reason the bug
+  fixed in Rev. 1.7 was still there.
+
+  Rev 1.8    7/30/2003 8:31:58 PM  SPerry
+  Fixed AV with LFReplyClass.
+
+  Rev 1.4    7/9/2003 10:55:26 PM  BGooijen
   Restored all features
+
+  Rev 1.3    7/9/2003 04:36:10 PM  JPMugaas
+  You now can override the TIdReply with your own type.  This should illiminate
+  some warnings about some serious issues.  TIdReply is ONLY a base class with
+  virtual methods.
+
+  Rev 1.2    7/9/2003 01:43:22 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.1    7/9/2003 2:56:44 PM  SPerry
+  Added OnException event
+
+
+  Rev 1.0    7/6/2003 4:47:38 PM  SPerry
+  Units that use Command handlers
 }
-{
-{   Rev 1.3    7/9/2003 04:36:10 PM  JPMugaas
-{ You now can override the TIdReply with your own type.  This should illiminate
-{ some warnings about some serious issues.  TIdReply is ONLY a base class with
-{ virtual methods.
-}
-{
-{   Rev 1.2    7/9/2003 01:43:22 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.1    7/9/2003 2:56:44 PM  SPerry
-{ Added OnException event
-}
-{
-{
-{   Rev 1.0    7/6/2003 4:47:38 PM  SPerry
-{ Units that use Command handlers
-}
+unit IdCommandHandlers;
+
 {
 	Original author: Chad Z. Hower
 	Separate Unit  : Sergio Perry
 }
-unit IdCommandHandlers;
 
 interface
 
@@ -489,7 +458,7 @@ begin
           // 550 System Error.  Code: 2
           // The system cannot find the file specified
           //
-          //and the second line would throw off some clients.  
+          //and the second line would throw off some clients.
             Reply.Text.Text := E.Message;
             //Reply.Text.Add(E.Message);
             SendReply;
