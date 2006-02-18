@@ -16,20 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.1    2/23/2005 6:34:26 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
+  Rev 1.1    2/23/2005 6:34:26 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.0    11/24/2004 12:17:00 PM  JPMugaas
+  New parser for Stratus VOS.  This will work with:
 }
-{
-{   Rev 1.0    11/24/2004 12:17:00 PM  JPMugaas
-{ New parser for Stratus VOS.  This will work with:
-{ 
-{ FTP server (FTP 1.0 for Stratus STCP) 
-{ 
-{ FTP server (OS TCP/IP) 
-}
+
 unit IdFTPListParseStratusVOS;
+
+{
+  FTP server (FTP 1.0 for Stratus STCP)
+  FTP server (OS TCP/IP)
+}
 
 interface
 
@@ -78,7 +79,7 @@ type
   end;
 
     {
-From:   Manual Name: VOS Reference Manual 
+From:   Manual Name: VOS Reference Manual
 
 Part Number: R002
 
@@ -95,62 +96,62 @@ The most important function of the directory hierarchy is to provide
 a way to uniquely but conveniently name any object in the I/O
 system. Any user on any processing module or system that can
 communicate with the module containing the object can then refer to
-the object. 
+the object.
 
-The unique name of an object is derived from the object's unique 
-path in the I/O system. The unique name is called the path name of 
+The unique name of an object is derived from the object's unique
+path in the I/O system. The unique name is called the path name of
 the object. A path name is constructed from the name of the object,
 the names of the directories in the path leading to the object, and
-the name of the system containing the root parent directory. 
+the name of the system containing the root parent directory.
 
-The path name of a file or directory is a combination of the 
-following names: 
+The path name of a file or directory is a combination of the
+following names:
 
 1. the name of the system containing the object preceded by a
-percent sign (%). 
+percent sign (%).
 2. the name of the disk containing the object preceded by a number
-sign (#) 
-3. the names of the directories in the path of the object, in order, each preceded by the greater-than sign (>) 
+sign (#)
+3. the names of the directories in the path of the object, in order, each preceded by the greater-than sign (>)
 
 4. the name of the object preceded by the greater-than sign (>).
 
 The symbol > is used to separate directories and files in the path
 name. Its use is similar to the use of / or \ in other operating
-systems. 
+systems.
 
 For example, suppose you have a system named %s containing a disk
 named #d01. (The module containing the disk is %s#m1.) The following
-is an example of a full path name for the file named this_week. 
+is an example of a full path name for the file named this_week.
 
-%s#d01>Administration>Jones>reports>this_week 
+%s#d01>Administration>Jones>reports>this_week
 
 
 The file is immediately contained in the directory reports, which is
-subordinate to the directory Jones. The home directory Jones is a 
-subdirectory of the group directory Administration which is a 
+subordinate to the directory Jones. The home directory Jones is a
+subdirectory of the group directory Administration which is a
 subdirectory of the disk #d01.
-Relative Path Names 
+Relative Path Names
 
 The path names defined so far are full path names. The full path
 name of an object is unique because the path of an object is unique.
-The operating system can also interpret relative path names. A 
+The operating system can also interpret relative path names. A
 relative path name is a combination of object names and pecial
 symbols, like a full path name, that identifies an object in the
 directory hierarchy. A relative path name of the object generally
 does not contain all the directory names that are in the full path
-name. When you use a relative path name, the operating system 
+name. When you use a relative path name, the operating system
 determines the missing information about the object's location rom
-the location of the current directory. 
+the location of the current directory.
 
 If the operating system reads a string that it expects to be a path
 name and the leading character is not a percent sign, it interprets
-the string as a relative path name. 
+the string as a relative path name.
 
 The single character < can be used to refer to the parent directory
 of the current directory. For example, the command
 change_current_dir < moves you up one directory in the directory
 hierarchy. A single period (.) also refers to the current directory
-and two periods (..) refers to the parent directory. Thus, 
+and two periods (..) refers to the parent directory. Thus,
 change_current_dir .. is the same as the change_current_dir <.
     }
 implementation

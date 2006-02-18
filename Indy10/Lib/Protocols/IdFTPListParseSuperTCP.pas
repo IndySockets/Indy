@@ -16,16 +16,16 @@
   $Log$
 }
 {
-{   Rev 1.1    11/29/2004 11:26:00 PM  JPMugaas
-{ This should now support SuperTCP 7.1 running under Windows 2000.  That does
-{ support long filenames by the dir entry ending with one space followed by the
-{ long-file name.
-{ ShortFileName was added to the listitem class for completeness.
+  Rev 1.1    11/29/2004 11:26:00 PM  JPMugaas
+  This should now support SuperTCP 7.1 running under Windows 2000.  That does
+  support long filenames by the dir entry ending with one space followed by the
+  long-file name.
+  ShortFileName was added to the listitem class for completeness.
+
+  Rev 1.0    11/29/2004 2:44:16 AM  JPMugaas
+  New FTP list parsers for some legacy FTP servers.
 }
-{
-{   Rev 1.0    11/29/2004 2:44:16 AM  JPMugaas
-{ New FTP list parsers for some legacy FTP servers.
-}
+
 unit IdFTPListParseSuperTCP;
 
 interface
@@ -177,7 +177,7 @@ class function TIdFTPLPSuperTCP.IsValidWin32FileName(
 const WIN32_INVALID_CHARS  = '"*/:<>?\|' + #0;
     WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32
 
-var 
+var
   i : Integer;
 begin
   Result := False;

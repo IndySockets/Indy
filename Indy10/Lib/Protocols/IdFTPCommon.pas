@@ -16,194 +16,156 @@
   $Log$
 }
 {
-{   Rev 1.40    3/3/2005 10:12:38 AM  JPMugaas
-{ Fix for compiler warning about DotNET and ByteType.
-}
-{
-{   Rev 1.39    12/8/2004 10:38:40 AM  JPMugaas
-{ Adjustment for PC-NFS.  Time is returned with an "a" or "p" instead of AM or
-{ PM.
-}
-{
-{   Rev 1.38    11/24/2004 12:26:18 PM  JPMugaas
-{ Removed dead code that caused a NET portability warning.
-}
-{
-{   Rev 1.37    11/22/2004 7:44:26 PM  JPMugaas
-{ Modified IsYYMMDD to accept 2 digit years.
-}
-{
-{   Rev 1.35    10/27/2004 1:05:08 AM  JPMugaas
-{ "SungDong Kim" <infi@acrosoft.pe.kr> indicated a problem with Korean in
-{ IsTotalLine.  He suggested specifically testing for multibyte characters.
-{ 
-{ This is tentative.
-}
-{
-{   Rev 1.34    10/26/2004 9:19:12 PM  JPMugaas
-{ Fixed references.
-}
-{
-{   Rev 1.33    9/7/2004 10:01:12 AM  JPMugaas
-{ FIxed problem parsing:
-{ 
-{ drwx------ 1 user group              0 Sep 07 09:20 xxx
-{ 
-{ It was mistakenly being detected as Windows NT because there was a - in the
-{ fifth and eigth position in the string.  The fix is to detect to see if the
-{ other chactors in thbat column are numbers.
-{ 
-{ I did the same thing to the another part of the detection so that something
-{ similar doesn't happen there with "-" in Unix listings causing false
-{ WindowsNT detection.
-}
-{
-{   Rev 1.32    8/1/2004 1:07:36 AM  JPMugaas
-{ Fix for XBox dir listing problem seen in Unix-xbox-MediaCenter.txt
-}
-{
-{   Rev 1.31    7/30/2004 5:50:54 AM  JPMugaas
-{ Fix for UnquotedChar.  It was returning nothing instead of what the string
-{ without quotes.
-}
-{
-{   Rev 1.30    7/29/2004 1:33:08 AM  JPMugaas
-{ Reordered AUTH command values for a new property under development.  This
-{ should make things more logical.
-}
-{
-{   Rev 1.29    6/29/2004 4:09:02 PM  JPMugaas
-{ OPTS MODE Z now supported as per draft-preston-ftpext-deflate-02.txt.  This
-{ should keep FTP Voyager 11 happy.
-}
-{
-{   Rev 1.28    6/17/2004 3:38:42 PM  JPMugaas
-{ Removed Transfer Mode's dmBlock and dmCompressed since we did not support
-{ those at all.
-}
-{
-{   Rev 1.27    6/15/2004 7:18:58 PM  JPMugaas
-{ Compiler defines removed.
-}
-{
-{   Rev 1.26    6/15/2004 6:35:30 PM  JPMugaas
-{ Change in ZLib parameter values.  Window Bits is now positive.   We make it
-{ negative as part of a workaround and then upload with the ZLib headers.
-}
-{
-{   Rev 1.25    6/7/2004 3:47:50 PM  JPMugaas
-{ VMS Recursive Dir listings now supported.  This is done with a [...].  Note
-{ that VMS does have some strange syntaxes with their file system.
-}
-{
-{   Rev 1.24    6/5/2004 7:39:58 AM  JPMugaas
-{ Exposes Posix constants because I need them for something else in my private
-{ work.
-}
-{
-{   Rev 1.23    6/4/2004 4:15:42 PM  JPMugaas
-{ A ChModNumber conversion function wasn't returning anything.
-{ Added an overloaded function for cases where all of the permissions should be
-{ in one string (such as displaying in a ListView column).
-}
-{
-{   Rev 1.22    2/17/2004 12:25:38 PM  JPMugaas
-{ The client now supports MODE Z (deflate) uploads and downloads as specified
-{ by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
-}
-{
-{   Rev 1.21    2/12/2004 11:34:26 PM  JPMugaas
-{ FTP Deflate preliminary support.  Work still needs to be done for upload and
-{ downloading.
-}
-{
-{   Rev 1.20    2004.02.03 5:44:42 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.19    2004.02.03 2:12:08 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.18    2004.01.23 2:37:24 AM  czhower
-{ DCCIL compile fix.
-}
-{
-{   Rev 1.17    2004.01.22 5:27:24 PM  czhower
-{ Fixed compile errors.
-}
-{
-{   Rev 1.16    1/22/2004 4:16:46 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.15    1/19/2004 8:57:20 PM  JPMugaas
-{ Rearranged functions to be in a more sensible way.  
-}
-{
-{   Rev 1.14    1/19/2004 4:35:30 AM  JPMugaas
-{ FTPDateTimeToMDTMD was created for converting a TDateTime into a time value
-{ for MDTM.
-{ MinutesFromGMT was moved from IdFTPServer because the client now may use it.
-}
-{
-{   Rev 1.13    1/17/2004 7:37:32 PM  JPMugaas
-{ Removed some warnings.
-}
-{
-{   Rev 1.12    1/16/2004 12:23:52 AM  JPMugaas
-{ New functions for MDTM set date functionality.
-}
-{
-{   Rev 1.11    10/26/2003 9:18:10 PM  BGooijen
-{ Compiles in DotNet, and partially works there
-}
-{
-    Rev 1.10    10/19/2003 1:11:06 PM  DSiders
+  Rev 1.40    3/3/2005 10:12:38 AM  JPMugaas
+  Fix for compiler warning about DotNET and ByteType.
+
+  Rev 1.39    12/8/2004 10:38:40 AM  JPMugaas
+  Adjustment for PC-NFS.  Time is returned with an "a" or "p" instead of AM or
+  PM.
+
+  Rev 1.38    11/24/2004 12:26:18 PM  JPMugaas
+  Removed dead code that caused a NET portability warning.
+
+  Rev 1.37    11/22/2004 7:44:26 PM  JPMugaas
+  Modified IsYYMMDD to accept 2 digit years.
+
+  Rev 1.35    10/27/2004 1:05:08 AM  JPMugaas
+  "SungDong Kim" <infi@acrosoft.pe.kr> indicated a problem with Korean in
+  IsTotalLine.  He suggested specifically testing for multibyte characters.
+
+  This is tentative.
+
+  Rev 1.34    10/26/2004 9:19:12 PM  JPMugaas
+  Fixed references.
+
+  Rev 1.33    9/7/2004 10:01:12 AM  JPMugaas
+  FIxed problem parsing:
+
+  drwx------ 1 user group              0 Sep 07 09:20 xxx
+
+  It was mistakenly being detected as Windows NT because there was a - in the
+  fifth and eigth position in the string.  The fix is to detect to see if the
+  other chactors in thbat column are numbers.
+
+  I did the same thing to the another part of the detection so that something
+  similar doesn't happen there with "-" in Unix listings causing false
+  WindowsNT detection.
+
+  Rev 1.32    8/1/2004 1:07:36 AM  JPMugaas
+  Fix for XBox dir listing problem seen in Unix-xbox-MediaCenter.txt
+
+  Rev 1.31    7/30/2004 5:50:54 AM  JPMugaas
+  Fix for UnquotedChar.  It was returning nothing instead of what the string
+  without quotes.
+
+  Rev 1.30    7/29/2004 1:33:08 AM  JPMugaas
+  Reordered AUTH command values for a new property under development.  This
+  should make things more logical.
+
+  Rev 1.29    6/29/2004 4:09:02 PM  JPMugaas
+  OPTS MODE Z now supported as per draft-preston-ftpext-deflate-02.txt.  This
+  should keep FTP Voyager 11 happy.
+
+  Rev 1.28    6/17/2004 3:38:42 PM  JPMugaas
+  Removed Transfer Mode's dmBlock and dmCompressed since we did not support
+  those at all.
+
+  Rev 1.27    6/15/2004 7:18:58 PM  JPMugaas
+  Compiler defines removed.
+
+  Rev 1.26    6/15/2004 6:35:30 PM  JPMugaas
+  Change in ZLib parameter values.  Window Bits is now positive.   We make it
+  negative as part of a workaround and then upload with the ZLib headers.
+
+  Rev 1.25    6/7/2004 3:47:50 PM  JPMugaas
+  VMS Recursive Dir listings now supported.  This is done with a [...].  Note
+  that VMS does have some strange syntaxes with their file system.
+
+  Rev 1.24    6/5/2004 7:39:58 AM  JPMugaas
+  Exposes Posix constants because I need them for something else in my private
+  work.
+
+  Rev 1.23    6/4/2004 4:15:42 PM  JPMugaas
+  A ChModNumber conversion function wasn't returning anything.
+  Added an overloaded function for cases where all of the permissions should be
+  in one string (such as displaying in a ListView column).
+
+  Rev 1.22    2/17/2004 12:25:38 PM  JPMugaas
+  The client now supports MODE Z (deflate) uploads and downloads as specified
+  by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
+
+  Rev 1.21    2/12/2004 11:34:26 PM  JPMugaas
+  FTP Deflate preliminary support.  Work still needs to be done for upload and
+  downloading.
+
+  Rev 1.20    2004.02.03 5:44:42 PM  czhower
+  Name changes
+
+  Rev 1.19    2004.02.03 2:12:08 PM  czhower
+  $I path change
+
+  Rev 1.18    2004.01.23 2:37:24 AM  czhower
+  DCCIL compile fix.
+
+  Rev 1.17    2004.01.22 5:27:24 PM  czhower
+  Fixed compile errors.
+
+  Rev 1.16    1/22/2004 4:16:46 PM  SPerry
+  fixed set problems
+
+  Rev 1.15    1/19/2004 8:57:20 PM  JPMugaas
+  Rearranged functions to be in a more sensible way.
+
+  Rev 1.14    1/19/2004 4:35:30 AM  JPMugaas
+  FTPDateTimeToMDTMD was created for converting a TDateTime into a time value
+  for MDTM.
+  MinutesFromGMT was moved from IdFTPServer because the client now may use it.
+
+  Rev 1.13    1/17/2004 7:37:32 PM  JPMugaas
+  Removed some warnings.
+
+  Rev 1.12    1/16/2004 12:23:52 AM  JPMugaas
+  New functions for MDTM set date functionality.
+
+  Rev 1.11    10/26/2003 9:18:10 PM  BGooijen
+  Compiles in DotNet, and partially works there
+
+  Rev 1.10    10/19/2003 1:11:06 PM  DSiders
   Added localization comments.
+
+  Rev 1.9    10/7/2003 05:46:34 AM  JPMugaas
+  SSCN Support added.
+
+  Rev 1.8    10/1/2003 05:29:50 PM  JPMugaas
+  Y2KDate will now adjust date if there's 3 diigits instead of 4.  This is
+  required for the OS/2 FTP LIST parser.
+
+  Rev 1.7    10/1/2003 12:57:12 AM  JPMugaas
+  Routines for Sterling Commerce FTP Server support.
+
+  Rev 1.6    6/27/2003 06:06:50 AM  JPMugaas
+  Should now compile with the IsNumeric code move.
+
+  Rev 1.5    3/12/2003 03:22:32 PM  JPMugaas
+  The FTP Server can now handle masks better including file extensions.
+
+  Rev 1.4    2/24/2003 07:19:32 AM  JPMugaas
+  Added routine for determining if a Unix file is "hidden".  This is determined
+  by a "." starting a filename.
+
+  Rev 1.3    2/19/2003 02:04:24 AM  JPMugaas
+  Added more routines from IdFTPList for the new framework.
+
+  Rev 1.2    2/17/2003 04:43:38 PM  JPMugaas
+  TOPS20 support
+
+  Rev 1.1    2/14/2003 05:41:36 PM  JPMugaas
+  Moved everything from IdFTPUtils to IdFTPCommon at Kudzu's suggestion.
+
+  Rev 1.0    11/13/2002 08:28:38 AM  JPMugaas
+  Initial import from FTP VC.
 }
-{
-{   Rev 1.9    10/7/2003 05:46:34 AM  JPMugaas
-{ SSCN Support added.
-}
-{
-{   Rev 1.8    10/1/2003 05:29:50 PM  JPMugaas
-{ Y2KDate will now adjust date if there's 3 diigits instead of 4.  This is
-{ required for the OS/2 FTP LIST parser.
-}
-{
-{   Rev 1.7    10/1/2003 12:57:12 AM  JPMugaas
-{ Routines for Sterling Commerce FTP Server support.
-}
-{
-{   Rev 1.6    6/27/2003 06:06:50 AM  JPMugaas
-{ Should now compile with the IsNumeric code move.
-}
-{
-{   Rev 1.5    3/12/2003 03:22:32 PM  JPMugaas
-{ The FTP Server can now handle masks better including file extensions.
-}
-{
-{   Rev 1.4    2/24/2003 07:19:32 AM  JPMugaas
-{ Added routine for determining if a Unix file is "hidden".  This is determined
-{ by a "." starting a filename.
-}
-{
-{   Rev 1.3    2/19/2003 02:04:24 AM  JPMugaas
-{ Added more routines from IdFTPList for the new framework.
-}
-{
-{   Rev 1.2    2/17/2003 04:43:38 PM  JPMugaas
-{ TOPS20 support
-}
-{
-{   Rev 1.1    2/14/2003 05:41:36 PM  JPMugaas
-{ Moved everything from IdFTPUtils to IdFTPCommon at Kudzu's suggestion.
-}
-{
-{   Rev 1.0    11/13/2002 08:28:38 AM  JPMugaas
-{ Initial import from FTP VC.
-}
+
 unit IdFTPCommon;
 
 interface
@@ -315,7 +277,7 @@ const
   PARENT_DIR = '..';
 
   VMS_RELPATH_PREFIX = '[.';
-  
+
   MS_DOS_CURDIR = CUR_DIR + PATH_FILENAME_SEP_DOS;
   UNIX_CURDIR = CUR_DIR +  PATH_FILENAME_SEP_UNIX;
 
@@ -615,7 +577,7 @@ const
   IdS_IXOTH = IdS_IXGRP shr 3;  { Execute by others.  }
   { Read, write, and execute by others.  }
   IdS_IRWXO = IdS_IRWXG shr 3;
-  
+
 implementation
 
 {Misc Parsing}

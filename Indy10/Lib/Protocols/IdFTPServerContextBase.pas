@@ -16,18 +16,24 @@
   $Log$
 }
 {
-{   Rev 1.0    8/24/2003 06:47:42 PM  JPMugaas
-{ FTPContext base class so that the ThreadClass may be shared with the
-{ FileSystem classes.
+  Rev 1.0    8/24/2003 06:47:42 PM  JPMugaas
+  FTPContext base class so that the ThreadClass may be shared with the
+  FileSystem classes.
 }
+
 unit IdFTPServerContextBase;
 
+{
+  This is for a basic thread class that can be shared with the FTP File System
+  component and any other file system class so they can share more information
+  than just the Username
+}
+
 interface
+
 uses
   IdContext;
 
-{This is for a basic thread class that can be shared with the FTP File System component
-and any other file system class so they can share more information than just the Username}
 type
   TIdFTPUserType = (utNone, utAnonymousUser, utNormalUser);
   TIdFTPServerContextBase = class(TIdContext)
@@ -54,7 +60,7 @@ type
     property RESTPos: Integer read FRESTPos write FRESTPos;
     property RNFR: string read FRNFR write FRNFR;
   end;
-  
+
 implementation
 
 { TIdFTPServerContextBase }

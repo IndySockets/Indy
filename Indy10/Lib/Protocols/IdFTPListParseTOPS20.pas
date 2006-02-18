@@ -16,72 +16,61 @@
   $Log$
 }
 {
-{   Rev 1.13    2/5/2005 12:33:46 PM  JPMugaas
-{ A bug was causing a false positive for TOPS20 for a Windows NT directory
-{ listing only containing one folder.
-}
-{
-{   Rev 1.12    2/3/2005 11:26:50 PM  JPMugaas
-{ Fix for DotNET problem.
-}
-{
-{   Rev 1.11    12/8/2004 8:35:18 AM  JPMugaas
-{ Minor class restructure to support Unisys ClearPath.
-}
-{
-{   Rev 1.10    11/30/2004 12:14:46 PM  JPMugaas
-{ Compiler error in DotNET.
-}
-{
-{   Rev 1.9    11/26/2004 3:14:14 PM  JPMugaas
-{ TOPS20 parser was causing a false positive with a WindowsNT machine.  The fix
-{ is detect a space in a file listing (that should not happen with one form of
-{ the TOPS20 listing).
-}
-{
-{   Rev 1.8    11/22/2004 7:43:46 PM  JPMugaas
-{ Changed LocalFile property for directories to drop the .DIRECTORY extension
-{ and build number.  You don't use those with a CD command.
-}
-{
-{   Rev 1.7    11/20/2004 2:39:02 PM  JPMugaas
-{ Now works at twenex.org.  That system is odd because it doesn't support the
-{ SYST command so you have to parse the directory.
-}
-{
-{   Rev 1.6    10/26/2004 9:55:58 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.5    6/5/2004 7:48:56 PM  JPMugaas
-{ In TOPS32, a FTP dir listing will often not contain dates or times.  It's
-{ usually just the name.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:44 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:26 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 3:36:22 PM  DSiders
+  Rev 1.13    2/5/2005 12:33:46 PM  JPMugaas
+  A bug was causing a false positive for TOPS20 for a Windows NT directory
+  listing only containing one folder.
+
+  Rev 1.12    2/3/2005 11:26:50 PM  JPMugaas
+  Fix for DotNET problem.
+
+  Rev 1.11    12/8/2004 8:35:18 AM  JPMugaas
+  Minor class restructure to support Unisys ClearPath.
+
+  Rev 1.10    11/30/2004 12:14:46 PM  JPMugaas
+  Compiler error in DotNET.
+
+  Rev 1.9    11/26/2004 3:14:14 PM  JPMugaas
+  TOPS20 parser was causing a false positive with a WindowsNT machine.  The fix
+  is detect a space in a file listing (that should not happen with one form of
+  the TOPS20 listing).
+
+  Rev 1.8    11/22/2004 7:43:46 PM  JPMugaas
+  Changed LocalFile property for directories to drop the .DIRECTORY extension
+  and build number.  You don't use those with a CD command.
+
+  Rev 1.7    11/20/2004 2:39:02 PM  JPMugaas
+  Now works at twenex.org.  That system is odd because it doesn't support the
+  SYST command so you have to parse the directory.
+
+  Rev 1.6    10/26/2004 9:55:58 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.5    6/5/2004 7:48:56 PM  JPMugaas
+  In TOPS32, a FTP dir listing will often not contain dates or times.  It's
+  usually just the name.
+
+  Rev 1.4    4/19/2004 5:05:44 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:26 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 3:36:22 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:04:18 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 05:49:58 PM  JPMugaas
+  Parsers ported from old framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:04:18 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 05:49:58 PM  JPMugaas
-{ Parsers ported from old framework.
-}
+
 unit IdFTPListParseTOPS20;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItem);

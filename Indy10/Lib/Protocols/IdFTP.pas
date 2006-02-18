@@ -16,700 +16,578 @@
   $Log$
 }
 {
-{   Rev 1.126    4/28/2005 BTaylor
-{ Changed .Size to use Int64
-}
-{
-{   Rev 1.125    4/15/2005 9:10:10 AM  JPMugaas
-{ Changed the default timeout in TIdFTP to one minute and made a comment about
-{ this.
-{
-{ Some firewalls don't handle control connections properly during long data
-{ transfers.  They will timeout the control connection because it's idle and
-{ making it worse is that they will chop off a connection instead of closing it
-{ causing TIdFTP to wait forever for nothing.
-}
-{
-{   Rev 1.124    3/20/2005 10:42:44 PM  JPMugaas
-{ Marked TIdFTP.Quit as deprecated.  We need to keep it only for compatibility.
-}
-{
-{   Rev 1.123    3/20/2005 2:44:08 PM  JPMugaas
-{ Should now send quit.  Verified here.
-}
-{
-{   Rev 1.122    3/12/2005 6:57:12 PM  JPMugaas
-{ Attempt to add ACCT support for firewalls.  I also used some logic from some
-{ WS-FTP Pro about ACCT to be more consistant with those Firescripts.
-}
-{
-{   Rev 1.121    3/10/2005 2:41:12 PM  JPMugaas
-{ Removed the UseTelnetAbort property.  It turns out that sending the sequence
-{ is causing problems on a few servers.  I have made a comment about this in
-{ the source-code so someone later on will know  why I decided not to send
-{ those.
-}
-{
-{   Rev 1.120    3/9/2005 10:05:54 PM  JPMugaas
-{ Minor changes for Indy conventions.
-}
-{
-{   Rev 1.119    3/9/2005 9:15:46 PM  JPMugaas
-{ Changes submitted by Craig Peterson, Scooter Software  He noted this:
-{
-{ "We had a user who's FTP server prompted for account info after a
-{ regular login, so I had to add an explicit Account string property and
-{ an OnNeedAccount event that we could use for a prompt."  This does break any
-{ code using TIdFTP.Account.
-{
-{ TODO:  See about integrating Account Info into the proxy login sequences.
-}
-{
-{   Rev 1.118    3/9/2005 10:40:16 AM  JPMugaas
-{ Made comment explaining why I had made a workaround in a procedure.
-}
-{
-{   Rev 1.117    3/9/2005 10:28:32 AM  JPMugaas
-{ Fix for Abort problem when uploading.  A workaround I made for WS-FTP Pro
-{ Server was not done correctly.
-}
-{
-{   Rev 1.116    3/9/2005 1:21:38 AM  JPMugaas
-{ Made refinement to Abort and the data transfers to follow what Kudzu had
-{ originally done in Indy 8.  I also fixed a problem with ABOR at
-{ ftp.ipswitch.com and I fixed a regression at ftp.marist.edu that occured when
-{ getting a directory.
-}
-{
-{   Rev 1.115    3/8/2005 12:14:50 PM  JPMugaas
-{ Renamed UseOOBAbort to UseTelnetAbort because that's more accurate.  We still
-{ don't support Out of Band Data (hopefully, we'll never have to do that).
-}
-{
-{   Rev 1.114    3/7/2005 10:40:10 PM  JPMugaas
-{ Improvements:
-{
-{ 1) Removed some duplicate code.
-{ 2) ABOR should now be properly handled outside of a data operation.
-{ 3) I added a UseOOBAbort read-write public property for controlling how the
-{ ABOR command is sent.  If true, the Telnet sequences are sent or if false,
-{ the ABOR without sequences is sent.  This is set to false by default because
-{ one FTP client (SmartFTP recently removed the Telnet sequences from their
-{ program).
-{
-{ This code is expiriemental.
-}
-{
-{   Rev 1.113    3/7/2005 5:46:34 PM  JPMugaas
-{ Reworked FTP Abort code to make it more threadsafe and make abort work.  This
-{ is PRELIMINARY.
-}
-{
-{   Rev 1.112    3/5/2005 3:33:56 PM  JPMugaas
-{ Fix for some compiler warnings having to do with TStream.Read being platform
-{ specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
-{ instead of TStream.  I also made appropriate adjustments to other units for
-{ this.
-}
-{
-{   Rev 1.111    2/24/2005 6:46:36 AM  JPMugaas
-{ Clarrified remarks I made and added a few more comments about syntax in
-{ particular cases in the set modified file date procedures.
-{
-{ That's really been a ball....NOT!!!!
-}
-{
-{   Rev 1.110    2/24/2005 6:25:08 AM  JPMugaas
-{ Attempt to fix problem setting Date with Titan FTP Server.  I had made an
-{ incorrect assumption about MDTM on that system.  It uses Syntax 3 (see my
-{ earlier note above the File Date Set problem.
-}
-{
-{   Rev 1.109    2/23/2005 6:32:54 PM  JPMugaas
-{ Made note about MDTM syntax inconsistancy.  There's a discussion about it.
-}
-{
-{   Rev 1.108    2/12/2005 8:08:04 AM  JPMugaas
-{ Attempt to fix MDTM bug where msec was being sent.
-}
-{
-{   Rev 1.107    1/12/2005 11:26:44 AM  JPMugaas
-{ Memory Leak fix when processing MLSD output and some minor tweeks Remy had
-{ E-Mailed me last night.
-}
-{
-{   Rev 1.106    11/18/2004 2:39:32 PM  JPMugaas
-{ Support for another FTP Proxy type.
-}
-{
-{   Rev 1.105    11/18/2004 12:18:50 AM  JPMugaas
-{ Fixed compile error.
-}
-{
-{   Rev 1.104    11/17/2004 3:59:22 PM  JPMugaas
-{ Fixed a TODO item about FTP Proxy support with a "Transparent" proxy.  I
-{ think you connect to the regular host and the firewall will intercept its
-{ login information.
-}
-{
-{   Rev 1.103    11/16/2004 7:31:52 AM  JPMugaas
-{ Made a comment noting that UserSite is the same as USER after login for later
-{ reference.
-}
-{
-{   Rev 1.102    11/5/2004 1:54:42 AM  JPMugaas
-{ Minor adjustment - should not detect TitanFTPD better (tested at:
-{ ftp.southrivertech.com).
-{
-{ If MLSD is being used, SITE ZONE will not be issued.  It's not needed because
-{ the MLSD spec indicates the time is based on GMT.
-}
-{
-{   Rev 1.101    10/27/2004 12:58:08 AM  JPMugaas
-{ Improvement from Tobias Giesen http://www.superflexible.com
-{ His notation is below:
-{
-{ "here's a fix for TIdFTP.IndexOfFeatLine. It does not work the
-{ way it is used in TIdFTP.SetModTime, because it only
-{ compares the first word of the FeatLine."
-}
-{
-{   Rev 1.100    10/26/2004 9:19:10 PM  JPMugaas
-{ Fixed references.
-}
-{
-{   Rev 1.99    9/16/2004 3:24:04 AM  JPMugaas
-{ TIdFTP now compresses to the IOHandler and decompresses from the IOHandler.
-{
-{ Noted some that the ZLib code is based was taken from ZLibEx.
-}
-{
-{   Rev 1.98    9/13/2004 12:15:42 AM  JPMugaas
-{ Now should be able to handle some values better as suggested by Michael J.
-{ Leave.
-}
-{
-{   Rev 1.97    9/11/2004 10:58:06 AM  JPMugaas
-{ FTP now decompresses output directly to the IOHandler.
-}
-{
-{   Rev 1.96    9/10/2004 7:37:42 PM  JPMugaas
-{ Fixed a bug.  We needed to set Passthrough instead of calling StartSSL.  This
-{ was causing a SSL problem with upload.
-}
-{
-{   Rev 1.95    8/2/04 5:56:16 PM  RLebeau
-{ Tweaks to TIdFTP.InitDataChannel()
-}
-{
-    Rev 1.94    7/30/2004 1:55:04 AM  DSiders
+  Rev 1.126    4/28/2005 BTaylor
+  Changed .Size to use Int64
+
+  Rev 1.125    4/15/2005 9:10:10 AM  JPMugaas
+  Changed the default timeout in TIdFTP to one minute and made a comment about
+  this.
+
+  Some firewalls don't handle control connections properly during long data
+  transfers.  They will timeout the control connection because it's idle and
+  making it worse is that they will chop off a connection instead of closing it
+  causing TIdFTP to wait forever for nothing.
+
+  Rev 1.124    3/20/2005 10:42:44 PM  JPMugaas
+  Marked TIdFTP.Quit as deprecated.  We need to keep it only for compatibility.
+
+  Rev 1.123    3/20/2005 2:44:08 PM  JPMugaas
+  Should now send quit.  Verified here.
+
+  Rev 1.122    3/12/2005 6:57:12 PM  JPMugaas
+  Attempt to add ACCT support for firewalls.  I also used some logic from some
+  WS-FTP Pro about ACCT to be more consistant with those Firescripts.
+
+  Rev 1.121    3/10/2005 2:41:12 PM  JPMugaas
+  Removed the UseTelnetAbort property.  It turns out that sending the sequence
+  is causing problems on a few servers.  I have made a comment about this in
+  the source-code so someone later on will know  why I decided not to send
+  those.
+
+  Rev 1.120    3/9/2005 10:05:54 PM  JPMugaas
+  Minor changes for Indy conventions.
+
+  Rev 1.119    3/9/2005 9:15:46 PM  JPMugaas
+  Changes submitted by Craig Peterson, Scooter Software  He noted this:
+
+  "We had a user who's FTP server prompted for account info after a
+  regular login, so I had to add an explicit Account string property and
+  an OnNeedAccount event that we could use for a prompt."  This does break any
+  code using TIdFTP.Account.
+
+  TODO:  See about integrating Account Info into the proxy login sequences.
+
+  Rev 1.118    3/9/2005 10:40:16 AM  JPMugaas
+  Made comment explaining why I had made a workaround in a procedure.
+
+  Rev 1.117    3/9/2005 10:28:32 AM  JPMugaas
+  Fix for Abort problem when uploading.  A workaround I made for WS-FTP Pro
+  Server was not done correctly.
+
+  Rev 1.116    3/9/2005 1:21:38 AM  JPMugaas
+  Made refinement to Abort and the data transfers to follow what Kudzu had
+  originally done in Indy 8.  I also fixed a problem with ABOR at
+  ftp.ipswitch.com and I fixed a regression at ftp.marist.edu that occured when
+  getting a directory.
+
+  Rev 1.115    3/8/2005 12:14:50 PM  JPMugaas
+  Renamed UseOOBAbort to UseTelnetAbort because that's more accurate.  We still
+  don't support Out of Band Data (hopefully, we'll never have to do that).
+
+  Rev 1.114    3/7/2005 10:40:10 PM  JPMugaas
+  Improvements:
+
+  1) Removed some duplicate code.
+  2) ABOR should now be properly handled outside of a data operation.
+  3) I added a UseOOBAbort read-write public property for controlling how the
+  ABOR command is sent.  If true, the Telnet sequences are sent or if false,
+  the ABOR without sequences is sent.  This is set to false by default because
+  one FTP client (SmartFTP recently removed the Telnet sequences from their
+  program).
+
+  This code is expiriemental.
+
+  Rev 1.113    3/7/2005 5:46:34 PM  JPMugaas
+  Reworked FTP Abort code to make it more threadsafe and make abort work.  This
+  is PRELIMINARY.
+
+  Rev 1.112    3/5/2005 3:33:56 PM  JPMugaas
+  Fix for some compiler warnings having to do with TStream.Read being platform
+  specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
+  instead of TStream.  I also made appropriate adjustments to other units for
+  this.
+
+  Rev 1.111    2/24/2005 6:46:36 AM  JPMugaas
+  Clarrified remarks I made and added a few more comments about syntax in
+  particular cases in the set modified file date procedures.
+
+  That's really been a ball....NOT!!!!
+
+  Rev 1.110    2/24/2005 6:25:08 AM  JPMugaas
+  Attempt to fix problem setting Date with Titan FTP Server.  I had made an
+  incorrect assumption about MDTM on that system.  It uses Syntax 3 (see my
+  earlier note above the File Date Set problem.
+
+  Rev 1.109    2/23/2005 6:32:54 PM  JPMugaas
+  Made note about MDTM syntax inconsistancy.  There's a discussion about it.
+
+  Rev 1.108    2/12/2005 8:08:04 AM  JPMugaas
+  Attempt to fix MDTM bug where msec was being sent.
+
+  Rev 1.107    1/12/2005 11:26:44 AM  JPMugaas
+  Memory Leak fix when processing MLSD output and some minor tweeks Remy had
+  E-Mailed me last night.
+
+  Rev 1.106    11/18/2004 2:39:32 PM  JPMugaas
+  Support for another FTP Proxy type.
+
+  Rev 1.105    11/18/2004 12:18:50 AM  JPMugaas
+  Fixed compile error.
+
+  Rev 1.104    11/17/2004 3:59:22 PM  JPMugaas
+  Fixed a TODO item about FTP Proxy support with a "Transparent" proxy.  I
+  think you connect to the regular host and the firewall will intercept its
+  login information.
+
+  Rev 1.103    11/16/2004 7:31:52 AM  JPMugaas
+  Made a comment noting that UserSite is the same as USER after login for later
+  reference.
+
+  Rev 1.102    11/5/2004 1:54:42 AM  JPMugaas
+  Minor adjustment - should not detect TitanFTPD better (tested at:
+  ftp.southrivertech.com).
+
+  If MLSD is being used, SITE ZONE will not be issued.  It's not needed because
+  the MLSD spec indicates the time is based on GMT.
+
+  Rev 1.101    10/27/2004 12:58:08 AM  JPMugaas
+  Improvement from Tobias Giesen http://www.superflexible.com
+  His notation is below:
+
+  "here's a fix for TIdFTP.IndexOfFeatLine. It does not work the
+  way it is used in TIdFTP.SetModTime, because it only
+  compares the first word of the FeatLine."
+
+  Rev 1.100    10/26/2004 9:19:10 PM  JPMugaas
+  Fixed references.
+
+  Rev 1.99    9/16/2004 3:24:04 AM  JPMugaas
+  TIdFTP now compresses to the IOHandler and decompresses from the IOHandler.
+
+  Noted some that the ZLib code is based was taken from ZLibEx.
+
+  Rev 1.98    9/13/2004 12:15:42 AM  JPMugaas
+  Now should be able to handle some values better as suggested by Michael J.
+  Leave.
+
+  Rev 1.97    9/11/2004 10:58:06 AM  JPMugaas
+  FTP now decompresses output directly to the IOHandler.
+
+  Rev 1.96    9/10/2004 7:37:42 PM  JPMugaas
+  Fixed a bug.  We needed to set Passthrough instead of calling StartSSL.  This
+  was causing a SSL problem with upload.
+
+  Rev 1.95    8/2/04 5:56:16 PM  RLebeau
+  Tweaks to TIdFTP.InitDataChannel()
+
+  Rev 1.94    7/30/2004 1:55:04 AM  DSiders
   Corrected DoOnRetrievedDir naming.
-}
-{
-    Rev 1.93    7/30/2004 12:36:32 AM  DSiders
+
+  Rev 1.93    7/30/2004 12:36:32 AM  DSiders
   Corrected spelling in OnRetrievedDir, DoOnRetrievedDir declarations.
-}
-{
-{   Rev 1.92    7/29/2004 2:15:28 AM  JPMugaas
-{ New property for controlling what AUTH command is sent.  Fixed some minor
-{ issues with FTP properties.  Some were not set to defaults causing
-{ unpredictable results -- OOPS!!!
-}
-{
-{   Rev 1.91    7/29/2004 12:04:40 AM  JPMugaas
-{ New events for Get and Put as suggested by Don Sides and to complement an
-{ event done by APR.
-}
-{
-{   Rev 1.90    7/28/2004 10:16:14 AM  JPMugaas
-{ New events for determining when a listing is finished and when the dir
-{ parsing begins and ends.  Dir parsing is done sometimes when DirectoryListing
-{ is referenced.
-}
-{
-{   Rev 1.89    7/27/2004 2:03:54 AM  JPMugaas
-{ New property:
-{
-{ ExternalIP - used to specify an IP address for the PORT and EPRT commands.
-{ This should be blank unless you are behind a NAT and you need to use PORT
-{ transfers with SSL.  You would set ExternalIP to the NAT's IP address on the
-{ Internet.
-{
-{ The idea is this:
-{
-{ 1) You set up your NAT to forward a range ports ports to your computer behind
-{ the NAT.
-{ 2) You specify that a port range with the DataPortMin and DataPortMin
-{ properties.
-{ 3) You set ExternalIP to the NAT's Internet IP address.
-{
-{ I have verified this with Indy and WS FTP Pro behind a NAT router.
-}
-{
-{   Rev 1.88    7/23/04 7:09:50 PM  RLebeau
-{ Bug fix for TFileStream access rights in Get()
-}
-{
-    Rev 1.87    7/18/2004 3:00:12 PM  DSiders
+
+  Rev 1.92    7/29/2004 2:15:28 AM  JPMugaas
+  New property for controlling what AUTH command is sent.  Fixed some minor
+  issues with FTP properties.  Some were not set to defaults causing
+  unpredictable results -- OOPS!!!
+
+  Rev 1.91    7/29/2004 12:04:40 AM  JPMugaas
+  New events for Get and Put as suggested by Don Sides and to complement an
+  event done by APR.
+
+  Rev 1.90    7/28/2004 10:16:14 AM  JPMugaas
+  New events for determining when a listing is finished and when the dir
+  parsing begins and ends.  Dir parsing is done sometimes when DirectoryListing
+  is referenced.
+
+  Rev 1.89    7/27/2004 2:03:54 AM  JPMugaas
+  New property:
+
+  ExternalIP - used to specify an IP address for the PORT and EPRT commands.
+  This should be blank unless you are behind a NAT and you need to use PORT
+  transfers with SSL.  You would set ExternalIP to the NAT's IP address on the
+  Internet.
+
+  The idea is this:
+
+  1) You set up your NAT to forward a range ports ports to your computer behind
+  the NAT.
+  2) You specify that a port range with the DataPortMin and DataPortMin
+  properties.
+  3) You set ExternalIP to the NAT's Internet IP address.
+
+  I have verified this with Indy and WS FTP Pro behind a NAT router.
+
+  Rev 1.88    7/23/04 7:09:50 PM  RLebeau
+  Bug fix for TFileStream access rights in Get()
+
+  Rev 1.87    7/18/2004 3:00:12 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.86    7/16/2004 4:28:40 AM  JPMugaas
-{ CCC Support in TIdFTP to complement that capability in TIdFTPServer.
-}
-{
-{   Rev 1.85    7/13/04 6:48:14 PM  RLebeau
-{ Added support for new DataPort and DataPortMin/Max properties
-}
-{
-    Rev 1.84    7/6/2004 4:51:46 PM  DSiders
+
+  Rev 1.86    7/16/2004 4:28:40 AM  JPMugaas
+  CCC Support in TIdFTP to complement that capability in TIdFTPServer.
+
+  Rev 1.85    7/13/04 6:48:14 PM  RLebeau
+  Added support for new DataPort and DataPortMin/Max properties
+
+  Rev 1.84    7/6/2004 4:51:46 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
-}
-{
-{   Rev 1.83    7/3/2004 3:15:50 AM  JPMugaas
-{ Checked in so everyone else can work on stuff while I'm away.
-}
-{
-{   Rev 1.82    6/27/2004 1:45:38 AM  JPMugaas
-{ Can now optionally support LastAccessTime like Smartftp's FTP Server could.
-{ I also made the MLST listing object and parser support this as well.
-}
-{
-{   Rev 1.81    6/20/2004 8:31:58 PM  JPMugaas
-{ New events for reporting greeting and after login banners during the login
-{ sequence.
-}
-{
-{   Rev 1.80    6/20/2004 6:56:42 PM  JPMugaas
-{ Start oin attempt to support FXP with Deflate compression.  More work will
-{ need to be done.
-}
-{
-{   Rev 1.79    6/17/2004 3:42:32 PM  JPMugaas
-{ Adjusted code for removal of dmBlock and dmCompressed.  Made TransferMode a
-{ property.  Note that the Set method is odd because I am trying to keep
-{ compatibility with older Indy versions.
-}
-{
-{   Rev 1.78    6/14/2004 6:19:02 PM  JPMugaas
-{ This now refers to TIdStreamVCL when downloading isntead of directly to a
-{ memory stream when compressing data.
-}
-{
-{   Rev 1.77    6/14/2004 8:34:52 AM  JPMugaas
-{ Fix for AV on Put with Passive := True.
-}
-{
-    Rev 1.76    6/11/2004 9:34:12 AM  DSiders
+
+  Rev 1.83    7/3/2004 3:15:50 AM  JPMugaas
+  Checked in so everyone else can work on stuff while I'm away.
+
+  Rev 1.82    6/27/2004 1:45:38 AM  JPMugaas
+  Can now optionally support LastAccessTime like Smartftp's FTP Server could.
+  I also made the MLST listing object and parser support this as well.
+
+  Rev 1.81    6/20/2004 8:31:58 PM  JPMugaas
+  New events for reporting greeting and after login banners during the login
+  sequence.
+
+  Rev 1.80    6/20/2004 6:56:42 PM  JPMugaas
+  Start oin attempt to support FXP with Deflate compression.  More work will
+  need to be done.
+
+  Rev 1.79    6/17/2004 3:42:32 PM  JPMugaas
+  Adjusted code for removal of dmBlock and dmCompressed.  Made TransferMode a
+  property.  Note that the Set method is odd because I am trying to keep
+  compatibility with older Indy versions.
+
+  Rev 1.78    6/14/2004 6:19:02 PM  JPMugaas
+  This now refers to TIdStreamVCL when downloading isntead of directly to a
+  memory stream when compressing data.
+
+  Rev 1.77    6/14/2004 8:34:52 AM  JPMugaas
+  Fix for AV on Put with Passive := True.
+
+  Rev 1.76    6/11/2004 9:34:12 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.75    2004.05.20 11:37:16 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.74    5/6/2004 6:54:26 PM  JPMugaas
-{ FTP Port transfers with TransparentProxies is enabled.  This only works if
-{ the TransparentProxy supports a "bind" request.
-}
-{
-{   Rev 1.73    5/4/2004 11:16:28 AM  JPMugaas
-{ TransferTimeout property added and enabled (Bug 96).
-}
-{
-{   Rev 1.72    5/4/2004 11:07:12 AM  JPMugaas
-{ Timeouts should now be reenabled in TIdFTP.
-}
-{
-{   Rev 1.71    4/19/2004 5:05:02 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.70    2004.04.16 9:31:42 PM  czhower
-{ Remove unnecessary duplicate string parsing and replaced with .assign.
-}
-{
-{   Rev 1.69    2004.04.15 7:09:04 PM  czhower
-{ .NET overloads
-}
-{
-{   Rev 1.68    4/15/2004 9:46:48 AM  JPMugaas
-{ List  no longer requires a TStrings.  It turns out that it was an optional
-{ parameter.
-}
-{
-{   Rev 1.67    2004.04.15 2:03:28 PM  czhower
-{ Removed login param from connect and made it a prop like POP3.
-}
-{
-{   Rev 1.66    3/3/2004 5:57:40 AM  JPMugaas
-{ Some IFDEF excluses were removed because the functionality is now in DotNET.
-}
-{
-{   Rev 1.65    2004.03.03 11:54:26 AM  czhower
-{ IdStream change
-}
-{
-{   Rev 1.64    2/20/2004 1:01:06 PM  JPMugaas
-{ Preliminary FTP PRET command support for using PASV with a distributed FTP
-{ server (Distributed PASV -
-{ http://drftpd.org/wiki/wiki.phtml?title=Distributed_PASV).
-}
-{
-{   Rev 1.63    2/17/2004 12:25:52 PM  JPMugaas
-{ The client now supports MODE Z (deflate) uploads and downloads as specified
-{ by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
-}
-{
-{   Rev 1.62    2004.02.03 5:45:10 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.61    2004.02.03 2:12:06 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.60    1/27/2004 10:17:10 PM  JPMugaas
-{ Fix from Steve Loft for a server that sends something like this:
-{ "227 Passive mode OK (195,92,195,164,4,99 )"
-}
-{
-{   Rev 1.59    1/27/2004 3:59:28 PM  SPerry
-{ StringStream ->IdStringStream
-}
-{
-{   Rev 1.58    24/01/2004 19:13:58  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.57    1/21/2004 2:27:50 PM  JPMugaas
-{ Bullete Proof FTPD and Titan FTP support SITE ZONE.  Saw this in a command
-{ database in StaffFTP.
-{ InitComponent.
-}
-{
-{   Rev 1.56    1/19/2004 9:05:38 PM  JPMugaas
-{ Fixes to FTP Set Date functionality.
-{ Introduced properties for Time Zone information from the server.  The way it
-{ works is this, if TIdFTP detects you are using "Serv-U" or SITE ZONE is
-{ listed in the FEAT reply, Indy obtains the time zone information with the
-{ SITE ZONE command and makes the appropriate calculation.  Indy then uses this
-{ information to calculate a timestamp to send to the server with the MDTM
-{ command.  You can also use the Time Zone information yourself to convert the
-{ FTP directory listing item timestamps into GMT and than convert that to your
-{ local time.
-{ FTP Voyager uses SITE ZONE as I've described.
-}
-{
-{   Rev 1.55    1/19/2004 4:39:08 AM  JPMugaas
-{ You can now set the time for a file on the server.  Note that these methods
-{ try to treat the time as relative to GMT.
-}
-{
-{   Rev 1.54    1/17/2004 9:09:30 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.53    1/17/2004 7:48:02 PM  JPMugaas
-{ FXP site to site transfer code was redone for improvements with FXP with TLS.
-{  It actually works and I verified with RaidenFTPD
-{ (http://www.raidenftpd.com/) and the Indy FTP server components.   I also
-{ lowered the requirements for TLS FXP transfers.  The requirements now are:
-{ 1) Only server (either the recipient or the sendor) has to support SSCN
-{
-{ or
-{
-{ 2) The server receiving a PASV must support CPSV and the transfer is done
-{ with IPv4.
-}
-{
-{   Rev 1.52    1/9/2004 2:51:26 PM  JPMugaas
-{ Started IPv6 support.
-}
-{
-{   Rev 1.51    11/27/2003 4:55:28 AM  JPMugaas
-{ Made STOU functionality separate from PUT functionality.  Put now requires a
-{ destination filename except where a source-file name is given.  In that case,
-{ the default is the filename from the source string.
-}
-{
-{   Rev 1.50    10/26/2003 04:28:50 PM  JPMugaas
-{ Reworked Status.
-{
-{ The old one was problematic because it assumed that STAT was a request to
-{ send a directory listing through the control channel.  This assumption is not
-{ correct.  It provides a way to get a freeform status report from a server.
-{ With a Path parameter, it should work like a LIST command  except that the
-{ control connection is used.  We don't support that feature and you should use
-{ our LIst method to get the directory listing anyway, IMAO.
-}
-{
-{   Rev 1.49    10/26/2003 9:17:46 PM  BGooijen
-{ Compiles in DotNet, and partially works there
-}
-{
-{   Rev 1.48    10/24/2003 12:43:48 PM  JPMugaas
-{ Should work again.
-}
-{
-{   Rev 1.47    2003.10.24 10:43:04 AM  czhower
-{ TIdSTream to dos
-}
-{
-{   Rev 1.46    10/20/2003 03:06:10 PM  JPMugaas
-{ SHould now work.
-}
-{
-{   Rev 1.45    10/20/2003 01:00:38 PM  JPMugaas
-{ EIdException no longer raised.  Some things were being gutted needlessly.
-}
-{
-    Rev 1.44    10/19/2003 12:58:20 PM  DSiders
+
+  Rev 1.75    2004.05.20 11:37:16 AM  czhower
+  IdStreamVCL
+
+  Rev 1.74    5/6/2004 6:54:26 PM  JPMugaas
+  FTP Port transfers with TransparentProxies is enabled.  This only works if
+  the TransparentProxy supports a "bind" request.
+
+  Rev 1.73    5/4/2004 11:16:28 AM  JPMugaas
+  TransferTimeout property added and enabled (Bug 96).
+
+  Rev 1.72    5/4/2004 11:07:12 AM  JPMugaas
+  Timeouts should now be reenabled in TIdFTP.
+
+  Rev 1.71    4/19/2004 5:05:02 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.70    2004.04.16 9:31:42 PM  czhower
+  Remove unnecessary duplicate string parsing and replaced with .assign.
+
+  Rev 1.69    2004.04.15 7:09:04 PM  czhower
+  .NET overloads
+
+  Rev 1.68    4/15/2004 9:46:48 AM  JPMugaas
+  List  no longer requires a TStrings.  It turns out that it was an optional
+  parameter.
+
+  Rev 1.67    2004.04.15 2:03:28 PM  czhower
+  Removed login param from connect and made it a prop like POP3.
+
+  Rev 1.66    3/3/2004 5:57:40 AM  JPMugaas
+  Some IFDEF excluses were removed because the functionality is now in DotNET.
+
+  Rev 1.65    2004.03.03 11:54:26 AM  czhower
+  IdStream change
+
+  Rev 1.64    2/20/2004 1:01:06 PM  JPMugaas
+  Preliminary FTP PRET command support for using PASV with a distributed FTP
+  server (Distributed PASV -
+  http://drftpd.org/wiki/wiki.phtml?title=Distributed_PASV).
+
+  Rev 1.63    2/17/2004 12:25:52 PM  JPMugaas
+  The client now supports MODE Z (deflate) uploads and downloads as specified
+  by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
+
+  Rev 1.62    2004.02.03 5:45:10 PM  czhower
+  Name changes
+
+  Rev 1.61    2004.02.03 2:12:06 PM  czhower
+  $I path change
+
+  Rev 1.60    1/27/2004 10:17:10 PM  JPMugaas
+  Fix from Steve Loft for a server that sends something like this:
+  "227 Passive mode OK (195,92,195,164,4,99 )"
+
+  Rev 1.59    1/27/2004 3:59:28 PM  SPerry
+  StringStream ->IdStringStream
+
+  Rev 1.58    24/01/2004 19:13:58  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.57    1/21/2004 2:27:50 PM  JPMugaas
+  Bullete Proof FTPD and Titan FTP support SITE ZONE.  Saw this in a command
+  database in StaffFTP.
+  InitComponent.
+
+  Rev 1.56    1/19/2004 9:05:38 PM  JPMugaas
+  Fixes to FTP Set Date functionality.
+  Introduced properties for Time Zone information from the server.  The way it
+  works is this, if TIdFTP detects you are using "Serv-U" or SITE ZONE is
+  listed in the FEAT reply, Indy obtains the time zone information with the
+  SITE ZONE command and makes the appropriate calculation.  Indy then uses this
+  information to calculate a timestamp to send to the server with the MDTM
+  command.  You can also use the Time Zone information yourself to convert the
+  FTP directory listing item timestamps into GMT and than convert that to your
+  local time.
+  FTP Voyager uses SITE ZONE as I've described.
+
+  Rev 1.55    1/19/2004 4:39:08 AM  JPMugaas
+  You can now set the time for a file on the server.  Note that these methods
+  try to treat the time as relative to GMT.
+
+  Rev 1.54    1/17/2004 9:09:30 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.53    1/17/2004 7:48:02 PM  JPMugaas
+  FXP site to site transfer code was redone for improvements with FXP with TLS.
+  It actually works and I verified with RaidenFTPD
+  (http://www.raidenftpd.com/) and the Indy FTP server components.   I also
+  lowered the requirements for TLS FXP transfers.  The requirements now are:
+  1) Only server (either the recipient or the sendor) has to support SSCN
+
+  or
+
+  2) The server receiving a PASV must support CPSV and the transfer is done
+  with IPv4.
+
+  Rev 1.52    1/9/2004 2:51:26 PM  JPMugaas
+  Started IPv6 support.
+
+  Rev 1.51    11/27/2003 4:55:28 AM  JPMugaas
+  Made STOU functionality separate from PUT functionality.  Put now requires a
+  destination filename except where a source-file name is given.  In that case,
+  the default is the filename from the source string.
+
+  Rev 1.50    10/26/2003 04:28:50 PM  JPMugaas
+  Reworked Status.
+
+  The old one was problematic because it assumed that STAT was a request to
+  send a directory listing through the control channel.  This assumption is not
+  correct.  It provides a way to get a freeform status report from a server.
+  With a Path parameter, it should work like a LIST command  except that the
+  control connection is used.  We don't support that feature and you should use
+  our LIst method to get the directory listing anyway, IMAO.
+
+  Rev 1.49    10/26/2003 9:17:46 PM  BGooijen
+  Compiles in DotNet, and partially works there
+
+  Rev 1.48    10/24/2003 12:43:48 PM  JPMugaas
+  Should work again.
+
+  Rev 1.47    2003.10.24 10:43:04 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.46    10/20/2003 03:06:10 PM  JPMugaas
+  SHould now work.
+
+  Rev 1.45    10/20/2003 01:00:38 PM  JPMugaas
+  EIdException no longer raised.  Some things were being gutted needlessly.
+
+  Rev 1.44    10/19/2003 12:58:20 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.43    2003.10.14 9:56:50 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.42    2003.10.12 3:50:40 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.41    10/10/2003 11:32:26 PM  SPerry
-{ -
-}
-{
-{   Rev 1.40    10/9/2003 10:17:02 AM  JPMugaas
-{ Added overload for GetLoginPassword for providing a challanage string which
-{ doesn't have to the last command reply.
-{ Added CLNT support.
-}
-{
-{   Rev 1.39    10/7/2003 05:46:20 AM  JPMugaas
-{ SSCN Support added.
-}
-{
-{   Rev 1.38    10/6/2003 08:56:44 PM  JPMugaas
-{ Reworked the FTP list parsing framework so that the user can obtain the list
-{ of capabilities from a parser class with TIdFTP.  This should permit the user
-{ to present a directory listing differently for each parser (some FTP list
-{ parsers do have different capabilities).
-}
-{
-{   Rev 1.37    10/1/2003 12:51:18 AM  JPMugaas
-{ SSL with active (PORT) transfers now should work again.
-}
-{
-{   Rev 1.36    9/30/2003 09:50:38 PM  JPMugaas
-{ FTP with TLS should work better.  It turned out that we were negotiating it
-{ several times causing a hang.  I also made sure that we send PBSZ 0 and PROT
-{ P for both implicit and explicit TLS.  Data ports should work in PASV again.
-}
-{
-{   Rev 1.35    9/28/2003 11:41:06 PM  JPMugaas
-{ Reworked Eldos's proposed FTP fix as suggested by Henrick Hellström by moving
-{ all of the IOHandler creation code to InitDataChannel.  This should reduce
-{ the likelihood of error.
-}
-{
-{   Rev 1.33    9/18/2003 11:22:40 AM  JPMugaas
-{ Removed a temporary workaround for an OnWork bug that was in the Indy Core.
-{ That bug was fixed so there's no sense in keeping a workaround here.
-}
-{
-{   Rev 1.32    9/12/2003 08:05:30 PM  JPMugaas
-{ A temporary fix for OnWork events not firing.  The bug is that OnWork events
-{ aren't used in IOHandler where ReadStream really is located.
-}
-{
-{   Rev 1.31    9/8/2003 02:33:00 AM  JPMugaas
-{ OnCustomFTPProxy added to allow Indy to support custom FTP proxies.  When
-{ using this event, you are responsible for programming the FTP Proxy and FTP
-{ Server login sequence.
-{ GetLoginPassword method function for returning the password used when logging
-{ into a FTP server which handles OTP calculation.  This way, custom firewall
-{ support can handle One-Time-Password system transparently.  You do have to
-{ send the User ID before calling this function because the OTP challenge is
-{ part of the reply.
-}
-{
-{   Rev 1.30    6/10/2003 11:10:00 PM  JPMugaas
-{ Made comments about our loop that tries several AUTH command variations.
-{ Some servers may only accept AUTH SSL while other servers only accept AUTH
-{ TLS.
-}
-{
-{   Rev 1.29    5/26/2003 12:21:54 PM  JPMugaas
-}
-{
-{   Rev 1.28    5/25/2003 03:54:20 AM  JPMugaas
-}
-{
-{   Rev 1.27    5/19/2003 08:11:32 PM  JPMugaas
-{ Now should compile properly with new code in Core.
-}
-{
-{   Rev 1.26    5/8/2003 11:27:42 AM  JPMugaas
-{ Moved feature negoation properties down to the ExplicitTLSClient level as
-{ feature negotiation goes hand in hand with explicit TLS support.
-}
-{
-{   Rev 1.25    4/5/2003 02:06:34 PM  JPMugaas
-{ TLS handshake itself can now be handled.
-}
-{
-    Rev 1.24    4/4/2003 8:01:32 PM  BGooijen
+
+  Rev 1.43    2003.10.14 9:56:50 PM  czhower
+  Compile todos
+
+  Rev 1.42    2003.10.12 3:50:40 PM  czhower
+  Compile todos
+
+  Rev 1.41    10/10/2003 11:32:26 PM  SPerry
+  -
+
+  Rev 1.40    10/9/2003 10:17:02 AM  JPMugaas
+  Added overload for GetLoginPassword for providing a challanage string which
+  doesn't have to the last command reply.
+  Added CLNT support.
+
+  Rev 1.39    10/7/2003 05:46:20 AM  JPMugaas
+  SSCN Support added.
+
+  Rev 1.38    10/6/2003 08:56:44 PM  JPMugaas
+  Reworked the FTP list parsing framework so that the user can obtain the list
+  of capabilities from a parser class with TIdFTP.  This should permit the user
+  to present a directory listing differently for each parser (some FTP list
+  parsers do have different capabilities).
+
+  Rev 1.37    10/1/2003 12:51:18 AM  JPMugaas
+  SSL with active (PORT) transfers now should work again.
+
+  Rev 1.36    9/30/2003 09:50:38 PM  JPMugaas
+  FTP with TLS should work better.  It turned out that we were negotiating it
+  several times causing a hang.  I also made sure that we send PBSZ 0 and PROT
+  P for both implicit and explicit TLS.  Data ports should work in PASV again.
+
+  Rev 1.35    9/28/2003 11:41:06 PM  JPMugaas
+  Reworked Eldos's proposed FTP fix as suggested by Henrick Hellström by moving
+  all of the IOHandler creation code to InitDataChannel.  This should reduce
+  the likelihood of error.
+
+  Rev 1.33    9/18/2003 11:22:40 AM  JPMugaas
+  Removed a temporary workaround for an OnWork bug that was in the Indy Core.
+  That bug was fixed so there's no sense in keeping a workaround here.
+
+  Rev 1.32    9/12/2003 08:05:30 PM  JPMugaas
+  A temporary fix for OnWork events not firing.  The bug is that OnWork events
+  aren't used in IOHandler where ReadStream really is located.
+
+  Rev 1.31    9/8/2003 02:33:00 AM  JPMugaas
+  OnCustomFTPProxy added to allow Indy to support custom FTP proxies.  When
+  using this event, you are responsible for programming the FTP Proxy and FTP
+  Server login sequence.
+  GetLoginPassword method function for returning the password used when logging
+  into a FTP server which handles OTP calculation.  This way, custom firewall
+  support can handle One-Time-Password system transparently.  You do have to
+  send the User ID before calling this function because the OTP challenge is
+  part of the reply.
+
+  Rev 1.30    6/10/2003 11:10:00 PM  JPMugaas
+  Made comments about our loop that tries several AUTH command variations.
+  Some servers may only accept AUTH SSL while other servers only accept AUTH
+  TLS.
+
+  Rev 1.29    5/26/2003 12:21:54 PM  JPMugaas
+
+  Rev 1.28    5/25/2003 03:54:20 AM  JPMugaas
+
+  Rev 1.27    5/19/2003 08:11:32 PM  JPMugaas
+  Now should compile properly with new code in Core.
+
+  Rev 1.26    5/8/2003 11:27:42 AM  JPMugaas
+  Moved feature negoation properties down to the ExplicitTLSClient level as
+  feature negotiation goes hand in hand with explicit TLS support.
+
+  Rev 1.25    4/5/2003 02:06:34 PM  JPMugaas
+  TLS handshake itself can now be handled.
+
+  Rev 1.24    4/4/2003 8:01:32 PM  BGooijen
   now creates iohandler for dataconnection
-}
-{
-{   Rev 1.23    3/31/2003 08:40:18 AM  JPMugaas
-{ Fixed problem with QUIT command.
-}
-{
-    Rev 1.22    3/27/2003 3:41:28 PM  BGooijen
+
+  Rev 1.23    3/31/2003 08:40:18 AM  JPMugaas
+  Fixed problem with QUIT command.
+
+  Rev 1.22    3/27/2003 3:41:28 PM  BGooijen
   Changed because some properties are moved to IOHandler
-}
-{
-{   Rev 1.21    3/27/2003 05:46:24 AM  JPMugaas
-{ Updated framework with an event if the TLS negotiation command fails.
-{ Cleaned up some duplicate code in the clients.
-}
-{
-{   Rev 1.20    3/26/2003 04:19:20 PM  JPMugaas
-{ Cleaned-up some code and illiminated some duplicate things.
-}
-{
-{   Rev 1.19    3/24/2003 04:56:10 AM  JPMugaas
-{ A typecast was incorrect and could cause a potential source of instability if
-{ a TIdIOHandlerStack was not used.
-}
-{
-{   Rev 1.18    3/16/2003 06:09:58 PM  JPMugaas
-{ Fixed port setting bug.
-}
-{
-{   Rev 1.17    3/16/2003 02:40:16 PM  JPMugaas
-{ FTP client with new design.
-}
-{
-    Rev 1.16    3/16/2003 1:02:44 AM  BGooijen
+
+  Rev 1.21    3/27/2003 05:46:24 AM  JPMugaas
+  Updated framework with an event if the TLS negotiation command fails.
+  Cleaned up some duplicate code in the clients.
+
+  Rev 1.20    3/26/2003 04:19:20 PM  JPMugaas
+  Cleaned-up some code and illiminated some duplicate things.
+
+  Rev 1.19    3/24/2003 04:56:10 AM  JPMugaas
+  A typecast was incorrect and could cause a potential source of instability if
+  a TIdIOHandlerStack was not used.
+
+  Rev 1.18    3/16/2003 06:09:58 PM  JPMugaas
+  Fixed port setting bug.
+
+  Rev 1.17    3/16/2003 02:40:16 PM  JPMugaas
+  FTP client with new design.
+
+  Rev 1.16    3/16/2003 1:02:44 AM  BGooijen
   Added 2 events to give the user more control to the dataconnection, moved
   SendTransferType, enabled ssl
-}
-{
-{   Rev 1.15    3/13/2003 09:48:58 AM  JPMugaas
-{ Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-{ can plug-in their products.
-}
-{
-{   Rev 1.14    3/7/2003 11:51:52 AM  JPMugaas
-{ Fixed a writeln bug and an IOError issue.
-}
-{
-{   Rev 1.13    3/3/2003 07:06:26 PM  JPMugaas
-{ FFreeIOHandlerOnDisconnect to FreeIOHandlerOnDisconnect at Bas's instruction
-}
-{
-{   Rev 1.12    2/21/2003 06:54:36 PM  JPMugaas
-{ The FTP list processing has been restructured so that Directory output is not
-{ done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
-{ that the code is more scalable.
-}
-{
-{   Rev 1.11    2/17/2003 04:45:36 PM  JPMugaas
-{ Now temporarily change the transfer mode to ASCII when requesting a DIR.
-{ TOPS20 does not like transfering dirs in binary mode and it might be a good
-{ idea to do it anyway.
-}
-{
-{   Rev 1.10    2/16/2003 03:22:20 PM  JPMugaas
-{ Removed the Data Connection assurance stuff.  We figure things out from the
-{ draft specificaiton, the only servers we found would not send any data after
-{ the new commands were sent, and there were only 2 server types that supported
-{ it anyway.
-}
-{
-{   Rev 1.9    2/16/2003 10:51:08 AM  JPMugaas
-{ Attempt to implement:
-{
-{ http://www.ietf.org/internet-drafts/draft-ietf-ftpext-data-connection-assuranc
-{ e-00.txt
-{
-{ Currently commented out because it does not work.
-}
-{
-{   Rev 1.8    2/14/2003 11:40:16 AM  JPMugaas
-{ Fixed compile error.
-}
-{
-{   Rev 1.7    2/14/2003 10:38:32 AM  JPMugaas
-{ Removed a problematic override for GetInternelResponse.  It was messing up
-{ processing of the FEAT.
-}
-{
-{   Rev 1.6    12-16-2002 20:48:10  BGooijen
-{ now uses TIdIOHandler.ConstructIOHandler to construct iohandlers
-{ IPv6 works again
-{ Independant of TIdIOHandlerStack again
-}
-{
-{   Rev 1.5    12-15-2002 23:27:26  BGooijen
-{ now compiles on Indy 10, but some things like IPVersion still need to be
-{ changed
-}
-{
-{   Rev 1.4    12/15/2002 04:07:02 PM  JPMugaas
-{ Started port to Indy 10.  Still can not complete it though.
-}
-{
-{   Rev 1.3    12/6/2002 05:29:38 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.2    12/1/2002 04:18:02 PM  JPMugaas
-{ Moved all dir parsing code to one place.  Reworked to use more than one line
-{ for determining dir format type along with flfNextLine dir format type.
-}
-{
-{   Rev 1.1    11/14/2002 04:02:58 PM  JPMugaas
-{ Removed cludgy code that was a workaround for the RFC Reply limitation.  That
-{ is no longer limited.
-}
-{
-{   Rev 1.0    11/14/2002 02:20:00 PM  JPMugaas
-}
-unit IdFTP;
 
-{
-Change Log:
-2002-10-25 - J. Peter Mugaas
-  - added XCRC support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
-    which is available at http://www.globalscape.com
-    and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
-  - added COMB support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
-    which is available at http://www.globalscape.com
-    and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
-2002-10-24 - J. Peter Mugaas
-  - now supports RFC 2640 - FTP Internalization
-2002-09-18
-  _ added AFromBeginning parameter to InternalPut to correctly honor the AAppend parameter of Put
-2002-09-05 - J. Peter Mugaas
-  - now complies with RFC 2389 - Feature negotiation mechanism for the File Transfer Protocol
-  - now complies with RFC 2428 - FTP Extensions for IPv6 and NATs
-2002-08-27 - Andrew P.Rybin
-  - proxy support fix (non-standard ftp port's)
-2002-01-xx - Andrew P.Rybin
-  - Proxy support, OnAfterGet (ex:decrypt, set srv timestamp)
-  - J.Peter Mugaas: not readonly ProxySettings
+  Rev 1.15    3/13/2003 09:48:58 AM  JPMugaas
+  Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
+  can plug-in their products.
+
+  Rev 1.14    3/7/2003 11:51:52 AM  JPMugaas
+  Fixed a writeln bug and an IOError issue.
+
+  Rev 1.13    3/3/2003 07:06:26 PM  JPMugaas
+  FFreeIOHandlerOnDisconnect to FreeIOHandlerOnDisconnect at Bas's instruction
+
+  Rev 1.12    2/21/2003 06:54:36 PM  JPMugaas
+  The FTP list processing has been restructured so that Directory output is not
+  done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
+  that the code is more scalable.
+
+  Rev 1.11    2/17/2003 04:45:36 PM  JPMugaas
+  Now temporarily change the transfer mode to ASCII when requesting a DIR.
+  TOPS20 does not like transfering dirs in binary mode and it might be a good
+  idea to do it anyway.
+
+  Rev 1.10    2/16/2003 03:22:20 PM  JPMugaas
+  Removed the Data Connection assurance stuff.  We figure things out from the
+  draft specificaiton, the only servers we found would not send any data after
+  the new commands were sent, and there were only 2 server types that supported
+  it anyway.
+
+  Rev 1.9    2/16/2003 10:51:08 AM  JPMugaas
+  Attempt to implement:
+
+  http://www.ietf.org/internet-drafts/draft-ietf-ftpext-data-connection-assuranc
+  e-00.txt
+
+  Currently commented out because it does not work.
+
+  Rev 1.8    2/14/2003 11:40:16 AM  JPMugaas
+  Fixed compile error.
+
+  Rev 1.7    2/14/2003 10:38:32 AM  JPMugaas
+  Removed a problematic override for GetInternelResponse.  It was messing up
+  processing of the FEAT.
+
+  Rev 1.6    12-16-2002 20:48:10  BGooijen
+  now uses TIdIOHandler.ConstructIOHandler to construct iohandlers
+  IPv6 works again
+  Independant of TIdIOHandlerStack again
+
+  Rev 1.5    12-15-2002 23:27:26  BGooijen
+  now compiles on Indy 10, but some things like IPVersion still need to be
+  changed
+
+  Rev 1.4    12/15/2002 04:07:02 PM  JPMugaas
+  Started port to Indy 10.  Still can not complete it though.
+
+  Rev 1.3    12/6/2002 05:29:38 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.2    12/1/2002 04:18:02 PM  JPMugaas
+  Moved all dir parsing code to one place.  Reworked to use more than one line
+  for determining dir format type along with flfNextLine dir format type.
+
+  Rev 1.1    11/14/2002 04:02:58 PM  JPMugaas
+  Removed cludgy code that was a workaround for the RFC Reply limitation.  That
+  is no longer limited.
+
+  Rev 1.0    11/14/2002 02:20:00 PM  JPMugaas
+
+  2002-10-25 - J. Peter Mugaas
+    - added XCRC support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
+      which is available at http://www.globalscape.com
+      and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
+    - added COMB support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
+      which is available at http://www.globalscape.com
+      and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
+
+  2002-10-24 - J. Peter Mugaas
+    - now supports RFC 2640 - FTP Internalization
+
+  2002-09-18
+    _ added AFromBeginning parameter to InternalPut to correctly honor the AAppend parameter of Put
+
+  2002-09-05 - J. Peter Mugaas
+    - now complies with RFC 2389 - Feature negotiation mechanism for the File Transfer Protocol
+    - now complies with RFC 2428 - FTP Extensions for IPv6 and NATs
+
+  2002-08-27 - Andrew P.Rybin
+    - proxy support fix (non-standard ftp port's)
+
+  2002-01-xx - Andrew P.Rybin
+    - Proxy support, OnAfterGet (ex:decrypt, set srv timestamp)
+    - J.Peter Mugaas: not readonly ProxySettings
+
   A Neillans - 10/17/2001
     Merged changes submitted by Andrew P.Rybin
     Correct command case problems - some servers expect commands in Uppercase only.
+
   SP - 06/08/2001
     Added a few more functions
+
   Doychin - 02/18/2001
     OnAfterLogin event handler and Login method
-
     OnAfterLogin is executed after successfull login  but before setting up the
       connection properties. This event can be used to provide FTP proxy support
       from the user application. Look at the FTP demo program for more information
@@ -719,9 +597,13 @@ Change Log:
     New onFTPStatus event
     New Quote method for executing commands not implemented by the compoent
 
--CleanDir contributed by Amedeo Lanza
+  -CleanDir contributed by Amedeo Lanza
+}
 
-TODO: Chage the FTP demo to demonstrate the use of the new events and add proxy support
+unit IdFTP;
+
+{
+  TODO: Change the FTP demo to demonstrate the use of the new events and add proxy support
 }
 
 interface
@@ -1531,7 +1413,7 @@ const
   AcceptableAbortReplies : array [0..8] of smallint =
     (225, 226, 250, 426, 450,451,425,550,552);
   //GlobalScape Secure FTP Server returns a 552 for an aborted file
-  
+
 procedure TIdFTP.FinalizeDataOperation;
 var LResponse : SmallInt;
 begin
@@ -2537,7 +2419,7 @@ From a WS-FTP Pro firescript at:
 
 http://support.ipswitch.com/kb/WS-20050315-DM01.htm
 
-send ("USER %FwUserId$%HostUserId$%HostAddress") 
+send ("USER %FwUserId$%HostUserId$%HostAddress")
 
 //send ("PASS %FwPassword$%HostPassword")
 
@@ -3944,7 +3826,7 @@ begin
   begin
     ALocalFile.Position := AStartPoint;
   end;
-  
+
   LByteCount := (ALocalFile.Size - AStartPoint);
   if (LByteCount > AByteCount) and (AByteCount >0) then
   begin

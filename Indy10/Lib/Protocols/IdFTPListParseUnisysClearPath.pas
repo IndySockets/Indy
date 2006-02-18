@@ -16,64 +16,57 @@
   $Log$
 }
 {
-{   Rev 1.0    12/8/2004 8:45:02 AM  JPMugaas
-{ Unisys ClearPath (MCP and OS/2) 
-{ 
-{ DIRECTORY_FORMAT=NATIVE
+  Rev 1.0    12/8/2004 8:45:02 AM  JPMugaas
 }
+
 unit IdFTPListParseUnisysClearPath;
 
 {
-Much of this is based on:
+  Unisys ClearPath (MCP and OS/2)
+  DIRECTORY_FORMAT=NATIVE
 
-ClearPath Enterprise
-Servers
-FTP Services for ClearPath
-OS 2200
-User's Guide
-ClearPath OS 2200
-Release 8.0
-January 2003
-© 2003 Unisys Corporation.
-All rights reserved.
+  Much of this is based on:
 
-and
+  ClearPath Enterprise Servers
+  FTP Services for ClearPath
+  OS 2200 User's Guide
+  ClearPath OS 2200 Release 8.0 January 2003
+  © 2003 Unisys Corporation.
+  All rights reserved.
 
-ClearPath Enterprise
-Servers
-TCP/IP Distributed Systems Services
-Operations Guide
-ClearPath MCP Release 9.0
-April 2004
-© 2004 Unisys Corporation.
-All rights reserved.
+  and
 
-With a sample from:
+  ClearPath Enterprise Servers
+  TCP/IP Distributed Systems Services Operations Guide
+  ClearPath MCP Release 9.0 April 2004
+  © 2004 Unisys Corporation.
+  All rights reserved.
 
-http://article.gmane.org/gmane.text.xml.cocoon.devel/24912
+  With a sample showing a multiline response from:
 
-showing a multiline response.
+  http://article.gmane.org/gmane.text.xml.cocoon.devel/24912
 
-This parses data in this form:
-===
-Report for: (UC)A ON PACK
-A                       SEQDATA    84 03/08/1998  15:32
-A/B                     SEQDATA    84 06/09/1998  12:03
-A/B/C                   SEQDATA    84 06/09/1998  12:03
-A/C                     SEQDATA    84 06/09/1998  12:03
-A/C/C                   SEQDATA    84 06/09/1998  12:04
-A/C/C/D                 SEQDATA    84 06/09/1998  12:04
-          6 Files     504 Octets
-===
+  This parses data in this form:
+  ===
+  Report for: (UC)A ON PACK
+  A                       SEQDATA    84 03/08/1998  15:32
+  A/B                     SEQDATA    84 06/09/1998  12:03
+  A/B/C                   SEQDATA    84 06/09/1998  12:03
+  A/C                     SEQDATA    84 06/09/1998  12:03
+  A/C/C                   SEQDATA    84 06/09/1998  12:04
+  A/C/C/D                 SEQDATA    84 06/09/1998  12:04
+            6 Files     504 Octets
+  ===
 
-The parserm only support DIRECTORY_FORMAT=NATIVE which is the default on that server.
-
-DIRECTORY_FORMAT=STANDARD does not need be supported because that is probably listed in Unix format.
-
-If not, we'll deal with it given some data samples.
+  The parserm only support DIRECTORY_FORMAT=NATIVE which is the default on that server.
+  DIRECTORY_FORMAT=STANDARD does not need be supported because that is probably listed
+  in Unix format. If not, we'll deal with it given some data samples.
 }
+
 interface
-uses IdObjs, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
+
+uses
+  IdObjs, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
@@ -191,7 +184,7 @@ begin
       if s.Count >0 then
       begin
         LI.LocalFileName := s[s.Count-1];
-        
+
       end
       else
       begin

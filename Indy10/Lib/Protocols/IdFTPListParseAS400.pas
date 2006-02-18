@@ -16,34 +16,31 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 9:36:26 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:28 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:22 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 2:08:48 PM  DSiders
+  Rev 1.5    10/26/2004 9:36:26 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.4    4/19/2004 5:05:28 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:22 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 2:08:48 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:03:02 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 04:18:10 AM  JPMugaas
+  More things restructured for the new list framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:03:02 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 04:18:10 AM  JPMugaas
-{ More things restructured for the new list framework.
-}
+
 unit IdFTPListParseAS400;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdAS400FTPListItem = class(TIdOwnerFTPListItem);

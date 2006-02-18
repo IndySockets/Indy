@@ -16,29 +16,25 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 10:03:22 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:42 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:26 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/22/2004 7:20:56 AM  JPMugaas
-{ System.Delete changed to IdDelete so the code can work in NET.
-}
-{
-    Rev 1.1    10/19/2003 3:48:20 PM  DSiders
+  Rev 1.5    10/26/2004 10:03:22 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    4/19/2004 5:05:42 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:26 PM  czhower
+  Name changes
+
+  Rev 1.2    1/22/2004 7:20:56 AM  JPMugaas
+  System.Delete changed to IdDelete so the code can work in NET.
+
+  Rev 1.1    10/19/2003 3:48:20 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    2/19/2003 05:49:50 PM  JPMugaas
+  Parsers ported from old framework.
 }
-{
-{   Rev 1.0    2/19/2003 05:49:50 PM  JPMugaas
-{ Parsers ported from old framework.
-}
+
 unit IdFTPListParseWinQVTNET;
 
 interface
@@ -47,14 +43,16 @@ uses
   IdFTPList, IdFTPListParseBase, IdObjs;
 
 {
-This was tested with data obtained from WinQVT/Net Version 3.98.15 running
-on Windows 2000.
+  This was tested with data obtained from WinQVT/Net Version 3.98.15 running
+  on Windows 2000.
 
-No parser is required for later versions because those use the Unix listing
-format.
+  No parser is required for later versions because those use the Unix listing
+  format.
 }
+
 type
   TIdWinQVNetFTPListItem = class(TIdFTPListItem);
+
   TIdFTPLPWinQVNet = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
@@ -67,7 +65,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, 
+  IdGlobal, IdFTPCommon, IdGlobalProtocols,
   IdSys;
 
 { TIdFTPLPWinQVNet }

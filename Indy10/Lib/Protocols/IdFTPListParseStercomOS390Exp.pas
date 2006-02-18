@@ -16,21 +16,19 @@
   $Log$
 }
 {
-{   Rev 1.3    10/26/2004 9:55:58 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.2    4/19/2004 5:06:10 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-    Rev 1.1    10/19/2003 3:36:18 PM  DSiders
+  Rev 1.3    10/26/2004 9:55:58 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.2    4/19/2004 5:06:10 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.1    10/19/2003 3:36:18 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    10/1/2003 12:55:20 AM  JPMugaas
+  New FTP list parsers.
 }
-{
-{   Rev 1.0    10/1/2003 12:55:20 AM  JPMugaas
-{ New FTP list parsers.
-}
+
 unit IdFTPListParseStercomOS390Exp;
 
 interface
@@ -49,6 +47,7 @@ type
     property RecLength : Integer read FRecLength write FRecLength;
     property BlockSize : Integer read FBlockSize write FBlockSize;
   end;
+
   TIdFTPLPSterCommExpOS390 = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
@@ -68,26 +67,26 @@ uses
   IdSys;
 
 {
-"Connect:Express OS/390 FTP Guide Version 4.1" Copyright
-© 2002, 2003 Sterling Commerce, Inc.
+  "Connect:Express OS/390 FTP Guide Version 4.1" Copyright
+  © 2002, 2003 Sterling Commerce, Inc.
 
-125 LIST Command accepted.
--D 2 T VB  00244 18000 FTPGDG!PSR$TST.GDG.TSTGDG0(+01)
--D 2 * VB  00244 27800 FTPV!PSR$TST.A.VVV.&REQNUMB
--F 1 R -   -     -     FTPVAL1!PSR$TST.A.VVV
-250 list completed successfully.
-The LIST of symbolic files from Connect:Express Files directory available for
-User FTP1 is sent. A number of File attributes are showed. Default profile FTPV
-is part of the list. The Following attributes are sent:
-- Dynamic or Fixed Allocation
-- Allocation rule: 2 = to be created, 1 = pre-allocated, 0=to be created or
-replaced
-- Direction Transmission, Reception, * = both
-- File record format (Variable, Fixed, Blocked..)
-- Record length
-- Block size
+  125 LIST Command accepted.
+  -D 2 T VB  00244 18000 FTPGDG!PSR$TST.GDG.TSTGDG0(+01)
+  -D 2 * VB  00244 27800 FTPV!PSR$TST.A.VVV.&REQNUMB
+  -F 1 R -   -     -     FTPVAL1!PSR$TST.A.VVV
+  250 list completed successfully.
 
+ The LIST of symbolic files from Connect:Express Files directory available for
+  User FTP1 is sent. A number of File attributes are showed. Default profile FTPV
+  is part of the list. The Following attributes are sent:
+  - Dynamic or Fixed Allocation
+  - Allocation rule: 2 = to be created, 1 = pre-allocated, 0=to be created or replaced
+  - Direction Transmission, Reception, * = both
+  - File record format (Variable, Fixed, Blocked..)
+  - Record length
+  - Block size
 }
+
 { TIdFTPLPSterCommExpOS390 }
 
 class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TIdStrings;

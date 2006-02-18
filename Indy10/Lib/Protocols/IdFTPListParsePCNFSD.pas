@@ -16,32 +16,32 @@
   $Log$
 }
 {
-{   Rev 1.0    12/8/2004 10:58:34 AM  JPMugaas
-{ PC-NFSD FTP List parser.
+  Rev 1.0    12/8/2004 10:58:34 AM  JPMugaas
+  PC-NFSD FTP List parser.
+
+  Rev 1.0    12/8/2004 10:37:42 AM  JPMugaas
+  Parser for PC-NFS for DOS.
 }
-{
-{   Rev 1.0    12/8/2004 10:37:42 AM  JPMugaas
-{ Parser for PC-NFS for DOS.
-}
+
 unit IdFTPListParsePCNFSD;
 
 interface
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
-This parser is a little more tolarant of stuff than others because of scanty samples.
+  This parser is a little more tolarant of stuff than others because of scanty samples.
+  I only found one second hand and it might not have included a header or footer.
+  Here's all I had:
 
-I only found one second hand and it might not have included a header or footer.
+  prog1    exe     2,563,136 06-10-99  10:00a
+  temp         <dir>         01-27-97   3:41p
 
-Here's all I had:
-
-prog1    exe     2,563,136 06-10-99  10:00a
-temp         <dir>         01-27-97   3:41p
-
-That was from the TotalCommander helpfile.
-
-It was part of a PC-NFSD package for MS-DOS which included a FTP Deamon.
+  That was from the TotalCommander helpfile.
+  It was part of a PC-NFSD package for MS-DOS which included a FTP Deamon.
 }
+
 type
   TIdPCNFSDFTPListItem = class(TIdFTPListItem);
   TIdFTPLPPCNFSD = class(TIdFTPListBase)

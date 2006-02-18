@@ -16,19 +16,18 @@
   $Log$
 }
 {
-{   Rev 1.2    2/23/2005 6:34:30 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
+  Rev 1.2    2/23/2005 6:34:30 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.1    10/26/2004 11:21:16 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.0    7/30/2004 8:03:42 AM  JPMugaas
+  FTP List parser for the Tandem NonStop Guardian file-system.
 }
-{
-{   Rev 1.1    10/26/2004 11:21:16 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.0    7/30/2004 8:03:42 AM  JPMugaas
-{ FTP List parser for the Tandem NonStop Guardian file-system.
-}
+
 unit IdFTPListParseTandemGuardian;
 
 interface
@@ -37,86 +36,70 @@ uses
   IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
-This parser is based on the Tandem NonStop Server with a Guardian file system.
+  This parser is based on the Tandem NonStop Server with a Guardian file system.
+  This is primarily based on some correspondances and samples I got from Steeve Howe.
+  His correspondance is here and I'm noting it in case I need to refer back later:
 
-This is primarily based on some correspondances and samples I got from Steeve Howe.
+  What are the rules for acceptable filenames on the Tandem?  
+  >>Must start with a character and must be at least on character long.
 
-His correspondance is here and I'm noting it in case I need to refer back later:
+  What charactors can be used?
+  >>Alpha characters and numerals.
 
-What are the rules for acceptable filenames on the Tandem?  
+  What's the length?
+  >>  8 characters max.
 
->>Must start with a character and must be at least on character long.
+  Can you have file extensions, if so how many and what's the length for
+  those?
+  >> No file extensions.
 
-What charactors can be used?
+  Is the system case insensitive or case-sensitive?
+  >>All filenames are converted to uppercase (from what I can tell)
 
->>Alpha characters and numerals.
+  What's Code? Is it always a number?
+  >> Code is the type of file.  101 is an editable file, 100 is an
+    exacutable, 1000 is an user defined executable, there is a type 1600
+    and I have seen type 0 (which I think is an unknown binary type of
+    file)
 
-What's the length?
+  What's EOF?  Is that the file size?  I don't know.
+  >> Yes,  That is the file size.
 
->>  8 characters max.
+  In the Owner column, you have something like this "155, 76".  Are
+  their only numbers and what do the numbers in the column mean (I
+  assume that there is two).  Will the Owner column ever have letters?
+  >> Never letters.
+    first byte is group, second is user
+    it describes user and security level
 
-Can you have file extensions, if so how many and what's the length for
-those?
+  What is valid for "RWEP" and what do the letters in that mean and what
+  letters are there?
+  >> Read, Write, Execute, Purge
 
->> No file extensions.
+  some valid letters (there are about 7 and I don't know them all):
+  N - anyone across system has access
+  U - only the user has this priviledge
+  A - anyone on local system has priviledge
+  G - anyone belonging to same group
+  - (dash)  - only local super.super has access
 
-Is the system case insensitive or case-sensitive?
+  some further references from Tandem that might help:
 
->>All filenames are converted to uppercase (from what I can tell)
+  http://www.hp.com/go/NTL - General technical reference
+  http://h30163.www3.hp.com/NTL/library/G06_RVUs/G06_20/Publications/ -HP
+  G06.20 Publications
 
-What's Code? Is it always a number?
-
->> Code is the type of file.  101 is an editable file, 100 is an
-exacutable,
-1000 is an user defined executable, there is a type 1600
-and I have seen type 0 (which I think is an unknown binary type of
-file)
-
-What's EOF?  Is that the file size?  I don't know.
-
->> Yes,  That is the file size.
-
-In the Owner column, you have something like this "155, 76".  Are
-their only numbers and what do the numbers in the column mean (I
-assume that there is two).  Will the Owner column ever have letters?
-
->> Never letters.
-  first byte is group, second is user
-  it describes user and security level
-
-
-What is valid for "RWEP" and what do the letters in that mean and what
-letters are there?
-
-
->> Read, Write, Execute, Purge
-
-some valid letters (there are about 7 and I don't know them all):
-N - anyone across system has access
-U - only the user has this priviledge
-A - anyone on local system has priviledge
-G - anyone belonging to same group
-- (dash)  - only local super.super has access
-
-
-some further references from Tandem that might help:
-
-http://www.hp.com/go/NTL - General technical reference
-http://h30163.www3.hp.com/NTL/library/G06_RVUs/G06_20/Publications/ -HP
-G06.20 Publications
-
-
-hope this helps!
+  hope this helps!
 }
 {
-This parses something like this:
-
-====
-File         Code             EOF  Last Modification    Owner  RWEP
-ALV           101             2522 27-Aug-02 13:57:10 155,106 "nnnn"
-ALVO         1000             2048 27-Aug-02 13:57:22 155,106 "nunu"
-====
+  This parses something like this:
+  ====
+  File         Code             EOF  Last Modification    Owner  RWEP
+  ALV           101             2522 27-Aug-02 13:57:10 155,106 "nnnn"
+  ALVO         1000             2048 27-Aug-02 13:57:22 155,106 "nunu"
+  ====
 }
+
 type
   TIdTandemGuardianFTPListItem = class(TIdOwnerFTPListItem)
   protected

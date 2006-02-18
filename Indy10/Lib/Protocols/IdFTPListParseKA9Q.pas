@@ -16,41 +16,36 @@
   $Log$
 }
 {
-{   Rev 1.6    10/26/2004 9:46:32 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.5    6/5/2004 3:09:28 PM  JPMugaas
-{ Now indicates SIze is not available for directories.  Size is not given for a
-{ directory in KA9Q.
-}
-{
-{   Rev 1.4    4/19/2004 5:06:06 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:38 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/9/2004 4:50:26 PM  BGooijen
-{ removed text after final end.
-}
-{
-    Rev 1.1    10/19/2003 2:27:16 PM  DSiders
+  Rev 1.6    10/26/2004 9:46:32 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.5    6/5/2004 3:09:28 PM  JPMugaas
+  Now indicates SIze is not available for directories.  Size is not given for a
+  directory in KA9Q.
+
+  Rev 1.4    4/19/2004 5:06:06 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:38 PM  czhower
+  Name changes
+
+  Rev 1.2    1/9/2004 4:50:26 PM  BGooijen
+  removed text after final end.
+
+  Rev 1.1    10/19/2003 2:27:16 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    3/16/2003 02:39:06 PM  JPMugaas
+  I must have forgot to check in this file as part of the FTP list restructure.
+  !!!OOPS!!!
 }
-{
-{   Rev 1.0    3/16/2003 02:39:06 PM  JPMugaas
-{ I must have forgot to check in this file as part of the FTP list restructure.
-{
-{ !!!OOPS!!!
-}
+
 unit IdFTPListParseKA9Q;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdKA9QFTPListItem = class(TIdFTPListItem);

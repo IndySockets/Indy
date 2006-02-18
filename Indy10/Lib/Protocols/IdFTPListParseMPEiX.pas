@@ -16,34 +16,31 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 9:46:34 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:48 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:28 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 2:27:22 PM  DSiders
+  Rev 1.5    10/26/2004 9:46:34 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    4/19/2004 5:05:48 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:28 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 2:27:22 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:03:52 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 05:51:24 PM  JPMugaas
+  Parsers ported from old framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:03:52 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 05:51:24 PM  JPMugaas
-{ Parsers ported from old framework.
-}
+
 unit IdFTPListParseMPEiX;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)

@@ -16,52 +16,46 @@
   $Log$
 }
 {
-{   Rev 1.9    2/23/2005 6:34:26 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
-}
-{
-{   Rev 1.8    10/26/2004 9:51:14 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.7    4/20/2004 4:01:30 PM  JPMugaas
-{ Fix for nasty typecasting error.  The wrong create was being called.
-}
-{
-{   Rev 1.6    4/19/2004 5:05:24 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.5    2004.02.03 5:45:20 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    1/22/2004 4:59:16 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.3    1/22/2004 7:20:44 AM  JPMugaas
-{ System.Delete changed to IdDelete so the code can work in NET.
-}
-{
-    Rev 1.2    10/19/2003 3:36:06 PM  DSiders
+  Rev 1.9    2/23/2005 6:34:26 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.8    10/26/2004 9:51:14 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.7    4/20/2004 4:01:30 PM  JPMugaas
+  Fix for nasty typecasting error.  The wrong create was being called.
+
+  Rev 1.6    4/19/2004 5:05:24 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.5    2004.02.03 5:45:20 PM  czhower
+  Name changes
+
+  Rev 1.4    1/22/2004 4:59:16 PM  SPerry
+  fixed set problems
+
+  Rev 1.3    1/22/2004 7:20:44 AM  JPMugaas
+  System.Delete changed to IdDelete so the code can work in NET.
+
+  Rev 1.2    10/19/2003 3:36:06 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:04:08 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 02:02:08 AM  JPMugaas
+  Individual parsing objects for the new framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:04:08 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 02:02:08 AM  JPMugaas
-{ Individual parsing objects for the new framework.
-}
+
 unit IdFTPListParseNovellNetware;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
 {
 This parser should work with Netware 3 and 4.  It will probably work on later
 versions of Novell Netware as well.

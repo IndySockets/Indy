@@ -16,114 +16,94 @@
   $Log$
 }
 {
-{   Rev 1.21    2/23/2005 6:34:28 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
-}
-{
-{   Rev 1.20    10/26/2004 9:56:00 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.19    8/5/2004 11:18:16 AM  JPMugaas
-{ Should fix a parsing problem I introeduced that caused errors with Unitree
-{ servers.
-}
-{
-{   Rev 1.18    8/4/2004 12:40:12 PM  JPMugaas
-{ Fix for problem with total line.
-}
-{
-{   Rev 1.17    7/15/2004 4:02:48 AM  JPMugaas
-{ Fix for some FTP servers.  In a Unix listing, a : at the end of a filename
-{ was wrongly being interpretted as a subdirectory entry in a recursive
-{ listing.  
-}
-{
-{   Rev 1.16    6/14/2004 12:05:54 AM  JPMugaas
-{ Added support for the following Item types that appear in some Unix listings
-{ (particularly a /dev or /tmp dir):
-{ 
-{ FIFO, Socket, Character Device, Block Device.
-}
-{
-{   Rev 1.15    6/13/2004 10:44:06 PM  JPMugaas
-{ Fixed a problem with some servers returning additional columns in the owner
-{ and group feilds.  Note that they will not be parsed correctly in all cases. 
-{ That's life.
-{ 
-{ drwx------  1          BUILTIN     NT AUTHORITY          0 Dec  7  2001
-{ System Volume Information
-}
-{
-{   Rev 1.14    4/20/2004 4:01:18 PM  JPMugaas
-{ Fix for nasty typecasting error.  The wrong create was being called.
-}
-{
-{   Rev 1.13    4/19/2004 5:05:20 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.12    2004.02.03 5:45:18 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.11    2004.01.23 9:53:32 PM  czhower
-{ REmoved unneded check because of CharIsInSet functinoalty. Also was a short
-{ circuit which is not permitted.
-}
-{
-{   Rev 1.10    1/23/2004 12:49:52 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.9    1/22/2004 8:29:02 AM  JPMugaas
-{ Removed Ansi*.
-}
-{
-{   Rev 1.8    1/22/2004 7:20:48 AM  JPMugaas
-{ System.Delete changed to IdDelete so the code can work in NET.
-}
-{
-    Rev 1.7    10/19/2003 3:48:10 PM  DSiders
+  Rev 1.21    2/23/2005 6:34:28 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.20    10/26/2004 9:56:00 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.19    8/5/2004 11:18:16 AM  JPMugaas
+  Should fix a parsing problem I introeduced that caused errors with Unitree
+  servers.
+
+  Rev 1.18    8/4/2004 12:40:12 PM  JPMugaas
+  Fix for problem with total line.
+
+  Rev 1.17    7/15/2004 4:02:48 AM  JPMugaas
+  Fix for some FTP servers.  In a Unix listing, a : at the end of a filename
+  was wrongly being interpretted as a subdirectory entry in a recursive
+  listing.
+
+  Rev 1.16    6/14/2004 12:05:54 AM  JPMugaas
+  Added support for the following Item types that appear in some Unix listings
+  (particularly a /dev or /tmp dir):
+
+  FIFO, Socket, Character Device, Block Device.
+
+  Rev 1.15    6/13/2004 10:44:06 PM  JPMugaas
+  Fixed a problem with some servers returning additional columns in the owner
+  and group feilds.  Note that they will not be parsed correctly in all cases.
+  That's life.
+
+  drwx------  1          BUILTIN     NT AUTHORITY          0 Dec  7  2001
+  System Volume Information
+
+  Rev 1.14    4/20/2004 4:01:18 PM  JPMugaas
+  Fix for nasty typecasting error.  The wrong create was being called.
+
+  Rev 1.13    4/19/2004 5:05:20 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.12    2004.02.03 5:45:18 PM  czhower
+  Name changes
+
+  Rev 1.11    2004.01.23 9:53:32 PM  czhower
+  REmoved unneded check because of CharIsInSet functinoalty. Also was a short
+  circuit which is not permitted.
+
+  Rev 1.10    1/23/2004 12:49:52 PM  SPerry
+  fixed set problems
+
+  Rev 1.9    1/22/2004 8:29:02 AM  JPMugaas
+  Removed Ansi*.
+
+  Rev 1.8    1/22/2004 7:20:48 AM  JPMugaas
+  System.Delete changed to IdDelete so the code can work in NET.
+
+  Rev 1.7    10/19/2003 3:48:10 PM  DSiders
   Added localization comments.
+
+  Rev 1.6    9/28/2003 03:02:30 AM  JPMugaas
+  Now can handle a few non-standard date types.
+
+  Rev 1.5    9/3/2003 07:34:40 PM  JPMugaas
+  Parsing for /bin/ls with devices now should work again.
+
+  Rev 1.4    4/7/2003 04:04:26 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.3    4/3/2003 03:37:36 AM  JPMugaas
+  Fixed a bug in the Unix parser causing it not to work properly with Unix BSD
+  servers using the -T switch.  Note that when a -T switch s used on a FreeBSD
+  server, the server outputs the millaseconds and an extra column giving the
+  year instead of either the year or time (the regular /bin/ls standard
+  behavior).
+
+  Rev 1.2    3/3/2003 07:17:58 PM  JPMugaas
+  Now honors the FreeBSD -T flag and parses list output from a program using
+  it.  Minor changes to the File System component.
+
+  Rev 1.1    2/19/2003 05:53:14 PM  JPMugaas
+  Minor restructures to remove duplicate code and save some work with some
+  formats.  The Unix parser had a bug that caused it to give a False positive
+  for Xercom MicroRTOS.
+
+  Rev 1.0    2/19/2003 02:02:02 AM  JPMugaas
+  Individual parsing objects for the new framework.
 }
-{
-{   Rev 1.6    9/28/2003 03:02:30 AM  JPMugaas
-{ Now can handle a few non-standard date types.
-}
-{
-{   Rev 1.5    9/3/2003 07:34:40 PM  JPMugaas
-{ Parsing for /bin/ls with devices now should work again.
-}
-{
-{   Rev 1.4    4/7/2003 04:04:26 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.3    4/3/2003 03:37:36 AM  JPMugaas
-{ Fixed a bug in the Unix parser causing it not to work properly with Unix BSD
-{ servers using the -T switch.  Note that when a -T switch s used on a FreeBSD
-{ server, the server outputs the millaseconds and an extra column giving the
-{ year instead of either the year or time (the regular /bin/ls standard
-{ behavior).
-}
-{
-{   Rev 1.2    3/3/2003 07:17:58 PM  JPMugaas
-{ Now honors the FreeBSD -T flag and parses list output from a program using
-{ it.  Minor changes to the File System component.
-}
-{
-{   Rev 1.1    2/19/2003 05:53:14 PM  JPMugaas
-{ Minor restructures to remove duplicate code and save some work with some
-{ formats.  The Unix parser had a bug that caused it to give a False positive
-{ for Xercom MicroRTOS.
-}
-{
-{   Rev 1.0    2/19/2003 02:02:02 AM  JPMugaas
-{ Individual parsing objects for the new framework.
-}
+
 unit IdFTPListParseUnix;
 
 interface
@@ -132,31 +112,32 @@ uses
   IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
-Notes:
+  Notes:
 
-- The Unitree and Unix parsers are closely tied together and share just
-about all of the same code.  The reason is that Unitee is very similar to
-a Unix dir list except it has an extra column which the Unix line parser
-can handle in the Unitree type.
+  - The Unitree and Unix parsers are closely tied together and share just
+  about all of the same code.  The reason is that Unitee is very similar to
+  a Unix dir list except it has an extra column which the Unix line parser
+  can handle in the Unitree type.
 
-- The Unix parser can parse MACOS - Peters server (no relationship to this
-author :-) ).
+  - The Unix parser can parse MACOS - Peters server (no relationship to this
+  author :-) ).
 
-- It is worth noting that the parser does handle /bin/ls -s and -i switches as
-well as -g and -o.  This is important sometimes as the Unix format comes
-from FTP servers that simply piped output from the Unix /bin/ls command.
+  - It is worth noting that the parser does handle /bin/ls -s and -i switches as
+  well as -g and -o.  This is important sometimes as the Unix format comes
+  from FTP servers that simply piped output from the Unix /bin/ls command.
 
-- This parser also handles recursive lists which is good for mirroring software.
-
-
+  - This parser also handles recursive lists which is good for mirroring software.
 }
+
 type
-{Note that for this, I am violating a convention.
-The violation is that I am putting parsers for two separate servers
-in the same unit.  The reason is this, Unitree has two additional columns (a file family
-and a file migration status.  The line parsing code is the same because I thought it
-was easier to do that way in this case.
-}
+  {
+    Note that for this, I am violating a convention.
+    The violation is that I am putting parsers for two separate servers
+    in the same unit.
+    The reason is this, Unitree has two additional columns (a file family
+    and a file migration status.  The line parsing code is the same because
+    I thought it was easier to do that way in this case.
+  }
   TIdUnixFTPListItem = class(TIdUnixBaseFTPListItem)
   protected
     FNumberBlocks : Integer;

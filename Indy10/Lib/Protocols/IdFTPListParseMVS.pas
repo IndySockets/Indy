@@ -16,50 +16,47 @@
   $Log$
 }
 {
-{   Rev 1.7    10/26/2004 9:46:36 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.6    6/8/2004 12:42:22 PM  JPMugaas
-{ Fixed an Invalid Type Cast problem.
-}
-{
-{   Rev 1.5    4/19/2004 5:05:36 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.4    2004.02.03 5:45:24 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.3    10/19/2003 3:36:02 PM  DSiders
+  Rev 1.7    10/26/2004 9:46:36 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.6    6/8/2004 12:42:22 PM  JPMugaas
+  Fixed an Invalid Type Cast problem.
+
+  Rev 1.5    4/19/2004 5:05:36 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.4    2004.02.03 5:45:24 PM  czhower
+  Name changes
+
+  Rev 1.3    10/19/2003 3:36:02 PM  DSiders
   Added localization comments.
+
+  Rev 1.2    4/7/2003 04:03:58 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.1    2/19/2003 05:53:20 PM  JPMugaas
+  Minor restructures to remove duplicate code and save some work with some
+  formats.  The Unix parser had a bug that caused it to give a False positive
+  for Xercom MicroRTOS.
+
+  Rev 1.0    2/19/2003 06:04:36 AM  JPMugaas
+  IBM MVS parser has been ported to new design.
 }
-{
-{   Rev 1.2    4/7/2003 04:03:58 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.1    2/19/2003 05:53:20 PM  JPMugaas
-{ Minor restructures to remove duplicate code and save some work with some
-{ formats.  The Unix parser had a bug that caused it to give a False positive
-{ for Xercom MicroRTOS.
-}
-{
-{   Rev 1.0    2/19/2003 06:04:36 AM  JPMugaas
-{ IBM MVS parser has been ported to new design.
-}
+
 unit IdFTPListParseMVS;
 
 interface
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
 {
-This should work with IBM MVS, OS/390, and z/OS.
+  This should work with IBM MVS, OS/390, and z/OS.
 
-Note that in z/OS, there is no need for a parser for the HFS (hierarchical file
-system) because the server would present a Unix-like list for that file system.
-
+  Note that in z/OS, there is no need for a parser for the HFS (hierarchical file
+  system) because the server would present a Unix-like list for that file system.
 }
+
 type
   TIdJESJobStatus = (IdJESNotApplicable, IdJESReceived, IdJESHold, IdJESRunning, IdJESOuptutAvailable);
 

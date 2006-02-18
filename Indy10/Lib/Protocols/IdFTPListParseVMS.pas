@@ -16,68 +16,57 @@
   $Log$
 }
 {
-{   Rev 1.12    2/23/2005 6:34:28 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
-}
-{
-{   Rev 1.11    10/26/2004 10:03:22 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.10    7/31/2004 1:08:24 PM  JPMugaas
-{ Now should handle listings without time.
-}
-{
-{   Rev 1.9    6/21/2004 10:57:42 AM  JPMugaas
-{ Now indicates that ModifiedDate and File Size are not available if VMS
-{ returns an error in the entry.
-}
-{
-    Rev 1.8    6/11/2004 9:35:08 AM  DSiders
+  Rev 1.12    2/23/2005 6:34:28 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.11    10/26/2004 10:03:22 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.10    7/31/2004 1:08:24 PM  JPMugaas
+  Now should handle listings without time.
+
+  Rev 1.9    6/21/2004 10:57:42 AM  JPMugaas
+  Now indicates that ModifiedDate and File Size are not available if VMS
+  returns an error in the entry.
+
+  Rev 1.8    6/11/2004 9:35:08 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.7    6/7/2004 3:47:48 PM  JPMugaas
-{ VMS Recursive Dir listings now supported.  This is done with a [...].  Note
-{ that VMS does have some strange syntaxes with their file system.
-}
-{
-{   Rev 1.6    4/20/2004 4:01:16 PM  JPMugaas
-{ Fix for nasty typecasting error.  The wrong create was being called.
-}
-{
-{   Rev 1.5    4/19/2004 5:05:18 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.4    2004.02.03 5:45:16 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.3    10/19/2003 3:48:12 PM  DSiders
+
+  Rev 1.7    6/7/2004 3:47:48 PM  JPMugaas
+  VMS Recursive Dir listings now supported.  This is done with a [...].  Note
+  that VMS does have some strange syntaxes with their file system.
+
+  Rev 1.6    4/20/2004 4:01:16 PM  JPMugaas
+  Fix for nasty typecasting error.  The wrong create was being called.
+
+  Rev 1.5    4/19/2004 5:05:18 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.4    2004.02.03 5:45:16 PM  czhower
+  Name changes
+
+  Rev 1.3    10/19/2003 3:48:12 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.2    10/1/2003 12:53:08 AM  JPMugaas
-{ Indicated that VMS returns block sizes.  Note that in VMS, the traditional
-{ block size is 512 bytes (this is a fixed constant).
-}
-{
-{   Rev 1.1    4/7/2003 04:04:36 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 02:01:58 AM  JPMugaas
-{ Individual parsing objects for the new framework.
+
+  Rev 1.2    10/1/2003 12:53:08 AM  JPMugaas
+  Indicated that VMS returns block sizes.  Note that in VMS, the traditional
+  block size is 512 bytes (this is a fixed constant).
+
+  Rev 1.1    4/7/2003 04:04:36 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 02:01:58 AM  JPMugaas
+  Individual parsing objects for the new framework.
 }
 unit IdFTPListParseVMS;
 
 {
-This parser works with VMS (OpenVMS) systems including UCX, MadGoat, Multinet,
-VMS TCPWare, plus some non-multinet systems.
+  This parser works with VMS (OpenVMS) systems including UCX, MadGoat, Multinet,
+  VMS TCPWare, plus some non-multinet systems.
 }
+
 interface
 
 uses
@@ -108,6 +97,7 @@ type
     property NumberBlocks : Integer read FNumberBlocks write FNumberBlocks;
     property BlockSize : Integer read FBlockSize write FBlockSize;
   end;
+
   TIdFTPLPVMS = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;

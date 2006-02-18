@@ -16,36 +16,33 @@
   $Log$
 }
 {
-{   Rev 1.5    2/23/2005 6:34:28 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
-}
-{
-{   Rev 1.4    10/26/2004 9:46:34 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.3    4/19/2004 5:06:10 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.2    2004.02.03 5:45:40 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.1    10/19/2003 2:27:20 PM  DSiders
+  Rev 1.5    2/23/2005 6:34:28 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.4    10/26/2004 9:46:34 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.3    4/19/2004 5:06:10 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.2    2004.02.03 5:45:40 PM  czhower
+  Name changes
+
+  Rev 1.1    10/19/2003 2:27:20 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    4/7/2003 04:11:38 PM  JPMugaas
+  I mistakenly omitted the OS-9 parser when restructuring.  Restored.
 }
-{
-{   Rev 1.0    4/7/2003 04:11:38 PM  JPMugaas
-{ I mistakenly omitted the OS-9 parser when restructuring.  Restored.
-}
+
 unit IdFTPListParseMicrowareOS9;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 
 type
   TIdMicrowareOS9FTPListItem = class(TIdOwnerFTPListItem)

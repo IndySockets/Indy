@@ -16,127 +16,105 @@
   $Log$
 }
 {
-{   Rev 1.23    3/23/2005 4:52:28 AM  JPMugaas
-{ Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
-{ 
-{ http://www.raidenftpd.com/kb/kb000000049.htm
-{ 
-{ This returns Win32 file attributes including some that Borland does not
-{ support.
-}
-{
-{   Rev 1.22    2/23/2005 6:34:30 PM  JPMugaas
-{ New property for displaying permissions ina GUI column.  Note that this
-{ should not be used like a CHMOD because permissions are different on
-{ different platforms - you have been warned.
-}
-{
-{   Rev 1.21    2/4/2005 12:00:50 PM  JPMugaas
-{ Switched from TObjectList to TList for the parsing registration list.  
-}
-{
-{   Rev 1.20    2/3/2005 11:05:14 PM  JPMugaas
-{ Fix for compiler warnings.
-}
-{
-{   Rev 1.19    12/8/2004 5:34:02 PM  JPMugaas
-{ Added method for getting all of the identifiers for the parsing classes for
-{ ego purposes only :-).
-}
-{
-{   Rev 1.18    12/8/2004 8:35:18 AM  JPMugaas
-{ Minor class restructure to support Unisys ClearPath.
-}
-{
-{   Rev 1.17    11/29/2004 2:45:28 AM  JPMugaas
-{ Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
-{ by the Distinct32, OS/2, and Chameleon FTP list parsers.
-}
-{
-{   Rev 1.16    11/5/2004 1:17:26 AM  JPMugaas
-{ Now also should support sizd fact in some dir listings on PureFTPD.
-}
-{
-{   Rev 1.15    10/26/2004 9:27:32 PM  JPMugaas
-{ Updated references.
-}
-{
-{   Rev 1.14    6/27/2004 1:45:36 AM  JPMugaas
-{ Can now optionally support LastAccessTime like Smartftp's FTP Server could. 
-{ I also made the MLST listing object and parser support this as well.
-}
-{
-    Rev 1.13    6/11/2004 9:35:00 AM  DSiders
+  Rev 1.23    3/23/2005 4:52:28 AM  JPMugaas
+  Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
+
+  http://www.raidenftpd.com/kb/kb000000049.htm
+
+  This returns Win32 file attributes including some that Borland does not
+  support.
+
+  Rev 1.22    2/23/2005 6:34:30 PM  JPMugaas
+  New property for displaying permissions ina GUI column.  Note that this
+  should not be used like a CHMOD because permissions are different on
+  different platforms - you have been warned.
+
+  Rev 1.21    2/4/2005 12:00:50 PM  JPMugaas
+  Switched from TObjectList to TList for the parsing registration list.
+
+  Rev 1.20    2/3/2005 11:05:14 PM  JPMugaas
+  Fix for compiler warnings.
+
+  Rev 1.19    12/8/2004 5:34:02 PM  JPMugaas
+  Added method for getting all of the identifiers for the parsing classes for
+  ego purposes only :-).
+
+  Rev 1.18    12/8/2004 8:35:18 AM  JPMugaas
+  Minor class restructure to support Unisys ClearPath.
+
+  Rev 1.17    11/29/2004 2:45:28 AM  JPMugaas
+  Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
+  by the Distinct32, OS/2, and Chameleon FTP list parsers.
+
+  Rev 1.16    11/5/2004 1:17:26 AM  JPMugaas
+  Now also should support sizd fact in some dir listings on PureFTPD.
+
+  Rev 1.15    10/26/2004 9:27:32 PM  JPMugaas
+  Updated references.
+
+  Rev 1.14    6/27/2004 1:45:36 AM  JPMugaas
+  Can now optionally support LastAccessTime like Smartftp's FTP Server could.
+  I also made the MLST listing object and parser support this as well.
+
+  Rev 1.13    6/11/2004 9:35:00 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.12    6/7/2004 7:38:42 PM  JPMugaas
-{ Fixed bug that appears in some descendant classes.  TIdFTPListBaseHeader
-{ would only call ADir.Add.  If a descendant is using it's own descendant of
-{ the TIdFTPListItem class for special properties, that would cause an invalid
-{ typecast error.  It now calls MakeNewItem so that a descendant can override
-{ the item creation to make it's own TIdFTPListItem descendant.
-}
-{
-{   Rev 1.11    6/5/2004 3:04:12 PM  JPMugaas
-{ In MLST format, we now indicate if Size is available  for item.   One version
-{ of NcFTP will omit that for directories.  Confirmed at ftp.borland.com.  I
-{ also did the same for Modified Date if MLST doesn't provide it.
-}
-{
-{   Rev 1.10    4/19/2004 5:05:12 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.9    2004.02.03 5:45:14 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.8    11/26/2003 6:22:18 PM  JPMugaas
-{ IdFTPList can now support file creation time for MLSD servers which support
-{ that feature.  I also added support for a Unique identifier for an item so
-{ facilitate some mirroring software if the server supports unique ID with EPLF
-{ and MLSD.
-}
-{
-    Rev 1.7    10/19/2003 2:27:02 PM  DSiders
+
+  Rev 1.12    6/7/2004 7:38:42 PM  JPMugaas
+  Fixed bug that appears in some descendant classes.  TIdFTPListBaseHeader
+  would only call ADir.Add.  If a descendant is using it's own descendant of
+  the TIdFTPListItem class for special properties, that would cause an invalid
+  typecast error.  It now calls MakeNewItem so that a descendant can override
+  the item creation to make it's own TIdFTPListItem descendant.
+
+  Rev 1.11    6/5/2004 3:04:12 PM  JPMugaas
+  In MLST format, we now indicate if Size is available  for item.   One version
+  of NcFTP will omit that for directories.  Confirmed at ftp.borland.com.  I
+  also did the same for Modified Date if MLST doesn't provide it.
+
+  Rev 1.10    4/19/2004 5:05:12 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.9    2004.02.03 5:45:14 PM  czhower
+  Name changes
+
+  Rev 1.8    11/26/2003 6:22:18 PM  JPMugaas
+  IdFTPList can now support file creation time for MLSD servers which support
+  that feature.  I also added support for a Unique identifier for an item so
+  facilitate some mirroring software if the server supports unique ID with EPLF
+  and MLSD.
+
+  Rev 1.7    10/19/2003 2:27:02 PM  DSiders
   Added localization comments.
+
+  Rev 1.6    10/6/2003 08:58:00 PM  JPMugaas
+  Reworked the FTP list parsing framework so that the user can obtain the list
+  of capabilities from a parser class with TIdFTP.  This should permit the user
+  to present a directory listing differently for each parser (some FTP list
+  parsers do have different capabilities).
+
+  Rev 1.5    4/7/2003 04:03:06 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.4    3/3/2003 04:23:18 PM  JPMugaas
+  Fix for a stack overflow.  stupid mistake really.  Procedure kept calling
+  itself.
+
+  Rev 1.3    2/23/2003 06:08:16 AM  JPMugaas
+
+  Rev 1.2    2/21/2003 06:54:22 PM  JPMugaas
+  The FTP list processing has been restructured so that Directory output is not
+  done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
+  that the code is more scalable.
+
+  Rev 1.1    2/19/2003 05:53:10 PM  JPMugaas
+  Minor restructures to remove duplicate code and save some work with some
+  formats.  The Unix parser had a bug that caused it to give a False positive
+  for Xercom MicroRTOS.
+
+  Rev 1.0    2/18/2003 07:00:30 PM  JPMugaas
+  Base class for new parsing framework.
 }
-{
-{   Rev 1.6    10/6/2003 08:58:00 PM  JPMugaas
-{ Reworked the FTP list parsing framework so that the user can obtain the list
-{ of capabilities from a parser class with TIdFTP.  This should permit the user
-{ to present a directory listing differently for each parser (some FTP list
-{ parsers do have different capabilities).
-}
-{
-{   Rev 1.5    4/7/2003 04:03:06 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.4    3/3/2003 04:23:18 PM  JPMugaas
-{ Fix for a stack overflow.  stupid mistake really.  Procedure kept calling
-{ itself.
-}
-{
-{   Rev 1.3    2/23/2003 06:08:16 AM  JPMugaas
-}
-{
-{   Rev 1.2    2/21/2003 06:54:22 PM  JPMugaas
-{ The FTP list processing has been restructured so that Directory output is not
-{ done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
-{ that the code is more scalable.
-}
-{
-{   Rev 1.1    2/19/2003 05:53:10 PM  JPMugaas
-{ Minor restructures to remove duplicate code and save some work with some
-{ formats.  The Unix parser had a bug that caused it to give a False positive
-{ for Xercom MicroRTOS.
-}
-{
-{   Rev 1.0    2/18/2003 07:00:30 PM  JPMugaas
-{ Base class for new parsing framework.
-}
+
 unit IdFTPListParseBase;
 
 interface

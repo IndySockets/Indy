@@ -16,50 +16,44 @@
   $Log$
 }
 {
-{   Rev 1.9    11/29/2004 2:45:28 AM  JPMugaas
-{ Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
-{ by the Distinct32, OS/2, and Chameleon FTP list parsers.
-}
-{
-{   Rev 1.8    10/26/2004 9:36:28 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.7    4/19/2004 5:05:56 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.6    2004.02.03 5:45:32 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.5    24/01/2004 19:19:28  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.4    1/23/2004 12:52:58 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.3    1/22/2004 5:54:02 PM  SPerry
-{ fixed set problems
-}
-{
-    Rev 1.2    10/19/2003 2:27:08 PM  DSiders
+  Rev 1.9    11/29/2004 2:45:28 AM  JPMugaas
+  Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
+  by the Distinct32, OS/2, and Chameleon FTP list parsers.
+
+  Rev 1.8    10/26/2004 9:36:28 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.7    4/19/2004 5:05:56 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.6    2004.02.03 5:45:32 PM  czhower
+  Name changes
+
+  Rev 1.5    24/01/2004 19:19:28  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.4    1/23/2004 12:52:58 PM  SPerry
+  fixed set problems
+
+  Rev 1.3    1/22/2004 5:54:02 PM  SPerry
+  fixed set problems
+
+  Rev 1.2    10/19/2003 2:27:08 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:03:46 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 10:13:32 PM  JPMugaas
+  Moved parsers to their own classes.
 }
-{
-{   Rev 1.1    4/7/2003 04:03:46 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 10:13:32 PM  JPMugaas
-{ Moved parsers to their own classes.
-}
+
 unit IdFTPListParseDistinctTCPIP;
 
 interface
-uses IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+
+uses
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 type
   TIdDistinctTCPIPFTPListItem =  class(TIdDOSBaseFTPListItem)
@@ -69,7 +63,7 @@ type
     property ModifiedDateGMT;
     //This is kept solely for compatability, do NOT remove this as you will probably
     //break someone's code
-    property Dist32FileAttributes : string read FDist32FileAttributes write FDist32FileAttributes; 
+    property Dist32FileAttributes : string read FDist32FileAttributes write FDist32FileAttributes;
   end;
   TIdFTPLPDistinctTCPIP = class(TIdFTPLPBaseDOS)
   protected

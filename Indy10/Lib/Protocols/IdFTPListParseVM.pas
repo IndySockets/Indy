@@ -16,60 +16,54 @@
   $Log$
 }
 {
-{   Rev 1.8    2/24/2005 10:01:34 AM  JPMugaas
-{ Fixed estimation of filesize for variable record length files (V) in z/VM to
-{ conform to what was specified in:
-{ 
-{ z/VMTCP/IP User’s Guide Version 5 Release 1.0
-{ 
-{ This will not always give the same estimate as the server would when listing
-{ in Unix format "SITE LISTFORMAT UNIX" because we can't know the block size
-{ (we have to assume a size of 4096).
-}
-{
-{   Rev 1.7    10/26/2004 10:03:20 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.6    9/7/2004 10:02:30 AM  JPMugaas
-{ Tightened the VM/BFS parser detector so that valid dates have to start the
-{ listing item.  This should reduce the likelyhood of error.
-}
-{
-{   Rev 1.5    6/28/2004 4:34:18 AM  JPMugaas
-{ VM_CMS-ftp.marist.edu-7.txt was being detected as VM/BFS instead of VM/CMS
-{ causing a date encode error.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:32 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:22 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 3:48:12 PM  DSiders
+  Rev 1.8    2/24/2005 10:01:34 AM  JPMugaas
+  Fixed estimation of filesize for variable record length files (V) in z/VM to
+  conform to what was specified in:
+
+  z/VMTCP/IP User’s Guide Version 5 Release 1.0
+
+  This will not always give the same estimate as the server would when listing
+  in Unix format "SITE LISTFORMAT UNIX" because we can't know the block size
+  (we have to assume a size of 4096).
+
+  Rev 1.7    10/26/2004 10:03:20 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.6    9/7/2004 10:02:30 AM  JPMugaas
+  Tightened the VM/BFS parser detector so that valid dates have to start the
+  listing item.  This should reduce the likelyhood of error.
+
+  Rev 1.5    6/28/2004 4:34:18 AM  JPMugaas
+  VM_CMS-ftp.marist.edu-7.txt was being detected as VM/BFS instead of VM/CMS
+  causing a date encode error.
+
+  Rev 1.4    4/19/2004 5:05:32 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:22 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 3:48:12 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:04:30 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 04:18:20 AM  JPMugaas
+  More things restructured for the new list framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:04:30 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 04:18:20 AM  JPMugaas
-{ More things restructured for the new list framework.
-}
+
 unit IdFTPListParseVM;
+
+{
+  IBM VM and z/VM parser
+}
 
 interface
 
 uses
   IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
-{
-IBM VM and z/VM parser
-}
 type
   TIdVMCMSFTPListItem = class(TIdRecFTPListItem)
   protected
@@ -82,6 +76,7 @@ type
     property OwnerName : String read FOwnerName write FOwnerName;
     property NumberBlocks : Integer read FNumberBlocks write FNumberBlocks;
   end;
+
   TIdVMVirtualReaderFTPListItem = class(TIdFTPListItem)
   protected
     FNumberRecs : Integer;
@@ -89,6 +84,7 @@ type
      constructor Create(AOwner: TIdCollection); override;
     property NumberRecs : Integer read FNumberRecs write FNumberRecs;
   end;
+
   TIdVMBFSFTPListItem = class(TIdFTPListItem);
   TIdFTPLPVMCMS = class(TIdFTPListBase)
   protected

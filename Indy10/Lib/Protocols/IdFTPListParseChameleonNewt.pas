@@ -16,14 +16,16 @@
   $Log$
 }
 {
-{   Rev 1.0    11/29/2004 2:44:16 AM  JPMugaas
-{ New FTP list parsers for some legacy FTP servers.
+  Rev 1.0    11/29/2004 2:44:16 AM  JPMugaas
+  New FTP list parsers for some legacy FTP servers.
 }
+
 unit IdFTPListParseChameleonNewt;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 
 type
   TIdChameleonNewtFTPListItem = class(TIdDOSBaseFTPListItem);
@@ -45,8 +47,8 @@ class function TIdFTPLPChameleonNewt.CheckListing(AListing: TIdStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 {Look for something like this:
 
-.               <DIR>      Nov 16 1994 17:16   
-..              <DIR>      Nov 16 1994 17:16   
+.               <DIR>      Nov 16 1994 17:16
+..              <DIR>      Nov 16 1994 17:16
 INSTALL         <DIR>      Nov 16 1994 17:17
 CMT             <DIR>      Nov 21 1994 10:17
 DESIGN1.DOC     11264      May 11 1995 14:20   A

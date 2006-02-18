@@ -16,36 +16,31 @@
   $Log$
 }
 {
-{   Rev 1.6    12/5/2004 5:06:30 PM  JPMugaas
-{ Tightened the detection for NCSA Telnet FTP Server for DOS.  The parser was
-{ causing problems with SuperTCP because the formats are similar.  By
-{ preventing SuperTCP from being detected, LongFilenames were not parsed in
-{ SuperTCP running on Windows 2000.
-}
-{
-{   Rev 1.5    10/26/2004 9:51:14 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    6/5/2004 4:45:22 PM  JPMugaas
-{ Reports SizeAvail=False for directories in a list.  As per the dir format.
-}
-{
-{   Rev 1.3    4/19/2004 5:05:58 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.2    2004.02.03 5:45:32 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.1    10/19/2003 3:36:04 PM  DSiders
+  Rev 1.6    12/5/2004 5:06:30 PM  JPMugaas
+  Tightened the detection for NCSA Telnet FTP Server for DOS.  The parser was
+  causing problems with SuperTCP because the formats are similar.  By
+  preventing SuperTCP from being detected, LongFilenames were not parsed in
+  SuperTCP running on Windows 2000.
+
+  Rev 1.5    10/26/2004 9:51:14 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    6/5/2004 4:45:22 PM  JPMugaas
+  Reports SizeAvail=False for directories in a list.  As per the dir format.
+
+  Rev 1.3    4/19/2004 5:05:58 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.2    2004.02.03 5:45:32 PM  czhower
+  Name changes
+
+  Rev 1.1    10/19/2003 3:36:04 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    2/19/2003 10:13:38 PM  JPMugaas
+  Moved parsers to their own classes.
 }
-{
-{   Rev 1.0    2/19/2003 10:13:38 PM  JPMugaas
-{ Moved parsers to their own classes.
-}
+
 unit IdFTPListParseNCSAForDOS;
 
 interface

@@ -16,37 +16,34 @@
   $Log$
 }
 {
-{   Rev 1.6    10/26/2004 9:36:28 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.5    4/19/2004 5:05:50 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.4    2004.02.03 5:45:30 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/22/2004 4:39:48 PM  SPerry
-{ fixed set problems
-}
-{
-    Rev 1.2    10/19/2003 2:27:04 PM  DSiders
+  Rev 1.6    10/26/2004 9:36:28 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.5    4/19/2004 5:05:50 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.4    2004.02.03 5:45:30 PM  czhower
+  Name changes
+
+  Rev 1.3    1/22/2004 4:39:48 PM  SPerry
+  fixed set problems
+
+  Rev 1.2    10/19/2003 2:27:04 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:03:28 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 10:13:16 PM  JPMugaas
+  Moved parsers to their own classes.
 }
-{
-{   Rev 1.1    4/7/2003 04:03:28 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 10:13:16 PM  JPMugaas
-{ Moved parsers to their own classes.
-}
+
 unit IdFTPListParseBullGCOS7;
 
 interface
-uses IdFTPList, IdFTPListParseBase, IdObjs;
+
+uses
+  IdFTPList, IdFTPListParseBase, IdObjs;
 
 type
   TIdFTPLPGOS7 = class(TIdFTPLineOwnedList)

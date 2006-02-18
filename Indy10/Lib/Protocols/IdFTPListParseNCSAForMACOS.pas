@@ -16,14 +16,16 @@
   $Log$
 }
 {
-{   Rev 1.0    11/28/2004 9:20:22 PM  JPMugaas
-{ Preliminary support for NCSA Telnet's FTP Server for MacIntosh.
+  Rev 1.0    11/28/2004 9:20:22 PM  JPMugaas
+  Preliminary support for NCSA Telnet's FTP Server for MacIntosh.
 }
+
 unit IdFTPListParseNCSAForMACOS;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 
 {
 NCSA Telnet for MacIntosh's FTP Server only lists the filenames followed by a /
@@ -72,7 +74,7 @@ begin
   //Intercon's MAC-OS reports "MAC-OS TCP/Connect for the Macintosh Version x.x"
   //but LibWWW
   //http://dev.w3.org/cvsweb/libwww/Library/src/HTFTP.c?rev=1.109&content-type=text/x-cvsweb-markup
-  //"MAC-OS TCP/ConnectII"      
+  //"MAC-OS TCP/ConnectII"
     (Copy(ASysDescript,1,18)=' MAC-OS TCP/Connect');
 end;
 

@@ -16,29 +16,25 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 10:03:24 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:40 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:26 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 3:48:22 PM  DSiders
+  Rev 1.5    10/26/2004 10:03:24 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    4/19/2004 5:05:40 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:26 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 3:48:22 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    4/7/2003 04:04:42 PM  JPMugaas
+  User can now descover what output a parser may give.
+
+  Rev 1.0    2/19/2003 05:49:46 PM  JPMugaas
+  Parsers ported from old framework.
 }
-{
-{   Rev 1.1    4/7/2003 04:04:42 PM  JPMugaas
-{ User can now descover what output a parser may give.
-}
-{
-{   Rev 1.0    2/19/2003 05:49:46 PM  JPMugaas
-{ Parsers ported from old framework.
-}
+
 unit IdFTPListParseXecomMicroRTOS;
 
 interface
@@ -56,6 +52,7 @@ type
      property MemStart: Cardinal read FMemStart write FMemStart;
      property MemEnd: Cardinal read FMemEnd write FMemEnd;
    end;
+
   TIdFTPLPXecomMicroRTOS = class(TIdFTPListBaseHeader)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;

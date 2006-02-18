@@ -17,33 +17,33 @@
 }
 {
   Rev 1.6    3/23/2005 4:52:28 AM  JPMugaas
-    Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
+  Expansion with MLSD and WIN32.ea fact in MLSD directories as described by:
 
-    http://www.raidenftpd.com/kb/kb000000049.htm
+  http://www.raidenftpd.com/kb/kb000000049.htm
 
-    This returns Win32 file attributes including some that Borland does not
-    support.
+  This returns Win32 file attributes including some that Borland does not
+  support.
 
   Rev 1.5    12/8/2004 8:35:18 AM  JPMugaas
-    Minor class restructure to support Unisys ClearPath.
+  Minor class restructure to support Unisys ClearPath.
 
   Rev 1.4    11/29/2004 2:45:30 AM  JPMugaas
-    Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
-    by the Distinct32, OS/2, and Chameleon FTP list parsers.
+  Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
+  by the Distinct32, OS/2, and Chameleon FTP list parsers.
 
   Rev 1.3    10/26/2004 9:27:34 PM  JPMugaas
-    Updated references.
+  Updated references.
 
   Rev 1.2    6/27/2004 1:45:36 AM  JPMugaas
-    Can now optionally support LastAccessTime like Smartftp's FTP Server could.
-    I also made the MLST listing object and parser support this as well.
+  Can now optionally support LastAccessTime like Smartftp's FTP Server could.
+  I also made the MLST listing object and parser support this as well.
 
   Rev 1.1    6/4/2004 2:11:00 PM  JPMugaas
-    Added an indexed read-only Facts property to the MLST List Item so you can
-    get information that we didn't parse elsewhere.  MLST is extremely flexible.
+  Added an indexed read-only Facts property to the MLST List Item so you can
+  get information that we didn't parse elsewhere.  MLST is extremely flexible.
 
   Rev 1.0    4/20/2004 2:43:20 AM  JPMugaas
-    Abstract FTPList objects for reuse.
+  Abstract FTPList objects for reuse.
 }
 
 unit IdFTPListTypes;

@@ -16,15 +16,18 @@
   $Log$
 }
 {
-{   Rev 1.1    10/26/2004 11:21:16 PM  JPMugaas
-{ Updated refs.
+  Rev 1.1    10/26/2004 11:21:16 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.0    10/21/2004 10:27:32 PM  JPMugaas
 }
-{
-{   Rev 1.0    10/21/2004 10:27:32 PM  JPMugaas
-{ BayNetworks WfFTP FTP Server.  WfFTP is a FTP interface for Bay Network's
-{ Wellfleet router.
-}
+
 unit IdFTPListParseWfFTP;
+
+{
+  BayNetworks WfFTP FTP Server.  WfFTP is a FTP interface for Bay Network's
+  Wellfleet router.
+}
 
 interface
 
@@ -32,73 +35,72 @@ uses
   IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
 
 {
-WfFTP is a FTP interface for BayNetwork's Wellfleet Routers.
+  WfFTP is a FTP interface for BayNetwork's Wellfleet Routers.
 
-Based on:
+  Based on:
+  Configuration Guide
+  Contivity Secure IP Services Gateway
+  CG040301
+  from Nortell Networks
+  Dated March 2004
 
-Configuration Guide
-Contivity Secure IP Services Gateway
+  Notation, the dir format is like this:
 
-CG040301
-from Nortell Networks
-Dated March 2004
+  ===
 
-Notation, the dir format is like this:
+  Volume - drive 1:
+  Directory of 1:
 
-===
+  File Name            Size    Date     Day       Time
+  ------------------------------------------------------
+  startup.cfg          2116  03/06/03  Thur.    07:38:50
+  configPppChap        2996  03/12/03  Wed.     16:43:58
+  bgpOspf.log         32428  03/20/03  Thur.    13:08:26
+  an.exe            7112672  03/20/03  Thur.    13:18:09
+  bcc.help           492551  03/20/03  Thur.    13:21:43
+  debug.al            12319  03/20/03  Thur.    13:22:46
+  install.bat        236499  03/20/03  Thur.    13:22:54
+  ti.cfg                132  03/20/03  Thur.    13:23:09
+  log2.log            32428  03/20/03  Thur.    14:31:46
+  configFrRip           386  07/18/03  Fri.     12:02:25
+  config               1720  07/25/03  Fri.     08:52:00
+  hosts                  17  09/04/03  Thur.    15:56:51
 
- Volume - drive 1:
- Directory of 1:
+  33554432 bytes - Total size
+  25627726 bytes - Available free space
+  17672120 bytes - Contiguous free space
+  226 ASCII Transfer Complete.
+  ===
+  ===
 
-File Name            Size    Date     Day       Time
-------------------------------------------------------
-startup.cfg          2116  03/06/03  Thur.    07:38:50
-configPppChap        2996  03/12/03  Wed.     16:43:58 
-bgpOspf.log         32428  03/20/03  Thur.    13:08:26 
-an.exe            7112672  03/20/03  Thur.    13:18:09
-bcc.help           492551  03/20/03  Thur.    13:21:43 
-debug.al            12319  03/20/03  Thur.    13:22:46
-install.bat        236499  03/20/03  Thur.    13:22:54
-ti.cfg                132  03/20/03  Thur.    13:23:09
-log2.log            32428  03/20/03  Thur.    14:31:46
-configFrRip           386  07/18/03  Fri.     12:02:25
-config               1720  07/25/03  Fri.     08:52:00
-hosts                  17  09/04/03  Thur.    15:56:51
+  Volume - drive 2:
+  Directory of 2:
 
- 33554432 bytes - Total size
- 25627726 bytes - Available free space
- 17672120 bytes - Contiguous free space
-226 ASCII Transfer Complete.
-===
-===
+  File Name             Size    Date     Day      Time
+  ------------------------------------------------------
+  config.isp           45016  08/22/97  Fri.    17:05:51
+  startup.cfg           7472  08/24/97  Sun.    23:31:31
+  asnboot.exe         237212  08/24/97  Sun.    23:31:41
+  asndiag.exe         259268  08/24/97  Sun.    23:32:28
+  debug.al             12372  08/24/97  Sun.    23:33:17
+  ti_asn.cfg             504  08/24/97  Sun.    23:33:31
+  install.bat         189114  08/24/97  Sun.    23:33:41
+  config               50140  04/20/98  Mon.    22:08:01
 
- Volume - drive 2:
- Directory of 2:
+  4194304 bytes - Total size
+  3375190 bytes - Available free space
+  3239088 bytes - Contiguous free space
 
-File Name             Size    Date     Day      Time
-------------------------------------------------------
-config.isp           45016  08/22/97  Fri.    17:05:51
-startup.cfg           7472  08/24/97  Sun.    23:31:31
-asnboot.exe         237212  08/24/97  Sun.    23:31:41
-asndiag.exe         259268  08/24/97  Sun.    23:32:28
-debug.al             12372  08/24/97  Sun.    23:33:17
-ti_asn.cfg             504  08/24/97  Sun.    23:33:31
-install.bat         189114  08/24/97  Sun.    23:33:41
-config               50140  04/20/98  Mon.    22:08:01
+  ====
 
- 4194304 bytes - Total size
- 3375190 bytes - Available free space
- 3239088 bytes - Contiguous free space
-
-
-====
-
-From: http://www.insecure.org/sploits/bay-networks.baynets.html
+  From: http://www.insecure.org/sploits/bay-networks.baynets.html
 }
+
 type
   TIdWfFTPFTPListItem = class(TIdOwnerFTPListItem)
   protected
   end;
+
   TIdFTPLPWfFTP = class(TIdFTPListBaseHeader)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
@@ -109,10 +111,13 @@ type
     class function GetIdent : String; override;
   end;
 
-const WFFTP = 'WfFTP';
+const
+  WFFTP = 'WfFTP';
 
 implementation
-uses IdFTPCommon, IdGlobal, IdSys;
+
+uses
+  IdFTPCommon, IdGlobal, IdSys;
 
 { TIdFTPLPWfFTP }
 

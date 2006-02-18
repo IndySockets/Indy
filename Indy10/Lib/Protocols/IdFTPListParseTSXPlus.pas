@@ -16,20 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.2    10/26/2004 9:55:58 PM  JPMugaas
-{ Updated refs.
-}
-{
-    Rev 1.1    6/11/2004 9:38:48 AM  DSiders
+  Rev 1.2    10/26/2004 9:55:58 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.1    6/11/2004 9:38:48 AM  DSiders
   Added "Do not Localize" comments.
+
+  Rev 1.0    6/7/2004 7:46:26 PM  JPMugaas
 }
-{
-{   Rev 1.0    6/7/2004 7:46:26 PM  JPMugaas
-{ FTP List parser for TSX+.  This is based on:
-{
-{ http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
-}
+
 unit IdFTPListParseTSXPlus;
+
+{
+  FTP List parser for TSX+.  This is based on:
+  http://www.gweep.net/~shifty/music/miragehack/gcc/xasm/cug292.lst
+}
 
 interface
 

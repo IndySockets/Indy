@@ -16,711 +16,582 @@
   $Log$
 }
 {
-{   Rev 1.146    3/23/2005 5:16:56 AM  JPMugaas
-{ Should compile.
-}
-{
-{   Rev 1.145    3/14/05 11:28:50 AM  RLebeau
-{ Bug fix for CommandSIZE() not checking the FTPFileSystem property.
-{ 
-{ Updated to reflect changes in TIdReply.NumericCode handling.
-}
-{
-{   Rev 1.144    3/5/2005 3:33:58 PM  JPMugaas
-{ Fix for some compiler warnings having to do with TStream.Read being platform
-{ specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
-{ instead of TStream.  I also made appropriate adjustments to other units for
-{ this. 
-}
-{
-{   Rev 1.143    11/22/2004 8:29:20 PM  JPMugaas
-{ Fix for a compiler warning.
-}
-{
-{   Rev 1.142    11/22/2004 7:49:36 PM  JPMugaas
-{ You now can access help before you are logged in.   This is done to conform
-{ to RFC 959.
-}
-{
-{   Rev 1.141    2004.10.27 9:17:48 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.140    10/26/2004 9:40:42 PM  JPMugaas
-{ Updated ref.
-}
-{
-    Rev 1.139    9/15/2004 5:01:00 PM  DSiders
+  Rev 1.146    3/23/2005 5:16:56 AM  JPMugaas
+  Should compile.
+
+  Rev 1.145    3/14/05 11:28:50 AM  RLebeau
+  Bug fix for CommandSIZE() not checking the FTPFileSystem property.
+
+  Updated to reflect changes in TIdReply.NumericCode handling.
+
+  Rev 1.144    3/5/2005 3:33:58 PM  JPMugaas
+  Fix for some compiler warnings having to do with TStream.Read being platform
+  specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
+  instead of TStream.  I also made appropriate adjustments to other units for
+  this.
+
+  Rev 1.143    11/22/2004 8:29:20 PM  JPMugaas
+  Fix for a compiler warning.
+
+  Rev 1.142    11/22/2004 7:49:36 PM  JPMugaas
+  You now can access help before you are logged in.   This is done to conform
+  to RFC 959.
+
+  Rev 1.141    2004.10.27 9:17:48 AM  czhower
+  For TIdStrings
+
+  Rev 1.140    10/26/2004 9:40:42 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.139    9/15/2004 5:01:00 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.138    2004.08.13 11:03:22  czhower
-{ Removed unused var.
-}
-{
-{   Rev 1.137    7/29/2004 1:33:10 AM  JPMugaas
-{ Reordered AUTH command values for a new property under development.  This
-{ should make things more logical.
-}
-{
-    Rev 1.136    7/18/2004 3:00:42 PM  DSiders
+
+  Rev 1.138    2004.08.13 11:03:22  czhower
+  Removed unused var.
+
+  Rev 1.137    7/29/2004 1:33:10 AM  JPMugaas
+  Reordered AUTH command values for a new property under development.  This
+  should make things more logical.
+
+  Rev 1.136    7/18/2004 3:00:42 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.135    7/15/2004 1:33:00 AM  JPMugaas
-{ Bug fix for error 105.   I fixed this by changing data channel command
-{ processing.  If the command is not ABOR or STAT, the command is put into a
-{ FIFO queue.  After the data channel operation is completed, the commands from
-{ the FIFO queue are processed.    I have tested FlashFXP 3.0 RC4 and it does
-{ worki as expected.  The behavior is also the same as what NcFTPD does with a
-{ NOOP being sent during a data transfer.
-{
-{ This may also help with FTP command pipelining as proposed by:
-{ http://cr.yp.to/ftp/pipelining.html
-{
-{ Note that we can not use the regular command handler framework for  data
-{ channel commands because STAT and ABOR need to be handled IMMEDIATELY.
-}
-{
-{   Rev 1.134    7/13/04 9:08:10 PM  RLebeau
-{ Renamed OnPASV event to OnPASVBeforeBind and added new OnPASVReply event
-}
-{
-{   Rev 1.133    7/13/04 8:13:56 PM  RLebeau
-{ Various changed for DefaultDataPort handling
-}
-{
-{   Rev 1.132    7/13/2004 3:34:12 AM  JPMugaas
-{ CCC command and a few other minor modifications to comply with
-{ http://www.ietf.org/internet-drafts/draft-murray-auth-ftp-ssl-14.txt .
-{
-{ I also fixed a few minor bugs in the help and a problem with some error
-{ replies sending an extra 200 after a 5xxx code messing up some clients.
-{
-{ I also expanded the Security options to selectively disable CCC per user.
-{ Some administrators may want to do this for security reasons.
-}
-{
-{   Rev 1.131    7/12/2004 11:46:44 PM  JPMugaas
-{ Improvement in OPTS MODE Z handling.  It will give an error if there's only
-{ one param.  Params must be in pairs.  If no valid parameters are present, we
-{ give an error.
-{
-}
-{
-{   Rev 1.130    07/07/2004 17:34:38  ANeillans
-{ Corrected compile bug.
-{ Line 6026,
-{             if PosInStrArray(IntToStr(LNoVal),STATES,False)>-1 then
-{ Function expected a string, not an integer.
-}
-{
-    Rev 1.129    7/6/2004 4:52:16 PM  DSiders
+
+  Rev 1.135    7/15/2004 1:33:00 AM  JPMugaas
+  Bug fix for error 105.   I fixed this by changing data channel command
+  processing.  If the command is not ABOR or STAT, the command is put into a
+  FIFO queue.  After the data channel operation is completed, the commands from
+  the FIFO queue are processed.    I have tested FlashFXP 3.0 RC4 and it does
+  worki as expected.  The behavior is also the same as what NcFTPD does with a
+  NOOP being sent during a data transfer.
+
+  This may also help with FTP command pipelining as proposed by:
+  http://cr.yp.to/ftp/pipelining.html
+
+  Note that we can not use the regular command handler framework for  data
+  channel commands because STAT and ABOR need to be handled IMMEDIATELY.
+
+  Rev 1.134    7/13/04 9:08:10 PM  RLebeau
+  Renamed OnPASV event to OnPASVBeforeBind and added new OnPASVReply event
+
+  Rev 1.133    7/13/04 8:13:56 PM  RLebeau
+  Various changed for DefaultDataPort handling
+
+  Rev 1.132    7/13/2004 3:34:12 AM  JPMugaas
+  CCC command and a few other minor modifications to comply with
+  http://www.ietf.org/internet-drafts/draft-murray-auth-ftp-ssl-14.txt .
+
+  I also fixed a few minor bugs in the help and a problem with some error
+  replies sending an extra 200 after a 5xxx code messing up some clients.
+
+  I also expanded the Security options to selectively disable CCC per user.
+  Some administrators may want to do this for security reasons.
+
+  Rev 1.131    7/12/2004 11:46:44 PM  JPMugaas
+  Improvement in OPTS MODE Z handling.  It will give an error if there's only
+  one param.  Params must be in pairs.  If no valid parameters are present, we
+  give an error.
+
+  Rev 1.130    07/07/2004 17:34:38  ANeillans
+  Corrected compile bug.
+  Line 6026,
+            if PosInStrArray(IntToStr(LNoVal),STATES,False)>-1 then
+  Function expected a string, not an integer.
+
+  Rev 1.129    7/6/2004 4:52:16 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
-}
-{
-{   Rev 1.128    6/29/2004 4:09:04 PM  JPMugaas
-{ OPTS MODE Z now supported as per draft-preston-ftpext-deflate-02.txt.  This
-{ should keep FTP Voyager 11 happy.
-}
-{
-{   Rev 1.127    6/28/2004 7:23:20 PM  JPMugaas
-{ Bugfix.  An invalid site command would cause no reply to be given.  Now a
-{ syntax is given in such cases.
-}
-{
-{   Rev 1.126    6/27/2004 1:45:30 AM  JPMugaas
-{ Can now optionally support LastAccessTime like Smartftp's FTP Server could.
-{ I also made the MLST listing object and parser support this as well.
-}
-{
-{   Rev 1.125    6/17/2004 3:56:28 PM  JPMugaas
-{ Fix for AV that happens after data channel operation.
-}
-{
-{   Rev 1.124    6/16/2004 2:29:32 PM  JPMugaas
-{ Removed direct access to a FConnection.  We now use the Connection property
-{ in the TIdContext.
-}
-{
-{   Rev 1.123    6/12/2004 9:05:52 AM  JPMugaas
-{ Telnet control sequences should now work during a data transfer.
-{ Removed HandleTelnetSequences.  It was part of a crude workaround which had
-{ never works and the matter was fixed in another way.
-{ OnCustomDir should now work if the DirStyle is custom.
-}
-{
-    Rev 1.122    6/11/2004 9:35:12 AM  DSiders
+
+  Rev 1.128    6/29/2004 4:09:04 PM  JPMugaas
+  OPTS MODE Z now supported as per draft-preston-ftpext-deflate-02.txt.  This
+  should keep FTP Voyager 11 happy.
+
+  Rev 1.127    6/28/2004 7:23:20 PM  JPMugaas
+  Bugfix.  An invalid site command would cause no reply to be given.  Now a
+  syntax is given in such cases.
+
+  Rev 1.126    6/27/2004 1:45:30 AM  JPMugaas
+  Can now optionally support LastAccessTime like Smartftp's FTP Server could.
+  I also made the MLST listing object and parser support this as well.
+
+  Rev 1.125    6/17/2004 3:56:28 PM  JPMugaas
+  Fix for AV that happens after data channel operation.
+
+  Rev 1.124    6/16/2004 2:29:32 PM  JPMugaas
+  Removed direct access to a FConnection.  We now use the Connection property
+  in the TIdContext.
+
+  Rev 1.123    6/12/2004 9:05:52 AM  JPMugaas
+  Telnet control sequences should now work during a data transfer.
+  Removed HandleTelnetSequences.  It was part of a crude workaround which had
+  never works and the matter was fixed in another way.
+  OnCustomDir should now work if the DirStyle is custom.
+
+  Rev 1.122    6/11/2004 9:35:12 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.121    2004.05.20 11:37:26 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.120    5/16/04 5:30:26 PM  RLebeau
-{ Added setter methods to the ReplyUnknownSITECommand and SITECommands
-{ properties
-{
-{ Added GetRepliesClass() overrides
-}
-{
-{   Rev 1.119    5/1/2004 1:52:20 PM  JPMugaas
-{ Updated for PeekBytes API change.
-}
-{
-{   Rev 1.118    4/8/2004 12:19:08 PM  JPMugaas
-{ Should work with new code.
-}
-{
-{   Rev 1.117    3/3/2004 6:34:46 PM  JPMugaas
-{ Improved help system.
-{ Some manditory (RFC 1123 were rutning syntax errors instead of not
-{ implemented.
-{ Add some mention of some other RFC 2228 commands for completness.  Not that
-{ there are not supported or implemented.
-}
-{
-{   Rev 1.116    3/3/2004 6:02:14 AM  JPMugaas
-{ Command descriptions.
-}
-{
-{   Rev 1.115    3/2/2004 8:13:28 AM  JPMugaas
-{ Fixup for minor API change.
-}
-{
-{   Rev 1.113    3/1/2004 12:41:40 PM  JPMugaas
-{ Should compile with new code.
-}
-{
-{   Rev 1.112    2/29/2004 6:02:38 PM  JPMugaas
-{ Improved bug fix for problem with Telnet sequences not being handled properly
-{ in the FTP server.  Litteral CR and LF are now handled properly (according to
-{ the Telnet Specification).
-}
-{
-{   Rev 1.111    2/25/2004 3:27:04 PM  JPMugaas
-{ STAT -l now works like a LIST command except that it returns output on the
-{ control channel.  This is for consistancy with microsoft FTP Service,
-{ RaidenFTPD, and a few other servers.  FlashFXP can take advantage of this
-{ feature as well to gain some efficiency.  Note that I do not do not advocate
-{ doing this on the FTP client because some servers will act differently than
-{ you would assume.  I may see about possible options for using STAT -l but I
-{ can NOT promise anything.
-}
-{
-{   Rev 1.110    2/17/2004 6:37:28 PM  JPMugaas
-{ OnPASV event added for people needing to change the IP address or port value
-{ in commands such as PASV.  This should only be done if you have a compelling
-{ reason to do it.
-{
-{ Note that the IP address parameter can NOT work with EPSV and SPSV because
-{ only the port number is returned.  The IP address is presumed to be the same
-{ one that the host is connecting to.
-}
-{
-{   Rev 1.109    2/17/2004 12:26:06 PM  JPMugaas
-{ The client now supports MODE Z (deflate) uploads and downloads as specified
-{ by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
-}
-{
-{   Rev 1.108    2/15/2004 12:11:04 AM  JPMugaas
-{ SPSV support.  SPSV is an old propoal to help FTP support IPv6.  This was
-{ mentioned at:  http://cr.yp.to/ftp/retr.html and is supported by PureFTPD.
-}
-{
-{   Rev 1.107    2/14/2004 10:00:40 PM  JPMugaas
-{ Both upload and download should now work in MODE Z.  Dir already worked
-{ properly.
-}
-{
-{   Rev 1.106    2/12/2004 11:34:38 PM  JPMugaas
-{ FTP Deflate preliminary support.  Work still needs to be done for upload and
-{ downloading.
-}
-{
-{   Rev 1.105    2004.02.08 3:08:10 PM  czhower
-{ .Net fix.
-}
-{
-{   Rev 1.104    2004.02.07 5:03:10 PM  czhower
-{ .net fixes.
-}
-{
-{   Rev 1.103    2004.02.03 5:45:54 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.102    1/29/2004 3:15:52 PM  JPMugaas
-{ Fix for P@SW in InitCommandHandlers used "PASV" isntead of "P@SW".  Fixed.
-}
-{
-{   Rev 1.101    1/22/2004 8:29:06 AM  JPMugaas
-{ Removed Ansi*.
-}
-{
-{   Rev 1.100    1/21/2004 2:34:38 PM  JPMugaas
-{ Fixed SITE ZONE reply.
-{ InitComponent
-}
-{
-{   Rev 1.99    1/19/2004 4:37:02 AM  JPMugaas
-{ MinutesFromGMT was moved to IdFTPCommon because the client now uses it.
-}
-{
-{   Rev 1.98    1/18/2004 9:19:08 AM  JPMugaas
-{ P@SW now supported.
-{
-{ This is necessary as some routers that replace a PASV with a P@SW
-{ as part of a misguided attempt to add a feature.
-{ A router would do a replacement so a client would think that
-{ PASV wasn't supported and then the client would do a PORT command
-{ instead.  That doesn't happen so this just caused the client not to work.
-{
-{ See:  http://www.gbnetwork.co.uk/smcftpd/
-}
-{
-{   Rev 1.97    1/17/2004 7:40:08 PM  JPMugaas
-{ MLSD added to FEAT list for consistancy with other FTP servers.
-{ Fixed bug that would cause FXP transfers to fail when receiving a PASV.
-}
-{
-{   Rev 1.96    1/16/2004 12:25:06 AM  JPMugaas
-{ Fixes for MTDM set modified time.
-}
-{
-{   Rev 1.94    1/15/2004 2:36:50 AM  JPMugaas
-{ XMD5 command support.
-{ SITE ZONE command added for FTP Voyager.
-{ Minor adjustment in AUTH line in the FEAT response to indicate that we
-{ support the AUTH TLS, AUTH TLS-C, AUTH SSL, and AUTH TLS-P explicit TLS
-{ commands.
-}
-{
-{   Rev 1.93    1/14/2004 4:11:30 PM  JPMugaas
-{ CPSV support added.  This is like PASV but indicates that we use ssl_connect
-{ instead of ssl_accept.  CPSV is used in FlashFXP for secure site-to-site file
-{ transfers.
-}
-{
-{   Rev 1.92    1/14/2004 12:24:06 PM  JPMugaas
-{ SSCN Support for secure Site to Site Transfers using SSL.
-{
-{ SSCN is defined at:
-{
-{ http://www.raidenftpd.com/kb/kb000000037.htm
-}
-{
-{   Rev 1.91    1/13/2004 6:30:38 AM  JPMugaas
-{ Numerous bug fixes.
-{ Now supports XCWD (a predicessor to CWD).
-{ Command Reply for unknown command works again.
-{ Started putting some formatting into common routines.
-{ CuteFTP goes bonkers with a "215 " reply to SYST command.  Now indicate that
-{ SYST isn't implemented instead of giving that "215 ".  Note that a
-{ "CustomSystID" should be provided when DirFormat is ftpdfCustom.
-{ If DirFormat is ftpdfCustom and OnListDirectory is provided; MLST, MLSD, and
-{ OPTS MLSD will be DISABLED.  OnListDirectory is used in the custom format for
-{ structed standardized output with the MLSD and MLST commands.
-{ A not implemented is now given for some commands.
-}
-{
-{   Rev 1.90    1/5/2004 11:53:00 PM  JPMugaas
-{ Some messages moved to resource strings.  Minor tweeks.  EIdException no
-{ longer raised.
-}
-{
-{   Rev 1.88    1/4/2004 3:51:32 PM  JPMugaas
-{ Fixed a CWD bug.  The parameter was being ignored.
-}
-{
-{   Rev 1.87    1/3/2004 8:05:18 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.86    1/3/2004 5:37:56 PM  JPMugaas
-{ Changes from Bas:
-{
-{ added function GetReplyClass, this function returns the class of reply this
-{ server class uses, this is because in dotnet there can be no code before the
-{ inherited in the constructor ( that is used mow to determine the reply class )
-{  
-{ changed System.Delete to IdDelete (in coreglobal) because System.Delete is
-{ not in dotnet
-{  
-{ SplitLines is not enabled in dotnet yet, so i made it a todo, make sure to
-{ enable it and remove the todo if you check it in 
-{  
-}
-{
-{   Rev 1.85    1/2/2004 1:02:08 AM  JPMugaas
-{ Made comment about why the SYST descriptor is determined the way it is.
-}
-{
-{   Rev 1.84    1/2/2004 12:55:32 AM  JPMugaas
-{ Now compiles.  Removed the EmulateSystem property.  Replaced one part with
-{ the DirFormat property.
-}
-{
-{   Rev 1.83    1/1/2004 10:55:10 PM  JPMugaas
-{ Remy Lebeau found a bug with path processing in the FTP server.  I was
-{ passing an emptry Result string instead of APath in FTPNormalize.
-}
-{
-{   Rev 1.77    10/11/2003 10:17:28 AM  JPMugaas
-{ Checked in a more recent version which  should be worked on instead.
-}
-{
-{   Rev 1.75    9/19/2003 12:50:18 PM  JPMugaas
-{ Started attempt to get the server to compile.
-}
-{
-{   Rev 1.74    9/18/2003 10:20:06 AM  JPMugaas
-{ Updated for new API.
-}
-{
-{   Rev 1.73    8/24/2003 06:50:02 PM  JPMugaas
-{ API Change in the FileSystem component so that a thread is passed instead of
-{ some data from the thread.  This should also make the API's easier to manage
-{ than before and provide more flexibility for developers writing their own
-{ file system components.
-}
-{
-{   Rev 1.72    7/13/2003 7:56:00 PM  SPerry
-{ fixed problem with commandhandlers
-}
-{
-{   Rev 1.69    6/17/2003 09:30:20 PM  JPMugaas
-{ Fixed an AV with the ALLO command if no parameters were passed.  Stated in
-{ HELP command that we don't support some old FTP E-Mail commands from RFC 765
-{ which have not been in use for many years.  We now give a reply saying those
-{ aren't implemented to be consistant with some Unix FTP deamons.
-}
-{
-{   Rev 1.68    6/17/2003 03:16:36 PM  JPMugaas
-{ I redid the help and site help implementations so that they list commands.
-{ It did mean loosing the FHelpText TIdStrings property but this should be more
-{ consistant with common practices.
-}
-{
-{   Rev 1.67    6/17/2003 09:07:40 AM  JPMugaas
-{ Improved SITE HELP handling.
-}
-{
-{   Rev 1.65    5/26/2003 12:22:50 PM  JPMugaas
-}
-{
-{   Rev 1.64    5/25/2003 03:54:28 AM  JPMugaas
-}
-{
-    Rev 1.63    5/21/2003 3:59:32 PM  BGooijen
+
+  Rev 1.121    2004.05.20 11:37:26 AM  czhower
+  IdStreamVCL
+
+  Rev 1.120    5/16/04 5:30:26 PM  RLebeau
+  Added setter methods to the ReplyUnknownSITECommand and SITECommands
+  properties
+
+  Added GetRepliesClass() overrides
+
+  Rev 1.119    5/1/2004 1:52:20 PM  JPMugaas
+  Updated for PeekBytes API change.
+
+  Rev 1.118    4/8/2004 12:19:08 PM  JPMugaas
+  Should work with new code.
+
+  Rev 1.117    3/3/2004 6:34:46 PM  JPMugaas
+  Improved help system.
+  Some manditory (RFC 1123 were rutning syntax errors instead of not
+  implemented.
+  Add some mention of some other RFC 2228 commands for completness.  Not that
+  there are not supported or implemented.
+
+  Rev 1.116    3/3/2004 6:02:14 AM  JPMugaas
+  Command descriptions.
+
+  Rev 1.115    3/2/2004 8:13:28 AM  JPMugaas
+  Fixup for minor API change.
+
+  Rev 1.113    3/1/2004 12:41:40 PM  JPMugaas
+  Should compile with new code.
+
+  Rev 1.112    2/29/2004 6:02:38 PM  JPMugaas
+  Improved bug fix for problem with Telnet sequences not being handled properly
+  in the FTP server.  Litteral CR and LF are now handled properly (according to
+  the Telnet Specification).
+
+  Rev 1.111    2/25/2004 3:27:04 PM  JPMugaas
+  STAT -l now works like a LIST command except that it returns output on the
+  control channel.  This is for consistancy with microsoft FTP Service,
+  RaidenFTPD, and a few other servers.  FlashFXP can take advantage of this
+  feature as well to gain some efficiency.  Note that I do not do not advocate
+  doing this on the FTP client because some servers will act differently than
+  you would assume.  I may see about possible options for using STAT -l but I
+  can NOT promise anything.
+
+  Rev 1.110    2/17/2004 6:37:28 PM  JPMugaas
+  OnPASV event added for people needing to change the IP address or port value
+  in commands such as PASV.  This should only be done if you have a compelling
+  reason to do it.
+
+  Note that the IP address parameter can NOT work with EPSV and SPSV because
+  only the port number is returned.  The IP address is presumed to be the same
+  one that the host is connecting to.
+
+  Rev 1.109    2/17/2004 12:26:06 PM  JPMugaas
+  The client now supports MODE Z (deflate) uploads and downloads as specified
+  by http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
+
+  Rev 1.108    2/15/2004 12:11:04 AM  JPMugaas
+  SPSV support.  SPSV is an old propoal to help FTP support IPv6.  This was
+  mentioned at:  http://cr.yp.to/ftp/retr.html and is supported by PureFTPD.
+
+  Rev 1.107    2/14/2004 10:00:40 PM  JPMugaas
+  Both upload and download should now work in MODE Z.  Dir already worked
+  properly.
+
+  Rev 1.106    2/12/2004 11:34:38 PM  JPMugaas
+  FTP Deflate preliminary support.  Work still needs to be done for upload and
+  downloading.
+
+  Rev 1.105    2004.02.08 3:08:10 PM  czhower
+  .Net fix.
+
+  Rev 1.104    2004.02.07 5:03:10 PM  czhower
+  .net fixes.
+
+  Rev 1.103    2004.02.03 5:45:54 PM  czhower
+  Name changes
+
+  Rev 1.102    1/29/2004 3:15:52 PM  JPMugaas
+  Fix for P@SW in InitCommandHandlers used "PASV" isntead of "P@SW".  Fixed.
+
+  Rev 1.101    1/22/2004 8:29:06 AM  JPMugaas
+  Removed Ansi*.
+
+  Rev 1.100    1/21/2004 2:34:38 PM  JPMugaas
+  Fixed SITE ZONE reply.
+  InitComponent
+
+  Rev 1.99    1/19/2004 4:37:02 AM  JPMugaas
+  MinutesFromGMT was moved to IdFTPCommon because the client now uses it.
+
+  Rev 1.98    1/18/2004 9:19:08 AM  JPMugaas
+  P@SW now supported.
+
+  This is necessary as some routers that replace a PASV with a P@SW
+  as part of a misguided attempt to add a feature.
+  A router would do a replacement so a client would think that
+  PASV wasn't supported and then the client would do a PORT command
+  instead.  That doesn't happen so this just caused the client not to work.
+
+  See:  http://www.gbnetwork.co.uk/smcftpd/
+
+  Rev 1.97    1/17/2004 7:40:08 PM  JPMugaas
+  MLSD added to FEAT list for consistancy with other FTP servers.
+  Fixed bug that would cause FXP transfers to fail when receiving a PASV.
+
+  Rev 1.96    1/16/2004 12:25:06 AM  JPMugaas
+  Fixes for MTDM set modified time.
+
+  Rev 1.94    1/15/2004 2:36:50 AM  JPMugaas
+  XMD5 command support.
+  SITE ZONE command added for FTP Voyager.
+  Minor adjustment in AUTH line in the FEAT response to indicate that we
+  support the AUTH TLS, AUTH TLS-C, AUTH SSL, and AUTH TLS-P explicit TLS
+  commands.
+
+  Rev 1.93    1/14/2004 4:11:30 PM  JPMugaas
+  CPSV support added.  This is like PASV but indicates that we use ssl_connect
+  instead of ssl_accept.  CPSV is used in FlashFXP for secure site-to-site file
+  transfers.
+
+  Rev 1.92    1/14/2004 12:24:06 PM  JPMugaas
+  SSCN Support for secure Site to Site Transfers using SSL.
+
+  SSCN is defined at:
+
+  http://www.raidenftpd.com/kb/kb000000037.htm
+
+  Rev 1.91    1/13/2004 6:30:38 AM  JPMugaas
+  Numerous bug fixes.
+  Now supports XCWD (a predicessor to CWD).
+  Command Reply for unknown command works again.
+  Started putting some formatting into common routines.
+  CuteFTP goes bonkers with a "215 " reply to SYST command.  Now indicate that
+  SYST isn't implemented instead of giving that "215 ".  Note that a
+  "CustomSystID" should be provided when DirFormat is ftpdfCustom.
+  If DirFormat is ftpdfCustom and OnListDirectory is provided; MLST, MLSD, and
+  OPTS MLSD will be DISABLED.  OnListDirectory is used in the custom format for
+  structed standardized output with the MLSD and MLST commands.
+  A not implemented is now given for some commands.
+
+  Rev 1.90    1/5/2004 11:53:00 PM  JPMugaas
+  Some messages moved to resource strings.  Minor tweeks.  EIdException no
+  longer raised.
+
+  Rev 1.88    1/4/2004 3:51:32 PM  JPMugaas
+  Fixed a CWD bug.  The parameter was being ignored.
+
+  Rev 1.87    1/3/2004 8:05:18 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.86    1/3/2004 5:37:56 PM  JPMugaas
+  Changes from Bas:
+
+  added function GetReplyClass, this function returns the class of reply this
+  server class uses, this is because in dotnet there can be no code before the
+  inherited in the constructor ( that is used mow to determine the reply class )
+   
+  changed System.Delete to IdDelete (in coreglobal) because System.Delete is
+  not in dotnet
+   
+  SplitLines is not enabled in dotnet yet, so i made it a todo, make sure to
+  enable it and remove the todo if you check it in 
+   
+
+  Rev 1.85    1/2/2004 1:02:08 AM  JPMugaas
+  Made comment about why the SYST descriptor is determined the way it is.
+
+  Rev 1.84    1/2/2004 12:55:32 AM  JPMugaas
+  Now compiles.  Removed the EmulateSystem property.  Replaced one part with
+  the DirFormat property.
+
+  Rev 1.83    1/1/2004 10:55:10 PM  JPMugaas
+  Remy Lebeau found a bug with path processing in the FTP server.  I was
+  passing an emptry Result string instead of APath in FTPNormalize.
+
+  Rev 1.77    10/11/2003 10:17:28 AM  JPMugaas
+  Checked in a more recent version which  should be worked on instead.
+
+  Rev 1.75    9/19/2003 12:50:18 PM  JPMugaas
+  Started attempt to get the server to compile.
+
+  Rev 1.74    9/18/2003 10:20:06 AM  JPMugaas
+  Updated for new API.
+
+  Rev 1.73    8/24/2003 06:50:02 PM  JPMugaas
+  API Change in the FileSystem component so that a thread is passed instead of
+  some data from the thread.  This should also make the API's easier to manage
+  than before and provide more flexibility for developers writing their own
+  file system components.
+
+  Rev 1.72    7/13/2003 7:56:00 PM  SPerry
+  fixed problem with commandhandlers
+
+  Rev 1.69    6/17/2003 09:30:20 PM  JPMugaas
+  Fixed an AV with the ALLO command if no parameters were passed.  Stated in
+  HELP command that we don't support some old FTP E-Mail commands from RFC 765
+  which have not been in use for many years.  We now give a reply saying those
+  aren't implemented to be consistant with some Unix FTP deamons.
+
+  Rev 1.68    6/17/2003 03:16:36 PM  JPMugaas
+  I redid the help and site help implementations so that they list commands.
+  It did mean loosing the FHelpText TIdStrings property but this should be more
+  consistant with common practices.
+
+  Rev 1.67    6/17/2003 09:07:40 AM  JPMugaas
+  Improved SITE HELP handling.
+
+  Rev 1.65    5/26/2003 12:22:50 PM  JPMugaas
+
+  Rev 1.64    5/25/2003 03:54:28 AM  JPMugaas
+
+  Rev 1.63    5/21/2003 3:59:32 PM  BGooijen
   removed with in InitializeCommandHandlers, and changed exception replies
-}
-{
-{   Rev 1.62    5/21/2003 09:29:40 AM  JPMugaas
-}
-{
-{   Rev 1.61    5/19/2003 08:11:44 PM  JPMugaas
-{ Now should compile properly with new code in Core.
-}
-{
-{   Rev 1.60    4/10/2003 02:54:14 PM  JPMugaas
-{ Improvement for FTP STOU command.  Unique filename now uses
-{ IdGlobal.GetUniqueFileName instead of Rand.  I also fixed GetUniqueFileName
-{ so that it can accept an empty path specification.
-}
-{
-    Rev 1.59    3/30/2003 12:18:38 AM  BGooijen
+
+  Rev 1.62    5/21/2003 09:29:40 AM  JPMugaas
+
+  Rev 1.61    5/19/2003 08:11:44 PM  JPMugaas
+  Now should compile properly with new code in Core.
+
+  Rev 1.60    4/10/2003 02:54:14 PM  JPMugaas
+  Improvement for FTP STOU command.  Unique filename now uses
+  IdGlobal.GetUniqueFileName instead of Rand.  I also fixed GetUniqueFileName
+  so that it can accept an empty path specification.
+
+  Rev 1.59    3/30/2003 12:18:38 AM  BGooijen
   bug fix + ssl one data channel fixed
-}
-{
-    Rev 1.58    3/24/2003 11:08:42 PM  BGooijen
+
+  Rev 1.58    3/24/2003 11:08:42 PM  BGooijen
   'transfer'-commands now block, until the transfer is done/aborted.
   this made it possible to send the reply after the transfer in the
   control-thread
-}
-{
-{   Rev 1.57    3/16/2003 06:11:18 PM  JPMugaas
-{ Server now derrives from a TLS framework.
-}
-{
-{   Rev 1.56    3/14/2003 11:33:46 PM  JPMugaas
-}
-{
-    Rev 1.55    3/14/2003 10:44:38 PM  BGooijen
+
+  Rev 1.57    3/16/2003 06:11:18 PM  JPMugaas
+  Server now derrives from a TLS framework.
+
+  Rev 1.56    3/14/2003 11:33:46 PM  JPMugaas
+
+  Rev 1.55    3/14/2003 10:44:38 PM  BGooijen
   Removed warnings, changed StartSSL to PassThrough:=false;
-}
-{
-    Rev 1.54    3/14/2003 10:00:24 PM  BGooijen
+
+  Rev 1.54    3/14/2003 10:00:24 PM  BGooijen
   Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
   the server-protocol-files
-}
-{
-{   Rev 1.53    3/13/2003 05:21:18 PM  JPMugaas
-{ Bas's bug fix.  There was a wrong typecast.
-}
-{
-    Rev 1.52    3/13/2003 8:57:30 PM  BGooijen
+
+  Rev 1.53    3/13/2003 05:21:18 PM  JPMugaas
+  Bas's bug fix.  There was a wrong typecast.
+
+  Rev 1.52    3/13/2003 8:57:30 PM  BGooijen
   changed TIdSSLIOHandlerSocketBase to TIdIOHandlerSocket in
   TIdDataChannelContext.SetupDataChannel
-}
-{
-{   Rev 1.51    3/13/2003 09:49:06 AM  JPMugaas
-{ Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-{ can plug-in their products.
-}
-{
-{   Rev 1.50    3/13/2003 06:11:54 AM  JPMugaas
-{ Updated with Bas's change.
-}
-{
-{   Rev 1.49    3/10/2003 09:12:46 PM  JPMugaas
-{ Most command handlers now use Do methods for consistancy with other Indy code.
-}
-{
-{   Rev 1.48    3/10/2003 05:09:22 PM  JPMugaas
-{ MLST now works as expected with the file system.  Note that the MLST means
-{ simply to give information about an item instead of its contents.
-{ GetRealFileName in IdFTPFileSystem now can accept the wildcard *.
-{ When doing dirs in EPLF, only information about a directory is retruned if it
-{ is specified.
-}
-{
-{   Rev 1.47    3/9/2003 02:11:34 PM  JPMugaas
-{ Removed server support for MODE B and MODE C.  It turns out that we do not
-{ support those modes properly.  We only implemented Stream mode.  We now
-{ simply return a 504 for modes we don't support instead of a 200 okay.  This
-{ was throwing off Opera 7.02.
-}
-{
-{   Rev 1.46    3/6/2003 11:00:12 AM  JPMugaas
-{ Now handles the MFMT command and the MFCT (Modified Date fact) command.
-}
-{
-{   Rev 1.45    3/6/2003 08:26:28 AM  JPMugaas
-{ Bug fixes.
-{
-{ FTP COMB command can now work in the FTPFileSystem component.
-}
-{
-{   Rev 1.44    3/5/2003 03:28:16 PM  JPMugaas
-{ MD5, MMD5, and XCRC are now supported in the Virtual File System.
-}
-{
-{   Rev 1.43    3/5/2003 11:46:38 AM  JPMugaas
-{ Rename now works in Virtual FileSystem.
-}
-{
-{   Rev 1.42    3/2/2003 04:54:34 PM  JPMugaas
-{ Now does recursive dir lists with the Virtual File System layer as well as
-{ honors other switches.
-}
-{
-{   Rev 1.41    3/2/2003 02:18:32 PM  JPMugaas
-{ Bug fix for where a reply was not returned when using a file system component.
-}
-{
-{   Rev 1.40    3/2/2003 02:23:38 AM  JPMugaas
-{ fix for problem with pathes in the virtual file system.
-}
-{
-{   Rev 1.39    2/24/2003 08:50:44 PM  JPMugaas
-}
-{
-{   Rev 1.38    2/24/2003 07:56:22 PM  JPMugaas
-{ Now uses /bin/ls strings.
-}
-{
-{   Rev 1.37    2/24/2003 07:21:10 AM  JPMugaas
-{ FTP Server now strips out any -R switches when emulating EPLF servers.
-{ Recursive lists aren't supported with EPLF.
-}
-{
-{   Rev 1.36    2/21/2003 06:54:10 PM  JPMugaas
-{ The FTP list processing has been restructured so that Directory output is not
-{ done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
-{ that the code is more scalable.
-}
-{
-{   Rev 1.35    2/15/2003 10:29:42 AM  JPMugaas
-{ Added support for some Unix specific facts with MLSD and MLST.
-}
-{
-{   Rev 1.34    2/14/2003 05:42:08 PM  JPMugaas
-{ Moved everything from IdFTPUtils to IdFTPCommon at Kudzu's suggestion.
-}
-{
-{   Rev 1.33    2/14/2003 11:57:48 AM  JPMugaas
-{ Updated for new API.  Made sure that there were no calls to a function we
-{ removed.
-}
-{
-{   Rev 1.32    2/14/2003 10:45:18 AM  JPMugaas
-{ Updated for minor API change.
-}
-{
-{   Rev 1.30    2/13/2003 01:28:08 AM  JPMugaas
-{ MLSD and MLST should now work better.
-}
-{
-{   Rev 1.29    2/12/2003 12:30:56 PM  JPMugaas
-{ Now honors parameters with the NLIST command.
-}
-{
-    Rev 1.28    2/5/2003 10:30:04 PM  BGooijen
+
+  Rev 1.51    3/13/2003 09:49:06 AM  JPMugaas
+  Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
+  can plug-in their products.
+
+  Rev 1.50    3/13/2003 06:11:54 AM  JPMugaas
+  Updated with Bas's change.
+
+  Rev 1.49    3/10/2003 09:12:46 PM  JPMugaas
+  Most command handlers now use Do methods for consistancy with other Indy code.
+
+  Rev 1.48    3/10/2003 05:09:22 PM  JPMugaas
+  MLST now works as expected with the file system.  Note that the MLST means
+  simply to give information about an item instead of its contents.
+  GetRealFileName in IdFTPFileSystem now can accept the wildcard *.
+  When doing dirs in EPLF, only information about a directory is retruned if it
+  is specified.
+
+  Rev 1.47    3/9/2003 02:11:34 PM  JPMugaas
+  Removed server support for MODE B and MODE C.  It turns out that we do not
+  support those modes properly.  We only implemented Stream mode.  We now
+  simply return a 504 for modes we don't support instead of a 200 okay.  This
+  was throwing off Opera 7.02.
+
+  Rev 1.46    3/6/2003 11:00:12 AM  JPMugaas
+  Now handles the MFMT command and the MFCT (Modified Date fact) command.
+
+  Rev 1.45    3/6/2003 08:26:28 AM  JPMugaas
+  Bug fixes.
+
+  FTP COMB command can now work in the FTPFileSystem component.
+
+  Rev 1.44    3/5/2003 03:28:16 PM  JPMugaas
+  MD5, MMD5, and XCRC are now supported in the Virtual File System.
+
+  Rev 1.43    3/5/2003 11:46:38 AM  JPMugaas
+  Rename now works in Virtual FileSystem.
+
+  Rev 1.42    3/2/2003 04:54:34 PM  JPMugaas
+  Now does recursive dir lists with the Virtual File System layer as well as
+  honors other switches.
+
+  Rev 1.41    3/2/2003 02:18:32 PM  JPMugaas
+  Bug fix for where a reply was not returned when using a file system component.
+
+  Rev 1.40    3/2/2003 02:23:38 AM  JPMugaas
+  fix for problem with pathes in the virtual file system.
+
+  Rev 1.39    2/24/2003 08:50:44 PM  JPMugaas
+
+  Rev 1.38    2/24/2003 07:56:22 PM  JPMugaas
+  Now uses /bin/ls strings.
+
+  Rev 1.37    2/24/2003 07:21:10 AM  JPMugaas
+  FTP Server now strips out any -R switches when emulating EPLF servers.
+  Recursive lists aren't supported with EPLF.
+
+  Rev 1.36    2/21/2003 06:54:10 PM  JPMugaas
+  The FTP list processing has been restructured so that Directory output is not
+  done by IdFTPList.  This now also uses the IdFTPListParserBase for parsing so
+  that the code is more scalable.
+
+  Rev 1.35    2/15/2003 10:29:42 AM  JPMugaas
+  Added support for some Unix specific facts with MLSD and MLST.
+
+  Rev 1.34    2/14/2003 05:42:08 PM  JPMugaas
+  Moved everything from IdFTPUtils to IdFTPCommon at Kudzu's suggestion.
+
+  Rev 1.33    2/14/2003 11:57:48 AM  JPMugaas
+  Updated for new API.  Made sure that there were no calls to a function we
+  removed.
+
+  Rev 1.32    2/14/2003 10:45:18 AM  JPMugaas
+  Updated for minor API change.
+
+  Rev 1.30    2/13/2003 01:28:08 AM  JPMugaas
+  MLSD and MLST should now work better.
+
+  Rev 1.29    2/12/2003 12:30:56 PM  JPMugaas
+  Now honors parameters with the NLIST command.
+
+  Rev 1.28    2/5/2003 10:30:04 PM  BGooijen
   Re-enabled ssl-support
-}
-{
-{   Rev 1.27    2/4/2003 05:31:40 PM  JPMugaas
-{ Added ASwitches parameter to the ListEvent so we can pass parameters such as
-{ "-R" in addition to the standard path.
-}
-{
-{   Rev 1.26    2/3/2003 11:01:50 AM  JPMugaas
-{ Moved list export to IdFTPList.
-}
-{
-{   Rev 1.25    1/31/2003 01:59:18 PM  JPMugaas
-{ Security options are now reenabled.
-}
-{
-{   Rev 1.24    1/31/2003 01:19:00 PM  JPMugaas
-{ Now passes the ControlConnection context instead of the ControlConnection
-{ object itself.
-}
-{
-{   Rev 1.23    1/31/2003 06:34:52 AM  JPMugaas
-{ Now SYST command works as expected.
-}
-{
-{   Rev 1.22    1/31/2003 04:23:24 AM  JPMugaas
-{ FTP Server security options can be set for individual users and the server
-{ will now use the Context's security options.  THis should permit more
-{ flexibility in security.
-}
-{
-{   Rev 1.21    1/30/2003 03:31:06 AM  JPMugaas
-{ Now should also properly handle exceptions in the MLSx commands.
-}
-{
-{   Rev 1.20    1/30/2003 02:55:26 AM  JPMugaas
-{ Now properly handles exceptions in the ListEvent for the STAT and LIST
-{ commands.
-}
-{
-{   Rev 1.19    1/29/2003 01:17:18 AM  JPMugaas
-{ Exception handling should mostly work as it should.  There's still a problem
-{ with the list.
-}
-{
-{   Rev 1.18    1/28/2003 02:27:26 AM  JPMugaas
-{ Improved exception handling in several events to try to be more consistant.
-{ Now can optionally hide the exception message when giving an error reply to
-{ the user.  This should prevent some inadvertant information about a computer
-{ going to a troublemaker.
-}
-{
-{   Rev 1.17    1/27/2003 05:03:16 AM  JPMugaas
-{ Now a developer can provide status information to a user with the STAT
-{ command if they want.  We format the reply in a standard manner for them.
-{ They just provide the information.
-}
-{
-{   Rev 1.16    1/27/2003 02:13:30 AM  JPMugaas
-{ Added more security options as suggested by:
-{ http://www.sans.org/rr/infowar/fingerprint.php to help slow down an attack.
-{ You can optionally disable both SYST and the STAT commands.  Trouble makers
-{ can use those to help determine server type and then use known flaws to
-{ compromise it.  Note that these do not completely prevent attacks and should
-{ not lull administrators into a false sense of security.
-}
-{
-{   Rev 1.15    1/27/2003 12:32:08 AM  JPMugaas
-{ Now can optionally return the identifier for the real operating system.  By
-{ default, this property is false for security reasons.
-}
-{
-{   Rev 1.14    1/26/2003 11:59:16 PM  JPMugaas
-{ SystemDescriptor behavior change as well as SYST command change.
-{ SystemDescriptor no longer needs an OS type as the first word.  That is now
-{ handled by the SYST commandhandler to better comply with RFC 959.
-}
-{
-{   Rev 1.13    1/25/2003 02:00:58 AM  JPMugaas
-{ MMD5 (for multiple MD5 checksums) is now supported.
-{
-{ Refined MD5 command support slgihtly.
-{
-{ This is based on:
-{ http://www.ietf.org/internet-drafts/draft-twine-ftpmd5-00.txt
-}
-{
-    Rev 1.12    1/24/2003 6:07:24 PM  BGooijen
+
+  Rev 1.27    2/4/2003 05:31:40 PM  JPMugaas
+  Added ASwitches parameter to the ListEvent so we can pass parameters such as
+  "-R" in addition to the standard path.
+
+  Rev 1.26    2/3/2003 11:01:50 AM  JPMugaas
+  Moved list export to IdFTPList.
+
+  Rev 1.25    1/31/2003 01:59:18 PM  JPMugaas
+  Security options are now reenabled.
+
+  Rev 1.24    1/31/2003 01:19:00 PM  JPMugaas
+  Now passes the ControlConnection context instead of the ControlConnection
+  object itself.
+
+  Rev 1.23    1/31/2003 06:34:52 AM  JPMugaas
+  Now SYST command works as expected.
+
+  Rev 1.22    1/31/2003 04:23:24 AM  JPMugaas
+  FTP Server security options can be set for individual users and the server
+  will now use the Context's security options.  THis should permit more
+  flexibility in security.
+
+  Rev 1.21    1/30/2003 03:31:06 AM  JPMugaas
+  Now should also properly handle exceptions in the MLSx commands.
+
+  Rev 1.20    1/30/2003 02:55:26 AM  JPMugaas
+  Now properly handles exceptions in the ListEvent for the STAT and LIST
+  commands.
+
+  Rev 1.19    1/29/2003 01:17:18 AM  JPMugaas
+  Exception handling should mostly work as it should.  There's still a problem
+  with the list.
+
+  Rev 1.18    1/28/2003 02:27:26 AM  JPMugaas
+  Improved exception handling in several events to try to be more consistant.
+  Now can optionally hide the exception message when giving an error reply to
+  the user.  This should prevent some inadvertant information about a computer
+  going to a troublemaker.
+
+  Rev 1.17    1/27/2003 05:03:16 AM  JPMugaas
+  Now a developer can provide status information to a user with the STAT
+  command if they want.  We format the reply in a standard manner for them.
+  They just provide the information.
+
+  Rev 1.16    1/27/2003 02:13:30 AM  JPMugaas
+  Added more security options as suggested by:
+  http://www.sans.org/rr/infowar/fingerprint.php to help slow down an attack.
+  You can optionally disable both SYST and the STAT commands.  Trouble makers
+  can use those to help determine server type and then use known flaws to
+  compromise it.  Note that these do not completely prevent attacks and should
+  not lull administrators into a false sense of security.
+
+  Rev 1.15    1/27/2003 12:32:08 AM  JPMugaas
+  Now can optionally return the identifier for the real operating system.  By
+  default, this property is false for security reasons.
+
+  Rev 1.14    1/26/2003 11:59:16 PM  JPMugaas
+  SystemDescriptor behavior change as well as SYST command change.
+  SystemDescriptor no longer needs an OS type as the first word.  That is now
+  handled by the SYST commandhandler to better comply with RFC 959.
+
+  Rev 1.13    1/25/2003 02:00:58 AM  JPMugaas
+  MMD5 (for multiple MD5 checksums) is now supported.
+  Refined MD5 command support slgihtly.
+
+  This is based on:
+  http://www.ietf.org/internet-drafts/draft-twine-ftpmd5-00.txt
+
+  Rev 1.12    1/24/2003 6:07:24 PM  BGooijen
   Changed TIdDataChannelThread to TIdDataChannelContext
-}
-{
-    Rev 1.11    1/23/2003 9:06:26 PM  BGooijen
+
+  Rev 1.11    1/23/2003 9:06:26 PM  BGooijen
   changed the CommandAbor
-}
-{
-    Rev 1.10    1/23/2003 10:39:38 AM  BGooijen
+
+  Rev 1.10    1/23/2003 10:39:38 AM  BGooijen
   TIdDataChannelContext.FServer was never assigned
-}
-{
-    Rev 1.9    1/20/2003 1:15:40 PM  BGooijen
+
+  Rev 1.9    1/20/2003 1:15:40 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
+
+  Rev 1.8    1/17/2003 06:21:02 PM  JPMugaas
+  Now works with new design.
+
+  Rev 1.7    1/17/2003 05:28:42 PM  JPMugaas
+
+  Rev 1.6    1-9-2003 14:45:30  BGooijen
+  Added ABOR command with telnet escape characters
+  Fixed hanging of ABOR command
+  STOR and STOU now use REST-position
+  ABOR now returns 226 instead of 200
+
+  Rev 1.5    1-9-2003 14:35:52  BGooijen
+  changed TIdFTPServerContext(ASender.Context.Thread) to
+  TIdFTPServerContext(ASender.Context) on some places
+
+  Rev 1.4    1/9/2003 06:08:10 AM  JPMugaas
+  Updated to be based on IdContext.
+
+  Rev 1.3    1-1-2003 20:13:06  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.2    12-15-2002 21:15:46  BGooijen
+  IFDEF-ed all SSL code, the IFDEF-s are removed as soon as the SSL works again.
+
+  Rev 1.1    11/14/2002 02:55:58 PM  JPMugaas
+  FEAT and MLST now completely use the RFC Reply objects instead of
+  Connection.WriteLn.  The Connection.WriteLn was a workaround for a deficit in
+  the original RFC Reply object.  The workaround is no longer needed.
 }
-{
-{   Rev 1.8    1/17/2003 06:21:02 PM  JPMugaas
-{ Now works with new design.
-}
-{
-{   Rev 1.7    1/17/2003 05:28:42 PM  JPMugaas
-}
-{
-{   Rev 1.6    1-9-2003 14:45:30  BGooijen
-{ Added ABOR command with telnet escape characters
-{ Fixed hanging of ABOR command
-{ STOR and STOU now use REST-position
-{ ABOR now returns 226 instead of 200
-}
-{
-{   Rev 1.5    1-9-2003 14:35:52  BGooijen
-{ changed TIdFTPServerContext(ASender.Context.Thread) to
-{ TIdFTPServerContext(ASender.Context) on some places
-}
-{
-{   Rev 1.4    1/9/2003 06:08:10 AM  JPMugaas
-{ Updated to be based on IdContext.
-}
-{
-{   Rev 1.3    1-1-2003 20:13:06  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.2    12-15-2002 21:15:46  BGooijen
-{ IFDEF-ed all SSL code, the IFDEF-s are removed as soon as the SSL works again.
-}
-{
-{   Rev 1.1    11/14/2002 02:55:58 PM  JPMugaas
-{ FEAT and MLST now completely use the RFC Reply objects instead of
-{ Connection.WriteLn.  The Connection.WriteLn was a workaround for a deficit in
-{ the original RFC Reply object.  The workaround is no longer needed.
-}
+
 unit IdFTPServer;
+
 {
- Original Author: Sergio Perry
- Date: 04/21/2001
- Fixes and modifications: Doychin Bondzhev
- Date: 08/10/2001
- Further Extensive changes by Chad Z. Hower (Kudzu)
- EPSV/EPRT support for IPv6 by Johannes Berg
- TODO: both EPSV and EPRT only allow data connections that have the same
+  Original Author: Sergio Perry
+  Date: 04/21/2001
+  Fixes and modifications: Doychin Bondzhev
+  Date: 08/10/2001
+  Further Extensive changes by Chad Z. Hower (Kudzu)
+  EPSV/EPRT support for IPv6 by Johannes Berg
+
+  TODO:
+    both EPSV and EPRT only allow data connections that have the same
        protocol as the control connection, because the ftp server could be
        used in a network only supporting one of them
-TODO:
- - Change events to use DoXXXX
+
+  TODO:
+    Change events to use DoXXXX
 }
 
 interface

@@ -16,45 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.6    11/29/2004 2:45:28 AM  JPMugaas
-{ Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
-{ by the Distinct32, OS/2, and Chameleon FTP list parsers.
-}
-{
-{   Rev 1.5    10/26/2004 9:51:16 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.4    4/19/2004 5:05:46 PM  JPMugaas
-{ Class rework Kudzu wanted.
-}
-{
-{   Rev 1.3    2004.02.03 5:45:28 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.2    10/19/2003 3:36:14 PM  DSiders
+  Rev 1.6    11/29/2004 2:45:28 AM  JPMugaas
+  Support for DOS attributes (Read-Only, Archive, System, and Hidden) for use
+  by the Distinct32, OS/2, and Chameleon FTP list parsers.
+
+  Rev 1.5    10/26/2004 9:51:16 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.4    4/19/2004 5:05:46 PM  JPMugaas
+  Class rework Kudzu wanted.
+
+  Rev 1.3    2004.02.03 5:45:28 PM  czhower
+  Name changes
+
+  Rev 1.2    10/19/2003 3:36:14 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    10/1/2003 05:27:36 PM  JPMugaas
+  Reworked OS/2 FTP List parser for Indy.  The aprser wasn't detecting OS/2 in
+  some more samples I was able to get ahold of.
+
+  Rev 1.0    2/19/2003 05:50:28 PM  JPMugaas
+  Parsers ported from old framework.
 }
-{
-{   Rev 1.1    10/1/2003 05:27:36 PM  JPMugaas
-{ Reworked OS/2 FTP List parser for Indy.  The aprser wasn't detecting OS/2 in
-{ some more samples I was able to get ahold of.
-}
-{
-{   Rev 1.0    2/19/2003 05:50:28 PM  JPMugaas
-{ Parsers ported from old framework.
-}
+
 unit IdFTPListParseOS2;
 
 interface
 
-uses IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+uses
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
 
 {
-This parser is based on some data that I had managed to obtain second hand
-from what people posted on the newsgroups.
+  This parser is based on some data that I had managed to obtain second hand
+  from what people posted on the newsgroups.
 }
+
 type
   TIdOS2FTPListItem = class(TIdDOSBaseFTPListItem);
   TIdFTPLPOS2 = class(TIdFTPLPBaseDOS)
