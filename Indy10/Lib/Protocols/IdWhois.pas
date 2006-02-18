@@ -16,22 +16,22 @@
   $Log$
 }
 {
-{   Rev 1.4    1/21/2004 4:21:16 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.3    2/24/2003 10:39:56 PM  JPMugaas
-}
-{
-{   Rev 1.2    12/8/2002 07:26:16 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:50 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 08:04:40 AM  JPMugaas
+  Rev 1.4    1/21/2004 4:21:16 PM  JPMugaas
+  InitComponent
+
+
+  Rev 1.3    2/24/2003 10:39:56 PM  JPMugaas
+
+
+  Rev 1.2    12/8/2002 07:26:16 PM  JPMugaas
+  Added published host and port properties.
+
+
+  Rev 1.1    12/6/2002 05:30:50 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+
+  Rev 1.0    11/13/2002 08:04:40 AM  JPMugaas
 }
 unit IdWhois;
 

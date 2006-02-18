@@ -16,35 +16,35 @@
   $Log$
 }
 {
-{   Rev 1.7    2004.10.27 9:17:52 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.6    10/26/2004 10:54:16 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.5    2004.02.08 2:43:32 PM  czhower
-{ Fixed compile error.
-}
-{
-{   Rev 1.4    2/7/2004 12:47:16 PM  JPMugaas
-{ Should work in DotNET and not touch the system settings at all.
-}
-{
-{   Rev 1.3    2004.02.03 5:44:42 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    1/21/2004 4:21:10 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.1    6/13/2003 08:19:52 AM  JPMugaas
-{ Should now compile with new codders.
-}
-{
-{   Rev 1.0    11/13/2002 08:04:32 AM  JPMugaas
+  Rev 1.7    2004.10.27 9:17:52 AM  czhower
+  For TIdStrings
+
+
+  Rev 1.6    10/26/2004 10:54:16 PM  JPMugaas
+  Updated refs.
+
+
+  Rev 1.5    2004.02.08 2:43:32 PM  czhower
+  Fixed compile error.
+
+
+  Rev 1.4    2/7/2004 12:47:16 PM  JPMugaas
+  Should work in DotNET and not touch the system settings at all.
+
+
+  Rev 1.3    2004.02.03 5:44:42 PM  czhower
+  Name changes
+
+
+  Rev 1.2    1/21/2004 4:21:10 PM  JPMugaas
+  InitComponent
+
+
+  Rev 1.1    6/13/2003 08:19:52 AM  JPMugaas
+  Should now compile with new codders.
+
+
+  Rev 1.0    11/13/2002 08:04:32 AM  JPMugaas
 }
 unit IdVCard;
 
@@ -92,7 +92,7 @@ something from Versign.
 
 VCard does not have any Quoted Printable decoding or Base64 encoding
 and decoding.  Some routines may have to be changed to accomodate
-this although I don't have the where-with-all.   
+this although I don't have the where-with-all.
 
 VCards can not be saved. }
 
@@ -143,7 +143,7 @@ type
     {The person's formal title in the business such
      "Director of Computing Services"}
     property Title : String read FTitle write FTitle;
-    {The person's role in an organization such as "system administrator" }    
+    {The person's role in an organization such as "system administrator" }
     property Role : String read FRole write FRole;
   end;
 
@@ -338,7 +338,7 @@ type
     {This is the person's last name, in the case of "J. Peter Mugaas",
     this would be "Mugaas"}
     property SurName : String read FSurName write FSurName;
-    {This is a place for a middle name and some other names such as a woman's  
+    {This is a place for a middle name and some other names such as a woman's
     maiden name.  In the case of "J. Peter Mugaas", this would be "Peter".}
     property OtherNames : TIdStrings read FOtherNames write SetOtherNames;
     {This is a properly formatted name which was listed in the VCard}
@@ -349,7 +349,7 @@ type
     {This is a suffix added to a name such as
     "Ph.D.", "M.D.", "Esq.", "Jr.", "Sr.", "III", etc.}
     property Suffix : String read FSuffix write FSuffix;
-    {The string used for sorting a name.  It may not always be the person's last    
+    {The string used for sorting a name.  It may not always be the person's last
     name}
     property SortName : String read FSortName write  FSortName;
     { Nick names which a person may have such as "Bill" or "Billy" for Wiliam.}
@@ -396,7 +396,7 @@ type
   published
     { This is the VCard specification version used }
     property VCardVersion : Real read FVCardVersion;
-    { URL's associated with the VCard such as the person's or organication's  
+    { URL's associated with the VCard such as the person's or organication's
     webpage.  There can be more than one.}
     property URLs : TIdStrings read FURLs write SetURLs;
     { This is the product ID for the program which created this VCard}
