@@ -16,219 +16,172 @@
   $Log$
 }
 {
-{   Rev 1.47    1/7/05 3:29:34 PM  RLebeau
-{ Fix for AV in Notification()
-}
-{
-{   Rev 1.46    11/28/04 2:31:38 PM  RLebeau
-{ Updated Authenticate() to create the TIdEncoderMIME instance before sending
-{ the 'AUTH LOGIN' command.
-}
-{
-{   Rev 1.45    11/27/2004 8:58:14 PM  JPMugaas
-{ Compile errors.
-}
-{
-{   Rev 1.44    11/27/04 3:21:30 AM  RLebeau
-{ Fixed bug in ownership of SASLMechanisms property.
-{ 
-{ Recoded Authenticate() to use a "case of" statement instead.
-}
-{
-{   Rev 1.43    10/26/2004 10:55:34 PM  JPMugaas
-{ Updated refs.
-}
-{
-    Rev 1.42    6/11/2004 9:38:40 AM  DSiders
+  Rev 1.47    1/7/05 3:29:34 PM  RLebeau
+  Fix for AV in Notification()
+
+  Rev 1.46    11/28/04 2:31:38 PM  RLebeau
+  Updated Authenticate() to create the TIdEncoderMIME instance before sending
+  the 'AUTH LOGIN' command.
+
+  Rev 1.45    11/27/2004 8:58:14 PM  JPMugaas
+  Compile errors.
+
+  Rev 1.44    11/27/04 3:21:30 AM  RLebeau
+  Fixed bug in ownership of SASLMechanisms property.
+  Recoded Authenticate() to use a "case of" statement instead.
+
+  Rev 1.43    10/26/2004 10:55:34 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.42    6/11/2004 9:38:40 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.41    2004.03.06 1:31:52 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.40    2/25/2004 5:41:28 AM  JPMugaas
-{ Authentication bug fixed.
-}
-{
-{   Rev 1.39    2004.02.03 5:44:20 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.38    1/31/2004 3:12:56 AM  JPMugaas
-{ Removed dependancy on Math unit.  It isn't needed and is problematic in some
-{ versions of Dlephi which don't include it.
-}
-{
-{   Rev 1.37    26/01/2004 01:51:38  CCostelloe
-{ Changed implementation of supressing BCC List generation
-}
-{
-{   Rev 1.36    25/01/2004 21:16:16  CCostelloe
-{ Added support for SuppressBCCListInHeader
-}
-{
-{   Rev 1.35    1/25/2004 3:11:44 PM  JPMugaas
-{ SASL Interface reworked to make it easier for developers to use.
-{ SSL and SASL reenabled components.
-}
-{
-{   Rev 1.34    2004.01.22 10:29:56 PM  czhower
-{ Now supports default login mechanism with just username and pw.
-}
-{
-{   Rev 1.33    1/21/2004 4:03:22 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.32    12/28/2003 4:47:02 PM  BGooijen
-{ Removed ChangeReplyClass
-}
-{
-{   Rev 1.31    22/12/2003 00:46:16  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.30    24/10/2003 20:53:02  CCostelloe
-{ Bug fix of LRecipients.EMailAddresses in Send.
-}
-{
-{   Rev 1.29    2003.10.17 6:15:16 PM  czhower
-{ Bug fix with quit.
-}
-{
-    Rev 1.28    10/17/2003 1:01:04 AM  DSiders
+
+  Rev 1.41    2004.03.06 1:31:52 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.40    2/25/2004 5:41:28 AM  JPMugaas
+  Authentication bug fixed.
+
+  Rev 1.39    2004.02.03 5:44:20 PM  czhower
+  Name changes
+
+  Rev 1.38    1/31/2004 3:12:56 AM  JPMugaas
+  Removed dependancy on Math unit.  It isn't needed and is problematic in some
+  versions of Dlephi which don't include it.
+
+  Rev 1.37    26/01/2004 01:51:38  CCostelloe
+  Changed implementation of supressing BCC List generation
+
+  Rev 1.36    25/01/2004 21:16:16  CCostelloe
+  Added support for SuppressBCCListInHeader
+
+  Rev 1.35    1/25/2004 3:11:44 PM  JPMugaas
+  SASL Interface reworked to make it easier for developers to use.
+  SSL and SASL reenabled components.
+
+  Rev 1.34    2004.01.22 10:29:56 PM  czhower
+  Now supports default login mechanism with just username and pw.
+
+  Rev 1.33    1/21/2004 4:03:22 PM  JPMugaas
+  InitComponent
+
+  Rev 1.32    12/28/2003 4:47:02 PM  BGooijen
+  Removed ChangeReplyClass
+
+  Rev 1.31    22/12/2003 00:46:16  CCostelloe
+  .NET fixes
+
+  Rev 1.30    24/10/2003 20:53:02  CCostelloe
+  Bug fix of LRecipients.EMailAddresses in Send.
+
+  Rev 1.29    2003.10.17 6:15:16 PM  czhower
+  Bug fix with quit.
+
+  Rev 1.28    10/17/2003 1:01:04 AM  DSiders
   Added localization comments.
+
+  Rev 1.27    2003.10.14 1:28:04 PM  czhower
+  DotNet
+
+  Rev 1.26    10/11/2003 7:14:36 PM  BGooijen
+  Changed IdCompilerDefines.inc path
+
+  Rev 1.25    10/10/2003 10:45:10 PM  BGooijen
+  DotNet
+
+  Rev 1.24    2003.10.02 9:27:52 PM  czhower
+  DotNet Excludes
+
+  Rev 1.23    6/15/2003 03:28:30 PM  JPMugaas
+  Minor class change.
+
+  Rev 1.22    6/15/2003 01:13:40 PM  JPMugaas
+  Now uses new base class.
+
+  Rev 1.21    6/5/2003 04:54:08 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.20    6/4/2003 04:10:40 PM  JPMugaas
+  Removed hacked GetInternelResponse.
+
+  Updated to use Kudzu's new string reply code.
+
+  Rev 1.19    5/26/2003 12:24:04 PM  JPMugaas
+
+  Rev 1.18    5/25/2003 03:54:48 AM  JPMugaas
+
+  Rev 1.17    5/25/2003 12:13:22 AM  JPMugaas
+  SMTP StartTLS code moved into IdSMTPCommon for sharing with TIdDirectSMTP.
+  StartTLS is now called in Authenticate to prevent unintentional unencrypted
+  password transmission (e.g. AUTH LOGIN being called before STARTTLS).
+
+  Rev 1.16    5/23/2003 04:52:26 AM  JPMugaas
+  Work started on TIdDirectSMTP to support enhanced error codes.
+
+  Rev 1.15    5/22/2003 05:26:16 PM  JPMugaas
+  RFC 2034
+
+  Rev 1.14    5/18/2003 02:31:42 PM  JPMugaas
+  Reworked some things so IdSMTP and IdDirectSMTP can share code including
+  stuff for pipelining.
+
+  Rev 1.13    5/15/2003 11:09:46 AM  JPMugaas
+  "RFC 2197 SMTP  Service Extension for Command Pipelining" now supported.  It
+  should increase efficiency in TIdSMTP.
+
+  Rev 1.12    5/13/2003 07:35:06 AM  JPMugaas
+  Made UseEHLO a requirement for explicit TLS because explicit TLS using EHLO
+  to determine if the server supports explicit TLS. Setting UseEHLO will the
+  UseTLS property be the default (no encryption) and setting UseTLS to an
+  explicit TLS setting will cause the UseEHLO property to be true.
+
+  Rev 1.11    5/13/2003 07:03:48 AM  JPMugaas
+  Ciaran Costelloe reported a bug in the Assign method.  Username and Password
+  were still being assigned even though the SMTP component does not publish or
+  use them.  I have updated the SMTP assign method with the new properties and
+  removed the references to Password and Username.
+
+  Rev 1.10    5/10/2003 10:10:40 PM  JPMugaas
+  Bug fixes.
+
+  Rev 1.9    5/8/2003 08:44:22 PM  JPMugaas
+  Moved some SASL authentication code down to an anscestor for reuse.  WIll
+  clean up soon.
+
+  Rev 1.8    5/8/2003 03:18:30 PM  JPMugaas
+  Flattened ou the SASL authentication API, made a custom descendant of SASL
+  enabled TIdMessageClient classes.
+
+  Rev 1.7    5/8/2003 11:28:14 AM  JPMugaas
+  Moved feature negoation properties down to the ExplicitTLSClient level as
+  feature negotiation goes hand in hand with explicit TLS support.
+
+  Rev 1.6    5/8/2003 02:18:18 AM  JPMugaas
+  Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
+  mechanisms missing more consistant, made IdPOP3 support feature feature
+  negotiation, and consolidated some duplicate code.
+
+  Rev 1.5    4/5/2003 02:06:32 PM  JPMugaas
+  TLS handshake itself can now be handled.
+
+  Rev 1.4    3/27/2003 05:46:50 AM  JPMugaas
+  Updated framework with an event if the TLS negotiation command fails.
+  Cleaned up some duplicate code in the clients.
+
+  Rev 1.3    3/26/2003 04:19:34 PM  JPMugaas
+  Cleaned-up some code and illiminated some duplicate things.
+
+  Rev 1.2    3/13/2003 09:49:32 AM  JPMugaas
+  Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
+  can plug-in their products.
+
+  Rev 1.1    12/15/2002 05:50:18 PM  JPMugaas
+  SMTP and IMAP4 compile.  IdPOP3, IdFTP, IMAP4, and IdSMTP now restored in
+  IdRegister.
+
+  Rev 1.0    11/13/2002 08:00:48 AM  JPMugaas
 }
-{
-{   Rev 1.27    2003.10.14 1:28:04 PM  czhower
-{ DotNet
-}
-{
-{   Rev 1.26    10/11/2003 7:14:36 PM  BGooijen
-{ Changed IdCompilerDefines.inc path
-}
-{
-{   Rev 1.25    10/10/2003 10:45:10 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.24    2003.10.02 9:27:52 PM  czhower
-{ DotNet Excludes
-}
-{
-{   Rev 1.23    6/15/2003 03:28:30 PM  JPMugaas
-{ Minor class change.
-}
-{
-{   Rev 1.22    6/15/2003 01:13:40 PM  JPMugaas
-{ Now uses new base class.
-}
-{
-{   Rev 1.21    6/5/2003 04:54:08 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.20    6/4/2003 04:10:40 PM  JPMugaas
-{ Removed hacked GetInternelResponse.
-{
-{ Updated to use Kudzu's new string reply code.
-}
-{
-{   Rev 1.19    5/26/2003 12:24:04 PM  JPMugaas
-}
-{
-{   Rev 1.18    5/25/2003 03:54:48 AM  JPMugaas
-}
-{
-{   Rev 1.17    5/25/2003 12:13:22 AM  JPMugaas
-{ SMTP StartTLS code moved into IdSMTPCommon for sharing with TIdDirectSMTP.
-{ StartTLS is now called in Authenticate to prevent unintentional unencrypted
-{ password transmission (e.g. AUTH LOGIN being called before STARTTLS).
-}
-{
-{   Rev 1.16    5/23/2003 04:52:26 AM  JPMugaas
-{ Work started on TIdDirectSMTP to support enhanced error codes.
-}
-{
-{   Rev 1.15    5/22/2003 05:26:16 PM  JPMugaas
-{ RFC 2034
-}
-{
-{   Rev 1.14    5/18/2003 02:31:42 PM  JPMugaas
-{ Reworked some things so IdSMTP and IdDirectSMTP can share code including
-{ stuff for pipelining.
-}
-{
-{   Rev 1.13    5/15/2003 11:09:46 AM  JPMugaas
-{ "RFC 2197 SMTP  Service Extension for Command Pipelining" now supported.  It
-{ should increase efficiency in TIdSMTP.
-}
-{
-{   Rev 1.12    5/13/2003 07:35:06 AM  JPMugaas
-{ Made UseEHLO a requirement for explicit TLS because explicit TLS using EHLO
-{ to determine if the server supports explicit TLS. Setting UseEHLO will the
-{ UseTLS property be the default (no encryption) and setting UseTLS to an
-{ explicit TLS setting will cause the UseEHLO property to be true.
-}
-{
-{   Rev 1.11    5/13/2003 07:03:48 AM  JPMugaas
-{ Ciaran Costelloe reported a bug in the Assign method.  Username and Password
-{ were still being assigned even though the SMTP component does not publish or
-{ use them.  I have updated the SMTP assign method with the new properties and
-{ removed the references to Password and Username.
-}
-{
-{   Rev 1.10    5/10/2003 10:10:40 PM  JPMugaas
-{ Bug fixes.
-}
-{
-{   Rev 1.9    5/8/2003 08:44:22 PM  JPMugaas
-{ Moved some SASL authentication code down to an anscestor for reuse.  WIll
-{ clean up soon.
-}
-{
-{   Rev 1.8    5/8/2003 03:18:30 PM  JPMugaas
-{ Flattened ou the SASL authentication API, made a custom descendant of SASL
-{ enabled TIdMessageClient classes.
-}
-{
-{   Rev 1.7    5/8/2003 11:28:14 AM  JPMugaas
-{ Moved feature negoation properties down to the ExplicitTLSClient level as
-{ feature negotiation goes hand in hand with explicit TLS support.
-}
-{
-{   Rev 1.6    5/8/2003 02:18:18 AM  JPMugaas
-{ Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
-{ mechanisms missing more consistant, made IdPOP3 support feature feature
-{ negotiation, and consolidated some duplicate code.
-}
-{
-{   Rev 1.5    4/5/2003 02:06:32 PM  JPMugaas
-{ TLS handshake itself can now be handled.
-}
-{
-{   Rev 1.4    3/27/2003 05:46:50 AM  JPMugaas
-{ Updated framework with an event if the TLS negotiation command fails.
-{ Cleaned up some duplicate code in the clients.
-}
-{
-{   Rev 1.3    3/26/2003 04:19:34 PM  JPMugaas
-{ Cleaned-up some code and illiminated some duplicate things.
-}
-{
-{   Rev 1.2    3/13/2003 09:49:32 AM  JPMugaas
-{ Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-{ can plug-in their products.
-}
-{
-{   Rev 1.1    12/15/2002 05:50:18 PM  JPMugaas
-{ SMTP and IMAP4 compile.  IdPOP3, IdFTP, IMAP4, and IdSMTP now restored in
-{ IdRegister.
-}
-{
-{   Rev 1.0    11/13/2002 08:00:48 AM  JPMugaas
-}
+
 unit IdSMTP;
 
 interface
@@ -275,7 +228,7 @@ type
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
 
     //
-    // holger: .NET compatibility change, OnConnected being reintroduced 
+    // holger: .NET compatibility change, OnConnected being reintroduced
     property OnConnected;
   public
     destructor Destroy; override;
