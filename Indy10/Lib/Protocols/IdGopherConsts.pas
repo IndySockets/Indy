@@ -16,18 +16,18 @@
   $Log$
 }
 {
-{   Rev 1.2    2004.02.03 5:44:46 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.1    10/17/2003 12:06:16 AM  DSiders
+  Rev 1.2    2004.02.03 5:44:46 PM  czhower
+  Name changes
+
+  Rev 1.1    10/17/2003 12:06:16 AM  DSiders
   Added localization comments.
+
+  Rev 1.0    11/13/2002 08:30:10 AM  JPMugaas
+  Initial import from FTP VC.
 }
-{
-{   Rev 1.0    11/13/2002 08:30:10 AM  JPMugaas
-{ Initial import from FTP VC.
-}
+
 unit IdGopherConsts;
+
 {*******************************************************}
 {                                                       }
 {       Indy IdGopherConsts - this just contains        }

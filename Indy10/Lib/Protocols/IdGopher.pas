@@ -16,72 +16,86 @@
   $Log$
 }
 {
-{   Rev 1.17    3/4/2005 10:34:34 PM  JPMugaas
-{ Fix for compiler warnings and removed duplicate code.
+  Rev 1.17    3/4/2005 10:34:34 PM  JPMugaas
+  Fix for compiler warnings and removed duplicate code.
+
+  Rev 1.16    2004.10.27 9:17:52 AM  czhower
+  For TIdStrings
+
+  Rev 1.15    10/26/2004 10:10:58 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.14    2004.05.20 11:37:06 AM  czhower
+  IdStreamVCL
+
+  Rev 1.13    2004.02.03 5:44:46 PM  czhower
+  Name changes
+
+  Rev 1.12    1/21/2004 3:26:42 PM  JPMugaas
+  InitComponent
+
+  Rev 1.11    10/24/2003 03:26:18 PM  JPMugaas
+  Attempted to restore functionality after Kudzu's "surgery"
+
+  Rev 1.10    2003.10.24 10:43:06 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.9    10/21/2003 8:47:44 PM  BGooijen
+  Fixed WriteLn and ReadLn namespaces
+
+  Rev 1.7    10/19/2003 6:00:04 PM  BGooijen
+  Did Todo
+
+  Rev 1.6    2003.10.12 3:50:42 PM  czhower
+  Compile todos
+
+  Rev 1.5    6/5/2003 04:54:12 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.4    2/24/2003 08:50:58 PM  JPMugaas
+
+  Rev 1.3    12/8/2002 07:26:22 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.2    12/6/2002 05:29:46 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.1    12/6/2002 04:35:04 PM  JPMugaas
+  Now compiles with new code.
+
+  Rev 1.0    11/13/2002 08:29:48 AM  JPMugaas
+  Initial import from FTP VC.
+
+  2000-June- 9  J. Peter Mugaas
+    -adjusted the Gopher+ support so that line-unfolding is disabled in
+    FGopherBlock.  Many headers we use start with spaces
+    -made the ASK block into a TIdHeaderList to facilitate use better.  This does
+    unfold lines
+
+  2000-May -24  J. Peter Mugaas
+    -changed interface of file retrieval routines to so DestStream property does
+    not have to even exist now.
+
+  2000-May -17  J. Peter Mugaas
+    -Optimized the DoneSettingInfoBlock method in the TIdGopherMenuItem object
+    -Added Ask property to the TIdGopherMenuItem
+
+  2000-May -13  J. Peter Mugaas
+    -Chanded the event types and classes to be prefixed with Id.
+
+  2000-Apr.-28  J. Peter Mugaas
+    -Added built in Gopher+ support
+
+  2000-Apr.-21  J. Peter Mugaas
+    -Added the ability to receive a file
+    -Restructured this component to make the code more reabible,
+    facilitate processing, and improve object orientation
+
+  2000-Apr.-20  J. Peter Mugaas
+    -Started this unit
 }
-{
-{   Rev 1.16    2004.10.27 9:17:52 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.15    10/26/2004 10:10:58 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.14    2004.05.20 11:37:06 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.13    2004.02.03 5:44:46 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.12    1/21/2004 3:26:42 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.11    10/24/2003 03:26:18 PM  JPMugaas
-{ Attempted to restore functionality after Kudzu's "surgery"
-}
-{
-{   Rev 1.10    2003.10.24 10:43:06 AM  czhower
-{ TIdSTream to dos
-}
-{
-{   Rev 1.9    10/21/2003 8:47:44 PM  BGooijen
-{ Fixed WriteLn and ReadLn namespaces
-}
-{
-{   Rev 1.7    10/19/2003 6:00:04 PM  BGooijen
-{ Did Todo
-}
-{
-{   Rev 1.6    2003.10.12 3:50:42 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.5    6/5/2003 04:54:12 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.4    2/24/2003 08:50:58 PM  JPMugaas
-}
-{
-{   Rev 1.3    12/8/2002 07:26:22 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.2    12/6/2002 05:29:46 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.1    12/6/2002 04:35:04 PM  JPMugaas
-{ Now compiles with new code.
-}
-{
-{   Rev 1.0    11/13/2002 08:29:48 AM  JPMugaas
-{ Initial import from FTP VC.
-}
+
+unit IdGopher;
 
 {*******************************************************}
 {                                                       }
@@ -92,31 +106,6 @@
 {       April 20, 2000                                  }
 {                                                       }
 {*******************************************************}
-{
- 2000-June- 9  J. Peter Mugaas
-  -adjusted the Gopher+ support so that line-unfolding is disabled in
-   FGopherBlock.  Many headers we use start with spaces
-  -made the ASK block into a TIdHeaderList to facilitate use better.  This does
-   unfold lines
- 2000-May -24  J. Peter Mugaas
-  -changed interface of file retrieval routines to so DestStream property does
-   not have to even exist now.
- 2000-May -17  J. Peter Mugaas
-  -Optimized the DoneSettingInfoBlock method in the TIdGopherMenuItem object
-  -Added Ask property to the TIdGopherMenuItem 
- 2000-May -13  J. Peter Mugaas
-  -Chanded the event types and classes to be prefixed with Id.
- 2000-Apr.-28  J. Peter Mugaas
-  -Added built in Gopher+ support
- 2000-Apr.-21  J. Peter Mugaas
-  -Added the ability to receive a file
-  -Restructured this component to make the code more reabible,
-   facilitate processing, and improve object orientation
- 2000-Apr.-20  J. Peter Mugaas
-  -Started this unit
-}
-
-unit IdGopher;
 
 interface
 
