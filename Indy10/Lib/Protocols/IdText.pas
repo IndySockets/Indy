@@ -16,32 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 10:49:20 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.4    16/05/2004 18:56:16  CCostelloe
-{ New TIdText/TIdAttachment processing
-}
-{
-{   Rev 1.3    2004.02.03 5:44:34 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    10/17/03 12:06:50 PM  RLebeau
-{ Updated Assign() to copy all available header values rather than select ones.
-}
-{
-    Rev 1.1    10/17/2003 1:11:14 AM  DSiders
+  Rev 1.5    10/26/2004 10:49:20 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.4    16/05/2004 18:56:16  CCostelloe
+  New TIdText/TIdAttachment processing
+
+  Rev 1.3    2004.02.03 5:44:34 PM  czhower
+  Name changes
+
+  Rev 1.2    10/17/03 12:06:50 PM  RLebeau
+  Updated Assign() to copy all available header values rather than select ones.
+
+  Rev 1.1    10/17/2003 1:11:14 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.0    11/13/2002 08:03:00 AM  JPMugaas
-}
-{
-2002-08-30 Andrew P.Rubin
+
+  Rev 1.0    11/13/2002 08:03:00 AM  JPMugaas
+
+  2002-08-30 Andrew P.Rubin
   - extract charset & IsBodyEncodingRequired (true = 8 bit)
 }
+
 unit IdText;
 
 interface

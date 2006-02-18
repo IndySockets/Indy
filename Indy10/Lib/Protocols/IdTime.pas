@@ -16,50 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.10    2/10/2005 2:24:42 PM  JPMugaas
-{ Minor Restructures for some new UnixTime Service components.
-}
-{
-{   Rev 1.9    2004.02.03 5:44:34 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.8    1/21/2004 4:20:56 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.7    1/3/2004 1:00:00 PM  JPMugaas
-{ These should now compile with Kudzu's change in IdCoreGlobal.
-}
-{
-{   Rev 1.6    4/11/2003 02:45:44 PM  JPMugaas
-}
-{
-    Rev 1.5    4/5/2003 7:23:56 PM  BGooijen
+  Rev 1.10    2/10/2005 2:24:42 PM  JPMugaas
+  Minor Restructures for some new UnixTime Service components.
+
+  Rev 1.9    2004.02.03 5:44:34 PM  czhower
+  Name changes
+
+  Rev 1.8    1/21/2004 4:20:56 PM  JPMugaas
+  InitComponent
+
+  Rev 1.7    1/3/2004 1:00:00 PM  JPMugaas
+  These should now compile with Kudzu's change in IdCoreGlobal.
+
+  Rev 1.6    4/11/2003 02:45:44 PM  JPMugaas
+
+  Rev 1.5    4/5/2003 7:23:56 PM  BGooijen
   Raises exception on timeout now
-}
-{
-    Rev 1.4    4/4/2003 8:02:34 PM  BGooijen
+
+  Rev 1.4    4/4/2003 8:02:34 PM  BGooijen
   made host published
+
+  Rev 1.3    2/24/2003 10:37:00 PM  JPMugaas
+  Should compile.  TODO:  Figure out what to do with TIdTime and the timeout
+  feature.
+
+  Rev 1.2    12/7/2002 06:43:38 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.1    12/6/2002 05:30:48 PM  JPMugaas
+  Now descend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 08:03:14 AM  JPMugaas
 }
-{
-{   Rev 1.3    2/24/2003 10:37:00 PM  JPMugaas
-{ Should compile.  TODO:  Figure out what to do with TIdTime and the timeout
-{ feature.
-}
-{
-{   Rev 1.2    12/7/2002 06:43:38 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:48 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 08:03:14 AM  JPMugaas
-}
+
 unit IdTime;
+
 {*******************************************************}
 {                                                       }
 {       Indy Time Client TIdTime                        }
@@ -74,7 +66,7 @@ unit IdTime;
  2001-Sep -21 J. Peter Mugaas
   - adjusted formula as suggested by Vaclav Korecek.  The old
   one would give wrong date, time if RoundTripDelay was over
-   a value of 1000 
+   a value of 1000
  2000-May -04  J. Peter Mugaas
   -Changed RoundTripDelay to a cardinal and I now use the
    GetTickCount function for more accuracy
