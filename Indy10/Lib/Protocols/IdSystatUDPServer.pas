@@ -16,42 +16,36 @@
   $Log$
 }
 {
-{   Rev 1.5    10/26/2004 10:49:20 PM  JPMugaas
-{ Updated ref.
+  Rev 1.5    10/26/2004 10:49:20 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.4    2004.02.03 5:44:30 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 4:04:08 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/24/2003 02:54:58 PM  JPMugaas
+  These should now work with the new code.
+
+  Rev 1.1    2003.10.24 10:38:30 AM  czhower
+  UDP Server todos
+
+  Rev 1.0    11/13/2002 08:02:44 AM  JPMugaas
 }
-{
-{   Rev 1.4    2004.02.03 5:44:30 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/21/2004 4:04:08 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    10/24/2003 02:54:58 PM  JPMugaas
-{ These should now work with the new code.
-}
-{
-{   Rev 1.1    2003.10.24 10:38:30 AM  czhower
-{ UDP Server todos
-}
-{
-{   Rev 1.0    11/13/2002 08:02:44 AM  JPMugaas
-}
+
 unit IdSystatUDPServer;
-{*******************************************************}
-{                                                       }
-{       Indy Systat Client TIdSystatUDPServer           }
-{                                                       }
-{       Copyright (C) 2002 Winshoes Working Group       }
-{       Original author J. Peter Mugaas                 }
-{       2002-August-13                                  }
-{       Based on RFC 866                                }
-{                                                       }
-{*******************************************************}
-{Note that this protocol is officially called Active User}
-{2002-Aug-13  J. Peter Mugaas
-  -Original version}
+
+{
+  Indy Systat Client TIdSystatUDPServer
+
+  Copyright (C) 2002 Winshoes Working Group
+  Original author J. Peter Mugaas
+  2002-August-13
+  Based on RFC 866
+  Note that this protocol is officially called Active User.
+}
+
 interface
 
 uses
