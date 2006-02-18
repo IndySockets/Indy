@@ -16,51 +16,41 @@
   $Log$
 }
 {
-{   Rev 1.10    3/6/2004 3:05:08 PM  JPMugaas
-{ Added quit code 211 as per bug #83
-}
-{
-{   Rev 1.9    2004.03.06 1:31:54 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.8    2004.02.07 1:42:00 PM  czhower
-{ Fixed visibility
-}
-{
-{   Rev 1.7    2004.02.03 5:44:22 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.6    1/21/2004 4:03:40 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.5    10/17/2003 1:08:06 AM  DSiders
+  Rev 1.10    3/6/2004 3:05:08 PM  JPMugaas
+  Added quit code 211 as per bug #83
+
+  Rev 1.9    2004.03.06 1:31:54 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.8    2004.02.07 1:42:00 PM  czhower
+  Fixed visibility
+
+  Rev 1.7    2004.02.03 5:44:22 PM  czhower
+  Name changes
+
+  Rev 1.6    1/21/2004 4:03:40 PM  JPMugaas
+  InitComponent
+
+  Rev 1.5    10/17/2003 1:08:06 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.4    6/5/2003 04:54:12 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-    Rev 1.3    1/27/2003 11:36:54 AM  DSiders
+
+  Rev 1.4    6/5/2003 04:54:12 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.3    1/27/2003 11:36:54 AM  DSiders
   Modified Connect to raise an exception when any response other than 220 is
   received.  Exception code and text comes from the server response.
-
   Added TODOs needed to complete SNPP Level 1 support.
+
+  Rev 1.2    12/8/2002 07:25:48 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.1    12/6/2002 05:30:34 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 08:01:08 AM  JPMugaas
 }
-{
-{   Rev 1.2    12/8/2002 07:25:48 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:34 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 08:01:08 AM  JPMugaas
-}
+
 unit IdSNPP;
 
 interface
