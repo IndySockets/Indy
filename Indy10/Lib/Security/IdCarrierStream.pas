@@ -16,13 +16,13 @@
   $Log$
 }
 {
-{   Rev 1.0    27-03-05 10:04:16  MterWoord
-{ Second import, first time the filenames weren't prefixed with Id
+  Rev 1.0    27-03-05 10:04:16  MterWoord
+  Second import, first time the filenames weren't prefixed with Id
+
+  Rev 1.0    27-03-05 09:08:44  MterWoord
+  Created
 }
-{
-{   Rev 1.0    27-03-05 09:08:44  MterWoord
-{ Created
-}
+
 unit IdCarrierStream;
 
 interface
