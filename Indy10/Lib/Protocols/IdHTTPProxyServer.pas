@@ -16,106 +16,85 @@
   $Log$
 }
 {
-{   Rev 1.24    10/14/2004 1:45:32 PM  BGooijen
-{ Beauty fixes ;)
-}
-{
-{   Rev 1.23    10/14/2004 1:05:48 PM  BGooijen
-{ set PerformReply to false, else "200 OK" was added behind the document body
-}
-{
-{   Rev 1.22    09.08.2004 09:30:00  OMonien
-{ changed disconnect handling. Previous implementation failed when exceptions
-{ ocured in command handler.
-}
-{
-{   Rev 1.21    08.08.2004 10:35:56  OMonien
-{ Greeting removed
-}
-{
-    Rev 1.20    6/11/2004 9:36:28 AM  DSiders
+  Rev 1.24    10/14/2004 1:45:32 PM  BGooijen
+  Beauty fixes ;)
+
+  Rev 1.23    10/14/2004 1:05:48 PM  BGooijen
+  set PerformReply to false, else "200 OK" was added behind the document body
+
+  Rev 1.22    09.08.2004 09:30:00  OMonien
+  changed disconnect handling. Previous implementation failed when exceptions
+  ocured in command handler.
+
+  Rev 1.21    08.08.2004 10:35:56  OMonien
+  Greeting removed
+
+  Rev 1.20    6/11/2004 9:36:28 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.19    2004.05.20 1:39:24 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.18    2004.05.20 11:37:20 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.17    4/19/2004 7:07:38 PM  BGooijen
-{ the remote headers are now passed to the OnHTTPDocument event
-}
-{
-{   Rev 1.16    4/18/2004 11:31:26 PM  BGooijen
-{ Fixed POST
-{ Build CONNECT
-{ fixed some bugs where chars were replaced when that was not needed ( thus
-{ causing corrupt data )
-}
-{
-{   Rev 1.15    2004.04.13 10:24:24 PM  czhower
-{ Bug fix for when user changes stream.
-}
-{
-{   Rev 1.14    2004.02.03 5:45:12 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.13    1/21/2004 2:42:52 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.12    10/25/2003 06:52:12 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.
-}
-{
-{   Rev 1.11    2003.10.24 10:43:10 AM  czhower
-{ TIdSTream to dos
-}
-{
-    Rev 1.10    10/17/2003 12:10:08 AM  DSiders
+
+  Rev 1.19    2004.05.20 1:39:24 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.18    2004.05.20 11:37:20 AM  czhower
+  IdStreamVCL
+
+  Rev 1.17    4/19/2004 7:07:38 PM  BGooijen
+  the remote headers are now passed to the OnHTTPDocument event
+
+  Rev 1.16    4/18/2004 11:31:26 PM  BGooijen
+  Fixed POST
+  Build CONNECT
+  fixed some bugs where chars were replaced when that was not needed ( thus
+  causing corrupt data )
+
+  Rev 1.15    2004.04.13 10:24:24 PM  czhower
+  Bug fix for when user changes stream.
+
+  Rev 1.14    2004.02.03 5:45:12 PM  czhower
+  Name changes
+
+  Rev 1.13    1/21/2004 2:42:52 PM  JPMugaas
+  InitComponent
+
+  Rev 1.12    10/25/2003 06:52:12 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+  Rev 1.11    2003.10.24 10:43:10 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.10    10/17/2003 12:10:08 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.9    2003.10.12 3:50:44 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.8    7/13/2003 7:57:38 PM  SPerry
-{ fixed problem with commandhandlers
-}
-{
-{   Rev 1.6    5/25/2003 03:54:42 AM  JPMugaas
-}
-{
-{   Rev 1.5    2/24/2003 08:56:50 PM  JPMugaas
-}
-{
-    Rev 1.4    1/20/2003 1:15:44 PM  BGooijen
+
+  Rev 1.9    2003.10.12 3:50:44 PM  czhower
+  Compile todos
+
+  Rev 1.8    7/13/2003 7:57:38 PM  SPerry
+  fixed problem with commandhandlers
+
+  Rev 1.6    5/25/2003 03:54:42 AM  JPMugaas
+
+  Rev 1.5    2/24/2003 08:56:50 PM  JPMugaas
+
+  Rev 1.4    1/20/2003 1:15:44 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
+
+  Rev 1.3    1-14-2003 19:19:22  BGooijen
+  The first line of the header was sent to the server twice, fixed that.
+
+  Rev 1.2    1-1-2003 21:52:06  BGooijen
+  Changed for TIdContext
+
+  Rev 1.1    12-29-2002 13:00:02  BGooijen
+  - Works on Indy 10 now
+  - Cleaned up some code
+
+  Rev 1.0    2002.11.22 8:37:50 PM  czhower
+
+  Rev 1.0    2002.11.22 8:37:16 PM  czhower
+
+ 10-May-2002: Created Unit.
 }
-{
-{   Rev 1.3    1-14-2003 19:19:22  BGooijen
-{ The first line of the header was sent to the server twice, fixed that.
-}
-{
-{   Rev 1.2    1-1-2003 21:52:06  BGooijen
-{ Changed for TIdContext
-}
-{
-{   Rev 1.1    12-29-2002 13:00:02  BGooijen
-{ - Works on Indy 10 now
-{ - Cleaned up some code
-}
-{
-{   Rev 1.0    2002.11.22 8:37:50 PM  czhower
-}
-{
-{   Rev 1.0    2002.11.22 8:37:16 PM  czhower
-}
+
 unit IdHTTPProxyServer;
 
 interface
@@ -128,11 +107,6 @@ interface
    Code is given to the Indy Pit Crew.
 
  Modifications by Chad Z. Hower (Kudzu)
-
- Quick Notes:
-
- Revision History:
- 10-May-2002: Created Unit.
 }
 
 uses

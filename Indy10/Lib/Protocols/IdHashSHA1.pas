@@ -16,37 +16,32 @@
   $Log$
 }
 {
-{   Rev 1.6    2003-10-12 15:25:50  HHellström
-{ Comments added
+  Rev 1.6    2003-10-12 15:25:50  HHellström
+  Comments added
+
+  Rev 1.5    2003-10-12 03:08:24  HHellström
+  New implementation; copyright changed. The source code formatting has been
+  adjusted to fit the margins. The new implementation is faster on dotNet
+  compared to the old one, but is slightly slower on Win32.
+
+  Rev 1.4    2003-10-11 18:44:54  HHellström
+  Range checking and overflow checking disabled in the Coder method only. The
+  purpose of this setting is to force the arithmetic operations performed on
+  LongWord variables to be modulo $100000000. This hack entails reasonable
+  performance on both Win32 and dotNet.
+
+  Rev 1.3    10/10/2003 2:20:56 PM  GGrieve
+  turn range checking off
+
+  Rev 1.2    2003-09-21 17:31:02  HHellström    Version: 1.2
+  DotNET compatibility
+
+  Rev 1.1    2/16/2003 03:19:18 PM  JPMugaas
+  Should now compile on D7 better.
+
+  Rev 1.0    11/13/2002 07:53:48 AM  JPMugaas
 }
-{
-{   Rev 1.5    2003-10-12 03:08:24  HHellström
-{ New implementation; copyright changed. The source code formatting has been
-{ adjusted to fit the margins. The new implementation is faster on dotNet
-{ compared to the old one, but is slightly slower on Win32.
-}
-{
-{   Rev 1.4    2003-10-11 18:44:54  HHellström
-{ Range checking and overflow checking disabled in the Coder method only. The
-{ purpose of this setting is to force the arithmetic operations performed on
-{ LongWord variables to be modulo $100000000. This hack entails reasonable
-{ performance on both Win32 and dotNet.
-}
-{
-{   Rev 1.3    10/10/2003 2:20:56 PM  GGrieve
-{ turn range checking off
-}
-{
-{   Rev 1.2    2003-09-21 17:31:02  HHellström    Version: 1.2
-{ DotNET compatibility
-}
-{
-{   Rev 1.1    2/16/2003 03:19:18 PM  JPMugaas
-{ Should now compile on D7 better.
-}
-{
-{   Rev 1.0    11/13/2002 07:53:48 AM  JPMugaas
-}
+
 unit IdHashSHA1;
 
 interface

@@ -16,23 +16,19 @@
   $Log$
 }
 {
-{   Rev 1.3    24/01/2004 19:21:36  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.2    1/15/2004 2:32:50 AM  JPMugaas
-{ Attempt to add MD5 coder support for partial streams.  THis is needed for the
-{ XMD5 command in the FTP Server.
-}
-{
-{   Rev 1.1    2003-10-12 22:36:40  HHellström
-{ Reimplemented, optimized and tested for both Win32 and dotNET.
-}
-{
-{   Rev 1.0    11/13/2002 07:53:40 AM  JPMugaas
-}
-{
+  Rev 1.3    24/01/2004 19:21:36  CCostelloe
+  Cleaned up warnings
 
+  Rev 1.2    1/15/2004 2:32:50 AM  JPMugaas
+  Attempt to add MD5 coder support for partial streams.  THis is needed for the
+  XMD5 command in the FTP Server.
+
+  Rev 1.1    2003-10-12 22:36:40  HHellström
+  Reimplemented, optimized and tested for both Win32 and dotNET.
+
+  Rev 1.0    11/13/2002 07:53:40 AM  JPMugaas
+}
+{
   Implementation of the MD2, MD4 and MD5 Message-Digest Algorithm
   as specified in RFC 1319 (1115), 1320 (1186), 1321
 

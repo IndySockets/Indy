@@ -16,70 +16,56 @@
   $Log$
 }
 {
-{   Rev 1.65    3/5/2005 3:33:52 PM  JPMugaas
-{ Fix for some compiler warnings having to do with TStream.Read being platform
-{ specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
-{ instead of TStream.  I also made appropriate adjustments to other units for
-{ this. 
-}
-{
-    Rev 1.64    2/13/2005 3:09:20 PM  DSiders
+  Rev 1.65    3/5/2005 3:33:52 PM  JPMugaas
+  Fix for some compiler warnings having to do with TStream.Read being platform
+  specific.  This was fixed by changing the Compressor API to use TIdStreamVCL
+  instead of TStream.  I also made appropriate adjustments to other units for
+  this.
+
+  Rev 1.64    2/13/2005 3:09:20 PM  DSiders
   Modified TIdCustomHTTP.PrepareRequest to free the local URI instance if an
   exception occurs in the method. (try...finally)
-}
-{
-{   Rev 1.63    2/11/05 11:29:34 AM  RLebeau
-{ Removed compiler warning
-}
-{
-{   Rev 1.62    2/9/05 2:12:08 AM  RLebeau
-{ Fixes for Compiler errors
-}
-{
-{   Rev 1.61    2/8/05 6:43:42 PM  RLebeau
-{ Added OnHeaderAvailable event
-}
-{
-{   Rev 1.60    1/11/05 1:25:08 AM  RLebeau
-{ More changes to SetHostAndPort()
-}
-{
-{   Rev 1.59    1/6/05 2:28:52 PM  RLebeau
-{ Fix for SetHostAndPort() not using its local variables properly
-}
-{
-{   Rev 1.58    06/01/2005 22:23:04  CCostelloe
-{ Bug fix (typo, gizp instead of gzip)
-}
-{
-{   Rev 1.57    05/12/2004 23:10:58  CCostelloe
-{ Recoded fix to suit Delphi < 7
-}
-{
-{   Rev 1.56    30/11/2004 23:46:12  CCostelloe
-{ Bug fix for SSL connections giving a "Connection closed gracefully" exception
-{ and requested page not getting returned (IOHandler.Response is empty)
-}
-{
-{   Rev 1.55    25/11/2004 21:28:06  CCostelloe
-{ Bug fix for POSTing fields that have the same name
-}
-{
-{   Rev 1.54    10/26/2004 10:13:24 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.53    7/16/04 1:19:20 AM  RLebeau
-{ Fix for compiler error
-}
-{
-{   Rev 1.52    7/15/04 8:19:30 PM  RLebeau
-{ Updated TIdHTTPProtocol.ProcessResponse() to treat 302 redirects like 303.
-{
-{ Updated TIdHTTPProtocol.BuildAndSendRequest() to use a try...except block
-}
-{
-    Rev 1.51    6/17/2004 8:30:04 AM  DSiders
+
+  Rev 1.63    2/11/05 11:29:34 AM  RLebeau
+  Removed compiler warning
+
+  Rev 1.62    2/9/05 2:12:08 AM  RLebeau
+  Fixes for Compiler errors
+
+  Rev 1.61    2/8/05 6:43:42 PM  RLebeau
+  Added OnHeaderAvailable event
+
+  Rev 1.60    1/11/05 1:25:08 AM  RLebeau
+  More changes to SetHostAndPort()
+
+  Rev 1.59    1/6/05 2:28:52 PM  RLebeau
+  Fix for SetHostAndPort() not using its local variables properly
+
+  Rev 1.58    06/01/2005 22:23:04  CCostelloe
+  Bug fix (typo, gizp instead of gzip)
+
+  Rev 1.57    05/12/2004 23:10:58  CCostelloe
+  Recoded fix to suit Delphi < 7
+
+  Rev 1.56    30/11/2004 23:46:12  CCostelloe
+  Bug fix for SSL connections giving a "Connection closed gracefully" exception
+  and requested page not getting returned (IOHandler.Response is empty)
+
+  Rev 1.55    25/11/2004 21:28:06  CCostelloe
+  Bug fix for POSTing fields that have the same name
+
+  Rev 1.54    10/26/2004 10:13:24 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.53    7/16/04 1:19:20 AM  RLebeau
+  Fix for compiler error
+
+  Rev 1.52    7/15/04 8:19:30 PM  RLebeau
+  Updated TIdHTTPProtocol.ProcessResponse() to treat 302 redirects like 303.
+
+  Updated TIdHTTPProtocol.BuildAndSendRequest() to use a try...except block
+
+  Rev 1.51    6/17/2004 8:30:04 AM  DSiders
   TIdCustomHTTP modified:
   - Fixed error in AuthRetries property reading wrong member var.
   - Added AuthProxyRetries and MaxAuthRetries properties to public interface.
@@ -88,218 +74,249 @@
 
   TIdHTTPProtocol.ProcessResponse modified to use public properties
   AuthRetries, AuthProxyRetries, and MaxAutrhRetries.
-}
-{
-{   Rev 1.50    2004.05.20 11:36:46 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.49    4/28/04 1:45:26 PM  RLebeau
-{ Updated TIdCustomHTTP.SetRequestParams() to strip off the trailing CRLF
-{ before encoding rather than afterwards
-}
-{
-{   Rev 1.48    2004.04.07 11:18:08 PM  czhower
-{ Bug and naming fix.
-}
-{
-{   Rev 1.47    7/4/2004 6:00:02 PM  SGrobety
-{ Reformatted to match project guidelines
-}
-{
-{   Rev 1.46    7/4/2004 4:58:24 PM  SGrobety
-{ Reformatted to match project guidelines
-}
-{
-{   Rev 1.45    6/4/2004 5:16:40 PM  SGrobety
-{ Added AMaxHeaderCount: integer parameter to TIdHTTPProtocol.RetrieveHeaders
-{ and MaxHeaderLines property to TIdCustomHTTP (default to 255)
-}
-{
-{   Rev 1.44    2004.03.06 10:39:52 PM  czhower
-{ Removed duplicate code
-}
-{
-{   Rev 1.43    2004.03.06 8:56:30 PM  czhower
-{ -Change to disconnect
-{ -Addition of DisconnectNotifyPeer
-{ -WriteHeader now write bufers
-}
-{
-{   Rev 1.42    3/3/2004 5:58:00 AM  JPMugaas
-{ Some IFDEF excluses were removed because the functionality is now in DotNET.
-}
-{
-{   Rev 1.41    2004.02.23 9:33:12 PM  czhower
-{ Now can optionally ignore response codes for exceptions.
-}
-{
-{   Rev 1.40    2/15/2004 6:34:02 AM  JPMugaas
-{ Fix for where I broke the HTTP client with a parameter change in the GZip
-{ decompress method.
-}
-{
-{   Rev 1.39    2004.02.03 5:43:44 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.38    2004.02.03 2:12:10 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.37    2004.01.27 11:41:18 PM  czhower
-{ Removed const arguments
-}
-{
-{   Rev 1.35    24/01/2004 19:22:34  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.34    2004.01.22 5:29:02 PM  czhower
-{ TextIsSame
-}
-{
-{   Rev 1.33    2004.01.21 1:04:50 PM  czhower
-{ InitComponenet
-}
-{
-{   Rev 1.32    1/2/2004 11:41:48 AM  BGooijen
-{ Enabled IPv6 support
-}
-{
-{   Rev 1.31    22/11/2003 12:04:28 AM  GGrieve
-{ Add support for HTTP status code 303
-}
-{
-{   Rev 1.30    10/25/2003 06:51:58 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.
-}
-{
-{   Rev 1.29    2003.10.24 10:43:08 AM  czhower
-{ TIdSTream to dos
-}
-{
-{   Rev 1.28    24/10/2003 10:58:40 AM  SGrobety
-{ Made authentication work even if no OnAnthenticate envent handler present
-}
-{
-{   Rev 1.27    10/18/2003 1:53:10 PM  BGooijen
-{ Added include
-}
-{
-    Rev 1.26    10/17/2003 12:08:48 AM  DSiders
+
+  Rev 1.50    2004.05.20 11:36:46 AM  czhower
+  IdStreamVCL
+
+  Rev 1.49    4/28/04 1:45:26 PM  RLebeau
+  Updated TIdCustomHTTP.SetRequestParams() to strip off the trailing CRLF
+  before encoding rather than afterwards
+
+  Rev 1.48    2004.04.07 11:18:08 PM  czhower
+  Bug and naming fix.
+
+  Rev 1.47    7/4/2004 6:00:02 PM  SGrobety
+  Reformatted to match project guidelines
+
+  Rev 1.46    7/4/2004 4:58:24 PM  SGrobety
+  Reformatted to match project guidelines
+
+  Rev 1.45    6/4/2004 5:16:40 PM  SGrobety
+  Added AMaxHeaderCount: integer parameter to TIdHTTPProtocol.RetrieveHeaders
+  and MaxHeaderLines property to TIdCustomHTTP (default to 255)
+
+  Rev 1.44    2004.03.06 10:39:52 PM  czhower
+  Removed duplicate code
+
+  Rev 1.43    2004.03.06 8:56:30 PM  czhower
+  -Change to disconnect
+  -Addition of DisconnectNotifyPeer
+  -WriteHeader now write bufers
+
+  Rev 1.42    3/3/2004 5:58:00 AM  JPMugaas
+  Some IFDEF excluses were removed because the functionality is now in DotNET.
+
+  Rev 1.41    2004.02.23 9:33:12 PM  czhower
+  Now can optionally ignore response codes for exceptions.
+
+  Rev 1.40    2/15/2004 6:34:02 AM  JPMugaas
+  Fix for where I broke the HTTP client with a parameter change in the GZip
+  decompress method.
+
+  Rev 1.39    2004.02.03 5:43:44 PM  czhower
+  Name changes
+
+  Rev 1.38    2004.02.03 2:12:10 PM  czhower
+  $I path change
+
+  Rev 1.37    2004.01.27 11:41:18 PM  czhower
+  Removed const arguments
+
+  Rev 1.35    24/01/2004 19:22:34  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.34    2004.01.22 5:29:02 PM  czhower
+  TextIsSame
+
+  Rev 1.33    2004.01.21 1:04:50 PM  czhower
+  InitComponenet
+
+  Rev 1.32    1/2/2004 11:41:48 AM  BGooijen
+  Enabled IPv6 support
+
+  Rev 1.31    22/11/2003 12:04:28 AM  GGrieve
+  Add support for HTTP status code 303
+
+  Rev 1.30    10/25/2003 06:51:58 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+  Rev 1.29    2003.10.24 10:43:08 AM  czhower
+  TIdSTream to dos
+
+  Rev 1.28    24/10/2003 10:58:40 AM  SGrobety
+  Made authentication work even if no OnAnthenticate envent handler present
+
+  Rev 1.27    10/18/2003 1:53:10 PM  BGooijen
+  Added include
+
+  Rev 1.26    10/17/2003 12:08:48 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.25    2003.10.14 1:27:52 PM  czhower
-{ DotNet
-}
-{
-{   Rev 1.24    10/7/2003 11:33:54 PM  GGrieve
-{ Get works under DotNet
-}
-{
-{   Rev 1.23    10/7/2003 10:07:04 PM  GGrieve
-{ Get HTTP compiling for DotNet
-}
-{
-{   Rev 1.22    10/4/2003 9:15:58 PM  GGrieve
-{ fix to compile
-}
-{
-{   Rev 1.21    9/26/2003 01:41:48 PM  JPMugaas
-{ Fix for problem wihere "identity" was being added more than once to the
-{ accepted encoding contents.
-}
-{
-{   Rev 1.20    9/14/2003 07:54:20 PM  JPMugaas
-{ Published the Compressor property.
-}
-{
-{   Rev 1.19    7/30/2003 05:34:22 AM  JPMugaas
-{ Fix for bug where decompression was not done if the Content Length was
-{ specified.  I found that at http://www.news.com.
-{ Added Identity to the content encoding to be consistant with Opera.  Identity
-{ is the default Accept-Encoding (RFC 2616).
-}
-{
-    Rev 1.18    7/13/2003 10:57:28 PM  BGooijen
+
+  Rev 1.25    2003.10.14 1:27:52 PM  czhower
+  DotNet
+
+  Rev 1.24    10/7/2003 11:33:54 PM  GGrieve
+  Get works under DotNet
+
+  Rev 1.23    10/7/2003 10:07:04 PM  GGrieve
+  Get HTTP compiling for DotNet
+
+  Rev 1.22    10/4/2003 9:15:58 PM  GGrieve
+  fix to compile
+
+  Rev 1.21    9/26/2003 01:41:48 PM  JPMugaas
+  Fix for problem wihere "identity" was being added more than once to the
+  accepted encoding contents.
+
+  Rev 1.20    9/14/2003 07:54:20 PM  JPMugaas
+  Published the Compressor property.
+
+  Rev 1.19    7/30/2003 05:34:22 AM  JPMugaas
+  Fix for bug where decompression was not done if the Content Length was
+  specified.  I found that at http://www.news.com.
+  Added Identity to the content encoding to be consistant with Opera.  Identity
+  is the default Accept-Encoding (RFC 2616).
+
+  Rev 1.18    7/13/2003 10:57:28 PM  BGooijen
   Fixed GZip and Deflate decoding
-}
-{
-{   Rev 1.17    7/13/2003 11:29:06 AM  JPMugaas
-{ Made sure some GZIP decompression stub code is in IdHTTP.
-}
-{
-{   Rev 1.15    10.7.2003 ã. 21:03:02  DBondzhev
-{ Fixed NTML proxy authorization
-}
-{
-{   Rev 1.14    6/19/2003 02:36:56 PM  JPMugaas
-{ Removed a connected check and it seems to work better that way.
-}
-{
-{   Rev 1.13    6/5/2003 04:53:54 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.12    4/30/2003 01:47:24 PM  JPMugaas
-{ Added TODO concerning a ConnectTimeout.
-}
-{
-    Rev 1.11    4/2/2003 3:18:30 PM  BGooijen
+
+  Rev 1.17    7/13/2003 11:29:06 AM  JPMugaas
+  Made sure some GZIP decompression stub code is in IdHTTP.
+
+  Rev 1.15    10.7.2003 ã. 21:03:02  DBondzhev
+  Fixed NTML proxy authorization
+
+  Rev 1.14    6/19/2003 02:36:56 PM  JPMugaas
+  Removed a connected check and it seems to work better that way.
+
+  Rev 1.13    6/5/2003 04:53:54 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.12    4/30/2003 01:47:24 PM  JPMugaas
+  Added TODO concerning a ConnectTimeout.
+
+  Rev 1.11    4/2/2003 3:18:30 PM  BGooijen
   fixed av when retrieving an url when no iohandler was assigned
-}
-{
-    Rev 1.10    3/26/2003 5:13:40 PM  BGooijen
+
+  Rev 1.10    3/26/2003 5:13:40 PM  BGooijen
   TIdSSLIOHandlerSocketBase.URIToCheck is now set
-}
-{
-{   Rev 1.9    3/13/2003 11:05:26 AM  JPMugaas
-{ Now should work with 3rd party vendor SSL IOHandlers.
-}
-{
-    Rev 1.8    3/11/2003 10:14:52 PM  BGooijen
+
+  Rev 1.9    3/13/2003 11:05:26 AM  JPMugaas
+  Now should work with 3rd party vendor SSL IOHandlers.
+
+  Rev 1.8    3/11/2003 10:14:52 PM  BGooijen
   Undid the stripping of the CR
-}
-{
-    Rev 1.7    2/27/2003 2:04:26 PM  BGooijen
+
+  Rev 1.7    2/27/2003 2:04:26 PM  BGooijen
   If any call to iohandler.readln returns a CR at the end, it is removed now.
-}
-{
-    Rev 1.6    2/26/2003 11:50:08 AM  BGooijen
+
+  Rev 1.6    2/26/2003 11:50:08 AM  BGooijen
   things were messed up in TIdHTTPProtocol.RetrieveHeaders, because the call to
   readln doesn't strip the CR at the end (terminator=LF), therefore the end of
   the header was not found.
-}
-{
-    Rev 1.5    2/26/2003 11:42:46 AM  BGooijen
+
+  Rev 1.5    2/26/2003 11:42:46 AM  BGooijen
   changed ReadLn (IOerror 6) to IOHandler.ReadLn
-}
-{
-    Rev 1.4    2/4/2003 6:30:44 PM  BGooijen
+
+  Rev 1.4    2/4/2003 6:30:44 PM  BGooijen
   Re-enabled SSL-support
-}
-{
-{   Rev 1.3    1/17/2003 04:14:42 PM  JPMugaas
-{ Fixed warnings.
-}
-{
-{   Rev 1.2    12/7/2002 05:32:16 PM  JPMugaas
-{ Now compiles with destination removed.
-}
-{
-{   Rev 1.1    12/6/2002 05:29:52 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 07:54:12 AM  JPMugaas
+
+  Rev 1.3    1/17/2003 04:14:42 PM  JPMugaas
+  Fixed warnings.
+
+  Rev 1.2    12/7/2002 05:32:16 PM  JPMugaas
+  Now compiles with destination removed.
+
+  Rev 1.1    12/6/2002 05:29:52 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 07:54:12 AM  JPMugaas
+
+  2001-Nov Nick Panteleeff
+  - Authentication and POST parameter extentsions
+
+  2001-Sept Doychin Bondzhev
+  - New internal design and new Authentication procedures.
+  - Bug fixes and new features in few other supporting components
+
+  2001-Jul-7 Doychin Bondzhev
+  - new property AllowCookie
+  - There is no more ExtraHeders property in Request/Response. Raw headers is used for that purpose.
+
+  2001-Jul-1 Doychin Bondzhev
+  - SSL support is up again - Thanks to Gregor
+
+  2001-Jun-17 Doychin Bondzhev
+  - New unit IdHTTPHeaderInfo.pas that contains the
+    TIdHeaderInfo(TIdEntytiHeaderInfo, TIdRequestHeaderInfo and TIdResponseHeaderInfo)
+  - Still in development and not verry well tested
+    By default when there is no authorization object associated with HTTP compoenet and there is user name and password
+    HTTP component creates and instance of TIdBasicAuthentication class. This behaivor is for both web server and proxy server
+    authorizations
+
+  2001-Apr-17 Doychin Bondzhev
+  - Added OnProxyAuthorization event. This event is called on 407 response from the HTTP Proxy.
+  - Added 2 new properties in TIdHeaderInfo
+      property AuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
+        requested by the web server
+      property ProxyAuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
+        requested by the proxy server
+  - Now the component authomaticly reconginizes the requested authorization scheme and it supports Basic like before and has been
+    extend to support Digest authorization
+
+  2001-Mar-31 Doychin Bondzhev
+  - If there is no CookieManager it does not support cookies.
+
+  2001-Feb-18 Doychin Bondzhev
+  - Added OnAuthorization event. This event is called on 401 response from the HTTP server.
+      This can be used to ask the user program to supply user name and password in order to acces
+      the requested resource
+
+  2001-Feb-02 Doychin Bondzhev
+  - Added Cookie support and relative paths on redirect
+
+  2000-Jul-25 Hadi Hariri
+  - Overloaded POst and moved clearing to disconect.
+
+  2000-June-22 Hadi Hariri
+    - Added Proxy support.
+
+  2000-June-10 Hadi Hariri
+    - Added Chunk-Encoding support and HTTP version number. Some additional
+      improvements.
+
+  2000-May-23 J. Peter Mugaas
+    -added redirect capability and supporting properties.  Redirect is optional
+    and is set with HandleRedirects.  Redirection is limited to RedirectMaximum
+    to prevent stack overflow due to recursion and to prevent redirects between
+    two places which would cause this to go on to infinity.
+
+  2000-May-22 J. Peter Mugaas
+    -adjusted code for servers which returned LF instead of EOL
+    -Headers are now retreived before an exception is raised.  This
+    also facilitates server redirection where the server tells the client to
+    get a document from another location.
+
+  2000-May-01 Hadi Hariri
+    -Converted to Mercury
+
+  2000-May-01 Hadi Hariri
+    -Added PostFromStream and some clean up
+
+  2000-Apr-10 Hadi Hariri
+    -Re-done quite a few things and fixed GET bugs and finished POST method.
+
+  2000-Jan-13 MTL
+    -Moved to the New Palette Scheme
+
+  2000-Jan-08 MTL
+    -Cleaned up a few compiler hints during 7.038 build
+
+  1999-Dec-10 Hadi Hariri
+    -Started.
 }
 
 unit IdHTTP;
-
-{TODO:  Figure out what to do with ConnectTimeout.  Ideally, that should be in the core
-and is not the same as a read Timeout.}
 
 {
   Implementation of the HTTP protcol as specified in RFC 2616, 2109, 2965.
@@ -308,78 +325,11 @@ and is not the same as a read Timeout.}
   Author: Hadi Hariri (hadi@urusoft.com)
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 
-NOTE:
-  Initially only GET and POST will be supported. As time goes on more will
-  be added. For other developers, please add the date and what you have done
-  below.
-
-Initials: Hadi Hariri - HH
-
-Details of implementation
--------------------------
-2001-Nov Nick Panteleeff
- - Authentication and POST parameter extentsions
-2001-Sept Doychin Bondzhev
- - New internal design and new Authentication procedures.
- - Bug fixes and new features in few other supporting components
-2001-Jul-7 Doychin Bondzhev
- - new property AllowCookie
- - There is no more ExtraHeders property in Request/Response. Raw headers is used for that purpose.
-2001-Jul-1 Doychin Bondzhev
- - SSL support is up again - Thanks to Gregor
-2001-Jun-17 Doychin Bondzhev
- - New unit IdHTTPHeaderInfo.pas that contains the
-   TIdHeaderInfo(TIdEntytiHeaderInfo, TIdRequestHeaderInfo and TIdResponseHeaderInfo)
- - Still in development and not verry well tested
-   By default when there is no authorization object associated with HTTP compoenet and there is user name and password
-   HTTP component creates and instance of TIdBasicAuthentication class. This behaivor is for both web server and proxy server
-   authorizations
-2001-Apr-17 Doychin Bondzhev
- - Added OnProxyAuthorization event. This event is called on 407 response from the HTTP Proxy.
- - Added 2 new properties in TIdHeaderInfo
-    property AuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
-      requested by the web server
-    property ProxyAuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
-      requested by the proxy server
- - Now the component authomaticly reconginizes the requested authorization scheme and it supports Basic like before and has been
-   extend to support Digest authorization
-2001-Mar-31 Doychin Bondzhev
- - If there is no CookieManager it does not support cookies.
-2001-Feb-18 Doychin Bondzhev
- - Added OnAuthorization event. This event is called on 401 response from the HTTP server.
-     This can be used to ask the user program to supply user name and password in order to acces
-     the requested resource
-2001-Feb-02 Doychin Bondzhev
- - Added Cookie support and relative paths on redirect
-2000-Jul-25 Hadi Hariri
- - Overloaded POst and moved clearing to disconect.
-2000-June-22 Hadi Hariri
-  - Added Proxy support.
-2000-June-10 Hadi Hariri
-  - Added Chunk-Encoding support and HTTP version number. Some additional
-    improvements.
-2000-May-23 J. Peter Mugaas
-  -added redirect capability and supporting properties.  Redirect is optional
-   and is set with HandleRedirects.  Redirection is limited to RedirectMaximum
-   to prevent stack overflow due to recursion and to prevent redirects between
-   two places which would cause this to go on to infinity.
-2000-May-22 J. Peter Mugaas
-  -adjusted code for servers which returned LF instead of EOL
-  -Headers are now retreived before an exception is raised.  This
-   also facilitates server redirection where the server tells the client to
-   get a document from another location.
-2000-May-01 Hadi Hariri
-  -Converted to Mercury
-2000-May-01 Hadi Hariri
-  -Added PostFromStream and some clean up
-2000-Apr-10 Hadi Hariri
-  -Re-done quite a few things and fixed GET bugs and finished POST method.
-2000-Jan-13 MTL
-  -Moved to the New Palette Scheme
-2000-Jan-08 MTL
-  -Cleaned up a few compiler hints during 7.038 build
-1999-Dec-10 Hadi Hariri
-  -Started.
+  Initials: Hadi Hariri - HH
+}
+{
+  TODO:  Figure out what to do with ConnectTimeout.
+  Ideally, that should be in the core and is not the same as a read Timeout.
 }
 
 interface

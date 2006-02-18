@@ -16,30 +16,30 @@
   $Log$
 }
 {
-{   Rev 1.2    12/2/2004 4:23:54 PM  JPMugaas
-{ Adjusted for changes in Core.
+  Rev 1.2    12/2/2004 4:23:54 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.1    4/12/2003 10:24:08 PM  GGrieve
+  Fix to Compile
+
+  Rev 1.0    11/13/2002 07:54:06 AM  JPMugaas
+
+  2000-May-18: J. Peter Mugaas
+    -Ported to Indy
+
+  2000-Jan-13: MTL
+    -13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
+
+  1999-May-13: Ozz Nixon
+    -Final version
 }
-{
-{   Rev 1.1    4/12/2003 10:24:08 PM  GGrieve
-{ Fix to Compile
-}
-{
-{   Rev 1.0    11/13/2002 07:54:06 AM  JPMugaas
-}
+
 unit IdHostnameServer;
 
 interface
 {
-2000-May-18: J. Peter Mugaas
-  -Ported to Indy
-2000-Jan-13: MTL
-  -13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
-1999-May-13: Ozz Nixon
-  -Final version
-
-Original Author: Ozz Nixon
-
-Based on RFC 953
+  Original Author: Ozz Nixon
+  Based on RFC 953
 }
 
 uses

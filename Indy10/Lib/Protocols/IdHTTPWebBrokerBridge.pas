@@ -16,47 +16,39 @@
   $Log$
 }
 {
-{   Rev 1.7    6/26/2004 12:11:16 AM  BGooijen
-{ updates for D8
-}
-{
-{   Rev 1.6    4/8/2004 4:00:40 PM  BGooijen
-{ Fix for D8
-}
-{
-{   Rev 1.5    07/04/2004 20:44:06  HHariri
-{ Updates
-}
-{
-{   Rev 1.4    07/04/2004 20:07:50  HHariri
-{ Updates for .NET
-}
-{
-    Rev 1.3    10/19/2003 4:50:10 PM  DSiders
+  Rev 1.7    6/26/2004 12:11:16 AM  BGooijen
+  updates for D8
+
+  Rev 1.6    4/8/2004 4:00:40 PM  BGooijen
+  Fix for D8
+
+  Rev 1.5    07/04/2004 20:44:06  HHariri
+  Updates
+
+  Rev 1.4    07/04/2004 20:07:50  HHariri
+  Updates for .NET
+
+  Rev 1.3    10/19/2003 4:50:10 PM  DSiders
   Added localization comments.
+
+  Rev 1.2    10/12/2003 1:49:48 PM  BGooijen
+  Changed comment of last checkin
+
+  Rev 1.1    10/12/2003 1:43:32 PM  BGooijen
+  Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+  Rev 1.0    11/13/2002 07:54:34 AM  JPMugaas
 }
-{
-{   Rev 1.2    10/12/2003 1:49:48 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.1    10/12/2003 1:43:32 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.0    11/13/2002 07:54:34 AM  JPMugaas
-}
+
 unit IdHTTPWebBrokerBridge;
 
 {$I IdCompilerDefines.inc}
 
-(*
-
-Original Author: Dave Nottage.
-Modified by: Grahame Grieve
-Modified by: Chad Z. Hower (Kudzu)
-
-*)
+{
+  Original Author: Dave Nottage.
+  Modified by: Grahame Grieve
+  Modified by: Chad Z. Hower (Kudzu)
+}
 
 interface
 

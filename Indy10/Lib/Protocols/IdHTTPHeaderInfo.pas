@@ -20,8 +20,7 @@
   Modified TIdRequestHeaderInfo to restore the Range property.
   Modified TIdRequestHeaderInfo methods AssignTo, Clear, ProcessHeaders, and
     SetHeaders to include Range property.
-}
-{
+
   Rev 1.8    11/11/2004 12:55:38 AM  DSiders
   Modified TIdEntityHeaderInfo to fix problems with content-range header
     handling.
@@ -30,47 +29,39 @@
   Added HasContentRangeInstance property (read-only).
   Moved reading and writing methods to ProcessHeaders and SetHeaders in
     TIdEntityHeaderInfo.
-}
-{
+
   Rev 1.7    6/8/2004 10:35:46 AM  BGooijen
   fixed overflow
-}
-{
+
   Rev 1.6    2004.02.03 5:43:46 PM  czhower
   Name changes
-}
-{
-{
+
   Rev 1.5    1/22/2004 7:10:08 AM  JPMugaas
   Tried to fix AnsiSameText depreciation.
-}
-{
+
   Rev 1.4    13.1.2004 ã. 17:17:44  DBondzhev
   moved few methods into protected section to remove some warnings
-}
-{
+
   Rev 1.3    10/17/2003 12:09:28 AM  DSiders
   Added localization comments.
-}
-{
+
   Rev 1.2    20/4/2003 3:46:34 PM  SGrobety
   Fix to previous fix... (Dumb me)
-}
-{
+
   Rev 1.1    20/4/2003 3:33:58 PM  SGrobety
   Changed Content-type default in TIdEntityHeaderInfo back to empty string
     and changed the default of the response object. Solved compatibility
     issue with Netscape servers
-}
-{
+
   Rev 1.0    11/13/2002 07:54:24 AM  JPMugaas
 }
+
+unit IdHTTPHeaderInfo;
+
 {
   HTTP Header definition - RFC 2616
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
 }
-
-unit IdHTTPHeaderInfo;
 
 interface
 

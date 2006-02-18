@@ -16,61 +16,51 @@
   $Log$
 }
 {
-{   Rev 1.9    10/26/2004 10:10:58 PM  JPMugaas
-{ Updated refs.
+  Rev 1.9    10/26/2004 10:10:58 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.8    3/6/2004 2:53:30 PM  JPMugaas
+  Cleaned up an if as per Bug #79.
+
+  Rev 1.7    2004.02.03 5:43:42 PM  czhower
+  Name changes
+
+  Rev 1.6    2004.01.27 1:39:26 AM  czhower
+  CharIsInSet bug fix
+
+  Rev 1.5    1/22/2004 3:50:04 PM  SPerry
+  fixed set problems (with CharIsInSet)
+
+  Rev 1.4    1/22/2004 7:10:06 AM  JPMugaas
+  Tried to fix AnsiSameText depreciation.
+
+  Rev 1.3    10/5/2003 11:43:50 PM  GGrieve
+  Use IsLeadChar
+
+  Rev 1.2    10/4/2003 9:15:14 PM  GGrieve
+  DotNet changes
+
+  Rev 1.1    2/25/2003 12:56:20 PM  JPMugaas
+  Updated with Hadi's fix for a bug .  If complete boolean expression i on, you
+  may get an Index out of range error.
+
+  Rev 1.0    11/13/2002 07:53:52 AM  JPMugaas
+
+  2002-Jan-27 Don Siders
+  - Modified FoldLine to include Comma in break character set.
+
+  2000-May-31 J. Peter Mugaas
+  - started this class to facilitate some work on Indy so we don't have to
+    convert '=' to ":" and vice-versa just to use the Values property.
 }
-{
-{   Rev 1.8    3/6/2004 2:53:30 PM  JPMugaas
-{ Cleaned up an if as per Bug #79.
-}
-{
-{   Rev 1.7    2004.02.03 5:43:42 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.6    2004.01.27 1:39:26 AM  czhower
-{ CharIsInSet bug fix
-}
-{
-{   Rev 1.5    1/22/2004 3:50:04 PM  SPerry
-{ fixed set problems (with CharIsInSet)
-}
-{
-{   Rev 1.4    1/22/2004 7:10:06 AM  JPMugaas
-{ Tried to fix AnsiSameText depreciation.
-}
-{
-{   Rev 1.3    10/5/2003 11:43:50 PM  GGrieve
-{ Use IsLeadChar
-}
-{
-{   Rev 1.2    10/4/2003 9:15:14 PM  GGrieve
-{ DotNet changes
-}
-{
-{   Rev 1.1    2/25/2003 12:56:20 PM  JPMugaas
-{ Updated with Hadi's fix for a bug .  If complete boolean expression i on, you
-{ may get an Index out of range error.
-}
-{
-{   Rev 1.0    11/13/2002 07:53:52 AM  JPMugaas
-}
+
 unit IdHeaderList;
 
 {
- 2002-Jan-27 Don Siders
-  - Modified FoldLine to include Comma in break character set.
-
- 2000-May-31 J. Peter Mugaas
-  - started this class to facilitate some work on Indy so we don't have to
-    convert '=' to ":" and vice-versa just to use the Values property.
-  }
-
-{
- NOTE:  This is a modification of Borland's TStrings definition in a
-        TStringList descendant.  I had to conceal the original Values to do
-        this since most of low level property setting routines aren't virtual   
-        and are private.
+  NOTE: This is a modification of Borland's TStrings definition in a
+  TStringList descendant.  I had to conceal the original Values to do
+  this since most of low level property setting routines aren't virtual
+  and are private.
 }
 
 interface
@@ -116,7 +106,7 @@ type
     { This property works almost exactly as Borland's Values except it uses
       our deliniator defined in NameValueSeparator }
     property Names[Index: Integer]: string read GetName;
-    { This property works almost exactly as Borland's Values except it uses   
+    { This property works almost exactly as Borland's Values except it uses
       our deliniator defined in NameValueSeparator }
     property Values[const Name: string]: string read GetValue write SetValue;
     { This is the separator we need to separate the name from the value }
