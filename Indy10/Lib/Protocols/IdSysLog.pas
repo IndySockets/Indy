@@ -16,43 +16,41 @@
   $Log$
 }
 {
-{   Rev 1.5    2004.02.03 5:44:26 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    1/21/2004 4:03:54 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.3    15.9.2003 12:36:44  TPrami
-{ - Process information will be written in SendLogMessages if AUsePID
-{   is false
-}
-{
-{   Rev 1.2    15.9.2003 12:22:10  TPrami
-{ - AUsePID was not honored is SendLogMessage
-}
-{
-{   Rev 1.1    15.9.2003 11:05:26  TPrami
-{ - SendLogMessage was not sending Pid and name correctly. Now
-{   AText goes to the Content, not to the Text property
-}
-{
-{   Rev 1.0    11/13/2002 08:02:06 AM  JPMugaas
-}
-unit IdSysLog;
-//  Copyright the Indy pit crew
-//  Original Author: Stephane Grobety (grobety@fulgan.com)
-//  Release history:
-//
-//  09/19/01;  J. Peter Mugaas
-//    divided SysLogMessage into this unit
-//  08/09/01: Dev started
+  Rev 1.5    2004.02.03 5:44:26 PM  czhower
+  Name changes
 
-{ToDo:  Somehow figure out how to make a bound port and bound IP property
-in UDP Client.  This will probably require some changes to the Indy core units
-though.
+  Rev 1.4    1/21/2004 4:03:54 PM  JPMugaas
+  InitComponent
+
+  Rev 1.3    15.9.2003 12:36:44  TPrami
+  - Process information will be written in SendLogMessages if AUsePID
+  is false
+
+  Rev 1.2    15.9.2003 12:22:10  TPrami
+  - AUsePID was not honored is SendLogMessage
+
+  Rev 1.1    15.9.2003 11:05:26  TPrami
+  - SendLogMessage was not sending Pid and name correctly. Now
+  AText goes to the Content, not to the Text property
+
+  Rev 1.0    11/13/2002 08:02:06 AM  JPMugaas
 }
+
+unit IdSysLog;
+
+{
+  Copyright the Indy pit crew
+  Original Author: Stephane Grobety (grobety@fulgan.com)
+  Release history:
+  09/19/01;  J. Peter Mugaas
+    divided SysLogMessage into this unit
+  08/09/01: Dev started
+}
+
+{ ToDo:  Somehow figure out how to make a bound port and bound IP property
+  in UDP Client.  This will probably require some changes to the Indy core
+  units though. }
+
 interface
 
 uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
@@ -76,7 +74,7 @@ type
   published
     property Port default IdPORT_syslog;
   end;
-  
+
 implementation
 
 uses
