@@ -16,24 +16,24 @@
   $Log$
 }
 {
-{   Rev 1.2    3/3/2005 9:13:36 AM  JPMugaas
-{ Should work in DotNET.
+  Rev 1.2    3/3/2005 9:13:36 AM  JPMugaas
+  Should work in DotNET.
+
+  Rev 1.1    02/03/2005 00:09:14  CCostelloe
+  Bug fix (high bit treated as sign instead of MSB)
+
+  Rev 1.0    11/14/2002 02:12:30 PM  JPMugaas
 }
-{
-{   Rev 1.1    02/03/2005 00:09:14  CCostelloe
-{ Bug fix (high bit treated as sign instead of MSB)
-}
-{
-{   Rev 1.0    11/14/2002 02:12:30 PM  JPMugaas
-}
+
 unit IdASN1Util;
 
-//REVIEW: Licensing problem
+// REVIEW: Licensing problem
 // 1) Is this only used by SNMP? If so it should be merged there.
-// 2) MPL conflicts with Indy's BSD. We need permission to distribute under BSD as well.    {Do not Localize}
+// 2) MPL conflicts with Indy's BSD. We need permission to distribute under BSD as well.
 // 3) A comment needs to be added that Indy has permission to use this
 
-{==============================================================================|
+{
+|==============================================================================|
 | Project : Delphree - Synapse                                   | 001.003.004 |
 |==============================================================================|
 | Content: support for ASN.1 coding and decoding                               |
@@ -58,7 +58,8 @@ unit IdASN1Util;
 |==============================================================================|
 | History: see HISTORY.HTM from distribution package                           |
 |          (Found at URL: http://www.ararat.cz/synapse/)                       |
-|==============================================================================}
+|==============================================================================|
+}
 
 {$Q-}
 {$WEAKPACKAGEUNIT ON}

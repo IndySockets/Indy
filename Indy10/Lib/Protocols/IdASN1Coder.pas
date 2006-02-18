@@ -16,9 +16,10 @@
   $Log$
 }
 {
-{   Rev 1.0    15/04/2005 7:25:02 AM  GGrieve
-{ first ported to INdy
+  Rev 1.0    15/04/2005 7:25:02 AM  GGrieve
+  first ported to INdy
 }
+
 unit IdASN1Coder;
 
 interface
@@ -27,7 +28,7 @@ uses
   Classes,
   Contnrs,
   IdSys;
-  
+
 type
 
   TIdASN1IdentifierType = (aitUnknown, aitSequence, aitBoolean, aitInteger, aitEnum, aitString, aitOID, aitReal);
@@ -91,7 +92,7 @@ type
     procedure WriteString(sValue : String); overload;
     procedure WriteString(iTag : integer; sValue : String); overload;
   public
-    Constructor Create; 
+    Constructor Create;
     destructor Destroy; override;
 
     procedure WriteToStream(Stream : TStream);
@@ -106,7 +107,7 @@ type
     procedure InsertInt(Index, Value : integer);
     property Value[iIndex : integer]:Integer read GetValue write SetValue; default;
   end;
-  
+
   TIdASN1Decoder = class
   private
     FLengths : TIntegerList;
@@ -140,7 +141,7 @@ type
     Function ReadString : String;
 
   public
-    Constructor Create; 
+    Constructor Create;
     destructor Destroy; override;
     property Stream : TStream read FStream write FStream;
   end;
@@ -157,7 +158,7 @@ implementation
 
 uses
   IdException;
-  
+
 function ToIdentifierType(iTag : integer) : TIdASN1IdentifierType;
 begin
   case iTag of

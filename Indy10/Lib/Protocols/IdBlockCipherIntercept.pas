@@ -16,30 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.4    5/12/2003 12:30:58 AM  GGrieve
-{ Get compiling again with DotNet Changes
+  Rev 1.4    5/12/2003 12:30:58 AM  GGrieve
+  Get compiling again with DotNet Changes
+
+  Rev 1.3    10/12/2003 1:49:26 PM  BGooijen
+  Changed comment of last checkin
+
+  Rev 1.2    10/12/2003 1:43:24 PM  BGooijen
+  Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+  Rev 1.0    11/14/2002 02:13:56 PM  JPMugaas
 }
-{
-{   Rev 1.3    10/12/2003 1:49:26 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.2    10/12/2003 1:43:24 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.0    11/14/2002 02:13:56 PM  JPMugaas
-}
+
 unit IdBlockCipherIntercept;
 
-{-----------------------------------------------------------------------------
+{
  UnitName: IdBlockCipherIntercept
  Author:   Andrew P.Rybin [magicode@mail.ru]
  Creation: 27.02.2002
  Version:  0.9.0b
  Purpose:  Secure communications
- History:
------------------------------------------------------------------------------}
+}
 
 interface
 

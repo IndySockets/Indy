@@ -20,42 +20,34 @@
   Fixed AV from incorrect object being freed
   Fixed memory leak
   Improved parsing
-}
 
-{
-{   Rev 1.6    1/3/05 4:48:24 PM  RLebeau
-{ Removed reference to StrUtils unit, not being used.
-}
-{
-{   Rev 1.5    12/1/2004 1:57:50 PM  JPMugaas
-{ Updated with some code posted by:
-{ 
-{ Interpulse Systeemontwikkeling
-{ Interpulse Automatisering B.V.
-{ http://www.interpulse.nl
-}
-{
-{   Rev 1.1    2004.11.25 06:17:00 PM  EDMeester 
-}
-{
-{   Rev 1.0    2002.11.12 10:30:44 PM  czhower
-}
+  Rev 1.6    1/3/05 4:48:24 PM  RLebeau
+  Removed reference to StrUtils unit, not being used.
 
-{
-  Implementation of the digest authentication as specified in
-  RFC2617
+  Rev 1.5    12/1/2004 1:57:50 PM  JPMugaas
+  Updated with some code posted by:
 
-  rev 1.1: Edwin Meester (systeemontwikkeling@interpulse.nl)
-  Author: Doychin Bondzhev (doychin@dsoft-bg.com)
-  Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
+  Interpulse Systeemontwikkeling
+  Interpulse Automatisering B.V.
+  http://www.interpulse.nl
 
+  Rev 1.1    2004.11.25 06:17:00 PM  EDMeester
+
+  Rev 1.0    2002.11.12 10:30:44 PM  czhower
 }
 
 unit IdAuthenticationDigest;
 
+{
+  Implementation of the digest authentication as specified in RFC2617
+  rev 1.1: Edwin Meester (systeemontwikkeling@interpulse.nl)
+  Author: Doychin Bondzhev (doychin@dsoft-bg.com)
+  Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
+}
+
 interface
 
-Uses
+uses
   IdAuthentication,
   IdException,
   IdGlobal,
@@ -64,7 +56,7 @@ Uses
   IdSys,
   IdObjs;
 
-Type
+type
   EIdInvalidAlgorithm = class(EIdException);
 
   TIdDigestAuthentication = class(TIdAuthentication)

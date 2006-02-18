@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    28.09.2004 21:04:44  Andreas Hausladen
-{ Delphi 5 does not have a Owner property in TCollection
-}
-{
-{   Rev 1.3    24.08.2004 18:01:42  Andreas Hausladen
-{ Added AttachmentBlocked property to TIdAttachmentFile.
-}
-{
-{   Rev 1.2    2004.02.03 5:44:50 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.1    5/9/2003 10:27:20 AM  BGooijen
+  Rev 1.4    28.09.2004 21:04:44  Andreas Hausladen
+  Delphi 5 does not have a Owner property in TCollection
+
+  Rev 1.3    24.08.2004 18:01:42  Andreas Hausladen
+  Added AttachmentBlocked property to TIdAttachmentFile.
+
+  Rev 1.2    2004.02.03 5:44:50 PM  czhower
+  Name changes
+
+  Rev 1.1    5/9/2003 10:27:20 AM  BGooijen
   Attachment is now opened in fmShareDenyWrite mode
+
+  Rev 1.0    11/14/2002 02:12:42 PM  JPMugaas
 }
-{
-{   Rev 1.0    11/14/2002 02:12:42 PM  JPMugaas
-}
+
 unit IdAttachmentFile;
 
 interface
@@ -70,7 +67,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols, 
+  IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
   IdMessage;
 
 { TIdAttachmentFile }

@@ -16,40 +16,33 @@
   $Log$
 }
 {
-{   Rev 1.8    2/8/05 6:02:10 PM  RLebeau
-{ Try that again...
-}
-{
-{   Rev 1.7    2/8/05 6:00:02 PM  RLebeau
-{ Updated SaveToFile() to call SaveToStream()
-}
-{
-{   Rev 1.6    6/16/2004 2:10:48 PM  EHill
-{ Added SaveToStream method for TIdAttachment
-}
-{
-{   Rev 1.5    2004.03.03 10:30:46 AM  czhower
-{ Removed warning.
-}
-{
-{   Rev 1.4    2/24/04 1:23:58 PM  RLebeau
-{ Bug fix for SaveToFile() using the wrong Size
-}
-{
-{   Rev 1.3    2004.02.03 5:44:50 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    10/17/03 12:07:28 PM  RLebeau
-{ Updated Assign() to copy all available header values rather than select ones.
-}
-{
-    Rev 1.1    10/16/2003 10:55:24 PM  DSiders
+  Rev 1.8    2/8/05 6:02:10 PM  RLebeau
+  Try that again...
+
+  Rev 1.7    2/8/05 6:00:02 PM  RLebeau
+  Updated SaveToFile() to call SaveToStream()
+
+  Rev 1.6    6/16/2004 2:10:48 PM  EHill
+  Added SaveToStream method for TIdAttachment
+
+  Rev 1.5    2004.03.03 10:30:46 AM  czhower
+  Removed warning.
+
+  Rev 1.4    2/24/04 1:23:58 PM  RLebeau
+  Bug fix for SaveToFile() using the wrong Size
+
+  Rev 1.3    2004.02.03 5:44:50 PM  czhower
+  Name changes
+
+  Rev 1.2    10/17/03 12:07:28 PM  RLebeau
+  Updated Assign() to copy all available header values rather than select ones.
+
+  Rev 1.1    10/16/2003 10:55:24 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    11/14/2002 02:12:36 PM  JPMugaas
 }
-{
-{   Rev 1.0    11/14/2002 02:12:36 PM  JPMugaas
-}
+
 unit IdAttachment;
 
 interface

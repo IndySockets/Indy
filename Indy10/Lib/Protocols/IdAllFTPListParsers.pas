@@ -1,16 +1,17 @@
 unit IdAllFTPListParsers;
 
 interface
+
 {
-Note that is unit is simply for listing ALL FTP List parsers in Indy.
-The user could then add this unit to a uses clause in their program and
-have all FTP list parsers linked into their program.
+  Note that is unit is simply for listing ALL FTP List parsers in Indy.
+  The user could then add this unit to a uses clause in their program and
+  have all FTP list parsers linked into their program.
 
-ABSOLELY NO CODE is permitted in this unit.
-
+  ABSOLELY NO CODE is permitted in this unit.
 }
 
 implementation
+
 uses
   IdFTPListParseAS400,
   IdFTPListParseBullGCOS7,
@@ -48,6 +49,6 @@ uses
   IdFTPListParseWindowsNT,
   IdFTPListParseXecomMicroRTOS;
 
-{dee-duh-de-duh, that's all folks.}
+{ dee-duh-de-duh, that's all folks. }
 
 end.
