@@ -16,208 +16,160 @@
   $Log$
 }
 {
-{   Rev 1.51    3/28/2005 1:12:36 PM  JPMugaas
-{ Package build errors.
-}
-{
-{   Rev 1.50    2/10/2005 2:24:40 PM  JPMugaas
-{ Minor Restructures for some new UnixTime Service components.
-}
-{
-{   Rev 1.49    12/12/2004 20:26:16  ANeillans
-{ Fixed compile error
-}
-{
-    Rev 1.48    12/10/2004 4:57:52 PM  DSiders
+  Rev 1.51    3/28/2005 1:12:36 PM  JPMugaas
+  Package build errors.
+
+  Rev 1.50    2/10/2005 2:24:40 PM  JPMugaas
+  Minor Restructures for some new UnixTime Service components.
+
+  Rev 1.49    12/12/2004 20:26:16  ANeillans
+  Fixed compile error
+
+  Rev 1.48    12/10/2004 4:57:52 PM  DSiders
   Added TIdIPAddrMon to Misc pallette.
-}
-{
-{   Rev 1.47    11/14/2004 10:30:10 PM  JPMugaas
-{ FSP added.
-}
-{
-{   Rev 1.46    10/22/2004 7:24:14 AM  Joerg
-{ Fix .NET bitmaps again after previous checkin.
-}
-{
-{   Rev 1.45    10/22/2004 1:43:58 PM  BGooijen
-{ Removed  IdHL7 from palette
-}
-{
-{   Rev 1.42    6/15/2004 5:51:56 PM  JPMugaas
-{ Added Compressor class for ZLibEx.
-}
-{
-{   Rev 1.41    3/8/2004 10:08:52 AM  JPMugaas
-{ IdDICT now compiles with new code.  IdDICT now added to palette.
-}
-{
-{   Rev 1.40    3/3/2004 6:51:22 PM  JPMugaas
-{ TIdHTTPProxyServer added to servers tab.
-}
-{
-{   Rev 1.39    2/29/2004 1:36:08 PM  JPMugaas
-{ Hack for missing property editor.
-}
-{
-{   Rev 1.38    10/02/2004 12:53:20  ANeillans
-{ IdCoreResourceStrings renamed to IdResourceStringsCore
-}
-{
-{   Rev 1.37    2/3/2004 4:29:14 PM  JPMugaas
-{ Should compile.
-}
-{
-{   Rev 1.36    2/2/2004 5:04:04 PM  JPMugaas
-{ IdMappedFTP now works in DotNET.
-}
-{
-{   Rev 1.35    2/2/2004 4:28:54 PM  JPMugaas
-{ Recased IdMappedPOP3.  Added some MappedPort components to DotNET because
-{ those now compile.
-}
-{
-{   Rev 1.34    2/1/2004 3:37:34 PM  JPMugaas
-{ Updated for unit change I made.  I forgot to fix this, sorry.
-}
-{
-{   Rev 1.33    1/31/2004 4:26:58 PM  JPMugaas
-{ Updated with package move for FTP materials and fixed for DotNET.
-}
-{
-{   Rev 1.32    1/25/2004 3:23:20 PM  JPMugaas
-{ IdSASLList dropped.
-}
-{
-{   Rev 1.31    1/4/2004 12:39:16 AM  BGooijen
-{ Added TIdFTPServer
-}
-{
-{   Rev 1.30    11/22/2003 11:53:08 PM  BGooijen
-{ Icons for DotNet
-}
-{
-{   Rev 1.29    11/11/2003 7:03:48 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.28    2003.10.19 1:35:46 PM  czhower
-{ Moved Borland define to .inc
-}
-{
-{   Rev 1.27    2003.10.17 6:19:50 PM  czhower
-{ Temporarily commented out FTPServer.
-}
-{
-{   Rev 1.26    2003.10.14 1:27:58 PM  czhower
-{ DotNet
-}
-{
-{   Rev 1.25    10/12/2003 1:49:58 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.24    10/12/2003 1:43:42 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.23    9/20/2003 04:33:08 PM  JPMugaas
-{ Removed reference to IdThreadComponent from In the protcols packages.  It
-{ should be in the core package.
-}
-{
-{   Rev 1.22    9/19/2003 04:27:08 PM  JPMugaas
-{ Removed IdFTPServer so Indy can compile with Kudzu's new changes.
-}
-{
-{   Rev 1.21    9/16/2003 11:58:12 PM  JPMugaas
-{ Updated packages with TIdSocksServer and IdHL7.
-}
-{
-{   Rev 1.20    7/13/2003 06:28:56 PM  JPMugaas
-{ Added TIdCompressorBorZLib to palette for HTTP compression (gzip, deflate).
-}
-{
-{   Rev 1.19    6/16/2003 09:53:26 PM  JPMugaas
-{ IdIMAP4 now added back into the packages.
-}
-{
-{   Rev 1.18    6/15/2003 03:26:06 PM  JPMugaas
-{ Renamed IdDirectSMTP to IdSMTPRelay.
-}
-{
-{   Rev 1.17    6/2/2003 01:59:34 AM  JPMugaas
-{ Temporarily removed IMAP4.
-}
-{
-{   Rev 1.16    5/11/2003 05:33:32 AM  JPMugaas
-}
-{
-{   Rev 1.15    5/10/2003 10:11:22 PM  JPMugaas
-{ Added S/Key SASL mechanism.
-}
-{
-{   Rev 1.14    10/5/2003 10:26:42 AM  SGrobety
-{ CRAM-MD5 added
-}
-{
-{   Rev 1.13    5/7/2003 04:38:22 AM  JPMugaas
-{ IMAP4 added back.
-}
-{
-{   Rev 1.12    4/23/2003 05:16:20 PM  JPMugaas
-{ Temporarily removed IMAP4.  That unit does not compile.
-}
-{
-{   Rev 1.11    4/10/2003 02:43:44 PM  JPMugaas
-{ Fixed compile error.
-}
-{
-    Rev 1.10    4/10/2003 4:36:54 PM  BGooijen
+
+  Rev 1.47    11/14/2004 10:30:10 PM  JPMugaas
+  FSP added.
+
+  Rev 1.46    10/22/2004 7:24:14 AM  Joerg
+  Fix .NET bitmaps again after previous checkin.
+
+  Rev 1.45    10/22/2004 1:43:58 PM  BGooijen
+  Removed  IdHL7 from palette
+
+  Rev 1.42    6/15/2004 5:51:56 PM  JPMugaas
+  Added Compressor class for ZLibEx.
+
+  Rev 1.41    3/8/2004 10:08:52 AM  JPMugaas
+  IdDICT now compiles with new code.  IdDICT now added to palette.
+
+  Rev 1.40    3/3/2004 6:51:22 PM  JPMugaas
+  TIdHTTPProxyServer added to servers tab.
+
+  Rev 1.39    2/29/2004 1:36:08 PM  JPMugaas
+  Hack for missing property editor.
+
+  Rev 1.38    10/02/2004 12:53:20  ANeillans
+  IdCoreResourceStrings renamed to IdResourceStringsCore
+
+  Rev 1.37    2/3/2004 4:29:14 PM  JPMugaas
+  Should compile.
+
+  Rev 1.36    2/2/2004 5:04:04 PM  JPMugaas
+  IdMappedFTP now works in DotNET.
+
+  Rev 1.35    2/2/2004 4:28:54 PM  JPMugaas
+  Recased IdMappedPOP3.  Added some MappedPort components to DotNET because
+  those now compile.
+
+  Rev 1.34    2/1/2004 3:37:34 PM  JPMugaas
+  Updated for unit change I made.  I forgot to fix this, sorry.
+
+  Rev 1.33    1/31/2004 4:26:58 PM  JPMugaas
+  Updated with package move for FTP materials and fixed for DotNET.
+
+  Rev 1.32    1/25/2004 3:23:20 PM  JPMugaas
+  IdSASLList dropped.
+
+  Rev 1.31    1/4/2004 12:39:16 AM  BGooijen
+  Added TIdFTPServer
+
+  Rev 1.30    11/22/2003 11:53:08 PM  BGooijen
+  Icons for DotNet
+
+  Rev 1.29    11/11/2003 7:03:48 PM  BGooijen
+  DotNet
+
+  Rev 1.28    2003.10.19 1:35:46 PM  czhower
+  Moved Borland define to .inc
+
+  Rev 1.27    2003.10.17 6:19:50 PM  czhower
+  Temporarily commented out FTPServer.
+
+  Rev 1.26    2003.10.14 1:27:58 PM  czhower
+  DotNet
+
+  Rev 1.25    10/12/2003 1:49:58 PM  BGooijen
+  Changed comment of last checkin
+
+  Rev 1.24    10/12/2003 1:43:42 PM  BGooijen
+  Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+  Rev 1.23    9/20/2003 04:33:08 PM  JPMugaas
+  Removed reference to IdThreadComponent from In the protcols packages.  It
+  should be in the core package.
+
+  Rev 1.22    9/19/2003 04:27:08 PM  JPMugaas
+  Removed IdFTPServer so Indy can compile with Kudzu's new changes.
+
+  Rev 1.21    9/16/2003 11:58:12 PM  JPMugaas
+  Updated packages with TIdSocksServer and IdHL7.
+
+  Rev 1.20    7/13/2003 06:28:56 PM  JPMugaas
+  Added TIdCompressorBorZLib to palette for HTTP compression (gzip, deflate).
+
+  Rev 1.19    6/16/2003 09:53:26 PM  JPMugaas
+  IdIMAP4 now added back into the packages.
+
+  Rev 1.18    6/15/2003 03:26:06 PM  JPMugaas
+  Renamed IdDirectSMTP to IdSMTPRelay.
+
+  Rev 1.17    6/2/2003 01:59:34 AM  JPMugaas
+  Temporarily removed IMAP4.
+
+  Rev 1.16    5/11/2003 05:33:32 AM  JPMugaas
+
+  Rev 1.15    5/10/2003 10:11:22 PM  JPMugaas
+  Added S/Key SASL mechanism.
+
+  Rev 1.14    10/5/2003 10:26:42 AM  SGrobety
+  CRAM-MD5 added
+
+  Rev 1.13    5/7/2003 04:38:22 AM  JPMugaas
+  IMAP4 added back.
+
+  Rev 1.12    4/23/2003 05:16:20 PM  JPMugaas
+  Temporarily removed IMAP4.  That unit does not compile.
+
+  Rev 1.11    4/10/2003 02:43:44 PM  JPMugaas
+  Fixed compile error.
+
+  Rev 1.10    4/10/2003 4:36:54 PM  BGooijen
   Added TIdServerCompressionIntercept
-}
-{
-    Rev 1.9    3/22/2003 11:11:26 PM  BGooijen
+
+  Rev 1.9    3/22/2003 11:11:26 PM  BGooijen
   Added TIdServerInterceptLogEvent and TIdServerInterceptLogFile
+
+  Rev 1.8    3/13/2003 11:06:26 AM  JPMugaas
+  Classes were renamed in OpenSSL unit.
+
+  Rev 1.7    2/24/2003 10:16:40 PM  JPMugaas
+  Removed IdSocksServer from unit.
+
+  Rev 1.6    2/24/2003 08:15:28 AM  JPMugaas
+  IOHandlerSSL included.
+
+  Rev 1.5    2/6/2003 03:18:24 AM  JPMugaas
+  Updated components that compile with Indy 10.
+
+  Rev 1.4    1/9/2003 07:19:18 AM  JPMugaas
+  Temporarily removed Tunnel components until we can get them working with the
+  Context class.
+
+  Rev 1.3    12/16/2002 03:34:40 AM  JPMugaas
+  Added OTP SASL mechanism to palette.
+
+  Rev 1.2    12/15/2002 05:50:16 PM  JPMugaas
+  SMTP and IMAP4 compile.  IdPOP3, IdFTP, IMAP4, and IdSMTP now restored in
+  IdRegister.
+
+  Rev 1.1    12/7/2002 06:43:24 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 07:58:56 AM  JPMugaas
 }
-{
-{   Rev 1.8    3/13/2003 11:06:26 AM  JPMugaas
-{ Classes were renamed in OpenSSL unit.
-}
-{
-{   Rev 1.7    2/24/2003 10:16:40 PM  JPMugaas
-{ Removed IdSocksServer from unit.
-}
-{
-{   Rev 1.6    2/24/2003 08:15:28 AM  JPMugaas
-{ IOHandlerSSL included.
-}
-{
-{   Rev 1.5    2/6/2003 03:18:24 AM  JPMugaas
-{ Updated components that compile with Indy 10.
-}
-{
-{   Rev 1.4    1/9/2003 07:19:18 AM  JPMugaas
-{ Temporarily removed Tunnel components until we can get them working with the
-{ Context class.
-}
-{
-{   Rev 1.3    12/16/2002 03:34:40 AM  JPMugaas
-{ Added OTP SASL mechanism to palette.
-}
-{
-{   Rev 1.2    12/15/2002 05:50:16 PM  JPMugaas
-{ SMTP and IMAP4 compile.  IdPOP3, IdFTP, IMAP4, and IdSMTP now restored in
-{ IdRegister.
-}
-{
-{   Rev 1.1    12/7/2002 06:43:24 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 07:58:56 AM  JPMugaas
-}
+
 unit IdRegister;
 
 {$I IdCompilerDefines.inc}
