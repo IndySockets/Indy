@@ -16,18 +16,19 @@
   $Log$
 }
 {
-{   Rev 1.0    15/04/2005 7:25:06 AM  GGrieve
-{ first ported to INdy
+  Rev 1.0    15/04/2005 7:25:06 AM  GGrieve
+  first ported to INdy
 }
-Unit IdLDAPV3Coder;
 
-Interface
+unit IdLDAPV3Coder;
 
-Uses
+interface
+
+uses
   IdASN1Coder,
   IdLdapV3;
 
-Type
+type
   TIdLDAPV3Encoder = Class (TIdASN1Encoder)
   private
     procedure WriteAuthentication(oAuthentication: TIdLDAPv3AuthenticationChoice);
@@ -38,9 +39,9 @@ Type
     procedure WriteMatchingRuleAssertion(oMatchingRuleAssertion : TIdLDAPV3MatchingRuleAssertion; iTag : integer);
     procedure WriteFilter(oFilter : TIdLDAPV3Filter; iTag : integer);
     procedure WriteAttributes(oAttributes : TIdLDAPV3AttributeDescriptionList; iTag : integer);
-    Procedure WriteReferral(oReferral : TIdLDAPV3Referral; iTag : integer);
-    Procedure WritePartialAttributeList(oAttributes : TIdLDAPV3PartialAttributeList; iTag : integer);
-    Procedure WritePartialAttribute(oAttribute : TIdLDAPV3PartialAttribute; iTag : integer);
+    procedure WriteReferral(oReferral : TIdLDAPV3Referral; iTag : integer);
+    procedure WritePartialAttributeList(oAttributes : TIdLDAPV3PartialAttributeList; iTag : integer);
+    procedure WritePartialAttribute(oAttribute : TIdLDAPV3PartialAttribute; iTag : integer);
 
     procedure WriteResultInner(oResult : TIdLDAPV3LDAPResult);
 
@@ -64,37 +65,37 @@ Type
     procedure WriteabandonRequest(oAbandonRequest : TIdLDAPV3AbandonRequest);
     procedure WriteextendedReq(oExtendedReq : TIdLDAPV3ExtendedRequest);
     procedure WriteextendedResp(oExtendedResp : TIdLDAPV3ExtendedResponse);
-  Public
-    Procedure Produce(oMessage : TIdLDAPV3Message); Overload; Virtual;
-  End;
+  public
+    procedure Produce(oMessage : TIdLDAPV3Message); Overload; Virtual;
+  end;
 
-Type
+type
   TIdLDAPV3Decoder = Class (TIdASN1Decoder)
-  Private
-    Procedure ReadFilter(oFilter : TIdLDAPV3Filter);
-    Procedure ReadFilterList(oFilterList : TIdLDAPV3FilterList);
-    Procedure ReadAttributes(oAttributes : TIdLDAPV3AttributeDescriptionList);
-    Procedure ReadAttributeValueAssertion(oEqualityMatch : TIdLDAPV3AttributeValueAssertion);
-    Procedure ReadSubstringFilter(oSubstrings : TIdLDAPV3SubstringFilter);
-    Procedure ReadMatchingRuleAssertion(oExtensibleMatch : TIdLDAPV3MatchingRuleAssertion);
-    Procedure ReadSubString(oString : TIdLDAPV3Substring);
-    Procedure ReadPartialAttribute(oAttribute : TIdLDAPV3PartialAttribute);
-    Procedure ReadPartialAttributeList(oAttributes : TIdLDAPV3PartialAttributeList);
+  private
+    procedure ReadFilter(oFilter : TIdLDAPV3Filter);
+    procedure ReadFilterList(oFilterList : TIdLDAPV3FilterList);
+    procedure ReadAttributes(oAttributes : TIdLDAPV3AttributeDescriptionList);
+    procedure ReadAttributeValueAssertion(oEqualityMatch : TIdLDAPV3AttributeValueAssertion);
+    procedure ReadSubstringFilter(oSubstrings : TIdLDAPV3SubstringFilter);
+    procedure ReadMatchingRuleAssertion(oExtensibleMatch : TIdLDAPV3MatchingRuleAssertion);
+    procedure ReadSubString(oString : TIdLDAPV3Substring);
+    procedure ReadPartialAttribute(oAttribute : TIdLDAPV3PartialAttribute);
+    procedure ReadPartialAttributeList(oAttributes : TIdLDAPV3PartialAttributeList);
 
-    Procedure ReadReferral(oReferral : TIdLDAPV3Referral);
-    Procedure ReadResultInner(oResult : TIdLDAPV3LDAPResult);
+    procedure ReadReferral(oReferral : TIdLDAPV3Referral);
+    procedure ReadResultInner(oResult : TIdLDAPV3LDAPResult);
 
-    Procedure ReadBindRequest(oMessage : TIdLDAPV3Message);
-    Procedure ReadBindResponse(oMessage : TIdLDAPV3Message);
-    Procedure ReadSearchRequest(oMessage : TIdLDAPV3Message);
-    Procedure ReadSearchResultEntry(oMessage : TIdLDAPV3Message);
-    Procedure ReadSearchResultDone(oMessage : TIdLDAPV3Message);
-  Public
-    Procedure ReadMessage(oMessage : TIdLDAPV3Message); Overload; Virtual;
-  End;
+    procedure ReadBindRequest(oMessage : TIdLDAPV3Message);
+    procedure ReadBindResponse(oMessage : TIdLDAPV3Message);
+    procedure ReadSearchRequest(oMessage : TIdLDAPV3Message);
+    procedure ReadSearchResultEntry(oMessage : TIdLDAPV3Message);
+    procedure ReadSearchResultDone(oMessage : TIdLDAPV3Message);
+  public
+    procedure ReadMessage(oMessage : TIdLDAPV3Message); Overload; Virtual;
+  end;
 
 
-Implementation
+implementation
 
 uses
   SysUtils,
@@ -102,8 +103,8 @@ uses
 
 { TIdLDAPV3Encoder }
 
-Procedure TIdLDAPV3Encoder.Produce(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Encoder.Produce(oMessage: TIdLDAPV3Message);
+begin
   StartWriting;
   StartSequence;
   WriteInteger(oMessage.messageID);
@@ -148,10 +149,10 @@ Begin
   else if assigned(oMessage.extendedResp) then
     WriteextendedResp(oMessage.extendedResp) // TIdLDAPV3ExtendedResponse
   else
-    Raise EIdException.create('No Protocol Choice operation on message');
+    raise EIdException.create('No Protocol Choice operation on message');
   StopSequence;
   StopWriting;
-End;
+end;
 
 procedure TIdLDAPV3Encoder.WritebindRequest(oBindRequest : TIdLDAPV3BindRequest);
 begin
@@ -173,7 +174,7 @@ end;
 
 procedure TIdLDAPV3Encoder.WriteunbindRequest(oUnbindRequest : TIdLDAPV3UnbindRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritesearchRequest(oSearchRequest : TIdLDAPV3SearchRequest);
@@ -207,78 +208,78 @@ end;
 
 procedure TIdLDAPV3Encoder.WritesearchResRef(oSearchResRef : TIdLDAPV3SearchResultReference);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritemodifyRequest(oModifyRequest : TIdLDAPV3ModifyRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritemodifyResponse(oModifyResponse : TIdLDAPV3ModifyResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteaddRequest(oAddRequest : TIdLDAPV3AddRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteaddResponse(oAddResponse : TIdLDAPV3AddResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritedelRequest(oDelRequest : TIdLDAPV3DelRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritedelResponse(oDelResponse : TIdLDAPV3DelResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritemodDNRequest(oModDNRequest : TIdLDAPV3ModifyDNRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritemodDNResponse(oModDNResponse : TIdLDAPV3ModifyDNResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritecompareRequest(oCompareRequest : TIdLDAPV3CompareRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WritecompareResponse(oCompareResponse : TIdLDAPV3CompareResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteabandonRequest(oAbandonRequest : TIdLDAPV3AbandonRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteextendedReq(oExtendedReq : TIdLDAPV3ExtendedRequest);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteextendedResp(oExtendedResp : TIdLDAPV3ExtendedResponse);
 begin
-  Raise EIdException.create('Not yet implemented');
+  raise EIdException.create('Not yet implemented');
 end;
 
 procedure TIdLDAPV3Encoder.WriteAuthentication(oAuthentication: TIdLDAPv3AuthenticationChoice);
 begin
   if assigned(oAuthentication.sasl) then
-    Raise EIdException.create('sasl not handled yet')
+    raise EIdException.create('sasl not handled yet')
   else
     WriteString(0, oAuthentication.simple);
 end;
@@ -306,7 +307,7 @@ begin
   else if assigned(oFilter.extensibleMatch) then
     WriteMatchingRuleAssertion(oFilter.extensibleMatch, 9)
   else
-    Raise EIdException.create('No operation Choice on Filter');
+    raise EIdException.create('No operation Choice on Filter');
 end;
 
 procedure TIdLDAPV3Encoder.WriteFilterList(oFilterList : TIdLDAPV3FilterList; iTag : integer);
@@ -411,154 +412,154 @@ begin
     WriteString(oAttribute.vals[iLoop]);
   StopSequence;
   StopSequence;
-End;
+end;
 
 
 { TIdLDAPV3Decoder }
 
-Procedure TIdLDAPV3Decoder.ReadBindRequest(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadBindRequest(oMessage: TIdLDAPV3Message);
+begin
   oMessage.bindRequest := TIdLDAPV3BindRequest.Create;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   oMessage.bindRequest.version := ReadInteger;
   oMessage.bindRequest.name := ReadString;
-  Case NextTag Of
+  case NextTag Of
     0: oMessage.bindRequest.authentication.simple := ReadString;
-    3: Raise EIdException.create('SASL Not handled yet');
-  Else
-    Raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
-  End;
-  ReadSequenceEnd;
-End;
+    3: raise EIdException.create('SASL not handled yet');
+  else
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+  end;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadBindResponse(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadBindResponse(oMessage: TIdLDAPV3Message);
+begin
   oMessage.bindResponse := TIdLDAPV3BindResponse.Create;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   ReadResultInner(oMessage.BindResponse);
-  If Not SequenceEnded Then
+  if not SequenceEnded then
     oMessage.bindResponse.serverSaslCreds := ReadString;
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadFilter(oFilter: TIdLDAPV3Filter);
-Begin
-  Case NextTag Of
-    0: Begin
-       oFilter._and := TIdLDAPV3FilterList.Create;
-       ReadFilterList(oFilter._and);
-       End;
-    1: Begin
-       oFilter._or := TIdLDAPV3FilterList.Create;
-       ReadFilterList(oFilter._or);
-       End;
-    2: Begin
-       oFilter._not := TIdLDAPV3Filter.Create;
-       ReadFilter(oFilter._not);
-       End;
-    3: Begin
-       oFilter.equalityMatch  := TIdLDAPV3AttributeValueAssertion.Create;
-       ReadAttributeValueAssertion(oFilter.equalityMatch );
-       End;
-    4: Begin
-       oFilter.substrings     := TIdLDAPV3SubstringFilter.Create;
-       ReadSubstringFilter(oFilter.substrings);
-       End;
-    5: Begin
-       oFilter.greaterOrEqual := TIdLDAPV3AttributeValueAssertion.Create;
-       ReadAttributeValueAssertion(oFilter.greaterOrEqual);
-       End;
-    6: Begin
-       oFilter.lessOrEqual    := TIdLDAPV3AttributeValueAssertion.Create;
-       ReadAttributeValueAssertion(oFilter.lessOrEqual);
-       End;
+procedure TIdLDAPV3Decoder.ReadFilter(oFilter: TIdLDAPV3Filter);
+begin
+  case NextTag Of
+    0: begin
+        oFilter._and := TIdLDAPV3FilterList.Create;
+        ReadFilterList(oFilter._and);
+       end;
+    1: begin
+        oFilter._or := TIdLDAPV3FilterList.Create;
+        ReadFilterList(oFilter._or);
+       end;
+    2: begin
+        oFilter._not := TIdLDAPV3Filter.Create;
+        ReadFilter(oFilter._not);
+       end;
+    3: begin
+        oFilter.equalityMatch  := TIdLDAPV3AttributeValueAssertion.Create;
+        ReadAttributeValueAssertion(oFilter.equalityMatch );
+       end;
+    4: begin
+        oFilter.substrings     := TIdLDAPV3SubstringFilter.Create;
+        ReadSubstringFilter(oFilter.substrings);
+       end;
+    5: begin
+        oFilter.greaterOrEqual := TIdLDAPV3AttributeValueAssertion.Create;
+        ReadAttributeValueAssertion(oFilter.greaterOrEqual);
+       end;
+    6: begin
+        oFilter.lessOrEqual    := TIdLDAPV3AttributeValueAssertion.Create;
+        ReadAttributeValueAssertion(oFilter.lessOrEqual);
+       end;
     7: oFilter.present := ReadString;
-    8: Begin
-       oFilter.approxMatch    := TIdLDAPV3AttributeValueAssertion.Create;
-       ReadAttributeValueAssertion(oFilter.approxMatch);
-       End;
-    9: Begin
-       oFilter.extensibleMatch := TIdLDAPV3MatchingRuleAssertion.Create;
-       ReadMatchingRuleAssertion(oFilter.extensibleMatch);
-       End;
-  Else
-    Raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
-  End;
-End;
+    8: begin
+        oFilter.approxMatch    := TIdLDAPV3AttributeValueAssertion.Create;
+        ReadAttributeValueAssertion(oFilter.approxMatch);
+       end;
+    9: begin
+        oFilter.extensibleMatch := TIdLDAPV3MatchingRuleAssertion.Create;
+        ReadMatchingRuleAssertion(oFilter.extensibleMatch);
+       end;
+  else
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+  end;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadFilterList(oFilterList : TIdLDAPV3FilterList);
+procedure TIdLDAPV3Decoder.ReadFilterList(oFilterList : TIdLDAPV3FilterList);
 Var
   oFilter : TIdLDAPV3Filter;
-Begin
-  While NextTagType = aitSequence Do
-    Begin
+begin
+  while NextTagType = aitSequence do
+  begin
     ReadFilter(oFilter);
     oFilterList.Add(oFilter);
-    End;
-End;
+  end;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadAttributeValueAssertion(oEqualityMatch : TIdLDAPV3AttributeValueAssertion);
-Begin
-  ReadSequenceBegin;
+procedure TIdLDAPV3Decoder.ReadAttributeValueAssertion(oEqualityMatch : TIdLDAPV3AttributeValueAssertion);
+begin
+  ReadSequencebegin;
   oEqualityMatch.attributeDesc := ReadString;
   oEqualityMatch.assertionValue := ReadString;
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadSubString(oString: TIdLDAPV3Substring);
-Begin
-  ReadSequenceBegin;
-  Case NextTag Of
+procedure TIdLDAPV3Decoder.ReadSubString(oString: TIdLDAPV3Substring);
+begin
+  ReadSequencebegin;
+  case NextTag Of
     0 : oString.initial := ReadString;
     1 : oString.any     := ReadString;
     2 : oString.final   := ReadString;
-  Else
-    Raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
-  End;
-  ReadSequenceEnd;
-End;
+  else
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+  end;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadSubstringFilter(oSubstrings : TIdLDAPV3SubstringFilter);
+procedure TIdLDAPV3Decoder.ReadSubstringFilter(oSubstrings : TIdLDAPV3SubstringFilter);
 Var
   oString : TIdLDAPV3Substring;
-Begin
-  ReadSequenceBegin;
+begin
+  ReadSequencebegin;
   oSubstrings._type := ReadString;
-  While Not SequenceEnded Do
-    Begin
+  while not SequenceEnded do
+  begin
     ReadSubString(oString);
     oSubstrings.substrings.Add(oString);
-    End;
-  ReadSequenceEnd;
-End;
+  end;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadMatchingRuleAssertion(oExtensibleMatch : TIdLDAPV3MatchingRuleAssertion);
-Begin
-  ReadSequenceBegin;
-  If NextTag = 1 Then
+procedure TIdLDAPV3Decoder.ReadMatchingRuleAssertion(oExtensibleMatch : TIdLDAPV3MatchingRuleAssertion);
+begin
+  ReadSequencebegin;
+  if NextTag = 1 then
     oExtensibleMatch.matchingRule := ReadString;
-  If NextTag = 2 Then
+  if NextTag = 2 then
     oExtensibleMatch._type := ReadString;
   oExtensibleMatch.matchValue := ReadString;
-  If Not SequenceEnded Then
+  if not SequenceEnded then
     oExtensibleMatch.dnAttributes := ReadBoolean
-  Else
+  else
     oExtensibleMatch.dnAttributes := False;
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadAttributes(oAttributes: TIdLDAPV3AttributeDescriptionList);
-Begin
-  ReadSequenceBegin;
-  While Not SequenceEnded Do
+procedure TIdLDAPV3Decoder.ReadAttributes(oAttributes: TIdLDAPV3AttributeDescriptionList);
+begin
+  ReadSequencebegin;
+  while not SequenceEnded do
     oAttributes.Add(ReadString);
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadSearchRequest(oMessage : TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadSearchRequest(oMessage : TIdLDAPV3Message);
+begin
   oMessage.searchRequest := TIdLDAPV3SearchRequest.Create;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   oMessage.searchRequest.baseObject := ReadString;
   oMessage.searchRequest.scope := TIdLDAPV3SearchScope(ReadEnum);
   oMessage.searchRequest.derefAliases := TIdLDAPV3SearchDerefAliases(ReadEnum);
@@ -567,34 +568,33 @@ Begin
   oMessage.searchRequest.typesOnly := ReadBoolean;
   ReadFilter(oMessage.searchRequest.filter);
   ReadAttributes(oMessage.searchRequest.attributes);
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadSearchResultEntry(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadSearchResultEntry(oMessage: TIdLDAPV3Message);
+begin
   oMessage.searchResEntry := TIdLDAPV3SearchResultEntry.Create;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   oMessage.searchResEntry.objectName := ReadString;
   ReadPartialAttributeList(oMessage.searchResEntry.attributes);
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadSearchResultDone(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadSearchResultDone(oMessage: TIdLDAPV3Message);
+begin
   oMessage.searchResDone := TIdLDAPV3SearchResultDone.Create;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   ReadResultInner(oMessage.searchResDone);
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-
-Procedure TIdLDAPV3Decoder.ReadMessage(oMessage: TIdLDAPV3Message);
-Begin
+procedure TIdLDAPV3Decoder.ReadMessage(oMessage: TIdLDAPV3Message);
+begin
   StartReading;
   oMessage.Clear;
-  ReadSequenceBegin;
+  ReadSequencebegin;
   oMessage.messageID := ReadInteger;
-  Case NextTag Of
+  case NextTag Of
     0  : ReadBindRequest(oMessage);
     1  : ReadBindResponse(oMessage);
 //    2  : ReadUnbindRequest(oMessage);
@@ -615,57 +615,57 @@ Begin
 //    19  : ReadSearchResultReference(oMessage);
 //    23  : ReadExtendedRequest(oMessage);
 //    24  : ReadExtendedResponse(oMessage);
-  Else
-    Raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
-  End;
+  else
+    raise EIdException.create('Unknown Tag '+IntToStr(NextTag));
+  end;
   // while not SequenceEnded do
   //   readControl....
-  ReadSequenceEnd;
+  ReadSequenceend;
   StopReading;
-End;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadResultInner(oResult: TIdLDAPV3LDAPResult);
-Begin
+procedure TIdLDAPV3Decoder.ReadResultInner(oResult: TIdLDAPV3LDAPResult);
+begin
   oResult.resultCode := TIdLDAPV3ResultCode(ReadEnum);
   oResult.matchedDN := ReadString;
   oResult.errorMessage := ReadString;
-  If Not SequenceEnded And (NextTag = 3) Then
-    Begin
+  if not SequenceEnded and (NextTag = 3) then
+  begin
     oResult.referral := TIdLDAPV3Referral.Create;
     ReadReferral(oResult.Referral);
-    End;
-End;
+  end;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadReferral(oReferral: TIdLDAPV3Referral);
-Begin
-  ReadSequenceBegin;
-  While Not SequenceEnded Do
+procedure TIdLDAPV3Decoder.ReadReferral(oReferral: TIdLDAPV3Referral);
+begin
+  ReadSequencebegin;
+  while not SequenceEnded do
     oReferral.Add(ReadString);
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadPartialAttributeList(oAttributes: TIdLDAPV3PartialAttributeList);
+procedure TIdLDAPV3Decoder.ReadPartialAttributeList(oAttributes: TIdLDAPV3PartialAttributeList);
 Var
   oAttr : TIdLDAPV3PartialAttribute;
-Begin
-  ReadSequenceBegin;
-  While Not SequenceEnded Do
-    Begin
+begin
+  ReadSequencebegin;
+  while not SequenceEnded do
+    begin
     ReadPartialAttribute(oAttr);
     oAttributes.Add(oAttr);
-    End;
-  ReadSequenceEnd;
-End;
+    end;
+  ReadSequenceend;
+end;
 
-Procedure TIdLDAPV3Decoder.ReadPartialAttribute(oAttribute: TIdLDAPV3PartialAttribute);
-Begin
-  ReadSequenceBegin;
+procedure TIdLDAPV3Decoder.ReadPartialAttribute(oAttribute: TIdLDAPV3PartialAttribute);
+begin
+  ReadSequencebegin;
   oAttribute._type := ReadString;
-  ReadSequenceBegin;
-  While Not SequenceEnded Do
+  ReadSequencebegin;
+  while not SequenceEnded do
     oAttribute.vals.Add(ReadString);
-  ReadSequenceEnd;
-  ReadSequenceEnd;
-End;
+  ReadSequenceend;
+  ReadSequenceend;
+end;
 
 End.

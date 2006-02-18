@@ -16,115 +16,109 @@
   $Log$
 }
 {
-{   Rev 1.0    15/04/2005 7:25:04 AM  GGrieve
-{ first ported to INdy
+  Rev 1.0    15/04/2005 7:25:04 AM  GGrieve
+  first ported to INdy
 }
-Unit IdLDAPV3;
 
+unit IdLDAPV3;
 
-{! 4 !}
+interface
 
-
-Interface
-
-
-Uses
+uses
   Classes,
   IdContainers;
 
-
-Type
+type
   TIdLDAPV3ResultCode = (
-          lrcSuccess,
-          lrcOperationsError,
-          lrcProtocolError,
-          lrcTimeLimitExceeded,
-          lrcSizeLimitExceeded,
-          lrcCompareFalse,
-          lrcCompareTrue,
-          lrcAuthMethodNotSupported,
-          lrcStrongAuthRequired,
-                                                             lrcReserved9,
-          lrcReferral,
-          lrcAdminLimitExceeded,
-          lrcUnavailableCriticalExtension,
-          lrcConfidentialityRequired,
-          lrcSaslBindInProgress,
-          lrcNoSuchAttribute,
-          lrcUndefinedAttributeType,
-          lrcInappropriateMatching,
-          lrcConstraintViolation,
-          lrcAttributeOrValueExists,
-          lrcInvalidAttributeSyntax,
-                                                             lrcReserved22,
-                                                             lrcReserved23,
-                                                             lrcReserved24,
-                                                             lrcReserved25,
-                                                             lrcReserved26,
-                                                             lrcReserved27,
-                                                             lrcReserved28,
-                                                             lrcReserved29,
-                                                             lrcReserved30,
-                                                             lrcReserved31,
-          lrcNoSuchObject,
-          lrcAliasProblem,
-          lrcInvalidDNSyntax,
-                                                             lrcReserved_undefinedIsLeaf,
-          lrcAliasDereferencingProblem,
-                                                             lrcReserved37,
-                                                             lrcReserved38,
-                                                             lrcReserved39,
-                                                             lrcReserved40,
-                                                             lrcReserved41,
-                                                             lrcReserved42,
-                                                             lrcReserved43,
-                                                             lrcReserved44,
-                                                             lrcReserved45,
-                                                             lrcReserved46,
-                                                             lrcReserved47,
-          lrcInappropriateAuthentication,
-          lrcInvalidCredentials,
-          lrcInsufficientAccessRights,
-          lrcBusy,
-          lrcUnavailable,
-          lrcUnwillingToPerform,
-          lrcLoopDetect,
-                                                             lrcReserved55,
-                                                             lrcReserved56,
-                                                             lrcReserved57,
-                                                             lrcReserved58,
-                                                             lrcReserved59,
-                                                             lrcReserved60,
-                                                             lrcReserved61,
-                                                             lrcReserved62,
-                                                             lrcReserved63,
-          lrcNamingViolation,
-          lrcObjectClassViolation,
-          lrcNotAllowedOnNonLeaf,
-          lrcNotAllowedOnRDN,
-          lrcEntryAlreadyExists,
-          lrcObjectClassModsProhibited,
-                                                             lrcReservedCLDAP,
-          lrcAffectsMultipleDSAs,
-                                                             lrcReserved72,
-                                                             lrcReserved73,
-                                                             lrcReserved74,
-                                                             lrcReserved75,
-                                                             lrcReserved76,
-                                                             lrcReserved77,
-                                                             lrcReserved78,
-                                                             lrcReserved79,
-          lrcOther);
-
+    lrcSuccess,
+    lrcOperationsError,
+    lrcProtocolError,
+    lrcTimeLimitExceeded,
+    lrcSizeLimitExceeded,
+    lrcCompareFalse,
+    lrcCompareTrue,
+    lrcAuthMethodNotSupported,
+    lrcStrongAuthRequired,
+    lrcReserved9,
+    lrcReferral,
+    lrcAdminLimitExceeded,
+    lrcUnavailableCriticalExtension,
+    lrcConfidentialityRequired,
+    lrcSaslBindInProgress,
+    lrcNoSuchAttribute,
+    lrcUndefinedAttributeType,
+    lrcInappropriateMatching,
+    lrcConstraintViolation,
+    lrcAttributeOrValueExists,
+    lrcInvalidAttributeSyntax,
+    lrcReserved22,
+    lrcReserved23,
+    lrcReserved24,
+    lrcReserved25,
+    lrcReserved26,
+    lrcReserved27,
+    lrcReserved28,
+    lrcReserved29,
+    lrcReserved30,
+    lrcReserved31,
+    lrcNoSuchObject,
+    lrcAliasProblem,
+    lrcInvalidDNSyntax,
+    lrcReserved_undefinedIsLeaf,
+    lrcAliasDereferencingProblem,
+    lrcReserved37,
+    lrcReserved38,
+    lrcReserved39,
+    lrcReserved40,
+    lrcReserved41,
+    lrcReserved42,
+    lrcReserved43,
+    lrcReserved44,
+    lrcReserved45,
+    lrcReserved46,
+    lrcReserved47,
+    lrcInappropriateAuthentication,
+    lrcInvalidCredentials,
+    lrcInsufficientAccessRights,
+    lrcBusy,
+    lrcUnavailable,
+    lrcUnwillingToPerform,
+    lrcLoopDetect,
+    lrcReserved55,
+    lrcReserved56,
+    lrcReserved57,
+    lrcReserved58,
+    lrcReserved59,
+    lrcReserved60,
+    lrcReserved61,
+    lrcReserved62,
+    lrcReserved63,
+    lrcNamingViolation,
+    lrcObjectClassViolation,
+    lrcNotAllowedOnNonLeaf,
+    lrcNotAllowedOnRDN,
+    lrcEntryAlreadyExists,
+    lrcObjectClassModsProhibited,
+    lrcReservedCLDAP,
+    lrcAffectsMultipleDSAs,
+    lrcReserved72,
+    lrcReserved73,
+    lrcReserved74,
+    lrcReserved75,
+    lrcReserved76,
+    lrcReserved77,
+    lrcReserved78,
+    lrcReserved79,
+    lrcOther);
 
   TIdLDAPV3SearchScope = (ssBaseObject, ssSingleLevel, ssWholeSubtree);
+
   TIdLDAPV3SearchDerefAliases = (sdNeverDerefAliases, sdDerefInSearching, sdDerefFindingBaseObj, sdDerefAlways);
 
   TIdLDAPV3ModificationOperation = (moAdd, omDelete, moReplace);
 
-
-Const
-  NAMES_LDAPV3RESULTCODE : Array [TIdLDAPV3ResultCode] Of String = (
+const
+  NAMES_LDAPV3RESULTCODE: Array [TIdLDAPV3ResultCode] of String = (
     'Success',
     'OperationsError',
     'ProtocolError',
@@ -206,15 +200,18 @@ Const
     'Reserved79',
     'Other');
 
-  NAMES_LDAPV3SEARCHSCOPE : Array [TIdLDAPV3SearchScope] Of String = ('BaseObject', 'SingleLevel', 'WholeSubtree');
-  NAMES_LDAPV3SEARCHDEREFALIASES : Array [TIdLDAPV3SearchDerefAliases] Of String = ('NeverDerefAliases', 'DerefInSearching', 'DerefFindingBaseObj', 'DerefAlways');
-  NAMES_LDAPV3MODIFICATIONOPERATION : Array [TIdLDAPV3ModificationOperation] Of String = ('Add', 'Delete', 'Replace');
+  NAMES_LDAPV3SEARCHSCOPE: Array [TIdLDAPV3SearchScope] of String =
+    ('BaseObject', 'SingleLevel', 'WholeSubtree');
 
+  NAMES_LDAPV3SEARCHDEREFALIASES: Array [TIdLDAPV3SearchDerefAliases] of String =
+    ('NeverDerefAliases', 'DerefInSearching', 'DerefFindingBaseObj', 'DerefAlways');
 
-Type
+  NAMES_LDAPV3MODIFICATIONOPERATION: Array [TIdLDAPV3ModificationOperation] of String =
+    ('Add', 'Delete', 'Replace');
 
+type
   // simple types
-  TIdLDAPV3MessageID = Integer;//  >= 0
+  TIdLDAPV3MessageID = Integer; // >= 0
 
   TIdLDAPV3LDAPString = String; // UTF-8
   TIdLDAPV3LDAPOID = String;
@@ -232,197 +229,197 @@ Type
 
   // general Classes
   TIdLDAPV3Control = Class (TObject)
-  Private
+  private
     FCriticality: Boolean;
     FControlValue: String;
     FControlType: TIdLDAPV3LDAPOID;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property controlType : TIdLDAPV3LDAPOID Read FControlType Write FControlType;
-    Property criticality : Boolean Read FCriticality Write FCriticality; // DEFAULT FALSE,
-    Property controlValue : String Read FControlValue Write FControlValue; // OPTIONAL
-  End;
+    property controlType: TIdLDAPV3LDAPOID read FControlType write FControlType;
+    property criticality: Boolean read FCriticality write FCriticality; // DEFAULT FALSE
+    property controlValue: String read FControlValue write FControlValue; // OPTIONAL
+  end;
 
   TIdLDAPV3ControlList = Class (TIdObjectList)
-  Private
-    Function GetControl(iIndex : Integer):TIdLDAPV3Control;
-  Protected
-  Public
-    Property Control[iIndex : Integer] : TIdLDAPV3Control Read GetControl; default;
-  End;
+  private
+    function GetControl(iIndex: Integer):TIdLDAPV3Control;
+  protected
+  public
+    property Control[iIndex: Integer]: TIdLDAPV3Control read GetControl; default;
+  end;
 
   TIdLDAPV3AttributeValueAssertion = Class (TObject)
-  Private
+  private
     FAssertionValue: TIdLDAPV3AssertionValue;
     FAttributeDesc: TIdLDAPV3AttributeDescription;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property attributeDesc : TIdLDAPV3AttributeDescription Read FAttributeDesc Write FAttributeDesc;
-    Property assertionValue : TIdLDAPV3AssertionValue Read FAssertionValue Write FAssertionValue;
-  End;
+    property attributeDesc: TIdLDAPV3AttributeDescription read FAttributeDesc write FAttributeDesc;
+    property assertionValue: TIdLDAPV3AssertionValue read FAssertionValue write FAssertionValue;
+  end;
 
   TIdLDAPV3Attribute = Class (TObject)
-  Private
+  private
     FType: TIdLDAPV3AttributeDescription;
     FVals: TIdLDAPV3AttributeValueSet;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property _type : TIdLDAPV3AttributeDescription Read FType Write FType;
-    Property vals : TIdLDAPV3AttributeValueSet Read FVals Write FVals;
-  End;
+    property _type: TIdLDAPV3AttributeDescription read FType write FType;
+    property vals: TIdLDAPV3AttributeValueSet read FVals write FVals;
+  end;
 
   TIdLDAPV3AttributeList = Class (TIdObjectList)
-  Private
-    Function GetAttribute(iIndex : Integer):TIdLDAPV3Attribute;
-  Protected
-  Public
-    Property Attribute[iIndex : Integer] : TIdLDAPV3Attribute Read GetAttribute; default;
-  End;
+  private
+    function GetAttribute(iIndex: Integer):TIdLDAPV3Attribute;
+  protected
+  public
+    property Attribute[iIndex: Integer]: TIdLDAPV3Attribute read GetAttribute; default;
+  end;
 
   // Message Classes
   TIdLDAPV3LDAPResult = Class (TObject)
-  Private
+  private
     FMatchedDN: TIdLDAPV3LDAPDN;
     FErrorMessage: TIdLDAPV3LDAPString;
     FReferral: TIdLDAPV3Referral;
     FResultCode: TIdLDAPV3ResultCode;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property resultCode : TIdLDAPV3ResultCode Read FResultCode Write FResultCode;
-    Property matchedDN : TIdLDAPV3LDAPDN Read FMatchedDN Write FMatchedDN;
-    Property errorMessage : TIdLDAPV3LDAPString Read FErrorMessage Write FErrorMessage;
-    Property {3} referral : TIdLDAPV3Referral Read FReferral Write FReferral; // OPTIONAL
-  End;
+    property resultCode: TIdLDAPV3ResultCode read FResultCode write FResultCode;
+    property matchedDN: TIdLDAPV3LDAPDN read FMatchedDN write FMatchedDN;
+    property errorMessage: TIdLDAPV3LDAPString read FErrorMessage write FErrorMessage;
+    property referral: TIdLDAPV3Referral read FReferral write FReferral; // OPTIONAL {3}
+  end;
 
   TIdLDAPV3SaslCredentials = Class (TObject)
-  Private
+  private
     FCredentials: String;
     FMechanism: TIdLDAPV3LDAPString;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property mechanism : TIdLDAPV3LDAPString Read FMechanism Write FMechanism;
-    Property credentials : String Read FCredentials Write FCredentials; // OPTIONAL
-  End;
+    property mechanism: TIdLDAPV3LDAPString read FMechanism write FMechanism;
+    property credentials: String read FCredentials write FCredentials; // OPTIONAL
+  end;
 
   TIdLDAPV3AuthenticationChoice = Class (TObject)
-  Private
+  private
     FSimple: String;
     FSasl: TIdLDAPV3SaslCredentials;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
     // choice
-      Property {0} simple : String Read FSimple Write FSimple;
-      Property {3} sasl : TIdLDAPV3SaslCredentials Read FSasl Write FSasl;
-  End;
+    property simple: String read FSimple write FSimple; {0}
+    property sasl: TIdLDAPV3SaslCredentials read FSasl write FSasl; {3}
+  end;
 
   {0}
   TIdLDAPV3BindRequest = Class (TObject)
-  Private
+  private
     FVersion: Byte;
     FAuthentication: TIdLDAPv3AuthenticationChoice;
     FName: TIdLDAPV3LDAPDN;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property version : Byte Read FVersion Write FVersion;
-    Property name : TIdLDAPV3LDAPDN Read FName Write FName;
-    Property authentication : TIdLDAPv3AuthenticationChoice Read FAuthentication Write FAuthentication;
-  End;
+    property version: Byte read FVersion write FVersion;
+    property name: TIdLDAPV3LDAPDN read FName write FName;
+    property authentication: TIdLDAPv3AuthenticationChoice read FAuthentication write FAuthentication;
+  end;
 
   {1}
   TIdLDAPV3BindResponse = Class (TIdLDAPv3LDAPResult)
-  Private
+  private
     FServerSaslCreds: String;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; override;
 
-    Property {7} serverSaslCreds : String Read FServerSaslCreds Write FServerSaslCreds; // optional
-  End;
+    property serverSaslCreds: String read FServerSaslCreds write FServerSaslCreds; // optional {7}
+  end;
 
   {2}
   TIdLDAPV3UnbindRequest = Class (TObject)
-  Public
-  End;
+  public
+  end;
 
   TIdLDAPV3Substring = Class (TObject)
-  Private
+  private
     FAny: TIdLDAPV3LDAPString;
     FFinal: TIdLDAPV3LDAPString;
     FInitial: TIdLDAPV3LDAPString;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property {0} initial : TIdLDAPV3LDAPString Read FInitial Write FInitial;
-    Property {1} any     : TIdLDAPV3LDAPString Read FAny   Write FAny    ;
-    Property {2} final   : TIdLDAPV3LDAPString Read FFinal Write FFinal  ;
-  End;
+    property initial: TIdLDAPV3LDAPString read FInitial write FInitial; {0}
+    property any: TIdLDAPV3LDAPString read FAny write FAny; {1}
+    property final: TIdLDAPV3LDAPString read FFinal write FFinal; {2}
+  end;
 
   TIdLDAPV3SubstringList = Class (TIdObjectList)
-  Private
-    Function GetSubstring(iIndex : Integer):TIdLDAPV3Substring;
-  Protected
-  Public
-    Property Substring[iIndex : Integer] : TIdLDAPV3Substring Read GetSubstring; default;
-  End;
+  private
+    function GetSubstring(iIndex: Integer):TIdLDAPV3Substring;
+  protected
+  public
+    property Substring[iIndex: Integer]: TIdLDAPV3Substring read GetSubstring; default;
+  end;
 
   TIdLDAPV3SubstringFilter = Class (TObject)
-  Private
+  private
     FType: TIdLDAPV3AttributeDescription;
     FSubstrings: TIdLDAPV3SubstringList;
-  Public
-    Constructor Create;
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property _type : TIdLDAPV3AttributeDescription Read FType Write FType;
-    Property substrings : TIdLDAPV3SubstringList Read FSubstrings Write FSubstrings; // rule: count > 0
-  End;
+    property _type: TIdLDAPV3AttributeDescription read FType write FType;
+    property substrings: TIdLDAPV3SubstringList read FSubstrings write FSubstrings; // rule: count > 0
+  end;
 
   TIdLDAPV3MatchingRuleAssertion = Class (TObject)
-  Private
+  private
     FDnAttributes: Boolean;
     FMatchValue: TIdLDAPV3AssertionValue;
     FType: TIdLDAPV3AttributeDescription;
     FMatchingRule: TIdLDAPV3MatchingRuleId;
-  Public
-    Constructor Create;
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property {1} matchingRule    : TIdLDAPV3MatchingRuleId Read FMatchingRule   Write FMatchingRule   ; // OPTIONAL
-    Property {2} _type           : TIdLDAPV3AttributeDescription Read FType           Write FType           ; // OPTIONAL
-    Property {3} matchValue      : TIdLDAPV3AssertionValue Read FMatchValue     Write FMatchValue     ;
-    Property {4} dnAttributes    : Boolean Read FDnAttributes   Write FDnAttributes   ; // DEFAULT FALSE
-  End;
+    property matchingRule: TIdLDAPV3MatchingRuleId read FMatchingRule write FMatchingRule;// OPTIONAL      {1}
+    property _type: TIdLDAPV3AttributeDescription read FType write FType;                 // OPTIONAL      {2}
+    property matchValue: TIdLDAPV3AssertionValue read FMatchValue write FMatchValue;      //               {3}
+    property dnAttributes: Boolean read FDnAttributes write FDnAttributes;                // DEFAULT FALSE {4}
+  end;
 
   TIdLDAPV3FilterList = Class;
 
   TIdLDAPV3Filter = Class (TObject)
-  Private
+  private
     FPresent: TIdLDAPV3AttributeDescription;
     FEqualityMatch: TIdLDAPV3AttributeValueAssertion;
     FLessOrEqual: TIdLDAPV3AttributeValueAssertion;
@@ -433,34 +430,34 @@ Type
     FAnd: TIdLDAPV3FilterList;
     FExtensibleMatch: TIdLDAPV3MatchingRuleAssertion;
     FSubstrings: TIdLDAPV3SubstringFilter;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property {0} _and : TIdLDAPV3FilterList Read FAnd Write FAnd;
-    Property {1} _or : TIdLDAPV3FilterList Read F_Or Write F_or;
-    Property {2} _not : TIdLDAPV3Filter Read FNot Write FNot;
-    Property {3} equalityMatch  : TIdLDAPV3AttributeValueAssertion Read FEqualityMatch Write FEqualityMatch ;
-    Property {4} substrings     : TIdLDAPV3SubstringFilter Read FSubstrings    Write FSubstrings    ;
-    Property {5} greaterOrEqual : TIdLDAPV3AttributeValueAssertion Read FGreaterOrEqual Write FGreaterOrEqual;
-    Property {6} lessOrEqual    : TIdLDAPV3AttributeValueAssertion Read FLessOrEqual   Write FLessOrEqual   ;
-    Property {7} present        : TIdLDAPV3AttributeDescription Read FPresent       Write FPresent       ;
-    Property {8} approxMatch    : TIdLDAPV3AttributeValueAssertion Read FApproxMatch   Write FApproxMatch   ;
-    Property {9} extensibleMatch : TIdLDAPV3MatchingRuleAssertion Read FExtensibleMatch Write FExtensibleMatch;
-  End;
+    property _and: TIdLDAPV3FilterList read FAnd write FAnd; {0}
+    property _or: TIdLDAPV3FilterList read F_Or write F_or; {1}
+    property _not: TIdLDAPV3Filter read FNot write FNot; {2}
+    property equalityMatch: TIdLDAPV3AttributeValueAssertion read FEqualityMatch write FEqualityMatch; {3}
+    property substrings: TIdLDAPV3SubstringFilter read FSubstrings write FSubstrings; {4}
+    property greaterOrEqual: TIdLDAPV3AttributeValueAssertion read FGreaterOrEqual write FGreaterOrEqual; {5}
+    property lessOrEqual: TIdLDAPV3AttributeValueAssertion read FLessOrEqual write FLessOrEqual; {6}
+    property present: TIdLDAPV3AttributeDescription read FPresent write FPresent; {7}
+    property approxMatch: TIdLDAPV3AttributeValueAssertion read FApproxMatch write FApproxMatch; {8}
+    property extensibleMatch: TIdLDAPV3MatchingRuleAssertion read FExtensibleMatch write FExtensibleMatch; {9}
+  end;
 
   TIdLDAPV3FilterList = Class (TIdObjectList)
-  Private
-    Function GetFilter(iIndex : Integer):TIdLDAPV3Filter;
-  Protected
-  Public
-    Property Filter[iIndex : Integer] : TIdLDAPV3Filter Read GetFilter; default;
-  End;
+  private
+    Function GetFilter(iIndex: Integer):TIdLDAPV3Filter;
+  protected
+  public
+    property Filter[iIndex: Integer]: TIdLDAPV3Filter read GetFilter; default;
+  end;
 
   {3}
   TIdLDAPV3SearchRequest = Class (TObject)
-  Private
+  private
     FTypesOnly: Boolean;
     FTimeLimit: Integer;
     FSizeLimit: Integer;
@@ -469,246 +466,246 @@ Type
     FBaseObject: TIdLDAPV3LDAPDN;
     FDerefAliases: TIdLDAPV3SearchDerefAliases;
     FScope: TIdLDAPV3SearchScope;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property baseObject : TIdLDAPV3LDAPDN Read FBaseObject Write FBaseObject;
-    Property scope : TIdLDAPV3SearchScope Read FScope Write FScope;
-    Property derefAliases : TIdLDAPV3SearchDerefAliases Read FDerefAliases Write FDerefAliases;
-    Property sizeLimit : Integer Read FSizeLimit Write FSizeLimit;
-    Property timeLimit : Integer Read FTimeLimit Write FTimeLimit;
-    Property typesOnly : Boolean Read FTypesOnly Write FTypesOnly;
-    Property filter : TIdLDAPV3Filter Read FFilter Write FFilter;
-    Property attributes : TIdLDAPV3AttributeDescriptionList Read FAttributes Write FAttributes;
-  End;
+    property baseObject: TIdLDAPV3LDAPDN read FBaseObject write FBaseObject;
+    property scope: TIdLDAPV3SearchScope read FScope write FScope;
+    property derefAliases: TIdLDAPV3SearchDerefAliases read FDerefAliases write FDerefAliases;
+    property sizeLimit: Integer read FSizeLimit write FSizeLimit;
+    property timeLimit: Integer read FTimeLimit write FTimeLimit;
+    property typesOnly: Boolean read FTypesOnly write FTypesOnly;
+    property filter: TIdLDAPV3Filter read FFilter write FFilter;
+    property attributes: TIdLDAPV3AttributeDescriptionList read FAttributes write FAttributes;
+  end;
 
   TIdLDAPV3PartialAttribute = Class (TObject)
-  Private
+  private
     FType: TIdLDAPV3AttributeDescription;
     FVals: TIdLDAPV3AttributeValueSet;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property _type : TIdLDAPV3AttributeDescription Read FType Write FType;
-    Property vals : TIdLDAPV3AttributeValueSet Read FVals Write FVals;
-  End;
+    property _type: TIdLDAPV3AttributeDescription read FType write FType;
+    property vals: TIdLDAPV3AttributeValueSet read FVals write FVals;
+  end;
 
   TIdLDAPV3PartialAttributeList = Class (TIdObjectList)
-  Private
-    Function GetPartialAttribute(iIndex : Integer):TIdLDAPV3PartialAttribute;
-  Protected
-  Public
-    Property PartialAttribute[iIndex : Integer] : TIdLDAPV3PartialAttribute Read GetPartialAttribute; default;
-  End;
+  private
+    function GetPartialAttribute(iIndex: Integer):TIdLDAPV3PartialAttribute;
+  protected
+  public
+    property PartialAttribute[iIndex: Integer]: TIdLDAPV3PartialAttribute read GetPartialAttribute; default;
+  end;
 
   {4}
   TIdLDAPV3SearchResultEntry = Class (TObject)
-  Private
+  private
     FObjectName: TIdLDAPV3LDAPDN;
     FAttributes: TIdLDAPV3PartialAttributeList;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property objectName : TIdLDAPV3LDAPDN Read FObjectName Write FObjectName;
-    Property attributes : TIdLDAPV3PartialAttributeList Read FAttributes Write FAttributes;
-  End;
+    property objectName: TIdLDAPV3LDAPDN read FObjectName write FObjectName;
+    property attributes: TIdLDAPV3PartialAttributeList read FAttributes write FAttributes;
+  end;
 
   {5}
   TIdLDAPV3SearchResultDone = Class (TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   TIdLDAPV3AttributeTypeAndValues = Class (TObject)
-  Private
+  private
     FType: TIdLDAPV3AttributeDescription;
     FVals: TIdLDAPV3AttributeValueSet;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property _type : TIdLDAPV3AttributeDescription Read FType Write FType;
-    Property vals : TIdLDAPV3AttributeValueSet Read FVals Write FVals;
-  End;
+    property _type: TIdLDAPV3AttributeDescription read FType write FType;
+    property vals: TIdLDAPV3AttributeValueSet read FVals write FVals;
+  end;
 
   TIdLDAPV3Modification = Class (TObject)
-  Private
+  private
     FModification: TIdLDAPV3AttributeTypeAndValues;
     FOperation: TIdLDAPV3ModificationOperation;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property operation : TIdLDAPV3ModificationOperation Read FOperation Write FOperation;
-    Property modification : TIdLDAPV3AttributeTypeAndValues Read FModification Write FModification;
-  End;
+    property operation: TIdLDAPV3ModificationOperation read FOperation write FOperation;
+    property modification: TIdLDAPV3AttributeTypeAndValues read FModification write FModification;
+  end;
 
   TIdLDAPV3ModificationList = Class (TIdObjectList)
-  Private
-    Function GetModification(iIndex : Integer):TIdLDAPV3Modification;
-  Protected
-  Public
-    Property Modification[iIndex : Integer] : TIdLDAPV3Modification Read GetModification; default;
-  End;
+  private
+    function GetModification(iIndex: Integer):TIdLDAPV3Modification;
+  protected
+  public
+    property Modification[iIndex: Integer]: TIdLDAPV3Modification read GetModification; default;
+  end;
 
   {6}
   TIdLDAPV3ModifyRequest = Class (TObject)
-  Private
+  private
     FObject: TIdLDAPV3LDAPDN;
     FModifications: TIdLDAPV3ModificationList;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property _object : TIdLDAPV3LDAPDN Read FObject Write FObject;
-    Property modifications : TIdLDAPV3ModificationList Read FModifications Write FModifications;
-  End;
+    property _object: TIdLDAPV3LDAPDN read FObject write FObject;
+    property modifications: TIdLDAPV3ModificationList read FModifications write FModifications;
+  end;
 
   {7}
   TIdLDAPV3ModifyResponse = Class (TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   {8}
   TIdLDAPV3AddRequest = Class (TObject)
-  Private
+  private
     FAttributes: TIdLDAPV3AttributeList;
     FEntry: TIdLDAPV3LDAPDN;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property entry : TIdLDAPV3LDAPDN Read FEntry Write FEntry;
-    Property attributes : TIdLDAPV3AttributeList Read FAttributes Write FAttributes;
-  End;
+    property entry: TIdLDAPV3LDAPDN read FEntry write FEntry;
+    property attributes: TIdLDAPV3AttributeList read FAttributes write FAttributes;
+  end;
 
   {9}
   TIdLDAPV3AddResponse = Class (TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   {10}
   TIdLDAPV3DelRequest = Class (TObject)
-  Private
+  private
     FEntry: TIdLDAPV3LDAPDN;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property entry : TIdLDAPV3LDAPDN Read FEntry Write FEntry;
-  End;
+    property entry: TIdLDAPV3LDAPDN read FEntry write FEntry;
+  end;
 
   {11}
   TIdLDAPV3DelResponse = Class(TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   {12}
   TIdLDAPV3ModifyDNRequest = Class (TObject)
-  Private
+  private
     FDeleteoldrdn: Boolean;
     FNewSuperior: TIdLDAPV3LDAPDN;
     FEntry: TIdLDAPV3LDAPDN;
     FNewrdn: TIdLDAPV3RelativeLDAPDN;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property entry : TIdLDAPV3LDAPDN Read FEntry Write FEntry;
-    Property newrdn : TIdLDAPV3RelativeLDAPDN Read FNewrdn Write FNewrdn;
-    Property deleteoldrdn : Boolean Read FDeleteoldrdn Write FDeleteoldrdn;
-    Property {0} newSuperior : TIdLDAPV3LDAPDN Read FNewSuperior Write FNewSuperior; // OPTIONAL
-  End;
+    property entry: TIdLDAPV3LDAPDN read FEntry write FEntry;
+    property newrdn: TIdLDAPV3RelativeLDAPDN read FNewrdn write FNewrdn;
+    property deleteoldrdn: Boolean read FDeleteoldrdn write FDeleteoldrdn;
+    property newSuperior: TIdLDAPV3LDAPDN read FNewSuperior write FNewSuperior; // OPTIONAL {0}
+  end;
 
   {13}
   TIdLDAPV3ModifyDNResponse = Class(TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   {14}
   TIdLDAPV3CompareRequest = Class (TObject)
-  Private
+  private
     FAva: TIdLDAPV3AttributeValueAssertion;
     FEntry: TIdLDAPV3LDAPDN;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property entry : TIdLDAPV3LDAPDN Read FEntry Write FEntry;
-    Property ava : TIdLDAPV3AttributeValueAssertion Read FAva Write FAva;
-  End;
+    property entry: TIdLDAPV3LDAPDN read FEntry write FEntry;
+    property ava: TIdLDAPV3AttributeValueAssertion read FAva write FAva;
+  end;
 
   {15}
   TIdLDAPV3CompareResponse = Class(TIdLDAPV3LDAPResult)
-  Public
-  End;
+  public
+  end;
 
   {16}
   TIdLDAPV3AbandonRequest = Class (TObject)
-  Private
+  private
     FId: TIdLDAPV3MessageID;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property id : TIdLDAPV3MessageID Read FId Write FId;
-  End;
+    property id: TIdLDAPV3MessageID read FId write FId;
+  end;
 
   {19}
   TIdLDAPV3SearchResultReference = Class (TObject)
-  Private
+  private
     FRef: TIdLDAPV3Referral;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property ref : TIdLDAPV3Referral Read FRef Write FRef;
-  End;
+    property ref: TIdLDAPV3Referral read FRef write FRef;
+  end;
 
   {23}
   TIdLDAPV3ExtendedRequest = Class (TObject)
-  Private
+  private
     FRequestValue: String;
     FRequestName: TIdLDAPV3LDAPOID;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-    Property {0} requestName : TIdLDAPV3LDAPOID Read FRequestName Write FRequestName;
-    Property {1} requestValue : String Read FRequestValue Write FRequestValue; // OPTIONAL
-  End;
+    property requestName: TIdLDAPV3LDAPOID read FRequestName write FRequestName; {0}
+    property requestValue: String read FRequestValue write FRequestValue; // OPTIONAL {1}
+  end;
 
   {24}
   TIdLDAPV3ExtendedResponse = Class (TIdLDAPV3LDAPResult)
-  Private
+  private
     FResponse: String;
     FResponseName: TIdLDAPV3LDAPOID;
-  Public
-    Constructor Create; 
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Override;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; override;
 
-    Property {10} responseName : TIdLDAPV3LDAPOID Read FResponseName Write FResponseName; // OPTIONAL
-    Property {11} response : String Read FResponse Write FResponse; // OPTIONAL
-  End;
+    property responseName: TIdLDAPV3LDAPOID read FResponseName write FResponseName; // OPTIONAL {10}
+    property response: String read FResponse write FResponse; // OPTIONAL {11}
+  end;
 
   TIdLDAPV3LDAPMessage = Class (TObject)
-  Private
+  private
     FAbandonRequest: TIdLDAPV3AbandonRequest;
     FAddRequest: TIdLDAPV3AddRequest;
     FAddResponse: TIdLDAPV3AddResponse;
@@ -731,298 +728,294 @@ Type
     FSearchResEntry: TIdLDAPV3SearchResultEntry;
     FSearchResRef: TIdLDAPV3SearchResultReference;
     FUnbindRequest: TIdLDAPV3UnbindRequest;
-  Public
-    Constructor Create;
-    Destructor Destroy; Override;
-    Procedure Clear; Overload; Virtual;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Clear; overload; virtual;
 
-
-
-    Property messageID : TIdLDAPV3MessageID Read FMessageID Write FMessageID;
+    property messageID: TIdLDAPV3MessageID read FMessageID write FMessageID;
     // protocolOp CHOICE
-      Property bindRequest : TIdLDAPV3BindRequest Read FBindRequest Write FBindRequest;
-      Property bindResponse : TIdLDAPV3BindResponse Read FBindResponse Write FBindResponse;
-      Property unbindRequest : TIdLDAPV3UnbindRequest Read FUnbindRequest Write FUnbindRequest;
-      Property searchRequest : TIdLDAPV3SearchRequest Read FSearchRequest Write FSearchRequest;
-      Property searchResEntry : TIdLDAPV3SearchResultEntry Read FSearchResEntry Write FSearchResEntry;
-      Property searchResDone : TIdLDAPV3SearchResultDone Read FSearchResDone Write FSearchResDone;
-      Property searchResRef : TIdLDAPV3SearchResultReference Read FSearchResRef Write FSearchResRef;
-      Property modifyRequest : TIdLDAPV3ModifyRequest Read FModifyRequest Write FModifyRequest;
-      Property modifyResponse : TIdLDAPV3ModifyResponse Read FModifyResponse Write FModifyResponse;
-      Property addRequest : TIdLDAPV3AddRequest Read FAddRequest Write FAddRequest;
-      Property addResponse : TIdLDAPV3AddResponse Read FAddResponse Write FAddResponse;
-      Property delRequest : TIdLDAPV3DelRequest Read FDelRequest Write FDelRequest;
-      Property delResponse : TIdLDAPV3DelResponse Read FDelResponse Write FDelResponse;
-      Property modDNRequest : TIdLDAPV3ModifyDNRequest Read FModDNRequest Write FModDNRequest;
-      Property modDNResponse : TIdLDAPV3ModifyDNResponse Read FModDNResponse Write FModDNResponse;
-      Property compareRequest : TIdLDAPV3CompareRequest Read FCompareRequest Write FCompareRequest;
-      Property compareResponse : TIdLDAPV3CompareResponse Read FCompareResponse Write FCompareResponse;
-      Property abandonRequest : TIdLDAPV3AbandonRequest Read FAbandonRequest Write FAbandonRequest;
-      Property extendedReq : TIdLDAPV3ExtendedRequest Read FExtendedReq Write FExtendedReq;
-      Property extendedResp : TIdLDAPV3ExtendedResponse Read FExtendedResp Write FExtendedResp;
-    Property controls : TIdLDAPV3ControlList Read FControls Write FControls;
-  End;
+    property bindRequest: TIdLDAPV3BindRequest read FBindRequest write FBindRequest;
+    property bindResponse: TIdLDAPV3BindResponse read FBindResponse write FBindResponse;
+    property unbindRequest: TIdLDAPV3UnbindRequest read FUnbindRequest write FUnbindRequest;
+    property searchRequest: TIdLDAPV3SearchRequest read FSearchRequest write FSearchRequest;
+    property searchResEntry: TIdLDAPV3SearchResultEntry read FSearchResEntry write FSearchResEntry;
+    property searchResDone: TIdLDAPV3SearchResultDone read FSearchResDone write FSearchResDone;
+    property searchResRef: TIdLDAPV3SearchResultReference read FSearchResRef write FSearchResRef;
+    property modifyRequest: TIdLDAPV3ModifyRequest read FModifyRequest write FModifyRequest;
+    property modifyResponse: TIdLDAPV3ModifyResponse read FModifyResponse write FModifyResponse;
+    property addRequest: TIdLDAPV3AddRequest read FAddRequest write FAddRequest;
+    property addResponse: TIdLDAPV3AddResponse read FAddResponse write FAddResponse;
+    property delRequest: TIdLDAPV3DelRequest read FDelRequest write FDelRequest;
+    property delResponse: TIdLDAPV3DelResponse read FDelResponse write FDelResponse;
+    property modDNRequest: TIdLDAPV3ModifyDNRequest read FModDNRequest write FModDNRequest;
+    property modDNResponse: TIdLDAPV3ModifyDNResponse read FModDNResponse write FModDNResponse;
+    property compareRequest: TIdLDAPV3CompareRequest read FCompareRequest write FCompareRequest;
+    property compareResponse: TIdLDAPV3CompareResponse read FCompareResponse write FCompareResponse;
+    property abandonRequest: TIdLDAPV3AbandonRequest read FAbandonRequest write FAbandonRequest;
+    property extendedReq: TIdLDAPV3ExtendedRequest read FExtendedReq write FExtendedReq;
+    property extendedResp: TIdLDAPV3ExtendedResponse read FExtendedResp write FExtendedResp;
+    property controls: TIdLDAPV3ControlList read FControls write FControls;
+  end;
 
   TIdLDAPV3Message = TIdLDAPV3LDAPMessage;
 
-
-Implementation
-
+implementation
 
 { TIdLDAPV3Control }
 
-Constructor TIdLDAPV3Control.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3Control.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3Control.Clear;
-Begin
+procedure TIdLDAPV3Control.Clear;
+begin
   FCriticality := False;
   FControlValue := '';
   FControlType := '';
-End;
+end;
 
-Destructor TIdLDAPV3Control.Destroy;
-Begin
+destructor TIdLDAPV3Control.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3ControlList }
 
 Function TIdLDAPV3ControlList.GetControl(iIndex: Integer): TIdLDAPV3Control;
-Begin
+begin
   Result := TIdLDAPV3Control(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3AttributeValueAssertion }
 
-Constructor TIdLDAPV3AttributeValueAssertion.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3AttributeValueAssertion.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3AttributeValueAssertion.Clear;
-Begin
+procedure TIdLDAPV3AttributeValueAssertion.Clear;
+begin
   FAssertionValue := '';
   FAttributeDesc := '';
-End;
+end;
 
-Destructor TIdLDAPV3AttributeValueAssertion.Destroy;
-Begin
+destructor TIdLDAPV3AttributeValueAssertion.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3Attribute }
 
-Constructor TIdLDAPV3Attribute.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3Attribute.Create;
+begin
+  inherited;
   FVals := TIdLDAPV3AttributeValueSet.Create;
-End;
+end;
 
-Procedure TIdLDAPV3Attribute.Clear;
-Begin
+procedure TIdLDAPV3Attribute.Clear;
+begin
   FType := '';
   FVals.Free;
   FVals := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3Attribute.Destroy;
-Begin
+destructor TIdLDAPV3Attribute.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3AttributeList }
 
 Function TIdLDAPV3AttributeList.GetAttribute(iIndex: Integer): TIdLDAPV3Attribute;
-Begin
+begin
   Result := TIdLDAPV3Attribute(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3LDAPResult }
 
-Constructor TIdLDAPV3LDAPResult.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3LDAPResult.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3LDAPResult.Clear;
-Begin
+procedure TIdLDAPV3LDAPResult.Clear;
+begin
   FMatchedDN := '';
   FErrorMessage := '';
   FResultCode := lrcSuccess;
   FReferral.Free;
   FReferral := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3LDAPResult.Destroy;
-Begin
+destructor TIdLDAPV3LDAPResult.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3SaslCredentials }
 
-Constructor TIdLDAPV3SaslCredentials.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3SaslCredentials.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3SaslCredentials.Clear;
-Begin
+procedure TIdLDAPV3SaslCredentials.Clear;
+begin
   FCredentials := '';
   FMechanism := '';
-End;
+end;
 
-Destructor TIdLDAPV3SaslCredentials.Destroy;
-Begin
+destructor TIdLDAPV3SaslCredentials.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3AuthenticationChoice }
 
-Constructor TIdLDAPV3AuthenticationChoice.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3AuthenticationChoice.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3AuthenticationChoice.Clear;
-Begin
+procedure TIdLDAPV3AuthenticationChoice.Clear;
+begin
   FSimple := '';
   FSasl.Free;
   FSasl := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3AuthenticationChoice.Destroy;
-Begin
+destructor TIdLDAPV3AuthenticationChoice.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3BindRequest }
 
-Constructor TIdLDAPV3BindRequest.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3BindRequest.Create;
+begin
+  inherited;
   FAuthentication := TIdLDAPv3AuthenticationChoice.Create;
-End;
+end;
 
-Procedure TIdLDAPV3BindRequest.Clear;
-Begin
+procedure TIdLDAPV3BindRequest.Clear;
+begin
   FVersion := 0;
   FName := '';
   FAuthentication.Free;
   FAuthentication := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3BindRequest.Destroy;
-Begin
+destructor TIdLDAPV3BindRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3BindResponse }
 
-Constructor TIdLDAPV3BindResponse.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3BindResponse.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3BindResponse.Clear;
-Begin
-  Inherited;
+procedure TIdLDAPV3BindResponse.Clear;
+begin
+  inherited;
 
   FServerSaslCreds := '';
-End;
+end;
 
-Destructor TIdLDAPV3BindResponse.Destroy;
-Begin
-  Inherited;
-End;
+destructor TIdLDAPV3BindResponse.Destroy;
+begin
+  inherited;
+end;
 
 { TIdLDAPV3Substring }
 
-Constructor TIdLDAPV3Substring.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3Substring.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3Substring.Clear;
-Begin
+procedure TIdLDAPV3Substring.Clear;
+begin
   FAny := '';
   FFinal := '';
   FInitial := '';
-End;
+end;
 
-Destructor TIdLDAPV3Substring.Destroy;
-Begin
+destructor TIdLDAPV3Substring.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3SubstringList }
 
 Function TIdLDAPV3SubstringList.GetSubstring(iIndex: Integer): TIdLDAPV3Substring;
-Begin
+begin
   Result := TIdLDAPV3Substring(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3SubstringFilter }
 
-Constructor TIdLDAPV3SubstringFilter.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3SubstringFilter.Create;
+begin
+  inherited;
   FSubstrings := TIdLDAPV3SubstringList.Create;
-End;
+end;
 
-Procedure TIdLDAPV3SubstringFilter.Clear;
-Begin
+procedure TIdLDAPV3SubstringFilter.Clear;
+begin
   FType := '';
   FSubstrings.Free;
   FSubstrings := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3SubstringFilter.Destroy;
-Begin
+destructor TIdLDAPV3SubstringFilter.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3MatchingRuleAssertion }
 
-Constructor TIdLDAPV3MatchingRuleAssertion.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3MatchingRuleAssertion.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3MatchingRuleAssertion.Clear;
-Begin
+procedure TIdLDAPV3MatchingRuleAssertion.Clear;
+begin
   FDnAttributes := False;
   FMatchValue := '';
   FType := '';
   FMatchingRule := '';
-End;
+end;
 
-Destructor TIdLDAPV3MatchingRuleAssertion.Destroy;
-Begin
+destructor TIdLDAPV3MatchingRuleAssertion.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3Filter }
 
-Constructor TIdLDAPV3Filter.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3Filter.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3Filter.Clear;
-Begin
+procedure TIdLDAPV3Filter.Clear;
+begin
   FPresent := '';
   FEqualityMatch.Free;
   FEqualityMatch := Nil;
@@ -1042,32 +1035,32 @@ Begin
   FExtensibleMatch := Nil;
   FSubstrings.Free;
   FSubstrings := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3Filter.Destroy;
-Begin
+destructor TIdLDAPV3Filter.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3FilterList }
 
 Function TIdLDAPV3FilterList.GetFilter(iIndex: Integer): TIdLDAPV3Filter;
-Begin
+begin
   Result := TIdLDAPV3Filter(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3SearchRequest }
 
-Constructor TIdLDAPV3SearchRequest.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3SearchRequest.Create;
+begin
+  inherited;
   FAttributes := TIdLDAPV3AttributeDescriptionList.Create;
   FFilter := TIdLDAPV3Filter.Create;
-End;
+end;
 
-Procedure TIdLDAPV3SearchRequest.Clear;
-Begin
+procedure TIdLDAPV3SearchRequest.Clear;
+begin
   FTypesOnly := False;
   FTimeLimit := 0;
   FSizeLimit := 0;
@@ -1078,301 +1071,300 @@ Begin
   FAttributes := Nil;
   FFilter.Free;
   FFilter := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3SearchRequest.Destroy;
-Begin
+destructor TIdLDAPV3SearchRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3PartialAttribute }
 
-Constructor TIdLDAPV3PartialAttribute.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3PartialAttribute.Create;
+begin
+  inherited;
   FVals := TIdLDAPV3AttributeValueSet.Create;
-End;
+end;
 
-Procedure TIdLDAPV3PartialAttribute.Clear;
-Begin
+procedure TIdLDAPV3PartialAttribute.Clear;
+begin
   FType := '';
   FVals.Free;
   FVals := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3PartialAttribute.Destroy;
-Begin
+destructor TIdLDAPV3PartialAttribute.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3PartialAttributeList }
 
 Function TIdLDAPV3PartialAttributeList.GetPartialAttribute(iIndex: Integer): TIdLDAPV3PartialAttribute;
-Begin
+begin
   Result := TIdLDAPV3PartialAttribute(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3SearchResultEntry }
 
-Constructor TIdLDAPV3SearchResultEntry.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3SearchResultEntry.Create;
+begin
+  inherited;
   FAttributes := TIdLDAPV3PartialAttributeList.Create;
-End;
+end;
 
-Procedure TIdLDAPV3SearchResultEntry.Clear;
-Begin
+procedure TIdLDAPV3SearchResultEntry.Clear;
+begin
   FObjectName := '';
   FAttributes.Free;
   FAttributes := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3SearchResultEntry.Destroy;
-Begin
+destructor TIdLDAPV3SearchResultEntry.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3AttributeTypeAndValues }
 
-Constructor TIdLDAPV3AttributeTypeAndValues.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3AttributeTypeAndValues.Create;
+begin
+  inherited;
   FVals := TIdLDAPV3AttributeValueSet.Create;
-End;
+end;
 
-Procedure TIdLDAPV3AttributeTypeAndValues.Clear;
-Begin
+procedure TIdLDAPV3AttributeTypeAndValues.Clear;
+begin
   FType := '';
   FVals.Free;
   FVals := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3AttributeTypeAndValues.Destroy;
-Begin
+destructor TIdLDAPV3AttributeTypeAndValues.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3Modification }
 
-Constructor TIdLDAPV3Modification.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3Modification.Create;
+begin
+  inherited;
   FModification := TIdLDAPV3AttributeTypeAndValues.Create;
-End;
+end;
 
-Procedure TIdLDAPV3Modification.Clear;
-Begin
+procedure TIdLDAPV3Modification.Clear;
+begin
   FOperation := moAdd;
   FModification.Free;
   FModification := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3Modification.Destroy;
-Begin
+destructor TIdLDAPV3Modification.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3ModificationList }
 
 Function TIdLDAPV3ModificationList.GetModification(iIndex: Integer): TIdLDAPV3Modification;
-Begin
+begin
   Result := TIdLDAPV3Modification(items[iIndex]);
-End;
+end;
 
 { TIdLDAPV3ModifyRequest }
 
-Constructor TIdLDAPV3ModifyRequest.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3ModifyRequest.Create;
+begin
+  inherited;
   FModifications := TIdLDAPV3ModificationList.Create;
-End;
+end;
 
-Procedure TIdLDAPV3ModifyRequest.Clear;
-Begin
+procedure TIdLDAPV3ModifyRequest.Clear;
+begin
   FObject := '';
   FModifications.Free;
   FModifications := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3ModifyRequest.Destroy;
-Begin
+destructor TIdLDAPV3ModifyRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3AddRequest }
 
-Constructor TIdLDAPV3AddRequest.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3AddRequest.Create;
+begin
+  inherited;
   FAttributes := TIdLDAPV3AttributeList.Create;
-End;
+end;
 
-Procedure TIdLDAPV3AddRequest.Clear;
-Begin
+procedure TIdLDAPV3AddRequest.Clear;
+begin
   FEntry := '';
   FAttributes.Free;
   FAttributes := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3AddRequest.Destroy;
-Begin
+destructor TIdLDAPV3AddRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3DelRequest }
 
-Constructor TIdLDAPV3DelRequest.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3DelRequest.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3DelRequest.Clear;
-Begin
+procedure TIdLDAPV3DelRequest.Clear;
+begin
   FEntry := '';
-End;
+end;
 
-Destructor TIdLDAPV3DelRequest.Destroy;
-Begin
+destructor TIdLDAPV3DelRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3ModifyDNRequest }
 
-Constructor TIdLDAPV3ModifyDNRequest.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3ModifyDNRequest.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3ModifyDNRequest.Clear;
-Begin
+procedure TIdLDAPV3ModifyDNRequest.Clear;
+begin
   FDeleteoldrdn := False;
   FNewSuperior := '';
   FEntry := '';
   FNewrdn := '';
-End;
+end;
 
-Destructor TIdLDAPV3ModifyDNRequest.Destroy;
-Begin
+destructor TIdLDAPV3ModifyDNRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3CompareRequest }
 
-Constructor TIdLDAPV3CompareRequest.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3CompareRequest.Create;
+begin
+  inherited;
   FAva := TIdLDAPV3AttributeValueAssertion.Create;
-End;
+end;
 
-Procedure TIdLDAPV3CompareRequest.Clear;
-Begin
+procedure TIdLDAPV3CompareRequest.Clear;
+begin
   FEntry := '';
   FAva.Free;
   FAva := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3CompareRequest.Destroy;
-Begin
+destructor TIdLDAPV3CompareRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3AbandonRequest }
 
-Constructor TIdLDAPV3AbandonRequest.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3AbandonRequest.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3AbandonRequest.Clear;
-Begin
+procedure TIdLDAPV3AbandonRequest.Clear;
+begin
   FId := 0;
-End;
+end;
 
-Destructor TIdLDAPV3AbandonRequest.Destroy;
-Begin
+destructor TIdLDAPV3AbandonRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3SearchResultReference }
 
-Constructor TIdLDAPV3SearchResultReference.Create;
-Begin
-  Inherited;
+constructor TIdLDAPV3SearchResultReference.Create;
+begin
+  inherited;
   FRef := TIdLDAPV3Referral.Create;
+end;
 
-End;
-
-Procedure TIdLDAPV3SearchResultReference.Clear;
-Begin
+procedure TIdLDAPV3SearchResultReference.Clear;
+begin
   FRef.Free;
   FRef := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3SearchResultReference.Destroy;
-Begin
+destructor TIdLDAPV3SearchResultReference.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3ExtendedRequest }
 
-Constructor TIdLDAPV3ExtendedRequest.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3ExtendedRequest.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3ExtendedRequest.Clear;
-Begin
+procedure TIdLDAPV3ExtendedRequest.Clear;
+begin
   FRequestValue := '';
   FRequestName := '';
-End;
+end;
 
-Destructor TIdLDAPV3ExtendedRequest.Destroy;
-Begin
+destructor TIdLDAPV3ExtendedRequest.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 { TIdLDAPV3ExtendedResponse }
 
-Constructor TIdLDAPV3ExtendedResponse.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3ExtendedResponse.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3ExtendedResponse.Clear;
-Begin
-  Inherited;
+procedure TIdLDAPV3ExtendedResponse.Clear;
+begin
+  inherited;
 
   FResponse := '';
   FResponseName := '';
-End;
+end;
 
-Destructor TIdLDAPV3ExtendedResponse.Destroy;
-Begin
-  Inherited;
-End;
+destructor TIdLDAPV3ExtendedResponse.Destroy;
+begin
+  inherited;
+end;
 
 { TIdLDAPV3LDAPMessage }
 
-Constructor TIdLDAPV3LDAPMessage.Create;
-Begin
-  Inherited;
-End;
+constructor TIdLDAPV3LDAPMessage.Create;
+begin
+  inherited;
+end;
 
-Procedure TIdLDAPV3LDAPMessage.Clear;
-Begin
+procedure TIdLDAPV3LDAPMessage.Clear;
+begin
   FMessageID := 0;
   FAbandonRequest.Free;
   FAbandonRequest := Nil;
@@ -1416,12 +1408,12 @@ Begin
   FSearchResRef := Nil;
   FUnbindRequest.Free;
   FUnbindRequest := Nil;
-End;
+end;
 
-Destructor TIdLDAPV3LDAPMessage.Destroy;
-Begin
+destructor TIdLDAPV3LDAPMessage.Destroy;
+begin
   Clear;
-  Inherited;
-End;
+  inherited;
+end;
 
 End.
