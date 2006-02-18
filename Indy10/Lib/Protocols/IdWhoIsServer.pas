@@ -16,28 +16,28 @@
   $Log$
 }
 {
-{   Rev 1.5    12/2/2004 4:24:00 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.4    1/21/2004 4:21:18 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.3    2/24/2003 10:39:58 PM  JPMugaas
-}
-{
-{   Rev 1.2    1/17/2003 07:11:10 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.1    1/9/2003 06:55:54 AM  JPMugaas
-{ Changed OnQueryEvent so users do not have to bother with WriteLn's in their
-{ events.
-{ Now works with IdContext.
-}
-{
-{   Rev 1.0    11/13/2002 08:04:48 AM  JPMugaas
+  Rev 1.5    12/2/2004 4:24:00 PM  JPMugaas
+  Adjusted for changes in Core.
+
+
+  Rev 1.4    1/21/2004 4:21:18 PM  JPMugaas
+  InitComponent
+
+
+  Rev 1.3    2/24/2003 10:39:58 PM  JPMugaas
+
+
+  Rev 1.2    1/17/2003 07:11:10 PM  JPMugaas
+  Now compiles under new framework.
+
+
+  Rev 1.1    1/9/2003 06:55:54 AM  JPMugaas
+  Changed OnQueryEvent so users do not have to bother with WriteLn's in their
+  events.
+  Now works with IdContext.
+
+
+  Rev 1.0    11/13/2002 08:04:48 AM  JPMugaas
 }
 unit IdWhoIsServer;
 
