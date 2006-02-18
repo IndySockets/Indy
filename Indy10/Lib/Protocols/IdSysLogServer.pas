@@ -16,31 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:44:28 PM  czhower
-{ Name changes
+  Rev 1.4    2004.02.03 5:44:28 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 4:04:02 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/24/2003 01:58:34 PM  JPMugaas
+  Attempt to port Syslog over to new code.
+
+  Rev 1.1    2003.10.24 10:38:30 AM  czhower
+  UDP Server todos
+
+  Rev 1.0    11/13/2002 08:02:20 AM  JPMugaas
 }
+
 {
-{   Rev 1.3    1/21/2004 4:04:02 PM  JPMugaas
-{ InitComponent
+  IdSyslogServer component
+  Server-side implementation of the RFC 3164 "The BSD syslog Protocol"
+  Original Author: Stephane Grobety (grobety@fulgan.com)
+  Copyright the Indy pit crew
+  Release history:
+  08/09/01: Dev started
 }
-{
-{   Rev 1.2    10/24/2003 01:58:34 PM  JPMugaas
-{ Attempt to port Syslog over to new code.
-}
-{
-{   Rev 1.1    2003.10.24 10:38:30 AM  czhower
-{ UDP Server todos
-}
-{
-{   Rev 1.0    11/13/2002 08:02:20 AM  JPMugaas
-}
-////////////////////////////////////////////////////////////////////////////////
-//  IdSyslogServer component
-//  Server-side implementation of the RFC 3164 "The BSD syslog Protocol"
-//  Original Author: Stephane Grobety (grobety@fulgan.com)
-//  Copyright the Indy pit crew
-//  Release history:
-//  08/09/01: Dev started
 
 unit IdSysLogServer;
 
