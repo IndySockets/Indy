@@ -16,91 +16,73 @@
   $Log$
 }
 {
-{   Rev 1.19    10/01/2005 16:31:20  ANeillans
-{ Minor bug fix for Exim compatibility.
-}
-{
-{   Rev 1.18    11/27/04 3:03:22 AM  RLebeau
-{ Bug fix for 'STARTTLS' response handling
-}
-{
-    Rev 1.17    6/11/2004 9:38:44 AM  DSiders
+  Rev 1.19    10/01/2005 16:31:20  ANeillans
+  Minor bug fix for Exim compatibility.
+
+  Rev 1.18    11/27/04 3:03:22 AM  RLebeau
+  Bug fix for 'STARTTLS' response handling
+
+  Rev 1.17    6/11/2004 9:38:44 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.16    2004.02.03 5:45:46 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.15    2004.02.03 2:12:18 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.14    1/28/2004 8:08:10 PM  JPMugaas
-{ Fixed a bug in SendGreeting.  It was sending an invalid EHLO and probably an
-{ invalid HELO command.  The problem is that it was getting the computer name.
-{ There's an issue in NET with that which  Kudzu commented on in IdGlobal.
-{ Thus, "EHLO<space>" and probably "HELO<space>" were being sent causing a
-{ failure.  The fix is to to try to get the local computer's DNS name with
-{ GStack.HostName.  We only use the computer name if GStack.HostName fails.
-}
-{
-{   Rev 1.13    1/25/2004 3:11:48 PM  JPMugaas
-{ SASL Interface reworked to make it easier for developers to use.
-{ SSL and SASL reenabled components.
-}
-{
-{   Rev 1.12    2004.01.22 10:29:58 PM  czhower
-{ Now supports default login mechanism with just username and pw.
-}
-{
-{   Rev 1.11    1/21/2004 4:03:24 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.10    22/12/2003 00:46:36  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.9    4/12/2003 10:24:08 PM  GGrieve
-{ Fix to Compile
-}
-{
-{   Rev 1.8    25/11/2003 12:24:22 PM  SGrobety
-{ various IdStream fixes with ReadLn/D6
-}
-{
-    Rev 1.7    10/17/2003 1:02:56 AM  DSiders
+
+  Rev 1.16    2004.02.03 5:45:46 PM  czhower
+  Name changes
+
+  Rev 1.15    2004.02.03 2:12:18 PM  czhower
+  $I path change
+
+  Rev 1.14    1/28/2004 8:08:10 PM  JPMugaas
+  Fixed a bug in SendGreeting.  It was sending an invalid EHLO and probably an
+  invalid HELO command.  The problem is that it was getting the computer name.
+  There's an issue in NET with that which  Kudzu commented on in IdGlobal.
+  Thus, "EHLO<space>" and probably "HELO<space>" were being sent causing a
+  failure.  The fix is to to try to get the local computer's DNS name with
+  GStack.HostName.  We only use the computer name if GStack.HostName fails.
+
+  Rev 1.13    1/25/2004 3:11:48 PM  JPMugaas
+  SASL Interface reworked to make it easier for developers to use.
+  SSL and SASL reenabled components.
+
+  Rev 1.12    2004.01.22 10:29:58 PM  czhower
+  Now supports default login mechanism with just username and pw.
+
+  Rev 1.11    1/21/2004 4:03:24 PM  JPMugaas
+  InitComponent
+
+  Rev 1.10    22/12/2003 00:46:36  CCostelloe
+  .NET fixes
+
+  Rev 1.9    4/12/2003 10:24:08 PM  GGrieve
+  Fix to Compile
+
+  Rev 1.8    25/11/2003 12:24:22 PM  SGrobety
+  various IdStream fixes with ReadLn/D6
+
+  Rev 1.7    10/17/2003 1:02:56 AM  DSiders
   Added localization comments.
+
+  Rev 1.6    2003.10.14 1:31:16 PM  czhower
+  DotNet
+
+  Rev 1.5    2003.10.12 6:36:42 PM  czhower
+  Now compiles.
+
+  Rev 1.4    10/11/2003 7:14:36 PM  BGooijen
+  Changed IdCompilerDefines.inc path
+
+  Rev 1.3    10/10/2003 10:45:12 PM  BGooijen
+  DotNet
+
+  Rev 1.2    2003.10.02 9:27:54 PM  czhower
+  DotNet Excludes
+
+  Rev 1.1    6/15/2003 03:28:24 PM  JPMugaas
+  Minor class change.
+
+  Rev 1.0    6/15/2003 01:06:48 PM  JPMugaas
+  TIdSMTP and TIdDirectSMTP now share common code in this base class.
 }
-{
-{   Rev 1.6    2003.10.14 1:31:16 PM  czhower
-{ DotNet
-}
-{
-{   Rev 1.5    2003.10.12 6:36:42 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.4    10/11/2003 7:14:36 PM  BGooijen
-{ Changed IdCompilerDefines.inc path
-}
-{
-{   Rev 1.3    10/10/2003 10:45:12 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.2    2003.10.02 9:27:54 PM  czhower
-{ DotNet Excludes
-}
-{
-{   Rev 1.1    6/15/2003 03:28:24 PM  JPMugaas
-{ Minor class change.
-}
-{
-{   Rev 1.0    6/15/2003 01:06:48 PM  JPMugaas
-{ TIdSMTP and TIdDirectSMTP now share common code in this base class.
-}
+
 unit IdSMTPBase;
 
 {$I IdCompilerDefines.inc}
