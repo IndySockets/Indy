@@ -16,92 +16,73 @@
   $Log$
 }
 {
-{   Rev 1.15    2/13/05 7:21:30 PM  RLebeau
-{ Updated TIdTelnetReadThread.Run() to use a timeout when calling the
-{ IOHandler's CheckForDataOnSource() method.
+  Rev 1.15    2/13/05 7:21:30 PM  RLebeau
+  Updated TIdTelnetReadThread.Run() to use a timeout when calling the
+  IOHandler's CheckForDataOnSource() method.
+
+  Rev 1.14    10/07/2004 10:00:28  ANeillans
+  Fixed compile bug
+
+  Rev 1.13    7/8/04 4:12:06 PM  RLebeau
+  Updated calls to Write() to use the IOHandler
+
+  Rev 1.12    7/4/04 1:38:36 PM  RLebeau
+  Updated Negotiate() to trigger the OnDataAvailable event only when data is
+  actually available.
+
+  Rev 1.11    5/16/04 3:14:06 PM  RLebeau
+  Added destructor to terminate the reading thread
+
+  Rev 1.10    3/29/04 11:47:00 AM  RLebeau
+  Updated to support new ThreadedEvent property
+
+  Rev 1.9    2004.03.06 1:31:56 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.8    2004.02.03 5:44:32 PM  czhower
+  Name changes
+
+  Rev 1.7    1/21/2004 4:20:48 PM  JPMugaas
+  InitComponent
+
+  Rev 1.6    2003.11.29 10:20:16 AM  czhower
+  Updated for core change to InputBuffer.
+
+  Rev 1.5    3/6/2003 5:08:50 PM  SGrobety
+  Updated the read buffer methodes to fit the new core (InputBuffer ->
+  InputBufferAsString + call to CheckForDataOnSource)
+
+  Rev 1.4    2/24/2003 10:32:46 PM  JPMugaas
+
+  Rev 1.3    12/8/2002 07:26:10 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.2    12/7/2002 06:43:30 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.1    12/6/2002 05:30:40 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 08:02:50 AM  JPMugaas
+
+  03-01-2002 Andrew P.Rybin  Renamings and standardization
+
+  26-05-2000 SG: Converted to Indy, no other change
+
+  07-Mar-2000 Mark   Added a bunch of stuff... it's very much a work in progress
+
+  05-Mar-2000 Mark   Added constants for telnet implememtation.
+
+  13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
 }
-{
-{   Rev 1.14    10/07/2004 10:00:28  ANeillans
-{ Fixed compile bug
-}
-{
-{   Rev 1.13    7/8/04 4:12:06 PM  RLebeau
-{ Updated calls to Write() to use the IOHandler
-}
-{
-{   Rev 1.12    7/4/04 1:38:36 PM  RLebeau
-{ Updated Negotiate() to trigger the OnDataAvailable event only when data is
-{ actually available.
-}
-{
-{   Rev 1.11    5/16/04 3:14:06 PM  RLebeau
-{ Added destructor to terminate the reading thread
-}
-{
-{   Rev 1.10    3/29/04 11:47:00 AM  RLebeau
-{ Updated to support new ThreadedEvent property
-}
-{
-{   Rev 1.9    2004.03.06 1:31:56 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.8    2004.02.03 5:44:32 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.7    1/21/2004 4:20:48 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.6    2003.11.29 10:20:16 AM  czhower
-{ Updated for core change to InputBuffer.
-}
-{
-{   Rev 1.5    3/6/2003 5:08:50 PM  SGrobety
-{ Updated the read buffer methodes to fit the new core (InputBuffer ->
-{ InputBufferAsString + call to CheckForDataOnSource)
-}
-{
-{   Rev 1.4    2/24/2003 10:32:46 PM  JPMugaas
-}
-{
-{   Rev 1.3    12/8/2002 07:26:10 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.2    12/7/2002 06:43:30 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:40 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 08:02:50 AM  JPMugaas
-}
+
 unit IdTelnet;
 
-// CHANGES
-//
-// 26-05-2000 SG: Converted to Indy, no other change
-// 13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
-//
-///////////////////////////////////////////////////////////////////////////////
-// Author: Mark Holmes
-// ..
-// This is the telnet client component. I'm still testing    {Do not Localize}
-// There is no real terminal emulation other than dumb terminal
-//
-////////////////////////////////////////////////////////////////////////////////
 {
-******************************************************************************
-Date        Author Change.
---------------------------------------------------------------------------------
-05-Mar-2000 Mark   Added constants for telnet implememtation.
-07-Mar-2000 Mark   Added a bunch of stuff... it's very much a work in progress   
-03-01-2002 Andrew P.Rybin  Renamings and standardization
+  Author: Mark Holmes
+  This is the telnet client component. I'm still testing
+  There is no real terminal emulation other than dumb terminal
 }
 
 interface
@@ -340,7 +321,7 @@ begin
       IOHandler.Write(Ch)
     end else begin
       IOHandler.Write(EOL);
-    end;  
+    end;
   end;
 end;
 
