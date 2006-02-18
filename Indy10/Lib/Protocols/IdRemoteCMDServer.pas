@@ -16,31 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.5    12/2/2004 4:23:58 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.4    2004.02.03 5:44:16 PM  czhower
-{ Name changes
-}
-{
-    Rev 1.3    4/4/2003 8:03:40 PM  BGooijen
-  fixed
-}
-{
-{   Rev 1.2    2/24/2003 09:33:00 PM  JPMugaas
-}
-{
-{   Rev 1.1    1/31/2003 02:32:08 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.0    11/13/2002 07:59:32 AM  JPMugaas
-}
-unit IdRemoteCMDServer;
+  Rev 1.5    12/2/2004 4:23:58 PM  JPMugaas
+  Adjusted for changes in Core.
 
-{2001, Feb 17
-  started this unit with code from TIdRexecServer}
+  Rev 1.4    2004.02.03 5:44:16 PM  czhower
+  Name changes
+
+  Rev 1.3    4/4/2003 8:03:40 PM  BGooijen
+  fixed
+
+  Rev 1.2    2/24/2003 09:33:00 PM  JPMugaas
+
+  Rev 1.1    1/31/2003 02:32:08 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.0    11/13/2002 07:59:32 AM  JPMugaas
+
+  2001, Feb 17
+  started this unit with code from TIdRexecServer
+}
+
+unit IdRemoteCMDServer;
 
 interface
 
@@ -110,7 +106,7 @@ var
              // end;
              //
              // After we have this code we will know the exact Port on wich the exception has occured
-             
+
              {if E.LastError = 10048 then begin
                StdError.BoundPortMax := StdError.BoundPort - 1;
                StdError.BoundPort := 0;

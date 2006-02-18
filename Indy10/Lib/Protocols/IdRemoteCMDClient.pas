@@ -16,53 +16,41 @@
   $Log$
 }
 {
-{   Rev 1.7    2004.02.03 5:44:16 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.6    2004.01.22 6:09:04 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.5    1/21/2004 3:27:18 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.4    4/4/2003 8:03:40 PM  BGooijen
+  Rev 1.7    2004.02.03 5:44:16 PM  czhower
+  Name changes
+
+  Rev 1.6    2004.01.22 6:09:04 PM  czhower
+  IdCriticalSection
+
+  Rev 1.5    1/21/2004 3:27:18 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    4/4/2003 8:03:40 PM  BGooijen
   fixed
+
+  Rev 1.3    2/24/2003 09:32:56 PM  JPMugaas
+
+  Rev 1.2    1/31/2003 02:32:04 PM  JPMugaas
+  Should now compile.
+
+  Rev 1.1    12/6/2002 05:30:32 PM  JPMugaas
+  Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+  Rev 1.0    11/13/2002 07:59:26 AM  JPMugaas
+
+  -2001.02.15 - J. Peter Mugaas
+  Started this unit with code originally in TIdRexec
 }
-{
-{   Rev 1.3    2/24/2003 09:32:56 PM  JPMugaas
-}
-{
-{   Rev 1.2    1/31/2003 02:32:04 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.1    12/6/2002 05:30:32 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.0    11/13/2002 07:59:26 AM  JPMugaas
-}
+
 unit IdRemoteCMDClient;
 
 {
--2001.02.15 - J. Peter Mugaas
-              Started this unit with code originally in
-              TIdRexec
-
-}              
-(*******************************************************}
-{                                                       }
-{       Indy Rexec Client TIdRexec                      }
-{                                                       }
-{       Copyright (C) 2001 Indy Pit Crew                }
-{       Author J. Peter Mugaas                          }
-{       Based partly on code authored by Laurence LIew  }
-{       2001-February-15                                }
-{                                                       }
-{*******************************************************)
+  Indy Rexec Client TIdRexec
+  Copyright (C) 2001 Indy Pit Crew
+  Author J. Peter Mugaas
+  Based partly on code authored by Laurence LIew
+  2001-February-15
+}
 
 interface
 
@@ -153,7 +141,7 @@ begin
     TIdIOHandlerSocket(IOHandler).BoundPortMin := 0;
     TIdIOHandlerSocket(IOHandler).BoundPortMax := 0;
   end;
-  {For RSH, we have to set the port the client to connect.  I don't    
+  {For RSH, we have to set the port the client to connect.  I don't
    think it is required to this in Rexec.}
    Connect; try
     if FUseStdError then begin
