@@ -14,110 +14,117 @@
 }
 {
   $Log$
-
-
+}
+{
     Rev 1.3    2004.02.03 5:45:04 PM  czhower
   Name changes
-
 
     Rev 1.2    1/21/2004 1:57:38 PM  JPMugaas
   InitComponent
 
-
     Rev 1.1    10/12/2003 2:01:46 PM  BGooijen
   Compiles in DotNet
 
-
     Rev 1.0    11/14/2002 02:16:44 PM  JPMugaas
+
+  2002-Feb-07 Pete Mee
+  - Modified interface: GetAsRFC882 is now GetAsRFC822. ;-)
+  - Fixed GetAsTTimeStamp (was way out).
+
+  2001-Nov-10 Pete Mee
+  - Added SetFromDOSDateTime.
+
+  2001-Mar-29 Pete Mee
+  - Fixed bug in SetFromRFC822.  As luck would have it, my PC has changed
+    to BST from GMT, so I caught the error.  Change use of GMTToLocalDateTime
+    to StrInternetToDateTime.
+
+  2001-Mar-27 Pete Mee
+  - Added GetTimeZoneHour, GetTimeZoneMinutes, GetTimeZoneAsString and
+    corresponding properties, TimeZoneHour, TimeZoneMinutes and TimeZoneAsString.
+  - Added SetFromRFC822 and SetFromISO8601.
+
+  2001-Mar-26 Pete Mee
+  - Fixed bug in AddDays.  Was adding an extra day in the wrong centuary.
+  - Fixed bug in AddDays.  Was not altering the year with large additions.
+
+  2001-Mar-23 Pete Mee
+  - Fixed bug in SubtractMilliseconds.
+  - GetBeatOfDay is more accurate (based on milliseconds instead of seconds).
+
+  2001-Mar-21 Pete Mee
+  - Altered Day, Seond and Millisecond properties to use their respective
+    Set methods.
+  - Added SetTimeZone, Zero, ZeroTime and ZeroDate.
+  - Altered SetYear and SetDay to cope with the value 0.
+
+  2000-Sep-16 Pete Mee
+  - SetYear no longer accepts zero but instead simply exits.
+
+  2000-Aug-01 Pete Mee
+  - Fix bugs in AddDays & SubtractDays.  Depending on the day of the year, the
+    calculations could have been incorrect.  Now 'rounds off' to the nearest year
+    before any other calculation.
+
+  2000-Jul-28 Pete Mee
+  - Fix bugs in AddDays & SubtractDays.  3 days in 400 years lost, 1 day in 100
+    years lost.
+
+  2000-May-11 Pete Mee
+  - Added GetAsRFC822, GetAsISO8601
+
+  2000-May-03 Pete Mee
+  - Added detection of Day, Week and Month (various formats).
+
+  2000-May-02 Pete Mee
+  - Started TIdDateTimeStamp
 }
+
 unit IdDateTimeStamp;
 
 {
-ToDo: Allow localisation date / time strings generated (i.e., to zone name).
-ToDo: Rework SetFromRFC822 as it is (marginally) limited by it's   
-  conversion to TDateTime.
-ToDo: Conversion between Time Zones.
+  Development notes:
+
+  The Calendar used is the Gregorian Calendar (modern western society).  This
+  Calendar's use started somtime in the 1500s but wasn't adopted by some countries
+  until the early 1900s.  No attempt is made to cope with any other Calendars.
+
+  No attempt is made to cope with any Atomic time quantity less than a leap
+  year (i.e., an exact number of seconds per day and an exact number of days
+  per year / leap year - no leap seconds, no 1/4 days, etc).
+
+  The implementation revolves around the Milliseconds, Seconds, Days and Years.
+  The heirarchy is as follows:
+    Milliseconds modify seconds.  (0-999 Milliseconds)
+    Seconds modify days.  (0-59 Seconds)
+    Days modify years.  (1-365/366 Days)
+    Years modify years. (..., -2, -1, 1, ...)
+
+  All other time units are translated into necessary component parts.  I.e.,
+  a week is 7 days, and hour is 3600 seconds, a minute is 60 seconds, etc...
+
+  The implementation could be easily expanded to represent decades, centuries,
+  nanoseconds, and beyond in both directions.  Milliseconds are included to
+  provide easy conversion from TTimeStamp and back (and hence TDateTime).  The
+  current component is designed to give good functionality for the majority (if
+  not all) of Internet component requirements (including Swatch's Internet Time).
+  It is also not limited to the 2038 bug of many of today's OSs (32-bit signed
+  number of seconds from 1st Jan 1970 = 19th Jan 2038 03:14:07, or there abouts).
+
+  NB: This implementation is factors slower than those of the TDateTime and
+  TTimeStamp components of standard Delphi.  It's main use lies in the conversion
+  to / from ISO 8601 and RFC 822 formats as well as dates ranging beyond 2037 and
+  before 1970 (though TTimeStamp is capable here).  It's also the only date component
+  I'm aware of that complies with RFC 2550 "Y10K and Beyond"... one of those RFCs in
+  the same category as RFC 1149, IP over Avian Carriers. ;-)
+
+  Pete Mee
 }
-
 {
-2002-Feb-07 Pete Mee
- - Modified interface: GetAsRFC882 is now GetAsRFC822. ;-)
- - Fixed GetAsTTimeStamp (was way out).
-2001-Nov-10 Pete Mee
- - Added SetFromDOSDateTime.
-2001-Mar-29 Pete Mee
- - Fixed bug in SetFromRFC822.  As luck would have it, my PC has changed
-  to BST from GMT, so I caught the error.  Change use of GMTToLocalDateTime
-  to StrInternetToDateTime.
-2001-Mar-27 Pete Mee
- - Added GetTimeZoneHour, GetTimeZoneMinutes, GetTimeZoneAsString and
-   corresponding properties, TimeZoneHour, TimeZoneMinutes and TimeZoneAsString.
- - Added SetFromRFC822 and SetFromISO8601.
-2001-Mar-26 Pete Mee
- - Fixed bug in AddDays.  Was adding an extra day in the wrong centuary.
- - Fixed bug in AddDays.  Was not altering the year with large additions.
-2001-Mar-23 Pete Mee
- - Fixed bug in SubtractMilliseconds.
- - GetBeatOfDay is more accurate (based on milliseconds instead of seconds).
-2001-Mar-21 Pete Mee
- - Altered Day, Seond and Millisecond properties to use their respective
-   Set methods.
- - Added SetTimeZone, Zero, ZeroTime and ZeroDate.
- - Altered SetYear and SetDay to cope with the value 0.
-2000-Sep-16 Pete Mee
- - SetYear no longer accepts zero but instead simply exits.
-2000-Aug-01 Pete Mee
- - Fix bugs in AddDays & SubtractDays.  Depending on the day of the year, the
-   calculations could have been incorrect.  Now 'rounds off' to the nearest year   
-   before any other calculation.
-2000-Jul-28 Pete Mee
- - Fix bugs in AddDays & SubtractDays.  3 days in 400 years lost, 1 day in 100
-   years lost.
-2000-May-11 Pete Mee
- - Added GetAsRFC822, GetAsISO8601
-2000-May-03 Pete Mee
- - Added detection of Day, Week and Month (various formats).
-2000-May-02 Pete Mee
- - Started TIdDateTimeStamp
-}
-
-{
-Development notes:
-
-The Calendar used is the Gregorian Calendar (modern western society).  This
-Calendar's use started somtime in the 1500s but wasn't adopted by some countries
-until the early 1900s.  No attempt is made to cope with any other Calendars.
-
-No attempt is made to cope with any Atomic time quantity less than a leap
-year (i.e., an exact number of seconds per day and an exact number of days
-per year / leap year - no leap seconds, no 1/4 days, etc).
-
-The implementation revolves around the Milliseconds, Seconds, Days and Years.
-The heirarchy is as follows:
-Milliseconds modify seconds.  (0-999 Milliseconds)
-Seconds modify days.  (0-59 Seconds)
-Days modify years.  (1-365/366 Days)
-Years modify years. (..., -2, -1, 1, ...)
-
-All other time units are translated into necessary component parts.  I.e.,
-a week is 7 days, and hour is 3600 seconds, a minute is 60 seconds, etc...
-
-The implementation could be easily expanded to represent decades, centuries,
-nanoseconds, and beyond in both directions.  Milliseconds are included to
-provide easy conversion from TTimeStamp and back (and hence TDateTime).  The
-current component is designed to give good functionality for the majority (if
-not all) of Internet component requirements (including Swatch's Internet Time).
-It is also not limited to the 2038 bug of many of today's OSs (32-bit signed
-number of seconds from 1st Jan 1970 = 19th Jan 2038 03:14:07, or there abouts).
-
-NB: This implementation is factors slower than those of the TDateTime and
-TTimeStamp components of standard Delphi.  It's main use lies in the conversion
-to / from ISO 8601 and RFC 822 formats as well as dates ranging beyond 2037 and
-before 1970 (though TTimeStamp is capable here).  It's also the only date component
-I'm aware of that complies with RFC 2550 "Y10K and Beyond"... one of those RFCs in   
-the same category as RFC 1149, IP over Avian Carriers. ;-)
-
-Pete Mee
+  ToDo: Allow localisation date / time strings generated (i.e., to zone name).
+  ToDo: Rework SetFromRFC822 as it is (marginally) limited by it's
+    conversion to TDateTime.
+  ToDo: Conversion between Time Zones.
 }
 
 interface

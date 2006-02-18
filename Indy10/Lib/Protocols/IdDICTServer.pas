@@ -16,61 +16,56 @@
   $Log$
 }
 {
-    Rev 1.10    6/11/2004 6:16:50 AM  DSiders
+  Rev 1.10    6/11/2004 6:16:50 AM  DSiders
   Corrected spelling in class names, properties, and methods.
-}
-{
-{   Rev 1.9    2004.02.03 5:45:06 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.8    1/21/2004 2:12:44 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.7    10/19/2003 11:51:16 AM  DSiders
+
+  Rev 1.9    2004.02.03 5:45:06 PM  czhower
+  Name changes
+
+  Rev 1.8    1/21/2004 2:12:44 PM  JPMugaas
+  InitComponent
+
+  Rev 1.7    10/19/2003 11:51:16 AM  DSiders
   Added localization comments.
+
+  Rev 1.6    2003.10.18 9:42:08 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.5    7/18/2003 4:24:48 PM  SPerry
+  New DICT server using command handlers
+
+  Rev 1.4    2/24/2003 08:22:52 PM  JPMugaas
+  SHould compile with new code.
+
+  Rev 1.3    1/17/2003 05:35:14 PM  JPMugaas
+  Now compiles with new design.
+
+  Rev 1.2    1-1-2003 20:12:52  BGooijen
+  Changed to support the new TIdContext class
+
+  Rev 1.1    12/6/2002 02:17:42 PM  JPMugaas
+  Now compiles with Indy 10.
+
+  Rev 1.0    11/14/2002 02:17:24 PM  JPMugaas
+
+  2000-15-May: J. Peter Mugaas - renamed events to have Id prefix
+
+  2000-22-Apr: J. Peter Mugaas
+    Ported to Indy
+
+  2000-23-JanL MTL Moved to new Palette Scheme
+
+  1999-23-Apr: Final Version
 }
-{
-{   Rev 1.6    2003.10.18 9:42:08 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.5    7/18/2003 4:24:48 PM  SPerry
-{ New DICT server using command handlers
-}
-{
-{   Rev 1.4    2/24/2003 08:22:52 PM  JPMugaas
-{ SHould compile with new code.
-}
-{
-{   Rev 1.3    1/17/2003 05:35:14 PM  JPMugaas
-{ Now compiles with new design.
-}
-{
-{   Rev 1.2    1-1-2003 20:12:52  BGooijen
-{ Changed to support the new TIdContext class
-}
-{
-{   Rev 1.1    12/6/2002 02:17:42 PM  JPMugaas
-{ Now compiles with Indy 10.
-}
-{
-{   Rev 1.0    11/14/2002 02:17:24 PM  JPMugaas
-}
+
 unit IdDICTServer;
 
-interface
-
 {
-2000-15-May: J. Peter Mugaas - renamed events to have Id prefix
-2000-22-Apr: J. Peter Mugaas
-  Ported to Indy
-2000-23-JanL MTL Moved to new Palette Scheme
-1999-23-Apr: Final Version
-Original Author: Ozz Nixon
   RFC 2229 - Dictionary Protocol (Structure).
+  Original Author: Ozz Nixon
 }
+
+interface
 
 uses
   IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,

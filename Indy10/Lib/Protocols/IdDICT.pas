@@ -16,56 +16,51 @@
   $Log$
 }
 {
-{   Rev 1.8    10/26/2004 8:59:34 PM  JPMugaas
-{ Updated with new TStrings references for more portability.
-}
-{
-{   Rev 1.7    2004.10.26 11:47:54 AM  czhower
-{ Changes to fix a conflict with aliaser.
-}
-{
-    Rev 1.6    7/6/2004 4:55:22 PM  DSiders
+  Rev 1.8    10/26/2004 8:59:34 PM  JPMugaas
+  Updated with new TStrings references for more portability.
+
+  Rev 1.7    2004.10.26 11:47:54 AM  czhower
+  Changes to fix a conflict with aliaser.
+
+  Rev 1.6    7/6/2004 4:55:22 PM  DSiders
   Corrected spelling of Challenge.
-}
-{
-    Rev 1.5    6/11/2004 9:34:08 AM  DSiders
+
+  Rev 1.5    6/11/2004 9:34:08 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-    Rev 1.4    6/11/2004 6:16:44 AM  DSiders
+
+  Rev 1.4    6/11/2004 6:16:44 AM  DSiders
   Corrected spelling in class names, properties, and methods.
+
+  Rev 1.3    3/8/2004 10:08:48 AM  JPMugaas
+  IdDICT now compiles with new code.  IdDICT now added to palette.
+
+  Rev 1.2    3/5/2004 7:23:56 AM  JPMugaas
+  Fix for one server that does not send a feature list in the banner as RFC
+  2229 requires.
+
+  Rev 1.1    3/4/2004 3:55:02 PM  JPMugaas
+  Untested work with SASL.
+  Fixed a problem with multiple entries using default.  If AGetAll is true, a
+  "*" is used for all of the databases.  "!" is for just the first database an
+  entry is found in.
+
+  Rev 1.0    3/4/2004 2:44:16 PM  JPMugaas
+  RFC 2229 DICT client.  This is a preliminary version that was tested at
+  dict.org
 }
-{
-{   Rev 1.3    3/8/2004 10:08:48 AM  JPMugaas
-{ IdDICT now compiles with new code.  IdDICT now added to palette.
-}
-{
-{   Rev 1.2    3/5/2004 7:23:56 AM  JPMugaas
-{ Fix for one server that does not send a feature list in the banner as RFC
-{ 2229 requires.
-}
-{
-{   Rev 1.1    3/4/2004 3:55:02 PM  JPMugaas
-{ Untested work with SASL.
-{ Fixed a problem with multiple entries using default.  If AGetAll is true, a
-{ "*" is used for all of the databases.  "!" is for just the first database an
-{ entry is found in.
-}
-{
-{   Rev 1.0    3/4/2004 2:44:16 PM  JPMugaas
-{ RFC 2229 DICT client.  This is a preliminary version that was tested at
-{ dict.org
-}
+
 unit IdDICT;
 
 interface
 
 uses
-  IdAssignedNumbers, IdComponent, IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
+  IdAssignedNumbers, IdComponent,
+  IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
 
-//TODO:  MIME should be integrated into this.
-//TODO: SASL mechanism support needs to coded
-//TODO:  This needs to be completely based on UTF8
+// TODO: MIME should be integrated into this.
+// TODO: SASL mechanism support needs to coded
+// TODO: This needs to be completely based on UTF8
+
 type
   TIdDICTAuthenticationType = (atDefault, atSASL);
 

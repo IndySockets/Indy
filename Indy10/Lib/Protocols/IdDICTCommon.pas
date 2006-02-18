@@ -16,26 +16,23 @@
   $Log$
 }
 {
-{   Rev 1.4    10/26/2004 8:59:34 PM  JPMugaas
-{ Updated with new TStrings references for more portability.
-}
-{
-{   Rev 1.3    2004.10.26 11:47:56 AM  czhower
-{ Changes to fix a conflict with aliaser.
-}
-{
-{   Rev 1.2    8/16/2004 1:15:00 PM  JPMugaas
-{ Create and Destroy need to have the same visibility as inherited methods.
-}
-{
-    Rev 1.1    6/11/2004 6:16:48 AM  DSiders
+  Rev 1.4    10/26/2004 8:59:34 PM  JPMugaas
+  Updated with new TStrings references for more portability.
+
+  Rev 1.3    2004.10.26 11:47:56 AM  czhower
+  Changes to fix a conflict with aliaser.
+
+  Rev 1.2    8/16/2004 1:15:00 PM  JPMugaas
+  Create and Destroy need to have the same visibility as inherited methods.
+
+  Rev 1.1    6/11/2004 6:16:48 AM  DSiders
   Corrected spelling in class names, properties, and methods.
+
+  Rev 1.0    3/4/2004 2:43:26 PM  JPMugaas
+  RFC 2229 DICT Protocol helper objects for the client and probably when the
+  server when we get to it.
 }
-{
-{   Rev 1.0    3/4/2004 2:43:26 PM  JPMugaas
-{ RFC 2229 DICT Protocol helper objects for the client and probably when the
-{ server when we get to it.
-}
+
 unit IdDICTCommon;
 
 interface

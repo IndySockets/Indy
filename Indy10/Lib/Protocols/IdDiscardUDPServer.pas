@@ -16,12 +16,12 @@
   $Log$
 }
 {
-{   Rev 1.1    1/21/2004 2:12:48 PM  JPMugaas
-{ InitComponent
+  Rev 1.1    1/21/2004 2:12:48 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/14/2002 02:18:14 PM  JPMugaas
 }
-{
-{   Rev 1.0    11/14/2002 02:18:14 PM  JPMugaas
-}
+
 unit IdDiscardUDPServer;
 
 interface
@@ -48,4 +48,4 @@ begin
 end;
 
 end.
- 
+
