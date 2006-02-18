@@ -16,52 +16,44 @@
   $Log$
 }
 {
-    Rev 1.7    2/15/2005 9:25:00 AM  DSiders
+  Rev 1.7    2/15/2005 9:25:00 AM  DSiders
   Modified StrHtmlEncode, StrHtmlDecode to ignore apostrophe character and
   entity (not defined for HTML 4).
   Added StrXHtmlEncode, StrXHtmlDecode.
   Added comments to describe various functions.
+
+  Rev 1.6    7/30/2004 7:49:30 AM  JPMugaas
+  Removed unneeded DotNET excludes.
+
+  Rev 1.5    2004.02.03 5:44:26 PM  czhower
+  Name changes
+
+  Rev 1.4    2004.02.03 2:12:20 PM  czhower
+  $I path change
+
+  Rev 1.3    24/01/2004 19:30:28  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.2    10/12/2003 2:01:48 PM  BGooijen
+  Compiles in DotNet
+
+  Rev 1.1    10/10/2003 11:06:54 PM  SPerry
+
+  Rev 1.0    11/13/2002 08:02:02 AM  JPMugaas
+
+  2000-03-27  Pete Mee
+  - Added FindFirstOf, FindFirstNotOf,TrimAllOf functions.
+
+  2002-01-03  Andrew P.Rybin
+  - StrHTMLEnc/Dec,BinToHexStr,IsWhiteString
 }
-{
-{   Rev 1.6    7/30/2004 7:49:30 AM  JPMugaas
-{ Removed unneeded DotNET excludes.
-}
-{
-{   Rev 1.5    2004.02.03 5:44:26 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    2004.02.03 2:12:20 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.3    24/01/2004 19:30:28  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.2    10/12/2003 2:01:48 PM  BGooijen
-{ Compiles in DotNet
-}
-{
-{   Rev 1.1    10/10/2003 11:06:54 PM  SPerry
-{ -
-}
-{
-{   Rev 1.0    11/13/2002 08:02:02 AM  JPMugaas
-}
+
 unit IdStrings;
 
 interface
 
 uses
   IdSys;
-
-{
-  2000-03-27  Pete Mee
-  - Added FindFirstOf, FindFirstNotOf,TrimAllOf functions.
-  2002-01-03  Andrew P.Rybin
-  - StrHTMLEnc/Dec,BinToHexStr,IsWhiteString
-}
 
 function  FindFirstOf(AFind, AText: String): Integer;
 function  FindFirstNotOf(AFind, AText : String) : Integer;
