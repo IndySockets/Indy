@@ -16,55 +16,52 @@
   $Log$
 }
 {
-{   Rev 1.8    7/23/04 1:32:08 PM  RLebeau
-{ Bug fix for TIdSyslogFacility where sfUUCP and sfClockDeamonOne were in the
-{ wrong order
+  Rev 1.8    7/23/04 1:32:08 PM  RLebeau
+  Bug fix for TIdSyslogFacility where sfUUCP and sfClockDeamonOne were in the
+  wrong order
+
+  Rev 1.7    7/8/04 11:43:08 PM  RLebeau
+  Updated ReadFromBytes(c) to use new BytesToString() parameters
+
+  Rev 1.6    2004.02.03 5:44:28 PM  czhower
+  Name changes
+
+  Rev 1.5    1/31/2004 1:23:24 PM  JPMugaas
+  Eliminated Todo item.
+
+  Rev 1.4    2004.01.22 3:23:36 PM  czhower
+  IsCharInSet
+
+  Rev 1.3    1/21/2004 4:03:58 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/24/2003 01:58:30 PM  JPMugaas
+  Attempt to port Syslog over to new code.
+
+  Rev 1.1    2003.10.12 6:36:44 PM  czhower
+  Now compiles.
+
+  Rev 1.0    11/13/2002 08:02:12 AM  JPMugaas
 }
-{
-{   Rev 1.7    7/8/04 11:43:08 PM  RLebeau
-{ Updated ReadFromBytes(c) to use new BytesToString() parameters
-}
-{
-{   Rev 1.6    2004.02.03 5:44:28 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.5    1/31/2004 1:23:24 PM  JPMugaas
-{ Eliminated Todo item.
-}
-{
-{   Rev 1.4    2004.01.22 3:23:36 PM  czhower
-{ IsCharInSet
-}
-{
-{   Rev 1.3    1/21/2004 4:03:58 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    10/24/2003 01:58:30 PM  JPMugaas
-{ Attempt to port Syslog over to new code.
-}
-{
-{   Rev 1.1    2003.10.12 6:36:44 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.0    11/13/2002 08:02:12 AM  JPMugaas
-}
+
 unit IdSysLogMessage;
-//  Copyright the Indy pit crew
-//  Original Author: Stephane Grobety (grobety@fulgan.com)
-//  Release history:
-//  25/2/02; - Stephane Grobety
-//    - Moved Facility and Severity translation functions out of the class
-//    - Restored the "SendToHost" method
-//    - Changed the ASCII check tzo include only the PRI and HEADER part.
-//    - Now allow nul chars in message result (Special handeling should be required, though)
-//  09/20/01;  - J. Peter Mugaas
-//    Added more properties dealing with Msg parts of the SysLog Message
-//  09/19/01; - J. Peter Mugaas
-//     restructured syslog classes
-//  08/09/01: Dev started
+
+{
+  Copyright the Indy pit crew
+  Original Author: Stephane Grobety (grobety@fulgan.com)
+  Release history:
+  25/2/02; - Stephane Grobety
+    - Moved Facility and Severity translation functions out of the class
+    - Restored the "SendToHost" method
+    - Changed the ASCII check tzo include only the PRI and HEADER part.
+    - Now allow nul chars in message result (Special handeling should be required, though)
+  09/20/01;  - J. Peter Mugaas
+    Added more properties dealing with Msg parts of the SysLog Message
+  09/19/01; - J. Peter Mugaas
+    restructured syslog classes
+  08/09/01: Dev started
+}
+
 interface
 
 uses
