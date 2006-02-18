@@ -16,24 +16,23 @@
   $Log$
 }
 {
-{   Rev 1.2    1/25/2004 2:17:52 PM  JPMugaas
-{ Should work better.  Removed one GPF in S/Key.
-}
-{
-{   Rev 1.1    1/21/2004 4:03:16 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 08:00:30 AM  JPMugaas
-}
-{
+  Rev 1.2    1/25/2004 2:17:52 PM  JPMugaas
+  Should work better.  Removed one GPF in S/Key.
+
+  Rev 1.1    1/21/2004 4:03:16 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 08:00:30 AM  JPMugaas
+
   Basic LOGIN mechanism like SMTP uses it. This is not really specified in
   a RFC - at least I couldn't find one.
   This is of type TIdSASLUserPass because it needs a username/password
 }
+
 unit IdSASLLogin;
 
 interface
+
 uses
   IdSASL,
   IdSASLUserPass;

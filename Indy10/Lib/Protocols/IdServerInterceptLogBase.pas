@@ -16,34 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.6    1/19/05 11:18:16 AM  RLebeau
-{ bug fix for GetConnectionID()
-}
-{
-{   Rev 1.5    2004.02.03 5:45:38 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    2004.01.22 5:58:58 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.3    1/21/2004 4:03:20 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    2003.10.17 6:15:02 PM  czhower
-{ consts removed
-}
-{
-{   Rev 1.1    2003.10.14 1:31:14 PM  czhower
-{ DotNet
-}
-{
-    Rev 1.0    3/22/2003 10:59:20 PM  BGooijen
+  Rev 1.6    1/19/05 11:18:16 AM  RLebeau
+  bug fix for GetConnectionID()
+
+  Rev 1.5    2004.02.03 5:45:38 PM  czhower
+  Name changes
+
+  Rev 1.4    2004.01.22 5:58:58 PM  czhower
+  IdCriticalSection
+
+  Rev 1.3    1/21/2004 4:03:20 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    2003.10.17 6:15:02 PM  czhower
+  consts removed
+
+  Rev 1.1    2003.10.14 1:31:14 PM  czhower
+  DotNet
+
+  Rev 1.0    3/22/2003 10:59:20 PM  BGooijen
   Initial check in.
   ServerIntercept to ease debugging, data/status are logged to a file
 }
+
 unit IdServerInterceptLogBase;
 
 interface
@@ -169,4 +164,4 @@ begin
 end;
 
 end.
- 
+

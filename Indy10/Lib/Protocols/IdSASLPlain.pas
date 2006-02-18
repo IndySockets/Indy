@@ -16,22 +16,22 @@
   $Log$
 }
 {
-{   Rev 1.1    1/25/2004 2:17:52 PM  JPMugaas
-{ Should work better.  Removed one GPF in S/Key.
-}
-{
-{   Rev 1.0    11/13/2002 08:00:36 AM  JPMugaas
-}
-{
-  PLAIN mechanism 
+  Rev 1.1    1/25/2004 2:17:52 PM  JPMugaas
+  Should work better.  Removed one GPF in S/Key.
+
+  Rev 1.0    11/13/2002 08:00:36 AM  JPMugaas
+
+  PLAIN mechanism
   This is of type TIdSASLUserPass because it needs a username/password,
   additionally it has a LoginAs property - this is the "effective username"
   after connecting, which could be different as your "real" username
   (eg. root logging in as someone else on a unix system)
 }
+
 unit IdSASLPlain;
 
 interface
+
 uses
   IdSASL,
   IdSASLUserPass;

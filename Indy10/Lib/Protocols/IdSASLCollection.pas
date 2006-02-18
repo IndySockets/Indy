@@ -16,32 +16,28 @@
   $Log$
 }
 {
-{   Rev 1.5    11/27/2004 8:27:14 PM  JPMugaas
-{ Fix for compiler errors.
-}
-{
-{   Rev 1.4    11/27/04 2:56:40 AM  RLebeau
-{ Added support for overloaded version of LoginSASL().
-{ 
-{ Added GetDisplayName() method to TIdSASLListEntry, and FindSASL() method to
-{ TIdSASLEntries.
-}
-{
-{   Rev 1.3    10/26/2004 10:55:32 PM  JPMugaas
-{ Updated refs.
-}
-{
-    Rev 1.2    6/11/2004 9:38:38 AM  DSiders
+  Rev 1.5    11/27/2004 8:27:14 PM  JPMugaas
+  Fix for compiler errors.
+
+  Rev 1.4    11/27/04 2:56:40 AM  RLebeau
+  Added support for overloaded version of LoginSASL().
+
+  Added GetDisplayName() method to TIdSASLListEntry, and FindSASL() method to
+  TIdSASLEntries.
+
+  Rev 1.3    10/26/2004 10:55:32 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.2    6/11/2004 9:38:38 AM  DSiders
   Added "Do not Localize" comments.
+
+  Rev 1.1    2004.02.03 5:45:50 PM  czhower
+  Name changes
+
+  Rev 1.0    1/25/2004 3:09:54 PM  JPMugaas
+  New collection class for SASL mechanism processing.
 }
-{
-{   Rev 1.1    2004.02.03 5:45:50 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.0    1/25/2004 3:09:54 PM  JPMugaas
-{ New collection class for SASL mechanism processing.
-}
+
 unit IdSASLCollection;
 
 interface

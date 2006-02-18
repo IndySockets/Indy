@@ -16,40 +16,40 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:45:42 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/25/2004 2:17:54 PM  JPMugaas
-{ Should work better.  Removed one GPF in S/Key.
-}
-{
-{   Rev 1.2    1/21/2004 4:03:18 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.1    10/19/2003 5:57:20 PM  DSiders
+  Rev 1.4    2004.02.03 5:45:42 PM  czhower
+  Name changes
+
+  Rev 1.3    1/25/2004 2:17:54 PM  JPMugaas
+  Should work better.  Removed one GPF in S/Key.
+
+  Rev 1.2    1/21/2004 4:03:18 PM  JPMugaas
+  InitComponent
+
+  Rev 1.1    10/19/2003 5:57:20 PM  DSiders
   Added localization comments.
+
+  Rev 1.0    5/10/2003 10:08:14 PM  JPMugaas
+  SKEY SASL mechanism as defined in RFC 2222.  Note that this is obsolete and
+  you should use RFC 2444 for new designs.  This is only provided for backwards
+  compatibility.
 }
-{
-{   Rev 1.0    5/10/2003 10:08:14 PM  JPMugaas
-{ SKEY SASL mechanism as defined in RFC 2222.  Note that this is obsolete and
-{ you should use RFC 2444 for new designs.  This is only provided for backwards
-{ compatibility.
-}
+
 unit IdSASLSKey;
 
 interface
+
 uses IdSASLUserPass, IdSASL;
+
 {
-S/KEY SASL mechanism based on RFC 2222.
+  S/KEY SASL mechanism based on RFC 2222.
 
-NOte that this is depreciated and S/Key is a trademark of BelCore.  This unit
-is only provided for backwards compatiability with some older systems.
+  NOte that this is depreciated and S/Key is a trademark of BelCore.  This unit
+  is only provided for backwards compatiability with some older systems.
 
-New designs should use IdSASLOTP (RFC 2444) which is more flexible and uses a better hash
-(MD5 and SHA1).
+  New designs should use IdSASLOTP (RFC 2444) which is more flexible and uses a
+  better hash (MD5 and SHA1).
 }
+
 type
   TIdSASLSKey = class(TIdSASLUserPass)
   protected

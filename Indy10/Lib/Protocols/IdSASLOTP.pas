@@ -16,31 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:45:12 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/21/2004 4:03:16 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.2    10/19/2003 5:57:18 PM  DSiders
+  Rev 1.4    2004.02.03 5:45:12 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 4:03:16 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/19/2003 5:57:18 PM  DSiders
   Added localization comments.
+
+  Rev 1.1    5/10/2003 10:10:44 PM  JPMugaas
+  Bug fixes.
+
+  Rev 1.0    12/16/2002 03:27:22 AM  JPMugaas
+  Initial version of IdSASLOTP.  This is the OTP (One-Time-only password) SASL
+  mechanism.
 }
-{
-{   Rev 1.1    5/10/2003 10:10:44 PM  JPMugaas
-{ Bug fixes.
-}
-{
-{   Rev 1.0    12/16/2002 03:27:22 AM  JPMugaas
-{ Initial version of IdSASLOTP.  This is the OTP (One-Time-only password) SASL
-{ mechanism.
-}
-{This is based on RFC2444}
+
+{ This is based on RFC2444 }
 
 unit IdSASLOTP;
 
 interface
+
 uses
   IdException,
   IdSASL,
