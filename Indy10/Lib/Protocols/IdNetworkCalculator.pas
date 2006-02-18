@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    10/26/2004 10:33:46 PM  JPMugaas
-{ Updated refs.
+  Rev 1.4    10/26/2004 10:33:46 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.3    2004.02.03 5:44:08 PM  czhower
+  Name changes
+
+  Rev 1.2    24/01/2004 19:27:30  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.1    1/21/2004 2:20:26 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 07:57:46 AM  JPMugaas
 }
-{
-{   Rev 1.3    2004.02.03 5:44:08 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    24/01/2004 19:27:30  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.1    1/21/2004 2:20:26 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 07:57:46 AM  JPMugaas
-}
+
 unit IdNetworkCalculator;
 
 interface

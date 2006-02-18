@@ -16,189 +16,143 @@
   $Log$
 }
 {
-{   Rev 1.39    1/7/05 3:29:12 PM  RLebeau
-{ Fix for AV in Notification()
-}
-{
-{   Rev 1.38    12/21/04 1:51:42 AM  RLebeau
-{ Bug fix for Capa() method.
-}
-{
-{   Rev 1.37    11/27/04 2:48:22 AM  RLebeau
-{ Fixed bug in ownership of SASLMechanisms property
-}
-{
-{   Rev 1.36    10/26/2004 10:35:42 PM  JPMugaas
-{ Updated ref.
-}
-{
-{   Rev 1.35    2004.04.18 1:39:26 PM  czhower
-{ Bug fix for .NET with attachments, and several other issues found along the
-{ way.
-}
-{
-{   Rev 1.34    2004.04.07 6:02:42 PM  czhower
-{ Implemented AutoLogin in a better manner.
-}
-{
-{   Rev 1.33    2004.04.07 5:53:56 PM  czhower
-{ .NET overload
-}
-{
-{   Rev 1.32    2004.03.06 1:31:48 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.31    2004.02.03 5:44:12 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.30    2004.02.03 2:12:18 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.29    1/25/2004 3:11:36 PM  JPMugaas
-{ SASL Interface reworked to make it easier for developers to use.
-{ SSL and SASL reenabled components.
-}
-{
-{   Rev 1.28    1/21/2004 3:27:06 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.27    1/12/04 12:22:40 PM  RLebeau
-{ Updated RetrieveMailboxSize() and RetrieveMsgSize() to support responses that
-{ contain additional data after the octet values.
-}
-{
-{   Rev 1.26    22/12/2003 00:45:12  CCostelloe
-{ .NET fixes
-}
-{
-    Rev 1.25    10/19/2003 5:42:36 PM  DSiders
+  Rev 1.39    1/7/05 3:29:12 PM  RLebeau
+  Fix for AV in Notification()
+
+  Rev 1.38    12/21/04 1:51:42 AM  RLebeau
+  Bug fix for Capa() method.
+
+  Rev 1.37    11/27/04 2:48:22 AM  RLebeau
+  Fixed bug in ownership of SASLMechanisms property
+
+  Rev 1.36    10/26/2004 10:35:42 PM  JPMugaas
+  Updated ref.
+
+  Rev 1.35    2004.04.18 1:39:26 PM  czhower
+  Bug fix for .NET with attachments, and several other issues found along the
+  way.
+
+  Rev 1.34    2004.04.07 6:02:42 PM  czhower
+  Implemented AutoLogin in a better manner.
+
+  Rev 1.33    2004.04.07 5:53:56 PM  czhower
+  .NET overload
+
+  Rev 1.32    2004.03.06 1:31:48 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.31    2004.02.03 5:44:12 PM  czhower
+  Name changes
+
+  Rev 1.30    2004.02.03 2:12:18 PM  czhower
+  $I path change
+
+  Rev 1.29    1/25/2004 3:11:36 PM  JPMugaas
+  SASL Interface reworked to make it easier for developers to use.
+  SSL and SASL reenabled components.
+
+  Rev 1.28    1/21/2004 3:27:06 PM  JPMugaas
+  InitComponent
+
+  Rev 1.27    1/12/04 12:22:40 PM  RLebeau
+  Updated RetrieveMailboxSize() and RetrieveMsgSize() to support responses that
+  contain additional data after the octet values.
+
+  Rev 1.26    22/12/2003 00:45:12  CCostelloe
+  .NET fixes
+
+  Rev 1.25    10/19/2003 5:42:36 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.24    10/11/2003 7:14:34 PM  BGooijen
-{ Changed IdCompilerDefines.inc path
-}
-{
-{   Rev 1.23    10/10/2003 11:39:40 PM  BGooijen
-{ Compiles in DotNet now
-}
-{
-{   Rev 1.22    6/15/2003 01:17:10 PM  JPMugaas
-{ Intermediate class no longer used.  We use the SASL functionality right from
-{ the TIdSASLList.
-}
-{
-{   Rev 1.21    6/4/2003 04:10:36 PM  JPMugaas
-{ Removed hacked GetInternelResponse.
-{
-{ Updated to use Kudzu's new string reply code.
-}
-{
-{   Rev 1.20    5/26/2003 04:28:16 PM  JPMugaas
-{ Removed GenerateReply and ParseResponse calls because those functions are
-{ being removed.
-}
-{
-{   Rev 1.19    5/26/2003 12:23:58 PM  JPMugaas
-}
-{
-{   Rev 1.18    5/25/2003 03:54:46 AM  JPMugaas
-}
-{
-{   Rev 1.17    5/25/2003 03:45:56 AM  JPMugaas
-}
-{
-{   Rev 1.16    5/22/2003 05:27:52 PM  JPMugaas
-}
-{
-{   Rev 1.16    5/20/2003 02:29:42 PM  JPMugaas
-{ Updated with POP3Reply object.
-}
-{
-{   Rev 1.15    5/10/2003 10:10:46 PM  JPMugaas
-{ Bug fixes.
-}
-{
-{   Rev 1.14    5/8/2003 08:44:16 PM  JPMugaas
-{ Moved some SASL authentication code down to an anscestor for reuse.  WIll
-{ clean up soon.
-}
-{
-{   Rev 1.13    5/8/2003 03:18:14 PM  JPMugaas
-{ Flattened ou the SASL authentication API, made a custom descendant of SASL
-{ enabled TIdMessageClient classes.
-}
-{
-{   Rev 1.12    5/8/2003 11:28:10 AM  JPMugaas
-{ Moved feature negoation properties down to the ExplicitTLSClient level as
-{ feature negotiation goes hand in hand with explicit TLS support.
-}
-{
-{   Rev 1.11    5/8/2003 03:03:00 AM  JPMugaas
-{ Fixed a problem with SASL.  It turns out that what was being processed with
-{ something from a previous command.  It also turned out that some charactors
-{ were being removed from the SASL processing when they shouldn't have been.
-}
-{
-{   Rev 1.10    5/8/2003 02:18:08 AM  JPMugaas
-{ Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
-{ mechanisms missing more consistant, made IdPOP3 support feature feature
-{ negotiation, and consolidated some duplicate code.
-}
-{
-{   Rev 1.9    5/7/2003 04:58:34 AM  JPMugaas
-{ We now use the initial greeting message from the server when calculating the
-{ parameter for the APOP command.  Note that we were calling CAPA before APOP
-{ and that could throw things off.
-}
-{
-{   Rev 1.8    4/5/2003 02:06:24 PM  JPMugaas
-{ TLS handshake itself can now be handled.
-}
-{
-{   Rev 1.7    3/27/2003 05:46:40 AM  JPMugaas
-{ Updated framework with an event if the TLS negotiation command fails.
-{ Cleaned up some duplicate code in the clients.
-}
-{
-{   Rev 1.6    3/19/2003 08:53:40 PM  JPMugaas
-{ Now should work with new framework.
-}
-{
-{   Rev 1.5    3/17/2003 02:25:26 PM  JPMugaas
-{ Updated to use new TLS framework.  Now can require that users use TLS.  Note
-{ that this setting create an incompatiability with Norton AntiVirus because
-{ that does act as a "man in the middle" when intercepting E-Mail for virus
-{ scanning.
-}
-{
-{   Rev 1.4    3/13/2003 09:49:26 AM  JPMugaas
-{ Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
-{ can plug-in their products.
-}
-{
-{   Rev 1.3    2/24/2003 09:27:58 PM  JPMugaas
-}
-{
-{   Rev 1.2    12/15/2002 04:27:10 PM  JPMugaas
-{ POP3 now compiles and works in Indy 10.
-}
-{
-{   Rev 1.1    12-15-2002 12:57:40  BGooijen
-{ Added Top-command
-}
-{
-{   Rev 1.0    11/13/2002 07:58:22 AM  JPMugaas
-}
-unit IdPOP3;
 
-{*
+  Rev 1.24    10/11/2003 7:14:34 PM  BGooijen
+  Changed IdCompilerDefines.inc path
 
-  POP 3 (Post Office Protocol Version 3)
+  Rev 1.23    10/10/2003 11:39:40 PM  BGooijen
+  Compiles in DotNet now
+
+  Rev 1.22    6/15/2003 01:17:10 PM  JPMugaas
+  Intermediate class no longer used.  We use the SASL functionality right from
+  the TIdSASLList.
+
+  Rev 1.21    6/4/2003 04:10:36 PM  JPMugaas
+  Removed hacked GetInternelResponse.
+
+  Updated to use Kudzu's new string reply code.
+
+  Rev 1.20    5/26/2003 04:28:16 PM  JPMugaas
+  Removed GenerateReply and ParseResponse calls because those functions are
+  being removed.
+
+  Rev 1.19    5/26/2003 12:23:58 PM  JPMugaas
+
+  Rev 1.18    5/25/2003 03:54:46 AM  JPMugaas
+
+  Rev 1.17    5/25/2003 03:45:56 AM  JPMugaas
+
+  Rev 1.16    5/22/2003 05:27:52 PM  JPMugaas
+
+  Rev 1.16    5/20/2003 02:29:42 PM  JPMugaas
+  Updated with POP3Reply object.
+
+  Rev 1.15    5/10/2003 10:10:46 PM  JPMugaas
+  Bug fixes.
+
+  Rev 1.14    5/8/2003 08:44:16 PM  JPMugaas
+  Moved some SASL authentication code down to an anscestor for reuse.  WIll
+  clean up soon.
+
+  Rev 1.13    5/8/2003 03:18:14 PM  JPMugaas
+  Flattened ou the SASL authentication API, made a custom descendant of SASL
+  enabled TIdMessageClient classes.
+
+  Rev 1.12    5/8/2003 11:28:10 AM  JPMugaas
+  Moved feature negoation properties down to the ExplicitTLSClient level as
+  feature negotiation goes hand in hand with explicit TLS support.
+
+  Rev 1.11    5/8/2003 03:03:00 AM  JPMugaas
+  Fixed a problem with SASL.  It turns out that what was being processed with
+  something from a previous command.  It also turned out that some charactors
+  were being removed from the SASL processing when they shouldn't have been.
+
+  Rev 1.10    5/8/2003 02:18:08 AM  JPMugaas
+  Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
+  mechanisms missing more consistant, made IdPOP3 support feature feature
+  negotiation, and consolidated some duplicate code.
+
+  Rev 1.9    5/7/2003 04:58:34 AM  JPMugaas
+  We now use the initial greeting message from the server when calculating the
+  parameter for the APOP command.  Note that we were calling CAPA before APOP
+  and that could throw things off.
+
+  Rev 1.8    4/5/2003 02:06:24 PM  JPMugaas
+  TLS handshake itself can now be handled.
+
+  Rev 1.7    3/27/2003 05:46:40 AM  JPMugaas
+  Updated framework with an event if the TLS negotiation command fails.
+  Cleaned up some duplicate code in the clients.
+
+  Rev 1.6    3/19/2003 08:53:40 PM  JPMugaas
+  Now should work with new framework.
+
+  Rev 1.5    3/17/2003 02:25:26 PM  JPMugaas
+  Updated to use new TLS framework.  Now can require that users use TLS.  Note
+  that this setting create an incompatiability with Norton AntiVirus because
+  that does act as a "man in the middle" when intercepting E-Mail for virus
+  scanning.
+
+  Rev 1.4    3/13/2003 09:49:26 AM  JPMugaas
+  Now uses an abstract SSL base class instead of OpenSSL so 3rd-party vendors
+  can plug-in their products.
+
+  Rev 1.3    2/24/2003 09:27:58 PM  JPMugaas
+
+  Rev 1.2    12/15/2002 04:27:10 PM  JPMugaas
+  POP3 now compiles and works in Indy 10.
+
+  Rev 1.1    12-15-2002 12:57:40  BGooijen
+  Added Top-command
+
+  Rev 1.0    11/13/2002 07:58:22 AM  JPMugaas
 
   2002-08-18 - J. Berg
    - implement SASL, add CAPA and STLS
@@ -226,7 +180,11 @@ unit IdPOP3;
 
   2000-MARCH-03 HH
     Converted to Indy
-*}
+}
+
+unit IdPOP3;
+
+{ POP 3 (Post Office Protocol Version 3) }
 
 {$I IdCompilerDefines.inc}
 
@@ -258,7 +216,7 @@ type
   protected
     FAuthType : TIdPOP3AuthenticationType;
     FAutoLogin: Boolean;
-    FAPOPToken : String; 
+    FAPOPToken : String;
     FHasAPOP: Boolean;
     FHasCAPA: Boolean;
     FSASLMechanisms : TIdSASLEntries;

@@ -16,132 +16,132 @@
   $Log$
 }
 {
-    Rev 1.29    3/1/2005 3:35:48 PM  BGooijen
+  Rev 1.29    3/1/2005 3:35:48 PM  BGooijen
   Auth
-}
-{
-{   Rev 1.28    1/11/2005 3:09:06 AM  JPMugaas
-{ Fix.  A NNTP banner should not be obtained after STARTTLS succeded.
-}
-{
-{   Rev 1.27    10/26/2004 10:33:46 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.26    2004.05.20 11:37:02 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.25    16/05/2004 14:30:42  CCostelloe
-{ ReceiveHeader checks added in case message has no body
-}
-{
-{   Rev 1.24    3/7/2004 11:21:50 PM  JPMugaas
-{ Compiler warnings.
-}
-{
-{   Rev 1.23    2004.03.06 1:31:46 PM  czhower
-{ To match Disconnect changes to core.
-}
-{
-{   Rev 1.22    2004.02.03 5:44:10 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.21    2004.01.28 9:36:32 PM  czhower
-{ Fixed search and replace error
-}
-{
-{   Rev 1.20    2004.01.27 1:13:36 PM  czhower
-{ T --> TId
-{ var --> out
-}
-{
-{   Rev 1.19    1/26/2004 1:16:46 PM  JPMugaas
-{ SSL Reenabled.
-}
-{
-{   Rev 1.18    2004.01.22 9:28:44 PM  czhower
-{ DotNetExclude for TLS.
-}
-{
-{   Rev 1.17    1/21/2004 3:26:50 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.16    1/5/2004 8:22:18 PM  JMJacobson
-{ Updated TIdNNTP.GetCapability to handle empty LIST EXTENSIONS response
-{ (response 215)
-}
-{
-{   Rev 1.15    11/11/03 11:06:18 AM  RLebeau
-{ Updated SendCmd() to test for a 281 response when issuing an AUTHINFO USER
-{ command, as per RFC 2980
-}
-{
-{   Rev 1.14    2003.10.24 10:33:22 AM  czhower
-{ Saved first this time.
-}
-{
-    Rev 1.12    10/19/2003 5:31:52 PM  DSiders
+
+  Rev 1.28    1/11/2005 3:09:06 AM  JPMugaas
+  Fix.  A NNTP banner should not be obtained after STARTTLS succeded.
+
+  Rev 1.27    10/26/2004 10:33:46 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.26    2004.05.20 11:37:02 AM  czhower
+  IdStreamVCL
+
+  Rev 1.25    16/05/2004 14:30:42  CCostelloe
+  ReceiveHeader checks added in case message has no body
+
+  Rev 1.24    3/7/2004 11:21:50 PM  JPMugaas
+  Compiler warnings.
+
+  Rev 1.23    2004.03.06 1:31:46 PM  czhower
+  To match Disconnect changes to core.
+
+  Rev 1.22    2004.02.03 5:44:10 PM  czhower
+  Name changes
+
+  Rev 1.21    2004.01.28 9:36:32 PM  czhower
+  Fixed search and replace error
+
+  Rev 1.20    2004.01.27 1:13:36 PM  czhower
+  T --> TId
+  var --> out
+
+  Rev 1.19    1/26/2004 1:16:46 PM  JPMugaas
+  SSL Reenabled.
+
+  Rev 1.18    2004.01.22 9:28:44 PM  czhower
+  DotNetExclude for TLS.
+
+  Rev 1.17    1/21/2004 3:26:50 PM  JPMugaas
+  InitComponent
+
+  Rev 1.16    1/5/2004 8:22:18 PM  JMJacobson
+  Updated TIdNNTP.GetCapability to handle empty LIST EXTENSIONS response
+  (response 215)
+
+  Rev 1.15    11/11/03 11:06:18 AM  RLebeau
+  Updated SendCmd() to test for a 281 response when issuing an AUTHINFO USER
+  command, as per RFC 2980
+
+  Rev 1.14    2003.10.24 10:33:22 AM  czhower
+  Saved first this time.
+
+  Rev 1.12    10/19/2003 5:31:52 PM  DSiders
   Added localization comments.
+
+  Rev 1.11    2003.10.14 9:57:16 PM  czhower
+  Compile todos
+
+  Rev 1.10    2003.10.12 4:04:00 PM  czhower
+  compile todos
+
+  Rev 1.9    9/10/2003 03:26:12 AM  JPMugaas
+  Updated GetArticle(), GetBody(), and GetHeader() to use new
+  EnsureMsgIDBrackets() function in IdGlobal.  Checked in on behalf of Remy
+  Lebeau
+
+  Rev 1.8    6/9/2003 05:14:58 AM  JPMugaas
+  Fixed crical error.
+  Supports HDR and OVER commands defined in
+  http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-18.txt if feature
+  negotiation indicates that they are supported.
+  Added XHDR data parsing routine.
+  Added events for when we receive a line of data with XOVER or XHDR as per
+  John Jacobson's request.
+
+  Rev 1.7    6/9/2003 01:09:40 AM  JPMugaas
+  Host wasn't published when it should have been published.
+
+  Rev 1.6    6/5/2003 04:54:00 AM  JPMugaas
+  Reworkings and minor changes for new Reply exception framework.
+
+  Rev 1.5    5/8/2003 11:28:06 AM  JPMugaas
+  Moved feature negoation properties down to the ExplicitTLSClient level as
+  feature negotiation goes hand in hand with explicit TLS support.
+
+  Rev 1.4    4/5/2003 02:06:20 PM  JPMugaas
+  TLS handshake itself can now be handled.
+
+  Rev 1.3    3/27/2003 05:46:36 AM  JPMugaas
+  Updated framework with an event if the TLS negotiation command fails.
+  Cleaned up some duplicate code in the clients.
+
+  Rev 1.2    3/26/2003 04:18:22 PM  JPMugaas
+  Now supports implicit and explicit TLS.
+
+  Rev 1.1    2/24/2003 09:25:16 PM  JPMugaas
+
+  Rev 1.0    11/13/2002 07:57:52 AM  JPMugaas
+
+  2001-Dec - Chad Z. Hower a.k.a. Kudzu
+    -Continued modifications
+
+  2001-Oct - Chad Z. Hower a.k.a. Kudzu
+    -Massive reworking to fit the Indy 9 model and update a lot of outdated code
+     that was left over from Delphi 4 days. Updates now use overloaded functions.
+    There were also several problems with message number accounting.
+
+  2000-Jun-23 J. Peter Mugaas
+    -GetNewGroupsList, GetNewGroupsList, and GetNewNewsList No longer require
+     an Event handler if you provide a TStrings to those procedures
+    -ParseXOVER was added so that you could parse XOVER data
+    -ParseNewsGroup was ripped from GetNewGroupsList so that newsgroups can
+     be parsed while not downloading newsgroups
+    -Moved some duplicate code into a separate procedure
+    -The IdNNTP now uses the Indy exceptions and IdResourceStrings to facilitate
+     internationalization
+
+  2000-Apr-28 Mark L. Holmes
+    -Ported to Indy
+
+  2000-Apr-28
+    -Final Version
+
+  1999-Dec-29 MTL
+    -Moved to new Palette Scheme (Winshoes Servers)
 }
-{
-{   Rev 1.11    2003.10.14 9:57:16 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.10    2003.10.12 4:04:00 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.9    9/10/2003 03:26:12 AM  JPMugaas
-{ Updated GetArticle(), GetBody(), and GetHeader() to use new
-{ EnsureMsgIDBrackets() function in IdGlobal.  Checked in on behalf of Remy
-{ Lebeau
-}
-{
-{   Rev 1.8    6/9/2003 05:14:58 AM  JPMugaas
-{ Fixed crical error.
-{ Supports HDR and OVER commands defined in
-{ http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-18.txt if feature
-{ negotiation indicates that they are supported.
-{ Added XHDR data parsing routine.
-{ Added events for when we receive a line of data with XOVER or XHDR as per
-{ John Jacobson's request.
-}
-{
-{   Rev 1.7    6/9/2003 01:09:40 AM  JPMugaas
-{ Host wasn't published when it should have been published.
-}
-{
-{   Rev 1.6    6/5/2003 04:54:00 AM  JPMugaas
-{ Reworkings and minor changes for new Reply exception framework.
-}
-{
-{   Rev 1.5    5/8/2003 11:28:06 AM  JPMugaas
-{ Moved feature negoation properties down to the ExplicitTLSClient level as
-{ feature negotiation goes hand in hand with explicit TLS support.
-}
-{
-{   Rev 1.4    4/5/2003 02:06:20 PM  JPMugaas
-{ TLS handshake itself can now be handled.
-}
-{
-{   Rev 1.3    3/27/2003 05:46:36 AM  JPMugaas
-{ Updated framework with an event if the TLS negotiation command fails.
-{ Cleaned up some duplicate code in the clients.
-}
-{
-{   Rev 1.2    3/26/2003 04:18:22 PM  JPMugaas
-{ Now supports implicit and explicit TLS.
-}
-{
-{   Rev 1.1    2/24/2003 09:25:16 PM  JPMugaas
-}
-{
-{   Rev 1.0    11/13/2002 07:57:52 AM  JPMugaas
-}
+
 unit IdNNTP;
 
 interface
@@ -152,29 +152,8 @@ uses
   IdTCPServer, IdTCPConnection, IdObjs;
 
 {
-  2001-Dec - Chad Z. Hower a.k.a. Kudzu
-    -Continued modifications
-  2001-Oct - Chad Z. Hower a.k.a. Kudzu
-    -Massive reworking to fit the Indy 9 model and update a lot of outdated code
-     that was left over from Delphi 4 days. Updates now use overloaded functins. There were also
-     several problems with message number accounting.
-  2000-Jun-23 J. Peter Mugaas
-    -GetNewGroupsList, GetNewGroupsList, and GetNewNewsList No longer require
-     an Event handler if you provide a TStrings to those procedures
-    -ParseXOVER was added so that you could parse XOVER data
-    -ParseNewsGroup was ripped from GetNewGroupsList so that newsgroups can
-     be parsed while not downloading newsgroups
-    -Moved some duplicate code into a separate procedure
-    -The IdNNTP now uses the Indy exceptions and IdResourceStrings to facilitate
-     internationalization
-  2000-Apr=28 Mark L. Holmes
-    -Ported to Indy
-  2000-Apr-28
-    -Final Version
-  1999-Dec-29 MTL
-    -Moved to new Palette Scheme (Winshoes Servers)
-  Ammended and modified by: AHeid, Mark Holmes
   Original Author: Chad Z. Hower a.k.a. Kudzu
+  Amended and modified by: AHeid, Mark Holmes
 }
 
 type

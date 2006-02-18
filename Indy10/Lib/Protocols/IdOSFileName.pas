@@ -16,30 +16,29 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:45:42 PM  czhower
-{ Name changes
+  Rev 1.4    2004.02.03 5:45:42 PM  czhower
+  Name changes
+
+  Rev 1.3    24/01/2004 23:16:26  CCostelloe
+  Removed short-circuits
+
+  Rev 1.2    24/01/2004 19:28:28  CCostelloe
+  Cleaned up warnings
+
+  Rev 1.1    5/2/2003 01:16:00 PM  JPMugaas
+  Microware OS/9 and MPE/iX support.
+
+  Rev 1.0    4/21/2003 05:32:08 PM  JPMugaas
+  Filename converstion rourintes.  Todo:  Somehow, figure out what to do about
+  pathes and add more platform support.
 }
-{
-{   Rev 1.3    24/01/2004 23:16:26  CCostelloe
-{ Removed short-circuits
-}
-{
-{   Rev 1.2    24/01/2004 19:28:28  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.1    5/2/2003 01:16:00 PM  JPMugaas
-{ Microware OS/9 and MPE/iX support.
-}
-{
-{   Rev 1.0    4/21/2003 05:32:08 PM  JPMugaas
-{ Filename converstion rourintes.  Todo:  Somehow, figure out what to do about
-{ pathes and add more platform support.
-}
+
 unit IdOSFileName;
 
 interface
-uses IdBaseComponent, IdFTPCommon;
+
+uses
+  IdBaseComponent, IdFTPCommon;
 
 function FileNameUnixToVMS(const AUnixFileName : String) : String;
 function FileNameVMSToUnix(const AVMSFileName : String) : String;
@@ -107,8 +106,8 @@ DKA0:[MYDIR.SUBDIR1.SUBDIR2]MYFILE.TXT;1
 Note VMS uses 39 chars for name and type
 
 valid chars are:
-letters A through Z 
-numbers 0 through 9 
+letters A through Z
+numbers 0 through 9
 underscore ( _ )
 hyphen ( -)
 dollar sign ( $ )

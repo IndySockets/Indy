@@ -16,150 +16,162 @@
   $Log$
 }
 {
-{   Rev 1.36    2/8/05 5:59:04 PM  RLebeau
-{ Updated various CommandHandlers to call TIdReply.SetReply() instead of
-{ setting the Code and Text properties individually
-}
-{
-{   Rev 1.35    12/2/2004 4:23:56 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-    Rev 1.34    7/6/2004 4:53:38 PM  DSiders
+  Rev 1.36    2/8/05 5:59:04 PM  RLebeau
+  Updated various CommandHandlers to call TIdReply.SetReply() instead of
+  setting the Code and Text properties individually
+
+  Rev 1.35    12/2/2004 4:23:56 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.34    7/6/2004 4:53:38 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
-}
-{
-{   Rev 1.33    6/16/04 12:54:16 PM  RLebeau
-{ Removed redundant localization comments
-}
-{
-{   Rev 1.31    6/16/04 12:31:08 PM  RLebeau
-{ compiler error
-}
-{
-{   Rev 1.30    6/16/04 12:13:04 PM  RLebeau
-{ Added overrides for CreateExceptionReply, CreateGreeting, CreateHelpReply,
-{ CreateMaxConnectionReply, and CreateReplyUnknownCommand methods
-}
-{
-{   Rev 1.29    5/16/04 5:25:22 PM  RLebeau
-{ Added GetReplyClass() and GetRepliesClass() overrides.
-}
-{
-{   Rev 1.28    3/1/2004 1:08:36 PM  JPMugaas
-{ Fixed for new code.
-}
-{
-{   Rev 1.27    2004.02.03 5:44:14 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.26    1/29/2004 9:14:46 AM  JPMugaas
-{ POP3Server should now compile in DotNET.
-}
-{
-{   Rev 1.25    1/21/2004 3:27:08 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.24    10/25/2003 06:52:16 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.
-}
-{
-    Rev 1.23    10/24/2003 4:38:00 PM  DSiders
+
+  Rev 1.33    6/16/04 12:54:16 PM  RLebeau
+  Removed redundant localization comments
+
+  Rev 1.31    6/16/04 12:31:08 PM  RLebeau
+  compiler error
+
+  Rev 1.30    6/16/04 12:13:04 PM  RLebeau
+  Added overrides for CreateExceptionReply, CreateGreeting, CreateHelpReply,
+  CreateMaxConnectionReply, and CreateReplyUnknownCommand methods
+
+  Rev 1.29    5/16/04 5:25:22 PM  RLebeau
+  Added GetReplyClass() and GetRepliesClass() overrides.
+
+  Rev 1.28    3/1/2004 1:08:36 PM  JPMugaas
+  Fixed for new code.
+
+  Rev 1.27    2004.02.03 5:44:14 PM  czhower
+  Name changes
+
+  Rev 1.26    1/29/2004 9:14:46 AM  JPMugaas
+  POP3Server should now compile in DotNET.
+
+  Rev 1.25    1/21/2004 3:27:08 PM  JPMugaas
+  InitComponent
+
+  Rev 1.24    10/25/2003 06:52:16 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+  Rev 1.23    10/24/2003 4:38:00 PM  DSiders
   Added localization comments.
   Modified to use OK and ERR constants in response messages.
-}
-{
-{   Rev 1.22    2003.10.21 9:13:12 PM  czhower
-{ Now compiles.
-}
-{
-{   Rev 1.21    2003.10.12 4:04:18 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.20    9/19/2003 03:30:20 PM  JPMugaas
-{ Now should compile again.
-}
-{
-    Rev 1.19    7/9/2003 10:59:16 PM  BGooijen
+
+  Rev 1.22    2003.10.21 9:13:12 PM  czhower
+  Now compiles.
+
+  Rev 1.21    2003.10.12 4:04:18 PM  czhower
+  compile todos
+
+  Rev 1.20    9/19/2003 03:30:20 PM  JPMugaas
+  Now should compile again.
+
+  Rev 1.19    7/9/2003 10:59:16 PM  BGooijen
   Added IdCommandHandlers to the uses-clause
-}
-{
-    Rev 1.18    5/30/2003 9:05:14 PM  BGooijen
+
+  Rev 1.18    5/30/2003 9:05:14 PM  BGooijen
   changed numeric replycodes to text reply codes
-}
-{
-    Rev 1.17    5/30/2003 8:49:48 PM  BGooijen
+
+  Rev 1.17    5/30/2003 8:49:48 PM  BGooijen
   Changed TextCode to Code
-}
-{
-{   Rev 1.16    5/26/2003 04:28:22 PM  JPMugaas
-{ Removed GenerateReply and ParseResponse calls because those functions are
-{ being removed.
-}
-{
-{   Rev 1.15    5/26/2003 12:24:02 PM  JPMugaas
-}
-{
-{   Rev 1.14    5/25/2003 03:46:00 AM  JPMugaas
-}
-{
-    Rev 1.13    5/21/2003 2:25:06 PM  BGooijen
+
+  Rev 1.16    5/26/2003 04:28:22 PM  JPMugaas
+  Removed GenerateReply and ParseResponse calls because those functions are
+  being removed.
+
+  Rev 1.15    5/26/2003 12:24:02 PM  JPMugaas
+
+  Rev 1.14    5/25/2003 03:46:00 AM  JPMugaas
+
+  Rev 1.13    5/21/2003 2:25:06 PM  BGooijen
   changed due to change in IdCmdTCPServer from ExceptionReplyCode: Integer to
   ExceptionReply: TIdReply
-}
-{
-{   Rev 1.12    5/20/2003 10:58:24 AM  JPMugaas
-{ SetExceptionReplyCode now validated by TIdReplyPOP3.  This way, it can only
-{ accept our integer codes for +OK, -ERR, and +.
-}
-{
-{   Rev 1.11    5/19/2003 08:59:30 PM  JPMugaas
-{ Now uses new reply object for all commands.
-}
-{
-{   Rev 1.9    5/15/2003 08:30:32 AM  JPMugaas
-}
-{
-{   Rev 1.9    5/15/2003 07:38:50 AM  JPMugaas
-{ No longer adds a challenge banner to the main Greeting TIdRFCReply.
-}
-{
-{   Rev 1.8    5/13/2003 08:12:12 PM  JPMugaas
-}
-{
-{   Rev 1.7    5/13/2003 12:43:20 PM  JPMugaas
-{ APOP redesigned so that it will handle the Challenge in the banner and do the
-{ hashes itself.  A Challenge will be displayed in the banner if the APOP event
-{ is used.
-}
-{
-{   Rev 1.6    3/20/2003 07:22:28 AM  JPMugaas
-}
-{
-{   Rev 1.5    3/17/2003 02:25:30 PM  JPMugaas
-{ Updated to use new TLS framework.  Now can require that users use TLS.  Note
-{ that this setting create an incompatiability with Norton AntiVirus because
-{ that does act as a "man in the middle" when intercepting E-Mail for virus
-{ scanning.
-}
-{
-    Rev 1.4    3/14/2003 10:44:34 PM  BGooijen
+
+  Rev 1.12    5/20/2003 10:58:24 AM  JPMugaas
+  SetExceptionReplyCode now validated by TIdReplyPOP3.  This way, it can only
+  accept our integer codes for +OK, -ERR, and +.
+
+  Rev 1.11    5/19/2003 08:59:30 PM  JPMugaas
+  Now uses new reply object for all commands.
+
+  Rev 1.9    5/15/2003 08:30:32 AM  JPMugaas
+
+  Rev 1.9    5/15/2003 07:38:50 AM  JPMugaas
+  No longer adds a challenge banner to the main Greeting TIdRFCReply.
+
+  Rev 1.8    5/13/2003 08:12:12 PM  JPMugaas
+
+  Rev 1.7    5/13/2003 12:43:20 PM  JPMugaas
+  APOP redesigned so that it will handle the Challenge in the banner and do the
+  hashes itself.  A Challenge will be displayed in the banner if the APOP event
+  is used.
+
+  Rev 1.6    3/20/2003 07:22:28 AM  JPMugaas
+
+  Rev 1.5    3/17/2003 02:25:30 PM  JPMugaas
+  Updated to use new TLS framework.  Now can require that users use TLS.  Note
+  that this setting create an incompatiability with Norton AntiVirus because
+  that does act as a "man in the middle" when intercepting E-Mail for virus
+  scanning.
+
+  Rev 1.4    3/14/2003 10:44:34 PM  BGooijen
   Removed warnings, changed StartSSL to PassThrough:=false;
+
+  Rev 1.2    3/13/2003 10:05:30 AM  JPMugaas
+  Updated component to work with the new SSL restructure.
+
+  Rev 1.1    2/6/2003 03:18:20 AM  JPMugaas
+  Updated components that compile with Indy 10.
+
+  Rev 1.0    11/13/2002 07:58:28 AM  JPMugaas
+
+  28-Sep-2002: Bas Gooijen
+      - Added CAPA and STLS (RFC 2449 and 2595)
+      - Added ImplicitTLS
+
+  02-May-2002: Andy Neillans
+      - Bug Fix 551116 -Sys. StrToInt needed 'Sys.Trimming#
+
+  30-Apr-2002: Allen O'Neill.
+      - Failsafe .. added check for ParamCount in reading Username and password - previously
+        if either were sent in blank we got an IndexOutOfBounds error.
+
+  13-Apr-2002:
+    - Corrections :) And some Greeting.Text / And other response, glitches
+
+  3-Apr-2002:
+    - Minor changes. (Greeting.Text)
+
+  1-Apr-2002:
+    - Completed rewrite! At Last!
+
+  15-Feb-2002: Andy
+    - Started rewrite for use of CommandHandlers
+
+  13-Jan-2002:
+      -Fixed Sys.Formatting bug.
+
+  26-Dec-2000:
+      -Andrew Neillans found a bug on line 157. Originally it was
+      if Assigned(OnCommandLIST) then OnCommandRETR(...).
+      Changed to OnCommandLIST(...). Thanks Andrew!
+
+  29-Oct-2000:
+      -I discovered I really shouldn't program at night.
+      The error wasn't that it shouldn't be Succ (Because it should), but
+      because I forgot to implement LIST
+
+  27-Oct-2000:
+      -Fixed a dumb bug. Originally coded command parsing as Succ(PosInStrArray)
+      Should be just PosInStrArray b/c it is not a dynamic array. The bounds
+      are constant.
+
+  25-Oct-2000:
+      -Created Unit.
+      -Created new IdPOP3Server Server Component according to RFC 1939
 }
-{
-{   Rev 1.2    3/13/2003 10:05:30 AM  JPMugaas
-{ Updated component to work with the new SSL restructure.
-}
-{
-{   Rev 1.1    2/6/2003 03:18:20 AM  JPMugaas
-{ Updated components that compile with Indy 10.
-}
-{
-{   Rev 1.0    11/13/2002 07:58:28 AM  JPMugaas
-}
+
 unit IdPOP3Server;
 
 interface
@@ -177,41 +189,6 @@ interface
     if the value isn't specified by the client.
     Some functions require this capability. For example, the LIST command can operate
     either by a certain message number or a with no arguments. See RFC1939 for details.
-
- Revision History:
- 28-Sep-2002: Bas Gooijen
-    - Added CAPA and STLS (RFC 2449 and 2595)
-    - Added ImplicitTLS
- 02-May-2002: Andy Neillans
-    - Bug Fix 551116 -Sys. StrToInt needed 'Sys.Trimming#
- 30-Apr-2002: Allen O'Neill.
-    - Failsafe .. added check for ParamCount in reading Username and password - previously
-      if either were sent in blank we got an IndexOutOfBounds error.
- 13-Apr-2002:
-   - Corrections :) And some Greeting.Text / And other response, glitches
- 3-Apr-2002:
-   - Minor changes. (Greeting.Text)
- 1-Apr-2002:
-   - Completed rewrite! At Last!
- 15-Feb-2002: Andy
-   - Started rewrite for use of CommandHandlers
- 13-Jan-2002:
-    -Fixed Sys.Formatting bug.
- 26-Dec-2000:
-    -Andrew Neillans found a bug on line 157. Originally it was
-     if Assigned(OnCommandLIST) then OnCommandRETR(...).
-     Changed to OnCommandLIST(...). Thanks Andrew!
- 29-Oct-2000:
-    -I discovered I really shouldn't program at night.
-     The error wasn't that it shouldn't be Succ (Because it should), but
-     because I forgot to implement LIST
- 27-Oct-2000:
-    -Fixed a dumb bug. Originally coded command parsing as Succ(PosInStrArray)
-     Should be just PosInStrArray b/c it is not a dynamic array. The bounds
-     are constant.
- 25-Oct-2000:
-    -Created Unit.
-    -Created new IdPOP3Server Server Component according to RFC 1939
 }
 
 uses
@@ -233,8 +210,8 @@ uses
   IdTCPConnection, IdYarn;
 
 {
-We can not port APOP to NET due to the use of GetSystemClock and a process ID
-Kudzu: Why not? .NET can get these.....
+  We can not port APOP to NET due to the use of GetSystemClock and a process ID
+  Kudzu: Why not? .NET can get these.....
 }
 
 const

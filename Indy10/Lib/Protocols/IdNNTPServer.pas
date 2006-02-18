@@ -16,146 +16,125 @@
   $Log$
 }
 {
-{   Rev 1.31    12/2/2004 4:23:56 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.30    10/26/2004 10:33:46 PM  JPMugaas
-{ Updated refs.
-}
-{
-{   Rev 1.29    5/16/04 5:22:54 PM  RLebeau
-{ Added try...finally to CommandPost()
-}
-{
-{   Rev 1.28    3/1/2004 1:02:58 PM  JPMugaas
-{ Fixed for new code.
-}
-{
-{   Rev 1.27    2004.02.03 5:44:10 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.26    1/21/2004 3:26:58 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.25    1/1/04 1:22:04 AM  RLebeau
-{ Bug fix for parameter parsing in CommandNewNews() that was testing the
-{ ASender.Params.Count incorrectly.
-}
-{
-{   Rev 1.24    2003.10.21 9:13:12 PM  czhower
-{ Now compiles.
-}
-{
-    Rev 1.23    10/19/2003 5:39:52 PM  DSiders
+  Rev 1.31    12/2/2004 4:23:56 PM  JPMugaas
+  Adjusted for changes in Core.
+
+  Rev 1.30    10/26/2004 10:33:46 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.29    5/16/04 5:22:54 PM  RLebeau
+  Added try...finally to CommandPost()
+
+  Rev 1.28    3/1/2004 1:02:58 PM  JPMugaas
+  Fixed for new code.
+
+  Rev 1.27    2004.02.03 5:44:10 PM  czhower
+  Name changes
+
+  Rev 1.26    1/21/2004 3:26:58 PM  JPMugaas
+  InitComponent
+
+  Rev 1.25    1/1/04 1:22:04 AM  RLebeau
+  Bug fix for parameter parsing in CommandNewNews() that was testing the
+  ASender.Params.Count incorrectly.
+
+  Rev 1.24    2003.10.21 9:13:12 PM  czhower
+  Now compiles.
+
+  Rev 1.23    10/19/2003 5:39:52 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.22    2003.10.18 9:42:10 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-{   Rev 1.21    2003.10.12 4:04:02 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.20    9/19/2003 03:30:10 PM  JPMugaas
-{ Now should compile again.
-}
-{
-{   Rev 1.19    9/17/2003 10:41:56 PM  PIonescu
-{ Fixed small mem leak in CommandPost
-}
-{
-{   Rev 1.18    8/6/2003 6:13:50 PM  SPerry
-{ Message-ID Integer - > string
-}
-{
-{   Rev 1.17    8/2/2003 03:53:00 AM  JPMugaas
-{ Unit needed to be added to uses clause.
-}
-{
-{   Rev 1.16    8/1/2003 8:21:38 PM  SPerry
-{ -
-}
-{
-{   Rev 1.13    5/26/2003 04:28:02 PM  JPMugaas
-{ Removed GenerateReply and ParseResponse calls because those functions are
-{ being removed.
-}
-{
-{   Rev 1.12    5/26/2003 12:23:48 PM  JPMugaas
-}
-{
-{   Rev 1.11    5/25/2003 03:50:48 AM  JPMugaas
-}
-{
-    Rev 1.10    5/21/2003 2:25:04 PM  BGooijen
+
+  Rev 1.22    2003.10.18 9:42:10 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.21    2003.10.12 4:04:02 PM  czhower
+  compile todos
+
+  Rev 1.20    9/19/2003 03:30:10 PM  JPMugaas
+  Now should compile again.
+
+  Rev 1.19    9/17/2003 10:41:56 PM  PIonescu
+  Fixed small mem leak in CommandPost
+
+  Rev 1.18    8/6/2003 6:13:50 PM  SPerry
+  Message-ID Integer - > string
+
+  Rev 1.17    8/2/2003 03:53:00 AM  JPMugaas
+  Unit needed to be added to uses clause.
+
+  Rev 1.16    8/1/2003 8:21:38 PM  SPerry
+
+  Rev 1.13    5/26/2003 04:28:02 PM  JPMugaas
+  Removed GenerateReply and ParseResponse calls because those functions are
+  being removed.
+
+  Rev 1.12    5/26/2003 12:23:48 PM  JPMugaas
+
+  Rev 1.11    5/25/2003 03:50:48 AM  JPMugaas
+
+  Rev 1.10    5/21/2003 2:25:04 PM  BGooijen
   changed due to change in IdCmdTCPServer from ReplyExceptionCode: Integer to
   ReplyException: TIdReply
-}
-{
-{   Rev 1.9    3/26/2003 04:18:26 PM  JPMugaas
-{ Now supports implicit and explicit TLS.
-}
-{
-{   Rev 1.7    3/17/2003 08:55:52 AM  JPMugaas
-{ Missing reply texts.
-}
-{
-{   Rev 1.6    3/16/2003 08:30:24 AM  JPMugaas
-{ Reenabled ExplicitTLS according to
-{ http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt.
-{
-{ Support is still preliminary.
-}
-{
-    Rev 1.5    1/20/2003 1:15:34 PM  BGooijen
+
+  Rev 1.9    3/26/2003 04:18:26 PM  JPMugaas
+  Now supports implicit and explicit TLS.
+
+  Rev 1.7    3/17/2003 08:55:52 AM  JPMugaas
+  Missing reply texts.
+
+  Rev 1.6    3/16/2003 08:30:24 AM  JPMugaas
+  Reenabled ExplicitTLS according to
+  http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt.
+
+  Support is still preliminary.
+
+  Rev 1.5    1/20/2003 1:15:34 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
+
+  Rev 1.4    1/17/2003 07:10:40 PM  JPMugaas
+  Now compiles under new framework.
+
+  Rev 1.3    1/9/2003 06:09:28 AM  JPMugaas
+  Updated for IdContext API change.
+
+  Rev 1.2    1/8/2003 05:53:38 PM  JPMugaas
+  Switched stuff to IdContext.
+
+  Rev 1.1    12/7/2002 06:43:14 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.0    11/13/2002 07:58:00 AM  JPMugaas
+
+  July 2002
+    -Kudzu - Fixes to Authorization and other parts
+
+  Oct/Nov 2001
+    -Kudzu - Rebuild from scratch for proper use of command handlers and around new
+    architecture.
+
+  2001-Jul-31 Jim Gunkel
+    Reorganized for command handlers
+
+  2001-Jun-28 Pete Mee
+    Begun transformation to TIdCommandHandler
+
+  2000-Apr-22 Mark L. Holmes
+    Ported to Indy
+
+  2000-Mar-27
+    Final Version
+
+  2000-Jan-13 MTL
+  Moved to new Palette Scheme (Winshoes Servers)
 }
-{
-{   Rev 1.4    1/17/2003 07:10:40 PM  JPMugaas
-{ Now compiles under new framework.
-}
-{
-{   Rev 1.3    1/9/2003 06:09:28 AM  JPMugaas
-{ Updated for IdContext API change.
-}
-{
-{   Rev 1.2    1/8/2003 05:53:38 PM  JPMugaas
-{ Switched stuff to IdContext.
-}
-{
-{   Rev 1.1    12/7/2002 06:43:14 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.0    11/13/2002 07:58:00 AM  JPMugaas
-}
+
 unit IdNNTPServer;
 
 interface
 
 {
-July 2002
-  -Kudzu - Fixes to Authorization and other parts
-Oct/Nov 2001
-  -Kudzu - Rebuild from scratch for proper use of command handlers and around new
-  architecture.
-2001-Jul-31 Jim Gunkel
-  Reorganized for command handlers
-2001-Jun-28 Pete Mee
-  Begun transformation to TIdCommandHandler
-2000-Apr-22 Mark L. Holmes
-  Ported to Indy
-2000-Mar-27
-  Final Version
-2000-Jan-13 MTL
-  Moved to new Palette Scheme (Winshoes Servers)
-Original Author: Ozz Nixon (Winshoes 7)
+  Original Author: Ozz Nixon (Winshoes 7)
 }
 
 uses
