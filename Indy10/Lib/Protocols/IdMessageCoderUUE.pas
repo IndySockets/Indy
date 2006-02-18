@@ -16,68 +16,54 @@
   $Log$
 }
 {
-{   Rev 1.13    27.08.2004 22:04:00  Andreas Hausladen
-{ speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.12    2004.05.20 1:39:16 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.11    2004.05.20 11:36:58 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.10    2004.05.20 11:13:02 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.9    2004.05.19 3:06:42 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.8    2004.02.03 5:44:04 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.7    2004.01.22 5:56:54 PM  czhower
-{ TextIsSame
-}
-{
-{   Rev 1.6    1/21/2004 2:20:24 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.5    1/21/2004 1:30:10 PM  JPMugaas
-{ InitComponent
-}
-{
-    Rev 1.4    10/17/2003 12:41:16 AM  DSiders
-  Added localization comments.
-}
-{
-{   Rev 1.3    26/09/2003 01:06:18  CCostelloe
-{ CodingType property added so caller can find out if it was UUE or XXE encoded
-}
-{
-{   Rev 1.2    6/14/2003 03:07:20 PM  JPMugaas
-{ Fixed MessageDecoder so that DecodeBegin is called right after creation and
-{ DecodeEnd is called just before destruction.  I also fixed where the code was
-{ always assuming that LDecode was always being created.
-}
-{
-{   Rev 1.1    6/13/2003 07:58:44 AM  JPMugaas
-{ Should now compile with new decoder design.
-}
-{
-{   Rev 1.0    11/13/2002 07:57:14 AM  JPMugaas
-}
-unit IdMessageCoderUUE;
+  Rev 1.13    27.08.2004 22:04:00  Andreas Hausladen
+  speed optimization ("const" for string parameters)
 
-{
-2003-Sep-20 Ciaran Costelloe
+  Rev 1.12    2004.05.20 1:39:16 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.11    2004.05.20 11:36:58 AM  czhower
+  IdStreamVCL
+
+  Rev 1.10    2004.05.20 11:13:02 AM  czhower
+  More IdStream conversions
+
+  Rev 1.9    2004.05.19 3:06:42 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.8    2004.02.03 5:44:04 PM  czhower
+  Name changes
+
+  Rev 1.7    2004.01.22 5:56:54 PM  czhower
+  TextIsSame
+
+  Rev 1.6    1/21/2004 2:20:24 PM  JPMugaas
+  InitComponent
+
+  Rev 1.5    1/21/2004 1:30:10 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    10/17/2003 12:41:16 AM  DSiders
+  Added localization comments.
+
+  Rev 1.3    26/09/2003 01:06:18  CCostelloe
   CodingType property added so caller can find out if it was UUE or XXE encoded
+
+  Rev 1.2    6/14/2003 03:07:20 PM  JPMugaas
+  Fixed MessageDecoder so that DecodeBegin is called right after creation and
+  DecodeEnd is called just before destruction.  I also fixed where the code was
+  always assuming that LDecode was always being created.
+
+  Rev 1.1    6/13/2003 07:58:44 AM  JPMugaas
+  Should now compile with new decoder design.
+
+  Rev 1.0    11/13/2002 07:57:14 AM  JPMugaas
+
+  2003-Sep-20 Ciaran Costelloe
+    CodingType property added so caller can find out if it was UUE or XXE encoded
 }
+
+unit IdMessageCoderUUE;
 
 interface
 

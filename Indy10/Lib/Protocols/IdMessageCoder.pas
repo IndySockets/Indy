@@ -16,69 +16,55 @@
   $Log$
 }
 {
-{   Rev 1.15    10/26/2004 10:27:42 PM  JPMugaas
-{ Updated refs.
+  Rev 1.15    10/26/2004 10:27:42 PM  JPMugaas
+  Updated refs.
+
+  Rev 1.14    27.08.2004 22:03:58  Andreas Hausladen
+  speed optimization ("const" for string parameters)
+
+  Rev 1.13    8/10/04 1:41:00 PM  RLebeau
+  Added FreeSourceStream property to TIdMessageDecoder
+
+  Rev 1.12    7/23/04 6:43:26 PM  RLebeau
+  Added extra exception handling to Encode()
+
+  Rev 1.11    29/05/2004 21:22:40  CCostelloe
+  Added support for decoding attachments with a Content-Transfer-Encoding of
+  binary
+
+  Rev 1.10    2004.05.20 1:39:12 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.9    2004.05.20 11:36:56 AM  czhower
+  IdStreamVCL
+
+  Rev 1.8    2004.05.20 11:12:58 AM  czhower
+  More IdStream conversions
+
+  Rev 1.7    2004.05.19 3:06:38 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.6    2004.02.03 5:44:02 PM  czhower
+  Name changes
+
+  Rev 1.5    1/21/2004 1:17:20 PM  JPMugaas
+  InitComponent
+
+  Rev 1.4    10/11/2003 4:40:24 PM  BGooijen
+  Fix for DotNet
+
+  Rev 1.3    10/10/2003 10:42:54 PM  BGooijen
+  DotNet
+
+  Rev 1.2    26/09/2003 01:04:22  CCostelloe
+  Minor change, if any
+
+  Rev 1.1    07/08/2003 00:46:46  CCostelloe
+  Function ReadLnSplit added
+
+  Rev 1.0    11/13/2002 07:57:04 AM  JPMugaas
 }
-{
-{   Rev 1.14    27.08.2004 22:03:58  Andreas Hausladen
-{ speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.13    8/10/04 1:41:00 PM  RLebeau
-{ Added FreeSourceStream property to TIdMessageDecoder
-}
-{
-{   Rev 1.12    7/23/04 6:43:26 PM  RLebeau
-{ Added extra exception handling to Encode()
-}
-{
-{   Rev 1.11    29/05/2004 21:22:40  CCostelloe
-{ Added support for decoding attachments with a Content-Transfer-Encoding of
-{ binary
-}
-{
-{   Rev 1.10    2004.05.20 1:39:12 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.9    2004.05.20 11:36:56 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.8    2004.05.20 11:12:58 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.7    2004.05.19 3:06:38 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.6    2004.02.03 5:44:02 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.5    1/21/2004 1:17:20 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.4    10/11/2003 4:40:24 PM  BGooijen
-{ Fix for DotNet
-}
-{
-{   Rev 1.3    10/10/2003 10:42:54 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.2    26/09/2003 01:04:22  CCostelloe
-{ Minor change, if any
-}
-{
-{   Rev 1.1    07/08/2003 00:46:46  CCostelloe
-{ Function ReadLnSplit added
-}
-{
-{   Rev 1.0    11/13/2002 07:57:04 AM  JPMugaas
-}
+
 unit IdMessageCoder;
 
 interface

@@ -16,179 +16,141 @@
   $Log$
 }
 {
-{   Rev 1.37    26/03/2005 19:20:10  CCostelloe
-{ Fixes for "uneven size" exception
-}
-{
-{   Rev 1.36    27.08.2004 22:03:58  Andreas Hausladen
-{ speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.35    8/15/04 5:41:00 PM  RLebeau
-{ Updated GetAttachmentFilename() to handle cases where Outlook puts spaces
-{ between "name=" and the filename.
-{ 
-{ Updated CheckAndSetType() to retreive the filename before checking the type. 
-{ This helps to detect all file attachments better, including "form-data"
-{ attachments
-}
-{
-{   Rev 1.34    8/11/04 1:32:52 AM  RLebeau
-{ Bug fix for TIdMessageDecoderMIME.GetAttachmentFilename()
-}
-{
-{   Rev 1.33    8/10/04 1:41:48 PM  RLebeau
-{ Misc. tweaks
-}
-{
-    Rev 1.32    6/11/2004 9:38:22 AM  DSiders
-  Added "Do not Localize" comments.
-}
-{
-{   Rev 1.31    6/4/04 12:41:04 PM  RLebeau
-{ ContentTransferEncoding bug fix
-}
-{
-{   Rev 1.30    29/05/2004 21:23:56  CCostelloe
-{ Added support for decoding attachments with a Content-Transfer-Encoding of
-{ binary
-}
-{
-{   Rev 1.29    2004.05.20 1:39:12 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.28    2004.05.20 11:36:56 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.27    2004.05.20 11:13:00 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.26    2004.05.19 3:06:40 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.25    16/05/2004 18:55:26  CCostelloe
-{ New TIdText/TIdAttachment processing
-}
-{
-{   Rev 1.24    23/04/2004 20:50:24  CCostelloe
-{ Paths removed from attachment filenames and invalid Windows filename chars
-{ weeded out
-}
-{
-{   Rev 1.23    04/04/2004 17:44:56  CCostelloe
-{ Bug fix
-}
-{
-{   Rev 1.22    03/04/2004 20:27:22  CCostelloe
-{ Fixed bug where code assumed Content-Type always contained a filename for the
-{ attachment.
-}
-{
-{   Rev 1.21    2004.02.03 5:44:04 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.20    1/31/2004 3:12:48 AM  JPMugaas
-{ Removed dependancy on Math unit.  It isn't needed and is problematic in some
-{ versions of Dlephi which don't include it.
-}
-{
-{   Rev 1.19    1/22/2004 4:02:52 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.18    16/01/2004 17:42:56  CCostelloe
-{ Added support for BinHex 4.0 encoding
-}
-{
-{   Rev 1.17    5/12/2003 9:18:26 AM  GGrieve
-{ use WriteStringToStream
-}
-{
-{   Rev 1.16    5/12/2003 12:31:16 AM  GGrieve
-{ Fis WriteBuffer - can't be used in DotNet
-}
-{
-    Rev 1.15    10/17/2003 12:40:20 AM  DSiders
-  Added localization comments.
-}
-{
-{   Rev 1.14    05/10/2003 16:41:54  CCostelloe
-{ Restructured MIME boundary outputting
-}
-{
-{   Rev 1.13    29/09/2003 13:07:48  CCostelloe
-{ Second RandomRange replaced with Random
-}
-{
-{   Rev 1.12    28/09/2003 22:56:30  CCostelloe
-{ TIdMessageEncoderInfoMIME.InitializeHeaders now only sets ContentType if it
-{ is ''
-}
-{
-{   Rev 1.11    28/09/2003 21:06:52  CCostelloe
-{ Recoded RandomRange to Random to suit D% and BCB5
-}
-{
-{   Rev 1.10    26/09/2003 01:05:42  CCostelloe
-{ Removed FIndyMultiPartAlternativeBoundary, IFndyMultiPartRelatedBoundary - no
-{ longer needed.  Added support for ContentTransferEncoding '8bit'.  Changed
-{ nested MIME decoding from finding boundary to finding 'multipart/'.
-}
-{
-{   Rev 1.9    04/09/2003 20:46:38  CCostelloe
-{ Added inclusion of =_ in boundary generation in
-{ TIdMIMEBoundaryStrings.GenerateStrings
-}
-{
-{   Rev 1.8    30/08/2003 18:39:58  CCostelloe
-{ MIME boundaries changed to be random strings
-}
-{
-{   Rev 1.7    07/08/2003 00:56:48  CCostelloe
-{ ReadBody altered to allow lines over 16K (arises with long html parts)
-}
-{
-{   Rev 1.6    2003.06.14 11:08:10 PM  czhower
-{ AV fix
-}
-{
-{   Rev 1.5    6/14/2003 02:46:42 PM  JPMugaas
-{ Kudzu wanted the BeginDecode called after LDecoder was created and EndDecode
-{ to be called just before LDecoder was destroyed.
-}
-{
-    Rev 1.4    6/14/2003 1:14:12 PM  BGooijen
-  fix for the bug where the attachments are empty
-}
-{
-{   Rev 1.3    6/13/2003 07:58:46 AM  JPMugaas
-{ Should now compile with new decoder design.
-}
-{
-{   Rev 1.2    5/23/03 11:24:06 AM  RLebeau
-{ Fixed a compiler error for previous changes
-}
-{
-{   Rev 1.1    5/23/03 9:51:18 AM  RLebeau
-{ Fixed bug where message body is parsed incorrectly when MIMEBoundary is empty.
-}
-{
-{   Rev 1.0    11/13/2002 07:57:08 AM  JPMugaas
-}
-unit IdMessageCoderMIME;
+  Rev 1.37    26/03/2005 19:20:10  CCostelloe
+  Fixes for "uneven size" exception
 
-{
+  Rev 1.36    27.08.2004 22:03:58  Andreas Hausladen
+  speed optimization ("const" for string parameters)
+
+  Rev 1.35    8/15/04 5:41:00 PM  RLebeau
+  Updated GetAttachmentFilename() to handle cases where Outlook puts spaces
+  between "name=" and the filename.
+
+  Updated CheckAndSetType() to retreive the filename before checking the type.
+  This helps to detect all file attachments better, including "form-data"
+  attachments
+
+  Rev 1.34    8/11/04 1:32:52 AM  RLebeau
+  Bug fix for TIdMessageDecoderMIME.GetAttachmentFilename()
+
+  Rev 1.33    8/10/04 1:41:48 PM  RLebeau
+  Misc. tweaks
+
+  Rev 1.32    6/11/2004 9:38:22 AM  DSiders
+  Added "Do not Localize" comments.
+
+  Rev 1.31    6/4/04 12:41:04 PM  RLebeau
+  ContentTransferEncoding bug fix
+
+  Rev 1.30    29/05/2004 21:23:56  CCostelloe
+  Added support for decoding attachments with a Content-Transfer-Encoding of
+  binary
+
+  Rev 1.29    2004.05.20 1:39:12 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.28    2004.05.20 11:36:56 AM  czhower
+  IdStreamVCL
+
+  Rev 1.27    2004.05.20 11:13:00 AM  czhower
+  More IdStream conversions
+
+  Rev 1.26    2004.05.19 3:06:40 PM  czhower
+  IdStream / .NET fix
+
+  Rev 1.25    16/05/2004 18:55:26  CCostelloe
+  New TIdText/TIdAttachment processing
+
+  Rev 1.24    23/04/2004 20:50:24  CCostelloe
+  Paths removed from attachment filenames and invalid Windows filename chars
+  weeded out
+
+  Rev 1.23    04/04/2004 17:44:56  CCostelloe
+  Bug fix
+
+  Rev 1.22    03/04/2004 20:27:22  CCostelloe
+  Fixed bug where code assumed Content-Type always contained a filename for the
+  attachment.
+
+  Rev 1.21    2004.02.03 5:44:04 PM  czhower
+  Name changes
+
+  Rev 1.20    1/31/2004 3:12:48 AM  JPMugaas
+  Removed dependancy on Math unit.  It isn't needed and is problematic in some
+  versions of Dlephi which don't include it.
+
+  Rev 1.19    1/22/2004 4:02:52 PM  SPerry
+  fixed set problems
+
+  Rev 1.18    16/01/2004 17:42:56  CCostelloe
+  Added support for BinHex 4.0 encoding
+
+  Rev 1.17    5/12/2003 9:18:26 AM  GGrieve
+  use WriteStringToStream
+
+  Rev 1.16    5/12/2003 12:31:16 AM  GGrieve
+  Fis WriteBuffer - can't be used in DotNet
+
+  Rev 1.15    10/17/2003 12:40:20 AM  DSiders
+  Added localization comments.
+
+  Rev 1.14    05/10/2003 16:41:54  CCostelloe
+  Restructured MIME boundary outputting
+
+  Rev 1.13    29/09/2003 13:07:48  CCostelloe
+  Second RandomRange replaced with Random
+
+  Rev 1.12    28/09/2003 22:56:30  CCostelloe
+  TIdMessageEncoderInfoMIME.InitializeHeaders now only sets ContentType if it
+  is ''
+
+  Rev 1.11    28/09/2003 21:06:52  CCostelloe
+  Recoded RandomRange to Random to suit D% and BCB5
+
+  Rev 1.10    26/09/2003 01:05:42  CCostelloe
+  Removed FIndyMultiPartAlternativeBoundary, IFndyMultiPartRelatedBoundary - no
+  longer needed.  Added support for ContentTransferEncoding '8bit'.  Changed
+  nested MIME decoding from finding boundary to finding 'multipart/'.
+
+  Rev 1.9    04/09/2003 20:46:38  CCostelloe
+  Added inclusion of =_ in boundary generation in
+  TIdMIMEBoundaryStrings.GenerateStrings
+
+  Rev 1.8    30/08/2003 18:39:58  CCostelloe
+  MIME boundaries changed to be random strings
+
+  Rev 1.7    07/08/2003 00:56:48  CCostelloe
+  ReadBody altered to allow lines over 16K (arises with long html parts)
+
+  Rev 1.6    2003.06.14 11:08:10 PM  czhower
+  AV fix
+
+  Rev 1.5    6/14/2003 02:46:42 PM  JPMugaas
+  Kudzu wanted the BeginDecode called after LDecoder was created and EndDecode
+  to be called just before LDecoder was destroyed.
+
+  Rev 1.4    6/14/2003 1:14:12 PM  BGooijen
+  fix for the bug where the attachments are empty
+
+  Rev 1.3    6/13/2003 07:58:46 AM  JPMugaas
+  Should now compile with new decoder design.
+
+  Rev 1.2    5/23/03 11:24:06 AM  RLebeau
+  Fixed a compiler error for previous changes
+
+  Rev 1.1    5/23/03 9:51:18 AM  RLebeau
+  Fixed bug where message body is parsed incorrectly when MIMEBoundary is empty.
+
+  Rev 1.0    11/13/2002 07:57:08 AM  JPMugaas
+
   2003-Oct-04 Ciaran Costelloe
     Moved boundary out of InitializeHeaders into TIdMessage.GenerateHeader
 }
 
+unit IdMessageCoderMIME;
+
 // for all 3 to 4s:
-//// TODO: Predict output sizes and presize outputs, then use move on
+// TODO: Predict output sizes and presize outputs, then use move on
 // presized outputs when possible, or presize only and reposition if stream
 
 interface
@@ -652,7 +614,7 @@ begin
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
   for LN := 1 to Length(Result) do begin
-  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
+  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
     if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;

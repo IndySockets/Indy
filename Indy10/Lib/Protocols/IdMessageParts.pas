@@ -18,46 +18,37 @@
 {
   Rev 1.8    9/30/2004 5:04:20 PM  BGooijen
   Self was not initialized
-}
-{
+
   Rev 1.7    01/06/2004 00:28:46  CCostelloe
   Minor bug fix
-}
-{
+
   Rev 1.6    5/30/04 11:29:36 PM  RLebeau
   Added OwnerMessage property to TIdMessageParts for use with
   TIdMessagePart.ResolveContentType() under Delphi versions prior to v6,
   where the TCollection.Owner method does not exist.
-}
-{
+
   Rev 1.5    16/05/2004 18:55:46  CCostelloe
   New TIdText/TIdAttachment processing
-}
-{
+
   Rev 1.4    2004.02.03 5:44:06 PM  czhower
   Name changes
-}
-{
+
   Rev 1.3    10/17/03 12:06:04 PM  RLebeau
   Updated TIdMessagePart.Assign() to copy all available header values
   rather than select ones.
-}
-{
+
   Rev 1.2    10/17/2003 12:43:12 AM  DSiders
   Added localization comments.
-}
-{
+
   Rev 1.1    26/09/2003 01:07:18  CCostelloe
   Added FParentPart, so that nested MIME types
   (like multipart/alternative nested in multipart/related and vica-versa)
   can be encoded and decoded (when encoding, need to know this so the
   correct boundary is emitted) and so the user can properly define which
   parts belong to which sections.
-}
-{
+
   Rev 1.0    11/13/2002 07:57:32 AM  JPMugaas
-}
-{
+
   24-Sep-2003 Ciaran Costelloe
   - Added FParentPart, so that nested MIME types (like multipart/alternative
     nested in multipart/related and vica-versa) can be encoded and decoded
@@ -68,6 +59,7 @@
   - virtual methods. Now descendant can add functionality.
     Ex: TIdText.GetContentType = GetContentType w/o charset
 }
+
 unit IdMessageParts;
 
 interface
@@ -124,7 +116,7 @@ type
     property BoundaryBegin: Boolean read FBoundaryBegin write FBoundaryBegin;
     property BoundaryEnd: Boolean read FBoundaryEnd write FBoundaryEnd;
     property IsEncoded: Boolean read fIsEncoded;
-    property OnGetMessagePartStream: TOnGetMessagePartStream 
+    property OnGetMessagePartStream: TOnGetMessagePartStream
       read FOnGetMessagePartStream write FOnGetMessagePartStream;
     property Headers: TIdHeaderList read FHeaders;
   published
@@ -182,11 +174,11 @@ procedure TIdMessagePart.Assign(Source: TIdPersistent);
 var
   mp: TIdMessagePart;
 begin
-  if ClassType <> Source.ClassType then 
+  if ClassType <> Source.ClassType then
   begin
     inherited;
-  end 
-  else 
+  end
+  else
   begin
     mp := TIdMessagePart(Source);
     Headers.Assign(mp.Headers);
@@ -197,7 +189,7 @@ end;
 constructor TIdMessagePart.Create(Collection: TIdCollection);
 begin
   inherited;
-  if ClassType = TIdMessagePart then 
+  if ClassType = TIdMessagePart then
   begin
     raise EIdCanNotCreateMessagePart.Create(RSTIdMessagePartCreate);
   end;

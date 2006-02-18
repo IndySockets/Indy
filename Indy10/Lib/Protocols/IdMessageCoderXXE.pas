@@ -16,16 +16,15 @@
   $Log$
 }
 {
-{   Rev 1.2    2004.01.22 5:41:50 PM  czhower
-{ Fixed visibility
+  Rev 1.2    2004.01.22 5:41:50 PM  czhower
+  Fixed visibility
+
+  Rev 1.1    1/21/2004 2:20:24 PM  JPMugaas
+  InitComponent
+
+  Rev 1.0    11/13/2002 07:57:18 AM  JPMugaas
 }
-{
-{   Rev 1.1    1/21/2004 2:20:24 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.0    11/13/2002 07:57:18 AM  JPMugaas
-}
+
 unit IdMessageCoderXXE;
 
 interface

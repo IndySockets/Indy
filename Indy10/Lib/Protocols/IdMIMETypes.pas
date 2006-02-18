@@ -16,22 +16,20 @@
   $Log$
 }
 {
-{   Rev 1.1    2004.02.03 5:44:08 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.0    11/13/2002 07:57:36 AM  JPMugaas
-}
-unit IdMIMETypes;
+  Rev 1.1    2004.02.03 5:44:08 PM  czhower
+  Name changes
 
-{
-2000-Mar-27 Pete Mee
- - ReturnMIMETypes should return the most relevant MIME type+encoding pair
-   to the values passed - i.e., removes x- where it is unnecessary & modifies
-   the type if it is known to be incorrect.  (Stupid-)Example:
-   application/octet-stream + x-base64 should be application/octet-stream +
-   base64... Warning: this file is expected to grow to become mainly constants!!
+  Rev 1.0    11/13/2002 07:57:36 AM  JPMugaas
+
+  2000-Mar-27 Pete Mee
+  - ReturnMIMETypes should return the most relevant MIME type+encoding pair
+    to the values passed - i.e., removes x- where it is unnecessary & modifies
+    the type if it is known to be incorrect.  (Stupid-)Example:
+    application/octet-stream + x-base64 should be application/octet-stream +
+    base64... Warning: this file is expected to grow to become mainly constants!!
 }
+
+unit IdMIMETypes;
 
 interface
 

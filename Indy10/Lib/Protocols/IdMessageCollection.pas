@@ -16,28 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.2    2004.10.26 2:19:58 PM  czhower
-{ Resolved alias conflict.
-}
-{
-{   Rev 1.1    14/07/2004 21:37:26  CCostelloe
-{ Changed Get/SetMessage to Get/SetIdMessage to avoid conflict under C++ with
-{ Windows' GetMessage
-}
-{
-{   Rev 1.0    11/13/2002 07:57:28 AM  JPMugaas
-}
-unit IdMessageCollection;
+  Rev 1.2    2004.10.26 2:19:58 PM  czhower
+  Resolved alias conflict.
 
-{*
+  Rev 1.1    14/07/2004 21:37:26  CCostelloe
+  Changed Get/SetMessage to Get/SetIdMessage to avoid conflict under C++ with
+  Windows' GetMessage
 
-  TIdMessageCollection: Contains a collection of IdMessages.
+  Rev 1.0    11/13/2002 07:57:28 AM  JPMugaas
 
   2000-APR-14 Peter Mee: Converted to Indy.
-  2001-MAY-03 Idan Cohen: Added Create and Destroy of TIdMessage.
 
+  2001-MAY-03 Idan Cohen: Added Create and Destroy of TIdMessage.
+}
+
+unit IdMessageCollection;
+
+{
+  TIdMessageCollection: Contains a collection of IdMessages.
   Originally by Peter Mee.
-*}
+}
+
 interface
 
 uses
