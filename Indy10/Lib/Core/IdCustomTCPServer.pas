@@ -42,7 +42,7 @@
   Rev 1.63    6/11/2004 12:41:52 PM  JPMugaas
   Reuse Address now reenabled.
 
-  Rev 1.62    6/1/2004 1:22:28 PM  DSiders
+    Rev 1.62    6/1/2004 1:22:28 PM  DSiders
   Added TODO for TerminateWaitTimeout.
 
   Rev 1.61    28/04/2004 15:54:40  HHariri
@@ -84,7 +84,7 @@
   Rev 1.50    2003.10.18 8:04:28 PM  czhower
   Fixed bug with setting active at design time.
 
-  Rev 1.49    10/15/2003 11:10:00 PM  DSiders
+    Rev 1.49    10/15/2003 11:10:00 PM  DSiders
   Added localization comments.
   Added resource srting for exception raised in TIdTCPServer.SetScheduler.
 
@@ -123,25 +123,25 @@
   -Removed IdBaseThread
   -Threads now have default names
 
-  Rev 1.37    7/6/2003 8:04:10 PM  BGooijen
+    Rev 1.37    7/6/2003 8:04:10 PM  BGooijen
   Renamed IdScheduler* to IdSchedulerOf*
 
   Rev 1.36    2003.06.30 9:41:06 PM  czhower
   Fix for AV during server shut down.
 
-  Rev 1.35    6/25/2003 3:57:58 PM  BGooijen
+    Rev 1.35    6/25/2003 3:57:58 PM  BGooijen
   Disconnecting the context is now inside try...except
 
-  Rev 1.34    6/8/2003 2:13:02 PM  BGooijen
+    Rev 1.34    6/8/2003 2:13:02 PM  BGooijen
   Made ContextClass public
 
-  Rev 1.33    6/5/2003 12:43:26 PM  BGooijen
+    Rev 1.33    6/5/2003 12:43:26 PM  BGooijen
   changed short circuit fix code
 
   Rev 1.32    2003.06.04 10:14:08 AM  czhower
   Removed short circuit dependency and fixed some older irrelevant code.
 
-  Rev 1.31    6/3/2003 11:49:38 PM  BGooijen
+    Rev 1.31    6/3/2003 11:49:38 PM  BGooijen
   removed AV in TIdTCPServer.DoExecute (hopefully)
 
   Rev 1.30    5/26/2003 04:29:58 PM  JPMugaas
@@ -159,49 +159,49 @@
 
   Rev 1.25    5/25/2003 03:26:38 AM  JPMugaas
 
-  Rev 1.24    5/20/2003 12:43:52 AM  BGooijen
+    Rev 1.24    5/20/2003 12:43:52 AM  BGooijen
   changeable reply types
 
-  Rev 1.23    5/13/2003 2:56:40 PM  BGooijen
+    Rev 1.23    5/13/2003 2:56:40 PM  BGooijen
   changed GetGreating to SendGreeting
 
-  Rev 1.21    4/4/2003 8:09:46 PM  BGooijen
+    Rev 1.21    4/4/2003 8:09:46 PM  BGooijen
   moved some consts tidcmdtcpserver, changed DoExecute to return
   .connection.connected
 
-  Rev 1.20    3/25/2003 9:04:06 PM  BGooijen
+    Rev 1.20    3/25/2003 9:04:06 PM  BGooijen
   Scheduler in IOHandler is now updated when the scheduler is removed
 
-  Rev 1.19    3/23/2003 11:33:34 PM  BGooijen
+    Rev 1.19    3/23/2003 11:33:34 PM  BGooijen
   Updates the scheduler in the iohandler when scheduler/iohandler is changed
 
-  Rev 1.18    3/22/2003 11:44:08 PM  BGooijen
+    Rev 1.18    3/22/2003 11:44:08 PM  BGooijen
   ServerIntercept now logs connects/disconnects
 
-  Rev 1.17    3/22/2003 1:46:02 PM  BGooijen
+    Rev 1.17    3/22/2003 1:46:02 PM  BGooijen
   Better handling of exceptions in TIdListenerThread.Run (could cause mem leaks
   first (in non-paged-memory))
 
-  Rev 1.16    3/21/2003 5:55:54 PM  BGooijen
+    Rev 1.16    3/21/2003 5:55:54 PM  BGooijen
   Added code for serverIntercept
 
   Rev 1.15    3/21/2003 11:44:00 AM  JPMugaas
   Updated with a OnBeforeConnect event for the TIdMappedPort components.
 
-  Rev 1.14    3/20/2003 12:18:32 PM  BGooijen
+    Rev 1.14    3/20/2003 12:18:32 PM  BGooijen
   Moved ReplyExceptionCode from TIdTCPServer to TIdCmdTCPServer
 
-  Rev 1.13    3/13/2003 10:18:26 AM  BGooijen
+    Rev 1.13    3/13/2003 10:18:26 AM  BGooijen
   Server side fibers, bug fixes
 
   Rev 1.12    2003.02.18 5:52:16 PM  czhower
   Fix for warnings and logic error.
 
-  Rev 1.11    1/23/2003 8:33:16 PM  BGooijen
+    Rev 1.11    1/23/2003 8:33:16 PM  BGooijen
 
-  Rev 1.10    1/23/2003 11:05:48 AM  BGooijen
+    Rev 1.10    1/23/2003 11:05:48 AM  BGooijen
 
-  Rev 1.9    1/20/2003 12:50:44 PM  BGooijen
+    Rev 1.9    1/20/2003 12:50:44 PM  BGooijen
   Added a Contexts propperty, which contains all contexts for that server
   Moved the commandhandlers to TIdCmdTCPServer
 
@@ -235,11 +235,11 @@
 
   Rev 1.0    11/13/2002 09:00:42 AM  JPMugaas
 
-  2002-01-01 - Andrew P.Rybin
-  - bug fix (MaxConnections, SetActive(FALSE)), TerminateListenerThreads, DoExecute
+2002-01-01 - Andrew P.Rybin
+ - bug fix (MaxConnections, SetActive(FALSE)), TerminateListenerThreads, DoExecute
 
-  2002-04-17 - Andrew P.Rybin
-  - bug fix: if exception raised in OnConnect, Threads.Remove and ThreadMgr.ReleaseThread are not called
+2002-04-17 - Andrew P.Rybin
+ - bug fix: if exception raised in OnConnect, Threads.Remove and ThreadMgr.ReleaseThread are not called
 }
 
 unit IdCustomTCPServer;
@@ -252,7 +252,7 @@ unit IdCustomTCPServer;
 interface
 
 uses
-  IdObjs, IdBaseComponent,
+  IdObjs, IdBaseComponent, 
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
@@ -629,14 +629,12 @@ end;
 //APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
 procedure TIdCustomTCPServer.TerminateListenerThreads;
 var
-  i: Integer;
   LListenerThreads: TIdList;
 Begin
-  i := 0;
   LListenerThreads := FListenerThreads.LockList;
   try
-    while i < LListenerThreads.Count do begin
-      with TIdListenerThread(LListenerThreads[i]) do begin
+    while LListenerThreads.Count > 0 do begin
+      with TIdListenerThread(LListenerThreads[0]) do begin
         // Stop listening
         Terminate;
         Binding.CloseSocket;
@@ -644,14 +642,9 @@ Begin
         WaitFor;
         Free;
       end;
-      Inc(i); // RLebeau 2/14/2006
+      LListenerThreads.Delete(0); // RLebeau 2/17/2006
     end;
   finally
-    // RLebeau 2/14/2006: remove the threads that were successfully terminated
-    while i > 0 do begin
-      LListenerThreads.Delete(i-1);
-      Dec(i);
-    end;
     FListenerThreads.UnlockList;
   end;
 end;
