@@ -40,17 +40,17 @@
   Rev 1.5    2004.02.03 4:17:04 PM  czhower
   For unit name changes.
 
-  Rev 1.4    10/15/2003 10:59:06 PM  DSiders
+    Rev 1.4    10/15/2003 10:59:06 PM  DSiders
   Corrected spelling error in resource string name.
   Added resource string for circular links exception in transparent proxy.
 
-  Rev 1.3    10/15/2003 10:10:18 PM  DSiders
+    Rev 1.3    10/15/2003 10:10:18 PM  DSiders
   Added localization comments.
 
-  Rev 1.2    5/16/2003 9:22:38 AM  BGooijen
+    Rev 1.2    5/16/2003 9:22:38 AM  BGooijen
   Added Listen(...)
 
-  Rev 1.1    5/14/2003 6:41:00 PM  BGooijen
+    Rev 1.1    5/14/2003 6:41:00 PM  BGooijen
   Added Bind(...)
 
   Rev 1.0    12/2/2002 05:01:26 PM  JPMugaas
@@ -84,7 +84,7 @@ type
     FUsername: String;
     FChainedProxy: TIdCustomTransparentProxy;
     //
-    procedure AssignTo(ASource: TIdPersistent); override;
+    procedure Assign(ASource: TIdPersistent); override;
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
@@ -121,18 +121,18 @@ uses
 
 { TIdCustomTransparentProxy }
 
-procedure TIdCustomTransparentProxy.AssignTo(ASource: TIdPersistent);
+procedure TIdCustomTransparentProxy.Assign(ASource: TIdPersistent);
 Begin
   if ASource is TIdCustomTransparentProxy then begin
     with TIdCustomTransparentProxy(ASource) do begin
-      FHost := Self.FHost;
-      FPassword := Self.FPassword;
-      FPort := Self.FPort;
-      FIPVersion := Self.FIPVersion;
-      FUsername := Self.FUsername;
+      Self.FHost := Host;
+      Self.FPassword := Password;
+      Self.FPort := Port;
+      Self.FIPVersion := IPVersion;
+      Self.FUsername := Username;
     end
   end else begin
-    inherited AssignTo(ASource);
+    inherited Assign(ASource);
   end;
 End;//
 
@@ -146,7 +146,7 @@ begin
   end;
 end;
 
-function TIdCustomTransparentProxy.Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;
+function TIdCustomTransparentProxy.Listen(AIOHandler: TIdIOHandler; const ATimeOut: integer):boolean;
 begin
   raise EIdTransparentProxyCantBind.Create(RSTransparentProxyCannotBind);
 end;
