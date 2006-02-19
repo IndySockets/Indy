@@ -16,64 +16,54 @@
   $Log$
 }
 {
-{   Rev 1.11    11/12/2004 11:30:20 AM  JPMugaas
-{ Expansions for IPv6.
+  Rev 1.11    11/12/2004 11:30:20 AM  JPMugaas
+  Expansions for IPv6.
+
+  Rev 1.10    11/11/2004 10:25:26 PM  JPMugaas
+  Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
+  from the UDP client with SOCKS.  You must call OpenProxy  before using
+  RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
+  any connection to the Proxy.  Connect and disconnect also call OpenProxy and
+  CloseProxy.
+
+  Rev 1.9    11/10/2004 9:40:42 PM  JPMugaas
+  Timeout error fix.  Thanks Bas.
+
+  Rev 1.8    11/9/2004 8:18:00 PM  JPMugaas
+  Attempt to add SOCKS support in UDP.
+
+  Rev 1.7    11/8/2004 5:03:00 PM  JPMugaas
+  Eliminated Socket property because we probably do not need it after all.
+  Binding should work just as well.  I also made some minor refinements to
+  Disconnect and Connect.
+
+  Rev 1.6    11/7/2004 11:50:36 PM  JPMugaas
+  Fixed a Send method I broke.   If FSocket is not assigned, it will call the
+  inherited SendBuffer method.  That should prevent code breakage.  The connect
+  method should be OPTIONAL because UDP may be used for simple one-packet
+  query/response protocols.
+
+  Rev 1.5    11/7/2004 11:33:30 PM  JPMugaas
+  Now uses Connect, Disconnect, Send, and Receive similarly to the TCP Clients.
+  This should prevent unneeded DNS name to IP address conversions that SendTo
+  was doing.
+
+  Rev 1.4    2004.02.03 4:17:02 PM  czhower
+  For unit name changes.
+
+  Rev 1.3    2004.01.21 2:35:40 PM  czhower
+  Removed illegal characters from file.
+
+  Rev 1.2    21.1.2004 ã. 12:31:02  DBondzhev
+  Fix for Indy source. Workaround for dccil bug
+  now it can be compiled using Compile instead of build
+
+  Rev 1.1    10/22/2003 04:41:00 PM  JPMugaas
+  Should compile with some restored functionality.  Still not finished.
+
+  Rev 1.0    11/13/2002 09:02:16 AM  JPMugaas
 }
-{
-{   Rev 1.10    11/11/2004 10:25:26 PM  JPMugaas
-{ Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
-{ from the UDP client with SOCKS.  You must call OpenProxy  before using
-{ RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
-{ any connection to the Proxy.  Connect and disconnect also call OpenProxy and
-{ CloseProxy.
-}
-{
-{   Rev 1.9    11/10/2004 9:40:42 PM  JPMugaas
-{ Timeout error fix.  Thanks Bas.
-}
-{
-{   Rev 1.8    11/9/2004 8:18:00 PM  JPMugaas
-{ Attempt to add SOCKS support in UDP.
-}
-{
-{   Rev 1.7    11/8/2004 5:03:00 PM  JPMugaas
-{ Eliminated Socket property because we probably do not need it after all. 
-{ Binding should work just as well.  I also made some minor refinements to
-{ Disconnect and Connect.
-}
-{
-{   Rev 1.6    11/7/2004 11:50:36 PM  JPMugaas
-{ Fixed a Send method I broke.   If FSocket is not assigned, it will call the
-{ inherited SendBuffer method.  That should prevent code breakage.  The connect
-{ method should be OPTIONAL because UDP may be used for simple one-packet
-{ query/response protocols.
-}
-{
-{   Rev 1.5    11/7/2004 11:33:30 PM  JPMugaas
-{ Now uses Connect, Disconnect, Send, and Receive similarly to the TCP Clients.
-{  This should prevent unneeded DNS name to IP address conversions that SendTo
-{ was doing.
-}
-{
-{   Rev 1.4    2004.02.03 4:17:02 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.3    2004.01.21 2:35:40 PM  czhower
-{ Removed illegal characters from file.
-}
-{
-{   Rev 1.2    21.1.2004 ã. 12:31:02  DBondzhev
-{ Fix for Indy source. Workaround for dccil bug
-{ now it can be compiled using Compile instead of build
-}
-{
-{   Rev 1.1    10/22/2003 04:41:00 PM  JPMugaas
-{ Should compile with some restored functionality.  Still not finished.
-}
-{
-{   Rev 1.0    11/13/2002 09:02:16 AM  JPMugaas
-}
+
 unit IdUDPClient;
 
 interface

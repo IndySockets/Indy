@@ -20,7 +20,8 @@ unit IdTraceRoute;
 
 interface
 
-uses IdICMPClient, IdRawBase, IdRawClient, IdThread;
+uses
+  IdICMPClient, IdRawBase, IdRawClient, IdThread;
 
 type
 

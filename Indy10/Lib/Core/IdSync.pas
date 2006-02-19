@@ -16,66 +16,54 @@
   $Log$
 }
 {
-{   Rev 1.13    03/16/05 11:15:42 AM  JSouthwell
-{ Named the IdNotify thread for simpler debugging.
+  Rev 1.13    03/16/05 11:15:42 AM  JSouthwell
+  Named the IdNotify thread for simpler debugging.
+
+  Rev 1.12    2004.04.13 10:22:52 PM  czhower
+  Changed procedure to class method.
+
+  Rev 1.11    4/12/2004 11:44:36 AM  BGooijen
+  fix
+
+  Rev 1.10    4/12/2004 11:36:56 AM  BGooijen
+  NotifyThread can be cleaned up with procedure now
+
+  Rev 1.9    2004.03.11 10:14:46 AM  czhower
+  Improper cast fixed.
+
+  Rev 1.8    2004.02.29 8:23:16 PM  czhower
+  Fixed visibility mismatch.
+
+  Rev 1.7    2004.02.25 10:11:42 AM  czhower
+  Fixed visibility in notify
+
+  Rev 1.6    2004.02.03 4:16:54 PM  czhower
+  For unit name changes.
+
+  Rev 1.5    1/1/2004 11:56:10 PM  PIonescu
+  Fix for TIdNotifyMethod's constructor
+
+  Rev 1.4    2003.12.31 7:33:20 PM  czhower
+  Constructor bug fix.
+
+  Rev 1.3    5/12/2003 9:17:42 AM  GGrieve
+  compile fix
+
+  Rev 1.2    2003.09.18 5:42:14 PM  czhower
+  Removed TIdThreadBase
+
+  Rev 1.1    05.6.2003 ã. 11:30:12  DBondzhev
+  Mem leak fix for notifiers created in main thread. Also WaitFor for waiting
+  notification to be executed.
+
+  Rev 1.0    11/13/2002 09:00:10 AM  JPMugaas
 }
-{
-{   Rev 1.12    2004.04.13 10:22:52 PM  czhower
-{ Changed procedure to class method.
-}
-{
-{   Rev 1.11    4/12/2004 11:44:36 AM  BGooijen
-{ fix
-}
-{
-{   Rev 1.10    4/12/2004 11:36:56 AM  BGooijen
-{ NotifyThread can be cleaned up with procedure now
-}
-{
-{   Rev 1.9    2004.03.11 10:14:46 AM  czhower
-{ Improper cast fixed.
-}
-{
-{   Rev 1.8    2004.02.29 8:23:16 PM  czhower
-{ Fixed visibility mismatch.
-}
-{
-{   Rev 1.7    2004.02.25 10:11:42 AM  czhower
-{ Fixed visibility in notify
-}
-{
-{   Rev 1.6    2004.02.03 4:16:54 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.5    1/1/2004 11:56:10 PM  PIonescu
-{ Fix for TIdNotifyMethod's constructor
-}
-{
-{   Rev 1.4    2003.12.31 7:33:20 PM  czhower
-{ Constructor bug fix.
-}
-{
-{   Rev 1.3    5/12/2003 9:17:42 AM  GGrieve
-{ compile fix
-}
-{
-{   Rev 1.2    2003.09.18 5:42:14 PM  czhower
-{ Removed TIdThreadBase
-}
-{
-{   Rev 1.1    05.6.2003 ã. 11:30:12  DBondzhev
-{ Mem leak fix for notifiers created in main thread. Also WaitFor for waiting
-{ notification to be executed.
-}
-{
-{   Rev 1.0    11/13/2002 09:00:10 AM  JPMugaas
-}
+
 unit IdSync;
 
-interface
-
 // Author: Chad Z. Hower - a.k.a. Kudzu
+
+interface
 
 uses
   IdGlobal, IdThread, IdObjs;
@@ -118,7 +106,7 @@ type
   public
     constructor Create(AMethod: TIdThreadMethod); reintroduce; virtual;
   end;
-  
+
 implementation
 uses IdSys;
 

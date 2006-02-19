@@ -16,79 +16,69 @@
   $Log$
 }
 {
-{   Rev 1.13    9/30/2004 2:26:04 PM  BGooijen
-{ wrong property was referenced
-}
-{
-{   Rev 1.12    2004.02.03 4:17:12 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.11    2004.01.20 10:03:38 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.10    09.11.2003 14:05:52  ARybin
-{ AV
-}
-{
-{   Rev 1.9    08.11.2003 20:03:20  ARybin
-{ run-time active bug
-}
-{
-    Rev 1.8    10/15/2003 8:48:58 PM  DSiders
+  Rev 1.13    9/30/2004 2:26:04 PM  BGooijen
+  wrong property was referenced
+
+  Rev 1.12    2004.02.03 4:17:12 PM  czhower
+  For unit name changes.
+
+  Rev 1.11    2004.01.20 10:03:38 PM  czhower
+  InitComponent
+
+  Rev 1.10    09.11.2003 14:05:52  ARybin
+  AV
+
+  Rev 1.9    08.11.2003 20:03:20  ARybin
+  run-time active bug
+
+  Rev 1.8    10/15/2003 8:48:58 PM  DSiders
   Added resource strings for exceptions raised when setting thread component
   properties.
-}
-{
-{   Rev 1.7    2003.10.11 9:58:04 PM  czhower
-{ Several bug fixes
-}
-{
-{   Rev 1.6    2003.10.11 5:51:54 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.5    2003.09.30 7:48:02 PM  czhower
-{ Fixed Loop and ThreadName
-}
-{
-{   Rev 1.4    9/18/2003 07:40:52 PM  JPMugaas
-{ Removed IdGlobal.
-}
-{
-{   Rev 1.3    9/16/2003 04:47:22 PM  JPMugaas
-{ Made some code follow the Indy conventions so it's easier to debug.
-}
-{
-{   Rev 1.2    2003.07.01 4:14:38 PM  czhower
-{ ThreadName and Loop added. Other bugs fixed.
-}
-{
-{   Rev 1.1    06.03.2003 12:16:52  ARybin
-{ adapted for new IdThread
-}
-{
-{   Rev 1.0    11/13/2002 08:03:06 AM  JPMugaas
-}
-{-----------------------------------------------------------------------------
- UnitName: IdThreadComponent
- Author:   Andrew P.Rybin [magicode@mail.ru]
- Creation: 12.03.2002
- Version:  0.1.0
- Purpose:
- History:  Based on my TmcThread
- 2002-05-03 -Andrew P.Rybin
+
+  Rev 1.7    2003.10.11 9:58:04 PM  czhower
+  Several bug fixes
+
+  Rev 1.6    2003.10.11 5:51:54 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.5    2003.09.30 7:48:02 PM  czhower
+  Fixed Loop and ThreadName
+
+  Rev 1.4    9/18/2003 07:40:52 PM  JPMugaas
+  Removed IdGlobal.
+
+  Rev 1.3    9/16/2003 04:47:22 PM  JPMugaas
+  Made some code follow the Indy conventions so it's easier to debug.
+
+  Rev 1.2    2003.07.01 4:14:38 PM  czhower
+  ThreadName and Loop added. Other bugs fixed.
+
+  Rev 1.1    06.03.2003 12:16:52  ARybin
+  adapted for new IdThread
+
+  Rev 1.0    11/13/2002 08:03:06 AM  JPMugaas
+
+  2002-05-03 -Andrew P.Rybin
    -Stéphane Grobéty (Fulgan) suggestion: component is Data owner, don't FreeAndNIL Data property
    -special TThread.OnTerminate support (it is sync-event)
- 2002-05-23 -APR
+
+  2002-05-23 -APR
    -right support for Thread terminate
------------------------------------------------------------------------------}
+}
 
 unit IdThreadComponent;
+
+{
+  UnitName: IdThreadComponent
+  Author:   Andrew P.Rybin [magicode@mail.ru]
+  Creation: 12.03.2002
+  Version:  0.1.0
+  Purpose:
+  History:  Based on my TmcThread
+}
 
 interface
 

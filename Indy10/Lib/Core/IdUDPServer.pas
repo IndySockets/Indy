@@ -16,68 +16,55 @@
   $Log$
 }
 {
-{   Rev 1.14    11/12/2004 3:44:00 PM  JPMugaas
-{ Compiler error fix.  OOPPS!!!
+  Rev 1.14    11/12/2004 3:44:00 PM  JPMugaas
+  Compiler error fix.  OOPPS!!!
+
+  Rev 1.13    11/12/2004 11:30:20 AM  JPMugaas
+  Expansions for IPv6.
+
+  Rev 1.12    6/11/2004 11:48:34 PM  JPMugaas
+  Fix for mistake I made.  UDPReceive should have been UDPException
+
+  Rev 1.11    6/11/2004 4:05:34 PM  JPMugaas
+  RecvFrom should now work in the UDP server with IPv6.
+  An OnException event was added for logging purposes.
+
+  Rev 1.10    09/06/2004 00:25:32  CCostelloe
+  Kylix 3 patch
+
+  Rev 1.9    2004.02.03 4:17:02 PM  czhower
+  For unit name changes.
+
+  Rev 1.8    2004.01.20 10:03:40 PM  czhower
+  InitComponent
+
+  Rev 1.7    2003.12.31 8:03:36 PM  czhower
+  Matched visibility
+
+  Rev 1.6    10/26/2003 6:01:44 PM  BGooijen
+  Fixed binding problem
+
+  Rev 1.5    10/24/2003 5:18:38 PM  BGooijen
+  Removed boolean shortcutting from .GetActive
+
+  Rev 1.4    10/22/2003 04:41:02 PM  JPMugaas
+  Should compile with some restored functionality.  Still not finished.
+
+  Rev 1.3    2003.10.11 9:58:50 PM  czhower
+  Started on some todos
+
+  Rev 1.2    2003.10.11 5:52:18 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.1    2003.09.30 1:23:10 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.0    11/13/2002 09:02:30 AM  JPMugaas
 }
-{
-{   Rev 1.13    11/12/2004 11:30:20 AM  JPMugaas
-{ Expansions for IPv6.
-}
-{
-{   Rev 1.12    6/11/2004 11:48:34 PM  JPMugaas
-{ Fix for mistake I made.  UDPReceive should have been UDPException
-}
-{
-{   Rev 1.11    6/11/2004 4:05:34 PM  JPMugaas
-{ RecvFrom should now work in the UDP server with IPv6.  
-{ An OnException event was added for logging purposes.
-}
-{
-{   Rev 1.10    09/06/2004 00:25:32  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.9    2004.02.03 4:17:02 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.8    2004.01.20 10:03:40 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.7    2003.12.31 8:03:36 PM  czhower
-{ Matched visibility
-}
-{
-{   Rev 1.6    10/26/2003 6:01:44 PM  BGooijen
-{ Fixed binding problem
-}
-{
-{   Rev 1.5    10/24/2003 5:18:38 PM  BGooijen
-{ Removed boolean shortcutting from .GetActive
-}
-{
-{   Rev 1.4    10/22/2003 04:41:02 PM  JPMugaas
-{ Should compile with some restored functionality.  Still not finished.
-}
-{
-{   Rev 1.3    2003.10.11 9:58:50 PM  czhower
-{ Started on some todos
-}
-{
-{   Rev 1.2    2003.10.11 5:52:18 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.1    2003.09.30 1:23:10 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.0    11/13/2002 09:02:30 AM  JPMugaas
-}
+
 unit IdUDPServer;
 
 interface

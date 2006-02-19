@@ -16,51 +16,42 @@
   $Log$
 }
 {
-{   Rev 1.10    2004.10.29 8:49:00 PM  czhower
-{ Fixed a constructor.
-}
-{
-{   Rev 1.9    2004.10.27 9:20:04 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.8    10/26/2004 8:43:02 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-{   Rev 1.7    4/12/2004 4:50:36 PM  JPMugaas
-{ TIdThreadSafeInt64 created for some internal work but I figured it would help
-{ with other stuff.
-}
-{
-{   Rev 1.6    3/26/2004 1:09:28 PM  JPMugaas
-{ New ThreadSafe objects that I needed for some other work I'm doing.
-}
-{
-{   Rev 1.5    3/17/2004 8:57:32 PM  JPMugaas
-{ Increment and decrement overloads added for quick math in the
-{ TIdThreadSafeCardinal and TIdThreadSafeInteger.  I need this for personal
-{ work.
-}
-{
-{   Rev 1.4    2004.02.25 8:23:20 AM  czhower
-{ Small changes
-}
-{
-{   Rev 1.3    2004.02.03 4:17:00 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.2    2004.01.22 5:59:12 PM  czhower
-{ IdCriticalSection
-}
-{
-    Rev 1.1    3/27/2003 12:29:46 AM  BGooijen
+  Rev 1.10    2004.10.29 8:49:00 PM  czhower
+  Fixed a constructor.
+
+  Rev 1.9    2004.10.27 9:20:04 AM  czhower
+  For TIdStrings
+
+  Rev 1.8    10/26/2004 8:43:02 PM  JPMugaas
+  Should be more portable with new references to TIdStrings and TIdStringList.
+
+  Rev 1.7    4/12/2004 4:50:36 PM  JPMugaas
+  TIdThreadSafeInt64 created for some internal work but I figured it would help
+  with other stuff.
+
+  Rev 1.6    3/26/2004 1:09:28 PM  JPMugaas
+  New ThreadSafe objects that I needed for some other work I'm doing.
+
+  Rev 1.5    3/17/2004 8:57:32 PM  JPMugaas
+  Increment and decrement overloads added for quick math in the
+  TIdThreadSafeCardinal and TIdThreadSafeInteger.  I need this for personal
+  work.
+
+  Rev 1.4    2004.02.25 8:23:20 AM  czhower
+  Small changes
+
+  Rev 1.3    2004.02.03 4:17:00 PM  czhower
+  For unit name changes.
+
+  Rev 1.2    2004.01.22 5:59:12 PM  czhower
+  IdCriticalSection
+
+  Rev 1.1    3/27/2003 12:29:46 AM  BGooijen
   Added TIdThreadSafeList.Assign
+
+  Rev 1.0    11/13/2002 09:01:54 AM  JPMugaas
 }
-{
-{   Rev 1.0    11/13/2002 09:01:54 AM  JPMugaas
-}
+
 unit IdThreadSafe;
 
 interface

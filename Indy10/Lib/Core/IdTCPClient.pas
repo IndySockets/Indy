@@ -16,156 +16,122 @@
   $Log$
 }
 {
-{   Rev 1.38    1/15/05 2:14:58 PM  RLebeau
-{ Removed virtual specifier from SetConnectTimeout() and SetReadTimeout(), not
-{ being used by any descendants.
-}
-{
-{   Rev 1.37    11/29/2004 11:49:24 PM  JPMugaas
-{ Fixes for compiler errors.
-}
-{
-{   Rev 1.36    11/29/04 10:38:58 AM  RLebeau
-{ Updated Connect() to release the IOHandler on error if implicitally created.
-}
-{
-{   Rev 1.35    11/28/04 2:28:22 PM  RLebeau
-{ Added 'const' to various property setter parameters.
-{ 
-{ Removed redundant getter methods.
-}
-{
-{   Rev 1.34    11/27/2004 8:27:44 PM  JPMugaas
-{ Fix for compiler errors.
-}
-{
-{   Rev 1.33    11/26/04 3:46:10 PM  RLebeau
-{ Added support for BoundIP and BoundPort properties
-}
-{
-{   Rev 1.32    2004.11.05 10:58:34 PM  czhower
-{ Changed connect overloads for C#.
-}
-{
-{   Rev 1.31    8/8/04 12:32:08 AM  RLebeau
-{ Redeclared ReadTimeout and ConnectTimeout properties as public instead of
-{ protected in TIdTCPClientCustom
-}
-{
-    Rev 1.30    8/4/2004 5:37:34 AM  DSiders
+  Rev 1.38    1/15/05 2:14:58 PM  RLebeau
+  Removed virtual specifier from SetConnectTimeout() and SetReadTimeout(), not
+  being used by any descendants.
+
+  Rev 1.37    11/29/2004 11:49:24 PM  JPMugaas
+  Fixes for compiler errors.
+
+  Rev 1.36    11/29/04 10:38:58 AM  RLebeau
+  Updated Connect() to release the IOHandler on error if implicitally created.
+
+  Rev 1.35    11/28/04 2:28:22 PM  RLebeau
+  Added 'const' to various property setter parameters.
+
+  Removed redundant getter methods.
+
+  Rev 1.34    11/27/2004 8:27:44 PM  JPMugaas
+  Fix for compiler errors.
+
+  Rev 1.33    11/26/04 3:46:10 PM  RLebeau
+  Added support for BoundIP and BoundPort properties
+
+  Rev 1.32    2004.11.05 10:58:34 PM  czhower
+  Changed connect overloads for C#.
+
+  Rev 1.31    8/8/04 12:32:08 AM  RLebeau
+  Redeclared ReadTimeout and ConnectTimeout properties as public instead of
+  protected in TIdTCPClientCustom
+
+  Rev 1.30    8/4/2004 5:37:34 AM  DSiders
   Changed camel-casing on ReadTimeout to be consistent with ConnectTimeout.
-}
-{
-{   Rev 1.29    8/3/04 11:17:30 AM  RLebeau
-{ Added support for ReadTimeout property
-}
-{
-{   Rev 1.28    8/2/04 5:50:58 PM  RLebeau
-{ Added support for ConnectTimeout property
-}
-{
-{   Rev 1.27    2004.03.06 10:40:28 PM  czhower
-{ Changed IOHandler management to fix bug in server shutdowns.
-}
-{
-{   Rev 1.26    2004.02.03 4:16:54 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.25    1/8/2004 8:22:54 PM  JPMugaas
-{ SetIPVersion now virtual so I can override in TIdFTP.  Other stuff may need
-{ the override as well.
-}
-{
-{   Rev 1.24    1/2/2004 12:02:18 AM  BGooijen
-{ added OnBeforeBind/OnAfterBind
-}
-{
-{   Rev 1.23    12/31/2003 9:52:04 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.20    2003.10.14 1:27:00 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.19    2003.10.01 9:11:26 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.18    2003.10.01 2:30:42 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.17    2003.10.01 11:16:36 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.16    2003.09.30 1:23:06 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.15    2003.09.18 2:59:46 PM  czhower
-{ Modified port and host overrides to only override if values exist.
-}
-{
-    Rev 1.14    6/3/2003 11:48:32 PM  BGooijen
+
+  Rev 1.29    8/3/04 11:17:30 AM  RLebeau
+  Added support for ReadTimeout property
+
+  Rev 1.28    8/2/04 5:50:58 PM  RLebeau
+  Added support for ConnectTimeout property
+
+  Rev 1.27    2004.03.06 10:40:28 PM  czhower
+  Changed IOHandler management to fix bug in server shutdowns.
+
+  Rev 1.26    2004.02.03 4:16:54 PM  czhower
+  For unit name changes.
+
+  Rev 1.25    1/8/2004 8:22:54 PM  JPMugaas
+  SetIPVersion now virtual so I can override in TIdFTP.  Other stuff may need
+  the override as well.
+
+  Rev 1.24    1/2/2004 12:02:18 AM  BGooijen
+  added OnBeforeBind/OnAfterBind
+
+  Rev 1.23    12/31/2003 9:52:04 PM  BGooijen
+  Added IPv6 support
+
+  Rev 1.20    2003.10.14 1:27:00 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.19    2003.10.01 9:11:26 PM  czhower
+  .Net
+
+  Rev 1.18    2003.10.01 2:30:42 PM  czhower
+  .Net
+
+  Rev 1.17    2003.10.01 11:16:36 AM  czhower
+  .Net
+
+  Rev 1.16    2003.09.30 1:23:06 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.15    2003.09.18 2:59:46 PM  czhower
+  Modified port and host overrides to only override if values exist.
+
+  Rev 1.14    6/3/2003 11:48:32 PM  BGooijen
   Undid change from version 1.12, is now fixed in iohandlersocket
-}
-{
-{   Rev 1.13    2003.06.03 7:27:56 PM  czhower
-{ Added overloaded Connect method
-}
-{
-    Rev 1.12    5/23/2003 6:45:32 PM  BGooijen
+
+  Rev 1.13    2003.06.03 7:27:56 PM  czhower
+  Added overloaded Connect method
+
+  Rev 1.12    5/23/2003 6:45:32 PM  BGooijen
   ClosedGracefully is now set if Connect failes.
-}
-{
-{   Rev 1.11    2003.04.10 8:05:34 PM  czhower
-{ removed unneeded self. reference
-}
-{
-{   Rev 1.10    4/7/2003 06:58:32 AM  JPMugaas
-{ Implicit IOHandler now created in virtual method
-{
-{ function TIdTCPClientCustom.MakeImplicitClientHandler: TIdIOHandler;
-}
-{
-    Rev 1.9    3/17/2003 9:40:16 PM  BGooijen
+
+  Rev 1.11    2003.04.10 8:05:34 PM  czhower
+  removed unneeded self. reference
+
+  Rev 1.10    4/7/2003 06:58:32 AM  JPMugaas
+  Implicit IOHandler now created in virtual method
+
+  function TIdTCPClientCustom.MakeImplicitClientHandler: TIdIOHandler;
+
+  Rev 1.9    3/17/2003 9:40:16 PM  BGooijen
   Host and Port were not properly synchronised with the IOHandler, fixed that
-}
-{
-    Rev 1.8    3/5/2003 11:05:24 PM  BGooijen
+
+  Rev 1.8    3/5/2003 11:05:24 PM  BGooijen
   Intercept
+
+  Rev 1.7    2003.02.25 1:36:16 AM  czhower
+
+  Rev 1.6    12-14-2002 22:52:34  BGooijen
+  now also saves host and port settings when an explicit iohandler is used. the
+  host and port settings are copied to the iohandler if the iohandler doesn't
+  have them specified.
+
+  Rev 1.5    12-14-2002 22:38:26  BGooijen
+  The host and port settings were lost when the implicit iohandler  was created
+  in .Connect, fixed that.
+
+  Rev 1.4    2002.12.07 12:26:12 AM  czhower
+
+  Rev 1.2    12/6/2002 02:11:42 PM  JPMugaas
+  Protected Port and Host properties added to TCPClient because those are
+  needed by protocol implementations.  Socket property added to TCPConnection.
+
+  Rev 1.1    6/12/2002 4:08:34 PM  SGrobety
+
+  Rev 1.0    11/13/2002 09:00:26 AM  JPMugaas
 }
-{
-{   Rev 1.7    2003.02.25 1:36:16 AM  czhower
-}
-{
-{   Rev 1.6    12-14-2002 22:52:34  BGooijen
-{ now also saves host and port settings when an explicit iohandler is used. the
-{ host and port settings are copied to the iohandler if the iohandler doesn't
-{ have them specified.
-}
-{
-{   Rev 1.5    12-14-2002 22:38:26  BGooijen
-{ The host and port settings were lost when the implicit iohandler  was created
-{ in .Connect, fixed that.
-}
-{
-{   Rev 1.4    2002.12.07 12:26:12 AM  czhower
-}
-{
-{   Rev 1.2    12/6/2002 02:11:42 PM  JPMugaas
-{ Protected Port and Host properties added to TCPClient because those are
-{ needed by protocol implementations.  Socket property added to TCPConnection.
-}
-{
-{   Rev 1.1    6/12/2002 4:08:34 PM  SGrobety
-}
-{
-{   Rev 1.0    11/13/2002 09:00:26 AM  JPMugaas
-}
+
 unit IdTCPClient;
 
 interface

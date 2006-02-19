@@ -16,9 +16,10 @@
   $Log$
 }
 {
-{   Rev 1.69    12/2/2004 9:26:42 PM  JPMugaas
-{ Bug fix.
+  Rev 1.69    12/2/2004 9:26:42 PM  JPMugaas
+  Bug fix.
 }
+
 unit IdTCPServer;
 
 interface

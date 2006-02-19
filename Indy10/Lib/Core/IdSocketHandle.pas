@@ -16,143 +16,113 @@
   $Log$
 }
 {
-{   Rev 1.8    4/11/2005 2:17:46 PM  JPMugaas
-{ Fix from Ben Taylor for where a pointer is used after it's freed causing an
-{ invalid pointer operation.
-}
-{
-{   Rev 1.7    23.3.2005 ã. 20:50:04  DBondzhev
-{ Fixed problem on multi CPU systems when connection is closed while it get's
-{ connected at the end of the timeout period.
-}
-{
-{   Rev 1.6    11/15/2004 11:40:08 PM  JPMugaas
-{ Added IPAddressType parameter to SetBinding )AIPVersion).  This would set the
-{ same variable as the SetPeer AIPVersion parameter.  It's just a convenience
-{ sake since both the receiver and sender must have the same type of IP address
-{ (unless there's a gateway thing we support).
-}
-{
-{   Rev 1.5    11/12/2004 11:30:18 AM  JPMugaas
-{ Expansions for IPv6.
-}
-{
-{   Rev 1.4    09/06/2004 09:48:42  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.3    4/26/04 12:40:26 PM  RLebeau
-{ Removed recursion from Readable()
-}
-{
-{   Rev 1.2    2004.03.07 11:48:48 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.1    3/6/2004 5:16:14 PM  JPMugaas
-{ Bug 67 fixes.  Do not write to const values.
-}
-{
-{   Rev 1.0    2004.02.03 3:14:40 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.23    2/2/2004 12:09:16 AM  JPMugaas
-{ GetSockOpt should now work in DotNET.
-}
-{
-{   Rev 1.22    2/1/2004 6:10:46 PM  JPMugaas
-{ GetSockOpt.
-}
-{
-{   Rev 1.21    12/31/2003 9:51:58 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.20    10/26/2003 12:29:40 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.19    10/22/2003 04:40:48 PM  JPMugaas
-{ Should compile with some restored functionality.  Still not finished.
-}
-{
-{   Rev 1.18    2003.10.11 5:50:26 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.17    10/5/2003 9:55:30 PM  BGooijen
-{ TIdTCPServer works on D7 and DotNet now
-}
-{
-{   Rev 1.16    2003.10.02 12:44:42 PM  czhower
-{ Fix for Bind, Connect
-}
-{
-{   Rev 1.15    2003.10.02 10:16:28 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.14    2003.10.01 9:11:20 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.13    2003.10.01 5:05:14 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.12    2003.10.01 2:30:40 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.10    10/1/2003 12:14:12 AM  BGooijen
-{ DotNet: removing CheckForSocketError
-}
-{
-{   Rev 1.9    2003.10.01 1:12:36 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.8    2003.09.30 1:23:02 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.7    20.09.2003 16:33:28  ARybin
-{ bug fix:
-{ NOT Integer <> 0 is not boolean operation, because:
-{ (NOT Integer) = inverted integer
-}
-{
-{   Rev 1.6    2003.07.14 1:57:24 PM  czhower
-{ -First set of IOCP fixes.
-{ -Fixed a threadsafe problem with the stack class.
-}
-{
-{   Rev 1.5    7/1/2003 05:20:36 PM  JPMugaas
-{ Minor optimizations.  Illiminated some unnecessary string operations.
-}
-{
-{   Rev 1.4    7/1/2003 03:39:52 PM  JPMugaas
-{ Started numeric IP function API calls for more efficiency.
-}
-{
-    Rev 1.3    5/11/2003 11:59:06 AM  BGooijen
+  Rev 1.8    4/11/2005 2:17:46 PM  JPMugaas
+  Fix from Ben Taylor for where a pointer is used after it's freed causing an
+  invalid pointer operation.
+
+  Rev 1.7    23.3.2005 ã. 20:50:04  DBondzhev
+  Fixed problem on multi CPU systems when connection is closed while it get's
+  connected at the end of the timeout period.
+
+  Rev 1.6    11/15/2004 11:40:08 PM  JPMugaas
+  Added IPAddressType parameter to SetBinding )AIPVersion).  This would set the
+  same variable as the SetPeer AIPVersion parameter.  It's just a convenience
+  sake since both the receiver and sender must have the same type of IP address
+  (unless there's a gateway thing we support).
+
+  Rev 1.5    11/12/2004 11:30:18 AM  JPMugaas
+  Expansions for IPv6.
+
+  Rev 1.4    09/06/2004 09:48:42  CCostelloe
+  Kylix 3 patch
+
+  Rev 1.3    4/26/04 12:40:26 PM  RLebeau
+  Removed recursion from Readable()
+
+  Rev 1.2    2004.03.07 11:48:48 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.1    3/6/2004 5:16:14 PM  JPMugaas
+  Bug 67 fixes.  Do not write to const values.
+
+  Rev 1.0    2004.02.03 3:14:40 PM  czhower
+  Move and updates
+
+  Rev 1.23    2/2/2004 12:09:16 AM  JPMugaas
+  GetSockOpt should now work in DotNET.
+
+  Rev 1.22    2/1/2004 6:10:46 PM  JPMugaas
+  GetSockOpt.
+
+  Rev 1.21    12/31/2003 9:51:58 PM  BGooijen
+  Added IPv6 support
+
+  Rev 1.20    10/26/2003 12:29:40 PM  BGooijen
+  DotNet
+
+  Rev 1.19    10/22/2003 04:40:48 PM  JPMugaas
+  Should compile with some restored functionality.  Still not finished.
+
+  Rev 1.18    2003.10.11 5:50:26 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.17    10/5/2003 9:55:30 PM  BGooijen
+  TIdTCPServer works on D7 and DotNet now
+
+  Rev 1.16    2003.10.02 12:44:42 PM  czhower
+  Fix for Bind, Connect
+
+  Rev 1.15    2003.10.02 10:16:28 AM  czhower
+  .Net
+
+  Rev 1.14    2003.10.01 9:11:20 PM  czhower
+  .Net
+
+  Rev 1.13    2003.10.01 5:05:14 PM  czhower
+  .Net
+
+  Rev 1.12    2003.10.01 2:30:40 PM  czhower
+  .Net
+
+  Rev 1.10    10/1/2003 12:14:12 AM  BGooijen
+  DotNet: removing CheckForSocketError
+
+  Rev 1.9    2003.10.01 1:12:36 AM  czhower
+  .Net
+
+  Rev 1.8    2003.09.30 1:23:02 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.7    20.09.2003 16:33:28  ARybin
+  bug fix:
+  NOT Integer <> 0 is not boolean operation, because:
+  (NOT Integer) = inverted integer
+
+  Rev 1.6    2003.07.14 1:57:24 PM  czhower
+  -First set of IOCP fixes.
+  -Fixed a threadsafe problem with the stack class.
+
+  Rev 1.5    7/1/2003 05:20:36 PM  JPMugaas
+  Minor optimizations.  Illiminated some unnecessary string operations.
+
+  Rev 1.4    7/1/2003 03:39:52 PM  JPMugaas
+  Started numeric IP function API calls for more efficiency.
+
+  Rev 1.3    5/11/2003 11:59:06 AM  BGooijen
   Added OverLapped property
-}
-{
-    Rev 1.2    5/11/2003 12:35:30 AM  BGooijen
+
+  Rev 1.2    5/11/2003 12:35:30 AM  BGooijen
   temporary creates overlapped socked handles
+
+  Rev 1.1    3/21/2003 01:50:08 AM  JPMugaas
+  SetBinding method added as per request received in private E-Mail.
+
+  Rev 1.0    11/13/2002 08:58:46 AM  JPMugaas
 }
-{
-{   Rev 1.1    3/21/2003 01:50:08 AM  JPMugaas
-{ SetBinding method added as per request received in private E-Mail.
-}
-{
-{   Rev 1.0    11/13/2002 08:58:46 AM  JPMugaas
-}
+
 unit IdSocketHandle;
 
 interface

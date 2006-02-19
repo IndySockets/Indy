@@ -16,152 +16,123 @@
   $Log$
 }
 {
-{   Rev 1.34    03/16/05 10:29:40 AM  JSouthwell
-{ Added a default thread name to ease debugging of IdThreads.
-}
-{
-{   Rev 1.33    1/15/05 1:52:36 PM  RLebeau
-{ Extra cleanup handling for the FYarn member
-}
-{
-{   Rev 1.32    1/6/2005 10:02:58 PM  JPMugaas
-{ This should compile.
-}
-{
-{   Rev 1.31    1/6/05 2:33:04 PM  RLebeau
-{ one more try...finally block, for Before/AfterExecute()
-}
-{
-{   Rev 1.29    1/5/05 5:31:08 PM  RLebeau
-{ Added extra try..finally block to Execute() to free the FYarn member.
-}
-{
-    Rev 1.28    6/9/2004 10:38:46 PM  DSiders
+  Rev 1.34    03/16/05 10:29:40 AM  JSouthwell
+  Added a default thread name to ease debugging of IdThreads.
+
+  Rev 1.33    1/15/05 1:52:36 PM  RLebeau
+  Extra cleanup handling for the FYarn member
+
+  Rev 1.32    1/6/2005 10:02:58 PM  JPMugaas
+  This should compile.
+
+  Rev 1.31    1/6/05 2:33:04 PM  RLebeau
+  one more try...finally block, for Before/AfterExecute()
+
+  Rev 1.29    1/5/05 5:31:08 PM  RLebeau
+  Added extra try..finally block to Execute() to free the FYarn member.
+
+  Rev 1.28    6/9/2004 10:38:46 PM  DSiders
   Fixed case for TIdNotifyThreadEvent.
-}
-{
-{   Rev 1.27    3/12/2004 7:11:02 PM  BGooijen
-{ Changed order of commands for dotnet
-}
-{
-{   Rev 1.26    2004.03.01 5:12:44 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.25    2004.02.03 4:17:00 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.24    2004.01.22 5:59:12 PM  czhower
-{ IdCriticalSection
-}
-{
-{   Rev 1.23    2003.12.28 2:33:16 PM  czhower
-{ .Net finalization fix.
-}
-{
-{   Rev 1.22    2003.12.28 1:27:46 PM  czhower
-{ .Net compatibility
-}
-{
-{   Rev 1.21    2003.10.24 12:59:20 PM  czhower
-{ Name change
-}
-{
-{   Rev 1.20    2003.10.21 12:19:04 AM  czhower
-{ TIdTask support and fiber bug fixes.
-}
-{
-    Rev 1.19    10/15/2003 8:40:48 PM  DSiders
+
+  Rev 1.27    3/12/2004 7:11:02 PM  BGooijen
+  Changed order of commands for dotnet
+
+  Rev 1.26    2004.03.01 5:12:44 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.25    2004.02.03 4:17:00 PM  czhower
+  For unit name changes.
+
+  Rev 1.24    2004.01.22 5:59:12 PM  czhower
+  IdCriticalSection
+
+  Rev 1.23    2003.12.28 2:33:16 PM  czhower
+  .Net finalization fix.
+
+  Rev 1.22    2003.12.28 1:27:46 PM  czhower
+  .Net compatibility
+
+  Rev 1.21    2003.10.24 12:59:20 PM  czhower
+  Name change
+
+  Rev 1.20    2003.10.21 12:19:04 AM  czhower
+  TIdTask support and fiber bug fixes.
+
+  Rev 1.19    10/15/2003 8:40:48 PM  DSiders
   Added locaization comments.
-}
-{
-{   Rev 1.18    10/5/2003 3:19:58 PM  BGooijen
-{ disabled some stuff for DotNet
-}
-{
-{   Rev 1.17    2003.09.19 10:11:22 PM  czhower
-{ Next stage of fiber support in servers.
-}
-{
-{   Rev 1.14    2003.09.19 11:54:36 AM  czhower
-{ -Completed more features necessary for servers
-{ -Fixed some bugs
-}
-{
-{   Rev 1.13    2003.09.18 4:43:18 PM  czhower
-{ -Removed IdBaseThread
-{ -Threads now have default names
-}
-{
-{   Rev 1.12    12.9.2003 ã. 16:42:08  DBondzhev
-{ Fixed AV when exception is raised in BeforeRun and thread is terminated
-{ before Start is compleated
-}
-{
-{   Rev 1.11    2003.07.08 2:41:52 PM  czhower
-{ Avoid calling SetThreadName if we do not need to
-}
-{
-{   Rev 1.10    08.07.2003 13:16:18  ARybin
-{ tiny opt fix
-}
-{
-    Rev 1.9    7/1/2003 7:11:30 PM  BGooijen
+
+  Rev 1.18    10/5/2003 3:19:58 PM  BGooijen
+  disabled some stuff for DotNet
+
+  Rev 1.17    2003.09.19 10:11:22 PM  czhower
+  Next stage of fiber support in servers.
+
+  Rev 1.14    2003.09.19 11:54:36 AM  czhower
+  -Completed more features necessary for servers
+  -Fixed some bugs
+
+  Rev 1.13    2003.09.18 4:43:18 PM  czhower
+  -Removed IdBaseThread
+  -Threads now have default names
+
+  Rev 1.12    12.9.2003 ã. 16:42:08  DBondzhev
+  Fixed AV when exception is raised in BeforeRun and thread is terminated
+  before Start is compleated
+
+  Rev 1.11    2003.07.08 2:41:52 PM  czhower
+  Avoid calling SetThreadName if we do not need to
+
+  Rev 1.10    08.07.2003 13:16:18  ARybin
+  tiny opt fix
+
+  Rev 1.9    7/1/2003 7:11:30 PM  BGooijen
   Added comment
-}
-{
-{   Rev 1.8    2003.07.01 4:14:58 PM  czhower
-{ Consolidation.
-{ Added Name, Loop
-}
-{
-{   Rev 1.7    04.06.2003 14:06:20  ARybin
-{ bug fix & limited waiting
-}
-{
-{   Rev 1.6    28.05.2003 14:16:16  ARybin
-{ WaitAllThreadsTerminated class method
-}
-{
-{   Rev 1.5    08.05.2003 12:45:10  ARybin
-{ "be sure" fix
-}
-{
-    Rev 1.4    4/30/2003 4:53:26 PM  BGooijen
+
+  Rev 1.8    2003.07.01 4:14:58 PM  czhower
+  Consolidation.
+  Added Name, Loop
+
+  Rev 1.7    04.06.2003 14:06:20  ARybin
+  bug fix & limited waiting
+
+  Rev 1.6    28.05.2003 14:16:16  ARybin
+  WaitAllThreadsTerminated class method
+
+  Rev 1.5    08.05.2003 12:45:10  ARybin
+  "be sure" fix
+
+  Rev 1.4    4/30/2003 4:53:26 PM  BGooijen
   Fixed bug in Kylix where GThreadCount was not decremented
-}
-{
-    Rev 1.3    4/22/2003 4:44:06 PM  BGooijen
+
+  Rev 1.3    4/22/2003 4:44:06 PM  BGooijen
   changed Handle to ThreadID
-}
-{
-    Rev 1.2    3/22/2003 12:53:26 PM  BGooijen
+
+  Rev 1.2    3/22/2003 12:53:26 PM  BGooijen
   - Exceptions in the constructor are now handled better.
   - GThreadCount can't become negative anymore
+
+  Rev 1.1    06.03.2003 11:54:24  ARybin
+  TIdThreadOptions: is thread Data owner, smart Cleanup
+
+  Rev 1.0    11/13/2002 09:01:14 AM  JPMugaas
+
+  2002-03-12 -Andrew P.Rybin
+    -TerminatingExceptionClass, etc.
+
+  2002-06-20 -Andrew P.Rybin
+    -"Terminated Start" bug fix (FLock.Leave AV)
+    -Wait All threads termination in FINALIZATION (prevent AV in WinSock)
+    -HandleRunException
+
+  2003-01-27 -Andrew P.Rybin
+    -TIdThreadOptions
 }
-{
-{   Rev 1.1    06.03.2003 11:54:24  ARybin
-{ TIdThreadOptions: is thread Data owner, smart Cleanup
-}
-{
-{   Rev 1.0    11/13/2002 09:01:14 AM  JPMugaas
-}
+
 unit IdThread;
 
-{
-2002-03-12 -Andrew P.Rybin
-  -TerminatingExceptionClass, etc.
-2002-06-20 -Andrew P.Rybin
-  -"Terminated Start" bug fix (FLock.Leave AV)
-  -Wait All threads termination in FINALIZATION (prevent AV in WinSock)
-  -HandleRunException
-2003-01-27 -Andrew P.Rybin
-  -TIdThreadOptions
-}
 {$I IdCompilerDefines.inc}
 
 interface

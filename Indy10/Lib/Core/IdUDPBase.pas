@@ -16,71 +16,58 @@
   $Log$
 }
 {
-{   Rev 1.15    11/12/2004 11:30:18 AM  JPMugaas
-{ Expansions for IPv6.
+  Rev 1.15    11/12/2004 11:30:18 AM  JPMugaas
+  Expansions for IPv6.
+
+  Rev 1.14    11/11/04 12:05:32 PM  RLebeau
+  Updated ReceiveBuffer() to set AMSec to IdTimeoutInfinite when the
+  ReceiveTimeout property is 0
+
+  Rev 1.13    11/7/2004 11:33:30 PM  JPMugaas
+  Now uses Connect, Disconnect, Send, and Receive similarly to the TCP Clients.
+  This should prevent unneeded DNS name to IP address conversions that SendTo
+  was doing.
+
+  Rev 1.12    7/21/04 3:33:10 PM  RLebeau
+  Updated TIdUDPBase.ReceiveString() to use new BytesToString() parameters
+
+  Rev 1.11    09/06/2004 00:29:56  CCostelloe
+  Kylix 3 patch
+
+  Rev 1.10    2004.02.03 4:17:00 PM  czhower
+  For unit name changes.
+
+  Rev 1.9    21.1.2004 ã. 12:31:00  DBondzhev
+  Fix for Indy source. Workaround for dccil bug
+  now it can be compiled using Compile instead of build
+
+  Rev 1.7    10/26/2003 12:30:18 PM  BGooijen
+  DotNet
+
+  Rev 1.6    10/24/2003 5:18:36 PM  BGooijen
+  Removed boolean shortcutting from .GetActive
+
+  Rev 1.5    10/22/2003 04:40:58 PM  JPMugaas
+  Should compile with some restored functionality.  Still not finished.
+
+  Rev 1.4    10/19/2003 9:34:30 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.3    2003.10.11 9:58:48 PM  czhower
+  Started on some todos
+
+  Rev 1.2    2003.10.11 5:52:10 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.1    2003.09.30 1:23:08 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.0    11/13/2002 09:02:06 AM  JPMugaas
 }
-{
-{   Rev 1.14    11/11/04 12:05:32 PM  RLebeau
-{ Updated ReceiveBuffer() to set AMSec to IdTimeoutInfinite when the
-{ ReceiveTimeout property is 0
-}
-{
-{   Rev 1.13    11/7/2004 11:33:30 PM  JPMugaas
-{ Now uses Connect, Disconnect, Send, and Receive similarly to the TCP Clients.
-{  This should prevent unneeded DNS name to IP address conversions that SendTo
-{ was doing.
-}
-{
-{   Rev 1.12    7/21/04 3:33:10 PM  RLebeau
-{ Updated TIdUDPBase.ReceiveString() to use new BytesToString() parameters
-}
-{
-{   Rev 1.11    09/06/2004 00:29:56  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.10    2004.02.03 4:17:00 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.9    21.1.2004 ã. 12:31:00  DBondzhev
-{ Fix for Indy source. Workaround for dccil bug
-{ now it can be compiled using Compile instead of build
-}
-{
-{   Rev 1.7    10/26/2003 12:30:18 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.6    10/24/2003 5:18:36 PM  BGooijen
-{ Removed boolean shortcutting from .GetActive
-}
-{
-{   Rev 1.5    10/22/2003 04:40:58 PM  JPMugaas
-{ Should compile with some restored functionality.  Still not finished.
-}
-{
-{   Rev 1.4    10/19/2003 9:34:30 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.3    2003.10.11 9:58:48 PM  czhower
-{ Started on some todos
-}
-{
-{   Rev 1.2    2003.10.11 5:52:10 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.1    2003.09.30 1:23:08 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.0    11/13/2002 09:02:06 AM  JPMugaas
-}
+
 unit IdUDPBase;
 
 interface
