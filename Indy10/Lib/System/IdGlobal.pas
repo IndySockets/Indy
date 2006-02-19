@@ -85,7 +85,7 @@
   Rev 1.36    28.09.2004 20:36:58  Andreas Hausladen
   Works now with Delphi 5
 
-  Rev 1.35    9/23/2004 11:36:04 PM  DSiders
+    Rev 1.35    9/23/2004 11:36:04 PM  DSiders
   Modified Ticks function (Win32) to correct RangeOverflow error.  (Reported by
   Mike Potter)
 
@@ -121,7 +121,7 @@
   Updated ReadStringFromStream() to resize the result using the actual number
   of bytes read from the stream
 
-  Rev 1.26    7/18/2004 2:45:38 PM  DSiders
+    Rev 1.26    7/18/2004 2:45:38 PM  DSiders
   Added localization comments.
 
   Rev 1.25    7/9/04 4:25:20 PM  RLebeau
@@ -153,7 +153,7 @@
   Rev 1.18    2004.06.13 8:06:46 PM  czhower
   .NET update
 
-  Rev 1.17    6/11/2004 8:28:30 AM  DSiders
+    Rev 1.17    6/11/2004 8:28:30 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.16    2004.06.08 7:11:14 PM  czhower
@@ -316,7 +316,7 @@
   Rev 1.61    2003.10.17 6:17:24 PM  czhower
   Some parts moved to stream
 
-  Rev 1.60    10/15/2003 8:28:16 PM  DSiders
+    Rev 1.60    10/15/2003 8:28:16 PM  DSiders
   Added localization comments.
 
   Rev 1.59    2003.10.14 9:27:12 PM  czhower
@@ -329,10 +329,10 @@
   Removed local constant IdOctalDigits in favor of the unit constant. - attempt
   2
 
-  Rev 1.56    10/13/2003 10:07:12 AM  DSiders
+    Rev 1.56    10/13/2003 10:07:12 AM  DSiders
   Reverted prior change; local constant for IdOctalDigits is restored.
 
-  Rev 1.55    10/12/2003 11:55:42 AM  DSiders
+    Rev 1.55    10/12/2003 11:55:42 AM  DSiders
   Removed local constant IdOctalDigits in favor of the unit constant.
 
   Rev 1.54    2003.10.11 5:47:22 PM  czhower
@@ -453,7 +453,7 @@
   Rev 1.15    2003.07.01 3:49:56 PM  czhower
   Added SetThreadName
 
-  Rev 1.14    7/1/2003 12:03:56 AM  BGooijen
+    Rev 1.14    7/1/2003 12:03:56 AM  BGooijen
   Added functions to switch between IPv6 addresses in string and in
   TIdIPv6Address form
 
@@ -479,7 +479,7 @@
   Routines for converting standard dotted IPv4 addresses into dword,
   hexidecimal, and octal forms.
 
-  Rev 1.7    5/11/2003 11:57:06 AM  BGooijen
+    Rev 1.7    5/11/2003 11:57:06 AM  BGooijen
   Added RaiseLastOSError
 
   Rev 1.6    4/28/2003 03:19:00 PM  JPMugaas
@@ -888,7 +888,8 @@ procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes;
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
 
 // Need to change prob not to use this set
-function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
+function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
+function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
 
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 function CurrentProcessId: TIdPID;
@@ -897,7 +898,7 @@ function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
   const ADelete: Boolean = IdFetchDeleteDefault;
   const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
 function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetchDelimDefault;
-    const ADelete: Boolean = IdFetchDeleteDefault): string;
+  const ADelete: Boolean = IdFetchDeleteDefault): string;
 
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
@@ -953,7 +954,7 @@ procedure Sleep(ATime: cardinal);
 procedure SplitColumnsNoTrim(const AData: string; AStrings: TIdStrings; const ADelim: string = ' ');    {Do not Localize}
 procedure SplitColumns(const AData: string; AStrings: TIdStrings; const ADelim: string = ' ');    {Do not Localize}
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
-function TextIsSame(const A1: string; const A2: string): Boolean;
+function TextIsSame(const A1, A2: string): Boolean;
 function TextStartsWith(const S, SubS: string): Boolean;
 function TextEndsWith(const S, SubS: string): Boolean;
 function IndyUpperCase(const A1: string): string;
@@ -982,9 +983,9 @@ var
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 begin
   {$IFDEF DOTNET}
-     System.&Array.Clear(VBytes,0,ACount);
+  System.&Array.Clear(VBytes, 0, ACount);
   {$ELSE}
-     FilLChar(VBytes[0],ACount,AValue);
+  FillChar(VBytes[0], ACount, AValue);
   {$ENDIF}
 end;
 
@@ -996,8 +997,7 @@ end;
 constructor TAppendFileStream.Create(const AFile : String);
 var  LFlags: Word;
 begin
-  if Sys.FileExists(AFile) then
-  begin
+  if Sys.FileExists(AFile) then begin
     LFlags := fmOpenReadWrite or fmShareDenyWrite;
   end else begin
     LFlags := fmCreate;
@@ -1010,56 +1010,51 @@ end;
 
 constructor TReadFileNonExclusiveStream.Create(const AFile : String);
 begin
-  inherited Create(AFile,fmOpenRead or  fmOpenRead or fmShareDenyNone);
+  inherited Create(AFile, fmOpenRead or fmOpenRead or fmShareDenyNone);
 end;
 
 constructor TReadFileExclusiveStream.Create(const AFile : String);
 begin
-  inherited Create(AFile,fmOpenRead or fmShareDenyWrite);
+  inherited Create(AFile, fmOpenRead or fmShareDenyWrite);
 end;
 
 function IsASCIILDH(const AByte: Byte): Boolean;
 
 begin
   Result := True;
-    //Verify the absence of non-LDH ASCII code points; that is, the
-   //absence of 0..2C, 2E..2F, 3A..40, 5B..60, and 7B..7F.
-   //Permissable chars are in this set
-   //['-','0'..'9','A'..'Z','a'..'z']
-    if AByte <= $2C then
-    begin
-      Result := False;
-    end;
-    if (AByte >= $2E) and (AByte <= $2F) then
-    begin
-      Result := False;
-    end;
-    if (AByte >= $3A) and (AByte <= $40) then
-    begin
-      Result := False;
-    end;
-    if (AByte >= $5B) and (AByte <= $60) then
-    begin
-      Result := False;
-    end;
-    if (AByte >= $7B) and (AByte <= $7F) then
-    begin
-      Result := False;
-    end;
+  //Verify the absence of non-LDH ASCII code points; that is, the
+  //absence of 0..2C, 2E..2F, 3A..40, 5B..60, and 7B..7F.
+  //Permissable chars are in this set
+  //['-','0'..'9','A'..'Z','a'..'z']
+  if AByte <= $2C then begin
+    Result := False;
+  end
+  else if (AByte >= $2E) and (AByte <= $2F) then begin
+    Result := False;
+  end
+  else if (AByte >= $3A) and (AByte <= $40) then begin
+    Result := False;
+  end
+  else if (AByte >= $5B) and (AByte <= $60) then begin
+    Result := False;
+  end
+  else if (AByte >= $7B) and (AByte <= $7F) then begin
+    Result := False;
+  end;
 end;
 
 function IsASCIILDH(const ABytes: TIdBytes): Boolean;
-var i: Integer;
+var
+  i: Integer;
 begin
-  Result := True;
-  for i := 0 to Length(ABytes) -1 do
-  begin
+  for i := 0 to Length(ABytes) -1 do begin
     if IsASCIILDH(ABytes[i]) then
     begin
       Result := False;
       Exit;
     end;
   end;
+  Result := True;
 end;
 
 function IsASCII(const AByte: Byte): Boolean;
@@ -1068,33 +1063,33 @@ begin
 end;
 
 function IsASCII(const ABytes: TIdBytes): Boolean;
-var i: Integer;
+var
+  i: Integer;
 begin
-  Result := True;
-  for i := 0 to Length(ABytes) -1 do
-  begin
-    if IsASCII(ABytes[i])=False then
-    begin
+  for i := 0 to Length(ABytes) -1 do begin
+    if not IsASCII(ABytes[i]) then begin
       Result := False;
-      Break;
+      Exit;
     end;
   end;
+  Result := True;
 end;
 
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
-var LS: string;
-const DASH = ord('-');
+const
+  DASH = Ord('-');
+var
+  LS: string;
 begin
   Result := False;
-  if Length(ABytes)>4 then
+  if Length(ABytes) > 4 then
   begin
-    if (ABytes[2]=DASH) and (ABytes[3]=DASH) then
+    if (ABytes[2] = DASH) and (ABytes[3] = DASH) then
     begin
-      SetLength(LS,2);
+      SetLength(LS, 2);
       LS[1] := Char(ABytes[2]);
       LS[2] := Char(ABytes[3]);
-      if PosInStrArray(LS,['bl','bq','dq','lq','mq','ra','wq','zq'],False)>-1 then {do not localize}
-      begin
+      if PosInStrArray(LS, ['bl','bq','dq','lq','mq','ra','wq','zq'], False) > -1 then begin {do not localize}
         Result := True;
       end;
     end;
@@ -1105,14 +1100,14 @@ function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallIn
 begin
   for Result := Low(AArray) to High(AArray) do begin
     if ASearchInt = AArray[Result] then begin
-        Exit;
+      Exit;
     end;
   end;
   Result := -1;
 end;
 
 {This searches an array of string for an occurance of SearchStr}
-function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean): Integer;
+function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 begin
   for Result := Low(Contents) to High(Contents) do begin
     if CaseSensitive then begin
@@ -1124,7 +1119,7 @@ begin
         Exit;
       end;
     end;
-  end;  //for Result := Low(Contents) to High(Contents) do
+  end;
   Result := -1;
 end;
 
@@ -1138,10 +1133,10 @@ function ToHex(const AValue: TIdBytes): AnsiString;
 var
   i: Integer;
 begin
-  SetLength(Result,Length(AValue)*2);
-  for i:=0 to Length(AValue)-1 do begin
-    Result[i*2+1]:=IdHexDigits[AValue[i] shr 4];
-    Result[i*2+2]:=IdHexDigits[AValue[i] and $F];
+  SetLength(Result, Length(AValue)*2);
+  for i := 0 to Length(AValue)-1 do begin
+    Result[i*2+1] := IdHexDigits[AValue[i] shr 4];
+    Result[i*2+2] := IdHexDigits[AValue[i] and $F];
   end;//for
 end;
 
@@ -1151,11 +1146,11 @@ var
   P: PChar;
   i: Integer;
 begin
-  P:=PChar(@AValue);
-  SetString(Result,NIL,Length(AValue)*4*2);//40
-  for i:=0 to Length(AValue)*4-1 do begin
-    Result[i*2+1]:=IdHexDigits[Ord(P[i]) shr 4];
-    Result[i*2+2]:=IdHexDigits[Ord(P[i]) and $F];
+  P := PChar(@AValue);
+  SetString(Result, nil, Length(AValue)*4*2);//40
+  for i := 0 to Length(AValue)*4-1 do begin
+    Result[i*2+1] := IdHexDigits[Ord(P[i]) shr 4];
+    Result[i*2+2] := IdHexDigits[Ord(P[i]) and $F];
   end;//for
 end;
 {$ELSE}
@@ -1163,8 +1158,8 @@ function ToHex(const AValue: array of LongWord): AnsiString;
 var
   i: Integer;
 begin
-  for i:=0 to Length(AValue)-1 do begin
-    Result:=Result+ToHex(ToBytes(AValue[i]));
+  for i := 0 to Length(AValue)-1 do begin
+    Result := Result + ToHex(ToBytes(AValue[i]));
   end;//for
 end;
 {$ENDIF}
@@ -1176,9 +1171,8 @@ var
 begin
   LBuf := Sys.Trim(AIPAddress);
   Result := HEXPREFIX;
-
   for i := 0 to 3 do begin
-    LTmp := ByteToHex( Sys.StrToInt(Fetch(LBuf, '.', True)));
+    LTmp := ByteToHex(Sys.StrToInt(Fetch(LBuf, '.', True)));
     if ASDotted then begin
       Result := Result + '.' + HEXPREFIX + LTmp;
     end else begin
@@ -1192,9 +1186,8 @@ var
   i: Integer;
 begin
   Result := 0;
-  for i := 1 to Length(AValue) do
-  begin
-    Result := (Result shl 3) +  Sys.StrToInt(copy(AValue, i, 1), 0);
+  for i := 1 to Length(AValue) do begin
+    Result := (Result shl 3) +  Sys.StrToInt(AValue[i], 0);
   end;
 end;
 
@@ -1204,8 +1197,7 @@ begin
             IdOctalDigits[(AByte shr 3) and $7] +
             IdOctalDigits[AByte and $7];
 
-  if Result[1] <> '0' then
-  begin
+  if Result[1] <> '0' then begin
     Result := '0' + Result;
   end;
 end;
@@ -1216,7 +1208,7 @@ var
   LBuf: string;
 begin
   LBuf :=  Sys.Trim(AIPAddress);
-  Result := ByteToOctal( Sys.StrToInt(Fetch(LBuf, '.', True), 0));
+  Result := ByteToOctal(Sys.StrToInt(Fetch(LBuf, '.', True), 0));
   for i := 0 to 2 do begin
     Result := Result + '.' + ByteToOctal(Sys.StrToInt(Fetch(LBuf, '.', True), 0));
   end;
@@ -1421,7 +1413,7 @@ begin
     LPos := Pos(ADelim, AInput);
   end else begin
     //? may be AnsiUpperCase?
-    LPos := IndyPos( Sys.UpperCase(ADelim), Sys.UpperCase(AInput));
+    LPos := IndyPos(Sys.UpperCase(ADelim), Sys.UpperCase(AInput));
   end;
   if LPos = 0 then begin
     Result := AInput;
@@ -1520,19 +1512,20 @@ begin
 end;
 
 function ServicesFilePath: string;
-var sLocation: string;
+var
+  sLocation: string;
 begin
-    {$IFDEF LINUX}
-    sLocation := '/etc/';  // assume Berkeley standard placement   {do not localize}
-    {$ENDIF}
-    {$IFDEF MSWINDOWS}
-    SetLength(sLocation, MAX_PATH);
-    SetLength(sLocation, GetWindowsDirectory(pchar(sLocation), MAX_PATH));
-    sLocation := Sys.IncludeTrailingPathDelimiter(sLocation);
-    if Sys.Win32Platform = VER_PLATFORM_WIN32_NT then begin
-      sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
-    end;
-    {$ENDIF}
+  {$IFDEF LINUX}
+  sLocation := '/etc/';  // assume Berkeley standard placement   {do not localize}
+  {$ENDIF}
+  {$IFDEF MSWINDOWS}
+  SetLength(sLocation, MAX_PATH);
+  SetLength(sLocation, GetWindowsDirectory(pchar(sLocation), MAX_PATH));
+  sLocation := Sys.IncludeTrailingPathDelimiter(sLocation);
+  if Sys.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+    sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
+  end;
+  {$ENDIF}
   Result := sLocation + 'services'; {do not localize}
 end;
 
@@ -1650,13 +1643,14 @@ function IsOctal(const AString: string): Boolean; overload;
 var
   i: Integer;
 begin
-  Result := True;
-  for i := 1 to Length(AString) do
-  begin
-    if IsOctal(AString[i])=False then
-    begin
-      Result := False;
+  Result := False;
+  if AString <> '' then begin
+    for i := 1 to Length(AString) do begin
+      if not IsOctal(AString[i]) then begin
+        Exit;
+      end;
     end;
+    Result := True;
   end;
 end;
 
@@ -1671,13 +1665,14 @@ function IsHexidecimal(const AString: string): Boolean; overload;
 var
   i: Integer;
 begin
-  Result := True;
-  for i := 1 to Length(AString) do
-  begin
-    if IsHexidecimal(AString[i])=False then
-    begin
-      Result := False;
+  Result := False;
+  if AString <> '' then begin
+    for i := 1 to Length(AString) do begin
+      if not IsHexidecimal(AString[i]) then begin
+        Exit;
+      end;
     end;
+    Result := True;
   end;
 end;
 
@@ -1709,8 +1704,7 @@ var
   E: Integer;
 begin
   Val(S, Result, E);
-  if E <> 0 then
-  begin
+  if E <> 0 then begin
     Result := Default;
   end;
 end;
@@ -1734,7 +1728,7 @@ function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 var
   LErr: Boolean;
 begin
-  Result := IPv4ToDWord(AIPAddress,LErr);
+  Result := IPv4ToDWord(AIPAddress, LErr);
 end;
 
 {$IFDEF DotNet}
@@ -1747,15 +1741,16 @@ begin
   AIPaddr := System.Net.IPAddress.Parse(AIPAddress);
   try
     try
-      if AIPaddr.AddressFamily = Addressfamily.InterNetwork then
-      begin
+      if AIPaddr.AddressFamily = Addressfamily.InterNetwork then begin
         Result := AIPaddr.Address;
         VErr := False;
       end;
     except
       VErr := True;
     end;
-  finally Sys.FreeAndNil(AIPaddr); end;
+  finally
+    Sys.FreeAndNil(AIPaddr);
+  end;
 end;
 {$ELSE}
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
@@ -1775,56 +1770,37 @@ begin
   LBuf2 := AIPAddress;
   Result := 0;
   repeat
-    LBuf := Fetch(LBuf2,'.');
-    if LBuf = '' then
-    begin
+    LBuf := Fetch(LBuf2, '.');
+    if LBuf = '' then begin
       Break;
     end;
     //We do things this way because we have to treat
     //IP address parts differently than a whole number
     //and sometimes, there can be missing periods.
-    if (LBuf2='') and (L256Power > 1) then
-    begin
+    if (LBuf2 = '') and (L256Power > 1) then begin
       LParts := L256Power;
       Result := Result shl (L256Power SHL 3);
-//      Result := Result shl ((L256Power - 1) SHL 8);
-    end
-    else
-    begin
+    end else begin
       LParts := 1;
-      result := result SHL 8;
+      Result := Result shl 8;
     end;
-    if (Copy(LBuf,1,2)=HEXPREFIX) then
-    begin
+    if TextStartsWith(LBuf, HEXPREFIX) then begin
       //this is a hexideciaml number
-      if IsHexidecimal(Copy(LBuf,3,MaxInt))=False then
-      begin
+      if not IsHexidecimal(Copy(LBuf, 3, MaxInt)) then begin
         Exit;
-      end
-      else
-      begin
-        Result :=  Result + IPv4MakeCardInRange (StrToInt64Def(LBuf,0), LParts);
       end;
-    end
-    else
-    begin
-      if IsNumeric(LBuf) then
-      begin
-        if (LBuf[1]='0') and IsOctal(LBuf) then
-        begin
-          //this is octal
-          Result := Result + IPv4MakeCardInRange(OctalToInt64(LBuf),LParts);
-        end
-        else
-        begin
-          //this must be a decimal
-          Result :=  Result + IPv4MakeCardInRange(StrToInt64Def(LBuf,0), LParts);
-        end;
-      end
-      else
-      begin
+      Result := Result + IPv4MakeCardInRange(StrToInt64Def(LBuf, 0), LParts);
+    end else begin
+      if not IsNumeric(LBuf) then begin
         //There was an error meaning an invalid IP address
         Exit;
+      end;
+      if (LBuf[1] = '0') and IsOctal(LBuf) then begin
+        //this is octal
+        Result := Result + IPv4MakeCardInRange(OctalToInt64(LBuf), LParts);
+      end else begin
+        //this must be a decimal
+        Result :=  Result + IPv4MakeCardInRange(StrToInt64Def(LBuf, 0), LParts);
       end;
     end;
     Dec(L256Power);
@@ -1839,7 +1815,8 @@ end;
 {$ENDIF}
 
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
-var i:Integer;
+var
+  i: Integer;
 begin
   Result := '';
   for i := 0 to 7 do begin
@@ -1848,10 +1825,11 @@ begin
 end;
 
 function MakeCanonicalIPv4Address(const AAddr: string): string;
-var LErr: Boolean;
+var
+  LErr: Boolean;
   LIP: Cardinal;
 begin
-  LIP := IPv4ToDWord(AAddr,LErr);
+  LIP := IPv4ToDWord(AAddr, LErr);
   if LErr then begin
     Result := '';
   end else begin
@@ -1877,7 +1855,7 @@ begin
   if Length(LAddr) = 0 then Exit;
 
   if LAddr[1] = ':' then begin
-    LAddr := '0'+LAddr;
+    LAddr := '0' + LAddr;
   end;
   if LAddr[Length(LAddr)] = ':' then begin
     LAddr := LAddr + '0';
@@ -1928,12 +1906,12 @@ begin
 
   // now start :-)
   num := Sys.StrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
-  if (num<0) or (num>65535) then begin
+  if (num < 0) or (num > 65535) then begin
     Exit; // huh? odd number...
   end;
-  Result := Sys.IntToHex(num,1)+':';
+  Result := Sys.IntToHex(num, 1) + ':';
 
-  haddoublecolon := false;
+  haddoublecolon := False;
   for p := 2 to colons do begin
     if colonpos[p - 1] = colonpos[p]-1 then begin
       if haddoublecolon then begin
@@ -2159,7 +2137,7 @@ end;
 {$IFNDEF DotNet}
 function AnsiPos(const Substr, S: string): Integer;
 begin
-  Result := Sys.AnsiPos(Substr,S);
+  Result := Sys.AnsiPos(Substr, S);
 end;
 {$ENDIF}
 
@@ -2904,7 +2882,7 @@ begin
   Insert(Source,S,Index);
 end;
 
-function TextIsSame(const A1: string; const A2: string): Boolean;
+function TextIsSame(const A1, A2: string): Boolean;
 begin
   {$IFDEF DotNet}
   Result := A1.Compare(A1, A2, True) = 0;
@@ -2983,24 +2961,24 @@ begin
   {$ENDIF}
 end;
 
+function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
+begin
+  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos');{ do not localize }
+  if ACharPos > Length(AString) then begin
+    Result := 0;
+  end else begin
+    Result := IndyPos(AString[ACharPos], ASet);
+  end;
+end;
+
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
 begin
-  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos in CharIsInSet.');{ do not localize }
-  if ACharPos > Length(AString) then begin
-    Result := False;
-  end else begin
-    Result := IndyPos(AString[ACharPos], ASet) > 0;
-  end;
+  Result := CharPosInSet(AString, ACharPos, ASet) > 0;
 end;
 
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 begin
-  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos in CharIsInEOF.');{ do not localize }
-  if ACharPos > Length(AString) then begin
-    Result := False;
-  end else begin
-    Result := (AString[ACharPos] = CR) or (AString[ACharPos] = LF);
-  end;
+  Result := CharIsInSet(AString, ACharPos, EOL);
 end;
 
 function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
