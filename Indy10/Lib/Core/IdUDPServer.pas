@@ -162,18 +162,16 @@ end;
 
 procedure TIdUDPServer.CloseBinding;
 var
-  i: Integer;
   LListenerThreads: TIdList;
 begin
-  // RLebeau 2/14/2006: TIdUDPBase.Destroy() calls CloseBinding()
+  // RLebeau 2/17/2006: TIdUDPBase.Destroy() calls CloseBinding()
   if Assigned(FListenerThreads) then
   begin
     LListenerThreads := FListenerThreads.LockList;
-    i := 0;
     try
-      while i < LListenerThreads.Count do
+      while LListenerThreads.Count > 0 do
       begin
-        with TIdUDPListenerThread(LListenerThreads[i]) do begin
+        with TIdUDPListenerThread(LListenerThreads[0]) do begin
           // Stop listening
           Stop;
           Binding.CloseSocket;
@@ -181,14 +179,9 @@ begin
           WaitFor;
           Free;
         end;
-        Inc(i);
+        LListenerThreads.Delete(0); // RLebeau 2/17/2006
       end;
     finally
-      // RLebeau 2/13/2006: remove the threads that were successfully terminated
-      while i > 0 do begin
-        LListenerThreads.Delete(i-1);
-        Dec(i);
-      end;
       FListenerThreads.UnlockList;
     end;
   end;
@@ -332,8 +325,7 @@ var
   PeerIP: string;
   PeerPort, ByteCount: Integer;
 begin
-  if FBinding.Select(AcceptWait) then
-  try
+  if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped
     // Depending on timing - may not reach here if it is in ancestor run when thread is stopped
     if not Stopped then begin
