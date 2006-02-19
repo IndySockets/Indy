@@ -415,8 +415,8 @@ const
 
 type
 
-  EIdIoHandler = class(EIdException);
-  EIdIoHandlerRequiresLargeStream = class(EIdIoHandler);
+  EIdIOHandler = class(EIdException);
+  EIdIOHandlerRequiresLargeStream = class(EIdIOHandler);
 
   TIdIOHandlerClass = class of TIdIOHandler;
 
@@ -1128,7 +1128,7 @@ begin
   end;
 
   //else ">0" ACount bytes
-  EIdIoHandlerRequiresLargeStream.IfTrue((ASize > High(Integer)) and (not LargeStream));
+  EIdIOHandlerRequiresLargeStream.IfTrue((ASize > High(Integer)) and (not LargeStream));
 
   LBufferingStarted := not WriteBufferingActive;
   if LBufferingStarted then begin
