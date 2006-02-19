@@ -169,8 +169,8 @@ begin
   if Assigned(FListenerThreads) then
   begin
     LListenerThreads := FListenerThreads.LockList;
+    i := 0;
     try
-      i := 0;
       while i < LListenerThreads.Count do
       begin
         with TIdUDPListenerThread(LListenerThreads[i]) do begin
@@ -330,9 +330,10 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  i, PeerPort, ByteCount: Integer;
+  PeerPort, ByteCount: Integer;
 begin
-  if FBinding.Select(AcceptWait) then try
+  if FBinding.Select(AcceptWait) then
+  try
     // Doublecheck to see if we've been stopped
     // Depending on timing - may not reach here if it is in ancestor run when thread is stopped
     if not Stopped then begin
