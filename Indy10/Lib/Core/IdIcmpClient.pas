@@ -16,60 +16,56 @@
   $Log$
 }
 {
-{   Rev 1.8    2004-04-25 12:08:24  Mattias
-{ Fixed multithreading issue
+  Rev 1.8    2004-04-25 12:08:24  Mattias
+  Fixed multithreading issue
+
+  Rev 1.7    2004.02.03 4:16:42 PM  czhower
+  For unit name changes.
+
+  Rev 1.6    2/1/2004 4:53:30 PM  JPMugaas
+  Removed Todo;
+
+  Rev 1.5    2004.01.20 10:03:24 PM  czhower
+  InitComponent
+
+  Rev 1.4    2003.12.31 10:37:54 PM  czhower
+  GetTickcount --> Ticks
+
+  Rev 1.3    10/16/2003 11:06:14 PM  SPerry
+  Moved ICMP_MIN to IdRawHeaders
+
+  Rev 1.2    2003.10.11 5:48:04 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.1    2003.09.30 1:22:56 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.0    11/13/2002 08:44:30 AM  JPMugaas
+
+  25/1/02: SGrobety:
+  Modified the component to support multithreaded PING and traceroute
+  NOTE!!!
+  The component no longer use the timing informations contained
+  in the packet to compute the roundtrip time. This is because
+  that information is only correctly set in case of ECHOREPLY
+  In case of TTL, it is incorrect.
 }
-{
-{   Rev 1.7    2004.02.03 4:16:42 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.6    2/1/2004 4:53:30 PM  JPMugaas
-{ Removed Todo;
-}
-{
-{   Rev 1.5    2004.01.20 10:03:24 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.4    2003.12.31 10:37:54 PM  czhower
-{ GetTickcount --> Ticks
-}
-{
-{   Rev 1.3    10/16/2003 11:06:14 PM  SPerry
-{ Moved ICMP_MIN to IdRawHeaders
-}
-{
-{   Rev 1.2    2003.10.11 5:48:04 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.1    2003.09.30 1:22:56 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.0    11/13/2002 08:44:30 AM  JPMugaas
-}
+
 unit IdIcmpClient;
+
 {
-Note that we can NOT remove the DotNET IFDEFS from this unit.   The reason is
-that Microsoft NET Framework 1.1 does not support ICMPv6 and that's required
-for IPv6.  In Win32 and Linux, we definately can and want to support IPv6.
+  Note that we can NOT remove the DotNET IFDEFS from this unit.   The reason is
+  that Microsoft NET Framework 1.1 does not support ICMPv6 and that's required
+  for IPv6.  In Win32 and Linux, we definately can and want to support IPv6.
 
-If we support a later version of the NET framework that has a better API, I may
-consider revisiting this.
-
+  If we support a later version of the NET framework that has a better API, I may
+  consider revisiting this.
 }
+
 {$I IdCompilerDefines.inc}
-// SG 25/1/02: Modified the component to support multithreaded PING and traceroute
-// SG 25/1/02: NOTE!!!
-// SG 25/1/02:   The component no longer use the timing informations contained
-// SG 25/1/02:   in the packet to compute the roundtrip time. This is because
-// SG 25/1/02:   that information is only correctly set in case of ECHOREPLY
-// SG 25/1/02:   In case of TTL, it is incorrect.
 
 interface
 

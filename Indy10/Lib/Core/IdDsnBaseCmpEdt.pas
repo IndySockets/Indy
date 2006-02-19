@@ -16,16 +16,15 @@
   $Log$
 }
 {
-{   Rev 1.2    9/5/2004 2:08:16 PM  JPMugaas
-{ Should work in D9 NET.
+  Rev 1.2    9/5/2004 2:08:16 PM  JPMugaas
+  Should work in D9 NET.
+
+  Rev 1.1    2/3/2004 11:42:50 AM  JPMugaas
+  Fixed for new design.
+
+  Rev 1.0    11/13/2002 08:43:16 AM  JPMugaas
 }
-{
-{   Rev 1.1    2/3/2004 11:42:50 AM  JPMugaas
-{ Fixed for new design.
-}
-{
-{   Rev 1.0    11/13/2002 08:43:16 AM  JPMugaas
-}
+
 unit IdDsnBaseCmpEdt;
 
 {$I IdCompilerDefines.inc}
@@ -38,12 +37,12 @@ uses
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
     {$ELSE}
        Dsgnintf;
@@ -88,4 +87,4 @@ begin
 end;
 
 end.
- 
+

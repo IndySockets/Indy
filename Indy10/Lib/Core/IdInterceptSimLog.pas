@@ -16,41 +16,37 @@
   $Log$
 }
 {
-{   Rev 1.6    7/23/04 6:40:08 PM  RLebeau
-{ Added extra exception handling to Connect()
-}
-{
-{   Rev 1.5    2004.05.20 11:39:10 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.4    2004.02.03 4:17:18 PM  czhower
-{ For unit name changes.
-}
-{
-    Rev 1.3    10/19/2003 11:38:26 AM  DSiders
+  Rev 1.6    7/23/04 6:40:08 PM  RLebeau
+  Added extra exception handling to Connect()
+
+  Rev 1.5    2004.05.20 11:39:10 AM  czhower
+  IdStreamVCL
+
+  Rev 1.4    2004.02.03 4:17:18 PM  czhower
+  For unit name changes.
+
+  Rev 1.3    10/19/2003 11:38:26 AM  DSiders
   Added localization comments.
+
+  Rev 1.2    2003.10.18 1:56:46 PM  czhower
+  Now uses ASCII instead of binary format.
+
+  Rev 1.1    2003.10.17 6:16:20 PM  czhower
+  Functional complete.
 }
-{
-{   Rev 1.2    2003.10.18 1:56:46 PM  czhower
-{ Now uses ASCII instead of binary format.
-}
-{
-{   Rev 1.1    2003.10.17 6:16:20 PM  czhower
-{ Functional complete.
-}
+
 unit IdInterceptSimLog;
 
 {
-This file uses string outputs instead of binary so that the results can be
-viewed and modified with notepad if necessary.
+  This file uses string outputs instead of binary so that the results can be
+  viewed and modified with notepad if necessary.
 
-Most times a Send/Receive includes a writeln, but may not always. We write out
-an additional EOL to guarantee separation in notepad.
+  Most times a Send/Receive includes a writeln, but may not always. We write out
+  an additional EOL to guarantee separation in notepad.
 
-It also auto detects when an EOL can be used instead.
+  It also auto detects when an EOL can be used instead.
 
-TODO: Can also change it to detect several EOLs and non binary and use :Lines:x
+  TODO: Can also change it to detect several EOLs and non binary and use :Lines:x
 }
 
 interface

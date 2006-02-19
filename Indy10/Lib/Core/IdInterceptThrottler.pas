@@ -16,28 +16,24 @@
   $Log$
 }
 {
-{   Rev 1.2    2004.02.03 4:17:18 PM  czhower
-{ For unit name changes.
+  Rev 1.2    2004.02.03 4:17:18 PM  czhower
+  For unit name changes.
+
+  Rev 1.1    2003.10.19 12:10:00 AM  czhower
+  Changed formula to be accurate with smaller numbers.
+
+  Rev 1.0    2003.10.18 11:32:00 PM  czhower
+  Initial checkin
+
+  Rev 1.1    2003.10.14 1:27:16 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.0    2003.10.13 6:40:40 PM  czhower
+  Moved from root
+
+  Rev 1.0    11/13/2002 07:55:12 AM  JPMugaas
 }
-{
-{   Rev 1.1    2003.10.19 12:10:00 AM  czhower
-{ Changed formula to be accurate with smaller numbers.
-}
-{
-{   Rev 1.0    2003.10.18 11:32:00 PM  czhower
-{ Initial checkin
-}
-{
-{   Rev 1.1    2003.10.14 1:27:16 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.0    2003.10.13 6:40:40 PM  czhower
-{ Moved from root
-}
-{
-{   Rev 1.0    11/13/2002 07:55:12 AM  JPMugaas
-}
+
 unit IdInterceptThrottler;
 
 interface

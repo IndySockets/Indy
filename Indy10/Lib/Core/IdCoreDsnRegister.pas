@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    12/10/2004 15:36:40  HHariri
-{ Fix so it works with D8 too
+  Rev 1.4    12/10/2004 15:36:40  HHariri
+  Fix so it works with D8 too
+
+  Rev 1.3    9/5/2004 2:08:14 PM  JPMugaas
+  Should work in D9 NET.
+
+  Rev 1.2    2/3/2004 11:42:52 AM  JPMugaas
+  Fixed for new design.
+
+  Rev 1.1    2/1/2004 2:44:20 AM  JPMugaas
+  Bindings editor should be fully functional including IPv6 support.
+
+  Rev 1.0    11/13/2002 08:41:18 AM  JPMugaas
 }
-{
-{   Rev 1.3    9/5/2004 2:08:14 PM  JPMugaas
-{ Should work in D9 NET.
-}
-{
-{   Rev 1.2    2/3/2004 11:42:52 AM  JPMugaas
-{ Fixed for new design.
-}
-{
-{   Rev 1.1    2/1/2004 2:44:20 AM  JPMugaas
-{ Bindings editor should be fully functional including IPv6 support.
-}
-{
-{   Rev 1.0    11/13/2002 08:41:18 AM  JPMugaas
-}
+
 unit IdCoreDsnRegister;
 
 {$I IdCompilerDefines.inc}
@@ -46,12 +43,12 @@ uses
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
     {$ELSE}
        Dsgnintf;
@@ -169,7 +166,7 @@ end;
 
 procedure Register;
 begin
-  
+
   RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdTCPServer, '', TIdPropEdBinding);    {Do not Localize}
    RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdUDPServer, '', TIdPropEdBinding);    {Do not Localize}
    RegisterPropertyEditor(TypeInfo(TIdSocketHandles),TIdIPMCastClient,'',TIdPropEdBinding);  {Do not localize}

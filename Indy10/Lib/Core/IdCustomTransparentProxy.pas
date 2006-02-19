@@ -16,56 +16,47 @@
   $Log$
 }
 {
-{   Rev 1.10    11/12/2004 11:30:16 AM  JPMugaas
-{ Expansions for IPv6.
-}
-{
-{   Rev 1.9    11/11/2004 10:25:22 PM  JPMugaas
-{ Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
-{ from the UDP client with SOCKS.  You must call OpenProxy  before using
-{ RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
-{ any connection to the Proxy.  Connect and disconnect also call OpenProxy and
-{ CloseProxy.
-}
-{
-{   Rev 1.8    11/11/2004 3:42:52 AM  JPMugaas
-{ Moved strings into RS.  Socks will now raise an exception if you attempt to
-{ use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
-{ at all.
-}
-{
-{   Rev 1.7    11/9/2004 8:18:00 PM  JPMugaas
-{ Attempt to add SOCKS support in UDP.
-}
-{
-{   Rev 1.6    6/6/2004 11:51:56 AM  JPMugaas
-{ Fixed TODO with an exception
-}
-{
-{   Rev 1.5    2004.02.03 4:17:04 PM  czhower
-{ For unit name changes.
-}
-{
-    Rev 1.4    10/15/2003 10:59:06 PM  DSiders
+  Rev 1.10    11/12/2004 11:30:16 AM  JPMugaas
+  Expansions for IPv6.
+
+  Rev 1.9    11/11/2004 10:25:22 PM  JPMugaas
+  Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
+  from the UDP client with SOCKS.  You must call OpenProxy  before using
+  RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
+  any connection to the Proxy.  Connect and disconnect also call OpenProxy and
+  CloseProxy.
+
+  Rev 1.8    11/11/2004 3:42:52 AM  JPMugaas
+  Moved strings into RS.  Socks will now raise an exception if you attempt to
+  use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
+  at all.
+
+  Rev 1.7    11/9/2004 8:18:00 PM  JPMugaas
+  Attempt to add SOCKS support in UDP.
+
+  Rev 1.6    6/6/2004 11:51:56 AM  JPMugaas
+  Fixed TODO with an exception
+
+  Rev 1.5    2004.02.03 4:17:04 PM  czhower
+  For unit name changes.
+
+  Rev 1.4    10/15/2003 10:59:06 PM  DSiders
   Corrected spelling error in resource string name.
   Added resource string for circular links exception in transparent proxy.
-}
-{
-    Rev 1.3    10/15/2003 10:10:18 PM  DSiders
+
+  Rev 1.3    10/15/2003 10:10:18 PM  DSiders
   Added localization comments.
-}
-{
-    Rev 1.2    5/16/2003 9:22:38 AM  BGooijen
+
+  Rev 1.2    5/16/2003 9:22:38 AM  BGooijen
   Added Listen(...)
-}
-{
-    Rev 1.1    5/14/2003 6:41:00 PM  BGooijen
+
+  Rev 1.1    5/14/2003 6:41:00 PM  BGooijen
   Added Bind(...)
+
+  Rev 1.0    12/2/2002 05:01:26 PM  JPMugaas
+  Rechecked in due to file corruption.
 }
-{
-{   Rev 1.0    12/2/2002 05:01:26 PM  JPMugaas
-{ Rechecked in due to file corruption.
-}
+
 unit IdCustomTransparentProxy;
 
 interface
