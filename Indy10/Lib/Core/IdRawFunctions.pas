@@ -16,31 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.5    2004.02.03 4:16:50 PM  czhower
-{ For unit name changes.
+  Rev 1.5    2004.02.03 4:16:50 PM  czhower
+  For unit name changes.
+
+  Rev 1.4    2/1/2004 4:52:30 PM  JPMugaas
+  Removed the rest of the Todo; items.
+
+  Rev 1.3    2/1/2004 4:20:30 PM  JPMugaas
+  Should work in Win32.  TODO: See about DotNET.
+
+  Rev 1.2    2003.10.11 5:49:06 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.1    2003.09.30 1:23:00 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.0    11/13/2002 08:45:36 AM  JPMugaas
 }
-{
-{   Rev 1.4    2/1/2004 4:52:30 PM  JPMugaas
-{ Removed the rest of the Todo; items.
-}
-{
-{   Rev 1.3    2/1/2004 4:20:30 PM  JPMugaas
-{ Should work in Win32.  TODO: See about DotNET.
-}
-{
-{   Rev 1.2    2003.10.11 5:49:06 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.1    2003.09.30 1:23:00 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.0    11/13/2002 08:45:36 AM  JPMugaas
-}
+
 unit IdRawFunctions;
 
 interface
@@ -131,7 +127,7 @@ procedure IdRawBuildTcp(const ASourcePort, ADestPort: word;
 procedure IdRawBuildUdp(const ASourcePort, ADestPort: word;
   const APayload :TIdBytes;
   var VBuffer :TIdBytes);
-  
+
 implementation
  uses IdSys;
 

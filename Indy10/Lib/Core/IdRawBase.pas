@@ -16,78 +16,68 @@
   $Log$
 }
 {
-{   Rev 1.15    7/9/04 4:26:28 PM  RLebeau
-{ Removed TIdBytes local variable from Send()
+  Rev 1.15    7/9/04 4:26:28 PM  RLebeau
+  Removed TIdBytes local variable from Send()
+
+  Rev 1.14    09/06/2004 00:28:00  CCostelloe
+  Kylix 3 patch
+
+  Rev 1.13    4/25/2004 7:54:26 AM  JPMugaas
+  Fix for AV.
+
+  Rev 1.12    2/8/2004 12:58:42 PM  JPMugaas
+  Should now compile in DotNET.
+
+  Rev 1.11    2004.02.03 4:16:48 PM  czhower
+  For unit name changes.
+
+  Rev 1.10    2/1/2004 6:10:14 PM  JPMugaas
+  Should compile better.
+
+  Rev 1.9    2/1/2004 4:52:34 PM  JPMugaas
+  Removed the rest of the Todo; items.
+
+  Rev 1.8    2004.01.20 10:03:30 PM  czhower
+  InitComponent
+
+  Rev 1.7    2004.01.02 9:38:46 PM  czhower
+  Removed warning
+
+  Rev 1.6    2003.10.24 10:09:54 AM  czhower
+  Compiles
+
+  Rev 1.5    2003.10.20 12:03:08 PM  czhower
+  Added IdStackBSDBase to make it compile again.
+
+  Rev 1.4    10/19/2003 10:41:12 PM  BGooijen
+  Compiles in DotNet and D7 again
+
+  Rev 1.3    10/19/2003 9:34:28 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.2    2003.10.11 5:48:58 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.1    2003.09.30 1:23:00 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.0    11/13/2002 08:45:24 AM  JPMugaas
 }
-{
-{   Rev 1.14    09/06/2004 00:28:00  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.13    4/25/2004 7:54:26 AM  JPMugaas
-{ Fix for AV.
-}
-{
-{   Rev 1.12    2/8/2004 12:58:42 PM  JPMugaas
-{ Should now compile in DotNET.
-}
-{
-{   Rev 1.11    2004.02.03 4:16:48 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.10    2/1/2004 6:10:14 PM  JPMugaas
-{ Should compile better.
-}
-{
-{   Rev 1.9    2/1/2004 4:52:34 PM  JPMugaas
-{ Removed the rest of the Todo; items.
-}
-{
-{   Rev 1.8    2004.01.20 10:03:30 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.7    2004.01.02 9:38:46 PM  czhower
-{ Removed warning
-}
-{
-{   Rev 1.6    2003.10.24 10:09:54 AM  czhower
-{ Compiles
-}
-{
-{   Rev 1.5    2003.10.20 12:03:08 PM  czhower
-{ Added IdStackBSDBase to make it compile again.
-}
-{
-{   Rev 1.4    10/19/2003 10:41:12 PM  BGooijen
-{ Compiles in DotNet and D7 again
-}
-{
-{   Rev 1.3    10/19/2003 9:34:28 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.2    2003.10.11 5:48:58 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.1    2003.09.30 1:23:00 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.0    11/13/2002 08:45:24 AM  JPMugaas
-}
+
 unit IdRawBase;
 
 interface
-{We need to selectively disable some functionality in DotNET with buffers as
-we don't want to impact anything else such as TIdICMPClient.
+
+{
+  We need to selectively disable some functionality in DotNET with buffers as
+  we don't want to impact anything else such as TIdICMPClient.
 }
+
 {$I IdCompilerDefines.inc}
+
 uses
   IdComponent, IdGlobal, IdSocketHandle, IdStack,
   {$IFDEF MSWINDOWS}
@@ -100,7 +90,7 @@ const
   Id_TIdRawBase_BufferSize = 8192;
   GReceiveTimeout = 0;
   GFTTL = 128;
-  
+
 type
   TIdRawBase = class(TIdComponent)
   protected

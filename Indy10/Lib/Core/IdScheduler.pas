@@ -16,63 +16,52 @@
   $Log$
 }
 {
-{   Rev 1.14    4/8/2004 11:55:30 AM  BGooijen
-{ Fix for D5
-}
-{
-{   Rev 1.13    2004.03.01 5:12:38 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.12    2004.01.20 10:03:30 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.11    2003.10.21 12:18:58 AM  czhower
-{ TIdTask support and fiber bug fixes.
-}
-{
-{   Rev 1.10    2003.10.14 11:18:08 PM  czhower
-{ Fix for AV on shutdown and other bugs
-}
-{
-{   Rev 1.9    2003.10.11 5:49:24 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.8    2003.09.19 10:11:16 PM  czhower
-{ Next stage of fiber support in servers.
-}
-{
-{   Rev 1.7    2003.09.19 11:54:30 AM  czhower
-{ -Completed more features necessary for servers
-{ -Fixed some bugs
-}
-{
-{   Rev 1.6    2003.09.18 4:10:24 PM  czhower
-{ Preliminary changes for Yarn support.
-}
-{
-    Rev 1.5    3/27/2003 5:15:36 PM  BGooijen
+  Rev 1.14    4/8/2004 11:55:30 AM  BGooijen
+  Fix for D5
+
+  Rev 1.13    2004.03.01 5:12:38 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.12    2004.01.20 10:03:30 PM  czhower
+  InitComponent
+
+  Rev 1.11    2003.10.21 12:18:58 AM  czhower
+  TIdTask support and fiber bug fixes.
+
+  Rev 1.10    2003.10.14 11:18:08 PM  czhower
+  Fix for AV on shutdown and other bugs
+
+  Rev 1.9    2003.10.11 5:49:24 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.8    2003.09.19 10:11:16 PM  czhower
+  Next stage of fiber support in servers.
+
+  Rev 1.7    2003.09.19 11:54:30 AM  czhower
+  -Completed more features necessary for servers
+  -Fixed some bugs
+
+  Rev 1.6    2003.09.18 4:10:24 PM  czhower
+  Preliminary changes for Yarn support.
+
+  Rev 1.5    3/27/2003 5:15:36 PM  BGooijen
   Moved some code from subclasses here, made MaxThreads published
-}
-{
-    Rev 1.4    3/13/2003 10:18:36 AM  BGooijen
+
+  Rev 1.4    3/13/2003 10:18:36 AM  BGooijen
   Server side fibers, bug fixes
+
+  Rev 1.1    1/23/2003 11:06:04 AM  BGooijen
+
+  Rev 1.0    1/17/2003 03:41:48 PM  JPMugaas
+  Scheduler base class.
 }
-{
-    Rev 1.1    1/23/2003 11:06:04 AM  BGooijen
-}
-{
-{   Rev 1.0    1/17/2003 03:41:48 PM  JPMugaas
-{ Scheduler base class.
-}
+
 unit IdScheduler;
 
 interface
@@ -145,7 +134,7 @@ var
   i: Integer;
 begin
   Assert(FActiveYarns<>nil);
-  
+
   while True do begin
     // Must unlock each time to allow yarns that are temrinating to remove themselves from the list
     with FActiveYarns.LockList do try

@@ -16,125 +16,100 @@
   $Log$
 }
 {
-{   Rev 1.27    2/3/05 12:16:46 AM  RLebeau
-{ Bug fix for UpdateText()
-}
-{
-{   Rev 1.25    1/15/2005 6:02:02 PM  JPMugaas
-{ These should compile again.
-}
-{
-{   Rev 1.24    1/15/05 2:03:20 PM  RLebeau
-{ Added AIgnore parameter to TIdReplies.Find()
-{ 
-{ Updated TIdReply.SetNumericCode() to call SetCode() rather than assigning the
-{ FCode member directly.
-{ 
-{ Updated TIdReply.SetCode() to call Clear() before assigning the FCode member.
-{ 
-{ Updated TIdReplies.UpdateText() to ignore the TIdReply that was passed in
-{ when looking for a TIdReply to extract Text from.
-}
-{
-{   Rev 1.23    12/29/04 1:36:44 PM  RLebeau
-{ Bug fix for when descendant constructors are called twice during creation
-}
-{
-{   Rev 1.22    10/26/2004 8:43:00 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-    Rev 1.21    6/11/2004 8:48:24 AM  DSiders
+  Rev 1.27    2/3/05 12:16:46 AM  RLebeau
+  Bug fix for UpdateText()
+
+  Rev 1.25    1/15/2005 6:02:02 PM  JPMugaas
+  These should compile again.
+
+  Rev 1.24    1/15/05 2:03:20 PM  RLebeau
+  Added AIgnore parameter to TIdReplies.Find()
+
+  Updated TIdReply.SetNumericCode() to call SetCode() rather than assigning the
+  FCode member directly.
+
+  Updated TIdReply.SetCode() to call Clear() before assigning the FCode member.
+
+  Updated TIdReplies.UpdateText() to ignore the TIdReply that was passed in
+  when looking for a TIdReply to extract Text from.
+
+  Rev 1.23    12/29/04 1:36:44 PM  RLebeau
+  Bug fix for when descendant constructors are called twice during creation
+
+  Rev 1.22    10/26/2004 8:43:00 PM  JPMugaas
+  Should be more portable with new references to TIdStrings and TIdStringList.
+
+  Rev 1.21    6/11/2004 8:48:24 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-{   Rev 1.20    2004.03.01 7:10:34 PM  czhower
-{ Change for .net compat
-}
-{
-{   Rev 1.19    2004.03.01 5:12:34 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.18    2004.02.29 8:16:54 PM  czhower
-{ Bug fix to fix AV at design time when adding reply texts to CmdTCPServer.
-}
-{
-{   Rev 1.17    2004.02.03 4:17:10 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.16    2004.01.29 12:02:32 AM  czhower
-{ .Net constructor problem fix.
-}
-{
-{   Rev 1.15    1/3/2004 8:06:20 PM  JPMugaas
-{ Bug fix:  Sometimes, replies will appear twice due to the way functionality
-{ was enherited.
-}
-{
-{   Rev 1.14    1/1/2004 9:33:24 PM  BGooijen
-{ the abstract class TIdReply was created sometimes, fixed that
-}
-{
-{   Rev 1.13    2003.10.18 9:33:28 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-    Rev 1.12    10/15/2003 7:49:38 PM  DSiders
+
+  Rev 1.20    2004.03.01 7:10:34 PM  czhower
+  Change for .net compat
+
+  Rev 1.19    2004.03.01 5:12:34 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.18    2004.02.29 8:16:54 PM  czhower
+  Bug fix to fix AV at design time when adding reply texts to CmdTCPServer.
+
+  Rev 1.17    2004.02.03 4:17:10 PM  czhower
+  For unit name changes.
+
+  Rev 1.16    2004.01.29 12:02:32 AM  czhower
+  .Net constructor problem fix.
+
+  Rev 1.15    1/3/2004 8:06:20 PM  JPMugaas
+  Bug fix:  Sometimes, replies will appear twice due to the way functionality
+  was enherited.
+
+  Rev 1.14    1/1/2004 9:33:24 PM  BGooijen
+  the abstract class TIdReply was created sometimes, fixed that
+
+  Rev 1.13    2003.10.18 9:33:28 PM  czhower
+  Boatload of bug fixes to command handlers.
+
+  Rev 1.12    10/15/2003 7:49:38 PM  DSiders
   Added IdResourceStringsCore to implementation uses clause.
-}
-{
-    Rev 1.11    10/15/2003 7:46:42 PM  DSiders
+
+  Rev 1.11    10/15/2003 7:46:42 PM  DSiders
   Added formatted resource string for the exception raised in
   TIdReply.SetCode.
-}
-{
-{   Rev 1.10    2003.09.06 1:30:30 PM  czhower
-{ Removed abstract modifier from a class method so that C++ Builder can compile
-{ again.
-}
-{
-{   Rev 1.9    2003.06.05 10:08:50 AM  czhower
-{ Extended reply mechanisms to the exception handling. Only base and RFC
-{ completed, handing off to J Peter.
-}
-{
-{   Rev 1.8    2003.05.30 10:25:56 PM  czhower
-{ Implemented IsEndMarker
-}
-{
-{   Rev 1.7    2003.05.30 10:06:08 PM  czhower
-{ Changed code property mechanisms.
-}
-{
-{   Rev 1.6    5/26/2003 04:29:56 PM  JPMugaas
-{ Removed GenerateReply and ParseReply.  Those are now obsolete duplicate
-{ functions in the new design.
-}
-{
-{   Rev 1.5    5/26/2003 12:19:54 PM  JPMugaas
-}
-{
-{   Rev 1.4    2003.05.26 11:38:18 AM  czhower
-}
-{
-{   Rev 1.3    2003.05.25 10:23:44 AM  czhower
-}
-{
-    Rev 1.2    5/20/2003 12:43:46 AM  BGooijen
+
+  Rev 1.10    2003.09.06 1:30:30 PM  czhower
+  Removed abstract modifier from a class method so that C++ Builder can compile
+  again.
+
+  Rev 1.9    2003.06.05 10:08:50 AM  czhower
+  Extended reply mechanisms to the exception handling. Only base and RFC
+  completed, handing off to J Peter.
+
+  Rev 1.8    2003.05.30 10:25:56 PM  czhower
+  Implemented IsEndMarker
+
+  Rev 1.7    2003.05.30 10:06:08 PM  czhower
+  Changed code property mechanisms.
+
+  Rev 1.6    5/26/2003 04:29:56 PM  JPMugaas
+  Removed GenerateReply and ParseReply.  Those are now obsolete duplicate
+  functions in the new design.
+
+  Rev 1.5    5/26/2003 12:19:54 PM  JPMugaas
+
+  Rev 1.4    2003.05.26 11:38:18 AM  czhower
+
+  Rev 1.3    2003.05.25 10:23:44 AM  czhower
+
+  Rev 1.2    5/20/2003 12:43:46 AM  BGooijen
   changeable reply types
+
+  Rev 1.1    5/19/2003 05:54:58 PM  JPMugaas
+
+  Rev 1.0    5/19/2003 12:26:16 PM  JPMugaas
+  Base class for reply format objects.
 }
-{
-{   Rev 1.1    5/19/2003 05:54:58 PM  JPMugaas
-}
-{
-{   Rev 1.0    5/19/2003 12:26:16 PM  JPMugaas
-{ Base class for reply format objects.
-}
+
 unit IdReply;
 
 interface

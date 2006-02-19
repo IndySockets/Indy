@@ -16,101 +16,81 @@
   $Log$
 }
 {
-{   Rev 1.5    12/2/2004 9:26:44 PM  JPMugaas
-{ Bug fix.
-}
-{
-{   Rev 1.4    11/11/2004 10:25:24 PM  JPMugaas
-{ Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
-{ from the UDP client with SOCKS.  You must call OpenProxy  before using
-{ RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
-{ any connection to the Proxy.  Connect and disconnect also call OpenProxy and
-{ CloseProxy.
-}
-{
-{   Rev 1.3    11/11/2004 3:42:52 AM  JPMugaas
-{ Moved strings into RS.  Socks will now raise an exception if you attempt to
-{ use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
-{ at all.
-}
-{
-{   Rev 1.2    2004.05.20 11:39:12 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.1    6/4/2004 5:13:26 PM  SGrobety
-{ EIdMaxCaptureLineExceeded message string
-}
-{
-{   Rev 1.0    2004.02.03 4:19:50 PM  czhower
-{ Rename
-}
-{
-    Rev 1.15    10/24/2003 4:21:56 PM  DSiders
+  Rev 1.5    12/2/2004 9:26:44 PM  JPMugaas
+  Bug fix.
+
+  Rev 1.4    11/11/2004 10:25:24 PM  JPMugaas
+  Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
+  from the UDP client with SOCKS.  You must call OpenProxy  before using
+  RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
+  any connection to the Proxy.  Connect and disconnect also call OpenProxy and
+  CloseProxy.
+
+  Rev 1.3    11/11/2004 3:42:52 AM  JPMugaas
+  Moved strings into RS.  Socks will now raise an exception if you attempt to
+  use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
+  at all.
+
+  Rev 1.2    2004.05.20 11:39:12 AM  czhower
+  IdStreamVCL
+
+  Rev 1.1    6/4/2004 5:13:26 PM  SGrobety
+  EIdMaxCaptureLineExceeded message string
+
+  Rev 1.0    2004.02.03 4:19:50 PM  czhower
+  Rename
+
+  Rev 1.15    10/24/2003 4:21:56 PM  DSiders
   Addes resource string for stream read exception.
-}
-{
-{   Rev 1.14    2003.10.16 11:25:22 AM  czhower
-{ Added missing ;
-}
-{
-    Rev 1.13    10/15/2003 11:11:06 PM  DSiders
+
+  Rev 1.14    2003.10.16 11:25:22 AM  czhower
+  Added missing ;
+
+  Rev 1.13    10/15/2003 11:11:06 PM  DSiders
   Added resource srting for exception raised in TIdTCPServer.SetScheduler.
-}
-{
-    Rev 1.12    10/15/2003 11:03:00 PM  DSiders
+
+  Rev 1.12    10/15/2003 11:03:00 PM  DSiders
   Added resource string for circular links from transparent proxy.
   Corrected spelling errors.
-}
-{
-    Rev 1.11    10/15/2003 10:41:34 PM  DSiders
+
+  Rev 1.11    10/15/2003 10:41:34 PM  DSiders
   Added resource strings for TIdStream and TIdStreamProxy exceptions.
-}
-{
-    Rev 1.10    10/15/2003 8:48:56 PM  DSiders
+
+  Rev 1.10    10/15/2003 8:48:56 PM  DSiders
   Added resource strings for exceptions raised when setting thread component
   properties.
-}
-{
-    Rev 1.9    10/15/2003 8:35:28 PM  DSiders
+
+  Rev 1.9    10/15/2003 8:35:28 PM  DSiders
   Added resource string for exception raised in TIdSchedulerOfThread.NewYarn.
-}
-{
-    Rev 1.8    10/15/2003 8:04:26 PM  DSiders
+
+  Rev 1.8    10/15/2003 8:04:26 PM  DSiders
   Added resource strings for exceptions raised in TIdLogFile, TIdReply, and
   TIdIOHandler.
-}
-{
-    Rev 1.7    10/15/2003 1:03:42 PM  DSiders
+
+  Rev 1.7    10/15/2003 1:03:42 PM  DSiders
   Created resource strings for TIdBuffer.Find exceptions.
-}
-{
-{   Rev 1.6    2003.10.14 1:26:44 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.5    10/1/2003 10:49:02 PM  GGrieve
-{ Rework buffer for Octane Compability
-}
-{
-    Rev 1.4    7/1/2003 8:32:32 PM  BGooijen
+
+  Rev 1.6    2003.10.14 1:26:44 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.5    10/1/2003 10:49:02 PM  GGrieve
+  Rework buffer for Octane Compability
+
+  Rev 1.4    7/1/2003 8:32:32 PM  BGooijen
   Added RSFibersNotSupported
-}
-{
-{   Rev 1.3    7/1/2003 02:31:34 PM  JPMugaas
-{ Message for invalid IP address.
-}
-{
-    Rev 1.2    5/14/2003 6:40:22 PM  BGooijen
+
+  Rev 1.3    7/1/2003 02:31:34 PM  JPMugaas
+  Message for invalid IP address.
+
+  Rev 1.2    5/14/2003 6:40:22 PM  BGooijen
   RS for transparent proxy
+
+  Rev 1.1    1/17/2003 05:06:04 PM  JPMugaas
+  Exceptions for scheduler string.
+
+  Rev 1.0    11/13/2002 08:42:02 AM  JPMugaas
 }
-{
-{   Rev 1.1    1/17/2003 05:06:04 PM  JPMugaas
-{ Exceptions for scheduler string.
-}
-{
-{   Rev 1.0    11/13/2002 08:42:02 AM  JPMugaas
-}
+
 unit IdResourceStringsCore;
 
 interface

@@ -16,8 +16,9 @@
   $Log$
 }
 {
-{   Rev 1.0    11/13/2002 08:45:32 AM  JPMugaas
+  Rev 1.0    11/13/2002 08:45:32 AM  JPMugaas
 }
+
 unit IdRawClient;
 
 interface
