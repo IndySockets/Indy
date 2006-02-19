@@ -135,34 +135,34 @@
   Rev 1.14    7/1/2003 03:39:48 PM  JPMugaas
   Started numeric IP function API calls for more efficiency.
 
-  Rev 1.13    6/30/2003 10:25:18 AM  BGooijen
+    Rev 1.13    6/30/2003 10:25:18 AM  BGooijen
   removed unnecessary assignment to FRecvBuffer.Size
 
-  Rev 1.12    6/29/2003 10:56:28 PM  BGooijen
+    Rev 1.12    6/29/2003 10:56:28 PM  BGooijen
   Removed .Memory from the buffer, and added some extra methods
 
   Rev 1.11    2003.06.25 4:28:32 PM  czhower
   Formatting and fixed a short circuit clause.
 
-  Rev 1.10    6/3/2003 11:43:52 PM  BGooijen
+    Rev 1.10    6/3/2003 11:43:52 PM  BGooijen
   Elimintated some code
 
-  Rev 1.9    4/16/2003 3:31:26 PM  BGooijen
+    Rev 1.9    4/16/2003 3:31:26 PM  BGooijen
   Removed InternalCheckForDisconnect, added .Connected
 
-  Rev 1.8    4/14/2003 11:44:20 AM  BGooijen
+    Rev 1.8    4/14/2003 11:44:20 AM  BGooijen
   CheckForDisconnect calls ReadFromSource now
 
-  Rev 1.7    4/2/2003 3:24:56 PM  BGooijen
+    Rev 1.7    4/2/2003 3:24:56 PM  BGooijen
   Moved transparantproxy from ..stack to ..socket
 
-  Rev 1.6    3/5/2003 11:04:32 PM  BGooijen
+    Rev 1.6    3/5/2003 11:04:32 PM  BGooijen
   Fixed Intercept, but the part in WriteBuffer doesn't look really nice yet
 
-  Rev 1.5    3/3/2003 11:31:58 PM  BGooijen
+    Rev 1.5    3/3/2003 11:31:58 PM  BGooijen
   fixed stack overflow in .CheckForDisconnect
 
-  Rev 1.4    2/26/2003 1:15:40 PM  BGooijen
+    Rev 1.4    2/26/2003 1:15:40 PM  BGooijen
   FBinding is now freed in IdIOHandlerSocket, instead of in IdIOHandlerStack
 
   Rev 1.3    2003.02.25 1:36:12 AM  czhower
@@ -198,9 +198,7 @@ type
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
     // In TIdIOHandlerStack, WriteBytes must be the ONLY call to
     // WriteToDestination - all data goes thru this method
-    procedure WriteDirect(
-      var aBuffer: TIdBytes
-      ); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
   published
     property ReadTimeout;
   end;
@@ -257,10 +255,11 @@ procedure TIdIOHandlerStack.ConnectClient;
 
       while ATimeout > LSleepTime do begin
         IdGlobal.Sleep(LSleepTime);
-        ATimeout := ATimeout - LSleepTime;
 
         if LInfinite then begin
           ATimeout := LSleepTime + 1;
+        end else begin
+          ATimeout := ATimeout - LSleepTime;
         end;
 
         TIdAntiFreezeBase.DoProcess;
@@ -361,15 +360,13 @@ begin
   Result := Binding.Readable(AMSec);
 end;
 
-procedure TIdIOHandlerStack.WriteDirect(
-  var aBuffer: TIdBytes
-  );
+procedure TIdIOHandlerStack.WriteDirect(var ABuffer: TIdBytes);
 var
   LCount: Integer;
   LPos: Integer;
   LSize: Integer;
 begin
-  inherited WriteDirect(aBuffer);
+  inherited WriteDirect(ABuffer);
 
   Assert(Binding<>nil);
 
@@ -455,7 +452,7 @@ begin
         Result := -1;
         Break;
       end;
-    until (LByteCount <> 0) or (BindingAllocated = False);
+    until (LByteCount <> 0) or (not BindingAllocated);
   end else begin
     if ARaiseExceptionIfDisconnected then begin
       raise EIdException.Create(RSNotConnected);
