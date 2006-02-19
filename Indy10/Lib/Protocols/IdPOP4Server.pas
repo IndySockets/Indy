@@ -169,47 +169,28 @@ end;
 
 procedure TIdPOP4Server.CmdBadSequenceError(ASender: TIdCommand);
 begin
-  ASender.Reply.SetReply(503,RSSMTPSvrBadSequence);
+  ASender.Reply.SetReply(503, RSSMTPSvrBadSequence);
 end;
 
-procedure TIdPOP4Server.CmdSyntaxError(AContext: TIdContext; ALine: string;
-  const AReply: TIdReply=nil);
-var LTmp : String;
-  i : Integer;
+procedure TIdPOP4Server.CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply: TIdReply = nil);
+var
+  LTmp : String;
   LReply : TIdReply;
-const
-  LWhiteSet = [TAB, CHAR32];    {Do not Localize}
 begin
-  LTmp := ALine;
   //First make the first word uppercase
-  for i := 1 to Length(LTmp) do
-  begin
-    if CharIsInSet(LTmp,i,LWhiteSet) then
-    begin
-      Break;
-    end
-    else
-    begin
-      LTmp[i] := UpCase(LTmp[i]);
-    end;
-  end;
+  LTmp := UpCaseFirstWord(ALine);
   try
-    if Assigned(AReply) then
-    begin
+    if Assigned(AReply) then begin
       LReply := AReply;
-    end
-    else
-    begin
+    end else begin
       LReply := FReplyClass.Create(nil, ReplyTexts);
       LReply.Assign(ReplyUnknownCommand);
     end;
-
-     LReply.SetReply(500, Format(RSFTPCmdNotRecognized,[LTmp]));
-
+    LReply.SetReply(500, Sys.Format(RSFTPCmdNotRecognized, [LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      FreeAndNil(LReply);
+      Sys.FreeAndNil(LReply);
     end;
   end;
 end;
