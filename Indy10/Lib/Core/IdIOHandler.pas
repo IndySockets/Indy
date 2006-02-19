@@ -17,499 +17,383 @@
 }
 
 {
-{   Rev 1.123    2/8/05 5:27:06 PM  RLebeau
-{ Bug fix for ReadLn().
-{ 
-{ Added try..finally block to ReadLnSplit().
-}
-{
-{   Rev 1.122    1/27/05 3:09:30 PM  RLebeau
-{ Updated AllData() to call ReadFromSource() directly instead of using
-{ CheckForDataOnSource(), since ReadFromSource() can return a disconnect
-{ conditon.  When data is in the InputBuffer, Connected() always return True
-{ even if the socket is actually disconnected.
-}
-{
-{   Rev 1.121    12/21/04 3:21:40 AM  RLebeau
-{ Removed compiler warning
-}
-{
-{   Rev 1.120    17/12/2004 17:11:28  ANeillans
-{ Compiler fix
-}
-{
-{   Rev 1.119    12/12/04 2:23:52 PM  RLebeau
-{ Added WriteRFCStrings() method
-}
-{
-    Rev 1.118    12/11/2004 9:04:50 PM  DSiders
+  Rev 1.123    2/8/05 5:27:06 PM  RLebeau
+  Bug fix for ReadLn().
+
+  Added try..finally block to ReadLnSplit().
+
+  Rev 1.122    1/27/05 3:09:30 PM  RLebeau
+  Updated AllData() to call ReadFromSource() directly instead of using
+  CheckForDataOnSource(), since ReadFromSource() can return a disconnect
+  conditon.  When data is in the InputBuffer, Connected() always return True
+  even if the socket is actually disconnected.
+
+  Rev 1.121    12/21/04 3:21:40 AM  RLebeau
+  Removed compiler warning
+
+  Rev 1.120    17/12/2004 17:11:28  ANeillans
+  Compiler fix
+
+  Rev 1.119    12/12/04 2:23:52 PM  RLebeau
+  Added WriteRFCStrings() method
+
+  Rev 1.118    12/11/2004 9:04:50 PM  DSiders
   Fixed comparison error in WaitFor.
-}
-{
-{   Rev 1.117    12/10/04 2:00:24 PM  RLebeau
-{ Updated WaitFor() to not return more data than actually needed.
-{
-{ Updated AllData() to not concatenate the Result on every iteration of the
-{ loop.
-}
-{
-{   Rev 1.116    11/29/04 10:37:18 AM  RLebeau
-{ Updated write buffering methods to prevent Access Violations when used
-{ incorrectly.
-}
-{
-{   Rev 1.115    11/4/04 12:41:08 PM  RLebeau
-{ Bug fix for ReadLn()
-}
-{
-{   Rev 1.114    10/26/2004 8:43:00 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-{   Rev 1.113    27.08.2004 21:58:18  Andreas Hausladen
-{ Speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.112    8/2/04 5:49:20 PM  RLebeau
-{ Moved ConnectTimeout over from TIdIOHandlerSocket
-}
-{
-{   Rev 1.111    2004.08.01 19:36:14  czhower
-{ Code optimization to WriteFile
-}
-{
-{   Rev 1.110    7/24/04 12:53:54 PM  RLebeau
-{ Compiler fix for WriteFile()
-}
-{
-{   Rev 1.109    7/23/04 6:39:14 PM  RLebeau
-{ Added extra exception handling to WriteFile()
-}
-{
-{   Rev 1.108    7/21/2004 5:45:10 PM  JPMugaas
-{ Updated with Remy's change.  This should work better and fix a problem with
-{ looping with ReadStream and ReadUntilDisconnect.
-}
-{
-{   Rev 1.107    7/21/2004 12:22:18 PM  BGooijen
-{ Reverted back 2 versions
-}
-{
-{   Rev 1.104    6/29/04 12:16:16 PM  RLebeau
-{ Updated ReadChar() to call ReadBytes() directly instead of ReadString()
-}
-{
-{   Rev 1.103    6/17/04 3:01:56 PM  RLebeau
-{ Changed ReadStream() to not extract too many bytes from the InputBuffer when
-{ an error occurs
-}
-{
-{   Rev 1.102    6/12/04 11:36:44 AM  RLebeau
-{ Changed ReadString() to pass the ABytes parameter to ReadBytes() instead of
-{ the LBuf length
-}
-{
-{   Rev 1.100    6/10/2004 6:52:12 PM  JPMugaas
-{ Regeneration to fix a bug in the package generator that I created.  OOPS!!!
-}
-{
-{   Rev 1.99    6/9/04 7:36:26 PM  RLebeau
-{ ReadString() bug fix
-}
-{
-{   Rev 1.98    07/06/2004 20:55:36  CCostelloe
-{ Fix for possible memory leak.
-}
-{
-{   Rev 1.97    5/29/04 10:46:24 PM  RLebeau
-{ Updated AllData() to only append values to the result when there is actual
-{ data in the buffer.
-}
-{
-{   Rev 1.96    29/05/2004 21:07:40  CCostelloe
-{ Bug fix (may need more investigation)
-}
-{
-{   Rev 1.95    2004.05.20 1:39:54 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.94    2004.05.20 12:34:22 PM  czhower
-{ Removed more non .NET compatible stream read and writes
-}
-{
-{   Rev 1.93    2004.05.20 11:39:02 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.92    5/3/2004 12:57:00 PM  BGooijen
-{ Fixes for 0-based
-}
-{
-{   Rev 1.91    2004.05.03 11:15:44 AM  czhower
-{ Changed Find to IndexOf and made 0 based to be consistent.
-}
-{
-{   Rev 1.90    4/24/04 12:40:04 PM  RLebeau
-{ Added Write() overload for Char type.
-}
-{
-{   Rev 1.89    4/18/2004 11:58:00 PM  BGooijen
-{ ReadBytes with count=-1 reads everything available, ( and waits ReadTimeOut
-{ time for data)
-}
-{
-{   Rev 1.88    4/18/04 2:44:24 PM  RLebeau
-{ Read/write support for Int64 values
-}
-{
-{   Rev 1.87    2004.04.18 12:51:58 AM  czhower
-{ Big bug fix with server disconnect and several other bug fixed that I found
-{ along the way.
-}
-{
-{   Rev 1.86    2004.04.16 11:30:28 PM  czhower
-{ Size fix to IdBuffer, optimizations, and memory leaks
-}
-{
-{   Rev 1.85    2004.04.08 7:06:46 PM  czhower
-{ Peek support.
-}
-{
-{   Rev 1.84    2004.04.08 3:56:28 PM  czhower
-{ Fixed bug with Intercept byte count. Also removed Bytes from Buffer.
-}
-{
-{   Rev 1.83    2004.04.08 2:08:00 AM  czhower
-{ Saved before checkin this time...
-}
-{
-{   Rev 1.82    7/4/2004 4:08:46 PM  SGrobety
-{ Re-introduce the IOHandler.MaxCapturedLines property
-}
-{
-{   Rev 1.81    2004.04.07 3:59:46 PM  czhower
-{ Bug fix for WriteDirect.
-}
-{
-{   Rev 1.79    2004.03.07 11:48:38 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.78    2004.03.03 11:54:58 AM  czhower
-{ IdStream change
-}
-{
-{   Rev 1.77    2004.03.02 2:47:08 PM  czhower
-{ .Net overloads
-}
-{
-{   Rev 1.76    2004.03.01 5:12:28 PM  czhower
-{ -Bug fix for shutdown of servers when connections still existed (AV)
-{ -Implicit HELP support in CMDserver
-{ -Several command handler bugs
-{ -Additional command handler functionality.
-}
-{
-{   Rev 1.75    2004.02.03 4:16:44 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.74    2004.01.21 9:36:00 PM  czhower
-{ .Net overload
-}
-{
-{   Rev 1.73    2004.01.21 12:19:58 AM  czhower
-{ .Readln overload for .net
-}
-{
-{   Rev 1.72    2004.01.20 10:03:26 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.71    1/11/2004 5:51:04 PM  BGooijen
-{ Added AApend parameter to ReadBytes
-}
-{
-{   Rev 1.70    12/30/2003 7:17:56 PM  BGooijen
-{ .net
-}
-{
-{   Rev 1.69    2003.12.28 1:05:54 PM  czhower
-{ .Net changes.
-}
-{
-{   Rev 1.68    2003.12.28 11:53:28 AM  czhower
-{ Removed warning in .net.
-}
-{
-{   Rev 1.67    2003.11.29 10:15:30 AM  czhower
-{ InternalBuffer --> InputBuffer for consistency.
-}
-{
-{   Rev 1.66    11/23/03 1:46:28 PM  RLebeau
-{ Removed "var" specifier from TStrings parameter of ReadStrings().
-}
-{
-    Rev 1.65    11/4/2003 10:27:56 PM  DSiders
+
+  Rev 1.117    12/10/04 2:00:24 PM  RLebeau
+  Updated WaitFor() to not return more data than actually needed.
+
+  Updated AllData() to not concatenate the Result on every iteration of the
+  loop.
+
+  Rev 1.116    11/29/04 10:37:18 AM  RLebeau
+  Updated write buffering methods to prevent Access Violations when used
+  incorrectly.
+
+  Rev 1.115    11/4/04 12:41:08 PM  RLebeau
+  Bug fix for ReadLn()
+
+  Rev 1.114    10/26/2004 8:43:00 PM  JPMugaas
+  Should be more portable with new references to TIdStrings and TIdStringList.
+
+  Rev 1.113    27.08.2004 21:58:18  Andreas Hausladen
+  Speed optimization ("const" for string parameters)
+
+  Rev 1.112    8/2/04 5:49:20 PM  RLebeau
+  Moved ConnectTimeout over from TIdIOHandlerSocket
+
+  Rev 1.111    2004.08.01 19:36:14  czhower
+  Code optimization to WriteFile
+
+  Rev 1.110    7/24/04 12:53:54 PM  RLebeau
+  Compiler fix for WriteFile()
+
+  Rev 1.109    7/23/04 6:39:14 PM  RLebeau
+  Added extra exception handling to WriteFile()
+
+  Rev 1.108    7/21/2004 5:45:10 PM  JPMugaas
+  Updated with Remy's change.  This should work better and fix a problem with
+  looping with ReadStream and ReadUntilDisconnect.
+
+  Rev 1.107    7/21/2004 12:22:18 PM  BGooijen
+  Reverted back 2 versions
+
+  Rev 1.104    6/29/04 12:16:16 PM  RLebeau
+  Updated ReadChar() to call ReadBytes() directly instead of ReadString()
+
+  Rev 1.103    6/17/04 3:01:56 PM  RLebeau
+  Changed ReadStream() to not extract too many bytes from the InputBuffer when
+  an error occurs
+
+  Rev 1.102    6/12/04 11:36:44 AM  RLebeau
+  Changed ReadString() to pass the ABytes parameter to ReadBytes() instead of
+  the LBuf length
+
+  Rev 1.100    6/10/2004 6:52:12 PM  JPMugaas
+  Regeneration to fix a bug in the package generator that I created.  OOPS!!!
+
+  Rev 1.99    6/9/04 7:36:26 PM  RLebeau
+  ReadString() bug fix
+
+  Rev 1.98    07/06/2004 20:55:36  CCostelloe
+  Fix for possible memory leak.
+
+  Rev 1.97    5/29/04 10:46:24 PM  RLebeau
+  Updated AllData() to only append values to the result when there is actual
+  data in the buffer.
+
+  Rev 1.96    29/05/2004 21:07:40  CCostelloe
+  Bug fix (may need more investigation)
+
+  Rev 1.95    2004.05.20 1:39:54 PM  czhower
+  Last of the IdStream updates
+
+  Rev 1.94    2004.05.20 12:34:22 PM  czhower
+  Removed more non .NET compatible stream read and writes
+
+  Rev 1.93    2004.05.20 11:39:02 AM  czhower
+  IdStreamVCL
+
+  Rev 1.92    5/3/2004 12:57:00 PM  BGooijen
+  Fixes for 0-based
+
+  Rev 1.91    2004.05.03 11:15:44 AM  czhower
+  Changed Find to IndexOf and made 0 based to be consistent.
+
+  Rev 1.90    4/24/04 12:40:04 PM  RLebeau
+  Added Write() overload for Char type.
+
+  Rev 1.89    4/18/2004 11:58:00 PM  BGooijen
+  ReadBytes with count=-1 reads everything available, ( and waits ReadTimeOut
+  time for data)
+
+  Rev 1.88    4/18/04 2:44:24 PM  RLebeau
+  Read/write support for Int64 values
+
+  Rev 1.87    2004.04.18 12:51:58 AM  czhower
+  Big bug fix with server disconnect and several other bug fixed that I found
+  along the way.
+
+  Rev 1.86    2004.04.16 11:30:28 PM  czhower
+  Size fix to IdBuffer, optimizations, and memory leaks
+
+  Rev 1.85    2004.04.08 7:06:46 PM  czhower
+  Peek support.
+
+  Rev 1.84    2004.04.08 3:56:28 PM  czhower
+  Fixed bug with Intercept byte count. Also removed Bytes from Buffer.
+
+  Rev 1.83    2004.04.08 2:08:00 AM  czhower
+  Saved before checkin this time...
+
+  Rev 1.82    7/4/2004 4:08:46 PM  SGrobety
+  Re-introduce the IOHandler.MaxCapturedLines property
+
+  Rev 1.81    2004.04.07 3:59:46 PM  czhower
+  Bug fix for WriteDirect.
+
+  Rev 1.79    2004.03.07 11:48:38 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.78    2004.03.03 11:54:58 AM  czhower
+  IdStream change
+
+  Rev 1.77    2004.03.02 2:47:08 PM  czhower
+  .Net overloads
+
+  Rev 1.76    2004.03.01 5:12:28 PM  czhower
+  -Bug fix for shutdown of servers when connections still existed (AV)
+  -Implicit HELP support in CMDserver
+  -Several command handler bugs
+  -Additional command handler functionality.
+
+  Rev 1.75    2004.02.03 4:16:44 PM  czhower
+  For unit name changes.
+
+  Rev 1.74    2004.01.21 9:36:00 PM  czhower
+  .Net overload
+
+  Rev 1.73    2004.01.21 12:19:58 AM  czhower
+  .Readln overload for .net
+
+  Rev 1.72    2004.01.20 10:03:26 PM  czhower
+  InitComponent
+
+  Rev 1.71    1/11/2004 5:51:04 PM  BGooijen
+  Added AApend parameter to ReadBytes
+
+  Rev 1.70    12/30/2003 7:17:56 PM  BGooijen
+  .net
+
+  Rev 1.69    2003.12.28 1:05:54 PM  czhower
+  .Net changes.
+
+  Rev 1.68    2003.12.28 11:53:28 AM  czhower
+  Removed warning in .net.
+
+  Rev 1.67    2003.11.29 10:15:30 AM  czhower
+  InternalBuffer --> InputBuffer for consistency.
+
+  Rev 1.66    11/23/03 1:46:28 PM  RLebeau
+  Removed "var" specifier from TStrings parameter of ReadStrings().
+
+  Rev 1.65    11/4/2003 10:27:56 PM  DSiders
   Removed exceptions moved to IdException.pas.
-}
-{
-{   Rev 1.64    2003.10.24 10:44:52 AM  czhower
-{ IdStream implementation, bug fixes.
-}
-{
-{   Rev 1.63    10/22/03 2:05:40 PM  RLebeau
-{ Fix for TIdIOHandler::Write(TStream) where it was not reading the stream into
-{ the TIdBytes correctly.
-}
-{
-{   Rev 1.62    10/19/2003 5:55:44 PM  BGooijen
-{ Fixed todo in PerformCapture
-}
-{
-{   Rev 1.61    2003.10.18 12:58:50 PM  czhower
-{ Added comment
-}
-{
-{   Rev 1.60    2003.10.18 12:42:04 PM  czhower
-{ Intercept.Disconnect is now called
-}
-{
-    Rev 1.59    10/15/2003 7:39:28 PM  DSiders
+
+  Rev 1.64    2003.10.24 10:44:52 AM  czhower
+  IdStream implementation, bug fixes.
+
+  Rev 1.63    10/22/03 2:05:40 PM  RLebeau
+  Fix for TIdIOHandler::Write(TStream) where it was not reading the stream into
+  the TIdBytes correctly.
+
+  Rev 1.62    10/19/2003 5:55:44 PM  BGooijen
+  Fixed todo in PerformCapture
+
+  Rev 1.61    2003.10.18 12:58:50 PM  czhower
+  Added comment
+
+  Rev 1.60    2003.10.18 12:42:04 PM  czhower
+  Intercept.Disconnect is now called
+
+  Rev 1.59    10/15/2003 7:39:28 PM  DSiders
   Added a formatted resource string for the exception raised in
   TIdIOHandler.MakeIOHandler.
-}
-{
-{   Rev 1.58    2003.10.14 1:26:50 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.57    2003.10.11 5:48:22 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.56    9/10/2003 1:50:38 PM  SGrobety
-{ Removed all "const" keywords from boolean parameter interfaces. Might trigger
-{ changes in other units.
-}
-{
-{   Rev 1.55    10/5/2003 10:39:56 PM  BGooijen
-{ Write buffering
-}
-{
-{   Rev 1.54    10/4/2003 11:03:12 PM  BGooijen
-{ ReadStream, and functions with network ordering
-}
-{
-{   Rev 1.53    10/4/2003 7:10:46 PM  BGooijen
-{ ReadXXXXX
-}
-{
-{   Rev 1.52    10/4/2003 3:55:02 PM  BGooijen
-{ ReadString, and some Write functions
-}
-{
-{   Rev 1.51    04/10/2003 13:38:32  HHariri
-{ Write(Integer) support
-}
-{
-{   Rev 1.50    10/3/2003 12:09:30 AM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.49    2003.10.02 8:29:14 PM  czhower
-{ Changed names of byte conversion routines to be more readily understood and
-{ not to conflict with already in use ones.
-}
-{
-{   Rev 1.48    2003.10.02 1:18:50 PM  czhower
-{ Changed read methods to be overloaded and more consistent. Will break some
-{ code, but nearly all code that uses them is Input.
-}
-{
-{   Rev 1.47    2003.10.02 10:16:26 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.46    2003.10.01 9:11:16 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.45    2003.10.01 2:46:36 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.42    2003.10.01 11:16:32 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.41    2003.10.01 1:37:34 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.40    2003.10.01 1:12:34 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.39    2003.09.30 1:22:56 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.38    2003.09.18 5:17:58 PM  czhower
-{ Implemented OnWork
-}
-{
-{   Rev 1.37    2003.08.21 10:43:42 PM  czhower
-{ Fix to ReadStream from Doychin
-}
-{
-{   Rev 1.36    08/08/2003 17:32:26  CCostelloe
-{ Removed "virtual" from function ReadLnSplit
-}
-{
-{   Rev 1.35    07/08/2003 00:25:08  CCostelloe
-{ Function ReadLnSplit added
-}
-{
-{   Rev 1.34    2003.07.17 1:05:12 PM  czhower
-{ More IOCP improvements.
-}
-{
-{   Rev 1.33    2003.07.14 11:00:50 PM  czhower
-{ More IOCP fixes.
-}
-{
-{   Rev 1.32    2003.07.14 12:54:30 AM  czhower
-{ Fixed graceful close detection if it occurs after connect.
-}
-{
-{   Rev 1.31    2003.07.10 7:40:24 PM  czhower
-{ Comments
-}
-{
-{   Rev 1.30    2003.07.10 4:34:56 PM  czhower
-{ Fixed AV, added some new comments
-}
-{
-    Rev 1.29    7/1/2003 5:50:44 PM  BGooijen
+
+  Rev 1.58    2003.10.14 1:26:50 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.57    2003.10.11 5:48:22 PM  czhower
+  -VCL fixes for servers
+  -Chain suport for servers (Super core)
+  -Scheduler upgrades
+  -Full yarn support
+
+  Rev 1.56    9/10/2003 1:50:38 PM  SGrobety
+  Removed all "const" keywords from boolean parameter interfaces. Might trigger
+  changes in other units.
+
+  Rev 1.55    10/5/2003 10:39:56 PM  BGooijen
+  Write buffering
+
+  Rev 1.54    10/4/2003 11:03:12 PM  BGooijen
+  ReadStream, and functions with network ordering
+
+  Rev 1.53    10/4/2003 7:10:46 PM  BGooijen
+  ReadXXXXX
+
+  Rev 1.52    10/4/2003 3:55:02 PM  BGooijen
+  ReadString, and some Write functions
+
+  Rev 1.51    04/10/2003 13:38:32  HHariri
+  Write(Integer) support
+
+  Rev 1.50    10/3/2003 12:09:30 AM  BGooijen
+  DotNet
+
+  Rev 1.49    2003.10.02 8:29:14 PM  czhower
+  Changed names of byte conversion routines to be more readily understood and
+  not to conflict with already in use ones.
+
+  Rev 1.48    2003.10.02 1:18:50 PM  czhower
+  Changed read methods to be overloaded and more consistent. Will break some
+  code, but nearly all code that uses them is Input.
+
+  Rev 1.47    2003.10.02 10:16:26 AM  czhower
+  .Net
+
+  Rev 1.46    2003.10.01 9:11:16 PM  czhower
+  .Net
+
+  Rev 1.45    2003.10.01 2:46:36 PM  czhower
+  .Net
+
+  Rev 1.42    2003.10.01 11:16:32 AM  czhower
+  .Net
+
+  Rev 1.41    2003.10.01 1:37:34 AM  czhower
+  .Net
+
+  Rev 1.40    2003.10.01 1:12:34 AM  czhower
+  .Net
+
+  Rev 1.39    2003.09.30 1:22:56 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.38    2003.09.18 5:17:58 PM  czhower
+  Implemented OnWork
+
+  Rev 1.37    2003.08.21 10:43:42 PM  czhower
+  Fix to ReadStream from Doychin
+
+  Rev 1.36    08/08/2003 17:32:26  CCostelloe
+  Removed "virtual" from function ReadLnSplit
+
+  Rev 1.35    07/08/2003 00:25:08  CCostelloe
+  Function ReadLnSplit added
+
+  Rev 1.34    2003.07.17 1:05:12 PM  czhower
+  More IOCP improvements.
+
+  Rev 1.33    2003.07.14 11:00:50 PM  czhower
+  More IOCP fixes.
+
+  Rev 1.32    2003.07.14 12:54:30 AM  czhower
+  Fixed graceful close detection if it occurs after connect.
+
+  Rev 1.31    2003.07.10 7:40:24 PM  czhower
+  Comments
+
+  Rev 1.30    2003.07.10 4:34:56 PM  czhower
+  Fixed AV, added some new comments
+
+  Rev 1.29    7/1/2003 5:50:44 PM  BGooijen
   Fixed ReadStream
-}
-{
-    Rev 1.28    6/30/2003 10:26:08 AM  BGooijen
+
+  Rev 1.28    6/30/2003 10:26:08 AM  BGooijen
   forgot to remove some code regarding to TIdBuffer.Find
-}
-{
-    Rev 1.27    6/29/2003 10:56:26 PM  BGooijen
+
+  Rev 1.27    6/29/2003 10:56:26 PM  BGooijen
   Removed .Memory from the buffer, and added some extra methods
-}
-{
-{   Rev 1.26    2003.06.25 4:30:00 PM  czhower
-{ Temp hack fix for AV problem. Working on real solution now.
-}
-{
-{   Rev 1.25    23/6/2003 22:33:14  GGrieve
-{ fix CheckForDataOnSource - specify timeout
-}
-{
-{   Rev 1.24    23/6/2003 06:46:52  GGrieve
-{ allow block on checkForData
-}
-{
-    Rev 1.23    6/4/2003 1:07:08 AM  BGooijen
+
+  Rev 1.26    2003.06.25 4:30:00 PM  czhower
+  Temp hack fix for AV problem. Working on real solution now.
+
+  Rev 1.25    23/6/2003 22:33:14  GGrieve
+  fix CheckForDataOnSource - specify timeout
+
+  Rev 1.24    23/6/2003 06:46:52  GGrieve
+  allow block on checkForData
+
+  Rev 1.23    6/4/2003 1:07:08 AM  BGooijen
   changed comment
-}
-{
-    Rev 1.22    6/3/2003 10:40:34 PM  BGooijen
+
+  Rev 1.22    6/3/2003 10:40:34 PM  BGooijen
   FRecvBuffer bug fixed, it was freed, but never recreated, resulting in an AV
-}
-{
-{   Rev 1.21    2003.06.03 6:28:04 PM  czhower
-{ Made check for data virtual
-}
-{
-{   Rev 1.20    2003.06.03 3:43:24 PM  czhower
-{ Resolved InputBuffer inconsistency. Added new method and renamed old one.
-}
-{
-{   Rev 1.19    5/25/2003 03:56:04 AM  JPMugaas
-{ Updated for unit rename.
-}
-{
-{   Rev 1.18    2003.04.17 11:01:12 PM  czhower
-}
-{
-    Rev 1.17    4/16/2003 3:29:30 PM  BGooijen
+
+  Rev 1.21    2003.06.03 6:28:04 PM  czhower
+  Made check for data virtual
+
+  Rev 1.20    2003.06.03 3:43:24 PM  czhower
+  Resolved InputBuffer inconsistency. Added new method and renamed old one.
+
+  Rev 1.19    5/25/2003 03:56:04 AM  JPMugaas
+  Updated for unit rename.
+
+  Rev 1.18    2003.04.17 11:01:12 PM  czhower
+
+  Rev 1.17    4/16/2003 3:29:30 PM  BGooijen
   minor change in ReadBuffer
-}
-{
-    Rev 1.16    4/1/2003 7:54:24 PM  BGooijen
+
+  Rev 1.16    4/1/2003 7:54:24 PM  BGooijen
   ReadLn default terminator changed to LF
-}
-{
-    Rev 1.15    3/27/2003 3:24:06 PM  BGooijen
+
+  Rev 1.15    3/27/2003 3:24:06 PM  BGooijen
   MaxLine* is now published
-}
-{
-{   Rev 1.14    2003.03.25 7:42:12 PM  czhower
-{ try finally to WriteStrings
-}
-{
-    Rev 1.13    3/24/2003 11:01:36 PM  BGooijen
+
+  Rev 1.14    2003.03.25 7:42:12 PM  czhower
+  try finally to WriteStrings
+
+  Rev 1.13    3/24/2003 11:01:36 PM  BGooijen
   WriteStrings is now buffered to increase speed
-}
-{
-    Rev 1.12    3/19/2003 1:02:32 PM  BGooijen
+
+  Rev 1.12    3/19/2003 1:02:32 PM  BGooijen
   changed class function ConstructDefaultIOHandler a little (default parameter)
-}
-{
-    Rev 1.11    3/13/2003 10:18:16 AM  BGooijen
+
+  Rev 1.11    3/13/2003 10:18:16 AM  BGooijen
   Server side fibers, bug fixes
-}
-{
-    Rev 1.10    3/5/2003 11:03:06 PM  BGooijen
+
+  Rev 1.10    3/5/2003 11:03:06 PM  BGooijen
   Added Intercept here
-}
-{
-    Rev 1.9    2/25/2003 11:02:12 PM  BGooijen
+
+  Rev 1.9    2/25/2003 11:02:12 PM  BGooijen
   InputBufferToStream now accepts a bytecount
+
+  Rev 1.8    2003.02.25 1:36:00 AM  czhower
+
+  Rev 1.7    12-28-2002 22:28:16  BGooijen
+  removed warning, added initialization and finalization part.
+
+  Rev 1.6    12-16-2002 20:43:28  BGooijen
+  Added class function ConstructIOHandler(....), and removed some comments
+
+  Rev 1.5    12-15-2002 23:02:38  BGooijen
+  added SendBufferSize
+
+  Rev 1.4    12-15-2002 20:50:32  BGooijen
+  FSendBufferSize was not initialized
+
+  Rev 1.3    12-14-2002 22:14:54  BGooijen
+  improved method to detect timeouts in ReadLn.
+
+  Rev 1.2    12/11/2002 04:09:28 AM  JPMugaas
+  Updated for new API.
+
+  Rev 1.1    2002.12.07 12:25:56 AM  czhower
+
+  Rev 1.0    11/13/2002 08:44:50 AM  JPMugaas
 }
-{
-{   Rev 1.8    2003.02.25 1:36:00 AM  czhower
-}
-{
-{   Rev 1.7    12-28-2002 22:28:16  BGooijen
-{ removed warning, added initialization and finalization part.
-}
-{
-{   Rev 1.6    12-16-2002 20:43:28  BGooijen
-{ Added class function ConstructIOHandler(....), and removed some comments
-}
-{
-{   Rev 1.5    12-15-2002 23:02:38  BGooijen
-{ added SendBufferSize
-}
-{
-{   Rev 1.4    12-15-2002 20:50:32  BGooijen
-{ FSendBufferSize was not initialized
-}
-{
-{   Rev 1.3    12-14-2002 22:14:54  BGooijen
-{ improved method to detect timeouts in ReadLn.
-}
-{
-{   Rev 1.2    12/11/2002 04:09:28 AM  JPMugaas
-{ Updated for new API.
-}
-{
-{   Rev 1.1    2002.12.07 12:25:56 AM  czhower
-}
-{
-{   Rev 1.0    11/13/2002 08:44:50 AM  JPMugaas
-}
+
 unit IdIOHandler;
 
 {$I IdCompilerDefines.inc}

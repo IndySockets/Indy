@@ -16,28 +16,24 @@
   $Log$
 }
 {
-{   Rev 1.5    2004.05.20 12:34:32 PM  czhower
-{ Removed more non .NET compatible stream read and writes
+  Rev 1.5    2004.05.20 12:34:32 PM  czhower
+  Removed more non .NET compatible stream read and writes
+
+  Rev 1.4    2004.01.20 10:03:30 PM  czhower
+  InitComponent
+
+  Rev 1.3    2003.10.17 6:15:56 PM  czhower
+  Upgrades
+
+  Rev 1.2    2003.10.17 4:28:54 PM  czhower
+  Changed stream names to be consistent with IOHandlerStream
+
+  Rev 1.1    2003.10.14 1:27:12 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.0    11/13/2002 07:56:18 AM  JPMugaas
 }
-{
-{   Rev 1.4    2004.01.20 10:03:30 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.3    2003.10.17 6:15:56 PM  czhower
-{ Upgrades
-}
-{
-{   Rev 1.2    2003.10.17 4:28:54 PM  czhower
-{ Changed stream names to be consistent with IOHandlerStream
-}
-{
-{   Rev 1.1    2003.10.14 1:27:12 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.0    11/13/2002 07:56:18 AM  JPMugaas
-}
+
 unit IdLogStream;
 
 interface

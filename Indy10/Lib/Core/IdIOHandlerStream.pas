@@ -16,131 +16,102 @@
   $Log$
 }
 {
-{   Rev 1.21    3/10/05 3:24:30 PM  RLebeau
-{ Updated ReadFromSource() and WriteDirect() to access the Intercept property
-{ directly.
-}
-{
-{   Rev 1.20    10/21/2004 11:07:30 PM  BGooijen
-{ works in win32 now too
-}
-{
-{   Rev 1.19    10/21/2004 1:52:56 PM  BGooijen
-{ Raid 214235
-}
-{
-{   Rev 1.18    7/23/04 6:20:52 PM  RLebeau
-{ Removed memory leaks in Send/ReceiveStream property setters
-}
-{
-{   Rev 1.17    2004.05.20 11:39:08 AM  czhower
-{ IdStreamVCL
-}
-{
-{   Rev 1.16    23/04/2004 20:29:36  CCostelloe
-{ Minor change to support IdMessageClient's new TIdIOHandlerStreamMsg
-}
-{
-{   Rev 1.15    2004.04.16 11:30:32 PM  czhower
-{ Size fix to IdBuffer, optimizations, and memory leaks
-}
-{
-{   Rev 1.14    2004.04.08 3:56:36 PM  czhower
-{ Fixed bug with Intercept byte count. Also removed Bytes from Buffer.
-}
-{
-{   Rev 1.13    2004.03.07 11:48:46 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.12    2004.03.03 11:55:04 AM  czhower
-{ IdStream change
-}
-{
-{   Rev 1.11    2004.02.03 4:17:16 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.10    11/01/2004 19:52:44  CCostelloe
-{ Revisions for TIdMessage SaveToFile & LoadFromFile for D7 & D8
-}
-{
-{   Rev 1.8    08/01/2004 23:37:16  CCostelloe
-{ Minor changes
-}
-{
-{   Rev 1.7    1/8/2004 1:01:22 PM  BGooijen
-{ Cleaned up
-}
-{
-{   Rev 1.6    1/8/2004 4:23:06 AM  BGooijen
-{ temp fixed TIdIOHandlerStream.WriteToDestination
-}
-{
-{   Rev 1.5    08/01/2004 00:25:22  CCostelloe
-{ Start of reimplementing LoadFrom/SaveToFile
-}
-{
-{   Rev 1.4    2003.12.31 7:44:54 PM  czhower
-{ Matched constructors visibility to ancestor.
-}
-{
-{   Rev 1.3    2003.10.24 10:44:54 AM  czhower
-{ IdStream implementation, bug fixes.
-}
-{
-{   Rev 1.2    2003.10.14 11:19:14 PM  czhower
-{ Updated for better functionality.
-}
-{
-{   Rev 1.1    2003.10.14 1:27:14 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.0    2003.10.13 6:40:40 PM  czhower
-{ Moved from root
-}
-{
-{   Rev 1.9    2003.10.11 10:00:36 PM  czhower
-{ Compiles again.
-}
-{
-{   Rev 1.8    10/10/2003 10:53:42 PM  BGooijen
-{ Changed const-ness of some methods to reflect base class changes
-}
-{
-{   Rev 1.7    7/10/2003 6:07:58 PM  SGrobety
-{ .net
-}
-{
-{   Rev 1.6    17/07/2003 00:01:24  CCostelloe
-{ Added (empty) procedures for the base classes' abstract CheckForDataOnSource
-{ and CheckForDisconnect
-}
-{
-    Rev 1.5    7/1/2003 12:45:56 PM  BGooijen
+  Rev 1.21    3/10/05 3:24:30 PM  RLebeau
+  Updated ReadFromSource() and WriteDirect() to access the Intercept property
+  directly.
+
+  Rev 1.20    10/21/2004 11:07:30 PM  BGooijen
+  works in win32 now too
+
+  Rev 1.19    10/21/2004 1:52:56 PM  BGooijen
+  Raid 214235
+
+  Rev 1.18    7/23/04 6:20:52 PM  RLebeau
+  Removed memory leaks in Send/ReceiveStream property setters
+
+  Rev 1.17    2004.05.20 11:39:08 AM  czhower
+  IdStreamVCL
+
+  Rev 1.16    23/04/2004 20:29:36  CCostelloe
+  Minor change to support IdMessageClient's new TIdIOHandlerStreamMsg
+
+  Rev 1.15    2004.04.16 11:30:32 PM  czhower
+  Size fix to IdBuffer, optimizations, and memory leaks
+
+  Rev 1.14    2004.04.08 3:56:36 PM  czhower
+  Fixed bug with Intercept byte count. Also removed Bytes from Buffer.
+
+  Rev 1.13    2004.03.07 11:48:46 AM  czhower
+  Flushbuffer fix + other minor ones found
+
+  Rev 1.12    2004.03.03 11:55:04 AM  czhower
+  IdStream change
+
+  Rev 1.11    2004.02.03 4:17:16 PM  czhower
+  For unit name changes.
+
+  Rev 1.10    11/01/2004 19:52:44  CCostelloe
+  Revisions for TIdMessage SaveToFile & LoadFromFile for D7 & D8
+
+  Rev 1.8    08/01/2004 23:37:16  CCostelloe
+  Minor changes
+
+  Rev 1.7    1/8/2004 1:01:22 PM  BGooijen
+  Cleaned up
+
+  Rev 1.6    1/8/2004 4:23:06 AM  BGooijen
+  temp fixed TIdIOHandlerStream.WriteToDestination
+
+  Rev 1.5    08/01/2004 00:25:22  CCostelloe
+  Start of reimplementing LoadFrom/SaveToFile
+
+  Rev 1.4    2003.12.31 7:44:54 PM  czhower
+  Matched constructors visibility to ancestor.
+
+  Rev 1.3    2003.10.24 10:44:54 AM  czhower
+  IdStream implementation, bug fixes.
+
+  Rev 1.2    2003.10.14 11:19:14 PM  czhower
+  Updated for better functionality.
+
+  Rev 1.1    2003.10.14 1:27:14 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.0    2003.10.13 6:40:40 PM  czhower
+  Moved from root
+
+  Rev 1.9    2003.10.11 10:00:36 PM  czhower
+  Compiles again.
+
+  Rev 1.8    10/10/2003 10:53:42 PM  BGooijen
+  Changed const-ness of some methods to reflect base class changes
+
+  Rev 1.7    7/10/2003 6:07:58 PM  SGrobety
+  .net
+
+  Rev 1.6    17/07/2003 00:01:24  CCostelloe
+  Added (empty) procedures for the base classes' abstract CheckForDataOnSource
+  and CheckForDisconnect
+
+  Rev 1.5    7/1/2003 12:45:56 PM  BGooijen
   changed FInputBuffer.Size := 0 to FInputBuffer.Clear
+
+  Rev 1.4    12-8-2002 21:05:28  BGooijen
+  Removed call to Close in .Destroy, this is already done in
+  TIdIOHandler.Destroy
+
+  Rev 1.3    12/7/2002 06:42:44 PM  JPMugaas
+  These should now compile except for Socks server.  IPVersion has to be a
+  property someplace for that.
+
+  Rev 1.2    12/5/2002 02:53:52 PM  JPMugaas
+  Updated for new API definitions.
+
+  Rev 1.1    05/12/2002 15:29:16  AO'Neill
+
+  Rev 1.0    11/13/2002 07:55:08 AM  JPMugaas
 }
-{
-{   Rev 1.4    12-8-2002 21:05:28  BGooijen
-{ Removed call to Close in .Destroy, this is already done in
-{ TIdIOHandler.Destroy
-}
-{
-{   Rev 1.3    12/7/2002 06:42:44 PM  JPMugaas
-{ These should now compile except for Socks server.  IPVersion has to be a
-{ property someplace for that.
-}
-{
-{   Rev 1.2    12/5/2002 02:53:52 PM  JPMugaas
-{ Updated for new API definitions.
-}
-{
-{   Rev 1.1    05/12/2002 15:29:16  AO'Neill
-}
-{
-{   Rev 1.0    11/13/2002 07:55:08 AM  JPMugaas
-}
+
 unit IdIOHandlerStream;
 
 interface

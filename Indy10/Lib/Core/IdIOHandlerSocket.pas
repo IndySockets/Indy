@@ -16,163 +16,126 @@
   $Log$
 }
 {
-{   Rev 1.38    11/10/2004 8:25:54 AM  JPMugaas
-{ Fix for AV caused by short-circut boolean evaluation.
-}
-{
-{   Rev 1.37    27.08.2004 21:58:20  Andreas Hausladen
-{ Speed optimization ("const" for string parameters)
-}
-{
-{   Rev 1.36    8/2/04 5:44:40 PM  RLebeau
-{ Moved ConnectTimeout over from TIdIOHandlerStack
-}
-{
-{   Rev 1.35    7/21/2004 12:22:32 PM  BGooijen
-{ Fix to .connected
-}
-{
-{   Rev 1.34    6/30/2004 12:31:34 PM  BGooijen
-{ Added OnSocketAllocated
-}
-{
-{   Rev 1.33    4/24/04 12:52:52 PM  RLebeau
-{ Added setter method to UseNagle property
-}
-{
-{   Rev 1.32    2004.04.18 12:52:02 AM  czhower
-{ Big bug fix with server disconnect and several other bug fixed that I found
-{ along the way.
-}
-{
-{   Rev 1.31    2004.02.03 4:16:46 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.30    2/2/2004 11:46:46 AM  BGooijen
-{ Dotnet and TransparentProxy
-}
-{
-{   Rev 1.29    2/1/2004 9:44:00 PM  JPMugaas
-{ Start on reenabling Transparant proxy.
-}
-{
-{   Rev 1.28    2004.01.20 10:03:28 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.27    1/2/2004 12:02:16 AM  BGooijen
-{ added OnBeforeBind/OnAfterBind
-}
-{
-{   Rev 1.26    12/31/2003 9:51:56 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.25    11/4/2003 10:37:40 PM  BGooijen
-{ JP's patch to fix the bound port
-}
-{
-{   Rev 1.24    10/19/2003 5:21:26 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.23    10/18/2003 1:44:06 PM  BGooijen
-{ Added include
-}
-{
-{   Rev 1.22    2003.10.14 1:26:54 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.21    10/9/2003 8:09:06 PM  SPerry
-{ bug fixes
-}
-{
-{   Rev 1.20    8/10/2003 2:05:50 PM  SGrobety
-{ Dotnet
-}
-{
-{   Rev 1.19    2003.10.07 10:18:26 PM  czhower
-{ Uncommneted todo code that is now non dotnet.
-}
-{
-{   Rev 1.18    2003.10.02 8:23:42 PM  czhower
-{ DotNet Excludes
-}
-{
-{   Rev 1.17    2003.10.01 9:11:18 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.16    2003.10.01 5:05:12 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.15    2003.10.01 2:46:38 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.14    2003.10.01 11:16:32 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.13    2003.09.30 1:22:58 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.12    7/4/2003 08:26:44 AM  JPMugaas
-{ Optimizations.
-}
-{
-{   Rev 1.11    7/1/2003 03:39:44 PM  JPMugaas
-{ Started numeric IP function API calls for more efficiency.
-}
-{
-{   Rev 1.10    2003.06.30 5:41:56 PM  czhower
-{ -Fixed AV that occurred sometimes when sockets were closed with chains
-{ -Consolidated code that was marked by a todo for merging as it no longer
-{ needed to be separate
-{ -Removed some older code that was no longer necessary
-{ 
-{ Passes bubble tests.
-}
-{
-    Rev 1.9    6/3/2003 11:45:58 PM  BGooijen
+  Rev 1.38    11/10/2004 8:25:54 AM  JPMugaas
+  Fix for AV caused by short-circut boolean evaluation.
+
+  Rev 1.37    27.08.2004 21:58:20  Andreas Hausladen
+  Speed optimization ("const" for string parameters)
+
+  Rev 1.36    8/2/04 5:44:40 PM  RLebeau
+  Moved ConnectTimeout over from TIdIOHandlerStack
+
+  Rev 1.35    7/21/2004 12:22:32 PM  BGooijen
+  Fix to .connected
+
+  Rev 1.34    6/30/2004 12:31:34 PM  BGooijen
+  Added OnSocketAllocated
+
+  Rev 1.33    4/24/04 12:52:52 PM  RLebeau
+  Added setter method to UseNagle property
+
+  Rev 1.32    2004.04.18 12:52:02 AM  czhower
+  Big bug fix with server disconnect and several other bug fixed that I found
+  along the way.
+
+  Rev 1.31    2004.02.03 4:16:46 PM  czhower
+  For unit name changes.
+
+  Rev 1.30    2/2/2004 11:46:46 AM  BGooijen
+  Dotnet and TransparentProxy
+
+  Rev 1.29    2/1/2004 9:44:00 PM  JPMugaas
+  Start on reenabling Transparant proxy.
+
+  Rev 1.28    2004.01.20 10:03:28 PM  czhower
+  InitComponent
+
+  Rev 1.27    1/2/2004 12:02:16 AM  BGooijen
+  added OnBeforeBind/OnAfterBind
+
+  Rev 1.26    12/31/2003 9:51:56 PM  BGooijen
+  Added IPv6 support
+
+  Rev 1.25    11/4/2003 10:37:40 PM  BGooijen
+  JP's patch to fix the bound port
+
+  Rev 1.24    10/19/2003 5:21:26 PM  BGooijen
+  SetSocketOption
+
+  Rev 1.23    10/18/2003 1:44:06 PM  BGooijen
+  Added include
+
+  Rev 1.22    2003.10.14 1:26:54 PM  czhower
+  Uupdates + Intercept support
+
+  Rev 1.21    10/9/2003 8:09:06 PM  SPerry
+  bug fixes
+
+  Rev 1.20    8/10/2003 2:05:50 PM  SGrobety
+  Dotnet
+
+  Rev 1.19    2003.10.07 10:18:26 PM  czhower
+  Uncommneted todo code that is now non dotnet.
+
+  Rev 1.18    2003.10.02 8:23:42 PM  czhower
+  DotNet Excludes
+
+  Rev 1.17    2003.10.01 9:11:18 PM  czhower
+  .Net
+
+  Rev 1.16    2003.10.01 5:05:12 PM  czhower
+  .Net
+
+  Rev 1.15    2003.10.01 2:46:38 PM  czhower
+  .Net
+
+  Rev 1.14    2003.10.01 11:16:32 AM  czhower
+  .Net
+
+  Rev 1.13    2003.09.30 1:22:58 PM  czhower
+  Stack split for DotNet
+
+  Rev 1.12    7/4/2003 08:26:44 AM  JPMugaas
+  Optimizations.
+
+  Rev 1.11    7/1/2003 03:39:44 PM  JPMugaas
+  Started numeric IP function API calls for more efficiency.
+
+  Rev 1.10    2003.06.30 5:41:56 PM  czhower
+  -Fixed AV that occurred sometimes when sockets were closed with chains
+  -Consolidated code that was marked by a todo for merging as it no longer
+  needed to be separate
+  -Removed some older code that was no longer necessary
+
+  Passes bubble tests.
+
+  Rev 1.9    6/3/2003 11:45:58 PM  BGooijen
   Added .Connected
-}
-{
-{   Rev 1.8    2003.04.22 7:45:34 PM  czhower
-}
-{
-    Rev 1.7    4/2/2003 3:24:56 PM  BGooijen
+
+  Rev 1.8    2003.04.22 7:45:34 PM  czhower
+
+  Rev 1.7    4/2/2003 3:24:56 PM  BGooijen
   Moved transparantproxy from ..stack to ..socket
-}
-{
-    Rev 1.6    2/28/2003 9:51:56 PM  BGooijen
+
+  Rev 1.6    2/28/2003 9:51:56 PM  BGooijen
   removed the field: FReadTimeout: Integer, it hided the one in TIdIOHandler
-}
-{
-    Rev 1.5    2/26/2003 1:15:38 PM  BGooijen
+
+  Rev 1.5    2/26/2003 1:15:38 PM  BGooijen
   FBinding is now freed in IdIOHandlerSocket, instead of in IdIOHandlerStack
+
+  Rev 1.4    2003.02.25 1:36:08 AM  czhower
+
+  Rev 1.3    2002.12.07 12:26:26 AM  czhower
+
+  Rev 1.2    12-6-2002 20:09:14  BGooijen
+  Changed SetDestination to search for the last ':', instead of the first
+
+  Rev 1.1    12-6-2002 18:54:14  BGooijen
+  Added IPv6-support
+
+  Rev 1.0    11/13/2002 08:45:08 AM  JPMugaas
 }
-{
-{   Rev 1.4    2003.02.25 1:36:08 AM  czhower
-}
-{
-{   Rev 1.3    2002.12.07 12:26:26 AM  czhower
-}
-{
-{   Rev 1.2    12-6-2002 20:09:14  BGooijen
-{ Changed SetDestination to search for the last ':', instead of the first
-}
-{
-{   Rev 1.1    12-6-2002 18:54:14  BGooijen
-{ Added IPv6-support
-}
-{
-{   Rev 1.0    11/13/2002 08:45:08 AM  JPMugaas
-}
+
 unit IdIOHandlerSocket;
 
 interface

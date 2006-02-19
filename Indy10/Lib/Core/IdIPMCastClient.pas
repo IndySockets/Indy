@@ -16,32 +16,27 @@
   $Log$
 }
 {
-{   Rev 1.6    14/06/2004 21:38:28  CCostelloe
-{ Converted StringToTIn4Addr call
+  Rev 1.6    14/06/2004 21:38:28  CCostelloe
+  Converted StringToTIn4Addr call
+
+  Rev 1.5    09/06/2004 10:00:34  CCostelloe
+  Kylix 3 patch
+
+  Rev 1.4    2004.02.03 5:43:52 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 3:11:08 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/26/2003 09:11:52 AM  JPMugaas
+  Should now work in NET.
+
+  Rev 1.1    2003.10.12 4:03:56 PM  czhower
+  compile todos
+
+  Rev 1.0    11/13/2002 07:55:22 AM  JPMugaas
 }
-{
-{   Rev 1.5    09/06/2004 10:00:34  CCostelloe
-{ Kylix 3 patch
-}
-{
-{   Rev 1.4    2004.02.03 5:43:52 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.3    1/21/2004 3:11:08 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    10/26/2003 09:11:52 AM  JPMugaas
-{ Should now work in NET.
-}
-{
-{   Rev 1.1    2003.10.12 4:03:56 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.0    11/13/2002 07:55:22 AM  JPMugaas
-}
+
 unit IdIPMCastClient;
 
 interface

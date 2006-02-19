@@ -16,24 +16,21 @@
   $Log$
 }
 {
-{   Rev 1.4    2004.02.03 5:43:52 PM  czhower
-{ Name changes
+  Rev 1.4    2004.02.03 5:43:52 PM  czhower
+  Name changes
+
+  Rev 1.3    1/21/2004 3:11:06 PM  JPMugaas
+  InitComponent
+
+  Rev 1.2    10/26/2003 09:11:50 AM  JPMugaas
+  Should now work in NET.
+
+  Rev 1.1    2003.10.12 4:03:56 PM  czhower
+  compile todos
+
+  Rev 1.0    11/13/2002 07:55:16 AM  JPMugaas
 }
-{
-{   Rev 1.3    1/21/2004 3:11:06 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.2    10/26/2003 09:11:50 AM  JPMugaas
-{ Should now work in NET.
-}
-{
-{   Rev 1.1    2003.10.12 4:03:56 PM  czhower
-{ compile todos
-}
-{
-{   Rev 1.0    11/13/2002 07:55:16 AM  JPMugaas
-}
+
 unit IdIPMCastBase;
 
 interface

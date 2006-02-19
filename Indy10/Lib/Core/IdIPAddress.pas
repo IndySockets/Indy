@@ -16,58 +16,49 @@
   $Log$
 }
 {
-{   Rev 1.10    2/8/05 5:29:16 PM  RLebeau
-{ Updated GetHToNBytes() to use CopyTIdWord() instead of AppendBytes() for IPv6
-{ addresses.
-}
-{
-{   Rev 1.9    28.09.2004 20:54:32  Andreas Hausladen
-{ Removed unused functions that were moved to IdGlobal
-}
-{
-    Rev 1.8    6/11/2004 8:48:20 AM  DSiders
+  Rev 1.10    2/8/05 5:29:16 PM  RLebeau
+  Updated GetHToNBytes() to use CopyTIdWord() instead of AppendBytes() for IPv6
+  addresses.
+
+  Rev 1.9    28.09.2004 20:54:32  Andreas Hausladen
+  Removed unused functions that were moved to IdGlobal
+
+  Rev 1.8    6/11/2004 8:48:20 AM  DSiders
   Added "Do not Localize" comments.
-}
-{
-    Rev 1.7    5/19/2004 10:44:34 PM  DSiders
+
+  Rev 1.7    5/19/2004 10:44:34 PM  DSiders
   Corrected spelling for TIdIPAddress.MakeAddressObject method.
+
+  Rev 1.6    14/04/2004 17:35:38  HHariri
+  Removed IP6 for BCB temporarily
+
+  Rev 1.5    2/11/2004 5:10:40 AM  JPMugaas
+  Moved IPv6 address definition to System package.
+
+  Rev 1.4    2004.02.03 4:17:18 PM  czhower
+  For unit name changes.
+
+  Rev 1.3    2/2/2004 12:22:24 PM  JPMugaas
+  Now uses IdGlobal IPVersion Type.  Added HToNBytes for things that need
+  to export into NetworkOrder for structures used in protocols.
+
+  Rev 1.2    1/3/2004 2:13:56 PM  JPMugaas
+  Removed some empty function code that wasn't used.
+  Added some value comparison functions.
+  Added a function in the IPAddress object for comparing the value with another
+  IP address.  Note that this comparison is useful as an IP address will take
+  several forms (especially common with IPv6).
+  Added a property for returning the IP address as a string which works for
+  both IPv4 and IPv6 addresses.
+
+  Rev 1.1    1/3/2004 1:03:14 PM  JPMugaas
+  Removed Lo as it was not needed and is not safe in NET.
+
+  Rev 1.0    1/1/2004 4:00:18 PM  JPMugaas
+  An object for handling both IPv4 and IPv6 addresses.  This is a proposal with
+  some old code for conversions.
 }
-{
-{   Rev 1.6    14/04/2004 17:35:38  HHariri
-{ Removed IP6 for BCB temporarily
-}
-{
-{   Rev 1.5    2/11/2004 5:10:40 AM  JPMugaas
-{ Moved IPv6 address definition to System package.
-}
-{
-{   Rev 1.4    2004.02.03 4:17:18 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.3    2/2/2004 12:22:24 PM  JPMugaas
-{ Now uses IdGlobal IPVersion Type.  Added HToNBytes for things that need
-{ to export into NetworkOrder for structures used in protocols.
-}
-{
-{   Rev 1.2    1/3/2004 2:13:56 PM  JPMugaas
-{ Removed some empty function code that wasn't used.
-{ Added some value comparison functions.
-{ Added a function in the IPAddress object for comparing the value with another
-{ IP address.  Note that this comparison is useful as an IP address will take
-{ several forms (especially common with IPv6).
-{ Added a property for returning the IP address as a string which works for
-{ both IPv4 and IPv6 addresses.
-}
-{
-{   Rev 1.1    1/3/2004 1:03:14 PM  JPMugaas
-{ Removed Lo as it was not needed and is not safe in NET.
-}
-{
-{   Rev 1.0    1/1/2004 4:00:18 PM  JPMugaas
-{ An object for handling both IPv4 and IPv6 addresses.  This is a proposal with
-{ some old code for conversions.
-}
+
 unit IdIPAddress;
 
 interface
