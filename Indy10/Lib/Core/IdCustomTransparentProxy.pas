@@ -84,13 +84,13 @@ type
     FUsername: String;
     FChainedProxy: TIdCustomTransparentProxy;
     //
-    procedure Assign(ASource: TIdPersistent); override;
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
+    procedure Assign(ASource: TIdPersistent); override;
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
     procedure CloseUDP(AHandle: TIdSocketHandle); virtual;
     function RecvFromUDP(AHandle: TIdSocketHandle;
