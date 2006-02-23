@@ -16,19 +16,16 @@
   $Log$
 }
 {
-{   Rev 1.3    2004.02.03 5:44:54 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.2    2/1/2004 3:33:48 AM  JPMugaas
-{ Reenabled.  SHould work in DotNET.
-}
-{
-{   Rev 1.1    2003.10.12 3:36:26 PM  czhower
-{ todo item
-}
-{
-{   Rev 1.0    11/14/2002 02:13:44 PM  JPMugaas
+  Rev 1.3    2004.02.03 5:44:54 PM  czhower
+  Name changes
+
+  Rev 1.2    2/1/2004 3:33:48 AM  JPMugaas
+  Reenabled.  Should work in DotNET.
+
+  Rev 1.1    2003.10.12 3:36:26 PM  czhower
+  todo item
+
+  Rev 1.0    11/14/2002 02:13:44 PM  JPMugaas
 }
 {
 
@@ -73,21 +70,16 @@ uses
   IdGlobalProtocols,
   IdException,
   IdCoderMIME,
+  IdResourceStringsProtocols,
   IdSSLOpenSSLHeaders,
+  IdSSLOpenSSL,
   IdSys,
   IdNTLM;
-
-{ TIdNTLMAuthentication }
 
 constructor TIdNTLMAuthentication.Create;
 begin
   inherited Create;
-  // Load Open SSL Library
-  if not IdSSLOpenSSLHeaders.Load then
-  begin
-    Unload;
-    Sys.Abort;
-  end;
+  if not LoadOpenSSLLibrary then raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
 end;
 
 function TIdNTLMAuthentication.DoNext: TIdAuthWhatsNext;

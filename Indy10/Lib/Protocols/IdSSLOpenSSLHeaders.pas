@@ -16,38 +16,31 @@
   $Log$
 }
 {
-{   Rev 1.8    28.09.2004 21:38:44  Andreas Hausladen
-{ commented out unused function ErrMsg
-}
-{
-{   Rev 1.7    2004-05-07 16:52:50  Mattias
-{ Minor cleanup
-}
-{
-{   Rev 1.6    2004-05-07 16:34:36  Mattias
-{ Implemented  OpenSSL locking callbacks
-}
-{
-{   Rev 1.5    10/16/03 11:16:44 PM  RLebeau
-{ Updated to better support C++Builder by adding an $EXTERNSYM define to
-{ 'time_t' so that it won't be included in the auto-generated HPP file.  The
-{ native time.h header file is used instead.
-}
-{
-    Rev 1.4    10/17/2003 1:08:12 AM  DSiders
+  Rev 1.8    28.09.2004 21:38:44  Andreas Hausladen
+  commented out unused function ErrMsg
+
+  Rev 1.7    2004-05-07 16:52:50  Mattias
+  Minor cleanup
+
+  Rev 1.6    2004-05-07 16:34:36  Mattias
+  Implemented  OpenSSL locking callbacks
+
+  Rev 1.5    10/16/03 11:16:44 PM  RLebeau
+  Updated to better support C++Builder by adding an $EXTERNSYM define to
+  'time_t' so that it won't be included in the auto-generated HPP file.  The
+  native time.h header file is used instead.
+
+  Rev 1.4    10/17/2003 1:08:12 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.3    12/9/2002 12:48:42 PM  JPMugaas
-{ Fixed stupid compile error for the moment.  The Macros in err.h have to be
-{ sorted out later.
-}
-{
-{   Rev 1.1    12/8/2002 07:25:52 PM  JPMugaas
-{ Added published host and port properties.
-}
-{
-{   Rev 1.0    11/13/2002 08:01:32 AM  JPMugaas
+
+  Rev 1.3    12/9/2002 12:48:42 PM  JPMugaas
+  Fixed stupid compile error for the moment.  The Macros in err.h have to be
+  sorted out later.
+
+  Rev 1.1    12/8/2002 07:25:52 PM  JPMugaas
+  Added published host and port properties.
+
+  Rev 1.0    11/13/2002 08:01:32 AM  JPMugaas
 }
 unit IdSSLOpenSSLHeaders;
 {
@@ -1928,6 +1921,7 @@ Const
   OPENSSL_SSL_MAX_KEY_ARG_LENGTH = 8;
   OPENSSL_SSL_MAX_MASTER_KEY_LENGTH = 48;
   OPENSSL_SSL_MAX_SID_CTX_LENGTH = 32;
+  OPENSSL_SSL_MAX_KRB5_PRINCIPAL_LENGTH = 256;
   OPENSSL_SSL_MAX_SSL_SESSION_ID_LENGTH = 32;
   OPENSSL_SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER = $00000002;
   OPENSSL_SSL_MODE_ENABLE_PARTIAL_WRITE = $00000001;
@@ -2433,7 +2427,7 @@ Const
   OPENSSL_i586 = 1;
   OPENSSL_pentium = 1;
 
-
+  OPENSSL_MBSTRING_ASC=$1001;
 
 {Error - err.h }
 
@@ -2606,9 +2600,10 @@ const
   OPENSSL_ERR_R_DSO_LIB = OPENSSL_ERR_LIB_DSO;
 
 Type
+
   UInteger        = Longint;
   PUInteger	  =^UInteger;
-  PFunction       = Procedure;
+  PFunction       = Pointer;
   // Kudzu - CB3,4 dont like this. I think its a typo anyways. I dont think they
   // intended a pointer to a pointer to an integer.
   //PInteger	  =^PInteger;
@@ -2622,10 +2617,7 @@ Type
   PUShort	  =^Byte;
   PPChar	  =^PChar;
 
-  PSSL_CTX        = Pointer;
   PSSL            = Pointer;
-  PSSL_METHOD     = Pointer;
-  PSSL_SESSION    = Pointer;
   PPSSL_SESSION   =^PSSL_SESSION;
   PSSL_CIPHER	  = Pointer;
   Pevp_pkey_st    = Pointer;
@@ -2667,8 +2659,6 @@ Type
   PEVP_MD	  = Pointer;
   PEVP_CIPHER	  = Pointer;
   PEVP_CIPHER_CTX = Pointer;
-  PEVP_PKEY	  = Pointer;
-  PPEVP_PKEY      =^PEVP_PKEY;
   PEVP_ENCODE_CTX = Pointer;
   PX509_LOOKUP    = Pointer;
   PX509_STORE     = Pointer;
@@ -2679,11 +2669,8 @@ Type
   PX509_NAME               = Pointer;
   PPX509_NAME              =^PX509_NAME;
   PX509_OBJECT             = Pointer;
-  PX509                    = Pointer;
   PPX509		   =^PX509;
   PX509_EXTENSION_METHOD   = Pointer;
-  PX509_REQ	           = Pointer;
-  PPX509_REQ		   =^PX509_REQ;
   PX509_ATTRIBUTE	   = Pointer;
   PPX509_ATTRIBUTE	   =^PX509_ATTRIBUTE;
   PX509_EXTENSION	   = Pointer;
@@ -2692,15 +2679,11 @@ Type
   PPX509_NAME_ENTRY	   =^PX509_NAME_ENTRY;
   PX509_ALGOR		   = Pointer;
   PPX509_ALGOR		   =^PX509_ALGOR;
-  PX509_VAL		   = Pointer;
   PPX509_VAL		   =^PX509_VAL;
   PX509_PUBKEY		   = Pointer;
   PPX509_PUBKEY		   =^PX509_PUBKEY;
   PX509_SIG		   = Pointer;
   PPX509_SIG		   =^PX509_SIG;
-  PX509_REQ_INFO	   = Pointer;
-  PPX509_REQ_INFO	   =^PX509_REQ_INFO;
-  PX509_CINF		   = Pointer;
   PPX509_CINF		   =^PX509_CINF;
   PX509_REVOKED		   = Pointer;
   PPX509_REVOKED	   =^PX509_REVOKED;
@@ -2855,19 +2838,301 @@ Type
 
   des_key_schedule = array[1..16] of des_ks_struct;
 
-  des_cblocks     = Integer;
+  des_cblocks = Integer;
   {$NODEFINE size_t}
-  size_t	  = Integer;
+  size_t = Integer;
 
   TIdSslLockingCallback = procedure (mode, n : integer; Afile : PChar; line : integer) cdecl;
-  TIdSslIdBallback = function: integer cdecl;
+  TIdSslIdCallback = function: integer cdecl;
+
+  PX509_VAL = ^X509_VAL;
+  X509_VAL = packed record
+    notBefore:PASN1_UTCTIME;
+    notAfter:PASN1_UTCTIME;
+  end;
+
+  PX509_CINF = ^X509_CINF;
+    X509_CINF = packed record
+    version:Integer; //ASN1_INTEGER;
+    serialNumber:Integer; //ASN1_INTEGER;
+    signature:Pointer; //X509_ALGOR;
+    issuer:Pointer; //X509_NAME;
+    validity:PX509_VAL;
+    //todo
+  end;
+
+  ASN1_ENCODING = packed record
+    enc:Pointer;
+    len:Cardinal;//long
+    modified:Integer;
+  end;
+
+  PPX509_REQ_INFO	= ^PX509_REQ_INFO;
+  PX509_REQ_INFO = ^X509_REQ_INFO;
+  X509_REQ_INFO = packed record
+    enc:ASN1_ENCODING;
+    version:Pointer;
+    subject:Pointer;
+    pubkey:Pointer;
+    attributes:Pointer;
+  end;
+
+  PPX509_REQ = ^PX509_REQ;
+  PX509_REQ	= ^X509_REQ;
+  X509_REQ = packed record
+    req_info:PX509_REQ_INFO;
+    sig_alg:Pointer;
+    signature:Pointer;
+    references:Integer;
+  end;
+
+  PX509 = ^X509;
+  X509 = packed record
+    cert_info:PX509_CINF;
+    //todo
+  end;
+
+  //http://www.openssl.org/docs/crypto/bio.html
+  PBIO = ^BIO;
+  BIO = packed record
+  end;
+
+  PSSL_SESSION = ^SSL_SESSION;
+  SSL_SESSION = packed record
+    key_arg_length: Word;
+    key_arg: Array[0..OPENSSL_SSL_MAX_KEY_ARG_LENGTH-1] of Byte;
+    master_key_length: Integer;
+    master_key: Array[0..OPENSSL_SSL_MAX_MASTER_KEY_LENGTH-1] of Byte;
+    session_id_length: Word;
+    session_id: Array[0..OPENSSL_SSL_MAX_SSL_SESSION_ID_LENGTH-1] of Byte;
+    sid_ctx_length: Word;
+    sid_ctx:Array[0..OPENSSL_SSL_MAX_SID_CTX_LENGTH-1] of Byte;
+    krb5_client_princ_len: Word;
+    krb5_client_princ: Array[0..OPENSSL_SSL_MAX_KRB5_PRINCIPAL_LENGTH-1] of Byte;
+    not_resumable: Integer;
+  end;
+
+  // typedef struct ssl_method_st
+  PSSL_METHOD = ^SSL_METHOD;
+  SSL_METHOD = packed record
+    version:Integer;
+    //todo
+  end;
+
+  //rsa.h - struct rsa_st
+  PRSA = ^RSA;
+  RSA = packed record
+  end;
+
+  //struct evp_pkey_st
+  PPEVP_PKEY = ^PEVP_PKEY;
+  PEVP_PKEY = ^EVP_PKEY;
+  EVP_PKEY = packed record
+  end;
+
+  PSSL_CTX = ^SSL_CTX;
+  SSL_CTX = packed record
+    method:PSSL_METHOD;
+    cipher_list:Pointer;
+    cipher_list_by_id:Pointer;
+    cert_store:Pointer;
+    sessions:Pointer;
+    session_cache_size:Cardinal;
+    session_cache_head:Pointer;
+    session_cache_tail:Pointer;
+    session_cache_mode:Integer;
+    session_timeout:Longint;
+    new_session_cb:Pointer;
+    remove_session_cb:Pointer;
+    get_session_cb:Pointer;
+    sess_connect:Integer;
+    sess_connect_renegotiate:Integer;
+    sess_connect_good:Integer;
+    sess_accept:Integer;
+    sess_accept_renegotiate:Integer;
+    sess_accept_good:Integer;
+    sess_miss:Integer;
+    sess_timeout:Integer;
+    sess_cache_full:Integer;
+    sess_hit:Integer;
+    sess_cb_hit:Integer;
+    references:Integer;
+    app_verify_callback:Pointer;
+    app_verify_arg:Pointer;
+    default_passwd_callback:Pointer;
+    default_passwd_callback_userdata:Pointer;
+    client_cert_cb:Pointer;
+    app_gen_cookie_cb:Pointer;
+    app_verify_cookie_cb:Pointer;
+    ex_data_stack:Pointer;
+    ex_data_dummy:Integer;
+    rsa_md5:Pointer;
+    md5:Pointer;
+    sha1:Pointer;
+    extra_certs:Pointer;
+    comp_methods:Pointer;
+    info_callback:Pointer;
+    //todo
+  end;
+
+  PV3_EXT_CTX = ^V3_EXT_CTX;
+  V3_EXT_CTX = packed record
+    flags:Integer;
+    issuer_cert:PX509;
+    subject_cert:PX509;
+    subject_req:PX509_REQ;
+    crl:PX509_CRL;
+    db_meth:Pointer; //PX509V3_CONF_METHOD;
+    db:Pointer;
+  end;
+
+  X509V3_CTX = V3_EXT_CTX;
 
 var
+
+  IdSslAddAllAlgorithms : procedure cdecl = nil;
+  IdSslAddAllCiphers : procedure cdecl = nil;
+  IdSslAddAllDigests : procedure cdecl = nil;
+  IdSslEvpCleanup : procedure cdecl = nil;
+
+  //CRYPTO_set_mem_ex_functions
+  IdSslCryptoSetMemFunctions : function(myAlloc:Pointer;myReAlloc:Pointer;myFree:Pointer):Integer cdecl = nil;
+  IdSslCryptoMalloc : function(num:Integer;afile:PChar;line:Integer):Pointer cdecl = nil;
+  //void CRYPTO_free(void *);
+  IdSslCryptoFree : procedure cdecl = nil;
+  //void CRYPTO_mem_leaks(struct bio_st *bio);
+  IdSslCryptoMemLeaks : procedure(b:Pointer) cdecl = nil;
+  //int CRYPTO_mem_ctrl(int mode);
+  IdSslCryptoMemCtrl : function(mode:Integer):Integer cdecl = nil;
+  IdSslCryptoSetMemDebugFunctions : function(p1,p2,p3,p4,p5:Pointer):Integer cdecl = nil;
+  //
+  IdSslCryptoDbgMalloc : procedure(addr:Pointer;num:Integer;afile:PChar;line,before:Integer) cdecl = nil;
+  IdSslCryptoDbgRealloc : procedure(arrd1,addr2:Pointer;num:Integer;afile:PChar;line,before:Integer) cdecl = nil;
+  IdSslCryptoDbgFree : procedure(addr:Pointer;before:Integer) cdecl = nil;
+  IdSslCryptoDbgSetOptions : procedure(bits:Cardinal) cdecl = nil;
+  IdSslCryptoDbgGetOptions : function:Cardinal cdecl = nil;
+
+  //STACK *sk_new_null(void);
+  IdSslSkNewNull : function:pointer cdecl = nil;
+  //int sk_push(STACK *st,char *data);
+  IdSslSkPush : function(st:PSTACK;char:Pointer):Integer cdecl = nil;
+
+  //IdSslRsaNew : function():cdecl = nil;
+  IdSslRsaFree : procedure(rsa:PRSA) cdecl = nil;
+  IdSslRsaGenerateKey : function(num:Integer; e:Cardinal; callback:Pointer; cb_arg:Pointer):PRSA; cdecl = nil;
+  //int	RSA_check_key(const RSA *);
+  IdSslRsaCheckKey : function(rsa:PRSA):Integer cdecl = nil;
+
+  IdSslBioNew : function(ptype:pointer):PBIO cdecl = nil;
+  IdSslBioFree : function(bio:PBIO):Integer cdecl = nil;
+  IdSslBioSMem : function():Pointer cdecl = nil;
+  IdSslBioSFile : function():Pointer cdecl = nil;
+  //long	BIO_ctrl(BIO *bp,int cmd,long larg,void *parg);
+  IdSslBioCtrl : function(bp:PBIO;cmd:Integer;larg:Cardinal;parg:Pointer):Cardinal cdecl = nil;
+  //BIO *BIO_new_file(const char *filename, const char *mode);
+  IdSslBioNewFile : function(FileName:PChar;mode:PChar):PBIO cdecl = nil;
+  //int    BIO_puts(BIO *b,const char *buf);
+  IdSslBioPutS : function(b:PBIO;txt:PChar):integer cdecl = nil;
+  //int	BIO_read(BIO *b, void *data, int len);
+  IdSslBioRead : function(b:Pointer;data:PChar;len:Integer):Integer cdecl = nil;
+  //int    BIO_write(BIO *b, const void *buf, int len);
+  IdSslBioWrite : function(b:Pointer; buf:Pointer; len:Integer):Integer cdecl = nil;
+
+  //int PEM_write_bio_X509_REQ(BIO *bp, X509_REQ *x)
+  IdSslPemWriteBioX509Req : function(bp:PBIO;x:PX509_REQ):Integer cdecl = nil;
+  //(BIO *, EVP_PKEY *, const EVP_CIPHER *, char *, int, pem_password_cb *, void *);
+  IdSslPemWriteBioPKCS8PrivateKey : function(bp:PBIO;key:Pointer;enc:Pointer;kstr:PChar;klen:Integer;cb:Pointer;u:Pointer):Integer cdecl = nil;
+  //int	PEM_ASN1_write_bio(i2d_of_void *i2d,const char *name,BIO *bp,char *x,
+	//		   const EVP_CIPHER *enc,unsigned char *kstr,int klen,
+	//		   pem_password_cb *cb, void *u);
+  IdSslPemAsn1WriteBio : function(i2d:Pointer;Name:PChar;bp:Pointer;x:PChar;enc:Pointer;kstr:PChar;klen:Integer;cb:Pointer;u:Pointer):Integer cdecl = nil;
+  //void *	PEM_ASN1_read_bio(d2i_of_void *d2i, const char *name, BIO *bp,
+	//		  void **x, pem_password_cb *cb, void *u);
+  IdSslPemAsn1ReadBio : function(d2i:Pointer;Name:PChar;bp:Pointer;x:PChar;cb:Pointer;u:PChar):Pointer cdecl = nil;
+  //EVP_PKEY *PEM_read_bio_PrivateKey(BIO *bp, EVP_PKEY **x,
+  //pem_password_cb *cb, void *u);
+  IdSslPemReadBioPrivateKey : function(bio:Pointer;x:Pointer;cb:Pointer;u:PChar):Pointer cdecl = nil;
+
+  //const EVP_CIPHER *EVP_des_ede3_cbc(void);
+  IdSslEvpDesEde3Cbc : function():Pointer cdecl = nil;
+  //EVP_PKEY *	EVP_PKEY_new(void);
+  IdSslEvpPKeyNew : function():Pointer cdecl = nil;
+  //void		EVP_PKEY_free(EVP_PKEY *pkey);
+  IdSslEvpPKeyFree : procedure(pkey:Pointer) cdecl = nil;
+  //int 		EVP_PKEY_assign(EVP_PKEY *pkey,int type,char *key);
+  IdSslEvpPKeyAssign : function(pkey:Pointer;aType:Integer;key:Pointer):Integer cdecl = nil;
+  //const EVP_MD *EVP_get_digestbyname(const char *name);
+  IdSslEvpGetDigestByName : function(Name:PChar):Pointer cdecl = nil;
+
+  //int ASN1_INTEGER_set(ASN1_INTEGER *a, long v);
+  IdSslAsn1IntegerSet : function(a:Pointer;v:Integer):Integer cdecl = nil;
+  //IdSslAsn1UtcTimeNew : function():Pointer cdecl = nil;
+  //ASN1_STRING *	ASN1_STRING_type_new(int type );
+  IdSslAsn1StringTypeNew : function(aType:Integer):Pointer cdecl = nil;
+  //void		ASN1_STRING_free(ASN1_STRING *a);
+  IdSslAsn1StringFree : procedure(a:Pointer) cdecl = nil;
+
+  //int i2d_X509_bio(BIO *bp,X509 *x509);
+  IdSslI2dX509Bio : function(bp:PBIO;x509:PX509):Integer cdecl = nil;
+  //int i2d_PrivateKey_bio(BIO *bp, EVP_PKEY *pkey);
+  IdSslI2dPrivateKeyBio : function(b:Pointer;pkey:Pointer):Integer cdecl = nil;
+  IdSslI2dX509 : function(x:Pointer;buf:Pointer):Integer cdecl = nil;
+  //X509 *d2i_X509_bio(BIO *bp,X509 **x509);
+  IdSslD2iX509Bio : function(bp:Pointer;x:Pointer):Integer cdecl = nil;
+  IdSslD2iX509 : function():Integer cdecl = nil;
+  //int i2d_X509_REQ_bio(X509_REQ *x, BIO *bp);
+  IdSslI2dX509ReqBio : function(x:PX509_REQ;bp:PBIO):Integer cdecl = nil;
+
+  IdSslX509New : function():Pointer cdecl = nil;
+  IdSslX509Free : procedure(x:Pointer) cdecl = nil;
+  IdSslX509ReqNew : function():Pointer cdecl = nil;
+  IdSslX509ReqFree : procedure(x:Pointer) cdecl = nil;
+  //X509_REQ *	X509_to_X509_REQ(X509 *x, EVP_PKEY *pkey, const EVP_MD *md);
+  IdSslX509ToX509Req : function(x:Pointer;pkey:Pointer;md:Pointer):Pointer cdecl = nil;
+  //int X509_NAME_add_entry_by_txt(X509_NAME *name, const char *field, int type,
+	//		const unsigned char *bytes, int len, int loc, int set);
+  IdSslX509NameAddEntryByTxt : function(name:PX509_NAME;Field:PChar;atype:Integer;
+   abytes:PChar; len:Integer; loc:Integer; aset:Integer):Integer cdecl = nil;
+  //int 		X509_set_version(X509 *x,long version);
+  IdSslX509SetVersion : function(x:Pointer;version:Cardinal):Integer cdecl = nil;
+  //ASN1_INTEGER *	X509_get_serialNumber(X509 *x);
+  IdSslX509GetSerialNumber : function(x:Pointer):Pointer cdecl = nil;
+  //  ASN1_TIME *	X509_gmtime_adj(ASN1_TIME *s, long adj);
+  IdSslX509GmTimeAdj : function(s:Pointer;adj:Integer):Pointer cdecl = nil;
+  //int 		X509_set_notBefore(X509 *x, ASN1_TIME *tm);
+  IdSslX509SetNotBefore : function(x:Pointer;aTime:Pointer):Integer cdecl = nil;
+  IdSslX509SetNotAfter : function(x:Pointer;aTime:Pointer):Integer cdecl = nil;
+  //int 		X509_set_pubkey(X509 *x, EVP_PKEY *pkey);
+  IdSslX509SetPubKey : function(x:Pointer;pkey:Pointer):Integer cdecl = nil;
+  //int		X509_REQ_set_pubkey(X509_REQ *x, EVP_PKEY *pkey);
+  IdSslX509ReqSetPubKey : function(x:Pointer;pkey:Pointer):Integer cdecl = nil;
+  //int X509_sign(X509 *x, EVP_PKEY *pkey, const EVP_MD *md);
+  IdSslX509Sign : function(x:Pointer;pkey:Pointer;md:Pointer):Integer cdecl = nil;
+  //int X509_REQ_sign(X509_REQ *x, EVP_PKEY *pkey, const EVP_MD *md);
+  IdSslX509ReqSign : function(x:PX509_REQ;pkey:PEVP_PKEY;md:PEVP_MD):Integer cdecl = nil;
+  //int X509_REQ_add_extensions(X509_REQ *req, STACK_OF(X509_EXTENSION) *exts);
+  IdSslX509ReqAddExtensions : function(req:PX509_REQ;exts:Pointer):Integer cdecl = nil;
+  //X509_EXTENSION *X509V3_EXT_conf_nid(LHASH *conf, X509V3_CTX *ctx, int ext_nid, char *value);
+  IdSslX509V3ExtConfNid : function(conf:PLHASH;ctx:Pointer;ext_nid:Integer;Value:PChar):Pointer cdecl = nil;
+  //X509_EXTENSION *X509_EXTENSION_create_by_NID(X509_EXTENSION **ex,
+  //  int nid, int crit, ASN1_OCTET_STRING *data);
+  IdSslX509ExtensionCreateByNid : function(ex:Pointer;nid:Integer;crit:Integer;data:Pointer):PX509_EXTENSION cdecl = nil;
+  //void X509V3_set_ctx(X509V3_CTX *ctx, X509 *issuer, X509 *subject,
+	//			 X509_REQ *req, X509_CRL *crl, int flags);
+  IdSslX509V3SetCtx : procedure(ctx:Pointer;issuer:Pointer;subject:Pointer;req:Pointer;crl:Pointer;flags:Integer) cdecl = nil;
+
+  IdSslX509ExtensionFree : function(ex:Pointer):Pointer cdecl = nil;
+  IdSslX509AddExt : function(cert:Pointer;ext:Pointer;loc:integer):Integer cdecl = nil;
+
   IdSslCtxSetCipherList : function(arg0: PSSL_CTX; str: PChar):Integer cdecl = nil;
   IdSslCtxNew : function(meth: PSSL_METHOD):PSSL_CTX cdecl = nil;
   IdSslCtxFree : procedure(arg0: PSSL_CTX) cdecl = nil;
   IdSslSetFd : function(s: PSSL; fd: Integer):Integer cdecl = nil;
   IdSslCtxUsePrivateKeyFile : function(ctx: PSSL_CTX; const _file: PChar; _type: Integer):Integer cdecl = nil;
+  //int SSL_CTX_use_PrivateKey(SSL_CTX *ctx, EVP_PKEY *pkey);
+  IdSslCtxUsePrivateKey : function(ctx:Pointer;pkey:Pointer):Integer cdecl = nil;
+  //int SSL_CTX_use_certificate(SSL_CTX *ctx, X509 *x);
+  IdSslCtxUseCertificate : function(ctx:PSSL_CTX; x:PX509):Integer cdecl = nil;
   IdSslCtxUseCertificateFile : function(ctx: PSSL_CTX; const _file: PChar; _type: Integer):Integer cdecl = nil;
   IdSslLoadErrorStrings : procedure cdecl = nil;
   IdSslStateStringLong : function(s: PSSL):PChar cdecl = nil;
@@ -2885,6 +3150,7 @@ var
   IdSslRead : function(ssl: PSSL; buf: PChar; num: Integer):Integer cdecl = nil;
   IdSslPeek : function(ssl: PSSL; buf: PChar; num: Integer):Integer cdecl = nil;
   IdSslWrite : function(ssl: PSSL; const buf: PChar; num: Integer):Integer cdecl = nil;
+  IdSslCtxCtrl : function(ssl:PSSL; cmd:Integer; larg:LongInt; parg:PChar):LongInt cdecl = nil;
   IdSslGetError : function(s: PSSL; ret_code: Integer):Integer cdecl = nil;
   IdSslMethodV2 : function:PSSL_METHOD cdecl = nil;
   IdSslMethodServerV2 : function:PSSL_METHOD cdecl = nil;
@@ -2905,32 +3171,26 @@ var
   IdSslCtxLoadVerifyLocations : function(ctx: PSSL_CTX; const CAfile: PChar; const CApath: PChar):Integer cdecl = nil;
   IdSslGetSession : function(ssl: PSSL):PSSL_SESSION cdecl = nil;
   IdSslAddSslAlgorithms : function:Integer cdecl = nil;
-  // IdSslSetAppData : function(s: PSSL; arg: Pointer):Integer cdecl = nil;
-  // IdSslGetAppData : function(s: PSSL):Pointer cdecl = nil;
-  IdSslCtxSetInfoCallback : procedure(ctx: PSSL_CTX; cb: PFunction) cdecl = nil;
-  IdSslX509StoreCtxGetAppData : function(ctx: PX509_STORE_CTX):Pointer cdecl = nil;
-  // IdSslUCTTimeDecode : function(UCTtime: PASN1_UTCTIME; year: PUShort; month: PUShort; day: PUShort; hour: PUShort; min: PUShort; sec: PUShort; tz_hour: PInteger; tz_min: PInteger):Integer cdecl = nil;
+  //IdSslSetAppData : function(s: PSSL; arg: Pointer):Integer cdecl = nil;
+  //IdSslGetAppData : function(s: PSSL):Pointer cdecl = nil;
   IdSslSessionGetId : function(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer cdecl = nil;
-  IdSslSessionGetIdCtx : function(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer cdecl = nil;
-  IdSslCtxGetVersion: function(ctx: PSSL_CTX):Integer cdecl = nil;
-  IdSslCtxSetOptions: function(ctx: PSSL_CTX; op: Longint):Longint cdecl = nil;
   IdSslX509NameOneline : function(a: PX509_NAME; buf: PChar; size: Integer):PChar cdecl = nil;
   IdSslX509NameHash : function(x: PX509_NAME):Cardinal cdecl = nil;
+  //int X509_set_issuer_name(X509 *x, X509_NAME *name);
   IdSslX509SetIssuerName : function(x: PX509; name: PX509_NAME):Integer cdecl = nil;
   IdSslX509GetIssuerName : function(a: PX509):PX509_NAME cdecl = nil;
   IdSslX509SetSubjectName : function(x: PX509; name: PX509_NAME):Integer cdecl = nil;
   IdSslX509GetSubjectName : function(a: PX509):PX509_NAME cdecl = nil;
   IdSslX509Digest : function(data: PX509; _type: PEVP_MD; md: PChar; len: PUInteger):Integer cdecl = nil;
   IdSslEvpMd5 : function:PEVP_MD cdecl = nil;
-  IdSslX509GetNotBefore : function(x509: PX509):PASN1_UTCTIME cdecl = nil;
-  IdSslX509GetNotAfter : function(x509: PX509):PASN1_UTCTIME cdecl = nil;
+  IdSslX509StoreCtxGetExData : function(ctx: PX509_STORE_CTX; idx: Integer):Pointer cdecl = nil;
   IdSslX509StoreCtxGetError : function(ctx: PX509_STORE_CTX):Integer cdecl = nil;
   IdSslX509StoreCtxSetError : procedure(ctx: PX509_STORE_CTX; s: Integer) cdecl = nil;
   IdSslX509StoreCtxGetErrorDepth : function(ctx: PX509_STORE_CTX):Integer cdecl = nil;
   IdSslX509StoreCtxGetCurrentCert : function(ctx: PX509_STORE_CTX):PX509 cdecl = nil;
   IdSslCryptoNumLocks : function: integer cdecl = nil;
   IdSslSetLockingCallback : procedure(ALockingCallback : TIdSslLockingCallback) cdecl = nil;
-  IdSslSetIdCallback : procedure(AIdCallback : TIdSslIdBallback) cdecl = nil;
+  IdSslSetIdCallback : procedure(AIdCallback : TIdSslIdCallback) cdecl = nil;
 
   // 3DES functions
   IdDES_set_odd_parity: procedure(Key: des_cblock) cdecl = nil;
@@ -2958,7 +3218,7 @@ var
   IdSSLCipherGetVersion: function(c: PSSL_CIPHER):PChar; cdecl = nil;
   IdSSLCipherGetBits: function(c: PSSL_CIPHER; alg_bits: PInteger):Integer; cdecl = nil;
 
-  //expirimental
+  //experimental
    IdSSLERR_error_string_n: procedure(AError : Cardinal; ErrorStr : PChar; Len : Cardinal); cdecl = nil;
 //unsigned long ERR_get_error(void );
    IdSSLERR_get_err : function : Cardinal;
@@ -2980,6 +3240,16 @@ var
   IdSSLERR_load_crypto_strings : procedure; cdecl = nil;
   //void ERR_free_strings(void)
   IdSSLERR_free_strings : procedure; cdecl = nil;
+  //void ERR_remove_state(unsigned long pid);
+  IdSslErrRemoveState : procedure(pid:Cardinal) cdecl = nil;
+
+  //void CRYPTO_cleanup_all_ex_data(void);
+  IdSslCryptoCleanupAllExData : procedure cdecl = nil;
+
+  //STACK_OF(SSL_COMP) *SSL_COMP_get_compression_methods(void);
+  IdSslCompGetCompressionMethods : function:Pointer cdecl = nil;
+  //void sk_pop_free(STACK *st, void (*func)(void *));
+  IdSslSkPopFree : procedure(st:Pointer;func:Pointer) cdecl = nil;
 
 function IdSslUCTTimeDecode(UCTtime : PASN1_UTCTIME; Var year, month, day, hour, min, sec: Word;
   Var tz_hour, tz_min: Integer): Integer;
@@ -2992,9 +3262,30 @@ function WhichFailedToLoad: String;
 
 procedure InitializeRandom;
 
+function IdSslX509StoreCtxGetAppData(ctx:PX509_STORE_CTX):Pointer;
+function IdSslX509GetNotBefore(x509: PX509):PASN1_UTCTIME;
+function IdSslX509GetNotAfter(x509: PX509):PASN1_UTCTIME;
+procedure IdSslCtxSetInfoCallback(ctx: PSSL_CTX; cb: PFunction);
+function IdSslCtxSetOptions(ctx: PSSL_CTX; op: Longint):Longint;
+function IdSslSessionGetIdCtx(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer;
+function IdSslCtxGetVersion(ctx: PSSL_CTX):Integer;
+
+function IdSslBioSetClose(b:PBio;c:Cardinal):Cardinal;
+procedure IdSslBioGetMemPtr(b:PBIO;pp:Pointer);
+function IdSslBioPending(b:PBIO):Integer;
+function IdSslPemWriteBio(b:Pointer;x:Pointer):Integer;
+function IdSslPemReadBio(bp:Pointer;x:Pointer;cb:Pointer;u:PChar):Pointer;
+function IdSslMalloc(aSize:Integer):Pointer;
+procedure IdSslMemCheck(const aEnabled:boolean);
+procedure IdSslCheck(const aResult:Integer);
+function IdSslEvpPKeyAssignRsa(pkey:Pointer;rsa:Pointer):Integer;
+function IdSslX509ReqGetSubjectName(x:PX509_REQ):Pointer;
+procedure IdSslX509V3SetCtxNoDb(ctx:X509V3_CTX);
+
 implementation
 
 uses
+  IdObjs,
   IdSys,
   IdGlobal,  //needed for Sys symbol
   {$IFDEF LINUX}
@@ -3015,7 +3306,8 @@ const
 var
   hIdSSL    : Integer = 0;
   hIdCrypto : Integer = 0;
-  hIdIndySSL: Integer = 0;
+
+  FFailedFunctionLoadList : TIdStringList;
 
   // LIBEAY functions - open SSL 0.9.6a
   IdSslRandScreen : procedure cdecl = nil;
@@ -3024,10 +3316,13 @@ var
 { in function WhichFailedToLoad. I belive that this reduce size of final       }
 { compiled file.                                                               }
 const
+  fn_OpenSSL_add_all_ciphers = 'OpenSSL_add_all_ciphers'; {Do not localize}
+  fn_OpenSSL_add_all_digests = 'OpenSSL_add_all_digests'; {Do not localize}
   fn_sk_num = 'sk_num';  {Do not localize}
   fn_sk_value = 'sk_value';  {Do not localize}
   fn_sk_set = 'sk_set';  {Do not localize}
   fn_sk_new = 'sk_new';  {Do not localize}
+  fn_sk_new_null = 'sk_new_null'; {Do not localize}
   fn_sk_free = 'sk_free';  {Do not localize}
   fn_sk_pop_free = 'sk_pop_free';  {Do not localize}
   fn_sk_insert = 'sk_insert';  {Do not localize}
@@ -3076,6 +3371,10 @@ const
   fn_CRYPTO_mem_leaks_fp = 'CRYPTO_mem_leaks_fp';  {Do not localize}
   fn_CRYPTO_mem_leaks = 'CRYPTO_mem_leaks';  {Do not localize}
   fn_CRYPTO_mem_leaks_cb = 'CRYPTO_mem_leaks_cb';  {Do not localize}
+  fn_CRYPTO_cleanup_all_ex_data = 'CRYPTO_cleanup_all_ex_data'; {Do not localize}
+  fn_CRYPTO_set_mem_debug_functions = 'CRYPTO_set_mem_debug_functions'; {Do not localize}
+  fn_CRYPTO_dbg_set_options = 'CRYPTO_dbg_set_options'; {Do not localize}
+  fn_CRYPTO_dbg_get_options = 'CRYPTO_dbg_get_options'; {Do not localize}
   fn_ERR_load_CRYPTO_strings = 'ERR_load_CRYPTO_strings';  {Do not localize}
   fn_lh_new = 'lh_new';  {Do not localize}
   fn_lh_free = 'lh_free';  {Do not localize}
@@ -3180,45 +3479,45 @@ const
   fn_RIPEMD160_Final = 'RIPEMD160_Final';  {Do not localize}
   fn_RIPEMD160 = 'RIPEMD160';  {Do not localize}
   fn_RIPEMD160_Transform = 'RIPEMD160_Transform';  {Do not localize}
-  fn_des_options = 'des_options';  {Do not localize}
-  fn_des_ecb3_encrypt = 'des_ecb3_encrypt';  {Do not localize}
-  fn_des_cbc_cksum = 'des_cbc_cksum';  {Do not localize}
-  fn_des_cbc_encrypt = 'des_cbc_encrypt';  {Do not localize}
-  fn_des_ncbc_encrypt = 'des_ncbc_encrypt';  {Do not localize}
-  fn_des_xcbc_encrypt = 'des_xcbc_encrypt';  {Do not localize}
-  fn_des_cfb_encrypt = 'des_cfb_encrypt';  {Do not localize}
-  fn_des_ecb_encrypt = 'des_ecb_encrypt';  {Do not localize}
-  fn_des_encrypt = 'des_encrypt';  {Do not localize}
-  fn_des_encrypt2 = 'des_encrypt2';  {Do not localize}
-  fn_des_encrypt3 = 'des_encrypt3';  {Do not localize}
-  fn_des_decrypt3 = 'des_decrypt3';  {Do not localize}
-  fn_des_ede3_cbc_encrypt = 'des_ede3_cbc_encrypt';  {Do not localize}
-  fn_des_ede3_cbcm_encrypt = 'des_ede3_cbcm_encrypt';  {Do not localize}
-  fn_des_ede3_cfb64_encrypt = 'des_ede3_cfb64_encrypt';  {Do not localize}
-  fn_des_ede3_ofb64_encrypt = 'des_ede3_ofb64_encrypt';  {Do not localize}
-  fn_des_xwhite_in2out = 'des_xwhite_in2out';  {Do not localize}
-  fn_des_enc_read = 'des_enc_read';  {Do not localize}
-  fn_des_enc_write = 'des_enc_write';  {Do not localize}
-  fn_des_fcrypt = 'des_fcrypt';  {Do not localize}
+  fn_des_options = 'DES_options';  {Do not localize}
+  fn_des_ecb3_encrypt = 'DES_ecb3_encrypt';  {Do not localize}
+  fn_des_cbc_cksum = 'DES_cbc_cksum';  {Do not localize}
+  fn_des_cbc_encrypt = 'DES_cbc_encrypt';  {Do not localize}
+  fn_des_ncbc_encrypt = 'DES_ncbc_encrypt';  {Do not localize}
+  fn_des_xcbc_encrypt = 'DES_xcbc_encrypt';  {Do not localize}
+  fn_des_cfb_encrypt = 'DES_cfb_encrypt';  {Do not localize}
+  fn_des_ecb_encrypt = 'DES_ecb_encrypt';  {Do not localize}
+  fn_des_encrypt = 'DES_encrypt';  {Do not localize}
+  fn_des_encrypt2 = 'DES_encrypt2';  {Do not localize}
+  fn_des_encrypt3 = 'DES_encrypt3';  {Do not localize}
+  fn_des_decrypt3 = 'DES_decrypt3';  {Do not localize}
+  fn_des_ede3_cbc_encrypt = 'DES_ede3_cbc_encrypt';  {Do not localize}
+  fn_des_ede3_cbcm_encrypt = 'DES_ede3_cbcm_encrypt';  {Do not localize}
+  fn_des_ede3_cfb64_encrypt = 'DES_ede3_cfb64_encrypt';  {Do not localize}
+  fn_des_ede3_ofb64_encrypt = 'DES_ede3_ofb64_encrypt';  {Do not localize}
+  fn_des_xwhite_in2out = 'DES_xwhite_in2out';  {Do not localize}
+  fn_des_enc_read = 'DES_enc_read';  {Do not localize}
+  fn_des_enc_write = 'DES_enc_write';  {Do not localize}
+  fn_des_fcrypt = 'DES_fcrypt';  {Do not localize}
   fn_crypt = 'crypt';  {Do not localize}
-  fn_des_ofb_encrypt = 'des_ofb_encrypt';  {Do not localize}
-  fn_des_pcbc_encrypt = 'des_pcbc_encrypt';  {Do not localize}
-  fn_des_quad_cksum = 'des_quad_cksum';  {Do not localize}
-  fn_des_random_seed = 'des_random_seed';  {Do not localize}
-  fn_des_random_key = 'des_random_key';  {Do not localize}
-  fn_des_read_password = 'des_read_password';  {Do not localize}
-  fn_des_read_2passwords = 'des_read_2passwords';  {Do not localize}
-  fn_des_read_pw_string = 'des_read_pw_string';  {Do not localize}
-  fn_des_set_odd_parity = 'des_set_odd_parity';  {Do not localize}
-  fn_des_is_weak_key = 'des_is_weak_key';  {Do not localize}
-  fn_des_set_key = 'des_set_key';  {Do not localize}
-  fn_des_key_sched = 'des_key_sched';  {Do not localize}
-  fn_des_string_to_key = 'des_string_to_key';  {Do not localize}
-  fn_des_string_to_2keys = 'des_string_to_2keys';  {Do not localize}
-  fn_des_cfb64_encrypt = 'des_cfb64_encrypt';  {Do not localize}
-  fn_des_ofb64_encrypt = 'des_ofb64_encrypt';  {Do not localize}
-  fn_des_read_pw = 'des_read_pw';  {Do not localize}
-  fn_des_cblock_print_file = 'des_cblock_print_file';  {Do not localize}
+  fn_des_ofb_encrypt = 'DES_ofb_encrypt';  {Do not localize}
+  fn_des_pcbc_encrypt = 'DES_pcbc_encrypt';  {Do not localize}
+  fn_des_quad_cksum = 'DES_quad_cksum';  {Do not localize}
+  fn_des_random_seed = 'DES_random_seed';  {Do not localize}
+  fn_des_random_key = 'DES_random_key';  {Do not localize}
+  fn_des_read_password = 'DES_read_password';  {Do not localize}
+  fn_des_read_2passwords = 'DES_read_2passwords';  {Do not localize}
+  fn_des_read_pw_string = 'DES_read_pw_string';  {Do not localize}
+  fn_des_set_odd_parity = 'DES_set_odd_parity';  {Do not localize}
+  fn_des_is_weak_key = 'DES_is_weak_key';  {Do not localize}
+  fn_des_set_key = 'DES_set_key';  {Do not localize}
+  fn_des_key_sched = 'DES_key_sched';  {Do not localize}
+  fn_des_string_to_key = 'DES_string_to_key';  {Do not localize}
+  fn_des_string_to_2keys = 'DES_string_to_2keys';  {Do not localize}
+  fn_des_cfb64_encrypt = 'DES_cfb64_encrypt';  {Do not localize}
+  fn_des_ofb64_encrypt = 'DES_ofb64_encrypt';  {Do not localize}
+  fn_des_read_pw = 'DES_read_pw';  {Do not localize}
+  fn_des_cblock_print_file = 'DES_cblock_print_file';  {Do not localize}
   fn_RC4_options = 'RC4_options';  {Do not localize}
   fn_RC4_set_key = 'RC4_set_key';  {Do not localize}
   fn_RC4 = 'RC4';  {Do not localize}
@@ -3710,7 +4009,7 @@ const
   fn_EVP_add_digest = 'EVP_add_digest';  {Do not localize}
   fn_EVP_get_cipherbyname = 'EVP_get_cipherbyname';  {Do not localize}
   fn_EVP_get_digestbyname = 'EVP_get_digestbyname';  {Do not localize}
-  fn_EVP_cleanup = 'EVP_cleanup';  {Do not localize}
+  fn_EVP_cleanup = 'EVP_cleanup'; {Do not localize}
   fn_EVP_PKEY_decrypt = 'EVP_PKEY_decrypt';  {Do not localize}
   fn_EVP_PKEY_encrypt = 'EVP_PKEY_encrypt';  {Do not localize}
   fn_EVP_PKEY_type = 'EVP_PKEY_type';  {Do not localize}
@@ -4092,6 +4391,9 @@ const
   fn_NETSCAPE_SPKI_verify = 'NETSCAPE_SPKI_verify';  {Do not localize}
   fn_X509_sign = 'X509_sign';  {Do not localize}
   fn_X509_REQ_sign = 'X509_REQ_sign';  {Do not localize}
+  fn_X509V3_set_ctx = 'X509V3_set_ctx'; {Do not localize}
+  fn_X509V3_EXT_conf_nid = 'X509V3_EXT_conf_nid'; {Do not localize}
+  fn_X509_REQ_add_extensions = 'X509_REQ_add_extensions'; {Do not localize}
   fn_X509_CRL_sign = 'X509_CRL_sign';  {Do not localize}
   fn_NETSCAPE_SPKI_sign = 'NETSCAPE_SPKI_sign';  {Do not localize}
   fn_X509_digest = 'X509_digest';  {Do not localize}
@@ -4114,6 +4416,7 @@ const
   fn_i2d_PKCS8_PRIV_KEY_INFO_fp = 'i2d_PKCS8_PRIV_KEY_INFO_fp';  {Do not localize}
   fn_d2i_X509_bio = 'd2i_X509_bio';  {Do not localize}
   fn_i2d_X509_bio = 'i2d_X509_bio';  {Do not localize}
+  fn_i2d_PrivateKey_bio = 'i2d_PrivateKey_bio'; {Do not localize}
   fn_d2i_X509_CRL_bio = 'd2i_X509_CRL_bio';  {Do not localize}
   fn_i2d_X509_CRL_bio = 'i2d_X509_CRL_bio';  {Do not localize}
   fn_d2i_X509_REQ_bio = 'd2i_X509_REQ_bio';  {Do not localize}
@@ -4148,6 +4451,7 @@ const
   fn_X509_get_default_private_dir = 'X509_get_default_private_dir';  {Do not localize}
   fn_X509_to_X509_REQ = 'X509_to_X509_REQ';  {Do not localize}
   fn_X509_REQ_to_X509 = 'X509_REQ_to_X509';  {Do not localize}
+  fn_X509_NAME_add_entry_by_txt = 'X509_NAME_add_entry_by_txt'; {Do not localize}
   fn_ERR_load_X509_strings = 'ERR_load_X509_strings';  {Do not localize}
   fn_X509_ALGOR_new = 'X509_ALGOR_new';  {Do not localize}
   fn_X509_ALGOR_free = 'X509_ALGOR_free';  {Do not localize}
@@ -4631,21 +4935,12 @@ const
   fn_SSL_COMP_add_compression_method = 'SSL_COMP_add_compression_method';  {Do not localize}
   // GREGOR
 //  fn_SSLeay_add_ssl_algorithms = 'mi_SSLeay_add_ssl_algorithms';  {Do not localize}
+
+  //why does the function name not match?
   fn_SSLeay_add_ssl_algorithms = 'SSL_library_init';  {Do not localize}
-//  fn_SSLeay_add_ssl_algorithms = 'SSL_library_init_indy';  {Do not localize}
 
-  // fn_SSL_set_app_data = 'SSL_set_app_data_indy'; // GREGOR  {Do not localize}
-  // fn_SSL_get_app_data = 'SSL_get_app_data_indy'; // GREGOR  {Do not localize}
-  fn_SSL_CTX_set_info_callback = 'SSL_CTX_set_info_callback_indy'; // GREGOR  {Do not localize}
-  fn_X509_STORE_CTX_get_app_data = 'X509_STORE_CTX_get_app_data_indy';  {Do not localize}
-  fn_X509_get_notBefore = 'X509_get_notBefore_indy';  {Do not localize}
-  fn_X509_get_notAfter = 'X509_get_notAfter_indy';  {Do not localize}
-  // fn_UCTTimeDecode = 'UCTTimeDecode_indy';  {Do not localize}
-  fn_SSL_SESSION_get_id = 'SSL_SESSION_get_id_indy';  {Do not localize}
-  fn_SSL_SESSION_get_id_ctx = 'SSL_SESSION_get_id_ctx_indy';  {Do not localize}
-  fn_SSL_CTX_get_version = 'SSL_CTX_get_version_indy';  {Do not localize}
-  fn_SSL_CTX_set_options = 'SSL_CTX_set_options_indy';  {Do not localize}
-
+  //fn_SSL_CTX_set_info_callback = 'SSL_CTX_set_info_callback_indy'; // GREGOR  {Do not localize}
+  fn_SSL_SESSION_get_id = 'SSL_SESSION_get_id';  {Do not localize}
 
   fn_SSL_is_init_finished = 'mi_SSL_is_init_finished';  {Do not localize}
   fn_SSL_in_init = 'mi_SSL_in_init';  {Do not localize}
@@ -4658,7 +4953,7 @@ const
   //GREGOR
   fn_RAND_screen = 'RAND_screen';  {Do not localize}
 
-  //expiriemental
+  //experimental
   fn_ERR_get_error = 'ERR_get_error';  {Do not localize}
   fn_ERR_peek_error = 'ERR_peek_error';  {Do not localize}
   fn_ERR_clear_error = 'ERR_clear_error';  {Do not localize}
@@ -4669,38 +4964,21 @@ const
   fn_ERR_reason_error_string = 'ERR_reason_error_string'; {Do not localize}
   fn_ERR_load_ERR_strings = 'ERR_load_ERR_strings'; {Do not localize}
   fn_ERR_free_strings = 'ERR_free_strings'; {do not localize}
+  fn_ERR_remove_state = 'ERR_remove_state'; {do not localize}
 
-function LoadFunction(FceName:String):Pointer;
+function LoadFunction(const FceName:String):Pointer;
 begin
-  FceName := FceName+#0;
-  Result := GetProcAddress(hIdSSL, @FceName[1]);
-
-//  if (Result = nil) then ShowMessage('Error loading: ' + FceName);  {Do not localize}
+  Result := GetProcAddress(hIdSSL, PChar(FceName));
+  if (Result = nil) then FFailedFunctionLoadList.Add(FceName);  {Do not localize}
 end;
 
-{$IFDEF LINUX}
-function LoadIndyFunction(FceName:String):Pointer;
+function LoadFunctionCLib(const FceName:String):Pointer;
 begin
-  FceName := FceName+#0;
-  Result := GetProcAddress(hIdIndySSL, @FceName[1]);
-//  if (Result = nil) then ShowMessage('Error loading: ' + FceName);  {Do not localize}
-end;
-{$ELSE}
-function LoadIndyFunction(FceName:String):Pointer;
-begin
-  result := LoadFunction(FceName);
-end;
-{$ENDIF}
-
-function LoadFunctionCLib(FceName:String):Pointer;
-begin
-  FceName := FceName+#0;
-  Result := GetProcAddress(hIdCrypto, @FceName[1]);
-//  if (Result = nil) then ShowMessage('Error loading: ' + FceName);  {Do not localize}
+  Result := GetProcAddress(hIdCrypto, PChar(FceName));
+  if (Result = nil) then FFailedFunctionLoadList.Add(FceName);  {Do not localize}
 end;
 
 // remove this function, it is not used
-{
 function ErrMsg(AErr : Cardinal) : string;
 var
   LString: String;
@@ -4709,20 +4987,22 @@ Begin
   IdSSLOpenSSLHeaders.IdSSLERR_error_string_n(AErr,PChar(LString),300);
   Result := LString;
 end;
-}
 
-Function Load:Boolean;
+function Load:Boolean;
 begin
-  result := True;
+  Result := True;
+
+  Assert(FFailedFunctionLoadList<>nil);
+
+  FFailedFunctionLoadList.Clear;
+
   {$IFDEF LINUX}
-  // Workaround that is requered under Linux
+  // Workaround that is required under Linux
   if hIdCrypto = 0 then hIdCrypto := HMODULE(dlopen(SSLCLIB_DLL_name, RTLD_GLOBAL));
   If hIdSSL = 0 Then hIdSSL := HMODULE(dlopen(SSL_DLL_name, RTLD_GLOBAL));
-  If hIdIndySSL = 0 Then hIdIndySSL := LoadLibrary(SSL_Indy_DLL_name) else exit;
   {$ELSE}
   if hIdCrypto = 0 then hIdCrypto := LoadLibrary(SSLCLIB_DLL_name);
   If hIdSSL = 0 Then hIdSSL := LoadLibrary(SSL_DLL_name) else exit;
-  // If hIdIndySSL = 0 Then hIdIndySSL := LoadLibrary(SSL_Indy_DLL_name);
   {$ENDIF}
 
   @IdSslCtxSetCipherList := LoadFunction(fn_SSL_CTX_set_cipher_list);
@@ -4730,6 +5010,8 @@ begin
   @IdSslCtxFree := LoadFunction(fn_SSL_CTX_free);
   @IdSslSetFd := LoadFunction(fn_SSL_set_fd);
   @IdSslCtxUsePrivateKeyFile := LoadFunction(fn_SSL_CTX_use_PrivateKey_file);
+  @IdSslCtxUsePrivateKey := LoadFunction(fn_SSL_CTX_use_PrivateKey);
+  @IdSslCtxUseCertificate := LoadFunction(fn_SSL_CTX_use_certificate);
   @IdSslCtxUseCertificateFile := LoadFunction(fn_SSL_CTX_use_certificate_file);
   @IdSslLoadErrorStrings := LoadFunction(fn_SSL_load_error_strings);
   @IdSslStateStringLong := LoadFunction(fn_SSL_state_string_long);
@@ -4737,7 +5019,6 @@ begin
   @IdSslCtxSetVerify := LoadFunction(fn_SSL_CTX_set_verify);
   @IdSslCtxSetVerifyDepth := LoadFunction(fn_SSL_CTX_set_verify_depth);
   @IdSslCtxGetVerifyDepth := LoadFunction(fn_SSL_CTX_get_verify_depth);
-
 
   @IdSslCtxSetDefaultPasswdCb := LoadFunction(fn_SSL_CTX_set_default_passwd_cb);
   @IdSslCtxSetDefaultPasswdCbUserdata := LoadFunction(fn_SSL_CTX_set_default_passwd_cb_userdata);
@@ -4749,6 +5030,7 @@ begin
   @IdSslRead := LoadFunction(fn_SSL_read);
   @IdSslPeek := LoadFunction(fn_SSL_peek);
   @IdSslWrite := LoadFunction(fn_SSL_write);
+  @IdSslCtxCtrl := LoadFunction(fn_SSL_CTX_ctrl);
   @IdSslGetError := LoadFunction(fn_SSL_get_error);
   @IdSslMethodV2 := LoadFunction(fn_SSLv2_method);
   @IdSslMethodServerV2 := LoadFunction(fn_SSLv2_server_method);
@@ -4769,19 +5051,7 @@ begin
   @IdSslCtxLoadVerifyLocations := LoadFunction(fn_SSL_CTX_load_verify_locations);
   @IdSslGetSession := LoadFunction(fn_SSL_get_session);
   @IdSslAddSslAlgorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);
-
-  // Indy custom library
-
-  // @IdSslSetAppData := LoadIndyFunction(fn_SSL_set_app_data);
-  // @IdSslGetAppData := LoadIndyFunction(fn_SSL_get_app_data);
-  @IdSslCtxSetInfoCallback := LoadIndyFunction(fn_SSL_CTX_set_info_callback);
-  @IdSslX509StoreCtxGetAppData := LoadIndyFunction(fn_X509_STORE_CTX_get_app_data);
-  // @IdSslUCTTimeDecode := LoadIndyFunction(fn_UCTTimeDecode);
-  @IdSslSessionGetId := LoadIndyFunction(fn_SSL_SESSION_get_id);
-  @IdSslSessionGetIdCtx := LoadIndyFunction(fn_SSL_SESSION_get_id_ctx);
-  @IdSslCtxGetVersion := LoadIndyFunction(fn_SSL_CTX_get_version);
-  @IdSslCtxSetOptions := LoadIndyFunction(fn_SSL_CTX_set_options);
-
+  @IdSslSessionGetId := LoadFunction(fn_SSL_SESSION_get_id);
   // CRYPTO LIB
   @IdSslX509NameOneline := LoadFunctionCLib(fn_X509_NAME_oneline);
   @IdSslX509NameHash := LoadFunctionCLib(fn_X509_NAME_hash);
@@ -4790,13 +5060,21 @@ begin
   @IdSslX509SetSubjectName := LoadFunctionCLib(fn_X509_set_subject_name);
   @IdSslX509GetSubjectName := LoadFunctionCLib(fn_X509_get_subject_name);
   @IdSslX509Digest := LoadFunctionCLib(fn_X509_digest);
-  @IdSslEvpMd5 := LoadFunctionCLib(fn_EVP_md5);
-  @IdSslX509GetNotBefore := LoadIndyFunction(fn_X509_get_notBefore);
-  @IdSslX509GetNotAfter := LoadIndyFunction(fn_X509_get_notAfter);
+  @IdSslX509StoreCtxGetExData := LoadFunctionCLib(fn_X509_STORE_CTX_get_ex_data);
   @IdSslX509StoreCtxGetError := LoadFunctionCLib(fn_X509_STORE_CTX_get_error);
   @IdSslX509StoreCtxSetError := LoadFunctionCLib(fn_X509_STORE_CTX_set_error);
   @IdSslX509StoreCtxGetErrorDepth := LoadFunctionCLib(fn_X509_STORE_CTX_get_error_depth);
   @IdSslX509StoreCtxGetCurrentCert := LoadFunctionCLib(fn_X509_STORE_CTX_get_current_cert);
+  @IdSslX509Sign := LoadFunctionCLib(fn_X509_sign);
+  @IdSslX509ReqSign := LoadFunctionCLib(fn_X509_REQ_sign);
+  @IdSslX509ReqAddExtensions := LoadFunctionCLib(fn_X509_REQ_add_extensions);
+  @IdSslX509V3ExtConfNid := LoadFunctionCLib(fn_X509V3_EXT_conf_nid);
+  @IdSslX509ExtensionCreateByNid := LoadFunctionCLib(fn_X509_EXTENSION_create_by_NID);
+  @IdSslX509V3SetCtx := LoadFunctionCLib(fn_X509V3_set_ctx);
+
+  @IdSslX509ExtensionFree := LoadFunctionCLib(fn_X509_EXTENSION_free);
+  @IdSslX509AddExt := LoadFunctionCLib(fn_X509_add_ext);
+
   @IdSslRandScreen := LoadFunctionCLib(fn_RAND_screen);
 
   // 3DES
@@ -4836,232 +5114,135 @@ begin
   @IdSSLERR_load_ERR_strings := LoadFunctionCLib( fn_ERR_load_ERR_strings);
   @IdSSLERR_load_crypto_strings := LoadFunctionCLib(fn_ERR_load_crypto_strings);
   @IdSSLERR_free_strings := LoadFunctionCLib(fn_ERR_free_strings);
+  @IdSslErrRemoveState := LoadFunctionCLib(fn_ERR_remove_state);
+  @IdSslCryptoCleanupAllExData := LoadFunctionCLib(fn_CRYPTO_cleanup_all_ex_data);
+  @IdSslCompGetCompressionMethods := LoadFunction('SSL_COMP_get_compression_methods');
+  @IdSslSkPopFree := LoadFunctionCLib(fn_sk_pop_free);
 
-  result :=
-    (@IdSslCtxSetCipherList<>nil) and
-    (@IdSslCtxNew<>nil) and
-    (@IdSslCtxFree<>nil) and
-    (@IdSslSetFd<>nil) and
-    (@IdSslCtxUsePrivateKeyFile<>nil) and
-    (@IdSslCtxUseCertificateFile<>nil) and
-    (@IdSslLoadErrorStrings<>nil) and
-    (@IdSslStateStringLong<>nil) and
-    (@IdSslGetPeerCertificate<>nil) and
-    (@IdSslCtxSetVerify<>nil) and
-    (@IdSslCtxSetDefaultPasswdCb<>nil) and
-    (@IdSslCtxSetDefaultPasswdCbUserdata<>nil) and
-    (@IdSslCtxCheckPrivateKeyFile<>nil) and
-    (@IdSslNew<>nil) and
-    (@IdSslFree<>nil) and
-    (@IdSslAccept<>nil) and
-    (@IdSslConnect<>nil) and
-    (@IdSslRead<>nil) and
-    (@IdSslPeek<>nil) and
-    (@IdSslWrite<>nil) and
-    (@IdSslGetError<>nil) and
-    (@IdSslMethodV2<>nil) and
-    (@IdSslMethodServerV2<>nil) and
-    (@IdSslMethodClientV2<>nil) and
-    (@IdSslMethodV3<>nil) and
-    (@IdSslMethodServerV3<>nil) and
-    (@IdSslMethodClientV3<>nil) and
-    (@IdSslMethodV23<>nil) and
-    (@IdSslMethodServerV23<>nil) and
-    (@IdSslMethodClientV23<>nil) and
-    (@IdSslMethodTLSV1<>nil) and
-    (@IdSslMethodServerTLSV1<>nil) and
-    (@IdSslMethodClientTLSV1<>nil) and
-    (@IdSslShutdown<>nil) and
-    (@IdSslSetConnectState<>nil) and
-    (@IdSslSetAcceptState<>nil) and
-    (@IdSslSetShutdown<>nil) and
-    (@IdSslCtxLoadVerifyLocations<>nil) and
-    (@IdSslGetSession<>nil) and
-    (@IdSslAddSslAlgorithms<>nil) and
-//    (@IdSslSetAppData<>nil) and
-//    (@IdSslGetAppData<>nil) and
-    (@IdSslCtxSetInfoCallback<>nil) and
-    (@IdSslX509StoreCtxGetAppData<>nil) and
-//    (@IdSslUCTTimeDecode<>nil) and
-    (@IdSslSessionGetId<>nil) and
-    (@IdSslSessionGetIdCtx<>nil) and
-    (@IdSslCtxGetVersion<>nil) and
-    (@IdSslCtxSetOptions<>nil) and
+  //RSA
+  @IdSslRsaFree := LoadFunctionCLib(fn_RSA_free);
+  @IdSslRsaGenerateKey := LoadFunctionClib(fn_RSA_generate_key);
+  @IdSslRsaCheckKey := LoadFunctionCLib(fn_RSA_check_key);
 
-    (@IdSslX509NameOneline<>nil) and
-//    (@IdSslX509NameHash<>nil) and
-    (@IdSslX509SetIssuerName<>nil) and
-    (@IdSslX509GetIssuerName<>nil) and
-    (@IdSslX509SetSubjectName<>nil) and
-    (@IdSslX509GetSubjectName<>nil) and
-//    (@IdSslX509Digest<>nil) and
-//    (@IdSslEvpMd5<>nil) and
-    (@IdSslX509GetNotBefore<>nil) and
-    (@IdSslX509GetNotAfter<>nil) and
-    (@IdSslX509StoreCtxGetError<>nil) and
-    (@IdSslX509StoreCtxSetError<>nil) and
-    (@IdSslX509StoreCtxGetErrorDepth<>nil) and
-    (@IdSslX509StoreCtxGetCurrentCert<>nil) and
+  //BIO
+  @IdSslBioNew := LoadFunctionCLib(fn_BIO_new);
+  @IdSslBioFree := LoadFunctionCLib(fn_BIO_free);
+  @IdSslBioSMem := LoadFunctionCLib(fn_BIO_s_mem);
+  @IdSslBioSFile := LoadFunctionCLib(fn_BIO_s_file);
+  @IdSslBioCtrl := LoadFunctionCLib(fn_BIO_ctrl);
+  @IdSslBioNewFile := LoadFunctionCLib(fn_BIO_new_file);
+  @IdSslBioPutS := LoadFunctionCLib(fn_BIO_puts);
+  @IdSslBioRead := LoadFunctionCLib(fn_BIO_read);
+  @IdSslBioWrite := LoadFunctionCLib(fn_BIO_write);
 
-//    (@IdSslRandScreen<>nil) and
+  //i2d
+  @IdSslI2dX509Bio := LoadFunctionCLib(fn_i2d_X509_bio);
+  @IdSslI2dPrivateKeyBio := LoadFunctionCLib(fn_i2d_PrivateKey_bio);
+  @IdSslI2dX509 := LoadFunctionCLib(fn_i2d_X509);
+  @IdSslD2iX509Bio := LoadFunctionCLib(fn_d2i_X509_bio);
+  @IdSslD2iX509 := LoadFunctionClib(fn_d2i_X509);
+  @IdSslI2dX509ReqBio := LoadFunctionClib(fn_i2d_X509_REQ_bio);
 
-    (@iddes_set_odd_parity <>nil) and
-    (@iddes_set_key<>nil) and
-    (@iddes_ecb_encrypt<>nil) and
+  //X509
+  @IdSslX509New := LoadFunctionCLib(fn_X509_new);
+  @IdSslX509Free := LoadFunctionCLib(fn_X509_free);
+  @IdSslX509ReqNew := LoadFunctionCLib(fn_X509_REQ_new);
+  @IdSslX509ReqFree := LoadFunctionCLib(fn_X509_REQ_free);
+  @IdSslX509ToX509Req := LoadFunctionCLib(fn_X509_to_X509_REQ);
+  @IdSslX509NameAddEntryByTxt := LoadFunctionCLib(fn_X509_NAME_add_entry_by_txt);
+  @IdSslX509SetVersion := LoadFunctionCLib(fn_X509_set_version);
+  @IdSslX509GetSerialNumber := LoadFunctionCLib(fn_X509_get_serialNumber);
+  @IdSslX509GmTimeAdj := LoadFunctionCLib(fn_X509_gmtime_adj);
+  @IdSslX509SetNotBefore := LoadFunctionCLib(fn_X509_set_notBefore);
+  @IdSslX509SetNotAfter := LoadFunctionCLib(fn_X509_set_notAfter);
+  @IdSslX509SetPubKey := LoadFunctionCLib(fn_X509_set_pubkey);
+  @IdSslX509ReqSetPubKey := LoadFunctionCLib(fn_X509_REQ_set_pubkey);
 
-    (@IdSSL_set_ex_data<>nil) and
-    (@IdSSL_get_ex_data<> nil) and
+  //PEM
+  @IdSslPemWriteBioPKCS8PrivateKey := LoadFunctionCLib(fn_PEM_write_bio_PKCS8PrivateKey);
+  @IdSslPemAsn1WriteBio := LoadFunctionCLib(fn_PEM_ASN1_write_bio);
+  @IdSslPemAsn1ReadBio := LoadFunctionCLib(fn_PEM_ASN1_read_bio);
+  @IdSslPemReadBioPrivateKey := LoadFunctionCLib(fn_PEM_read_bio_PrivateKey);
+  @IdSslPemWriteBioX509Req := LoadFunctionCLib(fn_PEM_write_bio_X509_REQ);
 
-    (@IdSslCtxSetVerifyDepth<>nil) and
-    (@IdSslCtxGetVerifyDepth<>nil) and
-    (@IdSSLLoadClientCAFile<>nil) and
-    (@IdSSLCtxSetClientCAList<>nil) and
-    (@IdSSLCtxSetDefaultVerifyPaths<>nil) and
-    (@IdSSLCtxSetSessionIdContext<>nil) and
+  //EVP
+  @IdSslEvpDesEde3Cbc :=LoadFunctionCLib(fn_EVP_des_ede3_cbc);
+  @IdSslEvpMd5 := LoadFunctionCLib(fn_EVP_md5);
+  @IdSslEvpPKeyNew := LoadFunctionCLib(fn_EVP_PKEY_new);
+  @IdSslEvpPKeyFree := LoadFunctionCLib(fn_EVP_PKEY_free);
+  @IdSslEvpPKeyAssign := LoadFunctionCLib(fn_EVP_PKEY_assign);
+  @IdSslEvpGetDigestByName := LoadFunctionCLib(fn_EVP_get_digestbyname);
 
-    (@IdSSLCipherDescription<>nil) and
-    (@IdSSLGetCurrentCipher<>nil) and
-    (@IdSSLCipherGetName<>nil) and
-    (@IdSSLCipherGetBits<>nil) and
-    (@IdSSLCipherGetVersion<>nil) and
+  //ASN1
+  @IdSslAsn1IntegerSet := LoadFunctionCLib(fn_ASN1_INTEGER_set);
+  @IdSslAsn1StringTypeNew := LoadFunctionCLib(fn_ASN1_STRING_type_new);
+  @IdSslAsn1StringFree := LoadFunctionCLib(fn_ASN1_STRING_free);
 
-    (@IdSslCryptoNumLocks<>nil) and
-    (@IdSslSetLockingCallback<>nil) and
-    (@IdSslSetIdCallback<>nil) and
+  @IdSslCryptoSetMemFunctions := LoadFunctionCLib(fn_CRYPTO_set_mem_functions);
+  @IdSslCryptoMalloc := LoadFunctionCLib(fn_CRYPTO_malloc);
+  @IdSslCryptoFree := LoadFunctionCLib(fn_CRYPTO_free);
+  @IdSslCryptoMemLeaks := LoadFunctionCLib(fn_CRYPTO_mem_leaks);
+  @IdSslCryptoMemCtrl := LoadFunctionCLib(fn_CRYPTO_mem_ctrl);
+  @IdSslCryptoSetMemDebugFunctions := LoadFunctionCLib(fn_CRYPTO_set_mem_debug_functions);
+  //@IdSslCryptoDbgMalloc := LoadFunctionCLib(fn_CRYPTO_dbg_malloc);
+  //@IdSslCryptoDbgRealloc := LoadFunctionCLib(fn_CRYPTO_dbg_realloc);
+  //@IdSslCryptoDbgFree := LoadFunctionCLib(fn_CRYPTO_dbg_free);
+  //@IdSslCryptoDbgSetOptions := LoadFunctionCLib(fn_CRYPTO_dbg_set_options);
+  //@IdSslCryptoDbgGetOptions := LoadFunctionCLib(fn_CRYPTO_dbg_get_options);
 
-    (@IdSSLERR_get_err <> nil) and
-    (@IdSSLERR_peek_err <> nil) and
-    (@IdSSLERR_clear_error <> nil) and
-    (@IdSSLERR_error_string <> nil) and
-    (@IdSSLERR_error_string_n <> nil) and
-    (@IdSSLERR_lib_error_string <> nil) and
-    (@IdSSLERR_func_error_string <> nil) and
-    (@IdSSLERR_reason_error_string <> nil) and
-    (@IdSSLERR_load_ERR_strings <> nil) and
-    (@IdSSLERR_load_crypto_strings <> nil) and
-    (@IdSSLERR_free_strings <> nil);
+  //@IdSslAddAllAlgorithms := LoadFunctionCLib('OpenSSL_add_all_algorithms');
+  @IdSslAddAllCiphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers);
+  @IdSslAddAllDigests := LoadFunctionCLib(fn_OpenSSL_add_all_digests);
+  @IdSslEvpCleanup := LoadFunctionCLib(fn_EVP_cleanup);
 
-//  If Result Then IdSslLoadErrorStrings; // we read error strings in context loading dll-s
+  @IdSslSkNewNull := LoadFunctionCLib(fn_sk_new_null);
+  @IdSslSkPush := LoadFunctionCLib(fn_sk_push);
+
+  Result:=FFailedFunctionLoadList.Count=0;
+
 end;
 
 procedure Unload;
+var
+  aStack:Pointer;
 begin
-  if hIdSSL > 0 then FreeLibrary(hIdSSL);
-  hIdSSL := 0;
+  //this is a workaround for a known leak in the openssl library
+  //present in 0.9.8a
+  aStack:=IdSslCompGetCompressionMethods;
+  IdSslSkPopFree(aStack,@IdSslCryptoFree);
 
-  if hIdCrypto > 0 then FreeLibrary(hIdCrypto);
-  hIdCrypto := 0;
+  IdSslCryptoCleanupAllExData;
+  IdSSLERR_free_strings;
+  IdSslErrRemoveState(0);
+  IdSslEvpCleanup;
 
-  if hIdIndySSL > 0 then FreeLibrary(hIdIndySSL);
-  hIdIndySSL := 0;
+  if hIdSSL > 0 then
+   begin
+   FreeLibrary(hIdSSL);
+   hIdSSL := 0;
+   end;
+
+  if hIdCrypto > 0 then
+   begin
+   FreeLibrary(hIdCrypto);
+   hIdCrypto := 0;
+   end;
 end;
 
-Function WhichFailedToLoad:String;
-Begin
-  If hIdSSL=0 Then
+function WhichFailedToLoad:string;
+begin
+  Assert(FFailedFunctionLoadList<>nil);
+
+  if hIdSSL=0 then
     result := 'Failed to load '+SSL_DLL_name+'.'  {Do not localize}
-  Else Begin
-    result := '';  {Do not localize}
-
-  If @IdSslEvpMd5=nil Then result := result + ' ' + fn_EVP_md5;  {Do not localize}
-  If @IdSslX509StoreCtxGetError=nil Then result := result + ' ' + fn_X509_STORE_CTX_get_error;  {Do not localize}
-  If @IdSslX509StoreCtxSetError=nil Then result := result + ' ' + fn_X509_STORE_CTX_set_error;  {Do not localize}
-  If @IdSslX509StoreCtxGetErrorDepth=nil Then result := result + ' ' + fn_X509_STORE_CTX_get_error_depth;  {Do not localize}
-  If @IdSslX509StoreCtxGetCurrentCert=nil Then result := result + ' ' + fn_X509_STORE_CTX_get_current_cert;  {Do not localize}
-
-  If @IdSslX509Digest=nil Then result := result + ' ' + fn_X509_digest;  {Do not localize}
-
-  If @IdSslX509NameOneline=nil Then result := result + ' ' + fn_X509_NAME_oneline;  {Do not localize}
-  If @IdSslX509SetIssuerName=nil Then result := result + ' ' + fn_X509_set_issuer_name;  {Do not localize}
-  If @IdSslX509GetIssuerName=nil Then result := result + ' ' + fn_X509_get_issuer_name;  {Do not localize}
-  If @IdSslX509SetSubjectName=nil Then result := result + ' ' + fn_X509_set_subject_name;  {Do not localize}
-  If @IdSslX509GetSubjectName=nil Then result := result + ' ' + fn_X509_get_subject_name;  {Do not localize}
-  If @IdSslX509NameHash=nil Then result := result + ' ' + fn_X509_NAME_hash;  {Do not localize}
-  If @IdSslCtxSetCipherList=nil Then result := result + ' ' + fn_SSL_CTX_set_cipher_list;  {Do not localize}
-  If @IdSslCtxNew=nil Then result := result + ' ' + fn_SSL_CTX_new;  {Do not localize}
-  If @IdSslCtxFree=nil Then result := result + ' ' + fn_SSL_CTX_free;  {Do not localize}
-  If @IdSslSetFd=nil Then result := result + ' ' + fn_SSL_set_fd;  {Do not localize}
-  If @IdSslCtxUsePrivateKeyFile=nil Then result := result + ' ' + fn_SSL_CTX_use_PrivateKey_file;  {Do not localize}
-  If @IdSslCtxUseCertificateFile=nil Then result := result + ' ' + fn_SSL_CTX_use_certificate_file;  {Do not localize}
-  If @IdSslLoadErrorStrings=nil Then result := result + ' ' + fn_SSL_load_error_strings;  {Do not localize}
-  If @IdSslStateStringLong=nil Then result := result + ' ' + fn_SSL_state_string_long;  {Do not localize}
-  If @IdSslGetPeerCertificate=nil Then result := result + ' ' + fn_SSL_get_peer_certificate;  {Do not localize}
-  If @IdSslCtxSetVerify=nil Then result := result + ' ' + fn_SSL_CTX_set_verify;  {Do not localize}
-  If @IdSslCtxSetDefaultPasswdCb=nil Then result := result + ' ' + fn_SSL_CTX_set_default_passwd_cb;  {Do not localize}
-  If @IdSslCtxSetDefaultPasswdCbUserdata=nil Then result := result + ' ' + fn_SSL_CTX_set_default_passwd_cb_userdata;  {Do not localize}
-  If @IdSslCtxCheckPrivateKeyFile=nil Then result := result + ' ' + fn_SSL_CTX_check_private_key;  {Do not localize}
-  If @IdSslNew=nil Then result := result + ' ' + fn_SSL_new;  {Do not localize}
-  If @IdSslFree=nil Then result := result + ' ' + fn_SSL_free;  {Do not localize}
-  If @IdSslAccept=nil Then result := result + ' ' + fn_SSL_accept;  {Do not localize}
-  If @IdSslConnect=nil Then result := result + ' ' + fn_SSL_connect;  {Do not localize}
-  If @IdSslRead=nil Then result := result + ' ' + fn_SSL_read;  {Do not localize}
-  If @IdSslPeek=nil Then result := result + ' ' + fn_SSL_peek;  {Do not localize}
-  If @IdSslWrite=nil Then result := result + ' ' + fn_SSL_write;  {Do not localize}
-  If @IdSslGetError=nil Then result := result + ' ' + fn_SSL_get_error;  {Do not localize}
-  If @IdSslMethodV2=nil Then result := result + ' ' + fn_SSLv2_method;  {Do not localize}
-  If @IdSslMethodServerV2=nil Then result := result + ' ' + fn_SSLv2_server_method;  {Do not localize}
-  If @IdSslMethodClientV2=nil Then result := result + ' ' + fn_SSLv2_client_method;  {Do not localize}
-  If @IdSslMethodV3=nil Then result := result + ' ' + fn_SSLv3_method;  {Do not localize}
-  If @IdSslMethodServerV3=nil Then result := result + ' ' + fn_SSLv3_server_method;  {Do not localize}
-  If @IdSslMethodClientV3=nil Then result := result + ' ' + fn_SSLv3_client_method;  {Do not localize}
-  If @IdSslMethodV23=nil Then result := result + ' ' + fn_SSLv23_method;  {Do not localize}
-  If @IdSslMethodServerV23=nil Then result := result + ' ' + fn_SSLv23_server_method;  {Do not localize}
-  If @IdSslMethodClientV23=nil Then result := result + ' ' + fn_SSLv23_client_method;  {Do not localize}
-  If @IdSslMethodTLSV1=nil Then result := result + ' ' + fn_TLSv1_method;  {Do not localize}
-  If @IdSslMethodServerTLSV1=nil Then result := result + ' ' + fn_TLSv1_server_method;  {Do not localize}
-  If @IdSslMethodClientTLSV1=nil Then result := result + ' ' + fn_TLSv1_client_method;  {Do not localize}
-  If @IdSslShutdown=nil Then result := result + ' ' + fn_SSL_shutdown;  {Do not localize}
-  If @IdSslSetConnectState=nil Then result := result + ' ' + fn_SSL_set_connect_state;  {Do not localize}
-  If @IdSslSetAcceptState=nil Then result := result + ' ' + fn_SSL_set_accept_state;  {Do not localize}
-  If @IdSslSetShutdown=nil Then result := result + ' ' + fn_SSL_set_shutdown;  {Do not localize}
-  If @IdSslCtxLoadVerifyLocations=nil Then result := result + ' ' + fn_SSL_CTX_load_verify_locations;  {Do not localize}
-  If @IdSslGetSession=nil Then result := result + ' ' + fn_SSL_get_session;  {Do not localize}
-  If @IdSslAddSslAlgorithms=nil Then result := result + ' ' + fn_SSLeay_add_ssl_algorithms;  {Do not localize}
-//  If @IdSslSetAppData=nil Then result := result + ' ' + fn_SSL_set_app_data;  {Do not localize}
-//  If @IdSslGetAppData=nil Then result := result + ' ' + fn_SSL_get_app_data;  {Do not localize}
-  If @IdSslCtxSetInfoCallback=nil Then result := result + ' ' + fn_SSL_CTX_set_info_callback;  {Do not localize}
-  If @IdSslX509StoreCtxGetAppData=nil Then result := result + ' ' + fn_X509_STORE_CTX_get_app_data;  {Do not localize}
-  If @IdSslX509GetNotBefore=nil Then result := result + ' ' + fn_X509_get_notBefore;  {Do not localize}
-  If @IdSslX509GetNotAfter=nil Then result := result + ' ' + fn_X509_get_notAfter;  {Do not localize}
-//  If @IdSslUCTTimeDecode=nil Then result := result + ' ' + fn_UCTTimeDecode;  {Do not localize}
-  If @IdSslSessionGetId=nil Then result := result + ' ' + fn_SSL_SESSION_get_id;  {Do not localize}
-  If @IdSslSessionGetIdCtx=nil Then result := result + ' ' + fn_SSL_SESSION_get_id_ctx;  {Do not localize}
-  If @IdSslCtxGetVersion=nil Then result := result + ' ' + fn_SSL_CTX_get_version;  {Do not localize}
-  If @IdSslCtxSetOptions=nil Then result := result + ' ' + fn_SSL_CTX_set_options;  {Do not localize}
-  if @IdSslRandScreen=nil then result := result + ' ' + fn_RAND_screen; {Do not localize}
-
-  // 3DES
-  if @iddes_set_odd_parity = nil then result := result + ' ' + fn_des_set_odd_parity; {Do not localize}
-  if @iddes_set_key = nil then result := result + ' ' + fn_des_set_key; {Do not localize}
-  if @iddes_ecb_encrypt = nil then result := result + ' ' + fn_des_ecb_encrypt; {Do not localize}
-
-  // More SSL functions
-  if @IdSSL_set_ex_data = nil then result := result + ' ' + fn_SSL_set_ex_data; {Do not localize}
-  if @IdSSL_get_ex_data = nil then result := result + ' ' + fn_SSL_get_ex_data; {Do not localize}
-
-  if @IdSslCryptoNumLocks = nil then result := result + ' '+ fn_CRYPTO_num_locks; {Do not localize}
-  if @IdSslSetLockingCallback = nil then result := result + ' '+ fn_CRYPTO_set_locking_callback; {Do not localize}
-  if @IdSslSetIdCallback = nil then result := result + ' '+ fn_CRYPTO_set_id_callback; {Do not localize}
-
-  //expirimental
-  if @IdSSLERR_get_err = nil then result := result + ' '+ fn_ERR_get_error;
-  if @IdSSLERR_peek_err = nil then result := result + ' '+fn_ERR_peek_error;
-  if @IdSSLERR_clear_error = nil then result := result + ' '+fn_ERR_clear_error;
-  if @IdSSLERR_error_string = nil then result := result + ' '+fn_ERR_error_string;
-  if @IdSSLERR_error_string_n = nil then result := result + ' '+fn_ERR_error_string_n;
-  if @IdSSLERR_lib_error_string = nil then result := result + ' '+ fn_ERR_lib_error_string;
-  if @IdSSLERR_func_error_string = nil then result := result + ' '+ fn_ERR_func_error_string;
-  if @IdSSLERR_reason_error_string = nil then result := result + ' '+fn_ERR_reason_error_string;
-  if @IdSSLERR_load_ERR_strings = nil then result := result + ' '+fn_ERR_load_ERR_strings;
-  if @IdSSLERR_load_crypto_strings = nil then result := result + ' '+fn_ERR_load_crypto_strings;
-  if @IdSSLERR_free_strings = nil then result := result + ' '+ fn_ERR_free_strings;
- End;
-End;
+  else
+    result := FFailedFunctionLoadList.CommaText;
+end;
 
 // Author : Gregor Ibich (gregor.ibic@intelicom.si)
 // Pascal translation: Doychin Bondzhev (doichin@5group.com)
 
-// Converts the following string representatio into coresponding parts
+// Converts the following string representation into corresponding parts
 // YYMMDDHHMMSS(+|-)HH( )MM
 function IdSslUCTTimeDecode(UCTtime : PASN1_UTCTIME; Var year, month, day, hour, min, sec: Word;
   Var tz_hour, tz_min: Integer): Integer;
@@ -5126,10 +5307,140 @@ begin
   end;
 end;
 
+function IdSslX509StoreCtxGetAppData(ctx:PX509_STORE_CTX):Pointer;
+//#define X509_STORE_CTX_get_app_data(ctx) X509_STORE_CTX_get_ex_data(ctx,0)
+begin
+ Result:=IdSslX509StoreCtxGetExData(ctx,0);
+end;
+
+function IdSslX509GetNotBefore(x509: PX509):PASN1_UTCTIME;
+begin
+ Assert(x509<>nil);
+ Result:=x509.cert_info.validity.notBefore;
+end;
+
+function IdSslX509GetNotAfter(x509: PX509):PASN1_UTCTIME;
+//#define	X509_get_notAfter(x) ((x)->cert_info->validity->notAfter)
+begin
+ Assert(x509<>nil);
+ Result:=x509.cert_info.validity.notAfter;
+end;
+
+procedure IdSslCtxSetInfoCallback(ctx: PSSL_CTX; cb: PFunction);
+//#define SSL_CTX_set_info_callback(ctx,cb)	((ctx)->info_callback=(cb))
+begin
+ Assert(ctx<>nil);
+ ctx.info_callback:=cb;
+end;
+
+function IdSslCtxSetOptions(ctx: PSSL_CTX; op: Longint):Longint;
+//#define SSL_CTX_set_options(ctx,op) SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
+begin
+ Result:=IdSslCtxCtrl(ctx,OPENSSL_SSL_CTRL_OPTIONS,op,nil);
+end;
+
+function IdSslSessionGetIdCtx(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer;
+begin
+ Assert(s<>nil);
+ id^:=@s.sid_ctx;
+ Result:=s.sid_ctx_length;
+ Length^:=Result;
+end;
+
+function IdSslCtxGetVersion(ctx: PSSL_CTX):Integer;
+begin
+ Assert(ctx<>nil);
+ Result:=ctx.method.version;
+end;
+
+function IdSslBioSetClose(b:PBio;c:Cardinal):Cardinal;
+//#define BIO_set_close(b,c)	(int)BIO_ctrl(b,BIO_CTRL_SET_CLOSE,(c),NULL)
+begin
+ Result:=IdSslBioCtrl(b,OPENSSL_BIO_CTRL_SET_CLOSE,c,nil);
+end;
+
+procedure IdSslBioGetMemPtr(b:PBIO;pp:Pointer);
+//#define BIO_get_mem_ptr(b,pp)	BIO_ctrl(b,BIO_C_GET_BUF_MEM_PTR,0,(char *)pp)
+//not sure of pp type
+begin
+ IdSslBioCtrl(b,OPENSSL_BIO_C_GET_BUF_MEM_PTR,0,pp);
+end;
+
+function IdSslBioPending(b:PBIO):Integer;
+//#define BIO_pending(b)		(int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
+begin
+ Result:=IdSslBioCtrl(b,OPENSSL_BIO_CTRL_PENDING,0,nil);
+end;
+
+function IdSslPemReadBio(bp:Pointer;x:Pointer;cb:Pointer;u:PChar):Pointer;
+//#define	PEM_read_bio_X509(bp,x,cb,u) (X509 *)PEM_ASN1_read_bio( \
+//	(char *(*)())d2i_X509,PEM_STRING_X509,bp,(char **)x,cb,u)
+begin
+ Result:=IdSslPemAsn1ReadBio(@IdSslD2iX509,OPENSSL_PEM_STRING_X509,
+  bp,x,nil,nil);
+end;
+
+function IdSslPemWriteBio(b:Pointer;x:Pointer):Integer;
+//#define PEM_write_bio_X509(bp,x)
+//PEM_ASN1_write_bio((int (*)())i2d_X509,
+//PEM_STRING_X509,bp,(char *)x, NULL,NULL,0,NULL,NULL)
+begin
+ Assert(b<>nil);
+ Assert(x<>nil);
+
+ Result:=IdSslPemAsn1WriteBio(@IdSslI2dX509,OPENSSL_PEM_STRING_X509,
+  b,x,nil,nil,0,nil,nil);
+ Assert(Result<>0);
+end;
+
+function IdSslMalloc(aSize:Integer):Pointer;
+//can also use CRYPTO_mem_leaks(bio)
+begin
+ Result:=IdSslCryptoMalloc(aSize,'',0);
+end;
+
+procedure IdSslMemCheck(const aEnabled:boolean);
+//compile openssl with -DCRYPTO_MDEBUG
+var
+ r:Integer;
+begin
+ if aEnabled then r:=IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_ON)
+ else r:=IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_OFF);
+ Assert(r<>0);
+end;
+
+procedure IdSslCheck(const aResult:Integer);
+begin
+ if aResult=0 then raise Exception.Create('');
+end;
+
+function IdSslEvpPKeyAssignRsa(pkey:Pointer;rsa:Pointer):Integer;
+//#define EVP_PKEY_assign_RSA(pkey,rsa) EVP_PKEY_assign((pkey),EVP_PKEY_RSA,(char *)(rsa))
+begin
+ Result:=IdSslEvpPKeyAssign(pkey,OPENSSL_EVP_PKEY_RSA,rsa);
+end;
+
+function IdSslX509ReqGetSubjectName(x:PX509_REQ):Pointer;
+//#define	X509_REQ_get_subject_name(x) ((x)->req_info->subject)
+begin
+ Assert(x<>nil);
+ Result:=x.req_info.subject;
+end;
+
+procedure IdSslX509V3SetCtxNoDb(ctx:X509V3_CTX);
+//#define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
+begin
+ ctx.db:=nil;
+end;
+
 initialization
 
+  FFailedFunctionLoadList:=TIdStringList.Create;
+
 finalization
-  Unload;
+
+  Sys.FreeAndNil(FFailedFunctionLoadList);
+
 end.
 
 
