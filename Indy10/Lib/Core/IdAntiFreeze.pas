@@ -75,10 +75,6 @@ type
   TIdAntiFreeze = class(TIdAntiFreezeBase)
   public
     procedure Process; override;
-    // This here and not the base class because it uses InMainThread, which is
-    // not in DotNet right now. Can be moved back to base class and virtual
-    // removed otherwise.
-    class function ShouldUse: Boolean; override;
   end;
 
 implementation
@@ -128,14 +124,5 @@ begin
   Application.DoEvents;
 end;
 {$ENDIF}
-
-class function TIdAntiFreeze.ShouldUse: Boolean;
-begin
-  // InMainThread - Only process if calling client is in the main thread
-  Result := (GAntiFreeze <> nil) and InMainThread;
-  if Result then begin
-    Result := GAntiFreeze.Active;
-  end;
-end;
 
 end.
