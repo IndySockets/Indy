@@ -663,12 +663,12 @@ type
   {$ENDIF}
 
   {$IFDEF VCL4ORABOVE}
-   {$IFNDEF VCL6ORABOVE} // Delphi 6 has PCardinal
+    {$IFNDEF VCL6ORABOVE} // Delphi 6 has PCardinal
   PCardinal = ^Cardinal;
-   {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
-   //This usually is a property editor exception
+  //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
   EIdEndOfStream = class(EIdException);
   EIdInvalidIPv6Address = class (EIdException);
@@ -820,7 +820,7 @@ function ToBytes(const AValue: Word): TIdBytes; overload;
 function ToBytes(const AValue: Byte): TIdBytes; overload;
 function ToBytes(const AValue: Cardinal): TIdBytes; overload;
 function ToBytes(const AValue: Int64): TIdBytes; overload;
-function ToBytes(const AValue: TIdBytes; const ASize: Integer): TIdBytes; overload;
+function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 {$IFNDEF DotNet}
 // RLebeau - not using the same "ToBytes" naming convention for RawToBytes()
 // in order to prevent ambiquious errors with ToBytes(TIdBytes) above
@@ -836,7 +836,7 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Byte); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Cardinal); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64); overload;
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer); overload;
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0); overload;
 {$IFNDEF DotNet}
 // RLebeau - not using the same "ToBytesF" naming convention for RawToBytesF()
 // in order to prevent ambiquious errors with ToBytesF(TIdBytes) above
@@ -859,9 +859,14 @@ procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 
 // TIdBytes utilities
 function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0; AMaxCount: Integer = MaxInt): string;
-procedure AppendBytes(var VBytes: TIdBytes; AAdd: TIdBytes);
-procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
+procedure AppendBytes(var VBytes: TIdBytes; const AAdd: TIdBytes);
+procedure AppendByte(var VBytes: TIdBytes; const AByte: Byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
+
+procedure ExpandBytes(var VBytes: TIdBytes; const AIndex: Integer; const ACount: Integer; const AFillByte: Byte = 0);
+procedure InsertBytes(var VBytes: TIdBytes; const AAdd: TIdBytes; const AIndex: Integer);
+procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
+procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
 
 // Common Streaming routines
 function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
@@ -880,7 +885,10 @@ procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
   var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
 
+procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdInteger(const ASource: Integer; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdCardinal(const ASource: Cardinal; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
@@ -890,8 +898,13 @@ procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestI
 // Need to change prob not to use this set
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
-
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
+
+function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
+function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
+function ByteIsInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Boolean;
+function ByteIsInEOF(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
+
 function CurrentProcessId: TIdPID;
 procedure DebugOutput(const AText: string);
 function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
@@ -900,6 +913,7 @@ function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
 function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetchDelimDefault;
   const ADelete: Boolean = IdFetchDeleteDefault): string;
 
+// TODO: add an index parameter
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
 function CurrentThreadId: TIdPID;
@@ -983,6 +997,7 @@ var
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 begin
   {$IFDEF DOTNET}
+  // TODO: use the AValue byte
   System.&Array.Clear(VBytes, 0, ACount);
   {$ELSE}
   FillChar(VBytes[0], ACount, AValue);
@@ -1227,6 +1242,34 @@ begin
   {$ENDIF}
 end;
 
+procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF DotNet}
+var
+  LChar : TIdBytes;
+{$ENDIF}
+begin
+  {$IFDEF DotNet}
+  LChar := ToBytes(ASource);
+  System.array.Copy(LChar, 0, VDest, ADestIndex, 1);
+  {$ELSE}
+  VDest[ADestIndex] := Byte(ASource);
+  {$ENDIF}
+end;
+
+procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF DotNet}
+var
+  LShort : TIdBytes;
+{$ENDIF}
+begin
+  {$IFDEF DotNet}
+  LShort := System.BitConverter.GetBytes(ASource);
+  System.array.Copy(LShort, 0, VDest, ADestIndex, SizeOf(Short));
+  {$ELSE}
+  PSmallInt(@VDest[ADestIndex])^ := ASource;
+  {$ENDIF}
+end;
+
 procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
 {$IFDEF DotNet}
 var
@@ -1237,7 +1280,21 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(Word));
   {$ELSE}
-  Move(ASource, VDest[ADestIndex], SizeOf(Word));
+  PWord(@VDest[ADestIndex])^ := ASource;
+  {$ENDIF}
+end;
+
+procedure CopyTIdInteger(const ASource: Integer; var VDest: TIdBytes; const ADestIndex: Integer);
+{$IFDEF DotNet}
+var
+  LInt : TIdBytes;
+{$ENDIF}
+begin
+  {$IFDEF DotNet}
+  LInt := System.BitConverter.GetBytes(ASource);
+  System.array.Copy(LInt, 0, VDest, ADestIndex, SizeOf(Integer));
+  {$ELSE}
+  PInteger(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -1251,7 +1308,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(LongWord));
   {$ELSE}
-  Move(ASource, VDest[ADestIndex], SizeOf(LongWord));
+  PLongWord(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -1265,7 +1322,7 @@ begin
   LWord := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(Int64));
   {$ELSE}
-  Move(ASource, VDest[ADestIndex], SizeOf(Int64));
+  PInt64(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -1294,7 +1351,7 @@ begin
   LCard := System.BitConverter.GetBytes(ASource);
   System.array.Copy(LCard, 0, VDest, ADestIndex, SizeOf(Cardinal));
   {$ELSE}
-  Move(ASource, VDest[ADestIndex], SizeOf(Cardinal));
+  PCardinal(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
 end;
 
@@ -1600,7 +1657,7 @@ begin
   end;
 end;
 
-function InMainThread: boolean;
+function InMainThread: Boolean;
 begin
   {$IFDEF DotNet}
   Result := System.Threading.Thread.CurrentThread = MainThread;
@@ -1609,7 +1666,7 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: Int64);
 begin
   {$IFDEF DotNet}
   Dest.Write(Src.Memory, Count);
@@ -1619,7 +1676,7 @@ begin
 end;
 
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TIdNativeThread): boolean;
+function IsCurrentThread(AThread: TIdNativeThread): Boolean;
 begin
   Result := AThread.ThreadID = GetCurrentThreadID;
 end;
@@ -2417,10 +2474,7 @@ begin
   raise EIdException.Create('To do item undone.'); {do not localize}
 end;
 
-function ToBytes(
-  const AValue: string;
-  const AEncoding: TIdEncoding = enANSI
-  ): TIdBytes; overload;
+function ToBytes(const AValue: string; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
   {$IFDEF DotNet}
@@ -2440,13 +2494,14 @@ end;
 function ToBytes(const AValue: Char): TIdBytes; overload;
 {$IFDEF DotNet}
 var
-  LChars: array[0..1] of char;
+  LChars: array[0..1] of Char;
 {$ENDIF}
 begin
   {$IFDEF DotNet}
   LChars[0] := AValue;
+  LChars[1] := 0;
   SetLength(Result, 1);
-  &Array.Copy(System.Text.Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
+  System.array.Copy(System.Text.Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
   {$ELSE}
   SetLength(Result, SizeOf(Byte));
   Result[0] := Byte(AValue);
@@ -2509,10 +2564,10 @@ begin
   Result[0] := AValue;
 end;
 
-function ToBytes(const AValue: TIdBytes; const ASize: Integer): TIdBytes; overload;
+function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 begin
   SetLength(Result, ASize);
-  CopyTIdBytes(AValue, 0, Result, 0, ASize);
+  CopyTIdBytes(AValue, AIndex, Result, 0, ASize);
 end;
 
 {$IFNDEF DotNet}
@@ -2525,82 +2580,50 @@ end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char);
 begin
-  Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PChar(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  Assert(Length(Bytes) >= SizeOf(Byte));
+  CopyTIdChar(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Integer);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PInteger(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  CopyTIdInteger(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Short);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PShortint(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  CopyTIdShort(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PWord(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  CopyTIdWord(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Byte);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PByte(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  Bytes[0] := AValue;
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Cardinal);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PCardinal(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  CopyTIdCardinal(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64);
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue);
-  {$ELSE}
-  PInt64(@Bytes[0])^ := AValue;
-  {$ENDIF}
+  CopyTIdInt64(AValue, Bytes, 0);
 end;
 
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer);
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0);
 begin
-  Assert(Length(Bytes) >= SizeOf(AValue));
-  {$IFDEF DotNet}
-  Bytes := ToBytes(AValue, ASize);
-  {$ELSE}
-  CopyTIdBytes(AValue, 0, Bytes, 0, ASize);
-  {$ENDIF}
+  Assert(Length(Bytes) >= ASize);
+  CopyTIdBytes(AValue, AIndex, Bytes, 0, ASize);
 end;
 
 {$IFNDEF DotNet}
@@ -2614,25 +2637,26 @@ end;
 function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0): Char;
 const
   //don't use SizeOf(Char) as it's different depending on OS
-  cSizeOfChar=1;
+  cSizeOfChar = 1;
 {$IFDEF DotNet}
 var
   //aEnc:Encoding;
-  aBytes:TIdBytes;
+  LBytes: TIdBytes;
 {$ENDIF}
 begin
-  Assert(Length(AValue) >= (cSizeOfChar+AIndex));
+  Assert(Length(AValue) >= (AIndex+cSizeOfChar));
   {$IFDEF DotNet}
   //there is possibly a nicer way to do this
   //ToChar requires a 2-byte array
-  SetLength(aBytes,2);
-  aBytes[0]:=aValue[0];
+  SetLength(aBytes, 2);
+  LBytes[0] := AValue[0];
+  LBytes[1] := 0;
 
   //to get mime working, may need something like this, ISO-8859-1 codepage
   //aEnc:=Encoding.GetEncoding(1252);//28591);
   //Result := aEnc.GetChars(aBytes,0,1)[0];
 
-  Result := System.BitConverter.ToChar(ABytes, AIndex);
+  Result := System.BitConverter.ToChar(LBytes, AIndex);
   {$ELSE}
   Result := Char(AValue[AIndex]);
   {$ENDIF}
@@ -2640,7 +2664,7 @@ end;
 
 function BytesToInteger(const AValue: TIdBytes; const AIndex: Integer = 0): Integer;
 begin
-  Assert(Length(AValue) >= (SizeOf(Integer)+AIndex));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Integer)));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToInt32(AValue, AIndex);
   {$ELSE}
@@ -2650,7 +2674,7 @@ end;
 
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
 begin
-  Assert(Length(AValue) >= (SizeOf(Int64)+AIndex));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Int64)));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToInt64(AValue, AIndex);
   {$ELSE}
@@ -2660,7 +2684,7 @@ end;
 
 function BytesToWord(const AValue: TIdBytes; const AIndex: Integer = 0): Word;
 begin
-  Assert(Length(AValue) >= (SizeOf(Word)+AIndex));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Word)));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToUInt16(AValue, AIndex);
   {$ELSE}
@@ -2670,7 +2694,7 @@ end;
 
 function BytesToShort(const AValue: TIdBytes; const AIndex: Integer = 0): Short;
 begin
-  Assert(Length(AValue) >= (SizeOf(Short)+AIndex));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Short)));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToInt16(AValue, AIndex);
   {$ELSE}
@@ -2680,13 +2704,13 @@ end;
 
 function BytesToIPv6(const AValue: TIdBytes; const AIndex: Integer = 0): TIdIPv6Address;
 {$IFDEF DotNet}
-var i: Integer;
+var
+  i: Integer;
 {$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+16));
   {$IFDEF DotNet}
-  for i := 0 to 7 do
-  begin
+  for i := 0 to 7 do begin
     Result[i] := TwoByteToWord(AValue[(i*2)+AIndex], AValue[(i*2)+1+AIndex]);
   end;
   {$ELSE}
@@ -2696,7 +2720,7 @@ end;
 
 function BytesToCardinal(const AValue: TIdBytes; const AIndex: Integer = 0): Cardinal;
 begin
-  Assert(Length(AValue) >= (SizeOf(Cardinal)+AIndex));
+  Assert(Length(AValue) >= (AIndex+SizeOf(Cardinal)));
   {$IFDEF DotNet}
   Result := System.BitConverter.ToUInt32(AValue, AIndex);
   {$ELSE}
@@ -2750,7 +2774,7 @@ var
   LBytes: TIdBytes;
 begin
   ASize := TIdStreamHelper.ReadBytes(AStream, LBytes, ASize);
-  Result := BytesToString(LBytes, 0, ASize);  // is the 0 right?
+  Result := BytesToString(LBytes, 0, ASize);
 end;
 
 function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
@@ -2769,13 +2793,10 @@ begin
 end;
 
 procedure WriteStringToStream(AStream: TIdStream; const AStr :string);
-var
-  LBytes: TIdBytes;
 begin
-  if AStr = '' then Exit;
-
-  LBytes := ToBytes(AStr);
-  TIdStreamHelper.Write(AStream, LBytes);
+  if AStr <> '' then begin
+    TIdStreamHelper.Write(AStream, ToBytes(AStr));
+  end;
 end;
 
 //    function IdRead(var Buffer: TIdByteArray; Offset, Count: Longint): Longint; virtual; abstract;
@@ -2842,7 +2863,7 @@ begin
 end;
 {$ENDIF}
 
-procedure AppendBytes(var VBytes: TIdBytes; AAdd: TIdBytes);
+procedure AppendBytes(var VBytes: TIdBytes; const AAdd: TIdBytes);
 var
   LOldLen: Integer;
 begin
@@ -2851,13 +2872,13 @@ begin
   CopyTIdBytes(AAdd, 0, VBytes, LOldLen, Length(AAdd));
 end;
 
-procedure AppendByte(var VBytes: TIdBytes; AByte: byte);
+procedure AppendByte(var VBytes: TIdBytes; const AByte: byte);
 var
   LOldLen: Integer;
 begin
   LOldLen := Length(VBytes);
   SetLength(VBytes, LOldLen + 1);
-  VBytes[High(VBytes)] := AByte;
+  VBytes[LOldLen] := AByte;
 end;
 
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
@@ -2870,6 +2891,59 @@ begin
   LOldLen := Length(VBytes);
   SetLength(VBytes, LOldLen + ALength);
   CopyTIdString(AStr, VBytes, LOldLen, ALength);
+end;
+
+procedure ExpandBytes(var VBytes: TIdBytes; const AIndex: Integer; const ACount: Integer; const AFillByte: Byte = 0);
+var
+  I: Integer;
+begin
+  if ACount > 0 then begin
+    // if AIndex is at the end of the buffer then the operation is appending bytes
+    if AIndex <> Length(VBytes) then begin
+      //if these asserts fail, then it indicates an attempted buffer overrun.
+      Assert(AIndex>=0);
+      Assert(AIndex<Length(VBytes));
+    end;
+    SetLength(VBytes, Length(VBytes) + ACount);
+    // move any existing bytes at the index to the end of the buffer
+    for I := Length(VBytes)-1 downto AIndex+ACount do begin
+      VBytes[I] := VBytes[I-ACount];
+    end;
+    // fill in the new space with the fill byte
+    for I := AIndex to AIndex+ACount-1 do begin
+      VBytes[I] := AFillByte;
+    end;
+  end;
+end;
+
+procedure InsertBytes(var VBytes: TIdBytes; const AAdd: TIdBytes; const AIndex: Integer);
+begin
+  ExpandBytes(VBytes, AIndex, Length(AAdd));
+  CopyTIdBytes(AAdd, 0, VBytes, AIndex, Length(AAdd));
+end;
+
+procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
+begin
+  ExpandBytes(VBytes, AIndex, 1);
+  VBytes[AIndex] := AByte;
+end;
+
+procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
+var
+  I: Integer;
+  LActual: Integer;
+begin
+  Assert(AIndex >= 0);
+  LActual := Min(Length(VBytes)-AIndex, ACount);
+  if LActual > 0 then begin
+    if (AIndex + LActual) < Length(VBytes) then begin
+      // RLebeau: TODO - use Move() here instead?
+      for I := AIndex to Length(VBytes)-LActual-1 do begin
+        VBytes[I] := VBytes[I+LActual];
+      end;
+    end;
+    SetLength(VBytes, Length(VBytes)-LActual);
+  end;
 end;
 
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -2964,10 +3038,10 @@ end;
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
 begin
   EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos');{ do not localize }
-  if ACharPos > Length(AString) then begin
-    Result := 0;
-  end else begin
+  if ACharPos <= Length(AString) then begin
     Result := IndyPos(AString[ACharPos], ASet);
+  end else begin
+    Result := 0;
   end;
 end;
 
@@ -2979,6 +3053,43 @@ end;
 function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
 begin
   Result := CharIsInSet(AString, ACharPos, EOL);
+end;
+
+function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
+begin
+  for Result := AStartIndex to Length(ABytes)-1 do begin
+    if ABytes[Result] = AByte then begin
+      Exit;
+    end;
+  end;
+  Result := -1;
+end;
+
+function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
+var
+  B: Byte;
+begin
+  EIdException.IfTrue(AIndex < 0, 'Invalid AIndex'); {do not localize}
+  if AIndex < Length(ABytes) then begin
+    Result := ByteIndex(ABytes[AIndex], ASet);
+  end else begin
+    Result := -1;
+  end;
+end;
+
+function ByteIsInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Boolean;
+begin
+  Result := ByteIdxInSet(ABytes, AIndex, ASet) > -1;
+end;
+
+function ByteIsInEOF(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
+var
+  LSet: TIdBytes;
+begin
+  SetLength(LSet, 2);
+  LSet[0] := 13;
+  LSet[1] := 10;
+  Result := ByteIsInSet(ABytes, AIndex, LSet);
 end;
 
 function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
