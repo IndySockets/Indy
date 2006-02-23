@@ -50,9 +50,6 @@ unit IdAntiFreezeBase;
 
 interface
 
-// TODO: Remove this when D.NET problem is resolved
-{$I IdCompilerDefines.inc}
-
 uses
   IdBaseComponent;
 
@@ -72,11 +69,10 @@ type
     //
     procedure InitComponent; override;
   public
-    class procedure DoProcess(const AIdle: Boolean = true;
-     const AOverride: Boolean = false);
     destructor Destroy; override;
     procedure Process; virtual; abstract;
-    class function ShouldUse: Boolean; virtual;
+    class procedure DoProcess(const AIdle: Boolean = True; const AOverride: Boolean = False);
+    class function ShouldUse: Boolean;
     class procedure Sleep(ATimeout: Integer);
   published
     property Active: boolean read FActive write FActive
@@ -105,14 +101,13 @@ uses
 destructor TIdAntiFreezeBase.Destroy;
 begin
   GAntiFreeze := nil;
-  inherited;
+  inherited Destroy;
 end;
 
-class procedure TIdAntiFreezeBase.DoProcess(const AIdle: boolean = True;
- const AOverride: boolean = False);
+class procedure TIdAntiFreezeBase.DoProcess(const AIdle: Boolean = True; const AOverride: Boolean = False);
 begin
   if ShouldUse then begin
-    if ((GAntiFreeze.OnlyWhenIdle = False) or AIdle or AOverride) and GAntiFreeze.Active then begin
+    if (not GAntiFreeze.OnlyWhenIdle) or AIdle or AOverride then begin
       GAntiFreeze.Process;
     end;
   end;
@@ -120,7 +115,7 @@ end;
 
 procedure TIdAntiFreezeBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   if not IsDesignTime then begin
     EIdException.IfAssigned(GAntiFreeze, RSAntiFreezeOnlyOne);
     GAntiFreeze := Self;
@@ -133,7 +128,10 @@ end;
 
 class function TIdAntiFreezeBase.ShouldUse: Boolean;
 begin
-  Result := False;
+  Result := (GAntiFreeze <> nil) and InMainThread;
+  if Result then begin
+    Result := GAntiFreeze.Active;
+  end;
 end;
 
 class procedure TIdAntiFreezeBase.Sleep(ATimeout: Integer);
@@ -141,7 +139,7 @@ begin
   if ShouldUse then begin
     while ATimeout > GAntiFreeze.IdleTimeOut do begin
       IdGlobal.Sleep(GAntiFreeze.IdleTimeOut);
-      ATimeout := ATimeout - GAntiFreeze.IdleTimeOut;
+      Dec(ATimeout, GAntiFreeze.IdleTimeOut);
       DoProcess;
     end;
     IdGlobal.Sleep(ATimeout);
