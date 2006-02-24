@@ -337,13 +337,15 @@ var
   GStarted: Boolean = False;
 
 constructor TIdStackWindows.Create;
-var
-  LData: TWSAData;
 begin
   inherited Create;
   if not GStarted then begin
-    if WSAStartup($202, LData) = SOCKET_ERROR then begin
-      raise EIdStackInitializationFailed.Create(RSWinsockInitializationError);
+    try
+      InitializeWinSock;
+    except
+      on E: Exception do begin
+        raise EIdStackInitializationFailed.Create(E.Message);
+      end;
     end;
     GStarted := True;
   end;
@@ -704,22 +706,23 @@ end;
 
 { TIdStackVersionWinsock }
 
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): cardinal;
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Cardinal;
 var
   LFileHandle: THandle;
 begin
-  result := 0;
-  LFileHandle := CreateFile(PChar(AFileName), GENERIC_READ, FILE_SHARE_READ, nil, OPEN_EXISTING
-   , FILE_ATTRIBUTE_NORMAL or FILE_FLAG_SEQUENTIAL_SCAN, 0); try
+  Result := 0;
+  LFileHandle := CreateFile(PChar(AFileName), GENERIC_READ, FILE_SHARE_READ, nil,
+    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL or FILE_FLAG_SEQUENTIAL_SCAN, 0);
+  try
     if TransmitFile(ASocket, LFileHandle, 0, 0, nil, nil, 0) then begin
-      result := getFileSize(LFileHandle, nil);
+      Result := GetFileSize(LFileHandle, nil);
     end;
   finally CloseHandle(LFileHandle); end;
 end;
 
 function TIdStackWindows.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
 begin
-  result := Shutdown(ASocket, AHow);
+  Result := Shutdown(ASocket, AHow);
 end;
 
 procedure TIdStackWindows.GetSocketName(ASocket: TIdStackSocketHandle;
@@ -1108,33 +1111,26 @@ begin
 end;
 
 procedure TIdStackWindows.WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
-  const AIP: String;
-  const APort : Word;
-  var VSource;
-  var VDest);
+  const AIP: String; const APort: Word; var VSource; var VDest);
 var
   Llocalif : SOCKADDR_STORAGE;
   LPLocalIP : PSOCKADDR_IN6;
-  LAddr6:TSockAddrIn6;
+  LAddr6 : TSockAddrIn6;
   Bytes : Cardinal;
-
 begin
-  if not IdIPv6Available then
-  begin
-    raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-  end;
+  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
   //make our LAddrInfo structure
   FillChar(LAddr6, SizeOf(LAddr6), 0);
   LAddr6.sin6_family := AF_INET6;
   TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
-  Move(LAddr6.sin6_addr, VDest,SizeOf(in6_addr));
+  Move(LAddr6.sin6_addr, VDest, SizeOf(in6_addr));
   LAddr6.sin6_port := HToNs(APort);
   LPLocalIP := PSockAddr_in6(@Llocalif);
   // Find out which local interface for the destination
   CheckForSocketError( WSAIoctl(ASocket, SIO_ROUTING_INTERFACE_QUERY,
-    @LAddr6, Cardinal(SizeOf(TSockAddrIn6) ), @Llocalif,
-    Cardinal(sizeof(Llocalif)), @bytes, nil, nil));
-  Move( LPLocalIP^.sin6_addr ,VSource,SizeOf(in6_addr));
+    @LAddr6, Cardinal(SizeOf(TSockAddrIn6)), @Llocalif,
+    Cardinal(SizeOf(Llocalif)), @Bytes, nil, nil));
+  Move( LPLocalIP^.sin6_addr, VSource, SizeOf(in6_addr));
 end;
 
 procedure TIdStackWindows.WriteChecksum(s: TIdStackSocketHandle;
@@ -1184,23 +1180,23 @@ var
 }
 begin
 
-  GWindowsStack.WSQuerryIPv6Route(s,AIP,APort,LSource,LDest);
-  SetLength(LTmp,Length(VBuffer)+40);
+  GWindowsStack.WSQuerryIPv6Route(s, AIP, APort, LSource, LDest);
+  SetLength(LTmp, Length(VBuffer)+40);
 
   //16
-   Move(LSource,LTmp[0],SizeOf(LSource));
+  Move(LSource, LTmp[0], SizeOf(LSource));
   LIdx := SizeOf(LSource);
   //32
-  Move(LDest,LTmp[LIdx],SizeOf(LDest));
-  LIdx := LIdx+SizeOf(LDest);
+  Move(LDest, LTmp[LIdx], SizeOf(LDest));
+  Inc(LIdx, SizeOf(LDest));
   //use a word so you don't wind up using the wrong network byte order function
   LC := Length(VBuffer);
-  CopyTIdCardinal(GStack.HostToNetwork(LC),LTmp,LIdx);
+  CopyTIdCardinal(GStack.HostToNetwork(LC), LTmp, LIdx);
   Inc(LIdx,4);
   //36
   //zero the next three bytes
-  FillChar(LTmp[LIdx],3,0);
-  Inc(LIdx,3);
+  FillChar(LTmp[LIdx], 3, 0);
+  Inc(LIdx, 3);
   //next header (protocol type determines it
   LTmp[LIdx] := Id_IPPROTO_ICMPV6; // Id_IPPROTO_ICMP6;
   Inc(LIdx);
@@ -1208,17 +1204,14 @@ begin
   VBuffer[2] := 0;
   VBuffer[3] := 0;
   //combine the two
-  CopyTIdBytes(VBuffer,0,LTmp,LIdx,Length(VBuffer));
+  CopyTIdBytes(VBuffer, 0, LTmp, LIdx, Length(VBuffer));
   LW := CalcCheckSum(LTmp);
 
-  CopyTIdWord(LW,VBuffer,AOffset);
+  CopyTIdWord(LW, VBuffer, AOffset);
 end;
 
 function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer : TIdBytes;
-  APkt: TIdPacketInfo;
-  const AIPVersion: TIdIPVersion): Cardinal;
-type
-  PByte = ^Byte;
+  APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion): Cardinal;
 var
   LIP : String;
   LPort : Integer;
@@ -1229,23 +1222,22 @@ var
   LMsgBuf : TWSABUF;
   LControl : TIdBytes;
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
-  LCurPt : Pin_pktinfo;
-  LCurPt6 : Pin6_pktinfo;
-  LByte : PByte;
+  LCurPt : PInPktInfo;
+  LCurPt6 : PIn6PktInfo;
   LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
- if (Win32MajorVersion>4) and (Win32MinorVersion > 0) then
- begin
-   //we call the macro twice because we specified two possible structures.
-   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
-   LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
-   SetLength( LControl,LSize);
+  if (Sys.Win32MajorVersion > 4) and (Sys.Win32MinorVersion > 0) then
+  begin
+    //we call the macro twice because we specified two possible structures.
+    //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
+    LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
+    SetLength(LControl, LSize);
 
     LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
     LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
 
-    FillChar(LMsg,SizeOf(LMsg),0);
+    FillChar(LMsg, SizeOf(LMsg), 0);
 
     LMsg.lpBuffers := @LMsgBuf;
     LMsg.dwBufferCount := 1;
@@ -1253,26 +1245,27 @@ begin
     LMsg.Control.Len := LSize;
     LMsg.Control.buf := @LControl[0];
 
-
     case AIPVersion of
-      Id_IPv4: begin
-        LMsg.name :=  @LAddr4;
-        LMsg.namelen := SizeOf(LAddr4);
+      Id_IPv4:
+        begin
+          LMsg.name :=  @LAddr4;
+          LMsg.namelen := SizeOf(LAddr4);
 
-        GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
-        APkt.SourceIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
+          GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
+          APkt.SourceIP := TranslateTInAddrToString(LAddr4.sin_addr, Id_IPv4);
 
-        APkt.SourcePort := NToHs(LAddr4.sin_port);
-      end;
-      Id_IPv6: begin
-        LMsg.name := PSOCKADDR( @LAddr6);
-        LMsg.namelen := SizeOf(LAddr6);
+          APkt.SourcePort := NToHs(LAddr4.sin_port);
+        end;
+      Id_IPv6:
+        begin
+          LMsg.name := PSOCKADDR(@LAddr6);
+          LMsg.namelen := SizeOf(LAddr6);
 
-        CheckForSocketError( IdWinsock2.WSARecvMsg(ASocket,@LMsg,Result,@LDummy,LPwsaoverlapped_COMPLETION_ROUTINE(@LDummy2)));
-        APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
+          CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, @LDummy, LPWSAOVERLAPPED_COMPLETION_ROUTINE(@LDummy2)));
+          APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
 
-        APkt.SourcePort := NToHs(LAddr6.sin6_port);
-      end;
+          APkt.SourcePort := NToHs(LAddr6.sin6_port);
+        end;
       else begin
         Result := 0; // avoid warning
         IPVersionUnsupported;
@@ -1280,9 +1273,8 @@ begin
     end;
     LCurCmsg := nil;
     repeat
-      LCurCmsg := WSA_CMSG_NXTHDR(@LMsg,LCurCmsg);
-      if LCurCmsg=nil then
-      begin
+      LCurCmsg := WSA_CMSG_NXTHDR(@LMsg, LCurCmsg);
+      if LCurCmsg = nil then begin
         break;
       end;
       case LCurCmsg^.cmsg_type of
@@ -1291,41 +1283,38 @@ begin
         begin
           if AIPVersion = Id_IPv4 then
           begin
-            LCurPt := WSA_CMSG_DATA(LCurCmsg);
-            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt^.ipi_addr,Id_IPv4);
+            LCurPt := PInPktInfo(WSA_CMSG_DATA(LCurCmsg));
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt^.ipi_addr, Id_IPv4);
             APkt.DestIF := LCurPt^.ipi_ifindex;
           end;
           if AIPVersion = Id_IPv6 then
           begin
-            LCurPt6 := WSA_CMSG_DATA(LCurCmsg);
-            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr,Id_IPv6);
+            LCurPt6 := PIn6PktInfo(WSA_CMSG_DATA(LCurCmsg));
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr, Id_IPv6);
             APkt.DestIF := LCurPt6^.ipi6_ifindex;
           end;
         end;
         Id_IPV6_HOPLIMIT :
         begin
-          LByte :=  PByte(WSA_CMSG_DATA(LCurCmsg));
-          APkt.TTL := LByte^;
+          APkt.TTL := WSA_CMSG_DATA(LCurCmsg)^;
         end;
       end;
     until False;
-  end
-  else
+  end else
   begin
-    Result :=  RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, LIP, LPort,
-     AIPVersion);
-     APkt.SourceIP := LIP;
-     APkt.SourcePort := LPort;
+    Result := RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, LIP, LPort, AIPVersion);
+    APkt.SourceIP := LIP;
+    APkt.SourcePort := LPort;
   end;
 end;
 
-function TIdStackWindows.CheckIPVersionSupport(
-  const AIPVersion: TIdIPVersion): boolean;
-var LTmpSocket:TIdStackSocketHandle;
+function TIdStackWindows.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): Boolean;
+var
+  LTmpSocket: TIdStackSocketHandle;
 begin
-  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Id_SOCK_STREAM, Id_IPPROTO_IP );
-  result:=LTmpSocket<>Id_INVALID_SOCKET;
-  if LTmpSocket<>Id_INVALID_SOCKET then begin
+  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Id_SOCK_STREAM, Id_IPPROTO_IP);
+  Result := LTmpSocket <> Id_INVALID_SOCKET;
+  if Result then begin
     WSCloseSocket(LTmpSocket);
   end;
 end;
@@ -1338,6 +1327,6 @@ initialization
   end;
 finalization
   if GStarted then begin
-    WSACleanup;
+    UninitializeWinSock;
   end;
 end.
