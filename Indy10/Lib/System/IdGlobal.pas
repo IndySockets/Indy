@@ -671,7 +671,7 @@ type
   //This usually is a property editor exception
   EIdCorruptServicesFile = class(EIdException);
   EIdEndOfStream = class(EIdException);
-  EIdInvalidIPv6Address = class (EIdException);
+  EIdInvalidIPv6Address = class(EIdException);
 
   {$IFNDEF DotNet}
   TBytes = array of Byte;
@@ -740,7 +740,7 @@ type
   {$ENDIF}
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
   // without any $IFDEFs in the unit IdMultiPartFormData - in accordance with Indy Coding rules
-  TIdBaseStream = class (TIdStream)
+  TIdBaseStream = class(TIdStream)
   protected
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
@@ -811,8 +811,15 @@ const
   POWER_3 = $00FFFFFF;
   POWER_4 = $FFFFFFFF;
 
+// utility functions to calculate the usable length of a given buffer.
+// If ALength is <0 then the actual Buffer length is returned,
+// otherwise the minimum of the two lengths is returned instead.
+function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer; overload;
+function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer; overload;
+function IndyLength(const ABuffer: TIdStream; const ALength: Integer = -1): Integer; overload;
+
 // To and From Bytes conversion routines
-function ToBytes(const AValue: string; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
+function ToBytes(const AValue: string; const ALength: Integer = -1; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
 function ToBytes(const AValue: Char): TIdBytes; overload;
 function ToBytes(const AValue: Integer): TIdBytes; overload;
 function ToBytes(const AValue: Short): TIdBytes; overload;
@@ -859,12 +866,12 @@ procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 
 // TIdBytes utilities
 function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0; AMaxCount: Integer = MaxInt): string;
-procedure AppendBytes(var VBytes: TIdBytes; const AAdd: TIdBytes);
+procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0);
 procedure AppendByte(var VBytes: TIdBytes; const AByte: Byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
 
 procedure ExpandBytes(var VBytes: TIdBytes; const AIndex: Integer; const ACount: Integer; const AFillByte: Byte = 0);
-procedure InsertBytes(var VBytes: TIdBytes; const AAdd: TIdBytes; const AIndex: Integer);
+procedure InsertBytes(var VBytes: TIdBytes; const ADestIndex: Integer; const ASource: TIdBytes; const ASourceIndex: Integer = 0);
 procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
 procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
 
@@ -874,7 +881,7 @@ function ReadStringFromStream(AStream: TIdStream; ASize: Integer = -1): string;
 procedure WriteStringToStream(AStream: TIdStream; const AStr: string);
 function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
 function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
-procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes);
+procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes; const ASize: Integer = -1);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -893,7 +900,7 @@ procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const AD
 procedure CopyTIdCardinal(const ASource: Cardinal; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
-procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; ALength: Integer = -1);
+procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1);
 
 // Need to change prob not to use this set
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
@@ -993,12 +1000,19 @@ var
   GIdPorts: TList;
 {$ENDIF}
 
-
+// TODO: add an AIndex parameter
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
+{$IFDEF DOTNET}
+var
+  I: Integer;
+{$ENDIF}
 begin
   {$IFDEF DOTNET}
-  // TODO: use the AValue byte
-  System.&Array.Clear(VBytes, 0, ACount);
+  //System.&Array.Clear(VBytes, 0, ACount);
+  // RLebeau: use the AValue byte instead
+  for I := 0 to ACount-1 do begin
+    VBytes[I] := AValue;
+  end;
   {$ELSE}
   FillChar(VBytes[0], ACount, AValue);
   {$ENDIF}
@@ -1010,7 +1024,8 @@ begin
 end;
 
 constructor TAppendFileStream.Create(const AFile : String);
-var  LFlags: Word;
+var
+  LFlags: Word;
 begin
   if Sys.FileExists(AFile) then begin
     LFlags := fmOpenReadWrite or fmShareDenyWrite;
@@ -1236,8 +1251,8 @@ begin
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
   {$ELSE}
   //if these asserts fail, then it indicates an attempted buffer overrun.
-  Assert(ASourceIndex>=0);
-  Assert((ASourceIndex+ALength)<=Length(ASource));
+  Assert(ASourceIndex >= 0);
+  Assert((ASourceIndex+ALength) <= Length(ASource));
   Move(ASource[ASourceIndex], VDest[ADestIndex], ALength);
   {$ENDIF}
 end;
@@ -1366,21 +1381,20 @@ begin
 end;
 
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes;
-  const ADestIndex: Integer; ALength: Integer = -1);
-{$IFDEF DotNet}
+  const ADestIndex: Integer; const ALength: Integer = -1);
 var
+  LLength: Integer;
+{$IFDEF DotNet}
   LStr : TIdBytes;
 {$ENDIF}
 begin
-  if ALength < 0 then begin
-    ALength := Length(ASource);
-  end;
-  if ALength > 0 then begin
+  LLength := IndyLength(ASource, ALength);
+  if LLength > 0 then begin
     {$IFDEF DotNet}
-    LStr := ToBytes(ASource);
-    System.array.Copy(LStr, 0, VDest, ADestIndex, ALength);
+    LStr := ToBytes(ASource, LLength);
+    System.array.Copy(LStr, 0, VDest, ADestIndex, LLength);
     {$ELSE}
-    Move(ASource[1], VDest[ADestIndex], ALength);
+    Move(ASource[1], VDest[ADestIndex], LLength);
     {$ENDIF}
   end;
 end;
@@ -2107,14 +2121,11 @@ End;
 
 function Min(const AValueOne, AValueTwo: Int64): Int64;
 begin
-  If AValueOne > AValueTwo then
-  begin
+  If AValueOne > AValueTwo then begin
     Result := AValueTwo
-  end //If AValueOne > AValueTwo then
-  else
-  begin
+  end else begin
     Result := AValueOne;
-  end; //..If AValueOne > AValueTwo then
+  end;
 end;
 
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal): Cardinal;
@@ -2471,24 +2482,64 @@ end;
 
 procedure ToDo;
 begin
-  raise EIdException.Create('To do item undone.'); {do not localize}
+  EIdException.Toss('To do item undone.'); {do not localize}
 end;
 
-function ToBytes(const AValue: string; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
+function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer;
+begin
+  Assert(AIndex >= 1);
+  if ALength < 0 then begin
+    Result := Length(ABuffer)-AIndex+1;
+  end else begin
+    Result := Min(Length(ABuffer)-AIndex+1, ALength);
+  end;
+end;
+
+function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer;
+begin
+  Assert(AIndex >= 0);
+  if ALength < 0 then begin
+    Result := Length(ABuffer)-AIndex;
+  end else begin
+    Result := Min(Length(ABuffer)-AIndex, ALength);
+  end;
+end;
+
+function IndyLength(const ABuffer: TIdStream; const ALength: Integer = -1): Integer; overload;
+begin
+  if ALength < 0 then begin
+    Result := ABuffer.Size - ABuffer.Position;
+  end else begin
+    Result := Min(ABuffer.Size - ABuffer.Position, ALength);
+  end;
+end;
+
+function ToBytes(const AValue: string; const ALength: Integer = -1;
+  const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
+var
+  LLength: Integer;
+{$IFDEF DotNet}
+  Encoder: System.Text.Encoding;
+{$ENDIF}
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
-  {$IFDEF DotNet}
-  case AEncoding of
-    enANSI: Result := System.Text.Encoding.ASCII.GetBytes(AValue);
-    enUTF8: Result := System.Text.Encoding.UTF8.GetBytes(AValue);
+  LLength := IndyLength(AValue, ALength);
+  if LLength > 0 then begin
+    {$IFDEF DotNet}
+    case AEncoding of
+      enANSI: Encoder := System.Text.Encoding.ASCII;
+      enUTF8: Encoder := System.Text.Encoding.UTF8;
+    end;
+    SetLength(Result, Encoder.GetByteCount(AValue));
+    Encoder.GetBytes(AValue, 0, LLength, Result, 0);
+    {$ELSE}
+    // For now we just ignore encodings in VCL
+    SetLength(Result, LLength);
+    Move(AValue[1], Result[0], LLength);
+    {$ENDIF}
+  end else begin
+    SetLength(Result, 0);
   end;
-  {$ELSE}
-  // For now we just ignore encodings in VCL
-  SetLength(Result, Length(AValue));
-  if AValue <> '' then begin
-    Move(AValue[1], Result[0], Length(AValue));
-  end;
-  {$ENDIF}
 end;
 
 function ToBytes(const AValue: Char): TIdBytes; overload;
@@ -2737,6 +2788,7 @@ begin
   {$IFDEF DotNet}
   // For .NET we need to convert from a single byte char per stream into a double byte per char
   // string.
+  // TODO: support UTF8 input
   Result := System.Text.Encoding.ASCII.GetString(AValue, AStartIndex, AMaxCount);
   {$ELSE}
   // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
@@ -2787,9 +2839,9 @@ begin
   Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
 end;
 
-procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes);
+procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes; const ASize: Integer = -1);
 begin
-  TIdStreamHelper.Write(AStream, ABytes);
+  TIdStreamHelper.Write(AStream, ABytes, ASize);
 end;
 
 procedure WriteStringToStream(AStream: TIdStream; const AStr :string);
@@ -2863,16 +2915,20 @@ begin
 end;
 {$ENDIF}
 
-procedure AppendBytes(var VBytes: TIdBytes; const AAdd: TIdBytes);
+procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0);
 var
-  LOldLen: Integer;
+  LOldLen, LAddLen: Integer;
 begin
-  LOldLen := Length(VBytes);
-  SetLength(VBytes, LOldLen + Length(AAdd));
-  CopyTIdBytes(AAdd, 0, VBytes, LOldLen, Length(AAdd));
+  Assert(AIndex >= 0);
+  LAddLen := Length(AToAdd)-AIndex;
+  if LAddLen > 0 then begin
+    LOldLen := Length(VBytes);
+    SetLength(VBytes, LOldLen + LAddLen);
+    CopyTIdBytes(AToAdd, AIndex, VBytes, LOldLen, LAddLen);
+  end;
 end;
 
-procedure AppendByte(var VBytes: TIdBytes; const AByte: byte);
+procedure AppendByte(var VBytes: TIdBytes; const AByte: Byte);
 var
   LOldLen: Integer;
 begin
@@ -2901,8 +2957,8 @@ begin
     // if AIndex is at the end of the buffer then the operation is appending bytes
     if AIndex <> Length(VBytes) then begin
       //if these asserts fail, then it indicates an attempted buffer overrun.
-      Assert(AIndex>=0);
-      Assert(AIndex<Length(VBytes));
+      Assert(AIndex >= 0);
+      Assert(AIndex < Length(VBytes));
     end;
     SetLength(VBytes, Length(VBytes) + ACount);
     // move any existing bytes at the index to the end of the buffer
@@ -2916,10 +2972,17 @@ begin
   end;
 end;
 
-procedure InsertBytes(var VBytes: TIdBytes; const AAdd: TIdBytes; const AIndex: Integer);
+procedure InsertBytes(var VBytes: TIdBytes; const ADestIndex: Integer;
+  const ASource: TIdBytes; const ASourceIndex: Integer = 0);
+var
+  LAddLen: Integer;
 begin
-  ExpandBytes(VBytes, AIndex, Length(AAdd));
-  CopyTIdBytes(AAdd, 0, VBytes, AIndex, Length(AAdd));
+  Assert(ASourceIndex >= 0);
+  LAddLen := Length(ASource) - ASourceIndex;
+  if LAddLen > 0 then begin
+    ExpandBytes(VBytes, ADestIndex, LAddLen);
+    CopyTIdBytes(ASource, ASourceIndex, VBytes, ADestIndex, LAddLen);
+  end;
 end;
 
 procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
@@ -3056,13 +3119,16 @@ begin
 end;
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
+var
+  I: Integer;
 begin
-  for Result := AStartIndex to Length(ABytes)-1 do begin
-    if ABytes[Result] = AByte then begin
+  Result := -1;
+  for I := AStartIndex to Length(ABytes)-1 do begin
+    if ABytes[I] = AByte then begin
+      Result := I;
       Exit;
     end;
   end;
-  Result := -1;
 end;
 
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
