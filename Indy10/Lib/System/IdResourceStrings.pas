@@ -33,11 +33,10 @@ interface
 
 resourcestring
   //IdSys
-   RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
+  RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
   // Winsock
-  RSWinsockCallError = 'Error on call Winsock2 library function %s';
+  RSWinsockCallError = 'Error on call to Winsock2 library function %s';
   RSWinsockLoadError = 'Error on loading Winsock2 library (%s)';
-  RSWinsockInitializationError = 'Winsock Initialization Error.';
   // Status
   RSStatusResolving = 'Resolving hostname %s.';
   RSStatusConnecting = 'Connecting to %s.';
