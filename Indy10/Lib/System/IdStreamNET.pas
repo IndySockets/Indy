@@ -26,14 +26,16 @@ uses
 type
   TIdStreamHelperNET = class
   public
-    class function ReadBytes(AStream: TIdStream;
-                         var VBytes: TIdBytes;
-                             ACount: Integer = -1;
-                             AOffset: Integer = 0): Integer; static;
+    class function ReadBytes(
+          AStream: TIdStream;
+          var VBytes: TIdBytes;
+          ACount: Integer = -1;
+          AOffset: Integer = 0): Integer; static;
     class procedure Write(
           const AStream: TIdStream;
           const ABytes: TIdBytes;
-          const ACount: Integer = -1); static;
+          const ACount: Integer = -1;
+          const AOffset: Integer = 0); static;
   end;
 
 implementation
@@ -41,57 +43,46 @@ implementation
 class function TIdStreamHelperNET.ReadBytes(AStream: TIdStream; var VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
 var
- aActual:Integer;
+  LActual: Integer;
 begin
   Assert(AStream<>nil);
-  Result:=0;
-  if VBytes = nil then
-  begin
+  Result := 0;
+  if VBytes = nil then begin
     SetLength(VBytes, 0);
   end;
   //check that offset<length(buffer)? offset+count?
   //is there a need for this to be called with an offset into a nil buffer?
 
-  aActual:=ACount;
-  if aActual = -1 then begin
-    aActual := AStream.Size - AStream.Position;
+  LActual := ACount;
+  if LActual < 0 then begin
+    LActual := AStream.Size - AStream.Position;
   end;
 
   //this prevents eg reading 0 bytes at Offset=10 from allocating memory
-  if aActual=0 then begin
+  if LActual = 0 then begin
     Exit;
   end;
 
-  if Length(VBytes) < (AOffset+aActual) then begin
-    SetLength(VBytes, AOffset+aActual);
+  if Length(VBytes) < (AOffset+LActual) then begin
+    SetLength(VBytes, AOffset+LActual);
   end;
 
   Assert(VBytes<>nil);
-  Result := AStream.Read(VBytes, AOffset, AActual);
+  Result := AStream.Read(VBytes, AOffset, LActual);
 end;
 
 class procedure TIdStreamHelperNET.Write(const AStream: TIdStream;
-  const ABytes: TIdBytes; const ACount: Integer);
+  const ABytes: TIdBytes; const ACount: Integer; const AOffset: Integer);
 var
- aActual:Integer;
+  LActual: Integer;
 begin
   Assert(AStream<>nil);
-
-  aActual:=ACount;
   //should we raise assert instead of this nil check?
   if ABytes <> nil then
   begin
-    if aActual = -1 then
-    begin
-      aActual := Length(ABytes);
-    end
-    else
-    begin
-      aActual := Min(aActual, Length(ABytes));
-    end;
-    if aActual > 0 then
-    begin
-      AStream.Write(ABytes, aActual);
+    LActual := IndyLength(ABytes, ACount, AOffset);
+    if LActual > 0 then begin
+      AStream.Write(ABytes, AOffset, LActual);
     end;
   end;
 end;
