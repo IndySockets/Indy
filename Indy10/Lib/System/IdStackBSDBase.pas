@@ -549,34 +549,31 @@ begin
   Result := CheckForSocketError(WSRecv(ASocket, VBuffer[0], Length(VBuffer) , 0));
 end;
 
-function TIdStackBSDBase.Send(
-  ASocket: TIdStackSocketHandle;
-  const ABuffer: TIdBytes;
-  AOffset: Integer = 0;
-  ASize: Integer = -1
-  ): Integer;
+function TIdStackBSDBase.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+  AOffset: Integer = 0; ASize: Integer = -1): Integer;
 begin
-  if ASize = -1 then begin
-    ASize := Length(ABuffer) - AOffset;
+  ASize := IndyLength(ABuffer, ASize, AOffset);
+  if ASize > 0 then begin
+    Result := WSSend(ASocket, PChar(@ABuffer[AOffset])^, ASize, 0);
+  end else begin
+    Result := 0;
   end;
-  Result := WSSend(ASocket, PChar(@ABuffer[AOffset])^, ASize, 0);
 end;
 
 function TIdStackBSDBase.ReceiveFrom(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; var VIP: string; var VPort: Integer;
-  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-  ): Integer;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
-   Result :=  CheckForSocketError(RecvFrom(ASocket,VBuffer[0],Length(VBuffer),0,VIP,VPort,AIPVersion));
+   Result :=  CheckForSocketError(RecvFrom(ASocket, VBuffer[0], Length(VBuffer), 0, VIP, VPort, AIPVersion));
 end;
 
 function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
   const ABuffer: TIdBytes; const AOffset: Integer; const AIP: string;
-  const APort: integer;
+  const APort: Integer;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
    // must use pointer(ABuffer)^, can't use ABuffer[0], because ABuffer may have a 0 length
-   WSSendTo(ASocket,pointer(ABuffer)^,Length(ABuffer),0,AIP,APort,AIPVersion);
+   WSSendTo(ASocket, Pointer(ABuffer)^, Length(ABuffer), 0, AIP, APort, AIPVersion);
    Result := Length(ABuffer);
 end;
 

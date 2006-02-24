@@ -481,22 +481,20 @@ begin
   end;
 end;
 
-function TIdStackDotNet.Send(
-  ASocket: TIdStackSocketHandle;
-  const ABuffer: TIdBytes;
-  AOffset: Integer = 0;
-  ASize: Integer = -1
-  ): Integer;
+function TIdStackDotNet.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+  AOffset: Integer = 0; ASize: Integer = -1): Integer;
 begin
-  if ASize = -1 then begin
-    ASize := Length(ABuffer) - AOffset;
-  end;
-  try
-    Result := ASocket.Send(ABuffer, AOffset, ASize, SocketFlags.None);
-  except
-    on E: Exception do begin
-      raise BuildException(E);
+  ASize := IndyLength(ABuffer, ASize, AOffset);
+  if ASize > 0 then begin
+    try
+      Result := ASocket.Send(ABuffer, AOffset, ASize, SocketFlags.None);
+    except
+      on E: Exception do begin
+        raise BuildException(E);
+      end;
     end;
+  end else begin
+    Result := 0;
   end;
 end;
 
