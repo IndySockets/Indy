@@ -688,7 +688,7 @@ begin
   if AEncoding = enDefault then begin
     AEncoding := Encoding;
   end;
-  Write(ToBytes(AString, AEncoding),ADestIndex);
+  Write(ToBytes(AString, -1, AEncoding),ADestIndex);
 end;
 
 function TIdBuffer.GetCapacity: Integer;
