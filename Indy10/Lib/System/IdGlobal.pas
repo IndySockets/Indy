@@ -3066,8 +3066,6 @@ begin
 end;
 
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
-var
-  B: Byte;
 begin
   EIdException.IfTrue(AIndex < 0, 'Invalid AIndex'); {do not localize}
   if AIndex < Length(ABytes) then begin
