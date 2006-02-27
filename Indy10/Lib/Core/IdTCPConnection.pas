@@ -350,6 +350,7 @@ uses
   IdException,
   IdExceptionCore,
   IdGlobal,
+  IdIntercept,
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,
@@ -363,6 +364,7 @@ type
   TIdTCPConnection = class(TIdComponent)
   protected
     FGreeting: TIdReply;
+    FIntercept: TIdConnectionIntercept;
     FIOHandler: TIdIOHandler;
     FLastCmdResult: TIdReply;
     FManagedIOHandler: Boolean;
@@ -373,8 +375,10 @@ type
     procedure CheckConnected;
     procedure DoOnDisconnected; virtual;
     procedure InitComponent; override;
+    function GetIntercept: TIdConnectionIntercept; virtual;
     function GetReplyClass:TIdReplyClass; virtual;
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure SetIntercept(AValue: TIdConnectionIntercept); virtual;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
     procedure SetGreeting(AValue: TIdReply);
     procedure WorkBeginEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode;
@@ -442,6 +446,7 @@ type
     property ManagedIOHandler: Boolean read FManagedIOHandler write FManagedIOHandler;
     property Socket: TIdIOHandlerSocket read FSocket;
   published
+    property Intercept: TIdConnectionIntercept read GetIntercept write SetIntercept;
     property IOHandler: TIdIOHandler read FIOHandler write SetIOHandler;
     // Events
     property OnDisconnected: TIdNotifyEvent read FOnDisconnected write FOnDisconnected;
@@ -454,6 +459,15 @@ implementation
 
 uses
   IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC;
+
+function TIdTCPConnection.GetIntercept: TIdConnectionIntercept;
+begin
+  if (IOHandler <> nil) then begin
+    Result := IOHandler.Intercept;
+  end else begin
+    Result := FIntercept;
+  end;
+end;
 
 function TIdTCPConnection.GetReplyClass:TIdReplyClass;
 begin
@@ -574,40 +588,66 @@ end;
 procedure TIdTCPConnection.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, Operation);
-  if (Operation = opRemove) and (AComponent = FIOHandler) then begin
-    FIOHandler := nil;
-    FSocket := nil;
+  if (Operation = opRemove) then begin
+    if (AComponent = FIntercept) then begin
+      FIntercept := nil;
+    end;
+    if (AComponent = FIOHandler) then begin
+      FIOHandler := nil;
+      FSocket := nil;
+    end;
+  end;
+end;
+
+procedure TIdTCPConnection.SetIntercept(AValue: TIdConnectionIntercept);
+begin
+  if AValue <> FIntercept then
+  begin
+    if Assigned(IOHandler) and Assigned(IOHandler.Intercept) and Assigned(AValue) then begin
+      EIdException.IfTrue(AValue <> IOHandler.Intercept, RSInterceptIsDifferent);
+    end;
+    // add self to the Intercept's free notification list
+    if Assigned(AValue) then begin
+      AValue.FreeNotification(Self);
+    end;
+    if Assigned(IOHandler) then begin
+      IOHandler.Intercept := AValue;
+    end;
+    FIntercept := AValue;
   end;
 end;
 
 procedure TIdTCPConnection.SetIOHandler(AValue: TIdIOHandler);
 begin
-  if AValue <> IOHandler then begin
-    if ManagedIOHandler and Assigned(IOHandler) then begin
+  if AValue <> FIOHandler then begin
+    if Assigned(AValue) and Assigned(AValue.Intercept) and Assigned(FIntercept) then begin
+      EIdException.IfTrue(AValue.Intercept <> FIntercept, RSInterceptIsDifferent);
+    end;
+    if ManagedIOHandler and Assigned(FIOHandler) then begin
       Sys.FreeAndNil(FIOHandler);
     end;
     // Reset this if nil (to match nil, but not needed) or when a new IOHandler is specified
     // If true, code must set it after the IOHandler is set
     // Must do after call to FreeManagedIOHandler
+    FSocket := nil;
     ManagedIOHandler := False;
     // Clear out old values whether setting AValue to nil, or setting a new value
-    if FIOHandler <> nil then begin
+    if Assigned(FIOHandler) then begin
       FIOHandler.WorkTarget := nil;
     end;
-    if AValue <> nil then begin
+    if Assigned(AValue) then begin
+      // add self to the IOHandler's free notification list
+      AValue.FreeNotification(Self);
       // Must set to handlers and not events directly as user may change
       // the events of TCPConnection after we have initialized these and then
       // these would point to old values
       AValue.WorkTarget := Self;
-    end;
-    if (AValue <> nil) and (AValue is TIdIOHandlerSocket) then begin
-      FSocket := TIdIOHandlerSocket(AValue);
-    end else begin
-      FSocket := nil;
-    end;
-    // add self to the IOHandler's free notification list
-    if Assigned(AValue) then begin
-      AValue.FreeNotification(Self);
+      if Assigned(FIntercept) then begin
+        AValue.Intercept := FIntercept;
+      end;
+      if AValue is TIdIOHandlerSocket then begin
+        FSocket := TIdIOHandlerSocket(AValue);
+      end;
     end;
     // Last as some code uses FIOHandler to finalize items
     FIOHandler := AValue;
@@ -633,7 +673,7 @@ end;
 function TIdTCPConnection.SendCmd(AOut: string; AResponse: SmallInt)
  : SmallInt;
 begin
-  if AResponse = -1 then begin
+  if AResponse < 0 then begin
     Result := SendCmd(AOut, []);
   end else begin
     Result := SendCmd(AOut, [AResponse]);
@@ -753,7 +793,7 @@ end;
 
 procedure TIdTCPConnection.CheckConnected;
 begin
-  EIdNotConnected.IfNotAssigned(IOHandler, 'Not connected.'); {do not localize}
+  EIdNotConnected.IfNotAssigned(IOHandler, RSNotConnected);
 end;
 
 procedure TIdTCPConnection.SetGreeting(AValue: TIdReply);
