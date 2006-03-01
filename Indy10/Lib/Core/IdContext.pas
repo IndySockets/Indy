@@ -99,9 +99,9 @@ type
     FOnBeforeRun: TIdContextBeforeRun;
     FOnAfterRun: TIdContextAfterRun;
     //
-    procedure AfterRun; override;
     procedure BeforeRun; override;
     function Run: Boolean; override;
+    procedure AfterRun; override;
   public
     constructor Create(
       AConnection: TIdTCPConnection;
@@ -139,16 +139,14 @@ begin
   FConnection := AConnection;
   FOwnsConnection:=True;
   FContextList := AList;
-  if FContextList <> nil then begin
-    FContextList.Add(Self);
-  end;
 end;
 
 destructor TIdContext.Destroy;
 begin
-  if FContextList <> nil then begin
+  if FContextList<>nil then begin
     FContextList.Remove(Self);
   end;
+
   if FOwnsConnection then begin
     Sys.FreeAndNil(FConnection);
   end;
@@ -162,6 +160,13 @@ end;
 
 procedure TIdContext.BeforeRun;
 begin
+  //Context must be added to ContextList outside of create. This avoids
+  //the possibility of another thread accessing a context (specifically
+  //a subclass) that is still creating. similar logic for remove/destroy.
+  if FContextList <> nil then begin
+    FContextList.Add(Self);
+  end;
+
   if Assigned(OnBeforeRun) then begin
     OnBeforeRun(Self);
   end;
@@ -180,6 +185,10 @@ procedure TIdContext.AfterRun;
 begin
   if Assigned(OnAfterRun) then begin
     OnAfterRun(Self);
+  end;
+
+  if FContextList <> nil then begin
+    FContextList.Remove(Self);
   end;
 end;
 
