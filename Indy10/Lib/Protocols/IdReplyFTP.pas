@@ -65,7 +65,7 @@
   Rev 1.2    2003.09.20 10:38:38 AM  czhower
   Bug fix to allow clearing code field (Return to default value)
 
-  Rev 1.1    5/30/2003 9:23:44 PM  BGooijen
+    Rev 1.1    5/30/2003 9:23:44 PM  BGooijen
   Changed TextCode to Code
 
   Rev 1.0    5/26/2003 12:21:10 PM  JPMugaas
@@ -95,10 +95,8 @@ type
     procedure SetFormattedReply(const AValue: TIdStrings); override;
     procedure AssignTo(ADest: TIdPersistent); override;
   public
-    constructor Create(
-      ACollection: TIdCollection = nil;
-      AReplyTexts: TIdReplies = nil
-      ); override;
+    constructor Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil); override;
+    procedure Clear; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
     property ReplyFormat : TIdReplyRFCFormat read FReplyFormat write FReplyFormat default DEF_ReplyFormat;
@@ -122,24 +120,24 @@ var
 begin
   if ADest is TIdReplyFTP then begin
     LR := TIdReplyFTP(ADest);
-    LR.ReplyFormat := ReplyFormat;
+    //set code first as it possibly clears the reply
     LR.NumericCode := NumericCode;
-//    LR.Text.Assign(Text);
-
-    // holger: .NET compatibility change
+    LR.ReplyFormat := ReplyFormat;
     LR.Text.Assign(Text);
-
   end else begin
-    inherited;
+    inherited AssignTo(ADest);
   end;
 end;
 
-constructor TIdReplyFTP.Create(
-  ACollection: TIdCollection = nil;
-  AReplyTexts: TIdReplies = nil
-  );
+constructor TIdReplyFTP.Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil);
 begin
   inherited Create(ACollection, AReplyTexts);
+  FReplyFormat := DEF_ReplyFormat;
+end;
+
+procedure TIdReplyFTP.Clear;
+begin
+  inherited Clear;
   FReplyFormat := DEF_ReplyFormat;
 end;
 
