@@ -145,26 +145,18 @@ type
   public
     procedure Clear; virtual;
     // Both creates are necessary. This base one is called by the collection editor at design time
-    constructor Create(
-      ACollection: TIdCollection
-      ); overload; override;
-    constructor Create(
-      ACollection: TIdCollection;
-      AReplyTexts: TIdReplies
-      ); reintroduce; overload; virtual;
+    constructor Create(ACollection: TIdCollection); overload; override;
+    constructor Create(ACollection: TIdCollection; AReplyTexts: TIdReplies); reintroduce; overload; virtual;
     destructor Destroy; override;
     // Is not abstract because C++ cannot compile abstract class methods
     class function IsEndMarker(const ALine: string): Boolean; virtual;
     procedure RaiseReplyError; virtual; abstract;
     function ReplyExists: Boolean; virtual;
-    procedure SetReply(const ACode: Integer; const AText: string);
-     overload; virtual;
-    procedure SetReply(const ACode: string; const AText: string);
-     overload; virtual;
+    procedure SetReply(const ACode: Integer; const AText: string); overload; virtual;
+    procedure SetReply(const ACode: string; const AText: string); overload; virtual;
     procedure UpdateText;
     //
-    property FormattedReply: TIdStrings read GetFormattedReply
-     write SetFormattedReply;
+    property FormattedReply: TIdStrings read GetFormattedReply write SetFormattedReply;
     property NumericCode: Integer read GetNumericCode write SetNumericCode;
   published
     //warning: setting Code has a side-effect of calling Clear;
@@ -211,11 +203,9 @@ var
 begin
   if ADest is TIdReply then begin
     LR := TIdReply(ADest);
-    LR.Clear;
-
-    // holger: .NET compatibility change
-    LR.Text.Assign(Self.Text);
-    LR.Code := Self.Code;
+    //set code first as it possibly clears the reply
+    LR.Code := Code;
+    LR.Text.Assign(Text);
   end else begin
     inherited AssignTo(ADest);
   end;
