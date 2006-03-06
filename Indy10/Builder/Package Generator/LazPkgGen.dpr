@@ -148,10 +148,16 @@ begin
   DM.tablFile.Filtered := True;
   DM.tablFile.First;
   while not DM.tablFile.EOF do begin
-
-    if DM.tablFilePkg.Value = APackageName then
+    if APackageName<>'' then
     begin
-      WriteLRSEntry(i,s);
+      if DM.tablFilePkg.Value = APackageName then
+      begin
+        WriteLRSEntry(i,s);
+      end;
+    end
+    else
+    begin
+        WriteLRSEntry(i,s);
     end;
     DM.tablFile.Next;
   end;
@@ -182,6 +188,200 @@ begin
   end;
 end;
 
+function GetTempDirectory: String;
+
+var  TempDir: TIdBytes;
+   LLen : Cardinal;
+begin
+  SetLength(TempDir,MAX_PATH);
+ // FillChar(TempDir[0],#0,MAX_PATH);
+  repeat
+    LLen := GetTempPath(MAX_PATH, @TempDir[0]);
+    if (LLen=0) then
+    begin
+      Result := '';
+      exit;
+    end;
+    if LLen > MAX_PATH then
+    begin
+       //increase array size, too small
+       SetLength(TempDir,LLen);
+    end
+    else
+    begin
+      Break;
+    end;
+  until False;
+  Result := IdGlobal.BytesToString(TempDir,0,LLen)
+//  Result :=  PChar(@TempDir[0]);
+end;
+
+
+//This is from:
+//http://www.swissdelphicenter.ch/en/showcode.php?id=683
+//
+//We use it to run fpcmake so we can redirect the output from it
+//onto our console instead of its own Window.  This is necessary
+//so the results could appear in our caller's display.
+function CreateDOSProcessRedirected(const CommandLine, CurrDir, InputFile, OutputFile,
+  ErrMsg: string): Boolean;
+const
+  ROUTINE_ID = '[function: CreateDOSProcessRedirected ]';
+var
+ // OldCursor: TCursor;
+  pCommandLine: array[0..MAX_PATH] of Char;
+  pInputFile, pOutPutFile: array[0..MAX_PATH] of Char;
+  StartupInfo: TStartupInfo;
+  ProcessInfo: TProcessInformation;
+  SecAtrrs: TSecurityAttributes;
+  hAppProcess, hAppThread, hInputFile, hOutputFile: THandle;
+begin
+  Result := False;
+
+  { check for InputFile existence }
+  if not FileExists(InputFile) then
+    raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
+      'Input file * %s *' + #10 +
+      'does not exist' + #10 + #10 +
+      ErrMsg, [InputFile]);
+
+  { save the cursor }
+//  OldCursor     := Screen.Cursor;
+//  Screen.Cursor := crHourglass;
+
+  { copy the parameter Pascal strings to null terminated strings }
+  StrPCopy(pCommandLine, CommandLine);
+  StrPCopy(pInputFile, InputFile);
+  StrPCopy(pOutPutFile, OutputFile);
+
+  try
+
+    { prepare SecAtrrs structure for the CreateFile calls
+      This SecAttrs structure is needed in this case because
+      we want the returned handle can be inherited by child process
+      This is true when running under WinNT.
+      As for Win95 the documentation is quite ambiguous }
+    FillChar(SecAtrrs, SizeOf(SecAtrrs), #0);
+    SecAtrrs.nLength        := SizeOf(SecAtrrs);
+    SecAtrrs.lpSecurityDescriptor := nil;
+    SecAtrrs.bInheritHandle := True;
+
+    { create the appropriate handle for the input file }
+    hInputFile := CreateFile(pInputFile,
+      { pointer to name of the file }
+      GENERIC_READ or GENERIC_WRITE,
+      { access (read-write) mode }
+      FILE_SHARE_READ or FILE_SHARE_WRITE,
+      { share mode } @SecAtrrs,                             { pointer to security attributes }
+      OPEN_ALWAYS,                           { how to create }
+      FILE_ATTRIBUTE_TEMPORARY,              { file attributes }
+      0);                                   { handle to file with attributes to copy }
+
+
+    { is hInputFile a valid handle? }
+    if hInputFile = INVALID_HANDLE_VALUE then
+      raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
+        'WinApi function CreateFile returned an invalid handle value' +
+        #10 +
+        'for the input file * %s *' + #10 + #10 +
+        ErrMsg, [InputFile]);
+
+    { create the appropriate handle for the output file }
+    hOutputFile := CreateFile(pOutPutFile,
+      { pointer to name of the file }
+      GENERIC_READ or GENERIC_WRITE,
+      { access (read-write) mode }
+      FILE_SHARE_READ or FILE_SHARE_WRITE,
+      { share mode } @SecAtrrs,                             { pointer to security attributes }
+      CREATE_ALWAYS,                         { how to create }
+      FILE_ATTRIBUTE_TEMPORARY,              { file attributes }
+      0);                                   { handle to file with attributes to copy }
+
+    { is hOutputFile a valid handle? }
+    if hOutputFile = INVALID_HANDLE_VALUE then
+      raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
+        'WinApi function CreateFile returned an invalid handle value' +
+        #10 +
+        'for the output file * %s *' + #10 + #10 +
+        ErrMsg, [OutputFile]);
+
+    { prepare StartupInfo structure }
+    FillChar(StartupInfo, SizeOf(StartupInfo), #0);
+    StartupInfo.cb          := SizeOf(StartupInfo);
+    StartupInfo.dwFlags     := STARTF_USESHOWWINDOW or STARTF_USESTDHANDLES;
+    StartupInfo.wShowWindow := SW_HIDE;
+    StartupInfo.hStdOutput  := hOutputFile;
+    StartupInfo.hStdInput   := hInputFile;
+
+    { create the app }
+    Result := CreateProcess(nil,                           { pointer to name of executable module }
+      pCommandLine,
+      { pointer to command line string }
+      nil,                           { pointer to process security attributes }
+      nil,                           { pointer to thread security attributes }
+      True,                          { handle inheritance flag }
+      CREATE_NEW_CONSOLE or
+      REALTIME_PRIORITY_CLASS,       { creation flags }
+      nil,                           { pointer to new environment block }
+      PChar(CurrDir),                           { pointer to current directory name }
+      StartupInfo,                   { pointer to STARTUPINFO }
+      ProcessInfo);                  { pointer to PROCESS_INF }
+
+    { wait for the app to finish its job and take the handles to free them later }
+    if Result then
+    begin
+      WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+      hAppProcess := ProcessInfo.hProcess;
+      hAppThread  := ProcessInfo.hThread;
+    end
+    else
+      raise Exception.Create(ROUTINE_ID + #10 + #10 +
+        'Function failure' + #10 + #10 +
+        ErrMsg);
+
+  finally
+    { close the handles
+      Kernel objects, like the process and the files we created in this case,
+      are maintained by a usage count.
+      So, for cleaning up purposes we have to close the handles
+      to inform the system that we don't need the objects anymore }
+    if hOutputFile <> 0 then
+      CloseHandle(hOutputFile);
+    if hInputFile <> 0 then
+      CloseHandle(hInputFile);
+    if hAppThread <> 0 then
+      CloseHandle(hAppThread);
+    if hAppProcess <> 0 then
+      CloseHandle(hAppProcess);
+    { restore the old cursor }
+  //  Screen.Cursor := OldCursor;
+  end;
+end;
+
+procedure MakeMakefile(const AMakefileDir : String);
+var LInputFile, LOutputFile : String;
+  s : TStrings;
+  i : Integer;
+begin
+  s := TStringList.Create;
+  try
+    LInputFile := GetTempDirectory+'\inputdummy.txt';
+     s.SaveToFile(LInputFile);
+     LOutputFile := GetTempDirectory+'\output.txt';
+    CreateDOSProcessRedirected('C:\lazarus\pp\bin\i386-win32\fpcmake.exe -vTall',
+      AMakeFileDir,LInputFile,LOutputFile,'Error: ');
+    s.LoadFromFile(LOutputFile);
+    for i := 0 to s.Count - 1 do
+    begin
+      WriteLn(s[i]);
+    end;  
+  finally
+    FreeAndNil(s);
+  end;
+
+
+end;
+
 procedure MakeFPCPackage(const AWhere: string; const AFileName : String;
   const APkgName : String; const AOutPath : String;
   const AAddPlatUnits : Boolean = False);
@@ -189,8 +389,7 @@ var s, LS : TStringList;
   Lst : String;
   i : Integer;
   LTemp : String;
-  LF : AnsiString;
-  LR : Integer;
+
 begin
   DM.tablFile.Filter := AWhere;
   DM.tablFile.Filtered := True;
@@ -263,45 +462,7 @@ begin
      s.Add('');
      s.Add('end.');
      WriteFile(s.text,AOutPath+ '\' + AFileName+'.pas');
-     LF := AOutPath;
-     //note that for FPCMake, you need to have an enviornment variable
-     //called FPCDIR
-     //it should be something like "FPCDIR=c:\lazarus\pp"
-     LR := ShellExecute(0, PChar('open'),
-       PChar('C:\lazarus\pp\bin\i386-win32\fpcmake.exe'),
-       PChar('-v'), PAnsiChar(LF),
-        SW_SHOW);
-//LR := ShellExecute(HINstance, 'open', PChar('cmd.exe'), PChar('/K C:\lazarus\pp\bin\i386-win32\fpcmake.exe -v'), PChar(LF), SW_SHOW);
-     if LR < 32 then
-       case LR of
-         0 :
-           raise Exception.Create('The operating system is out of memory or resources.');
-         ERROR_FILE_NOT_FOUND	:
-           raise Exception.Create('The specified file was not found. ');
-         ERROR_PATH_NOT_FOUND	:
-           raise Exception.Create('The specified path was not found.');
-         ERROR_BAD_FORMAT	:
-           raise Exception.Create('The .exe file is invalid (non-Microsoft Win32 .exe or error in .exe image). ');
-         SE_ERR_ACCESSDENIED	:
-           raise Exception.Create('The operating system denied access to the specified file.');
-         SE_ERR_ASSOCINCOMPLETE :
-           raise Exception.Create('	The file name association is incomplete or invalid. ');
-         SE_ERR_DDEBUSY	:
-           raise Exception.Create('The Dynamic Data Exchange (DDE) transaction could not be completed because other DDE transactions were being processed.');
-         SE_ERR_DDEFAIL	:
-           raise Exception.Create('The DDE transaction failed.');
-         SE_ERR_DDETIMEOUT :
-           raise Exception.Create('The DDE transaction could not be completed because the request timed out.');
-         SE_ERR_DLLNOTFOUND	:
-           raise Exception.Create('The specified dynamic-link library (DLL) was not found.');
-//SE_ERR_FNF	: raise Exception.Create('The specified file was not found.');
-//SE_ERR_NOASSOC	: raise Exception.Create('There is no application associated with the given file name extension. This error will also be returned if you attempt to print a file that is not printable.');
-          SE_ERR_OOM	:
-            raise Exception.Create('There was not enough memory to complete the operation.');
-//SE_ERR_PNF	: raise Exception.Create('The specified path was not found. ');
-         SE_ERR_SHARE :
-           raise Exception.Create('A sharing violation occurred.');
-     end;
+      MakeMakeFile(AOutpath);
   finally
     FreeAndNil(s);
   end;
@@ -319,6 +480,7 @@ begin
   LNewCode := MakeLRS(AWhere,APkgName,AFileName);
   WriteFile(LNewCode,LPathName);
 end;
+
 
 procedure MakeFileDistList;
 var s : TStringList;
@@ -377,17 +539,17 @@ begin
       // Default Data Path is W:\source\Indy10\builder\Package Generator\Data
       DM.DataPath   := 'W:\source\Indy10\builder\Package Generator\Data';
       tablFile.Open;
-      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System','w:\source\Indy\Indy10FPC\Lib\System',True);
+      MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False', 'indysystemfpc','System','w:\source\Indy\Indy10FPC\Lib\System');
    //   WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=False','indysystemlaz.lpk','System','w:\source\Indy\Indy10FPC\Lib\System');
       MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
 //    WriteLPK      ('FPC=True and FPCListInPkg=True and DesignUnit=False','indycorefpc','Core','w:\source\Indy\Indy10FPC\Lib\Core');
       WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindycorelaz.lpk', 'Core',          'w:\source\Indy\Indy10FPC\Lib\Core');
       MakeFPCPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indyprotocolsfpc',  'Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
       WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
+      WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','indylaz.lpk','', 'W:\Source\Indy\Indy10FPC\Lib');
       MakeFileDistList;
     end;
   finally
     FreeAndNil(DM);
   end;
-  ReadLn;
 end.

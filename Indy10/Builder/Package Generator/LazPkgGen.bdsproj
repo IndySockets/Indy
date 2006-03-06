@@ -101,6 +101,9 @@
 			<Compiler Name="OptionTruncated">True</Compiler>
 			<Compiler Name="WideCharReduced">True</Compiler>
 			<Compiler Name="DuplicatesIgnored">True</Compiler>
+			<Compiler Name="UnitInitSeq">True</Compiler>
+			<Compiler Name="LocalPInvoke">True</Compiler>
+			<Compiler Name="CodePage"></Compiler>
 		</Compiler>
 		<Linker>
 			<Linker Name="MapFile">3</Linker>
@@ -113,6 +116,7 @@
 			<Linker Name="MaxStackSize">1048576</Linker>
 			<Linker Name="ImageBase">4194304</Linker>
 			<Linker Name="ExeDescription"></Linker>
+			<Linker Name="GenerateHpps">False</Linker>
 		</Linker>
 		<Directories>
 			<Directories Name="OutputDir"></Directories>
@@ -136,6 +140,9 @@
 			<Parameters Name="RemoteLauncher"></Parameters>
 			<Parameters Name="RemoteCWD"></Parameters>
 			<Parameters Name="RemoteDebug">False</Parameters>
+			<Parameters Name="Debug Symbols Search Path"></Parameters>
+			<Parameters Name="LoadAllSymbols">True</Parameters>
+			<Parameters Name="LoadUnspecifiedSymbols">False</Parameters>
 		</Parameters>
 		<Language>
 			<Language Name="ActiveLang"></Language>
@@ -161,19 +168,6 @@
 			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 		</VersionInfoKeys>  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     <Excluded_Packages>
       <Excluded_Packages Name="C:\Wilson\MiscUnits90.bpl">Colin Wilson - Miscellaneous Components</Excluded_Packages>
       <Excluded_Packages Name="c:\program files\borland\bds\3.0\Bin\dbwebxprt.bpl">Borland Web Wizard Package</Excluded_Packages>
@@ -182,7 +176,7 @@
   </Delphi.Personality>
 <!-- EurekaLog First Line
 [Exception Log]
-EurekaLog Version=505
+EurekaLog Version=512
 Activate=1
 Activate Handle=1
 Save Log File=1
@@ -333,19 +327,19 @@ mtDialog_CustomDataCaption0="Other"
 Count mtDialog_CustomDataHeader=1
 mtDialog_CustomDataHeader0="Other Information"
 Count mtDialog_OKButtonCaption=1
-mtDialog_OKButtonCaption0="&OK"
+mtDialog_OKButtonCaption0="%26OK"
 Count mtDialog_TerminateButtonCaption=1
-mtDialog_TerminateButtonCaption0="&Terminate"
+mtDialog_TerminateButtonCaption0="%26Terminate"
 Count mtDialog_RestartButtonCaption=1
-mtDialog_RestartButtonCaption0="&Restart"
+mtDialog_RestartButtonCaption0="%26Restart"
 Count mtDialog_DetailsButtonCaption=1
-mtDialog_DetailsButtonCaption0="&Details"
+mtDialog_DetailsButtonCaption0="%26Details"
 Count mtDialog_SendMessage=1
-mtDialog_SendMessage0="&Send this error via Internet"
+mtDialog_SendMessage0="%26Send this error via Internet"
 Count mtDialog_ScreenshotMessage=1
-mtDialog_ScreenshotMessage0="&Attach a Screenshot image"
+mtDialog_ScreenshotMessage0="%26Attach a Screenshot image"
 Count mtDialog_CopyMessage=1
-mtDialog_CopyMessage0="&Copy to Clipboard"
+mtDialog_CopyMessage0="%26Copy to Clipboard"
 Count mtDialog_SupportMessage=1
 mtDialog_SupportMessage0="Go to the Support Page"
 Count mtLog_AppHeader=1
@@ -471,7 +465,7 @@ mtReproduceDialog_Caption0="Request"
 Count mtReproduceDialog_Request=1
 mtReproduceDialog_Request0="Please describe the steps to reproduce the error:"
 Count mtReproduceDialog_OKButtonCaption=1
-mtReproduceDialog_OKButtonCaption0="&OK"
+mtReproduceDialog_OKButtonCaption0="%26OK"
 Count mtModules_Handle=1
 mtModules_Handle0="Handle"
 Count mtModules_Name=1
