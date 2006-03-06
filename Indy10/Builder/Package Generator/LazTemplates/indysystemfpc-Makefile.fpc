@@ -14,17 +14,37 @@ unittargetdir=lib/$(CPU_TARGET)-$(OS_TARGET)
 unitdir=lib/$(CPU_TARGET)-$(OS_TARGET)
 options=-gl
 
+#Note that we use implicitunits_TARGETOS for all
+#so we can easily modify things when new targets
+#are added.  We have to think years down the line.
 [target]
 units=indysystemfpc
 rsts=IdResourceStrings
 {%FILES}
-
-
-[clean]
-files=$(wildcard $(COMPILER_UNITTARGETDIR)/*$(OEXT)) \
-      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(PPUEXT)) \
-      $(wildcard $(COMPILER_UNITTARGETDIR)/*$(RSTEXT)) \
-      $(wildcard *$(OEXT)) $(wildcard *$(PPUEXT)) $(wildcard *$(RSTEXT))
+implicitunits_amiga=
+implicitunits_atari=
+implicitunits_beos=
+implicitunits_darwin=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_emx=
+implicitunits_freebsd=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_go32v1=
+implicitunits_go32v2=
+implicitunits_linux=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_macos=
+implicitunits_morphos=
+implicitunits_netbsd=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_netware=
+implicitunits_netwlibc=
+implicitunits_openbsd=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_os2=
+implicitunits_palmos=
+implicitunits_qnx=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_solaris=IdStackUnix IdStackBSDBase IdSysLinux
+implicitunits_watcom=
+implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+implicitunits_wdosx=
 
 [install]
 fpcpackage=y
@@ -33,67 +53,3 @@ buildunit=indysystemfpc
 
 [shared]	
 build=n
-
-[prerules]
-ifeq ($(OS_TARGET),amiga)
-endif
-ifeq ($(OS_TARGET),atari)
-endif
-ifeq ($(OS_TARGET),beos)
-endif
-ifeq ($(OS_TARGET),darwin)
-endif
-ifeq ($(OS_TARGET),emx)
-endif
-ifeq ($(OS_TARGET),freebsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),go32v1)
-endif
-ifeq ($(OS_TARGET),go32v2)
-endif
-ifeq ($(OS_TARGET),linux)
-PLATUNITS=IdStackUnix IdStackBSDBase IdSysLinux
-endif
-ifeq ($(OS_TARGET),macos)
-endif
-ifeq ($(OS_TARGET),morphos)
-endif
-ifeq ($(OS_TARGET),netbsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),netware)
-endif
-ifeq ($(OS_TARGET),netwlibc)
-endif
-ifeq ($(OS_TARGET),openbsd)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),os2)
-endif
-ifeq ($(OS_TARGET),palmos)
-endif
-ifeq ($(OS_TARGET),qnx)
-endif
-ifeq ($(OS_TARGET),solaris)
-PLATUNITS=IdStackUnix IdStackBSDBase
-endif
-ifeq ($(OS_TARGET),watcom)
-endif
-ifeq ($(OS_TARGET),win32)
-PLATUNITS=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
-endif
-ifeq ($(OS_TARGET),win64)
-PLATUNITS=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
-endif
-ifeq ($(OS_TARGET),wince)
-endif
-ifeq ($(OS_TARGET),wdosx)
-endif
-[rules]
-.PHONY: cleartarget all
-
-cleartarget:
-        -$(DEL) $(COMPILER_UNITTARGETDIR)/indysystemfpc$(PPUEXT)
-
-all: cleartarget $(COMPILER_UNITTARGETDIR) indysystemfpc$(PPUEXT)
