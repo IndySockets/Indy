@@ -389,7 +389,7 @@ function TIdSocketHandle.Readable(AMSec: Integer = IdTimeoutDefault): Boolean;
 
 begin
   if AMSec = IdTimeoutDefault then begin
-    AMSec = IdTimeoutInfinite;
+    AMSec := IdTimeoutInfinite;
   end;
   if TIdAntiFreezeBase.ShouldUse then begin
     if AMSec = IdTimeoutInfinite then begin
