@@ -30,20 +30,20 @@
 
   Rev 1.0    11/14/2002 02:17:06 PM  JPMugaas
 
-  2000-Apr-22: J Peter Mugass
+2000-Apr-22: J Peter Mugass
   -Ported to Indy
 
-  1999-Apr-13
+1999-Apr-13
   -Final Version
 
-  2000-JAN-13 MTL
+2000-JAN-13 MTL
   -Moved to new Palette Scheme (Winshoes Servers)
 }
 
 unit IdDayTimeServer;
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
 }
 
 interface
@@ -79,9 +79,9 @@ end;
 
 function TIdDayTimeServer.DoExecute(AContext:TIdContext ): boolean;
 begin
-  result := true;
+  Result := True;
   with AContext.Connection do begin
-    Writeln(Sys.FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Sys.Now) + '-' + FTimeZone);    {Do not Localize}
+    IOHandler.WriteLn(Sys.FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Sys.Now) + '-' + FTimeZone);    {Do not Localize}
     Disconnect;
   end;
 end;
