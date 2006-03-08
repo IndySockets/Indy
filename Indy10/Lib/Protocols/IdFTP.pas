@@ -170,10 +170,10 @@
   Rev 1.95    8/2/04 5:56:16 PM  RLebeau
   Tweaks to TIdFTP.InitDataChannel()
 
-  Rev 1.94    7/30/2004 1:55:04 AM  DSiders
+    Rev 1.94    7/30/2004 1:55:04 AM  DSiders
   Corrected DoOnRetrievedDir naming.
 
-  Rev 1.93    7/30/2004 12:36:32 AM  DSiders
+    Rev 1.93    7/30/2004 12:36:32 AM  DSiders
   Corrected spelling in OnRetrievedDir, DoOnRetrievedDir declarations.
 
   Rev 1.92    7/29/2004 2:15:28 AM  JPMugaas
@@ -211,7 +211,7 @@
   Rev 1.88    7/23/04 7:09:50 PM  RLebeau
   Bug fix for TFileStream access rights in Get()
 
-  Rev 1.87    7/18/2004 3:00:12 PM  DSiders
+    Rev 1.87    7/18/2004 3:00:12 PM  DSiders
   Added localization comments.
 
   Rev 1.86    7/16/2004 4:28:40 AM  JPMugaas
@@ -220,7 +220,7 @@
   Rev 1.85    7/13/04 6:48:14 PM  RLebeau
   Added support for new DataPort and DataPortMin/Max properties
 
-  Rev 1.84    7/6/2004 4:51:46 PM  DSiders
+    Rev 1.84    7/6/2004 4:51:46 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
 
   Rev 1.83    7/3/2004 3:15:50 AM  JPMugaas
@@ -250,7 +250,7 @@
   Rev 1.77    6/14/2004 8:34:52 AM  JPMugaas
   Fix for AV on Put with Passive := True.
 
-  Rev 1.76    6/11/2004 9:34:12 AM  DSiders
+    Rev 1.76    6/11/2004 9:34:12 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.75    2004.05.20 11:37:16 AM  czhower
@@ -382,7 +382,7 @@
   Rev 1.45    10/20/2003 01:00:38 PM  JPMugaas
   EIdException no longer raised.  Some things were being gutted needlessly.
 
-  Rev 1.44    10/19/2003 12:58:20 PM  DSiders
+    Rev 1.44    10/19/2003 12:58:20 PM  DSiders
   Added localization comments.
 
   Rev 1.43    2003.10.14 9:56:50 PM  czhower
@@ -458,13 +458,13 @@
   Rev 1.25    4/5/2003 02:06:34 PM  JPMugaas
   TLS handshake itself can now be handled.
 
-  Rev 1.24    4/4/2003 8:01:32 PM  BGooijen
+    Rev 1.24    4/4/2003 8:01:32 PM  BGooijen
   now creates iohandler for dataconnection
 
   Rev 1.23    3/31/2003 08:40:18 AM  JPMugaas
   Fixed problem with QUIT command.
 
-  Rev 1.22    3/27/2003 3:41:28 PM  BGooijen
+    Rev 1.22    3/27/2003 3:41:28 PM  BGooijen
   Changed because some properties are moved to IOHandler
 
   Rev 1.21    3/27/2003 05:46:24 AM  JPMugaas
@@ -484,7 +484,7 @@
   Rev 1.17    3/16/2003 02:40:16 PM  JPMugaas
   FTP client with new design.
 
-  Rev 1.16    3/16/2003 1:02:44 AM  BGooijen
+    Rev 1.16    3/16/2003 1:02:44 AM  BGooijen
   Added 2 events to give the user more control to the dataconnection, moved
   SendTransferType, enabled ssl
 
@@ -554,30 +554,30 @@
 
   Rev 1.0    11/14/2002 02:20:00 PM  JPMugaas
 
-  2002-10-25 - J. Peter Mugaas
-    - added XCRC support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
-      which is available at http://www.globalscape.com
-      and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
-    - added COMB support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
-      which is available at http://www.globalscape.com
-      and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
+2002-10-25 - J. Peter Mugaas
+  - added XCRC support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
+    which is available at http://www.globalscape.com
+    and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
+  - added COMB support - specified by "GlobalSCAPE Secure FTP Server User’s Guide"
+    which is available at http://www.globalscape.com
+    and also explained at http://www.southrivertech.com/support/titanftp/webhelp/titanftp.htm
 
-  2002-10-24 - J. Peter Mugaas
-    - now supports RFC 2640 - FTP Internalization
+2002-10-24 - J. Peter Mugaas
+  - now supports RFC 2640 - FTP Internalization
 
-  2002-09-18
-    _ added AFromBeginning parameter to InternalPut to correctly honor the AAppend parameter of Put
+2002-09-18
+  _ added AFromBeginning parameter to InternalPut to correctly honor the AAppend parameter of Put
 
-  2002-09-05 - J. Peter Mugaas
-    - now complies with RFC 2389 - Feature negotiation mechanism for the File Transfer Protocol
-    - now complies with RFC 2428 - FTP Extensions for IPv6 and NATs
+2002-09-05 - J. Peter Mugaas
+  - now complies with RFC 2389 - Feature negotiation mechanism for the File Transfer Protocol
+  - now complies with RFC 2428 - FTP Extensions for IPv6 and NATs
 
-  2002-08-27 - Andrew P.Rybin
-    - proxy support fix (non-standard ftp port's)
+2002-08-27 - Andrew P.Rybin
+  - proxy support fix (non-standard ftp port's)
 
-  2002-01-xx - Andrew P.Rybin
-    - Proxy support, OnAfterGet (ex:decrypt, set srv timestamp)
-    - J.Peter Mugaas: not readonly ProxySettings
+2002-01-xx - Andrew P.Rybin
+  - Proxy support, OnAfterGet (ex:decrypt, set srv timestamp)
+  - J.Peter Mugaas: not readonly ProxySettings
 
   A Neillans - 10/17/2001
     Merged changes submitted by Andrew P.Rybin
@@ -597,7 +597,7 @@
     New onFTPStatus event
     New Quote method for executing commands not implemented by the compoent
 
-  -CleanDir contributed by Amedeo Lanza
+-CleanDir contributed by Amedeo Lanza
 }
 
 unit IdFTP;
@@ -653,20 +653,21 @@ type
   TAuthCmd = (tAuto, tAuthTLS, tAuthSSL, tAuthTLSC, tAuthTLSP);
 
 const
-    Id_TIdFTP_DataPortProtection = ftpdpsClear;
-    DEF_Id_TIdFTP_Implicit = False;
-    DEF_Id_FTP_UseExtendedDataPort = False;
-    DEF_Id_TIdFTP_UseExtendedData = False;
-    DEF_Id_TIdFTP_UseMIS = False;
-    DEF_Id_FTP_UseCCC = False;
-    DEF_Id_FTP_AUTH_CMD = tAuto;
-      {
+  Id_TIdFTP_DataPortProtection = ftpdpsClear;
+  DEF_Id_TIdFTP_Implicit = False;
+  DEF_Id_FTP_UseExtendedDataPort = False;
+  DEF_Id_TIdFTP_UseExtendedData = False;
+  DEF_Id_TIdFTP_UseMIS = False;
+  DEF_Id_FTP_UseCCC = False;
+  DEF_Id_FTP_AUTH_CMD = tAuto;
+  DEF_Id_FTP_ListenTimeout = 10000; // ten seconds
+  {
 Soem firewalls don't handle control connections properly during long data transfers.
 They will timeout the control connection because it's idle and making it worse is that they
 will chop off a connection instead of closing it causing TIdFTP to wait forever for nothing.
 
   }
-    DEF_Id_FTP_READTIMEOUT = 60000; //one minute
+  DEF_Id_FTP_READTIMEOUT = 60000; //one minute
 
 type
 
@@ -741,6 +742,7 @@ type
     FSystemDesc: string;
     FTransferType: TIdFTPTransferType;
     FTransferTimeout : Integer;
+    FListenTimeout : Integer;
     FDataChannel: TIdTCPConnection;
     FDirectoryListing: TIdFTPListItems;
     FDirFormat : String;
@@ -787,7 +789,7 @@ type
 
     //we probably need an Abort flag so we know when an abort is sent.
     //It turns out that one server will send a 550 or 451 error followed by an
-    //ABOR successfull
+    //ABOR successfull 
     FAbortFlag : TIdThreadSafeBoolean;
 
 	  FAccount: string;
@@ -880,8 +882,8 @@ type
     //
     // holger: .NET compatibility change
     property IPVersion;
+    //
   public
-
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TIdStrings);
     //this function transparantly handles OTP based on the Last command response
@@ -993,6 +995,7 @@ type
     property Password;
     property TransferType: TIdFTPTransferType read FTransferType write SetTransferType default Id_TIdFTP_TransferType;
     property TransferTimeout: Integer read FTransferTimeout write FTransferTimeout default IdDefTimeout;
+    property ListenTimeout : Integer read FListenTimeout write FListenTimeout default DEF_Id_FTP_ListenTimeout;
     property Username;
     property Port default IDPORT_FTP;
     property UseExtensionDataPort : Boolean read FUseExtensionDataPort write SetUseExtensionDataPort default DEF_Id_TIdFTP_UseExtendedData;
@@ -1054,7 +1057,7 @@ uses
   IdComponent, IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA1, IdHashMessageDigest,
   IdStack, IdSimpleServer,
-   IdOTPCalculator;
+  IdOTPCalculator;
 
 function CleanDirName(const APWDReply: string): string;
 begin
@@ -1126,6 +1129,7 @@ begin
   FTryNATFastTrack := Id_TIdFTP_UseNATFastTrack;
   FTransferType := Id_TIdFTP_TransferType;
   FTransferTimeout := IdDefTimeout;
+  FListenTimeout := DEF_Id_FTP_ListenTimeout;
   FLoginMsg := TIdReplyFTP.Create(NIL);
   FListResult := TIdStringList.Create;
   FLangsSupported := TIdStringList.Create;
@@ -1272,13 +1276,13 @@ end;
 
 function TIdFTP.ResumeSupported: Boolean;
 begin
-  if FResumeTested then result := FCanResume
-  else begin
-    FResumeTested := true;
+  if not FResumeTested then
+  begin
+    FResumeTested := True;
     FCanResume := Quote('REST 1') = 350;   {do not localize}
-    result := FCanResume;
     Quote('REST 0');  {do not localize}
   end;
+  Result := FCanResume
 end;
 
 procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = False);
@@ -1291,28 +1295,25 @@ begin
   InternalGet('RETR ' + ASourceFile, ADest, AResume);
 end;
 
-procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = False;
-  AResume: Boolean = false);
+procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean = False;
+  AResume: Boolean = False);
 var
   LDestStream: TIdStream;
 begin
-
   AResume := AResume and CanResume;
   if ACanOverwrite and (not AResume) then begin
     Sys.DeleteFile(ADestFile);
     LDestStream := TFileCreateStream.Create(ADestFile);
-  end else begin
-    if (not ACanOverwrite) and AResume then begin
-      LDestStream := TAppendFileStream.Create(ADestFile);
-    end else begin
-      if Sys.FileExists(ADestFile) then begin
-        raise EIdFTPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
-      end else begin
-        LDestStream := TFileCreateStream.Create(ADestFile);
-      end;
-    end;
+  end
+  else if (not ACanOverwrite) and AResume then begin
+    LDestStream := TAppendFileStream.Create(ADestFile);
+  end
+  else if not Sys.FileExists(ADestFile) then begin
+    LDestStream := TFileCreateStream.Create(ADestFile);
+  end
+  else begin
+    raise EIdFTPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
   end;
-
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
@@ -1413,7 +1414,7 @@ const
   AcceptableAbortReplies : array [0..8] of smallint =
     (225, 226, 250, 426, 450,451,425,550,552);
   //GlobalScape Secure FTP Server returns a 552 for an aborted file
-
+  
 procedure TIdFTP.FinalizeDataOperation;
 var LResponse : SmallInt;
 begin
@@ -1434,7 +1435,7 @@ This is a bug fix for servers will do something like this:
 [6] Mon 06Jun05 13:34:28 - (000007) 221 Goodbye!
 [5] Mon 06Jun05 13:34:28 - (000007) Closing connection for user TEST (00:01:08 connected)
   }
-  if  (Self.LastCmdResult.NumericCode div 100)>2 then
+  if (Self.LastCmdResult.NumericCode div 100) > 2 then
   begin
     DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
     Exit;
@@ -1443,7 +1444,6 @@ This is a bug fix for servers will do something like this:
   // 226 = download successful, 225 = Abort successful}
   if FAbortFlag.Value then
   begin
-
     LResponse := GetResponse(AcceptableAbortReplies);
 //Expiremental -
     if PosInSmallIntArray(LResponse,AbortedReplies)>-1 then begin
@@ -1471,21 +1471,17 @@ This is a bug fix for servers will do something like this:
 //
     if LResponse = 226 then
     begin
-      if IOHandler.Readable(10) then
-      begin
+      if IOHandler.Readable(10) then begin
         GetResponse(AbortedReplies);
       end;
     end;
     DoStatus(ftpAborted, [RSFTPStatusAbortTransfer]);
 //end expiriemental section
-  end
-  else
-  begin
+  end else begin
     //ftp.marist.edu returns 250
     GetResponse([226, 225,250]);
   end;
 end;
-
 
 procedure TIdFTP.InternalPut(const ACommand: string; ASource: TIdStream; AFromBeginning: Boolean = true);
 var
@@ -1523,17 +1519,17 @@ begin
         try
           Self.GetResponse([110, 125, 150]);
           try
-            if  FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
-               TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+            if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
+              TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
             end;
-            if FCurrentTransferMode<>dmDeflate then begin
+            if FCurrentTransferMode <> dmDeflate then begin
               if AFromBeginning then begin
-                FDataChannel.IOHandler.Write(ASource,0, false);  // from beginning
+                FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
               end else begin
-                FDataChannel.IOHandler.Write(ASource,-1, false); // from current position
+                FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
               end;
             end else begin
-              FCompressor.CompressFTPToIO(ASource,FDataChannel.IOHandler,FZLibCompressionLevel,FZLibWindowBits,FZLibMemLevel, FZLibStratagy);
+              FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
             end;
           except
             on E: EIdSocketError do
@@ -1573,33 +1569,28 @@ begin
         end;
         Self.SendCmd(ACommand, [125, 150]);
 
-        LPortSv.Listen;
+        LPortSv.Listen(ListenTimeout);
         if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
           TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
         end;
 
-        if FCurrentTransferMode<>dmDeflate then begin
+        if FCurrentTransferMode <> dmDeflate then begin
           if AFromBeginning then begin
-            FDataChannel.IOHandler.Write(ASource,0, false);  // from beginning
+            FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
           end else begin
-            FDataChannel.IOHandler.Write(ASource,-1, false); // from current position
+            FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
           end;
         end else begin
-          FCompressor.CompressFTPToIO(ASource,FDataChannel.IOHandler,FZLibCompressionLevel,FZLibWindowBits,FZLibMemLevel, FZLibStratagy);
+          FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
         end;
       finally
-         FinalizeDataOperation;
+        FinalizeDataOperation;
       end;
     end;
   except
     //Note that you are likely to get an exception you abort a transfer
     //hopefully, this will make things work better.
-    on E: EIdConnClosedGracefully do
-    begin
-      if not (E is EIdConnClosedGracefully) then
-      begin
-        raise;
-      end;
+    on E: EIdConnClosedGracefully do begin
     end;
   end;
 
@@ -1697,7 +1688,7 @@ begin
         end;
         SendCmd(ACommand, [125, 150, 154]); //APR: Ericsson Switch FTP);
 
-        LPortSv.Listen;
+        LPortSv.Listen(ListenTimeout);
         if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
           TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
         end;
@@ -1860,7 +1851,7 @@ end;
 
 procedure TIdFTP.StoreUnique(const ASource: TIdStream);
 begin
-  InternalPut('STOU', ASource);  {Do not localize}
+    InternalPut('STOU', ASource);  {Do not localize}
 end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
@@ -2419,7 +2410,7 @@ From a WS-FTP Pro firescript at:
 
 http://support.ipswitch.com/kb/WS-20050315-DM01.htm
 
-send ("USER %FwUserId$%HostUserId$%HostAddress")
+send ("USER %FwUserId$%HostUserId$%HostAddress") 
 
 //send ("PASS %FwPassword$%HostPassword")
 
@@ -3020,11 +3011,10 @@ begin
     begin
       repeat
         LWord := Sys.Trim(Fetch(LBuf,';'));
-        if (PosInStrArray(LWord,TLS_AUTH_NAMES)>-1) then
-        begin
+        if PosInStrArray(LWord, TLS_AUTH_NAMES) > -1 then begin
           Result := 'AUTH ' + LWord;  {do not localize}
         end;
-      until (LBuf='') or (Result ='');
+      until (LBuf = '') or (Result = '');
       Break;
     end;
   end;
@@ -3826,7 +3816,7 @@ begin
   begin
     ALocalFile.Position := AStartPoint;
   end;
-
+  
   LByteCount := (ALocalFile.Size - AStartPoint);
   if (LByteCount > AByteCount) and (AByteCount >0) then
   begin
@@ -3935,7 +3925,7 @@ begin
              LLocalCRC := Sys.UpperCase( Sys.IntToHex( LHashCRC.HashValue(ALocalFile,AStartPoint,LByteCount),4) );
          finally
            Sys.FreeAndNil(LHashMD5);
-         end;
+    end;
          LCMD := 'XCRC "'+ARemoteFile+'"';
            if AByteCount >0 then
            begin
@@ -3949,7 +3939,7 @@ begin
              end;
            end;
       end;
-    end;
+  end;
     if SendCMD(LCMD) = 250 then
     begin
        LRemoteCRC := Sys.UpperCase( Sys.Trim(LastCmdResult.Text.Text));
