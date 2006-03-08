@@ -124,7 +124,6 @@ type
     procedure Bind;
     procedure DoBeforeBind; virtual;
     procedure DoAfterBind; virtual;
-    function GetIPVersion: TIdIPVersion;
     function GetBinding: TIdSocketHandle;
     procedure InitComponent; override;
     procedure SetIPVersion(const AValue: TIdIPVersion);
@@ -133,7 +132,7 @@ type
     procedure BeginListen; virtual;
     procedure CreateBinding;
     procedure EndListen; virtual;
-    function Listen: Boolean; virtual;
+    procedure Listen(ATimeout: Integer = IdTimeoutDefault); virtual;
     //
     property AcceptWait: Integer read FAcceptWait write FAcceptWait default ID_ACCEPT_WAIT;
   published
@@ -142,7 +141,7 @@ type
     property BoundPortMin: Integer read FBoundPortMin write FBoundPortMin;
     property BoundPortMax: Integer read FBoundPortMax write FBoundPortMax;
     property Binding: TIdSocketHandle read GetBinding;
-    property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion;
+    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
 
     property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
     property OnAfterBind:TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
@@ -153,7 +152,11 @@ type
 implementation
 
 uses
-  IdIOHandlerStack, IdIOHandlerSocket, IdStack;
+  IdExceptionCore,
+  IdIOHandlerStack,
+  IdIOHandlerSocket,
+  IdResourceStringsCore,
+  IdStack;
 
 { TIdSimpleServer }
 
@@ -164,21 +167,17 @@ end;
 
 procedure TIdSimpleServer.BeginListen;
 begin
+  // Must be before IOHandler as it resets it
+  if not Assigned(Binding) then begin
+    EndListen;
+    CreateBinding;
+  end;
   if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
-    if Assigned(Binding) then
-    begin
-      TIdIOHandlerSocket(IOHandler).Binding.IP := BoundIP;
-      TIdIOHandlerSocket(IOHandler).TransparentProxy.Bind(FIOHandler, BoundPort);
-      TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(FIOHandler,15);
-    end;
+    TIdIOHandlerSocket(IOHandler).Binding.IP := BoundIP;
+    TIdIOHandlerSocket(IOHandler).TransparentProxy.Bind(FIOHandler, BoundPort);
   end else begin
-   // Must be before IOHandler as it resets it
-   if not Assigned(Binding) then begin
-      EndListen;
-      CreateBinding;
-    end;
     Bind;
-    Binding.Listen(15);
+    Binding.Listen(1);
   end;
   FListening := True;
 end;
@@ -206,7 +205,7 @@ end;
 
 procedure TIdSimpleServer.CreateBinding;
 begin
-  if not assigned(IOHandler) then begin
+  if not Assigned(IOHandler) then begin
     CreateIOHandler();
   end;
   IOHandler.Open;
@@ -252,51 +251,80 @@ begin
   end;
 end;
 
-function TIdSimpleServer.GetIPVersion: TIdIPVersion;
-begin
-  result := FIPVersion;
-end;
+procedure TIdSimpleServer.Listen(ATimeout: Integer = IdTimeoutDefault);
+var
+  LAccepted: Boolean;
+  
+  function DoListenTimeout(ATimeout: Integer; AUseProxy: Boolean): Boolean;
+  var
+    LSleepTime: Integer;
+  begin
+    LSleepTime := AcceptWait;
 
-function TIdSimpleServer.Listen: Boolean;
-begin
-  Assert(IOHandler<>nil);
-  Result := False;
-  if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
-    if not FListening then begin
-      BeginListen;
+    if ATimeout = IdTimeoutDefault then begin
+      ATimeout := IdTimeoutInfinite;
     end;
-    with Binding do begin
-      if FAbortedRequested = False then begin
-        while (FAbortedRequested = False) and (Result = False) do begin
-          Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler,AcceptWait);
+
+    if ATimeout = IdTimeoutInfinite then begin
+      repeat
+        if AUseProxy then begin
+          Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, LSleepTime);
+        end else begin
+          Result := Binding.Select(LSleepTime);
         end;
-      end;
+      until Result or FAbortedRequested;
+      Exit;
     end;
-  end else begin
-    if not FListening then begin
-      BeginListen;
-    end;
-    with Binding do begin
-      if FAbortedRequested = False then begin
-        while (FAbortedRequested = False) and (Result = False) do begin
-          Result := Select(AcceptWait);
-        end;
-      end;
-      if Result then begin
-        Binding.Listen(1);
-        Binding.Accept(Binding.Handle);
-        IOHandler.AfterAccept;
+
+    while ATimeout > LSleepTime do begin
+      if AUseProxy then begin
+        Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, LSleepTime);
+      end else begin
+        Result := Binding.Select(LSleepTime);
       end;
 
-// This is now proteced. Disconnect replaces it - but it also calls shutdown.
-// Im not sure we want to call shutdown here? Need to investigate before fixing
-// this.
-      GStack.Disconnect(FListenHandle);
-      FListenHandle := Id_INVALID_SOCKET;
+      if Result or FAbortedRequested then begin
+        Exit;
+      end;
+
+      Dec(ATimeout, LSleepTime);
+    end;
+
+    if AUseProxy then begin
+      Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, ATimeout);
+    end else begin
+      Result := Binding.Select(ATimeout);
     end;
   end;
-end;
 
+begin
+  Assert(IOHandler<>nil);
+
+  if not FListening then begin
+    BeginListen;
+  end;
+
+  if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
+    LAccepted := DoListenTimeout(ATimeout, True);
+  end else begin
+    LAccepted := DoListenTimeout(ATimeout, False);
+
+    if LAccepted then begin
+      Binding.Accept(Binding.Handle);
+      IOHandler.AfterAccept;
+    end;
+
+// This is now protected. Disconnect replaces it - but it also calls shutdown.
+// Im not sure we want to call shutdown here? Need to investigate before fixing
+// this.
+    GStack.Disconnect(FListenHandle);
+    FListenHandle := Id_INVALID_SOCKET;
+  end;
+  
+  if not LAccepted then begin
+    raise EIdAcceptTimeout.Create(RSAcceptTimeout);
+  end;
+end;
 
 procedure TIdSimpleServer.InitComponent;
 begin
