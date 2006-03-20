@@ -193,6 +193,7 @@ interface
 {$I IdCompilerDefines.inc}
 uses
   Classes,
+  IdBuffer,
   IdGlobal,
   IdException,
   IdStackConsts,
@@ -318,7 +319,7 @@ type
   end;
 
   TIdSSLSocket = class(TObject)
-  private
+  protected
     fParent: TObject;
     fPeerCert: TIdX509;
     fSSL: PSSL;
@@ -343,10 +344,11 @@ type
   end;
 
   TIdSSLIOHandlerSocketOpenSSL = class(TIdSSLIOHandlerSocketBase)
-  private
+  protected
     fSSLContext: TIdSSLContext;
     fxSSLOptions: TIdSSLOptions;
     fSSLSocket: TIdSSLSocket;
+    fRecvBuffer: TIdBuffer;
     //fPeerCert: TIdX509;
     fOnStatusInfo: TCallbackEvent;
     fOnGetPassword: TPasswordEvent;
@@ -356,8 +358,6 @@ type
     // function GetPeerCert: TIdX509;
     //procedure CreateSSLContext(axMode: TIdSSLMode);
     //
-
-  protected
     procedure SetPassThrough(const Value: Boolean); override;
     procedure DoBeforeConnect(ASender: TIdSSLIOHandlerSocketOpenSSL); virtual;
     procedure DoStatusInfo(Msg: String); virtual;
@@ -401,16 +401,16 @@ type
   end;
 
   TIdServerIOHandlerSSLOpenSSL = class(TIdServerIOHandlerSSLBase)
-  private
+  protected
     fxSSLOptions: TIdSSLOptions;
+    fSSLContext: TIdSSLContext;
     fOnStatusInfo: TCallbackEvent;
     fOnGetPassword: TPasswordEvent;
     fOnVerifyPeer: TVerifyPeerEvent;
-
+    //
     //procedure CreateSSLContext(axMode: TIdSSLMode);
     //procedure CreateSSLContext;
-  protected
-    fSSLContext: TIdSSLContext;
+    //
     procedure DoStatusInfo(Msg: String); virtual;
     procedure DoGetPassword(var Password: String); virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean): Boolean; virtual;
@@ -443,7 +443,7 @@ type
   end;
 
   TIdX509Name = class(TObject)
-  private
+  protected
     fX509Name: PX509_NAME;
     function CertInOneLine: String;
     function GetHash: TULong;
@@ -480,7 +480,7 @@ type
   end;
 
   TIdSSLCipher = class(TObject)
-  private
+  protected
     FSSLSocket: TIdSSLSocket;
     function GetDescription: String;
     function GetName: String;
@@ -1087,10 +1087,12 @@ begin
   fxSSLOptions := TIdSSLOptions.Create;
   fSSLLayerClosed := True;
   fSSLContext := nil;
+  fRecvBuffer := TIdBuffer.Create;
 end;
 
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
+  Sys.FreeAndNil(fRecvBuffer);
   Sys.FreeAndNil(fSSLSocket);
   if not IsPeer then begin
   //we do not destroy these in IsPeer equals true
@@ -1131,15 +1133,17 @@ end;
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
   Sys.FreeAndNil(fSSLSocket);
+  fRecvBuffer.Clear;
   if not IsPeer then begin
     Sys.FreeAndNil(fSSLContext);
   end;
-
   inherited Close;
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.Open;
 begin
+  FOpened := False;
+  fRecvBuffer.Clear;
   inherited Open;
 end;
 
@@ -1347,7 +1351,7 @@ begin
     LByteCount := 0;
     repeat
       if Readable(ATimeout) then begin
-        if Assigned(FRecvBuffer) then begin
+        if Opened then begin
           // No need to call AntiFreeze, the Readable does that.
           if BindingAllocated then begin
             SetLength(LBuffer, RecvBufferSize);
@@ -1359,7 +1363,7 @@ begin
                   Intercept.Receive(LBuffer);
                   LByteCount := Length(LBuffer);
                 end;
-                FRecvBuffer.Write(LBuffer);
+                fRecvBuffer.Write(LBuffer);
               end;
             finally
               SetLength(LBuffer, 0);
@@ -1375,8 +1379,7 @@ begin
         FClosedGracefully := LByteCount = 0;
 
         if not ClosedGracefully then begin
-          LLastError := GBSDStack.CheckForSocketError(LByteCount, [Id_WSAESHUTDOWN
-           , Id_WSAECONNABORTED]);
+          LLastError := GBSDStack.CheckForSocketError(LByteCount, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
           if LLastError <> 0 then begin
             LByteCount := 0;
             Close;
@@ -1400,7 +1403,7 @@ begin
 //                PChar(IOHandler.RecvBuffer.Memory)[i] := Chr(Ord(PChar(IOHandler.RecvBuffer.Memory)[i]) and $7F);
 //              end;
 //            end;
-            FRecvBuffer.ExtractToIdBuffer(FInputBuffer,-1);
+            fRecvBuffer.ExtractToIdBuffer(FInputBuffer,-1);
           end;
         end;
         // Check here as other side may have closed connection
