@@ -37,7 +37,7 @@
   Rev 1.119    12/12/04 2:23:52 PM  RLebeau
   Added WriteRFCStrings() method
 
-  Rev 1.118    12/11/2004 9:04:50 PM  DSiders
+    Rev 1.118    12/11/2004 9:04:50 PM  DSiders
   Fixed comparison error in WaitFor.
 
   Rev 1.117    12/10/04 2:00:24 PM  RLebeau
@@ -197,7 +197,7 @@
   Rev 1.66    11/23/03 1:46:28 PM  RLebeau
   Removed "var" specifier from TStrings parameter of ReadStrings().
 
-  Rev 1.65    11/4/2003 10:27:56 PM  DSiders
+    Rev 1.65    11/4/2003 10:27:56 PM  DSiders
   Removed exceptions moved to IdException.pas.
 
   Rev 1.64    2003.10.24 10:44:52 AM  czhower
@@ -216,7 +216,7 @@
   Rev 1.60    2003.10.18 12:42:04 PM  czhower
   Intercept.Disconnect is now called
 
-  Rev 1.59    10/15/2003 7:39:28 PM  DSiders
+    Rev 1.59    10/15/2003 7:39:28 PM  DSiders
   Added a formatted resource string for the exception raised in
   TIdIOHandler.MakeIOHandler.
 
@@ -307,13 +307,13 @@
   Rev 1.30    2003.07.10 4:34:56 PM  czhower
   Fixed AV, added some new comments
 
-  Rev 1.29    7/1/2003 5:50:44 PM  BGooijen
+    Rev 1.29    7/1/2003 5:50:44 PM  BGooijen
   Fixed ReadStream
 
-  Rev 1.28    6/30/2003 10:26:08 AM  BGooijen
+    Rev 1.28    6/30/2003 10:26:08 AM  BGooijen
   forgot to remove some code regarding to TIdBuffer.Find
 
-  Rev 1.27    6/29/2003 10:56:26 PM  BGooijen
+    Rev 1.27    6/29/2003 10:56:26 PM  BGooijen
   Removed .Memory from the buffer, and added some extra methods
 
   Rev 1.26    2003.06.25 4:30:00 PM  czhower
@@ -325,10 +325,10 @@
   Rev 1.24    23/6/2003 06:46:52  GGrieve
   allow block on checkForData
 
-  Rev 1.23    6/4/2003 1:07:08 AM  BGooijen
+    Rev 1.23    6/4/2003 1:07:08 AM  BGooijen
   changed comment
 
-  Rev 1.22    6/3/2003 10:40:34 PM  BGooijen
+    Rev 1.22    6/3/2003 10:40:34 PM  BGooijen
   FRecvBuffer bug fixed, it was freed, but never recreated, resulting in an AV
 
   Rev 1.21    2003.06.03 6:28:04 PM  czhower
@@ -342,31 +342,31 @@
 
   Rev 1.18    2003.04.17 11:01:12 PM  czhower
 
-  Rev 1.17    4/16/2003 3:29:30 PM  BGooijen
+    Rev 1.17    4/16/2003 3:29:30 PM  BGooijen
   minor change in ReadBuffer
 
-  Rev 1.16    4/1/2003 7:54:24 PM  BGooijen
+    Rev 1.16    4/1/2003 7:54:24 PM  BGooijen
   ReadLn default terminator changed to LF
 
-  Rev 1.15    3/27/2003 3:24:06 PM  BGooijen
+    Rev 1.15    3/27/2003 3:24:06 PM  BGooijen
   MaxLine* is now published
 
   Rev 1.14    2003.03.25 7:42:12 PM  czhower
   try finally to WriteStrings
 
-  Rev 1.13    3/24/2003 11:01:36 PM  BGooijen
+    Rev 1.13    3/24/2003 11:01:36 PM  BGooijen
   WriteStrings is now buffered to increase speed
 
-  Rev 1.12    3/19/2003 1:02:32 PM  BGooijen
+    Rev 1.12    3/19/2003 1:02:32 PM  BGooijen
   changed class function ConstructDefaultIOHandler a little (default parameter)
 
-  Rev 1.11    3/13/2003 10:18:16 AM  BGooijen
+    Rev 1.11    3/13/2003 10:18:16 AM  BGooijen
   Server side fibers, bug fixes
 
-  Rev 1.10    3/5/2003 11:03:06 PM  BGooijen
+    Rev 1.10    3/5/2003 11:03:06 PM  BGooijen
   Added Intercept here
 
-  Rev 1.9    2/25/2003 11:02:12 PM  BGooijen
+    Rev 1.9    2/25/2003 11:02:12 PM  BGooijen
   InputBufferToStream now accepts a bytecount
 
   Rev 1.8    2003.02.25 1:36:00 AM  czhower
@@ -456,7 +456,6 @@ type
     FReadLnTimedOut: Boolean;
     FReadTimeOut: Integer;
 //TODO:
-    FRecvBuffer: TIdBuffer; // To be used by ReadFromStack only
     FRecvBufferSize: Integer;
     FSendBufferSize: Integer;
 
@@ -593,6 +592,7 @@ type
              AMaxLineLength: Integer = -1): string;
     // Read - Simple Types
     function ReadChar: Char;
+    function ReadByte: Byte;
     function ReadString(ABytes: Integer): string;
     function ReadCardinal(AConvert: Boolean = True): Cardinal;
     function ReadInteger(AConvert: Boolean = True): Integer;
@@ -633,7 +633,7 @@ type
     // Is used by SuperCore
     property InputBuffer: TIdBuffer read FInputBuffer;
     //currently an option, as LargeFile support changes the data format
-    property LargeStream:Boolean read FLargeStream write FLargeStream;
+    property LargeStream: Boolean read FLargeStream write FLargeStream;
     property MaxCapturedLines: Integer read FMaxCapturedLines write FMaxCapturedLines default Id_IOHandler_MaxCapturedLines;
     property Opened: Boolean read FOpened;
     property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut default IdTimeoutDefault;
@@ -679,16 +679,20 @@ var
 
 procedure TIdIOHandler.Close;
 begin
-  if Intercept <> nil then begin
-    Intercept.Disconnect;
+  try
+    if Intercept <> nil then begin
+      Intercept.Disconnect;
+    end;
+  finally
+    FOpened := False;
+    FInputBuffer.Clear;
+    WriteBufferClear;
   end;
-  FOpened := False;
 end;
 
 destructor TIdIOHandler.Destroy;
 begin
   Close;
-  Sys.FreeAndNil(FRecvBuffer);
   Sys.FreeAndNil(FInputBuffer);
   Sys.FreeAndNil(FWriteBuffer);
   inherited Destroy;
@@ -703,12 +707,8 @@ procedure TIdIOHandler.Open;
 begin
   FOpened := False;
   FClosedGracefully := False;
-  // Recreate FRecvBuffer
-  Sys.FreeAndNil(FRecvBuffer);
-  FRecvBuffer := TIdBuffer.Create;
-  //
-  Sys.FreeAndNil(FInputBuffer);
-  FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
+  WriteBufferClear;
+  FInputBuffer.Clear;
   FOpened := True;
 end;
 
@@ -935,18 +935,19 @@ begin
 end;
 
 function TIdIOHandler.ReadChar: Char;
-{
-var
-  ResultString: string;
-begin
-  ResultString := ReadString(1);
-  Result := ResultString[1];
-}
 var
   LBytes: TIdBytes;
 begin
   ReadBytes(LBytes, 1, False);
   Result := BytesToChar(LBytes);
+end;
+
+function TIdIOHandler.ReadByte: Byte;
+var
+  LBytes: TIdBytes;
+begin
+  ReadBytes(LBytes, 1, False);
+  Result := LBytes[0];
 end;
 
 function TIdIOHandler.ReadInteger(AConvert: boolean): Integer;
@@ -1113,7 +1114,7 @@ procedure TIdIOHandler.Write(AStream: TIdStream; ASize: Int64 = 0;
 var
   LBuffer: TIdBytes;
   LBufSize: Integer;
-  LBufferingStarted: Boolean;
+  // LBufferingStarted: Boolean;
 begin
   if ASize < 0 then begin //"-1" All form current position
     LBufSize := AStream.Position;
@@ -1130,12 +1131,26 @@ begin
   //else ">0" ACount bytes
   EIdIOHandlerRequiresLargeStream.IfTrue((ASize > High(Integer)) and (not LargeStream));
 
+  // RLebeau 3/19/2006: DO NOT ENABLE WRITE BUFFERING IN THIS METHOD!
+  //
+  // When sending large streams, especially with LargeStream enabled,
+  // this can easily cause "Out of Memory" errors.  It is the caller's
+  // responsibility to enable/disable write buffering as needed before
+  // calling one of the Write() methods.
+  //
+  // Also, forcing write buffering in this method is having major
+  // impacts on TIdFTP, TIdFTPServer, and TIdHTTPServer.
+
+  {
   LBufferingStarted := not WriteBufferingActive;
+  LBufferingStarted := False;
+
   if LBufferingStarted then begin
     WriteBufferOpen;
   end;
+  }
 
-  try
+  //try
     if AWriteByteCount then begin
       if LargeStream then begin
       	Write(ASize);
@@ -1165,6 +1180,7 @@ begin
       EndWork(wmWrite);
       LBuffer := nil;
     end;
+  {
     if LBufferingStarted then begin
       WriteBufferClose;
     end;
@@ -1174,6 +1190,7 @@ begin
     end;
     raise;
   end;
+  }
 end;
 
 procedure TIdIOHandler.ReadBytes(
@@ -1190,7 +1207,7 @@ begin
       CheckForDisconnect(True, True);
     end;
     FInputBuffer.ExtractToBytes(VBuffer, AByteCount, AAppend);
-  end else if AByteCount = -1 then begin
+  end else if AByteCount < 0 then begin
     ReadFromSource(False, ReadTimeout, False);
     CheckForDisconnect(True, True);
     FInputBuffer.ExtractToBytes(VBuffer, -1, AAppend);
@@ -1227,13 +1244,13 @@ begin
    (
      (
        // Set when closed properly. Reflects actual socket state.
-       (ClosedGracefully = False)
+       (not ClosedGracefully)
        // Created on Open. Prior to Open ClosedGracefully is still false.
        and (FInputBuffer <> nil)
      )
      // Buffer must be empty. Even if closed, we are "connected" if we still have
      // data
-     or (InputBufferIsEmpty = False)
+     or (not InputBufferIsEmpty)
    )
    and Opened;
 end;
@@ -1444,7 +1461,7 @@ var
   LChar: Char;
   LTmp: string;
 begin
-  if AMaxLineLength = -1 then begin
+  if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
   end;
   Result := '';
@@ -1574,11 +1591,7 @@ end;
 
 function TIdIOHandler.InputBufferIsEmpty: Boolean;
 begin
-  if FInputBuffer = nil then begin
-    Result := True;
-  end else begin
-    Result := FInputBuffer.Size = 0;
-  end;
+  Result := FInputBuffer.Size = 0;
 end;
 
 procedure TIdIOHandler.Write(ABuffer: TIdBytes);
@@ -1589,8 +1602,7 @@ begin
     // Write Buffering is enabled
     end else begin
       FWriteBuffer.Write(ABuffer);
-      if (FWriteBuffer.Size >= WriteBufferThreshhold)
-       and (WriteBufferThreshhold > 0) then begin
+      if (FWriteBuffer.Size >= WriteBufferThreshhold) and (WriteBufferThreshhold > 0) then begin
         repeat
           WriteBufferFlush(WriteBufferThreshhold);
         until FWriteBuffer.Size < WriteBufferThreshhold;
@@ -1653,6 +1665,7 @@ begin
   FMaxCapturedLines := Id_IOHandler_MaxCapturedLines;
   FLargeStream := False;
   FReadTimeOut := IdTimeoutDefault;
+  FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
 end;
 
 procedure TIdIOHandler.Capture(ADest: TIdStream);
