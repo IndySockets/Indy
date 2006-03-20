@@ -1133,7 +1133,10 @@ end;
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
   Sys.FreeAndNil(fSSLSocket);
-  fRecvBuffer.Clear;
+
+  //if close is being called from destroy then this buffer is already freed
+  if fRecvBuffer<>nil then fRecvBuffer.Clear;
+
   if not IsPeer then begin
     Sys.FreeAndNil(fSSLContext);
   end;
