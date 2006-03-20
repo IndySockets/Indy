@@ -411,7 +411,7 @@ begin
     LByteCount := 0;
     repeat
       if Readable(ATimeout) then begin
-        if Assigned(FRecvBuffer) then begin
+        if Opened then begin
           // No need to call AntiFreeze, the Readable does that.
           if BindingAllocated then begin
             // TODO: Whey are we reallocating LBuffer every time? This should
@@ -480,11 +480,8 @@ begin
   end;
   // Do not raise unless all data has been read by the user
   if LDisconnected then begin
-    if Assigned(FInputBuffer) then begin
-      if ((FInputBuffer.Size = 0) or AIgnoreBuffer)
-       and ARaiseExceptionIfDisconnected then begin
-        RaiseConnClosedGracefully;
-      end;
+    if (InputBufferIsEmpty or AIgnoreBuffer) and ARaiseExceptionIfDisconnected then begin
+      RaiseConnClosedGracefully;
     end;
   end;
 end;
