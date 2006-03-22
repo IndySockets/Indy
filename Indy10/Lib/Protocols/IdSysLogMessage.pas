@@ -110,16 +110,14 @@ type
     FPIDAvailable: Boolean;
     {we only use the text property as a basis for everything
     else so that SysLog messages are intact for the TIdSysLogServer}
-    FText : String;
-    FMsgPIDAvailable: Boolean;
+    FProcess: String;
+    FPID: Integer;
+    FContent: String;
     procedure SetPIDAvailable(const AValue: Boolean);
-    function GetContent: String;
-    function GetProcess: String;
     procedure SetContent(const AValue: String);
     procedure SetProcess(const AValue: String);
+    function GetText: String;
     procedure SetText(const AValue: String);
-    function GetPID: Integer;
-    procedure SetPID(const AValue: Integer);
     function GetMaxTagLength : Integer;
     //extract the PID part into a SysLog PID including []
     function PIDToStr(APID : Integer) : String; virtual;
@@ -127,12 +125,12 @@ type
   public
     procedure Assign(Source: TIdPersistent); override;
   published
-    property Text: String read FText write SetText;
+    property Text: String read GetText write SetText;
     {These are part of the message property string so no need to store them}
-    property PIDAvailable : Boolean read FPIDAvailable write SetPIDAvailable stored false;
-    property Process : String read GetProcess write SetProcess stored false;
-    property PID : Integer read GetPID write SetPID stored false;
-    property Content : String read GetContent write SetContent stored false;
+    property PIDAvailable : Boolean read FPIDAvailable write FPIDAvailable stored false;
+    property Process : String read FProcess write SetProcess stored false;
+    property PID : Integer read FPID write SetPID stored false;
+    property Content : String read FContent write SetContent stored false;
   end;
 
   TIdSysLogMessage = class(TIdBaseComponent)
@@ -159,7 +157,7 @@ type
     procedure ReadPRI(var StartPos: Integer); virtual;
     procedure ReadHeader(var StartPos: Integer); virtual;
     procedure ReadMSG(var StartPos: Integer); virtual;
-    procedure parse; virtual;
+    procedure Parse; virtual;
     procedure UpdatePRI; virtual;
     function DecodeTimeStamp(TimeStampString: String): TDateTime; virtual;
     procedure InitComponent; override;
@@ -414,11 +412,11 @@ begin
 end;
 { TIdSysLogMessage }
 
-procedure TIdSysLogMessage.assign(Source: TIdPersistent);
-var ms : TIdSysLogMessage;
+procedure TIdSysLogMessage.Assign(Source: TIdPersistent);
+var
+  ms : TIdSysLogMessage;
 begin
-  if Source is TIdSysLogMessage then
-  begin
+  if Source is TIdSysLogMessage then begin
     ms := Source as TIdSysLogMessage;
     {Priority and facility properties are set with this so those assignments
     are not needed}
@@ -426,9 +424,9 @@ begin
     HostName := ms.Hostname;
     FMsg.Assign(ms.Msg);
     TimeStamp := ms.TimeStamp;
-  end
-  else
+  end else begin
     inherited Assign(Source);
+  end;
 end;
 
 function TIdSysLogMessage.DecodeTimeStamp(
@@ -442,40 +440,33 @@ begin
   // Get the current date to get the current year
   LDate := Sys.Now;
   Sys.DecodeDate(LDate, AYear, AMonth, ADay);
-  if length(TimeStampString) <> 16 then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if Length(TimeStampString) <> 16 then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // Month
   AMonth := StrToMonth(Copy(TimeStampString, 1, 3));
-  if not AMonth in [1..12] then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if not AMonth in [1..12] then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // day
   ADay := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 5, 2)), 0);
-  if not (ADay in [1..31]) then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if not (ADay in [1..31]) then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // Time
   AHour := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 8, 2)), 0);
-  if not AHour in [0..23] then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if not AHour in [0..23] then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   AMin := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 11, 2)), 0);
-  if not AMin in [0..59] then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if not AMin in [0..59] then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   ASec := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 14, 2)), 0);
-  if not ASec in [0..59] then
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+  if not ASec in [0..59] then begin
+    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
-  if TimeStampString[16] <> ' ' then    {Do not Localize}
-  begin
+  if TimeStampString[16] <> ' ' then begin   {Do not Localize}
     Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   Result := Sys.EncodeDate(AYear, AMonth, ADay) + Sys.EncodeTime(AHour, AMin, ASec, 0);
@@ -488,7 +479,7 @@ begin
   RawMessage := BytesToString(ASrc, 0, MSGLEN);
 end;
 
-procedure TIdSysLogMessage.parse;
+procedure TIdSysLogMessage.Parse;
 var
   APos: Integer;
 begin
@@ -509,8 +500,7 @@ begin
     Inc(StartPos, 16);
     // HostName
     AHostNameEnd := StartPos;
-    while (AHostNameEnd < Length(FRawMessage)) and (FRawMessage[AHostNameEnd] <> ' ') do    {Do not Localize}
-    begin
+    while (AHostNameEnd < Length(FRawMessage)) and (FRawMessage[AHostNameEnd] <> ' ') do begin    {Do not Localize}
       Inc(AHostNameEnd);
     end;    // while
 
@@ -530,7 +520,7 @@ end;
 procedure TIdSysLogMessage.ReadMSG(var StartPos: Integer);
 begin
   FMessage := Copy(FRawMessage, StartPos, Length(FRawMessage));
-  Msg.text := FMessage;
+  Msg.Text := FMessage;
 end;
 
 procedure TIdSysLogMessage.ReadPRI(var StartPos: Integer);
@@ -543,28 +533,24 @@ begin
     // Read the PRI string
     // PRI must start with "less than" sign
     Buffer := '';    {Do not Localize}
-    if FRawMessage[StartPos] <> '<' then    {Do not Localize}
+    if FRawMessage[StartPos] <> '<' then begin   {Do not Localize}
       raise EInvalidSyslogMessage.Create(RSInvalidSyslogPRI);
+    end;
     repeat
       Inc(StartPos);
-      if FRawMessage[StartPos] = '>' then    {Do not Localize}
-      begin
+      if FRawMessage[StartPos] = '>' then begin   {Do not Localize}
         Break;
-      end
-      else
-        if not CharIsInSet(FRawMessage, StartPos, CharRange('0','9')) then    {Do not Localize}
-        begin
-          raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogPRINumber, [Buffer]));
-        end
-        else
-        begin
-          Buffer  := Buffer + FRawMessage[StartPos];
-        end;
+      end;
+      if not CharIsInSet(FRawMessage, StartPos, CharRange('0','9')) then begin   {Do not Localize}
+        raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogPRINumber, [Buffer]));
+      end;
+      Buffer := Buffer + FRawMessage[StartPos];
     until StartPos = StartPosSave + 5;
 
     // PRI must end with "greater than" sign
-    if (FRawMessage[StartPos] <> '>') then    {Do not Localize}
+    if (FRawMessage[StartPos] <> '>') then begin   {Do not Localize}
       raise EInvalidSyslogMessage.Create(RSInvalidSyslogPRI);
+    end;
     // Convert PRI to numerical value
     Inc(StartPos);
     CheckASCIIRange(Buffer);
@@ -587,8 +573,7 @@ end;
 
 procedure TIdSysLogMessage.SetFacility(const AValue: TidSyslogFacility);
 begin
-  if FFacility <> AValue then
-  begin
+  if FFacility <> AValue then begin
     FFacility := AValue;
     UpdatePRI;
   end;
@@ -596,18 +581,17 @@ end;
 
 procedure TIdSysLogMessage.SetHostname(const AValue: string);
 begin
-  if Pos(' ', AValue) <> 0 then    {Do not Localize}
-  begin
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidHostName, [AValue]));
-  end
-  else
+  if FHostname <> AValue then begin
+    if Pos(' ', AValue) <> 0 then begin   {Do not Localize}
+      raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidHostName, [AValue]));
+    end;
     FHostname := AValue;
+  end;
 end;
 
 procedure TIdSysLogMessage.SetSeverity(const AValue: TIdSyslogSeverity);
 begin
-  if FSeverity <> AValue then
-  begin
+  if FSeverity <> AValue then begin
     FSeverity := AValue;
     UpdatePRI;
   end;
@@ -623,20 +607,18 @@ var
   AYear, AMonth, ADay, AHour, AMin, ASec, AMSec: Word;
 
   function YearOf(ADate : TDateTime) : Word;
-  var mm, dd : Word;
+  var
+    mm, dd : Word;
   begin
-    Sys.DecodeDate(ADate,Result,mm,dd);
+    Sys.DecodeDate(ADate, Result, mm, dd);
   end;
 
   Function DayToStr(day: Word): String;
   begin
-    if Day < 10 then
-    begin
-       result :=  ' ' + Sys.IntToStr(day);    {Do not Localize}
-    end
-    else
-    begin
-      result := Sys.IntToStr(day);
+    if Day < 10 then begin
+       Result :=  ' ' + Sys.IntToStr(day);    {Do not Localize}
+    end else begin
+      Result := Sys.IntToStr(day);
     end;
   end;
 begin
@@ -649,7 +631,7 @@ begin
   Sys.DecodeDate(TimeStamp, AYear, AMonth, ADay);
   Sys.DecodeTime(TimeStamp, AHour, AMin, ASec, AMSec);
 
-  result := Sys.Format('%s %s %.2d:%.2d:%.2d %s',[monthnames[AMonth], DayToStr(ADay), AHour, AMin, ASec, Hostname]);    {Do not Localize}
+  Result := Sys.Format('%s %s %.2d:%.2d:%.2d %s', [monthnames[AMonth], DayToStr(ADay), AHour, AMin, ASec, Hostname]);    {Do not Localize}
 
 end;
 
@@ -657,7 +639,7 @@ function TIdSysLogMessage.EncodeMessage: String;
 begin
   // Create a syslog message string
   // PRI
-  result := Sys.Format('<%d>%s %s', [PRI, GetHeader, FMsg.Text]);    {Do not Localize}
+  Result := Sys.Format('<%d>%s %s', [PRI, GetHeader, FMsg.Text]);    {Do not Localize}
   // If the message is too long, tuncate it
   if Length(result) > 1024  then
   begin
@@ -667,10 +649,8 @@ end;
 
 procedure TIdSysLogMessage.SetPri(const Value: TIdSyslogPRI);
 begin
-  if FPri <> value then
-  begin
-    if not (value in [0..191]) then
-    begin
+  if FPri <> Value then begin
+    if not (Value in [0..191]) then begin
       raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogPRINumber, [Sys.IntToStr(value)]));
     end;
     FPri := Value;
@@ -680,7 +660,8 @@ begin
 end;
 
 procedure TIdSysLogMessage.InitComponent;
-var bCreatedStack : Boolean;
+var
+  bCreatedStack : Boolean;
 begin
   inherited;
   PRI := 13; //default
@@ -704,16 +685,16 @@ begin
 end;
 
 procedure TIdSysLogMessage.CheckASCIIRange(var Data: String);
-
 var
   i: Integer;
   ValidChars : String;
 begin
-  ValidChars := CharRange(#0,#127);
+  ValidChars := CharRange(#0, #127);
   for i := 1 to Length(Data) do    // Iterate
   begin
-    if not CharIsInSet(Data, i, ValidChars) then
-      data[i] := '?';    {Do not Localize}
+    if not CharIsInSet(Data, i, ValidChars) then begin
+      Data[i] := '?';    {Do not Localize}
+    end;
   end;    // for
 end;
 
@@ -739,128 +720,53 @@ end;
 
 procedure TIdSysLogMessage.SendToHost(const Dest: String);
 begin
-  if not assigned(FUDPCliComp) then
-    FUDPCliComp := TIdUDPClient.Create(self);
+  if not Assigned(FUDPCliComp) then begin
+    FUDPCliComp := TIdUDPClient.Create(Self);
+  end;
   (FUDPCliComp as TIdUDPClient).Send(Dest, IdPORT_syslog, EncodeMessage);
 end;
 
 { TIdSysLogMsgPart }
 
 procedure TIdSysLogMsgPart.Assign(Source: TIdPersistent);
-var m : TIdSysLogMsgPart;
 begin
-  if Source is TIdSysLogMsgPart then
-  begin
-    m := Source as TIdSysLogMsgPart;
+  if Source is TIdSysLogMsgPart then begin
     {This sets about everything here}
-    FText := m.Text;
-  end
-  else
-  begin
+    Text := (Source as TIdSysLogMsgPart).Text;
+  end else begin
     inherited Assign(Source);
   end;
 end;
-
-function TIdSysLogMsgPart.GetContent: String;
-begin
-  Result := FText;
-  if Pos(':',Result)>1 then    {Do not Localize}
-  begin
-    Fetch(Result,':');    {Do not Localize}
-  end;
-end;
-
 
 function TIdSysLogMsgPart.GetMaxTagLength: Integer;
 begin
   Result := 32 - Length(PIDToStr(PID));
 end;
 
-function TIdSysLogMsgPart.GetPID: Integer;
-var SBuf : String;
-begin
-  Result := -1;
-  SBuf := FText;
-  if Pos(':',FText)> 1 then    {Do not Localize}
-  begin
-    SBuf := Fetch(SBuf,':');    {Do not Localize}
-    Fetch(SBuf,'[');    {Do not Localize}
-    //there may not be a PID number in the Text property
-    SBuf := Fetch(SBuf,']');    {Do not Localize}
-    if (Length(SBuf)>0) then
-    begin
-      Result := Sys.StrToInt(SBuf);
-    end;
-  end;
-end;
-
-function TIdSysLogMsgPart.GetProcess: String;
-begin
-  if Pos(':',FText)>1 then    {Do not Localize}
-  begin
-    Result := Fetch(FText,':',False);    {Do not Localize}
-
-    //strip of the PID if it's there    {Do not Localize}
-
-    Result := Fetch(Result,'[');    {Do not Localize}
-  end
-  else
-  begin
-    Result := '';    {Do not Localize}
-  end;
-end;
-
 function TIdSysLogMsgPart.PIDToStr(APID: Integer): String;
 begin
-  if FPIDAvailable then
-  begin
-    Result := Sys.Format('[%d]:',[APID]);    {Do not Localize}
-  end
-  else
-  begin
+  if FPIDAvailable then begin
+    Result := Sys.Format('[%d]:', [APID]);    {Do not Localize}
+  end else begin
     Result := ':';    {Do not Localize}
-  end;
-end;
-
-procedure TIdSysLogMsgPart.SetContent(const AValue: String);
-begin
-  FText := Process + PIDToStr(PID) + AValue;
-end;
-
-procedure TIdSysLogMsgPart.SetPID(const AValue: Integer);
-begin
-  FText := Process + PIDToStr(AValue) + Content;
-end;
-
-procedure TIdSysLogMsgPart.SetPIDAvailable(const AValue: Boolean);
-var SSaveProcess : String;
-begin
-  SSaveProcess := Process;
-  FPIDAvailable := AValue;
-  FText := SSaveProcess + PidToStr(PID)+Content;
-  if not AValue and (FText = ':') then    {Do not Localize}
-  begin
-    FText := '';    {Do not Localize}
   end;
 end;
 
 procedure TIdSysLogMsgPart.SetProcess(const AValue: String);
 
    function AlphaNumericStr(AString : String) : String;
-   var i : Integer;
+   var
+     i : Integer;
    begin
-     for i := 1 to Length(AString) do
-     begin
-         //numbers
+     for i := 1 to Length(AString) do begin
+       //numbers
        if ((Ord(AString[i])>=$30) and (Ord(AString[i])<$3A)) or
          //alphabet
           ((Ord(AString[i])>=$61) and (Ord(AString[i])<$5B)) or
           ((Ord(AString[i])>=$41) and (Ord(AString[i])<$7B)) then
        begin
          Result := Result + AString[i];
-       end
-       else
-       begin
+       end else begin
          Break;
        end;
      end;
@@ -869,13 +775,41 @@ procedure TIdSysLogMsgPart.SetProcess(const AValue: String);
 begin
   //we have to ensure that the TAG feild will never be greater than 32 charactors
   //and the program name must contain alphanumeric charactors
-  FText := AlphaNumericStr(Copy(AValue,1,GetMaxTagLength))
-    + PIDToStr(PID) + Content;
+  FProcess := AlphaNumericStr(Copy(AValue, 1, GetMaxTagLength));
+end;
+
+function TIdSysLogMsgPart.GetText: String;
+begin
+  Result := Process + PIDToStr(PID) + Content;
+  if (not FPIDAvailable) and (Result = ':') then begin   {Do not Localize}
+      Result := '';    {Do not Localize}
+    end;
+  end;
 end;
 
 procedure TIdSysLogMsgPart.SetText(const AValue: String);
+var
+  SBuf: String;
 begin
-  FText := AValue;
+  FProcess := '';  {Do not Localize}
+  FPID := -1;
+  FPIDAvailable := False;
+  FContent := '';  {Do not Localize}
+
+  SBuf := AValue;
+  if Pos(':', SBuf) > 1 then begin   {Do not Localize}
+    FProcess := Fetch(SBuf, ':');    {Do not Localize}
+    FContent = SBuf;
+    if Pos('[', FProcess) > 0 then begin   {Do not Localize}
+      SBuf := FProcess;
+      FProcess := Fetch(SBuf, '[');    {Do not Localize}
+      SBuf := Fetch(SBuf, ']');        {Do not Localize}
+      if Length(SBuf) > 0 then begin
+        FPID := Sys.StrToIntDef(SBuf, -1);
+        FPIDAvailable := FPID <> -1;
+      end;
+    end;
+  end;
 end;
 
 end.
