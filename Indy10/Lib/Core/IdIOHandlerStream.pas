@@ -93,7 +93,7 @@
   Added (empty) procedures for the base classes' abstract CheckForDataOnSource
   and CheckForDisconnect
 
-  Rev 1.5    7/1/2003 12:45:56 PM  BGooijen
+    Rev 1.5    7/1/2003 12:45:56 PM  BGooijen
   changed FInputBuffer.Size := 0 to FInputBuffer.Clear
 
   Rev 1.4    12-8-2002 21:05:28  BGooijen
@@ -137,8 +137,8 @@ type
   protected
     FFreeStreams: Boolean;
     FOnGetStreams: TIdOnGetStreams;
-    fReceiveStream: TIdStream;
-    fSendStream: TIdStream;
+    FReceiveStream: TIdStream;
+    FSendStream: TIdStream;
     FStreamType: TIdIOHandlerStreamType;
     //
     function GetReceiveStream: TIdStream;
@@ -175,9 +175,7 @@ type
     procedure Open;
       override;
     function Readable(AMSec: integer = IdTimeoutDefault): boolean; override;
-    procedure WriteDirect(
-      var aBuffer: TIdBytes
-      ); override;
+    procedure WriteDirect(var ABuffer: TIdBytes); override;
     //
     property ReceiveStream: TIdStream read GetReceiveStream {write SetReceiveStream};
     property SendStream: TIdStream read GetSendStream {write SetSendStream};
@@ -196,15 +194,17 @@ implementation
 
 procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
 begin
-  // All that we are doing here is implementing the base class's abstract function
+  if Connected then begin
+    ReadFromSource(False, ATimeout, False);
+  end;
 end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(
   ARaiseExceptionIfDisconnected: Boolean = True;
   AIgnoreBuffer: Boolean = False);
 begin
-  fClosedGracefully := (fSendStream = nil) and (fReceiveStream = nil);
-  if fClosedGracefully and ARaiseExceptionIfDisconnected then begin
+  FClosedGracefully := (FSendStream = nil) and (FReceiveStream = nil);
+  if FClosedGracefully and ARaiseExceptionIfDisconnected then begin
     RaiseConnClosedGracefully;
   end;
 end;
@@ -263,7 +263,7 @@ begin
   end;
 end;
 
-function TIdIOHandlerStream.Readable(AMSec: integer): boolean;
+function TIdIOHandlerStream.Readable(AMSec: Integer): Boolean;
 begin
   Result := ReceiveStream <> nil;
   if Result then begin
@@ -273,7 +273,7 @@ end;
 
 function TIdIOHandlerStream.ReadFromSource(
   ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
-   ARaiseExceptionOnTimeout: Boolean): Integer;
+  ARaiseExceptionOnTimeout: Boolean): Integer;
 var
   LBuffer: TIdBytes;
 begin
@@ -284,7 +284,7 @@ begin
     Result := Min(32 * 1024, FReceiveStream.Size - FReceiveStream.Position);
     if Result > 0 then begin
       SetLength(LBuffer, Result);
-      TIdStreamHelper.ReadBytes(FReceiveStream,LBuffer,Result);
+      TIdStreamHelper.ReadBytes(FReceiveStream, LBuffer, Result);
       if Intercept <> nil then begin
         Intercept.Receive(LBuffer);
         Result := Length(LBuffer);
@@ -298,13 +298,11 @@ begin
   end;
 end;
 
-procedure TIdIOHandlerStream.WriteDirect(
-  var aBuffer: TIdBytes
-  );
+procedure TIdIOHandlerStream.WriteDirect(var ABuffer: TIdBytes);
 begin
-  inherited WriteDirect(aBuffer);
-  if fSendStream <> nil then begin
-    TIdStreamHelper.Write(fSendStream, aBuffer);
+  inherited WriteDirect(ABuffer);
+  if FSendStream <> nil then begin
+    TIdStreamHelper.Write(FSendStream, ABuffer, Length(ABuffer));
   end;
 end;
 
