@@ -57,7 +57,6 @@ type
   { For FTP servers using OS/2 and other MS-DOS-like file systems that report file attributes }
   TIdDOSAttributes = class(TIdPersistent)
   protected
-    FRead_Only : Boolean;
     FFileAttributes: Cardinal;
     function GetRead_Only: Boolean;
     procedure SetRead_Only(const AValue: Boolean);
@@ -130,15 +129,13 @@ type
   //This is for some mainframe items which are based on records
   TIdRecFTPListItem = class(TIdFTPListItem)
   protected
-      //These are for VM/CMS which uses a record type of file system
+    //These are for VM/CMS which uses a record type of file system
     FRecLength : Integer;
     FRecFormat : String;
     FNumberRecs : Integer;
     property RecLength : Integer read FRecLength write FRecLength;
     property RecFormat : String read FRecFormat write FRecFormat;
     property NumberRecs : Integer read FNumberRecs write FNumberRecs;
-
-  public
   end;
 
   { listing formats that include Creation timestamp information }
@@ -184,7 +181,7 @@ type
     property Attributes :  TIdWin32ea read FAttributes;
   end;
 
-  // for some parsers that output an owner sometimes
+  //for some parsers that output an owner sometimes
   TIdOwnerFTPListItem = class(TIdFTPListItem)
   protected
     FOwnerName : String;
@@ -201,12 +198,12 @@ type
     property NovellPermissions : string read FNovellPermissions write FNovellPermissions;
   end;
 
-  // Bull GCOS 8 uses this and Unix will use a descendent
+  //Bull GCOS 8 uses this and Unix will use a descendent
   TIdUnixPermFTPListItem = class(TIdOwnerFTPListItem)
   protected
     FUnixGroupPermissions: string;
-     FUnixOwnerPermissions: string;
-     FUnixOtherPermissions: string;
+    FUnixOwnerPermissions: string;
+    FUnixOtherPermissions: string;
   public
     property UnixOwnerPermissions: string read FUnixOwnerPermissions write FUnixOwnerPermissions;
     property UnixGroupPermissions: string read FUnixGroupPermissions write FUnixGroupPermissions;
@@ -282,11 +279,12 @@ begin
 end;
 
 function TIdMLSTFTPListItem.GetFact(const AName: String): String;
-var LFacts : TIdStrings;
+var
+  LFacts : TIdStrings;
 begin
   LFacts := TIdStringList.Create;
   try
-    ParseFacts(Data,LFacts);
+    ParseFacts(Data, LFacts);
     Result := LFacts.Values[AName];
   finally
     Sys.FreeAndNil(LFacts);
@@ -316,44 +314,40 @@ end;
 { TIdDOSAttributes }
 
 function TIdDOSAttributes.AddAttribute(const AString: String): Boolean;
-var i : Integer;
+var
+  i : Integer;
+  S: String;
 begin
-  Result := True;
-  for i := 1 to Length(AString) do
-  begin
-    case PosInStrArray( Copy(AString,i,1),['R','A','S','H','W','-','D'],False) of
-    //R
-    0 : Read_Only := True;
-    //A
-    1 : Archive := True;
-    //S
-    2 : System := True;
-    //H
-    3 : Hidden := True;
-    //W - W was added only for Distinct32's FTP server which reports 'w' if you
-    //write instead of a r for read-only
-    4 : Read_Only := False;
-    5,6 : ;//for the "-" and "d" that Distinct32 may give
+  S := Sys.UpperCase(AString);
+  for i := 1 to Length(S) do begin
+    case CharPosInSet(S, i, 'RASHW-D') of
+      //R
+      1 : Read_Only := True;
+      //A
+      2 : Archive := True;
+      //S
+      3 : System := True;
+      //H
+      4 : Hidden := True;
+      //W - W was added only for Distinct32's FTP server which reports 'w' if you
+      //write instead of a r for read-only
+      5 : Read_Only := False;
+      6,7 : ;//for the "-" and "d" that Distinct32 may give
     else
-      Result := False; //failure
-    end;
-    if Result = False then
-    begin
-      Break;
+      begin
+        Result := False; //failure
+        Break;
+      end;
     end;
   end;
+  Result := True;
 end;
 
 procedure TIdDOSAttributes.Assign(Source: TIdPersistent);
-var LD : TIdDOSAttributes;
 begin
-  if Source is TIdDOSAttributes then
-  begin
-    LD := Source as TIdDOSAttributes;
-    FFileAttributes := LD.FFileAttributes;
-  end
-  else
-  begin
+  if Source is TIdDOSAttributes then begin
+    FFileAttributes := (Source as TIdDOSAttributes).FFileAttributes;
+  end else begin
     inherited Assign(Source);
   end;
 end;
@@ -368,139 +362,101 @@ function TIdDOSAttributes.GetAsString: String;
 //     R     C:\File
 //A  SH      C:\File
 begin
-  Result := '';
-  if Archive then
-  begin
-    Result := Result+'A  ';
-  end
-  else
-  begin
-    Result := Result+'   ';
+  Result := '      ';
+  if Archive then begin
+    Result[1] := 'A';
   end;
-  if System then
-  begin
-    Result := Result+'S';
-  end
-  else
-  begin
-    Result := Result+' ';
+  if System then begin
+    Result[4] := 'S';
   end;
-  if Hidden then
-  begin
-    Result := Result+'H';
-  end
-  else
-  begin
-    Result := Result+' ';
+  if Hidden then begin
+    Result[5] := 'H';
   end;
-  if Read_Only then
-  begin
-    Result := Result + 'R';
-  end
-  else
-  begin
-    Result := Result +' ';
+  if Read_Only then begin
+    Result[6] := 'R';
   end;
 end;
 
 function TIdDOSAttributes.GetRead_Only: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_READONLY>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_READONLY) > 0;
 end;
 
 function TIdDOSAttributes.GetHidden: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_HIDDEN>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_HIDDEN) > 0;
 end;
 
 function TIdDOSAttributes.GetSystem: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_SYSTEM>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_SYSTEM) > 0;
 end;
 
 function TIdDOSAttributes.GetDirectory: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_DIRECTORY>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_DIRECTORY) > 0;
 end;
 
 function TIdDOSAttributes.GetArchive: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_ARCHIVE>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_ARCHIVE) > 0;
 end;
 
 function TIdDOSAttributes.GetNormal: Boolean;
 begin
-  Result := (FFileAttributes and IdFILE_ATTRIBUTE_NORMAL>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_NORMAL) > 0;
 end;
 
 procedure TIdDOSAttributes.SetRead_Only(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_READONLY;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_READONLY);
   end;
 end;
 
 procedure TIdDOSAttributes.SetHidden(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_HIDDEN;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_HIDDEN);
   end;
 end;
 
 procedure TIdDOSAttributes.SetSystem(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_SYSTEM;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_SYSTEM);
   end;
 end;
 
 procedure TIdDOSAttributes.SetDirectory(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_DIRECTORY;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_DIRECTORY);
   end;
 end;
 
 procedure TIdDOSAttributes.SetArchive(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_ARCHIVE;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_ARCHIVE);
   end;
 end;
 
 procedure TIdDOSAttributes.SetNormal(const AValue: Boolean);
 begin
-  if AValue then
-  begin
+  if AValue then begin
      FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NORMAL;
-  end
-  else
-  begin
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_NORMAL);
   end;
 end;
@@ -518,136 +474,112 @@ end;
 
 function TIdWin32ea.GetDevice: Boolean;
 begin
-   Result := (FFileAttributes and IdFILE_ATTRIBUTE_DEVICE>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_DEVICE) > 0;
 end;
 
 function TIdWin32ea.GetTemporary: Boolean;
 begin
-   Result := (FFileAttributes and IdFILE_ATTRIBUTE_TEMPORARY>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_TEMPORARY) > 0;
 end;
 
 function TIdWin32ea.GetSparseFile: Boolean;
 begin
-   Result := (FFileAttributes and IdFILE_ATTRIBUTE_SPARSE_FILE>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_SPARSE_FILE) > 0;
 end;
 
 function TIdWin32ea.GetReparsePoint: Boolean;
 begin
-    Result := (FFileAttributes and IdFILE_ATTRIBUTE_REPARSE_POINT>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_REPARSE_POINT) > 0;
 end;
 
 function TIdWin32ea.GetCompressed: Boolean;
 begin
-   Result := (FFileAttributes and IdFILE_ATTRIBUTE_COMPRESSED>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_COMPRESSED) > 0;
 end;
 
 function TIdWin32ea.GetOffline: Boolean;
 begin
-   Result := (FFileAttributes and IdFILE_ATTRIBUTE_OFFLINE>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_OFFLINE) > 0;
 end;
 
 function TIdWin32ea.GetNotContextIndexed: Boolean;
 begin
-    Result := (FFileAttributes and IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED) > 0;
 end;
 
 function TIdWin32ea.GetEncrypted: Boolean;
 begin
-    Result := (FFileAttributes and IdFILE_ATTRIBUTE_ENCRYPTED>0);
+  Result := (FFileAttributes and IdFILE_ATTRIBUTE_ENCRYPTED) > 0;
 end;
 
 procedure TIdWin32ea.SetDevice(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_DEVICE;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_DEVICE;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_DEVICE);
   end;
 end;
 
 procedure TIdWin32ea.SetTemporary(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_TEMPORARY;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_TEMPORARY;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_TEMPORARY);
   end;
 end;
 
 procedure TIdWin32ea.SetSparseFile(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_SPARSE_FILE;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_SPARSE_FILE;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_SPARSE_FILE);
   end;
 end;
 
 procedure TIdWin32ea.SetReparsePoint(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NORMAL;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NORMAL;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_NORMAL);
   end;
 end;
 
 procedure TIdWin32ea.SetCompressed(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NORMAL;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NORMAL;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_NORMAL);
   end;
 end;
 
 procedure TIdWin32ea.SetOffline(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_OFFLINE;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_OFFLINE;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_OFFLINE);
   end;
 end;
 
 procedure TIdWin32ea.SetNotContextIndexed(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_NOT_CONTENT_INDEXED);
   end;
 end;
 
 procedure TIdWin32ea.SetEncrypted(const AValue: Boolean);
 begin
-  if AValue then
-  begin
-     FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_ENCRYPTED;
-  end
-  else
-  begin
+  if AValue then begin
+    FFileAttributes := FFileAttributes or IdFILE_ATTRIBUTE_ENCRYPTED;
+  end else begin
     FFileAttributes := FFileAttributes and (not IdFILE_ATTRIBUTE_ENCRYPTED);
   end;
 end;
@@ -657,114 +589,46 @@ function TIdWin32ea.GetAsString: String;
 //which renders the bits like this order:
 //RHSADENTJPCOI
 begin
-  Result := '';
-  if Read_Only then
-  begin
-    Result := Result + 'R';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  Result := '             ';
+  if Read_Only then begin
+    Result[1] := 'R';
   end;
-  if Hidden then
-  begin
-    Result := Result + 'H';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Hidden then begin
+    Result[2] := 'H';
   end;
-  if System then
-  begin
-    Result := Result + 'S';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if System then begin
+    Result[3] := 'S';
   end;
-  if Archive then
-  begin
-    Result := Result + 'A';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Archive then begin
+    Result[4] := 'A';
   end;
-  if Directory then
-  begin
-    Result := Result + 'D';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Directory then begin
+    Result[5] := 'D';
   end;
-  if Encrypted then
-  begin
-    Result := Result + 'E';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Encrypted then begin
+    Result[6] := 'E';
   end;
-  if Normal then
-  begin
-    Result := Result + 'N';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Normal then begin
+    Result[7] := 'N';
   end;
-  if Temporary then
-  begin
-    Result := Result + 'T';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Temporary then begin
+    Result[8] := 'T';
   end;
-  if ReparsePoint then
-  begin
-    Result := Result + 'J';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if ReparsePoint then begin
+    Result[9] := 'J';
   end;
-  if SparseFile then
-  begin
-    Result := Result + 'P';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if SparseFile then begin
+    Result[10] := 'P';
   end;
-  if Compressed then
-  begin
-    Result := Result + 'C';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Compressed then begin
+    Result[11] := 'C';
   end;
-  if Offline then
-  begin
-    Result := Result + 'O';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if Offline then begin
+    Result[12] := 'O';
   end;
-  if NotContextIndexed then
-  begin
-    Result := Result + 'I';
-  end
-  else
-  begin
-    Result := Result + ' ';
+  if NotContextIndexed then begin
+    Result[13] := 'I';
   end;
-
-  //In this order
-  //RHSADENTJPCOI
 end;
 
 end.
