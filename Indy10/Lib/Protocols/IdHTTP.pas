@@ -22,7 +22,7 @@
   instead of TStream.  I also made appropriate adjustments to other units for
   this.
 
-  Rev 1.64    2/13/2005 3:09:20 PM  DSiders
+    Rev 1.64    2/13/2005 3:09:20 PM  DSiders
   Modified TIdCustomHTTP.PrepareRequest to free the local URI instance if an
   exception occurs in the method. (try...finally)
 
@@ -65,7 +65,7 @@
 
   Updated TIdHTTPProtocol.BuildAndSendRequest() to use a try...except block
 
-  Rev 1.51    6/17/2004 8:30:04 AM  DSiders
+    Rev 1.51    6/17/2004 8:30:04 AM  DSiders
   TIdCustomHTTP modified:
   - Fixed error in AuthRetries property reading wrong member var.
   - Added AuthProxyRetries and MaxAuthRetries properties to public interface.
@@ -149,7 +149,7 @@
   Rev 1.27    10/18/2003 1:53:10 PM  BGooijen
   Added include
 
-  Rev 1.26    10/17/2003 12:08:48 AM  DSiders
+    Rev 1.26    10/17/2003 12:08:48 AM  DSiders
   Added localization comments.
 
   Rev 1.25    2003.10.14 1:27:52 PM  czhower
@@ -177,7 +177,7 @@
   Added Identity to the content encoding to be consistant with Opera.  Identity
   is the default Accept-Encoding (RFC 2616).
 
-  Rev 1.18    7/13/2003 10:57:28 PM  BGooijen
+    Rev 1.18    7/13/2003 10:57:28 PM  BGooijen
   Fixed GZip and Deflate decoding
 
   Rev 1.17    7/13/2003 11:29:06 AM  JPMugaas
@@ -195,30 +195,30 @@
   Rev 1.12    4/30/2003 01:47:24 PM  JPMugaas
   Added TODO concerning a ConnectTimeout.
 
-  Rev 1.11    4/2/2003 3:18:30 PM  BGooijen
+    Rev 1.11    4/2/2003 3:18:30 PM  BGooijen
   fixed av when retrieving an url when no iohandler was assigned
 
-  Rev 1.10    3/26/2003 5:13:40 PM  BGooijen
+    Rev 1.10    3/26/2003 5:13:40 PM  BGooijen
   TIdSSLIOHandlerSocketBase.URIToCheck is now set
 
   Rev 1.9    3/13/2003 11:05:26 AM  JPMugaas
   Now should work with 3rd party vendor SSL IOHandlers.
 
-  Rev 1.8    3/11/2003 10:14:52 PM  BGooijen
+    Rev 1.8    3/11/2003 10:14:52 PM  BGooijen
   Undid the stripping of the CR
 
-  Rev 1.7    2/27/2003 2:04:26 PM  BGooijen
+    Rev 1.7    2/27/2003 2:04:26 PM  BGooijen
   If any call to iohandler.readln returns a CR at the end, it is removed now.
 
-  Rev 1.6    2/26/2003 11:50:08 AM  BGooijen
+    Rev 1.6    2/26/2003 11:50:08 AM  BGooijen
   things were messed up in TIdHTTPProtocol.RetrieveHeaders, because the call to
   readln doesn't strip the CR at the end (terminator=LF), therefore the end of
   the header was not found.
 
-  Rev 1.5    2/26/2003 11:42:46 AM  BGooijen
+    Rev 1.5    2/26/2003 11:42:46 AM  BGooijen
   changed ReadLn (IOerror 6) to IOHandler.ReadLn
 
-  Rev 1.4    2/4/2003 6:30:44 PM  BGooijen
+    Rev 1.4    2/4/2003 6:30:44 PM  BGooijen
   Re-enabled SSL-support
 
   Rev 1.3    1/17/2003 04:14:42 PM  JPMugaas
@@ -232,88 +232,88 @@
 
   Rev 1.0    11/13/2002 07:54:12 AM  JPMugaas
 
-  2001-Nov Nick Panteleeff
-  - Authentication and POST parameter extentsions
+2001-Nov Nick Panteleeff
+ - Authentication and POST parameter extentsions
 
-  2001-Sept Doychin Bondzhev
-  - New internal design and new Authentication procedures.
-  - Bug fixes and new features in few other supporting components
+2001-Sept Doychin Bondzhev
+ - New internal design and new Authentication procedures.
+ - Bug fixes and new features in few other supporting components
 
-  2001-Jul-7 Doychin Bondzhev
-  - new property AllowCookie
-  - There is no more ExtraHeders property in Request/Response. Raw headers is used for that purpose.
+2001-Jul-7 Doychin Bondzhev
+ - new property AllowCookie
+ - There is no more ExtraHeders property in Request/Response. Raw headers is used for that purpose.
 
-  2001-Jul-1 Doychin Bondzhev
-  - SSL support is up again - Thanks to Gregor
+2001-Jul-1 Doychin Bondzhev
+ - SSL support is up again - Thanks to Gregor
 
-  2001-Jun-17 Doychin Bondzhev
-  - New unit IdHTTPHeaderInfo.pas that contains the
-    TIdHeaderInfo(TIdEntytiHeaderInfo, TIdRequestHeaderInfo and TIdResponseHeaderInfo)
-  - Still in development and not verry well tested
-    By default when there is no authorization object associated with HTTP compoenet and there is user name and password
-    HTTP component creates and instance of TIdBasicAuthentication class. This behaivor is for both web server and proxy server
-    authorizations
+2001-Jun-17 Doychin Bondzhev
+ - New unit IdHTTPHeaderInfo.pas that contains the
+   TIdHeaderInfo(TIdEntytiHeaderInfo, TIdRequestHeaderInfo and TIdResponseHeaderInfo)
+ - Still in development and not verry well tested
+   By default when there is no authorization object associated with HTTP compoenet and there is user name and password
+   HTTP component creates and instance of TIdBasicAuthentication class. This behaivor is for both web server and proxy server
+   authorizations
 
-  2001-Apr-17 Doychin Bondzhev
-  - Added OnProxyAuthorization event. This event is called on 407 response from the HTTP Proxy.
-  - Added 2 new properties in TIdHeaderInfo
-      property AuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
-        requested by the web server
-      property ProxyAuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
-        requested by the proxy server
-  - Now the component authomaticly reconginizes the requested authorization scheme and it supports Basic like before and has been
-    extend to support Digest authorization
+2001-Apr-17 Doychin Bondzhev
+ - Added OnProxyAuthorization event. This event is called on 407 response from the HTTP Proxy.
+ - Added 2 new properties in TIdHeaderInfo
+    property AuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
+      requested by the web server
+    property ProxyAuthenticationScheme: TIdAuthenticationScheme - this property contains information for authentication scheme
+      requested by the proxy server
+ - Now the component authomaticly reconginizes the requested authorization scheme and it supports Basic like before and has been
+   extend to support Digest authorization
 
-  2001-Mar-31 Doychin Bondzhev
-  - If there is no CookieManager it does not support cookies.
+2001-Mar-31 Doychin Bondzhev
+ - If there is no CookieManager it does not support cookies.
 
-  2001-Feb-18 Doychin Bondzhev
-  - Added OnAuthorization event. This event is called on 401 response from the HTTP server.
-      This can be used to ask the user program to supply user name and password in order to acces
-      the requested resource
+2001-Feb-18 Doychin Bondzhev
+ - Added OnAuthorization event. This event is called on 401 response from the HTTP server.
+     This can be used to ask the user program to supply user name and password in order to acces
+     the requested resource
 
-  2001-Feb-02 Doychin Bondzhev
-  - Added Cookie support and relative paths on redirect
+2001-Feb-02 Doychin Bondzhev
+ - Added Cookie support and relative paths on redirect
 
-  2000-Jul-25 Hadi Hariri
-  - Overloaded POst and moved clearing to disconect.
+2000-Jul-25 Hadi Hariri
+ - Overloaded POst and moved clearing to disconect.
 
-  2000-June-22 Hadi Hariri
-    - Added Proxy support.
+2000-June-22 Hadi Hariri
+  - Added Proxy support.
 
-  2000-June-10 Hadi Hariri
-    - Added Chunk-Encoding support and HTTP version number. Some additional
-      improvements.
+2000-June-10 Hadi Hariri
+  - Added Chunk-Encoding support and HTTP version number. Some additional
+    improvements.
 
-  2000-May-23 J. Peter Mugaas
-    -added redirect capability and supporting properties.  Redirect is optional
-    and is set with HandleRedirects.  Redirection is limited to RedirectMaximum
-    to prevent stack overflow due to recursion and to prevent redirects between
-    two places which would cause this to go on to infinity.
+2000-May-23 J. Peter Mugaas
+  -added redirect capability and supporting properties.  Redirect is optional
+   and is set with HandleRedirects.  Redirection is limited to RedirectMaximum
+   to prevent stack overflow due to recursion and to prevent redirects between
+   two places which would cause this to go on to infinity.
 
-  2000-May-22 J. Peter Mugaas
-    -adjusted code for servers which returned LF instead of EOL
-    -Headers are now retreived before an exception is raised.  This
-    also facilitates server redirection where the server tells the client to
-    get a document from another location.
+2000-May-22 J. Peter Mugaas
+  -adjusted code for servers which returned LF instead of EOL
+  -Headers are now retreived before an exception is raised.  This
+   also facilitates server redirection where the server tells the client to
+   get a document from another location.
 
-  2000-May-01 Hadi Hariri
-    -Converted to Mercury
+2000-May-01 Hadi Hariri
+  -Converted to Mercury
 
-  2000-May-01 Hadi Hariri
-    -Added PostFromStream and some clean up
+2000-May-01 Hadi Hariri
+  -Added PostFromStream and some clean up
 
-  2000-Apr-10 Hadi Hariri
-    -Re-done quite a few things and fixed GET bugs and finished POST method.
+2000-Apr-10 Hadi Hariri
+  -Re-done quite a few things and fixed GET bugs and finished POST method.
 
-  2000-Jan-13 MTL
-    -Moved to the New Palette Scheme
+2000-Jan-13 MTL
+  -Moved to the New Palette Scheme
 
-  2000-Jan-08 MTL
-    -Cleaned up a few compiler hints during 7.038 build
+2000-Jan-08 MTL
+  -Cleaned up a few compiler hints during 7.038 build
 
-  1999-Dec-10 Hadi Hariri
-    -Started.
+1999-Dec-10 Hadi Hariri
+  -Started.
 }
 
 unit IdHTTP;
@@ -497,7 +497,7 @@ type
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
     procedure SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
-    procedure ReadResult(AResponse: TIdHTTPResponse);
+    procedure ReadResult(AResponse: TIdHTTPResponse; AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
     procedure PrepareRequest(ARequest: TIdHTTPRequest);
     procedure ConnectToHost(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function GetResponseHeaders: TIdHTTPResponse;
@@ -543,22 +543,22 @@ type
     property Response: TIdHTTPResponse read GetResponseHeaders;
     { This is the last processed URL }
     property URL: TIdURI read FURI;
-    // number of retry attempts that were made for Authentication
-    property AuthRetries: Integer read FAuthRetries;
-    property AuthProxyRetries: Integer read FAuthProxyRetries;
+    // number of retry attempts for Authentication
+    property AuthRetries: Integer read FAuthRetries write FAuthRetries;
+    property AuthProxyRetries: Integer read FAuthProxyRetries write FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
     property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
     {Do we handle redirect requests or simply raise an exception and let the
      developer deal with it}
     property HandleRedirects: Boolean read FHandleRedirects write FHandleRedirects default Id_TIdHTTP_HandleRedirects;
+    property ProtocolVersion: TIdHTTPProtocolVersion read FProtocolVersion write FProtocolVersion default Id_TIdHTTP_ProtocolVersion;
     //how many redirects were made in the last request
-    property RedirectCount:Integer read FRedirectCount;
+    property RedirectCount: Integer read FRedirectCount;
     {This is the maximum number of redirects we wish to handle, we limit this
      to prevent stack overflow due to recursion.  Recursion is safe ONLY if
      prevented for continuing to infinity}
     property RedirectMaximum: Integer read FRedirectMax write FRedirectMax default Id_TIdHTTP_RedirectMax;
-    property ProtocolVersion: TIdHTTPProtocolVersion read FProtocolVersion write FProtocolVersion default Id_TIdHTTP_ProtocolVersion;
     // S.G. 6/4/2004: This is to prevent the server from responding with too many header lines
     property MaxHeaderLines: integer read FMaxHeaderLines write FMaxHeaderLines default Id_TIdHTTP_MaxHeaderLines;
     property ProxyParams: TIdProxyConnectionInfo read FProxyParameters write FProxyParameters;
@@ -580,6 +580,9 @@ type
 
   TIdHTTP = class(TIdCustomHTTP)
   published
+    // number of retries attempted for Authentication
+    property AuthRetries;
+    property AuthProxyRetries;
     // number of Authentication retries permitted
     property MaxAuthRetries;
     property AllowCookies;
@@ -657,14 +660,12 @@ end;
 procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream);
 begin
   Assert(AResponseContent<>nil);
-
   Get(AURL, AResponseContent, []);
 end;
 
 procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TIdStream);
 begin
   Assert(AResponseContent<>nil);
-
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
 end;
 
@@ -688,17 +689,20 @@ begin
   // particular, they don't respect sending/not sending the Expect: 100-Continue
   // header. Until we find an optimum solution that does NOT break the RFC, we
   // will restrict POSTS to version 1.0.
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
   OldProtocol := FProtocolVersion;
-  // If hoKeepOrigProtocol is SET, is possible to assume that the developer
-  // is sure in operations of the server
-  if not (hoKeepOrigProtocol in FOptions) then
-    FProtocolVersion := pv1_0;
-  DoRequest(Id_HTTPMethodPost, AURL, ASource, AResponseContent, []);
-  FProtocolVersion := OldProtocol;
+  try
+    // If hoKeepOrigProtocol is SET, is possible to assume that the developer
+    // is sure in operations of the server
+    if not (hoKeepOrigProtocol in FOptions) then begin
+      FProtocolVersion := pv1_0;
+    end;
+    DoRequest(Id_HTTPMethodPost, AURL, ASource, AResponseContent, []);
+  finally
+    FProtocolVersion := OldProtocol;
+  end;
 end;
 
 procedure TIdCustomHTTP.EncodeRequestParams(AStrings: TIdStrings);
@@ -738,7 +742,7 @@ end;
 
 procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream);
 var
-  LParams: TIdStream;
+  LParams: TIdStringStream;
 begin
   Assert(ASource<>nil);
   Assert(AResponseContent<>nil);
@@ -918,8 +922,11 @@ begin
   Port := LPort;
 end;
 
-procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse);
-var LS : TIdStream;
+procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse;
+  AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
+var
+  LS: TIdStream;
+  Size: Integer;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
   //1 - deflate
@@ -932,43 +939,37 @@ var LS : TIdStream;
   begin
     s := IOHandler.ReadLn;
     j := IndyPos(' ', s);
-    if j > 0 then
-    begin
+    if j > 0 then begin
       s := Copy(s, 1, j - 1);
     end;
     Result := Sys.StrToInt('$' + s, 0);      {do not localize}
   end;
 
-var
-  Size: Integer;
 begin
   LDecMeth := 0;
-  //we need to determine what type of decompression may need to used
-  //before we read from the IOHandler.  If there is compression,
-  //then we use the LM stream to hold the compressed data that was downloaded
-  //and decompress it.  If no compression is used, LS will equal ContentStream
-  if Assigned(Compressor) then
-  begin
-     if (Response.ContentEncoding = 'deflate') then   {do not localize}
-     begin
-       LDecMeth := 1;
-     end;
-     if (Response.ContentEncoding = 'gzip') then   {do not localize}
-     begin
-       LDecMeth := 2;
-     end;
-  end;
 
   if Assigned(AResponse.ContentStream) then // Only for Get and Post
   begin
-    if LDecMeth > 0 then
+    //we need to determine what type of decompression may need to used
+    //before we read from the IOHandler.  If there is compression,
+    //then we use the LM stream to hold the compressed data that was downloaded
+    //and decompress it.  If no compression is used, LS will equal ContentStream
+    if Assigned(Compressor) then
     begin
-      LS :=  TIdMemoryStream.Create;
-    end
-    else
-    begin
+       if TextIsSame(Response.ContentEncoding, 'deflate') then begin  {do not localize}
+         LDecMeth := 1;
+       end
+       else if TextIsSame(Response.ContentEncoding, 'gzip') then begin  {do not localize}
+         LDecMeth := 2;
+       end;
+    end;
+
+    if LDecMeth > 0 then begin
+      LS := TIdMemoryStream.Create;
+    end else begin
       LS := AResponse.ContentStream;
     end;
+
     try
       if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
       begin // Chunked
@@ -990,42 +991,45 @@ begin
             on E: EIdConnClosedGracefully do
           end;
         end
-        else begin
-          if not AResponse.HasContentLength then
-          begin
+        else if not AResponse.HasContentLength then
+        begin
+          // RLebeau 2/15/2006: only read if an entity body is actually expected
+          if AUnexpectedContentTimeout > 0 then begin
+            IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+            if not IOHandler.InputBufferIsEmpty then begin
+              IOHandler.ReadStream(LS, -1, True);
+            end;
+          end else begin
             IOHandler.ReadStream(LS, -1, True);
           end;
         end;
       end;
-      if LDecMeth > 0 then
-      begin
+      if LDecMeth > 0 then begin
         LS.Position := 0;
       end;
       case LDecMeth of
-        1 :  Compressor.DecompressDeflateStream(LS,AResponse.ContentStream);
-        2 :  Compressor.DecompressGZipStream(LS,AResponse.ContentStream);
+        1 :  Compressor.DecompressDeflateStream(LS, AResponse.ContentStream);
+        2 :  Compressor.DecompressGZipStream(LS, AResponse.ContentStream);
       end;
     finally
-      if LDecMeth > 0 then
-      begin
+      if LDecMeth > 0 then begin
         Sys.FreeAndNil(LS);
       end;
     end;
   end;
 end;
 
-function IsStringInArray(const aStr:string;const aArray:array of string):boolean;
+function IsStringInArray(const aStr: string; const aArray: array of string): boolean;
 var
- i:integer;
+  i: Integer;
 begin
-  Result:=False;
-  for i:=Low(aArray) to High(aArray) do
+  Result := False;
+  for i := Low(aArray) to High(aArray) do
   begin
-  if aStr=aArray[i] then
-   begin
-   Result:=True;
-   Break;
-   end;
+    if aStr = aArray[i] then begin
+      Result := True;
+      Exit;
+    end;
   end;
 end;
 
@@ -1098,7 +1102,7 @@ begin
     FURI.IPVersion := ARequest.IPVersion;
 
     // Check for valid HTTP request methods
-    if IsStringInArray(ARequest.Method,[Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete]) then
+    if IsStringInArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete]) then
     begin
       if ProtocolVersion <> pv1_1 then
       begin
@@ -1180,52 +1184,54 @@ begin
   end;
   if ARequest.UseProxy = ctSSLProxy then begin
     LLocalHTTP := TIdHTTPProtocol.Create(Self);
+    try
+      with LLocalHTTP do begin
+        Request.UserAgent := ARequest.UserAgent;
+        Request.Host := ARequest.Host;
+        Request.ContentLength := ARequest.ContentLength;
+        Request.Pragma := 'no-cache';                       {do not localize}
+        Request.URL := URL.Host + ':' + URL.Port;
+        Request.Method := Id_HTTPMethodConnect;
+        Request.ProxyConnection := 'keep-alive';            {do not localize}
 
-    with LLocalHTTP do begin
-      Request.UserAgent := ARequest.UserAgent;
-      Request.Host := ARequest.Host;
-      Request.ContentLength := ARequest.ContentLength;
-      Request.Pragma := 'no-cache';                       {do not localize}
-      Request.URL := URL.Host + ':' + URL.Port;
-      Request.Method := Id_HTTPMethodConnect;
-      Request.ProxyConnection := 'keep-alive';            {do not localize}
-
-      Response.ContentStream := TIdMemoryStream.Create;
-      try
+        Response.ContentStream := TIdMemoryStream.Create;
         try
-          repeat
-            CheckAndConnect(Response);
-            BuildAndSendRequest(nil);
+          try
+            repeat
+              CheckAndConnect(Response);
+              BuildAndSendRequest(nil);
 
-            Response.ResponseText := IOHandler.ReadLn;
-            if Length(Response.ResponseText) = 0 then begin
-              // Support for HTTP responses without status line and headers
-              Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
-              Response.Connection := 'close';             {do not localize}
-            end else begin
-              RetrieveHeaders(MaxHeaderLines);
-              ProcessCookies(LLocalHTTP.Request, LLocalHTTP.Response);
-            end;
-
-            if Response.ResponseCode = 200 then
-            begin
-              // Connection established
-              if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-                TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
+              Response.ResponseText := IOHandler.ReadLn;
+              if Length(Response.ResponseText) = 0 then begin
+                // Support for HTTP responses without status line and headers
+                Response.ResponseText := 'HTTP/1.0 200 OK'; {do not localize}
+                Response.Connection := 'close';             {do not localize}
+              end else begin
+                RetrieveHeaders(MaxHeaderLines);
+                ProcessCookies(Request, Response);
               end;
-              Break;
-            end else begin
-              ProcessResponse([]);
-            end;
-          until False;
-        except
-          raise;
-          // TODO: Add property that will contain the error messages.
+
+              if Response.ResponseCode = 200 then
+              begin
+                // Connection established
+                if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+                  TIdSSLIOHandlerSocketBase(IOHandler).PassThrough := False;
+                end;
+                Break;
+              end else begin
+                ProcessResponse([]);
+              end;
+            until False;
+          except
+            raise;
+            // TODO: Add property that will contain the error messages.
+          end;
+        finally
+          LLocalHTTP.Response.ContentStream.Free;
         end;
-      finally
-        LLocalHTTP.Response.ContentStream.Free;
-        Sys.FreeAndNil(LLocalHTTP);
       end;
+    finally
+      Sys.FreeAndNil(LLocalHTTP);
     end;
   end else begin
     CheckAndConnect(AResponse);
@@ -1233,9 +1239,9 @@ begin
 
   FHTTPProto.BuildAndSendRequest(URL);
 
-  if IsStringInArray(ARequest.Method , [Id_HTTPMethodPost, Id_HTTPMethodPut]) then
+  if IsStringInArray(ARequest.Method, [Id_HTTPMethodPost, Id_HTTPMethodPut]) then
   begin
-    IOHandler.Write(ARequest.Source, 0, false);
+    IOHandler.Write(ARequest.Source, 0, False);
   end;
 end;
 
@@ -1439,7 +1445,7 @@ begin
     end;
   end;
 
-  result := Assigned(ProxyParams.Authentication) and  Assigned(OnProxyAuthorization);
+  Result := Assigned(ProxyParams.Authentication) and Assigned(OnProxyAuthorization);
 
   {
   this is commented out as it breaks SSPI proxy authentication.
@@ -1681,19 +1687,21 @@ var
 begin
   Request.SetHeaders;
   FHTTP.ProxyParams.SetHeaders(Request.RawHeaders);
-  if Assigned(AURI) then
-  begin
+  if Assigned(AURI) then begin
     FHTTP.SetCookies(AURI, Request);
   end;
   // This is a workaround for some HTTP servers which do not implement
   // the HTTP protocol properly
   FHTTP.IOHandler.WriteBufferOpen;
   try
-    FHTTP.IOHandler.WriteLn(Request.Method+' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
+    FHTTP.IOHandler.WriteLn(Request.Method + ' ' + Request.URL + ' HTTP/' + ProtocolVersionString[FHTTP.ProtocolVersion]); {do not localize}
     // write the headers
     for i := 0 to Request.RawHeaders.Count - 1 do
-      if Length(Request.RawHeaders.Strings[i]) > 0 then
+    begin
+      if Length(Request.RawHeaders.Strings[i]) > 0 then begin
         FHTTP.IOHandler.WriteLn(Request.RawHeaders.Strings[i]);
+      end;
+    end;
     FHTTP.IOHandler.WriteLn('');     {do not localize}
     FHTTP.IOHandler.WriteBufferClose;
   except
@@ -1733,37 +1741,33 @@ end;
 
 function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
 
-  procedure CheckException(AIgnoreReplies: array of SmallInt);
+  procedure CheckException(AResponseCode: Integer; AIgnoreReplies: array of SmallInt,
+    AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     i: Integer;
-    LResponseCode: Integer;
-    LRespStream: TIdStringStream;
+    LTempResponse: TIdStringStream;
     LTempStream: TIdStream;
   begin
-    //Kudzu: Why should we override the user? User can set ReadTimeout. Respect theirs.
-    //FHTTP.IOHandler.ReadTimeout := 2000; // Lets wait 2 seconds for any kind of content
-    LRespStream := TIdStringStream.Create('');
+    LTempResponse := TIdStringStream.Create('');
     LTempStream := Response.ContentStream;
     Response.ContentStream := LRespStream;
     try
-      FHTTP.ReadResult(Response);
-      // Cache this as ResponseCode calls GetResponseCode which parses it out
-      LResponseCode := Response.ResponseCode;
+      FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
       if High(AIgnoreReplies) > -1 then begin
         for i := Low(AIgnoreReplies) to High(AIgnoreReplies) do begin
-          if LResponseCode = AIgnoreReplies[i] then begin
+          if AResponseCode = AIgnoreReplies[i] then begin
             Exit;
           end;
         end;
       end;
-      raise EIdHTTPProtocolException.CreateError(LResponseCode, FHTTP.ResponseText, LRespStream.DataString);
+      raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText, LTempStream.DataString);
     finally
       Response.ContentStream := LTempStream;
-      Sys.FreeAndNil(LRespStream);
+      Sys.FreeAndNil(LTempResponse);
     end;
   end;
 
-  procedure ReadContent;
+  procedure DiscardContent(AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     LTempResponse: TIdStringStream;
     LTempStream: TIdStream;
@@ -1772,10 +1776,10 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     LTempStream := Response.ContentStream;
     Response.ContentStream := LTempResponse;
     try
-      FHTTP.ReadResult(Response);
+      FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
     finally
-      Sys.FreeAndNil(LTempResponse);
       Response.ContentStream := LTempStream;
+      Sys.FreeAndNil(LTempResponse);
     end;
   end;
 
@@ -1791,7 +1795,7 @@ var
   LLocation: string;
   LMethod: TIdHTTPMethod;
   LNeedAuth: Boolean;
-  LResponseDigit: Integer;
+  LResponseCode, LResponseDigit: Integer;
   LTemp: Integer;
 begin
 
@@ -1803,10 +1807,13 @@ begin
     Exit;
   end;
 
+  // Cache this as ResponseCode calls GetResponseCode which parses it out
+  LResponseCode := Response.ResponseCode;
+  LResponseDigit := LResponseCode div 100;
   LNeedAuth := False;
-  LResponseDigit := Response.ResponseCode div 100;
+
   // Handle Redirects
-  if ((LResponseDigit = 3) and (Response.ResponseCode <> 304)) or (Response.Location <> '') then
+  if ((LResponseDigit = 3) and (LResponseCode <> 304)) or (Response.Location <> '') then
   begin
     Inc(FHTTP.FRedirectCount);
     // LLocation := TIdURI.URLDecode(Response.Location);
@@ -1819,24 +1826,24 @@ begin
         Request.URL := LLocation;
         // GDG 21/11/2003. If it's a 303, we should do a get this time
         // RLebeau 7/15/2004 - do a GET on 302 as well, as mentioned in RFC 2616
-        if (Response.ResponseCode = 302) or (Response.ResponseCode = 303) then begin
+        if (LResponseCode = 302) or (LResponseCode = 303) then begin
           Request.Source := nil;
           Request.Method := Id_HTTPMethodGet;
         end else begin
           Request.Method := LMethod;
         end;
       end else begin
-        CheckException(AIgnoreReplies);
+        CheckException(LResponseCode, AIgnoreReplies);
         Result := wnJustExit;
         Exit;
       end;
     // Just fire the event
     end else begin
       LMethod := Request.Method;
-      result := wnJustExit;
+      Result := wnJustExit;
       // If not Handled
       if not FHTTP.DoOnRedirect(LLocation, LMethod, FHTTP.FRedirectCount) then begin
-        CheckException(AIgnoreReplies);
+        CheckException(LResponseCode, AIgnoreReplies);
         Result := wnJustExit;
         Exit;
       end else begin
@@ -1847,16 +1854,7 @@ begin
     if FHTTP.Connected then begin
       // This is a workaround for buggy HTTP 1.1 servers which
       // does not return any body with 302 response code
-      //
-      // Kudzu: Does this need to be duplicated elsewhere? If so it needs to be put in a reuable
-      // proc. I removed it in other places as it was somtimes trashing user values and also
-      // had no comments.
-      LTemp := FHTTP.IOHandler.ReadTimeout; try
-        FHTTP.IOHandler.ReadTimeout := 4000; // Lets wait 4 seconds for any kind of content
-        try
-          ReadContent;
-        except end;
-      finally FHTTP.IOHandler.ReadTimeout := LTemp; end;
+      DiscardContent(5000); // Lets wait 5 seconds for any kind of content
     end;
   end else begin
     //Ciaran, 30th Nov 2004: I commented out the following code.  When a https server
@@ -1872,8 +1870,20 @@ begin
     //  Response.KeepAlive := not (FHTTP.Connected and (FHTTP.IOHandler is TIdSSLIOHandlerSocketBase) and Response.KeepAlive);
     //end;
 
-    if LResponseDigit <> 2 then begin
-      case Response.ResponseCode of
+    // RLebeau 2/15/2006: RFC 1945 states the following:
+    //
+    // For response messages, whether or not an entity body is included with
+    // a message is dependent on both the request method and the response
+    // code. All responses to the HEAD request method must not include a
+    // body, even though the presence of entity header fields may lead one
+    // to believe they do. All 1xx (informational), 204 (no content), and
+    // 304 (not modified) responses must not include a body. All other
+    // responses must include an entity body or a Content-Length header
+    // field defined with a value of zero (0).
+
+    if LResponseDigit <> 2 then
+    begin
+      case LResponseCode of
         401:
           begin // HTTP Server authorization required
             if (FHTTP.AuthRetries >= FHTTP.MaxAuthRetries) or
@@ -1882,7 +1892,7 @@ begin
               if Assigned(Request.Authentication) then begin
                 Request.Authentication.Reset;
               end;
-              CheckException(AIgnoreReplies);
+              CheckException(LResponseCode, AIgnoreReplies);
               Result := wnJustExit;
               Exit;
             end else begin
@@ -1897,7 +1907,7 @@ begin
               if Assigned(FHTTP.ProxyParams.Authentication) then begin
                 FHTTP.ProxyParams.Authentication.Reset;
               end;
-              CheckException(AIgnoreReplies);
+              CheckException(LResponseCode, AIgnoreReplies);
               Result := wnJustExit;
               Exit;
             end else begin
@@ -1905,7 +1915,11 @@ begin
             end;
           end;
         else begin
-          CheckException(AIgnoreReplies);
+          if (LResponseDigit = 1) or (LResponseCode = 304) then begin
+            CheckException(LResponseCode, AIgnoreReplies, 5000);
+          end else begin
+            CheckException(LResponseCode, AIgnoreReplies);
+          end;
           Result := wnJustExit;
           Exit;
         end;
@@ -1914,12 +1928,17 @@ begin
 
     if LNeedAuth then begin
       // Read the content of Error message in temporary stream
-      ReadContent;
-      Result := wnAuthRequest
-    end else if (Response.ResponseCode <> 204) then begin
-      FHTTP.ReadResult(Response);
-      Result := wnJustExit;
+      DiscardContent;
+      Result := wnAuthRequest;
     end else begin
+      if (Request.Method = Id_HTTPMethodHead) or (LResponseCode = 204) then begin
+        // Have noticed one case where a non-conforming server did send an
+        // entity body in response to a HEAD request, so just ignore anything
+        // the server may send by accident
+        DiscardContent(5000); // Lets wait 5 seconds for any kind of content
+      end else begin
+        FHTTP.ReadResult(Response);
+      end;
       Result := wnJustExit;
     end;
   end;
@@ -1960,7 +1979,7 @@ begin
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
-    // This is here instead of a TStringSream for .net conversions?
+    // This is here instead of a TStringStream for .net conversions?
     Result := ReadStringFromStream(LStream);
   finally
     Sys.FreeAndNil(LStream);
@@ -2016,10 +2035,12 @@ begin
       until Response.ResponseCode <> 100;
 
       case FHTTPProto.ProcessResponse(AIgnoreReplies) of
-        wnAuthRequest: begin
+        wnAuthRequest:
+          begin
             Request.URL := AURL;
           end;
-        wnReadAndGo: begin
+        wnReadAndGo:
+          begin
             ReadResult(Response);
             if Assigned(AResponseContent) then begin
               AResponseContent.Position := LResponseLocation;
@@ -2028,7 +2049,8 @@ begin
             FAuthRetries := 0;
             FAuthProxyRetries := 0;
           end;
-        wnGoToURL: begin
+        wnGoToURL:
+          begin
             if Assigned(AResponseContent) then begin
               AResponseContent.Position := LResponseLocation;
               AResponseContent.Size := LResponseLocation;
@@ -2036,8 +2058,14 @@ begin
             FAuthRetries := 0;
             FAuthProxyRetries := 0;
           end;
-        wnJustExit: Break;
-        wnDontKnow: raise EIdException.Create(RSHTTPNotAcceptable);
+        wnJustExit: 
+          begin
+            Break;
+          end;
+        wnDontKnow:
+          begin
+            raise EIdException.Create(RSHTTPNotAcceptable);
+          end;
       end;
     until False;
   finally
