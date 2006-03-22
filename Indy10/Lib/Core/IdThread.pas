@@ -376,11 +376,10 @@ begin
   end;
 end;
 
-constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean;
- AName: string);
+constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; AName: string);
 begin
 {$IFDEF DOTNET}
-  inherited Create(true);
+  inherited Create(True);
 {$ENDIF}
   FOptions := [itoDataOwner];
   if ACreateSuspended then begin
@@ -400,18 +399,16 @@ begin
   // not suspended will start before we initialize
   inherited Create(ACreateSuspended);
 {$ENDIF}
-  {$IFNDEF VCL6ORABOVE}
+{$IFNDEF VCL6ORABOVE}
   // Delphi 6 and above raise an exception when an error occures
   // while creating a thread (eg. not enough address space to allocate a stack)
   // Delphi 5 and below don't do that, which results in a TIdThread instance
   // with an invalid handle in it.
   // Therefore we raise the exceptions manually on D5 and below
-  {$IFNDEF DOTNET}
   if (ThreadID = 0) then begin
     Sys.RaiseLastOSError;
   end;
-  {$ENDIF}
-  {$ENDIF}
+{$ENDIF}
   // Last, so we only do this if successful
   GThreadCount.Increment;
 end;
