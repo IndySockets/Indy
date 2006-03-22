@@ -1633,9 +1633,9 @@ var
   LStream: TIdStream;
 begin
   EIdFileNotFound.IfFalse(Sys.FileExists(AFile), Sys.Format(RSFileNotFound, [AFile]));
-  LStream := TReadFileExclusiveStream.Create(AFile); try
-      Write(LStream);
-      Result := LStream.Size;
+  LStream := TIdReadFileExclusiveStream.Create(AFile); try
+    Write(LStream);
+    Result := LStream.Size;
   finally Sys.FreeAndNil(LStream); end;
 end;
 
