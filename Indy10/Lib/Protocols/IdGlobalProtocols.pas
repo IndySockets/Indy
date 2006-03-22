@@ -65,7 +65,7 @@
   network byte order functions.  They should be used for embedding values in
   some Internet Protocols such as FSP, SNTP, and maybe others.
 
-  Rev 1.25    12/3/2004 3:16:20 PM  DSiders
+    Rev 1.25    12/3/2004 3:16:20 PM  DSiders
   Fixed assignment error in MakeTempFilename.
 
   Rev 1.24    12/1/2004 4:40:42 AM  JPMugaas
@@ -87,10 +87,10 @@
   Rev 1.19    10/26/2004 10:07:02 PM  JPMugaas
   Updated refs.
 
-  Rev 1.18    10/13/2004 7:48:52 PM  DSiders
+    Rev 1.18    10/13/2004 7:48:52 PM  DSiders
   Modified GetUniqueFilename to pass correct argument type to tempnam function.
 
-  Rev 1.17    10/6/2004 11:39:48 PM  DSiders
+    Rev 1.17    10/6/2004 11:39:48 PM  DSiders
   Modified MakeTempFilename to use GetUniqueFilename.  File extensions are
   omitted on Linux.
   Modified GetUniqueFilename to use tempnam function on Linux.  Validates path
@@ -201,7 +201,7 @@
   Rev 1.35    25/11/2003 12:24:20 PM  SGrobety
   various IdStream fixes with ReadLn/D6
 
-  Rev 1.34    10/16/2003 11:18:10 PM  DSiders
+    Rev 1.34    10/16/2003 11:18:10 PM  DSiders
   Added localization comments.
   Corrected spelling error in coimments.
 
@@ -263,7 +263,7 @@
   Function for finding an integer's position in an array of integers.  This is
   required by some SASL code.
 
-  Rev 1.14    4/21/2003 7:52:58 PM  BGooijen
+    Rev 1.14    4/21/2003 7:52:58 PM  BGooijen
   other nt version detection, removed non-existing windows versions
 
   Rev 1.13    4/18/2003 09:28:24 PM  JPMugaas
@@ -279,7 +279,7 @@
   IdGlobal.GetUniqueFileName instead of Rand.  I also fixed GetUniqueFileName
   so that it can accept an empty path specification.
 
-  Rev 1.10    4/5/2003 10:39:06 PM  BGooijen
+    Rev 1.10    4/5/2003 10:39:06 PM  BGooijen
   LAM,LPM were not initialized
 
   Rev 1.9    4/5/2003 04:12:00 AM  JPMugaas
@@ -346,7 +346,7 @@ type
   TStringEvent = procedure(ASender: TIdNativeComponent; const AString: String);
 
   TIdMimeTable = class(TObject)
-  private
+  protected
     FLoadTypesFromOS: Boolean;
     FOnBuildCache: TIdNotifyEvent;
     FMIMEList: TIdStringList;
@@ -422,7 +422,6 @@ type
   procedure CopyTIdNetworkWord(const ASource: Word;
     var VDest: TIdBytes; const ADestIndex: Integer);
 
-
   function CopyFileTo(const Source, Destination: string): Boolean;
   function DomainName(const AHost: String): String;
   function EnsureMsgIDBrackets(const AMsgID: String): String;
@@ -455,16 +454,13 @@ type
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
 
-
   function Max(AValueOne,AValueTwo: Integer): Integer;
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
-   function OrdFourByteToCardinal(AByte1, AByte2, AByte3, AByte4 : Byte): Cardinal;
+  function OrdFourByteToCardinal(AByte1, AByte2, AByte3, AByte4 : Byte): Cardinal;
 
-
-  function ProcessPath(const ABasePath: String; const APath: String;
-    const APathDelim: string = '/'): string;    {Do not Localize}
-  function RightStr(const AStr: String; Len: Integer): String;
+  function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
+  function RightStr(const AStr: String; const Len: Integer): String;
   {$IFNDEF DOTNET}
   // still to figure out how to reproduce these under .Net
   function ROL(AVal: LongWord; AShift: Byte): LongWord;
@@ -487,6 +483,7 @@ type
 
   function TwoCharToWord(AChar1, AChar2: Char):Word;
   function UpCaseFirst(const AStr: string): string;
+  function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
   {$IFDEF MSWINDOWS}
   function Win32Type : TIdWin32Type;
@@ -494,13 +491,8 @@ type
   procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
   function WordToStr(const Value: Word): String;
   //moved here so I can IFDEF a DotNET ver. that uses StringBuilder
-  function WrapText(const ALine, ABreakStr, ABreakChars : string;
-    MaxCol: Integer): string;
-  {$IFDEF DELPHI5}
-  function DirectoryExists(const Directory: string): Boolean;
-  {$ENDIF}
-
-
+  function WrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
+ 
   //The following is for working on email headers and message part headers...
   function RemoveHeaderEntry(AHeader, AEntry: string): string;
 
@@ -530,7 +522,7 @@ const
    {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
   TIME_BASEDATE = 2;
-
+  
 implementation
 
 uses
@@ -552,8 +544,7 @@ uses
   IdStack;
 
 {This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
-function WrapText(const ALine, ABreakStr, ABreakChars : string;
-  MaxCol: Integer): string;
+function WrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
 const
   QuoteChars = '"';    {Do not Localize}
 var
@@ -677,26 +668,16 @@ var
   ATempPath: string;
 {$ENDIF}
 
-{$IFDEF DELPHI5}
-function DirectoryExists(const Directory: string): Boolean;
-var
-  Code: Integer;
-begin
-  Code := GetFileAttributes(PChar(Directory));
-  Result := (Code <> -1) and (FILE_ATTRIBUTE_DIRECTORY and Code <> 0);
-end;
-{$ENDIF}
-
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
 begin
-  Result := (ANSIStr<>'') and (IndyPos(APattern, Sys.UpperCase(ANSIStr)) = 1)  {do not localize}
-    //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
-   {$IFNDEF DOTNET}
-   //note that in DotNET, everything is MBCS
+  Result := (ANSIStr <> '') and (IndyPos(APattern, Sys.UpperCase(ANSIStr)) = 1)  {do not localize}
+  //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
+  {$IFNDEF DOTNET}
+  //note that in DotNET, everything is MBCS
     and (ByteType(ANSIStr, 1) = mbSingleByte)
-   {$ENDIF}
-    ;
-    //just in case someone is doing a recursive listing and there's a dir with the name total
+  {$ENDIF}
+  ;
+  //just in case someone is doing a recursive listing and there's a dir with the name total
 end;
 
 
@@ -785,16 +766,13 @@ end;
 
 function StrToWord(const Value: String): Word;
 begin
-  if Length(Value)>1 then
-  begin
+  if Length(Value) > 1 then begin
     {$IFDEF DOTNET}
-    Result := TwoCharToWord(Value[1],Value[2]);
+    Result := TwoCharToWord(Value[1], Value[2]);
     {$ELSE}
-    Result := Word(pointer(@Value[1])^);
+    Result := Word(Pointer(@Value[1])^);
     {$ENDIF}
-  end
-  else
-  begin
+  end else begin
     Result := 0;
   end;
 end;
@@ -1008,8 +986,8 @@ The return value is less than 0 if ADateTime1 is less than ADateTime2,
 greater than 0 if ADateTime1 is greater than ADateTime2.
 }
 begin
-  Sys.DecodeDate(ADateTime1,LYear1,LMonth1,LDay1);
-  Sys.DecodeDate(ADateTime2,LYear2,LMonth2,LDay2);
+  Sys.DecodeDate(ADateTime1, LYear1, LMonth1, LDay1);
+  Sys.DecodeDate(ADateTime2, LYear2, LMonth2, LDay2);
   // year
   Result := LYear1 - LYear2;
   if Result <> 0 then
@@ -1028,8 +1006,8 @@ begin
   begin
     Exit;
   end;
-  Sys.DecodeTime(ADateTime1,LHour1,LMin1,LSec1,LMSec1);
-  Sys.DecodeTime(ADateTime2,LHour2,LMin2,LSec2,LMSec2);
+  Sys.DecodeTime(ADateTime1, LHour1, LMin1, LSec1, LMSec1);
+  Sys.DecodeTime(ADateTime2, LHour2, LMin2, LSec2, LMSec2);
   //hour
   Result := LHour1 - LHour2;
   if Result <> 0 then
@@ -1378,9 +1356,9 @@ var
 	i: integer;
 begin
   SetLength(Result, MAX_PATH);
-	i := GetTempPath(Length(Result), PChar(Result));
-	SetLength(Result, i);
-  Result:=Sys.IncludeTrailingPathDelimiter(Result);
+  i := GetTempPath(Length(Result), PChar(Result));
+  SetLength(Result, i);
+  Result := Sys.IncludeTrailingPathDelimiter(Result);
 end;
 {$ENDIF}
 
@@ -1440,12 +1418,9 @@ begin
     If the caller passes an invalid path, the results are unpredicatable.
   }
 
-  if APath = '' then
-  begin
+  if APath = '' then begin
     Result := tempnam(nil, 'Indy');
-  end
-  else
-  begin
+  end else begin
     Result := tempnam(PChar(APath), 'Indy');
   end;
 
@@ -1456,8 +1431,7 @@ begin
   // period is optional in the extension... force it
   if AExt <> '' then
   begin
-    if AExt[1] <> '.' then
-    begin
+    if AExt[1] <> '.' then begin
       LFQE := '.' + AExt;
     end;
   end;
@@ -1465,33 +1439,23 @@ begin
   // validate path and add path delimiter before file name prefix
   if APath <> '' then
   begin
-    if not Sys.DirectoryExists(APath) then
-    begin
+    if not Sys.DirectoryExists(APath) then begin
       LFName := APrefix;
-    end
-    else
-    begin
+    end else begin
       // uses the Indy function... not the Borland one
       LFName := Sys.IncludeTrailingPathDelimiter(APath) + APrefix;
     end;
-  end
-  else
-  begin
+  end else begin
     LFName := APrefix;
   end;
 
   LNamePart := Ticks;
   repeat
     Result := LFName + Sys.IntToHex(LNamePart, 8) + LFQE;
-
-    if not Sys.FileExists(Result) then
-    begin
-      break;
-    end
-    else
-    begin
-      Inc(LNamePart);
+    if not Sys.FileExists(Result) then begin
+      Break;
     end;
+    Inc(LNamePart);
   until False;
 
   {$ENDIF}
@@ -1509,7 +1473,7 @@ begin
   result := 0;
   LTokenLen := Length(ASub);
   // Get starting position
-  if AStart = -1 then begin
+  if AStart < 0 then begin
     AStart := Length(AIn);
   end;
   if AStart < (Length(AIn) - LTokenLen + 1) then begin
@@ -1520,8 +1484,8 @@ begin
   // Search for the string
   for i := LStartPos downto 1 do begin
     if TextIsSame(Copy(AIn, i, LTokenLen), ASub) then begin
-      result := i;
-      break;
+      Result := i;
+      Break;
     end;
   end;
 end;
@@ -1530,15 +1494,15 @@ end;
 function FileSizeByName(const AFilename: string): Int64;
 //Leave in for HTTP Server
 {$IFDEF DOTNET}
-var LF : System.IO.FileInfo;
+var
+  LF : System.IO.FileInfo;
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  LF := FileInfo.Create(AFileName);
+  LF := System.IO.FileInfo.Create(AFileName);
   Result := LF.Length;
   {$ELSE}
-  with TIdFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite) do
-  try
+  with TIdReadFileExclusiveStream.Create(AFilename) do try
     Result := Size;
   finally Free; end;
   {$ENDIF}
@@ -1546,20 +1510,21 @@ end;
 
 function GetGMTDateByName(const AFileName : String) : TIdDateTime;
  {$IFDEF WIN32}
-var LRec : TWin32FindData;
+var
+  LRec : TWin32FindData;
   LHandle : THandle;
-   LTime : Integer;
+  LTime : Integer;
  {$ENDIF}
  {$IFDEF LINUX}
-var LRec : TStatBuf;
+var
+  LRec : TStatBuf;
   LTime : Integer;
   LU : TUnixTime;
  {$ENDIF}
 begin
   Result := -1;
   {$IFDEF DOTNET}
-  if System.IO.File.Exists(AFileName) then
-  begin
+  if System.IO.File.Exists(AFileName) then begin
     Result := System.IO.File.GetLastWriteTimeUtc(AFileName).ToOADate;
   end;
   {$ENDIF}
@@ -1586,23 +1551,23 @@ begin
   {$ENDIF}
 end;
 
-function RightStr(const AStr: String; Len: Integer): String;
+function RightStr(const AStr: String; const Len: Integer): String;
 var
   LStrLen : Integer;
 begin
-  LStrLen := Length (AStr);
+  LStrLen := Length(AStr);
   if (Len > LStrLen) or (Len < 0) then begin
     Result := AStr;
-  end  //f ( Len > Length ( st ) ) or ( Len < 0 ) then
+  end
   else begin
     //+1 is necessary for the Index because it is one based
     Result := Copy(AStr, LStrLen - Len+1, Len);
-  end; //else ... f ( Len > Length ( st ) ) or ( Len < 0 ) then
+  end;
 end;
 
 function StrToCard(const AStr: String): Cardinal;
 begin
-  Result := Sys.StrToInt64(Sys.Trim(AStr),0);
+  Result := Sys.StrToInt64(Sys.Trim(AStr), 0);
 end;
 
 {$IFDEF LINUX}
@@ -1722,24 +1687,26 @@ begin
   and close the handle that was allocated}
   if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then
   begin
-    Windows.AdjustTokenPrivileges(hToken, FALSE,tpko, sizeOf(tpko), tkp, Buffer);
+    Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
     Windows.CloseHandle(hToken);
   end;
 end;
 {$ENDIF}
 
-
-
 function StrToDay(const ADay: string): Byte;
 begin
-  Result := Succ(PosInStrArray(Sys.Uppercase(ADay),
-    ['SUN','MON','TUE','WED','THU','FRI','SAT']));   {do not localize}
+  Result := Succ(
+    PosInStrArray(ADay,
+      ['SUN','MON','TUE','WED','THU','FRI','SAT'], {do not localize}
+      False));
 end;
 
 function StrToMonth(const AMonth: string): Byte;
 begin
-  Result := Succ(PosInStrArray(Sys.Uppercase(AMonth),
-    ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']));   {do not localize}
+  Result := Succ(
+    PosInStrArray(AMonth,
+      ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'], {do not localize}
+      False));
 end;
 
 function UpCaseFirst(const AStr: string): string;
@@ -1750,18 +1717,36 @@ begin
   end;
 end;
 
+function UpCaseFirstWord(const AStr: string): string;
+const
+  LWhiteSet = TAB+CHAR32;    {Do not Localize}
+var
+  I: Integer;
+begin
+  for I := 1 to Length(AStr) do begin
+    if CharIsInSet(AStr, I, LWhiteSet) then begin
+      if I > 1 then begin
+        Result := UpCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
+        Exit;
+      end;
+      Break;
+    end;
+  end;
+  Result := AStr;
+end;
+
 const
   HexNumbers = '01234567890ABCDEF';  {Do not Localize}
   BinNumbers = '01'; {Do not localize}
 
 function IsHex(const AChar : Char) : Boolean;
 begin
-  Result := (IndyPos(Sys.UpperCase(AChar),HexNumbers)>0);
+  Result := IndyPos(Sys.UpperCase(AChar), HexNumbers) > 0;
 end;
 
 function IsBinary(const AChar : Char) : Boolean;
 begin
-  Result := (IndyPos(Sys.UpperCase(AChar),BinNumbers)>0);
+  Result := IndyPos(Sys.UpperCase(AChar), BinNumbers) > 0;
 end;
 
 function BinStrToInt(const ABinary: String): Integer;
@@ -1770,29 +1755,29 @@ var
 //From: http://www.experts-exchange.com/Programming/Programming_Languages/Delphi/Q_20622755.html
 begin
   Result := 0;
-  for I := 1 to Length(ABinary) do
-  begin
+  for I := 1 to Length(ABinary) do begin
     Result := Result shl 1 or (Byte(ABinary[I]) and 1);
   end;
 end;
 
 function ABNFToText(const AText : String) : String;
-type TIdRuleMode = (data,rule,decimal,hex, binary);
-var i : Integer;
-    LR : TIdRuleMode;
-    LNum : String;
+type
+  TIdRuleMode = (data, rule, decimal, hex, binary);
+var
+  i : Integer;
+  LR : TIdRuleMode;
+  LNum : String;
 begin
-  LR :=data;
+  LR := data;
   Result := '';
   for i := 1 to Length(AText) do
   begin
     case LR of
       data :
-        if (AText[i]='%') and (i < Length(AText)) then
+        if (AText[i] = '%') and (i < Length(AText)) then
         begin
           LR := rule;
-        end
-        else
+        end else
         begin
           Result := Result + AText[i];
         end;
@@ -1811,39 +1796,35 @@ begin
         If IsNumeric(AText[i]) then
         begin
           LNum := LNum + AText[i];
-          if Sys.StrToInt(LNum,0)>$FF then
-          begin
+          if Sys.StrToInt(LNum, 0) > $FF then begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(Sys.StrToInt(LNum,0));
+            Result := Result + Char(Sys.StrToInt(LNum, 0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt(LNum,0));
+          Result := Result + Char(Sys.StrToInt(LNum, 0));
           LNum := '';
-          if AText[i]<>'.' then
-          begin
+          if AText[i] <> '.' then begin
             LR := Data;
             Result := Result + AText[i];
           end;
         end;
       hex :
-        If IsHex(AText[i]) and (Length(LNum)<2) then
-        begin
+        If IsHex(AText[i]) and (Length(LNum) < 2) then begin
           LNum := LNum + AText[i];
-          if (Sys.StrToInt('$'+LNum,0)>$FF)  then
-          begin
+          if Sys.StrToInt('$'+LNum, 0) > $FF  then begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(Sys.StrToInt(LNum,0));
+            Result := Result + Char(StrToIntDef(LNum,0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt('$'+LNum,0));
+          Result := Result + Char(Sys.StrToInt('$'+LNum, 0));
           LNum := '';
           if AText[i]<>'.' then
           begin
@@ -1865,7 +1846,7 @@ begin
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt('$'+LNum,0));
+          Result := Result + Char(Sys.StrToInt('$'+LNum, 0));
           LNum := '';
           if AText[i]<>'.' then
           begin
@@ -2063,7 +2044,10 @@ var
   s: String;
 {$ENDIF}
 begin
-  Assert(AMIMEList<>nil);
+  { Protect if someone is allready filled (custom MomeConst) }
+  if not Assigned(AMIMEList) then begin
+    Exit;
+  end;
   if AMIMEList.Count > 0 then
   begin
     Exit;
@@ -2239,33 +2223,49 @@ begin
       if Reg.OpenKeyReadOnly('\') then  {do not localize}
       begin
         Reg.GetKeyNames(KeyList);
+      //  reg.Closekey;
       end;
+      // get a list of registered extentions
       for i := 0 to KeyList.Count - 1 do
       begin
         if Copy(KeyList[i], 1, 1) = '.' then   {do not localize}
         begin
-          if reg.OpenKeyReadOnly('\'+KeyList[i]) then {do not localize}
+          if reg.OpenKeyReadOnly(KeyList[i]) then
           begin
             s := Reg.ReadString('Content Type');  {do not localize}
+{          if Reg.ValueExists('Content Type') then  {do not localize}
+{          begin
+            FFileExt.Values[KeyList[i]] := Reg.ReadString('Content Type');  {do not localize}
+{          end;   }
+
+{ for some odd reason, the code above was triggering a memory leak inside
+the TIdHTTPServer demo program even though simply testing the MIME Table
+alone did not cause a memory leak.  That is what I found in my leak testing..
+Got me <shrug>.
+
+}
             if Length(s) > 0 then
             begin
               AMIMEList.Values[KeyList[i]] := s;
             end;
+            reg.CloseKey;
           end;
         end;
       end;
-      if Reg.OpenKeyreadOnly('\MIME\Database\Content Type') then {do not localize}
+      if Reg.OpenKeyReadOnly('\MIME\Database\Content Type') then {do not localize}
       begin
         // get a list of registered MIME types
         KeyList.Clear;
-
         Reg.GetKeyNames(KeyList);
+        reg.Closekey;
+
         for i := 0 to KeyList.Count - 1 do
         begin
-          if Reg.OpenKeyreadOnly('\MIME\Database\Content Type\' + KeyList[i]) then {do not localize}
+          if Reg.OpenKeyReadOnly('\MIME\Database\Content Type\' + KeyList[i]) then {do not localize}
           begin
             s := reg.ReadString('Extension');  {do not localize}
             AMIMEList.Values[s] := KeyList[i];
+            Reg.CloseKey;
           end;
         end;
       end;
@@ -2345,7 +2345,7 @@ var
 begin
   LKeys := TIdStringList.Create;
   try
-    FillMIMETable(LKeys,LoadTypesFromOS);
+    FillMIMETable(LKeys, LoadTypesFromOS);
     LoadFromStrings(LKeys);
   finally
     Sys.FreeAndNil(LKeys);
@@ -2422,7 +2422,7 @@ var
   I   : Integer;
   Ext : string;
 begin
-  Assert(AStrings<>nil);
+  Assert(AStrings <> nil);
 
   FFileExt.Clear;
   FMIMEList.Clear;
@@ -2442,7 +2442,7 @@ procedure TIdMimeTable.SaveToStrings(const AStrings: TIdStrings;
 var
   I : Integer;
 begin
-  Assert(AStrings<>nil);
+  Assert(AStrings <> nil);
 
   AStrings.Clear;
   for I := 0 to FFileExt.Count - 1 do
