@@ -596,19 +596,19 @@ const
 type
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
-  TAppendFileStream = class(TIdFileStream)
+  TIdAppendFileStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TReadFileExclusiveStream = class(TIdFileStream)
+  TIdReadFileExclusiveStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TReadFileNonExclusiveStream = class(TIdFileStream)
+  TIdReadFileNonExclusiveStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TFileCreateStream = class(TIdFileStream)
+  TIdFileCreateStream = class(TIdFileStream)
   public
     constructor Create(const AFile : String);
   end;
@@ -905,12 +905,12 @@ procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestI
 // Need to change prob not to use this set
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
-function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
+function CharIsInEOL(const AString: string; ACharPos: Integer): Boolean;
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
 function ByteIsInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Boolean;
-function ByteIsInEOF(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
+function ByteIsInEOL(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
 
 function CurrentProcessId: TIdPID;
 procedure DebugOutput(const AText: string);
@@ -1018,12 +1018,12 @@ begin
   {$ENDIF}
 end;
 
-constructor TFileCreateStream.Create(const AFile : String);
+constructor TIdFileCreateStream.Create(const AFile : String);
 begin
   inherited Create(AFile, fmCreate);
 end;
 
-constructor TAppendFileStream.Create(const AFile : String);
+constructor TIdAppendFileStream.Create(const AFile : String);
 var
   LFlags: Word;
 begin
@@ -1038,12 +1038,12 @@ begin
   end;
 end;
 
-constructor TReadFileNonExclusiveStream.Create(const AFile : String);
+constructor TIdReadFileNonExclusiveStream.Create(const AFile : String);
 begin
   inherited Create(AFile, fmOpenRead or fmOpenRead or fmShareDenyNone);
 end;
 
-constructor TReadFileExclusiveStream.Create(const AFile : String);
+constructor TIdReadFileExclusiveStream.Create(const AFile : String);
 begin
   inherited Create(AFile, fmOpenRead or fmShareDenyWrite);
 end;
@@ -1077,8 +1077,8 @@ function IsASCIILDH(const ABytes: TIdBytes): Boolean;
 var
   i: Integer;
 begin
-  for i := 0 to Length(ABytes) -1 do begin
-    if IsASCIILDH(ABytes[i]) then
+  for i := 0 to Length(ABytes)-1 do begin
+    if not IsASCIILDH(ABytes[i]) then
     begin
       Result := False;
       Exit;
@@ -1546,13 +1546,11 @@ var
 begin
   if Windows.QueryPerformanceFrequency(freq) then begin
     if Windows.QueryPerformanceCounter(nTime) then begin
-      Result := Trunc((nTime / Freq) * 1000) and High(Cardinal)
-    end else begin
-      Result := Windows.GetTickCount;
+      Result := Trunc((nTime / Freq) * 1000) and High(Cardinal);
+      Exit;
     end;
-  end else begin
-    Result:= Windows.GetTickCount;
   end;
+  Result := Windows.GetTickCount;
 end;
 {$ENDIF}
 
@@ -3113,7 +3111,7 @@ begin
   Result := CharPosInSet(AString, ACharPos, ASet) > 0;
 end;
 
-function CharIsInEOF(const AString: string; ACharPos: Integer): Boolean;
+function CharIsInEOL(const AString: string; ACharPos: Integer): Boolean;
 begin
   Result := CharIsInSet(AString, ACharPos, EOL);
 end;
@@ -3146,7 +3144,7 @@ begin
   Result := ByteIdxInSet(ABytes, AIndex, ASet) > -1;
 end;
 
-function ByteIsInEOF(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
+function ByteIsInEOL(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
 var
   LSet: TIdBytes;
 begin
