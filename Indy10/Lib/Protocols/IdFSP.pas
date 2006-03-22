@@ -165,9 +165,9 @@ word - max. packet size supported by server
 const
   IdPORT_FSP = 21;
 
-  HSIZE=12;    //header size
-  DEF_MAXSPACE=1012; //data length
-  DEF_MAXSIZE=DEF_MAXSPACE+HSIZE; //default maximum packet size
+  HSIZE = 12;    //header size
+  DEF_MAXSPACE = 1012; //data length
+  DEF_MAXSIZE = DEF_MAXSPACE+HSIZE; //default maximum packet size
 
 //commands
   CC_VERSION     = $10;  //Get server version string and setup
@@ -219,7 +219,7 @@ RDIRENT.HEADER types:
 }
   TIdFSPStatInfo = class(TIdCollectionItem)
   protected
-      FModifiedDateGMT : TIdDateTime;
+    FModifiedDateGMT : TIdDateTime;
     FModifiedDate: TIdDateTime;
     //Size is Int64 in case FSP 3 has an expansion, otherise, it can only handle
     //file sizes up 4 GB's.  It's not a bug, it's a feature.
@@ -237,6 +237,7 @@ RDIRENT.HEADER types:
   published
     property FileName: string read FFileName write FFileName;
   end;
+
   TIdFSPListItems = class(TIdCollection)
   protected
     function GetItems(AIndex: Integer): TIdFSPListItem;
@@ -247,8 +248,8 @@ RDIRENT.HEADER types:
     function ParseEntries(const AData : TIdBytes; const ADataLen : Cardinal) : Boolean;
     function IndexOf(AItem: TIdFSPListItem): Integer;
     property Items[AIndex: Integer]: TIdFSPListItem read GetItems write SetItems; default;
-
   end;
+
   TIdFSPDirInfo = class(TObject)
   protected
     FOwnsDir,
@@ -280,6 +281,7 @@ causes that directory can be listable even it do not have
     property CanRenameFiles : Boolean read FCanRenameFiles write FCanRenameFiles;
     property ReadMe : String read FReadMe write FReadMe;
   end;
+
   TIdFSPPacket = class(TObject)
   protected
     FCmd: Byte;
@@ -326,7 +328,6 @@ causes that directory can be listable even it do not have
     FDirInfo : TIdFSPDirInfo;
     FStatInfo : TIdFSPStatInfo;
     FOnRecv, FOnSend : TIdFSPLogEvent;
-
     FAbortFlag : TIdThreadSafeBoolean;
 
     //note:  This is optimized for performance - DO NOT MESS with it even if you don't like it
@@ -364,16 +365,14 @@ causes that directory can be listable even it do not have
     //this is so we can use it similarly to FTP
     //and also sends a BYE command which is the courteous thing to do.
     procedure List;  overload;
-    procedure List(  
-      const ASpecifier: string); overload;
+    procedure List(const ASpecifier: string); overload;
     procedure GetDirInfo(const ADIR : String); overload;
     procedure GetDirInfo(const ADIR : String; ADirInfo : TIdFSPDirInfo); overload;
     procedure GetStatInfo(const APath : String);
-    procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false;
-      AResume: Boolean = false); overload;
-    procedure Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = false); overload;
-    procedure Put(const ASource: TIdStream; const ADestFile: string;
-       const AGMTTime : TIdDateTime=0); overload;
+    procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean = False;
+      AResume: Boolean = False); overload;
+    procedure Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = False); overload;
+    procedure Put(const ASource: TIdStream; const ADestFile: string; const AGMTTime : TIdDateTime = 0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
     property SystemDesc: string read FSystemDesc;
     property SystemServerLogs : Boolean read  FSystemServerLogs;
@@ -398,44 +397,57 @@ causes that directory can be listable even it do not have
   end;
 
 implementation
-uses IdBuffer, IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, 
-  IdStack;
 
-function ParseASCIIZ(const ABytes : TIdBytes; const ALen : Cardinal) : String;
-var i : Cardinal;
+uses
+  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
+
+function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : Cardinal; var VPos : Cardinal): String;
+var
+  i : Cardinal;
 begin
-  Result := '';
-  if ALen=0 then
-  begin
-    Exit;
-  end;
-  for i := 0 to ALen do
-  begin
-    if ABytes[i]=0 then
-    begin
-      Break;
-    end
-    else
-    begin
-      Result := Result + Char(ABytes[i]);
+  if VPos < ALen then begin
+    for i := VPos to ALen-1 do begin
+      if ABytes[i] = 0 then begin
+        Break;
+      end;
     end;
+    VPos := i;
+    Result := BytesToString(ABytes, i);
+  end else begin
+    Result := '';
   end;
 end;
 
+function ParseASCIIZLen(const ABytes : TIdBytes; const ALen : Cardinal) : String;
+var
+  LPos : Cardinal;
+begin
+  LPos := 0;
+  Result := ParseASCIIZPos(ABytes, ALen, LPos);
+end;
+
+function ParseASCIIZ(const ABytes : TIdBytes) : String;
+var
+  LPos : Cardinal;
+begin
+  LPos := 0;
+  Result := ParseASCIIZPos(ABytes, Length(ABytes), LPos);
+end;
+
 procedure ParseStatInfo(const AData : TIdBytes; VL : TIdFSPStatInfo; var VI : Cardinal);
-var LC : Cardinal;
+var
+  LC : Cardinal;
 begin
   //we don't parse the file type because there is some variation between CC_GET_DIR and CC_STAT
-  CopyBytesToHostCardinal(AData,VI,LC);
+  CopyBytesToHostCardinal(AData, VI, LC);
 
-   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
-   VL.FModifiedDate := VL.FModifiedDateGMT + Sys.OffSetFromUTC;
-   VI := VI + 4;
+  VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
+  VL.FModifiedDate := VL.FModifiedDateGMT + Sys.OffSetFromUTC;
+  Inc(VI, 4);
 
-    CopyBytesToHostCardinal(AData,VI,LC);
-   VL.Size :=  LC;
-   VI := VI + 5;     //we want to skip over the type byte we processed earlier
- 
+  CopyBytesToHostCardinal(AData, VI, LC);
+  VL.Size := LC;
+  Inc(VI, 5); //we want to skip over the type byte we processed earlier
 end;
 
 { TIdFSP }
@@ -452,94 +464,89 @@ end;
 destructor TIdFSP.Destroy;
 begin
   Disconnect;
-  Sys.FreeAndNil( FDirInfo );
-  Sys.FreeAndNil( FDirectoryListing );
-  Sys.FreeAndNil( FStatInfo );
-  Sys.FreeAndNil( FAbortFlag );
+  Sys.FreeAndNil(FDirInfo);
+  Sys.FreeAndNil(FDirectoryListing);
+  Sys.FreeAndNil(FStatInfo);
+  Sys.FreeAndNil(FAbortFlag);
   inherited Destroy;
 end;
 
 procedure TIdFSP.Disconnect;
 var
-  LBuf,LData, LExtra : TIdBytes;
+  LBuf, LData, LExtra : TIdBytes;
 begin
-  if FConEstablished then
-  begin
-    SetLength(LBuf,0);
-    SendCmd( CC_BYE,LBuf,0,LData,LExtra);
+  if FConEstablished then begin
+    SetLength(LBuf, 0);
+    SendCmd(CC_BYE, LBuf, 0, LData, LExtra);
     inherited Disconnect;
   end;
   FConEstablished := False;
 end;
 
-procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream;
-  AResume: Boolean);
-var LSendPacket : TIdFSPPacket;
-    LRecvPacket :  TIdFSPPacket;
-    LLen : Integer;
-    LTmpBuf : TIdBytes;
+procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean);
+var
+  LSendPacket : TIdFSPPacket;
+  LRecvPacket :  TIdFSPPacket;
+  LLen : Integer;
+  LTmpBuf : TIdBytes;
 begin
-  SetLength(LTmpBuf,MaxBufferSize);
+  SetLength(LTmpBuf, MaxBufferSize);
   LSendPacket := TIdFSPPacket.Create;
-  LRecvPacket :=  TIdFSPPacket.Create;
   try
-    if AResume then begin
-       LSendPacket.FFilePosition := ADest.Position;
-    end
-    else
-    begin
-      LSendPacket.FFilePosition := 0;
-    end;
-    LSendPacket.Cmd := CC_GET_FILE;
-    LSendPacket.FData := ToBytes(ASourceFile+#0);
-    LSendPacket.FDataLen := Length(ASourceFile)+1;
-    //specify a preferred block size
-    SetLength(LSendPacket.FExtraData, 2);
-    CopyTIdNetworkWord(PrefPayloadSize,LSendPacket.FExtraData,0);
-    
-    BeginWork(wmRead);
+    LRecvPacket := TIdFSPPacket.Create;
     try
-      repeat
-         SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
-         LLen := LRecvPacket.FDataLen; //Length(LRecvPacket.Data);
-         if LLen >0 then
-         begin
-           ADest.Write(LRecvPacket.Data,LLen);
-           DoWork(wmRead,LLen);
-           Inc(LSendPacket.FFilePosition,LLen);
-         end
-         else
-         begin
-           Break;
-         end;
-      until False;
+      if AResume then begin
+        LSendPacket.FFilePosition := ADest.Position;
+      end else begin
+        LSendPacket.FFilePosition := 0;
+      end;
+      LSendPacket.Cmd := CC_GET_FILE;
+      LSendPacket.FData := ToBytes(ASourceFile+#0);
+      LSendPacket.FDataLen := Length(LSendPacket.FData);
+      //specify a preferred block size
+      SetLength(LSendPacket.FExtraData, 2);
+      CopyTIdNetworkWord(PrefPayloadSize, LSendPacket.FExtraData, 0);
+    
+      BeginWork(wmRead);
+      try
+        repeat
+          SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
+          LLen := LRecvPacket.FDataLen; //Length(LRecvPacket.Data);
+          if LLen > 0 then begin
+            TIdStreamHelper.Write(ADest, LRecvPacket.Data, LLen);
+            DoWork(wmRead, LLen);
+            Inc(LSendPacket.FFilePosition, LLen);
+          end else begin
+            Break;
+          end;
+        until False;
+      finally
+        EndWork(wmRead);
+      end;
     finally
-      EndWork(wmRead);
+      Sys.FreeAndNil(LRecvPacket);
     end;
   finally
     Sys.FreeAndNil(LSendPacket);
-    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
-procedure TIdFSP.Get(const ASourceFile, ADestFile: string;
-  const ACanOverwrite: boolean; AResume: Boolean);
+procedure TIdFSP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean; AResume: Boolean);
 var
   LDestStream: TIdStream;
 begin
-    if ACanOverwrite and (not AResume) then begin
-      Sys.DeleteFile(ADestFile);
-      LDestStream := TFileCreateStream.Create(ADestFile);
+  if ACanOverwrite and (not AResume) then begin
+    Sys.DeleteFile(ADestFile);
+    LDestStream := TIdFileCreateStream.Create(ADestFile);
+  end
+  else begin
+    if (not ACanOverwrite) and AResume then begin
+      LDestStream := TIdAppendFileStream.Create(ADestFile);
     end
     else begin
-      if (not ACanOverwrite) and AResume then begin
-        LDestStream := TAppendFileStream.Create(ADestFile);
-      end
-      else begin
-        raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
-      end;
+      raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
     end;
-
+  end;
 
   try
     Get(ASourceFile, LDestStream, AResume);
@@ -548,11 +555,9 @@ begin
   end;
 end;
 
-
-
 procedure TIdFSP.GetDirInfo(const ADIR: String);
 begin
-  GetDirInfo(ADir,Self.FDirInfo );
+  GetDirInfo(ADir, FDirInfo);
 end;
 
 procedure TIdFSP.InitComponent;
@@ -561,14 +566,14 @@ begin
   Port := IdPORT_FSP;
   FSequence := 0;
   FKey := 0;
-   FDirInfo := TIdFSPDirInfo.Create;
-  FDirectoryListing:= TIdFSPListItems.Create;
+  FDirInfo := TIdFSPDirInfo.Create;
+  FDirectoryListing := TIdFSPListItems.Create;
   FStatInfo := TIdFSPStatInfo.Create(nil);
   BroadcastEnabled := False;
   FConEstablished := False;
   FClientMaxPacketSize := DEF_MAXSIZE;
   FAbortFlag := TIdThreadSafeBoolean.Create;
-  FAbortFlag.Value := FALSE;
+  FAbortFlag.Value := False;
 end;
 
 procedure TIdFSP.List;
@@ -581,88 +586,86 @@ var
   LSendPacket : TIdFSPPacket;
   LRecvPacket :  TIdFSPPacket;
   LTmpBuf : TIdBytes;
+  LSpecifier: String;
 begin
-  SetLength(LTmpBuf,MaxBufferSize);
+  LSpecifier := ASpecifier;
+  if LSpecifier = '' then begin
+    LSpecifier := '/';
+  end;
+  SetLength(LTmpBuf, MaxBufferSize);
   LSendPacket := TIdFSPPacket.Create;
-  LRecvPacket :=  TIdFSPPacket.Create;
   try
-  //
-    LSendPacket.Cmd := CC_GET_DIR;
-    LSendPacket.FFilePosition := 0;
-    SetLength(LRecvPacket.FData, MaxBufferSize );
-    SetLength(LSendPacket.FExtraData, 2);
+    LRecvPacket := TIdFSPPacket.Create;
+    try
+      LSendPacket.Cmd := CC_GET_DIR;
+      LSendPacket.FFilePosition := 0;
+      SetLength(LRecvPacket.FData, MaxBufferSize);
+      SetLength(LSendPacket.FExtraData, 2);
 
-    CopyTIdNetworkWord(PrefPayloadSize,LSendPacket.FExtraData,0);
+      CopyTIdNetworkWord(PrefPayloadSize, LSendPacket.FExtraData, 0);
 
-    FDirectoryListing.Clear;
-    repeat
-
-      if ASpecifier ='' then
-      begin
-        LSendPacket.Data := ToBytes('/'+#0);
-        LSendPacket.DataLen := 2;
-      end
-      else
-      begin
-        LSendPacket.Data := ToBytes(ASpecifier+#0);
+      FDirectoryListing.Clear;
+      repeat
+        LSendPacket.Data := ToBytes(LSpecifier+#0);
         LSendPacket.DataLen := Length(LSendPacket.Data);
-      end;
 
+        SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
 
-      SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
+        if LRecvPacket.DataLen > 0 then begin
+          Inc(LSendPacket.FFilePosition, LRecvPacket.DataLen);
+        end else begin
+          Break;
+        end;
 
-      if LRecvPacket.DataLen > 0 then
-      begin
-        Inc(LSendPacket.FFilePosition,LRecvPacket.DataLen);
-      end
-      else
-      begin
-        Break;
-      end;
-      FDirectoryListing.ParseEntries( LRecvPacket.FData, LRecvPacket.FDataLen );
-      if LRecvPacket.DataLen < Self.PrefPayloadSize then
-      begin
-        Break;
-      end;
-    until False;
+        if LRecvPacket.DataLen < PrefPayloadSize then begin
+          Break;
+        end;
+      until FDirectoryListing.ParseEntries(LRecvPacket.FData, LRecvPacket.FDataLen);
+    finally
+      Sys.FreeAndNil(LRecvPacket);
+    end;
   finally
     Sys.FreeAndNil(LSendPacket);
-    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
-procedure TIdFSP.SendCmd(const ACmd: Byte; const AData,
-  AExtraData: TIdBYtes; const AFilePosition: Int64; var VData,
-  VExtraData: TIdBytes; const ARaiseException : Boolean=True);
-var LSendPacket : TIdFSPPacket;
-    LRecvPacket :  TIdFSPPacket;
-    LTmpBuf : TIdBytes;
+procedure TIdFSP.SendCmd(const ACmd: Byte; const AData, AExtraData: TIdBytes;
+  const AFilePosition: Int64; var VData, VExtraData: TIdBytes;
+  const ARaiseException : Boolean = True);
+var
+  LSendPacket : TIdFSPPacket;
+  LRecvPacket :  TIdFSPPacket;
+  LTmpBuf : TIdBytes;
 begin
-  SetLength(LTmpBuf,MaxBufferSize);
+  SetLength(LTmpBuf, MaxBufferSize);
   LSendPacket := TIdFSPPacket.Create;
-   LRecvPacket :=  TIdFSPPacket.Create;
   try
-    LSendPacket.Cmd := ACmd;
-    LSendPacket.FilePosition := AFilePosition;
-    LSendPacket.Data := AData;
-    LSendPacket.FDataLen := Length(AData);
-    LSendPacket.ExtraData := AExtraData;
-    SendCmd(LSendPacket,LRecvPacket,LTmpBuf,ARaiseException );
-    VData := LRecvPacket.Data;
-    VExtraData := LRecvPacket.ExtraData;
-
+    LRecvPacket := TIdFSPPacket.Create;
+    try
+      LSendPacket.Cmd := ACmd;
+      LSendPacket.FilePosition := AFilePosition;
+      LSendPacket.Data := AData;
+      LSendPacket.FDataLen := Length(AData);
+      LSendPacket.ExtraData := AExtraData;
+      SendCmd(LSendPacket, LRecvPacket, LTmpBuf, ARaiseException);
+      VData := LRecvPacket.Data;
+      VExtraData := LRecvPacket.ExtraData;
+    finally
+      Sys.FreeAndNil(LRecvPacket);
+    end;
   finally
     Sys.FreeAndNil(LSendPacket);
-    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
-procedure TIdFSP.SendCmd(const ACmd: Byte; const AData: TIdBYtes;
-  const AFilePosition: Int64; var VData, VExtraData: TIdBytes; const ARaiseException : Boolean=True);
-var LExtraData : TIdBytes;
+procedure TIdFSP.SendCmd(const ACmd: Byte; const AData: TIdBytes;
+  const AFilePosition: Int64; var VData, VExtraData: TIdBytes;
+  const ARaiseException : Boolean = True);
+var
+  LExtraData : TIdBytes;
 begin
-  SetLength(LExtraData,0);
-  SendCmd(ACmd,AData,LExtraData,AFilePosition,VData,VExtraData, ARaiseException);
+  SetLength(LExtraData, 0);
+  SendCmd(ACmd, AData, LExtraData, AFilePosition, VData, VExtraData, ARaiseException);
 end;
 
 procedure TIdFSP.Version;
@@ -670,8 +673,8 @@ var
   LData, LBuf, LExtraBuf : TIdBytes;
   LDetails : Byte;
 begin
-  SetLength(LData,0);
-  {we use this instead of SendCmd because of the following note
+{
+  we use this instead of SendCmd because of the following note
   in the protocol specification
 
 FILE SERVICE PROTOCOL VERSION 2, OFFICIAL PROTOCOL DEFINITION, FSP v2,
@@ -685,117 +688,99 @@ Note
 Some fsp servers do not responds to this command,
 because this command is used by FSP scanners and
 servers do not wishes to be detected.
-
   }
-
-  SendCmdOnce(CC_VERSION,LData,LData,0,LBuf,LExtraBuf) ;
-  if Length(LData)>0 then
-  begin
-    FSystemDesc := ParseASCIIZ( LBuf, Length(LBuf));
-    if Length(LExtraBuf)>0 then
-    begin
+  SetLength(LData, 0);
+  SendCmdOnce(CC_VERSION, LData, LData, 0, LBuf, LExtraBuf);
+  if Length(LData) > 0 then begin
+    FSystemDesc := ParseASCIIZ(LBuf);
+    if Length(LExtraBuf) > 0 then begin
       LDetails := LExtraBuf[0];
       //bit 0 set - server does logging
-      FSystemServerLogs := LDetails and $01=$01;
+      FSystemServerLogs := (LDetails and $01) = $01;
       //bit 1 set - server is read only
-      FSystemReadOnly := LDetails and $02=$02;
+      FSystemReadOnly := (LDetails and $02) = $02;
       //bit 2 set - reverse lookup required
-      FSystemReverseLookupRequired := LDetails and $04=$04;
-    //bit 3 set - server is in private mode
-      FSystemPrivateMode := LDetails and $08=$08;
-    //  if bit 4 is set thruput info follows
-      FThruputControl := LDetails and $10=$10;
-    // bit 5 set - server accept XTRA
-   //  DATA on input
-      FSystemAcceptsExtraData := LDetails and $20=$20;
-    //long - max_thruput allowed (in bytes/sec)
-    //word - max. packet size supported by server
-      if FThruputControl then
-      begin
-        if Length(LExtraBuf)>4 then
-        begin
-          CopyBytesToHostCardinal(LExtraBuf,1,FServerMaxThruPut);
-          if Length(LExtraBuf)>6 then
-          begin
-            CopyBytesToHostWord(LExtraBuf,5,FServerMaxPacketSize);
-
+      FSystemReverseLookupRequired := (LDetails and $04) = $04;
+      //bit 3 set - server is in private mode
+      FSystemPrivateMode := (LDetails and $08) = $08;
+      //if bit 4 is set thruput info follows
+      FThruputControl := (LDetails and $10) = $10;
+      //bit 5 set - server accept XTRA
+      //DATA on input
+      FSystemAcceptsExtraData := (LDetails and $20) = $20;
+      //long - max_thruput allowed (in bytes/sec)
+      //word - max. packet size supported by server
+      if FThruputControl then begin
+        if Length(LExtraBuf) > 4 then begin
+          CopyBytesToHostCardinal(LExtraBuf, 1, FServerMaxThruPut);
+          if Length(LExtraBuf) > 6 then begin
+            CopyBytesToHostWord(LExtraBuf, 5, FServerMaxPacketSize);
           end;
         end;
-      end
-      else
+      end else
       begin
-        if Length(LExtraBuf)>2 then
-        begin
-          CopyBytesToHostWord(LExtraBuf,1,FServerMaxPacketSize);
+        if Length(LExtraBuf) > 2 then begin
+          CopyBytesToHostWord(LExtraBuf, 1, FServerMaxPacketSize);
         end;
       end;
     end;
   end;
 end;
 
-procedure TIdFSP.SendCmd(ACmdPacket, ARecvPacket: TIdFSPPacket; var VTempBuf : TIdBytes; const ARaiseException : Boolean=True);
+procedure TIdFSP.SendCmd(ACmdPacket, ARecvPacket: TIdFSPPacket;
+  var VTempBuf : TIdBytes; const ARaiseException : Boolean = True);
 var 
   LLen : Integer;
   LSendBuf : TIdBytes;
   LMSec : Integer;
 begin
-
   Inc(FSequence);
   FAbortFlag.Value := False;
-  //we don't set the temp buff size here for speed.
+  //we don't set the temp buff size here for speed.  
   ACmdPacket.Key := FKey;
   ACmdPacket.Sequence := FSequence;
   LMSec := MINTIMEOUT;
   LSendBuf := ACmdPacket.WritePacket;
-  repeat
 
-    //It's very important that you have some way of aborting this loop
-    //if you do not and the server does not reply, this can go for infinity.
-    //AbortCmd is ThreadSafe.
-    if not FAbortFlag.Value then
-    begin
-      SendBuffer(LSendBuf);
-      if Assigned(FOnSend) then
-      begin
-        FOnSend(Self,ACmdPacket);
-      end;
-      Sleep(5); //this is so we don't eat up all of the CPU
-      LLen := ReceiveBuffer( VTempBuf, LMsec );
+  //It's very important that you have some way of aborting this loop
+  //if you do not and the server does not reply, this can go for infinity.
+  //AbortCmd is ThreadSafe.
 
-      ARecvPacket.ReadPacket(VTempBuf,LLen);
-      if ARecvPacket.FValid then
-      begin
-        if Assigned(FOnRecv) then
-        begin
-          FOnRecv(Self,ARecvPacket);
-        end;
-        if (ARecvPacket.Sequence = FSequence) then
-        begin
-          break;
-        end;
+  while not FAbortFlag.Value do
+  begin
+    SendBuffer(LSendBuf);
+
+    if Assigned(FOnSend) then begin
+      FOnSend(Self, ACmdPacket);
+    end;
+
+    Sleep(5); //this is so we don't eat up all of the CPU
+    LLen := ReceiveBuffer(VTempBuf, LMsec);
+
+    ARecvPacket.ReadPacket(VTempBuf, LLen);
+    if ARecvPacket.Valid then begin
+      if Assigned(FOnRecv) then begin
+        FOnRecv(Self, ARecvPacket);
       end;
-    end
-    else
-    begin
-      Break;
+      if ARecvPacket.Sequence = FSequence then begin
+        Break;
+      end;
     end;
 
     LMSec := Round(LMSec * 1.5);
-    if LMSec > MAXTIMEOUT then
-    begin
+    if LMSec > MAXTIMEOUT then begin
       LMSec := MAXTIMEOUT;
     end;
-  until False;
-  if not FAbortFlag.Value then
-  begin
+  end;
+
+  if not FAbortFlag.Value then begin
     FKey := ARecvPacket.Key;
   end;
   FAbortFlag.Value := False;
-  if ARaiseException and (ARecvPacket.Cmd = CC_ERR) then
-  begin
-     Raise EIdFSPProtException.Create( ParseASCIIZ(ARecvPacket.Data, ARecvPacket.DataLen));
-  end;
 
+  if (ARecvPacket.Cmd = CC_ERR) and ARaiseException then begin
+      raise EIdFSPProtException.Create(ParseASCIIZLen(ARecvPacket.Data, ARecvPacket.DataLen));
+  end;
 end;
 
 procedure TIdFSP.GetStatInfo(const APath: String);
@@ -803,14 +788,7 @@ var
   LData, LBuf,LExtraBuf : TIdBytes;
   i : Cardinal;
 begin
-  i := 0;
-  LData := ToBytes(APath + #0);
-  SendCmd(CC_STAT,LData,0,LBuf,LExtraBuf);
-  if Length(LBuf)>8 then
-  begin
 {
-
-
 data format is the same as in directory listing with exception
 that there is no file name appended. If file do not exists or
 there is other problem (no access rights) return type of file is
@@ -821,27 +799,31 @@ there is other problem (no access rights) return type of file is
       long  size;
       byte  type;
 }
-     case LBuf[8] of
-       0 : //file not found
-       begin
-         raise EIdFSPFileNotFound.Create(RSFSPNotFound );
-       end;
-       RDTYPE_FILE :
-       begin
-         FStatInfo.ItemType := ditFile;
-       end;
-       RDTYPE_DIR :
-       begin
-         FStatInfo.ItemType := ditDirectory;
-       end;
-     end;
-     ParseStatInfo(LBuf,Self.FStatInfo,i);
+  i := 0;
+  LData := ToBytes(APath + #0);
+  SendCmd(CC_STAT, LData, 0, LBuf, LExtraBuf);
+  if Length(LBuf) > 8 then begin
+    case LBuf[8] of
+      0 : //file not found
+        begin
+          raise EIdFSPFileNotFound.Create(RSFSPNotFound);
+        end;
+      RDTYPE_FILE :
+        begin
+          FStatInfo.ItemType := ditFile;
+        end;
+      RDTYPE_DIR :
+        begin
+          FStatInfo.ItemType := ditDirectory;
+        end;
+    end;
+    ParseStatInfo(LBuf, FStatInfo, i);
   end;
 end;
 
-procedure TIdFSP.Put(const ASource: TIdStream; const ADestFile: string;
-  const AGMTTime: TIdDateTime);
-var LUnixDate : Cardinal;
+procedure TIdFSP.Put(const ASource: TIdStream; const ADestFile: string; const AGMTTime: TIdDateTime);
+var
+  LUnixDate : Cardinal;
   LSendPacket : TIdFSPPacket;
   LRecvPacket :  TIdFSPPacket;
   LPosition : Cardinal;
@@ -849,56 +831,51 @@ var LUnixDate : Cardinal;
   LTmpBuf : TIdBytes;
 begin
   LPosition := 0;
-  SetLength( LTmpBuf,MaxBufferSize);
+  SetLength(LTmpBuf, MaxBufferSize);
   LSendPacket := TIdFSPPacket.Create;
-  LRecvPacket :=  TIdFSPPacket.Create;
   try
-    SetLength(LSendPacket.FData, PrefPayloadSize);
-    LSendPacket.Cmd := CC_UP_LOAD;
-    repeat
-      LLen := ASource.Read(LSendPacket.FData,PrefPayloadSize);
-      if LLen < PrefPayloadSize then
-      begin
-        if LLen = 0 then
-        begin
-          break;
-        end;
-      end;
-      LSendPacket.FDataLen := LLen;
-      LSendPacket.FilePosition := LPosition;
+    LRecvPacket := TIdFSPPacket.Create;
+    try
+      SetLength(LSendPacket.FData, PrefPayloadSize);
+      LSendPacket.Cmd := CC_UP_LOAD;
 
-      SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
-      if LLen < PrefPayloadSize then
-      begin
-        break;
+      repeat
+        LLen := TIdStreamHelper.ReadBytes(ASource, LSendPacket.FData, PrefPayloadSize, 0);
+        if LLen = 0 then begin
+          Break;
+        end;
+
+        LSendPacket.FDataLen := LLen;
+        LSendPacket.FilePosition := LPosition;
+        SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
+
+        if LLen < PrefPayloadSize then begin
+          Break;
+        end;
+        Inc(LPosition, LLen);
+      until False;
+
+      //send the Install packet
+      LSendPacket.Cmd := CC_INSTALL;
+      LSendPacket.FilePosition := 0;
+      LSendPacket.Data := ToBytes(ADestFile+#0);
+      LSendPacket.FDataLen := Length(LSendPacket.Data);
+      //File date - optional
+      if AGMTTime = 0 then begin
+        SetLength(LSendPacket.FExtraData, 0);
+      end else begin
+        LUnixDate := DateTimeToUnix(AGMTTime);
+        SetLength(LSendPacket.FExtraData, 4);
+        CopyTIdNetworkCardinal(LUnixDate, LSendPacket.FExtraData, 0);
       end;
-      inc(LPosition,LLen);
-    until False;
-    //send the Install packet
-    LSendPacket.Cmd := CC_INSTALL;
-    LSendPacket.FilePosition := 0;
-    LSendPacket.Data := ToBytes(ADestFile+#0);
-    LSendPacket.FDataLen := Length(LSendPacket.Data);
-    //File date - optional
-    if AGMTTime=0 then
-    begin
-      SetLength(LSendPacket.FExtraData ,0);
-    end
-    else
-    begin
-      LUnixDate := DateTimeToUnix(AGMTTime);
-      SetLength(LSendPacket.FExtraData,4);
-      CopyTIdNetworkCardinal(LUnixDate,LSendPacket.FExtraData,0);
+      SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
+    finally
+      Sys.FreeAndNil(LRecvPacket);
     end;
-    SendCmd(LSendPacket,LRecvPacket,LTmpBuf);
   finally
     Sys.FreeAndNil(LSendPacket);
-    Sys.FreeAndNil(LRecvPacket);
   end;
-
 end;
-
-
 
 procedure TIdFSP.Put(const ASourceFile, ADestFile: string);
 var
@@ -906,79 +883,85 @@ var
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;
-  if LDestFileName = '' then
-  begin
+  if LDestFileName = '' then begin
     LDestFileName := Sys.ExtractFileName(ASourceFile);
   end;
-  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
-    Put(LSourceStream, LDestFileName, GetGMTDateByName(ASourceFile) );
-  finally Sys.FreeAndNil(LSourceStream); end;
+  LSourceStream := TIdReadFileExclusiveStream.Create(ASourceFile);
+  try
+    Put(LSourceStream, LDestFileName, GetGMTDateByName(ASourceFile));
+  finally
+    Sys.FreeAndNil(LSourceStream);
+  end;
 end;
 
 procedure TIdFSP.Delete(const AFilename: string);
-var LData : TIdBytes;
+var
+  LData : TIdBytes;
   LBuf, LExBuf : TIdBytes;
 begin
   LData := ToBytes(AFilename+#0);
-  SendCmd(CC_DEL_FILE,LData,0,LBuf, LExBuf);
+  SendCmd(CC_DEL_FILE, LData, 0, LBuf, LExBuf);
 end;
 
 procedure TIdFSP.MakeDir(const ADirName: string);
-var LData : TIdBytes;
+var
+  LData : TIdBytes;
   LBuf, LExBuf : TIdBytes;
 begin
   LData := ToBytes(ADirName+#0);
-  SendCmd(CC_MAKE_DIR,LData,0,LBuf, LExBuf);
-  ParseDirInfo(LBuf,LExBuf, FDirInfo);
+  SendCmd(CC_MAKE_DIR, LData, 0, LBuf, LExBuf);
+  ParseDirInfo(LBuf, LExBuf, FDirInfo);
 end;
 
 procedure TIdFSP.RemoveDir(const ADirName: string);
-var LData : TIdBytes;
+var
+  LData : TIdBytes;
   LBuf, LExBuf : TIdBytes;
 begin
   LData := ToBytes(ADirName+#0);
-  SendCmd(CC_DEL_DIR,LData,0,LBuf, LExBuf);
+  SendCmd(CC_DEL_DIR, LData, 0, LBuf, LExBuf);
 end;
 
 procedure TIdFSP.Rename(const ASourceFile, ADestFile: string);
-var LBuf, LData, LDataExt : TIdBytes;
+var
+  LBuf, LData, LDataExt : TIdBytes;
 begin
-   SetLength(LData,0);
-   SetLength(LDataExt,0);
+   SetLength(LData, 0);
+   SetLength(LDataExt, 0);
    LBuf := ToBytes(ASourceFile+#0+ADestFile);
-   SendCmd(CC_RENAME,LBuf,0,LData,LDataExt);
+   SendCmd(CC_RENAME, LBuf, 0, LData, LDataExt);
 end;
 
 procedure TIdFSP.ParseDirInfo(const ABuf, AExtraBuf: TIdBytes; ADir : TIdFSPDirInfo);
 begin
-  ADir.ReadMe := ParseASCIIZ(ABuf,Length(ABuf));
-  if Length(AExtraBuf)>0 then
-  begin
+  ADir.ReadMe := ParseASCIIZ(ABuf);
+  if Length(AExtraBuf) > 0 then begin
     //0 - caller owns the directory
-    ADir.OwnsDir        := AExtraBuf[0] and $01=$01;
+    ADir.OwnsDir        := (AExtraBuf[0] and $01) = $01;
     //1 - files can be deleted from this dir
-    ADir.CanDeleteFiles := AExtraBuf[0] and $02=$02;
-   // 2 - files can be added to this dir
-    ADir.CanAddFiles    := AExtraBuf[0] and $04=$04;
+    ADir.CanDeleteFiles := (AExtraBuf[0] and $02) = $02;
+    // 2 - files can be added to this dir
+    ADir.CanAddFiles    := (AExtraBuf[0] and $04) = $04;
     //3 - new subdirectories can be created
-    ADir.CanMakeDir     := AExtraBuf[0] and $08=$08;
+    ADir.CanMakeDir     := (AExtraBuf[0] and $08) = $08;
     //4 - files are NOT readable by non-owners
-    ADir.OnlyOwnerCanReadFiles  := AExtraBuf[0] and $10=$10;
+    ADir.OnlyOwnerCanReadFiles  := (AExtraBuf[0] and $10) = $10;
     //5 - directory contain an readme file
-    ADir.HasReadMe      := AExtraBuf[0] and $20=$20;
+    ADir.HasReadMe      := (AExtraBuf[0] and $20) = $20;
     //6 - directory can be listed
-    ADir.CanBeListed    := AExtraBuf[0] and $40=$40;
+    ADir.CanBeListed    := (AExtraBuf[0] and $40) = $40;
     //7 - files can be renamed in this directory
-    ADir.CanRenameFiles := AExtraBuf[0] and $80=$80;
+    ADir.CanRenameFiles := (AExtraBuf[0] and $80) = $80;
   end;
 end;
 
 procedure TIdFSP.GetDirInfo(const ADIR: String; ADirInfo: TIdFSPDirInfo);
-var LData, LBuf, LExtraBuf : TIdBytes;
+var
+  LData, LBuf, LExtraBuf : TIdBytes;
 begin
   LData := ToBytes(ADIR+#0);
-  SendCmd(CC_GET_PRO,LData,0,LBuf,LExtraBuf);
-  ParseDirInfo(LBuf,LExtraBuf, ADirInfo );
+  SendCmd(CC_GET_PRO, LData, 0, LBuf, LExtraBuf);
+  ParseDirInfo(LBuf, LExtraBuf, ADirInfo);
 end;
 
 procedure TIdFSP.SendCmdOnce(ACmdPacket, ARecvPacket: TIdFSPPacket;
@@ -990,94 +973,90 @@ var
 //This is for where there may not be a reply to a command from a server.
 begin
   Inc(FSequence);
-  SetLength(LBuf,MaxBufferSize);
+  SetLength(LBuf, MaxBufferSize);
   ACmdPacket.Key := FKey;
   ACmdPacket.Sequence := FSequence;
 
   LSendBuf := ACmdPacket.WritePacket;
   SendBuffer(LSendBuf);
 
-  if Assigned(FOnSend) then
-  begin
-    FOnSend(Self,ACmdPacket);
+  if Assigned(FOnSend) then begin
+    FOnSend(Self, ACmdPacket);
   end;
-  repeat
-    LLen := ReceiveBuffer( LBuf, MINTIMEOUT );
-    if LLen=0 then
-    begin
-      break;
-    end;
-    ARecvPacket.ReadPacket(LBuf,LLen);
 
-    if ARecvPacket.FValid then
-    begin
-      if Assigned(FOnRecv) then
-      begin
-        FOnRecv(Self,ARecvPacket);
+  repeat
+    LLen := ReceiveBuffer(LBuf, MINTIMEOUT);
+    if LLen = 0 then begin
+      Break;
+    end;
+
+    ARecvPacket.ReadPacket(LBuf, LLen);
+
+    if ARecvPacket.Valid then begin
+      if Assigned(FOnRecv) then begin
+        FOnRecv(Self, ARecvPacket);
       end;
-      if (ARecvPacket.Sequence = FSequence) then
-      begin
+      if (ARecvPacket.Sequence = FSequence) then begin
         FKey := ARecvPacket.Key;
-        break;
+        Break;
       end;
     end;
   until False;
 
-  if ARaiseException and (ARecvPacket.Cmd = CC_ERR) then
-  begin
-    Raise EIdFSPProtException.Create( ParseASCIIZ(ARecvPacket.Data, ARecvPacket.DataLen));
+  if (ARecvPacket.Cmd = CC_ERR) and ARaiseException then begin
+    raise EIdFSPProtException.Create(ParseASCIIZLen(ARecvPacket.Data, ARecvPacket.DataLen));
   end;
-
 end;
 
 procedure TIdFSP.SendCmdOnce(const ACmd: Byte; const AData,
   AExtraData: TIdBYtes; const AFilePosition: Int64; var VData,
   VExtraData: TIdBytes; const ARaiseException: Boolean);
-var LSendPacket : TIdFSPPacket;
-    LRecvPacket :  TIdFSPPacket;
-    LTmpBuf : TIdBytes;
+var
+  LSendPacket : TIdFSPPacket;
+  LRecvPacket :  TIdFSPPacket;
+  LTmpBuf : TIdBytes;
 begin
-  SetLength(LTmpBuf,MaxBufferSize);
+  SetLength(LTmpBuf, MaxBufferSize);
   LSendPacket := TIdFSPPacket.Create;
-   LRecvPacket :=  TIdFSPPacket.Create;
   try
-    LSendPacket.Cmd := ACmd;
-    LSendPacket.FilePosition := AFilePosition;
-    LSendPacket.Data := AData;
-    LSendPacket.FDataLen := Length(AData);
-    LSendPacket.ExtraData := AExtraData;
-    SendCmdOnce(LSendPacket,LRecvPacket,LTmpBuf,ARaiseException );
-    VData := LRecvPacket.Data;
-    VExtraData := LRecvPacket.ExtraData;
-
+    LRecvPacket := TIdFSPPacket.Create;
+    try
+      LSendPacket.Cmd := ACmd;
+      LSendPacket.FilePosition := AFilePosition;
+      LSendPacket.Data := AData;
+      LSendPacket.FDataLen := Length(AData);
+      LSendPacket.ExtraData := AExtraData;
+      SendCmdOnce(LSendPacket, LRecvPacket, LTmpBuf, ARaiseException);
+      VData := LRecvPacket.Data;
+      VExtraData := LRecvPacket.ExtraData;
+    finally
+      Sys.FreeAndNil(LRecvPacket);
+    end;
   finally
     Sys.FreeAndNil(LSendPacket);
-    Sys.FreeAndNil(LRecvPacket);
   end;
 end;
 
 function TIdFSP.MaxBufferSize: Word;
 //use only for calculating buffer for reading UDP packet
-
 begin
-  Result := Max(FClientMaxPacketSize,DEF_MAXSIZE);
-  Result := Max(FServerMaxPacketSize,Result);
-  Result := Result + HSIZE; //just in case
+  Result := Max(FClientMaxPacketSize, DEF_MAXSIZE);
+  Result := Max(FServerMaxPacketSize, Result);
+  Inc(Result, HSIZE); //just in case
 end;
 
 function TIdFSP.PrefPayloadSize: Word;
 //maximum size of the data feild we want to use
 begin
-  Result := Min( FClientMaxPacketSize,FServerMaxPacketSize);
-  Result := Result - HSIZE;
+  Result := Min(FClientMaxPacketSize, FServerMaxPacketSize);
+  Dec(Result, HSIZE);
 end;
 
 procedure TIdFSP.SetClientMaxPacketSize(const AValue: Word);
 begin
 //maximal size required by RFC
 //note that 512 gives a payload of 500 bytes in a packet
-  if AValue<512 then
-  begin
+  if AValue < 512 then begin
     raise EIdFSPPacketTooSmall.Create(RSFSPPacketTooSmall);
   end;
   FClientMaxPacketSize := AValue;
@@ -1088,13 +1067,9 @@ begin
   FAbortFlag.Value := True;
   repeat
     Sleep(5);
-  //we need to wait until the SendCmd routine catches the Abort
-  //request so you don't get an AV in a worker thread.
-    if FAbortFlag.Value=False then
-    begin
-      Break;
-    end;
-  until False;
+    //we need to wait until the SendCmd routine catches the Abort
+    //request so you don't get an AV in a worker thread.
+  until not FAbortFlag.Value;
 end;
 
 { TIdFSPPacket }
@@ -1105,138 +1080,122 @@ begin
   FCmd := 0;
   FFilePosition := 0;
   FDataLen := 0;
-  SetLength(FData,0);
-  SetLength(FExtraData,0);
-  FSequence:=0;
-  FKey:=0;
+  SetLength(FData, 0);
+  SetLength(FExtraData, 0);
+  FSequence := 0;
+  FKey := 0;
 end;
 
 function TIdFSPPacket.WritePacket : TIdBytes;
 var
-   LExtraDataLen : Word;
-   LSum : Cardinal;
-   i : Integer;
-    LBuf : TIdBuffer;
+ LExtraDataLen, LW : Word;
+ LC, LSum : Cardinal;
+ i : Integer;
 //ported from:
 //http://cvs.sourceforge.net/viewcvs.py/fsp/javalib/FSPpacket.java?rev=1.6&view=markup
 begin
-
   LExtraDataLen := Length(FExtraData);
-  LBuf := TIdBuffer.Create;
-  try
-    LBuf.Capacity := HSIZE+FDataLen+LExtraDataLen;
-    //cmd
-    LBuf.Write(Cmd,0);
-    //checksum
-    LBuf.Write(Byte(0),1);  //this will be the checksum value
-    //key
-    LBuf.Write(FKey,2);
+  SetLength(Result, HSIZE + FDataLen + LExtraDataLen);
 
-    // sequence
-    LBuf.Write(FSequence,4);
+  //cmd
+  Result[0] := Cmd;
+  //checksum
+  Result[1] := 0;  //this will be the checksum value
+  //key
+  LW := GStack.HostToNetwork(FKey);
+  CopyTIdWord(LW, Result, 2);
+  // sequence
+  LW := GStack.HostToNetwork(FSequence);
+  CopyTIdWord(LW, Result, 4);
+  // data length
+  LW := GStack.HostToNetwork(FDataLen);
+  CopyTIdWord(LW, Result, 6);
+  // position
+  LC := GStack.HostToNetwork(FFilePosition);
+  CopyTIdCardinal(LC, Result, 8);
+  //end of header section
 
-    // data length
-    LBuf.Write(FDataLen,6);
-    // position
-    LBuf.Write(FFilePosition,8);
-    //end of header section
-    //data section
-    if FDataLen >0 then
-    begin
-      LBuf.WriteLen(FData,FDataLen,HSIZE);
-    end;
-
-    //extra data section
-    if LExtraDataLen>0 then
-    begin
-      LBuf.Write(FExtraData,HSIZE+FDataLen);
-   //   CopyTIdBytes(FExtraData, 0,Result,HSIZE+FDataLen,LExtraDataLen);
-    end;
-    //checksum
-    LSum := HSIZE + FDataLen + LExtraDataLen;
-    for i := (HSIZE + FDataLen + LExtraDataLen) - 1 downto 0 do begin
-  	  LSum:=LSum + (LBuf.ExtractToByte(i) and $FF);
-    end;
-    LBuf.Write(byte(LSum+(LSum shr 8)),1);
-    //now write to result
-    LBuf.ExtractToBytes(Result,-1,True);
-  finally
-
-    Sys.FreeAndNil(LBuf);
+  //data section
+  if FDataLen > 0 then begin
+    CopyTIdBytes(FData, 0, Result, HSIZE, FDataLen);
   end;
+
+  //extra data section
+  if LExtraDataLen > 0 then begin
+    CopyTIdBytes(FExtraData, 0, Result, HSIZE+FDataLen, LExtraDataLen);
+  end;
+
+  //checksum
+  LSum := Length(Result);
+  for i := Length(Result)-1 downto 0 do begin
+    Inc(LSum, Result[i]);
+  end;
+  Result[1] := Byte(LSum+(LSum shr 8));
 end;
 
 procedure TIdFSPPacket.ReadPacket(const AData : TIdBytes; const ALen : Cardinal);
 var
   LSum, LnSum, LcSum : Cardinal; //cardinal to prevent a range-check error
-  t : Word;
+  LW : Word;
   LExtraDataLen : Cardinal;
-  LBuf : TIdBuffer;
 begin
-  LBuf := TIdBuffer.Create(AData,ALen);
-  try
-    FValid := True;
-    if ALen<HSIZE then
-    begin
-      FValid := False;
-      Sys.FreeAndNil(LBuf);
-      Exit;
-    end;
-    //check data length
-    FDataLen := LBuf.ExtractToWord(6);
+  FValid := False;
 
-  if FDataLen > Cardinal(LBuf.Size) then
-  begin
-    FValid := False;
+  if ALen < HSIZE then begin
+    Exit;
   end;
+
+  //check data length
+  FDataLen := BytesToWord(AData, 6);
+  FDataLen := GStack.NetworkToHost(FDataLen);
+  if FDataLen > ALen then begin
+    Exit;
+  end;
+
   //validate checksum
-  LSum := LBuf.ExtractToByte(1); //checksum
-  LBuf.Write(Byte(0),1);//zero it out so we can verify the data
+  LSum := AData[1]; //checksum
   LnSum := ALen;
+  for LW := ALen-1 downto 0 do begin
+    if LW <> 1 then begin // skip the checksum byte
+      Inc(LnSum, AData[LW]);
+    end;
+  end;
+  lcSum := Byte(LnSum + (LnSum shr 8));
 
-  t:=Lnsum-1;
-  Lnsum:=0;
-  for t:=t downto 0 do begin
-      Lnsum := Lnsum + (LBuf.ExtractToByte(t) and $FF);
+  if LcSum <> LSum then begin
+    Exit;
   end;
-  lcsum:=byte(Lnsum + (Lnsum shr 8));
-  if LcSum <> LSum then
-  begin
-    FValid := False;
-  end;
+
   //command
-  FCmd := LBuf.ExtractToByte(0);
+  FCmd := AData[0];
   //key
-  FKey := LBuf.ExtractToWord(2);
+  FKey := BytesToWord(AData, 2);
+  FKey := GStack.NetworkToHost(FKey);
   // sequence
-  FSequence := LBuf.ExtractToWord(4);
-
-  //6-7 are data length which was already processed
+  FSequence := BytesToWord(AData, 4);
+  FSequence := GStack.NetworkToHost(FSequence);
   //file position
-  FFilePosition := LBuf.ExtractToCardinal(8);
+  FFilePosition := BytesToCardinal(AData, 8);
+  FFilePosition := GStack.NetworkToHost(FFilePosition);
+
   //extract data
-  if FDataLen > 0 then
-  begin
-    LBuf.ExtractToBytes(FData,FDataLen,False,HSIZE);
-  end
-  else
-  begin
-    SetLength(FData,0);
+  if FDataLen > 0 then begin
+    SetLength(FData, FDataLen);
+    CopyTIdBytes(AData, HSIZE, FData, 0, FDataLen);
+  end else begin
+    SetLength(FData, 0);
   end;
 
-  LExtraDataLen := ALen - (HSIZE+FDataLen);
   //extract extra data
-  if LExtraDataLen>0 then
-  begin
-    LBuf.ExtractToBytes(FExtraData,LExtraDataLen,False,HSIZE+FDataLen);
-  end
-  else
-  begin
-    SetLength(FExtraData,0);
+  LExtraDataLen := ALen - (HSIZE+FDataLen);
+  if LExtraDataLen > 0 then begin
+    SetLength(FExtraData, LExtraDataLen);
+    CopyTIdBytes(AData, HSIZE+FDataLen, FExtraData, 0, LExtraDataLen);
+  end else begin
+    SetLength(FExtraData, 0);
   end;
-  finally
-    Sys.FreeAndNil(LBuf);
-  end;
+
+  FValid := True;
 end;
 
 { TIdFSPListItems }
@@ -1260,13 +1219,13 @@ function TIdFSPListItems.IndexOf(AItem: TIdFSPListItem): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
-  for i := 0 to Count - 1 do
+  for i := 0 to Count - 1 do begin
     if AItem = Items[i] then begin
-      result := i;
-      break;
+      Result := i;
+      Exit;
     end;
-
+  end;
+  Result := -1;
 end;
 
 function TIdFSPListItems.ParseEntries(const AData: TIdBytes; const ADataLen : Cardinal) : Boolean;
@@ -1279,69 +1238,44 @@ begin
   Result := False;
   i := 0;
   repeat
-    if i < (ADataLen-9) then
-    begin
-      LI := nil;
-      LSkip := False;
-      case AData[i+8] of
-        RDTYPE_END  :
+    if i >= (ADataLen-9) then begin
+      Exit;
+    end;
+    LI := nil;
+    LSkip := False;
+    case AData[i+8] of
+      RDTYPE_END:
         begin
           Result := True;
           Exit;
         end;
-        RDTYPE_FILE :
+      RDTYPE_FILE:
         begin
           LI := Add;
           LI.ItemType := ditFile;
         end;
-        RDTYPE_DIR  :
+      RDTYPE_DIR:
         begin
           LI := Add;
           LI.ItemType := ditDirectory;
         end;
-        RDTYPE_SKIP :
+      RDTYPE_SKIP:
         begin
           LSkip := True;
         end
-      else
+      else begin
         Exit;
       end;
-      if LSkip then
-      begin
-        i := i + 8;
-      end
-      else
-      begin
-        ParseStatInfo(AData,LI,i);
-      end;
-      if not LSkip then
-      begin
-        LFileName := '';
-        repeat
-          if i>=ADataLen then
-          begin
-            Break;
-          end;
-          if AData[i]=0 then
-          begin
-            break;
-          end
-          else
-          begin
-            LFileName := LFileName + Char(AData[i]);
-          end;
-          inc(i);
-        until (i >= ADataLen);
-        LI.FileName := LFileName;
-      end;
-      repeat
-        inc(i);
-      until (i and $03)=0;
-    end
-    else
-    begin
-      Exit;
     end;
+    if LSkip then begin
+      Inc(i, 8);
+    end else begin
+      ParseStatInfo(AData, LI, i);
+      LI.FileName := ParseASCIIZPos(AData, ADataLen, i);
+    end;
+    repeat
+      Inc(i);
+    until (i and $03) = 0;
   until False;
 end;
 
