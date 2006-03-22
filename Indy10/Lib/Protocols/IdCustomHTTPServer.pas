@@ -93,10 +93,10 @@
   Rev 1.20    2003.10.24 10:43:02 AM  czhower
   TIdSTream to dos
 
-  Rev 1.19    10/19/2003 11:49:40 AM  DSiders
+    Rev 1.19    10/19/2003 11:49:40 AM  DSiders
   Added localization comments.
 
-  Rev 1.18    10/17/2003 12:05:40 AM  DSiders
+    Rev 1.18    10/17/2003 12:05:40 AM  DSiders
   Corrected spelling error in resource string.
 
   Rev 1.17    10/15/2003 11:10:16 PM  GGrieve
@@ -105,29 +105,29 @@
   Rev 1.16    2003.10.12 3:37:58 PM  czhower
   Now compiles again.
 
-  Rev 1.15    6/24/2003 11:38:50 AM  BGooijen
+    Rev 1.15    6/24/2003 11:38:50 AM  BGooijen
   Fixed ssl support
 
-  Rev 1.14    6/18/2003 11:44:04 PM  BGooijen
+    Rev 1.14    6/18/2003 11:44:04 PM  BGooijen
   Moved ServeFile and SmartServeFile to TIdHTTPResponseInfo.
   Added TIdHTTPResponseInfo.HTTPServer field
 
   Rev 1.13    05.6.2003 ã. 11:11:12  DBondzhev
   Socket exceptions should  not be stopped after DoCommandGet.
 
-  Rev 1.12    4/9/2003 9:38:40 PM  BGooijen
+    Rev 1.12    4/9/2003 9:38:40 PM  BGooijen
   fixed av on FSessionList.PurgeStaleSessions(Terminated);
 
   Rev 1.11    20/3/2003 19:49:24  GGrieve
   Define SmartServeFile
 
-  Rev 1.10    3/13/2003 10:21:14 AM  BGooijen
+    Rev 1.10    3/13/2003 10:21:14 AM  BGooijen
   Changed result of function .execute
 
-  Rev 1.9    2/25/2003 10:43:36 AM  BGooijen
+    Rev 1.9    2/25/2003 10:43:36 AM  BGooijen
   removed unneeded assignment
 
-  Rev 1.8    2/25/2003 10:38:46 AM  BGooijen
+    Rev 1.8    2/25/2003 10:38:46 AM  BGooijen
   The Serversoftware wasn't send to the client, because of duplicate properties
   (.Server and .ServerSoftware).
 
@@ -187,7 +187,6 @@ const
   HTTPRequestStrings: array[0..ord(high(THTTPCommandType))] of string = ('UNKNOWN', 'HEAD','GET','POST','DELETE','PUT','TRACE', 'OPTIONS'); {do not localize}
 
 type
-
   // Forwards
   TIdHTTPSession = Class;
   TIdHTTPCustomSessionList = Class;
@@ -200,13 +199,14 @@ type
   TOnSessionStartEvent = procedure(Sender: TIdHTTPSession) of object;
   TOnCreateSession = procedure(ASender:TIdContext;
    var VHTTPSession: TIdHTTPSession) of object;
-  TOnCreatePostStream = procedure(AContext: TIdContext;
-   var VPostStream: TIdStream) of object;
+  TOnCreatePostStream = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TIdStream) of object;
   TIdHTTPCommandEvent = procedure(AContext:TIdContext;
    ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo) of object;
   TIdHTTPInvalidSessionEvent = procedure(AContext: TIdContext;
     ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
     var VContinueProcessing: Boolean; const AInvalidSessionID: String) of object;
+  TIdHTTPHeadersAvailableEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean) of object;
+  TIdHTTPHeadersBlockedEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String) of object;
 
   //objects
   EIdHTTPServerError = class(EIdException);
@@ -365,6 +365,7 @@ type
     FSessionList: TIdHTTPCustomSessionList;
     FSessionState: Boolean;
     FSessionTimeOut: Integer;
+    //
     FOnCreatePostStream: TOnCreatePostStream;
     FOnCreateSession: TOnCreateSession;
     FOnInvalidSession: TIdHTTPInvalidSessionEvent;
@@ -372,9 +373,13 @@ type
     FOnSessionStart: TOnSessionStartEvent;
     FOnCommandGet: TIdHTTPCommandEvent;
     FOnCommandOther: TIdHTTPCommandEvent;
+    FOnHeadersAvailable: TIdHTTPHeadersAvailableEvent;
+    FOnHeadersBlocked: TIdHTTPHeadersBlockedEvent;
+    //
     FSessionCleanupThread: TIdThread;
     FMaximumHeaderLineCount: Integer;
     //
+    procedure CreatePostStream(ASender: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TIdStream); virtual;
     procedure DoOnCreateSession(AContext:TIdContext; var VNewSession: TIdHTTPSession); virtual;
     procedure DoInvalidSession(AContext:TIdContext;
      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
@@ -383,11 +388,11 @@ type
      AResponseInfo: TIdHTTPResponseInfo); virtual;
     procedure DoCommandOther(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
      AResponseInfo: TIdHTTPResponseInfo); virtual;
-    procedure CreatePostStream(ASender: TIdContext; var VPostStream: TIdStream); virtual;
     procedure DoConnect(AContext: TIdContext); override;
-    procedure DoCreatePostStream(ASender: TIdContext;
-     var VPostStream: TIdStream);
+    function DoHeadersAvailable(ASender: TIdContext; AHeaders: TIdHeaderList): Boolean; virtual;
+    procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
     function DoExecute(AContext:TIdContext): Boolean; override;
+    //
     procedure SetActive(AValue: Boolean); override;
     procedure SetSessionState(const Value: Boolean);
     function GetSessionFromCookie(AContext:TIdContext;
@@ -395,10 +400,8 @@ type
      var VContinueProcessing: Boolean): TIdHTTPSession;
     procedure InitComponent; override;
     { to be published in TIdHTTPServer}
-    property OnCreatePostStream: TOnCreatePostStream read FOnCreatePostStream
-     write FOnCreatePostStream;
-    property OnCommandGet: TIdHTTPCommandEvent read FOnCommandGet
-     write FOnCommandGet;
+    property OnCreatePostStream: TOnCreatePostStream read FOnCreatePostStream write FOnCreatePostStream;
+    property OnCommandGet: TIdHTTPCommandEvent read FOnCommandGet write FOnCommandGet;
   public
     function CreateSession(AContext:TIdContext;
      HTTPResponse: TIdHTTPResponseInfo;
@@ -412,14 +415,12 @@ type
     property MaximumHeaderLineCount: Integer read FMaximumHeaderLineCount write FMaximumHeaderLineCount default Id_TId_HTTPMaximumHeaderLineCount;
     property AutoStartSession: boolean read FAutoStartSession write FAutoStartSession default Id_TId_HTTPAutoStartSession;
     property DefaultPort default IdPORT_HTTP;
-    property OnInvalidSession: TIdHTTPInvalidSessionEvent read FOnInvalidSession
-     write FOnInvalidSession;
-    property OnSessionStart: TOnSessionStartEvent read FOnSessionStart
-     write FOnSessionStart;
-    property OnSessionEnd: TOnSessionEndEvent read FOnSessionEnd
-     write FOnSessionEnd;
-    property OnCreateSession: TOnCreateSession read FOnCreateSession
-     write FOnCreateSession;
+    property OnInvalidSession: TIdHTTPInvalidSessionEvent read FOnInvalidSession write FOnInvalidSession;
+    property OnSessionStart: TOnSessionStartEvent read FOnSessionStart write FOnSessionStart;
+    property OnSessionEnd: TOnSessionEndEvent read FOnSessionEnd write FOnSessionEnd;
+    property OnCreateSession: TOnCreateSession read FOnCreateSession write FOnCreateSession;
+    property OnHeadersAvailable: TIdHTTPHeadersAvailableEvent read FOnHeadersAvailable write FOnHeadersAvailable;
+    property OnHeadersBlocked: TIdHTTPHeadersBlockedEvent read FOnHeadersBlocked write FOnHeadersBlocked;
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive
      default Id_TId_HTTPServer_KeepAlive;
     property ParseParams: boolean read FParseParams write FParseParams
@@ -605,6 +606,25 @@ begin
   inherited DoConnect(AContext);
 end;
 
+function TIdCustomHTTPServer.DoHeadersAvailable(ASender: TIdContext; AHeaders: TIdHeaderList): Boolean;
+begin
+  Result := True;
+  if Assigned(OnHeadersAvailable) then begin
+    OnHeadersAvailable(ASender, AHeaders, Result);
+  end;
+end;
+
+procedure TIdCustomHTTPServer.DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList;
+  var VResponseNo: Integer; var VResponseText, VContentText: String);
+begin
+  VResponseNo := 403;
+  VResponseText := '';
+  VContentText := ''; 
+  if Assigned(OnHeadersBlocked) then begin
+    OnHeadersBlocked(ASender, AHeaders, VResponseNo, VResponseText, VContentText);
+  end;
+end;
+
 function TIdCustomHTTPServer.DoExecute(AContext:TIdContext): boolean;
 var
   LRequestInfo: TIdHTTPRequestInfo;
@@ -640,6 +660,27 @@ var
     end;
   end;
 
+  function HeadersCanContinue: Boolean;
+  var
+    LResponseNo: Integer;
+    LResponseText, LContentText: String;
+  begin
+    Result := DoHeadersAvailable(AContext, LRequestInfo.RawHeaders);
+    if not Result then begin
+      DoHeadersBlocked(AContext, LRequestInfo.RawHeaders, LResponseNo, LResponseText, LContentText);
+      LResponseInfo.ResponseNo := LResponseNo;
+      if Length(LResponseText) > 0 then begin
+        LResponseInfo.ResponseText := LResponseText;
+      end; 
+      LResponseInfo.ContentText := LContentText;
+      LResponseInfo.CloseConnection := True;
+      LResponseInfo.WriteHeader;
+      if Length(LContentText) > 0 then begin
+        LResponseInfo.WriteContent;
+      end;
+    end;
+  end;
+
 var
   i: integer;
   s, LInputLine, LCmd, LVersion: String;
@@ -657,129 +698,144 @@ begin
         with AContext.Connection do begin
           LInputLine := IOHandler.ReadLn;
           Assert(not IOHandler.ReadLnTimedOut);
-          LRawHTTPCommand := LInputLine;
           i := RPos(' ', LInputLine, -1);    {Do not Localize}
           if i = 0 then begin
             raise EIdHTTPErrorParsingCommand.Create(RSHTTPErrorParsingCommand);
           end;
-          LVersion := Copy(LInputLine, i + 1, MaxInt);
-          SetLength(LInputLine, i - 1);
-          {TODO Check for 1.0 only at this point}
-          LCmd := Sys.UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
           LRequestInfo := TIdHTTPRequestInfo.Create;
           try
-            LRequestInfo.FRawHTTPCommand := LRawHTTPCommand;
-            LRequestInfo.FRemoteIP := GetRemoteIP(Socket);
-            LRequestInfo.FCommand := LCmd;
-            LRequestInfo.FCommandType := DecodeHTTPCommand(LCmd);
-            // Retrieve the HTTP header
-            LRequestInfo.RawHeaders.Clear;
-            // S.G. 6/4/2004: Set the maximum number of lines that will be catured
-            // S.G. 6/4/2004: to prevent a remote resource starvation DOS
-            IOHandler.MaxCapturedLines := MaximumHeaderLineCount;
-            IOHandler.Capture(LRequestInfo.RawHeaders, '');    {Do not Localize}
-            LRequestInfo.ProcessHeaders;
-            // Grab Params so we can parse them
-            // POSTed data - may exist with GETs also. With GETs, the action
-            // params from the form element will be posted
-            // TODO: Rune this is the area that needs fixed. Ive hacked it for now
-            // Get data can exists with POSTs, but can POST data exist with GETs?
-            // If only the first, the solution is easy. If both - need more
-            // investigation.
-
-            // i := StrToIntDef(LRequestInfo.Headers.Values['Content-Length'], -1);    {Do not Localize}
-            LRequestInfo.PostStream := nil;
-            CreatePostStream(AContext, LRequestInfo.FPostStream);
-            if LRequestInfo.FPostStream = nil then begin
-              LRequestInfo.FPostStream := TIdMemoryStream.Create;    {Do not Localize}
-            end;
-
-            LRequestInfo.PostStream.Position := 0;
-            if LRequestInfo.ContentLength > 0 then begin
-              IOHandler.ReadStream(LRequestInfo.PostStream, LRequestInfo.ContentLength);
-            end else if LRequestInfo.CommandType = hcPOST then begin
-              if not LRequestInfo.HasContentLength then begin
-                IOHandler.ReadStream(LRequestInfo.PostStream, -1, True);
-              end;
-            end;
-            // reset back to 0 before reading the string from the post stream
-            LRequestInfo.PostStream.Position := 0;
-            LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream);
-
-            // reset back to 0 for the OnCommand... event handler
-            LRequestInfo.PostStream.Position := 0;
-            LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
-            // GET data - may exist with POSTs also
-            LRequestInfo.QueryParams := LInputLine;
-            LInputLine := Fetch(LRequestInfo.FQueryParams, '?');    {Do not Localize}
-            // glue together parameters passed in the URL and those
-            //
-            if Length(LRequestInfo.QueryParams) > 0 then begin
-              if Length(LRequestInfo.UnparsedParams) = 0 then begin
-                LRequestInfo.FUnparsedParams := LRequestInfo.QueryParams;
-              end else begin
-                LRequestInfo.FUnparsedParams := LRequestInfo.UnparsedParams + '&'  {Do not Localize}
-                 + LRequestInfo.QueryParams;
-              end;
-            end;
-            // Parse Params
-            if ParseParams then begin
-              if TextIsSame(LRequestInfo.ContentType, 'application/x-www-form-urlencoded') then begin    {Do not Localize}
-                LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
-              end else begin
-                // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
-                LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
-              end;
-            end;
-            // Cookies
-            ReadCookiesFromRequestHeader;
-            // Host
-            // LRequestInfo.FHost := LRequestInfo.Headers.Values['host'];    {Do not Localize}
-            LRequestInfo.FVersion := LVersion;
-            // Parse the document input line
-            if LInputLine = '*' then begin    {Do not Localize}
-              LRequestInfo.FDocument := '*';    {Do not Localize}
-            end else begin
-              LURI := TIdURI.Create(LInputLine);
-              try
-                // SG 29/11/01: Per request of Doychin
-                // Try to fill the "host" parameter
-                LRequestInfo.FDocument := TIdURI.URLDecode(LURI.Path) + TIdURI.URLDecode(LURI.Document) + LURI.Params;
-                if (Length(LURI.Host) > 0) and (Length(LRequestInfo.FHost) = 0) then begin
-                  LRequestInfo.FHost := LURI.Host;
-                end;
-              finally
-                Sys.FreeAndNil(LURI);
-              end;
-            end;
-
-            s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
-            LRequestInfo.FAuthExists := (Length(s) > 0);
-            if LRequestInfo.AuthExists then begin
-              if TextIsSame(Fetch(s, ' '), 'Basic') then begin    {Do not Localize}
-                with TIdDecoderMIME.Create do try
-                  s := DecodeString(s);
-                finally Free; end;
-                LRequestInfo.FAuthUsername := Fetch(s, ':');    {Do not Localize}
-                LRequestInfo.FAuthPassword := s;
-              end else begin
-                raise EIdHTTPUnsupportedAuthorisationScheme.Create(
-                 RSHTTPUnsupportedAuthorisationScheme);
-              end;
-            end;
-
             LResponseInfo := TIdHTTPResponseInfo.Create(AContext.Connection, Self);
             try
               LResponseInfo.CloseConnection := not (FKeepAlive and
                 TextIsSame(LRequestInfo.Connection, 'Keep-alive')); {Do not Localize}
-              // Session management
-              GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
+
               // SG 05.07.99
               // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
-              if Length(Sys.Trim(ServerSoftware)) > 0  then begin
-                LResponseInfo.ServerSoftware := ServerSoftware;
+              LResponseInfo.ServerSoftware := Sys.Trim(ServerSoftware);
+
+              // S.G. 6/4/2004: Set the maximum number of lines that will be catured
+              // S.G. 6/4/2004: to prevent a remote resource starvation DOS
+              IOHandler.MaxCapturedLines := MaximumHeaderLineCount;
+
+              // Retrieve the HTTP header
+              LRequestInfo.RawHeaders.Clear;
+              IOHandler.Capture(LRequestInfo.RawHeaders, '');    {Do not Localize}
+              LRequestInfo.ProcessHeaders;
+
+              // RLebeau 12/14/2005: provide the user with the headers and let the
+              // user decide whether the response processing should continue...
+              if not HeadersCanContinue then begin
+                Break;
               end;
 
+              LRawHTTPCommand := LInputLine;
+              LVersion := Copy(LInputLine, i + 1, MaxInt);
+              SetLength(LInputLine, i - 1);
+              {TODO Check for 1.0 only at this point}
+              LCmd := Sys.UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
+
+              LRequestInfo.FRawHTTPCommand := LRawHTTPCommand;
+              LRequestInfo.FRemoteIP := GetRemoteIP(Socket);
+              LRequestInfo.FCommand := LCmd;
+              LRequestInfo.FCommandType := DecodeHTTPCommand(LCmd);
+
+              // Grab Params so we can parse them
+              // POSTed data - may exist with GETs also. With GETs, the action
+              // params from the form element will be posted
+              // TODO: Rune this is the area that needs fixed. Ive hacked it for now
+              // Get data can exists with POSTs, but can POST data exist with GETs?
+              // If only the first, the solution is easy. If both - need more
+              // investigation.
+
+              // i := StrToIntDef(LRequestInfo.Headers.Values['Content-Length'], -1);    {Do not Localize}
+              LRequestInfo.PostStream := nil;
+              CreatePostStream(AContext, LRequestInfo.RawHeaders, LRequestInfo.FPostStream);
+              if LRequestInfo.FPostStream = nil then begin
+                LRequestInfo.FPostStream := TIdMemoryStream.Create;    {Do not Localize}
+              end;
+
+              LRequestInfo.PostStream.Position := 0;
+              if LRequestInfo.ContentLength > 0 then begin
+                IOHandler.ReadStream(LRequestInfo.PostStream, LRequestInfo.ContentLength);
+              end else if LRequestInfo.CommandType = hcPOST then begin
+                if not LRequestInfo.HasContentLength then begin
+                  IOHandler.ReadStream(LRequestInfo.PostStream, -1, True);
+                end;
+              end;
+
+              // reset back to 0 before reading the string from the post stream
+              LRequestInfo.PostStream.Position := 0;
+              LRequestInfo.FormParams := ReadStringFromStream(LRequestInfo.PostStream);
+
+              // reset back to 0 for the OnCommand... event handler
+              LRequestInfo.PostStream.Position := 0;
+              LRequestInfo.UnparsedParams := LRequestInfo.FormParams;
+
+              // GET data - may exist with POSTs also
+              LRequestInfo.QueryParams := LInputLine;
+              LInputLine := Fetch(LRequestInfo.FQueryParams, '?');    {Do not Localize}
+              // glue together parameters passed in the URL and those
+              //
+              if Length(LRequestInfo.QueryParams) > 0 then begin
+                if Length(LRequestInfo.UnparsedParams) = 0 then begin
+                  LRequestInfo.FUnparsedParams := LRequestInfo.QueryParams;
+                end else begin
+                  LRequestInfo.FUnparsedParams := LRequestInfo.UnparsedParams + '&'  {Do not Localize}
+                   + LRequestInfo.QueryParams;
+                end;
+              end;
+
+              // Parse Params
+              if ParseParams then begin
+                if TextIsSame(LRequestInfo.ContentType, 'application/x-www-form-urlencoded') then begin    {Do not Localize}
+                  LRequestInfo.DecodeAndSetParams(LRequestInfo.UnparsedParams);
+                end else begin
+                  // Parse only query params when content type is not 'application/x-www-form-urlencoded'    {Do not Localize}
+                  LRequestInfo.DecodeAndSetParams(LRequestInfo.QueryParams);
+                end;
+              end;
+
+              // Cookies
+              ReadCookiesFromRequestHeader;
+
+              // Host
+              // LRequestInfo.FHost := LRequestInfo.Headers.Values['host'];    {Do not Localize}
+              LRequestInfo.FVersion := LVersion;
+
+              // Parse the document input line
+              if LInputLine = '*' then begin    {Do not Localize}
+                LRequestInfo.FDocument := '*';    {Do not Localize}
+              end else begin
+                LURI := TIdURI.Create(LInputLine);
+                try
+                  // SG 29/11/01: Per request of Doychin
+                  // Try to fill the "host" parameter
+                  LRequestInfo.FDocument := TIdURI.URLDecode(LURI.Path) + TIdURI.URLDecode(LURI.Document) + LURI.Params;
+                  if (Length(LURI.Host) > 0) and (Length(LRequestInfo.FHost) = 0) then begin
+                    LRequestInfo.FHost := LURI.Host;
+                  end;
+                finally
+                  Sys.FreeAndNil(LURI);
+                end;
+              end;
+
+              s := LRequestInfo.RawHeaders.Values['Authorization'];    {Do not Localize}
+              LRequestInfo.FAuthExists := (Length(s) > 0);
+              if LRequestInfo.AuthExists then begin
+                if TextIsSame(Fetch(s, ' '), 'Basic') then begin    {Do not Localize}
+                  with TIdDecoderMIME.Create do try
+                    s := DecodeString(s);
+                  finally Free; end;
+                  LRequestInfo.FAuthUsername := Fetch(s, ':');    {Do not Localize}
+                  LRequestInfo.FAuthPassword := s;
+                end else begin
+                  raise EIdHTTPUnsupportedAuthorisationScheme.Create(
+                   RSHTTPUnsupportedAuthorisationScheme);
+                end;
+              end;
+
+              // Session management
+              GetSessionFromCookie(AContext, LRequestInfo, LResponseInfo, LContinueProcessing);
               if LContinueProcessing then begin
                 try
                   // These essentially all "retrieve" so they are all "Get"s
@@ -865,7 +921,7 @@ begin
   if SessionState then
   begin
     LIndex := AHTTPRequest.Cookies.GetCookieIndex(0, GSessionIDCookie);
-    while (Result = nil) and (LIndex >= 0) do
+    while (Result = nil) and (LIndex >= 0) and VContinueProcessing do
     begin
       LSessionId := AHTTPRequest.Cookies.Items[LIndex].Value;
       Result := FSessionList.GetSession(LSessionID, AHTTPrequest.RemoteIP);
@@ -877,7 +933,7 @@ begin
     end;    { while }
     // check if a session was returned. If not and if AutoStartSession is set to
     // true, Create a new session
-    if (FAutoStartSession and VContinueProcessing) and (Result = nil) then begin
+    if FAutoStartSession and VContinueProcessing and (Result = nil) then begin
       Result := CreateSession(AContext, AHTTPResponse, AHTTPrequest);
     end;
   end;
@@ -928,18 +984,12 @@ begin
   FSessionState := Value;
 end;
 
-procedure TIdCustomHTTPServer.DoCreatePostStream(ASender: TIdContext;
-  var VPostStream: TIdStream);
+procedure TIdCustomHTTPServer.CreatePostStream(ASender: TIdContext;
+  AHeaders: TIdHeaderList; var VPostStream: TIdStream);
 begin
   if Assigned(OnCreatePostStream) then begin
-    OnCreatePostStream(ASender, VPostStream);
+    OnCreatePostStream(ASender, AHeaders, VPostStream);
   end;
-end;
-
-procedure TIdCustomHTTPServer.CreatePostStream(ASender: TIdContext;
-  var VPostStream: TIdStream);
-begin
-  DoCreatePostStream(ASender, VPostStream);
 end;
 
 { TIdHTTPSession }
