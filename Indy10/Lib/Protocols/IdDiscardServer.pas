@@ -42,20 +42,20 @@
 
   Rev 1.0    11/14/2002 02:18:08 PM  JPMugaas
 
-  2000-Apr-22: J Peter Mugass
-    Ported to Indy
+2000-Apr-22: J Peter Mugass
+  Ported to Indy
 
-  1999-Apr-13
-    Final Version
+1999-Apr-13
+  Final Version
 
-  2000-JAN-13 MTL
-    Moved to new Palette Scheme (Winshoes Servers)
+2000-JAN-13 MTL
+  Moved to new Palette Scheme (Winshoes Servers)
 }
 
 unit IdDiscardServer;
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
 }
 
 interface
@@ -89,9 +89,10 @@ function TIdDISCARDServer.DoExecute(AContext:TIdContext): Boolean;
 begin
   Result := True;
   // Discard it
-  AContext.Connection.IOHandler.CheckForDataOnSource;
-  AContext.Connection.IOHandler.InputBufferAsString;
-  //InputBuffer.Remove(AContext.Connection.IOHandler.InputBuffer.Size);
+  with AContext.Connection.IOHandler do begin
+    CheckForDataOnSource;
+    InputBuffer.Clear;
+  end;
 end;
 
 end.
