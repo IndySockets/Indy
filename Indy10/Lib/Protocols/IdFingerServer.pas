@@ -37,24 +37,24 @@
 
   Rev 1.0    11/14/2002 02:19:56 PM  JPMugaas
 
-  2000-May-15  J. Peter Mugaas
-    -Added verbose querry event to complement TIdFinger
+2000-May-15  J. Peter Mugaas
+  -Added verbose querry event to complement TIdFinger
 
-  2000-Apr-22  J Peter Mugass
-    -Ported to Indy
+2000-Apr-22  J Peter Mugass
+  -Ported to Indy
 
-  2000-Jan-13  MTL
-    -Moved to new Palette Scheme (Winshoes Servers)
+2000-Jan-13  MTL
+  -Moved to new Palette Scheme (Winshoes Servers)
 
-  1999-Apr-13
-    -Final Version
+1999-Apr-13
+  -Final Version
 }
 
 
 unit IdFingerServer;
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
 }
 
 interface
@@ -85,7 +85,9 @@ Type
   end;
 
 implementation
-uses IdGlobal, IdSys;
+
+uses
+  IdGlobal, IdSys;
 
 procedure TIdFingerServer.InitComponent;
 begin
@@ -97,25 +99,21 @@ function TIdFingerServer.DoExecute(AContext:TIdContext): boolean;
 Var
   s, LResponse: String;
 begin
-  result := true;
+  Result := True;
   {We use TrimRight in case there are spaces ending the query which are problematic
   for verbose queries.  CyberKit puts a space after the /W parameter}
-  s := Sys.TrimRight(AContext.Connection.IOHandler.Readln);
-  If assigned ( FOnCommandVerboseFinger ) and
-    ( Sys.UpperCase( Copy ( s, Length ( s ) -1, 2 ) )  = '/W' ) then {Do not Localize}
+  s := Sys.TrimRight(AContext.Connection.IOHandler.ReadLn);
+  if Assigned(FOnCommandVerboseFinger) and TextEndsWith(s, '/W') then {Do not Localize}
   begin
     {we remove the /W switch before calling the event}
-    s := Copy(s, 1, Length ( s ) - 2);
-    OnCommandVerboseFinger ( AContext, s, LResponse );
+    s := Copy(s, 1, Length(s)-2);
+    OnCommandVerboseFinger(AContext, s, LResponse);
     AContext.Connection.IOHandler.Write(LResponse);
-  end  //if assigned ( FOnCommandVerboseFinger ) and
-  else
-  begin
-    if assigned ( OnCommandFinger ) then begin
-      OnCommandFinger ( AContext, s, LResponse);
-      AContext.Connection.IOHandler.Write(LResponse);
-    end; //if assigned(OnCommandFinger) then
-  end; //else .. if assigned ( FOnCommandVerboseFinger ) and
+  end
+  else if Assigned(OnCommandFinger) then begin
+    OnCommandFinger(AContext, s, LResponse);
+    AContext.Connection.IOHandler.Write(LResponse);
+  end;
   AContext.Connection.Disconnect;
 end;
 
