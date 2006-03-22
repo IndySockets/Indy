@@ -344,41 +344,41 @@
   - Merged changes submitted by Andrew P.Rybin
 
   2002 - Aug-23 - J. Peter Mugaas
-  - fixed a parsing bug in all parsers.  A file name begging with a space will
-    throw off the parsers.  Modified VMS parser to permit file names containing spaces
+   - fixed a parsing bug in all parsers.  A file name begging with a space will
+     throw off the parsers.  Modified VMS parser to permit file names containing spaces
 
   2002 - Aug-22 - J. Peter Mugaas
-  - VM/CMS - now returns OwnerName - I think.
-  - Added RecType for VM/CMS.
-  - Renamed BlockSize to NumberBlocks. Note:  Block size in VMS is usually 512 anyway
-    (we hard-code that for a constant) and in VM/CMS, the block size is either
-    800, 512, 1024, 2048, or 4096 at the whim of the user and we can't get the
-    block size from the DIR listing.  In other words, any block size property is
-    useless.
-  - Changed VMS behvioar to be consistant with this.
-  - Insider Privillages property added to TIdFTPListItem.  This is the
-    OwnerPermissions for Novell Netware.  Note that Novell Privillages are far different
-    than Unix permissions so they belong in a different property.
+   - VM/CMS - now returns OwnerName - I think.
+   - Added RecType for VM/CMS.
+   - Renamed BlockSize to NumberBlocks. Note:  Block size in VMS is usually 512 anyway
+(we hard-code that for a constant) and in VM/CMS, the block size is either
+800, 512, 1024, 2048, or 4096 at the whim of the user and we can't get the
+block size from the DIR listing.  In other words, any block size property is
+useless.
+   - Changed VMS behvioar to be consistant with this.
+   - Insider Privillages property added to TIdFTPListItem.  This is the
+OwnerPermissions for Novell Netware.  Note that Novell Privillages are far different
+than Unix permissions so they belong in a different property.
   - added VMS file owner and group.
     See: http://seqaxp.bio.caltech.edu/www/vms_beginners_faq.html#FILE00
   - VMS file protections (permissions).
     See: http://www.djesys.com/vms/freevms/mentor/vms_prot.html#prvs
 
   2002 - Aug-20 - J. Peter Mugaas
-  - Added Novell Netware directory parsing.
-  - Rewrote IdFTPList Novell Netware parsing.  File names with spaces are now
-    properly handled.  The code also has a side effect of stripping out a zero
-    that occurred in a directory that was probably due to a quirk.
+   - Added Novell Netware directory parsing.
+   - Rewrote IdFTPList Novell Netware parsing.  File names with spaces are now
+     properly handled.  The code also has a side effect of stripping out a zero
+     that occurred in a directory that was probably due to a quirk.
 
   2002 - Aug-19 - J. Peter Mugaas
-  - Improved VMS Directory partsing.  It NO LONGER is dependant upon specific
-    column widthes.
-  - Fixed bugs in VM file parsing and determination.
-  - Now handles multiline VMS file list entries.
+   - Improved VMS Directory partsing.  It NO LONGER is dependant upon specific
+   column widthes.
+   - Fixed bugs in VM file parsing and determination.
+   - Now handles multiline VMS file list entries.
 
   2002 - Aug-18 - J. Peter Mugaas
-  - VM/CMS or VM/ESA Mainframe directory format parsing added
-  - VMS parsing added
+   - VM/CMS or VM/ESA Mainframe directory format parsing added
+   - VMS parsing added
 
   February 2001
   - TFTPListItem now descends from TCollectionItem
@@ -439,8 +439,8 @@ type
     FLocalFileName : string; //suggested file name for local file
     FSizeAvail : Boolean;
     FModifiedAvail : Boolean;
-
     FModifiedDate: TIdDateTime;
+
     //the item below is for cases such as MLST output, EPLF, and Distinct format
     //which usually reports dates in GMT
     FModifiedDateGMT : TIdDateTime;
@@ -460,15 +460,13 @@ type
     //may be used by some descendent classes
     property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
   public
-    procedure Assign(Source: TIdPersistent); override;
     constructor Create(AOwner: TIdCollection); override;
-    destructor Destroy; override;
+    procedure Assign(Source: TIdPersistent); override;
 
     property Data: string read FData write FData;
 
     property Size: Int64 read FSize write FSize;
     property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
-
 
     property FileName: string read FFileName write SetFileName;
     property LocalFileName : string read FLocalFileName write FLocalFileName;
@@ -478,7 +476,6 @@ type
 
     //Permission Display
     property PermissionDisplay : String read FPermissionDisplay write FPermissionDisplay;
-
   end;
 
   TIdFTPListOnGetCustomListFormat = procedure(AItem: TIdFTPListItem; var VText: string) of object;
@@ -501,7 +498,9 @@ type
   end;
 
 implementation
-Uses IdContainers, IdResourceStrings, IdStrings;
+
+uses
+  IdContainers, IdResourceStrings, IdStrings;
 
 { TFTPListItem }
 
@@ -514,21 +513,24 @@ begin
   ModifiedDate := 0.0;
   FFileName := '';    {Do not Localize}
   FLocalFileName := '';
-    FSizeAvail := True;
-    FModifiedAvail := True;
+  FSizeAvail := True;
+  FModifiedAvail := True;
 end;
 
 procedure TIdFTPListItem.Assign(Source: TIdPersistent);
-Var
-  Item: TIdFTPListItem;
 begin
-  Item := TIdFTPListItem(Source);
-  Data := Item.Data;
-  ItemType := Item.ItemType;
-
-  Size := Item.Size;
-  ModifiedDate := Item.ModifiedDate;
-  FileName := Item.FileName;
+  if Source is TIdFTPListItem then begin
+    with Source as TIdFTPListItem do
+    begin
+      Self.Data := Data;
+      Self.ItemType := ItemType;
+      Self.Size := Size;
+      Self.ModifiedDate := ModifiedDate;
+      Self.FileName := FileName;
+    end;
+  end else begin
+    inherited Assign(Source);
+  end;
 end;
 
 { TFTPList }
@@ -552,12 +554,15 @@ function TIdFTPListItems.IndexOf(AItem: TIdFTPListItem): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
   for i := 0 to Count - 1 do
-    if AItem = Items[i] then begin
-      result := i;
-      break;
+  begin
+    if AItem = Items[i] then
+    begin
+      Result := i;
+      Exit;
     end;
+  end;
+  Result := -1;
 end;
 
 procedure TIdFTPListItems.SetItems(AIndex: Integer; const Value: TIdFTPListItem);
@@ -567,48 +572,38 @@ end;
 
 procedure TIdFTPListItems.SetDirectoryName(const AValue: string);
 begin
-  if not TextIsSame(FDirectoryName, AValue) then begin
+  if not TextIsSame(FDirectoryName, AValue) then begin       
     FDirectoryName := AValue;
     Clear;
   end;
 end;
 
 procedure TIdFTPListItem.SetFileName(const AValue: String);
-var i : Integer;
-    LLowerCase : Boolean;
-const LLowCase = 'abcdefghijklmnpqrstuvwxyz';   {do not localize}
+var
+  i : Integer;
+  LDoLowerCase : Boolean;
+const
+  LLowCase = 'abcdefghijklmnpqrstuvwxyz';   {do not localize}
 begin
-
-  if (FLocalFileName = '') or (Sys.UpperCase(FFileName) = Sys.UpperCase(FLocalFileName)) then
-  begin
+  if (FLocalFileName = '') or TextIsSame(FFileName, FLocalFileName) then begin
     //we do things this way because some file systems use all capital letters or are
     //case insensivite.  The Unix file is case sensitive and Unix users tend to
     //prefer lower case filenames.  We do not want to force lowercase if a file
-    //has both uppercase and lowercase because the uppercase letters are rpobably intentional
-    LLowerCase := True;
-    for i := 1 to Length(AValue) do
-    begin
-      if CharIsInSet(AValue, i, LLowCase) then
-      begin
-        LLowerCase := False;
+    //has both uppercase and lowercase because the uppercase letters are probably intentional
+    LDoLowerCase := True;
+    for i := 1 to Length(AValue) do begin
+      if CharIsInSet(AValue, i, LLowCase) then begin
+        LDoLowerCase := False;
         Break;
       end;
     end;
-    if LLowerCase then
-    begin
+    if LDoLowerCase then begin
       FLocalFileName := Sys.LowerCase(AValue);
-    end
-    else
-    begin
+    end else begin
       FLocalFileName := AValue;
     end;
   end;
-   FFileName := AValue;
-end;
-
-destructor TIdFTPListItem.Destroy;
-begin
-  inherited Destroy;
+  FFileName := AValue;
 end;
 
 end.
