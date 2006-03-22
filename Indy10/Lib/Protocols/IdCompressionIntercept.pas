@@ -114,9 +114,9 @@ type
     FCompressionLevel: TCompressionLevel;
     FCompressRec: TZStreamRec;
     FDecompressRec: TZStreamRec;
-    FRecvBuf: Pointer;
+    FRecvBuf: TIdBytes;
     FRecvCount, FRecvSize: Integer;
-    FSendBuf: Pointer;
+    FSendBuf: TIdBytes;
     FSendCount, FSendSize: Integer;
     procedure SetCompressionLevel(Value: TCompressionLevel);
     procedure InitCompressors;
@@ -150,8 +150,7 @@ uses
 
 procedure TIdCompressionIntercept.DeinitCompressors;
 begin
-  if Assigned(FCompressRec.zalloc) then
-  begin
+  if Assigned(FCompressRec.zalloc) then begin
     deflateEnd(FCompressRec);
     FillChar(FCompressRec, SizeOf(FCompressRec), 0);
   end;
@@ -165,8 +164,8 @@ end;
 destructor TIdCompressionIntercept.Destroy;
 begin
   DeinitCompressors;
-  FreeMem(FRecvBuf);
-  FreeMem(FSendBuf);
+  SetLength(FRecvBuf, 0);
+  SetLength(FSendBuf, 0);
   inherited Destroy;
 end;
 
@@ -184,7 +183,7 @@ begin
     FCompressRec.zfree := IdZLib.zlibFreeMem;
     if deflateInit_(FCompressRec, FCompressionLevel, zlib_Version, SizeOf(FCompressRec)) <> Z_OK then
     begin
-      raise EIdCompressorInitFailure.Create(RSZLCompressorInitializeFailure);
+      EIdCompressorInitFailure.Toss(RSZLCompressorInitializeFailure);
     end;
   end;
   if not Assigned(FDecompressRec.zalloc) then
@@ -193,41 +192,44 @@ begin
     FDecompressRec.zfree := IdZLib.zlibFreeMem;
     if inflateInit_(FDecompressRec, zlib_Version, SizeOf(FDecompressRec)) <> Z_OK then
     begin
-      raise EIdDecompressorInitFailure.Create(RSZLDecompressorInitializeFailure);
+      EIdDecompressorInitFailure.Toss(RSZLDecompressorInitializeFailure);
     end;
   end;
 end;
 
 procedure TIdCompressionIntercept.Receive(var VBuffer: TIdBytes);
 var
-  Buffer: array[0..2047] of Char;
+  LBuffer: TIdBytes;
   LPos : integer;
   nChars, C: Integer;
   StreamEnd: Boolean;
 begin
+  SetLength(LBuffer, 2048);
   if FCompressionLevel in [1..9] then
   begin
     InitCompressors;
     StreamEnd := False;
     LPos := 0;
     repeat
-      nChars := max(Length(VBuffer) - LPos, SizeOf(Buffer));
-      inc(LPos, nChars);
-      if nChars = 0 then Break;
-      FDecompressRec.next_in := Buffer;
+      nChars := Max(Length(VBuffer) - LPos, Length(LBuffer));
+      Inc(LPos, nChars);
+      if nChars = 0 then begin
+        Break;
+      end;
+      FDecompressRec.next_in := PChar(@LBuffer[0]);
       FDecompressRec.avail_in := nChars;
       FDecompressRec.total_in := 0;
       while FDecompressRec.avail_in > 0 do
       begin
-        if FRecvCount = FRecvSize then
-        begin
-          if FRecvSize = 0 then
-            FRecvSize := 2048
-          else
+        if FRecvCount = FRecvSize then begin
+          if FRecvSize = 0 then begin
+            FRecvSize := 2048;
+          end else begin
             Inc(FRecvSize, 1024);
-          ReallocMem(FRecvBuf, FRecvSize);
+          end;
+          SetLength(FRecvBuf, FRecvSize);
         end;
-        FDecompressRec.next_out := PChar(FRecvBuf) + FRecvCount;
+        FDecompressRec.next_out := PChar(@FRecvBuf[FRecvCount]);
         C := FRecvSize - FRecvCount;
         FDecompressRec.avail_out := C;
         FDecompressRec.total_out := 0;
@@ -237,51 +239,52 @@ begin
           Z_STREAM_ERROR,
           Z_DATA_ERROR,
           Z_MEM_ERROR:
-            raise EIdDecompressionError.Create(RSZLDecompressionError);
+            EIdDecompressionError.Toss(RSZLDecompressionError);
         end;
         Inc(FRecvCount, C - FDecompressRec.avail_out);
       end;
     until StreamEnd;
     SetLength(VBuffer, FRecvCount);
-    move(FRecvBuf^, VBuffer[0], FRecvCount);
+    CopyTIdBytes(FRecvBuf, 0, VBuffer, 0, FRecvCount);
     FRecvCount := 0;
   end;
 end;
 
 procedure TIdCompressionIntercept.Send(var VBuffer: TIdBytes);
 var
-  Buffer: array[0..1023] of Char;
-  LLen : integer;
+  LBuffer: TIdBytes;
+  LLen, LSize: Integer;
 begin
+  SetLength(LBuffer, 1024);
   if FCompressionLevel in [1..9] then
   begin
     InitCompressors;
     // Make sure the Send buffer is large enough to hold the input stream data
-    if Length(VBuffer) > FSendSize then
+    LSize := Length(VBuffer);
+    if LSize > FSendSize then
     begin
-      if Length(VBuffer) > 2048 then
-      begin
-        FSendSize := Length(VBuffer) + (Length(VBuffer) + 1023) mod 1024;
-      end
-      else
-      begin
+      if LSize > 2048 then begin
+        FSendSize := LSize + (LSize + 1023) mod 1024;
+      end else begin
         FSendSize := 2048;
       end;
-      ReallocMem(FSendBuf, FSendSize);
+      SetLength(FSendBuf, FSendSize);
     end;
+
     // Get the data from the input stream and save it off
-    FSendCount := Length(VBuffer);
-    move(VBuffer[0], FSendBuf^, Length(VBuffer));
-    FCompressRec.next_in := FSendBuf;
+    FSendCount := LSize;
+    CopyTIdBytes(VBuffer, 0, FSendBuf, 0, FSendCount);
+    FCompressRec.next_in := PChar(@FSendBuf[0]);
     FCompressRec.avail_in := FSendCount;
     FCompressRec.avail_out := 0;
+
     // reset and clear the input stream in preparation for compression
     SetLength(VBuffer, 0);
     // As long as data is being outputted, keep compressing
     while FCompressRec.avail_out = 0 do
     begin
-      FCompressRec.next_out := Buffer;
-      FCompressRec.avail_out := SizeOf(Buffer);
+      FCompressRec.next_out := PChar(@LBuffer[0]);
+      FCompressRec.avail_out := Length(LBuffer);
       case deflate(FCompressRec, Z_SYNC_FLUSH) of
         Z_STREAM_ERROR,
         Z_DATA_ERROR,
@@ -289,25 +292,21 @@ begin
       end;
       // Place the compressed data back into the input stream
       LLen := Length(VBuffer);
-      SetLength(VBuffer, Length(VBuffer) + SizeOf(Buffer) - FCompressRec.avail_out);
-      move(Buffer, VBuffer[LLen], SizeOf(Buffer) - FCompressRec.avail_out);
+      SetLength(VBuffer, LLen + Length(LBuffer) - FCompressRec.avail_out);
+      CopyTIdBytes(LBuffer, 0, VBuffer, LLen, Length(LBuffer) - FCompressRec.avail_out);
     end;
   end;
 end;
 
 procedure TIdCompressionIntercept.SetCompressionLevel(Value: TCompressionLevel);
 begin
-  if Value <> FCompressionLevel then
-  begin
+  if Value < 0 then begin
+    Value := 0;
+  end else if Value > 9 then begin
+    Value := 9;
+  end;
+  if Value <> FCompressionLevel then begin
     DeinitCompressors;
-    if Value < 0 then
-    begin
-      Value := 0;
-    end;
-    if Value > 9 then
-    begin
-      Value := 9;
-    end;
     FCompressionLevel := Value;
   end;
 end;
@@ -320,8 +319,8 @@ end;
 
 function TIdServerCompressionIntercept.Accept(AConnection: TComponent): TIdConnectionIntercept;
 begin
-  Result:=TIdCompressionIntercept.create(nil);
-  TIdCompressionIntercept(Result).CompressionLevel:=CompressionLevel;
+  Result := TIdCompressionIntercept.Create(nil);
+  TIdCompressionIntercept(Result).CompressionLevel := CompressionLevel;
 end;
 
 end.
