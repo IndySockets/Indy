@@ -22,7 +22,7 @@
   Rev 1.8    24/10/2004 21:26:14  ANeillans
   RCPTList can be set
 
-  Rev 1.7    9/15/2004 5:02:06 PM  DSiders
+    Rev 1.7    9/15/2004 5:02:06 PM  DSiders
   Added localization comments.
 
   Rev 1.6    31/08/2004 20:21:34  ANeillans
@@ -255,20 +255,10 @@ procedure TIdSMTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string;
   const AReply: TIdReply);
 var
   LTmp : String;
-  i : Integer;
   LReply : TIdReply;
-const
-  LWhiteSet = TAB+CHAR32;    {Do not Localize}
 begin
-  LTmp := ALine;
   //First make the first word uppercase
-  for i := 1 to Length(LTmp) do begin
-    if CharIsInSet(LTmp, i, LWhiteSet) then begin
-      Break;
-    end else begin
-      LTmp[i] := UpCase(LTmp[i]);
-    end;
-  end;
+  LTmp := UpCaseFirstWord(ALine);
   try
     if Assigned(AReply) then begin
       LReply := AReply;
@@ -276,10 +266,8 @@ begin
       LReply := TIdReplySMTP.Create(nil, ReplyTexts);
       LReply.Assign(ReplyUnknownCommand);
     end;
-//    LReply.Text.Clear;
-    SetEnhReply(LReply, 500, '5.0.0', Sys.Format(RSFTPCmdNotRecognized,[LTmp]), {do not localize}
+    SetEnhReply(LReply, 500, '5.0.0', Sys.Format(RSFTPCmdNotRecognized, [LTmp]), {do not localize}
       TIdSMTPServerContext(AContext).Ehlo);
-//    LReply.Text.Add(Sys.Format(RSFTPCmdNotRecognized,[LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
@@ -891,10 +879,81 @@ var
   AMsg : TIdStream;
   LAction : TIdDataReply;
   LReceivedString : String;
-  //we do it this way so we can take advantage of the StringBuilder
-  //in DotNET.
-  ReplaceOld,
-  ReplaceNew : array of string;
+
+  // RLebeau: if HostByAddress() fails, the received
+  // message gets lost, so trapping any exceptions here
+  function AddrFromHost(const AIP: String): String;
+  begin
+    try
+      Result := GStack.HostByAddress(AIP);
+    except
+      Result := 'unknown'; {do not localize}
+    end;
+  end;
+
+  // RLebeau: processing the tokens dynamically now
+  // so that only the tokens that are actually present
+  // will be processed.  This helps to avoid unnecessary
+  // lookups for tokens that are not actually used
+  procedure ReplaceReceivedTokens;
+  var
+    LTokens: TIdStringList;
+    i, LPos: Integer;
+    //we do it this way so we can take advantage of the StringBuilder in DotNET.
+    ReplaceOld, ReplaceNew: array of string;
+  begin
+    LTokens := TIdStringList;
+    try
+      if Pos('$hostname', LReceivedString) <> 0 then begin                  {do not localize}
+        LTokens.Add('$hostname=' + AddrFromHost(LContext.Binding.PeerIP));  {do not localize}
+      end;
+
+      if Pos('$ipaddress', LReceivedString) <> 0 then begin                 {do not localize}
+        LTokens.Add('$ipaddress=' + LContext.Binding.PeerIP);               {do not localize}
+      end;
+
+      if Pos('$helo', LReceivedString) <> 0 then begin                      {do not localize}
+        LTokens.Add('$helo=' + LContext.HeloString);                        {do not localize}
+      end;
+
+      if Pos('$helo', LReceivedString) <> 0 then begin                      {do not localize}
+        LTokens.Add('$helo=' + LContext.HeloString);                        {do not localize}
+      end;
+
+      if Pos('$protocol', LReceivedString) <> 0 then begin                  {do not localize}
+        LTokens.Add('$protocol=' + iif(LContext.EHLO, 'esmtp', 'smtp'));    {do not localize}
+      end;
+
+      if Pos('$servername', LReceivedString) <> 0 then begin                {do not localize}
+        LTokens.Add('$servername=' + FServerName);                          {do not localize}
+      end;
+
+      if Pos('$svrhostname', LReceivedString) <> 0 then begin               {do not localize}
+        LTokens.Add('$svrhostname=' + AddrFromHost(LContext.Binding.IP));   {do not localize}
+      end;
+
+      if Pos('$svripaddress', LReceivedString) <> 0 then begin              {do not localize}
+        LTokens.Add('$svripaddress=' + LContext.Binding.IP);                {do not localize}
+      end;
+
+      if LTokens.Count > 0 then
+      begin
+        SetLength(ReplaceNew, LTokens.Count);
+        SetLength(ReplaceOld, LTokens.Count);
+
+        for i := 0 to LTokens.Count-1 do begin
+          LPos := Pos('=', LTokens.Strings[i]);
+          ReplaceOld[i] := Copy(LTokens.Strings[i], 1, LPos-1);
+          ReplaceNew[i] := Copy(LTokens.Strings[i], LPos+1, MaxInt);
+        end;
+
+        LReceivedString := Sys.StringReplace(LReceivedString, ReplaceOld, ReplaceNew);
+      end;
+    finally
+      Sys.FreeAndNil(LTokens);
+    end;
+  end;
+
 begin
   LReceivedString := IdSMTPSvrReceivedString;
   LContext := TIdSMTPServerContext(ASender.Context);
@@ -922,36 +981,7 @@ begin
           WriteStringToStream(AMsg, 'Received-Path: <' + LContext.From + '>' + EOL); {do not localize}
         end;
         if LReceivedString <> '' then begin
-          // Parse the ReceivedString and replace any of the special 'tokens'
-          SetLength(ReplaceNew, 7);
-          SetLength(ReplaceOld, 7);
-
-          ReplaceOld[0] := '$hostname';  {do not localize}
-          ReplaceNew[0] := GStack.HostByAddress(LContext.Binding.PeerIP);
-
-          ReplaceOld[1] :=  '$ipaddress';  {do not localize}
-          ReplaceNew[1] := LContext.Binding.PeerIP;
-
-          ReplaceOld[2] := '$helo';        {do not localize}
-          ReplaceNew[2] :=  LContext.HeloString;
-
-          ReplaceOld[3] := '$protocol';   {do not localize}
-          if LContext.EHLO then begin
-            ReplaceNew[3] := 'esmtp'; {do not localize}
-          end else begin
-            ReplaceNew[3] := 'smtp'; {do not localize}
-          end;
-
-          ReplaceOld[4] := '$servername'; {do not localize}
-          ReplaceNew[4] := FServerName;   {do not localize}
-
-          ReplaceOld[5] := '$svrhostname';
-          ReplaceNew[5] := GStack.HostByAddress(LContext.Binding.IP);
-
-          ReplaceOld[6] := '$svripaddress';
-          ReplaceNew[6] := LContext.Binding.IP;
-
-          LReceivedString := Sys.StringReplace(LReceivedString, ReplaceOld, ReplaceNew);
+          ReplaceReceivedTokens;
           WriteStringToStream(AMsg, LReceivedString + EOL);
         end;
         AMsg.CopyFrom(LStream, 0); // Copy the contents that was captured to the new stream.
