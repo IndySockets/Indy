@@ -50,8 +50,6 @@ unit IdAttachmentMemory;
 
 interface
 
-{$I IdCompilerDefines.inc}
-
 uses
   IdObjs, IdAttachment, IdMessageParts, IdGlobal;
 
@@ -90,7 +88,7 @@ constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
   const CopyFrom: TIdStream);
 begin
   inherited Create(Collection);
-  FDataStream := TIdMemoryStream.Create();
+  FDataStream := TIdMemoryStream.Create;
   if Assigned(CopyFrom) then begin
     FDataStream.CopyFrom(CopyFrom, CopyFrom.Size);
   end;
