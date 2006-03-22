@@ -43,7 +43,7 @@
   Rev 1.140    10/26/2004 9:40:42 PM  JPMugaas
   Updated ref.
 
-  Rev 1.139    9/15/2004 5:01:00 PM  DSiders
+    Rev 1.139    9/15/2004 5:01:00 PM  DSiders
   Added localization comments.
 
   Rev 1.138    2004.08.13 11:03:22  czhower
@@ -53,7 +53,7 @@
   Reordered AUTH command values for a new property under development.  This
   should make things more logical.
 
-  Rev 1.136    7/18/2004 3:00:42 PM  DSiders
+    Rev 1.136    7/18/2004 3:00:42 PM  DSiders
   Added localization comments.
 
   Rev 1.135    7/15/2004 1:33:00 AM  JPMugaas
@@ -97,7 +97,7 @@
             if PosInStrArray(IntToStr(LNoVal),STATES,False)>-1 then
   Function expected a string, not an integer.
 
-  Rev 1.129    7/6/2004 4:52:16 PM  DSiders
+    Rev 1.129    7/6/2004 4:52:16 PM  DSiders
   Corrected spelling of Challenge in properties, methods, types.
 
   Rev 1.128    6/29/2004 4:09:04 PM  JPMugaas
@@ -125,7 +125,7 @@
   never works and the matter was fixed in another way.
   OnCustomDir should now work if the DirStyle is custom.
 
-  Rev 1.122    6/11/2004 9:35:12 AM  DSiders
+    Rev 1.122    6/11/2004 9:35:12 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.121    2004.05.20 11:37:26 AM  czhower
@@ -342,7 +342,7 @@
 
   Rev 1.64    5/25/2003 03:54:28 AM  JPMugaas
 
-  Rev 1.63    5/21/2003 3:59:32 PM  BGooijen
+    Rev 1.63    5/21/2003 3:59:32 PM  BGooijen
   removed with in InitializeCommandHandlers, and changed exception replies
 
   Rev 1.62    5/21/2003 09:29:40 AM  JPMugaas
@@ -355,10 +355,10 @@
   IdGlobal.GetUniqueFileName instead of Rand.  I also fixed GetUniqueFileName
   so that it can accept an empty path specification.
 
-  Rev 1.59    3/30/2003 12:18:38 AM  BGooijen
+    Rev 1.59    3/30/2003 12:18:38 AM  BGooijen
   bug fix + ssl one data channel fixed
 
-  Rev 1.58    3/24/2003 11:08:42 PM  BGooijen
+    Rev 1.58    3/24/2003 11:08:42 PM  BGooijen
   'transfer'-commands now block, until the transfer is done/aborted.
   this made it possible to send the reply after the transfer in the
   control-thread
@@ -368,17 +368,17 @@
 
   Rev 1.56    3/14/2003 11:33:46 PM  JPMugaas
 
-  Rev 1.55    3/14/2003 10:44:38 PM  BGooijen
+    Rev 1.55    3/14/2003 10:44:38 PM  BGooijen
   Removed warnings, changed StartSSL to PassThrough:=false;
 
-  Rev 1.54    3/14/2003 10:00:24 PM  BGooijen
+    Rev 1.54    3/14/2003 10:00:24 PM  BGooijen
   Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
   the server-protocol-files
 
   Rev 1.53    3/13/2003 05:21:18 PM  JPMugaas
   Bas's bug fix.  There was a wrong typecast.
 
-  Rev 1.52    3/13/2003 8:57:30 PM  BGooijen
+    Rev 1.52    3/13/2003 8:57:30 PM  BGooijen
   changed TIdSSLIOHandlerSocketBase to TIdIOHandlerSocket in
   TIdDataChannelContext.SetupDataChannel
 
@@ -462,7 +462,7 @@
   Rev 1.29    2/12/2003 12:30:56 PM  JPMugaas
   Now honors parameters with the NLIST command.
 
-  Rev 1.28    2/5/2003 10:30:04 PM  BGooijen
+    Rev 1.28    2/5/2003 10:30:04 PM  BGooijen
   Re-enabled ssl-support
 
   Rev 1.27    2/4/2003 05:31:40 PM  JPMugaas
@@ -533,16 +533,16 @@
   This is based on:
   http://www.ietf.org/internet-drafts/draft-twine-ftpmd5-00.txt
 
-  Rev 1.12    1/24/2003 6:07:24 PM  BGooijen
+    Rev 1.12    1/24/2003 6:07:24 PM  BGooijen
   Changed TIdDataChannelThread to TIdDataChannelContext
 
-  Rev 1.11    1/23/2003 9:06:26 PM  BGooijen
+    Rev 1.11    1/23/2003 9:06:26 PM  BGooijen
   changed the CommandAbor
 
-  Rev 1.10    1/23/2003 10:39:38 AM  BGooijen
+    Rev 1.10    1/23/2003 10:39:38 AM  BGooijen
   TIdDataChannelContext.FServer was never assigned
 
-  Rev 1.9    1/20/2003 1:15:40 PM  BGooijen
+    Rev 1.9    1/20/2003 1:15:40 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
 
   Rev 1.8    1/17/2003 06:21:02 PM  JPMugaas
@@ -578,19 +578,19 @@
 unit IdFTPServer;
 
 {
-  Original Author: Sergio Perry
-  Date: 04/21/2001
-  Fixes and modifications: Doychin Bondzhev
-  Date: 08/10/2001
-  Further Extensive changes by Chad Z. Hower (Kudzu)
-  EPSV/EPRT support for IPv6 by Johannes Berg
+ Original Author: Sergio Perry
+ Date: 04/21/2001
+ Fixes and modifications: Doychin Bondzhev
+ Date: 08/10/2001
+ Further Extensive changes by Chad Z. Hower (Kudzu)
+ EPSV/EPRT support for IPv6 by Johannes Berg
 
   TODO:
     both EPSV and EPRT only allow data connections that have the same
        protocol as the control connection, because the ftp server could be
        used in a network only supporting one of them
 
-  TODO:
+TODO:
     Change events to use DoXXXX
 }
 
@@ -1424,7 +1424,7 @@ var
     function ShouldShowCommand(const ACommand : String) : Boolean;
     begin
       Result := False;
-      case PosInStrArray(ACommand,HELP_SPEC_CMDS,False) of
+      case PosInStrArray(ACommand, HELP_SPEC_CMDS, False) of
         -1 : Result := True;
          0 : //'SIZE'
            if Assigned(FOnGetFileSize) then
@@ -1468,7 +1468,7 @@ var
     var idx : Integer;
     begin
       Result := False; //presume that the command is implemented
-      idx := PosInStrArray(ACommand,HELP_ALT_MD_CMD,False);
+      idx := PosInStrArray(ACommand, HELP_ALT_MD_CMD, False);
       if idx = -1 then
       begin
         Result := False;
@@ -4105,7 +4105,7 @@ var LIO : TIdSSLIOHandlerSocketBase;
   LF : TIdFTPServerContext;
 begin
   LF := TIdFTPServerContext(ASender.Context);
-  if (PosInStrArray(ASender.UnparsedParams,TLS_AUTH_NAMES)>-1) and (IOHandler is TIdServerIOHandlerSSLBase)
+  if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and (IOHandler is TIdServerIOHandlerSSLBase)
     and (FUseTLS in ExplicitTLSVals) then
   begin
     ASender.Reply.SetReply(234,RSFTPAuthSSL);
@@ -4120,7 +4120,7 @@ begin
     and we implement things this way for historical reasons so
     we don't break older and newer clients.
     }
-    case PosInStrArray(ASender.UnparsedParams,TLS_AUTH_NAMES) of
+    case PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) of
       0,2 : LF.DataProtection := ftpdpsClear; //AUTH TLS, AUTH TLS-C
       1,3 : LF.DataProtection := ftpdpsPrivate; //AUTH SSL, AUTH TLS-P
     end;
@@ -4228,7 +4228,7 @@ begin
       ASender.Reply.SetReply(503,RSFTPPROTProtBufRequired);
       Exit;
     end;
-    case PosInStrArray(ASender.UnparsedParams,LValidParams) of
+    case PosInStrArray(ASender.UnparsedParams, LValidParams) of
       0 : begin
             LF.FDataProtection := ftpdpsClear;
             ASender.Reply.SetReply(200,RSFTPProtTypeClear);
@@ -5855,7 +5855,7 @@ begin
     else
     begin
       //set state
-      case PosInStrArray(ASender.Params[0],STATES,False) of
+      case PosInStrArray(ASender.Params[0], STATES, False) of
         0 : //'ON'
         begin
           LF.SSCNOn := True;
@@ -5897,13 +5897,10 @@ var LMin : Integer;
 begin
   LMin := MinutesFromGMT;
   //plus must always be displayed for positive numbers
-  if LMin < 0 then
-  begin
-    ASender.Reply.SetReply(210,Sys.Format('UTC%d',[MinutesFromGMT])); {do not localize}
-  end
-  else
-  begin
-    ASender.Reply.SetReply(210,Sys.Format('UTC+%d',[MinutesFromGMT])); {do not localize}
+  if LMin < 0 then begin
+    ASender.Reply.SetReply(210, Sys.Format('UTC%d', [MinutesFromGMT])); {do not localize}
+  end else begin
+    ASender.Reply.SetReply(210, Sys.Format('UTC+%d', [MinutesFromGMT])); {do not localize}
   end;
 end;
 
@@ -6026,7 +6023,6 @@ begin
 end;
 
 function TIdFTPServer.ReadCommandLine(AContext: TIdContext): string;
-
 var
   c : char;
   i : Integer;
@@ -6049,8 +6045,7 @@ begin
   //a data channel operation if that's the case.
   Result := '';
   AContext.Connection.IOHandler.CheckForDataOnSource(1);
-  if AContext.Connection.IOHandler.InputBufferIsEmpty then
-  begin
+  if AContext.Connection.IOHandler.InputBufferIsEmpty then begin
     Exit;
   end;
   //we do
@@ -6270,19 +6265,10 @@ end;
 procedure TIdFTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil);
 var
   LTmp : String;
-  i : Integer;
   LReply : TIdReply;
-const
-  LWhiteSet = TAB+CHAR32;    {Do not Localize}
 begin
-  LTmp := ALine;
-  //First make the first word Sys.UpperCase
-  for i := 1 to Length(LTmp) do begin
-    if CharIsInSet(LTmp,i,LWhiteSet) then begin
-      Break;
-    end;
-    LTmp[i] := UpCase(LTmp[i]);
-  end;
+  //First make the first word upper-case
+  LTmp := UpCaseFirstWord(ALine);
   try
     if Assigned(AReply) then begin
       LReply := AReply;
@@ -6291,7 +6277,7 @@ begin
       LReply.Assign(ReplyUnknownCommand);
     end;
     LReply.Text.Clear;
-    LReply.Text.Add(Sys.Format(RSFTPCmdNotRecognized,[LTmp]));
+    LReply.Text.Add(Sys.Format(RSFTPCmdNotRecognized, [LTmp]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
@@ -6340,7 +6326,7 @@ const
       begin
         break;
       end;
-      case PosInStrArray(Fetch(Ls,';'),LVALIDOPTS,False) of
+      case PosInStrArray(Fetch(Ls,';'), LVALIDOPTS, False) of
         0 : Result := Result + [ItemType]; //type
         1 : Result := Result + [Size]; //size
         2 : Result := Result + [Modify]; //modify
@@ -6501,12 +6487,12 @@ begin
       //if there's more, than we see if there's a valid option.
       LFirstPar := False;
     end;
-    if LFirstPar and (PosInStrArray(LOptName,OPT_NAMES,False)=-1) then begin
+    if LFirstPar and (PosInStrArray(LOptName, OPT_NAMES, False) = -1) then begin
       SyntaxError(ASender);
       Exit;
     end;
     LFirstPar := False;
-    case PosInStrArray(LOptName,OPT_NAMES,False) of
+    case PosInStrArray(LOptName, OPT_NAMES, False) of
       0 : //'ENGINE'  - we only support ZLIB
           begin
             LError := False;
@@ -6815,7 +6801,8 @@ begin
 end;
 
 procedure TIdDataChannel.InitOperation(const AConnectMode : Boolean = False);
-var LIO : TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
 begin
   try
     if FDataChannel is TIdSimpleServer then
@@ -6844,20 +6831,17 @@ begin
         LIO.Passthrough := False;
       end;
     end
-    else
+    else if FDataChannel is TIdTCPClient then
     begin
-      if FDataChannel is TIdTCPClient then
+      TIdTCPClient(FDataChannel).Connect;
+      if FNegotiateTLS then
       begin
-        TIdTCPClient(FDataChannel).Connect;
-        if FNegotiateTLS then
+        LIO := FDataChannel.IOHandler as TIdSSLIOHandlerSocketBase;
+        if AConnectMode then
         begin
-          LIO := FDataChannel.IOHandler as TIdSSLIOHandlerSocketBase;
-          if AConnectMode then
-          begin
-            LIO.IsPeer := False;
-          end;
-          LIO.Passthrough := False;
+          LIO.IsPeer := False;
         end;
+        LIO.Passthrough := False;
       end;
     end;
   except
