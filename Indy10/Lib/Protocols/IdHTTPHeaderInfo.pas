@@ -74,7 +74,6 @@ uses
   IdSys;
 
 type
-
   TIdEntityHeaderInfo = class(TIdPersistent)
   protected
     FCacheControl: String;
@@ -311,7 +310,7 @@ end;
 procedure TIdEntityHeaderInfo.ProcessHeaders;
 var
   LSecs: Integer;
-  lRangeDecode: string;
+  lValue: string;
   lCRange: string;
   lILength: string;
 begin
@@ -336,13 +335,13 @@ begin
      content-range: bytes */102400
      content-range: bytes 1-65536/*
     }
-    lRangeDecode := Values['Content-Range']; {do not localize}
-    if lRangeDecode <> '' then
+    lValue := Values['Content-Range']; {do not localize}
+    if lValue <> '' then
     begin
       // strip the bytes unit, and keep the range and instance info
-      Fetch(lRangeDecode);
-      lCRange := Fetch(lRangeDecode, '/');
-      lILength := Fetch(lRangeDecode);
+      Fetch(lValue);
+      lCRange := Fetch(lValue, '/');
+      lILength := Fetch(lValue);
 
       FContentRangeStart := Sys.StrToInt64(Fetch(lCRange, '-'), 0);
       FContentRangeEnd := Sys.StrToInt64(lCRange, 0);
@@ -352,16 +351,23 @@ begin
     FDate := GMTToLocalDateTime(Values['Date']); {do not localize}
     FLastModified := GMTToLocalDateTime(Values['Last-Modified']); {do not localize}
 
-    if Sys.StrToInt(Values['Expires'], -1) <> -1 then {do not localize}
+    // RLebeau 01/23/2006 - IIS fix
+    lValue := Values['Expires']; {do not localize}
+    if IsNumeric(lValue) then
     begin
       // This is happening when expires is an integer number in seconds
-      LSecs := Sys.StrToInt(Values['Expires']); {do not localize}
-      FExpires := Sys.Now +  (LSecs / SecsPerDay);
-    end
-    else
+      LSecs := Sys.StrToInt(lValue);
+      // RLebeau 01/23/2005 - IIS sometimes sends an 'Expires: -1' header
+      if LSecs >= 0 then begin
+        FExpires := Sys.Now +  (LSecs / SecsPerDay);
+      end else begin
+        FExpires := 0.0;
+      end;
+    end else
     begin
-      FExpires := GMTToLocalDateTime(Values['Expires']); {do not localize}
+      FExpires := GMTToLocalDateTime(lValue);
     end;
+
     FPragma := Values['Pragma'];  {do not localize}
   end;
 end;
@@ -443,7 +449,6 @@ begin
   Result := (FContentRangeInstanceLength > 0);
 end;
 
-
 function TIdEntityHeaderInfo.GetOwner: TIdPersistent;
 begin
   Result := inherited GetOwner;
@@ -459,10 +464,7 @@ end;
 
 destructor TIdProxyConnectionInfo.Destroy;
 begin
-  if Assigned(FAuthentication) then
-  begin
-    Sys.FreeAndNil(FAuthentication);
-  end;
+  Sys.FreeAndNil(FAuthentication);
   inherited Destroy;
 end;
 
@@ -716,10 +718,7 @@ end;
 
 destructor TIdRequestHeaderInfo.Destroy;
 begin
-  if Assigned(Authentication) then
-  begin
-    Sys.FreeAndNil(FAuthentication);
-  end;
+  Sys.FreeAndNil(FAuthentication);
   inherited Destroy;
 end;
 
