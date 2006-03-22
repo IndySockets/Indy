@@ -115,7 +115,7 @@ procedure TIdLogFile.Open;
 begin
   if not IsDesignTime then
   begin
-    FFileStream := TAppendFileStream.Create(Filename);
+    FFileStream := TIdAppendFileStream.Create(Filename);
   end;
 end;
 
