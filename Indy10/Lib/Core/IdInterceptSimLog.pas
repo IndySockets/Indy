@@ -61,11 +61,8 @@ type
     FFilename: string;
     FStream: TIdStream;
     //
-    procedure SetFilename(AValue: string);
-    procedure WriteRecord(
-      ATag: string;
-      ABuffer: TIdBytes
-      );
+    procedure SetFilename(const AValue: string);
+    procedure WriteRecord(const ATag: string; const ABuffer: TIdBytes);
   public
     procedure Connect(AConnection: TIdNativeComponent); override;
     procedure Disconnect; override;
@@ -87,7 +84,7 @@ begin
   inherited Connect(AConnection);
   // Warning! This will overwrite any existing file. It makes no sense
   // to concatenate sim logs.
-  FStream := TIdFileStream.Create(Filename, fmCreate);
+  FStream := TIdFileCreateStream.Create(Filename);
 end;
 
 procedure TIdInterceptSimLog.Disconnect;
@@ -108,26 +105,24 @@ begin
   WriteRecord('Send', ABuffer); {do not localize}
 end;
 
-procedure TIdInterceptSimLog.SetFilename(AValue: string);
+procedure TIdInterceptSimLog.SetFilename(const AValue: string);
 begin
   EIdException.IfAssigned(FStream, RSLogFileAlreadyOpen);
   FFilename := AValue;
 end;
 
-procedure TIdInterceptSimLog.WriteRecord(
-  ATag: string;
-  ABuffer: TIdBytes
-  );
+procedure TIdInterceptSimLog.WriteRecord(const ATag: string; const ABuffer: TIdBytes);
 var
   i: Integer;
   LUseEOL: Boolean;
+  LSize: Integer;
 begin
   LUseEOL := False;
-  if Length(ABuffer) > 1 then begin
-    if (ABuffer[Length(ABuffer) - 2] = 13)
-     and (ABuffer[Length(ABuffer) - 1] = 10) then begin
+  LSize := Length(ABuffer);
+  if LSize > 1 then begin
+    if (ABuffer[LSize - 2] = 13) and (ABuffer[LSize - 1] = 10) then begin
       LUseEOL := True;
-      for i := 0 to Length(ABuffer) - 3 do begin
+      for i := 0 to LSize - 3 do begin
         // If any binary, CR or LF
         if (ABuffer[i] < 32) or (ABuffer[i] > 127) then begin
           LUseEOL := False;
@@ -140,10 +135,10 @@ begin
     if LUseEOL then begin
       WriteLn(ATag + ':EOL'); {do not localize}
     end else begin
-      WriteLn(ATag + ':Bytes:' + Sys.IntToStr(Length(ABuffer)));  {do not localize}
+      WriteLn(ATag + ':Bytes:' + Sys.IntToStr(LSize));  {do not localize}
     end;
     WriteStringToStream(FStream, '');
-    WriteTIdBytesToStream(FStream, ABuffer);
+    WriteTIdBytesToStream(FStream, ABuffer, LSize);
     WriteStringToStream(FStream, EOL);
   end;
 end;
