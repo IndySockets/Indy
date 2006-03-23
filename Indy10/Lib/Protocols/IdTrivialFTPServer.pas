@@ -146,7 +146,7 @@ begin
     begin
       if SourceStream = nil then
       begin
-        SourceStream :=  TReadFileExclusiveStream.Create(FileName);
+        SourceStream :=  TIdReadFileExclusiveStream.Create(FileName);
         FreeOnComplete := True;
       end;
       TIdTFTPServerSendFileThread.Create(self, Mode, PeerInfo, SourceStream,
@@ -290,7 +290,7 @@ begin
     begin
       if DestinationStream = nil then
       begin
-        DestinationStream := TFileCreateStream.Create(FileName);
+        DestinationStream := TIdFileCreateStream.Create(FileName);
         FreeOnComplete := True;
       end;
       TIdTFTPServerReceiveFileThread.Create(self, Mode, PeerInfo,

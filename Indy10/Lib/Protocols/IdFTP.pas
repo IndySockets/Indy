@@ -1303,13 +1303,13 @@ begin
   AResume := AResume and CanResume;
   if ACanOverwrite and (not AResume) then begin
     Sys.DeleteFile(ADestFile);
-    LDestStream := TFileCreateStream.Create(ADestFile);
+    LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else if (not ACanOverwrite) and AResume then begin
-    LDestStream := TAppendFileStream.Create(ADestFile);
+    LDestStream := TIdAppendFileStream.Create(ADestFile);
   end
   else if not Sys.FileExists(ADestFile) then begin
-    LDestStream := TFileCreateStream.Create(ADestFile);
+    LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else begin
     raise EIdFTPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
@@ -1844,7 +1844,7 @@ begin
   if LDestFileName = '' then begin
    LDestFileName := Sys.ExtractFileName(ASourceFile);
   end;
-  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
+  LSourceStream := TIdReadFileNonExclusiveStream.Create(ASourceFile); try
     Put(LSourceStream, LDestFileName, AAppend);
   finally Sys.FreeAndNil(LSourceStream); end;
 end;
@@ -1858,7 +1858,7 @@ procedure TIdFTP.StoreUnique(const ASourceFile: string);
 var
   LSourceStream: TIdStream;
 begin
-  LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile); try
+  LSourceStream := TIdReadFileNonExclusiveStream.Create(ASourceFile); try
     StoreUnique(LSourceStream);
   finally Sys.FreeAndNil(LSourceStream); end;
 end;
@@ -3782,7 +3782,7 @@ begin
   if LRemoteFileName = '' then begin
     LRemoteFileName := Sys.ExtractFileName(ARemoteFile);
   end;
-  LLocalStream := TReadFileNonExclusiveStream.Create(ALocalFile); try
+  LLocalStream := TIdReadFileNonExclusiveStream.Create(ALocalFile); try
     Result := VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AByteCount);
   finally Sys.FreeAndNil(LLocalStream); end;
 end;

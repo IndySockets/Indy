@@ -147,7 +147,7 @@ var
     j: Integer;
   begin
     for j := 1 to Length(sLineBreak) do begin
-      if (LBufferIndex <= LBufferLen) and CharIsInEOF(LBuffer, LBufferIndex) then begin
+      if (LBufferIndex <= LBufferLen) and CharIsInEOL(LBuffer, LBufferIndex) then begin
         Inc(LBufferIndex);
       end else begin
         break;
@@ -228,7 +228,7 @@ begin
         end;
         if i > 0 then begin
           //if =20 + EOL, this is a hard line break after a space
-          if (b = 32) and (LBufferIndex <= LBufferLen) and CharIsInEOF(LBuffer, LBufferIndex) then begin
+          if (b = 32) and (LBufferIndex <= LBufferLen) and CharIsInEOL(LBuffer, LBufferIndex) then begin
             WriteStringToStream(FStream, Char(b) + EOL);
             StripEOLChars;
           end else begin
