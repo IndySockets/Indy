@@ -543,9 +543,10 @@ type
     property Response: TIdHTTPResponse read GetResponseHeaders;
     { This is the last processed URL }
     property URL: TIdURI read FURI;
-    // number of retry attempts for Authentication
-    property AuthRetries: Integer read FAuthRetries write FAuthRetries;
-    property AuthProxyRetries: Integer read FAuthProxyRetries write FAuthProxyRetries;
+    //number of retry attempts that were made for Authentication.
+    //See the Max* properties to set the limits
+    property AuthRetries: Integer read FAuthRetries;
+    property AuthProxyRetries: Integer read FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
     property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
@@ -1741,7 +1742,7 @@ end;
 
 function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TIdHTTPWhatsNext;
 
-  procedure CheckException(AResponseCode: Integer; AIgnoreReplies: array of SmallInt,
+  procedure CheckException(AResponseCode: Integer; AIgnoreReplies: array of Smallint;
     AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     i: Integer;
@@ -1750,7 +1751,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
   begin
     LTempResponse := TIdStringStream.Create('');
     LTempStream := Response.ContentStream;
-    Response.ContentStream := LRespStream;
+    Response.ContentStream := LTempResponse;
     try
       FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
       if High(AIgnoreReplies) > -1 then begin
@@ -1760,7 +1761,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
           end;
         end;
       end;
-      raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText, LTempStream.DataString);
+      raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText, LTempResponse.DataString);
     finally
       Response.ContentStream := LTempStream;
       Sys.FreeAndNil(LTempResponse);
@@ -1796,7 +1797,7 @@ var
   LMethod: TIdHTTPMethod;
   LNeedAuth: Boolean;
   LResponseCode, LResponseDigit: Integer;
-  LTemp: Integer;
+  //LTemp: Integer;
 begin
 
   // provide the user with the headers and let the user decide
