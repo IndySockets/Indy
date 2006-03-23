@@ -336,7 +336,7 @@ begin
     else
       begin
         Result := False; //failure
-        Break;
+        Exit;
       end;
     end;
   end;
