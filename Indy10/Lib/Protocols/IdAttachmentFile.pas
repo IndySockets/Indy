@@ -107,7 +107,7 @@ end;
 
 function TIdAttachmentFile.OpenLoadStream: TIdStream;
 begin
-  FTempFileStream := TReadFileExclusiveStream.Create(StoredPathName);
+  FTempFileStream := TIdReadFileExclusiveStream.Create(StoredPathName);
   Result := FTempFileStream;
 end;
 

@@ -902,7 +902,7 @@ var
     //we do it this way so we can take advantage of the StringBuilder in DotNET.
     ReplaceOld, ReplaceNew: array of string;
   begin
-    LTokens := TIdStringList;
+    LTokens := TIdStringList.Create;
     try
       if Pos('$hostname', LReceivedString) <> 0 then begin                  {do not localize}
         LTokens.Add('$hostname=' + AddrFromHost(LContext.Binding.PeerIP));  {do not localize}

@@ -79,7 +79,7 @@ begin
     if FFilename = '' then begin
       FFilename := Sys.ChangeFileExt(ParamStr(0), '.log'); {do not localize}  //BGO: TODO: Do we keep this, or maybe raise an exception?
     end;
-    FFileStream := TAppendFileStream.Create(FFileName);
+    FFileStream := TIdAppendFileStream.Create(FFileName);
   end;
 end;
 
