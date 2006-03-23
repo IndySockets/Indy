@@ -420,7 +420,7 @@ type
     FLastByteRecv: Byte;
     function ReadFromSource(
       ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
-       ARaiseExceptionOnTimeout: Boolean): Integer; override;
+      ARaiseExceptionOnTimeout: Boolean): Integer; override;
   public
     constructor Create(
       AOwner: TIdNativeComponent;
@@ -733,7 +733,8 @@ var
     Assert(Assigned(LAttachment), 'Attachment must not be unassigned here!'); {Do not localize}
     with LAttachment do begin
       try
-        LDestStream := PrepareTempStream; try
+        LDestStream := PrepareTempStream;
+        try
           Result := ADecoder.ReadBody(LDestStream, LMsgEnd);
           if AMsg.IsMsgSinglePartMime then begin
             ContentType := ResolveContentType(AMsg.Headers.Values[SContentType]);    {do not localize}
@@ -824,8 +825,8 @@ begin
           {CC: This code assumes the preamble text (before the first boundary)
           is plain text.  I cannot imagine it not being, but if it arises, lines
           will have to be decoded.}
-          LLine := IOHandler.ReadLn;
-          if LLine = ADelim then begin
+          LLine := IOHandler.ReadLnRFC(LMsgEnd, LF, ADelim);
+          if LMsgEnd then begin
             Break;
           end;
           if LActiveDecoder = nil then begin
@@ -833,9 +834,6 @@ begin
           end;
           // Check again, the if above can set it.
           if LActiveDecoder = nil then begin
-            if (LLine <> '') and (LLine[1] = '.') then begin             {do not localize}
-              Delete(LLine, 1, 1);
-            end;
             AMsg.Body.Add(LLine);
           end else begin
             RemoveLastBlankLine(AMsg.Body);
@@ -937,9 +935,10 @@ var
     end;
     IOHandler.WriteLn(GenerateTextPartContentType(ATextPart.ContentType, ATextPart.CharSet));
 
-    if ( (not TextIsSame(ATextPart.ContentTransfer, 'quoted-printable')) {do not localize}
-     and (not TextIsSame(ATextPart.ContentTransfer, 'base64')) {do not localize}
-     and ATextPart.IsBodyEncodingRequired ) then begin
+    if (not TextIsSame(ATextPart.ContentTransfer, 'quoted-printable')) {do not localize}
+      and (not TextIsSame(ATextPart.ContentTransfer, 'base64')) {do not localize}
+      and ATextPart.IsBodyEncodingRequired then
+    begin
       ATextPart.ContentTransfer := '8bit';                    {do not localize}
     end;
     IOHandler.WriteLn(SContentTransferEncoding + ': ' + ATextPart.ContentTransfer); {do not localize}
@@ -954,11 +953,11 @@ var
 
     if TextIsSame(ATextPart.ContentTransfer, 'quoted-printable') then begin {do not localize}
       LData := '';
-      for i := 0 to ATextPart.Body.Count - 1 do begin
+            for i := 0 to ATextPart.Body.Count - 1 do begin
         LBodyLine := ATextPart.Body[i];
         if (LBodyLine <> '') and (LBodyLine[1] = '.') then begin           {do not localize}
           ATextPart.Body[i] := '.' + LBodyLine;                            {do not localize}
-        end;
+            end;
         with TIdEncoderQuotedPrintable.Create do try
           LData := Encode(ATextPart.Body[i] + EOL);
         finally Free; end;
@@ -966,9 +965,9 @@ var
           IOHandler.Write(Encode2022JP(LData))
         end else begin
           IOHandler.Write(LData);
+          end;
         end;
-      end;
-      if (LData <> '') and not CharIsInEOF(LData, Length(LData)) then begin
+      if (LData <> '') and not CharIsInEOL(LData, Length(LData)) then begin
         { The last line has no line break, add it to get a blank line when
           WriteTextPart returns. This should not happen because quoted-printable
           does not remove the EOL. }
@@ -1013,9 +1012,9 @@ begin
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);
       //CC2: Now output AMsg.Body in the chosen encoding...
       LDestStream := TIdTCPStream.Create(Self); try
-        if TextIsSame(AMsg.ContentTransferEncoding, 'base64') then begin  {do not localize}
+      if TextIsSame(AMsg.ContentTransferEncoding, 'base64') then begin  {do not localize}
           LEncoder := TIdMessageEncoder(TIdMessageEncoderMIME.Create(Self));
-        end else begin  {'quoted-printable'}
+      end else begin  {'quoted-printable'}
           LEncoder := TIdMessageEncoder(TIdMessageEncoderQuotedPrintable.Create(Self));
         end;
         try
@@ -1118,7 +1117,7 @@ begin
           //Secondly, if AMsg.MessageParts.TextPartCount > 0, he may have put the
           //message text in the part, so don't convert the body.
           //Thirdly, if AMsg.MessageParts.Count = 0, then it has no other parts
-          //anyway: in this case, output it without boundaries.
+          //anyway: in this case, output it without boundaries. 
           //if (AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0)) then begin
           if (AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0) and (AMsg.MessageParts.Count > 0)) then begin
             //CC2: There is no text part, the user has not changed ConvertPreamble from
@@ -1246,9 +1245,10 @@ begin
             IOHandler.WriteLn('');
             LDestStream := TIdTCPStream.Create(Self);
             try
-              if ((TextIsSame(LAttachment.ContentTransfer, 'base64') = False) and {do not localize}
-               (TextIsSame(LAttachment.ContentTransfer, 'quoted-printable') = False) and {do not localize}
-               (TextIsSame(LAttachment.ContentTransfer, 'binhex40') = False)) then begin {do not localize}
+              if (not TextIsSame(LAttachment.ContentTransfer, 'base64')) and {do not localize}
+                (not TextIsSame(LAttachment.ContentTransfer, 'quoted-printable')) and {do not localize}
+                (not TextIsSame(LAttachment.ContentTransfer, 'binhex40')) then {do not localize}
+              begin
                 LSrcStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
                 try
                   while GetLine(LSrcStream, LLine) do begin
@@ -1328,14 +1328,16 @@ begin
 end;
 
 function TIdMessageClient.ReceiveHeader(AMsg: TIdMessage; const AAltTerm: string = ''): string;
+var
+  LMsgEnd: Boolean;
 begin
   BeginWork(wmRead); try
     repeat
-      Result := IOHandler.ReadLn;
+      Result := IOHandler.ReadLnRFC(LMsgEnd);
       // Exchange Bug: Exchange sometimes returns . when getting a message instead of
       // '' then a . - That is there is no seperation between the header and the message for an
       // empty message.
-      if ((Length(AAltTerm) = 0) and (Result = '.')) or  {do not localize}
+      if ((Length(AAltTerm) = 0) and LMsgEnd) or  {do not localize}
          ({APR: why? (Length(AAltTerm) > 0) and }(Result = AAltTerm)) then begin
         Break;
       end else if Result <> '' then begin
@@ -1382,7 +1384,7 @@ procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; const AFilename: str
 var
   LStream: TIdStream;
 begin
-  LStream := TReadFileExclusiveStream.Create(AFileName); try
+  LStream := TIdReadFileExclusiveStream.Create(AFileName); try
     ProcessMessage(AMsg, LStream, AHeaderOnly);
   finally Sys.FreeAndNil(LStream); end;
 end;
@@ -1402,11 +1404,9 @@ begin
 
   for i := 0 to ABody.Count - 1 do begin
     LBodyLine := ABody[i];
-    if Copy(ABody[i], 1, 1) = '.' then  {do not localize}
-    begin
+    if TextStartsWith(ABody[i], '.') then begin {do not localize}
       IOHandler.WriteLn('.' + LBodyLine);   {do not localize}
-    end
-    else begin
+    end else begin
       IOHandler.WriteLn(LBodyLine);
     end;
   end;
