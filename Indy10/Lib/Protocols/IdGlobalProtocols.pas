@@ -1726,7 +1726,7 @@ begin
   for I := 1 to Length(AStr) do begin
     if CharIsInSet(AStr, I, LWhiteSet) then begin
       if I > 1 then begin
-        Result := UpCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
+        Result := UpperCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
         Exit;
       end;
       Break;
