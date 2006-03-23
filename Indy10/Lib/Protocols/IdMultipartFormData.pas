@@ -263,10 +263,10 @@ end;
 procedure TIdMultiPartFormDataStream.AddFile(const AFieldName, AFileName,
   AContentType: string);
 var
-  LStream: TReadFileExclusiveStream;
+  LStream: TIdReadFileExclusiveStream;
   LItem: TIdFormDataField;
 begin
-  LStream := TReadFileExclusiveStream.Create(AFileName);
+  LStream := TIdReadFileExclusiveStream.Create(AFileName);
   try
     LItem := FFields.Add;
   except

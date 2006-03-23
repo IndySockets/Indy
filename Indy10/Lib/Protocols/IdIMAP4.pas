@@ -2735,7 +2735,7 @@ var
     LText: TextFile;
     LTempPathname: string;
     LDestStream: TIdTCPStream;
-    LSourceStream: TReadFileNonExclusiveStream;
+    LSourceStream: TIdReadFileNonExclusiveStream;
     LLengthOfAMsgHeaders: integer;
     LLengthOfFileHeaders: integer;
     LLine: string;
@@ -2781,7 +2781,7 @@ begin
         LTempPathname := MakeTempFilename;
         AMsg.SaveToFile(LTempPathname);
 
-        LSourceStream := TReadFileNonExclusiveStream.Create(LTempPathname);
+        LSourceStream := TIdReadFileNonExclusiveStream.Create(LTempPathname);
         LLength := LSourceStream.Size;
         Sys.FreeAndNil(LSourceStream);
         {Get the size of the headers (by opening it as a text file) which
@@ -2827,7 +2827,7 @@ begin
                 LDestStream.Connection.OnWork := FOnWorkForPart;
                 LDestStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
                 LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
-                LSourceStream := TReadFileNonExclusiveStream.Create(LTempPathname);
+                LSourceStream := TIdReadFileNonExclusiveStream.Create(LTempPathname);
                 try
                     WriteStringToStream(LDestStream, LHeadersAsString);
                     //Change from CopyFrom to WriteStream (I think) to get OnWork invoked, as we do elsewhere
@@ -2864,9 +2864,9 @@ end;
 
 function  TIdIMAP4.AppendMsgNoEncodeFromFile(const AMBName: String; ASourceFile: string; const AFlags: TIdMessageFlagsSet = []): Boolean;
 var
-    LSourceStream: TReadFileNonExclusiveStream;
+    LSourceStream: TIdReadFileNonExclusiveStream;
 begin
-    LSourceStream := TReadFileNonExclusiveStream.Create(ASourceFile);
+    LSourceStream := TIdReadFileNonExclusiveStream.Create(ASourceFile);
     try
         Result := AppendMsgNoEncodeFromStream(AMBName, LSourceStream, AFlags);
     finally
@@ -3886,7 +3886,7 @@ begin
                 bCreatedStream := False;
                 if ADestStream = nil then begin
                     {User wants to write it to a file...}
-                    ADestStream := TFileCreateStream.Create(ADestFileNameAndPath);
+                    ADestStream := TIdFileCreateStream.Create(ADestFileNameAndPath);
                     bCreatedStream := True;
                 end;
                 if TextIsSame(AContentTransferEncoding, 'base64') then begin  {Do not Localize}
@@ -4263,7 +4263,7 @@ var
     LCmd: string;
     LTempPathname: string;
     LSourceStream: TIdTCPStream;
-    LDestStream: TFileCreateStream;
+    LDestStream: TIdFileCreateStream;
 begin
     Result := False;
     CheckConnectionState(csSelected);
@@ -4300,7 +4300,7 @@ begin
                 LSourceStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
                 LSourceStream.Connection.OnWorkEnd := FOnWorkEndForPart;
                 LTempPathname := MakeTempFilename;
-                LDestStream := TFileCreateStream.Create(LTempPathname);
+                LDestStream := TIdFileCreateStream.Create(LTempPathname);
                 try
                     LSourceStream.Connection.IOHandler.ReadStream(LDestStream, FLineStruct.ByteCount);  //ReadStream uses OnWork, most other methods dont
                     LSourceStream.Connection.OnWork := nil;
