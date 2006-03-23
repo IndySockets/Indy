@@ -543,10 +543,9 @@ type
     property Response: TIdHTTPResponse read GetResponseHeaders;
     { This is the last processed URL }
     property URL: TIdURI read FURI;
-    //number of retry attempts that were made for Authentication.
-    //See the Max* properties to set the limits
-    property AuthRetries: Integer read FAuthRetries;
-    property AuthProxyRetries: Integer read FAuthProxyRetries;
+    // number of retry attempts for Authentication
+    property AuthRetries: Integer read FAuthRetries write FAuthRetries;
+    property AuthProxyRetries: Integer read FAuthProxyRetries write FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
     property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
