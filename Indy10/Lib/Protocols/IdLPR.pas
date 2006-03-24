@@ -155,18 +155,18 @@ type
     procedure SeTIdLPRControlFile(const Value: TIdLPRControlFile);
     procedure CheckReply;
     function GetJobId: String;
-    procedure SetJobId(Value: String);
+    procedure SetJobId(const Value: String);
     procedure InternalPrint(Data: TIdStream);
     function GetControlData: String;
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    procedure Print(AText: String); overload;
+    procedure Print(const AText: String); overload;
     procedure Print(const ABuffer: TIdBytes); overload;
-    procedure PrintFile(AFileName: String);
+    procedure PrintFile(const AFileName: String);
     function GetQueueState(const AShortFormat: Boolean = False; const AList : String = '') : String;    {Do not Localize}
     procedure PrintWaitingJobs;
-    procedure RemoveJobList(AList : String; const AAsRoot: Boolean =False);
+    procedure RemoveJobList(const AList: String; const AAsRoot: Boolean = False);
     property JobId: String read GetJobId write SetJobId;
   published
     property Queue: String read FQueue write FQueue;
@@ -205,7 +205,7 @@ begin
 end;
 
 
-procedure TIdLPR.Print(AText: String);
+procedure TIdLPR.Print(const AText: String);
 var
   LStream: TIdStream;
 begin
@@ -225,7 +225,7 @@ var
 begin
   LStream := TIdMemoryStream.Create;
   try
-    WriteTIdBytesToStream(LStream, ABuffser);
+    WriteTIdBytesToStream(LStream, ABuffer);
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
@@ -233,7 +233,7 @@ begin
   end;
 end;
 
-procedure TIdLPR.PrintFile(AFileName: String);
+procedure TIdLPR.PrintFile(const AFileName: String);
 var
   LStream: TIdReadFileExclusiveStream;
   p: Integer;
@@ -253,7 +253,7 @@ begin
   Result := Sys.Format('%.3d', [FJobId]);    {Do not Localize}
 end;
 
-procedure TIdLPR.SetJobId(Value: String);
+procedure TIdLPR.SetJobId(const Value: String);
 var
   I: Integer;
 begin
@@ -266,8 +266,7 @@ end;
 procedure TIdLPR.InternalPrint(Data: TIdStream);
 begin
   try
-    if not Connected then
-    begin
+    if not Connected then begin
       Exit;
     end;
     Inc(FJobID);
@@ -306,8 +305,7 @@ begin
   end;
 end;
 
-function TIdLPR.GetQueueState(const AShortFormat: Boolean = False;
-  const AList : String = '') : String;    {Do not Localize}
+function TIdLPR.GetQueueState(const AShortFormat: Boolean = False; const AList : String = '') : String;    {Do not Localize}
 begin
   DoOnLPRStatus(psGettingQueueState, AList);
   if AShortFormat then begin
@@ -396,7 +394,7 @@ begin
       Data := Data + 'NcfA' + JobId + HostName + LF;    {Do not Localize}
 
       if FFileFormat = ffFormattedText then begin
-        if (IndentCount > 0) then begin
+        if IndentCount > 0 then begin
           Data := Data + 'I' + Sys.IntToStr(IndentCount) + LF;    {Do not Localize}
         end;
         if OutputWidth > 0 then begin
@@ -453,7 +451,7 @@ begin
   end;
 end;
 
-procedure TIdLPR.RemoveJobList(AList: String; const AAsRoot: Boolean =False);
+procedure TIdLPR.RemoveJobList(const AList: String; const AAsRoot: Boolean = False);
 begin
   try
     DoOnLPRStatus(psDeletingJobs, JobID);
@@ -477,8 +475,8 @@ var
   Ret : Byte;
 begin
   Ret := IOHandler.ReadByte;
-  if Ret <> #0 then begin
-    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError, [Ret, JobID]));
+  if Ret <> $00 then begin
+    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError, [Integer(Ret), JobID]));
   end;
 end;
 
