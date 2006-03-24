@@ -544,8 +544,8 @@ type
     { This is the last processed URL }
     property URL: TIdURI read FURI;
     // number of retry attempts for Authentication
-    property AuthRetries: Integer read FAuthRetries write FAuthRetries;
-    property AuthProxyRetries: Integer read FAuthProxyRetries write FAuthProxyRetries;
+    property AuthRetries: Integer read FAuthRetries;
+    property AuthProxyRetries: Integer read FAuthProxyRetries;
     // maximum number of Authentication retries permitted
     property MaxAuthRetries: Integer read FMaxAuthRetries write FMaxAuthRetries default Id_TIdHTTP_MaxAuthRetries;
     property AllowCookies: Boolean read FAllowCookies write SetAllowCookies;
@@ -580,9 +580,6 @@ type
 
   TIdHTTP = class(TIdCustomHTTP)
   published
-    // number of retries attempted for Authentication
-    property AuthRetries;
-    property AuthProxyRetries;
     // number of Authentication retries permitted
     property MaxAuthRetries;
     property AllowCookies;
