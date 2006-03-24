@@ -63,18 +63,17 @@ uses
   IdTCPClient;
 
 type
-  TIdEcho = class(TIdTCPClientCustom)
+  TIdEcho = class(TIdTCPClient)
   protected
     FEchoTime: Cardinal;
     procedure InitComponent; override;
   public
     {This sends Text to the peer and returns the reply from the peer}
-    Function Echo(AText: String): String;
+    function Echo(const AText: String): String;
     {Time taken to send and receive data}
-    Property EchoTime: Cardinal read FEchoTime;
+    property EchoTime: Cardinal read FEchoTime;
   published
     property Port default IdPORT_ECHO;
-    property Host;
   end;
 
 implementation
@@ -83,7 +82,7 @@ uses
   IdComponent,
   IdGlobal,
   IdTCPConnection,
-   IdIOHandler;
+  IdIOHandler;
 
 { TIdEcho }
 
@@ -93,30 +92,22 @@ begin
   Port := IdPORT_ECHO;
 end;
 
-function TIdEcho.Echo(AText: String): String;
+function TIdEcho.Echo(const AText: String): String;
 var
+  LBuffer: TIdBytes;
+  LLen: Integer;
   StartTime: Cardinal;
 begin
   {Send time monitoring}
-  BeginWork(wmWrite, Length(AText)+2);
-  try
-    StartTime := IdGlobal.Ticks;
-    IOHandler.Write(AText);
-  finally
-    EndWork(wmWrite);
-  end;
-  {Receive time monitoring}
-  BeginWork(wmRead);
-  try
-    IOHandler.CheckForDataOnSource;
-    Result := IOHandler.InputBufferAsString;
-    //CurrentReadBuffer;
-    {This is just in case the TickCount rolled back to zero}
-    FEchoTime :=  GetTickDiff(StartTime,Ticks);
-
-  finally
-    EndWork(wmRead);
-  end;
+  LBuffer := ToBytes(AText);
+  LLen := Length(LBuffer);
+  {Send time monitoring}
+  StartTime := Ticks;
+  IOHandler.Write(LBuffer);
+  IOHandler.ReadBytes(LBuffer, LLen, False);
+  {This is just in case the TickCount rolled back to zero}
+  FEchoTime := GetTickDiff(StartTime, Ticks);
+  Result := BytesToString(LBuffer);
 end;
 
 end.
