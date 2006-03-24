@@ -70,8 +70,8 @@ unit IdLPR;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdException, IdTCPClient, IdComponent,
-  IdSys, IdBaseComponent, IdObjs;
+  IdAssignedNumbers, IdGlobal, IdException, IdTCPClient,
+  IdComponent, IdSys, IdBaseComponent, IdObjs;
 
 type
   TIdLPRFileFormat =
@@ -88,7 +88,7 @@ type
      ffSunRaster); //  Sun raster format file
 
 const
-  DEF_FILEFormat = ffControlCharText;
+  DEF_FILEFORMAT = ffControlCharText;
   DEF_INDENTCOUNT = 0;
   DEF_BANNERPAGE = False;
   DEF_OUTPUTWIDTH = 0;
@@ -118,26 +118,19 @@ type
     property HostName: String read FHostName write FHostName;
   published
     property BannerClass: String read FBannerClass write FBannerClass;
-    property IndentCount: Integer read FIndentCount write FIndentCount
-      default DEF_INDENTCOUNT;
+    property IndentCount: Integer read FIndentCount write FIndentCount default DEF_INDENTCOUNT;
     property JobName: String read FJobName write FJobName;
-    property BannerPage: Boolean read FBannerPage write FBannerPage
-      default DEF_BANNERPAGE;
+    property BannerPage: Boolean read FBannerPage write FBannerPage default DEF_BANNERPAGE;
     property UserName: String read FUserName write FUserName;
-    property OutputWidth: Integer read FOutputWidth write FOutputWidth
-      default DEF_OUTPUTWIDTH;
-    property FileFormat: TIdLPRFileFormat read FFileFormat write FFileFormat
-      default DEF_FILEFormat;
+    property OutputWidth: Integer read FOutputWidth write FOutputWidth default DEF_OUTPUTWIDTH;
+    property FileFormat: TIdLPRFileFormat read FFileFormat write FFileFormat default DEF_FILEFORMAT;
     {font data }
     property TroffRomanFont : String read FTroffRomanFont write FTroffRomanFont;
-    property TroffItalicFont : String read FTroffItalicFont
-      write FTroffItalicFont;
+    property TroffItalicFont : String read FTroffItalicFont write FTroffItalicFont;
     property TroffBoldFont : String read FTroffBoldFont write FTroffBoldFont;
-    property TroffSpecialFont : String read FTroffSpecialFont
-      write FTroffSpecialFont;
+    property TroffSpecialFont : String read FTroffSpecialFont write FTroffSpecialFont;
     {misc}
-    property MailWhenPrinted : Boolean read FMailWhenPrinted
-      write FMailWhenPrinted default DEF_MAILWHENPRINTED;
+    property MailWhenPrinted : Boolean read FMailWhenPrinted write FMailWhenPrinted default DEF_MAILWHENPRINTED;
   end;
 
 type
@@ -162,7 +155,7 @@ type
     procedure SeTIdLPRControlFile(const Value: TIdLPRControlFile);
     procedure CheckReply;
     function GetJobId: String;
-    procedure SetJobId(JobId: String);
+    procedure SetJobId(Value: String);
     procedure InternalPrint(Data: TIdStream);
     function GetControlData: String;
     procedure InitComponent; override;
@@ -171,8 +164,7 @@ type
     procedure Print(AText: String); overload;
     procedure Print(const ABuffer: TIdBytes); overload;
     procedure PrintFile(AFileName: String);
-    function GetQueueState(const AShortFormat: Boolean = false;
-      const AList : String = '') : String;    {Do not Localize}
+    function GetQueueState(const AShortFormat: Boolean = False; const AList : String = '') : String;    {Do not Localize}
     procedure PrintWaitingJobs;
     procedure RemoveJobList(AList : String; const AAsRoot: Boolean =False);
     property JobId: String read GetJobId write SetJobId;
@@ -182,16 +174,19 @@ type
     property OnLPRStatus: TIdLPRStatusEvent read FOnLPRStatus write FOnLPRStatus;
   end;
 
-type EIdLPRErrorException = class(EIdException);
+type
+  EIdLPRErrorException = class(EIdException);
 
 implementation
 
 uses
   IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
 
+{ TIdLPR }
+
 procedure TIdLPR.InitComponent;
 begin
-  Inherited;
+  inherited InitComponent;
 
   Port := IdPORT_LPD;
   Queue := 'pr1';    {Do not Localize}
@@ -204,9 +199,9 @@ begin
 //  known -problem with this some trouble while multible printjobs are running
 //  This is the FD_WAIT port problem where a port is in a FD_WAIT state
 //  but you can bind to it.  You get a port reuse error.
-  IOHandler := TIdIOHandlerStack.Create(nil);
-  TIdIOHandlerStack(IOHandler).BoundPortMin:=721;;
-  TIdIOHandlerStack(IOHandler).BoundPortMax:=731; ;
+  IOHandler := TIdIOHandlerStack.Create(Self);
+  TIdIOHandlerStack(IOHandler).BoundPortMin := 721;
+  TIdIOHandlerStack(IOHandler).BoundPortMax := 731;
 end;
 
 
@@ -226,11 +221,11 @@ end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TIdStream;
+  LStream: TIdMemoryStream;
 begin
   LStream := TIdMemoryStream.Create;
   try
-    LStream.Write(ABuffer, High(ABuffer));
+    WriteTIdBytesToStream(LStream, ABuffser);
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
@@ -240,12 +235,12 @@ end;
 
 procedure TIdLPR.PrintFile(AFileName: String);
 var
-  LStream: TReadFileExclusiveStream;
+  LStream: TIdReadFileExclusiveStream;
   p: Integer;
 begin
   p := RPos(GPathDelim, AFileName);
   ControlFile.JobName := Copy(AFileName, p+1, Length(AFileName)-p);
-  LStream := TReadFileExclusiveStream.Create(AFileName);
+  LStream := TIdReadFileExclusiveStream.Create(AFileName);
   try
     InternalPrint(LStream);
   finally
@@ -255,67 +250,71 @@ end;
 
 function TIdLPR.GetJobId: String;
 begin
-  Result:=Sys.Format('%.3d', [FJobId]);    {Do not Localize}
+  Result := Sys.Format('%.3d', [FJobId]);    {Do not Localize}
 end;
 
-procedure TIdLPR.SetJobId(JobId: String);
+procedure TIdLPR.SetJobId(Value: String);
+var
+  I: Integer;
 begin
-  if Sys.StrToInt(JobId) < 999 then
-    FJobId:=Sys.StrToInt(JobId);
+  I := Sys.StrToInt(Value);
+  if I < 999 then begin
+    FJobId := I;
+  end;
 end;
 
 procedure TIdLPR.InternalPrint(Data: TIdStream);
 begin
   try
-    if Connected then
+    if not Connected then
     begin
-      Inc(FJobID);
-      if FJobID > 999 then
-      begin
-        FJobID:=1;
-      end;
-      DoOnLPRStatus(psPrinting, JobID);
-      try
-       	ControlFile.HostName:=GStack.HostName
-      except
-       	ControlFile.HostName:='localhost';    {Do not Localize}
-      end;
+      Exit;
+    end;
+    Inc(FJobID);
+    if FJobID > 999 then begin
+      FJobID := 1;
+    end;
+    DoOnLPRStatus(psPrinting, JobID);
+    try
+      ControlFile.HostName := GStack.HostName
+    except
+      ControlFile.HostName := 'localhost';    {Do not Localize}
+    end;
 
-      // Receive a printer job
-      Write(#02 + Queue + LF);
-      CheckReply;
-      // Receive control file
-      Write(#02 + Sys.IntToStr(Length(GetControlData)) +
-        ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
-      CheckReply;
-      // Send control file
-      Write(GetControlData);
-      Write(#0);
-      CheckReply;
-      // Send data file
-      Write(#03 + Sys.IntToStr(Data.Size) +	' dfA'  + JobId +    {Do not Localize}
-        ControlFile.HostName + LF);
-      CheckReply;
-      // Send data
-      IOHandler.Write(Data);
-      Write(#0);
-      CheckReply;
-      DoOnLPRStatus(psJobCompleted, JobID);
-    end; // if connected
+    // Receive a printer job
+    Write(#02 + Queue + LF);
+    CheckReply;
+    // Receive control file
+    Write(#02 + Sys.IntToStr(Length(GetControlData)) + ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
+    CheckReply;
+    // Send control file
+    Write(GetControlData);
+    Write(#0);
+    CheckReply;
+    // Send data file
+    Write(#03 + Sys.IntToStr(Data.Size) +	' dfA'  + JobId + ControlFile.HostName + LF);   {Do not Localize}
+    CheckReply;
+    // Send data
+    IOHandler.Write(Data);
+    Write(#0);
+    CheckReply;
+    DoOnLPRStatus(psJobCompleted, JobID);
   except
-    on E: Exception do
+    on E: Exception do begin
       DoOnLPRStatus(psError, E.Message);
+    end;
   end;
 end;
 
-function TIdLPR.GetQueueState(const AShortFormat: Boolean = false;
-      const AList : String = '') : String;    {Do not Localize}
+function TIdLPR.GetQueueState(const AShortFormat: Boolean = False;
+  const AList : String = '') : String;    {Do not Localize}
 begin
   DoOnLPRStatus(psGettingQueueState, AList);
-  if AShortFormat then
+  if AShortFormat then begin
     Write(#03 + Queue + ' ' + AList + LF)    {Do not Localize}
-  else
+  end else begin
     Write(#04 + Queue + ' ' + AList + LF);    {Do not Localize}
+  end;
 //  This was the original code - problematic as this is more than one line
 //  read until I close the connection
 //  result:=ReadLn(LF);
@@ -324,122 +323,108 @@ begin
 end;
 
 function TIdLPR.GetControlData: String;
-var Data: String;
+var
+  Data: String;
 begin
+  Data := '';    {Do not Localize}
   try
-    Data:='';    {Do not Localize}
     with ControlFile do
     begin
       // H - Host name
-      Data:=Data + 'H' + HostName + LF;    {Do not Localize}
+      Data := Data + 'H' + HostName + LF;    {Do not Localize}
       // P - User identification
-      Data:=Data + 'P' + UserName + LF;    {Do not Localize}
+      Data := Data + 'P' + UserName + LF;    {Do not Localize}
       // J - Job name for banner page
-      if Length(JobName) > 0 then
-      begin
-        Data:=Data + 'J' + JobName + LF;    {Do not Localize}
-      end
-      else
-      begin
-        Data:=Data + 'JcfA' + JobId + HostName + LF;    {Do not Localize}
+      if Length(JobName) > 0 then begin
+        Data := Data + 'J' + JobName + LF;    {Do not Localize}
+      end else begin
+        Data := Data + 'JcfA' + JobId + HostName + LF;    {Do not Localize}
       end;
       //mail when printed
-      if FMailWhenPrinted then
-      begin
-        Data:=Data + 'M' + UserName + LF;    {Do not Localize}
+      if FMailWhenPrinted then begin
+        Data := Data + 'M' + UserName + LF;    {Do not Localize}
       end;
       case FFileFormat of
          ffCIF : // CalTech Intermediate Form
          begin
-           Data:=Data + 'cdfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'cdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffDVI : //   DVI (TeX output).
          begin
-           Data:=Data + 'ddfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'ddfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffFormattedText : //add formatting as needed to text file
          begin
-           Data:=Data + 'fdfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'fdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffPlot : //   Berkeley Unix plot library
          begin
-           Data:=Data + 'gdfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'gdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffControlCharText : //text file with control charactors
          begin
-           Data:=Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffDitroff : // ditroff output
          begin
-           Data:=Data + 'ndfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'ndfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffPostScript : //Postscript output file
          begin
-           Data:=Data + 'odfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'odfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffPR : //'pr' format    {Do not Localize}
          begin
-           Data:=Data + 'pdfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'pdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffFORTRAM : // FORTRAN carriage control
          begin
-           Data:=Data + 'rdfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'rdfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffTroff : //Troff output
          begin
-           Data:=Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
+           Data := Data + 'ldfA' + JobId + HostName + LF;    {Do not Localize}
          end;
          ffSunRaster : //  Sun raster format file
          begin
          end;
       end;
       // U - Unlink data file
-      Data:=Data + 'UdfA' + JobId + HostName + LF;    {Do not Localize}
+      Data := Data + 'UdfA' + JobId + HostName + LF;    {Do not Localize}
 
       // N - Name of source file
-      Data:=Data + 'NcfA' + JobId + HostName + LF;    {Do not Localize}
+      Data := Data + 'NcfA' + JobId + HostName + LF;    {Do not Localize}
 
-      if (FFileFormat = ffFormattedText) then
-      begin
-        if (IndentCount > 0) then
-        begin
-          Data:=Data + 'I' + Sys.IntToStr(IndentCount) + LF;    {Do not Localize}
+      if FFileFormat = ffFormattedText then begin
+        if (IndentCount > 0) then begin
+          Data := Data + 'I' + Sys.IntToStr(IndentCount) + LF;    {Do not Localize}
         end;
-        if (OutputWidth > 0) then
-        begin
-          Data:=Data + 'W' + Sys.IntToStr(OutputWidth) + LF;    {Do not Localize}
+        if OutputWidth > 0 then begin
+          Data := Data + 'W' + Sys.IntToStr(OutputWidth) + LF;    {Do not Localize}
         end;
       end;
-      if Length(BannerClass) > 0 then
-      begin
-        Data:=Data + 'C' + BannerClass + LF;    {Do not Localize}
+      if Length(BannerClass) > 0 then begin
+        Data := Data + 'C' + BannerClass + LF;    {Do not Localize}
       end;
-      if BannerPage then
-      begin
-        Data:=Data + 'L' + UserName + LF;    {Do not Localize}
+      if BannerPage then begin
+        Data := Data + 'L' + UserName + LF;    {Do not Localize}
       end;
-      if Length(TroffRomanFont)>0 then
-      begin
-        Data:=Data + '1' + TroffRomanFont+LF;    {Do not Localize}
+      if Length(TroffRomanFont) > 0 then begin
+        Data := Data + '1' + TroffRomanFont + LF;    {Do not Localize}
       end;
-      if Length(TroffItalicFont)>0 then
-      begin
-        Data:=Data + '2' + TroffItalicFont+LF;    {Do not Localize}
+      if Length(TroffItalicFont) > 0 then begin
+        Data := Data + '2' + TroffItalicFont + LF;    {Do not Localize}
       end;
-      if Length(TroffBoldFont)>0 then
-      begin
-        Data:=Data + '3' + TroffBoldFont+LF;    {Do not Localize}
+      if Length(TroffBoldFont) > 0 then begin
+        Data:=Data + '3' + TroffBoldFont + LF;    {Do not Localize}
       end;
-      if Length(TroffSpecialFont)>0 then
-      begin
-        Data:=Data + '4' + TroffSpecialFont+LF;    {Do not Localize}
+      if Length(TroffSpecialFont) > 0 then begin
+        Data := Data + '4' + TroffSpecialFont + LF;    {Do not Localize}
       end;
     end;
-
-    Result:=data;
-
+    Result := Data;
   except
-    Result:='error';    {Do not Localize}
+    Result := 'error';    {Do not Localize}
   end;
 end;
 
@@ -451,7 +436,7 @@ end;
 destructor TIdLPR.Destroy;
 begin
   Sys.FreeAndNil(FControlFile);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdLPR.PrintWaitingJobs;
@@ -462,8 +447,9 @@ begin
     CheckReply;
     DoOnLPRStatus(psPrintedWaitingJobs, '');    {Do not Localize}
   except
-    on E: Exception do
+    on E: Exception do begin
       DoOnLPRStatus(psError, E.Message);
+    end;
   end;
 end;
 
@@ -471,43 +457,42 @@ procedure TIdLPR.RemoveJobList(AList: String; const AAsRoot: Boolean =False);
 begin
   try
     DoOnLPRStatus(psDeletingJobs, JobID);
-    if AAsRoot then
-    begin
+    if AAsRoot then begin
       {Only root can delete other people's print jobs}    {Do not Localize}
       Write(#05 + Queue + ' root ' + AList + LF);    {Do not Localize}
-    end
-    else
-    begin
+    end else begin
       Write(#05 + Queue + ' ' + ControlFile.UserName + ' ' + AList + LF);    {Do not Localize}
     end;
     CheckReply;
     DoOnLPRStatus(psJobsDeleted, JobID);
   except
-    on E: Exception do
+    on E: Exception do begin
       DoOnLPRStatus(psError, E.Message);
+    end;
   end;
 end;
 
 procedure TIdLPR.CheckReply;
-var ret : String;
+var
+  Ret : Byte;
 begin
-  ret:=IOHandler.ReadString(1);
-  if (Length(ret) > 0) and (ret[1] <> #00) then
-  begin
-    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError,[ret[1],JobID]));
+  Ret := IOHandler.ReadByte;
+  if Ret <> #0 then begin
+    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError, [Ret, JobID]));
   end;
 end;
 
-procedure TIdLPR.DoOnLPRStatus(const AStatus: TIdLPRStatus;
-  const AStatusText: String);
+procedure TIdLPR.DoOnLPRStatus(const AStatus: TIdLPRStatus; const AStatusText: String);
 begin
-  if Assigned(FOnLPRStatus) then
-    FOnLPRStatus(Self,AStatus,AStatusText);
+  if Assigned(FOnLPRStatus) then begin
+    FOnLPRStatus(Self, AStatus, AStatusText);
+  end;
 end;
 
 { TIdLPRControlFile }
 procedure TIdLPRControlFile.Assign(Source: TIdPersistent);
-var cnt : TIdLPRControlFile;
+var
+  cnt : TIdLPRControlFile;
 begin
   if Source is TIdLPRControlFile then
   begin
@@ -524,22 +509,20 @@ begin
     FTroffBoldFont := cnt.TroffBoldFont;
     FTroffSpecialFont := cnt.TroffSpecialFont;
     FMailWhenPrinted := cnt.MailWhenPrinted;
-  end
-  else
-  begin
+  end else begin
     inherited Assign(Source);
   end;
 end;
 
 constructor TIdLPRControlFile.Create;
 begin
-  inherited;
+  inherited Create;
   try
     HostName := GStack.HostName;
   except
-    HostName:=RSLPRUnknown;
+    HostName := RSLPRUnknown;   
   end;
-  FFileFormat := DEF_FILEFormat;
+  FFileFormat := DEF_FILEFORMAT;
   FIndentCount := DEF_INDENTCOUNT;
   FBannerPage := DEF_BANNERPAGE;
   FOutputWidth := DEF_OUTPUTWIDTH;
