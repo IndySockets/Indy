@@ -108,13 +108,10 @@ type
   TIdSysLogMsgPart = class(TIdPersistent)
   protected
     FPIDAvailable: Boolean;
-    {we only use the text property as a basis for everything
-    else so that SysLog messages are intact for the TIdSysLogServer}
     FProcess: String;
     FPID: Integer;
     FContent: String;
-    procedure SetPIDAvailable(const AValue: Boolean);
-    procedure SetContent(const AValue: String);
+    procedure SetPID(AValue: Integer);
     procedure SetProcess(const AValue: String);
     function GetText: String;
     procedure SetText(const AValue: String);
@@ -126,11 +123,10 @@ type
     procedure Assign(Source: TIdPersistent); override;
   published
     property Text: String read GetText write SetText;
-    {These are part of the message property string so no need to store them}
     property PIDAvailable : Boolean read FPIDAvailable write FPIDAvailable stored false;
     property Process : String read FProcess write SetProcess stored false;
     property PID : Integer read FPID write SetPID stored false;
-    property Content : String read FContent write SetContent stored false;
+    property Content : String read FContent write FContent stored false;
   end;
 
   TIdSysLogMessage = class(TIdBaseComponent)
@@ -752,36 +748,38 @@ begin
   end;
 end;
 
+procedure TIdSysLogMsgPart.SetPID(AValue: Integer);
+begin
+  FPID := AValue;
+  FPIDAvailable := FPID <> -1;
+end;
+
 procedure TIdSysLogMsgPart.SetProcess(const AValue: String);
 
-   function AlphaNumericStr(AString : String) : String;
-   var
-     i : Integer;
-   begin
-     for i := 1 to Length(AString) do begin
-       //numbers
-       if ((Ord(AString[i])>=$30) and (Ord(AString[i])<$3A)) or
-         //alphabet
-          ((Ord(AString[i])>=$61) and (Ord(AString[i])<$5B)) or
-          ((Ord(AString[i])>=$41) and (Ord(AString[i])<$7B)) then
-       begin
-         Result := Result + AString[i];
-       end else begin
-         Break;
-       end;
-     end;
-   end;
+  function AlphaNumericStr(const AString : String) : String;
+  var
+    i : Integer;
+  begin
+    for i := 1 to Length(AString) do begin
+      //numbers or alphabet only
+      if IsAlphaNumeric(AString[i]) then begin
+        Result := Result + AString[i];
+      end else begin
+        Break;
+      end;
+    end;
+  end;
 
 begin
-  //we have to ensure that the TAG feild will never be greater than 32 charactors
-  //and the program name must contain alphanumeric charactors
+  //we have to ensure that the TAG field will never be greater than 32 charactors
+  //and the program name must contain alphanumeric characters
   FProcess := AlphaNumericStr(Copy(AValue, 1, GetMaxTagLength));
 end;
 
 function TIdSysLogMsgPart.GetText: String;
 begin
   Result := Process + PIDToStr(PID) + Content;
-  if (not FPIDAvailable) and (Result = ':') then begin   {Do not Localize}
+  if (not PIDAvailable) and (Result = ':') then begin   {Do not Localize}
       Result := '';    {Do not Localize}
     end;
   end;
