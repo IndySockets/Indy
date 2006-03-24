@@ -231,6 +231,7 @@ RDIRENT.HEADER types:
     property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
     property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
   end;
+
   TIdFSPListItem = class(TIdFSPStatInfo)
   protected
     FFileName: string;
@@ -307,7 +308,9 @@ causes that directory can be listable even it do not have
     property ExtraData : TIdBytes read FExtraData write FExtraData;
   //  property WritePacket : TIdBytes read GetWritePacket write SetWritePacket;
   end;
+
   TIdFSPLogEvent = procedure (Sender : TObject; APacket : TIdFSPPacket) of object;
+
   TIdFSP = class(TIdUDPClient)
   protected
     FConEstablished : Boolean;
@@ -399,7 +402,7 @@ causes that directory can be listable even it do not have
 implementation
 
 uses
-  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
+  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream;
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : Cardinal; var VPos : Cardinal): String;
 var
