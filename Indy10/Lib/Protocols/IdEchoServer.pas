@@ -40,20 +40,20 @@
 
   Rev 1.0    11/14/2002 02:19:30 PM  JPMugaas
 
-  2000-Apr=22 J Peter Mugaas
-    Ported to Indy
+2000-Apr=22 J Peter Mugaas
+  Ported to Indy
 
-  1999-May-13
-    Final Version
+1999-May-13
+  Final Version
 
-  2000-Jan-13 MTL
-    Moved to new Palette Scheme (Winshoes Servers)
+2000-Jan-13 MTL
+  Moved to new Palette Scheme (Winshoes Servers)
 }
 
 unit IdEchoServer;
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
 }
 
 interface
@@ -74,20 +74,26 @@ Type
 
 implementation
 
+uses
+  IdGlobal;
+  
 procedure TIdECHOServer.InitComponent;
 begin
   inherited InitComponent;
   DefaultPort := IdPORT_ECHO;
 end;
 
-function TIdECHOServer.DoExecute (AContext:TIdContext): boolean;
+function TIdECHOServer.DoExecute(AContext: TIdContext): Boolean;
+var
+  LBuffer: TIdBytes;
 begin
-  result := true;
-  with AContext.Connection do begin
-    while Connected do begin
-      IOHandler.CheckForDataOnSource;
-      IOHandler.Write(IOHandler.InputBufferAsString);
-     // Write(CurrentReadBuffer);
+  Result := True;
+  SetLength(LBuffer, 0);
+  with AContext.Connection.IOHandler do begin
+    CheckForDataOnSource(50);
+    if not InputBufferIsEmpty then begin
+      InputBuffer.ExtractToBytes(LBuffer);
+      Write(LBuffer);
     end;
   end;
 end;
