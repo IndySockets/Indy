@@ -30,7 +30,7 @@
   Rev 1.23    10/26/2004 10:39:54 PM  JPMugaas
   Updated refs.
 
-  Rev 1.22    6/11/2004 9:38:30 AM  DSiders
+    Rev 1.22    6/11/2004 9:38:30 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.21    5/17/04 9:53:00 AM  RLebeau
@@ -70,7 +70,7 @@
   Rev 1.10    22/10/2003 12:18:06  CCostelloe
   Split out DoesLineHaveExpectedResponse for use by other functions in IdIMAP4.
 
-  Rev 1.9    10/19/2003 5:57:12 PM  DSiders
+    Rev 1.9    10/19/2003 5:57:12 PM  DSiders
   Added localization comments.
 
   Rev 1.8    18/10/2003 22:33:00  CCostelloe
@@ -112,9 +112,10 @@ unit IdReplyIMAP4;
 interface
 
 uses
+  IdObjs,
   IdReply,
   IdReplyRFC,
-  IdObjs;
+  IdSys;
 
 const
   IMAP_OK      = 'OK';      {Do not Localize}
@@ -197,7 +198,9 @@ type
   end;
 
 implementation
-uses IdGlobal, IdGlobalProtocols, IdSys;
+
+uses
+  IdGlobal, IdGlobalProtocols;
 
 { TIdReplyIMAP4 }
 
@@ -220,7 +223,7 @@ constructor TIdReplyIMAP4.Create(
   AReplyTexts: TIdReplies = nil
   );
 begin
-  inherited;
+  inherited Create(ACollection, AReplyTexts);
   FExtra := TIdStringList.Create;
   Clear;
 end;
@@ -228,7 +231,7 @@ end;
 destructor TIdReplyIMAP4.Destroy;
 begin
   Sys.FreeAndNil(FExtra);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdReplyIMAP4.Clear;
@@ -245,29 +248,27 @@ end;
 
 function TIdReplyIMAP4.IsItANumber(const AValue: string): Boolean;
 var
-    LN: integer;
+  LN: integer;
 begin
-    Result := False;
-    for LN := 1 to Length(AValue) do begin
-        if ( (Ord(AValue[LN]) < Ord('0')) or (Ord(AValue[LN]) > Ord('9')) ) then begin  {Do not Localize}
-            Exit;
-        end;
+  for LN := 1 to Length(AValue) do begin
+    if not IsNumeric(AValue[LN]) then begin
+      Result := False;
+      Exit;
     end;
-    Result := True;
+  end;
+  Result := True;
 end;
 
+{CC: The following decides if AValue is a valid command sequence number like C41...}
 function TIdReplyIMAP4.IsItAValidSequenceNumber(const AValue: string): Boolean;
-  {CC: The following decides if AValue is a valid command sequence number
-  like C41...}
 begin
-  Result := False;
   {CC: Cannot be a C or a digit on its own...}
-  if Length(AValue) >= 2 then begin
-    {CC: Must start with a C...}
-    if AValue[1] = 'C' then begin  {Do not Localize}
-      {CC: Check if other characters are digits...}
-      Result := IsItANumber(Copy(AValue, 2, MaxInt));
-    end;
+  {CC: Must start with a C...}
+  if (Length(AValue) >= 2) and (AValue[1] = 'C') then begin
+    {CC: Check if other characters are digits...}
+    Result := IsItANumber(Copy(AValue, 2, MaxInt));
+  end else begin
+    Result := False;
   end;
 end;
 
@@ -286,7 +287,6 @@ begin
   Result := FFormattedReply;
 end;
 
-procedure TIdReplyIMAP4.SetFormattedReply(const AValue: TIdStrings);
 {CC: AValue may be in one of a few formats:
 1) Many commands just give a simple result to the command issued:
     C41 OK Completed
@@ -316,6 +316,7 @@ error message.
 Set FSequenceNumber to C41 for cases (1) and (2) above, * for case (3), and
 empty '' for case 4.  This tells the caller the context of the reply.
 }
+procedure TIdReplyIMAP4.SetFormattedReply(const AValue: TIdStrings);
 var
   LWord: string;
   LPos: integer;
@@ -368,7 +369,8 @@ begin
     because there was nothing before it.}
     FCode := LWord;
     Text.Add(LBuf);
-  end else if LWord = '*' then begin  {Do not Localize}
+  end
+  else if LWord = '*' then begin  {Do not Localize}
     if LBuf = '' then begin
       {Throw an exception: it is a line that is just '*'}
       DoReplyError('Unexpected: Response (last) line contained only a *'); {do not localize}
@@ -392,7 +394,8 @@ begin
     {A valid resonse code...}
     FCode := LWord;
     Text.Add(LBuf);
-  end else if IsItAValidSequenceNumber(LWord) then begin
+  end
+  else if IsItAValidSequenceNumber(LWord) then begin
     if LBuf = '' then begin
       {Throw an exception: it is a line that is just 'C41' or whatever}
       DoReplyError('Unexpected: Response (last) line started with a command reference (like C41) but nothing else', LLine);  {do not localize}
@@ -418,7 +421,8 @@ begin
     //Ditch LBuf, otherwise we will confuse the later parser that checks for
     //"expected response" keywords.
     Extra.Add(LBuf);
-  end else begin
+  end
+  else begin
     {Not a response, * or command (e.g. C41).  Throw an exception, as usual.}
     DoReplyError('Unexpected: Line does not start with a command reference (like C41), a *, or a valid response like OK, BAD, etc', LLine);  {do not localize}
   end;
@@ -430,79 +434,80 @@ begin
   end;
 end;
 
+{CC3: This goes through the lines in Text and moves any that are not "expected" into
+Extra.  Lines that are "expected" are those that have a command in one of the
+strings in AExpectedResponses, which has entries like "FETCH", "UID", "LIST".
+Unsolicited responses are typically lines like "* RECENT 3", which are sent by
+the server to tell you that new messages arrived.  The problem is that they can
+be anywhere in a reply from the server, the RFC does not stipulate where, or
+what their format may be, but they wont be expected by the caller and will cause
+the caller's parsing to fail.
+The Text variable also has the bits stripped off from the final response, i.e.
+it will have "Completed" as the last entry, stripped from "C62 OK Completed".}
 procedure TIdReplyIMAP4.RemoveUnsolicitedResponses(AExpectedResponses: array of String);
-    {CC3: This goes through the lines in Text and moves any that are not "expected" into
-    Extra.  Lines that are "expected" are those that have a command in one of the
-    strings in AExpectedResponses, which has entries like "FETCH", "UID", "LIST".
-    Unsolicited responses are typically lines like "* RECENT 3", which are sent by
-    the server to tell you that new messages arrived.  The problem is that they can
-    be anywhere in a reply from the server, the RFC does not stipulate where, or
-    what their format may be, but they wont be expected by the caller and will cause
-    the caller's parsing to fail.
-    The Text variable also has the bits stripped off from the final response, i.e.
-    it will have "Completed" as the last entry, stripped from "C62 OK Completed".}
 var
-    LLine: string;
-    LN, LIndex: integer;
-    LLast: integer;  {Need to calculate this outside the loop}
+  LLine: string;
+  LN, LIndex: integer;
+  LLast: integer;  {Need to calculate this outside the loop}
 begin
-    {The (valid) lines are of one of two formats:
-    * LIST BlahBlah
-    * 53 FETCH BlahBlah
-    The "53" arises with commands that reference a specific email, the server returns
-    the relative message number in that case.
-    Note the * has been stripped off before this procedure is called.}
-    LLast := Text.Count-1;
-    LIndex := 0;
-    for LN := 0 to LLast do begin
-        LLine := Text[LIndex];
-        if LLine = '' then begin
-            {Unlikely to happen, but paranoia is always a better approach...}
-            Text.Delete(LIndex);
-        end else begin
-            if DoesLineHaveExpectedResponse(LLine, AExpectedResponses) then begin
-                {We were expecting this word, so don't remove this line.}
-                Inc(LIndex);
-                continue;
-            end;
-            {We were not expecting this response, it is an unsolicited response or
-            something else we are not interested in.  Transfer the UNSTRIPPED
-            line to Extra (i.e. not LLine).}
-            Extra.Add(Text[LIndex]);
-            Text.Delete(LIndex);
-        end;
+  {The (valid) lines are of one of two formats:
+  * LIST BlahBlah
+  * 53 FETCH BlahBlah
+  The "53" arises with commands that reference a specific email, the server returns
+  the relative message number in that case.
+  Note the * has been stripped off before this procedure is called.}
+  LLast := Text.Count-1;
+  LIndex := 0;
+  for LN := 0 to LLast do begin
+    LLine := Text[LIndex];
+    if LLine = '' then begin
+      {Unlikely to happen, but paranoia is always a better approach...}
+      Text.Delete(LIndex);
+    end
+    else begin
+      if DoesLineHaveExpectedResponse(LLine, AExpectedResponses) then begin
+        {We were expecting this word, so don't remove this line.}
+        Inc(LIndex);
+        Continue;
+      end;
+      {We were not expecting this response, it is an unsolicited response or
+      something else we are not interested in.  Transfer the UNSTRIPPED
+      line to Extra (i.e. not LLine).}
+      Extra.Add(Text[LIndex]);
+      Text.Delete(LIndex);
     end;
+  end;
 end;
 
 function TIdReplyIMAP4.DoesLineHaveExpectedResponse(ALine: string; AExpectedResponses: array of string): Boolean;
 var
-    LWord: string;
-    LPos: integer;
+  LWord: string;
+  LPos: integer;
 begin
-    Result := False;
-    {Get the first word, it may be a relative message number like "53".
-    CC4: Note the line may only consist of a single word, e.g. "SEARCH" with some
-    servers (e.g. Courier) where there were no matches to the search.}
-    LPos := Pos(' ', ALine); {Do not Localize}
+  Result := False;
+  {Get the first word, it may be a relative message number like "53".
+  CC4: Note the line may only consist of a single word, e.g. "SEARCH" with some
+  servers (e.g. Courier) where there were no matches to the search.}
+  LPos := Pos(' ', ALine); {Do not Localize}
+  if LPos > 0 then begin
+    if IsItANumber(Copy(ALine, 1, LPos-1)) then begin
+      ALine := Copy(ALine, LPos+1, MAXINT);
+    end;
+    {If there was a relative message number, it is now stripped from LLine.}
+    {The first word in LLine is the one that may hold our expected response.}
+    LPos := Pos(' ', ALine);    {Do not Localize}
     if LPos > 0 then begin
-        if IsItANumber(Copy(ALine, 1, LPos-1)) then begin
-            ALine := Copy(ALine, LPos+1, MAXINT);
-        end;
-        {If there was a relative message number, it is now stripped from LLine.}
-        {The first word in LLine is the one that may hold our expected response.}
-        LPos := Pos(' ', ALine);    {Do not Localize}
-        if LPos > 0 then begin
-            LWord := Copy(ALine, 1, LPos-1);
-        end else begin
-            LWord := ALine;
-        end;
+      LWord := Copy(ALine, 1, LPos-1);
     end else begin
-        LWord := ALine;
+      LWord := ALine;
     end;
-    if PosInStrArray(LWord, AExpectedResponses) > -1 then begin
-        {We were expecting this word...}
-        Result := True;
-    end;
+  end else begin
+    LWord := ALine;
+  end;
+  if PosInStrArray(LWord, AExpectedResponses) > -1 then begin
+    {We were expecting this word...}
+    Result := True;
+  end;
 end;
 
 procedure TIdReplyIMAP4.DoReplyError(ADescription: string; AnOffendingLine: string);
