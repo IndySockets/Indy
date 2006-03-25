@@ -32,8 +32,8 @@
 
   2001-FEB-27 IC:
     First version, most of the needed MailBox features are implemented,
-    next version should include a MailBox list structure that will hold
-    an entire account mail box structure with the updated information.
+                  next version should include a MailBox list structure that will hold
+                  an entire account mail box structure with the updated information.
 
   2001-MAY-05 IC:
 }
@@ -50,7 +50,7 @@ interface
 uses
   IdBaseComponent,
   IdMessage,
-    IdException,
+  IdException,
   IdMessageCollection;
 
 type
@@ -116,44 +116,45 @@ const
 
 implementation
 
+uses
+  IdSys;
+  
 { TIdMailBox }
 
 procedure TIdMailBox.Clear;
 begin
-     FTotalMsgs := 0;
-     FRecentMsgs := 0;
-     FUnseenMsgs := 0;
-     FFirstUnseenMsg := 0;
-     FUIDValidity := '';    {Do not Localize}
-     FUIDNext := '';    {Do not Localize}
-     FName := '';    {Do not Localize}
-     FState := msReadOnly;
-     FAttributes := maNoselect;
-     SetLength ( DeletedMsgs, 0 );
-     SetLength ( SearchResult, 0 );
-     FFlags := [];
-     FChangeableFlags := [];
-     MessageList.Clear;
+  FTotalMsgs := 0;
+  FRecentMsgs := 0;
+  FUnseenMsgs := 0;
+  FFirstUnseenMsg := 0;
+  FUIDValidity := '';    {Do not Localize}
+  FUIDNext := '';    {Do not Localize}
+  FName := '';    {Do not Localize}
+  FState := msReadOnly;
+  FAttributes := maNoselect;
+  SetLength(DeletedMsgs, 0);
+  SetLength(SearchResult, 0);
+  FFlags := [];
+  FChangeableFlags := [];
+  MessageList.Clear;
 end;
 
 procedure TIdMailBox.InitComponent;
 begin
-     //inherited;
-     inherited;
-     FMessageList := TIdMessageCollection.Create ( TIdMessageItem );
-     Clear;
+  inherited InitComponent;
+  FMessageList := TIdMessageCollection.Create(TIdMessageItem);
+  Clear;
 end;
 
 destructor TIdMailBox.Destroy;
 begin
-     MessageList.Free;
-     inherited;
+  Sys.FreeAndNil(FMessageList);
+  inherited Destroy;
 end;
 
 procedure TIdMailBox.SetMessageList(const Value: TIdMessageCollection);
 begin
-  //   if Value is TCollection then Beep;
-     FMessageList.Assign ( Value );
+  FMessageList.Assign(Value);
 end;
 
 end.
