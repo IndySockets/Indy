@@ -30,7 +30,7 @@
   'time_t' so that it won't be included in the auto-generated HPP file.  The
   native time.h header file is used instead.
 
-  Rev 1.4    10/17/2003 1:08:12 AM  DSiders
+    Rev 1.4    10/17/2003 1:08:12 AM  DSiders
   Added localization comments.
 
   Rev 1.3    12/9/2002 12:48:42 PM  JPMugaas
@@ -54,7 +54,7 @@ interface
 // with Win32 API header files
 (*$HPPEMIT '#include <time.h>'*)
 
-Const
+const
   OPENSSL_ASN1_F_A2D_ASN1_OBJECT = 100;
   OPENSSL_ASN1_F_A2I_ASN1_ENUMERATED = 236;
   OPENSSL_ASN1_F_A2I_ASN1_INTEGER = 101;
@@ -2427,10 +2427,9 @@ Const
   OPENSSL_i586 = 1;
   OPENSSL_pentium = 1;
 
-  OPENSSL_MBSTRING_ASC=$1001;
+  OPENSSL_MBSTRING_ASC = $1001;
 
 {Error - err.h }
-
 
 const
 //#define ERR_TXT_MALLOCED	0x01
@@ -2441,14 +2440,14 @@ const
   OPENSSL_ERR_NUM_ERRORS = 16;
 
 type
- TERR_STATE=record
-  PID: cardinal;
-  Err_buff: Array[0..OPENSSL_ERR_NUM_ERRORS-1] of cardinal;
-  err_file: Array[0..OPENSSL_ERR_NUM_ERRORS-1] of PChar;
-  err_line: array[0..OPENSSL_ERR_NUM_ERRORS-1] of integer;
-  top: Integer;
-  Bottom: Integer;
-end; // record
+  TERR_STATE = record
+    PID: cardinal;
+    Err_buff: array[0..OPENSSL_ERR_NUM_ERRORS-1] of Cardinal;
+    err_file: array[0..OPENSSL_ERR_NUM_ERRORS-1] of PChar;
+    err_line: array[0..OPENSSL_ERR_NUM_ERRORS-1] of Integer;
+    top: Integer;
+    Bottom: Integer;
+  end; // record
 
 const
 //  /* library */
@@ -2599,8 +2598,7 @@ const
 //#define ERR_R_DSO_LIB	ERR_LIB_DSO
   OPENSSL_ERR_R_DSO_LIB = OPENSSL_ERR_LIB_DSO;
 
-Type
-
+type
   UInteger        = Longint;
   PUInteger	  =^UInteger;
   PFunction       = Pointer;
@@ -2838,9 +2836,9 @@ Type
 
   des_key_schedule = array[1..16] of des_ks_struct;
 
-  des_cblocks = Integer;
+  des_cblocks     = Integer;
   {$NODEFINE size_t}
-  size_t = Integer;
+  size_t	  = Integer;
 
   TIdSslLockingCallback = procedure (mode, n : integer; Afile : PChar; line : integer) cdecl;
   TIdSslIdCallback = function: integer cdecl;
@@ -2989,7 +2987,6 @@ Type
   X509V3_CTX = V3_EXT_CTX;
 
 var
-
   IdSslAddAllAlgorithms : procedure cdecl = nil;
   IdSslAddAllCiphers : procedure cdecl = nil;
   IdSslAddAllDigests : procedure cdecl = nil;
@@ -3171,8 +3168,8 @@ var
   IdSslCtxLoadVerifyLocations : function(ctx: PSSL_CTX; const CAfile: PChar; const CApath: PChar):Integer cdecl = nil;
   IdSslGetSession : function(ssl: PSSL):PSSL_SESSION cdecl = nil;
   IdSslAddSslAlgorithms : function:Integer cdecl = nil;
-  //IdSslSetAppData : function(s: PSSL; arg: Pointer):Integer cdecl = nil;
-  //IdSslGetAppData : function(s: PSSL):Pointer cdecl = nil;
+  // IdSslSetAppData : function(s: PSSL; arg: Pointer):Integer cdecl = nil;
+  // IdSslGetAppData : function(s: PSSL):Pointer cdecl = nil;
   IdSslSessionGetId : function(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer cdecl = nil;
   IdSslX509NameOneline : function(a: PX509_NAME; buf: PChar; size: Integer):PChar cdecl = nil;
   IdSslX509NameHash : function(x: PX509_NAME):Cardinal cdecl = nil;
@@ -3277,7 +3274,6 @@ function IdSslPemWriteBio(b:Pointer;x:Pointer):Integer;
 function IdSslPemReadBio(bp:Pointer;x:Pointer;cb:Pointer;u:PChar):Pointer;
 function IdSslMalloc(aSize:Integer):Pointer;
 procedure IdSslMemCheck(const aEnabled:boolean);
-procedure IdSslCheck(const aResult:Integer);
 function IdSslEvpPKeyAssignRsa(pkey:Pointer;rsa:Pointer):Integer;
 function IdSslX509ReqGetSubjectName(x:PX509_REQ):Pointer;
 procedure IdSslX509V3SetCtxNoDb(ctx:X509V3_CTX);
@@ -4009,7 +4005,7 @@ const
   fn_EVP_add_digest = 'EVP_add_digest';  {Do not localize}
   fn_EVP_get_cipherbyname = 'EVP_get_cipherbyname';  {Do not localize}
   fn_EVP_get_digestbyname = 'EVP_get_digestbyname';  {Do not localize}
-  fn_EVP_cleanup = 'EVP_cleanup'; {Do not localize}
+  fn_EVP_cleanup = 'EVP_cleanup';  {Do not localize}
   fn_EVP_PKEY_decrypt = 'EVP_PKEY_decrypt';  {Do not localize}
   fn_EVP_PKEY_encrypt = 'EVP_PKEY_encrypt';  {Do not localize}
   fn_EVP_PKEY_type = 'EVP_PKEY_type';  {Do not localize}
@@ -5198,18 +5194,18 @@ begin
   @IdSslSkNewNull := LoadFunctionCLib(fn_sk_new_null);
   @IdSslSkPush := LoadFunctionCLib(fn_sk_push);
 
-  Result:=FFailedFunctionLoadList.Count=0;
+  Result := (FFailedFunctionLoadList.Count = 0);
 
 end;
 
 procedure Unload;
 var
-  aStack:Pointer;
+  LStack: Pointer;
 begin
   //this is a workaround for a known leak in the openssl library
   //present in 0.9.8a
-  aStack:=IdSslCompGetCompressionMethods;
-  IdSslSkPopFree(aStack,@IdSslCryptoFree);
+  LStack := IdSslCompGetCompressionMethods;
+  IdSslSkPopFree(LStack, @IdSslCryptoFree);
 
   IdSslCryptoCleanupAllExData;
   IdSSLERR_free_strings;
@@ -5217,26 +5213,27 @@ begin
   IdSslEvpCleanup;
 
   if hIdSSL > 0 then
-   begin
-   FreeLibrary(hIdSSL);
-   hIdSSL := 0;
-   end;
+  begin
+    FreeLibrary(hIdSSL);
+    hIdSSL := 0;
+  end;
 
   if hIdCrypto > 0 then
-   begin
-   FreeLibrary(hIdCrypto);
-   hIdCrypto := 0;
-   end;
+  begin
+    FreeLibrary(hIdCrypto);
+    hIdCrypto := 0;
+  end;
 end;
 
 function WhichFailedToLoad:string;
 begin
   Assert(FFailedFunctionLoadList<>nil);
 
-  if hIdSSL=0 then
-    result := 'Failed to load '+SSL_DLL_name+'.'  {Do not localize}
-  else
-    result := FFailedFunctionLoadList.CommaText;
+  if hIdSSL = 0 then begin
+    Result := 'Failed to load ' + SSL_DLL_name + '.'  {Do not localize}
+  end else begin
+    Result := FFailedFunctionLoadList.CommaText;
+  end;
 end;
 
 // Author : Gregor Ibich (gregor.ibic@intelicom.si)
@@ -5244,16 +5241,16 @@ end;
 
 // Converts the following string representation into corresponding parts
 // YYMMDDHHMMSS(+|-)HH( )MM
-function IdSslUCTTimeDecode(UCTtime : PASN1_UTCTIME; Var year, month, day, hour, min, sec: Word;
-  Var tz_hour, tz_min: Integer): Integer;
-Var
+function IdSslUCTTimeDecode(UCTtime : PASN1_UTCTIME; var year, month, day, hour, min, sec: Word;
+  var tz_hour, tz_min: Integer): Integer;
+var
   i, tz_dir: Integer;
   time_str: String;
 begin
   SetLength(time_str, UCTtime^.length);
-  move(UCTtime^.data[0], time_str[1], UCTtime^.length);
+  Move(UCTtime^.data[0], time_str[1], UCTtime^.length);
 
-  result := 1;
+  Result := 1;
   // Check if first 12 chars are numbers
   for i := 1 to 12 do begin
     if (time_str[i] > '9') or (time_str[i] < '0') then exit;    {Do not Localize}
@@ -5268,7 +5265,9 @@ begin
   sec := Sys.StrToInt(Copy(time_str, 11, 2));
 
   // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
-  if (year < 1950) then year := Year + 100;
+  if (year < 1950) then begin
+    Inc(year, 100);
+  end;
   // Check TZ
   tz_hour := 0;
   tz_min := 0;
@@ -5286,18 +5285,18 @@ begin
     end;
 
     tz_hour := Sys.StrToInt(Copy(time_str, 14, 15)) * tz_dir;
-    tz_min  := Sys.StrToInt(Copy(time_str, 17, 18))*tz_dir;
+    tz_min  := Sys.StrToInt(Copy(time_str, 17, 18)) * tz_dir;
   end;
 end;
 
 function IdSslSetAppData(s: PSSL; arg: Pointer): Integer;
 begin
-  result := IdSSL_set_ex_data(s, 0, arg);
+  Result := IdSSL_set_ex_data(s, 0, arg);
 end;
 
 function IdSslGetAppData(s: PSSL): Pointer;
 begin
-  result := IdSSL_get_ex_data(s, 0);
+  Result := IdSSL_get_ex_data(s, 0);
 end;
 
 procedure InitializeRandom;
@@ -5310,74 +5309,73 @@ end;
 function IdSslX509StoreCtxGetAppData(ctx:PX509_STORE_CTX):Pointer;
 //#define X509_STORE_CTX_get_app_data(ctx) X509_STORE_CTX_get_ex_data(ctx,0)
 begin
- Result:=IdSslX509StoreCtxGetExData(ctx,0);
+  Result := IdSslX509StoreCtxGetExData(ctx, 0);
 end;
 
 function IdSslX509GetNotBefore(x509: PX509):PASN1_UTCTIME;
 begin
- Assert(x509<>nil);
- Result:=x509.cert_info.validity.notBefore;
+  Assert(x509<>nil);
+  Result := x509.cert_info.validity.notBefore;
 end;
 
 function IdSslX509GetNotAfter(x509: PX509):PASN1_UTCTIME;
 //#define	X509_get_notAfter(x) ((x)->cert_info->validity->notAfter)
 begin
- Assert(x509<>nil);
- Result:=x509.cert_info.validity.notAfter;
+  Assert(x509<>nil);
+  Result := x509.cert_info.validity.notAfter;
 end;
 
 procedure IdSslCtxSetInfoCallback(ctx: PSSL_CTX; cb: PFunction);
 //#define SSL_CTX_set_info_callback(ctx,cb)	((ctx)->info_callback=(cb))
 begin
- Assert(ctx<>nil);
- ctx.info_callback:=cb;
+  Assert(ctx<>nil);
+  ctx.info_callback:=cb;
 end;
 
 function IdSslCtxSetOptions(ctx: PSSL_CTX; op: Longint):Longint;
 //#define SSL_CTX_set_options(ctx,op) SSL_CTX_ctrl((ctx),SSL_CTRL_OPTIONS,(op),NULL)
 begin
- Result:=IdSslCtxCtrl(ctx,OPENSSL_SSL_CTRL_OPTIONS,op,nil);
+  Result := IdSslCtxCtrl(ctx, OPENSSL_SSL_CTRL_OPTIONS, op, nil);
 end;
 
 function IdSslSessionGetIdCtx(s: PSSL_SESSION; id: PPChar; length: PInteger):Integer;
 begin
- Assert(s<>nil);
- id^:=@s.sid_ctx;
- Result:=s.sid_ctx_length;
- Length^:=Result;
+  Assert(s<>nil);
+  id^ := @s.sid_ctx;
+  Result := s.sid_ctx_length;
+  Length^ := Result;
 end;
 
 function IdSslCtxGetVersion(ctx: PSSL_CTX):Integer;
 begin
- Assert(ctx<>nil);
- Result:=ctx.method.version;
+  Assert(ctx<>nil);
+  Result := ctx.method.version;
 end;
 
 function IdSslBioSetClose(b:PBio;c:Cardinal):Cardinal;
 //#define BIO_set_close(b,c)	(int)BIO_ctrl(b,BIO_CTRL_SET_CLOSE,(c),NULL)
 begin
- Result:=IdSslBioCtrl(b,OPENSSL_BIO_CTRL_SET_CLOSE,c,nil);
+  Result := IdSslBioCtrl(b,OPENSSL_BIO_CTRL_SET_CLOSE, c, nil);
 end;
 
 procedure IdSslBioGetMemPtr(b:PBIO;pp:Pointer);
 //#define BIO_get_mem_ptr(b,pp)	BIO_ctrl(b,BIO_C_GET_BUF_MEM_PTR,0,(char *)pp)
 //not sure of pp type
 begin
- IdSslBioCtrl(b,OPENSSL_BIO_C_GET_BUF_MEM_PTR,0,pp);
+  IdSslBioCtrl(b, OPENSSL_BIO_C_GET_BUF_MEM_PTR, 0, pp);
 end;
 
 function IdSslBioPending(b:PBIO):Integer;
 //#define BIO_pending(b)		(int)BIO_ctrl(b,BIO_CTRL_PENDING,0,NULL)
 begin
- Result:=IdSslBioCtrl(b,OPENSSL_BIO_CTRL_PENDING,0,nil);
+  Result := IdSslBioCtrl(b, OPENSSL_BIO_CTRL_PENDING, 0, nil);
 end;
 
 function IdSslPemReadBio(bp:Pointer;x:Pointer;cb:Pointer;u:PChar):Pointer;
 //#define	PEM_read_bio_X509(bp,x,cb,u) (X509 *)PEM_ASN1_read_bio( \
 //	(char *(*)())d2i_X509,PEM_STRING_X509,bp,(char **)x,cb,u)
 begin
- Result:=IdSslPemAsn1ReadBio(@IdSslD2iX509,OPENSSL_PEM_STRING_X509,
-  bp,x,nil,nil);
+  Result := IdSslPemAsn1ReadBio(@IdSslD2iX509, OPENSSL_PEM_STRING_X509, bp, x, nil, nil);
 end;
 
 function IdSslPemWriteBio(b:Pointer;x:Pointer):Integer;
@@ -5385,60 +5383,55 @@ function IdSslPemWriteBio(b:Pointer;x:Pointer):Integer;
 //PEM_ASN1_write_bio((int (*)())i2d_X509,
 //PEM_STRING_X509,bp,(char *)x, NULL,NULL,0,NULL,NULL)
 begin
- Assert(b<>nil);
- Assert(x<>nil);
+  Assert(b<>nil);
+  Assert(x<>nil);
 
- Result:=IdSslPemAsn1WriteBio(@IdSslI2dX509,OPENSSL_PEM_STRING_X509,
-  b,x,nil,nil,0,nil,nil);
- Assert(Result<>0);
+  Result := IdSslPemAsn1WriteBio(@IdSslI2dX509, OPENSSL_PEM_STRING_X509, b, x, nil, nil, 0, nil, nil);
+  Assert(Result<>0);
 end;
 
 function IdSslMalloc(aSize:Integer):Pointer;
 //can also use CRYPTO_mem_leaks(bio)
 begin
- Result:=IdSslCryptoMalloc(aSize,'',0);
+  Result := IdSslCryptoMalloc(aSize, '', 0);
 end;
 
 procedure IdSslMemCheck(const aEnabled:boolean);
 //compile openssl with -DCRYPTO_MDEBUG
 var
- r:Integer;
+  r:Integer;
 begin
- if aEnabled then r:=IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_ON)
- else r:=IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_OFF);
- Assert(r<>0);
-end;
-
-procedure IdSslCheck(const aResult:Integer);
-begin
- if aResult=0 then raise Exception.Create('');
+  if aEnabled then begin
+    r := IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_ON);
+  end else begin
+    r := IdSslCryptoMemCtrl(OPENSSL_CRYPTO_MEM_CHECK_OFF);
+  end;
+  Assert(r<>0);
 end;
 
 function IdSslEvpPKeyAssignRsa(pkey:Pointer;rsa:Pointer):Integer;
 //#define EVP_PKEY_assign_RSA(pkey,rsa) EVP_PKEY_assign((pkey),EVP_PKEY_RSA,(char *)(rsa))
 begin
- Result:=IdSslEvpPKeyAssign(pkey,OPENSSL_EVP_PKEY_RSA,rsa);
+  Result := IdSslEvpPKeyAssign(pkey, OPENSSL_EVP_PKEY_RSA, rsa);
 end;
 
 function IdSslX509ReqGetSubjectName(x:PX509_REQ):Pointer;
 //#define	X509_REQ_get_subject_name(x) ((x)->req_info->subject)
 begin
- Assert(x<>nil);
- Result:=x.req_info.subject;
+  Assert(x<>nil);
+  Result := x.req_info.subject;
 end;
 
 procedure IdSslX509V3SetCtxNoDb(ctx:X509V3_CTX);
 //#define X509V3_set_ctx_nodb(ctx) (ctx)->db = NULL;
 begin
- ctx.db:=nil;
+  ctx.db := nil;
 end;
 
 initialization
-
-  FFailedFunctionLoadList:=TIdStringList.Create;
+  FFailedFunctionLoadList := TIdStringList.Create;
 
 finalization
-
   Sys.FreeAndNil(FFailedFunctionLoadList);
 
 end.
