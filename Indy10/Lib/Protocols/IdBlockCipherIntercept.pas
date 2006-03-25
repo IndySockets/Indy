@@ -104,7 +104,7 @@ end;
 
 procedure TIdBlockCipherIntercept.Send(var VBuffer: TIdBytes);
 var
-  LSrc. LBlock : TIdBytes;
+  LSrc, LBlock : TIdBytes;
   LCount, LMaxDataSize: Integer;
   LCompleteBlocks, LRemaining: Integer;
 Begin
