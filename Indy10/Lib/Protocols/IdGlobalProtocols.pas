@@ -2454,21 +2454,21 @@ var
   j, i: Integer;
   LTmp: String;
 begin
-  Result := True;
+  Result := False;
   LTmp := Sys.Trim(S);
   for i := 1 to 4 do begin
     j := Sys.StrToInt(Fetch(LTmp, '.'), -1);    {Do not Localize}
-    Result := Result and (j > -1) and (j < 256);
-    if NOT Result then begin
-      Break;
+    if (j < 0) or (j >= 256) then begin
+      Exit;
     end;
   end;
+  Result := True;
 end;
 
 //everything that does not start with '.' is treated as hostname
 function IsHostname(const S: String): Boolean;
 begin
-  Result := ((IndyPos('.', S) = 0) or (S[1] <> '.')) and NOT IsValidIP(S);    {Do not Localize}
+  Result := (not TextStartsWith(S, '.')) and (not IsValidIP(S));    {Do not Localize}
 end;
 
 function IsTopDomain(const AStr: string): Boolean;
@@ -2478,7 +2478,7 @@ Var
 begin
   i := 0;
 
-  LTmp := IndyUpperCase(Sys.Trim(AStr));
+  LTmp := Sys.UpperCase(Sys.Trim(AStr));
   while IndyPos('.', LTmp) > 0 do begin    {Do not Localize}
     S1 := LTmp;
     Fetch(LTmp, '.');    {Do not Localize}
@@ -2493,7 +2493,6 @@ begin
       if S1 = 'CO' then result := i = 2;    {Do not Localize}
       if S1 = 'COM' then result := i = 2;    {Do not Localize}
     end;
-
     if LTmp = 'TW' then begin    {Do not Localize}
       if S1 = 'CO' then result := i = 2;    {Do not Localize}
       if S1 = 'COM' then result := i = 2;    {Do not Localize}
@@ -2503,12 +2502,12 @@ end;
 
 function IsDomain(const S: String): Boolean;
 begin
-  Result := NOT IsHostname(S) and (IndyPos('.', S) > 0) and NOT IsTopDomain(S);    {Do not Localize}
+  Result := (not IsHostname(S)) and (IndyPos('.', S) > 0) and (not IsTopDomain(S));    {Do not Localize}
 end;
 
 function DomainName(const AHost: String): String;
 begin
-  result := Copy(AHost, IndyPos('.', AHost), Length(AHost));    {Do not Localize}
+  Result := Copy(AHost, IndyPos('.', AHost), Length(AHost));    {Do not Localize}
 end;
 
 function IsFQDN(const S: String): Boolean;
