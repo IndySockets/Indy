@@ -58,7 +58,6 @@ const
   //256, as currently the last byte of the block is used to store the block size
 
 type
-
   TIdBlockCipherIntercept = class;
 
   // OnSend and OnRecieve Events will always be called with a blockSize Data
@@ -99,99 +98,109 @@ end;
 procedure TIdBlockCipherIntercept.Decrypt(var VData : TIdBytes);
 Begin
   if Assigned(FOnReceive) then begin
-    FOnReceive(self, VData);
+    FOnReceive(Self, VData);
   end;//ex: DecryptAES(LTempIn, ExpandedKey, LTempOut);
 end;
 
 procedure TIdBlockCipherIntercept.Send(var VBuffer: TIdBytes);
 var
-  LSrc : TIdBytes;
-  LTemp : TIdBytes;
-  LCount : Integer;
+  LSrc. LBlock : TIdBytes;
+  LCount, LMaxDataSize: Integer;
+  LCompleteBlocks, LRemaining: Integer;
 Begin
-  if Length(VBuffer) = 0 then
-    exit;
+  if Length(VBuffer) = 0 then begin
+    Exit;
+  end;
 
   LSrc := VBuffer;
-  SetLength(VBuffer, ((Length(LSrc) + FBlockSize - 2) div (FBlockSize - 1)) * FBLockSize);
-  SetLength(LTemp, FBlockSize);
+
+  LMaxDataSize := FBlockSize - 1;
+  SetLength(VBuffer, ((Length(LSrc) + LMaxDataSize - 1) div LMaxDataSize) * FBlockSize);
+  SetLength(LBlock, FBlockSize);
+
+  LCompleteBlocks := Length(LSrc) div LMaxDataSize;
+  LRemaining := Length(LSrc) mod LMaxDataSize;
 
   //process all complete blocks
-  for LCount := 0 to Length(LSrc) div (FBlockSize - 1)-1 do
-    begin
-    CopyTIdBytes(LSrc, lCount * (FBlockSize - 1), LTemp, 0, FBlockSize - 1);
-    LTemp[FBlockSize - 1] := FBlockSize - 1;
-    Encrypt(LTemp);
-    CopyTIdBytes(LTemp, 0, VBuffer, LCount * FBlockSize, FBLockSize);
-    end;
+  for LCount := 0 to LCompleteBlocks-1 do
+  begin
+    CopyTIdBytes(LSrc, LCount * LMaxDataSize, LBlock, 0, LMaxDataSize);
+    LBlock[LMaxDataSize] := LMaxDataSize;
+    Encrypt(LBlock);
+    CopyTIdBytes(LBlock, 0, VBuffer, LCount * FBlockSize, FBlockSize);
+  end;
 
   //process the possible remaining bytes, ie less than a full block
-  if Length(LSrc) Mod (FBlockSize - 1) > 0 then
-    begin
-    CopyTIdBytes(LSrc, length(LSrc) - (Length(LSrc) Mod (FBlockSize - 1)), LTemp, 0, Length(LSrc) Mod (FBlockSize - 1));
-    LTemp[FBlockSize - 1] := Length(LSrc) Mod (FBlockSize - 1);
-    Encrypt(LTemp);
-    CopyTIdBytes(LTemp, 0, VBuffer, Length(VBuffer) - FBlockSize, FBLockSize);
-    end;
+  if LRemaining > 0 then
+  begin
+    CopyTIdBytes(LSrc, Length(LSrc) - LRemaining, LBlock, 0, LRemaining);
+    LBlock[LMaxDataSize] := LRemaining;
+    Encrypt(LBlock);
+    CopyTIdBytes(LBlock, 0, VBuffer, Length(VBuffer) - FBlockSize, FBlockSize);
+  end;
 end;
 
 procedure TIdBlockCipherIntercept.Receive(var VBuffer: TIdBytes);
 var
-  LCount : integer;
-  LTemp : TIdBytes;
+  LBlock : TIdBytes;
+  LCount : Integer;
   LPos : Integer;
+  LMaxDataSize: Integer;
+  LCompleteBlocks: Integer;
+  LRemaining: Integer;
 Begin
+  LPos := 0;
   LCount := Length(FIncoming);
-  SetLength(FIncoming, Length(FIncoming) + Length(VBuffer));
-  CopyTIdBytes(VBuffer, 0, FIncoming, LCount, length(VBuffer));
-  SetLength(LTemp, FBlockSize);
 
-  if Length(FIncoming) < FBlockSize then
-    begin
-    SetLength(VBuffer, 0)
-    end
-  else
-    begin
+  SetLength(FIncoming, LCount + Length(VBuffer));
+  CopyTIdBytes(VBuffer, 0, FIncoming, LCount, Length(VBuffer));
+
+  if Length(FIncoming) >= FBlockSize then
+  begin
     // the length of ABuffer when we have finished is currently unknown, but must be less than
     // the length of FIncoming. We will reserve this much, then reallocate at the end
     SetLength(VBuffer, Length(FIncoming));
-    LPos := 0;
+    SetLength(LBlock, FBlockSize);
 
-    for LCount := 0 to (Length(FIncoming) div FBLockSize)-1 do
-      begin
-      CopyTIdBytes(FIncoming, LCount * FBlockSize, LTemp, 0, FBlockSize);
-      Decrypt(LTemp);
-      if (LTemp[FBlocksize-1] = 0) or (LTemp[FBlocksize-1] >= FBlockSize) then
-        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength+' ('+Sys.IntToStr(LTemp[FBlocksize-1])+')');
-      CopyTIdBytes(LTemp, 0, VBuffer, LPos, LTemp[FBlocksize-1]);
-      inc(LPos, LTemp[FBlocksize-1]);
+    LMaxDataSize := FBlockSize - 1;
+    LCompleteBlocks := Length(FIncoming) div FBlockSize;
+    LRemaining := Length(FIncoming) mod FBlockSize;
+
+    for LCount := 0 to LCompleteBlocks-1 do
+    begin
+      CopyTIdBytes(FIncoming, LCount * FBlockSize, LBlock, 0, FBlockSize);
+      Decrypt(LBlock);
+      if (LBlock[LMaxDataSize] = 0) or (LBlock[LMaxDataSize] >= FBlockSize) then begin
+        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength + ' (' + Sys.IntToStr(LBlock[LMaxDataSize]) + ')');
       end;
-    if Length(FIncoming) mod FBlockSize > 0 then
-      begin
-      CopyTIdBytes(FIncoming, Length(FIncoming) - (Length(FIncoming) mod FBlockSize), FIncoming, 0, Length(FIncoming) mod FBlockSize);
-      SetLength(FIncoming, Length(FIncoming) mod FBlockSize);
-      end
-    else
-      begin
-      SetLength(FIncoming, 0);
-      end;
-    SetLength(VBuffer, LPos);
+      CopyTIdBytes(LBlock, 0, VBuffer, LPos, LBlock[LMaxDataSize]);
+      Inc(LPos, LBlock[LMaxDataSize]);
     end;
+
+    if LRemaining > 0 then
+    begin
+      CopyTIdBytes(FIncoming, Length(FIncoming) - LRemaining, FIncoming, 0, LRemaining);
+    end;
+
+    SetLength(FIncoming, LRemaining);
+  end;
+
+  SetLength(VBuffer, LPos);
 end;
 
 procedure TIdBlockCipherIntercept.CopySettingsFrom(ASrcBlockCipherIntercept: TIdBlockCipherIntercept);
 Begin
-  Self.FBlockSize := ASrcBlockCipherIntercept.FBlockSize;
-  Self.FData:= ASrcBlockCipherIntercept.FData; // not sure that this is actually safe
-  Self.FOnConnect := ASrcBlockCipherIntercept.FOnConnect;
-  Self.FOnDisconnect:= ASrcBlockCipherIntercept.FOnDisconnect;
-  Self.FOnReceive := ASrcBlockCipherIntercept.FOnReceive;
-  Self.FOnSend := ASrcBlockCipherIntercept.FOnSend;
+  FBlockSize := ASrcBlockCipherIntercept.FBlockSize;
+  FData := ASrcBlockCipherIntercept.FData; // not sure that this is actually safe
+  FOnConnect := ASrcBlockCipherIntercept.FOnConnect;
+  FOnDisconnect:= ASrcBlockCipherIntercept.FOnDisconnect;
+  FOnReceive := ASrcBlockCipherIntercept.FOnReceive;
+  FOnSend := ASrcBlockCipherIntercept.FOnSend;
 end;
 
 procedure TIdBlockCipherIntercept.SetBlockSize(const Value: Integer);
 Begin
-  if (Value>0) and (Value<=IdBlockCipherBlockSizeMax) then begin
+  if (Value > 0) and (Value <= IdBlockCipherBlockSizeMax) then begin
     FBlockSize := Value;
   end;
 end;
