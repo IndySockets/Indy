@@ -1064,6 +1064,7 @@ begin
   Result := APWDReply;
   Delete(result, 1, IndyPos('"', result)); // Remove first doublequote                             {do not localize}
   Result := Copy(result, 1, IndyPos('"', result) - 1); // Remove anything from second doublequote  {do not localize}                               // to end of line
+  // TODO: handle embedded quotation marks.  RFC 959 allows them to be present
 end;
 
 function TIdFTP.IsValidOTPString(const AResponse:string):boolean;
@@ -1858,7 +1859,7 @@ procedure TIdFTP.StoreUnique(const ASourceFile: string);
 var
   LSourceStream: TIdStream;
 begin
-  LSourceStream := TIdReadFileNonExclusiveStream.Create(ASourceFile); try
+  LSourceStream := TIdReadFileExclusiveStream.Create(ASourceFile); try
     StoreUnique(LSourceStream);
   finally Sys.FreeAndNil(LSourceStream); end;
 end;
@@ -3782,8 +3783,8 @@ begin
   if LRemoteFileName = '' then begin
     LRemoteFileName := Sys.ExtractFileName(ARemoteFile);
   end;
-  LLocalStream := TIdReadFileNonExclusiveStream.Create(ALocalFile); try
-    Result := VerifyFile(LLocalStream,LRemoteFileName, AStartPoint, AByteCount);
+  LLocalStream := TIdReadFileExclusiveStream.Create(ALocalFile); try
+    Result := VerifyFile(LLocalStream, LRemoteFileName, AStartPoint, AByteCount);
   finally Sys.FreeAndNil(LLocalStream); end;
 end;
 
