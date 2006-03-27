@@ -22,10 +22,10 @@
   Rev 1.3    24/01/2004 19:29:12  CCostelloe
   Cleaned up warnings
 
-  Rev 1.2    10/17/2003 12:55:00 AM  DSiders
+    Rev 1.2    10/17/2003 12:55:00 AM  DSiders
   Added localization comments.
 
-  Rev 1.1    5/28/2003 9:12:06 PM  BGooijen
+    Rev 1.1    5/28/2003 9:12:06 PM  BGooijen
   ReverseIndian -> ReverseEndian
 
   Rev 1.0    11/13/2002 07:58:14 AM  JPMugaas
@@ -57,14 +57,23 @@ unit IdOTPCalculator;
 
 interface
 
+uses
+  IdException;
+  
 type
   TIdOTPCalculator = class
-    class function GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: integer): int64;
-    class function GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: integer): int64;
-    class function GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: integer): int64;
-    class function ToHex(const AKey: int64): string;
-    class function ToSixWordFormat(const AKey: int64): string;
+    class function GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
+    class function GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
+    class function GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
+    class function GenerateSixWordKey(const AStr, APassword: String; var VKey: String): Boolean; overload;
+    class function GenerateSixWordKey(const AMethod, ASeed, APassword: string; const ACount: Integer): string; overload;
+    class function IsValidOTPString(const AStr: String): Boolean;
+    class function ToHex(const AKey: Int64): string;
+    class function ToSixWordFormat(const AKey: Int64): string;
   end;
+
+  EIdOTPError = class(EIdException);
+  EIdOTPUnknownMethod = class(EIdOTPError);
 
 implementation
 
@@ -73,8 +82,9 @@ uses
   IdHash,
   IdHashMessageDigest,
   IdHashSHA1,
-  IdSys,
-  IdObjs;
+  IdObjs,
+  IdResourceStringsProtocols,
+  IdSys;
 
 const
   Dictionary: array[0..2047] of string = (
@@ -338,15 +348,15 @@ const
 
 function ReverseEndian(const AInt: LongWord): LongWord; overload;
 begin
-  result := ((AInt and $FF000000) shr 24) or
+  Result := ((AInt and $FF000000) shr 24) or
     ((AInt and $00FF0000) shr 8) or
     ((AInt and $0000FF00) shl 8) or
     ((AInt and $000000FF) shl 24);
 end;
 
-function ReverseEndian(const AInt64: int64): int64; overload;
+function ReverseEndian(const AInt64: Int64): Int64; overload;
 begin
-  result := ((AInt64 and $00000000FF000000) shr 24) or
+  Result := ((AInt64 and $00000000FF000000) shr 24) or
     ((AInt64 and $0000000000FF0000) shr 8) or
     ((AInt64 and $000000000000FF00) shl 8) or
     ((AInt64 and $00000000000000FF) shl 24) or
@@ -356,33 +366,33 @@ begin
     ((AInt64 and $000000FF00000000) shl 24);
 end;
 
-class function TIdOTPCalculator.ToHex(const AKey: int64): string;
+class function TIdOTPCalculator.ToHex(const AKey: Int64): string;
 begin
-  result := Sys.IntToHex(AKey, 16);
+  Result := Sys.IntToHex(AKey, 16);
 end;
 
-class function TIdOTPCalculator.ToSixWordFormat(const AKey: int64): string;
+class function TIdOTPCalculator.ToSixWordFormat(const AKey: Int64): string;
 
-  function GetBits(const Afrom: int64; const AStart: integer; const ACount: integer): word;
+  function GetBits(const Afrom: Int64; const AStart: integer; const ACount: integer): word;
   begin
-    result := (Afrom shl AStart) shr (64 - ACount);
+    Result := (Afrom shl AStart) shr (64 - ACount);
   end;
 
 var
-  i: integer;
+  i: Integer;
   LParity: integer;
 begin
-  for i := 0 to 4 do
-    result := result + Dictionary[GetBits(AKey, i * 11, 11)] + ' ';
-
+  for i := 0 to 4 do begin
+    Result := Result + Dictionary[GetBits(AKey, i * 11, 11)] + ' ';
+  end;
   LParity := 0;
   for i := 0 to 32 do
     inc(LParity, GetBits(AKey, i * 2, 2));
   LParity := LParity and 3;
-  result := result + Dictionary[GetBits(AKey, 55, 11) + LParity];
+  Result := Result + Dictionary[GetBits(AKey, 55, 11) + LParity];
 end;
 
-class function TIdOTPCalculator.GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: integer): int64;
+class function TIdOTPCalculator.GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LMD4: TIdHashMessageDigest4;
   LMD4Hash: T4x4LongWordRecord;
@@ -393,7 +403,7 @@ var
 begin
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    LMD4Hash := LMD4.HashValue(Sys.lowercase(ASeed) + APassword);
+    LMD4Hash := LMD4.HashValue(Sys.LowerCase(ASeed) + APassword);
     L64Bit := (Int64(LMD4Hash[0] xor LMD4Hash[2]) shl 32) or (LMD4Hash[1] xor LMD4Hash[3]);
 
     for i := 1 to ACount do begin
@@ -403,26 +413,26 @@ begin
 
         LTempLongWord := (L64Bit shr 32);
         LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes( LTempLongWord));
+        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
 
         LTempLongWord := (L64Bit and $FFFFFFFF);
         LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes (LTempLongWord ));
+        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
 
         LTmpMemStream.Position := 0;
         LMD4Hash := LMD4.HashValue(LTmpMemStream);
         L64Bit := (Int64(LMD4Hash[0] xor LMD4Hash[2]) shl 32) or (LMD4Hash[1] xor LMD4Hash[3]);
       finally
-        LTmpMemStream.free;
+        Sys.FreeAndNil(LTmpMemStream);
       end
     end;
   finally
-    LMD4.free;
+    Sys.FreeAndNil(LMD4);
   end;
   Result := ReverseEndian(L64Bit);
 end;
 
-class function TIdOTPCalculator.GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: integer): int64;
+class function TIdOTPCalculator.GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LMD5: TIdHashMessageDigest5;
   LMD5Hash: T4x4LongWordRecord;
@@ -433,7 +443,7 @@ var
 begin
   LMD5 := TIdHashMessageDigest5.Create;
   try
-    LMD5Hash := LMD5.HashValue(Sys.lowercase(ASeed) + APassword);
+    LMD5Hash := LMD5.HashValue(Sys.LowerCase(ASeed) + APassword);
     L64Bit := (Int64(LMD5Hash[0] xor LMD5Hash[2]) shl 32) or (LMD5Hash[1] xor LMD5Hash[3]);
 
     for i := 1 to ACount do begin
@@ -444,7 +454,7 @@ begin
 
         LTempLongWord := (L64Bit shr 32);
         LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream,ToBytes( LTempLongWord));
+        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
 
         LTempLongWord := (L64Bit and $FFFFFFFF);
         LTempLongWord := ReverseEndian(LTempLongWord);
@@ -454,16 +464,16 @@ begin
         LMD5Hash := LMD5.HashValue(LTmpMemStream);
         L64Bit := (Int64(LMD5Hash[0] xor LMD5Hash[2]) shl 32) or (LMD5Hash[1] xor LMD5Hash[3]);
       finally
-        LTmpMemStream.free;
+        Sys.FreeAndNil(LTmpMemStream);
       end
     end;
   finally
-    LMD5.free;
+    Sys.FreeAndNil(LMD5);
   end;
   Result := ReverseEndian(L64Bit);
 end;
 
-class function TIdOTPCalculator.GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: integer): int64;
+class function TIdOTPCalculator.GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LSHA1: TIdHashSHA1;
   LSHA1Hash: T5x4LongWordRecord;
@@ -474,7 +484,7 @@ var
 begin
   LSHA1 := TIdHashSHA1.Create;
   try
-    LSHA1Hash := LSHA1.HashValue(Sys.lowercase(ASeed) + APassword);
+    LSHA1Hash := LSHA1.HashValue(Sys.LowerCase(ASeed) + APassword);
     L64Bit := (Int64(LSHA1Hash[0] xor LSHA1Hash[2] xor LSHA1Hash[4]) shl 32) or (LSHA1Hash[1] xor LSHA1Hash[3]);
 
     for i := 1 to ACount do begin
@@ -484,7 +494,7 @@ begin
         L64Bit := ReverseEndian(L64Bit);
 
         LTempLongWord := (L64Bit shr 32);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes( LTempLongWord));
+        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
 
         LTempLongWord := (L64Bit and $FFFFFFFF);
         WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
@@ -493,13 +503,67 @@ begin
         LSHA1Hash := LSHA1.HashValue(LTmpMemStream);
         L64Bit := (Int64(LSHA1Hash[0] xor LSHA1Hash[2] xor LSHA1Hash[4]) shl 32) or (LSHA1Hash[1] xor LSHA1Hash[3]);
       finally
-        LTmpMemStream.free;
+        Sys.FreeAndNil(LTmpMemStream);
       end
     end;
   finally
-    LSHA1.free;
+    Sys.FreeAndNil(LSHA1);
   end;
-  result:=L64Bit;
+  Result := L64Bit;
+end;
+
+class function TIdOTPCalculator.GenerateSixWordKey(const AStr, APassword: string; var VKey: String): Boolean;
+var
+  LChallenge: string;
+  LChallengeStartPos: Integer;
+  LMethod: string;
+  LSeed: string;
+  LCount: Integer;
+begin
+  LChallengeStartPos := Pos('otp-', AStr); {do not localize}
+  if LChallengeStartPos > 0 then begin
+    Inc(LChallengeStartPos, 4); // to remove "otp-"
+    LChallenge := Copy(AStr, LChallengeStartPos, $FFFF);
+    LMethod := Fetch(LChallenge);
+    LCount := Sys.StrToInt(Fetch(LChallenge));
+    LSeed := Fetch(LChallenge);
+    VKey := GenerateSixWordKey(LMethod, LSeed, APassword, LCount);
+    Result := True;
+  end else begin
+    VKey := '';
+    Result := False;
+  end;
+end;
+
+class function TIdOTPCalculator.GenerateSixWordKey(const AMethod, ASeed, APassword: string;
+  const ACount: Integer): string;
+begin
+  // methods are case sensitive
+  case PosInStrArray(AMethod, ['md4', 'md5', 'sha1'], True) of
+    0: Result := ToSixWordFormat(GenerateKeyMD4(ASeed, APassword, ACount));
+    1: Result := ToSixWordFormat(GenerateKeyMD5(ASeed, APassword, ACount));
+    2: Result := ToSixWordFormat(GenerateKeySHA1(ASeed, APassword, ACount));
+  else
+    raise EIdOTPUnknownMethod.Create(RSOTPUnknownMethod);
+  end;
+end;
+
+class function TIdOTPCalculator.IsValidOTPString(const AStr: string): Boolean;
+var
+  LChallenge: string;
+  LChallengeStartPos: integer;
+  LMethod: string;
+begin
+  LChallengeStartPos := Pos('otp-', AStr);  {do not localize}
+  if LChallengeStartPos > 0 then begin
+    Inc(LChallengeStartPos, 4); // to remove "otp-"
+    LChallenge := Copy(AStr, LChallengeStartPos, $FFFF);
+    LMethod := Fetch(LChallenge);
+    // methods are case sensitive
+    Result := PosInStrArray(LMethod, ['md4', 'md5', 'sha1'], True) > -1;   {do not localize}
+  end else begin
+    Result := False;
+  end;
 end;
 
 end.
