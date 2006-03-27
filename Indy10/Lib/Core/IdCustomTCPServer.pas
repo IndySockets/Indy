@@ -304,7 +304,6 @@ type
     FReuseSocket: TIdReuseSocket;
     FTerminateWaitTime: Integer;
     FContexts: TIdThreadList;
-    FOnBeforeConnect: TIdServerThreadEvent;
     FOnConnect: TIdServerThreadEvent;
     FOnDisconnect: TIdServerThreadEvent;
     FOnException: TIdServerThreadExceptionEvent;
@@ -319,7 +318,6 @@ type
     procedure ContextConnected(AContext: TIdContext); virtual;
     procedure ContextDisconnected(AContext: TIdContext); virtual;
     procedure DoAfterBind; virtual;
-    procedure DoBeforeConnect(AContext: TIdContext); virtual;
     procedure DoBeforeListenerRun(AThread: TIdThread); virtual;
     procedure DoConnect(AContext: TIdContext); virtual;
     procedure DoDisconnect(AContext: TIdContext); virtual;
@@ -370,19 +368,15 @@ type
     // right after binding all sockets
     property OnAfterBind: TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnBeforeListenerRun: TIdNotifyThreadEvent read FOnBeforeListenerRun write FOnBeforeListenerRun;
-    property OnBeforeConnect: TIdServerThreadEvent read
-       FOnBeforeConnect write FOnBeforeConnect;
     // Occurs in the context of the peer thread
     property OnConnect: TIdServerThreadEvent read FOnConnect write FOnConnect;
     // Occurs in the context of the peer thread
     property OnDisconnect: TIdServerThreadEvent read FOnDisconnect write FOnDisconnect;
     // Occurs in the context of the peer thread
     property OnException: TIdServerThreadExceptionEvent read FOnException write FOnException;
-    property OnListenException: TIdListenExceptionEvent read FOnListenException
-      write FOnListenException;
+    property OnListenException: TIdListenExceptionEvent read FOnListenException write FOnListenException;
     property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
-    property TerminateWaitTime: Integer read FTerminateWaitTime
-     write FTerminateWaitTime default 5000;
+    property TerminateWaitTime: Integer read FTerminateWaitTime write FTerminateWaitTime default 5000;
     property Scheduler: TIdScheduler read FScheduler write SetScheduler;
   end;
   EIdTCPServerError = class(EIdException);
@@ -676,13 +670,6 @@ begin
   // This happens with explicit schedulers
   if Scheduler <> nil then begin
     Scheduler.TerminateAllYarns;
-  end;
-end;
-
-procedure TIdCustomTCPServer.DoBeforeConnect(AContext: TIdContext);
-begin
-  if Assigned(OnBeforeConnect) then begin
-    OnBeforeConnect(AContext);
   end;
 end;
 
