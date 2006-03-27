@@ -19,7 +19,7 @@
   Rev 1.1    10/17/2003 6:24:58 PM  BGooijen
   Removed const
 
-  Rev 1.0    3/22/2003 11:06:06 PM  BGooijen
+    Rev 1.0    3/22/2003 11:06:06 PM  BGooijen
   Initial check in.
   ServerIntercept to log data/status to an event.
 }
@@ -33,26 +33,26 @@ uses
 
 type
   TIdServerInterceptLogEvent=class;
-
-  TIdOnLogString=procedure (ASender: TIdServerInterceptLogEvent; AText: string) of object;
+  
+  TIdOnLogString= procedure(ASender: TIdServerInterceptLogEvent; const AText: string) of object;
 
   TIdServerInterceptLogEvent = class(TIdServerInterceptLogBase)
   protected
-    FOnLogString:TIdOnLogString;
+    FOnLogString: TIdOnLogString;
   public
-    procedure DoLogWriteString(AText: string);override;
+    procedure DoLogWriteString(const AText: string); override;
   published
-    property OnLogString:TIdOnLogString read FOnLogString write FOnLogString;
+    property OnLogString: TIdOnLogString read FOnLogString write FOnLogString;
   end;
 
 implementation
 
 { TIdServerInterceptLogEvent }
 
-procedure TIdServerInterceptLogEvent.DoLogWriteString(AText: string);
+procedure TIdServerInterceptLogEvent.DoLogWriteString(const AText: string);
 begin
   if Assigned(FOnLogString) then begin
-    FOnLogString(self,AText);
+    FOnLogString(Self, AText);
   end;
 end;
 
