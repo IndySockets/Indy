@@ -25,7 +25,7 @@
   Rev 1.2    1/21/2004 4:03:18 PM  JPMugaas
   InitComponent
 
-  Rev 1.1    10/19/2003 5:57:20 PM  DSiders
+    Rev 1.1    10/19/2003 5:57:20 PM  DSiders
   Added localization comments.
 
   Rev 1.0    5/10/2003 10:08:14 PM  JPMugaas
@@ -38,13 +38,14 @@ unit IdSASLSKey;
 
 interface
 
-uses IdSASLUserPass, IdSASL;
+uses
+  IdSASLUserPass, IdSASL;
 
 {
-  S/KEY SASL mechanism based on RFC 2222.
+S/KEY SASL mechanism based on RFC 2222.
 
-  NOte that this is depreciated and S/Key is a trademark of BelCore.  This unit
-  is only provided for backwards compatiability with some older systems.
+NOte that this is depreciated and S/Key is a trademark of BelCore.  This unit
+is only provided for backwards compatiability with some older systems.
 
   New designs should use IdSASLOTP (RFC 2444) which is more flexible and uses a
   better hash (MD5 and SHA1).
@@ -56,10 +57,8 @@ type
     procedure InitComponent; override;
   public
     class function ServiceName: TIdSASLServiceName; override;
-
-    function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String;
-      override;
+    function StartAuthenticate(const AChallenge: String) : String; override;
+    function ContinueAuthenticate(const ALastResponse: String): String; override;
   end;
 
 implementation
@@ -67,24 +66,25 @@ implementation
 uses
   IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, IdSys;
 
-const SKEYSERVICENAME = 'SKEY'; {do not localize}
+const
+  SKEYSERVICENAME = 'SKEY'; {do not localize}
 
 { TIdSASLSKey }
 
-function TIdSASLSKey.ContinueAuthenticate(
-  const ALastResponse: String): String;
-var LBuf, LSeed : String;
+function TIdSASLSKey.ContinueAuthenticate(const ALastResponse: String): String;
+var
+  LBuf, LSeed : String;
   LCount : Cardinal;
 begin
   LBuf := Sys.Trim(ALastResponse);
-  LCount := Sys.StrToInt(Fetch(LBuf),0);
+  LCount := Sys.StrToInt(Fetch(LBuf), 0);
   LSeed := Fetch(LBuf);
-  Result := TIdOTPCalculator.ToSixWordFormat(TIdOTPCalculator.GenerateKeyMD4(lseed, GetPassword, LCount));
+  Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
 end;
 
 procedure TIdSASLSKey.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   //less than 1000 because MD4 is broken and this is depreciated
   FSecurityLevel := 900;
 end;
@@ -94,7 +94,7 @@ begin
   Result := SKEYSERVICENAME;
 end;
 
-function TIdSASLSKey.StartAuthenticate(const AChallenge: string): String;
+function TIdSASLSKey.StartAuthenticate(const AChallenge: String): String;
 begin
   Result := GetUsername;
 end;
