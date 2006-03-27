@@ -34,7 +34,7 @@
   Rev 1.2    2004.02.03 5:44:06 PM  czhower
   Name changes
 
-  Rev 1.1    5/9/2003 2:14:42 PM  BGooijen
+    Rev 1.1    5/9/2003 2:14:42 PM  BGooijen
   Streams are now buffered, speed is now about 75 times as fast as before
 
   Rev 1.0    11/13/2002 07:57:22 AM  JPMugaas
@@ -73,35 +73,35 @@ uses
   IdMessageCoder, IdMessage, IdExceptionCore, IdObjs, IdGlobal;
 
 type
-  EIdMessageYencException = class( EIdMessageException ) ;
+  EIdMessageYencException = class(EIdMessageException);
 
-  EIdMessageYencInvalidSizeException = class( EIdMessageYencException ) ;
-  EIdMessageYencInvalidCRCException = class( EIdMessageYencException ) ;
-  EIdMessageYencCorruptionException = class( EIdMessageYencException ) ;
+  EIdMessageYencInvalidSizeException = class(EIdMessageYencException);
+  EIdMessageYencInvalidCRCException = class(EIdMessageYencException);
+  EIdMessageYencCorruptionException = class(EIdMessageYencException);
 
-  TIdMessageDecoderYenc = class( TIdMessageDecoder )
+  TIdMessageDecoderYenc = class(TIdMessageDecoder)
   protected
-    FPart: integer;
-    FLine: integer;
-    FSize: integer;
+    FPart: Integer;
+    FLine: Integer;
+    FSize: Integer;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
   end;
 
-  TIdMessageDecoderInfoYenc = class( TIdMessageDecoderInfo )
+  TIdMessageDecoderInfoYenc = class(TIdMessageDecoderInfo)
   public
-    function CheckForStart( ASender: TIdMessage; const ALine: string ) : TIdMessageDecoder; override;
+    function CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder; override;
   end;
 
-  TIdMessageEncoderYenc = class( TIdMessageEncoder )
+  TIdMessageEncoderYenc = class(TIdMessageEncoder)
   public
-    procedure Encode( ASrc: TIdStream; ADest: TIdStream ) ; override;
+    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
   end;
 
-  TIdMessageEncoderInfoYenc = class( TIdMessageEncoderInfo )
+  TIdMessageEncoderInfoYenc = class(TIdMessageEncoderInfo)
   public
     constructor Create; override;
-    procedure InitializeHeaders( AMsg: TIdMessage ) ; override;
+    procedure InitializeHeaders(AMsg: TIdMessage); override;
   end;
 
 const
@@ -117,201 +117,164 @@ const
 implementation
 
 uses
-  IdHashCRC, IdResourceStringsProtocols, IdSys;
+  IdHashCRC,
+  IdResourceStringsProtocols,
+  IdSys;
+
+function GetStrValue(const Line, Option: string; const AMaxCount: Integer = MaxInt) : string;
+var
+  LStart, LEnd: Integer;
+begin
+  LStart := IndyPos(Sys.LowerCase(Option) + '=', Sys.LowerCase(Line));
+  if LStart = 0 then
+  begin
+    Result := '';  {Do not Localize}
+    Exit;
+  end;
+  Inc(LStart, Length(Option) + 1);
+  Result := Copy(Line, LStart, AMaxCount);
+  LEnd := IndyPos(' ', Result) ; {Do not Localize}
+  if LEnd > 0 then begin
+    Result := Copy(Result, 1, LEnd - 1);
+  end;
+end;
+
+function GetIntValue(const Line, Option: string): Integer;
+var
+  LValue: String;
+begin
+  LValue := GetStrValue(Line, Option, $FFFF);
+  if LValue <> '' then begin
+    Result := Sys.StrToInt(LValue);
+  end else begin
+    Result := 0;
+  end;
+end;
 
 { TIdMessageDecoderInfoYenc }
 
-function TIdMessageDecoderInfoYenc.CheckForStart( ASender: TIdMessage; const ALine: string ) : TIdMessageDecoder;
-
-  function GetValue( const option: string; const default: string = '0' ) : string;
-  var
-    LStart: integer;
-    LEnd: integer;
-  begin
-    lstart := IndyPos( Sys.lowercase(option) + '=', Sys.lowercase(ALine) ) ;
-    if Lstart = 0 then
-    begin
-      result := default;
-      exit;
-    end;
-    lstart := lstart + length( option ) + 1;
-    result := copy( ALine, lstart, MaxInt ) ;
-    lend := IndyPos( ' ', result ) ; {Do not Localize}
-    if lend > 0 then
-    begin
-      result := copy( result, 1, lend - 1 );
-    end;
-  end;
+function TIdMessageDecoderInfoYenc.CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
 
   function GetName: string;
   var
-    Lstart: integer;
+    LStart: Integer;
   begin
-    Lstart := IndyPos( 'name=', Sys.lowercase(ALine) ) ; {Do not Localize}
-    if Lstart = 0 then
-    begin
-      result := '';
-      exit;
+    LStart := IndyPos('name=', Sys.LowerCase(ALine)); {Do not Localize}
+    if LStart > 0 then begin
+      Result := Copy(ALine, LStart+5, MaxInt);
+    end else begin
+      Result := '';
     end;
-    Lstart := Lstart + 4 + 1;
-    result := copy( ALine, Lstart, MaxInt ) ;
   end;
 
 begin
-  if Sys.SameText( Copy( ALine, 1, 8 ) , '=ybegin ' ) {Do not Localize} then
+  if TextStartsWith(ALine, '=ybegin ') {Do not Localize} then
   begin
-    Result := TIdMessageDecoderYenc.Create( ASender ) ;
-    with TIdMessageDecoderYenc( Result ) do
-    begin
-      FSize := Sys.strtoint( GetValue( 'size' ) ) ; {Do not Localize}
-      FLine := Sys.strtoint( GetValue( 'line' ) ) ; {Do not Localize}
-      FPart := Sys.strtoint( GetValue( 'part' ) ) ; {Do not Localize}
-      FFilename := {'Yenc_' +} Getname; {Do not Localize}
+    Result := TIdMessageDecoderYenc.Create(ASender);
+    with TIdMessageDecoderYenc(Result) do
+    try
+      FSize := GetIntValue(ALine, 'size'); {Do not Localize}
+      FLine := GetIntValue(ALine, 'line'); {Do not Localize}
+      FPart := GetIntValue(ALine, 'part'); {Do not Localize}
+      FFilename := GetName;
       FPartType := mcptAttachment;
+    except
+      Sys.FreeAndNil(Result);
+      raise;
     end;
-  end
-  else
-  begin
+  end else begin
     Result := nil;
   end;
 end;
 
 { TIdMessageDecoderYenc }
 
-{function GetCRC( const Astream: Tstream; const ASize: integer ) : string;
-begin
-  with TIdHashCRC32.create do
-  try
-    Astream.Seek( -1 * ASize, IdFromEnd ) ;
-    result := Sys.lowercase( Sys.inttohex( HashValue( Astream ) , 8 ) ) ;
-  finally
-    free;
-  end;
-end;   }
-
-function TIdMessageDecoderYenc.ReadBody( ADestStream: TIdStream; var AMsgEnd: Boolean ) : TIdMessageDecoder;
+function TIdMessageDecoderYenc.ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder;
 var
   LLine: string;
-  LLinepos: integer;
+  LLinePos: Integer;
   LChar: Byte;
-  LBytesDecoded: integer;
-  LPartSize: integer;
-  Lcrc32: string;
+  LBytesDecoded: Integer;
+  LPartSize: Integer;
+  LCrc32: string;
+  LMsgEnd: Boolean;
 
-  LOutputBuffer:TIdBytes;
-  LOutputBufferUsed:integer;
-  LHash : Cardinal;
-  LH : TIdHashCRC32;
-
-  function GetValue( const option: string; const default: string = '0' ) : string;
-  var
-    Lstart: integer;
-    LEnd: integer;
-  begin
-    lstart := IndyPos( Sys.lowercase(option) + '=', Sys.lowercase(LLine) ) ; {Do not Localize}
-    if Lstart = 0 then
-    begin
-      result := default;
-      exit;
-    end;
-    lstart := lstart + length( option ) + 1;
-    result := copy( LLine, lstart, $FFFF ) ;
-    lend := IndyPos( ' ', result ) ; {Do not Localize}
-    if lend > 0 then
-    begin
-      result := copy( result, 1, lend - 1 );
-    end;
-  end;
+  LOutputBuffer: TIdBytes;
+  LOutputBufferUsed: Integer;
+  LHash: Cardinal;
+  LH: TIdHashCRC32;
 
   procedure FlushOutputBuffer;
   begin
-  //TODO: this uses Array of Characters. Unless its dealing in Unicode or MBCS it should
-  // be using TIdBuffer
+    //TODO: this uses Array of Characters. Unless its dealing in Unicode or MBCS it should
+    // be using TIdBuffer
     ADestStream.Write(LOutputBuffer, LOutputBufferUsed);
-    LOutputBufferUsed:=0;
+    LOutputBufferUsed := 0;
   end;
 
-  procedure AddByteToOutputBuffer(const AChar:Byte);
+  procedure AddByteToOutputBuffer(const AChar: Byte);
   begin
-    LOutputBuffer[LOutputBufferUsed]:=AChar;
-    inc(LOutputBufferUsed);
-    if LOutputBufferUsed>=BUFLEN then begin
+    LOutputBuffer[LOutputBufferUsed] := AChar;
+    Inc(LOutputBufferUsed);
+    if LOutputBufferUsed >= BUFLEN then begin
       FlushOutputBuffer;
     end;
   end;
 
 begin
-  SetLength(LOutputBuffer,BUFLEN);
-  AMSgEnd := false;
+  SetLength(LOutputBuffer, BUFLEN);
+  AMsgEnd := False;
   Result := nil;
-  LPartSize := fsize;
-  LOutputBufferUsed:=0;
-
+  LPartSize := FSize;
+  LOutputBufferUsed := 0;
   LBytesDecoded := 0;
+
   LH := TIdHashCRC32.Create;
   try
     LH.HashStart(LHash);
-  //note that we have to do hashing here because there's no
-  //seek in the TIdStream class, changing definiti9ons in this API might break something,
-  //and storing in an extra buffer will just eat space
-  while true do
-  begin
-    lline := readln;
-    if IndyPos( '=yend', Sys.lowercase(lline) ) <> 0 then {Do not Localize}
+    //note that we have to do hashing here because there's no seek
+    // in the TIdStream class, changing definitions in this API might
+    // break something, and storing in an extra buffer will just eat space
+    while True do
     begin
-      break;
-    end;
-    if ( copy( lline, 1, 7 ) = '=ypart ' ) then {Do not Localize}
-    begin
-      LPartSize := Sys.strtoint( getvalue( 'end' ) ) - Sys.strtoint( getvalue( 'begin' ) ) + 1; {Do not Localize}
-    end
-    else
-    begin
-      LLinepos := 1;
-      while LLinepos <= length( lline ) do
+      LLine := ReadLnRFC(LMsgEnd);
+      if (IndyPos('=yend', Sys.LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
-        if (LLinepos=1) and (lline[LLinepos]='.') and (lline[LLinepos+1]='.') then {Do not Localize}
+        Break;
+      end;
+      if TextStartsWith(LLine, '=ypart ') then begin {Do not Localize}
+        LPartSize := GetIntValue(LLine, 'end') - GetIntValue(LLine, 'begin') + 1; {Do not Localize}
+      end
+      else begin
+        LLinePos := 1;
+        while LLinePos <= Length(LLine) do
         begin
-          inc(LLinepos);
-        end;
-        lchar := Byte(lline[LLinepos]);
-        if lchar = B_EQUALS then {Do not Localize}
-        begin
-          if LLinepos = length( lline ) then // invalid file, escape character may not appear at end of line
-          begin
-            raise EIdMessageYencCorruptionException.Create( RSYencFileCorrupted ) ;
+          LChar := Byte(LLine[LLinePos]);
+          if LChar = B_EQUALS then begin
+            // invalid file, escape character may not appear at end of line
+            EIdMessageYencCorruptionException.IfTrue(LLinePos = Length(LLine), RSYencFileCorrupted);
+            Inc(LLinePos);
+            LChar := Byte(LLine[LLinePos]) - 42 - 64;
+          end else begin
+            LChar := Byte(LChar) - 42;
           end;
-          inc( LLinepos ) ;
-          lchar := Byte(lline[LLinepos]);
-          lchar :=  byte( lchar ) - 42 - 64  ;
-        end
-        else
-        begin
-          lchar :=  byte( lchar ) - 42 ;
+          AddByteToOutputBuffer(LChar);
+          LH.HashByte(LHash, LChar);
+          Inc(LLinePos);
+          Inc(LBytesDecoded);
         end;
-        AddByteToOutputBuffer( lchar ) ;
-        LH.HashByte(LHash,lchar);
-        inc( LLinepos ) ;
-        inc( LBytesDecoded ) ;
       end;
     end;
-  end;
 
-  FlushOutputBuffer;
+    FlushOutputBuffer;
+    EIdMessageYencInvalidSizeException.IfTrue(LPartSize <> LBytesDecoded, RSYencInvalidSize);
 
-  Lcrc32 := Sys.lowercase( GetValue( 'crc32', '' ) ) ; {Do not Localize}
-
-  if LPartSize <> LBytesDecoded then begin
-    raise EIdMessageYencInvalidSizeException.Create( RSYencInvalidSize ) ;
-  end;
-
-  if Lcrc32 <> '' then begin
-    //done this way because values can be computed faster than strings and we don't
-    //have to mess with charactor case.
-    if Sys.StrToInt64('$'+Lcrc32) <> LHash then begin
-      raise EIdMessageYencInvalidCRCException.Create( RSYencInvalidCRC ) ;
+    LCrc32 := Sys.LowerCase(GetStrValue(LLine, 'crc32', $FFFF)); {Do not Localize}
+    if LCrc32 <> '' then begin
+      //done this way because values can be computed faster than strings and we don't
+      //have to mess with charactor case.
+      EIdMessageYencInvalidCRCException.IfTrue(Sys.StrToInt64('$' + LCrc32) <> LHash, RSYencInvalidCRC);
     end;
-  end;
   finally
     Sys.FreeAndNil(LH);
   end;
@@ -319,115 +282,119 @@ end;
 
 constructor TIdMessageEncoderInfoYenc.Create;
 begin
-  inherited;
+  inherited Create;
   FMessageEncoderClass := TIdMessageEncoderYenc;
 end;
 
-procedure TIdMessageEncoderInfoYenc.InitializeHeaders( AMsg: TIdMessage ) ;
+procedure TIdMessageEncoderInfoYenc.InitializeHeaders(AMsg: TIdMessage);
 begin
 //
 end;
 
 { TIdMessageEncoderYenc }
 
-procedure TIdMessageEncoderYenc.Encode( ASrc: TIdStream; ADest: TIdStream ) ;
+procedure TIdMessageEncoderYenc.Encode(ASrc: TIdStream; ADest: TIdStream);
 const
-  Linesize = 128;
+  LineSize = 128;
 var
-  i: integer;
-  s: string;
+  i: Integer;
+  s: String;
   LSSize: Int64;
   LInput: Byte;
-  Loutput: Byte;
+  LOutput: Byte;
   LEscape : Byte;
-  LCurrentLineLength: integer;
+  LCurrentLineLength: Integer;
 
-  LOutputBuffer:TIdBytes;
-  LOutputBufferUsed:integer;
+  LOutputBuffer: TIdBytes;
+  LOutputBufferUsed: Integer;
 
-  LInputBuffer:TIdBytes;
-  LInputBufferPos:integer;
-  LInputBufferSize:integer;
-  LHash : Cardinal;
-  LH : TIdHashCRC32;
+  LInputBuffer: TIdBytes;
+  LInputBufferPos: Integer;
+  LInputBufferSize: Integer;
+  LHash: Cardinal;
+  LH: TIdHashCRC32;
 
   procedure FlushOutputBuffer;
   begin
     ADest.Write(LOutputBuffer, LOutputBufferUsed);
-    LOutputBufferUsed:=0;
+    LOutputBufferUsed := 0;
   end;
 
-  procedure AddByteToOutputBuffer(const AChar:Byte);
+  procedure AddByteToOutputBuffer(const AChar: Byte);
   begin
     LOutputBuffer[LOutputBufferUsed]:=AChar;
     inc(LOutputBufferUsed);
-    if LOutputBufferUsed>=BUFLEN then begin
+    if LOutputBufferUsed >= BUFLEN then begin
       FlushOutputBuffer;
     end;
   end;
 
-  function ReadByteFromInputBuffer:Byte;
+  function ReadByteFromInputBuffer: Byte;
   begin
-    if LInputBufferPos>=LInputBufferSize then begin
-      LInputBufferPos:=0;
-      LInputBufferSize:=ASrc.Read( LInputBuffer, BUFLEN ) ;
+    if LInputBufferPos >= LInputBufferSize then begin
+      LInputBufferPos := 0;
+      Todo;
+//      LInputBufferSize := ASrc.Read(LInputBuffer, 4096);
     end;
-    result:=LInputBuffer[LInputBufferPos];
-    inc(LInputBufferPos);
+    Result := LInputBuffer[LInputBufferPos];
+    Inc(LInputBufferPos);
   end;
 
 begin
-  SetLength(LOutputBuffer,BUFLEN);
-  SetLength(LInputBuffer,BUFLEN);
+  SetLength(LOutputBuffer, BUFLEN);
+  SetLength(LInputBuffer, BUFLEN);
   ASrc.Position := 0;
   LSSize := ASrc.Size;
   LCurrentLineLength := 0;
-  LEscape:=B_EQUALS; {do not localize}
-  LOutputBufferUsed:=0;
+  LEscape := B_EQUALS;
+  LOutputBufferUsed := 0;
+
   LH := TIdHashCRC32.Create;
   try
     LH.HashStart(LHash);
-    s := '=ybegin line=' + Sys.inttostr( Linesize ) + ' size=' + Sys.inttostr( LSSize ) + ' name='+FFilename+#$0D#$0A;  {do not localize}
+    s := '=ybegin line=' + Sys.IntToStr(LineSize) + ' size=' + Sys.IntToStr(LSSize) + ' name=' + FFilename + EOL;  {do not localize}
     WriteStringToStream(ADest, s);
 
     for i := 0 to ASrc.Size - 1 do
     begin
-      LInput:=ReadByteFromInputBuffer;
-      Loutput :=  byte( LInput ) + 42 ;
-      if  Loutput in [B_NUL, B_LF, B_CR, B_EQUALS, B_TAB, B_PERIOD] then   {do not localize}
-      begin
-        AddByteToOutputBuffer( LEscape) ;
-        Loutput := Loutput + 64;
-        inc( LCurrentLineLength ) ;
+      LInput := ReadByteFromInputBuffer;
+      LOutput := Byte(LInput) + 42;
+      if LOutput in [B_NUL, B_LF, B_CR, B_EQUALS, B_TAB, B_PERIOD] then begin {do not localize}
+        AddByteToOutputBuffer(LEscape);
+        LOutput := LOutput + 64;
+        Inc(LCurrentLineLength);
       end;
-      AddByteToOutputBuffer( Loutput) ;
-      LH.HashByte(LHash,LOutput);
-      inc( LCurrentLineLength ) ;
-      if LCurrentLineLength=1 then begin
-        if Loutput=B_PERIOD then begin
-          AddByteToOutputBuffer( Loutput ) ;
-          inc( LCurrentLineLength ) ;
+      AddByteToOutputBuffer(LOutput);
+      LH.HashByte(LHash, LOutput);
+      Inc(LCurrentLineLength);
+      if LCurrentLineLength = 1 then begin
+        if LOutput = B_PERIOD then begin
+         AddByteToOutputBuffer(LOutput);
+         Inc(LCurrentLineLength);
         end;
       end;
 
-      if LCurrentLineLength >= Linesize then
+      if LCurrentLineLength >= LineSize then
       begin
-        AddByteToOutputBuffer( B_CR) ; {do not localize}
-        AddByteToOutputBuffer( B_LF ) ; {do not localize}
+        AddByteToOutputBuffer(B_CR);
+        AddByteToOutputBuffer(B_LF);
         LCurrentLineLength := 0;
       end;
     end;
+
     FlushOutputBuffer;
-    s := EOL + '=yend size=' + Sys.inttostr( LSSize ) + ' crc32=' + {do not localize}
-      Sys.lowercase( Sys.inttohex( LHash, 8 )) + EOL;
+
+    s := EOL + '=yend size=' + Sys.IntToStr(LSSize) + ' crc32=' + {do not localize}
+      Sys.LowerCase(Sys.IntToHex(LHash, 8)) + EOL;
+
+    WriteStringToStream(ADest, s);
   finally
     Sys.FreeAndNil(LH);
   end;
-  WriteStringToStream(ADest, s);
 end;
 
 initialization
-  TIdMessageDecoderList.RegisterDecoder( 'yEnc', TIdMessageDecoderInfoYenc.Create ) ; {Do not Localize}
-  TIdMessageEncoderList.RegisterEncoder( 'yEnc', TIdMessageEncoderInfoYenc.Create ) ; {Do not Localize}
+  TIdMessageDecoderList.RegisterDecoder('yEnc', TIdMessageDecoderInfoYenc.Create); {Do not Localize}
+  TIdMessageEncoderList.RegisterEncoder('yEnc', TIdMessageEncoderInfoYenc.Create); {Do not Localize}
 end.
 
