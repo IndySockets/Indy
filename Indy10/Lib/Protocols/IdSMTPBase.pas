@@ -22,7 +22,7 @@
   Rev 1.18    11/27/04 3:03:22 AM  RLebeau
   Bug fix for 'STARTTLS' response handling
 
-  Rev 1.17    6/11/2004 9:38:44 AM  DSiders
+    Rev 1.17    6/11/2004 9:38:44 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.16    2004.02.03 5:45:46 PM  czhower
@@ -58,7 +58,7 @@
   Rev 1.8    25/11/2003 12:24:22 PM  SGrobety
   various IdStream fixes with ReadLn/D6
 
-  Rev 1.7    10/17/2003 1:02:56 AM  DSiders
+    Rev 1.7    10/17/2003 1:02:56 AM  DSiders
   Added localization comments.
 
   Rev 1.6    2003.10.14 1:31:16 PM  czhower
@@ -84,8 +84,6 @@
 }
 
 unit IdSMTPBase;
-
-{$I IdCompilerDefines.inc}
 
 interface
 
