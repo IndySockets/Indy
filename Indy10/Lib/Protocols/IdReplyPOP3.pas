@@ -69,7 +69,7 @@
   to integers is no longer needed.  The integers used in mapping have been
   removed.
 
-  Rev 1.6    5/30/2003 9:06:44 PM  BGooijen
+    Rev 1.6    5/30/2003 9:06:44 PM  BGooijen
   uses CheckIfCodeIsValid now
 
   Rev 1.5    5/26/2003 04:28:28 PM  JPMugaas
@@ -96,10 +96,9 @@ unit IdReplyPOP3;
 interface
 
 uses
-  IdReply,
   IdException,
-  IdSys,
-  IdObjs;
+  IdObjs,
+  IdReply;
 
 const
   {do not change these strings unless you know what you are doing}
@@ -131,9 +130,8 @@ type
   protected
     FEnhancedCode : String;
     //
-    procedure AssignTo(ADest: TIdPersistent); override;
-    class function FindCodeTextDelin(const AText : String) : Integer;
-    class function IsValidEnhancedCode(const AText : String; const AStrict : Boolean=False) : Boolean;
+    class function FindCodeTextDelim(const AText : String) : Integer;
+    class function IsValidEnhancedCode(const AText : String; const AStrict : Boolean = False) : Boolean;
     class function ExtractTextPosArray(const AStr : String):Integer;
     function GetFormattedReply: TIdStrings; override;
     procedure SetFormattedReply(const AValue: TIdStrings); override;
@@ -144,7 +142,7 @@ type
       ACollection: TIdCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
-    destructor Destroy; override;
+    procedure Assign(ASource: TIdPersistent); override;
     procedure RaiseReplyError; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
@@ -164,7 +162,7 @@ type
     FEnhancedCode : String;
   public
     constructor CreateError(const AErrorCode: String;
-     const AReplyMessage: string; const AEnhancedCode : String=''); reintroduce; virtual;
+     const AReplyMessage: string; const AEnhancedCode : String = ''); reintroduce; virtual;
     property ErrorCode : String read FErrorCode;
     property EnhancedCode : String read FEnhancedCode;
   end;
@@ -182,57 +180,48 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols;
+  IdGlobal,
+  IdGlobalProtocols,
+  IdResourceStringsProtocols,
+  IdSys;
 
 { TIdReplyPOP3 }
 
-procedure TIdReplyPOP3.AssignTo(ADest: TIdPersistent);
+procedure TIdReplyPOP3.Assign(ASource: TIdPersistent);
 var
   LR: TIdReplyPOP3;
 begin
-
-  if ADest is TIdReplyPOP3 then begin
-    LR := TIdReplyPOP3(ADest);
-    LR.Code := Code;
-    LR.FEnhancedCode := EnhancedCode;
-    LR.Text.Assign(Text);
-  end
-  else
-  begin
-    inherited;
+  if ASource is TIdReplyPOP3 then begin
+    LR := TIdReplyPOP3(ASource);
+    //set code first as it possibly clears the reply
+    Code := LR.Code;
+    FEnhancedCode := LR.EnhancedCode;
+    FText.Assign(LR.Text);
+  end else begin
+    inherited Assign(ASource);
   end;
-
 end;
 
 function TIdReplyPOP3.CheckIfCodeIsValid(const ACode: string): Boolean;
 var
   LOrd: Integer;
 begin
-  LOrd := PosInStrArray(ACode,VALID_POP3_STR, False);
-  Result := (LOrd <> -1) or (Sys.Trim(ACode) = '');
+  LOrd := PosInStrArray(ACode, VALID_POP3_STR, False);
+  Result := (LOrd > -1) or (Sys.Trim(ACode) = '');
 end;
 
-constructor TIdReplyPOP3.Create(
-      ACollection: TIdCollection = nil;
-      AReplyTexts: TIdReplies = nil
-      );
+constructor TIdReplyPOP3.Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil);
 begin
-  inherited;
+  inherited Create(ACollection, AReplyTexts);
   FCode := ST_OK;
-end;
-
-destructor TIdReplyPOP3.Destroy;
-begin
-  inherited;
 end;
 
 class function TIdReplyPOP3.ExtractTextPosArray(const AStr: String): Integer;
 begin
-  Result := PosInStrArray(Copy(AStr,1, Self.FindCodeTextDelin(AStr) - 1)
-   ,VALID_POP3_STR,False);
+  Result := PosInStrArray(Copy(AStr, 1, FindCodeTextDelim(AStr) - 1), VALID_POP3_STR, False);
 end;
 
-class function TIdReplyPOP3.FindCodeTextDelin(const AText: String): Integer;
+class function TIdReplyPOP3.FindCodeTextDelim(const AText: String): Integer;
 var
   LMin, LSpace: Integer;
   LBuf: String;
@@ -242,11 +231,11 @@ begin
   //we do things this way because a line can start with a minus as in
   //-ERR [IN-USE] Mail box in use
   LBuf := AText;
-  if Copy(LBuf, 1, 1) = '-' then begin
+  if TextStartsWith(LBuf, '-') then begin
     Delete(LBuf, 1, 1);
     LAddBackFlag := True;
   end;
-  LMin := IndyPos(' ',LBuf);
+  LMin := IndyPos(' ', LBuf);
   LSpace := IndyPos('-', LBuf);
   if LMin > 0 then begin
     if (LSpace <> 0) and (LMin > LSpace) then begin
@@ -275,30 +264,24 @@ begin
     if FText.Count > 0 then begin
       for i := 0 to FText.Count - 1 do begin
         if i < FText.Count - 1 then begin
-          if (Code=ST_ERR) and (FEnhancedCode <> '') then
-          begin
-            Result.Add( Code + '-' + FEnhancedCode + ' '+FText[i]);
-          end
-          else
-          begin
-            Result.Add( Code + '-' + FText[i]);
+          if (Code = ST_ERR) and (FEnhancedCode <> '') then begin
+            Result.Add(Code + '-' + FEnhancedCode + ' ' + FText[i]);
+          end else begin
+            Result.Add(Code + '-' + FText[i]);
           end;
         end else begin
-          if (Code=ST_ERR) and (FEnhancedCode <> '') then
-          begin
-            Result.Add( Code + ' ' + Self.EnhancedCode + ' '+FText[i]);
-          end
-          else
-          begin
-            Result.Add( Code + ' ' + FText[i]);
+          if (Code = ST_ERR) and (FEnhancedCode <> '') then begin
+            Result.Add(Code + ' ' + FEnhancedCode + ' ' + FText[i]);
+          end else begin
+            Result.Add(Code + ' ' + FText[i]);
           end;
         end;
       end;
     end else begin
-      Result.Add( Code);
+      Result.Add(Code);
     end;
   end else if FText.Count > 0 then begin
-    Result.AddStrings( FText);
+    Result.AddStrings(FText);
   end;
 end;
 
@@ -307,37 +290,37 @@ var
   LPos: Integer;
 begin
   Result := False;
-  LPos := FindCodeTextDelin(ALine);
+  LPos := FindCodeTextDelim(ALine);
   if LPos > 0 then begin
     if LPos > Length(ALine) then begin
-      Result := True
+      Result := True;
     end else begin
       Result := ALine[LPos] <> '-';
     end;
   end;
 end;
 
-class function TIdReplyPOP3.IsValidEnhancedCode(const AText : String; const AStrict : Boolean=False): Boolean;
-var LBuf : String;
+class function TIdReplyPOP3.IsValidEnhancedCode(const AText : String; const AStrict : Boolean = False): Boolean;
+var
+  LBuf : String;
   i : integer;
 begin
-  Result := (Sys.Trim(AText) = '');
+  Result := Sys.Trim(AText) = '';
   if not Result then begin
     LBuf := AText;
-    if (LBuf<>'') and (LBuf[1]='[') then begin
-      Delete(LBuf,1,1);
-      if (LBuf<>'') and (LBuf[Length(LBuf)]=']') then begin
-        LBuf := Fetch(LBuf,']');
+    if (LBuf <> '') and (LBuf[1] = '[') then begin
+      Delete(LBuf, 1, 1);
+      if (LBuf <> '') and (LBuf[Length(LBuf)] = ']') then begin
+        LBuf := Fetch(LBuf, ']');
         if AStrict then begin
-          Result := (PosInStrArray(LBuf,VALID_ENH_CODES)>-1);
+          Result := PosInStrArray(LBuf, VALID_ENH_CODES) > -1;
         end else begin
           {We don't use PosInStrArray because we only want the fist
           charactors in our string to match.  This is necessary because
           the POP3 enhanced codes will be hierarchical as time goes on.
           }
-          for i := Low( VALID_ENH_CODES ) to High(VALID_ENH_CODES) do
-          begin
-            if TextIsSame(Copy(LBuf,1,Length(VALID_ENH_CODES[i])), VALID_ENH_CODES[i]) then begin
+          for i := Low(VALID_ENH_CODES) to High(VALID_ENH_CODES) do begin
+            if TextStartsWith(LBuf, VALID_ENH_CODES[i]) then begin
               Result := True;
               Exit;
             end;
@@ -354,31 +337,24 @@ begin
 end;
 
 procedure TIdReplyPOP3.SetEnhancedCode(const AValue: String);
-var LBuf : String;
+var
+  LBuf : String;
 begin
   LBuf := AValue;
-  if LBuf = '' then
-  begin
+  if LBuf = '' then begin
     FEnhancedCode := '';
-  end
-  else
-  begin
+  end else begin
     LBuf := Sys.UpperCase(LBuf);
-    if (LBuf[1]<>'[') then
-    begin
-      LBuf := '['+LBuf;
+    if (LBuf[1] <> '[') then begin
+      LBuf := '[' + LBuf;
     end;
-    if (LBuf[Length(LBuf)]<>']') then
-    begin
+    if (LBuf[Length(LBuf)] <> ']') then begin
       LBuf := LBuf + ']';
     end;
-    if IsValidEnhancedCode(LBuf,True) then
-    begin
+    if IsValidEnhancedCode(LBuf, True) then begin
       FEnhancedCode := LBuf;
-    end
-    else
-    begin
-      raise EIdPOP3ReplyInvalidEnhancedCode.Create(RSPOP3ReplyInvalidEnhancedCode+AValue);
+    end else begin
+      raise EIdPOP3ReplyInvalidEnhancedCode.Create(RSPOP3ReplyInvalidEnhancedCode + AValue);
     end;
   end;
 end;
@@ -393,20 +369,16 @@ begin
   Clear;
   if AValue.Count > 0 then begin
     LOrd := ExtractTextPosArray(AValue[0]);
-
-    if LOrd>-1 then
-    begin
+    if LOrd > -1 then begin
       Code := VALID_POP3_STR[LOrd];
     end;
     for i := 0 to AValue.Count - 1 do begin
-      if LOrd = -1 then
-      begin
+      if LOrd = -1 then begin
         LOrd := ExtractTextPosArray(AValue[i]);
       end;
-      idx := FindCodeTextDelin(AValue[i]);
+      idx := FindCodeTextDelim(AValue[i]);
       LBuf := Copy(AValue[i], idx+1, MaxInt);
-      if (Code = ST_ERR) and(IsValidEnhancedCode(Fetch(LBuf,' ',False))) then
-      begin
+      if (Code = ST_ERR) and IsValidEnhancedCode(Fetch(LBuf,' ',False)) then begin
         //don't use EnhancedCode property set method because that does
         //a tighter validation than we should use for parsing replies
         //from a server.
@@ -414,8 +386,7 @@ begin
       end;
       Text.Add(LBuf);
     end;
-    if LOrd = -1 then
-    begin
+    if LOrd = -1 then begin
       Code := ST_ERR;
     end;
   end;
@@ -430,8 +401,8 @@ end;
 
 { EIdReplyPOP3Error }
 
-constructor EIdReplyPOP3Error.CreateError(const AErrorCode,
-  AReplyMessage: string; const AEnhancedCode : String='');
+constructor EIdReplyPOP3Error.CreateError(const AErrorCode, AReplyMessage: string;
+  const AEnhancedCode : String = '');
 begin
   inherited Create(AReplyMessage);
   FErrorCode := AErrorCode;
