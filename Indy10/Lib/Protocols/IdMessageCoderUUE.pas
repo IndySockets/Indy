@@ -43,7 +43,7 @@
   Rev 1.5    1/21/2004 1:30:10 PM  JPMugaas
   InitComponent
 
-  Rev 1.4    10/17/2003 12:41:16 AM  DSiders
+    Rev 1.4    10/17/2003 12:41:16 AM  DSiders
   Added localization comments.
 
   Rev 1.3    26/09/2003 01:06:18  CCostelloe
@@ -59,8 +59,8 @@
 
   Rev 1.0    11/13/2002 07:57:14 AM  JPMugaas
 
-  2003-Sep-20 Ciaran Costelloe
-    CodingType property added so caller can find out if it was UUE or XXE encoded
+2003-Sep-20 Ciaran Costelloe
+  CodingType property added so caller can find out if it was UUE or XXE encoded
 }
 
 unit IdMessageCoderUUE;
@@ -137,12 +137,13 @@ function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream; var AMsgEnd: Bool
 var
   LDecoder: TIdDecoder4to3;
   LLine: string;
+  LMsgEnd: Boolean;
 begin
-  AMSgEnd := False;
+  AMsgEnd := False;
   Result := nil;
-  LLine := ReadLn;
+  LLine := ReadLnRFC(LMsgEnd);
   LDecoder := nil;
-  if (Length(LLine) > 0) then
+  if Length(LLine) > 0 then
   begin
     case LLine[1] of
       #32..#85: begin    {Do not Localize}
@@ -173,7 +174,7 @@ begin
         end else begin
           LDecoder.Decode(LLine);
         end;
-        LLine := ReadLn;
+        LLine := ReadLnRFC(LMsgEnd);
       until TextIsSame(Sys.Trim(LLine), 'end');    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
