@@ -91,20 +91,21 @@ end;
 
 procedure TIdMappedPortUDP.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
 var
-  OutboundClient: TIdUDPClient;
-  rcvData: String;
+  LClient: TIdUDPClient;
+  LData: String;
 begin
-  inherited;
+  inherited DoUDPRead(AData, ABinding);
   DoRequestNotify;
-  OutboundClient := TIdUDPClient.Create(nil); try
-    OutboundClient.Host := FMappedHost;
-    OutboundClient.Port := FMappedPort;
-    OutboundClient.Send(BytesToString(AData));
-    rcvData := OutboundClient.ReceiveString;
-    if rcvData <> '' then begin    {Do not Localize}
-      Send (ABinding.PeerIP, ABinding.PeerPort, rcvData);
+  LClient := TIdUDPClient.Create(nil);
+  try
+    LClient.Host := FMappedHost;
+    LClient.Port := FMappedPort;
+    LClient.Send(BytesToString(AData));
+    LData := LClient.ReceiveString;
+    if LData <> '' then begin    {Do not Localize}
+      Send(ABinding.PeerIP, ABinding.PeerPort, LData);
     end;
-  finally Sys.FreeAndNil(OutboundClient); end;
+  finally Sys.FreeAndNil(LClient); end;
 end;
 
 end.
