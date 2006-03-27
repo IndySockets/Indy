@@ -70,7 +70,7 @@
   Rev 1.21    10/20/2003 12:58:18 PM  JPMugaas
   Exception messages moved to RS.
 
-  Rev 1.20    10/17/2003 1:15:26 AM  DSiders
+    Rev 1.20    10/17/2003 1:15:26 AM  DSiders
   Added resource strings used in Message Client, HTTP, IMAP4.
 
   Rev 1.19    2003.10.14 1:28:00 PM  czhower
@@ -82,7 +82,7 @@
   Rev 1.17    9/8/2003 02:24:36 AM  JPMugaas
   New message for custom FTP Proxy support.
 
-  Rev 1.16    8/10/2003 11:05:22 AM  BGooijen
+    Rev 1.16    8/10/2003 11:05:22 AM  BGooijen
   fixed typo
 
   Rev 1.15    6/17/2003 03:14:38 PM  JPMugaas
@@ -202,6 +202,7 @@ resourcestring
   RSNNTPNoOnNewNewsList = 'No OnNewNewsList event has been defined.';
   RSNNTPNoOnXHDREntry = 'No OnXHDREntry event has been defined.';
   RSNNTPNoOnXOVER = 'No OnXOVER event has been defined.';
+
   // HTTP Status
   RSHTTPChunkStarted = 'Chunk Started';
   RSHTTPContinue = 'Continue';
@@ -374,10 +375,11 @@ resourcestring
 
   RSQueryInvalidQueryCount = 'Invalid Query Count %d';
   RSQueryInvalidPacketSize = 'Invalid Packet Size %d';
-  RSQueryLessThanFour = 'Received Packet is too small. Less than 4 bytes %d';
+  RSQueryLessThanFour = 'Received Packet is too small. Less than 4 bytes. %d';
   RSQueryInvalidHeaderID = 'Invalid Header Id %d';
-  RSQueryLessThanTwelve = 'Received Packet is too small. Less than 12 bytes %d';
+  RSQueryLessThanTwelve = 'Received Packet is too small. Less than 12 bytes. %d';
   RSQueryPackReceivedTooSmall = 'Received Packet is too small. %d';
+  RSQueryUnknownError = 'Unknown Error %d, Id %d';
   RSQueryInvalidIpV6 = 'Invalid IP V6 Address. %s';
 
 
@@ -427,7 +429,6 @@ resourcestring
   RSIMAP4DisconnectedProbablyIdledOut = 'Server has gracefully disconnected you, possibly because the connection was idle for too long.';
 
   { IdIMAP4 UTF encoding error strings}
-
   RSIMAP4UTFIllegalChar = 'Illegal char #%d in UTF7 sequence.';
 
   RSIMAP4UTFIllegalBitShifting = 'Illegal bit shifting in MUTF7 string';
@@ -503,7 +504,7 @@ resourcestring
   {IdNNTPServer}
   RSNNTPServerNotRecognized = 'Command not recognized';
   RSNNTPServerGoodBye = 'Goodbye';
-  RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
+  RSNNTPSvrImplicitTLSRequiresSSL = 'Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
   RSNNTPRetreivedArticleFollows = ' article retrieved - head and body follow';
   RSNNTPRetreivedBodyFollows = ' article retrieved - body follows';
   RSNNTPRetreivedHeaderFollows =  ' article retrieved - head follows';
@@ -512,11 +513,11 @@ resourcestring
   RSNTTPArticleRetrievedRequestTextSeparately = ' article retrieved - request text separately';
   RSNTTPNotInNewsgroup = 'Not currently in newsgroup';
   RSNNTPExtSupported = 'Extensions supported:';
-
+  
   //IdNNTPServer reply messages
   RSNTTPReplyHelpTextFollows = 'help text follows';
-   RSNTTPReplyDebugOutput =  'debug output';
-
+  RSNTTPReplyDebugOutput =  'debug output';
+   
   RSNNTPReplySvrReadyPostingAllowed =  'server ready - posting allowed';
   RSNNTPReplySvrReadyNoPostingAllowed =  'server ready - no posting allowed';
   RSNNTPReplySlaveStatus =  'slave status noted';
@@ -559,8 +560,7 @@ resourcestring
   RSNNTPReplyProgramFault = 'program fault - command not performed';
   RSNNTPReplySecAlreadyActive =  'Security layer already active';
 
-
- {IdGopherServer}
+  {IdGopherServer}
   RSGopherServerNoProgramCode = 'Error: No program code to return request!';
 
   {IdSyslog}
@@ -649,6 +649,7 @@ resourcestring
   RSPOP3SvrHelpFollows = 'Help follows';
   RSPOP3SvrTooManyCons = 'Too many connections. Try again later.';
   RSPOP3SvrWelcomeAPOP = 'Welcome ';
+
   // TIdCoder3to4
   RSUnevenSizeInDecodeStream = 'Uneven size in DecodeToStream.';
   RSUnevenSizeInEncodeStream = 'Uneven size in Encode.';
@@ -733,7 +734,6 @@ resourcestring
   RSFTPInvalidForParam = 'Command not implemented for that parameter.';
   RSFTPNotAllowedAfterEPSVAll = '%s not allowed after EPSV ALL';
 
-  RSFTPOTPMethod = 'Unknown OTP method';
   RSFTPIOHandlerWrong = 'IOHandler is of wrong type.';
   RSFTPFileNameCanNotBeEmpty = 'The destination filename can not be empty';
 
@@ -749,9 +749,7 @@ resourcestring
   RSFTPCmdEndOfStat = 'End of Status';
   RSFTPCmdExtsSupportedStart = 'Extensions supported:';
   RSFTPCmdExtsSupportedEnd = 'End of extentions.';
-
   RSFTPNoOnDirEvent = 'No OnListDirectory event found!';
-
   RSFTPImplicitTLSRequiresSSL = 'Implicit FTP requires that IOHandler be set to a TIdServerIOHandlerSSL.';
 
   //%s number of attributes changes
@@ -810,7 +808,7 @@ resourcestring
   STR_SYSLOG_SEVERITY_UNKNOWN       = 'Unknown or illegale security code';
 
   {LPR Messages}
-  RSLPRError = 'Reply %s on Job ID %s';
+  RSLPRError = 'Reply %d on Job ID %s';
   RSLPRUnknown = 'Unknown';
 
   {IRC Messages}
@@ -850,14 +848,13 @@ resourcestring
   RSHL7WaitForAnswer           = 'You cannot send a message while you are still waiting for an answer';
   RSMFDIvalidObjectType        = 'Unsupported object type. You can assign only one of the following types or their descendants: TStrings, TStream.';
   //TIdHL7 error messages
-  RSHL7ErrInternalsrNone =  'Internal error in IdHL7.pas: SynchronousSend returned srNone';
-  RSHL7ErrNotConn =   'Not connected';
-  RSHL7ErrInternalsrSent =  'Internal error in IdHL7.pas: SynchronousSend returned srSent';
-  RSHL7ErrNoResponse =  'No response from remote system';
-  RSHL7ErrInternalUnknownVal =  'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ';
-  RSHL7Broken = 'IdHL7 is broken in Indy 10 for the present';
+  RSHL7ErrInternalsrNone       =  'Internal error in IdHL7.pas: SynchronousSend returned srNone';
+  RSHL7ErrNotConn              =   'Not connected';
+  RSHL7ErrInternalsrSent       =  'Internal error in IdHL7.pas: SynchronousSend returned srSent';
+  RSHL7ErrNoResponse           =  'No response from remote system';
+  RSHL7ErrInternalUnknownVal   =  'Internal error in IdHL7.pas: SynchronousSend returned an unknown value ';
+  RSHL7Broken                  = 'IdHL7 is broken in Indy 10 for the present';
 
-  
   { TIdURI exceptions }
   RSURINoProto                 = 'Protocol field is empty';
   RSURINoHost                  = 'Host field is empty';
@@ -889,7 +886,8 @@ resourcestring
   RSSocksSvrWrongSocksVersion   = 'Wrong SOCKS-version';
   RSSocksSvrWrongSocksCommand   = 'Wrong SOCKS-Command';
   RSSocksSvrAccessDenied        = 'Access Denied';
-  RSSocksSvrUnexpectedClose     = 'Unexpected Close.';
+  RSSocksSvrUnexpectedClose     = 'Unexpected Close';
+  RSSocksSvrPeerMismatch        = 'Peer IP mismatch';
 
   {TLS Framework}
   RSTLSSSLIOHandlerRequired = 'SSL IOHandler is required for this setting';
@@ -918,6 +916,9 @@ resourcestring
   RSIMAP4SvrBeginTLSNegotiation = 'Begin TLS negotiation now';
   RSIMAP4SvrNotPermittedWithTLS = 'Command not permitted when TLS active';
   RSIMAP4SvrImplicitTLSRequiresSSL = 'Implicit IMAP4 requires that IOHandler be set to a TIdServerIOHandlerSSLBase.';
+
+  // OTP Calculator
+  RSOTPUnknownMethod = 'Unknown OTP method';
 
 implementation
 
