@@ -780,8 +780,7 @@ function TIdSysLogMsgPart.GetText: String;
 begin
   Result := Process + PIDToStr(PID) + Content;
   if (not PIDAvailable) and (Result = ':') then begin   {Do not Localize}
-      Result := '';    {Do not Localize}
-    end;
+    Result := '';    {Do not Localize}
   end;
 end;
 
@@ -797,13 +796,13 @@ begin
   SBuf := AValue;
   if Pos(':', SBuf) > 1 then begin   {Do not Localize}
     FProcess := Fetch(SBuf, ':');    {Do not Localize}
-    FContent = SBuf;
+    FContent := SBuf;
     if Pos('[', FProcess) > 0 then begin   {Do not Localize}
       SBuf := FProcess;
       FProcess := Fetch(SBuf, '[');    {Do not Localize}
       SBuf := Fetch(SBuf, ']');        {Do not Localize}
       if Length(SBuf) > 0 then begin
-        FPID := Sys.StrToIntDef(SBuf, -1);
+        FPID := Sys.StrToInt(SBuf, -1);
         FPIDAvailable := FPID <> -1;
       end;
     end;
