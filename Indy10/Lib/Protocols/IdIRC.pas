@@ -31,72 +31,57 @@ unit IdIRC;
 interface
 
 uses
-  IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers, IdIOHandler,
-  IdObjs, IdGlobal, IdException;
+  IdAssignedNumbers, IdContext, IdCmdTCPClient, IdCommandHandlers,
+  IdIOHandler, IdObjs, IdGlobal, IdException;
 
 type
   TIdIRC = class;
 
-  TIdIRCUserMode = (amAway, amInvisible, amWallops, amRestricted, amOperator,
-    amLocalOperator, amReceiveServerNotices);
+  TIdIRCUserMode = (amAway, amInvisible, amWallops, amRestricted, amOperator, amLocalOperator, amReceiveServerNotices);
   TIdIRCUserModes = set of TIdIRCUserMode;
-  TIdIRCStat = (stServerConnectionsList, stCommandUsageCount, stOperatorList,
-    stUpTime);
 
-  { Events }
+  TIdIRCStat = (stServerConnectionsList, stCommandUsageCount, stOperatorList, stUpTime);
 
   { -WELCOME- }
-  TIdIRCServerWelcomeEvent = procedure(ASender: TIdContext;
-    AWelcomeInfo: TIdStrings) of object;
+  TIdIRCServerWelcomeEvent = procedure(ASender: TIdContext; AWelcomeInfo: TIdStrings) of object;
   TIdIRCPingPongEvent = procedure(ASender: TIdContext) of object;
   { -MESSAGE- }
-  TIdIRCPrivMessageEvent = procedure(ASender: TIdContext; const ANicknameFrom,
-    AHost, ANicknameTo, AMessage: String) of object;
+  TIdIRCPrivMessageEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AMessage: String) of object;
   { -NOTICE- }
-  TIdIRCNoticeEvent = procedure(ASender: TIdContext; const ANicknameFrom,
-    AHost, ANicknameTo, ANotice: String) of object;
+  TIdIRCNoticeEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, ANotice: String) of object;
   { -REHASH- }
-  TIdIRCRehashEvent = procedure(ASender: TIdContext; ANickname, AHost: String) of object;
+  TIdIRCRehashEvent = procedure(ASender: TIdContext; const ANickname, AHost: String) of object;
   { -SUMMON- }
-  TIdIRCSummonEvent = procedure(ASender: TIdContext; ANickname, AHost: String) of object;
+  TIdIRCSummonEvent = procedure(ASender: TIdContext; const ANickname, AHost: String) of object;
   { -WALLOPS- }
-  TIdIRCWallopsEvent = procedure(ASender: TIdContext; const ANickname,
-    AHost, AMessage: String) of object;
+  TIdIRCWallopsEvent = procedure(ASender: TIdContext; const ANickname, AHost, AMessage: String) of object;
   { -ISON- }
-  TIdIRCIsOnIRCEvent = procedure(ASender: TIdContext; ANickname, AHost: String) of object;
+  TIdIRCIsOnIRCEvent = procedure(ASender: TIdContext; const ANickname, AHost: String) of object;
   { -AWAY- }
-  TIdIRCAwayEvent = procedure(ASender: TIdContext; ANickname, AHost,
-    AAwayMessage: String; UserAway: Boolean) of object;
+  TIdIRCAwayEvent = procedure(ASender: TIdContext; const ANickname, AHost, AAwayMessage: String; UserAway: Boolean) of object;
   { -JOIN- }
-  TIdIRCJoinEvent = procedure(ASender: TIdContext; ANickname, AHost, AChannel: String) of object;
+  TIdIRCJoinEvent = procedure(ASender: TIdContext; const ANickname, AHost, AChannel: String) of object;
   { -PART- }
-  TIdIRCPartEvent = procedure(ASender: TIdContext; ANickname, AHost, AChannel: String) of object;
+  TIdIRCPartEvent = procedure(ASender: TIdContext; const ANickname, AHost, AChannel: String) of object;
   { -TOPIC- }
-  TIdIRCTopicEvent = procedure(ASender: TIdContext; ANickname, AHost, AChannel,
-    ATopic: String) of object;
+  TIdIRCTopicEvent = procedure(ASender: TIdContext; const ANickname, AHost, AChannel, ATopic: String) of object;
   { -KICK- }
-  TIdIRCKickEvent = procedure(ASender: TIdContext; ANickname, AHost, AChannel,
-    ATarget, AReason: String) of object;
+  TIdIRCKickEvent = procedure(ASender: TIdContext; const ANickname, AHost, AChannel, ATarget, AReason: String) of object;
   { -MOTD- }
   TIdIRCMOTDEvent = procedure(ASender: TIdContext; AMOTD: TIdStrings) of object;
   { -TRACE- }
   TIdIRCServerTraceEvent = procedure(ASender: TIdContext; ATraceInfo: TIdStrings) of object;
   { -OPER- }
-  TIdIRCOpEvent = procedure(ASender: TIdContext; ANickname, AChannel, AHost: String) of object;
+  TIdIRCOpEvent = procedure(ASender: TIdContext; const ANickname, AChannel, AHost: String) of object;
   { -INV- }
-  TIdIRCInvitingEvent = procedure(ASender: TIdContext; ANickname, AHost: String) of object;
-  TIdIRCInviteEvent = procedure(ASender: TIdContext; ANicknameFrom, AHost, ANicknameTo,
-    AChannel: String) of object;
+  TIdIRCInvitingEvent = procedure(ASender: TIdContext; const ANickname, AHost: String) of object;
+  TIdIRCInviteEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AChannel: String) of object;
   { -LIST- }
-  TIdIRCChanBANListEvent = procedure(ASender: TIdContext; AChannel: String;
-    ABanList: TIdStrings) of object;
-  TIdIRCChanEXCListEvent = procedure(ASender: TIdContext; AChannel: String;
-    AExceptList: TIdStrings) of object;
-  TIdIRCChanINVListEvent = procedure(ASender: TIdContext; AChannel: String;
-    AInviteList: TIdStrings) of object;
+  TIdIRCChanBANListEvent = procedure(ASender: TIdContext; const AChannel: String; ABanList: TIdStrings) of object;
+  TIdIRCChanEXCListEvent = procedure(ASender: TIdContext; const AChannel: String; AExceptList: TIdStrings) of object;
+  TIdIRCChanINVListEvent = procedure(ASender: TIdContext; const AChannel: String; AInviteList: TIdStrings) of object;
   TIdIRCServerListEvent = procedure(ASender: TIdContext; AServerList: TIdStrings) of object;
-  TIdIRCNickListEvent = procedure(ASender: TIdContext; AChannel: String;
-    ANicknameList: TIdStrings) of object;
+  TIdIRCNickListEvent = procedure(ASender: TIdContext; const AChannel: String; ANicknameList: TIdStrings) of object;
   { -STATS- }
   TIdIRCServerUsersEvent = procedure(ASender: TIdContext; AUsers: TIdStrings) of object;
   TIdIRCServerStatsEvent = procedure(ASender: TIdContext; AStatus: TIdStrings) of object;
@@ -110,41 +95,30 @@ type
   TIdIRCWhoWasEvent = procedure(ASender: TIdContext; AWhoWasResults: TIdStrings) of object;
   { Mode }
   TIdIRCChanModeEvent = procedure(ASender: TIdContext) of object;
-  TIdIRCUserModeEvent = procedure(ASender: TIdContext; ANickname, AHost,
-    AUserMode: String) of object;
+  TIdIRCUserModeEvent = procedure(ASender: TIdContext; const ANickname, AHost, AUserMode: String) of object;
   { -CTCP- }
-  TIdIRCCTCPQueryEvent = procedure(ASender: TIdContext; ANicknameFrom, AHost,
-    ANicknameTo, AChannel, ACommand, AParams: String) of object;
-  TIdIRCCTCPReplyEvent = procedure(ASender: TIdContext; ANicknameFrom, AHost,
-    ANicknameTo, AChannel, ACommand, AParams: String) of object;
+  TIdIRCCTCPQueryEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AChannel, ACommand, AParams: String) of object;
+  TIdIRCCTCPReplyEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AChannel, ACommand, AParams: String) of object;
   { -DCC- }
-  TIdIRCDCCChatEvent = procedure(ASender: TIdContext; ANickname, AHost: String;
-    APort: Integer) of object;
-  TIdIRCDCCSendEvent = procedure(ASender: TIdContext; ANickname, AHost,
-    AFilename: String; APort, AFileSize: Integer) of object;
-  TIdIRCDCCResumeEvent = procedure(ASender: TIdContext; ANickname, AHost,
-    AFilename: String; APort, AFilePos: Integer) of object;
-  TIdIRCDCCAcceptEvent = procedure(ASender: TIdContext; ANickname, AHost,
-    AFilename: String; APort, AFilePos: Integer) of object;
+  TIdIRCDCCChatEvent = procedure(ASender: TIdContext; const ANickname, AHost: String; APort: Integer) of object;
+  TIdIRCDCCSendEvent = procedure(ASender: TIdContext; const ANickname, AHost, AFilename: String; APort, AFileSize: Integer) of object;
+  TIdIRCDCCResumeEvent = procedure(ASender: TIdContext; const ANickname, AHost, AFilename: String; APort, AFilePos: Integer) of object;
+  TIdIRCDCCAcceptEvent = procedure(ASender: TIdContext; const ANickname, AHost, AFilename: String; APort, AFilePos: Integer) of object;
   { -Errors- }
-  TIdIRCServerErrorEvent = procedure(ASender: TIdContext; AErrorCode: Integer;
-    AErrorMessage: String) of object;
+  TIdIRCServerErrorEvent = procedure(ASender: TIdContext; AErrorCode: Integer; const AErrorMessage: String) of object;
   TIdIRCNickErrorEvent = procedure(ASender: TIdContext; AError: Integer) of object;
   TIdIRCKillErrorEvent = procedure(ASender: TIdContext) of object;
   { Other }
-  TIdIRCNicknameChangedEvent = procedure(ASender: TIdContext; AOldNickname,
-    AHost, ANewNickname: String) of object;
-  TIdIRCKillEvent = procedure(ASender: TIdContext; ANicknameFrom, AHost,
-    ANicknameTo, AReason: String) of object;
-  TIdIRCQuitEvent = procedure(ASender: TIdContext; ANickname, AHost, AReason: String) of object;
-  TIdIRCSvrTimeEvent = procedure(ASender: TIdContext; Host, Time: String) of object;
+  TIdIRCNicknameChangedEvent = procedure(ASender: TIdContext; const AOldNickname, AHost, ANewNickname: String) of object;
+  TIdIRCKillEvent = procedure(ASender: TIdContext; const ANicknameFrom, AHost, ANicknameTo, AReason: String) of object;
+  TIdIRCQuitEvent = procedure(ASender: TIdContext; const ANickname, AHost, AReason: String) of object;
+  TIdIRCSvrTimeEvent = procedure(ASender: TIdContext; const AHost, ATime: String) of object;
   TIdIRCServiceEvent = procedure(ASender: TIdContext) of object;
-  TIdIRCSvrVersionEvent = procedure(ASender: TIdContext; Version, Host, Comments: String) of object;
-  TIdIRCRawEvent = procedure(ASender: TIdContext; AIn: boolean; AMessage: String) of object;
+  TIdIRCSvrVersionEvent = procedure(ASender: TIdContext; const AVersion, AHost, AComments: String) of object;
+  TIdIRCRawEvent = procedure(ASender: TIdContext; AIn: Boolean; const AMessage: String) of object;
 
-  EComponentError = class(EIdException);
+  EIdIRCError = class(EIdException);
 
-  { TIdIRCReplies }
   TIdIRCReplies = class(TIdPersistent)
   protected
     FFinger: String;
@@ -161,7 +135,6 @@ type
     property ClientInfo: String read FClientInfo write FClientInfo;
   end;
 
-  { TIdIRC }
   TIdIRC = class(TIdCmdTCPClient)
   protected
     FNickname: String;
@@ -227,17 +200,16 @@ type
     FOnSvrVersion: TIdIRCSvrVersionEvent;
     FOnRaw: TIdIRCRawEvent;
     //
-    procedure SetNickname(AValue: String);
-    procedure SetUsername(AValue: String);
+    procedure SetNickname(const AValue: String);
+    procedure SetUsername(const AValue: String);
     procedure SetIdIRCUserMode(AValue: TIdIRCUserModes);
     procedure SetIdIRCReplies(AValue: TIdIRCReplies);
     function GetUserMode: String;
-    procedure ParseCTCPQuery(CTCPQuery, AChannel: String);
-    procedure ParseCTCPReply(CTCPReply, AChannel: String);
-    procedure ParseDCC(ADCC: String);
+    procedure ParseCTCPQuery(AContext: TIdContext; const CTCPQuery, AChannel: String);
+    procedure ParseCTCPReply(AContext: TIdContext; const CTCPReply, AChannel: String);
+    procedure ParseDCC(AContext: TIdContext; const ADCC: String);
     //Command handlers
-    procedure DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string;
-      AContext: TIdContext);
+    procedure DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext);
     procedure DoCmdHandlersException(ACommand: String; AContext: TIdContext);
     procedure CommandPRIVMSG(ASender: TIdCommand);
     procedure CommandNOTICE(ASender: TIdCommand);
@@ -285,68 +257,66 @@ type
     destructor Destroy; override;
     //
     procedure Connect; override;
-    procedure Disconnect(AReason: String = ''); reintroduce;
+    procedure Disconnect(const AReason: String = ''); reintroduce;
     //
-    function IsChannel(AChannel: String): Boolean;
-    function IsOp(ANickname: String): Boolean;
-    function IsVoice(ANickname: String): Boolean;
-    procedure Raw(ALine: String);
-    procedure Say(ATarget, AMsg: String);
-    procedure Notice(ATarget, AMsg: String);
-    procedure Action(ATarget, AMsg: String);
-    procedure CTCPQuery(ATarget, ACommand, AParameters: String);
-    procedure CTCPReply(ATarget, ACTCP, AReply: String);
-    procedure Join(AChannel: String; const AKey: String ='');
-    procedure Part(AChannel: String; const AReason: String = '');
-    procedure Kick(AChannel, ANickname, AReason: String);
-    procedure SetChannelMode(AChannel, AMode: String; const AParams: String = '');
-    procedure SetUserMode(ANickname, AMode: String);
-    procedure GetChannelTopic(AChannel: String);
-    procedure SetChannelTopic(AChannel, ATopic: String);
-    procedure SetAway(AMsg: String);
-    procedure Op(AChannel, ANickname: String);
-    procedure Deop(AChannel, ANickname: String);
-    procedure Voice(AChannel, ANickname: String);
-    procedure Devoice(AChannel, ANickname: String);
-    procedure Ban(AChannel, AHostmask: String);
-    procedure Unban(AChannel, AHostmask: String);
-    procedure RegisterService(const ANickname, ADistribution, AInfo: String;
-      AType: Integer);
-    procedure ListChannelNicknames(AChannel: String; ATarget: String = '');
-    procedure ListChannel(AChannel: String; ATarget: String = '');
-    procedure Invite(ANickname, AChannel: String);
-    procedure GetMessageOfTheDay(ATarget: String = '');
-    procedure GetNetworkStatus(AHostMask: String = ''; ATarget: String = '');
-    procedure GetServerVersion(ATarget: String = '');
-    procedure GetServerStatus(AQuery: TIdIRCStat; ATarget: String = '');
-    procedure ListKnownServerNames(ARemoteHost: String = ''; AHostMask: String = '');
-    procedure QueryServerTime(ATarget: String = '');
-    procedure RequestServerConnect(ATarget, AHost: String; APort: Integer;
-      ARemoteHost: String = '');
-    procedure TraceServer(ATarget: String = '');
-    procedure GetAdminInfo(ATarget: String = '');
-    procedure GetServerInfo(ATarget: String = '');
-    procedure ListNetworkServices(AHostMask: String; AType: String = '');
-    procedure QueryService(AServiceName, AMessage: String);
-    procedure Who(AMask: String; AOnlyAdmins: Boolean);
-    procedure WhoIs(AMask: String; ATarget: String = '');
-    procedure WhoWas(ANickname: String; ACount: Integer = -1; ATarget: String = '');
-    procedure Kill(ANickname, AComment: String);
-    procedure Ping(AServer1: String; AServer2: String = '');
-    procedure Pong(AServer1: String; AServer2: String = '');
-    procedure Error(AMessage: String);
+    function IsChannel(const AChannel: String): Boolean;
+    function IsOp(const ANickname: String): Boolean;
+    function IsVoice(const ANickname: String): Boolean;
+    procedure Raw(const ALine: String);
+    procedure Say(const ATarget, AMsg: String);
+    procedure Notice(const ATarget, AMsg: String);
+    procedure Action(const ATarget, AMsg: String);
+    procedure CTCPQuery(const ATarget, ACommand, AParameters: String);
+    procedure CTCPReply(const ATarget, ACTCP, AReply: String);
+    procedure Join(const AChannel: String; const AKey: String ='');
+    procedure Part(const AChannel: String; const AReason: String = '');
+    procedure Kick(const AChannel, ANickname, AReason: String);
+    procedure SetChannelMode(const AChannel, AMode: String; const AParams: String = '');
+    procedure SetUserMode(const ANickname, AMode: String);
+    procedure GetChannelTopic(const AChannel: String);
+    procedure SetChannelTopic(const AChannel, ATopic: String);
+    procedure SetAway(const AMsg: String);
+    procedure Op(const AChannel, ANickname: String);
+    procedure Deop(const AChannel, ANickname: String);
+    procedure Voice(const AChannel, ANickname: String);
+    procedure Devoice(const AChannel, ANickname: String);
+    procedure Ban(const AChannel, AHostmask: String);
+    procedure Unban(const AChannel, AHostmask: String);
+    procedure RegisterService(const ANickname, ADistribution, AInfo: String; AType: Integer);
+    procedure ListChannelNicknames(const AChannel: String; const ATarget: String = '');
+    procedure ListChannel(const AChannel: String; const ATarget: String = '');
+    procedure Invite(const ANickname, AChannel: String);
+    procedure GetMessageOfTheDay(const ATarget: String = '');
+    procedure GetNetworkStatus(const AHostMask: String = ''; const ATarget: String = '');
+    procedure GetServerVersion(const ATarget: String = '');
+    procedure GetServerStatus(AQuery: TIdIRCStat; const ATarget: String = '');
+    procedure ListKnownServerNames(const ARemoteHost: String = ''; const AHostMask: String = '');
+    procedure QueryServerTime(const ATarget: String = '');
+    procedure RequestServerConnect(const ATarget, AHost: String; APort: Integer; const ARemoteHost: String = '');
+    procedure TraceServer(const ATarget: String = '');
+    procedure GetAdminInfo(const ATarget: String = '');
+    procedure GetServerInfo(const ATarget: String = '');
+    procedure ListNetworkServices(const AHostMask: String; const AType: String = '');
+    procedure QueryService(const AServiceName, AMessage: String);
+    procedure Who(const AMask: String; AOnlyAdmins: Boolean);
+    procedure WhoIs(const AMask: String; const ATarget: String = '');
+    procedure WhoWas(const ANickname: String; ACount: Integer = -1; const ATarget: String = '');
+    procedure Kill(const ANickname, AComment: String);
+    procedure Ping(const AServer1: String; const AServer2: String = '');
+    procedure Pong(const AServer1: String; const AServer2: String = '');
+    procedure Error(const AMessage: String);
     procedure ReHash;
     procedure Die;
     procedure Restart;
-    procedure Summon(ANickname: String; ATarget: String = ''; AChannel: String = '');
-    procedure ListServerUsers(ATarget: String = '');
-    procedure SayWALLOPS(AMessage: String);
-    procedure GetUserInfo(ANickname: String);
-    procedure IsOnIRC(ANickname: String);
-    procedure BecomeOp(ANickname, APassword: String);
-    procedure SQuit(AHost, AComment: String);
-    procedure SetChannelLimit(AChannel: String; ALimit: Integer);
-    procedure SetChannelKey(AChannel, AKey: String);
+    procedure Summon(const ANickname: String; const ATarget: String = ''; const AChannel: String = '');
+    procedure ListServerUsers(const ATarget: String = '');
+    procedure SayWALLOPS(const AMessage: String);
+    procedure GetUserInfo(const ANickname: String);
+    procedure IsOnIRC(const ANickname: String);
+    procedure BecomeOp(const ANickname, APassword: String);
+    procedure SQuit(const AHost, AComment: String);
+    procedure SetChannelLimit(const AChannel: String; ALimit: Integer);
+    procedure SetChannelKey(const AChannel, AKey: String);
     //
     property Away: Boolean read FUserAway;
   published
@@ -360,8 +330,7 @@ type
     { Events }
     property OnServerWelcome: TIdIRCServerWelcomeEvent read FOnSWelcome write FOnSWelcome;
     property OnPingPong: TIdIRCPingPongEvent read FOnPingPong write FOnPingPong;
-    property OnPrivateMessage: TIdIRCPrivMessageEvent read FOnPrivMessage
-      write FOnPrivMessage;
+    property OnPrivateMessage: TIdIRCPrivMessageEvent read FOnPrivMessage write FOnPrivMessage;
     property OnNotice: TIdIRCNoticeEvent read FOnNotice write FOnNotice;
     property OnRehash: TIdIRCRehashEvent read FOnRehash write FOnRehash;
     property OnSummon: TIdIRCSummonEvent read FOnSummon write FOnSummon;
@@ -378,22 +347,15 @@ type
     property OnInviting: TIdIRCInvitingEvent read FOnInviting write FOnInviting;
     property OnInvite: TIdIRCInviteEvent read FOnInvite write FOnInvite;
     property OnBanListReceived: TIdIRCChanBANListEvent read FOnBANList write FOnBANList;
-    property OnExceptionListReceived: TIdIRCChanEXCListEvent read FOnEXCList
-      write FOnEXCList;
-    property OnInvitationListReceived: TIdIRCChanINVListEvent read FOnINVList
-      write FOnINVList;
+    property OnExceptionListReceived: TIdIRCChanEXCListEvent read FOnEXCList write FOnEXCList;
+    property OnInvitationListReceived: TIdIRCChanINVListEvent read FOnINVList write FOnINVList;
     property OnServerListReceived: TIdIRCServerListEvent read FOnSvrList write FOnSvrList;
     property OnNicknamesListReceived: TIdIRCNickListEvent read FOnNickList write FOnNickList;
-    property OnServerUsersListReceived: TIdIRCServerUsersEvent read FOnSvrUsers
-      write FOnSvrUsers;
-    property OnServerStatsReceived: TIdIRCServerStatsEvent read FOnSvrStats
-      write FOnSvrStats;
-    property OnKnownServersListReceived: TIdIRCKnownServerNamesEvent read FOnKnownSvrs
-      write FOnKnownSvrs;
-    property OnAdminInfoReceived: TIdIRCAdminInfoRecvEvent read FOnAdminInfo
-      write FOnAdminInfo;
-    property OnUserInfoReceived: TIdIRCUserInfoRecvEvent read FOnUserInfo
-      write FOnUserInfo;
+    property OnServerUsersListReceived: TIdIRCServerUsersEvent read FOnSvrUsers write FOnSvrUsers;
+    property OnServerStatsReceived: TIdIRCServerStatsEvent read FOnSvrStats write FOnSvrStats;
+    property OnKnownServersListReceived: TIdIRCKnownServerNamesEvent read FOnKnownSvrs write FOnKnownSvrs;
+    property OnAdminInfoReceived: TIdIRCAdminInfoRecvEvent read FOnAdminInfo write FOnAdminInfo;
+    property OnUserInfoReceived: TIdIRCUserInfoRecvEvent read FOnUserInfo write FOnUserInfo;
     property OnWho: TIdIRCWhoEvent read FOnWho write FOnWho;
     property OnWhoIs: TIdIRCWhoIsEvent read FOnWhoIs write FOnWhoIs;
     property OnWhoWas: TIdIRCWhoWasEvent read FOnWhoWas write FOnWhoWas;
@@ -418,60 +380,68 @@ type
     property Port default IdPORT_IRC;
   end;
 
-const
-  // ChannelModeChars: array [0..7] of Char = ('p', 's', 'i', 't', 'n', 'm', 'l', 'k'); {do not localize}
-  IdIRCUserModeChars: array [0..6] of char = ('a', 'i', 'w', 'r', 'o', 'O', 's'); {do not localize}
-  IdIRCStatChars: array[0..3] of char = ('l', 'm', 'o', 'u'); {do not localize}
-
-  IdIRCCTCP: array [0..9] of String =
-  (
-    'ACTION', 'SOUND', 'PING', 'FINGER', 'USERINFO', 'VERSION', 'CLIENTINFO', {do not localize}
-    'TIME', 'ERROR', 'DCC'  {do not localize}
-  );
-
-  IdIRCDCC: array [0..3] of String =
-  (
-    'SEND', 'CHAT', 'RESUME', 'ACCEPT'  {do not localize}
-  );
-
 implementation
 
 uses
   IdGlobalProtocols, IdResourceStringsProtocols, IdSSL,
   IdStack, IdBaseComponent, IdSys;
 
+const 
+  IdIRCCTCP: array[0..9] of String = ('ACTION', 'SOUND', 'PING', 'FINGER', {do not localize}
+    'USERINFO', 'VERSION', 'CLIENTINFO', 'TIME', 'ERROR', 'DCC');  {do not localize}
+
 { TIdIRCReplies }
 
 constructor TIdIRCReplies.Create;
 begin
-  inherited;
+  inherited Create;
   //
 end;
 
 procedure TIdIRCReplies.Assign(Source: TIdPersistent);
+var
+  LSource: TIdIRCReplies;
 begin
   if Source is TIdIRCReplies then
   begin
-    FFinger := TIdIRCReplies(Source).Finger;
-    FVersion := TIdIRCReplies(Source).Version;
-    FUserInfo := TIdIRCReplies(Source).UserInfo;
-    FClientInfo := TIdIRCReplies(Source).ClientInfo;
+    LSource := TIdIRCReplies(Source);
+    FFinger := LSource.Finger;
+    FFinger := LSource.Finger;
+    FVersion := LSource.Version;
+    FUserInfo := LSource.UserInfo;
+    FClientInfo := LSource.ClientInfo;
   end;
 end;
 
 { TIdIRC }
 
+function FetchIRCParam(var S: String): String;
+var
+  LTmp: String;
+begin
+  LTmp := Sys.TrimLeft(S);
+  if (LTmp <> '') and (LTmp[1] = ':') then
+  begin
+    Result := Copy(LTmp, 2, MaxInt);
+    S := '';
+  end else
+  begin
+    Result := Fetch(LTmp, #32);
+    S := Sys.TrimLeft(LTmp);
+  end;
+end;
+
+
 procedure TIdIRC.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   //
   FReplies := TIdIRCReplies.Create;
   FTmp := TIdStringList.Create;
   Port := IdPORT_IRC;
   FUserMode := [];
   //
-  if not IsDesignTime then
-  begin
+  if not IsDesignTime then begin
     AssignIRCClientCommands;
   end;
 end;
@@ -485,65 +455,58 @@ begin
 end;
 
 function TIdIRC.GetUserMode: String;
+const
+  IdIRCUserModeChars: array[TIdIRCUserMode] of Char = ('a', 'i', 'w', 'r', 'o', 'O', 's'); {do not localize}
 var
   i: TIdIRCUserMode;
 begin
   if FUserMode <> [] then
   begin
-    result := '+';
-    for i := amAway to amReceiveServerNotices do
-    begin
-      if i in FUserMode then
-      begin
-        result := result + IdIRCUserModeChars[ord(i)];
+    Result := '+';
+    for i := amAway to amReceiveServerNotices do begin
+      if i in FUserMode then begin
+        Result := Result + IdIRCUserModeChars[i];
       end;
     end;
-  end
-  else
-  begin
-    result := '0';
+  end else begin
+    Result := '0';
   end;
 end;
 
 procedure TIdIRC.Connect;
 begin
   // I doubt that there is explicit SSL support in the IRC protocol
-  if (IOHandler is TIdSSLIOHandlerSocketBase) then
-  begin
+  if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
     (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
   end;
-  inherited;
+  inherited Connect;
   //
   try
-    if FPassword <> '' then
-    begin
+    if FPassword <> '' then begin
       Raw(Sys.Format('PASS %s', [FPassword]));  {do not localize}
     end;
-
     SetNickname(FNickname);
     SetUsername(FUsername);
   except
     on E: EIdSocketError do begin
-      raise EComponentError.Create(RSIRCCannotConnect);
+      inherited Disconnect;
+      raise EIdIRCError.Create(RSIRCCannotConnect);
     end;
   end;
 end;
 
-procedure TIdIRC.Disconnect(AReason: String = '');
+procedure TIdIRC.Disconnect(const AReason: String = '');
 begin
   Raw(Sys.Format('QUIT :%s', [AReason])); {do not localize}
   inherited Disconnect;
 end;
 
-procedure TIdIRC.Raw(ALine: String);
+procedure TIdIRC.Raw(const ALine: String);
 begin
-  if Connected then
-  begin
-    if Assigned(FOnRaw) then
-    begin
+  if Connected then begin
+    if Assigned(FOnRaw) then begin
       FOnRaw(nil, False, ALine);
     end;
-
     IOHandler.WriteLn(ALine + EOL);
   end;
 end;
@@ -556,30 +519,35 @@ begin
   begin
     Command := 'PRIVMSG'; {do not localize}
     OnCommand := CommandPRIVMSG;
+    ParseParams := False;
   end;
   //NOTICE Nickname/#channel :message
   with CommandHandlers.Add do
   begin
     Command := 'NOTICE';  {do not localize}
     OnCommand := CommandNOTICE;
+    ParseParams := False;
   end;
   //JOIN #channel
   with CommandHandlers.Add do
   begin
     Command := 'JOIN';  {do not localize}
     OnCommand := CommandJOIN;
+    ParseParams := False;
   end;
   //PART #channel
   with CommandHandlers.Add do
   begin
     Command := 'PART';  {do not localize}
     OnCommand := CommandPART;
+    ParseParams := False;
   end;
   //KICK #channel target :reason
   with CommandHandlers.Add do
   begin
     Command := 'KICK';  {do not localize}
     OnCommand := CommandKICK;
+    ParseParams := False;
   end;
   //MODE Nickname/#channel +/-modes parameters...
   with CommandHandlers.Add do
@@ -592,42 +560,49 @@ begin
   begin
     Command := 'NICK';  {do not localize}
     OnCommand := CommandNICK;
+    ParseParams := False;
   end;
   //QUIT :reason
   with CommandHandlers.Add do
   begin
     Command := 'QUIT';  {do not localize}
     OnCommand := CommandQUIT;
+    ParseParams := False;
   end;
   //INVITE Nickname :#channel
   with CommandHandlers.Add do
   begin
     Command := 'INVITE';  {do not localize}
     OnCommand := CommandINVITE;
+    ParseParams := False;
   end;
   //KILL Nickname :reason
   with CommandHandlers.Add do
   begin
     Command := 'KILL';  {do not localize}
     OnCommand := CommandKILL;
+    ParseParams := False;
   end;
   //PING server
   with CommandHandlers.Add do
   begin
     Command := 'PING';  {do not localize}
     OnCommand := CommandPING;
+    ParseParams := False;
   end;
   //WALLOPS :message
   with CommandHandlers.Add do
   begin
     Command := 'WALLOPS'; {do not localize}
     OnCommand := CommandWALLOPS;
+    ParseParams := False;
   end;
   //TOPIC
   with CommandHandlers.Add do
   begin
     Command := 'TOPIC'; {do not localize}
     OnCommand := CommandTOPIC;
+    ParseParams := False;
   end;
 
   { Numeric commands }
@@ -690,6 +665,7 @@ begin
   begin
     Command := '331'; {do not localize}
     OnCommand := CommandTOPIC;
+    ParseParams := False;
   end;
   //INVITING
   with CommandHandlers.Add do
@@ -720,6 +696,7 @@ begin
   begin
     Command := '351'; {do not localize}
     OnCommand := CommandSVERSION;
+    ParseParams := False;
   end;
   //ENDOFLINKS
   with CommandHandlers.Add do
@@ -780,6 +757,7 @@ begin
   begin
     Command := '391'; {do not localize}
     OnCommand := CommandSTIME;
+    ParseParams := False;
   end;
   //ENDOFUSERS
   with CommandHandlers.Add do
@@ -787,7 +765,6 @@ begin
     Command := '394'; {do not localize}
     OnCommand := CommandENDOFUSERS;
   end;
-
   with FCommandHandlers do
   begin
     OnBeforeCommandHandler := DoBeforeCmd;
@@ -797,22 +774,20 @@ end;
 
 { Command handlers }
 
-procedure TIdIRC.DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string;
-  AContext: TIdContext);
+procedure TIdIRC.DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext);
 var
   LTmp: String;
 begin
   // ":sender!pc@domain"
-  if AData <> '' then begin
-    if AData[1] = ':' then begin
-      LTmp := Fetch(AData, #32);
-      FSenderNick := Fetch(LTmp, '!');
-      FSenderHost := LTmp;
-    end;
+  if (AData <> '') and (AData[1] = ':') then begin
+    LTmp := Fetch(AData, #32);
+    FSenderNick := Fetch(LTmp, '!');
+    FSenderHost := LTmp;
+  end else begin
+    FSenderNick := '';
+    FSenderHost := '';
   end;
-
-  if Assigned(FOnRaw) then
-  begin
+  if Assigned(FOnRaw) then begin
     FOnRaw(AContext, True, AData);
   end;
 end;
@@ -824,8 +799,8 @@ begin
   ACmdCode := Sys.StrToInt(Fetch(ACommand, #32), -1);
   //
   case ACmdCode of
-      6,
-      7:
+    6,
+    7:
       begin
         //MAP
       end;
@@ -833,21 +808,20 @@ begin
     305,
     306:
       begin
-        if Assigned(FOnAway) then
-        begin
-          if (ACmdCode = 305) or (ACmdCode = 306) then
-            FUserAway := False
-          else
+        if Assigned(FOnAway) then begin
+          if (ACmdCode = 305) or (ACmdCode = 306) then begin
+            FUserAway := False;
+          end else begin
             FUserAway := True;
-          OnAway(AContext, FSenderNick, FSenderHost, Fetch(ACommand, #32), FUserAway);
+          end;
+          OnAway(AContext, FSenderNick, FSenderHost, FetchIRCParam(ACommand), FUserAway);
         end;
       end;
     5,
     401..424,
     437..502:
       begin
-        if Assigned(FOnServerError) then
-        begin
+        if Assigned(FOnServerError) then begin
           OnServerError(AContext, ACmdCode, ACommand);
         end;
       end;
@@ -856,17 +830,14 @@ begin
     433,
     436:
       begin
-        if Assigned(FOnNickError) then
-        begin
-          OnNicknameError(AContext, Sys.StrToInt(Fetch(ACommand, #32)));
+        if Assigned(FOnNickError) then begin
+          OnNicknameError(AContext, Sys.StrToInt(FetchIRCParam(ACommand)));
         end;
       end;
     else
       { anything else, just add to TIdStrings }
-      if ACmdCode <> -1 then
-      begin
-        if length(ACommand) <> 0 then
-        begin
+      if ACmdCode <> -1 then begin
+        if Length(ACommand) <> 0 then begin
           FTmp.Add(ACommand);
         end;
       end;
@@ -875,78 +846,84 @@ end;
 
 procedure TIdIRC.CommandPRIVMSG(ASender: TIdCommand);
 var
-  LTmp: String;
+  LTmp, LParam: String;
 begin
-  if ASender.Params[0][1] = #1 then
-  begin
-    ParseCTCPQuery(ASender.Params[1], ASender.Params[0]);
+  LTmp := ASender.UnparsedParams;
+  LParam := FetchIRCParam(LTmp);
+  if (LParam <> '') and (LParam[1] = #1) then begin
+    ParseCTCPQuery(ASender.Context, LTmp, LParam);
   end
-  else if Assigned(FOnPrivMessage) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnPrivateMessage(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], LTmp);
+  else if Assigned(FOnPrivMessage) then begin
+    OnPrivateMessage(ASender.Context, FSenderNick, FSenderHost, LParam, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandNOTICE(ASender: TIdCommand);
 var
-  LTmp: String;
+  LTmp, LParam: String;
 begin
-  if ASender.Params[0][1] = #1 then
-  begin
-    ParseCTCPReply(ASender.Params[1], ASender.Params[0]);
+  LTmp := ASender.UnparsedParams;
+  LParam := FetchIRCParam(LTmp);
+  if (LParam <> '') and (LParam[1] = #1) then begin
+    ParseCTCPReply(ASender.Context, LTmp, LParam);
   end
-  else if Assigned(FOnNotice) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnNotice(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], LTmp);
+  else if Assigned(FOnNotice) then begin
+    OnNotice(ASender.Context, FSenderNick, FSenderHost, LParam, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandJOIN(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
-  if Assigned(FOnJoin) then
-  begin
-    OnJoin(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0]);
+  if Assigned(FOnJoin) then begin
+    LTmp := ASender.UnparsedParams;
+    OnJoin(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandPART(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
-  if Assigned(FOnPart) then
-  begin
-    OnPart(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0]);
+  if Assigned(FOnPart) then begin
+    LTmp := ASender.UnparsedParams;
+    OnPart(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandKICK(ASender: TIdCommand);
 var
-  LTmp: String;
+  LChannel, LNick, LReason, LTmp: String;
 begin
-  if Assigned(FOnKick) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnKick(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], ASender.Params[1], LTmp);
+  if Assigned(FOnKick) then begin
+    LTmp := ASender.UnparsedParams;
+    LChannel := FetchIRCParam(LTmp);
+    LNick := FetchIRCParam(LTmp);
+    LReason := FetchIRCParam(LTmp);
+    OnKick(ASender.Context, FSenderNick, FSenderHost, LChannel, LNick, LReason);
   end;
 end;
 
 procedure TIdIRC.CommandMODE(ASender: TIdCommand);
 begin
-  if IsChannel(ASender.Params[1]) then
-  begin
-    OnChannelMode(ASender.Context);
+  if IsChannel(ASender.Params[1]) then begin
+    if Assigned(FOnChanMode) then begin
+      OnChannelMode(ASender.Context);
+    end;
   end
-  else if Assigned(FOnUserMode) then
-  begin
+  else if Assigned(FOnUserMode) then begin
     OnUserMode(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRC.CommandNICK(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
-  if Assigned(FOnNickChange) then
-  begin
-    OnNicknameChange(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0]);
+  if Assigned(FOnNickChange) then begin
+    LTmp := ASender.UnparsedParams;
+    OnNicknameChange(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
@@ -954,39 +931,43 @@ procedure TIdIRC.CommandQUIT(ASender: TIdCommand);
 var
   LTmp: String;
 begin
-  if Assigned(FOnQuit) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnQuit(ASender.Context, FSenderNick, FSenderHost, LTmp);
+  if Assigned(FOnQuit) then begin
+    LTmp := ASender.UnparsedParams;
+    OnQuit(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandINVITE(ASender: TIdCommand);
 var
-  LTmp: String;
+  LTmp, LNick, LChannel: String;
 begin
-  if Assigned(FOnInvite) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnInvite(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], LTmp);
+  if Assigned(FOnInvite) then begin
+    LTmp := ASender.UnparsedParams;
+    LNick := FetchIRCParam(LTmp);
+    LChannel := FetchIRCParam(LTmp);
+    OnInvite(ASender.Context, FSenderNick, FSenderHost, LNick, LChannel);
   end;
 end;
 
 procedure TIdIRC.CommandKILL(ASender: TIdCommand);
 var
-  LTmp: String;
+  LTmp, LNick, LComment: String;
 begin
-  if Assigned(FOnKill) then
-  begin
-    OnKill(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], LTmp);
+  if Assigned(FOnKill) then begin
+    LTmp := ASender.UnparsedParams;
+    LNick := FetchIRCParam(LTmp);
+    LComment := FetchIRCParam(LTmp);
+    OnKill(ASender.Context, FSenderNick, FSenderHost, LNick, LComment);
   end;
 end;
 
 procedure TIdIRC.CommandPING(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
-  Pong(ASender.Params[0]);
-  if Assigned(FOnPingPong) then
-  begin
+  LTmp := ASender.UnparsedParams;
+  Pong(FetchIRCParam(LTmp));
+  if Assigned(FOnPingPong) then begin
     OnPingPong(ASender.Context);
   end;
 end;
@@ -995,245 +976,184 @@ procedure TIdIRC.CommandWALLOPS(ASender: TIdCommand);
 var
   LTmp: String;
 begin
-  if Assigned(FOnWallops) then
-  begin
-    LTmp := copy(ASender.Params[1], 2, length(ASender.Params[1]) - 2);
-    OnWallops(ASender.Context, FSenderNick, FSenderHost, LTmp);
+  if Assigned(FOnWallops) then begin
+    LTmp := ASender.UnparsedParams;
+    OnWallops(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
 procedure TIdIRC.CommandTOPIC(ASender: TIdCommand);
+var
+  LTmp, LChannel, LTopic: String;
 begin
-  if Assigned(FOnTopic) then
-  begin
-    OnTopic(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0], ASender.Params[1]);
+  if Assigned(FOnTopic) then begin
+    LTmp := ASender.UnparsedParams;
+    LChannel := FetchIRCParam(LTmp);
+    LTopic := FetchIRCParam(LTmp);
+    OnTopic(ASender.Context, FSenderNick, FSenderHost, LChannel, LTopic);
   end;
 end;
 
 procedure TIdIRC.CommandServerWelcome(ASender: TIdCommand);
 begin
-  if Assigned(FOnSWelcome) then
-  begin
+  if Assigned(FOnSWelcome) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnServerWelcome(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandUSERHOST(ASender: TIdCommand);
 begin
-  if Assigned(FOnUserInfo) then
-  begin
+  if Assigned(FOnUserInfo) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnUserInfoReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandISON(ASender: TIdCommand);
 begin
-  if Assigned(FOnIsOnIRC) then
-  begin
+  if Assigned(FOnIsOnIRC) then begin
     OnIsOnIRC(ASender.Context, FSenderNick, FSenderHost);
   end;
 end;
 
 procedure TIdIRC.CommandENDOFWHOIS(ASender: TIdCommand);
 begin
-  if Assigned(FOnWhoIs) then
-  begin
+  if Assigned(FOnWhoIs) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnWhoIs(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFWHOWAS(ASender: TIdCommand);
 begin
-  if Assigned(FOnWhoWas) then
-  begin
+  if Assigned(FOnWhoWas) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnWhoWas(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandLISTEND(ASender: TIdCommand);
 begin
-  if Assigned(FOnSvrList) then
-  begin
+  if Assigned(FOnSvrList) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnServerListReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandINVITING(ASender: TIdCommand);
 begin
-  if Assigned(FOnInviting) then
-  begin
+  if Assigned(FOnInviting) then begin
     OnInviting(ASender.Context, FSenderNick, FSenderHost);
   end;
 end;
 
 procedure TIdIRC.CommandSUMMONING(ASender: TIdCommand);
 begin
-  if Assigned(FOnSummon) then
-  begin
+  if Assigned(FOnSummon) then begin
     OnSummon(ASender.Context, FSenderNick, FSenderHost);
   end;
 end;
 
 procedure TIdIRC.CommandENDOFINVITELIST(ASender: TIdCommand);
 begin
-  if Assigned(FOnINVList) then
-  begin
+  if Assigned(FOnINVList) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnInvitationListReceived(ASender.Context, FSenderNick, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFEXCEPTLIST(ASender: TIdCommand);
 begin
-  if Assigned(FOnEXCList) then
-  begin
+  if Assigned(FOnEXCList) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnExceptionListReceived(ASender.Context, FSenderNick, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFWHO(ASender: TIdCommand);
 begin
-  if Assigned(FOnWho) then
-  begin
+  if Assigned(FOnWho) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnWho(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFNAMES(ASender: TIdCommand);
 begin
-  if Assigned(FOnNickList) then
-  begin
+  if Assigned(FOnNickList) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnNicknamesListReceived(ASender.Context, FSenderNick, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFLINKS(ASender: TIdCommand);
 begin
-  if Assigned(FOnKnownSvrs) then
-  begin
+  if Assigned(FOnKnownSvrs) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnKnownServersListReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFBANLIST(ASender: TIdCommand);
 begin
-  if Assigned(FOnBanList) then
-  begin
+  if Assigned(FOnBanList) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnBanListReceived(ASender.Context, FSenderNick, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFINFO(ASender: TIdCommand);
 begin
-  if Assigned(FOnUserInfo) then
-  begin
+  if Assigned(FOnUserInfo) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnUserInfoReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFMOTD(ASender: TIdCommand);
 begin
-  if Assigned(FOnMOTD) then
-  begin
+  if Assigned(FOnMOTD) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnMOTD(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandREHASHING(ASender: TIdCommand);
 begin
-  if Assigned(FOnRehash) then
-  begin
+  if Assigned(FOnRehash) then begin
     OnRehash(ASender.Context, FSenderNick, FSenderHost);
   end;
 end;
 
 procedure TIdIRC.CommandENDOFUSERS(ASender: TIdCommand);
 begin
-  if Assigned(FOnSvrUsers) then
-  begin
+  if Assigned(FOnSvrUsers) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnServerUsersListReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFSTATS(ASender: TIdCommand);
 begin
-  if Assigned(FOnSvrStats) then
-  begin
+  if Assigned(FOnSvrStats) then begin
     FTmp.Add(ASender.UnparsedParams);
     OnServerStatsReceived(ASender.Context, FTmp);
-    if FTmp.Count > 0 then
-    begin
-      FTmp.Clear;
-    end;
+    FTmp.Clear;
   end;
 end;
 
@@ -1243,215 +1163,210 @@ begin
 end;
 
 procedure TIdIRC.CommandSTIME(ASender: TIdCommand);
+var
+  LTmp, LServer, LTime: String;
 begin
-  if Assigned(FOnSvrTime) then
-  begin
-    OnServerTime(ASender.Context, ASender.Params[0], ASender.Params[1]);
+  if Assigned(FOnSvrTime) then begin
+    LTmp := ASender.UnparsedParams;
+    LServer := FetchIRCParam(LTmp);
+    LTime := FetchIRCParam(LTmp);
+    OnServerTime(ASender.Context, LServer, LTime);
   end;
 end;
 
 procedure TIdIRC.CommandSERVICE(ASender: TIdCommand);
 begin
-  if Assigned(FOnService) then
-  begin
+  if Assigned(FOnService) then begin
     OnService(ASender.Context);
   end;
 end;
 
 procedure TIdIRC.CommandSVERSION(ASender: TIdCommand);
+var
+  LTmp, LVersion, LServer, LComments: String;
 begin
-  if Assigned(FOnSvrVersion) then
-  begin
-    OnServerVersion(ASender.Context, ASender.Params[0], ASender.Params[1], ASender.Params[2]);
+  if Assigned(FOnSvrVersion) then begin
+    LTmp := ASender.UnparsedParams;
+    LVersion := FetchIRCParam(LTmp);
+    LServer := FetchIRCParam(LTmp);
+    LComments := FetchIRCParam(LTmp);
+    OnServerVersion(ASender.Context, LVersion, LServer, LComments);
   end;
 end;
 
 procedure TIdIRC.CommandCHANMODE(ASender: TIdCommand);
 begin
-  if Assigned(FOnChanMode) then
-  begin
+  if Assigned(FOnChanMode) then begin
     OnChannelMode(ASender.Context);
   end;
 end;
 
 procedure TIdIRC.CommandOPER(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
-  if Assigned(FOnOp) then
-  begin
-    OnOp(ASender.Context, FSenderNick, FSenderHost, ASender.Params[0]);
+  if Assigned(FOnOp) then begin
+    LTmp := ASender.UnparsedParams;
+    OnOp(ASender.Context, FSenderNick, FSenderHost, FetchIRCParam(LTmp));
   end;
 end;
 
-procedure TIdIRC.ParseCTCPQuery(CTCPQuery, AChannel: String);
+procedure TIdIRC.ParseCTCPQuery(AContext: TIdContext; const CTCPQuery, AChannel: String);
 var
   CTCP: String;
   LTmp: String;
   LTmp1: String;
 begin
   CTCP := CTCPQuery;
-  LTmp := Fetch(CTCP, #32);
+  LTmp := FetchIRCParam(CTCP);
   LTmp1 := CTCP;
 
   case PosInStrArray(LTmp1, IdIRCCTCP) of
     0: { ACTION }
       begin
-        //if Assigned(FOnAction) then
+        //if Assigned(FOnAction) then begin
         //  FOnAction(FSenderNick, AChannel, LTmp1);
+        //end;
       end;
     1: { SOUND }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
       end;
     2: { PING }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, LTmp, Ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, LTmp1, ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, LTmp1, LTmp, LTmp, LTmp);
       end;
     3: { FINGER }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, LTmp, Ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Replies.Finger, ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, Replies.Finger, LTmp, LTmp, LTmp);
       end;
     4: { USERINFO }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, Ltmp, ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Replies.UserInfo, ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, Replies.UserInfo, LTmp, LTmp, LTmp);
       end;
     5: { VERSION }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Replies.Version, ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, Replies.Version, LTmp, LTmp, LTmp);
       end;
     6: { CLIENTINFO }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Replies.ClientInfo, ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, Replies.ClientInfo, LTmp, LTmp, LTmp);
       end;
     7: { TIME }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
-        OnCTCPReply(nil, FSenderNick, LTmp, Sys.Format(RSIRCTimeIsNow, [Sys.DateTimeToStr(Sys.Now)]), ltmp, ltmp, ltmp);
+        OnCTCPReply(AContext, FSenderNick, LTmp, Sys.Format(RSIRCTimeIsNow, [Sys.DateTimeToStr(Sys.Now)]), LTmp, LTmp, LTmp);
       end;
     8: { ERROR }
       begin
-        if Assigned(FOnCTCPQry) then
-        begin
-          FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+        if Assigned(FOnCTCPQry) then begin
+          FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
         end;
       end;
     9: { DCC }
       begin
-        ParseDCC(LTmp1);
+        ParseDCC(AContext, LTmp1);
       end;
     else
-      if Assigned(FOnCTCPQry) then
-      begin
-        FOnCTCPQry(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+      if Assigned(FOnCTCPQry) then begin
+        FOnCTCPQry(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
       end;
   end;
 end;
 
-procedure TIdIRC.ParseCTCPReply(CTCPReply, AChannel: String);
+procedure TIdIRC.ParseCTCPReply(AContext: TIdContext; const CTCPReply, AChannel: String);
 var
   CTCP: String;
   LTmp: String;
   LTmp1: String;
 begin
   CTCP := CTCPReply;
-  LTmp := Fetch(CTCP, #32);
+  LTmp := FetchIRCParam(CTCP);
   LTmp1 := CTCP;
 
-  if PosInStrArray(LTmp1, IdIRCCTCP) = 9 then { DCC }
-  begin
+  if PosInStrArray(LTmp1, IdIRCCTCP) = 9 then begin { DCC }
     { FIXME: To be completed. }
   end
-  else if Assigned(FOnCTCPRep) then
-  begin
-    FOnCTCPRep(nil, FSenderNick, AChannel, LTmp, LTmp1, ltmp, ltmp);
+  else if Assigned(FOnCTCPRep) then begin
+    FOnCTCPRep(AContext, FSenderNick, AChannel, LTmp, LTmp1, LTmp, LTmp);
   end;
 end;
 
-procedure TIdIRC.ParseDCC(ADCC: String);
+procedure TIdIRC.ParseDCC(AContext: TIdContext; const ADCC: String);
+const
+  IdIRCDCC: array[0..3] of String = ('SEND', 'CHAT', 'RESUME', 'ACCEPT');  {do not localize}
 var
   LTmp: String;
   LTmp1, LTmp2, LTmp3: String;
 begin
   LTmp := ADCC;
-  LTmp1 := Fetch(LTmp, #32);
-  LTmp2 := Fetch(LTmp, #32);
-  LTmp3 := Fetch(LTmp, #32);
+  LTmp1 := FetchIRCParam(LTmp);
+  LTmp2 := FetchIRCParam(LTmp);
+  LTmp3 := FetchIRCParam(LTmp);
   //
   case PosInStrArray(LTmp1, IdIRCDCC) of
     0: {SEND}
       begin
-        if Assigned(FOnDCCSend) then
-        begin
-          FOnDCCSend(nil, FSenderNick, LTmp2, LTmp3, Sys.StrToInt(LTmp1), Sys.StrToInt(LTmp));
+        if Assigned(FOnDCCSend) then begin
+          FOnDCCSend(AContext, FSenderNick, LTmp2, LTmp3, Sys.StrToInt(LTmp1), Sys.StrToInt(LTmp));
         end;
       end;
     1: {CHAT}
       begin
-        if Assigned(FOnDCCChat) then
-        begin
-          FOnDCCChat(nil, FSenderNick, LTmp2, Sys.StrToInt(LTmp3));
+        if Assigned(FOnDCCChat) then begin
+          FOnDCCChat(AContext, FSenderNick, LTmp2, Sys.StrToInt(LTmp3));
         end;
       end;
     2: {RESUME}
       begin
-        if Assigned(FOnDCCResume) then
-        begin
-          FOnDCCResume(nil, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(Ltmp1), Sys.StrToInt(LTmp3));
+        if Assigned(FOnDCCResume) then begin
+          FOnDCCResume(AContext, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(LTmp1), Sys.StrToInt(LTmp3));
         end;
       end;
     3: {ACCEPT}
       begin
-        if Assigned(FOnDCCAccept) then
-        begin
-          FOnDCCAccept(nil, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(LTmp3), Sys.StrToInt(LTmp));
+        if Assigned(FOnDCCAccept) then begin
+          FOnDCCAccept(AContext, FSenderNick, LTmp2, LTmp1, Sys.StrToInt(LTmp3), Sys.StrToInt(LTmp));
         end;
       end;
   end;
 end;
 
-procedure TIdIRC.SetNickname(AValue: String);
+procedure TIdIRC.SetNickname(const AValue: String);
 begin
-  if not Connected then
-  begin
+  if not Connected then begin
     FNickname := AValue;
-  end
-  else
+  end else begin
     Raw(Sys.Format('NICK %s', [AValue])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.SetUsername(AValue: String);
+procedure TIdIRC.SetUsername(const AValue: String);
 begin
-  if not Connected then
-  begin
+  if not Connected then begin
     FUsername := AValue;
-  end
-  else
+  end else begin
     Raw(Sys.Format('USER %s %s %s :%s', [AValue, GetUserMode, '*', FRealName]));  {do not localize}
+  end;
 end;
 
 procedure TIdIRC.SetIdIRCUserMode(AValue: TIdIRCUserModes);
@@ -1464,403 +1379,351 @@ begin
   FReplies.Assign(AValue);
 end;
 
-function TIdIRC.IsChannel(AChannel: String): Boolean;
+function TIdIRC.IsChannel(const AChannel: String): Boolean;
 begin
   //Result := (Length(AChannel) > 0) and CharIsInSet(AChannel, 1, ['&','#','+','!']);  {do not localize}
-  Result := False;
-  if Length(AChannel) > 0 then begin
-    if CharIsInSet(AChannel, 1, '&#+!') then begin  {do not localize}
-     Result := True;
-    end;
-  end;
+  Result := CharIsInSet(AChannel, 1, '&#+!');  {do not localize}
 end;
 
-function TIdIRC.IsOp(ANickname: String): Boolean;
+function TIdIRC.IsOp(const ANickname: String): Boolean;
 begin
-  //Result := (Length(ANickname) > 0) and (ANickname[1] = '@');
-  Result := False;
-  if Length(ANickname) > 0 then begin
-    if ANickname[1] = '@' then begin
-      Result := True;
-    end;
-  end;
+  Result := (Length(ANickname) > 0) and (ANickname[1] = '@');
 end;
 
-function TIdIRC.IsVoice(ANickname: String): Boolean;
+function TIdIRC.IsVoice(const ANickname: String): Boolean;
 begin
-  //Result := (Length(ANickname) > 0) and (ANickname[length(Nickname)] = '+');
-  Result := False;
-  if Length(ANickname) > 0 then begin
-    if ANickname[length(Nickname)] = '+' then begin
-      Result := True;
-    end;
-  end;
+  Result := (Length(ANickname) > 0) and (ANickname[Length(Nickname)] = '+');
 end;
 
-procedure TIdIRC.Say(ATarget, AMsg: String);
+procedure TIdIRC.Say(const ATarget, AMsg: String);
 begin
   Raw(Sys.Format('PRIVMSG %s :%s', [ATarget, AMsg])); {do not localize}
 end;
 
-procedure TIdIRC.Notice(ATarget, AMsg: String);
+procedure TIdIRC.Notice(const ATarget, AMsg: String);
 begin
   Raw(Sys.Format('NOTICE %s :%s', [ATarget, AMsg]));  {do not localize}
 end;
 
-procedure TIdIRC.Action(ATarget, AMsg: String);
+procedure TIdIRC.Action(const ATarget, AMsg: String);
 begin
   CTCPQuery(ATarget, 'ACTION', AMsg); {do not localize}
 end;
 
-procedure TIdIRC.CTCPQuery(ATarget, ACommand, AParameters: String);
+procedure TIdIRC.CTCPQuery(const ATarget, ACommand, AParameters: String);
 begin
   Say(ATarget, Sys.Format(#1'%s %s'#1, [Sys.UpperCase(ACommand), AParameters]));  {do not localize}
 end;
 
-procedure TIdIRC.CTCPReply(ATarget, ACTCP, AReply: String);
+procedure TIdIRC.CTCPReply(const ATarget, ACTCP, AReply: String);
 begin
   Notice(ATarget, Sys.Format(#1'%s %s'#1, [ACTCP, AReply]));  {do not localize}
 end;
 
-procedure TIdIRC.Join(AChannel: String; const AKey: String = '');
+procedure TIdIRC.Join(const AChannel: String; const AKey: String = '');
 begin
-  if IsChannel(AChannel) then
-  begin
-    if AKey <> '' then
-    begin
+  if IsChannel(AChannel) then begin
+    if AKey <> '' then begin
       Raw(Sys.Format('JOIN %s %s', [AChannel, AKey])) {do not localize}
-    end
-    else
+    end else begin
       Raw(Sys.Format('JOIN %s', [AChannel])); {do not localize}
+    end;
   end;
 end;
 
-procedure TIdIRC.Part(AChannel: String; const AReason: String = '');
+procedure TIdIRC.Part(const AChannel: String; const AReason: String = '');
 begin
-  if IsChannel(AChannel) then
-  begin
-    if AReason <> '' then
-    begin
+  if IsChannel(AChannel) then begin
+    if AReason <> '' then begin
       Raw(Sys.Format('PART %s :%s', [AChannel, AReason])) {do not localize}
-    end
-    else
+    end else begin
       Raw(Sys.Format('PART %s', [AChannel])); {do not localize}
+    end;
   end;
 end;
 
-procedure TIdIRC.Kick(AChannel, ANickname, AReason: String);
+procedure TIdIRC.Kick(const AChannel, ANickname, AReason: String);
 begin
-  if IsChannel(AChannel) then
-  begin
+  if IsChannel(AChannel) then begin
     Raw(Sys.Format('KICK %s %s :%s', [AChannel, ANickname, AReason]));  {do not localize}
   end;
 end;
 
-procedure TIdIRC.SetChannelMode(AChannel, AMode: String; const AParams: String = '');
+procedure TIdIRC.SetChannelMode(const AChannel, AMode: String; const AParams: String = '');
 begin
-  if IsChannel(AChannel) then
-  begin
-    if AParams = '' then
-    begin
+  if IsChannel(AChannel) then begin
+    if AParams = '' then begin
       Raw(Sys.Format('MODE %s %s', [AChannel, AMode])); {do not localize}
-    end
-    else
+    end else begin
       Raw(Sys.Format('MODE %s %s %s', [AChannel, AMode, AParams])); {do not localize}
+    end;
   end;
 end;
 
-procedure TIdIRC.SetUserMode(ANickname, AMode: String);
+procedure TIdIRC.SetUserMode(const ANickname, AMode: String);
 begin
   Raw(Sys.Format('MODE %s %s', [ANickname, AMode]));  {do not localize}
 end;
 
-procedure TIdIRC.GetChannelTopic(AChannel: String);
+procedure TIdIRC.GetChannelTopic(const AChannel: String);
 begin
-  if IsChannel(AChannel) then
-  begin
+  if IsChannel(AChannel) then begin
     Raw(Sys.Format('TOPIC %s', [AChannel]));  {do not localize}
   end;
 end;
 
-procedure TIdIRC.SetChannelTopic(AChannel, ATopic: String);
+procedure TIdIRC.SetChannelTopic(const AChannel, ATopic: String);
 begin
-  if IsChannel(AChannel) then
-  begin
+  if IsChannel(AChannel) then begin
     Raw(Sys.Format('TOPIC %s :%s', [AChannel, ATopic]));  {do not localize}
   end;
 end;
 
-procedure TIdIRC.SetAway(AMsg: String);
+procedure TIdIRC.SetAway(const AMsg: String);
 begin
-  if AMsg <> '' then
-  begin
+  if AMsg <> '' then begin
     Raw(Sys.Format('AWAY %s', [AMsg])); {do not localize}
-  end
-  else
+  end else begin
     Raw('AWAY');  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.Op(AChannel, ANickname: String);
+procedure TIdIRC.Op(const AChannel, ANickname: String);
 begin
   SetChannelMode(AChannel, '+o', ANickname);  {do not localize}
 end;
 
-procedure TIdIRC.Deop(AChannel, ANickname: String);
+procedure TIdIRC.Deop(const AChannel, ANickname: String);
 begin
   SetChannelMode(AChannel, '-o', ANickname);  {do not localize}
 end;
 
-procedure TIdIRC.Voice(AChannel, ANickname: String);
+procedure TIdIRC.Voice(const AChannel, ANickname: String);
 begin
   SetChannelMode(AChannel, '+v', ANickname);  {do not localize}
 end;
 
-procedure TIdIRC.Devoice(AChannel, ANickname: String);
+procedure TIdIRC.Devoice(const AChannel, ANickname: String);
 begin
   SetChannelMode(AChannel, '-v', ANickname);  {do not localize}
 end;
 
-procedure TIdIRC.Ban(AChannel, AHostmask: String);
+procedure TIdIRC.Ban(const AChannel, AHostmask: String);
 begin
   SetChannelMode(AChannel, '+b', AHostmask);  {do not localize}
 end;
 
-procedure TIdIRC.Unban(AChannel, AHostmask: String);
+procedure TIdIRC.Unban(const AChannel, AHostmask: String);
 begin
   SetChannelMode(AChannel, '-b', AHostmask);  {do not localize}
 end;
 
-procedure TIdIRC.RegisterService(const ANickname, ADistribution, AInfo: String;
-  AType: Integer);
+procedure TIdIRC.RegisterService(const ANickname, ADistribution, AInfo: String; AType: Integer);
 begin
   Raw(Sys.Format('SERVICE %s %s %s %s %s :%s',  {do not localize}
     [ANickname, '*', ADistribution, AType, '0', AInfo]));
 end;
 
-procedure TIdIRC.ListChannelNicknames(AChannel: String; ATarget: String = '');
+procedure TIdIRC.ListChannelNicknames(const AChannel: String; const ATarget: String = '');
 begin
-  if IsChannel(AChannel) then
-  begin
-    if ATarget <> '' then
-    begin
+  if IsChannel(AChannel) then begin
+    if ATarget <> '' then begin
       Raw(Sys.Format('NAMES %s %s', [AChannel, ATarget]));  {do not localize}
-    end
-    else
+    end else begin
       Raw(Sys.Format('NAMES %s', [AChannel]));  {do not localize}
+    end;
   end;
 end;
 
-procedure TIdIRC.ListChannel(AChannel: String; ATarget: String = '');
+procedure TIdIRC.ListChannel(const AChannel: String; const ATarget: String = '');
 begin
-  if IsChannel(AChannel) then
-  begin
-    if ATarget <> '' then
-    begin
+  if IsChannel(AChannel) then begin
+    if ATarget <> '' then begin
       Raw(Sys.Format('LIST %s %s', [AChannel, ATarget])); {do not localize}
-    end
-    else
+    end else begin
       Raw(Sys.Format('LIST %s', [AChannel])); {do not localize}
+    end;
   end;
 end;
 
-procedure TIdIRC.Invite(ANickname, AChannel: String);
+procedure TIdIRC.Invite(const ANickname, AChannel: String);
 begin
-  if IsChannel(AChannel) then
-  begin
+  if IsChannel(AChannel) then begin
     Raw(Sys.Format('INVITE %s %s', [ANickname, AChannel])); {do not localize}
   end;
 end;
 
-procedure TIdIRC.GetMessageOfTheDay(ATarget: String = '');
+procedure TIdIRC.GetMessageOfTheDay(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('MOTD %s', [ATarget]));  {do not localize}
-  end
-  else
+  end else begin
     Raw('MOTD');  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.GetNetworkStatus(AHostMask: String = ''; ATarget: String = '');
+procedure TIdIRC.GetNetworkStatus(const AHostMask: String = ''; const ATarget: String = '');
 begin
-  if ((AHostMask = '') and (ATarget = '')) then
-  begin
+  if (AHostMask = '') and (ATarget = '') then begin
     Raw('LUSERS');  {do not localize}
   end
-  else if AHostMask = '' then
-  begin
+  else if AHostMask = '' then begin
     Raw(Sys.Format('LUSERS %s', [ATarget]));  {do not localize}
   end
-  else if ATarget = '' then
-  begin
+  else if ATarget = '' then begin
     Raw(Sys.Format('LUSERS %s', [AHostMask]));  {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('LUSERS %s %s', [AHostMask, ATarget]));  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.GetServerVersion(ATarget: String = '');
+procedure TIdIRC.GetServerVersion(const ATarget: String = '');
 begin
-  if ATarget = '' then
-  begin
+  if ATarget = '' then begin
     Raw('VERSION'); {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('VERSION %s', [ATarget])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.GetServerStatus(AQuery: TIdIRCStat; ATarget: String = '');
+procedure TIdIRC.GetServerStatus(AQuery: TIdIRCStat; const ATarget: String = '');
+const
+  IdIRCStatChars: array[TIdIRCStat] of Char = ('l', 'm', 'o', 'u'); {do not localize}
 begin
-  if ATarget <> '' then
-  begin
-    Raw(Sys.Format('STATS %s %s', [IdIRCStatChars[ord(AQuery)], ATarget])); {do not localize}
-  end
-  else
-    Raw(Sys.Format('STATS %s', [IdIRCStatChars[ord(AQuery)]])); {do not localize}
+  if ATarget <> '' then begin
+    Raw(Sys.Format('STATS %s %s', [IdIRCStatChars[AQuery], ATarget])); {do not localize}
+  end else begin
+    Raw(Sys.Format('STATS %s', [IdIRCStatChars[AQuery]])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.ListKnownServerNames(ARemoteHost: String = ''; AHostMask: String = '');
+procedure TIdIRC.ListKnownServerNames(const ARemoteHost: String = ''; const AHostMask: String = '');
 begin
-  if ((ARemoteHost = '') and (AHostMask = '')) then
-  begin
+  if (ARemoteHost = '') and (AHostMask = '') then begin
     Raw('LINKS'); {do not localize}
   end
-  else if ARemoteHost = '' then
-  begin
+  else if ARemoteHost = '' then begin
     Raw(Sys.Format('LINKS %s', [AHostMask])); {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('LINKS %s', [ARemoteHost])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.QueryServerTime(ATarget: String = '');
+procedure TIdIRC.QueryServerTime(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('TIME %s', [ATarget]));  {do not localize}
-  end
-  else
+  end else begin
     Raw('TIME');  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.RequestServerConnect(ATarget, AHost: String; APort: Integer;
-  ARemoteHost: String = '');
+procedure TIdIRC.RequestServerConnect(const ATarget, AHost: String; APort: Integer;
+  const ARemoteHost: String = '');
 begin
-  if ARemoteHost <> '' then
-  begin
+  if ARemoteHost <> '' then begin
     Raw(Sys.Format('CONNECT %s %s %d %s', [ATarget, AHost, APort, ARemoteHost])); {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('CONNECT %s %s %d', [ATarget, AHost, APort])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.TraceServer(ATarget: String = '');
+procedure TIdIRC.TraceServer(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('TRACE %s', [ATarget])); {do not localize}
-  end
-  else
+  end else begin
     Raw('TRACE'); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.GetAdminInfo(ATarget: String = '');
+procedure TIdIRC.GetAdminInfo(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('ADMIN %s', [ATarget])); {do not localize}
-  end
-  else
+  end else begin
     Raw('ADMIN'); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.GetServerInfo(ATarget: String = '');
+procedure TIdIRC.GetServerInfo(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('INFO %s', [ATarget]));  {do not localize}
-  end
-  else
+  end else begin
     Raw('INFO');  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.ListNetworkServices(AHostMask: String; AType: String = '');
+procedure TIdIRC.ListNetworkServices(const AHostMask: String; const AType: String = '');
 begin
-  if AType <> '' then
-  begin
+  if AType <> '' then begin
     Raw(Sys.Format('SERVLIST %s %s', [AHostMask, AType]));  {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('SERVLIST %s', [AHostMask]));  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.QueryService(AServiceName, AMessage: String);
+procedure TIdIRC.QueryService(const AServiceName, AMessage: String);
 begin
   Raw(Sys.Format('SQUERY %s %s', [AServiceName, AMessage]));  {do not localize}
 end;
 
-procedure TIdIRC.Who(AMask: String; AOnlyAdmins: Boolean);
+procedure TIdIRC.Who(const AMask: String; AOnlyAdmins: Boolean);
 begin
-  if AOnlyAdmins then
-  begin
+  if AOnlyAdmins then begin
     Raw(Sys.Format('WHO %s o', [AMask])); {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('WHO %s', [AMask])); {do not localize}
-end;
-
-procedure TIdIRC.WhoIs(AMask: String; ATarget: String = '');
-begin
-  if ATarget <> '' then
-  begin
-    Raw(Sys.Format('WHOIS %s %s', [AMask, ATarget])); {do not localize}
-  end
-  else
-    Raw(Sys.Format('WHOIS %s', [AMask])); {do not localize}
-end;
-
-procedure TIdIRC.WhoWas(ANickname: String; ACount: Integer = -1; ATarget: String = '');
-begin
-  if ((ATarget = '') and (ACount = -1)) then
-  begin
-    Raw(Sys.Format('WHOWAS %s', [ANickname]));  {do not localize}
-  end
-  else if ATarget = '' then
-  begin
-    Raw(Sys.Format('WHOWAS %s %d', [ANickname, ACount])); {do not localize}
-  end
-  else if ACount = -1 then
-  begin
-    raw(Sys.Format('WHOWAS %s %s', [ANickname, ATarget]));  {do not localize}
   end;
 end;
 
-procedure TIdIRC.Kill(ANickname, AComment: String);
+procedure TIdIRC.WhoIs(const AMask: String; const ATarget: String = '');
+begin
+  if ATarget <> '' then begin
+    Raw(Sys.Format('WHOIS %s %s', [AMask, ATarget])); {do not localize}
+  end else begin
+    Raw(Sys.Format('WHOIS %s', [AMask])); {do not localize}
+  end;
+end;
+
+procedure TIdIRC.WhoWas(const ANickname: String; ACount: Integer = -1; const ATarget: String = '');
+begin
+  if (ATarget = '') and (ACount < 0) then begin
+    Raw(Sys.Format('WHOWAS %s', [ANickname]));  {do not localize}
+  end
+  else if ATarget = '' then begin
+    Raw(Sys.Format('WHOWAS %s %d', [ANickname, ACount])); {do not localize}
+  end
+  else begin
+    Raw(Sys.Format('WHOWAS %s %s', [ANickname, ATarget]));  {do not localize}
+  end;
+end;
+
+procedure TIdIRC.Kill(const ANickname, AComment: String);
 begin
   Raw(Sys.Format('KILL %s %s', [ANickname, AComment])); {do not localize}
 end;
 
-procedure TIdIRC.Ping(AServer1: String; AServer2: String = '');
+procedure TIdIRC.Ping(const AServer1: String; const AServer2: String = '');
 begin
-  if AServer2 <> '' then
-  begin
+  if AServer2 <> '' then begin
     Raw(Sys.Format('PING %s %s', [AServer1, AServer2]));  {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('PING %s', [AServer1])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.Pong(AServer1: String; AServer2: String = '');
+procedure TIdIRC.Pong(const AServer1: String; const AServer2: String = '');
 begin
-  if AServer2 <> '' then
-  begin
+  if AServer2 <> '' then begin
     Raw(Sys.Format('PONG %s %s', [AServer1, AServer2]));  {do not localize}
-  end
-  else
+  end else begin
     Raw(Sys.Format('PONG %s', [AServer1])); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.Error(AMessage: String);
+procedure TIdIRC.Error(const AMessage: String);
 begin
   Raw(Sys.Format('ERROR %s', [AMessage]));  {do not localize}
 end;
@@ -1880,84 +1743,77 @@ begin
   Raw('RESTART'); {do not localize}
 end;
 
-procedure TIdIRC.Summon(ANickname: String; ATarget: String = ''; AChannel: String = '');
+procedure TIdIRC.Summon(const ANickname: String; const ATarget: String = '';
+  const AChannel: String = '');
 begin
-  if ((ATarget = '') and (AChannel = '')) then
-  begin
+  if (ATarget = '') and (AChannel = '') then begin
     Raw(Sys.Format('SUMMON %s', [ANickname]));  {do not localize}
   end
   else if ATarget = '' then
   begin
-    if IsChannel(AChannel) then
-    begin
+    if IsChannel(AChannel) then begin
       Raw(Sys.Format('SUMMON %s', [AChannel])); {do not localize}
     end;
-  end
-  else
+  end else begin
     Raw(Sys.Format('SUMMON %s', [ANickname]));  {do not localize}
+  end;
 end;
 
-procedure TIdIRC.ListServerUsers(ATarget: String = '');
+procedure TIdIRC.ListServerUsers(const ATarget: String = '');
 begin
-  if ATarget <> '' then
-  begin
+  if ATarget <> '' then begin
     Raw(Sys.Format('USERS %s', [ATarget])); {do not localize}
-  end
-  else
+  end else begin
     Raw('USERS'); {do not localize}
+  end;
 end;
 
-procedure TIdIRC.SayWALLOPS(AMessage: String);
+procedure TIdIRC.SayWALLOPS(const AMessage: String);
 begin
   Raw(Sys.Format('WALLOPS %s', [AMessage]));  {do not localize}
 end;
 
-procedure TIdIRC.GetUserInfo(ANickname: String);
+procedure TIdIRC.GetUserInfo(const ANickname: String);
 begin
   Raw(Sys.Format('USERHOST %s', [ANickname]));  {do not localize}
 end;
 
-procedure TIdIRC.IsOnIRC(ANickname: String);
+procedure TIdIRC.IsOnIRC(const ANickname: String);
 begin
   Raw(Sys.Format('ISON %s', [ANickname]));  {do not localize}
 end;
 
-procedure TIdIRC.BecomeOp(ANickname, APassword: String);
+procedure TIdIRC.BecomeOp(const ANickname, APassword: String);
 begin
   Raw(Sys.Format('OPER %s %s', [ANickname, APassword]));  {do not localize}
 end;
 
-procedure TIdIRC.SQuit(AHost, AComment: String);
+procedure TIdIRC.SQuit(const AHost, AComment: String);
 begin
   Raw(Sys.Format('SQUIT %s %s', [AHost, AComment]));  {do not localize}
 end;
 
-procedure TIdIRC.SetChannelLimit(AChannel: String; ALimit: Integer);
+procedure TIdIRC.SetChannelLimit(const AChannel: String; ALimit: Integer);
 begin
-  SetChannelMode(AChannel, '+l', Sys.Format('%s', [ALimit])); {do not localize}
+  SetChannelMode(AChannel, '+l', Sys.IntToStr(ALimit)); {do not localize}
 end;
 
-procedure TIdIRC.SetChannelKey(AChannel, AKey: String);
+procedure TIdIRC.SetChannelKey(const AChannel, AKey: String);
 begin
   SetChannelMode(AChannel, '+k', AKey); {do not localize}
 end;
 
 procedure TIdIRC.SetIOHandler(AValue: TIdIOHandler);
 begin
-  inherited;
+  inherited SetIOHandler(AValue);
   //we do it this way so that if a user is using a custom value <> default, the port
   //is not set when the IOHandler is changed.
-  if (IOHandler is TIdSSLIOHandlerSocketBase) then
-  begin
-    if PORT = IdPORT_IRC then
-    begin
+  if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+    if Port = IdPORT_IRC then begin
       Port := IdPORT_IRCS;
     end;
-  end
-  else
-  begin
-    if PORT = IdPORT_IRCS then
-    begin
+  end else begin
+    if Port = IdPORT_IRCS then begin
       Port := IdPORT_IRC;
     end;
   end;
