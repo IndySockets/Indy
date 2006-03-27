@@ -459,6 +459,8 @@ type
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
   function OrdFourByteToCardinal(AByte1, AByte2, AByte3, AByte4 : Byte): Cardinal;
 
+  function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
+
   function ProcessPath(const ABasePath: String; const APath: String; const APathDelim: string = '/'): string;    {Do not Localize}
   function RightStr(const AStr: String; const Len: Integer): String;
   {$IFNDEF DOTNET}
@@ -2516,6 +2518,15 @@ begin
 end;
 
 // The password for extracting password.bin from password.zip is indyrules
+
+function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
+begin
+  if Length(Result) >= ALen then begin
+    Result := AString;
+  end else begin
+    Result := AString + StringOfChar(AChar, ALen-Length(AString));
+  end;
+end;
 
 function ProcessPath(const ABasePath: string;
   const APath: string;
