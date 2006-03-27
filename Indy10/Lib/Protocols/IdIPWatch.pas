@@ -33,25 +33,25 @@
 
   Rev 1.0    11/13/2002 07:55:32 AM  JPMugaas
 
-  2000-Dec-22 Kudzu
-    -Changed from a TTimer to a sleeping thread to eliminate the reference to ExtCtrls. This was the
-    only unit in all of Indy that used this unit and caused the pkg to rely on extra pkgs.
-    -Changed Enabled to Active to be more consistent
-    -Active now also defaults to false to be more consistent
+2000-Dec-22 Kudzu
+  -Changed from a TTimer to a sleeping thread to eliminate the reference to ExtCtrls. This was the
+   only unit in all of Indy that used this unit and caused the pkg to rely on extra pkgs.
+  -Changed Enabled to Active to be more consistent
+  -Active now also defaults to false to be more consistent
 
-  2000-MAY-10 Hadi Hariri
-    -Added new feature to Force Check of status
+2000-MAY-10 Hadi Hariri
+  -Added new feature to Force Check of status
 
-  2000-Apr-23 Hadi Hariri
-    -Converted to Indy
+2000-Apr-23 Hadi Hariri
+  -Converted to Indy
 
-  2000-Mar-01 Johannes Berg <johannes@sipsolutions.com>
-    - new property HistoryFilename
-    - new property MaxHistoryEntries
-    - new property HistoryEnabled
+2000-Mar-01 Johannes Berg <johannes@sipsolutions.com>
+  - new property HistoryFilename
+  - new property MaxHistoryEntries
+  - new property HistoryEnabled
 
-  2000-Jan-13 MTL
-    -Moved to new Palette Scheme (Winshoes Misc)
+2000-Jan-13 MTL
+  -Moved to new Palette Scheme (Winshoes Misc)
 }
 
 unit IdIPWatch;
@@ -262,7 +262,7 @@ procedure TIdIPWatch.LoadHistory;
 begin
   if not IsDesignTime then begin
     FIPHistoryList.Clear;
-    if (Sys.FileExists(FHistoryFilename)) and (FHistoryEnabled) then
+    if Sys.FileExists(FHistoryFilename) and FHistoryEnabled then
     begin
       FIPHistoryList.LoadFromFile(FHistoryFileName);
       if FIPHistoryList.Count > 0 then
@@ -304,8 +304,10 @@ begin
           Start;
         end;
       end else begin
-        FThread.TerminateAndWaitFor;
-        Sys.FreeAndNil(FThread);
+        if FThread <> nil then begin
+          FThread.TerminateAndWaitFor;
+          Sys.FreeAndNil(FThread);
+        end;
       end;
     end;
   end;
