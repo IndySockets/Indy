@@ -158,6 +158,7 @@ type
   protected
     FMappedHost: string;
     FMappedPort: Integer;
+    FOnBeforeConnect: TIdServerThreadEvent;
 
     //AThread.Connection.Server & AThread.OutboundClient
     FOnOutboundConnect: TIdMappedPortOutboundConnectEvent;
@@ -165,6 +166,7 @@ type
     FOnOutboundDisConnect: TIdServerThreadEvent;
     //
     procedure ContextCreated(AContext:TIdContext); override;
+    procedure DoBeforeConnect(AContext: TIdContext); virtual;
     procedure DoConnect(AContext:TIdContext); override;
     function  DoExecute(AContext:TIdContext): boolean; override;
     procedure DoDisconnect(AContext:TIdContext); override; //DoLocalClientDisconnect
@@ -174,17 +176,15 @@ type
     procedure DoOutboundClientConnect(AContext:TIdContext; const AException: Exception=NIL); virtual;
     procedure DoOutboundClientData(AContext:TIdContext); virtual;
     procedure DoOutboundDisconnect(AContext:TIdContext); virtual;
-    function  GetOnBeforeConnect: TIdServerThreadEvent;
     function  GetOnConnect: TIdServerThreadEvent;
     function  GetOnExecute: TIdServerThreadEvent;
-    procedure SetOnBeforeConnect(const Value: TIdServerThreadEvent);
     procedure SetOnConnect(const Value: TIdServerThreadEvent);
     procedure SetOnExecute(const Value: TIdServerThreadEvent);
     function  GetOnDisconnect: TIdServerThreadEvent;
     procedure SetOnDisconnect(const Value: TIdServerThreadEvent);
     procedure InitComponent; override;
   published
-    property  OnBeforeConnect: TIdServerThreadEvent read GetOnBeforeConnect write SetOnBeforeConnect;
+    property  OnBeforeConnect: TIdServerThreadEvent read FOnBeforeConnect write FOnBeforeConnect;
     property  MappedHost: String read FMappedHost write FMappedHost;
     property  MappedPort: Integer read FMappedPort write FMappedPort;
     //
@@ -205,60 +205,74 @@ uses
   IdIOHandler, IdIOHandlerSocket, IdResourceStrings,IdStackConsts, IdTCPClient;
 
 procedure TIdMappedPortTCP.InitComponent;
-Begin
-  inherited;
+begin
+  inherited InitComponent;
   FContextClass := TIdMappedPortContext;
-End;//
+end;
 
 procedure TIdMappedPortTCP.ContextCreated(AContext: TIdContext);
 begin
   (AContext As TIdMappedPortContext).Server := Self;
 end;
 
-procedure TIdMappedPortTCP.DoLocalClientConnect(AContext:TIdContext);
-Begin
-  if Assigned(FOnConnect) then FOnConnect(AContext);
-End;//
-
-procedure TIdMappedPortTCP.DoOutboundClientConnect(AContext:TIdContext; const AException: Exception=NIL);
-Begin
-  if Assigned(FOnOutboundConnect) then FOnOutboundConnect(AContext,AException);
-End;//
-
-procedure TIdMappedPortTCP.DoLocalClientData(AContext:TIdContext);
-Begin
-  if Assigned(FOnExecute) then FOnExecute(AContext);
-End;//
-
-procedure TIdMappedPortTCP.DoOutboundClientData(AContext:TIdContext);
-Begin
-  if Assigned(FOnOutboundData) then FOnOutboundData(AContext);
-End;//
-
-procedure TIdMappedPortTCP.DoDisconnect(AContext:TIdContext);
-Begin
-  inherited DoDisconnect(AContext);
-  if Assigned(TIdMappedPortContext(AContext).FOutboundClient) and
-    TIdMappedPortContext(AContext).FOutboundClient.Connected
-  then begin//check for loop
-    TIdMappedPortContext(AContext).FOutboundClient.Disconnect;
-  end;
-End;//DoDisconnect
-
-procedure TIdMappedPortTCP.DoOutboundDisconnect(AContext:TIdContext);
-Begin
-  if Assigned(FOnOutboundDisconnect) then begin
-    FOnOutboundDisconnect(AContext);
-  end;
-  AContext.Connection.Disconnect; //disconnect local
-End;//
-
-
-procedure TIdMappedPortTCP.DoConnect(AContext:TIdContext);
+procedure TIdMappedPortTCP.DoBeforeConnect(AContext: TIdContext);
 begin
   if Assigned(FOnBeforeConnect) then begin
     FOnBeforeConnect(AContext);
   end;
+end;
+
+procedure TIdMappedPortTCP.DoLocalClientConnect(AContext: TIdContext);
+begin
+  if Assigned(FOnConnect) then begin
+    FOnConnect(AContext);
+  end;
+end;
+
+procedure TIdMappedPortTCP.DoOutboundClientConnect(AContext: TIdContext; const AException: Exception = nil);
+begin
+  if Assigned(FOnOutboundConnect) then begin
+    FOnOutboundConnect(AContext, AException);
+  end;
+end;
+
+procedure TIdMappedPortTCP.DoLocalClientData(AContext: TIdContext);
+begin
+  if Assigned(FOnExecute) then begin
+    FOnExecute(AContext);
+  end;
+end;
+
+procedure TIdMappedPortTCP.DoOutboundClientData(AContext: TIdContext);
+begin
+  if Assigned(FOnOutboundData) then begin
+    FOnOutboundData(AContext);
+  end;
+end;
+
+procedure TIdMappedPortTCP.DoDisconnect(AContext: TIdContext);
+begin
+  inherited DoDisconnect(AContext);
+  //check for loop
+  if Assigned(TIdMappedPortContext(AContext).FOutboundClient) and
+    TIdMappedPortContext(AContext).FOutboundClient.Connected then
+  begin
+    TIdMappedPortContext(AContext).FOutboundClient.Disconnect;
+  end;
+end;
+
+procedure TIdMappedPortTCP.DoOutboundDisconnect(AContext: TIdContext);
+begin
+  if Assigned(FOnOutboundDisconnect) then begin
+    FOnOutboundDisconnect(AContext);
+  end;
+  AContext.Connection.Disconnect; //disconnect local
+end;
+
+procedure TIdMappedPortTCP.DoConnect(AContext: TIdContext);
+begin
+  DoBeforeConnect(AContext);
+
   //WARNING: Check TIdTCPServer.DoConnect and synchronize code. Don't call inherited!=> OnConnect in OutboundConnect    {Do not Localize}
   TIdMappedPortContext(AContext).OutboundConnect;
 
@@ -268,11 +282,11 @@ begin
     Add((AContext.Connection.IOHandler as TIdIOHandlerSocket).Binding.Handle);
     Add((TIdMappedPortContext(AContext).FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle);
   end;
-End;//TIdMappedPortTCP.DoConnect
+end;
 
-function TIdMappedPortTCP.DoExecute(AContext:TIdContext): boolean;
+function TIdMappedPortTCP.DoExecute(AContext: TIdContext): Boolean;
 begin
-  Result := TRUE;
+  Result := True;
   with TIdMappedPortContext(AContext) do begin
     try
       if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then begin
@@ -281,60 +295,58 @@ begin
           // TODO: WSAECONNRESET (Exception [EIdSocketError] Socket Error # 10054 Connection reset by peer)
           AContext.Connection.IOHandler.CheckForDataOnSource;
           FNetData := AContext.Connection.IOHandler.InputBufferAsString;
-          //CurrentReadBuffer;
-          if Length(FNetData)>0 then begin
+          if Length(FNetData) > 0 then begin
             DoLocalClientData(AContext);//bServer
             FOutboundClient.IOHandler.Write(FNetData);
-          end;//if
+          end;
         end;
         //2.LOutBoundHandle
         if FDataAvailList.Contains((FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle) then begin
           FOutboundClient.IOHandler.CheckForDataOnSource;
           FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-          //CurrentReadBuffer;
-          if Length(FNetData)>0 then begin
+          if Length(FNetData) > 0 then begin
             DoOutboundClientData(AContext);
             AContext.Connection.IOHandler.Write(FNetData);
-          end;//if
+          end;
         end;
-      end;//if select
+      end;
     finally
-      if NOT FOutboundClient.Connected then begin
+      if not FOutboundClient.Connected then begin
         DoOutboundDisconnect(AContext); //&Connection.Disconnect
-      end;//if
-    end;//tryf
-  end;//with
-End;//TIdMappedPortTCP.DoExecute
+      end;
+    end;
+  end;
+end;
 
 function TIdMappedPortTCP.GetOnConnect: TIdServerThreadEvent;
-Begin
-  Result:=FOnConnect;
-End;//
+begin
+  Result := FOnConnect;
+end;
 
 function TIdMappedPortTCP.GetOnExecute: TIdServerThreadEvent;
-Begin
-  Result:=FOnExecute;
-End;//
+begin
+  Result := FOnExecute;
+end;
 
 function TIdMappedPortTCP.GetOnDisconnect: TIdServerThreadEvent;
-Begin
-  Result:=FOnDisconnect;
-End;//OnDisconnect
+begin
+  Result := FOnDisconnect;
+end;
 
 procedure TIdMappedPortTCP.SetOnConnect(const Value: TIdServerThreadEvent);
-Begin
-  FOnConnect:=Value;
-End;//
+begin
+  FOnConnect := Value;
+end;
 
 procedure TIdMappedPortTCP.SetOnExecute(const Value: TIdServerThreadEvent);
-Begin
-  FOnExecute:=Value;
-End;//
+begin
+  FOnExecute := Value;
+end;
 
 procedure TIdMappedPortTCP.SetOnDisconnect(const Value: TIdServerThreadEvent);
-Begin
-  FOnDisconnect:=Value;
-End;//OnDisconnect
+begin
+  FOnDisconnect := Value;
+end;
 
 
 { TIdMappedPortContext }
@@ -353,7 +365,7 @@ end;
 
 destructor TIdMappedPortContext.Destroy;
 begin
-  //^Sys.FreeAndNIL(FOutboundClient);
+  //Sys.FreeAndNil(FOutboundClient);
   Sys.FreeAndNIL(FOutboundClient);
   Sys.FreeAndNIL(FReadList);
   Sys.FreeAndNIL(FDataAvailList);
@@ -368,7 +380,7 @@ Begin
       with TIdTcpClient(FOutboundClient) do begin
         Port := MappedPort;
         Host := MappedHost;
-      end;//with
+      end;
       DoLocalClientConnect(Self);
 
       FOutboundClient.CreateIOHandler(TIdIOHandlerSocket);
@@ -380,34 +392,23 @@ Begin
       //APR: buffer can contain data from prev (users) read op.
       FNetData := Connection.IOHandler.InputBufferAsString;
       if FNetData <> '' then begin
-        DoLocalClientData(SELF);
+        DoLocalClientData(Self);
         FOutboundClient.IOHandler.Write(FNetData);
-      end;//if
+      end;
 
       FNetData := FOutboundClient.IOHandler.InputBufferAsString;
       if FNetData <> '' then begin
-        DoOutboundClientData(SELF);
+        DoOutboundClientData(Self);
         Connection.IOHandler.Write(FNetData);
-      end;//if
+      end;
     except
       on E: Exception do begin
-        DoOutboundClientConnect(Self,E); // DONE: Handle connect failures
+        DoOutboundClientConnect(Self, E); // DONE: Handle connect failures
         Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
         raise;
       end;
-    end;//trye
-  end;//with
-End;//for easy inheritance
-
-function TIdMappedPortTCP.GetOnBeforeConnect: TIdServerThreadEvent;
-begin
-  Result:=FOnBeforeConnect;
+    end;
+  end;
 end;
 
-procedure TIdMappedPortTCP.SetOnBeforeConnect(
-  const Value: TIdServerThreadEvent);
-begin
-  FOnBeforeConnect := Value;
-end;
-
-END.
+end.
