@@ -36,7 +36,7 @@
   Rev 1.33    8/10/04 1:41:48 PM  RLebeau
   Misc. tweaks
 
-  Rev 1.32    6/11/2004 9:38:22 AM  DSiders
+    Rev 1.32    6/11/2004 9:38:22 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.31    6/4/04 12:41:04 PM  RLebeau
@@ -91,7 +91,7 @@
   Rev 1.16    5/12/2003 12:31:16 AM  GGrieve
   Fis WriteBuffer - can't be used in DotNet
 
-  Rev 1.15    10/17/2003 12:40:20 AM  DSiders
+    Rev 1.15    10/17/2003 12:40:20 AM  DSiders
   Added localization comments.
 
   Rev 1.14    05/10/2003 16:41:54  CCostelloe
@@ -129,7 +129,7 @@
   Kudzu wanted the BeginDecode called after LDecoder was created and EndDecode
   to be called just before LDecoder was destroyed.
 
-  Rev 1.4    6/14/2003 1:14:12 PM  BGooijen
+    Rev 1.4    6/14/2003 1:14:12 PM  BGooijen
   fix for the bug where the attachments are empty
 
   Rev 1.3    6/13/2003 07:58:46 AM  JPMugaas
@@ -165,6 +165,7 @@ type
   TIdMessageDecoderMIME = class(TIdMessageDecoder)
   protected
     FFirstLine: string;
+    FProcessFirstLine: Boolean;
     FBodyEncoded: Boolean;
     FMIMEBoundary: string;
     function GetProperHeaderItem(const Line: string): string;
@@ -241,14 +242,14 @@ var
   LOrd: integer;
   LFloat: Double;
 begin
-  {Allow only digits (ASCII 48-57), Sys.UpperCase letters (65-90) and lowercase
+  {Allow only digits (ASCII 48-57), upper-case letters (65-90) and lowercase
   letters (97-122), which is 62 possible chars...}
   LFloat := (Random* 61) + 1.5;  //Gives us 1.5 to 62.5
   LOrd := Trunc(LFloat)+47;  //(1..62) -> (48..109)
   if LOrd > 83 then begin
     LOrd := LOrd + 13;  {Move into lowercase letter range}
   end else if LOrd > 57 then begin
-    LOrd := LOrd + 7;  {Move into Sys.UpperCase letter range}
+    Inc(LOrd, 7);  {Move into upper-case letter range}
   end;
   Result := Chr(LOrd);
 end;
@@ -274,8 +275,8 @@ begin
   FIndyMIMEBoundary[LN+1] := '_';
   {The Alternative boundary is the same with a random lowercase letter added...}
   //FIndyMultiPartAlternativeBoundary := FIndyMIMEBoundary + Chr(RandomRange(97,122));
-  {The Related boundary is the same with a random Sys.UpperCase letter added...}
-  //FIndyMultiPartRelatedBoundary     := FIndyMultiPartAlternativeBoundary + Chr(RandomRange(65,90));
+  {The Related boundary is the same with a random upper-case letter added...}
+  //FIndyMultiPartRelatedBoundary := FIndyMultiPartAlternativeBoundary + Chr(RandomRange(65,90));
 end;
 
 function TIdMIMEBoundaryStrings.IndyMIMEBoundary: string;
@@ -327,6 +328,7 @@ constructor TIdMessageDecoderMIME.Create(AOwner: TIdNativeComponent; const ALine
 begin
   Create(AOwner);
   FFirstLine := ALine;
+  FProcessFirstLine := True;
 end;
 
 function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream; var VMsgEnd: Boolean): TIdMessageDecoder;
@@ -372,19 +374,24 @@ begin
     IsBinaryContentTransferEncoding := TextIsSame(LContentTransferEncoding, 'binary'); {do not localize}
 
     repeat
-      if FFirstLine = '' then begin // TODO: Improve this. Not very efficient
+      if not FProcessFirstLine then begin
         if IsBinaryContentTransferEncoding then begin
           //For binary, need EOL because the default LF causes spurious CRs in the output...
-          LLine := ReadLn(EOL);
+          LLine := ReadLnRFC(VMsgEnd, EOL);
         end else begin
-          LLine := ReadLn;
+          LLine := ReadLnRFC(VMsgEnd);
         end;
       end else begin
         LLine := FFirstLine;
         FFirstLine := '';    {Do not Localize}
+        FProcessFirstLine := False;
+        // Do not use ADELIM since always ends with . (standard)
+        if LLine = '.' then begin {Do not Localize}
+          VMsgEnd := True;
+          Break;
+        end;
       end;
-      if LLine = '.' then begin // Do not use ADELIM since always ends with . (standard) {Do not Localize}
-        VMsgEnd := True;
+      if VMsgEnd then begin
         Break;
       end;
       // New boundary - end self and create new coder
@@ -402,9 +409,6 @@ begin
           Break;
         // Data to save, but not decode
         end else if LDecoder = nil then begin
-          if (LLine <> '') and (LLine[1] = '.') then begin // Process . in front for no encoding    {Do not Localize}
-            Delete(LLine, 1, 1);
-          end;
           if IsBinaryContentTransferEncoding then begin {do not localize}
             //In this case, we have to make sure we dont write out an EOL at the
             //end of the file.
@@ -440,9 +444,6 @@ begin
         if LDecoder is TIdDecoderQuotedPrintable then begin
           LDecoder.Decode(LLine + EOL);
         end else if LDecoder = nil then begin
-          if (LLine <> '') and (LLine[1] = '.') then begin // Process . in front for no encoding    {Do not Localize}
-            Delete(LLine, 1, 1);
-          end;
           LLine := LLine + EOL;
           WriteStringToStream(ADestStream, LLine);
         end else if LLine <> '' then begin
@@ -454,12 +455,12 @@ begin
       if LDecoder is TIdDecoderBinHex4 then begin
         //Now decode the complete block...
         LDecoder.Decode(LBuffer);
-      end else if LDecoder is TIdDecoderMIMELineByLine then begin
-        TIdDecoderMIMELineByLine(LDecoder).FinishDecoding;
       end;
       LDecoder.DecodeEnd;
     end;
-  finally Sys.FreeAndNil(LDecoder); end;
+  finally
+    Sys.FreeAndNil(LDecoder);
+  end;
 end;
 
 function TIdMessageDecoderMIME.GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
@@ -551,14 +552,16 @@ var
   ABoundary,
   s: string;
   LLine: string;
+  LMsgEnd: Boolean;
+
 begin
   if FBodyEncoded then begin // Read header from the actual message since body parts don't exist    {Do not Localize}
     CheckAndSetType(TIdMessage(Owner).ContentType, TIdMessage(OWner).ContentDisposition);
   end else begin
     // Read header
     repeat
-      LLine := ReadLn;
-      if LLine = '.' then begin // TODO: abnormal situation (Masters!)    {Do not Localize}
+      LLine := ReadLnRFC(LMsgEnd);
+      if LMsgEnd then begin // TODO: abnormal situation (Masters!)    {Do not Localize}
         FPartType := mcptUnknown;
         Exit;
       end;//if
@@ -614,7 +617,7 @@ begin
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
   for LN := 1 to Length(Result) do begin
-  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin
+  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
     if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;
@@ -665,18 +668,21 @@ begin
   ASrc.Position := 0;
   LSPos := 0;
   LSSize := ASrc.Size;
-  LEncoder := TIdEncoderMIME.Create(nil); try
+  LEncoder := TIdEncoderMIME.Create(nil);
+  try
     while LSPos < LSSize do begin
       s := LEncoder.Encode(ASrc, 57) + EOL;
-      Inc(LSPos,57);
+      Inc(LSPos, 57);
       WriteStringToStream(ADest, s);
     end;
-  finally Sys.FreeAndNil(LEncoder); end;
+  finally
+    Sys.FreeAndNil(LEncoder);
+  end;
 end;
 
 procedure TIdMessageDecoderMIME.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FBodyEncoded := False;
   if Owner is TIdMessage then begin
     FMIMEBoundary := TIdMessage(Owner).MIMEBoundary.Boundary;
