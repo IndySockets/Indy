@@ -89,8 +89,8 @@
   Rev 1.10    2003.10.21 9:13:08 PM  czhower
     Now compiles.
 
-  Rev 1.9    10/19/2003 6:00:24 PM  DSiders
-    Added localization coimments.
+    Rev 1.9    10/19/2003 6:00:24 PM  DSiders
+  Added localization coimments.
 
   Rev 1.8    9/19/2003 03:29:58 PM  JPMugaas
     Now should compile again.
@@ -102,10 +102,10 @@
   Rev 1.6    7/20/2003 6:20:06 PM  SPerry
     Switched to IdCmdTCPServer, also some modifications
 
-  Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
-    Removed warnings, changed StartSSL to PassThrough:=false;
+    Rev 1.5    3/14/2003 10:44:36 PM  BGooijen
+  Removed warnings, changed StartSSL to PassThrough:=false;
 
-  Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
+    Rev 1.4    3/14/2003 10:04:10 PM  BGooijen
     Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now
     enabled in the server-protocol-files
 
@@ -136,9 +136,9 @@
 unit IdIMAP4Server;
 
 {
-  TODO (ex RFC 3501):
+TODO (ex RFC 3501):
 
-  Dont allow & to be used as a mailbox separator.
+Dont allow & to be used as a mailbox separator.
 
   Certain server data (unsolicited responses) MUST be recorded,
   see Server Responses section.
@@ -146,37 +146,37 @@ unit IdIMAP4Server;
   UIDs must be unique to a mailbox AND any subsequent mailbox with
   the same name - record in a text file.
 
-  \Recent cannot be changed by STORE or APPEND.
+\Recent cannot be changed by STORE or APPEND.
 
-  COPY should preserve the date of the original message.
+COPY should preserve the date of the original message.
 
 
   TODO (ccostelloe):
 
-  Add a file recording the UIDVALIDITY in each mailbox.
+Add a file recording the UIDVALIDITY in each mailbox.
 
-  Emails should be ordered in date order.
+Emails should be ordered in date order.
 
-  Optional date/time param to be implemented in APPEND.
+Optional date/time param to be implemented in APPEND.
 
   Consider integrating IdUserAccounts into login mechanism
   (or per-user passwords).
 
-  Implement utf mailbox encoding.
+Implement utf mailbox encoding.
 
-  Implement * in message numbers.
+Implement * in message numbers.
 
   Implement multiple-option FETCH commands (will need breaking out some
   options which are abbreviations into their subsets).
 
-  Need some method of preserving flags permanently.
+Need some method of preserving flags permanently.
 }
 
 {
   IMPLEMENTATION NOTES:
 
-  Major rewrite started 2nd February 2004, Ciaran Costelloe, ccostelloe@flogas.ie.
-  Prior to this, it was a simple wrapper class with a few problems.
+Major rewrite started 2nd February 2004, Ciaran Costelloe, ccostelloe@flogas.ie.
+Prior to this, it was a simple wrapper class with a few problems.
 
   Note that IMAP servers should return BAD for an unknown command or
   invalid arguments (synthax errors and unsupported commands) and BAD
@@ -211,12 +211,12 @@ unit IdIMAP4Server;
 }
 
 interface
-{$IFDEF INDY100}
-  {$I Core\IdCompilerDefines.inc}
-  {$IFDEF DOTNET}
-  {$WARN UNIT_PLATFORM OFF}
-  {$WARN SYMBOL_PLATFORM OFF}
-  {$ENDIF}
+
+{$I IdCompilerDefines.inc}
+
+{$IFDEF DOTNET}
+{$WARN UNIT_PLATFORM OFF}
+{$WARN SYMBOL_PLATFORM OFF}
 {$ENDIF}
 
 uses
@@ -226,13 +226,13 @@ uses
   IdCommandHandlers,
   IdException,
   IdExplicitTLSClientServerBase,
-  IdIMAP4,
+  IdIMAP4, //For some defines like TIdIMAP4ConnectionState
   IdMailBox,
   IdMessage,
+  IdObjs,
   IdReply,
   IdReplyIMAP4,
   IdTCPConnection,
-  IdObjs,
   IdYarn;
 
 const
@@ -246,10 +246,8 @@ resourcestring
 }
 
 type
-  TIMAP4CommandEvent = procedure(AContext: TIdContext; const ATag,
-    ACmd: String) of object;
-  TIdIMAP4CommandBeforeEvent = procedure(ASender: TIdCommandHandlers; var AData: string;
-      AContext: TIdContext) of object;
+  TIMAP4CommandEvent = procedure(AContext: TIdContext; const ATag, ACmd: String) of object;
+  TIdIMAP4CommandBeforeEvent = procedure(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext) of object;
   TIdIMAP4CommandBeforeSendEvent = procedure(AContext: TIdContext; AData: string) of object;
 
   //For default mechanisms..
@@ -257,14 +255,14 @@ type
   TIdIMAP4DefMech2  = function(ALoginName, AMailBoxName: string; AMailBox: TIdMailBox): Boolean of object;
   TIdIMAP4DefMech3  = function(ALoginName, AMailbox: string): string of object;
   TIdIMAP4DefMech4  = function(ALoginName, AOldMailboxName, ANewMailboxName: string): Boolean of object;
-  TIdIMAP4DefMech5  = function(ALoginName, AMailBoxName: string; var AMailBoxNames: TIdStringList; var AMailBoxFlags: TIdStringList): Boolean of object;
+  TIdIMAP4DefMech5  = function(ALoginName, AMailBoxName: string; AMailBoxNames: TIdStrings; AMailBoxFlags: TIdStrings): Boolean of object;
   TIdIMAP4DefMech6  = function(ALoginName, AMailbox: string; AMessage: TIdMessage): Boolean of object;
   TIdIMAP4DefMech7  = function(ALoginName, ASourceMailBox, AMessageUID, ADestinationMailbox: string): Boolean of object;
   TIdIMAP4DefMech8  = function(ALoginName, AMailbox: string; AMessage: TIdMessage): integer of object;
   TIdIMAP4DefMech9  = function(ALoginName, AMailbox: string; AMessage, ATargetMessage: TIdMessage): Boolean of object;
-  TIdIMAP4DefMech10 = function(ALoginName, AMailbox: string; AMessage: TIdMessage; ALines: TIdStringList): Boolean of object;
+  TIdIMAP4DefMech10 = function(ALoginName, AMailbox: string; AMessage: TIdMessage; ALines: TIdStrings): Boolean of object;
   TIdIMAP4DefMech11 = function(ASender: TIdCommand; AReadOnly: Boolean): Boolean of object;
-  TIdIMAP4DefMech12 = function(var AParams: TIdStringList; AMailBoxParam: integer): Boolean of object;
+  TIdIMAP4DefMech12 = function(AParams: TIdStrings; AMailBoxParam: Integer): Boolean of object;
   TIdIMAP4DefMech13 = function(ALoginName, AMailBoxName, ANewUIDNext: string): Boolean of object;
   TIdIMAP4DefMech14 = function(ALoginName, AMailBoxName, AUID: string): string of object;
 
@@ -284,7 +282,7 @@ type
     FLoginName: string;
     FMailBox: TIdMailBox;
     FTagData: TIdIMAP4Tag;
-    function GetUsingTLS:boolean;
+    function GetUsingTLS: Boolean;
   public
     constructor Create(
       AConnection: TIdTCPConnection;
@@ -292,9 +290,10 @@ type
       AList: TIdThreadList = nil
       ); override;
     destructor Destroy; override;
-    property UsingTLS : boolean read GetUsingTLS;
-    property TagData: TIdIMAP4Tag read FTagData write FTagData;
-    property MailBox: TIdMailBox read FMailBox write FMailBox;
+    property ConnectionState: TIdIMAP4ConnectionState read FConnectionState;
+    property UsingTLS : Boolean read GetUsingTLS;
+    property TagData: TIdIMAP4Tag read FTagData;
+    property MailBox: TIdMailBox read FMailBox;
     property LoginName: string read FLoginName write FLoginName;
   end;
 
@@ -363,6 +362,7 @@ type
     function CreateHelpReply: TIdReply; override;
     function CreateMaxConnectionReply: TIdReply; override;
     function CreateReplyUnknownCommand: TIdReply; override;
+    //
     //The following are internal commands that help support the IMAP protocol...
     procedure InitializeCommandHandlers; override;
     function  GetReplyClass:TIdReplyClass; override;
@@ -374,24 +374,26 @@ type
     procedure SendUnassignedDefaultMechanism(ASender: TIdCommand);
     procedure DoReplyUnknownCommand(AContext: TIdContext; AText: string); override;
     procedure SendErrorOpenedReadOnly(ASender: TIdCommand);
-    procedure SendOkCompleted(ASender: TIdCommand);
-    procedure SendBadReply(ASender: TIdCommand; AText: string);
-    procedure SendNoReply(ASender: TIdCommand; AText: string);
+    procedure SendOkReply(ASender: TIdCommand; const AText: string);
+    procedure SendBadReply(ASender: TIdCommand; const AText: string); overload;
+    procedure SendBadReply(ASender: TIdCommand; const AFormat: string; const Args: array of const); overload;
+    procedure SendNoReply(ASender: TIdCommand; const AText: string = ''); overload;
+    procedure SendNoReply(ASender: TIdCommand; const AFormat: string; const Args: array of const); overload;
     //
     //The following are used internally by the default mechanism...
     function  ExpungeRecords(ASender: TIdCommand): Boolean;
-    function  MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; var AMessageNumbers: TIdStringList; AMessageSet: string): Boolean;
-    function  GetRecordForUID(AMessageNumber: integer; AMailBox: TIdMailBox): integer;
-    procedure ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
-    procedure ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
-    function  ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList): Boolean;
-    procedure ProcessSearch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
-    function  FlagStringToFlagList(var AFlagList: TIdStringList; AFlagString: string): Boolean;
+    function  MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; AMessageNumbers: TIdStrings; AMessageSet: string): Boolean;
+    function  GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Integer;
+    procedure ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
+    procedure ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
+    function  ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings): Boolean;
+    procedure ProcessSearch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
+    function  FlagStringToFlagList(AFlagList: TIdStrings; AFlagString: string): Boolean;
     function  StripQuotesIfNecessary(AName: string): string;
-    function  ReassembleParams(ASeparator: char; var AParams: TIdStringList; AParamToReassemble: integer): Boolean;
-    function  ReinterpretParamAsMailBox(var AParams: TIdStringList; AMailBoxParam: integer): Boolean;
-    function  ReinterpretParamAsFlags(var AParams: TIdStringList; AFlagsParam: integer): Boolean;
-    function  ReinterpretParamAsDataItems(var AParams: TIdStringList; AFlagsParam: integer): Boolean;
+    function  ReassembleParams(ASeparator: char; AParams: TIdStrings; AParamToReassemble: integer): Boolean;
+    function  ReinterpretParamAsMailBox(AParams: TIdStrings; AMailBoxParam: integer): Boolean;
+    function  ReinterpretParamAsFlags(AParams: TIdStrings; AFlagsParam: integer): Boolean;
+    function  ReinterpretParamAsDataItems(AParams: TIdStrings; AFlagsParam: integer): Boolean;
     //
     //The following are used internally by our default mechanism and are copies of
     //the same function in TIdIMAP4 (move to a base class?)...
@@ -400,7 +402,8 @@ type
     //DoBeforeCmd & DoSendReply are useful for a server to log all commands and
     //responses for debugging...
     procedure DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string; AContext: TIdContext);
-    procedure DoSendReply(AContext: TIdContext; AData: string);
+    procedure DoSendReply(AContext: TIdContext; const AData: string); overload;
+    procedure DoSendReply(AContext: TIdContext; const AFormat: string; const Args: array of const); overload;
     //
     //Command handlers...
     procedure DoCmdHandlersException(ACommand: String; AContext: TIdContext);
@@ -457,8 +460,8 @@ type
     property OnDefMechGetMessageSize: TIdIMAP4DefMech8 read fOnDefMechGetMessageSize write fOnDefMechGetMessageSize;
     property OnDefMechGetMessageHeader: TIdIMAP4DefMech9 read fOnDefMechGetMessageHeader write fOnDefMechGetMessageHeader;
     property OnDefMechGetMessageRaw: TIdIMAP4DefMech10 read fOnDefMechGetMessageRaw write fOnDefMechGetMessageRaw;
-    property OnDefMechOpenMailBox:TIdIMAP4DefMech11 read fOnDefMechOpenMailBox write fOnDefMechOpenMailBox;
-    property OnDefMechReinterpretParamAsMailBox:TIdIMAP4DefMech12 read fOnDefMechReinterpretParamAsMailBox write fOnDefMechReinterpretParamAsMailBox;
+    property OnDefMechOpenMailBox: TIdIMAP4DefMech11 read fOnDefMechOpenMailBox write fOnDefMechOpenMailBox;
+    property OnDefMechReinterpretParamAsMailBox: TIdIMAP4DefMech12 read fOnDefMechReinterpretParamAsMailBox write fOnDefMechReinterpretParamAsMailBox;
     property OnDefMechUpdateNextFreeUID: TIdIMAP4DefMech13 read fOnDefMechUpdateNextFreeUID write fOnDefMechUpdateNextFreeUID;
     property OnDefMechGetFileNameToWriteAppendMessage: TIdIMAP4DefMech14 read fOnDefMechGetFileNameToWriteAppendMessage write fOnDefMechGetFileNameToWriteAppendMessage;
     { Events }
@@ -501,6 +504,7 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols,
   IdSSL,
+  IdStream,
   IdSys;
 
 function TIdIMAP4Server.GetReplyClass: TIdReplyClass;
@@ -518,7 +522,7 @@ begin
   if FSaferMode then begin
     DoSendReply(AContext, '* OK');     {Do not Localize}
   end else begin
-    DoSendReply(AContext, '* OK Indy IMAP server version '+Self.GetVersion); {Do not Localize}
+    DoSendReply(AContext, '* OK Indy IMAP server version ' + GetVersion); {Do not Localize}
   end;
 end;
 
@@ -547,24 +551,38 @@ begin
   SendBadReply(ASender, 'Server internal error: unassigned procedure'); {Do not Localize}
 end;
 
-procedure TIdIMAP4Server.SendOkCompleted(ASender: TIdCommand);
+procedure TIdIMAP4Server.SendOkReply(ASender: TIdCommand; const AText: string);
 begin
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK Completed'); {Do not Localize}
+  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK ' + AText); {Do not Localize}
 end;
 
-procedure TIdIMAP4Server.SendBadReply(ASender: TIdCommand; AText: string);
+procedure TIdIMAP4Server.SendBadReply(ASender: TIdCommand; const AText: string);
 begin
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' BAD '+AText); {Do not Localize}
+  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' BAD ' + AText); {Do not Localize}
 end;
 
-procedure TIdIMAP4Server.SendNoReply(ASender: TIdCommand; AText: string);
+procedure TIdIMAP4Server.SendBadReply(ASender: TIdCommand; const AFormat: string; const Args: array of const);
 begin
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO '+AText); {Do not Localize}
+  SendBadReply(ASender, Sys.Format(AFormat, Args));
+end;
+
+procedure TIdIMAP4Server.SendNoReply(ASender: TIdCommand; const AText: string = '');
+begin
+  if AText <> '' then begin
+    DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO ' + AText); {Do not Localize}
+  end else begin
+    DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
+  end;
+end;
+
+procedure TIdIMAP4Server.SendNoReply(ASender: TIdCommand; const AFormat: string; const Args: array of const);
+begin
+  SendNoReply(ASender, Sys.Format(AFormat, Args));
 end;
 
 procedure TIdIMAP4Server.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   //Todo:  Not sure which number is appropriate.  Should be tested
   FImplicitTLSProtPort := IdPORT_IMAP4S;  //Id_PORT_imap4_ssl_dp;
   FRegularProtPort := IdPORT_IMAP4;
@@ -572,16 +590,12 @@ begin
   ContextClass := TIdIMAP4PeerContext;
   FSaferMode := False;
   FUseDefaultMechanismsForUnassignedCommands := True;
-  if FRootPath = '' then begin
 {$IFDEF LINUX}
-    FRootPath := GPathDelim+'var'+PathDelim+'imapmail'; {Do not Localize}
+  FRootPath := GPathDelim + 'var' + GPathDelim + 'imapmail'; {Do not Localize}
 {$ELSE}
-    FRootPath := GPathDelim+'imapmail'; {Do not Localize}
+  FRootPath := GPathDelim + 'imapmail'; {Do not Localize}
 {$ENDIF}
-  end;
-  if FDefaultPassword = '' then begin
-    FDefaultPassword := 'admin'; {Do not Localize}
-  end;
+  FDefaultPassword := 'admin'; {Do not Localize}
   FLastCommand := TIdReplyIMAP4.Create;
   FMailBoxSeparator := '.';   {Do not Localize}
 end;
@@ -589,7 +603,7 @@ end;
 destructor TIdIMAP4Server.Destroy;
 begin
   Sys.FreeAndNil(FLastCommand);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdIMAP4Server.CreateExceptionReply: TIdReply;
@@ -625,6 +639,7 @@ end;
 constructor TIdIMAP4PeerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
+  FMailBox := TIdMailBox.Create;
   FTagData := TIdIMAP4Tag.Create;
   FConnectionState := csAny;
 end;
@@ -632,14 +647,17 @@ end;
 destructor TIdIMAP4PeerContext.Destroy;
 begin
   Sys.FreeAndNil(FTagData);
-  inherited;
+  Sys.FreeAndNil(FMailBox);
+  inherited Destroy;
 end;
 
-function TIdIMAP4PeerContext.GetUsingTLS:boolean;
+function TIdIMAP4PeerContext.GetUsingTLS: Boolean;
 begin
-  Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then
-    Result:=not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  if Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
+    Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  end else begin
+    Result := False;
+  end;
 end;
 
 procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; AText: string);
@@ -647,41 +665,41 @@ procedure TIdIMAP4Server.DoReplyUnknownCommand(AContext: TIdContext; AText: stri
 var
   LText: string;
 begin
-  LText := '';
-  if FLastCommand.SequenceNumber = '' then begin
+  LText := FLastCommand.SequenceNumber;
+  if LText = '' then begin
     //This should not happen!
     LText := '*';    {Do not Localize}
-  end else begin
-    LText := FLastCommand.SequenceNumber;
   end;
-  LText := LText + ' NO Unknown command'; {Do not Localize}
-  DoSendReply(AContext, LText);
+  DoSendReply(AContext, LText + ' NO Unknown command'); {Do not Localize}
 end;
 
 function  TIdIMAP4Server.ExpungeRecords(ASender: TIdCommand): Boolean;
 var
   LN: integer;
+  LMessage: TIdMessage;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //Delete all records that have the deleted flag set...
   LN := 0;
   Result := True;
-  while LN < TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count do begin
-    if mfDeleted in TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].Flags then begin
-      if OnDefMechDeleteMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-       TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-       TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN]) = False then begin
+  while LN < LContext.MailBox.MessageList.Count do begin
+    LMessage := LContext.MailBox.MessageList.Messages[LN];
+    if mfDeleted in LMessage.Flags then begin
+      if not OnDefMechDeleteMessage(LContext.LoginName, LContext.MailBox.Name, LMessage) then
+      begin
         Result := False;
       end;
-      TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Delete(LN);
-      TIdIMAP4PeerContext(ASender.Context).FMailBox.TotalMsgs :=
-       TIdIMAP4PeerContext(ASender.Context).FMailBox.TotalMsgs - 1;
+      LContext.MailBox.MessageList.Delete(LN);
+      LContext.MailBox.TotalMsgs := LContext.MailBox.TotalMsgs - 1;
     end else begin
       Inc(LN);
     end;
   end;
 end;
 
-function  TIdIMAP4Server.MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand; var AMessageNumbers: TIdStringList; AMessageSet: string): Boolean;
+function TIdIMAP4Server.MessageSetToMessageNumbers(AUseUID: Boolean; ASender: TIdCommand;
+  AMessageNumbers: TIdStrings; AMessageSet: string): Boolean;
 {AMessageNumbers may be '7' or maybe '2:4' (2, 3 & 4) or maybe '2,4,6' (2, 4 & 6)
 or maybe '1:*'}
 var
@@ -690,7 +708,9 @@ var
   LN: integer;
   LEnd: integer;
   LTemp: string;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   AMessageNumbers.Clear;
   //See is it a sequence like 2:4 ...
   LPos := IndyPos(':', AMessageSet);      {Do not Localize}
@@ -699,13 +719,13 @@ begin
     LStart := Sys.StrToInt(LTemp);
     LTemp := Copy(AMessageSet, LPos+1, MAXINT);
     if LTemp = '*' then begin  {Do not Localize}
-      if AUseUID = True then begin
-        LEnd := Sys.StrToInt(TIdIMAP4PeerContext(ASender.Context).FMailBox.UIDNext)-1;
+      if AUseUID then begin
+        LEnd := Sys.StrToInt(LContext.MailBox.UIDNext)-1;
         for LN := LStart to LEnd do begin
           AMessageNumbers.Add(Sys.IntToStr(LN));
         end;
       end else begin
-        LEnd := TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count;
+        LEnd := LContext.MailBox.MessageList.Count;
         for LN := LStart to LEnd do begin
           AMessageNumbers.Add(Sys.IntToStr(LN));
         end;
@@ -728,13 +748,15 @@ begin
   Result := True;
 end;
 
-function TIdIMAP4Server.GetRecordForUID(AMessageNumber: integer; AMailBox: TIdMailBox): integer;
-  //Return -1 if not found
+//Return -1 if not found
+function TIdIMAP4Server.GetRecordForUID(const AUID: String; AMailBox: TIdMailBox): Integer;
 var
-  LN: integer;
+  LN, LUID: Integer;
 begin
+  // TODO: do string comparisons instead so that conversions are not needed?
+  LUID := Sys.StrToInt(AUID);
   for LN := 0 to AMailBox.MessageList.Count-1 do begin
-    if Sys.StrToInt(AMailBox.MessageList.Messages[LN].UID) = AMessageNumber then begin
+    if Sys.StrToInt(AMailBox.MessageList.Messages[LN].UID) = LUID then begin
       Result := LN;
       Exit;
     end;
@@ -742,20 +764,19 @@ begin
   Result := -1;
 end;
 
-function  TIdIMAP4Server.StripQuotesIfNecessary(AName: string): string;
+function TIdIMAP4Server.StripQuotesIfNecessary(AName: string): string;
 begin
+  if Length(AName) > 0 then begin
+    if (AName[1] = '"') and (AName[Length(Result)] = '"') then begin  {Do not Localize}
+      Result := Copy(AName, 2, Length(AName)-2);
+      Exit;
+    end;
+  end;
   Result := AName;
-  if Length(Result) < 1 then begin
-    Exit;
-  end;
-  if ((Result[1] = '"') and (Result[Length(Result)] = '"')) then begin  {Do not Localize}
-    Result := Copy(Result, 2, Length(Result)-2);
-  end;
 end;
 
-function  TIdIMAP4Server.ReassembleParams(ASeparator: char; var AParams: TIdStringList; AParamToReassemble: integer): Boolean;
-label
-  GetAnotherParam;
+function TIdIMAP4Server.ReassembleParams(ASeparator: Char; AParams: TIdStrings;
+  AParamToReassemble: Integer): Boolean;
 var
   LEndSeparator: char;
   LTemp: string;
@@ -763,12 +784,12 @@ var
   LReassembledParam: string;
 begin
   case ASeparator of
-   '(': LEndSeparator := ')';           {Do not Localize}
-   '[': LEndSeparator := ']';           {Do not Localize}
-   else LEndSeparator := ASeparator;
+    '(': LEndSeparator := ')';           {Do not Localize}
+    '[': LEndSeparator := ']';           {Do not Localize}
+    else LEndSeparator := ASeparator;
   end;
   LTemp := AParams[AParamToReassemble];
-  if LTemp[1] <> ASeparator then begin
+  if (LTemp = '') or (LTemp[1] <> ASeparator) then begin
     Result := False;
     Exit;
   end;
@@ -779,40 +800,40 @@ begin
   end;
   LReassembledParam := Copy(LTemp, 2, MAXINT);
   LN := AParamToReassemble + 1;
- GetAnotherParam:
-  if LN >= AParams.Count - 1 then begin
-    Result := False;
-    Exit;  //Error
-  end;
-  LTemp := AParams[LN];
-  AParams.Delete(LN);
-  if LTemp[Length(LTemp)] = LEndSeparator then begin
-    AParams[AParamToReassemble] := LReassembledParam + ' ' + Copy(LTemp, 1, Length(LTemp)-1);  {Do not Localize}
-    Result := True;
-    Exit;  //This is example 1
-  end;
-  LReassembledParam := LReassembledParam + ' ' + LTemp;  {Do not Localize}
-  goto GetAnotherParam;
+  repeat
+    if LN >= AParams.Count - 1 then begin
+      Result := False;
+      Exit;  //Error
+    end;
+    LTemp := AParams[LN];
+    AParams.Delete(LN);
+    if LTemp[Length(LTemp)] = LEndSeparator then begin
+      AParams[AParamToReassemble] := LReassembledParam + ' ' + Copy(LTemp, 1, Length(LTemp)-1);  {Do not Localize}
+      Result := True;
+      Exit;  //This is example 1
+    end;
+    LReassembledParam := LReassembledParam + ' ' + LTemp;  {Do not Localize}
+  until False;
 end;
 
-function  TIdIMAP4Server.ReinterpretParamAsMailBox(var AParams: TIdStringList; AMailBoxParam: integer): Boolean;
+//This reorganizes the parameter list on the basis that AMailBoxParam is a
+//mailbox name, which may (if enclosed in quotes) be in more than one param.
+//Example 1: '43' '"My' 'Documents"' '5' -> '43' 'My Documents' '5'
+//Example 2: '43' '"MyDocs"' '5'         -> '43' 'MyDocs' '5'
+//Example 3: '43' 'MyDocs' '5'           -> '43' 'MyDocs' '5'
+function TIdIMAP4Server.ReinterpretParamAsMailBox(AParams: TIdStrings; AMailBoxParam: Integer): Boolean;
 var
   LTemp: string;
 begin
-  //This reorganises the parameter list on the basis that AMailBoxParam is a
-  //mailbox name, which may (if enclosed in quotes) be in more than one param.
-  //Example 1: '43' '"My' 'Documents"' '5' -> '43' 'My Documents' '5'
-  //Example 2: '43' '"MyDocs"' '5'         -> '43' 'MyDocs' '5'
-  //Example 3: '43' 'MyDocs' '5'           -> '43' 'MyDocs' '5'
-  if AMailBoxParam > AParams.Count - 1 then begin
+  if (AMailBoxParam < 0) or (AMailBoxParam >= AParams.Count) then begin
     Result := False;
-    Exit;  //Error
-  end;
-  if AParams[AMailBoxParam] = '' then begin
-    Result := False;
-    Exit;  //Error
+    Exit;
   end;
   LTemp := AParams[AMailBoxParam];
+  if LTemp = '' then begin
+    Result := False;
+    Exit;
+  end;
   if LTemp[1] <> '"' then begin   {Do not Localize}
     Result := True;
     Exit;  //This is example 3, no change.
@@ -820,32 +841,31 @@ begin
   Result := ReassembleParams('"', AParams, AMailBoxParam);  {Do not Localize}
 end;
 
-function  TIdIMAP4Server.ReinterpretParamAsFlags(var AParams: TIdStringList; AFlagsParam: integer): Boolean;
+function TIdIMAP4Server.ReinterpretParamAsFlags(AParams: TIdStrings; AFlagsParam: Integer): Boolean;
 begin
   Result := ReassembleParams('(', AParams, AFlagsParam);  {Do not Localize}
 end;
 
-function  TIdIMAP4Server.ReinterpretParamAsDataItems(var AParams: TIdStringList; AFlagsParam: integer): Boolean;
+function TIdIMAP4Server.ReinterpretParamAsDataItems(AParams: TIdStrings; AFlagsParam: Integer): Boolean;
 begin
   Result := ReassembleParams('(', AParams, AFlagsParam);  {Do not Localize}
 end;
 
-function  TIdIMAP4Server.FlagStringToFlagList(var AFlagList: TIdStringList; AFlagString: string): Boolean;
+function TIdIMAP4Server.FlagStringToFlagList(AFlagList: TIdStrings; AFlagString: string): Boolean;
 var
   LTemp: string;
 begin
-  Result := False;
-  LTemp := AFlagString;
-  if ( (LTemp[1] <> '(') or (LTemp[Length(LTemp)] <> ')') ) then begin  {Do not Localize}
-    Exit;
-  end;
-  LTemp := Copy(LTemp, 2, Length(LTemp)-2);
   AFlagList.Clear;
-  BreakApart(LTemp, ' ', AFlagList); {Do not Localize}
-  Result := True;
+  if (AFlagString <> '') and (AFlagString[1] = '(') and (AFlagString[Length(AFlagString)] = ')') then begin  {Do not Localize}
+    LTemp := Copy(AFlagString, 2, Length(AFlagString)-2);
+    BreakApart(LTemp, ' ', AFlagList); {Do not Localize}
+    Result := True;
+  end else begin
+    Result := False;
+  end;
 end;
 
-procedure TIdIMAP4Server.ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
+procedure TIdIMAP4Server.ProcessFetch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
 //There are a pile of options for this.
 var
   LMessageNumbers: TIdStringList;
@@ -855,215 +875,206 @@ var
   LO: integer;
   LRecord: integer;
   LSize: integer;
-  LMessage: TIdMessage;
+  LMessageToCheck, LMessageTemp: TIdMessage;
   LMessageRaw: TIdStringList;
   LTemp: string;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //First param is a message set, e.g. 41 or 2:5 (which is 2, 3, 4 & 5)
   LMessageNumbers := TIdStringList.Create;
-  if MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) = False then begin
-    SendBadReply(ASender, 'Error in synthax of message set parameter'); {Do not Localize}
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  if ReinterpretParamAsDataItems(AParams, 1) = False then begin
-    SendBadReply(ASender, 'Fetch data items parameter is invalid.'); {Do not Localize}
-    Exit;
-  end;
-  LDataItems := TIdStringList.Create;
-  BreakApart(AParams[1], ' ', LDataItems);
-  for LN := 0 to LMessageNumbers.Count-1 do begin
-    if AUseUID = False then begin
-      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
-    end else begin
-      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
-      if LRecord = -1 then continue; //It is OK to skip non-existent UID records
-    end;
-    if ( (LRecord < 0) or (LRecord > TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count) ) then begin
-      SendBadReply(ASender, 'Message number '+Sys.IntToStr(LRecord+1)+' does not exist'); {Do not Localize}
-      LMessageNumbers.Free;
-      LDataItems.Free;
+  try
+    if not MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) then begin
+      SendBadReply(ASender, 'Error in syntax of message set parameter'); {Do not Localize}
       Exit;
     end;
-    for LO := 0 to LDataItems.Count-1 do begin
-      if LDataItems[LO] = 'UID' then begin  {Do not Localize}
-        //Format:
-        //C9 FETCH 490 (UID)
-        //* 490 FETCH (UID 6545)
-        //C9 OK Completed
-        DoSendReply(ASender.Context, '* FETCH (UID ' + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].UID + ')'); {Do not Localize}
-      end else if LDataItems[LO] = 'FLAGS' then begin  {Do not Localize}
-        //Format:
-        //C10 UID FETCH 6545 (FLAGS)
-        //* 490 FETCH (FLAGS (\Recent) UID 6545)
-        //C10 OK Completed
-        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (FLAGS ('  {Do not Localize}
-         +Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
-        if AUseUID = False then begin
-          LTemp := LTemp + '))';  {Do not Localize}
-        end else begin
-          LTemp := LTemp + ') UID '+LMessageNumbers[LN]+')';  {Do not Localize}
-        end;
-        DoSendReply(ASender.Context, LTemp);
-      end else if LDataItems[LO] = 'RFC822.HEADER' then begin  {Do not Localize}
-        //Format:
-        //C11 UID FETCH 6545 (RFC822.HEADER)
-        //* 490 FETCH (UID 6545 RFC822.HEADER {1654}
-        //Return-Path: <Christina_Powell@secondhandcars.com>
-        //...
-        //Content-Type: multipart/alternative;
-        //	boundary="----=_NextPart_000_70BE_C8606D03.F4EA24EE"
-        //C10 OK Completed
-        //We don't want to thrash UIDs and flags in MailBox message, so load into LMessage
-        LMessage := TIdMessage.Create;
-        if OnDefMechGetMessageHeader(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord],
-         LMessage) = False then begin
-          SendNoReply(ASender, 'Failed to get message header'); {Do not Localize}
-          LMessage.Free;
-          LMessageNumbers.Free;
-          LDataItems.Free;
-          Exit;
-        end;
-        //Need to calculate the size of the headers...
-        LSize := 0;
-        for LM := 0 to LMessage.Headers.Count-1 do begin
-          LSize := LSize + Length(LMessage.Headers.Strings[LM]) + 2; //Allow for CR+LF
-        end;
-        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
-        if AUseUID = True then begin
-          LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
-        end;
-        LTemp := LTemp + 'RFC822.HEADER {'+Sys.IntToStr(LSize)+'}';  {Do not Localize}
-        DoSendReply(ASender.Context, LTemp);
-        for LM := 0 to LMessage.Headers.Count-1 do begin
-          DoSendReply(ASender.Context, LMessage.Headers.Strings[LM]);
-        end;
-        DoSendReply(ASender.Context, ')');  {Do not Localize}
-        //Finished with the headers, free the memory...
-        LMessage.Free;
-      end else if LDataItems[LO] = 'RFC822.SIZE' then begin  {Do not Localize}
-        //Format:
-        //C12 UID FETCH 6545 (RFC822.SIZE)
-        //* 490 FETCH (UID 6545 RFC822.SIZE 3447)
-        //C12 OK Completed
-        LSize := OnDefMechGetMessageSize(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord]);
-        if LSize = -1 then begin
-          SendNoReply(ASender, 'Failed to get message size'); {Do not Localize}
-          LMessageNumbers.Free;
-          LDataItems.Free;
-          Exit;
-        end;
-        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
-        if AUseUID = True then begin
-          LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
-        end;
-        LTemp := LTemp + 'RFC822.SIZE '+Sys.IntToStr(LSize)+')';  {Do not Localize}
-        DoSendReply(ASender.Context, LTemp);
-      end else if ( (LDataItems[LO] = 'BODY.PEEK[]') or (LDataItems[LO] = 'BODY[]') or (LDataItems[LO] = 'RFC822') or (LDataItems[LO] = 'RFC822.PEEK') ) then begin  {Do not Localize}
-        //All are the same, except the return string is different...
-        //Get a pointer to the message rather than repetitively calculating it (or typing it in!)...
-        LMessage := TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord];
-        LMessageRaw := TIdStringList.Create;
-        if OnDefMechGetMessageRaw(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         LMessage,
-         LMessageRaw) = False then begin
-          SendNoReply(ASender, 'Failed to get raw message'); {Do not Localize}
-          LMessageRaw.Free;
-          LMessageNumbers.Free;
-          LDataItems.Free;
-          Exit;
-        end;
-        LSize := 0;
-        for LM := 0 to LMessage.Headers.Count-1 do begin
-          LSize := LSize + Length(LMessageRaw.Strings[LM]) + 2; //Allow for CR+LF
-        end;
-        LSize := LSize + 3;  //The message terminator '.CRLF'
-        LTemp := '* ' + Sys.IntToStr(LRecord+1) + ' FETCH (';  {Do not Localize}
-        LTemp := LTemp + 'FLAGS ('  {Do not Localize}
-         + Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags))
-         + ') ';  {Do not Localize}
-        if AUseUID = True then begin
-          LTemp := LTemp + 'UID '+LMessageNumbers[LN]+' ';  {Do not Localize}
-        end;
-        LTemp := LTemp + Copy(AParams[1], 2, Length(AParams[1])-2)+' {'+Sys.IntToStr(LSize)+'}';  {Do not Localize}
-        DoSendReply(ASender.Context, LTemp);
-        for LM := 0 to LMessage.Headers.Count-1 do begin
-          DoSendReply(ASender.Context, LMessageRaw.Strings[LM]);
-        end;
-        DoSendReply(ASender.Context, '.');  {Do not Localize}
-        DoSendReply(ASender.Context, ')');  {Do not Localize}
-        //Free the memory...
-        LMessageRaw.Free;
-      end else if LDataItems[LO] = 'BODYSTRUCTURE' then begin  {Do not Localize}
-        //Format:
-        //C49 UID FETCH 6545 (BODYSTRUCTURE)
-        //* 490 FETCH (UID 6545 BODYSTRUCTURE (("TEXT" "PLAIN" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 290 8 NIL NIL NIL)("TEXT" "HTML" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 1125 41 NIL NIL NIL) "ALTERNATIVE" ("BOUNDARY"
-        //C12 OK Completed
-
-
-
-        SendBadReply(ASender, 'Parameter not supported: '+AParams[1]); {Do not Localize}
-      end else if ( (Copy(LDataItems[LO],1,6) = 'BODY[') or (Copy(LDataItems[LO],1,11) = 'BODY.PEEK[') ) then begin  {Do not Localize}
-        //Format:
-        //C50 UID FETCH 6545 (BODY[1])
-        //* 490 FETCH (FLAGS (\Recent \Seen) UID 6545 BODY[1] {290}
-        //...
-        //)
-        //C50 OK Completed
-
-
-
-        SendBadReply(ASender, 'Parameter not supported: '+AParams[1]); {Do not Localize}
-      end else begin
-        SendBadReply(ASender, 'Parameter not supported: '+AParams[1]); {Do not Localize}
-        LMessageNumbers.Free;
-        LDataItems.Free;
-        Exit;
-      end;
+    if not ReinterpretParamAsDataItems(AParams, 1) then begin
+      SendBadReply(ASender, 'Fetch data items parameter is invalid.'); {Do not Localize}
+      Exit;
     end;
+    LDataItems := TIdStringList.Create;
+    try
+      BreakApart(AParams[1], ' ', LDataItems);
+      for LN := 0 to LMessageNumbers.Count-1 do begin
+        if AUseUID then begin
+          LRecord := GetRecordForUID(LMessageNumbers[LN], LContext.MailBox);
+          if LRecord = -1 then begin //It is OK to skip non-existent UID records
+            Continue;
+          end;
+        end else begin
+          LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
+        end;
+        if (LRecord < 0) or (LRecord > LContext.MailBox.MessageList.Count) then begin
+          SendBadReply(ASender, 'Message number %d does not exist', [LRecord+1]); {Do not Localize}
+          Exit;
+        end;
+        LMessageToCheck := LContext.MailBox.MessageList.Messages[LRecord];
+        for LO := 0 to LDataItems.Count-1 do begin
+          if TextIsSame(LDataItems[LO], 'UID') then begin  {Do not Localize}
+            //Format:
+            //C9 FETCH 490 (UID)
+            //* 490 FETCH (UID 6545)
+            //C9 OK Completed
+            DoSendReply(ASender.Context, '* FETCH (UID %s)', [LMessageToCheck.UID]); {Do not Localize}
+          end
+          else if TextIsSame(LDataItems[LO], 'FLAGS') then begin  {Do not Localize}
+            //Format:
+            //C10 UID FETCH 6545 (FLAGS)
+            //* 490 FETCH (FLAGS (\Recent) UID 6545)
+            //C10 OK Completed
+            if AUseUID then begin
+              DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) UID %s)',  {Do not Localize}
+                [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags), LMessageNumbers[LN]]);
+            end else begin
+              DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s))',  {Do not Localize}
+                [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags)]);
+            end;
+          end
+          else if TextIsSame(LDataItems[LO], 'RFC822.HEADER') then begin  {Do not Localize}
+            //Format:
+            //C11 UID FETCH 6545 (RFC822.HEADER)
+            //* 490 FETCH (UID 6545 RFC822.HEADER {1654}
+            //Return-Path: <Christina_Powell@secondhandcars.com>
+            //...
+            //Content-Type: multipart/alternative;
+            //	boundary="----=_NextPart_000_70BE_C8606D03.F4EA24EE"
+            //C10 OK Completed
+            //We don't want to thrash UIDs and flags in MailBox message, so load into LMessage
+            LMessageTemp := TIdMessage.Create;
+            try
+              if not OnDefMechGetMessageHeader(LContext.LoginName, LContext.MailBox.Name, LMessageToCheck, LMessageTemp) then begin
+                SendNoReply(ASender, 'Failed to get message header'); {Do not Localize}
+                Exit;
+              end;
+              //Need to calculate the size of the headers...
+              LSize := 0;
+              for LM := 0 to LMessageTemp.Headers.Count-1 do begin
+                Inc(LSize, Length(LMessageTemp.Headers.Strings[LM]) + 2); //Allow for CR+LF
+              end;
+              if AUseUID then begin
+                DoSendReply(ASender.Context, '* %d FETCH (UID %s RFC822.HEADER {%d}',  {Do not Localize}
+                  [LRecord+1, LMessageNumbers[LN], LSize]);
+              end else begin
+                DoSendReply(ASender.Context, '* %d FETCH (RFC822.HEADER {%d}',  {Do not Localize}
+                  [LRecord+1, LSize]);
+	      end;
+              for LM := 0 to LMessageTemp.Headers.Count-1 do begin
+                DoSendReply(ASender.Context, LMessageTemp.Headers.Strings[LM]);
+              end;
+              DoSendReply(ASender.Context, ')');  {Do not Localize}
+              //Finished with the headers, free the memory...
+            finally
+              Sys.FreeAndNil(LMessageTemp);
+            end;
+          end
+          else if TextIsSame(LDataItems[LO], 'RFC822.SIZE') then begin  {Do not Localize}
+            //Format:
+            //C12 UID FETCH 6545 (RFC822.SIZE)
+            //* 490 FETCH (UID 6545 RFC822.SIZE 3447)
+            //C12 OK Completed
+            LSize := OnDefMechGetMessageSize(LContext.LoginName, LContext.MailBox.Name, LMessageToCheck);
+            if LSize = -1 then begin
+              SendNoReply(ASender, 'Failed to get message size'); {Do not Localize}
+              Exit;
+            end;
+            if AUseUID then begin
+              DoSendReply(ASender.Context, '* %d FETCH (UID %s RFC822.SIZE %d)',  {Do not Localize}
+                [LRecord+1, LMessageNumbers[LN], LSize]);
+            end else begin
+              DoSendReply(ASender.Context, '* %d FETCH (RFC822.SIZE %d)',  {Do not Localize}
+	        [LRecord+1, LSize]);
+	    end;
+          end
+          else if PosInStrArray(LDataItems[LO], ['BODY.PEEK[]', 'BODY[]', 'RFC822', 'RFC822.PEEK'], False) <> -1 then   {Do not Localize}
+          begin
+            //All are the same, except the return string is different...
+            LMessageRaw := TIdStringList.Create;
+            try
+              if not OnDefMechGetMessageRaw(LContext.LoginName, LContext.MailBox.Name, LMessageToCheck, LMessageRaw) then
+              begin
+                SendNoReply(ASender, 'Failed to get raw message'); {Do not Localize}
+                Exit;
+              end;
+              LSize := 0;
+              for LM := 0 to LMessageToCheck.Headers.Count-1 do begin
+                Inc(LSize, Length(LMessageRaw.Strings[LM]) + 2); //Allow for CR+LF
+              end;
+              Inc(LSize, 3);  //The message terminator '.CRLF'
+              LTemp := Copy(AParams[1], 2, Length(AParams[1])-2);
+              if AUseUID then begin
+                DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) UID %s %s {%d}',  {Do not Localize}
+                  [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags), LMessageNumbers[LN], LTemp, LSize]);
+              end else begin
+                DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) %s {%d}',  {Do not Localize}
+                  [LRecord+1, MessageFlagSetToStr(LMessageToCheck.Flags), LTemp, LSize]);
+	      end;
+              for LM := 0 to LMessageToCheck.Headers.Count-1 do begin
+                DoSendReply(ASender.Context, LMessageRaw.Strings[LM]);
+              end;
+              DoSendReply(ASender.Context, '.');  {Do not Localize}
+              DoSendReply(ASender.Context, ')');  {Do not Localize}
+              //Free the memory...
+            finally
+	      Sys.FreeAndNil(LMessageRaw);
+            end;
+          end
+          else if TextIsSame(LDataItems[LO], 'BODYSTRUCTURE') then begin  {Do not Localize}
+            //Format:
+            //C49 UID FETCH 6545 (BODYSTRUCTURE)
+            //* 490 FETCH (UID 6545 BODYSTRUCTURE (("TEXT" "PLAIN" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 290 8 NIL NIL NIL)("TEXT" "HTML" ("CHARSET" "iso-8859-1") NIL NIL "7BIT" 1125 41 NIL NIL NIL) "ALTERNATIVE" ("BOUNDARY"
+            //C12 OK Completed
+            SendBadReply(ASender, 'Parameter not supported: ' + AParams[1]); {Do not Localize}
+          end
+          else if TextStartsWith(LDataItems[LO], 'BODY[') or TextStartsWith(LDataItems[LO], 'BODY.PEEK[') then begin  {Do not Localize}
+            //Format:
+            //C50 UID FETCH 6545 (BODY[1])
+            //* 490 FETCH (FLAGS (\Recent \Seen) UID 6545 BODY[1] {290}
+            //...
+            //)
+            //C50 OK Completed
+            SendBadReply(ASender, 'Parameter not supported: ' + AParams[1]); {Do not Localize}
+          end
+          else begin
+            SendBadReply(ASender, 'Parameter not supported: ' + AParams[1]); {Do not Localize}
+            Exit;
+          end;
+        end;
+      end;
+    finally
+      Sys.FreeAndNil(LDataItems);
+    end;
+  finally
+    Sys.FreeAndNil(LMessageNumbers);
   end;
-  LDataItems.Free;
-  LMessageNumbers.Free;
-  SendOkCompleted(ASender);
+  SendOkReply(ASender, 'Completed');  {Do not Localize}
 end;
 
-procedure TIdIMAP4Server.ProcessSearch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
+procedure TIdIMAP4Server.ProcessSearch(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
 //if AUseUID is True, return UIDs rather than relative message numbers.
 var
-  //LParams: TIdStringList;
   LSearchString: string;
-  LN: integer;
-  LM: integer;
-  LMessage: TIdMessage;
+  LN: Integer;
+  LM: Integer;
+  LItem: Integer;
+  LMessageToCheck, LMessageTemp: TIdMessage;
   LHits: string;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //Watch out: you could become an old man trying to implement all the IMAP
   //search options, just do a subset.
   //Format:
   //C1065 UID SEARCH FROM "visible"
   //* SEARCH 5769 5878
   //C1065 OK Completed (2 msgs in 0.010 secs)
-  //LParams := TIdStringList.Create;
-  //BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
   if AParams.Count < 2 then begin  //The only search options we support are 2-param ones
     SendIncorrectNumberOfParameters(ASender);
     //LParams.Free;
     Exit;
   end;
-  if (
-   (Sys.UpperCase(AParams[0]) <> 'FROM') and  {Do not Localize}
-   (Sys.UpperCase(AParams[0]) <> 'TO') and    {Do not Localize}
-   (Sys.UpperCase(AParams[0]) <> 'CC') and    {Do not Localize}
-   (Sys.UpperCase(AParams[0]) <> 'BCC') and   {Do not Localize}
-   (Sys.UpperCase(AParams[0]) <> 'SUBJECT')   {Do not Localize}
-   ) then begin
+  LItem := PosInStrArray(AParams[0], ['FROM', 'TO', 'CC', 'BCC', 'SUBJECT'], False);
+  if LItem = -1 then begin {Do not Localize}
     SendBadReply(ASender, 'Unsupported search method'); {Do not Localize}
-    //LParams.Free;
     Exit;
   end;
   //Reassemble the other params into a line, because "Ciaran Costelloe" will be params 1 & 2...
@@ -1071,146 +1082,168 @@ begin
   for LN := 2 to AParams.Count-1 do begin
     LSearchString := LSearchString + ' ' + AParams[LN];  {Do not Localize}
   end;
-  if ( (LSearchString[1] = '"') and (LSearchString[Length(LSearchString)] = '"') ) then begin  {Do not Localize}
+  if (LSearchString[1] = '"') and (LSearchString[Length(LSearchString)] = '"') then begin  {Do not Localize}
     LSearchString := Copy(LSearchString, 2, Length(LSearchString)-2);
   end;
 
-  LMessage := TIdMessage.Create;
-  for LN := 0 to TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Count-1 do begin
-    if OnDefMechGetMessageHeader(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-     TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-     TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN],
-     LMessage) = False then begin
-      SendNoReply(ASender, 'Failed to get message header'); {Do not Localize}
-      LMessage.Free;
-      //LParams.Free;
-      Exit;
+  LHits := '';
+  LMessageTemp := TIdMessage.Create;
+  try
+    for LN := 0 to LContext.MailBox.MessageList.Count-1 do begin
+      LMessageToCheck := LContext.MailBox.MessageList.Messages[LN];
+      if not OnDefMechGetMessageHeader(LContext.LoginName, LContext.MailBox.Name, LMessageToCheck, LMessageTemp) then
+      begin
+        SendNoReply(ASender, 'Failed to get message header'); {Do not Localize}
+        Exit;
+      end;
+      case LItem of
+        0: // FROM   {Do not Localize}
+	  begin
+            if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessageTemp.From.Address)) > 0 then begin
+              if AUseUID then begin
+                LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
+              end else begin
+                LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
+              end;
+            end;
+          end;
+        1: // TO   {Do not Localize}
+	  begin
+            for LM := 0 to LMessageTemp.Recipients.Count-1 do begin
+              if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessageTemp.Recipients.Items[LM].Address)) > 0 then begin
+                if AUseUID then begin
+                  LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
+                end else begin
+                  LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
+                end;
+                Break; //Don't want more than 1 hit on this record
+              end;
+            end;
+          end;
+        2: // CC   {Do not Localize}
+          begin
+            for LM := 0 to LMessageTemp.Recipients.Count-1 do begin
+              if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessageTemp.CCList.Items[LM].Address)) > 0 then begin
+                if AUseUID then begin
+                  LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
+                end else begin
+                  LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
+                end;
+                Break; //Don't want more than 1 hit on this record
+              end;
+            end;
+          end;
+        3: // BCC   {Do not Localize}
+          begin
+            for LM := 0 to LMessageTemp.Recipients.Count-1 do begin
+              if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessageTemp.BCCList.Items[LM].Address)) > 0 then begin
+                if AUseUID then begin
+                  LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
+                end else begin
+                  LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
+                end;
+                Break; //Don't want more than 1 hit on this record
+              end;
+            end;
+          end;
+      else // SUBJECT   {Do not Localize}
+        begin
+          if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessageTemp.Subject)) > 0 then begin
+            if AUseUID then begin
+              LHits := LHits + LMessageToCheck.UID + ' ';  {Do not Localize}
+            end else begin
+              LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
+            end;
+          end;
+        end;
+      end;
     end;
-    if Sys.UpperCase(AParams[0]) = 'FROM' then begin  {Do not Localize}
-      if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.From.Address)) > 0 then begin
-        if AUseUID = False then begin
-          LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
-        end else begin
-          LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
-        end;
-      end;
-    end else if Sys.UpperCase(AParams[0]) = 'TO' then begin  {Do not Localize}
-      for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.Recipients.Items[LM].Address)) > 0 then begin
-          if AUseUID = False then begin
-            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
-          end else begin
-            LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
-          end;
-          break; //Don't want more than 1 hit on this record
-        end;
-      end;
-    end else if Sys.UpperCase(AParams[0]) = 'CC' then begin  {Do not Localize}
-      for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.CCList.Items[LM].Address)) > 0 then begin
-          if AUseUID = False then begin
-            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
-          end else begin
-            LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
-          end;
-          break; //Don't want more than 1 hit on this record
-        end;
-      end;
-    end else if Sys.UpperCase(AParams[0]) = 'BCC' then begin  {Do not Localize}
-      for LM := 0 to LMessage.Recipients.Count-1 do begin
-        if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.BCCList.Items[LM].Address)) > 0 then begin
-          if AUseUID = False then begin
-            LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
-          end else begin
-            LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
-          end;
-          break; //Don't want more than 1 hit on this record
-        end;
-      end;
-    end else if Sys.UpperCase(AParams[0]) = 'SUBJECT' then begin  {Do not Localize}
-      if Pos(Sys.UpperCase(LSearchString), Sys.UpperCase(LMessage.Subject)) > 0 then begin
-        if AUseUID = False then begin
-          LHits := LHits + Sys.IntToStr(LN+1) + ' ';  {Do not Localize}
-        end else begin
-          LHits := LHits + TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LN].UID + ' ';  {Do not Localize}
-        end;
-      end;
-    end;
+  finally
+    Sys.FreeAndNil(LMessageTemp);
   end;
-  LMessage.Free;
-  //LParams.Free;
-  Sys.Trim(LHits);
-  DoSendReply(ASender.Context, '* SEARCH '+LHits); {Do not Localize}
-  SendOkCompleted(ASender);
+  DoSendReply(ASender.Context, '* SEARCH ' + Sys.TrimRight(LHits)); {Do not Localize}
+  SendOkReply(ASender, 'Completed');  {Do not Localize}
 end;
 
-procedure TIdIMAP4Server.ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList);
+procedure TIdIMAP4Server.ProcessCopy(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings);
 var
   LMessageNumbers: TIdStringList;
-  LN: integer;
+  LN: Integer;
   LRecord: integer;
   LResult: Boolean;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //Format is "C1 COPY 2:4 MEETINGFOLDER"
-  if OnDefMechReinterpretParamAsMailBox(AParams, 1) = False then begin
-    SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
+  if AParams.Count < 2 then begin
+    SendIncorrectNumberOfParameters(ASender);
     Exit;
   end;
-  if AParams.Count <> 2 then begin
-    SendIncorrectNumberOfParameters(ASender);
+  if not OnDefMechReinterpretParamAsMailBox(AParams, 1) then begin
+    SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
     Exit;
   end;
   //First param is a message set, e.g. 41 or 2:5 (which is 2, 3, 4 & 5)
   LMessageNumbers := TIdStringList.Create;
-  if MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) = False then begin
-    SendBadReply(ASender, 'Error in synthax of message set parameter'); {Do not Localize}
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  if not Assigned(OnDefMechDoesImapMailBoxExist) then begin
-    SendUnassignedDefaultMechanism(ASender);
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, AParams[1]) = False then begin
-    SendNoReply(ASender, 'NO Mailbox does not exist.'); {Do not Localize}
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  LResult := True;
-  for LN := 0 to LMessageNumbers.Count-1 do begin
-    if AUseUID = False then begin
-      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
+  try
+    if not MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) then begin
+      SendBadReply(ASender, 'Error in syntax of message set parameter'); {Do not Localize}
+      Exit;
+    end;
+    if not Assigned(OnDefMechDoesImapMailBoxExist) then begin
+      SendUnassignedDefaultMechanism(ASender);
+      Exit;
+    end;
+    if not OnDefMechDoesImapMailBoxExist(LContext.LoginName, AParams[1]) then begin
+      SendNoReply(ASender, 'Mailbox does not exist.'); {Do not Localize}
+      Exit;
+    end;
+    LResult := True;
+    for LN := 0 to LMessageNumbers.Count-1 do begin
+      if AUseUID then begin
+        LRecord := GetRecordForUID(LMessageNumbers[LN], LContext.MailBox);
+        if LRecord = -1 then begin //It is OK to skip non-existent UID records
+	  Continue;
+	end;
+      end else begin
+        LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
+      end;
+      if (LRecord < 0) or (LRecord >= LContext.MailBox.MessageList.Count) then begin
+        LResult := False;
+      end
+      else if not OnDefMechCopyMessage(LContext.LoginName, LContext.MailBox.Name,
+        LContext.MailBox.MessageList.Messages[LRecord].UID, AParams[1]) then
+      begin
+        LResult := False;
+      end;
+    end;
+    if LResult then begin
+      SendOkReply(ASender, 'Completed');  {Do not Localize}
     end else begin
-      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
-      if LRecord = -1 then continue; //It is OK to skip non-existent UID records
+      SendNoReply(ASender, 'Copy failed for one or more messages'); {Do not Localize}
     end;
-    if OnDefMechCopyMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-     TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-     TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].UID,
-     AParams[1]) = False then begin
-      LResult := False;
-    end;
+  finally
+    Sys.FreeAndNil(LMessageNumbers);
   end;
-  if LResult = True then begin
-    SendOkCompleted(ASender);
-  end else begin
-    SendNoReply(ASender, 'Copy failed for one or more messages'); {Do not Localize}
-  end;
-  LMessageNumbers.Free;
 end;
 
-function TIdIMAP4Server.ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStringList): Boolean;
+function TIdIMAP4Server.ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings): Boolean;
+const
+  MsgFlags: array[0..4] of TIdMessageFlags = ( mfAnswered, mfFlagged, mfDeleted, mfDraft, mfSeen );
 var
   LMessageNumbers: TIdStringList;
   LFlagList: TIdStringList;
   LN: integer;
   LM: integer;
   LRecord: integer;
+  LFlag: integer;
   LTemp: string;
   LStoreMethod: TIdIMAP4StoreDataItem;
   LSilent: Boolean;
+  LMessage: TIdMessage;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //Format is:
   //C53 UID STORE 6545,6544 +FLAGS.SILENT (\Deleted)
   //C53 OK Completed
@@ -1221,126 +1254,95 @@ begin
   end;
   //First param is a message set, e.g. 41 or 2:5 (which is 2, 3, 4 & 5)
   LMessageNumbers := TIdStringList.Create;
-  if MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) = False then begin
-    SendBadReply(ASender, 'Error in synthax of message set parameter'); {Do not Localize}
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  LTemp := AParams[1];
-  if LTemp[1] = '+' then begin  {Do not Localize}
-    LStoreMethod := sdAdd;
-    LTemp := Copy(LTemp, 2, MAXINT);
-  end else if LTemp[1] = '-' then begin  {Do not Localize}
-    LStoreMethod := sdRemove;
-    LTemp := Copy(LTemp, 2, MAXINT);
-  end else begin
-    LStoreMethod := sdReplace;
-  end;
-  if LTemp = 'FLAGS' then begin  {Do not Localize}
-    LSilent := False;
-  end else if LTemp = 'FLAGS.SILENT' then begin  {Do not Localize}
-    LSilent := True;
-  end else begin
-    SendBadReply(ASender, 'Error in synthax of FLAGS parameter'); {Do not Localize}
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  LFlagList := TIdStringList.Create;
-  //Assemble remaining flags back into a string...
-  LTemp := AParams[2];
-  for LN := 3 to AParams.Count-1 do begin
-    LTemp := ' '+AParams[LN];  {Do not Localize}
-  end;
-  if FlagStringToFlagList(LFlagList, LTemp) = False then begin
-    SendBadReply(ASender, 'Error in synthax of flag set parameter'); {Do not Localize}
-    LFlagList.Free;
-    LMessageNumbers.Free;
-    Exit;
-  end;
-  for LN := 0 to LMessageNumbers.Count-1 do begin
-    if AUseUID = False then begin
-      LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
+  try
+    if not MessageSetToMessageNumbers(AUseUID, ASender, LMessageNumbers, AParams[0]) then begin
+      SendBadReply(ASender, 'Error in syntax of message set parameter'); {Do not Localize}
+      Exit;
+    end;
+    LTemp := AParams[1];
+    if LTemp[1] = '+' then begin  {Do not Localize}
+      LStoreMethod := sdAdd;
+      LTemp := Copy(LTemp, 2, MaxInt);
+    end else if LTemp[1] = '-' then begin  {Do not Localize}
+      LStoreMethod := sdRemove;
+      LTemp := Copy(LTemp, 2, MaxInt);
     end else begin
-      LRecord := GetRecordForUID(Sys.StrToInt(LMessageNumbers[LN]), TIdIMAP4PeerContext(ASender.Context).FMailBox);
-      if LRecord = -1 then continue; //It is OK to skip non-existent UID records
+      LStoreMethod := sdReplace;
     end;
-    if LStoreMethod = sdReplace then begin
-      TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags := [];
+    if TextIsSame(LTemp, 'FLAGS') then begin  {Do not Localize}
+      LSilent := False;
+    end else if TextIsSame(LTemp, 'FLAGS.SILENT') then begin  {Do not Localize}
+      LSilent := True;
+    end else begin
+      SendBadReply(ASender, 'Error in syntax of FLAGS parameter'); {Do not Localize}
+      Exit;
     end;
-    case LStoreMethod of
-      sdAdd, sdReplace:
-        begin
-          for LM := 0 to LFlagList.Count-1 do begin
-            //Support \Answered \Flagged \Draft \Deleted \Seen
-            if LFlagList[LM] = '\Answered' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags +
-               [mfAnswered];
-            end else if LFlagList[LM] = '\Flagged' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags +
-               [mfFlagged];
-            end else if LFlagList[LM] = '\Draft' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags +
-               [mfDraft];
-            end else if LFlagList[LM] = '\Deleted' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags +
-               [mfDeleted];
-            end else if LFlagList[LM] = '\Seen' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags +
-               [mfSeen];
-            end;
-          end;
-        end;
-      sdRemove:
-        begin
-          for LM := 0 to LFlagList.Count-1 do begin
-            //Support \Answered \Flagged \Draft \Deleted \Seen
-            if LFlagList[LM] = '\Answered' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags -
-               [mfAnswered];
-            end else if LFlagList[LM] = '\Flagged' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags -
-               [mfFlagged];
-            end else if LFlagList[LM] = '\Draft' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags -
-               [mfDraft];
-            end else if LFlagList[LM] = '\Deleted' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags -
-               [mfDeleted];
-            end else if LFlagList[LM] = '\Seen' then begin  {Do not Localize}
-              TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags :=
-               TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags -
-               [mfSeen];
-            end;
-          end;
-        end;
-    end;
-    if LSilent = False then begin
-      //In this case, send to the client the current flags.
-      //The response is '* 43 FETCH (FLAGS (\Seen))' with the UID version
-      //being '* 43 FETCH (FLAGS (\Seen) UID 1234)'.  Note the first number is the
-      //relative message number in BOTH cases.
-      LTemp := '* '+Sys.IntToStr(LRecord+1)+' FETCH (FLAGS ('  {Do not Localize}
-       +Sys.Trim(MessageFlagSetToStr(TIdIMAP4PeerContext(ASender.Context).FMailBox.MessageList.Messages[LRecord].Flags));
-      if AUseUID = False then begin
-        LTemp := LTemp + '))'; {Do not Localize}
-      end else begin
-        LTemp := LTemp + ') UID ' + LMessageNumbers[LN] + ')'; {Do not Localize}
+    LFlagList := TIdStringList.Create;
+    try
+      //Assemble remaining flags back into a string...
+      LTemp := AParams[2];
+      for LN := 3 to AParams.Count-1 do begin
+        LTemp := ' ' + AParams[LN];  {Do not Localize}
       end;
-      DoSendReply(ASender.Context, LTemp);
+      if not FlagStringToFlagList(LFlagList, LTemp) then begin
+        SendBadReply(ASender, 'Error in syntax of flag set parameter'); {Do not Localize}
+        Exit;
+      end;
+      for LN := 0 to LMessageNumbers.Count-1 do begin
+        if AUseUID then begin
+          LRecord := GetRecordForUID(LMessageNumbers[LN], LContext.MailBox);
+          if LRecord = -1 then begin //It is OK to skip non-existent UID records
+            Continue;
+          end;
+        end else begin
+          LRecord := Sys.StrToInt(LMessageNumbers[LN])-1;
+        end;
+        if (LRecord < 0) or (LRecord > LContext.MailBox.MessageList.Count) then begin
+          SendBadReply(ASender, 'Message number %d does not exist', [LRecord+1]); {Do not Localize}
+          Exit;
+        end;
+        LMessage := LContext.MailBox.MessageList.Messages[LRecord];
+        if LStoreMethod = sdReplace then begin
+          LMessage.Flags := [];
+        end;
+        for LM := 0 to LFlagList.Count-1 do begin
+          //Support \Answered \Flagged \Deleted \Draft \Seen
+          LFlag := PosInStrArray(LFlagList[LM], ['\Answered', '\Flagged', '\Deleted', '\Draft', '\Seen'], False);   {Do not Localize}
+          if LFlag = -1 then begin
+            Continue;
+          end;
+          case LStoreMethod of
+            sdAdd, sdReplace:
+	      begin
+	        LMessage.Flags := LMessage.Flags + [MsgFlags[LFlag]];
+	      end;
+            sdRemove:
+	      begin
+	        LMessage.Flags := LMessage.Flags - [MsgFlags[LFlag]];
+	      end;
+          end;
+        end;
+        if not LSilent then begin
+          //In this case, send to the client the current flags.
+          //The response is '* 43 FETCH (FLAGS (\Seen))' with the UID version
+          //being '* 43 FETCH (FLAGS (\Seen) UID 1234)'.  Note the first number is the
+          //relative message number in BOTH cases.
+          if AUseUID then begin
+            DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s) UID %s)', {Do not Localize}
+              [LRecord+1, MessageFlagSetToStr(LMessage.Flags), LMessageNumbers[LN]]);
+          end else begin
+            DoSendReply(ASender.Context, '* %d FETCH (FLAGS (%s))', {Do not Localize}
+              [LRecord+1, MessageFlagSetToStr(LMessage.Flags)]);
+          end;
+        end;
+      end;
+      SendOkReply(ASender, 'STORE Completed'); {Do not Localize}
+    finally
+      Sys.FreeAndNil(LFlagList);
     end;
+  finally
+    Sys.FreeAndNil(LMessageNumbers);
   end;
-  DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK STORE Completed'); {Do not Localize}
-  LFlagList.Free;
-  LMessageNumbers.Free;
   Result := True;
 end;
 
@@ -1450,7 +1452,6 @@ begin
     Command := 'STARTTLS';  {do not localize}
     OnCommand := DoCommandSTARTTLS;
   end;
-
   with FCommandHandlers do begin
     OnBeforeCommandHandler := DoBeforeCmd;
     OnCommandHandlersException := DoCmdHandlersException;
@@ -1461,77 +1462,91 @@ end;
 
 procedure TIdIMAP4Server.DoBeforeCmd(ASender: TIdCommandHandlers; var AData: string;
   AContext: TIdContext);
-var
-  LTmp: String;
 begin
   FLastCommand.ParseRequest(AData);  //Main purpose is to get sequence number, like C11 from 'C11 CAPABILITY'
-  LTmp := Fetch(AData, #32);
+  TIdIMAP4PeerContext(AContext).TagData.IMAP4Tag := Fetch(AData, ' ');
   AData := Sys.Trim(AData);
-  TIdIMAP4PeerContext(AContext).TagData.IMAP4Tag := LTmp;
-  if Assigned(fOnBeforeCmd) then begin
-    fOnBeforeCmd(ASender, AData, AContext);
+  if Assigned(FOnBeforeCmd) then begin
+    FOnBeforeCmd(ASender, AData, AContext);
   end;
 end;
 
-procedure TIdIMAP4Server.DoSendReply(AContext: TIdContext; AData: string);
+procedure TIdIMAP4Server.DoSendReply(AContext: TIdContext; const AData: string);
 begin
-  if Assigned(fOnBeforeSend) then begin
-    fOnBeforeSend(AContext, AData);
+  if Assigned(FOnBeforeSend) then begin
+    FOnBeforeSend(AContext, AData);
   end;
   AContext.Connection.IOHandler.WriteLn(AData);
+end;
+
+procedure TIdIMAP4Server.DoSendReply(AContext: TIdContext; const AFormat: string; const Args: array of const);
+begin
+  DoSendReply(AContext, Sys.Format(AFormat, Args));
 end;
 
 procedure TIdIMAP4Server.DoCmdHandlersException(ACommand: String; AContext: TIdContext);
 var
   LTag, LCmd: String;
 begin
-  if Assigned(fOnCommandError) then begin
-    LTag := Fetch(ACommand, #32);
-    LCmd := Fetch(ACommand, #32);
+  if Assigned(FOnCommandError) then begin
+    LTag := Fetch(ACommand, ' ');
+    LCmd := Fetch(ACommand, ' ');
     OnCommandError(AContext, LTag, LCmd);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandCAPABILITY(ASender: TIdCommand);
 begin
-  if Assigned(fOnCommandCAPABILITY) then begin
+  if Assigned(FOnCommandCAPABILITY) then begin
     OnCommandCAPABILITY(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {Tell the client our capabilities...}
-    DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK IMAP4rev1 AUTH=PLAIN'); {Do not Localize}
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {Tell the client our capabilities...}
+  SendOkReply(ASender, 'IMAP4rev1 AUTH=PLAIN'); {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.DoCommandNOOP(ASender: TIdCommand);
 begin
-  if Assigned(fOnCommandNOOP) then begin
+  if Assigned(FOnCommandNOOP) then begin
     OnCommandNOOP(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {On most servers, this does nothing (they use a timeout to disconnect users,
-     irrespective of NOOP commands, so they always return OK.  If you really
-     want to implement it, use a countdown timer to force disconnects but reset
-     the counter if ANY command received, including NOOP.}
-    SendOkCompleted(ASender);
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {On most servers, this does nothing (they use a timeout to disconnect users,
+  irrespective of NOOP commands, so they always return OK.  If you really
+  want to implement it, use a countdown timer to force disconnects but reset
+  the counter if ANY command received, including NOOP.}
+  SendOkReply(ASender, 'Completed');  {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.DoCommandLOGOUT(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if Assigned(fOnCommandLOGOUT) then begin
-    OnCommandLOGOUT(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {Be nice and say ByeBye first...}
-    DoSendReply(ASender.Context, '* BYE May your God go with you.'); {Do not Localize}
-    SendOkCompleted(ASender);
-    ASender.Context.Connection.Disconnect(False);
-    TIdIMAP4PeerContext(ASender.Context).FMailBox.Free;
-    ASender.Context.RemoveFromList;
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if Assigned(FOnCommandLOGOUT) then begin
+    OnCommandLOGOUT(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {Be nice and say ByeBye first...}
+  DoSendReply(ASender.Context, '* BYE May your God go with you.'); {Do not Localize}
+  SendOkReply(ASender, 'Completed');  {Do not Localize}
+  LContext.Connection.Disconnect(False);
+  LContext.MailBox.Clear;
+  LContext.RemoveFromList;
 end;
 
 procedure TIdIMAP4Server.DoCommandAUTHENTICATE(ASender: TIdCommand);
 begin
-  if Assigned(fOnCommandAUTHENTICATE) then begin
+  if Assigned(FOnCommandAUTHENTICATE) then begin
     {
     Important, when usng TLS and FUseTLS=utUseRequireTLS, do not accept any authentication
     information until TLS negotiation is completed.  This insistance is a security feature.
@@ -1540,336 +1555,376 @@ begin
     sacrafice interoperability over security.  It comes down to sensible administrative
     judgement.
     }
-    if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then begin
+    if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
       MustUseTLS(ASender);
     end else begin
-      OnCommandAUTHENTICATE(ASender.Context,TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag,
-        ASender.UnparsedParams);
+      OnCommandAUTHENTICATE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
     end;
   end;
 end;
 
 procedure TIdIMAP4Server.MustUseTLS(ASender: TIdCommand);
 begin
-  DoSendReply(ASender.Context, 'NO '+RSSMTPSvrReqSTARTTLS); {Do not Localize}
+  DoSendReply(ASender.Context, 'NO ' + RSSMTPSvrReqSTARTTLS); {Do not Localize}
   ASender.Disconnect := True;
 end;
 
 procedure TIdIMAP4Server.DoCommandLOGIN(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+
   if Assigned(fOnCommandLOGIN) then begin
     {
-    Important, when usng TLS and FUseTLS=utUseRequireTLS, do not accept any authentication
+    Important, when using TLS and FUseTLS=utUseRequireTLS, do not accept any authentication
     information until TLS negotiation is completed.  This insistance is a security feature.
 
     Some networks should choose security over interoperability while other places may
     sacrafice interoperability over security.  It comes down to sensible administrative
     judgement.
     }
-    if (FUseTLS =utUseRequireTLS) and ((ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then begin
+    if (FUseTLS = utUseRequireTLS) and (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then begin
       MustUseTLS(ASender);
     end else begin
-      OnCommandLOGIN(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+      OnCommandLOGIN(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
     end;
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    LParams := TIdStringList.Create;
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechDoesImapMailBoxExist) then begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if LParams.Count <> 2 then begin
+    if LParams.Count < 2 then begin
       //Incorrect number of params...
       if FSaferMode then begin
-        DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
+        SendNoReply(ASender);
       end else begin
         SendIncorrectNumberOfParameters(ASender);
       end;
-      LParams.Free;
       Exit;
     end;
     //See if we have a directory under FRootPath of that user's name...
-    if not Assigned(OnDefMechDoesImapMailBoxExist) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
-      Exit;
-    end;
     //if DoesImapMailBoxExist(LParams[0], '') = False then begin
-    if OnDefMechDoesImapMailBoxExist(LParams[0], '') = False then begin
+    if not OnDefMechDoesImapMailBoxExist(LParams[0], '') then begin
       if FSaferMode then begin
-        DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
+        SendNoReply(ASender);
       end else begin
         SendNoReply(ASender, 'Unknown username'); {Do not Localize}
       end;
-      LParams.Free;
       Exit;
     end;
     //See is it the correct password...
-    if TextIsSame(FDefaultPassword, LParams[1]) = False then begin
+    if not TextIsSame(FDefaultPassword, LParams[1]) then begin
       if FSaferMode then begin
-        DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' NO'); {Do not Localize}
+        SendNoReply(ASender);
       end else begin
         SendNoReply(ASender, 'Incorrect password'); {Do not Localize}
       end;
-      LParams.Free;
       Exit;
     end;
     //Successful login, change context's state to logged in...
-    TIdIMAP4PeerContext(ASender.Context).FMailBox := TIdMailBox.Create;
-    TIdIMAP4PeerContext(ASender.Context).FConnectionState := csAuthenticated;
-    TIdIMAP4PeerContext(ASender.Context).FLoginName := LParams[0];
-    SendOkCompleted(ASender);
-    LParams.Free;
+    LContext.LoginName := LParams[0];
+    LContext.FConnectionState := csAuthenticated;
+    SendOkReply(ASender, 'Completed');  {Do not Localize}
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
+//SELECT and EXAMINE are the same except EXAMINE opens the mailbox read-only
 procedure TIdIMAP4Server.DoCommandSELECT(ASender: TIdCommand);
-//SELECT and EXAMINE are the same except EXAMINE opens the mailbox read-only
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState = csSelected then begin
-    TIdIMAP4PeerContext(ASender.Context).FMailBox.Clear;
-    TIdIMAP4PeerContext(ASender.Context).FConnectionState := csAuthenticated;
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState = csSelected then begin
+    LContext.MailBox.Clear;
+    LContext.FConnectionState := csAuthenticated;
   end;
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated then begin
+  if LContext.ConnectionState <> csAuthenticated then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandSELECT) then begin
-    OnCommandSELECT(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    if not Assigned(OnDefMechOpenMailBox) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    if OnDefMechOpenMailBox(ASender, False) = True then begin  //SELECT opens the mailbox read-write
-      TIdIMAP4PeerContext(ASender.Context).FConnectionState := csSelected;
-      DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK [READ-WRITE] Completed'); {Do not Localize}
-    end;
+  if Assigned(FOnCommandSELECT) then begin
+    OnCommandSELECT(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechOpenMailBox) then begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  if OnDefMechOpenMailBox(ASender, False) then begin  //SELECT opens the mailbox read-write
+    LContext.FConnectionState := csSelected;
+    SendOkReply(ASender, '[READ-WRITE] Completed'); {Do not Localize}
   end;
 end;
 
-procedure TIdIMAP4Server.DoCommandEXAMINE(ASender: TIdCommand);
 //SELECT and EXAMINE are the same except EXAMINE opens the mailbox read-only
+procedure TIdIMAP4Server.DoCommandEXAMINE(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandEXAMINE) then begin
-    OnCommandEXAMINE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    if not Assigned(OnDefMechOpenMailBox) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    if OnDefMechOpenMailBox(ASender, True) = True then begin  //EXAMINE opens the mailbox read-only
-      TIdIMAP4PeerContext(ASender.Context).FConnectionState := csSelected;
-      DoSendReply(ASender.Context, FLastCommand.SequenceNumber + ' OK [READ-ONLY] Completed'); {Do not Localize}
-    end;
+  if Assigned(FOnCommandEXAMINE) then begin
+    OnCommandEXAMINE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechOpenMailBox) then begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  if OnDefMechOpenMailBox(ASender, True) then begin  //EXAMINE opens the mailbox read-only
+    LContext.FConnectionState := csSelected;
+    SendOkReply(ASender, '[READ-ONLY] Completed'); {Do not Localize}
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandCREATE(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   {
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
   }
-  if Assigned(fOnCommandCREATE) then begin
-    OnCommandCREATE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandCREATE) then begin
+    OnCommandCREATE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechDoesImapMailBoxExist))
+    or (not Assigned(OnDefMechCreateMailBox)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if ( (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or (not Assigned(OnDefMechDoesImapMailBoxExist))
-     or (not Assigned(OnDefMechCreateMailBox)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 0) = False then begin
-      SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if LParams.Count <> 1 then begin
+    if LParams.Count < 1 then begin
       //Incorrect number of params...
       SendIncorrectNumberOfParameters(ASender);
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = True then begin
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 0) then begin
+      SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
+      Exit;
+    end;
+    if OnDefMechDoesImapMailBoxExist(LContext.LoginName, LParams[0]) then begin
       SendBadReply(ASender, 'Mailbox already exists.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechCreateMailBox(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = True then begin
-      SendOkCompleted(ASender);
+    if OnDefMechCreateMailBox(LContext.LoginName, LParams[0]) then begin
+      SendOkReply(ASender, 'Completed');  {Do not Localize}
     end else begin
       SendNoReply(ASender, 'Create failed'); {Do not Localize}
     end;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandDELETE(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   {
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
   }
-  if Assigned(fOnCommandDELETE) then begin
-    OnCommandDELETE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //Make sure we don't have the mailbox open by anyone
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandDELETE) then begin
+    OnCommandDELETE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechDoesImapMailBoxExist))
+    or (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechDeleteMailBox))
+    or (not Assigned(OnDefMechIsMailBoxOpen)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //Make sure we don't have the mailbox open by anyone
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if ( (not Assigned(OnDefMechDoesImapMailBoxExist))
-     or  (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or  (not Assigned(OnDefMechDeleteMailBox))
-     or  (not Assigned(OnDefMechIsMailBoxOpen)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 0) = False then begin
-      SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechIsMailBoxOpen(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = True then begin
-      SendNoReply(ASender, 'Mailbox is in use.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if LParams.Count <> 1 then begin
+    if LParams.Count < 1 then begin
       //Incorrect number of params...
       SendIncorrectNumberOfParameters(ASender);
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = False then begin
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 0) then begin
+      SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
+      Exit;
+    end;
+    if OnDefMechIsMailBoxOpen(LContext.LoginName, LParams[0]) then begin
+      SendNoReply(ASender, 'Mailbox is in use.'); {Do not Localize}
+      Exit;
+    end;
+    if not OnDefMechDoesImapMailBoxExist(LContext.LoginName, LParams[0]) then begin
       SendNoReply(ASender, 'Mailbox does not exist.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDeleteMailBox(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = True then begin
-      SendOkCompleted(ASender);
+    if OnDefMechDeleteMailBox(LContext.LoginName, LParams[0]) then begin
+      SendOkReply(ASender, 'Completed');  {Do not Localize}
     end else begin
       SendNoReply(ASender, 'Delete failed'); {Do not Localize}
     end;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandRENAME(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   {
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
   }
-  if Assigned(fOnCommandRENAME) then begin
-    OnCommandRENAME(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //Make sure we don't have the mailbox open by anyone
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandRENAME) then begin
+    OnCommandRENAME(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechDoesImapMailBoxExist))
+    or (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechRenameMailBox))
+    or (not Assigned(OnDefMechIsMailBoxOpen)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //Make sure we don't have the mailbox open by anyone
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if ( (not Assigned(OnDefMechDoesImapMailBoxExist))
-     or  (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or  (not Assigned(OnDefMechRenameMailBox))
-     or  (not Assigned(OnDefMechIsMailBoxOpen)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 0) = False then begin
-      SendBadReply(ASender, 'First mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechIsMailBoxOpen(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = True then begin
-      SendNoReply(ASender, 'Mailbox is in use.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 1) = False then begin
-      SendBadReply(ASender, 'Second mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
-      Exit;
-    end;
-    if LParams.Count <> 2 then begin
+    if LParams.Count < 2 then begin
       //Incorrect number of params...
       SendIncorrectNumberOfParameters(ASender);
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = False then begin
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 0) then begin
+      SendBadReply(ASender, 'First mailbox parameter is invalid.'); {Do not Localize}
+      Exit;
+    end;
+    if OnDefMechIsMailBoxOpen(LContext.LoginName, LParams[0]) then begin
+      SendNoReply(ASender, 'Mailbox is in use.'); {Do not Localize}
+      Exit;
+    end;
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 1) then begin
+      SendBadReply(ASender, 'Second mailbox parameter is invalid.'); {Do not Localize}
+      Exit;
+    end;
+    if not OnDefMechDoesImapMailBoxExist(LContext.LoginName, LParams[0]) then begin
       SendNoReply(ASender, 'Mailbox to be renamed does not exist.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[1]) = True then begin
+    if OnDefMechDoesImapMailBoxExist(LContext.LoginName, LParams[1]) then begin
       SendNoReply(ASender, 'Destination mailbox already exists.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechRenameMailBox(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0], LParams[1]) = True then begin
-      SendOkCompleted(ASender);
+    if OnDefMechRenameMailBox(LContext.LoginName, LParams[0], LParams[1]) then begin
+      SendOkReply(ASender, 'Completed');  {Do not Localize}
     end else begin
       SendNoReply(ASender, 'Delete failed'); {Do not Localize}
     end;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandSUBSCRIBE(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandSUBSCRIBE) then begin
-    OnCommandSUBSCRIBE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {Not clear exactly what this would do in this sample mechanism...}
-    SendUnsupportedCommand(ASender);
+  if Assigned(FOnCommandSUBSCRIBE) then begin
+    OnCommandSUBSCRIBE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {Not clear exactly what this would do in this sample mechanism...}
+  SendUnsupportedCommand(ASender);
 end;
 
 procedure TIdIMAP4Server.DoCommandUNSUBSCRIBE(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandUNSUBSCRIBE) then begin
-    OnCommandUNSUBSCRIBE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {Not clear exactly what this would do in this sample mechanism...}
-    SendUnsupportedCommand(ASender);
+  if Assigned(FOnCommandUNSUBSCRIBE) then begin
+    OnCommandUNSUBSCRIBE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {Not clear exactly what this would do in this sample mechanism...}
+  SendUnsupportedCommand(ASender);
 end;
 
 procedure TIdIMAP4Server.DoCommandLIST(ASender: TIdCommand);
@@ -1879,48 +1934,65 @@ var
   LMailBoxFlags: TIdStringList;
   LN: integer;
   LEntry: string;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandLIST) then begin
-    OnCommandLIST(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //The default mechanism only supports the following format:
-    //  LIST "" *
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandLIST) then begin
+    OnCommandLIST(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechListMailBox) then begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //The default mechanism only supports the following format:
+  //  LIST "" *
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if not Assigned(OnDefMechListMailBox) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
+    if LParams.Count < 2 then begin
+      //Incorrect number of params...
+      SendIncorrectNumberOfParameters(ASender);
       Exit;
     end;
     if LParams[1] <> '*' then begin  {Do not Localize}
       SendBadReply(ASender, 'Parameter not supported, 2nd (last) parameter must be *'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
     LMailBoxNames := TIdStringList.Create;
-    LMailBoxFlags := TIdStringList.Create;
-    if OnDefMechListMailBox(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0], LMailBoxNames, LMailBoxFlags) = True then begin
-      for LN := 0 to LMailBoxNames.Count-1 do begin
-        //Replies are of the form:
-        //* LIST (\HasNoChildren) "." "INBOX.CreatedFolder"
-        LEntry := '* LIST (';  {Do not Localize}
-        if LMailBoxFlags[LN] <> '' then begin
-          LEntry := LEntry + LMailBoxFlags[LN];
+    try
+      LMailBoxFlags := TIdStringList.Create;
+      try
+        if OnDefMechListMailBox(LContext.LoginName, LParams[0], LMailBoxNames, LMailBoxFlags) then begin
+          for LN := 0 to LMailBoxNames.Count-1 do begin
+            //Replies are of the form:
+            //* LIST (\HasNoChildren) "." "INBOX.CreatedFolder"
+            LEntry := '* LIST (';  {Do not Localize}
+            if LMailBoxFlags[LN] <> '' then begin
+              LEntry := LEntry + LMailBoxFlags[LN];
+            end;
+            LEntry := LEntry + ') "' + MailBoxSeparator + '" "' + LMailBoxNames[LN] + '"';  {Do not Localize}
+            DoSendReply(ASender.Context, LEntry); {Do not Localize}
+          end;
+          SendOkReply(ASender, 'Completed');  {Do not Localize}
+        end else begin
+          SendNoReply(ASender, 'List failed'); {Do not Localize}
         end;
-        LEntry := LEntry + ') "'+MailBoxSeparator+'" "'+LMailBoxNames[LN]+'"';  {Do not Localize}
-        DoSendReply(ASender.Context, LEntry); {Do not Localize}
+      finally
+        Sys.FreeAndNil(LMailBoxFlags);
       end;
-      SendOkCompleted(ASender);
-    end else begin
-      SendNoReply(ASender, 'List failed'); {Do not Localize}
+    finally
+      Sys.FreeAndNil(LMailBoxNames);
     end;
-    LMailBoxNames.Free;
-    LMailBoxFlags.Free;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
@@ -1931,47 +2003,64 @@ var
   LMailBoxFlags: TIdStringList;
   LN: integer;
   LEntry: string;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandLSUB) then begin
-    OnCommandLSUB(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //Treat this the same as LIST...
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandLSUB) then begin
+    OnCommandLSUB(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechListMailBox) then begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //Treat this the same as LIST...
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if not Assigned(OnDefMechListMailBox) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
+    if LParams.Count < 2 then begin
+      //Incorrect number of params...
+      SendIncorrectNumberOfParameters(ASender);
       Exit;
     end;
     if LParams[1] <> '*' then begin  {Do not Localize}
       SendBadReply(ASender, 'Parameter not supported, 2nd (last) parameter must be *'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
     LMailBoxNames := TIdStringList.Create;
-    LMailBoxFlags := TIdStringList.Create;
-    if OnDefMechListMailBox(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0], LMailBoxNames, LMailBoxFlags) = True then begin
-      for LN := 0 to LMailBoxNames.Count-1 do begin
-        //Replies are of the form:
-        //* LIST (\HasNoChildren) "." "INBOX.CreatedFolder"
-        LEntry := '* LIST (';  {Do not Localize}
-        if LMailBoxFlags[LN] <> '' then begin
-          LEntry := LEntry + LMailBoxFlags[LN];
+    try
+      LMailBoxFlags := TIdStringList.Create;
+      try
+        if OnDefMechListMailBox(LContext.LoginName, LParams[0], LMailBoxNames, LMailBoxFlags) then begin
+          for LN := 0 to LMailBoxNames.Count-1 do begin
+            //Replies are of the form:
+            //* LIST (\HasNoChildren) "." "INBOX.CreatedFolder"
+            LEntry := '* LIST (';  {Do not Localize}
+            if LMailBoxFlags[LN] <> '' then begin
+              LEntry := LEntry + LMailBoxFlags[LN];
+            end;
+            LEntry := LEntry + ') "' + MailBoxSeparator + '" "' + LMailBoxNames[LN] + '"';  {Do not Localize}
+            DoSendReply(ASender.Context, LEntry); {Do not Localize}
+          end;
+          SendOkReply(ASender, 'Completed');  {Do not Localize}
+        end else begin
+          SendNoReply(ASender, 'List failed'); {Do not Localize}
         end;
-        LEntry := LEntry + ') "'+MailBoxSeparator+'" "'+LMailBoxNames[LN]+'"';  {Do not Localize}
-        DoSendReply(ASender.Context, LEntry); {Do not Localize}
+      finally
+        Sys.FreeAndNil(LMailBoxFlags);
       end;
-      SendOkCompleted(ASender);
-    end else begin
-      SendNoReply(ASender, 'List failed'); {Do not Localize}
+    finally
+      Sys.FreeAndNil(LMailBoxNames);
     end;
-    LMailBoxNames.Free;
-    LMailBoxFlags.Free;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
@@ -1982,88 +2071,111 @@ var
   LParams: TIdStringList;
   LTemp: string;
   LAnswer: string;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if ( (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated) and (TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected) ) then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if not (LContext.ConnectionState in [csAuthenticated, csSelected]) then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandSTATUS) then begin
-    OnCommandSTATUS(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //This can be issued for ANY mailbox, not just the currently selected one.
-    //The format is:
-    //C5 STATUS "INBOX" (MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)
-    //* STATUS INBOX (MESSAGES 490 RECENT 132 UIDNEXT 6546 UIDVALIDITY 1065090323 UNSEEN 167)
-    //C5 OK Completed
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandSTATUS) then begin
+    OnCommandSTATUS(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechDoesImapMailBoxExist))
+    or (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechSetupMailbox)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //This can be issued for ANY mailbox, not just the currently selected one.
+  //The format is:
+  //C5 STATUS "INBOX" (MESSAGES RECENT UIDNEXT UIDVALIDITY UNSEEN)
+  //* STATUS INBOX (MESSAGES 490 RECENT 132 UIDNEXT 6546 UIDVALIDITY 1065090323 UNSEEN 167)
+  //C5 OK Completed
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if ( (not Assigned(OnDefMechDoesImapMailBoxExist))
-     or  (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or  (not Assigned(OnDefMechSetupMailbox)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
+    if LParams.Count < 1 then begin
+      //Incorrect number of params...
+      SendIncorrectNumberOfParameters(ASender);
       Exit;
     end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 0) = False then begin
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 0) then begin
       SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
-    if OnDefMechDoesImapMailBoxExist(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]) = False then begin
+    if not OnDefMechDoesImapMailBoxExist(LContext.LoginName, LParams[0]) then begin
       SendNoReply(ASender, 'Mailbox does not exist.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
     {Get everything you need for this mailbox...}
     LMailBox := TIdMailBox.Create;
-    OnDefMechSetupMailbox(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-      LParams[0],
-      LMailBox);
-    {Send the stats...}
-    LAnswer := '* STATUS '+LParams[0]+' (';  {Do not Localize}
-    for LN := 1 to LParams.Count-1 do begin
-      LTemp := LParams[LN];
-      if LTemp <> '' then begin
-        //Strip brackets (will be on 1st & last param)
-        if LTemp[1] = '(' then begin  {Do not Localize}
-          LTemp := Copy(LTemp, 2, MAXINT);
-        end;
-        if LTemp[Length(LTemp)] = ')' then begin  {Do not Localize}
-          LTemp := Copy(LTemp, 1, Length(LTemp)-1);
-        end;
-        if LTemp = 'MESSAGES' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
-        end else if LTemp = 'RECENT' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
-        end else if LTemp = 'UIDNEXT' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
-        end else if LTemp = 'UIDVALIDITY' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
-        end else if LTemp = 'UNSEEN' then begin  {Do not Localize}
-          LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
-        end else begin
-          SendBadReply(ASender, 'Parameter not supported: '+LTemp); {Do not Localize}
-          LMailBox.Free;
-          LParams.Free;
-          Exit;
+    try
+      OnDefMechSetupMailbox(LContext.LoginName, LParams[0], LMailBox);
+      {Send the stats...}
+      LAnswer := '* STATUS ' + LParams[0] + ' (';  {Do not Localize}
+      for LN := 1 to LParams.Count-1 do begin
+        LTemp := LParams[LN];
+        if LTemp <> '' then begin
+          //Strip brackets (will be on 1st & last param)
+          if LTemp[1] = '(' then begin  {Do not Localize}
+            LTemp := Copy(LTemp, 2, MaxInt);
+          end;
+          if (LTemp <> '') and (LTemp[Length(LTemp)] = ')') then begin  {Do not Localize}
+            LTemp := Copy(LTemp, 1, Length(LTemp)-1);
+          end;
+          case PosInStrArray(LTemp, ['MESSAGES', 'RECENT', 'UIDNEXT', 'UIDVALIDITY', 'UNSEEN'], False) of
+	    0: // MESSAGES   {Do not Localize}
+              begin
+	        LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.TotalMsgs) + ' ';  {Do not Localize}
+              end;
+            1: // RECENT   {Do not Localize}
+              begin
+	        LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.RecentMsgs) + ' ';  {Do not Localize}
+              end;
+            2: // UIDNEXT   {Do not Localize}
+              begin
+	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDNext + ' ';  {Do not Localize}
+	      end;
+            3: // UIDVALIDITY   {Do not Localize}
+              begin
+	        LAnswer := LAnswer + LTemp + ' ' + LMailBox.UIDValidity + ' ';  {Do not Localize}
+              end;
+            4: // UNSEEN   {Do not Localize}
+              begin
+                LAnswer := LAnswer + LTemp + ' ' + Sys.IntToStr(LMailBox.UnseenMsgs) + ' ';  {Do not Localize}
+              end;
+          else
+	    begin
+              SendBadReply(ASender, 'Parameter not supported: ' + LTemp);   {Do not Localize}
+              Exit;
+            end;
+          end;
         end;
       end;
+      if LAnswer[Length(LAnswer)] = ' ' then begin  {Do not Localize}
+        LAnswer := Copy(LAnswer, 1, Length(LAnswer)-1);
+      end;
+      LAnswer := LAnswer + ')';  {Do not Localize}
+      DoSendReply(ASender.Context, LAnswer);
+      SendOkReply(ASender, 'Completed');  {Do not Localize}
+    finally
+      Sys.FreeAndNil(LMailBox);
     end;
-    if LAnswer[Length(LAnswer)] = ' ' then begin  {Do not Localize}
-      LAnswer := Copy(LAnswer, 1, Length(LAnswer)-1);
-    end;
-    LAnswer := LAnswer + ')';  {Do not Localize}
-    DoSendReply(ASender.Context, LAnswer);
-    SendOkCompleted(ASender);
-    LMailBox.Free;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandAPPEND(ASender: TIdCommand);
 var
   LUID: string;
-  LStream: TIdFileStream;
+  LStream: TIdStream;
   LFile: string;
   LTemp: string;
   LParams: TIdStringList;
@@ -2073,46 +2185,56 @@ var
   LFlags: string;
   LN: integer;
   LMessage: TIdMessage;
+  LContext: TIdIMAP4PeerContext;
 begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
   //You do NOT need to be in selected state for this.
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csAuthenticated then begin
+  if LContext.ConnectionState <> csAuthenticated then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandAPPEND) then begin
-    OnCommandAPPEND(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //Format (the flags are optional):
-    //C323 APPEND "INBOX.Sent" (\Seen) {1876}
-    //+ go ahead
-    //...
-    //C323 OK [APPENDUID 1065095982 105] Completed
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandAPPEND) then begin
+    OnCommandAPPEND(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechGetNextFreeUID))
+    or (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechUpdateNextFreeUID))
+    or (not Assigned(OnDefMechDeleteMessage))  //Needed to reverse out a save if setting flags fail
+    or (not Assigned(OnDefMechGetFileNameToWriteAppendMessage)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  //Format (the flags are optional):
+  //C323 APPEND "INBOX.Sent" (\Seen) {1876}
+  //+ go ahead
+  //...
+  //C323 OK [APPENDUID 1065095982 105] Completed
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    if ( (not Assigned(OnDefMechGetNextFreeUID))
-     or  (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or  (not Assigned(OnDefMechUpdateNextFreeUID))
-     or  (not Assigned(OnDefMechDeleteMessage))  //Needed to reverse out a save if setting flags fail
-     or  (not Assigned(OnDefMechGetFileNameToWriteAppendMessage)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      LParams.Free;
+    if LParams.Count < 2 then begin
+      //Incorrect number of params...
+      SendIncorrectNumberOfParameters(ASender);
       Exit;
     end;
-    if OnDefMechReinterpretParamAsMailBox(LParams, 0) = False then begin
+    if not OnDefMechReinterpretParamAsMailBox(LParams, 0) then begin
       SendBadReply(ASender, 'Mailbox parameter is invalid.'); {Do not Localize}
-      LParams.Free;
       Exit;
     end;
     LFlags := '';
     LTemp := LParams[1];
     if LTemp[1] = '(' then begin  {Do not Localize}
-      if ReinterpretParamAsFlags(LParams, 1) = False then begin
+      if not ReinterpretParamAsFlags(LParams, 1) then begin
         SendBadReply(ASender, 'Flags parameter is invalid.'); {Do not Localize}
-        LParams.Free;
         Exit;
       end;
       LFlags := LParams[1];
@@ -2120,195 +2242,243 @@ begin
     LTemp := LParams[LParams.Count-1];
     LSize := Sys.StrToInt(Copy(LTemp, 2, Length(LTemp)-2));
     //Grab the next UID...
-    LUID := OnDefMechGetNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName, LParams[0]);
+    LUID := OnDefMechGetNextFreeUID(LContext.LoginName, LParams[0]);
     //Get the message...
-    LFile := OnDefMechGetFileNameToWriteAppendMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-       TIdIMAP4PeerContext(ASender.Context).FMailBox.Name, LUID);
-    LStream := TIdFileStream.Create(LFile, fmCreate);
-    ASender.Context.Connection.IOHandler.ReadStream(LStream, LSize);
-    if LFlags = '' then begin
-      SendOkCompleted(ASender);
-      //Update the next free UID in the .uid file...
-      OnDefMechUpdateNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         Sys.IntToStr(Sys.StrToInt(LUID)+1));
-    end else begin
-      //Update the (optional) flags...
-      LParams2 := TIdStringList.Create;
-      LParams2.Clear;
-      LParams2.Add(LUID);
-      LParams2.Add('FLAGS.SILENT');  {Do not Localize}
-      {
-      for LN := 1 to LParams.Count-2 do begin
-        LParams2.Add(LParams[LN]);
-      end;
-      }
-      //The flags are in a string, need to reassemble...
-      LFlagsList := TIdStringList.Create;
-      BreakApart(LFlags, ' ', LFlagsList);  {Do not Localize}
-      for LN := 0 to LFlagsList.Count-1 do begin
-        LTemp := LFlagsList[LN];
-        if LN = 0 then begin
-          LTemp := '('+LTemp;  {Do not Localize}
-        end;
-        if LN = LFlagsList.Count-1 then begin
-          LTemp := LTemp+')';  {Do not Localize}
-        end;
-        LParams2.Add(LTemp);
-      end;
-      if ProcessStore(True, ASender, LParams2) = False then begin
-        //Have to reverse out our changes if ANYTHING fails..
-        LMessage := TIdMessage.Create(Self);
-        LMessage.UID := LUID;  //This is all we need for deletion
-        OnDefMechDeleteMessage(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         LMessage);
-        LMessage.Free;
-      end else begin
+    LFile := OnDefMechGetFileNameToWriteAppendMessage(LContext.LoginName, LContext.MailBox.Name, LUID);
+    LStream := TIdFileCreateStream.Create(LFile);
+    try
+      ASender.Context.Connection.IOHandler.ReadStream(LStream, LSize);
+      if LFlags = '' then begin
+        SendOkReply(ASender, 'Completed');  {Do not Localize}
         //Update the next free UID in the .uid file...
-        OnDefMechUpdateNextFreeUID(TIdIMAP4PeerContext(ASender.Context).FLoginName,
-         TIdIMAP4PeerContext(ASender.Context).FMailBox.Name,
-         Sys.IntToStr(Sys.StrToInt(LUID)+1));
+        OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, Sys.IntToStr(Sys.StrToInt(LUID)+1));
+      end else begin
+        //Update the (optional) flags...
+        LParams2 := TIdStringList.Create;
+        try
+          LParams2.Add(LUID);
+          LParams2.Add('FLAGS.SILENT');  {Do not Localize}
+          {
+          for LN := 1 to LParams.Count-2 do begin
+            LParams2.Add(LParams[LN]);
+          end;
+          }
+          //The flags are in a string, need to reassemble...
+          LFlagsList := TIdStringList.Create;
+          try
+            BreakApart(LFlags, ' ', LFlagsList);  {Do not Localize}
+            for LN := 0 to LFlagsList.Count-1 do begin
+              LTemp := LFlagsList[LN];
+              if LN = 0 then begin
+                LTemp := '(' + LTemp;  {Do not Localize}
+              end;
+              if LN = LFlagsList.Count-1 then begin
+                LTemp := LTemp + ')';  {Do not Localize}
+              end;
+              LParams2.Add(LTemp);
+            end;
+            if not ProcessStore(True, ASender, LParams2) then begin
+              //Have to reverse out our changes if ANYTHING fails..
+              LMessage := TIdMessage.Create(Self);
+              try
+                LMessage.UID := LUID;  //This is all we need for deletion
+                OnDefMechDeleteMessage(LContext.LoginName, LContext.MailBox.Name, LMessage);
+              finally
+	        Sys.FreeAndNil(LMessage);
+              end;
+            end else begin
+              //Update the next free UID in the .uid file...
+              OnDefMechUpdateNextFreeUID(LContext.LoginName, LContext.MailBox.Name, Sys.IntToStr(Sys.StrToInt(LUID)+1));
+            end;
+          finally
+            Sys.FreeAndNil(LFlagsList);
+          end;
+        finally
+	  Sys.FreeAndNil(LParams2);
+        end;
       end;
-      LParams2.Free;
+    finally
+      Sys.FreeAndNil(LStream);
     end;
-    LStream.Free;
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandCHECK(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   if Assigned(fOnCommandCHECK) then begin
-    OnCommandCHECK(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {On most servers, this does nothing, they always return OK...}
-    SendOkCompleted(ASender);
+    OnCommandCHECK(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
   end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  {On most servers, this does nothing, they always return OK...}
+  SendOkReply(ASender, 'Completed');  {Do not Localize}
 end;
 
 procedure TIdIMAP4Server.DoCommandCLOSE(ASender: TIdCommand);
 var
   LResult: Boolean;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   if Assigned(fOnCommandCLOSE) then begin
-    OnCommandCLOSE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    {This is an implicit expunge...}
-    if not Assigned(OnDefMechDeleteMessage) then begin  //Used by ExpungeRecords
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    LResult := ExpungeRecords(ASender);
-    {Now close it...}
-    TIdIMAP4PeerContext(ASender.Context).FMailBox.Clear;
-    TIdIMAP4PeerContext(ASender.Context).FConnectionState := csAuthenticated;
-    if LResult = True then begin
-      SendOkCompleted(ASender);
-    end else begin
-      SendNoReply(ASender, 'Implicit expunge failed for one or more messages'); {Do not Localize}
-    end;
+    OnCommandCLOSE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechDeleteMessage) then begin  //Used by ExpungeRecords
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  {This is an implicit expunge...}
+  LResult := ExpungeRecords(ASender);
+  {Now close it...}
+  LContext.MailBox.Clear;
+  LContext.FConnectionState := csAuthenticated;
+  if LResult then begin
+    SendOkReply(ASender, 'Completed');  {Do not Localize}
+  end else begin
+    SendNoReply(ASender, 'Implicit expunge failed for one or more messages'); {Do not Localize}
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandEXPUNGE(ASender: TIdCommand);
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandEXPUNGE) then begin
-    OnCommandEXPUNGE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    if not Assigned(OnDefMechDeleteMessage) then begin  //Used by ExpungeRecords
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    if ExpungeRecords(ASender) = True then begin
-      SendOkCompleted(ASender);
-    end else begin
-      SendNoReply(ASender, 'Expunge failed for one or more messages'); {Do not Localize}
-    end;
+  if Assigned(FOnCommandEXPUNGE) then begin
+    OnCommandEXPUNGE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechDeleteMessage) then begin  //Used by ExpungeRecords
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  if ExpungeRecords(ASender) then begin
+    SendOkReply(ASender, 'Completed');  {Do not Localize}
+  end else begin
+    SendNoReply(ASender, 'Expunge failed for one or more messages'); {Do not Localize}
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandSEARCH(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   if Assigned(fOnCommandSEARCH) then begin
-    OnCommandSEARCH(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag,  ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    if not Assigned(OnDefMechGetMessageHeader) then begin  //Used by ProcessSearch
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    LParams := TIdStringList.Create;
+    OnCommandSEARCH(ASender.Context, LContext.TagData.IMAP4Tag,  ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if not Assigned(OnDefMechGetMessageHeader) then begin  //Used by ProcessSearch
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessSearch(False, ASender, LParams);
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandFETCH(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandFETCH) then begin
-    OnCommandFETCH(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    if ( (not Assigned(OnDefMechGetMessageHeader))  //Used by ProcessFetch
-     or  (not Assigned(OnDefMechGetMessageSize))
-     or  (not Assigned(OnDefMechGetMessageRaw)) ) then begin
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandFETCH) then begin
+    OnCommandFETCH(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  if (not Assigned(OnDefMechGetMessageHeader))  //Used by ProcessFetch
+    or (not Assigned(OnDefMechGetMessageSize))
+    or (not Assigned(OnDefMechGetMessageRaw)) then
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessFetch(False, ASender, LParams);
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandSTORE(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
   if Assigned(fOnCommandSTORE) then begin
-    OnCommandSTORE(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    LParams := TIdStringList.Create;
+    OnCommandSTORE(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessStore(False, ASender, LParams);
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
@@ -2330,92 +2500,127 @@ begin
   if mfSeen in AFlags then begin
     Result := Result + MessageFlags[mfSeen] + ' ';           {Do not Localize}
   end;
+  if Result <> '' then begin
+    Result := Sys.TrimRight(Result);
+  end;
 end;
 
 procedure TIdIMAP4Server.DoCommandCOPY(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
-  if TIdIMAP4PeerContext(ASender.Context).FMailBox.State = msReadOnly then begin
+  if LContext.MailBox.State = msReadOnly then begin
     SendErrorOpenedReadOnly(ASender);
     Exit;
   end;
-  if Assigned(fOnCommandCOPY) then begin
-    OnCommandCOPY(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    //Format is COPY 2:4 DestinationMailBoxName
-    if ( (not Assigned(OnDefMechReinterpretParamAsMailBox))
-     or  (not Assigned(OnDefMechCopyMessage)) ) then begin    //Needed for ProcessCopy
-      SendUnassignedDefaultMechanism(ASender);
-      Exit;
-    end;
-    LParams := TIdStringList.Create;
+  if Assigned(FOnCommandCOPY) then begin
+    OnCommandCOPY(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  //Format is COPY 2:4 DestinationMailBoxName
+  if (not Assigned(OnDefMechReinterpretParamAsMailBox))
+    or (not Assigned(OnDefMechCopyMessage)) then  //Needed for ProcessCopy
+  begin
+    SendUnassignedDefaultMechanism(ASender);
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
     ProcessCopy(False, ASender, LParams);
-    LParams.Free;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
-procedure TIdIMAP4Server.DoCommandUID(ASender: TIdCommand);
 {UID before COPY, FETCH or STORE means the record numbers are UIDs.
  UID before SEARCH means SEARCH is to _return_ UIDs rather than relative numbers.}
+procedure TIdIMAP4Server.DoCommandUID(ASender: TIdCommand);
 var
   LParams: TIdStringList;
+  LContext: TIdIMAP4PeerContext;
 begin
-  if TIdIMAP4PeerContext(ASender.Context).FConnectionState <> csSelected then begin
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if LContext.ConnectionState <> csSelected then begin
     SendWrongConnectionState(ASender);
     Exit;
   end;
   if Assigned(fOnCommandUID) then begin
-    OnCommandUID(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
-  end else if FUseDefaultMechanismsForUnassignedCommands then begin
-    LParams := TIdStringList.Create;
+    OnCommandUID(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
+  end;
+  if not FUseDefaultMechanismsForUnassignedCommands then begin
+    Exit;
+  end;
+  LParams := TIdStringList.Create;
+  try
     BreakApart(ASender.UnparsedParams, ' ', LParams); {Do not Localize}
-    //Map the commands to the general handler but remove the FETCH or whatever...
-    if Sys.UpperCase(LParams[0]) = 'FETCH' then begin  {Do not Localize}
-      LParams.Delete(0);
-      if ( (not Assigned(OnDefMechGetMessageHeader))  //Used by ProcessFetch
-       or  (not Assigned(OnDefMechGetMessageSize))
-       or  (not Assigned(OnDefMechGetMessageRaw)) ) then begin
-        SendUnassignedDefaultMechanism(ASender);
-        LParams.Free;
-        Exit;
-      end;
-      ProcessFetch(True, ASender, LParams);
-    end else if Sys.UpperCase(LParams[0]) = 'COPY' then begin  {Do not Localize}
-      LParams.Delete(0);
-      if ( (not Assigned(OnDefMechReinterpretParamAsMailBox))
-       or  (not Assigned(OnDefMechCopyMessage)) ) then begin    //Needed for ProcessCopy
-        SendUnassignedDefaultMechanism(ASender);
-        LParams.Free;
-        Exit;
-      end;
-      ProcessCopy(True, ASender, LParams);
-    end else if Sys.UpperCase(LParams[0]) = 'STORE' then begin  {Do not Localize}
-      LParams.Delete(0);
-      ProcessStore(True, ASender, LParams);
-    end else if Sys.UpperCase(LParams[0]) = 'SEARCH' then begin  {Do not Localize}
-      LParams.Delete(0);
-      if not Assigned(OnDefMechGetMessageHeader) then begin  //Used by ProcessSearch
-        SendUnassignedDefaultMechanism(ASender);
-        LParams.Free;
-        Exit;
-      end;
-      ProcessSearch(True, ASender, LParams);
-    end else begin
-      SendUnsupportedCommand(ASender);
+    if LParams.Count < 1 then begin
+      //Incorrect number of params...
+      SendIncorrectNumberOfParameters(ASender);
+      Exit;
     end;
-    LParams.Free;
+    //Map the commands to the general handler but remove the FETCH or whatever...
+    case PosInStrArray(LParams[0], ['FETCH', 'COPY', 'STORE', 'SEARCH'], False) of
+      0: // FETCH   {Do not Localize}
+        begin
+          if (not Assigned(OnDefMechGetMessageHeader))  //Used by ProcessFetch
+            or (not Assigned(OnDefMechGetMessageSize))
+            or (not Assigned(OnDefMechGetMessageRaw)) then
+          begin
+            SendUnassignedDefaultMechanism(ASender);
+            Exit;
+          end;
+          LParams.Delete(0);
+          ProcessFetch(True, ASender, LParams);
+        end;
+      1: // COPY   {Do not Localize}
+        begin
+          if (not Assigned(OnDefMechReinterpretParamAsMailBox))
+            or (not Assigned(OnDefMechCopyMessage)) then   //Needed for ProcessCopy
+          begin
+            SendUnassignedDefaultMechanism(ASender);
+            Exit;
+          end;
+          LParams.Delete(0);
+          ProcessCopy(True, ASender, LParams);
+        end;
+      2: // STORE   {Do not Localize}
+        begin
+	  LParams.Delete(0);
+          ProcessStore(True, ASender, LParams);
+        end;
+      3: // SEARCH   {Do not Localize}
+        begin
+          if not Assigned(OnDefMechGetMessageHeader) then begin  //Used by ProcessSearch
+            SendUnassignedDefaultMechanism(ASender);
+            Exit;
+          end;
+	  LParams.Delete(0);
+          ProcessSearch(True, ASender, LParams);
+        end;
+    else
+      begin
+        SendUnsupportedCommand(ASender);
+      end;
+    end;
+  finally
+    Sys.FreeAndNil(LParams);
   end;
 end;
 
 procedure TIdIMAP4Server.DoCommandX(ASender: TIdCommand);
 begin
-  if Assigned(fOnCommandX) then begin
+  if not Assigned(fOnCommandX) then begin
     OnCommandX(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
   end else if FUseDefaultMechanismsForUnassignedCommands then begin
     SendUnsupportedCommand(ASender);
@@ -2423,20 +2628,21 @@ begin
 end;
 
 procedure TIdIMAP4Server.DoCommandSTARTTLS(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
+var
+  LContext: TIdIMAP4PeerContext;
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (FUseTLS in ExplicitTLSVals) then begin
-    if TIdIMAP4PeerContext(ASender.Context).UsingTLS then begin // we are already using TLS
-      DoSendReply(ASender.Context, Sys.Format('BAD %s', [RSIMAP4SvrNotPermittedWithTLS])); {do not localize}
-      Exit;
-    end;
-    // TODO: STARTTLS may only be issued in auth-state
-    DoSendReply(ASender.Context, Sys.Format('OK %s', [RSIMAP4SvrBeginTLSNegotiation]));  {do not localize}
-    LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-    LIO.Passthrough := False;
-  end else begin
-    OnCommandError(ASender.Context, TIdIMAP4PeerContext(ASender.Context).TagData.IMAP4Tag, ASender.UnparsedParams);
+  LContext := TIdIMAP4PeerContext(ASender.Context);
+  if (not (IOHandler is TIdServerIOHandlerSSLBase)) or (not (FUseTLS in ExplicitTLSVals)) then begin
+    OnCommandError(ASender.Context, LContext.TagData.IMAP4Tag, ASender.UnparsedParams);
+    Exit;
   end;
+  if LContext.UsingTLS then begin // we are already using TLS
+    DoSendReply(ASender.Context, 'BAD %s', [RSIMAP4SvrNotPermittedWithTLS]); {do not localize}
+    Exit;
+  end;
+  // TODO: STARTTLS may only be issued in auth-state
+  DoSendReply(ASender.Context, 'OK %s', [RSIMAP4SvrBeginTLSNegotiation]);  {do not localize}
+  (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).Passthrough := False;
 end;
 
 end.
