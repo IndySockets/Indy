@@ -70,7 +70,7 @@
   Rev 1.9    2003.10.18 9:42:14 PM  czhower
   Boatload of bug fixes to command handlers.
 
-  Rev 1.8    10/17/2003 12:58:54 AM  DSiders
+    Rev 1.8    10/17/2003 12:58:54 AM  DSiders
   Added localization comments.
 
   Rev 1.7    2003.09.20 10:38:42 AM  czhower
@@ -79,7 +79,7 @@
   Rev 1.6    6/5/2003 04:54:24 AM  JPMugaas
   Reworkings and minor changes for new Reply exception framework.
 
-  Rev 1.5    5/30/2003 8:46:28 PM  BGooijen
+    Rev 1.5    5/30/2003 8:46:28 PM  BGooijen
 
   Rev 1.4    5/26/2003 12:22:08 PM  JPMugaas
 
@@ -146,7 +146,7 @@ type
     procedure SetFormattedReply(const AValue: TIdStrings); override;
   public
     constructor Create(ACollection: TIdCollection); overload; override;
-    constructor Create( ACollection: TIdCollection; AReplyTexts: TIdReplies ); overload; override;
+    constructor Create(ACollection: TIdCollection; AReplyTexts: TIdReplies); overload; override;
     destructor Destroy; override;
     procedure RaiseReplyError; override;
     procedure SetEnhReply(const ANumericCode : Integer; const AEnhReply, AText : String);
@@ -320,7 +320,8 @@ uses
 { TIdSMTPEnhancedCode }
 
 procedure TIdSMTPEnhancedCode.AssignTo(ADest: TIdPersistent);
-var LE : TIdSMTPEnhancedCode;
+var
+  LE : TIdSMTPEnhancedCode;
 begin
   if ADest is TIdSMTPEnhancedCode then
   begin
@@ -330,13 +331,13 @@ begin
     LE.Details := FDetails;
     LE.Available := FAvailable;
   end else begin
-    inherited;
+    inherited AssignTo(ADest);
   end;
 end;
 
 constructor TIdSMTPEnhancedCode.Create;
 begin
-  inherited;
+  inherited Create;
   FStatusClass := CLASS_DEF;
   FSubject := NODETAILS;
   FDetails := NODETAILS;
@@ -346,8 +347,7 @@ end;
 function TIdSMTPEnhancedCode.GetReplyAsStr: String;
 begin
   Result := '';
-  if Available then
-  begin
+  if Available then begin
     Result := Copy(Sys.IntToStr(FStatusClass),1,1)+PARTSEP+
       Copy(Sys.IntToStr(FSubject),1,3)+PARTSEP+
       Copy(Sys.IntToStr(FDetails),1,3);
@@ -393,8 +393,7 @@ var
   LBuf: string;
   LValidPart: string;
 begin
-  EIdSMTPReplyInvalidReplyString.IfFalse(IsValidReplyCode(AText)
-   , RSSMTPReplyInvalidReplyStr);
+  EIdSMTPReplyInvalidReplyString.IfFalse(IsValidReplyCode(AText), RSSMTPReplyInvalidReplyStr);
   LBuf := AText;
   LBuf := Fetch(LBuf);
   if LBuf <> '' then begin
@@ -414,30 +413,24 @@ end;
 
 procedure TIdSMTPEnhancedCode.SetStatusClass(const AValue: Cardinal);
 begin
-  if AValue in ValidClassVals then
-  begin
-    FStatusClass := AValue;
-  end
-  else
-  begin
-    raise EIdSMTPReplyInvalidClass.Create(RSSMTPReplyInvalidClass);
-  end;
+  EIdSMTPReplyInvalidClass.IfFalse(AValue in ValidClassVals, RSSMTPReplyInvalidClass);
+  FStatusClass := AValue;
 end;
 
 { TIdReplySMTP }
 
 procedure TIdReplySMTP.AssignTo(ADest: TIdPersistent);
-var LS : TIdReplySMTP;
+var
+  LS : TIdReplySMTP;
 begin
-  if ADest is TIdReplySMTP then
-  begin
-    LS := ADest as TIdReplySMTP;
+  if ADest is TIdReplySMTP then begin
+    LS := TIdReplySMTP(ADest);
     //set code first as it possibly clears the reply
-    LS.Code := FCode;
-    LS.EnhancedCode := FEnhancedCode;
-    LS.Text.Assign(FText);
+    LS.Code := Code;
+    LS.EnhancedCode := EnhancedCode;
+    LS.Text.Assign(Text);
   end else begin
-    inherited;
+    inherited AssignTo(ADest);
   end;
 end;
 
@@ -447,7 +440,7 @@ begin
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
 end;
 
-constructor TIdReplySMTP.Create( ACollection: TIdCollection; AReplyTexts: TIdReplies );
+constructor TIdReplySMTP.Create(ACollection: TIdCollection; AReplyTexts: TIdReplies);
 begin
   inherited Create(ACollection, AReplyTexts);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
@@ -462,42 +455,35 @@ end;
 function TIdReplySMTP.GetFormattedReply: TIdStrings;
 var
   i: Integer;
+  LCode: String;
 begin
   Result := GetFormattedReplyStrings;
 {  JP here read from Items and format according to the reply, in this case RFC
   and put it into FFormattedReply   }
 
   if NumericCode > 0 then begin
+    LCode := Sys.IntToStr(NumericCode);
     if FText.Count > 0 then begin
       for i := 0 to FText.Count - 1 do begin
         if i < FText.Count - 1 then begin
-          if EnhancedCode.Available then
-          begin
-            Result.Add( Sys.IntToStr(NumericCode) + '-' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
-          end
-          else
-          begin
-            Result.Add( Sys.IntToStr(NumericCode) + '-' + FText[i]);
+          if EnhancedCode.Available then begin
+            Result.Add(LCode + '-' + EnhancedCode.ReplyAsStr + ' ' + FText[i]);
+          end else begin
+            Result.Add(LCode + '-' + FText[i]);
           end;
         end else begin
-          if EnhancedCode.Available then
-          begin
-            Result.Add( Sys.IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr +' '+ FText[i]);
-          end
-          else
-          begin
-            Result.Add( Sys.IntToStr(NumericCode) + ' ' + FText[i]);
+          if EnhancedCode.Available then begin
+            Result.Add(LCode + ' ' + EnhancedCode.ReplyAsStr + ' ' + FText[i]);
+          end else begin
+            Result.Add(LCode + ' ' + FText[i]);
           end;
         end;
       end;
     end else begin
-      if EnhancedCode.Available then
-      begin
-        Result.Add( Sys.IntToStr(NumericCode) + ' ' + EnhancedCode.ReplyAsStr);
-      end
-      else
-      begin
-        Result.Add( Sys.IntToStr(NumericCode));
+      if EnhancedCode.Available then begin
+        Result.Add(LCode + ' ' + EnhancedCode.ReplyAsStr);
+      end else begin
+        Result.Add(LCode);
       end;
     end;
   end else if FText.Count > 0 then begin
@@ -507,7 +493,7 @@ end;
 
 procedure TIdReplySMTP.RaiseReplyError;
 begin
-  raise EIdSMTPReplyError.CreateError(NumericCode,FEnhancedCode,Text.Text);
+  raise EIdSMTPReplyError.CreateError(NumericCode, FEnhancedCode, Text.Text);
 end;
 
 procedure TIdReplySMTP.SetEnhancedCode(AValue: TIdSMTPEnhancedCode);
@@ -518,7 +504,7 @@ end;
 procedure TIdReplySMTP.SetEnhReply(const ANumericCode: Integer;
   const AEnhReply, AText: String);
 begin
-  inherited SetReply(ANumericCode,AText);
+  inherited SetReply(ANumericCode, AText);
   FEnhancedCode.ReplyAsStr := AEnhReply;
 end;
 
@@ -540,11 +526,10 @@ begin
     Code := s;
     for i := 0 to AValue.Count - 1 do begin
       s := Copy(AValue[i], 5, MaxInt);
-      if FEnhancedCode.IsValidReplyCode(Fetch(s,' ',False)) then
-      begin
+      if FEnhancedCode.IsValidReplyCode(Fetch(s, ' ', False)) then begin
         FEnhancedCode.ReplyAsStr := Fetch(s);
       end;
-      Text.Add(S);
+      Text.Add(s);
     end;
   end;
 end;
@@ -569,7 +554,7 @@ end;
 destructor EIdSMTPReplyError.Destroy;
 begin
   Sys.FreeAndNil(FEnhancedCode);
-  inherited;
+  inherited Destroy;
 end;
 
 end.
