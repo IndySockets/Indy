@@ -43,9 +43,9 @@ type
     FOnSent: TLogItemDataEvent;
     FOnStatus: TLogItemStatusEvent;
     //
-    procedure LogStatus(AText: string); override;
-    procedure LogReceivedData(AText: string; AData: string); override;
-    procedure LogSentData(AText: string; AData: string); override;
+    procedure LogStatus(const AText: string); override;
+    procedure LogReceivedData(const AText, AData: string); override;
+    procedure LogSentData(const AText, AData: string); override;
   public
   published
     property OnReceived: TLogItemDataEvent read FOnReceived write FOnReceived;
@@ -57,21 +57,21 @@ implementation
 
 { TIdLogEvent }
 
-procedure TIdLogEvent.LogReceivedData(AText, AData: string);
+procedure TIdLogEvent.LogReceivedData(const AText, AData: string);
 begin
   if Assigned(OnReceived) then begin
     OnReceived(Self, AText, AData);
   end;
 end;
 
-procedure TIdLogEvent.LogSentData(AText, AData: string);
+procedure TIdLogEvent.LogSentData(const AText, AData: string);
 begin
   if Assigned(OnSent) then begin
     OnSent(Self, AText, AData);
   end;
 end;
 
-procedure TIdLogEvent.LogStatus(AText: string);
+procedure TIdLogEvent.LogStatus(const AText: string);
 begin
   if Assigned(OnStatus) then begin
     OnStatus(Self, AText);

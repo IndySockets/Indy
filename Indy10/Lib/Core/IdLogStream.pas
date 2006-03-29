@@ -49,9 +49,9 @@ type
     FSendStream: TIdStream;
     //
     procedure InitComponent; override;
-    procedure LogStatus(AText: string); override;
-    procedure LogReceivedData(AText: string; AData: string); override;
-    procedure LogSentData(AText: string; AData: string); override;
+    procedure LogStatus(const AText: string); override;
+    procedure LogReceivedData(const AText, AData: string); override;
+    procedure LogSentData(const AText, AData: string); override;
   public
     procedure Disconnect; override;
     //
@@ -86,21 +86,21 @@ begin
   FFreeStreams := True;
 end;
 
-procedure TIdLogStream.LogReceivedData(AText, AData: string);
+procedure TIdLogStream.LogReceivedData(const AText, AData: string);
 begin
   if FReceiveStream <> nil then begin
     WriteStringToStream(FReceiveStream, AData);
   end;
 end;
 
-procedure TIdLogStream.LogSentData(AText, AData: string);
+procedure TIdLogStream.LogSentData(const AText, AData: string);
 begin
   if FSendStream <> nil then begin
     WriteStringToStream(FSendStream, AData);
   end;
 end;
 
-procedure TIdLogStream.LogStatus(AText: string);
+procedure TIdLogStream.LogStatus(const AText: string);
 begin
   // We just leave this empty because the AText is not part of the stream and we
   // do not want to raise an abstract method exception.

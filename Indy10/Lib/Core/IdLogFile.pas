@@ -71,9 +71,9 @@ type
     FFileStream: TIdStream;
     //
     procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
-    procedure LogReceivedData(AText: string; AData: string); override;
-    procedure LogSentData(AText: string; AData: string); override;
-    procedure LogStatus(AText: string); override;
+    procedure LogReceivedData(const AText, AData: string); override;
+    procedure LogSentData(const AText, AData: string); override;
+    procedure LogStatus(const AText: string); override;
     procedure LogWriteString(AText: string); virtual;
     //
     procedure SetFilename(AFilename: String);
@@ -96,17 +96,17 @@ begin
   Sys.FreeAndNil(FFileStream);
 end;
 
-procedure TIdLogFile.LogReceivedData(AText, AData: string);
+procedure TIdLogFile.LogReceivedData(const AText, AData: string);
 begin
   LogWriteString(RSLogRecv + AText + ': ' + AData + EOL);  {Do not translate}
 end;
 
-procedure TIdLogFile.LogSentData(AText, AData: string);
+procedure TIdLogFile.LogSentData(const AText, AData: string);
 begin
   LogWriteString(RSLogSent + AText + ': ' + AData + EOL);  {Do not translate}
 end;
 
-procedure TIdLogFile.LogStatus(AText: string);
+procedure TIdLogFile.LogStatus(const AText: string);
 begin
   LogWriteString(RSLogStat + AText + EOL);
 end;

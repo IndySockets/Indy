@@ -41,9 +41,9 @@ uses
 type
   TIdLogDebug = class(TIdLogBase)
   protected
-    procedure LogStatus(AText: string); override;
-    procedure LogReceivedData(AText: string; AData: string); override;
-    procedure LogSentData(AText: string; AData: string); override;
+    procedure LogStatus(const AText: string); override;
+    procedure LogReceivedData(const AText, AData: string); override;
+    procedure LogSentData(const AText, AData: string); override;
   end;
 
 implementation
@@ -53,17 +53,17 @@ uses
 
 { TIdLogDebug }
 
-procedure TIdLogDebug.LogReceivedData(AText, AData: string);
+procedure TIdLogDebug.LogReceivedData(const AText, AData: string);
 begin
   DebugOutput('Recv ' + AText + ': ' + AData);    {Do not Localize}
 end;
 
-procedure TIdLogDebug.LogSentData(AText, AData: string);
+procedure TIdLogDebug.LogSentData(const AText, AData: string);
 begin
   DebugOutput('Sent ' + AText + ': ' + AData);    {Do not Localize}
 end;
 
-procedure TIdLogDebug.LogStatus(AText: string);
+procedure TIdLogDebug.LogStatus(const AText: string);
 begin
   DebugOutput('Stat ' + AText);    {Do not Localize}
 end;
