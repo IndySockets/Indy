@@ -3261,7 +3261,6 @@ function TIdFTP.IsSiteZONESupported: Boolean;
 var
   LFacts : TIdStrings;
   i : Integer;
-  LBuf : String;
 begin
   Result := False;
   if IsServerMDTZAndListTForm then begin
