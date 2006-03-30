@@ -1557,6 +1557,7 @@ Indy10/Test/Protocols/IdTestSHA1Hash.pas -text
 Indy10/Test/Protocols/IdTestSMTPServer.pas -text
 Indy10/Test/Protocols/IdTestTrivialFTP.pas -text
 Indy10/Test/Protocols/IdTestVCard.pas -text
+Indy10/Test/Protocols/IdTestWhois.pas -text
 Indy10/Test/ReadMe.txt -text svneol=native#unset
 Indy10/Test/System/IdTestBaseComponent.pas -text
 Indy10/Test/System/IdTestGlobal.pas -text
