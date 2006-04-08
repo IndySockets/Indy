@@ -152,11 +152,11 @@ var
   TempBuff: TIdBytes;
   BytesRead: Integer;
 begin
-  i := ACount;
+  i := 0;
   TempArray := ArrayList.Create;
   while i < ACount do
   begin
-    TempBytesToRead := Math.Min(50, ACount - 1);
+    TempBytesToRead := Math.Min(50, ACount);
     TempBuff := ToBytes(System.&String.Create(#0, TempBytesToRead));
     if CanRead then
     begin

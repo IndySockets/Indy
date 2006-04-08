@@ -283,7 +283,7 @@ begin
       FTlsStream := SslClientStream.Create(FCarrierStream, URIToCheck, true, FOptions.Protocol, FOptions.CertificateCollection);
       GC.SuppressFinalize(FTlsStream);
       FActiveStream := FTlsStream;
-      FTlsStream.Read(TempBuff, 0, 0);
+//      FTlsStream.Read(TempBuff, 0, 0);
     end;
   end;
 end;

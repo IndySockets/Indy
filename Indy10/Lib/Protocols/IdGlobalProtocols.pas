@@ -1819,7 +1819,7 @@ begin
           LNum := LNum + AText[i];
           if Sys.StrToInt('$'+LNum, 0) > $FF  then begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(StrToIntDef(LNum,0));
+            Result := Result + Char(Sys.StrToInt(LNum,0));
             LR := Data;
             Result := Result + AText[i];
           end;

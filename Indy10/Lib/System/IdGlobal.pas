@@ -2591,7 +2591,7 @@ var
 begin
   {$IFDEF DOTNET}
   LChars[0] := AValue;
-  LChars[1] := 0;
+  LChars[1] := Char(0);
   SetLength(Result, 1);
   System.array.Copy(System.Text.Encoding.ASCII.GetBytes(LChars), 0, Result, 0, 1);
   {$ELSE}
@@ -2742,7 +2742,7 @@ begin
   {$IFDEF DotNet}
   //there is possibly a nicer way to do this
   //ToChar requires a 2-byte array
-  SetLength(aBytes, 2);
+  SetLength(LBytes, 2);
   LBytes[0] := AValue[0];
   LBytes[1] := 0;
 
