@@ -678,6 +678,8 @@ var
 { TIdIOHandler }
 
 procedure TIdIOHandler.Close;
+//do not do FInputBuffer.Clear; here.
+//it breaks reading when remote connection does a disconnect 
 begin
   try
     if Intercept <> nil then begin
@@ -685,7 +687,6 @@ begin
     end;
   finally
     FOpened := False;
-    FInputBuffer.Clear;
     WriteBufferClear;
   end;
 end;
