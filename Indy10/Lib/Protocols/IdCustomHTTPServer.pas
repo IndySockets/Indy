@@ -1483,6 +1483,8 @@ var
 begin
   // S.G. 24/11/00: Added a way to force a session purge (Used when thread is terminated)
   // Get necessary data
+  Assert(SessionList<>nil);
+
   aSessionList := SessionList.LockList;
   try
     // Loop though the sessions.
