@@ -1324,6 +1324,7 @@ begin
   if not Assigned(ARequest.Authentication) then
   begin
     // Find wich Authentication method is supported from us.
+    Auth := nil;
     for i := 0 to AResponse.WWWAuthenticate.Count - 1 do
     begin
       S := AResponse.WWWAuthenticate[i];
@@ -1414,22 +1415,19 @@ begin
   if not Assigned(ProxyParams.Authentication) then
   begin
     // Find which Authentication method is supported from us.
-    i := 0;
-    while i < AResponse.ProxyAuthenticate.Count do
+    Auth := nil;
+    for i := 0 to AResponse.ProxyAuthenticate.Count-1 do
     begin
       S := AResponse.ProxyAuthenticate[i];
-      try
-        Auth := FindAuthClass(Fetch(S));
-        break;
-      except
-      end;
-      inc(i);
+      S := Fetch(S);
+      Auth := FindAuthClass(S);
+      if Auth<>nil then Break;
     end;
 
-    if i = AResponse.ProxyAuthenticate.Count then
+    if Auth=nil then
     begin
-      result := false;
-      exit;
+      Result := False;
+      Exit;
     end;
 
     if Assigned(FOnSelectProxyAuthorization) then
