@@ -32,7 +32,12 @@ uses
   System.Security.Cryptography.X509Certificates, Mono.Security.Protocol.Tls,
   IdSSL, IdCarrierStream, IdSocketStream, IdGlobal, IdTlsClientOptions;
 
+{$AUTOBOX ON}
+{$HINTS OFF}
+{$WARNINGS OFF}
+
 type
+  TArrayOfInteger = array of Int32;
   TIdIOHandlerTls = class(TIdSSLIOHandlerSocketBase)
   protected
     FOptions: TIdTlsClientOptions;
@@ -41,8 +46,6 @@ type
     FSocketStream: TIdSocketStream;
     FActiveStream: Stream;
     FOnValidateCertificate: CertificateValidationCallback;
-    function CertificateValidation(ACertificate: X509Certificate; ACertificateErrors: array of integer) : Boolean;
-    procedure ShowCertificateError(AError: Integer);
     procedure InitComponent; override;
     function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer; ARaiseExceptionOnTimeOut: Boolean) : Integer; override;
     procedure SetPassThrough(const AValue: Boolean); override;
@@ -72,6 +75,11 @@ procedure TIdIOHandlerTls.SetOnValidateCertificate(
   const Value: CertificateValidationCallback);
 begin
   FOnValidateCertificate := Value;
+
+  if FTlsStream <> nil then
+  begin
+    FTlsStream.ServerCertValidationDelegate := Value;
+  end;
 end;
 
 procedure TIdIOHandlerTls.SetOptions(const Value: TIdTlsClientOptions);
@@ -104,26 +112,6 @@ procedure TIdIOHandlerTls.InitComponent;
 begin
   inherited;
 	FOptions := TIdTlsClientOptions.Create;
-end;
-
-procedure TIdIOHandlerTls.ShowCertificateError(AError: Integer);
-var
-  TempString : string;
-begin
-  TempString := '';
-  case AError of
-    -2146762490: TempString := 'CERT_E_PURPOSE 0x800B0106';
-    -2146762481: TempString := 'CERT_E_CN_NO_MATCH 0x800B010F';
-    -2146869223: TempString := 'TRUST_E_BASIC_CONSTRAINTS 0x80096019';
-    -2146869232: TempString := 'TRUST_E_BAD_DIGEST 0x80096010';
-    -2146762494: TempString := 'CERT_E_VALIDITYPERIODNESTING 0x800B0102';
-    -2146762495: TempString := 'CERT_E_EXPIRED 0x800B0101';
-    -2146762486: TempString := 'CERT_E_CHAINING 0x800B010A';
-    -2146762487: TempString := 'CERT_E_UNTRUSTEDROOT 0x800B0109';
-  else
-    TempString := 'Unknown (try WinError.h)';
-  end;
-  Console.WriteLine('Certificate Validation Error: {0}', TempString);
 end;
 
 procedure TIdIOHandlerTls.StartSSL;
@@ -281,32 +269,11 @@ begin
     else
     begin
       FTlsStream := SslClientStream.Create(FCarrierStream, URIToCheck, true, FOptions.Protocol, FOptions.CertificateCollection);
+      FTlsStream.ServerCertValidationDelegate := FOnValidateCertificate;
       GC.SuppressFinalize(FTlsStream);
       FActiveStream := FTlsStream;
 //      FTlsStream.Read(TempBuff, 0, 0);
     end;
-  end;
-end;
-
-function TIdIOHandlerTls.CertificateValidation(ACertificate: X509Certificate;
-  ACertificateErrors: array of integer): Boolean;
-var
-  LError: Integer;
-begin
-  if Assigned(FOnValidateCertificate) then
-  begin
-    Result := FOnValidateCertificate(ACertificate, ACertificateErrors);
-  end
-  else
-  begin
-    if Length(ACertificateErrors) > 0 then
-    begin
-      for LError in ACertificateErrors do
-      begin
-        ShowCertificateError(LError);
-      end;
-    end;
-    Result := True;
   end;
 end;
 

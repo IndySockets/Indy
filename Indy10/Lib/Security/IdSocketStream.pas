@@ -109,7 +109,15 @@ end;
 procedure TIdSocketStream.Write(ABuffer: array of byte; AOffset,
   ACount: Integer);
 begin
+try
   GStack.Send(FInternalSocket, ABuffer, AOffset, ACount);
+except
+  on E: Exception do
+  begin
+    Console.WriteLine('TIdSocketStream.Write: ' + E.ToString);
+    raise;
+  end;
+end;
 end;
 
 function TIdSocketStream.ReadByte: Integer;
@@ -152,11 +160,12 @@ var
   TempBuff: TIdBytes;
   BytesRead: Integer;
 begin
+try
   i := 0;
   TempArray := ArrayList.Create;
   while i < ACount do
   begin
-    TempBytesToRead := Math.Min(50, ACount);
+    TempBytesToRead := Math.Min(50, ACount - i);
     TempBuff := ToBytes(System.&String.Create(#0, TempBytesToRead));
     if CanRead then
     begin
@@ -175,6 +184,14 @@ begin
       Break;
   end;
   Result := i;
+except
+  on E: Exception do
+  begin
+    Console.WriteLine('Exception "{0}". I = {1}, BytesRead = {2}, AOffset = {3}, ACount = {4}, TempBytesToRead = {5}',
+		[E.GetType().FullName + ': ' + E.Message, I, BytesRead, AOffset, ACount, TempBytesToRead]);
+    raise;
+  end;
+end;
 end;
 
 destructor TIdSocketStream.Destroy;
