@@ -31,7 +31,7 @@
   Rev 1.9    08.11.2003 20:03:20  ARybin
   run-time active bug
 
-  Rev 1.8    10/15/2003 8:48:58 PM  DSiders
+    Rev 1.8    10/15/2003 8:48:58 PM  DSiders
   Added resource strings for exceptions raised when setting thread component
   properties.
 
@@ -72,12 +72,12 @@
 unit IdThreadComponent;
 
 {
-  UnitName: IdThreadComponent
-  Author:   Andrew P.Rybin [magicode@mail.ru]
-  Creation: 12.03.2002
-  Version:  0.1.0
-  Purpose:
-  History:  Based on my TmcThread
+ UnitName: IdThreadComponent
+ Author:   Andrew P.Rybin [magicode@mail.ru]
+ Creation: 12.03.2002
+ Version:  0.1.0
+ Purpose:
+ History:  Based on my TmcThread
 }
 
 interface
@@ -311,7 +311,7 @@ begin
     FThread.Terminate;
     FThread.Start;//resume for terminate
   end;
-  Sys.FreeAndNIL(FThread);
+  Sys.FreeAndNil(FThread);
   inherited Destroy;
 end;
 
@@ -426,8 +426,7 @@ end;
 
 procedure TIdThreadComponent.SetActive(const AValue: Boolean);
 begin
-  if (not IsDesignTime)
-   and (not IsLoading) then begin
+  if (not IsDesignTime) and (not IsLoading) then begin
     if Active <> AValue then begin
       if AValue then begin
         Start;
@@ -461,20 +460,28 @@ end;
 
 procedure TIdThreadComponent.Start;
 begin
-  if NOT IsDesignTime then begin
+  if not IsDesignTime then begin
     if Assigned(FThread) and FThread.Terminated then begin
-      Sys.FreeAndNIL(FThread);
+      Sys.FreeAndNil(FThread);
     end;
 
-    if NOT Assigned(FThread) then begin
-      FThread := TIdThreadEx.Create(SELF);
+    if not Assigned(FThread) then begin
+      FThread := TIdThreadEx.Create(Self);
     end;
 
     // MUST read from F variants as thread is now created
+
+    if Assigned(FOnTerminate) then begin
+      FThread.OnTerminate := DoTerminate;
+    end else begin
+      FThread.OnTerminate := nil;
+    end;
+
     FThread.Name := FThreadName;
     FThread.Loop := FLoop;
     FThread.Priority := FPriority;
     FThread.StopMode := FStopMode;
+
     FThread.Start;
   end;
 end;
