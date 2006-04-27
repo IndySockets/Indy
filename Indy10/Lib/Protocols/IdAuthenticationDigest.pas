@@ -113,12 +113,9 @@ function TIdDigestAuthentication.Authentication: String;
     CopyTIdLongWord(MDValue[2], LHash, 8);
     CopyTIdLongWord(MDValue[3], LHash, 12);
     for i := 0 to 15 do begin
-      S1 := S1 + Sys.Format('%02x', [LHash[i]]);
+      S1 := S1 + Sys.Format('%02x', [LHash[i]]);  {do not localize}
     end;
-    while Pos(' ', S1) > 0 do begin
-      S1[Pos(' ', S1)] := '0';
-    end;
-    Result := IndyLowerCase(S1); //Stupid uppercase, cost me a whole day to figure this one out
+    Result := Sys.LowerCase(Sys.StringReplace(S1, ' ', '0')); //Stupid uppercase, cost me a whole day to figure this one out
   end;
 
 var
@@ -172,8 +169,10 @@ begin
           Result := Result + 'nc=' + Sys.IntToHex(FNoncecount, 8) + ', ' +
             'cnonce="' + LstrCNonce + '", ';
         end;
-        Result := Result + 'response="' + LstrResponse + '", ' +
-          'opaque="' + FOpaque + '"';
+        Result := Result + 'response="' + LstrResponse + '"';
+        if FOpaque <> '' then begin
+          Result := Result + ', opaque="' + FOpaque + '"';
+        end;
         Inc(FNoncecount);
         FCurrentStep := 0;
       end;
@@ -243,8 +242,8 @@ begin
             FDomain.Add(Fetch(S));
           end;
 
-          Fopaque := LParams.Values['opaque'];
-          FStale := IndyCompareStr(LParams.Values['stale'], 'True') = 1;
+          FOpaque := LParams.Values['opaque'];
+          FStale := TextIsSame(LParams.Values['stale'], 'True');
           FAlgorithm := LParams.Values['algorithm'];
           FQopOptions.CommaText := Params.Values['qop'];
 
