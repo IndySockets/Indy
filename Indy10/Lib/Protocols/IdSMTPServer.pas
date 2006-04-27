@@ -418,8 +418,7 @@ begin
   LCmd := CommandHandlers.Add;
   // STARTTLS <CRLF>
   LCmd.Command := 'STARTTLS';    {Do not Localize}
-  SetEnhReply(LCmd.NormalReply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS,
-      False);
+  SetEnhReply(LCmd.NormalReply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, False);
   LCmd.OnCommand := CommandStartTLS;
 end;
 
@@ -815,7 +814,6 @@ end;
 
 procedure TIdSMTPServer.CommandSTARTTLS(ASender: TIdCommand);
 var
-  LIO : TIdSSLIOHandlerSocketBase;
   LContext : TIdSMTPServerContext;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
@@ -824,17 +822,16 @@ begin
       BadSequenceError(ASender);
       Exit;
     end;
-    SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS,
-      LContext.EHLO);
     LContext.PipeLining := False;
-    LIO := TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler);
-    LIO.PassThrough := False;
     LContext.SMTPState := idSMTPNone; // to reset the state
     LContext.HELO := False;           //
     LContext.EHLO := False;           //
     LContext.Username := '';        //
     LContext.Password := '';         //
     LContext.LoggedIn := False;       //
+    SetEnhReply(ASender.Reply, 220, Id_EHR_GENERIC_OK, RSSMTPSvrReadyForTLS, LContext.EHLO);
+    ASender.SendReply;
+    TIdSSLIOHandlerSocketBase(LContext.Connection.IOHandler).PassThrough := False;
   end else begin
     CmdSyntaxError(ASender);
     LContext.PipeLining := False;
