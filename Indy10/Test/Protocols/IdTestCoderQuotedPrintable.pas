@@ -7,6 +7,7 @@ interface
 uses
   IdCoder,
   IdCoderQuotedPrintable,
+  IdObjs,
   IdStack,
   IdStream,
   IdTest,
@@ -35,8 +36,24 @@ function TIdTestCoderQuotedPrintable.EncDec;
 var
  aEnc,aDec:string;
  aExpect:string;
+ aList:TIdStringList;
+ i:Integer;
 begin
  aEnc:=EncodeString(TIdEncoderQuotedPrintable,aStr);
+
+ //check that no lines start with a .
+ aList:=TIdStringList.Create;
+ try
+ aList.Text:=aEnc;
+ for i:=0 to aList.Count-1 do
+  begin
+  if aList[i]='' then Continue;
+  if aList[i][1]='.' then Assert(False,aList[i]);
+  end;
+ finally
+ Sys.FreeAndNil(aList);
+ end;
+
  aDec:=DecodeString(TIdDecoderQuotedPrintable,aEnc);
 
  //seems that it adds a crlf if not already there
@@ -67,6 +84,15 @@ begin
  Assert(EncDec('.test.'));
 
  Assert(EncDec('.line1.'#13#10'.line2.'));
+
+ s:=EncodeString(TIdEncoderQuotedPrintable,'abc   ');
+ Assert(s='abc  =20'#13#10);
+
+ s:=EncodeString(TIdEncoderQuotedPrintable,'...');
+ Assert(s='=2E..'#13#10);
+
+ s:='123456789 123456789 123456789 123456789 123456789 123456789 123456789 .23456789';
+ Assert(EncDec(s));
 
 end;
 
