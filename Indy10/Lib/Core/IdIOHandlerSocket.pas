@@ -175,6 +175,7 @@ type
     FOnSocketAllocated: TIdNotifyEvent;
     FTransparentProxy: TIdCustomTransparentProxy;
     FUseNagle: Boolean;
+    FReuseSocket: TIdReuseSocket;
     FIPVersion: TIdIPVersion;
     //
     procedure ConnectClient; virtual;
@@ -205,14 +206,15 @@ type
     property BoundPortMax: Integer read FBoundPortMax write FBoundPortMax;
     property BoundPortMin: Integer read FBoundPortMin write FBoundPortMin;
     // events
-    property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
-    property OnAfterBind:TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
-    property OnSocketAllocated:TIdNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
+    property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnSocketAllocated: TIdNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
   published
     property BoundIP: string read FBoundIP write FBoundIP;
     property BoundPort: Integer read FBoundPort write FBoundPort default 0;
     property DefaultPort: integer read FDefaultPort write FDefaultPort;
     property IPVersion: TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
+    property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
     property TransparentProxy: TIdCustomTransparentProxy
              read GetTransparentProxy write SetTransparentProxy;
     property UseNagle: boolean read FUseNagle write SetUseNagle default True;
@@ -250,6 +252,10 @@ begin
     Port := BoundPort;
     ClientPortMin := BoundPortMin;
     ClientPortMax := BoundPortMax;
+    // Turn on Reuse if specified
+    if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+    end;
     Bind;
     // Turn off Nagle if specified
     SetNagleOpt(UseNagle);
