@@ -1386,7 +1386,7 @@ begin
         if (ch < $80) and (b64Table[ch] <> $ff) then begin
           result := result + aString[x];
         end else begin
-          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);      {do not localize}
+          raise EMUTF7Decode.Create(Sys.Format('Illegal char #%d in UTF7 sequence.', [ch]));      {do not localize}
         end;
       end;
     end else begin // we're escaped
@@ -1404,7 +1404,7 @@ begin
       end else begin // escaped
         // check range for ch: must be < 128 and in b64table
         if (ch >= $80) or (b64Index[ch] = -1) then begin
-          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);      {do not localize}
+          raise EMUTF7Decode.Create(Sys.Format('Illegal char #%d in UTF7 sequence.', [ch]));      {do not localize}
         end;
         ch := b64Index[ch];
         if (bitShift > 0) then begin
@@ -1417,7 +1417,7 @@ begin
           // us ASCII in encoded string?
           if (c >= $20) and (c < $7f) then begin // what is with '&'? -> not allowed!
             // must be encoded "&-"
-            raise EMUTF7Decode.CreateFmt('US-ASCII char #%d in UTF7 sequence.', [c]);    {do not localize}
+            raise EMUTF7Decode.Create(Sys.Format('US-ASCII char #%d in UTF7 sequence.', [c]));    {do not localize}
           end;
           result := result + char(c);
           bitBuf := (ch shl (16 + bitShift)) and $ffff;
@@ -1529,7 +1529,7 @@ begin
       end;
     end;
   end;
-  raise EIdConnectionStateError.CreateFmt(RSIMAP4ConnectionStateError, [GetConnectionStateName]);
+  raise EIdConnectionStateError.Create(Sys.Format(RSIMAP4ConnectionStateError, [GetConnectionStateName]));
 end;
 
 function TIdIMAP4.FindHowServerCreatesFolders: TIdIMAP4FolderTreatment;
