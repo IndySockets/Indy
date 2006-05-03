@@ -159,6 +159,7 @@ type
     //
     FOnBeforeBind: TIdNotifyEvent;
     FOnAfterBind: TIdNotifyEvent;
+    FOnSocketAllocated: TIdNotifyEvent;
     //
     procedure DoOnConnected; virtual;
     function MakeImplicitClientHandler: TIdIOHandler; virtual;
@@ -175,6 +176,7 @@ type
     //
     procedure SetOnBeforeBind(const AValue: TIdNotifyEvent);
     procedure SetOnAfterBind(const AValue: TIdNotifyEvent);
+    procedure SetOnSocketAllocated(const AValue: TIdNotifyEvent);
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
     procedure InitComponent; override;
@@ -203,8 +205,10 @@ type
     //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
-    property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
-    property OnAfterBind:TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
+    //
+    property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
+    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
+    property OnSocketAllocated: TIdNotifyEvent read FOnSocketAllocated write SetOnSocketAllocated;
     //
   published
     property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
@@ -222,6 +226,7 @@ type
 
     property OnBeforeBind;
     property OnAfterBind;
+    property OnSocketAllocated;
   end;
   //Temp IFDEF till we change aliaser
   // Temp - reversed it for code freeze - will rereverse later.
@@ -285,6 +290,7 @@ begin
       Socket.IPVersion := FIPVersion;
       Socket.OnBeforeBind := FOnBeforeBind;
       Socket.OnAfterBind := FOnAfterBind;
+      Socket.OnSocketAllocated := FOnSocketAllocated;
     end;
 
     IOHandler.Open;
@@ -407,6 +413,14 @@ begin
   end;
 end;
 
+procedure TIdTCPClientCustom.SetOnSocketAllocated(const AValue: TIdNotifyEvent);
+begin
+  FOnSocketAllocated := AValue;
+  if Socket <> nil then begin
+    Socket.OnSocketAllocated := AValue;
+  end;
+end;
+
 procedure TIdTCPClientCustom.SetIOHandler(AValue: TIdIOHandler);
 begin
   inherited SetIOHandler(AValue);
@@ -426,6 +440,7 @@ begin
     Socket.IPVersion := FIPVersion;
     Socket.OnBeforeBind := FOnBeforeBind;
     Socket.OnAfterBind := FOnAfterBind;
+    Socket.OnSocketAllocated := FOnSocketAllocated;
   end;
 end;
 
