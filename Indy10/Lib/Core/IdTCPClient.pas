@@ -156,6 +156,7 @@ type
     FPort: TIdPort;
     FReadTimeout: Integer;
     FUsername: string;
+    FReuseSocket: TIdReuseSocket;
     //
     FOnBeforeBind: TIdNotifyEvent;
     FOnAfterBind: TIdNotifyEvent;
@@ -166,6 +167,7 @@ type
     //
     procedure SetConnectTimeout(const AValue: Integer);
     procedure SetReadTimeout(const AValue: Integer);
+    procedure SetReuseSocket(const AValue: TIdReuseSocket);
     procedure SetBoundIP(const AValue: String);
     procedure SetBoundPort(const AValue: Integer);
     procedure SetBoundPortMax(const AValue: Integer);
@@ -182,6 +184,7 @@ type
     procedure InitComponent; override;
     //
     function GetReadTimeout: Integer;
+    function GetReuseSocket: TIdReuseSocket;
     //
     property Host: string read FHost write SetHost;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
@@ -205,6 +208,7 @@ type
     //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
+    property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependant;
     //
     property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
     property OnAfterBind: TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
@@ -223,6 +227,7 @@ type
     property IPVersion;
     property Port;
     property ReadTimeout;
+    property ReuseSocket;
 
     property OnBeforeBind;
     property OnAfterBind;
@@ -288,6 +293,7 @@ begin
       Socket.BoundPortMin := FBoundPortMin;
       Socket.BoundPortMax := FBoundPortMax;
       Socket.IPVersion := FIPVersion;
+      Socket.ReuseSocket := FReuseSocket;
       Socket.OnBeforeBind := FOnBeforeBind;
       Socket.OnAfterBind := FOnAfterBind;
       Socket.OnSocketAllocated := FOnSocketAllocated;
@@ -338,6 +344,14 @@ begin
   FReadTimeout := AValue;
   if IOHandler <> nil then begin
     IOHandler.ReadTimeout := AValue;
+  end;
+end;
+
+procedure TIdTCPClientCustom.SetReuseSocket(const AValue: TIdReuseSocket);
+begin
+  FReuseSocket := AValue;
+  if Socket <> nil then begin
+    Socket.ReuseSocket := AValue;
   end;
 end;
 
@@ -438,6 +452,7 @@ begin
     Socket.BoundPortMin := FBoundPortMin;
     Socket.BoundPortMax := FBoundPortMax;
     Socket.IPVersion := FIPVersion;
+    Socket.ReuseSocket := FReuseSocket;
     Socket.OnBeforeBind := FOnBeforeBind;
     Socket.OnAfterBind := FOnAfterBind;
     Socket.OnSocketAllocated := FOnSocketAllocated;
@@ -468,6 +483,15 @@ begin
     Result := IOHandler.ReadTimeout;
   end else begin
     Result := FReadTimeout;
+  end;
+end;
+
+function TIdTCPClientCustom.GetReuseSocket: TIdReuseSocket;
+begin
+  if Socket <> nil then begin
+    Result := Socket.ReuseSocket;
+  end else begin
+    Result := FReuseSocket;
   end;
 end;
 
