@@ -208,7 +208,7 @@ type
     //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
-    property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependant;
+    property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependent;
     //
     property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
     property OnAfterBind: TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
