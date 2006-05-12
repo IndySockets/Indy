@@ -311,7 +311,7 @@ begin
   end;
   ASender.Reply.Text.Add('ENHANCEDSTATUSCODES'); {do not localize}
   ASender.Reply.Text.Add('PIPELINING'); {do not localize}
-  if (FUseTLS in ExplicitTLSVals) and (not LContent.UsingTLS) then begin
+  if (FUseTLS in ExplicitTLSVals) and (not LContext.UsingTLS) then begin
     ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
   end;
   DoReset(LContext);
@@ -433,14 +433,16 @@ end;
 procedure TIdSMTPServer.CommandAUTH(ASender: TIdCommand);
 var
   Login: string;
+  LContext: TIdSMTPServerContext;
 begin
+  LContext := TIdSMTPServerContext(ASender.Context);
   //Note you can not use PIPELINING with AUTH
-  TIdSMTPServerContext(ASender.Context).PipeLining := False;
-  if not TIdSMTPServerContext(ASender.Context).EHLO then begin // Only available with EHLO
+  LContext.PipeLining := False;
+  if not LContext.EHLO then begin // Only available with EHLO
     BadSequenceError(ASender);
     Exit;
   end;
-  if (FUseTLS = utUseRequireTLS) and (not TIdSMTPServerContext(ASender.Context).UsingTLS) then begin
+  if (FUseTLS = utUseRequireTLS) and (not LContext.UsingTLS) then begin
     MustUseTLS(ASender);
     Exit;
   end;
@@ -742,7 +744,7 @@ var
 begin
   LForward := '';
   LContext := TIdSMTPServerContext(ASender.Context);
-  if not LContext.SMTPState in [idSMTPMail, idSMTPRcpt] then begin
+  if not (LContext.SMTPState in [idSMTPMail, idSMTPRcpt]) then begin
     BadSequenceError(ASender);
     Exit;
   end;
