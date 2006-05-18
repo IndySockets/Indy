@@ -1174,7 +1174,8 @@ begin
         end;
         SetLength(LBuffer, LBufSize);
         Write(LBuffer);
-        DoWork(wmWrite, LBufSize);
+        // RLebeau: DoWork() is called in TIdIOHandlerStack.WriteDirect()
+        //DoWork(wmWrite, LBufSize);
         Dec(ASize, LBufSize);
       end;
     finally
@@ -1194,13 +1195,9 @@ begin
   }
 end;
 
-procedure TIdIOHandler.ReadBytes(
-  var VBuffer: TIdBytes;
-  AByteCount: Integer;
-  AAppend: Boolean = True);
+procedure TIdIOHandler.ReadBytes(var VBuffer: TIdBytes; AByteCount: Integer; AAppend: Boolean = True);
 begin
   Assert(FInputBuffer<>nil);
-
   if AByteCount > 0 then begin
     // Read from stack until we have enough data
     while FInputBuffer.Size < AByteCount do begin
