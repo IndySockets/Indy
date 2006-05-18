@@ -1176,12 +1176,9 @@ begin
       end;
       if IsSiteZONESupported then
       begin
-        if not FCanUseMLS then
-        begin
-          if SendCmd('SITE ZONE') = 210 then {do not localize}
-          begin
-            if LastCmdResult.Text.Count > 0 then
-            begin
+        if not FCanUseMLS then begin
+          if SendCmd('SITE ZONE') = 210 then begin {do not localize}
+            if LastCmdResult.Text.Count > 0 then begin
               LBuf := LastCmdResult.Text[0];
               //remove UTC from reply string "UTC-300"
               IdDelete(LBuf, 1, 3);
@@ -1456,7 +1453,7 @@ begin
         LPasvCl.Host := LIP;
         LPasvCl.Port := LPort;
         if Assigned(FOnDataChannelCreate) then begin
-          OnDataChannelCreate(self,FDataChannel);
+          OnDataChannelCreate(Self, FDataChannel);
         end;
         LPasvCl.Connect;
         try
@@ -1738,17 +1735,16 @@ begin
     //Now SocksInfo are multi-thread safe
     FDataChannel.IOHandler.ConnectTimeout := IOHandler.ConnectTimeout;
   end;
-  if (FDataChannel.IOHandler is TIdIOHandlerSocket) and (IOHandler is TIdIOHandlerSocket) then
+  if Assigned(FDataChannel.Socket) and Assigned(Socket) then
   begin
-    TIdIOHandlerSocket(FDataChannel.IOHandler).TransparentProxy := TIdIOHandlerSocket(IOHandler).TransparentProxy;
-    TIdIOHandlerSocket(FDataChannel.IOHandler).IPVersion := TIdIOHandlerSocket(IOHandler).IPVersion;
+    FDataChannel.Socket.TransparentProxy := Socket.TransparentProxy;
+    FDataChannel.Socket.IPVersion := Socket.IPVersion;
   end;
   FDataChannel.IOHandler.ReadTimeout := FTransferTimeout;
   FDataChannel.IOHandler.SendBufferSize := IOHandler.SendBufferSize;
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
-  FDataChannel.OnWork := OnWork;
-  FDataChannel.OnWorkBegin := OnWorkBegin;
-  FDataChannel.OnWorkEnd := OnWorkEnd;
+  FDataChannel.IOHandler.LargeStream := IOHandler.LargeStream;
+  FDataChannel.WorkTarget := Self;
 end;
 
 procedure TIdFTP.Put(const ASource: TIdStream; const ADestFile: string; const AAppend: Boolean = False);
@@ -2195,7 +2191,7 @@ begin
     end;
   fpcmOpen:
     begin
-      if (Length(ProxySettings.UserName)>0) then begin
+      if Length(ProxySettings.UserName) > 0 then begin
         if SendCmd('USER ' + ProxySettings.UserName, [230, 331]) = 331 then begin   {do not localize}
           SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
           if IsAccountNeeded then begin
@@ -2207,7 +2203,7 @@ begin
           end;
         end;
       end;
-      SendCmd('OPEN '+FtpHost);//? Server Reply? 220?     {do not localize}
+      SendCmd('OPEN ' + FtpHost);//? Server Reply? 220?     {do not localize}
       if SendCmd('USER ' + FUserName, [230, 232, 331]) = 331 then begin  {do not localize}
         SendCmd('PASS ' + GetLoginPassword, [230, 332]); {do not localize}
         if IsAccountNeeded then begin
@@ -2593,10 +2589,11 @@ begin
 end;
 
 procedure TIdFTP.ExtListItem(ADest: TIdStrings; AFList : TIdFTPListItems; const AItem: string);
-var i : Integer;
+var
+  i : Integer;
 begin
   ADest.Clear;
-  SendCMD(Sys.Trim('MLST '+AItem), 250);  {do not localize}
+  SendCmd(Sys.Trim('MLST ' + AItem), 250);  {do not localize}
   for i := 0 to LastCmdResult.Text.Count -1 do begin
     if Pos(';', LastCmdResult.Text[i]) > 0 then begin
       ADest.Add(LastCmdResult.Text[i]);
