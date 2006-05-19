@@ -57,8 +57,8 @@ interface
 
 uses
   Classes,
-    IdASN1Util,
-    IdObjs,
+  IdASN1Util,
+  IdObjs,
   IdException,
   IdUDPBase,
   IdUDPClient;
@@ -410,12 +410,12 @@ var
   n: integer;
 begin
   Buffer := '';    {Do not Localize}
-  for n:=0 to MIBOID.Count-1 do
-    begin
-      s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID)
-        + ASNObject(MIBValue[n], ASN1_OCTSTR);
-      Buffer := Buffer + ASNObject(s, ASN1_SEQ);
-    end;
+  for n := 0 to MIBOID.Count-1 do
+  begin
+    s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID)
+      + ASNObject(MIBValue[n], ASN1_OCTSTR);
+    Buffer := Buffer + ASNObject(s, ASN1_SEQ);
+  end;
   Buffer := ASNObject(Buffer, ASN1_SEQ);
   Buffer := ASNObject(ASNEncInt(GenTrap), ASN1_INT)
     + ASNObject(ASNEncInt(SpecTrap), ASN1_INT)
@@ -423,7 +423,7 @@ begin
   Buffer := ASNObject(MibToID(Enterprise), ASN1_OBJID)
     + ASNObject(IPToID(Host), ASN1_IPADDR) + Buffer;
   Buffer := ASNObject(Char(Version), ASN1_INT)
-    + ASNObject(Community, ASN1_OCTSTR) + ASNObject(Buffer, Self.PDUType);
+    + ASNObject(Community, ASN1_OCTSTR) + ASNObject(Buffer, PDUType);
   Buffer := ASNObject(Buffer, ASN1_SEQ);
   Result := 1;
 end;
@@ -442,22 +442,22 @@ var
 begin
   Pos := 2;
   EndPos := ASNDecLen(Pos, Buffer);
-  Version := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
-  Community := ASNItem(Pos, Buffer,vt);
-  PDUType := Sys.StrToInt(ASNItem(Pos, Buffer,vt), PDUTRAP);
-  Enterprise := IdToMIB(ASNItem(Pos, Buffer,vt));
-  Host := ASNItem(Pos, Buffer,vt);
-  GenTrap := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
-  Spectrap := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
-  TimeTicks := Sys.StrToInt(ASNItem(Pos, Buffer,vt), 0);
-  ASNItem(Pos, Buffer,vt);
+  Version := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  Community := ASNItem(Pos, Buffer, vt);
+  PDUType := Sys.StrToInt(ASNItem(Pos, Buffer, vt), PDUTRAP);
+  Enterprise := ASNItem(Pos, Buffer, vt);
+  Host := ASNItem(Pos, Buffer, vt);
+  GenTrap := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  Spectrap := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  TimeTicks := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  ASNItem(Pos, Buffer, vt);
   while (Pos < EndPos) do
-    begin
-      ASNItem(Pos, Buffer,vt);
-      Sm := ASNItem(Pos, Buffer,vt);
-      Sv := ASNItem(Pos, Buffer,vt);
-      MIBAdd(Sm, Sv, vt);
-    end;
+  begin
+    ASNItem(Pos, Buffer, vt);
+    Sm := ASNItem(Pos, Buffer, vt);
+    Sv := ASNItem(Pos, Buffer, vt);
+    MIBAdd(Sm, Sv, vt);
+  end;
   Result := 1;
 end;
 
