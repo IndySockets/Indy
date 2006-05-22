@@ -166,15 +166,15 @@ var
   i, x: integer;
 begin
   Result := '';    {Do not Localize}
-  for x:= 1 to 3 do
-    begin
-      t := '';    {Do not Localize}
-      s := Copy(Host,IndyPos(Host, '.'),Length(Host));    {Do not Localize}
-      t := Copy(Host, 1, (Length(Host) - Length(s)));
-      Delete(Host, 1, (Length(Host) - Length(s) + 1));
-      i := Sys.StrToint(t, 0);
-      Result := Result + Chr(i);
-    end;
+  for x := 1 to 3 do
+  begin
+    t := '';    {Do not Localize}
+    s := Copy(Host, IndyPos('.', Host), Length(Host));    {Do not Localize}
+    t := Copy(Host, 1, (Length(Host) - Length(s)));
+    Delete(Host, 1, (Length(Host) - Length(s) + 1));
+    i := Sys.StrToint(t, 0);
+    Result := Result + Chr(i);
+  end;
   i := Sys.StrToint(Host, 0);
   Result := Result + Chr(i);
 end;
