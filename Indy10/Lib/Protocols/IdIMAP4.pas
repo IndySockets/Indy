@@ -733,6 +733,9 @@ TIdIMAP4 = class(TIdMessageClient)
     function  GetReplyClass:TIdReplyClass; override;
     function  CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
     function  CheckConnectionState(const AAllowedStates: array of TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
+    procedure BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ASize: Int64); virtual;
+    procedure DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ACount: Int64); virtual;
+    procedure EndWorkForPart(ASender: TObject; AWorkMode: TWorkMode); virtual;
     //The following call FMUTF7 but do exception-handling on invalid strings...
     function  DoMUTFEncode(aString : string):string;
     function  DoMUTFDecode(aString : string):string;
@@ -1386,7 +1389,7 @@ begin
         if (ch < $80) and (b64Table[ch] <> $ff) then begin
           result := result + aString[x];
         end else begin
-          raise EMUTF7Decode.Create(Sys.Format('Illegal char #%d in UTF7 sequence.', [ch]));      {do not localize}
+          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);      {do not localize}
         end;
       end;
     end else begin // we're escaped
@@ -1404,7 +1407,7 @@ begin
       end else begin // escaped
         // check range for ch: must be < 128 and in b64table
         if (ch >= $80) or (b64Index[ch] = -1) then begin
-          raise EMUTF7Decode.Create(Sys.Format('Illegal char #%d in UTF7 sequence.', [ch]));      {do not localize}
+          raise EMUTF7Decode.CreateFmt('Illegal char #%d in UTF7 sequence.', [ch]);      {do not localize}
         end;
         ch := b64Index[ch];
         if (bitShift > 0) then begin
@@ -1417,7 +1420,7 @@ begin
           // us ASCII in encoded string?
           if (c >= $20) and (c < $7f) then begin // what is with '&'? -> not allowed!
             // must be encoded "&-"
-            raise EMUTF7Decode.Create(Sys.Format('US-ASCII char #%d in UTF7 sequence.', [c]));    {do not localize}
+            raise EMUTF7Decode.CreateFmt('US-ASCII char #%d in UTF7 sequence.', [c]);    {do not localize}
           end;
           result := result + char(c);
           bitBuf := (ch shl (16 + bitShift)) and $ffff;
@@ -1488,6 +1491,27 @@ end;
 
 { TIdIMAP4 }
 
+procedure TIdIMAP4.BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ASize: Int64);
+begin
+  if Assigned(FOnWorkBeginForPart) then begin
+    FOnWorkBeginForPart(ASender, AWorkMode, ASize);
+  end;
+end;
+
+procedure TIdIMAP4.DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ACount: Int64);
+begin
+  if Assigned(FOnWorkForPart) then begin
+    FOnWorkForPart(ASender, AWorkMode, ACount);
+  end;
+end;
+
+procedure TIdIMAP4.EndWorkForPart(ASender: TObject; AWorkMode: TWorkMode);
+begin
+  if Assigned(FOnWorkEndForPart) then begin
+    FOnWorkEndForPart(ASender, AWorkMode);
+  end;
+end;
+
 //The following call FMUTF7 but do exception-handling on invalid strings...
 function TIdIMAP4.DoMUTFEncode(aString : string):string;
 begin
@@ -1529,7 +1553,7 @@ begin
       end;
     end;
   end;
-  raise EIdConnectionStateError.Create(Sys.Format(RSIMAP4ConnectionStateError, [GetConnectionStateName]));
+  raise EIdConnectionStateError.CreateFmt(RSIMAP4ConnectionStateError, [GetConnectionStateName]);
 end;
 
 function TIdIMAP4.FindHowServerCreatesFolders: TIdIMAP4FolderTreatment;
@@ -2710,9 +2734,9 @@ begin
         if LastCmdResult.Code = IMAP_CONT then begin
             LDestStream := TIdTCPStream.Create(Self);
             try
-                LDestStream.Connection.OnWork := FOnWorkForPart;
-                LDestStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                LDestStream.Connection.OnWork := DoWorkForPart;
+                LDestStream.Connection.OnWorkBegin := BeginWorkForPart;
+                LDestStream.Connection.OnWorkEnd := EndWorkForPart;
                 LSourceStream := TIdReadFileExclusiveStream.Create(LTempPathname);
                 try
                     WriteStringToStream(LDestStream, LHeadersAsString);
@@ -2832,9 +2856,9 @@ begin
             if LastCmdResult.Code = IMAP_CONT then begin
                 LDestStream := TIdTCPStream.Create(Self);
                 try
-                    LDestStream.Connection.OnWork := FOnWorkForPart;
-                    LDestStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                    LDestStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                    LDestStream.Connection.OnWork := DoWorkForPart;
+                    LDestStream.Connection.OnWorkBegin := BeginWorkForPart;
+                    LDestStream.Connection.OnWorkEnd := EndWorkForPart;
                     LDestStream.Connection.IOHandler.Write(LTempStream, LLength);
                     SetLength(LTheBytes, 7);
                     LTheBytes[0] := 13;
@@ -3141,9 +3165,9 @@ begin
             SetLength(LText, LTextLength);
             LSourceStream := TIdTCPStream.Create(Self);
             try
-                LSourceStream.Connection.OnWork := FOnWorkForPart;
-                LSourceStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                LSourceStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                LSourceStream.Connection.OnWork := DoWorkForPart;
+                LSourceStream.Connection.OnWorkBegin := BeginWorkForPart;
+                LSourceStream.Connection.OnWorkEnd := EndWorkForPart;
                 LBuffer := TIdStringStream.Create('');
                 try
                     LSourceStream.Connection.IOHandler.ReadStream(LBuffer, LTextLength);  //ReadStream uses OnWork, most other methods dont
@@ -3555,9 +3579,9 @@ begin
             ABufferLength := FLineStruct.ByteCount;
             LSourceStream := TIdTCPStream.Create(Self);
             try
-                LSourceStream.Connection.OnWork := FOnWorkForPart;
-                LSourceStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                LSourceStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                LSourceStream.Connection.OnWork := DoWorkForPart;
+                LSourceStream.Connection.OnWorkBegin := BeginWorkForPart;
+                LSourceStream.Connection.OnWorkEnd := EndWorkForPart;
                 bCreatedStream := False;
 
                 if (Length(ADestFileNameAndPath) = 0) and (ADestStream = nil) then begin
@@ -3952,9 +3976,9 @@ begin
             {Use a temporary file to suck the message into...}
             LSourceStream := TIdTCPStream.Create(Self);
             try
-                LSourceStream.Connection.OnWork := FOnWorkForPart;
-                LSourceStream.Connection.OnWorkBegin := FOnWorkBeginForPart;
-                LSourceStream.Connection.OnWorkEnd := FOnWorkEndForPart;
+                LSourceStream.Connection.OnWork := DoWorkForPart;
+                LSourceStream.Connection.OnWorkBegin := BeginWorkForPart;
+                LSourceStream.Connection.OnWorkEnd := EndWorkForPart;
                 LTempPathname := MakeTempFilename;
                 LDestStream := TIdFileCreateStream.Create(LTempPathname);
                 try
@@ -4266,14 +4290,18 @@ begin
         try
             ParseIntoBrackettedQuotedAndUnquotedParts(ABodyStructure, LSubParts, True);
             LPartNumber := 1;
-            while LSubParts[0][1] = '(' do begin      {Do not Localize}
+            while (LSubParts.Count > 0) and (LSubParts[0] <> '') and (LSubParts[0][1] = '(') do begin      {Do not Localize}
                 LNextImapPart := AImapParts.Add;
                 ParseImapPart(Copy(LSubParts[0], 2, Length(LSubParts[0])-2), AImapParts, LNextImapPart, AThisImapPart, LPartNumber);
                 LSubParts.Delete(0);
                 Inc(LPartNumber);
             end;
-            //LSubParts now (only) holds the params for this part...
-            AThisImapPart.FBodyType := Sys.LowerCase(GetNextQuotedParam(LSubParts[0], True));  //mixed, alternative
+            if LSubParts.Count > 0 then begin
+                //LSubParts now (only) holds the params for this part...
+                AThisImapPart.FBodyType := Sys.LowerCase(GetNextQuotedParam(LSubParts[0], True));  //mixed, alternative
+            end else begin
+                AThisImapPart.FBodyType := '';
+            end;
         finally
           Sys.FreeAndNil(LSubParts);
         end;
@@ -4309,7 +4337,7 @@ begin
         try
             ParseIntoBrackettedQuotedAndUnquotedParts(ABodyStructure, LSubParts, True);
             LPartNumber := 1;
-            while LSubParts[0][1] = '(' do begin      {Do not Localize}
+            while (LSubParts.Count > 0) and (LSubParts[0] <> '') and (LSubParts[0][1] = '(') do begin      {Do not Localize}
                 LNextMessagePart := TIdAttachmentMemory.Create(AMessageParts);
                 ParseMessagePart(Copy(LSubParts[0], 2, Length(LSubParts[0])-2), AMessageParts, LNextMessagePart, AThisMessagePart, LPartNumber);
                 LSubParts.Delete(0);
@@ -5079,11 +5107,10 @@ begin
             ParseIntoBrackettedQuotedAndUnquotedParts(LStr, LSlRetrieve, False);
             if LSlRetrieve.Count > 3 then begin
                 //Make sure 1st word is LIST (may be an unsolicited response)...
-                if (TextIsSame(LSlRetrieve[0], {IMAP4Commands[cmdList]} ACmd)) then begin
+                if TextIsSame(LSlRetrieve[0], {IMAP4Commands[cmdList]} ACmd) then begin
                     {Get the mailbox separator...}
                     LWord := Sys.Trim(LSlRetrieve[LSlRetrieve.Count-2]);
-                    if ( (TextIsSame(LWord, 'NIL')) {Do not Localize}
-                      or (TextIsSame(LWord, '')) ) then begin
+                    if TextIsSame(LWord, 'NIL') or (LWord = '') then begin {Do not Localize}
                         FMailBoxSeparator := #0;
                     end else begin
                         FMailBoxSeparator := LWord[1];
@@ -5412,19 +5439,21 @@ begin
     LWords := TIdStringList.Create;
     try
         ParseIntoBrackettedQuotedAndUnquotedParts(ALine, LWords, False);
-        //See does it have a trailing byte count...
-        LWord := LWords[LWords.Count-1];
-        if ((LWord[1] = '{') and (LWord[Length(LWord)] = '}')) then begin
-            //It ends in a byte count...
-            LWord := Copy(LWord, 2, Length(LWord)-2);
-            if TextIsSame(LWord, 'NIL') then begin   {do not localize}
-                FLineStruct.ByteCount := 0;
-            end else begin
-                FLineStruct.ByteCount := Sys.StrToInt(LWord);
+        if LWords.Count > 0 then begin
+            //See does it have a trailing byte count...
+            LWord := LWords[LWords.Count-1];
+            if (LWord <> '') and (LWord[1] = '{') and (LWord[Length(LWord)] = '}') then begin
+                //It ends in a byte count...
+                LWord := Copy(LWord, 2, Length(LWord)-2);
+                if TextIsSame(LWord, 'NIL') then begin   {do not localize}
+                    FLineStruct.ByteCount := 0;
+                end else begin
+                    FLineStruct.ByteCount := Sys.StrToInt(LWord);
+                end;
+                LWords.Delete(LWords.Count-1);
             end;
-            LWords.Delete(LWords.Count-1);
         end;
-        if FLineStruct.Complete = False then begin
+        if not FLineStruct.Complete then begin
             //The command in this case should be the last word...
             if LWords.Count > 0 then begin
                 FLineStruct.IMAPFunction := LWords[LWords.Count-1];
@@ -5463,7 +5492,7 @@ begin
                 //First check if we got it already in IMAPFunction...
                 if TextIsSame(FLineStruct.IMAPFunction, AExpectedIMAPFunction[LN]) then begin
                     LWordInExpectedIMAPFunction := True;
-                    break;
+                    Break;
                 end;
                 //Now check if it is in any remaining words...
                 LPos := LWords.IndexOf(AExpectedIMAPFunction[LN]);    {Do not Localize}
@@ -5474,7 +5503,7 @@ begin
                         //There is a parameter after our function...
                         FLineStruct.IMAPValue := LWords[LPos+1];
                     end;
-                    break;
+                    Break;
                 end;
             end;
         end else begin
