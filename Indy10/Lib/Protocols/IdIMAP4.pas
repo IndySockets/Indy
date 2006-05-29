@@ -733,9 +733,9 @@ TIdIMAP4 = class(TIdMessageClient)
     function  GetReplyClass:TIdReplyClass; override;
     function  CheckConnectionState(AAllowedState: TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
     function  CheckConnectionState(const AAllowedStates: array of TIdIMAP4ConnectionState): TIdIMAP4ConnectionState; overload;
-    procedure BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ASize: Int64); virtual;
-    procedure DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ACount: Int64); virtual;
-    procedure EndWorkForPart(ASender: TObject; AWorkMode: TWorkMode); virtual;
+    procedure BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
+    procedure DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
+    procedure EndWorkForPart(ASender: TObject; AWorkMode: TWorkMode);
     //The following call FMUTF7 but do exception-handling on invalid strings...
     function  DoMUTFEncode(aString : string):string;
     function  DoMUTFDecode(aString : string):string;
@@ -1491,14 +1491,14 @@ end;
 
 { TIdIMAP4 }
 
-procedure TIdIMAP4.BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ASize: Int64);
+procedure TIdIMAP4.BeginWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
 begin
   if Assigned(FOnWorkBeginForPart) then begin
-    FOnWorkBeginForPart(ASender, AWorkMode, ASize);
+    FOnWorkBeginForPart(ASender, AWorkMode, AWorkCountMax);
   end;
 end;
 
-procedure TIdIMAP4.DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; const ACount: Int64);
+procedure TIdIMAP4.DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
 begin
   if Assigned(FOnWorkForPart) then begin
     FOnWorkForPart(ASender, AWorkMode, ACount);
