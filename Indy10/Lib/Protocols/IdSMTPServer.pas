@@ -320,10 +320,9 @@ begin
   LContext.HeloString := ASender.UnparsedParams;
 end;
 
-procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext;
-  ALine: string);
+procedure TIdSMTPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
 begin
-  CmdSyntaxError(AContext,ALine);
+  CmdSyntaxError(AContext, ALine);
 end;
 
 function TIdSMTPServer.GetRepliesClass: TIdRepliesClass;
@@ -579,7 +578,7 @@ end;
 
 procedure TIdSMTPServer.AddrNotWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
 begin
-  SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPUserNotLocal, [AAddress]),
+  SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPUserNotLocal, [AAddress, ATo]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -589,8 +588,7 @@ begin
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
-procedure TIdSMTPServer.AddrNoRelaying(ASender: TIdCommand;
-  const AAddress: String);
+procedure TIdSMTPServer.AddrNoRelaying(ASender: TIdCommand; const AAddress: String);
 begin
   SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNoRelay, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
@@ -609,17 +607,15 @@ begin
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
-procedure TIdSMTPServer.AddrDisabledPerm(ASender: TIdCommand;
-  const AAddress: String);
+procedure TIdSMTPServer.AddrDisabledPerm(ASender: TIdCommand; const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_PERM, Sys.Format(RSSMTPAccountDisabled,[AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_PERM, Sys.Format(RSSMTPAccountDisabled, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
-procedure TIdSMTPServer.AddrDisabledTemp(ASender: TIdCommand;
-  const AAddress: String);
+procedure TIdSMTPServer.AddrDisabledTemp(ASender: TIdCommand; const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_TEMP, Sys.Format(RSSMTPAccountDisabled,[AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_TEMP, Sys.Format(RSSMTPAccountDisabled, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -667,13 +663,13 @@ end;
 
 procedure TIdSMTPServer.MailFromAccept(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_OTH_OK, Sys.Format(RSSMTPSvrAddressOk,[AAddress]),
+  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_OTH_OK, Sys.Format(RSSMTPSvrAddressOk, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.MailFromReject(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNotPermitted,[AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNotPermitted, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
