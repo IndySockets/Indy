@@ -1501,7 +1501,7 @@ end;
 procedure TIdIMAP4.DoWorkForPart(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
 begin
   if Assigned(FOnWorkForPart) then begin
-    FOnWorkForPart(ASender, AWorkMode, ACount);
+    FOnWorkForPart(ASender, AWorkMode, AWorkCount);
   end;
 end;
 
