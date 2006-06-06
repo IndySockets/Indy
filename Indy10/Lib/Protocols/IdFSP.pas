@@ -1236,7 +1236,6 @@ var
   i : Cardinal;
   LI : TIdFSPListItem;
   LSkip : Boolean;
-  LFileName : String;
 begin
   Result := False;
   i := 0;
