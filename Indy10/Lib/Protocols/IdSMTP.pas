@@ -206,8 +206,6 @@ type
   TIdSMTPAuthenticationType = (atNone, atDefault, atSASL);
 
 const
-  DEF_SMTP_Use_ImplicitTLS = False;
-  DEF_SMTP_PIPELINE = True;
   DEF_SMTP_AUTH = atDefault;
 
 type
@@ -274,7 +272,6 @@ uses
 procedure TIdSMTP.Assign(Source: TIdPersistent);
 var
   LS: TIdSMTP;
-
 begin
   if Source is TIdSMTP then begin
     LS := Source as TIdSMTP;
@@ -286,22 +283,11 @@ begin
     Host := LS.Host;
     MailAgent := LS.MailAgent;
     Port := LS.Port;
-    Tag := LS.Tag;
     Username := LS.Username;
     Password := LS.Password;
-    //events
-    OnTLSNotAvailable := LS.OnTLSNotAvailable;
-    OnTLSHandShakeFailed := LS.OnTLSHandShakeFailed;
-    OnTLSNegCmdFailed := LS.OnTLSNegCmdFailed;
-
-    OnConnected := LS.OnConnected;
-    OnDisconnected := LS.OnDisconnected;
-    OnWork := LS.OnWork;
-    OnWorkBegin := LS.OnWorkBegin;
-    OnWorkEnd := LS.OnWorkEnd;
-    OnStatus := LS.OnStatus;
+    Pipeline := LS.Pipeline;
   end else begin
-    inherited;
+    inherited Assign(Source);
   end;
 end;
 
@@ -368,7 +354,8 @@ end;
 
 procedure TIdSMTP.Connect;
 begin
-  inherited Connect; try
+  inherited Connect;
+  try
     GetResponse(220);
     SendGreeting;
   except
@@ -379,19 +366,14 @@ end;
 
 procedure TIdSMTP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FAuthType := DEF_SMTP_AUTH;
-  FUseEhlo := IdDEF_UseEhlo;
-  FImplicitTLSProtPort := IdPORT_ssmtp;
-  FRegularProtPort := IdPORT_SMTP;
-  FPipeLine := DEF_SMTP_PIPELINE;
-  Port := IdPORT_SMTP;
 end;
 
 procedure TIdSMTP.DisconnectNotifyPeer;
 begin
-  inherited;
+  inherited DisconnectNotifyPeer;
   SendCmd('QUIT', 221);    {Do not Localize}
 end;
 
@@ -456,7 +438,7 @@ end;
 procedure TIdSMTP.SetUseEhlo(const Value: Boolean);
 Begin
   FUseEhlo := Value;
-  if NOT Value then
+  if not Value then
   begin
     FAuthType := atDefault;
     if FUseTLS in ExplicitTLSVals then
@@ -484,9 +466,8 @@ end;
 
 procedure TIdSMTP.SetUseTLS(AValue: TIdUseTLS);
 begin
-  inherited;
-  if FUseTLS in ExplicitTLSVals then
-  begin
+  inherited SetUseTLS(AValue);
+  if FUseTLS in ExplicitTLSVals then begin
     UseEhlo := True;
   end;
 end;
