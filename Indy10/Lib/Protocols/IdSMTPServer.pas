@@ -122,6 +122,7 @@ type
     FOnReset: TOnSMTPEvent;
     //misc
     FServerName : String;
+    FAllowPipelining: Boolean;
     //
     function CreateGreeting: TIdReply; override;
     function CreateReplyUnknownCommand: TIdReply; override;
@@ -194,6 +195,7 @@ type
     property OnReceived: TOnReceived read FOnReceived write FOnReceived;
     property OnReset: TOnSMTPEvent read FOnReset write FOnReset;
     //properties
+    property AllowPipelining : Boolean read FAllowPipelining write FAllowPipelining default False;
     property ServerName : String read FServerName write FServerName;
     property DefaultPort default IdPORT_SMTP;
     property UseTLS;
@@ -310,7 +312,9 @@ begin
     ASender.Reply.Text.Add('AUTH LOGIN');    {Do not Localize}
   end;
   ASender.Reply.Text.Add('ENHANCEDSTATUSCODES'); {do not localize}
-  ASender.Reply.Text.Add('PIPELINING'); {do not localize}
+  if FAllowPipelining then begin
+    ASender.Reply.Text.Add('PIPELINING'); {do not localize}
+  end;
   if (FUseTLS in ExplicitTLSVals) and (not LContext.UsingTLS) then begin
     ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
   end;
@@ -886,10 +890,6 @@ var
 
       if Pos('$ipaddress', LReceivedString) <> 0 then begin                 {do not localize}
         LTokens.Add('$ipaddress=' + LContext.Binding.PeerIP);               {do not localize}
-      end;
-
-      if Pos('$helo', LReceivedString) <> 0 then begin                      {do not localize}
-        LTokens.Add('$helo=' + LContext.HeloString);                        {do not localize}
       end;
 
       if Pos('$helo', LReceivedString) <> 0 then begin                      {do not localize}
