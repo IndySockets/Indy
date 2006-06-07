@@ -97,7 +97,7 @@ uses
 
 //default property values
 const
-  DEF_SMTP_PIPELINE = True;
+  DEF_SMTP_PIPELINE = False;
   IdDEF_UseEhlo = TRUE; //APR: default behavior
 
 const
@@ -176,11 +176,11 @@ end;
 
 procedure TIdSMTPBase.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FImplicitTLSProtPort := IdPORT_ssmtp;
   FRegularProtPort := IdPORT_SMTP;
   FPipeLine := DEF_SMTP_PIPELINE;
-  FUseEhlo:=IdDEF_UseEhlo;
+  FUseEhlo := IdDEF_UseEhlo;
   FMailAgent := '';
   FHeloName := '';
   Port := IdPORT_SMTP;
@@ -192,7 +192,8 @@ begin
 end;
 
 procedure TIdSMTPBase.SendGreeting;
-var LNameToSend : String;
+var
+  LNameToSend : String;
 begin
   Capabilities.Clear;
   if HeloName <> '' then begin
@@ -232,7 +233,7 @@ end;
 procedure TIdSMTPBase.SetUseEhlo(const AValue: Boolean);
 begin
   FUseEhlo := AValue;
-  if NOT AValue then
+  if not AValue then
   begin
     FPipeLine := False;
   end;
@@ -334,7 +335,7 @@ var
   LIO : TIdSSLIOHandlerSocketBase;
 begin
   try
-    if (IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS<>utNoTLSSupport) then
+    if (IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS <> utNoTLSSupport) then
     begin
       LIO := TIdSSLIOHandlerSocketBase(IOHandler);
       //we check passthrough because we can either be using TLS currently with
