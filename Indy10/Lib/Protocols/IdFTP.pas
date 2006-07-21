@@ -610,13 +610,10 @@ interface
 
 uses
   IdAssignedNumbers, IdGlobal, IdCustomTransparentProxy, IdExceptionCore,
-  IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase, IdException,
-  IdIOHandler, IdIOHandlerSocket,
-  IdReplyFTP, IdBaseComponent,
-  IdReplyRFC,
-  IdReply,
-  IdSocketHandle, IdSys,
-  IdTCPConnection, IdTCPClient, IdThread, IdThreadSafe, IdObjs, IdZLibCompressorBase;
+  IdExplicitTLSClientServerBase, IdFTPCommon, IdFTPList, IdFTPListParseBase,
+  IdException, IdIOHandler, IdIOHandlerSocket, IdReplyFTP, IdBaseComponent,
+  IdReplyRFC, IdReply, IdSocketHandle, IdSys, IdTCPConnection, IdTCPClient,
+  IdThreadSafe, IdObjs, IdZLibCompressorBase;
 
 type
   //APR 011216:
@@ -1098,7 +1095,7 @@ begin
   FZLibMemLevel := DEF_ZLIB_MEM_LEVEL;
   FZLibStratagy := DEF_ZLIB_STRATAGY; // - default
   //
-  FAbortFlag := TIdThreadSafeBOolean.Create;
+  FAbortFlag := TIdThreadSafeBoolean.Create;
   FAbortFlag.Value := False;
   {
 Soem firewalls don't handle control connections properly during long data transfers.
@@ -1743,7 +1740,7 @@ begin
   FDataChannel.IOHandler.ReadTimeout := FTransferTimeout;
   FDataChannel.IOHandler.SendBufferSize := IOHandler.SendBufferSize;
   FDataChannel.IOHandler.RecvBufferSize := IOHandler.RecvBufferSize;
-  FDataChannel.IOHandler.LargeStream := IOHandler.LargeStream;
+  FDataChannel.IOHandler.LargeStream := True;
   FDataChannel.WorkTarget := Self;
 end;
 
@@ -2454,7 +2451,7 @@ var
   delim : Char;
   s : String;
 begin
-  s := Sys.Trim(LastCmdResult.Text[0]);
+  s := Sys.Trim(AReply);
   // "229 Entering Extended Passive Mode (|||59028|)"
   bLeft := IndyPos('(', s);   {do not localize}
   bRight := IndyPos(')', s);  {do not localize}
@@ -2464,7 +2461,7 @@ begin
   Fetch(S, delim);
   VIP := Fetch(S, delim);
   s := Sys.Trim(Fetch(S, delim));
-  VPort := Sys.StrToInt(s,0);
+  VPort := Sys.StrToInt(s, 0);
   if VPort = 0 then begin
     raise EIdFTPServerSentInvalidPort.Create(Sys.Format(RSFTPServerSentInvalidPort, [s]));
   end;
@@ -2474,10 +2471,6 @@ begin
 end;
 
 procedure TIdFTP.SendEPassive(var VIP: string; var VPort: integer);
-var
-  bLeft, bRight: Integer;
-  delim: Char;
-  s: string;
 begin
   SendDataSettings;
   //Note that for FTP Proxies, it is not desirable for the server to choose
@@ -2496,23 +2489,7 @@ begin
     Exit;
   end;
   try
-    ParseEPSV(Sys.Trim(LastCmdResult.Text[0]), VIP, VPort);
-    // "229 Entering Extended Passive Mode (|||59028|)"
-    bLeft := IndyPos('(', s);   {do not localize}
-    bRight := IndyPos(')', s);  {do not localize}
-    s := Copy(s, bLeft + 1, bRight - bLeft - 1);
-    delim := s[1]; // normally is | but the RFC say it may be different
-    Fetch(S, delim);
-    Fetch(S, delim);
-    VIP := Fetch(S, delim);
-    s := Sys.Trim(Fetch(S, delim));
-    VPort := Sys.StrToInt(s,0);
-    if VPort = 0 then begin
-      raise EIdFTPServerSentInvalidPort.Create(Sys.Format(RSFTPServerSentInvalidPort, [s]));
-    end;
-    if VIP = '' then begin
-      VIP := Host;
-    end;
+    ParseEPSV(LastCmdResult.Text[0], VIP, VPort);
   except
     SendCmd('ABOR');  {do not localize}
     raise;
