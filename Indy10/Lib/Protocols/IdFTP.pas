@@ -1079,8 +1079,8 @@ begin
   FLoginMsg := TIdReplyFTP.Create(NIL);
   FListResult := TIdStringList.Create;
   FLangsSupported := TIdStringList.Create;
-  FCanResume := false;
-  FResumeTested := false;
+  FCanResume := False;
+  FResumeTested := False;
   FProxySettings:= TIdFtpProxySettings.Create; //APR
   FClientInfo := TIdFTPClientIdentifier.Create;
   FTZInfo := TIdFTPTZInfo.Create;
@@ -1224,7 +1224,7 @@ begin
     FCanResume := Quote('REST 1') = 350;   {do not localize}
     Quote('REST 0');  {do not localize}
   end;
-  Result := FCanResume
+  Result := FCanResume;
 end;
 
 procedure TIdFTP.Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = False);
@@ -1233,7 +1233,8 @@ begin
   //where SSCN is ignored.
   ClearSSCN;
   AResume := AResume and CanResume;
-  ADest.Position := 0;
+  // RLebeau 7/26/06: do not do this! It breaks the ability to resume files
+  // ADest.Position := 0;
   InternalGet('RETR ' + ASourceFile, ADest, AResume);
 end;
 
