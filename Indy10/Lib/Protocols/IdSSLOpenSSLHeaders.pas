@@ -2890,6 +2890,10 @@ type
     //todo
   end;
 
+  PPKCS12 = ^PKCS12;
+  PKCS12 = packed record
+  end;
+
   //http://www.openssl.org/docs/crypto/bio.html
   PBIO = ^BIO;
   BIO = packed record
@@ -3200,6 +3204,18 @@ var
   // void *SSL_get_ex_data(SSL *ssl,int idx);
   IdSSL_get_ex_data: function(ssl: PSSL; idx: integer): Pointer; cdecl = nil;
 
+  //PKCS12 *PKCS12_create(char *pass, char *name, EVP_PKEY *pkey,
+  //X509 *cert, STACK_OF(X509) *ca, int nid_key, int nid_cert,
+  //int iter, int mac_iter, int keytype);
+  IdSSLPKCS12Create: function(pass:PChar;Name:PChar;pkey:PEVP_PKEY;
+   cert:PX509;ca:Pointer;nid_key:Integer;nid_cert:Integer;
+   iter:Integer;mac_iter:Integer;keytype:Integer):PPKCS12; cdecl=nil;
+
+  //int i2d_PKCS12_bio(BIO *bp, PKCS12 *p12);
+  IdSSLI2dPKCS12Bio: function(b:PBIO;p12:PPKCS12):Integer; cdecl = nil;
+
+  //PKCS12_free
+  IdSSLPKCS12Free: procedure(p12:PPKCS12) cdecl = nil;
 
   IdSSLLoadClientCAFile: function(const _file: PChar):PSTACK_X509_NAME; cdecl = nil;
   IdSSLCtxSetClientCAList: procedure(ctx: PSSL_CTX; list: PSTACK_X509_NAME); cdecl = nil;
@@ -4946,6 +4962,11 @@ const
   fn_fopen = 'mi_fopen';  {Do not localize}
   fn_fclose = 'mi_fclose';  {Do not localize}
 
+  //
+  fn_PKCS12_create = 'PKCS12_create'; {Do not localize}
+  fn_i2d_PKCS12_bio = 'i2d_PKCS12_bio'; {Do not localize}
+  fn_PKCS12_free = 'PKCS12_free'; {Do not localize}
+
   //GREGOR
   fn_RAND_screen = 'RAND_screen';  {Do not localize}
 
@@ -5185,6 +5206,10 @@ begin
   //@IdSslCryptoDbgFree := LoadFunctionCLib(fn_CRYPTO_dbg_free);
   //@IdSslCryptoDbgSetOptions := LoadFunctionCLib(fn_CRYPTO_dbg_set_options);
   //@IdSslCryptoDbgGetOptions := LoadFunctionCLib(fn_CRYPTO_dbg_get_options);
+
+  @IdSSLPKCS12Create := LoadFunctionCLib(fn_PKCS12_create);
+  @IdSSLI2dPKCS12Bio := LoadFunctionCLib(fn_i2d_PKCS12_bio);
+  @IdSSLPKCS12Free := LoadFunctionCLib(fn_PKCS12_free);
 
   //@IdSslAddAllAlgorithms := LoadFunctionCLib('OpenSSL_add_all_algorithms');
   @IdSslAddAllCiphers := LoadFunctionCLib(fn_OpenSSL_add_all_ciphers);
