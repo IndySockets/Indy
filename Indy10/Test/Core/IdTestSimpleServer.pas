@@ -4,6 +4,7 @@ interface
 
 uses
   IdTest,
+  IdExceptionCore,
   IdObjs,
   IdSys,
   IdGlobal,
@@ -21,22 +22,20 @@ implementation
 procedure TIdTestSimpleServer.TestListen;
 var
  aServer:TIdSimpleServer;
- aExpect:Boolean;
+ aOk:Boolean;
 begin
 
- aExpect:=False;
  aServer:=TIdSimpleServer.Create;
  try
   aServer.BoundPort:=22290;
-  try
-  //with no iohandler assigned, should get an assertion
-  aServer.Listen;
-  except
-   //
-   aExpect:=True;
-  end;
-  Assert(aExpect);
 
+  try
+   aOk:=False;
+   aServer.Listen(1000);
+  except
+   on e:EIdAcceptTimeout do aOk:=True;
+  end;
+  Assert(aOk);
   //add tests for normal operation
 
  finally
