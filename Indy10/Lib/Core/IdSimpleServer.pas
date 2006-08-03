@@ -298,11 +298,11 @@ var
   end;
 
 begin
-  Assert(IOHandler<>nil);
-
   if not FListening then begin
     BeginListen;
   end;
+
+  Assert(IOHandler<>nil);
 
   if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
     LAccepted := DoListenTimeout(ATimeout, True);
