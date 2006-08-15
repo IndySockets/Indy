@@ -207,6 +207,7 @@ type
     var VContinueProcessing: Boolean; const AInvalidSessionID: String) of object;
   TIdHTTPHeadersAvailableEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean) of object;
   TIdHTTPHeadersBlockedEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String) of object;
+  TIdHTTPHeaderExpectationsEvent = procedure(AContext: TIdContext; const AExpectations: String; var VContinueProcessing: Boolean);
 
   //objects
   EIdHTTPServerError = class(EIdException);
@@ -260,7 +261,6 @@ type
   TIdHTTPResponseInfo = class(TIdResponseHeaderInfo)
   protected
     FAuthRealm: string;
-    FContentType: string;
     FConnection: TIdTCPConnection;
     FResponseNo: Integer;
     FCookies: TIdServerCookies;
@@ -375,6 +375,7 @@ type
     FOnCommandOther: TIdHTTPCommandEvent;
     FOnHeadersAvailable: TIdHTTPHeadersAvailableEvent;
     FOnHeadersBlocked: TIdHTTPHeadersBlockedEvent;
+    FOnHeaderExpectations: TIdHTTPHeaderExpectationsEvent;
     //
     FSessionCleanupThread: TIdThread;
     FMaximumHeaderLineCount: Integer;
@@ -391,6 +392,8 @@ type
     procedure DoConnect(AContext: TIdContext); override;
     function DoHeadersAvailable(ASender: TIdContext; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
+    function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String); virtual;
+    //
     function DoExecute(AContext:TIdContext): Boolean; override;
     //
     procedure SetActive(AValue: Boolean); override;
@@ -421,6 +424,7 @@ type
     property OnCreateSession: TOnCreateSession read FOnCreateSession write FOnCreateSession;
     property OnHeadersAvailable: TIdHTTPHeadersAvailableEvent read FOnHeadersAvailable write FOnHeadersAvailable;
     property OnHeadersBlocked: TIdHTTPHeadersBlockedEvent read FOnHeadersBlocked write FOnHeadersBlocked;
+    property OnHeaderExpectations: TIdHTTPHeaderExpectationsEvent read FOnHeaderExpectations write FOnHeaderExpectations;
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive
      default Id_TId_HTTPServer_KeepAlive;
     property ParseParams: boolean read FParseParams write FParseParams
@@ -625,6 +629,14 @@ begin
   end;
 end;
 
+function TIdCustomHTTPServer.DoHeaderExpectations(ASender: TIdContext; const AExpectations: String);
+begin
+  Result := TextIsSame(AExpectations, '100-continue');  {Do not Localize}
+  if Assigned(OnHeaderExpectations) then begin
+    OnHeaderExpectations(ASender, AExpectations, Result);
+  end;
+end;
+
 function TIdCustomHTTPServer.DoExecute(AContext:TIdContext): boolean;
 var
   LRequestInfo: TIdHTTPRequestInfo;
@@ -663,8 +675,10 @@ var
   function HeadersCanContinue: Boolean;
   var
     LResponseNo: Integer;
-    LResponseText, LContentText: String;
+    LResponseText, LContentText, S: String;
+    LMajor, LMinor: Integer;
   begin
+    // let the user decide if the request headers are acceptable
     Result := DoHeadersAvailable(AContext, LRequestInfo.RawHeaders);
     if not Result then begin
       DoHeadersBlocked(AContext, LRequestInfo.RawHeaders, LResponseNo, LResponseText, LContentText);
@@ -678,12 +692,59 @@ var
       if Length(LContentText) > 0 then begin
         LResponseInfo.WriteContent;
       end;
+      Exit;
+    end;
+
+    // if the client has already sent some or all of the request
+    // body then don't bother checking for a v1.1 'Expect' header
+    if not AContext.Connection.IOHandler.InputBufferIsEmpty then begin
+      Exit;
+    end;
+    
+    // the request body has not been read yet, get the HTTP version
+    // and check for a v1.1 'Expect' header...
+    S := LRequestInfo.Version;
+    Fetch(S, '/');  {Do not localize}
+    LMajor := Sys.StrToInt(Fetch(S, '.'), -1);  {Do not Localize}
+    LMinor := Sys.StrToInt(Sys.Trim(S), -1);
+
+    if (LMajor < 1) or ((LMajor = 1) and (LMinor < 1)) then begin
+      Exit;
+    end;
+
+    S := LRequestInfo.RawHeaders.Values['Expect'];
+    if Length(S) = 0 then begin
+      Exit;
+    end;
+
+    // check if the client expectations can be satisfied...
+    Result := DoHeaderExpectations(AContext, S);
+    if not Result then begin
+      LResponseInfo.ResponseNo := 417;
+      LResponseInfo.ResponseText := '';
+      LResponseInfo.ContentText := '';
+      LResponseInfo.CloseConnection := True;
+      LResponseInfo.WriteHeader;
+      Exit;
+    end;
+
+    if Pos('100-continue', Sys.LowerCase(S)) > 0 then begin  {Do not Localize}
+      // the client requested a '100-continue' expectation so send
+      // a '100 Continue' reply now before the request body can be read
+      with AContext.Connection.IOHandler do begin
+        WriteBufferOpen; try
+          WriteLn(LRequestInfo.Version + ' 100 ' + RSHTTPContinue);    {Do not Localize}
+          WriteLn;
+        finally
+          WriteBufferClose;
+        end;
+      end;
     end;
   end;
 
 var
   i: integer;
-  s, LInputLine, LCmd, LVersion: String;
+  s, LInputLine, LCmd: String;
   LURI: TIdURI;
   LRawHTTPCommand: string;
   LContinueProcessing: Boolean;
@@ -717,6 +778,11 @@ begin
               // S.G. 6/4/2004: to prevent a remote resource starvation DOS
               IOHandler.MaxCapturedLines := MaximumHeaderLineCount;
 
+              // Retrieve the HTTP version
+              LRawHTTPCommand := LInputLine;
+              LRequestInfo.FVersion := Copy(LInputLine, i + 1, MaxInt);
+              SetLength(LInputLine, i - 1);
+
               // Retrieve the HTTP header
               LRequestInfo.RawHeaders.Clear;
               IOHandler.Capture(LRequestInfo.RawHeaders, '');    {Do not Localize}
@@ -728,9 +794,6 @@ begin
                 Break;
               end;
 
-              LRawHTTPCommand := LInputLine;
-              LVersion := Copy(LInputLine, i + 1, MaxInt);
-              SetLength(LInputLine, i - 1);
               {TODO Check for 1.0 only at this point}
               LCmd := Sys.UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
 
@@ -800,7 +863,6 @@ begin
 
               // Host
               // LRequestInfo.FHost := LRequestInfo.Headers.Values['host'];    {Do not Localize}
-              LRequestInfo.FVersion := LVersion;
 
               // Parse the document input line
               if LInputLine = '*' then begin    {Do not Localize}
@@ -1150,7 +1212,7 @@ begin
   FCookies := TIdServerCookies.Create(self);
   {TODO Specify version - add a class method dummy that calls version}
   ServerSoftware := GServerSoftware;
-  ContentType := GContentType;
+  ContentType := ''; //GContentType;
 
   FConnection := AConnection;
   FHttpServer := AServer;
@@ -1261,6 +1323,7 @@ begin
     413: ResponseText := RSHTTPRequestEntityToLong;
     414: ResponseText := RSHTTPRequestURITooLong;
     415: ResponseText := RSHTTPUnsupportedMediaType;
+    417: ResponseText := RSHTTPExpectationFailed;
     // 5XX Server errors
     500: ResponseText := RSHTTPInternalServerError;
     501: ResponseText := RSHTTPNotImplemented;
