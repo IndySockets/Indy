@@ -234,6 +234,7 @@ resourcestring
   RSHTTPRequestEntityToLong = 'Request Entity To Long';
   RSHTTPRequestURITooLong = 'Request-URI Too Long. 256 Chars max';
   RSHTTPUnsupportedMediaType = 'Unsupported Media Type';
+  RSHTTPExpectationFailed = 'Expectation Failed';
   RSHTTPInternalServerError = 'Internal Server Error';
   RSHTTPNotImplemented = 'Not Implemented';
   RSHTTPBadGateway = 'Bad Gateway';
