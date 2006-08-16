@@ -207,7 +207,7 @@ type
     var VContinueProcessing: Boolean; const AInvalidSessionID: String) of object;
   TIdHTTPHeadersAvailableEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VContinueProcessing: Boolean) of object;
   TIdHTTPHeadersBlockedEvent = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String) of object;
-  TIdHTTPHeaderExpectationsEvent = procedure(AContext: TIdContext; const AExpectations: String; var VContinueProcessing: Boolean);
+  TIdHTTPHeaderExpectationsEvent = procedure(AContext: TIdContext; const AExpectations: String; var VContinueProcessing: Boolean) of object;
 
   //objects
   EIdHTTPServerError = class(EIdException);
@@ -392,7 +392,7 @@ type
     procedure DoConnect(AContext: TIdContext); override;
     function DoHeadersAvailable(ASender: TIdContext; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
-    function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String); virtual;
+    function DoHeaderExpectations(ASender: TIdContext; const AExpectations: string): Boolean; virtual;
     //
     function DoExecute(AContext:TIdContext): Boolean; override;
     //
@@ -629,7 +629,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTPServer.DoHeaderExpectations(ASender: TIdContext; const AExpectations: String);
+function TIdCustomHTTPServer.DoHeaderExpectations(ASender: TIdContext; const AExpectations: string):Boolean;
 begin
   Result := TextIsSame(AExpectations, '100-continue');  {Do not Localize}
   if Assigned(OnHeaderExpectations) then begin
