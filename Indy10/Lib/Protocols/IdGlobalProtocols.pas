@@ -2059,6 +2059,8 @@ begin
     {NOTE:  All of these strings should never be translated
     because they are protocol specific and are important for some
     web-browsers}
+    { Animation}
+    Add('.nml=animation/narrative');
 
     { Audio }
     Add('.aiff=audio/x-aiff');    {Do not Localize}
@@ -2122,7 +2124,13 @@ begin
     { video/ }
     Add('.avi=video/x-msvideo');    {Do not Localize}
     Add('.flc=video/flc');    {Do not Localize}
+    Add('.mp2=video/mpeg');
+    Add('.mp3=video/mpeg');
+    Add('.mp4=video/mpeg');
     Add('.mpeg=video/x-mpeg2a');    {Do not Localize}
+    Add('.mpa=video/mpeg');
+    Add('.mpe=video/mpeg');
+    Add('.mpg=video/mpeg');
     Add('.mov=video/quicktime');    {Do not Localize}
     Add('.rv=video/vnd.rn-realvideo');    {Do not Localize}
     Add('.ivf=video/x-ivf');    {Do not Localize}
@@ -2136,67 +2144,237 @@ begin
     Add('.movie=video/x-sgi-movie');    {Do not Localize}
 
     { application/ }
-    Add('.wmd=application/x-ms-wmd');    {Do not Localize}
-    Add('.wms=application/x-ms-wms');    {Do not Localize}
-    Add('.wmz=application/x-ms-wmz');    {Do not Localize}
+    Add('.aab=application/x-authorware-bin');
+    Add('.aam=application/x-authorware-map');
+    Add('.aas=application/x-authorware-seg');
+    Add('.abw=application/x-abiword');
+    Add('.ai=application/postscript');
+    Add('.arj=application/x-arj');
+    Add('.asf=application/vnd.ms-asf');
+    Add('.bat=application/x-msdos-program');
+    Add('.bcpio=application/x-bcpio');
+    Add('.bz2=application/x-bzip2');
+    Add('.cab=application/vnd.ms-cab-compressed');
+    Add('.cat=application/vnd.ms-pki.seccat');    {Do not Localize}
+    Add('.ccn=application/x-cnc');
+    Add('.cco=application/x-cocoa');
+    Add('.cdf=application/x-cdf');    {Do not Localize}
+    Add('.cer=application/x-x509-ca-cert');    {Do not Localize}
+    Add('.chm=application/vnd.ms-htmlhelp');
+    Add('.chrt=application/vnd.kde.kchart');
+    Add('.cil=application/vnd.ms-artgalry');
+    Add('.class=application/java-vm');
+    Add('.com=application/x-msdos-program');
+    Add('.clp=application/x-msclip');
+    Add('.cpio=application/x-cpio');
+    Add('.cpt=application/mac-compactpro');
+    Add('.cqk=application/x-calquick');
+    Add('.crd=application/x-mscardfile');
+    Add('.crl=application/pkix-crl');    {Do not Localize}
+    Add('.csh=application/x-csh');
+    Add('.dbf=application/x-dbase');
+    Add('.dcr=application/x-director');
+    Add('.deb=application/x-debian-package');
+    Add('.dir=application/x-director');    {Do not Localize}
+    Add('.dist=vnd.apple.installer+xml');
+    Add('.distz=vnd.apple.installer+xml');
+    Add('.dll=application/x-msdos-program');
+  
+    Add('.dmg=application/x-apple-diskimage');
+
+    Add('.doc=application/msword');    {Do not Localize}
+    Add('.dot=application/msword');
+    Add('.dvi=application/x-dvi');
+
+    Add('.dxr=application/x-director');
+    Add('.ebk=application/x-expandedbook');
+    Add('.eps=application/postscript');
+    Add('.evy=application/envoy');
+    Add('.exe=application/x-msdos-program');
+    Add('.fdf=application/vnd.fdf');    {Do not Localize}
+    Add('.fif=application/fractals');    {Do not Localize}
+    Add('.flm=application/vnd.kde.kivio');
+    Add('.fml=application/x-file-mirror-list');    {Do not Localize}
+    Add('.gnumeric=application/x-gnumeric');
+    Add('.gtar=application/x-gtar');
+    Add('.gz=application/x-gzip');    {Do not Localize}
+    Add('.hdf=application/x-hdf');
+    Add('.hlp=application/winhlp');
+    Add('.hpf=application/x-icq-hpf');    {Do not Localize}
+    Add('.hqx=application/mac-binhex40');    {Do not Localize}
+    Add('.hta=application/hta');    {Do not Localize}
+    Add('.ims=application/vnd.ms-ims');
+    Add('.ins=application/x-internet-signup');    {Do not Localize}
+    Add('.iii=application/x-iphone');    {Do not Localize}
+    Add('.iso=application/x-iso9660-image');
+    Add('.jar=application/java-archive');
+    
+    Add('.karbon=application/vnd.kde.karbon');
+    Add('.kfo=application/vnd.kde.kformula');
+    Add('.kon=application/vnd.kde.kontour');
+    Add('.kpr=application/vnd.kde.kpresenter');
+    Add('.kpt=application/vnd.kde.kpresenter');
+    Add('.kwd=application/vnd.kde.kword');
+    Add('.kwt=application/vnd.kde.kword');
+    Add('.latex=application/x-latex');    {Do not Localize}
+    Add('.lha=application/x-lzh');
+    Add('.lcc=application/fastman');
+    Add('.lrm=application/vnd.ms-lrm');
+    Add('.lzh=application/x-lzh');
+    Add('.m13=application/x-msmediaview');
+    Add('.m14=application/x-msmediaview');
+    Add('.mpp=application/vnd.ms-project');
+    Add('.mvb=application/x-msmediaview');
+    Add('.man=application/x-troff-man');    {Do not Localize}
+    Add('.mdb=application/x-msaccess');
+    Add('.me=application/x-troff-me');
+    Add('.ms=application/x-troff-ms');
+    Add('.msi=application/x-msi');
+    Add('.mpkg=vnd.apple.installer+xml');
+    Add('.mny=application/x-msmoney');
+    Add('.nix=application/x-mix-transfer');    {Do not Localize}
+    Add('.o=application/x-object');
+    Add('.oda=application/oda');
+    Add('.odb=application/vnd.oasis.opendocument.database');
+    Add('.odc=application/vnd.oasis.opendocument.chart');
+    Add('.odf=application/vnd.oasis.opendocument.formula');
+    Add('.odg=application/vnd.oasis.opendocument.graphics');
+    Add('.odi=application/vnd.oasis.opendocument.image');
+    Add('.odm=application/vnd.oasis.opendocument.text-master');
+    Add('.odp=application/vnd.oasis.opendocument.presentation');
+    Add('.ods=application/vnd.oasis.opendocument.spreadsheet');
+    Add('.ogg=application/ogg');
+    Add('.odt=application/vnd.oasis.opendocument.text');
+    Add('.otg=application/vnd.oasis.opendocument.graphics-template');
+    Add('.oth=application/vnd.oasis.opendocument.text-web');
+    Add('.otp=application/vnd.oasis.opendocument.presentation-template');
+    Add('.ots=application/vnd.oasis.opendocument.spreadsheet-template');
+    Add('.ott=application/vnd.oasis.opendocument.text-template');
+    
+    Add('.p10=application/pkcs10');    {Do not Localize}
     Add('.p12=application/x-pkcs12');    {Do not Localize}
     Add('.p7b=application/x-pkcs7-certificates');    {Do not Localize}
-    Add('.p7r=application/x-pkcs7-certreqresp');    {Do not Localize}
-    Add('.qtl=application/x-quicktimeplayer');    {Do not Localize}
-    Add('.rtsp=application/x-rtsp');    {Do not Localize}
-    Add('.swf=application/x-shockwave-flash');    {Do not Localize}
-    Add('.sit=application/x-stuffit');    {Do not Localize}
-    Add('.tar=application/x-tar');    {Do not Localize}
-    Add('.man=application/x-troff-man');    {Do not Localize}
-    Add('.urls=application/x-url-list');    {Do not Localize}
-    Add('.zip=application/x-zip-compressed');    {Do not Localize}
-    Add('.cdf=application/x-cdf');    {Do not Localize}
-    Add('.fml=application/x-file-mirror-list');    {Do not Localize}
-    Add('.fif=application/fractals');    {Do not Localize}
-    Add('.spl=application/futuresplash');    {Do not Localize}
-    Add('.hta=application/hta');    {Do not Localize}
-    Add('.hqx=application/mac-binhex40');    {Do not Localize}
-    Add('.doc=application/msword');    {Do not Localize}
-    Add('.pdf=application/pdf');    {Do not Localize}
-    Add('.p10=application/pkcs10');    {Do not Localize}
     Add('.p7m=application/pkcs7-mime');    {Do not Localize}
+    Add('.p7r=application/x-pkcs7-certreqresp');    {Do not Localize}
     Add('.p7s=application/pkcs7-signature');    {Do not Localize}
-    Add('.cer=application/x-x509-ca-cert');    {Do not Localize}
-    Add('.crl=application/pkix-crl');    {Do not Localize}
+    
+    Add('.package=application/vnd.autopackage');
+    Add('.pfr=application/font-tdpfr');
+    Add('.pkg=vnd.apple.installer+xml');
+    Add('.pdf=application/pdf');    {Do not Localize}
+    Add('.pko=application/vnd.ms-pki.pko');    {Do not Localize}
+    Add('.pl=application/x-perl');
+    Add('.pnq=application/x-icq-pnq');    {Do not Localize}
+    
+    Add('.pot=application/mspowerpoint');
+    Add('.pps=application/mspowerpoint');
+    Add('.ppt=application/mspowerpoint');
+    Add('.ppz=application/mspowerpoint');
     Add('.ps=application/postscript');    {Do not Localize}
+    Add('.pub=application/x-mspublisher');
+    Add('.qpw=application/x-quattropro');
+    Add('.qtl=application/x-quicktimeplayer');    {Do not Localize}
+    Add('.rar=application/rar');
+    Add('.rdf=application/rdf+xml');
+    Add('.rjs=application/vnd.rn-realsystem-rjs');    {Do not Localize}
+    Add('.rm=application/vnd.rn-realmedia');    {Do not Localize}
+    Add('.rmf=application/vnd.rmf');    {Do not Localize}
+    Add('.rmp=application/vnd.rn-rn_music_package');    {Do not Localize}
+    Add('.rmx=application/vnd.rn-realsystem-rmx');    {Do not Localize}
+    Add('.rnx=application/vnd.rn-realplayer');    {Do not Localize}
+    Add('.rpm=application/x-redhat-package-manager');
+    Add('.rsml=application/vnd.rn-rsml');    {Do not Localize}
+    Add('.rtsp=application/x-rtsp');    {Do not Localize}
+    Add('.rss=application/rss+xml');
+    Add('.scm=application/x-icq-scm');    {Do not Localize}
+    Add('.ser=application/java-serialized-object');
+    Add('.sh=application/x-sh');
+    Add('.shar=application/x-shar');
+    Add('.scd=application/x-msschedule');
+    Add('.sda=application/vnd.stardivision.draw');
+    Add('.sdc=application/vnd.stardivision.calc');
+    Add('.sdd=application/vnd.stardivision.impress');
     Add('.sdp=application/x-sdp');    {Do not Localize}
     Add('.setpay=application/set-payment-initiation');    {Do not Localize}
     Add('.setreg=application/set-registration-initiation');    {Do not Localize}
-    Add('.smil=application/smil');    {Do not Localize}
-    Add('.ssm=application/streamingmedia');    {Do not Localize}
-    Add('.xfdf=application/vnd.adobe.xfdf');    {Do not Localize}
-    Add('.fdf=application/vnd.fdf');    {Do not Localize}
-    Add('.xls=application/x-msexcel');    {Do not Localize}
-    Add('.sst=application/vnd.ms-pki.certstore');    {Do not Localize}
-    Add('.pko=application/vnd.ms-pki.pko');    {Do not Localize}
-    Add('.cat=application/vnd.ms-pki.seccat');    {Do not Localize}
-    Add('.stl=application/vnd.ms-pki.stl');    {Do not Localize}
-    Add('.rmf=application/vnd.rmf');    {Do not Localize}
-    Add('.rm=application/vnd.rn-realmedia');    {Do not Localize}
-    Add('.rnx=application/vnd.rn-realplayer');    {Do not Localize}
-    Add('.rjs=application/vnd.rn-realsystem-rjs');    {Do not Localize}
-    Add('.rmx=application/vnd.rn-realsystem-rmx');    {Do not Localize}
-    Add('.rmp=application/vnd.rn-rn_music_package');    {Do not Localize}
-    Add('.rsml=application/vnd.rn-rsml');    {Do not Localize}
-    Add('.vsl=application/x-cnet-vsl');    {Do not Localize}
-    Add('.z=application/x-compress');    {Do not Localize}
-    Add('.tgz=application/x-compressed');    {Do not Localize}
-    Add('.dir=application/x-director');    {Do not Localize}
-    Add('.gz=application/x-gzip');    {Do not Localize}
-    Add('.uin=application/x-icq');    {Do not Localize}
-    Add('.hpf=application/x-icq-hpf');    {Do not Localize}
-    Add('.pnq=application/x-icq-pnq');    {Do not Localize}
-    Add('.scm=application/x-icq-scm');    {Do not Localize}
-    Add('.ins=application/x-internet-signup');    {Do not Localize}
-    Add('.iii=application/x-iphone');    {Do not Localize}
-    Add('.latex=application/x-latex');    {Do not Localize}
-    Add('.nix=application/x-mix-transfer');    {Do not Localize}
 
+    Add('.shw=application/presentations');
+    Add('.sit=application/x-stuffit');    {Do not Localize}
+    
+    Add('.skd=application/x-koan');
+    Add('.skm=application/x-koan');
+    Add('.skp=application/x-koan');
+    Add('.skt=application/x-koan');
+    Add('.smf=application/vnd.stardivision.math');
+    Add('.smi=application/smil');
+    Add('.smil=application/smil');    {Do not Localize}
+    Add('.spl=application/futuresplash');    {Do not Localize}
+    
+    Add('.ssm=application/streamingmedia');    {Do not Localize}
+    Add('.sst=application/vnd.ms-pki.certstore');    {Do not Localize}
+    Add('.stc=application/vnd.sun.xml.calc.template');
+    Add('.std=application/vnd.sun.xml.draw.template');
+    
+    Add('.sti=application/vnd.sun.xml.impress.template');
+    Add('.stl=application/vnd.ms-pki.stl');    {Do not Localize}
+    Add('.stw=application/vnd.sun.xml.writer.template');
+    Add('.svi=application/softvision');
+    Add('.sv4cpio=application/x-sv4cpio');
+    Add('.sv4crc=application/x-sv4crc');
+    Add('.swf=application/x-shockwave-flash');    {Do not Localize}
+    Add('.sxc=application/vnd.sun.xml.calc');
+    Add('.sxi=application/vnd.sun.xml.impress');
+    Add('.sxm=application/vnd.sun.xml.math');
+    Add('.sxw=application/vnd.sun.xml.writer');
+    Add('.sxg=application/vnd.sun.xml.writer.global');
+    Add('.t=application/x-troff');
+
+    Add('.tar=application/x-tar');    {Do not Localize}
+    Add('.tcl=application/x-tcl');
+    Add('.tex=application/x-tex');
+    Add('.texi=application/x-texinfo');
+    Add('.texinfo=application/x-texinfo');
+    Add('.tr=application/x-troff');
+    Add('.trm=application/x-msterminal');
+    Add('.troff=application/x-troff');
+    Add('.tsp=application/dsptype');
+    Add('.tgz=application/x-compressed');    {Do not Localize}
+
+    Add('.torrent=application/x-bittorrent');
+    Add('.ttz=application/t-time');
+    Add('.uin=application/x-icq');    {Do not Localize}
+    Add('.urls=application/x-url-list');    {Do not Localize}
+    Add('.ustar=application/x-ustar');
+    Add('.vcd=application/x-cdlink');
+    Add('.vor=application/vnd.stardivision.writer');
+    Add('.vsl=application/x-cnet-vsl');    {Do not Localize}
+    Add('.wcm=application/vnd.ms-works');
+    Add('.wb1=application/x-quattropro');
+    Add('.wb2=application/x-quattropro');
+    Add('.wb3=application/x-quattropro');
+    Add('.wdb=application/vnd.ms-works');
+    Add('.wks=application/vnd.ms-works');
+    
+    Add('.wmd=application/x-ms-wmd');    {Do not Localize}
+    Add('.wms=application/x-ms-wms');    {Do not Localize}
+    Add('.wmz=application/x-ms-wmz');    {Do not Localize}
+    Add('.wp5=application/wordperfect5.1');
+    Add('.wpd=application/wordperfect');
+    
+    Add('.wpl=application/vnd.ms-wpl');
+    Add('.wps=application/vnd.ms-works');
+    Add('.wri=application/x-mswrite');
+    Add('.xfdf=application/vnd.adobe.xfdf');    {Do not Localize}
+    Add('.xls=application/x-msexcel');    {Do not Localize}
+    Add('.xlb=application/x-msexcel'); 
+    Add('.xpi=application/x-xpinstall');
+    Add('.xps=application/vnd.ms-xpsdocument');
+    Add('.xsd=application/vnd.sun.xml.draw');
+    Add('.xul=application/vnd.mozilla.xul+xml');
+    Add('.z=application/x-compress');    {Do not Localize}
+    Add('.zoo=application/x-zoo');
+    Add('.zip=application/x-zip-compressed');    {Do not Localize}
+    
     { WAP }
     Add('.wbmp=image/vnd.wap.wbmp');    {Do not Localize}
     Add('.wml=text/vnd.wap.wml');    {Do not Localize}
@@ -2204,18 +2382,48 @@ begin
     Add('.wmls=text/vnd.wap.wmlscript');    {Do not Localize}
     Add('.wmlsc=application/vnd.wap.wmlscriptc');    {Do not Localize}
 
+    { Non-web text}
+    {
+    IMPORTANT!!
+
+    You should not use a text MIME type definition unless you are 
+    extremely certain that the file will NOT be a binary.  Some browsers 
+    will display the text instead of saving to disk and it looks ugly
+    if a web-browser shows all of the 8bit charactors.
+}
+    //of course, we have to add this :-).
+    Add('.p=text/x-pascal');
+    Add('.pas=text/x-pascal');
+
+    Add('.h++=text/x-c++hdr');
+    Add('.hpp=text/x-c++hdr');
+    Add('.hxx=text/x-c++hdr');
+    Add('.hh=text/x-c++hdr');
+    Add('.c++=text/x-c++src');
+    Add('.cpp=text/x-c++src');
+    Add('.cxx=text/x-c++src');
+    Add('.cc=text/x-c++src');
+
+    Add('.h=text/x-chdr');
+    Add('.c=text/x-csrc');
+    Add('.java=text/x-java');
     { WEB }
     Add('.css=text/css');    {Do not Localize}
+    Add('.js=text/javascript');
     Add('.htm=text/html');    {Do not Localize}
     Add('.html=text/html');    {Do not Localize}
+    Add('.ls=text/javascript');
+    Add('.mocha=text/javascript');
     Add('.shtml=server-parsed-html');    {Do not Localize}
     Add('.xml=text/xml');    {Do not Localize}
     Add('.sgm=text/sgml');    {Do not Localize}
     Add('.sgml=text/sgml');    {Do not Localize}
   end;
 
-  if not ALoadFromOS then Exit;
-
+  if not ALoadFromOS then
+  begin
+    Exit;
+  end;
   {$IFDEF MSWINDOWS}
   // Build the file type/MIME type map
   Reg := CreateTRegistry; try
