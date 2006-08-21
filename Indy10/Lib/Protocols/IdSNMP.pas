@@ -225,7 +225,9 @@ var
 begin
   x:=MIBValue.Count;
   for n:=x to MIBOID.Count-1 do
+  begin
     MIBValue.Add('');    {Do not Localize}
+  end;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -322,9 +324,13 @@ begin
   version:=0;
   fCommunity:=Owner.Community;
   if Self = fOwner.Trap then
-    Port := Owner.TrapPort
+  begin
+    Port := Owner.TrapPort;
+  end
   else
+  begin
     Port := Owner.Port;
+  end;
   Host := Owner.Host;
   PDUType:=0;
   ID:=0;
@@ -357,7 +363,10 @@ begin
     MIBvalue[x-1]:=Value;
     MibValue.Objects [x-1] := TObject (valueType)
   end
-  else MIBValue.AddObject(Value, TObject (valueType));
+  else 
+  begin
+    MIBValue.AddObject(Value, TObject (valueType));
+  end;  
 end;
 
 (*----------------------------------------------------------------------------*
@@ -391,8 +400,14 @@ var
 begin
   SyncMIB;
   x:=MIBOID.IndexOf(MIB);
-  if x<0 then Result:=''    {Do not Localize}
-    else Result:=MIBValue[x];
+  if x<0 then 
+  begin
+    Result:=''    {Do not Localize}
+  end
+  else
+  begin 
+    Result:=MIBValue[x];
+  end;
 end;
 
 {======================= TRAPS =====================================}
