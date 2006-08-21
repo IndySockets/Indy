@@ -383,7 +383,8 @@ resourcestring
   RSQueryUnknownError = 'Unknown Error %d, Id %d';
   RSQueryInvalidIpV6 = 'Invalid IP V6 Address. %s';
 
-
+  RSQueryMustProvideSOARecord = 'You have to provide a TIdRR_SOA object with Serial number and Name to progress IXFR. %d';
+ 
   { LPD Client Logging event strings }
   RSLPDDataFileSaved = 'Data file saved to %s';
   RSLPDControlFileSaved = 'Control file save to %s';
@@ -735,6 +736,7 @@ resourcestring
   RSFTPInvalidForParam = 'Command not implemented for that parameter.';
   RSFTPNotAllowedAfterEPSVAll = '%s not allowed after EPSV ALL';
 
+  RSFTPOTPMethod = 'Unknown OTP method';
   RSFTPIOHandlerWrong = 'IOHandler is of wrong type.';
   RSFTPFileNameCanNotBeEmpty = 'The destination filename can not be empty';
 
@@ -919,6 +921,7 @@ resourcestring
   RSIMAP4SvrImplicitTLSRequiresSSL = 'Implicit IMAP4 requires that IOHandler be set to a TIdServerIOHandlerSSLBase.';
 
   // OTP Calculator
+  RSFTPFSysErrMsg = 'Permission Denied';
   RSOTPUnknownMethod = 'Unknown OTP method';
 
 implementation
