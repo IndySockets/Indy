@@ -3308,7 +3308,7 @@ uses
 
 const
   {$IFDEF LINUX}
-  SSL_Indy_DLL_name    = 'libindy_ssl.so'; {Do not localize}
+ // SSL_Indy_DLL_name    = 'libindy_ssl.so'; {Do not localize}
   SSL_DLL_name         = 'libssl.so'; {Do not localize}
   SSLCLIB_DLL_name      = 'libcrypto.so'; {Do not localize}
   {$ELSE}
