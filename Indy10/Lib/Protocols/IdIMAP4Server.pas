@@ -1229,7 +1229,7 @@ end;
 
 function TIdIMAP4Server.ProcessStore(AUseUID: Boolean; ASender: TIdCommand; AParams: TIdStrings): Boolean;
 const
-  MsgFlags: array[0..4] of TIdMessageFlags = ( mfAnswered, mfFlagged, mfDeleted, mfDraft, mfSeen );
+  LCMsgFlags: array[0..4] of TIdMessageFlags = ( mfAnswered, mfFlagged, mfDeleted, mfDraft, mfSeen );
 var
   LMessageNumbers: TIdStringList;
   LFlagList: TIdStringList;
@@ -1314,11 +1314,11 @@ begin
           case LStoreMethod of
             sdAdd, sdReplace:
 	      begin
-	        LMessage.Flags := LMessage.Flags + [MsgFlags[LFlag]];
+	        LMessage.Flags := LMessage.Flags + [LCMsgFlags[LFlag]];
 	      end;
             sdRemove:
 	      begin
-	        LMessage.Flags := LMessage.Flags - [MsgFlags[LFlag]];
+	        LMessage.Flags := LMessage.Flags - [LCMsgFlags[LFlag]];
 	      end;
           end;
         end;
