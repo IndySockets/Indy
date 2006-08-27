@@ -381,7 +381,10 @@ procedure TSNMPInfo.MIBDelete(Index:integer);
 begin
   SyncMIB;
   MIBOID.Delete(Index);
-  if (MIBValue.Count-1)>= Index then MIBValue.Delete(Index);
+  if (MIBValue.Count-1)>= Index then 
+  begin
+    MIBValue.Delete(Index);
+  end;  
 end;
 
 (*----------------------------------------------------------------------------*
