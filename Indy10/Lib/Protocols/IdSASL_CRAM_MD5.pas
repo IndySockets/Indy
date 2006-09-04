@@ -62,166 +62,46 @@ unit IdSASL_CRAM_MD5;
 interface
 
 uses
+  IdHMACMD5,
   IdSASL,
-  IdSASLUserPass, IdCoderMIME;
+  IdSASLUserPass;
 
 type
-
 
   TIdSASLCRAMMD5 = class(TIdSASLUserPass)
   public
     class function BuildKeydMD5Auth(const Password, Challenge: string): string;
     class function ServiceName: TIdSASLServiceName; override;
-
     function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String;
-      override;
+    function ContinueAuthenticate(const ALastResponse: String): string; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHashMessageDigest, IdHash, idBuffer, IdSys,
-  IdObjs;
+  IdGlobal,
+  IdSys;
 
-{ TIdSASLCRAMMD5 }
-
-class function TIdSASLCRAMMD5.BuildKeydMD5Auth(const Password,  Challenge: string): string;
+class function TIdSASLCRAMMD5.BuildKeydMD5Auth(const Password, Challenge: string): string;
 var
-  AKey, ASecret,
-  WorkBuffer, opad, ipad: TIdMemoryStream;
-  Ahasher: TIdHashMessageDigest5;
-  Buffer: T4x4LongWordRecord;
-  // Hashes a stream and place the result in another stream
-  procedure _HashStream(Src, Dest: TIdMemoryStream; SrcSize: Integer);
-  begin
-    Src.position := 0;
-    Buffer := Ahasher.HashValue(Src);
-    Dest.Size := 0;
-    WriteTIdBytesToStream(Dest,ToBytes(Buffer[0]));
-    WriteTIdBytesToStream(Dest,ToBytes(Buffer[1]));
-    WriteTIdBytesToStream(Dest,ToBytes(Buffer[2]));
-    WriteTIdBytesToStream(Dest,ToBytes(Buffer[3]));
-    Dest.Position := 0;
-    // Dest.Seek(0, soFromBeginning);
-  end;
-  // Takes an input stream (Pad) and XOR the beginning with another "key" stream
-  procedure _XORStringPad(Key, Pad: TIdMemoryStream);
-  var
-    I: Integer;
-//    Selector: Integer;
-  begin
-    //APadSelector := 0;//Pad.Memory;
-    //AKeySelector := 0;//Key.Memory;
-    for I := 0 to Key.Size - 1 do    // Iterate
-    begin
-      TIdBytes(Pad.Memory)[i] := TIdBytes(Key.Memory)[i] XOR TIdBytes(Pad.Memory)[i]
-{      APadSelector^ := Byte(APadSelector^) XOR Byte(AKeySelector^);
-      inc(APadSelector);
-      inc(AKeySelector);}
-    end;    // for
-  end;
-  // Creates the necessary streams for the function
-  procedure _IniStreams;
-  begin
-    AKey := TIdMemoryStream.Create;
-    ASecret := TIdMemoryStream.Create;
-    WorkBuffer := TIdMemoryStream.Create;
-    opad := TIdMemoryStream.Create;
-    ipad := TIdMemoryStream.Create;
-  end;
-  // Release allocated streams
-  procedure _ReleaseStreams;
-  begin
-    if assigned(AKey) then
-      Sys.FreeAndNil(AKey);
-    if assigned(ASecret) then
-      Sys.FreeAndNil(ASecret);
-    if assigned(WorkBuffer) then
-      Sys.FreeAndNil(WorkBuffer);
-    if assigned(opad) then
-      Sys.FreeAndNil(opad);
-    if assigned(ipad) then
-      Sys.FreeAndNil(ipad);
-  end;
-  // Zero out a memory zone
-  procedure IdZeroMemory(Dest: TIdbytes; Length: Integer);
-  begin
-    CopyTIdBytes(ToBytes(StringOfChar(#0, Length)), 0, Dest, 0, Length);
-  end;
+ aHash:TIdHMACMD5;
+ aBuffer:TIdBytes;
 begin
-  Ahasher := TIdHashMessageDigest5.Create;
-  try
-    _IniStreams;
-    try
-      // Copy the key and secret data into the buffers.
-      // The key MUST be <=64 byte long and padded with zeros to 64 bytes
-      // In POP3/IMAP4, the "key" is actually the user's password
-      // Ideally, the key is exactly 16 bytes long. Shorter keys makes the
-      // system less secure while longuer key do not really add to security
-      AKey.Size := 64;
-      IdZeroMemory(AKey.Memory, AKey.Size);
-      if Length(Password) > 64 then
-      begin
-        // Key is longuer than 64 bytes
-        // Use the MD5 summ of key instead
-        Buffer := Ahasher.HashValue(Password);
-        WriteTIdBytesToStream(AKey,ToBytes(Buffer[0]));
-        WriteTIdBytesToStream(AKey,ToBytes(Buffer[1]));
-        WriteTIdBytesToStream(AKey,ToBytes(Buffer[2]));
-        WriteTIdBytesToStream(AKey,ToBytes(Buffer[3]));
-      end
-      else
-        WriteStringToStream(AKey,Password);
-
-      // The secret can be as long as one wishes
-      // In POP3/IMAP4 AUTH, it is the challenge sent by the server
-      WriteStringToStream(ASecret,Challenge);
-
-      // Initialize the inner pad
-      WriteStringToStream(ipad,StringOfChar(#$36, 64));
-      // XOR the inner pad and the string
-      _XORStringPad(AKey, ipad);
-      // Add the key at the end of the pad
-      ipad.Position := 64; //Seek(0, soFromEnd);
-      ASecret.Position := 0;
-      WriteMemoryStreamToStream(Asecret, ipad, ASecret.Size);
-
-      // Compute the MD5 hash of the result
-      _HashStream(ipad, WorkBuffer, ipad.Size);
-
-      // Initialize the outer pad
-      WriteStringToStream(opad,StringOfChar(#$5c, 64));
-
-
-      // XOR the outer pad with the key
-      _XORStringPad(AKey, opad);
-
-      // Add the result of the inner calculation to the end of the outer pad
-      opad.Position := opad.Size;
-      WriteMemoryStreamToStream(WorkBuffer, opad, WorkBuffer.Size);
-//      opad.WriteBuffer(WorkBuffer.memory^, WorkBuffer.Size);
-      opad.Position := 0;
-      // Compute the hash of the hashed inner padded string and the outter padded string
-      WorkBuffer.Size := 0;
-
-      _HashStream(opad, WorkBuffer, opad.Size);
-      opad.Position := 0;
-      result := Sys.LowerCase(Ahasher.AsHex(Ahasher.HashValue(opad)));
-
-      // S.G. 10/5/2003: ToDo: zero the memory so that sensitve info do not stay in memory
-    finally
-      _ReleaseStreams;
-    end;
-  finally
-    Ahasher.Free;
-  end;
+ aHash:=TIdHMACMD5.Create;
+ try
+  aHash.Key:=ToBytes(Password);
+  aBuffer:=ToBytes(Challenge);
+  aBuffer:=aHash.HashValue(aBuffer);
+  Result:=Sys.LowerCase(ToHex(aBuffer));
+ finally
+  Sys.FreeAndNil(aHash);
+ end;
 end;
 
-function TIdSASLCRAMMD5.ContinueAuthenticate(
-  const ALastResponse: String): String;
+function TIdSASLCRAMMD5.ContinueAuthenticate(const ALastResponse: String): String;
+//this is not called
 begin
-
+  Result:='';
 end;
 
 class function TIdSASLCRAMMD5.ServiceName: TIdSASLServiceName;
@@ -229,15 +109,11 @@ begin
   result := 'CRAM-MD5'; {do not localize}
 end;
 
-function TIdSASLCRAMMD5.StartAuthenticate(
-  const AChallenge: string): String;
-var
-  Digest: String;
+function TIdSASLCRAMMD5.StartAuthenticate(const AChallenge: string): String;
 begin
   if Length(AChallenge) > 0 then
   begin
-    Digest := GetUsername + ' ' + BuildKeydMD5Auth(GetPassword, AChallenge);
-    result := Digest;
+    result := GetUsername + ' ' + BuildKeydMD5Auth(GetPassword, AChallenge);
   end
   else
     result := '';
