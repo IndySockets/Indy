@@ -54,26 +54,12 @@ end;
 function TIdHMACSHA1.InternalHashValue(const ABuffer: TIdBytes): TIdBytes;
 var
   TempStream: TIdMemoryStream;
-  TempResult: T5x4LongWordRecord;
-  TempBuff: TIdBytes;
 begin
   TempStream := TIdMemoryStream.Create;
   try
     WriteTIdBytesToStream(TempStream, ABuffer);
     TempStream.Position := 0;
-    TempResult := FHashSHA1.HashValue(TempStream);
-    SetLength(TempBuff, 4);
-    SetLength(Result, FHashSize);
-    TempBuff := ToBytes(TempResult[0]);
-    CopyTIdBytes(TempBuff, 0, Result, 0, 4);
-    TempBuff := ToBytes(TempResult[1]);
-    CopyTIdBytes(TempBuff, 0, Result, 4, 4);
-    TempBuff := ToBytes(TempResult[2]);
-    CopyTIdBytes(TempBuff, 0, Result, 8, 4);
-    TempBuff := ToBytes(TempResult[3]);
-    CopyTIdBytes(TempBuff, 0, Result, 12, 4);
-    TempBuff := ToBytes(TempResult[4]);
-    CopyTIdBytes(TempBuff, 0, Result, 16, 4);
+    Result := FHashSHA1.HashValue(TempStream);
   finally
     Sys.FreeAndNil(TempStream);
   end;
