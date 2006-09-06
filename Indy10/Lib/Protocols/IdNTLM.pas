@@ -24,16 +24,16 @@
 
   S.G. 12/7/2002:
     - Rewrote Type 1 and Type 2 structures to be closer to the
-    document referenced in the above URL. (Easier to read and check)
-    - Corrected falgs accouring to bug ID 577895 and own packet traces.
-    This was actually only an adjustment to the new data types when
-    I rewrote the header.
-    - Initialized structures to #0 before using.
+                    document referenced in the above URL. (Easier to read and check)
+                  - Corrected falgs accouring to bug ID 577895 and own packet traces.
+                    This was actually only an adjustment to the new data types when
+                    I rewrote the header.
+                  - Initialized structures to #0 before using.
 }
 {
   Implementation of the NTLM authentication as specified in
   http://www.innovation.ch/java/ntlm.html with some fixes
-
+                  
   Author: Doychin Bondzhev (doychin@dsoft-bg.com)
   Copyright: (c) Chad Z. Hower and The Winshoes Working Group.
 }
@@ -209,24 +209,27 @@ end;
 
 //* create NT hashed password */
 function CreateNTPassword(APassword, nonce: String): String;
-Var
+var
   nt_pw: String;
   nt_hpw: array [1..21] of Char;
-  nt_hpw128: T4x4LongWordRecord absolute nt_hpw;
-  MD4_CTX: TIdHashMessageDigest4;
+  nt_hpw128: TIdBytes;
   nt_resp: array [1..24] of Char;
 begin
   nt_pw := BuildUnicode(APassword);
 
-  MD4_CTX := TIdHashMessageDigest4.Create;
-  nt_hpw128 := MD4_CTX.HashValue(nt_pw);
-  MD4_CTX.Free;
+  with TIdHashMessageDigest4.Create do
+  try
+    nt_hpw128 := HashValue(nt_pw);
+  finally
+    Free;
+  end;
 
+  Move(nt_hpw[1], nt_hpw128[0], 16);
   FillChar(nt_hpw[17], 5, 0);
 
   calc_resp(pdes_cblock(@nt_hpw[1]), nonce, Pdes_key_schedule(@nt_resp[1]));
 
-  result := nt_resp;
+  Result := nt_resp;
 end;
 
 function BuildType1Message(ADomain, AHost: String): String;
