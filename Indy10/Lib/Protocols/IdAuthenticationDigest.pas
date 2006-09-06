@@ -98,24 +98,12 @@ end;
 function TIdDigestAuthentication.Authentication: String;
 
   function ResultString(s: String): String;
-  var
-    MDValue: T4x4LongWordRecord;
-    LHash : TIdBytes;
-    i: Integer;
-    S1: String;
   begin
     with TIdHashMessageDigest5.Create do try
-      MDValue := HashValue(S);
+      Result := Sys.LowerCase(HashValueAsHex(S));
     finally Free end;
-    SetLength(LHash, 16);
-    CopyTIdLongWord(MDValue[0], LHash, 0);
-    CopyTIdLongWord(MDValue[1], LHash, 4);
-    CopyTIdLongWord(MDValue[2], LHash, 8);
-    CopyTIdLongWord(MDValue[3], LHash, 12);
-    for i := 0 to 15 do begin
-      S1 := S1 + Sys.Format('%02x', [LHash[i]]);  {do not localize}
-    end;
-    Result := Sys.LowerCase(Sys.StringReplace(S1, ' ', '0')); //Stupid uppercase, cost me a whole day to figure this one out
+    // RLebeau: how can spaces get into the Hex output?
+    Result := Sys.StringReplace(Result, ' ', '0'); //Stupid uppercase, cost me a whole day to figure this one out
   end;
 
 var
