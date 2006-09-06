@@ -211,11 +211,12 @@ begin
     StreamEnd := False;
     LPos := 0;
     repeat
-      nChars := Max(Length(VBuffer) - LPos, Length(LBuffer));
-      Inc(LPos, nChars);
+      nChars := Min(Length(VBuffer) - LPos, Length(LBuffer));
       if nChars = 0 then begin
         Break;
       end;
+      CopyTIdBytes(VBuffer, LPos, LBuffer, 0, nChars);
+      Inc(LPos, nChars);
       FDecompressRec.next_in := PChar(@LBuffer[0]);
       FDecompressRec.avail_in := nChars;
       FDecompressRec.total_in := 0;
