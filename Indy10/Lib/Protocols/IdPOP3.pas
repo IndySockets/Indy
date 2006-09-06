@@ -297,26 +297,25 @@ procedure TIdPOP3.Login;
 var
   S: String;
 begin
-  try
-    if UseTLS in ExplicitTLSVals then begin
-      if SupportsTLS then begin
-        if SendCmd('STLS','') = ST_OK then begin {Do not translate}
-          TLSHandshake;
-        end else begin
-          ProcessTLSNegCmdFailed;
-        end;
+  if UseTLS in ExplicitTLSVals then begin
+    if SupportsTLS then begin
+      if SendCmd('STLS','') = ST_OK then begin {Do not translate}
+        TLSHandshake;
       end else begin
-        ProcessTLSNotAvail;
+        ProcessTLSNegCmdFailed;
       end;
+    end else begin
+      ProcessTLSNotAvail;
     end;
+  end;
 
-    case FAuthType of
+  case FAuthType of
     atAPOP:  //APR
       begin
         if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(FAPOPToken+Password)));
+            S := Sys.LowerCase(HashValueAsHex(FAPOPToken+Password));
           finally
             Free;
           end;//try
@@ -335,10 +334,6 @@ begin
         EIdSASLMechNeeded.IfTrue(FSASLMechanisms.Count = 0, RSASLRequired);
         FSASLMechanisms.LoginSASL('AUTH', [ST_OK], [ST_SASLCONTINUE], Self, Capabilities, 'SASL'); {do not localize}
       end;
-    end;
-  except
-    Disconnect;
-    raise;
   end;
 end;
 
@@ -554,50 +549,32 @@ begin
   FHasCAPA := False;
   FAPOPToken := '';
 
-  if UseTLS in ExplicitTLSVals then begin
-    // TLS only enabled later in this case!
-    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
-  end;
-
   if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-      case FUseTLS of
-       utNoTLSSupport :
-       begin
-        (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
-       end;
-       utUseImplicitTLS :
-       begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
-       end
-       else
-        if FUseTLS<>utUseImplicitTLS then begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
-        end;
+    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := (FUseTLS <> utUseImplicitTLS);
+  end;
+
+  try
+    inherited Connect;
+    GetResponse(ST_OK);
+
+    // the initial greeting text is needed to determine APOP availability
+    S := LastCmdResult.Text.Strings[0];  //read response
+    I := Pos('<', S);    {Do not Localize}
+    if i > 0 then begin
+      S := Copy(S, I, MaxInt); //?: System.Delete(S,1,i-1);
+      I := Pos('>', S);    {Do not Localize}
+      if I > 0 then begin
+        FAPOPToken := Copy(S, 1, I);
       end;
-  end;
-
-  inherited Connect;
-  GetResponse(ST_OK);
-
-  // the initial greeting text is needed to determine APOP availability
-  S := LastCmdResult.Text.Strings[0];  //read response
-  I := Pos('<', S);    {Do not Localize}
-  if i > 0 then begin
-    S := Copy(S, I, MaxInt); //?: System.Delete(S,1,i-1);
-    I := Pos('>', S);    {Do not Localize}
-    if I > 0 then begin
-      S := Copy(S, 1, I);
-    end else begin
-      S := '';    {Do not Localize}
     end;
-  end else begin
-    S := ''; //no time-stamp    {Do not Localize}
-  end;
-  FAPOPToken := S;
-  FHasAPOP := (Length(FAPOPToken) > 0);
-  CAPA;
-  if FAutoLogin then begin
-    Login;
+    FHasAPOP := (Length(FAPOPToken) > 0);
+    CAPA;
+    if FAutoLogin then begin
+      Login;
+    end;
+  except
+    Disconnect;
+    raise;
   end;
 end;
 
