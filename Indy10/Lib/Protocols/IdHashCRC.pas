@@ -38,20 +38,22 @@ interface
 
 uses
   IdObjs,
+  IdSys,
   IdHash;
 
 type
-  TIdHashCRC16 = class( TIdHash16 )
+  TIdHashCRC16 = class(TIdHash16)
   public
-    function HashValue( AStream: TIdStream ) : Word; override;
+    function HashValue(AStream: TIdStream) : Word; override;
     procedure HashStart(var VRunningHash : Word); override;
     procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
   end;
 
-  TIdHashCRC32 = class( TIdHash32 )
+  TIdHashCRC32 = class(TIdHash32)
   public
-    function HashValue( AStream: TIdStream ) : LongWord; override;
-    function HashValue( AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;overload;
+    function HashValue(AStream: TIdStream) : LongWord; override;
+    function HashValue(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord; overload;
+    function HashValueAsHex(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : String; overload;
     procedure HashStart(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
   end;
@@ -175,7 +177,7 @@ end;
 
 { TIdHashCRC32 }
 
-function TIdHashCRC32.HashValue( AStream: TIdStream ) : LongWord;
+function TIdHashCRC32.HashValue(AStream: TIdStream) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNet
 var
@@ -184,19 +186,19 @@ var
   LSize: integer;
 begin
   Result := $FFFFFFFF;
-  LSize := AStream.Read( LBuffer, BufSize ) ;
+  LSize := AStream.Read(LBuffer, BufSize);
   while LSize > 0 do begin
     for i := 0 to LSize - 1 do begin
-      Result := ( ( Result shr 8 ) and $00FFFFFF ) xor CRC32Table[( Result xor LBuffer[i] ) and $FF];
+      Result := ((Result shr 8) and $00FFFFFF) xor CRC32Table[(Result xor LBuffer[i]) and $FF];
     end;
-    LSize := AStream.Read( LBuffer, BufSize ) ;
+    LSize := AStream.Read(LBuffer, BufSize);
   end;
   Result := Result xor $FFFFFFFF;
 end;
 
 procedure TIdHashCRC32.HashByte(var VRunningHash: LongWord; const AByte: Byte);
 begin
-  VRunningHash := ( ( VRunningHash shr 8 ) and $00FFFFFF ) xor CRC32Table[( VRunningHash xor AByte ) and $FF];
+  VRunningHash := ((VRunningHash shr 8) and $00FFFFFF) xor CRC32Table[(VRunningHash xor AByte) and $FF];
 end;
 
 procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
@@ -204,7 +206,7 @@ begin
   VRunningHash := $FFFFFFFF;
 end;
 
-function TIdHashCRC32.HashValue( AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord;
+function TIdHashCRC32.HashValue(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0}) : LongWord;
 const
   BufSize = 1024; // Keep it small for dotNet
 var
@@ -220,16 +222,21 @@ begin
   end else begin
     LData := AEndPos - ABeginPos;
   end;
-  LSize := AStream.Read( LBuffer, Min(BufSize, LData) ) ;
+  LSize := AStream.Read(LBuffer, Min(BufSize, LData));
   Dec(LData, LSize);
   while LSize > 0 do begin
     for i := 0 to LSize - 1 do begin
-      Result := ( ( Result shr 8 ) and $00FFFFFF ) xor CRC32Table[( Result xor LBuffer[i] ) and $FF];
+      Result := ((Result shr 8) and $00FFFFFF) xor CRC32Table[(Result xor LBuffer[i]) and $FF];
     end;
-    LSize := AStream.Read( LBuffer, Min(BufSize, LData) ) ;
+    LSize := AStream.Read(LBuffer, Min(BufSize, LData));
     Dec(LData, LSize);
   end;
   Result := Result xor $FFFFFFFF;
+end;
+
+function TIdHashCRC32.HashValueAsHex(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : String;
+begin
+  Result := Sys.IntToHex(HashValue(AStream, ABeginPos, AEndPos), 8);
 end;
 
 end.
