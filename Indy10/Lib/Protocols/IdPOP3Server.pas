@@ -230,7 +230,7 @@ type
     fAuthenticated: boolean;
     fAPOP3Challenge : String;
     //
-    function GetUsingTLS:boolean;
+    function GetUsingTLS: boolean;
   public
     // Any functions for vars
     property APOP3Challenge: string read FAPOP3Challenge write FAPOP3Challenge;
@@ -244,11 +244,11 @@ type
   TIdPOP3ServerStatEvent = procedure(aCmd: TIdCommand; out oCount: integer; out oSize: integer) of object;
   TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMsgNo :Integer) of object;
 
-  TIdPOP3ServerLogin = procedure (aContext :TIdContext; aServerContext : TIdPOP3ServerContext) of object;
+  TIdPOP3ServerLogin = procedure(aContext: TIdContext; aServerContext: TIdPOP3ServerContext) of object;
 
   //Note that we require the users valid password so we can hash it with the Challenge we greeted the user with.
-  TIdPOP3ServerAPOPCommandEvent = procedure (aCmd: TIdCommand; aMailboxID :String; var vUsersPassword:String) of object;
-  TIdPOP3ServerTOPCommandEvent = procedure (aCmd: TIdCommand; aMsgNo :Integer; aLines :Integer) of object;
+  TIdPOP3ServerAPOPCommandEvent = procedure (aCmd: TIdCommand; aMailboxID: String; var vUsersPassword: String) of object;
+  TIdPOP3ServerTOPCommandEvent = procedure (aCmd: TIdCommand; aMsgNo: Integer; aLines: Integer) of object;
 
   EIdPOP3ServerException = class(EIdException);
   EIdPOP3ImplicitTLSRequiresSSL = class(EIdPOP3ServerException);
@@ -461,7 +461,7 @@ var
   LThread: TIdPOP3ServerContext;
 begin
   LThread := TIdPOP3ServerContext(aCmd.Context);
-  if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
+  if (FUseTLS = utUseRequireTLS) and (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then
   begin
     MustUseTLS(aCmd);
   end else begin
@@ -471,7 +471,7 @@ begin
     if Assigned(OnCheckUser) then begin
       OnCheckUser(aCmd.Context, LThread);
     end;
-    LThread.fAuthenticated := true;
+    LThread.fAuthenticated := True;
     aCmd.Reply.SetReply(OK, RSPOP3SvrLoginOk);
   end;
 end;
@@ -513,7 +513,7 @@ begin
   LThread := TIdPOP3ServerContext(aCmd.Context);
   if not LThread.Authenticated then
   begin
-    if (FUseTLS =utUseRequireTLS) and ((aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough=True) then
+    if (FUseTLS = utUseRequireTLS) and (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough then
     begin
       MustUseTLS(aCmd);
     end
@@ -524,13 +524,12 @@ begin
        OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
        with TIdHashMessageDigest5.Create do
        try
-         LValidHash := Sys.LowerCase(TIdHash128.AsHex(
-           HashValue(LThread.APOP3Challenge + LValidPassword)));
-         if (LValidHash =aCmd.Params[1]) then
+         LValidHash := Sys.LowerCase(HashValueAsHex(LThread.APOP3Challenge + LValidPassword));
+         if LValidHash = aCmd.Params[1] then
          begin
-           LThread.fAuthenticated := true;
+           LThread.fAuthenticated := True;
          end;
-       finally free; end;
+       finally Free; end;
 
        // User to set return state of LThread.State as required.
        if not LThread.Authenticated then
