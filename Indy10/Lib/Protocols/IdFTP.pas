@@ -1579,15 +1579,21 @@ begin
           Self.SendCmd('REST ' + Sys.IntToStr(ADest.Position), [350]);   {do not localize}
         end;
         Self.IOHandler.WriteLn(ACommand);
-        Self.GetResponse([125, 150, 154]); //APR: Ericsson Switch FTP
-        if (FDataPortProtection = ftpdpsPrivate) then begin
-          TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
-        end;
-        if FCurrentTransferMode = dmStream then begin
-          LPasvCl.IOHandler.ReadStream(ADest, -1, True);
-        end else begin
-          FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
-          //ReadCompressedData(FCompressor, ADest, LPasvCl.IOHandler, FZLibWindowBits);
+        // APR: Ericsson Switch FTP
+        //
+        // RLebeau: some servers send 450 when no files are
+        // present, so do not read the stream in that case
+        if Self.GetResponse([125, 150, 154, 450]) <> 450 then
+        begin
+          if (FDataPortProtection = ftpdpsPrivate) then begin
+            TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
+          end;
+          if FCurrentTransferMode = dmStream then begin
+            LPasvCl.IOHandler.ReadStream(ADest, -1, True);
+          end else begin
+            FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
+            //ReadCompressedData(FCompressor, ADest, LPasvCl.IOHandler, FZLibWindowBits);
+          end;
         end;
       finally
         LPasvCl.Disconnect;
@@ -3448,9 +3454,6 @@ var
   LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
-  LHashMD5 : TIdHashMessageDigest5;
-  LHashSHA1 : TIdHashSHA1;
-  LHashCRC : TIdHashCRC32;
   LHashType : Integer; //0 - XSHA1, 1 - XMD5, 2 - XCRC
   LByteCount : Int64;  //used instead of AByteCount so you we don't exceed the file size
 begin
@@ -3479,11 +3482,11 @@ begin
   case LHashType of
     0 : //XSHA1
       begin
-        LHashSHA1 := TIdHashSHA1.Create;
+        with TIdHashSHA1.Create do
         try
-          LLocalCRC := Sys.UpperCase(TIdHashSHA1.AsHex(LHashSHA1.HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
+          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
         finally
-          Sys.FreeAndNil(LHashMD5);
+          Free;
         end;
 
         //XMD5 "filename" startpos endpos
@@ -3509,11 +3512,11 @@ begin
 
     1 : //XMD5
       begin
-        LHashMD5 := TIdHashMessageDigest5.Create;
+        with TIdHashMessageDigest5.Create do
         try
-          LLocalCRC := Sys.UpperCase(TIdHashMessageDigest5.AsHex(LHashMD5.HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
+          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
         finally
-          Sys.FreeAndNil(LHashMD5);
+          Free;
         end;
 
         //XMD5 "filename" startpos endpos
@@ -3542,11 +3545,11 @@ begin
 
     2 : //XCRC
       begin
-        LHashCRC := TIdHashCRC32.Create;
+        with TIdHashCRC32.Create do
         try
-          LLocalCRC := Sys.UpperCase(Sys.IntToHex(LHashCRC.HashValue(ALocalFile, AStartPoint, LByteCount), 4));
+          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, LByteCount));
         finally
-          Sys.FreeAndNil(LHashMD5);
+          Free;
         end;
 
         LCmd := 'XCRC "' + ARemoteFile + '"';
