@@ -160,11 +160,11 @@ begin
         begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(TIdHash128.AsHex(HashValue(LBuf+Password)));
+            S := Sys.LowerCase(HashValueAsHex(LBuf+Password));
           finally
             Free;
           end;//try
-          SendCmd('AUTH '+Username+' '+S,230); {do not localize}
+          SendCmd('AUTH ' + Username + ' ' + S, 230); {do not localize}
         end;
       end;
     end
