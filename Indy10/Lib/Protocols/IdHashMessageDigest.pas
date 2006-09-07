@@ -62,7 +62,7 @@ type
   RLebeau 8/27/2006 - C++Builder does not allow Delphi functions
   to return arrays in the Result, so use TIdBytes results instead
   }
-  
+
   TIdHashMessageDigest = class(TIdHash128);
 
   TIdHashMessageDigest2 = class(TIdHashMessageDigest)
@@ -405,7 +405,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
   &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
 {$ELSE}
-  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*4);
+  Move(Result[0], FState[0], SizeOf(LongWord)*4);
 {$ENDIF}
 end;
 
@@ -475,7 +475,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
   &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
 {$ELSE}
-  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*4);
+  Move(Result[0], FState[0], SizeOf(LongWord)*4);
 {$ENDIF}
 end;
 
