@@ -56,6 +56,7 @@ interface
 
 uses
   IdSys,
+  IdGlobal,
   IdObjs;
 
 type
@@ -109,7 +110,6 @@ type
 implementation
 
 uses
-  IdGlobal,
   IdGlobalProtocols;
 
 { TIdHash16 }

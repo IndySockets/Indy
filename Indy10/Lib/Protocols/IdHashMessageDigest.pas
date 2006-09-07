@@ -46,6 +46,8 @@ interface
 
 uses
   IdObjs,
+  IdGlobal,
+  IdSys,
   IdHash;
 
 type
@@ -396,8 +398,15 @@ begin
   end;
   MDCoder;
 
-  SetLength(Result, SizeOf(LongWord)*4);
-  Move(Result[0], FState[0], SizeOf(LongWord)*4);
+  SetLength(Result, 16);
+{$IFDEF DotNetDistro}
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 0, Result, 0, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 1, Result, 4, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
+{$ELSE}
+  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*4);
+{$ENDIF}
 end;
 
 function TIdHashMessageDigest4.HashValue(AStream: TIdStream; const ABeginPos, AEndPos: Int64): TidBytes;
@@ -459,8 +468,15 @@ begin
   end;
   MDCoder;
 
-  SetLength(Result, SizeOf(LongWord)*4)
-  Move(Result[0], FState[0], SizeOf(LongWord)*4);
+  SetLength(Result, 16);
+{$IFDEF DotNetDistro}
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 0, Result, 0, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 1, Result, 4, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
+  &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
+{$ELSE}
+  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*4);
+{$ENDIF}
 end;
 
 { TIdHashMessageDigest5 }

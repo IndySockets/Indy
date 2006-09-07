@@ -48,6 +48,7 @@ interface
 
 uses
   IdObjs,
+  IdGlobal,
   IdHash;
 
 const
@@ -131,8 +132,16 @@ begin
   FCheckSum[3] := SwapLongWord(FCheckSum[3]);
   FCheckSum[4] := SwapLongWord(FCheckSum[4]);
 
-  SetLength(Result, SizeOf(LongWord)*5);
+  SetLength(Result, 4*5);
+{$IFDEF DotNetDistro}
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 0, Result, 0, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 1, Result, 4, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 2, Result, 8, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
+{$ELSE}
   Move(Result[0], FCheckSum[0], SizeOf(LongWord)*5);
+{$ENDIF}
 end;
 
 {$Q-,R-} // Operations performed modulo $100000000
@@ -416,7 +425,15 @@ begin
   FCheckSum[4] := SwapLongWord(FCheckSum[4]);
 
   SetLength(Result, SizeOf(LongWord)*5);
+{$IFDEF DotNetDistro}
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 0, Result, 0, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 1, Result, 4, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 2, Result, 8, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
+  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
+{$ELSE}
   Move(Result[0], FCheckSum[0], SizeOf(LongWord)*5);
+{$ENDIF}
 end;
 
 end.

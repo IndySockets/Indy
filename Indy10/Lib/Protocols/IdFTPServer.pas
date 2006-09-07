@@ -4313,7 +4313,7 @@ var LMD : TIdHashMessageDigest5;
 begin
   LMD := TIdHashMessageDigest5.Create;
   try
-    Result := TIdHashMessageDigest5.AsHex(LMD.HashValue(AStrm,ABeginPos,AEndPos));
+    Result := ToHex(LMD.HashValue(AStrm,ABeginPos,AEndPos));
   finally
     Sys.FreeAndNil(LMD);
   end;

@@ -3484,7 +3484,7 @@ begin
       begin
         with TIdHashSHA1.Create do
         try
-          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
+          LLocalCRC := Sys.UpperCase(ToHex(HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
         finally
           Free;
         end;
@@ -3514,7 +3514,7 @@ begin
       begin
         with TIdHashMessageDigest5.Create do
         try
-          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
+          LLocalCRC := Sys.UpperCase(ToHex(HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
         finally
           Free;
         end;

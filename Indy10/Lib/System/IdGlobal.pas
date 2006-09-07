@@ -848,6 +848,7 @@ procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
 
 function BytesToCardinal(const AValue: TIdBytes; const AIndex: Integer = 0): Cardinal;
 function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
+function BytesToLongWord(const AValue: TIdBytes; const AIndex : Integer = 0): LongWord;
 
 function ToHex(const AValue: TIdBytes): AnsiString; overload;
 function ToHex(const AValue: array of LongWord): AnsiString; overload; // for IdHash
@@ -2775,6 +2776,16 @@ begin
   Result := System.BitConverter.ToInt64(AValue, AIndex);
   {$ELSE}
   Result := PInt64(@AValue[AIndex])^;
+  {$ENDIF}
+end;
+
+function BytesToLongWord(const AValue: TIdBytes; const AIndex: Integer = 0): LongWord;
+begin
+  Assert(Length(AValue) >= (AIndex+SizeOf(LongWord)));
+  {$IFDEF DOTNET}
+  Result := System.BitConverter.ToUInt32(AValue, AIndex);
+  {$ELSE}
+  Result := PLongWord(@AValue[AIndex])^;
   {$ENDIF}
 end;
 
