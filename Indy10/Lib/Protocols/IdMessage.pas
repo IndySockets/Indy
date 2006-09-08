@@ -682,6 +682,7 @@ procedure TIdMessage.InitComponent;
 begin
   inherited;
   FBody := TIdStringList.Create;
+  TIdStringList(FBody).Duplicates := iddupAccept;
   FRecipients := TIdEmailAddressList.Create(Self);
   FBccList := TIdEmailAddressList.Create(Self);
   FCcList := TIdEmailAddressList.Create(Self);
