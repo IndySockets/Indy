@@ -113,6 +113,7 @@ implementation
 
 Uses
   SysUtils,
+  IdGlobal,
   IdHash,
   IdHashMessageDigest,
   IdCoderMIME;
