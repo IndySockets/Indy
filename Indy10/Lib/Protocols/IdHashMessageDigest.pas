@@ -405,7 +405,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
   &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
 {$ELSE}
-  Move(Result[0], FState[0], SizeOf(LongWord)*4);
+  Move(FState[0], Result[0], SizeOf(LongWord)*4);
 {$ENDIF}
 end;
 
@@ -475,7 +475,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FState[0]), 2, Result, 8, 4);
   &Array.Copy(BitConverter.GetBytes(FState[0]), 3, Result, 12, 4);
 {$ELSE}
-  Move(Result[0], FState[0], SizeOf(LongWord)*4);
+  Move(FState[0], Result[0], SizeOf(LongWord)*4);
 {$ENDIF}
 end;
 

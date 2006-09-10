@@ -140,7 +140,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
   &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
 {$ELSE}
-  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*5);
+  Move(FCheckSum[0], Result[0], SizeOf(LongWord)*5);
 {$ENDIF}
 end;
 
@@ -432,7 +432,7 @@ begin
   &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
   &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
 {$ELSE}
-  Move(Result[0], FCheckSum[0], SizeOf(LongWord)*5);
+  Move(FCheckSum[0], Result[0],SizeOf(LongWord)*5);
 {$ENDIF}
 end;
 
