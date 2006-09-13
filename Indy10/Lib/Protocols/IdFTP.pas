@@ -1233,9 +1233,11 @@ begin
   //where SSCN is ignored.
   ClearSSCN;
   AResume := AResume and CanResume;
+  DoBeforeGet;
   // RLebeau 7/26/06: do not do this! It breaks the ability to resume files
   // ADest.Position := 0;
   InternalGet('RETR ' + ASourceFile, ADest, AResume);
+  DoAfterGet;
 end;
 
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean = False;
@@ -1271,7 +1273,7 @@ begin
   end;
 end;
 
-procedure TIdFTP.DoBeforePut (AStream: TIdStream);
+procedure TIdFTP.DoBeforePut(AStream: TIdStream);
 begin
   if Assigned(FOnBeforePut) then begin
     FOnBeforePut(Self, AStream);
@@ -1782,7 +1784,9 @@ end;
 
 procedure TIdFTP.StoreUnique(const ASource: TIdStream);
 begin
+  DoBeforePut(ASource);
   InternalPut('STOU', ASource);  {Do not localize}
+  DoAfterPut(ASource);
 end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
@@ -3484,7 +3488,7 @@ begin
       begin
         with TIdHashSHA1.Create do
         try
-          LLocalCRC := Sys.UpperCase(ToHex(HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
+          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
         finally
           Free;
         end;
@@ -3514,7 +3518,7 @@ begin
       begin
         with TIdHashMessageDigest5.Create do
         try
-          LLocalCRC := Sys.UpperCase(ToHex(HashValue(ALocalFile, AStartPoint, AStartPoint + LByteCount)));
+          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
         finally
           Free;
         end;
