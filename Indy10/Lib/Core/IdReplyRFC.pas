@@ -176,6 +176,7 @@ var
 begin
   if ADest is TIdReplyRFC then begin
     LR := TIdReplyRFC(ADest);
+    //set code first as it possibly clears the reply
     LR.NumericCode := NumericCode;
     LR.Text.Assign(Text);
   end else begin
@@ -226,9 +227,11 @@ end;
 
 class function TIdReplyRFC.IsEndMarker(const ALine: string): Boolean;
 begin
-  // Use copy not ALine[4] as it might not be long enough for that reference
-  // to be valid
-  Result := (Length(ALine) < 4) or (Copy(ALine, 4, 1) = ' ');
+  if Length(ALine) >= 4 then begin
+    Result := ALine[4] = ' ';
+  end else begin
+    Result := True;
+  end;
 end;
 
 procedure TIdReplyRFC.RaiseReplyError;
