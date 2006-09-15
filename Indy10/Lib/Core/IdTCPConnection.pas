@@ -376,7 +376,7 @@ type
     procedure DoOnDisconnected; virtual;
     procedure InitComponent; override;
     function GetIntercept: TIdConnectionIntercept; virtual;
-    function GetReplyClass:TIdReplyClass; virtual;
+    function GetReplyClass: TIdReplyClass; virtual;
     procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
     procedure SetIntercept(AValue: TIdConnectionIntercept); virtual;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
@@ -432,12 +432,9 @@ type
     procedure RaiseExceptionForLastCmdResult(AException: TClassIdException);
      overload; virtual;
     // These are extended GetResponses, so see the comments for GetResponse
-    function SendCmd(AOut: string; AResponse: SmallInt = -1)
-     : SmallInt; overload;
-    function SendCmd(AOut: string; const AResponse: array of SmallInt)
-     : SmallInt; overload; virtual;
-    function SendCmd(AOut: string; AResponse: string): string;
-     overload;
+    function SendCmd(AOut: string; const AResponse: SmallInt = -1): SmallInt; overload;
+    function SendCmd(AOut: string; const AResponse: array of SmallInt): SmallInt; overload; virtual;
+    function SendCmd(AOut: string; const AResponse: string): string; overload;
     //
     procedure WriteHeader(AHeader: TIdStrings);
     procedure WriteRFCStrings(AStrings: TIdStrings);
@@ -576,8 +573,7 @@ begin
   LastCmdResult.RaiseReplyError;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string;
- const AResponse: Array of SmallInt): SmallInt;
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: Array of SmallInt): SmallInt;
 begin
   CheckConnected;
   PrepareCmd(AOut);
@@ -670,7 +666,7 @@ begin
   end;
 end;
 
-function TIdTCPConnection.SendCmd(AOut: string; AResponse: SmallInt)
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: SmallInt)
  : SmallInt;
 begin
   if AResponse < 0 then begin
@@ -723,7 +719,9 @@ begin
     LLine := IOHandler.ReadLnWait;
     LResponse.Add(LLine);
     while not FLastCmdResult.IsEndMarker(LLine) do begin
-      LLine := IOHandler.ReadLn;
+      // RLebeau 9/14/06: this can happen in between lines of the reply as well
+      // LLine := IOHandler.ReadLn;
+      LLine := IOHandler.ReadLnWait;
       LResponse.Add(LLine);
     end;
     //Note that FormattedReply uses an assign in it's property set method.
@@ -748,7 +746,7 @@ begin
   Result := CheckResponse(LastCmdResult.Code, AAllowedResponse);
 end;
 
-function TIdTCPConnection.SendCmd(AOut, AResponse: string): string;
+function TIdTCPConnection.SendCmd(AOut: string; const AResponse: string): string;
 begin
   CheckConnected;
   PrepareCmd(AOut);
