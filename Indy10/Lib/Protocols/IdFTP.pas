@@ -1237,7 +1237,7 @@ begin
   // RLebeau 7/26/06: do not do this! It breaks the ability to resume files
   // ADest.Position := 0;
   InternalGet('RETR ' + ASourceFile, ADest, AResume);
-  DoAfterGet;
+  DoAfterGet(ADest);
 end;
 
 procedure TIdFTP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean = False;
@@ -1786,7 +1786,7 @@ procedure TIdFTP.StoreUnique(const ASource: TIdStream);
 begin
   DoBeforePut(ASource);
   InternalPut('STOU', ASource);  {Do not localize}
-  DoAfterPut(ASource);
+  DoAfterPut;
 end;
 
 procedure TIdFTP.StoreUnique(const ASourceFile: string);
