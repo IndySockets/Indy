@@ -781,6 +781,7 @@ begin
   // ":sender!pc@domain"
   if (AData <> '') and (AData[1] = ':') then begin
     LTmp := Fetch(AData, #32);
+    Delete(LTmp, 1, 1); // remove ':'
     FSenderNick := Fetch(LTmp, '!');
     FSenderHost := LTmp;
   end else begin
@@ -1020,27 +1021,36 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFWHOIS(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnWhoIs) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnWhoIs(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFWHOWAS(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnWhoWas) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnWhoWas(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandLISTEND(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnSvrList) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnServerListReceived(ASender.Context, FTmp);
     FTmp.Clear;
   end;
@@ -1061,72 +1071,96 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFINVITELIST(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnINVList) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnInvitationListReceived(ASender.Context, FSenderNick, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFEXCEPTLIST(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnEXCList) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnExceptionListReceived(ASender.Context, FSenderNick, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFWHO(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnWho) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnWho(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFNAMES(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnNickList) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnNicknamesListReceived(ASender.Context, FSenderNick, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFLINKS(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnKnownSvrs) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnKnownServersListReceived(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFBANLIST(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnBanList) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnBanListReceived(ASender.Context, FSenderNick, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFINFO(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnUserInfo) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    //LTmp := ASender.UnparsedParams;
+    //FTmp.Add(FetchIRCParam(LTmp));
     OnUserInfoReceived(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFMOTD(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnMOTD) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    //LTmp := ASender.UnparsedParams;
+    //FTmp.Add(FetchIRCParam(LTmp));
     OnMOTD(ASender.Context, FTmp);
     FTmp.Clear;
   end;
@@ -1140,18 +1174,24 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFUSERS(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnSvrUsers) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    // LTmp := ASender.UnparsedParams;
+    // FTmp.Add(FetchIRCParam(LTmp));
     OnServerUsersListReceived(ASender.Context, FTmp);
     FTmp.Clear;
   end;
 end;
 
 procedure TIdIRC.CommandENDOFSTATS(ASender: TIdCommand);
+var
+  LTmp: String;
 begin
   if Assigned(FOnSvrStats) then begin
-    FTmp.Add(ASender.UnparsedParams);
+    LTmp := ASender.UnparsedParams;
+    FTmp.Add(FetchIRCParam(LTmp));
     OnServerStatsReceived(ASender.Context, FTmp);
     FTmp.Clear;
   end;
