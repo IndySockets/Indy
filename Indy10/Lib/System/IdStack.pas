@@ -798,9 +798,5 @@ initialization
    {$IFDEF DOTNET}    TIdStackDotNet;  {$ENDIF}
   GStackCriticalSection := TIdCriticalSection.Create;
 finalization
-  // Dont Free. If shutdown is from another Init section, it can cause GPF when stack
-  // tries to access it. App will kill it off anyways, so just let it leak
-  {$IFDEF IDFREEONFINAL}
   Sys.FreeAndNil(GStackCriticalSection);
-  {$ENDIF}
 end.
