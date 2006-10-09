@@ -440,7 +440,7 @@ begin
           end;
         end else begin
           LByteCount := 0;
-          EIdException.IfTrue(ARaiseExceptionIfDisconnected, RSNotConnected);
+          EIdNotConnected.IfTrue(ARaiseExceptionIfDisconnected, RSNotConnected);
         end;
         FClosedGracefully := LByteCount = 0;
         // Check here as other side may have closed connection
