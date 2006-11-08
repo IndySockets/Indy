@@ -97,10 +97,10 @@ end;
 
 function TIdDigestAuthentication.Authentication: String;
 
-  function ResultString(s: String): String;
+  function ResultString(const s: String): String;
   begin
     with TIdHashMessageDigest5.Create do try
-      Result := Sys.LowerCase(HashValueAsHex(S));
+      Result := Sys.LowerCase(HashStringAsHex(S));
     finally Free end;
     // RLebeau: how can spaces get into the Hex output?
     Result := Sys.StringReplace(Result, ' ', '0'); //Stupid uppercase, cost me a whole day to figure this one out

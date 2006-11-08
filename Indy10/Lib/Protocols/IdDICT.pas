@@ -160,7 +160,7 @@ begin
         begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(HashValueAsHex(LBuf+Password));
+            S := Sys.LowerCase(HashStringAsHex(LBuf+Password));
           finally
             Free;
           end;//try

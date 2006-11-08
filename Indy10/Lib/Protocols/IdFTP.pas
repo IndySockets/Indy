@@ -3458,8 +3458,8 @@ var
   LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
-  LHashType : Integer; //0 - XSHA1, 1 - XMD5, 2 - XCRC
   LByteCount : Int64;  //used instead of AByteCount so you we don't exceed the file size
+  LHashClass: TIdHashClass;
 begin
   LLocalCRC := '';
   LRemoteCRC := '';
@@ -3468,102 +3468,74 @@ begin
     ALocalFile.Position := AStartPoint;
   end;
   
-  LByteCount := ALocalFile.Size - AStartPoint;
+  LByteCount := ALocalFile.Size - ALocalFile.Position;
   if (LByteCount > AByteCount) and (AByteCount > 0) then begin
     LByteCount := AByteCount;
   end;
 
   if IsExtSupported('XSHA1') then begin
-    LHashType := 0;
+    //XMD5 "filename" startpos endpos
+    //I think there's two syntaxes to this:
+    //
+    //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
+    //
+    //or what's used by some other servers if "FEAT line contains XMD5"
+    //
+    //XCRC "filename" [startpos] [number of bytes to calc]
+
+    if IndexOfFeatLine('XSHA1 filename;start;end') > -1 then begin
+      LCmd := 'XSHA1 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCOunt-1);
+    end else
+    begin
+      //BlackMoon FTP Server uses this one.
+      LCmd := 'XSHA1 "' + ARemoteFile + '"' + ' ' + Sys.IntToStr(AStartPoint);
+      if AByteCount > 0 then begin
+        LCmd := LCmd + ' ' + Sys.IntToStr(LByteCount);
+      end;
+    end;
+    LHashClass := TIdHashSHA1;
   end
   else if IsExtSupported('XMD5') then begin
-    LHashType := 1;
+    //XMD5 "filename" startpos endpos
+    //I think there's two syntaxes to this:
+    //
+    //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
+    //
+    //or what's used by some other servers if "FEAT line contains XMD5"
+    //
+    //XCRC "filename" [startpos] [number of bytes to calc]
+
+    if IndexOfFeatLine('XMD5 filename;start;end') > -1 then begin
+      LCmd := 'XMD5 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCount-1);
+    end else
+    begin
+      //BlackMoon FTP Server uses this one.
+      LCmd := 'XMD5 "' + ARemoteFile + '"';
+      if AByteCount > 0 then begin
+        LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
+      end
+      else if AStartPoint > 0 then begin
+        LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
+      end;
+    end;
+    LHashClass := TIdHashMessageDigest5;
   end else
   begin
-    LHashType := 2;
+    LCmd := 'XCRC "' + ARemoteFile + '"';
+    if AByteCount > 0 then begin
+      LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
+    end
+    else if AStartPoint > 0 then begin
+      LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
+    end;
+    LHashClass := TIdHashCRC32;
   end;
 
-  case LHashType of
-    0 : //XSHA1
-      begin
-        with TIdHashSHA1.Create do
-        try
-          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
-        finally
-          Free;
-        end;
-
-        //XMD5 "filename" startpos endpos
-        //I think there's two syntaxes to this:
-        //
-        //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
-        //
-        //or what's used by some other servers if "FEAT line contains XMD5"
-        //
-        //XCRC "filename" [startpos] [number of bytes to calc]
-
-        if IndexOfFeatLine('XSHA1 filename;start;end') > -1 then begin
-           LCmd := 'XSHA1 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCOunt-1);
-        end else
-        begin
-          //BlackMoon FTP Server uses this one.
-          LCmd := 'XSHA1 "' + ARemoteFile + '"' + ' ' + Sys.IntToStr(AStartPoint);
-          if AByteCount > 0 then begin
-            LCmd := LCmd + ' ' + Sys.IntToStr(LByteCount);
-          end;
-        end;
-      end;
-
-    1 : //XMD5
-      begin
-        with TIdHashMessageDigest5.Create do
-        try
-          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, AStartPoint + LByteCount));
-        finally
-          Free;
-        end;
-
-        //XMD5 "filename" startpos endpos
-        //I think there's two syntaxes to this:
-        //
-        //Raiden Syntax if FEAT line contains " XMD5 filename;start;end"
-        //
-        //or what's used by some other servers if "FEAT line contains XMD5"
-        //
-        //XCRC "filename" [startpos] [number of bytes to calc]
-
-        if IndexOfFeatLine('XMD5 filename;start;end') > -1 then begin
-          LCmd := 'XMD5 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCount-1);
-        end else
-        begin
-          //BlackMoon FTP Server uses this one.
-          LCmd := 'XMD5 "' + ARemoteFile + '"';
-          if AByteCount > 0 then begin
-            LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
-          end
-          else if AStartPoint > 0 then begin
-            LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
-          end;
-        end;
-      end;
-
-    2 : //XCRC
-      begin
-        with TIdHashCRC32.Create do
-        try
-          LLocalCRC := Sys.UpperCase(HashValueAsHex(ALocalFile, AStartPoint, LByteCount));
-        finally
-          Free;
-        end;
-
-        LCmd := 'XCRC "' + ARemoteFile + '"';
-        if AByteCount > 0 then begin
-          LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
-        end
-        else if AStartPoint > 0 then begin
-          LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
-        end;
-      end;
+  with LHashClass.Create do
+  try
+    LLocalCRC := Sys.UpperCase(HashStreamAsHex(ALocalFile, AStartPoint, LByteCount));
+  finally
+    Free;
   end;
 
   if SendCMD(LCMD) = 250 then begin
