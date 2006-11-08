@@ -315,7 +315,7 @@ begin
         if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(HashValueAsHex(FAPOPToken+Password));
+            S := Sys.LowerCase(HashStringAsHex(FAPOPToken+Password));
           finally
             Free;
           end;//try

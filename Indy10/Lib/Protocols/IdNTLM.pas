@@ -220,7 +220,7 @@ begin
 
   with TIdHashMessageDigest4.Create do
   try
-    nt_hpw128 := HashValue(nt_pw);
+    nt_hpw128 := HashString(nt_pw);
   finally
     Free;
   end;

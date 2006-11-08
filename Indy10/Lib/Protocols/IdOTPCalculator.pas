@@ -417,33 +417,29 @@ end;
 class function TIdOTPCalculator.GenerateKeyMD4(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LMD4: TIdHashMessageDigest4;
-  LTmpMemStream: TIdStream;
+  LTmpBytes: TIdBytes;
   I: Integer;
   L64Bit: Int64;
   LTempLongWord: LongWord;
 begin
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    L64Bit := Hash4ToInt64(LMD4.HashValue(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash4ToInt64(LMD4.HashString(Sys.LowerCase(ASeed) + APassword));
+
+    SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
     for i := 1 to ACount do begin
-      LTmpMemStream := TIdMemoryStream.Create;
-      try
-        L64Bit := ReverseEndian(L64Bit);
+      L64Bit := ReverseEndian(L64Bit);
 
-        LTempLongWord := (L64Bit shr 32);
-        LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit shr 32);
+      LTempLongWord := ReverseEndian(LTempLongWord);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
 
-        LTempLongWord := (L64Bit and $FFFFFFFF);
-        LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit and $FFFFFFFF);
+      LTempLongWord := ReverseEndian(LTempLongWord);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
 
-        LTmpMemStream.Position := 0;
-        L64Bit := Hash4ToInt64(LMD4.HashValue(LTmpMemStream));
-      finally
-        Sys.FreeAndNil(LTmpMemStream);
-      end
+      L64Bit := Hash4ToInt64(LMD4.HashBytes(LTmpBytes));
     end;
   finally
     Sys.FreeAndNil(LMD4);
@@ -454,33 +450,29 @@ end;
 class function TIdOTPCalculator.GenerateKeyMD5(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LMD5: TIdHashMessageDigest5;
-  LTmpMemStream: TIdStream;
+  LTmpBytes: TIdBytes;
   I: Integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
 begin
   LMD5 := TIdHashMessageDigest5.Create;
   try
-    L64Bit := Hash4ToInt64(LMD5.HashValue(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash4ToInt64(LMD5.HashString(Sys.LowerCase(ASeed) + APassword));
+
+    SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
     for i := 1 to ACount do begin
-      LTmpMemStream := TIdMemoryStream.Create;
-      try
-        L64Bit := ReverseEndian(L64Bit);
+      L64Bit := ReverseEndian(L64Bit);
 
-        LTempLongWord := (L64Bit shr 32);
-        LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit shr 32);
+      LTempLongWord := ReverseEndian(LTempLongWord);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
 
-        LTempLongWord := (L64Bit and $FFFFFFFF);
-        LTempLongWord := ReverseEndian(LTempLongWord);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit and $FFFFFFFF);
+      LTempLongWord := ReverseEndian(LTempLongWord);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
 
-        LTmpMemStream.Position := 0;
-        L64Bit := Hash4ToInt64(LMD5.HashValue(LTmpMemStream));
-      finally
-        Sys.FreeAndNil(LTmpMemStream);
-      end
+      L64Bit := Hash4ToInt64(LMD5.HashBytes(LTmpBytes));
     end;
   finally
     Sys.FreeAndNil(LMD5);
@@ -491,31 +483,27 @@ end;
 class function TIdOTPCalculator.GenerateKeySHA1(const ASeed: string; const APassword: string; const ACount: Integer): Int64;
 var
   LSHA1: TIdHashSHA1;
-  LTmpMemStream: TIdStream;
+  LTmpBytes: TIdBytes;
   I: integer;
   L64Bit: int64;
   LTempLongWord: LongWord;
 begin
   LSHA1 := TIdHashSHA1.Create;
   try
-    L64Bit := Hash5ToInt64(LSHA1.HashValue(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash5ToInt64(LSHA1.HashString(Sys.LowerCase(ASeed) + APassword));
+
+    SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
     for i := 1 to ACount do begin
-      LTmpMemStream := TIdMemoryStream.Create;
-      try
-        L64Bit := ReverseEndian(L64Bit);
+      L64Bit := ReverseEndian(L64Bit);
 
-        LTempLongWord := (L64Bit shr 32);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit shr 32);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, 0);
 
-        LTempLongWord := (L64Bit and $FFFFFFFF);
-        WriteTIdBytesToStream(LTmpMemStream, ToBytes(LTempLongWord));
+      LTempLongWord := (L64Bit and $FFFFFFFF);
+      CopyTIdLongWord(LTempLongWord, LTmpBytes, SizeOf(LongWord));
 
-        LTmpMemStream.Position := 0;
-        L64Bit := Hash5ToInt64(LSHA1.HashValue(LTmpMemStream));
-      finally
-        Sys.FreeAndNil(LTmpMemStream);
-      end
+      L64Bit := Hash5ToInt64(LSHA1.HashBytes(LTmpBytes));
     end;
   finally
     Sys.FreeAndNil(LSHA1);

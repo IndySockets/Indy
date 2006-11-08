@@ -521,25 +521,23 @@ begin
     begin
       if Assigned(fCommandAPOP) then
       begin
-       OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
-       with TIdHashMessageDigest5.Create do
-       try
-         LValidHash := Sys.LowerCase(HashValueAsHex(LThread.APOP3Challenge + LValidPassword));
-         if LValidHash = aCmd.Params[1] then
-         begin
-           LThread.fAuthenticated := True;
-         end;
-       finally Free; end;
+        OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
+        with TIdHashMessageDigest5.Create do
+        try
+          LValidHash := Sys.LowerCase(HashStringAsHex(LThread.APOP3Challenge + LValidPassword));
+        finally Free; end;
 
-       // User to set return state of LThread.State as required.
-       if not LThread.Authenticated then
-       begin
-         aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
-       end
-       else
-       begin
-         aCmd.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
-       end;
+        LThread.fAuthenticated := (LValidHash = aCmd.Params[1]);
+
+        // User to set return state of LThread.State as required.
+        if not LThread.Authenticated then
+        begin
+          aCmd.Reply.SetReply(ST_ERR,RSPOP3SvrLoginFailed);
+        end
+        else
+        begin
+          aCmd.Reply.SetReply(ST_OK,RSPOP3SvrLoginOk);
+        end;
       end
       else
       begin
