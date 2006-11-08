@@ -25,43 +25,25 @@ unit IdHMACMD5;
 interface
 
 uses
-  IdHash, IdHashMessageDigest, IdHMAC, IdGlobal, IdObjs, IdSys;
+  IdHash, IdHashMessageDigest, IdHMAC;
 
 type
   TIdHMACMD5 = class(TIdHMAC)
-  private
-    FHashMD5: TIdHashMessageDigest5;
-  protected
-    procedure InitHash; override;
-    function InternalHashValue(const ABuffer: TIdBytes) : TIdBytes; override;
+  public
+    constructor Create; override;
   end;
 
 implementation
 
 { TIdHMACMD5 }
 
-procedure TIdHMACMD5.InitHash;
+constructor TIdHMACMD5.Create;
 begin
+  inherited Create;
+  FHash := TIdHashMessageDigest5.Create;
   FHashName := 'MD5';
   FHashSize := 16;
   FBlockSize := 64;
-  FHashMD5 := TIdHashMessageDigest5.Create;
-  FHash := FHashMD5;
 end;
 
-function TIdHMACMD5.InternalHashValue(const ABuffer: TIdBytes): TIdBytes;
-var
-  TempStream: TIdMemoryStream;
-begin
-  TempStream := TIdMemoryStream.Create;
-  try
-    WriteTIdBytesToStream(TempStream, ABuffer);
-    TempStream.Position := 0;
-    Result := FHashMD5.HashValue(TempStream);
-  finally
-    Sys.FreeAndNil(TempStream);
-  end;
-end;
-
-initialization
 end.

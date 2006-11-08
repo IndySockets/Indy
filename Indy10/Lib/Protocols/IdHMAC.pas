@@ -35,16 +35,13 @@ type
   end;
 
   TIdHMAC = class
-  private
   protected
     FHashSize: Integer; // n bytes
     FBlockSize: Integer; // n bytes
     FKey: TIdBytes;
     FHash: TIdHash;
     FHashName: string;
-    procedure InitHash; virtual; abstract;
     procedure InitKey;
-    function InternalHashValue(const ABuffer: TIdBytes) : TIdBytes; virtual; abstract;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -85,15 +82,16 @@ end;
 
 constructor TIdHMAC.Create;
 begin
-  inherited;
+  inherited Create;
   SetLength(FKey, 0);
-  InitHash;
+  FHashSize := 0;
+  FBlockSize := 0;
 end;
 
 destructor TIdHMAC.Destroy;
 begin
   Sys.FreeAndNil(FHash);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdHMAC.HashValue(const ABuffer: TIdBytes; const ATruncateTo: Integer = -1): TIdBytes;
@@ -115,7 +113,7 @@ begin
     TempBuffer1[I] := LKey[I] xor CInnerPad;
   end;
   CopyTIdBytes(ABuffer, 0, TempBuffer1, Length(LKey), Length(ABuffer));
-  TempBuffer2 := InternalHashValue(TempBuffer1);
+  TempBuffer2 := FHash.HashBytes(TempBuffer1);
   SetLength(TempBuffer1, 0);
   SetLength(TempBuffer1, FBlockSize + FHashSize);
   for I := Low(LKey) to High(LKey) do
@@ -123,7 +121,7 @@ begin
     TempBuffer1[I] := LKey[I] xor COuterPad;
   end;
   CopyTIdBytes(TempBuffer2, 0, TempBuffer1, Length(LKey), Length(TempBuffer2));
-  Result := InternalHashValue(TempBuffer1);
+  Result := FHash.HashBytes(TempBuffer1);
   SetLength(TempBuffer1, 0);
   SetLength(TempBuffer2, 0);
   SetLength(LKey, 0);
@@ -143,7 +141,7 @@ begin
   begin
     if Length(FKey) > FBlockSize then
     begin
-      FKey := InternalHashValue(FKey);
+      FKey := FHash.HashBytes(FKey);
     end;
   end;
 end;

@@ -25,45 +25,27 @@ unit IdHMACSHA1;
 interface
 
 uses
-  IdHash, IdHashSHA1, IdHMAC, IdGlobal, IdObjs, IdSys;
+  IdHash, IdHashSHA1, IdHMAC;
 
 type
   TIdHMACSHA1 = class(TIdHMAC)
-  private
-    FHashSHA1: TIdHashSHA1;
-  protected
-    procedure InitHash; override;
-    function InternalHashValue(const ABuffer: TIdBytes) : TIdBytes; override;
+  public
+    constructor Create; override;
   end;
 
 implementation
 
 { TIdHMACSHA1 }
 
-procedure TIdHMACSHA1.InitHash;
+constructor TIdHMACSHA1.Create;
 begin
-  inherited;
-  FHashSHA1 := TIdHashSHA1.Create;
-  FHash := FHashSHA1;
+  inherited Create;
+  FHash := TIdHashSHA1.Create;
+  FHashName := 'SHA1';
   FHashSize := 20;
   FBlockSize := 64;
-  FHashName := 'SHA1';
 end;
 
-
-function TIdHMACSHA1.InternalHashValue(const ABuffer: TIdBytes): TIdBytes;
-var
-  TempStream: TIdMemoryStream;
-begin
-  TempStream := TIdMemoryStream.Create;
-  try
-    WriteTIdBytesToStream(TempStream, ABuffer);
-    TempStream.Position := 0;
-    Result := FHashSHA1.HashValue(TempStream);
-  finally
-    Sys.FreeAndNil(TempStream);
-  end;
-end;
 
 initialization
   TIdHMACSHA1.Create.Destroy;
