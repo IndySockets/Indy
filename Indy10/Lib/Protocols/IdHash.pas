@@ -55,19 +55,29 @@ unit IdHash;
 interface
 
 uses
-  IdSys,
-  IdGlobal,
-  IdObjs;
+  IdGlobal, IdSys, IdObjs;
 
 type
-  TIdHash = class(TIdBaseObject);
+  TIdHash = class(TIdBaseObject)
+  protected
+    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; virtual; abstract;
+  public
+    function HashString(const ASrc: string): TIdBytes;
+    function HashBytes(const ASrc: TIdBytes): TIdBytes;
+    function HashStream(AStream: TIdStream): TIdBytes; overload;
+    function HashStream(AStream: TIdStream; const AStartPos, ASize: Int64): TIdBytes; overload;
+    function HashStringAsHex(const ASrc: string): String;
+    function HashBytesAsHex(const ASrc: TIdBytes): String;
+    function HashStreamAsHex(AStream: TIdStream): String; overload;
+    function HashStreamAsHex(AStream: TIdStream; const AStartPos, ASize: Int64): String; overload;
+  end;
 
   TIdHash16 = class(TIdHash)
   public
     function HashValue(const ASrc: string): Word; overload;
-    function HashValue(AStream: TIdStream): Word; overload; virtual; abstract;
-    function HashValueAsHex(const ASrc: string): String; overload;
-    function HashValueAsHex(AStream: TIdStream): String; overload;
+    function HashValue(const ASrc: TIdBytes): Word; overload;
+    function HashValue(AStream: TIdStream): Word; overload;
+    function HashValue(AStream: TIdStream; const AStartPos, ASize: Int64): Word; overload;
     procedure HashStart(var VRunningHash : Word); virtual; abstract;
     procedure HashByte(var VRunningHash : Word; const AByte : Byte); virtual; abstract;
   end;
@@ -75,139 +85,123 @@ type
   TIdHash32 = class(TIdHash)
   public
     function HashValue(const ASrc: string): LongWord; overload;
-    function HashValue(AStream: TIdStream): LongWord; overload; virtual; abstract;
-    function HashValueAsHex(const ASrc: string): String; overload;
-    function HashValueAsHex(AStream: TIdStream): String; overload;
+    function HashValue(const ASrc: TIdBytes): LongWord; overload;
+    function HashValue(AStream: TIdStream): LongWord; overload;
+    function HashValue(AStream: TIdStream; const AStartPos, ASize: Int64): LongWord; overload;
     procedure HashStart(var VRunningHash : LongWord); virtual; abstract;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); virtual; abstract;
   end;
 
-  T4x4LongWordRecord = array [0..3] of LongWord;
-
-  {
-  RLebeau 8/27/2006 - C++Builder does not allow Delphi functions
-  to return arrays in the Result, so use TIdByte results instead
-  }
-
-  TIdHash128 = class(TIdHash)
-  public
-    function HashValue(const ASrc: string): TIdBytes; overload;
-    function HashValue(AStream: TIdStream): TIdBytes; overload; virtual; abstract;
-    function HashValueAsHex(const ASrc: string): String; overload;
-    function HashValueAsHex(AStream: TIdStream): String; overload;
-  end;
-
-  T5x4LongWordRecord = array [0..4] of LongWord;
-
-  TIdHash160 = class(TIdHash)
-  public
-    function HashValue(const ASrc: string): TIdBytes; overload;
-    function HashValue(AStream: TIdStream): TIdBytes; overload; virtual; abstract;
-    function HashValueAsHex(const ASrc: string): String; overload;
-    function HashValueAsHex(AStream: TIdStream): String; overload;
-  end;
-
+  TIdHashClass = class of TIdHash;
+  
 implementation
 
 uses
   IdGlobalProtocols;
 
-{ TIdHash16 }
+{ TIdHash }
 
-function TIdHash16.HashValue(const ASrc: string): Word;
+function TIdHash.HashString(const ASrc: string): TIdBytes;
 var
   LStream: TIdStream;  // not TIdStringStream -  Unicode on DotNet!
 begin
   LStream := TIdMemoryStream.Create; try
     WriteStringToStream(LStream, ASrc);
     LStream.Position := 0;
-    Result := HashValue(LStream);
+    Result := HashStream(LStream);
   finally Sys.FreeAndNil(LStream); end;
 end;
 
-function TIdHash16.HashValueAsHex(const ASrc: string): String;
+function TIdHash.HashBytes(const ASrc: TIdBytes): TIdBytes;
+var
+  LStream: TIdStream;
 begin
-  Result := Sys.IntToHex(HashValue(ASrc), 4);
+  LStream := TIdMemoryStream.Create; try
+    WriteTIdBytesToStream(LStream, ASrc);
+    LStream.Position := 0;
+    Result := HashStream(LStream);
+  finally Sys.FreeAndNil(LStream); end;
 end;
 
-function TIdHash16.HashValueAsHex(AStream: TIdStream): String;
+function TIdHash.HashStream(AStream: TIdStream): TIdBytes;
 begin
-  Result := Sys.IntToHex(HashValue(AStream), 4);
+  Result := GetHashBytes(AStream, AStream.Size - AStream.Position);
+end;
+
+function TIdHash.HashStream(AStream: TIdStream; const AStartPos, ASize: Int64): TIdBytes;
+var
+  LSize: Int64;
+begin
+  LSize := ASize;
+  if LSize < 0 then begin
+    LSize := AStream.Size;
+  end;
+  AStream.Position := AStartPos;
+  Result := GetHashBytes(AStream, LSize);
+end;
+
+function TIdHash.HashStringAsHex(const ASrc: string): String;
+begin
+  Result := ToHex(HashString(ASrc));
+end;
+
+function TIdHash.HashBytesAsHex(const ASrc: TIdBytes): String;
+begin
+  Result := ToHex(HashBytes(ASrc));
+end;
+
+function TIdHash.HashStreamAsHex(AStream: TIdStream): String;
+begin
+  Result := ToHex(HashStream(AStream));
+end;
+
+function TIdHash.HashStreamAsHex(AStream: TIdStream; const AStartPos, ASize: Int64) : String;
+begin
+  Result := ToHex(HashStream(AStream, AStartPos, ASize));
+end;
+
+{ TIdHash16 }
+
+function TIdHash16.HashValue(const ASrc: string): Word;
+begin
+  Result := BytesToWord(HashString(ASrc));
+end;
+
+function TIdHash16.HashValue(const ASrc: TIdBytes): Word;
+begin
+  Result := BytesToWord(HashBytes(ASrc));
+end;
+
+function TIdHash16.HashValue(AStream: TIdStream): Word;
+begin
+  Result := BytesToWord(HashStream(AStream));
+end;
+
+function TIdHash16.HashValue(AStream: TIdStream; const AStartPos, ASize: Int64): Word;
+begin
+  Result := BytesToWord(HashStream(AStream, AStartPos, ASize));
 end;
 
 { TIdHash32 }
 
 function TIdHash32.HashValue(const ASrc: string): LongWord;
-var
-  LStream: TIdStream;  // not TIdStringStream -  Unicode on DotNet!
 begin
-  LStream := TIdMemoryStream.Create; try
-    WriteStringToStream(LStream, ASrc);
-    LStream.Position := 0;
-    Result := HashValue(LStream);
-  finally Sys.FreeAndNil(LStream); end;
+  Result := BytesToLongWord(HashString(ASrc));
 end;
 
-function TIdHash32.HashValueAsHex(const ASrc: string): String;
+function TIdHash32.HashValue(const ASrc: TIdBytes): LongWord;
 begin
-  Result := Sys.IntToHex(HashValue(ASrc), 8);
+  Result := BytesToLongWord(HashBytes(ASrc));
 end;
 
-function TIdHash32.HashValueAsHex(AStream: TIdStream): String;
+function TIdHash32.HashValue(AStream: TIdStream) : LongWord;
 begin
-  Result := Sys.IntToHex(HashValue(AStream), 8);
+  Result := BytesToLongWord(HashStream(AStream));
 end;
 
-{ TIdHash128 }
-
-function TIdHash128.HashValue(const ASrc: string): TIdBytes;
-var
-  LStream: TIdStream;  // not TIdStringStream -  Unicode on DotNet!
+function TIdHash32.HashValue(AStream: TIdStream; const AStartPos, ASize: Int64) : LongWord;
 begin
-  LStream := TIdMemoryStream.Create;
-  try
-    WriteStringToStream(LStream, ASrc);
-    LStream.Position := 0;
-    Result := HashValue(LStream);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
-end;
-
-function TIdHash128.HashValueAsHex(const ASrc: string): string;
-begin
-  Result := ToHex(HashValue(ASrc));
-end;
-
-function TIdHash128.HashValueAsHex(AStream: TIdStream): string;
-begin
-  Result := ToHex(HashValue(AStream));
-end;
-
-{ TIdHash160 }
-
-function TIdHash160.HashValue(const ASrc: string): TIdBytes;
-var
-  LStream: TIdStream;  // not TIdStringStream -  Unicode on DotNet!
-begin
-  LStream := TIdMemoryStream.Create;
-  try
-    WriteStringToStream(LStream, ASrc);
-    LStream.Position := 0;
-    Result := HashValue(LStream);
-  finally
-    Sys.FreeAndNil(LStream);
-  end;
-end;
-
-function TIdHash160.HashValueAsHex(const ASrc: string): String;
-begin
-  Result := ToHex(HashValue(ASrc));
-end;
-
-function TIdHash160.HashValueAsHex(AStream: TIdStream): String;
-begin
-  Result := ToHex(HashValue(AStream));
+  Result := BytesToLongWord(HashStream(AStream, AStartPos, ASize));
 end;
 
 end.

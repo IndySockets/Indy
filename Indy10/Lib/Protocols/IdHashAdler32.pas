@@ -44,84 +44,97 @@ unit IdHashAdler32;
 interface
 
 uses
-  Classes,
-  IdGlobal,
-  IdHash;
+  IdGlobal, IdHash, IdObjs;
 
 type
   TIdHashAdler32 = class(TIdHash32)
   protected
-    function CalculateAdler32(buf:PByteArray; len:integer;const StartValue:LongWord=1): LongWord;
+    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    function HashValue(AStream: TStream): LongWord; override;
+    procedure HashStart(var VRunningHash : LongWord); override;
+    procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
   end;
 
 implementation
-
-{ TIdHashAdler32 }
-
-
-function TIdHashAdler32.CalculateAdler32(buf:PByteArray; len:integer;const StartValue:LongWord=1): LongWord;
+  
 const
   BASE = 65521; { largest prime smaller than 65536 }
-const
-  NMAX = 5552; { NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 }
-var
-  s1:LongWord;
-  s2:LongWord;
-  k:integer;
-begin
-  s1 := StartValue and $ffff;
-  s2 := (StartValue shr 16) and $ffff;
+  NMAX = 5552;  { NMAX is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1 }
 
-  while (len > 0) do begin
-    if len < NMAX then
-      k := len
-    else
-      k := NMAX;
-    dec(len, k);
-    while (k >= 16) do begin
-      inc(s1, buf[0]); inc(s2, s1);     //   loop unrolled 16 times
-      inc(s1, buf[1]); inc(s2, s1);     //
-      inc(s1, buf[2]); inc(s2, s1);     //
-      inc(s1, buf[3]); inc(s2, s1);     //
-      inc(s1, buf[4]); inc(s2, s1);     //
-      inc(s1, buf[5]); inc(s2, s1);     //
-      inc(s1, buf[6]); inc(s2, s1);     //
-      inc(s1, buf[7]); inc(s2, s1);     //
-      inc(s1, buf[8]); inc(s2, s1);     //
-      inc(s1, buf[9]); inc(s2, s1);     //
-      inc(s1, buf[10]); inc(s2, s1);    //
-      inc(s1, buf[11]); inc(s2, s1);    //
-      inc(s1, buf[12]); inc(s2, s1);    //
-      inc(s1, buf[13]); inc(s2, s1);    //
-      inc(s1, buf[14]); inc(s2, s1);    //
-      inc(s1, buf[15]); inc(s2, s1);    //   loop unrolled 16 times
-      buf:=@buf[16];
-      dec(k, 16);
+function CalculateAdler32(const ABuf: TIdBytes; ALen: Integer; const StartValue: LongWord): LongWord;
+var
+  s1, s2: LongWord;
+  I, K, Offset: Integer;
+begin
+  s1 := StartValue and $FFFF;
+  s2 := (StartValue shr 16) and $FFFF;
+  Offset := 0;
+
+  while ALen > 0 do
+  begin
+    K := Max(ALen, NMAX);
+    Dec(ALen, K);
+
+    for I := 0 to K-1 do
+    begin
+      Inc(s1, ABuf[Offset]);
+      Inc(s2, s1);
+      Inc(Offset);
     end;
-    if (k <> 0) then repeat
-      inc(s1, buf[0]); inc(s2, s1);
-      buf:=@buf[1];
-      dec(k);
-    until (k = 0);
+
     s1 := s1 mod BASE;
     s2 := s2 mod BASE;
   end;
-  result:=(s2 shl 16) or s1;
+
+  Result := (s2 shl 16) or s1;
 end;
 
-function TIdHashAdler32.HashValue(AStream: TStream): LongWord;
+{ TIdHashAdler32 }
+
+function TIdHashAdler32.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
+const
+  cBufSize = 8192;
 var
-  LBuffer: array[0..8 * 1024 - 1] of Byte;
-  LSize: integer;
+  LBuffer: array[0..cBufSize-1] of Byte;
+  LSize: Integer;
+  LHash: LongWord;
 begin
-  Result := 1;
-  LSize := AStream.Read(LBuffer, SizeOf(LBuffer));
-  while LSize > 0 do begin
-    Result := CalculateAdler32(@LBuffer,LSize,Result);
-    LSize := AStream.Read(LBuffer, SizeOf(LBuffer));
+  Result := nil;
+  LHash := 1;
+
+  while ASize > 0 do
+  begin
+    LSize := ReadTIdBytesFromStream(AStream, LBuffer, cBufSize);
+    if LSize < 1 then begin
+      Break; // TODO: throw a stream read exception instead?
+    end;
+    LHash := CalculateAdler32(LBuffer, LSize, LHash);
+    Dec(ASize, LSize);
   end;
+
+  SetLength(Result, SizeOf(LongWord));
+  CopyTIdLongWord(LHash, Result, 0);
+end;
+
+procedure TIdHashAdler32.HashStart(var VRunningHash : LongWord);
+begin
+  VRunningHash := 1;
+end;
+
+procedure TIdHashAdler32.HashByte(var VRunningHash : LongWord; const AByte : Byte);
+var
+  s1, s2: LongWord;
+begin
+  s1 := VRunningHash and $FFFF;
+  s2 := (VRunningHash shr 16) and $FFFF;
+
+  Inc(s1, AByte);
+  Inc(s2, s1);
+
+  s1 := s1 mod BASE;
+  s2 := s2 mod BASE;
+
+  VRunningHash := (s2 shl 16) or s1;
 end;
 
 end.

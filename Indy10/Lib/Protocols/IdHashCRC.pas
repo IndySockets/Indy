@@ -37,23 +37,21 @@ unit IdHashCRC;
 interface
 
 uses
-  IdObjs,
-  IdSys,
-  IdHash;
+  IdGlobal, IdHash, IdObjs;
 
 type
   TIdHashCRC16 = class(TIdHash16)
+  protected
+    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    function HashValue(AStream: TIdStream) : Word; override;
     procedure HashStart(var VRunningHash : Word); override;
     procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
   end;
 
   TIdHashCRC32 = class(TIdHash32)
+  protected
+    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    function HashValue(AStream: TIdStream) : LongWord; override;
-    function HashValue(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : LongWord; overload;
-    function HashValueAsHex(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : String; overload;
     procedure HashStart(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
   end;
@@ -61,11 +59,10 @@ type
 implementation
 
 uses
-  IdGlobal; // for Min()
-
+  IdStream;
+  
 const
-
-  CRC16Table: array[0..255] of WORD =
+  CRC16Table: array[0..255] of Word =
   ( $0000, $C0C1, $C181, $0140, $C301, $03C0, $0280, $C241, $C601, $06C0, $0780,
     $C741, $0500, $C5C1, $C481, $0440, $CC01, $0CC0, $0D80, $CD41, $0F00, $CFC1,
     $CE81, $0E40, $0A00, $CAC1, $CB81, $0B40, $C901, $09C0, $0880, $C841, $D801,
@@ -91,7 +88,7 @@ const
     $8581, $4540, $8701, $47C0, $4680, $8641, $8201, $42C0, $4380, $8341, $4100,
     $81C1, $8081, $4040 ) ;
 
-  CRC32Table: array[0..255] of longword = (
+  CRC32Table: array[0..255] of LongWord = (
     $00000000, $77073096, $EE0E612C, $990951BA, $076DC419,
     $706AF48F, $E963A535, $9E6495A3, $0EDB8832, $79DCB8A4,
     $E0D5E91E, $97D2D988, $09B64C2B, $7EB17CBD, $E7B82D07,
@@ -145,11 +142,41 @@ const
     $5D681B02, $2A6F2B94, $B40BBE37, $C30C8EA1, $5A05DF1B,
     $2D02EF8D ) ;
 
-  { TIdHashCRC16 }
+{ TIdHashCRC16 }
+
+function TIdHashCRC16.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
+const
+  cBufSize = 1024; // Keep it small for dotNet
+var
+  I: Integer;
+  LBuffer: TIdBytes;
+  LSize: Integer;
+  LHash: Word;
+begin
+  Result := nil;
+  LHash := 0;
+
+  SetLength(LBuffer, cBufSize);
+
+  while ASize > 0 do
+  begin
+    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
+    if LSize < 1 then begin
+      Break; // TODO: throw a stream read exception instead?
+    end;
+    for i := 0 to LSize - 1 do begin
+      LHash := (LHash shr 8) xor CRC16Table[LBuffer[i] xor (LHash and $FF)];
+    end;
+    Dec(ASize, LSize);
+  end;
+
+  SetLength(Result, SizeOf(Word));
+  CopyTIdWord(LHash, Result, 0);
+end;
 
 procedure TIdHashCRC16.HashByte(var VRunningHash: Word; const AByte: Byte);
 begin
-  VRunningHash := (VRunningHash shr 8) xor CRC16Table[AByte xor (VRunningHash and $FF) ];
+  VRunningHash := (VRunningHash shr 8) xor CRC16Table[AByte xor (VRunningHash and $FF)];
 end;
 
 procedure TIdHashCRC16.HashStart(var VRunningHash: Word);
@@ -157,43 +184,36 @@ begin
   VRunningHash := 0;
 end;
 
-function TIdHashCRC16.HashValue( AStream: TIdStream ) : Word;
-const
-  BufSize = 1024; // Keep it small for dotNet
-var
-  i: Integer;
-  LBuffer: array [0..BufSize - 1] of Byte;
-  LSize: integer;
-begin
-  Result := 0;
-  LSize := AStream.Read( LBuffer, BufSize ) ;
-  while LSize > 0 do begin
-    for i := 0 to LSize - 1 do begin
-      Result := (Result shr 8) xor CRC16Table[LBuffer[i] xor (Result and $FF) ];
-    end;
-    LSize := AStream.Read( LBuffer, BufSize ) ;
-  end;
-end;
-
 { TIdHashCRC32 }
 
-function TIdHashCRC32.HashValue(AStream: TIdStream) : LongWord;
+function TIdHashCRC32.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
 const
-  BufSize = 1024; // Keep it small for dotNet
+  cBufSize = 1024; // Keep it small for dotNet
 var
-  i: Integer;
-  LBuffer: array[0..BufSize - 1] of Byte;
-  LSize: integer;
+  I: Integer;
+  LBuffer: TIdBytes;
+  LSize: Integer;
+  LHash: LongWord;
 begin
-  Result := $FFFFFFFF;
-  LSize := AStream.Read(LBuffer, BufSize);
-  while LSize > 0 do begin
-    for i := 0 to LSize - 1 do begin
-      Result := ((Result shr 8) and $00FFFFFF) xor CRC32Table[(Result xor LBuffer[i]) and $FF];
+  Result := nil;
+  LHash := $FFFFFFFF;
+
+  SetLength(LBuffer, cBufSize);
+
+  while ASize > 0 do
+  begin
+    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
+    if LSize < 1 then begin
+      Break;  // TODO: throw a stream read exception instead?
     end;
-    LSize := AStream.Read(LBuffer, BufSize);
+    for i := 0 to LSize - 1 do begin
+      LHash := ((LHash shr 8) and $00FFFFFF) xor CRC32Table[(LHash xor LBuffer[i]) and $FF];
+    end;
+    Dec(ASize, LSize);
   end;
-  Result := Result xor $FFFFFFFF;
+
+  SetLength(Result, SizeOf(LongWord));
+  CopyTIdLongWord(LHash xor $FFFFFFFF, Result, 0);
 end;
 
 procedure TIdHashCRC32.HashByte(var VRunningHash: LongWord; const AByte: Byte);
@@ -204,39 +224,6 @@ end;
 procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
 begin
   VRunningHash := $FFFFFFFF;
-end;
-
-function TIdHashCRC32.HashValue(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0}) : LongWord;
-const
-  BufSize = 1024; // Keep it small for dotNet
-var
-  i: Integer;
-  LBuffer: array[0..BufSize - 1] of Byte;
-  LSize: Integer;
-  LData: Integer;
-begin
-  Result := $FFFFFFFF;
-  AStream.Position := ABeginPos;
-  if AEndPos = 0 then begin
-    LData := Cardinal(AStream.Size) - ABeginPos;
-  end else begin
-    LData := AEndPos - ABeginPos;
-  end;
-  LSize := AStream.Read(LBuffer, Min(BufSize, LData));
-  Dec(LData, LSize);
-  while LSize > 0 do begin
-    for i := 0 to LSize - 1 do begin
-      Result := ((Result shr 8) and $00FFFFFF) xor CRC32Table[(Result xor LBuffer[i]) and $FF];
-    end;
-    LSize := AStream.Read(LBuffer, Min(BufSize, LData));
-    Dec(LData, LSize);
-  end;
-  Result := Result xor $FFFFFFFF;
-end;
-
-function TIdHashCRC32.HashValueAsHex(AStream: TIdStream; const ABeginPos: Cardinal{=0}; const AEndPos : Cardinal{=0} ) : String;
-begin
-  Result := Sys.IntToHex(HashValue(AStream, ABeginPos, AEndPos), 8);
 end;
 
 end.

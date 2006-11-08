@@ -47,101 +47,35 @@ unit IdHashSHA1;
 interface
 
 uses
-  IdObjs,
-  IdGlobal,
-  IdHash;
-
-const
-  BufferSize = 64;
+  IdGlobal, IdHash, IdObjs;
 
 type
-  T512BitRecord = array [0..BufferSize-1] of Byte;
+  T5x4LongWordRecord = array[0..4] of LongWord;
+  T512BitRecord = array [0..63] of Byte;
 
-  {
-  RLebeau 7/11/06 - C++Builder does not allow Delphi functions
-  to return arrays in the Result, so use pointer parameters instead
-  }
-
-  TIdHashSHA1 = class(TIdHash160)
+  TIdHashSHA1 = class(TIdHash)
   protected
     FCheckSum: T5x4LongWordRecord;
-    FCBuffer: T512BitRecord;
+    FCBuffer: TIdBytes;
     procedure Coder;
+    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    function HashValue(AStream: TIdStream): TIdBytes; overload; override;
-    function HashValue(AStream: TIdStream; const ABeginPos, AEndPos: Int64): TIdBytes; overload;
+    constructor Create;
   end;
 
 implementation
 
 { TIdHashSHA1 }
 
-function SwapLongword(const AValue: LongWord): LongWord;
+function SwapLongWord(const AValue: LongWord): LongWord;
 begin
   Result := ((AValue and $FF) shl 24) or ((AValue and $FF00) shl 8) or ((AValue and $FF0000) shr 8) or ((AValue and $FF000000) shr 24);
 end;
 
-function TIdHashSHA1.HashValue(AStream: TIdStream): TIdBytes;
-var
-  LSize: LongInt;
-  LLenHi: LongWord;
-  LLenLo: LongWord;
-  i: Integer;
+constructor TIdHashSHA1.Create;
 begin
-  Result := nil;
-
-  FCheckSum[0] := $67452301;
-  FCheckSum[1] := $EFCDAB89;
-  FCheckSum[2] := $98BADCFE;
-  FCheckSum[3] := $10325476;
-  FCheckSum[4] := $C3D2E1F0;
-
-  LLenHi := 0;
-  LLenLo := 0;
-  repeat
-    LSize := AStream.Read(FCBuffer,BufferSize);
-    Inc(LLenLo,LSize*8);
-    if LLenLo < LongWord(LSize*8) then
-      Inc(LLenHi);
-    if LSize < BufferSize then begin
-      FCBuffer[LSize] := $80;
-      if LSize >= (BufferSize - 8) then begin
-        for i := LSize + 1 to Pred(BufferSize) do
-          FCBuffer[i] := 0;
-        Coder;
-        LSize := -1;
-      end;
-      for i := LSize + 1 to Pred(BufferSize - 8) do
-        FCBuffer[i] := 0;
-      FCBuffer[BufferSize-8] := LLenHi shr 24;
-      FCBuffer[BufferSize-7] := (LLenHi shr 16) and $FF;
-      FCBuffer[BufferSize-6] := (LLenHi shr 8) and $FF;
-      FCBuffer[BufferSize-5] := LLenHi and $FF;
-      FCBuffer[BufferSize-4] := LLenLo shr 24;
-      FCBuffer[BufferSize-3] := (LLenLo shr 16) and $FF;
-      FCBuffer[BufferSize-2] := (LLenLo shr 8) and $FF;
-      FCBuffer[BufferSize-1] := LLenLo and $FF;
-      LSize := 0;
-    end;
-    Coder;
-  until LSize < BufferSize;
-
-  FCheckSum[0] := SwapLongWord(FCheckSum[0]);
-  FCheckSum[1] := SwapLongWord(FCheckSum[1]);
-  FCheckSum[2] := SwapLongWord(FCheckSum[2]);
-  FCheckSum[3] := SwapLongWord(FCheckSum[3]);
-  FCheckSum[4] := SwapLongWord(FCheckSum[4]);
-
-  SetLength(Result, 4*5);
-{$IFDEF DotNetDistro}
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 0, Result, 0, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 1, Result, 4, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 2, Result, 8, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
-{$ELSE}
-  Move(FCheckSum[0], Result[0], SizeOf(LongWord)*5);
-{$ENDIF}
+  inherited Create;
+  SetLength(FCBuffer, 64);
 end;
 
 {$Q-,R-} // Operations performed modulo $100000000
@@ -367,12 +301,12 @@ begin
   FCheckSum[4]:= FCheckSum[4] + E;
 end;
 
-function TIdHashSHA1.HashValue(AStream: TIdStream; const ABeginPos, AEndPos: Int64): TIdBytes;
+function TIdHashSHA1.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
 var
-  LSize: LongInt;
+  LSize: Integer;
   LLenHi: LongWord;
   LLenLo: LongWord;
-  i: Integer;
+  I: Integer;
 begin
   Result := nil;
 
@@ -384,39 +318,38 @@ begin
 
   LLenHi := 0;
   LLenLo := 0;
+
   repeat
-    LSize := AStream.Read(FCBuffer,BufferSize);
-    Inc(LLenLo,LSize*8);
-    if LLenLo < LongWord(LSize*8) then
-    begin
+    LSize := ReadTIdBytesFromStream(AStream, FCBuffer, 64);
+    // TODO: handle stream read error
+    Inc(LLenLo, LSize * 8);
+    if LLenLo < LongWord(LSize * 8) then begin
       Inc(LLenHi);
     end;
-    if LSize < BufferSize then begin
+    if LSize < 64 then begin
       FCBuffer[LSize] := $80;
-      if LSize >= BufferSize - 8 then begin
-        for i := LSize + 1 to Pred(BufferSize) do
-        begin
+      if LSize >= 56 then begin
+        for I := (LSize + 1) to 63 do begin
           FCBuffer[i] := 0;
         end;
         Coder;
         LSize := -1;
       end;
-      for i := LSize + 1 to Pred(BufferSize - 8) do
-      begin
+      for I := (LSize + 1) to 55 do begin
         FCBuffer[i] := 0;
       end;
-      FCBuffer[BufferSize-8] := LLenHi shr 24;
-      FCBuffer[BufferSize-7] := (LLenHi shr 16) and $FF;
-      FCBuffer[BufferSize-6] := (LLenHi shr 8) and $FF;
-      FCBuffer[BufferSize-5] := LLenHi and $FF;
-      FCBuffer[BufferSize-4] := LLenLo shr 24;
-      FCBuffer[BufferSize-3] := (LLenLo shr 16) and $FF;
-      FCBuffer[BufferSize-2] := (LLenLo shr 8) and $FF;
-      FCBuffer[BufferSize-1] := LLenLo and $FF;
+      FCBuffer[56] := (LLenHi shr 24);
+      FCBuffer[57] := (LLenHi shr 16) and $FF;
+      FCBuffer[58] := (LLenHi shr 8) and $FF;
+      FCBuffer[59] := (LLenHi and $FF);
+      FCBuffer[60] := (LLenLo shr 24);
+      FCBuffer[61] := (LLenLo shr 16) and $FF;
+      FCBuffer[62] := (LLenLo shr 8) and $FF;
+      FCBuffer[63] := (LLenLo and $FF);
       LSize := 0;
     end;
     Coder;
-  until LSize < BufferSize;
+  until LSize < 64;
 
   FCheckSum[0] := SwapLongWord(FCheckSum[0]);
   FCheckSum[1] := SwapLongWord(FCheckSum[1]);
@@ -425,15 +358,9 @@ begin
   FCheckSum[4] := SwapLongWord(FCheckSum[4]);
 
   SetLength(Result, SizeOf(LongWord)*5);
-{$IFDEF DotNetDistro}
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 0, Result, 0, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 1, Result, 4, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 2, Result, 8, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 3, Result, 12, 4);
-  &Array.Copy(BitConverter.GetBytes(FCheckSum[0]), 4, Result, 16, 4);
-{$ELSE}
-  Move(FCheckSum[0], Result[0],SizeOf(LongWord)*5);
-{$ENDIF}
+  for I := 0 to 4 do begin
+    CopyTIdLongWord(FCheckSum[I], Result, SizeOf(LongWord)*I);
+  end;
 end;
 
 end.
