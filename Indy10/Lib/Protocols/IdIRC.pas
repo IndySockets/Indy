@@ -1143,8 +1143,6 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFINFO(ASender: TIdCommand);
-var
-  LTmp: String;
 begin
   if Assigned(FOnUserInfo) then begin
     //LTmp := ASender.UnparsedParams;
@@ -1155,8 +1153,6 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFMOTD(ASender: TIdCommand);
-var
-  LTmp: String;
 begin
   if Assigned(FOnMOTD) then begin
     //LTmp := ASender.UnparsedParams;
@@ -1174,8 +1170,6 @@ begin
 end;
 
 procedure TIdIRC.CommandENDOFUSERS(ASender: TIdCommand);
-var
-  LTmp: String;
 begin
   if Assigned(FOnSvrUsers) then begin
     // LTmp := ASender.UnparsedParams;

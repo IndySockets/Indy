@@ -3458,20 +3458,9 @@ function TIdIMAP4.InternalRetrievePart(const AMsgNum: Integer; const APartNum: {
 var
     LCmd: string;
     LSourceStream: TIdTCPStream;
-    LIntermediateStream: TIdStringStream;
-    LBase64Decoder: TIdDecoderMIME;
-    LQuotedPrintableDecoder: TIdDecoderQuotedPrintable;
-    LBinHex4Decoder: TIdDecoderBinHex4;
     bCreatedStream: Boolean;
     LMemoryStream: TIdMemoryStream;
-    LBuffer: string;
     LPartSizeParam: string;
-    LN: integer;
-{$IFDEF DOTNET}
-    LTBytesPtr: TIdBytes;
-{$ELSE}
-    LPtr: PChar;
-{$ENDIF}
 
     procedure DoDecode(ATargetStream: TIdStream; ADecoderClass: TIdDecoderClass = nil; AStripCRLFs: Boolean = False);
     var
@@ -3772,7 +3761,6 @@ function TIdIMAP4.InternalRetrievePartHeader(const AMsgNum: Integer; const APart
   const AUseUID: Boolean; AHeaders: TIdHeaderList): Boolean;
 var
     LCmd: string;
-    LMessageLength: integer;
     LSourceStream: TIdTCPStream;
     LDestStream: TIdStringStream;
 begin
