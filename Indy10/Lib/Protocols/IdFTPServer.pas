@@ -1108,7 +1108,7 @@ type
     procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner, AGroup : String; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteCHGRP(ASender: TIdFTPServerContext; var AGroup : String; const AFileName : String; var VAUth : Boolean);
-    procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);
+    procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);    
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure InitializeCommandHandlers; override;
     procedure ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
@@ -1138,7 +1138,8 @@ type
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
     procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
-
+    // overriden so we can close active transfers during a shutdown
+    procedure DoTerminateContext(AContext: TIdContext); override;
     //overriden so we can handle telnet sequences
     function ReadCommandLine(AContext: TIdContext): string; override;
   public
@@ -3245,8 +3246,9 @@ var
   LLine : String;
   LStrm : TIdStream;
 
-const DEF_BLOCKSIZE = 10*10240;
-      DEF_CHECKCMD_WAIT = 1;
+const
+  DEF_BLOCKSIZE = 10*10240;
+  DEF_CHECKCMD_WAIT = 1;
 
   procedure CheckControlConnection(AContext : TIdFTPServerContext; ACmdQueue : TIdStrings);
   var LLine : String;
@@ -6253,6 +6255,15 @@ procedure TIdFTPServer.DoReplyUnknownCommand(AContext: TIdContext;
   ALine: string);
 begin
   CmdSyntaxError(AContext,ALine);
+end;
+
+procedure TIdFTPServer.DoTerminateContext(AContext: TIdContext);
+begin
+  try
+    TIdFTPServerContext(AContext).TerminateAndFreeDataChannel;
+  finally
+    inherited DoTerminateContext(AContext);
+  end;
 end;
 
 procedure TIdFTPServer.CmdSyntaxError(AContext: TIdContext; ALine: string; const AReply : TIdReply = nil);
