@@ -356,7 +356,7 @@ end;
 
 procedure TIdNNTP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Mode := mtReader;
   Port := IdPORT_NNTP;
   ForceAuth := false;
@@ -384,10 +384,14 @@ end;
 
 procedure TIdNNTP.Connect;
 begin
-  inherited;
-   GetResponse([]);
-  FGreetingCode := LastCmdResult.NumericCode;
-  AfterConnect;
+  inherited Connect;
+  try
+    FGreetingCode := GetResponse;
+    AfterConnect;
+  except
+    Disconnect(False);
+    raise;
+  end;
 end;
 
 { This procedure gets the overview format as suported by the server }
@@ -1200,8 +1204,7 @@ end;
 
 destructor TIdNNTP.Destroy;
 begin
-
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdNNTP.GetCapability;
@@ -1379,8 +1382,8 @@ end;
 
 procedure TIdNNTP.DisconnectNotifyPeer;
 begin
-  inherited;
-  SendCmd('Quit', 205);  {do not localize}
+  inherited DisconnectNotifyPeer;
+  SendCmd('QUIT', 205);  {do not localize}
 end;
 
 procedure TIdNNTP.SendAuth;
