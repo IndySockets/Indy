@@ -73,9 +73,9 @@ uses
 type
   TIdContext = class;
   TIdContextClass = class of TIdContext;
-  TIdContextRun = function (AContext: TIdContext): Boolean of object;
-  TIdContextBeforeRun = procedure (AContext: TIdContext) of object;
-  TIdContextAfterRun = procedure (AContext: TIdContext) of object;
+  TIdContextRun = function(AContext: TIdContext): Boolean of object;
+  TIdContextEvent = procedure(AContext: TIdContext) of object;
+  TIdContextExceptionEvent = procedure(AContext: TIdContext; AException: Exception) of object;
 
   TIdContext = class(TIdTask)
   protected
@@ -85,12 +85,14 @@ type
     FConnection: TIdTCPConnection;
     FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
-    FOnBeforeRun: TIdContextBeforeRun;
-    FOnAfterRun: TIdContextAfterRun;
+    FOnBeforeRun: TIdContextEvent;
+    FOnAfterRun: TIdContextEvent;
+    FOnException: TIdContextExceptionEvent;
     //
     procedure BeforeRun; override;
     function Run: Boolean; override;
     procedure AfterRun; override;
+    procedure HandleException(AException: Exception); override;
   public
     constructor Create(
       AConnection: TIdTCPConnection;
@@ -103,11 +105,10 @@ type
     //
     property Connection: TIdTCPConnection read FConnection;
     //
-    property OnAfterRun:TIdContextAfterRun read FOnAfterRun
-      write FOnAfterRun;
-    property OnBeforeRun:TIdContextBeforeRun read FOnBeforeRun
-      write FOnBeforeRun;
-    property OnRun:TIdContextRun read FOnRun write FOnRun;
+    property OnAfterRun: TIdContextEvent read FOnAfterRun write FOnAfterRun;
+    property OnBeforeRun: TIdContextEvent read FOnBeforeRun write FOnBeforeRun;
+    property OnRun: TIdContextRun read FOnRun write FOnRun;
+    property OnException: TIdContextExceptionEvent read FOnException write FOnException;
   end;
 
 implementation
@@ -118,27 +119,24 @@ uses
   IdGlobal,
   IdIOHandlerSocket;
 
-constructor TIdContext.Create(
-  AConnection: TIdTCPConnection;
-  AYarn: TIdYarn;
-  AList: TIdThreadList = nil
-  );
+constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
 begin
   inherited Create(AYarn);
   FConnection := AConnection;
-  FOwnsConnection:=True;
+  FOwnsConnection :=True;
   FContextList := AList;
 end;
 
 destructor TIdContext.Destroy;
 begin
-  if FContextList<>nil then begin
+  if Assigned(FContextList) then begin
     FContextList.Remove(Self);
   end;
 
   if FOwnsConnection then begin
     Sys.FreeAndNil(FConnection);
   end;
+
   inherited Destroy;
 end;
 
@@ -152,7 +150,7 @@ begin
   //Context must be added to ContextList outside of create. This avoids
   //the possibility of another thread accessing a context (specifically
   //a subclass) that is still creating. similar logic for remove/destroy.
-  if FContextList <> nil then begin
+  if Assigned(FContextList) then begin
     FContextList.Add(Self);
   end;
 
@@ -178,6 +176,13 @@ begin
 
   if FContextList <> nil then begin
     FContextList.Remove(Self);
+  end;
+end;
+
+procedure TIdContext.HandleException(AException: Exception);
+begin
+  if Assigned(OnException) then begin
+    OnException(Self, AException);
   end;
 end;
 
