@@ -32,30 +32,30 @@ uses
   IdYarn;
 
 type
-
   TIdTask = class(TObject)
   protected
-    FBeforeRunDone:Boolean;
+    FBeforeRunDone: Boolean;
     FData: TObject;
     FYarn: TIdYarn;
     //
     procedure AfterRun; virtual;
     procedure BeforeRun; virtual;
     function Run: Boolean; virtual; abstract;
+    procedure HandleException(AException: Exception); virtual;
   public
     constructor Create(
       AYarn: TIdYarn
       ); reintroduce; virtual;
-    destructor Destroy;
-      override;
+    destructor Destroy; override;
     // The Do's are separate so we can add events later if necessary without
     // needing the inherited calls to perform them, as well as allowing
     // us to keep the real runs as protected
     procedure DoAfterRun;
     procedure DoBeforeRun;
     function DoRun: Boolean;
-    //BeforeRunDone property to allow flexibility in alternative schedulers
-    property BeforeRunDone:Boolean read FBeforeRunDone;
+    procedure DoException(AException: Exception);
+    // BeforeRunDone property to allow flexibility in alternative schedulers
+    property BeforeRunDone: Boolean read FBeforeRunDone;
     //
     property Data: TObject read FData write FData;
     property Yarn: TIdYarn read FYarn;
@@ -75,9 +75,11 @@ procedure TIdTask.BeforeRun;
 begin
 end;
 
-constructor TIdTask.Create(
-  AYarn: TIdYarn
-  );
+procedure TIdTask.HandleException(AException: Exception);
+begin
+end;
+
+constructor TIdTask.Create(AYarn: TIdYarn);
 begin
   inherited Create;
   FYarn := AYarn;
@@ -106,6 +108,11 @@ end;
 function TIdTask.DoRun: Boolean;
 begin
   Result := Run;
+end;
+
+procedure TIdTask.DoException(AException: Exception);
+begin
+  HandleException(AException);
 end;
 
 end.
