@@ -767,6 +767,7 @@ type
 
     FOnBannerBeforeLogin : TIdFTPBannerEvent;
     FOnBannerAfterLogin : TIdFTPBannerEvent;
+    FOnBannerWarning : TIdFTPBannerEvent;
 
     FTZInfo : TIdFTPTZInfo;
 
@@ -822,6 +823,7 @@ type
     procedure DoCustomFTPProxy;
     procedure DoOnBannerAfterLogin(AText : TIdStrings);
     procedure DoOnBannerBeforeLogin(AText : TIdStrings);
+    procedure DoOnBannerWarning(AText : TIdStrings);
     procedure SendPBSZ; //protection buffer size
     procedure SendPROT; //data port protection
     procedure SendDataSettings; //this is for the extensions only;
@@ -993,6 +995,7 @@ type
 
     property OnBannerBeforeLogin : TIdFTPBannerEvent read FOnBannerBeforeLogin write FOnBannerBeforeLogin;
     property OnBannerAfterLogin : TIdFTPBannerEvent read FOnBannerAfterLogin write FOnBannerAfterLogin;
+    property OnBannerWarning : TIdFTPBannerEvent read FOnBannerWarning write FOnBannerWarning;
 
     property OnAfterClientLogin: TOnAfterClientLogin read FOnAfterClientLogin write FOnAfterClientLogin;
     property OnCreateFTPList: TIdCreateFTPList read FOnCreateFTPList write FOnCreateFTPList;
@@ -1111,7 +1114,11 @@ var
   LHost: String;
   LPort: Integer;
   LBuf : String;
+  LCode: SmallInt;
+  LSendQuitOnError: Boolean;
 begin
+  LSendQuitOnError := False;
+
   FCurrentTransferMode := dmStream;
   FTZInfo.FGMTOffsetAvailable := False;
    //FSSCNOn should be set to false to prevent problems.
@@ -1122,6 +1129,7 @@ begin
     FUsingExtDataPort := True;
   end;
   FUsingNATFastTrack := False;
+
   try
     //APR 011216: proxy support
     LHost := FHost;
@@ -1145,7 +1153,20 @@ begin
       FHost := LHost;
       FPort := LPort;
     end;//tryf
-    GetResponse([220]);
+
+    // RLebeau: RFC 959 allows the server to send a 1xx reply before the
+    // actual 220 greeting.  The client has to wait for the 220 to arrive
+    // before continuing. Although the RFC states to use 120 specifically,
+    // I have seen servers send other 1xx replies, such as 130
+    LCode := GetResponse;
+    if (LCode div 100) = 1 then
+    begin
+      DoOnBannerWarning(LastCmdResult.FormattedReply);
+      LCode := GetResponse;
+    end;
+    CheckResponse(LCode, [220]);
+
+    LSendQuitOnError := True;
 
     FGreeting.Assign(LastCmdResult);
     DoOnBannerBeforeLogin (FGreeting.FormattedReply);
@@ -1188,7 +1209,7 @@ begin
       DoStatus(ftpReady, [RSFTPStatusReady]);
     end;
   except
-    Disconnect;
+    Disconnect(LSendQuitOnError); // RLebeau: do not send the QUIT command if the greeting was not received
     raise;
   end;
 end;
@@ -3334,6 +3355,13 @@ procedure TIdFTP.DoOnBannerBeforeLogin(AText: TIdStrings);
 begin
   if Assigned(OnBannerBeforeLogin) then begin
     OnBannerBeforeLogin(Self, AText.Text);
+  end;
+end;
+
+procedure TIdFTP.DoOnBannerWarning(AText: TIdStrings);
+begin
+  if Assigned(OnBannerWarning) then begin
+    OnBannerWarning(Self, AText.Text);
   end;
 end;
 
