@@ -630,6 +630,97 @@ uses
 const
   ProtocolVersionString: array[TIdHTTPProtocolVersion] of string = ('1.0', '1.1'); {do not localize}
 
+{ TIdDiscardStream }
+
+type
+  TIdDiscardStream = class(TIdStream)
+  protected
+    {$IFDEF DotNetDistro}
+    function GetPosition: Int64; override;
+    function GetSize: Int64; override;
+    {$ENDIF}
+    {$IFDEF DOTNET}
+    procedure SetSize(NewSize: Int64); override;
+    {$ELSE}
+    {$IFDEF VCL6ORABOVE}
+    procedure SetSize(const NewSize: Int64); override;
+    {$ELSE}
+    procedure SetSize(NewSize: Longint); override;
+    {$ENDIF}
+    {$ENDIF}
+  public
+    {$IFDEF DOTNET}
+    function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
+    function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
+    {$ELSE}
+    function Read(var Buffer; Count: Longint): Longint;  override;
+    function Write(const Buffer; Count: Longint): Longint;  override;
+    {$ENDIF}
+    {$IFDEF VCL6ORABOVE}
+    function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
+    {$ELSE}
+    function Seek(Offset: Longint; Origin: Word): Longint; override;
+    {$ENDIF}
+  end;
+
+{$IFDEF DotNetDistro}
+function TIdDiscardStream.GetSize: Int64;
+begin
+  Result := 0;
+end;
+
+function TIdDiscardStream.GetPosition: Int64;
+begin
+  Result := -1;
+end;
+{$ENDIF}
+
+{$IFDEF DOTNET}
+function TIdDiscardStream.Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint;
+begin
+  Result := 0;
+end;
+{$ELSE}
+function TIdDiscardStream.Read(var Buffer; Count: Longint): Longint;
+begin
+  Result := 0;
+end;
+{$ENDIF}
+
+{$IFDEF VCL6ORABOVE}
+function TIdDiscardStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
+{$ELSE}
+function TIdDiscardStream.Seek(Offset: Longint; Origin: Word): Longint;
+{$ENDIF}
+begin
+  Result := 0;
+end;
+
+{$IFDEF DOTNET}
+procedure TIdDiscardStream.SetSize(NewSize: Int64);
+{$ELSE}
+{$IFDEF VCL6ORABOVE}
+procedure TIdDiscardStream.SetSize(const NewSize: Int64);
+{$ELSE}
+procedure TIdDiscardStream.SetSize(NewSize: Longint);
+{$ENDIF}
+{$ENDIF}
+begin
+//
+end;
+
+{$IFDEF DOTNET}
+function TIdDiscardStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
+begin
+  Result := ACount;
+end;
+{$ELSE}
+function TIdDiscardStream.Write(const Buffer; Count: Longint): Longint;
+begin
+  Result := Count;
+end;
+{$ENDIF}
+
 { EIdHTTPProtocolException }
 
 constructor EIdHTTPProtocolException.CreateError(const anErrCode: Integer;
@@ -967,7 +1058,7 @@ begin
     end;
 
     try
-      if IndyPos('chunked', AResponse.RawHeaders.Values['Transfer-Encoding']) > 0 then {do not localize}
+      if IndyPos('chunked', Sys.LowerCase(AResponse.RawHeaders.Values['Transfer-Encoding'])) > 0 then {do not localize}
       begin // Chunked
         DoStatus(hsStatusText, [RSHTTPChunkStarted]);
         Size := ChunkSize;
@@ -981,8 +1072,18 @@ begin
       end else begin
         if AResponse.ContentLength > 0 then // If chunked then this is also 0
         begin
+          // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
+          // The server is supposed to send a 'Content-Length' header
+          // without sending the actual data...
           try
-            IOHandler.ReadStream(LS, AResponse.ContentLength);
+            if AUnexpectedContentTimeout > 0 then begin
+              IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+              if not IOHandler.InputBufferIsEmpty then begin
+                IOHandler.ReadStream(LS, AResponse.ContentLength);
+              end;
+            end else begin
+              IOHandler.ReadStream(LS, AResponse.ContentLength);
+            end;
           except
             on E: EIdConnClosedGracefully do
           end;
@@ -1764,10 +1865,10 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
 
   procedure DiscardContent(AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
-    LTempResponse: TIdStringStream;
+    LTempResponse: TIdDiscardStream;
     LTempStream: TIdStream;
   begin
-    LTempResponse := TIdStringStream.Create('');
+    LTempResponse := TIdDiscardStream.Create;
     LTempStream := Response.ContentStream;
     Response.ContentStream := LTempResponse;
     try
