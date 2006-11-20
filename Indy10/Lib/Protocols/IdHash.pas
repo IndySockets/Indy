@@ -62,6 +62,7 @@ type
   protected
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; virtual; abstract;
   public
+    constructor Create; virtual;
     function HashString(const ASrc: string): TIdBytes;
     function HashBytes(const ASrc: TIdBytes): TIdBytes;
     function HashStream(AStream: TIdStream): TIdBytes; overload;
@@ -100,6 +101,10 @@ uses
   IdGlobalProtocols;
 
 { TIdHash }
+
+constructor TIdHash.Create;
+begin
+end;
 
 function TIdHash.HashString(const ASrc: string): TIdBytes;
 var
