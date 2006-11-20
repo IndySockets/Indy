@@ -60,7 +60,7 @@ type
     procedure Coder;
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    constructor Create;
+    constructor Create; override;
   end;
 
 implementation
