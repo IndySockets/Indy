@@ -61,8 +61,6 @@ type
     FCBuffer: TIdBytes;
     procedure MDCoder; virtual; abstract;
     procedure Reset; virtual;
-  public
-    constructor Create(ABufferSize: Integer);
   end;
 
   TIdHashMessageDigest2 = class(TIdHashMessageDigest)
@@ -75,7 +73,7 @@ type
 
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
-    constructor Create; virtual;
+    constructor Create; override;
   end;
 
   TIdHashMessageDigest4 = class(TIdHashMessageDigest)
@@ -85,7 +83,7 @@ type
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
     procedure MDCoder; override;
   public
-    constructor Create; virtual;
+    constructor Create; override;
   end;
 
   TIdHashMessageDigest5 = class(TIdHashMessageDigest4)
@@ -96,12 +94,6 @@ type
 implementation
 
 { TIdHashMessageDigest }
-
-constructor TIdHashMessageDigest.Create(ABufferSize: Integer);
-begin
-  inherited Create;
-  SetLength(FCBuffer, ABufferSize);
-end;
 
 procedure TIdHashMessageDigest.Reset;
 begin
@@ -134,7 +126,8 @@ const
 
 constructor TIdHashMessageDigest2.Create;
 begin
-  inherited Create(16);
+  inherited Create;
+  SetLength(FCBuffer, 16);
 end;
 
 procedure TIdHashMessageDigest2.MDCoder;
@@ -249,7 +242,8 @@ end;
 
 constructor TIdHashMessageDigest4.Create;
 begin
-  inherited Create(64);
+  inherited Create;
+  SetLength(FCBuffer, 64);
 end;
 
 procedure TIdHashMessageDigest4.MDCoder;
