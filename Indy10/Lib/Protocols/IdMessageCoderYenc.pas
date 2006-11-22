@@ -322,8 +322,8 @@ var
 
   procedure AddByteToOutputBuffer(const AChar: Byte);
   begin
-    LOutputBuffer[LOutputBufferUsed]:=AChar;
-    inc(LOutputBufferUsed);
+    LOutputBuffer[LOutputBufferUsed] := AChar;
+    Inc(LOutputBufferUsed);
     if LOutputBufferUsed >= BUFLEN then begin
       FlushOutputBuffer;
     end;
@@ -332,9 +332,8 @@ var
   function ReadByteFromInputBuffer: Byte;
   begin
     if LInputBufferPos >= LInputBufferSize then begin
+      LInputBufferSize := ReadTIdBytesFromStream(ASrc, LInputBuffer, BUFLEN);
       LInputBufferPos := 0;
-      Todo;
-//      LInputBufferSize := ASrc.Read(LInputBuffer, 4096);
     end;
     Result := LInputBuffer[LInputBufferPos];
     Inc(LInputBufferPos);
