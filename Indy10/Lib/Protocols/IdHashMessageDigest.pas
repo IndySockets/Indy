@@ -72,6 +72,7 @@ type
     procedure Reset; override;
 
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
+    function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
   end;
@@ -81,6 +82,8 @@ type
     FState: T4x4LongWordRecord;
 
     function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
+    function HashToHex(const AHash: TIdBytes): String; override;
+
     procedure MDCoder; override;
   public
     constructor Create; override;
@@ -225,6 +228,11 @@ begin
       FX[I*4] + (FX[I*4+1] shl 8) + (FX[I*4+2] shl 16) + (FX[I*4+3] shl 24),
       Result, SizeOf(LongWord)*I);
   end;
+end;
+
+function TIdHashMessageDigest2.HashToHex(const AHash: TIdBytes): String;
+begin
+  Result := LongWordHashToHex(AHash, 4);
 end;
 
 { TIdHashMessageDigest4 }
@@ -376,6 +384,11 @@ begin
   for I := 0 to 3 do begin
     CopyTIdLongWord(FState[I], Result, SizeOf(LongWord)*I);
   end;
+end;
+
+function TIdHashMessageDigest4.HashToHex(const AHash: TIdBytes): String;
+begin
+  Result := LongWordHashToHex(AHash, 4);
 end;
 
 { TIdHashMessageDigest5 }
