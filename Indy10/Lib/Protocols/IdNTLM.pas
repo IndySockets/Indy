@@ -225,7 +225,7 @@ begin
     Free;
   end;
 
-  Move(nt_hpw[1], nt_hpw128[0], 16);
+  Move(nt_hpw128[0], nt_hpw[1], 16);
   FillChar(nt_hpw[17], 5, 0);
 
   calc_resp(pdes_cblock(@nt_hpw[1]), nonce, Pdes_key_schedule(@nt_resp[1]));
