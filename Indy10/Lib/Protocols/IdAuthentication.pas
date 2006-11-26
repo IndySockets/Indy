@@ -179,8 +179,8 @@ end;
 constructor TIdAuthentication.Create;
 begin
   inherited Create;
+  FAuthParams := TIdHeaderList.Create;
   FParams := TIdHeaderList.Create;
-
   FCurrentStep := 0;
 end;
 
@@ -188,16 +188,11 @@ destructor TIdAuthentication.Destroy;
 begin
   Sys.FreeAndNil(FAuthParams);
   Sys.FreeAndNil(FParams);
-
   inherited Destroy;
 end;
 
 procedure TIdAuthentication.SetAuthParams(AValue: TIdHeaderList);
 begin
-  if not Assigned(FAuthParams) then begin
-    FAuthParams := TIdHeaderList.Create;
-  end;
-
   FAuthParams.Assign(AValue);
 end;
 
@@ -205,22 +200,18 @@ function TIdAuthentication.ReadAuthInfo(AuthName: String): String;
 Var
   i: Integer;
 begin
-  if Assigned(FAuthParams) then begin
-    for i := 0 to FAuthParams.Count - 1 do begin
-      if IndyPos(AuthName, FAuthParams[i]) = 1 then begin
-        result := FAuthParams[i];
-        exit;
-      end;
+  for i := 0 to FAuthParams.Count - 1 do begin
+    if IndyPos(AuthName, FAuthParams[i]) = 1 then begin
+      Result := FAuthParams[i];
+      Exit;
     end;
-  end
-  else begin
-    result := '';  {Do not Localize}
   end;
+  Result := '';  {Do not Localize}
 end;
 
 function TIdAuthentication.Next: TIdAuthWhatsNext;
 begin
-  result := DoNext;
+  Result := DoNext;
 end;
 
 procedure TIdAuthentication.Reset;
@@ -240,17 +231,17 @@ end;
 
 procedure TIdAuthentication.SetPassword(const Value: String);
 begin
-  Params.Values['Password'] := Value;   {Do not Localize}
+  Params.Values['password'] := Value;   {Do not Localize}
 end;
 
 procedure TIdAuthentication.SetUserName(const Value: String);
 begin
-  Params.Values['Username'] := Value;     {Do not Localize}
+  Params.Values['username'] := Value;     {Do not Localize}
 end;
 
 function TIdAuthentication.GetSteps: Integer;
 begin
-  result := 0;
+  Result := 0;
 end;
 
 { TIdBasicAuthentication }
@@ -269,10 +260,10 @@ begin
 end;
 
 function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;
-Var
+var
   S: String;
 begin
-  result := wnDoRequest;
+  Result := wnDoRequest;
 
   S := ReadAuthInfo('Basic');        {Do not Localize}
   Fetch(S);
@@ -289,21 +280,21 @@ begin
   case FCurrentStep of
     0: begin
       if (Length(Username) > 0) {and (Length(Password) > 0)} then begin
-        result := wnDoRequest;
+        Result := wnDoRequest;
       end
       else begin
-        result := wnAskTheProgram;
+        Result := wnAskTheProgram;
       end;
     end;
     1: begin
-      result := wnFail;
+      Result := wnFail;
     end;
   end;
 end;
 
 function TIdBasicAuthentication.KeepAlive: Boolean;
 begin
-  result := false;
+  Result := False;
 end;
 
 procedure TIdBasicAuthentication.Reset;
@@ -314,7 +305,7 @@ end;
 
 function TIdBasicAuthentication.GetSteps: Integer;
 begin
-  result := 1;
+  Result := 1;
 end;
 
 initialization
