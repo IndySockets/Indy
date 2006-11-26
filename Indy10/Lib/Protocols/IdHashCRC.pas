@@ -37,29 +37,23 @@ unit IdHashCRC;
 interface
 
 uses
-  IdGlobal, IdHash, IdObjs;
+  IdHash;
 
 type
   TIdHashCRC16 = class(TIdHash16)
-  protected
-    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
     procedure HashStart(var VRunningHash : Word); override;
     procedure HashByte(var VRunningHash : Word; const AByte : Byte); override;
   end;
 
   TIdHashCRC32 = class(TIdHash32)
-  protected
-    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
   public
     procedure HashStart(var VRunningHash : LongWord); override;
+    procedure HashEnd(var VRunningHash : LongWord); override;
     procedure HashByte(var VRunningHash : LongWord; const AByte : Byte); override;
   end;
 
 implementation
-
-uses
-  IdStream;
   
 const
   CRC16Table: array[0..255] of Word =
@@ -144,34 +138,9 @@ const
 
 { TIdHashCRC16 }
 
-function TIdHashCRC16.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
-const
-  cBufSize = 1024; // Keep it small for dotNet
-var
-  I: Integer;
-  LBuffer: TIdBytes;
-  LSize: Integer;
-  LHash: Word;
+procedure TIdHashCRC16.HashStart(var VRunningHash: Word);
 begin
-  Result := nil;
-  LHash := 0;
-
-  SetLength(LBuffer, cBufSize);
-
-  while ASize > 0 do
-  begin
-    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
-    if LSize < 1 then begin
-      Break; // TODO: throw a stream read exception instead?
-    end;
-    for i := 0 to LSize - 1 do begin
-      LHash := (LHash shr 8) xor CRC16Table[LBuffer[i] xor (LHash and $FF)];
-    end;
-    Dec(ASize, LSize);
-  end;
-
-  SetLength(Result, SizeOf(Word));
-  CopyTIdWord(LHash, Result, 0);
+  VRunningHash := 0;
 end;
 
 procedure TIdHashCRC16.HashByte(var VRunningHash: Word; const AByte: Byte);
@@ -179,51 +148,21 @@ begin
   VRunningHash := (VRunningHash shr 8) xor CRC16Table[AByte xor (VRunningHash and $FF)];
 end;
 
-procedure TIdHashCRC16.HashStart(var VRunningHash: Word);
-begin
-  VRunningHash := 0;
-end;
-
 { TIdHashCRC32 }
 
-function TIdHashCRC32.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
-const
-  cBufSize = 1024; // Keep it small for dotNet
-var
-  I: Integer;
-  LBuffer: TIdBytes;
-  LSize: Integer;
-  LHash: LongWord;
+procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
 begin
-  Result := nil;
-  LHash := $FFFFFFFF;
+  VRunningHash := $FFFFFFFF;
+end;
 
-  SetLength(LBuffer, cBufSize);
-
-  while ASize > 0 do
-  begin
-    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
-    if LSize < 1 then begin
-      Break;  // TODO: throw a stream read exception instead?
-    end;
-    for i := 0 to LSize - 1 do begin
-      LHash := ((LHash shr 8) and $00FFFFFF) xor CRC32Table[(LHash xor LBuffer[i]) and $FF];
-    end;
-    Dec(ASize, LSize);
-  end;
-
-  SetLength(Result, SizeOf(LongWord));
-  CopyTIdLongWord(LHash xor $FFFFFFFF, Result, 0);
+procedure TIdHashCRC32.HashEnd(var VRunningHash : LongWord);
+begin
+  VRunningHash := VRunningHash xor $FFFFFFFF;
 end;
 
 procedure TIdHashCRC32.HashByte(var VRunningHash: LongWord; const AByte: Byte);
 begin
   VRunningHash := ((VRunningHash shr 8) and $00FFFFFF) xor CRC32Table[(VRunningHash xor AByte) and $FF];
-end;
-
-procedure TIdHashCRC32.HashStart(var VRunningHash: LongWord);
-begin
-  VRunningHash := $FFFFFFFF;
 end;
 
 end.
