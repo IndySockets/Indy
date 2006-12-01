@@ -1321,6 +1321,7 @@ begin
         try
           SetLength(LBuf, 0); // clear the buffer
           ReadBytes(LBuf, i, False);
+          TIdAntiFreezeBase.DoProcess;
         except
           on E: Exception do begin
             // RLebeau - ReadFromSource() inside of ReadBytes()
