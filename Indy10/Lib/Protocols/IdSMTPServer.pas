@@ -103,9 +103,9 @@ type
   TOnSMTPUserLoginEvent = procedure(ASender: TIdSMTPServerContext; const AUsername, APassword: string;
     var VAuthenticated: Boolean) of object;
   TOnMailFromEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
-    var VAction : TIdMailFromReply) of object;
+    AParams: TIdStrings; var VAction : TIdMailFromReply) of object;
   TOnRcptToEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
-    var VAction : TIdRCPToReply; var VForward : String) of object;
+    AParams: TIdStrings; var VAction : TIdRCPToReply; var VForward : String) of object;
   TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream;
     var LAction : TIdDataReply) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; var AReceived : String) of object;
@@ -687,6 +687,8 @@ var
   EMailAddress: TIdEMailAddressItem;
   LContext : TIdSMTPServerContext;
   LM : TIdMailFromReply;
+  LParams: TIdStringList;
+  LParam, S: String;
 begin
   //Note that unlike other protocols, it might not be possible
   //to completely disable MAIL FROM for people not using SSL
@@ -699,10 +701,22 @@ begin
     if TextStartsWith(ASender.UnparsedParams, 'FROM:') then begin   {Do not Localize}
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
-        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 6, MaxInt));
+        S := Sys.TrimLeft(Copy(ASender.UnparsedParams, 6, MaxInt));
+        EMailAddress.Text := Fetch(S);
         LM := mAccept;
         if Assigned(FOnMailFrom) then begin
-          FOnMailFrom(LContext, EMailAddress.Address, LM);
+          LParams := TIdStringList.Create;
+          try
+            while S <> '' do begin
+              LParam := Sys.TrimLeft(Fetch(S));
+              if LParam <> '' then begin
+                LParams.Add(LParam);
+              end;
+            end;
+            FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
+          finally
+            Sys.FreeAndNil(LParams);
+          end;
         end;
         case LM of
           mAccept :
@@ -739,7 +753,8 @@ var
   EMailAddress: TIdEMailAddressItem;
   LContext : TIdSMTPServerContext;
   LAction : TIdRCPToReply;
-  LForward : String;
+  LParams: TIdStringList;
+  LForward, LParam, S : String;
 begin
   LForward := '';
   LContext := TIdSMTPServerContext(ASender.Context);
@@ -766,9 +781,21 @@ begin
       //you have a security hazard that spammers can abuse.
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
-        EMailAddress.Text := Sys.Trim(Copy(ASender.UnparsedParams, 4, MaxInt));
+        S := Sys.TrimLeft(Copy(ASender.UnparsedParams, 4, MaxInt));
+        EMailAddress.Text := Fetch(S);
         if Assigned(FOnRcptTo) then begin
-          FOnRcptTo(LContext, EMailAddress.Address, LAction, LForward);
+          LParams := TIdStringList.Create;
+          try
+            while S <> '' do begin
+              LParam := Sys.TrimLeft(Fetch(S));
+              if LParam <> '' then begin
+                LParams.Add(LParam);
+              end;
+            end;
+            FOnRcptTo(LContext, EMailAddress.Address, LParams, LAction, LForward);
+          finally
+            Sys.FreeAndNil(LParams);
+          end;
           case LAction of
             rAddressOk :
             begin
