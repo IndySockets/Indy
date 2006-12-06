@@ -648,9 +648,9 @@ begin
   end;
   aCmd.Response.Add('USER'); {do not localize}
 //  aCmd.Response.Add('SASL ......');   // like 'SASL CRAM-MD5 KERBEROS_V4'
-//  if Assigned(fOnCapa) then begin
-//    fOnCapa(aCmd.Context, aCmd.Response);
-//  end;
+  if Assigned(fCommandCapa) then begin
+    OnCAPA(aCmd.Context, aCmd.Response);
+  end;
 end;
 
 { Constructor / Destructors }
