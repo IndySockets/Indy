@@ -343,12 +343,14 @@ type
     procedure Startup; virtual;
     procedure Shutdown; virtual;
     procedure TerminateAllThreads;
-    procedure TerminateListenerThreads;
-        // Occurs in the context of the peer thread
+    // Occurs in the context of the peer thread
     property OnExecute: TIdServerThreadEvent read FOnExecute write FOnExecute;
 
   public
     destructor Destroy; override;
+    //
+    procedure StartListening;
+    procedure StopListening;
     //
     property Contexts: TIdThreadList read FContexts;
     property ContextClass: TIdContextClass read FContextClass write FContextClass;
@@ -520,9 +522,8 @@ begin
   inherited Notification(AComponent, Operation);
   // Remove the reference to the linked components if they are deleted
   if (Operation = opRemove) then begin
-    if (AComponent = Scheduler) then begin
-      //should this be FScheduler?
-      Scheduler := nil;
+    if (AComponent = FScheduler) then begin
+      SetScheduler(nil);
     end else if (AComponent = FIntercept) then begin
       FIntercept := nil;
     end else if (AComponent = FIOHandler) then begin
@@ -618,11 +619,69 @@ begin
   end;
 end;
 
-//APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
-procedure TIdCustomTCPServer.TerminateListenerThreads;
+procedure TIdCustomTCPServer.StartListening;
 var
   LListenerThreads: TIdList;
-Begin
+  LListenerThread: TIdListenerThread;
+  I: Integer;
+begin
+  LListenerThreads := FListenerThreads.LockList;
+  try
+    // Set up any sockets that are not already listening
+    I := LListenerThreads.Count;
+    try
+      while I < Bindings.Count do begin
+        with Bindings[I] do begin
+          AllocateSocket;
+          if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
+            SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
+          end;
+          Bind;
+        end;
+        Inc(I);
+      end;
+    except
+      Dec(I); // the one that failed doesn't need to be closed
+      while I >= 0 do begin
+        Bindings[I].CloseSocket;
+        Dec(I);
+      end;
+      raise;
+    end;
+
+    if I > LListenerThreads.Count then begin
+      DoAfterBind;
+    end;
+
+    // Set up any threads that are not already running
+    for I := LListenerThreads.Count to Bindings.Count - 1 do
+    begin
+      Bindings[I].Listen(FListenQueue);
+      LListenerThread := TIdListenerThread.Create(Self, Bindings[I]);
+      try
+        LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(I + 1); {do not localize}
+        LListenerThread.OnBeforeRun := DoBeforeListenerRun;
+        //Todo: Implement proper priority handling for Linux
+        //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
+        LListenerThread.Priority := tpListener;
+        LListenerThreads.Add(LListenerThread);
+      except
+        Bindings[I].CloseSocket;
+        Sys.FreeAndNil(LListenerThread);
+        raise;
+      end;
+      LListenerThread.Start;
+    end;
+  finally
+    FListenerThreads.UnlockList;
+  end;
+end;
+
+//APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
+procedure TIdCustomTCPServer.StopListening;
+var
+  LListenerThreads: TIdList;
+begin
   LListenerThreads := FListenerThreads.LockList;
   try
     while LListenerThreads.Count > 0 do begin
@@ -667,8 +726,8 @@ begin
 
   // Scheduler may be nil during destroy which calls TerminateAllThreads
   // This happens with explicit schedulers
-  if Scheduler <> nil then begin
-    Scheduler.TerminateAllYarns;
+  if Assigned(FScheduler) then begin
+    FScheduler.TerminateAllYarns;
   end;
 end;
 
@@ -709,8 +768,10 @@ procedure TIdCustomTCPServer.Shutdown;
 begin
   // Must set to False here. SetScheduler checks this
   FActive := False;
-  //
-  TerminateListenerThreads;
+
+  // tear down listening threads
+  StopListening;
+
   // Tear down ThreadMgr
   try
     TerminateAllThreads;
@@ -725,13 +786,9 @@ begin
   if IOHandler <> nil then begin
     IOHandler.Shutdown;
   end;
-  
 end;
 
 procedure TIdCustomTCPServer.Startup;
-var
-  i: Integer;
-  LListenerThread: TIdListenerThread;
 begin
   // Set up bindings
   if Bindings.Count = 0 then begin
@@ -741,57 +798,29 @@ begin
       Bindings.Add.IPVersion := Id_IPv6;
     end;
   end;
+
   // Setup IOHandler
   if not Assigned(FIOHandler) then begin
     IOHandler := TIdServerIOHandlerStack.Create(Self);
     FImplicitIOHandler := True;
   end;
-  //
   IOHandler.Init;
-  //
+
   // Set up scheduler
-  if Scheduler = nil then begin
+  if not Assigned(FScheduler) then begin
     Scheduler := TIdSchedulerOfThreadDefault.Create(Self);
     // Useful in debugging and for thread names
-    Scheduler.Name := Name + 'Scheduler';   {do not localize}
+    FScheduler.Name := Name + ' Scheduler';   {do not localize}
     FImplicitScheduler := True;
   end;
-  Scheduler.Init;
+  FScheduler.Init;
 
-  // Set up listener threads
-  i := 0;
   try
-    while i < Bindings.Count do begin
-      with Bindings[i] do begin
-        AllocateSocket;
-        if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
-          SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
-        end;
-        Bind;
-      end;
-      Inc(i);
-    end;
+    StartListening;
   except
-    Dec(i); // the one that failed doesn't need to be closed
-    while i >= 0 do begin
-      Bindings[i].CloseSocket;
-      Dec(i);
-    end;
     FActive := True;
     SetActive(False); // allow descendants to clean up
     raise;
-  end;
-  DoAfterBind;
-  for i := 0 to Bindings.Count - 1 do begin
-    Bindings[i].Listen(FListenQueue);
-    LListenerThread := TIdListenerThread.Create(Self, Bindings[i]);
-    LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(i + 1); {do not localize}
-    LListenerThread.OnBeforeRun := DoBeforeListenerRun;
-    //Todo: Implement proper priority handling for Linux
-    //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
-    LListenerThread.Priority := tpListener;
-    FListenerThreads.Add(LListenerThread);
-    LListenerThread.Start;
   end;
   FActive := True;
 end;
@@ -864,6 +893,7 @@ begin
       LPeer.Disconnect;
       Sys.Abort;
     end;
+
     // Create and init context
     LContext := Server.FContextClass.Create(LPeer, LYarn, Server.Contexts);
     // We set these instead of having the context call them directly
