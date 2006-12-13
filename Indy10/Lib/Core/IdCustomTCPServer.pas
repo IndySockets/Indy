@@ -810,7 +810,7 @@ begin
   if not Assigned(FScheduler) then begin
     Scheduler := TIdSchedulerOfThreadDefault.Create(Self);
     // Useful in debugging and for thread names
-    FScheduler.Name := Name + ' Scheduler';   {do not localize}
+    FScheduler.Name := Name + 'Scheduler';   {do not localize}
     FImplicitScheduler := True;
   end;
   FScheduler.Init;
