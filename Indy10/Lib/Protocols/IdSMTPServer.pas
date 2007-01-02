@@ -163,7 +163,7 @@ type
     //address replies   - RCPT TO
     procedure AddrValid(ASender: TIdCommand; const AAddress : String = '');
     procedure AddrInvalid(ASender: TIdCommand; const AAddress : String = '');
-    procedure AddrWillForward(ASender: TIdCommand; const AAddress : String = '');
+    procedure AddrWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
     procedure AddrNotWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
     procedure AddrDisabledPerm(ASender: TIdCommand; const AAddress : String = '');
     procedure AddrDisabledTemp(ASender: TIdCommand; const AAddress : String = '');
@@ -580,8 +580,15 @@ begin
 end;
 
 procedure TIdSMTPServer.AddrNotWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
+var
+  LMsg: String;
 begin
-  SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPUserNotLocal, [AAddress, ATo]),
+  if ATo <> '' then begin
+    LMsg := Sys.Format(RSSMTPUserNotLocal, [AAddress, ATo]);
+  end else begin
+    LMsg := Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]);
+  end;
+  SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, LMsg,
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -597,10 +604,16 @@ begin
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
-procedure TIdSMTPServer.AddrWillForward(ASender: TIdCommand; const AAddress : String = '');
+procedure TIdSMTPServer.AddrWillForward(ASender: TIdCommand; const AAddress : String = ''; const ATo : String = '');
+var
+  LMsg: String;
 begin
-// Note, changed format from RSSMTPUserNotLocal as it now has two %s.
-  SetEnhReply(ASender.Reply, 251, Id_EHR_MSG_VALID_DEST, Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]),
+  if ATo <> '' then begin
+    LMsg := Sys.Format(RSSMTPUserNotLocalFwdAddr, [AAddress, ATo]);
+  end else begin    
+    LMsg := Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]);
+  end;
+  SetEnhReply(ASender.Reply, 251, Id_EHR_MSG_VALID_DEST, LMsg,
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -809,8 +822,12 @@ begin
             end;
             rWillForward :
             begin
-              AddrWillForward(ASender, EMailAddress.Address);
-              LContext.RCPTList.Add.Text := EMailAddress.Text;
+              AddrWillForward(ASender, EMailAddress.Address, LForward);
+              if LForward <> '' then begin
+                LContext.RCPTList.Add.Text := LForward;
+              end else begin
+                LContext.RCPTList.Add.Text := EMailAddress.Text;
+              end;
               LContext.SMTPState := idSMTPRcpt;
             end;
             rNoForward : AddrNotWillForward(ASender, EMailAddress.Address, LForward);
@@ -969,7 +986,9 @@ begin
     LContext.PipeLining := False;
     LStream := TIdMemoryStream.Create;
     try
-      // RLebeau: TODO - do not even create the stream if the OnMsgReceive event is not assigned
+      // RLebeau: TODO - do not even create the stream if the OnMsgReceive
+      // event is not assigned, or at least create a stream that discards
+      // any data received...
       AMsg := TIdMemoryStream.Create;
       try
         LAction := dOk;
