@@ -617,7 +617,6 @@ resourcestring
   RSSMTPUserNotLocalFwdAddr = 'User %s not local; will forward to <%s>';
   RSSMTPTooManyRecipients = 'Too Many recipients.';
   RSSMTPAccountDisabled = '%s Account Disabled';
-
   RSSMTPLocalProcessingError = 'Local Processing Error';
   RSSMTPNoOnRcptTo = 'No OnRcptTo event';
   //data command error replies
@@ -627,6 +626,10 @@ resourcestring
   RSSMTPSvrLocalError = 'Requested action aborted: local error in processing';
   RSSMTPSvrInsufficientSysStorage = 'Requested action not taken: insufficient system storage ';
   RSSMTPMsgLenLimit = 'Message length exceeds administrative limit';
+  // SPF replies
+  RSSMTPSvrSPFCheckFailed = 'SPF %s check failed';
+  RSSMTPSvrSPFCheckError = 'SPF %s check error';
+
   { IdPOP3Server }
   RSPOP3SvrImplicitTLSRequiresSSL = 'Implicit POP3 requires that IOHandler be set to a TIdServerIOHandlerSSL.';
   RSPOP3SvrMustUseSTLS = 'Must use STLS';
