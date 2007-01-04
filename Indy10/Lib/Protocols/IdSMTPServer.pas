@@ -201,7 +201,8 @@ type
     procedure InitializeCommandHandlers; override;
     //
     procedure DoReset(AContext: TIdSMTPServerContext; AIsTLSReset: Boolean = False);
-    function SPFAuthOk(ASender: TIdSMTPServerContext; AReply: TIdReply; const ACmd, ADomain, AIdentify: String): Boolean;
+    function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
+      const ACmd, ADomain, AIdentity: String): Boolean;
   published
     //events
     property OnMailFrom : TOnMailFromEvent read FOnMailFrom write FOnMailFrom;
@@ -243,13 +244,13 @@ type
     procedure Reset(AIsTLSReset: Boolean = False); virtual;
     //
     property SMTPState: TIdSMTPState read FSMTPState write FSMTPState;
-    property From: string read FFrom write FFrom;
-    property RCPTList: TIdEMailAddressList read FRCPTList write FRCPTList;
+    property From: String read FFrom write FFrom;
+    property RCPTList: TIdEMailAddressList read FRCPTList;
     property HELO: Boolean read FHELO write FHELO;
     property EHLO: Boolean read FEHLO write FEHLO;
     property HeloString : String read FHeloString write FHeloString;
-    property Username: string read FUsername write FUsername;
-    property Password: string read FPassword write FPassword;
+    property Username: String read FUsername write FUsername;
+    property Password: String read FPassword write FPassword;
     property LoggedIn: Boolean read FLoggedIn write FLoggedIn;
     property FinalStage: Boolean read FFinalStage write FFinalStage;
     property UsingTLS: Boolean read GetUsingTLS;
@@ -258,7 +259,7 @@ type
   end;
 
 const
- IdSMTPSvrReceivedString = 'Received: from $hostname[$ipaddress] (helo=$helo) by $svrhostname[$svripaddress] with $protocol ($servername)'; {do not localize}
+  IdSMTPSvrReceivedString = 'Received: from $hostname[$ipaddress] (helo=$helo) by $svrhostname[$svripaddress] with $protocol ($servername)'; {do not localize}
 
 implementation
 
@@ -496,7 +497,7 @@ begin
     LContext.HELO := True;
     if SPFAuthOk(LContext, ASender.Reply, 'HELO', DomainName(ASender.UnparsedParams), ASender.UnparsedParams) then {do not localize}
     begin
-      ASender.Reply.SetReply(250, Sys.Format(RSSMTPSvrHello, [AIdentity]));
+      ASender.Reply.SetReply(250, Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]));
       LContext.SMTPState := idSMTPHelo;
     end;
   end else begin
@@ -726,7 +727,7 @@ var
   LContext : TIdSMTPServerContext;
   LM : TIdMailFromReply;
   LParams: TIdStringList;
-  LParam, S: String;
+  S: String;
 begin
   //Note that unlike other protocols, it might not be possible
   //to completely disable MAIL FROM for people not using SSL
@@ -790,7 +791,7 @@ var
   LContext : TIdSMTPServerContext;
   LAction : TIdRCPToReply;
   LParams: TIdStringList;
-  LForward, LParam, S : String;
+  LForward, S : String;
 begin
   LForward := '';
   LContext := TIdSMTPServerContext(ASender.Context);
@@ -1057,7 +1058,7 @@ begin
 end;
 
 function TIdSMTPServer.SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
-  const ACmd, ADomain, AIdentify: String): Boolean;
+  const ACmd, ADomain, AIdentity: String): Boolean;
 var
   LAction: TIdSPFReply;
 begin
@@ -1067,16 +1068,14 @@ begin
   end;
   case LAction of
     spfNone, spfNeutral, spfPass, spfSoftFail:
-      // let the caller handle the reply as needed
-      Result := True;
-    spfFail:
+      Result := True; // let the caller handle the reply as needed
+    else
     begin
-      SetEnhReply(ASender.Reply, 550, '5.7.1', Sys.Format(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
-      Result := False;
-    end;
-    spfTempError, spfPermError:
-    begin
-      SetEnhReply(ASender.Reply, 451, '4.4.3', Sys.Format(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
+      if LAction = spfFail then begin
+        SetEnhReply(AReply, 550, '5.7.1', Sys.Format(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
+      end else begin
+        SetEnhReply(AReply, 451, '4.4.3', Sys.Format(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
+      end;
       Result := False;
     end;
   end;
@@ -1102,7 +1101,6 @@ begin
   Username := '';
   Password := '';
   LoggedIn := False;
-  Sys.FreeAndNil(FRCPTList);
   FRCPTList := TIdEMailAddressList.Create(nil);
 end;
 
