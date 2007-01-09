@@ -199,6 +199,7 @@ const
 (*$HPPEMIT '#include <wsnwlink.h>'*)
 (*$HPPEMIT '#include <wsnetbs.h>'*)
 (*$HPPEMIT '#include <ws2atm.h>'*)
+(*$HPPEMIT '#include <mswsock.h>'*)
 (*$HPPEMIT ''*)
 (*$HPPEMIT 'namespace Idwinsock2'*)
 (*$HPPEMIT '{'*)
