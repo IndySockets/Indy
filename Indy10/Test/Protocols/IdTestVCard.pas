@@ -75,7 +75,7 @@ begin
  aList:=TIdStringList.Create;
  try
  aList.Text:=cData;
- aCard.ReadFromTStrings(aList);
+ aCard.ReadFromStrings(aList);
 
  Assert(aCard.Telephones.Count=1);
  aPhone:=aCard.Telephones[0];
