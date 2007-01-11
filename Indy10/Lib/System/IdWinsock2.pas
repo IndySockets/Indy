@@ -160,9 +160,10 @@ type
   end;
 
 const
-  WINSOCK_VERSION = $0202;
   WINSOCK2_DLL = 'WS2_32.DLL';   {Do not Localize}
   MSWSOCK_DLL = 'MSWSOCK.DLL';   {Do not Localize}
+  {$EXTERNALSYM WINSOCK_VERSION}
+  WINSOCK_VERSION = $0202;
 
 {$DEFINE WS2_DLL_FUNC_VARS}
 {$DEFINE INCL_WINSOCK_API_PROTOTYPES}
@@ -2956,6 +2957,10 @@ const
   IPV6_LEAVE_GROUP           = IPV6_DROP_MEMBERSHIP;
   {$EXTERNALSYM IPV6_PKTINFO}
   IPV6_PKTINFO               = 19; // Receive packet information for ipv6
+  {$EXTERNALSYM IPV6_HOPLIMIT}
+  IPV6_HOPLIMIT              = 21; // Receive packet hop limit
+  {$EXTERNALSYM IPV6_PROTECTION_LEVEL}
+  IPV6_PROTECTION_LEVEL      = 23; // Set/get IPv6 protection level
 
   // Option to use with [gs]etsockopt at the IPPROTO_UDP level
   {$EXTERNALSYM UDP_NOCHECKSUM}
