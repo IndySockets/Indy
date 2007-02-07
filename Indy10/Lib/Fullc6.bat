@@ -1,6 +1,3 @@
-
-REM %NDC6%
-
 @echo off
 
 if (%1)==() goto test_command
@@ -22,74 +19,101 @@ computil SetupC6
 if exist setenv.bat call setenv.bat
 if not exist ..\C6\*.* md ..\C6 >nul
 if exist ..\C6\*.* call clean.bat ..\C6\
-
 if (%NDC6%)==() goto enderror
-if (%NDWINSYS%)==() goto enderror
 
-CD Lib
-CD System
-ECHO ****************
-ECHO  Compile System 
-ECHO ****************
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z IndySystem60.dpk -$d-l-
+REM ***************************************************
+REM Compile Runtime Package IndySystem60
+REM ***************************************************
+cd System
+copy *.pas ..\..\C6
+copy *.dpk ..\..\C6
+copy *.obj ..\..\C6
+copy *.inc ..\..\C6
+copy *.res ..\..\C6
+copy *.dcr ..\..\C6
+copy *.rsp ..\..\C6
+cd ..\..\C6
+%NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-Copy *60.bpl ..\..\C6 >> null
-Copy *60.dcp ..\..\C6 >> null
-CD ..
-CD Core
-ECHO **************
-ECHO  Compile Core    
-ECHO **************
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z IndyCore60.dpk -$d-l-
+%NDC6%\bin\dcc32.exe IndySystem60.dpk /M /DBCB /O..\Lib\System\objs /H /W -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z dclIndyCore60.dpk -$d-l-
-if errorlevel 1 goto enderror
-Copy *60.bpl ..\..\C6 >> null
-Copy *60.dcp ..\..\C6 >> null
-CD ..
-ECHO *******************
-ECHO  Compile Protocols
-ECHO *******************
-CD Protocols
-ECHO ************************
-ECHO  IdCompressionIntercept
-ECHO ************************
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z IdCompressionIntercept.pas -$d-l-
-if errorlevel 1 goto enderror
-ECHO *************************
-ECHO  Compile IndyProtocols60  
-ECHO *************************
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z IndyProtocols60.dpk -$d-l-
-if errorlevel 1 goto enderror
-ECHO ****************************
-ECHO  Compile dclIndyProtocols60 
-ECHO ****************************
-%NDC6%\Bin\dcc32.exe -B -M -DBCB -N..\..\C6 -U..\..\C6 -H -W -Z dclIndyProtocols60.dpk -$d-l-
-if errorlevel 1 goto enderror
-Copy *60.bpl ..\..\C6 >> null
-Copy *60.dcp ..\..\C6 >> null
-CD ..
-CD ..
-ECHO.
-del *.dcu >> null
-del *.dcp >> null
-goto ok
-:ok
-ECHO Adding compile_ok file
-if exist compile_fail del compile_fail
-ECHO Compile_OK > compile_ok
-goto end
-:enderror
-CD ..
-CD ..
-ECHO Compile_Failed > compile_fail
-del compile_run >> null
-ECHO ! Error occured 
-:end
-del compile_run >> null
 
+REM ***************************************************
+REM Clean-up IndySystem60
+REM ***************************************************
+del *.dcu > nul
+del *.pas > nul
+del *.dpk > nul
+del *.obj > nul
+del *.inc > nul
+del *.res > nul
+del *.dcr > nul
+del *.rsp > nul
+
+REM ***************************************************
+REM Compile Runtime/Designtime Packages IndyCore60
+REM ***************************************************
+cd ..\Lib\Core
+copy *.pas ..\..\C6
+copy *.dpk ..\..\C6
+copy *.obj ..\..\C6
+copy *.inc ..\..\C6
+copy *.res ..\..\C6
+copy *.dcr ..\..\C6
+copy *.rsp ..\..\C6
+cd ..\..\C6
+%NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /DBCB /O..\Lib\Core\objs /H /W /N. /LIndyCore60.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+
+REM ***************************************************
+REM Clean-up IndyCore60
+REM ***************************************************
+del *.dcu > nul
+del *.pas > nul
+del *.dpk > nul
+del *.obj > nul
+del *.inc > nul
+del *.res > nul
+del *.dcr > nul
+del *.rsp > nul
+
+REM ***************************************************
+REM Compile Runtime/Designtime Packages IndyProtocols60
+REM ***************************************************
+cd ..\Lib\Protocols
+copy *.pas ..\..\C6
+copy *.dpk ..\..\C6
+copy *.obj ..\..\C6
+copy *.inc ..\..\C6
+copy *.res ..\..\C6
+copy *.dcr ..\..\C6
+copy *.rsp ..\..\C6
+cd ..\..\C6
+%NDC6%\bin\dcc32.exe IndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /DBCB /O..\Lib\Protocols\objs /H /W /N. /LIndyProtocols60.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+
+REM ***************************************************
+REM Clean-up IndyProtocols60
+REM ***************************************************
+del *.dcu > nul
+del *.pas > nul
+del *.dpk > nul
+del *.obj > nul
+del *.inc > nul
+del *.res > nul
+del *.dcr > nul
+del *.rsp > nul
+cd ..\Lib
 goto endok
+
 :enderror
-call clean
+call ..\Lib\clean.bat
+cd ..\Lib
 echo Error!
+
 :endok
+
