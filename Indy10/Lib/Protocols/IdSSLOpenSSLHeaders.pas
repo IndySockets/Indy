@@ -3016,7 +3016,7 @@ var
   //STACK *sk_new_null(void);
   IdSslSkNewNull : function:pointer cdecl = nil;
   //int sk_push(STACK *st,char *data);
-  IdSslSkPush : function(st:PSTACK;char:Pointer):Integer cdecl = nil;
+  IdSslSkPush : function(st:PSTACK;data:Pointer):Integer cdecl = nil;
 
   //IdSslRsaNew : function():cdecl = nil;
   IdSslRsaFree : procedure(rsa:PRSA) cdecl = nil;
