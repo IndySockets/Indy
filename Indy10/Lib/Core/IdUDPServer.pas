@@ -110,7 +110,6 @@ type
     //
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
     property Binding: TIdSocketHandle read FBinding;
-  published
   end;
 
   TIdUDPServer = class(TIdUDPBase)

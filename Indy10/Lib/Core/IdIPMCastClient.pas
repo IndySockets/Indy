@@ -73,7 +73,6 @@ type
     procedure IPMCastRead;
     //
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
-  published
   end;
 
   TIdIPMCastClient = class(TIdIPMCastBase)
