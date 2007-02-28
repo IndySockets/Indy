@@ -307,7 +307,8 @@ type
     property StatusInfoOn: Boolean read fStatusInfoOn write fStatusInfoOn;
 //    property PasswordRoutineOn: Boolean read fPasswordRoutineOn write fPasswordRoutineOn;
     property VerifyOn: Boolean read fVerifyOn write fVerifyOn;
-  published
+//THese can't be published in a TObject without a compiler warning.
+ // published
     property Method: TIdSSLVersion read fMethod write fMethod;
     property Mode: TIdSSLMode read fMode write fMode;
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
@@ -490,7 +491,8 @@ type
   public
     constructor Create(AOwner: TIdSSLSocket);
     destructor Destroy; override;
-  published
+ //These can't be published without a compiler warning.
+ // published
     property Description: String read GetDescription;
     property Name: String read GetName;
     property Bits: Integer read GetBits;
