@@ -123,12 +123,12 @@ begin
       end;
     until False;
     //there must be two spaces between the date and time
-    if (Copy(LBuf,1,2)<>'  ') then
+    if not TextStartsWith(LBuf, '  ') then
     begin
       Result := False;
       Exit;
     end;
-    if (Copy(LBuf,3,1)=' ') then
+    if (Length(LBuf) >= 3) and (LBuf[3] = ' ') then
     begin
       Result := False;
       Exit;
