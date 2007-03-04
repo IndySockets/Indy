@@ -247,7 +247,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   //A file object is something like a file but it can contain members - treat as dir.
   //  Odd, I know.
   //There are also several types of file objects
-  if (Copy(Sys.UpperCase(LObjType),1,5)) = '*FILE' then {do not localize}
+  if TextStartsWith(LObjType, '*FILE') then {do not localize}
   begin
     LI.ItemType := ditDirectory;
   end;

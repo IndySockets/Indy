@@ -145,7 +145,7 @@ begin
   LI.Dist32FileAttributes := LBuf2;
   LI.Attributes.AddAttribute( Lbuf2);
   LBuf := Sys.TrimLeft(LBuf);
-  if Copy(LI.Dist32FileAttributes, 1, 1)='d' then
+  if TextStartsWith(LI.Dist32FileAttributes, 'd') then
   begin
     LI.ItemType := ditDirectory;
   end;
@@ -154,7 +154,7 @@ begin
   LBuf := Sys.TrimLeft(LBuf);
   //date - month
   LDate := Fetch(LBuf);
-  if StrToMonth(LDate)=0 then
+  if StrToMonth(LDate) = 0 then
   begin
     Exit;
   end;
