@@ -200,7 +200,7 @@ begin
       end;
     end;
     Code := LCode;
-    Text.Add(Copy(AValue[0], 5, MaxInt));
+    Text.Add(Copy(AValue[0], Length(LCode)+2, MaxInt));
     FReplyFormat := rfNormal;
     if AValue.Count > 1 then begin
       for i := 1 to AValue.Count - 1 do begin
@@ -208,10 +208,10 @@ begin
         // to be prepended to every line like with other protocols.
         // Most FTP servers do this, but not all of them do, so
         // check here for that possibility ...
-        if TextIsSame(Copy(AValue[i], 1, 3), LCode) then begin
-          LTemp := Copy(AValue[i], 5, MaxInt);
+        if TextStartsWith(AValue[i], LCode) then begin
+          LTemp := Copy(AValue[i], Length(LCode)+2, MaxInt);
         end else begin
-          if Copy(AValue[i], 1, 1) = ' ' then begin
+          if TextStartsWith(AValue[i], ' ') then begin
             FReplyFormat := rfIndentMidLines;
           end;
           LTemp := Sys.TrimLeft(AValue[i]);
