@@ -202,7 +202,7 @@ begin
     lbuf := AListing[0];
     //remove the extra space that sometimes appears in older versions to "flatten"
     //out the listing
-    if Copy(lbuf,10,1)=' ' then
+    if (Length(lbuf) > 9) and (lbuf[10] =' ') then
     begin
       IdDelete(lbuf,10,1);
     end;
@@ -213,8 +213,7 @@ begin
       s := TIdStringList.Create;
       try
         SplitColumns(lbuf,s);
-        Result := (s.Count >9) and
-          ((Sys.UpperCase(s[9])='AM') or (Sys.UpperCase(s[9])='PM')); {do not localize}
+        Result := (s.Count > 9) and (TextIsSame(s[9], 'AM') or TextIsSame(s[9], 'PM')); {do not localize}
         if Result then
         begin
           lbuf := s[6];
