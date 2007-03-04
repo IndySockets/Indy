@@ -118,16 +118,16 @@ function TIdMessageDecoderInfoUUE.CheckForStart(ASender: TIdMessage;
 var
   LPermissionCode: integer;
 begin
-  LPermissionCode := Sys.StrToInt(Copy(ALine, 7, 3), 0);
-  if TextIsSame(Copy(ALine, 1, 6), 'begin ') and (Copy(ALine, 10, 1) = ' ') and (LPermissionCode > 0)    {Do not Localize}
-   then begin
-    Result := TIdMessageDecoderUUE.Create(ASender);
-    with TIdMessageDecoderUUE(Result) do begin
-      FFilename := Copy(ALine, 11, MaxInt);
-      FPartType := mcptAttachment;
+  Result := nil;
+  if TextStartsWith(ALine, 'begin ') and (Length(ALine) >= 10) and (ALine[10] = ' ') then begin {Do not Localize}
+    LPermissionCode := Sys.StrToInt(Copy(ALine, 7, 3), 0);
+    if LPermissionCode > 0 then begin
+      Result := TIdMessageDecoderUUE.Create(ASender);
+      with TIdMessageDecoderUUE(Result) do begin
+        FFilename := Copy(ALine, 11, MaxInt);
+        FPartType := mcptAttachment;
+      end;
     end;
-  end else begin
-    Result := nil;
   end;
 end;
 
