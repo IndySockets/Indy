@@ -1068,9 +1068,9 @@ begin
     {Day of Week}
     if StrToDay(Copy(Value, 1, 3)) > 0 then begin
       //workaround in case a space is missing after the initial column
-      if (Copy(Value,4,1)=',') and (Copy(Value,5,1)<>' ') then
+      if (Copy(Value, 4, 1) = ',') and (Copy(Value, 5, 1) <> ' ') then
       begin
-        Insert(' ',Value,5);
+        Insert(' ', Value, 5);
       end;
       Fetch(Value);
       Value := Sys.TrimLeft(Value);
@@ -1214,7 +1214,7 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := Sys.StrToInt( Copy( LBuffer,1,4),0);
+      LYear := Sys.StrToInt(Copy( LBuffer,1,4),0);
       LMonth := Sys.StrToInt(Copy(LBuffer,5,2),0);
       LDay := Sys.StrToInt(Copy(LBuffer,7,2),0);
 
@@ -1272,15 +1272,14 @@ var
 begin
   repeat
     EndOfCurrentString := Pos(BreakString, BaseString);
-    if (EndOfCurrentString = 0) then
-    begin
-      StringList.add(BaseString);
-    end
-    else
-      StringList.add(Copy(BaseString, 1, EndOfCurrentString - 1));
-    delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
+    if EndOfCurrentString = 0 then begin
+      StringList.Add(BaseString);
+    end else begin
+      StringList.Add(Copy(BaseString, 1, EndOfCurrentString - 1));
+    end;
+    Delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
   until EndOfCurrentString = 0;
-  result := StringList;
+  Result := StringList;
 end;
 
 procedure CommaSeparatedToStringList(AList: TIdStrings; const Value:string);
@@ -2723,10 +2722,10 @@ begin
     Result := APath;
   end else begin
     Result := '';    {Do not Localize}
-    LPreserveTrail := (Copy(APath, Length(APath), 1) = APathDelim) or (Length(APath) = 0);
+    LPreserveTrail := (Length(APath) = 0) or TextEndsWith(APath, APathDelim);
     LWork := ABasePath;
     // If LWork = '' then we just want it to be APath, no prefixed /    {Do not Localize}
-    if (Length(LWork) > 0) and (Copy(LWork, Length(LWork), 1) <> APathDelim) then begin
+    if (Length(LWork) > 0) and (not TextEndsWith(LWork, APathDelim)) then begin
       LWork := LWork + APathDelim;
     end;
     LWork := LWork + APath;
@@ -2736,17 +2735,17 @@ begin
         if LWork[i] = APathDelim then begin
           if i = 1 then begin
             Result := APathDelim;
-          end else if Copy(Result, Length(Result), 1) <> APathDelim then begin
+          end else if not TextEndsWith(Result, APathDelim) then begin
             Result := Result + LWork[i];
           end;
         end else if LWork[i] = '.' then begin    {Do not Localize}
           // If the last character was a PathDelim then the . is a relative path modifier.
           // If it doesnt follow a PathDelim, its part of a filename
-          if (Copy(Result, Length(Result), 1) = APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
+          if TextEndsWith(Result, APathDelim) and (Copy(LWork, i, 2) = '..') then begin    {Do not Localize}
             // Delete the last PathDelim
             Delete(Result, Length(Result), 1);
             // Delete up to the next PathDelim
-            while (Length(Result) > 0) and (Copy(Result, Length(Result), 1) <> APathDelim) do begin
+            while (Length(Result) > 0) and (not TextEndsWith(Result, APathDelim)) do begin
               Delete(Result, Length(Result), 1);
             end;
             // Skip over second .
@@ -2762,8 +2761,7 @@ begin
     end;
     // Sometimes .. semantics can put a PathDelim on the end
     // But dont modify if it is only a PathDelim and nothing else, or it was there to begin with
-    if (Result <> APathDelim) and (Copy(Result, Length(Result), 1) = APathDelim)
-     and (LPreserveTrail = False) then begin
+    if (Result <> APathDelim) and TextEndsWith(Result, APathDelim) and (not LPreserveTrail) then begin
       Delete(Result, Length(Result), 1);
     end;
   end;
@@ -2949,7 +2947,7 @@ begin
     Result := AHeader;
   end else begin
     Result := Copy(AHeader, 1, LPos-1);
-    LS := Copy(AHeader, LPos, MAXINT);
+    LS := Copy(AHeader, LPos, MaxInt);
     //See if there is a following ; that is not within quotes...
     //LPos := Pos(';', LS);
     for LPos := 1 to Length(LS) do begin
@@ -2958,13 +2956,13 @@ begin
         LInQuotes := not LInQuotes;
       end;
       if ((LS[LPos] = ';') and (LInQuotes = False)) then begin
-        Result := Result + Copy(LS, LPos+1, MAXINT);
+        Result := Result + Copy(LS, LPos+1, MaxInt);
         Exit;
       end;
     end;
     Result := Sys.Trim(Result);
-    if Result[Length(Result)] = ';' then begin
-      Result := Copy(Result, 1, Length(Result)-1);
+    if TextEndsWith(Result, ';') then begin
+      Delete(Result, Length(Result), 1);
     end;
   end;
 end;
@@ -2974,18 +2972,18 @@ end;
 function TIdInterfacedObject._AddRef: Integer;
 begin
   {$IFDEF DOTNET}
-  result := 1;
+  Result := 1;
   {$ELSE}
-  result := inherited _AddRef;
+  Result := inherited _AddRef;
   {$ENDIF}
 end;
 
 function TIdInterfacedObject._Release: Integer;
 begin
   {$IFDEF DOTNET}
-  result := 1;
+  Result := 1;
   {$ELSE}
-  result := inherited _Release;
+  Result := inherited _Release;
   {$ENDIF}
 end;
 
