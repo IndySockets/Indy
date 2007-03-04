@@ -307,35 +307,35 @@ begin
     LTmpPath1 := IndyGetFileName( LItem1.FileName );
     LTmpPath2 := IndyGetFileName( LItem2.FileName );
     //periods are always greater then letters in dir lists
-    if (Copy(LTmpPath1,1,1)='.') and (Copy(LTmpPath2,1,1)='.') then
+    if TextStartsWith(LTmpPath1, '.') and TextStartsWith(LTmpPath2, '.') then
     begin
-      if (LTmpPath1=CUR_DIR) and (LTmpPath2=PARENT_DIR) then
+      if (LTmpPath1 = CUR_DIR) and (LTmpPath2 = PARENT_DIR) then
       begin
         Result := 1;
         Exit;
       end;
-      if (LTmpPath2=CUR_DIR) and (LTmpPath1=PARENT_DIR) then
+      if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = PARENT_DIR) then
       begin
         Result := -1;
         Exit;
       end;
-      if (LTmpPath2=CUR_DIR) and (LTmpPath1=CUR_DIR) then
+      if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = CUR_DIR) then
       begin
         Result := 0;
         Exit;
       end;
-      if (LTmpPath2=PARENT_DIR) and (LTmpPath1=PARENT_DIR) then
+      if (LTmpPath2 = PARENT_DIR) and (LTmpPath1 = PARENT_DIR) then
       begin
         Result := 0;
         Exit;
       end;
     end;
-    if (Copy(LTmpPath2,1,1)='.') and (Copy(LTmpPath1,1,1)<>'.') then
+    if TextStartsWith(LTmpPath2, '.') and (not TextStartsWith(LTmpPath1, '.')) then
     begin
       Result := -1;
       Exit;
     end;
-    if (Copy(LTmpPath1,1,1)='.') and (Copy(LTmpPath2,1,1)<>'.') then
+    if TextStartsWith(LTmpPath1, '.') and (not TextStartsWith(LTmpPath2, '.')) then
     begin
       Result := 1;
       Exit;
@@ -1599,11 +1599,9 @@ begin
       begin
         LDirEnt := TDirEntry(SubDirs[i]);
         LParentPart := StripInitPathDelin( IndyGetFilePath(LDirEnt.FDirListItem.FileName));
-        if Copy(APathName,1, Length(LParentPart))=
-          LParentPart then
+        if TextStartsWith(APathName, LParentPart) then
         begin
-
-          if TDirEntry(SubDirs[i]).AddFileName(APathName,ADirEnt) then
+          if TDirEntry(SubDirs[i]).AddFileName(APathName, ADirEnt) then
           begin
             Result := True;
             Break;
@@ -1643,12 +1641,9 @@ begin
       begin
         LDirEnt := TDirEntry(SubDirs[i]);
         LParentPart := StripInitPathDelin( IndyGetFilePath(LDirEnt.FDirListItem.FileName));
-      //  if Copy(APathName,1, Length(LParentPart))=
-      //    LParentPart then
-        if Copy(APathName,1, Length(LParentPart))=
-          LParentPart then
+        if TextStartsWith(APathName, LParentPart) then
         begin
-          if LDirEnt.AddSubDir(APathName,ADirEnt) then
+          if LDirEnt.AddSubDir(APathName, ADirEnt) then
           begin
             Result := True;
             Break;
