@@ -139,8 +139,8 @@ interface
 
 uses
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
-  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase, IdSys,
-  IdTCPConnection, IdTCPServer, IdObjs;
+  IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase,
+  IdSys, IdTCPConnection, IdTCPServer, IdObjs, IdReply;
 
 (*
  For more information on NNTP visit http://www.faqs.org/rfcs/
@@ -233,6 +233,8 @@ type
   TIdNNTPOnIHaveCheck = procedure(AThread: TIdNNTPContext; const AMsgID : String; VAccept : Boolean) of object;
   TIdNNTPOnArticleByNo = procedure(AThread: TIdNNTPContext; const AMsgNo: Integer) of object;
   TIdNNTPOnArticleByID = procedure(AThread: TIdNNTPContext; const AMsgID: string) of object;
+  TIdNNTPOnCheckMsgID = procedure(AThread: TIdNNTPContext; const AMsgID: String;
+   var VMsgNo: Integer) of object;
   TIdNNTPOnCheckMsgNo = procedure(AThread: TIdNNTPContext; const AMsgNo: Integer;
    var VMsgID: string) of object;
   //this has to be a separate event type in case a NNTP client selects a message
@@ -261,6 +263,7 @@ type
     FOnArticleByNo: TIdNNTPOnArticleByNo;
     FOnBodyByNo: TIdNNTPOnArticleByNo;
     FOnHeadByNo: TIdNNTPOnArticleByNo;
+    FOnCheckMsgID: TIdNNTPOnCheckMsgID;
     FOnCheckMsgNo: TIdNNTPOnCheckMsgNo;
     FOnStatMsgNo : TIdNNTPOnMovePointer;
     FOnNextArticle : TIdNNTPOnMovePointer;
@@ -280,10 +283,13 @@ type
     FOnIHavePost: TIdNNTPOnPost;
     FOnAuth: TIdNNTPOnAuth;
 
-    function SecLayerOk(ASender : TIdCommand) : Boolean;
-    function AuthOk(ASender: TIdCommand): Boolean;
+    function SecLayerNeeded(ASender : TIdCommand) : Boolean;
+    function AuthNeeded(ASender: TIdCommand): Boolean;
+    //
     //return MsgID - AThread.CurrentArticlePointer already set
     function RawNavigate(AThread: TIdNNTPContext; AEvent : TIdNNTPOnMovePointer) : String;
+    function GetMsgNoAndID(AThread: TIdNNTPContext; AReply: TIdReply; const AParam: String; var VMsgID: String; var VMsgNo: Integer): Boolean;
+    //
     procedure CommandArticle(ASender: TIdCommand);
     procedure CommandAuthInfoUser(ASender: TIdCommand);
     procedure CommandAuthInfoPassword(ASender: TIdCommand);
@@ -308,8 +314,6 @@ type
     procedure CommandSTARTTLS(ASender: TIdCommand);
 
     procedure DoListGroups(AThread: TIdNNTPContext);
-    procedure DoSelectGroup(AThread: TIdNNTPContext; const AGroup: string; var VMsgCount: Integer;
-     var VMsgFirst: Integer; var VMsgLast: Integer; var VGroupExists: Boolean);
     procedure InitializeCommandHandlers; override;
     procedure SetHelp(AValue: TIdStrings);
     procedure SetOverviewFormat(AValue: TIdStrings);
@@ -327,6 +331,7 @@ type
     property OnAuth: TIdNNTPOnAuth read FOnAuth write FOnAuth;
     property OnBodyByNo: TIdNNTPOnArticleByNo read FOnBodyByNo write FOnBodyByNo;
     property OnHeadByNo: TIdNNTPOnArticleByNo read FOnHeadByNo write FOnHeadByNo;
+    property OnCheckMsgID: TIdNNTPOnCheckMsgID read FOnCheckMsgID write FOnCheckMsgID;
     property OnCheckMsgNo: TIdNNTPOnCheckMsgNo read FOnCheckMsgNo write FOnCheckMsgNo;
     property OnStatMsgNo : TIdNNTPOnMovePointer read FOnStatMsgNo write FOnStatMsgNo;
     //You are responsible for writing event handlers for these instead of us incrementing
@@ -354,14 +359,13 @@ implementation
 uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdReply,
   IdReplyRFC,
   IdSSL;
 
 resourcestring
   RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
 
-Const
+const
   AuthTypes: array [1..2] of string = ('USER', 'PASS'); {Do not localize}
 
 class function TIdNNTPServer.NNTPTimeToTime(const ATimeStamp : String): TDateTime;
@@ -369,6 +373,7 @@ var
   LHr, LMn, LSec : Word;
   LTimeStr : String;
 begin
+  Result := 0;
   LTimeStr := ATimeStamp;
   if LTimeStr <> '' then
   begin
@@ -380,21 +385,19 @@ begin
     Delete(LTimeStr,1,2);
     Result := Sys.EncodeTime(LHr, LMn, LSec,0);
     LTimeStr := Sys.Trim(LTimeStr);
-    if Sys.UpperCase(LTimeStr)='GMT' then {do not localize}
+    if TextIsSame(LTimeStr, 'GMT') then {do not localize}
     begin
       // Apply local offset
       Result := Result + Sys.OffSetFromUTC;
     end;
-  end else begin
-    Result := 0;
   end;
 end;
 
 class function TIdNNTPServer.NNTPDateTimeToDateTime(const ATimeStamp : String): TDateTime;
 var
   LYr, LMo, LDay : Word;
-    LTimeStr : String;
-    LDateStr : String;
+  LTimeStr : String;
+  LDateStr : String;
 begin
   Result := 0;
   if ATimeStamp <> '' then begin
@@ -504,106 +507,62 @@ end;
 procedure TIdNNTPServer.CommandArticle(ASender: TIdCommand);
 // Note - we dont diffentiate between 423 and 430, we always return 430
 var
-  s: string;
   LMsgID: string;
   LMsgNo: Integer;
   LThread: TIdNNTPContext;
 begin
-  if Assigned(OnArticleByNo) and Assigned(OnCheckMsgNo) then begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    LThread := TIdNNTPContext(ASender.Context );
-    if Length(LThread.CurrentGroup) = 0 then begin
-      ASender.Reply.NumericCode := 412;
+  if SecLayerNeeded(ASender) then begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  begin
+    if Assigned(OnArticleByNo) then begin
+      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID {do not localize}
+        + RSNNTPRetreivedArticleFollows);
+      ASender.SendReply;
+      OnArticleByNo(LThread, LMsgNo);
     end else begin
-      s := Sys.Trim(ASender.UnparsedParams);
-      // Try as a MsgID
-      if Copy(s, 1, 1) = '<' then begin
-      // Try as a MsgNo
-      end else begin
-        LMsgNo := Sys.StrToInt(s, 0);
-        if LMsgNo = 0 then begin
-          if LThread.CurrentArticle = 0 then begin
-            ASender.Reply.NumericCode := 420;
-            Exit;
-          end;
-          LMsgNo := LThread.CurrentArticle;
-        end;
-        LMsgID := '';
-        OnCheckMsgNo(LThread, LMsgNo, LMsgID);
-        if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID
-           + RSNNTPRetreivedArticleFollows);  
-          ASender.SendReply;
-          OnArticleByNo(LThread, LMsgNo);
-        end else begin
-          ASender.Reply.NumericCode := 430;
-        end;
-      end;
+      ASender.Reply.NumericCode := 500;
     end;
-  end else ASender.Reply.NumericCode := 500;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandBody(ASender: TIdCommand);
 // Note - we dont diffentiate between 423 and 430, we always return 430
 var
-  s: string;
   LMsgID: string;
   LMsgNo: Integer;
   LThread: TIdNNTPContext;
 begin
-  if Assigned(OnArticleByNo) and Assigned(OnCheckMsgNo) then begin
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    LThread := TIdNNTPContext(ASender.Context);
-    if Length(LThread.CurrentGroup) = 0 then begin
-      ASender.Reply.NumericCode := 412;
+  if SecLayerNeeded(ASender) then begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  begin
+    if Assigned(OnBodyByNo) then begin
+      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID  {Do not localize}
+       + RSNNTPRetreivedBodyFollows);
+      ASender.SendReply;
+      OnBodyByNo(LThread, LMsgNo);
     end else begin
-      s := Sys.Trim(ASender.UnparsedParams);
-      // Try as a MsgID
-      if Copy(s, 1, 1) = '<' then begin
-      // Try as a MsgNo
-      end else begin
-        LMsgNo := Sys.StrToInt(s, 0);
-        if LMsgNo = 0 then begin
-          if LThread.CurrentArticle = 0 then begin
-            ASender.Reply.NumericCode := 420;
-            Exit;
-          end;
-          LMsgNo := LThread.CurrentArticle;
-        end;
-        LMsgID := '';
-        OnCheckMsgNo(LThread, LMsgNo, LMsgID);
-        if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID  {Do not localize}
-           + RSNNTPRetreivedBodyFollows);  {do not localize}
-          ASender.SendReply;
-          OnBodyByNo(LThread, LMsgNo);
-        end else begin
-          ASender.Reply.NumericCode := 430;
-        end;
-      end;
+      ASender.Reply.NumericCode := 500;
     end;
-  end else ASender.Reply.NumericCode := 500;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandDate(ASender: TIdCommand);
 begin
-  if SecLayerOk(ASender) then
-  begin
-    Exit;
+  if not SecLayerNeeded(ASender) then begin
+    ASender.Reply.SetReply(111, Sys.FormatDateTime('yyyymmddhhnnss', Sys.Now + TimeZoneBias));  {do not localize}
   end;
-  ASender.Reply.SetReply(111,Sys.FormatDateTime('yyyymmddhhnnss', Sys.Now + TimeZoneBias));  {do not localize}
 end;
 
 (*
@@ -653,129 +612,121 @@ var
   LMsgCount: Integer;
   LMsgFirst: Integer;
   LMsgLast: Integer;
+  LThread: TIdNNTPContext;
 begin
-  if SecLayerOk(ASender) then
-  begin
+  if SecLayerNeeded(ASender) then begin
     Exit;
   end;
-  if not AuthOk(ASender) then begin
-    LGroup := Sys.Trim(ASender.UnparsedParams);
-    DoSelectGroup(TIdNNTPContext(ASender.Context), LGroup, LMsgCount, LMsgFirst, LMsgLast
-     , LGroupExists);
-    if LGroupExists then begin
-      TIdNNTPContext(ASender.Context).FCurrentGroup := LGroup;
-      ASender.Reply.SetReply(211, Sys.Format('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
-    end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if not Assigned(FOnSelectGroup) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  LGroup := Sys.Trim(ASender.UnparsedParams);
+  LMsgCount := 0;
+  LMsgFirst := 0;
+  LMsgLast := 0;
+  LGroupExists := False;
+  OnSelectGroup(LThread, LGroup, LMsgCount, LMsgFirst, LMsgLast, LGroupExists);
+  if LGroupExists then begin
+    LThread.FCurrentGroup := LGroup;
+    ASender.Reply.SetReply(211, Sys.Format('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
   end;
 end;
 
 procedure TIdNNTPServer.CommandHead(ASender: TIdCommand);
 // Note - we dont diffentiate between 423 and 430, we always return 430
 var
-  s: string;
   LMsgID: string;
   LMsgNo: Integer;
   LThread: TIdNNTPContext;
 begin
-  if Assigned(OnArticleByNo) and Assigned(OnCheckMsgNo) then begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    LThread := TIdNNTPContext(ASender.Context);
-    if Length(LThread.CurrentGroup) = 0 then begin
-      ASender.Reply.NumericCode := 412;
+  if SecLayerNeeded(ASender) then begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  begin
+    if Assigned(OnHeadByNo) then begin
+      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {do not localize}
+        RSNNTPRetreivedHeaderFollows);
+      ASender.SendReply;
+      OnHeadByNo(LThread, LMsgNo);
     end else begin
-      s := Sys.Trim(ASender.UnparsedParams);
-      // Try as a MsgID
-      if Copy(s, 1, 1) = '<' then begin
-      // Try as a MsgNo
-      end else begin
-        LMsgNo := Sys.StrToInt(s, 0);
-        if LMsgNo = 0 then begin
-          if LThread.CurrentArticle = 0 then begin
-            ASender.Reply.NumericCode := 420;
-            Exit;
-          end;
-          LMsgNo := LThread.CurrentArticle;
-        end;
-        LMsgID := '';
-        OnCheckMsgNo(LThread, LMsgNo, LMsgID);
-        if (Length(LMsgID) > 0) and Assigned(OnArticleByNo) then begin
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {do not localize}
-          RSNNTPRetreivedHeaderFollows);  {do not localize}
-          ASender.SendReply;
-          OnHeadByNo(LThread, LMsgNo);
-        end else begin
-          ASender.Reply.NumericCode := 430;
-        end;
-      end;
+      ASender.Reply.NumericCode := 500;
     end;
-  end else ASender.Reply.NumericCode := 500;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandIHave(ASender: TIdCommand);
-var LThread : TIdNNTPContext;
-    LMsgID : String;
-    LAccept:Boolean;
-    LErrorText : String;
+var
+  LThread : TIdNNTPContext;
+  LMsgID : String;
+  LAccept: Boolean;
+  LErrorText : String;
 begin
-  if Assigned(FOnIHaveCheck) then
+  if SecLayerNeeded(ASender) then
   begin
-    if SecLayerOk(ASender) then
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if not Assigned(FOnIHaveCheck) then
+  begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  LMsgID := Sys.Trim(ASender.UnparsedParams);
+  if TextStartsWith(LMsgID, '<') then begin
+    OnIHaveCheck(LThread, LMsgID, LAccept);
+    if LAccept then
     begin
-      Exit;
+      ASender.Reply.SetReply(335, RSNTTPNewsToMeSendArticle); 
+      ASender.SendReply;
+      LErrorText := '';
+      OnPost(LThread, LAccept, LErrorText);
+      ASender.Reply.SetReply(iif(LAccept, 235, 436), LErrorText);
+    end else begin
+      ASender.Reply.NumericCode := 435;
     end;
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    LThread := TIdNNTPContext(ASender.Context);
-    LMsgID := Sys.Trim(ASender.UnparsedParams);
-    if (Copy(LMsgID, 1, 1) = '<') then begin
-      FOnIHaveCheck(LThread,LMsgID,LAccept);
-      if LAccept then
-      begin
-        ASender.Reply.SetReply(335,RSNTTPNewsToMeSendArticle); 
-        ASender.SendReply;
-        LErrorText := '';
-        OnPost(TIdNNTPContext(ASender.Context), LAccept, LErrorText);
-        ASender.Reply.SetReply(iif(LAccept, 235, 436), LErrorText);
-      end
-      else
-      begin
-        ASender.Reply.NumericCode := 435;
-      end;
-    end;
-  end else ASender.Reply.NumericCode := 500;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandLast(ASender: TIdCommand);
 var
-  LMsgNo: Integer;
   LThread: TIdNNTPContext;
+  LMsgNo: Integer;
   LMsgID : String;
 begin
-  if Assigned(OnPrevArticle) then begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if not AuthOk(ASender) then begin
-      LThread := TIdNNTPContext(ASender.Context);
-      //we do this in a round about way in case there is no previous article at all
-      LMsgNo := LThread.CurrentArticle;
-      LMsgID := RawNavigate(LThread,OnPrevArticle);
-      if LMsgID<>'' then begin
-        ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
-          RSNTTPArticleRetrievedRequestTextSeparately);  {do not localize}
-      end else begin
-        ASender.Reply.NumericCode := 430;
-      end;
-    end;
-  end else ASender.Reply.NumericCode := 500;
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if not Assigned(FOnPrevArticle) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  //we do this in a round about way in case there is no previous article at all
+  LMsgNo := LThread.CurrentArticle;
+  LMsgID := RawNavigate(LThread, OnPrevArticle);
+  if LMsgID <> '' then begin
+    ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
+      RSNTTPArticleRetrievedRequestTextSeparately);
+  end else begin
+    ASender.Reply.NumericCode := 430;
+  end;
 end;
 
 (*
@@ -820,51 +771,55 @@ end;
 *)
 procedure TIdNNTPServer.CommandList(ASender: TIdCommand);
 begin
-  if SecLayerOk(ASender) then
+  if SecLayerNeeded(ASender) then
   begin
     Exit;
   end;
-  if not AuthOk(ASender) then begin
-    ASender.SendReply;
-    DoListGroups(TIdNNTPContext(ASender.Context));
-    ASender.Context.Connection.IOHandler.WriteLn('.');
+  if AuthNeeded(ASender) then begin
+    Exit;
   end;
+  ASender.SendReply;
+  DoListGroups(TIdNNTPContext(ASender.Context));
+  ASender.Context.Connection.IOHandler.WriteLn('.');
 end;
 
 procedure TIdNNTPServer.CommandListGroup(ASender: TIdCommand);
-var LThrd : TIdNNTPContext;
-    LGroup : String;
-    LFirstIdx : Integer;
-    LCanJoin : Boolean;
+var
+  LThread : TIdNNTPContext;
+  LGroup : String;
+  LFirstIdx : Integer;
+  LCanJoin : Boolean;
 begin
-  if Assigned(FOnCheckListGroup) and Assigned(FOnListGroup) then begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if AuthOk(ASender)=False then begin
-      ASender.Reply.NumericCode := 502;
-    end;
-    LThrd := TIdNNTPContext ( ASender.Context );
-    LGroup := Sys.Trim(ASender.UnparsedParams);
-    if Length(LGroup)>0 then
-    begin
-      LGroup := LThrd.CurrentGroup;
-    end;
-    FOnCheckListGroup(LThrd,LGroup,LCanJoin,LFirstIdx);
-    if LCanJoin then
-    begin
-      LThrd.FCurrentGroup := LGroup;
-      LThrd.FCurrentArticle := LFirstIdx;
-      ASender.SendReply;
-      FOnListGroup(LThrd);
-      ASender.Context.Connection.IOHandler.WriteLn('.');
-    end
-    else
-    begin
-      ASender.Reply.SetReply(412,RSNTTPNotInNewsgroup); {do not localize}
-    end;
-  end else ASender.Reply.NumericCode := 500;
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if (not Assigned(FOnCheckListGroup)) or (not Assigned(FOnListGroup)) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  LGroup := Sys.Trim(ASender.UnparsedParams);
+  if Length(LGroup) > 0 then
+  begin
+    LGroup := LThread.CurrentGroup;
+  end;
+  FOnCheckListGroup(LThread, LGroup, LCanJoin, LFirstIdx);
+  if LCanJoin then
+  begin
+    LThread.FCurrentGroup := LGroup;
+    LThread.FCurrentArticle := LFirstIdx;
+    ASender.Reply.NumericCode := 502;
+    ASender.SendReply;
+    FOnListGroup(LThread);
+    ASender.Context.Connection.IOHandler.WriteLn('.');
+  end else
+  begin
+    ASender.Reply.SetReply(412, RSNTTPNotInNewsgroup); {do not localize}
+  end;
 end;
 
 procedure TIdNNTPServer.CommandModeReader(ASender: TIdCommand);
@@ -884,10 +839,10 @@ procedure TIdNNTPServer.CommandModeReader(ASender: TIdCommand);
       201 Hello, you can't post
 *)
 begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
   TIdNNTPContext(ASender.Context).FModeReader := True;
   ASender.Reply.NumericCode := 200;
 end;
@@ -932,82 +887,86 @@ end;
    231 list of new newsgroups follows
 *)
 procedure TIdNNTPServer.CommandNewGroups(ASender: TIdCommand);
-var LDate : TDateTime;
-    LDist : String;
+var
+  LDate : TDateTime;
+  LDist : String;
 begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-  if AuthOk(ASender) then begin
+  if SecLayerNeeded(ASender) then
+  begin
     Exit;
   end;
-  if (ASender.Params.Count > 1) and (Assigned(FOnListNewGroups)) then
-  begin
-    LDist := '';
-    LDate := NNTPDateTimeToDateTime( ASender.Params[0] );
-    LDate := LDate + NNTPTimeToTime( ASender.Params[1] );
-    if ASender.Params.Count > 2 then
-    begin
-      if (Sys.UpperCase(ASender.Params[2]) = 'GMT') then {Do not translate}
-      begin
-        LDate := LDate + Sys.OffSetFromUTC;
-        if (ASender.Params.Count > 3) then
-        begin
-          LDist := ASender.Params[3];
-        end;
-      end
-      else
-      begin
-        LDist := ASender.Params[2];
-      end;
-    end;
-    ASender.SendReply;
-    FOnListNewGroups(TIdNNTPContext(ASender.Context), LDate, LDist);
-    ASender.Context.Connection.IOHandler.WriteLn('.');
-  end else ASender.Reply.NumericCode := 500;
-end;
-
-procedure TIdNNTPServer.CommandNewNews(ASender: TIdCommand);
-var LDate : TDateTime;
-    LDist : String;
-begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-  if AuthOk(ASender) then begin
+  if AuthNeeded(ASender) then begin
     Exit;
   end;
-  if (ASender.Params.Count > 2) and (Assigned(FOnNewNews)) then
+  if (ASender.Params.Count < 2) or (not Assigned(FOnListNewGroups)) then
   begin
-    //0 - newsgroup
-    //1 - date
-    //2 - time
-    //3 - GMT or distributions
-    //4 - distributions if 3 was GMT
-    LDist := '';
-    LDate := NNTPDateTimeToDateTime( ASender.Params[1] );
-    LDate := LDate + NNTPTimeToTime( ASender.Params[2] );
-    if (ASender.Params.Count > 3) then
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LDist := '';
+  LDate := NNTPDateTimeToDateTime(ASender.Params[0]);
+  LDate := LDate + NNTPTimeToTime(ASender.Params[1]);
+  if ASender.Params.Count > 2 then
+  begin
+    if TextIsSame(ASender.Params[2], 'GMT') then {Do not translate}
     begin
-      if (Sys.UpperCase(ASender.Params[3]) = 'GMT') then {Do not translate}
-      begin
-        LDate := LDate + Sys.OffSetFromUTC;
-        if (ASender.Params.Count > 4) then
-        begin
-          LDist := ASender.Params[4];
-        end;
-      end
-      else
+      LDate := LDate + Sys.OffSetFromUTC;
+      if ASender.Params.Count > 3 then
       begin
         LDist := ASender.Params[3];
       end;
+    end else
+    begin
+      LDist := ASender.Params[2];
     end;
-    ASender.SendReply;
-    FOnNewNews( TIdNNTPContext(ASender.Context), ASender.Params[0], LDate, LDist );
-    ASender.Context.Connection.IOHandler.WriteLn('.');
-  end else ASender.Reply.NumericCode := 500;
+  end;
+  ASender.SendReply;
+  FOnListNewGroups(TIdNNTPContext(ASender.Context), LDate, LDist);
+  ASender.Context.Connection.IOHandler.WriteLn('.');
+end;
+
+procedure TIdNNTPServer.CommandNewNews(ASender: TIdCommand);
+var
+  LDate : TDateTime;
+  LDist : String;
+begin
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if (ASender.Params.Count < 3) or (not Assigned(FOnNewNews)) then
+  begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  //0 - newsgroup
+  //1 - date
+  //2 - time
+  //3 - GMT or distributions
+  //4 - distributions if 3 was GMT
+  LDist := '';
+  LDate := NNTPDateTimeToDateTime(ASender.Params[1]);
+  LDate := LDate + NNTPTimeToTime(ASender.Params[2]);
+  if ASender.Params.Count > 3 then
+  begin
+    if TextIsSame(ASender.Params[3], 'GMT') then {Do not translate}
+    begin
+      LDate := LDate + Sys.OffSetFromUTC;
+      if ASender.Params.Count > 4 then
+      begin
+        LDist := ASender.Params[4];
+      end;
+    end else
+    begin
+      LDist := ASender.Params[3];
+    end;
+  end;
+  ASender.SendReply;
+  FOnNewNews(TIdNNTPContext(ASender.Context), ASender.Params[0], LDate, LDist);
+  ASender.Context.Connection.IOHandler.WriteLn('.');
 end;
 
 procedure TIdNNTPServer.CommandNext(ASender: TIdCommand);
@@ -1016,24 +975,26 @@ var
   LThread: TIdNNTPContext;
   LMsgID : String;
 begin
-  if Assigned(OnPrevArticle) then begin
-      if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    LThread := TIdNNTPContext(ASender.Context);
-    //we do this in a round about way in case there is no previous article at all
-    LMsgNo := LThread.CurrentArticle;
-    LMsgID := RawNavigate(LThread,OnPrevArticle);
-    if LMsgID<>'' then begin
-      ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +
-        RSNTTPArticleRetrievedRequestTextSeparately); {do not localize}
-    end else begin
-      ASender.Reply.NumericCode := 430;
-    end;
+  if not Assigned(OnNextArticle) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  //we do this in a round about way in case there is no previous article at all
+  LMsgNo := LThread.CurrentArticle;
+  LMsgID := RawNavigate(LThread, OnNextArticle);
+  if LMsgID <> '' then begin
+    ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
+      RSNTTPArticleRetrievedRequestTextSeparately);
+  end else begin
+    ASender.Reply.NumericCode := 430;
   end;
 end;
 
@@ -1097,10 +1058,10 @@ var
   LPostOk: Boolean;
   LReply: TIdReplyRFC;
 begin
-  if SecLayerOk(ASender) then begin
+  if SecLayerNeeded(ASender) then begin
     Exit;
   end;
-  if AuthOk(ASender) then begin
+  if AuthNeeded(ASender) then begin
     Exit;
   end;
   LCanPost := Assigned(OnPost);
@@ -1122,58 +1083,30 @@ end;
 
 procedure TIdNNTPServer.CommandSlave(ASender: TIdCommand);
 begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-  TIdNNTPContext(ASender.Context).FModeReader := False;
-  ASender.Reply.NumericCode := 220;
+  if not SecLayerNeeded(ASender) then
+  begin
+    TIdNNTPContext(ASender.Context).FModeReader := False;
+    ASender.Reply.NumericCode := 220;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandStat(ASender: TIdCommand);
 var
-  s: string;
   LMsgID: string;
   LMsgNo: Integer;
-  LThread: TIdNNTPContext;
 begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-  if AuthOk(ASender) then begin
+  if SecLayerNeeded(ASender) then
+  begin
     Exit;
   end;
-  if Assigned(OnArticleByNo) and Assigned(OnCheckMsgNo) then begin
-    LThread := TIdNNTPContext(ASender.Context);
-    if Length(LThread.CurrentGroup) = 0 then begin
-      ASender.Reply.NumericCode := 412;
-    end else begin
-      s := Sys.Trim(ASender.UnparsedParams);
-      // Try as a MsgID
-      if Copy(s, 1, 1) = '<' then begin
-      // Try as a MsgNo
-      end else begin
-        LMsgNo := Sys.StrToInt(s, 0);
-        if LMsgNo = 0 then begin
-          if LThread.CurrentArticle = 0 then begin
-            ASender.Reply.NumericCode := 420;
-            Exit;
-          end;
-          LMsgNo := LThread.CurrentArticle;
-        end;
-        LMsgID := '';
-        OnStatMsgNo(LThread, LMsgNo, LMsgID);
-        if (Length(LMsgID) > 0) then begin
-          LThread.FCurrentArticle := LMsgNo;
-          ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {Do not localize}
-            RSNNTPRetreivedAStaticstsOnly);  {do not localize}
-          ASender.SendReply;
-        end else begin
-          ASender.Reply.NumericCode := 430;
-        end;
-      end;
-    end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if GetMsgNoAndID(TIdNNTPContext(ASender.Context), ASender.Reply,
+    Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  begin
+    ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {Do not localize}
+      RSNNTPRetreivedAStaticstsOnly);
   end;
 end;
 
@@ -1184,81 +1117,77 @@ var
   LFirstMsg: Integer;
   LLastMsg: Integer;
   LMsgID: String;
+  LThread: TIdNNTPContext;
 begin
-  if Assigned(FOnXHdr) then begin
-      if SecLayerOk(ASender) then
+  if SecLayerNeeded(ASender) then begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if not Assigned(FOnXHdr) then begin
+    ASender.Reply.NumericCode := 500;
+    //ASender.Reply.NumericCode := 221;
+    //ASender.SendReply;
+    //ASender.Context.Connection.WriteLn('.');
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  if Length(LThread.CurrentGroup) = 0 then
+  begin
+    ASender.Reply.NumericCode := 412;
+    Exit;
+  end;
+  if ASender.Params.Count > 0 then
+  begin
+    s := '';
+    for i := 1 to ASender.Params.Count - 1 do
     begin
-      Exit;
+      s := s + ASender.Params[i] + ' ';
     end;
-    if not AuthOk(ASender) then
+    s := Sys.Trim(s);
+
+    LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
+    LMsgID := '';
+
+    if LFirstMsg = 0 then
     begin
-      if Length(TIdNNTPContext(ASender.Context).CurrentGroup) = 0 then
+      if ASender.Params.Count = 2 then { HEADER MSG-ID }
       begin
-        ASender.Reply.NumericCode := 412;
-      end
-      else
+        LMsgID := ASender.Params[1];
+        LFirstMsg := Sys.StrToInt(LMsgID, 0);
+        LLastMsg := LFirstMsg;
+      end else
       begin
-        if (ASender.Params.Count > 0) then
-        begin
-          s := '';
-          for i := 1 to ASender.Params.Count - 1 do
-          begin
-            s := s + ASender.Params[i] + ' ';
-          end;
-          s := Sys.Trim(s);
-          LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
-          LMsgID := '';
-
-          if LFirstMsg = 0 then
-          begin
-            if (ASender.Params.Count = 2) then { HEADER MSG-ID }
-            begin
-              LMsgID := ASender.Params[1];
-              LFirstMsg := Sys.StrToInt(LMsgID, 0);
-              LLastMsg := LFirstMsg;
-            end
-            else
-            begin
-              LFirstMsg := TIdNNTPContext(ASender.Context).CurrentArticle;
-              LLastMsg := LFirstMsg;
-            end;
-          end
-          else
-          begin
-            if Pos('-', ASender.UnparsedParams) > 0 then
-            begin
-              LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
-            end
-            else
-            begin
-              LLastMsg := LFirstMsg;
-            end;
-          end;
-
-          if LFirstMsg = 0 then
-          begin
-            ASender.Reply.NumericCode := 420;
-          end
-          else
-          begin
-            //Note there is an inconstancy here.
-            //RFC 2980 says XHDR should return 221
-            //http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-17.txt
-            //says that HDR should return 225
-            //just return the default numeric success reply.
-            ASender.SendReply;
-            // No need for DoOnXhdr - only this proc can call it and it already checks for nil
-            FOnXhdr(TIdNNTPContext(ASender.Context), ASender.Params[0], LFirstMsg, LLastMsg, LMsgID);
-            ASender.Context.Connection.IOHandler.WriteLn('.');
-          end;
-        end;
+        LFirstMsg := LThread.CurrentArticle;
+        LLastMsg := LFirstMsg;
+      end;
+    end else
+    begin
+      if Pos('-', ASender.UnparsedParams) > 0 then
+      begin
+        LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
+      end else
+      begin
+        LLastMsg := LFirstMsg;
       end;
     end;
-  end else begin
-    ASender.Reply.NumericCode := 500;
-//      ASender.Reply.NumericCode := 221;
-//      ASender.SendReply;
-//      ASender.Context.Connection.WriteLn('.');
+
+    if LFirstMsg <> 0 then
+    begin
+      //Note there is an inconstancy here.
+      //RFC 2980 says XHDR should return 221
+      //http://www.ietf.org/internet-drafts/draft-ietf-nntpext-base-17.txt
+      //says that HDR should return 225
+      //just return the default numeric success reply.
+      ASender.SendReply;
+      // No need for DoOnXhdr - only this proc can call it and it already checks for nil
+      FOnXhdr(LThread, ASender.Params[0], LFirstMsg, LLastMsg, LMsgID);
+      ASender.Context.Connection.IOHandler.WriteLn('.');
+    end else
+    begin
+      ASender.Reply.NumericCode := 420;
+    end;
   end;
 end;
 
@@ -1325,36 +1254,40 @@ var
   s: string;
   LFirstMsg: Integer;
   LLastMsg: Integer;
+  LThread: TIdNNTPContext;
 begin
-  if Assigned(OnXOver) then begin
-    if SecLayerOk(ASender) then
-    begin
-      Exit;
-    end;
-    if AuthOk(ASender) then begin
-      Exit;
-    end;
-    if Length(TIdNNTPContext(ASender.Context).CurrentGroup) = 0 then begin
-      ASender.Reply.NumericCode := 412;
-    end else begin
-      s := ASender.UnparsedParams;
-      LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), -1);
-      if LFirstMsg = -1 then begin
-        LFirstMsg := TIdNNTPContext(ASender.Context).CurrentArticle;
-        LLastMsg := LFirstMsg;
-      end else begin
-        LLastMsg := Sys.StrToInt(Sys.Trim(s), -1);
-      end;
-      if LFirstMsg = -1 then begin
-        ASender.Reply.NumericCode := 420;
-      end else begin
-        ASender.Reply.NumericCode := 224;
-        ASender.SendReply;
-        // No need for DoOnXover - only this proc can call it and it already checks for nil
-        OnXOver(TIdNNTPContext(ASender.Context), LFirstMsg, LLastMsg);
-        ASender.Context.Connection.IOHandler.WriteLn('.');
-      end;
-    end;
+  if SecLayerNeeded(ASender) then
+  begin
+    Exit;
+  end;
+  if AuthNeeded(ASender) then begin
+    Exit;
+  end;
+  if not Assigned(OnXOver) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  LThread := TIdNNTPContext(ASender.Context);
+  if Length(LThread.CurrentGroup) = 0 then begin
+    ASender.Reply.NumericCode := 412;
+    Exit;
+  end;
+  s := ASender.UnparsedParams;
+  LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
+  if LFirstMsg = 0 then begin
+    LFirstMsg := LThread.CurrentArticle;
+    LLastMsg := LFirstMsg;
+  end else begin
+    LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
+  end;
+  if LFirstMsg <> 0 then begin
+    ASender.Reply.NumericCode := 224;
+    ASender.SendReply;
+    // No need for DoOnXover - only this proc can call it and it already checks for nil
+    OnXOver(TIdNNTPContext(ASender.Context), LFirstMsg, LLastMsg);
+    ASender.Context.Connection.IOHandler.WriteLn('.');
+  end else begin
+    ASender.Reply.NumericCode := 420;
   end;
 end;
 
@@ -1406,26 +1339,13 @@ begin
   end;
 end;
 
-procedure TIdNNTPServer.DoSelectGroup(AThread: TIdNNTPContext; const AGroup: string; var VMsgCount,
-  VMsgFirst, VMsgLast: Integer; var VGroupExists: Boolean);
-begin
-  VMsgCount := 0;
-  VMsgFirst := 0;
-  VMsgLast := 0;
-  VGroupExists := False;
-  if Assigned(OnSelectGroup) then begin
-    OnSelectGroup(TIdNNTPContext(AThread), AGroup, VMsgCount, VMsgFirst, VMsgLast, VGroupExists);
-  end;
-end;
-
 procedure TIdNNTPServer.SetIOHandler(const AValue: TIdServerIOHandler);
 //var LIO :  TIdServerIOHandlerSSLBase;
 begin
   inherited;
-  if IOHandler is  TIdServerIOHandlerSSLBase then
+  if IOHandler is TIdServerIOHandlerSSLBase then
   begin
-//    LIO := AValue as TIdSSLIOHandlerSocketBase;
-//    LIO.PeerPassthrough := True;
+//    (AValue as TIdSSLIOHandlerSocketBase).PeerPassthrough := True;
   end
   else
   begin
@@ -1435,71 +1355,50 @@ end;
 
 procedure TIdNNTPServer.SetImplicitTLS(const AValue: Boolean);
 begin
-  if (AValue = FImplicitTLS) then
+  if AValue <> FImplicitTLS then
   begin
-    Exit;
-  end;
-  if (IOHandler is  TIdServerIOHandlerSSLBase) then
-  begin
-    FImplicitTLS := AValue;
-    if AValue then
+    if IOHandler is TIdServerIOHandlerSSLBase then
     begin
-      if DefaultPort = IdPORT_NNTP then
+      FImplicitTLS := AValue;
+      if AValue then
       begin
-        DefaultPort := IdPORT_SNEWS;
-      end;
-    end
-    else
-    begin
-      if DefaultPort = IdPORT_SNEWS then
+        if DefaultPort = IdPORT_NNTP then begin
+          DefaultPort := IdPORT_SNEWS;
+        end;
+      end else
       begin
-        DefaultPort := IdPORT_NNTP;
+        if DefaultPort = IdPORT_SNEWS then begin
+          DefaultPort := IdPORT_NNTP;
+        end;
       end;
-    end;
-  end
-  else
-  begin
-    if AValue then
+    end else
     begin
-      raise EIdNNTPImplicitTLSRequiresSSL.Create( RSNNTPSvrImplicitTLSRequiresSSL );
-    end
-    else
-    begin
+      EIdNNTPImplicitTLSRequiresSSL.IfTrue(AValue, RSNNTPSvrImplicitTLSRequiresSSL);
       FImplicitTLS := AValue;
     end;
   end;
 end;
 
 procedure TIdNNTPServer.CommandSTARTTLS(ASender: TIdCommand);
-
-var LIO : TIdSSLIOHandlerSocketBase;
-  LCxt : TIdNNTPContext;
+var
+  LThread : TIdNNTPContext;
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (ImplicitTLS=False) then begin
-    if TIdNNTPContext(ASender.Context).UsingTLS then begin // we are already using TLS
-      ASender.Reply.NumericCode:=500;                                        // does someone know the response-code?
+  if (IOHandler is TIdServerIOHandlerSSLBase) and (not ImplicitTLS) then begin
+    LThread := TIdNNTPContext(ASender.Context);
+    if LThread.UsingTLS then begin // we are already using TLS
+      ASender.Reply.NumericCode := 580;
       Exit;
     end;
-    if (ASender.Context as TIdNNTPContext).UsingTLS then
-    begin
-      ASender.Reply.NumericCode := 580;
-    end
-    else
-    begin
-      ASender.Reply.NumericCode := 382;
-      ASender.SendReply;
-      LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
-      LIO.Passthrough := False;
-      LCxt := ASender.Context as TIdNNTPContext;
-      //reset the connection state as required by http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt
-      LCxt.FUserName := '';
-      LCxt.FPassword := '';
-      LCxt.FAuthenticated := False;
-      LCxt.FModeReader := False;
-      ASender.Context.Connection.IOHandler.Write(ReplyUnknownCommand.FormattedReply);
-    end;
+    ASender.Reply.NumericCode := 382;
+    ASender.SendReply;
+    (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).Passthrough := False;
+    //reset the connection state as required by http://www.ietf.org/internet-drafts/draft-ietf-nntpext-tls-nntp-00.txt
+    LThread.FUserName := '';
+    LThread.FPassword := '';
+    LThread.FAuthenticated := False;
+    LThread.FModeReader := False;
   end else begin
-    ASender.Reply.NumericCode:=500;
+    ASender.Reply.NumericCode := 500;
   end;
 end;
 
@@ -1805,12 +1704,67 @@ begin
   end;
 end;
 
-function TIdNNTPServer.AuthOk(ASender: TIdCommand): Boolean;
+function TIdNNTPServer.AuthNeeded(ASender: TIdCommand): Boolean;
 begin
-  Result := (Assigned(FOnAuth)) and (TIdNNTPContext(ASender.Context).Authenticated = False);
+  Result := (Assigned(FOnAuth)) and (not TIdNNTPContext(ASender.Context).Authenticated);
   if Result then begin
     ASender.Reply.NumericCode := 450;
   end;
+end;
+
+function TIdNNTPServer.GetMsgNoAndID(AThread: TIdNNTPContext; AReply: TIdReply;
+  const AParam: String; var VMsgID: String; var VMsgNo: Integer): Boolean;
+begin
+  Result := False;
+  VMsgID := '';
+  VMsgNo := 0;
+  if Length(AThread.CurrentGroup) = 0 then begin
+    AReply.NumericCode := 412;
+    Exit;
+  end;
+  if TextStartsWith(AParam, '<') then begin
+    // Try as a MsgID
+    VMsgID := AParam;
+    if not Assigned(OnCheckMsgID) then begin
+      AReply.NumericCode := 500;
+      Exit;
+    end;
+    OnCheckMsgID(AThread, AParam, VMsgNo);
+  end
+  else begin
+    // Try as a MsgNo
+    if AParam = '' then begin
+      VMsgNo := AThread.CurrentArticle;
+      if VMsgNo = 0 then begin
+        AReply.NumericCode := 420;
+        Exit;
+      end;
+    end else begin
+      VMsgNo := Sys.StrToInt(AParam, 0);
+      if VMsgNo = 0 then begin
+        AReply.NumericCode := 430;
+        Exit;
+      end;
+    end;
+    if not Assigned(OnCheckMsgNo) then begin
+      AReply.NumericCode := 500;
+      Exit;
+    end;
+    OnCheckMsgNo(AThread, VMsgNo, VMsgID);
+    if VMsgID <> '' then begin
+      if AParam <> '' then begin
+        AThread.FCurrentArticle := VMsgNo;
+      end;
+    end else begin
+      VMsgNo := 0;
+    end;
+  end;
+  if VMsgNo = 0 then
+  begin
+    AReply.NumericCode := 430;
+    Exit;
+  end;
+  Result := True;
 end;
 
 function TIdNNTPServer.RawNavigate(AThread: TIdNNTPContext;
@@ -1819,9 +1773,9 @@ var LMsgNo : Integer;
 begin
   Result := '';
   LMsgNo := AThread.CurrentArticle;
-  if (AThread.CurrentArticle > 0) then
+  if AThread.CurrentArticle > 0 then
   begin
-    AEvent(AThread,LMsgNo,Result);
+    AEvent(AThread, LMsgNo, Result);
     if (LMsgNo > 0) and (LMsgNo <> AThread.CurrentArticle) and (Result <> '') then
     begin
       AThread.FCurrentArticle := LMsgNo;
@@ -1846,12 +1800,11 @@ begin
   FCurrentArticle := 0;
 end;
 
-function TIdNNTPContext.GetUsingTLS:boolean;
+function TIdNNTPContext.GetUsingTLS: Boolean;
 begin
-  Result:=Connection.IOHandler is TIdSSLIOHandlerSocketBase;
-  if result then
-  begin
-    Result:=not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
+  Result := Connection.IOHandler is TIdSSLIOHandlerSocketBase;
+  if Result then begin
+    Result := not TIdSSLIOHandlerSocketBase(Connection.IOHandler).PassThrough;
   end;
 end;
 
@@ -1935,65 +1888,59 @@ procedure TIdNNTPServer.CommandAuthInfoPassword(ASender: TIdCommand);
 var
   LThread: TIdNNTPContext;
 begin
-  if Assigned(FOnAuth) then begin
-    if (ASender.Params.Count = 1) then begin
-      if SecLayerOk(ASender) then
-      begin
-        Exit;
-      end;
-      LThread := TIdNNTPContext(ASender.Context);
-      LThread.FPassword := ASender.Params[0];
-      FOnAuth(LThread, LThread.FAuthenticated);
-      if LThread.FAuthenticated then begin
-        ASender.Reply.NumericCode := 281;
-      end;
+  if not Assigned(FOnAuth) then begin
+    ASender.Reply.NumericCode := 500;
+    Exit;
+  end;
+  if ASender.Params.Count = 1 then begin
+    if SecLayerNeeded(ASender) then begin
+      Exit;
     end;
-  end else ASender.Reply.NumericCode := 500;
+    LThread := TIdNNTPContext(ASender.Context);
+    LThread.FPassword := ASender.Params[0];
+    FOnAuth(LThread, LThread.FAuthenticated);
+    if LThread.FAuthenticated then begin
+      ASender.Reply.NumericCode := 281;
+    end;
+  end;
 end;
 
 procedure TIdNNTPServer.CommandAuthInfoUser(ASender: TIdCommand);
 var
   LThread: TIdNNTPContext;
 begin
-  if Assigned(FOnAuth) then begin
-    if (ASender.Params.Count = 1) then begin
-      if SecLayerOk(ASender) then
-      begin
-        Exit;
-      end;
-      LThread := TIdNNTPContext(ASender.Context);
-      LThread.FUsername := ASender.Params[0];
-      FOnAuth(LThread, LThread.FAuthenticated);
-      if LThread.FAuthenticated then begin
-        ASender.Reply.NumericCode := 281;
-      end else begin
-        ASender.Reply.NumericCode := 381;
-      end;
+  if not Assigned(FOnAuth) then begin
+   ASender.Reply.NumericCode := 500;
+   Exit;
+  end;
+  if ASender.Params.Count = 1 then begin
+    if SecLayerNeeded(ASender) then begin
+      Exit;
     end;
-  end else ASender.Reply.NumericCode := 500;
+    LThread := TIdNNTPContext(ASender.Context);
+    LThread.FUsername := ASender.Params[0];
+    FOnAuth(LThread, LThread.FAuthenticated);
+    ASender.Reply.NumericCode := iif(LThread.FAuthenticated, 281, 381);
+  end;
 end;
 
 procedure TIdNNTPServer.CommandListExtensions(ASender: TIdCommand);
-
 begin
-  ASender.Reply.SetReply( 202,RSNNTPExtSupported); {do not localize}
+  ASender.Reply.SetReply(202, RSNNTPExtSupported); {do not localize}
   ASender.SendReply;
-  if (IOHandler is TIdServerIOHandlerSSLBase) and (ImplicitTLS=False) then
-  begin
+  if (IOHandler is TIdServerIOHandlerSSLBase) and (not ImplicitTLS) then begin
     ASender.Context.Connection.IOHandler.WriteLn(' STARTTLS');  {do not localize}
   end;
-  if Assigned(OnXover) then
-  begin
+  if Assigned(OnXover) then begin
     ASender.Context.Connection.IOHandler.WriteLn(' OVER');  {do not localize}
   end;
-  if Assigned(FOnCheckListGroup) and Assigned(FOnListGroup) then
-  begin
+  if Assigned(FOnCheckListGroup) and Assigned(FOnListGroup) then begin
     ASender.Context.Connection.IOHandler.WriteLn(' LISTGROUP'); {do not localize}
   end;
   ASender.Context.Connection.IOHandler.WriteLn('.');
 end;
 
-function TIdNNTPServer.SecLayerOk(ASender: TIdCommand): Boolean;
+function TIdNNTPServer.SecLayerNeeded(ASender: TIdCommand): Boolean;
 begin
   Result := (FUseTLS = utUseRequireTLS) and
     (ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).PassThrough = True;
