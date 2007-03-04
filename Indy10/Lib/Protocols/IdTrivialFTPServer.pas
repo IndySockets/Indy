@@ -194,7 +194,7 @@ begin
       FileName := Fetch(LBuf, #0);
       Mode := StrToMode(Fetch(LBuf, #0));
       RequestedBlkSize := 0;
-      if (Copy(LBuf,1,Length(sBlockSize))=sBlockSize) then
+      if TextStartsWith(LBuf, sBlockSize) then
       begin
         Fetch(LBuf, #0);
         RequestedBlkSize := Sys.StrToInt(Fetch(LBuf, #0));
