@@ -724,12 +724,12 @@ Begin
   //Deal with both cases
     LI.LocalFileName := LName;
     LName := APath + PATH_FILENAME_SEP_UNIX + LName;
-    if Copy(LName,1,Length(UNIX_CURDIR))=UNIX_CURDIR then
+    if TextStartsWith(LName, UNIX_CURDIR) then
     begin
-      IdDelete(LName,1,Length(PATH_FILENAME_SEP_UNIX));
-      if Copy(LName,1,Length(PATH_FILENAME_SEP_UNIX))=PATH_FILENAME_SEP_UNIX then
+      IdDelete(LName, 1, Length(PATH_FILENAME_SEP_UNIX));
+      if TextStartsWith(LName, PATH_FILENAME_SEP_UNIX) then
       begin
-        IdDelete(LName,1,Length(PATH_FILENAME_SEP_UNIX));
+        IdDelete(LName, 1, Length(PATH_FILENAME_SEP_UNIX));
       end;
     end;
   end;

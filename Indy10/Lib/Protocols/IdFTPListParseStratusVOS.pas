@@ -256,9 +256,9 @@ begin
             s := ALine;
             //a listing may start of with one space
             //permissions
-            if Copy(s,1,1) = ' ' then
+            if TextStartsWith(s, ' ') then
             begin
-              IdDelete(s,1,1);
+              IdDelete(s, 1, 1);
             end;
             if Length(Fetch(s))<>1 then
             begin
@@ -295,9 +295,9 @@ begin
   Result := False;
             s := ALine;
             //a listing may start of with one space
-            if Copy(s,1,1) = ' ' then
+            if TextStartsWith(s, ' ') then
             begin
-              IdDelete(s,1,1);
+              IdDelete(s, 1, 1);
             end;
             if Length(Fetch(s))<>1 then
             begin
@@ -387,12 +387,12 @@ begin
    Result := False;
    LV := AItem as TIdStratusVOSFTPListItem;
    LBuf := AItem.Data;
-   if Copy(LBuf,1,1)=' ' then
+   if TextStartsWith(LBuf, ' ') then
    begin
-     IdDelete(LBuf,1,1);
+     IdDelete(LBuf, 1, 1);
    end;
    LV.FAccess := Fetch(LBuf);
-   if Length(LV.FAccess)<>1 then
+   if Length(LV.FAccess) <> 1 then
    begin
      //invalid
      LV.FAccess := '';
@@ -491,9 +491,9 @@ begin
    Result := False;
    LV := AItem as TIdStratusVOSFTPListItem;
    LBuf := AItem.Data;
-   if Copy(LBuf,1,1)=' ' then
+   if TextStartsWith(LBuf, ' ') then
    begin
-     IdDelete(LBuf,1,1);
+     IdDelete(LBuf, 1, 1);
    end;
    LV.FAccess := Fetch(LBuf);
    LV.PermissionDisplay := LV.Access;
@@ -735,15 +735,15 @@ begin
               else
               begin
                 LPart := AListing[i];
-                if Copy(LPart,1,1)='+' then
+                if TextStartsWith(LPart, '+') then
                 begin
-                  IdDelete(LPart,1,1);
+                  IdDelete(LPart, 1, 1);
                 end;
                 LLine := LLine + LPart;
                 LIsContinuedLine := False;
                 if i < (AListing.Count -2) then
                 begin
-                  if Copy(AListing[i+1],1,1)='+' then
+                  if TextStartsWith(AListing[i+1], '+') then
                   begin
                     LIsContinuedLine := True;
                   end

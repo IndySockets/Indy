@@ -384,9 +384,9 @@ end;
 
 class procedure TIdFTPLPSterCommEntUxNS.StripPlus(var VString: String);
 begin
-  if Copy(VString,1,1) = '+' then
+  if TextStartsWith(VString, '+') then
   begin
-    IdDelete(VString,1,1);
+    IdDelete(VString, 1, 1);
   end;
 end;
 
