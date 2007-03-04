@@ -113,10 +113,10 @@ begin
   LBuf := AItem.Data;
   //file name
   LI.FileName := Fetch(LBuf);
-  if (Copy(AItem.FileName,Length(AItem.FileName),1)='\') then
+  if TextEndsWith(AItem.FileName, '\') then
   begin
     LI.ItemType := ditDirectory;
-    LI.FileName := (Copy(AItem.FileName,1,Length(AItem.FileName)-1));
+    LI.FileName := Copy(AItem.FileName, 1, Length(AItem.FileName)-1);
   end;
   //record length and type
   LBuf := Sys.TrimLeft(LBuf);
