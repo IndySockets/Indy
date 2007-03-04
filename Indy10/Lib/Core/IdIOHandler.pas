@@ -532,6 +532,7 @@ type
     // have been marked virtual
     procedure Write(const AOut: string); overload; virtual;
     procedure WriteLn(const AOut: string = ''); virtual;
+    procedure WriteLnRFC(const AOut: string = ''); virtual;
     procedure Write(AValue: TIdStrings; AWriteLinesCount: Boolean = False);
               overload; virtual;
     procedure Write(AValue: Char); overload;
@@ -1218,6 +1219,15 @@ begin
   Write(AOut + EOL);
 end;
 
+procedure TIdIOHandler.WriteLnRFC(const AOut: string);
+begin
+  if (AOut <> '') and (AOut[1] = '.') then begin {do not localize}
+    WriteLn('.' + AOut); {do not localize}
+  end else begin
+    WriteLn(AOut);
+  end;
+end;
+
 function TIdIOHandler.Readable(AMSec: Integer): Boolean;
 begin
   // In case descendant does not override this or other methods but implements the higher level
@@ -1443,7 +1453,7 @@ begin
       // For RFC 822 retrieves
       // No length check necessary, if only one byte it will be byte x + #0.
       if AIsRFCMessage then begin
-        if (Copy(s, 1, 2) = '..') then begin
+        if TextStartsWith(s, '..') then begin
           Delete(s, 1, 1);
         end;
       end;
@@ -1620,11 +1630,7 @@ var
   i: Integer;
 begin
   for i := 0 to AStrings.Count - 1 do begin
-    if (Copy(AStrings[i], 1, 1) = '.') then begin
-      WriteLn('.' + AStrings[i]);
-    end else begin
-      WriteLn(AStrings[i]);
-    end;
+    WriteLnRFC(AStrings[i]);
   end;
   if AWriteTerminator then begin
     WriteLn('.');
