@@ -168,12 +168,10 @@ begin
   Sys.DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LCurrentMonth := wMonth;
 
-  if (Sys.UpperCase(Copy(LI.Data,1,1)) = 'D') then
+  if TextStartsWith(LI.Data, 'D') then
   begin
     LI.ItemType :=  ditDirectory;
-  end
-  else
-  begin
+  end else begin
     LI.ItemType :=  ditFile;
   end;
   //Most FTP Clients don't support permissions on a Novel Netware server.

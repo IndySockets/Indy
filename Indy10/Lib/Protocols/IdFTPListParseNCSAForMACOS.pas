@@ -75,7 +75,7 @@ begin
   //but LibWWW
   //http://dev.w3.org/cvsweb/libwww/Library/src/HTFTP.c?rev=1.109&content-type=text/x-cvsweb-markup
   //"MAC-OS TCP/ConnectII"
-    (Copy(ASysDescript,1,18)=' MAC-OS TCP/Connect');
+    TextStartsWith(ASysDescript, ' MAC-OS TCP/Connect');
 end;
 
 class function TIdFTPLPNCSAforMACOS.GetIdent: String;

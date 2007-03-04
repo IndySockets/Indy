@@ -212,26 +212,26 @@ http://www.lsu.edu/ocs/tsc/os390doc/mvsftp.html
 
   function IsMVSMigrated(const AData : String) : Boolean;
   begin
-    Result := (Copy(AData,1,8) = 'Migrated') or {do not localize}
-      ( Copy(AData,1,6) = 'MIGRAT');  {do not localize}
+    Result := TextStartsWith(AData, 'Migrated') or TextStartsWith(AData, 'MIGRAT');  {do not localize}
   end;
 
   function IsPseudoDir(const AData : String) : Boolean;
   begin
-  //In newer implementations, a directory mode is available, see if
-  //item is a Pseudo-directory
-    Result := (Copy(AData,1,16)='Pseudo Directory');  {do not localize}
+    //In newer implementations, a directory mode is available, see if
+    //item is a Pseudo-directory
+    Result := TextStartsWith(AData, 'Pseudo Directory');  {do not localize}
   end;
 
   function CanGetAttributes(const AData : String) : Boolean;
   begin
-    Result := (IsMVSMigrated(AData)=False) and ( Copy(AData,1,5) <> 'Error')  {do not localize}
-      and (IsPseudoDir(AData)=False);
+    Result := (not IsMVSMigrated(AData)) and (not IsPseudoDir(AData)) and
+      (not TextStartsWith(AData, 'Error'));  {do not localize}
   end;
 
-var i : Integer;
-    s : TIdStrings;
-    LI : TIdMVSFTPListItem;
+var
+  i : Integer;
+  s : TIdStrings;
+  LI : TIdMVSFTPListItem;
 //NOTE:  File Size is not supported at all
 //because the file size is calculated with something like this:
 //      BlkSz * Blks/Trk * Trks
