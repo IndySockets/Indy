@@ -760,7 +760,7 @@ begin
    Multicast addresses must not be used as source addresses in IPv6
    packets or appear in any routing header.
 }
-   Result := Copy(LTmp,1,2)='FF';
+   Result := TextStartsWith(LTmp, 'FF');
 end;
 
 function TIdStack.CalcCheckSum(const AData: TIdBytes): word;
