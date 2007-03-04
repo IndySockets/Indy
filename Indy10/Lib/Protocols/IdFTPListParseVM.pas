@@ -336,9 +336,9 @@ begin
   if AListing.Count >0 then
   begin
     //should have a "'" as the terminator
-    if AListing[0]<>'' then
+    if AListing[0] <> '' then
     begin
-      if Copy(AListing[0],Length(AListing[0]),1)<>'''' then
+      if not TextEndsWith(AListing[0], '''') then
       begin
         Exit;
       end;

@@ -114,7 +114,7 @@ begin
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Fetch(LBuffer));
 
   // item type
-  if Copy(LBuffer, Length(LBuffer)-4, 5) = '<DIR>' then {do not localize}
+  if TextEndsWith(LBuffer, '<DIR>') then {do not localize}
   begin
     AItem.ItemType := ditDirectory;
     LBuffer := Copy(LBuffer, 1, Length(LBuffer)-5);
