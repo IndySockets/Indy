@@ -3081,7 +3081,7 @@ end;
 function TextIsSame(const A1, A2: string): Boolean;
 begin
   {$IFDEF DOTNET}
-  Result := A1.Compare(A1, A2, True) = 0;
+  Result := System.String.Compare(A1, A2, True) = 0;
   {$ELSE}
   Result := Sys.AnsiCompareText(A1, A2) = 0;
   {$ENDIF}
