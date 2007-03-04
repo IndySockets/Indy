@@ -578,7 +578,7 @@ begin
   if Length(s) > 0 then begin
     s := Sys.Trim(s);
     if (Length(s) > 0) and (s[1] = '=') then begin       {do not localize}
-      s := Copy(s, 2, MAXINT);
+      s := Copy(s, 2, MaxInt);
     end;
     {CC: Fix suggested by Juergen Haible - some clients add a space after the boundary,
     remove it by calling Sys.Trim(s)...}
@@ -925,7 +925,7 @@ var
 begin
   s := Sys.UpperCase(AContentType);
   Fetch(s, 'CHARSET='); {do not localize}
-  if Copy(s, 1, 1) = '"' then begin {do not localize}
+  if TextStartsWith(s, '"') then begin {do not localize}
     Delete(s, 1, 1);
     Result := Fetch(s, '"'); {do not localize}
   // Sometimes its not in quotes
