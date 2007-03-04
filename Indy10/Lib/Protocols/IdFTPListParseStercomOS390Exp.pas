@@ -94,20 +94,26 @@ class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TIdStrings;
 var LBuf : String;
 begin
   Result := False;
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
     LBuf := AListing[0];
-    if (Copy(LBuf,2,2)<>'D ') and (Copy(LBuf,2,2)<>'F ') then {do not localize}
+    if Length(LBuf) >= 3 then
     begin
-      Exit;
+      if CharIsInSet(LBuf, 2, 'DF') and (LBuf[3] = ' ') then {do not localize}
+      begin
+        Result := True;
+        Exit;
+      end;
     end;
-    if (Copy(LBuf,4,2) <> '0 ') and (Copy(LBuf,4,2) <> '1 ') and (Copy(LBuf,4,2) <> '2 ') then  {do not localize}
+    if Length(LBuf) >= 5 then
     begin
-      Exit;
+      if CharIsInSet(LBuf, 4, '012') and (LBuf[5] = ' ') then  {do not localize}
+      begin
+        Result := True;
+        Exit;
+      end;
     end;
-    Result := True;
   end;
-
 end;
 
 class function TIdFTPLPSterCommExpOS390.GetIdent: String;
