@@ -151,11 +151,7 @@ end;
 
 class function TIdFTPLPWfFTP.IsHeader(const AData: String): Boolean;
 begin                         //  1234567890123456
-  Result :=   (Copy(AData,1,16)= ' Volume - drive ');  {Do not translate}
-  if not Result then
-  begin                        // 12345678901234
-    Result := (Copy(AData,1,14)= ' Directory of ');  {Do not translate}
-  end;
+  Result := TextStartsWith(AData, ' Volume - drive ') or TextStartsWith(AData, ' Directory of ');  {Do not translate}
 end;
 
 class function TIdFTPLPWfFTP.MakeNewItem(
