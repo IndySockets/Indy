@@ -1776,7 +1776,7 @@ begin
                 LStrippedLine := LLine;
                 if Length(LStrippedLine) > 1 then begin
                   if ((LStrippedLine[1] = '*') and (LStrippedLine[2] = ' ')) then begin  {Do not Localize}
-                    LStrippedLine := Copy(LStrippedLine, 3, MAXINT);
+                    LStrippedLine := Copy(LStrippedLine, 3, MaxInt);
                   end;
                 end;
                 LGotALineWithAnExpectedResponse := TIdReplyIMAP4(FLastCmdResult).DoesLineHaveExpectedResponse(LStrippedLine, AExpectedResponses);
@@ -4257,7 +4257,7 @@ begin
             AThisImapPart.ImapPartNumber := AParentImapPart.ImapPartNumber+'.'+Sys.IntToStr(APartNumber);      {Do not Localize}
             //If we are the first level down in MIME, the parent part was '', so trim...
             if AThisImapPart.ImapPartNumber[1] = '.' then begin      {Do not Localize}
-                AThisImapPart.ImapPartNumber := Copy(AThisImapPart.ImapPartNumber, 2, MAXINT);
+                AThisImapPart.ImapPartNumber := Copy(AThisImapPart.ImapPartNumber, 2, MaxInt);
             end;
             AThisImapPart.ParentPart := AParentImapPart.Index;
         end;
@@ -4270,7 +4270,7 @@ begin
             AThisImapPart.ImapPartNumber := AParentImapPart.ImapPartNumber+'.'+Sys.IntToStr(APartNumber);      {Do not Localize}
             //If we are the first level down in MIME, the parent part was '', so trim...
             if AThisImapPart.ImapPartNumber[1] = '.' then begin      {Do not Localize}
-                AThisImapPart.ImapPartNumber := Copy(AThisImapPart.ImapPartNumber, 2, MAXINT);
+                AThisImapPart.ImapPartNumber := Copy(AThisImapPart.ImapPartNumber, 2, MaxInt);
             end;
             AThisImapPart.ParentPart := AParentImapPart.Index;
         end;
@@ -4493,7 +4493,7 @@ begin
             AThePart.ContentType := LParams[0]+'/'+LParams[1]+ParseBodyStructureSectionAsEquates(LParams[2]);  {Do not Localize}
             AThePart.ContentTransfer := LParams[5];
             //Watch out for BinHex4.0, the encoding is inferred from the Content-Type...
-            if TextIsSame(Copy(AThePart.ContentType, 1, 24), 'application/mac-binhex40') then begin {do not localize}
+            if TextStartsWith(AThePart.ContentType, 'application/mac-binhex40') then begin {do not localize}
                 AThePart.ContentTransfer := 'binhex40';                                               {do not localize}
             end;
             AThePart.DisplayName := LFilename;
@@ -4687,13 +4687,13 @@ begin
         end else begin
             LParam := Copy(APartString, LStartPos+1, MaxInt);
         end;
-        if ((AKeepBrackets = False) and (LParam[Length(LParam)] = ')')) then begin      {Do not Localize}
+        if (not AKeepBrackets) and TextEndsWith(LParam, ')') then begin      {Do not Localize}
             LParam := Copy(LParam, 1, Length(LParam)-1);
         end;
         AParams.Add(LParam);
     end else if LInPart = 1 then begin
         LParam := Copy(APartString, LStartPos+1, MaxInt);
-        if LParam[Length(LParam)] = '"' then begin      {Do not Localize}
+        if TextEndsWith(LParam, '"') then begin      {Do not Localize}
             LParam := Copy(LParam, 1, Length(LParam)-1);
         end;
         AParams.Add(LParam);
@@ -4958,7 +4958,7 @@ begin
           LStatStr := Sys.Trim(Copy(LRespStr,
             LStatPos+Length(IMAP4Commands[cmdStatus]), Length(LRespStr)));
           AMB.Name := Sys.Trim(Fetch(LStatStr, '(', True));   {do not localize}
-          if LStatStr[Length(LStatStr)] = ')' then begin     {do not localize}
+          if TextEndsWith(LStatStr, ')') then begin     {do not localize}
             IdDelete(LStatStr, Length(LStatStr), 1);
           end;
           BreakApart(LStatStr, ' ', LSlStatus);           {do not localize}
@@ -5123,70 +5123,71 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
 
     procedure DecodeEnvelopeAddress(const AAddressStr: String; AEmailAddressItem: TIdEmailAddressItem); overload;
     var
-{$IFDEF DOTNET}
-        LTemp: string;
-{$ELSE}
+        LStr, LTemp: String;
+        I: Integer;
+{$IFNDEF DOTNET}
         LPChar: PChar;
 {$ENDIF}
-        LStr: String;
     begin
-        if ( (AAddressStr[1] = '(') and    {Do not Localize}
-          (AAddressStr[Length(AAddressStr)] = ')') and    {Do not Localize}
-          Assigned(AEmailAddressItem) ) then begin
+        if TextStartsWith(AAddressStr, '(') and TextEndsWith(AAddressStr, ')') and    {Do not Localize}
+          Assigned(AEmailAddressItem) then begin
             LStr := Copy(AAddressStr, 2, Length (AAddressStr) - 2);
             //Gets the name part
-            if (TextIsSame(Copy (LStr, 1, Pos(' ', LStr) - 1), 'NIL')) then begin    {Do not Localize}
-                LStr := Copy(LStr, Pos(' ', LStr) + 1, MaxInt);    {Do not Localize}
+            if TextStartsWith(LStr, 'NIL ') then begin    {Do not Localize}
+                LStr := Copy(LStr, 5, MaxInt);    {Do not Localize}
+            end
+            else if TextStartsWith(LStr, '{') then begin    {Do not Localize}
+                LStr := Copy(LStr, Pos('}', LStr) + 1, MaxInt);    {Do not Localize}
+                I := Pos('" ', LStr);
+                AEmailAddressItem.Name := Copy(LStr, 1, I-1);    {Do not Localize}
+                LStr := Copy(LStr, I+2, MaxInt);    {Do not Localize}
             end else begin
-                if LStr[1] = '{' then begin    {Do not Localize}
-                    LStr := Copy(LStr, Pos('}', LStr) + 1, MaxInt);    {Do not Localize}
-                    AEmailAddressItem.Name := Copy(LStr, 1, Pos('" ', LStr) - 1);    {Do not Localize}
-                    LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
-                end else begin
+                I := Pos('" ', LStr);
+                LTemp := Copy(LStr, 1, I);    
 {$IFDEF DOTNET}
-                    LTemp := Copy(LStr, 1, Pos('" ', LStr));    {Do not Localize}
-                    AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {ExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
+                AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {ExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
-                    LPChar := PChar(Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
-                    AEmailAddressItem.Name := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
-{$ENDIF}
-                    LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
-                end;
-            end;
-            //Gets the source root part
-            if (TextIsSame(Copy(LStr, 1, Pos(' ', LStr) - 1), 'NIL')) then begin    {Do not Localize}
-                LStr := Copy(LStr, Pos(' ', LStr) + 1, MaxInt);    {Do not Localize}
-            end else begin
-{$IFDEF DOTNET}
-                LTemp := Copy(LStr, 1, Pos('" ', LStr));    {Do not Localize}
-                AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
-{$ELSE}
-                LPChar := PChar (Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
+                LPChar := PChar(LTemp);
                 AEmailAddressItem.Name := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
-                LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
+                LStr := Copy(LStr, I+2, MaxInt);    {Do not Localize}
+            end;
+            //Gets the source root part
+            if TextStartsWith(LStr, 'NIL ') then begin    {Do not Localize}
+                LStr := Copy(LStr, 5, MaxInt);    {Do not Localize}
+            end else begin
+                I := Pos('" ', LStr);
+                LTemp := Copy(LStr, 1, I);
+{$IFDEF DOTNET}
+                AEmailAddressItem.Name := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
+{$ELSE}
+                LPChar := PChar(LTemp);
+                AEmailAddressItem.Name := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
+{$ENDIF}
+                LStr := Copy(LStr, I+2, MaxInt);    {Do not Localize}
             end;
             //Gets the mailbox name part
-            if (TextIsSame(Copy(LStr, 1, Pos(' ', LStr) - 1), 'NIL')) then begin    {Do not Localize}
-                LStr := Copy(LStr, Pos(' ', LStr) + 1, MaxInt);    {Do not Localize}
+            if TextStartsWith(LStr, 'NIL ') then begin    {Do not Localize}
+                LStr := Copy(LStr, 5, MaxInt);    {Do not Localize}
             end else begin
+                I := Pos('" ', LStr);
+                LTemp := Copy(LStr, 1, I);    {Do not Localize}
 {$IFDEF DOTNET}
-                LTemp := Copy(LStr, 1, Pos('" ', LStr));    {Do not Localize}
                 AEmailAddressItem.Address := Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
-                LPChar := PChar(Copy(LStr, 1, Pos('" ', LStr)));    {Do not Localize}
+                LPChar := PChar(LTemp);
                 AEmailAddressItem.Address := Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
-                LStr := Copy(LStr, Pos('" ', LStr) + 2, MaxInt);    {Do not Localize}
+                LStr := Copy(LStr, I+2, MaxInt);    {Do not Localize}
             end;
             //Gets the host name part
-            if not (TextIsSame(Copy(LStr, 1, MaxInt), 'NIL')) then begin    {Do not Localize}
-{$IFDEF DOTNET}
+            if not TextIsSame(LStr, 'NIL') then begin    {Do not Localize}
                 LTemp := Copy(LStr, 1, MaxInt);
+{$IFDEF DOTNET}
                 AEmailAddressItem.Address := AEmailAddressItem.Address + '@' +    {Do not Localize}
                   Copy(LTemp, 2, Length(LTemp)-2); {AnsiExtractQuotedStr ( LTemp, '"' );    {Do not Localize}
 {$ELSE}
-                LPChar := PChar(Copy(LStr, 1, MaxInt));
+                LPChar := PChar(LTemp);
                 AEmailAddressItem.Address := AEmailAddressItem.Address + '@' +    {Do not Localize}
                   Sys.AnsiExtractQuotedStr(LPChar, '"');    {Do not Localize}
 {$ENDIF}
@@ -5197,19 +5198,23 @@ procedure TIdIMAP4.ParseEnvelopeResult(AMsg: TIdMessage; ACmdResultStr: String);
     procedure DecodeEnvelopeAddress(const AAddressStr: String; AEmailAddressList: TIdEmailAddressList); overload;
     var
         LStr: String;
+        I: Integer;
     begin
-        if ( (AAddressStr[1] = '(') and    {Do not Localize}
-          (AAddressStr[Length(AAddressStr)] = ')') and    {Do not Localize}
-          Assigned(AEmailAddressList) ) then begin
+        if TextStartsWith(AAddressStr, '(') and TextEndsWith(AAddressStr, ')') and    {Do not Localize}
+          Assigned(AEmailAddressList) then begin
             LStr := Copy(AAddressStr, 2, Length (AAddressStr) - 2);
-            while Pos(')', LStr) > 0 do begin    {Do not Localize}
-                DecodeEnvelopeAddress(Copy(LStr, 1, Pos(')', LStr)), AEmailAddressList.Add);    {Do not Localize}
-                LStr := Sys.Trim(Copy(LStr, Pos(')', LStr) + 1, MaxInt));    {Do not Localize}
-            end;
+            repeat
+              I := Pos(')', LStr);
+              if I = 0 then Break;
+              DecodeEnvelopeAddress(Copy(LStr, 1, I), AEmailAddressList.Add);    {Do not Localize}
+              LStr := Sys.Trim(Copy(LStr, I+1, MaxInt));    {Do not Localize}
+            until False;
         end;
     end;
+
 var
-    LStr: String;
+    LStr, LTemp: String;
+    I: Integer;
 {$IFNDEF DOTNET}
     LPChar: PChar;
 {$ENDIF}
@@ -5236,118 +5241,128 @@ begin
     {CC5: Cleared out any existing fields to avoid mangling new entries with old/stale ones.}
     //Extract envelope date field
     AMsg.Date := 0;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
+        I := Pos('" ', ACmdResultStr);                       {Do not Localize}
+        LTemp := Copy(ACmdResultStr, 1, I);
 {$IFDEF DOTNET}
-        LStr := Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr));                       {Do not Localize}
-        LStr := Copy(LStr, 2, Length(LStr)-2);                                                 {Do not Localize}
+        LStr := Copy(LTemp, 2, Length(LTemp)-2);
 {$ELSE}
-        LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                       {Do not Localize}
-        LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
+        LPChar := PChar(LTemp);
+        LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                            {Do not Localize}
 {$ENDIF}
         AMsg.Date := GMTToLocalDateTime(LStr);
-        ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);               {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);
     end;
     //Extract envelope subject field
-    AMsg.Subject := '';                                                                             {Do not Localize}
-    if TextIsSame(Copy (ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    AMsg.Subject := '';                                                                           {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 4, MaxInt);
     end else begin
-        if ACmdResultStr[1] = '{' then begin                                                    {Do not Localize}
+        if TextStartsWith(ACmdResultStr, '{') then begin                                          {Do not Localize}
             ACmdResultStr := Copy(ACmdResultStr, Pos('}', ACmdResultStr) + 1, MaxInt);            {Do not Localize}
-            LStr := Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1);                          {Do not Localize}
+            I := Pos(' ', ACmdResultStr);                          {Do not Localize}
+            LStr := Copy(ACmdResultStr, 1, I-1);
             AMsg.Subject := LStr;
-            ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);            {Do not Localize}
+            ACmdResultStr := Copy(ACmdResultStr, I+1, MaxInt);            {Do not Localize}
         end else begin
+            I := Pos('" ', ACmdResultStr);                       {Do not Localize}
+            LTemp := Copy(ACmdResultStr, 1, I);
 {$IFDEF DOTNET}
-            LStr := Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr));                       {Do not Localize}
-            LStr := Copy(LStr, 2, Length(LStr)-2);                                                {Do not Localize}
+            LStr := Copy(LTemp, 2, Length(LTemp)-2);
 {$ELSE}
-            LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                   {Do not Localize}
+            LPChar := PChar(LTemp);
             LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                             {Do not Localize}
 {$ENDIF}
             AMsg.Subject := LStr;
-            ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);           {Do not Localize}
+            ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);           {Do not Localize}
         end;
     end;
     //Extract envelope from field
     AMsg.FromList.Clear;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
-        LStr := Copy(ACmdResultStr, 1, Pos(')) ', ACmdResultStr) + 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);                            {Do not Localize}
+        LStr := Copy(ACmdResultStr, 1, I+1);
         DecodeEnvelopeAddress(LStr, AMsg.FromList);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope sender field
     AMsg.Sender.Name := '';                                                                         {Do not Localize}
     AMsg.Sender.Address := '';                                                                      {Do not Localize}
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
         {CC5: Fix parsing of sender...}
-        LStr := Copy(ACmdResultStr, 2, Pos(')) ', ACmdResultStr) - 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);
+        LStr := Copy(ACmdResultStr, 2, I-1);
         DecodeEnvelopeAddress(LStr, AMsg.Sender);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope reply-to field
     AMsg.ReplyTo.Clear;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
-        LStr := Copy(ACmdResultStr, 1, Pos(')) ', ACmdResultStr) + 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);                            {Do not Localize}
+        LStr := Copy(ACmdResultStr, 1, I+1);
         DecodeEnvelopeAddress(LStr, AMsg.ReplyTo);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope to field
     AMsg.Recipients.Clear;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
-        LStr := Copy(ACmdResultStr, 1, Pos(')) ', ACmdResultStr) + 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);                            {Do not Localize}
+        LStr := Copy(ACmdResultStr, 1, I+1);
         DecodeEnvelopeAddress(LStr, AMsg.Recipients);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope cc field
     AMsg.CCList.Clear;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
-        LStr := Copy(ACmdResultStr, 1, Pos(')) ', ACmdResultStr) + 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);                            {Do not Localize}
+        LStr := Copy(ACmdResultStr, 1, I+1);
         DecodeEnvelopeAddress(LStr, AMsg.CCList);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope bcc field
     AMsg.BccList.Clear;
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
-        LStr := Copy(ACmdResultStr, 1, Pos(')) ', ACmdResultStr) + 1);                            {Do not Localize}
+        I := Pos(')) ', ACmdResultStr);                            {Do not Localize}
+        LStr := Copy(ACmdResultStr, 1, I+1);
         DecodeEnvelopeAddress(LStr, AMsg.BccList);
-        ACmdResultStr := Copy(ACmdResultStr, Pos(')) ', ACmdResultStr) + 3, MaxInt);              {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+3, MaxInt);
     end;
     //Extract envelope in-reply-to field
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
+        I := Pos('" ', ACmdResultStr);                       {Do not Localize}
+        LTemp := Copy(ACmdResultStr, 1, I);
 {$IFDEF DOTNET}
-        LStr := Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr));                       {Do not Localize}
-        LStr := Copy(LStr, 2, Length(LStr)-2);                                                  {Do not Localize}
+        LStr := Copy(LTemp, 2, Length(LTemp)-2);
 {$ELSE}
-        LPChar := PChar(Copy(ACmdResultStr, 1, Pos('" ', ACmdResultStr)));                       {Do not Localize}
+        LPChar := PChar(LTemp);
         LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
 {$ENDIF}
         AMsg.InReplyTo := LStr;
-        ACmdResultStr := Copy(ACmdResultStr, Pos('" ', ACmdResultStr) + 2, MaxInt);               {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, I+2, MaxInt);
     end;
     //Extract envelope message-id field
     AMsg.MsgId := '';  {Do not Localize}
-    if TextIsSame(Copy(ACmdResultStr, 1, Pos(' ', ACmdResultStr) - 1), 'NIL') then begin       {Do not Localize}
-        ACmdResultStr := Copy(ACmdResultStr, Pos(' ', ACmdResultStr) + 1, MaxInt);                {Do not Localize}
+    if TextStartsWith(ACmdResultStr, 'NIL ') then begin       {Do not Localize}
+        ACmdResultStr := Copy(ACmdResultStr, 5, MaxInt);
     end else begin
 {$IFDEF DOTNET}
-        LStr := Copy(ACmdResultStr, 2, Length(ACmdResultStr)-2);                                                  {Do not Localize}
+        LStr := Copy(ACmdResultStr, 2, Length(ACmdResultStr)-2);
 {$ELSE}
         LPChar := PChar(ACmdResultStr);
         LStr := Sys.AnsiExtractQuotedStr(LPChar, '"');                                                 {Do not Localize}
@@ -5430,7 +5445,7 @@ begin
         if LWords.Count > 0 then begin
             //See does it have a trailing byte count...
             LWord := LWords[LWords.Count-1];
-            if (LWord <> '') and (LWord[1] = '{') and (LWord[Length(LWord)] = '}') then begin
+            if TextStartsWith(LWord, '{') and TextEndsWith(LWord, '}') then begin
                 //It ends in a byte count...
                 LWord := Copy(LWord, 2, Length(LWord)-2);
                 if TextIsSame(LWord, 'NIL') then begin   {do not localize}
@@ -5527,7 +5542,7 @@ begin
     if ((Length(ALine) > 0) and (ALine[1] = ')')) then begin          {Do not Localize}
         ALine := Sys.Trim(Copy(ALine, 2, MaxInt));
     end;
-    if ((Length(ALine) > 0) and (ALine[Length(ALine)] = ')')) then begin          {Do not Localize}
+    if TextEndsWith(ALine, ')') then begin          {Do not Localize}
         ALine := Sys.Trim(Copy(ALine, 1, Length(ALine)-1));
     end;
     //These words left may occur in different order.  Find & delete those we know.
@@ -5753,7 +5768,7 @@ Begin
     to flag that this routine should expect IMAP FLAGS entries.}
     LCheckForOptionalImapFlags := False;     {CC3: IMAP hack inserted lines start here...}
     LDelim := ADelim;
-    if TextIsSame(Copy(ADelim, 1, 4), 'IMAP') then begin {do not localize}
+    if TextStartsWith(ADelim, 'IMAP') then begin {do not localize}
         LCheckForOptionalImapFlags := True;
         LDelim := Copy(ADelim, 5, MaxInt);
     end;                                     {CC3: ...IMAP hack inserted lines end here}
@@ -5769,14 +5784,10 @@ Begin
                 {CC3: Check for optional flags before delimiter in the case of IMAP...}
                 if LLine = LDelim then begin  {CC3: IMAP hack ADelim -> LDelim}
                     Break;
-                end else begin                     {CC3: IMAP hack inserted lines start here...}
-                    if LCheckForOptionalImapFlags = True then begin
-                        if ( (TextIsSame(Copy(LLine, 1, 9), ' FLAGS (\')) {do not localize}
-                          and  (Length(LLine) > Length(LDelim))
-                          and (LDelim = Copy(LLine, Length(LLine)-Length(LDelim)+1, Length(LDelim))) ) then begin
-                            Break;
-                        end;
-                    end;                   {CC3: ...IMAP hack inserted lines end here}
+                end;                          {CC3: IMAP hack inserted lines start here...}
+                if LCheckForOptionalImapFlags and TextStartsWith(LLine, ' FLAGS (\')   {do not localize}
+                  and TextEndsWith(LLine, LDelim) then begin
+                    Break;
                 end;
                 if LActiveDecoder = nil then begin
                     LActiveDecoder := TIdMessageDecoderList.CheckForStart(AMsg, LLine);
