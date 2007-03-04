@@ -969,7 +969,7 @@ type
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
     function SupportTaDirSwitches(ACxt : TIdFTPServerContext) : Boolean;
-    function IngoreLastPathDelin(const APath : String) : String;
+    function IgnoreLastPathDelin(const APath : String) : String;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
       var VPort : Word; const AIPVersion : TIdIPVersion);
     procedure DoOnPASVReply(ASender : TIdFTPServerContext; var VIP : String;
@@ -2317,12 +2317,12 @@ begin
       end;
       LDirectoryList.ExportTotalLine := True;
       LPathSep := '/';    {Do not Localize}
-      if Copy(ADirectory, Length(LPathSep), 1) <> LPathSep then begin
+      if not TextEndsWith(ADirectory, LPathSep) then begin
         ADirectory := ADirectory + LPathSep;
       end;
       if Assigned(FFTPFileSystem) then
       begin
-        FFTPFileSystem.ListDirectory(ASender, ADirectory, LDirectoryList,ACmd, ASwitches);
+        FFTPFileSystem.ListDirectory(ASender, ADirectory, LDirectoryList, ACmd, ASwitches);
       end
       else
       begin
@@ -2588,7 +2588,7 @@ begin
   LF := TIdFTPServerContext(ASender.Context);
   s := ASender.UnparsedParams;
   if LF.IsAuthenticated(ASender) then begin
-    s := IngoreLastPathDelin(s);
+    s := IgnoreLastPathDelin(s);
     if Assigned(OnChangeDirectory) or Assigned(FFTPFileSystem) then begin
       if  s = '..' then begin
         s := CDUPDir(LF);
@@ -3108,7 +3108,7 @@ var
 begin
   LF := ASender.Context as TIdFTPServerContext;
   if LF.IsAuthenticated(ASender) then begin
-    S := IngoreLastPathDelin(S);
+    S := IgnoreLastPathDelin(S);
     s := DoProcessPath(LF,ASender.UnparsedParams);
 
     if Assigned(FFTPFileSystem) or Assigned(FOnRemoveDirectory) then
@@ -3128,7 +3128,7 @@ var
 begin
   LF := ASender.Context as TIdFTPServerContext;
   if LF.IsAuthenticated(ASender) then begin
-    S := IngoreLastPathDelin(S);
+    S := IgnoreLastPathDelin(S);
     S := DoProcessPath(LF, ASender.UnparsedParams );
     DoOnMakeDirectory(LF, s);
     ASender.Reply.SetReply(257, RSFTPFileActionCompleted);
@@ -3538,19 +3538,18 @@ begin
       try
         LSwitches := '';
         LPath := ASender.UnparsedParams;
-        if Copy(LPath,1,1)='-' then
+        if TextStartsWith(LPath, '-') then
         begin
           LSwitches := Fetch(LPath);
         end;
-        ListDirectory(LF, DoProcessPath(LF,
-         LPath), LStream, True,LSwitches);
+        ListDirectory(LF, DoProcessPath(LF, LPath), LStream, True, LSwitches);
         //we use IOHandler.WriteLn here because we need better control over what
         //we send than what Reply.SendReply offers.  This is important as the dir
         //is written using WriteStrings and I found that with Reply.SetReply, a stat
         //reply could throw off a FTP client.
         LF.Connection.IOHandler.WriteLn(Sys.Format('213-%s',[RSFTPDataConnToOpen])); {Do not Localize}
         LF.Connection.IOHandler.Write(LStream);
-        ASender.PerformReply := true;
+        ASender.PerformReply := True;
         ASender.Reply.SetReply(213, RSFTPCmdEndOfStat);
       finally
         Sys.FreeAndNil(LStream);
@@ -4956,41 +4955,41 @@ begin
       LAttrs := Fetch(LFileName);
       LPermitted := True;
       LAttrs := Sys.UpperCase(LAttrs);
-      if Copy(LAttrs,1,1)='+' then
+      if TextStartsWith(LAttrs, '+') then
       begin
         if ValidAttribStr(LAttrs) then
         begin
           LAttrVal := 0;
           ASender.Reply.Clear;
           ASender.Reply.SetReply(220,'');
-          if IndyPos('R',LATTRS)>0 then
+          if IndyPos('R',LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_READONLY;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_READONLY'); {Do not localize}
           end;
-          if IndyPos('A',LATTRS)>0 then
+          if IndyPos('A',LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_ARCHIVE;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_ARCHIVE'); {Do not localize}
           end;
-          if IndyPos('S',LATTRS)>0 then
+          if IndyPos('S',LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_SYSTEM;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_SYSTEM'); {Do not localize}
           end;
-          if IndyPos('H',LATTRS)>0 then
+          if IndyPos('H',LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_HIDDEN;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_HIDDEN'); {Do not localize}
           end;
-          if IndyPos('N',LATTRS)>0 then
+          if IndyPos('N',LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_NORMAL;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_NORMAL'); {Do not localize}
           end;
           ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+Sys.Format(RSFTPSiteATTRIBDone,[Sys.IntToStr(Length(LAttrs)-1)]));
-          LFileName := DoProcessPath(LCx,LFileName);
-          Self.DoOnSetATTRIB(LCx,LAttrVal,LFileName,LPermitted);
+          LFileName := DoProcessPath(LCx, LFileName);
+          Self.DoOnSetATTRIB(LCx, LAttrVal, LFileName, LPermitted);
 
         end
         else
@@ -6539,7 +6538,6 @@ begin
   ReportSettings(LCxt,ASender.Reply);
 end;
 
-function TIdFTPServer.IngoreLastPathDelin(const APath: String): String;
 //This internal function is needed becaus epath processing is different in Windows
 //than in Linux.  The path separators on a FTP server on either system will be different.
 //
@@ -6547,21 +6545,21 @@ function TIdFTPServer.IngoreLastPathDelin(const APath: String): String;
 //
 //On a Linux machine, a FTP server would probably only use '/' because '\' is a valid
 //filename char.
-var i : Integer;
+function TIdFTPServer.IgnoreLastPathDelin(const APath: String): String;
+var
   LPathProcessing : TIdFTPPathProcessing;
 begin
   Result := APath;
-  i := Length(Result);
   if FPathProcessing <> ftpOSDependent then
   begin
-     LPathProcessing :=  FPathProcessing;
+    LPathProcessing := FPathProcessing;
   end
   else
   begin
     case GOSType of
       otLinux :
       begin
-        LPathProcessing :=  ftppUnix;
+        LPathProcessing := ftppUnix;
       end;
       otUnknown :
       begin
@@ -6576,20 +6574,19 @@ begin
     begin
       if Result <>'' then
       begin
-        if CharIsInSet(Result,i,'/\') then
+        if CharIsInSet(Result, Length(Result), '/\') then
         begin
-          IdDelete(Result,i,1);
+          IdDelete(Result, Length(Result), 1);
         end;
-
       end;
     end;
     ftppUnix :
     begin
-      if Result <>'' then
+      if Result <> '' then
       begin
-        if Copy(Result,i,1)='/' then
+        if TextEndsWith(Result, '/') then
         begin
-          IdDelete(Result,i,1);
+          IdDelete(Result, Length(Result), 1);
         end;
       end;
     end;
