@@ -503,12 +503,12 @@ begin
 
   if not Result then begin
     if CmdDelimiter <> #0 then begin
-      Result := TextIsSame(Copy(AData, 1, Length(Command) + 1), Command + CmdDelimiter);
+      Result := TextStartsWith(AData, Command + CmdDelimiter);
       LUnparsedParams := Copy(AData, Length(Command) + 2, MaxInt);
     end else begin
       // Dont strip any part of the params out.. - just remove the command purely on length and
       // no delim
-      Result := TextIsSame(Copy(AData, 1, Length(Command)), Command);
+      Result := TextStartsWith(AData, Command);
       LUnparsedParams := Copy(AData, Length(Command) + 1, MaxInt);
     end;
   end;
