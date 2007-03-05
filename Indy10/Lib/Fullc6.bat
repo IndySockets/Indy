@@ -32,11 +32,13 @@ copy *.inc ..\..\C6
 copy *.res ..\..\C6
 copy *.dcr ..\..\C6
 copy *.rsp ..\..\C6
+if not exist .\objs\*.* md .\objs >nul
 cd ..\..\C6
-%NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHN /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC6%\bin\dcc32.exe IndySystem60.dpk /M /DBCB /O..\Lib\System\objs /H /W -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
+for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndySystem60.lib +%%f /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndySystem60
@@ -51,7 +53,7 @@ del *.dcr > nul
 del *.rsp > nul
 
 REM ***************************************************
-REM Compile Runtime/Designtime Packages IndyCore60
+REM Compile Runtime Package IndyCore60
 REM ***************************************************
 cd ..\Lib\Core
 copy *.pas ..\..\C6
@@ -61,11 +63,23 @@ copy *.inc ..\..\C6
 copy *.res ..\..\C6
 copy *.dcr ..\..\C6
 copy *.rsp ..\..\C6
+if not exist .\objs\*.* md .\objs >nul
 cd ..\..\C6
-%NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /DBCB /O..\Lib\Core\objs /H /W /N. /LIndyCore60.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
+for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndyCore60.lib +%%f /P64 > nul
+del *.obj > nul
+
+REM ***************************************************
+REM Compile Designtime Package dclIndyCore60
+REM ***************************************************
+%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+for %%f in (*.obj) do %NDC6%\bin\tlib.exe dclIndyCore60.lib +%%f /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndyCore60
@@ -80,7 +94,7 @@ del *.dcr > nul
 del *.rsp > nul
 
 REM ***************************************************
-REM Compile Runtime/Designtime Packages IndyProtocols60
+REM Compile Runtime Package IndyProtocols60
 REM ***************************************************
 cd ..\Lib\Protocols
 copy *.pas ..\..\C6
@@ -90,11 +104,43 @@ copy *.inc ..\..\C6
 copy *.res ..\..\C6
 copy *.dcr ..\..\C6
 copy *.rsp ..\..\C6
+if not exist .\objs\*.* md .\objs >nul
 cd ..\..\C6
-%NDC6%\bin\dcc32.exe IndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /DBCB /O..\Lib\Protocols\objs /H /W /N. /LIndyProtocols60.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC6%\bin\dcc32.exe IndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
+
+REM ***************************************************
+REM Delete third-party .obj files
+REM before compiling the .lib file
+REM ***************************************************
+del adler32.obj > nul
+del compress.obj > nul
+del crc32.obj > nul
+del deflate.obj > nul
+del example.obj > nul
+del gzio.obj > nul
+del infback.obj > nul
+del inffast.obj > nul
+del inflate.obj > nul
+del inftrees.obj > nul
+del minigzip.obj > nul
+del trees.obj > nul
+del uncompr.obj > nul
+del zutil.obj > nul
+
+for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndyProtocols60.lib +%%f /P64 > nul
+del *.obj > nul
+
+REM ***************************************************
+REM Compile Designtime Package dclIndyProtocols60
+REM ***************************************************
+%NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+for %%f in (*.obj) do %NDC6%\bin\tlib.exe dclIndyProtocols60.lib +%%f /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndyProtocols60
