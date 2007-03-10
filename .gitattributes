@@ -903,6 +903,7 @@ Indy10/Lib/FCL/Mono.Security.dll -text svneol=unset#unset
 Indy10/Lib/Fullc4.bat eol=crlf
 Indy10/Lib/Fullc5.bat eol=crlf
 Indy10/Lib/Fullc6.bat eol=crlf
+Indy10/Lib/Fulld10.bat eol=crlf
 Indy10/Lib/Fulld5.bat eol=crlf
 Indy10/Lib/Fulld6.bat eol=crlf
 Indy10/Lib/Fulld7.bat eol=crlf
