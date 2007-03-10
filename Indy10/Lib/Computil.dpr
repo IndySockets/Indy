@@ -20,13 +20,14 @@ uses
 
 type
   TWhichOption = (woHppModify,woSetupD2,woSetupD3,woSetupD4,woSetupD5,
-   woSetupD6,woSetupD7,woSetupD8,woSetupD9,woSetupC1,woSetupC3,woSetupC4,
-   woSetupC5,woSetupC6,woInvalid);
+   woSetupD6,woSetupD7,woSetupD8,woSetupD9,woSetupD10,woSetupC1,woSetupC3,
+   woSetupC4,woSetupC5,woSetupC6,woSetupC7,woSetupC8,woSetupC9,woInvalid);
 
 var
   Options: array[TWhichOption] of String = ('HppModify','SetupD2','SetupD3',
-   'SetupD4','SetupD5','SetupD6','SetupD7','SetupD8','SetupD9',
-   'SetupC1','SetupC3','SetupC4','SetupC5','SetupC6','Invalid');
+   'SetupD4','SetupD5','SetupD6','SetupD7','SetupD8','SetupD9','SetupD10',
+   'SetupC1','SetupC3','SetupC4','SetupC5','SetupC6','SetupC7','SetupC8',
+   'SetupC9','Invalid');
   WhichOption: TWhichOption;
   CmdParam: string;
 
@@ -167,6 +168,7 @@ begin
     woSetupD7: SetPath('NDD7','Software\Borland\Delphi\7.0');
     woSetupD8: SetPath('NDD8','Software\Borland\Delphi\8.0');
     woSetupD9: SetPath('NDD9','Software\Borland\BDS\3.0');
+    woSetupD10: SetPath('NDD10','Software\Borland\BDS\5.0');
     woSetupC1: SetPath('NDC1','Software\Borland\C++Builder\1.0');
     woSetupC3: SetPath('NDC3','Software\Borland\C++Builder\3.0');
     woSetupC4: SetPath('NDC4','Software\Borland\C++Builder\4.0');
