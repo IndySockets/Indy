@@ -650,6 +650,7 @@ resourcestring
   RSPOP3SvrCapaList = 'Capability list follows';
   RSPOP3SvrWelcome = 'Welcome to Indy POP3 Server';
   RSPOP3SvrUnknownCmd = 'Sorry, Unknown Command';
+  RSPOP3SvrUnknownCmdFmt = 'Sorry, Unknown Command: %s';
   RSPOP3SvrInternalError = 'Unknown Internal Error';
   RSPOP3SvrHelpFollows = 'Help follows';
   RSPOP3SvrTooManyCons = 'Too many connections. Try again later.';
