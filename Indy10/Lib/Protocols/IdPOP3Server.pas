@@ -294,6 +294,7 @@ type
 
     procedure InitializeCommandHandlers; override;
     procedure DoConnect(AContext: TIdContext); override;
+    procedure DoReplyUnknownCommand(AContext: TIdContext; ALine: string); override;
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure SendGreeting(AContext : TIdContext; AGreeting : TIdReply); override;
@@ -334,6 +335,23 @@ begin
     end;
   end;
   inherited DoConnect(AContext);
+end;
+
+procedure TIdPOP3Server.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
+var
+  LReply: TIdReply;
+begin
+  // RLebeau 03/17/2007: TIdCmdTCPServer.DoReplyUnknownCommand() adds the
+  // offending command as a multi-line response generically for all servers.
+  // POP3 Error replies are not mult-line, however, so overriding the
+  // behavior here to not do that!
+  LReply := FReplyClass.Create(nil, ReplyTexts);
+  try
+    LReply.SetReply(ERR, Sys.Format(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]);
+    AContext.Connection.IOHandler.Write(LReply.FormattedReply);
+  finally
+    Sys.FreeAndNil(LReply);
+  end;
 end;
 
 procedure TIdPOP3Server.InitializeCommandHandlers;
