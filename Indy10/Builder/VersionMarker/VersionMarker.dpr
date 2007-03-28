@@ -116,27 +116,32 @@ begin
       WriteLn(xVerString);
     finally FreeAndNil(xINI); end;
     //protocols packages - design time
+    ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndy100.rc','w:\source\Indy10\Lib\Protocols\dclIndyProtocols100.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndy90.rc','w:\source\Indy10\Lib\Protocols\dclIndyProtocols90.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndy70.rc','w:\source\Indy10\Lib\Protocols\dclIndyProtocols70.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndy60.rc','w:\source\Indy10\Lib\Protocols\dclIndyProtocols60.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndy50.rc','w:\source\Indy10\Lib\Protocols\dclIndyProtocols50.rc');
     //protocols packages - run time
+    ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\Indy100.rc','w:\source\Indy10\Lib\Protocols\IndyProtocols100.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\Indy90.rc','w:\source\Indy10\Lib\Protocols\IndyProtocols90.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\Indy70.rc','w:\source\Indy10\Lib\Protocols\IndyProtocols70.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\Indy60.rc','w:\source\Indy10\Lib\Protocols\IndyProtocols60.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\Indy50.rc','w:\source\Indy10\Lib\Protocols\IndyProtocols50.rc');
 
     //core package - design time
+    ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndyCore100.rc','w:\source\Indy10\Lib\Core\dclIndyCore100.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndyCore90.rc','w:\source\Indy10\Lib\Core\dclIndyCore90.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndyCore70.rc','w:\source\Indy10\Lib\Core\dclIndyCore70.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndyCore60.rc','w:\source\Indy10\Lib\Core\dclIndyCore60.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\dclIndyCore50.rc','w:\source\Indy10\Lib\Core\dclIndyCore50.rc');
     //core package - run time
+    ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndyCore100.rc','w:\source\Indy10\Lib\Core\IndyCore100.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndyCore90.rc','w:\source\Indy10\Lib\Core\IndyCore90.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndyCore70.rc','w:\source\Indy10\Lib\Core\IndyCore70.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndyCore60.rc','w:\source\Indy10\Lib\Core\IndyCore60.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndyCore50.rc','w:\source\Indy10\Lib\Core\IndyCore50.rc');
     //core package - run time
+    ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndySystem100.rc','w:\source\Indy10\Lib\System\IndySystem100.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndySystem90.rc','w:\source\Indy10\Lib\System\IndySystem90.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndySystem70.rc','w:\source\Indy10\Lib\System\IndySystem70.rc');
     ReplaceInFile(ExtractFilePath(ParamStr(0))+ 'Data\IndySystem60.rc','w:\source\Indy10\Lib\System\IndySystem60.rc');
