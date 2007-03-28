@@ -630,14 +630,17 @@ Indy10/Builder/Package[!!-~]Generator/Data/File.TV -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/Data/File.VAL -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/DistPasFileList.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
+Indy10/Builder/Package[!!-~]Generator/DistPasFileList.exe -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
+Indy10/Builder/Package[!!-~]Generator/LazPkgGen.exe -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indycorefpc-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indylaz-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indymaster-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indyprotocolsfpc-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indysystemfpc-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
+Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.exe -text svneol=unset#unset
 Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.dfm -text
 Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBEntryEdit.pas -text
 Indy10/Builder/Package[!!-~]Generator/MgrPkgGenDBMain.dfm -text
