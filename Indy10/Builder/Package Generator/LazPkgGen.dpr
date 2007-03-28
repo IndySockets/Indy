@@ -216,7 +216,172 @@ begin
 //  Result :=  PChar(@TempDir[0]);
 end;
 
+//This is from:
+// http://www.delphidabbler.com/articles?article=6
+function GetEnvVarValue(const VarName: string): string;
+var
+  BufSize: Integer;  // buffer size required for value
+begin
+  // Get required buffer size (inc. terminal #0)
+  BufSize := GetEnvironmentVariable(
+    PChar(VarName), nil, 0);
+  if BufSize > 0 then
+  begin
+    // Read env var value into result string
+    SetLength(Result, BufSize - 1); 
+    GetEnvironmentVariable(PChar(VarName), 
+      PChar(Result), BufSize);
+  end
+  else
+    // No such environment variable
+    Result := '';
+end;
 
+function SetEnvVarValue(const VarName,
+  VarValue: string): Integer;
+begin
+  // Simply call API function
+  if SetEnvironmentVariable(PChar(VarName),
+    PChar(VarValue)) then
+    Result := 0
+  else
+    Result := GetLastError;
+end;
+
+function DeleteEnvVar(const VarName: string): Integer;
+begin
+  if SetEnvironmentVariable(PChar(VarName), nil) then
+    Result := 0
+  else
+    Result := GetLastError;
+end;
+function GetAllEnvVars(const Vars: TStrings): Integer;
+var
+  PEnvVars: PChar;    // pointer to start of environment block
+  PEnvEntry: PChar;   // pointer to an env string in block
+begin
+  // Clear the list
+  if Assigned(Vars) then
+    Vars.Clear;
+  // Get reference to environment block for this process
+  PEnvVars := GetEnvironmentStrings;
+  if PEnvVars <> nil then
+  begin
+    // We have a block: extract strings from it
+    // Env strings are #0 separated and list ends with #0#0
+    PEnvEntry := PEnvVars;
+    try
+      while PEnvEntry^ <> #0 do
+      begin
+        if Assigned(Vars) then
+          Vars.Add(PEnvEntry);
+        Inc(PEnvEntry, StrLen(PEnvEntry) + 1);
+      end;
+      // Calculate length of block
+      Result := (PEnvEntry - PEnvVars) + 1;
+    finally
+      // Dispose of the memory block
+      Windows.FreeEnvironmentStrings(PEnvEntry);
+    end;
+  end
+  else
+    // No block => zero length
+    Result := 0;
+end;
+function CreateEnvBlock(const NewEnv: TStrings; 
+  const IncludeCurrent: Boolean;
+  const Buffer: Pointer; 
+  const BufSize: Integer): Integer;
+var
+  EnvVars: TStringList; // env vars in new block
+  Idx: Integer;         // loops thru env vars
+  PBuf: PChar;          // start env var entry in block
+begin
+  // String list for new environment vars
+  EnvVars := TStringList.Create;
+  try
+    // include current block if required
+    if IncludeCurrent then
+      GetAllEnvVars(EnvVars);
+    // store given environment vars in list
+    if Assigned(NewEnv) then
+      EnvVars.AddStrings(NewEnv);
+    // Calculate size of new environment block
+    Result := 0;
+    for Idx := 0 to Pred(EnvVars.Count) do
+      Inc(Result, Length(EnvVars[Idx]) + 1);
+    Inc(Result);
+    // Create block if buffer large enough
+    if (Buffer <> nil) and (BufSize >= Result) then
+    begin
+      // new environment blocks are always sorted
+      EnvVars.Sorted := True;
+      // do the copying
+      PBuf := Buffer;
+      for Idx := 0 to Pred(EnvVars.Count) do
+      begin
+        StrPCopy(PBuf, EnvVars[Idx]);
+        Inc(PBuf, Length(EnvVars[Idx]) + 1);
+      end;
+      // terminate block with additional #0
+      PBuf^ := #0;
+    end;
+  finally
+    EnvVars.Free;
+  end;
+end;
+procedure ExecAppWithEnvBlock;
+var
+  SI: TStartupInfo;         // start up info
+  PI: TProcessInformation;  // process info
+  NewEnv: TStringList;      // new env strings
+  BufSize: Integer;         // env block size
+  Buffer: PChar;            // env block
+begin
+  // Create new env block
+  NewEnv := TStringList.Create;
+  try
+    NewEnv.Add('FOO=Bar');
+    BufSize := CreateEnvBlock(NewEnv, False, nil, 0);
+    Buffer := StrAlloc(BufSize);
+    try
+      CreateEnvBlock(NewEnv, False, Buffer, BufSize);
+      // Exec child process 
+      FillChar(SI, SizeOf(SI), 0);
+      SI.cb := SizeOf(SI);
+      // Execute the program
+      CreateProcess(nil, 'ChildProg.exe', nil, nil, True, 
+        0, Buffer, nil, SI, PI);
+    finally
+      // Free the memory
+      StrDispose(Buffer);
+    end;
+  finally
+    NewEnv.Free;
+  end;
+end;
+
+
+function ExpandEnvVars(const Str: string): string;
+var
+  BufSize: Integer; // size of expanded string
+begin
+  // Get required buffer size 
+  BufSize := ExpandEnvironmentStrings(
+    PChar(Str), nil, 0);
+  if BufSize > 0 then
+  begin
+    // Read expanded string into result string
+    SetLength(Result, BufSize); 
+    ExpandEnvironmentStrings(PChar(Str), 
+      PChar(Result), BufSize);
+  end
+  else
+    // Trying to expand empty string
+    Result := '';
+end;
+   {==end block==}
+   
 //This is from:
 //http://www.swissdelphicenter.ch/en/showcode.php?id=683
 //
@@ -224,7 +389,7 @@ end;
 //onto our console instead of its own Window.  This is necessary
 //so the results could appear in our caller's display.
 function CreateDOSProcessRedirected(const CommandLine, CurrDir, InputFile, OutputFile,
-  ErrMsg: string): Boolean;
+  ErrMsg: string; const EnvVars : TStrings = nil): Boolean;
 const
   ROUTINE_ID = '[function: CreateDOSProcessRedirected ]';
 var
@@ -235,16 +400,21 @@ var
   ProcessInfo: TProcessInformation;
   SecAtrrs: TSecurityAttributes;
   hAppProcess, hAppThread, hInputFile, hOutputFile: THandle;
+
+  EnvBufSize: Integer;         // env block size
+  EnvBuffer: PChar;            // env block
 begin
   Result := False;
-
+  EnvBufSize := 0;
+  EnvBuffer := nil;
   { check for InputFile existence }
   if not FileExists(InputFile) then
+  begin
     raise Exception.CreateFmt(ROUTINE_ID + #10 + #10 +
       'Input file * %s *' + #10 +
       'does not exist' + #10 + #10 +
       ErrMsg, [InputFile]);
-
+  end;
   { save the cursor }
 //  OldCursor     := Screen.Cursor;
 //  Screen.Cursor := crHourglass;
@@ -312,33 +482,46 @@ begin
     StartupInfo.wShowWindow := SW_HIDE;
     StartupInfo.hStdOutput  := hOutputFile;
     StartupInfo.hStdInput   := hInputFile;
-
-    { create the app }
-    Result := CreateProcess(nil,                           { pointer to name of executable module }
-      pCommandLine,
-      { pointer to command line string }
-      nil,                           { pointer to process security attributes }
-      nil,                           { pointer to thread security attributes }
-      True,                          { handle inheritance flag }
-      CREATE_NEW_CONSOLE or
-      REALTIME_PRIORITY_CLASS,       { creation flags }
-      nil,                           { pointer to new environment block }
-      PChar(CurrDir),                           { pointer to current directory name }
-      StartupInfo,                   { pointer to STARTUPINFO }
-      ProcessInfo);                  { pointer to PROCESS_INF }
-
-    { wait for the app to finish its job and take the handles to free them later }
-    if Result then
+    if Assigned(EnvVars) and (EnvVars.Count > 0) then
     begin
-      WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
-      hAppProcess := ProcessInfo.hProcess;
-      hAppThread  := ProcessInfo.hThread;
-    end
-    else
-      raise Exception.Create(ROUTINE_ID + #10 + #10 +
-        'Function failure' + #10 + #10 +
-        ErrMsg);
+      EnvBufSize := CreateEnvBlock(EnvVars, False, nil, 0);
+      EnvBuffer := StrAlloc(EnvBufSize);
+      CreateEnvBlock(EnvVars, False, EnvBuffer, EnvBufSize);
+    end;
 
+    try
+    { create the app }
+      Result := CreateProcess(nil,                           { pointer to name of executable module }
+        pCommandLine,
+        { pointer to command line string }
+        nil,                           { pointer to process security attributes }
+        nil,                           { pointer to thread security attributes }
+        True,                          { handle inheritance flag }
+        CREATE_NEW_CONSOLE or
+        REALTIME_PRIORITY_CLASS,       { creation flags }
+        EnvBuffer,                           { pointer to new environment block }
+        PChar(CurrDir),                           { pointer to current directory name }
+        StartupInfo,                   { pointer to STARTUPINFO }
+        ProcessInfo);                  { pointer to PROCESS_INF }
+
+      { wait for the app to finish its job and take the handles to free them later }
+      if Result then
+      begin
+        WaitForSingleObject(ProcessInfo.hProcess, INFINITE);
+        hAppProcess := ProcessInfo.hProcess;
+        hAppThread  := ProcessInfo.hThread;
+      end
+      else
+        raise Exception.Create(ROUTINE_ID + #10 + #10 +
+          'Function failure' + #10 + #10 +
+          ErrMsg);
+    finally
+      // Free the memory
+      if EnvBuffer <> nil then
+      begin
+        StrDispose(EnvBuffer);
+      end;
+    end;
   finally
     { close the handles
       Kernel objects, like the process and the files we created in this case,
@@ -362,14 +545,21 @@ procedure MakeMakefile(const AMakefileDir : String);
 var LInputFile, LOutputFile : String;
   s : TStrings;
   i : Integer;
+  NewEnv : TStrings;
 begin
   s := TStringList.Create;
   try
     LInputFile := GetTempDirectory+'\inputdummy.txt';
      s.SaveToFile(LInputFile);
      LOutputFile := GetTempDirectory+'\output.txt';
-    CreateDOSProcessRedirected('C:\lazarus\pp\bin\i386-win32\fpcmake.exe -vTall',
-      AMakeFileDir,LInputFile,LOutputFile,'Error: ');
+    NewEnv := TStringList.Create;
+    try
+      NewEnv.Add('FPCDIR=w:\fpc');
+      CreateDOSProcessRedirected('C:\lazarus\pp\bin\i386-win32\fpcmake.exe -vTall',
+        AMakeFileDir,LInputFile,LOutputFile,'Error: ',NewEnv);
+    finally
+      FreeANdNil(NewEnv);
+    end;
     s.LoadFromFile(LOutputFile);
     for i := 0 to s.Count - 1 do
     begin
@@ -382,9 +572,55 @@ begin
 
 end;
 
+procedure MakeFPCMasterPackage(const AWhere: string; const AFileName : String;
+   const AOutPath : String);
+var s, LS : TStringList;
+  Lst : String;
+  i : Integer;
+  LTemp : String;
+begin
+  DM.tablFile.Filter := AWhere;
+  DM.tablFile.Filtered := True;
+  DM.tablFile.First;
+  s := TStringList.Create;
+  try
+    while not DM.tablFile.Eof do
+    begin
+      s.Add(DM.tablFileFileName.Value );
+      DM.tablFile.Next;
+    end;
+    //construct our make file
+    LS := TStringList.Create;
+    try
+      LS.LoadFromFile('W:\Source\Indy10\Builder\Package Generator\LazTemplates\'+AFileName+'-Makefile.fpc');
+      LTemp := LS.Text;
+    finally
+      FreeAndNil(LS);
+    end;
+    Lst := '';
+     for i := 0 to s.Count -1 do
+     begin
+       if (i = s.Count -1) then
+       begin
+           LSt := Lst +'  '+s[i]+EOL;
+       end
+       else
+       begin
+          LSt := Lst + '  '+s[i]+' \'+EOL;
+       end;
+     end;
+
+     Lst := 'implicitunits='+TrimLeft(Lst);
+     LTemp := StringReplace(LTemp,'{%FILES}',LSt,[rfReplaceAll]);
+     WriteFile(LTemp,AOutPath+'\'+AFileName+'-Makefile.fpc');
+  finally
+    FreeAndNil(s);
+  end;
+  DM.tablFile.Filtered := False;
+end;
+
 procedure MakeFPCPackage(const AWhere: string; const AFileName : String;
-  const APkgName : String; const AOutPath : String;
-  const AAddPlatUnits : Boolean = False);
+  const APkgName : String; const AOutPath : String);
 var s, LS : TStringList;
   Lst : String;
   i : Integer;
@@ -420,14 +656,7 @@ begin
      begin
        if (i = s.Count -1) then
        begin
-         if AAddPlatUnits then
-         begin
-           Lst := Lst  +'  '+s[i]+ ' $(PLATUNITS)'+EOL;
-         end
-         else
-         begin
            LSt := Lst +'  '+s[i]+EOL;
-         end;
        end
        else
        begin
@@ -548,6 +777,7 @@ begin
       WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','dclindyprotocolslaz.lpk','Protocols', 'W:\Source\Indy\Indy10FPC\Lib\Protocols');
       WriteLPK('FPC=True and FPCListInPkg=True and DesignUnit=true','indylaz.lpk','', 'W:\Source\Indy\Indy10FPC\Lib');
       MakeFileDistList;
+      MakeFPCMasterPackage('FPC=True and FPCListInPkg=True and DesignUnit=False','indymaster', 'W:\Source\Indy\Indy10FPC\Lib');
     end;
   finally
     FreeAndNil(DM);

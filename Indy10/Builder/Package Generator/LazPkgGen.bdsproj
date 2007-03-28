@@ -168,6 +168,25 @@
 			<VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
 		</VersionInfoKeys>  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <Excluded_Packages>
       <Excluded_Packages Name="C:\Wilson\MiscUnits90.bpl">Colin Wilson - Miscellaneous Components</Excluded_Packages>
       <Excluded_Packages Name="c:\program files\borland\bds\3.0\Bin\dbwebxprt.bpl">Borland Web Wizard Package</Excluded_Packages>
