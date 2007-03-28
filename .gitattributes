@@ -633,6 +633,8 @@ Indy10/Builder/Package[!!-~]Generator/DistPasFileList.dpr -text
 Indy10/Builder/Package[!!-~]Generator/LazPkgGen.bdsproj -text
 Indy10/Builder/Package[!!-~]Generator/LazPkgGen.dpr -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indycorefpc-Makefile.fpc -text
+Indy10/Builder/Package[!!-~]Generator/LazTemplates/indylaz-Makefile.fpc -text
+Indy10/Builder/Package[!!-~]Generator/LazTemplates/indymaster-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indyprotocolsfpc-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/LazTemplates/indysystemfpc-Makefile.fpc -text
 Indy10/Builder/Package[!!-~]Generator/MgrPkgGen.dpr -text
