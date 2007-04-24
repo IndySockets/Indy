@@ -347,7 +347,7 @@ begin
   // behavior here to not do that!
   LReply := FReplyClass.Create(nil, ReplyTexts);
   try
-    LReply.SetReply(ERR, Sys.Format(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]);
+    LReply.SetReply(ERR, Sys.Format(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     Sys.FreeAndNil(LReply);
