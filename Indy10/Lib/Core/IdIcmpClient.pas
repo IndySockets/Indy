@@ -336,7 +336,8 @@ begin
       AReplyStatus.ReplyStatusType := rsTimeOut;
     end;
     Result := True;
-  end else begin
+  end else
+  begin
     AReplyStatus.ReplyStatusType := rsError;
     {$IFNDEF DOTNET}
     if IPVersion = Id_IPv4 then begin
@@ -361,7 +362,7 @@ var
   TripTime: Cardinal;
 begin
   Result := FReplyStatus;
-  FillBytes(FbufReceive, SizeOf(FbufReceive), 0);
+  FillBytes(FbufReceive, Length(FbufReceive), 0);
   FStartTime := Ticks;
   repeat
     BytesRead := ReceiveBuffer(FbufReceive, ATimeOut);
@@ -384,8 +385,7 @@ begin
       FReplyStatus.SequenceId      := wSeqNo;
       FReplyStatus.TimeToLive      := 0;
       FReplyStatus.ReplyStatusType := rsTimeOut;
-    end
-    else
+    end else
     begin
       FReplyStatus.BytesReceived   := 0;
       FReplyStatus.FromIpAddress   := '::0';
