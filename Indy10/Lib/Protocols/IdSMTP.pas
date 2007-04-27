@@ -233,13 +233,12 @@ type
     procedure Assign(Source: TIdPersistent); override;
     function Authenticate: Boolean; virtual;
     procedure Connect; override;
-    procedure Disconnect(AImmediate: Boolean); override;
+    procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string);
-    procedure Send (AMsg: TIdMessage); override;
-    procedure Expand( AUserName : String; AResults : TIdStrings); virtual;
-    function Verify( AUserName : String) : String; virtual;
-
+    procedure Send(AMsg: TIdMessage); override;
+    procedure Expand(AUserName : String; AResults : TIdStrings); virtual;
+    function Verify(AUserName : String) : String; virtual;
     //
     property DidAuthenticate: Boolean read FDidAuthenticate;
   published
@@ -255,7 +254,6 @@ type
     //
     property OnTLSNotAvailable;
   end;
-
 
 implementation
 
@@ -354,13 +352,14 @@ end;
 
 procedure TIdSMTP.Connect;
 begin
+  FDidAuthenticate := False;
   inherited Connect;
   try
     GetResponse(220);
     SendGreeting;
   except
-    Disconnect;
-    Raise;
+    Disconnect(False);
+    raise;
   end;
 end;
 
@@ -483,10 +482,13 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdSMTP.Disconnect(AImmediate: Boolean);
+procedure TIdSMTP.Disconnect(ANotifyPeer: Boolean);
 begin
-  inherited Disconnect(AImmediate);
-  FDidAuthenticate := False;
+  try
+    inherited Disconnect(ANotifyPeer);
+  finally
+    FDidAuthenticate := False;
+  end;
 end;
 
 end.
