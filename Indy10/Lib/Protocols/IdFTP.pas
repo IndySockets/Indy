@@ -655,6 +655,7 @@ will chop off a connection instead of closing it causing TIdFTP to wait forever 
 
   }
   DEF_Id_FTP_READTIMEOUT = 60000; //one minute
+  DEF_Id_FTP_PassiveUseControlHost = False;
 
 type
   //Added by SP
@@ -728,7 +729,9 @@ type
     FListResult: TIdStrings;
     FLoginMsg: TIdReplyFTP;
 
-    FPassive: boolean;
+    FPassive: Boolean;
+    FPassiveUseControlHost: Boolean;
+
     FDataPortProtection : TIdFTPDataPortSecurity;
     FAUTHCmd : TAuthCmd;
     FDataPort: Integer;
@@ -753,8 +756,8 @@ type
     FOnAfterPut: TIdNotifyEvent; //JPM at Don Sider's suggestion
     FOnNeedAccount: TIdNeedAccountEvent;
     FOnCustomFTPProxy : TIdNotifyEvent;
-    FOnDataChannelCreate:TIdOnDataChannelCreate;
-    FOnDataChannelDestroy:TIdOnDataChannelDestroy;
+    FOnDataChannelCreate: TIdOnDataChannelCreate;
+    FOnDataChannelDestroy: TIdOnDataChannelDestroy;
     FProxySettings: TIdFtpProxySettings;
 
     FUseExtensionDataPort : Boolean;
@@ -972,6 +975,7 @@ type
     property Host;
     property UseCCC : Boolean read FUseCCC write SetUseCCC default DEF_Id_FTP_UseCCC;
     property Passive: boolean read FPassive write SetPassive default Id_TIdFTP_Passive;
+    property PassiveUseControlHost: Boolean read FPassiveUseControlHost write FPassiveUseControlHost default DEF_Id_FTP_PassiveUseControlHost;
     property DataPortProtection : TIdFTPDataPortSecurity read FDataPortProtection write SetDataPortProtection default Id_TIdFTP_DataPortProtection;
     property AUTHCmd : TAuthCmd read FAUTHCmd write SetAUTHCmd default DEF_Id_FTP_AUTH_CMD;
     property DataPort: Integer read FDataPort write FDataPort default 0;
@@ -1003,8 +1007,8 @@ type
     property OnAfterPut: TIdNotifyEvent read FOnAfterPut write FOnAfterPut;
     property OnNeedAccount: TIdNeedAccountEvent read FOnNeedAccount write FOnNeedAccount;
     property OnCustomFTPProxy : TIdNotifyEvent read FOnCustomFTPProxy write FOnCustomFTPProxy;
-    property OnDataChannelCreate:TIdOnDataChannelCreate read FOnDataChannelCreate write FOnDataChannelCreate;
-    property OnDataChannelDestroy:TIdOnDataChannelDestroy read FOnDataChannelDestroy write FOnDataChannelDestroy;
+    property OnDataChannelCreate: TIdOnDataChannelCreate read FOnDataChannelCreate write FOnDataChannelCreate;
+    property OnDataChannelDestroy: TIdOnDataChannelDestroy read FOnDataChannelDestroy write FOnDataChannelDestroy;
     //The directory was Retrieved from the FTP server.
     property OnRetrievedDir : TIdNotifyEvent read FOnRetrievedDir write FOnRetrievedDir;
     //parsing is done only when DirectoryLiusting is referenced
@@ -1066,6 +1070,7 @@ begin
   //
   Port := IDPORT_FTP;
   Passive := Id_TIdFTP_Passive;
+  FPassiveUseControlHost := DEF_Id_FTP_PassiveUseControlHost;
 
   FDataPortProtection := Id_TIdFTP_DataPortProtection;
   FUseCCC := DEF_Id_FTP_UseCCC;
@@ -1129,6 +1134,7 @@ begin
     FUsingExtDataPort := True;
   end;
   FUsingNATFastTrack := False;
+  FCapabilities.Clear;
 
   try
     //APR 011216: proxy support
@@ -1153,11 +1159,10 @@ begin
       FHost := LHost;
       FPort := LPort;
     end;//tryf
-
-    // RLebeau: RFC 959 allows the server to send a 1xx reply before the
-    // actual 220 greeting.  The client has to wait for the 220 to arrive
-    // before continuing. Although the RFC states to use 120 specifically,
-    // I have seen servers send other 1xx replies, such as 130
+    // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
+    // reply and that the client should wait for the 220 reply when this 
+    // happens.  Also, the RFC says that 120 should be used, but some
+    // servers use other 1xx codes, such as 130, so handle 1xx generically
     LCode := GetResponse;
     if (LCode div 100) = 1 then
     begin
@@ -1471,11 +1476,18 @@ begin
       LPasvCl := TIdTCPClient(FDataChannel);
       try
         InitDataChannel;
+
+        if PassiveUseControlHost then begin
+          LIP := Self.Host;
+        end;
+
         LPasvCl.Host := LIP;
         LPasvCl.Port := LPort;
+
         if Assigned(FOnDataChannelCreate) then begin
           OnDataChannelCreate(Self, FDataChannel);
         end;
+
         LPasvCl.Connect;
         try
           Self.GetResponse([110, 125, 150]);
@@ -1588,6 +1600,10 @@ begin
     LPasvCl := TIdTCPClient(FDataChannel);
     try
       InitDataChannel;
+
+      if PassiveUseControlHost then begin
+        LIP := Self.Host;
+      end;
 
       LPasvCl.Host := LIP;
       LPasvCl.Port := LPort;
@@ -2350,8 +2366,10 @@ Connection: close}
   //Feat data
 
   SendCmd('FEAT');  {do not localize}
+
   FCapabilities.Clear;
   FCapabilities.AddStrings(LastCmdResult.Text);
+
   //we remove the first and last lines because we only want the list
   if FCapabilities.Count > 0 then begin
     FCapabilities.Delete(0);
@@ -3486,6 +3504,7 @@ var
   LRemoteCRC : String;
   LLocalCRC : String;
   LCmd : String;
+  LStartPoint : Int64;
   LByteCount : Int64;  //used instead of AByteCount so you we don't exceed the file size
   LHashClass: TIdHashClass;
 begin
@@ -3495,13 +3514,15 @@ begin
   if AStartPoint > -1 then begin
     ALocalFile.Position := AStartPoint;
   end;
+  LStartPoint := ALocalFile.Position;
   
-  LByteCount := ALocalFile.Size - ALocalFile.Position;
+  LByteCount := ALocalFile.Size - LStartPoint;
   if (LByteCount > AByteCount) and (AByteCount > 0) then begin
     LByteCount := AByteCount;
   end;
 
-  if IsExtSupported('XSHA1') then begin
+  if IsExtSupported('XSHA1') then
+  begin
     //XMD5 "filename" startpos endpos
     //I think there's two syntaxes to this:
     //
@@ -3512,18 +3533,19 @@ begin
     //XCRC "filename" [startpos] [number of bytes to calc]
 
     if IndexOfFeatLine('XSHA1 filename;start;end') > -1 then begin
-      LCmd := 'XSHA1 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCOunt-1);
+      LCmd := 'XSHA1 "' + ARemoteFile + '" ' + Sys.IntToStr(LStartPoint) + ' ' + Sys.IntToStr(LStartPoint + LByteCount-1);
     end else
     begin
       //BlackMoon FTP Server uses this one.
-      LCmd := 'XSHA1 "' + ARemoteFile + '"' + ' ' + Sys.IntToStr(AStartPoint);
+      LCmd := 'XSHA1 "' + ARemoteFile + '"' + ' ' + Sys.IntToStr(LStartPoint);
       if AByteCount > 0 then begin
         LCmd := LCmd + ' ' + Sys.IntToStr(LByteCount);
       end;
     end;
-    LHashClass := TIdHashSHA1;
+    LHashClasss := TIdHashSHA1;
   end
-  else if IsExtSupported('XMD5') then begin
+  else if IsExtSupported('XMD5') then
+  begin
     //XMD5 "filename" startpos endpos
     //I think there's two syntaxes to this:
     //
@@ -3534,16 +3556,16 @@ begin
     //XCRC "filename" [startpos] [number of bytes to calc]
 
     if IndexOfFeatLine('XMD5 filename;start;end') > -1 then begin
-      LCmd := 'XMD5 "' + ARemoteFile + '" ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(AStartPoint + LByteCount-1);
+      LCmd := 'XMD5 "' + ARemoteFile + '" ' + Sys.IntToStr(LStartPoint) + ' ' + Sys.IntToStr(LStartPoint + LByteCount-1);
     end else
     begin
       //BlackMoon FTP Server uses this one.
       LCmd := 'XMD5 "' + ARemoteFile + '"';
       if AByteCount > 0 then begin
-        LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
+        LCmd := LCmd + ' ' + Sys.IntToStr(LStartPoint) + ' ' + Sys.IntToStr(LByteCount);
       end
       else if AStartPoint > 0 then begin
-        LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
+        LCmd := LCmd + ' ' + Sys.IntToStr(LStartPoint);
       end;
     end;
     LHashClass := TIdHashMessageDigest5;
@@ -3551,27 +3573,27 @@ begin
   begin
     LCmd := 'XCRC "' + ARemoteFile + '"';
     if AByteCount > 0 then begin
-      LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint) + ' ' + Sys.IntToStr(LByteCount);
+      LCmd := LCmd + ' ' + Sys.IntToStr(LStartPoint) + ' ' + Sys.IntToStr(LByteCount);
     end
     else if AStartPoint > 0 then begin
-      LCmd := LCmd + ' ' + Sys.IntToStr(AStartPoint);
+      LCmd := LCmd + ' ' + Sys.IntToStr(LStartPoint);
     end;
     LHashClass := TIdHashCRC32;
   end;
 
   with LHashClass.Create do
   try
-    LLocalCRC := Sys.UpperCase(HashStreamAsHex(ALocalFile, AStartPoint, LByteCount));
+    LLocalCRC := HashValueAsHex(ALocalFile, LStartPoint, LByteCount);
   finally
     Free;
   end;
 
   if SendCMD(LCMD) = 250 then begin
-    LRemoteCRC := Sys.UpperCase(Sys.Trim(LastCmdResult.Text.Text));
+    LRemoteCRC := Sys.Trim(LastCmdResult.Text.Text);
     IdDelete(LRemoteCRC, 1, IndyPos(' ', LRemoteCRC)); // delete the response
   end;
 
-  Result := LLocalCRC = LRemoteCRC;
+  Result := TextIsSame(LLocalCRC, LRemoteCRC);
 end;
 
 end.
