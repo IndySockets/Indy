@@ -3514,15 +3514,15 @@ begin
   if AStartPoint > -1 then begin
     ALocalFile.Position := AStartPoint;
   end;
+
   LStartPoint := ALocalFile.Position;
-  
   LByteCount := ALocalFile.Size - LStartPoint;
+
   if (LByteCount > AByteCount) and (AByteCount > 0) then begin
     LByteCount := AByteCount;
   end;
 
-  if IsExtSupported('XSHA1') then
-  begin
+  if IsExtSupported('XSHA1') then begin
     //XMD5 "filename" startpos endpos
     //I think there's two syntaxes to this:
     //
@@ -3542,10 +3542,9 @@ begin
         LCmd := LCmd + ' ' + Sys.IntToStr(LByteCount);
       end;
     end;
-    LHashClasss := TIdHashSHA1;
+    LHashClass := TIdHashSHA1;
   end
-  else if IsExtSupported('XMD5') then
-  begin
+  else if IsExtSupported('XMD5') then begin
     //XMD5 "filename" startpos endpos
     //I think there's two syntaxes to this:
     //
@@ -3583,7 +3582,7 @@ begin
 
   with LHashClass.Create do
   try
-    LLocalCRC := HashValueAsHex(ALocalFile, LStartPoint, LByteCount);
+    LLocalCRC := HashStreamAsHex(ALocalFile, LStartPoint, LByteCount);
   finally
     Free;
   end;
