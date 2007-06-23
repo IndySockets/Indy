@@ -45,11 +45,16 @@ type
   TIdInterceptThrottler = class(TIdConnectionIntercept)
   protected
     FBitsPerSec: Integer;
+    FRecvBitsPerSec: Integer;
+    FSendBitsPerSec: Integer;
+    procedure SetBitsPerSec(AValue: Integer);
   public
     procedure Receive(var ABuffer: TIdBytes); override;
     procedure Send(var ABuffer: TIdBytes); override;
   published
-    property BitsPerSec: Integer read FBitsPerSec write FBitsPerSec;
+    property BitsPerSec: Integer read FBitsPerSec write SetBitsPerSec;
+    property RecvBitsPerSec: Integer read FRecvBitsPerSec write FRecvBitsPerSec;
+    property SendBitsPerSec: Integer read FSendBitsPerSec write FSendBitsPerSec;
   end;
 
 implementation
@@ -62,17 +67,24 @@ uses
 procedure TIdInterceptThrottler.Receive(var ABuffer: TIdBytes);
 begin
   inherited Receive(ABuffer);
-  if BitsPerSec > 0 then begin
-    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div BitsPerSec);
+  if RecvBitsPerSec > 0 then begin
+    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div RecvBitsPerSec);
   end;
 end;
 
 procedure TIdInterceptThrottler.Send(var ABuffer: TIdBytes);
 begin
   inherited Send(ABuffer);
-  if BitsPerSec > 0 then begin
-    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div BitsPerSec);
+  if SendBitsPerSec > 0 then begin
+    TIdAntiFreezeBase.Sleep((Length(ABuffer) * 8 * 1000) div SendBitsPerSec);
   end;
+end;
+
+procedure TIdInterceptThrottler.SetBitsPerSec(AValue: Integer);
+begin
+  FBitsPerSec := AValue;
+  FRecvBitsPerSec := AValue;
+  FSendBitsPerSec := AValue;
 end;
 
 end.
