@@ -82,10 +82,6 @@ uses
   IdStack;
 
 type
-  //Exception is used instead of EIdException because the exception could be from somewhere else
-  TIdUDPExceptionEvent = procedure(Sender :TObject; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass) of object;
-  TUDPReadEvent = procedure(Sender: TObject; AData: TIdBytes; ABinding: TIdSocketHandle) of object;
-
   TIdUDPServer = class;
 
   TIdUDPListenerThread = class(TIdThread)
@@ -93,38 +89,47 @@ type
     FBinding: TIdSocketHandle;
     FAcceptWait: Integer;
     FBuffer: TIdBytes;
-
     FCurrentException: String;
     FCurrentExceptionClass: TClass;
+    FData: TObject;
+    FServer: TIdUDPServer;
     //
     procedure AfterRun; override;
     procedure Run; override;
   public
-    FServer: TIdUDPServer;
     //
     constructor Create(AOwner: TIdUDPServer; ABinding: TIdSocketHandle); reintroduce;
     destructor Destroy; override;
-
+    //
     procedure UDPRead;
     procedure UDPException;
     //
     property AcceptWait: integer read FAcceptWait write FAcceptWait;
     property Binding: TIdSocketHandle read FBinding;
+    property Server: TIdUDPServer read FServer;
+    property Data: TObject read FData write FData;
   end;
+
+  TIdUDPListenerThreadClass = class of TIdUDPListenerThread;
+  
+  //Exception is used instead of EIdException because the exception could be from somewhere else
+  TIdUDPExceptionEvent = procedure(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass) of object;
+  TUDPReadEvent = procedure(AThread: TIdUDPListenerThread; AData: TIdBytes; ABinding: TIdSocketHandle) of object;
 
   TIdUDPServer = class(TIdUDPBase)
   protected
     FBindings: TIdSocketHandles;
     FCurrentBinding: TIdSocketHandle;
     FListenerThreads: TIdThreadList;
+    FThreadClass: TIdUDPListenerThreadClass;
     FOnUDPRead: TUDPReadEvent;
     FOnUDPException : TIdUDPExceptionEvent;
     FThreadedEvent: boolean;
     //
     procedure BroadcastEnabledChanged; override;
     procedure CloseBinding; override;
-    procedure DoOnUDPException(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);  virtual;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
+    procedure DoOnUDPException(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);  virtual;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
     function GetDefaultPort: integer;
@@ -139,6 +144,7 @@ type
     property OnUDPRead: TUDPReadEvent read FOnUDPRead write FOnUDPRead;
     property OnUDPException : TIdUDPExceptionEvent read FOnUDPException write FOnUDPException;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
+    property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
   end;
   EIdUDPServerException = class(EIdUDPException);
 
@@ -195,17 +201,17 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdUDPServer.DoOnUDPException(ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
+procedure TIdUDPServer.DoOnUDPException(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
 begin
   if Assigned(FOnUDPException) then begin
-    OnUDPException(Self, ABinding, AMessage, AExceptionClass);
+    OnUDPException(AThread, ABinding, AMessage, AExceptionClass);
   end;
 end;
 
-procedure TIdUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdUDPServer.DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
   if Assigned(OnUDPRead) then begin
-    OnUDPRead(Self, AData, ABinding);
+    OnUDPRead(AThread, AData, ABinding);
   end;
 end;
 
@@ -257,7 +263,7 @@ begin
       raise;
     end;
     for i := 0 to Bindings.Count - 1 do begin
-      LListenerThread := TIdUDPListenerThread.Create(Self, Bindings[i]);
+      LListenerThread := FThreadClass.Create(Self, Bindings[i]);
       LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(i + 1); {do not localize}
       //Todo: Implement proper priority handling for Linux
       //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
@@ -281,6 +287,7 @@ begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
   FListenerThreads := TIdThreadList.Create;
+  FThreadClass := TIdUDPListenerThread;
 end;
 
 procedure TIdUDPServer.SetBindings(const Value: TIdSocketHandles);
@@ -355,12 +362,12 @@ end;
 
 procedure TIdUDPListenerThread.UDPRead;
 begin
-  FServer.DoUDPRead(FBuffer, FBinding);
+  FServer.DoUDPRead(Self, FBuffer, FBinding);
 end;
 
 procedure TIdUDPListenerThread.UDPException;
 begin
-  FServer.DoOnUDPException(FBinding, FCurrentException, FCurrentExceptionClass);
+  FServer.DoOnUDPException(Self, FBinding, FCurrentException, FCurrentExceptionClass);
 end;
 
 end.
