@@ -457,11 +457,7 @@ end;
 function TIdThreadSafeList.IsCountLessThan(const AValue: Cardinal): Boolean;
 begin
   if Assigned(Self) then begin
-    try
-      Result := Cardinal(LockList.Count) < AValue;
-    finally
-      UnlockList;
-    end;
+    Result := Cardinal(Count) < AValue;
   end else begin
     Result := True; // none always <
   end;
@@ -546,11 +542,11 @@ end;
 
 function TIdThreadSafeList.Count: Integer;
 var
-  aList:TIdList;
+  aList: TIdList;
 begin
-  aList:=LockList;
+  aList := LockList;
   try
-    Result:=aList.Count;
+    Result := aList.Count;
   finally
     UnlockList;
   end;
