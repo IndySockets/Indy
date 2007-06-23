@@ -211,6 +211,7 @@ type
     // or preparse the input.
     function ReadCommandLine(AContext: TIdContext): string; virtual;
     procedure SetActive(AValue: Boolean); override;
+    procedure SetCommandHandlers(AValue: TIdCommandHandlers);
     procedure SetExceptionReply(AValue: TIdReply);
     procedure SetGreeting(AValue: TIdReply);
     procedure SetHelpReply(AValue: TIdReply);
@@ -221,7 +222,7 @@ type
     destructor Destroy; override;
   published
     property CommandHandlers: TIdCommandHandlers read FCommandHandlers
-      write FCommandHandlers;
+      write SetCommandHandlers;
     property ExceptionReply: TIdReply read GetExceptionReply write SetExceptionReply;
     property Greeting: TIdReply read GetGreeting write SetGreeting;
     property HelpReply: TIdReply read GetHelpReply write SetHelpReply;
@@ -335,7 +336,6 @@ begin
   // chose to disconnect the connection in the OnConnect event handler.
   if AContext.Connection.Connected then begin
     if Greeting.ReplyExists then begin
-
       ReplyTexts.UpdateText(Greeting);
       LGreeting := FReplyClass.Create(nil); try // SendGreeting calls TIdReply.GetFormattedReply
         LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
@@ -397,6 +397,11 @@ begin
     end;
   end;
   inherited SetActive(AValue);
+end;
+
+procedure TIdCmdTCPServer.SetCommandHandlers(AValue: TIdCommandHandlers);
+begin
+  FCommandHandlers.Assign(AValue);
 end;
 
 function TIdCmdTCPServer.CreateExceptionReply: TIdReply;

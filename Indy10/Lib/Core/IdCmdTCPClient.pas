@@ -146,13 +146,14 @@ type
     procedure DoBeforeCommandHandler(ASender: TIdCommandHandlers; var AData: string;
       AContext: TIdContext);
     procedure InitComponent; override;
+    procedure SetCommandHandlers(AValue: TIdCommandHandlers);
     procedure SetExceptionReply(AValue: TIdReply);
   public
     procedure Connect; override;
     destructor Destroy; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
   published
-    property CommandHandlers: TIdCommandHandlers read FCommandHandlers write FCommandHandlers;
+    property CommandHandlers: TIdCommandHandlers read FCommandHandlers write SetCommandHandlers;
     property ExceptionReply: TIdReply read FExceptionReply write SetExceptionReply;
     //
     property OnAfterCommandHandler: TIdCmdTCPClientAfterCommandHandlerEvent
@@ -224,13 +225,14 @@ begin
   if Assigned(FListeningThread) then begin
     FListeningThread.Terminate;
   end;
-  //
-  inherited Disconnect(ANotifyPeer);
-  //
-  if Assigned(FListeningThread) then begin
-    FListeningThread.WaitFor;
+  try
+    inherited Disconnect(ANotifyPeer);
+  finally
+    if Assigned(FListeningThread) then begin
+      FListeningThread.WaitFor;
+    end;
+    Sys.FreeAndNil(FListeningThread);
   end;
-  Sys.FreeAndNil(FListeningThread);
 end;
 
 procedure TIdCmdTCPClient.DoAfterCommandHandler(ASender: TIdCommandHandlers;
@@ -259,6 +261,11 @@ begin
   FCommandHandlers := TIdCommandHandlers.Create(Self, FReplyClass, nil, ExceptionReply);
   FCommandHandlers.OnAfterCommandHandler := DoAfterCommandHandler;
   FCommandHandlers.OnBeforeCommandHandler := DoBeforeCommandHandler;
+end;
+
+procedure TIdCmdTCPClient.SetCommandHandlers(AValue: TIdCommandHandlers);
+begin
+  FCommandHandlers.Assign(AValue);
 end;
 
 procedure TIdCmdTCPClient.SetExceptionReply(AValue: TIdReply);
