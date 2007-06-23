@@ -100,38 +100,36 @@ type
     FReceiveTimeout: integer;
     FProtocol: TIdSocketProtocol;
     FProtocolIPv6 : TIdSocketProtocol;
-    FIPVersion : TIdIPVersion;
     FTTL: Integer;
     FPkt : TIdPacketInfo;
     FConnected : Boolean;
     //
     function GetBinding: TIdSocketHandle;
-
+    function GetIPVersion: TIdIPVersion;
+    //
     procedure InitComponent; override;
-     procedure SetIPVersion(const AValue: TIdIPVersion);
+    procedure SetIPVersion(const AValue: TIdIPVersion);
     procedure SetTTL(const Value: Integer);
     procedure SetHost(const AValue : String); virtual;
     //
     // TODO: figure out which ReceiveXXX functions we want
-
-    property IPVersion : TIdIPVersion read FIPVersion write SetIPVersion;
-
+    //
+    property IPVersion : TIdIPVersion read GetIPVersion write SetIPVersion;
     //
     property Port: Integer read FPort write FPort default Id_TIdRawBase_Port;
     property Protocol: TIdSocketProtocol read FProtocol write FProtocol default Id_IPPROTO_RAW;
-    property ProtocolIPv6 : TIdSocketProtocol read FProtocolIPv6 write FProtocolIPv6 ;
-     property TTL: Integer read FTTL write SetTTL default GFTTL;
+    property ProtocolIPv6 : TIdSocketProtocol read FProtocolIPv6 write FProtocolIPv6;
+    property TTL: Integer read FTTL write SetTTL default GFTTL;
 
   public
     destructor Destroy; override;
 
-    function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
+    function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
     procedure Send(const AData: string); overload; virtual;
     procedure Send(const AData: TIdBytes); overload;  virtual;
     procedure Send(const AHost: string; const APort: Integer; const AData: string); overload; virtual;
-    procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); overload; virtual;
+    procedure Send(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; virtual;
     //
-
     property Binding: TIdSocketHandle read GetBinding;
     property ReceiveTimeout: integer read FReceiveTimeout write FReceiveTimeout Default GReceiveTimeout;
   published
@@ -149,7 +147,6 @@ uses
 destructor TIdRawBase.Destroy;
 begin
   Sys.FreeAndNil(FBinding);
-
   Sys.FreeAndNil(FPkt);
   inherited Destroy;
 end;
@@ -160,97 +157,90 @@ var LC : Cardinal;
 {$ENDIF}
 begin
   if not FBinding.HandleAllocated then begin
-    FBinding.IPVersion := Self.FIPVersion;
-    if FIPVersion = Id_IPv4 then
+    if FBinding.IPVersion = Id_IPv4 then
     begin
-{$IFDEF LINUX}
+      {$IFDEF LINUX}
       FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocol);
-{$ELSE}
+      {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
-{$ENDIF}
+      {$ENDIF}
       GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
     end
     else
     begin
-{$IFDEF LINUX}
+      {$IFDEF LINUX}
       FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocolIPv6);
-{$ELSE}
+      {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
-{$ENDIF}
-    {$IFNDEF DOTNET}
-    {
-    Microsoft NET Framework 1.1 may actually have the packetinfo option but that
-    will not do you any good because you need a RecvMsg function which is not
-    in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
-    }
-    //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
-    LC := 1;
-    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_PKTINFO,LC);
-    {$ENDIF}
-    //set hop limit (or TTL as it was called in IPv4
-    GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
-    {$IFNDEF DOTNET}
+      {$ENDIF}
+      {$IFNDEF DOTNET}
+      {
+      Microsoft NET Framework 1.1 may actually have the packetinfo option but that
+      will not do you any good because you need a RecvMsg function which is not
+      in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
+      }
+      //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
       LC := 1;
-      GStack.SetSocketOption(FBinding.Handle,Id_SOL_IPv6,Id_IPV6_HOPLIMIT, LC);
-    {$ENDIF}
-
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_PKTINFO, LC);
+      {$ENDIF}
+      //set hop limit (or TTL as it was called in IPv4
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, FTTL);
+      {$IFNDEF DOTNET}
+      LC := 1;
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_HOPLIMIT, LC);
+      {$ENDIF}
     end;
   end;
   Result := FBinding;
 end;
 
-function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: integer = -1): integer;
+function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
 var
   LIP : String;
   LPort : Integer;
 begin
   Result := 0;
-    // TODO: pass flags to recv()
-    if ATimeOut < 0 then
+  // TODO: pass flags to recv()
+  if ATimeOut < 0 then
+  begin
+    ATimeOut := FReceiveTimeout;
+  end;
+  if Length(VBuffer) > 0 then
+  begin
+    if FBinding.IPVersion = Id_IPv4 then
     begin
-      ATimeOut := FReceiveTimeout;
-    end;
-    if Length(VBuffer)>0 then
-    begin
-
-      if FIPVersion = Id_IPv4 then
-      begin
-        if Binding.Readable(ATimeOut) then begin
-
-          Result := Binding.RecvFrom(VBuffer,LIP,LPort,FIPVersion);
-          FPkt.SourceIP := LIP;
-          FPkt.SourcePort := LPort;
-        end;
-      end
-      else
-      begin
-        {
-        IMPORTANT!!!!
-
-        Do NOT call GStack.ReceiveMsg unless it is absolutely necessary.
-        The reasons are:
-
-        1) WSARecvMsg is only supported on WindowsXP or later.  I think Linux
-        might have a RecvMsg function as well but I'm not sure.
-        2) GStack.ReceiveMsg is not supported in the Microsoft NET framework 1.1.
-        It may be supported in later versions.
-
-          For IPv4
-        and raw sockets, it usually isn't because we get the raw header itself.
-
-        For IPv6 and raw sockets, we call this to get information about the destination
-        IP address and hopefully, the TTL (hop count).
-        }
-
-         Result := GStack.ReceiveMsg(Binding.Handle,VBuffer,FPkt,Id_IPv6);
-
+      if Binding.Readable(ATimeOut) then begin
+        Result := Binding.RecvFrom(VBuffer, LIP, LPort, FBinding.IPVersion);
+        FPkt.SourceIP := LIP;
+        FPkt.SourcePort := LPort;
       end;
-   end;
+    end else
+    begin
+      {
+      IMPORTANT!!!!
+
+      Do NOT call GStack.ReceiveMsg unless it is absolutely necessary.
+      The reasons are:
+
+      1) WSARecvMsg is only supported on WindowsXP or later.  I think Linux
+      might have a RecvMsg function as well but I'm not sure.
+      2) GStack.ReceiveMsg is not supported in the Microsoft NET framework 1.1.
+      It may be supported in later versions.
+
+      For IPv4 and raw sockets, it usually isn't because we get the raw header itself.
+
+      For IPv6 and raw sockets, we call this to get information about the destination
+      IP address and hopefully, the TTL (hop count).
+      }
+
+      Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt, Id_IPv6);
+    end;
+  end;
 end;
 
 procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const AData: string);
 begin
-  Send(AHost,APort,ToBytes(AData));
+  Send(AHost, APort, ToBytes(AData));
 end;
 
 procedure TIdRawBase.Send(const AData: string);
@@ -260,26 +250,30 @@ end;
 
 procedure TIdRawBase.Send(const AData: TIdBytes);
 begin
-    Send(Host,Port,AData);
+  Send(Host, Port, AData);
 end;
 
-procedure TIdRawBase.Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes);
-var LIP : String;
+procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
+var
+  LIP : String;
 begin
-  LIP := GStack.ResolveHost(AHost,FIPVersion);
-  Binding.SendTo(LIP, APort, ABuffer,FIPVersion);
+  LIP := GStack.ResolveHost(AHost, FBinding.IPVersion);
+  Binding.SendTo(LIP, APort, ABuffer, FBinding.IPVersion);
 end;
 
 procedure TIdRawBase.SetTTL(const Value: Integer);
 begin
-  FTTL := Value;
-  if FIPVersion = Id_IPv4 then
+  if FTTL <> Value then
   begin
-     GStack.SetSocketOption(Binding.Handle,Id_SOL_IP,Id_SO_IP_TTL, FTTL);
-  end
-  else
-  begin
-    GStack.SetSocketOption(Binding.Handle,Id_SOL_IPv6,Id_IPV6_UNICAST_HOPS,FTTL);
+    FTTL := Value;
+    if FBinding.HandleAllocated then
+    begin
+      if FBinding.IPVersion = Id_IPv4 then begin
+        GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
+      end else begin
+        GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, FTTL);
+      end;
+    end;
   end;
 end;
 
@@ -287,25 +281,27 @@ procedure TIdRawBase.InitComponent;
 begin
   inherited InitComponent;
   FBinding := TIdSocketHandle.Create(nil);
+  FBinding.IPVersion := Id_IPv4;
   FPkt := TIdPacketInfo.Create;
   ReceiveTimeout := GReceiveTimeout;
   FPort := Id_TIdRawBase_Port;
   FProtocol := Id_IPPROTO_RAW;
-  FIPVersion := Id_IPv4;
   FTTL := GFTTL;
+end;
 
+function TIdRawBase.GetIPVersion;
+begin
+  Result := FBinding.IPVersion;
 end;
 
 procedure TIdRawBase.SetIPVersion(const AValue: TIdIPVersion);
 begin
-  FIPVersion := AValue;
+  FBinding.IPVersion := AValue;
 end;
 
 procedure TIdRawBase.SetHost(const AValue: String);
 begin
   FHost := AValue;
 end;
-
-
 
 end.
