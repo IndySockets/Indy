@@ -39,14 +39,13 @@ uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-
-   TIdEchoUDPServer = class(TIdUDPServer)
-   protected
-      procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   published
-     property DefaultPort default IdPORT_ECHO;
-   end;
+  TIdEchoUDPServer = class(TIdUDPServer)
+  protected
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  published
+    property DefaultPort default IdPORT_ECHO;
+  end;
 
 implementation
 
@@ -58,9 +57,10 @@ begin
   DefaultPort := IdPORT_ECHO;
 end;
 
-procedure TIdEchoUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdEchoUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   with ABinding do
   begin
     SendTo(PeerIP, PeerPort, AData);
@@ -68,6 +68,4 @@ begin
 end;
 
 end.
-
-
 

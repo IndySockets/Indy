@@ -39,15 +39,15 @@ uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-   TIdDayTimeUDPServer = class(TIdUDPServer)
-   protected
-     FTimeZone : String;
-     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   published
-     property TimeZone: String read FTimeZone write FTimeZone;
-     property DefaultPort default IdPORT_DAYTIME;
-   end;
+  TIdDayTimeUDPServer = class(TIdUDPServer)
+  protected
+    FTimeZone : String;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  published
+    property TimeZone: String read FTimeZone write FTimeZone;
+    property DefaultPort default IdPORT_DAYTIME;
+  end;
 
 implementation
 uses IdSys;
@@ -61,10 +61,12 @@ begin
   FTimeZone := 'EST';  {Do not Localize}
 end;
 
-procedure TIdDayTimeUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
-var s : String;
+procedure TIdDayTimeUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
+var
+  s : String;
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   s := Sys.FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Sys.Now) + ' -' + FTimeZone;  {Do not Localize}
   with ABinding do
   begin

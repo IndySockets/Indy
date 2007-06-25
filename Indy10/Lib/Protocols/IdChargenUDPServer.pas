@@ -43,13 +43,13 @@ uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-   TIdChargenUDPServer = class(TIdUDPServer)
-   protected
-     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   published
-     property DefaultPort default IdPORT_CHARGEN;
-   end;
+  TIdChargenUDPServer = class(TIdUDPServer)
+  protected
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  published
+    property DefaultPort default IdPORT_CHARGEN;
+  end;
 
 implementation
 
@@ -61,7 +61,8 @@ begin
   DefaultPort := IdPORT_CHARGEN;
 end;
 
-procedure TIdChargenUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdChargenUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
 const
   rowlength = 75;
 var
@@ -69,32 +70,31 @@ var
   i, row, ln : integer;
   c: Char;
 begin
-  inherited DoUDPRead(AData,ABinding);
-
+  inherited DoUDPRead(AThread, AData, ABinding);
   i := 1;
   c := '0';     {Do not Localize}
   s := '';       {Do not Localize}
   ln := Random(512);
   Row := 0;
-        while i <= ln do
-        begin
-          if c > #95 then
-          begin
-            c := '0';   {Do not Localize}
-          end;
-          if i mod (rowlength + 1) = 0 then
-          begin
-            s := s + #13;
-            c := chr(ord('0') + row mod (95 - ord('0')));   {Do not Localize}
-            inc(row);
-          end
-          else
-          begin
-            s := s + c;
-          end;
-          inc(i);
-          inc(c);
-        end;
+  while i <= ln do
+  begin
+    if c > #95 then
+    begin
+      c := '0';   {Do not Localize}
+    end;
+    if i mod (rowlength + 1) = 0 then
+    begin
+      s := s + #13;
+      c := chr(ord('0') + row mod (95 - ord('0')));   {Do not Localize}
+      inc(row);
+    end
+    else
+    begin
+      s := s + c;
+    end;
+    inc(i);
+    inc(c);
+  end;
   with ABinding do
   begin
     SendTo(PeerIP, PeerPort, ToBytes(s));
