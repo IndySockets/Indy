@@ -63,7 +63,7 @@ type
     //
     procedure DoRequestNotify; virtual;
     procedure InitComponent; override;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
   published
     property MappedHost: string read FMappedHost write FMappedHost;
     property MappedPort: Integer read FMappedPort write FMappedPort;
@@ -89,20 +89,24 @@ begin
   end;
 end;
 
-procedure TIdMappedPortUDP.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdMappedPortUDP.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   LClient: TIdUDPClient;
-  LData: String;
+  LData: TIdBytes;
+  i: Integer;
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   DoRequestNotify;
   LClient := TIdUDPClient.Create(nil);
   try
     LClient.Host := FMappedHost;
     LClient.Port := FMappedPort;
-    LClient.Send(BytesToString(AData));
-    LData := LClient.ReceiveString;
-    if LData <> '' then begin    {Do not Localize}
+    LClient.SendBuffer(AData);
+    SetLength(LData, LClient.BufferSize);
+    i := LClient.ReceiveBuffer(LData);
+    SetLength(LData, i);
+    if i > 0 then begin    {Do not Localize}
       Send(ABinding.PeerIP, ABinding.PeerPort, LData);
     end;
   finally Sys.FreeAndNil(LClient); end;
