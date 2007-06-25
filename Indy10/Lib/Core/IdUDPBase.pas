@@ -99,11 +99,8 @@ type
     function GetActive: Boolean; virtual;
     procedure InitComponent; override;
     procedure SetActive(const Value: Boolean);
-    procedure SetBroadcastFlag(
-      AEnabled: Boolean;
-      ABinding: TIdSocketHandle = nil
-      );
-    procedure SetBroadcastEnabled(AValue: Boolean);
+    procedure SetBroadcastFlag(const AEnabled: Boolean; ABinding: TIdSocketHandle = nil);
+    procedure SetBroadcastEnabled(const AValue: Boolean);
     function GetBinding: TIdSocketHandle; virtual;
     procedure Loaded; override;
 
@@ -122,22 +119,22 @@ type
     destructor Destroy; override;
     //
     property Binding: TIdSocketHandle read GetBinding;
-    procedure Broadcast(const AData: string; const APort: integer);
+    procedure Broadcast(const AData: string; const APort: integer); overload;
+    procedure Broadcast(const AData: TIdBytes; const APort: integer); overload;
     function ReceiveBuffer(var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: integer;
       AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
-
+    function ReceiveBuffer(var ABuffer : TIdBytes;
+     const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
     function ReceiveString(const AMSec: Integer = IdTimeoutDefault): string; overload;
     function ReceiveString(var VPeerIP: string; var VPeerPort: integer;
      const AMSec: Integer = IdTimeoutDefault): string;  overload;
-    function ReceiveBuffer(var ABuffer : TIdBytes;
-     const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
-    procedure Send(AHost: string; const APort: Integer; const AData: string);
-    procedure SendBuffer(AHost: string; const APort: Integer; const AIPVersion : TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
-    procedure SendBuffer(AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; virtual;
+    procedure Send(const AHost: string; const APort: Integer; const AData: string);
+    procedure SendBuffer(const AHost: string; const APort: Integer; const AIPVersion : TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
+    procedure SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; virtual;
     //
     property ReceiveTimeout: Integer read FReceiveTimeout write FReceiveTimeout default IdTimeoutInfinite;
   published
@@ -159,8 +156,13 @@ uses
 
 procedure TIdUDPBase.Broadcast(const AData: string; const APort: integer);
 begin
+  Broadcast(ToBytes(AData), APort);
+end;
+
+procedure TIdUDPBase.Broadcast(const AData: TIdBytes; const APort: integer);
+begin
   SetBroadcastFlag(True);
-  Send('255.255.255.255', APort, AData);    {Do not Localize}
+  SendBuffer('255.255.255.255', APort, AData);    {Do not Localize}
   BroadcastEnabledChanged;
 end;
 
@@ -189,7 +191,7 @@ begin
   if not Result then begin
     if Assigned(FBinding) then begin
       if FBinding.HandleAllocated then begin
-        result:=true;
+        Result := True;
       end;
     end;
   end;
@@ -256,7 +258,8 @@ end;
 function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
   var VPeerIP: string; var VPeerPort: integer;
   AMSec: Integer = IdTimeoutDefault): integer;
-var LVoidIPVer : TIdIPVersion;
+var
+  LVoidIPVer : TIdIPVersion;
 begin
   LVoidIPVer := IPVersion;
   Result := ReceiveBuffer(ABuffer,VPeerIP,VPeerPort, LVoidIPVer,AMSec);
@@ -264,9 +267,10 @@ begin
 end;
 
 function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-      const AMSec: Integer = IdTimeoutDefault): integer;
-var LMSec : Integer;
+  var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+  const AMSec: Integer = IdTimeoutDefault): integer;
+var
+  LMSec : Integer;
 begin
   if AMSec = IdTimeoutDefault then begin
     if ReceiveTimeOut = 0 then begin
@@ -274,9 +278,7 @@ begin
     end else begin
       LMSec := ReceiveTimeOut;
     end;
-  end
-  else
-  begin
+  end else begin
     LMSec := AMSec;
   end;
   if not Binding.Readable(LMSec) then begin
@@ -285,7 +287,7 @@ begin
     VPeerPort := 0;
     Exit;
   end;
-  Result := Binding.RecvFrom(ABuffer,VPeerIP, VPeerPort);
+  Result := Binding.RecvFrom(ABuffer, VPeerIP, VPeerPort);
 end;
 
 function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: integer;
@@ -307,26 +309,26 @@ begin
   Result := ReceiveString(VoidIP, VoidPort, AMSec);
 end;
 
-procedure TIdUDPBase.Send(AHost: string; const APort: Integer; const AData: string);
+procedure TIdUDPBase.Send(const AHost: string; const APort: Integer; const AData: string);
 begin
   SendBuffer(AHost, APort, ToBytes(AData));
 end;
 
-procedure TIdUDPBase.SendBuffer(AHost: string; const APort: Integer; const ABuffer : TIdBytes);
+procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
 begin
-  SendBuffer(AHost,APort,IPVersion,ABuffer);
+  SendBuffer(AHost, APort, IPVersion, ABuffer);
 end;
 
-procedure TIdUDPBase.SendBuffer(AHost: string; const APort: Integer;
+procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: Integer;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
 begin
-  AHost := GStack.ResolveHost(AHost,AIPVersion);
+  AHost := GStack.ResolveHost(AHost, AIPVersion);
   Binding.SendTo(AHost, APort, ABuffer);
 end;
 
 procedure TIdUDPBase.SetActive(const Value: Boolean);
 begin
-  if (Active <> Value) then begin
+  if Active <> Value then begin
     if not (IsDesignTime or IsLoading) then begin
       if Value then begin
         GetBinding;
@@ -341,7 +343,7 @@ begin
   end;
 end;
 
-procedure TIdUDPBase.SetBroadcastEnabled(AValue: Boolean);
+procedure TIdUDPBase.SetBroadcastEnabled(const AValue: Boolean);
 begin
   if FBroadCastEnabled <> AValue then begin
     FBroadcastEnabled := AValue;
@@ -351,15 +353,12 @@ begin
   end;
 end;
 
-procedure TIdUDPBase.SetBroadcastFlag(
-  AEnabled: Boolean;
-  ABinding: TIdSocketHandle = nil
-  );
+procedure TIdUDPBase.SetBroadcastFlag(const AEnabled: Boolean; ABinding: TIdSocketHandle = nil);
 begin
   if ABinding = nil then begin
     ABinding := Binding;
   end;
-  GStack.SetSocketOption(ABinding.Handle,Id_SOL_SOCKET, Id_SO_BROADCAST, iif(AEnabled,1,0));
+  GStack.SetSocketOption(ABinding.Handle, Id_SOL_SOCKET, Id_SO_BROADCAST, iif(AEnabled, 1, 0));
 end;
 
 procedure TIdUDPBase.SetHost(const AValue: String);
