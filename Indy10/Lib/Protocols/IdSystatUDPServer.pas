@@ -55,18 +55,21 @@ uses
 type
   TIdUDPSystatEvent = procedure (ABinding: TIdSocketHandle; AResults : TIdStrings) of object;
 type
-   TIdSystatUDPServer = class(TIdUDPServer)
-   protected
-     FOnSystat : TIdUDPSystatEvent;
-     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   published
-     property OnSystat : TIdUDPSystatEvent read FOnSystat write FOnSystat;
-     property DefaultPort default IdPORT_SYSTAT;
-   end;
+  TIdSystatUDPServer = class(TIdUDPServer)
+  protected
+    FOnSystat : TIdUDPSystatEvent;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  published
+    property OnSystat : TIdUDPSystatEvent read FOnSystat write FOnSystat;
+    property DefaultPort default IdPORT_SYSTAT;
+  end;
 
 implementation
-uses  IdSys;
+
+uses
+  IdSys;
+
 {
 According to the "Programming UNIX Sockets in C - Frequently Asked Questions"
 
@@ -94,22 +97,24 @@ begin
   DefaultPort := IdPORT_SYSTAT;
 end;
 
-procedure TIdSystatUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
-var s, s2 : String;
+procedure TIdSystatUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
+var
+  s, s2 : String;
   LResults : TIdStrings;
   i : Integer;
 
   function MaxLenStr(const AStr : String): String;
   begin
     Result := AStr;
-    if (Length(Result)>Max_Line_Len) then
+    if Length(Result)>Max_Line_Len then
     begin
-      SetLength(Result,Max_Line_Len);
+      SetLength(Result, Max_Line_Len);
     end;
   end;
 
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   if Assigned(FOnSystat) then
   begin
     LResults := TIdStringList.Create;
@@ -121,19 +126,19 @@ begin
         for i := 0 to LResults.Count - 1 do
         begin
           {enure that one line will never exceed the maximum packet size }
-          s2 := s + EOL+MaxLenStr(LResults[i]);
-          if Length(s2)>Max_UDPPacket then
+          s2 := s + EOL + MaxLenStr(LResults[i]);
+          if Length(s2) > Max_UDPPacket then
           begin
             s := Sys.TrimLeft(s);
-            SendTo(ABinding.PeerIP, ABinding.PeerPort, ToBytes(s));
-            s :=  MaxLenStr(LResults[i]);
+            SendTo(PeerIP, PeerPort, ToBytes(s));
+            s := MaxLenStr(LResults[i]);
           end
           else
           begin
             s := s2;
           end;
         end;
-        if (s <> '') then
+        if s <> '' then
         begin
           s := Sys.TrimLeft(s);
           SendTo(PeerIP, PeerPort, ToBytes(s));

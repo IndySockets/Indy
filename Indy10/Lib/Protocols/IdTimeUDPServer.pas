@@ -42,22 +42,22 @@ uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-   TIdCustomTimeUDPServer = class(TIdUDPServer)
-   protected
-     FBaseDate : TDateTime;
-     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   end;
-   TIdTimeUDPServer = class(TIdCustomTimeUDPServer)
-   published
-     property DefaultPort default IdPORT_TIME;
-     {This property is used to set the Date the Time server bases it's
-     calculations from.  If both the server and client are based from the same
-     date which is higher than the original date, you can extend it beyond the
-     year 2035}
-    property BaseDate : TDateTime read FBaseDate write FBaseDate;
+  TIdCustomTimeUDPServer = class(TIdUDPServer)
+  protected
+    FBaseDate : TDateTime;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  end;
 
-   end;
+  TIdTimeUDPServer = class(TIdCustomTimeUDPServer)
+  published
+    property DefaultPort default IdPORT_TIME;
+    {This property is used to set the Date the Time server bases it's
+    calculations from.  If both the server and client are based from the same
+    date which is higher than the original date, you can extend it beyond the
+    year 2035}
+    property BaseDate : TDateTime read FBaseDate write FBaseDate;
+  end;
 
 implementation
 
@@ -73,15 +73,15 @@ begin
   FBaseDate := TIME_BASEDATE;
 end;
 
-procedure TIdCustomTimeUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdCustomTimeUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
-   LTime : Cardinal;
+  LTime : Cardinal;
 begin
-  inherited DoUDPRead(AData, ABinding);
-
+  inherited DoUDPRead(AThread, AData, ABinding);
   LTime := Trunc(extended(Sys.Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60);
   LTime := GStack.HostToNetwork(LTime);
-  SendBuffer(ABinding.PeerIP,ABinding.PeerPort, ToBytes(LTime));
+  SendBuffer(ABinding.PeerIP, ABinding.PeerPort, ToBytes(LTime));
 end;
 
 end.
