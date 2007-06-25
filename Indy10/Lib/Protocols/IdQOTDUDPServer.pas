@@ -39,17 +39,17 @@ uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-   TIdQotdUDPGetEvent = procedure (ABinding: TIdSocketHandle; var AQuote : String) of object;
-   TIdQotdUDPServer = class(TIdUDPServer)
-   protected
-     FOnCommandQOTD : TIdQotdUDPGetEvent;
-     procedure DoOnCommandQUOTD(ABinding: TIdSocketHandle; var AQuote : String); virtual;
-     procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
-     procedure InitComponent; override;
-   published
-     property DefaultPort default IdPORT_QOTD;
-     property OnCommandQOTD : TIdQotdUDPGetEvent read FOnCommandQOTD write FOnCommandQOTD;
-   end;
+  TIdQotdUDPGetEvent = procedure (ABinding: TIdSocketHandle; var AQuote : String) of object;
+  TIdQotdUDPServer = class(TIdUDPServer)
+  protected
+    FOnCommandQOTD : TIdQotdUDPGetEvent;
+    procedure DoOnCommandQUOTD(ABinding: TIdSocketHandle; var AQuote : String); virtual;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure InitComponent; override;
+  published
+    property DefaultPort default IdPORT_QOTD;
+    property OnCommandQOTD : TIdQotdUDPGetEvent read FOnCommandQOTD write FOnCommandQOTD;
+  end;
 
 implementation
 
@@ -69,17 +69,19 @@ begin
   end;
 end;
 
-procedure TIdQotdUDPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
-var s : String;
+procedure TIdQotdUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
+var
+  s : String;
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   s := '';    {Do not Localize}
-  DoOnCommandQUOTD(ABinding,s);
-  if (Length(s) > 0) then
+  DoOnCommandQUOTD(ABinding, s);
+  if Length(s) > 0 then
   begin
     with ABinding do
     begin
-      ABinding.SendTo(PeerIP, PeerPort, ToBytes(s) );
+      SendTo(PeerIP, PeerPort, ToBytes(s));
     end;
   end;
 end;

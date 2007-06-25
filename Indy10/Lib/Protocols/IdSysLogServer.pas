@@ -67,7 +67,7 @@ type
     FOnSyslog: TOnSyslogEvent;
     //
     procedure DoSyslogEvent(AMsg: TIdSysLogMessage; ABinding: TIdSocketHandle); virtual;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
   published
     property DefaultPort default IdPORT_syslog;
@@ -75,19 +75,21 @@ type
   end;
 
 implementation
-uses IdSys;
+
+uses
+  IdSys;
 
 { TIdSyslogServer }
 
-procedure TIdSyslogServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
-//DoUDPRead(AData: TStream; ABinding: TIdSocketHandle);
+procedure TIdSyslogServer.DoUDPRead(AThread: TIdUDPListenerThread;
+  const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   LMsg: TIdSysLogMessage;
 begin
-  inherited DoUDPRead(AData,ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   LMsg := TIdSysLogMessage.Create(Self);
   try
-    LMsg.ReadFromBytes(AData,ABinding.PeerIP);
+    LMsg.ReadFromBytes(AData, ABinding.PeerIP);
   //  ReadFromStream(AData, (AData as TMemoryStream).Size, ABinding.PeerIP);
     DoSyslogEvent(LMsg, ABinding);
   finally
