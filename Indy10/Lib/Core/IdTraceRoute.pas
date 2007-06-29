@@ -50,7 +50,7 @@ begin
   begin
     //resolve IP to hostname
     try
-      AReplyStatus.HostName := GStack.HostByAddress(AReplyStatus.FromIpAddress,FIPversion);
+      AReplyStatus.HostName := GStack.HostByAddress(AReplyStatus.FromIpAddress,FBinding.IPVersion);
     except
 {
 We do things this way because we are likely have a reverse DNS
@@ -77,7 +77,7 @@ begin
 //  PacketSize := 64;
 //We do things this way because we only want to resolve the destination host name
 //only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
-  FIPAddr :=  GStack.ResolveHost(FHost,FIPVersion);
+  FIPAddr :=  GStack.ResolveHost(FHost,FBinding.IPVersion);
   try
 
    LSeq := $1;

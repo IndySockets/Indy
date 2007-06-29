@@ -321,9 +321,10 @@ end;
 
 procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: Integer;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
+var LIP : String;
 begin
-  AHost := GStack.ResolveHost(AHost, AIPVersion);
-  Binding.SendTo(AHost, APort, ABuffer);
+  LIP := GStack.ResolveHost(AHost, AIPVersion);
+  Binding.SendTo(LIP, APort, ABuffer);
 end;
 
 procedure TIdUDPBase.SetActive(const Value: Boolean);

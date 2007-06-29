@@ -113,9 +113,9 @@ type
       var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
     procedure Send(AData: string); overload;
-    procedure SendBuffer(AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; override;
+    procedure SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
-    procedure SendBuffer(AHost: string; const APort: Integer;
+    procedure SendBuffer(const AHost: string; const APort: Integer;
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
     property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
@@ -344,7 +344,7 @@ begin
 
 end;
 
-procedure TIdUDPClient.SendBuffer(AHost: string; const APort: Integer;
+procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: Integer;
   const ABuffer: TIdBytes);
 begin
   if UseProxy then
@@ -491,7 +491,7 @@ begin
   Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
 end;
 
-procedure TIdUDPClient.SendBuffer(AHost: string; const APort: Integer;
+procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: Integer;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
 begin
   if UseProxy then
