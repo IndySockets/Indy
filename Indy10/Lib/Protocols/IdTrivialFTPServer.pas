@@ -74,7 +74,7 @@ type
     procedure DoWriteFile(FileName: String; const Mode: TIdTFTPMode;
       const PeerInfo: TPeerInfo; RequestedBlockSize: Integer = 0); virtual;
     procedure DoTransferComplete(const Success: Boolean; const PeerInfo: TPeerInfo; var SourceStream: TIdStream; const WriteOperation: Boolean); virtual;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
     //    procedure DoUDPRead(AData: TStream; ABinding: TIdSocketHandle); override;
     procedure InitComponent; override;
   public
@@ -173,7 +173,7 @@ begin
   end;
 end;
 
-procedure TIdTrivialFTPServer.DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle);
+procedure TIdTrivialFTPServer.DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   wOp: Word;
   LBuf,
@@ -182,7 +182,7 @@ var
   Mode: TIdTFTPMode;
   PeerInfo: TPeerInfo;
 begin
-  inherited DoUDPRead(AData, ABinding);
+  inherited DoUDPRead(AThread, AData, ABinding);
   try
     LBuf := BytesToString(AData);
     wOp := StrToWord(Copy(LBuf,1,2));
