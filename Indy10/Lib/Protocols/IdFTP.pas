@@ -1478,7 +1478,13 @@ begin
         InitDataChannel;
 
         if PassiveUseControlHost then begin
-          LIP := Self.Host;
+          //Do not use an assignment from Self.Host
+          //because a DNS name may not resolve to the same
+          //IP address every time.  This is the case where the
+          //the workload is distributed around several servers.
+          //Besides, we already know the Peer's IP address so
+          //why waste time querrying it.     
+          LIP := Self.Socket.Binding.PeerIP;
         end;
 
         LPasvCl.Host := LIP;
@@ -1602,7 +1608,13 @@ begin
       InitDataChannel;
 
       if PassiveUseControlHost then begin
-        LIP := Self.Host;
+        //Do not use an assignment from Self.Host
+        //because a DNS name may not resolve to the same
+        //IP address every time.  This is the case where the
+        //the workload is distributed around several servers.
+        //Besides, we already know the Peer's IP address so
+        //why waste time querrying it.
+        LIP := Self.Socket.Binding.PeerIP;
       end;
 
       LPasvCl.Host := LIP;
