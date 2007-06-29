@@ -107,7 +107,7 @@ begin
     i := LClient.ReceiveBuffer(LData);
     SetLength(LData, i);
     if i > 0 then begin    {Do not Localize}
-      Send(ABinding.PeerIP, ABinding.PeerPort, LData);
+      SendBuffer(ABinding.PeerIP, ABinding.PeerPort, LData);
     end;
   finally Sys.FreeAndNil(LClient); end;
 end;
