@@ -1275,10 +1275,16 @@ begin
       Request.AcceptEncoding := 'deflate, gzip, ';        {do not localize}
     end;
   end;
+
   if IndyPos('identity', Request.AcceptEncoding) = 0 then begin  {do not localize}
-    //why is this done? should also be done 'safer' eg possibly adding a comma before
-    Request.AcceptEncoding := Request.AcceptEncoding + 'identity'; {do not localize}
+    if Request.AcceptEncoding <> '' then begin
+      Request.AcceptEncoding := Request.AcceptEncoding + ', identity'; {do not localize}
+    end
+    else begin
+      Request.AcceptEncoding := Request.AcceptEncoding + 'identity'; {do not localize}
+    end;
   end;
+
   if ARequest.UseProxy = ctSSLProxy then begin
     LLocalHTTP := TIdHTTPProtocol.Create(Self);
     try
