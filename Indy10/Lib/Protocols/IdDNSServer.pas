@@ -297,9 +297,7 @@ type
   public
      constructor Create(List :TIdDNSMap);
      destructor Destroy; override;
-  published
      procedure SyncAndUpdate (Sender : TObject);
-
      property Host : string read FHost write SetHost;
      property DomainName : string read FDomainName write FDomainName;
   end;
@@ -495,7 +493,8 @@ type
     property AutoUpdateZoneInfo : boolean read FAutoUpdateZoneInfo write FAutoUpdateZoneInfo;
     property CS: TIdCriticalSection read FCS;
     //procedure DoUDPRead(AData: TStream; ABinding: TIdSocketHandle); override;
-    procedure DoUDPRead(AData: TIdBytes; ABinding: TIdSocketHandle); override;
+    procedure DoUDPRead(AThread: TIdUDPListenerThread;
+      const AData: TIdBytes; ABinding: TIdSocketHandle); override;
   public
     destructor Destroy; override;
     function AXFR(Header : TDNSHeader; Question : string; var Answer :TIdBytes) : string;
@@ -4073,15 +4072,15 @@ begin
    end;
 end;
 
-procedure TIdDNS_UDPServer.DoUDPRead(AData: TIdBytes;
-  ABinding: TIdSocketHandle);
+procedure TIdDNS_UDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
+      const AData: TIdBytes; ABinding: TIdSocketHandle); 
 var
    PThread : TIdDNS_ProcessThread;
    ExternalQuery : string;
    BBinding : TIdSocketHandle;
    Binded : boolean;
 begin
-   inherited DoUDPRead(AData, ABinding);
+   inherited DoUDPRead(AThread, AData, ABinding);
    ExternalQuery := BytesToString(AData);
 
    Binded := False;
