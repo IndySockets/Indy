@@ -73,15 +73,16 @@ type
 
 implementation
 uses
+  Classes,
+  IdBaseComponent,
   IdDICT,
   IdDsnResourceStrings, IdDsnSASLListEditorForm,
   IdIMAP4,
-  IdObjs,
   IdPOP3,
   IdSASL,
   IdSASLCollection,
   IdSMTP,
-  IdSys;
+  SysUtils;
 
 
 { TIdPropEdSASL }
@@ -95,9 +96,9 @@ begin
     if PropCount > 0 then
     begin
 
-      if GetComponent(0) is TIdNativeComponent then
+      if GetComponent(0) is TComponent then
       begin
-        LF.SetComponentName(TIdNativeComponent(GetComponent(0)).Name);
+        LF.SetComponentName(TComponent(GetComponent(0)).Name);
       end;
 //      LF.SetComponentName(GetComponent(0).Name );
       if GetComponent(0) is TIdSMTP then
@@ -134,7 +135,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(LF);
+    FreeAndNil(LF);
   end;
 end;
 

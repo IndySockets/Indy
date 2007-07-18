@@ -45,7 +45,8 @@ unit IdFTPListParseOS2;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 {
   This parser is based on some data that I had managed to obtain second hand
@@ -60,7 +61,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 const
@@ -70,12 +71,12 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 
 { TIdFTPLPOS2 }
 
-class function TIdFTPLPOS2.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPOS2.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuf, LBuf2 : String;
   LNum : String;
@@ -96,7 +97,7 @@ begin
 
   }
     LBuf := AListing[0];
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LNum := Fetch(LBuf);
     if IsNumeric(LNum)=False then
     begin
@@ -104,11 +105,11 @@ begin
       Exit;
     end;
     repeat
-      LBuf := Sys.TrimLeft(LBuf);
+      LBuf := TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
         if LBuf2='DIR' then {do not localize}
         begin
-          LBuf := Sys.TrimLeft(LBuf);
+          LBuf := TrimLeft(LBuf);
           LBuf2 := Fetch(LBuf);
         end;
       if IsMMDDYY(LBuf2,'-') then
@@ -133,7 +134,7 @@ begin
       Result := False;
       Exit;
     end;
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
   end
@@ -169,20 +170,20 @@ var LO :  TIdOS2FTPListItem;
 begin                         //AddAttribut
   Result := False;
   LBuf := AItem.Data;
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LNum := Fetch(LBuf);
-  AItem.Size := Sys.StrToInt64(LNum,0);
+  AItem.Size := IndyStrToInt64(LNum,0);
   LO := AItem as TIdOS2FTPListItem;
   repeat
   //keep going until we find a date
-      LBuf := Sys.TrimLeft(LBuf);
+      LBuf := TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       if LNum='0' then
       begin
         if LBuf2 = 'DIR' then {do not localize}
         begin
           LO.ItemType := ditDirectory;
-          LBuf := Sys.TrimLeft(LBuf);
+          LBuf := TrimLeft(LBuf);
           LBuf2 := Fetch(LBuf);
         end;
       end;
@@ -199,7 +200,7 @@ begin                         //AddAttribut
       end;
   until False;
   //time
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   if IsHHMMSS(LBuf2,':') then
   begin

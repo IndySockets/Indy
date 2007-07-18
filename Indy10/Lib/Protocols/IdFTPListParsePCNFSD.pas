@@ -28,7 +28,8 @@ unit IdFTPListParsePCNFSD;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
   This parser is a little more tolarant of stuff than others because of scanty samples.
@@ -51,12 +52,12 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 const
   DIR = '<dir>';   {Do not translate}
@@ -64,14 +65,14 @@ const
 { TIdFTPLPPC-NFSD }
 
 class function TIdFTPLPPCNFSD.CheckLine(const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
     i : Integer;
 
 var
   LBuf : String;
 begin
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AData,s);
     if s.Count >3 then
@@ -101,11 +102,11 @@ begin
 
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
-class function TIdFTPLPPCNFSD.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPPCNFSD.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var i : Integer;
 begin
@@ -134,13 +135,13 @@ end;
 class function TIdFTPLPPCNFSD.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var LI : TIdPCNFSDFTPListItem;
-  s : TIdStrings;
+  s : TStrings;
   i : Integer;
 
 begin
   Result := False;
   LI := AItem as TIdPCNFSDFTPListItem;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     IdGlobal.SplitColumns(LI.Data,s);
     if s.Count >3 then
@@ -181,7 +182,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 

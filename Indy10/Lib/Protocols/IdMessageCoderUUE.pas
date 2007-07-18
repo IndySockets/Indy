@@ -68,19 +68,18 @@ unit IdMessageCoderUUE;
 interface
 
 uses
+  Classes,
   IdCoder3to4,
   IdMessageCoder,
   IdMessage,
-  IdGlobal,
-  IdObjs,
-  IdSys;
+  IdGlobal;
 
 type
   TIdMessageDecoderUUE = class(TIdMessageDecoder)
   protected
     FCodingType: string;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
     property CodingType: string read FCodingType;
   end;
 
@@ -93,7 +92,7 @@ type
   protected
     FEncoderClass: TIdEncoder3to4Class;
   public
-    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
+    procedure Encode(ASrc: TStream; ADest: TStream); override;
   end;
 
   TIdMessageEncoderUUE = class(TIdMessageEncoderUUEBase)
@@ -109,7 +108,7 @@ type
 implementation
 
 uses
-  IdCoderUUE, IdCoderXXE, IdException, IdGlobalProtocols, IdResourceStringsProtocols;
+  IdCoderUUE, IdCoderXXE, IdException, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 { TIdMessageDecoderInfoUUE }
 
@@ -120,7 +119,7 @@ var
 begin
   Result := nil;
   if TextStartsWith(ALine, 'begin ') and (Length(ALine) >= 10) and (ALine[10] = ' ') then begin {Do not Localize}
-    LPermissionCode := Sys.StrToInt(Copy(ALine, 7, 3), 0);
+    LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
     if LPermissionCode > 0 then begin
       Result := TIdMessageDecoderUUE.Create(ASender);
       with TIdMessageDecoderUUE(Result) do begin
@@ -133,7 +132,7 @@ end;
 
 { TIdMessageDecoderUUE }
 
-function TIdMessageDecoderUUE.ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderUUE.ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder;
 var
   LDecoder: TIdDecoder4to3;
   LLine: string;
@@ -168,17 +167,17 @@ begin
     if Assigned(LDecoder) then
     begin
       repeat
-        if (Length(Sys.Trim(LLine)) = 0) or (LLine = LDecoder.FillChar) then begin
+        if (Length(Trim(LLine)) = 0) or (LLine = LDecoder.FillChar) then begin
           // UUE: Comes on the line before end. Supposed to be `, but some put a
           // blank line instead
         end else begin
           LDecoder.Decode(LLine);
         end;
         LLine := ReadLnRFC(LMsgEnd);
-      until TextIsSame(Sys.Trim(LLine), 'end');    {Do not Localize}
+      until TextIsSame(Trim(LLine), 'end');    {Do not Localize}
       LDecoder.DecodeEnd;
     end;
-  finally Sys.FreeAndNil(LDecoder); end;
+  finally FreeAndNil(LDecoder); end;
 end;
 
 { TIdMessageEncoderInfoUUE }
@@ -191,18 +190,18 @@ end;
 
 { TIdMessageEncoderUUEBase }
 
-procedure TIdMessageEncoderUUEBase.Encode(ASrc: TIdStream; ADest: TIdStream);
+procedure TIdMessageEncoderUUEBase.Encode(ASrc: TStream; ADest: TStream);
 var
   LEncoder: TIdEncoder3to4;
 begin
   ASrc.Position := 0;
-  WriteStringToStream(ADest, 'begin ' + Sys.IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
+  WriteStringToStream(ADest, 'begin ' + IntToStr(PermissionCode) + ' ' + Filename + EOL); {Do not Localize}
   LEncoder := FEncoderClass.Create(nil); try
     while ASrc.Position = (ASrc.Size - 1) do begin
       WriteStringToStream(ADest, LEncoder.Encode(ASrc, 45) + EOL);
     end;
     WriteStringToStream(ADest, LEncoder.FillChar + EOL + 'end' + EOL); {Do not Localize}
-  finally Sys.FreeAndNil(LEncoder); end;
+  finally FreeAndNil(LEncoder); end;
 end;
 
 { TIdMessageEncoderUUE }

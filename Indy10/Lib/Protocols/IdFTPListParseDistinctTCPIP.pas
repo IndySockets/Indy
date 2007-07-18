@@ -53,7 +53,8 @@ unit IdFTPListParseDistinctTCPIP;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdDistinctTCPIPFTPListItem =  class(TIdDOSBaseFTPListItem)
@@ -71,19 +72,19 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPDistinctTCPIP }
 
-class function TIdFTPLPDistinctTCPIP.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPDistinctTCPIP.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
   const DistValidTypes  = '-d';
     DistValidAttrs  = 'wash-d';
     //w - can write - read attribute not set
@@ -95,7 +96,7 @@ begin
   if AListing.Count > 0 then
   begin
     Result := False;
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AListing[0],s);
       if (s.Count > 2) then
@@ -112,7 +113,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -139,35 +140,35 @@ begin
   Result := False;
   LI := AItem as TIdDistinctTCPIPFTPListItem;
   LI.Attributes.Read_Only := True;
-  LBuf := Sys.TrimLeft(LI.Data);
+  LBuf := TrimLeft(LI.Data);
   //attributes and attributes
   LBuf2 := Fetch(LBuf);
   LI.Dist32FileAttributes := LBuf2;
   LI.Attributes.AddAttribute( Lbuf2);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   if TextStartsWith(LI.Dist32FileAttributes, 'd') then
   begin
     LI.ItemType := ditDirectory;
   end;
   //size
-  LI.Size := Sys.StrToInt64(Fetch(LBuf), 0);
-  LBuf := Sys.TrimLeft(LBuf);
+  LI.Size := IndyStrToInt64(Fetch(LBuf), 0);
+  LBuf := TrimLeft(LBuf);
   //date - month
   LDate := Fetch(LBuf);
   if StrToMonth(LDate) = 0 then
   begin
     Exit;
   end;
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //date - day and year
   LBuf2 := Fetch(LBuf);
   //we do it this way because a year might sometimes be missing
   //in which case, we just add the current year.
   LDate := LDate + ',' + LBuf2;
-  LDate := Sys.StringReplace(LDate, ',', ' ');
+  LDate := StringReplace(LDate, ',', ' ',[rfReplaceAll]);
   LI.ModifiedDate := DateStrMonthDDYY(LDate, ' ', True);
   //time
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LDate := Fetch(LBuf);
   if not IsHHMMSS(LDate,':') then
   begin

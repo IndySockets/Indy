@@ -68,7 +68,7 @@ Type
 implementation
 
 uses
-  IdGlobal, IdSys;
+  IdGlobal, SysUtils;
 
 procedure TIdDayTimeServer.InitComponent;
 begin
@@ -81,7 +81,7 @@ function TIdDayTimeServer.DoExecute(AContext:TIdContext ): boolean;
 begin
   Result := True;
   with AContext.Connection do begin
-    IOHandler.WriteLn(Sys.FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Sys.Now) + '-' + FTimeZone);    {Do not Localize}
+    IOHandler.WriteLn(FormatDateTime('dddd, mmmm dd, yyyy hh:nn:ss', Now) + '-' + FTimeZone);    {Do not Localize}
     Disconnect;
   end;
 end;

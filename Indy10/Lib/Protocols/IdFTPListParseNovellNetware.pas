@@ -54,7 +54,8 @@ unit IdFTPListParseNovellNetware;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
 This parser should work with Netware 3 and 4.  It will probably work on later
@@ -69,18 +70,18 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPNovellNetware }
 
-class function TIdFTPLPNovellNetware.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPNovellNetware.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
   function IsNetwareLine(AData : String) : Boolean;
@@ -136,10 +137,10 @@ end;
 
 class function TIdFTPLPNovellNetware.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var strs : TIdStrings;
+var strs : TStrings;
   wYear, LCurrentMonth, wMonth, wDay: Word;
   wHour, wMin, wSec, wMSec: Word;
-  ADate: TIdDateTime;
+  ADate: TDateTime;
   LBuf : String;
   NameStartPos : Integer;
   NameStartIdx : Integer;
@@ -163,9 +164,9 @@ begin
   LI := AItem as TIdNovellNetwareFTPListItem;
   NameStartIdx := 5;
   // Get defaults for modified date/time
-  ADate := Sys.Now;
-  Sys.DecodeDate(ADate, wYear, wMonth, wDay);
-  Sys.DecodeTime(ADate, wHour, wMin, wSec, wMSec);
+  ADate := Now;
+  DecodeDate(ADate, wYear, wMonth, wDay);
+  DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LCurrentMonth := wMonth;
 
   if TextStartsWith(LI.Data, 'D') then
@@ -189,7 +190,7 @@ begin
       // LBuf := TrimLeft(LBuf);
       Fetch(LBuf);
     end;
-    strs := TIdStringList.Create;
+    strs := TStringList.Create;
     try
       SplitColumns(LBuf, strs);
    //   IdStrings.SplitColumns(LBuf,strs);
@@ -206,24 +207,24 @@ begin
       if (strs.Count > 4) then
       begin
         LI.OwnerName := strs[0];
-        LI.Size := Sys.StrToInt64(strs[1],0);
+        LI.Size := IndyStrToInt64(strs[1],0);
         wMonth := StrToMonth(strs[2]);
         if wMonth < 1 then
         begin
           wMonth := LCurrentMonth;
         end;
-        wDay := Sys.StrToInt(strs[3],wDay);
+        wDay := IndyStrToInt(strs[3],wDay);
         if (IndyPos(':',Strs[4])=0) then
         begin
-          wYear := Sys.StrToInt(strs[4],wYear);
+          wYear := IndyStrToInt(strs[4],wYear);
           wYear := Y2Year(wYear);
           wHour := 0;
           wMin := 0;
           if (Strs.Count > 5) and (IndyPos(':',Strs[5])>0) then
           begin
             LBuf := Strs[5];
-            wHour := Sys.StrToInt(Fetch(LBuf,':'),wHour);
-            wMin := Sys.StrToInt(Fetch(LBuf,':'),wMin);
+            wHour := IndyStrToInt(Fetch(LBuf,':'),wHour);
+            wMin := IndyStrToInt(Fetch(LBuf,':'),wMin);
             NameStartIdx := 6;
           end;
         end
@@ -231,11 +232,11 @@ begin
         begin
           wYear := AddMissingYear(wDay,wMonth);
           LBuf := Strs[4];
-          wHour := Sys.StrToInt(Fetch(LBuf,':'),wHour);
-          wMin := Sys.StrToInt(Fetch(LBuf,':'),wMin);
+          wHour := IndyStrToInt(Fetch(LBuf,':'),wHour);
+          wMin := IndyStrToInt(Fetch(LBuf,':'),wMin);
         end;
-        LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
-        LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,0,0);
+        LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
+        LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,0,0);
         //Note that I doubt a file name can start with a space in Novel/
         //Netware.  Some code I've seen strips those off.
         for NameStartPos := NameStartIdx to Strs.Count -1 do
@@ -248,13 +249,13 @@ begin
         LI.LocalFileName := LName;
       end;
     finally
-      Sys.FreeAndNil(strs);
+      FreeAndNil(strs);
     end;
   end;
   Result := True;
 end;
 
-class function TIdFTPLPNovellNetware.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPNovellNetware.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var LStartLine : Integer;
     i : Integer;

@@ -37,7 +37,8 @@ unit IdFTPListParseCiscoIOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 {
   I think this FTP Server is embedded in the Cisco routers.
@@ -55,17 +56,17 @@ type
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPCiscoIOS }
 
-class function TIdFTPLPCiscoIOS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPCiscoIOS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
   // Identifier obtained from

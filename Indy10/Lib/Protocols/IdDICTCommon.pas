@@ -38,10 +38,10 @@ unit IdDICTCommon;
 interface
 
 uses
-  IdObjs;
+  Classes;
 
 type
-  TIdMatchItem = class(TIdCollectionItem)
+  TIdMatchItem = class(TCollectionItem)
   protected
     FDB : String;
     FWord : String;
@@ -49,7 +49,7 @@ type
     property DB : String read FDB write FDB;
     property Word : String read FWord write FWord;
   end;
-  TIdMatchList = class(TIdCollection)
+  TIdMatchList = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdMatchItem;
     procedure SetItems(AIndex: Integer; const AValue: TIdMatchItem);
@@ -59,7 +59,7 @@ type
     function Add: TIdMatchItem;
     property Items[AIndex: Integer]: TIdMatchItem read GetItems write SetItems; default;
   end;
-  TIdGeneric = class(TIdCollectionItem)
+  TIdGeneric = class(TCollectionItem)
   protected
     FName : String;
     FDesc : String;
@@ -70,7 +70,7 @@ type
 
   TIdStrategy = class(TIdGeneric);
 
-  TIdStrategyList = class(TIdCollection)
+  TIdStrategyList = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdStrategy;
     procedure SetItems(AIndex: Integer; const AValue: TIdStrategy);
@@ -83,7 +83,7 @@ type
 
   TIdDBInfo = class(TIdGeneric);
 
-  TIdDBList = class(TIdCollection)
+  TIdDBList = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdDBInfo;
     procedure SetItems(AIndex: Integer; const AValue: TIdDBInfo);
@@ -94,22 +94,22 @@ type
     property Items[AIndex: Integer]: TIdDBInfo read GetItems write SetItems; default;
   end;
 
-  TIdDefinition = class(TIdCollectionItem)
+  TIdDefinition = class(TCollectionItem)
   protected
     FWord : String;
-    FDefinition : TIdStrings;
+    FDefinition : TStrings;
     FDB : TIdDBInfo;
-    procedure SetDefinition(AValue : TIdStrings);
+    procedure SetDefinition(AValue : TStrings);
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     destructor Destroy; override;
  published
     property Word : string read FWord write FWord;
     property DB : TIdDBInfo read FDB write FDB;
-    property Definition : TIdStrings read FDefinition write SetDefinition;
+    property Definition : TStrings read FDefinition write SetDefinition;
   end;
 
-  TIdDefinitions = class(TIdCollection)
+  TIdDefinitions = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdDefinition;
     procedure SetItems(AIndex: Integer; const AValue: TIdDefinition);
@@ -121,7 +121,7 @@ type
   end;
 
 implementation
-uses IdGlobal, IdSys;
+uses IdGlobal, SysUtils;
 
 { TIdDefinitions }
 
@@ -160,21 +160,21 @@ end;
 
 { TIdDefinition }
 
-constructor TIdDefinition.Create(AOwner: TIdCollection);
+constructor TIdDefinition.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
-  FDefinition := TIdStringList.Create;
+  FDefinition := TStringList.Create;
   FDB := TIdDBInfo.Create(nil);
 end;
 
 destructor TIdDefinition.Destroy;
 begin
-  Sys.FreeAndNil(FDB);
-  Sys.FreeAndNil(FDefinition);
+  FreeAndNil(FDB);
+  FreeAndNil(FDefinition);
   inherited Destroy;
 end;
 
-procedure TIdDefinition.SetDefinition(AValue: TIdStrings);
+procedure TIdDefinition.SetDefinition(AValue: TStrings);
 begin
   FDefinition.Assign(AValue);
 end;

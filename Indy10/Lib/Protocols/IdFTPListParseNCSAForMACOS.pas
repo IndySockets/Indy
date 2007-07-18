@@ -25,7 +25,8 @@ unit IdFTPListParseNCSAForMACOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 {
 NCSA Telnet for MacIntosh's FTP Server only lists the filenames followed by a /
@@ -58,7 +59,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
@@ -66,7 +67,7 @@ uses IdGlobal;
 
 { TIdFTPLPNCSAforMACOS }
 
-class function TIdFTPLPNCSAforMACOS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPNCSAforMACOS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
   Result := (ASysDescript  = 'MAC NCSA') or

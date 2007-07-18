@@ -54,7 +54,8 @@ unit IdFTPListParseNovellNetwarePSU;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdNovellPSU_DOSFTPListItem = class(TIdNovellBaseFTPListItem);
@@ -64,7 +65,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdNovellPSU_NFSFTPListItem = class(TIdUnixBaseFTPListItem);
   TIdFTPLPNetwarePSUNFS = class(TIdFTPListBase)
@@ -73,7 +74,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 const
@@ -83,11 +84,11 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPNetwarePSUDos }
 
-class function TIdFTPLPNetwarePSUDos.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPNetwarePSUDos.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
 var LPerms : String;
@@ -135,7 +136,7 @@ begin
   LI := AItem as TIdNovellPSU_DOSFTPListItem;
   LBuf := LI.Data;
   //item type
-  if (Sys.UpperCase(Copy(LBuf,1,1))='D') then
+  if (UpperCase(Copy(LBuf,1,1))='D') then
   begin
     LI.ItemType := ditDirectory;
   end
@@ -144,32 +145,32 @@ begin
     LI.ItemType := ditFile;
   end;
   IdDelete(LBuf,1,1);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Permissions
   LI.NovellPermissions := ExtractNovellPerms(Fetch(LBuf));
   LI.PermissionDisplay := '['+LI.NovellPermissions+']';
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Owner
   LI.OwnerName := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //size
-  LI.Size := Sys.StrToInt64(Fetch(LBuf),0);
-  LBuf := Sys.TrimLeft(LBuf);
+  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
   //month
   //we have to make sure that the month is 3 chars.  The list might return Sept instead of Sep
   LModifiedDate := Copy(Fetch(LBuf),1,3);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //day
   LModifiedDate := LModifiedDate + ' '+Fetch(LBuf);
   LModifiedDate := Fetch(LModifiedDate,',');
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //year
   LModifiedDate := LModifiedDate + ' '+Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LI.ModifiedDate := DateStrMonthDDYY(LModifiedDate,' ');
   //time
   LModifiedTime := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //am/pm
   LModifiedTime := LModifiedTime+Fetch(LBuf);
   LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LModifiedTime);
@@ -180,9 +181,9 @@ end;
 
 { TIdFTPLPNetwarePSUNFS }
 
-class function TIdFTPLPNetwarePSUNFS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPNetwarePSUNFS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-  var s : TIdStrings;
+  var s : TStrings;
       lbuf : string;
 begin
   Result := False;
@@ -210,7 +211,7 @@ begin
     Result := IsValidUnixPerms(lbuf,True);
     if Result then
     begin
-      s := TIdStringList.Create;
+      s := TStringList.Create;
       try
         SplitColumns(lbuf,s);
         Result := (s.Count > 9) and (TextIsSame(s[9], 'AM') or TextIsSame(s[9], 'PM')); {do not localize}
@@ -225,7 +226,7 @@ begin
           end;
         end;
       finally
-        Sys.FreeAndNil(s);
+        FreeAndNil(s);
       end;
     end;
   end;
@@ -290,7 +291,7 @@ http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/h
   begin
     LBuf2 := LBuf2+Fetch(LBuf);
   end;
-  if (Sys.UpperCase(Copy(LBuf2, 1, 1))='-') then
+  if (UpperCase(Copy(LBuf2, 1, 1))='-') then
   begin
     LI.ItemType := ditFile;
   end
@@ -303,30 +304,30 @@ http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/h
   LI.UnixOtherPermissions := Copy(LBuf2, 8, 3);
   LI.PermissionDisplay := LBuf2;
   //number of links
-  LI.LinkCount := Sys.StrToInt(Fetch(LBuf),0);
+  LI.LinkCount := IndyStrToInt(Fetch(LBuf),0);
   //Owner
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LI.OwnerName := Fetch(LBuf);
   //Group
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LI.GroupName := Fetch(LBuf);
   //Size
-   LBuf := Sys.TrimLeft(LBuf);
-  AItem.Size := Sys.StrToInt64(Fetch(LBuf),0);
+   LBuf := TrimLeft(LBuf);
+  AItem.Size := IndyStrToInt64(Fetch(LBuf),0);
   //Date - month
-  LBuf := Sys.TrimLeft(LBuf);
-  LBuf2 := Sys.UpperCase(Fetch(LBuf))+' ';
+  LBuf := TrimLeft(LBuf);
+  LBuf2 := UpperCase(Fetch(LBuf))+' ';
   //Date - day
-  LBuf := Sys.TrimLeft(LBuf);
-  LBuf2 := Sys.TrimRight(LBuf2) + ' '+ Fetch(LBuf);
+  LBuf := TrimLeft(LBuf);
+  LBuf2 := TrimRight(LBuf2) + ' '+ Fetch(LBuf);
   LBuf2 := Fetch(LBuf2,',');
   //Year - year
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf)+' '+LBuf2;
   //Process Day
   LI.ModifiedDate :=  DateYYStrMonthDD(LBuf2,' ');
   //time
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   //make sure AM/pm are processed
   LBuf2 := LBuf2 + Fetch(LBuf);

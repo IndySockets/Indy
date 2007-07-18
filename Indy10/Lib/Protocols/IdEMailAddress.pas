@@ -112,15 +112,14 @@ unit IdEMailAddress;
 interface
 
 uses
-  IdException,
-  IdSys,
-  IdObjs;
+  Classes,
+  IdException;
 
 type
    EIdEmailParseError = class(EIdException);
 
    { ToDo: look into alterations required for TIdEMailAddressItem.GetText }
-   TIdEMailAddressItem = class(TIdCollectionItem)
+   TIdEMailAddressItem = class(TCollectionItem)
    protected
      FAddress: string;
      FName: string;
@@ -132,9 +131,9 @@ type
      function GetUsername: string;
      procedure SetUsername(const AUsername: String);
    public
-     procedure Assign(Source: TIdPersistent); override;
+     procedure Assign(Source: TPersistent); override;
      constructor Create; reintroduce; overload;
-     constructor Create(aCollection: TIdCollection); overload; override;
+     constructor Create(aCollection: TCollection); overload; override;
      constructor Create(aText: string); reintroduce; overload;
    published
      {This is the E-Mail address itself }
@@ -148,20 +147,20 @@ type
      property User: string read GetUsername write SetUsername;
    end;
 
-   TIdEMailAddressList = class (TIdOwnedCollection)
+   TIdEMailAddressList = class (TOwnedCollection)
    protected
      function GetItem(Index: Integer): TIdEMailAddressItem;
      procedure SetItem(Index: Integer; const Value: TIdEMailAddressItem);
      function GetEMailAddresses: string;
      procedure SetEMailAddresses(AList: string);
    public
-     constructor Create(AOwner: TIdPersistent); reintroduce;
+     constructor Create(AOwner: TPersistent); reintroduce;
      { List of formated addresses including the names from the collection }
-     procedure FillTStrings(AStrings: TIdStrings);
+     procedure FillTStrings(AStrings: TStrings);
      function Add: TIdEMailAddressItem;
      procedure AddItems(AList: TIdEMailAddressList);
      { get all of the domains in the list so we can process individually }
-     procedure GetDomains(AStrings: TIdStrings);
+     procedure GetDomains(AStrings: TStrings);
      { Sort by domains for making it easier to process E-Mails directly }
      procedure SortByDomain;
      { Gets all E-Mail addresses for a particular domain so we can
@@ -179,7 +178,7 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdExceptionCore,
-  IdResourceStringsProtocols;
+  IdResourceStringsProtocols, SysUtils;
 
 const
   // ATEXT without the double quote and space characters
@@ -271,7 +270,7 @@ end;
 
 { TIdEMailAddressItem }
 
-procedure TIdEMailAddressItem.Assign(Source: TIdPersistent);
+procedure TIdEMailAddressItem.Assign(Source: TPersistent);
 var
   Addr : TIdEMailAddressItem;
 begin
@@ -403,7 +402,7 @@ var
   i: Integer;
   tempName, resName: string;
 begin
-  if (FName <> '') and (Sys.UpperCase(FAddress) <> FName) then
+  if (FName <> '') and (UpperCase(FAddress) <> FName) then
   begin
     i := FindFirstNotOf(IETF_ATEXT_SPACE, FName);
     if i > 0 then
@@ -455,7 +454,7 @@ begin
   FAddress := '';
   FName := '';
 
-  AText := Sys.Trim(AText);
+  AText := Trim(AText);
   if AText = '' then begin
     Exit;
   end;
@@ -480,7 +479,7 @@ begin
           begin
             // Only valid if in a name not contained in quotes - keep the space.
             if bAfterAt then begin
-              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
             end else begin
               FName := FName + Copy(AText, 1, nFirst);
             end;
@@ -495,7 +494,7 @@ begin
             // There's at least one character to the name
             if bInAddress then
             begin
-              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
             end else
             begin
               if nBracketCount = 1 then begin
@@ -519,9 +518,9 @@ begin
           begin
             if bAddressInLT then
             begin
-              FAddress := FAddress + Sys.Trim(Copy(AText, 1, nFirst - 1));
+              FAddress := FAddress + Trim(Copy(AText, 1, nFirst - 1));
             end else begin
-              FName := FName + Sys.Trim(Copy(AText, 1, nFirst - 1));
+              FName := FName + Trim(Copy(AText, 1, nFirst - 1));
             end;
             IdDelete(AText, 1, nFirst);
             bInQuote := False;
@@ -537,7 +536,7 @@ begin
           begin
             FName := FName + Copy(AText, 1, nFirst - 1);
           end;
-          FName := TrimAllOf(' ' + TAB, Sys.Trim(FName));  {do not localize}
+          FName := TrimAllOf(' ' + TAB, Trim(FName));  {do not localize}
           bAddressInLT := True;
           bInAddress := True;
           IdDelete(AText, 1, nFirst);
@@ -548,7 +547,7 @@ begin
           bInAddress := False;
           bAfterAt := False;
           FAddress := FAddress + TrimAllOf(' ' + TAB,   {do not localize}
-            Sys.Trim(Copy(AText, 1, nFirst - 1)));
+            Trim(Copy(AText, 1, nFirst - 1)));
           IdDelete(AText, 1, nFirst);
         end;
         '@' : {do not localize}
@@ -599,8 +598,8 @@ begin
           begin
             // Whitespace is possible around the parts of the domain.
             FAddress := FAddress +
-              TrimAllOf(' ' + TAB, Sys.Trim(Copy(AText, 1, nFirst - 1))) + '.'; {do not localize}
-            AText := Sys.TrimLeft(Copy(AText, nFirst + 1, MaxInt));
+              TrimAllOf(' ' + TAB, Trim(Copy(AText, 1, nFirst - 1))) + '.'; {do not localize}
+            AText := TrimLeft(Copy(AText, nFirst + 1, MaxInt));
           end else
           begin
             // No whitespace is allowed if no wrapping <> characters.
@@ -679,7 +678,7 @@ begin
     until nFirst = 0;
     if bInAddress and not bAddressInLT then
     begin
-      FAddress := FAddress + TrimAllOf(' ' + TAB, Sys.Trim(AText)); {do not localize}
+      FAddress := FAddress + TrimAllOf(' ' + TAB, Trim(AText)); {do not localize}
     end;
   end else
   begin
@@ -693,7 +692,7 @@ begin
   inherited Create(nil);
 end;
 
-constructor TIdEMailAddressItem.Create(aCollection: TIdCollection);
+constructor TIdEMailAddressItem.Create(aCollection: TCollection);
 begin
   inherited Create(aCollection);
 end;
@@ -722,12 +721,12 @@ begin
   end;
 end;
 
-constructor TIdEMailAddressList.Create(AOwner: TIdPersistent);
+constructor TIdEMailAddressList.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdEMailAddressItem);
 end;
 
-procedure TIdEMailAddressList.FillTStrings(AStrings: TIdStrings);
+procedure TIdEMailAddressList.FillTStrings(AStrings: TStrings);
 var
   idx: Integer;
 begin
@@ -771,7 +770,7 @@ var
   bInQuote : Boolean;
 begin
   Clear;
-  if (Sys.Trim(AList) = '') then begin {Do not Localize}
+  if (Trim(AList) = '') then begin {Do not Localize}
     Exit;
   end;
 
@@ -779,7 +778,7 @@ begin
   if iStart = 0 then
   begin
     EMail := Add;
-    EMail.Text := Sys.TrimLeft(AList);
+    EMail.Text := TrimLeft(AList);
   end else
   begin
     sTemp := ''; {do not localize}
@@ -810,10 +809,10 @@ begin
             then process it.
            }
           sTemp := sTemp + Copy(AList, 1, iStart - 1);
-          if Sys.Trim(sTemp) <> '' then
+          if Trim(sTemp) <> '' then
           begin
             EMail := Add;
-            EMail.Text := Sys.TrimLeft(sTemp);
+            EMail.Text := TrimLeft(sTemp);
             sTemp := ''; {do not localize}
           end;
           // Now simply remove the end of the group.
@@ -843,9 +842,9 @@ begin
           EMail := Add;
           EMail.Text := sTemp;
           // added - Allen .. saves blank entries being added
-          if (Sys.Trim(Email.Text) = '') or (Sys.Trim(Email.Text) = '<>') then {do not localize}
+          if (Trim(Email.Text) = '') or (Trim(Email.Text) = '<>') then {do not localize}
           begin
-            Sys.FreeAndNil(Email);
+            FreeAndNil(Email);
           end;
           sTemp := '';
           IdDelete(AList, 1, iStart);
@@ -868,15 +867,15 @@ begin
     until iStart = 0;
 
     // Clean up the content in sTemp
-    if (Sys.Trim(sTemp) <> '') or (Sys.Trim(AList) <> '') then
+    if (Trim(sTemp) <> '') or (Trim(AList) <> '') then
     begin
       sTemp := sTemp + AList;
       EMail := Add;
-      EMail.Text := Sys.TrimLeft(sTemp);
+      EMail.Text := TrimLeft(sTemp);
       // added - Allen .. saves blank entries being added
-      if (Sys.Trim(Email.Text) = '') or (Sys.Trim(Email.Text) = '<>') then {do not localize}
+      if (Trim(Email.Text) = '') or (Trim(Email.Text) = '<>') then {do not localize}
       begin
-        Sys.FreeAndNil(Email);
+        FreeAndNil(Email);
       end;
     end;
   end;
@@ -901,7 +900,7 @@ begin
   end;
 end;
 
-procedure TIdEMailAddressList.GetDomains(AStrings: TIdStrings);
+procedure TIdEMailAddressList.GetDomains(AStrings: TStrings);
 var
   i: Integer;
   LCurDom: string;
@@ -911,7 +910,7 @@ begin
     AStrings.Clear;
     for i := 0 to Count-1 do
     begin
-      LCurDom :=  Sys.Lowercase(Items[i].Domain);
+      LCurDom :=  Lowercase(Items[i].Domain);
       if AStrings.IndexOf(LCurDom) = -1 then begin
         AStrings.Add(LCurDom);
       end;
@@ -927,11 +926,11 @@ var
   LCurDom: string;
   LEnt : TIdEMailAddressItem;
 begin
-  LDomain := Sys.LowerCase(ADomain);
+  LDomain := LowerCase(ADomain);
   AList.Clear;
   for i := 0 to Count-1 do
   begin
-    LCurDom := Sys.LowerCase(Items[i].Domain);
+    LCurDom := LowerCase(Items[i].Domain);
     if LCurDom = LDomain then
     begin
       LEnt := AList.Add;

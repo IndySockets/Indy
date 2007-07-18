@@ -120,7 +120,8 @@ unit IdFTPListParseBase;
 interface
 
 uses
-  IdFTPList, IdObjs;
+  Classes,
+  IdFTPList;
 
 type
 
@@ -142,25 +143,25 @@ type
     class function GetIdent : String; virtual;
     //This determines if the parser is appropriate and returns True if it is or False if another parser
     //should be used
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; virtual;
-    //This parses the AListing TIdStrings and fills in the ADir object
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; virtual;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; virtual;
+    //This parses the AListing TStrings and fills in the ADir object
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; virtual;
   end;
   TIdFTPListParseClass = class of TIdFTPListBase;
-  TIdFTPRegParseList = class(TIdList)
+  TIdFTPRegParseList = class(TList)
   protected
-    function FindParserByDirData(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
+    function FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
     function FindParserByIdent(const AIdent : String) : TIdFTPListParseClass;
   public
-    procedure EnumFTPListParsers(AData : TIdStrings);
+    procedure EnumFTPListParsers(AData : TStrings);
     constructor Create; overload;
-    function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean; virtual;
-    function CheckListParse(AListing : TIdStrings; ADir : TIdFTPListItems;var VFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
-    function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String; virtual;
+    function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean; virtual;
+    function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var VFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
+    function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String; virtual;
    {
    This is for TIdFTP.  This parses a list, returns the Parser ID, and the capabilities of the parser.
    }
-    function CheckListParseCapa(AListing : TIdStrings; ADir : TIdFTPListItems; var VFormat : String; var VClass :  TIdFTPListParseClass; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
+    function CheckListParseCapa(AListing : TStrings; ADir : TIdFTPListItems; var VFormat : String; var VClass :  TIdFTPListParseClass; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
   end;
 
   //these are anscestors for some listings with a heading
@@ -170,8 +171,8 @@ type
     class function IsFooter(const AData : String): Boolean; virtual;
   public
 
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
   //base class for line-by-line items where there is a file owner along with mod date and file size
   TIdFTPLineOwnedList = class(TIdFTPListBase)
@@ -185,7 +186,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdFTPLPMList = class(TIdFTPListBase)
   protected
@@ -194,7 +195,7 @@ type
   public
 
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
    //these are for some MS-DOS, OS/2, and Windows servers that report Attributes
    //in their listings
@@ -203,10 +204,10 @@ type
     class function IsValidAttr(const AAttr : String) : Boolean; virtual;
   end;
 
-function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
-function CheckListParse(AListing : TIdStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
-function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
-function CheckListParseCapa(AListing: TIdStrings;
+function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
+function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
+function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
+function CheckListParseCapa(AListing: TStrings;
   ADir: TIdFTPListItems; var VFormat: String;
   var VClass:  TIdFTPListParseClass; const ASysDescript: String;
   const ADetails: Boolean=True): boolean;
@@ -214,7 +215,7 @@ function CheckListParseCapa(AListing: TIdStrings;
 procedure RegisterFTPListParser(const AParser : TIdFTPListParseClass);
 procedure UnregisterFTPListParser(const AParser : TIdFTPListParseClass);
 
-procedure EnumFTPListParsers(AData : TIdStrings);
+procedure EnumFTPListParsers(AData : TStrings);
 
 const
   NLST = 'NLIST'; {do not localize}
@@ -223,7 +224,7 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols, IdStrings, IdSys;
+  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols, IdStrings, SysUtils;
 
 var GParserList : TIdFTPRegParseList;
 
@@ -234,7 +235,7 @@ begin
   inherited Create;
 end;
 
-function TIdFTPRegParseList.CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
+function TIdFTPRegParseList.CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
 var
   LCurParser : TIdFTPListParseClass;
 begin
@@ -246,7 +247,7 @@ begin
   end;
 end;
 
-function TIdFTPRegParseList.ParseListing(AListing: TIdStrings;
+function TIdFTPRegParseList.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems; const AFormatID: String): boolean;
 var
   LCurParser : TIdFTPListParseClass;
@@ -262,7 +263,7 @@ begin
   end;
 end;
 
-function TIdFTPRegParseList.CheckListParse(AListing : TIdStrings;
+function TIdFTPRegParseList.CheckListParse(AListing : TStrings;
   ADir : TIdFTPListItems;var VFormat : String;
   const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
 var LCurParser : TIdFTPListParseClass;
@@ -293,7 +294,7 @@ begin
   end;
 end;
 
-function TIdFTPRegParseList.FindParserByDirData(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
+function TIdFTPRegParseList.FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
 var i : Integer;
   LCurParser : TIdFTPListParseClass;
 begin
@@ -309,7 +310,7 @@ begin
   end;
 end;
 
-function TIdFTPRegParseList.CheckListParseCapa(AListing: TIdStrings;
+function TIdFTPRegParseList.CheckListParseCapa(AListing: TStrings;
   ADir: TIdFTPListItems; var VFormat: String;
   var VClass:  TIdFTPListParseClass; const ASysDescript: String;
   const ADetails: Boolean): boolean;
@@ -345,22 +346,22 @@ begin
   end;
 end;
 
-function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
+function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
 begin
   Result := GParserList.ParseListing(AListing,ADir,AFormatID);
 end;
 
-function CheckListParse(AListing : TIdStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
+function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
 begin
   Result := GParserList.CheckListParse(AListing,ADir,AFormat,ASysDescript,ADetails);
 end;
 
-function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
+function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
 begin
   Result := GParserList.CheckListing(AListing,ASysDescript,ADetails);
 end;
 
-function CheckListParseCapa(AListing: TIdStrings;
+function CheckListParseCapa(AListing: TStrings;
   ADir: TIdFTPListItems; var VFormat: String;
   var VClass :  TIdFTPListParseClass; const ASysDescript: String;
   const ADetails: Boolean): boolean;
@@ -372,7 +373,7 @@ begin
     ADetails);
 end;
 
-procedure TIdFTPRegParseList.EnumFTPListParsers(AData: TIdStrings);
+procedure TIdFTPRegParseList.EnumFTPListParsers(AData: TStrings);
 var i : Integer;
   LDesc : String;
 begin
@@ -390,7 +391,7 @@ end;
 
 { TIdFTPListBase }
 
-class function TIdFTPListBase.CheckListing(AListing: TIdStrings;
+class function TIdFTPListBase.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
 //C++Builder can not use abstract virtual class methods.
@@ -414,7 +415,7 @@ begin
   Result := False;
 end;
 
-class function TIdFTPListBase.parselisting(AListing: TIdStrings;
+class function TIdFTPListBase.parselisting(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var i : Integer;
   AItem : TIdFTPListItem;
@@ -433,7 +434,7 @@ end;
 
 { TIdFTPLPNList }
 
-class function TIdFTPLPNList.CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
+class function TIdFTPLPNList.CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
 begin
   Result := (ADetails=False);
 end;
@@ -452,7 +453,7 @@ end;
 
 { TIdFTPLPMList }
 
-class function TIdFTPLPMList.CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
+class function TIdFTPLPMList.CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
 begin
 //user has to specifically ask for this parser
   Result := False;
@@ -471,7 +472,7 @@ end;
 
 class function TIdFTPLPMList.ParseLine(const AItem: TIdFTPListItem;
   const APath: String =''): Boolean;
-var LFacts : TIdStrings;
+var LFacts : TStrings;
     LBuffer : String;
     LI : TIdMLSTFTPListItem;
 //based on:
@@ -479,7 +480,7 @@ var LFacts : TIdStrings;
 //http://www.ietf.org/internet-drafts/draft-ietf-ftpext-mlst-15.txt
 begin
   LI := AItem as TIdMLSTFTPListItem;
-  LFacts := TIdStringList.Create;
+  LFacts := TStringList.Create;
   try
     LI.FileName := ParseFacts(AItem.Data,LFacts);
     LI.LocalFileName := AItem.FileName;
@@ -528,7 +529,7 @@ begin
     LBuffer := LFacts.Values['size']; {do not localize}
     if LBuffer<>'' then
     begin
-      LI.Size := Sys.StrToInt64(LBuffer, 0);
+      LI.Size := IndyStrToInt64(LBuffer, 0);
       LI.SizeAvail := True;
     end
     else
@@ -541,7 +542,7 @@ begin
       LBuffer := LFacts.Values['sizd']; {Do not localize}
       if LBuffer<>'' then
       begin
-        LI.Size := Sys.StrToInt64(LBuffer, 0);
+        LI.Size := IndyStrToInt64(LBuffer, 0);
         LI.SizeAvail := True;
       end
       else
@@ -568,7 +569,7 @@ begin
         if IsNumeric(LBuffer) then
         begin
 
-           ChmodNoToPerms( Sys.StrToInt( LBuffer,0),LBuffer);
+           ChmodNoToPerms( IndyStrToInt( LBuffer,0),LBuffer);
            case  LI.ItemType of
              ditFile : LBuffer := '-'+LBuffer;
              ditDirectory : LBuffer := 'd'+LBuffer;
@@ -595,18 +596,18 @@ begin
       Fetch(LBuffer,'x');
       LBuffer := '$'+LBuffer;
       LI.AttributesAvail := True;
-      LI.Attributes.FileAttributes  := Sys.StrToInt( LBuffer,0);
+      LI.Attributes.FileAttributes  := IndyStrToInt( LBuffer,0);
     end;
     Result := True;
   finally
-    Sys.FreeAndNil(LFacts);
+    FreeAndNil(LFacts);
   end;
 end;
 
 { TIdFTPListBaseHeader }
 
 
-class function TIdFTPListBaseHeader.CheckListing(AListing: TIdStrings;
+class function TIdFTPListBaseHeader.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var i : Integer;
 begin
@@ -635,7 +636,7 @@ begin
   Result := False;
 end;
 
-class function TIdFTPListBaseHeader.ParseListing(AListing: TIdStrings;
+class function TIdFTPListBaseHeader.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var LStart : Integer;
    i : Integer;
@@ -697,7 +698,7 @@ begin
   end;
 end;
 
-procedure EnumFTPListParsers(AData : TIdStrings);
+procedure EnumFTPListParsers(AData : TStrings);
 begin
   GParserList.EnumFTPListParsers(AData);
 end;
@@ -710,5 +711,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPMList);
 
 finalization
-  Sys.FreeAndNil(GParserList);
+  FreeAndNil(GParserList);
 end.

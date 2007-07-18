@@ -47,7 +47,8 @@ unit IdFTPListParseBullGCOS8;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdFTPLPGOS8ListItem = class(TIdUnixPermFTPListItem);
@@ -57,17 +58,17 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPGOS8 }
 
-class function TIdFTPLPGOS8.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPGOS8.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LData : String;
 begin
@@ -144,13 +145,13 @@ begin
     LI.UnixOtherPermissions := Copy(AItem.Data, 11, 3);
     LI.PermissionDisplay    := Copy(AItem.Data, 1, 13);
 
-    LI.Size := Sys.StrToInt64(Sys.Trim(Copy(AItem.Data, 15, 11)), 0);
+    LI.Size := IndyStrToInt64(Copy(AItem.Data, 15, 11), 0);
 
-    LI.OwnerName := Sys.Trim(Copy(AItem.Data,46,14));
+    LI.OwnerName := Trim(Copy(AItem.Data,46,14));
 
     LI.ModifiedDate := DateMMDDYY(Copy(AItem.Data, 27, 8));
     LBuf := Copy(AItem.Data, 36, 8);
-    if Length(Sys.Trim(LBuf)) > 0 then
+    if Length(Trim(LBuf)) > 0 then
     begin
       LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LBuf);
     end;

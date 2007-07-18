@@ -71,7 +71,7 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdExceptionCore, IdSys;
+  IdCoderMIME, IdExceptionCore, SysUtils;
 
 { TIdConnectThroughHttpProxy }
 
@@ -86,7 +86,7 @@ var
   LStatus:string;
   LResponseCode:integer;
 Begin
-  AIOHandler.WriteLn(Sys.Format('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
+  AIOHandler.WriteLn(IndyFormat('CONNECT %s:%d HTTP/1.0', [AHost,APort])); {do not localize}
   if ALogin then begin
     with TIdEncoderMIME.Create do try
       AIOHandler.WriteLn('Proxy-authorization: basic '
@@ -97,7 +97,7 @@ Begin
   LStatus:=AIOHandler.ReadLn;
   if LStatus<>'' then begin // if empty response then we assume it succeeded
     Fetch(LStatus);// to remove the http/1.0 or http/1.1
-    LResponseCode:=Sys.StrToInt(Fetch(LStatus,' ',false),200); // if invalid response then we assume it succeeded
+    LResponseCode:=IndyStrToInt(Fetch(LStatus,' ',false),200); // if invalid response then we assume it succeeded
     if (LResponseCode=407) and (length(Username)>0) and not ALogin then begin // authorisation required
       repeat until AIOHandler.ReadLn = '';//flush connection
       DoMakeConnection(AIOHandler, AHost, APort, True);// try again, but with login

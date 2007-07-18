@@ -40,7 +40,8 @@ unit IdFTPListParseAS400;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdAS400FTPListItem = class(TIdOwnerFTPListItem);
@@ -50,24 +51,24 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon,  IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon,  IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPAS400 }
 
-class function TIdFTPLPAS400.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPAS400.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AListing[0],s);
       if s.Count > 4 then
@@ -75,7 +76,7 @@ begin
         Result := (s[4][1]='*') or (s[4]='DIR');  {Do not translate}
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -209,19 +210,19 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   LBuffer := AItem.Data;
   LI.OwnerName := Fetch(LBuffer);
 
-  LBuffer := Sys.TrimLeft(LBuffer);
+  LBuffer := TrimLeft(LBuffer);
   //we have to make sure that the size feild really exists or the
   //the parser is thrown off
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
-    LI.Size := Sys.StrToInt64(FetchLength(LBuffer,9),0);
+    LI.Size := IndyStrToInt64(FetchLength(LBuffer,9),0);
     LI.SizeAvail := True;
-    LBuffer := Sys.TrimLeft(LBuffer);
+    LBuffer := TrimLeft(LBuffer);
   end;
   //Sometimes the date and time feilds will not present
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
-    LDate := Sys.Trim(StrPart(LBuffer,8));
+    LDate := Trim(StrPart(LBuffer,8));
     if (LBuffer <> '') and (LBuffer[1]<>' ') then
     begin
       LDate := LDate + Fetch(LBuffer);
@@ -231,7 +232,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
       LI.ModifiedDate := AS400Date(LDate);
        LI.ModifiedAvail := True;
     end;
-    LTime := Sys.Trim(StrPart(LBuffer,8));
+    LTime := Trim(StrPart(LBuffer,8));
     if (LBuffer <> '') and (LBuffer[1]<>' ') then
     begin
       LTime := LTime + Fetch(LBuffer);
@@ -242,7 +243,7 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
     end;
   end;
   //most of this data is manditory so things are less sensitive to positions
-  LBuffer := Sys.Trim(LBuffer);
+  LBuffer := Trim(LBuffer);
   LObjType := FetchLength(LBuffer,11);
   //A file object is something like a file but it can contain members - treat as dir.
   //  Odd, I know.
@@ -255,13 +256,13 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   begin
     LI.ItemType := ditDirectory;
   end;
-  LI.FileName := Sys.TrimLeft(LBuffer);
+  LI.FileName := TrimLeft(LBuffer);
   if LI.FileName = '' then
   begin
     LI.FileName := LI.OwnerName;
     LI.OwnerName := '';
   end;
-  LI.LocalFileName := Sys.LowerCase(StripPath(AItem.FileName, '/'));
+  LI.LocalFileName := LowerCase(StripPath(AItem.FileName, '/'));
   Result := True;
 end;
 

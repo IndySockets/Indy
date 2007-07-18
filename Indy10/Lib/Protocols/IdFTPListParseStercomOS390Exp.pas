@@ -34,7 +34,8 @@ unit IdFTPListParseStercomOS390Exp;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
   TIdSterCommExpOS390FTPListItem = class(TIdFTPListItem)
@@ -54,7 +55,7 @@ type
       class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 const
@@ -64,7 +65,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 {
   "Connect:Express OS/390 FTP Guide Version 4.1" Copyright
@@ -89,7 +90,7 @@ uses
 
 { TIdFTPLPSterCommExpOS390 }
 
-class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuf : String;
 begin
@@ -129,11 +130,11 @@ end;
 
 class function TIdFTPLPSterCommExpOS390.ParseLine(
   const AItem: TIdFTPListItem; const APath: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
   LI : TIdSterCommExpOS390FTPListItem;
 begin
   LI := AItem as TIdSterCommExpOS390FTPListItem;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AItem.Data,s);
     if s.Count > 3 then
@@ -145,18 +146,18 @@ begin
     end;
     if s.Count > 4 then
     begin
-      LI.RecLength := Sys.StrToInt64(s[4],0);
+      LI.RecLength := IndyStrToInt64(s[4],0);
     end;
     if s.Count > 5 then
     begin
-      LI.BlockSize := Sys.StrToInt64(s[5],0);
+      LI.BlockSize := IndyStrToInt64(s[5],0);
     end;
     if s.Count > 6 then
     begin
       LI.FileName := s[6];
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
   Result := True;
 end;

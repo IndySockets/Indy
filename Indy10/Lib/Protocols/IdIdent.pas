@@ -90,7 +90,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSys;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 const IdentErrorText : Array[0..3] of string =
   ('INVALID-PORT', 'NO-USER', 'HIDDEN-USER', 'UNKNOWN-ERROR');    {Do not Localize}
@@ -108,7 +108,7 @@ function TIdIdent.FetchOS: String;
 var Buf : String;
 begin
   Buf := FetchUserReply;
-  Result := Sys.Trim(Fetch(Buf,':'));    {Do not Localize}
+  Result := Trim(Fetch(Buf,':'));    {Do not Localize}
 end;
 
 function TIdIdent.FetchUserReply: String;
@@ -117,8 +117,8 @@ begin
   Result := '';    {Do not Localize}
   Buf := FReplyString;
   Fetch(Buf,':');    {Do not Localize}
-  if Sys.UpperCase(Sys.Trim(Fetch(Buf,':'))) = 'USERID' then    {Do not Localize}
-    Result := Sys.TrimLeft(Buf);
+  if UpperCase(Trim(Fetch(Buf,':'))) = 'USERID' then    {Do not Localize}
+    Result := TrimLeft(Buf);
 end;
 
 function TIdIdent.GetReplyCharset: String;
@@ -127,7 +127,7 @@ begin
   Buf := FetchOS;
   if (Length(Buf) > 0) and (Pos(',',Buf)>0) then    {Do not Localize}
   begin
-    Result := Sys.Trim(Fetch(Buf,','));    {Do not Localize}
+    Result := Trim(Fetch(Buf,','));    {Do not Localize}
   end
   else
     Result := 'US-ASCII';    {Do not Localize}
@@ -139,7 +139,7 @@ begin
   Buf := FetchOS;
   if Length(Buf) > 0 then
   begin
-    Result := Sys.Trim(Fetch(Buf,','));    {Do not Localize}
+    Result := Trim(Fetch(Buf,','));    {Do not Localize}
   end
   else
     Result := '';    {Do not Localize}
@@ -152,7 +152,7 @@ begin
   begin
     Buf := FetchUserReply;
     Fetch(Buf,':');    {Do not Localize}
-    Result := Sys.TrimLeft(Buf);
+    Result := TrimLeft(Buf);
   end;
 end;
 
@@ -164,7 +164,7 @@ begin
     Buf := FetchUserReply;
     {OS ID}
     Fetch(Buf,':');    {Do not Localize}
-    Result := Sys.TrimLeft(Buf);
+    Result := TrimLeft(Buf);
   end;
 end;
 
@@ -173,9 +173,9 @@ var Buf : String;
 begin
   Buf := FReplyString;
   Fetch(Buf,':');    {Do not Localize}
-  if Sys.Trim(Fetch(Buf,':')) = 'ERROR' then    {Do not Localize}
+  if Trim(Fetch(Buf,':')) = 'ERROR' then    {Do not Localize}
   begin
-    case PosInStrArray(Sys.UpperCase(Sys.Trim(Buf)),IdentErrorText) of
+    case PosInStrArray(UpperCase(Trim(Buf)),IdentErrorText) of
           {Invalid Port}
       0 : Raise EIdIdentInvalidPort.Create(RSIdentInvalidPort);
           {No user}
@@ -194,7 +194,7 @@ begin
   FReplyString := '';    {Do not Localize}
   Connect;
   try
-    WriteLn(Sys.IntToStr(APortOnServer)+', '+Sys.IntToStr(APortOnClient));    {Do not Localize}
+    WriteLn(IntToStr(APortOnServer)+', '+IntToStr(APortOnClient));    {Do not Localize}
     FReplyString := IOHandler.ReadLn('',FQueryTimeOut);    {Do not Localize}
     {We check here and not return an exception at the moment so we can close our
     connection before raising our exception if the read timed out}

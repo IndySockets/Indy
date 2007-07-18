@@ -71,14 +71,13 @@ unit IdExplicitTLSClientServerBase;
 interface
 
 uses
+  Classes,
   IdCmdTCPServer,
   IdException,
   IdGlobal,
   IdIOHandler,
   IdServerIOHandler,
-  IdSys,
-  IdTCPClient,
-  IdObjs;
+  IdTCPClient;
 
 type
   TIdUseTLS = (
@@ -118,7 +117,7 @@ type
     FOnTLSHandShakeFailed : TIdOnTLSNegotiationFailure;
 
     //feature negotiation stuff
-    FCapabilities : TIdStrings;
+    FCapabilities : TStrings;
     function GetSupportsTLS : boolean; virtual;
     procedure CheckIfCanUseTLS; virtual;
     procedure Loaded; override;
@@ -145,7 +144,7 @@ type
     destructor Destroy; override;
     procedure Connect; override;
     property SupportsTLS: boolean read GetSupportsTLS;
-    property Capabilities : TIdStrings read FCapabilities;
+    property Capabilities : TStrings read FCapabilities;
     property OnTLSHandShakeFailed : TIdOnTLSNegotiationFailure read FOnTLSHandShakeFailed write FOnTLSHandShakeFailed;
     property OnTLSNotAvailable : TIdOnTLSNegotiationFailure read FOnTLSNotAvailable write FOnTLSNotAvailable;
     property OnTLSNegCmdFailed : TIdOnTLSNegotiationFailure read FOnTLSNegCmdFailed write FOnTLSNegCmdFailed;
@@ -165,7 +164,7 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdSSL, IdBaseComponent;
+  IdResourceStringsProtocols, IdSSL, IdBaseComponent, SysUtils;
 
 { TIdExplicitTLSServer }
 
@@ -272,13 +271,13 @@ end;
 procedure TIdExplicitTLSClient.InitComponent; 
 begin
   inherited InitComponent;
-  FCapabilities := TIdStringList.Create;
+  FCapabilities := TStringList.Create;
   FUseTLS := DEF_USETLS;
 end;
 
 destructor TIdExplicitTLSClient.Destroy;
 begin
-  Sys.FreeAndNil(FCapabilities);
+  FreeAndNil(FCapabilities);
   inherited Destroy;
 end;
 

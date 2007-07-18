@@ -402,6 +402,7 @@ unit IdMessageClient;
 interface
 
 uses
+   Classes,
   IdCoderMIME,
   IdExplicitTLSClientServerBase,
   IdGlobal,
@@ -409,9 +410,7 @@ uses
   IdIOHandlerStream,
   IdBaseComponent,
   IdMessage,
-  IdSys,
-  IdTCPClient,
-  IdObjs;
+  IdTCPClient;
 
 type
   TIdIOHandlerStreamMsg = class(TIdIOHandlerStream)
@@ -423,9 +422,9 @@ type
       ARaiseExceptionOnTimeout: Boolean): Integer; override;
   public
     constructor Create(
-      AOwner: TIdNativeComponent;
-      AReceiveStream: TIdStream;
-      ASendStream: TIdStream = nil
+      AOwner: TComponent;
+      AReceiveStream: TStream;
+      ASendStream: TStream = nil
     ); override;  //Should this be reintroduce instead of override?
     function Readable(AMSec: integer = IdTimeoutDefault): Boolean; override;
 end;
@@ -448,7 +447,7 @@ type
   public
     destructor Destroy; override;
     procedure ProcessMessage(AMsg: TIdMessage; AHeaderOnly: Boolean = False); overload;
-    procedure ProcessMessage(AMsg: TIdMessage; AStream: TIdStream; AHeaderOnly: Boolean = False); overload;
+    procedure ProcessMessage(AMsg: TIdMessage; AStream: TStream; AHeaderOnly: Boolean = False); overload;
     procedure ProcessMessage(AMsg: TIdMessage; const AFilename: string; AHeaderOnly: Boolean = False); overload;
     procedure SendMsg(AMsg: TIdMessage; AHeadersOnly: Boolean = False); overload; virtual;
     //
@@ -470,7 +469,7 @@ uses
   IdTCPConnection,
   IdTCPStream,
   IdIOHandler, IdAttachmentFile,
-  IdText, IdAttachment;
+  IdText, IdAttachment, SysUtils;
 
 const
   SContentType = 'Content-Type'; {do not localize}
@@ -516,7 +515,7 @@ begin
   end;
 end;
 
-procedure RemoveLastBlankLine(Body: TIdStrings);
+procedure RemoveLastBlankLine(Body: TStrings);
 var
   Count: Integer;
 begin
@@ -535,9 +534,9 @@ end;
 ////////////////////////
 
 constructor TIdIOHandlerStreamMsg.Create(
-  AOwner: TIdNativeComponent;
-  AReceiveStream: TIdStream;
-  ASendStream: TIdStream = nil
+  AOwner: TComponent;
+  AReceiveStream: TStream;
+  ASendStream: TStream = nil
   );
 begin
   inherited Create(AOwner, AReceiveStream, ASendStream);
@@ -637,7 +636,7 @@ begin
     end;
 
     // complete the output with what's left
-    if Sys.Trim(s) <> '' then
+    if Trim(s) <> '' then
     begin
       IOHandler.WriteLn(ins + s);
     end;
@@ -660,12 +659,12 @@ var
   instead of TIdText.Body: this happens with some single-part messages.}
   function ProcessTextPart(ADecoder: TIdMessageDecoder; AUseBodyAsTarget: Boolean = False): TIdMessageDecoder;
   var
-    LStringStream: TIdStringStream;
+    LStringStream: TStringStream;
     i: Integer;
     LTxt : TIdText;
     S: String;
   begin
-    LStringStream := TIdStringStream.Create('');
+    LStringStream := TStringStream.Create('');
     try
       LParentPart := AMsg.MIMEBoundary.ParentPart;
       Result := ADecoder.ReadBody(LStringStream, LMsgEnd);
@@ -714,13 +713,13 @@ var
       end;
       ADecoder.Free;
     finally
-      Sys.FreeAndNil(LStringStream);
+      FreeAndNil(LStringStream);
     end;
   end;
 
   function ProcessAttachment(ADecoder: TIdMessageDecoder): TIdMessageDecoder;
   var
-    LDestStream: TIdStream;
+    LDestStream: TStream;
     i: Integer;
     LAttachment: TIdAttachment;
     S: String;
@@ -881,9 +880,9 @@ var
   i: Integer;
   LAttachment: TIdAttachment;
   LBoundary: string;
-  LDestStream: TIdStream;
-  LSrcStream: TIdStream;
-  LStrStream: TIdStream;
+  LDestStream: TStream;
+  LSrcStream: TStream;
+  LStrStream: TStream;
   ISOCharset: string;
   HeaderEncoding: Char;  { B | Q }
   TransferEncoding: TTransfer;
@@ -892,7 +891,7 @@ var
   LX: Integer;
 
   {Gets the next character, adding an extra '.' if line starts with a '.'}
-  function GetLine(ASrcStream: TIdStream; var ALine: string): Boolean;
+  function GetLine(ASrcStream: TStream; var ALine: string): Boolean;
   var
     LChar: Char;
     LGotAChar: Boolean;
@@ -923,8 +922,8 @@ var
   procedure WriteTextPart(ATextPart: TIdText);
   var
     LData: string;
-    LDestStream: TIdStream;
-    LStrStream: TIdStream;
+    LDestStream: TStream;
+    LStrStream: TStream;
     i: Integer;
   begin
     if ATextPart.ContentType = '' then begin
@@ -973,17 +972,17 @@ var
     end else if TextIsSame(ATextPart.ContentTransfer, 'base64') then begin  {do not localize}
       LDestStream := TIdTCPStream.Create(Self); try
         LEncoder := TIdMessageEncoder(TIdMessageEncoderMIME.Create(Self)); try
-          LStrStream := TIdStringStream.Create(''); try
+          LStrStream := TStringStream.Create(''); try
             ATextPart.Body.SaveToStream(LStrStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
-          finally Sys.FreeAndNil(LStrStream); end;
-        finally Sys.FreeAndNil(LEncoder); end;
-      finally Sys.FreeAndNil(LDestStream); end;
+          finally FreeAndNil(LStrStream); end;
+        finally FreeAndNil(LEncoder); end;
+      finally FreeAndNil(LDestStream); end;
     end else begin
       LX := ATextPart.Body.Count;
       IOHandler.WriteRFCStrings(ATextPart.Body, False);
-      { No test for last line break necessary because IOHandler.Write(TIdStrings) uses WriteLn. }
+      { No test for last line break necessary because IOHandler.Write(TStrings) uses WriteLn. }
     end;
   end;
 
@@ -1016,19 +1015,19 @@ begin
           LEncoder := TIdMessageEncoder(TIdMessageEncoderQuotedPrintable.Create(Self));
         end;
         try
-          LStrStream := TIdStringStream.Create('');
+          LStrStream := TStringStream.Create('');
           try
             AMsg.Body.SaveToStream(LStrStream);
             LStrStream.Position := 0;
             LEncoder.Encode(LStrStream, LDestStream);
           finally
-            Sys.FreeAndNil(LStrStream);
+            FreeAndNil(LStrStream);
           end;
         finally
-          Sys.FreeAndNil(LEncoder);
+          FreeAndNil(LEncoder);
         end;
       finally
-        Sys.FreeAndNil(LDestStream);
+        FreeAndNil(LDestStream);
       end;
     end else if AMsg.Encoding = mePlainText then begin
       IOHandler.WriteLn('');     //This is the blank line after the headers
@@ -1088,7 +1087,7 @@ begin
                 Free;
               end;
             finally
-              Sys.FreeAndNil(LDestStream);
+              FreeAndNil(LDestStream);
             end;
           end;
           IOHandler.WriteLn('');
@@ -1219,7 +1218,7 @@ begin
               end else begin
                 IOHandler.WriteLn('Content-Type: '+LAttachment.ContentType+';'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
             end else begin
               if LAttachment.CharSet <> '' then begin
                 IOHandler.WriteLn('Content-Type: ' + RemoveHeaderEntry(LAttachment.ContentType, 'charset')  {do not localize}
@@ -1227,10 +1226,10 @@ begin
               end else begin
                 IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
               IOHandler.WriteLn('Content-Transfer-Encoding: ' + LAttachment.ContentTransfer); {do not localize}
               IOHandler.WriteLn('Content-Disposition: ' + LAttachment.ContentDisposition +';'); {do not localize}
-              IOHandler.WriteLn('        filename="' + Sys.ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        filename="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
             end;
             if LAttachment.ContentID <> '' then begin
               IOHandler.WriteLn('Content-ID: '+ LAttachment.ContentID); {Do not Localize}
@@ -1286,7 +1285,7 @@ begin
                 end;
               end;
             finally
-              Sys.FreeAndNil(LDestStream);
+              FreeAndNil(LDestStream);
             end;
             IOHandler.WriteLn('');
           end;
@@ -1355,7 +1354,7 @@ begin
   end;
 end;
 
-procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; AStream: TIdStream; AHeaderOnly: Boolean = False);
+procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; AStream: TStream; AHeaderOnly: Boolean = False);
 begin
   IOHandler := TIdIOHandlerStreamMsg.Create(nil, AStream);
   try
@@ -1376,11 +1375,11 @@ end;
 
 procedure TIdMessageClient.ProcessMessage(AMsg: TIdMessage; const AFilename: string; AHeaderOnly: Boolean = False);
 var
-  LStream: TIdStream;
+  LStream: TStream;
 begin
   LStream := TIdReadFileExclusiveStream.Create(AFileName); try
     ProcessMessage(AMsg, LStream, AHeaderOnly);
-  finally Sys.FreeAndNil(LStream); end;
+  finally FreeAndNil(LStream); end;
 end;
 
 procedure TIdMessageClient.WriteBodyText(AMsg: TIdMessage);

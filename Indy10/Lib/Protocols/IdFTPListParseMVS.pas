@@ -48,7 +48,8 @@ unit IdFTPListParseMVS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
   This should work with IBM MVS, OS/390, and z/OS.
@@ -70,7 +71,7 @@ type
         FMVSNumberExtents: Integer;
     FMVSNumberTracks: Integer;
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     property Migrated : Boolean read FMigrated write FMigrated;
     property BlockSize : Integer read FBlockSize write FBlockSize;
     property RecLength;
@@ -88,7 +89,7 @@ type
     FMVSJobStatus : TIdJESJobStatus;
     FMVSJobSpoolFiles : Integer;
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     property JobStatus : TIdJESJobStatus read FMVSJobStatus write FMVSJobStatus;
     property JobSpoolFiles : Integer read FMVSJobSpoolFiles write FMVSJobSpoolFiles;
   end;
@@ -96,12 +97,12 @@ type
   protected
     FJobStatus : TIdJESJobStatus;
     FJobSpoolFiles : Integer;
-    FDetails : TIdStrings;
-    procedure SetDetails(AValue : TIdStrings);
+    FDetails : TStrings;
+    procedure SetDetails(AValue : TStrings);
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     destructor Destroy; override;
-    property Details : TIdStrings read FDetails write SetDetails;
+    property Details : TStrings read FDetails write SetDetails;
     property JobStatus : TIdJESJobStatus read FJobStatus write FJobStatus;
     property JobSpoolFiles : Integer read FJobSpoolFiles write FJobSpoolFiles;
   end;
@@ -129,8 +130,8 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
   TIdFTPLPMVSJESInterface2 = class(TIdFTPListBase)
   protected
@@ -139,14 +140,14 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPMVS }
 
@@ -230,7 +231,7 @@ http://www.lsu.edu/ocs/tsc/os390doc/mvsftp.html
 
 var
   i : Integer;
-  s : TIdStrings;
+  s : TStrings;
   LI : TIdMVSFTPListItem;
 //NOTE:  File Size is not supported at all
 //because the file size is calculated with something like this:
@@ -251,7 +252,7 @@ begin
   end;
   if CanGetAttributes(AItem.Data) then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AItem.Data,s);
       if s.Count >0 then
@@ -276,11 +277,11 @@ begin
       end;
       if s.Count >3 then
       begin
-        LI.NumberExtents := Sys.StrToInt(s[3],0);
+        LI.NumberExtents := IndyStrToInt(s[3],0);
       end;
       if s.Count >4 then
       begin
-        LI.NumberTracks := Sys.StrToInt(s[4],0);
+        LI.NumberTracks := IndyStrToInt(s[4],0);
       end;
       if s.Count >5 then
       begin
@@ -288,11 +289,11 @@ begin
       end;
       if s.Count >6 then
       begin
-        LI.RecLength := Sys.StrToInt(s[6],0);
+        LI.RecLength := IndyStrToInt(s[6],0);
       end;
       if s.Count >7 then
       begin
-        LI.BlockSize := Sys.StrToInt(s[7],0);
+        LI.BlockSize := IndyStrToInt(s[7],0);
       end;
       if s.Count >8 then
       begin
@@ -307,7 +308,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
   //Note that spaces are illegal in MVS file names (Data set namess)
@@ -355,7 +356,7 @@ class function TIdFTPLPMVSPartitionedDataSet.ParseLine(
   const AItem: TIdFTPListItem; const APath: String): Boolean;
 //MVS Particianed data sets must be treated differently than
 //the regular MVS catalog.
-var s : TIdStrings;
+var s : TStrings;
 
 //NOTE:  File Size is not supported at all.  Size is usually size in records, not bytes
 //  This is based on stuff at:
@@ -439,7 +440,7 @@ Ralph
 begin
   AItem.ModifiedAvail := False;
   AItem.SizeAvail := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AItem.Data,s);
     if s.Count > 0 then
@@ -460,23 +461,23 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
   Result := True;
 end;
 
 { TIdFTPLPMVSJESInterface1 }
 
-class function TIdFTPLPMVSJESInterface1.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPMVSJESInterface1.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   if AListing.Count > 0 then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AListing[0],s);
-      Result := (s.Count >2) and (PosInStrArray(Sys.Trim(s[2]),MVS_JES_Status)>-1);
+      Result := (s.Count >2) and (PosInStrArray(Trim(s[2]),MVS_JES_Status)>-1);
       if Result and (s.Count > 3) then
       begin
         Result := IsNumeric(s[3]) or (s[3][1]='-');
@@ -486,7 +487,7 @@ begin
         Result := IsMVS_JESNoJobsMsg(AListing[0]);
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end
   else
@@ -532,10 +533,10 @@ begin
   //owner
   LBuf := AItem.Data;
   LI.OwnerName := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //filename
   LI.FileName  := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   case PosInStrArray (Fetch(LBuf),MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;        // 'INPUT'  job received but not run yet
     1 : LI.JobStatus := IdJESHold;            // 'HELD'   job is in hold status
@@ -543,12 +544,12 @@ begin
     3 : LI.JobStatus := IdJESOuptutAvailable; // 'OUTPUT' job has finished and has output available
   end;
   //spool file output if available
-  LBuf := Sys.TrimLeft(LBuf);
-  LI.JobSpoolFiles := Sys.StrToInt(Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
+  LI.JobSpoolFiles := IndyStrToInt(Fetch(LBuf),0);
   Result := True;
 end;
 
-class function TIdFTPLPMVSJESInterface1.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPMVSJESInterface1.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var LItem : TIdFTPListItem;
   i : Integer;
@@ -574,7 +575,7 @@ end;
 
 { TIdFTPLPMVSJESInterface2 }
 
-class function TIdFTPLPMVSJESInterface2.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPMVSJESInterface2.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
   Result := False;
@@ -619,19 +620,19 @@ begin
   LI := AItem as TIdMVSJESIntF2FTPListItem;
   LI.ModifiedAvail := False;
   LI.SizeAvail := False;
-  LI.FileName := Sys.Trim(Copy(AItem.Data,10,8));
-  LI.OwnerName := Sys.Trim(Copy(AItem.Data,19,7));
+  LI.FileName := Trim(Copy(AItem.Data,10,8));
+  LI.OwnerName := Trim(Copy(AItem.Data,19,7));
   if IsLineStr(LI.OwnerName) then
   begin
     LI.OwnerName := '';
   end;
-  case PosInStrArray (Sys.Trim(Copy(AItem.Data,28,7)),MVS_JES_Status) of
+  case PosInStrArray (Trim(Copy(AItem.Data,28,7)),MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;          // 'INPUT'   job received but not run yet
     1 : LI.JobStatus := IdJESHold;              // 'HELD'    job is in hold status
     2 : LI.JobStatus := IdJESRunning;           // 'ACTIVE'  job is running
     3 : LI.JobStatus := IdJESOuptutAvailable;   // 'OUTPUT'  job has finished and has output available
   end;
-  LBuf := Sys.Trim(Copy(AItem.Data,35,Length(AItem.Data)));
+  LBuf := Trim(Copy(AItem.Data,35,Length(AItem.Data)));
   LPos := IndyPos(' spool',LBuf); {do not localize}
   if LPos = 0 then
   begin
@@ -650,11 +651,11 @@ begin
       LNo := LBuf[LPos2] + LNo;
     end;
   end;
-  LI.JobSpoolFiles := Sys.StrToInt(LNo,0);
+  LI.JobSpoolFiles := IndyStrToInt(LNo,0);
   Result := True;
 end;
 
-class function TIdFTPLPMVSJESInterface2.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPMVSJESInterface2.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var LItem : TIdFTPListItem;
   i : Integer;
@@ -707,7 +708,7 @@ end;
 
 { TIdMVSFTPListItem }
 
-constructor TIdMVSFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMVSFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   FSizeAvail := False;  //we can't get the file size from a MVS system
@@ -715,26 +716,26 @@ end;
 
 { TIdMVSJESIntFFTPListItem }
 
-constructor TIdMVSJESIntF2FTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMVSJESIntF2FTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
-  FDetails := TIdStringList.Create;
+  FDetails := TStringList.Create;
 end;
 
 destructor TIdMVSJESIntF2FTPListItem.Destroy;
 begin
-  Sys.FreeAndNil(FDetails);
+  FreeAndNil(FDetails);
   inherited Destroy;
 end;
 
-procedure TIdMVSJESIntF2FTPListItem.SetDetails(AValue: TIdStrings);
+procedure TIdMVSJESIntF2FTPListItem.SetDetails(AValue: TStrings);
 begin
   FDetails.Assign(AValue);
 end;
 
 { TIdMVSJESFTPListItem }
 
-constructor TIdMVSJESFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMVSJESFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
    Self.JobStatus := IdJESNotApplicable;

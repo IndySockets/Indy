@@ -171,10 +171,9 @@ unit IdFTPCommon;
 interface
 
 uses
-  IdObjs,
+  Classes,
   IdGlobal,
-  IdGlobalProtocols,
-  IdSys;
+  IdGlobalProtocols;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);
@@ -420,10 +419,10 @@ function RemoveDuplicatePathSyms(APath : String): String;
 {***
 EPLF time stamp processing
 ***}
-function EPLFDateToLocalDateTime(const AData: String): TIdDateTIme;
-function EPLFDateToGMTDateTime(const AData: String): TIdDateTime;
-function GMTDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
-function LocalDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
+function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
+function EPLFDateToGMTDateTime(const AData: String): TDateTIme;
+function GMTDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
 
 {***
 Misc parsing
@@ -432,7 +431,7 @@ function PatternsInStr(const ASearchPattern, AString : String): Integer;
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
 function StripPath(const AFileName : String; const PathDelin : String = '/'): String;
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
-function UnfoldLines(const AData : String; ALine : Integer; AStrings : TIdStrings): String;
+function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
 function StrPart(var AInput: string; const AMaxLength : Integer; const ADelete: Boolean = IdFetchDeleteDefault) : String;
 function FetchLength(var AInput: string;
   const AMaxLength : Integer;
@@ -450,7 +449,7 @@ function IsSubDirContentsBanner(const AData: String): Boolean;
 Quoted strings
 ***}
 function UnquotedStr(const AStr : String): String;
-procedure ParseQuotedArgs(const AParams : String; AStrings : TIdStrings);
+procedure ParseQuotedArgs(const AParams : String; AStrings : TStrings);
 
 {**
 Number extraction
@@ -468,24 +467,24 @@ function IsDDMonthYY(const AData : String; const ADelin : String) : Boolean;
 function IsMMDDYY(const AData : String; const ADelin : String) : Boolean;
 function IsYYYYMMDD(const AData : String) : Boolean;
 function Y2Year(const AYear : Integer): Integer;
-function DateYYMMDD(const AData: String): TIdDateTime;
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TIdDateTime;
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TIdDateTime;
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TIdDateTime;
-function DateMMDDYY(const AData: String): TIdDateTime;
-function TimeHHMMSS(const AData : String):TIdDateTime;
-function IsIn6MonthWindow(const AMDate : TIdDateTime):Boolean;
+function DateYYMMDD(const AData: String): TDateTIme;
+function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTIme;
+function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTIme;
+function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTIme;
+function DateMMDDYY(const AData: String): TDateTIme;
+function TimeHHMMSS(const AData : String):TDateTIme;
+function IsIn6MonthWindow(const AMDate : TDateTIme):Boolean;
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
 function IsHHMMSS(const AData : String; const ADelin : String) : Boolean;
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
-function MVSDate(const AData: String): TIdDateTime;
-function AS400Date(const AData: String): TIdDateTime;
+function MVSDate(const AData: String): TDateTIme;
+function AS400Date(const AData: String): TDateTIme;
 
 //MDTM Set filedate support and SITE ZONE support
 function MinutesFromGMT : Integer;
-function MDTMOffset(const AOffs : String) : TIdDateTime;
-function FTPDateTimeToMDTMD(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TIdDateTime;
+function MDTMOffset(const AOffs : String) : TDateTIme;
+function FTPDateTimeToMDTMD(const ATimeStamp : TDateTIme; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTIme;
 
 
 {***
@@ -528,7 +527,7 @@ function DispositionCodeToTIdVSEPQDisposition(const ADisp : Char) : TIdVSEPQDisp
 function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) : Char;
 
 {EPLF and MLST/MLSD support}
-function ParseFacts(AData : String; AResults : TIdStrings;
+function ParseFacts(AData : String; AResults : TStrings;
   const AFactDelin : String = ';'; const ANameDelin : String=' '): String;
 
 {Sterling Commerce support routines}
@@ -579,7 +578,7 @@ const
   IdS_IRWXO = IdS_IRWXG shr 3;
 
 implementation
-
+uses SysUtils;
 {Misc Parsing}
 
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
@@ -643,7 +642,7 @@ begin
   until False;
 end;
 
-function UnfoldLines(const AData : String; ALine : Integer; AStrings : TIdStrings): String;
+function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
 var  LFoldedLine : String;
 begin
 
@@ -661,7 +660,7 @@ begin
     if not (CharIsInSet(LFoldedLine, 1, LWS)) then begin
        Break;
     end;
-    Result := Sys.Trim(Result) + ' ' + Sys.Trim(LFoldedLine); {Do not Localize}
+    Result := Trim(Result) + ' ' + Trim(LFoldedLine); {Do not Localize}
   end;
 end;
 
@@ -775,11 +774,11 @@ begin
   end;
   if ARetZero then
   begin
-    Result := Sys.StrToInt(LBuf,0);
+    Result := IndyStrToInt(LBuf,0);
   end
   else
   begin
-    Result := Sys.StrToInt(LBuf,-1);
+    Result := IndyStrToInt(LBuf,-1);
   end;
 end;
 
@@ -917,19 +916,19 @@ const
 function RemoveDuplicatePathSyms(APath : String): String;
 begin
   Result := APath;
-  Result := Sys.StringReplace(APath,TrailingPathCorrectionOrg,TrailingPathCorrectionNew);
+  Result := StringsReplace(APath,TrailingPathCorrectionOrg,TrailingPathCorrectionNew);
 end;
 
 {Path conversion}
 
 function UnixPathToDOSPath(const APath : String):String;
 begin
-  Result := Sys.StringReplace(APath,PATH_SUBDIR_SEP_UNIX,PATH_SUBDIR_SEP_DOS);
+  Result := StringReplace(APath,PATH_SUBDIR_SEP_UNIX,PATH_SUBDIR_SEP_DOS,[rfReplaceAll]);
 end;
 
 function DOSPathToUnixPath(const APath : String):String;
 begin
-  Result := Sys.StringReplace(APath,PATH_SUBDIR_SEP_DOS,PATH_SUBDIR_SEP_UNIX);
+  Result := StringReplace(APath,PATH_SUBDIR_SEP_DOS,PATH_SUBDIR_SEP_UNIX,[rfReplaceAll]);
 end;
 
 {Pattern recognition}
@@ -963,7 +962,7 @@ begin
   end;
 end;
 
-procedure ParseQuotedArgs(const AParams : String; AStrings : TIdStrings);
+procedure ParseQuotedArgs(const AParams : String; AStrings : TStrings);
 var lComma, LOpenQuote : Integer;
     LBuf : String;
     LArg : String;
@@ -986,7 +985,7 @@ begin
     end;
     if (LOpenQuote = 0) or (LComma < LOpenQuote) then
     begin
-      LArg := Sys.TrimLeft(Fetch(LBuf,','));
+      LArg := TrimLeft(Fetch(LBuf,','));
     end
     else
     begin
@@ -1002,40 +1001,40 @@ end;
 
 {EPLF Date processing}
 
-function EPLFDateToLocalDateTime(const AData: String): TIdDateTime;
+function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
 {note - code stolen from TIdTime and mofied for our
 needs.}
 var LSecs : Int64;
 //const BASE_DATE = 2;
 const BASE_DATE = 25569; //Jan 1, 1970
 begin
-  LSecs := Sys.StrToInt(AData);
+  LSecs := IndyStrToInt(AData);
   Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE))
     -IdGlobalProtocols.TimeZoneBias;
 end;
 
-function EPLFDateToGMTDateTime(const AData: String): TIdDateTime;
+function EPLFDateToGMTDateTime(const AData: String): TDateTIme;
 {note - code stolen from TIdTime and mofied for our
 needs.}
 var LSecs : Int64;
 //const BASE_DATE = 2;
 
 begin
-  LSecs := Sys.StrToInt(AData);
+  LSecs := IndyStrToInt(AData);
   Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(EPLF_BASE_DATE));
 end;
 
-function GMTDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
+function GMTDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
 //const BASE_DATE = 2;
 const BASE_DATE = 25569;
 
 begin
-  Result := Sys.FloatToIntStr( extended(ADateTime - Int(BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr( extended(ADateTime - Int(BASE_DATE)) * 24 * 60 * 60);
 end;
 
-function LocalDateTimeToEPLFDate(const ADateTime : TIdDateTime) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
 begin
-  Result := Sys.FloatToIntStr(extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr(extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
 
 {Date routines}
@@ -1047,28 +1046,28 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
- // LYear :=  Sys.StrToInt( Copy( LBuffer,1,4),0);
-  LMonth := Sys.StrToInt(Copy(AString,5,2),0);
+ // LYear :=  IndyStrToInt( Copy( LBuffer,1,4),0);
+  LMonth := IndyStrToInt(Copy(AString,5,2),0);
   if (LMonth < 1) or (LMonth > 12) then
   begin
     Exit;
   end;
-  LDay := Sys.StrToInt(Copy(AString,7,2),0);
+  LDay := IndyStrToInt(Copy(AString,7,2),0);
   if (LDay < 1) or (LDay > 31) then
   begin
     Exit;
   end;
-  LHour := Sys.StrToInt(Copy(AString,9,2),0);
+  LHour := IndyStrToInt(Copy(AString,9,2),0);
   if (LHour < 0) or (LHour > 24) then
   begin
     Exit;
   end;
-  LMin := Sys.StrToInt(Copy(AString,11,2),0);
+  LMin := IndyStrToInt(Copy(AString,11,2),0);
   if (LMin < 0) or (LMin > 59) then
   begin
     Exit;
   end;
-  LSec := Sys.StrToInt(Copy(AString,13,2),0);
+  LSec := IndyStrToInt(Copy(AString,13,2),0);
   if (LSec < 0) or (LSec > 59) then
   begin
     Exit;
@@ -1134,63 +1133,63 @@ begin
   Result := IsValidTimeStamp(LBuffer);
 end;
 
-function MDTMOffset(const AOffs : String) : TIdDateTime;
+function MDTMOffset(const AOffs : String) : TDateTIme;
 var
   LOffs : Integer;
 begin
-  LOffs := Sys.StrToInt(AOffs);
+  LOffs := IndyStrToInt(AOffs);
   {We use ABS because EncodeTime will only accept positve values}
-  Result := Sys.EncodeTime(Abs(LOffs) div 60, Abs(LOffs) mod 60, 0, 0);
+  Result := EncodeTime(Abs(LOffs) div 60, Abs(LOffs) mod 60, 0, 0);
   if LOffs > 0 then begin
     Result := 0 - Result;
   end;
 end;
 
 function MinutesFromGMT : Integer;
-var LD : TIdDateTime;
+var LD : TDateTIme;
     LHour, LMin, LSec, LMSec : Word;
 begin
-  LD := Sys.OffsetFromUTC;
+  LD := OffsetFromUTC;
   if LD < 0.0 then
   begin
-    Sys.DecodeTime(LD,LHour, LMin, LSec,LMSec);
+    DecodeTime(LD,LHour, LMin, LSec,LMSec);
     Result := 0 - (LHour * 60 + LMin);
   end
   else
   begin
-    Sys.DecodeTime(LD,LHour, LMin, LSec,LMSec);
+    DecodeTime(LD,LHour, LMin, LSec,LMSec);
     Result := LHour * 60 + LMin;
   end;
 end;
 
-function FTPDateTimeToMDTMD(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
+function FTPDateTimeToMDTMD(const ATimeStamp : TDateTIme; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
 var LYear, LMonth, LDay,
     LHour, LMin, LSec, LMSec : Word;
     LOfs : Integer;
 begin
-  Sys.DecodeDate(ATimeStamp,LYear,LMonth,LDay);
-  Sys.DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
-  Result := Sys.Format('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]); {Do not translate}
+  DecodeDate(ATimeStamp,LYear,LMonth,LDay);
+  DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
+  Result := IndyFormat('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]); {Do not translate}
   if AIncludeMSecs then
   begin
-    Result := Result + Sys.Format('.%3d',[LMSec]);  {Do not translate}
+    Result := Result + IndyFormat('.%3d',[LMSec]);  {Do not translate}
   end;
   if AIncludeGMTOffset then
   begin
     LOfs := MinutesFromGMT;
     if LOfs < 0 then
     begin
-      Result := Result + Sys.IntToStr(LOfs);
+      Result := Result + IntToStr(LOfs);
     end
     else
     begin
-      Result := Result + '+' + Sys.IntToStr(LOfs);
+      Result := Result + '+' + IntToStr(LOfs);
     end;
   end;
-  Result := Sys.StringReplace(Result,' ','0');
+  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
 end;
 
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TIdDateTime;
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTIme;
 var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
     LBuffer : String;
     LOffset : String;
@@ -1215,20 +1214,20 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := Sys.StrToInt(Copy(LBuffer,1,4),0);
-      LMonth := Sys.StrToInt(Copy(LBuffer,5,2),0);
-      LDay := Sys.StrToInt(Copy(LBuffer,7,2),0);
+      LYear := IndyStrToInt(Copy(LBuffer,1,4),0);
+      LMonth := IndyStrToInt(Copy(LBuffer,5,2),0);
+      LDay := IndyStrToInt(Copy(LBuffer,7,2),0);
 
-      LHour := Sys.StrToInt(Copy(LBuffer,9,2),0);
-      LMin := Sys.StrToInt(Copy(LBuffer,11,2),0);
-      LSec := Sys.StrToInt(Copy(LBuffer,13,2),0);
+      LHour := IndyStrToInt(Copy(LBuffer,9,2),0);
+      LMin := IndyStrToInt(Copy(LBuffer,11,2),0);
+      LSec := IndyStrToInt(Copy(LBuffer,13,2),0);
       Fetch(LBuffer,'.');
-      LMSec := Sys.StrToInt(LBuffer,0);
-      Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
+      LMSec := IndyStrToInt(LBuffer,0);
+      Result := EncodeDate(LYear,LMonth,LDay);
+      Result := Result + EncodeTime(LHour,LMin,LSec,LMSec);
       if LOffset='' then
       begin
-        Result := Result - Sys.OffsetFromUTC;
+        Result := Result - OffsetFromUTC;
       end
       else
       begin
@@ -1275,7 +1274,7 @@ begin
     LBuf := AData;
     LPt := Fetch(LBuf,ADelin);
     //day
-    if (Sys.StrToInt(LPt,0)>0) and (Sys.StrToInt(LPt,0)<32) then
+    if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<32) then
     begin
       //month
       LPt := Fetch(LBuf,ADelin);
@@ -1300,10 +1299,10 @@ begin
   begin
     LBuf := AData;
     LPt := Fetch(LBuf,ADelin);
-    if (Sys.StrToInt(LPt,0)>0) and (Sys.StrToInt(LPt,0)<13) then
+    if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<13) then
     begin
       LPt := Fetch(LBuf,ADelin);
-      if (Sys.StrToInt(LPt,0)>0) and (Sys.StrToInt(LPt,0)<33) then
+      if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<33) then
       begin
         Result := IsNumeric(LBuf);
       end;
@@ -1320,7 +1319,7 @@ handling routines.
   function CurrentYear : Integer;
   var LYear, LMonth, LDay : Word;
   begin
-    Sys.DecodeDate(Sys.Now,LYear,LMonth,LDay);
+    DecodeDate(Now,LYear,LMonth,LDay);
     Result := LYear;
   end;
 
@@ -1331,9 +1330,9 @@ begin
   //years such as 2000 and 2003
   if (Result < 1000) then
   begin
-    if Sys.TwoDigitYearCenturyWindow > 0 then
+    if TwoDigitYearCenturyWindow > 0 then
     begin
-      if Result > Sys.TwoDigitYearCenturyWindow then
+      if Result > TwoDigitYearCenturyWindow then
       begin
         Result := Result + (((CurrentYear div 100)-1)*100);
       end
@@ -1349,7 +1348,7 @@ begin
   end;
 end;
 
-function DateYYMMDD(const AData: String): TIdDateTime;
+function DateYYMMDD(const AData: String): TDateTIme;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LDelin : String;
@@ -1357,65 +1356,65 @@ var LMonth, LDay, LYear : Integer;
 begin
   LBuffer := AData;
   LDelin := FindDelimInNumbers(AData);
-  LYear := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
-  LMonth := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
-  LDay := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
+  LYear := IndyStrToInt(Fetch(LBuffer,LDelin),0);
+  LMonth := IndyStrToInt(Fetch(LBuffer,LDelin),0);
+  LDay := IndyStrToInt(Fetch(LBuffer,LDelin),0);
 
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TIdDateTime;
+function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTIme;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
 
 begin
   LBuffer := AData;
-  LYear := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
-  LMonth := StrToMonth(Sys.Trim(Fetch(LBuffer,ADelin)));
-  LDay := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
+  LYear := IndyStrToInt(Fetch(LBuffer,ADelin),0);
+  LMonth := StrToMonth(Fetch(LBuffer,ADelin));
+  LDay := IndyStrToInt(Fetch(LBuffer,ADelin),0);
 
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TIdDateTime;
+function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTIme;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LMnth : String;
 begin
   LBuffer := AData;
-  LMnth := Sys.Trim(Sys.Trim(Fetch(LBuffer,ADelin)));
-  LMonth := Sys.StrToInt(LMnth,0);
+  LMnth := Trim(Trim(Fetch(LBuffer,ADelin)));
+  LMonth := IndyStrToInt(LMnth,0);
   if LMonth = 0 then
   begin
     LMonth := StrToMonth(LMnth);
   end;
-  LDay := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
-  LYear := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
+  LDay := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
+  LYear := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
   if AAddMissingYear and (LYear = 0) then
   begin
     LYear := AddMissingYear(LDay,LMonth);
   end;
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TIdDateTime;
+function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTIme;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
 
 begin
   LBuffer := AData;
-  LDay := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
-  LMonth := StrToMonth(Sys.Trim(Fetch(LBuffer,ADelin)));
-  LYear := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,ADelin)),0);
+  LDay := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
+  LMonth := StrToMonth(Trim(Fetch(LBuffer,ADelin)));
+  LYear := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
 
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
-function DateMMDDYY(const AData: String): TIdDateTime;
+function DateMMDDYY(const AData: String): TDateTIme;
 var LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LDelin : String;
@@ -1424,14 +1423,14 @@ begin
   LBuffer := AData;
   LDelin := FindDelimInNumbers(AData);
 
-  LMonth := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
-  LDay := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
-  LYear := Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelin)),0);
+  LMonth := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
+  LDay := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
+  LYear := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
-function TimeHHMMSS(const AData : String):TIdDateTime;
+function TimeHHMMSS(const AData : String):TDateTIme;
 var LCHour, LCMin, LCSec, LCMSec : Word;
     LHour, LMin, LSec, LMSec : Word;
     LBuffer : String;
@@ -1442,7 +1441,7 @@ var LCHour, LCMin, LCSec, LCMSec : Word;
 begin
   LPM := False;
   LAM := False;
-  LBuffer := Sys.UpperCase(AData);
+  LBuffer := UpperCase(AData);
   if IndyPos('PM', LBuffer) > 0 then {do not localize}
   begin
     LPM := True;
@@ -1464,11 +1463,11 @@ begin
     LAM := True;
     LBuffer := Fetch(LBuffer, 'A'); {do not localize}
   end;
-  LBuffer := Sys.Trim(LBuffer);
-  Sys.DecodeTime(Sys.Now,LCHour,LCMin,LCSec,LCMSec);
+  LBuffer := Trim(LBuffer);
+  DecodeTime(Now,LCHour,LCMin,LCSec,LCMSec);
   LDelin := FindDelimInNumbers(AData);
-  LHour :=   Sys.StrToInt( Fetch(LBuffer,LDelin),0);
-  LMin :=  Sys.StrToInt( Fetch(LBuffer,LDelin),0);
+  LHour :=   IndyStrToInt( Fetch(LBuffer,LDelin),0);
+  LMin :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
   if LPM then
   begin
     //in the 12 hour format, afternoon is 12:00PM followed by 1:00PM
@@ -1486,12 +1485,12 @@ begin
       LHour := 0;
     end;
   end;
-  LSec :=  Sys.StrToInt( Fetch(LBuffer,LDelin),0);
-  LMSec :=  Sys.StrToInt( Fetch(LBuffer,LDelin),0);
-  Result := Sys.EncodeTime(LHour,LMin,LSec,LMSec);
+  LSec :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
+  LMSec :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
+  Result := EncodeTime(LHour,LMin,LSec,LMSec);
 end;
 
-function IsIn6MonthWindow(const AMDate : TIdDateTime):Boolean;
+function IsIn6MonthWindow(const AMDate : TDateTIme):Boolean;
 //based on http://www.opengroup.org/onlinepubs/007908799/xbd/utilconv.html#usg
 //For dates, we display the time only if the date is within 6 monthes of the current
 //date.  Otherwise, we send the year.
@@ -1499,8 +1498,8 @@ var LCurMonth, LCurDay, LCurYear : Word;  //Now
       LPMonth,  LPYear : Word;
       LMMonth, LMDay, LMYear : Word;//AMDate
 begin
-  Sys.DecodeDate(Sys.Now,LCurYear,LCurMonth,LCurDay);
-  Sys.DecodeDate(AMDate,LMYear,LMMonth,LMDay);
+  DecodeDate(Now,LCurYear,LCurMonth,LCurDay);
+  DecodeDate(AMDate,LMYear,LMMonth,LMDay);
   if (LCurMonth - 6) < 1 then
   begin
     LPMonth :=  12 + (LCurMonth - 6);
@@ -1534,7 +1533,7 @@ end;
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
 var LDay, LMonth, LYear : Word;
 begin
-  Sys.DecodeDate(Sys.Now,LYear,LMonth,LDay);
+  DecodeDate(Now,LYear,LMonth,LDay);
   Result := LYear;
   if (LMonth < AMonth) or (LMonth=AMonth) and (ADay > LDay) then begin
     Result := LYear - 1;
@@ -1550,10 +1549,10 @@ begin
   if PatternsInStr(ADelin,AData)>0 then
   begin
     LPt := Fetch(LBuf,ADelin);
-    if ( Sys.StrToInt(LPt,-1)>-1) and ( Sys.StrToInt(LPt,-1)<24) then
+    if ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,-1)<24) then
     begin
       LPt := Fetch(LBuf,ADelin);
-      if ( Sys.StrToInt(LPt,-1)>-1) and ( Sys.StrToInt(LPt,0)<60) then
+      if ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,0)<60) then
       begin
         LPt := Fetch(LBuf,ADelin);
         if LPt = '' then
@@ -1563,48 +1562,48 @@ begin
         else
         begin
           //seconds are also given - check those
-          Result := ( Sys.StrToInt(LPt,-1)>-1) and ( Sys.StrToInt(LPt,0)<60);
+          Result := ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,0)<60);
         end;
       end;
     end;
   end;
 end;
 
-function MVSDate(const AData: String): TIdDateTime;
+function MVSDate(const AData: String): TDateTIme;
 var
     LYear, LMonth, LDay : Integer;
     LCYear, LCMonth, LCDay : Word;
     LBuffer : String;
 begin
-  Sys.DecodeDate(Sys.Now,LCYear,LCMonth,LCDay);
+  DecodeDate(Now,LCYear,LCMonth,LCDay);
   LBuffer := AData;
   if IndyPos('/', LBuffer) = 3 then
   begin
     //two digit things could be in order of yy/mm/dd or mm/dd/yy in a partitionned dtaset
-    LYear := Sys.StrToInt(Fetch(LBuffer,'/'), LCYear);
+    LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
     if (LYear < 13) and (LYear > 0) then
     begin
       LMonth := LYear;
-      LDay := Sys.StrToInt(Fetch(LBuffer,'/'), LCDay);
-      LYear := Sys.StrToInt(Fetch(LBuffer,'/'), LCYear);
+      LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
+      LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
     end
     else
     begin
-      LMonth := Sys.StrToInt(Fetch(LBuffer,'/'), LCMonth);
-      LDay := Sys.StrToInt(Fetch(LBuffer,'/'), LCDay);
+      LMonth := IndyStrToInt(Fetch(LBuffer,'/'), LCMonth);
+      LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
     end;
   end
   else
   begin
-    LYear := Sys.StrToInt(Fetch(LBuffer,'/'), LCYear);
-    LMonth := Sys.StrToInt(Fetch(LBuffer,'/'), LCMonth);
-    LDay := Sys.StrToInt(Fetch(LBuffer,'/'), LCDay);
+    LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
+    LMonth := IndyStrToInt(Fetch(LBuffer,'/'), LCMonth);
+    LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
   end;
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear, LMonth, LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function AS400Date(const AData: String): TIdDateTime;
+function AS400Date(const AData: String): TDateTIme;
 var LDelim : String;
     LBuffer : String;
 
@@ -1626,9 +1625,9 @@ begin
     Exit;
   end;
   LBuffer := AData;
-  LDay :=  Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelim)),0);
-  LMonth :=  Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelim)),0);
-  LYear :=  Sys.StrToInt(Sys.Trim(Fetch(LBuffer,LDelim)),0);
+  LDay :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
+  LMonth :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
+  LYear :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
   if (LMonth>12) then
   begin
     SwapNos(LDay,LMonth);
@@ -1638,7 +1637,7 @@ begin
     SwapNos(LYear,LDay);
   end;
   LYear := Y2Year(LYear);
-  Result := Sys.EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear,LMonth,LDay);
 end;
 
 //=== platform stuff
@@ -1653,7 +1652,7 @@ begin
 
   if AStrict=False then
   begin
-    SData := Sys.UpperCase(AData);
+    SData := UpperCase(AData);
     result := (Length(SData)>9) and
        (CharIsInSet(SData, 1, 'LD-BCPS')) and    {Do not Localize}
        (CharIsInSet(SData, 2, 'TSRWX-')) and    {Do not Localize}
@@ -2078,7 +2077,7 @@ end;
 //===== Novell Netware
             //ftp.sips.state.nc.us
 function IsNovelPSPattern(const AStr : String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
   LModStr : String;
 begin
   LModStr := AStr;
@@ -2086,7 +2085,7 @@ begin
   begin
     IdInsert(' ', LModStr, 2);
   end;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(LModStr,s);
      //0-type
@@ -2100,9 +2099,9 @@ begin
      //8-am/pm
      //9- start of filename
      Result := (s.Count > 8) and IsNumeric(s[6]) and IsHHMMSS(s[7], ':') and
-       ((Sys.UpperCase(s[8]) = 'AM') or (Sys.UpperCase(s[8]) = 'PM'));  {do not localize}
+       ((UpperCase(s[8]) = 'AM') or (UpperCase(s[8]) = 'PM'));  {do not localize}
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
@@ -2137,7 +2136,7 @@ begin
   begin
     Result := Copy(AData,LOpen+1,LClose-LOpen-1);
   end;
-  Result := Sys.Trim(Result);
+  Result := Trim(Result);
 end;
 
 //===== QVT/NET
@@ -2160,7 +2159,7 @@ var LBuf : String;
 begin
   LBuf := Copy(AData,1,12);
   Result := Fetch(LBuf,'.');
-  LBuf := Sys.Trim(LBuf);
+  LBuf := Trim(LBuf);
   if LBuf <> '' then
   begin
     Result := Result + '.'+Fetch(LBuf);
@@ -2224,12 +2223,12 @@ begin
 end;
 
 function IsVMBFS(AData : String) : Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
     Result := False;
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
-      SplitColumns(Sys.TrimRight(AData),s);
+      SplitColumns(TrimRight(AData),s);
       if s.Count >4 then
       begin
         Result := (s[2]='F') or (s[2]='D');
@@ -2239,12 +2238,12 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
 end;
 
 //===== MLST/MLSD and EPLF formats
-function ParseFacts(AData : String; AResults : TIdStrings;
+function ParseFacts(AData : String; AResults : TStrings;
   const AFactDelin : String = ';'; const ANameDelin : String=' '): String;
 var LBuf : String;
 begin

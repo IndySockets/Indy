@@ -40,14 +40,15 @@ unit IdFTPListParseMPEiX;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdMPiXFTPListItem = class(TIdRecFTPListItem)
   protected
     FLimit : Cardinal;
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     property RecLength;
     property RecFormat;
     property NumberRecs;
@@ -59,7 +60,7 @@ type
   TIdFTPLPMPiXBase = class(TIdFTPListBaseHeader)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function IsSecondHeader(ACols: TIdStrings): Boolean; virtual;
+    class function IsSecondHeader(ACols: TStrings): Boolean; virtual;
   public
     class function GetIdent : String; override;
   end;
@@ -81,7 +82,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPMPiXBase }
 
@@ -91,7 +92,7 @@ begin
 end;
 
 class function TIdFTPLPMPiXBase.IsSecondHeader(
-  ACols: TIdStrings): Boolean;
+  ACols: TStrings): Boolean;
 begin
   Result := (ACols.Count > 3) and
             (ACols[0] = 'SIZE') and     {do not localize}
@@ -134,7 +135,7 @@ begin
 end;
 
 class function TIdFTPLPMPiX.IsHeader(const AData: String): Boolean;
-var LCols : TIdStrings;
+var LCols : TStrings;
     LAccP, LGrpP : Integer;
 begin
   LAccP := IndyPos('ACCOUNT=', AData);  {do not localize}
@@ -150,9 +151,9 @@ begin
   Result := (LAccP > 0) and (LGrpP > LAccP);
   if Result = False then
   begin
-    LCols := TIdStringList.Create;
+    LCols := TStringList.Create;
     try
-      SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LCols);
+      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
       if Result = False then
       begin
         Result := (LCols.Count > 3) and
@@ -170,7 +171,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      Sys.FreeAndNil(LCols);
+      FreeAndNil(LCols);
     end;
   end;
 end;
@@ -178,22 +179,22 @@ end;
 class function TIdFTPLPMPiX.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
   LBuf : String;
   LI : TIdMPiXFTPListItem;
 begin
   LI := AItem as TIdMPiXFTPListItem;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
     //According to "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems,Edition 6"
     //the filename here can be 8 chars long
-    LI.FileName := Sys.Trim(Copy(AItem.Data, 1, 8));
+    LI.FileName := Trim(Copy(AItem.Data, 1, 8));
     LBuf := Copy(AItem.Data, 8, Length(AItem.Data));
     if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then
     begin
       Fetch(LBuf);
     end;
-    SplitColumns(Sys.Trim(LBuf),LCols);
+    SplitColumns(Trim(LBuf),LCols);
 
     if LCols.Count > 1 then
     begin
@@ -207,12 +208,12 @@ begin
     //record COunt - EOF
     if LCols.Count > 3 then
     begin
-      LI.NumberRecs := Sys.StrToInt64(LCols[3], 0);
+      LI.NumberRecs := IndyStrToInt64(LCols[3], 0);
     end;
     //Limit
     if LCols.Count > 4 then
     begin
-      LI.Limit := Sys.StrToInt64(LCols[4], 0);
+      LI.Limit := IndyStrToInt64(LCols[4], 0);
     end;
     {
     HP3000 is a flat file system where there are no
@@ -227,7 +228,7 @@ begin
     }
     LI.ModifiedAvail := False;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
@@ -257,14 +258,14 @@ ACCOUNT=  SYS         GROUP=  WORK
 FILENAME  CODE  ------------LOGICAL RECORD-----------  ----SPACE----
 ===
 }
-var LCols : TIdStrings;
+var LCols : TStrings;
 begin
   Result := (IndyPos('PATH=', AData) > 0);  {do not localize}
   if Result = False then
   begin
-    LCols := TIdStringList.Create;
+    LCols := TStringList.Create;
     try
-      SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LCols);
+      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
       Result := (LCols.Count = 5) and
                 (LCols[0] = 'CODE') and       {do not localize}
                 (LCols[1] = 'LOGICAL') and    {do not localize}
@@ -276,7 +277,7 @@ begin
         Result := IsSecondHeader(LCols);
       end;
     finally
-      Sys.FreeAndNil(LCols);
+      FreeAndNil(LCols);
     end;
   end;
 end;
@@ -284,13 +285,13 @@ end;
 class function TIdFTPLPMPiXWithPOSIX.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdMPiXFTPListItem;
 begin
   LI := AItem as TIdMPiXFTPListItem;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(AItem.Data),LCols);
+    SplitColumns(Trim(AItem.Data),LCols);
     if LCols.Count > 0 then
     begin
       LI.Size := ExtractNumber(LCols[0]);
@@ -301,11 +302,11 @@ begin
     end;
     if (LCols.Count > 2) then
     begin
-      LI.NumberRecs := Sys.StrToInt64(LCols[2],0);
+      LI.NumberRecs := IndyStrToInt64(LCols[2],0);
     end;
     if (LCols.Count > 3) then
     begin
-      LI.Limit := Sys.StrToInt64(LCols[3],0);
+      LI.Limit := IndyStrToInt64(LCols[3],0);
     end;
     if (LCols.Count > 8) then
     begin
@@ -336,14 +337,14 @@ begin
     Note that HP3000 does not give you the date at all.
     }
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdMPiXFTPListItem }
 
-constructor TIdMPiXFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMPiXFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   //MP/iX or HP3000 will not give you a modified date at all

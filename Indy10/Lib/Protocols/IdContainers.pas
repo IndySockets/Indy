@@ -63,13 +63,13 @@ unit IdContainers;
 interface
 
 uses
-  IdObjs;
+ Classes;
 
 type
-  TIdSortCompare = function(AItem1, AItem2 : TIdBaseObject):Integer;
+  TIdSortCompare = function(AItem1, AItem2 : TObject):Integer;
   {TIdObjectList}
 
-  TIdObjectList = class(TIdList)
+  TIdObjectList = class(TList)
   private
     FOwnsObjects: Boolean;
   protected
@@ -90,8 +90,8 @@ type
     property OwnsObjects: Boolean read FOwnsObjects write FOwnsObjects;
   end;
 
-  TIdStringListSortCompare = function(List: TIdStringList; Index1, Index2: Integer): Integer;
-  TIdBubbleSortStringList = class(TIdStringList)
+  TIdStringListSortCompare = function(List: TStringList; Index1, Index2: Integer): Integer;
+  TIdBubbleSortStringList = class(TStringList)
   public
     procedure BubbleSort(ACompare: TIdStringListSortCompare); virtual;
   end;

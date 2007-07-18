@@ -40,7 +40,8 @@ unit IdFTPListParseHellSoft;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware;
 
 {
   This parser works just like Novell Netware's except that the detection is
@@ -58,17 +59,17 @@ type
   public
 
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPHellSoft }
 
-class function TIdFTPLPHellSoft.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPHellSoft.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
   function IsHellSoftLine(AData : String) : Boolean;

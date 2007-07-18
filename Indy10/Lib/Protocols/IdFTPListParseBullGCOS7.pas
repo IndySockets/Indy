@@ -43,7 +43,8 @@ unit IdFTPListParseBullGCOS7;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
   TIdFTPLPGOS7 = class(TIdFTPLineOwnedList)
@@ -51,17 +52,17 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdFTPListTypes, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdFTPListTypes, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPGOS7 }
 
-class function TIdFTPLPGOS7.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPGOS7.CheckListing(AListing: TStrings;
   const ASysDescript: String = ''; const ADetails: Boolean = true): boolean;
 
 var LData : String;
@@ -124,7 +125,7 @@ var LBuf : String;
 
   function RemoveComma(const AData : String) : String;
   begin
-    Result := Sys.StringReplace(AData,',','');
+    Result := StringReplace(AData,',','',[rfReplaceAll]);
   end;
 
 begin
@@ -143,7 +144,7 @@ begin
   begin
     LI.ModifiedDate := DateStrMonthDDYY(LBuf, ' ');
   end;
-  LI.OwnerName := Sys.Trim(Copy(AItem.Data, 25, 17));
+  LI.OwnerName := Trim(Copy(AItem.Data, 25, 17));
   //I don't think size is provided
   Result := True;
 end;

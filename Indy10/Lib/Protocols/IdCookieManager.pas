@@ -60,8 +60,6 @@ interface
 uses
   IdBaseComponent,
   IdCookie,
-  IdSys,
-  IdObjs,
   IdURI;
 
 Type
@@ -100,7 +98,7 @@ Type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdCookieManager }
 
@@ -108,7 +106,7 @@ destructor TIdCookieManager.Destroy;
 begin
   CleanupCookieList;
   DoOnDestroy;
-  Sys.FreeAndNil(FCookieCollection);
+  FreeAndNil(FCookieCollection);
   inherited Destroy;
 end;
 
@@ -253,7 +251,7 @@ begin
         for j := LCookieList.Count - 1 downto 0 do
         begin
           S := LCookieList.Cookies[j].Expires;
-          if (Length(S) > 0) and (GMTToLocalDateTime(S) < Sys.Now) then
+          if (Length(S) > 0) and (GMTToLocalDateTime(S) < Now) then
           begin
             // The Cookie has exiered. It has to be removed from the collection
             LLastCount := LCookieList.Count; // RLebeau

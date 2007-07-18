@@ -46,7 +46,8 @@ unit IdFTPListParseNCSAForDOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
   TIdNCSAforDOSFTPListItem = class(TIdFTPListItem);
@@ -57,21 +58,21 @@ type
     class function IsFooter(const AData : String): Boolean; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
     class function GetIdent : String; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 
 { TIdFTPLPNCSAforDOS }
 
-class function TIdFTPLPNCSAforDOS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPNCSAforDOS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
   LData : String;
   i : Integer;
 begin
@@ -85,7 +86,7 @@ begin
     begin
       LData := AListing[i];
 
-      s := TIdStringList.Create;
+      s := TStringList.Create;
       try
         SplitColumns(LData,s);
         if (s.Count = 4) then
@@ -95,7 +96,7 @@ begin
             and ExcludeQVNET(LData);
         end;
       finally
-        Sys.FreeAndNil(s);
+        FreeAndNil(s);
       end;
       if not Result then
       begin
@@ -113,12 +114,12 @@ begin
 end;
 
 class function TIdFTPLPNCSAforDOS.IsFooter(const AData: String): Boolean;
-var LWords : TIdStrings;
+var LWords : TStrings;
 begin
   Result := False;
-  LWords := TIdStringList.Create;
+  LWords := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(Sys.StringReplace(AData, '-', ' ')), LWords);
+    SplitColumns(Trim(StringReplace(AData, '-', ' ',[rfReplaceAll])), LWords);
     while (LWords.Count >2) do
     begin
       LWords.Delete(0);
@@ -128,7 +129,7 @@ begin
       Result := (LWords[0] = 'Bytes') and (LWords[1] = 'Available');  {do not localize}
     end;
   finally
-    Sys.FreeAndNil(LWords);
+    FreeAndNil(LWords);
   end;
 end;
 
@@ -152,7 +153,7 @@ begin
   {filename - note that a space is illegal in MS-DOS so this should be safe}
   AItem.FileName := Fetch(LBuf);
   {type or size}
-  LBuf := Sys.Trim(LBuf);
+  LBuf := Trim(LBuf);
   LPt := Fetch(LBuf);
   if LPt = '<DIR>' then {do not localize}
   begin
@@ -162,18 +163,18 @@ begin
   else
   begin
     AItem.ItemType := ditFile;
-    AItem.Size := Sys.StrToInt64(LPt,0);
+    AItem.Size := IndyStrToInt64(LPt,0);
   end;
   //time stamp
   if LBuf <> '' then
   begin
-    LBuf := Sys.Trim(LBuf);
+    LBuf := Trim(LBuf);
     LPt := Fetch(LBuf);
     if LPt <> '' then
     begin
       //Date
       AItem.ModifiedDate := DateMMDDYY(LPt);
-      LBuf := Sys.Trim(LBuf);
+      LBuf := Trim(LBuf);
       LPt := Fetch(LBuf);
       if LPt <> '' then
       begin

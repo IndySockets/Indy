@@ -46,7 +46,8 @@ unit IdFTPListParseEPLF;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdAEPLFFTPListItem = class(TIdFTPListItem)
@@ -64,17 +65,17 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPEPLF }
 
-class function TIdFTPLPEPLF.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPEPLF.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
   Result := (AListing.Count > 0) and (Length(AListing[0])>2) and (AListing[0][1]='+')
@@ -94,12 +95,12 @@ end;
 
 class function TIdFTPLPEPLF.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LFacts : TIdStrings;
+var LFacts : TStrings;
     i : Integer;
   LI : TIdAEPLFFTPListItem;
 begin
   LI := AItem as TIdAEPLFFTPListItem;
-  LFacts := TIdStringList.Create;
+  LFacts := TStringList.Create;
   try
     LI.FileName := ParseFacts(Copy(LI.Data, 2, Length(LI.Data)), LFacts, ',', #9);
     for i := 0 to LFacts.Count -1 do
@@ -110,7 +111,7 @@ begin
       end;
       if (Length(LFacts[i]) > 0) and (LFacts[i][1] = 's') then
       begin
-        AItem.Size := Sys.StrToInt64(Copy(LFacts[i], 2, Length(LFacts[i])), 0);
+        AItem.Size := IndyStrToInt64(Copy(LFacts[i], 2, Length(LFacts[i])), 0);
       end;
       if LFacts[i][1] = 'm' then  {do not localize}
       begin
@@ -123,7 +124,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(LFacts);
+    FreeAndNil(LFacts);
   end;
   Result := True;
 end;

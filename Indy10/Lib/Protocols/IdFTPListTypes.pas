@@ -51,11 +51,12 @@ unit IdFTPListTypes;
 interface
 
 uses
-  IdFTPList, IdSys, IdObjs;
+  Classes,
+  IdFTPList;
 
 type
   { For FTP servers using OS/2 and other MS-DOS-like file systems that report file attributes }
-  TIdDOSAttributes = class(TIdPersistent)
+  TIdDOSAttributes = class(TPersistent)
   protected
     FFileAttributes: Cardinal;
     function GetRead_Only: Boolean;
@@ -71,7 +72,7 @@ type
     function GetNormal: Boolean;
     procedure SetNormal(const AValue: Boolean);
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     function GetAsString: String; virtual;
     function AddAttribute(const AString : String) : Boolean;
   published
@@ -123,7 +124,7 @@ type
   //For NLST and Cisco IOS
   TIdMinimalFTPListItem = class(TIdFTPListItem)
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
   end;
 
   //This is for some mainframe items which are based on records
@@ -141,10 +142,10 @@ type
   { listing formats that include Creation timestamp information }
   TIdCreationDateFTPListItem = class(TIdFTPListItem)
   protected
-    FCreationDate: TIdDateTime;
+    FCreationDate: TDateTime;
   public
-    constructor Create(AOwner: TIdCollection); override;
-    property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
+    constructor Create(AOwner: TCollection); override;
+    property CreationDate: TDateTime read FCreationDate write FCreationDate;
 
   end;
 
@@ -153,24 +154,24 @@ type
   protected
     FAttributesAvail : Boolean;
     FAttributes :  TIdWin32ea;
-    FCreationDateGMT : TIdDateTime;
-    FLastAccessDate: TIdDateTime;
-    FLastAccessDateGMT : TIdDateTime;
+    FCreationDateGMT : TDateTime;
+    FLastAccessDate: TDateTime;
+    FLastAccessDateGMT : TDateTime;
     //Unique ID for an item to prevent yourself from downloading something twice
     FUniqueID : String;
     //MLIST things
     FMLISTPermissions : String;
     function GetFact(const AName : String) : String;
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     destructor Destroy; override;
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
     property ModifiedDateGMT;
-    property CreationDateGMT : TIdDateTime read FCreationDateGMT write FCreationDateGMT;
+    property CreationDateGMT : TDateTime read FCreationDateGMT write FCreationDateGMT;
 
-    property LastAccessDate: TIdDateTime read FLastAccessDate write FLastAccessDate;
-    property LastAccessDateGMT : TIdDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
+    property LastAccessDate: TDateTime read FLastAccessDate write FLastAccessDate;
+    property LastAccessDateGMT : TDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
 
     //Valid only with EPLF and MLST
     property UniqueID : string read FUniqueID write FUniqueID;
@@ -227,7 +228,7 @@ type
     FAttributes : TIdDOSAttributes;
     procedure SetAttributes(AAttributes : TIdDOSAttributes);
   public
-    constructor Create(AOwner: TIdCollection); override;
+    constructor Create(AOwner: TCollection); override;
     destructor Destroy; override;
     property Attributes : TIdDOSAttributes read FAttributes write SetAttributes;
   end;
@@ -252,11 +253,11 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdGlobal;
+  IdFTPCommon, IdGlobal, SysUtils;
 
 { TIdMinimalFTPListItem }
 
-constructor TIdMinimalFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMinimalFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   FSizeAvail := False;
@@ -265,7 +266,7 @@ end;
 
 { TIdMLSTFTPListItem }
 
-constructor TIdMLSTFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdMLSTFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   FAttributesAvail := False;
@@ -274,26 +275,26 @@ end;
 
 destructor TIdMLSTFTPListItem.Destroy;
 begin
-  Sys.FreeAndNil(FAttributes);
+  FreeAndNil(FAttributes);
   inherited Destroy;
 end;
 
 function TIdMLSTFTPListItem.GetFact(const AName: String): String;
 var
-  LFacts : TIdStrings;
+  LFacts : TStrings;
 begin
-  LFacts := TIdStringList.Create;
+  LFacts := TStringList.Create;
   try
     ParseFacts(Data, LFacts);
     Result := LFacts.Values[AName];
   finally
-    Sys.FreeAndNil(LFacts);
+    FreeAndNil(LFacts);
   end;
 end;
 
 { TIdDOSBaseFTPListItem }
 
-constructor TIdDOSBaseFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdDOSBaseFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   FAttributes := TIdDOSAttributes.Create;
@@ -301,7 +302,7 @@ end;
 
 destructor TIdDOSBaseFTPListItem.Destroy;
 begin
-  Sys.FreeAndNil(FAttributes);
+  FreeAndNil(FAttributes);
   inherited Destroy;
 end;
 
@@ -318,7 +319,7 @@ var
   i : Integer;
   S: String;
 begin
-  S := Sys.UpperCase(AString);
+  S := UpperCase(AString);
   for i := 1 to Length(S) do begin
     case CharPosInSet(S, i, 'RASHW-D') of
       //R
@@ -343,7 +344,7 @@ begin
   Result := True;
 end;
 
-procedure TIdDOSAttributes.Assign(Source: TIdPersistent);
+procedure TIdDOSAttributes.Assign(Source: TPersistent);
 begin
   if Source is TIdDOSAttributes then begin
     FFileAttributes := (Source as TIdDOSAttributes).FFileAttributes;
@@ -463,7 +464,7 @@ end;
 
 { TIdCreationDateFTPListItem }
 
-constructor TIdCreationDateFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdCreationDateFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   SizeAvail := False;

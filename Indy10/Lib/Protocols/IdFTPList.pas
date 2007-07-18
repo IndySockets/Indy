@@ -418,7 +418,8 @@ unit IdFTPList;
 interface
 
 uses
-  IdGlobal, IdObjs, IdException, IdFTPCommon, IdSys;
+  Classes,
+  IdGlobal,  IdException, IdFTPCommon;
 
 { Indy TIdFtp extensions to support automatic parsing of FTP directory listings }
 
@@ -431,7 +432,7 @@ type
   TIdFTPListItems = class;
 
   // TIdFTPListItem stores an item in the FTP directory listing
-  TIdFTPListItem = class(TIdCollectionItem)
+  TIdFTPListItem = class(TCollectionItem)
   protected
     FSize: Int64;
     FData: string;
@@ -439,11 +440,11 @@ type
     FLocalFileName : string; //suggested file name for local file
     FSizeAvail : Boolean;
     FModifiedAvail : Boolean;
-    FModifiedDate: TIdDateTime;
+    FModifiedDate: TDateTime;
 
     //the item below is for cases such as MLST output, EPLF, and Distinct format
     //which usually reports dates in GMT
-    FModifiedDateGMT : TIdDateTime;
+    FModifiedDateGMT : TDateTime;
     //Creation time values are for MLSD data output and can be returned by the
     //the MLSD parser in some cases
 
@@ -458,15 +459,15 @@ type
     //property set methods
     procedure SetFileName(const AValue : String);
     //may be used by some descendent classes
-    property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
+    property ModifiedDateGMT : TDateTime read FModifiedDateGMT write FModifiedDateGMT;
   public
-    constructor Create(AOwner: TIdCollection); override;
-    procedure Assign(Source: TIdPersistent); override;
+    constructor Create(AOwner: TCollection); override;
+    procedure Assign(Source: TPersistent); override;
 
     property Data: string read FData write FData;
 
     property Size: Int64 read FSize write FSize;
-    property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
+    property ModifiedDate: TDateTime read FModifiedDate write FModifiedDate;
 
     property FileName: string read FFileName write SetFileName;
     property LocalFileName : string read FLocalFileName write FLocalFileName;
@@ -482,7 +483,7 @@ type
   TIdOnParseCustomListFormat = procedure(AItem: TIdFTPListItem) of object;
 
   // TFTPList is the container and parser for items in the directory listing
-  TIdFTPListItems = class(TIdCollection)
+  TIdFTPListItems = class(TCollection)
   protected
     FDirectoryName: string;
     //
@@ -500,11 +501,11 @@ type
 implementation
 
 uses
-  IdContainers, IdResourceStrings, IdStrings;
+  IdContainers, IdResourceStrings, IdStrings, SysUtils;
 
 { TFTPListItem }
 
-constructor TIdFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   Data := '';    {Do not Localize}
@@ -517,7 +518,7 @@ begin
   FModifiedAvail := True;
 end;
 
-procedure TIdFTPListItem.Assign(Source: TIdPersistent);
+procedure TIdFTPListItem.Assign(Source: TPersistent);
 begin
   if Source is TIdFTPListItem then begin
     with Source as TIdFTPListItem do
@@ -598,7 +599,7 @@ begin
       end;
     end;
     if LDoLowerCase then begin
-      FLocalFileName := Sys.LowerCase(AValue);
+      FLocalFileName := LowerCase(AValue);
     end else begin
       FLocalFileName := AValue;
     end;

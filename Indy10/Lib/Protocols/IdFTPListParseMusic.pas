@@ -40,7 +40,8 @@ unit IdFTPListParseMusic;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdMusicFTPListItem = class(TIdRecFTPListItem)
@@ -64,7 +65,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPMusic }
 
@@ -74,9 +75,9 @@ begin
 end;
 
 class function TIdFTPLPMusic.IsHeader(const AData: String): Boolean;
-var LWords : TIdStrings;
+var LWords : TStrings;
 begin
-  LWords := TIdStringList.Create;
+  LWords := TStringList.Create;
   try
     SplitColumns(AData,LWords);
     Result := (LWords.Count > 7) and
@@ -92,7 +93,7 @@ begin
       (LWords[8] = '#Recs')) or         {do not localize}
       (LWords[7] = 'Attrbs#Recs'));     {do not localize}
   finally
-    Sys.FreeAndNil(LWords);
+    FreeAndNil(LWords);
   end;
 end;
 
@@ -119,7 +120,7 @@ begin
     LI.FileName := Copy(AItem.FileName, 1, Length(AItem.FileName)-1);
   end;
   //record length and type
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
   LI.RecFormat := ExtractRecFormat(StripNo(LTmp));
   LI.RecLength := ExtractNumber(LTmp);
@@ -128,36 +129,36 @@ begin
     LI.ItemType := ditDirectory;
   end;
   //Size - estimate
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
   LI.Size := ExtractNumber(LTmp) * 1024;  //usually, K ends the number
   //Read - not sure so lets skip it
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
 
   Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Write date - I think this is last modified
   LTmp := Fetch(LBuf);
-  LDay := Sys.StrToInt(Copy(LTmp,1,2),1);
+  LDay := IndyStrToInt(Copy(LTmp,1,2),1);
   LMonth := StrToMonth(Copy(LTmp,3,3));
-  LYear := Y2Year(Sys.StrToInt(Copy(LTmp,6,Length(LTmp)),0));
-  LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
-  LBuf := Sys.TrimLeft(LBuf);
+  LYear := Y2Year(IndyStrToInt(Copy(LTmp,6,Length(LTmp)),0));
+  LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
+  LBuf := TrimLeft(LBuf);
   //Write time
   LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS( Fetch(LBuf));
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Owner
   LI.OwnerName := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //attribs and rec count
   if IndyPos(' ',LBuf)>0 then
   begin
     Fetch(LBuf);
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
   end
   else
   begin
-    LI.NumberRecs := Sys.StrToInt(LBuf,0);
+    LI.NumberRecs := IndyStrToInt(LBuf,0);
   end;
   Result := True;
 end;

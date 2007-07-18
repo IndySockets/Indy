@@ -79,12 +79,11 @@ unit IdFSP;
 interface
 
 uses
+  Classes,
   IdException,
   IdFTPList,
   IdGlobal,
-  IdSys,
   IdThreadSafe,
-  IdObjs,
   IdUDPClient;
 
 {This is based on:
@@ -217,10 +216,10 @@ RDIRENT.HEADER types:
   RDTYPE_DIR      0x02
   RDTYPE_SKIP     0x2A
 }
-  TIdFSPStatInfo = class(TIdCollectionItem)
+  TIdFSPStatInfo = class(TCollectionItem)
   protected
-    FModifiedDateGMT : TIdDateTime;
-    FModifiedDate: TIdDateTime;
+    FModifiedDateGMT : TDateTime;
+    FModifiedDate: TDateTime;
     //Size is Int64 in case FSP 3 has an expansion, otherise, it can only handle
     //file sizes up 4 GB's.  It's not a bug, it's a feature.
     FSize: Int64;
@@ -228,8 +227,8 @@ RDIRENT.HEADER types:
   published
     property ItemType :TIdDirItemType read FItemType write FItemType;
     property Size: Int64 read FSize write FSize;
-    property ModifiedDate: TIdDateTime read FModifiedDate write FModifiedDate;
-    property ModifiedDateGMT : TIdDateTime read FModifiedDateGMT write FModifiedDateGMT;
+    property ModifiedDate: TDateTime read FModifiedDate write FModifiedDate;
+    property ModifiedDateGMT : TDateTime read FModifiedDateGMT write FModifiedDateGMT;
   end;
 
   TIdFSPListItem = class(TIdFSPStatInfo)
@@ -239,7 +238,7 @@ RDIRENT.HEADER types:
     property FileName: string read FFileName write FFileName;
   end;
 
-  TIdFSPListItems = class(TIdCollection)
+  TIdFSPListItems = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdFSPListItem;
     procedure SetItems(AIndex: Integer; const Value: TIdFSPListItem);
@@ -374,8 +373,8 @@ causes that directory can be listable even it do not have
     procedure GetStatInfo(const APath : String);
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean = False;
       AResume: Boolean = False); overload;
-    procedure Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean = False); overload;
-    procedure Put(const ASource: TIdStream; const ADestFile: string; const AGMTTime : TIdDateTime = 0); overload;
+    procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = False); overload;
+    procedure Put(const ASource: TStream; const ADestFile: string; const AGMTTime : TDateTime = 0); overload;
     procedure Put(const ASourceFile: string; const ADestFile: string=''); overload;
     property SystemDesc: string read FSystemDesc;
     property SystemServerLogs : Boolean read  FSystemServerLogs;
@@ -402,7 +401,7 @@ causes that directory can be listable even it do not have
 implementation
 
 uses
-  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream;
+  IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream, SysUtils;
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : Cardinal; var VPos : Cardinal): String;
 var
@@ -445,7 +444,7 @@ begin
   CopyBytesToHostCardinal(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
-  VL.FModifiedDate := VL.FModifiedDateGMT + Sys.OffSetFromUTC;
+  VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
   Inc(VI, 4);
 
   CopyBytesToHostCardinal(AData, VI, LC);
@@ -467,10 +466,10 @@ end;
 destructor TIdFSP.Destroy;
 begin
   Disconnect;
-  Sys.FreeAndNil(FDirInfo);
-  Sys.FreeAndNil(FDirectoryListing);
-  Sys.FreeAndNil(FStatInfo);
-  Sys.FreeAndNil(FAbortFlag);
+  FreeAndNil(FDirInfo);
+  FreeAndNil(FDirectoryListing);
+  FreeAndNil(FStatInfo);
+  FreeAndNil(FAbortFlag);
   inherited Destroy;
 end;
 
@@ -486,7 +485,7 @@ begin
   FConEstablished := False;
 end;
 
-procedure TIdFSP.Get(const ASourceFile: string; ADest: TIdStream; AResume: Boolean);
+procedure TIdFSP.Get(const ASourceFile: string; ADest: TStream; AResume: Boolean);
 var
   LSendPacket : TIdFSPPacket;
   LRecvPacket :  TIdFSPPacket;
@@ -527,19 +526,19 @@ begin
         EndWork(wmRead);
       end;
     finally
-      Sys.FreeAndNil(LRecvPacket);
+      FreeAndNil(LRecvPacket);
     end;
   finally
-    Sys.FreeAndNil(LSendPacket);
+    FreeAndNil(LSendPacket);
   end;
 end;
 
 procedure TIdFSP.Get(const ASourceFile, ADestFile: string; const ACanOverwrite: Boolean; AResume: Boolean);
 var
-  LDestStream: TIdStream;
+  LDestStream: TStream;
 begin
   if ACanOverwrite and (not AResume) then begin
-    Sys.DeleteFile(ADestFile);
+    DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
   else begin
@@ -554,7 +553,7 @@ begin
   try
     Get(ASourceFile, LDestStream, AResume);
   finally
-    Sys.FreeAndNil(LDestStream);
+    FreeAndNil(LDestStream);
   end;
 end;
 
@@ -625,10 +624,10 @@ begin
         end;
       until FDirectoryListing.ParseEntries(LRecvPacket.FData, LRecvPacket.FDataLen);
     finally
-      Sys.FreeAndNil(LRecvPacket);
+      FreeAndNil(LRecvPacket);
     end;
   finally
-    Sys.FreeAndNil(LSendPacket);
+    FreeAndNil(LSendPacket);
   end;
 end;
 
@@ -654,10 +653,10 @@ begin
       VData := LRecvPacket.Data;
       VExtraData := LRecvPacket.ExtraData;
     finally
-      Sys.FreeAndNil(LRecvPacket);
+      FreeAndNil(LRecvPacket);
     end;
   finally
-    Sys.FreeAndNil(LSendPacket);
+    FreeAndNil(LSendPacket);
   end;
 end;
 
@@ -824,7 +823,7 @@ there is other problem (no access rights) return type of file is
   end;
 end;
 
-procedure TIdFSP.Put(const ASource: TIdStream; const ADestFile: string; const AGMTTime: TIdDateTime);
+procedure TIdFSP.Put(const ASource: TStream; const ADestFile: string; const AGMTTime: TDateTime);
 var
   LUnixDate : Cardinal;
   LSendPacket : TIdFSPPacket;
@@ -873,27 +872,27 @@ begin
       end;
       SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
     finally
-      Sys.FreeAndNil(LRecvPacket);
+      FreeAndNil(LRecvPacket);
     end;
   finally
-    Sys.FreeAndNil(LSendPacket);
+    FreeAndNil(LSendPacket);
   end;
 end;
 
 procedure TIdFSP.Put(const ASourceFile, ADestFile: string);
 var
-  LSourceStream: TIdStream;
+  LSourceStream: TStream;
   LDestFileName : String;
 begin
   LDestFileName := ADestFile;
   if LDestFileName = '' then begin
-    LDestFileName := Sys.ExtractFileName(ASourceFile);
+    LDestFileName := ExtractFileName(ASourceFile);
   end;
   LSourceStream := TIdReadFileExclusiveStream.Create(ASourceFile);
   try
     Put(LSourceStream, LDestFileName, GetGMTDateByName(ASourceFile));
   finally
-    Sys.FreeAndNil(LSourceStream);
+    FreeAndNil(LSourceStream);
   end;
 end;
 
@@ -1033,10 +1032,10 @@ begin
       VData := LRecvPacket.Data;
       VExtraData := LRecvPacket.ExtraData;
     finally
-      Sys.FreeAndNil(LRecvPacket);
+      FreeAndNil(LRecvPacket);
     end;
   finally
-    Sys.FreeAndNil(LSendPacket);
+    FreeAndNil(LSendPacket);
   end;
 end;
 

@@ -86,7 +86,8 @@ unit IdCookie;
 interface
 
 uses
-  IdGlobal, IdException, IdGlobalProtocols, IdObjs, IdSys;
+  Classes,
+  IdGlobal, IdException, IdGlobalProtocols, SysUtils;
   //must keep for now
 
 Const
@@ -97,7 +98,7 @@ Type
 
   TIdNetscapeCookie = class;
 
-  TIdCookieList = class(TIdStringList)
+  TIdCookieList = class(TStringList)
   protected
     function GetCookie(Index: Integer): TIdNetscapeCookie;
   public
@@ -108,7 +109,7 @@ Type
     Base Cookie class as described in
     "Persistent Client State -- HTTP Cookies"
   }
-  TIdNetscapeCookie = class(TIdCollectionItem)
+  TIdNetscapeCookie = class(TCollectionItem)
   protected
     FCookieText: String;
     FDomain: String;
@@ -127,11 +128,11 @@ Type
     function GetServerCookie: String; virtual;
     function GetClientCookie: String; virtual;
 
-    procedure LoadProperties(APropertyList: TIdStringList); virtual;
+    procedure LoadProperties(APropertyList: TStringList); virtual;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
 
     function IsValidCookie(AServerHost: String): Boolean; virtual;
 
@@ -157,9 +158,9 @@ Type
     function GetClientCookie: String; override;
     function GetCookie: String; override;
     procedure SetExpires(AValue: String); override;
-    procedure LoadProperties(APropertyList: TIdStringList); override;
+    procedure LoadProperties(APropertyList: TStringList); override;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
 
     property Comment: String read FComment write FComment;
     property MaxAge: Int64 read FMax_Age write FMax_Age;
@@ -175,11 +176,11 @@ Type
     FPortList: array of Integer;
 
     function GetCookie: String; override;
-    procedure LoadProperties(APropertyList: TIdStringList); override;
+    procedure LoadProperties(APropertyList: TStringList); override;
     procedure SetPort(AIndex, AValue: Integer);
     function GetPort(AIndex: Integer): Integer;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
 
     property CommentURL: String read FCommentURL write FCommentURL;
     property Discard: Boolean read FDiscard write FDiscard;
@@ -193,7 +194,7 @@ Type
   protected
     function GetCookie: String; override;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     procedure AddAttribute(const Attribute, Value: String);
   end;
 
@@ -201,16 +202,16 @@ Type
 
   TIdCookieAccess = (caRead, caReadWrite);
 
-  TIdCookies = class(TIdOwnedCollection)
+  TIdCookies = class(TOwnedCollection)
   protected
     FCookieListByDomain: TIdCookieList;
-    FRWLock: TIdMultiReadExclusiveWriteSynchronizer;
+    FRWLock: TMultiReadExclusiveWriteSynchronizer;
 
     function GetCookie(const AName, ADomain: string): TIdCookieRFC2109;
     function GetItem(Index: Integer): TIdCookieRFC2109;
     procedure SetItem(Index: Integer; const Value: TIdCookieRFC2109);
   public
-    constructor Create(AOwner: TIdPersistent);
+    constructor Create(AOwner: TPersistent);
     destructor Destroy; override;
     function Add: TIdCookieRFC2109;
     function Add2: TIdCookieRFC2965;
@@ -277,7 +278,7 @@ end;
 
 { TIdNetscapeCookie }
 
-constructor TIdNetscapeCookie.Create(ACollection: TIdCollection);
+constructor TIdNetscapeCookie.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvNetscape;
@@ -286,7 +287,7 @@ end;
 destructor TIdNetscapeCookie.Destroy;
 Var
   LListByDomain: TIdCookieList;
-  LCookieStringList: TIdStringList;
+  LCookieStringList: TStringList;
   i: Integer;
 begin
   if Assigned(Collection) then try
@@ -295,7 +296,7 @@ begin
       i := LListByDomain.IndexOf(Domain);
       if i > -1 then
       begin
-        LCookieStringList := TIdStringList(LListByDomain.Objects[i]);
+        LCookieStringList := TStringList(LListByDomain.Objects[i]);
         i := LCookieStringList.IndexOf(CookieName);
         if i > -1 then
         begin
@@ -310,7 +311,7 @@ begin
   end;
 end;
 
-procedure TIdNetscapeCookie.Assign(Source: TIdPersistent);
+procedure TIdNetscapeCookie.Assign(Source: TPersistent);
 begin
   if (Source <> nil) and (Source is TIdCookieRFC2109) then
   begin
@@ -331,7 +332,7 @@ begin
       Result := FDomain = RightStr(AServerHost, Length(FDomain));
     end
     else begin
-      result := Sys.SameText(FDomain, DomainName(AServerHost));
+      result := SameText(FDomain, DomainName(AServerHost));
       // result := IndyPos(FDomain, AServerHost) > 0;
     end;
   end;
@@ -376,7 +377,7 @@ begin
   end;
 end;
 
-procedure TIdNetscapeCookie.LoadProperties(APropertyList: TIdStringList);
+procedure TIdNetscapeCookie.LoadProperties(APropertyList: TStringList);
 begin
   FPath := APropertyList.values['PATH'];    {Do not Localize}
   // Tomcat can return SetCookie2 with path wrapped in "
@@ -398,19 +399,19 @@ end;
 procedure TIdNetscapeCookie.SetCookie(AValue: String);
 Var
   i: Integer;
-  CookieProp: TIdStringList;
+  CookieProp: TStringList;
 begin
   if AValue <> FCookieText then
   begin
     FCookieText := AValue;
 
-    CookieProp := TIdStringList.Create;
+    CookieProp := TStringList.Create;
 
     try
       while Pos(';', AValue) > 0 do    {Do not Localize}
       begin
-        CookieProp.Add(Sys.Trim(Fetch(AValue, ';')));    {Do not Localize}
-        if (Pos(';', AValue) = 0) and (Length(AValue) > 0) then CookieProp.Add(Sys.Trim(AValue));    {Do not Localize}
+        CookieProp.Add(Trim(Fetch(AValue, ';')));    {Do not Localize}
+        if (Pos(';', AValue) = 0) and (Length(AValue) > 0) then CookieProp.Add(Trim(AValue));    {Do not Localize}
       end;
 
       if CookieProp.Count = 0 then CookieProp.Text := AValue;
@@ -422,22 +423,22 @@ begin
       for i := 0 to CookieProp.Count - 1 do
         if Pos('=', CookieProp[i]) = 0 then    {Do not Localize}
         begin
-          CookieProp[i] := Sys.UpperCase(CookieProp[i]);  // This is for cookie flags (secure)
+          CookieProp[i] := UpperCase(CookieProp[i]);  // This is for cookie flags (secure)
         end
         else begin
-          CookieProp[i] := Sys.UpperCase(CookieProp.Names[i]) + '=' + CookieProp.values[CookieProp.Names[i]];    {Do not Localize}
+          CookieProp[i] := UpperCase(CookieProp.Names[i]) + '=' + CookieProp.values[CookieProp.Names[i]];    {Do not Localize}
         end;
 
       LoadProperties(CookieProp);
     finally
-      Sys.FreeAndNil(CookieProp);
+      FreeAndNil(CookieProp);
     end;
   end;
 end;
 
 { TIdCookieRFC2109 }
 
-constructor TIdCookieRFC2109.Create(ACollection: TIdCollection);
+constructor TIdCookieRFC2109.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FMax_Age := GFMaxAge;
@@ -453,7 +454,7 @@ begin
       // date/time value. The correct format is Wdy, DD-Mon-YY HH:MM:SS GMT
 
       // AValue := StringReplace(AValue, '-', ' ', [rfReplaceAll]);    {Do not Localize}
-      FMax_Age := Trunc((GMTToLocalDateTime(AValue) - Sys.Now) * MSecsPerDay / 1000);
+      FMax_Age := Trunc((GMTToLocalDateTime(AValue) - Now) * MSecsPerDay / 1000);
     except end;
   end;
   inherited SetExpires(AValue);
@@ -505,25 +506,25 @@ begin
 
    if (FMax_Age > -1) and (Length(FExpires) = 0) then
    begin
-    result := AddCookieProperty('max-age', Sys.IntToStr(FMax_Age), result);    {Do not Localize}
+    result := AddCookieProperty('max-age', IntToStr(FMax_Age), result);    {Do not Localize}
   end;
 
   result := AddCookieProperty('comment', FComment, result);    {Do not Localize}
   result := AddCookieProperty('version', FVersion, result);    {Do not Localize}
 end;
 
-procedure TIdCookieRFC2109.LoadProperties(APropertyList: TIdStringList);
+procedure TIdCookieRFC2109.LoadProperties(APropertyList: TStringList);
 begin
   inherited LoadProperties(APropertyList);
 
-  FMax_Age := Sys.StrToInt(APropertyList.values['MAX-AGE'], -1);    {Do not Localize}
+  FMax_Age := IndyStrToInt(APropertyList.values['MAX-AGE'], -1);    {Do not Localize}
   FVersion := APropertyList.values['VERSION'];    {Do not Localize}
   FComment := APropertyList.values['COMMENT'];    {Do not Localize}
 
   if Length(Expires) = 0 then begin
     FInternalVersion := cvNetscape;
     if FMax_Age >= 0 then begin
-      Expires := Sys.DateTimeGMTToHttpStr(Sys.Now - Sys.OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
+      Expires := DateTimeGMTToHttpStr(Now - OffsetFromUTC + FMax_Age * 1000 / MSecsPerDay);
     end;
     // else   Free this cookie
   end;
@@ -531,7 +532,7 @@ end;
 
 { TIdCookieRFC2965 }
 
-constructor TIdCookieRFC2965.Create(ACollection: TIdCollection);
+constructor TIdCookieRFC2965.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvRFC2965;
@@ -542,9 +543,9 @@ begin
   result := inherited GetCookie;
 end;
 
-procedure TIdCookieRFC2965.LoadProperties(APropertyList: TIdStringList);
+procedure TIdCookieRFC2965.LoadProperties(APropertyList: TStringList);
 Var
-  PortListAsString: TIdStringList;
+  PortListAsString: TStringList;
   i: Integer;
   S: String;
 begin
@@ -552,7 +553,7 @@ begin
 
   FCommentURL := APropertyList.values['CommentURL'];    {Do not Localize}
   FDiscard := APropertyList.IndexOf('DISCARD') <> -1;    {Do not Localize}
-  PortListAsString := TIdStringList.Create;
+  PortListAsString := TStringList.Create;
 
   try
     S := APropertyList.Values['Port'];    {Do not Localize}
@@ -568,7 +569,7 @@ begin
         else begin
           for i := 0 to PortListAsString.Count - 1 do
           begin
-            PortList[i] := Sys.StrToInt(PortListAsString[i]);
+            PortList[i] := IndyStrToInt(PortListAsString[i]);
           end;
         end;
       end;
@@ -606,7 +607,7 @@ end;
 
 { TIdServerCookie }
 
-constructor TIdServerCookie.Create(ACollection: TIdCollection);
+constructor TIdServerCookie.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FInternalVersion := cvNetscape;
@@ -623,15 +624,15 @@ var
   wDay,
   wMonth,
   wYear: Word;
-  ANow: TIdDateTime;
+  ANow: TDateTime;
 begin
   if FMax_Age > -1 then
   begin
-    ANow := Sys.Now + TimeZoneBias + FMax_Age / MSecsPerDay * 1000;
-    Sys.DecodeDate(ANow, wYear, wMonth, wDay);
-    FExpires := Sys.Format('%s, %d-%s-%d %s GMT',    {do not localize}
-                   [wdays[Sys.DayOfWeek(ANow)], wDay, monthnames[wMonth],
-                    wYear, Sys.FormatDateTime('HH":"NN":"SS', ANow)]); {do not localize}
+    ANow := Now + TimeZoneBias + FMax_Age / MSecsPerDay * 1000;
+    DecodeDate(ANow, wYear, wMonth, wDay);
+    FExpires := IndyFormat('%s, %d-%s-%d %s GMT',    {do not localize}
+                   [wdays[DayOfWeek(ANow)], wDay, monthnames[wMonth],
+                    wYear, FormatDateTime('HH":"NN":"SS', ANow)]); {do not localize}
   end;
 
   result := inherited GetCookie;
@@ -639,11 +640,11 @@ end;
 
 procedure TIdServerCookie.AddAttribute(const Attribute, Value: String);
 begin
-  if Sys.UpperCase(Attribute) = '$PATH' then    {Do not Localize}
+  if UpperCase(Attribute) = '$PATH' then    {Do not Localize}
   begin
     Path := Value;
   end;
-  if Sys.UpperCase(Attribute) = '$DOMAIN' then    {Do not Localize}
+  if UpperCase(Attribute) = '$DOMAIN' then    {Do not Localize}
   begin
     Domain := Value;
   end;
@@ -651,11 +652,11 @@ end;
 
 { TIdCookies }
 
-constructor TIdCookies.Create(AOwner: TIdPersistent);
+constructor TIdCookies.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdCookieRFC2109);
 
-  FRWLock := TIdMultiReadExclusiveWriteSynchronizer.Create;
+  FRWLock := TMultiReadExclusiveWriteSynchronizer.Create;
   FCookieListByDomain := TIdCookieList.Create;
 end;
 
@@ -669,8 +670,8 @@ begin
   begin
     FCookieListByDomain.Objects[i].Free;
   end;
-  Sys.FreeAndNil(FCookieListByDomain);
-  Sys.FreeAndNil(FRWLock);
+  FreeAndNil(FCookieListByDomain);
+  FreeAndNil(FRWLock);
   inherited Destroy;
 end;
 
@@ -686,14 +687,14 @@ begin
       AddObject(ACookie.Domain, LList);
     end;
 
-    j := TIdStringList(Objects[IndexOf(ACookie.Domain)]).IndexOf(ACookie.CookieName);
+    j := TStringList(Objects[IndexOf(ACookie.Domain)]).IndexOf(ACookie.CookieName);
 
     if j = -1 then
     begin
-      TIdStringList(Objects[IndexOf(ACookie.Domain)]).AddObject(ACookie.CookieName, ACookie);
+      TStringList(Objects[IndexOf(ACookie.Domain)]).AddObject(ACookie.CookieName, ACookie);
     end
     else begin
-      TIdCookieRFC2109(TIdStringList(Objects[IndexOf(ACookie.Domain)]).Objects[j]).Assign(ACookie);
+      TIdCookieRFC2109(TStringList(Objects[IndexOf(ACookie.Domain)]).Objects[j]).Assign(ACookie);
       ACookie.Collection := nil;
       ACookie.Free;
     end;

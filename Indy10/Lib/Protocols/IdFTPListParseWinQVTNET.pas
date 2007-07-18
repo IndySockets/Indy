@@ -40,7 +40,8 @@ unit IdFTPListParseWinQVTNET;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 {
   This was tested with data obtained from WinQVT/Net Version 3.98.15 running
@@ -59,18 +60,18 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPWinQVNet }
 
-class function TIdFTPLPWinQVNet.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPWinQVNet.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LData : String;
 begin
@@ -115,14 +116,14 @@ begin
     AItem.ItemType := ditDirectory;
   end;
   IdDelete(LBuf, 1, 13);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Size
-  AItem.Size := Sys.StrToInt64(Fetch(LBuf), 0);
+  AItem.Size := IndyStrToInt64(Fetch(LBuf), 0);
   //Date
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   AItem.ModifiedDate := DateMMDDYY(Fetch(LBuf));
   //Time
-  LBuf := Sys.Trim(LBuf);
+  LBuf := Trim(LBuf);
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LBuf);
   Result := True;
 end;

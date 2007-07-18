@@ -54,8 +54,9 @@ unit IdDICT;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers, IdComponent,
-  IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection, IdObjs;
+  IdDICTCommon, IdSASLCollection, IdTCPClient, IdTCPConnection;
 
 // TODO: MIME should be integrated into this.
 // TODO: SASL mechanism support needs to coded
@@ -77,18 +78,18 @@ type
     FServer : String;
     FClient : String;
     //feature negotiation stuff
-    FCapabilities : TIdStrings;
+    FCapabilities : TStrings;
     procedure InitComponent; override;
     function IsCapaSupported(const ACapa : String) : Boolean;
     procedure SetClient(const AValue : String);
-    procedure InternalGetList(const ACmd : String; AENtries : TIdCollection);
-    procedure InternalGetStrs(const ACmd : String; AStrs : TIdStrings);
+    procedure InternalGetList(const ACmd : String; AENtries : TCollection);
+    procedure InternalGetStrs(const ACmd : String; AStrs : TStrings);
   public
     destructor Destroy; override;
     procedure Connect; override;
     procedure DisconnectNotifyPeer; override;
-    procedure GetDictInfo(const ADict : String; AResults : TIdStrings);
-    procedure GetSvrInfo(AResults : TIdStrings);
+    procedure GetDictInfo(const ADict : String; AResults : TStrings);
+    procedure GetSvrInfo(AResults : TStrings);
     procedure GetDBList(ADB : TIdDBList);
     procedure GetStrategyList(AStrats : TIdStrategyList);
     procedure Define(const AWord, ADBName : String; AResults : TIdDefinitions); overload;
@@ -96,7 +97,7 @@ type
     procedure Match(const AWord, ADBName, AStrat : String; AResults : TIdMatchList); overload;
     procedure Match(const AWord, AStrat : String; AResults : TIdMatchList; const AGetAll : Boolean = True); overload;
     procedure Match(const AWord : String; AResults : TIdMatchList; const AGetAll : Boolean = True); overload;
-    property Capabilities : TIdStrings read FCapabilities;
+    property Capabilities : TStrings read FCapabilities;
     property Server : String read FServer;
   published
     property TryMIME : Boolean read FTryMIME write FTryMIME default DEF_TRYMIME;
@@ -111,7 +112,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, IdSys;
+  IdGlobal, IdGlobalProtocols, IdHash, IdHashMessageDigest, SysUtils;
 
 const
   DEF_CLIENT_FMT = 'Indy Library %s'; {do not localize}
@@ -134,7 +135,7 @@ begin
       // 220 pan.alephnull.com dictd 1.8.0/rf on Linux 2.4.18-14 <auth.mime> <258510.25288.1078409724@pan.alephnull.com>
       LBuf := LastCmdResult.Text[0];
       //server
-      FServer := Sys.TrimRight(Fetch(LBuf,'<'));
+      FServer := TrimRight(Fetch(LBuf,'<'));
       //feature negotiation
       LFeat := Fetch(LBuf,'>');
       //One server I tested with has no feature negotiation at all and it returns something
@@ -149,7 +150,7 @@ begin
         LBuf := '<'+LFeat+'>';
       end;
       //LBuf is now for the APOP3 like Challenge
-      LBuf := Sys.Trim(LBuf);
+      LBuf := Trim(LBuf);
     end;
     SendCmd('CLIENT '+FClient); {do not localize}
     if Self.FAuthType = atDefault then
@@ -160,7 +161,7 @@ begin
         begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(HashStringAsHex(LBuf+Password));
+            S := LowerCase(HashStringAsHex(LBuf+Password));
           finally
             Free;
           end;//try
@@ -237,8 +238,8 @@ end;
 
 destructor TIdDICT.Destroy;
 begin
-  Sys.FreeAndNil(FSASLMechanisms);
-  Sys.FreeAndNil(FCapabilities);
+  FreeAndNil(FSASLMechanisms);
+  FreeAndNil(FCapabilities);
   inherited Destroy;
 end;
 
@@ -258,7 +259,7 @@ begin
   InternalGetList('SHOW DB', ADB); {do not localize}
 end;
 
-procedure TIdDICT.GetDictInfo(const ADict: String; AResults: TIdStrings);
+procedure TIdDICT.GetDictInfo(const ADict: String; AResults: TStrings);
 begin
   InternalGetStrs('SHOW INFO ' + ADict,AResults); {do not localize}
 end;
@@ -268,7 +269,7 @@ begin
   InternalGetList('SHOW STRAT', AStrats); {do not localize}
 end;
 
-procedure TIdDICT.GetSvrInfo(AResults: TIdStrings);
+procedure TIdDICT.GetSvrInfo(AResults: TStrings);
 begin
   InternalGetStrs('SHOW SERVER', AResults); {do not localize}
 end;
@@ -276,23 +277,23 @@ end;
 procedure TIdDICT.InitComponent;
 begin
   inherited InitComponent;
-  FCapabilities := TIdStringList.create;
+  FCapabilities := TStringList.create;
   FSASLMechanisms := TIdSASLEntries.Create(Self);
   FPort := IdPORT_DICT;
   FAuthType := DICT_AUTHDEF;
   FHost := 'dict.org'; {do not localize}
-  FClient := Sys.Format(DEF_CLIENT_FMT, [gsIdVersion]);
+  FClient := IndyFormat(DEF_CLIENT_FMT, [gsIdVersion]);
 end;
 
-procedure TIdDICT.InternalGetList(const ACmd: String; AENtries: TIdCollection);
+procedure TIdDICT.InternalGetList(const ACmd: String; AENtries: TCollection);
 var
   LEnt : TIdGeneric;
-  LS : TIdStrings;
+  LS : TStrings;
   i : Integer;
   s : String;
 begin
   AEntries.Clear;
-  LS := TIdStringList.Create;
+  LS := TStringList.Create;
   try
     InternalGetStrs(ACmd,LS);
     for i := 0 to LS.Count - 1 do
@@ -304,11 +305,11 @@ begin
       LEnt.Desc := Fetch(s, '"');
     end;
   finally
-    Sys.FreeAndNil(LS);
+    FreeAndNil(LS);
   end;
 end;
 
-procedure TIdDICT.InternalGetStrs(const ACmd: String; AStrs: TIdStrings);
+procedure TIdDICT.InternalGetStrs(const ACmd: String; AStrs: TStrings);
 begin
   AStrs.Clear;
   SendCmd(ACmd);
@@ -336,13 +337,13 @@ end;
 procedure TIdDICT.Match(const AWord, ADBName, AStrat: String;
   AResults: TIdMatchList);
 var
-  LS : TIdStrings;
+  LS : TStrings;
   i : Integer;
   s : String;
   LM : TIdMatchItem;
 begin
   AResults.Clear;
-  LS := TIdStringList.Create;
+  LS := TStringList.Create;
   try
     InternalGetStrs('MATCH '+ADBName+' '+AStrat+' '+AWord,LS); {do not localize}
     for i := 0 to LS.Count -1 do
@@ -354,7 +355,7 @@ begin
       LM.Word := Fetch(s, '"');
     end;
   finally
-    Sys.FreeAndNil(LS);
+    FreeAndNil(LS);
   end;
 end;
 

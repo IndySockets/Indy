@@ -54,7 +54,7 @@ interface
 
 uses
   {$IFDEF DOTNET}
-  IdObjs,
+  Classes,
   IdDsnSASLListEditorFormNET;
   {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
   {$ELSE}
@@ -67,7 +67,7 @@ type
   //we behave in a package.  I know it can act weird if something is renamed
   TfrmSASLListEditor = class(IdDsnSASLListEditorFormNET.TfrmSASLListEditor)
   public
-    constructor Create(AOwner : TIdNativeComponent);
+    constructor Create(AOwner : TComponent);
   end;
   {$ELSE}
   TfrmSASLListEditor = class(TfrmSASLListEditorVCL);
@@ -76,7 +76,7 @@ type
 implementation
 
 {$IFDEF DOTNET}
-constructor TfrmSASLListEditor.Create(AOwner : TIdNativeComponent);
+constructor TfrmSASLListEditor.Create(AOwner : TComponent);
 begin
   inherited Create;
 end;

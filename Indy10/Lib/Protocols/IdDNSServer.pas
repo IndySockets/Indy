@@ -243,6 +243,7 @@ unit IdDNSServer;
 interface
 
 uses
+    Classes,
     IdContainers,
     IdAssignedNumbers,
     IdSocketHandle,
@@ -259,15 +260,14 @@ uses
     IdCustomTCPServer,
     IdStackConsts,
     IdThread,
-    IdDNSCommon,
-    IdObjs;
+    IdDNSCommon;
 
 type
   TIdDomainExpireCheckThread = class (TIdThread)
   protected
     FInterval: Cardinal;
     FSender: TObject;
-    FTimerEvent: TIdNotifyEvent;
+    FTimerEvent: TNotifyEvent;
     FBusy : boolean;
     FDomain : string;
     FHost : string;
@@ -341,14 +341,14 @@ type
   private
     FCLabel : AnsiString;
     FRRs: TIdTextModeRRs;
-    FChildIndex: TIdStrings;
+    FChildIndex: TStrings;
     FParentNode: TIdDNTreeNode;
     FAutoSortChild: boolean;
     procedure SetCLabel(const Value: AnsiString);
     procedure SetRRs(const Value: TIdTextModeRRs);
     function GetNode(Index: integer): TIdDNTreeNode;
     procedure SetNode(Index: integer; const Value: TIdDNTreeNode);
-    procedure SetChildIndex(const Value: TIdStrings);
+    procedure SetChildIndex(const Value: TStrings);
     function GetFullName: string;
     function ConvertToDNString : string;
     function DumpAllBinaryData(var RecordCount:integer) : TIdBytes;
@@ -357,7 +357,7 @@ type
     property CLabel : AnsiString read FCLabel write SetCLabel;
     property RRs : TIdTextModeRRs read FRRs write SetRRs;
     property Children[Index : integer] : TIdDNTreeNode read GetNode write SetNode;
-    property ChildIndex : TIdStrings read FChildIndex write SetChildIndex;
+    property ChildIndex : TStrings read FChildIndex write SetChildIndex;
     property AutoSortChild : boolean read FAutoSortChild write FAutoSortChild;
     property FullName : string read GetFullName;
 
@@ -375,16 +375,16 @@ type
 
   TIdDNS_TCPServer = class (TIdCustomTCPServer)
   protected
-    FAccessList: TIdStrings;
+    FAccessList: TStrings;
     FAccessControl: boolean;
     //
     procedure DoConnect(AThread: TIdContext); override;
     procedure InitComponent; override;
-    procedure SetAccessList(const Value: TIdStrings);
+    procedure SetAccessList(const Value: TStrings);
   public
     destructor Destroy; override;
   published
-    property AccessList : TIdStrings read FAccessList write SetAccessList;
+    property AccessList : TStrings read FAccessList write SetAccessList;
     property AccessControl : boolean read FAccessControl write FAccessControl;
   end;
 
@@ -392,12 +392,12 @@ type
   protected
     FMyBinding: TIdSocketHandle;
     FMainBinding: TIdSocketHandle;
-    FMyData: TIdStream;
+    FMyData: TStream;
     FData : string;
     FDataSize : integer;
     FServer: TIdDNS_UDPServer;
     procedure SetMyBinding(const Value: TIdSocketHandle);
-    procedure SetMyData(const Value: TIdStream);
+    procedure SetMyData(const Value: TStream);
     procedure SetServer(const Value: TIdDNS_UDPServer);
     procedure ComposeErrorResult(var Final: TIdBytes;
               OriginalHeader: TDNSHeader; OriginalQuestion : TIdBytes;
@@ -420,7 +420,7 @@ type
     procedure SendData;
   public
      property MyBinding : TIdSocketHandle read FMyBinding write SetMyBinding;
-     property MyData: TIdStream read FMyData write SetMyData;
+     property MyData: TStream read FMyData write SetMyData;
      property Server : TIdDNS_UDPServer read FServer write SetServer;
 
      constructor Create(ACreateSuspended: Boolean = True;
@@ -443,12 +443,12 @@ type
     FBusy: boolean;
   protected
     FAutoUpdateZoneInfo: boolean;
-    FZoneMasterFiles: TIdStrings;
-    FRootDNS_NET: TIdStrings;
+    FZoneMasterFiles: TStrings;
+    FRootDNS_NET: TStrings;
     FCacheUnknowZone: boolean;
     FCached_Tree: TIdDNTreeNode;
     FHanded_Tree: TIdDNTreeNode;
-    FHanded_DomainList: TIdStrings;
+    FHanded_DomainList: TStrings;
     FAutoLoadMasterFile: Boolean;
     FOnAfterQuery: TIdDNSAfterQueryEvent;
     FOnBeforeQuery: TIdDNSBeforeQueryEvent;
@@ -472,9 +472,9 @@ type
 
     procedure DoAfterCacheSaved(CacheRoot : TIdDNTreeNode); dynamic;
 
-    procedure SetZoneMasterFiles(const Value: TIdStrings);
-    procedure SetRootDNS_NET(const Value: TIdStrings);
-    procedure SetHanded_DomainList(const Value: TIdStrings);
+    procedure SetZoneMasterFiles(const Value: TStrings);
+    procedure SetRootDNS_NET(const Value: TStrings);
+    procedure SetHanded_DomainList(const Value: TStrings);
     procedure InternalSearch(Header: TDNSHeader; QName: string; QType: Word;
       var Answer: TIdBytes; IfMainQuestion: boolean; IsSearchCache: boolean = false;
       IsAdditional: boolean = false; IsWildCard : boolean = false;
@@ -502,7 +502,7 @@ type
       OriginalQuestion: TIdBytes; var Answer : TIdBytes; QType, QClass : word;
       DNSResolver : TIdDNSResolver) : string;
     function LoadZoneFromMasterFile(MasterFileName : String) : boolean;
-    function LoadZoneStrings(FileStrings: TIdStrings; Filename : String;
+    function LoadZoneStrings(FileStrings: TStrings; Filename : String;
              TreeRoot : TIdDNTreeNode): boolean;
     function SearchTree(Root : TIdDNTreeNode; QName : String; QType : Word): TIdDNTreeNode;
     procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TIdTextModeResourceRecord); overload;
@@ -510,7 +510,7 @@ type
     function FindHandedNodeByName(QName : String; QType : Word) : TIdDNTreeNode;
     procedure UpdateTree(TreeRoot : TIdDNTreeNode; RR : TResultRecord); overload;
 
-    property RootDNS_NET : TIdStrings read FRootDNS_NET write SetRootDNS_NET;
+    property RootDNS_NET : TStrings read FRootDNS_NET write SetRootDNS_NET;
     property Cached_Tree : TIdDNTreeNode read FCached_Tree {write SetCached_Tree};
     property Handed_Tree : TIdDNTreeNode read FHanded_Tree {write SetHanded_Tree};
     property Busy : boolean read FBusy;
@@ -520,9 +520,9 @@ type
     property AutoLoadMasterFile : Boolean read FAutoLoadMasterFile write FAutoLoadMasterFile Default False;
 
     //property AutoUpdateZoneInfo : boolean read FAutoUpdateZoneInfo write SetAutoUpdateZoneInfo;
-    property ZoneMasterFiles : TIdStrings read FZoneMasterFiles write SetZoneMasterFiles;
+    property ZoneMasterFiles : TStrings read FZoneMasterFiles write SetZoneMasterFiles;
     property CacheUnknowZone : boolean read FCacheUnknowZone write FCacheUnknowZone default False;
-    property Handed_DomainList : TIdStrings read FHanded_DomainList write SetHanded_DomainList;
+    property Handed_DomainList : TStrings read FHanded_DomainList write SetHanded_DomainList;
     property DNSVersion : string read FDNSVersion write FDNSVersion;
     property offerDNSVersion : boolean read FofferDNSVersion write FofferDNSVersion;
 
@@ -540,9 +540,9 @@ type
     FServerType: TDNSServerTypes;
     FTCPTunnel: TIdDNS_TCPServer;
     FUDPTunnel: TIdDNS_UDPServer;
-    FAccessList: TIdStrings;
+    FAccessList: TStrings;
     FBindings: TIdSocketHandles;
-    procedure SetAccessList(const Value: TIdStrings);
+    procedure SetAccessList(const Value: TStrings);
     procedure SetActive(const Value: boolean);
     procedure SetTCPACLActive(const Value: boolean);
     procedure SetBindings(const Value: TIdSocketHandles);
@@ -555,7 +555,7 @@ type
      procedure CheckIfExpire(Sender: TObject);
   published
      property Active : boolean read FActive write SetActive;
-     property AccessList : TIdStrings read FAccessList write SetAccessList;
+     property AccessList : TStrings read FAccessList write SetAccessList;
      property Bindings: TIdSocketHandles read FBindings write SetBindings;
 
      property TCPACLActive : boolean read FTCPACLActive write SetTCPACLActive;
@@ -575,7 +575,7 @@ function SameArray(const B1, B2: TIdBytes): boolean;
 implementation
 
 uses
-  IdIOHandler, IdStack, IdSys;
+  IdIOHandler, IdStack, SysUtils;
 
 {Common Utilities}
 function CompareItems(Item1, Item2: TObject): Integer;
@@ -583,7 +583,7 @@ var LObj1, LObj2 : TIdDNTreeNode;
 begin
   LObj1 := Item1 as TIdDNTreeNode;
   LObj2 := Item2 as TIdDNTreeNode;
-  Result := Sys.CompareStr((LObj1 as TIdDNTreeNode).CLabel, (LObj2 as TIdDNTreeNode).CLabel);
+  Result := CompareStr((LObj1 as TIdDNTreeNode).CLabel, (LObj2 as TIdDNTreeNode).CLabel);
 end;
 
 function SameArray(const B1, B2: TIdBytes): boolean;
@@ -733,7 +733,7 @@ constructor TIdDNTreeNode.Create(ParentNode : TIdDNTreeNode);
 begin
   Inherited Create(TIdDNTreeNode);
   Self.FRRs := TIdTextModeRRs.Create;
-  Self.FChildIndex := TIdStringList.Create;
+  Self.FChildIndex := TStringList.Create;
   Self.ParentNode := ParentNode;
 end;
 
@@ -818,9 +818,9 @@ end;
 
 procedure TIdDNTreeNode.SaveToFile(Filename: String);
 var
-  DNSs : TIdStrings;
+  DNSs : TStrings;
 begin
-  DNSs := TIdStringList.Create;
+  DNSs := TStringList.Create;
   try
     DNSs.Add(Self.ConvertToDNString);
     ToDo;
@@ -830,7 +830,7 @@ begin
   end;
 end;
 
-procedure TIdDNTreeNode.SetChildIndex(const Value: TIdStrings);
+procedure TIdDNTreeNode.SetChildIndex(const Value: TStrings);
 begin
   Self.FChildIndex.Assign(Value);
 end;
@@ -857,7 +857,7 @@ end;
 procedure TIdDNTreeNode.SortChildren;
 begin
   Self.SubTree.BubbleSort(CompareItems);
-  TIdStringList(Self.FChildIndex).Sort;
+  TStringList(Self.FChildIndex).Sort;
 end;
 
 
@@ -943,7 +943,7 @@ procedure TIdDNS_UDPServer.InitComponent;
 begin
   inherited InitComponent;
 
-  Self.FRootDNS_NET := TIdStringList.Create;
+  Self.FRootDNS_NET := TStringList.Create;
   Self.FRootDNS_NET.Add('209.92.33.150'); // nic.net         {do not localize}
   Self.FRootDNS_NET.Add('209.92.33.130'); // nic.net         {do not localize}
   Self.FRootDNS_NET.Add('203.37.255.97'); // apnic.net       {do not localize}
@@ -960,8 +960,8 @@ begin
   Self.FHanded_Tree.AutoSortChild := True;
   Self.FHanded_Tree.CLabel := '.';
 
-  Self.FHanded_DomainList := TIdStringList.Create;
-  Self.FZoneMasterFiles := TIdStringList.Create;
+  Self.FHanded_DomainList := TStringList.Create;
+  Self.FZoneMasterFiles := TStringList.Create;
 
   DefaultPort := IdPORT_DOMAIN;
   Self.FCS := TIdCriticalSection.Create;
@@ -971,13 +971,13 @@ end;
 
 destructor TIdDNS_UDPServer.Destroy;
 begin
-  Sys.FreeAndNil(Self.FCached_Tree);
-  Sys.FreeAndNil(Self.FHanded_Tree);
-  Sys.FreeAndNil(Self.FRootDNS_NET);
-  Sys.FreeAndNil(Self.FHanded_DomainList);
-  Sys.FreeAndNil(Self.FZoneMasterFiles);
-  Sys.FreeAndNil(Self.FCS);
-  Sys.FreeAndNil(Self.FGlobalCS);
+  FreeAndNil(Self.FCached_Tree);
+  FreeAndNil(Self.FHanded_Tree);
+  FreeAndNil(Self.FRootDNS_NET);
+  FreeAndNil(Self.FHanded_DomainList);
+  FreeAndNil(Self.FZoneMasterFiles);
+  FreeAndNil(Self.FCS);
+  FreeAndNil(Self.FGlobalCS);
   inherited Destroy;
 end;
 
@@ -1158,13 +1158,13 @@ end;
 function TIdDNS_UDPServer.LoadZoneFromMasterFile(
   MasterFileName: String): boolean;
 var
-   FileStrings : TIdStrings;
+   FileStrings : TStrings;
 begin
    {MakeTagList;}
-   Result := Sys.FileExists(MasterFileName);
+   Result := FileExists(MasterFileName);
 
    if Result then begin
-      FileStrings := TIdStringList.Create;
+      FileStrings := TStringList.Create;
       Todo;
 //      FileStrings.LoadFromFile(MasterFileName);
       Result := LoadZoneStrings(FileStrings, MasterFileName, Self.Handed_Tree);
@@ -1181,14 +1181,14 @@ begin
    {FreeTagList;}
 end;
 
-function TIdDNS_UDPServer.LoadZoneStrings(FileStrings: TIdStrings; Filename : String;
+function TIdDNS_UDPServer.LoadZoneStrings(FileStrings: TStrings; Filename : String;
          TreeRoot : TIdDNTreeNode): boolean;
 var
-   TagList : TIdStrings;
+   TagList : TStrings;
 
    function IsMSDNSFileName(theFileName : String; var DN:string) : boolean;
    var
-      namepart : TIdStrings;
+      namepart : TStrings;
       Fullname : string;
       Count : integer;
    begin
@@ -1197,7 +1197,7 @@ var
          if (Pos('\', Fullname) > 0) then fetch(Fullname, '\');
       until (Pos('\', Fullname) = 0);
 
-      namepart := TIdStringList.Create;
+      namepart := TStringList.Create;
       repeat
          namepart.Add(fetch(Fullname,'.'));
       until Fullname = '';
@@ -1218,7 +1218,7 @@ var
 
    procedure MakeTagList;
    begin
-     TagList := TIdStringList.Create;
+     TagList := TStringList.Create;
      TagList.Add(cAAAA);
      TagList.Add(cA);
      TagList.Add(cNS);
@@ -1248,7 +1248,7 @@ var
      TagList.Free;
    end;
 
-   function ClearDoubleQutoa (Strs : TIdStrings): boolean;
+   function ClearDoubleQutoa (Strs : TStrings): boolean;
    var
       SSCount : integer;
       Mark : boolean;
@@ -1277,12 +1277,12 @@ var
 
    function IsValidMasterFile : boolean;
    var
-      EachLinePart : TIdStrings;
+      EachLinePart : TStrings;
       CurrentLineNum, TagField, Count : integer;
       LineData, DataBody, Comment, FPart, Tag : string;
       denoted, Stop, PassQuota : boolean;
    begin
-      EachLinePart := TIdStringList.Create;
+      EachLinePart := TStringList.Create;
       CurrentLineNum := 0;
       Stop := False;
       // Check Denoted;
@@ -1290,7 +1290,7 @@ var
 
       if FileStrings.Count > 0 then begin
          repeat
-            LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
+            LineData := Trim(FileStrings.Strings[CurrentLineNum]);
             DataBody := Fetch(LineData, ';');
             Comment := LineData;
             PassQuota := Pos('(', DataBody) = 0;
@@ -1299,7 +1299,7 @@ var
             repeat
                   if not PassQuota then begin
                      Inc(CurrentLineNum);
-                     LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
+                     LineData := Trim(FileStrings.Strings[CurrentLineNum]);
                      DataBody := DataBody + ' ' + Fetch(LineData, ';');
                      PassQuota := Pos(')', DataBody) > 0;
                   end;
@@ -1313,11 +1313,11 @@ var
                DataBody := ReplaceSpecString(DataBody, ')', '');
 
                repeat
-                     DataBody := Sys.Trim(DataBody);
+                     DataBody := Trim(DataBody);
                      FPart := Fetch(DataBody, #9);
 
                      repeat
-                       FPart := Sys.Trim(FPart);
+                       FPart := Trim(FPart);
                        Tag := Fetch(FPart,' ');
 
                        if (Tag <> '') and (Tag <> '(') and (Tag <> ')') then
@@ -1379,7 +1379,7 @@ var
                                 // Must be FQDN.
                                 TypeCode_PTR: Stop := not IsFQDN(EachLinePart.Strings[TagField + 1]);
 
-                                // HINFO should has 2 fields : CPU and OS. but TIdStrings
+                                // HINFO should has 2 fields : CPU and OS. but TStrings
                                 // is 0 base, so that we have to minus one
                                 TypeCode_HINFO: begin
                                                      Stop := not (ClearDoubleQutoa(EachLinePart) and
@@ -1440,7 +1440,7 @@ var
 
    function LoadMasterFile : boolean;
    var
-      Checks, EachLinePart, DenotedDomain : TIdStrings;
+      Checks, EachLinePart, DenotedDomain : TStrings;
       CurrentLineNum, FieldCount, TagField, Count, LastTTL : integer;
       LineData, DataBody, Comment, FPart, Tag, Text,
       RName, LastDenotedDomain, LastTag, NewDomain, SingleHostName, PrevDNTag : string;
@@ -1459,8 +1459,8 @@ var
       LLRR_MX : TIdRR_MX;
       LLRR_TXT : TIdRR_TXT;
    begin
-      EachLinePart := TIdStringList.Create;
-      DenotedDomain := TIdStringList.Create;
+      EachLinePart := TStringList.Create;
+      DenotedDomain := TStringList.Create;
       CurrentLineNum := 0;
       LastDenotedDomain := '';
       LastTag := '';
@@ -1471,12 +1471,12 @@ var
 
       if IsMSDNSFileName(FileName, LastDenotedDomain) then begin
          //canChangPrevDNTag := False;
-         Filename := Sys.Uppercase (Filename);
+         Filename := Uppercase (Filename);
       end else LastDenotedDomain := '';
 
       if FileStrings.Count > 0 then begin
          repeat
-            LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
+            LineData := Trim(FileStrings.Strings[CurrentLineNum]);
             DataBody := Fetch(LineData, ';');
             Comment := LineData;
             PassQuota := Pos('(', DataBody) = 0;
@@ -1485,7 +1485,7 @@ var
             repeat
                   if not PassQuota then begin
                      Inc(CurrentLineNum);
-                     LineData := Sys.Trim(FileStrings.Strings[CurrentLineNum]);
+                     LineData := Trim(FileStrings.Strings[CurrentLineNum]);
                      DataBody := DataBody + ' ' + Fetch(LineData, ';');
                      PassQuota := Pos(')', DataBody) > 0;
                   end;
@@ -1495,11 +1495,11 @@ var
             DataBody := ReplaceSpecString(DataBody, '(', '');
             DataBody := ReplaceSpecString(DataBody, ')', '');
             repeat
-               DataBody := Sys.Trim(DataBody);
+               DataBody := Trim(DataBody);
                FPart := Fetch(DataBody, #9);
 
                repeat
-                  FPart := Sys.Trim(FPart);
+                  FPart := Trim(FPart);
                   if Pos('"', FPart) = 1 then begin
                      Fetch(FPart, '"');
                      Text := Fetch(FPart, '"');
@@ -1546,7 +1546,7 @@ var
                                      if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
                                         PrevDNTag := '';
                                      end else begin
-                                         LastTTL := Sys.StrToInt(EachLinePart.Strings[TagField + 6]);
+                                         LastTTL := IndyStrToInt(EachLinePart.Strings[TagField + 6]);
                                      end;
                                   end else canChangPrevDNTag := False;
                               2 : if EachLinePart.Strings[1] = 'IN' then begin  {do not localize}
@@ -1555,7 +1555,7 @@ var
                                      if EachLinePart.Strings[TagField] <> 'SOA' then begin  {do not localize}
                                         PrevDNTag := '';
                                      end else begin
-                                         LastTTL := Sys.StrToInt(EachLinePart.Strings[TagField + 6]);
+                                         LastTTL := IndyStrToInt(EachLinePart.Strings[TagField + 6]);
                                      end;
                                   end else canChangPrevDNTag := False;
                               else begin
@@ -1782,7 +1782,7 @@ var
                                                 else
                                                     LLRR_SOA.RName := EachLinePart.Strings[TagField + 2] + '.' + LastDenotedDomain;
 
-                                                Checks := TIdStringList.Create;
+                                                Checks := TStringList.Create;
                                                 RName := LLRR_SOA.RName;
                                                 while (RName <> '') do begin
                                                       Checks.Add(Fetch(RName, '.'));
@@ -1802,7 +1802,7 @@ var
                                                 LLRR_SOA.Expire := EachLinePart.Strings[TagField + 6];
                                                 LLRR_SOA.Minimum := EachLinePart.Strings[TagField + 7];
 
-                                                LastTTL := Sys.StrToInt(LLRR_SOA.Expire);
+                                                LastTTL := IndyStrToInt(LLRR_SOA.Expire);
                                                 LLRR_SOA.TTL := LastTTL;
                                                 UpdateTree(TreeRoot, LLRR_SOA);
 
@@ -1887,12 +1887,12 @@ function TIdDNS_UDPServer.SearchTree(Root: TIdDNTreeNode;
 var
    RRIndex : integer;
    NodeCursor : TIdDNTreeNode;
-   NameLabels : TIdStrings;
+   NameLabels : TStrings;
    OneNode, FullName : string;
    Found : Boolean;
 begin
   Result := nil;
-  NameLabels := TIdStringList.Create;
+  NameLabels := TStringList.Create;
   FullName := QName;
   NodeCursor := Root;
   Found := False;
@@ -1986,7 +1986,7 @@ begin
 end;
 }
 
-procedure TIdDNS_UDPServer.SetHanded_DomainList(const Value: TIdStrings);
+procedure TIdDNS_UDPServer.SetHanded_DomainList(const Value: TStrings);
 begin
   FHanded_DomainList.Assign(Value);
 end;
@@ -1998,12 +1998,12 @@ begin
 end;
 }
 
-procedure TIdDNS_UDPServer.SetRootDNS_NET(const Value: TIdStrings);
+procedure TIdDNS_UDPServer.SetRootDNS_NET(const Value: TStrings);
 begin
   FRootDNS_NET.Assign(Value);
 end;
 
-procedure TIdDNS_UDPServer.SetZoneMasterFiles(const Value: TIdStrings);
+procedure TIdDNS_UDPServer.SetZoneMasterFiles(const Value: TStrings);
 begin
   FZoneMasterFiles.Assign(Value);
 end;
@@ -2011,7 +2011,7 @@ end;
 procedure TIdDNS_UDPServer.UpdateTree(TreeRoot: TIdDNTreeNode;
   RR: TResultRecord);
 var
-   NameNode : TIdStrings;
+   NameNode : TStrings;
    RRName, APart : String;
    Count, NodeIndex : integer;
    NodeCursor : TIdDNTreeNode;
@@ -2031,7 +2031,7 @@ var
 begin
   RRName := RR.Name;
 
-  NameNode := TIdStringList.Create;
+  NameNode := TStringList.Create;
   repeat
      APart := Fetch(RRName, '.');
      if APart <> '' then NameNode.Add(APart);
@@ -2141,11 +2141,11 @@ begin
                   LRR_SOA.RRName := RRName;
                   LRR_SOA.MName := TSOARecord(RR).Primary;
                   LRR_SOA.RName := TSOARecord(RR).ResponsiblePerson;
-                  LRR_SOA.Serial := Sys.IntToStr(TSOARecord(RR).Serial);
-                  LRR_SOA.Minimum := Sys.IntToStr(TSOARecord(RR).MinimumTTL);
-                  LRR_SOA.Refresh := Sys.IntToStr(TSOARecord(RR).Refresh);
-                  LRR_SOA.Retry := Sys.IntToStr(TSOARecord(RR).Retry);
-                  LRR_SOA.Expire := Sys.IntToStr(TSOARecord(RR).Expire);
+                  LRR_SOA.Serial := IntToStr(TSOARecord(RR).Serial);
+                  LRR_SOA.Minimum := IntToStr(TSOARecord(RR).MinimumTTL);
+                  LRR_SOA.Refresh := IntToStr(TSOARecord(RR).Refresh);
+                  LRR_SOA.Retry := IntToStr(TSOARecord(RR).Retry);
+                  LRR_SOA.Expire := IntToStr(TSOARecord(RR).Expire);
                   LRR_SOA.TTL:= TSOARecord(RR).TTL;
 
                   if LRR_SOA.ifAddFullName(NodeCursor.FullName) then begin
@@ -2225,7 +2225,7 @@ begin
 
                   LRR_MX.RRName := RRName;
                   LRR_MX.Exchange := TMXRecord(RR).ExchangeServer;
-                  LRR_MX.Preference := Sys.IntToStr(TMXRecord(RR).Preference);
+                  LRR_MX.Preference := IntToStr(TMXRecord(RR).Preference);
                   LRR_MX.TTL := TMXRecord(RR).TTL;
 
                   if LRR_MX.ifAddFullName(NodeCursor.FullName) then begin
@@ -2257,7 +2257,7 @@ end;
 procedure TIdDNS_UDPServer.UpdateTree(TreeRoot: TIdDNTreeNode;
   RR: TIdTextModeResourceRecord);
 var
-   NameNode : TIdStrings;
+   NameNode : TStrings;
    RRName, APart : String;
    Count, NodeIndex, RRIndex : integer;
    NodeCursor : TIdDNTreeNode;
@@ -2278,7 +2278,7 @@ var
 begin
   RRName := RR.RRName;
 
-  NameNode := TIdStringList.Create;
+  NameNode := TStringList.Create;
   repeat
      APart := Fetch(RRName, '.');
      if APart <> '' then NameNode.Add(APart);
@@ -2520,7 +2520,7 @@ procedure TIdDNS_UDPServer.InternalSearch(Header: TDNSHeader; QName: string;
   IsSearchCache : boolean = false; IsAdditional : boolean = false;
   IsWildCard : boolean = false; WildCardOrgName : string = '');
 var
-  MoreAddrSearch : TIdStrings;
+  MoreAddrSearch : TStrings;
   TargetNode : TIdDNTreeNode;
   Server_Index, RRIndex, Count : integer;
   LocalAnswer, TempBytes, TempAnswer: TIdBytes;
@@ -2533,7 +2533,7 @@ begin
   SetLength(Answer, 0);
   SetLength(Aresult, 0);
   // Search the Handed Tree first.
-  MoreAddrSearch := TIdStringList.Create;
+  MoreAddrSearch := TStringList.Create;
   Extra := False;
   //Pushed := False;
 
@@ -2900,8 +2900,8 @@ begin
           if RRIndex <> -1 then begin
 
             // TimeOut, update the record.
-            if Sys.CompareDate(Sys.Now,
-              Sys.StrToDateTime(TargetNode.RRs.Items[RRIndex].TimeOut)) =1 then
+            if CompareDate(Now,
+              StrToDateTime(TargetNode.RRs.Items[RRIndex].TimeOut)) =1 then
             begin
               SetLength(LocalAnswer, 0)
             end else begin
@@ -3192,7 +3192,7 @@ end;
 procedure TIdDNSServer.InitComponent;
 begin
   inherited InitComponent;
-  Self.FAccessList := TIdStringList.Create;
+  Self.FAccessList := TStringList.Create;
   Self.FUDPTunnel := TIdDNS_UDPServer.Create(Self);
   Self.FTCPTunnel := TIdDNS_TCPServer.Create(Self);
 
@@ -3214,7 +3214,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdDNSServer.SetAccessList(const Value: TIdStrings);
+procedure TIdDNSServer.SetAccessList(const Value: TStrings);
 begin
   FAccessList.Assign(Value);
   Self.FTCPTunnel.AccessList.Assign(Value);
@@ -3277,12 +3277,12 @@ end;
 procedure TIdDNS_TCPServer.InitComponent;
 begin
   inherited InitComponent;
-  Self.FAccessList := TIdStringList.Create;
+  Self.FAccessList := TStringList.Create;
 end;
 
 destructor TIdDNS_TCPServer.Destroy;
 begin
-  Sys.FreeAndNil(Self.FAccessList);
+  FreeAndNil(Self.FAccessList);
   inherited Destroy;
 end;
 
@@ -3364,7 +3364,7 @@ begin
   AThread.Connection.IOHandler.Write(Answer);
 end;
 
-procedure TIdDNS_TCPServer.SetAccessList(const Value: TIdStrings);
+procedure TIdDNS_TCPServer.SetAccessList(const Value: TStrings);
 begin
   FAccessList.Assign(Value);
 end;
@@ -3498,7 +3498,7 @@ begin
 
              if not NotThis then begin
                 Dec(TIndex);
-                NeedUpdated := ((TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = Sys.IntToStr(TSOARecord(RR).Serial));
+                NeedUpdated := ((TNode.RRs.Items[TIndex] as TIdRR_SOA).Serial = IntToStr(TSOARecord(RR).Serial));
              end else begin
                  NeedUpdated := True;
              end;
@@ -3610,11 +3610,11 @@ begin
   Self.FServer := nil;
   Self.FMainBinding := nil;
   Self.FMyBinding.CloseSocket;
-  Sys.FreeAndNil(Self.FMyBinding);
+  FreeAndNil(Self.FMyBinding);
   //Self.FMyBinding := nil;
 
   if Self.FMyData <> nil then begin
-     Sys.FreeAndNil(Self.FMyData);
+     FreeAndNil(Self.FMyData);
   end;
   inherited Destroy;
 end;
@@ -3703,7 +3703,7 @@ begin
             Self.FServer.DoAfterCacheSaved(Self.FServer.FCached_Tree);
           end;
         finally
-          Sys.FreeAndNil(DNSHeader_Processing);
+          FreeAndNil(DNSHeader_Processing);
         end;
       end;
   end;
@@ -3727,7 +3727,7 @@ begin
   FMyBinding := Value;
 end;
 
-procedure TIdDNS_ProcessThread.SetMyData(const Value: TIdStream);
+procedure TIdDNS_ProcessThread.SetMyData(const Value: TStream);
 begin
   FMyData := Value;
 end;
@@ -3853,7 +3853,7 @@ begin
        end;
    end;
 
-   Sys.FreeAndNil(TempResolver);
+   FreeAndNil(TempResolver);
 end;
 
 function TIdDNS_ProcessThread.SearchTree(Root: TIdDNTreeNode;
@@ -3861,12 +3861,12 @@ function TIdDNS_ProcessThread.SearchTree(Root: TIdDNTreeNode;
 var
    RRIndex : integer;
    NodeCursor : TIdDNTreeNode;
-   NameLabels : TIdStrings;
+   NameLabels : TStrings;
    OneNode, FullName : string;
    Found : Boolean;
 begin
   Result := nil;
-  NameLabels := TIdStringList.Create;
+  NameLabels := TStringList.Create;
   FullName := QName;
   NodeCursor := Root;
   Found := False;
@@ -3924,7 +3924,7 @@ begin
   begin
     Result := NodeCursor;
   end;
-  Sys.FreeAndNil(NameLabels);
+  FreeAndNil(NameLabels);
 end;
 
 function TIdDNS_ProcessThread.CompleteQuery(DNSHeader: TDNSHeader;

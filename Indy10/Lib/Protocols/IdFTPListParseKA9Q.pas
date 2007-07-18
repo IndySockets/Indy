@@ -45,7 +45,8 @@ unit IdFTPListParseKA9Q;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
   TIdKA9QFTPListItem = class(TIdFTPListItem);
@@ -56,21 +57,21 @@ type
     class function IsFooter(const AData : String): Boolean; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
     class function GetIdent : String; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPKA9Q }
 
-class function TIdFTPLPKA9Q.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPKA9Q.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
-var s : TIdStrings;
+var s : TStrings;
 
     function IsKAQ9TS(const AData : String) : Boolean;
     begin
@@ -87,7 +88,7 @@ begin
   if AListing.Count > 0 then
   begin
     Result := False;
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AListing[0],s);
       if (s.Count > 2) then
@@ -107,7 +108,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -118,7 +119,7 @@ begin
 end;
 
 class function TIdFTPLPKA9Q.IsFooter(const AData: String): Boolean;
-var LWords : TIdStrings;
+var LWords : TStrings;
 begin
   Result := False;
   if AData = '#' then
@@ -126,16 +127,16 @@ begin
     Result := True;
     Exit;
   end;
-  LWords := TIdStringList.Create;
+  LWords := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(Sys.StringReplace(AData,'-',' ')),LWords);
+    SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LWords);
     if (LWords.Count >1) then
     begin
       Result := (LWords[1] = 'files.') or (LWords[1] = 'file.') or  {do not localize}
         (LWords[1] = 'files') or (LWords[1] = 'file');  {do not localize}
     end;
   finally
-    Sys.FreeAndNil(LWords);
+    FreeAndNil(LWords);
   end;
 end;
 
@@ -176,21 +177,21 @@ begin
     begin
       AItem.FileName := LPt;
       AItem.ItemType := ditFile;
-      LBuf := Sys.Trim(LBuf);
+      LBuf := Trim(LBuf);
       LPt := Fetch(LBuf);
       AItem.Size := ExtractNumber(LPt);
     end;
-    LBuf := Sys.Trim(LBuf);
+    LBuf := Trim(LBuf);
     LPt := Fetch(LBuf);
     if LPt <> '' then
     begin
       AItem.ModifiedDate := TimeHHMMSS(LPt);
-      LBuf := Sys.Trim(LBuf);
+      LBuf := Trim(LBuf);
       LPt := Fetch(LBuf);
       if LPt <> '' then
       begin
         AItem.ModifiedDate := AItem.ModifiedDate + DateMMDDYY(LPt);
-        LBuf := Sys.Trim(LBuf);
+        LBuf := Trim(LBuf);
         if LBuf <> '' then
         begin
           LDir := AItem.Collection as TIdFTPListItems;

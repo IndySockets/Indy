@@ -47,11 +47,10 @@ interface
 }
 
 uses
-  IdSys,
+  Classes,
   IdGlobal,
   IdUDPServer,
   IdSocketHandle,
-  IdObjs,
   IdGlobalProtocols;
 
 type
@@ -59,7 +58,7 @@ type
   protected
     FMappedPort: Integer;
     FMappedHost: String;
-    FOnRequest: TIdNotifyEvent;
+    FOnRequest: TNotifyEvent;
     //
     procedure DoRequestNotify; virtual;
     procedure InitComponent; override;
@@ -67,14 +66,14 @@ type
   published
     property MappedHost: string read FMappedHost write FMappedHost;
     property MappedPort: Integer read FMappedPort write FMappedPort;
-    property OnRequest: TIdNotifyEvent read fOnRequest write fOnRequest;
+    property OnRequest: TNotifyEvent read fOnRequest write fOnRequest;
   end;
 
 implementation
 
 uses
   IdAssignedNumbers,
-  IdUDPClient;
+  IdUDPClient, SysUtils;
 
 procedure TIdMappedPortUDP.InitComponent;
 begin
@@ -109,7 +108,7 @@ begin
     if i > 0 then begin    {Do not Localize}
       SendBuffer(ABinding.PeerIP, ABinding.PeerPort, LData);
     end;
-  finally Sys.FreeAndNil(LClient); end;
+  finally FreeAndNil(LClient); end;
 end;
 
 end.

@@ -42,7 +42,8 @@ unit IdFTPListParseMicrowareOS9;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 type
   TIdMicrowareOS9FTPListItem = class(TIdOwnerFTPListItem)
@@ -69,7 +70,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 const
   MICROWARE_OS9 = 'MicroWare OS-9'; {do not localize}
@@ -82,7 +83,7 @@ begin
 end;
 
 class function TIdFTPLPMicrowareOS9.IsHeader(const AData: String): Boolean;
-var LWrds : TIdStrings;
+var LWrds : TStrings;
 {The banner is usually something like this:
 
                             Directory of . 11:44:44
@@ -90,7 +91,7 @@ var LWrds : TIdStrings;
 –––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
 }
 begin
-  LWrds := TIdStringList.Create;
+  LWrds := TStringList.Create;
   try
     Result := False;
     SplitColumns(AData,LWrds);
@@ -107,7 +108,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(LWrds);
+    FreeAndNil(LWrds);
   end;
 end;
 
@@ -124,19 +125,19 @@ var LBuf : String;
     LI : TIdMicrowareOS9FTPListItem;
 begin
   LI := AItem as TIdMicrowareOS9FTPListItem;
-  LBuf := Sys.TrimLeft(LI.Data);
+  LBuf := TrimLeft(LI.Data);
   //Owner
   LI.OwnerName := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //Modified date
   LI.ModifiedDate := DateYYMMDD(Fetch(LBuf));
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //not sure what this number is
   Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //permissions
   LPerms := Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   if TextStartsWith(LPerms, 'd') then
   begin
     LI.ItemType := ditDirectory;
@@ -148,10 +149,10 @@ begin
   LI.OS9PublicPermissions := Copy(LPerms,3,3);
   LI.OS9OwnerPermissions := Copy(LPerms,5,3);
   //sector
-  LI.OS9Sector := Sys.StrToInt64('$'+Fetch(LBuf),0);
-  LBuf := Sys.TrimLeft(LBuf);
+  LI.OS9Sector := IndyStrToInt64('$'+Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
   //size not sure if in decimal or hexidecimal
-  LI.Size := Sys.StrToInt64(Fetch(LBuf),0);
+  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
   //name
   LI.FileName := LBuf;
   Result := True;

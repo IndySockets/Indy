@@ -25,7 +25,8 @@ unit IdFTPListParseChameleonNewt;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
 
 type
   TIdChameleonNewtFTPListItem = class(TIdDOSBaseFTPListItem);
@@ -35,15 +36,15 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdSys;
+uses IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPChameleonNewt }
 
-class function TIdFTPLPChameleonNewt.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPChameleonNewt.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 {Look for something like this:
 
@@ -67,7 +68,7 @@ begin
     //filename and extension - we assume an 8.3 filename type because
     //Windows 3.1 only supports that.
     Fetch(LBuf);
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     //<DIR> or file size
     LBuf2 := Fetch(LBuf);
     Result := (LBuf2='<DIR>') or IsNumeric(LBuf2);   {Do not localize}
@@ -75,7 +76,7 @@ begin
     begin
       Exit;
     end;
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     //month
     LBuf2 := Fetch(LBuf);
     Result := StrToMonth(LBuf2)>0;
@@ -84,22 +85,22 @@ begin
       Exit;
     end;
     //day
-    LBuf := Sys.TrimLeft(LBuf);
-    LInt := Sys.StrToInt64(Fetch(LBuf),0);
+    LBuf := TrimLeft(LBuf);
+    LInt := IndyStrToInt64(Fetch(LBuf),0);
     Result := (LInt>0) and (LInt<32);
     if not result then
     begin
       Exit;
     end;
     //year
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     Result := IsNumeric(Fetch(LBuf));
     if not result then
     begin
       Exit;
     end;
     //time
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
     if not result then
@@ -109,7 +110,7 @@ begin
     //attributes
     repeat
 
-      LBuf := Sys.TrimLeft(LBuf);
+      LBuf := TrimLeft(LBuf);
       if LBuf='' then
       begin
         break;
@@ -147,7 +148,7 @@ begin
   //filename and extension - we assume an 8.3 filename type because
   //Windows 3.1 only supports that.
   LI.FileName :=  Fetch(LBuf);
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //<DIR> or file size
   LBuf2 := Fetch(LBuf);
   if LBuf2 = '<DIR>' then   {Do not localize}
@@ -163,11 +164,11 @@ begin
     begin
       Exit;
     end;
-    LI.Size := Sys.StrToInt64(LBuf2,0);
+    LI.Size := IndyStrToInt64(LBuf2,0);
   end;
 
   //month
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     LMonth := StrToMonth(LBuf2);
     Result := LMonth>0;
@@ -176,26 +177,26 @@ begin
       Exit;
     end;
     //day
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
-    LDay := Sys.StrToInt64(LBuf2,0);
+    LDay := IndyStrToInt64(LBuf2,0);
     Result := (LDay>0) and (LDay<32);
     if not result then
     begin
       Exit;
     end;
     //year
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsNumeric(LBuf2);
     if not result then
     begin
       Exit;
     end;
-    LYear := Y2Year( Sys.StrToInt(LBuf2,0));
-    LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
+    LYear := Y2Year( IndyStrToInt(LBuf2,0));
+    LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
     //time
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsHHMMSS(LBuf2,':');
     if not result then
@@ -209,7 +210,7 @@ begin
       begin
         break;
       end;
-      LBuf := Sys.TrimLeft(LBuf);
+      LBuf := TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       result := LI.FAttributes.AddAttribute(LBuf2);
       if not result then

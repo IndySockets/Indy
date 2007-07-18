@@ -337,10 +337,11 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdException, IdExceptionCore, IdAssignedNumbers, IdHeaderList, IdHTTPHeaderInfo, IdReplyRFC,
   IdSSL, IdZLibCompressorBase,
   IdTCPClient, IdURI, IdCookie, IdCookieManager, IdAuthentication, IdAuthenticationManager,
-  IdMultipartFormData, IdGlobal, IdSys, IdObjs, IdBaseComponent;
+  IdMultipartFormData, IdGlobal, IdBaseComponent;
 
 type
   // TO DOCUMENTATION TEAM
@@ -398,7 +399,7 @@ type
     FResponseCode: Integer;
     FResponseText: string;
     FKeepAlive: Boolean;
-    FContentStream: TIdStream;
+    FContentStream: TStream;
     FResponseVersion: TIdHTTPProtocolVersion;
     //
     function GetKeepAlive: Boolean;
@@ -409,7 +410,7 @@ type
     property ResponseText: string read FResponseText write FResponseText;
     property ResponseCode: Integer read GetResponseCode write FResponseCode;
     property ResponseVersion: TIdHTTPProtocolVersion read FResponseVersion write FResponseVersion;
-    property ContentStream: TIdStream read FContentStream write FContentStream;
+    property ContentStream: TStream read FContentStream write FContentStream;
   end;
 
   TIdHTTPRequest = class(TIdRequestHeaderInfo)
@@ -417,14 +418,14 @@ type
     FHTTP: TIdCustomHTTP;
     FURL: string;
     FMethod: TIdHTTPMethod;
-    FSourceStream: TIdStream;
+    FSourceStream: TStream;
     FUseProxy: TIdHTTPConnectionType;
     FIPVersion: TIdIPVersion;
   public
     constructor Create(AHTTP: TIdCustomHTTP); reintroduce; virtual;
     property URL: string read FURL write FURL;
     property Method: TIdHTTPMethod read FMethod write FMethod;
-    property Source: TIdStream read FSourceStream write FSourceStream;
+    property Source: TStream read FSourceStream write FSourceStream;
     property UseProxy: TIdHTTPConnectionType read FUseProxy;
     property IPVersion: TIdIPversion read FIPVersion write FIPVersion;
   end;
@@ -483,7 +484,7 @@ type
     procedure SetPort(const Value: integer); override;
 }
     procedure DoRequest(const AMethod: TIdHTTPMethod; AURL: string;
-      ASource, AResponseContent: TIdStream; AIgnoreReplies: array of SmallInt); virtual;
+      ASource, AResponseContent: TStream; AIgnoreReplies: array of SmallInt); virtual;
     procedure InitComponent; override;
     procedure SetAuthenticationManager(Value: TIdAuthenticationManager);
     procedure SetCookieManager(ACookieManager: TIdCookieManager);
@@ -493,7 +494,7 @@ type
     function DoOnAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnProxyAuthorization(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse): Boolean; virtual;
     function DoOnRedirect(var Location: string; var VMethod: TIdHTTPMethod; RedirectCount: integer): boolean; virtual;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
     function SetHostAndPort: TIdHTTPConnectionType;
     procedure SetCookies(AURL: TIdURI; ARequest: TIdHTTPRequest);
@@ -504,34 +505,34 @@ type
     function GetRequestHeaders: TIdHTTPRequest;
     procedure SetRequestHeaders(Value: TIdHTTPRequest);
 
-    procedure EncodeRequestParams(AStrings: TIdStrings);
-    function SetRequestParams(AStrings: TIdStrings): string;
+    procedure EncodeRequestParams(AStrings: TStrings);
+    function SetRequestParams(AStrings: TStrings): string;
 
     procedure CheckAndConnect(AResponse: TIdHTTPResponse);
     procedure DoOnDisconnected; override;
   public
     destructor Destroy; override;
     procedure Options(AURL: string); overload;
-    procedure Get(AURL: string; AResponseContent: TIdStream); overload;
-    procedure Get(AURL: string; AResponseContent: TIdStream; AIgnoreReplies: array of SmallInt);
+    procedure Get(AURL: string; AResponseContent: TStream); overload;
+    procedure Get(AURL: string; AResponseContent: TStream; AIgnoreReplies: array of SmallInt);
      overload;
     function Get(AURL: string): string; overload;
     function Get(AURL: string; AIgnoreReplies: array of SmallInt): string; overload;
-    procedure Trace(AURL: string; AResponseContent: TIdStream); overload;
+    procedure Trace(AURL: string; AResponseContent: TStream); overload;
     function Trace(AURL: string): string; overload;
     procedure Head(AURL: string);
 
-    function Post(AURL: string; ASource: TIdStrings): string; overload;
-    function Post(AURL: string; ASource: TIdStream): string; overload;
+    function Post(AURL: string; ASource: TStrings): string; overload;
+    function Post(AURL: string; ASource: TStream): string; overload;
     function Post(AURL: string; ASource: TIdMultiPartFormDataStream): string; overload;
-    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream); overload;
-    procedure Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream); overload;
+    procedure Post(AURL: string; ASource: TIdMultiPartFormDataStream; AResponseContent: TStream); overload;
+    procedure Post(AURL: string; ASource: TStrings; AResponseContent: TStream); overload;
 
     {Post data provided by a stream, this is for submitting data to a server}
-    procedure Post(AURL: string; ASource, AResponseContent: TIdStream); overload;
+    procedure Post(AURL: string; ASource, AResponseContent: TStream); overload;
 
-    function Put(AURL: string; ASource: TIdStream): string; overload;
-    procedure Put(AURL: string; ASource, AResponseContent: TIdStream); overload;
+    function Put(AURL: string; ASource: TStream): string; overload;
+    procedure Put(AURL: string; ASource, AResponseContent: TStream); overload;
 
     {This is an object that can compress and decompress HTTP Deflate encoding}
     property Compressor : TIdZLibCompressorBase read FCompressor write FCompressor;
@@ -624,6 +625,7 @@ type
 implementation
 
 uses
+  SysUtils,
   IdComponent, IdCoderMIME, IdTCPConnection, IdResourceStringsProtocols,
   IdGlobalProtocols, IdIOHandler,IdIOHandlerSocket;
 
@@ -633,12 +635,8 @@ const
 { TIdDiscardStream }
 
 type
-  TIdDiscardStream = class(TIdStream)
+  TIdDiscardStream = class(TStream)
   protected
-    {$IFDEF DotNetDistro}
-    function GetPosition: Int64; override;
-    function GetSize: Int64; override;
-    {$ENDIF}
     {$IFDEF DOTNET}
     procedure SetSize(NewSize: Int64); override;
     {$ELSE}
@@ -657,23 +655,11 @@ type
     function Write(const Buffer; Count: Longint): Longint;  override;
     {$ENDIF}
     {$IFDEF VCL6ORABOVE}
-    function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; overload; override;
     {$ELSE}
     function Seek(Offset: Longint; Origin: Word): Longint; override;
     {$ENDIF}
   end;
-
-{$IFDEF DotNetDistro}
-function TIdDiscardStream.GetSize: Int64;
-begin
-  Result := 0;
-end;
-
-function TIdDiscardStream.GetPosition: Int64;
-begin
-  Result := -1;
-end;
-{$ENDIF}
 
 {$IFDEF DOTNET}
 function TIdDiscardStream.Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint;
@@ -688,7 +674,7 @@ end;
 {$ENDIF}
 
 {$IFDEF VCL6ORABOVE}
-function TIdDiscardStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
+function TIdDiscardStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 {$ELSE}
 function TIdDiscardStream.Seek(Offset: Longint; Origin: Word): Longint;
 {$ENDIF}
@@ -734,9 +720,9 @@ end;
 
 destructor TIdCustomHTTP.Destroy;
 begin
-  Sys.FreeAndNil(FHTTPProto);
-  Sys.FreeAndNil(FURI);
-  Sys.FreeAndNil(FProxyParameters);
+  FreeAndNil(FHTTPProto);
+  FreeAndNil(FURI);
+  FreeAndNil(FProxyParameters);
   SetCookieManager(nil);
   inherited Destroy;
 end;
@@ -746,13 +732,13 @@ begin
   DoRequest(Id_HTTPMethodOptions, AURL, nil, nil, []);
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream);
+procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream);
 begin
   Assert(AResponseContent<>nil);
   Get(AURL, AResponseContent, []);
 end;
 
-procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TIdStream);
+procedure TIdCustomHTTP.Trace(AURL: string; AResponseContent: TStream);
 begin
   Assert(AResponseContent<>nil);
   DoRequest(Id_HTTPMethodTrace, AURL, nil, AResponseContent, []);
@@ -763,7 +749,7 @@ begin
   DoRequest(Id_HTTPMethodHead, AURL, nil, nil, []);
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TIdStream);
+procedure TIdCustomHTTP.Post(AURL: string; ASource, AResponseContent: TStream);
 var
   OldProtocol: TIdHTTPProtocolVersion;
 begin
@@ -794,7 +780,7 @@ begin
   end;
 end;
 
-procedure TIdCustomHTTP.EncodeRequestParams(AStrings: TIdStrings);
+procedure TIdCustomHTTP.EncodeRequestParams(AStrings: TStrings);
 var
   i: Integer;
   LPos: integer;
@@ -812,7 +798,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTP.SetRequestParams(AStrings: TIdStrings): string;
+function TIdCustomHTTP.SetRequestParams(AStrings: TStrings): string;
 begin
   if Assigned(AStrings) then begin
     if hoForceEncodeParams in FOptions then begin
@@ -820,18 +806,18 @@ begin
     end;
     if AStrings.Count > 1 then begin
       // break trailing CR&LF
-      Result := Sys.StringReplace(Sys.Trim(AStrings.Text), sLineBreak, '&');
+      Result := StringReplace(Trim(AStrings.Text), sLineBreak, '&',[rfReplaceAll]);
     end else begin
-      Result := Sys.Trim(AStrings.Text);
+      Result := Trim(AStrings.Text);
     end;
   end else begin
     Result := '';
   end;
 end;
 
-procedure TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings; AResponseContent: TIdStream);
+procedure TIdCustomHTTP.Post(AURL: string; ASource: TStrings; AResponseContent: TStream);
 var
-  LParams: TIdStringStream;
+  LParams: TStringStream;
 begin
   Assert(ASource<>nil);
   Assert(AResponseContent<>nil);
@@ -840,45 +826,45 @@ begin
   if (Request.ContentType = '') or (TextIsSame(Request.ContentType, 'text/html')) then {do not localize}
     Request.ContentType := 'application/x-www-form-urlencoded'; {do not localize}
 
-  LParams := TIdStringStream.Create(SetRequestParams(ASource));
+  LParams := TStringStream.Create(SetRequestParams(ASource));
   try
     Post(AURL, LParams, AResponseContent);
   finally
-    Sys.FreeAndNil(LParams);
+    FreeAndNil(LParams);
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdStrings): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStrings): string;
 var
-  LResponse: TIdStringStream;
+  LResponse: TStringStream;
 begin
   Assert(ASource<>nil);
 
-  LResponse := TIdStringStream.Create('');
+  LResponse := TStringStream.Create('');
   try
     Post(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    Sys.FreeAndNil(LResponse);
+    FreeAndNil(LResponse);
   end;
 end;
 
-function TIdCustomHTTP.Post(AURL: string; ASource: TIdStream): string;
+function TIdCustomHTTP.Post(AURL: string; ASource: TStream): string;
 var
-  LResponse: TIdStringStream;
+  LResponse: TStringStream;
 begin
   Assert(ASource<>nil);
 
-  LResponse := TIdStringStream.Create('');
+  LResponse := TStringStream.Create('');
   try
     Post(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    Sys.FreeAndNil(LResponse);
+    FreeAndNil(LResponse);
   end;
 end;
 
-procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TIdStream);
+procedure TIdCustomHTTP.Put(AURL: string; ASource, AResponseContent: TStream);
 begin
   Assert(ASource<>nil);
   Assert(AResponseContent<>nil);
@@ -886,18 +872,18 @@ begin
   DoRequest(Id_HTTPMethodPut, AURL, ASource, AResponseContent, []);
 end;
 
-function TIdCustomHTTP.Put(AURL: string; ASource: TIdStream): string;
+function TIdCustomHTTP.Put(AURL: string; ASource: TStream): string;
 var
-  LResponse: TIdStringStream;
+  LResponse: TStringStream;
 begin
   Assert(ASource<>nil);
 
-  LResponse := TIdStringStream.Create('');   {do not localize}
+  LResponse := TStringStream.Create('');   {do not localize}
   try
     Put(AURL, ASource, LResponse);
   finally
     result := LResponse.DataString;
-    Sys.FreeAndNil(LResponse);
+    FreeAndNil(LResponse);
   end;
 end;
 
@@ -908,14 +894,14 @@ end;
 
 function TIdCustomHTTP.Trace(AURL: string): string;
 var
-  Stream: TIdStringStream;
+  Stream: TStringStream;
 begin
-  Stream := TIdStringStream.Create('');  {do not localize}
+  Stream := TStringStream.Create('');  {do not localize}
   try
     Trace(AURL, Stream);
     Result := Stream.DataString;
   finally
-    Sys.FreeAndNil(Stream);
+    FreeAndNil(Stream);
   end;
 end;
 
@@ -985,7 +971,7 @@ begin
       end;
     end;
     LHost := URL.Host;
-    LPort := Sys.StrToInt(URL.Port, 80);
+    LPort := IndyStrToInt(URL.Port, 80);
     if (not TextIsSame(FHost, LHost)) or (LPort <> FPort) then begin
       if Connected then begin
         Disconnect;
@@ -1012,7 +998,7 @@ end;
 procedure TIdCustomHTTP.ReadResult(AResponse: TIdHTTPResponse;
   AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
 var
-  LS: TIdStream;
+  LS: TStream;
   Size: Integer;
   LDecMeth : Integer;
   //0 - no compression was used or we can't support that feature
@@ -1029,7 +1015,7 @@ var
     if j > 0 then begin
       s := Copy(s, 1, j - 1);
     end;
-    Result := Sys.StrToInt('$' + s, 0);      {do not localize}
+    Result := IndyStrToInt('$' + s, 0);      {do not localize}
   end;
 
 begin
@@ -1052,13 +1038,13 @@ begin
     end;
 
     if LDecMeth > 0 then begin
-      LS := TIdMemoryStream.Create;
+      LS := TMemoryStream.Create;
     end else begin
       LS := AResponse.ContentStream;
     end;
 
     try
-      if IndyPos('chunked', Sys.LowerCase(AResponse.RawHeaders.Values['Transfer-Encoding'])) > 0 then {do not localize}
+      if IndyPos('chunked', LowerCase(AResponse.RawHeaders.Values['Transfer-Encoding'])) > 0 then {do not localize}
       begin // Chunked
         DoStatus(hsStatusText, [RSHTTPChunkStarted]);
         Size := ChunkSize;
@@ -1110,7 +1096,7 @@ begin
       end;
     finally
       if LDecMeth > 0 then begin
-        Sys.FreeAndNil(LS);
+        FreeAndNil(LS);
       end;
     end;
   end;
@@ -1170,10 +1156,10 @@ begin
     end
     else begin
       if TextIsSame(LURI.Protocol, 'http') then begin     {do not localize}
-        FURI.Port := Sys.IntToStr(IdPORT_HTTP);
+        FURI.Port := IntToStr(IdPORT_HTTP);
       end else begin
         if TextIsSame(LURI.Protocol, 'https') then begin  {do not localize}
-          FURI.Port := Sys.IntToStr(IdPORT_SSL);
+          FURI.Port := IntToStr(IdPORT_SSL);
         end else begin
           if Length(FURI.Port) > 0 then begin
           {  FURI.Port:=FURI.Port; } // do nothing, as the port is already filled in.
@@ -1214,13 +1200,13 @@ begin
       ARequest.ContentLength := -1;
     end;
 
-    if FURI.Port <> Sys.IntToStr(IdPORT_HTTP) then begin
+    if FURI.Port <> IntToStr(IdPORT_HTTP) then begin
       ARequest.Host := FURI.Host + ':' + FURI.Port;    {do not localize}
     end else begin
       ARequest.Host := FURI.Host;
     end;
   finally
-    Sys.FreeAndNil(LURI);  // Free URI Object
+    FreeAndNil(LURI);  // Free URI Object
   end;
 end;
 
@@ -1297,7 +1283,7 @@ begin
         Request.Method := Id_HTTPMethodConnect;
         Request.ProxyConnection := 'keep-alive';            {do not localize}
 
-        Response.ContentStream := TIdMemoryStream.Create;
+        Response.ContentStream := TMemoryStream.Create;
         try
           try
             repeat
@@ -1334,7 +1320,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(LLocalHTTP);
+      FreeAndNil(LLocalHTTP);
     end;
   end else begin
     CheckAndConnect(AResponse);
@@ -1355,7 +1341,7 @@ end;
 
 procedure TIdCustomHTTP.ProcessCookies(ARequest: TIdHTTPRequest; AResponse: TIdHTTPResponse);
 var
-  Cookies, Cookies2: TIdStringList;
+  Cookies, Cookies2: TStringList;
   i: Integer;
 begin
   Cookies := nil;
@@ -1369,8 +1355,8 @@ begin
 
     if Assigned(FCookieManager) then
     begin
-      Cookies := TIdStringList.Create;
-      Cookies2 := TIdStringList.Create;
+      Cookies := TStringList.Create;
+      Cookies2 := TStringList.Create;
 
       AResponse.RawHeaders.Extract('Set-cookie', Cookies);    {do not localize}
       AResponse.RawHeaders.Extract('Set-cookie2', Cookies2);  {do not localize}
@@ -1382,12 +1368,12 @@ begin
         CookieManager.AddCookie2(Cookies2[i], FURI.Host);
     end;
   finally
-    Sys.FreeAndNil(Cookies);
-    Sys.FreeAndNil(Cookies2);
+    FreeAndNil(Cookies);
+    FreeAndNil(Cookies2);
   end;
 end;
 
-procedure TIdCustomHTTP.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+procedure TIdCustomHTTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
   if Operation = opRemove then
@@ -1407,7 +1393,7 @@ begin
   if Assigned(FCookieManager) then
   begin
     if FFreeCookieManager then begin
-      Sys.FreeAndNil(FCookieManager);
+      FreeAndNil(FCookieManager);
     end;
   end;
 
@@ -1460,7 +1446,7 @@ begin
   end;}
   // S.G. 20/10/2003: Added part about the password. Not testing user name as some
   // S.G. 20/10/2003: web sites do not require user name, only password.
-  result := Assigned(FOnAuthorization) or (Sys.Trim(ARequest.Password) <> '');
+  result := Assigned(FOnAuthorization) or (Trim(ARequest.Password) <> '');
 
   if Result then
   begin
@@ -1673,13 +1659,13 @@ begin
 end;
 
 procedure TIdCustomHTTP.Post(AURL: string;
-  ASource: TIdMultiPartFormDataStream; AResponseContent: TIdStream);
+  ASource: TIdMultiPartFormDataStream; AResponseContent: TStream);
 begin
   Assert(ASource<>nil);
   Assert(AResponseContent<>nil);
 
   Request.ContentType := ASource.RequestContentType;
-  Post(AURL, TIdStream(ASource), AResponseContent);
+  Post(AURL, TStream(ASource), AResponseContent);
 end;
 
 function TIdCustomHTTP.Post(AURL: string;
@@ -1688,7 +1674,7 @@ begin
   Assert(ASource<>nil);
 
   Request.ContentType := ASource.RequestContentType;
-  result := Post(AURL, TIdStream(ASource));
+  result := Post(AURL, TStream(ASource));
 end;
 
 { TIdHTTPResponse }
@@ -1726,18 +1712,18 @@ begin
           the connection only there is "close" }
         begin
           FKeepAlive :=
-            not (TextIsSame(Sys.Trim(Connection), 'CLOSE') or   {do not localize}
-            TextIsSame(Sys.Trim(ProxyConnection), 'CLOSE'));    {do not localize}
+            not (TextIsSame(Trim(Connection), 'CLOSE') or   {do not localize}
+            TextIsSame(Trim(ProxyConnection), 'CLOSE'));    {do not localize}
         end;
       pv1_0:
         { By default we assume that keep-alive is not by default and will keep
           the connection only if there is "keep-alive" }
         begin
-          FKeepAlive := TextIsSame(Sys.Trim(Connection), 'KEEP-ALIVE') or  {do not localize}
-            TextIsSame(Sys.Trim(ProxyConnection), 'KEEP-ALIVE')            {do not localize}
+          FKeepAlive := TextIsSame(Trim(Connection), 'KEEP-ALIVE') or  {do not localize}
+            TextIsSame(Trim(ProxyConnection), 'KEEP-ALIVE')            {do not localize}
             { or ((ResponseVersion = pv1_1) and
-              (Length(Sys.Trime(Connection)) = 0) and
-              (Length(Sys.Trime(ProxyConnection)) = 0)) };
+              (Length(Trime(Connection)) = 0) and
+              (Length(Trime(ProxyConnection)) = 0)) };
         end;
     end;
   result := FKeepAlive;
@@ -1749,8 +1735,8 @@ var
 begin
   S := FResponseText;
   Fetch(S);
-  S := Sys.Trim(S);
-  FResponseCode := Sys.StrToInt(Fetch(S, ' ', False), -1);
+  S := Trim(S);
+  FResponseCode := IndyStrToInt(Fetch(S, ' ', False), -1);
   Result := FResponseCode;
 end;
 
@@ -1777,8 +1763,8 @@ end;
 
 destructor TIdHTTPProtocol.Destroy;
 begin
-  Sys.FreeAndNil(FRequest);
-  Sys.FreeAndNil(FResponse);
+  FreeAndNil(FRequest);
+  FreeAndNil(FResponse);
 
   inherited Destroy;
 end;
@@ -1847,10 +1833,10 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
     AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     i: Integer;
-    LTempResponse: TIdStringStream;
-    LTempStream: TIdStream;
+    LTempResponse: TStringStream;
+    LTempStream: TStream;
   begin
-    LTempResponse := TIdStringStream.Create('');
+    LTempResponse := TStringStream.Create('');
     LTempStream := Response.ContentStream;
     Response.ContentStream := LTempResponse;
     try
@@ -1865,14 +1851,14 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
       raise EIdHTTPProtocolException.CreateError(AResponseCode, FHTTP.ResponseText, LTempResponse.DataString);
     finally
       Response.ContentStream := LTempStream;
-      Sys.FreeAndNil(LTempResponse);
+      FreeAndNil(LTempResponse);
     end;
   end;
 
   procedure DiscardContent(AUnexpectedContentTimeout: Integer = IdTimeoutDefault);
   var
     LTempResponse: TIdDiscardStream;
-    LTempStream: TIdStream;
+    LTempStream: TStream;
   begin
     LTempResponse := TIdDiscardStream.Create;
     LTempStream := Response.ContentStream;
@@ -1881,7 +1867,7 @@ function TIdHTTPProtocol.ProcessResponse(AIgnoreReplies: array of SmallInt): TId
       FHTTP.ReadResult(Response, AUnexpectedContentTimeout);
     finally
       Response.ContentStream := LTempStream;
-      Sys.FreeAndNil(LTempResponse);
+      FreeAndNil(LTempResponse);
     end;
   end;
 
@@ -2072,20 +2058,20 @@ end;
 
 function TIdCustomHTTP.Get(AURL: string; AIgnoreReplies: array of SmallInt): string;
 var
-  LStream: TIdMemoryStream;
+  LStream: TMemoryStream;
 begin
-  LStream := TIdMemoryStream.Create;
+  LStream := TMemoryStream.Create;
   try
     Get(AURL, LStream, AIgnoreReplies);
     LStream.Position := 0;
     // This is here instead of a TStringStream for .net conversions?
     Result := ReadStringFromStream(LStream);
   finally
-    Sys.FreeAndNil(LStream);
+    FreeAndNil(LStream);
   end;
 end;
 
-procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TIdStream;
+procedure TIdCustomHTTP.Get(AURL: string; AResponseContent: TStream;
   AIgnoreReplies: array of SmallInt);
 begin
   Assert(AResponseContent<>nil);
@@ -2094,7 +2080,7 @@ begin
 end;
 
 procedure TIdCustomHTTP.DoRequest(const AMethod: TIdHTTPMethod;
-  AURL: string; ASource, AResponseContent: TIdStream;
+  AURL: string; ASource, AResponseContent: TStream;
   AIgnoreReplies: array of SmallInt);
 var
   LResponseLocation: Integer;

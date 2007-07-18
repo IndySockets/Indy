@@ -166,13 +166,12 @@ unit IdDNSCommon;
 interface
 
 uses
+  Classes,
   IdContainers,
   IdException,
   IdGlobal,
   IdResourceStrings,
-  IdResourceStringsProtocols,
-  IdSys,
-  IdObjs;
+  IdResourceStringsProtocols;
 
 Resourcestring
   RSQueryMustProvideSOARecord = 'You have to provide a TIdRR_SOA object with Serial number and Name to progress IXFR. %d';
@@ -356,11 +355,11 @@ type
   TIdTextModeResourceRecord = class (TObject)
   private
     FRRName: string;
-    FRRDatas: TIdStrings;  //TODO Should not be TIdStrings
+    FRRDatas: TStrings;  //TODO Should not be TStrings
     FTTL: integer;
     FTypeCode: integer;
     FTimeOut: string;
-    procedure SetRRDatas(const Value: TIdStrings);
+    procedure SetRRDatas(const Value: TStrings);
     procedure SetTTL(const Value: integer);
   protected
     FAnswer : TIdBytes;
@@ -369,7 +368,7 @@ type
     destructor Destroy; override;
     property TypeCode : integer read FTypeCode write FTypeCode;
     property RRName : string read FRRName write FRRName;
-    property RRDatas : TIdStrings read FRRDatas write SetRRDatas;
+    property RRDatas : TStrings read FRRDatas write SetRRDatas;
     property TTL : integer read FTTL write SetTTL;
     property TimeOut :string read FTimeOut write FTimeOut;
     procedure AddOneParameter(ParameterName, Value : string);
@@ -383,16 +382,16 @@ type
 
   TIdTextModeRRs = class (TIdObjectList)
   private
-    FItemNames : TIdStrings;
+    FItemNames : TStrings;
     function GetItem(Index: Integer): TIdTextModeResourceRecord;
     procedure SetItem(Index: Integer;
       const Value: TIdTextModeResourceRecord);
-    procedure SetItemNames(const Value: TIdStrings);
+    procedure SetItemNames(const Value: TStrings);
   public
     constructor Create;
     destructor Destroy; override;
 
-    property ItemNames : TIdStrings read FItemNames write SetItemNames;
+    property ItemNames : TStrings read FItemNames write SetItemNames;
     property Items[Index: Integer]: TIdTextModeResourceRecord read GetItem write SetItem; default;
   end;
 
@@ -607,7 +606,7 @@ implementation
 
 uses
   IdGlobalProtocols,
-  IdStack;
+  IdStack, SysUtils;
 
 function DomainNameToDNSStr(ADomain : String): TIdBytes;
 var
@@ -655,11 +654,11 @@ begin
   SetLength(Result, 0);
   if IsValidIP(IPAddress) then
   begin
-    s := sYS.Trim(IPAddress);
+    s := Trim(IPAddress);
     ret := True;
     for i := 1 to 4 do
     begin
-      j := Sys.StrToInt(Fetch(IPAddress, '.'), -1); {do not localize}
+      j := IndyStrToInt(Fetch(IPAddress, '.'), -1); {do not localize}
       ret := ret and (j > -1) and (j < 256);
       if not ret then
       begin
@@ -740,12 +739,12 @@ end;
 
 function IsValidIPv6(v6Address : String): boolean;
 var
-   Temps : TIdStrings;
+   Temps : TStrings;
    Apart, All: String;
    Count, Loc, Goal : integer;
 begin
   All := v6Address;
-  Temps := TIdStringList.Create;
+  Temps := TStringList.Create;
   try
     // Check Double Colon existence, but only single.
     Count := 0;
@@ -788,7 +787,7 @@ begin
       Result := True;
       Temps.Clear;
       repeat
-        Apart := Sys.Trim(Fetch(All, ':'));             {do not localize}
+        Apart := Trim(Fetch(All, ':'));             {do not localize}
         if Length(Apart) <= 4 then
         begin
           Apart := '0000' + Apart;  {do not localize}
@@ -832,11 +831,11 @@ end;
 function ConvertToValidv6IP(OrgIP : String) : string;
 var
    All, Apart : string;
-   Temps : TIdStrings;
+   Temps : TStrings;
    Count, Loc, Goal : integer;
 begin
    All := OrgIP;
-   Temps := TIdStringList.Create;
+   Temps := TStringList.Create;
 
    // Check Double Colon existence, but only single.
   // Count := 0;
@@ -881,7 +880,7 @@ begin
   All := ConvertToValidv6IP(OrgIp);
   Result := '';                      {do not localize}
   repeat
-    Apart := Sys.Trim(Fetch(All, ':'));  {do not localize}
+    Apart := Trim(Fetch(All, ':'));  {do not localize}
     if Length(Apart) < 4 then
     begin
       Apart := '0000' + Apart;  {do not localize}
@@ -896,12 +895,12 @@ end;
 function GetErrorStr(Code, Id :Integer): String;
 begin
   case code Of
-    1 : Result := Sys.Format ( RSQueryInvalidQueryCount, [ Id ] );
-    2 : Result := Sys.Format ( RSQueryInvalidPacketSize, [ Id ] );
-    3 : Result := Sys.Format ( RSQueryLessThanFour, [ Id ] );
-    4 : Result := Sys.Format ( RSQueryInvalidHeaderID, [ Id ] );
-    5 : Result := Sys.Format ( RSQueryLessThanTwelve, [ Id ] );
-    6 : Result := Sys.Format ( RSQueryPackReceivedTooSmall, [Id] );
+    1 : Result := IndyFormat ( RSQueryInvalidQueryCount, [ Id ] );
+    2 : Result := IndyFormat ( RSQueryInvalidPacketSize, [ Id ] );
+    3 : Result := IndyFormat ( RSQueryLessThanFour, [ Id ] );
+    4 : Result := IndyFormat ( RSQueryInvalidHeaderID, [ Id ] );
+    5 : Result := IndyFormat ( RSQueryLessThanTwelve, [ Id ] );
+    6 : Result := IndyFormat ( RSQueryPackReceivedTooSmall, [Id] );
   end;  //case code Of
 end;
 
@@ -1217,7 +1216,7 @@ end;
 constructor TIdTextModeResourceRecord.Create;
 begin
   inherited Create;
-  Self.FRRDatas := TIdStringList.Create;
+  Self.FRRDatas := TStringList.Create;
   Self.TTL := 0;
 end;
 
@@ -1273,7 +1272,7 @@ begin
   Result := Self.RRDatas.Count;
 end;
 
-procedure TIdTextModeResourceRecord.SetRRDatas(const Value: TIdStrings);
+procedure TIdTextModeResourceRecord.SetRRDatas(const Value: TStrings);
 begin
   FRRDatas.Assign(Value);
 end;
@@ -1283,7 +1282,7 @@ procedure TIdTextModeResourceRecord.SetTTL(const Value: integer);
 begin
   FTTL := Value;
                                                
-  Self.FTimeOut := Sys.DateTimeToStr(Sys.AddMSecToTime(Sys.Now,(Value * 1000)));
+  Self.FTimeOut := DateTimeToStr(AddMSecToTime(Now,(Value * 1000)));
 end;
 
 function TIdTextModeResourceRecord.TextRecord(FullName: string): string;
@@ -1296,7 +1295,7 @@ end;
 constructor TIdTextModeRRs.Create;
 begin
   inherited Create;
-  Self.FItemNames := TIdStringList.Create;
+  Self.FItemNames := TStringList.Create;
 end;
 
 destructor TIdTextModeRRs.Destroy;
@@ -1316,7 +1315,7 @@ begin
   inherited SetItem(Index, Value);
 end;
 
-procedure TIdTextModeRRs.SetItemNames(const Value: TIdStrings);
+procedure TIdTextModeRRs.SetItemNames(const Value: TStrings);
 begin
   FItemNames.Assign(Value);
 end;
@@ -1814,7 +1813,7 @@ begin
      end else begin
        QName := Self.RRName;
      end;
-     Pref := Sys.StrToInt(Self.Preference);
+     Pref := IndyStrToInt(Self.Preference);
      RRData := ToBytes(SmallInt(Pref));
      if not TextEndsWith(Self.Exchange, '.') then
      begin
@@ -2048,11 +2047,11 @@ begin
 
      RRData := DomainNameToDNSStr((Self.MName));
      AppendBytes(RRData, DomainNameToDNSStr((Self.RName)));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Serial)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Refresh)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Retry)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Expire)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(Sys.StrToInt(Self.Minimum)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Serial)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Refresh)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Retry)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Expire)))));
+     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Minimum)))));
 
      Result := DomainNameToDNSStr((QName));
      AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_SOA))));

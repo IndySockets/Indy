@@ -40,7 +40,8 @@ unit IdFTPListParseXecomMicroRTOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
    TIdXecomMicroRTOSTPListItem = class(TIdFTPListItem)
@@ -48,7 +49,7 @@ type
      FMemStart: Cardinal;
      FMemEnd: Cardinal;
    public
-     constructor Create(AOwner: TIdCollection); override;
+     constructor Create(AOwner: TCollection); override;
      property MemStart: Cardinal read FMemStart write FMemStart;
      property MemEnd: Cardinal read FMemEnd write FMemEnd;
    end;
@@ -67,7 +68,7 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPXecomMicroRTOS }
 
@@ -78,10 +79,10 @@ end;
 
 class function TIdFTPLPXecomMicroRTOS.IsFooter(
   const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AData,s);
     if s.Count = 7 then
@@ -91,16 +92,16 @@ begin
       (s[6] = '**');                                                        {do not localize}
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
 class function TIdFTPLPXecomMicroRTOS.IsHeader(
   const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AData,s);
     if s.Count = 5 then
@@ -109,7 +110,7 @@ begin
          (s[3] = 'File') and (s[4] = 'name');                                 {do not localize}
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
@@ -125,18 +126,18 @@ var LBuf : String;
   LI : TIdXecomMicroRTOSTPListItem;
 begin
   LI := AItem as TIdXecomMicroRTOSTPListItem;
-  LBuf := Sys.TrimLeft(AItem.Data);
+  LBuf := TrimLeft(AItem.Data);
   //start memory offset
-  LBuf := Sys.TrimLeft(LBuf);
-  LI.MemStart := Sys.StrToInt('$'+Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
+  LI.MemStart := IndyStrToInt('$'+Fetch(LBuf),0);
   //end memory offset
-  LBuf := Sys.TrimLeft(LBuf);
-  LI.MemEnd := Sys.StrToInt('$'+Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
+  LI.MemEnd := IndyStrToInt('$'+Fetch(LBuf),0);
   //file size
-  LBuf := Sys.TrimLeft(LBuf);
-  LI.Size := Sys.StrToInt64(Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
+  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
   //File name
-  LI.FileName := Sys.TrimLeft(LBuf);
+  LI.FileName := TrimLeft(LBuf);
   //note that the date is not provided and I do not think there are
   //dirs in this real-time operating system.
   Result := True;
@@ -144,7 +145,7 @@ end;
 
 { TIdXecomMicroRTOSTPListItem }
 
-constructor TIdXecomMicroRTOSTPListItem.Create(AOwner: TIdCollection);
+constructor TIdXecomMicroRTOSTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   ModifiedAvail := False;

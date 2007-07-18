@@ -130,8 +130,7 @@ unit IdDateTimeStamp;
 interface
 
 uses
-  IdBaseComponent,
-  IdSys;
+  IdBaseComponent;
 
 const
   // Some basic constants
@@ -378,7 +377,7 @@ type
     procedure AddMinutes(ANumber : Cardinal);
     procedure AddMonths(ANumber : Cardinal);
     procedure AddSeconds(ANumber : Cardinal);
-    procedure AddTDateTime(ADateTime : TIdDateTime);
+    procedure AddTDateTime(ADateTime : TDateTime);
     procedure AddTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
     procedure AddTTimeStamp(ATimeStamp : TIdDateTimeStamp);
     procedure AddWeeks(ANumber : Cardinal);
@@ -389,7 +388,7 @@ type
     function GetAsISO8601Week : String;
     function GetAsRFC822 : String;
 {TODO :    function GetAsRFC977DateTime : String;}
-    function GetAsTDateTime : TIdDateTime;
+    function GetAsTDateTime : TDateTime;
     function GetAsTTimeStamp : TIdDateTimeStamp;
     function GetAsTimeOfDay : String; // HH:MM:SS
 
@@ -417,7 +416,7 @@ type
     procedure SetFromDOSDateTime(ADate, ATime : Word);
     procedure SetFromISO8601(AString : String);
     procedure SetFromRFC822(AString : String);
-    procedure SetFromTDateTime(ADateTime : TIdDateTime);
+    procedure SetFromTDateTime(ADateTime : TDateTime);
     procedure SetFromTTimeStamp(ATimeStamp : TIdDateTimeStamp);
 
     procedure SetDay(ANumber : Integer);
@@ -432,7 +431,7 @@ type
     procedure SubtractMinutes(ANumber : Cardinal);
     procedure SubtractMonths(ANumber : Cardinal);
     procedure SubtractSeconds(ANumber : Cardinal);
-    procedure SubtractTDateTime(ADateTime : TIdDateTime);
+    procedure SubtractTDateTime(ADateTime : TDateTime);
     procedure SubtractTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
     procedure SubtractTTimeStamp(ATimeStamp : TIdDateTimeStamp);
     procedure SubtractWeeks(ANumber : Cardinal);
@@ -446,7 +445,7 @@ type
     property AsISO8601Ordinal : String read GetAsISO8601Ordinal;
     property AsISO8601Week : String read GetAsISO8601Week;
     property AsRFC822 : String read GetAsRFC822;
-    property AsTDateTime : TIdDateTime read GetAsTDateTime;
+    property AsTDateTime : TDateTime read GetAsTDateTime;
     property AsTTimeStamp : TIdDateTimeStamp read GetAsTTimeStamp;
     property AsTimeOfDay : String read GetAsTimeOfDay;
     property BeatOfDay : Integer read GetBeatOfDay;
@@ -482,7 +481,8 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
-  IdStrings;
+  IdStrings,
+  SysUtils;
 
 const
   MaxWeekAdd : Cardinal = $FFFFFFFF div IdDaysInWeek;
@@ -490,7 +490,7 @@ const
   DIGITS : String = '0123456789'; {Do not Localize}
 
 
-function DateTimeToTimeStamp(ADateTime: TIdDateTime): TIdDateTimeStamp;
+function DateTimeToTimeStamp(ADateTime: TDateTime): TIdDateTimeStamp;
 var
   Year,
   Month,
@@ -500,8 +500,8 @@ var
   Second,
   MSec: Word;
 begin
-  Sys.DecodeDate(ADateTime, Year, Month, Day);
-  Sys.DecodeTime(ADateTime, Hour, Minute, Second, MSec);
+  DecodeDate(ADateTime, Year, Month, Day);
+  DecodeTime(ADateTime, Hour, Minute, Second, MSec);
   Result := TIdDateTimeStamp.Create;
   Result.Zero;
   Result.AddYears(Year);
@@ -520,11 +520,11 @@ begin
 //    EIdExceptionBase.CreateFmt('''%d.%d'' is not a valid timestamp', [ATimeStamp.Date, ATimeStamp.Time]);
 end;
 
-function TimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TIdDateTime;
+function TimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TDateTime;
 begin
   ValidateTimeStamp(ATimeStamp);
-  Result := Sys.EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.Day) +
-            Sys.EncodeTime(ATimeStamp.HourOf24Day, ATimeStamp.MinuteOfHour, ATimeStamp.SecondOfMinute, ATimeStamp.Millisecond);
+  Result := EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.Day) +
+            EncodeTime(ATimeStamp.HourOf24Day, ATimeStamp.MinuteOfHour, ATimeStamp.SecondOfMinute, ATimeStamp.Millisecond);
 end;
 
 /////////////
@@ -762,33 +762,33 @@ end;
 
 function TIdDateTimeStamp.GetAsISO8601Calendar;
 begin
-  result := Sys.IntToStr(FYear) + '-';    {Do not Localize}
-  result := result + Sys.IntToStr(MonthOfYear) + '-';  {Do not Localize}
-  result := result + Sys.IntToStr(DayOfMonth) + 'T';   {Do not Localize}
+  result := IntToStr(FYear) + '-';    {Do not Localize}
+  result := result + IntToStr(MonthOfYear) + '-';  {Do not Localize}
+  result := result + IntToStr(DayOfMonth) + 'T';   {Do not Localize}
   result := result + AsTimeOfDay;
 end;
 
 function TIdDateTimeStamp.GetAsISO8601Ordinal : String;
 begin
-  result := Sys.IntToStr(FYear) + '-';   {Do not Localize}
-  result := result + Sys.IntToStr(FDay) + 'T'; {Do not Localize}
+  result := IntToStr(FYear) + '-';   {Do not Localize}
+  result := result + IntToStr(FDay) + 'T'; {Do not Localize}
   result := result + AsTimeOfDay;
 end;
 
 function TIdDateTimeStamp.GetAsISO8601Week : String;
 begin
-  result := Sys.IntToStr(FYear) + '-W';    {Do not Localize}
-  result := result + Sys.IntToStr(WeekOfYear) + '-'; {Do not Localize}
-  result := result + Sys.IntToStr(DayOfWeek) + 'T';   {Do not Localize}
+  result := IntToStr(FYear) + '-W';    {Do not Localize}
+  result := result + IntToStr(WeekOfYear) + '-'; {Do not Localize}
+  result := result + IntToStr(DayOfWeek) + 'T';   {Do not Localize}
   result := result + AsTimeOfDay;
 end;
 
 function TIdDateTimeStamp.GetAsRFC822;
 begin
   result := IdDayShortNames[DayOfWeek] + ', ';    {Do not Localize}
-  result := result + Sys.IntToStr(DayOfMonth) + ' ';  {Do not Localize}
+  result := result + IntToStr(DayOfMonth) + ' ';  {Do not Localize}
   result := result + IdMonthShortNames[MonthOfYear] + ' '; {Do not Localize}
-  result := result + Sys.IntToStr(Year) + ' ';   {Do not Localize}
+  result := result + IntToStr(Year) + ' ';   {Do not Localize}
   result := result + AsTimeOfDay + ' ';    {Do not Localize}
   result := result + TimeZoneAsString;
 end;
@@ -809,21 +809,21 @@ var
 begin
   i := HourOf24Day;
   if i < 10 then begin
-    result := result + '0' + Sys.IntToStr(i) + ':';   {Do not Localize}
+    result := result + '0' + IntToStr(i) + ':';   {Do not Localize}
   end else begin
-    result := result + Sys.IntToStr(i) + ':';   {Do not Localize}
+    result := result + IntToStr(i) + ':';   {Do not Localize}
   end;
   i := MinuteOfHour;
   if i < 10 then begin
-    result := result + '0' + Sys.IntToStr(i) + ':';   {Do not Localize}
+    result := result + '0' + IntToStr(i) + ':';   {Do not Localize}
   end else begin
-    result := result + Sys.IntToStr(i) + ':';   {Do not Localize}
+    result := result + IntToStr(i) + ':';   {Do not Localize}
   end;
   i := SecondOfMinute;
   if i < 10 then begin
-    result := result + '0' + Sys.IntToStr(i);  {Do not Localize}
+    result := result + '0' + IntToStr(i);  {Do not Localize}
   end else begin
-    result := result + Sys.IntToStr(i);  {Do not Localize}
+    result := result + IntToStr(i);  {Do not Localize}
   end;
 end;
 
@@ -1014,19 +1014,19 @@ begin
   begin
     if i < -9 then
     begin
-      result := Sys.IntToStr(i);
+      result := IntToStr(i);
     end else
     begin
-      result := '-0' + Sys.IntToStr(Abs(i));   {Do not Localize}
+      result := '-0' + IntToStr(Abs(i));   {Do not Localize}
     end;
   end else
   begin
     if i <= 9 then
     begin
-      result := '+0' + Sys.IntToStr(i);   {Do not Localize}
+      result := '+0' + IntToStr(i);   {Do not Localize}
     end else
     begin
-      result := '+' + Sys.IntToStr(i);   {Do not Localize}
+      result := '+' + IntToStr(i);   {Do not Localize}
     end;
   end;
   i := GetTimeZoneMinutes;
@@ -1034,7 +1034,7 @@ begin
   begin
     result := result + '0';    {Do not Localize}
   end;
-  result := result + Sys.IntToStr(i);
+  result := result + IntToStr(i);
 end;
 
 function TIdDateTimeStamp.GetTimeZoneHour: Integer;
@@ -1089,12 +1089,12 @@ begin
   i := IndyPos('-', AString);    {Do not Localize}
   if i > 0 then
   begin
-    s := Sys.Trim(Copy(AString, 1, i - 1));
-    AString := Sys.Trim(Copy(AString, i + 1, length(AString)));
+    s := Trim(Copy(AString, 1, i - 1));
+    AString := Trim(Copy(AString, i + 1, length(AString)));
     i := FindFirstNotOf('0123456789', s);  {Do not Localize}
     if i = 0 then
     begin
-      SetYear(Sys.StrToInt(s));
+      SetYear(IndyStrToInt(s));
       if length(AString) > 0 then begin
 
         i := IndyPos('-', AString);     {Do not Localize}
@@ -1102,21 +1102,21 @@ begin
         if (AString[1] = 'W') or (AString[1] = 'w') then  {Do not Localize}
         begin
           // Week format
-          s := Sys.Trim(Copy(AString, 2, i - 2));
-          AString := Sys.Trim(Copy(AString, i + 1, length(AString)));
+          s := Trim(Copy(AString, 2, i - 2));
+          AString := Trim(Copy(AString, i + 1, length(AString)));
 
           week := -1;
           i := -1;
           if (length(AString) > 0)
           and (FindFirstNotOf(DIGITS, AString) = 0) then
           begin
-            i := Sys.StrToInt(AString);
+            i := IndyStrToInt(AString);
           end;
 
           if (Length(s) > 0)
           and (FindFirstNotOf(DIGITS, AString) = 0) then
           begin
-            week := Sys.StrToInt(s);
+            week := IndyStrToInt(s);
           end;
 
           if (week > 0) and (i >= 0) then
@@ -1135,26 +1135,26 @@ begin
         end else if i > 0 then
         begin
           // Calender format
-          s := Sys.Trim(Copy(AString, 1, i - 1));
-          AString := Sys.Trim(Copy(AString, i + 1, length(AString)));
+          s := Trim(Copy(AString, 1, i - 1));
+          AString := Trim(Copy(AString, i + 1, length(AString)));
           // Set the day first due to internal format.
           if (length(AString) > 0)
           and (FindFirstNotOf(DIGITS, s) = 0) then
           begin
-            SetDay(Sys.StrToInt(AString));
+            SetDay(IndyStrToInt(AString));
           end;
           
           // Add the months.
           if (length(s) > 0) and (FindFirstNotOf(DIGITS, s) = 0) then
           begin
-            AddMonths(Sys.StrToInt(s) - 1);
+            AddMonths(IndyStrToInt(s) - 1);
           end;
         end else
         begin
           // Ordinal format
           i := FindFirstNotOf(DIGITS, AString);
           if i = 0 then begin
-            SetDay(Sys.StrToInt(AString));
+            SetDay(IndyStrToInt(AString));
           end;
         end;
 
@@ -1170,30 +1170,30 @@ var
 begin
   // AString should be in the format of HH:MM:SS where : is a literal.
   i := IndyPos(':', AString);      {Do not Localize}
-  Hour := Sys.Trim(Copy(AString, 1, i - 1));
-  AString := Sys.Trim(Copy(AString, i + 1, length(AString)));
+  Hour := Trim(Copy(AString, 1, i - 1));
+  AString := Trim(Copy(AString, i + 1, length(AString)));
 
   i := IndyPos(':', AString);      {Do not Localize}
-  Minute := Sys.Trim(Copy(AString, 1, i - 1));
-  AString := Sys.Trim(Copy(AString, i + 1, Length(Astring)));
+  Minute := Trim(Copy(AString, 1, i - 1));
+  AString := Trim(Copy(AString, i + 1, Length(Astring)));
 
   // Set seconds first due to internal format.
   if (length(AString) > 0)
   and (FindFirstNotOf(DIGITS, AString) = 0) then
   begin
-    SetSecond(Sys.StrToInt(AString));
+    SetSecond(IndyStrToInt(AString));
   end;
 
   if (length(Minute) > 0)
   and (FindFirstNotOf(DIGITS, Minute) = 0) then
   begin
-    AddMinutes(Sys.StrToInt(Minute));
+    AddMinutes(IndyStrToInt(Minute));
   end;  
 
   if (length(Hour) > 0)
   and (FindFirstNotOf(DIGITS, Hour) = 0) then
   begin
-    AddHours(Sys.StrToInt(Hour));
+    AddHours(IndyStrToInt(Hour));
   end;
 end;
 
@@ -1205,8 +1205,8 @@ begin
   i := IndyPos('T', AString);  {Do not Localize}
   if i > 0 then
   begin
-    SetDateFromISO8601(Sys.Trim(Copy(AString, 1, i - 1)));
-    SetTimeFromISO8601(Sys.Trim(Copy(AString, i + 1, length(AString))));
+    SetDateFromISO8601(Trim(Copy(AString, 1, i - 1)));
+    SetTimeFromISO8601(Trim(Copy(AString, i + 1, length(AString))));
   end else
   begin
     SetDateFromISO8601(AString);
@@ -1227,7 +1227,7 @@ begin
   try
     SetFromTTimeStamp(aStamp);
   finally
-    Sys.FreeAndNil(aStamp);
+    FreeAndNil(aStamp);
   end;
 end;
 
@@ -1322,7 +1322,7 @@ begin
 
       // Round off current year to nearest four.
       i := (FYear shr 2) shl 2;
-      if Sys.IsLeapYear(i) then begin
+      if SysUtils.IsLeapYear(i) then begin
         // Normal
         SubtractYears(IdYearsInShortLeapYearCycle);
         ANumber := ANumber - Cardinal(IdDaysInShortLeapYearCycle);

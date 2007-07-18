@@ -51,6 +51,7 @@ unit IdGopherServer;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -105,7 +106,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGopherConsts, IdResourceStringsProtocols, IdSys;
+  IdGlobal, IdGopherConsts, IdResourceStringsProtocols, SysUtils;
 
 procedure TIdGopherServer.InitComponent;
 begin
@@ -162,7 +163,7 @@ begin
         end;
      end;
     result := ItemType + UserFriendlyName +
-       TAB + RealResourceName + TAB + HostServer + TAB + Sys.IntToStr(HostPort);
+       TAB + RealResourceName + TAB + HostServer + TAB + IntToStr(HostPort);
 end;
 
 procedure TIdGopherServer.SendDirectoryEntry;

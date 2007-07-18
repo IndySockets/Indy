@@ -47,7 +47,8 @@ unit IdHashSHA1;
 interface
 
 uses
-  IdGlobal, IdHash, IdObjs;
+  Classes,
+  IdGlobal, IdHash;
 
 type
   T5x4LongWordRecord = array[0..4] of LongWord;
@@ -58,7 +59,7 @@ type
     FCheckSum: T5x4LongWordRecord;
     FCBuffer: TIdBytes;
     procedure Coder;
-    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
+    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
@@ -302,7 +303,7 @@ begin
   FCheckSum[4]:= FCheckSum[4] + E;
 end;
 
-function TIdHashSHA1.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
+function TIdHashSHA1.GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
 var
   LSize: Integer;
   LLenHi: LongWord;
