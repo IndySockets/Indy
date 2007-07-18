@@ -81,8 +81,9 @@ unit IdMappedFTP;
 interface
 
 uses
+  Classes,
   IdContext, IdAssignedNumbers, IdMappedPortTCP, IdStack, IdYarn,
-  IdTCPConnection,IdTCPServer, IdThread, IdObjs;
+  IdTCPConnection,IdTCPServer, IdThread;
 
 type
   TIdMappedFtpDataThread = class;
@@ -105,7 +106,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TIdThreadList = nil
+      AList: TThreadList = nil
       ); override;
     property FtpCommand: string read FFtpCommand write FFtpCommand;
     property FtpParams: string read FFtpParams write FFtpParams;
@@ -160,7 +161,7 @@ implementation
 
 uses
   IdGlobal, IdGlobalProtocols, IdIOHandlerSocket, IdException, IdResourceStringsProtocols,
-  IdTcpClient, IdSimpleServer, IdStackConsts, IdSys;
+  IdTcpClient, IdSimpleServer, IdStackConsts, SysUtils;
 
 const
   //  iLastGetCmd = 2;
@@ -248,7 +249,7 @@ end;
 
 { TIdMappedFtpContext }
 
-constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
+constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FHost := '';    {Do not Localize}
@@ -285,8 +286,8 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     Host := Host + Fetch(LParm, ',') + '.'; //h3    {Do not Localize}
     Host := Host + Fetch(LParm, ','); //h4    {Do not Localize}
 
-    LLo := Sys.StrToInt(Fetch(LParm, ',')); //p1    {Do not Localize}
-    LHi := Sys.StrToInt(LParm); //p2
+    LLo := IndyStrToInt(Fetch(LParm, ',')); //p1    {Do not Localize}
+    LHi := IndyStrToInt(LParm); //p2
     Port := (LLo * 256) + LHi;
 
     CreateDataChannelThread;
@@ -302,7 +303,7 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     ProcessOutboundDc(False);
 
     //3. send ack to client
-    Connection.IOHandler.WriteLn('200 ' + Sys.Format(RSFTPCmdSuccessful, ['PORT']));    {Do not Localize}
+    Connection.IOHandler.WriteLn('200 ' + IndyFormat(RSFTPCmdSuccessful, ['PORT']));    {Do not Localize}
   end;
 
   procedure ParsePasv;
@@ -322,20 +323,20 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
       BeginListen;
       Self.Host := Binding.IP;
       Self.Port := Binding.Port;
-      LParm := Sys.StringReplace(Self.Host, '.', ',');    {Do not Localize}
-      LParm := LParm + ',' + Sys.IntToStr(Self.Port div 256) + ',' + Sys.IntToStr(Self.Port mod 256);    {Do not Localize}
+      LParm := StringReplace(Self.Host, '.', ',',[rfReplaceAll]);    {Do not Localize}
+      LParm := LParm + ',' + IntToStr(Self.Port div 256) + ',' + IntToStr(Self.Port mod 256);    {Do not Localize}
     end;
 
     //2.setup remote (mapped)
     ProcessOutboundDc(True);
 
     //3. send ack to client
-    Connection.IOHandler.WriteLn('227 ' + Sys.Format(RSFTPPassiveMode, [LParm]));    {Do not Localize}
+    Connection.IOHandler.WriteLn('227 ' + IndyFormat(RSFTPPassiveMode, [LParm]));    {Do not Localize}
   end;
 
 begin
   Result := False; //comamnd NOT processed
-  FFtpCommand := Sys.UpperCase(FFtpCommand);
+  FFtpCommand := UpperCase(FFtpCommand);
   if FFtpCommand = 'PORT' then    {Do not Localize}
   begin
     ParsePort;
@@ -367,9 +368,9 @@ var
       Self.OutboundPort := Binding.Port;
     end;
 
-    OutboundClient.SendCmd('PORT ' + Sys.StringReplace(OutboundHost, '.', ',')+    {Do not Localize}
-      ',' + Sys.IntToStr(OutboundPort div 256) + ',' +    {Do not Localize}
-      Sys.IntToStr(OutboundPort mod 256), [200]);
+    OutboundClient.SendCmd('PORT ' + StringReplace(OutboundHost, '.', ',',[rfReplaceAll])+    {Do not Localize}
+      ',' + IntToStr(OutboundPort div 256) + ',' +    {Do not Localize}
+      IntToStr(OutboundPort mod 256), [200]);
   end;
 
   procedure SendPasv;
@@ -378,7 +379,7 @@ var
     s: string;
   begin
     OutboundClient.SendCmd('PASV', 227);    {Do not Localize}
-    s := Sys.Trim(OutboundClient.LastCmdResult.Text[0]);
+    s := Trim(OutboundClient.LastCmdResult.Text[0]);
 
     // Case 1 (Normal)
     // 227 Entering passive mode(100,1,1,1,23,45)
@@ -402,8 +403,8 @@ var
     end;
     IdDelete(FOutboundHost, 1, 1);
     // Determine port
-    FOutboundPort := Sys.StrToInt(Fetch(s, ',')) * 256;    {Do not Localize}
-    FOutboundPort := FOutboundPort + Sys.StrToInt(Fetch(s, ','));    {Do not Localize}
+    FOutboundPort := IndyStrToInt(Fetch(s, ',')) * 256;    {Do not Localize}
+    FOutboundPort := FOutboundPort + IndyStrToInt(Fetch(s, ','));    {Do not Localize}
 
     DataChannelThread.FOutboundClient := TIdTCPClient.Create(nil);
 
@@ -487,9 +488,9 @@ end;
 
 destructor TIdMappedFtpDataThread.Destroy;
 begin
-  Sys.FreeAndNil(FOutboundClient);
-  Sys.FreeAndNil(FConnection);
-  Sys.FreeAndNil(FReadList);
+  FreeAndNil(FOutboundClient);
+  FreeAndNil(FConnection);
+  FreeAndNil(FReadList);
   inherited Destroy;
 end;
 

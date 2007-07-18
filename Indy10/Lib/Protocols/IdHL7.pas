@@ -129,15 +129,15 @@ unit IdHL7;
 interface
 
 uses
+  Classes,
   IdBaseComponent,
   IdContext,
   IdException,
   IdGlobal,
   IdTCPClient,
-  IdObjs,
   IdTCPConnection,
   IdTCPServer,
-  IdSys;
+  SysUtils;
 
 const
   MSG_START = #$0B;       {do not localize}
@@ -196,7 +196,7 @@ type
   TIdHL7 = class;
   TIdHL7ConnCountEvent = procedure (ASender : TIdHL7; AConnCount : integer) of object;
 
-  TIdHL7ClientThread = class(TIdNativeThread)
+  TIdHL7ClientThread = class(TThread)
   Protected
     FClient: TIdTCPClient;
     FCloseEvent: TIdLocalEvent;
@@ -215,8 +215,8 @@ type
     FStatusDesc: String;
 
     // these queues hold messages when running in singlethread mode
-    FMsgQueue: TIdList;
-    FHndMsgQueue: TIdList;
+    FMsgQueue: TList;
+    FHndMsgQueue: TList;
 
     FAddress: String;
     FCommunicationMode: THL7CommunicationMode;
@@ -232,8 +232,8 @@ type
     FReceiveTimeout: Cardinal;
 
 
-    FOnConnect: TIdNotifyEvent;
-    FOnDisconnect: TIdNotifyEvent;
+    FOnConnect: TNotifyEvent;
+    FOnDisconnect: TNotifyEvent;
     FOnConnCountChange : TIdHL7ConnCountEvent;
     FOnMessageArrive: TMessageArriveEvent;
     FOnReceiveMessage: TMessageReceiveEvent;
@@ -254,7 +254,7 @@ type
 
     // these fields are used for handling message response in synchronous mode
     FWaitingForAnswer: Boolean;
-    FWaitStop: TIdDateTime;
+    FWaitStop: TDateTime;
     FMsgReply: String;
     FReplyResponse: TSendResponse;
     FWaitEvent: TIdLocalEvent;
@@ -400,8 +400,8 @@ type
     property IsListener: Boolean Read FIsListener Write SetIsListener Default DEFAULT_IS_LISTENER;
 
     // useful for application
-    property OnConnect: TIdNotifyEvent Read FOnConnect Write FOnConnect;
-    property OnDisconnect: TIdNotifyEvent Read FOnDisconnect Write FOnDisconnect;
+    property OnConnect: TNotifyEvent Read FOnConnect Write FOnConnect;
+    property OnDisconnect: TNotifyEvent Read FOnDisconnect Write FOnDisconnect;
     // this is called whenever OnConnect and OnDisconnect are called, and at other times, but only when server
     // it will be called after OnConnect and before OnDisconnect
     property OnConnCountChange : TIdHL7ConnCountEvent read FOnConnCountChange write FOnConnCountChange;
@@ -450,7 +450,7 @@ end;
 destructor TQueuedMessage.Destroy;
 begin
   assert(self <> NIL);
-  Sys.FreeAndNil(FEvent);
+  FreeAndNil(FEvent);
   inherited;
 end;
 
@@ -516,8 +516,8 @@ begin
   FServerConn := NIL;
   FClientThread := NIL;
   FClient := NIL;
-  FMsgQueue := TIdList.Create;
-  FHndMsgQueue := TIdList.Create;
+  FMsgQueue := TList.Create;
+  FHndMsgQueue := TList.Create;
   FWaitingForAnswer := False;
   FMsgReply := '';   {do not localize}
   FReplyResponse := srNone;
@@ -533,10 +533,10 @@ begin
       Stop;
       end;
   finally
-    Sys.FreeAndNil(FMsgQueue);
-    Sys.FreeAndNil(FHndMsgQueue);
-    Sys.FreeAndNil(FWaitEvent);
-    Sys.FreeAndNil(FLock);
+    FreeAndNil(FMsgQueue);
+    FreeAndNil(FHndMsgQueue);
+    FreeAndNil(FWaitEvent);
+    FreeAndNil(FLock);
     inherited;
     end;
 end;
@@ -551,7 +551,7 @@ begin
   // we don't make any assertions about AValue - will be '' if we are a server
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Address']));   {do not localize??}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Address']));   {do not localize??}
     end;
   FAddress := AValue;
 end;
@@ -562,7 +562,7 @@ begin
   // no restrictions on AValue
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['ConnectionLimit'])); {do not localize??}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['ConnectionLimit'])); {do not localize??}
     end;
   FConnectionLimit := AValue;
 end;
@@ -573,7 +573,7 @@ begin
   // to do: enforce that AValue is a valid Subnet mask
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IP Mask']));  {do not localize??}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IP Mask']));  {do not localize??}
     end;
   FIPMask := AValue;
 end;
@@ -584,7 +584,7 @@ begin
   // to do: enforce that AValue is a valid IP address range
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IP Restriction']));    {do not localize??}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IP Restriction']));    {do not localize??}
     end;
   FIPRestriction := AValue;
 end;
@@ -595,7 +595,7 @@ begin
   assert(AValue <> 0, 'Attempt to use Port 0 for HL7 Communications'); {do not localize}
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Port'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Port'])); {do not localize}
     end;
   FPort := AValue;
 end;
@@ -606,7 +606,7 @@ begin
   // any value for AValue is accepted, although this may not make sense
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Reconnect Delay'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Reconnect Delay'])); {do not localize}
     end;
   FReconnectDelay := AValue;
 end;
@@ -618,7 +618,7 @@ begin
   // we don't fucntion at all if timeout is 0, though there is circumstances where it's not relevent
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Time Out']));          {do not localize??}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Time Out']));          {do not localize??}
     end;
   FTimeOut := AValue;
 end;
@@ -630,7 +630,7 @@ begin
   // only could arise if someone is typecasting?
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['Communication Mode'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['Communication Mode'])); {do not localize}
     end;
   FCommunicationMode := AValue;
 end;
@@ -641,7 +641,7 @@ begin
   // AValue isn't checked
   if Going then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWhileWorking, ['IsListener'])); {do not localize}
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWhileWorking, ['IsListener'])); {do not localize}
     end;
   FIsListener := AValue;
 end;
@@ -747,7 +747,7 @@ begin
 end;
 
 procedure TIdHL7.PreStop;
-  procedure JolTIdList(l: TIdList);
+  procedure JolList(l: TList);
   var
     i: Integer;
     begin
@@ -765,8 +765,8 @@ begin
     assert(Assigned(FHndMsgQueue));
     FLock.Enter;
     try
-      JolTIdList(FMsgQueue);
-      JolTIdList(FHndMsgQueue);
+      JolList(FMsgQueue);
+      JolList(FHndMsgQueue);
     finally
       FLock.Leave;
       end;
@@ -820,10 +820,10 @@ end;
 
 procedure TIdHL7.WaitForConnection(AMaxLength: Integer);
 var
-  LStopWaiting: TIdDateTime;
+  LStopWaiting: TDateTime;
 begin
-  LStopWaiting := Sys.Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
-  while not Connected and (LStopWaiting > Sys.Now) do
+  LStopWaiting := Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
+  while not Connected and (LStopWaiting > Now) do
     sleep(50);
 end;
 
@@ -843,7 +843,7 @@ begin
     srTimeout:
       raise EHL7CommunicationError.Create(Name,RSHL7ErrNoResponse);
     else
-      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalUnknownVal + Sys.IntToStr(Ord(AResult))); {do not localize}
+      raise EHL7CommunicationError.Create(Name,RSHL7ErrInternalUnknownVal + IntToStr(Ord(AResult))); {do not localize}
     end;
 end;
 
@@ -857,7 +857,7 @@ begin
 
   if (FPort < 1) then // though we have already ensured that this cannot happen
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7InvalidPort, [FPort]));
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7InvalidPort, [FPort]));
     end;
 end;
 
@@ -877,8 +877,8 @@ begin
     on e:
     Exception do
       begin
-      InternalSetStatus(IsStopped, Sys.Format(RSHL7StatusFailedToStart, [e.message]));
-      Sys.FreeAndNil(FServer);
+      InternalSetStatus(IsStopped, IndyFormat(RSHL7StatusFailedToStart, [e.message]));
+      FreeAndNil(FServer);
       raise;
       end;
     end;
@@ -889,7 +889,7 @@ begin
   assert(assigned(self));
   try
     FServer.Active := False;
-    Sys.FreeAndNil(FServer);
+    FreeAndNil(FServer);
     InternalSetStatus(IsStopped, RSHL7StatusStopped);
   except
     on e:
@@ -897,7 +897,7 @@ begin
       begin
       // somewhat arbitrary decision: if for some reason we fail to shutdown,
       // we will stubbornly refuse to work again.
-      InternalSetStatus(IsUnusable, Sys.Format(RSHL7StatusFailedToStop, [e.message]));
+      InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [e.message]));
       FServer := NIL;
       raise
       end;
@@ -1037,7 +1037,7 @@ begin
   assert(assigned(self));
   if (FPort < 1) then
     begin
-    raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7InvalidPort, [FPort]));
+    raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7InvalidPort, [FPort]));
     end;
 end;
 
@@ -1075,7 +1075,7 @@ begin
   if GetStatus <> IsStopped then
     begin
     // for some reason the client failed to shutdown. We will stubbornly refuse to work again
-    InternalSetStatus(IsUnusable, Sys.Format(RSHL7StatusFailedToStop, [RSHL7ClientThreadNotStopped]));
+    InternalSetStatus(IsUnusable, IndyFormat(RSHL7StatusFailedToStop, [RSHL7ClientThreadNotStopped]));
     end;
 end;
 
@@ -1115,7 +1115,7 @@ begin
   assert(assigned(self));
   assert(assigned(FOwner));
   assert(assigned(FOwner.FLock));
-  Sys.FreeAndNil(FCloseEvent);
+  FreeAndNil(FCloseEvent);
   try
     FOwner.FLock.Enter;
     try
@@ -1173,7 +1173,7 @@ end;
 
 procedure TIdHL7ClientThread.Execute;
 var
-  LRecTime: TIdDateTime;
+  LRecTime: TDateTime;
 begin
   assert(assigned(self));
   try
@@ -1192,10 +1192,10 @@ begin
             on e:
             Exception do
               begin
-              LRecTime := Sys.Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
+              LRecTime := Now + ((FOwner.FReconnectDelay / 1000) * {second length} (1 / (24 * 60 * 60)));
               //not we can take more liberties with the time and date output because it's only
               //for human consumption (probably in a log
-              FOwner.InternalSetStatus(IsWaitReconnect, Sys.Format(rsHL7StatusReConnect, [Sys.DateTimeToStr(LRecTime), e.message])); {do not localize??}
+              FOwner.InternalSetStatus(IsWaitReconnect, IndyFormat(rsHL7StatusReConnect, [DateTimeToStr(LRecTime), e.message])); {do not localize??}
               end;
             end;
           if not Terminated and not FClient.Connected then
@@ -1241,7 +1241,7 @@ begin
           end;
       until terminated;
     finally
-      Sys.FreeAndNil(FClient);
+      FreeAndNil(FClient);
       end;
   except
     on e:
@@ -1413,7 +1413,7 @@ begin
   try
     if not Going then
       begin
-      raise EHL7CommunicationError.Create(Name, Sys.Format(RSHL7NotWorking, [RSHL7SendMessage]))
+      raise EHL7CommunicationError.Create(Name, IndyFormat(RSHL7NotWorking, [RSHL7SendMessage]))
       end
     else if GetStatus <> isConnected then
       begin
@@ -1453,7 +1453,7 @@ begin
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := Sys.Now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStop := Now + (FTimeOut * MILLISECOND_LENGTH);
     FReplyResponse := srTimeout;
     FMsgReply := '';
   finally
@@ -1499,7 +1499,7 @@ begin
   FLock.Enter;
   try
     FWaitingForAnswer := True;
-    FWaitStop := Sys.Now + (FTimeOut * MILLISECOND_LENGTH);
+    FWaitStop := Now + (FTimeOut * MILLISECOND_LENGTH);
     FMsgReply := '';
     FReplyResponse := AsynchronousSend(AMsg);
   finally
@@ -1515,7 +1515,7 @@ begin
   try
     if FWaitingForAnswer then
       begin
-      if FWaitStop < Sys.Now then
+      if FWaitStop < Now then
         begin
         Result := srTimeout;
         VReply := '';

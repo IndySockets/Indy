@@ -35,7 +35,8 @@ unit IdFTPListParseStratusVOS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdStratusVOSFTPListItem = class(TIdFTPListItem)
@@ -74,8 +75,8 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
 
     {
@@ -155,11 +156,11 @@ and two periods (..) refers to the parent directory. Thus,
 change_current_dir .. is the same as the change_current_dir <.
     }
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, IdSys;
+uses IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPStratusVOS }
 
-class function TIdFTPLPStratusVOS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPStratusVOS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var i : Integer;
 
@@ -264,20 +265,20 @@ begin
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             //block count
             if not IsNumeric(Fetch(s)) then
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             s2 := Fetch(s);
             //date
             if not IsYYYYMMDD(s2) then
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             s2 := Fetch(s);
             //time
             if not IsHHMMSS(s2,':') then
@@ -303,23 +304,23 @@ begin
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             if not IsNumeric(Fetch(s)) then
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             s2 := Fetch(s);
             if not IsNumeric(Copy(s2,1,2)) then
             begin
-              s := Sys.TrimLeft(s);
+              s := TrimLeft(s);
               s2 := Fetch(s);
             end;
             if not IsYYYYMMDD(s2) then
             begin
               Exit;
             end;
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             s2 := Fetch(s);
             if not IsHHMMSS(s2,':') then
             begin
@@ -398,20 +399,20 @@ begin
      LV.FAccess := '';
      Exit;
    end;
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    //block count
    LPart := Fetch(LBuf);
    if not IsNumeric(LPart) then
    begin
      Exit;
    end;
-   LV.NumberBlocks := Sys.StrToInt(LPart,0);
+   LV.NumberBlocks := IndyStrToInt(LPart,0);
    //size
    LV.Size := (LV.NumberBlocks * 4096);
    LV.SizeAvail := True;
    //Note that will NOT be accurate but it's the best you can do.
    //date
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
    if IsYYYYMMDD(LPart) then
    begin
@@ -422,7 +423,7 @@ begin
      Exit;
    end;
    //time
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
    if IsHHMMSS(LPart,':') then
    begin
@@ -432,7 +433,7 @@ begin
    begin
      Exit;
    end;
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LV.FileName := LBuf;
    
    Result := True;
@@ -503,16 +504,16 @@ begin
      LV.FAccess := '';
      Exit;
    end;
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    //block count
    LPart := Fetch(LBuf);
    if not IsNumeric(LPart) then
    begin
      Exit;
    end;
-   LV.NumberBlocks := Sys.StrToInt(LPart,0);
+   LV.NumberBlocks := IndyStrToInt(LPart,0);
    //file format
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LV.FileFormat := Fetch(LBuf);
    {
 Charlie Spitzer, stratus customer service, made this note in an E-Mail to me:
@@ -555,7 +556,7 @@ Transmit sizes are shown in terms of bytes which are blocks * 4096.
 }
    LV.SizeAvail := True;
    //date
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
    if IsYYYYMMDD(LPart) then
    begin
@@ -566,7 +567,7 @@ Transmit sizes are shown in terms of bytes which are blocks * 4096.
      Exit;
    end;
    //time
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
    if IsHHMMSS(LPart,':') then
    begin
@@ -602,7 +603,7 @@ the ASCII national use characters
 //@ [ \ ] ^ ` { | close-bracket ~
 " $ + , - . / : _
    }
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
    LV.FileName := LBuf;
    Result := True;
    //item type can't be determined here, that has to be done in the main parsing procedure
@@ -641,7 +642,7 @@ begin
      Exit;
    end;
    //time
-   LBuf := Sys.TrimLeft(LBuf);
+   LBuf := TrimLeft(LBuf);
 
    LPart := Fetch(LBuf);
    if IsHHMMSS(LPart,':') then
@@ -653,17 +654,17 @@ begin
      Exit;
    end;
    //name
-   LBuf := Sys.TrimLeft(LBuf);
-   LV.FileName := Sys.TrimRight(Fetch(LBuf,'->'));
+   LBuf := TrimLeft(LBuf);
+   LV.FileName := TrimRight(Fetch(LBuf,'->'));
    //link to
-   LBuf := Sys.TrimLeft(LBuf);
-   LV.LinkedItemName := Sys.Trim(LBuf);
+   LBuf := TrimLeft(LBuf);
+   LV.LinkedItemName := Trim(LBuf);
    Result := True;
    //size
    LV.SizeAvail := False;
 end;
 
-class function TIdFTPLPStratusVOS.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPStratusVOS.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var
   LDit : TIdDirItemType; //for tracking state
@@ -708,14 +709,14 @@ begin
 
               if not ParseLine( LItem) then
               begin
-                Sys.FreeAndNil(LItem);
+                FreeAndNil(LItem);
               end;
             end
             else
             begin
               if not LIsContinuedLine then
               begin
-                LLine := Sys.TrimRight(AListing[i]);
+                LLine := TrimRight(AListing[i]);
                 if IdGlobalProtocols.RightStr(LLine,2)='->' then
                 begin
                   LIsContinuedLine := True;
@@ -728,7 +729,7 @@ begin
 
                   if not ParseLine( LItem) then
                   begin
-                    Sys.FreeAndNil(LItem);
+                    FreeAndNil(LItem);
                   end;
                 end;
               end
@@ -755,7 +756,7 @@ begin
 
                     if not ParseLine( LItem) then
                     begin
-                      Sys.FreeAndNil(LItem);
+                      FreeAndNil(LItem);
                     end;
                   end;
                 end
@@ -767,7 +768,7 @@ begin
 
                   if not ParseLine( LItem) then
                   begin
-                    Sys.FreeAndNil(LItem);
+                    FreeAndNil(LItem);
                   end;
                 end;
               end;

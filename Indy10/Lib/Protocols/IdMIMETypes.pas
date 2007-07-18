@@ -85,8 +85,7 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols,
-  IdSys;
+  IdGlobalProtocols;
 
 function ReturnMIMEType(var MediaType, EncType : String) : Boolean;
 var

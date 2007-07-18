@@ -70,7 +70,8 @@ unit IdMessageCoderYenc;
 interface
 
 uses
-  IdMessageCoder, IdMessage, IdExceptionCore, IdObjs, IdGlobal;
+  Classes,
+  IdMessageCoder, IdMessage, IdExceptionCore, IdGlobal;
 
 type
   EIdMessageYencException = class(EIdMessageException);
@@ -85,7 +86,7 @@ type
     FLine: Integer;
     FSize: Integer;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder; override;
   end;
 
   TIdMessageDecoderInfoYenc = class(TIdMessageDecoderInfo)
@@ -95,7 +96,7 @@ type
 
   TIdMessageEncoderYenc = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
+    procedure Encode(ASrc: TStream; ADest: TStream); override;
   end;
 
   TIdMessageEncoderInfoYenc = class(TIdMessageEncoderInfo)
@@ -119,13 +120,13 @@ implementation
 uses
   IdHashCRC,
   IdResourceStringsProtocols,
-  IdSys;
+  SysUtils;
 
 function GetStrValue(const Line, Option: string; const AMaxCount: Integer = MaxInt) : string;
 var
   LStart, LEnd: Integer;
 begin
-  LStart := IndyPos(Sys.LowerCase(Option) + '=', Sys.LowerCase(Line));
+  LStart := IndyPos(LowerCase(Option) + '=', LowerCase(Line));
   if LStart = 0 then
   begin
     Result := '';  {Do not Localize}
@@ -145,7 +146,7 @@ var
 begin
   LValue := GetStrValue(Line, Option, $FFFF);
   if LValue <> '' then begin
-    Result := Sys.StrToInt(LValue);
+    Result := IndyStrToInt(LValue);
   end else begin
     Result := 0;
   end;
@@ -159,7 +160,7 @@ function TIdMessageDecoderInfoYenc.CheckForStart(ASender: TIdMessage; const ALin
   var
     LStart: Integer;
   begin
-    LStart := IndyPos('name=', Sys.LowerCase(ALine)); {Do not Localize}
+    LStart := IndyPos('name=', LowerCase(ALine)); {Do not Localize}
     if LStart > 0 then begin
       Result := Copy(ALine, LStart+5, MaxInt);
     end else begin
@@ -179,7 +180,7 @@ begin
       FFilename := GetName;
       FPartType := mcptAttachment;
     except
-      Sys.FreeAndNil(Result);
+      FreeAndNil(Result);
       raise;
     end;
   end else begin
@@ -189,7 +190,7 @@ end;
 
 { TIdMessageDecoderYenc }
 
-function TIdMessageDecoderYenc.ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderYenc.ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder;
 var
   LLine: string;
   LLinePos: Integer;
@@ -233,12 +234,12 @@ begin
   try
     LH.HashStart(LHash);
     // note that we have to do hashing here because there's no seek
-    // in the TIdStream class, changing definitions in this API might
+    // in the TStream class, changing definitions in this API might
     // break something, and storing in an extra buffer will just eat space
     while True do
     begin
       LLine := ReadLnRFC(LMsgEnd);
-      if (IndyPos('=yend', Sys.LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
+      if (IndyPos('=yend', LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
         Break;
       end;
@@ -270,14 +271,14 @@ begin
     FlushOutputBuffer;
     EIdMessageYencInvalidSizeException.IfTrue(LPartSize <> LBytesDecoded, RSYencInvalidSize);
 
-    LCrc32 := Sys.LowerCase(GetStrValue(LLine, 'crc32', $FFFF)); {Do not Localize}
+    LCrc32 := LowerCase(GetStrValue(LLine, 'crc32', $FFFF)); {Do not Localize}
     if LCrc32 <> '' then begin
       //done this way because values can be computed faster than strings and we don't
       //have to mess with charactor case.
-      EIdMessageYencInvalidCRCException.IfTrue(Sys.StrToInt64('$' + LCrc32) <> LHash, RSYencInvalidCRC);
+      EIdMessageYencInvalidCRCException.IfTrue(IndyStrToInt64('$' + LCrc32) <> LHash, RSYencInvalidCRC);
     end;
   finally
-    Sys.FreeAndNil(LH);
+    FreeAndNil(LH);
   end;
 end;
 
@@ -294,7 +295,7 @@ end;
 
 { TIdMessageEncoderYenc }
 
-procedure TIdMessageEncoderYenc.Encode(ASrc: TIdStream; ADest: TIdStream);
+procedure TIdMessageEncoderYenc.Encode(ASrc: TStream; ADest: TStream);
 const
   LineSize = 128;
 var
@@ -353,7 +354,7 @@ begin
   LH := TIdHashCRC32.Create;
   try
     LH.HashStart(LHash);
-    s := '=ybegin line=' + Sys.IntToStr(LineSize) + ' size=' + Sys.IntToStr(LSSize) + ' name=' + FFilename + EOL;  {do not localize}
+    s := '=ybegin line=' + IntToStr(LineSize) + ' size=' + IntToStr(LSSize) + ' name=' + FFilename + EOL;  {do not localize}
     WriteStringToStream(ADest, s);
 
     for i := 0 to ASrc.Size - 1 do
@@ -385,12 +386,12 @@ begin
 
     FlushOutputBuffer;
 
-    s := EOL + '=yend size=' + Sys.IntToStr(LSSize) + ' crc32=' + {do not localize}
-      Sys.LowerCase(Sys.IntToHex(LHash, 8)) + EOL;
+    s := EOL + '=yend size=' + IntToStr(LSSize) + ' crc32=' + {do not localize}
+      LowerCase(IntToHex(LHash, 8)) + EOL;
 
     WriteStringToStream(ADest, s);
   finally
-    Sys.FreeAndNil(LH);
+    FreeAndNil(LH);
   end;
 end;
 

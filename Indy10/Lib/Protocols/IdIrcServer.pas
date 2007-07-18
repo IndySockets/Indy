@@ -231,7 +231,7 @@ type
 implementation
 
 uses
-  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, IdSys;
+  IdAssignedNumbers, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, IdSSL, SysUtils;
 
 procedure TIdIRCServer.InitComponent;
 begin
@@ -454,7 +454,7 @@ end;
 procedure TIdIRCServer.DoCommandNotHandled(ASender: TIdCommandHandler;
   ACommand: TIdCommand; const AData, AMessage: String);
 begin
-  ACommand.Context.Connection.IOHandler.WriteLn(Sys.Format('%s %s', ['421', RSCMDNotRecognized]));  {do not localize}
+  ACommand.Context.Connection.IOHandler.WriteLn(IndyFormat('%s %s', ['421', RSCMDNotRecognized]));  {do not localize}
 end;
 
 procedure TIdIRCServer.DoCommandOther(ASender: TIdCommandHandler;

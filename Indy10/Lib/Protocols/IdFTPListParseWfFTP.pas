@@ -32,7 +32,8 @@ unit IdFTPListParseWfFTP;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
   WfFTP is a FTP interface for BayNetwork's Wellfleet Routers.
@@ -117,7 +118,7 @@ const
 implementation
 
 uses
-  IdFTPCommon, IdGlobal, IdSys;
+  IdFTPCommon, IdGlobal, SysUtils;
 
 { TIdFTPLPWfFTP }
 
@@ -127,14 +128,14 @@ begin
 end;
 
 class function TIdFTPLPWfFTP.IsFooter(const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := (IndyPos('bytes - Total size',AData)>1) or
     (IndyPos('bytes - Contiguous free space',AData)>1) or
     (IndyPos('bytes - Available free space',AData)>1);
   if Result = False then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AData,s);
       if s.Count = 6 then
@@ -144,7 +145,7 @@ begin
           (s[4]='Day') and (s[5]='Time');
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -172,15 +173,15 @@ begin
   //file name
   AItem.FileName := Fetch(LLine);
   //size
-  LLine := Sys.TrimLeft(LLine);
-  AItem.Size := Sys.StrToInt64(Fetch(LLine),0);
+  LLine := TrimLeft(LLine);
+  AItem.Size := IndyStrToInt64(Fetch(LLine),0);
   // date
-  LLine := Sys.TrimLeft(LLine);
+  LLine := TrimLeft(LLine);
   AItem.ModifiedDate := DateMMDDYY(Fetch(LLine));
   //day of week - discard
-  LLine := Sys.TrimLeft(LLine);
+  LLine := TrimLeft(LLine);
   Fetch(LLine);
-  LLine := Sys.TrimLeft(LLine);
+  LLine := TrimLeft(LLine);
   //time
   AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Fetch(LLine));
 end;

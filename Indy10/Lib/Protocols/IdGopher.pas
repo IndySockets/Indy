@@ -110,12 +110,13 @@ unit IdGopher;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdEMailAddress,
-  IdHeaderList, IdTCPClient, IdObjs, IdBaseComponent;
+  IdHeaderList, IdTCPClient, IdBaseComponent;
 
 type
-  TIdGopherMenuItem = class(TIdCollectionItem)
+  TIdGopherMenuItem = class(TCollectionItem)
   protected
     FTitle : String;
     FItemType : Char;
@@ -124,9 +125,9 @@ type
     FPort : Integer;
     FGopherPlusItem : Boolean;
     FGopherBlock : TIdHeaderList;
-    FViews : TIdStringList;
+    FViews : TStringList;
     FURL : String;
-    FAbstract : TIdStringList;
+    FAbstract : TStringList;
     FAsk : TIdHeaderList;
     fAdminEmail : TIdEMailAddressItem;
     function GetLastModified : String;
@@ -134,7 +135,7 @@ type
     function GetLocation : String;
     function GetGeog : String;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
     {This procedure updates several internal variables and should be done when
     all data has been added}
@@ -164,11 +165,11 @@ type
     property URL : String read FURL;
     {This is the Gopher Views available for the item.  You can include this
     when requesting it}
-    property Views : TIdStringList read FViews;
+    property Views : TStringList read FViews;
     {abstract of Gopher item - had to be AAbstract due to Pascal reserved word}
     {this is a summery of a particular item - e.g. "Read about our greate
      products"}
-    property AAbstract : TIdStringList read FAbstract;
+    property AAbstract : TStringList read FAbstract;
     {This is the date that the item was last modified}
     property LastModified : String read GetLastModified;
     {This is contact information for the adminst}
@@ -185,7 +186,7 @@ type
     {This Gopher+ information is used for prmoting users for Query data}
     property Ask : TIdHeaderList read FAsk;
   end;
-  TIdGopherMenu = class ( TIdCollection )
+  TIdGopherMenu = class ( TCollection )
   protected
     function GetItem ( Index: Integer ) : TIdGopherMenuItem;
     procedure SetItem ( Index: Integer; const Value: TIdGopherMenuItem );
@@ -218,11 +219,11 @@ type
     Function LoadExtendedDirectory ( PreviousData : String = '';    {Do not Localize}
      const ExpectedLength: Integer = 0) : TIdGopherMenu;
     {This processes the file when we retreive it and puts it in ADestStream. }
-    procedure ProcessFile ( ADestStream : TIdStream; APreviousData : String = '';    {Do not Localize}
+    procedure ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
       const ExpectedLength : Integer = 0);
     {For Gopher +, we call this routine when we get a -2 length which means,
     read until you see EOL+.+EOL}
-    Procedure ProcessTextFile ( ADestStream : TIdStream;
+    Procedure ProcessTextFile ( ADestStream : TStream;
       APreviousData: String = ''; const ExpectedLength: Integer = 0);    {Do not Localize}
     procedure InitComponent; override;
   public
@@ -230,8 +231,8 @@ type
     Function GetMenu (ASelector : String; IsGopherPlus : Boolean = False; AView : String = '' ) :    {Do not Localize}
       TIdGopherMenu;
     Function Search(ASelector, AQuery : String) : TIdGopherMenu;
-    procedure GetFile (ASelector : String; ADestStream : TIdStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
-    procedure GetTextFile(ASelector : String; ADestStream : TIdStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
+    procedure GetFile (ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
+    procedure GetTextFile(ASelector : String; ADestStream : TStream; IsGopherPlus : Boolean = False; AView: String = '');    {Do not Localize}
     Function GetExtendedMenu (ASelector : String; AView: String = '' ) : TIdGopherMenu;    {Do not Localize}
   published
     { Published declarations }
@@ -245,8 +246,7 @@ implementation
 uses
   IdComponent, IdGlobal, IdException,
   IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
-  IdSys,
-  IdTCPConnection;
+  IdTCPConnection, SysUtils;
 
 { TIdGopher }
 
@@ -268,7 +268,7 @@ var ErrorNo : Integer;
 begin
   ErrMsg := IOHandler.AllData;
   {Get the error number from the error reply line}
-  ErrorNo := Sys.StrToInt ( Fetch ( ErrMsg ) );
+  ErrorNo := IndyStrToInt ( Fetch ( ErrMsg ) );
   {we want to drop the CRLF+'.'+CRLF}    {Do not Localize}
   LastCmdResult.SetReply(ErrorNo,ErrMsg);
   LastCmdResult.RaiseReplyError;
@@ -278,7 +278,7 @@ function TIdGopher.MenuItemFromString(stLine: String;
   Menu: TIdGopherMenu): TIdGopherMenuItem;
 begin
   {just in case a space thows things off}
-  stLine := Sys.Trim(stLine);
+  stLine := Trim(stLine);
   if Assigned ( Menu ) then
   begin
     Result := Menu.Add;
@@ -304,7 +304,7 @@ begin
   {server}
   Result.Server  := Fetch ( stLine, TAB );
   {port}
-  Result.Port    := Sys.StrToInt ( Fetch ( stLine, TAB ) );
+  Result.Port    := IndyStrToInt ( Fetch ( stLine, TAB ) );
   {is Gopher + Item}
   stLine := Fetch ( stLine, TAB );
   Result.GopherPlusItem := ( (Length ( stLine) > 0 ) and
@@ -385,7 +385,7 @@ begin
   end; //try..finally
 end;
 
-procedure TIdGopher.ProcessTextFile(ADestStream : TIdStream; APreviousData: String = '';    {Do not Localize}
+procedure TIdGopher.ProcessTextFile(ADestStream : TStream; APreviousData: String = '';    {Do not Localize}
   const ExpectedLength: Integer = 0);
 begin
   IdGlobal.WriteStringToStream(ADestStream,APreviousData);
@@ -397,7 +397,7 @@ begin
   end;  //try..finally
 end;
 
-procedure TIdGopher.ProcessFile ( ADestStream : TIdStream; APreviousData : String = '';    {Do not Localize}
+procedure TIdGopher.ProcessFile ( ADestStream : TStream; APreviousData : String = '';    {Do not Localize}
   const ExpectedLength : Integer = 0);
 begin
   BeginWork(wmRead,ExpectedLength);
@@ -422,7 +422,7 @@ begin
   end; {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetFile (ASelector : String; ADestStream : TIdStream;
+procedure TIdGopher.GetFile (ASelector : String; ADestStream : TStream;
   IsGopherPlus : Boolean = False;
   AView: String = '');    {Do not Localize}
 var Reply : Char;
@@ -440,7 +440,7 @@ begin
     begin
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Sys.Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
+      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := IOHandler.ReadChar;
@@ -454,7 +454,7 @@ begin
               {success - read file}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
+                LengthBytes := IndyStrToInt ( IOHandler.ReadLn );
                 case LengthBytes of
                  {dot terminated - probably a text file}
                   -1 : ProcessTextFile ( ADestStream );
@@ -502,7 +502,7 @@ begin
               end;  {-}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
+                LengthBytes := IndyStrToInt ( IOHandler.ReadLn );
                 Result := ProcessDirectory ('', LengthBytes );    {Do not Localize}
               end;  {+}
         else
@@ -535,7 +535,7 @@ begin
             end;  {-}
       '+' : begin    {Do not Localize}
               {Get the length byte}
-              LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
+              LengthBytes := IndyStrToInt ( IOHandler.ReadLn );
               Result := LoadExtendedDirectory( '', LengthBytes);    {Do not Localize}
             end;  {+}
     else
@@ -546,7 +546,7 @@ begin
   end;  {try .. finally .. end }
 end;
 
-procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TIdStream;
+procedure TIdGopher.GetTextFile(ASelector: String; ADestStream: TStream;
   IsGopherPlus: Boolean; AView: String);
 var Reply : Char;
     LengthBytes : Integer;  {length of the gopher items}
@@ -563,7 +563,7 @@ begin
     begin
       {I hope that this drops the size attribute and that this will cause the
        Views to work, I'm not sure}    {Do not Localize}
-      AView := Sys.Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
+      AView := Trim ( Fetch ( AView, ':' ) );    {Do not Localize}
       IOHandler.WriteLn ( ASelector + TAB +'+'+ AView );    {Do not Localize}
       {We read only one byte from the peer}
       Reply := IOHandler.ReadChar;
@@ -577,7 +577,7 @@ begin
               {success - read file}
         '+' : begin    {Do not Localize}
                 {Get the length byte}
-                LengthBytes := Sys.StrToInt ( IOHandler.ReadLn );
+                LengthBytes := IndyStrToInt ( IOHandler.ReadLn );
                 case LengthBytes of
                  {dot terminated - probably a text file}
                   -1 : ProcessTextFile ( ADestStream );
@@ -623,26 +623,26 @@ end;
 
 { TIdGopherMenuItem }
 
-constructor TIdGopherMenuItem.Create(ACollection: TIdCollection);
+constructor TIdGopherMenuItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FGopherBlock := TIdHeaderList.Create;
   {we don't unfold or fold lines as headers in that block start with a space}    {Do not Localize}
   FGopherBlock.UnfoldLines := False;
   FGopherBlock.FoldLines := False;
-  FViews := TIdStringList.Create;
-  FAbstract := TIdStringList.Create;
+  FViews := TStringList.Create;
+  FAbstract := TStringList.Create;
   FAsk := TIdHeaderList.Create;
   fAdminEmail := TIdEMailAddressItem.Create ( nil );
 end;
 
 destructor TIdGopherMenuItem.Destroy;
 begin
-  Sys.FreeAndNil ( fAdminEmail );
-  Sys.FreeAndNil ( FAsk );
-  Sys.FreeAndNil ( FAbstract );
-  Sys.FreeAndNil ( FGopherBlock );
-  Sys.FreeAndNil ( FViews );
+  FreeAndNil ( fAdminEmail );
+  FreeAndNil ( FAsk );
+  FreeAndNil ( FAbstract );
+  FreeAndNil ( FGopherBlock );
+  FreeAndNil ( FViews );
   inherited Destroy;
 end;
 
@@ -655,7 +655,7 @@ var
   idx : Integer;
   line : String;
 
-    Procedure ParseBlock ( Block : TIdStringList);
+    Procedure ParseBlock ( Block : TStringList);
     {Put our the sublock in the Block TIdStrings and increment
     the pointer appropriatriately}
     begin
@@ -663,7 +663,7 @@ var
       while ( idx < FGopherBlock.Count ) and
         ( FGopherBlock [ idx ] [ 1 ] = ' ' ) do    {Do not Localize}
       begin
-         Block.Add ( Sys.TrimLeft ( FGopherBlock [ idx ] ) );
+         Block.Add ( TrimLeft ( FGopherBlock [ idx ] ) );
          Inc ( idx );
       end;  //while
       {correct for incrementation in the main while loop}
@@ -675,7 +675,7 @@ begin
   while ( idx < FGopherBlock.Count ) do
   begin
     Line := FGopherBlock [ idx ];
-    Line := Sys.UpperCase ( Fetch( Line, ':' ) );    {Do not Localize}
+    Line := UpperCase ( Fetch( Line, ':' ) );    {Do not Localize}
     case PosInStrArray ( Line, BlockTypes ) of
       {+VIEWS:}
       0 : ParseBlock ( FViews );

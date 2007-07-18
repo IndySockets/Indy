@@ -66,7 +66,7 @@ unit IdFTPListParseUnisysClearPath;
 interface
 
 uses
-  IdObjs, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
+  Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
@@ -83,13 +83,13 @@ type
     class function IsFooter(const AData : String): Boolean; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
     class function GetIdent : String; override;
   end;
 
 implementation
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 { TIdFTPLPUnisysClearPath }
 
@@ -106,10 +106,10 @@ end;
 
 class function TIdFTPLPUnisysClearPath.IsFooter(
   const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AData,s);
     if s.Count=4 then
@@ -120,16 +120,16 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
 class function TIdFTPLPUnisysClearPath.IsHeader(
   const AData: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(AData,s);
     if s.Count>2 then
@@ -137,7 +137,7 @@ begin
       Result := (s[0]='Report') and (s[1]='for:');
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
@@ -149,13 +149,13 @@ end;
 
 class function TIdFTPLPUnisysClearPath.ParseLine(
   const AItem: TIdFTPListItem; const APath: String): Boolean;
-var s : TIdStrings;
+var s : TStrings;
   LI : TIdUnisysClearPathFTPListItem;
 begin
   LI := AItem as TIdUnisysClearPathFTPListItem;
   LI.ItemType := ditFile;
   Result := False;
-  s := TIdStringList.Create;
+  s := TStringList.Create;
   try
     SplitColumns(LI.Data,s);
     if s.Count >4 then
@@ -165,7 +165,7 @@ begin
       //size
       if IsNumeric(s[2]) then
       begin
-        LI.Size := Sys.StrToInt(s[2],0);
+        LI.Size := IndyStrToInt(s[2],0);
         AItem.SizeAvail := True;
         //creation date
         if IsMMDDYY(s[3],'/') then
@@ -192,11 +192,11 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(s);
+    FreeAndNil(s);
   end;
 end;
 
-class function TIdFTPLPUnisysClearPath.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPUnisysClearPath.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var i : Integer;
   LItem : TIdFTPListItem;
@@ -218,7 +218,7 @@ begin
           Result := ParseLine(LItem);
           if Not Result then
           begin
-            Sys.FreeAndNil(LItem);
+            FreeAndNil(LItem);
           end;
         end;
       end;

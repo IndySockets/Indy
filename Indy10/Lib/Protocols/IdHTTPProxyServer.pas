@@ -110,8 +110,7 @@ interface
 }
 
 uses
-//  Classes,
-  IdObjs,
+  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdHeaderList,
@@ -139,7 +138,7 @@ type
 }
   TIdHTTPProxyServer = class;
   TOnHTTPDocument = procedure(ASender: TIdHTTPProxyServer; const ADocument: string;
-   var VStream: TIdStream; const AHeaders: TIdHeaderList) of object;
+   var VStream: TStream; const AHeaders: TIdHeaderList) of object;
 
   TIdHTTPProxyServer = class(TIdCmdTCPServer)
   protected
@@ -149,7 +148,7 @@ type
     procedure CommandPOST(ASender: TIdCommand);
     procedure CommandHEAD(ASender: TIdCommand);
     procedure CommandConnect(ASender: TIdCommand); // for ssl
-    procedure DoHTTPDocument(const ADocument: string; var VStream: TIdStream; const AHeaders: TIdHeaderList);
+    procedure DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
     procedure InitializeCommandHandlers; override;
     procedure TransferData(ASrc: TIdTCPConnection; ADest: TIdTCPConnection; const ADocument: string;
       const ASize: Integer; const AHeaders: TIdHeaderList);
@@ -162,7 +161,7 @@ type
 implementation
 
 uses
-  IdResourceStrings, IdReplyRFC, IdSYs, IdTCPClient, IdURI, IdGlobalProtocols;
+  IdResourceStrings, IdReplyRFC,  IdTCPClient, IdURI, IdGlobalProtocols, SysUtils;
 
 procedure TIdHTTPProxyServer.InitializeCommandHandlers;
 begin
@@ -209,17 +208,17 @@ procedure TIdHTTPProxyServer.TransferData(
 // modify data. However we also need another option that writes as it captures.
 // Two modes? Intercept and not?
 var
-  LStream: TIdStream;
+  LStream: TStream;
 begin
   //TODO: Have an event to let the user perform stream creation
-  LStream := TIdMemoryStream.Create; try
+  LStream := TMemoryStream.Create; try
     ASrc.IOHandler.ReadStream(LStream, ASize, ASize = -1);
     LStream.Position := 0;
     DoHTTPDocument(ADocument, LStream, AHeaders);
     // Need to recreate IdStream, DoHTTPDocument passes it as a var and user can change the
     // stream that is returned
     ADest.IOHandler.Write(LStream);
-  finally Sys.FreeAndNil(LStream); end;
+  finally FreeAndNil(LStream); end;
 end;
 
 procedure TIdHTTPProxyServer.CommandGET( ASender: TIdCommand ) ;
@@ -236,11 +235,11 @@ begin
     ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
     LClient := TIdTCPClient.Create(nil); try
       LURI := TIdURI.Create(ASender.Params.Strings[0]); try
-        LClient.Port := Sys.StrToInt(LURI.Port, 80);
+        LClient.Port := IndyStrToInt(LURI.Port, 80);
         LClient.Host := LURI.Host;
         //We have to remove the host and port from the request
         LDocument := LURI.Path + LURI.Document + LURI.Params;
-      finally Sys.FreeAndNil(LURI); end;
+      finally FreeAndNil(LURI); end;
       LClient.Connect; try
         LClient.IOHandler.WriteLn('GET ' + LDocument + ' HTTP/1.0'); {Do not Localize}
         LClient.IOHandler.Write(LHeaders);
@@ -249,12 +248,12 @@ begin
           LClient.IOHandler.Capture(LRemoteHeaders, '');
           ASender.Context.Connection.IOHandler.Write(LRemoteHeaders);
           ASender.Context.Connection.IOHandler.WriteLn('');
-          LPageSize := Sys.StrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
+          LPageSize := IndyStrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
           TransferData(LClient, ASender.Context.Connection, LDocument, LPageSize, LRemoteHeaders);
-        finally Sys.FreeAndNil(LRemoteHeaders); end;
+        finally FreeAndNil(LRemoteHeaders); end;
       finally LClient.Disconnect; end;
-    finally Sys.FreeAndNil(LClient); end;
-  finally Sys.FreeAndNil(LHeaders); end;
+    finally FreeAndNil(LClient); end;
+  finally FreeAndNil(LHeaders); end;
 end;
 
 procedure TIdHTTPProxyServer.CommandPOST( ASender: TIdCommand ) ;
@@ -265,22 +264,22 @@ var
   LRemoteHeaders: TIdHeaderList;
   LURI: TIdURI;
   LPageSize: Integer;
-  LPostStream: TIdMemoryStream;
+  LPostStream: TMemoryStream;
 begin
   ASender.PerformReply := false;
   LHeaders := TIdHeaderList.Create; try
     ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LPostStream:= TIdMemorystream.Create;
+    LPostStream:= TMemorystream.Create;
     try
-      LPostStream.size:=Sys.StrToInt( LHeaders.Values['Content-Length'], 0 ); {Do not Localize}
+      LPostStream.size:=IndyStrToInt( LHeaders.Values['Content-Length'], 0 ); {Do not Localize}
       ASender.Context.Connection.IOHandler.ReadStream(LPostStream,LPostStream.Size,false);
       LClient := TIdTCPClient.Create(nil); try
         LURI := TIdURI.Create(ASender.Params.Strings[0]); try
-          LClient.Port := Sys.StrToInt(LURI.Port, 80);
+          LClient.Port := IndyStrToInt(LURI.Port, 80);
           LClient.Host := LURI.Host;
           //We have to remove the host and port from the request
           LDocument := LURI.Path + LURI.Document + LURI.Params;
-        finally Sys.FreeAndNil(LURI); end;
+        finally FreeAndNil(LURI); end;
         LClient.Connect; try
           LClient.IOHandler.WriteLn('POST ' + LDocument + ' HTTP/1.0'); {Do not Localize}
           LClient.IOHandler.Write(LHeaders);
@@ -290,13 +289,13 @@ begin
             LClient.IOHandler.Capture(LRemoteHeaders, '');
             ASender.Context.Connection.IOHandler.Write(LRemoteHeaders);
             ASender.Context.Connection.IOHandler.Writeln('');
-            LPageSize := Sys.StrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
+            LPageSize := IndyStrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
             TransferData(LClient, ASender.Context.Connection, LDocument, LPageSize, LRemoteHeaders);
-          finally Sys.FreeAndNil(LRemoteHeaders); end;
+          finally FreeAndNil(LRemoteHeaders); end;
         finally LClient.Disconnect; end;
-      finally Sys.FreeAndNil(LClient); end;
-    finally Sys.FreeAndNil(LPostStream); end;
-  finally Sys.FreeAndNil(LHeaders); end;
+      finally FreeAndNil(LClient); end;
+    finally FreeAndNil(LPostStream); end;
+  finally FreeAndNil(LHeaders); end;
 end;
 
 procedure TIdHTTPProxyServer.CommandConnect( ASender: TIdCommand ) ;
@@ -312,7 +311,7 @@ begin
     LRemoteHost := ASender.Params.Strings[0];
     LClient := TIdTCPClient.Create(nil); try
       LClient.Host := Fetch(LRemoteHost,':',True);
-      LClient.Port := Sys.StrToInt(LRemoteHost, 443);
+      LClient.Port := IndyStrToInt(LRemoteHost, 443);
       LClient.Connect; try
         ASender.Context.Connection.IOHandler.WriteLn('');
         ASender.Context.Connection.IOHandler.WriteLn('HTTP/1.0 200 Connection established'); {do not localize}
@@ -329,8 +328,8 @@ begin
           SetLength(LBuffer,0);
         end;
       finally LClient.Disconnect; end;
-    finally Sys.FreeAndNil(LClient); end;
-  finally Sys.FreeAndNil(LHeaders); end;
+    finally FreeAndNil(LClient); end;
+  finally FreeAndNil(LHeaders); end;
 end;
 
 procedure TIdHTTPProxyServer.CommandHEAD( ASender: TIdCommand ) ;
@@ -345,7 +344,7 @@ begin
   ReplyUnknownCommand.Text.Text := ''; // RS
 end;
 
-procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TIdStream; const AHeaders: TIdHeaderList);
+procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
 begin
   if Assigned(OnHTTPDocument) then begin
     OnHTTPDocument(Self, ADocument, VStream, AHeaders);

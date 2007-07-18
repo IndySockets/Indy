@@ -70,8 +70,9 @@ unit IdLPR;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers, IdGlobal, IdException, IdTCPClient,
-  IdComponent, IdSys, IdBaseComponent, IdObjs;
+  IdComponent, IdBaseComponent;
 
 type
   TIdLPRFileFormat =
@@ -95,7 +96,7 @@ const
   DEF_MAILWHENPRINTED = False;
 
 type
-  TIdLPRControlFile = class(TIdPersistent)
+  TIdLPRControlFile = class(TPersistent)
   protected
     FBannerClass: String;			// 'C'    {Do not Localize}
     FHostName: String;				// 'H'    {Do not Localize}
@@ -114,7 +115,7 @@ type
     FMailWhenPrinted : Boolean; //mail me when you have printed the job
   public
     constructor Create;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     property HostName: String read FHostName write FHostName;
   published
     property BannerClass: String read FBannerClass write FBannerClass;
@@ -156,7 +157,7 @@ type
     procedure CheckReply;
     function GetJobId: String;
     procedure SetJobId(const Value: String);
-    procedure InternalPrint(Data: TIdStream);
+    procedure InternalPrint(Data: TStream);
     function GetControlData: String;
     procedure InitComponent; override;
   public
@@ -180,7 +181,7 @@ type
 implementation
 
 uses
-  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack;
+  IdIOHandlerStack, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, SysUtils;
 
 { TIdLPR }
 
@@ -207,29 +208,29 @@ end;
 
 procedure TIdLPR.Print(const AText: String);
 var
-  LStream: TIdStream;
+  LStream: TStream;
 begin
-  LStream := TIdMemoryStream.Create;
+  LStream := TMemoryStream.Create;
   try
     WriteStringToStream(LStream, AText);
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
-    Sys.FreeAndNil(LStream);
+    FreeAndNil(LStream);
   end;
 end;
 
 procedure TIdLPR.Print(const ABuffer: TIdBytes);
 var
-  LStream: TIdMemoryStream;
+  LStream: TMemoryStream;
 begin
-  LStream := TIdMemoryStream.Create;
+  LStream := TMemoryStream.Create;
   try
     WriteTIdBytesToStream(LStream, ABuffer);
     LStream.Position := 0;
     InternalPrint(LStream);
   finally
-    Sys.FreeAndNil(LStream);
+    FreeAndNil(LStream);
   end;
 end;
 
@@ -244,26 +245,26 @@ begin
   try
     InternalPrint(LStream);
   finally
-    Sys.FreeAndNil(LStream);
+    FreeAndNil(LStream);
   end;
 end;
 
 function TIdLPR.GetJobId: String;
 begin
-  Result := Sys.Format('%.3d', [FJobId]);    {Do not Localize}
+  Result := IndyFormat('%.3d', [FJobId]);    {Do not Localize}
 end;
 
 procedure TIdLPR.SetJobId(const Value: String);
 var
   I: Integer;
 begin
-  I := Sys.StrToInt(Value);
+  I := IndyStrToInt(Value);
   if I < 999 then begin
     FJobId := I;
   end;
 end;
 
-procedure TIdLPR.InternalPrint(Data: TIdStream);
+procedure TIdLPR.InternalPrint(Data: TStream);
 begin
   try
     if not Connected then begin
@@ -284,14 +285,14 @@ begin
     Write(#02 + Queue + LF);
     CheckReply;
     // Receive control file
-    Write(#02 + Sys.IntToStr(Length(GetControlData)) + ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
+    Write(#02 + IntToStr(Length(GetControlData)) + ' cfA' + JobId + ControlFile.HostName + LF);    {Do not Localize}
     CheckReply;
     // Send control file
     Write(GetControlData);
     Write(#0);
     CheckReply;
     // Send data file
-    Write(#03 + Sys.IntToStr(Data.Size) +	' dfA'  + JobId + ControlFile.HostName + LF);   {Do not Localize}
+    Write(#03 + IntToStr(Data.Size) +	' dfA'  + JobId + ControlFile.HostName + LF);   {Do not Localize}
     CheckReply;
     // Send data
     IOHandler.Write(Data);
@@ -395,10 +396,10 @@ begin
 
       if FFileFormat = ffFormattedText then begin
         if IndentCount > 0 then begin
-          Data := Data + 'I' + Sys.IntToStr(IndentCount) + LF;    {Do not Localize}
+          Data := Data + 'I' + IntToStr(IndentCount) + LF;    {Do not Localize}
         end;
         if OutputWidth > 0 then begin
-          Data := Data + 'W' + Sys.IntToStr(OutputWidth) + LF;    {Do not Localize}
+          Data := Data + 'W' + IntToStr(OutputWidth) + LF;    {Do not Localize}
         end;
       end;
       if Length(BannerClass) > 0 then begin
@@ -433,7 +434,7 @@ end;
 
 destructor TIdLPR.Destroy;
 begin
-  Sys.FreeAndNil(FControlFile);
+  FreeAndNil(FControlFile);
   inherited Destroy;
 end;
 
@@ -476,7 +477,7 @@ var
 begin
   Ret := IOHandler.ReadByte;
   if Ret <> $00 then begin
-    raise EIdLPRErrorException.Create(Sys.Format(RSLPRError, [Integer(Ret), JobID]));
+    raise EIdLPRErrorException.Create(IndyFormat(RSLPRError, [Integer(Ret), JobID]));
   end;
 end;
 
@@ -488,7 +489,7 @@ begin
 end;
 
 { TIdLPRControlFile }
-procedure TIdLPRControlFile.Assign(Source: TIdPersistent);
+procedure TIdLPRControlFile.Assign(Source: TPersistent);
 var
   cnt : TIdLPRControlFile;
 begin

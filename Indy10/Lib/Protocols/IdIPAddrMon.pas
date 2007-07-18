@@ -89,9 +89,9 @@ unit IdIPAddrMon;
 interface
 
 uses
+  Classes,
   IdComponent,
-  IdThread,
-  IdObjs;
+  IdThread;
 
 const
   IdIPAddrMonInterval = 500;
@@ -105,7 +105,7 @@ type
   protected
     FOwner: TObject;
     FInterval: Cardinal;
-    FOnTimerEvent: TIdNotifyEvent;
+    FOnTimerEvent: TNotifyEvent;
 
     procedure Run; override;
     procedure DoTimerEvent;
@@ -118,8 +118,8 @@ type
     FInterval: Cardinal;
     FAdapterCount: Integer;
     FThread: TIdIPAddrMonThread;
-    FIPAddresses: TIdStrings;
-    FPreviousIPAddresses: TIdStrings;
+    FIPAddresses: TStrings;
+    FPreviousIPAddresses: TStrings;
     FOnStatusChanged: TIdIPAddrMonEvent;
 
     procedure SetActive(Value: Boolean);
@@ -142,7 +142,7 @@ type
     property Busy: Boolean read FBusy write SetBusy;
     property Interval: Cardinal read FInterval write SetInterval default IdIPAddrMonInterval;
     property AdapterCount: Integer read FAdapterCount write SetAdapterCount;
-    property IPAddresses: TIdStrings read FIPAddresses;
+    property IPAddresses: TStrings read FIPAddresses;
     property OnStatusChanged: TIdIPAddrMonEvent read FOnStatusChanged write FOnStatusChanged;
 
   end;
@@ -152,7 +152,7 @@ implementation
 uses
   IdGlobal,
   IdStack,
-  IdSys;
+  SysUtils;
 
 procedure TIdIPAddrMon.InitComponent;
 begin
@@ -163,8 +163,8 @@ begin
   FBusy := False;
   FAdapterCount := 0;
 
-  FIPAddresses := TIdStringList.Create;
-  FPreviousIPAddresses := TIdStringList.Create;
+  FIPAddresses := TStringList.Create;
+  FPreviousIPAddresses := TStringList.Create;
 
   // FThread created when component becomes Active
 end;
@@ -316,7 +316,7 @@ begin
       begin
         if FThread <> nil then begin
           FThread.TerminateAndWaitFor;
-          Sys.FreeAndNil(FThread);
+          FreeAndNil(FThread);
         end;
       end;
     end;

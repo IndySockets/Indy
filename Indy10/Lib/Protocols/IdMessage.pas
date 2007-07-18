@@ -302,15 +302,14 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
+  Classes,
   IdAttachment,
   IdBaseComponent,
   IdCoderHeader,
   IdEMailAddress,
   IdExceptionCore,
   IdHeaderList,
-  IdMessageParts,
-  IdSys,
-  IdObjs;
+  IdMessageParts;
 
 type
   TIdMessagePriority = (mpHighest, mpHigh, mpNormal, mpLow, mpLowest);
@@ -323,9 +322,9 @@ const
 type
   TIdMIMEBoundary = class(TObject)
   protected
-    FBoundaryList: TIdStrings;
-    {CC: Added ParentPart as a TIdStrings so I dont have to create a TIntegers}
-    FParentPartList: TIdStrings;
+    FBoundaryList: TStrings;
+    {CC: Added ParentPart as a TStrings so I dont have to create a TIntegers}
+    FParentPartList: TStrings;
     function GetBoundary: string;
     function GetParentPart: integer;
   public
@@ -365,7 +364,7 @@ type
   TIdMessage = class;
 
   TIdCreateAttachmentEvent = procedure(const AMsg: TIdMessage;
-   const AHeaders: TIdStrings;
+   const AHeaders: TStrings;
    var AAttachment: TIdAttachment) of object;
 
   TIdMessage = class(TIdBaseComponent)
@@ -374,13 +373,13 @@ type
     procedure SetAttachmentTempDirectory(const Value: string);
   protected
     FBccList: TIdEmailAddressList;
-    FBody: TIdStrings;
+    FBody: TStrings;
     FCharSet: string;
     FCcList: TIdEmailAddressList;
     FContentType: string;
     FContentTransferEncoding: string;
     FContentDisposition: string;
-    FDate: TIdDateTime;
+    FDate: TDateTime;
     FIsEncoded : Boolean;
     FExtraHeaders: TIdHeaderList;
     FEncoding: TIdMessageEncoding;
@@ -390,7 +389,7 @@ type
     FMessageParts: TIdMessageParts;
     FMIMEBoundary: TIdMIMEBoundary;
     FMsgId: string;
-    FNewsGroups: TIdStrings;
+    FNewsGroups: TStrings;
     FNoEncode: Boolean;
     FNoDecode: Boolean;
     FOnInitializeISO: TIdInitializeISOEvent;
@@ -420,7 +419,7 @@ type
     function  GetFrom: TIdEmailAddressItem;
     procedure SetAttachmentEncoding(const AValue: string);
     procedure SetBccList(const AValue: TIdEmailAddressList);
-    procedure SetBody(const AValue: TIdStrings);
+    procedure SetBody(const AValue: TStrings);
     procedure SetCCList(const AValue: TIdEmailAddressList);
     procedure SetEncoding(const AValue: TIdMessageEncoding);
     procedure SetExtraHeaders(const AValue: TIdHeaderList);
@@ -429,7 +428,7 @@ type
     procedure SetHeaders(const AValue: TIdHeaderList);
     procedure SetInReplyTo(const AValue : String);
     procedure SetMsgID(const AValue : String);
-    procedure SetNewsGroups(const AValue: TIdStrings);
+    procedure SetNewsGroups(const AValue: TStrings);
     procedure SetReceiptRecipient(const AValue: TIdEmailAddressItem);
     procedure SetRecipients(const AValue: TIdEmailAddressList);
     procedure SetReplyTo(const AValue: TIdEmailAddressList);
@@ -451,15 +450,15 @@ type
     function  IsBodyEmpty: Boolean;
 
     procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
-    procedure LoadFromStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
+    procedure LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 
     function  ExtractCharSet(AContentType: string): string;
     procedure ProcessHeaders;
 
     procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False);
-    procedure SaveToStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
+    procedure SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 
-    procedure DoCreateAttachment(const AHeaders: TIdStrings;
+    procedure DoCreateAttachment(const AHeaders: TStrings;
       var VAttachment: TIdAttachment); virtual;
     //
     property Flags: TIdMessageFlagsSet read FFlags write FFlags;
@@ -473,7 +472,7 @@ type
   published
     //TODO: Make a property editor which drops down the registered coder types
     property AttachmentEncoding: string read GetAttachmentEncoding write SetAttachmentEncoding;
-    property Body: TIdStrings read FBody write SetBody;
+    property Body: TStrings read FBody write SetBody;
     property BccList: TIdEmailAddressList read FBccList write SetBccList;
     property CharSet: string read FCharSet write FCharSet;
     property CCList: TIdEmailAddressList read FCcList write SetCcList;
@@ -481,13 +480,13 @@ type
     property ContentTransferEncoding: string read FContentTransferEncoding
      write FContentTransferEncoding;
     property ContentDisposition: string read FContentDisposition write FContentDisposition;
-    property Date: TIdDateTime read FDate write FDate;
+    property Date: TDateTime read FDate write FDate;
     //
     property Encoding: TIdMessageEncoding read FEncoding write SetEncoding;
     property ExtraHeaders: TIdHeaderList read FExtraHeaders write SetExtraHeaders;
     property FromList: TIdEmailAddressList read FFromList write SetFromList;
     property From: TIdEmailAddressItem read GetFrom write SetFrom;
-    property NewsGroups: TIdStrings read FNewsGroups write SetNewsGroups;
+    property NewsGroups: TStrings read FNewsGroups write SetNewsGroups;
     property NoEncode: Boolean read FNoEncode write FNoEncode default ID_MSG_NODECODE;
     property NoDecode: Boolean read FNoDecode write FNoDecode default ID_MSG_NODECODE;
     property Organization: string read FOrganization write FOrganization;
@@ -510,9 +509,9 @@ type
     property OnCreateAttachment: TIdCreateAttachmentEvent read FOnCreateAttachment write FOnCreateAttachment;
   End;
 
-  TIdMessageEvent = procedure(ASender : TIdNativeComponent; var AMsg : TIdMessage) of object;
+  TIdMessageEvent = procedure(ASender : TComponent; var AMsg : TIdMessage) of object;
 
-  TIdStringMessageEvent = procedure(ASender : TIdNativeComponent; const AString : String; var AMsg : TIdMessage) of object;
+  TStringMessageEvent = procedure(ASender : TComponent; const AString : String; var AMsg : TIdMessage) of object;
 
   EIdTextInvalidCount = class(EIdMessageException);
 
@@ -537,7 +536,7 @@ uses
   IdMessageCoderMIME, // Here so the 'MIME' in create will always suceed
   IdCharSets, IdGlobalProtocols, IdMessageCoder, IdResourceStringsProtocols,
   IdMessageClient, IdAttachmentFile,
-  IdText;
+  IdText, SysUtils;
 
 { TIdMIMEBoundary }
 
@@ -555,14 +554,14 @@ end;
 constructor TIdMIMEBoundary.Create;
 begin
   inherited;
-  FBoundaryList := TIdStringList.Create;
-  FParentPartList := TIdStringList.Create;
+  FBoundaryList := TStringList.Create;
+  FParentPartList := TStringList.Create;
 end;
 
 destructor TIdMIMEBoundary.Destroy;
 begin
-  Sys.FreeAndNil(FBoundaryList);
-  Sys.FreeAndNil(FParentPartList);
+  FreeAndNil(FBoundaryList);
+  FreeAndNil(FParentPartList);
   inherited;
 end;
 
@@ -576,13 +575,13 @@ begin
   //Get FETCH to ignore case in searching for BoUnDaRy
   Fetch(s, 'BOUNDARY', True, False); {do not localize}
   if Length(s) > 0 then begin
-    s := Sys.Trim(s);
+    s := Trim(s);
     if (Length(s) > 0) and (s[1] = '=') then begin       {do not localize}
       s := Copy(s, 2, MaxInt);
     end;
     {CC: Fix suggested by Juergen Haible - some clients add a space after the boundary,
     remove it by calling Sys.Trim(s)...}
-    s := Sys.Trim(s);
+    s := Trim(s);
     if (Length(s) > 0) and (s[1] = '"') then begin {do not localize}
       Delete(s, 1, 1);
       Result := Fetch(s, '"'); {do not localize}
@@ -607,7 +606,7 @@ end;
 function TIdMIMEBoundary.GetParentPart: integer;
 begin
   if FParentPartList.Count > 0 then begin
-    Result := Sys.StrToInt(FParentPartList.Strings[0]);
+    Result := IndyStrToInt(FParentPartList.Strings[0]);
   end else begin
     Result := -1;
   end;
@@ -623,7 +622,7 @@ procedure TIdMIMEBoundary.Push(ABoundary: string; AParentPart: integer);
 begin
   {CC: Changed implementation to a simple stack}
   FBoundaryList.Insert(0, ABoundary);
-  FParentPartList.Insert(0, Sys.IntToStr(AParentPart));
+  FParentPartList.Insert(0, IntToStr(AParentPart));
 end;
 
 { TIdMessage }
@@ -681,13 +680,13 @@ end;
 procedure TIdMessage.InitComponent;
 begin
   inherited;
-  FBody := TIdStringList.Create;
-  TIdStringList(FBody).Duplicates := iddupAccept;
+  FBody := TStringList.Create;
+  TStringList(FBody).Duplicates := dupAccept;
   FRecipients := TIdEmailAddressList.Create(Self);
   FBccList := TIdEmailAddressList.Create(Self);
   FCcList := TIdEmailAddressList.Create(Self);
   FMessageParts := TIdMessageParts.Create(Self);
-  FNewsGroups := TIdStringList.Create;
+  FNewsGroups := TStringList.Create;
   FHeaders := TIdHeaderList.Create;
   FFromList := TIdEmailAddressList.Create(Self);
   FReplyTo := TIdEmailAddressList.Create(Self);
@@ -703,20 +702,20 @@ end;
 
 destructor TIdMessage.Destroy;
 begin
-  Sys.FreeAndNil(FBody);
-  Sys.FreeAndNil(FRecipients);
-  Sys.FreeAndNil(FBccList);
-  Sys.FreeAndNil(FCcList);
-  Sys.FreeAndNil(FMessageParts);
-  Sys.FreeAndNil(FNewsGroups);
-  Sys.FreeAndNil(FHeaders);
-  Sys.FreeAndNil(FExtraHeaders);
-  Sys.FreeAndNil(FFromList);
-  Sys.FreeAndNil(FReplyTo);
-  Sys.FreeAndNil(FSender);
-  Sys.FreeAndNil(FReceiptRecipient);
-  Sys.FreeAndNil(FMIMEBoundary);
-  Sys.FreeAndNil(FLastGeneratedHeaders);
+  FreeAndNil(FBody);
+  FreeAndNil(FRecipients);
+  FreeAndNil(FBccList);
+  FreeAndNil(FCcList);
+  FreeAndNil(FMessageParts);
+  FreeAndNil(FNewsGroups);
+  FreeAndNil(FHeaders);
+  FreeAndNil(FExtraHeaders);
+  FreeAndNil(FFromList);
+  FreeAndNil(FReplyTo);
+  FreeAndNil(FSender);
+  FreeAndNil(FReceiptRecipient);
+  FreeAndNil(FMIMEBoundary);
+  FreeAndNil(FLastGeneratedHeaders);
   inherited destroy;
 end;
 
@@ -886,14 +885,14 @@ begin
     Values['References'] := References; {do not localize}
 
     if UseNowForDate then begin
-      Values['Date'] := Sys.DateTimeToInternetStr(Sys.Now); {do not localize}
+      Values['Date'] := DateTimeToInternetStr(Now); {do not localize}
     end else begin
-      Values['Date'] := Sys.DateTimeToInternetStr(Self.Date); {do not localize}
+      Values['Date'] := DateTimeToInternetStr(Self.Date); {do not localize}
     end;
 
     // S.G. 27/1/2003: Only issue X-Priority header if priority <> mpNormal (for stoopid spam filters)
     if Priority <> mpNormal then begin
-      Values['X-Priority'] := Sys.IntToStr(Ord(Priority) + 1) {do not localize}
+      Values['X-Priority'] := IntToStr(Ord(Priority) + 1) {do not localize}
     end else begin
       if IndexOfName('X-Priority') >= 0 then begin  {do not localize}
         delete(IndexOfName('X-Priority'));    {do not localize}
@@ -923,7 +922,7 @@ function TIdMessage.ExtractCharSet(AContentType: string): string;
 var
   s: string;
 begin
-  s := Sys.UpperCase(AContentType);
+  s := UpperCase(AContentType);
   Fetch(s, 'CHARSET='); {do not localize}
   if TextStartsWith(s, '"') then begin {do not localize}
     Delete(s, 1, 1);
@@ -946,14 +945,14 @@ var
     Num: integer;
   begin
     // This is for Pegasus.
-    if IndyPos('urgent', Sys.LowerCase(Priority)) <> 0 then begin {do not localize}
+    if IndyPos('urgent', LowerCase(Priority)) <> 0 then begin {do not localize}
       Result := mpHigh;
-    end else if IndyPos('non-priority', Sys.LowerCase(Priority)) <> 0 then begin {do not localize}
+    end else if IndyPos('non-priority', LowerCase(Priority)) <> 0 then begin {do not localize}
       Result := mpLow;
     end else begin
-      s := Sys.Trim(Priority);
-      s := Sys.Trim(Fetch(s, ' '));   {do not localize}
-      Num := Sys.StrToInt(s, 3);
+      s := Trim(Priority);
+      s := Trim(Fetch(s, ' '));   {do not localize}
+      Num := IndyStrToInt(s, 3);
       Result := TIdMessagePriority(Num - 1);
     end;
   end;
@@ -963,7 +962,7 @@ begin
   if FContentType = '' then begin
     FContentType := 'text/plain';  {do not localize}
   end else begin
-    FContentType := Sys.Trim(Fetch(FContentType, ';'));  {do not localize}
+    FContentType := Trim(Fetch(FContentType, ';'));  {do not localize}
   end;
   FCharset := ExtractCharSet(Headers.Values['Content-Type']);  {do not localize}
 
@@ -1013,7 +1012,7 @@ begin
   FBccList.Assign(AValue);
 end;
 
-procedure TIdMessage.SetBody(const AValue: TIdStrings);
+procedure TIdMessage.SetBody(const AValue: TStrings);
 begin
   FBody.Assign(AValue);
 end;
@@ -1051,7 +1050,7 @@ begin
   FHeaders.Assign(AValue);
 end;
 
-procedure TIdMessage.SetNewsGroups(const AValue: TIdStrings);
+procedure TIdMessage.SetNewsGroups(const AValue: TStrings);
 begin
   FNewsgroups.Assign(AValue);
 end;
@@ -1087,7 +1086,7 @@ begin
     if AValue then begin
       FDate := 0;
     end else begin
-      FDate := Sys.Now;
+      FDate := Now;
     end;
   end;
 end;
@@ -1118,13 +1117,13 @@ procedure TIdMessage.LoadFromFile(const AFileName: string; const AHeadersOnly: B
 var
   LStream: TIdReadFileExclusiveStream;
 begin
-  EIdMessageCannotLoad.IfFalse(Sys.FileExists(AFilename), Sys.Format(RSIdMessageCannotLoad, [AFilename]));
+  EIdMessageCannotLoad.IfFalse(FileExists(AFilename), IndyFormat(RSIdMessageCannotLoad, [AFilename]));
   LStream := TIdReadFileExclusiveStream.Create(AFilename); try
     LoadFromStream(LStream, AHeadersOnly);
-  finally Sys.FreeAndNil(LStream); end;
+  finally FreeAndNil(LStream); end;
 end;
 
-procedure TIdMessage.LoadFromStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.LoadFromStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 begin
   // clear message properties, headers before loading
   Clear;
@@ -1135,16 +1134,16 @@ end;
 
 procedure TIdMessage.SaveToFile(const AFileName: string; const AHeadersOnly: Boolean = False);
 var
-  LStream : TIdFileStream;
+  LStream : TFileStream;
 begin
-  LStream := TIdFileStream.Create(AFileName, fmCreate); try
+  LStream := TFileStream.Create(AFileName, fmCreate); try
     FGenerateBCCListInHeader := True; try
       SaveToStream(LStream, AHeadersOnly);
     finally FGenerateBCCListInHeader := False; end;
-  finally Sys.FreeAndNil(LStream); end;
+  finally FreeAndNil(LStream); end;
 end;
 
-procedure TIdMessage.SaveToStream(AStream: TIdStream; const AHeadersOnly: Boolean = False);
+procedure TIdMessage.SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 var
   LMsgClient: TIdMessageClient;
   LIOHandler: TIdIOHandlerStream;
@@ -1158,8 +1157,8 @@ begin
       if not AHeadersOnly then begin
         LMsgClient.IOHandler.WriteLn('.');  {do not localize}
       end;
-    finally Sys.FreeAndNil(LIOHandler); end;
-  finally Sys.FreeAndNil(LMsgClient); end;
+    finally FreeAndNil(LIOHandler); end;
+  finally FreeAndNil(LMsgClient); end;
 end;
 
 procedure TIdMessage.DoInitializeISO(var VTransferHeader: TTransfer;
@@ -1189,7 +1188,7 @@ Begin
   DoInitializeISO(VTransferHeader, VHeaderEncoding, VCharSet);
 End;
 
-procedure TIdMessage.DoCreateAttachment(const AHeaders: TIdStrings;
+procedure TIdMessage.DoCreateAttachment(const AHeaders: TStrings;
   var VAttachment: TIdAttachment);
 begin
   VAttachment := nil;
@@ -1249,7 +1248,7 @@ end;
 procedure TIdMessage.SetAttachmentTempDirectory(const Value: string);
 begin
   if Value <> AttachmentTempDirectory then begin
-    FAttachmentTempDirectory := Sys.ExcludeTrailingPathDelimiter(Value);
+    FAttachmentTempDirectory := ExcludeTrailingPathDelimiter(Value);
   end;
 end;
 

@@ -36,9 +36,8 @@ unit IdNetworkCalculator;
 interface
 
 uses
-  IdBaseComponent,
-  IdSys,
-  IdObjs;
+  Classes,
+  IdBaseComponent;
 
 type
 
@@ -59,10 +58,10 @@ type
   TIdIPAddressType = (IPLocalHost, IPLocalNetwork, IPReserved, IPInternetHost,
     IPPrivateNetwork, IPLoopback, IPMulticast, IPFutureUse, IPGlobalBroadcast);
 
-  TIpProperty = Class(TIdPersistent)
+  TIpProperty = Class(TPersistent)
   protected
     FReadOnly: boolean;
-    FOnChange: TIdNotifyEvent;
+    FOnChange: TNotifyEvent;
     FByteArray: array[0..31] of boolean;
     FDoubleWordValue: Longword;
 
@@ -74,7 +73,7 @@ type
     FByte1: byte;
     function GetAddressType: TIdIPAddressType;
     procedure SetReadOnly(const Value: boolean);
-    procedure SetOnChange(const Value: TIdNotifyEvent);
+    procedure SetOnChange(const Value: TNotifyEvent);
     function GetByteArray(Index: cardinal): boolean;
     procedure SetAsBinaryString(const Value: String);
     procedure SetAsDoubleWord(const Value: Longword);
@@ -88,7 +87,7 @@ type
     property ReadOnly: boolean read FReadOnly write SetReadOnly default false;
   public
     procedure SetAll(One, Two, Three, Four: Byte); virtual;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     //
     property ByteArray[Index: cardinal]: boolean read GetByteArray write SetByteArray;
     property AddressType: TIdIPAddressType read GetAddressType;
@@ -100,23 +99,23 @@ type
     property AsDoubleWord: Longword read FDoubleWordValue write SetAsDoubleWord stored false;
     property AsBinaryString: String read FAsBinaryString write SetAsBinaryString stored false;
     property AsString: String read FAsString write SetAsString;
-    property OnChange: TIdNotifyEvent read FOnChange write SetOnChange;
+    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
   end;
 
   TIdNetworkCalculator = class(TIdBaseComponent)
   protected
-    FListIP: TIdStrings;
+    FListIP: TStrings;
     FNetworkMaskLength: cardinal;
     FNetworkMask: TIpProperty;
     FNetworkAddress: TIpProperty;
     FNetworkClass: TNetworkClass;
-    FOnChange: TIdNotifyEvent;
-    FOnGenIPList: TIdNotifyEvent;
+    FOnChange: TNotifyEvent;
+    FOnGenIPList: TNotifyEvent;
     function GetNetworkClassAsString: String;
     function GetIsAddressRoutable: Boolean;
-    procedure SetOnChange(const Value: TIdNotifyEvent);
-    procedure SetOnGenIPList(const Value: TIdNotifyEvent);
-    function GetListIP: TIdStrings;
+    procedure SetOnChange(const Value: TNotifyEvent);
+    procedure SetOnGenIPList(const Value: TNotifyEvent);
+    function GetListIP: TStrings;
     procedure SetNetworkAddress(const Value: TIpProperty);
     procedure SetNetworkMask(const Value: TIpProperty);
     procedure SetNetworkMaskLength(const Value: cardinal);
@@ -130,7 +129,7 @@ type
     procedure FillIPList;
     destructor Destroy; override;
     //
-    property ListIP: TIdStrings read GetListIP;
+    property ListIP: TStrings read GetListIP;
     property NetworkClass: TNetworkClass read FNetworkClass;
     property NetworkClassAsString: String read GetNetworkClassAsString;
     property IsAddressRoutable: Boolean read GetIsAddressRoutable;
@@ -140,14 +139,14 @@ type
     property NetworkMask: TIpProperty read FNetworkMask write SetNetworkMask;
     property NetworkMaskLength: cardinal read FNetworkMaskLength write SetNetworkMaskLength
      default ID_NC_MASK_LENGTH;
-    property OnGenIPList: TIdNotifyEvent read FOnGenIPList write SetOnGenIPList;
-    property OnChange: TIdNotifyEvent read FOnChange write SetOnChange;
+    property OnGenIPList: TNotifyEvent read FOnGenIPList write SetOnGenIPList;
+    property OnChange: TNotifyEvent read FOnChange write SetOnChange;
   end;
 
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols;
+  IdException, IdGlobal, IdResourceStringsProtocols, SysUtils;
 
 { TIdNetworkCalculator }
 
@@ -172,23 +171,23 @@ begin
   strBuffers[2] := Fetch(StrWork, '.', true);    {Do not Localize}
   strBuffers[3] := StrWork;
   try
-    cardBuffers[0] := Sys.StrToInt(strBuffers[0]);
-    cardBuffers[1] := Sys.StrToInt(strBuffers[1]);
-    cardBuffers[2] := Sys.StrToInt(strBuffers[2]);
-    cardBuffers[3] := Sys.StrToInt(strBuffers[3]);
+    cardBuffers[0] := IndyStrToInt(strBuffers[0]);
+    cardBuffers[1] := IndyStrToInt(strBuffers[1]);
+    cardBuffers[2] := IndyStrToInt(strBuffers[2]);
+    cardBuffers[3] := IndyStrToInt(strBuffers[3]);
   except
     on e: exception do
-      Raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
+      Raise EIdException.Create(IndyFormat( RSNETCALInvalidIPString, [Value]));
   end;
   // range check
   if not(cardBuffers[0] in [0..255]) then
-      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(IndyFormat( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[1] in [0..255]) then
-      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(IndyFormat( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[2] in [0..255]) then
-      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(IndyFormat( RSNETCALInvalidIPString, [Value]));
   if not(cardBuffers[3] in [0..255]) then
-      raise EIdException.Create(Sys.Format( RSNETCALInvalidIPString, [Value]));
+      raise EIdException.Create(IndyFormat( RSNETCALInvalidIPString, [Value]));
   result := IP(cardBuffers[0], cardBuffers[1], cardBuffers[2], cardBuffers[3]);
 end;
 
@@ -200,7 +199,7 @@ begin
 
   FNetworkMask.OnChange := OnNetMaskChange;
   FNetworkAddress.OnChange := OnNetAddressChange;
-  FListIP := TIdStringList.Create;
+  FListIP := TStringList.Create;
   FNetworkClass := ID_NETWORKCLASS;
   NetworkMaskLength := ID_NC_MASK_LENGTH;
 end;
@@ -223,7 +222,7 @@ begin
     // prevent to start a long loop in the IDE (will lock delphi)
     if (IsDesignTime) and (NumIP > 1024) then
     begin
-      FListIP.text := Sys.Format(RSNETCALConfirmLongIPList,[NumIP]);
+      FListIP.text := IndyFormat(RSNETCALConfirmLongIPList,[NumIP]);
     end
     else
     begin
@@ -236,7 +235,7 @@ begin
         for i := 1 to (NumIP - 1) do
         begin
           Inc(BaseIP.FullAddr);
-          FListIP.append(Sys.Format('%d.%d.%d.%d', [BaseIP.Byte1, BaseIP.Byte2, BaseIP.Byte3, BaseIP.Byte4]));    {Do not Localize}
+          FListIP.append(IndyFormat('%d.%d.%d.%d', [BaseIP.Byte1, BaseIP.Byte2, BaseIP.Byte3, BaseIP.Byte4]));    {Do not Localize}
         end;
       finally
         FListIP.EndUpdate;
@@ -245,7 +244,7 @@ begin
   end;
 end;
 
-function TIdNetworkCalculator.GetListIP: TIdStrings;
+function TIdNetworkCalculator.GetListIP: TStrings;
 begin
   FillIPList;
   result := FListIP;
@@ -341,12 +340,12 @@ begin
   FNetworkMask.AsDoubleWord := LBuffer;
 end;
 
-procedure TIdNetworkCalculator.SetOnGenIPList(const Value: TIdNotifyEvent);
+procedure TIdNetworkCalculator.SetOnGenIPList(const Value: TNotifyEvent);
 begin
   FOnGenIPList := Value;
 end;
 
-procedure TIdNetworkCalculator.SetOnChange(const Value: TIdNotifyEvent);
+procedure TIdNetworkCalculator.SetOnChange(const Value: TNotifyEvent);
 begin
   FOnChange := Value;
 end;
@@ -377,7 +376,7 @@ end;
 
 { TIpProperty }
 
-procedure TIpProperty.Assign(Source: TIdPersistent);
+procedure TIpProperty.Assign(Source: TPersistent);
 begin
   if Source is TIpProperty then
   with source as TIpProperty do
@@ -423,7 +422,7 @@ begin
       FAsBinaryString[i] := '0';    {Do not Localize}
   end;
   // Set the string
-  FAsString := Sys.Format('%d.%d.%d.%d', [FByte1, FByte2, FByte3, FByte4]);    {Do not Localize}
+  FAsString := IndyFormat('%d.%d.%d.%d', [FByte1, FByte2, FByte3, FByte4]);    {Do not Localize}
   IpStruct := IP(FByte1, FByte2, FByte3, FByte4);
   if IpStruct.FullAddr <> InitialIP.FullAddr then
   begin
@@ -535,7 +534,7 @@ begin
   end;
 end;
 
-procedure TIpProperty.SetOnChange(const Value: TIdNotifyEvent);
+procedure TIpProperty.SetOnChange(const Value: TNotifyEvent);
 begin
   FOnChange := Value;
 end;
@@ -551,7 +550,7 @@ var
 begin
   IP.FullAddr := NetworkAddress.AsDoubleWord AND NetworkMask.AsDoubleWord;
   Inc(IP.FullAddr, NumIP - 1);
-  result := Sys.Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
+  result := IndyFormat('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
 end;
 
 function TIdNetworkCalculator.NumIP: integer;
@@ -564,7 +563,7 @@ var
   IP: TIpStruct;
 begin
   IP.FullAddr := NetworkAddress.AsDoubleWord AND NetworkMask.AsDoubleWord;
-  result := Sys.Format('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
+  result := IndyFormat('%d.%d.%d.%d', [IP.Byte1, IP.Byte2, IP.Byte3, IP.Byte4]);    {Do not Localize}
 end;
 
 function TIpProperty.GetAddressType: TIdIPAddressType;

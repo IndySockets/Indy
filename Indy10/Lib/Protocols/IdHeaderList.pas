@@ -66,11 +66,10 @@ unit IdHeaderList;
 interface
 
 uses
-  IdSys,
-  IdObjs;
+  Classes;
 
 type
-  TIdHeaderList = class(TIdStringList)
+  TIdHeaderList = class(TStringList)
   protected
     FNameValueSeparator : String;
     FCaseSensitive : Boolean;
@@ -81,7 +80,7 @@ type
     {This deletes lines which were folded}
     Procedure DeleteFoldedLines(Index : Integer);
     {This folds one line into several lines}
-    function FoldLine(AString : string) : TIdStringList;
+    function FoldLine(AString : string) : TStringList;
     {Folds lines and inserts them into a position, Index}
     procedure FoldAndInsert(AString : String; Index : Integer);
     {Name property get method}
@@ -94,12 +93,12 @@ type
     function GetValueFromLine(ALine : Integer) : String;
     Function GetNameFromLine(ALine : Integer) : String;
   public
-    procedure AddStdValues(ASrc: TIdStrings);
-    procedure ConvertToStdValues(ADest: TIdStrings);
+    procedure AddStdValues(ASrc: TStrings);
+    procedure ConvertToStdValues(ADest: TStrings);
     constructor Create;
     { This method  given a name specified by AName extracts all of the values for that name - and puts them in a new string
     list (just the values) one per line in the ADest TIdStrings.}
-    procedure Extract(const AName: string; ADest: TIdStrings);
+    procedure Extract(const AName: string; ADest: TStrings);
     { This property works almost exactly as Borland's IndexOfName except it uses
       our deliniator defined in NameValueSeparator }
     function IndexOfName(const AName: string): Integer; reintroduce;
@@ -128,25 +127,25 @@ implementation
 
 uses
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols, SysUtils;
 
 { TIdHeaderList }
 
-procedure TIdHeaderList.AddStdValues(ASrc: TIdStrings);
+procedure TIdHeaderList.AddStdValues(ASrc: TStrings);
 var
   i: integer;
 begin
   for i := 0 to ASrc.Count - 1 do begin
-    Add(Sys.ReplaceOnlyFirst(ASrc[i], '=', NameValueSeparator));    {Do not Localize}
+    Add(ReplaceOnlyFirst(ASrc[i], '=', NameValueSeparator));    {Do not Localize}
   end;
 end;
 
-procedure TIdHeaderList.ConvertToStdValues(ADest: TIdStrings);
+procedure TIdHeaderList.ConvertToStdValues(ADest: TStrings);
 var
   i: integer;
 begin
   for i := 0 to Count - 1 do begin
-    ADest.Add(Sys.ReplaceOnlyFirst(Strings[i], NameValueSeparator, '='));    {Do not Localize}
+    ADest.Add(ReplaceOnlyFirst(Strings[i], NameValueSeparator, '='));    {Do not Localize}
   end;
 end;
 
@@ -172,7 +171,7 @@ begin
   end;
 end;
 
-procedure TIdHeaderList.Extract(const AName: string; ADest: TIdStrings);
+procedure TIdHeaderList.Extract(const AName: string; ADest: TStrings);
 var
   idx : Integer;
 begin
@@ -188,7 +187,7 @@ end;
 
 procedure TIdHeaderList.FoldAndInsert(AString : String; Index: Integer);
 var
-  LStrs : TIdStringList;
+  LStrs : TStringList;
   idx : Integer;
 begin
   LStrs := FoldLine(AString);
@@ -203,23 +202,23 @@ begin
       Dec(idx);
     end;
   finally
-    Sys.FreeAndNil(LStrs);
+    FreeAndNil(LStrs);
   end;  //finally
 end;
 
-function TIdHeaderList.FoldLine(AString : string): TIdStringList;
+function TIdHeaderList.FoldLine(AString : string): TStringList;
 var
   s : String;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   try
     {we specify a space so that starts a folded line}
-    s := WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
+    s := IdGlobalProtocols.WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
     while s <> '' do begin  {Do not Localize}
-      Result.Add(Sys.TrimRight(Fetch(s, EOL)));
+      Result.Add(TrimRight(Fetch(s, EOL)));
     end; // while s <> '' do    {Do not Localize}
   except
-    Sys.FreeAndNil(Result);
+    FreeAndNil(Result);
     raise;
   end;
 end;
@@ -243,13 +242,13 @@ var
 begin
   Result := Get(ALine);
   if not FCaseSensitive then begin
-    Result := Sys.UpperCase(Result);
+    Result := UpperCase(Result);
   end;
   {We trim right to remove space to accomodate header errors such as
 
   Message-ID:<asdf@fdfs
   }
-  P := IndyPos(Sys.TrimRight(FNameValueSeparator), Result);
+  P := IndyPos(TrimRight(FNameValueSeparator), Result);
   Result := Copy(Result, 1, P - 1);
 end;
 
@@ -277,14 +276,14 @@ begin
         if not (CharIsInSet(LFoldedLine, 1, LWS)) then begin
           Break;
         end;
-        Result := Sys.Trim(Result) + ' ' + Sys.Trim(LFoldedLine); {Do not Localize}
+        Result := Trim(Result) + ' ' + Trim(LFoldedLine); {Do not Localize}
       end;
     end;
   end else begin
     Result := ''; {Do not Localize}
   end;
   // User may be fetching an folded line diretly.
-  Result := Sys.Trim(Result);
+  Result := Trim(Result);
 end;
 
 function TIdHeaderList.IndexOfName(const AName: string): Integer;

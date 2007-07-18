@@ -66,15 +66,14 @@ unit IdHTTPHeaderInfo;
 interface
 
 uses
+  Classes,
   IdAuthentication,
   IdGlobal,
   IdGlobalProtocols,
-  IdHeaderList,
-  IdObjs,
-  IdSys;
+  IdHeaderList;
 
 type
-  TIdEntityHeaderInfo = class(TIdPersistent)
+  TIdEntityHeaderInfo = class(TPersistent)
   protected
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
@@ -88,16 +87,16 @@ type
     FContentType: string;
     FContentVersion: string;
     FCustomHeaders: TIdHeaderList;
-    FDate: TIdDateTime;
-    FExpires: TIdDateTime;
-    FLastModified: TIdDateTime;
+    FDate: TDateTime;
+    FExpires: TDateTime;
+    FLastModified: TDateTime;
     FPragma: string;
     FHasContentLength: Boolean;
     //
-    procedure AssignTo(Destination: TIdPersistent); override;
+    procedure AssignTo(Destination: TPersistent); override;
     procedure ProcessHeaders; virtual;
     procedure SetHeaders; virtual;
-    function GetOwner: TIdPersistent; override;
+    function GetOwner: TPersistent; override;
 
     procedure SetContentLength(const AValue: Int64);
     procedure SetCustomHeaders(const AValue: TIdHeaderList);
@@ -126,13 +125,13 @@ type
     property ContentType: string read FContentType write FContentType;
     property ContentVersion: string read FContentVersion write FContentVersion;
     property CustomHeaders: TIdHeaderList read FCustomHeaders write SetCustomHeaders;
-    property Date: TIdDateTime read FDate write FDate;
-    property Expires: TIdDateTime read FExpires write FExpires;
-    property LastModified: TIdDateTime read FLastModified write FLastModified;
+    property Date: TDateTime read FDate write FDate;
+    property Expires: TDateTime read FExpires write FExpires;
+    property LastModified: TDateTime read FLastModified write FLastModified;
     property Pragma: string read FPragma write FPragma;
   end;
 
-  TIdProxyConnectionInfo = class(TIdPersistent)
+  TIdProxyConnectionInfo = class(TPersistent)
   protected
     FAuthentication: TIdAuthentication;
     FPassword: string;
@@ -141,7 +140,7 @@ type
     FUsername: string;
     FBasicByDefault: Boolean;
 
-    procedure AssignTo(Destination: TIdPersistent); override;
+    procedure AssignTo(Destination: TPersistent); override;
     procedure SetProxyPort(const Value: Integer);
     procedure SetProxyServer(const Value: string);
   public
@@ -178,7 +177,7 @@ type
     FBasicByDefault: Boolean;
     FAuthentication: TIdAuthentication;
     //
-    procedure AssignTo(Destination: TIdPersistent); override;
+    procedure AssignTo(Destination: TPersistent); override;
     procedure ProcessHeaders; override;
     procedure SetHeaders; override;
   public
@@ -230,6 +229,7 @@ type
   end;
 
 implementation
+uses SysUtils;
 
 const
   DefaultUserAgent = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
@@ -249,12 +249,12 @@ end;
 
 destructor TIdEntityHeaderInfo.Destroy;
 begin
-  Sys.FreeAndNil(FRawHeaders);
-  Sys.FreeAndNil(FCustomHeaders);
+  FreeAndNil(FRawHeaders);
+  FreeAndNil(FCustomHeaders);
   inherited Destroy;
 end;
 
-procedure TIdEntityHeaderInfo.AssignTo(Destination: TIdPersistent);
+procedure TIdEntityHeaderInfo.AssignTo(Destination: TPersistent);
 begin
   if Destination is TIdEntityHeaderInfo then
   begin
@@ -321,7 +321,7 @@ begin
     FContentEncoding := Values['Content-Encoding']; {do not localize}
     FContentLanguage := Values['Content-Language']; {do not localize}
     FContentType := Values['Content-Type']; {do not localize}
-    FContentLength := Sys.StrToInt(Sys.Trim(Values['Content-Length']), -1); {do not localize}
+    FContentLength := IndyStrToInt(Values['Content-Length'], -1); {do not localize}
     FHasContentLength := FContentLength >= 0;
 
     FContentRangeStart := 0;
@@ -343,9 +343,9 @@ begin
       lCRange := Fetch(lValue, '/');
       lILength := Fetch(lValue);
 
-      FContentRangeStart := Sys.StrToInt64(Fetch(lCRange, '-'), 0);
-      FContentRangeEnd := Sys.StrToInt64(lCRange, 0);
-      FContentRangeInstanceLength := Sys.StrToInt64(lILength, 0);
+      FContentRangeStart := IndyStrToInt64(Fetch(lCRange, '-'), 0);
+      FContentRangeEnd := IndyStrToInt64(lCRange, 0);
+      FContentRangeInstanceLength := IndyStrToInt64(lILength, 0);
     end;
 
     FDate := GMTToLocalDateTime(Values['Date']); {do not localize}
@@ -356,10 +356,10 @@ begin
     if IsNumeric(lValue) then
     begin
       // This is happening when expires is an integer number in seconds
-      LSecs := Sys.StrToInt(lValue);
+      LSecs := IndyStrToInt(lValue);
       // RLebeau 01/23/2005 - IIS sometimes sends an 'Expires: -1' header
       if LSecs >= 0 then begin
-        FExpires := Sys.Now +  (LSecs / SecsPerDay);
+        FExpires := Now +  (LSecs / SecsPerDay);
       end else begin
         FExpires := 0.0;
       end;
@@ -399,7 +399,7 @@ begin
     end;
     if FContentLength >= 0 then
     begin
-      Values['Content-Length'] := Sys.IntToStr(FContentLength); {do not localize}
+      Values['Content-Length'] := IntToStr(FContentLength); {do not localize}
     end;
 
     { removed setting Content-Range header for entities... deferred to response }
@@ -410,11 +410,11 @@ begin
     end;
     if FDate > 0 then
     begin
-      Values['Date'] := Sys.DateTimeGMTToHttpStr(FDate); {do not localize}
+      Values['Date'] := DateTimeGMTToHttpStr(FDate); {do not localize}
     end;
     if FExpires > 0 then
     begin
-      Values['Expires'] := Sys.DateTimeGMTToHttpStr(FExpires); {do not localize}
+      Values['Expires'] := DateTimeGMTToHttpStr(FExpires); {do not localize}
     end;
     if Length(FPragma) > 0 then
     begin
@@ -449,7 +449,7 @@ begin
   Result := (FContentRangeInstanceLength > 0);
 end;
 
-function TIdEntityHeaderInfo.GetOwner: TIdPersistent;
+function TIdEntityHeaderInfo.GetOwner: TPersistent;
 begin
   Result := inherited GetOwner;
 end;
@@ -464,11 +464,11 @@ end;
 
 destructor TIdProxyConnectionInfo.Destroy;
 begin
-  Sys.FreeAndNil(FAuthentication);
+  FreeAndNil(FAuthentication);
   inherited Destroy;
 end;
 
-procedure TIdProxyConnectionInfo.AssignTo(Destination: TIdPersistent);
+procedure TIdProxyConnectionInfo.AssignTo(Destination: TPersistent);
 begin
   if Destination is TIdProxyConnectionInfo then
   begin
@@ -535,7 +535,7 @@ procedure TIdProxyConnectionInfo.SetProxyPort(const Value: Integer);
 begin
   if Value <> FPort then
   begin
-    Sys.FreeAndNil(FAuthentication);
+    FreeAndNil(FAuthentication);
   end;
   FPort := Value;
 end;
@@ -544,7 +544,7 @@ procedure TIdProxyConnectionInfo.SetProxyServer(const Value: string);
 begin
   if not TextIsSame(Value, FServer) then
   begin
-    Sys.FreeAndNil(FAuthentication);
+    FreeAndNil(FAuthentication);
   end;
   FServer := Value;
 end;
@@ -580,7 +580,7 @@ begin
   end;
 end;
 
-procedure TIdRequestHeaderInfo.AssignTo(Destination: TIdPersistent);
+procedure TIdRequestHeaderInfo.AssignTo(Destination: TPersistent);
 begin
   if Destination is TIdRequestHeaderInfo then
   begin
@@ -684,7 +684,7 @@ begin
     // use 'Last-Modified' entity header in the conditional request
     if FLastModified > 0 then
     begin
-      Values['If-Modified-Since'] := Sys.DateTimeGMTToHttpStr(FLastModified); {do not localize}
+      Values['If-Modified-Since'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
     end;
 
     if Assigned(Authentication) then
@@ -718,7 +718,7 @@ end;
 
 destructor TIdRequestHeaderInfo.Destroy;
 begin
-  Sys.FreeAndNil(FAuthentication);
+  FreeAndNil(FAuthentication);
   inherited Destroy;
 end;
 
@@ -735,8 +735,8 @@ end;
 
 destructor TIdResponseHeaderInfo.Destroy;
 begin
-  Sys.FreeAndNil(FWWWAuthenticate);
-  Sys.FreeAndNil(FProxyAuthenticate);
+  FreeAndNil(FWWWAuthenticate);
+  FreeAndNil(FProxyAuthenticate);
   inherited Destroy;
 end;
 
@@ -783,9 +783,9 @@ begin
   if (HasContentRange or HasContentRangeInstance) then
   begin
     sCR := iif(HasContentRange,
-      Sys.Format('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*');
+      IndyFormat('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*');
     sCI := iif(HasContentRangeInstance,
-      Sys.Format('%d', [FContentRangeInstanceLength]), '*');
+      IndyFormat('%d', [FContentRangeInstanceLength]), '*');
 
     RawHeaders.Values['Content-Range'] := 'bytes ' + sCR + '/' + sCI;
   end;

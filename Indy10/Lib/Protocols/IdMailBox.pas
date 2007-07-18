@@ -117,7 +117,7 @@ const
 implementation
 
 uses
-  IdSys;
+  SysUtils;
   
 { TIdMailBox }
 
@@ -148,7 +148,7 @@ end;
 
 destructor TIdMailBox.Destroy;
 begin
-  Sys.FreeAndNil(FMessageList);
+  FreeAndNil(FMessageList);
   inherited Destroy;
 end;
 

@@ -70,7 +70,8 @@ unit IdFTPListParseTOPS20;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItem);
@@ -80,7 +81,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 const
@@ -90,15 +91,15 @@ const
 implementation
 
 uses
-  IdGlobal, IdFTPCommon, IdGlobalProtocols, IdSys;
+  IdGlobal, IdFTPCommon, IdGlobalProtocols, SysUtils;
 
 
 { TIdFTPLPTOPS20 }
 
-class function TIdFTPLPTOPS20.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPTOPS20.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var s : String;
-  LParts : TIdStrings;
+  LParts : TStrings;
   i : Integer;
 
 begin
@@ -111,7 +112,7 @@ begin
     //<ACC>LOGIN.CMD.1;P777700;A,1,15-Aug-2003 09:42:12,15-Aug-2003 09:42:12,16-Nov-1858 16:00:00
     if AListing.Count >0 then
     begin
-      LParts := TIdStringList.Create;
+      LParts := TStringList.Create;
       try
         SplitColumnsNoTrim(AListing[0],LParts,',');
 
@@ -172,7 +173,7 @@ MSGS.TXT.1
         end;
 
       finally
-        Sys.FreeAndNil(LParts);
+        FreeAndNil(LParts);
       end;
     end;
   end;
@@ -263,7 +264,7 @@ begin
       //strip off device in and path suffix >
       Fetch(LBuf,TOPS20_VOLPATH_SEP);
       LBuf := Fetch(LBuf,TOPS20_DIRFILE_SEP);
-      AItem.LocalFileName := Sys.LowerCase(Fetch(LBuf,'.'));
+      AItem.LocalFileName := LowerCase(Fetch(LBuf,'.'));
       AItem.SizeAvail := False;
       AItem.ModifiedAvail := False;
       Result := True;
@@ -284,13 +285,13 @@ begin
       //Creation Date - date - I think
       LI.CreationDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
       //creation date - time
-      LI.CreationDate := LI.CreationDate + IdFTPCommon.TimeHHMMSS(Sys.Trim(Fetch(LBuf,',')));
+      LI.CreationDate := LI.CreationDate + IdFTPCommon.TimeHHMMSS(Trim(Fetch(LBuf,',')));
       //Last modified - date
       AItem.ModifiedDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
       //Last modified - time
-      AItem.ModifiedDate := AItem.ModifiedDate + IdFTPCommon.TimeHHMMSS(Sys.Trim(LBuf));
+      AItem.ModifiedDate := AItem.ModifiedDate + IdFTPCommon.TimeHHMMSS(Trim(LBuf));
       //strip off path information and build no for file
-      LBuf := Sys.LowerCase(AItem.FileName);
+      LBuf := LowerCase(AItem.FileName);
       Fetch(LBuf,TOPS20_DIRFILE_SEP);
       if IndyPos('.DIRECTORY.',LBuf)>0 then
       begin
@@ -306,7 +307,7 @@ begin
   begin
     //That's right - it only returned the file name, no dates, no size, nothing else
     AItem.FileName := LBuf;
-    AItem.LocalFileName := Sys.LowerCase(StripBuild(LBuf));
+    AItem.LocalFileName := LowerCase(StripBuild(LBuf));
     AItem.ModifiedAvail := False;
     AItem.SizeAvail := False;
     if IndyPos('.DIRECTORY.',LBuf)>0 then

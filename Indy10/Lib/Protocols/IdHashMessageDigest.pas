@@ -45,7 +45,7 @@ unit IdHashMessageDigest;
 interface
 
 uses
-  IdGlobal, IdHash, IdObjs;
+  IdGlobal, IdHash, Classes;
 
 type
   T4x4LongWordRecord = array[0..3] of LongWord;
@@ -71,7 +71,7 @@ type
     procedure MDCoder; override;
     procedure Reset; override;
 
-    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
+    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
   public
     constructor Create; override;
@@ -81,7 +81,7 @@ type
   protected
     FState: T4x4LongWordRecord;
 
-    function GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes; override;
+    function GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes; override;
     function HashToHex(const AHash: TIdBytes): String; override;
 
     procedure MDCoder; override;
@@ -186,7 +186,7 @@ begin
   end;
 end;
 
-function TIdHashMessageDigest2.GetHashBytes(AStream: TIdStream; ASize: Int64): TIdBytes;
+function TIdHashMessageDigest2.GetHashBytes(AStream: TStream; ASize: Int64): TIdBytes;
 var
   LStartPos: Integer;
   LSize: Integer;
@@ -325,7 +325,7 @@ begin
 end;
 {$Q+}
 
-function TIdHashMessageDigest4.GetHashBytes(AStream: TIdStream; ASize: Int64): TidBytes;
+function TIdHashMessageDigest4.GetHashBytes(AStream: TStream; ASize: Int64): TidBytes;
 var
   LStartPos: Integer;
   LBitSize, LSize: Int64;

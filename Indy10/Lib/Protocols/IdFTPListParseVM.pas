@@ -62,7 +62,8 @@ unit IdFTPListParseVM;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdVMCMSFTPListItem = class(TIdRecFTPListItem)
@@ -81,7 +82,7 @@ type
   protected
     FNumberRecs : Integer;
   public
-     constructor Create(AOwner: TIdCollection); override;
+     constructor Create(AOwner: TCollection); override;
     property NumberRecs : Integer read FNumberRecs write FNumberRecs;
   end;
 
@@ -92,7 +93,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdFTPLPVMBFS = class(TIdFTPListBase)
   protected
@@ -100,7 +101,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdFTPLVirtualReader = class(TIdFTPListBase)
   protected
@@ -108,18 +109,18 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPVMCMS }
 
-class function TIdFTPLPVMCMS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVMCMS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 const VMTypes : array [1..3] of string = ('F','V','DIR'); {do not localize}
 var LData : String;
@@ -128,7 +129,7 @@ begin
   if AListing.Count > 0 then
   begin
     LData := AListing[0];
-    Result := PosInStrArray(( Sys.Trim(Copy(LData,19,3))),VMTypes) <> -1;
+    Result := PosInStrArray(( Trim(Copy(LData,19,3))),VMTypes) <> -1;
     if Result then
     begin
       Result := (Copy(LData,56,1)='/') and (Copy(LData,59,1)='/');
@@ -158,7 +159,7 @@ end;
 class function TIdFTPLPVMCMS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var LBuffer : String;
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdVMCMSFTPListItem;
   LSize : Int64;
 begin
@@ -189,7 +190,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
   LI := AItem as TIdVMCMSFTPListItem;
   //File Name
   LI.FileName := Copy(AItem.Data,1,8);
-  LI.FileName := Sys.Trim(AItem.FileName);
+  LI.FileName := Trim(AItem.FileName);
   //File Type - extension
   if (LI.Data[9] = ' ') then
   begin
@@ -199,14 +200,14 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
   begin
     LBuffer := Copy(AItem.Data,9,9);
   end;
-  LBuffer := Sys.Trim(LBuffer);
+  LBuffer := Trim(LBuffer);
   if (LBuffer <> '') then
   begin
     LI.FileName := LI.FileName + '.'+LBuffer;
   end;
   //Record format
   LBuffer := Copy(AItem.Data,19,3);
-  LBuffer := Sys.Trim(LBuffer);
+  LBuffer := Trim(LBuffer);
   LI.RecFormat := LBuffer;
   if LI.RecFormat = 'DIR' then {do not localize}
   begin
@@ -218,13 +219,13 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     LI.ItemType := ditFile;
     //Record Length - for files
     LBuffer := Copy(AItem.Data,22,9);
-    LBuffer := Sys.Trim(LBuffer);
-    LI.RecLength := Sys.StrToInt(LBuffer,0);
+    LBuffer := Trim(LBuffer);
+    LI.RecLength := IndyStrToInt(LBuffer,0);
     //Record numbers
     LBuffer := Copy(AItem.Data,31,11);
-    LBuffer := Sys.Trim(LBuffer);
+    LBuffer := Trim(LBuffer);
     LBuffer := Fetch(LBuffer);
-    LI.NumberRecs := Sys.StrToInt(LBuffer,0);
+    LI.NumberRecs := IndyStrToInt(LBuffer,0);
     //Number of Blocks
     {
     From:
@@ -246,8 +247,8 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     Anyway, you can not know from the directory list.
     }
     LBuffer := Copy(AItem.Data,42,11);
-    LBuffer := Sys.Trim(LBuffer);
-    LI.NumberBlocks := Sys.StrToInt(LBuffer,0);
+    LBuffer := Trim(LBuffer);
+    LI.NumberBlocks := IndyStrToInt(LBuffer,0);
     LI.Size := LI.RecLength * LI.NumberRecs;
     //File Size - note that this is just an estimiate
 
@@ -277,7 +278,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
       end;
     end;
   end;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
     // we do things this way for the rest because vm.sc.edu has
     // a variation on VM/CMS that does directory dates differently
@@ -286,11 +287,11 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     // handle both cases.
     if (Copy(AItem.Data,48,1)='-') and (Copy(AItem.Data,51,1)='-') then
     begin
-      LBuffer := Sys.Trim(Copy(AItem.Data, 44,Length(AItem.Data)));
+      LBuffer := Trim(Copy(AItem.Data, 44,Length(AItem.Data)));
     end
     else
     begin
-      LBuffer := Sys.Trim(Copy(AItem.Data, 54,Length(AItem.Data)));
+      LBuffer := Trim(Copy(AItem.Data, 54,Length(AItem.Data)));
     end;
     SplitColumns(LBuffer,LCols);
     //LCols - 0 - Date
@@ -319,7 +320,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
       end;
     end;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 
@@ -327,9 +328,9 @@ end;
 
 { TIdFTPLPVMBFS }
 
-class function TIdFTPLPVMBFS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVMBFS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
 
@@ -343,9 +344,9 @@ begin
         Exit;
       end;
     end;
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
-      SplitColumns(Sys.TrimRight(AListing[0]),s);
+      SplitColumns(TrimRight(AListing[0]),s);
       if s.Count >4 then
       begin
         if not IsMMDDYY(s[0],'/') then
@@ -359,7 +360,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -378,7 +379,7 @@ end;
 class function TIdFTPLPVMBFS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var LBuffer : String;
-    LCols : TIdStrings;
+    LCols : TStrings;
 // z/VM Byte File System
 
 //This is based on:
@@ -389,7 +390,7 @@ var LBuffer : String;
 //
 begin
   LBuffer := AItem.Data;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
     SplitColumns(Fetch(LBuffer,''''),LCols);
     //0 - date
@@ -423,24 +424,24 @@ begin
     //file size
     if (LCols.Count > 4) then
     begin
-      AItem.Size := Sys.StrToInt64(LCols[4],0);
+      AItem.Size := IndyStrToInt64(LCols[4],0);
     end;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdFTPLVirtualReader }
 
-class function TIdFTPLVirtualReader.CheckListing(AListing: TIdStrings;
+class function TIdFTPLVirtualReader.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AListing[0],s);
       if s.Count >2 then
@@ -451,7 +452,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -485,12 +486,12 @@ class function TIdFTPLVirtualReader.ParseLine(const AItem: TIdFTPListItem;
 //Col 5 - filename
 //Col 6 - file type
 var
-    LCols : TIdStrings;
+    LCols : TStrings;
   LI : TIdVMVirtualReaderFTPListItem;
 // z/VM Byte File System
 begin
   LI := AItem as TIdVMVirtualReaderFTPListItem;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
     SplitColumns(AItem.Data,LCols);
     if (LCols.Count > 5) then
@@ -504,7 +505,7 @@ begin
     //record count
     if (LCols.Count > 2) then
     begin
-      LI.NumberRecs := Sys.StrToInt(LCols[2],0);
+      LI.NumberRecs := IndyStrToInt(LCols[2],0);
     end;
     //date
     if (LCols.Count > 3) then
@@ -520,14 +521,14 @@ begin
     //with reader file sizes when emulating Unix. We can't support file sizes
     //with this.
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdVMVirtualReaderFTPListItem }
 
-constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   //There's no size for things in a virtual reader

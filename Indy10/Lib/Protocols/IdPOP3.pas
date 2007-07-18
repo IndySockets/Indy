@@ -191,6 +191,7 @@ unit IdPOP3;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
@@ -201,8 +202,6 @@ uses
   IdReply,
   IdSASL,
   IdSASLCollection,
-  IdSys,
-  IdObjs,
   IdBaseComponent,
   IdUserPassProvider;
 
@@ -227,7 +226,7 @@ type
     function GetSupportsTLS: Boolean; override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
     function CheckMessages: LongInt;
     procedure Connect; override;
@@ -241,10 +240,10 @@ type
     function RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
     function RetrieveMsgSize(const MsgNum: Integer): Integer;
     function RetrieveMailBoxSize: integer;
-    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStrings): boolean; overload;
-    function RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStream): boolean; overload;
-    function UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
-    function Top(const AMsgNum: Integer; const ADest: TIdStrings; const AMaxLines: Integer = 0): boolean;
+    function RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings): boolean; overload;
+    function RetrieveRaw(const aMsgNo: Integer; const aDest: TStream): boolean; overload;
+    function UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
+    function Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
     function CAPA: Boolean;
     property HasAPOP: boolean read FHasAPOP;
     property HasCAPA: boolean read FHasCAPA;
@@ -273,7 +272,7 @@ uses
   IdSSL,
   IdResourceStringsProtocols,
   IdReplyPOP3,
-  IdCoderMIME;
+  IdCoderMIME, SysUtils;
 
 { TIdPOP3 }
 
@@ -289,7 +288,7 @@ begin
 
   s := LastCmdResult.Text[0];
   if Length(s) > 0 then begin
-    Result := Sys.StrToInt(Copy(s, 1, IndyPos(' ', s) - 1));    {Do not Localize}
+    Result := IndyStrToInt(Copy(s, 1, IndyPos(' ', s) - 1));    {Do not Localize}
   end;
 end;
 
@@ -315,7 +314,7 @@ begin
         if FHasAPOP then begin
           with TIdHashMessageDigest5.Create do
           try
-            S := Sys.LowerCase(HashStringAsHex(FAPOPToken+Password));
+            S := LowerCase(HashStringAsHex(FAPOPToken+Password));
           finally
             Free;
           end;//try
@@ -350,7 +349,7 @@ end;
 
 function TIdPOP3.Delete(const MsgNum: Integer): Boolean;
 begin
-  SendCmd('DELE ' + Sys.IntToStr(MsgNum), ST_OK);   {do not localize}
+  SendCmd('DELE ' + IntToStr(MsgNum), ST_OK);   {do not localize}
   Result := LastCmdResult.Code = ST_OK;
 end;
 
@@ -376,19 +375,19 @@ begin
   Result := LastCmdResult.Code = ST_OK;
 end;
 
-function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TIdStrings):
+function TIdPOP3.RetrieveRaw(const aMsgNo: Integer; const aDest: TStrings):
   boolean;
 begin
-  Result := (SendCmd('RETR ' + Sys.IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
+  Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
     IOHandler.Capture(aDest);
   end;
 end;
 
 function TIdPOP3.RetrieveRaw(const aMsgNo: Integer;
-  const aDest: TIdStream): boolean;
+  const aDest: TStream): boolean;
 begin
-  Result := (SendCmd('RETR ' + Sys.IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
+  Result := (SendCmd('RETR ' + IntToStr(aMsgNo), '') = ST_OK);    {Do not Localize}
   if Result then begin
     IOHandler.Capture(aDest);
   end;
@@ -396,7 +395,7 @@ end;
 
 function TIdPOP3.Retrieve(const MsgNum: Integer; AMsg: TIdMessage): Boolean;
 begin
-  if SendCmd('RETR ' + Sys.IntToStr(MsgNum), '') = ST_OK then begin   {Do not Localize}
+  if SendCmd('RETR ' + IntToStr(MsgNum), '') = ST_OK then begin   {Do not Localize}
     AMsg.Clear;
     // This is because of a bug in Exchange? with empty messages. See comment in ReceiveHeader
     if ReceiveHeader(AMsg) = '' then begin
@@ -412,7 +411,7 @@ function TIdPOP3.RetrieveHeader(const MsgNum: Integer; AMsg: TIdMessage): Boolea
 begin
 //  Result := False;
   AMsg.Clear;
-  SendCmd('TOP ' + Sys.IntToStr(MsgNum) + ' 0', ST_OK);    {Do not Localize}
+  SendCmd('TOP ' + IntToStr(MsgNum) + ' 0', ST_OK);    {Do not Localize}
   // Only gets here if no exception is raised
   ReceiveHeader(AMsg,'.');
   Result := True;
@@ -438,7 +437,7 @@ begin
       // RL - ignore the message number, grab just the octets,
       // and ignore everything else that may be present
       Fetch(CurrentLine);
-      Result := Result + Sys.StrToInt(Fetch(CurrentLine), 0);
+      Result := Result + IndyStrToInt(Fetch(CurrentLine), 0);
       CurrentLine := IOHandler.ReadLn;
     end;
   except
@@ -452,20 +451,20 @@ var
 begin
   Result := -1;
   // Returns the size of the message. if an error ocurrs, returns -1.
-  SendCmd('LIST ' + Sys.IntToStr(MsgNum), ST_OK);    {Do not Localize}
+  SendCmd('LIST ' + IntToStr(MsgNum), ST_OK);    {Do not Localize}
   s := LastCmdResult.Text[0];
   if Length(s) > 0 then begin
     // RL - ignore the message number, grab just the octets,
     // and ignore everything else that may be present
     Fetch(s);
-    Result := Sys.StrToInt(Fetch(s), -1);
+    Result := IndyStrToInt(Fetch(s), -1);
   end;
 end;
 
-function TIdPOP3.UIDL(const ADest: TIdStrings; const AMsgNum: Integer = -1): Boolean;
+function TIdPOP3.UIDL(const ADest: TStrings; const AMsgNum: Integer = -1): Boolean;
 Begin
   if AMsgNum >= 0 then begin
-    Result := SendCmd('UIDL ' + Sys.IntToStr(AMsgNum), '') = ST_OK;    {Do not Localize}
+    Result := SendCmd('UIDL ' + IntToStr(AMsgNum), '') = ST_OK;    {Do not Localize}
     if Result then
     begin
       ADest.Assign(LastCmdResult.Text);
@@ -480,12 +479,12 @@ Begin
   end;
 End;//TIdPOP3.GetUIDL
 
-function TIdPOP3.Top(const AMsgNum: Integer; const ADest: TIdStrings; const AMaxLines: Integer = 0): boolean;
+function TIdPOP3.Top(const AMsgNum: Integer; const ADest: TStrings; const AMaxLines: Integer = 0): boolean;
 begin
   if AMaxLines = 0 then begin
-    Result := SendCmd('TOP ' + Sys.IntToStr(AMsgNum),'') = ST_OK; {Do not Localize}
+    Result := SendCmd('TOP ' + IntToStr(AMsgNum),'') = ST_OK; {Do not Localize}
   end else begin
-    Result := SendCmd('TOP ' + Sys.IntToStr(AMsgNum) + ' ' + Sys.IntToStr(AMaxLines),'') = ST_OK; {Do not Localize}
+    Result := SendCmd('TOP ' + IntToStr(AMsgNum) + ' ' + IntToStr(AMaxLines),'') = ST_OK; {Do not Localize}
   end;
   if Result then begin
     IOHandler.Capture(ADest);
@@ -495,7 +494,7 @@ end;
 
 destructor TIdPOP3.Destroy;
 begin
-  Sys.FreeAndNil(FSASLMechanisms);
+  FreeAndNil(FSASLMechanisms);
   inherited;
 end;
 
@@ -521,8 +520,8 @@ begin
  // ParseCapaReply(FCapabilities,'SASL');
 end;
 
-procedure TIdPOP3.Notification(AComponent: TIdNativeComponent;
-  Operation: TIdOperation);
+procedure TIdPOP3.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);

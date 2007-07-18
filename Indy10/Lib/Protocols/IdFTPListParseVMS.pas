@@ -70,7 +70,8 @@ unit IdFTPListParseVMS;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdVMSFTPListItem = class(TIdOwnerFTPListItem)
@@ -107,19 +108,19 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
 
 implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPVMS }
 
-class function TIdFTPLPVMS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVMS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LData : String;
    i : Integer;
@@ -168,7 +169,7 @@ var LData : String;
 begin
   //VMS returns TOTAL at the end.  We test for "blocks." at the end of the line
   //so we don't break something with another parser.
-  LData := Sys.UpperCase(AData);
+  LData := UpperCase(AData);
   Result := (IndyPos('TOTAL OF ', LData) = 1) {do not localize}
          or (IndyPos('GRAND TOTAL OF ', LData )=1); {do not localize}
   if Result then
@@ -216,7 +217,7 @@ var LBuffer, LBuf2 : String;
     LLine : String;
     LDay, LMonth, LYear : Integer;
 //    LHour, LMinute, LSec : Integer;
-    LCols : TIdStrings;
+    LCols : TStrings;
     LOwnerIdx : Integer;
     LVMSError : Boolean;
   LI : TIdVMSFTPListItem;
@@ -224,7 +225,7 @@ var LBuffer, LBuf2 : String;
 begin
   LI := AItem as TIdVMSFTPListItem;
   LVMSError := False;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
     LLine := LI.Data;
     //File Name
@@ -233,9 +234,9 @@ begin
     //this assumes that the file contains a ";".  In VMS, this separates the name
     //from the version number.
     LBuffer := Fetch(LLine,';');
-    LI.LocalFileName := Sys.LowerCase(LBuffer);
+    LI.LocalFileName := LowerCase(LBuffer);
     LBuf2 := Fetch(LLine);
-    LI.Version := Sys.StrToInt(LBuf2,0);
+    LI.Version := IndyStrToInt(LBuf2,0);
     LBuffer := LBuffer + ';'+ LBuf2;
 
     //Dirs have to be processed differently then
@@ -260,7 +261,7 @@ begin
         LBuf2 := Fetch(LBuffer,PATH_FILENAME_SEP_VMS) + PATH_FILENAME_SEP_VMS; {Do not localize}
       end;
       AItem.FileName := LBuf2 + Fetch(LBuffer,'.');
-      AItem.LocalFileName := Sys.LowerCase(AItem.FileName);
+      AItem.LocalFileName := LowerCase(AItem.FileName);
     end
     else
     begin
@@ -281,9 +282,9 @@ begin
       begin
         //File Size
         LBuffer := LCols[0];
-        LI.NumberBlocks :=  Sys.StrToInt(LBuffer,0);
+        LI.NumberBlocks :=  IndyStrToInt(LBuffer,0);
         LI.BlockSize := VMS_BLOCK_SIZE;
-        LI.Size := Sys.StrToInt(LBuffer,0)* VMS_BLOCK_SIZE; //512 is the size of a VMS block
+        LI.Size := IndyStrToInt(LBuffer,0)* VMS_BLOCK_SIZE; //512 is the size of a VMS block
       end
       else
       begin
@@ -313,12 +314,12 @@ begin
           begin
 
             LBuffer := LCols[1];
-            LDay := Sys.StrToInt(Fetch(LBuffer,'-'),1);
+            LDay := IndyStrToInt(Fetch(LBuffer,'-'),1);
             LMonth := StrToMonth( Fetch ( LBuffer,'-' )  );
 
-            LYear := Sys.StrToInt( Sys.TrimLeft(Fetch (LBuffer)),1989);
+            LYear := IndyStrToInt( Fetch (LBuffer),1989);
 
-            LI.ModifiedDate := Sys.EncodeDate( LYear,LMonth,LDay );
+            LI.ModifiedDate := EncodeDate( LYear,LMonth,LDay );
           end;
 
           //Time
@@ -349,8 +350,8 @@ begin
           LBuffer := LCols[LOwnerIdx];
           Fetch(LBuffer,'[');
           LBuffer := Fetch(LBuffer,']');
-          LI.GroupName := Sys.Trim(Fetch(LBuffer,','));
-          LI.OwnerName := Sys.Trim(LBuffer);
+          LI.GroupName := Trim(Fetch(LBuffer,','));
+          LI.OwnerName := Trim(LBuffer);
         end;
         //Protections
         if (LCols.Count >LOwnerIdx+1) then
@@ -359,10 +360,10 @@ begin
           Fetch(LBuffer,'(');
           LBuffer := Fetch(LBuffer,')');
           LI.PermissionDisplay := '('+LBuffer+')';
-          LI.VMSSystemPermissions := Sys.Trim(Fetch(LBuffer,','));
-          LI.VMSOwnerPermissions := Sys.Trim(Fetch(LBuffer,','));
-          LI.VMSGroupPermissions := Sys.Trim(Fetch(LBuffer,','));
-          LI.VMSWorldPermissions := Sys.Trim(LBuffer);
+          LI.VMSSystemPermissions := Trim(Fetch(LBuffer,','));
+          LI.VMSOwnerPermissions := Trim(Fetch(LBuffer,','));
+          LI.VMSGroupPermissions := Trim(Fetch(LBuffer,','));
+          LI.VMSWorldPermissions := Trim(LBuffer);
         end;
       end;
     end;
@@ -372,7 +373,7 @@ begin
   Result := True;
 end;
 
-class function TIdFTPLPVMS.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPVMS.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var i : Integer;
   LItem : TIdFTPListItem;

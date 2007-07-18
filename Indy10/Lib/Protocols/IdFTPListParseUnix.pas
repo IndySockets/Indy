@@ -109,7 +109,8 @@ unit IdFTPListParseUnix;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
   Notes:
@@ -163,8 +164,8 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
   TIdFTPLPUnitree = class(TIdFTPLPUnix)
   protected
@@ -181,11 +182,11 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPUnix }
 
-class function TIdFTPLPUnix.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPUnix.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var
   i : Integer;
@@ -232,7 +233,7 @@ begin
 end;
 
 class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
-  var s : TIdStrings;
+  var s : TStrings;
       LCData : String;
   begin
       //pos 1 values
@@ -243,7 +244,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
     // c - charactor device
     // p - pipe (FIFO)
     // s - socket
-    LCData := Sys.UpperCase(AData);
+    LCData := UpperCase(AData);
     Result := IsValidUnixPerms(AData);
     if Result then
     begin
@@ -256,7 +257,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
       //This extra complexity is required to distinguish Unix from
       //a Novell Netware server in NFS namespace which is somewhat similar
       //to a Unix listing.  Beware.
-      s := TIdStringList.Create;
+      s := TStringList.Create;
       try
         SplitColumns(LCData,s);
         if (s.Count > 9) then
@@ -269,7 +270,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
           end;
         end;
       finally
-        Sys.FreeAndNil(s);
+        FreeAndNil(s);
       end;
     end
     else
@@ -277,7 +278,7 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
       //we make an additional check for two additional rows before the
       //the permissions.  These are the inode and block count for the item.
       //These are specified with the -i and -s parameters.
-      s := TIdStringList.Create;
+      s := TStringList.Create;
       try
         SplitColumns(LCData,s);
         if s.Count > 3 then
@@ -292,15 +293,15 @@ class function TIdFTPLPUnix.InternelChkUnix(const AData: String): Boolean;
           end;
         end;
       finally
-        Sys.FreeAndNil(s);
+        FreeAndNil(s);
       end;
     end;
 end;
 
 class function TIdFTPLPUnix.IsUnitree(AData: string): Boolean;
-var s : TIdStrings;
+var s : TStrings;
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AData,s);
       Result := (s.Count >4) and (PosInStrArray(s[4],UnitreeStoreTypes)<>-1);
@@ -309,7 +310,7 @@ var s : TIdStrings;
         Result := IsUnitreeBanner(AData);
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
 end;
 
@@ -345,18 +346,18 @@ var
   wYear, wMonth, wDay: Word;
  // wYear, LCurrentMonth, wMonth, wDay: Word;
   wHour, wMin, wSec, wMSec: Word;
-  ADate: TIdDateTime;
+  ADate: TDateTime;
   i: Integer;
   LI : TIdUnixFTPListItem;
 
   function IsGOSwitches(const AString : String) : Boolean;
-  var s : TIdStrings;
+  var s : TStrings;
   //check to see if both the -g and -o switches were used.  Both
   //owner and group are surpressed in that case.  We have to check that
   //so our interpretation does not cause an error.
   begin
     Result := False;
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(AString,s);
       if s.Count >2 then
@@ -381,7 +382,7 @@ var
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 
@@ -390,17 +391,17 @@ var
   begin
     LB := AStrPart;
     Result := Fetch(LB);
-    Result := Sys.StringReplace(Result,'-',' ');
-    Result := Sys.StringReplace(Result,'/',' ');
+    Result := StringReplace(Result,'-',' ',[rfReplaceAll]);
+    Result := StringReplace(Result,'/',' ',[rfReplaceAll]);
     Result := Result + ' '+LB;
   end;
 
 Begin
   LI := AItem as TIdUnixFTPListItem;
   // Get defaults for modified date/time
-  ADate := Sys.Now;
-  Sys.DecodeDate(ADate, wYear, wMonth, wDay);
-  Sys.DecodeTime(ADate, wHour, wMin, wSec, wMSec);
+  ADate := Now;
+  DecodeDate(ADate, wYear, wMonth, wDay);
+  DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LData := AItem.Data;
   LStep := pusinode;
   while NOT (LStep = pusDone) do begin
@@ -409,7 +410,7 @@ Begin
         //we do it this way because the column for inode is right justified
         //and we don't want to create a problem if the -i parameter was never used
 
-         LTmp := Sys.TrimLeft(LData);
+         LTmp := TrimLeft(LData);
          LTmp := Fetch(LTmp);
          if IsValidUnixPerms(LTmp) then
          begin
@@ -418,9 +419,9 @@ Begin
          else
          begin
          //the inode column is right justified
-           LData := Sys.TrimLeft(LData);
+           LData := TrimLeft(LData);
            LTmp := Fetch(LData);
-           LData := Sys.TrimLeft(LData);
+           LData := TrimLeft(LData);
            LInode := LTmp;
            LStep := pusBlocks;
          end;
@@ -432,26 +433,26 @@ Begin
          if IsValidUnixPerms(LTmp)=False then
          begin
            LTmp := Fetch(LData);
-           LData := Sys.TrimLeft(LData);
+           LData := TrimLeft(LData);
            LBlocks := LTmp;
          end;
          LStep := pusPerm;
       end;
     pusPerm: begin//1.-rw-rw-rw-
       LTmp := Fetch(LData);
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
       // Copy the predictable pieces
       LI.PermissionDisplay := Copy(LTmp,1,10);
-      LDir := Sys.UpperCase(Copy(LTmp, 1, 1));
+      LDir := UpperCase(Copy(LTmp, 1, 1));
       LOPerm := Copy(LTmp, 2, 3);
       LGPerm := Copy(LTmp, 5, 3);
       LUPerm := Copy(LTmp, 8, 3);
       LStep := pusCount;
     end;
     pusCount: begin
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
       LTmp := Fetch(LData);
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
 
       //Patch for NetPresenz
       // "-------r--         326  1391972  1392298 Nov 22  1995 MegaPhone.sit" */
@@ -480,11 +481,11 @@ Begin
           LStep := pusOwner;
         end;
       end;
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
     end;
     pusOwner: begin
       LTmp := Fetch(LData);
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
       LOwner := LTmp;
 (*    if (SL[4] > '') and    {Do not Localize}
      //Ericsson Switch FTP returns empty owner.
@@ -495,7 +496,7 @@ Begin
     end;
     pusGroup: begin
       LTmp := Fetch(LData);
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
       LGroup := LTmp;
       LStep := pusSize;
     end;
@@ -521,7 +522,7 @@ Begin
           repeat
             LGroup := LGroup + ' '+LSize;
             LOwner := LGroup;
-            LData := Sys.TrimLeft(LData);
+            LData := TrimLeft(LData);
             LSize := Fetch(LData);
           until (IsNumeric(LSize));
           //delete the initial space we had added in the repeat loop
@@ -537,16 +538,16 @@ Begin
         //Note sure what 11, 42 is so size is not returned.
         if IndyPos(',',LTmp)>0 then
         begin
-          LData := Sys.TrimLeft(LData);
+          LData := TrimLeft(LData);
           Fetch(LData);
-          LData := Sys.TrimLeft(LData);
+          LData := TrimLeft(LData);
           LSize := '';
         end
         else
         begin
           LSize := LTmp;
         end;
-        LData := Sys.TrimLeft(LData);
+        LData := TrimLeft(LData);
         case PosInStrArray(LSize,UnitreeStoreTypes) of
           0 :  //AR - archived to tape - migrated
           begin
@@ -555,9 +556,9 @@ Begin
               (LI as TIdUnitreeFTPListItem).Migrated := True;
               (LI as TIdUnitreeFTPListItem).FileFamily := Fetch(LData);
             end;
-            LData := Sys.TrimLeft(LData);
+            LData := TrimLeft(LData);
             LSize := Fetch(LData);
-            LData := Sys.TrimLeft(LData);
+            LData := TrimLeft(LData);
           end;
           1 : //DK - disk
           begin
@@ -565,9 +566,9 @@ Begin
             begin
               (LI as TIdUnitreeFTPListItem).FileFamily := Fetch(LData);
             end;
-            LData := Sys.TrimLeft(LData);
+            LData := TrimLeft(LData);
             LSize := Fetch(LData);
-            LData := Sys.TrimLeft(LData);
+            LData := TrimLeft(LData);
           end;
         end;
       end;
@@ -582,19 +583,19 @@ Begin
       if Length(LTmp)>3 then
       begin
         //must be a year
-        wYear := Sys.StrToInt(LTmp,wYear);
+        wYear := IndyStrToInt(LTmp,wYear);
         LTmp := Fetch(LData);
       end;
-      LData := Sys.TrimLeft(LData);
+      LData := TrimLeft(LData);
       if IsNumeric(LTmp) then
       begin
-        wMonth := Sys.StrToInt(LTmp,wMonth);
+        wMonth := IndyStrToInt(LTmp,wMonth);
         if (wMonth>12) then
         begin
           wDay := wMonth;
           LTmp := Fetch(LData);
-          LData := Sys.TrimLeft(LData);
-          wMonth := Sys.StrToInt(LTmp,wMonth);
+          LData := TrimLeft(LData);
+          wMonth := IndyStrToInt(LTmp,wMonth);
           LStep := pusYear;
         end
         else
@@ -610,15 +611,15 @@ Begin
     end;
     pusDay: begin // Scan DD
       LTmp := Fetch(LData);
-      LData := Sys.TrimLeft(LData);
-      wDay := Sys.StrToInt(LTmp, wDay);
+      LData := TrimLeft(LData);
+      wDay := IndyStrToInt(LTmp, wDay);
       LStep := pusYear;
     end;
     pusYear: begin
       LTmp := Fetch(LData);
       // Not time info, scan year
       if IndyPos(':', LTmp) = 0 then begin    {Do not Localize}
-        wYear := Sys.StrToInt(LTmp, wYear);
+        wYear := IndyStrToInt(LTmp, wYear);
         // Set time info to 00:00:00.999
         wHour := 0;
         wMin := 0;
@@ -633,7 +634,7 @@ Begin
     pusTime: begin
       // correct year and Scan hour
       wYear := AddMissingYear(wDay,wMonth);
-      wHour:= Sys.StrToInt(Fetch(LTmp,':'), 0);    {Do not Localize}
+      wHour:= IndyStrToInt(Fetch(LTmp,':'), 0);    {Do not Localize}
       // Set sec and ms to 0.999 except for Serv-U or FreeBSD with the -T parameter
       //with the -T parameter, Serve-U returns something like this:
       //
@@ -645,18 +646,18 @@ Begin
       if (IndyPos(':',LTmp)>0) and (IsNumeric(Fetch(LData,' ',False))) then
       begin
         // Scan minutes
-        wMin :=Sys. StrToInt(Fetch(LTmp,':'), 0);
-        wSec :=Sys. StrToInt(Fetch(LTmp,':'), 0);
-        wMSec :=Sys. StrToInt(Fetch(LTmp,':'),999);
+        wMin :=IndyStrToInt(Fetch(LTmp,':'), 0);
+        wSec :=IndyStrToInt(Fetch(LTmp,':'), 0);
+        wMSec :=IndyStrToInt(Fetch(LTmp,':'),999);
         LTmp := Fetch(LData);
-        wYear :=Sys. StrToInt(LTmp, wYear);
+        wYear :=IndyStrToInt(LTmp, wYear);
       end
       else
       begin
       // Scan minutes
-        wMin :=Sys. StrToInt(Fetch(LTmp,':'), 0);
-        wSec :=Sys. StrToInt(Fetch(LTmp,':'), 0);
-        wMSec :=Sys. StrToInt(Fetch(LTmp),999);
+        wMin :=IndyStrToInt(Fetch(LTmp,':'), 0);
+        wSec :=IndyStrToInt(Fetch(LTmp,':'), 0);
+        wMSec :=IndyStrToInt(Fetch(LTmp),999);
       end;
       LStep := pusName;
     end;
@@ -681,11 +682,11 @@ Begin
     LI.UnixOwnerPermissions := LOPerm;
     LI.UnixGroupPermissions := LGPerm;
     LI.UnixOtherPermissions := LUPerm;
-    LI.LinkCount :=Sys. StrToInt(LCount, 0);
+    LI.LinkCount :=IndyStrToInt(LCount, 0);
     LI.OwnerName := LOwner;
     LI.GroupName := LGroup;
-    LI.Size := Sys.StrToInt64(LSize, 0);
-    LI.ModifiedDate := Sys.EncodeDate(wYear, wMonth, wDay) + Sys.EncodeTime(wHour, wMin, wSec, wMSec);
+    LI.Size := IndyStrToInt64(LSize, 0);
+    LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay) + EncodeTime(wHour, wMin, wSec, wMSec);
 
     if LI.ItemType = ditSymbolicLink then begin
       i := IndyPos(UNIX_LINKTO_SYM, LName);    {Do not Localize}
@@ -701,8 +702,8 @@ Begin
       end;
       LI.LinkedItemName := LLinkTo;
     end;
-    LI.NumberBlocks :=Sys.StrToInt(LBlocks,0);
-    LI.Inode :=Sys.StrToInt(linode,0);
+    LI.NumberBlocks :=IndyStrToInt(LBlocks,0);
+    LI.Inode :=IndyStrToInt(linode,0);
     //with servers using ls -F, / is returned after the name of dir names and a *
     //will be returned at the end of a file name for an executable program.
     //Based on info at http://www.skypoint.com/help/tipgettingaround.html
@@ -737,7 +738,7 @@ Begin
   Result := True;
 end;
 
-class function TIdFTPLPUnix.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPUnix.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var i : Integer;
   LPathSpec : String;

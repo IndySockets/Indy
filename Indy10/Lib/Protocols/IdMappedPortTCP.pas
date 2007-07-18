@@ -117,10 +117,11 @@ unit IdMappedPortTCP;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
-  IdCustomTCPServer, IdObjs,
-  IdGlobal, IdStack, IdSys, IdTCPConnection, IdTCPServer, IdYarn;
+  IdCustomTCPServer,
+  IdGlobal, IdStack, IdTCPConnection, IdTCPServer, IdYarn, SysUtils;
 
 type
   TIdMappedPortTCP = class;
@@ -139,7 +140,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TIdThreadList = nil
+      AList: TThreadList = nil
       ); override;
     destructor Destroy; override;
     //
@@ -354,7 +355,7 @@ end;
 constructor TIdMappedPortContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TIdThreadList = nil
+  AList: TThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);
@@ -366,9 +367,9 @@ end;
 destructor TIdMappedPortContext.Destroy;
 begin
   //Sys.FreeAndNil(FOutboundClient);
-  Sys.FreeAndNIL(FOutboundClient);
-  Sys.FreeAndNIL(FReadList);
-  Sys.FreeAndNIL(FDataAvailList);
+  FreeAndNIL(FOutboundClient);
+  FreeAndNIL(FReadList);
+  FreeAndNIL(FDataAvailList);
   inherited Destroy;
 End;
 

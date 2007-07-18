@@ -324,6 +324,7 @@ unit IdGlobalProtocols;
 interface
 
 uses
+  Classes,
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
@@ -331,8 +332,7 @@ uses
   IdBaseComponent,
   IdGlobal,
   IdException,
-  IdObjs,
-  IdSys;
+  SysUtils;
 
 const
   LWS = TAB + CHAR32;
@@ -343,14 +343,14 @@ const
 
 type
   TIdReadLnFunction = function: string of object;
-  TStringEvent = procedure(ASender: TIdNativeComponent; const AString: String);
+  TStringEvent = procedure(ASender: TComponent; const AString: String);
 
   TIdMimeTable = class(TObject)
   protected
     FLoadTypesFromOS: Boolean;
-    FOnBuildCache: TIdNotifyEvent;
-    FMIMEList: TIdStringList;
-    FFileExt: TIdStringList;
+    FOnBuildCache: TNotifyEvent;
+    FMIMEList: TStringList;
+    FFileExt: TStringList;
     procedure BuildDefaultCache; virtual;
   public
     property LoadTypesFromOS: Boolean read FLoadTypesFromOS write FLoadTypesFromOS;
@@ -358,12 +358,12 @@ type
     procedure AddMimeType(const Ext, MIMEType: string; const ARaiseOnError: Boolean = True);
     function GetFileMIMEType(const AFileName: string): string;
     function GetDefaultFileExt(const MIMEType: string): string;
-    procedure LoadFromStrings(const AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
-    procedure SaveToStrings(const AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
+    procedure LoadFromStrings(const AStrings: TStrings; const MimeSeparator: Char = '=');    {Do not Localize}
+    procedure SaveToStrings(const AStrings: TStrings; const MimeSeparator: Char = '=');    {Do not Localize}
     constructor Create(const AutoFill: Boolean = True); reintroduce; virtual;
     destructor Destroy; override;
     //
-    property OnBuildCache: TIdNotifyEvent read FOnBuildCache write FOnBuildCache;
+    property OnBuildCache: TNotifyEvent read FOnBuildCache write FOnBuildCache;
   end;
 
   TIdInterfacedObject = class (TInterfacedObject)
@@ -401,12 +401,12 @@ type
   // TODO: IdStrings have optimized SplitColumns* functions, can we remove it?
   function ABNFToText(const AText : String) : String;
   function BinStrToInt(const ABinary: String): Integer;
-  function BreakApart(BaseString, BreakString: string; StringList: TIdStrings): TIdStrings;
+  function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
   function CardinalToFourChar(ACardinal : Cardinal): string;
   function CharRange(const AMin, AMax : Char): String;
   Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
-  procedure CommaSeparatedToStringList(AList: TIdStrings; const Value:string);
-  function CompareDateTime(const ADateTime1, ADateTime2 : TIdDateTime) : Integer;
+  procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
+  function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
   {
   These are for handling binary values that are in Network Byte order.  They call
   ntohs, ntols, htons, and htons which are required by SNTP and FSP
@@ -428,18 +428,18 @@ type
   function FileSizeByName(const AFilename: string): Int64;
 
   //MLIST FTP DateTime conversion functions
-  function FTPMLSToGMTDateTime(const ATimeStamp : String):TIdDateTime;
-  function FTPMLSToLocalDateTime(const ATimeStamp : String):TIdDateTime;
+  function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
+  function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
 
-  function FTPGMTDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
-  function FTPLocalDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
+  function FTPGMTDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
+  function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 
   function GetClockValue : Int64;
   function GetMIMETypeFromFile(const AFile: String): string;
   function GetMIMEDefaultFileExt(const MIMEType: string): string;
-  function GetGMTDateByName(const AFileName : String) : TIdDateTime;
-  function GmtOffsetStrToDateTime(S: string): TIdDateTime;
-  function GMTToLocalDateTime(S: string): TIdDateTime;
+  function GetGMTDateByName(const AFileName : String) : TDateTime;
+  function GmtOffsetStrToDateTime(S: string): TDateTime;
+  function GMTToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
   function IntToBin(Value: cardinal): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
@@ -469,19 +469,19 @@ type
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
   {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
-  function SetLocalTime(Value: TIdDateTime): boolean;
+  function SetLocalTime(Value: TDateTime): boolean;
 
   function StartsWith(const ANSIStr, APattern : String) : Boolean;
 
   function StrToCard(const AStr: String): Cardinal;
-  function StrInternetToDateTime(Value: string): TIdDateTime;
+  function StrInternetToDateTime(Value: string): TDateTime;
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
-  function TimeZoneBias: TIdDateTime;
+  function TimeZoneBias: TDateTime;
    //these are for FSP but may also help with MySQL
-  function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TIdDateTime;
-  function DateTimeToUnix(ADateTime: TIdDateTime): Cardinal;
+  function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
+  function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
 
   function TwoCharToWord(AChar1, AChar2: Char):Word;
   function UpCaseFirst(const AStr: string): string;
@@ -501,17 +501,9 @@ type
 var
   {$IFDEF LINUX}
   // For linux the user needs to set these variables to be accurate where used (mail, etc)
-  GOffsetFromUTC: TIdDateTime = 0;
-  GTimeZoneBias: TIdDateTime = 0;
+  GOffsetFromUTC: TDateTime = 0;
+  GTimeZoneBias: TDateTime = 0;
   GIdDefaultCharSet : TIdCharSet = idcsISO_8859_1;
-  {$ENDIF}
-
-  {$IFDEF DOTNET}
-  // This is available through System.Windows.Forms.SystemInformation.ComputerName
-  // however we do not wish to link to Wystem.Windows.Forms. So the name of
-  // the computer must be provided here in DotNet. The only known use for this
-  // value is in the NTML and SSPI authentication code
-  GDotNetComputerName : String;
   {$ENDIF}
 
   IndyFalseBoolStrs : array of String;
@@ -520,7 +512,7 @@ var
 //This is from: http://www.swissdelphicenter.ch/en/showcode.php?id=844
 const
   // Sets UnixStartDate to TIdDateTime of 01/01/1970
-  UNIXSTARTDATE : TIdDateTime = 25569.0;
+  UNIXSTARTDATE : TDateTime = 25569.0;
    {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
   TIME_BASEDATE = 2;
@@ -530,11 +522,9 @@ implementation
 uses
   {$IFDEF LINUX}
   Libc,
-  SysUtils,
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Registry,
-  SysUtils,
   {$ENDIF}
   {$IFDEF DOTNET}
   System.IO,
@@ -671,8 +661,9 @@ var
 {$ENDIF}
 
 function StartsWith(const ANSIStr, APattern : String) : Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := (ANSIStr <> '') and (IndyPos(APattern, Sys.UpperCase(ANSIStr)) = 1)  {do not localize}
+  Result := (ANSIStr <> '') and (IndyPos(APattern, UpperCase(ANSIStr)) = 1)  {do not localize}
   //tentative fix for a problem with Korean indicated by "SungDong Kim" <infi@acrosoft.pe.kr>
   {$IFNDEF DOTNET}
   //note that in DotNET, everything is MBCS
@@ -683,7 +674,8 @@ begin
 end;
 
 
-function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TIdDateTime;
+function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (UnixDateTime / 86400) + UnixStartDate;
 {
@@ -692,7 +684,8 @@ From: http://homepages.borland.com/efg2lab/Library/UseNet/1999/0309b.txt
    //  Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
 end;
 
-function DateTimeToUnix(ADateTime: TIdDateTime): Cardinal;
+function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   //example: DateTimeToUnix(now);
   Result := Round((ADateTime - UnixStartDate) * 86400);
@@ -700,6 +693,7 @@ end;
 
 procedure CopyBytesToHostWord(const ASource : TIdBytes; const ASourceIndex: Integer;
   var VDest : Word);
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   VDest := IdGlobal.BytesToWord(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
@@ -707,6 +701,7 @@ end;
 
 procedure CopyBytesToHostCardinal(const ASource : TIdBytes; const ASourceIndex: Integer;
   var VDest : Cardinal);
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   VDest := IdGlobal.BytesToCardinal(ASource, ASourceIndex);
   VDest := GStack.NetworkToHost(VDest);
@@ -714,24 +709,23 @@ end;
 
 procedure CopyTIdNetworkWord(const ASource: Word;
     var VDest: TIdBytes; const ADestIndex: Integer);
-var LWord : Word;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  LWord := GStack.HostToNetwork(ASource);
-  CopyTIdWord(LWord,VDest,ADestIndex);
+  CopyTIdWord(GStack.HostToNetwork(ASource),VDest,ADestIndex);
 end;
 
 procedure CopyTIdNetworkCardinal(const ASource: Cardinal;
     var VDest: TIdBytes; const ADestIndex: Integer);
-var LCard : Cardinal;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  LCard := GStack.HostToNetwork(ASource);
-  CopyTIdCardinal(LCard,VDest,ADestIndex);
+  CopyTIdCardinal(GStack.HostToNetwork(ASource),VDest,ADestIndex);
 end;
 
 // BGO: TODO: Move somewhere else
 procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
 {$ifdef DotNet}
 var a:integer;
+{$else}
 {$endif}
 begin
   {$ifdef DotNet}
@@ -746,6 +740,7 @@ begin
 end;
 
 Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   SetLength(Result,2);
   Result[1] := IdHexDigits[byte(c) shr 4];
@@ -754,11 +749,13 @@ begin
 end;
 
 function CardinalToFourChar(ACardinal : Cardinal): string;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := BytesToString(ToBytes(ACardinal));
 end;
 
 procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   //ByteArray[Index] := AWord div 256;
   //ByteArray[Index + 1] := AWord mod 256;
@@ -767,6 +764,7 @@ begin
 end;
 
 function StrToWord(const Value: String): Word;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   if Length(Value) > 1 then begin
     {$IFDEF DOTNET}
@@ -780,6 +778,7 @@ begin
 end;
 
 function WordToStr(const Value: Word): String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := BytesToString(ToBytes(Value));
@@ -973,7 +972,7 @@ begin
 end;
 {$ENDIF}
 
-function CompareDateTime(const ADateTime1, ADateTime2 : TIdDateTime) : Integer;
+function CompareDateTime(const ADateTime1, ADateTime2 : TDateTime) : Integer;
 var
   LYear1, LYear2 : Word;
   LMonth1, LMonth2 : Word;
@@ -988,8 +987,8 @@ The return value is less than 0 if ADateTime1 is less than ADateTime2,
 greater than 0 if ADateTime1 is greater than ADateTime2.
 }
 begin
-  Sys.DecodeDate(ADateTime1, LYear1, LMonth1, LDay1);
-  Sys.DecodeDate(ADateTime2, LYear2, LMonth2, LDay2);
+  DecodeDate(ADateTime1, LYear1, LMonth1, LDay1);
+  DecodeDate(ADateTime2, LYear2, LMonth2, LDay2);
   // year
   Result := LYear1 - LYear2;
   if Result <> 0 then
@@ -1008,8 +1007,8 @@ begin
   begin
     Exit;
   end;
-  Sys.DecodeTime(ADateTime1, LHour1, LMin1, LSec1, LMSec1);
-  Sys.DecodeTime(ADateTime2, LHour2, LMin2, LSec2, LMSec2);
+  DecodeTime(ADateTime1, LHour1, LMin1, LSec1, LMSec1);
+  DecodeTime(ADateTime2, LHour2, LMin2, LSec2, LMSec2);
   //hour
   Result := LHour1 - LHour2;
   if Result <> 0 then
@@ -1033,7 +1032,7 @@ begin
 end;
 
 {This is an internal procedure so the StrInternetToDateTime and GMTToLocalDateTime can share common code}
-function RawStrInternetToDateTime(var Value: string): TIdDateTime;
+function RawStrInternetToDateTime(var Value: string): TDateTime;
 var
   i: Integer;
   Dt, Mo, Yr, Ho, Min, Sec: Word;
@@ -1044,14 +1043,14 @@ var
 
   Procedure ParseDayOfMonth;
   begin
-    Dt :=  Sys.StrToInt( Fetch(Value, ADelim), 1);
-    Value := Sys.TrimLeft(Value);
+    Dt :=  IndyStrToInt( Fetch(Value, ADelim), 1);
+    Value := TrimLeft(Value);
   end;
 
   Procedure ParseMonth;
   begin
     Mo := StrToMonth( Fetch ( Value, ADelim )  );
-    Value := Sys.TrimLeft(Value);
+    Value := TrimLeft(Value);
   end;
 begin
   Result := 0.0;
@@ -1059,7 +1058,7 @@ begin
   LAM:=false;
   LPM:=false;
 
-  Value := Sys.Trim(Value);
+  Value := Trim(Value);
   if Length(Value) = 0 then begin
     Exit;
   end;
@@ -1073,7 +1072,7 @@ begin
         Insert(' ', Value, 5);
       end;
       Fetch(Value);
-      Value := Sys.TrimLeft(Value);
+      Value := TrimLeft(Value);
     end;
 
     // Workaround for some buggy web servers which use '-' to separate the date parts.    {Do not Localize}
@@ -1104,10 +1103,10 @@ begin
     // DayOfWeek Month DayOfMonth Time Year
 
     sTime := Fetch(Value);
-    Yr := Sys.StrToInt(sTime, 1900);
+    Yr := IndyStrToInt(sTime, 1900);
     // Is sTime valid Integer
     if Yr = 1900 then begin
-      Yr := Sys.StrToInt(Value, 1900);
+      Yr := IndyStrToInt(Value, 1900);
       Value := sTime;
     end;
     if Yr < 80 then begin
@@ -1116,7 +1115,7 @@ begin
       Inc(Yr, 1900);
     end;
 
-    Result := Sys.EncodeDate(Yr, Mo, Dt);
+    Result := EncodeDate(Yr, Mo, Dt);
     // SG 26/9/00: Changed so that ANY time format is accepted
     if IndyPos('AM', Value)>0 then {do not localize}
     begin
@@ -1134,13 +1133,13 @@ begin
       // Copy time string up until next space (before GMT offset)
       sTime := fetch(Value, ' ');  {do not localize}
       {Hour}
-      Ho  := Sys.StrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
+      Ho  := IndyStrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
       {Minute}
-      Min := Sys.StrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
+      Min := IndyStrToInt( Fetch ( sTime, ':'), 0);  {do not localize}
       {Second}
-      Sec := Sys.StrToInt( Fetch ( sTime ), 0);
+      Sec := IndyStrToInt( Fetch ( sTime ), 0);
       {AM/PM part if preasent}
-      Value := Sys.TrimLeft(Value);
+      Value := TrimLeft(Value);
       if LAM then
       begin
         if Ho = 12 then
@@ -1162,9 +1161,9 @@ begin
         end;
       end;
       {The date and time stamp returned}
-      Result := Result + Sys.EncodeTime(Ho, Min, Sec, 0);
+      Result := Result + EncodeTime(Ho, Min, Sec, 0);
     end;
-    Value := Sys.TrimLeft(Value);
+    Value := TrimLeft(Value);
   except
     Result := 0.0;
   end;
@@ -1173,6 +1172,7 @@ end;
 {$IFDEF MSWINDOWS}
   {$IFNDEF VCL5ORABOVE}
   function CreateTRegistry: TRegistry;
+  {$IFDEF USEINLINE} inline; {$ENDIF}
   begin
     Result := TRegistry.Create;
   end;
@@ -1185,6 +1185,7 @@ end;
 {$ENDIF}
 
 function Max(AValueOne,AValueTwo: Integer): Integer;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   if AValueOne < AValueTwo then
   begin
@@ -1198,12 +1199,12 @@ end;
 
 {This should never be localized}
 
-function StrInternetToDateTime(Value: string): TIdDateTime;
+function StrInternetToDateTime(Value: string): TDateTime;
 begin
   Result := RawStrInternetToDateTime(Value);
 end;
 
-function FTPMLSToGMTDateTime(const ATimeStamp : String):TIdDateTime;
+function FTPMLSToGMTDateTime(const ATimeStamp : String):TDateTime;
 var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
     LBuffer : String;
 begin
@@ -1214,59 +1215,61 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := Sys.StrToInt(Copy( LBuffer,1,4),0);
-      LMonth := Sys.StrToInt(Copy(LBuffer,5,2),0);
-      LDay := Sys.StrToInt(Copy(LBuffer,7,2),0);
+      LYear := IndyStrToInt(Copy( LBuffer,1,4),0);
+      LMonth := IndyStrToInt(Copy(LBuffer,5,2),0);
+      LDay := IndyStrToInt(Copy(LBuffer,7,2),0);
 
-      LHour := Sys.StrToInt(Copy(LBuffer,9,2),0);
-      LMin := Sys.StrToInt(Copy(LBuffer,11,2),0);
-      LSec := Sys.StrToInt(Copy(LBuffer,13,2),0);
+      LHour := IndyStrToInt(Copy(LBuffer,9,2),0);
+      LMin := IndyStrToInt(Copy(LBuffer,11,2),0);
+      LSec := IndyStrToInt(Copy(LBuffer,13,2),0);
       Fetch(LBuffer,'.');
-      LMSec := Sys.StrToInt(LBuffer,0);
-      Result := Sys.EncodeDate(LYear,LMonth,LDay);
-      Result := Result + Sys.EncodeTime(LHour,LMin,LSec,LMSec);
+      LMSec := IndyStrToInt(LBuffer,0);
+      Result := EncodeDate(LYear,LMonth,LDay);
+      Result := Result + EncodeTime(LHour,LMin,LSec,LMSec);
   end;
 end;
 
-function FTPMLSToLocalDateTime(const ATimeStamp : String):TIdDateTime;
+function FTPMLSToLocalDateTime(const ATimeStamp : String):TDateTime;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := 0;
   if ATimeStamp <> '' then
   begin
     Result := FTPMLSToGMTDateTime(ATimeStamp);
     // Apply local offset
-    Result := Result + Sys.OffSetFromUTC;
+    Result := Result + OffSetFromUTC;
   end;
 end;
 
-function FTPGMTDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
+function FTPGMTDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 var LYear, LMonth, LDay,
     LHour, LMin, LSec, LMSec : Word;
 
 begin
-  Sys.DecodeDate(ATimeStamp,LYear,LMonth,LDay);
-  Sys.DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
-  Result := sys.Format('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]);
+  DecodeDate(ATimeStamp,LYear,LMonth,LDay);
+  DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
+  Result := IndyFormat('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]);
   if AIncludeMSecs then
   begin
     if (LMSec <> 0) then
     begin
-      Result := Result + Sys.Format('.%3d',[LMSec]);
+      Result := Result + IndyFormat('.%3d',[LMSec]);
     end;
   end;
-  Result := Sys.StringReplace(Result,' ','0');
+  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
 end;
 {
 Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
 stamps based on GMT)
 }
-function FTPLocalDateTimeToMLS(const ATimeStamp : TIdDateTime; const AIncludeMSecs : Boolean=True): String;
+function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := FTPGMTDateTimeToMLS(ATimeStamp - Sys.OffSetFromUTC, AIncludeMSecs);
+  Result := FTPGMTDateTimeToMLS(ATimeStamp - OffSetFromUTC, AIncludeMSecs);
 end;
 
 
-function BreakApart(BaseString, BreakString: string; StringList: TIdStrings): TIdStrings;
+function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
 var
   EndOfCurrentString: integer;
 begin
@@ -1282,7 +1285,7 @@ begin
   Result := StringList;
 end;
 
-procedure CommaSeparatedToStringList(AList: TIdStrings; const Value:string);
+procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
 var
   iStart,
   iEnd,
@@ -1315,7 +1318,7 @@ begin
       inc(iEnd);
       inc(iPos);
     end ;
-    sTemp := Sys.Trim(Copy(Value, iStart, iEnd - iStart));
+    sTemp := Trim(Copy(Value, iStart, iEnd - iStart));
     if Length(sTemp) > 0 then
     begin
       AList.Add(sTemp);
@@ -1339,12 +1342,14 @@ end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
 function CopyFileTo(const Source, Destination: string): Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := CopyFile(PChar(Source), PChar(Destination), true);
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
 function CopyFileTo(const Source, Destination: string): Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   System.IO.File.Copy(Source, Destination, true);
   result := true; // or you'll get an exception
@@ -1359,7 +1364,7 @@ begin
   SetLength(Result, MAX_PATH);
   i := GetTempPath(Length(Result), PChar(Result));
   SetLength(Result, i);
-  Result := Sys.IncludeTrailingPathDelimiter(Result);
+  Result := IndyIncludeTrailingPathDelimiter(Result);
 end;
 {$ENDIF}
 
@@ -1440,11 +1445,11 @@ begin
   // validate path and add path delimiter before file name prefix
   if APath <> '' then
   begin
-    if not Sys.DirectoryExists(APath) then begin
+    if not DirectoryExists(APath) then begin
       LFName := APrefix;
     end else begin
       // uses the Indy function... not the Borland one
-      LFName := Sys.IncludeTrailingPathDelimiter(APath) + APrefix;
+      LFName := IndyIncludeTrailingPathDelimiter(APath) + APrefix;
     end;
   end else begin
     LFName := APrefix;
@@ -1452,8 +1457,8 @@ begin
 
   LNamePart := Ticks;
   repeat
-    Result := LFName + Sys.IntToHex(LNamePart, 8) + LFQE;
-    if not Sys.FileExists(Result) then begin
+    Result := LFName + IntToHex(LNamePart, 8) + LFQE;
+    if not FileExists(Result) then begin
       Break;
     end;
     Inc(LNamePart);
@@ -1497,6 +1502,8 @@ function FileSizeByName(const AFilename: string): Int64;
 {$IFDEF DOTNET}
 var
   LF : System.IO.FileInfo;
+{$ELSE}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1509,7 +1516,10 @@ begin
   {$ENDIF}
 end;
 
-function GetGMTDateByName(const AFileName : String) : TIdDateTime;
+function GetGMTDateByName(const AFileName : String) : TDateTime;
+  {$IFDEF DOTNET}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$ENDIF}
  {$IFDEF WIN32}
 var
   LRec : TWin32FindData;
@@ -1567,25 +1577,28 @@ begin
 end;
 
 function StrToCard(const AStr: String): Cardinal;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := Sys.StrToInt64(Sys.Trim(AStr), 0);
+  Result := IndyStrToInt64(AStr, 0);
 end;
 
 {$IFDEF LINUX}
-function TimeZoneBias: TIdDateTime;
+function TimeZoneBias: TDateTime;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   //TODO: Fix TimeZoneBias for Linux to be automatic
   Result := GTimeZoneBias;
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
-function TimeZoneBias: TIdDateTime;
+function TimeZoneBias: TDateTime;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := -Sys.OffsetFromUTC;
+  Result := -OffsetFromUTC;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
-function TimeZoneBias: TIdDateTime;
+function TimeZoneBias: TDateTime;
 var
   ATimeZone: TTimeZoneInformation;
 begin
@@ -1628,7 +1641,7 @@ begin
   // None of the strings match, so convert to numeric (allowing an
   // EConvertException to be thrown if not) and test against zero.
   // If zero, return false, otherwise return true.
-  LCount := Sys.StrToInt(AString);
+  LCount := IndyStrToInt(AString);
   if LCount = 0 then
   begin
     result := false;
@@ -1639,21 +1652,21 @@ begin
 end;
 
 {$IFDEF LINUX}
-function SetLocalTime(Value: TIdDateTime): boolean;
+function SetLocalTime(Value: TDateTime): boolean;
 begin
   //TODO: Implement SetTime for Linux. This call is not critical.
   result := False;
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
-function SetLocalTime(Value: TIdDateTime): boolean;
+function SetLocalTime(Value: TDateTime): boolean;
 begin
   //TODO: Figure out how to do this
   result := False;
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
-function SetLocalTime(Value: TIdDateTime): boolean;
+function SetLocalTime(Value: TDateTime): boolean;
 {I admit that this routine is a little more complicated than the one
 in Indy 8.0.  However, this routine does support Windows NT privillages
 meaning it will work if you have administrative rights under that OS
@@ -1695,6 +1708,7 @@ end;
 {$ENDIF}
 
 function StrToDay(const ADay: string): Byte;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := Succ(
     PosInStrArray(ADay,
@@ -1703,6 +1717,7 @@ begin
 end;
 
 function StrToMonth(const AMonth: string): Byte;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := Succ(
     PosInStrArray(AMonth,
@@ -1711,8 +1726,9 @@ begin
 end;
 
 function UpCaseFirst(const AStr: string): string;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := Sys.LowerCase(Sys.TrimLeft(AStr));
+  Result := LowerCase(TrimLeft(AStr));
   if Result <> '' then begin   {Do not Localize}
     Result[1] := UpCase(Result[1]);
   end;
@@ -1727,7 +1743,7 @@ begin
   for I := 1 to Length(AStr) do begin
     if CharIsInSet(AStr, I, LWhiteSet) then begin
       if I > 1 then begin
-        Result := Sys.UpperCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
+        Result := UpperCase(Copy(Result, 1, I-1)) + Copy(AStr, I, MaxInt);
         Exit;
       end;
       Break;
@@ -1741,13 +1757,15 @@ const
   BinNumbers = '01'; {Do not localize}
 
 function IsHex(const AChar : Char) : Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := IndyPos(Sys.UpperCase(AChar), HexNumbers) > 0;
+  Result := IndyPos(UpperCase(AChar), '01234567890ABCDEF') > 0; {Do not Localize}
 end;
 
 function IsBinary(const AChar : Char) : Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := IndyPos(Sys.UpperCase(AChar), BinNumbers) > 0;
+  Result := IndyPos(UpperCase(AChar), '01') > 0;   {Do not localize}
 end;
 
 function BinStrToInt(const ABinary: String): Integer;
@@ -1797,16 +1815,16 @@ begin
         If IsNumeric(AText[i]) then
         begin
           LNum := LNum + AText[i];
-          if Sys.StrToInt(LNum, 0) > $FF then begin
+          if IndyStrToInt(LNum, 0) > $FF then begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(Sys.StrToInt(LNum, 0));
+            Result := Result + Char(IndyStrToInt(LNum, 0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt(LNum, 0));
+          Result := Result + Char(IndyStrToInt(LNum, 0));
           LNum := '';
           if AText[i] <> '.' then begin
             LR := Data;
@@ -1816,16 +1834,16 @@ begin
       hex :
         If IsHex(AText[i]) and (Length(LNum) < 2) then begin
           LNum := LNum + AText[i];
-          if Sys.StrToInt('$'+LNum, 0) > $FF  then begin
+          if IndyStrToInt('$'+LNum, 0) > $FF  then begin
             IdDelete(LNum,Length(LNum),1);
-            Result := Result + Char(Sys.StrToInt(LNum,0));
+            Result := Result + Char(IndyStrToInt(LNum,0));
             LR := Data;
             Result := Result + AText[i];
           end;
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt('$'+LNum, 0));
+          Result := Result + Char(IndyStrToInt('$'+LNum, 0));
           LNum := '';
           if AText[i] <> '.' then
           begin
@@ -1847,7 +1865,7 @@ begin
         end
         else
         begin
-          Result := Result + Char(Sys.StrToInt('$'+LNum, 0));
+          Result := Result + Char(IndyStrToInt('$'+LNum, 0));
           LNum := '';
           if AText[i] <> '.' then
           begin
@@ -1861,7 +1879,7 @@ end;
 
 // Currently this function is not used
 (*
-procedure BuildMIMETypeMap(dest: TIdStringList);
+procedure BuildMIMETypeMap(dest: TStringList);
 {$IFDEF LINUX}
 begin
   // TODO: implement BuildMIMETypeMap in Linux
@@ -1871,13 +1889,13 @@ end;
 {$IFDEF MSWINDOWS}
 var
   Reg: TRegistry;
-  slSubKeys: TIdStringList;
+  slSubKeys: TStringList;
   i: integer;
 begin
   Reg := CreateTRegistry; try
     Reg.RootKey := HKEY_CLASSES_ROOT;
     Reg.OpenKeyreadOnly('\MIME\Database\Content Type'); {do not localize}
-    slSubKeys := TIdStringList.Create;
+    slSubKeys := TStringList.Create;
     try
       Reg.GetKeyNames(slSubKeys);
       reg.Closekey;
@@ -1921,16 +1939,17 @@ begin
   end;
 end;
 
-function GmtOffsetStrToDateTime(S: string): TIdDateTime;
+function GmtOffsetStrToDateTime(S: string): TDateTime;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := 0.0;
-  S := Copy(Sys.Trim(s), 1, 5);
+  S := Copy(Trim(s), 1, 5);
   if Length(S) > 0 then
   begin
     if (s[1] = '-') or (s[1] = '+') then   {do not localize}
     begin
       try
-        Result := Sys.EncodeTime(Sys.StrToInt(Copy(s, 2, 2)), Sys.StrToInt(Copy(s, 4, 2)), 0, 0);
+        Result := EncodeTime(IndyStrToInt(Copy(s, 2, 2)), IndyStrToInt(Copy(s, 4, 2)), 0, 0);
         if s[1] = '-' then  {do not localize}
         begin
           Result := -Result;
@@ -1942,9 +1961,9 @@ begin
   end;
 end;
 
-function GMTToLocalDateTime(S: string): TIdDateTime;
+function GMTToLocalDateTime(S: string): TDateTime;
 var  {-Always returns date/time relative to GMT!!  -Replaces StrInternetToDateTime}
-  DateTimeOffset: TIdDateTime;
+  DateTimeOffset: TDateTime;
 begin
   if s = '' then
     begin
@@ -1966,7 +1985,7 @@ begin
       Result := Result - DateTimeOffset;
     end;
     // Apply local offset
-    Result := Result + Sys.OffSetFromUTC;
+    Result := Result + OffsetFromUTC;
     end;
 end;
 
@@ -1988,9 +2007,9 @@ end;
 { TIdMimeTable }
 
 {$IFDEF LINUX}
-procedure LoadMIME(const AFileName : String; AMIMEList : TIdStringList);
+procedure LoadMIME(const AFileName : String; AMIMEList : TStringList);
 var
-  KeyList: TIdStringList;
+  KeyList: TStringList;
   i, p: Integer;
   s, LMimeType, LExtension: String;
 begin
@@ -2000,7 +2019,7 @@ begin
     // I'm lazy so I'm using a stringlist to load the file, ideally
     // this should not be done, reading the file line by line is better
     // I think - at least in terms of storage
-    KeyList := TIdStringList.Create;
+    KeyList := TStringList.Create;
     try
       KeyList.LoadFromFile(AFileName); {Do not localize}
       for i := 0 to KeyList.Count -1 do begin
@@ -2039,11 +2058,11 @@ begin
 end;
 {$ENDIF}
 
-procedure FillMimeTable(const AMIMEList: TIdStringList; const ALoadFromOS: Boolean = True);
+procedure FillMimeTable(const AMIMEList: TStringList; const ALoadFromOS: Boolean = True);
 {$IFDEF MSWINDOWS}
 var
   reg: TRegistry;
-  KeyList: TIdStringList;
+  KeyList: TStringList;
   i: Integer;
   s, LExt: String;
 {$ENDIF}
@@ -2412,7 +2431,7 @@ begin
   {$IFDEF MSWINDOWS}
   // Build the file type/MIME type map
   Reg := CreateTRegistry; try
-    KeyList := TIdStringList.create;
+    KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
       if Reg.OpenKeyReadOnly('\') then  {do not localize}
@@ -2530,14 +2549,14 @@ end;
 procedure TIdMimeTable.BuildDefaultCache;
 {This is just to provide some default values only}
 var
-  LKeys : TIdStringList;
+  LKeys : TStringList;
 begin
-  LKeys := TIdStringList.Create;
+  LKeys := TStringList.Create;
   try
     FillMIMETable(LKeys, LoadTypesFromOS);
     LoadFromStrings(LKeys);
   finally
-    Sys.FreeAndNil(LKeys);
+    FreeAndNil(LKeys);
   end;
 end;
 
@@ -2545,8 +2564,8 @@ constructor TIdMimeTable.Create(const AutoFill: Boolean);
 begin
   inherited Create;
   FLoadTypesFromOS := True;
-  FFileExt := TIdStringList.Create;
-  FMIMEList := TIdStringList.Create;
+  FFileExt := TStringList.Create;
+  FMIMEList := TStringList.Create;
   if AutoFill then begin
     BuildCache;
   end;
@@ -2554,8 +2573,8 @@ end;
 
 destructor TIdMimeTable.Destroy;
 begin
-  Sys.FreeAndNil(FMIMEList);
-  Sys.FreeAndNil(FFileExt);
+  FreeAndNil(FMIMEList);
+  FreeAndNil(FFileExt);
   inherited Destroy;
 end;
 
@@ -2583,7 +2602,7 @@ var
   Index : Integer;
   LExt: string;
 begin
-  LExt := IndyLowerCase(Sys.ExtractFileExt(AFileName));
+  LExt := IndyLowerCase(ExtractFileExt(AFileName));
   Index := FFileExt.IndexOf(LExt);
   if Index = -1 then
   begin
@@ -2597,7 +2616,7 @@ begin
   end;
 end;
 
-procedure TIdMimeTable.LoadFromStrings(const AStrings: TIdStrings; const MimeSeparator: Char = '=');    {Do not Localize}
+procedure TIdMimeTable.LoadFromStrings(const AStrings: TStrings; const MimeSeparator: Char = '=');    {Do not Localize}
 var
   I, P: Integer;
   S, Ext: string;
@@ -2620,7 +2639,7 @@ end;
 
 
 
-procedure TIdMimeTable.SaveToStrings(const AStrings: TIdStrings;
+procedure TIdMimeTable.SaveToStrings(const AStrings: TStrings;
   const MimeSeparator: Char);
 var
   I : Integer;
@@ -2637,9 +2656,9 @@ var
   LTmp: String;
 begin
   Result := False;
-  LTmp := Sys.Trim(S);
+  LTmp := Trim(S);
   for i := 1 to 4 do begin
-    j := Sys.StrToInt(Fetch(LTmp, '.'), -1);    {Do not Localize}
+    j := IndyStrToInt(Fetch(LTmp, '.'), -1);    {Do not Localize}
     if (j < 0) or (j >= 256) then begin
       Exit;
     end;
@@ -2649,6 +2668,7 @@ end;
 
 //everything that does not start with '.' is treated as hostname
 function IsHostname(const S: String): Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := (not TextStartsWith(S, '.')) and (not IsValidIP(S));    {Do not Localize}
 end;
@@ -2660,7 +2680,7 @@ Var
 begin
   i := 0;
 
-  LTmp := Sys.UpperCase(Sys.Trim(AStr));
+  LTmp := UpperCase(Trim(AStr));
   while IndyPos('.', LTmp) > 0 do begin    {Do not Localize}
     S1 := LTmp;
     Fetch(LTmp, '.');    {Do not Localize}
@@ -2683,16 +2703,19 @@ begin
 end;
 
 function IsDomain(const S: String): Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := (not IsHostname(S)) and (IndyPos('.', S) > 0) and (not IsTopDomain(S));    {Do not Localize}
 end;
 
 function DomainName(const AHost: String): String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := Copy(AHost, IndyPos('.', AHost), Length(AHost));    {Do not Localize}
 end;
 
 function IsFQDN(const S: String): Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := IsHostName(S) and IsDomain(DomainName(S));
 end;
@@ -2700,6 +2723,7 @@ end;
 // The password for extracting password.bin from password.zip is indyrules
 
 function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   if Length(Result) >= ALen then begin
     Result := AString;
@@ -2769,6 +2793,7 @@ end;
 
 // make sure that an RFC MsgID has angle brackets on it
 function EnsureMsgIDBrackets(const AMsgID: String): String;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := AMsgID;
   if Length(Result) > 0 then begin
@@ -2810,6 +2835,7 @@ end;
 
 {$IFDEF DOTNET}
 function GetClockValue : Int64;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   result := System.DateTime.Now.Ticks;
 end;
@@ -2818,6 +2844,7 @@ end;
 // Arg1=EAX, Arg2=DL
 {$IFDEF DOTNET}
 function ROL(AVal: LongWord; AShift: Byte): LongWord;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (AVal shl AShift) or (AVal shr (32 - AShift));
 end;
@@ -2831,6 +2858,7 @@ end;
 
 {$IFDEF DOTNET}
 function ROR(AVal: LongWord; AShift: Byte): LongWord;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (AVal shr AShift) or (AVal shl (32 - AShift)) ;
 end;
@@ -2870,13 +2898,14 @@ end;
 {$ENDIF}
 {$IFDEF DOTNET}
 function IndyComputerName: string;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   result := Environment.MachineName;
-//  result := GDotNetComputerName;
 end;
 {$ENDIF}
 
 function IsLeadChar(ACh : Char):Boolean;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   {$IFDEF DOTNET}
   result := false;
@@ -2887,6 +2916,7 @@ end;
 
 {$IFDEF LINUX}
 function IdGetDefaultCharSet: TIdCharSet;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := GIdDefaultCharSet;
 end;
@@ -2894,6 +2924,7 @@ end;
 
 {$IFDEF DOTNET}
 function IdGetDefaultCharSet: TIdCharSet;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   result := idcsUNICODE_1_1;
   // not a particular Unicode encoding - just unicode in general
@@ -2907,6 +2938,7 @@ end;
 // Many defaults are set here when the choice is ambiguous. However for
 // IdMessage OnInitializeISO can be used by user to choose other.
 function IdGetDefaultCharSet: TIdCharSet;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   case SysLocale.PriLangID of
     LANG_CHINESE: begin
@@ -2942,7 +2974,7 @@ var
   LPos: integer;
   LInQuotes: Boolean;
 begin
-  LPos := Pos(Sys.LowerCase(AEntry), Sys.LowerCase(AHeader));
+  LPos := Pos(LowerCase(AEntry), LowerCase(AHeader));
   if LPos = 0 then begin
     Result := AHeader;
   end else begin
@@ -2960,7 +2992,7 @@ begin
         Exit;
       end;
     end;
-    Result := Sys.Trim(Result);
+    Result := Trim(Result);
     if TextEndsWith(Result, ';') then begin
       Delete(Result, Length(Result), 1);
     end;

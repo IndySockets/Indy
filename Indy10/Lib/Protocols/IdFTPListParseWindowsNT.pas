@@ -71,7 +71,8 @@ unit IdFTPListParseWindowsNT;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 {
   Note:
@@ -94,8 +95,8 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TIdStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
 
 const
@@ -105,11 +106,11 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPWindowsNT }
 
-class function TIdFTPLPWindowsNT.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPWindowsNT.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var SDir, sSize : String;
   i : Integer;
@@ -138,7 +139,7 @@ begin
     if (AListing[i]<>'') and
       (IsSubDirContentsBanner(AListing[i])=False) then
     begin
-      SData := Sys.UpperCase(AListing[i]);
+      SData := UpperCase(AListing[i]);
       sDir := Copy(SData, 25, 5);
       //maybe this is two spacs off.  We don't use TrimLeft at this point
       //because we can't assume that this is a valid WIndows FTP Service listing.
@@ -147,17 +148,17 @@ begin
       begin
         sDir := Copy(SData, 27, 5);
       end;
-      sDir := Sys.TrimLeft(sDir);
+      sDir := TrimLeft(sDir);
       //This is a workaround for large file sizes such as:
 
       //09-08-05  10:22AM            628551680 Test.txt
       //09-08-05  10:23AM            628623360 Test2.txt
 
-      if IsNumeric(Sys.TrimLeft(sDir)) then
+      if IsNumeric(TrimLeft(sDir)) then
       begin
         sDir := '';
       end;
-      sSize := Sys.StringReplace(Sys.TrimLeft(Copy(SData, 20, 19)), ',', '');    {Do not Localize}
+      sSize := StringReplace(TrimLeft(Copy(SData, 20, 19)), ',', '',[rfReplaceAll]);    {Do not Localize}
       //VM/BFS does share the date/time format as MS-DOS for the first two columns
   //    if ((CharIsInSet(SData, 3, ['/', '-'])) and (CharIsInSet(SData, 6, ['/', '-']))) then
       if IsMMDDYY(Copy(SData,1,8),'-') or IsMMDDYY(Copy(SData,1,8),'/') then
@@ -170,7 +171,7 @@ begin
         begin
           //may be a file - see if we can get the size if sDir is empty
           if ((sDir = '') and    {Do not Localize}
-            (Sys.StrToInt64(sSize, -1) <> -1)) then
+            (IndyStrToInt64(sSize, -1) <> -1)) then
           begin
             Result := IsVMBFS(SData)=False;
           end;
@@ -189,7 +190,7 @@ begin
           begin
             //may be a file - see if we can get the size if sDir is empty
             if ((sDir = '') and    {Do not Localize}
-              (Sys.StrToInt64(sSize, -1) <> -1)) then
+              (IndyStrToInt64(sSize, -1) <> -1)) then
             begin
               Result := IsVMBFS(SData)=False;
             end;
@@ -212,7 +213,7 @@ It might be like this:
             else
             begin
               if ((sDir = '') and    {Do not Localize}
-               (Sys.StrToInt64(sSize, -1) <> -1)) then
+               (IndyStrToInt64(sSize, -1) <> -1)) then
               begin
                 Result := IsVMBFS(SData)=False;
               end;
@@ -254,7 +255,7 @@ begin
     LModified := Copy(AItem.Data, 1,4) + '/' + Copy(AItem.Data, 6, 2) + '/' +
       Copy(AItem.Data, 9, 2) + ' ';
 
-    LBuffer := Sys.Trim(Copy(AItem.Data, 11, Length(AItem.Data)));
+    LBuffer := Trim(Copy(AItem.Data, 11, Length(AItem.Data)));
       // Scan time info
     LTime := Fetch(LBuffer);
     // Scan optional letter in a[m]/p[m]
@@ -272,7 +273,7 @@ begin
     LBuffer := AItem.Data;
     //get the date
     LModified := Fetch(LBuffer);
-    LBuffer := Sys.TrimLeft(LBuffer);
+    LBuffer := TrimLeft(LBuffer);
       // Scan time info
     LTime := Fetch(LBuffer);
     // Scan optional letter in a[m]/p[m]
@@ -286,7 +287,7 @@ begin
     end;
   end;
 
-  LBuffer := Sys.Trim(LBuffer);
+  LBuffer := Trim(LBuffer);
 
   // Scan file size or dir marker
   LValue := Fetch(LBuffer);
@@ -294,11 +295,11 @@ begin
   // Strip commas or StrToInt64Def will barf
   if (IndyPos(',', LValue) <> 0) then    {Do not Localize}
   begin
-    LValue := Sys.StringReplace(LValue, ',', '');    {Do not Localize}
+    LValue := StringReplace(LValue, ',', '',[rfReplaceAll]);    {Do not Localize}
   end;
 
   // What did we get?
-  if (Sys.UpperCase(LValue) = '<DIR>') then    {Do not Localize}
+  if (UpperCase(LValue) = '<DIR>') then    {Do not Localize}
   begin
     AItem.ItemType := ditDirectory;
     AItem.SizeAvail := False;
@@ -306,7 +307,7 @@ begin
   else
   begin
     AItem.ItemType := ditFile;
-    AItem.Size := Sys.StrToInt64(LValue, 0);
+    AItem.Size := IndyStrToInt64(LValue, 0);
   end;
 
   //We do things this way because a space starting a file name is legel
@@ -336,7 +337,7 @@ begin
   Result := True;
 end;
 
-class function TIdFTPLPWindowsNT.ParseListing(AListing: TIdStrings;
+class function TIdFTPLPWindowsNT.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
 var i : Integer;
   LPathSpec : String;

@@ -37,7 +37,8 @@ unit IdFTPListParseStercomUnixEnt;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdSterCommEntUxFTPListItem = class(TIdOwnerFTPListItem)
@@ -58,7 +59,7 @@ type
       class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdSterCommEntUxNSFTPListItem = class(TIdOwnerFTPListItem);
   TIdFTPLPSterCommEntUxNS = class(TIdFTPLPSterComEntBase)
@@ -69,7 +70,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
   TIdSterCommEntUxRootFTPListItem = class(TIdMinimalFTPListItem);
   TIdFTPLPSterCommEntUxRoot = class(TIdFTPLPSterComEntBase)
@@ -79,7 +80,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 const
@@ -91,11 +92,11 @@ implementation
 
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPSterCommEntUx }
 
-class function TIdFTPLPSterCommEntUx.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPSterCommEntUx.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuf : String;
 
@@ -171,28 +172,28 @@ var LBuf, LTmp : String;
   LI : TIdSterCommEntUxFTPListItem;
 begin
   LI := AItem as TIdSterCommEntUxFTPListItem;
-  Sys.DecodeDate(Sys.Now,wYear,wMonth,wDay);
+  DecodeDate(Now,wYear,wMonth,wDay);
   wHour := 0;
   wMin := 0;
   wSec := 0;
   LBuf := AItem.Data;
   //flags and protocol
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LI.FlagsProt := Fetch(LBuf);
   //protocol indicator
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LI.ProtIndicator := Fetch(LBuf);
   // owner
   LI.OwnerName := Fetch(LBuf);
   //file size
   repeat
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LTmp := Fetch(LBuf);
     if LBuf<>'' then
     begin
       if IsNumeric(LBuf[1])=False then
       begin
-        LI.Size := Sys.StrToInt(LTmp,0);
+        LI.Size := IndyStrToInt(LTmp,0);
       end
       else
       begin
@@ -204,33 +205,33 @@ begin
   //month
   wMonth := StrToMonth(LTmp);
   //day
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
-  wDay := Sys.StrToInt(LTmp,wDay);
+  wDay := IndyStrToInt(LTmp,wDay);
   //year or time
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
   if IndyPos(':',LTmp)>0 then
   begin
   //year is missing - just get the time
     wYear := AddMissingYear(wDay,wMonth);
-    wHour := Sys.StrToInt(Fetch(LTmp,':'), 0);
-    wMin := Sys.StrToInt(Fetch(LTmp,':'), 0);
+    wHour := IndyStrToInt(Fetch(LTmp,':'), 0);
+    wMin := IndyStrToInt(Fetch(LTmp,':'), 0);
   end
   else
   begin
-    wYear := Sys.StrToInt(LTmp,wYear);
+    wYear := IndyStrToInt(LTmp,wYear);
   end;
   LI.FileName := LBuf;
-  LI.ModifiedDate := Sys.EncodeDate(wYear,wMonth,wDay);
-  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(wHour,wMin,wSec,0);
+  LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
+  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,wSec,0);
   Result := True;
 end;
 
 
 { TIdFTPLPSterCommEntUxNS }
 
-class function TIdFTPLPSterCommEntUxNS.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPSterCommEntUxNS.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuf, LBuf2 : String;
 
@@ -259,25 +260,25 @@ Total Number of batches listed: 14
    begin
      LBuf := ADate;
      LDate := Fetch(LBuf,'-');
-     LMonth := Sys.StrToInt(Copy(LDate,3,2),0);
+     LMonth := IndyStrToInt(Copy(LDate,3,2),0);
      Result := (LMonth>0) and (LMonth<13);
      if not Result then
      begin
        Exit;
      end;
-     LDay := Sys.StrToInt(Copy(LDate,5,2),0);
+     LDay := IndyStrToInt(Copy(LDate,5,2),0);
      Result := (LDay > 0) and (LDay<32);
      if not result then
      begin
        Exit;
      end;
-     LHour := Sys.StrToInt(Copy(LBuf,1,2),0);
+     LHour := IndyStrToInt(Copy(LBuf,1,2),0);
      Result := (LHour > 0) and (LHour<25);
      if not result then
      begin
        Exit;
      end;
-     LMin := Sys.StrToInt(Copy(LBuf,3,2),0);
+     LMin := IndyStrToInt(Copy(LBuf,3,2),0);
      Result := (LMin < 60);
    end;
 
@@ -297,7 +298,7 @@ begin
         LBuf := AListing[0];
         Fetch(LBuf,'>');
         StripPlus(LBuf);
-        LBuf := Sys.TrimLeft(LBuf);
+        LBuf := TrimLeft(LBuf);
         if IsValidDate(Fetch(LBuf)) then
         begin
           LBuf2 := RightStr(LBuf,7);
@@ -353,32 +354,32 @@ begin
   LBuf := AItem.Data;
   LI.OwnerName := Fetch(LBuf);
   //8 digit batch - skip
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   Fetch(LBuf);
   //size
-  LBuf := Sys.TrimLeft(LBuf);
-  LI.Size := Sys.StrToInt64( Fetch(LBuf),0);
+  LBuf := TrimLeft(LBuf);
+  LI.Size := IndyStrToInt64( Fetch(LBuf),0);
   //filename
   Fetch(LBuf,'<');
   LI.FileName := Fetch(LBuf,'>');
   Self.StripPlus(LBuf);
   //date
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //since we aren't going to do anything else after the date,
   //we should process as a string;
   //Date format:  990926-1431
   LBuf := Copy(LBuf,1,11);
-  LYear := Sys.StrToInt(Copy(LBuf,1,2),0);
+  LYear := IndyStrToInt(Copy(LBuf,1,2),0);
   LYear := Y2Year( LYear);
-  LMonth := Sys.StrToInt(Copy(LBuf,3,2),0);
-  LDay := Sys.StrToInt(Copy(LBuf,5,2),0);
+  LMonth := IndyStrToInt(Copy(LBuf,3,2),0);
+  LDay := IndyStrToInt(Copy(LBuf,5,2),0);
   //  got the date
   StripPlus(LBuf);
   Fetch(LBuf,'-');
-  LI.ModifiedDate := Sys.EncodeDate(LYear,LMonth,LDay);
-  LHour := Sys.StrToInt(Copy(LBuf,1,2),0);
-  LMin := Sys.StrToInt(Copy(LBuf,3,2),0);
-  LI.ModifiedDate := LI.ModifiedDate + Sys.EncodeTime(LHour,LMin,0,0);
+  LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
+  LHour := IndyStrToInt(Copy(LBuf,1,2),0);
+  LMin := IndyStrToInt(Copy(LBuf,3,2),0);
+  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(LHour,LMin,0,0);
   Result := True;
 end;
 
@@ -392,7 +393,7 @@ end;
 
 { TIdFTPLPSterCommEntUxRoot }
 
-class function TIdFTPLPSterCommEntUxRoot.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPSterCommEntUxRoot.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuf : String;
 begin
@@ -468,7 +469,7 @@ end;
 class function TIdFTPLPSterComEntBase.IsFooter(const AData: String): Boolean;
 var LData : String;
 begin
-  LData :=  Sys.UpperCase(AData);
+  LData :=  UpperCase(AData);
   Result := (IndyPos('TOTAL NUMBER OF ', LData) > 0) and  {do not localize}
     (IndyPos(' BATCH', LData) > 0) and (IndyPos('LISTED:', LData) > 0); {do not localize}
 

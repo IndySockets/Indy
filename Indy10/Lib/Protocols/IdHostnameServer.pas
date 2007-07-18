@@ -43,7 +43,6 @@ interface
 }
 
 uses
-  IdObjs,
   IdAssignedNumbers,
   IdContext,
   IdCustomTCPServer;
@@ -97,8 +96,7 @@ implementation
 
 uses
   IdGlobalCore,
-  IdGlobal,
-  IdSys;
+  IdGlobal;
 
 procedure TIdHostNameServer.InitComponent;
 begin

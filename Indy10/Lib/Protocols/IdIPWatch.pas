@@ -67,7 +67,8 @@ unit IdIPWatch;
 interface
 
 uses
-  IdComponent, IdThread, IdObjs;
+  Classes,
+  IdComponent, IdThread;
 
 const
   IP_WATCH_HIST_MAX = 25;
@@ -79,7 +80,7 @@ type
   protected
     FInterval: Integer;
     FSender: TObject;
-    FTimerEvent: TIdNotifyEvent;
+    FTimerEvent: TNotifyEvent;
     //
     procedure Run; override;
     procedure TimerEvent;
@@ -91,12 +92,12 @@ type
     FCurrentIP: string;
     FHistoryEnabled: Boolean;
     FHistoryFilename: string;
-    FIPHistoryList: TIdStringList;
+    FIPHistoryList: TStringList;
     FIsOnline: Boolean;
     FLocalIPHuntBusy: Boolean;
     FMaxHistoryEntries: Integer;
     FOnLineCount: Integer;
-    FOnStatusChanged: TIdNotifyEvent;
+    FOnStatusChanged: TNotifyEvent;
     FPreviousIP: string;
     FThread: TIdIPWatchThread;
     FWatchInterval: Cardinal;
@@ -115,7 +116,7 @@ type
     procedure SaveHistory;
     //
     property CurrentIP: string read FCurrentIP;
-    property IPHistoryList: TIdStringList read FIPHistoryList;
+    property IPHistoryList: TStringList read FIPHistoryList;
     property IsOnline: Boolean read FIsOnline;
     property PreviousIP: string read FPreviousIP;
   published
@@ -124,7 +125,7 @@ type
     property HistoryFilename: string read FHistoryFilename write FHistoryFilename;
     property MaxHistoryEntries: Integer read FMaxHistoryEntries write SetMaxHistoryEntries
      default IP_WATCH_HIST_MAX;
-    property OnStatusChanged: TIdNotifyEvent read FOnStatusChanged write FOnStatusChanged;
+    property OnStatusChanged: TNotifyEvent read FOnStatusChanged write FOnStatusChanged;
     property WatchInterval: Cardinal read FWatchInterval write SetWatchInterval
      default IP_WATCH_INTERVAL;
   end;
@@ -132,7 +133,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdStack, IdSys;
+  IdGlobal, IdStack, SysUtils;
 
 { TIdIPWatch }
 
@@ -227,7 +228,7 @@ end;
 procedure TIdIPWatch.InitComponent;
 begin
   inherited;
-  FIPHistoryList := TIdStringList.Create;
+  FIPHistoryList := TStringList.Create;
   FIsOnLine := False;
   FOnLineCount := 0;
   FWatchInterval := IP_WATCH_INTERVAL;
@@ -262,7 +263,7 @@ procedure TIdIPWatch.LoadHistory;
 begin
   if not IsDesignTime then begin
     FIPHistoryList.Clear;
-    if Sys.FileExists(FHistoryFilename) and FHistoryEnabled then
+    if FileExists(FHistoryFilename) and FHistoryEnabled then
     begin
       FIPHistoryList.LoadFromFile(FHistoryFileName);
       if FIPHistoryList.Count > 0 then
@@ -306,7 +307,7 @@ begin
       end else begin
         if FThread <> nil then begin
           FThread.TerminateAndWaitFor;
-          Sys.FreeAndNil(FThread);
+          FreeAndNil(FThread);
         end;
       end;
     end;

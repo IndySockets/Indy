@@ -31,7 +31,8 @@ unit IdFTPListParseSuperTCP;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase;
 
 type
   TIdSuperTCPFTPListItem = class(TIdFTPListItem)
@@ -48,17 +49,17 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdFTPLPSuperTCP }
 
-class function TIdFTPLPSuperTCP.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPSuperTCP.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 {
 Maybe like this:
@@ -94,7 +95,7 @@ begin
     begin
       Exit;
     end;
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     //<DIR> or file size
     LBuf2 := Fetch(LBuf);
     Result := (LBuf2='<DIR>') or IsNumeric(LBuf2);   {Do not localize}
@@ -103,13 +104,13 @@ begin
       Exit;
     end;
     //date
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
     Result := IsMMDDYY(LBuf2,'/') or IsMMDDYY(LBuf2,'-');
     if Result then
     begin
       //time
-      LBuf := Sys.TrimLeft(LBuf);
+      LBuf := TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
       Result := IsHHMMSS(LBuf2,':');
     end;
@@ -235,7 +236,7 @@ begin
   LBuf2 :=  Fetch(LBuf);
   LI.FileName := LBuf2;
   LI.ShortFileName := LBuf2;
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //<DIR> or file size
   LBuf2 := Fetch(LBuf);
   if LBuf2 = '<DIR>' then   {Do not localize}
@@ -251,10 +252,10 @@ begin
     begin
       Exit;
     end;
-    LI.Size := Sys.StrToInt64(LBuf2,0);
+    LI.Size := IndyStrToInt64(LBuf2,0);
   end;
   //date
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   if IsMMDDYY(LBuf2,'/') or IsMMDDYY(LBuf2,'-') then
   begin
@@ -266,7 +267,7 @@ begin
     Exit;
   end;
   //time
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
   Result := IsHHMMSS(LBuf2,':');
   if Result then

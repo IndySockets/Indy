@@ -43,8 +43,9 @@ unit IdFTPListParseVSE;
 interface
 
 uses
+  Classes,
   IdFTPCommon,
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs, IdSys;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdVSERootDirFTPListItem = class(TIdMinimalFTPListItem);
@@ -70,9 +71,9 @@ type
   TIdVSESubLibraryFTPListItem = class(TIdVSELibraryFTPListItem)
   protected
     FNumberRecs : Integer;
-    FCreationDate: TIdDateTime;
+    FCreationDate: TDateTime;
   public
-    property CreationDate: TIdDateTime read FCreationDate write FCreationDate;
+    property CreationDate: TDateTime read FCreationDate write FCreationDate;
     property  NumberRecs : Integer read  FNumberRecs write  FNumberRecs;
   end;
 
@@ -82,7 +83,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
   TIdVSEVSAMCatalogFTPListItem = class(TIdFTPListItem);
@@ -93,7 +94,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
   TIdFTPLPVSELibrary = class(TIdFTPListBase)
@@ -102,7 +103,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
   TIdFTPLPVSEVSAMCatalog = class(TIdFTPListBase)
@@ -111,12 +112,12 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
   TIdVSEVTOCFTPListItem = class(TIdFTPListItem)
   public
-  constructor Create(AOwner: TIdCollection); override;
+  constructor Create(AOwner: TCollection); override;
   end;
 
   TIdFTPLPVSEVTOC = class(TIdFTPListBase)
@@ -125,7 +126,7 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
   TIdFTPLPVSEPowerQueue = class(TIdFTPListBase)
@@ -134,17 +135,17 @@ type
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPVSERootDir }
 
-class function TIdFTPLPVSERootDir.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSERootDir.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuffer : String;
 begin
@@ -152,7 +153,7 @@ begin
   begin
     LBuffer := AListing[0];
     Fetch(LBuffer);
-    LBuffer := Sys.Trim(LBuffer);
+    LBuffer := Trim(LBuffer);
     Result := (PosInStrArray(LBuffer,VSERootDirItemTypes) > -1);
   end
   else
@@ -183,7 +184,7 @@ begin
   LBuffer := AItem.Data;
 
   AItem.FileName := Fetch(LBuffer);
-  LBuffer := Sys.Trim(LBuffer);
+  LBuffer := Trim(LBuffer);
   case PosInStrArray(LBuffer,VSERootDirItemTypes) of
     5 : AItem.ItemType := ditFile;
   else
@@ -194,7 +195,7 @@ end;
 
 { TIdFTPLPVSEVTOC }
 
-class function TIdFTPLPVSEVTOC.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSEVTOC.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
   //S for Sequential
   //D for BDAM
@@ -202,14 +203,14 @@ class function TIdFTPLPVSEVTOC.CheckListing(AListing: TIdStrings;
   //I for ISAM
   //U for Undefined
   const ValidFileTypeSet = 'SDVIU'; {Do not translate}
-var s : TIdStrings;
+var s : TStrings;
   LData : String;
 begin
   Result := False;
   if AListing.Count >0 then
   begin
     LData := AListing[0];
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(LData,s);
       if (s.Count = 5) then
@@ -217,7 +218,7 @@ begin
         Result := (IndyPos(s[4],ValidFileTypeSet)>0) and (IsNumeric(s[3]));
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end
   else
@@ -247,32 +248,32 @@ class function TIdFTPLPVSEVTOC.ParseLine(const AItem: TIdFTPListItem;
 // 4 - file type (S for Sequential, D for BDAM, V for VSAM, I for ISAM, U for Undefined)
 
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
 begin
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(AItem.Data),LCols);
+    SplitColumns(Trim(AItem.Data),LCols);
     AItem.FileName := LCols[0];
     AItem.ModifiedDate := DateYYMMDD(LCols[1]);
     AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
     AItem.ItemType := ditFile;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdFTPLPVSEPowerQueue }
 
-class function TIdFTPLPVSEPowerQueue.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSEPowerQueue.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TIdStrings;
+var s : TStrings;
   LData : String;
 begin
   Result := False;
   if AListing.Count >0 then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       LData := AListing[0];
       SplitColumns(LData,s);
@@ -292,7 +293,7 @@ begin
         end;
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -314,13 +315,13 @@ class function TIdFTPLPVSEPowerQueue.ParseLine(const AItem: TIdFTPListItem;
 //URL: http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf
 
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdVSEPowerQueueFTPListItem;
 begin
   LI := AItem as TIdVSEPowerQueueFTPListItem;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(AItem.Data),LCols);
+    SplitColumns(Trim(AItem.Data),LCols);
     //0 - Job name, job number, and job suffix. This information is contained in
     //   one string, with the three subfields separated by dots.
     //1 - records in file
@@ -336,12 +337,12 @@ begin
     end;
     if LCols.Count >1 then
     begin
-      LI.Size := Sys.StrToInt(LCols[1],0);
+      LI.Size := IndyStrToInt(LCols[1],0);
       LI.NumberRecs := AItem.Size;
     end;
     if (LCols.Count > 4) then
     begin
-      LI.VSEPQPriority := Sys.StrToInt(LCols[4],0);
+      LI.VSEPQPriority := IndyStrToInt(LCols[4],0);
     end;
     if (LCols.Count > 5) and (LCols[5]<>'') then
     begin
@@ -353,28 +354,28 @@ begin
     end;
     LI.ItemType := ditFile;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdFTPLPVSEVSAMCatalog }
 
-class function TIdFTPLPVSEVSAMCatalog.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSEVSAMCatalog.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
   //E for ESDS
   //K for KSDS
   //R for RRDS
 const ValidFileTypeSet = 'EKR'; {do not localize}
-var s : TIdStrings;
+var s : TStrings;
     LData : String;
 begin
   Result := False;
   if AListing.Count >0 then
   begin
     LData := AListing[0];
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       SplitColumns(LData,s);
       if (s.Count = 5) then
@@ -382,7 +383,7 @@ begin
         Result := (IndyPos(s[4],ValidFileTypeSet)>0) and (IsNumeric(s[3]));
       end;
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
   end;
 end;
@@ -410,27 +411,27 @@ class function TIdFTPLPVSEVSAMCatalog.ParseLine(
 // 3 - Number of records (might be reported in Unix emulation mode as size)
 // 4 - file type (E for ESDS,  K for KSDS,   R for RRDS)
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdVSEVSAMCatalogFTPListItem;
 begin
   LI := AItem as TIdVSEVSAMCatalogFTPListItem;
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(AItem.Data),LCols);
+    SplitColumns(Trim(AItem.Data),LCols);
     LI.FileName := LCols[0];
     LI.ModifiedDate := DateYYMMDD(LCols[1]);
     LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
-    LI.Size := Sys.StrToInt64(LCols[3],0);
+    LI.Size := IndyStrToInt64(LCols[3],0);
     LI.ItemType := ditFile;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdFTPLPVSELibrary }
 
-class function TIdFTPLPVSELibrary.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSELibrary.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var LBuffer : String;
 begin
@@ -438,7 +439,7 @@ begin
   begin
     LBuffer := AListing[0];
     Fetch(LBuffer);
-    LBuffer := Sys.TrimLeft(LBuffer);
+    LBuffer := TrimLeft(LBuffer);
     LBuffer := Fetch(LBuffer,'>')+'>';
     Result := LBuffer = '<Sub Library>';  //Note that for Libraries, this  {Do not translate}
     //is always <Sub Library>
@@ -466,7 +467,7 @@ var
   LBuffer : String;
 //Based on: TCP/IP for VSE User's Guide Version 1 Release 4.0A
 //URL: http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdVSELibraryFTPListItem;
 begin
   LI := AItem as TIdVSELibraryFTPListItem;
@@ -474,20 +475,20 @@ begin
 
   AItem.FileName := Fetch(LBuffer);
   Fetch(LBuffer,'>');  //This is always <Sub Library>
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(LBuffer),LCols);
+    SplitColumns(Trim(LBuffer),LCols);
     //0 - number of members - used as file size when emulating Unix, I think
     //1 - number of blocks
     //2 - date
     //3 - time
     if LCols.Count > 0 then
     begin
-      LI.Size := Sys.StrToInt64(LCols[0],0);
+      LI.Size := IndyStrToInt64(LCols[0],0);
     end;
     if LCols.Count > 1 then
     begin
-      LI.NumberBlocks := Sys.StrToInt(LCols[1],0);
+      LI.NumberBlocks := IndyStrToInt(LCols[1],0);
     end;
     if LCols.Count > 2 then
     begin
@@ -500,20 +501,20 @@ begin
     //sublibraries are always types of directories
     LI.ItemType := ditDirectory;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdFTPLPVSESubLibrary }
 
-class function TIdFTPLPVSESubLibrary.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPVSESubLibrary.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 
 const ValidEntry : array [0..1] of string = (' F',' S');  {Do not translate}
       VSE_SUBLIBTYPES = 'F'+  //fixed
                            'S';  //string
-var s : TIdStrings;
+var s : TStrings;
     LData : String;
 begin
   if AListing.Count > 0 then
@@ -523,13 +524,13 @@ begin
       ( PosInStrArray( Copy(LData,Length(LData)-1,2),ValidEntry) > -1);
     if Result then
     begin
-      s := TIdStringList.Create;
+      s := TStringList.Create;
       try
         SplitColumns(LData,s);
         Result := (s.Count > 4) and (IndyPos('/',s[3])>0) and (IndyPos(':',s[4])>0)
           and (CharIsInSet(s[s.Count -1], 1, VSE_SUBLIBTYPES));
       finally
-        Sys.FreeAndNil(s);
+        FreeAndNil(s);
       end;
     end;
   end
@@ -556,7 +557,7 @@ var
   LBuffer : String;
 //Based on: TCP/IP for VSE User's Guide Version 1 Release 4.0A
 //URL: http://publibz.boulder.ibm.com/epubs/pdf/iestcu02.pdf
-  LCols : TIdStrings;
+  LCols : TStrings;
   LI : TIdVSESubLibraryFTPListItem;
 begin
   LI := AItem as TIdVSESubLibraryFTPListItem;
@@ -567,9 +568,9 @@ begin
     Exit;
   end;
   LBuffer := Copy(LBuffer,1,Length(LBuffer)-1);
-  LCols := TIdStringList.Create;
+  LCols := TStringList.Create;
   try
-    SplitColumns(Sys.Trim(LBuffer),LCols);
+    SplitColumns(Trim(LBuffer),LCols);
     //0 - file name
     //1 - records in file - might be reported as size in Unix emulation
     //2 - number of library blocks
@@ -584,12 +585,12 @@ begin
     end;
     if LCols.Count >1 then
     begin
-      LI.Size := Sys.StrToInt64(LCols[1],0);
+      LI.Size := IndyStrToInt64(LCols[1],0);
       LI.NumberRecs := AItem.Size;
     end;
     if LCols.Count > 2 then
     begin
-      LI.NumberBlocks := Sys.StrToInt(LCols[2],0);
+      LI.NumberBlocks := IndyStrToInt(LCols[2],0);
     end;
     //creation time
       if LCols.Count >3 then
@@ -620,14 +621,14 @@ begin
       end;
      AItem.ItemType := ditFile;
   finally
-    Sys.FreeAndNil(LCols);
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 { TIdVSEVTOCFTPListItem }
 
-constructor TIdVSEVTOCFTPListItem.Create(AOwner: TIdCollection);
+constructor TIdVSEVTOCFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   SizeAvail := False;

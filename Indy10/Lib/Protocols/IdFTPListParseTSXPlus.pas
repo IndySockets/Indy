@@ -35,7 +35,8 @@ unit IdFTPListParseTSXPlus;
 interface
 
 uses
-  IdFTPList, IdFTPListParseBase, IdFTPListTypes, IdObjs;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdTSXPlusFTPListItem = class(TIdMinimalFTPListItem)
@@ -51,16 +52,16 @@ type
     class function IsFooter(const AData : String): Boolean; override;
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
   public
-    class function CheckListing(AListing : TIdStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
     class function GetIdent : String; override;
   end;
 
 implementation
-uses IdFTPCommon, IdGlobal, IdSys;
+uses IdFTPCommon, IdGlobal, SysUtils;
 
 { TIdFTPLPTSXPlus }
 
-class function TIdFTPLPTSXPlus.CheckListing(AListing: TIdStrings;
+class function TIdFTPLPTSXPlus.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 var i : Integer;
 begin
@@ -98,7 +99,7 @@ begin
   begin
     Exit;
   end;
-  LPart := Sys.TrimRight(LPart);
+  LPart := TrimRight(LPart);
   if LPart = 'Directory' then {do not localize}
   begin
     Fetch(LBuf,']');
@@ -106,7 +107,7 @@ begin
     begin
       Exit;
     end;
-    LBuf := Sys.TrimLeft(LBuf);
+    LBuf := TrimLeft(LBuf);
     if (Copy(LBuf,1,1)='/') then
     begin
       IdGlobal.IdDelete(LBuf,1,1);
@@ -146,7 +147,7 @@ var LBuf, LExt : String;
     LDir : TIdFTPListItems;
 begin
 
-  LBuf := Sys.TrimLeft(AItem.Data);
+  LBuf := TrimLeft(AItem.Data);
   AItem.FileName := Fetch(LBuf,'.');
   LExt := Fetch(LBuf);
   if LExt = 'dsk' then {do not localize}
@@ -158,10 +159,10 @@ begin
     AItem.ItemType := ditFile;
     AItem.FileName := AItem.FileName + '.'+LExt;
   end;
-  LBuf := Sys.TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   //block count
-  (AItem as TIdTSXPlusFTPListItem).NumberBlocks := Sys.StrToInt(Fetch(LBuf),0);
-  LBuf := Sys.TrimRight(LBuf);
+  (AItem as TIdTSXPlusFTPListItem).NumberBlocks := IndyStrToInt(Fetch(LBuf),0);
+  LBuf := TrimRight(LBuf);
   if LBuf<>'' then
   begin
     LDir := AItem.Collection as TIdFTPListItems;

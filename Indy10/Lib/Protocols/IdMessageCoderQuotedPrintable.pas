@@ -46,17 +46,17 @@ interface
 // Written by C Costelloe, 23rd September 2003
 
 uses
+  Classes,
   IdMessageCoder,
   IdMessage,
-  IdGlobal, IdObjs,
-  IdSys;
+  IdGlobal;
 
 { Note: Decoding handled by IdMessageDecoderMIME }
 
 type
   TIdMessageEncoderQuotedPrintable = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
+    procedure Encode(ASrc: TStream; ADest: TStream); override;
   end;
 
   TIdMessageEncoderInfoQuotedPrintable = class(TIdMessageEncoderInfo)
@@ -68,7 +68,7 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings, IdCoderQuotedPrintable,
-  IdCoderHeader;
+  IdCoderHeader, SysUtils;
 
 { TIdMessageEncoderInfoQuotedPrintable }
 
@@ -80,13 +80,13 @@ end;
 
 { TIdMessageEncoderQuotedPrintable }
 
-procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TIdStream; ADest: TIdStream);
+procedure TIdMessageEncoderQuotedPrintable.Encode(ASrc: TStream; ADest: TStream);
 var
   LEncoder: TIdEncoderQuotedPrintable;
 begin
   LEncoder := TIdEncoderQuotedPrintable.Create(nil); try
     WriteStringToStream(ADest, LEncoder.Encode(ASrc, ASrc.Size));
-  finally Sys.FreeAndNil(LEncoder); end;
+  finally FreeAndNil(LEncoder); end;
 end;
 
 initialization

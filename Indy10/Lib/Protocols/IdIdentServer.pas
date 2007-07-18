@@ -87,7 +87,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdSys;
+  IdGlobal, SysUtils;
 
 { TIdIdentServer }
 
@@ -110,8 +110,8 @@ begin
   end
   else
   begin
-    ServerPort := Sys.StrToInt(Sys.Trim(Fetch(s,',')));    {Do not Localize}
-    ClientPort := Sys.StrToInt(Sys.Trim(s));
+    ServerPort := IndyStrToInt(Fetch(s,','));    {Do not Localize}
+    ClientPort := IndyStrToInt(s);
     If Assigned(FOnIdentQuery) then
       FOnIdentQuery(AContext,ServerPort,ClientPort)
     else
@@ -126,7 +126,7 @@ procedure TIdIdentServer.ReplyError(AContext:TIdContext; AServerPort,
   AClientPort: Integer;  AErr : TIdIdentErrorType);
 var s : String;
 begin
-  s := Sys.IntToStr(AServerPort)+', '+Sys.IntToStr(AClientPort) + ' : ERROR : ';    {Do not Localize}
+  s := IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : ERROR : ';    {Do not Localize}
   case AErr of
     ieInvalidPort : s := s + 'INVALID-PORT';    {Do not Localize}
     ieNoUser : s := s + 'NO-USER';    {Do not Localize}
@@ -140,7 +140,7 @@ procedure TIdIdentServer.ReplyIdent(AContext:TIdContext; AServerPort,
   AClientPort: Integer; AOS, AUserName: String; const ACharset: String);
 var s : String;
 begin
-  s := Sys.IntToStr(AServerPort)+', '+Sys.IntToStr(AClientPort) + ' : USERID : ';    {Do not Localize}
+  s := IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : USERID : ';    {Do not Localize}
   s := s + AOS;
   if Length(ACharset) > 0 then
     s := s + ','+ACharset;    {Do not Localize}
@@ -151,7 +151,7 @@ end;
 procedure TIdIdentServer.ReplyOther(AContext:TIdContext; AServerPort,
   AClientPort: Integer; AOther: String);
 begin
-  AContext.Connection.IOHandler.WriteLn(Sys.IntToStr(AServerPort)+', '+Sys.IntToStr(AClientPort) + ' : USERID : OTHER : '+AOther);    {Do not Localize}
+  AContext.Connection.IOHandler.WriteLn(IntToStr(AServerPort)+', '+IntToStr(AClientPort) + ' : USERID : OTHER : '+AOther);    {Do not Localize}
 end;
 
 end.

@@ -84,7 +84,7 @@ implementation
 
 uses
   IdGlobal, IdException, IdResourceStringsProtocols,
-  IdIOHandlerSocket, IdTCPClient, IdSys;
+  IdIOHandlerSocket, IdTCPClient, SysUtils;
 
 const
   NAMESEP = #0+#9+' :';
@@ -161,8 +161,8 @@ Begin
       LPort := LPort + AHostPort[i];
       Inc(i);
     end;
-    LHost := Sys.TrimRight(LHost);
-    LPort := Sys.TrimLeft(LPort);
+    LHost := TrimRight(LHost);
+    LPort := TrimLeft(LPort);
   end
   else begin
     LHost := '';    {Do not Localize}
@@ -171,7 +171,7 @@ Begin
   DoCheckHostPort(AThread, AHostPort,LHost,LPort);
 
   TIdTcpClient(AThread.OutboundClient).Host := LHost;
-  TIdTcpClient(AThread.OutboundClient).Port := Sys.StrToInt(LPort,TIdTcpClient(AThread.OutboundClient).Port);
+  TIdTcpClient(AThread.OutboundClient).Port := IndyStrToInt(LPort,TIdTcpClient(AThread.OutboundClient).Port);
 End;//ExtractHostAndPortFromLine
 
 procedure TIdMappedTelnetThread.OutboundConnect;
@@ -193,7 +193,7 @@ Begin
         Dec(FAllowedConnectAttempts);
       end;
       try
-        LHostPort := Sys.Trim(Connection.IOHandler.InputLn); //~telnet input
+        LHostPort := Trim(Connection.IOHandler.InputLn); //~telnet input
         ExtractHostAndPortFromLine(SELF,LHostPort);
 
         if Length(TIdTcpClient(FOutboundClient).Host) < 1 then begin

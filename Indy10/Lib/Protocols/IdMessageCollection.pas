@@ -40,14 +40,13 @@ unit IdMessageCollection;
 interface
 
 uses
-  IdMessage,
-  IdObjs,
-  IdSys;
+  Classes,
+  IdMessage;
 
 type
   TIdMessageItems = class of TIdMessageItem;
 
-  TIdMessageItem = class(TIdCollectionItem)
+  TIdMessageItem = class(TCollectionItem)
   protected
     FAttempt: Integer;
     FQueued: Boolean;
@@ -56,11 +55,11 @@ type
     //
     property Attempt: Integer read FAttempt write FAttempt;
     property Queued: Boolean read FQueued write FQueued;
-    constructor Create(Collection: TIdCollection); override;
+    constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
   end;
 
-  TIdMessageCollection = class(TIdCollection)
+  TIdMessageCollection = class(TCollection)
   private
     function GetIdMessage(index: Integer): TIdMessage;
     procedure SetIdMessage(index: Integer; const Value: TIdMessage);
@@ -72,7 +71,7 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 function TIdMessageCollection.Add;
 begin
@@ -89,7 +88,7 @@ end;
 
 destructor TIdMessageItem.Destroy;
 begin
-  Sys.FreeAndNil(Msg);
+  FreeAndNil(Msg);
   inherited;
 end;
 

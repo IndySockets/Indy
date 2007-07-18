@@ -78,13 +78,13 @@ type
 implementation
 
 uses
+  Classes,
   IdGlobal,
   IdHash,
   IdHashMessageDigest,
   IdHashSHA1,
-  IdObjs,
   IdResourceStringsProtocols,
-  IdSys;
+  SysUtils;
 
 const
   Dictionary: array[0..2047] of string = (
@@ -390,7 +390,7 @@ end;
 
 class function TIdOTPCalculator.ToHex(const AKey: Int64): string;
 begin
-  Result := Sys.IntToHex(AKey, 16);
+  Result := IntToHex(AKey, 16);
 end;
 
 class function TIdOTPCalculator.ToSixWordFormat(const AKey: Int64): string;
@@ -424,7 +424,7 @@ var
 begin
   LMD4 := TIdHashMessageDigest4.Create;
   try
-    L64Bit := Hash4ToInt64(LMD4.HashString(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash4ToInt64(LMD4.HashString(LowerCase(ASeed) + APassword));
 
     SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
@@ -442,7 +442,7 @@ begin
       L64Bit := Hash4ToInt64(LMD4.HashBytes(LTmpBytes));
     end;
   finally
-    Sys.FreeAndNil(LMD4);
+    FreeAndNil(LMD4);
   end;
   Result := ReverseEndian(L64Bit);
 end;
@@ -457,7 +457,7 @@ var
 begin
   LMD5 := TIdHashMessageDigest5.Create;
   try
-    L64Bit := Hash4ToInt64(LMD5.HashString(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash4ToInt64(LMD5.HashString(LowerCase(ASeed) + APassword));
 
     SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
@@ -475,7 +475,7 @@ begin
       L64Bit := Hash4ToInt64(LMD5.HashBytes(LTmpBytes));
     end;
   finally
-    Sys.FreeAndNil(LMD5);
+    FreeAndNil(LMD5);
   end;
   Result := ReverseEndian(L64Bit);
 end;
@@ -490,7 +490,7 @@ var
 begin
   LSHA1 := TIdHashSHA1.Create;
   try
-    L64Bit := Hash5ToInt64(LSHA1.HashString(Sys.LowerCase(ASeed) + APassword));
+    L64Bit := Hash5ToInt64(LSHA1.HashString(LowerCase(ASeed) + APassword));
 
     SetLength(LTmpBytes, SizeOf(LongWord)*2);
 
@@ -506,7 +506,7 @@ begin
       L64Bit := Hash5ToInt64(LSHA1.HashBytes(LTmpBytes));
     end;
   finally
-    Sys.FreeAndNil(LSHA1);
+    FreeAndNil(LSHA1);
   end;
   Result := L64Bit;
 end;
@@ -524,7 +524,7 @@ begin
     Inc(LChallengeStartPos, 4); // to remove "otp-"
     LChallenge := Copy(AStr, LChallengeStartPos, $FFFF);
     LMethod := Fetch(LChallenge);
-    LCount := Sys.StrToInt(Fetch(LChallenge));
+    LCount := IndyStrToInt(Fetch(LChallenge));
     LSeed := Fetch(LChallenge);
     VKey := GenerateSixWordKey(LMethod, LSeed, APassword, LCount);
     Result := True;

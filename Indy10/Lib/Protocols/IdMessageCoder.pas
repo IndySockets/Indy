@@ -70,12 +70,11 @@ unit IdMessageCoder;
 interface
 
 uses
+  Classes,
   IdComponent,
   IdGlobal,
   IdMessage,
-  IdSys,
-  IdBaseComponent,
-  IdObjs;
+  IdBaseComponent;
 
 type
   TIdMessageCoderPartType = (mcptUnknown, mcptText, mcptAttachment);
@@ -85,12 +84,12 @@ type
     FFilename: string;
     FFreeSourceStream: Boolean;
     // Dont use TIdHeaderList for FHeaders - we dont know that they will all be like MIME.
-    FHeaders: TIdStrings;
+    FHeaders: TStrings;
     FPartType: TIdMessageCoderPartType;
-    FSourceStream: TIdStream;
+    FSourceStream: TStream;
     procedure InitComponent; override;
   public
-    function ReadBody(ADestStream: TIdStream; var AMsgEnd: Boolean): TIdMessageDecoder; virtual; abstract;
+    function ReadBody(ADestStream: TStream; var AMsgEnd: Boolean): TIdMessageDecoder; virtual; abstract;
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
@@ -101,9 +100,9 @@ type
     //
     property Filename: string read FFilename;
     property FreeSourceStream: Boolean read FFreeSourceStream write FFreeSourceStream;
-    property Headers: TIdStrings read FHeaders;
+    property Headers: TStrings read FHeaders;
     property PartType: TIdMessageCoderPartType read FPartType;
-    property SourceStream: TIdStream read FSourceStream write FSourceStream;
+    property SourceStream: TStream read FSourceStream write FSourceStream;
   end;
 
   TIdMessageDecoderInfo = class
@@ -115,7 +114,7 @@ type
 
   TIdMessageDecoderList = class
   protected
-    FMessageCoders: TIdStringList;
+    FMessageCoders: TStringList;
   public
     class function ByName(const AName: string): TIdMessageDecoderInfo;
     class function CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
@@ -132,8 +131,8 @@ type
     //
     procedure InitComponent; override;
   public
-    procedure Encode(const AFilename: string; ADest: TIdStream); overload;
-    procedure Encode(ASrc: TIdStream; ADest: TIdStream); overload; virtual; abstract;
+    procedure Encode(const AFilename: string; ADest: TStream); overload;
+    procedure Encode(ASrc: TStream; ADest: TStream); overload; virtual; abstract;
   published
     property Filename: string read FFilename write FFilename;
     property PermissionCode: integer read FPermissionCode write FPermissionCode;
@@ -153,7 +152,7 @@ type
 
   TIdMessageEncoderList = class
   protected
-    FMessageCoders: TIdStringList;
+    FMessageCoders: TStringList;
   public
     class function ByName(const AName: string): TIdMessageEncoderInfo;
     constructor Create;
@@ -166,7 +165,7 @@ implementation
 
 uses
   IdException, IdResourceStringsProtocols,
-  IdTCPStream;
+  IdTCPStream, SysUtils;
 
 var
   GMessageDecoderList: TIdMessageDecoderList = nil;
@@ -201,7 +200,7 @@ end;
 constructor TIdMessageDecoderList.Create;
 begin
   inherited;
-  FMessageCoders := TIdStringList.Create;
+  FMessageCoders := TStringList.Create;
 end;
 
 destructor TIdMessageDecoderList.Destroy;
@@ -211,7 +210,7 @@ begin
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageDecoderInfo(FMessageCoders.Objects[i]).Free;
   end;
-  Sys.FreeAndNil(FMessageCoders);
+  FreeAndNil(FMessageCoders);
   inherited;
 end;
 
@@ -237,14 +236,14 @@ procedure TIdMessageDecoder.InitComponent;
 begin
   inherited;
   FFreeSourceStream := True;
-  FHeaders := TIdStringList.Create;
+  FHeaders := TStringList.Create;
 end;
 
 destructor TIdMessageDecoder.Destroy;
 begin
-  Sys.FreeAndNil(FHeaders);
+  FreeAndNil(FHeaders);
   if FFreeSourceStream then begin
-    Sys.FreeAndNil(FSourceStream);
+    FreeAndNil(FSourceStream);
   end else begin
     FSourceStream := nil;
   end;
@@ -312,7 +311,7 @@ end;
 constructor TIdMessageEncoderList.Create;
 begin
   inherited;
-  FMessageCoders := TIdStringList.Create;
+  FMessageCoders := TStringList.Create;
 end;
 
 destructor TIdMessageEncoderList.Destroy;
@@ -322,7 +321,7 @@ begin
   for i := 0 to FMessageCoders.Count - 1 do begin
     TIdMessageEncoderInfo(FMessageCoders.Objects[i]).Free;
   end;
-  Sys.FreeAndNil(FMessageCoders);
+  FreeAndNil(FMessageCoders);
   inherited;
 end;
 
@@ -337,13 +336,13 @@ end;
 
 { TIdMessageEncoder }
 
-procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TIdStream);
+procedure TIdMessageEncoder.Encode(const AFilename: string; ADest: TStream);
 var
-  LSrcStream: TIdStream;
+  LSrcStream: TStream;
 begin
   LSrcStream := TIdReadFileExclusiveStream.Create(AFileName); try
     Encode(LSrcStream, ADest);
-  finally Sys.FreeAndNil(LSrcStream); end;
+  finally FreeAndNil(LSrcStream); end;
 end;
 
 procedure TIdMessageEncoder.InitComponent;
@@ -354,6 +353,6 @@ end;
 
 initialization
 finalization
-  Sys.FreeAndNil(GMessageDecoderList);
-  Sys.FreeAndNil(GMessageEncoderList);
+  FreeAndNil(GMessageDecoderList);
+  FreeAndNil(GMessageEncoderList);
 end.

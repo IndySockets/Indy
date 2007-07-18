@@ -60,7 +60,7 @@ function FileNameUnixToOS9(const AUnixFileName : String) : String;
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdSys;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 function EnsureValidCharsByValidSet(const AFilePart, AValidChars : String; const  AReplaceWith : String='_'): String;
 var i : Integer;
@@ -117,8 +117,8 @@ See:  http://www.uh.edu/infotech/services/documentation/vms/v0505.html
 var   VMS_Valid_Chars : String;
 begin
   VMS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_-$';
-  //VMS is case insensitive - Sys.UpperCase to simplify processing
-  Result := Sys.UpperCase(AUnixFileName);
+  //VMS is case insensitive - UpperCase to simplify processing
+  Result := UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFExt := Fetch(Result,'.');
   LFExt := Fetch(LFExt,';');
@@ -144,12 +144,12 @@ begin
   //IDABOUT.PAS;3.
   Result := Fetch(Result,';');
   //VMS is case insensitive
-  Result := Sys.LowerCase(AVMSFileName);
+  Result := LowerCase(AVMSFileName);
 end;
 
 function FileNameMSDOSToUnix(const AMSDOSFileName : String) : String;
 begin
-  Result := Sys.LowerCase(AMSDOSFileName);
+  Result := LowerCase(AMSDOSFileName);
 end;
 
 function FileNameUnixToMSDOS(const AUnixFileName : String):String;
@@ -167,7 +167,7 @@ var LFName, LFExt : String;
 var   MSDOS_Valid_Chars : String;
 begin
   MSDOS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_$~!#%&-{}()@'''+#180;
-  Result := Sys.UpperCase(AUnixFileName);
+  Result := UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := Copy(LFName,1,8);
   LFName := EnsureValidCharsByValidSet(LFExt,MSDOS_Valid_Chars);
@@ -201,7 +201,7 @@ function FileNameWin32ToUnix(const AWin32FileName : String): String;
 //from http://linux-ntfs.sourceforge.net/ntfs/concepts/filename_namespace.html
 //const UNIX_INVALID_CHARS : TIdValidChars = [#0,'/'];
 begin
-  Result := Sys.LowerCase(AWin32FileName);
+  Result := LowerCase(AWin32FileName);
 end;
 
 function FileNameUnixToVMCMS(const AUnixFileName : String): String;
@@ -218,7 +218,7 @@ var LFName, LFExt : String;
    Valid_VMCMS_Chars : String;
 begin
   Valid_VMCMS_Chars := CharRange('A','Z')+ CharRange('0','9')+'@#$+-:_';
-  Result := Sys.UpperCase(AUnixFileName);
+  Result := UpperCase(AUnixFileName);
   LFName := Fetch(Result,'.');
   LFName := EnsureValidCharsByValidSet(LFExt,VALID_VMCMS_CHARS);
   LFName := Copy(LFName,1,8);
@@ -234,7 +234,7 @@ end;
 
 function FileNameVMCMSToUnix(const AVMCMSFileName : String): String;
 begin
-  Result := Sys.LowerCase(AVMCMSFileName);
+  Result := LowerCase(AVMCMSFileName);
 end;
 
 function FileNameUnixToMUSICSP(const AUnixFileName : String) : String;
@@ -260,7 +260,7 @@ begin
 // note we have to do our vality checks before truncating the length in
 // case we need to replace the default replacement char and the length changes
 // because of that.
-  Result := Sys.UpperCase(AUnixFileName);
+  Result := UpperCase(AUnixFileName);
   Result := EnsureValidCharsByValidSet(Result,VALID_MUSICSP);
   Result := Copy(Result,1,15);
   if Result <> '' then begin
@@ -276,7 +276,7 @@ end;
 
 function FileNameMUSICSPToUnix(const AMUSICSPFileName : String) : String;
 begin
-  Result := Sys.LowerCase(AMUSICSPFileName);
+  Result := LowerCase(AMUSICSPFileName);
 end;
 
 function FileNameUnixToMVS(const AUnixFileName : String; const AUserID : String; const AUseAnotherID : Boolean=False) : String;
@@ -314,7 +314,7 @@ begin
   //where the JPMUGAAS. prefix is implied.
   LMaxLen := MVS_FQN_MAX_LEN - 1 - Length(AUserID);
 
-  LBuf := Sys.UpperCase(AUnixFileName);
+  LBuf := UpperCase(AUnixFileName);
   Result := '';
   repeat
 
@@ -371,7 +371,7 @@ end;
 
 function FileNameMVSToUnix(const AMVSFileName : String) : String;
 begin
-  Result := Sys.LowerCase(AMVSFileName);
+  Result := LowerCase(AMVSFileName);
 end;
 
 {
@@ -393,7 +393,7 @@ var Valid_MPEIX_Start : String;
 begin
 Valid_MPEIX_Start := CharRange('A','Z');
     Valid_MPEIX_FName :=  Valid_MPEIX_Start + CharRange('0','9');
-  Result := Sys.UpperCase(AFilePart);
+  Result := UpperCase(AFilePart);
   if IndyPos('.',Result)>1 then
   begin
     Result := Fetch(Result,'.');

@@ -138,9 +138,10 @@ interface
 }
 
 uses
+  Classes,
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdYarn, IdCommandHandlers, IdException,
   IdGlobal, IdServerIOHandler, IdCmdTCPServer, IdExplicitTLSClientServerBase,
-  IdSys, IdTCPConnection, IdTCPServer, IdObjs, IdReply;
+   IdTCPConnection, IdTCPServer, IdReply;
 
 (*
  For more information on NNTP visit http://www.faqs.org/rfcs/
@@ -215,7 +216,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TIdThreadList = nil
+      AList: TThreadList = nil
       ); override;
     //
     property CurrentArticle: Integer read FCurrentArticle;
@@ -258,8 +259,8 @@ type
   TIdNNTPServer = class(TIdExplicitTLSServer)
   protected
     FImplicitTLS:boolean;
-    FHelp: TIdStrings;
-    FOverviewFormat: TIdStrings;
+    FHelp: TStrings;
+    FOverviewFormat: TStrings;
     FOnArticleByNo: TIdNNTPOnArticleByNo;
     FOnBodyByNo: TIdNNTPOnArticleByNo;
     FOnHeadByNo: TIdNNTPOnArticleByNo;
@@ -315,8 +316,8 @@ type
 
     procedure DoListGroups(AThread: TIdNNTPContext);
     procedure InitializeCommandHandlers; override;
-    procedure SetHelp(AValue: TIdStrings);
-    procedure SetOverviewFormat(AValue: TIdStrings);
+    procedure SetHelp(AValue: TStrings);
+    procedure SetOverviewFormat(AValue: TStrings);
     procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
     procedure SetImplicitTLS(const AValue: Boolean);
     procedure InitComponent; override;
@@ -326,7 +327,7 @@ type
     class function NNTPDateTimeToDateTime(const ATimeStamp: string): TDateTime;
   published
     property DefaultPort default IdPORT_NNTP;
-    property Help: TIdStrings read FHelp write SetHelp;
+    property Help: TStrings read FHelp write SetHelp;
     property OnArticleByNo: TIdNNTPOnArticleByNo read FOnArticleByNo write FOnArticleByNo;
     property OnAuth: TIdNNTPOnAuth read FOnAuth write FOnAuth;
     property OnBodyByNo: TIdNNTPOnArticleByNo read FOnBodyByNo write FOnBodyByNo;
@@ -346,7 +347,7 @@ type
     property OnSelectGroup: TIdNNTPOnSelectGroup read FOnSelectGroup write FOnSelectGroup;
     property OnPost: TIdNNTPOnPost read FOnPost write FOnPost;
     property OnXOver: TIdNNTPOnXOver read FOnXOver write FOnXOver;
-    property OverviewFormat: TIdStrings read FOverviewFormat write SetOverviewFormat;
+    property OverviewFormat: TStrings read FOverviewFormat write SetOverviewFormat;
     property OnXHdr: TIdNNTPOnXHdr read FOnXHdr write FOnXHdr;
     property OnNewNews : TIdNNTPOnNewNews read FOnNewNews write FOnNewNews;
     property OnIHaveCheck : TIdNNTPOnIHaveCheck read FOnIHaveCheck write FOnIHaveCheck;
@@ -360,7 +361,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdReplyRFC,
-  IdSSL;
+  IdSSL, SysUtils;
 
 resourcestring
   RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
@@ -377,18 +378,18 @@ begin
   LTimeStr := ATimeStamp;
   if LTimeStr <> '' then
   begin
-    LHr := Sys.StrToInt(Copy(LTimeStr,1,2),1);
+    LHr := IndyStrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    LMn := Sys.StrToInt(Copy(LTimeStr,1,2),1);
+    LMn := IndyStrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    LSec := Sys.StrToInt(Copy(LTimeStr,1,2),1);
+    LSec := IndyStrToInt(Copy(LTimeStr,1,2),1);
     Delete(LTimeStr,1,2);
-    Result := Sys.EncodeTime(LHr, LMn, LSec,0);
-    LTimeStr := Sys.Trim(LTimeStr);
+    Result := EncodeTime(LHr, LMn, LSec,0);
+    LTimeStr := Trim(LTimeStr);
     if TextIsSame(LTimeStr, 'GMT') then {do not localize}
     begin
       // Apply local offset
-      Result := Result + Sys.OffSetFromUTC;
+      Result := Result + OffSetFromUTC;
     end;
   end;
 end;
@@ -405,18 +406,18 @@ begin
     LDateStr := Fetch(LTimeStr);
     if (Length(LDateStr) > 6) then begin
       //four digit year, good idea - IMAO
-      LYr := Sys.StrToInt(Copy(LDateStr,1,4),1969);
+      LYr := IndyStrToInt(Copy(LDateStr,1,4),1969);
       Delete(LDateStr,1,4);
     end else begin
-      LYr := Sys.StrToInt(Copy(LDateStr,1,2),69);
+      LYr := IndyStrToInt(Copy(LDateStr,1,2),69);
       Delete(LDateStr,1,2);
       LYr := LYr + 2000;
     end;
-    LMo := Sys.StrToInt(Copy(LDateStr,1,2),1);
+    LMo := IndyStrToInt(Copy(LDateStr,1,2),1);
     Delete(LDateStr,1,2);
-    LDay := Sys.StrToInt(Copy(LDateStr,1,2),1);
+    LDay := IndyStrToInt(Copy(LDateStr,1,2),1);
     Delete(LDateStr,1,2);
-    Result := Sys.EncodeDate(LYr, LMo, LDay) + NNTPTimeToTime(LTimeStr);
+    Result := EncodeDate(LYr, LMo, LDay) + NNTPTimeToTime(LTimeStr);
   end;
 end;
 
@@ -518,10 +519,10 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  if GetMsgNoAndID(LThread, ASender.Reply, Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
   begin
     if Assigned(OnArticleByNo) then begin
-      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID {do not localize}
+      ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID {do not localize}
         + RSNNTPRetreivedArticleFollows);
       ASender.SendReply;
       OnArticleByNo(LThread, LMsgNo);
@@ -545,10 +546,10 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  if GetMsgNoAndID(LThread, ASender.Reply, Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
   begin
     if Assigned(OnBodyByNo) then begin
-      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID  {Do not localize}
+      ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID  {Do not localize}
        + RSNNTPRetreivedBodyFollows);
       ASender.SendReply;
       OnBodyByNo(LThread, LMsgNo);
@@ -561,7 +562,7 @@ end;
 procedure TIdNNTPServer.CommandDate(ASender: TIdCommand);
 begin
   if not SecLayerNeeded(ASender) then begin
-    ASender.Reply.SetReply(111, Sys.FormatDateTime('yyyymmddhhnnss', Sys.Now + TimeZoneBias));  {do not localize}
+    ASender.Reply.SetReply(111, FormatDateTime('yyyymmddhhnnss', Now + TimeZoneBias));  {do not localize}
   end;
 end;
 
@@ -625,7 +626,7 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  LGroup := Sys.Trim(ASender.UnparsedParams);
+  LGroup := Trim(ASender.UnparsedParams);
   LMsgCount := 0;
   LMsgFirst := 0;
   LMsgLast := 0;
@@ -633,7 +634,7 @@ begin
   OnSelectGroup(LThread, LGroup, LMsgCount, LMsgFirst, LMsgLast, LGroupExists);
   if LGroupExists then begin
     LThread.FCurrentGroup := LGroup;
-    ASender.Reply.SetReply(211, Sys.Format('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
+    ASender.Reply.SetReply(211, IndyFormat('%d %d %d %s', [LMsgCount, LMsgFirst, LMsgLast, LGroup]));
   end;
 end;
 
@@ -651,10 +652,10 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  if GetMsgNoAndID(LThread, ASender.Reply, Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+  if GetMsgNoAndID(LThread, ASender.Reply, Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
   begin
     if Assigned(OnHeadByNo) then begin
-      ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {do not localize}
+      ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID +  {do not localize}
         RSNNTPRetreivedHeaderFollows);
       ASender.SendReply;
       OnHeadByNo(LThread, LMsgNo);
@@ -684,7 +685,7 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  LMsgID := Sys.Trim(ASender.UnparsedParams);
+  LMsgID := Trim(ASender.UnparsedParams);
   if TextStartsWith(LMsgID, '<') then begin
     OnIHaveCheck(LThread, LMsgID, LAccept);
     if LAccept then
@@ -722,7 +723,7 @@ begin
   LMsgNo := LThread.CurrentArticle;
   LMsgID := RawNavigate(LThread, OnPrevArticle);
   if LMsgID <> '' then begin
-    ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
+    ASender.Reply.SetReply(223, IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
       RSNTTPArticleRetrievedRequestTextSeparately);
   end else begin
     ASender.Reply.NumericCode := 430;
@@ -802,7 +803,7 @@ begin
     Exit;
   end;
   LThread := TIdNNTPContext(ASender.Context);
-  LGroup := Sys.Trim(ASender.UnparsedParams);
+  LGroup := Trim(ASender.UnparsedParams);
   if Length(LGroup) > 0 then
   begin
     LGroup := LThread.CurrentGroup;
@@ -910,7 +911,7 @@ begin
   begin
     if TextIsSame(ASender.Params[2], 'GMT') then {Do not translate}
     begin
-      LDate := LDate + Sys.OffSetFromUTC;
+      LDate := LDate + OffSetFromUTC;
       if ASender.Params.Count > 3 then
       begin
         LDist := ASender.Params[3];
@@ -954,7 +955,7 @@ begin
   begin
     if TextIsSame(ASender.Params[3], 'GMT') then {Do not translate}
     begin
-      LDate := LDate + Sys.OffSetFromUTC;
+      LDate := LDate + OffSetFromUTC;
       if ASender.Params.Count > 4 then
       begin
         LDist := ASender.Params[4];
@@ -991,7 +992,7 @@ begin
   LMsgNo := LThread.CurrentArticle;
   LMsgID := RawNavigate(LThread, OnNextArticle);
   if LMsgID <> '' then begin
-    ASender.Reply.SetReply(223, Sys.IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
+    ASender.Reply.SetReply(223, IntToStr(LMsgNo) + ' ' + LMsgID + {do not localize}
       RSNTTPArticleRetrievedRequestTextSeparately);
   end else begin
     ASender.Reply.NumericCode := 430;
@@ -1071,7 +1072,7 @@ begin
     ReplyTexts.UpdateText(LReply);
     ASender.Context.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    Sys.FreeAndNil(LReply);
+    FreeAndNil(LReply);
   end;
   if LCanPost then begin
     LPostOk := False;
@@ -1103,9 +1104,9 @@ begin
     Exit;
   end;
   if GetMsgNoAndID(TIdNNTPContext(ASender.Context), ASender.Reply,
-    Sys.Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
+    Trim(ASender.UnparsedParams), LMsgID, LMsgNo) then
   begin
-    ASender.Reply.SetReply(220, Sys.IntToStr(LMsgNo) + ' ' + LMsgID +  {Do not localize}
+    ASender.Reply.SetReply(220, IntToStr(LMsgNo) + ' ' + LMsgID +  {Do not localize}
       RSNNTPRetreivedAStaticstsOnly);
   end;
 end;
@@ -1145,9 +1146,9 @@ begin
     begin
       s := s + ASender.Params[i] + ' ';
     end;
-    s := Sys.Trim(s);
+    s := Trim(s);
 
-    LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
+    LFirstMsg := IndyStrToInt(Trim(Fetch(s, '-')), 0);
     LMsgID := '';
 
     if LFirstMsg = 0 then
@@ -1155,7 +1156,7 @@ begin
       if ASender.Params.Count = 2 then { HEADER MSG-ID }
       begin
         LMsgID := ASender.Params[1];
-        LFirstMsg := Sys.StrToInt(LMsgID, 0);
+        LFirstMsg := IndyStrToInt(LMsgID, 0);
         LLastMsg := LFirstMsg;
       end else
       begin
@@ -1166,7 +1167,7 @@ begin
     begin
       if Pos('-', ASender.UnparsedParams) > 0 then
       begin
-        LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
+        LLastMsg := IndyStrToInt(Trim(s), 0);
       end else
       begin
         LLastMsg := LFirstMsg;
@@ -1273,12 +1274,12 @@ begin
     Exit;
   end;
   s := ASender.UnparsedParams;
-  LFirstMsg := Sys.StrToInt(Sys.Trim(Fetch(s, '-')), 0);
+  LFirstMsg := IndyStrToInt(Trim(Fetch(s, '-')), 0);
   if LFirstMsg = 0 then begin
     LFirstMsg := LThread.CurrentArticle;
     LLastMsg := LFirstMsg;
   end else begin
-    LLastMsg := Sys.StrToInt(Sys.Trim(s), 0);
+    LLastMsg := IndyStrToInt(Trim(s), 0);
   end;
   if LFirstMsg <> 0 then begin
     ASender.Reply.NumericCode := 224;
@@ -1294,9 +1295,9 @@ end;
 procedure TIdNNTPServer.InitComponent;
 begin
   inherited;
-  FHelp := TIdStringList.Create;
+  FHelp := TStringList.Create;
 
-  FOverviewFormat := TIdStringList.Create;
+  FOverviewFormat := TStringList.Create;
   with FOverviewFormat do begin
     Add('Subject:');      {do not localize}
     Add('From:');         {do not localize}
@@ -1327,8 +1328,8 @@ end;
 
 destructor TIdNNTPServer.Destroy;
 begin
-  Sys.FreeAndNil(FOverviewFormat);
-  Sys.FreeAndNil(FHelp);
+  FreeAndNil(FOverviewFormat);
+  FreeAndNil(FHelp);
   inherited;
 end;
 
@@ -1740,7 +1741,7 @@ begin
         Exit;
       end;
     end else begin
-      VMsgNo := Sys.StrToInt(AParam, 0);
+      VMsgNo := IndyStrToInt(AParam, 0);
       if VMsgNo = 0 then begin
         AReply.NumericCode := 430;
         Exit;
@@ -1783,7 +1784,7 @@ begin
   end;
 end;
 
-procedure TIdNNTPServer.SetHelp(AValue: TIdStrings);
+procedure TIdNNTPServer.SetHelp(AValue: TStrings);
 begin
   FHelp.Assign(AValue);
 end;
@@ -1793,7 +1794,7 @@ end;
 constructor TIdNNTPContext.Create(
   AConnection: TIdTCPConnection;
   AYarn: TIdYarn;
-  AList: TIdThreadList = nil
+  AList: TThreadList = nil
   );
 begin
   inherited Create(AConnection, AYarn, AList);
@@ -1808,7 +1809,7 @@ begin
   end;
 end;
 
-procedure TIdNNTPServer.SetOverviewFormat(AValue: TIdStrings);
+procedure TIdNNTPServer.SetOverviewFormat(AValue: TStrings);
 begin
   FOverviewFormat.Assign(AValue);
 end;
