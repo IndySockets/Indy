@@ -156,10 +156,11 @@ unit IdMessageCoderMIME;
 interface
 
 uses
+  Classes,
+  IdBaseComponent,
   IdMessageCoder,
   IdMessage,
-  IdObjs, IdGlobal,
-  IdSys, IdBaseComponent;
+  IdGlobal;
 
 type
   TIdMessageDecoderMIME = class(TIdMessageDecoder)
@@ -171,8 +172,8 @@ type
     function GetProperHeaderItem(const Line: string): string;
     procedure InitComponent; override;
   public
-    constructor Create(AOwner: TIdNativeComponent; const ALine: string); reintroduce; overload;
-    function ReadBody(ADestStream: TIdStream;
+    constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
+    function ReadBody(ADestStream: TStream;
       var VMsgEnd: Boolean): TIdMessageDecoder; override;
     procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
     procedure ReadHeader; override;
@@ -190,7 +191,7 @@ type
 
   TIdMessageEncoderMIME = class(TIdMessageEncoder)
   public
-    procedure Encode(ASrc: TIdStream; ADest: TIdStream); override;
+    procedure Encode(ASrc: TStream; ADest: TStream); override;
   end;
 
   TIdMessageEncoderInfoMIME = class(TIdMessageEncoderInfo)
@@ -234,7 +235,7 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings,
-  IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader;
+  IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader, SysUtils;
 
 { TIdMIMEBoundaryStrings }
 function TIdMIMEBoundaryStrings.GenerateRandomChar: Char;
@@ -324,14 +325,14 @@ end;
 
 { TIdCoderMIME }
 
-constructor TIdMessageDecoderMIME.Create(AOwner: TIdNativeComponent; const ALine: string);
+constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
 begin
   Create(AOwner);
   FFirstLine := ALine;
   FProcessFirstLine := True;
 end;
 
-function TIdMessageDecoderMIME.ReadBody(ADestStream: TIdStream; var VMsgEnd: Boolean): TIdMessageDecoder;
+function TIdMessageDecoderMIME.ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder;
 var
   LContentTransferEncoding: string;
   LDecoder: TIdDecoder;
@@ -459,7 +460,7 @@ begin
       LDecoder.DecodeEnd;
     end;
   finally
-    Sys.FreeAndNil(LDecoder);
+    FreeAndNil(LDecoder);
   end;
 end;
 
@@ -468,17 +469,17 @@ var
   LValue: string;
   LPos: Integer;
 begin
-  LPos := IndyPos('FILENAME=', Sys.UpperCase(AContentDisposition));  {do not localize}
+  LPos := IndyPos('FILENAME=', UpperCase(AContentDisposition));  {do not localize}
   if LPos > 0 then begin
-    LValue := Sys.Trim(Copy(AContentDisposition, LPos + 9, MaxInt));
+    LValue := Trim(Copy(AContentDisposition, LPos + 9, MaxInt));
   end else begin
     LValue := ''; //FileName not found
   end;
   if Length(LValue) = 0 then begin
     // Get filename from Content-Type
-    LPos := IndyPos('NAME=', Sys.UpperCase(AContentType)); {do not localize}
+    LPos := IndyPos('NAME=', UpperCase(AContentType)); {do not localize}
     if LPos > 0 then begin
-      LValue := Sys.Trim(Copy(AContentType, LPos + 5, MaxInt));    {do not localize}
+      LValue := Trim(Copy(AContentType, LPos + 5, MaxInt));    {do not localize}
     end;
   end;
   if Length(LValue) > 0 then begin
@@ -659,7 +660,7 @@ end;
 
 { TIdMessageEncoderMIME }
 
-procedure TIdMessageEncoderMIME.Encode(ASrc: TIdStream; ADest: TIdStream);
+procedure TIdMessageEncoderMIME.Encode(ASrc: TStream; ADest: TStream);
 var
   s: string;
   LEncoder: TIdEncoderMIME;
@@ -676,7 +677,7 @@ begin
       WriteStringToStream(ADest, s);
     end;
   finally
-    Sys.FreeAndNil(LEncoder);
+    FreeAndNil(LEncoder);
   end;
 end;
 
