@@ -102,7 +102,7 @@ uses
   IdResourceStringsCore,
   IdStack,
   IdStackConsts,
-  IdSys;
+  SysUtils;
 
 procedure TIdIPMCastServer.InitComponent;
 begin
@@ -134,7 +134,7 @@ begin
   if FBinding<>nil then
     begin
     GStack.DropMulticastMembership(FBinding.Handle,FMulticastGroup,FBinding.IP,FBinding.IPVersion);
-    Sys.FreeAndNil(FBinding);
+    FreeAndNil(FBinding);
     end;
 end;
 

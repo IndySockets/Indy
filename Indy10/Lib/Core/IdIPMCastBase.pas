@@ -37,7 +37,7 @@ interface
 
 uses
   IdComponent, IdException, IdGlobal, IdSocketHandle,
-  IdStack, IdSys;
+  IdStack;
 
 const
   IPMCastLo = 224;
@@ -76,7 +76,7 @@ implementation
 
 uses
   IdAssignedNumbers,
-  IdResourceStringsCore, IdStackConsts;
+  IdResourceStringsCore, IdStackConsts, SysUtils;
 
 { TIdIPMCastBase }
 
@@ -105,7 +105,7 @@ begin
   end;
   ThisIP := Value;
   s1 := Fetch(ThisIP, '.');    {Do not Localize}
-  ip1 := Sys.StrToInt(s1);
+  ip1 := IndyStrToInt(s1);
 
   if ((ip1 < IPMCastLo) or (ip1 > IPMCastHi)) then
   begin

@@ -70,13 +70,12 @@ unit IdUDPServer;
 interface
 
 uses
+  Classes,
   IdComponent,
   IdException,
   IdGlobal,
-  IdObjs,
   IdSocketHandle,
   IdStackConsts,
-  IdSys,
   IdThread,
   IdUDPBase,
   IdStack;
@@ -98,7 +97,8 @@ type
     procedure Run; override;
   public
     //
-    constructor Create(AOwner: TIdUDPServer; ABinding: TIdSocketHandle); reintroduce;
+    //[Error] IdUDPServer.pas(266): E2391 Potentially polymorphic constructor calls must be virtual
+    constructor Create(AOwner: TIdUDPServer; ABinding: TIdSocketHandle); reintroduce; virtual;
     destructor Destroy; override;
     //
     procedure UDPRead;
@@ -120,7 +120,7 @@ type
   protected
     FBindings: TIdSocketHandles;
     FCurrentBinding: TIdSocketHandle;
-    FListenerThreads: TIdThreadList;
+    FListenerThreads: TThreadList;
     FThreadClass: TIdUDPListenerThreadClass;
     FOnUDPRead: TUDPReadEvent;
     FOnUDPException : TIdUDPExceptionEvent;
@@ -150,7 +150,7 @@ type
 
 implementation
 
-uses IdGlobalCore;
+uses IdGlobalCore, SysUtils;
 
 {$I IdCompilerDefines.inc}
 
@@ -167,7 +167,7 @@ end;
 
 procedure TIdUDPServer.CloseBinding;
 var
-  LListenerThreads: TIdList;
+  LListenerThreads: TList;
 begin
   // RLebeau 2/17/2006: TIdUDPBase.Destroy() calls CloseBinding()
   if Assigned(FListenerThreads) then
@@ -196,8 +196,8 @@ end;
 destructor TIdUDPServer.Destroy;
 begin
   Active := False;
-  Sys.FreeAndNil(FBindings);
-  Sys.FreeAndNil(FListenerThreads);
+  FreeAndNil(FBindings);
+  FreeAndNil(FListenerThreads);
   inherited Destroy;
 end;
 
@@ -264,7 +264,7 @@ begin
     end;
     for i := 0 to Bindings.Count - 1 do begin
       LListenerThread := FThreadClass.Create(Self, Bindings[i]);
-      LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(i + 1); {do not localize}
+      LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
       //Todo: Implement proper priority handling for Linux
       //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
       LListenerThread.Priority := tpListener;
@@ -286,7 +286,7 @@ procedure TIdUDPServer.InitComponent;
 begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
-  FListenerThreads := TIdThreadList.Create;
+  FListenerThreads := TThreadList.Create;
   FThreadClass := TIdUDPListenerThread;
 end;
 

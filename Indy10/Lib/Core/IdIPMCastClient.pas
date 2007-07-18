@@ -112,7 +112,7 @@ uses
   IdResourceStringsCore,
   IdStack,
   IdStackConsts,
-  IdSys;
+  SysUtils;
 
 { TIdIPMCastClient }
 
@@ -141,7 +141,7 @@ begin
       Bindings[i].CloseSocket;
     end;
     FListenerThread.WaitFor;
-    Sys.FreeAndNil(FListenerThread);
+    FreeAndNil(FListenerThread);
     FCurrentBinding := nil;
   end;
 end;
@@ -222,7 +222,7 @@ end;
 destructor TIdIPMCastClient.Destroy;
 begin
   Active := False;
-  Sys.FreeAndNil(FBindings);
+  FreeAndNil(FBindings);
   inherited Destroy;
 end;
 
