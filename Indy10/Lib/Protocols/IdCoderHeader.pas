@@ -94,7 +94,6 @@ unit IdCoderHeader;
 interface
 
 uses
-  IdSys,
   IdEMailAddress;
 
 type
@@ -118,7 +117,8 @@ implementation
 uses
   IdCoderMIME,
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols,
+  SysUtils;
 
 const
   csSPECIALS = '()[]<>:;.,@\"';  {Do not Localize}
@@ -223,9 +223,9 @@ begin
       end;
       S := S + '"';   {Do not Localize}
     end;
-    Result := Sys.Format('%s <%s>', [S, EmailAddr.Address])    {Do not Localize}
+    Result := IndyFormat('%s <%s>', [S, EmailAddr.Address])    {Do not Localize}
   end
-  else Result := Sys.Format('%s', [EmailAddr.Address]);     {Do not Localize}
+  else Result := IndyFormat('%s', [EmailAddr.Address]);     {Do not Localize}
 end;
 
 function DecodeHeader(Header: string):string;
@@ -246,12 +246,12 @@ var
 begin
   // Get the Charset part.
   EncodingBeforeEnd := -1;
-  LEncodingStartPos := PosIdx('=?ISO', Sys.UpperCase(Header), 1); {do not localize}
+  LEncodingStartPos := PosIdx('=?ISO', UpperCase(Header), 1); {do not localize}
   if LEncodingStartPos = 0 then begin
-    LEncodingStartPos := PosIdx('=?WINDOWS', Sys.UpperCase(Header), 1); {do not localize}
+    LEncodingStartPos := PosIdx('=?WINDOWS', UpperCase(Header), 1); {do not localize}
   end;
   if LEncodingStartPos = 0 then begin
-    LEncodingStartPos := PosIdx('=?KOI8', Sys.UpperCase(Header), 1); {do not localize}
+    LEncodingStartPos := PosIdx('=?KOI8', UpperCase(Header), 1); {do not localize}
   end;
 
   while LEncodingStartPos > 0 do begin
@@ -261,7 +261,7 @@ begin
     //we need 3 more question marks first and after that a '?='    {Do not Localize}
     //to find the end of the substring, we can't just search for '?=',    {Do not Localize}
     //example: '=?ISO-8859-1?Q?=E4?='    {Do not Localize}
-    encodingendpos := PosIdx('?', Sys.UpperCase(Header),LEncodingStartPos+5);  {Do not Localize}
+    encodingendpos := PosIdx('?', UpperCase(Header),LEncodingStartPos+5);  {Do not Localize}
     if encodingendpos = 0 then begin
       EncodingFound := False;
     end else begin
@@ -278,7 +278,7 @@ begin
 
     if EncodingFound then
     begin
-      encodingendpos:=PosIdx('?', Sys.UpperCase(Header),encodingendpos+1);  {Do not Localize}
+      encodingendpos:=PosIdx('?', UpperCase(Header),encodingendpos+1);  {Do not Localize}
       if encodingendpos=0 then
       begin
         EncodingFound := false;
@@ -294,7 +294,7 @@ begin
 
     if EncodingFound then
     begin
-      encodingendpos:=PosIdx('?=', Sys.UpperCase(Header),encodingendpos+1);  {Do not Localize}
+      encodingendpos:=PosIdx('?=', UpperCase(Header),encodingendpos+1);  {Do not Localize}
       if encodingendpos > 0 then
       begin
         for i := LEncodingStartPos to encodingendpos-1 do begin
@@ -353,7 +353,7 @@ begin
               s := s + ' ';    {Do not Localize}
             end else if (substring[i] = '=') and (Length(substring)>=i+2+2) then //make sure we can access i+2 and '?=' is still beyond    {Do not Localize}
             begin
-              s := s + chr(Sys.StrToInt('$' + substring[i+1] + substring[i+2]));   {Do not Localize}
+              s := s + chr(IndyStrToInt('$' + substring[i+1] + substring[i+2]));   {Do not Localize}
               inc(i,2);
             end else
             begin
@@ -369,7 +369,7 @@ begin
               aDecoder.Clear;
               S := aDecoder.DecodeString(S);
            finally
-              Sys.FreeAndNil(aDecoder);
+              FreeAndNil(aDecoder);
            end;
         end;
 
@@ -396,12 +396,12 @@ begin
     {CC: Bug fix - changed LEncodingStartPos to LPreviousEncodingStartPos because
      LEncodingStartPos gets overwritten by return value from PosIdx.}
     LPreviousEncodingStartPos := LEncodingStartPos;
-    LEncodingStartPos := PosIdx('=?ISO', Sys.UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
+    LEncodingStartPos := PosIdx('=?ISO', UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
     if LEncodingStartPos = 0 then begin
-      LEncodingStartPos := PosIdx('=?WINDOWS', Sys.UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
+      LEncodingStartPos := PosIdx('=?WINDOWS', UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
     end;
     if LEncodingStartPos = 0 then begin
-      LEncodingStartPos := PosIdx('=?KOI8', Sys.UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
+      LEncodingStartPos := PosIdx('=?KOI8', UpperCase(Header), LPreviousEncodingStartPos + 1); {do not localize}
     end;
     // delete whitespace between adjacent encoded words, but only
     // if we had an encoding before
@@ -652,7 +652,7 @@ var
           if S[Q] = ' ' then  {Do not Localize}
             Enc1 := '_'   {Do not Localize}
           else
-            Enc1 := '=' + Sys.IntToHex(Ord(S[Q]), 2);     {Do not Localize}
+            Enc1 := '=' + IntToHex(Ord(S[Q]), 2);     {Do not Localize}
         end;
         if EncLen + Length(Enc1) > MaxEncLen then
         begin

@@ -159,12 +159,13 @@ unit IdCustomHTTPServer;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext, IdException,
   IdGlobal, IdStack,
   IdExceptionCore, IdGlobalProtocols, IdHeaderList, IdCustomTCPServer, IdTCPConnection, IdThread, IdCookie,
-  IdHTTPHeaderInfo, IdStackConsts, IdObjs,
-  IdSys, IdBaseComponent;
+  IdHTTPHeaderInfo, IdStackConsts,
+  IdBaseComponent;
 
 type
   // Enums
@@ -199,7 +200,7 @@ type
   TOnSessionStartEvent = procedure(Sender: TIdHTTPSession) of object;
   TOnCreateSession = procedure(ASender:TIdContext;
    var VHTTPSession: TIdHTTPSession) of object;
-  TOnCreatePostStream = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TIdStream) of object;
+  TOnCreatePostStream = procedure(AContext: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TStream) of object;
   TIdHTTPCommandEvent = procedure(AContext:TIdContext;
    ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo) of object;
   TIdHTTPInvalidSessionEvent = procedure(AContext: TIdContext;
@@ -220,8 +221,8 @@ type
   protected
     FAuthExists: Boolean;
     FCookies: TIdServerCookies;
-    FParams: TIdStrings;
-    FPostStream: TIdStream;
+    FParams: TStrings;
+    FPostStream: TStream;
     FRawHTTPCommand: string;
     FRemoteIP: string;
     FSession: TIdHTTPSession;
@@ -248,8 +249,8 @@ type
     property CommandType: THTTPCommandType read FCommandType;
     property Cookies: TIdServerCookies read FCookies;
     property Document: string read FDocument write FDocument; // writable for isapi compatibility. Use with care
-    property Params: TIdStrings read FParams;
-    property PostStream: TIdStream read FPostStream write FPostStream;
+    property Params: TStrings read FParams;
+    property PostStream: TStream read FPostStream write FPostStream;
     property RawHTTPCommand: string read FRawHTTPCommand;
     property RemoteIP: String read FRemoteIP;
     property UnparsedParams: string read FUnparsedParams write FUnparsedParams; // writable for isapi compatibility. Use with care
@@ -264,7 +265,7 @@ type
     FConnection: TIdTCPConnection;
     FResponseNo: Integer;
     FCookies: TIdServerCookies;
-    FContentStream: TIdStream;
+    FContentStream: TStream;
     FContentText: string;
     FCloseConnection: Boolean;
     FFreeContentStream: Boolean;
@@ -294,7 +295,7 @@ type
     //
     property AuthRealm: string read FAuthRealm write FAuthRealm;
     property CloseConnection: Boolean read FCloseConnection write SetCloseConnection;
-    property ContentStream: TIdStream read FContentStream write FContentStream;
+    property ContentStream: TStream read FContentStream write FContentStream;
     property ContentText: string read FContentText write FContentText;
     property Cookies: TIdServerCookies read FCookies write SetCookies;
     property FreeContentStream: Boolean read FFreeContentStream write FFreeContentStream;
@@ -309,15 +310,15 @@ type
 
   TIdHTTPSession = Class(TObject)
   protected
-    FContent: TIdStrings;
-    FLastTimeStamp: TIdDateTime;
+    FContent: TStrings;
+    FLastTimeStamp: TDateTime;
     FLock: TIdCriticalSection;
     FOwner: TIdHTTPCustomSessionList;
     FSessionID: string;
     FRemoteHost: string;
     //
-    procedure SetContent(const Value: TIdStrings);
-    function GetContent: TIdStrings;
+    procedure SetContent(const Value: TStrings);
+    function GetContent: TStrings;
     function IsSessionStale: boolean; virtual;
     procedure DoSessionEnd; virtual;
   public
@@ -328,8 +329,8 @@ type
     procedure Lock;
     procedure Unlock;
     //
-    property Content: TIdStrings read GetContent write SetContent;
-    property LastTimeStamp: TIdDateTime read FLastTimeStamp;
+    property Content: TStrings read GetContent write SetContent;
+    property LastTimeStamp: TDateTime read FLastTimeStamp;
     property RemoteHost: string read FRemoteHost;
     property SessionID: String read FSessionID;
   end;
@@ -380,7 +381,7 @@ type
     FSessionCleanupThread: TIdThread;
     FMaximumHeaderLineCount: Integer;
     //
-    procedure CreatePostStream(ASender: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TIdStream); virtual;
+    procedure CreatePostStream(ASender: TIdContext; AHeaders: TIdHeaderList; var VPostStream: TStream); virtual;
     procedure DoOnCreateSession(AContext:TIdContext; var VNewSession: TIdHTTPSession); virtual;
     procedure DoInvalidSession(AContext:TIdContext;
      ARequestInfo: TIdHTTPRequestInfo; AResponseInfo: TIdHTTPResponseInfo;
@@ -440,15 +441,15 @@ type
 
   TIdHTTPDefaultSessionList = Class(TIdHTTPCustomSessionList)
   protected
-    FSessionList: TIdThreadList;
+    FSessionList: TThreadList;
     procedure RemoveSession(Session: TIdHTTPSession); override;
     // remove a session surgically when list already locked down (prevent deadlock)
-    procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TIdList);
+    procedure RemoveSessionFromLockedList(AIndex: Integer; ALockedSessionList: TList);
   protected
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    property SessionList:TIdThreadList read FSessionList;
+    property SessionList:TThreadList read FSessionList;
     procedure Clear; override;
     procedure Add(ASession: TIdHTTPSession); override;
     procedure PurgeStaleSessions(PurgeAll: Boolean = false); override;
@@ -460,20 +461,20 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandlerSocket, IdSSL;
+  IdCoderMIME, IdResourceStringsProtocols, IdURI, IdIOHandlerSocket, IdSSL, SysUtils;
 
 const
   SessionCapacity = 128;
 
   // Calculate the number of MS between two TimeStamps
 
-function TimeStampInterval(const AStartStamp, AEndStamp: TIdDateTime): integer;
+function TimeStampInterval(const AStartStamp, AEndStamp: TDateTime): integer;
 begin
   result := trunc((AEndStamp - AStartStamp) * MSecsPerDay);
 end;
 
 { //(Bas Gooijen) was:
-function TimeStampInterval(StartStamp, EndStamp: TIdDateTime): integer;
+function TimeStampInterval(StartStamp, EndStamp: TDateTime): integer;
 var
   days: Integer;
   hour, min, s, ms: Word;
@@ -581,8 +582,8 @@ destructor TIdCustomHTTPServer.Destroy;
 begin
   Active := false; // Set Active to false in order to cloase all active sessions.
 
-  Sys.FreeAndNil(FMIMETable);
-  Sys.FreeAndNil(FSessionList);
+  FreeAndNil(FMIMETable);
+  FreeAndNil(FSessionList);
   inherited Destroy;
 end;
 
@@ -644,22 +645,22 @@ var
 
   procedure ReadCookiesFromRequestHeader;
   var
-    LRawCookies: TIdStringList;
+    LRawCookies: TStringList;
     i: Integer;
     S: String;
   begin
-    LRawCookies := TIdStringList.Create; try
+    LRawCookies := TStringList.Create; try
       LRequestInfo.RawHeaders.Extract('cookie', LRawCookies);    {Do not Localize}
       for i := 0 to LRawCookies.Count -1 do begin
         S := LRawCookies[i];
         while IndyPos(';', S) > 0 do begin    {Do not Localize}
           LRequestInfo.Cookies.AddSrcCookie(Fetch(S, ';'));    {Do not Localize}
-          S := Sys.Trim(S);
+          S := Trim(S);
         end;
         if S <> '' then
           LRequestInfo.Cookies.AddSrcCookie(S);
       end;
-    finally Sys.FreeAndNil(LRawCookies); end;
+    finally FreeAndNil(LRawCookies); end;
   end;
 
   function GetRemoteIP(ASocket: TIdIOHandlerSocket): String;
@@ -705,8 +706,8 @@ var
     // and check for a v1.1 'Expect' header...
     S := LRequestInfo.Version;
     Fetch(S, '/');  {Do not localize}
-    LMajor := Sys.StrToInt(Fetch(S, '.'), -1);  {Do not Localize}
-    LMinor := Sys.StrToInt(Sys.Trim(S), -1);
+    LMajor := IndyStrToInt(Fetch(S, '.'), -1);  {Do not Localize}
+    LMinor := IndyStrToInt(S, -1);
 
     if (LMajor < 1) or ((LMajor = 1) and (LMinor < 1)) then begin
       Exit;
@@ -728,7 +729,7 @@ var
       Exit;
     end;
 
-    if Pos('100-continue', Sys.LowerCase(S)) > 0 then begin  {Do not Localize}
+    if Pos('100-continue', LowerCase(S)) > 0 then begin  {Do not Localize}
       // the client requested a '100-continue' expectation so send
       // a '100 Continue' reply now before the request body can be read
       with AContext.Connection.IOHandler do begin
@@ -772,7 +773,7 @@ begin
 
               // SG 05.07.99
               // Set the ServerSoftware string to what it's supposed to be.    {Do not Localize}
-              LResponseInfo.ServerSoftware := Sys.Trim(ServerSoftware);
+              LResponseInfo.ServerSoftware := Trim(ServerSoftware);
 
               // S.G. 6/4/2004: Set the maximum number of lines that will be catured
               // S.G. 6/4/2004: to prevent a remote resource starvation DOS
@@ -795,7 +796,7 @@ begin
               end;
 
               {TODO Check for 1.0 only at this point}
-              LCmd := Sys.UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
+              LCmd := UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
 
               LRequestInfo.FRawHTTPCommand := LRawHTTPCommand;
               LRequestInfo.FRemoteIP := GetRemoteIP(Socket);
@@ -814,7 +815,7 @@ begin
               LRequestInfo.PostStream := nil;
               CreatePostStream(AContext, LRequestInfo.RawHeaders, LRequestInfo.FPostStream);
               if LRequestInfo.FPostStream = nil then begin
-                LRequestInfo.FPostStream := TIdMemoryStream.Create;    {Do not Localize}
+                LRequestInfo.FPostStream := TMemoryStream.Create;    {Do not Localize}
               end;
 
               LRequestInfo.PostStream.Position := 0;
@@ -877,7 +878,7 @@ begin
                     LRequestInfo.FHost := LURI.Host;
                   end;
                 finally
-                  Sys.FreeAndNil(LURI);
+                  FreeAndNil(LURI);
                 end;
               end;
 
@@ -928,10 +929,10 @@ begin
               end;
             finally
               LCloseConnection := LResponseInfo.CloseConnection;
-              Sys.FreeAndNil(LResponseInfo);
+              FreeAndNil(LResponseInfo);
             end;
           finally
-            Sys.FreeAndNil(LRequestInfo);
+            FreeAndNil(LRequestInfo);
           end;
         end;
       until LCloseConnection;
@@ -967,7 +968,7 @@ begin
   result := Assigned(ASession);
   if result then
   begin
-    Sys.FreeAndNil(ASession);
+    FreeAndNil(ASession);
   end;
 end;
 
@@ -1027,9 +1028,9 @@ begin
       // Stopping server
       // Boost the clear thread priority to give it a good chance to terminate
       if assigned(FSessionCleanupThread) then begin
-        SetThreadPriority(FSessionCleanupThread, tpIdNormal);
+        SetThreadPriority(FSessionCleanupThread, tpNormal);
         FSessionCleanupThread.TerminateAndWaitFor;
-        Sys.FreeAndNil(FSessionCleanupThread);
+        FreeAndNil(FSessionCleanupThread);
       end;
       FSessionCleanupThread := nil;
       FSessionList.Clear;
@@ -1047,7 +1048,7 @@ begin
 end;
 
 procedure TIdCustomHTTPServer.CreatePostStream(ASender: TIdContext;
-  AHeaders: TIdHeaderList; var VPostStream: TIdStream);
+  AHeaders: TIdHeaderList; var VPostStream: TStream);
 begin
   if Assigned(OnCreatePostStream) then begin
     OnCreatePostStream(ASender, AHeaders, VPostStream);
@@ -1061,7 +1062,7 @@ begin
   inherited Create;
 
   FLock := TIdCriticalSection.Create;
-  FContent := TIdStringList.Create;
+  FContent := TStringList.Create;
   FOwner := AOwner;
   if assigned( AOwner ) then
   begin
@@ -1079,9 +1080,9 @@ begin
 
   FSessionID := SessionID;
   FRemoteHost := RemoteIP;
-  FLastTimeStamp := Sys.Now;
+  FLastTimeStamp := Now;
   FLock := TIdCriticalSection.Create;
-  FContent := TIdStringList.Create;
+  FContent := TStringList.Create;
   FOwner := AOwner;
   if assigned( AOwner ) then
   begin
@@ -1098,8 +1099,8 @@ begin
 // the TIdHTTPDefaultSessionList.RemoveSessionFromLockedList method
 // Why? It calls this function and this code gets executed?
   DoSessionEnd;
-  Sys.FreeAndNil(FContent);
-  Sys.FreeAndNil(FLock);
+  FreeAndNil(FContent);
+  FreeAndNil(FLock);
   if Assigned(FOwner) then begin
     FOwner.RemoveSession(self);
   end;
@@ -1112,14 +1113,14 @@ begin
     FOwner.FOnSessionEnd(self);
 end;
 
-function TIdHTTPSession.GetContent: TIdStrings;
+function TIdHTTPSession.GetContent: TStrings;
 begin
   result := FContent;
 end;
 
 function TIdHTTPSession.IsSessionStale: boolean;
 begin
-  result := TimeStampInterval(FLastTimeStamp, Sys.Now) > Integer(FOwner.SessionTimeout);
+  result := TimeStampInterval(FLastTimeStamp, Now) > Integer(FOwner.SessionTimeout);
 end;
 
 procedure TIdHTTPSession.Lock;
@@ -1128,7 +1129,7 @@ begin
   FLock.Enter;
 end;
 
-procedure TIdHTTPSession.SetContent(const Value: TIdStrings);
+procedure TIdHTTPSession.SetContent(const Value: TStrings);
 begin
   FContent.Assign(Value);
 end;
@@ -1146,7 +1147,7 @@ begin
   inherited Create;
   FCommandType := hcUnknown;
   FCookies := TIdServerCookies.Create(self);
-  FParams  := TIdStringList.Create;
+  FParams  := TStringList.Create;
   ContentLength := -1;
 end;
 
@@ -1170,7 +1171,7 @@ begin
       end;
       s := copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
-      s := Sys.StringReplace(s, '+', ' ');  {do not localize}
+      s := StringReplace(s, '+', ' ',[rfReplaceAll]);  {do not localize}
       Params.Add(TIdURI.URLDecode(s));
       i := j + 1;
     end;
@@ -1181,9 +1182,9 @@ end;
 
 destructor TIdHTTPRequestInfo.Destroy;
 begin
-  Sys.FreeAndNil(FCookies);
-  Sys.FreeAndNil(FParams);
-  Sys.FreeAndNil(FPostStream);
+  FreeAndNil(FCookies);
+  FreeAndNil(FParams);
+  FreeAndNil(FPostStream);
   inherited Destroy;
 end;
 
@@ -1198,7 +1199,7 @@ begin
     Cookies.Delete(i);
   end;
   Cookies.Add.CookieName := GSessionIDCookie;
-  Sys.FreeAndNil(FSession);
+  FreeAndNil(FSession);
 end;
 
 constructor TIdHTTPResponseInfo.Create(AConnection: TIdTCPConnection; AServer: TIdCustomHTTPServer);
@@ -1221,7 +1222,7 @@ end;
 
 destructor TIdHTTPResponseInfo.Destroy;
 begin
-  Sys.FreeAndNil(FCookies);
+  FreeAndNil(FCookies);
   ReleaseContentStream;
   inherited Destroy;
 end;
@@ -1235,7 +1236,7 @@ end;
 procedure TIdHTTPResponseInfo.ReleaseContentStream;
 begin
   if FreeContentStream then begin
-    Sys.FreeAndNil(FContentStream);
+    FreeAndNil(FContentStream);
   end else begin
     FContentStream := nil;
   end;
@@ -1268,18 +1269,18 @@ begin
     end;
     if ContentLength > -1 then
     begin
-      Values['Content-Length'] := Sys.IntToStr(ContentLength);    {Do not Localize}
+      Values['Content-Length'] := IntToStr(ContentLength);    {Do not Localize}
     end;
     if FLastModified > 0 then
     begin
-      Values['Last-Modified'] := Sys.DateTimeGMTToHttpStr(FLastModified); {do not localize}
+      Values['Last-Modified'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
     end;
 
     if AuthRealm <> '' then {Do not Localize}
     begin
       ResponseNo := 401;
       Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
-      FContentText := '<HTML><BODY><B>' + Sys.IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
+      FContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
     end;
   end;
 end;
@@ -1355,10 +1356,10 @@ end;
 
 function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
 var
-  LFileDate : TIdDateTime;
-  LReqDate : TIdDateTime;
+  LFileDate : TDateTime;
+  LReqDate : TDateTime;
 begin
-  LFileDate := Sys.FileAge(AFile);
+  LFileDate := IndyFileAge(AFile);
   LReqDate := GMTToLocalDateTime(ARequestInfo.RawHeaders.Values['If-Modified-Since']);  {do not localize}
 
   // if the file date in the If-Modified-Since header is within 2 seconds of the
@@ -1395,7 +1396,7 @@ begin
       ContentStream.Position := 0;
       IOHandler.Write(ContentStream);
     end else begin
-      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + Sys.IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
+      FConnection.IOHandler.WriteLn('<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + ResponseText    {Do not Localize}
        + '</B></BODY></HTML>');    {Do not Localize}
     end;
     // Clear All - This signifies that WriteConent has been called.
@@ -1424,7 +1425,7 @@ begin
     // Write HTTP status response
     // Client will be forced to close the connection. We are not going to support
     // keep-alive feature for now
-    FConnection.IOHandler.WriteLn('HTTP/1.1 ' + Sys.IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
+    FConnection.IOHandler.WriteLn('HTTP/1.1 ' + IntToStr(ResponseNo) + ' ' + ResponseText);    {Do not Localize}
     // Write headers
     for i := 0 to RawHeaders.Count -1 do begin
       FConnection.IOHandler.WriteLn(RawHeaders[i]);
@@ -1457,7 +1458,7 @@ end;
 
 procedure TIdHTTPDefaultSessionList.Clear;
 var
-  ASessionList: TIdList;
+  ASessionList: TList;
   i: Integer;
 begin
   ASessionList := SessionList.LockList;
@@ -1498,13 +1499,13 @@ end;
 destructor TIdHTTPDefaultSessionList.destroy;
 begin
   Clear;
-  Sys.FreeAndNil(FSessionList);
+  FreeAndNil(FSessionList);
   inherited destroy;
 end;
 
 function TIdHTTPDefaultSessionList.GetSession(const SessionID, RemoteIP: string): TIdHTTPSession;
 var
-  ASessionList: TIdList;
+  ASessionList: TList;
   i: Integer;
   ASession: TIdHTTPSession;
 begin
@@ -1520,7 +1521,7 @@ begin
       if TextIsSame(ASession.FSessionID, SessionID) and ((length(RemoteIP) = 0) or TextIsSame(ASession.RemoteHost, RemoteIP)) then
       begin
         // Session found
-        ASession.FLastTimeStamp := Sys.Now;
+        ASession.FLastTimeStamp := Now;
         result := ASession;
         break;
       end;
@@ -1534,7 +1535,7 @@ procedure TIdHTTPDefaultSessionList.InitComponent;
 begin
   inherited InitComponent;
 
-  FSessionList := TIdThreadList.Create;
+  FSessionList := TThreadList.Create;
   FSessionList.LockList.Capacity := SessionCapacity;
   FSessionList.UnlockList;
 end;
@@ -1542,7 +1543,7 @@ end;
 procedure TIdHTTPDefaultSessionList.PurgeStaleSessions(PurgeAll: Boolean = false);
 var
   i: Integer;
-  aSessionList: TIdList;
+  aSessionList: TList;
 begin
   // S.G. 24/11/00: Added a way to force a session purge (Used when thread is terminated)
   // Get necessary data
@@ -1567,7 +1568,7 @@ end;
 
 procedure TIdHTTPDefaultSessionList.RemoveSession(Session: TIdHTTPSession);
 var
-  ASessionList: TIdList;
+  ASessionList: TList;
   Index: integer;
 begin
   ASessionList := SessionList.LockList;
@@ -1583,7 +1584,7 @@ begin
 end;
 
 procedure TIdHTTPDefaultSessionList.RemoveSessionFromLockedList(AIndex: Integer;
-  ALockedSessionList: TIdList);
+  ALockedSessionList: TList);
 begin
   TIdHTTPSession(ALockedSessionList[AIndex]).DoSessionEnd;
   // must set the owner to nil or the session will try to remove itself from the
@@ -1607,7 +1608,7 @@ begin
   inherited Create(false);
   // thread priority used to be set to tpIdle but this is not supported
   // under DotNet. How low do you want to go?
-  SetThreadPriority(Self, tpIdLowest);
+  SetThreadPriority(Self, tpLowest);
   FSessionList := SessionList;
   FreeOnTerminate := False;
 end;

@@ -92,17 +92,16 @@ unit IdCoder;
 interface
 
 uses
+  Classes,
   IdBaseComponent,
-  IdSys,
-  IdGlobal,
-  IdObjs;
+  IdGlobal;
 
 type
 
   TIdEncoder = class(TIdBaseComponent)
   public
     function Encode(const ASrc: string): string; overload;
-    function Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt)
+    function Encode(ASrcStream: TStream; const ABytes: Integer = MaxInt)
      : string; overload; virtual; abstract;
   end;
 
@@ -110,13 +109,13 @@ type
 
   TIdDecoder = class(TIdBaseComponent)
   protected
-    FStream: TIdStream;
+    FStream: TStream;
   public
     procedure Decode(const AIn: string; const AStartPos: Integer = 1;
      const ABytes: Integer = -1); virtual; abstract;
     // This is not an overload as it is "Encapselated" for one time encoding, not progressive
     function DecodeString(const aIn: string): string;
-    procedure DecodeBegin(ADestStream: TIdStream); virtual;
+    procedure DecodeBegin(ADestStream: TStream); virtual;
     procedure DecodeEnd; virtual;
   end;
 
@@ -131,7 +130,7 @@ type
 implementation
 
 uses
-  IdGlobalProtocols;
+  IdGlobalProtocols, SysUtils;
 
 function EncodeString(const aClass:TIdEncoderClass;const aIn:string):string;
 var
@@ -143,7 +142,7 @@ begin
   try
     Result:=aCoder.Encode(aIn);
   finally
-    Sys.FreeAndNil(aCoder);
+    FreeAndNil(aCoder);
   end;
 end;
 
@@ -157,15 +156,15 @@ begin
   try
     Result:=aCoder.DecodeString(aIn);
   finally
-    Sys.FreeAndNil(aCoder);
+    FreeAndNil(aCoder);
   end;
 end;
 
 function TIdDecoder.DecodeString(const aIn: string): string;
 var
-  LStream: TIdMemoryStream;
+  LStream: TMemoryStream;
 begin
-  LStream := TIdMemoryStream.Create;
+  LStream := TMemoryStream.Create;
   try
     DecodeBegin(LStream);
     try
@@ -176,11 +175,11 @@ begin
       DecodeEnd;
     end;
   finally
-    Sys.FreeAndNil(LStream);
+    FreeAndNil(LStream);
   end;
 end;
 
-procedure TIdDecoder.DecodeBegin(ADestStream: TIdStream);
+procedure TIdDecoder.DecodeBegin(ADestStream: TStream);
 begin
   FStream := ADestStream;
 end;
@@ -191,13 +190,13 @@ end;
 
 function TIdEncoder.Encode(const ASrc: string): string;
 var
-  LStream: TIdStream;
+  LStream: TStream;
 begin
-  LStream := TIdMemoryStream.Create; try
+  LStream := TMemoryStream.Create; try
       WriteStringToStream(LStream, ASrc);
       LStream.Position := 0;
       Result := Encode(LStream);
-  finally Sys.FreeAndNil(LStream); end;
+  finally FreeAndNil(LStream); end;
 end;
 
 end.

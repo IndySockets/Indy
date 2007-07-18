@@ -103,9 +103,9 @@ uses
   IdCustomTCPServer,
   IdException,
   IdGlobal,
-  IdSys,
   IdTCPConnection,
-  IdYarn;
+  IdYarn,
+  SysUtils;
 
 const
   IdSocksAuthNoAuthenticationRequired = 0;
@@ -369,7 +369,7 @@ begin
     1:
       begin
         Lline := AThread.Connection.IOHandler.ReadString( 6 ) ;
-        Ahost := Sys.IntToStr( ord( Lline[1] ) ) + '.' + Sys.IntToStr( ord( Lline[2] ) ) + '.' + Sys.IntToStr( ord( Lline[3] ) ) + '.' + Sys.IntToStr( ord( Lline[4] ) ) ;
+        Ahost := IntToStr( ord( Lline[1] ) ) + '.' + IntToStr( ord( Lline[2] ) ) + '.' + IntToStr( ord( Lline[3] ) ) + '.' + IntToStr( ord( Lline[4] ) ) ;
         Aport := ord( Lline[5] ) * 256 + ord( Lline[6] ) ;
       end;
     3:
@@ -399,10 +399,10 @@ begin
   Lline := AThread.Connection.IOHandler.ReadString( 2 ) ;
   Aport := ord( Lline[1] ) * 256 + ord( Lline[2] ) ;
   Lline := AThread.Connection.IOHandler.ReadString( 5 ) ;
-  Ahost := Sys.IntToStr( ord( Lline[1] ) ) + '.' +
-           Sys.IntToStr( ord( Lline[2] ) ) + '.' +
-           Sys.IntToStr( ord( Lline[3] ) ) + '.' +
-           Sys.IntToStr( ord( Lline[4] ) ) ;
+  Ahost := IntToStr( ord( Lline[1] ) ) + '.' +
+           IntToStr( ord( Lline[2] ) ) + '.' +
+           IntToStr( ord( Lline[3] ) ) + '.' +
+           IntToStr( ord( Lline[4] ) ) ;
 end;
 
 function TIdCustomSocksServer.DoExecute( AThread: TIdContext ) : boolean;
@@ -509,18 +509,18 @@ begin
   setlength( result, 4 ) ;
 
   a := pos( '.', ip ) ;
-  result[1] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
+  result[1] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
   a := pos( '.', ip ) ;
-  result[2] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
+  result[2] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
   a := pos( '.', ip ) ;
-  result[3] := chr( Sys.StrToInt( copy( ip, 1, a - 1 ) ) ) ;
+  result[3] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
   ip := copy( ip, a + 1, maxint ) ;
 
-  result[4] := chr( Sys.StrToInt( ip ) ) ;
+  result[4] := chr( IndyStrToInt( ip ) ) ;
 end;
 
 function PortToStr( const port: word ) : string;

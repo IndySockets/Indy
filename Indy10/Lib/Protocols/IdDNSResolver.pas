@@ -199,6 +199,7 @@ unit IdDNSResolver;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdBuffer,
   IdComponent,
@@ -206,10 +207,8 @@ uses
   IdNetworkCalculator,
   IdGlobalProtocols,
   IdDNSCommon,
-  IdSys,
   IdTCPClient,
   IdTCPConnection,
-  IdObjs,
   IdUDPClient;
 
 
@@ -279,7 +278,7 @@ type
   TResultSection = (rsAnswer,rsNameServer,rsAdditional);
   TResultSections = set of TResultSection;
 
-  TResultRecord = class(TIdCollectionItem) // Rename to REsourceRecord
+  TResultRecord = class(TCollectionItem) // Rename to REsourceRecord
   protected
     FRecType: TQueryRecordTypes;
     FRecClass: word;
@@ -289,7 +288,7 @@ type
     FRData: TIdBytes;
     FSection: TResultSection;
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     // Parse the data (descendants only)
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); virtual;
     { TODO : This needs to change (to what? why?) }
@@ -310,7 +309,7 @@ type
     FIPAddress: String;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     property IPAddress: string read FIPAddress;
   end;
 
@@ -322,7 +321,7 @@ type
     FAddress: string;
   public
     //TODO: implement AssignTo instead of Assign. (why?)
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
     //
     property Address : string read FAddress;
@@ -338,7 +337,7 @@ type
     function GetABit(AIndex: Integer): Byte;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     //
     property IPAddress: String read FIPAddress;
     property Protocol: Word read FProtocol;
@@ -352,7 +351,7 @@ type
     FPreference: Word;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
 
     property ExchangeServer: string read FExchangeServer;
     property Preference: word read FPreference;
@@ -360,13 +359,13 @@ type
 
   TTextRecord = class(TResultRecord)
   protected
-    FText: TIdStrings;
+    FText: TStrings;
   public
-    constructor Create(Collection: TIdCollection); override;
+    constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    Property Text: TIdStrings read FText;
+    Property Text: TStrings read FText;
   end;
 
   TErrorRecord = class(TResultRecord)
@@ -377,7 +376,7 @@ type
     FCPU: String;
     FOS: String;
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
     property CPU: String read FCPU;
     property OS: String read FOS;
@@ -389,7 +388,7 @@ type
     FErrorMailbox: String;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     property ResponsiblePersonMailbox: String read FResponsiblePerson;
     property ErrorMailbox: String read FErrorMailbox;
   end;
@@ -405,7 +404,7 @@ type
     FExpire: Cardinal;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
 
     property Primary: string read FMNAME;
     property ResponsiblePerson: string read FRNAME;
@@ -422,7 +421,7 @@ type
     FHostName: string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     property HostName: string read FHostName;
   end;
 
@@ -445,7 +444,7 @@ type
     function CleanIdent(const aStr:string):string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     property OriginalName:string read FOriginalName;
     property Service: string read FService;
     property Protocol: string read FProtocol;
@@ -465,7 +464,7 @@ type
     FReplacement: string;
   public
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
 
     property Order:integer read fOrder;
     property Preference:integer read fPreference;
@@ -475,12 +474,12 @@ type
     property Replacement:string read fReplacement;
   end;
 
-  TQueryResult = class(TIdCollection)
+  TQueryResult = class(TCollection)
   protected
     FDomainName: String;
     FQueryClass: Word;
     FQueryType: Word;
-    FQueryPointerList: TIdStringList;
+    FQueryPointerList: TStringList;
     function DNSStrToDomain(SrcStr: TIdBytes; var Idx: Integer): string;
     function NextDNSLabel(DNSStr: TIdBytes; Var APos: Integer): string;
     procedure SetItem(Index: Integer; Value: TResultRecord);
@@ -488,7 +487,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     function Add(Answer: TIdBytes; var APos: Integer): TResultRecord;
     procedure Clear; reintroduce;
     procedure FilterBySection(const aKeep:TResultSections=[rsAnswer]);
@@ -555,7 +554,7 @@ implementation
 uses
   IdBaseComponent,
   IdResourceStringsProtocols,
-  IdStack;
+  IdStack, SysUtils;
 
 // SG 28/1/02: Changed that function according to original Author of the old comp: Ray Malone
 function TQueryResult.DNSStrToDomain(SrcStr: TIdBytes; var Idx: Integer): string;
@@ -624,7 +623,7 @@ begin
   Result := '';      {Do not Localize}
 end;
 
-procedure TRDATARecord.Assign(Source: TIdPersistent);
+procedure TRDATARecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
   if Source is TARecord then
@@ -645,7 +644,7 @@ end;
 
 { TMXRecord }
 
-procedure TMXRecord.Assign(Source: TIdPersistent);
+procedure TMXRecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
   if Source is TMXRecord then
@@ -655,7 +654,7 @@ begin
   end;
 end;
 
-procedure TNAMERecord.Assign(Source: TIdPersistent);
+procedure TNAMERecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
 
@@ -794,12 +793,12 @@ end;
 constructor TQueryResult.Create;
 begin
   inherited Create(TResultRecord);
-  FQueryPointerList := TIdStringList.Create;
+  FQueryPointerList := TStringList.Create;
 end;
 
 destructor TQueryResult.destroy;
 begin
-  Sys.FreeAndNil(FQueryPointerList);
+  FreeAndNil(FQueryPointerList);
   inherited destroy;
 end;
 
@@ -813,7 +812,7 @@ begin
   inherited SetItem(Index, Value);
 end;
 
-procedure TResultRecord.Assign(Source: TIdPersistent);
+procedure TResultRecord.Assign(Source: TPersistent);
 var
  aSource:TResultRecord;
 begin
@@ -865,7 +864,7 @@ begin
   FExchangeServer := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
 
-procedure TQueryResult.Assign(Source: TIdPersistent);
+procedure TQueryResult.Assign(Source: TPersistent);
 //TCollection.Assign doesn't create correct Item class.
 var
  i:Integer;
@@ -896,7 +895,7 @@ end;
 
 { TTextRecord }
 
-procedure TTextRecord.Assign(Source: TIdPersistent);
+procedure TTextRecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
   if Source is TTextRecord then
@@ -905,15 +904,15 @@ begin
   end;
 end;
 
-constructor TTextRecord.Create(Collection: TIdCollection);
+constructor TTextRecord.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
-  FText := TIdStringList.Create;
+  FText := TStringList.Create;
 end;
 
 destructor TTextRecord.Destroy;
 begin
- Sys.FreeAndNil(FText);
+ FreeAndNil(FText);
   inherited Destroy;
 end;
 
@@ -941,7 +940,7 @@ end;
 
 { TSOARecord }
 
-procedure TSOARecord.Assign(Source: TIdPersistent);
+procedure TSOARecord.Assign(Source: TPersistent);
 var
  aSource:TSOARecord;
 begin
@@ -974,7 +973,7 @@ end;
 
 { TWKSRecord }
 
-procedure TWKSRecord.Assign(Source: TIdPersistent);
+procedure TWKSRecord.Assign(Source: TPersistent);
 var
   aSource:TWKSRecord;
 begin
@@ -1008,7 +1007,7 @@ end;
 
 { TMINFORecord }
 
-procedure TMINFORecord.Assign(Source: TIdPersistent);
+procedure TMINFORecord.Assign(Source: TPersistent);
 var
  aSource:TMINFORecord;
 begin
@@ -1027,7 +1026,7 @@ end;
 
 { THINFORecord }
 
-procedure THINFORecord.Assign(Source: TIdPersistent);
+procedure THINFORecord.Assign(Source: TPersistent);
 var
  aSource:THINFORecord;
 begin
@@ -1046,7 +1045,7 @@ end;
 
 { TAAAARecord }
 
-procedure TAAAARecord.Assign(Source: TIdPersistent);
+procedure TAAAARecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
   if Source is TAAAARecord then
@@ -1107,7 +1106,7 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
     i: integer;
   begin
     if not IsValidIPv6(aDNS) then
-      raise EIdDnsResolverError.Create(Sys.Format(RSQueryInvalidIpV6, [aDNS]));
+      raise EIdDnsResolverError.Create(IndyFormat(RSQueryInvalidIpV6, [aDNS]));
     IPV6str := ConvertToCanonical6IP(aDNS);
     IPV6Ptr := '';                               {Do not Localize}
     for i := Length(IPV6str) downto 1 do
@@ -1218,8 +1217,8 @@ begin
   InternalQuery := FDNSHeader.GenerateBinaryHeader;
 
   if (qtAXFR in Self.QueryType) then begin
-    if (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) > 0) or   {Do not Localize}
-      (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) > 0) then  {do not localize}
+    if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
+      (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
       AppendByte(AQuestion, 0);
@@ -1240,8 +1239,8 @@ begin
     AppendBytes(AQuestion, TempBytes);
   end else begin
     if (qtIXFR in Self.QueryType) then begin
-         if (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) > 0) or   {Do not Localize}
-            (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) > 0) then  {do not localize}
+         if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
+            (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
          begin
               AppendBytes(AQuestion, DoHostAddress(ADomain));
               AppendByte(AQuestion, 0);
@@ -1264,8 +1263,8 @@ begin
          for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
                if ARecType in QueryType then begin
                     // Create the question
-                    if (ARecType = qtPTR) and (IndyPos('IN-ADDR', Sys.UpperCase(ADomain)) = 0) and {Do not Localize}
-                       (IndyPos('IP6.INT', Sys.UpperCase(ADomain)) = 0) then begin {do not localize}
+                    if (ARecType = qtPTR) and (IndyPos('IN-ADDR', UpperCase(ADomain)) = 0) and {Do not Localize}
+                       (IndyPos('IP6.INT', UpperCase(ADomain)) = 0) then begin {do not localize}
                           AppendBytes(AQuestion, DoHostAddress(ADomain));
                           AppendByte(AQuestion, 0);
                     end else begin
@@ -1291,8 +1290,8 @@ end;
 
 destructor TIdDNSResolver.Destroy;
 begin
- Sys.FreeAndNil(FQueryResult);
- Sys.FreeAndNil(FDNSHeader);
+  FreeAndNil(FQueryResult);
+  FreeAndNil(FDNSHeader);
   inherited Destroy;
 end;
 
@@ -1460,7 +1459,7 @@ begin
   end;
 
   if Self.FQuestionLength = 0 then begin
-    raise EIdDnsResolverError.Create(Sys.Format(RSQueryInvalidQueryCount, [0]));
+    raise EIdDnsResolverError.Create(IndyFormat(RSQueryInvalidQueryCount, [0]));
   end;
 
   if not (qtAXFR in Self.QueryType) then begin
@@ -1483,7 +1482,7 @@ begin
                SetLength(FPlainTextResult, 0);
            end;
         finally
-          Sys.FreeAndNil(UDP_Tunnel);
+           FreeAndNil(UDP_Tunnel);
         end;
 
         if Length(LResult) > 4 then begin
@@ -1546,7 +1545,7 @@ begin
                   end;
             end;
          finally
-               Sys.FreeAndNil(TCP_Tunnel);
+               FreeAndNil(TCP_Tunnel);
          end;
      end;
   end else begin
@@ -1599,7 +1598,7 @@ begin
         end;
       end;
     finally
-     Sys.FreeAndNil(TCP_Tunnel);
+      FreeAndNil(TCP_Tunnel);
     end;
   end;
 end;
@@ -1631,7 +1630,7 @@ begin
  FPort := AValue;
 end;
 
-procedure TSRVRecord.Assign(Source: TIdPersistent);
+procedure TSRVRecord.Assign(Source: TPersistent);
 var
  aSource:TSRVRecord;
 begin
@@ -1691,7 +1690,7 @@ begin
   Self.FTarget := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
 end;
 
-procedure TNAPTRRecord.Assign(Source: TIdPersistent);
+procedure TNAPTRRecord.Assign(Source: TPersistent);
 var
  aSource:TNAPTRRecord;
 begin
