@@ -21,18 +21,19 @@ unit IdStreamNET;
 interface
 
 uses
-  IdObjs, IdGlobal;
+  Classes,
+  IdGlobal;
 
 type
   TIdStreamHelperNET = class
   public
     class function ReadBytes(
-          AStream: TIdStream;
+          AStream: TStream;
           var VBytes: TIdBytes;
           ACount: Integer = -1;
           AOffset: Integer = 0): Integer; static;
     class procedure Write(
-          const AStream: TIdStream;
+          const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0); static;
@@ -40,7 +41,7 @@ type
 
 implementation
 
-class function TIdStreamHelperNET.ReadBytes(AStream: TIdStream; var VBytes: TIdBytes;
+class function TIdStreamHelperNET.ReadBytes(AStream: TStream; var VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
 var
   LActual: Integer;
@@ -71,7 +72,7 @@ begin
   Result := AStream.Read(VBytes, AOffset, LActual);
 end;
 
-class procedure TIdStreamHelperNET.Write(const AStream: TIdStream;
+class procedure TIdStreamHelperNET.Write(const AStream: TStream;
   const ABytes: TIdBytes; const ACount: Integer; const AOffset: Integer);
 var
   LActual: Integer;

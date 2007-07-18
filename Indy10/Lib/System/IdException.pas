@@ -43,13 +43,13 @@ unit IdException;
 interface
 
 uses
-  IdSys;
+  SysUtils;
 
 type
   // EIdExceptionBase is the base class which extends Exception. It is separate from EIdException
   // to allow other users of Indy to use EIdExceptionBase while still being able to separate from
   // EIdException.
-  EIdException = class(EIdExceptionBase)
+  EIdException = class(Exception)
   public
     {
     The constructor must be virtual for Delphi NET if you want to call it with class methods.

@@ -161,8 +161,8 @@ interface
 
 uses
   Classes,
-  IdException, IdStack, IdStackConsts,IdObjs, IdGlobal,
-  SyncObjs, IdSys;
+  IdException, IdStack, IdStackConsts, IdGlobal,
+  SyncObjs;
 
 type
   EIdNotASocket = class(EIdSocketError);
@@ -272,7 +272,7 @@ type
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
     function WSGetServByName(const AServiceName: string): Integer; virtual; abstract;
-    function WSGetServByPort(const APortNumber: Integer): TIdStrings; virtual; abstract;
+    function WSGetServByPort(const APortNumber: Integer): TStrings; virtual; abstract;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var ABuffer;
      const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
@@ -324,7 +324,7 @@ uses
   {$IFDEF LINUX}     IdStackLinux, {$ENDIF}
   {$IFDEF MSWINDOWS} IdStackWindows, {$ENDIF}
   {$IFDEF DOTNET}    IdStackDotNet, {$ENDIF}
-  IdResourceStrings;
+  IdResourceStrings, SysUtils;
 
 { TIdStackBSDBase }
 
@@ -336,14 +336,14 @@ begin
   case AIPVersion of
     Id_IPv4: begin
       with TIdIn4Addr(AInAddr).S_un_b do begin
-        result := Sys.IntToStr(s_b1) + '.' + Sys.IntToStr(s_b2) + '.' + Sys.IntToStr(s_b3) + '.'    {Do not Localize}
-         + Sys.IntToStr(s_b4);
+        result := IntToStr(s_b1) + '.' + IntToStr(s_b2) + '.' + IntToStr(s_b3) + '.'    {Do not Localize}
+         + IntToStr(s_b4);
       end;
     end;
     Id_IPv6: begin
       Result := '';
       for i := 0 to 7 do begin
-        Result := Result + Sys.IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]),1)+':';
+        Result := Result + IntToHex(NetworkToHost(TIdIn6Addr(AInAddr).s6_addr16[i]),1)+':';
       end;
       SetLength(Result,Length(Result)-1);
     end;
@@ -364,10 +364,10 @@ begin
   case AIPVersion of
     Id_IPv4: begin
       with TIdIn4Addr(AInAddr).S_un_b do begin
-        s_b1 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b2 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b3 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
-        s_b4 := Sys.StrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b1 := IndyStrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b2 := IndyStrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b3 := IndyStrToInt(Fetch(AIP, '.'));    {Do not Localize}
+        s_b4 := IndyStrToInt(Fetch(AIP, '.'));    {Do not Localize}
       end;
     end;
     Id_IPv6: begin
@@ -377,11 +377,11 @@ begin
       TIdIPv6Address(TIdIn6Addr(AInAddr).s6_addr16) := HostToNetwork(IPv6ToIdIPv6Address(AIP) );
 {      with TIdIn6Addr(AInAddr) do begin
       //We don't call HostToNetwork with an arguement such as:
-      // Sys.StrToInt('$'+Fetch(AIP, ':')
+      // IndyStrToInt('$'+Fetch(AIP, ':')
       //because that can actually be a Cardinal or possibly an Int64 value
       //and it may be clear which overloaded function should be called.
         for i := 0 to 7 do begin
-          LW :=  Sys.StrToInt('$'+Fetch(AIP, ':'));
+          LW :=  IndyStrToInt('$'+Fetch(AIP, ':'));
           s6_addr16[i] := HostToNetwork(LW);    {Do not Localize}
 {        end;
       end;          }
@@ -523,7 +523,7 @@ begin
     Id_WSAEHOSTUNREACH: Result    := RSStackEHOSTUNREACH;
     Id_WSAENOTEMPTY: Result       := RSStackENOTEMPTY;
   end;
-  Result := Sys.Format(RSStackError, [AErr, Result]);
+  Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
 
 procedure TIdStackBSDBase.IPVersionUnsupported;
@@ -539,7 +539,7 @@ end;
 
 destructor TIdStackBSDBase.Destroy;
 begin
-  Sys.FreeAndNil(FLocalAddresses);
+  FreeAndNil(FLocalAddresses);
   inherited Destroy;
 end;
 

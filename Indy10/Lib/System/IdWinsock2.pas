@@ -4205,6 +4205,7 @@ begin
 end;
 
 procedure LoadMSWSock;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if hMSWSockDll = 0 then begin
     hMSWSockDll := Windows.LoadLibrary(MSWSOCK_DLL);
@@ -4215,6 +4216,7 @@ begin
 end;
 
 procedure UninitializeWinSock;
+
 begin
   if hMSWSockDll <> 0 then
   begin
@@ -5167,31 +5169,37 @@ begin
 end;
 
 function WSAMakeSyncReply(Buflen, Error: Word): Longint;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := MakeLong(Buflen, Error);
 end;
 
 function WSAMakeSelectReply(Event, Error: Word): Longint;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := MakeLong(Event, Error);
 end;
 
 function WSAGetAsyncBuflen(Param: Longint): Word;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := LOWORD(Param);
 end;
 
 function WSAGetAsyncError(Param: Longint): Word;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := HIWORD(Param);
 end;
 
 function WSAGetSelectEvent(Param: Longint): Word;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := LOWORD(Param);
 end;
 
 function WSAGetSelectError(Param: Longint): Word;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   WSAGetSelectError := HIWORD(Param);
 end;
@@ -5219,11 +5227,13 @@ begin
 end;
 
 function FD_ISSET(Socket: TSocket; var FDSet: TFDSet): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := __WSAFDIsSet(Socket, FDSet);
 end;
 
 procedure FD_SET(Socket: TSocket; var FDSet: TFDSet);
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if FDSet.fd_count < fd_setsize then
   begin
@@ -5233,6 +5243,7 @@ begin
 end;
 
 procedure FD_ZERO(var FDSet: TFDSet);
+{$ifdef USEINLINE}inline; {$endif}
 begin
   FDSet.fd_count := 0;
 end;
@@ -5253,11 +5264,13 @@ begin
 end;
 
 function WSA_CMSGDATA_ALIGN(length: DWORD): DWORD;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := (length + MAX_NATURAL_ALIGNMENT-1) and not (MAX_NATURAL_ALIGNMENT-1);
 end;
 
 function WSA_CMSG_FIRSTHDR(msg: LPWSAMSG): LPWSACMSGHDR;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if (msg <> nil) and (msg^.Control.len >= SizeOf(WSACMSGHDR)) then begin
     Result := LPWSACMSGHDR(msg^.Control.buf);
@@ -5267,6 +5280,7 @@ begin
 end;
 
 function WSA_CMSG_NXTHDR(msg: LPWSAMSG; cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if cmsg = nil then begin
     Result := WSA_CMSG_FIRSTHDR(msg);
@@ -5280,26 +5294,31 @@ begin
 end;
 
 function WSA_CMSG_DATA(cmsg: LPWSACMSGHDR): PByte;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := PByte(DWORD(cmsg) + WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)));
 end;
 
 function WSA_CMSG_SPACE(length: DWORD): DWORD;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length));
 end;
 
 function WSA_CMSG_LEN(length: DWORD): DWORD;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length;
 end;
 
 function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := SizeOf(ip_msfilter) - SizeOf(TInAddr) + (numsrc*SizeOf(TInAddr));
 end;
 
 function SS_PORT(ssp: PSockAddrIn): u_short;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if ssp <> nil then begin
     Result := ssp^.sin_port;
@@ -5309,6 +5328,7 @@ begin
 end;
 
 function IN6ADDR_ANY_INIT: TIn6Addr;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   with Result do begin
     System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
@@ -5316,6 +5336,7 @@ begin
 end;
 
 function IN6ADDR_LOOPBACK_INIT: TIn6Addr;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   with Result do begin
     System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
@@ -5324,6 +5345,7 @@ begin
 end;
 
 procedure IN6ADDR_SETANY(sa: PSockAddrIn6);
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if sa <> nil then begin
     with sa^ do begin
@@ -5339,6 +5361,7 @@ begin
 end;
 
 procedure IN6ADDR_SETLOOPBACK(sa: PSockAddrIn6);
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if sa <> nil then begin
     with sa^ do begin
@@ -5354,6 +5377,7 @@ begin
 end;
 
 function IN6ADDR_ISANY(sa: PSockAddrIn6): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if sa <> nil then begin
     with sa^ do begin
@@ -5369,6 +5393,7 @@ begin
 end;
 
 function IN6ADDR_ISLOOPBACK(sa: PSockAddrIn6): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if sa <> nil then begin
     with sa^ do begin
@@ -5384,21 +5409,25 @@ begin
 end;
 
 function IN6_ADDR_EQUAL(const a: PIn6Addr; const b: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := SysUtils.CompareMem(a, b, SizeOf(TIn6Addr));
 end;
 
 function IN6_IS_ADDR_UNSPECIFIED(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := IN6_ADDR_EQUAL(a, @in6addr_any);
 end;
 
 function IN6_IS_ADDR_LOOPBACK(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   Result := IN6_ADDR_EQUAL(a, @in6addr_loopback);
 end;
 
 function IN6_IS_ADDR_MULTICAST(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := (a^.s6_addr[0] = $FF);
@@ -5408,6 +5437,7 @@ begin
 end;
 
 function IN6_IS_ADDR_LINKLOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := (a^.s6_addr[0] = $FE) and ((a^.s6_addr[1] and $C0) = $80);
@@ -5417,6 +5447,7 @@ begin
 end;
 
 function IN6_IS_ADDR_SITELOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := (a^.s6_addr[0] = $FE) and ((a^.s6_addr[1] and $C0) = $C0);
@@ -5426,6 +5457,7 @@ begin
 end;
 
 function IN6_IS_ADDR_V4MAPPED(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     with a^ do begin
@@ -5442,6 +5474,7 @@ begin
 end;
 
 function IN6_IS_ADDR_V4COMPAT(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     with a^ do begin
@@ -5460,6 +5493,7 @@ begin
 end;
 
 function IN6_IS_ADDR_MC_NODELOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 1);
@@ -5469,6 +5503,7 @@ begin
 end;
 
 function IN6_IS_ADDR_MC_LINKLOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 2);
@@ -5478,6 +5513,7 @@ begin
 end;
 
 function IN6_IS_ADDR_MC_SITELOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 5);
@@ -5487,6 +5523,7 @@ begin
 end;
 
 function IN6_IS_ADDR_MC_ORGLOCAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = 8);
@@ -5496,6 +5533,7 @@ begin
 end;
 
 function IN6_IS_ADDR_MC_GLOBAL(const a: PIn6Addr): Boolean;
+{$ifdef USEINLINE}inline; {$endif}
 begin
   if a <> nil then begin
     Result := IN6_IS_ADDR_MULTICAST(a) and ((a^.s6_addr[1] and $F) = $E);

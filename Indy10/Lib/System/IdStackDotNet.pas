@@ -154,10 +154,10 @@
 unit IdStackDotNet;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
+  Classes,
   IdGlobal, IdStack, IdStackConsts,
-  IdObjs,
   System.Collections;
 
 type
@@ -190,7 +190,7 @@ type
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function GetLocalAddress: string; override;
-    function GetLocalAddresses: TIdStrings; override;
+    function GetLocalAddresses: TStrings; override;
     procedure PopulateLocalAddresses; override;
     //internal IP Mutlicasting membership stuff
     procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
@@ -410,11 +410,21 @@ end;
 function TIdStackDotNet.HostByName(const AHostName: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
-  LIP:array of IPAddress;
+  LIP : array of IPAddress;
   a:integer;
 begin
   try
+    {
+    [Warning] IdStackDotNet.pas(417): W1000 Symbol 'Resolve' is deprecated:
+    'Resolve is obsoleted for this type, please use GetHostEntry instead.
+    http://go.microsoft.com/fwlink/?linkid=14202'
+    }
+    {$IFDEF DOTNET2}
+    LIP := Dns.GetHostEntry(AHostName).AddressList;
+    {$ENDIF}
+    {$IFDEF DOTNET1}
     LIP := Dns.Resolve(AHostName).AddressList;
+    {$ENDIF}
     for a:=low(LIP) to high(LIP) do begin
       if LIP[a].AddressFamily=IdIPFamily[AIPVersion] then begin
         result := LIP[a].toString;
@@ -433,7 +443,12 @@ function TIdStackDotNet.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 begin
   try
+    {$IFDEF DOTNET2}
+    result := Dns.GetHostEntry(AAddress).HostName;
+    {$ENDIF}
+    {$IFDEF DOTNET1}
     result := Dns.GetHostByAddress(AAddress).HostName;
+    {$ENDIF}
   except
     on e:exception do begin
       raise BuildException(e);
@@ -721,14 +736,24 @@ end;
 
 function TIdStackDotNet.SupportsIPv6:boolean;
 begin
+{
+[Warning] IdStackDotNet.pas(734): W1000 Symbol 'SupportsIPv6' is deprecated:
+'SupportsIPv6 is obsoleted for this type, please use OSSupportsIPv6 instead.
+http://go.microsoft.com/fwlink/?linkid=14202'
+}
+  {$IFDEF DOTNET2}
+  result := Socket.OSSupportsIPv6;
+  {$ENDIF}
+  {$IFDEF DOTNET1}
   result := Socket.SupportsIPv6;
+  {$ENDIF}
 end;
 
-function TIdStackDotNet.GetLocalAddresses: TIdStrings;
+function TIdStackDotNet.GetLocalAddresses: TStrings;
 begin
   if FLocalAddresses = nil then
   begin
-    FLocalAddresses := TIdStringList.Create;
+    FLocalAddresses := TStringList.Create;
   end;
   PopulateLocalAddresses;
   Result := FLocalAddresses;
@@ -736,18 +761,32 @@ begin
 end;
 
 procedure TIdStackDotNet.PopulateLocalAddresses;
-var LAddr : IPAddress;
+var
+   {$IFDEF DOTNET1}
+  LAddr : IPAddress;
+  {$ENDIF}
   LHost : IPHostEntry;
   i : Integer;
+
 begin
  FLocalAddresses.Clear;
+
+  {$IFDEF DOTNET2}
+  LHost := DNS.GetHostEntry( DNS.GetHostName );
+  {$ENDIF}
+  {$IFDEF DOTNET1}
   LAddr := IPAddress.Any;
   LHost := DNS.GetHostByAddress(LAddr);
+  {$ENDIF}
   if Length(LHost.AddressList)>0 then
   begin
     for i := Low(LHost.AddressList) to High(LHost.AddressList) do
     begin
-      FLocalAddresses.Add(LHost.AddressList[i].ToString);
+      //This may be returning various types of addresses.
+      if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then
+      begin
+        FLocalAddresses.Add(LHost.AddressList[i].ToString);
+      end;
     end;
   end;
 end;

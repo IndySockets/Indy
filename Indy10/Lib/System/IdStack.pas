@@ -139,7 +139,8 @@ unit IdStack;
 interface
 
 uses
-  IdException, IdStackConsts, IdObjs, IdGlobal, IdSys;
+  Classes,
+  IdException, IdStackConsts, IdGlobal, SysUtils;
 
 type
   EIdSocketError = class(EIdException)
@@ -205,7 +206,7 @@ type
   protected
     FHostName: string;
     FLocalAddress: string;
-    FLocalAddresses: TIdStrings;
+    FLocalAddresses: TStrings;
     //
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
@@ -214,7 +215,7 @@ type
     function ReadHostName: string; virtual; abstract;
     procedure PopulateLocalAddresses; virtual; abstract;
     function GetLocalAddress: string; virtual; abstract;
-    function GetLocalAddresses: TIdStrings; virtual; abstract;
+    function GetLocalAddresses: TStrings; virtual; abstract;
   public
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
              var VPort: Integer;
@@ -324,7 +325,7 @@ type
     //
     property HostName: string read FHostname;
     property LocalAddress: string read GetLocalAddress;
-    property LocalAddresses: TIdStrings read GetLocalAddresses;
+    property LocalAddresses: TStrings read GetLocalAddresses;
   end;
 
   TIdStackClass = class of TIdStack;
@@ -387,7 +388,7 @@ End;
 
 destructor TIdSocketList.Destroy;
 begin
-  Sys.FreeAndNil(FLock);
+  FreeAndNil(FLock);
   inherited Destroy;
 end;
 
@@ -423,13 +424,13 @@ begin
 //
 //Result := Result and ((i > 0) and (i < 256));
 //
-  i := Sys.StrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := (i > -1) and (i < 256);
-  i := Sys.StrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256));
-  i := Sys.StrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256));
-  i := Sys.StrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
+  i := IndyStrToInt(Fetch(AIP, '.'), -1);    {Do not Localize}
   Result := Result and ((i > -1) and (i < 256)) and (AIP = '');
 end;
 
@@ -500,11 +501,11 @@ begin
   end;
 
   // now start :-)
-  num := Sys.StrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
+  num := IndyStrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
   if (num<0) or (num>65535) then begin
     exit; // huh? odd number...
   end;
-  Result := Sys.IntToHex(num,1)+':';
+  Result := IntToHex(num,1)+':';
 
   haddoublecolon := false;
   for p := 2 to colons do begin
@@ -520,50 +521,50 @@ begin
         Result := Result + '0:'; {do not localize}
       end;
     end else begin
-      num := Sys.StrToInt('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
+      num := IndyStrToInt('$'+Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
       if (num<0) or (num>65535) then begin
         Result := '';
         exit; // huh? odd number...
       end;
-      Result := Result + Sys.IntToHex(num,1)+':';
+      Result := Result + IntToHex(num,1)+':';
     end;
   end; // end of colon separated part
 
   if dots = 0 then begin
-    num := Sys.StrToInt('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
+    num := IndyStrToInt('$'+Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
     if (num<0) or (num>65535) then begin
       Result := '';
       exit; // huh? odd number...
     end;
-    Result := Result + Sys.IntToHex(num,1)+':';
+    Result := Result + IntToHex(num,1)+':';
   end;
 
   if dots > 0 then begin
-    num := Sys.StrToInt(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
+    num := IndyStrToInt(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2);
-    num := Sys.StrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
+    Result := Result + IntToHex(num, 2);
+    num := IndyStrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2)+':';
+    Result := Result + IntToHex(num, 2)+':';
 
-    num := Sys.StrToInt(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
+    num := IndyStrToInt(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1),-1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2);
-    num := Sys.StrToInt(Copy(LAddr, dotpos[3]+1, 3), -1);
+    Result := Result + IntToHex(num, 2);
+    num := IndyStrToInt(Copy(LAddr, dotpos[3]+1, 3), -1);
     if (num < 0) or (num>255) then begin
       Result := '';
       exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2)+':';
+    Result := Result + IntToHex(num, 2)+':';
   end;
   SetLength(Result, Length(Result)-1);
 end;
@@ -612,7 +613,7 @@ begin
     if GInstanceCount = 0 then begin
       // This CS will guarantee that during the FreeAndNil nobody will try to use
       // or construct GStack
-      Sys.FreeAndNil(GStack);
+      FreeAndNil(GStack);
     end;
   finally GStackCriticalSection.Release; end;
 end;
@@ -659,7 +660,7 @@ begin
   end;
   ThisIP := Value;
   s1 := Fetch(ThisIP, '.');    {Do not Localize}
-  ip1 := Sys.StrToInt(s1);
+  ip1 := IndyStrToInt(s1);
 
   if ((ip1 < IPv4MCastLo) or (ip1 > IPv4MCastHi)) then
   begin
@@ -798,5 +799,5 @@ initialization
    {$IFDEF DOTNET}    TIdStackDotNet;  {$ENDIF}
   GStackCriticalSection := TIdCriticalSection.Create;
 finalization
-  Sys.FreeAndNil(GStackCriticalSection);
+  FreeAndNil(GStackCriticalSection);
 end.

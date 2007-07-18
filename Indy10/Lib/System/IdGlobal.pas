@@ -514,20 +514,22 @@ unit IdGlobal;
 interface
 
 uses
+  SysUtils,
   {$IFDEF DOTNET}
   System.Collections.Specialized,
-  System.net, System.net.Sockets, System.Diagnostics, System.Threading,
-  System.IO, System.Text,
+  System.net,
+  System.net.Sockets,
+  System.Diagnostics,
+  System.Threading,
+  System.IO,
+  System.Text,
   {$ENDIF}
   {$IFDEF MSWINDOWS}
   Windows,
   {$ENDIF}
-  {$IFNDEF DotNetDistro}
   SyncObjs,
   Classes,
-  {$ENDIF}
-  IdException,
-  IdSys, IdObjs;
+  IdException;
 
 const
   {This is the only unit with references to OS specific units and IFDEFs. NO OTHER units
@@ -596,19 +598,19 @@ const
 type
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
-  TIdAppendFileStream = class(TIdFileStream)
+  TIdAppendFileStream = class(TFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TIdReadFileExclusiveStream = class(TIdFileStream)
+  TIdReadFileExclusiveStream = class(TFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TIdReadFileNonExclusiveStream = class(TIdFileStream)
+  TIdReadFileNonExclusiveStream = class(TFileStream)
   public
     constructor Create(const AFile : String);
   end;
-  TIdFileCreateStream = class(TIdFileStream)
+  TIdFileCreateStream = class(TFileStream)
   public
     constructor Create(const AFile : String);
   end;
@@ -673,6 +675,10 @@ type
   EIdEndOfStream = class(EIdException);
   EIdInvalidIPv6Address = class(EIdException);
 
+  //This is called whenever there is a failure to retreive the time zone information
+  EIdFailedToRetreiveTimeZoneInfo = class(EIdException);
+
+
   TIdBytes = array of Byte;
   TIdPort = Integer;
   //We don't have a native type that can hold an IPv6 address.
@@ -694,11 +700,7 @@ type
   {$ENDIF}
   {$IFDEF DOTNET}
   TIdPID = LongWord;
-  {$IFDEF DotNetDistro}
-  TIdThreadPriority = System.Threading.ThreadPriority;
-  {$ELSE}
   TIdThreadPriority = TThreadPriority;
-  {$ENDIF}
   {$ENDIF}
 
   {$IFDEF LINUX}
@@ -706,26 +708,22 @@ type
   THandle = LongWord; //D6.System
     {$ENDIF}
   {$ENDIF}
-  {$IFDEF DotNetDistro}
+  {$IFDEF DOTNET}
   THandle = Integer;
   {$ELSE}
-    {$IFDEF DOTNET}
-    THandle = Integer;
-    {$ELSE}
-    THandle = Windows.THandle;
-    {$ENDIF}
+  THandle = Windows.THandle;
   {$ENDIF}
 
   TPosProc = function(const substr, str: {$IFDEF DOTNET}WideString{$ELSE}String{$ENDIF}): Integer;
   TIdReuseSocket = (rsOSDependent, rsTrue, rsFalse);
 
   {$IFNDEF VCL6ORABOVE}
-  TIdExtList = class(TIdList) // We use this hack-class, because TList has no .assign on Delphi 5.
+  TIdExtList = class(TList) // We use this hack-class, because TList has no .assign on Delphi 5.
   public                      // Do NOT add DataMembers to this class !!!
     procedure Assign(AList: TList);
   end;
   {$ELSE}
-  TIdExtList=class(TIdList);
+  TIdExtList=class(TList);
   {$ENDIF}
 
   {$IFNDEF DOTNET}
@@ -733,11 +731,11 @@ type
   {$ENDIF}
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
   // without any $IFDEFs in the unit IdMultiPartFormData - in accordance with Indy Coding rules
-  TIdBaseStream = class(TIdStream)
+  TIdBaseStream = class(TStream)
   protected
     function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
-    function IdSeek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64; virtual; abstract;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; virtual; abstract;
     procedure IdSetSize(ASize: Int64); virtual; abstract;
     {$IFDEF DOTNET}
     procedure SetSize(ASize: Int64); override;
@@ -748,7 +746,7 @@ type
     {$IFDEF DOTNET}
     function Read(var VBuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
-    function Seek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64; override;
+    function Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
     {$ELSE}
     function Read(var VBuffer; ACount: Longint): Longint; override;
     function Write(const ABuffer; ACount: Longint): Longint; override;
@@ -757,6 +755,27 @@ type
   end;
 
 const
+{$IFDEF DOTNET}
+  {$IFDEF DOTNET1}
+  IdFromBeginning   = TIdSeekOrigin.soBeginning;
+  IdFromCurrent     = TIdSeekOrigin.soCurrent;
+  IdFromEnd         = TIdSeekOrigin.soEnd;
+  {$ELSE}
+  IdFromBeginning   = soBeginning;
+  IdFromCurrent     = soCurrent;
+  IdFromEnd         = soEnd;
+  {$ENDIF}
+{$ELSE}
+  {$IFNDEF VCL6ORABOVE}
+  soBeginning       = soFromBeginning;
+  soCurrent         = soFromCurrent;
+  soEnd             = soFromEnd;
+  {$ENDIF}
+  IdFromBeginning   = TSeekOrigin(soBeginning);
+  IdFromCurrent     = TSeekOrigin(soCurrent);
+  IdFromEnd         = TSeekOrigin(soEnd);
+{$ENDIF}
+
   {$IFDEF Linux}
   GOSType = otLinux;
   GPathDelim = '/'; {do not localize}
@@ -809,7 +828,29 @@ const
 // otherwise the minimum of the two lengths is returned instead.
 function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer; overload;
 function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer; overload;
-function IndyLength(const ABuffer: TIdStream; const ALength: Integer = -1): Integer; overload;
+function IndyLength(const ABuffer: TStream; const ALength: Integer = -1): Integer; overload;
+
+function IndyFormat(const AFormat: string;
+  const Args: array of const): string;
+function IndyIncludeTrailingPathDelimiter(const S: string): string;
+function IndyExcludeTrailingPathDelimiter(const S: string): string;
+
+//You could possibly use the standard StrInt and StrIntDef but these
+//also remove spaces from the string using the trim functions.
+function IndyStrToInt(const S: string): Integer; overload;
+function IndyStrToInt(const S: string; Default: Integer): Integer; overload;
+
+function IndyFileAge(const FileName: string): TDateTime;
+function IndyDirectoryExists(const Directory: string): Boolean;
+
+//You could possibly use the standard StrToInt and StrToInt64Def
+//functions but these also remove spaces using the trim function
+function IndyStrToInt64(const S: string; const Default: Int64): Int64; overload;
+function IndyStrToInt64(const S: string): Int64;  overload;
+
+function AddMSecToTime(const ADateTime: TDateTime;
+  const AMSec: Integer): TDateTime;
+
 
 // To and From Bytes conversion routines
 function ToBytes(const AValue: string; const ALength: Integer = -1; const AEncoding: TIdEncoding = enANSI): TIdBytes; overload;
@@ -871,12 +912,12 @@ procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Inte
 procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
 
 // Common Streaming routines
-function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
-function ReadStringFromStream(AStream: TIdStream; ASize: Integer = -1): string;
-procedure WriteStringToStream(AStream: TIdStream; const AStr: string);
-function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
-function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
-procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes; const ASize: Integer = -1);
+function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): string;
+function ReadStringFromStream(AStream: TStream; ASize: Integer = -1): string;
+procedure WriteStringToStream(AStream: TStream; const AStr: string);
+function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
+function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Integer): Integer;
+procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -907,7 +948,11 @@ function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet:
 function ByteIsInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Boolean;
 function ByteIsInEOL(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
 
+function CompareDate(const D1, D2: TDateTime): Integer;
 function CurrentProcessId: TIdPID;
+function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
+function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
+function DateTimeToGmtOffSetStr(ADateTime: TDateTime; SubGMT: Boolean): string;
 procedure DebugOutput(const AText: string);
 function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
   const ADelete: Boolean = IdFetchDeleteDefault;
@@ -919,7 +964,7 @@ function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetch
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
 function CurrentThreadId: TIdPID;
-function GetThreadHandle(AThread: TIdNativeThread): THandle;
+function GetThreadHandle(AThread: TThread): THandle;
 //GetTickDiff required because GetTickCount will wrap
 function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -932,9 +977,9 @@ function iif(ATest: Boolean; const ATrue: string; const AFalse: string = ''): st
 function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean; overload;
 function InMainThread: Boolean;
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
-procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: int64);
+procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: int64);
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TIdNativeThread): boolean;
+function IsCurrentThread(AThread: TThread): boolean;
 {$ENDIF}
 function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
@@ -963,17 +1008,22 @@ function Max(const AValueOne,AValueTwo: Int64): Int64;
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
 function Min(const AValueOne, AValueTwo: Int64): Int64;
+function OffsetFromUTC: TDateTime;
+
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal = 0): Cardinal; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
 function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 function ServicesFilePath: string;
-procedure SetThreadPriority(AThread: TIdNativeThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
 procedure Sleep(ATime: cardinal);
 //in Integer(Strings.Objects[i]) - column position in AData
-procedure SplitColumnsNoTrim(const AData: string; AStrings: TIdStrings; const ADelim: string = ' ');    {Do not Localize}
-procedure SplitColumns(const AData: string; AStrings: TIdStrings; const ADelim: string = ' ');    {Do not Localize}
+procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
+procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
 function StartsWithACE(const ABytes: TIdBytes): Boolean;
+function StringsReplace(const S: String; const OldPattern, NewPattern: array of string): string;
+function ReplaceOnlyFirst(const S, OldPattern,
+  NewPattern: string): string;
 function TextIsSame(const A1, A2: string): Boolean;
 function TextStartsWith(const S, SubS: string): Boolean;
 function TextEndsWith(const S, SubS: string): Boolean;
@@ -1004,6 +1054,8 @@ procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue 
 {$IFDEF DOTNET}
 var
   I: Integer;
+{$ELSE}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1026,7 +1078,7 @@ constructor TIdAppendFileStream.Create(const AFile : String);
 var
   LFlags: Word;
 begin
-  if Sys.FileExists(AFile) then begin
+  if FileExists(AFile) then begin
     LFlags := fmOpenReadWrite or fmShareDenyWrite;
   end else begin
     LFlags := fmCreate;
@@ -1048,7 +1100,7 @@ begin
 end;
 
 function IsASCIILDH(const AByte: Byte): Boolean;
-
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := True;
   //Verify the absence of non-LDH ASCII code points; that is, the
@@ -1087,6 +1139,7 @@ begin
 end;
 
 function IsASCII(const AByte: Byte): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := AByte <= $7F;
 end;
@@ -1126,6 +1179,7 @@ begin
 end;
 
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
+
 begin
   for Result := Low(AArray) to High(AArray) do begin
     if ASearchInt = AArray[Result] then begin
@@ -1154,6 +1208,7 @@ end;
 
 //IPv4 address conversion
 function ByteToHex(const AByte: Byte): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := IdHexDigits[AByte shr 4] + IdHexDigits[AByte and $F];
 end;
@@ -1195,10 +1250,10 @@ var
   i: Integer;
   LBuf, LTmp: string;
 begin
-  LBuf := Sys.Trim(AIPAddress);
+  LBuf := Trim(AIPAddress);
   Result := HEXPREFIX;
   for i := 0 to 3 do begin
-    LTmp := ByteToHex(Sys.StrToInt(Fetch(LBuf, '.', True)));
+    LTmp := ByteToHex(IndyStrToInt(Fetch(LBuf, '.', True)));
     if ASDotted then begin
       Result := Result + '.' + HEXPREFIX + LTmp;
     end else begin
@@ -1213,11 +1268,12 @@ var
 begin
   Result := 0;
   for i := 1 to Length(AValue) do begin
-    Result := (Result shl 3) +  Sys.StrToInt(AValue[i], 0);
+    Result := (Result shl 3) +  IndyStrToInt(AValue[i], 0);
   end;
 end;
 
 function ByteToOctal(const AByte: Byte): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := IdOctalDigits[(AByte shr 6) and $7] +
             IdOctalDigits[(AByte shr 3) and $7] +
@@ -1233,15 +1289,16 @@ var
   i: Integer;
   LBuf: string;
 begin
-  LBuf :=  Sys.Trim(AIPAddress);
-  Result := ByteToOctal(Sys.StrToInt(Fetch(LBuf, '.', True), 0));
+  LBuf :=  Trim(AIPAddress);
+  Result := ByteToOctal(IndyStrToInt(Fetch(LBuf, '.', True), 0));
   for i := 0 to 2 do begin
-    Result := Result + '.' + ByteToOctal(Sys.StrToInt(Fetch(LBuf, '.', True), 0));
+    Result := Result + '.' + ByteToOctal(IndyStrToInt(Fetch(LBuf, '.', True), 0));
   end;
 end;
 
 procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
@@ -1257,6 +1314,8 @@ procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex
 {$IFDEF DOTNET}
 var
   LChar : TIdBytes;
+{$ELSE}
+ {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1271,6 +1330,8 @@ procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestInd
 {$IFDEF DOTNET}
 var
   LShort : TIdBytes;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1285,6 +1346,8 @@ procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex
 {$IFDEF DOTNET}
 var
   LWord : TIdBytes;
+{$ELSE}
+ {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1299,6 +1362,8 @@ procedure CopyTIdInteger(const ASource: Integer; var VDest: TIdBytes; const ADes
 {$IFDEF DOTNET}
 var
   LInt : TIdBytes;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1313,6 +1378,8 @@ procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const AD
 {$IFDEF DOTNET}
 var
   LWord : TIdBytes;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1327,6 +1394,8 @@ procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestInd
 {$IFDEF DOTNET}
 var
   LWord : TIdBytes;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1341,6 +1410,8 @@ procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes;
 {$IFDEF DOTNET}
 var
   i : Integer;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1356,6 +1427,8 @@ procedure CopyTIdCardinal(const ASource: Cardinal; var VDest: TIdBytes; const AD
 {$IFDEF DOTNET}
 var
   LCard : TIdBytes;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -1395,7 +1468,7 @@ begin
   end;
 end;
 
-procedure DebugOutput(const AText: string);
+procedure DebugOutput(const AText: string); {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   __write(stderr, AText, Length(AText));
@@ -1409,22 +1482,36 @@ begin
   {$ENDIF}
 end;
 
-function CurrentThreadId: TIdPID;
+function CurrentThreadId: TIdPID;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
 {$IFDEF DOTNET}
+  {$IFDEF DOTNET2}
+  {
+  [Warning] IdGlobal.pas(1416): W1000 Symbol 'GetCurrentThreadId'
+  is deprecated: 'AppDomain.GetCurrentThreadId has been deprecated because
+  it does not provide a stable Id when managed threads are running on fibers
+  (aka lightweight threads). To get a stable identifier for a managed thread,
+  use the ManagedThreadId property on Thread.
+  http://go.microsoft.com/fwlink/?linkid=14202'
+  }
+  Result := System.Threading.Thread.CurrentThread.ManagedThreadId;
+   // Thread.ManagedThreadId;
+  {$ENDIF}
+  {$IFDEF DOTNET1}
   // SG: I'm not sure if this return the handle of the dotnet thread or the handle of the application domain itself (or even if there is a difference)
   Result := AppDomain.GetCurrentThreadId;
   // RLebeau
   // TODO: find if there is something like the following instead:
   // System.Diagnostics.Thread.GetCurrentThread.ID
   // System.Threading.Thread.CurrentThread.ID
+  {$ENDIF}
 {$ELSE}
   // TODO: is GetCurrentThreadId() available on Linux?
   Result := GetCurrentThreadID;
 {$ENDIF}
 end;
 
-function CurrentProcessId: TIdPID;
+function CurrentProcessId: TIdPID;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   Result := getpid;
@@ -1479,7 +1566,7 @@ begin
     LPos := Pos(ADelim, AInput);
   end else begin
     //? may be AnsiUpperCase?
-    LPos := IndyPos(Sys.UpperCase(ADelim), Sys.UpperCase(AInput));
+    LPos := IndyPos(UpperCase(ADelim), UpperCase(AInput));
   end;
   if LPos = 0 then begin
     Result := AInput;
@@ -1496,7 +1583,7 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TIdNativeThread): THandle;
+function GetThreadHandle(AThread: TThread): THandle; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   Result := AThread.ThreadID;
@@ -1561,7 +1648,7 @@ begin
 {$ENDIF}
 end;
 
-function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal;
+function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
@@ -1581,8 +1668,8 @@ begin
   {$IFDEF MSWINDOWS}
   SetLength(sLocation, MAX_PATH);
   SetLength(sLocation, GetWindowsDirectory(pchar(sLocation), MAX_PATH));
-  sLocation := Sys.IncludeTrailingPathDelimiter(sLocation);
-  if Sys.Win32Platform = VER_PLATFORM_WIN32_NT then begin
+  sLocation := IncludeTrailingPathDelimiter(sLocation);
+  if Win32Platform = VER_PLATFORM_WIN32_NT then begin
     sLocation := sLocation + 'system32\drivers\etc\'; {do not localize}
   end;
   {$ENDIF}
@@ -1595,12 +1682,12 @@ function IdPorts: TList;
 var
   s: string;
   idx, i, iPrev, iPosSlash: Integer;
-  sl: TIdStringList;
+  sl: TStringList;
 begin
   if GIdPorts = nil then
   begin
     GIdPorts := TList.Create;
-    sl := TIdStringList.Create;
+    sl := TStringList.Create;
     try
       sl.LoadFromFile(ServicesFilePath);  {do not localize}
       iPrev := 0;
@@ -1618,7 +1705,7 @@ begin
             end;
           //TODO: Make Whitespace a function to elim warning
           until Ord(s[i]) in WhiteSpace;
-          i := Sys.StrToInt(Copy(s, i+1, iPosSlash-i-1));
+          i := IndyStrToInt(Copy(s, i+1, iPosSlash-i-1));
           if i <> iPrev then begin
             GIdPorts.Add(TObject(i));
           end;
@@ -1633,7 +1720,7 @@ begin
 end;
 {$ENDIF}
 
-function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;
+function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1642,7 +1729,7 @@ begin
   end;
 end;
 
-function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string;
+function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1651,7 +1738,7 @@ begin
   end;
 end;
 
-function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean;
+function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1660,7 +1747,7 @@ begin
   end;
 end;
 
-function InMainThread: Boolean;
+function InMainThread: Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.Threading.Thread.CurrentThread = MainThread;
@@ -1669,7 +1756,7 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteMemoryStreamToStream(Src: TIdMemoryStream; Dest: TIdStream; Count: Int64);
+procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: Int64); {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Dest.Write(Src.Memory, Count);
@@ -1679,7 +1766,7 @@ begin
 end;
 
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TIdNativeThread): Boolean;
+function IsCurrentThread(AThread: TThread): Boolean; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := AThread.ThreadID = GetCurrentThreadID;
 end;
@@ -1688,13 +1775,13 @@ end;
 //convert a dword into an IPv4 address in dotted form
 function MakeDWordIntoIPv4Address(const ADWord: Cardinal): string;
 begin
-  Result := Sys.IntToStr((ADWord shr 24) and $FF) + '.';
-  Result := Result + Sys.IntToStr((ADWord shr 16) and $FF) + '.';
-  Result := Result + Sys.IntToStr((ADWord shr 8) and $FF) + '.';
-  Result := Result + Sys.IntToStr(ADWord and $FF);
+  Result := IntToStr((ADWord shr 24) and $FF) + '.';
+  Result := Result + IntToStr((ADWord shr 16) and $FF) + '.';
+  Result := Result + IntToStr((ADWord shr 8) and $FF) + '.';
+  Result := Result + IntToStr(ADWord and $FF);
 end;
 
-function IsAlpha(const AChar: Char): Boolean;
+function IsAlpha(const AChar: Char): Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := ((AChar >= 'a') and (AChar <= 'z')) or ((AChar >= 'A') and (AChar <= 'Z')); {Do not Localize}
@@ -1715,7 +1802,7 @@ begin
   end;
 end;
 
-function IsAlphaNumeric(const AChar: Char): Boolean;
+function IsAlphaNumeric(const AChar: Char): Boolean; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := IsAlpha(AChar) or IsNumeric(AChar);
@@ -1736,7 +1823,7 @@ begin
   end;
 end;
 
-function IsOctal(const AChar: Char): Boolean; overload;
+function IsOctal(const AChar: Char): Boolean; overload; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := (AChar >= '0') and (AChar <= '7') {Do not Localize}
 end;
@@ -1756,7 +1843,7 @@ begin
   end;
 end;
 
-function IsHexidecimal(const AChar: Char): Boolean; overload;
+function IsHexidecimal(const AChar: Char): Boolean; overload;  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := ((AChar >= '0') and (AChar <= '9')) {Do not Localize}
    or ((AChar >= 'A') and (AChar <= 'F')) {Do not Localize}
@@ -1790,6 +1877,7 @@ end;
 {$HINTS ON}
 
 function IsNumeric(const AChar: Char): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := (AChar >= '0') and (AChar <= '9'); {Do not Localize}
@@ -1813,6 +1901,7 @@ end;
 
 {$IFNDEF DOTNET}
 function IPv4MakeCardInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 //Note that this function is only for stripping off some extra bits
 //from an address that might appear in some spam E-Mails.
 begin
@@ -1844,14 +1933,22 @@ begin
   try
     try
       if AIPaddr.AddressFamily = Addressfamily.InterNetwork then begin
+        {$IFDEF DOTNET2}
+        //This looks funny but it's just to circvument a warning about
+        //a depreciated property in AIPaddr.  We can safely assume
+        //this is an IPv4 address.
+        Result := BytesToLongWord( AIPAddr.GetAddressBytes,0);
+        {$ENDIF}
+        {$IFDEF DOTNET1}
         Result := AIPaddr.Address;
+        {$ENDIF}
         VErr := False;
       end;
     except
       VErr := True;
     end;
   finally
-    Sys.FreeAndNil(AIPaddr);
+    FreeAndNil(AIPaddr);
   end;
 end;
 {$ELSE}
@@ -1922,7 +2019,7 @@ var
 begin
   Result := '';
   for i := 0 to 7 do begin
-    Result := Result + ':' + Sys.IntToHex(AValue[i], 4);
+    Result := Result + ':' + IntToHex(AValue[i], 4);
   end;
 end;
 
@@ -2007,11 +2104,11 @@ begin
   end;
 
   // now start :-)
-  num := Sys.StrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
+  num := IndyStrToInt('$'+Copy(LAddr, 1, colonpos[1]-1), -1);
   if (num < 0) or (num > 65535) then begin
     Exit; // huh? odd number...
   end;
-  Result := Sys.IntToHex(num, 1) + ':';
+  Result := IntToHex(num, 1) + ':';
 
   haddoublecolon := False;
   for p := 2 to colons do begin
@@ -2028,50 +2125,50 @@ begin
         Result := Result + '0:'; {do not localize}
       end;
     end else begin
-      num := Sys.StrToInt('$' + Copy(LAddr, colonpos[p - 1] + 1, colonpos[p] - colonpos[p - 1] - 1), -1);
+      num := IndyStrToInt('$' + Copy(LAddr, colonpos[p - 1] + 1, colonpos[p] - colonpos[p - 1] - 1), -1);
       if (num < 0) or (num > 65535) then begin
         Result := '';
         Exit; // huh? odd number...
       end;
-      Result := Result + Sys.IntToHex(num,1) + ':';
+      Result := Result + IntToHex(num,1) + ':';
     end;
   end; // end of colon separated part
 
   if dots = 0 then begin
-    num := Sys.StrToInt('$' + Copy(LAddr, colonpos[colons] + 1, MaxInt), -1);
+    num := IndyStrToInt('$' + Copy(LAddr, colonpos[colons] + 1, MaxInt), -1);
     if (num < 0) or (num > 65535) then begin
       Result := '';
       Exit; // huh? odd number...
     end;
-    Result := Result + Sys.IntToHex(num,1) + ':';
+    Result := Result + IntToHex(num,1) + ':';
   end;
 
   if dots > 0 then begin
-    num := Sys.StrToInt(Copy(LAddr, colonpos[colons] + 1, dotpos[1] - colonpos[colons] -1),-1);
+    num := IndyStrToInt(Copy(LAddr, colonpos[colons] + 1, dotpos[1] - colonpos[colons] -1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2);
-    num := Sys.StrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
+    Result := Result + IntToHex(num, 2);
+    num := IndyStrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2) + ':';
+    Result := Result + IntToHex(num, 2) + ':';
 
-    num := Sys.StrToInt(Copy(LAddr, dotpos[2] + 1, dotpos[3] - dotpos[2] -1),-1);
+    num := IndyStrToInt(Copy(LAddr, dotpos[2] + 1, dotpos[3] - dotpos[2] -1),-1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2);
-    num := Sys.StrToInt(Copy(LAddr, dotpos[3] + 1, 3), -1);
+    Result := Result + IntToHex(num, 2);
+    num := IndyStrToInt(Copy(LAddr, dotpos[3] + 1, 3), -1);
     if (num < 0) or (num > 255) then begin
       Result := '';
       Exit;
     end;
-    Result := Result + Sys.IntToHex(num, 2) + ':';
+    Result := Result + IntToHex(num, 2) + ':';
   end;
   SetLength(Result, Length(Result) - 1);
 end;
@@ -2084,14 +2181,15 @@ begin
   LAddress := MakeCanonicalIPv6Address(AIPAddress);
   if LAddress='' then
   begin
-    raise EIdInvalidIPv6Address.Create(Sys.Format(RSInvalidIPv6Address,[AIPAddress]));
+    raise EIdInvalidIPv6Address.Create(Format(RSInvalidIPv6Address,[AIPAddress]));
   end;
   for i := 0 to 7 do begin
-    Result[i]:=Sys.StrToInt('$'+fetch(LAddress,':'),0);
+    Result[i]:=IndyStrToInt('$'+fetch(LAddress,':'),0);
   end;
 end;
 
 function Max(const AValueOne, AValueTwo: Int64): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AValueOne < AValueTwo then begin
     Result := AValueTwo;
@@ -2132,7 +2230,7 @@ begin
     while LSearchLength > 0 do begin
       if LPM^ = LChar then begin
         Inc(LPM);
-        if Sys.CompareMem(LPM, LPS, LS1) then begin
+        if CompareMem(LPM, LPS, LS1) then begin
           Result := LPM - MemBuff;
           Exit;
         end;
@@ -2148,6 +2246,7 @@ End;
 {$ENDIF}
 
 function Min(const AValueOne, AValueTwo: Int64): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   If AValueOne > AValueTwo then begin
     Result := AValueTwo
@@ -2224,20 +2323,21 @@ begin
 end;
 {$ENDIF}
 
-function SBPos(const Substr, S: string): Integer;
+function SBPos(const Substr, S: string): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
 // Necessary because of "Compiler magic"
 begin
   Result := Pos(Substr, S);
 end;
 
 {$IFNDEF DOTNET}
-function AnsiPos(const Substr, S: string): Integer;
+function AnsiPos(const Substr, S: string): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := Sys.AnsiPos(Substr, S);
+  Result := AnsiPos(Substr, S);
 end;
 {$ENDIF}
 
-procedure SetThreadPriority(AThread: TIdNativeThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   // Linux only allows root to adjust thread priorities, so we just ingnore this call in Linux?
@@ -2267,17 +2367,19 @@ begin
 end;
 {$ENDIF}
 {$IFDEF MSWINDOWS}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Windows.Sleep(ATime);
 end;
 {$ENDIF}
 {$IFDEF DOTNET}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Thread.Sleep(ATime);
 end;
 {$ENDIF}
 
-procedure SplitColumnsNoTrim(const AData: string; AStrings: TIdStrings; const ADelim: string);
+procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string);
 var
   i: Integer;
   LDelim: Integer; //delim len
@@ -2351,7 +2453,7 @@ begin
 {$ENDIF}
 end;
 
-procedure SplitColumns(const AData: string; AStrings: TIdStrings; const ADelim: string);
+procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string);
 var
   i: Integer;
   LData: string;
@@ -2364,7 +2466,7 @@ Begin
   AStrings.Clear;
   LDelim := Length(ADelim);
   LLastPos := 1;
-  LData := Sys.Trim(AData);
+  LData := Trim(AData);
 
   LLeadingSpaceCnt := 0;
   if LData <> '' then begin //if Not WhiteStr
@@ -2380,13 +2482,13 @@ Begin
   while I > 0 do begin
     LLeft := Copy(LData, LLastPos, I - LLastPos); //'abc d' len:=i(=4)-1    {Do not Localize}
     if LLeft > '' then begin    {Do not Localize}
-      AStrings.AddObject(Sys.Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
+      AStrings.AddObject(Trim(LLeft), TObject(LLastPos + LLeadingSpaceCnt));
     end;
     LLastPos := I + LDelim; //first char after Delim
     i := PosIdx (ADelim, LData, LLastPos);
   end;//while found
   if LLastPos <= Length(LData) then begin
-    AStrings.AddObject(Sys.Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
+    AStrings.AddObject(Trim(Copy(LData, LLastPos, MaxInt)), TObject(LLastPos + LLeadingSpaceCnt));
   end;
 end;
 
@@ -2415,7 +2517,7 @@ begin
   if Assigned(FEvent) then begin
     FEvent.Close;
   end;
-  Sys.FreeAndNil(FEvent);
+  FreeAndNil(FEvent);
   inherited Destroy;
 end;
 
@@ -2495,6 +2597,7 @@ end;
 
 function TIdLocalEvent.WaitForEver: TWaitResult;
 begin
+
   Result := WaitFor(Infinite);
 end;
 
@@ -2524,6 +2627,7 @@ end;
 // help reduce code duplication.
 
 function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(AIndex >= 1);
   if ALength < 0 then begin
@@ -2534,6 +2638,7 @@ begin
 end;
 
 function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(AIndex >= 0);
   if ALength < 0 then begin
@@ -2543,13 +2648,326 @@ begin
   end;
 end;
 
-function IndyLength(const ABuffer: TIdStream; const ALength: Integer = -1): Integer; overload;
+function IndyLength(const ABuffer: TStream; const ALength: Integer = -1): Integer; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ALength < 0 then begin
     Result := ABuffer.Size - ABuffer.Position;
   end else begin
     Result := Min(ABuffer.Size - ABuffer.Position, ALength);
   end;
+end;
+
+const
+  wdays: array[1..7] of string = ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'    {Do not Localize}
+   , 'Sat'); {do not localize}
+  monthnames: array[1..12] of string = ('Jan', 'Feb', 'Mar', 'Apr', 'May'    {Do not Localize}
+   , 'Jun',  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
+
+{$IFDEF VCL7ORABOVE}
+//Delphi5 does not have TFormatSettings
+//this should be changed to a singleton?
+function GetEnglishSetting: TFormatSettings;
+begin
+  Result.CurrencyFormat := $00; // 0 = '$1'
+  Result.NegCurrFormat := $00; //0 = '($1)'
+  Result.CurrencyString := '$';
+  Result.CurrencyDecimals := 2;
+
+  Result.ThousandSeparator := ',';
+  Result.DecimalSeparator := '.';
+
+  Result.DateSeparator := '/';
+  Result.ShortDateFormat := 'M/d/yyyy';
+  Result.LongDateFormat := 'dddd, MMMM dd, yyyy';
+
+  Result.TimeSeparator := ':';
+  Result.TimeAMString := 'AM';
+  Result.TimePMString := 'PM';
+  Result.LongTimeFormat := 'h:mm:ss AMPM';
+  Result.ShortTimeFormat := 'h:mm AMPM';
+
+  Result.ShortMonthNames[1] := monthnames[1]; //'Jan';
+  Result.ShortMonthNames[2] := monthnames[2]; //'Feb';
+  Result.ShortMonthNames[3] := monthnames[3]; //'Mar';
+  Result.ShortMonthNames[4] := monthnames[4]; //'Apr';
+  Result.ShortMonthNames[5] := monthnames[5]; //'May';
+  Result.ShortMonthNames[6] := monthnames[6]; //'Jun';
+  Result.ShortMonthNames[7] := monthnames[7]; //'Jul';
+  Result.ShortMonthNames[8] := monthnames[8]; //'Aug';
+  Result.ShortMonthNames[9] := monthnames[9]; //'Sep';
+  Result.ShortMonthNames[10] := monthnames[10];// 'Oct';
+  Result.ShortMonthNames[11] := monthnames[11]; //'Nov';
+  Result.ShortMonthNames[12] := monthnames[12]; //'Dec';
+
+  Result.LongMonthNames[1] := 'January';
+  Result.LongMonthNames[2] := 'February';
+  Result.LongMonthNames[3] := 'March';
+  Result.LongMonthNames[4] := 'April';
+  Result.LongMonthNames[5] := 'May';
+  Result.LongMonthNames[6] := 'June';
+  Result.LongMonthNames[7] := 'July';
+  Result.LongMonthNames[8] := 'August';
+  Result.LongMonthNames[9] := 'September';
+  Result.LongMonthNames[10] := 'October';
+  Result.LongMonthNames[11] := 'November';
+  Result.LongMonthNames[12] := 'December';
+
+  Result.ShortDayNames[1] := wdays[1]; //'Sun';
+  Result.ShortDayNames[2] := wdays[2]; //'Mon';
+  Result.ShortDayNames[3] := wdays[3]; //'Tue';
+  Result.ShortDayNames[4] := wdays[4]; //'Wed';
+  Result.ShortDayNames[5] := wdays[5]; //'Thu';
+  Result.ShortDayNames[6] := wdays[6]; //'Fri';
+  Result.ShortDayNames[7] := wdays[7]; //'Sat';
+
+  Result.LongDayNames[1] := 'Sunday';
+  Result.LongDayNames[2] := 'Monday';
+  Result.LongDayNames[3] := 'Tuesday';
+  Result.LongDayNames[4] := 'Wednesday';
+  Result.LongDayNames[5] := 'Thursday';
+  Result.LongDayNames[6] := 'Friday';
+  Result.LongDayNames[7] := 'Saturday';
+
+  Result.ListSeparator := ',';
+end;
+{$ENDIF}
+
+function IndyFormat(const AFormat: string;
+  const Args: array of const): string; 
+begin
+  {$IFDEF VCL7ORABOVE}
+  Result := Format(AFormat, Args, GetEnglishSetting);
+  {$ELSE}
+  //Is there a way to get delphi5 to use locale in format? something like:
+  //  SetThreadLocale(TheNewLocaleId);
+  //  GetFormatSettings;
+  //  Application.UpdateFormatSettings := False; //needed?
+  //  format()
+  //  set locale back to prior
+  Result := Format(Format, Args);
+  {$ENDIF}
+end;
+
+function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
+// should adhere to RFC 2616
+
+var
+  wDay,
+  wMonth,
+  wYear: Word;
+begin
+  DecodeDate(GMTValue, wYear, wMonth, wDay);
+  Result := Format('%s, %.2d %s %.4d %s %s',    {do not localize}
+                   [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
+                    wYear, FormatDateTime('HH":"nn":"ss',GMTValue),'GMT']);  {do not localize}
+end;
+
+
+{This should never be localized}
+function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
+var
+  wDay,
+  wMonth,
+  wYear: Word;
+begin
+  DecodeDate(Value, wYear, wMonth, wDay);
+  Result := Format('%s, %d %s %d %s %s',    {do not localize}
+                   [ wdays[DayOfWeek(Value)], wDay, monthnames[wMonth],
+                    wYear, FormatDateTime( 'HH":"nn":"ss', Value), {do not localize}
+                    DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
+end;
+
+function DateTimeToGmtOffSetStr(ADateTime: TDateTime; SubGMT: Boolean): string;
+var
+  AHour, AMin, ASec, AMSec: Word;
+begin
+  if (ADateTime = 0.0) and SubGMT then
+  begin
+    Result := 'GMT'; {do not localize}
+    Exit;
+  end;
+  DecodeTime(ADateTime, AHour, AMin, ASec, AMSec);
+  Result := Format(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
+  if ADateTime < 0.0 then
+  begin
+    Result[1] := '-'; {do not localize}
+  end
+  else
+  begin
+    Result[1] := '+';  {do not localize}
+  end;
+end;
+
+function OffsetFromUTC: TDateTime;
+ {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+    inline;
+    {$ENDIF}
+ {$ENDIF}
+{$IFDEF WIN32}
+var
+  iBias: Integer;
+  tmez: TTimeZoneInformation;
+{$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
+  {$ENDIF}
+  {$IFDEF WIN32}
+  Case GetTimeZoneInformation(tmez) of
+    TIME_ZONE_ID_INVALID:
+    begin
+      raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
+    end;
+    TIME_ZONE_ID_UNKNOWN  :
+       iBias := tmez.Bias;
+    TIME_ZONE_ID_DAYLIGHT :
+      iBias := tmez.Bias + tmez.DaylightBias;
+    TIME_ZONE_ID_STANDARD :
+      iBias := tmez.Bias + tmez.StandardBias;
+    else
+    begin
+      raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
+    end;
+  end;
+  {We use ABS because EncodeTime will only accept positve values}
+  Result := EncodeTime(Abs(iBias) div 60, Abs(iBias) mod 60, 0, 0);
+  {The GetTimeZone function returns values oriented towards convertin
+   a GMT time into a local time.  We wish to do the do the opposit by returning
+   the difference between the local time and GMT.  So I just make a positive
+   value negative and leave a negative value as positive}
+  if iBias > 0 then begin
+    Result := 0 - Result;
+  end;
+  {$ENDIF}
+end;
+
+function IndyIncludeTrailingPathDelimiter(const S: string): string;
+   {$IFDEF USEINLINE} inline;  {$ENDIF}
+begin
+  {$IFDEF VCL6ORABOVE}
+  Result := IncludeTrailingPathDelimiter(S);
+  {$ELSE}
+  Result := IncludeTrailingBackslash(S);
+  {$ENDIF}
+end;
+
+function IndyExcludeTrailingPathDelimiter(const S: string): string;
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  {$IFDEF VCL6ORABOVE}
+  Result := SysUtils.ExcludeTrailingPathDelimiter(S);
+  {$ELSE}
+  Result := SysUtils.ExcludeTrailingBackslash(S);
+  {$ENDIF}
+end;
+
+function StringsReplace(const S: String; const OldPattern, NewPattern: array of string): string;
+var
+  i : Integer;
+begin
+  Result := s;
+  for i := Low(OldPattern) to High(OldPattern) do
+  begin
+    Result := StringReplace(Result, OldPattern[i], NewPattern[i], [rfReplaceAll]);
+  end;
+end;
+
+function ReplaceOnlyFirst(const S, OldPattern,
+  NewPattern: string): string; {$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+   Result := SysUtils.StringReplace(s,OldPattern,NewPattern,[]);
+end;
+
+function IndyStrToInt(const S: string): Integer;
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := StrToInt(Trim(S));
+end;
+
+function IndyStrToInt(const S: string;
+  Default: Integer): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := StrToIntDef(Trim(S), Default);
+end;
+
+function CompareDate(const D1, D2: TDateTime): Integer;
+var
+  LTM1, LTM2 : TTimeStamp;
+begin
+  LTM1 := DateTimeToTimeStamp(D1);
+  LTM2 := DateTimeToTimeStamp(D2);
+  if LTM1.Date = LTM2.Date then begin
+    if LTM1.Time < LTM2.Time then begin
+      Result := -1;
+    end
+    else if LTM1.Time > LTM2.Time then begin
+      Result := 1;
+    end
+    else begin
+      Result := 0;
+    end;
+  end
+  else if LTM1.Date > LTM2.Date then begin
+    Result := 1;
+  end
+  else begin
+    Result := -1;
+  end;
+end;
+
+function AddMSecToTime(const ADateTime: TDateTime;
+  const AMSec: Integer): TDateTime;
+var
+  LTM : TTimeStamp;
+begin
+  LTM := DateTimeToTimeStamp(ADateTime);
+  LTM.Time := LTM.Time + AMSec;
+  Result := TimeStampToDateTime(LTM);
+end;
+
+function IndyFileAge(const FileName: string): TDateTime;
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  {$IFDEF VCL10ORABOVE}
+  //single-parameter fileage is deprecated in d2006 and above
+  if not FileAge(FileName,Result) then
+  begin
+    Result := 0;
+  end;
+  {$ELSE}
+  Result := FileDateToDateTime( SysUtils.FileAge(FileName));
+  {$ENDIF}
+end;
+
+function IndyDirectoryExists(const Directory: string): Boolean;
+{$IFNDEF VCL6ORABOVE}
+var Code: Integer;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$ENDIF}
+begin
+  {$IFDEF VCL6ORABOVE}
+  Result := SysUtils.DirectoryExists(Directory);
+  {$ELSE}
+  // RLebeau 2/16/2006: Removed dependency on the FileCtrl unit
+  Code := GetFileAttributes(PChar(Directory));
+  Result := (Code <> -1) and (FILE_ATTRIBUTE_DIRECTORY and Code <> 0);
+  {$ENDIF}
+end;
+
+function IndyStrToInt64(const S: string; const Default: Int64): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := SysUtils.StrToInt64Def(Trim(S),Default);
+end;
+
+function IndyStrToInt64(const S: string): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := SysUtils.StrToInt64(Trim(S));
 end;
 
 function ToBytes(const AValue: string; const ALength: Integer = -1;
@@ -2567,6 +2985,8 @@ begin
     case AEncoding of
       enANSI: Encoder := System.Text.Encoding.ASCII;
       enUTF8: Encoder := System.Text.Encoding.UTF8;
+    else
+      Encoder := System.Text.Encoding.ASCII;
     end;
     SetLength(Result, Encoder.GetByteCount(AValue));
     Encoder.GetBytes(AValue, 0, LLength, Result, 0);
@@ -2585,6 +3005,8 @@ function ToBytes(const AValue: Char): TIdBytes; overload;
 {$IFDEF DOTNET}
 var
   LChars: array[0..1] of Char;
+{$ELSE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -2601,6 +3023,7 @@ begin
 end;
 
 function ToBytes(const AValue: Int64): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
@@ -2611,6 +3034,7 @@ begin
 end;
 
 function ToBytes(const AValue: Integer): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
@@ -2621,6 +3045,7 @@ begin
 end;
 
 function ToBytes(const AValue: Cardinal): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
@@ -2631,6 +3056,7 @@ begin
 end;
 
 function ToBytes(const AValue: Short): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
@@ -2641,6 +3067,7 @@ begin
 end;
 
 function ToBytes(const AValue: Word): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.BitConverter.GetBytes(AValue);
@@ -2651,12 +3078,14 @@ begin
 end;
 
 function ToBytes(const AValue: Byte): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   SetLength(Result, SizeOf(Byte));
   Result[0] := AValue;
 end;
 
 function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   SetLength(Result, ASize);
   CopyTIdBytes(AValue, AIndex, Result, 0, ASize);
@@ -2664,6 +3093,7 @@ end;
 
 {$IFNDEF DOTNET}
 function RawToBytes(const AValue; const ASize: Integer): TIdBytes;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   SetLength(Result, ASize);
   Move(AValue, Result[0], ASize);
@@ -2671,48 +3101,56 @@ end;
 {$ENDIF}
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(Byte));
   CopyTIdChar(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdInteger(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Short);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdShort(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdWord(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Byte);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   Bytes[0] := AValue;
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Cardinal);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdCardinal(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Int64);
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= SizeOf(AValue));
   CopyTIdInt64(AValue, Bytes, 0);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0);
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= ASize);
   CopyTIdBytes(AValue, AIndex, Bytes, 0, ASize);
@@ -2757,6 +3195,7 @@ begin
 end;
 
 function BytesToInteger(const AValue: TIdBytes; const AIndex: Integer = 0): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(Integer)));
   {$IFDEF DOTNET}
@@ -2767,6 +3206,7 @@ begin
 end;
 
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(Int64)));
   {$IFDEF DOTNET}
@@ -2777,6 +3217,7 @@ begin
 end;
 
 function BytesToLongWord(const AValue: TIdBytes; const AIndex: Integer = 0): LongWord;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(LongWord)));
   {$IFDEF DOTNET}
@@ -2787,6 +3228,7 @@ begin
 end;
 
 function BytesToWord(const AValue: TIdBytes; const AIndex: Integer = 0): Word;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(Word)));
   {$IFDEF DOTNET}
@@ -2797,6 +3239,7 @@ begin
 end;
 
 function BytesToShort(const AValue: TIdBytes; const AIndex: Integer = 0): Short;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(Short)));
   {$IFDEF DOTNET}
@@ -2807,18 +3250,21 @@ begin
 end;
 
 function BytesToIPv4Str(const AValue: TIdBytes; const AIndex: Integer = 0): String;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+4));
-  Result := Sys.IntToStr(Ord(AValue[AIndex])) + '.' +
-           Sys.IntToStr(Ord(AValue[AIndex+1])) + '.' +
-           Sys.IntToStr(Ord(AValue[AIndex+2])) + '.' +
-           Sys.IntToStr(Ord(AValue[AIndex+3]));
+  Result := IntToStr(Ord(AValue[AIndex])) + '.' +
+           IntToStr(Ord(AValue[AIndex+1])) + '.' +
+           IntToStr(Ord(AValue[AIndex+2])) + '.' +
+           IntToStr(Ord(AValue[AIndex+3]));
 end;
 
 function BytesToIPv6(const AValue: TIdBytes; const AIndex: Integer = 0): TIdIPv6Address;
 {$IFDEF DOTNET}
 var
   i: Integer;
+{$ELSE}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+16));
@@ -2842,6 +3288,7 @@ begin
 end;
 
 function BytesToString(const AValue: TIdBytes; AStartIndex: Integer; AMaxCount: Integer): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ((Length(AValue) > 0) or (AStartIndex <> 0)) then begin
     EIdRangeException.IfNotInRange(AStartIndex, 0, Length(AValue) - 1, 'Index out of bounds.'); {do not localize}
@@ -2865,6 +3312,7 @@ end;
 
 {$IFNDEF DOTNET}
 procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= ASize);
   Move(AValue[0], VBuffer, ASize);
@@ -2884,7 +3332,7 @@ begin
 //  Result := Word((AByte1 shl 8) and $FF00) or Word(AByte2 and $00FF);
 end;
 
-function ReadStringFromStream(AStream: TIdStream; ASize: Integer): string;
+function ReadStringFromStream(AStream: TStream; ASize: Integer): string;
 var
   LBytes: TIdBytes;
 begin
@@ -2892,22 +3340,26 @@ begin
   Result := BytesToString(LBytes, 0, ASize);
 end;
 
-function ReadTIdBytesFromStream(const AStream: TIdStream; var ABytes: TIdBytes; const Count: Integer): Integer;
+function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Integer): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := TIdStreamHelper.ReadBytes(AStream, ABytes, Count);
 end;
 
-function ReadCharFromStream(AStream: TIdStream; var AChar: Char): Integer;
+function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
 end;
 
-procedure WriteTIdBytesToStream(const AStream: TIdStream; const ABytes: TIdBytes; const ASize: Integer = -1);
+procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   TIdStreamHelper.Write(AStream, ABytes, ASize);
 end;
 
-procedure WriteStringToStream(AStream: TIdStream; const AStr :string);
+procedure WriteStringToStream(AStream: TStream; const AStr :string);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AStr <> '' then begin
     TIdStreamHelper.Write(AStream, ToBytes(AStr));
@@ -2931,7 +3383,7 @@ begin
   Result := IdWrite(ABuffer, AOffset, ACount);
 end;
 
-function TIdBaseStream.Seek(const AOffset: Int64; AOrigin: TIdSeekOrigin): Int64;
+function TIdBaseStream.Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
 begin
   Result := IdSeek(AOffset, AOrigin);
 end;
@@ -2970,7 +3422,7 @@ end;
 
 function TIdBaseStream.Seek(AOffset: Longint; AOrigin: Word): Longint;
 begin
-  result := IdSeek(AOffset, TIdSeekOrigin(AOrigin));
+  result := IdSeek(AOffset,TSeekOrigin( AOrigin));
 end;
 {$ENDIF}
 
@@ -3045,6 +3497,7 @@ begin
 end;
 
 procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   ExpandBytes(VBytes, AIndex, 1);
   VBytes[AIndex] := AByte;
@@ -3069,21 +3522,24 @@ begin
 end;
 
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Delete(s, AOffset, ACount);
 end;
 
 procedure IdInsert(const Source: string; var S: string; Index: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Insert(Source, S, Index);
 end;
 
 function TextIsSame(const A1, A2: string): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.String.Compare(A1, A2, True) = 0;
   {$ELSE}
-  Result := Sys.AnsiCompareText(A1, A2) = 0;
+  Result := AnsiCompareText(A1, A2) = 0;
   {$ENDIF}
 end;
 
@@ -3131,33 +3587,37 @@ begin
 end;
 
 function IndyLowerCase(const A1: string): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := A1.ToLower;
   {$ELSE}
-  Result := Sys.AnsiLowerCase(A1);
+  Result := AnsiLowerCase(A1);
   {$ENDIF}
 end;
 
 function IndyUpperCase(const A1: string): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := A1.ToUpper;
   {$ELSE}
-  Result := Sys.AnsiUpperCase(A1);
+  Result := AnsiUpperCase(A1);
   {$ENDIF}
 end;
 
-function IndyCompareStr(const A1: string; const A2: string): Integer;
+function IndyCompareStr(const A1: string; const A2: string): Integer;  inline;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
-  Result := Sys.CompareStr(A1, A2);
+  Result := CompareStr(A1, A2);
   {$ELSE}
-  Result := Sys.AnsiCompareStr(A1, A2);
+  Result := AnsiCompareStr(A1, A2);
   {$ENDIF}
 end;
 
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos');{ do not localize }
   if ACharPos <= Length(AString) then begin
@@ -3168,11 +3628,13 @@ begin
 end;
 
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet:  String): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := CharPosInSet(AString, ACharPos, ASet) > 0;
 end;
 
 function CharIsInEOL(const AString: string; ACharPos: Integer): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := CharIsInSet(AString, ACharPos, EOL);
 end;
@@ -3191,6 +3653,7 @@ begin
 end;
 
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   EIdException.IfTrue(AIndex < 0, 'Invalid AIndex'); {do not localize}
   if AIndex < Length(ABytes) then begin
@@ -3201,6 +3664,7 @@ begin
 end;
 
 function ByteIsInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := ByteIdxInSet(ABytes, AIndex, ASet) > -1;
 end;
@@ -3215,7 +3679,7 @@ begin
   Result := ByteIsInSet(ABytes, AIndex, LSet);
 end;
 
-function ReadLnFromStream(AStream: TIdStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
+function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = FALSE): String;
 //TODO: Continue to optimize this function. Its performance severely impacts
 // the coders
 const
@@ -3291,7 +3755,7 @@ begin
     end;
     AStream.Position := LStrmPos;
   end else begin
-    EIdEndOfStream.IfTrue(AExceptionIfEOF, Sys.Format(RSEndOfStream, ['', LStrmPos]));
+    EIdEndOfStream.IfTrue(AExceptionIfEOF, Format(RSEndOfStream, ['', LStrmPos]));
   end;
 end;
 
@@ -3300,7 +3764,7 @@ initialization
   {$IFDEF DOTNET}
   IndyPos := SBPos;
   {$ELSE}
-  if Sys.LeadBytes = [] then begin
+  if LeadBytes = [] then begin
     IndyPos := SBPos;
   end else begin
     IndyPos := AnsiPos;
@@ -3309,7 +3773,7 @@ initialization
 
 finalization
   {$IFNDEF DOTNET}
-  Sys.FreeAndNil(GIdPorts);
+  FreeAndNil(GIdPorts);
   {$ENDIF}
 
 end.

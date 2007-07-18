@@ -74,23 +74,17 @@ unit IdBaseComponent;
 interface
 
 uses
+  Classes
   {$IFDEF DotNet}
-  {$DEFINE IdDEBUG}
+  {$DEFINE IdDEBUG},
   System.ComponentModel.Design.Serialization,
   System.Collections.Specialized,
   System.ComponentModel,
   System.Threading,
   System.Reflection,
-  System.IO, // Necessary else System.IO below is confused with RTL System.
-  {$ELSE}
-  Classes,
-  {$ENDIF}
-//  {$IFDEF DotNetDistro}
-//    System.ComponentModel,
-//  {$ELSE}
-//    Classes,
-//  {$ENDIF}
-  IdObjs;
+  System.IO // Necessary else System.IO below is confused with RTL System.
+  {$ENDIF};
+
 
 // ***********************************************************
 // TIdBaseComponent is the base class for all Indy components.
@@ -102,27 +96,19 @@ type
   //
   // TIdInitializerComponent implements InitComponent which all components must use to initialize
   // other members instead of overriding constructors.
-  {$IFDEF DotNetDistro}
-
-//  TIdInitializerComponent = class(Component, ISupportInitialize)
-  {$ELSE}
-//  TIdInitializerComponent = class(TIdNativeComponent)
-  {$ENDIF}
   {$IFDEF DOTNET}
   //IMPORTANT!!!
   //Abstract classes should be hidden in the assembly designer.
   //Otherwise, you get a mess.
   [DesignTimeVisible(false), ToolboxItem(false)]
   {$ENDIF}
-  TIdInitializerComponent = class(TIdNativeComponent)
+  TIdInitializerComponent = class(TComponent)
   private
   protected
     {$IFDEF DotNet}
     // This event handler will take care about dynamically loaded assemblies after first initialization.
     class procedure AssemblyLoadEventHandler(sender: &Object; args: AssemblyLoadEventArgs); static;
     class procedure InitializeAssembly(AAssembly: Assembly);
-    {$ENDIF}
-    {$IFDEF DotNetDistro}
     {$ENDIF}
     function GetIsLoading: Boolean;
     function GetIsDesignTime: Boolean;
@@ -143,7 +129,7 @@ type
     // Must be an override and thus virtual to catch when created at design time
     //constructor Create(AOwner: TComponent); overload; override;
     {$ENDIF}
-    constructor Create(AOwner: TIdNativeComponent); overload; override;
+    constructor Create(AOwner: TComponent); overload; override;
   end;
 
   // TIdBaseComponent is the base class for all Indy components. Utility components, and other non
@@ -162,25 +148,8 @@ type
     function GetVersion: string;
     //
     property Version: string read GetVersion;
-
-    // These casts are for VB. VB does not support implicit convertors.
-    // They are part of this class because its easier to access from .NET
-    // instead of going through the namespace.unitname.unit.function syntax
-    // that Delphi exports global methods as
-    {$IFDEF DotNetDistro}
-    function CType(aStream: System.IO.Stream): TIdStream; overload;
-    function CType(aStrings: StringCollection): TIdStrings; overload;
-    function CType(aStrings: TIdStrings): StringCollection; overload;
-    {$ENDIF}
   published
   end;
-
-{$IFNDEF DotNetDistro}
-  {$IFDEF DOTNET}
-const
-   opRemove = TIdOperation.opRemove;
-  {$ENDIF}
-{$ENDIF}
 
 implementation
 
@@ -207,7 +176,7 @@ begin
   {-$ENDIF}
 end;
 
-constructor TIdInitializerComponent.Create(AOwner: TIdNativeComponent);
+constructor TIdInitializerComponent.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   // DCCIL will not call our other create from this one, only .Nets ancestor
@@ -322,11 +291,7 @@ end;
 
 function TIdInitializerComponent.GetIsDesignTime: Boolean;
 begin
-  {$IFDEF DotNetDistro}
-  Result := Self.DesignMode;
-  {$ELSE}
   Result := (csDesigning in ComponentState);
-  {$ENDIF}
 end;
 
 { TIdBaseComponent }
@@ -338,26 +303,6 @@ begin
 end;
 {$ENDIF}
 
-{$IFDEF DotNetDistro}
-function TIdBaseComponent.CType(aStrings: TIdStrings): StringCollection;
-begin
-  Result := aStrings;
-end;
-{$ENDIF}
-
-{$IFDEF DotNetDistro}
-function TIdBaseComponent.CType(aStream: System.IO.Stream): TIdStream;
-begin
-  Result := AStream
-end;
-{$ENDIF}
-
-{$IFDEF DotNetDistro}
-function TIdBaseComponent.CType(aStrings: StringCollection): TIdStrings;
-begin
-  Result := TIdStringList.Create(aStrings);
-end;
-{$ENDIF}
 
 function TIdBaseComponent.GetVersion: string;
 begin

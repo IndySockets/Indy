@@ -192,8 +192,8 @@ interface
 
 uses
   Classes,
-  IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack, IdObjs,
-  SyncObjs, IdSys,
+  IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack,
+  SyncObjs, 
   SysUtils, // Legal because this is a Windows only unit already
   Windows;
 
@@ -242,7 +242,7 @@ type
     function ReadHostName: string; override;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; override;
     function GetLocalAddress: string; override;
-    function GetLocalAddresses: TIdStrings; override;
+    function GetLocalAddresses: TStrings; override;
     function WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer;
@@ -269,7 +269,7 @@ type
               const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
 
     function WSGetServByName(const AServiceName: string): Integer; override;
-    function WSGetServByPort(const APortNumber: Integer): TIdStrings; override;
+    function WSGetServByPort(const APortNumber: Integer): TStrings; override;
 
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
      const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
@@ -561,11 +561,11 @@ begin
   CheckForSocketError(SetSockOpt(ASocket, ALevel, AOptName, PChar(@AOptVal), SizeOf(AOptVal)));
 end;
 
-function TIdStackWindows.GetLocalAddresses: TIdStrings;
+function TIdStackWindows.GetLocalAddresses: TStrings;
 begin
   if FLocalAddresses = nil then
   begin
-    FLocalAddresses := TIdStringList.Create;
+    FLocalAddresses := TStringList.Create;
   end;
   PopulateLocalAddresses;
   Result := FLocalAddresses;
@@ -595,7 +595,7 @@ begin
     Result := Ntohs(ps^.s_port);
   end else begin
     try
-      Result := Sys.StrToInt(AServiceName);
+      Result := IndyStrToInt(AServiceName);
     except
       on EConvertError do begin
         raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
@@ -605,13 +605,13 @@ begin
 end;
 
 function TIdStackWindows.WSGetServByPort(
-  const APortNumber: Integer): TIdStrings;
+  const APortNumber: Integer): TStrings;
 var
   ps: PServEnt;
   i: integer;
   p: array of PChar;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   p := nil;
   try
     ps := GetServByPort(HToNs(APortNumber), nil);
@@ -627,7 +627,7 @@ begin
       end;
     end;
   except
-    Sys.FreeAndNil(Result);
+    FreeAndNil(Result);
   end;
 end;
 
@@ -823,7 +823,7 @@ begin
     Result :=  inherited WSTranslateSocketErrorMsg(AErr);
     EXIT;
   end;
-  Result := Sys.Format(RSStackError, [AErr, Result]);
+  Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
 
 function TIdSocketListWindows.SelectRead(const ATimeout: Integer): Boolean;
@@ -1227,7 +1227,7 @@ var
   LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
-  if (Sys.Win32MajorVersion > 4) and (Sys.Win32MinorVersion > 0) then
+  if (Win32MajorVersion > 4) and (Win32MinorVersion > 0) then
   begin
     //we call the macro twice because we specified two possible structures.
     //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
@@ -1322,7 +1322,7 @@ end;
 initialization
   GSocketListClass := TIdSocketListWindows;
   // Check if we are running under windows NT
-  if (Sys.Win32Platform = VER_PLATFORM_WIN32_NT) then begin
+  if (Win32Platform = VER_PLATFORM_WIN32_NT) then begin
     GServeFileProc := ServeFile;
   end;
 finalization
