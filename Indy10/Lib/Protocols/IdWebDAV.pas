@@ -31,7 +31,6 @@ interface
 uses
   Classes,
   IdHTTP,
-  IdSys,
   IdGlobal;
 
 const

@@ -3,8 +3,9 @@ unit IdDsnSASLListEditorFormNET;
 interface
 
 uses
+  Classes,
   System.Drawing, System.Collections, System.ComponentModel,
-  System.Windows.Forms, System.Data, IdObjs, IdSASLCollection;
+  System.Windows.Forms, System.Data, IdSASLCollection;
 
 type
   TfrmSASLListEditor = class(System.Windows.Forms.Form)
@@ -43,7 +44,7 @@ type
   private
     { Private Declarations }
     FSASLList: TIdSASLEntries;
-    FAvailObjs : TIdList;
+    FAvailObjs : TList;
     procedure LoadBitmaps;
     procedure UpdateList;
     procedure UpdateGUI;
@@ -60,9 +61,10 @@ type
 implementation
 uses System.Reflection, System.Resources,
   IdDsnCoreResourceStrings,
+  IdGlobal,
   IdResourceStrings,
   IdSASL,
-  IdSys;
+  SysUtils;
 
 {$R IdSASLListEditorForm.resources}
 const ResourceBaseName = 'IdSASLListEditorForm';
@@ -217,8 +219,8 @@ begin
   begin
     if Components <> nil then
       Components.Dispose();
-    Sys.FreeAndNil(FSASLList);
-    Sys.FreeAndNil(FAvailObjs);
+    FreeAndNil(FSASLList);
+    FreeAndNil(FAvailObjs);
   end;
   inherited Dispose(Disposing);
 end;
@@ -238,7 +240,7 @@ begin
   lblAvailable.Text :=  RSADlgSLAvailable;
   lblAssigned.Text := RSADlgSLAssigned;
   FSASLList := TIdSASLEntries.Create(Self);
-   FAvailObjs := TIdList.Create;
+   FAvailObjs := TList.Create;
   LoadBitmaps;
   btnCancel.Text := RSCancel;
   btnOk.Text := RSOk;
@@ -306,7 +308,7 @@ end;
 
 procedure TfrmSASLListEditor.SetComponentName(const Name: string);
 begin
-  Text := Sys.Format(RSADlgSLCaption, [Name]);
+  Text := IndyFormat(RSADlgSLCaption, [Name]);
 end;
 
 procedure TfrmSASLListEditor.GetList(const CopyTo: TIdSASLEntries);
@@ -367,14 +369,14 @@ begin
     LB.MakeTransparent;
     Self.btnDown.Image := LB;
   finally
-    Sys.FreeAndNil(LR);
+    FreeAndNil(LR);
   end;
 end;
 
 procedure TfrmSASLListEditor.UpdateList;
 var
   i: integer;
-  l : TIdList;
+  l : TList;
 begin
   lbAssigned.Items.Clear;
   FAvailObjs.Clear;
