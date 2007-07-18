@@ -192,6 +192,7 @@ interface
 }
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdCommandHandlers,
   IdContext,
@@ -204,8 +205,6 @@ uses
   IdTCPServer,
   IdServerIOHandler,
   IdMailBox,
-  IdSys,
-  IdObjs,
   IdBaseComponent,
   IdTCPConnection, IdYarn;
 
@@ -245,7 +244,7 @@ type
   TIdPOP3ServerMessageNumberEvent = procedure (aCmd: TIdCommand; AMsgNo :Integer) of object;
 
   TIdPOP3ServerLogin = procedure(aContext: TIdContext; aServerContext: TIdPOP3ServerContext) of object;
-  TIdPOP3ServerCAPACommandEvent = procedure(aContext: TIdContext; aCapabilities: TIdStrings) of object;
+  TIdPOP3ServerCAPACommandEvent = procedure(aContext: TIdContext; aCapabilities: TStrings) of object;
 
   //Note that we require the users valid password so we can hash it with the Challenge we greeted the user with.
   TIdPOP3ServerAPOPCommandEvent = procedure (aCmd: TIdCommand; aMailboxID: String; var vUsersPassword: String) of object;
@@ -325,7 +324,7 @@ uses
   IdReplyPOP3,
   IdResourceStringsProtocols,
   IdSSL,
-  IdStack;
+  IdStack, SysUtils;
 
 procedure TIdPOP3Server.DoConnect(AContext: TIdContext);
 begin
@@ -345,12 +344,12 @@ begin
   // offending command as a multi-line response generically for all servers.
   // POP3 Error replies are not mult-line, however, so overriding the
   // behavior here to not do that!
-  LReply := FReplyClass.Create(nil, ReplyTexts);
+  LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   try
-    LReply.SetReply(ERR, Sys.Format(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]));
+    LReply.SetReply(ERR, IndyFormat(RSPOP3SvrUnknownCmdFmt, [Fetch(ALine)]));
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    Sys.FreeAndNil(LReply);
+    FreeAndNil(LReply);
   end;
 end;
 
@@ -500,21 +499,21 @@ end;
 procedure TIdPOP3Server.CommandList(aCmd: TIdCommand);
 begin
   if IsAuthed(aCmd, Assigned(fCommandList)) then begin
-    OnList(aCmd, Sys.StrToInt(aCmd.Params.Text, -1));
+    OnList(aCmd, IndyStrToInt(aCmd.Params.Text, -1));
   end;
 end;
 
 procedure TIdPOP3Server.CommandRetr(aCmd: TIdCommand);
 begin
   if IsAuthed(aCmd, assigned(fCommandRetr)) then begin
-    OnRetrieve(aCmd, Sys.StrToInt(aCmd.Params[0]));
+    OnRetrieve(aCmd, IndyStrToInt(aCmd.Params[0]));
   end;
 end;
 
 procedure TIdPOP3Server.CommandDele(aCmd: TIdCommand);
 begin
   if IsAuthed(aCmd, Assigned(fCommandDele)) then begin
-    OnDelete(aCmd, Sys.StrToInt(aCmd.Params.Text));
+    OnDelete(aCmd, IndyStrToInt(aCmd.Params.Text));
   end;
 end;
 
@@ -545,7 +544,7 @@ begin
        OnAPOP(aCmd, aCmd.Params.Strings[0], LValidPassword);
        with TIdHashMessageDigest5.Create do
        try
-         LValidHash := Sys.LowerCase(HashStringAsHex(LThread.APOP3Challenge + LValidPassword));
+         LValidHash := IndyLowerCase(HashStringAsHex(LThread.APOP3Challenge + LValidPassword));
        finally Free; end;
 
         LThread.fAuthenticated := (LValidHash = aCmd.Params[1]);
@@ -562,7 +561,7 @@ begin
       end
       else
       begin
-        aCmd.Reply.SetReply(ST_ERR,Sys.Format(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
+        aCmd.Reply.SetReply(ST_ERR,IndyFormat(RSPOP3SVRNotHandled, ['APOP'])); {do not localize}
       end;
     end;
   end
@@ -578,7 +577,7 @@ begin
   if Result then begin
     Result := aAssigned;
     if Result = false then begin
-      aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, [aCmd.CommandHandler.Command])); {do not localize}
+      aCmd.Reply.SetReply(ST_ERR, IndyFormat(RSPOP3SVRNotHandled, [aCmd.CommandHandler.Command])); {do not localize}
     end;
   end else begin
     aCmd.Reply.SetReply(ST_ERR, RSPOP3SvrLoginFirst);
@@ -593,7 +592,7 @@ begin
   // TODO: Need to make all use this form
   if IsAuthed(aCmd, Assigned(fCommandStat)) then begin
     OnStat(aCmd, xCount, xSize);
-    aCmd.Reply.Text.Text := Sys.IntToStr(xCount) + ' ' + Sys.IntToStr(xSize);
+    aCmd.Reply.Text.Text := IntToStr(xCount) + ' ' + IntToStr(xSize);
   end;
 end;
 
@@ -611,8 +610,8 @@ var
 begin
   if IsAuthed(aCmd, Assigned(fCommandTop)) then begin
     if aCmd.Params.Count = 2 then begin
-      xMsgNo := Sys.StrToInt(aCmd.Params.Strings[0], 0);
-      xLines := Sys.StrToInt(aCmd.Params.Strings[1], -1);
+      xMsgNo := IndyStrToInt(aCmd.Params.Strings[0], 0);
+      xLines := IndyStrToInt(aCmd.Params.Strings[1], -1);
       if (xMsgNo >= 1) and (xLines >= 0) then begin
         OnTop(aCmd, xMsgNo, xLines);
         Exit;
@@ -625,7 +624,7 @@ end;
 procedure TIdPOP3Server.CommandUIDL(aCmd: TIdCommand);
 begin
   if IsAuthed(aCmd, Assigned(fCommandUidl)) then begin
-    OnUidl(aCmd,Sys.StrToInt(aCmd.Params.Text, -1))
+    OnUidl(aCmd,IndyStrToInt(aCmd.Params.Text, -1))
   end;
 end;
 
@@ -643,7 +642,7 @@ begin
     aCmd.Reply.SetReply(ST_OK, RSPOP3SvrbeginTLSNegotiation);
     (aCmd.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase).Passthrough := False;
   end else begin
-    aCmd.Reply.SetReply(ST_ERR, Sys.Format(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
+    aCmd.Reply.SetReply(ST_ERR, IndyFormat(RSPOP3SVRNotHandled, ['STLS']));    {do not localize}
   end;
 end;
 
@@ -684,31 +683,31 @@ end;
 
 function TIdPOP3Server.CreateExceptionReply: TIdReply;
 begin
-  Result := TIdReplyPOP3.Create(nil, ReplyTexts);
+  Result := TIdReplyPOP3.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(ERR, RSPOP3SvrInternalError);
 end;
 
 function TIdPOP3Server.CreateGreeting: TIdReply;
 begin
-  Result := TIdReplyPOP3.Create(nil, ReplyTexts);
+  Result := TIdReplyPOP3.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(OK, RSPOP3SvrWelcome);
 end;
 
 function TIdPOP3Server.CreateHelpReply: TIdReply;
 begin
-  Result := TIdReplyPOP3.Create(nil, ReplyTexts);
+  Result := TIdReplyPOP3.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(OK, RSPOP3SvrHelpFollows);
 end;
 
 function TIdPOP3Server.CreateMaxConnectionReply: TIdReply;
 begin
-  Result := TIdReplyPOP3.Create(nil, ReplyTexts);
+  Result := TIdReplyPOP3.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(ERR, RSPOP3SvrTooManyCons);
 end;
 
 function TIdPOP3Server.CreateReplyUnknownCommand: TIdReply;
 begin
-  Result := TIdReplyPOP3.Create(nil, ReplyTexts);
+  Result := TIdReplyPOP3.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(ERR, RSPOP3SvrUnknownCmd);
 end;
 
@@ -751,8 +750,8 @@ begin
     LGreeting := TIdReplyPOP3.Create(nil);
     try
       LThread.APOP3Challenge := '<'+   {do not localize}
-              Sys.IntToStr(Abs( CurrentProcessId )) +
-        '.'+Sys.IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';    {do not localize}
+              IntToStr(Abs( CurrentProcessId )) +
+        '.'+IntToStr(Abs( GetClockValue ))+'@'+ GStack.HostName +'>';    {do not localize}
       if AGreeting.Text.Count > 0 then begin
         LGreeting.Text.Add(AGreeting.Text[0] + ' ' + LThread.APOP3Challenge);   {do not localize}
       end else begin
@@ -761,7 +760,7 @@ begin
       LGreeting.Code := OK;
       AContext.Connection.IOHandler.Write(LGreeting.FormattedReply);
     finally
-      Sys.FreeAndNil(LGreeting);
+      FreeAndNil(LGreeting);
     end;
   end
   else
