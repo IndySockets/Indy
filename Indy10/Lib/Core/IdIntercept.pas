@@ -64,7 +64,8 @@ unit IdIntercept;
 interface
 
 uses
-  IdGlobal, IdBaseComponent, IdBuffer, IdException, IdSys, IdObjs;
+  Classes,
+  IdGlobal, IdBaseComponent, IdBuffer, IdException;
 
 type
   EIdInterceptCircularLink = class(EIdException);
@@ -77,7 +78,7 @@ type
 
   TIdConnectionIntercept = class(TIdBaseComponent)
   protected
-    FConnection: TIdNativeComponent;
+    FConnection: TComponent;
     FIntercept: TIdConnectionIntercept;
     FIsClient: Boolean;
     FData: TObject;
@@ -88,11 +89,11 @@ type
     FOnSend: TIdInterceptStreamEvent;
     //
     procedure InitComponent; override;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetIntercept(AValue: TIdConnectionIntercept);
     //
   public
-    procedure Connect(AConnection: TIdNativeComponent); virtual;
+    procedure Connect(AConnection: TComponent); virtual;
     procedure Disconnect;
       virtual;
     procedure Receive(
@@ -102,7 +103,7 @@ type
       var ABuffer: TIdBytes
       ); virtual;
     //
-    property Connection: TIdNativeComponent read FConnection;
+    property Connection: TComponent read FConnection;
     property IsClient: Boolean read FIsClient;
     property Data: TObject read FData write FData; // user can use this to keep context
   published
@@ -116,7 +117,7 @@ type
   TIdServerIntercept = class(TIdBaseComponent)
   public
     procedure Init; virtual; abstract;
-    function Accept(AConnection: TIdNativeComponent): TIdConnectionIntercept; virtual; abstract;
+    function Accept(AConnection: TComponent): TIdConnectionIntercept; virtual; abstract;
   end;
 
 implementation
@@ -136,7 +137,7 @@ begin
   FConnection := nil;
 end;
 
-procedure TIdConnectionIntercept.Connect(AConnection: TIdNativeComponent);
+procedure TIdConnectionIntercept.Connect(AConnection: TComponent);
 begin
   FConnection := AConnection;
   if Assigned(OnConnect) then begin
@@ -174,7 +175,7 @@ Begin
   LIntercept := AValue;
   while Assigned(LIntercept) do begin
     if LIntercept = SELF then begin //recursion
-      raise EIdInterceptCircularLink.Create(Sys.Format(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
+      raise EIdInterceptCircularLink.Create(IndyFormat(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
     end;
     LIntercept := LIntercept.Intercept;
   end;
@@ -186,8 +187,8 @@ Begin
   end;
 End;
 
-procedure TIdConnectionIntercept.Notification(AComponent: TIdNativeComponent;
-  Operation: TIdOperation);
+procedure TIdConnectionIntercept.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
   inherited Notification(AComponent, OPeration);
 

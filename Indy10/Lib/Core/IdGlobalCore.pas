@@ -31,7 +31,7 @@ unit IdGlobalCore;
 interface
 
 uses
-  IdObjs,
+  Classes,
   IdGlobal;
 
 {$I IdCompilerDefines.inc}
@@ -39,7 +39,7 @@ const
   {$IFDEF Linux}
   tpListener = tpIdNormal;
   {$ELSE}
-  tpListener = tpIdHighest;
+  tpListener = tpHighest;
   {$ENDIF}
 
 implementation

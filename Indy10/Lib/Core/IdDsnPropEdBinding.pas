@@ -86,7 +86,7 @@ interface
 {$ENDIF}
 
 uses
-  IdObjs,
+  Classes,
   IdSocketHandle,
   {$IFDEF DOTNET}
   IdDsnPropEdBindingNET;

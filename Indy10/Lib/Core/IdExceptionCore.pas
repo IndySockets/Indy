@@ -89,8 +89,7 @@ unit IdExceptionCore;
 interface
 
 uses
-  IdException, IdStack,
-  IdSys;
+  IdException, IdStack;
 
 type
   // IdFiber Exceptions

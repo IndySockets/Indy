@@ -52,19 +52,20 @@ unit IdInterceptSimLog;
 interface
 
 uses
-  IdGlobal, IdIntercept, IdBaseComponent, IdObjs;
+  Classes,
+  IdGlobal, IdIntercept, IdBaseComponent;
 
 type
   TIdInterceptSimLog = class(TIdConnectionIntercept)
   private
   protected
     FFilename: string;
-    FStream: TIdStream;
+    FStream: TStream;
     //
     procedure SetFilename(const AValue: string);
     procedure WriteRecord(const ATag: string; const ABuffer: TIdBytes);
   public
-    procedure Connect(AConnection: TIdNativeComponent); override;
+    procedure Connect(AConnection: TComponent); override;
     procedure Disconnect; override;
     procedure Receive(var ABuffer: TIdBytes); override;
     procedure Send(var ABuffer: TIdBytes); override;
@@ -75,11 +76,11 @@ type
 implementation
 
 uses
-  IdException, IdResourceStringsCore, IdSys;
+  IdException, IdResourceStringsCore, SysUtils;
 
 { TIdInterceptSimLog }
 
-procedure TIdInterceptSimLog.Connect(AConnection: TIdNativeComponent);
+procedure TIdInterceptSimLog.Connect(AConnection: TComponent);
 begin
   inherited Connect(AConnection);
   // Warning! This will overwrite any existing file. It makes no sense
@@ -89,7 +90,7 @@ end;
 
 procedure TIdInterceptSimLog.Disconnect;
 begin
-  Sys.FreeAndNil(FStream);
+  FreeAndNil(FStream);
   inherited Disconnect;
 end;
 
@@ -135,7 +136,7 @@ begin
     if LUseEOL then begin
       WriteLn(ATag + ':EOL'); {do not localize}
     end else begin
-      WriteLn(ATag + ':Bytes:' + Sys.IntToStr(LSize));  {do not localize}
+      WriteLn(ATag + ':Bytes:' + IntToStr(LSize));  {do not localize}
     end;
     WriteStringToStream(FStream, '');
     WriteTIdBytesToStream(FStream, ABuffer, LSize);

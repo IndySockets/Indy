@@ -70,13 +70,12 @@ unit IdIcmpClient;
 interface
 
 uses
+  Classes,
   IdGlobal,
-  IdObjs,
   IdRawBase,
   IdRawClient,
   IdStackConsts,
-  IdBaseComponent,
-  IdSys;
+  IdBaseComponent;
 
 const
   DEF_PACKET_SIZE = 32;
@@ -137,7 +136,7 @@ type
     property PacketNumber : Integer read FPacketNumber write FPacketNumber;
   end;
 
-  TOnReplyEvent = procedure(ASender: TIdNativeComponent; const AReplyStatus: TReplyStatus) of object;
+  TOnReplyEvent = procedure(ASender: TComponent; const AReplyStatus: TReplyStatus) of object;
 
   TIdCustomIcmpClient = class(TIdRawClient)
   protected
@@ -203,7 +202,7 @@ implementation
 
 uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
-  IdStack;
+  IdStack, SysUtils;
 
 resourcestring
   RSICMPTimeout = 'Timeout';
@@ -420,7 +419,7 @@ end;
 
 destructor TIdCustomIcmpClient.Destroy;
 begin
-  Sys.FreeAndNil(FReplyStatus);
+  FreeAndNil(FReplyStatus);
   inherited Destroy;
 end;
 
@@ -553,7 +552,7 @@ begin
             end;
           end;
           Id_ICMP_PARAMPROB:
-            AReplyStatus.Msg := Sys.Format(RSICMPParamError,[ReplyStatus.MsgCode]);
+            AReplyStatus.Msg := IndyFormat(RSICMPParamError,[ReplyStatus.MsgCode]);
           Id_ICMP_REDIRECT :
           begin
             AReplyStatus.RedirectTo := MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( LIcmp.icmp_hun.gateway_s_l));
@@ -623,8 +622,8 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(LIcmp);
-    Sys.FreeAndNil(LIPv4);
+    FreeAndNil(LIcmp);
+    FreeAndNil(LIPv4);
   end;
 end;
 
@@ -672,7 +671,7 @@ begin
       CopyTIdString(Buffer, FBufIcmp, LIdx, Length(Buffer));
     end;
   finally
-    Sys.FreeAndNil(LIPv6);
+    FreeAndNil(LIPv6);
   end;
 end;
 
@@ -750,16 +749,16 @@ begin
           end;
         end;
         ICMP6_PACKET_TOO_BIG :
-          AReplyStatus.Msg := Sys.Format(RSICMPPacketTooBig, [LIcmp.data.icmp6_mtu]);
+          AReplyStatus.Msg := IndyFormat(RSICMPPacketTooBig, [LIcmp.data.icmp6_mtu]);
         ICMP6_PARAM_PROB :
         begin
           case LIcmp.icmp6_code of
             ICMP6_PARAMPROB_HEADER :
-              AReplyStatus.Msg := Sys.Format(RSICMPParamHeader, [LIcmp.data.icmp6_pptr]);
+              AReplyStatus.Msg := IndyFormat(RSICMPParamHeader, [LIcmp.data.icmp6_pptr]);
             ICMP6_PARAMPROB_NEXTHEADER :
-              AReplyStatus.Msg := Sys.Format(RSICMPParamNextHeader, [LIcmp.data.icmp6_pptr]);
+              AReplyStatus.Msg := IndyFormat(RSICMPParamNextHeader, [LIcmp.data.icmp6_pptr]);
             ICMP6_PARAMPROB_OPTION :
-              AReplyStatus.Msg :=  Sys.Format(RSICMPUnrecognizedOpt, [LIcmp.data.icmp6_pptr]);
+              AReplyStatus.Msg :=  IndyFormat(RSICMPUnrecognizedOpt, [LIcmp.data.icmp6_pptr]);
           end;
         end;
         ICMP6_MEMBERSHIP_QUERY : ;
@@ -768,7 +767,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(LIcmp);
+    FreeAndNil(LIcmp);
   end;
 end;
 
