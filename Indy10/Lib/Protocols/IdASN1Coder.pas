@@ -26,8 +26,7 @@ interface
 
 uses
   Classes,
-  Contnrs,
-  IdSys;
+  Contnrs;
 
 type
 

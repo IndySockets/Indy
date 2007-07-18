@@ -2698,7 +2698,7 @@ implementation
 
 uses
   IdGlobal,
-  IdSys;
+  SysUtils;
 
 function FindPreferredCharset(const Charset: TIdCharSet): TIdCharSet;
 begin
@@ -3589,7 +3589,7 @@ var
   cset: TIdCharset;
   l: string;
 begin
-  l := Sys.LowerCase(s);
+  l := LowerCase(s);
   Result := idcsINVALID;
   for cset := Low(TIdCharSet) to High(TIdCharSet) do begin
     if IdCharsetNamesLower[cset] = l then begin
@@ -3601,5 +3601,5 @@ end;
 
 initialization
   for cset := Low(TIdCharSet) to High(TIdCharSet) do
-    IdCharsetNamesLower[cset] := Sys.LowerCase(IdCharsetNames[cset]);
+    IdCharsetNamesLower[cset] := LowerCase(IdCharsetNames[cset]);
 end.

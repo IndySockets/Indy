@@ -94,7 +94,6 @@ interface
 
 uses
   Classes,
-  IdSys,
   IdGlobal,
   IdMessage,
   IdException,

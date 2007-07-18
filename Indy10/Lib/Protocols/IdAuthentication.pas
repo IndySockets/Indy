@@ -48,11 +48,10 @@ unit IdAuthentication;
 interface
 
 uses
+  Classes,
   IdHeaderList,
   IdGlobal,
-  IdException,
-  IdSys,
-  IdObjs;
+  IdException;
 
 type
   TIdAuthenticationSchemes = (asBasic, asDigest, asNTLM, asUnknown);
@@ -60,7 +59,7 @@ type
 
   TIdAuthWhatsNext = (wnAskTheProgram, wnDoRequest, wnFail);
 
-  TIdAuthentication = class(TIdPersistent)
+  TIdAuthentication = class(TPersistent)
   protected
     FCurrentStep: Integer;
     FParams: TIdHeaderList;
@@ -119,22 +118,22 @@ type
 implementation
 
 uses
-  IdCoderMIME, IdResourceStringsProtocols;
+  IdCoderMIME, IdResourceStringsProtocols, SysUtils;
 
 type
-  TAuthListObject = class(TIdBaseObject)
+  TAuthListObject = class(TObject)
     Auth: TIdAuthenticationClass;
   end;
 
 var
-  AuthList: TIdStringList = nil;
+  AuthList: TStringList = nil;
 
 procedure RegisterAuthenticationMethod(const MethodName: String; const AuthClass: TIdAuthenticationClass);
 var
   LAuthItem: TAuthListObject;
 begin
   if not Assigned(AuthList) then begin
-    AuthList := TIdStringList.Create;
+    AuthList := TStringList.Create;
   end;
 
   if AuthList.IndexOf(MethodName) < 0 then begin
@@ -143,12 +142,12 @@ begin
     try
       AuthList.AddObject(MethodName, LAuthItem);
     except
-      Sys.FreeAndNil(LAuthItem);
+      FreeAndNil(LAuthItem);
       raise;
     end;
   end
   else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.Create(Sys.Format(RSHTTPAuthAlreadyRegistered,
+    raise EIdAlreadyRegisteredAuthenticationMethod.Create(IndyFormat(RSHTTPAuthAlreadyRegistered,
       [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]));
   end;
 end;
@@ -186,8 +185,8 @@ end;
 
 destructor TIdAuthentication.Destroy;
 begin
-  Sys.FreeAndNil(FAuthParams);
-  Sys.FreeAndNil(FParams);
+  FreeAndNil(FAuthParams);
+  FreeAndNil(FParams);
   inherited Destroy;
 end;
 
@@ -272,7 +271,7 @@ begin
     with Params do begin
       // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
       // FRealm never assigned without StringReplace
-      Add(Sys.ReplaceOnlyFirst(Fetch(S, ', '), '=', NameValueSeparator));  {do not localize}
+      Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', NameValueSeparator));  {do not localize}
   end;
 
   FRealm := Copy(Params.Values['realm'], 2, Length(Params.Values['realm']) - 2);   {Do not Localize}
@@ -318,7 +317,7 @@ finalization
       AuthList.Objects[0].Free;
       AuthList.Delete(0);
     end;
-    Sys.FreeAndNil(AuthList);
+    FreeAndNil(AuthList);
   end;
 end.
 

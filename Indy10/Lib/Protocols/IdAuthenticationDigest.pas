@@ -48,13 +48,12 @@ unit IdAuthenticationDigest;
 interface
 
 uses
+  Classes,
   IdAuthentication,
   IdException,
   IdGlobal,
   IdHashMessageDigest,
-  IdHeaderList,
-  IdSys,
-  IdObjs;
+  IdHeaderList;
 
 type
   EIdInvalidAlgorithm = class(EIdException);
@@ -64,34 +63,34 @@ type
     FRealm: String;
     FStale: Boolean;
     FOpaque: String;
-    FDomain: TIdStringList;
+    FDomain: TStringList;
     Fnonce: String;
     FNoncecount: integer;
     FAlgorithm: String;
     FMethod, FUri: string; //needed for digest, Somebody make this nice :D
-    FPostbody: TIdStringList; //needed voor auth-int, Somebody make this nice :D
-    FQopOptions: TIdStringList;
-    FOther: TIdStringList;
+    FPostbody: TStringList; //needed voor auth-int, Somebody make this nice :D
+    FQopOptions: TStringList;
+    FOther: TStringList;
     function DoNext: TIdAuthWhatsNext; override;
   public
     destructor Destroy; override;
     function Authentication: String; override;
     property Method: String read FMethod write FMethod;
     property Uri: String read FUri write FUri;
-    property Postbody: TIdStringList read FPostbody write FPostbody;
+    property Postbody: TStringList read FPostbody write FPostbody;
   end;
 
 implementation
 
 uses
-  IdHash, IdResourceStrings, IdResourceStringsProtocols;
+  IdHash, IdResourceStrings, IdResourceStringsProtocols, SysUtils;
 
 { TIdDigestAuthentication }
 
 destructor TIdDigestAuthentication.Destroy;
 begin
-  Sys.FreeAndNil(FDomain);
-  Sys.FreeAndNil(FQopOptions);
+  FreeAndNil(FDomain);
+  FreeAndNil(FQopOptions);
   inherited Destroy;
 end;
 
@@ -100,10 +99,10 @@ function TIdDigestAuthentication.Authentication: String;
   function ResultString(const s: String): String;
   begin
     with TIdHashMessageDigest5.Create do try
-      Result := Sys.LowerCase(HashStringAsHex(S));
+      Result := LowerCase(HashStringAsHex(S));
     finally Free end;
     // RLebeau: how can spaces get into the Hex output?
-    Result := Sys.StringReplace(Result, ' ', '0'); //Stupid uppercase, cost me a whole day to figure this one out
+    Result := StringReplace(Result, ' ', '0',[rfReplaceAll]); //Stupid uppercase, cost me a whole day to figure this one out
   end;
 
 var
@@ -119,7 +118,7 @@ begin
       begin
         //Build request
 
-        LstrCNonce := ResultString(Sys.DateTimeToStr(Sys.Now));
+        LstrCNonce := ResultString(DateTimeToStr(Now));
 
         LstrA1 := ResultString(Username + ':' + FRealm + ':' + Password);
         if TextIsSame(FAlgorithm, 'MD5-sess') then begin
@@ -132,7 +131,7 @@ begin
         end;
         LstrResponse := LstrA1 + ':' + Fnonce + ':';
         if (FQopOptions.IndexOf('auth-int') > -1) or (FQopOptions.IndexOf('auth') > -1) then begin //Qop header present
-          LstrResponse := LstrResponse + Sys.IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':';
+          LstrResponse := LstrResponse + IntToHex(FNoncecount, 8) + ':' + LstrCNonce + ':';
           if FQopOptions.IndexOf('auth-int') > -1 then begin
             LstrResponse := LstrResponse + 'auth-int:';
           end else begin
@@ -154,7 +153,7 @@ begin
           end else begin
             Result := Result + 'qop="auth", ';
           end;
-          Result := Result + 'nc=' + Sys.IntToHex(FNoncecount, 8) + ', ' +
+          Result := Result + 'nc=' + IntToHex(FNoncecount, 8) + ', ' +
             'cnonce="' + LstrCNonce + '", ';
         end;
         Result := Result + 'response="' + LstrResponse + '"';
@@ -179,7 +178,7 @@ end;
 function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
 var
   S, LstrTempNonce: String;
-  LParams: TIdStringList;
+  LParams: TStringList;
   f: String;
   i: Integer;
 begin
@@ -190,12 +189,12 @@ begin
       begin
         //gather info
         if not Assigned(FDomain) then begin
-          FDomain := TIdStringList.Create;
+          FDomain := TStringList.Create;
         end else begin
           FDomain.Clear;
         end;
         if not Assigned(FQopOptions) then begin
-          FQopOptions := TIdStringList.Create;
+          FQopOptions := TStringList.Create;
         end else begin
           FQopOptions.Clear;
         end;
@@ -203,7 +202,7 @@ begin
         S := ReadAuthInfo('Digest');
         Fetch(S);
 
-        LParams := TIdStringList.Create;
+        LParams := TStringList.Create;
         try
           while Length(S) > 0 do begin
             f := Fetch(S, ', ');
@@ -241,7 +240,7 @@ begin
           end;
 
         finally
-          Sys.FreeAndNil(LParams);
+          FreeAndNil(LParams);
         end;
 
         FCurrentStep := 1;

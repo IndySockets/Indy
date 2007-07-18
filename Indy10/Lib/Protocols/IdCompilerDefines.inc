@@ -95,7 +95,7 @@
   {$DEFINE ALLOW_NAMED_THREADS}
 {$ENDIF}
 
-//Delphi 9
+//Delphi 9 - 2005
 {$IFDEF VER170}
   {$DEFINE VCL4ORABOVE}
   {$DEFINE VCL5ORABOVE}
@@ -110,8 +110,9 @@
   {$DEFINE ALLOW_NAMED_THREADS}
 {$ENDIF}
 
-//Delphi 10
+//Delphi 10 - Delphi 2006, Delphi 2007
 {$IFDEF VER180}
+  {$DEFINE USEINLINE}
   {$DEFINE VCL4ORABOVE}
   {$DEFINE VCL5ORABOVE}
   {$DEFINE VCL6ORABOVE}
@@ -126,8 +127,10 @@
   {$DEFINE ALLOW_NAMED_THREADS}
 {$ENDIF}
 
-//Delphi 11
-{$IFDEF VER190}
+//Delphi 11 - 2007
+{$IFDEF VER185}
+
+  {$DEFINE USEINLINE}
   {$DEFINE VCL4ORABOVE}
   {$DEFINE VCL5ORABOVE}
   {$DEFINE VCL6ORABOVE}
@@ -136,6 +139,8 @@
   {$DEFINE VCL9ORABOVE}
   {$DEFINE VCL10ORABOVE}
   {$DEFINE VCL11ORABOVE}
+  {$UNDEF DELPHI10}
+  {$UNDEF VCL10}
   {$DEFINE VCL11}
   {$DEFINE DELPHI11}
   {$DEFINE OPTIONALPARAMS}
@@ -148,6 +153,12 @@
 {$IFDEF CIL}
   // Platform specific conditional. Used for platform specific code.
   {$DEFINE DotNet}
+  //differences in DotNET Framework versions.
+  {$IFDEF VCL11ORABOVE}
+     {$DEFINE DotNet2}
+  {$ELSE}
+     {$DEFINE DotNet1}
+  {$ENDIF}
   // Extra include used in D7 for testing. Remove later when all comps are
   // ported. Used to selectively exclude non ported parts. Allowed in places
   // IFDEFs are otherwise not permitted.

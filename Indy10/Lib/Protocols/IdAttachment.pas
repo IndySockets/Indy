@@ -48,10 +48,9 @@ unit IdAttachment;
 interface
 
 uses
+  Classes,
   IdMessageParts,
-  IdBaseComponent,
-  IdSys,
-  IdObjs;
+  IdBaseComponent;
 
 type
   TIdAttachment = class(TIdMessagePart)
@@ -73,7 +72,7 @@ type
     //  3) this will be called - first OpenLoadStream, to get a stream
     //  4) when the message is fully encoded, CloseLoadStream is called
     //     to close the stream. The Attachment implementation decides what to do
-    function OpenLoadStream: TIdStream; virtual; abstract;
+    function OpenLoadStream: TStream; virtual; abstract;
     procedure CloseLoadStream; virtual; abstract;
 
     // for save handling
@@ -82,12 +81,12 @@ type
     //  2) PrepareTempStream is called
     //  3) stuff is loaded
     //  4) FinishTempStream is called of the newly created attachment
-    function  PrepareTempStream: TIdStream; virtual; abstract;
+    function  PrepareTempStream: TStream; virtual; abstract;
     procedure FinishTempStream; virtual; abstract;
     procedure SaveToFile(const FileName: String); virtual;
-    procedure SaveToStream(AStream: TIdStream); virtual;
+    procedure SaveToStream(AStream: TStream); virtual;
 
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
 
 
     property  FileName: String read FFileName write FFileName;
@@ -101,14 +100,14 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 const
   SContentDisposition = 'Content-Disposition';  {do not localize}
 
 { TIdAttachment }
 
-procedure TIdAttachment.Assign(Source: TIdPersistent);
+procedure TIdAttachment.Assign(Source: TPersistent);
 var
   mp: TIdAttachment;
 begin
@@ -155,18 +154,18 @@ end;
 
 procedure TIdAttachment.SaveToFile(const FileName: String);
 var
-  fs: TIdFileStream;
+  fs: TFileStream;
 begin
-  fs := TIdFileStream.Create(FileName, fmCreate); try
+  fs := TFileStream.Create(FileName, fmCreate); try
     SaveToStream(fs);
   finally
-    Sys.FreeAndNil(fs);
+    FreeAndNil(fs);
   end;
 end;
 
-procedure TIdAttachment.SaveToStream(AStream: TIdStream);
+procedure TIdAttachment.SaveToStream(AStream: TStream);
 var
-  os: TIdStream;
+  os: TStream;
 begin
   os := OpenLoadStream;
   try

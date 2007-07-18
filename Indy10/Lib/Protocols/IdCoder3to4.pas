@@ -126,10 +126,9 @@ unit IdCoder3to4;
 interface
 
 uses
+  Classes,
   IdCoder,
-  IdGlobal,
-  IdObjs,
-  IdSys;
+  IdGlobal;
 
 type
   TIdDecodeTable = array[1..127] of Byte;
@@ -140,7 +139,7 @@ type
     FFillChar: Char;
   public
     function EncodeIdBytes(ABuffer: TIdBytes): TIdBytes;
-    function Encode(ASrcStream: TIdStream;
+    function Encode(ASrcStream: TStream;
      const ABytes: Integer = MaxInt): string; override;
   published
     property CodingTable: string read FCodingTable;
@@ -167,7 +166,7 @@ type
 implementation
 
 uses
-  IdException, IdResourceStrings, IdStream;
+  IdException, IdResourceStrings, IdStream, SysUtils;
 
 { TIdDecoder4to3 }
 
@@ -295,7 +294,7 @@ end;
 
 { TIdEncoder3to4 }
 
-function TIdEncoder3to4.Encode(ASrcStream: TIdStream; const ABytes: Integer = MaxInt): string;
+function TIdEncoder3to4.Encode(ASrcStream: TStream; const ABytes: Integer = MaxInt): string;
 //TODO: Make this more efficient. Profile it to test, but maybe make single
 // calls to ReadBuffer then pull from memory
 var
@@ -394,13 +393,13 @@ begin
 
     Assert(LLen + 4 <= length(Result),
       'TIdEncoder3to4.Encode: Calculated length exceeded (expected '+ {do not localize}
-      Sys.IntToStr(4 * trunc((LBufSize + 2)/3)) +
+      IntToStr(4 * trunc((LBufSize + 2)/3)) +
       ', about to go '+                                               {do not localize}
-      Sys.IntToStr(LLen + 4) +
+      IntToStr(LLen + 4) +
       ' at offset ' +                                                 {do not localize}
-      Sys.IntToStr(LPos) +
+      IntToStr(LPos) +
       ' of '+                                                         {do not localize}
-       Sys.IntToStr(LBufSize));
+       IntToStr(LBufSize));
 
     //CopyTIdBytes(LUnit, 0, Result, LLen, 4);
     Result[LLen] := LUnit[0];
@@ -419,11 +418,11 @@ begin
 
   assert(LLen = (4 * trunc((LBufSize + 2)/3)),
     'TIdEncoder3to4.Encode: Calculated length not met (expected ' +  {do not localize}
-    Sys.IntToStr(4 * trunc((LBufSize + 2)/3)) +
+    IntToStr(4 * trunc((LBufSize + 2)/3)) +
     ', finished at ' +                                               {do not localize}
-    Sys.IntToStr(LLen + 4) +
+    IntToStr(LLen + 4) +
     ', Bufsize = ' +                                                 {do not localize}
-    Sys.IntToStr(LBufSize));
+    IntToStr(LBufSize));
 end;
 
 (*procedure TIdEncoder3to4.EncodeUnit(const AIn1, AIn2, AIn3: Byte; var VOut: TIdBytes);

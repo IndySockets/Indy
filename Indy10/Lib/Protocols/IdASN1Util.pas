@@ -67,7 +67,7 @@ unit IdASN1Util;
 interface
 
 uses
-  IdSys;
+  SysUtils;
 
 const
   ASN1_INT = $02;
@@ -252,7 +252,7 @@ begin
   if (Start + ASNSize - 1) > l then
     Exit;
   if (ASNType and $20) > 0 then
-    Result := '$' + Sys.IntToHex(ASNType, 2)     {Do not Localize}
+    Result := '$' + IntToHex(ASNType, 2)     {Do not Localize}
   else
     case ASNType of
       ASN1_INT:
@@ -271,7 +271,7 @@ begin
           end;
           if neg then
             y := -(y + 1);
-          Result := Sys.IntToStr(y);
+          Result := IntToStr(y);
         end;
       ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:  //Typically a 32-bit _unsigned_ number
         begin
@@ -282,7 +282,7 @@ begin
             z := (z * 256) + y;          //now accumulate value
             Inc(Start);
           end;
-          Result := Sys.IntToStr(z);
+          Result := IntToStr(z);
         end;
       ASN1_OCTSTR, ASN1_OPAQUE:
         begin
@@ -315,7 +315,7 @@ begin
               s := s + '.';     {Do not Localize}
             y := Ord(Buffer[Start]);
             Inc(Start);
-            s := s + Sys.IntToStr(y);
+            s := s + IntToStr(y);
           end;
           Result := s;
         end;
@@ -349,7 +349,7 @@ var
       t := Copy(s, 1, x - 1);
       s := Copy(s, x + 1, Length(s) - x);
     end;
-    Result := Sys.StrToInt(t, 0);
+    Result := IndyStrToInt(t, 0);
   end;
 
 begin
@@ -378,9 +378,9 @@ begin
     begin
       y := x div 40;
       x := x mod 40;
-      Result := Sys.IntToStr(y);
+      Result := IntToStr(y);
     end;
-    Result := Result + '.' + Sys.IntToStr(x);    {Do not Localize}
+    Result := Result + '.' + IntToStr(x);    {Do not Localize}
   end;
 end;
 
@@ -392,7 +392,7 @@ begin
   y := 0;
   for n := 1 to Length(Value) - 1 do
     y := y * 256 + Ord(Value[n]);
-  Result := Sys.IntToStr(y);
+  Result := IntToStr(y);
 end;
 
 {==============================================================================}

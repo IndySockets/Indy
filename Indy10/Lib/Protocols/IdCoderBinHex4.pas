@@ -150,13 +150,12 @@ unit IdCoderBinHex4;
 interface
 
 uses
+  Classes,
   IdException,
   IdStream,
   IdCoder,
   IdCoder3to4,
-  IdGlobal,
-  IdSys,
-  IdObjs;
+  IdGlobal;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
@@ -166,7 +165,7 @@ type
     procedure InitComponent; override;
   public
     //We cannot override Encode because we need different parameters...
-    procedure EncodeFile(AFileName: string; ASrcStream: TIdStream; ADestStream: TIdStream);
+    procedure EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
   end;
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
   protected
@@ -370,7 +369,7 @@ begin
   end;
 end;
 
-procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TIdStream; ADestStream: TIdStream);
+procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
 var
   LN: integer;
   LM: integer;

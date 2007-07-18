@@ -36,35 +36,34 @@ unit IdAuthenticationManager;
 interface
 
 uses
+  Classes,
   IdAuthentication,
   IdBaseComponent,
-  IdSys,
-  IdObjs,
   IdURI;
 
 type
-  TIdAuthenticationItem = class(TIdCollectionItem)
+  TIdAuthenticationItem = class(TCollectionItem)
   protected
     FURI: TIdURI;
-    FParams: TIdStringList;
-    procedure SetParams(const Value: TIdStringList);
+    FParams: TStringList;
+    procedure SetParams(const Value: TStringList);
     procedure SetURI(const Value: TIdURI);
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
 
     property URL: TIdURI read FURI write SetURI;
-    property Params: TIdStringList read FParams write SetParams;
+    property Params: TStringList read FParams write SetParams;
   end;
 
-  TIdAuthenticationCollection = class(TIdOwnedCollection)
+  TIdAuthenticationCollection = class(TOwnedCollection)
   protected
     function GetAuthItem(AIndex: Integer): TIdAuthenticationItem;
     procedure SetAuthItem(AIndex: Integer;
       const Value: TIdAuthenticationItem);
   public
     function Add: TIdAuthenticationItem;
-    constructor Create(AOwner: TIdPersistent);
+    constructor Create(AOwner: TPersistent);
     //
     property Items[AIndex: Integer]: TIdAuthenticationItem read GetAuthItem write SetAuthItem;
   end;
@@ -83,7 +82,7 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 { TIdAuthenticationManager }
 
@@ -92,7 +91,7 @@ begin
   result := TIdAuthenticationItem.Create(self);
 end;
 
-constructor TIdAuthenticationCollection.Create(AOwner: TIdPersistent);
+constructor TIdAuthenticationCollection.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdAuthenticationItem);
 end;
@@ -124,7 +123,7 @@ end;
 
 destructor TIdAuthenticationManager.Destroy;
 begin
-  Sys.FreeAndNil(FAuthentications);
+  FreeAndNil(FAuthentications);
   inherited Destroy;
 end;
 
@@ -136,22 +135,22 @@ end;
 
 { TIdAuthenticationItem }
 
-constructor TIdAuthenticationItem.Create(ACollection: TIdCollection);
+constructor TIdAuthenticationItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
 
   FURI := TIdURI.Create;
-  FParams := TIdStringList.Create;
+  FParams := TStringList.Create;
 end;
 
 destructor TIdAuthenticationItem.Destroy;
 begin
-  Sys.FreeAndNil(FURI);
-  Sys.FreeAndNil(FParams);
+  FreeAndNil(FURI);
+  FreeAndNil(FParams);
   inherited Destroy;
 end;
 
-procedure TIdAuthenticationItem.SetParams(const Value: TIdStringList);
+procedure TIdAuthenticationItem.SetParams(const Value: TStringList);
 begin
   FParams.Assign(Value);
 end;

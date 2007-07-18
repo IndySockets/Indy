@@ -105,10 +105,9 @@ unit IdCoderQuotedPrintable;
 interface
 
 uses
+  Classes,
   IdCoder,
-  IdObjs,
-  IdStream,
-  IdSys;
+  IdStream;
 
 type
   TIdDecoderQuotedPrintable = class(TIdDecoder)
@@ -119,13 +118,13 @@ type
 
   TIdEncoderQuotedPrintable = class(TIdEncoder)
   public
-    function Encode(ASrcStream: TIdStream; const ABytes: integer = MaxInt): string; override;
+    function Encode(ASrcStream: TStream; const ABytes: integer = MaxInt): string; override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 
 { TIdDecoderQuotedPrintable }
@@ -245,13 +244,13 @@ begin
 end;
 
 { TIdEncoderQuotedPrintable }
-function TIdEncoderQuotedPrintable.Encode(ASrcStream: TIdStream; const ABytes: integer): string;
+function TIdEncoderQuotedPrintable.Encode(ASrcStream: TStream; const ABytes: integer): string;
 const
   SafeChars = [#33..#60, #62..#126];
   HalfSafeChars = [#32, TAB];
   // Rule #2, #3
 var
-  st: TIdStringList;
+  st: TStringList;
   CurrentLine: shortstring;
   // this is a shortstring for performance reasons.
   // the lines may never get longer than 76, so even if I go a bit
@@ -285,7 +284,7 @@ var
   i: integer;
   SourceLen: integer;
 begin
-  st := TIdStringList.Create;
+  st := TStringList.Create;
   SetLength(CurrentLine, 255);
   try
     //ie while not eof
@@ -319,7 +318,7 @@ begin
     end;
     Result := st.Text;
   finally
-    Sys.FreeAndNil(st);
+    FreeAndNil(st);
   end;
 end;
 

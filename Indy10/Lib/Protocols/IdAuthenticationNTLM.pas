@@ -73,8 +73,8 @@ uses
   IdResourceStringsProtocols,
   IdSSLOpenSSLHeaders,
   IdSSLOpenSSL,
-  IdSys,
-  IdNTLM;
+  IdNTLM,
+  SysUtils;
 
 constructor TIdNTLMAuthentication.Create;
 begin
@@ -138,7 +138,7 @@ begin
         if Length(FNTLMInfo) = 0 then
         begin
           Reset;
-          Sys.Abort;
+          Abort;
         end;
 
         with TIdDecoderMIME.Create do try
