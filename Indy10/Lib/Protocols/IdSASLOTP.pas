@@ -58,7 +58,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdSys, IdUserPassProvider;
+  IdBaseComponent, IdGlobal, IdOTPCalculator, IdUserPassProvider;
 
 { TIdSASLOTP }
 

@@ -49,11 +49,11 @@ unit IdSystatUDPServer;
 interface
 
 uses
-  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer,
-  IdObjs;
+  Classes,
+  IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
 
 type
-  TIdUDPSystatEvent = procedure (ABinding: TIdSocketHandle; AResults : TIdStrings) of object;
+  TIdUDPSystatEvent = procedure (ABinding: TIdSocketHandle; AResults : TStrings) of object;
 type
   TIdSystatUDPServer = class(TIdUDPServer)
   protected
@@ -68,7 +68,7 @@ type
 implementation
 
 uses
-  IdSys;
+  SysUtils;
 
 {
 According to the "Programming UNIX Sockets in C - Frequently Asked Questions"
@@ -101,7 +101,7 @@ procedure TIdSystatUDPServer.DoUDPRead(AThread: TIdUDPListenerThread;
   const AData: TIdBytes; ABinding: TIdSocketHandle);
 var
   s, s2 : String;
-  LResults : TIdStrings;
+  LResults : TStrings;
   i : Integer;
 
   function MaxLenStr(const AStr : String): String;
@@ -117,7 +117,7 @@ begin
   inherited DoUDPRead(AThread, AData, ABinding);
   if Assigned(FOnSystat) then
   begin
-    LResults := TIdStringList.Create;
+    LResults := TStringList.Create;
     try
       FOnSystat(ABinding, LResults);
       with ABinding do
@@ -129,7 +129,7 @@ begin
           s2 := s + EOL + MaxLenStr(LResults[i]);
           if Length(s2) > Max_UDPPacket then
           begin
-            s := Sys.TrimLeft(s);
+            s := TrimLeft(s);
             SendTo(PeerIP, PeerPort, ToBytes(s));
             s := MaxLenStr(LResults[i]);
           end
@@ -140,12 +140,12 @@ begin
         end;
         if s <> '' then
         begin
-          s := Sys.TrimLeft(s);
+          s := TrimLeft(s);
           SendTo(PeerIP, PeerPort, ToBytes(s));
         end;
       end;
     finally
-      Sys.FreeAndNil(LResults);
+      FreeAndNil(LResults);
     end;
   end;
 end;

@@ -80,7 +80,7 @@ implementation
 
 uses
   IdGlobal,
-  IdSys;
+  SysUtils;
 
 class function TIdSASLCRAMMD5.BuildKeydMD5Auth(const Password, Challenge: string): string;
 var
@@ -92,9 +92,9 @@ begin
   aHash.Key:=ToBytes(Password);
   aBuffer:=ToBytes(Challenge);
   aBuffer:=aHash.HashValue(aBuffer);
-  Result:=Sys.LowerCase(ToHex(aBuffer));
+  Result:=LowerCase(ToHex(aBuffer));
  finally
-  Sys.FreeAndNil(aHash);
+  FreeAndNil(aHash);
  end;
 end;
 

@@ -58,7 +58,6 @@ interface
 uses
   Classes,
   IdASN1Util,
-  IdObjs,
   IdException,
   IdUDPBase,
   IdUDPClient;
@@ -105,8 +104,8 @@ type
     ID : integer;
     ErrorStatus : integer;
     ErrorIndex : integer;
-    MIBOID : TIdStringList;
-    MIBValue : TIdStringList;
+    MIBOID : TStringList;
+    MIBValue : TStringList;
 
     constructor Create (AOwner : TIdSNMP);
     destructor  Destroy; override;
@@ -141,9 +140,9 @@ type
     function SendQuery : boolean;
     function QuickSend(const Mib, Community, Host:string; var Value:string):Boolean;
     function QuickSendTrap(const Dest, Enterprise, Community: string;
-                      Port, Generic, Specific: integer; MIBName, MIBValue: TIdStringList): integer;
+                      Port, Generic, Specific: integer; MIBName, MIBValue: TStringList): integer;
     function QuickReceiveTrap(var Source, Enterprise, Community: string;
-                      var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TIdStringList): integer;
+                      var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TStringList): integer;
     function SendTrap: integer;
     function ReceiveTrap: integer;
   published
@@ -156,8 +155,7 @@ implementation
 
 uses
   IdGlobal,
-  IdSys,
-  IdStack;
+  IdStack, SysUtils;
 
 //Hernan Sanchez
 function IPToID(Host: string): string;
@@ -172,10 +170,10 @@ begin
     s := Copy(Host, IndyPos('.', Host), Length(Host));    {Do not Localize}
     t := Copy(Host, 1, (Length(Host) - Length(s)));
     Delete(Host, 1, (Length(Host) - Length(s) + 1));
-    i := Sys.StrToint(t, 0);
+    i := IndyStrToInt(t, 0);
     Result := Result + Chr(i);
   end;
-  i := Sys.StrToint(Host, 0);
+  i := IndyStrToInt(Host, 0);
   Result := Result + Chr(i);
 end;
 
@@ -196,8 +194,8 @@ constructor TSNMPInfo.Create(AOwner : TIdSNMP);
 begin
   inherited Create;
   fOwner := AOwner;
-  MIBOID:=TIdStringList.create;
-  MIBValue:=TIdStringList.create;
+  MIBOID:=TStringList.create;
+  MIBValue:=TStringList.create;
   fCommunity := AOwner.Community;
   Port := AOwner.Port;
 end;
@@ -246,12 +244,12 @@ var
 begin
   Pos:=2;
   Endpos:=ASNDecLen(Pos,buffer);
-  Self.version:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.version:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
   Self.community:=ASNItem(Pos,buffer,vt);
-  Self.PDUType:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ID:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorStatus:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorIndex:=Sys.StrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.PDUType:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ID:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ErrorStatus:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
+  Self.ErrorIndex:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
   ASNItem(Pos,buffer,vt);
   while Pos<Endpos do           // Decode MIB/Value pairs
     begin
@@ -287,10 +285,10 @@ begin
       case objType of
         ASN1_INT:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncInt(Sys.StrToInt(Self.MIBValue[n], 0)), objType);
+            ASNObject(ASNEncInt(IndyStrToInt(Self.MIBValue[n], 0)), objType);
         ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncUInt(Sys.StrToInt(Self.MIBValue[n], 0)), objType);
+            ASNObject(ASNEncUInt(IndyStrToInt(Self.MIBValue[n], 0)), objType);
         ASN1_OBJID:
           s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
             ASNObject(MibToID(Self.MIBValue[n]), objType);
@@ -460,14 +458,14 @@ var
 begin
   Pos := 2;
   EndPos := ASNDecLen(Pos, Buffer);
-  Version := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  Version := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
   Community := ASNItem(Pos, Buffer, vt);
-  PDUType := Sys.StrToInt(ASNItem(Pos, Buffer, vt), PDUTRAP);
+  PDUType := IndyStrToInt(ASNItem(Pos, Buffer, vt), PDUTRAP);
   Enterprise := ASNItem(Pos, Buffer, vt);
   Host := ASNItem(Pos, Buffer, vt);
-  GenTrap := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
-  Spectrap := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
-  TimeTicks := Sys.StrToInt(ASNItem(Pos, Buffer, vt), 0);
+  GenTrap := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
+  Spectrap := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
+  TimeTicks := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
   ASNItem(Pos, Buffer, vt);
   while (Pos < EndPos) do
   begin
@@ -630,7 +628,7 @@ begin
 end;
 
 function TIdSNMP.QuickSendTrap(const Dest, Enterprise, Community: string;
-  Port, Generic, Specific: integer; MIBName, MIBValue: TIdStringList): integer;
+  Port, Generic, Specific: integer; MIBName, MIBValue: TStringList): integer;
 var
   i: integer;
 begin
@@ -644,7 +642,7 @@ begin
 end;
 
 function TIdSNMP.QuickReceiveTrap(var Source, Enterprise, Community: string;
-  var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TIdStringList): integer;
+  var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TStringList): integer;
 var
   i: integer;
 begin

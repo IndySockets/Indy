@@ -46,13 +46,12 @@ unit IdUserAccounts;
 interface
 
 uses
+  Classes,
   IdException,
   IdGlobal,
   IdBaseComponent,
   IdComponent,
-  IdStrings,
-  IdSys,
-  IdObjs;
+  IdStrings;
 
 type
   TIdUserHandle = Cardinal;//ptr,object,collection.item.id or THandle
@@ -143,19 +142,19 @@ const
 type
   TIdUserManager = class;
 
-  TIdUserAccount = class(TIdCollectionItem)
+  TIdUserAccount = class(TCollectionItem)
   protected
-    FAttributes: TIdStrings;
+    FAttributes: TStrings;
     FData: TObject;
     FUserName: string;
     FPassword: string;
     FRealName: string;
     FAccess: TIdUserAccess;
     //
-    procedure SetAttributes(const AValue: TIdStrings);
+    procedure SetAttributes(const AValue: TStrings);
     procedure SetPassword(const AValue: String); virtual;
   public
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
     //
     function  CheckPassword(const APassword: String): Boolean; virtual;
@@ -163,13 +162,13 @@ type
     property  Data: TObject read FData write FData;
   published
     property  Access: TIdUserAccess read FAccess write FAccess default IdUserAccountDefaultAccess;
-    property  Attributes: TIdStrings read FAttributes write SetAttributes;
+    property  Attributes: TStrings read FAttributes write SetAttributes;
     property  UserName: string read FUserName write FUserName;
     property  Password: string read FPassword write SetPassword;
     property  RealName: string read FRealName write FRealName;
   End;//TIdUserAccount
 
-  TIdUserAccounts = class(TIdOwnedCollection)
+  TIdUserAccounts = class(TOwnedCollection)
   protected
     FCaseSensitiveUsernames: Boolean;
     FCaseSensitivePasswords: Boolean;
@@ -211,6 +210,7 @@ type
   End;//TIdUserManager
 
 implementation
+uses SysUtils;
 
 { How add UserAccounts to your component:
 1) property UserAccounts: TIdCustomUserManager read FUserAccounts write SetUserAccounts;
@@ -330,20 +330,20 @@ begin
   end;
 end;
 
-constructor TIdUserAccount.Create(ACollection: TIdCollection);
+constructor TIdUserAccount.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
-  FAttributes := TIdStringList.Create;
+  FAttributes := TStringList.Create;
   FAccess := IdUserAccountDefaultAccess;
 end;
 
 destructor TIdUserAccount.Destroy;
 begin
-  Sys.FreeAndNil(FAttributes);
+  FreeAndNil(FAttributes);
   inherited Destroy;
 end;
 
-procedure TIdUserAccount.SetAttributes(const AValue: TIdStrings);
+procedure TIdUserAccount.SetAttributes(const AValue: TStrings);
 begin
   FAttributes.Assign(AValue);
 end;
@@ -408,7 +408,7 @@ end;
 
 destructor TIdUserManager.Destroy;
 begin
-  Sys.FreeAndNil(FAccounts);
+  FreeAndNil(FAccounts);
   inherited Destroy;
 end;
 

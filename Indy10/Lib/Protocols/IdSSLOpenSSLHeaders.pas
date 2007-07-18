@@ -3297,9 +3297,9 @@ procedure IdSslX509V3SetCtxNoDb(ctx:X509V3_CTX);
 implementation
 
 uses
-  IdObjs,
-  IdSys,
+  Classes,
   IdGlobal,  //needed for Sys symbol
+  SysUtils,
   {$IFDEF LINUX}
   libc
   {$ELSE}
@@ -3319,7 +3319,7 @@ var
   hIdSSL    : Integer = 0;
   hIdCrypto : Integer = 0;
 
-  FFailedFunctionLoadList : TIdStringList;
+  FFailedFunctionLoadList : TStringList;
 
   // LIBEAY functions - open SSL 0.9.6a
   IdSslRandScreen : procedure cdecl = nil;
@@ -5282,12 +5282,12 @@ begin
   end;
 
   // Convert time from string to number
-  year := Sys.StrToInt(Copy(time_str, 1, 2)) + 1900;
-  month := Sys.StrToInt(Copy(time_str, 3, 2));
-  day := Sys.StrToInt(Copy(time_str, 5, 2));
-  hour := Sys.StrToInt(Copy(time_str, 7, 2));
-  min := Sys.StrToInt(Copy(time_str, 9, 2));
-  sec := Sys.StrToInt(Copy(time_str, 11, 2));
+  year := IndyStrToInt(Copy(time_str, 1, 2)) + 1900;
+  month := IndyStrToInt(Copy(time_str, 3, 2));
+  day := IndyStrToInt(Copy(time_str, 5, 2));
+  hour := IndyStrToInt(Copy(time_str, 7, 2));
+  min := IndyStrToInt(Copy(time_str, 9, 2));
+  sec := IndyStrToInt(Copy(time_str, 11, 2));
 
   // Fix year. This function is Y2k but isn't compatible with Y2k5 :-(    {Do not Localize}
   if (year < 1950) then begin
@@ -5309,8 +5309,8 @@ begin
       if (time_str[i] > '9' ) or (time_str[i] < '0') then exit;    {Do not Localize}
     end;
 
-    tz_hour := Sys.StrToInt(Copy(time_str, 14, 15)) * tz_dir;
-    tz_min  := Sys.StrToInt(Copy(time_str, 17, 18)) * tz_dir;
+    tz_hour := IndyStrToInt(Copy(time_str, 14, 15)) * tz_dir;
+    tz_min  := IndyStrToInt(Copy(time_str, 17, 18)) * tz_dir;
   end;
 end;
 
@@ -5454,10 +5454,10 @@ begin
 end;
 
 initialization
-  FFailedFunctionLoadList := TIdStringList.Create;
+  FFailedFunctionLoadList := TStringList.Create;
 
 finalization
-  Sys.FreeAndNil(FFailedFunctionLoadList);
+  FreeAndNil(FFailedFunctionLoadList);
 
 end.
 

@@ -72,9 +72,8 @@ unit IdVCard;
 interface
 
 uses
-  IdBaseComponent,
-  IdObjs,
-  IdSys;
+  Classes,
+  IdBaseComponent;
 
 { TODO:
 
@@ -99,14 +98,14 @@ VCards can not be saved. }
 type
 
   {This contains the object for Sound, Logo, Photo, Key, and Agent property}
-  TIdVCardEmbeddedObject = class(TIdPersistent)
+  TIdVCardEmbeddedObject = class(TPersistent)
   protected
     FObjectType : String;
     FObjectURL  : String;
     FBase64Encoded : Boolean;
-    FEmbeddedData : TIdStrings;
+    FEmbeddedData : TStrings;
     {Embeded data property set method}
-    procedure SetEmbeddedData(const Value: TIdStrings);
+    procedure SetEmbeddedData(const Value: TStrings);
   public
     constructor Create;
     destructor Destroy; override;
@@ -120,17 +119,17 @@ type
     property Base64Encoded : Boolean read FBase64Encoded write FBase64Encoded;
     {The data for the object if it is in the VCard.  This is usually in an
     encoded format such as BASE64 although some keys may not require encoding}
-    property EmbeddedData : TIdStrings read FEmbeddedData write SetEmbeddedData;
+    property EmbeddedData : TStrings read FEmbeddedData write SetEmbeddedData;
   end;
 
   {VCard business information}
-  TIdVCardBusinessInfo = class(TIdPersistent)
+  TIdVCardBusinessInfo = class(TPersistent)
   protected
     FTitle : String;
     FRole : String;
     FOrganization : String;
-    FDivisions : TIdStrings;
-    procedure SetDivisions(Value : TIdStrings);
+    FDivisions : TStrings;
+    procedure SetDivisions(Value : TStrings);
   public
     constructor Create;
     destructor Destroy; override;
@@ -139,7 +138,7 @@ type
     property Organization : String read FOrganization write FOrganization;
     { The divisions in the orginization the person is in - e.g.
       West Virginia Office, Computing Service}
-    property Divisions: TIdStrings read FDivisions write SetDivisions;
+    property Divisions: TStrings read FDivisions write SetDivisions;
     {The person's formal title in the business such
      "Director of Computing Services"}
     property Title : String read FTitle write FTitle;
@@ -148,7 +147,7 @@ type
   end;
 
   {Geographical information such as Latitude/Longitude and Time Zone}
-  TIdVCardGeog = class(TIdPersistent)
+  TIdVCardGeog = class(TPersistent)
   protected
     FLatitude : Real;
     FLongitude : Real;
@@ -169,12 +168,12 @@ type
   TIdPhoneAttributes = set of TIdPhoneAttribute;
 
   { This encapsolates a telephone number }
-  TIdCardPhoneNumber = class(TIdCollectionItem)
+  TIdCardPhoneNumber = class(TCollectionItem)
   protected
     FPhoneAttributes: TIdPhoneAttributes;
     FNumber : String;
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     {This is a descriptor for the phone number }
     property PhoneAttributes: TIdPhoneAttributes read FPhoneAttributes write FPhoneAttributes;
@@ -183,12 +182,12 @@ type
   end;
 
   {Since a person can have more than one address, we put them into this collection}
-  TIdVCardTelephones = class(TIdOwnedCollection)
+  TIdVCardTelephones = class(TOwnedCollection)
   protected
     function GetItem(Index: Integer) : TIdCardPhoneNumber;
     procedure SetItem(Index: Integer; const Value: TIdCardPhoneNumber);
   public
-    constructor Create(AOwner : TIdPersistent); reintroduce;
+    constructor Create(AOwner : TPersistent); reintroduce;
     function Add: TIdCardPhoneNumber;
     property Items[Index: Integer] : TIdCardPhoneNumber read GetItem write SetItem; default;
   end;
@@ -197,7 +196,7 @@ type
   TIdCardAddressAttributes = set of TIdCardAddressAttribute;
 
   {This encapsulates a person's address}    {Do not Localize}
-  TIdCardAddressItem = class(TIdCollectionItem)
+  TIdCardAddressItem = class(TCollectionItem)
   protected
     FAddressAttributes : TIdCardAddressAttributes;
     FPOBox : String;
@@ -208,7 +207,7 @@ type
     FPostalCode : String;
     FNation : String;
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     { attributes for this address such as Home or Work, postal, parcel, etc.}
     property AddressAttributes : TIdCardAddressAttributes read FAddressAttributes write FAddressAttributes;
@@ -231,41 +230,41 @@ type
   end;
 
   {Since a person can have more than one address, we put them into this collection}
-  TIdVCardAddresses = class(TIdOwnedCollection)
+  TIdVCardAddresses = class(TOwnedCollection)
   protected
     function GetItem(Index: Integer) : TIdCardAddressItem;
     procedure SetItem(Index: Integer; const Value: TIdCardAddressItem);
   public
-    constructor Create(AOwner : TIdPersistent); reintroduce;
+    constructor Create(AOwner : TPersistent); reintroduce;
     function Add: TIdCardAddressItem;
     property Items[Index: Integer] : TIdCardAddressItem read GetItem write SetItem; default;
   end;
 
   {This type holds a mailing label }
-  TIdVCardMailingLabelItem = class(TIdCollectionItem)
+  TIdVCardMailingLabelItem = class(TCollectionItem)
   private
     FAddressAttributes : TIdCardAddressAttributes;
-    FMailingLabel : TIdStrings;
-    procedure SetMailingLabel(Value : TIdStrings);
+    FMailingLabel : TStrings;
+    procedure SetMailingLabel(Value : TStrings);
   public
-    constructor Create(Collection: TIdCollection); override;
+    constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     { attributes for this mailing label such as Home or Work, postal, parcel,
       etc.}
     property AddressAttributes : TIdCardAddressAttributes read FAddressAttributes write FAddressAttributes;
     { The mailing label itself}
-    property MailingLabel : TIdStrings read FMailingLabel write SetMailingLabel;
+    property MailingLabel : TStrings read FMailingLabel write SetMailingLabel;
   end;
 
   {This type holds the }
-  TIdVCardMailingLabels = class(TIdOwnedCollection)
+  TIdVCardMailingLabels = class(TOwnedCollection)
   protected
     function GetItem(Index: Integer) : TIdVCardMailingLabelItem;
     procedure SetItem(Index: Integer; const Value: TIdVCardMailingLabelItem);
   public
-    constructor Create(AOwner : TIdPersistent); reintroduce;
+    constructor Create(AOwner : TPersistent); reintroduce;
     function Add : TIdVCardMailingLabelItem;
     property Items[Index: Integer] : TIdVCardMailingLabelItem read GetItem write SetItem; default;
   end;
@@ -288,15 +287,15 @@ type
   );
 
   {This object encapsolates an E-Mail address in a Collection}
-  TIdVCardEMailItem = class(TIdCollectionItem)
+  TIdVCardEMailItem = class(TCollectionItem)
   protected
     FEMailType : TIdVCardEMailType;
     FPreferred : Boolean;
     FAddress : String;
   public
-    constructor Create(Collection: TIdCollection); override;
+    constructor Create(Collection: TCollection); override;
     { This is the type of E-Mail address which defaults to Internet }
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     property EMailType : TIdVCardEMailType read FEMailType write FEMailType;
     { Is this the person's prefered E-Mail address? }    {Do not Localize}
@@ -305,28 +304,28 @@ type
     property Address : String read FAddress write FAddress;
   end;
 
-  TIdVCardEMailAddresses = class(TIdOwnedCollection)
+  TIdVCardEMailAddresses = class(TOwnedCollection)
   protected
     function GetItem(Index: Integer) : TIdVCardEMailItem;
     procedure SetItem(Index: Integer; const Value: TIdVCardEMailItem);
   public
-    constructor Create(AOwner : TIdPersistent); reintroduce;
+    constructor Create(AOwner : TPersistent); reintroduce;
     function Add: TIdVCardEMailItem;
     property Items[Index: Integer] : TIdVCardEMailItem read GetItem write SetItem; default;
   end;
 
-  TIdVCardName = class(TIdPersistent)
+  TIdVCardName = class(TPersistent)
   protected
     FFirstName : String;
     FSurName : String;
-    FOtherNames : TIdStrings;
+    FOtherNames : TStrings;
     FPrefix : String;
     FSuffix : String;
     FFormattedName : String;
     FSortName : String;
-    FNickNames : TIdStrings;
-    procedure SetOtherNames(Value : TIdStrings);
-    procedure SetNickNames(Value : TIdStrings);
+    FNickNames : TStrings;
+    procedure SetOtherNames(Value : TStrings);
+    procedure SetNickNames(Value : TStrings);
   public
     constructor Create;
     destructor Destroy; override;
@@ -339,7 +338,7 @@ type
     property SurName : String read FSurName write FSurName;
     {This is a place for a middle name and some other names such as a woman's  
     maiden name.  In the case of "J. Peter Mugaas", this would be "Peter".}
-    property OtherNames : TIdStrings read FOtherNames write SetOtherNames;
+    property OtherNames : TStrings read FOtherNames write SetOtherNames;
     {This is a properly formatted name which was listed in the VCard}
     property FormattedName : String read FFormattedName write FFormattedName;
     {This is a prefix added to a name such as
@@ -352,18 +351,18 @@ type
     name}
     property SortName : String read FSortName write  FSortName;
     { Nick names which a person may have such as "Bill" or "Billy" for Wiliam.}
-    property NickNames : TIdStrings read FNickNames write SetNickNames;
+    property NickNames : TStrings read FNickNames write SetNickNames;
   end;
 
   TIdVCard = class(TIdBaseComponent)
   protected
-    FComments : TIdStrings;
-    FCategories : TIdStrings;
+    FComments : TStrings;
+    FCategories : TStrings;
     FBusinessInfo : TIdVCardBusinessInfo;
     FGeography : TIdVCardGeog;
     FFullName : TIdVCardName;
-    FRawForm : TIdStrings;
-    FURLs : TIdStrings;
+    FRawForm : TStrings;
+    FURLs : TStrings;
     FEMailProgram : String;
     FEMailAddresses : TIdVCardEMailAddresses;
     FAddresses : TIdVCardAddresses;
@@ -373,30 +372,30 @@ type
     FProductID : String;
     FUniqueID : String;
     FClassification : String;
-    FLastRevised : TIdDateTime;
-    FBirthDay : TIdDateTime;
+    FLastRevised : TDateTime;
+    FBirthDay : TDateTime;
     FPhoto : TIdVCardEmbeddedObject;
     FLogo  : TIdVCardEmbeddedObject;
     FSound : TIdVCardEmbeddedObject;
     FKey : TIdVCardEmbeddedObject;
-    procedure SetComments(Value : TIdStrings);
-    procedure SetCategories(Value : TIdStrings);
-    procedure SetURLs(Value : TIdStrings);
+    procedure SetComments(Value : TStrings);
+    procedure SetCategories(Value : TStrings);
+    procedure SetURLs(Value : TStrings);
     {This processes some types of variables after reading the string}
     procedure SetVariablesAfterRead;
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    { This reads a VCard from a TIdStrings object }
-    procedure ReadFromStrings(s : TIdStrings);
+    { This reads a VCard from a TStrings object }
+    procedure ReadFromStrings(s : TStrings);
     { This is the raw form of the VCard }
-    property RawForm : TIdStrings read FRawForm;
+    property RawForm : TStrings read FRawForm;
   published
     { This is the VCard specification version used }
     property VCardVersion : Real read FVCardVersion;
     { URL's associated with the VCard such as the person's or organication's  
     webpage.  There can be more than one.}
-    property URLs : TIdStrings read FURLs write SetURLs;
+    property URLs : TStrings read FURLs write SetURLs;
     { This is the product ID for the program which created this VCard}
     property ProductID : String read FProductID write FProductID;
     { This is a unique indentifier for the VCard }
@@ -405,7 +404,7 @@ type
      VCard.}
     property Classification : String read FClassification write FClassification;
     { This is the person's birthday and possibly, time of birth}    {Do not Localize}
-    property BirthDay : TIdDateTime read FBirthDay write FBirthDay;
+    property BirthDay : TDateTime read FBirthDay write FBirthDay;
     { This is the person's name }    {Do not Localize}
     property FullName : TIdVCardName read FFullName write FFullName;
     { This is the E-Mail program used by the card's owner}    {Do not Localize}
@@ -417,14 +416,14 @@ type
     { This is busines related information on a VCard}
     property BusinessInfo : TIdVCardBusinessInfo read  FBusinessInfo;
     { This is a list of Categories used for classification }
-    property Categories : TIdStrings read FCategories write SetCategories;
+    property Categories : TStrings read FCategories write SetCategories;
     { This is a list of addresses }
     property Addresses : TIdVCardAddresses read FAddresses;
     { This is a list of mailing labels }
     property MailingLabels : TIdVCardMailingLabels read FMailingLabels;
     { This is a miscellaneous comments, additional information, or whatever the
      VCard wishes to say }
-    property Comments : TIdStrings read FComments write SetComments;
+    property Comments : TStrings read FComments write SetComments;
     { The owner's photograph}    {Do not Localize}
     property Photo : TIdVCardEmbeddedObject read FPhoto;
     { Organization's logo}    {Do not Localize}
@@ -437,14 +436,14 @@ type
   end;
 
   //public for testing
-  function ParseDateTimeStamp(const DateString: string): TIdDateTime;
+  function ParseDateTimeStamp(const DateString: string): TDateTime;
 
 implementation
 
 uses
   IdCoderQuotedPrintable,
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols, SysUtils;
 
 const VCardProperties : array [0..27] of string = (
   'FN', 'N', 'NICKNAME', 'PHOTO',    {Do not Localize}
@@ -489,22 +488,22 @@ begin
      IdDelete(LBuf, i, 1);
     end;
   end;
-  LHi := Sys.StrToInt(Fetch(LBuf,'.'), 0);
+  LHi := IndyStrToInt(Fetch(LBuf,'.'), 0);
   LBuf := PadString(LBuf, 2, '0');
-  LLo := Sys.StrToInt(Copy(LBuf,1,2), 0);
+  LLo := IndyStrToInt(Copy(LBuf,1,2), 0);
   Result := LHi + (LLo / 100);
 end;
 
 {This only adds Value to strs if it is not zero}
-procedure AddValueToStrings(strs : TIdStrings; Value : String);
+procedure AddValueToStrings(strs : TStrings; Value : String);
 begin
   if Length(Value) > 0 then begin
     strs.Add(Value);
   end; //  if Legnth ( Value ) then
 end;
 
-{This parses a delinated string into a TIdStrings}
-procedure ParseDelimiterToStrings(strs : TIdStrings; str : String; const Delimiter : Char = ',');    {Do not Localize}
+{This parses a delinated string into a TStrings}
+procedure ParseDelimiterToStrings(strs : TStrings; str : String; const Delimiter : Char = ',');    {Do not Localize}
 begin
   while str <> '' do begin   {Do not Localize}
     AddValueToStrings(strs, Fetch(str, Delimiter));
@@ -518,28 +517,28 @@ This assumes the date Time stamp will be like this:
 
 1997-11-15
 }
-function ParseDateTimeStamp(const DateString : String) : TIdDateTime;
+function ParseDateTimeStamp(const DateString : String) : TDateTime;
 var
   Year, Day, Month : Integer;
   Hour, Minute, Second : Integer;
 begin
   //outlook format = 20050531T195358Z
   if Copy(DateString, 9, 1) = 'T' then begin
-    Year  := Sys.StrToInt(Copy(DateString, 1, 4));
-    Month := Sys.StrToInt(Copy(DateString, 5, 2));
-    Day   := Sys.StrToInt(Copy(DateString, 7, 2));
-    Hour   := Sys.StrToInt(Copy(DateString, 10, 2));
-    Minute := Sys.StrToInt(Copy(DateString, 12, 2));
-    Second := Sys.StrToInt(Copy(DateString, 14, 2));
+    Year  := IndyStrToInt(Copy(DateString, 1, 4));
+    Month := IndyStrToInt(Copy(DateString, 5, 2));
+    Day   := IndyStrToInt(Copy(DateString, 7, 2));
+    Hour   := IndyStrToInt(Copy(DateString, 10, 2));
+    Minute := IndyStrToInt(Copy(DateString, 12, 2));
+    Second := IndyStrToInt(Copy(DateString, 14, 2));
   end else begin
-    Year  := Sys.StrToInt(Copy(DateString, 1, 4));
-    Month := Sys.StrToInt(Copy(DateString, 6, 2));
-    Day   := Sys.StrToInt(Copy(DateString, 9, 2));
+    Year  := IndyStrToInt(Copy(DateString, 1, 4));
+    Month := IndyStrToInt(Copy(DateString, 6, 2));
+    Day   := IndyStrToInt(Copy(DateString, 9, 2));
     //where does 14 come from?
     if Length(DateString) > 14 then begin
-      Hour := Sys.StrToInt(Copy(DateString, 12, 2));
-      Minute := Sys.StrToInt(Copy(DateString, 15, 2));
-      Second := Sys.StrToInt(Copy(DateString, 18, 2));
+      Hour := IndyStrToInt(Copy(DateString, 12, 2));
+      Minute := IndyStrToInt(Copy(DateString, 15, 2));
+      Second := IndyStrToInt(Copy(DateString, 18, 2));
     end else begin
       { no date }
       Hour   := 0;
@@ -548,22 +547,22 @@ begin
     end;
     //DateStamp.AsISO8601Calender := DateString;
   end;
-  Result := Sys.EncodeDate(Year, Month, Day) + Sys.EncodeTime(Hour, Minute, Second, 0);
+  Result := EncodeDate(Year, Month, Day) + EncodeTime(Hour, Minute, Second, 0);
 end;
 
 {This function returns a stringList with an item's
 attributes and sets value to the value of the item}
-function GetAttributesAndValue(Data : String; var Value : String) : TIdStringList;
+function GetAttributesAndValue(Data : String; var Value : String) : TStringList;
 var
   Buff, Buff2 : String;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   try
     if IndyPos(':', Data) <> 0 then    {Do not Localize}
     begin
       Buff := Fetch(Data, ':');    {Do not Localize}
       {This handles a VCard property attribute delimiter ","}
-      Buff := Sys.StringReplace(Buff, ',', ';');    {Do not Localize}
+      Buff := StringReplace(Buff, ',', ';',[rfReplaceAll]);    {Do not Localize}
       while Buff <> '' do begin   {Do not Localize}
         Buff2 := Fetch(Buff, ';');    {Do not Localize}
         if Length(Buff2) > 0 then begin
@@ -573,7 +572,7 @@ begin
     end;
     Value := Data;
   except
-    Sys.FreeAndNil(Result);
+    FreeAndNil(Result);
     raise;
   end;
 end;
@@ -608,7 +607,7 @@ const
 var
   Value : String;
   idx : Integer;
-  Attribs : TIdStringList;
+  Attribs : TStringList;
 begin
   attribs := GetAttributesAndValue(PhoneStr, Value);
   try
@@ -650,7 +649,7 @@ begin
     end;
     PhoneObj.Number := Value;
   finally
-    Sys.FreeAndNil(attribs);
+    FreeAndNil(attribs);
   end;
 end;
 
@@ -662,7 +661,7 @@ const
   );
 var
   Value : String;
-  Attribs : TIdStringList;
+  Attribs : TStringList;
   idx : Integer;
 begin
   Attribs := GetAttributesAndValue(AddressStr, Value);
@@ -696,7 +695,7 @@ begin
     AddressObj.PostalCode := Fetch(Value, ';');    {Do not Localize}
     AddressObj.Nation := Fetch (Value, ';');    {Do not Localize}
   finally
-    Sys.FreeAndNil(Attribs);
+    FreeAndNil(Attribs);
   end;
 end;
 
@@ -708,7 +707,7 @@ const
   );
 var
   Value : String;
-  Attribs : TIdStringList;
+  Attribs : TStringList;
   idx : Integer;
 begin
   Attribs := GetAttributesAndValue(LabelStr, Value);
@@ -737,7 +736,7 @@ begin
     end;
     LabelObj.MailingLabel.Add(Value);
   finally
-    Sys.FreeAndNil(Attribs);
+    FreeAndNil(Attribs);
   end;
 end;
 
@@ -756,7 +755,7 @@ begin
   NameObj.Prefix := Fetch(NameStr, ';');    {Do not Localize}
   { Suffix }
   NameObj.Suffix := Fetch(NameStr, ';');    {Do not Localize}
-  OtherNames := Sys.StringReplace(OtherNames, ' ', ',');    {Do not Localize}
+  OtherNames := StringReplace(OtherNames, ' ', ',',[rfReplaceAll]);    {Do not Localize}
   ParseDelimiterToStrings(NameObj.OtherNames, OtherNames);
 end;
 
@@ -764,7 +763,7 @@ end;
 procedure ParseEMailAddress(EMailObj : TIdVCardEMailItem; EMailStr : String);
 var
   Value : String;
-  Attribs : TIdStringList;
+  Attribs : TStringList;
   idx : Integer;
   {this is for testing the type so we can break out of the loop}
   ps : Integer;
@@ -808,7 +807,7 @@ begin
       end;
     end;
   finally
-    Sys.FreeAndNil(Attribs);
+    FreeAndNil(Attribs);
   end;
 end;
 
@@ -821,40 +820,40 @@ begin
   FLogo  := TIdVCardEmbeddedObject.Create;
   FSound := TIdVCardEmbeddedObject.Create;
   FKey := TIdVCardEmbeddedObject.Create;
-  FComments := TIdStringList.Create;
-  FCategories := TIdStringList.Create;
+  FComments := TStringList.Create;
+  FCategories := TStringList.Create;
   FBusinessInfo := TIdVCardBusinessInfo.Create;
   FGeography := TIdVCardGeog.Create;
   FFullName := TIdVCardName.Create;
-  FRawForm := TIdStringList.Create;
+  FRawForm := TStringList.Create;
   FEMailAddresses := TIdVCardEMailAddresses.Create(Self);
   FAddresses := TIdVCardAddresses.Create(Self);
   FTelephones := TIdVCardTelephones.Create(Self);
-  FURLs := TIdStringList.Create;
+  FURLs := TStringList.Create;
   FMailingLabels := TIdVCardMailingLabels.Create(Self);
 end;
 
 destructor TIdVCard.Destroy;
 begin
-  Sys.FreeAndNil(FKey);
-  Sys.FreeAndNil(FPhoto);
-  Sys.FreeAndNil(FLogo);
-  Sys.FreeAndNil(FSound);
-  Sys.FreeAndNil(FComments);
-  Sys.FreeAndNil(FMailingLabels);
-  Sys.FreeAndNil(FCategories);
-  Sys.FreeAndNil(FBusinessInfo);
-  Sys.FreeAndNil(FGeography);
-  Sys.FreeAndNil(FURLs);
-  Sys.FreeAndNil(FTelephones);
-  Sys.FreeAndNil(FAddresses);
-  Sys.FreeAndNil(FEMailAddresses);
-  Sys.FreeAndNil(FFullName);
-  Sys.FreeAndNil(FRawForm);
+  FreeAndNil(FKey);
+  FreeAndNil(FPhoto);
+  FreeAndNil(FLogo);
+  FreeAndNil(FSound);
+  FreeAndNil(FComments);
+  FreeAndNil(FMailingLabels);
+  FreeAndNil(FCategories);
+  FreeAndNil(FBusinessInfo);
+  FreeAndNil(FGeography);
+  FreeAndNil(FURLs);
+  FreeAndNil(FTelephones);
+  FreeAndNil(FAddresses);
+  FreeAndNil(FEMailAddresses);
+  FreeAndNil(FFullName);
+  FreeAndNil(FRawForm);
   inherited Destroy;
 end;
 
-procedure TIdVCard.ReadFromStrings(s: TIdStrings);
+procedure TIdVCard.ReadFromStrings(s: TStrings);
 var
   idx, level : Integer;
 begin
@@ -862,19 +861,19 @@ begin
   {Find the begin mark and accomodate broken VCard implemntations}
   level := 0;
   for idx := 0 to s.Count-1 do begin
-    if TextIsSame(Sys.Trim(s[idx]), 'BEGIN:VCARD') then begin    {Do not Localize}
+    if TextIsSame(Trim(s[idx]), 'BEGIN:VCARD') then begin    {Do not Localize}
       Break;
     end;
   end;
   {Keep adding until end VCard }
   while idx < s.Count do begin
     if Length(s[idx]) > 0 then begin
-      if TextIsSame(Sys.Trim(s[idx]), 'END:VCARD') then    {Do not Localize}
+      if TextIsSame(Trim(s[idx]), 'END:VCARD') then    {Do not Localize}
       begin
         // Have an END:
         Dec(level);
       end
-      else if TextIsSame(Sys.Trim(s[idx]), 'BEGIN:VCARD') then    {Do not Localize}
+      else if TextIsSame(Trim(s[idx]), 'BEGIN:VCARD') then    {Do not Localize}
       begin
         // Have a new object - increment the counter & add
         Inc(level);
@@ -890,17 +889,17 @@ begin
   SetVariablesAfterRead;
 end;
 
-procedure TIdVCard.SetCategories(Value: TIdStrings);
+procedure TIdVCard.SetCategories(Value: TStrings);
 begin
   FCategories.Assign(Value);
 end;
 
-procedure TIdVCard.SetComments(Value: TIdStrings);
+procedure TIdVCard.SetComments(Value: TStrings);
 begin
   FComments.Assign(Value);
 end;
 
-procedure TIdVCard.SetURLs(Value: TIdStrings);
+procedure TIdVCard.SetURLs(Value: TStrings);
 begin
   FURLs.Assign(Value);
 end;
@@ -926,7 +925,7 @@ var
     Inc(idx);
     while (idx < FRawForm.Count) and CharIsInSet(FRawForm[idx], 1, ' '#9) do    {Do not Localize}
     begin
-      Result := Result + Sys.Trim(FRawForm[idx]);
+      Result := Result + Trim(FRawForm[idx]);
       Inc(idx);
     end; // while
     {Correct for increment in the main while loop}
@@ -942,7 +941,7 @@ var
   procedure ParseEmbeddedObject(EmObj : TIdVCardEmbeddedObject; StLn : String);
   var
     Value : String;
-    Attribs : TIdStringList;
+    Attribs : TStringList;
     idx2 : Integer;
     {this is for testing the type so we can break out of the loop}
   begin
@@ -967,14 +966,14 @@ var
         {Add any folded lines}
         Inc(idx);
         while (idx < FRawForm.Count) and CharIsInSet(FRawForm[idx], 1, ' '#9) do begin   {Do not Localize}
-          AddValueToStrings(EmObj.EmbeddedData, Sys.Trim(FRawForm[idx]));
+          AddValueToStrings(EmObj.EmbeddedData, Trim(FRawForm[idx]));
           Inc(idx);
         end;
         {Correct for increment in the main while loop}
         Dec(idx);
       end;
     finally
-      Sys.FreeAndNil(Attribs);
+      FreeAndNil(Attribs);
     end;
   end;
 
@@ -1003,7 +1002,7 @@ begin
       // QP to be used in any field.
 
       //****  Begin QP check & decode
-      if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Attribs)) > 0 then begin   {Do not Localize}
+      if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) > 0 then begin   {Do not Localize}
         // First things first - make a copy of the Line.
         OrigLine := Line;
 
@@ -1017,7 +1016,7 @@ begin
         Inc(idx);
         ColonFind := IndyPos(':', FRawForm[idx]);    {Do not Localize}
         while ColonFind = 0 do begin
-          Data := Data + Sys.TrimLeft(FRawForm[idx]);
+          Data := Data + TrimLeft(FRawForm[idx]);
           Inc(idx);
           if idx <> FRawForm.Count then begin
             ColonFind := IndyPos(':', FRawForm[idx]);    {Do not Localize}
@@ -1035,7 +1034,7 @@ begin
         Line := '';    {Do not Localize}
         while ColonFind <> 0 do begin
           Test := Copy(Attribs, 1, ColonFind);
-          if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Test)) = 0 then begin   {Do not Localize}
+          if IndyPos('QUOTED-PRINTABLE', UpperCase(Test)) = 0 then begin   {Do not Localize}
             // Add to Line.
             Line := Line + Test;
           end;
@@ -1046,7 +1045,7 @@ begin
         // Clean up variables
         if Length(Attribs) <> 0 then begin
           // Does Quoted-Printable occur in what's left?    {Do not Localize}
-          if IndyPos('QUOTED-PRINTABLE', Sys.UpperCase(Attribs)) = 0 then begin   {Do not Localize}
+          if IndyPos('QUOTED-PRINTABLE', UpperCase(Attribs)) = 0 then begin   {Do not Localize}
             // Add to line
             Line := Line + Attribs;
           end;
@@ -1067,7 +1066,7 @@ begin
       Colon := IndyPos(':', Line);    {Do not Localize}
       SColon := IndyPos(';', Line);    {Do not Localize}
       if (Colon < SColon) or (SColon = 0) then begin
-        Line := Sys.ReplaceOnlyFirst(Line, ':', ';');    {Do not Localize}
+        Line := ReplaceOnlyFirst(Line, ':', ';');    {Do not Localize}
       end;
 
       // Grab the property name
@@ -1135,7 +1134,7 @@ begin
       Inc(idx);
     end;
   finally
-    Sys.FreeAndNil(QPCoder);
+    FreeAndNil(QPCoder);
   end;
 end;
 
@@ -1146,7 +1145,7 @@ begin
   Result := TIdVCardEMailItem(inherited Add);
 end;
 
-constructor TIdVCardEMailAddresses.Create(AOwner : TIdPersistent);
+constructor TIdVCardEMailAddresses.Create(AOwner : TPersistent);
 begin
   inherited Create(AOwner, TIdVCardEMailItem);
 end;
@@ -1163,7 +1162,7 @@ end;
 
 { TIdVCardEMailItem }
 
-procedure TIdVCardEMailItem.Assign(Source: TIdPersistent);
+procedure TIdVCardEMailItem.Assign(Source: TPersistent);
 var
   EMail : TIdVCardEMailItem;
 begin
@@ -1177,7 +1176,7 @@ begin
   end;
 end;
 
-constructor TIdVCardEMailItem.Create(Collection: TIdCollection);
+constructor TIdVCardEMailItem.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
   FEMailType := ematInternet;
@@ -1190,7 +1189,7 @@ begin
   Result := TIdCardAddressItem(inherited Add);
 end;
 
-constructor TIdVCardAddresses.Create(AOwner : TIdPersistent);
+constructor TIdVCardAddresses.Create(AOwner : TPersistent);
 begin
   inherited Create(AOwner, TIdCardAddressItem);
 end;
@@ -1212,7 +1211,7 @@ begin
   Result := TIdCardPhoneNumber(inherited Add);
 end;
 
-constructor TIdVCardTelephones.Create(AOwner : TIdPersistent);
+constructor TIdVCardTelephones.Create(AOwner : TPersistent);
 begin
    inherited Create(AOwner, TIdCardPhoneNumber);
 end;
@@ -1232,23 +1231,23 @@ end;
 constructor TIdVCardName.Create;
 begin
   inherited Create;
-  FOtherNames := TIdStringList.Create;
-  FNickNames := TIdStringList.Create;
+  FOtherNames := TStringList.Create;
+  FNickNames := TStringList.Create;
 end;
 
 destructor TIdVCardName.Destroy;
 begin
-  Sys.FreeAndNil(FNickNames);
-  Sys.FreeAndNil(FOtherNames);
+  FreeAndNil(FNickNames);
+  FreeAndNil(FOtherNames);
   inherited Destroy;
 end;
 
-procedure TIdVCardName.SetNickNames(Value: TIdStrings);
+procedure TIdVCardName.SetNickNames(Value: TStrings);
 begin
   FNickNames.Assign(Value);
 end;
 
-procedure TIdVCardName.SetOtherNames(Value: TIdStrings);
+procedure TIdVCardName.SetOtherNames(Value: TStrings);
 begin
   FOtherNames.Assign(Value);
 end;
@@ -1258,23 +1257,23 @@ end;
 constructor TIdVCardBusinessInfo.Create;
 begin
   inherited Create;
-  FDivisions := TIdStringList.Create;
+  FDivisions := TStringList.Create;
 end;
 
 destructor TIdVCardBusinessInfo.Destroy;
 begin
-  Sys.FreeAndNil(FDivisions);
+  FreeAndNil(FDivisions);
   inherited Destroy;
 end;
 
-procedure TIdVCardBusinessInfo.SetDivisions(Value: TIdStrings);
+procedure TIdVCardBusinessInfo.SetDivisions(Value: TStrings);
 begin
   FDivisions.Assign(Value);
 end;
 
 { TIdVCardMailingLabelItem }
 
-procedure TIdVCardMailingLabelItem.Assign(Source: TIdPersistent);
+procedure TIdVCardMailingLabelItem.Assign(Source: TPersistent);
 var
   lbl : TIdVCardMailingLabelItem;
 begin
@@ -1287,19 +1286,19 @@ begin
   end;
 end;
 
-constructor TIdVCardMailingLabelItem.Create(Collection: TIdCollection);
+constructor TIdVCardMailingLabelItem.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
-  FMailingLabel := TIdStringList.Create;
+  FMailingLabel := TStringList.Create;
 end;
 
 destructor TIdVCardMailingLabelItem.Destroy;
 begin
-  Sys.FreeAndNil(FMailingLabel);
+  FreeAndNil(FMailingLabel);
   inherited Destroy;
 end;
 
-procedure TIdVCardMailingLabelItem.SetMailingLabel(Value: TIdStrings);
+procedure TIdVCardMailingLabelItem.SetMailingLabel(Value: TStrings);
 begin
   FMailingLabel.Assign(Value);
 end;
@@ -1311,7 +1310,7 @@ begin
   Result := TIdVCardMailingLabelItem(inherited Add);
 end;
 
-constructor TIdVCardMailingLabels.Create(AOwner: TIdPersistent);
+constructor TIdVCardMailingLabels.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdVCardMailingLabelItem);
 end;
@@ -1331,23 +1330,23 @@ end;
 constructor TIdVCardEmbeddedObject.Create;
 begin
   inherited Create;
-  FEmbeddedData := TIdStringList.Create;
+  FEmbeddedData := TStringList.Create;
 end;
 
 destructor TIdVCardEmbeddedObject.Destroy;
 begin
-  Sys.FreeAndNil(FEmbeddedData);
+  FreeAndNil(FEmbeddedData);
   inherited Destroy;
 end;
 
-procedure TIdVCardEmbeddedObject.SetEmbeddedData(const Value: TIdStrings);
+procedure TIdVCardEmbeddedObject.SetEmbeddedData(const Value: TStrings);
 begin
   FEmbeddedData.Assign(Value);
 end;
 
 { TIdCardPhoneNumber }
 
-procedure TIdCardPhoneNumber.Assign(Source: TIdPersistent);
+procedure TIdCardPhoneNumber.Assign(Source: TPersistent);
 var
   Phone : TIdCardPhoneNumber;
 begin
@@ -1362,7 +1361,7 @@ end;
 
 { TIdCardAddressItem }
 
-procedure TIdCardAddressItem.Assign(Source: TIdPersistent);
+procedure TIdCardAddressItem.Assign(Source: TPersistent);
 var
   Addr : TIdCardAddressItem;
 begin

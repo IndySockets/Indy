@@ -58,14 +58,14 @@ unit IdSSL;
 interface
 
 uses
+  Classes,
   IdGlobal,
   IdIOHandler,
   IdIOHandlerSocket,
   IdIOHandlerStack,
   IdScheduler,
   IdServerIOHandler,
-  IdYarn,
-  IdObjs;
+  IdYarn;
 
 type
   //client
@@ -113,7 +113,7 @@ Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   const AClientClass : TIdClientSSLClass; const AServerClass : TIdServerSSLClass);
 
 type
-  TIdSSLRegEntry = class(TIdCollectionItem)
+  TIdSSLRegEntry = class(TCollectionItem)
   protected
     FProductName : String;
     FVendor : String;
@@ -131,7 +131,7 @@ type
     property ClientClass : TIdClientSSLClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
   end;
-  TIdSSLRegistry = class(TIdCollection)
+  TIdSSLRegistry = class(TCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSLRegEntry;
     procedure SetItem ( Index: Integer; const Value: TIdSSLRegEntry );
@@ -147,7 +147,7 @@ var
 
 implementation
 
-uses IdSys;
+uses SysUtils;
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
@@ -209,5 +209,5 @@ end;
 initialization
   GSSLRegistry := TIdSSLRegistry.Create;
 finalization
-  Sys.FreeAndNil(GSSLRegistry);
+  FreeAndNil(GSSLRegistry);
 end.

@@ -58,7 +58,6 @@ interface
 uses
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,
   IdReplyRFC,
-  IdSys,
   IdTCPConnection,
   IdTCPClient;
 

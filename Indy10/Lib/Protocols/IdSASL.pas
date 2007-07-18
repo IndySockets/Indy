@@ -56,11 +56,10 @@ unit IdSASL;
 interface
 
 uses
+  Classes,
   IdBaseComponent,
   IdTCPConnection,
-  IdException,
-  IdSys,
-  IdObjs;
+  IdException;
 
 type
   TIdSASLResult = (srSuccess, srFailure, srAborted);
@@ -91,7 +90,7 @@ type
       For determining if the SASL Mechanism is supported from a list of SASL Mechanism.
       (Those can be obtained with EHLO with SMTP.)
     }
-    function IsAuthProtocolAvailable(AFeatStrings : TIdStrings) : Boolean; virtual;
+    function IsAuthProtocolAvailable(AFeatStrings : TStrings) : Boolean; virtual;
 
 
     {
@@ -124,7 +123,7 @@ type
   TIdSASLClass = class of TIdSASL;
 
 var
-  GlobalSASLList: TIdThreadList;
+  GlobalSASLList: TThreadList;
   // this is used at design time to get a list of all
   // SASL mechanism components that are available
   // because they add at runtime as well, it must be a threadlist
@@ -132,7 +131,7 @@ var
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 { TIdSASL }
 
@@ -163,7 +162,7 @@ begin
   Result := FSecurityLevel;
 end;
 
-function TIdSASL.IsAuthProtocolAvailable(AFeatStrings: TIdStrings): Boolean;
+function TIdSASL.IsAuthProtocolAvailable(AFeatStrings: TStrings): Boolean;
 begin
   Result := (Assigned(AFeatStrings)) and ( AFeatStrings.IndexOf ( ServiceName ) <> -1 );
 end;
@@ -176,7 +175,7 @@ begin
 end;
 
 initialization
-  GlobalSASLList := TIdThreadList.Create;
+  GlobalSASLList := TThreadList.Create;
 finalization
-  Sys.FreeAndNil(GlobalSASLList);
+  FreeAndNil(GlobalSASLList);
 end.

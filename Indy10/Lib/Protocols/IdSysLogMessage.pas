@@ -65,7 +65,8 @@ unit IdSysLogMessage;
 interface
 
 uses
-  IdGlobal, IdGlobalProtocols, IdBaseComponent, IdObjs;
+  Classes,
+  IdGlobal, IdGlobalProtocols, IdBaseComponent;
 
 type
 //  TIdSyslogSeverity = ID_SYSLOG_SEVERITY_EMERGENCY..ID_SYSLOG_SEVERITY_DEBUG;
@@ -105,7 +106,7 @@ type
               slInformational, {6 - informational }
               slDebug); {7 - debug-level messages }
 
-  TIdSysLogMsgPart = class(TIdPersistent)
+  TIdSysLogMsgPart = class(TPersistent)
   protected
     FPIDAvailable: Boolean;
     FProcess: String;
@@ -120,7 +121,7 @@ type
     function PIDToStr(APID : Integer) : String; virtual;
 
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     property Text: String read GetText write SetText;
     property PIDAvailable : Boolean read FPIDAvailable write FPIDAvailable stored false;
@@ -165,7 +166,7 @@ type
 //    function NoToSeverity(ASev :  Word) : TIdSyslogSeverity; virtual;
      //extract the PID part into a SysLog PID including []
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     destructor Destroy; override;
     function EncodeMessage: String; virtual;
     procedure ReadFromBytes(const ASrc: TIdBytes; const APeer : String); virtual;
@@ -192,7 +193,7 @@ function logFacilityToNo(AFac : TIdSyslogFacility) : Word;
 implementation
 
 uses
-  IdAssignedNumbers, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdStackConsts, IdSys, IdUDPClient;
+  IdAssignedNumbers, IdExceptionCore, IdResourceStringsProtocols, IdStack, IdStackConsts, IdUDPClient, SysUtils;
 
 const
   // facility
@@ -408,7 +409,7 @@ begin
 end;
 { TIdSysLogMessage }
 
-procedure TIdSysLogMessage.Assign(Source: TIdPersistent);
+procedure TIdSysLogMessage.Assign(Source: TPersistent);
 var
   ms : TIdSysLogMessage;
 begin
@@ -434,38 +435,38 @@ begin
   // SG 25/2/02: Check the ASCII range
   CheckASCIIRange(TimeStampString);
   // Get the current date to get the current year
-  LDate := Sys.Now;
-  Sys.DecodeDate(LDate, AYear, AMonth, ADay);
+  LDate := Now;
+  DecodeDate(LDate, AYear, AMonth, ADay);
   if Length(TimeStampString) <> 16 then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // Month
   AMonth := StrToMonth(Copy(TimeStampString, 1, 3));
   if not AMonth in [1..12] then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // day
-  ADay := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 5, 2)), 0);
+  ADay := IndyStrToInt(Copy(TimeStampString, 5, 2), 0);
   if not (ADay in [1..31]) then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   // Time
-  AHour := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 8, 2)), 0);
+  AHour := IndyStrToInt(Copy(TimeStampString, 8, 2), 0);
   if not AHour in [0..23] then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
-  AMin := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 11, 2)), 0);
+  AMin := IndyStrToInt(Copy(TimeStampString, 11, 2), 0);
   if not AMin in [0..59] then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
-  ASec := Sys.StrToInt(Sys.Trim(Copy(TimeStampString, 14, 2)), 0);
+  ASec := IndyStrToInt(Copy(TimeStampString, 14, 2), 0);
   if not ASec in [0..59] then begin
-    raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
   if TimeStampString[16] <> ' ' then begin   {Do not Localize}
-    Raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogTimeStamp, [TimeStampString]));
+    Raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogTimeStamp, [TimeStampString]));
   end;
-  Result := Sys.EncodeDate(AYear, AMonth, ADay) + Sys.EncodeTime(AHour, AMin, ASec, 0);
+  Result := EncodeDate(AYear, AMonth, ADay) + EncodeTime(AHour, AMin, ASec, 0);
 end;
 
 procedure TIdSysLogMessage.ReadFromBytes(const ASrc: TIdBytes; const APeer : String);
@@ -507,7 +508,7 @@ begin
   except
     on e: Exception do
     begin
-      FTimeStamp := Sys.Now;
+      FTimeStamp := Now;
       FHostname := FPeer;
     end;
   end;
@@ -538,7 +539,7 @@ begin
         Break;
       end;
       if not CharIsInSet(FRawMessage, StartPos, CharRange('0','9')) then begin   {Do not Localize}
-        raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogPRINumber, [Buffer]));
+        raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogPRINumber, [Buffer]));
       end;
       Buffer := Buffer + FRawMessage[StartPos];
     until StartPos = StartPosSave + 5;
@@ -550,7 +551,7 @@ begin
     // Convert PRI to numerical value
     Inc(StartPos);
     CheckASCIIRange(Buffer);
-    PRI := Sys.StrToInt(Buffer, -1);
+    PRI := IndyStrToInt(Buffer, -1);
   except
     // as per RFC, on invalid/missing PRI, use value 13
     on e: Exception do
@@ -579,7 +580,7 @@ procedure TIdSysLogMessage.SetHostname(const AValue: string);
 begin
   if FHostname <> AValue then begin
     if Pos(' ', AValue) <> 0 then begin   {Do not Localize}
-      raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidHostName, [AValue]));
+      raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidHostName, [AValue]));
     end;
     FHostname := AValue;
   end;
@@ -606,28 +607,28 @@ var
   var
     mm, dd : Word;
   begin
-    Sys.DecodeDate(ADate, Result, mm, dd);
+    DecodeDate(ADate, Result, mm, dd);
   end;
 
   Function DayToStr(day: Word): String;
   begin
     if Day < 10 then begin
-       Result :=  ' ' + Sys.IntToStr(day);    {Do not Localize}
+       Result :=  ' ' + IntToStr(day);    {Do not Localize}
     end else begin
-      Result := Sys.IntToStr(day);
+      Result := IntToStr(day);
     end;
   end;
 begin
   // if the year of the message is not the current year, the timestamp is
   // invalid -> Create a new timestamp with the current date/time
-  if YearOf(Sys.Now) <> YearOf(TimeStamp) then
+  if YearOf(Now) <> YearOf(TimeStamp) then
   begin
-    TimeStamp := Sys.Now;
+    TimeStamp := Now;
   end;
-  Sys.DecodeDate(TimeStamp, AYear, AMonth, ADay);
-  Sys.DecodeTime(TimeStamp, AHour, AMin, ASec, AMSec);
+  DecodeDate(TimeStamp, AYear, AMonth, ADay);
+  DecodeTime(TimeStamp, AHour, AMin, ASec, AMSec);
 
-  Result := Sys.Format('%s %s %.2d:%.2d:%.2d %s', [monthnames[AMonth], DayToStr(ADay), AHour, AMin, ASec, Hostname]);    {Do not Localize}
+  Result := IndyFormat('%s %s %.2d:%.2d:%.2d %s', [monthnames[AMonth], DayToStr(ADay), AHour, AMin, ASec, Hostname]);    {Do not Localize}
 
 end;
 
@@ -635,7 +636,7 @@ function TIdSysLogMessage.EncodeMessage: String;
 begin
   // Create a syslog message string
   // PRI
-  Result := Sys.Format('<%d>%s %s', [PRI, GetHeader, FMsg.Text]);    {Do not Localize}
+  Result := IndyFormat('<%d>%s %s', [PRI, GetHeader, FMsg.Text]);    {Do not Localize}
   // If the message is too long, tuncate it
   if Length(result) > 1024  then
   begin
@@ -647,7 +648,7 @@ procedure TIdSysLogMessage.SetPri(const Value: TIdSyslogPRI);
 begin
   if FPri <> Value then begin
     if not (Value in [0..191]) then begin
-      raise EInvalidSyslogMessage.Create(Sys.Format(RSInvalidSyslogPRINumber, [Sys.IntToStr(value)]));
+      raise EInvalidSyslogMessage.Create(IndyFormat(RSInvalidSyslogPRINumber, [IntToStr(value)]));
     end;
     FPri := Value;
     FFacility := NoToFacility(Value div 8);
@@ -674,7 +675,7 @@ begin
     {Free the stack ONLY if we created it to prevent a memory leak}
     if bCreatedStack then
     begin
-      Sys.FreeAndNil(GStack);
+      FreeAndNil(GStack);
     end;
   end;
   FMsg := TIdSysLogMsgPart.Create;
@@ -696,7 +697,7 @@ end;
 
 destructor TIdSysLogMessage.Destroy;
 begin
-  Sys.FreeAndNil(FMsg);
+  FreeAndNil(FMsg);
   inherited Destroy;
 end;
 
@@ -724,7 +725,7 @@ end;
 
 { TIdSysLogMsgPart }
 
-procedure TIdSysLogMsgPart.Assign(Source: TIdPersistent);
+procedure TIdSysLogMsgPart.Assign(Source: TPersistent);
 begin
   if Source is TIdSysLogMsgPart then begin
     {This sets about everything here}
@@ -742,7 +743,7 @@ end;
 function TIdSysLogMsgPart.PIDToStr(APID: Integer): String;
 begin
   if FPIDAvailable then begin
-    Result := Sys.Format('[%d]:', [APID]);    {Do not Localize}
+    Result := IndyFormat('[%d]:', [APID]);    {Do not Localize}
   end else begin
     Result := ':';    {Do not Localize}
   end;
@@ -802,7 +803,7 @@ begin
       FProcess := Fetch(SBuf, '[');    {Do not Localize}
       SBuf := Fetch(SBuf, ']');        {Do not Localize}
       if Length(SBuf) > 0 then begin
-        FPID := Sys.StrToInt(SBuf, -1);
+        FPID := IndyStrToInt(SBuf, -1);
         FPIDAvailable := FPID <> -1;
       end;
     end;

@@ -44,7 +44,7 @@ unit IdServerInterceptLogBase;
 interface
 
 uses
-  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent, IdObjs;
+  IdIntercept, IdGlobal, IdLogBase, IdBaseComponent, Classes;
 
 type
   TIdServerInterceptLogBase = class(TIdServerIntercept)
@@ -57,7 +57,7 @@ type
     procedure InitComponent; override;
   public
     procedure Init; override;
-    function Accept(AConnection: TIdNativeComponent): TIdConnectionIntercept; override;
+    function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
     destructor Destroy; override;
     procedure DoLogWriteString(const AText: string); virtual; abstract;
     procedure LogWriteString(const AText: string); virtual;
@@ -80,12 +80,12 @@ implementation
 uses
   IdIOHandlerSocket,
   IdResourceStringsCore,
-  IdSys,
-  IdTCPConnection;
+  IdTCPConnection,
+  SysUtils;
 
 { TIdServerInterceptLogFile }
 
-function TIdServerInterceptLogBase.Accept(AConnection: TIdNativeComponent): TIdConnectionIntercept;
+function TIdServerInterceptLogBase.Accept(AConnection: TComponent): TIdConnectionIntercept;
 begin
   Result := TIdServerInterceptLogFileConnection.Create(nil);
   TIdServerInterceptLogFileConnection(Result).FServerInterceptLog := Self;
@@ -104,7 +104,7 @@ end;
 
 destructor TIdServerInterceptLogBase.Destroy;
 begin
-  Sys.FreeAndNil(FLock);
+  FreeAndNil(FLock);
   inherited Destroy;
 end;
 
@@ -153,7 +153,7 @@ begin
     LSocket := TIdTCPConnection(FConnection).Socket;
     if (LSocket <> nil) and (LSocket.Binding <> nil) then begin
       with LSocket.Binding do begin
-        Result := PeerIP + ':' + Sys.IntToStr(PeerPort);
+        Result := PeerIP + ':' + IntToStr(PeerPort);
       end;
       Exit;
     end;

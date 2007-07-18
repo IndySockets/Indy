@@ -210,7 +210,6 @@ uses
   IdSSL,
   IdSocks,
   IdScheduler,
-  IdSys,
   IdYarn;
 
 type
@@ -465,8 +464,8 @@ type
     FIssuer  : TIdX509Name;
     function RSubject:TIdX509Name;
     function RIssuer:TIdX509Name;
-    function RnotBefore:TIdDateTime;
-    function RnotAfter:TIdDateTime;
+    function RnotBefore:TDateTime;
+    function RnotAfter:TDateTime;
     function RFingerprint:TEVP_MD;
     function RFingerprintAsString:String;
   public
@@ -477,8 +476,8 @@ type
     property FingerprintAsString: String read RFingerprintAsString;
     property Subject: TIdX509Name read RSubject;
     property Issuer: TIdX509Name read RIssuer;
-    property notBefore: TIdDateTime read RnotBefore;
-    property notAfter: TIdDateTime read RnotAfter;
+    property notBefore: TDateTime read RnotBefore;
+    property notAfter: TDateTime read RnotAfter;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -528,7 +527,8 @@ uses
   IdAntiFreezeBase,
   IdExceptionCore,
   IdResourceStrings,
-  IdThreadSafe;
+  IdThreadSafe,
+  SysUtils;
 
 var
   SSLIsLoaded: TIdThreadSafeBoolean = nil;
@@ -557,7 +557,7 @@ begin
     end;
 
     size := Length(Password);
-    Sys.StrLCopy(buf, PChar(Password + #0), size + 1);
+    StrLCopy(buf, PChar(Password + #0), size + 1);
     Result := size;
   finally
     LockPassCB.Leave;
@@ -573,7 +573,7 @@ begin
   try
     IdSSLSocket := TIdSSLSocket(IdSslGetAppData(sslSocket));
 
-    StatusStr := Sys.Format(RSOSSLStatusString, [Sys.StrPas(IdSslStateStringLong(sslSocket))]);
+    StatusStr := IndyFormat(RSOSSLStatusString, [StrPas(IdSslStateStringLong(sslSocket))]);
 
     if (IdSSLSocket.fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
       TIdSSLIOHandlerSocketOpenSSL(IdSSLSocket.fParent).DoStatusInfo(StatusStr);
@@ -782,9 +782,9 @@ begin
   IdSslSetLockingCallback(nil);
   IdSSLOpenSSLHeaders.Unload;
 
-  Sys.FreeAndNil(LockInfoCB);
-  Sys.FreeAndNil(LockPassCB);
-  Sys.FreeAndNil(LockVerifyCB);
+  FreeAndNil(LockInfoCB);
+  FreeAndNil(LockPassCB);
+  FreeAndNil(LockVerifyCB);
 
   if Assigned(CallbackLockList) then
   begin
@@ -798,7 +798,7 @@ begin
         CallbackLockList.UnlockList;
       end;
 
-    Sys.FreeAndNil(CallbackLockList);
+    FreeAndNil(CallbackLockList);
   end;
 
   SSLIsLoaded.Value := False;
@@ -817,7 +817,7 @@ var
 begin
   Result := 0;
   if IdSslUCTTimeDecode(UCTTime, year, month, day, hour, min, sec, tz_h, tz_m) > 0 Then Begin
-    Result := Sys.EncodeDate(year, month, day) + Sys.EncodeTime(hour, min, sec, 0);
+    Result := EncodeDate(year, month, day) + EncodeDate(hour, min, sec);
     AddMins(Result, tz_m);
     AddHrs(Result, tz_h);
     Result := GetLocalTime(Result);
@@ -899,7 +899,7 @@ begin
           VerifiedOK := TIdServerIOHandlerSSLOpenSSL(IdSSLSocket.fParent).DoVerifyPeer(Certificate, LOk, Depth);
         end;
       finally
-        Sys.FreeAndNil(Certificate);
+        FreeAndNil(Certificate);
       end;
     except
     end;
@@ -954,7 +954,7 @@ end;
 
 destructor TIdServerIOHandlerSSLOpenSSL.Destroy;
 begin
-  Sys.FreeAndNil(fxSSLOptions);
+  FreeAndNil(fxSSLOptions);
   inherited Destroy;
 end;
 
@@ -1006,7 +1006,7 @@ begin
   tmpIdCIOpenSSL.Open;
   if tmpIdCIOpenSSL.Binding.Accept(ASocket.Handle) then begin
     //we need to pass the SSLOptions for the socket from the server
-    Sys.FreeAndNil(tmpIdCIOpenSSL.fxSSLOptions);
+    FreeAndNil(tmpIdCIOpenSSL.fxSSLOptions);
     tmpIdCIOpenSSL.IsPeer := True;
     tmpIdCIOpenSSL.fxSSLOptions := fxSSLOptions;
     tmpIdCIOpenSSL.fSSLSocket := TIdSSLSocket.Create(self);
@@ -1014,7 +1014,7 @@ begin
     result := tmpIdCIOpenSSL;
   end else begin
     result := nil;
-    Sys.FreeAndNil(tmpIdCIOpenSSL);
+    FreeAndNil(tmpIdCIOpenSSL);
   end;
 end;
 
@@ -1057,7 +1057,7 @@ end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.Shutdown;
 begin
-  Sys.FreeAndNil(fSSLContext);
+  FreeAndNil(fSSLContext);
   inherited;
 end;
 
@@ -1113,13 +1113,13 @@ end;
 
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
-  Sys.FreeAndNil(fRecvBuffer);
-  Sys.FreeAndNil(fSSLSocket);
+  FreeAndNil(fRecvBuffer);
+  FreeAndNil(fSSLSocket);
   if not IsPeer then begin
   //we do not destroy these in IsPeer equals true
   //because these do not belong to us when we are in a server.
-    Sys.FreeAndNil(fSSLContext);
-    Sys.FreeAndNil(fxSSLOptions);
+    FreeAndNil(fSSLContext);
+    FreeAndNil(fxSSLOptions);
   end;
   inherited Destroy;
 end;
@@ -1162,7 +1162,7 @@ end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
-  Sys.FreeAndNil(fSSLSocket);
+  FreeAndNil(fSSLSocket);
 
   //if close is being called from destroy then this buffer is already freed
   if Assigned(fRecvBuffer) then begin
@@ -1170,7 +1170,7 @@ begin
   end;
 
   if not IsPeer then begin
-    Sys.FreeAndNil(fSSLContext);
+    FreeAndNil(fSSLContext);
   end;
 
   inherited Close;
@@ -1558,9 +1558,9 @@ begin
   //f_SSL_CTX_set_tmp_rsa_callback(hSSLContext, @RSACallback);
 
   if fCipherList <> '' then begin    {Do not Localize}
-    pCipherList := Sys.StrNew(PChar(fCipherList));
+    pCipherList := StrNew(PChar(fCipherList));
     error := IdSslCtxSetCipherList(fContext, pCipherList);
-    Sys.StrDispose(pCipherList);
+    StrDispose(pCipherList);
   end
   else begin
     error := IdSslCtxSetCipherList(fContext, OPENSSL_SSL_DEFAULT_CIPHER_LIST);
@@ -1579,9 +1579,9 @@ begin
 
   // CA list
   if RootCertFile <> '' then begin    {Do not Localize}
-    pRootCertFile := Sys.StrNew(PChar(RootCertFile));
+    pRootCertFile := StrNew(PChar(RootCertFile));
     IdSSLCtxSetClientCAList(fContext, IdSSLLoadClientCAFile(pRootCertFile));
-    Sys.StrDispose(pRootCertFile);
+    StrDispose(pRootCertFile);
   end
 
 end;
@@ -1685,7 +1685,7 @@ var
   error: Integer;
 //  pDirs : PChar;
 begin
-  pStr := Sys.StrNew(PChar(RootCertFile));
+  pStr := StrNew(PChar(RootCertFile));
 {  if fVerifyDirs <> '' then begin
     pDirs := StrNew(PChar(fVerifyDirs));
     error := IdSslCtxLoadVerifyLocations(
@@ -1707,7 +1707,7 @@ begin
     Result := True;
   end;
 
-  Sys.StrDispose(pStr);
+  StrDispose(pStr);
 end;
 
 function TIdSSLContext.LoadCert: Boolean;
@@ -1715,7 +1715,7 @@ var
   pStr: PChar;
   error: Integer;
 begin
-  pStr := Sys.StrNew(PChar(CertFile));
+  pStr := StrNew(PChar(CertFile));
   error := IdSslCtxUseCertificateFile(
                  fContext,
                  pStr,
@@ -1725,7 +1725,7 @@ begin
   else
     Result := True;
 
-  Sys.StrDispose(pStr);
+  StrDispose(pStr);
 end;
 
 function TIdSSLContext.LoadKey: Boolean;
@@ -1735,7 +1735,7 @@ var
 begin
   Result := True;
 
-  pStr := Sys.StrNew(PChar(fsKeyFile));
+  pStr := StrNew(PChar(fsKeyFile));
   error := IdSslCtxUsePrivateKeyFile(
                  fContext,
                  pStr,
@@ -1750,7 +1750,7 @@ begin
     end;
   end;
 
-  Sys.StrDispose(pStr);
+  StrDispose(pStr);
 end;
 
 
@@ -1788,8 +1788,8 @@ begin
     IdSslFree(fSSL);
     fSSL := nil;
   end;
-  Sys.FreeAndNil(fSSLCipher);
-  Sys.FreeAndNil(fPeerCert);
+  FreeAndNil(fSSLCipher);
+  FreeAndNil(fPeerCert);
   inherited Destroy;
 end;
 
@@ -1877,7 +1877,7 @@ begin
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + Sys.IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
 
   if (fParent is TIdServerIOHandlerSSLOpenSSL) then begin
@@ -1910,7 +1910,7 @@ begin
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
                'description = ' + Cipher.Description + '; ' +    {Do not Localize}
-               'bits = ' + Sys.IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
+               'bits = ' + IntToStr(Cipher.Bits) + '; ' +    {Do not Localize}
                'version = ' + Cipher.Version + '; ';    {Do not Localize}
 
   if (fParent is TIdSSLIOHandlerSocketOpenSSL) then begin
@@ -1986,7 +1986,7 @@ begin
   Result := '';    {Do not Localize}
   Data := GetSessionID;
   for i := 0 to Data.Length-1 do begin
-    Result := Result+Sys.Format('%.2x', [Byte(Data.Data[I])]);{do not localize}
+    Result := Result+IndyFormat('%.2x', [Byte(Data.Data[I])]);{do not localize}
   end;
 end;
 
@@ -2016,7 +2016,7 @@ begin
     Result := '';    {Do not Localize}
   end
   else begin
-    Result := Sys.StrPas(IdSslX509NameOneline(FX509Name, PChar(@OneLine), sizeof(OneLine)));
+    Result := StrPas(IdSslX509NameOneline(FX509Name, PChar(@OneLine), sizeof(OneLine)));
   end;
 end;
 
@@ -2032,7 +2032,7 @@ end;
 
 function TIdX509Name.GetHashAsString: String;
 begin
-  Result := Sys.Format('%.8x', [Hash.L1]); {do not localize}
+  Result := IndyFormat('%.8x', [Hash.L1]); {do not localize}
 end;
 
 constructor TIdX509Name.Create(aX509Name: PX509_NAME);
@@ -2062,8 +2062,8 @@ end;
 
 destructor TIdX509.Destroy;
 begin
-  Sys.FreeAndNil(FSubject);
-  Sys.FreeAndNil(FIssuer);
+  FreeAndNil(FSubject);
+  FreeAndNil(FIssuer);
 
   { If the X.509 certificate handle was obtained from a certificate
   store or from the SSL connection as a peer certificate, then DO NOT
@@ -2121,11 +2121,11 @@ begin
     if I <> 0 then begin
       Result := Result + ':';    {Do not Localize}
     end;
-    Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
+    Result := Result + IndyFormat('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
   end;
 end;
 
-function TIdX509.RnotBefore: TIdDateTime;
+function TIdX509.RnotBefore: TDateTime;
 begin
   if FX509 = nil then begin
     Result := 0
@@ -2135,7 +2135,7 @@ begin
 end;
 
 
-function TIdX509.RnotAfter:TIdDateTime;
+function TIdX509.RnotAfter:TDateTime;
 begin
   if FX509 = nil then begin
     Result := 0
@@ -2163,12 +2163,12 @@ function TIdSSLCipher.GetDescription;
 var
   Buf: Array[0..1024] of Char;
 begin
-  Result := Sys.StrPas(IdSSLCipherDescription(IdSSLGetCurrentCipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
+  Result := StrPas(IdSSLCipherDescription(IdSSLGetCurrentCipher(FSSLSocket.fSSL), @Buf[0], SizeOf(Buf)-1));
 end;
 
 function TIdSSLCipher.GetName:String;
 begin
-  Result := Sys.StrPas(IdSSLCipherGetName(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
+  Result := StrPas(IdSSLCipherGetName(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
 function TIdSSLCipher.GetBits:Integer;
@@ -2178,7 +2178,7 @@ end;
 
 function TIdSSLCipher.GetVersion:String;
 begin
-  Result := Sys.StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
+  Result := StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
 initialization
@@ -2198,6 +2198,6 @@ finalization
 
   UnLoadOpenSSLLibrary;
   //free the lock last as unload makes calls that use it
-  Sys.FreeAndNil(SSLIsLoaded);
+  FreeAndNil(SSLIsLoaded);
 
 end.

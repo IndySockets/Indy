@@ -64,7 +64,7 @@ type
 implementation
 
 uses
-  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, IdSys;
+  IdBaseComponent, IdGlobal, IdOTPCalculator,  IdUserPassProvider, SysUtils;
 
 const
   SKEYSERVICENAME = 'SKEY'; {do not localize}
@@ -76,8 +76,8 @@ var
   LBuf, LSeed : String;
   LCount : Cardinal;
 begin
-  LBuf := Sys.Trim(ALastResponse);
-  LCount := Sys.StrToInt(Fetch(LBuf), 0);
+  LBuf := Trim(ALastResponse);
+  LCount := IndyStrToInt(Fetch(LBuf), 0);
   LSeed := Fetch(LBuf);
   Result := TIdOTPCalculator.GenerateSixWordKey('md4', LSeed, GetPassword, LCount); {do not localize}
 end;

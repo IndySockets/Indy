@@ -138,8 +138,7 @@ implementation
 
 uses
   IdGlobal,
-  IdOTPCalculator,
-  IdSys;
+  IdOTPCalculator;
 
 resourcestring
   RSOTP_Challenge = 'Response to %s required for OTP.';

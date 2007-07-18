@@ -36,8 +36,8 @@ unit IdTrivialFTPBase;
 interface
 
 uses
-  IdGlobal, IdSys,
-  IdUDPBase, IdUDPClient;
+  IdGlobal,
+  IdUDPBase, IdUDPClient, SysUtils;
 
 type
   TIdTFTPMode = (tfNetAscii, tfOctet);

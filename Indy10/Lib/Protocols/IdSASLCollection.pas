@@ -43,47 +43,46 @@ unit IdSASLCollection;
 interface
 
 uses
+  Classes,
   IdBaseComponent,
   IdCoder,
   IdException,
   IdSASL,
-  IdSys,
-  IdTCPConnection,
-  IdObjs;
+  IdTCPConnection;
 
 type
-  TIdSASLListEntry = class(TIdCollectionItem)
+  TIdSASLListEntry = class(TCollectionItem)
   protected
     FSASL : TIdSASL;
     function GetDisplayName: String; override;
   public
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
   published
     property SASL : TIdSASL read FSASL write FSASL;
   end;
 
-  TIdSASLEntries = class ( TIdOwnedCollection )
+  TIdSASLEntries = class ( TOwnedCollection )
   protected
     function GetItem ( Index: Integer ) : TIdSASLListEntry;
     procedure SetItem ( Index: Integer; const Value: TIdSASLListEntry );
   public
-    constructor Create ( AOwner : TIdPersistent ); reintroduce;
+    constructor Create ( AOwner : TPersistent ); reintroduce;
     function Add: TIdSASLListEntry;
     function LoginSASL(const ACmd: String;
       const AOkReplies, AContinueReplies: array of string;
       AClient : TIdTCPConnection;
-      ACapaReply : TIdStrings;
+      ACapaReply : TStrings;
       const AAuthString : String = 'AUTH'): Boolean; overload;      {Do not Localize}
     function LoginSASL(const ACmd: String; const AServiceName: String;
       const AOkReplies, AContinueReplies: array of string;
       AClient : TIdTCPConnection;
-      ACapaReply : TIdStrings;
+      ACapaReply : TStrings;
       const AAuthString : String = 'AUTH'): Boolean; overload;      {Do not Localize}
-    function ParseCapaReply(ACapaReply: TIdStrings;
-      const AAuthString: String = 'AUTH') : TIdStrings; {do not localize}
+    function ParseCapaReply(ACapaReply: TStrings;
+      const AAuthString: String = 'AUTH') : TStrings; {do not localize}
     function FindSASL(const AServiceName: String): TIdSASL;
     function Insert(Index: Integer): TIdSASLListEntry;
-    procedure RemoveByComp(AComponent : TIdNativeComponent);
+    procedure RemoveByComp(AComponent : TComponent);
     function IndexOfComp(AItem : TIdSASL): Integer;
     property Items [ Index: Integer ] : TIdSASLListEntry read GetItem write
       SetItem; default;
@@ -104,11 +103,11 @@ implementation
 uses
   IdCoderMIME,
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols, SysUtils;
 
 { TIdSASLListEntry }
 
-procedure TIdSASLListEntry.Assign(Source: TIdPersistent);
+procedure TIdSASLListEntry.Assign(Source: TPersistent);
 begin
   if Source is TIdSASLListEntry then begin
     FSASL := TIdSASLListEntry(Source).SASL;
@@ -150,7 +149,7 @@ begin
     Result := True;
     Exit; // we've authenticated successfully :)
   end;
-  S := ADecoder.DecodeString(Sys.TrimRight(AClient.LastCmdResult.Text.Text));
+  S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
   S := ASASL.StartAuthenticate(S);
   AClient.SendCmd(AEncoder.Encode(S));
   if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -159,7 +158,7 @@ begin
     Exit;
   end;
   while PosInStrArray(AClient.LastCmdResult.Code, AContinueReplies) > -1 do begin
-    S := ADecoder.DecodeString(Sys.TrimRight(AClient.LastCmdResult.Text.Text));
+    S := ADecoder.DecodeString(TrimRight(AClient.LastCmdResult.Text.Text));
     S := ASASL.ContinueAuthenticate(S);
     AClient.SendCmd(AEncoder.Encode(S));
     if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then
@@ -177,7 +176,7 @@ begin
   Result := TIdSASLListEntry ( inherited Add );
 end;
 
-constructor TIdSASLEntries.Create(AOwner: TIdPersistent);
+constructor TIdSASLEntries.Create(AOwner: TPersistent);
 begin
    inherited Create ( AOwner, TIdSASLListEntry );
 end;
@@ -206,18 +205,18 @@ end;
 
 function TIdSASLEntries.LoginSASL(const ACmd: String; const AOkReplies,
   AContinueReplies: array of string; AClient: TIdTCPConnection;
-  ACapaReply: TIdStrings; const AAuthString: String): Boolean;
+  ACapaReply: TStrings; const AAuthString: String): Boolean;
 var
   i : Integer;
   LE : TIdEncoderMIME;
   LD : TIdDecoderMIME;
-  LSupportedSASL : TIdStrings;
-  LSASLList: TIdList;
+  LSupportedSASL : TStrings;
+  LSASLList: TList;
   LSASL : TIdSASL;
 begin
   Result := False;
 
-  LSASLList := TIdList.Create;
+  LSASLList := TList.Create;
   try
     LSupportedSASL := ParseCapaReply(ACapaReply, AAuthString);
     try
@@ -249,27 +248,27 @@ begin
               end;
             end;
           finally
-            Sys.FreeAndNil(LD);
+            FreeAndNil(LD);
           end;
         finally
-          Sys.FreeAndNil(LE);
+          FreeAndNil(LE);
         end;
       end;
     finally
-      Sys.FreeAndNil(LSupportedSASL);
+      FreeAndNil(LSupportedSASL);
     end;
   finally
-    Sys.FreeAndNil(LSASLList);
+    FreeAndNil(LSASLList);
   end;
 end;
 
 function TIdSASLEntries.LoginSASL(const ACmd: String; const AServiceName: String;
   const AOkReplies, AContinueReplies: array of string; AClient: TIdTCPConnection;
-  ACapaReply: TIdStrings; const AAuthString: String): Boolean;
+  ACapaReply: TStrings; const AAuthString: String): Boolean;
 var
   LE : TIdEncoderMIME;
   LD : TIdDecoderMIME;
-  LSupportedSASL : TIdStrings;
+  LSupportedSASL : TStrings;
   LSASL : TIdSASL;
 
 begin
@@ -298,19 +297,19 @@ begin
             AClient.RaiseExceptionForLastCmdResult;
           end;
         finally
-          Sys.FreeAndNil(LD);
+          FreeAndNil(LD);
         end;
       finally
-        Sys.FreeAndNil(LE);
+        FreeAndNil(LE);
       end;
     end;
   finally
-    Sys.FreeAndNil(LSupportedSASL);
+    FreeAndNil(LSupportedSASL);
   end;
 end;
 
-function TIdSASLEntries.ParseCapaReply(ACapaReply: TIdStrings;
-  const AAuthString: String): TIdStrings; {do not localize}
+function TIdSASLEntries.ParseCapaReply(ACapaReply: TStrings;
+  const AAuthString: String): TStrings; {do not localize}
 var
   i: Integer;
   s, LPrefix: string;
@@ -321,15 +320,15 @@ begin
     Result := nil;
     Exit;
   end;
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   try
     for i := 0 to ACapaReply.Count - 1 do begin
-      s := Sys.UpperCase(ACapaReply[i]);
+      s := UpperCase(ACapaReply[i]);
       LPrefix := Copy(s, 1, Length(AAuthString)+1);
       if TextIsSame(LPrefix, AAuthString+' ') or TextIsSame(LPrefix, AAuthString+'=') then {Do not Localize}
       begin
         s := Copy(s, Length(LPrefix), MaxInt);
-        s := Sys.StringReplace(s, '=', ' ');    {Do not Localize}
+        s := StringReplace(s, '=', ' ',[rfReplaceAll]);    {Do not Localize}
         while Length(s) > 0 do begin
           LEntry := Fetch(s, ' ');    {Do not Localize}
           if LEntry <> '' then
@@ -342,7 +341,7 @@ begin
       end;
     end;
   except
-    Sys.FreeAndNil(Result);
+    FreeAndNil(Result);
     raise;
   end;
 end;
@@ -364,7 +363,7 @@ begin
   end;
 end;
 
-procedure TIdSASLEntries.RemoveByComp(AComponent: TIdNativeComponent);
+procedure TIdSASLEntries.RemoveByComp(AComponent: TComponent);
 var i : Integer;
 begin
   for i := Count-1 downto 0 do

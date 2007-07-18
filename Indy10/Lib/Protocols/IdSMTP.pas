@@ -187,6 +187,7 @@ unit IdSMTP;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdEMailAddress,
   IdException,
@@ -197,10 +198,8 @@ uses
   IdSASL,
   IdSASLCollection,
   IdSMTPBase,
-  IdSys,
   IdBaseComponent,
-  IdGlobal,
-  IdObjs;
+  IdGlobal;
 
 type
   TIdSMTPAuthenticationType = (atNone, atDefault, atSASL);
@@ -223,21 +222,21 @@ type
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure SetSASLMechanisms(AValue: TIdSASLEntries);
     procedure InitComponent; override;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
 
     //
     // holger: .NET compatibility change, OnConnected being reintroduced
     property OnConnected;
   public
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     function Authenticate: Boolean; virtual;
     procedure Connect; override;
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string);
     procedure Send(AMsg: TIdMessage); override;
-    procedure Expand(AUserName : String; AResults : TIdStrings); virtual;
+    procedure Expand(AUserName : String; AResults : TStrings); virtual;
     function Verify(AUserName : String) : String; virtual;
     //
     property DidAuthenticate: Boolean read FDidAuthenticate;
@@ -263,11 +262,11 @@ uses
   IdReplySMTP,
   IdSSL,
   IdResourceStringsProtocols,
-  IdTCPConnection;
+  IdTCPConnection, SysUtils;
 
 { TIdSMTP }
 
-procedure TIdSMTP.Assign(Source: TIdPersistent);
+procedure TIdSMTP.Assign(Source: TPersistent);
 var
   LS: TIdSMTP;
 begin
@@ -291,7 +290,7 @@ end;
 
 function TIdSMTP.Authenticate : Boolean;
 var
-  s : TIdStrings;
+  s : TStrings;
 begin
   if FDidAuthenticate then
   begin
@@ -330,7 +329,7 @@ begin
               FDidAuthenticate := True;
             end;
           finally
-            Sys.FreeAndNil(s);
+            FreeAndNil(s);
           end;
         end;
 {
@@ -376,7 +375,7 @@ begin
   SendCmd('QUIT', 221);    {Do not Localize}
 end;
 
-procedure TIdSMTP.Expand(AUserName: String; AResults: TIdStrings);
+procedure TIdSMTP.Expand(AUserName: String; AResults: TStrings);
 begin
   SendCMD('EXPN ' + AUserName, [250, 251]);    {Do not Localize}
 end;
@@ -400,8 +399,8 @@ begin
           Send(LMsg);
         finally Disconnect; end;
       end;
-    finally Sys.FreeAndNil(LMsg); end;
-  finally Sys.FreeAndNil(LSMTP); end;
+    finally FreeAndNil(LMsg); end;
+  finally FreeAndNil(LSMTP); end;
 end;
 
 procedure TIdSMTP.Send(AMsg: TIdMessage);
@@ -422,7 +421,7 @@ begin
     LRecipients.AddItems(AMsg.BccList);
     InternalSend(AMsg, AMsg.From.Address, LRecipients);
   finally
-    Sys.FreeAndNil(LRecipients);
+    FreeAndNil(LRecipients);
   end;
 end;
 
@@ -454,8 +453,8 @@ begin
   Result := LastCmdResult.Text[0];
 end;
 
-procedure TIdSMTP.Notification(AComponent: TIdNativeComponent;
-  Operation: TIdOperation);
+procedure TIdSMTP.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);
@@ -478,7 +477,7 @@ end;
 
 destructor TIdSMTP.Destroy;
 begin
-  Sys.FreeAndNil(FSASLMechanisms);
+  FreeAndNil(FSASLMechanisms);
   inherited Destroy;
 end;
 

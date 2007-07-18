@@ -54,13 +54,13 @@ unit IdSystatServer;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdContext,
-  IdCustomTCPServer,
-  IdObjs;
+  IdCustomTCPServer;
 
 type
-  TIdSystatEvent = procedure (AThread: TIdContext; AResults : TIdStrings) of object;
+  TIdSystatEvent = procedure (AThread: TIdContext; AResults : TStrings) of object;
 
 Type
   TIdSystatServer = class(TIdCustomTCPServer)
@@ -90,7 +90,7 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, IdSys;
+  IdGlobal, SysUtils;
 
 { TIdSystatServer }
 
@@ -101,17 +101,17 @@ begin
 end;
 
 function TIdSystatServer.DoExecute(AThread: TIdContext): boolean;
-var s : TIdStrings;
+var s : TStrings;
 begin
   Result := True;
   if Assigned(FOnSystat) then
   begin
-    s := TIdStringList.Create;
+    s := TStringList.Create;
     try
       FOnSystat(AThread,s);
       AThread.Connection.IOHandler.Write(s.Text);
     finally
-      Sys.FreeAndNil(s);
+      FreeAndNil(s);
     end;
     AThread.Connection.Disconnect;
   end;

@@ -52,9 +52,6 @@ unit IdStrings;
 
 interface
 
-uses
-  IdSys;
-
 function  FindFirstOf(AFind, AText: String): Integer;
 function  FindFirstNotOf(AFind, AText : String) : Integer;
 function  TrimAllOf(ATrim, AText : String) : String;
@@ -107,41 +104,42 @@ function CommaAdd(Const AStr1, AStr2:String):string;
 implementation
 
 uses
+  SysUtils,
   IdGlobal,
   IdGlobalProtocols;
 
 function StrHtmlEncode (const AStr: String): String;
 begin
-  Result := Sys.StringReplace(AStr,   '&', '&amp;'); {do not localize}
-  Result := Sys.StringReplace(Result, '<', '&lt;'); {do not localize}
-  Result := Sys.StringReplace(Result, '>', '&gt;'); {do not localize}
-  Result := Sys.StringReplace(Result, '"', '&quot;' ); {do not localize}
+  Result := StringReplace(AStr,   '&', '&amp;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '<', '&lt;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '>', '&gt;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '"', '&quot;' ,[rfReplaceAll]); {do not localize}
 end;
 
 function StrHtmlDecode (const AStr: String): String;
 begin
-  Result := Sys.StringReplace(AStr,   '&quot;', '"'); {do not localize}
-  Result := Sys.StringReplace(Result, '&gt;',   '>'); {do not localize}
-  Result := Sys.StringReplace(Result, '&lt;',   '<'); {do not localize}
-  Result := Sys.StringReplace(Result, '&amp;',  '&'); {do not localize}
+  Result := StringReplace(AStr,   '&quot;', '"',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '&gt;',   '>',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '&lt;',   '<',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result, '&amp;',  '&',[rfReplaceAll]); {do not localize}
 end;
 
 function StrXHtmlEncode(const ASource: String): String;
 begin
-  Result := Sys.StringReplace(ASource, '&',  '&amp;'); {do not localize}
-  Result := Sys.StringReplace(Result,  '<',  '&lt;'); {do not localize}
-  Result := Sys.StringReplace(Result,  '>',  '&gt;'); {do not localize}
-  Result := Sys.StringReplace(Result,  '"',  '&quot;'); {do not localize}
-  Result := Sys.StringReplace(Result,  '''', '&apos;'); {do not localize}
+  Result := StringReplace(ASource, '&',  '&amp;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '<',  '&lt;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '>',  '&gt;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '"',  '&quot;',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '''', '&apos;',[rfReplaceAll]); {do not localize}
 end;
 
 function StrXHtmlDecode(const ASource: String): String;
 begin
-  Result := Sys.StringReplace(ASource, '&apos;', ''''); {do not localize}
-  Result := Sys.StringReplace(Result,  '&quot;', '"'); {do not localize}
-  Result := Sys.StringReplace(Result,  '&gt;',   '>'); {do not localize}
-  Result := Sys.StringReplace(Result,  '&lt;',   '<'); {do not localize}
-  Result := Sys.StringReplace(Result,  '&amp;',  '&'); {do not localize}
+  Result := StringReplace(ASource, '&apos;', '''',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '&quot;', '"',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '&gt;',   '>',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '&lt;',   '<',[rfReplaceAll]); {do not localize}
+  Result := StringReplace(Result,  '&amp;',  '&',[rfReplaceAll]); {do not localize}
 end;
 
 function FindFirstOf(AFind, AText: string): Integer;

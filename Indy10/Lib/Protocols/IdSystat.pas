@@ -46,17 +46,17 @@ unit IdSystat;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdTCPConnection,
-  IdTCPClient,
-  IdObjs;
+  IdTCPClient;
 
 type
   TIdSystat = class(TIdTCPClientCustom)
   protected
     procedure InitComponent; override;
   public
-    procedure GetStat(ADest : TIdStrings);
+    procedure GetStat(ADest : TStrings);
   published
     property Port default IdPORT_SYSTAT;
   end;
@@ -83,7 +83,7 @@ begin
   Port := IdPORT_SYSTAT;
 end;
 
-procedure TIdSystat.GetStat(ADest: TIdStrings);
+procedure TIdSystat.GetStat(ADest: TStrings);
 begin
   Connect;
   try

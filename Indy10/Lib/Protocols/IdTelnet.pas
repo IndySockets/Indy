@@ -88,12 +88,11 @@ unit IdTelnet;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdGlobal,
   IdException,
-  IdObjs,
   IdStack,
-  IdSys,
   IdTCPClient, IdThread;
 
 const
@@ -219,7 +218,7 @@ type
     fThreadedEvent: Boolean;
     FOnDataAvailable: TIdTelnetDataAvailEvent;
     fIamTelnet: Boolean;
-    FOnDisconnect: TIdNotifyEvent;
+    FOnDisconnect: TNotifyEvent;
     FOnTelnetCommand: TIdTelnetCommandEvent;
     FTelnetThread: TIdTelnetReadThread;
     //
@@ -262,7 +261,7 @@ type
     property OnDataAvailable: TIdTelnetDataAvailEvent read FOnDataAvailable write FOnDataAvailable;
     property Terminal: string read fTerminal write fTerminal;
     property ThreadedEvent: Boolean read fThreadedEvent write fThreadedEvent default False;
-    property OnDisconnect: TIdNotifyEvent read FOnDisconnect write FOnDisconnect;
+    property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
 
   EIdTelnetError = class(EIdException);
@@ -273,7 +272,8 @@ implementation
 
 uses
   IdResourceStringsCore,
-  IdResourceStringsProtocols;
+  IdResourceStringsProtocols,
+  SysUtils;
 
 constructor TIdTelnetReadThread.Create(AClient: TIdTelnet);
 begin
@@ -359,7 +359,7 @@ begin
   if Assigned(FTelnetThread) then begin
     FTelnetThread.WaitFor;
   end;
-  Sys.FreeAndNil(FTelnetThread);
+  FreeAndNil(FTelnetThread);
 End;//Disconnect
 
 procedure TIdTelnet.DoOnDataAvailable(const Buf: String);

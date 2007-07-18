@@ -70,8 +70,7 @@ interface
 
 uses
   IdException,
-  IdGlobal,
-  IdSys;
+  IdGlobal;
 
 type
   TIdURIOptionalFields = (ofAuthInfo, ofBookmark);
@@ -120,7 +119,7 @@ type
 implementation
 
 uses
-  IdResourceStringsProtocols, IdGlobalProtocols;
+  IdResourceStringsProtocols, IdGlobalProtocols, SysUtils;
 
 constructor TIdURI.Create(const AURI: string = '');    {Do not Localize}
 begin
@@ -290,7 +289,7 @@ begin
       ESC := Copy(ASrc, i, 2); // Copy the escape code
       Inc(i, 1); // Then skip it.
       try
-        CharCode := Sys.StrToInt('$' + ESC);  {do not localize}
+        CharCode := IndyStrToInt('$' + ESC);  {do not localize}
         Result := Result + Char(CharCode);
       except end;
     end;
@@ -314,7 +313,7 @@ begin
     // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
     if ((CharIsInSet(ASrc, i, UnsafeChars)) or (not (CharIsInSet(ASrc, i, CharRange(#33,#128))))) then
     begin {do not localize}
-      Result := Result + '%' + Sys.IntToHex(Ord(ASrc[i]), 2);  {do not localize}
+      Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
     end
     else
     begin
@@ -332,7 +331,7 @@ begin
   Result := '';    {Do not Localize}
   for i := 1 to Length(ASrc) do begin
     if (CharIsInSet(ASrc, i, UnsafeChars)) or (ASrc[i] >= #$80) or (ASrc[i] < #32) then begin
-      Result := Result + '%' + Sys.IntToHex(Ord(ASrc[i]), 2);  {do not localize}
+      Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
     end else begin
       Result := Result + ASrc[i];
     end;

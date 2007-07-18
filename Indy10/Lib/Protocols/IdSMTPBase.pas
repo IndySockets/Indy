@@ -92,7 +92,6 @@ uses
   IdMessage,
   IdMessageClient,
   IdReply,
-  IdSys,
   IdTCPClient;
 
 //default property values
@@ -165,7 +164,7 @@ uses
   IdExplicitTLSClientServerBase,
   IdGlobalProtocols, IdIOHandler, IdReplySMTP,
   IdSSL,
-  IdStack; //required as we need to get the local computer DNS hostname.
+  IdStack, SysUtils; //required as we need to get the local computer DNS hostname.
 
 { TIdSMTPBase }
 
@@ -326,7 +325,7 @@ begin
       LError.RaiseReplyError;
     end;
   finally
-    Sys.FreeAndNil(LError);
+    FreeAndNil(LError);
   end;
 end;
 

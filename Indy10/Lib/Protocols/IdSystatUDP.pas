@@ -41,7 +41,7 @@ unit IdSystatUDP;
 }
 
 interface
-uses IdAssignedNumbers, IdObjs, IdUDPBase, IdUDPClient;
+uses Classes, IdAssignedNumbers, IdUDPBase, IdUDPClient;
 
 const DefIdSysUDPTimeout =  1000; //one second
 type
@@ -49,7 +49,7 @@ type
   protected
     procedure InitComponent; override;
   public
-    procedure GetStat(ADest : TIdStrings);
+    procedure GetStat(ADest : TStrings);
   published
     property ReceiveTimeout default DefIdSysUDPTimeout;   //Infinite Timeout can not be used for UDP reads
     property Port default IdPORT_SYSTAT;
@@ -70,7 +70,7 @@ Quoted from RFC 866:
 implementation
 
 uses
-  IdGlobal, IdSys;
+  IdGlobal, SysUtils;
 
 { TIdSystatUDP }
 
@@ -81,7 +81,7 @@ begin
   ReceiveTimeout := DefIdSysUDPTimeout;
 end;
 
-procedure TIdSystatUDP.GetStat(ADest: TIdStrings);
+procedure TIdSystatUDP.GetStat(ADest: TStrings);
 var s : String;
     LTimeout : Integer;
 begin

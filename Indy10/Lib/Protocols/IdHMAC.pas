@@ -25,10 +25,11 @@ unit IdHMAC;
 interface
 
 uses
-  IdGlobal, IdObjs, IdSys, IdHash;
+  Classes,
+  IdGlobal, IdHash;
 
 type
-  TIdHMACKeyBuilder = class(TIdBaseObject)
+  TIdHMACKeyBuilder = class(TObject)
   public
     class function Key(const ASize: Integer) : TIdBytes;
     class function IV(const ASize: Integer) : TIdBytes;
@@ -53,6 +54,7 @@ type
   end;
 
 implementation
+uses SysUtils;
 
 { TIdHMACKeyBuilder }
 
@@ -90,7 +92,7 @@ end;
 
 destructor TIdHMAC.Destroy;
 begin
-  Sys.FreeAndNil(FHash);
+  FreeAndNil(FHash);
   inherited Destroy;
 end;
 

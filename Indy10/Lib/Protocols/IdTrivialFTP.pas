@@ -45,10 +45,10 @@ unit IdTrivialFTP;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdTrivialFTPBase,
-  IdUDPClient,
-  IdObjs;
+  IdUDPClient;
 
 const
   GTransferMode = tfOctet;
@@ -69,9 +69,9 @@ type
     procedure RaiseError(const errorpacket: string);
     procedure InitComponent; override;
   public
-    procedure Get(const ServerFile: String; DestinationStream: TIdStream); overload;
+    procedure Get(const ServerFile: String; DestinationStream: TStream); overload;
     procedure Get(const ServerFile, LocalFile: String); overload;
-    procedure Put(SourceStream: TIdStream; const ServerFile: String); overload;
+    procedure Put(SourceStream: TStream; const ServerFile: String); overload;
     procedure Put(const LocalFile, ServerFile: String); overload;
   published
     property TransferMode: TIdTFTPMode read FMode write FMode Default GTransferMode;
@@ -90,7 +90,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
-  IdSys;
+  SysUtils;
 
 procedure TIdTrivialFTP.CheckOptionAck(const optionpacket: string);
 var LBuf : String;
@@ -110,7 +110,7 @@ begin
   LOptName := Fetch(LBuf,#0);
   if TextIsSame(LOptName, 'blksize') then begin    {Do not Localize}
   //
-    BufferSize := Sys.StrToInt(Fetch(LBuf,#0)) + hdrsize;
+    BufferSize := IndyStrToInt(Fetch(LBuf,#0)) + hdrsize;
   end;
 end;
 
@@ -123,7 +123,7 @@ begin
   ReceiveTimeout := GReceiveTimeout;
 end;
 
-procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TIdStream);
+procedure TIdTrivialFTP.Get(const ServerFile: String; DestinationStream: TStream);
 var
   s: string;
   RcvTimeout,
@@ -136,7 +136,7 @@ begin
   try
     BufferSize := 516;   // BufferSize as specified by RFC 1350
     Send(WordToStr(GStack.HostToNetwork(Word(TFTP_RRQ))) + ServerFile + #0 + ModeToStr + #0 +
-      sBlockSize + Sys.IntToStr(FRequestedBlockSize) + #0);
+      sBlockSize + IntToStr(FRequestedBlockSize) + #0);
     PrevBlockCtr := -1;
     BlockCtr := 0;
     TerminateTransfer := False;
@@ -191,7 +191,7 @@ begin
           BlockCtr := 0;
         end;
         else
-          raise EIdTFTPException.Create(Sys.Format(RSTFTPUnexpectedOp, [Host, Port]));
+          raise EIdTFTPException.Create(IndyFormat(RSTFTPUnexpectedOp, [Host, Port]));
       end;  { case }
       SendAck(BlockCtr);
     end;  { while }
@@ -203,9 +203,9 @@ end;
 
 procedure TIdTrivialFTP.Get(const ServerFile, LocalFile: String);
 var
-  fs: TIdFileStream;
+  fs: TFileStream;
 begin
-  fs := TIdFileStream.Create(LocalFile, fmCreate);
+  fs := TFileStream.Create(LocalFile, fmCreate);
   try
     Get(ServerFile, fs);
   finally
@@ -221,7 +221,7 @@ begin
   end;
 end;
 
-procedure TIdTrivialFTP.Put(SourceStream: TIdStream; const ServerFile: String);
+procedure TIdTrivialFTP.Put(SourceStream: TStream; const ServerFile: String);
 var
   CurrentDataBlk,
   s: string;
@@ -234,7 +234,7 @@ begin
   try
     BufferSize := 516;   // BufferSize as specified by RFC 1350
     Send(WordToStr(GStack.HostToNetwork(Word(TFTP_WRQ))) + ServerFile + #0 + ModeToStr + #0 +
-      sBlockSize + Sys.IntToStr(FRequestedBlockSize) + #0);
+      sBlockSize + IntToStr(FRequestedBlockSize) + #0);
     PrevBlockCtr := 0;
     BlockCtr := 1;
     TerminateTransfer := False;

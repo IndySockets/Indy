@@ -41,39 +41,40 @@ unit IdText;
 
 interface
 uses
-  IdMessageParts, IdObjs;
+  Classes,
+  IdMessageParts;
 
 type
   TIdText = class(TIdMessagePart)
   protected
-    FBody: TIdStringList;
+    FBody: TStringList;
     function  GetContentType: string; override; //Content-Type
-    procedure SetBody(const AStrs : TIdStringList); virtual;
+    procedure SetBody(const AStrs : TStringList); virtual;
     procedure SetContentType(const AValue: string); override;
     procedure SetCharSet(const AValue: String); virtual;
   public
-    constructor Create(Collection: TIdMessageParts; ABody: TIdStrings = nil); reintroduce;
+    constructor Create(Collection: TIdMessageParts; ABody: TStrings = nil); reintroduce;
     destructor Destroy; override;
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     function  IsBodyEncodingRequired: Boolean;
 
     class function PartType: TIdMessagePartType; override;
     //
-    property  Body: TIdStringList read FBody write SetBody;
+    property  Body: TStringList read FBody write SetBody;
   end;
 
 implementation
 
 uses
   IdGlobal,
-  IdSys;
+  SysUtils;
 
 const
   SContentType = '%s; CHARSET="%s"';  {do not localize}
 
 { TIdText }
 
-procedure TIdText.Assign(Source: TIdPersistent);
+procedure TIdText.Assign(Source: TPersistent);
 var mp : TIdText;
 begin
   if ClassType <> Source.ClassType then
@@ -91,11 +92,11 @@ begin
   end;
 end;
 
-constructor TIdText.Create(Collection: TIdMessageParts; ABody: TIdStrings = nil);
+constructor TIdText.Create(Collection: TIdMessageParts; ABody: TStrings = nil);
 begin
   inherited Create(Collection);
-  FBody := TIdStringList.Create;
-  FBody.Duplicates := iddupAccept; 
+  FBody := TStringList.Create;
+  FBody.Duplicates := dupAccept;
   if ABody <> nil then begin
     FBody.Assign(ABody);
   end;
@@ -137,19 +138,19 @@ begin
   Result := mptText;
 end;
 
-procedure TIdText.SetBody(const AStrs: TIdStringList);
+procedure TIdText.SetBody(const AStrs: TStringList);
 begin
   FBody.Assign(AStrs);
 end;
 
 procedure TIdText.SetCharSet(const AValue: String);
 begin
-  inherited SetContentType(Sys.Format(SContentType,[GetContentType,AValue]));
+  inherited SetContentType(IndyFormat(SContentType,[GetContentType,AValue]));
 end;
 
 procedure TIdText.SetContentType(const AValue: string);
 begin
-  inherited SetContentType(Sys.Format(SContentType, [AValue,GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
+  inherited SetContentType(IndyFormat(SContentType, [AValue,GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
 end;
 
 initialization
