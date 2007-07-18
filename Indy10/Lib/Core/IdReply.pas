@@ -115,38 +115,40 @@ unit IdReply;
 interface
 
 uses
-  IdException,
-  IdObjs,
-  IdSys;
+  Classes,
+  IdException;
 
 type
   TIdReplies = class;
   //TODO: a streamed write only property will be registered to convert old DFMs
   // into the new one for old TextCode and to ignore NumericCode which has been
   // removed
-  TIdReply = class(TIdCollectionItem)
+  TIdReply = class(TCollectionItem)
   protected
     FCode: string;
-    FFormattedReply: TIdStrings;
+    FFormattedReply: TStrings;
     FReplyTexts: TIdReplies;
-    FText: TIdStrings;
+    FText: TStrings;
     //
-    procedure AssignTo(ADest: TIdPersistent); override;
+    procedure AssignTo(ADest: TPersistent); override;
     procedure CommonInit;
-    function GetFormattedReplyStrings: TIdStrings; virtual;
+    function GetFormattedReplyStrings: TStrings; virtual;
     function CheckIfCodeIsValid(const ACode: string): Boolean; virtual;
     function GetDisplayName: string; override;
-    function GetFormattedReply: TIdStrings; virtual;
+    function GetFormattedReply: TStrings; virtual;
     function GetNumericCode: Integer;
     procedure SetCode(const AValue: string);
-    procedure SetFormattedReply(const AValue: TIdStrings); virtual; abstract;
-    procedure SetText(const AValue: TIdStrings);
+    procedure SetFormattedReply(const AValue: TStrings); virtual; abstract;
+    procedure SetText(const AValue: TStrings);
     procedure SetNumericCode(const AValue: Integer);
   public
     procedure Clear; virtual;
+    //Temp workaround for compiler bug
+    constructor Create(ACollection: TCollection); override;
+    constructor CreateWithReplyTexts(ACollection: TCollection; AReplyTexts: TIdReplies); virtual;
     // Both creates are necessary. This base one is called by the collection editor at design time
-    constructor Create(ACollection: TIdCollection); overload; override;
-    constructor Create(ACollection: TIdCollection; AReplyTexts: TIdReplies); reintroduce; overload; virtual;
+   // constructor Create(ACollection: TCollection); overload; override;
+   // constructor Create(ACollection: TCollection; AReplyTexts: TIdReplies); reintroduce; overload; virtual;
     destructor Destroy; override;
     // Is not abstract because C++ cannot compile abstract class methods
     class function IsEndMarker(const ALine: string): Boolean; virtual;
@@ -156,17 +158,17 @@ type
     procedure SetReply(const ACode: string; const AText: string); overload; virtual;
     procedure UpdateText;
     //
-    property FormattedReply: TIdStrings read GetFormattedReply write SetFormattedReply;
+    property FormattedReply: TStrings read GetFormattedReply write SetFormattedReply;
     property NumericCode: Integer read GetNumericCode write SetNumericCode;
   published
     //warning: setting Code has a side-effect of calling Clear;
     property Code: string read FCode write SetCode;
-    property Text: TIdStrings read FText write SetText;
+    property Text: TStrings read FText write SetText;
   end;
 
   TIdReplyClass = class of TIdReply;
 
-  TIdReplies = class(TIdOwnedCollection)
+  TIdReplies = class(TOwnedCollection)
   protected
     function GetItem(Index: Integer): TIdReply;
     procedure SetItem(Index: Integer; const Value: TIdReply);
@@ -175,7 +177,7 @@ type
     function Add(ACode: Integer; AText: string): TIdReply; overload;
     function Add(ACode: string; AText: string): TIdReply; overload;
     constructor Create(
-      AOwner: TIdPersistent;
+      AOwner: TPersistent;
       const AReplyClass: TIdReplyClass
       ); reintroduce; virtual;
     function Find(
@@ -193,11 +195,11 @@ type
 implementation
 
 uses
-  IdGlobal, IdResourceStringsCore;
+  IdGlobal, IdResourceStringsCore, SysUtils;
 
 { TIdReply }
 
-procedure TIdReply.AssignTo(ADest: TIdPersistent);
+procedure TIdReply.AssignTo(ADest: TPersistent);
 var
   LR : TIdReply;
 begin
@@ -217,8 +219,8 @@ begin
   FCode := '';
 end;
 
-constructor TIdReply.Create(
-  ACollection: TIdCollection;
+constructor TIdReply.CreateWithReplyTexts(
+  ACollection: TCollection;
   AReplyTexts: TIdReplies
   );
 begin
@@ -227,7 +229,7 @@ begin
   CommonInit;
 end;
 
-constructor TIdReply.Create(ACollection: TIdCollection);
+constructor TIdReply.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   CommonInit;
@@ -235,15 +237,15 @@ end;
 
 destructor TIdReply.Destroy;
 begin
-  Sys.FreeAndNil(FText);
-  Sys.FreeAndNil(FFormattedReply);
+  FreeAndNil(FText);
+  FreeAndNil(FFormattedReply);
   inherited Destroy;
 end;
 
 procedure TIdReply.CommonInit;
 begin
-  FFormattedReply := TIdStringList.Create;
-  FText := TIdStringList.Create;
+  FFormattedReply := TStringList.Create;
+  FText := TStringList.Create;
 end;
 
 function TIdReply.GetDisplayName: string;
@@ -262,22 +264,22 @@ end;
 
 procedure TIdReply.SetNumericCode(const AValue: Integer);
 begin
-  Code := Sys.IntToStr(AValue);
+  Code := IntToStr(AValue);
 end;
 
-procedure TIdReply.SetText(const AValue: TIdStrings);
+procedure TIdReply.SetText(const AValue: TStrings);
 begin
   FText.Assign(AValue);
 end;
 
 procedure TIdReply.SetReply(const ACode: Integer; const AText: string);
 begin
-  SetReply(Sys.IntToStr(ACode), AText);
+  SetReply(IntToStr(ACode), AText);
 end;
 
 function TIdReply.GetNumericCode: Integer;
 begin
-  Result := Sys.StrToInt(Code, 0);
+  Result := IndyStrToInt(Code, 0);
 end;
 
 procedure TIdReply.SetCode(const AValue: string);
@@ -285,7 +287,7 @@ var
   LMatchedReply: TIdReply;
 begin
   if FCode <> AValue then begin
-    EIdException.IfFalse(CheckIfCodeIsValid(AValue), Sys.Format(RSReplyInvalidCode, [AValue]));
+    EIdException.IfFalse(CheckIfCodeIsValid(AValue), IndyFormat(RSReplyInvalidCode, [AValue]));
     // Only check for duplicates if we are in a collection. NormalReply etc are not in collections
     // Also dont check FReplyTexts, as non members can be duplicates of members
     if Collection <> nil then begin
@@ -313,7 +315,7 @@ begin
   Result := False;
 end;
 
-function TIdReply.GetFormattedReply: TIdStrings;
+function TIdReply.GetFormattedReply: TStrings;
 begin
   // Overrides must call GetFormattedReplyStrings instead. This is just a base implementation
   // This is done this way because otherise double generations can occur it more than one
@@ -322,7 +324,7 @@ begin
   Result := GetFormattedReplyStrings;
 end;
 
-function TIdReply.GetFormattedReplyStrings: TIdStrings;
+function TIdReply.GetFormattedReplyStrings: TStrings;
 begin
   FFormattedReply.Clear;
   Result := FFormattedReply;
@@ -344,7 +346,7 @@ end;
 
 function TIdReplies.Add(ACode: Integer; AText: string): TIdReply;
 begin
-  Result := Add(Sys.IntToStr(ACode), AText);
+  Result := Add(IntToStr(ACode), AText);
 end;
 
 function TIdReplies.Add(ACode, AText: string): TIdReply;
@@ -353,12 +355,12 @@ begin
   try
     Result.SetReply(ACode, AText);
   except
-    Sys.FreeAndNil(Result);
+    FreeAndNil(Result);
     raise;
   end;
 end;
 
-constructor TIdReplies.Create(AOwner: TIdPersistent; const AReplyClass:TIdReplyClass);
+constructor TIdReplies.Create(AOwner: TPersistent; const AReplyClass:TIdReplyClass);
 begin
   inherited Create(AOwner, AReplyClass);
 end;

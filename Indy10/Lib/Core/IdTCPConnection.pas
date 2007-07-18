@@ -346,6 +346,7 @@ Original Author and Maintainer:
 }
 
 uses
+  Classes,
   IdComponent,
   IdException,
   IdExceptionCore,
@@ -356,8 +357,6 @@ uses
   IdIOHandlerStack,
   IdReply,
   IdSocketHandle,
-  IdSys,
-  IdObjs,
   IdBaseComponent;
 
 type
@@ -368,7 +367,7 @@ type
     FIOHandler: TIdIOHandler;
     FLastCmdResult: TIdReply;
     FManagedIOHandler: Boolean;
-    FOnDisconnected: TIdNotifyEvent;
+    FOnDisconnected: TNotifyEvent;
     FSocket: TIdIOHandlerSocket;
     FReplyClass: TIdReplyClass;
     //
@@ -377,14 +376,14 @@ type
     procedure InitComponent; override;
     function GetIntercept: TIdConnectionIntercept; virtual;
     function GetReplyClass: TIdReplyClass; virtual;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetIntercept(AValue: TIdConnectionIntercept); virtual;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
     procedure SetGreeting(AValue: TIdReply);
-    procedure WorkBeginEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode;
+    procedure WorkBeginEvent(ASender: TObject; AWorkMode: TWorkMode;
      AWorkCountMax: Integer);
-    procedure WorkEndEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode);
-    procedure WorkEvent(ASender: TIdBaseObject; AWorkMode: TWorkMode;
+    procedure WorkEndEvent(ASender: TObject; AWorkMode: TWorkMode);
+    procedure WorkEvent(ASender: TObject; AWorkMode: TWorkMode;
      AWorkCount: Integer);
     procedure PrepareCmd(var aCmd: string); virtual;
   public
@@ -432,8 +431,8 @@ type
     function SendCmd(AOut: string; const AResponse: array of SmallInt): SmallInt; overload; virtual;
     function SendCmd(AOut: string; const AResponse: string): string; overload;
     //
-    procedure WriteHeader(AHeader: TIdStrings);
-    procedure WriteRFCStrings(AStrings: TIdStrings);
+    procedure WriteHeader(AHeader: TStrings);
+    procedure WriteRFCStrings(AStrings: TStrings);
     //
     property LastCmdResult: TIdReply read FLastCmdResult;
     property ManagedIOHandler: Boolean read FManagedIOHandler write FManagedIOHandler;
@@ -442,7 +441,7 @@ type
     property Intercept: TIdConnectionIntercept read GetIntercept write SetIntercept;
     property IOHandler: TIdIOHandler read FIOHandler write SetIOHandler;
     // Events
-    property OnDisconnected: TIdNotifyEvent read FOnDisconnected write FOnDisconnected;
+    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
     property OnWork;
     property OnWorkBegin;
     property OnWorkEnd;
@@ -451,7 +450,8 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC;
+  IdAntiFreezeBase, IdResourceStringsCore, IdStackConsts, IdReplyRFC,
+  SysUtils;
 
 function TIdTCPConnection.GetIntercept: TIdConnectionIntercept;
 begin
@@ -498,8 +498,8 @@ begin
     // This will free any managed IOHandlers
     IOHandler := nil;
   end;
-  Sys.FreeAndNil(FLastCmdResult);
-  Sys.FreeAndNil(FGreeting);
+  FreeAndNil(FLastCmdResult);
+  FreeAndNil(FGreeting);
   inherited Destroy;
 end;
 
@@ -576,7 +576,7 @@ begin
   Result := GetResponse(AResponse);
 end;
 
-procedure TIdTCPConnection.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+procedure TIdTCPConnection.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
   if (Operation = opRemove) then begin
@@ -615,7 +615,7 @@ begin
       EIdException.IfTrue(AValue.Intercept <> FIntercept, RSInterceptIsDifferent);
     end;
     if ManagedIOHandler and Assigned(FIOHandler) then begin
-      Sys.FreeAndNil(FIOHandler);
+      FreeAndNil(FIOHandler);
     end;
     // Reset this if nil (to match nil, but not needed) or when a new IOHandler is specified
     // If true, code must set it after the IOHandler is set
@@ -645,7 +645,7 @@ begin
   end;
 end;
 
-procedure TIdTCPConnection.WriteHeader(AHeader: TIdStrings);
+procedure TIdTCPConnection.WriteHeader(AHeader: TStrings);
 var
   i: Integer;
 begin
@@ -654,7 +654,7 @@ begin
     WriteBufferOpen; try
       for i := 0 to AHeader.Count -1 do begin
         // No ReplaceAll flag - we only want to replace the first one
-        WriteLn(Sys.ReplaceOnlyFirst(AHeader[i], '=', ': '));
+        WriteLn(ReplaceOnlyFirst(AHeader[i], '=', ': '));
       end;
       WriteLn;
     finally WriteBufferClose; end;
@@ -704,10 +704,10 @@ end;
 procedure TIdTCPConnection.GetInternalResponse;
 var
   LLine: string;
-  LResponse: TIdStringList;
+  LResponse: TStringList;
 begin
   CheckConnected;
-  LResponse := TIdStringList.Create; try
+  LResponse := TStringList.Create; try
     // Some servers with bugs send blank lines before reply. Dont remember which
     // ones, but I do remember we changed this for a reason
     // RLebeau 9/14/06: this can happen in between lines of the reply as well
@@ -717,10 +717,10 @@ begin
     until FLastCmdResult.IsEndMarker(LLine);
     //Note that FormattedReply uses an assign in it's property set method.
     FLastCmdResult.FormattedReply := LResponse;
-  finally Sys.FreeAndNil(LResponse); end;
+  finally FreeAndNil(LResponse); end;
 end;
 
-procedure TIdTCPConnection.WriteRFCStrings(AStrings: TIdStrings);
+procedure TIdTCPConnection.WriteRFCStrings(AStrings: TStrings);
 begin
   CheckConnected;
   IOHandler.WriteRFCStrings(AStrings, True);
@@ -780,8 +780,8 @@ procedure TIdTCPConnection.InitComponent;
 begin
   inherited InitComponent;
   FReplyClass := GetReplyClass;
-  FGreeting := FReplyClass.Create(nil, nil);
-  FLastCmdResult := FReplyClass.Create(nil, nil);
+  FGreeting := FReplyClass.CreateWithReplyTexts(nil, nil);
+  FLastCmdResult := FReplyClass.CreateWithReplyTexts(nil, nil);
 end;
 
 procedure TIdTCPConnection.CheckConnected;

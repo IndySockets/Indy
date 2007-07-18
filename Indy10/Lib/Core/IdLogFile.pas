@@ -62,13 +62,14 @@ unit IdLogFile;
 interface
 
 uses
-  IdLogBase, IdObjs;
+  Classes,
+  IdLogBase;
 
 type
   TIdLogFile = class(TIdLogBase)
   protected
     FFilename: String;
-    FFileStream: TIdStream;
+    FFileStream: TStream;
     //
     procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
     procedure LogReceivedData(const AText, AData: string); override;
@@ -87,13 +88,13 @@ type
 implementation
 
 uses
-  IdGlobal, IdException, IdResourceStringsCore, IdSys, IdBaseComponent;
+  IdGlobal, IdException, IdResourceStringsCore, IdBaseComponent, SysUtils;
 
 { TIdLogFile }
 
 procedure TIdLogFile.Close;
 begin
-  Sys.FreeAndNil(FFileStream);
+  FreeAndNil(FFileStream);
 end;
 
 procedure TIdLogFile.LogReceivedData(const AText, AData: string);
@@ -141,10 +142,10 @@ begin
 
   if LogTime then
   begin
-    sPre := Sys.DateTimeToStr(Sys.Now) + ' ' ;      {Do not translate}
+    sPre := DateTimeToStr(Now) + ' ' ;      {Do not translate}
   end;
 
-  sData := Sys.Format(AFormat, AArgs);
+  sData := IndyFormat(AFormat, AArgs);
   if FReplaceCRLF then begin
     sData :=  ReplaceCR(sData);
   end;

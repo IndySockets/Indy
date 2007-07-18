@@ -128,19 +128,20 @@ unit IdSocketHandle;
 interface
 
 uses
-  IdException, IdGlobal, IdStackConsts, IdStack, IdSys, IdObjs, IdBaseComponent;
+  Classes,
+  IdException, IdGlobal, IdStackConsts, IdStack, IdBaseComponent;
 
 type
   TIdSocketHandle = class;
 
-  TIdSocketHandles = class(TIdOwnedCollection)
+  TIdSocketHandles = class(TOwnedCollection)
   protected
     FDefaultPort: TIdPort;
     //
     function GetItem(Index: Integer): TIdSocketHandle;
     procedure SetItem(Index: Integer; const Value: TIdSocketHandle);
   public
-    constructor Create(AOwner: TIdNativeComponent); reintroduce;
+    constructor Create(AOwner: TComponent); reintroduce;
     function Add: TIdSocketHandle; reintroduce;
     function BindingByHandle(const AHandle: TIdStackSocketHandle): TIdSocketHandle;
     property Items[Index: Integer]: TIdSocketHandle read GetItem write SetItem; default;
@@ -148,7 +149,7 @@ type
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
   end;
 
-  TIdSocketHandle = class(TIdCollectionItem)
+  TIdSocketHandle = class(TCollectionItem)
   protected
     FClientPortMin: Integer;
     FClientPortMax: Integer;
@@ -178,11 +179,11 @@ type
      const AProtocol: TIdSocketProtocol = Id_IPPROTO_IP);
 {$ENDIF}
     // Returns True if error was ignored (Matches iIgnore), false if no error occurred
-    procedure Assign(Source: TIdPersistent); override;
+    procedure Assign(Source: TPersistent); override;
     procedure Bind;
     procedure CloseSocket; virtual;
     procedure Connect; virtual;
-    constructor Create(ACollection: TIdCollection); override;
+    constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
 //    procedure GetSockOpt(level, optname: Integer; optval: PChar; optlen: Integer);
     procedure Listen(const AQueueCount: Integer = 5);
@@ -221,7 +222,7 @@ type
 implementation
 
 uses
-  IdAntiFreezeBase, IdComponent, IdResourceStrings;
+  IdAntiFreezeBase, IdComponent, IdResourceStrings, SysUtils;
 
 { TIdSocketHandle }
 
@@ -274,8 +275,8 @@ end;
 destructor TIdSocketHandle.Destroy;
 begin
   CloseSocket;
-  Sys.FreeAndNil(FConnectionHandle);
-  Sys.FreeAndNil(FReadSocketList);
+  FreeAndNil(FConnectionHandle);
+  FreeAndNil(FReadSocketList);
   inherited Destroy;
 end;
 
@@ -315,10 +316,10 @@ procedure TIdSocketHandle.Bind;
 begin
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
-      raise EIdInvalidPortRange.Create(Sys.Format(RSInvalidPortRange
+      raise EIdInvalidPortRange.Create(IndyFormat(RSInvalidPortRange
        , [FClientPortMin, FClientPortMax]));
     end else if not BindPortReserved then begin
-      raise EIdCanNotBindPortInRange.Create(Sys.Format(RSCanNotBindRange
+      raise EIdCanNotBindPortInRange.Create(IndyFormat(RSCanNotBindRange
        , [FClientPortMin, FClientPortMax]));
     end;
   end else if not TryBind then begin
@@ -366,7 +367,7 @@ begin
   end;
 end;
 
-constructor TIdSocketHandle.Create(ACollection: TIdCollection);
+constructor TIdSocketHandle.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FConnectionHandle := TIdCriticalSection.Create;
@@ -409,7 +410,7 @@ begin
   Result := CheckIsReadable(AMSec);
 end;
 
-procedure TIdSocketHandle.Assign(Source: TIdPersistent);
+procedure TIdSocketHandle.Assign(Source: TPersistent);
 var
   LSource: TIdSocketHandle;
 begin
@@ -527,7 +528,7 @@ begin
   end;
 end;
 
-constructor TIdSocketHandles.Create(AOwner: TIdNativeComponent);
+constructor TIdSocketHandles.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner, TIdSocketHandle);
 end;

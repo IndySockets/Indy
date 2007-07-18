@@ -67,7 +67,7 @@ unit IdScheduler;
 interface
 
 uses
-  IdBaseComponent, IdSys, IdThread, IdTask, IdYarn, IdThreadSafe;
+  IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;
 
 type
   TIdScheduler = class(TIdBaseComponent)
@@ -104,13 +104,13 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 { TIdScheduler }
 
 destructor TIdScheduler.Destroy;
 begin
-  Sys.FreeAndNil(FActiveYarns);
+  FreeAndNil(FActiveYarns);
   inherited Destroy;
 end;
 

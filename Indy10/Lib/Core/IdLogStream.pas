@@ -39,14 +39,15 @@ unit IdLogStream;
 interface
 
 uses
-  IdLogBase, IdObjs, IdGlobal;
+  Classes,
+  IdLogBase, IdGlobal;
 
 type
   TIdLogStream = class(TIdLogBase)
   protected
     FFreeStreams: Boolean;
-    FReceiveStream: TIdStream;
-    FSendStream: TIdStream;
+    FReceiveStream: TStream;
+    FSendStream: TStream;
     //
     procedure InitComponent; override;
     procedure LogStatus(const AText: string); override;
@@ -56,12 +57,13 @@ type
     procedure Disconnect; override;
     //
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
-    property ReceiveStream: TIdStream read FReceiveStream write FReceiveStream;
-    property SendStream: TIdStream read FSendStream write FSendStream;
+    property ReceiveStream: TStream read FReceiveStream write FReceiveStream;
+    property SendStream: TStream read FSendStream write FSendStream;
   end;
 
 implementation
- uses IdSys;
+ uses SysUtils;
+
 // TODO: This was orginally for VCL. For .Net what do we do? Convert back to
 // 7 bit? Log all? Logging all seems to be a disaster.
 // Text seems to be best, users are expecting text in this class. But
@@ -75,8 +77,8 @@ procedure TIdLogStream.Disconnect;
 begin
   inherited Disconnect;
   if FreeStreams then begin
-    Sys.FreeAndNil(FReceiveStream);
-    Sys.FreeAndNil(FSendStream);
+    FreeAndNil(FReceiveStream);
+    FreeAndNil(FSendStream);
   end;
 end;
 

@@ -140,14 +140,14 @@ type
 implementation
 
 uses
-  IdSys;
+  SysUtils;
 
 { TIdRawBase }
 
 destructor TIdRawBase.Destroy;
 begin
-  Sys.FreeAndNil(FBinding);
-  Sys.FreeAndNil(FPkt);
+  FreeAndNil(FBinding);
+  FreeAndNil(FPkt);
   inherited Destroy;
 end;
 

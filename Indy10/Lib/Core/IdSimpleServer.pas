@@ -95,11 +95,11 @@ unit IdSimpleServer;
 interface
 
 uses
+  Classes,
   IdException,
   IdGlobal,
   IdSocketHandle,
   IdTCPConnection,
-  IdObjs,
   IdStackConsts,
   IdIOHandler;
 
@@ -118,8 +118,8 @@ type
     FIPVersion: TIdIPVersion;
     FListenHandle: TIdStackSocketHandle;
     FListening: Boolean;
-    FOnBeforeBind: TIdNotifyEvent;
-    FOnAfterBind: TIdNotifyEvent;
+    FOnBeforeBind: TNotifyEvent;
+    FOnAfterBind: TNotifyEvent;
     //
     procedure Bind;
     procedure DoBeforeBind; virtual;
@@ -143,8 +143,8 @@ type
     property Binding: TIdSocketHandle read GetBinding;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
 
-    property OnBeforeBind:TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
-    property OnAfterBind:TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnBeforeBind:TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind:TNotifyEvent read FOnAfterBind write FOnAfterBind;
   end;
 
   EIdCannotUseNonSocketIOHandler = class(EIdException);

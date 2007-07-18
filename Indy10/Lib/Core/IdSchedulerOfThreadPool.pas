@@ -72,7 +72,6 @@ uses
   IdContext,
   IdScheduler,
   IdSchedulerOfThread,
-  IdSys,
   IdThread,
   IdThreadSafe,
   IdYarn;
@@ -101,7 +100,7 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 type
 
@@ -112,7 +111,7 @@ destructor TIdSchedulerOfThreadPool.Destroy;
 begin
   inherited Destroy;
   // Must be after, inherited calls TerminateThreads
-  Sys.FreeAndNil(FThreadPool);
+  FreeAndNil(FThreadPool);
 end;
 
 function TIdSchedulerOfThreadPool.AcquireYarn: TIdYarn;
@@ -152,7 +151,7 @@ begin
     LThread.Terminate;
     LThread.Resume;
     LThread.WaitFor;
-    Sys.FreeAndNil(LThread);
+    FreeAndNil(LThread);
   end;
 end;
 

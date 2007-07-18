@@ -28,8 +28,8 @@ unit IdTask;
 interface
 
 uses
-  IdSys,
-  IdYarn;
+  IdYarn,
+  SysUtils;
 
 type
   TIdTask = class(TObject)
@@ -90,7 +90,7 @@ destructor TIdTask.Destroy;
 begin
   // Dont free the yarn, that is the responsibilty of the thread / fiber.
   // .Yarn here is just a reference, not an ownership
-  Sys.FreeAndNil(FData);
+  FreeAndNil(FData);
   inherited Destroy;
 end;
 

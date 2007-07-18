@@ -141,13 +141,12 @@ unit IdIOHandlerSocket;
 interface
 
 uses
+  Classes,
   IdCustomTransparentProxy,
   IdBaseComponent,
   IdGlobal,
   IdIOHandler,
-  IdSocketHandle,
-  IdSys,
-  IdObjs;
+  IdSocketHandle;
 
 const
   IdDefTimeout = 0;
@@ -170,9 +169,9 @@ type
     FBoundPortMax: Integer;
     FBoundPortMin: Integer;
     FDefaultPort: Integer;
-    FOnBeforeBind: TIdNotifyEvent;
-    FOnAfterBind: TIdNotifyEvent;
-    FOnSocketAllocated: TIdNotifyEvent;
+    FOnBeforeBind: TNotifyEvent;
+    FOnAfterBind: TNotifyEvent;
+    FOnSocketAllocated: TNotifyEvent;
     FTransparentProxy: TIdCustomTransparentProxy;
     FUseNagle: Boolean;
     FReuseSocket: TIdReuseSocket;
@@ -183,7 +182,7 @@ type
     procedure DoAfterBind; virtual;
     procedure DoSocketAllocated; virtual;
     procedure InitComponent; override;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetDestination: string; override;
     procedure SetDestination(const AValue: string); override;
     function GetTransparentProxy: TIdCustomTransparentProxy; virtual;
@@ -206,9 +205,9 @@ type
     property BoundPortMax: Integer read FBoundPortMax write FBoundPortMax;
     property BoundPortMin: Integer read FBoundPortMin write FBoundPortMin;
     // events
-    property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write FOnBeforeBind;
-    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
-    property OnSocketAllocated: TIdNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
+    property OnBeforeBind: TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnSocketAllocated: TNotifyEvent read FOnSocketAllocated write FOnSocketAllocated;
   published
     property BoundIP: string read FBoundIP write FBoundIP;
     property BoundPort: Integer read FBoundPort write FBoundPort default 0;
@@ -223,6 +222,7 @@ type
 implementation
 
 uses
+  SysUtils,
   IdStack,
   IdStackConsts,
   IdSocks;
@@ -272,10 +272,10 @@ destructor TIdIOHandlerSocket.Destroy;
 begin
   if Assigned(FTransparentProxy) then begin
     if FTransparentProxy.Owner = nil then begin
-      Sys.FreeAndNil(FTransparentProxy);
+      FreeAndNil(FTransparentProxy);
     end;
   end;
-  Sys.FreeAndNil(FBinding);
+  FreeAndNil(FBinding);
   inherited Destroy;
 end;
 
@@ -304,7 +304,7 @@ function TIdIOHandlerSocket.GetDestination: string;
 begin
   Result := Host;
   if (Port <> DefaultPort) and (Port > 0) then begin
-    Result := Host + ':' + Sys.IntToStr(Port);
+    Result := Host + ':' + IntToStr(Port);
   end;
 end;
 
@@ -330,10 +330,10 @@ procedure TIdIOHandlerSocket.SetDestination(const AValue: string);
 var LPortStart:integer;
 begin
   // Bas Gooijen 06-Dec-2002: Changed to search the last ':', instead of the first:
-  LPortStart := Sys.LastDelimiter(':', AValue);
+  LPortStart := LastDelimiter(':', AValue);
   if LPortStart > 0 then begin
     Host := Copy(AValue,1,LPortStart-1);
-    Port := Sys.StrToInt(Sys.Trim(Copy(AValue, LPortStart + 1, $FF)), DefaultPort);
+    Port := IndyStrToInt(Copy(AValue, LPortStart + 1, $FF), DefaultPort);
   end;
 end;
 
@@ -383,7 +383,7 @@ begin
       end;
       LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
       if Assigned(FTransparentProxy) and (FTransparentProxy.ClassType <> LClass) then begin
-        Sys.FreeAndNil(FTransparentProxy);
+        FreeAndNil(FTransparentProxy);
       end;
       if not Assigned(FTransparentProxy) then begin
         FTransparentProxy := LClass.Create(nil);
@@ -391,7 +391,7 @@ begin
       FTransparentProxy.Assign(AProxy);
     end else begin
       if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
-        Sys.FreeAndNil(FTransparentProxy);
+        FreeAndNil(FTransparentProxy);
       end;
       FTransparentProxy := AProxy;
       FTransparentProxy.FreeNotification(Self);
@@ -399,7 +399,7 @@ begin
   end
   else begin
     if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
-      Sys.FreeAndNil(FTransparentProxy);
+      FreeAndNil(FTransparentProxy);
     end else begin
       FTransparentProxy := nil; //remove link
     end;
@@ -430,7 +430,7 @@ begin
   end;
 end;
 
-procedure TIdIOHandlerSocket.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+procedure TIdIOHandlerSocket.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FTransparentProxy) then begin
     FTransparentProxy := nil;

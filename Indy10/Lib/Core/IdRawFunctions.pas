@@ -129,7 +129,7 @@ procedure IdRawBuildUdp(const ASourcePort, ADestPort: word;
   var VBuffer :TIdBytes);
 
 implementation
- uses IdSys;
+uses SysUtils;
 
 procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: word;
   const AHwAddressLen, AProtocolLen: byte;
@@ -173,7 +173,7 @@ begin
     LIdx := 0;
     HdrArp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrArp);
+    FreeAndNil(HdrArp);
   end;
 end;
 
@@ -214,7 +214,7 @@ begin
     LIdx := 0;
     HdrDns.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrDns);
+    FreeAndNil(HdrDns);
   end;
 end;
 
@@ -250,7 +250,7 @@ begin
       CopyTIdBytes(APayload,0,VBuffer,LIdx,Length(APayload));
     end;
   finally
-    Sys.FreeAndNil(HdrEth);
+    FreeAndNil(HdrEth);
   end;
 end;
 
@@ -291,7 +291,7 @@ begin
       CopyTIdBytes(APayload,0,VBuffer,LIdx,Length(APayload));
     end;
   finally
-    Sys.FreeANdNil(HdrIp);
+    FreeANdNil(HdrIp);
   end;
 end;
 
@@ -326,7 +326,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -358,7 +358,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeANdNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -398,7 +398,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -440,7 +440,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -481,7 +481,7 @@ begin
     HdrIcmp.WriteStruct(VBuffer,LIdx);
 
   finally
-    Sys.FreeAndNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -522,7 +522,7 @@ begin
     LIdx := 0;
     HdrIcmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrIcmp);
+    FreeAndNil(HdrIcmp);
   end;
 end;
 
@@ -558,7 +558,7 @@ begin
     LIdx := 0;
     HdrIgmp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrIgmp);
+    FreeAndNil(HdrIgmp);
   end;
 end;
 
@@ -600,7 +600,7 @@ begin
     LIdx := 0;
     HdrRip.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrRip);
+    FreeAndNil(HdrRip);
   end;
 end;
 
@@ -645,7 +645,7 @@ begin
     LIdx := 0;
     HdrTcp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrTcp);
+    FreeAndNil(HdrTcp);
   end;
 end;
 
@@ -682,7 +682,7 @@ begin
     LIdx := 0;
     HdrUdp.WriteStruct(VBuffer,LIdx);
   finally
-    Sys.FreeAndNil(HdrUdp);
+    FreeAndNil(HdrUdp);
   end;
 end;
 

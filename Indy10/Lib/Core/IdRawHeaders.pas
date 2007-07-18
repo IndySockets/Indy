@@ -760,7 +760,7 @@ type
 ////////////////////////////////////////////////////////////////////////////////
 
 implementation
-uses IdSys;
+uses SysUtils;
 { TIdSunB }
 
 procedure TIdSunB.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
@@ -1119,8 +1119,8 @@ end;
 
 destructor TIdICMPHdr.Destroy;
 begin
-  Sys.FreeAndNil(Ficmp_hun);
-  Sys.FreeAndNil(Ficmp_dun);
+  FreeAndNil(Ficmp_hun);
+  FreeAndNil(Ficmp_dun);
   inherited Destroy;
 end;
 
@@ -1188,8 +1188,8 @@ end;
 
 destructor TIdIPHdr.Destroy;
 begin
-  Sys.FreeAndNil( Fip_src);
-  Sys.FreeAndNil( Fip_dst);
+  FreeAndNil( Fip_src);
+  FreeAndNil( Fip_dst);
   inherited Destroy;
 end;
 
@@ -1414,7 +1414,7 @@ end;
 
 destructor TIdIGMPHdr.Destroy;
 begin
-   Sys.FreeAndNil(Figmp_group);
+   FreeAndNil(Figmp_group);
   inherited Destroy;
 end;
 
@@ -1508,8 +1508,8 @@ end;
 
 destructor TIdEthernetHdr.Destroy;
 begin
-  Sys.FreeAndNil( Fether_dhost);
-  Sys.FreeAndNil( Fether_shost);
+  FreeAndNil( Fether_dhost);
+  FreeAndNil( Fether_shost);
   inherited Destroy;
 end;
 
@@ -1583,10 +1583,10 @@ end;
 
 destructor TIdARPHdr.Destroy;
 begin
-  Sys.FreeAndNil(  Farp_sha);
-  Sys.FreeAndNil( Farp_spa);
-  Sys.FreeAndNil( Farp_tha);
-  Sys.FreeAndNil( Farp_tpa);
+  FreeAndNil(  Farp_sha);
+  FreeAndNil( Farp_spa);
+  FreeAndNil( Farp_tha);
+  FreeAndNil( Farp_tpa);
   inherited Destroy;
 end;
 
@@ -1780,7 +1780,7 @@ end;
 
 destructor TIdicmp6_hdr.Destroy;
 begin
-   Sys.FreeAndNil(Fdata);
+   FreeAndNil(Fdata);
   inherited Destroy;
 end;
 

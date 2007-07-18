@@ -129,7 +129,8 @@ unit IdSchedulerOfThread;
 interface
 
 uses
-  IdException, IdBaseComponent, IdGlobal, IdScheduler, IdSys, IdObjs,
+  Classes,
+  IdException, IdBaseComponent, IdGlobal, IdScheduler, 
   IdThread, IdTask, IdYarn;
 
 type
@@ -178,13 +179,13 @@ type
     property ThreadPriority: TIdThreadPriority
       read FThreadPriority
       write FThreadPriority
-      default tpIdNormal;
+      default tpNormal;
   end;
 
 implementation
 
 uses
-  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore;
+  IdResourceStringsCore, IdTCPServer, IdThreadSafe, IdExceptionCore, SysUtils;
 
 { TIdSchedulerOfThread }
 
@@ -212,8 +213,8 @@ begin
   EIdSchedulerMaxThreadsExceeded.IfTrue(
    (FMaxThreads <> 0) and (ActiveYarns.IsCountLessThan(FMaxThreads + 1) = False)
    , RSchedMaxThreadEx);
-  Result := FThreadClass.Create(nil, Sys.Format('%s User', [Name])); {do not localize}
-  if ThreadPriority <> tpIdNormal then begin
+  Result := FThreadClass.Create(nil, IndyFormat('%s User', [Name])); {do not localize}
+  if ThreadPriority <> tpNormal then begin
     SetThreadPriority(Result, ThreadPriority);
   end;
 end;
@@ -236,7 +237,7 @@ begin
   if LYarn.Thread.Suspended then begin
     // If suspended, was created but never started
     // ie waiting on connection accept
-    Sys.FreeAndNil(LYarn.FThread);
+    FreeAndNil(LYarn.FThread);
   end else begin
     // Is already running and will free itself
     LYarn.Thread.Stop;
@@ -247,7 +248,7 @@ end;
 procedure TIdSchedulerOfThread.InitComponent;
 begin
   inherited InitComponent;
-  FThreadPriority := tpIdNormal;
+  FThreadPriority := tpNormal;
   FMaxThreads := 0;
   FThreadClass := TIdThreadWithTask;
 end;

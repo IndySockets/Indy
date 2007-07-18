@@ -137,7 +137,8 @@ unit IdTCPClient;
 interface
 
 uses
-  IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection, IdObjs;
+  Classes,
+  IdGlobal, IdExceptionCore, IdIOHandler, IdTCPConnection;
 
 type
 
@@ -151,16 +152,16 @@ type
     FDestination: string;
     FHost: string;
     FIPVersion: TIdIPVersion;
-    FOnConnected: TIdNotifyEvent;
+    FOnConnected: TNotifyEvent;
     FPassword: string;
     FPort: TIdPort;
     FReadTimeout: Integer;
     FUsername: string;
     FReuseSocket: TIdReuseSocket;
     //
-    FOnBeforeBind: TIdNotifyEvent;
-    FOnAfterBind: TIdNotifyEvent;
-    FOnSocketAllocated: TIdNotifyEvent;
+    FOnBeforeBind: TNotifyEvent;
+    FOnAfterBind: TNotifyEvent;
+    FOnSocketAllocated: TNotifyEvent;
     //
     procedure DoOnConnected; virtual;
     function MakeImplicitClientHandler: TIdIOHandler; virtual;
@@ -176,9 +177,9 @@ type
     procedure SetPort(const AValue: TIdPort); virtual;
     procedure SetIPVersion(const AValue: TIdIPVersion); virtual;
     //
-    procedure SetOnBeforeBind(const AValue: TIdNotifyEvent);
-    procedure SetOnAfterBind(const AValue: TIdNotifyEvent);
-    procedure SetOnSocketAllocated(const AValue: TIdNotifyEvent);
+    procedure SetOnBeforeBind(const AValue: TNotifyEvent);
+    procedure SetOnAfterBind(const AValue: TNotifyEvent);
+    procedure SetOnSocketAllocated(const AValue: TNotifyEvent);
     //
     procedure SetIOHandler(AValue: TIdIOHandler); override;
     procedure InitComponent; override;
@@ -210,12 +211,12 @@ type
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
     property ReuseSocket: TIdReuseSocket read GetReuseSocket write SetReuseSocket default rsOSDependent;
     //
-    property OnBeforeBind: TIdNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
-    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write SetOnAfterBind;
-    property OnSocketAllocated: TIdNotifyEvent read FOnSocketAllocated write SetOnSocketAllocated;
+    property OnBeforeBind: TNotifyEvent read FOnBeforeBind write SetOnBeforeBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write SetOnAfterBind;
+    property OnSocketAllocated: TNotifyEvent read FOnSocketAllocated write SetOnSocketAllocated;
     //
   published
-    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
+    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
   end;
 
   TIdTCPClient = class(TIdTCPClientCustom)
@@ -235,9 +236,6 @@ type
   end;
   //Temp IFDEF till we change aliaser
   // Temp - reversed it for code freeze - will rereverse later.
-  {$IFNDEF DotNetDistro}
-  TCPClient = TIdTCPClient;
-  {$endif}
 
 implementation
 
@@ -411,7 +409,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetOnBeforeBind(const AValue: TIdNotifyEvent);
+procedure TIdTCPClientCustom.SetOnBeforeBind(const AValue: TNotifyEvent);
 begin
   FOnBeforeBind := AValue;
   if Socket <> nil then begin
@@ -419,7 +417,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetOnAfterBind(const AValue: TIdNotifyEvent);
+procedure TIdTCPClientCustom.SetOnAfterBind(const AValue: TNotifyEvent);
 begin
   FOnAfterBind := AValue;
   if Socket <> nil then begin
@@ -427,7 +425,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetOnSocketAllocated(const AValue: TIdNotifyEvent);
+procedure TIdTCPClientCustom.SetOnSocketAllocated(const AValue: TNotifyEvent);
 begin
   FOnSocketAllocated := AValue;
   if Socket <> nil then begin

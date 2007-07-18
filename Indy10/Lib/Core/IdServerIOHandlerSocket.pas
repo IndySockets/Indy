@@ -100,7 +100,7 @@ type
   end;
 
 implementation
-uses IdSys;
+uses SysUtils;
 
 { TIdServerIOHandlerSocket }
 
@@ -138,7 +138,7 @@ begin
   end;
 
   finally
-    Sys.FreeAndNil(LIOHandler);
+    FreeAndNil(LIOHandler);
   end;
 end;
 

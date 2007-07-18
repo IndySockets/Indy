@@ -108,6 +108,7 @@ uses
   Classes;
 
 // Procedures
+
   procedure Register;
 
 implementation

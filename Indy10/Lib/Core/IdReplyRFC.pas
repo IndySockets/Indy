@@ -124,17 +124,16 @@ unit IdReplyRFC;
 interface
 
 uses
-  IdReply,
-  IdSys,
-  IdObjs;
+  Classes,
+  IdReply;
 
 type
   TIdReplyRFC = class(TIdReply)
   protected
-    procedure AssignTo(ADest: TIdPersistent); override;
+    procedure AssignTo(ADest: TPersistent); override;
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
-    function GetFormattedReply: TIdStrings; override;
-    procedure SetFormattedReply(const AValue: TIdStrings); override;
+    function GetFormattedReply: TStrings; override;
+    procedure SetFormattedReply(const AValue: TStrings); override;
   public
     class function IsEndMarker(const ALine: string): Boolean; override;
     procedure RaiseReplyError; override;
@@ -143,8 +142,8 @@ type
 
   TIdRepliesRFC = class(TIdReplies)
   public
-    constructor Create(AOwner: TIdPersistent); reintroduce; overload; virtual;
-    constructor Create(AOwner: TIdPersistent; const AReplyClass: TIdReplyClass); overload; override;
+    constructor Create(AOwner: TPersistent); reintroduce; overload; virtual;
+    constructor Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass); overload; override;
     procedure UpdateText(AReply: TIdReply); override;
   end;
 
@@ -166,11 +165,12 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal,
+  SysUtils;
 
 { TIdReplyRFC }
 
-procedure TIdReplyRFC.AssignTo(ADest: TIdPersistent);
+procedure TIdReplyRFC.AssignTo(ADest: TPersistent);
 var
   LR: TIdReplyRFC;
 begin
@@ -188,7 +188,7 @@ function TIdReplyRFC.CheckIfCodeIsValid(const ACode: string): Boolean;
 var
   LCode: Integer;
 begin
-  LCode := Sys.StrToInt(ACode, 0);
+  LCode := IndyStrToInt(ACode, 0);
   {Replaced 600 with 999 because some developers may want 6xx, 7xx, and 8xx reply
   codes for their protocols.  It also turns out that RFC 2228 defines 6xx reply codes.
 
@@ -197,10 +197,10 @@ begin
    A new class of reply types (6yz) is also introduced for protected
    replies.
   }
-  Result := ((LCode >= 100) and (LCode < 1000)) or (Sys.Trim(ACode) = '');
+  Result := ((LCode >= 100) and (LCode < 1000)) or (Trim(ACode) = '');
 end;
 
-function TIdReplyRFC.GetFormattedReply: TIdStrings;
+function TIdReplyRFC.GetFormattedReply: TStrings;
 var
   I, LCode: Integer;
   LCodeStr: String;
@@ -208,7 +208,7 @@ begin
   Result := GetFormattedReplyStrings;
   LCode := NumericCode;
   if LCode > 0 then begin
-    LCodeStr := Sys.IntToStr(LCode);
+    LCodeStr := IntToStr(LCode);
     if Text.Count > 0 then begin
       for I := 0 to Text.Count - 1 do begin
         if I < Text.Count - 1 then begin
@@ -244,7 +244,7 @@ begin
   Result := (NumericCode > 0) or (FText.Count > 0);
 end;
 
-procedure TIdReplyRFC.SetFormattedReply(const AValue: TIdStrings);
+procedure TIdReplyRFC.SetFormattedReply(const AValue: TStrings);
 // Just parse and put in items, no need to store after parse
 var
   i: Integer;
@@ -252,7 +252,7 @@ var
 begin
   Clear;
   if AValue.Count > 0 then begin
-    s := Sys.Trim(Copy(AValue[0], 1, 3));
+    s := Trim(Copy(AValue[0], 1, 3));
     Code := s;
     for i := 0 to AValue.Count - 1 do begin
       Text.Add(Copy(AValue[i], 5, MaxInt));
@@ -271,12 +271,12 @@ end;
 
 { TIdReplies }
 
-constructor TIdRepliesRFC.Create(AOwner: TIdPersistent);
+constructor TIdRepliesRFC.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdReplyRFC);
 end;
 
-constructor TIdRepliesRFC.Create(AOwner: TIdPersistent; const AReplyClass: TIdReplyClass);
+constructor TIdRepliesRFC.Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass);
 begin
   inherited Create(AOwner, AReplyClass);
 end;
@@ -293,7 +293,7 @@ begin
     // RLebeau - in cases where the AReply.Code is the same as the
     // generic code, ignore the AReply as it doesn't have any text
     // to assign, or else the code wouldn't be this far
-    LReply := Find(Sys.IntToStr(LGenericNumCode), AReply);
+    LReply := Find(IntToStr(LGenericNumCode), AReply);
     if LReply = nil then begin
       // If no generic was found, then use defaults.
       case LGenericNumCode of

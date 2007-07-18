@@ -39,7 +39,8 @@ unit IdLogBase;
 interface
 
 uses
-  IdIntercept, IdGlobal, IdSocketHandle, IdObjs, IdBaseComponent;
+  Classes,
+  IdIntercept, IdGlobal, IdSocketHandle, IdBaseComponent;
 
 type
   TIdLogBase = class(TIdConnectionIntercept)
@@ -59,7 +60,7 @@ type
   public
     procedure Open; virtual;
     procedure Close; virtual;
-    procedure Connect(AConnection: TIdNativeComponent); override;
+    procedure Connect(AConnection: TComponent); override;
     destructor Destroy; override;
     procedure Disconnect; override;
     procedure Receive(var ABuffer: TIdBytes); override;
@@ -73,7 +74,7 @@ type
 implementation
 
 uses
-  IdResourceStringsCore, IdSys;
+  IdResourceStringsCore, SysUtils;
 
 const
   LOldStr : array [0..2] of string =
@@ -89,7 +90,7 @@ procedure TIdLogBase.Close;
 begin
 end;
 
-procedure TIdLogBase.Connect(AConnection: TIdNativeComponent);
+procedure TIdLogBase.Connect(AConnection: TComponent);
 begin
   if FActive then begin
     inherited Connect(AConnection);
@@ -137,7 +138,7 @@ begin
     inherited Receive(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := Sys.DateTimeToStr(Sys.Now);
+      LMsg := DateTimeToStr(Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin
@@ -149,7 +150,7 @@ end;
 
 function TIdLogBase.ReplaceCR(const AString: String): String;
 begin
-  Result := Sys.StringReplace(AString,LOldStr,LNewStr);
+  Result := StringsReplace(AString,LOldStr,LNewStr);
 end;
 
 procedure TIdLogBase.Send(var ABuffer: TIdBytes);
@@ -161,7 +162,7 @@ begin
     inherited Send(ABuffer);
     LMsg := '';
     if LogTime then begin
-      LMsg := Sys.DateTimeToStr(Sys.Now);
+      LMsg := DateTimeToStr(Now);
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin

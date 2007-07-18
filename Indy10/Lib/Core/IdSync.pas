@@ -66,21 +66,22 @@ unit IdSync;
 interface
 
 uses
-  IdGlobal, IdThread, IdObjs;
+  Classes,
+  IdGlobal, IdThread;
 
 type
   TIdSync = class(TObject)
   protected
-    FThread: TIdThread;
+    FThread: TThread;
     //
     procedure DoSynchronize; virtual; abstract;
   public
     constructor Create; overload; virtual;
-    constructor Create(AThread: TIdThread); overload; virtual;
+    constructor Create(AThread: TThread); overload; virtual;
     procedure Synchronize;
-    class procedure SynchronizeMethod(AMethod: TIdThreadMethod);
+    class procedure SynchronizeMethod(AMethod: TThreadMethod);
     //
-    property Thread: TIdThread read FThread;
+    property Thread: TThread read FThread;
   end;
 
   TIdNotify = class(TObject)
@@ -93,22 +94,22 @@ type
     procedure Notify;
     class procedure FreeThread;
     procedure WaitFor;
-    class procedure NotifyMethod(AMethod: TIdThreadMethod);
+    class procedure NotifyMethod(AMethod: TThreadMethod);
     //
     property MainThreadUsesNotify: Boolean read FMainThreadUsesNotify write FMainThreadUsesNotify;
   end;
 
   TIdNotifyMethod = class(TIdNotify)
   protected
-    FMethod: TIdThreadMethod;
+    FMethod: TThreadMethod;
     //
     procedure DoNotify; override;
   public
-    constructor Create(AMethod: TIdThreadMethod); reintroduce; virtual;
+    constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
   end;
 
 implementation
-uses IdSys;
+uses SysUtils;
 
 type
   // This is done with a NotifyThread instead of PostMessage because starting
@@ -119,7 +120,7 @@ type
   TIdNotifyThread = class(TIdThread)
   protected
     FEvent: TIdLocalEvent;
-    FNotifications: TIdThreadList;
+    FNotifications: TThreadList;
   public
     procedure AddNotification(ASync: TIdNotify);
     constructor Create; reintroduce;
@@ -139,7 +140,7 @@ end;
 
 { TIdSync }
 
-constructor TIdSync.Create(AThread: TIdThread);
+constructor TIdSync.Create(AThread: TThread);
 begin
   inherited Create;
   FThread := AThread;
@@ -157,7 +158,7 @@ begin
     GNotifyThread.FEvent.SetEvent;
     GNotifyThread.WaitFor;
     // Instead of FreeOnTerminate so we can set the reference to nil
-    Sys.FreeAndNil(GNotifyThread);
+    FreeAndNil(GNotifyThread);
   end;
 end;
 
@@ -172,7 +173,7 @@ begin
   end;
 end;
 
-class procedure TIdNotify.NotifyMethod(AMethod: TIdThreadMethod);
+class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
 begin
   TIdNotifyMethod.Create(AMethod).Notify;
 end;
@@ -185,13 +186,13 @@ end;
 
 procedure TIdSync.Synchronize;
 begin
-  FThread.Synchronize(DoSynchronize);
+ // FThread.Synchronize(DoSynchronize);
 end;
 
-class procedure TIdSync.SynchronizeMethod(AMethod: TIdThreadMethod);
+class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
 begin
   with Create do try
-    FThread.Synchronize(AMethod);
+ //   FThread.Synchronize(AMethod);
   finally Free; end;
 end;
 
@@ -206,7 +207,7 @@ end;
 constructor TIdNotifyThread.Create;
 begin
   FEvent := TIdLocalEvent.Create;
-  FNotifications := TIdThreadList.Create;
+  FNotifications := TThreadList.Create;
   // Must be before - Thread starts running when we call inherited
   inherited Create(False, False,'IdNotify');
 end;
@@ -221,8 +222,8 @@ begin
       Delete(0);
     end;
   finally FNotifications.UnlockList; end;
-  Sys.FreeAndNil(FNotifications);
-  Sys.FreeAndNil(FEvent);
+  FreeAndNil(FNotifications);
+  FreeAndNil(FEvent);
   inherited Destroy;
 end;
 
@@ -230,7 +231,7 @@ procedure TIdNotifyThread.Run;
 // NOTE: Be VERY careful with making changes to this proc. It is VERY delicate and the order
 // of execution is very important. Small changes can have drastic effects
 var
-  LNotifications: TIdList;
+  LNotifications: TList;
   LNotify: TIdNotify;
 begin
   FEvent.WaitForEver;
@@ -244,7 +245,7 @@ begin
         LNotify := TIdNotify(LNotifications.Items[0]);
       finally FNotifications.UnlockList; end;
       Synchronize(LNotify.DoNotify);
-      Sys.FreeAndNil(LNotify);
+      FreeAndNil(LNotify);
       with FNotifications.LockList do try
         Delete(0);
       finally FNotifications.UnlockList; end;
@@ -255,7 +256,7 @@ end;
 
 { TIdNotifyMethod }
 
-constructor TIdNotifyMethod.Create(AMethod: TIdThreadMethod);
+constructor TIdNotifyMethod.Create(AMethod: TThreadMethod);
 begin
   inherited Create;
   FMethod := AMethod;
