@@ -138,7 +138,8 @@ unit IdThread;
 interface
 
 uses
-  IdGlobal, IdException, IdSys, IdYarn, IdTask, IdThreadSafe, IdObjs;
+  Classes,
+  IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe, SysUtils;
 
 const
   IdWaitAllThreadsTerminatedCount = 1 * 60 * 1000;
@@ -156,7 +157,7 @@ type
 
   TIdThreadOptions = set of (itoStopped, itoReqCleanup, itoDataOwner, itoTag);
 
-  TIdThread = class(TIdNativeThread)
+  TIdThread = class(TThread)
   protected
     FData: TObject;
     FLock: TIdCriticalSection;
@@ -190,7 +191,7 @@ type
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
-    procedure Synchronize(Method: TIdThreadMethod); overload;
+    procedure Synchronize(Method: TThreadMethod); overload;
 //BGO:TODO    procedure Synchronize(Method: TMethod); overload;
     // Here to make virtual
     procedure Terminate; virtual;
@@ -425,7 +426,7 @@ begin
     // terminated after the Yarn was assigned but the thread was not
     // re-started, so the Yarn would not be freed in Cleanup()
     try
-      Sys.FreeAndNil(FYarn);
+      FreeAndNil(FYarn);
     finally
       // Protect FLock if thread was resumed by Start Method and we are still there.
       // This usually happens if Exception was raised in BeforeRun for some reason
@@ -433,7 +434,7 @@ begin
       FLock.Enter; try
       finally FLock.Leave; end;
 
-      Sys.FreeAndNil(FLock);
+      FreeAndNil(FLock);
       GThreadCount.Decrement;
     end;
   end;
@@ -510,9 +511,9 @@ end;
 procedure TIdThread.Cleanup;
 begin
   Exclude(FOptions, itoReqCleanup);
-  Sys.FreeAndNil(FYarn);
+  FreeAndNil(FYarn);
   if itoDataOwner in FOptions then begin
-    Sys.FreeAndNil(FData);
+    FreeAndNil(FData);
   end;
 end;
 
@@ -522,7 +523,7 @@ begin
   Result := False;
 end;
 
-procedure TIdThread.Synchronize(Method: TIdThreadMethod);
+procedure TIdThread.Synchronize(Method: TThreadMethod);
 begin
   inherited Synchronize(Method);
 end;
@@ -560,7 +561,7 @@ end;
 
 destructor TIdThreadWithTask.Destroy;
 begin
-  Sys.FreeAndNil(FTask);
+  FreeAndNil(FTask);
   inherited Destroy;
 end;
 
@@ -575,5 +576,5 @@ initialization
   SetThreadName('Main');  {do not localize}
   GThreadCount := TIdThreadSafeInteger.Create;
 finalization
-  Sys.FreeAndNil(GThreadCount);
+  FreeAndNil(GThreadCount);
 end.

@@ -83,10 +83,11 @@ unit IdThreadComponent;
 interface
 
 uses
-  IdBaseComponent, IdException, IdGlobal, IdSys, IdThread, IdObjs;
+  Classes,
+  IdBaseComponent, IdException, IdGlobal, IdThread, SysUtils;
 
 const
-  IdThreadComponentDefaultPriority = tpIdNormal;
+  IdThreadComponentDefaultPriority = tpNormal;
   IdThreadComponentDefaultStopMode = smTerminate;
 
 type
@@ -153,7 +154,7 @@ type
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
-    procedure Synchronize(AMethod: TIdThreadMethod);
+    procedure Synchronize(AMethod: TThreadMethod);
     procedure Terminate; virtual;
     procedure TerminateAndWaitFor; virtual;
     function WaitFor: LongWord;
@@ -311,7 +312,7 @@ begin
     FThread.Terminate;
     FThread.Start;//resume for terminate
   end;
-  Sys.FreeAndNil(FThread);
+  FreeAndNil(FThread);
   inherited Destroy;
 end;
 
@@ -462,7 +463,7 @@ procedure TIdThreadComponent.Start;
 begin
   if not IsDesignTime then begin
     if Assigned(FThread) and FThread.Terminated then begin
-      Sys.FreeAndNil(FThread);
+      FreeAndNil(FThread);
     end;
 
     if not Assigned(FThread) then begin
@@ -493,7 +494,7 @@ begin
   end;
 end;
 
-procedure TIdThreadComponent.Synchronize(AMethod: TIdThreadMethod);
+procedure TIdThreadComponent.Synchronize(AMethod: TThreadMethod);
 begin
   FThread.Synchronize(AMethod);
 end;

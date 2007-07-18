@@ -76,8 +76,7 @@ uses
   IdComponent,
   IdGlobal,
   IdException,
-  IdSocketHandle,
-  IdSys;
+  IdSocketHandle;
 
 const
   ID_UDP_BUFFERSIZE = 8192;
@@ -150,7 +149,7 @@ type
 implementation
 
 uses
-  IdStackConsts, IdStack;
+  IdStackConsts, IdStack, SysUtils;
 
 { TIdUDPBase }
 
@@ -173,7 +172,7 @@ end;
 
 procedure TIdUDPBase.CloseBinding;
 begin
-  Sys.FreeAndNil(FBinding);
+  FreeAndNil(FBinding);
 end;
 
 destructor TIdUDPBase.Destroy;

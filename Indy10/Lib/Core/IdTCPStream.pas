@@ -67,16 +67,13 @@ interface
 // TODO: This should be renamed to IdStreamTCP for consistency, and class too
 
 uses
-  IdGlobal, IdTCPConnection, IdObjs;
+  Classes,
+  IdGlobal, IdTCPConnection;
 
 type
-  TIdTCPStream = class(TIdStream)
+  TIdTCPStream = class(TStream)
   protected
     FConnection: TIdTCPConnection;
-    {$IFDEF DotNetDistro}
-    function GetPosition: Int64; override;
-    function GetSize: Int64; override;
-    {$ENDIF}
     {$IFDEF DOTNET}
     procedure SetSize(NewSize: Int64); override;
     {$ELSE}
@@ -96,7 +93,7 @@ type
     function Write(const Buffer; Count: Longint): Longint;  override;
     {$ENDIF}
     {$IFDEF VCL6ORABOVE}
-    function Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64; overload; override;
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; overload; override;
     {$ELSE}
     function Seek(Offset: Longint; Origin: Word): Longint; override;
     {$ENDIF}
@@ -114,18 +111,6 @@ begin
   inherited Create;
   FConnection := AConnection;
 end;
-
-{$IFDEF DotNetDistro}
-function TIdTCPStream.GetSize: Int64;
-begin
-  Result := 0;
-end;
-
-function TIdTCPStream.GetPosition: Int64;
-begin
-  Result := -1;
-end;
-{$ENDIF}
 
 {$IFDEF DOTNET}
 function TIdTCPStream.Read(var ABuffer: array of Byte; AOffset,
@@ -152,7 +137,7 @@ end;
 {$ENDIF}
 
 {$IFDEF VCL6ORABOVE}
-function TIdTCPStream.Seek(const Offset: Int64; Origin: TIdSeekOrigin): Int64;
+function TIdTCPStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
 {$ELSE}
 function TIdTCPStream.Seek(Offset: Longint; Origin: Word): Longint;
 {$ENDIF}

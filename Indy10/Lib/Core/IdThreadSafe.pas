@@ -57,9 +57,8 @@ unit IdThreadSafe;
 interface
 
 uses
-  IdGlobal,
-  IdSys,
-  IdObjs;
+  Classes,
+  IdGlobal;
 
 type
   TIdThreadSafe = class
@@ -146,7 +145,7 @@ type
 
   TIdThreadSafeStringList = class(TIdThreadSafe)
   protected
-    FValue: TIdStringList;
+    FValue: TStringList;
     //
     function GetValue(const AName: string): string;
     procedure SetValue(const AName, AValue: string);
@@ -157,7 +156,7 @@ type
     procedure AddObject(const AItem: string; AObject: TObject);
     procedure Clear;
     function Empty: Boolean;
-    function Lock: TIdStringList; reintroduce;
+    function Lock: TStringList; reintroduce;
     function ObjectByItem(const AItem: string): TObject;
     procedure Remove(const AItem: string);
     procedure Unlock; reintroduce;
@@ -166,13 +165,13 @@ type
 
   TIdThreadSafeDateTime = class(TIdThreadSafe)
   protected
-    FValue : TIdDateTime;
-    function GetValue: TIdDateTime;
-    procedure SetValue(const AValue: TIdDateTime);
+    FValue : TDateTime;
+    function GetValue: TDateTime;
+    procedure SetValue(const AValue: TDateTime);
   public
-    procedure Add(const AValue : TIdDateTime);
-    procedure Subtract(const AValue : TIdDateTime);
-    property Value: TIdDateTime read GetValue write SetValue;
+    procedure Add(const AValue : TDateTime);
+    procedure Subtract(const AValue : TDateTime);
+    property Value: TDateTime read GetValue write SetValue;
   end;
 
   //In D7, a double is the same as a TDateTime.  In DotNET, it is not.
@@ -188,25 +187,26 @@ type
   end;
 
   //TODO: Later make this descend from TIdThreadSafe instead
-  TIdThreadSafeList = class(TIdThreadList)
+  TIdThreadSafeList = class(TThreadList)
   private
     FOwnsObjects: Boolean;
   public
-    procedure Assign(AThreadList: TIdThreadList);overload;
-    procedure Assign(AList: TIdList);overload;
+    procedure Assign(AThreadList: TThreadList);overload;
+    procedure Assign(AList: TList);overload;
     // Here to make it virtual
     constructor Create; virtual;
     destructor Destroy; override;
     function IsCountLessThan(const AValue: Cardinal): Boolean;
     function Count:Integer;
     function IsEmpty: Boolean;
-    function Pop: TIdBaseObject;
-    function Pull: TIdBaseObject;
+    function Pop: TObject;
+    function Pull: TObject;
     procedure ClearAndFree;
     property OwnsObjects:Boolean read FOwnsObjects write FOwnsObjects;
   End;
 
 implementation
+uses SysUtils;
 
 { TIdThreadSafe }
 
@@ -218,7 +218,7 @@ end;
 
 destructor TIdThreadSafe.Destroy;
 begin
-  Sys.FreeAndNil(FCriticalSection);
+  FreeAndNil(FCriticalSection);
   inherited Destroy;
 end;
 
@@ -336,13 +336,13 @@ end;
 constructor TIdThreadSafeStringList.Create;
 begin
   inherited Create;
-  FValue := TIdStringList.Create;
+  FValue := TStringList.Create;
 end;
 
 destructor TIdThreadSafeStringList.Destroy;
 begin
   inherited Lock; try
-    Sys.FreeAndNil(FValue);
+    FreeAndNil(FValue);
   finally inherited Unlock; end;
   inherited Destroy;
 end;
@@ -361,7 +361,7 @@ begin
   finally Unlock; end;
 end;
 
-function TIdThreadSafeStringList.Lock: TIdStringList;
+function TIdThreadSafeStringList.Lock: TStringList;
 begin
   inherited Lock;
   Result := FValue;
@@ -492,7 +492,7 @@ begin
   finally UnlockList; end;
 end;
 
-procedure TIdThreadSafeList.Assign(AList: TIdList);
+procedure TIdThreadSafeList.Assign(AList: TList);
 var
   i: integer;
 begin
@@ -505,9 +505,9 @@ begin
   finally UnlockList; end;
 end;
 
-procedure TIdThreadSafeList.Assign(AThreadList: TIdThreadList);
+procedure TIdThreadSafeList.Assign(AThreadList: TThreadList);
 var
-  LList:TIdList;
+  LList:TList;
 begin
   LList := AThreadList.LockList; try
     Assign(LList);
@@ -522,7 +522,7 @@ end;
 
 procedure TIdThreadSafeList.ClearAndFree;
 var
-  LList:TIdList;
+  LList:TList;
   i:Integer;
 begin
   LList := LockList; try
@@ -542,7 +542,7 @@ end;
 
 function TIdThreadSafeList.Count: Integer;
 var
-  aList: TIdList;
+  aList: TList;
 begin
   aList := LockList;
   try
@@ -578,7 +578,7 @@ end;
 
 { TIdThreadSafeDateTime }
 
-procedure TIdThreadSafeDateTime.Add(const AValue: TIdDateTime);
+procedure TIdThreadSafeDateTime.Add(const AValue: TDateTime);
 begin
   Lock;
   try
@@ -588,7 +588,7 @@ begin
   end;
 end;
 
-function TIdThreadSafeDateTime.GetValue: TIdDateTime;
+function TIdThreadSafeDateTime.GetValue: TDateTime;
 begin
   Lock;
   try
@@ -598,7 +598,7 @@ begin
   end;
 end;
 
-procedure TIdThreadSafeDateTime.SetValue(const AValue: TIdDateTime);
+procedure TIdThreadSafeDateTime.SetValue(const AValue: TDateTime);
 begin
   Lock;
   try
@@ -608,7 +608,7 @@ begin
   end;
 end;
 
-procedure TIdThreadSafeDateTime.Subtract(const AValue: TIdDateTime);
+procedure TIdThreadSafeDateTime.Subtract(const AValue: TDateTime);
 begin
   Lock;
   try

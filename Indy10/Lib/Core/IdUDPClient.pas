@@ -69,12 +69,11 @@ unit IdUDPClient;
 interface
 
 uses
+  Classes,
   IdUDPBase,
   IdGlobal,
   IdSocketHandle,
-  IdSys,
-  IdCustomTransparentProxy,
-  IdObjs;
+  IdCustomTransparentProxy;
 
 type
   EIdMustUseOpenProxy = class(EIdUDPException);
@@ -82,8 +81,8 @@ type
   TIdUDPClient = class(TIdUDPBase)
   protected
     FProxyOpened : Boolean;
-    FOnConnected : TIdNotifyEvent;
-    FOnDisconnected: TIdNotifyEvent;
+    FOnConnected : TNotifyEvent;
+    FOnDisconnected: TNotifyEvent;
     FConnected : Boolean;
     FTransparentProxy: TIdCustomTransparentProxy;
     function UseProxy : Boolean;
@@ -118,8 +117,8 @@ type
     procedure SendBuffer(const AHost: string; const APort: Integer;
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
-    property OnConnected: TIdNotifyEvent read FOnConnected write FOnConnected;
-    property OnDisconnected: TIdNotifyEvent read FOnDisconnected write FOnDisconnected;
+    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
+    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
     property IPVersion;
     property Host;
     property Port;
@@ -129,7 +128,8 @@ type
   end;
 
 implementation
-uses IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts;
+uses IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
+  SysUtils;
 
 { TIdUDPClient }
 
@@ -411,7 +411,7 @@ begin
       // LClass := Pointer(AProxy.ClassType);
       if Assigned(FTransparentProxy) then begin
         if FTransparentProxy.ClassType <> LClass then begin
-          Sys.FreeAndNil(FTransparentProxy);
+          FreeAndNil(FTransparentProxy);
           FTransparentProxy := LClass.Create(NIL);
         end;
       end else begin
@@ -421,7 +421,7 @@ begin
     end else begin
       if Assigned(FTransparentProxy) then begin
         if NOT Assigned(FTransparentProxy.Owner) then begin
-          Sys.FreeAndNIL(FTransparentProxy);//tmp obj
+          FreeAndNIL(FTransparentProxy);//tmp obj
         end;
       end;
       FTransparentProxy := AProxy;
@@ -430,7 +430,7 @@ begin
   end
   else begin
     if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      Sys.FreeAndNIL(FTransparentProxy);//tmp obj
+      FreeAndNIL(FTransparentProxy);//tmp obj
     end else begin
       FTransparentProxy := NIL; //remove link
     end;
