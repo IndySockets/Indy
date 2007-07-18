@@ -2,7 +2,7 @@
 [assembly: AssemblyConfiguration('')]
 [assembly: AssemblyCompany('Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyProduct('Indy for Microsoft .NET Framework')]
-[assembly: AssemblyCopyright('Copyright © 1993 - 2005 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
+[assembly: AssemblyCopyright('Copyright © 1993 - 2007 Chad Z. Hower a.k.a Kudzu and the Indy Pit Crew')]
 [assembly: AssemblyTrademark('')]
 [assembly: AssemblyCulture('')]
 [assembly: AssemblyTitle('Indy .NET Protocols Run-Time Package')]
