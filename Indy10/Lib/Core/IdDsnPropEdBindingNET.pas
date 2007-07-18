@@ -3,8 +3,9 @@ unit IdDsnPropEdBindingNET;
 interface
 
 uses
+  Classes,
   System.Drawing, System.Collections, System.ComponentModel,
-  System.Windows.Forms, System.Data, IdObjs, IdSocketHandle;
+  System.Windows.Forms, System.Data, IdSocketHandle;
 
 type
   TIdDsnPropEdBindingNET = class(System.Windows.Forms.Form)
@@ -46,17 +47,17 @@ type
   private
     FHandles : TIdSocketHandles;
     FDefaultPort : Integer;
-    FIPv4Addresses : TIdStrings;
-    FIPv6Addresses : TIdStrings;
+    FIPv4Addresses : TStrings;
+    FIPv6Addresses : TStrings;
     FCurrentHandle : TIdSocketHandle;
 
     { Private Declarations }
     procedure SetHandles(const Value: TIdSocketHandles);
-    procedure SetIPv4Addresses(const Value: TIdStrings);
-    procedure SetIPv6Addresses(const Value: TIdStrings);
+    procedure SetIPv4Addresses(const Value: TStrings);
+    procedure SetIPv6Addresses(const Value: TStrings);
     procedure UpdateBindingList;
     procedure UpdateEditControls;
-    procedure FillComboBox(ACombo : System.Windows.Forms.ComboBox; AStrings :TIdStrings);
+    procedure FillComboBox(ACombo : System.Windows.Forms.ComboBox; AStrings :TStrings);
     procedure SetCaption(const AValue : String);
     function GetCaption : String;
   public
@@ -66,8 +67,8 @@ type
     procedure SetList(const AList: string);
     property Handles : TIdSocketHandles read FHandles write SetHandles;
     property DefaultPort : Integer read FDefaultPort write FDefaultPort;
-    property IPv4Addresses : TIdStrings read FIPv4Addresses write SetIPv4Addresses;
-    property IPv6Addresses : TIdStrings read FIPv6Addresses write SetIPv6Addresses;
+    property IPv4Addresses : TStrings read FIPv4Addresses write SetIPv4Addresses;
+    property IPv6Addresses : TStrings read FIPv6Addresses write SetIPv6Addresses;
     property Caption : String read GetCaption write SetCaption;
   end;
 
@@ -80,7 +81,7 @@ implementation
 uses
   IdGlobal,
   IdIPAddress,
-  IdDsnCoreResourceStrings, IdStack, IdSys;
+  IdDsnCoreResourceStrings, IdStack, SysUtils;
 
 const
   IPv6Wildcard1 = '::';                 {do not localize}
@@ -96,7 +97,7 @@ begin
   Result := Assigned(LIP);
   if Result then
   begin
-    Sys.FreeAndNil(LIP);
+    FreeAndNil(LIP);
   end;
 end;
 
@@ -114,7 +115,7 @@ end;
 
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 var
-  LItems: TIdStringList;
+  LItems: TStringList;
   i: integer;
   LIPVersion: TIdIPVersion;
   LAddr, LText: string;
@@ -122,7 +123,7 @@ var
 begin
   
   ADest.Clear;
-  LItems := TIdStringList.Create;
+  LItems := TStringList.Create;
   try
     LItems.CommaText := AList;
     for i := 0 to LItems.Count-1 do begin
@@ -132,14 +133,14 @@ begin
           LIPVersion := Id_IPv6;
           LText := Copy(LItems[i], 2, MaxInt);
           LAddr := Fetch(LText, ']:');
-          LPort := Sys.StrToInt(LText, -1);
+          LPort := IndyStrToInt(LText, -1);
 
         end else begin
           // ipv4
           LIPVersion := Id_IPv4;
           LText := LItems[i];
           LAddr := Fetch(LText, ':');
-          LPort := Sys.StrToInt(LText, -1);
+          LPort := IndyStrToInt(LText, -1);
           //Note that 0 is legal and indicates the server binds to a random port
         end;
         if IsValidIP(LAddr) and (LPort > -1) and (LPort < 65536) then begin
@@ -182,7 +183,7 @@ function IndexOfNo(const ANo : Integer; AItems : System.Windows.Forms.ComboBox.O
 begin
   for Result := 0 to AItems.Count -1 do
   begin
-    if ANo = Sys.StrToInt( NumericOnly(AItems[Result].ToString )) then
+    if ANo = IndyStrToInt( NumericOnly(AItems[Result].ToString )) then
     begin
       Exit;
     end;
@@ -194,8 +195,8 @@ function GetDisplayString(const AIP : String; const APort : Integer; AIPVer : TI
 begin
   Result := '';
   case AIPVer of
-      Id_IPv4 : Result := Sys.Format('%s:%d',[AIP,APort]);
-      Id_IPv6 : Result := Sys.Format('[%s]:%d',[AIP,APort]);
+      Id_IPv4 : Result := IndyFormat('%s:%d',[AIP,APort]);
+      Id_IPv6 : Result := IndyFormat('[%s]:%d',[AIP,APort]);
   end;
 end;
 
@@ -381,10 +382,10 @@ begin
     if Components <> nil then
     begin
       Components.Dispose();
-      Sys.FreeAndNil(FHandles);
+      FreeAndNil(FHandles);
 
-      Sys.FreeAndNil( FIPv4Addresses);
-     Sys.FreeAndNil( FIPv6Addresses);
+      FreeAndNil( FIPv4Addresses);
+      FreeAndNil( FIPv6Addresses);
 
     //don't free   FCurrentHandle; - it's in the handles collection
       TIdStack.DecUsage;
@@ -405,8 +406,8 @@ begin
   // TODO: Add any constructor code after InitializeComponent call
   //
   FHandles := TIdSocketHandles.Create(nil);
-  FIPv4Addresses := TIdStringList.Create;
-  FIPv6Addresses := TIdStringList.Create;
+  FIPv4Addresses := TStringList.Create;
+  FIPv6Addresses := TStringList.Create;
   SetIPv4Addresses(nil);
   SetIPv6Addresses(nil);
 
@@ -429,7 +430,6 @@ begin
   //to use two Radio Buttons.
   cboIPVersion.Items.Add(StripAndSymbol(RSBindingIPV4Item));
   cboIPVersion.Items.Add(StripAndSymbol(RSBindingIPV6Item));
-
 end;
 
 procedure TIdDsnPropEdBindingNET.SetHandles(const Value: TIdSocketHandles);
@@ -443,7 +443,7 @@ begin
   Result := GetListValues(Handles);
 end;
 
-procedure TIdDsnPropEdBindingNET.SetIPv6Addresses(const Value: TIdStrings);
+procedure TIdDsnPropEdBindingNET.SetIPv6Addresses(const Value: TStrings);
 begin
   if Assigned(Value) then
   begin
@@ -460,7 +460,7 @@ begin
   end;
 end;
 
-procedure TIdDsnPropEdBindingNET.SetIPv4Addresses(const Value: TIdStrings);
+procedure TIdDsnPropEdBindingNET.SetIPv4Addresses(const Value: TStrings);
 begin
   if Assigned(Value) then
   begin
@@ -553,7 +553,7 @@ begin
     // This should work just as well.
     i := lbBindings.get_SelectedIndex;
     LSH := Handles[i];
-    Sys.FreeAndNil(LSH);
+    FreeAndNil(LSH);
    lbBindings.Items.Remove(i);
     FCurrentHandle := nil;
     UpdateBindingList;
@@ -663,7 +663,7 @@ begin
 end;
 
 procedure TIdDsnPropEdBindingNET.FillComboBox(
-  ACombo: System.Windows.Forms.ComboBox; AStrings: TIdStrings);
+  ACombo: System.Windows.Forms.ComboBox; AStrings: TStrings);
 var i : INteger;
 begin
   ACombo.Items.Clear;
@@ -685,7 +685,7 @@ end;
 
 procedure TIdDsnPropEdBindingNET.SetCaption(const AValue: String);
 begin
-  Text := AValue;
+  Self.Text := AValue;
 end;
 
 end.

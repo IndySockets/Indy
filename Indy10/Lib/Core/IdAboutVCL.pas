@@ -42,8 +42,7 @@ implementation
 uses
   {$IFNDEF Linux}ShellApi, {$ENDIF}
   IdDsnCoreResourceStrings,
-  IdGlobal,
-  IdSys;
+  IdGlobal;
 
 Procedure ShowAboutBox(const AProductName, AProductVersion : String);
 begin
@@ -265,7 +264,7 @@ class procedure TfrmAbout.ShowAboutBox(const AProductName,
 begin
   with TfrmAbout.Create do
   try
-     Version := Sys.Format ( RSAAboutBoxVersion, [AProductVersion] );
+     Version := IndyFormat ( RSAAboutBoxVersion, [AProductVersion] );
      ProductName := AProductName;
      ShowModal;
   finally

@@ -55,7 +55,7 @@ type
 
 implementation
 uses   IdDsnCoreResourceStrings,  System.Diagnostics,
-  IdGlobal, IdSys, System.Reflection, System.Resources;
+  IdGlobal, System.Reflection, System.Resources, SysUtils;
 
 const
   ResourceBaseName = 'IdAboutNET';
@@ -237,7 +237,7 @@ class procedure TfrmAbout.ShowAboutBox(const AProductName,
 begin
   with TfrmAbout.Create do
   try
-     Version := Sys.Format ( RSAAboutBoxVersion, [AProductVersion] );
+     Version := IndyFormat ( RSAAboutBoxVersion, [AProductVersion] );
      ProductName := AProductName;
      Text := AProductName;
      ShowDialog;

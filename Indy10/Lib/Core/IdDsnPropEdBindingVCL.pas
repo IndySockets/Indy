@@ -61,11 +61,11 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  IdObjs,
+  Classes,
   {$IFDEF LINUX}
-  Classes, IdSocketHandle, QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt, Types;
+  IdSocketHandle, QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt, Types;
   {$ELSE}
-  ActnList, Classes,  Controls,
+  ActnList,  Controls,
   ExtCtrls, Forms, Graphics, IdSocketHandle,
 
   StdCtrls;
@@ -118,14 +118,14 @@ type
     procedure lbBindingsClick(Sender: TObject);
   private
     procedure SetHandles(const Value: TIdSocketHandles);
-    procedure SetIPv4Addresses(const Value: TIdStrings);
-    procedure SetIPv6Addresses(const Value: TIdStrings);
+    procedure SetIPv4Addresses(const Value: TStrings);
+    procedure SetIPv6Addresses(const Value: TStrings);
     procedure UpdateBindingList;
   protected
     FHandles : TIdSocketHandles;
     FDefaultPort : Integer;
-    FIPv4Addresses : TIdStrings;
-    FIPv6Addresses : TIdStrings;
+    FIPv4Addresses : TStrings;
+    FIPv6Addresses : TStrings;
     fCreatedStack : Boolean;
     FCurrentHandle : TIdSocketHandle;
     procedure UpdateEditControls;
@@ -139,8 +139,8 @@ type
     procedure SetList(const AList: string);
     property Handles : TIdSocketHandles read FHandles write SetHandles;
     property DefaultPort : Integer read FDefaultPort write FDefaultPort;
-    property IPv4Addresses : TIdStrings read FIPv4Addresses write SetIPv4Addresses;
-    property IPv6Addresses : TIdStrings read FIPv6Addresses write SetIPv6Addresses;
+    property IPv4Addresses : TStrings read FIPv4Addresses write SetIPv4Addresses;
+    property IPv6Addresses : TStrings read FIPv6Addresses write SetIPv6Addresses;
   end;
 
 var
@@ -178,14 +178,14 @@ end;
 
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 var
-  LItems: TIdStringList;
+  LItems: TStringList;
   i: integer;
   LIPVersion: TIdIPVersion;
   LAddr, LText: string;
   LPort: integer;
 begin
   ADest.Clear;
-  LItems := TIdStringList.Create;
+  LItems := TStringList.Create;
   try
     LItems.CommaText := AList;
     for i := 0 to LItems.Count-1 do begin
@@ -243,7 +243,7 @@ begin
   end;
 end;
 
-function IndexOfNo(const ANo : Integer; AStrings : TIdStrings) : Integer;
+function IndexOfNo(const ANo : Integer; AStrings : TStrings) : Integer;
 begin
   for Result := 0 to AStrings.Count -1 do
   begin
@@ -465,8 +465,8 @@ begin
     TabOrder := 1;
   end;
   FHandles := TIdSocketHandles.Create(nil);
-  FIPv4Addresses := TIdStringList.Create;
-  FIPv6Addresses := TIdStringList.Create;
+  FIPv4Addresses := TStringList.Create;
+  FIPv6Addresses := TStringList.Create;
   SetIPv4Addresses(nil);
   SetIPv6Addresses(nil);
 
@@ -637,7 +637,7 @@ begin
   btnBindingsDelete.Enabled := lbBindings.ItemIndex >= 0;
 end;
 
-procedure TIdDsnPropEdBindingVCL.SetIPv4Addresses(const Value: TIdStrings);
+procedure TIdDsnPropEdBindingVCL.SetIPv4Addresses(const Value: TStrings);
 begin
   if Assigned(Value) then
   begin
@@ -656,7 +656,7 @@ begin
 
 end;
 
-procedure TIdDsnPropEdBindingVCL.SetIPv6Addresses(const Value: TIdStrings);
+procedure TIdDsnPropEdBindingVCL.SetIPv6Addresses(const Value: TStrings);
 begin
   if Assigned(Value) then
   begin
