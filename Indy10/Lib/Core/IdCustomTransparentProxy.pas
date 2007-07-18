@@ -62,13 +62,13 @@ unit IdCustomTransparentProxy;
 interface
 
 uses
+  Classes,
   IdComponent,
   IdException,
   IdGlobal,
-  IdObjs,
   IdIOHandler,
   IdSocketHandle,
-  IdSys, IdBaseComponent;
+  IdBaseComponent;
 
 type
   EIdTransparentProxyCircularLink = class(EIdException);
@@ -87,10 +87,10 @@ type
     function  GetEnabled: Boolean; virtual; abstract;
     procedure SetEnabled(AValue: Boolean); virtual;
     procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation); override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
-    procedure Assign(ASource: TIdPersistent); override;
+    procedure Assign(ASource: TPersistent); override;
     procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
     procedure CloseUDP(AHandle: TIdSocketHandle); virtual;
     function RecvFromUDP(AHandle: TIdSocketHandle;
@@ -121,7 +121,7 @@ uses
 
 { TIdCustomTransparentProxy }
 
-procedure TIdCustomTransparentProxy.Assign(ASource: TIdPersistent);
+procedure TIdCustomTransparentProxy.Assign(ASource: TPersistent);
 Begin
   if ASource is TIdCustomTransparentProxy then begin
     with TIdCustomTransparentProxy(ASource) do begin
@@ -166,7 +166,7 @@ procedure TIdCustomTransparentProxy.SetEnabled(AValue: Boolean);
 Begin
 End;
 
-procedure TIdCustomTransparentProxy.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+procedure TIdCustomTransparentProxy.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FChainedProxy) then begin
     FChainedProxy := nil;
@@ -181,7 +181,7 @@ begin
   LNextValue := AValue;
   while Assigned(LNextValue) do begin
     if LNextValue = SELF then begin
-      raise EIdTransparentProxyCircularLink.Create(Sys.Format(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
+      raise EIdTransparentProxyCircularLink.Create(IndyFormat(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
     end;
     LNextValue := LNextValue.FChainedProxy;
   end;
