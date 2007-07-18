@@ -112,10 +112,9 @@ unit IdReplyIMAP4;
 interface
 
 uses
-  IdObjs,
+  Classes,
   IdReply,
-  IdReplyRFC,
-  IdSys;
+  IdReplyRFC;
 
 const
   IMAP_OK      = 'OK';      {Do not Localize}
@@ -141,8 +140,8 @@ type
     {IMAP servers can send extra info after a command like "BAD Bad parameter".
     Keep these for error messages (may be more than one).
     Unsolicited responses from the server will also be put here.}
-    FExtra: TIdStrings;
-    function GetExtra: TIdStrings;  //Added to get over .NET not calling TIdReplyIMAP4's constructor
+    FExtra: TStrings;
+    function GetExtra: TStrings;  //Added to get over .NET not calling TIdReplyIMAP4's constructor
     {You would think that we need to override IdReply's Get/SetNumericCode
     because they assume the code is like '32' whereas IMAP codes are text like
     'OK' (when IdReply's StrToIntDef always returns 0), but Indy 10 has switched
@@ -151,15 +150,15 @@ type
     {function GetNumericCode: Integer;
     procedure SetNumericCode(const AValue: Integer);}
     {Get/SetFormattedReply need to be overriden for IMAP4}
-    function GetFormattedReply: TIdStrings; override;
-    procedure SetFormattedReply(const AValue: TIdStrings); override;
+    function GetFormattedReply: TStrings; override;
+    procedure SetFormattedReply(const AValue: TStrings); override;
     {CC: Need this also, otherwise the virtual one in IdReply uses
     TIdReplyRFC.CheckIfCodeIsValid which will only convert numeric
     codes like '22' to integer 22.}
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
   public
-    constructor Create(
-      ACollection: TIdCollection = nil;
+    constructor CreateWithReplyTexts(
+      ACollection: TCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
     destructor Destroy; override;
@@ -180,14 +179,14 @@ type
     function ParseRequest(ARequest: string): Boolean;
     //
     property NumericCode: Integer read GetNumericCode write SetNumericCode;
-    property Extra: TIdStrings read GetExtra;
+    property Extra: TStrings read GetExtra;
     property SequenceNumber: string read FSequenceNumber;
     //
   end;
 
   TIdRepliesIMAP4 = class(TIdReplies)
   public
-    constructor Create(AOwner: TIdPersistent); reintroduce;
+    constructor Create(AOwner: TPersistent); reintroduce;
   end;
 
   //This error method came from the POP3 Protocol reply exceptions
@@ -200,7 +199,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols;
+  IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdReplyIMAP4 }
 
@@ -210,27 +209,27 @@ begin
   Result := IsItAValidSequenceNumber(FSequenceNumber);
 end;
 
-function TIdReplyIMAP4.GetExtra: TIdStrings;
+function TIdReplyIMAP4.GetExtra: TStrings;
 begin
   if not Assigned(FExtra) then begin
-    FExtra := TIdStringList.Create;
+    FExtra := TStringList.Create;
   end;
   Result := FExtra;
 end;
 
-constructor TIdReplyIMAP4.Create(
-  ACollection: TIdCollection = nil;
+constructor TIdReplyIMAP4.CreateWithReplyTexts(
+  ACollection: TCollection = nil;
   AReplyTexts: TIdReplies = nil
   );
 begin
-  inherited Create(ACollection, AReplyTexts);
-  FExtra := TIdStringList.Create;
+  inherited CreateWithReplyTexts(ACollection, AReplyTexts);
+  FExtra := TStringList.Create;
   Clear;
 end;
 
 destructor TIdReplyIMAP4.Destroy;
 begin
-  Sys.FreeAndNil(FExtra);
+  FreeAndNil(FExtra);
   inherited Destroy;
 end;
 
@@ -277,10 +276,10 @@ var
   LOrd : Integer;
 begin
   LOrd := PosInStrArray(ACode, VALID_TAGGEDREPLIES, False);
-  Result := (LOrd <> -1) or (Sys.Trim(ACode) = '');
+  Result := (LOrd <> -1) or (Trim(ACode) = '');
 end;
 
-function TIdReplyIMAP4.GetFormattedReply: TIdStrings;
+function TIdReplyIMAP4.GetFormattedReply: TStrings;
 begin
   {Used by TIdIMAP4Server to assemble a string reply from our fields...}
   FFormattedReply.Clear;
@@ -316,7 +315,7 @@ error message.
 Set FSequenceNumber to C41 for cases (1) and (2) above, * for case (3), and
 empty '' for case 4.  This tells the caller the context of the reply.
 }
-procedure TIdReplyIMAP4.SetFormattedReply(const AValue: TIdStrings);
+procedure TIdReplyIMAP4.SetFormattedReply(const AValue: TStrings);
 var
   LWord: string;
   LPos: integer;
@@ -335,8 +334,8 @@ begin
   for LN := 0 to AValue.Count - 2 do begin
     LLine := AValue[LN];
     if LLine <> '' then begin
-      LWord := Sys.Trim(Fetch(LLine));
-      LLine := Sys.Trim(LLine);
+      LWord := Trim(Fetch(LLine));
+      LLine := Trim(LLine);
       if (LLine = '') then begin
         {Throw an exception: this line is a single word, not a valid data
         line since it does not have a * plus at least one word of data.}
@@ -358,8 +357,8 @@ begin
     DoReplyError('Unexpected: Response (last) line was empty instead of containing a line with a response code like OK, NO, BAD, etc');  {do not localize}
   end;
   LBuf := LLine;
-  LWord := Sys.Trim(Fetch(LBuf));
-  LBuf := Sys.Trim(LBuf);
+  LWord := Trim(Fetch(LBuf));
+  LBuf := Trim(LBuf);
   {We can assume, if the previous function (GetResponse) did its
   job, that either the first or the second word (if it exists) is the
   response code...}
@@ -377,8 +376,8 @@ begin
     end;
     FSequenceNumber := LWord;   {Record that it is a * line}
     {The next word had better be a response...}
-    LWord := Sys.Trim(Fetch(LBuf));
-    LBuf := Sys.Trim(LBuf);
+    LWord := Trim(Fetch(LBuf));
+    LBuf := Trim(LBuf);
     if (LBuf = '') then begin
       {Should never get to here: LBuf should have been ''.  Might as
       well throw an exception since we are down here anyway.}
@@ -402,8 +401,8 @@ begin
     end;
     FSequenceNumber := LWord;   {Record that it is a C41 line}
     {The next word had better be a response...}
-    LWord := Sys.Trim(Fetch(LBuf));
-    LBuf := Sys.Trim(LBuf);
+    LWord := Trim(Fetch(LBuf));
+    LBuf := Trim(LBuf);
     if LBuf = '' then begin
       {Should never get to here: LBuf should have been ''.  Might as
       well throw an exception since we are down here anyway.}
@@ -523,7 +522,7 @@ end;
 
 { TIdRepliesIMAP4 }
 
-constructor TIdRepliesIMAP4.Create(AOwner: TIdPersistent);
+constructor TIdRepliesIMAP4.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdReplyIMAP4);
 end;

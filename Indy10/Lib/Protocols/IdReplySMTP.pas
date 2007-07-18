@@ -100,11 +100,10 @@ unit IdReplySMTP;
 interface
 
 uses
+  Classes,
   IdException,
   IdReply,
-  IdReplyRFC,
-  IdSys,
-  IdObjs;
+  IdReplyRFC;
 
 const
   ValidClassChars = '245';
@@ -115,13 +114,13 @@ const
   PARTSEP = '.';
 
 type
-  TIdSMTPEnhancedCode = class(TIdPersistent)
+  TIdSMTPEnhancedCode = class(TPersistent)
   protected
     FStatusClass : Cardinal;
     FSubject : Cardinal;
     FDetails : Cardinal;
     FAvailable : Boolean;
-    procedure AssignTo(ADest: TIdPersistent); override;
+    procedure AssignTo(ADest: TPersistent); override;
     function IsValidReplyCode(const AText : String) : Boolean;
     function GetReplyAsStr : String;
     procedure SetReplyAsStr(const AText : String);
@@ -140,13 +139,13 @@ type
   TIdReplySMTP = class(TIdReplyRFC)
   protected
     FEnhancedCode : TIdSMTPEnhancedCode;
-    procedure AssignTo(ADest: TIdPersistent); override;
+    procedure AssignTo(ADest: TPersistent); override;
     procedure SetEnhancedCode(AValue : TIdSMTPEnhancedCode);
-    function GetFormattedReply: TIdStrings; override;
-    procedure SetFormattedReply(const AValue: TIdStrings); override;
+    function GetFormattedReply: TStrings; override;
+    procedure SetFormattedReply(const AValue: TStrings); override;
   public
-    constructor Create(ACollection: TIdCollection); overload; override;
-    constructor Create(ACollection: TIdCollection; AReplyTexts: TIdReplies); overload; override;
+    constructor Create(ACollection: TCollection); overload; override;
+    constructor CreateWithReplyTexts(ACollection: TCollection; AReplyTexts: TIdReplies); overload; override;
     destructor Destroy; override;
     procedure RaiseReplyError; override;
     procedure SetEnhReply(const ANumericCode : Integer; const AEnhReply, AText : String);
@@ -156,7 +155,7 @@ type
 
   TIdRepliesSMTP = class(TIdRepliesRFC)
   public
-    constructor Create(AOwner: TIdPersistent); override;
+    constructor Create(AOwner: TPersistent); override;
   end;
 
   //note that this is here so we don't have to put this unit in an implementaiton clause
@@ -315,11 +314,11 @@ const
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols;
+  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 { TIdSMTPEnhancedCode }
 
-procedure TIdSMTPEnhancedCode.AssignTo(ADest: TIdPersistent);
+procedure TIdSMTPEnhancedCode.AssignTo(ADest: TPersistent);
 var
   LE : TIdSMTPEnhancedCode;
 begin
@@ -348,9 +347,9 @@ function TIdSMTPEnhancedCode.GetReplyAsStr: String;
 begin
   Result := '';
   if Available then begin
-    Result := Copy(Sys.IntToStr(FStatusClass),1,1)+PARTSEP+
-      Copy(Sys.IntToStr(FSubject),1,3)+PARTSEP+
-      Copy(Sys.IntToStr(FDetails),1,3);
+    Result := Copy(IntToStr(FStatusClass),1,1)+PARTSEP+
+      Copy(IntToStr(FSubject),1,3)+PARTSEP+
+      Copy(IntToStr(FDetails),1,3);
   end;
 end;
 
@@ -358,7 +357,7 @@ function TIdSMTPEnhancedCode.IsValidReplyCode(const AText: String): Boolean;
 var
   LTmp, LBuf, LValidPart : String;
 begin
-  Result := (Sys.Trim(AText) = '');
+  Result := (Trim(AText) = '');
   if not Result then begin
     LTmp := AText;
     LBuf := Fetch(LTmp);
@@ -400,12 +399,12 @@ begin
   if LBuf <> '' then begin
     //class
     LValidPart := Fetch(LBuf, PARTSEP);
-    FStatusClass := Sys.StrToInt(LValidPart, 0);
+    FStatusClass := IndyStrToInt(LValidPart, 0);
     //subject
     LValidPart := Fetch(LBuf, PARTSEP);
-    FSubject := Sys.StrToInt(LValidPart,0);
+    FSubject := IndyStrToInt(LValidPart,0);
     //details
-    FDetails := Sys.StrToInt(LBuf,0);
+    FDetails := IndyStrToInt(LBuf,0);
     FAvailable := True;
   end else begin
     FAvailable := False;
@@ -420,7 +419,7 @@ end;
 
 { TIdReplySMTP }
 
-procedure TIdReplySMTP.AssignTo(ADest: TIdPersistent);
+procedure TIdReplySMTP.AssignTo(ADest: TPersistent);
 var
   LS : TIdReplySMTP;
 begin
@@ -435,25 +434,25 @@ begin
   end;
 end;
 
-constructor TIdReplySMTP.Create(ACollection: TIdCollection);
+constructor TIdReplySMTP.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
 end;
 
-constructor TIdReplySMTP.Create(ACollection: TIdCollection; AReplyTexts: TIdReplies);
+constructor TIdReplySMTP.CreateWithReplyTexts(ACollection: TCollection; AReplyTexts: TIdReplies);
 begin
-  inherited Create(ACollection, AReplyTexts);
+  inherited CreateWithReplyTexts(ACollection, AReplyTexts);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
 end;
 
 destructor TIdReplySMTP.Destroy;
 begin
-  Sys.FreeAndNil(FEnhancedCode);
+  FreeAndNil(FEnhancedCode);
   inherited;
 end;
 
-function TIdReplySMTP.GetFormattedReply: TIdStrings;
+function TIdReplySMTP.GetFormattedReply: TStrings;
 var
   i: Integer;
   LCode: String;
@@ -463,7 +462,7 @@ begin
   and put it into FFormattedReply   }
 
   if NumericCode > 0 then begin
-    LCode := Sys.IntToStr(NumericCode);
+    LCode := IntToStr(NumericCode);
     if FText.Count > 0 then begin
       for i := 0 to FText.Count - 1 do begin
         if i < FText.Count - 1 then begin
@@ -509,7 +508,7 @@ begin
   FEnhancedCode.ReplyAsStr := AEnhReply;
 end;
 
-procedure TIdReplySMTP.SetFormattedReply(const AValue: TIdStrings);
+procedure TIdReplySMTP.SetFormattedReply(const AValue: TStrings);
 {  in here just parse and put in items, no need to store after parse }
  var
   i: Integer;
@@ -518,7 +517,7 @@ begin
   Clear;
   if AValue.Count > 0 then begin
     // Get 4 chars - for POP3
-    s := Sys.Trim(Copy(AValue[0], 1, 4));
+    s := Trim(Copy(AValue[0], 1, 4));
     if Length(s) = 4 then begin
       if s[4] = '-' then begin
         SetLength(s, 3);
@@ -537,7 +536,7 @@ end;
 
 { TIdRepliesSMTP }
 
-constructor TIdRepliesSMTP.Create(AOwner: TIdPersistent);
+constructor TIdRepliesSMTP.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdReplySMTP);
 end;
@@ -554,7 +553,7 @@ end;
 
 destructor EIdSMTPReplyError.Destroy;
 begin
-  Sys.FreeAndNil(FEnhancedCode);
+  FreeAndNil(FEnhancedCode);
   inherited Destroy;
 end;
 

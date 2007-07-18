@@ -76,10 +76,9 @@ unit IdReplyFTP;
 interface
 
 uses
+  Classes,
   IdReply,
-  IdReplyRFC,
-  IdSys,
-  IdObjs;
+  IdReplyRFC;
 
 type
   TIdReplyRFCFormat = (rfNormal, rfIndentMidLines);
@@ -91,11 +90,11 @@ type
   TIdReplyFTP = class(TIdReplyRFC)
   protected
     FReplyFormat : TIdReplyRFCFormat;
-    function GetFormattedReply: TIdStrings; override;
-    procedure SetFormattedReply(const AValue: TIdStrings); override;
-    procedure AssignTo(ADest: TIdPersistent); override;
+    function GetFormattedReply: TStrings; override;
+    procedure SetFormattedReply(const AValue: TStrings); override;
+    procedure AssignTo(ADest: TPersistent); override;
   public
-    constructor Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil); override;
+    constructor CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil); override;
     procedure Clear; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
@@ -104,17 +103,17 @@ type
 
   TIdRepliesFTP = class(TIdRepliesRFC)
   public
-    constructor Create(AOwner: TIdPersistent); override;
+    constructor Create(AOwner: TPersistent); override;
   end;
 
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, SysUtils;
 
 { TIdReplyFTP }
 
-procedure TIdReplyFTP.AssignTo(ADest: TIdPersistent);
+procedure TIdReplyFTP.AssignTo(ADest: TPersistent);
 var
   LR: TIdReplyFTP;
 begin
@@ -129,9 +128,9 @@ begin
   end;
 end;
 
-constructor TIdReplyFTP.Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil);
+constructor TIdReplyFTP.CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil);
 begin
-  inherited Create(ACollection, AReplyTexts);
+  inherited CreateWithReplyTexts(ACollection, AReplyTexts);
   FReplyFormat := DEF_ReplyFormat;
 end;
 
@@ -141,14 +140,14 @@ begin
   FReplyFormat := DEF_ReplyFormat;
 end;
 
-function TIdReplyFTP.GetFormattedReply: TIdStrings;
+function TIdReplyFTP.GetFormattedReply: TStrings;
 var
   i : Integer;
   LCode: String;
 begin
   Result := GetFormattedReplyStrings;
   if NumericCode > 0 then begin
-    LCode := Sys.IntToStr(NumericCode);
+    LCode := IntToStr(NumericCode);
     if Text.Count > 0 then begin
       for i := 0 to Text.Count - 1 do begin
         if i < Text.Count - 1 then begin
@@ -185,7 +184,7 @@ begin
   end;
 end;
 
-procedure TIdReplyFTP.SetFormattedReply(const AValue: TIdStrings);
+procedure TIdReplyFTP.SetFormattedReply(const AValue: TStrings);
 var
   i: Integer;
   LCode, LTemp: string;
@@ -193,7 +192,7 @@ begin
   Clear;
   if AValue.Count > 0 then begin
     // Get 4 chars - for POP3
-    LCode := Sys.Trim(Copy(AValue[0], 1, 4));
+    LCode := Trim(Copy(AValue[0], 1, 4));
     if Length(LCode) = 4 then begin
       if LCode[4] = '-' then begin
         SetLength(LCode, 3);
@@ -214,7 +213,7 @@ begin
           if TextStartsWith(AValue[i], ' ') then begin
             FReplyFormat := rfIndentMidLines;
           end;
-          LTemp := Sys.TrimLeft(AValue[i]);
+          LTemp := TrimLeft(AValue[i]);
         end;
         Text.Add(LTemp);
       end;
@@ -224,7 +223,7 @@ end;
 
 { TIdRepliesFTP }
 
-constructor TIdRepliesFTP.Create(AOwner: TIdPersistent);
+constructor TIdRepliesFTP.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdReplyFTP);
 end;

@@ -96,8 +96,8 @@ unit IdReplyPOP3;
 interface
 
 uses
+  Classes,
   IdException,
-  IdObjs,
   IdReply;
 
 const
@@ -133,16 +133,16 @@ type
     class function FindCodeTextDelim(const AText : String) : Integer;
     class function IsValidEnhancedCode(const AText : String; const AStrict : Boolean = False) : Boolean;
     class function ExtractTextPosArray(const AStr : String):Integer;
-    function GetFormattedReply: TIdStrings; override;
-    procedure SetFormattedReply(const AValue: TIdStrings); override;
+    function GetFormattedReply: TStrings; override;
+    procedure SetFormattedReply(const AValue: TStrings); override;
     function CheckIfCodeIsValid(const ACode: string): Boolean; override;
     procedure SetEnhancedCode(const AValue : String);
   public
-    constructor Create(
-      ACollection: TIdCollection = nil;
+    constructor CreateWithReplyTexts(
+      ACollection: TCollection = nil;
       AReplyTexts: TIdReplies = nil
       ); override;
-    procedure Assign(ASource: TIdPersistent); override;
+    procedure Assign(ASource: TPersistent); override;
     procedure RaiseReplyError; override;
     class function IsEndMarker(const ALine: string): Boolean; override;
   published
@@ -151,7 +151,7 @@ type
 
   TIdRepliesPOP3 = class(TIdReplies)
   public
-    constructor Create(AOwner: TIdPersistent); reintroduce;
+    constructor Create(AOwner: TPersistent); reintroduce;
   end;
 
   //This error is for POP3 Protocol reply exceptions
@@ -183,11 +183,11 @@ uses
   IdGlobal,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdSys;
+  SysUtils;
 
 { TIdReplyPOP3 }
 
-procedure TIdReplyPOP3.Assign(ASource: TIdPersistent);
+procedure TIdReplyPOP3.Assign(ASource: TPersistent);
 var
   LR: TIdReplyPOP3;
 begin
@@ -207,12 +207,12 @@ var
   LOrd: Integer;
 begin
   LOrd := PosInStrArray(ACode, VALID_POP3_STR, False);
-  Result := (LOrd > -1) or (Sys.Trim(ACode) = '');
+  Result := (LOrd > -1) or (Trim(ACode) = '');
 end;
 
-constructor TIdReplyPOP3.Create(ACollection: TIdCollection = nil; AReplyTexts: TIdReplies = nil);
+constructor TIdReplyPOP3.CreateWithReplyTexts(ACollection: TCollection = nil; AReplyTexts: TIdReplies = nil);
 begin
-  inherited Create(ACollection, AReplyTexts);
+  inherited CreateWithReplyTexts(ACollection, AReplyTexts);
   FCode := ST_OK;
 end;
 
@@ -255,7 +255,7 @@ begin
   end;
 end;
 
-function TIdReplyPOP3.GetFormattedReply: TIdStrings;
+function TIdReplyPOP3.GetFormattedReply: TStrings;
 var
   i: Integer;
 begin
@@ -305,7 +305,7 @@ var
   LBuf : String;
   i : integer;
 begin
-  Result := Sys.Trim(AText) = '';
+  Result := Trim(AText) = '';
   if not Result then begin
     LBuf := AText;
     if (LBuf <> '') and (LBuf[1] = '[') then begin
@@ -344,7 +344,7 @@ begin
   if LBuf = '' then begin
     FEnhancedCode := '';
   end else begin
-    LBuf := Sys.UpperCase(LBuf);
+    LBuf := UpperCase(LBuf);
     if (LBuf[1] <> '[') then begin
       LBuf := '[' + LBuf;
     end;
@@ -359,7 +359,7 @@ begin
   end;
 end;
 
-procedure TIdReplyPOP3.SetFormattedReply(const AValue: TIdStrings);
+procedure TIdReplyPOP3.SetFormattedReply(const AValue: TStrings);
 var
   i: Integer;
   idx : Integer;
@@ -394,7 +394,7 @@ end;
 
 { TIdRepliesPOP3 }
 
-constructor TIdRepliesPOP3.Create(AOwner: TIdPersistent);
+constructor TIdRepliesPOP3.Create(AOwner: TPersistent);
 begin
   inherited Create(AOwner, TIdReplyPOP3);
 end;

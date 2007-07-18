@@ -52,6 +52,7 @@ unit IdSMTPServer;
 interface
 
 uses
+  Classes,
   IdAssignedNumbers,
   IdCmdTCPServer,
   IdCommandHandlers,
@@ -66,9 +67,7 @@ uses
   IdTCPServer,
   IdYarn,
   IdStack,
-  IdSys,
-  IdGlobal,
-  IdObjs;
+  IdGlobal;
 
 type
   EIdSMTPServerError = class(EIdException);
@@ -120,11 +119,11 @@ type
   TIdSMTPServerContext = class;
 
   TOnMailFromEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
-    AParams: TIdStrings; var VAction : TIdMailFromReply) of object;
-  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TIdStream;
+    AParams: TStrings; var VAction : TIdMailFromReply) of object;
+  TOnMsgReceive = procedure(ASender: TIdSMTPServerContext; AMsg: TStream;
     var VAction : TIdDataReply) of object;
   TOnRcptToEvent = procedure(ASender: TIdSMTPServerContext; const AAddress : string;
-    AParams: TIdStrings; var VAction : TIdRCPToReply; var VForward : String) of object;
+    AParams: TStrings; var VAction : TIdRCPToReply; var VForward : String) of object;
   TOnReceived = procedure(ASender: TIdSMTPServerContext; var AReceived : String) of object;
   TOnSMTPEvent = procedure(ASender: TIdSMTPServerContext) of object;
   TOnSMTPUserLoginEvent = procedure(ASender: TIdSMTPServerContext; const AUsername, APassword: string;
@@ -249,7 +248,7 @@ type
     function GetUsingTLS: Boolean;
     procedure SetPipeLining(const AValue : Boolean);
   public
-    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil); override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
     destructor Destroy; override;
     //
     procedure CheckPipeLine;
@@ -280,7 +279,7 @@ uses
   IdCoderMIME,
   IdGlobalProtocols,
   IdResourceStringsProtocols,
-  IdSSL;
+  IdSSL, SysUtils;
 
 { TIdSMTPServer }
 
@@ -296,15 +295,15 @@ begin
     if Assigned(AReply) then begin
       LReply := AReply;
     end else begin
-      LReply := TIdReplySMTP.Create(nil, ReplyTexts);
+      LReply := TIdReplySMTP.CreateWithReplyTexts(nil, ReplyTexts);
       LReply.Assign(ReplyUnknownCommand);
     end;
-    SetEnhReply(LReply, 500, '5.0.0', Sys.Format(RSFTPCmdNotRecognized, [LTmp]), {do not localize}
+    SetEnhReply(LReply, 500, '5.0.0', IndyFormat(RSFTPCmdNotRecognized, [LTmp]), {do not localize}
       TIdSMTPServerContext(AContext).Ehlo);
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
     if not Assigned(AReply) then begin
-      Sys.FreeAndNil(LReply);
+      FreeAndNil(LReply);
     end;
   end;
 end;
@@ -323,13 +322,13 @@ end;
 
 function TIdSMTPServer.CreateGreeting: TIdReply;
 begin
-  Result := TIdReplySMTP.Create(nil, ReplyTexts);
+  Result := TIdReplySMTP.CreateWithReplyTexts(nil, ReplyTexts);
   TIdReplySMTP(Result).SetEnhReply(220, '' ,RSSMTPSvrWelcome)
 end;
 
 function TIdSMTPServer.CreateReplyUnknownCommand: TIdReply;
 begin
-  Result := TIdReplySMTP.Create(nil, ReplyTexts);
+  Result := TIdReplySMTP.CreateWithReplyTexts(nil, ReplyTexts);
   TIdReplySMTP(Result).SetEnhReply(500, Id_EHR_PR_SYNTAX_ERR, 'Syntax Error'); {do not localize}
 end;
 
@@ -345,7 +344,7 @@ begin
 
   if SPFAuthOk(LContext, ASender.Reply, 'EHLO', DomainName(ASender.UnparsedParams), ASender.UnparsedParams) then {do not localize}
   begin
-    SetEnhReply(ASender.Reply, 250, '', Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]), True);
+    SetEnhReply(ASender.Reply, 250, '', IndyFormat(RSSMTPSvrHello, [ASender.UnparsedParams]), True);
     if Assigned(FOnUserLogin) then begin
       ASender.Reply.Text.Add('AUTH LOGIN');    {Do not Localize}
     end;
@@ -353,7 +352,7 @@ begin
     if FAllowPipelining then begin
       ASender.Reply.Text.Add('PIPELINING'); {do not localize}
     end;
-    ASender.Reply.Text.Add(Sys.Format('SIZE %d', [FMaxMsgSize])); {do not localize}
+    ASender.Reply.Text.Add(IndyFormat('SIZE %d', [FMaxMsgSize])); {do not localize}
     if (FUseTLS in ExplicitTLSVals) and (not LContext.UsingTLS) then begin
       ASender.Reply.Text.Add('STARTTLS');    {Do not Localize}
     end;
@@ -511,7 +510,7 @@ begin
     LContext.HELO := True;
     if SPFAuthOk(LContext, ASender.Reply, 'HELO', DomainName(ASender.UnparsedParams), ASender.UnparsedParams) then {do not localize}
     begin
-      ASender.Reply.SetReply(250, Sys.Format(RSSMTPSvrHello, [ASender.UnparsedParams]));
+      ASender.Reply.SetReply(250, IndyFormat(RSSMTPSvrHello, [ASender.UnparsedParams]));
       LContext.SMTPState := idSMTPHelo;
     end;
   end else begin
@@ -543,7 +542,7 @@ begin
         //  s := SendRequest( '334 ' + s );    {Do not Localize}
         ASender.Reply.SetReply(334, s);    {Do not Localize}
         ASender.SendReply;
-        s := Sys.Trim(LContext.Connection.IOHandler.ReadLn);
+        s := Trim(LContext.Connection.IOHandler.ReadLn);
         if s <> '' then begin   {Do not Localize}
           LDecoder := TIdDecoderMIME.Create;
           try
@@ -552,7 +551,7 @@ begin
             s := LEncoder.Encode('Password:');    {Do not Localize}
             ASender.Reply.SetReply(334, s);    {Do not Localize}
             ASender.SendReply;
-            s := Sys.Trim(ASender.Context.Connection.IOHandler.ReadLn);
+            s := Trim(ASender.Context.Connection.IOHandler.ReadLn);
             if s <> '' then begin
               LPassword := LDecoder.DecodeString(s);
             end else begin
@@ -560,13 +559,13 @@ begin
             end;
           // when TIdDecoderMime.DecodeString(s) raise a exception,catch it and set AuthFailed as true
           finally
-            Sys.FreeAndNil(LDecoder);
+            FreeAndNil(LDecoder);
           end;
         end else begin
           LAuthFailed := True;
         end;
       finally
-        Sys.FreeAndNil(LEncoder);
+        FreeAndNil(LEncoder);
       end;
     except
       LAuthFailed := True;
@@ -590,7 +589,7 @@ begin
     if not LAccepted then begin
       AuthFailed(ASender);
     end else begin
-      SetEnhReply(ASender.Reply, 235, Id_EHR_SEC_OTHER_OK, ' welcome ' + Sys.Trim(LUsername), LContext.EHLO);    {Do not Localize}
+      SetEnhReply(ASender.Reply, 235, Id_EHR_SEC_OTHER_OK, ' welcome ' + Trim(LUsername), LContext.EHLO);    {Do not Localize}
       ASender.SendReply;
     end;
   end;
@@ -615,7 +614,7 @@ end;
 
 procedure TIdSMTPServer.AddrInvalid(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply, 500, Id_EHR_MSG_BAD_DEST, Sys.Format(RSSMTPSvrAddressError, [AAddress]),
+  SetEnhReply(ASender.Reply, 500, Id_EHR_MSG_BAD_DEST, IndyFormat(RSSMTPSvrAddressError, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -624,9 +623,9 @@ var
   LMsg: String;
 begin
   if ATo <> '' then begin
-    LMsg := Sys.Format(RSSMTPUserNotLocal, [AAddress, ATo]);
+    LMsg := IndyFormat(RSSMTPUserNotLocal, [AAddress, ATo]);
   end else begin
-    LMsg := Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]);
+    LMsg := IndyFormat(RSSMTPUserNotLocalNoAddr, [AAddress]);
   end;
   SetEnhReply(ASender.Reply, 521, Id_EHR_SEC_DEL_NOT_AUTH, LMsg,
     TIdSMTPServerContext(ASender.Context).EHLO);
@@ -634,13 +633,13 @@ end;
 
 procedure TIdSMTPServer.AddrValid(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,250, Id_EHR_MSG_VALID_DEST,Sys.Format(RSSMTPSvrAddressOk, [AAddress]),
+  SetEnhReply(ASender.Reply,250, Id_EHR_MSG_VALID_DEST,IndyFormat(RSSMTPSvrAddressOk, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrNoRelaying(ASender: TIdCommand; const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNoRelay, [AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, IndyFormat(RSSMTPSvrNoRelay, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -649,9 +648,9 @@ var
   LMsg: String;
 begin
   if ATo <> '' then begin
-    LMsg := Sys.Format(RSSMTPUserNotLocalFwdAddr, [AAddress, ATo]);
+    LMsg := IndyFormat(RSSMTPUserNotLocalFwdAddr, [AAddress, ATo]);
   end else begin    
-    LMsg := Sys.Format(RSSMTPUserNotLocalNoAddr, [AAddress]);
+    LMsg := IndyFormat(RSSMTPUserNotLocalNoAddr, [AAddress]);
   end;
   SetEnhReply(ASender.Reply, 251, Id_EHR_MSG_VALID_DEST, LMsg,
     TIdSMTPServerContext(ASender.Context).EHLO);
@@ -665,13 +664,13 @@ end;
 
 procedure TIdSMTPServer.AddrDisabledPerm(ASender: TIdCommand; const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_PERM, Sys.Format(RSSMTPAccountDisabled, [AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_PERM, IndyFormat(RSSMTPAccountDisabled, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.AddrDisabledTemp(ASender: TIdCommand; const AAddress: String);
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_TEMP, Sys.Format(RSSMTPAccountDisabled, [AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_MB_DISABLED_TEMP, IndyFormat(RSSMTPAccountDisabled, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -719,13 +718,13 @@ end;
 
 procedure TIdSMTPServer.MailFromAccept(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_OTH_OK, Sys.Format(RSSMTPSvrAddressOk, [AAddress]),
+  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_OTH_OK, IndyFormat(RSSMTPSvrAddressOk, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
 procedure TIdSMTPServer.MailFromReject(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, Sys.Format(RSSMTPSvrNotPermitted, [AAddress]),
+  SetEnhReply(ASender.Reply, 550, Id_EHR_SEC_DEL_NOT_AUTH, IndyFormat(RSSMTPSvrNotPermitted, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -740,7 +739,7 @@ var
   EMailAddress: TIdEMailAddressItem;
   LContext : TIdSMTPServerContext;
   LM : TIdMailFromReply;
-  LParams: TIdStringList;
+  LParams: TStringList;
   S: String;
   LSize: Integer;
 begin
@@ -755,16 +754,16 @@ begin
     if TextStartsWith(ASender.UnparsedParams, 'FROM:') then begin   {Do not Localize}
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
-        S := Sys.TrimLeft(Copy(ASender.UnparsedParams, 6, MaxInt));
+        S := TrimLeft(Copy(ASender.UnparsedParams, 6, MaxInt));
         EMailAddress.Text := Fetch(S);
         if SPFAuthOk(LContext, ASender.Reply, 'MAIL FROM', EmailAddress.Domain, EmailAddress.Address) then  {do not localize}
         begin
           LM := mAccept;
-          LParams := TIdStringList.Create;
+          LParams := TStringList.Create;
           try
             SplitColumns(S, LParams);
             // RLebeau: check the message size before accepting the message
-            LSize := Sys.StrToInt(LParams.Values['SIZE'], 0);
+            LSize := IndyStrToInt(LParams.Values['SIZE'], 0);
             if (FMaxMsgSize > 0) and (LSize > FMaxMsgSize) then begin
               LM := mLimitExceeded;
             end else begin
@@ -773,7 +772,7 @@ begin
               end;
             end;
           finally
-            Sys.FreeAndNil(LParams);
+            FreeAndNil(LParams);
           end;
           case LM of
             mAccept :
@@ -800,7 +799,7 @@ begin
           end;
         end;
       finally
-        Sys.FreeAndNil(EMailAddress);
+        FreeAndNil(EMailAddress);
       end;
     end else begin
       InvalidSyntax(ASender);
@@ -822,7 +821,7 @@ var
   EMailAddress: TIdEMailAddressItem;
   LContext : TIdSMTPServerContext;
   LAction : TIdRCPToReply;
-  LParams: TIdStringList;
+  LParams: TStringList;
   LForward, S : String;
 begin
   LForward := '';
@@ -850,15 +849,15 @@ begin
       //you have a security hazard that spammers can abuse.
       EMailAddress := TIdEMailAddressItem.Create(nil);
       try
-        S := Sys.TrimLeft(Copy(ASender.UnparsedParams, 4, MaxInt));
+        S := TrimLeft(Copy(ASender.UnparsedParams, 4, MaxInt));
         EMailAddress.Text := Fetch(S);
         if Assigned(FOnRcptTo) then begin
-          LParams := TIdStringList.Create;
+          LParams := TStringList.Create;
           try
             SplitColumns(S, LParams);
             FOnRcptTo(LContext, EMailAddress.Address, LParams, LAction, LForward);
           finally
-            Sys.FreeAndNil(LParams);
+            FreeAndNil(LParams);
           end;
           case LAction of
             rAddressOk :
@@ -894,7 +893,7 @@ begin
           raise EIdSMTPServerNoRcptTo.Create(RSSMTPNoOnRcptTo);
         end;
       finally
-       Sys.FreeAndNil(EMailAddress);
+       FreeAndNil(EMailAddress);
       end;
     end else begin
       SetEnhReply(ASender.Reply, 501, Id_EHR_PR_SYNTAX_ERR,RSSMTPSvrParmErrRcptTo,
@@ -951,8 +950,8 @@ end;
 procedure TIdSMTPServer.CommandDATA(ASender: TIdCommand);
 var
   LContext : TIdSMTPServerContext;
-  LStream: TIdStream;
-  AMsg : TIdStream;
+  LStream: TStream;
+  AMsg : TStream;
   LAction : TIdDataReply;
   LReceivedString : String;
 
@@ -973,12 +972,12 @@ var
   // lookups for tokens that are not actually used
   procedure ReplaceReceivedTokens;
   var
-    LTokens: TIdStringList;
+    LTokens: TStringList;
     i, LPos: Integer;
     //we do it this way so we can take advantage of the StringBuilder in DotNET.
     ReplaceOld, ReplaceNew: array of string;
   begin
-    LTokens := TIdStringList.Create;
+    LTokens := TStringList.Create;
     try
       if Pos('$hostname', LReceivedString) <> 0 then begin                  {do not localize}
         LTokens.Add('$hostname=' + AddrFromHost(LContext.Binding.PeerIP));  {do not localize}
@@ -1019,10 +1018,10 @@ var
           ReplaceNew[i] := Copy(LTokens.Strings[i], LPos+1, MaxInt);
         end;
 
-        LReceivedString := Sys.StringReplace(LReceivedString, ReplaceOld, ReplaceNew);
+        LReceivedString := StringsReplace(LReceivedString, ReplaceOld, ReplaceNew);
       end;
     finally
-      Sys.FreeAndNil(LTokens);
+      FreeAndNil(LTokens);
     end;
   end;
 
@@ -1037,12 +1036,12 @@ begin
     SetEnhReply(ASender.Reply, 354, '', RSSMTPSvrStartData, LContext.EHLO);
     ASender.SendReply;
     LContext.PipeLining := False;
-    LStream := TIdMemoryStream.Create;
+    LStream := TMemoryStream.Create;
     try
       // RLebeau: TODO - do not even create the stream if the OnMsgReceive
       // event is not assigned, or at least create a stream that discards
       // any data received...
-      AMsg := TIdMemoryStream.Create;
+      AMsg := TMemoryStream.Create;
       try
         LAction := dOk;
         LContext.Connection.IOHandler.Capture(LStream, '.', True);    {Do not Localize}
@@ -1069,10 +1068,10 @@ begin
           end;
         end;
       finally
-        Sys.FreeAndNil(AMsg);
+        FreeAndNil(AMsg);
       end;
     finally
-      Sys.FreeAndNil(LStream);
+      FreeAndNil(LStream);
     end;
     case LAction of
       dOk                   : MailSubmitOk(ASender); //accept the mail message
@@ -1117,9 +1116,9 @@ begin
     else
     begin
       if LAction = spfFail then begin
-        SetEnhReply(AReply, 550, '5.7.1', Sys.Format(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
+        SetEnhReply(AReply, 550, '5.7.1', IndyFormat(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
       end else begin
-        SetEnhReply(AReply, 451, '4.4.3', Sys.Format(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
+        SetEnhReply(AReply, 451, '4.4.3', IndyFormat(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
       end;
       Result := False;
     end;
@@ -1136,7 +1135,7 @@ begin
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TIdThreadList);
+  AYarn: TIdYarn; AList: TThreadList);
 begin
   inherited;
   SMTPState := idSMTPNone;
@@ -1151,7 +1150,7 @@ end;
 
 destructor TIdSMTPServerContext.Destroy;
 begin
-  Sys.FreeAndNil(FRCPTList);
+  FreeAndNil(FRCPTList);
   inherited;
 end;
 
