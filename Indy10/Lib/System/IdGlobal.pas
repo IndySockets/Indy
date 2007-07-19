@@ -682,7 +682,22 @@ type
   TIdBytes = array of Byte;
   TIdPort = Integer;
   //We don't have a native type that can hold an IPv6 address.
-  TIdIPv6Address = array [0..7] of word;
+  TIdIPv6Address = array [0..7] of word; 
+ 
+  // C++ does not allow an array to be returned by a function, 
+  // so wrapping the array in a struct as a workaround...
+  (*$HPPEMIT 'namespace Idglobal'*) 
+  (*$HPPEMIT '{'*)
+  (*$HPPEMIT '    struct TIdIPv6Address'*) 
+  (*$HPPEMIT '    {'*) 
+  (*$HPPEMIT '        Word data[8];'*) 
+  (*$HPPEMIT '        Word& operator[](int index) { return data[index]; }'*) 
+  (*$HPPEMIT '        const Word& operator[](int index) const { return data[index]; }'*) 
+  (*$HPPEMIT '        operator const Word*() const { return data; }'*) 
+  (*$HPPEMIT '        operator Word*() { return data; }'*) 
+  (*$HPPEMIT '    };'*) 
+  (*$HPPEMIT '}'*) 
+  {$NODEFINE TIdIPv6Address} 
 
   {This way instead of a boolean for future expansion of other actions}
   TIdMaxLineAction = (maException, maSplit);
@@ -985,7 +1000,8 @@ function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): Cardinal; overload;
 function IPv4ToHex(const AIPAddress: string; const ASDotted: Boolean = False): string;
 function IPv4ToOctal(const AIPAddress: string): string;
-function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;
+function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;  overload;
+function IPv6ToIdIPv6Address(const AIPAddress: String; var VErr : Boolean): TIdIPv6Address;overload;
 function IsAlpha(const AChar: Char): Boolean; overload;
 function IsAlpha(const AString: String): Boolean; overload;
 function IsAlphaNumeric(const AChar: Char): Boolean; overload;
@@ -1004,6 +1020,7 @@ function MakeCanonicalIPv4Address(const AAddr: string): string;
 function MakeCanonicalIPv6Address(const AAddr: string): string;
 function MakeDWordIntoIPv4Address(const ADWord: Cardinal): string;
 function Max(const AValueOne,AValueTwo: Int64): Int64;
+function IPv4MakeCardInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
@@ -1441,6 +1458,7 @@ end;
 
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
   var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
+
 begin
   {$IFDEF DOTNET}
   System.array.Copy(ASource, ASourceIndex, VDest, ADestIndex, ALength);
@@ -1469,6 +1487,7 @@ begin
 end;
 
 procedure DebugOutput(const AText: string); {$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   __write(stderr, AText, Length(AText));
@@ -1482,7 +1501,8 @@ begin
   {$ENDIF}
 end;
 
-function CurrentThreadId: TIdPID;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function CurrentThreadId: TIdPID;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
 {$IFDEF DOTNET}
   {$IFDEF DOTNET2}
@@ -1511,7 +1531,8 @@ begin
 {$ENDIF}
 end;
 
-function CurrentProcessId: TIdPID;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function CurrentProcessId: TIdPID;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   Result := getpid;
@@ -1583,7 +1604,8 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TThread): THandle; {$IFDEF USEINLINE}inline;{$ENDIF}
+function GetThreadHandle(AThread: TThread): THandle;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF LINUX}
   Result := AThread.ThreadID;
@@ -1597,6 +1619,9 @@ begin
 end;
 
 function Ticks: Cardinal;
+{$IFDEF DOTNET}
+{$IFDEF USEINLINE}inline;{$ENDIF}
+{$ENDIF}
 {$IFDEF LINUX}
 var
   tv: timeval;
@@ -1648,7 +1673,8 @@ begin
 {$ENDIF}
 end;
 
-function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal; {$IFDEF USEINLINE}inline;{$ENDIF}
+function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
@@ -1720,7 +1746,8 @@ begin
 end;
 {$ENDIF}
 
-function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
+function iif(ATest: Boolean; const ATrue: Integer; const AFalse: Integer): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1729,7 +1756,8 @@ begin
   end;
 end;
 
-function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function iif(ATest: Boolean; const ATrue: string; const AFalse: string): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1738,7 +1766,8 @@ begin
   end;
 end;
 
-function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function iif(ATest: Boolean; const ATrue: Boolean; const AFalse: Boolean): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if ATest then begin
     Result := ATrue;
@@ -1747,7 +1776,8 @@ begin
   end;
 end;
 
-function InMainThread: Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function InMainThread: Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := System.Threading.Thread.CurrentThread = MainThread;
@@ -1756,7 +1786,8 @@ begin
   {$ENDIF}
 end;
 
-procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: Int64); {$IFDEF USEINLINE}inline;{$ENDIF}
+procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: Int64);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
   Dest.Write(Src.Memory, Count);
@@ -1766,7 +1797,8 @@ begin
 end;
 
 {$IFNDEF DotNetExclude}
-function IsCurrentThread(AThread: TThread): Boolean; {$IFDEF USEINLINE}inline;{$ENDIF}
+function IsCurrentThread(AThread: TThread): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := AThread.ThreadID = GetCurrentThreadID;
 end;
@@ -1774,6 +1806,7 @@ end;
 
 //convert a dword into an IPv4 address in dotted form
 function MakeDWordIntoIPv4Address(const ADWord: Cardinal): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := IntToStr((ADWord shr 24) and $FF) + '.';
   Result := Result + IntToStr((ADWord shr 16) and $FF) + '.';
@@ -1781,7 +1814,8 @@ begin
   Result := Result + IntToStr(ADWord and $FF);
 end;
 
-function IsAlpha(const AChar: Char): Boolean;  {$IFDEF USEINLINE}inline;{$ENDIF}
+function IsAlpha(const AChar: Char): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := ((AChar >= 'a') and (AChar <= 'z')) or ((AChar >= 'A') and (AChar <= 'Z')); {Do not Localize}
@@ -1802,7 +1836,8 @@ begin
   end;
 end;
 
-function IsAlphaNumeric(const AChar: Char): Boolean; {$IFDEF USEINLINE}inline;{$ENDIF}
+function IsAlphaNumeric(const AChar: Char): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   // Do not use IsCharAlpha or IsCharAlphaNumeric - they are Win32 routines
   Result := IsAlpha(AChar) or IsNumeric(AChar);
@@ -1823,7 +1858,8 @@ begin
   end;
 end;
 
-function IsOctal(const AChar: Char): Boolean; overload; {$IFDEF USEINLINE}inline;{$ENDIF}
+function IsOctal(const AChar: Char): Boolean; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := (AChar >= '0') and (AChar <= '7') {Do not Localize}
 end;
@@ -1844,6 +1880,7 @@ begin
 end;
 
 function IsHexidecimal(const AChar: Char): Boolean; overload;  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := ((AChar >= '0') and (AChar <= '9')) {Do not Localize}
    or ((AChar >= 'A') and (AChar <= 'F')) {Do not Localize}
@@ -1899,7 +1936,6 @@ begin
   end;
 end;
 
-{$IFNDEF DOTNET}
 function IPv4MakeCardInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 //Note that this function is only for stripping off some extra bits
@@ -1913,7 +1949,6 @@ begin
     Result := Lo(AInt and POWER_1);
   end;
 end;
-{$ENDIF}
 
 function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
 var
@@ -2173,18 +2208,30 @@ begin
   SetLength(Result, Length(Result) - 1);
 end;
 
-function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;
+function IPv6ToIdIPv6Address(const AIPAddress : String; var VErr : Boolean): TIdIPv6Address;
 var
-  LAddress:string;
-  i:integer;
+  LAddress : String;
+  i : Integer;
 begin
   LAddress := MakeCanonicalIPv6Address(AIPAddress);
-  if LAddress='' then
+  VErr := LAddress='';
+  if VErr then
   begin
-    raise EIdInvalidIPv6Address.Create(Format(RSInvalidIPv6Address,[AIPAddress]));
+    Exit;
   end;
   for i := 0 to 7 do begin
     Result[i]:=IndyStrToInt('$'+fetch(LAddress,':'),0);
+  end;
+end;
+
+function IPv6ToIdIPv6Address(const AIPAddress: String): TIdIPv6Address;
+var
+  LErr : Boolean;
+begin
+  Result := IPv6ToIdIPv6Address(AIPaddress,LErr);
+  if LErr then
+  begin
+    raise EIdInvalidIPv6Address.Create(Format(RSInvalidIPv6Address,[AIPAddress]));
   end;
 end;
 
@@ -2257,6 +2304,7 @@ end;
 
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal): Cardinal;
 {$IFDEF DOTNET}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AStartPos = 0 then begin
     AStartPos := 1;
@@ -2323,14 +2371,16 @@ begin
 end;
 {$ENDIF}
 
-function SBPos(const Substr, S: string): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
+function SBPos(const Substr, S: string): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 // Necessary because of "Compiler magic"
 begin
   Result := Pos(Substr, S);
 end;
 
 {$IFNDEF DOTNET}
-function AnsiPos(const Substr, S: string): Integer; {$IFDEF USEINLINE}inline;{$ENDIF}
+function AnsiPos(const Substr, S: string): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := AnsiPos(Substr, S);
 end;
@@ -2616,6 +2666,7 @@ end;
 {$ENDIF}
 
 procedure ToDo;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   EIdException.Toss('To do item undone.'); {do not localize}
 end;
@@ -2668,6 +2719,7 @@ const
 //Delphi5 does not have TFormatSettings
 //this should be changed to a singleton?
 function GetEnglishSetting: TFormatSettings;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result.CurrencyFormat := $00; // 0 = '$1'
   Result.NegCurrFormat := $00; //0 = '($1)'
@@ -2734,7 +2786,7 @@ end;
 {$ENDIF}
 
 function IndyFormat(const AFormat: string;
-  const Args: array of const): string; 
+  const Args: array of const): string;
 begin
   {$IFDEF VCL7ORABOVE}
   Result := Format(AFormat, Args, GetEnglishSetting);
@@ -2875,7 +2927,8 @@ begin
 end;
 
 function ReplaceOnlyFirst(const S, OldPattern,
-  NewPattern: string): string; {$IFDEF USEINLINE}inline;{$ENDIF}
+  NewPattern: string): string;
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
    Result := SysUtils.StringReplace(s,OldPattern,NewPattern,[]);
 end;
@@ -3158,6 +3211,7 @@ end;
 
 {$IFNDEF DOTNET}
 procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(Bytes) >= ASize);
   Move(AValue, Bytes[0], ASize);
@@ -3278,6 +3332,7 @@ begin
 end;
 
 function BytesToCardinal(const AValue: TIdBytes; const AIndex: Integer = 0): Cardinal;
+ {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Assert(Length(AValue) >= (AIndex+SizeOf(Cardinal)));
   {$IFDEF DOTNET}
