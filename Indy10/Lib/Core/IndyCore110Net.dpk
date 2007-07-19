@@ -26,9 +26,10 @@ package IndyCore110Net;
 {$IMPLICITBUILD OFF}
 
 requires
-Borland.Delphi,
-Borland.VclRtl,
-  IndySystem110Net;
+  Borland.Delphi,
+  Borland.VclRtl,
+  IndySystem110Net,
+  System.Drawing;
 
 contains
   IdAssignedNumbers in 'IdAssignedNumbers.pas',
@@ -89,6 +90,7 @@ contains
   IdUDPClient in 'IdUDPClient.pas',
   IdUDPServer in 'IdUDPServer.pas',
   IdYarn in 'IdYarn.pas';
+
 {$I IdCore90ASM90.inc}
 
 end.
