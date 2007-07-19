@@ -137,6 +137,7 @@ type
   // from TIdComponent instead as it introduces OnWork, OnStatus, etc.
   TIdBaseComponent = class(TIdInitializerComponent)
   protected
+    function GetIndyVersion: string;
     property IsLoading: Boolean read GetIsLoading;
     property IsDesignTime: Boolean read GetIsDesignTime;
   public
@@ -145,9 +146,7 @@ type
     {$IFNDEF DotNet}
     constructor Create(AOwner: TComponent); reintroduce; overload;
     {$ENDIF}
-    function GetVersion: string;
-    //
-    property Version: string read GetVersion;
+    property Version: string read GetIndyVersion;
   published
   end;
 
@@ -304,7 +303,7 @@ end;
 {$ENDIF}
 
 
-function TIdBaseComponent.GetVersion: string;
+function TIdBaseComponent.GetIndyVersion: string;
 begin
   Result := gsIdVersion;
 end;
