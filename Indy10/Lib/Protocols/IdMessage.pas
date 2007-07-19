@@ -1248,7 +1248,7 @@ end;
 procedure TIdMessage.SetAttachmentTempDirectory(const Value: string);
 begin
   if Value <> AttachmentTempDirectory then begin
-    FAttachmentTempDirectory := ExcludeTrailingPathDelimiter(Value);
+    FAttachmentTempDirectory := IndyExcludeTrailingPathDelimiter(Value);
   end;
 end;
 
