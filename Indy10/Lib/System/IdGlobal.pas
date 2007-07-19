@@ -3661,7 +3661,8 @@ begin
   {$ENDIF}
 end;
 
-function IndyCompareStr(const A1: string; const A2: string): Integer;  inline;
+function IndyCompareStr(const A1: string; const A2: string): Integer;  
+{$IFDEF USEINLINE}inline;{$ENDIF}
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
