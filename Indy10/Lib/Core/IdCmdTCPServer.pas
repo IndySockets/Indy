@@ -153,13 +153,13 @@ unit IdCmdTCPServer;
 interface
 
 uses
+  Classes,
   IdCommandHandlers,
   IdContext,
   IdIOHandler,
   IdReply,
-  IdSys,
   IdTCPServer,
-  IdObjs;
+  SysUtils;
 
 type
   TIdCmdTCPServer = class;
@@ -258,13 +258,13 @@ end;
 destructor TIdCmdTCPServer.Destroy;
 begin
   inherited Destroy;
-  Sys.FreeAndNil(FReplyUnknownCommand);
-  Sys.FreeAndNil(FReplyTexts);
-  Sys.FreeAndNil(FMaxConnectionReply);
-  Sys.FreeAndNil(FHelpReply);
-  Sys.FreeAndNil(FGreeting);
-  Sys.FreeAndNil(FExceptionReply);
-  Sys.FreeAndNil(FCommandHandlers);
+  FreeAndNil(FReplyUnknownCommand);
+  FreeAndNil(FReplyTexts);
+  FreeAndNil(FMaxConnectionReply);
+  FreeAndNil(FHelpReply);
+  FreeAndNil(FGreeting);
+  FreeAndNil(FExceptionReply);
+  FreeAndNil(FCommandHandlers);
 end;
 
 procedure TIdCmdTCPServer.DoAfterCommandHandler(ASender: TIdCommandHandlers;
@@ -314,12 +314,12 @@ procedure TIdCmdTCPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: str
 var
   LReply: TIdReply;
 begin
-  LReply := FReplyClass.Create(nil, ReplyTexts); try
+  LReply := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts); try
     LReply.Assign(ReplyUnknownCommand);
     LReply.Text.Add(ALine);
     AContext.Connection.IOHandler.Write(LReply.FormattedReply);
   finally
-    Sys.FreeAndNil(LReply);
+    FreeAndNil(LReply);
   end;
 end;
 
@@ -341,7 +341,7 @@ begin
         LGreeting.Assign(Greeting);           // and that changes the reply object, so we have to
         SendGreeting(AContext, LGreeting);    // clone it to make it thread-safe
       finally
-        Sys.FreeAndNil(LGreeting);
+        FreeAndNil(LGreeting);
       end;
     end;
   end;
@@ -357,8 +357,8 @@ end;
 procedure TIdCmdTCPServer.SetActive(AValue: Boolean);
 var
   i, j: Integer;
-  LDescr: TIdStrings;
-  LHelpList: TIdStringList;
+  LDescr: TStrings;
+  LHelpList: TStringList;
   LHandler: TIdCommandHandler;
 begin
   if (not IsDesignTime) and (not IsLoading)
@@ -373,7 +373,7 @@ begin
         Command := 'Help'; {do not localize}
         Description.Text := 'Displays commands that the servers supports.'; {do not localize}
         NormalReply.Assign(HelpReply);
-        LHelpList := TIdStringList.Create; try
+        LHelpList := TStringList.Create; try
           for i := 0 to CommandHandlers.Count - 1 do begin
             LHandler := CommandHandlers.Items[i];
             if LHandler.HelpVisible then
@@ -391,7 +391,7 @@ begin
             Response.Add('');
           end;
         finally
-          Sys.FreeAndNil(LHelpList);
+          FreeAndNil(LHelpList);
         end;
       end;
     end;
@@ -406,7 +406,7 @@ end;
 
 function TIdCmdTCPServer.CreateExceptionReply: TIdReply;
 begin
-  Result := FReplyClass.Create(nil, ReplyTexts);
+  Result := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(500, 'Unknown Internal Error'); {do not localize}
 end;
 
@@ -425,7 +425,7 @@ end;
 
 function TIdCmdTCPServer.CreateGreeting: TIdReply;
 begin
-  Result := FReplyClass.Create(nil, ReplyTexts);
+  Result := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(200, 'Welcome'); {do not localize}
 end;
 
@@ -444,7 +444,7 @@ end;
 
 function TIdCmdTCPServer.CreateHelpReply: TIdReply;
 begin
-  Result := FReplyClass.Create(nil, ReplyTexts);
+  Result := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(100, 'Help follows'); {do not localize}
 end;
 
@@ -463,7 +463,7 @@ end;
 
 function TIdCmdTCPServer.CreateMaxConnectionReply: TIdReply;
 begin
-  Result := FReplyClass.Create(nil, ReplyTexts);
+  Result := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(300, 'Too many connections. Try again later.'); {do not localize}
 end;
 
@@ -482,7 +482,7 @@ end;
 
 function TIdCmdTCPServer.CreateReplyUnknownCommand: TIdReply;
 begin
-  Result := FReplyClass.Create(nil, ReplyTexts);
+  Result := FReplyClass.CreateWithReplyTexts(nil, ReplyTexts);
   Result.SetReply(400, 'Unknown Command'); {do not localize}
 end;
 

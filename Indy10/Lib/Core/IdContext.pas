@@ -67,8 +67,8 @@ unit IdContext;
 interface
 
 uses
-  IdObjs,
-  IdSocketHandle, IdSys, IdTCPConnection, IdTask, IdYarn;
+  Classes,
+  IdSocketHandle, IdTCPConnection, IdTask, IdYarn, SysUtils;
 
 type
   TIdContext = class;
@@ -81,7 +81,7 @@ type
   protected
     // A list in which this context is registered, this can be nil, and should
     // therefore not be used
-    FContextList: TIdThreadList;
+    FContextList: TThreadList;
     FConnection: TIdTCPConnection;
     FOwnsConnection: Boolean;
     FOnRun: TIdContextRun;
@@ -97,7 +97,7 @@ type
     constructor Create(
       AConnection: TIdTCPConnection;
       AYarn: TIdYarn;
-      AList: TIdThreadList = nil
+      AList: TThreadList = nil
       ); reintroduce; virtual;
     destructor Destroy; override;
     procedure RemoveFromList;
@@ -119,7 +119,7 @@ uses
   IdGlobal,
   IdIOHandlerSocket;
 
-constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TIdThreadList = nil);
+constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
 begin
   inherited Create(AYarn);
   FConnection := AConnection;
@@ -134,7 +134,7 @@ begin
   end;
 
   if FOwnsConnection then begin
-    Sys.FreeAndNil(FConnection);
+    FreeAndNil(FConnection);
   end;
 
   inherited Destroy;

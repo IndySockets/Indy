@@ -71,29 +71,24 @@ type
   TIdIPAddress = class(TObject)
   protected
     FIPv4 : Cardinal;
-    FIPv6 : TIdIPv6Address;
     FAddrType : TIdIPVersion;
-    class function IPv4MakeCardInRange(const AInt : Int64; const A256Power : Integer) : Cardinal;
     //general conversion stuff
-    class function IPv6ToIdIPv6Address(const AIPAddress : String; var VErr : Boolean) : TIdIPv6Address;
-    class function IPv4ToCardinal(const AIPAddress : String; var VErr : Boolean) : Cardinal;
-    class function MakeCanonicalIPv6Address(const AAddr: string): string;
-    class function MakeCanonicalIPv4Address(const AAddr: string): string;
     //property as String Get methods
     function GetIPv4AsString : String;
     function GetIPv6AsString : String;
     function GetIPAddress : String;
   public
+    //We can't make this into a property for C++Builder
+    IPv6 : TIdIPv6Address;
     constructor Create; virtual;
     class function MakeAddressObject(const AIP : String) : TIdIPAddress; overload;
     class function MakeAddressObject(const AIP : String; const AIPVersion: TIdIPVersion) : TIdIPAddress; overload;
     function CompareAddress(const AIP : String; var VErr : Boolean) : Integer;
     function HToNBytes: TIdBytes;
+
     property IPv4 : Cardinal read FIPv4 write FIPv4;
     property IPv4AsString : String read GetIPv4AsString;
-    {$IFNDEF BCB}
   //  property IPv6 : TIdIPv6Address read FIPv6 write FIPv6;
-    {$ENDIF}
     property IPv6AsString : String read GetIPv6AsString;
     property AddrType : TIdIPVersion read FAddrType write FAddrType;
     property IPAsString : String read GetIPAddress;
@@ -182,7 +177,7 @@ begin
           Result := CompareCardinal(FIPv4, LIP2.FIPv4);
         end else begin
           for I := 0 to 7 do begin
-            Result := CompareWord(FIPv6[i], LIP2.FIPv6[i]);
+            Result := CompareWord(IPv6[i], LIP2.IPv6[i]);
             if Result <> 0 then begin
               Break;
             end;
@@ -211,7 +206,7 @@ begin
   end else begin
     SetLength(Result, 16);
     for I := 0 to 7 do begin
-      CopyTIdWord(GStack.HostToNetwork(FIPv6[i]), Result, 2*I);
+      CopyTIdWord(GStack.HostToNetwork(IPv6[i]), Result, 2*I);
     end;
   end;
 end;
@@ -237,101 +232,18 @@ begin
   end;
 end;
 
+
 function TIdIPAddress.GetIPv6AsString: String;
 var
   I: Integer;
 begin
   if FAddrType = Id_IPv6 then begin
-    Result :=IntToHex(FIPv6[0], 4);
+    Result :=IntToHex(IPv6[0], 4);
     for i := 1 to 7 do begin
-      Result := Result + ':' + IntToHex(FIPv6[i], 4);
+      Result := Result + ':' + IntToHex(IPv6[i], 4);
     end;
   end else begin
     Result := '';
-  end;
-end;
-
-class function TIdIPAddress.IPv4MakeCardInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
-begin
-  case A256Power of
-    4 : Result := (AInt and POWER_4);
-    3 : Result := (AInt and POWER_3);
-    2 : Result := (AInt and POWER_2);
-  else
-    Result := (AInt and POWER_1);
-  end;
-end;
-
-class function TIdIPAddress.IPv4ToCardinal(const AIPAddress: String; var VErr: Boolean): Cardinal;
-var
-  LBuf, LBuf2 : String;
-  L256Power : Integer;
-  LParts : Integer; //how many parts should we process at a time
-begin
-  // S.G. 11/8/2003: Added overflow checking disabling and change multiplys by SHLs.
-  // Locally disable overflow checking so we can safely use SHL and SHR
-  {$ifopt Q+} // detect previous setting
-  {$define _QPlusWasEnabled}
-  {$Q-}
-  {$endif}
-  VErr := True;
-  L256Power := 4;
-  LBuf2 := AIPAddress;
-  Result := 0;
-  repeat
-    LBuf := Fetch(LBuf2, '.');
-    if LBuf = '' then begin
-      Break;
-    end;
-    //We do things this way because we have to treat
-    //IP address parts differently than a whole number
-    //and sometimes, there can be missing periods.
-    if (LBuf2 = '') and (L256Power > 1) then begin
-      LParts := L256Power;
-      Result := Result shl (L256Power SHL 3);
-    end else begin
-      LParts := 1;
-      Result := Result shl 8;
-    end;
-    if TextStartsWith(LBuf, HEXPREFIX) then begin
-      //this is a hexideciaml number
-      if not IsHexidecimal(Copy(LBuf, 3, MaxInt)) then begin
-        Exit;
-      end;
-      Result :=  Result + IPv4MakeCardInRange(IndyStrToInt64(LBuf, 0), LParts);
-    end else begin
-      if not IsNumeric(LBuf) then begin
-        Exit;
-      end;
-      if (LBuf[1] = '0') and IsOctal(LBuf) then begin
-        //this is octal
-        Result := Result + IPv4MakeCardInRange(OctalToInt64(LBuf), LParts);
-      end else begin
-        //this must be a decimal
-        Result :=  Result + IPv4MakeCardInRange(IndyStrToInt64(LBuf, 0), LParts);
-      end;
-    end;
-    Dec(L256Power);
-  until False;
-  VErr := False;
-  // Restore overflow checking
-  {$ifdef _QPlusWasEnabled} // detect previous setting
-  {$undef _QPlusWasEnabled}
-  {$Q-}
-  {$endif}
-end;
-
-class function TIdIPAddress.IPv6ToIdIPv6Address(const AIPAddress: String; var VErr: Boolean): TIdIPv6Address;
-var
-  LAddress: string;
-  I: Integer;
-begin
-  LAddress := MakeCanonicalIPv6Address(AIPAddress);
-  VErr := (LAddress = '');
-  if not VErr then begin
-    for I := 0 to 7 do begin
-      Result[I] := IndyStrToInt('$' + Fetch(LAddress, ':'), 0);
-    end;
   end;
 end;
 
@@ -341,12 +253,12 @@ var
 begin
   Result := TIdIPAddress.Create;
   try
-    Result.FIPv6 := Result.IPv6ToIdIPv6Address(AIP, LErr);
+    Result.IPv6 := IPv6ToIdIPv6Address(AIP, LErr);
     if not LErr then begin
       Result.FAddrType := Id_IPv6;
       Exit;
     end;
-    Result.FIPv4 := Result.IPv4ToCardinal(AIP, LErr);
+    Result.FIPv4 := IPv4ToDWord(AIP, LErr);
     if not LErr then begin
       Result.FAddrType := Id_IPv4;
       Exit;
@@ -368,7 +280,7 @@ begin
     case AIPVersion of
       Id_IPV4:
         begin
-          Result.FIPv4 := Result.IPv4ToCardinal(AIP, LErr);
+          Result.FIPv4 := IPv4ToDWord(AIP, LErr);
           if not LErr then begin
             Result.FAddrType := Id_IPv4;
             Exit;
@@ -376,7 +288,7 @@ begin
         end;
       Id_IPv6:
         begin
-          Result.FIPv6 := Result.IPv6ToIdIPv6Address(AIP, LErr);
+          Result.IPv6 := IPv6ToIdIPv6Address(AIP, LErr);
           if not LErr then begin
             Result.FAddrType := Id_IPv6;
             Exit;
@@ -389,169 +301,6 @@ begin
     FreeAndNil(Result);
     raise;
   end;
-end;
-
-class function TIdIPAddress.MakeCanonicalIPv4Address(const AAddr: string): string;
-var
-  LErr : Boolean;
-  LIP : Cardinal;
-begin
-  LIP := IPv4ToDWord(AAddr, LErr);
-  if not LErr then begin
-    Result := MakeDWordIntoIPv4Address(LIP);
-  end else begin
-    Result := '';
-  end;
-end;
-
-class function TIdIPAddress.MakeCanonicalIPv6Address(const AAddr: string): string;
-// return an empty string if the address is invalid,
-// for easy checking if its an address or not.
-var
-  p, i: integer;
-  dots, colons: integer;
-  colonpos: array[1..8] of integer;
-  dotpos: array[1..3] of integer;
-  LAddr: string;
-  num: integer;
-  haddoublecolon: boolean;
-  fillzeros: integer;
-begin
-  Result := ''; // error
-  LAddr := AAddr;
-  if Length(LAddr) = 0 then begin
-    Exit;
-  end;
-  if LAddr[1] = ':' then begin
-    LAddr := '0' + LAddr;
-  end;
-  if LAddr[Length(LAddr)] = ':' then begin
-    LAddr := LAddr + '0';
-  end;
-  dots := 0;
-  colons := 0;
-  for p := 1 to Length(LAddr) do begin
-    case LAddr[p] of
-      '.' :
-        begin
-          Inc(dots);
-          if dots < 4 then begin
-            dotpos[dots] := p;
-          end else begin
-            Exit; // error in address
-          end;
-        end;
-      ':' :
-        begin
-          Inc(colons);
-          if colons < 8 then begin
-            colonpos[colons] := p;
-          end else begin
-            Exit; // error in address
-          end;
-        end;
-      'a'..'f', 'A'..'F':
-        begin
-          if dots > 0 then begin
-            Exit;
-          end;
-          // allow only decimal stuff within dotted portion, ignore otherwise
-        end;
-      '0'..'9':
-        begin
-          // do nothing
-        end;
-      else
-        begin
-          Exit; // error in address
-        end;
-    end;
-  end;
-  if not (dots in [0, 3]) then begin
-    Exit; // you have to write 0 or 3 dots...
-  end;
-  if dots = 3 then begin
-    if not (colons in [2..6]) then begin
-      Exit; // must not have 7 colons if we have dots
-    end;
-    if colonpos[colons] > dotpos[1] then begin
-      Exit; // x:x:x.x:x:x is not valid
-    end;
-  end else if not (colons in [2..7]) then begin
-    Exit; // must at least have two colons
-  end;
-
-  // now start :-)
-  num := IndyStrToInt('$' + Copy(LAddr, 1, colonpos[1]-1), -1);
-  if (num < 0) or (num > 65535) then begin
-    Exit; // huh? odd number...
-  end;
-  Result := IntToHex(num, 1) + ':';
-
-  haddoublecolon := False;
-  for p := 2 to colons do begin
-    if colonpos[p-1] = (colonpos[p]-1) then begin
-      if haddoublecolon then begin
-        Result := '';
-        Exit; // only a single double-dot allowed!
-      end;
-      haddoublecolon := True;
-      fillzeros := 8 - colons;
-      if dots > 0 then begin
-        Dec(fillzeros, 2);
-      end;
-      for i := 1 to fillzeros do begin
-        Result := Result + '0:'; {do not localize}
-      end;
-    end else begin
-      num := IndyStrToInt('$' + Copy(LAddr, colonpos[p-1]+1, colonpos[p]-colonpos[p-1]-1), -1);
-      if (num < 0) or (num > 65535) then begin
-        Result := '';
-        Exit; // huh? odd number...
-      end;
-      Result := Result + IntToHex(num, 1) + ':';
-    end;
-  end; // end of colon separated part
-
-  if dots = 0 then begin
-    num := IndyStrToInt('$' + Copy(LAddr, colonpos[colons]+1, MaxInt), -1);
-    if (num < 0) or (num > 65535) then begin
-      Result := '';
-      Exit; // huh? odd number...
-    end;
-    Result := Result + IntToHex(num, 1) + ':';
-  end;
-
-  if dots > 0 then begin
-    num := IndyStrToInt(Copy(LAddr, colonpos[colons]+1, dotpos[1]-colonpos[colons]-1), -1);
-    if (num < 0) or (num > 255) then begin
-      Result := '';
-      Exit;
-    end;
-    Result := Result + IntToHex(num, 2);
-
-    num := IndyStrToInt(Copy(LAddr, dotpos[1]+1, dotpos[2]-dotpos[1]-1), -1);
-    if (num < 0) or (num > 255) then begin
-      Result := '';
-      Exit;
-    end;
-    Result := Result + IntToHex(num, 2) + ':';
-
-    num := IndyStrToInt(Copy(LAddr, dotpos[2]+1, dotpos[3]-dotpos[2]-1), -1);
-    if (num < 0) or (num > 255) then begin
-      Result := '';
-      Exit;
-    end;
-    Result := Result + IntToHex(num, 2);
-
-    num := IndyStrToInt(Copy(LAddr, dotpos[3]+1, 3), -1);
-    if (num < 0) or (num > 255) then begin
-      Result := '';
-      Exit;
-    end;
-    Result := Result + IntToHex(num, 2) + ':';
-  end;
-  SetLength(Result, Length(Result)-1);
 end;
 
 end.

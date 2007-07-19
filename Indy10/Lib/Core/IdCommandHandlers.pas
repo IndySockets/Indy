@@ -140,8 +140,9 @@ unit IdCommandHandlers;
 interface
 
 uses
+  Classes,
   IdBaseComponent, IdComponent, IdReply, IdGlobal,
-  IdContext, IdReplyRFC, IdSys, IdObjs;
+  IdContext, IdReplyRFC;
 
 const
   IdEnabledDefault = True;
@@ -162,12 +163,12 @@ type
   TIdCommandHandlersExceptionEvent = procedure(ACommand: String; AContext: TIdContext) of object;
 
   { TIdCommandHandler }
-  TIdCommandHandler = class(TIdCollectionItem)
+  TIdCommandHandler = class(TCollectionItem)
   protected
     FCmdDelimiter: Char;
     FCommand: string;
     FData: TObject;
-    FDescription: TIdStrings;
+    FDescription: TStrings;
     FDisconnect: boolean;
     FEnabled: boolean;
     FExceptionReply: TIdReply;
@@ -179,19 +180,19 @@ type
     FParamDelimiter: Char;
     FParseParams: Boolean;
     FReplyClass : TIdReplyClass;
-    FResponse: TIdStrings;
+    FResponse: TStrings;
     FTag: integer;
     //
     function GetDisplayName: string; override;
-    procedure SetDescription(AValue: TIdStrings);
+    procedure SetDescription(AValue: TStrings);
     procedure SetExceptionReply(AValue: TIdReply);
     procedure SetNormalReply(AValue: TIdReply);
-    procedure SetResponse(AValue: TIdStrings);
+    procedure SetResponse(AValue: TStrings);
   public
     function Check(AData: string; AContext: TIdContext): boolean; virtual;
     procedure DoCommand(AData: string; AContext: TIdContext; AUnparsedParams: string); virtual;
     constructor Create(
-      ACollection: TIdCollection
+      ACollection: TCollection
       ); override;
     destructor Destroy; override;
 //    function GetNamePath: string; override;
@@ -201,7 +202,7 @@ type
   published
     property CmdDelimiter: Char read FCmdDelimiter write FCmdDelimiter;
     property Command: string read FCommand write FCommand;
-    property Description: TIdStrings read FDescription write SetDescription;
+    property Description: TStrings read FDescription write SetDescription;
     property Disconnect: boolean read FDisconnect write FDisconnect;
     property Enabled: boolean read FEnabled write FEnabled default IdEnabledDefault;
     property ExceptionReply: TIdReply read FExceptionReply write SetExceptionReply;
@@ -209,7 +210,7 @@ type
     property NormalReply: TIdReply read FNormalReply write SetNormalReply;
     property ParamDelimiter: Char read FParamDelimiter write FParamDelimiter;
     property ParseParams: Boolean read FParseParams write FParseParams default IdParseParamsDefault;
-    property Response: TIdStrings read FResponse write SetResponse;
+    property Response: TStrings read FResponse write SetResponse;
     property Tag: Integer read FTag write FTag;
     //
     property HelpSuperScript : String read FHelpSuperScript write FHelpSuperScript;  //may be something like * or + which should appear in help
@@ -221,7 +222,7 @@ type
   TIdCommandHandlerClass = class of TIdCommandHandler;
 
   { TIdCommandHandlers }
-  TIdCommandHandlers = class(TIdOwnedCollection)
+  TIdCommandHandlers = class(TOwnedCollection)
   protected
     FBase: TIdComponent;
     FExceptionReply: TIdReply;
@@ -271,22 +272,22 @@ type
   end;
 
   { TIdCommand }
-  TIdCommand = class(TIdBaseObject)
+  TIdCommand = class(TObject)
   protected
     FCommandHandler: TIdCommandHandler;
     FDisconnect: Boolean;
-    FParams: TIdStrings;
+    FParams: TStrings;
     FPerformReply: Boolean;
     FRawLine: string;
     FReply: TIdReply;
-    FResponse: TIdStrings;
+    FResponse: TStrings;
     FContext: TIdContext;
     FUnparsedParams: string;
     FSendEmptyResponse: Boolean;
     //
     procedure DoCommand; virtual;
     procedure SetReply(AValue: TIdReply);
-    procedure SetResponse(AValue: TIdStrings);
+    procedure SetResponse(AValue: TStrings);
   public
     constructor Create(AOwner: TIdCommandHandler); virtual;
     destructor Destroy; override;
@@ -295,16 +296,18 @@ type
     property CommandHandler: TIdCommandHandler read FCommandHandler;
     property Disconnect: Boolean read FDisconnect write FDisconnect;
     property PerformReply: Boolean read FPerformReply write FPerformReply;
-    property Params: TIdStrings read FParams;
+    property Params: TStrings read FParams;
     property RawLine: string read FRawLine;
     property Reply: TIdReply read FReply write SetReply;
-    property Response: TIdStrings read FResponse write SetResponse;
+    property Response: TStrings read FResponse write SetResponse;
     property Context: TIdContext read FContext;
     property UnparsedParams: string read FUnparsedParams;
     property SendEmptyResponse: Boolean read FSendEmptyResponse write FSendEmptyResponse;
   end;//TIdCommand
 
 implementation
+uses SysUtils;
+
 { TIdCommandHandlers }
 
 constructor TIdCommandHandlers.Create(
@@ -519,7 +522,7 @@ begin
 end;
 
 constructor TIdCommandHandler.Create(
-  ACollection: TIdCollection
+  ACollection: TCollection
   );
 begin
   inherited Create(ACollection);
@@ -531,27 +534,27 @@ begin
 
   FCmdDelimiter := #32;
   FEnabled := IdEnabledDefault;
-  FName := ClassName + Sys.IntToStr(ID);
+  FName := ClassName + IntToStr(ID);
   FParamDelimiter := #32;
   FParseParams := IdParseParamsDefault;
-  FResponse := TIdStringList.Create;
-  FDescription := TIdStringList.Create;
+  FResponse := TStringList.Create;
+  FDescription := TStringList.Create;
 
-  FNormalReply := FReplyClass.Create(nil, TIdCommandHandlers(ACollection).ReplyTexts);
+  FNormalReply := FReplyClass.CreateWithReplyTexts(nil, TIdCommandHandlers(ACollection).ReplyTexts);
   if FNormalReply is TIdReplyRFC then begin
     FNormalReply.Code := '200'; {do not localize}
   end;
   FHelpVisible := IdHelpVisibleDef;
   // Dont initialize, pulls from CmdTCPServer for defaults
-  FExceptionReply := FReplyClass.Create(nil, TIdCommandHandlers(ACollection).ReplyTexts);
+  FExceptionReply := FReplyClass.CreateWithReplyTexts(nil, TIdCommandHandlers(ACollection).ReplyTexts);
 end;
 
 destructor TIdCommandHandler.Destroy;
 begin
-  Sys.FreeAndNil(FResponse);
-  Sys.FreeAndNil(FNormalReply);
-  Sys.FreeAndNil(FDescription);
-  Sys.FreeAndNil(FExceptionReply);
+  FreeAndNil(FResponse);
+  FreeAndNil(FNormalReply);
+  FreeAndNil(FDescription);
+  FreeAndNil(FExceptionReply);
   inherited Destroy;
 end;
 
@@ -591,12 +594,12 @@ begin
   FNormalReply.Assign(AValue);
 end;
 
-procedure TIdCommandHandler.SetResponse(AValue: TIdStrings);
+procedure TIdCommandHandler.SetResponse(AValue: TStrings);
 begin
   FResponse.Assign(AValue);
 end;
 
-procedure TIdCommandHandler.SetDescription(AValue: TIdStrings);
+procedure TIdCommandHandler.SetDescription(AValue: TStrings);
 begin
   FDescription.Assign(AValue);
 end;
@@ -606,18 +609,18 @@ end;
 constructor TIdCommand.Create(AOwner: TIdCommandHandler);
 begin
   inherited Create;
-  FParams := TIdStringList.Create;
-  FReply := AOwner.FReplyClass.Create(nil, TIdCommandHandlers(AOwner.Collection).ReplyTexts);
-  FResponse := TIdStringList.Create;
+  FParams := TStringList.Create;
+  FReply := AOwner.FReplyClass.CreateWithReplyTexts(nil, TIdCommandHandlers(AOwner.Collection).ReplyTexts);
+  FResponse := TStringList.Create;
   FCommandHandler := AOwner;
   FDisconnect := AOwner.Disconnect;
 end;
 
 destructor TIdCommand.Destroy;
 begin
-  Sys.FreeAndNil(FReply);
-  Sys.FreeAndNil(FResponse);
-  Sys.FreeAndNil(FParams);
+  FreeAndNil(FReply);
+  FreeAndNil(FResponse);
+  FreeAndNil(FParams);
   inherited Destroy;
 end;
 
@@ -640,7 +643,7 @@ begin
   FReply.Assign(AValue);
 end;
 
-procedure TIdCommand.SetResponse(AValue: TIdStrings);
+procedure TIdCommand.SetResponse(AValue: TStrings);
 begin
   FResponse.Assign(AValue);
 end;

@@ -105,8 +105,7 @@ uses
   IdResourceStringsCore,
   IdThread,
   IdTCPClient,
-  IdCommandHandlers,
-  IdObjs;
+  IdCommandHandlers;
 
 type
   TIdCmdTCPClient = class;
@@ -167,7 +166,7 @@ type
 
 implementation
 
-uses IdReplyRFC, IdSys;
+uses IdReplyRFC, SysUtils;
 
 type
 
@@ -188,7 +187,7 @@ end;
 destructor TIdCmdTCPClientListeningThread.Destroy;
 begin
   inherited Destroy;
-  Sys.FreeAndNil(FContext);
+  FreeAndNil(FContext);
 end;
 
 procedure TIdCmdTCPClientListeningThread.Run;
@@ -203,8 +202,8 @@ end;
 
 destructor TIdCmdTCPClient.Destroy;
 begin
-  Sys.FreeAndNil(FExceptionReply);
-  Sys.FreeAndNil(FCommandHandlers);
+  FreeAndNil(FExceptionReply);
+  FreeAndNil(FCommandHandlers);
   inherited Destroy;
 end;
 
@@ -231,7 +230,7 @@ begin
     if Assigned(FListeningThread) then begin
       FListeningThread.WaitFor;
     end;
-    Sys.FreeAndNil(FListeningThread);
+    FreeAndNil(FListeningThread);
   end;
 end;
 

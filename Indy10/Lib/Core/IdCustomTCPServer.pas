@@ -252,12 +252,13 @@ unit IdCustomTCPServer;
 interface
 
 uses
-  IdObjs, IdBaseComponent, 
+  Classes,
+  IdBaseComponent, 
   IdComponent,IdContext, IdGlobal, IdException,
   IdIntercept, IdIOHandler, IdIOHandlerStack,
   IdReply, IdScheduler, IdSchedulerOfThread, IdServerIOHandler,
-  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdSys, IdTCPConnection,
-  IdThread, IdYarn;
+  IdServerIOHandlerStack, IdSocketHandle, IdStackConsts, IdTCPConnection,
+  IdThread, IdYarn, SysUtils;
 
 const
   IdListenQueueDefault = 15;
@@ -298,18 +299,18 @@ type
     FImplicitIOHandler: Boolean;
     FIntercept: TIdServerIntercept;
     FIOHandler: TIdServerIOHandler;
-    FListenerThreads: TIdThreadList;
+    FListenerThreads: TThreadList;
     FListenQueue: integer;
     FMaxConnections: Integer;
     FReuseSocket: TIdReuseSocket;
     FTerminateWaitTime: Integer;
-    FContexts: TIdThreadList;
+    FContexts: TThreadList;
     FOnConnect: TIdServerThreadEvent;
     FOnDisconnect: TIdServerThreadEvent;
     FOnException: TIdServerThreadExceptionEvent;
     FOnExecute: TIdServerThreadEvent;
     FOnListenException: TIdListenExceptionEvent;
-    FOnAfterBind: TIdNotifyEvent;
+    FOnAfterBind: TNotifyEvent;
     FOnBeforeListenerRun: TIdNotifyThreadEvent;
     //
     procedure CheckActive;
@@ -329,7 +330,7 @@ type
     function GetDefaultPort: TIdPort;
     procedure InitComponent; override;
     procedure Loaded; override;
-    procedure Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+    procedure Notification(AComponent: TComponent; Operation: TOperation);
      override;
     // This is needed for POP3's APOP authentication.  For that,
     // you send a unique challenge to the client dynamically.
@@ -352,7 +353,7 @@ type
     procedure StartListening;
     procedure StopListening;
     //
-    property Contexts: TIdThreadList read FContexts;
+    property Contexts: TThreadList read FContexts;
     property ContextClass: TIdContextClass read FContextClass write FContextClass;
     property ImplicitIOHandler: Boolean read FImplicitIOHandler;
     property ImplicitScheduler: Boolean read FImplicitScheduler;
@@ -365,7 +366,7 @@ type
     property ListenQueue: integer read FListenQueue write FListenQueue default IdListenQueueDefault;
     property MaxConnections: Integer read FMaxConnections write FMaxConnections default 0;
     // right after binding all sockets
-    property OnAfterBind: TIdNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnBeforeListenerRun: TIdNotifyThreadEvent read FOnBeforeListenerRun write FOnBeforeListenerRun;
     // Occurs in the context of the peer thread
     property OnConnect: TIdServerThreadEvent read FOnConnect write FOnConnect;
@@ -411,17 +412,17 @@ begin
 
   if FIOHandler <> nil then begin
     if FImplicitIOHandler then begin
-      Sys.FreeAndNil(FIOHandler);
+      FreeAndNil(FIOHandler);
     end else begin
       FIOHandler := nil;
     end;
   end;
 
   // Destroy bindings first
-  Sys.FreeAndNil(FBindings);
+  FreeAndNil(FBindings);
   //
-  Sys.FreeAndNil(FContexts);
-  Sys.FreeAndNil(FListenerThreads);
+  FreeAndNil(FContexts);
+  FreeAndNil(FListenerThreads);
   //
   inherited Destroy;
 end;
@@ -517,7 +518,7 @@ begin
   end;
 end;
 
-procedure TIdCustomTCPServer.Notification(AComponent: TIdNativeComponent; Operation: TIdOperation);
+procedure TIdCustomTCPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
   // Remove the reference to the linked components if they are deleted
@@ -588,7 +589,7 @@ begin
     // -Kudzu
     LScheduler := FScheduler;
     FScheduler := nil;
-    Sys.FreeAndNil(LScheduler);
+    FreeAndNil(LScheduler);
     //
     FImplicitScheduler := False;
   end;
@@ -609,7 +610,7 @@ begin
   if FIOHandler <> AValue then begin
     if Assigned(FIOHandler) and FImplicitIOHandler then begin
       FImplicitIOHandler := False;
-      Sys.FreeAndNil(FIOHandler);
+      FreeAndNil(FIOHandler);
     end;
     FIOHandler := AValue;
     if FIOHandler <> nil then begin
@@ -621,7 +622,7 @@ end;
 
 procedure TIdCustomTCPServer.StartListening;
 var
-  LListenerThreads: TIdList;
+  LListenerThreads: TList;
   LListenerThread: TIdListenerThread;
   I: Integer;
 begin
@@ -659,7 +660,7 @@ begin
       Bindings[I].Listen(FListenQueue);
       LListenerThread := TIdListenerThread.Create(Self, Bindings[I]);
       try
-        LListenerThread.Name := Name + ' Listener #' + Sys.IntToStr(I + 1); {do not localize}
+        LListenerThread.Name := Name + ' Listener #' + IntToStr(I + 1); {do not localize}
         LListenerThread.OnBeforeRun := DoBeforeListenerRun;
         //Todo: Implement proper priority handling for Linux
         //http://www.midnightbeach.com/jon/pubs/2002/BorCon.London/Sidebar.3.html
@@ -667,7 +668,7 @@ begin
         LListenerThreads.Add(LListenerThread);
       except
         Bindings[I].CloseSocket;
-        Sys.FreeAndNil(LListenerThread);
+        FreeAndNil(LListenerThread);
         raise;
       end;
       LListenerThread.Start;
@@ -680,7 +681,7 @@ end;
 //APR-011207: for safe-close Ex: SQL Server ShutDown 1) stop listen 2) wait until all clients go out
 procedure TIdCustomTCPServer.StopListening;
 var
-  LListenerThreads: TIdList;
+  LListenerThreads: TList;
 begin
   LListenerThreads := FListenerThreads.LockList;
   try
@@ -754,12 +755,12 @@ procedure TIdCustomTCPServer.InitComponent;
 begin
   inherited InitComponent;
   FBindings := TIdSocketHandles.Create(Self);
-  FContexts := TIdThreadList.Create;
+  FContexts := TThreadList.Create;
   FContextClass := TIdContext;
   //
   FTerminateWaitTime := 5000;
   FListenQueue := IdListenQueueDefault;
-  FListenerThreads := TIdThreadList.Create;
+  FListenerThreads := TThreadList.Create;
   //TODO: When reestablished, use a sleeping thread instead
 //  fSessionTimer := TTimer.Create(self);
 end;
@@ -880,7 +881,7 @@ begin
     if LIOHandler = nil then begin
       // Listening has finished
       Stop;
-      Sys.Abort;
+      Abort;
     end else begin
       // We have accepted the connection and need to handle it
       LPeer := TIdTCPConnection.Create(nil);
@@ -895,7 +896,7 @@ begin
     if (Server.MaxConnections > 0) and (not TIdThreadSafeList(Server.Contexts).IsCountLessThan(Server.MaxConnections)) then begin
       FServer.DoMaxConnectionsExceeded(LIOHandler);
       LPeer.Disconnect;
-      Sys.Abort;
+      Abort;
     end;
 
     // Create and init context
@@ -919,8 +920,8 @@ begin
       if LContext <> nil then begin
         TIdContextAccess(LContext).FOwnsConnection := False;
       end;
-      Sys.FreeAndNil(LContext);
-      Sys.FreeAndNil(LPeer);
+      FreeAndNil(LContext);
+      FreeAndNil(LPeer);
       // Must terminate - likely has not started yet
       if LYarn <> nil then begin
         Server.Scheduler.TerminateYarn(LYarn);

@@ -138,13 +138,15 @@ type
     procedure SetDefaultPort(const AValue: integer);
   public
     destructor Destroy; override;
+    //C+Builder doesn't allow you to publish metaclass properties.
+    property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
+
   published
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
     property DefaultPort: integer read GetDefaultPort write SetDefaultPort;
     property OnUDPRead: TUDPReadEvent read FOnUDPRead write FOnUDPRead;
     property OnUDPException : TIdUDPExceptionEvent read FOnUDPException write FOnUDPException;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
-    property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
   end;
   EIdUDPServerException = class(EIdUDPException);
 
