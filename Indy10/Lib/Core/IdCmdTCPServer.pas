@@ -386,9 +386,9 @@ begin
             Response.Add(LHelpList[i]);
             LDescr := TIdCommandHandler(LHelpList.Objects[i]).Description;
             for j := 0 to LDescr.Count - 1 do begin
-              Response.Add('  ' + LDescr[j]);
+              Response.Add('  ' + LDescr[j]); {do not localize}
             end;
-            Response.Add('');
+            Response.Add(''); {do not localize}
           end;
         finally
           FreeAndNil(LHelpList);
