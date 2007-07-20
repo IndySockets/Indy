@@ -139,10 +139,7 @@ type
     FScheduler: TIdScheduler;
     FThread: TIdThreadWithTask;
   public
-    constructor Create(
-      AScheduler: TIdScheduler;
-      AThread: TIdThreadWithTask
-      ); reintroduce;
+    constructor Create(AScheduler: TIdScheduler; AThread: TIdThreadWithTask); reintroduce;
     destructor Destroy; override;
     //
     property Thread: TIdThreadWithTask read FThread;
@@ -156,30 +153,15 @@ type
     //
     procedure InitComponent; override;
   public
-    destructor Destroy;
-      override;
-    function NewThread
-      : TIdThreadWithTask;
-      virtual;
-    function NewYarn(
-      AThread: TIdThreadWithTask = nil
-      ): TIdYarnOfThread;
-    procedure StartYarn(
-      AYarn: TIdYarn;
-      ATask: TIdTask
-      ); override;
-    procedure TerminateYarn(
-      AYarn: TIdYarn
-      ); override;
-    property ThreadClass:TIdThreadWithTaskClass read FThreadClass write FThreadClass;
+    destructor Destroy; override;
+    function NewThread: TIdThreadWithTask; virtual;
+    function NewYarn(AThread: TIdThreadWithTask = nil): TIdYarnOfThread;
+    procedure StartYarn(AYarn: TIdYarn; ATask: TIdTask); override;
+    procedure TerminateYarn(AYarn: TIdYarn); override;
+    property ThreadClass: TIdThreadWithTaskClass read FThreadClass write FThreadClass;
   published
-    property MaxThreads: Integer
-      read FMaxThreads
-      write FMaxThreads;
-    property ThreadPriority: TIdThreadPriority
-      read FThreadPriority
-      write FThreadPriority
-      default tpNormal;
+    property MaxThreads: Integer read FMaxThreads write FMaxThreads;
+    property ThreadPriority: TIdThreadPriority read FThreadPriority write FThreadPriority default tpNormal;
   end;
 
 implementation
@@ -195,10 +177,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdSchedulerOfThread.StartYarn(
-  AYarn: TIdYarn;
-  ATask: TIdTask
-  );
+procedure TIdSchedulerOfThread.StartYarn(AYarn: TIdYarn; ATask: TIdTask);
 begin
   with TIdYarnOfThread(AYarn).Thread do begin
     Task := ATask;
@@ -208,10 +187,10 @@ end;
 
 function TIdSchedulerOfThread.NewThread: TIdThreadWithTask;
 begin
-  Assert(FThreadClass<>nil);
+  Assert(FThreadClass <> nil);
 
   EIdSchedulerMaxThreadsExceeded.IfTrue(
-   (FMaxThreads <> 0) and (ActiveYarns.IsCountLessThan(FMaxThreads + 1) = False)
+   (FMaxThreads <> 0) and (not ActiveYarns.IsCountLessThan(FMaxThreads + 1))
    , RSchedMaxThreadEx);
   Result := FThreadClass.Create(nil, IndyFormat('%s User', [Name])); {do not localize}
   if ThreadPriority <> tpNormal then begin
@@ -219,9 +198,7 @@ begin
   end;
 end;
 
-function TIdSchedulerOfThread.NewYarn(
-  AThread: TIdThreadWithTask
-  ): TIdYarnOfThread;
+function TIdSchedulerOfThread.NewYarn(AThread: TIdThreadWithTask): TIdYarnOfThread;
 begin
   EIdException.IfNotAssigned(AThread, RSThreadSchedulerThreadRequired);
   // Create Yarn
@@ -232,13 +209,17 @@ procedure TIdSchedulerOfThread.TerminateYarn(AYarn: TIdYarn);
 var
   LYarn: TIdYarnOfThread;
 begin
-  Assert(AYarn<>nil);
+  Assert(AYarn <> nil);
   LYarn := TIdYarnOfThread(AYarn);
-  if LYarn.Thread.Suspended then begin
+  if LYarn.Thread = nil then begin
+    FreeAndNil(LYarn);
+  end
+  else if LYarn.Thread.Suspended then begin
     // If suspended, was created but never started
     // ie waiting on connection accept
     FreeAndNil(LYarn.FThread);
-  end else begin
+  end else
+  begin
     // Is already running and will free itself
     LYarn.Thread.Stop;
     // Dont free the yarn. The thread frees it (IdThread.pas)
