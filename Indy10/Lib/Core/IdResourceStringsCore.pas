@@ -170,6 +170,7 @@ resourcestring
   RSIOHandlerTypeNotInstalled = 'No IOHandler of type %s is installed.';
 
   RSReplyInvalidCode = 'Reply Code is not valid: %s';
+  RSReplyCodeAlreadyExists = 'Reply Code already exists: %s';
 
   RSThreadSchedulerThreadRequired = 'Thread must be specified for the scheduler.';
   RSNoOnExecute = 'You must have an OnExecute event.';
