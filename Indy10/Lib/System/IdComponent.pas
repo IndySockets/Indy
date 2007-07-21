@@ -58,6 +58,7 @@
 unit IdComponent;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAntiFreezeBase, IdBaseComponent, IdGlobal, IdResourceStrings,

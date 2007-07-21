@@ -49,7 +49,7 @@
 unit IdAntiFreezeBase;
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   IdBaseComponent;
 

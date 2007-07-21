@@ -150,15 +150,13 @@
 
 unit IdStackBSDBase;
 
+interface
 {$I IdCompilerDefines.inc}
 
 {$IFDEF DotNet}
 Improper compile.
 This unit must NOT be linked into DotNet applications.
 {$ENDIF}
-
-interface
-
 uses
   Classes,
   IdException, IdStack, IdStackConsts, IdGlobal,
@@ -258,11 +256,11 @@ type
       ASize: Integer = -1
       ): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: Integer;
+             var VIP: string; var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: integer;
+             const AOffset: Integer; const AIP: string; const APort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
@@ -271,13 +269,13 @@ type
       const Aoptlen: Integer ); overload; virtual; abstract;
     function TranslateTInAddrToString(var AInAddr; const AIPVersion: TIdIPVersion): string;
     procedure TranslateStringToTInAddr(AIP: string; var AInAddr; const AIPVersion: TIdIPVersion);
-    function WSGetServByName(const AServiceName: string): Integer; virtual; abstract;
-    function WSGetServByPort(const APortNumber: Integer): TStrings; virtual; abstract;
+    function WSGetServByName(const AServiceName: string): TIdPort; virtual; abstract;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; virtual; abstract;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var ABuffer;
-     const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
+     const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
-     const ABufferLength, AFlags: Integer; const AIP: string; const APort: integer; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+     const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
      const AOverlapped: Boolean = False): TIdStackSocketHandle; virtual; abstract;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
@@ -313,6 +311,10 @@ type
 
 var
   GServeFileProc: TIdServeFile = nil;
+
+//for some reason, if GDBSDStack is in the same block as GServeFileProc then
+//FPC gives a type declaration error.
+var
   GBSDStack: TIdStackBSDBase = nil;
 
 const
@@ -321,8 +323,15 @@ const
 implementation
 
 uses
-  {$IFDEF LINUX}     IdStackLinux, {$ENDIF}
-  {$IFDEF MSWINDOWS} IdStackWindows, {$ENDIF}
+  //done this way so we can have a separate stack for the Unix systems in FPC
+  {$IFDEF UNIX}
+    {$IFDEF UseLibc}
+      IdStackLinux,
+    {$ELSE}
+      IdStackUnix,
+    {$ENDIF}
+  {$ENDIF}
+   {$ifdef win32_or_win64_or_winCE}   IdStackWindows, {$ENDIF}
   {$IFDEF DOTNET}    IdStackDotNet, {$ENDIF}
   IdResourceStrings, SysUtils;
 
@@ -561,7 +570,7 @@ begin
 end;
 
 function TIdStackBSDBase.ReceiveFrom(ASocket: TIdStackSocketHandle;
-  var VBuffer: TIdBytes; var VIP: string; var VPort: Integer;
+  var VBuffer: TIdBytes; var VIP: string; var VPort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
    Result :=  CheckForSocketError(RecvFrom(ASocket, VBuffer[0], Length(VBuffer), 0, VIP, VPort, AIPVersion));
@@ -569,7 +578,7 @@ end;
 
 function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
   const ABuffer: TIdBytes; const AOffset: Integer; const AIP: string;
-  const APort: Integer;
+  const APort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
    // must use pointer(ABuffer)^, can't use ABuffer[0], because ABuffer may have a 0 length

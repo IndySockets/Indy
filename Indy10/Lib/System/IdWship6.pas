@@ -156,7 +156,7 @@ function gaiErrorToWsaError(const gaiError: Integer): Integer;
 implementation
 
 uses
-  SysUtils, Windows;
+  SysUtils, Windows, IdGlobal;
 
 var
   hWship6Dll : THandle = 0; // Wship6.dll handle
@@ -183,7 +183,7 @@ begin
     	{$ENDIF}
     	end;
     else
-                  Result := gaiError;
+      Result := gaiError;
   end;
 end;
 
@@ -191,7 +191,7 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
-  h := InterlockedExchange(Integer(hWship6Dll), 0);
+  h := InterlockedExchangeTHandle(hWship6Dll,0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;

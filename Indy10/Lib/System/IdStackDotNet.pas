@@ -197,14 +197,14 @@ type
       const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-                    const APort: Integer;
+                    const APort: TIdPort;
                     const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
                     const APort: TIdPort;
                     const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-                    var VPort: Integer); override;
+                    var VPort: TIdPort); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
                     var VPort: TIdPort); override;
     function  NewSocketHandle(const ASocketType:TIdSocketType;
@@ -224,7 +224,7 @@ type
       ): Integer; override;
     function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: Integer;
+             var VIP: string; var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle;
@@ -248,7 +248,7 @@ type
 
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);override;
     function Accept(ASocket: TIdStackSocketHandle;
-             var VIP: string; var VPort: Integer;
+             var VIP: string; var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ):TIdStackSocketHandle; override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -915,7 +915,7 @@ var LTmp : TIdBytes;
 begin
   LTmp := ToBytes(arg);
   s.IOControl(cmd, ToBytes(arg), LTmp);
-  arg := BytesToCardinal(LTmp);
+  arg := BytesToLongWord(LTmp);
   Result := 0;
 end;
 

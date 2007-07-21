@@ -19,6 +19,7 @@
 unit IdStruct;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses IdGlobal;
 
@@ -46,14 +47,14 @@ type
 
   TIdLongWord =class(TIdUnion)
   protected
-    function Get_l: Cardinal;
+    function Get_l: LongWord;
     function Gets_b1: Byte;
     function Gets_b2: Byte;
     function Gets_b3: Byte;
     function Gets_b4: Byte;
     function Gets_w1: word;
     function Gets_w2: word;
-    procedure Set_l(const Value: Cardinal);
+    procedure Set_l(const Value: LongWord);
     procedure Sets_b1(const Value: Byte);
     procedure Sets_b2(const Value: Byte);
     procedure Sets_b3(const Value: Byte);
@@ -68,7 +69,7 @@ type
     property s_b4 : Byte read Gets_b4 write Sets_b4;
     property s_w1 : word read Gets_w1 write SetS_w1;
     property s_w2 : word read Gets_w2 write SetS_w2;
-    property s_l  : Cardinal read Get_l write Set_l;
+    property s_l  : LongWord read Get_l write Set_l;
   end;
 
 implementation
@@ -168,14 +169,14 @@ begin
  FBuffer[3] :=  Value;
 end;
 
-function TIdLongWord.Get_l: Cardinal;
+function TIdLongWord.Get_l: LongWord;
 begin
-  result := BytesToCardinal(FBuffer,0);
+  result := BytesToLongWord(FBuffer,0);
 end;
 
-procedure TIdLongWord.Set_l(const Value: Cardinal);
+procedure TIdLongWord.Set_l(const Value: LongWord);
 begin
-  CopyTIdCardinal(Value,FBuffer,0);
+  CopyTIdLongWord(Value,FBuffer,0);
 end;
 
 function TIdLongWord.Gets_w2: word;

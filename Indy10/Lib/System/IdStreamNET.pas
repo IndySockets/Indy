@@ -28,8 +28,8 @@ type
   TIdStreamHelperNET = class
   public
     class function ReadBytes(
-          AStream: TStream;
-          var VBytes: TIdBytes;
+          AStream: TIdStream;
+          out VBytes: TIdBytes;
           ACount: Integer = -1;
           AOffset: Integer = 0): Integer; static;
     class procedure Write(

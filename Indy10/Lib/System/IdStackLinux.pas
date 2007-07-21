@@ -56,7 +56,7 @@
 }
 
 unit IdStackLinux;
-
+{$i IdCompilerDefines.inc}
 interface
 
 uses
@@ -66,7 +66,6 @@ uses
   IdStackConsts,
   IdObjs,
   IdGlobal,
-  IdIPAddress,
   IdStackBSDBase;
 
 type
@@ -98,9 +97,14 @@ type
 
   TIdStackLinux = class(TIdStackBSDBase)
   private
-    procedure SetSocketOption(ASocket: TIdStackSocketHandle;
-      ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
+//    procedure SetSocketOption(ASocket: TIdStackSocketHandle;
+//      ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
+    procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
+      var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+      const APort: TIdPort);
   protected
+    function GetLastError : Integer;
+    procedure SetLastError(Const AError : Integer);
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure PopulateLocalAddresses; override;
@@ -118,23 +122,26 @@ type
     function WouldBlock(const AResult: Integer): Boolean; override;
     function WSTranslateSocketErrorMsg(const AErr: Integer): string; override;
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-      var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle; override;
+             var VPort: TIdPort;
+             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
+             ): TIdStackSocketHandle; override;
+
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-     const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+     const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
-    function WSGetServByName(const AServiceName: string): Integer; override;
-    function WSGetServByPort(const APortNumber: Integer): TIdStrings; override;
+    function WSGetServByName(const AServiceName: string): TIdPort; override;
+    function WSGetServByPort(const APortNumber: TIdPort): TIdStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
       Alevel, AOptname: Integer; AOptval: PChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
       out AOptVal: Integer); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-     var VPort: Integer); override;
+     var VPort: TIdPort); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
      var VPort: TIdPort); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
@@ -145,22 +152,46 @@ type
     function HostToNetwork(AValue: Int64): Int64; override;
     function NetworkToHost(AValue: Int64): Int64; override;
     function RecvFrom(const ASocket: TIdStackSocketHandle; var VBuffer;
-     const ALength, AFlags: Integer; var VIP: string; var VPort: Integer;
-     AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+      const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
+      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+    function ReceiveMsg(ASocket: TIdStackSocketHandle;
+      var VBuffer: TIdBytes;
+      APkt :  TIdPacketInfo;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer;
-      const AIP: string; const APort: Integer; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+      const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
      const AOverlapped: Boolean = False): TIdStackSocketHandle; override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
       AOptName: TIdSocketOption; AOptVal: Integer); overload;override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
-      const Alevel, Aoptname: Integer; Aoptval: PChar; const Aoptlen: Integer ); overload; override;
-    function SupportsIPv6: boolean; override;
+      const Alevel, Aoptname: Integer;
+      Aoptval: PChar;
+      const Aoptlen: Integer ); overload; override;
+    function SupportsIPv6: boolean; overload; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     constructor Create; override;
     destructor Destroy; override;
+    //In Windows, this writes a checksum into a buffer.  In Linux, it would probably
+    //simply have the kernal write the checksum with something like this (RFC 2292):
+//
+//    int  offset = 2;
+//    setsockopt(fd, IPPROTO_IPV6, IPV6_CHECKSUM, &offset, sizeof(offset));
+//
+//  Note that this should be called
+    //IMMEDIATELY before you do a SendTo because the Local IPv6 address might change
+
+    procedure WriteChecksum(s : TIdStackSocketHandle;
+      var VBuffer : TIdBytes;
+      const AOffset : Integer;
+      const AIP : String;
+      const APort : TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal;
+      var arg: cardinal ): Integer; override;
+
   end;
 
   TLinger = record
@@ -172,9 +203,7 @@ type
 implementation
 uses
   IdResourceStrings,
-  IdResourceStringsCore,  //Needed for RSResolveError
   IdException,
-  IdExceptionCore, //Needed for EIdBlockingNotSupported
   SysUtils;
 
 type
@@ -193,8 +222,18 @@ begin
   inherited Destroy;
 end;
 
+function TIdStackLinux.GetLastError : Integer;
+begin
+  Result := errno;
+end;
+
+procedure TIdStackLinux.SetLastError(Const AError : Integer);
+begin
+  __errno_location^ := AError;
+end;
+
 function TIdStackLinux.Accept(ASocket: TIdStackSocketHandle;
- var VIP: string; var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+ var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
 var
   LN: Cardinal;
   LAddr: sockaddr_in6;
@@ -211,9 +250,9 @@ begin
   end;
 end;
 
-procedure TIdStackLinux.Bind(ASocket: TIdStackSocketHandle;
-  const AIP: string; const APort: Integer;
-  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdStackLinux.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
+              const APort: TIdPort;
+              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION );
 var
   LAddr: SockAddr;
   LAddr6: SockAddr_in6;
@@ -253,7 +292,7 @@ procedure TIdStackLinux.Connect(const ASocket: TIdStackSocketHandle;
  const AIP: string; const APort: TIdPort;
  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
-  LAddr: SockAddr;
+  LAddr: SockAddr_in;
   LAddr6: SockAddr_in6;
 begin
   case AIPVersion of
@@ -261,7 +300,7 @@ begin
       LAddr.sin_family := Id_PF_INET4;
       TranslateStringToTInAddr(AIP, LAddr.sin_addr, Id_IPv4);
       LAddr.sin_port := HToNs(APort);
-      CheckForSocketError(Libc.Connect(ASocket, LAddr, SizeOf(LAddr)));
+      CheckForSocketError(Libc.Connect(ASocket, @LAddr, SizeOf(LAddr)));
     end;
     Id_IPv6: begin
       LAddr6.sin6_flowinfo := 0;
@@ -269,7 +308,7 @@ begin
       LAddr6.sin6_family := Id_PF_INET6;
       TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
       LAddr6.sin6_port := HToNs(APort);
-      CheckForSocketError(Libc.Connect(ASocket, Psockaddr(@LAddr6)^, SizeOf(LAddr6)));
+      CheckForSocketError(Libc.Connect(ASocket, @LAddr6, SizeOf(LAddr6)));
     end;
     else begin
       IPVersionUnsupported;
@@ -285,7 +324,11 @@ var
   LHost: PHostEnt;
 // ipv6
   LHints: TAddressInfo;
-  LAddrInfo: PAddressInfo;
+  {$IFDEF KYLIX}
+  LAddrInfo: PPAddressInfo;
+  {$ELSE}
+  LAddrInfo: PAddrInfo;
+  {$ENDIF}
   LRetVal: integer;
 begin
   case AIPVersion of
@@ -308,7 +351,7 @@ begin
       LHints.ai_family := IdIPFamily[AIPVersion];
       LHints.ai_socktype := Integer(SOCK_STREAM);
       LAddrInfo:=nil;
-      LRetVal := getaddrinfo(pchar(AHostName), nil, @LHints, LAddrInfo);
+      LRetVal := getaddrinfo(pchar(AHostName), nil, @LHints, @LAddrInfo);
       if LRetVal<>0 then begin
         if LRetVal = EAI_SYSTEM then begin
           RaiseLastOSError;
@@ -347,7 +390,7 @@ end;
 
 function TIdStackLinux.RecvFrom(const ASocket: TIdStackSocketHandle;
   var VBuffer; const ALength, AFlags: Integer; var VIP: string;
-  var VPort: Integer; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ): Integer;
+  var VPort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ): Integer;
 var
   LiSize: Cardinal;
   LAddr6: sockaddr_in6;
@@ -367,6 +410,100 @@ begin
   end;
 end;
 
+function TIdStackLinux.ReceiveMsg(ASocket: TIdStackSocketHandle;
+     var VBuffer: TIdBytes;
+     APkt :  TIdPacketInfo;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal;
+{var
+  LIP : String;
+  LPort : TIdPort;
+  LSize: Cardinal;
+  LAddr4: SockAddr_In;
+  LAddr6: SockAddr_In6;
+  LMsg : msghdr;
+  LMsgBuf : BUF;
+  LControl : TIdBytes;
+  LCurCmsg : CMSGHDR;   //for iterating through the control buffer
+  LCurPt : Pin_pktinfo;
+  LCurPt6 : Pin6_pktinfo;
+  LByte : PByte;
+  LDummy, LDummy2 : Cardinal;
+      
+begin
+   //we call the macro twice because we specified two possible structures.
+   //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
+   LSize := CMSG_LEN(CMSG_LEN(Length(VBuffer)));
+   SetLength( LControl,LSize);
+    LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
+    LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
+
+    FillChar(LMsg,SizeOf(LMsg),0);
+
+    LMsg.lpBuffers := @LMsgBuf;
+    LMsg.dwBufferCount := 1;
+
+    LMsg.Control.Len := LSize;
+    LMsg.Control.buf := @LControl[0];
+
+
+    case AIPVersion of
+      Id_IPv4: begin
+        LMsg.name :=  @LAddr4;
+        LMsg.namelen := SizeOf(LAddr4);
+
+        GWindowsStack.CheckForSocketError(RecvMsg(ASocket,@LMsg,Result,nil,nil));
+        APkt.SourceIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
+
+        APkt.SourcePort := NToHs(LAddr4.sin_port);
+      end;
+      Id_IPv6: begin
+        LMsg.name := PSOCKADDR( @LAddr6);
+        LMsg.namelen := SizeOf(LAddr6);
+
+        CheckForSocketError( RecvMsg(ASocket,@LMsg,Result,@LDummy,LPwsaoverlapped_COMPLETION_ROUTINE(@LDummy2)));
+        APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
+
+        APkt.SourcePort := NToHs(LAddr6.sin6_port);
+      end;
+      else begin
+        Result := 0; // avoid warning
+        IPVersionUnsupported;
+      end;
+    end;
+    LCurCmsg := nil;
+    repeat
+      LCurCmsg := CMSG_NXTHDR(@LMsg,LCurCmsg);
+      if LCurCmsg=nil then
+      begin
+        break;
+      end;
+      case LCurCmsg^.cmsg_type of
+        IP_PKTINFO :     //done this way because IPV6_PKTINF and  IP_PKTINFO
+        //are both 19
+        begin
+          if AIPVersion = Id_IPv4 then
+          begin
+            LCurPt := WSA_CMSG_DATA(LCurCmsg);
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt^.ipi_addr,Id_IPv4);
+            APkt.DestIF := LCurPt^.ipi_ifindex;
+          end;
+          if AIPVersion = Id_IPv6 then
+          begin
+            LCurPt6 := WSA_CMSG_DATA(LCurCmsg);
+            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr,Id_IPv6);
+            APkt.DestIF := LCurPt6^.ipi6_ifindex;
+          end;
+        end;
+        Id_IPV6_HOPLIMIT :
+        begin
+          LByte :=  PByte(WSA_CMSG_DATA(LCurCmsg));
+          APkt.TTL := LByte^;
+        end;
+      end;
+    until False; }
+begin
+end;
+
 function TIdStackLinux.WSSend(ASocket: TIdStackSocketHandle;
   const ABuffer; const ABufferLength, AFlags: Integer): Integer;
 begin
@@ -377,7 +514,7 @@ end;
 
 procedure TIdStackLinux.WSSendTo(ASocket: TIdStackSocketHandle;
   const ABuffer; const ABufferLength, AFlags: Integer; const AIP: string;
-  const APort: Integer; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LAddr6: SockAddr_in6;
   LBytesOut: integer;
@@ -391,7 +528,11 @@ begin
           TranslateStringToTInAddr(AIP, sin6_addr, AIPVersion);
           sin6_port := HToNs(APort);
         end;
+        {$IFDEF KYLIX}
         LBytesOut := Libc.SendTo(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, Psockaddr(@LAddr6)^, SizeOf(LAddr6));
+        {$ELSE}
+                LBytesOut := Libc.SendTo(ASocket, ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, Psockaddr(@LAddr6), SizeOf(LAddr6));
+        {$ENDIF}
       end;
     else begin
       LBytesOut := 0; // avoid warning
@@ -425,7 +566,7 @@ end;
 function TIdStackLinux.WSGetLastError: Integer;
 begin
   //IdStackWindows just uses   result := WSAGetLastError;
-  Result := System.GetLastError;
+  Result := GetLastError; //System.GetLastOSError; - FPC doesn't define it in System
   if Result = Id_WSAEPIPE then begin
     Result := Id_WSAECONNRESET;
   end;
@@ -447,7 +588,7 @@ begin
   Result := FLocalAddresses;
 end;
 
-function TIdStackLinux.WSGetServByName(const AServiceName: string): Integer;
+function TIdStackLinux.WSGetServByName(const AServiceName: string): TIdPort;
 var
   Lps: PServEnt;
 begin
@@ -465,7 +606,7 @@ begin
   end;
 end;
 
-function TIdStackLinux.WSGetServByPort(const APortNumber: Integer): TIdStrings;
+function TIdStackLinux.WSGetServByPort(const APortNumber: TIdPort): TIdStrings;
 var
   Lps: PServEnt;
   Li: Integer;
@@ -572,8 +713,13 @@ end;
 function TIdStackLinux.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
+{$IFDEF KYLIX}
   LHints: TAddressInfo;
   LAddrInfo: PAddressInfo;
+{$ELSE}
+  LHints: AddrInfo; //The T is no omission - that's what I found in the header
+  LAddrInfo: PAddrInfo;
+{$ENDIF}
   LRetVal: integer;
 begin
   case AIPVersion of
@@ -583,7 +729,7 @@ begin
       LHints.ai_socktype := Integer(SOCK_STREAM);
       LHints.ai_flags := AI_CANONNAME + AI_NUMERICHOST;
       LAddrInfo:=nil;
-      LRetVal := getaddrinfo(pchar(AAddress), nil, @LHints, LAddrInfo);
+      LRetVal := getaddrinfo(pchar(AAddress), nil, @LHints, @LAddrInfo);
       if LRetVal<>0 then begin
         if LRetVal = EAI_SYSTEM then begin
           RaiseLastOSError;
@@ -635,7 +781,7 @@ begin
 end;
 
 procedure TIdStackLinux.GetPeerName(ASocket: TIdStackSocketHandle;
- var VIP: string; var VPort: Integer);
+ var VIP: string; var VPort: TIdPort);
 var
   i: Cardinal;
   LAddr6: sockaddr_in6;
@@ -658,7 +804,7 @@ begin
 end;
 
 procedure TIdStackLinux.GetSocketName(ASocket: TIdStackSocketHandle;
- var VIP: string; var VPort: Integer);
+ var VIP: string; var VPort: TIdPort);
 var
   i: Cardinal;
   LAddr6: sockaddr_in6;
@@ -698,6 +844,62 @@ begin
   AOptVal := LBuf;
 end;
 
+
+function TIdStackLinux.WouldBlock(const AResult: Integer): Boolean;
+begin
+  //non-blocking does not exist in Linux, always indicate things will block
+  Result := True;
+end;
+
+function TIdStackLinux.SupportsIPv6:boolean;
+//In Windows, this does something else.  It checks the LSP's installed.
+begin
+  Result := CheckIPVersionSupport(Id_IPv6);
+end;
+
+
+function TIdStackLinux.CheckIPVersionSupport(
+  const AIPVersion: TIdIPVersion): boolean;
+var LTmpSocket:TIdStackSocketHandle;
+begin
+  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP );
+  result:=LTmpSocket<>Id_INVALID_SOCKET;
+  if LTmpSocket<>Id_INVALID_SOCKET then begin
+    WSCloseSocket(LTmpSocket);
+  end;
+end;
+
+procedure TIdStackLinux.WriteChecksum(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: TIdPort; const AIPVersion: TIdIPVersion);
+begin
+  case AIPVersion of
+    Id_IPv4 : CopyTIdWord(HostToLittleEndian(CalcCheckSum(VBuffer)),VBuffer,AOffset);
+    Id_IPv6 : WriteChecksumIPv6(s,VBuffer, AOffset, AIP, APort);
+  else
+    IPVersionUnsupported;
+  end;
+end;
+
+procedure TIdStackLinux.WriteChecksumIPv6(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: TIdPort);
+var LOffset : Integer;
+begin
+//we simply request that the kernal write the checksum when the data
+//is sent.  All of the parameters required are because Windows is bonked
+//because it doesn't have the IPV6CHECKSUM socket option meaning we have
+//to querry the network interface in TIdStackWindows -- yuck!!
+  LOffset := AOffset;
+  CheckForSocketError(setsockopt(s, IPPROTO_IPV6, IPV6_CHECKSUM, @Loffset, sizeof(Loffset)));
+end;
+
+function TIdStackLinux.IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer;
+var LArg : PtrUInt;
+begin
+  LArg := arg;
+  Result := ioctl(s,cmd,Pointer(LArg));
+end;
 
 { TIdSocketListLinux }
 
@@ -749,11 +951,11 @@ var
   LTime: TTimeVal;
 begin
   if ATimeout = IdTimeoutInfinite then begin
-    Result := Libc.Select(MaxLongint, AReadSet, AWriteSet, AExceptSet, nil);
+    Result := Libc.Select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, nil);
   end else begin
     LTime.tv_sec := ATimeout div 1000;
     LTime.tv_usec := (ATimeout mod 1000) * 1000;
-    Result := Libc.Select(MaxLongint, AReadSet, AWriteSet, AExceptSet, @LTime);
+    Result := Libc.Select(FD_SETSIZE, AReadSet, AWriteSet, AExceptSet, @LTime);
   end;
 end;
 
@@ -943,65 +1145,6 @@ begin
     TIdSocketListLinux(Result).SetFDSet(FFDSet);
   finally
     Unlock;
-  end;
-end;
-
-function TIdStackLinux.WouldBlock(const AResult: Integer): Boolean;
-begin
-  //non-blocking does not exist in Linux, always indicate things will block
-  Result := True;
-end;
-
-function TIdStackLinux.SupportsIPv6:boolean;
-{
-based on
-http://groups.google.com/groups?q=Winsock2+Delphi+protocol&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3cebe697_2%40dnews&rnum=9
-}
-var LLen : Cardinal;
-  //LPInfo, LPCurPtr : LPWSAProtocol_Info;
-  LCount : Integer;
-  i : Integer;
-begin
-  //TODO: Implement Kylix version of this, it is very Windows-specific.
-  Result := False;
-{
-  Result := False;
-  LLen:=0;
-  Libc.WSAEnumProtocols(nil,nil,LLen);
-  GetMem(LPInfo,LLen);
-  try
-    LCount := Libc.WSAEnumProtocols(nil,LPInfo,LLen);
-    if LCount <> SOCKET_ERROR then begin
-      LPCurPtr := LPInfo;
-      for i := 0 to LCount-1 do begin
-        Result := (LPCurPtr^.iAddressFamily=PF_INET6);
-        if Result then begin
-          Break;
-        end;
-        Inc(LPCurPtr);
-      end;
-    end;
-  finally
-    FreeMem(LPInfo);
-  end;
-}
-end;
-
-procedure TIdStackLinux.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
-begin
-  inherited;
-
-end;
-
-function TIdStackLinux.CheckIPVersionSupport(
-  const AIPVersion: TIdIPVersion): boolean;
-var LTmpSocket:TIdStackSocketHandle;
-begin
-  LTmpSocket := WSSocket(IdIPFamily[AIPVersion], Integer(Id_SOCK_STREAM), Id_IPPROTO_IP );
-  result:=LTmpSocket<>Id_INVALID_SOCKET;
-  if LTmpSocket<>Id_INVALID_SOCKET then begin
-    WSCloseSocket(LTmpSocket);
   end;
 end;
 

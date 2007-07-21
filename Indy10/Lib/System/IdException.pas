@@ -41,6 +41,7 @@
 unit IdException;
 
 interface
+{$I IdCompilerDefines.inc}
 
 uses
   SysUtils;

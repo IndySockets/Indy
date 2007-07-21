@@ -134,10 +134,8 @@
 
 unit IdStack;
 
-{$I IdCompilerDefines.inc}
-
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdException, IdStackConsts, IdGlobal, SysUtils;
@@ -153,6 +151,9 @@ type
     //
     property LastError: Integer read FLastError;
   end;
+  { resolving hostnames }
+  EIdResolveError = class(EIdSocketError);
+  EIdReverseResolveError = class(EIdSocketError);
 
   TIdPacketInfo = class
   protected
@@ -218,11 +219,11 @@ type
     function GetLocalAddresses: TStrings; virtual; abstract;
   public
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-             var VPort: Integer;
+             var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): TIdStackSocketHandle; virtual; abstract;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-              const APort: Integer;
+              const APort: TIdPort;
               const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ); virtual; abstract;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
               const APort: TIdPort;
@@ -234,7 +235,7 @@ type
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: Integer); virtual; abstract;
+              var VPort: TIdPort); virtual; abstract;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
               var VPort: TIdPort); virtual; abstract;
     function HostByAddress(const AAddress: string;
@@ -277,11 +278,11 @@ type
       ): Integer; virtual; abstract;
 
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: Integer;
+             var VIP: string; var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; virtual; abstract;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: integer;
+             const AOffset: Integer; const AIP: string; const APort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle;
@@ -318,7 +319,7 @@ type
       var VBuffer : TIdBytes;
       const AOffset : Integer;
       const AIP : String;
-      const APort : Integer;
+      const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     //
     // Properties
@@ -341,8 +342,13 @@ var
 implementation
 
 uses
-  {$IFDEF LINUX}     IdStackLinux, {$ENDIF}
-  {$IFDEF MSWINDOWS} IdStackWindows, {$ENDIF}
+  //done this way so we can have a separate stack for FPC under Unix systems
+  {$IFDEF UNIX}
+    {$IFDEF USELIBC}   IdStackLinux,
+    {$ELSE}  IdStackUnix,
+    {$ENDIF}
+  {$ENDIF}
+  {$ifdef win32_or_win64_or_winCE} IdStackWindows, {$ENDIF}
   {$IFDEF DOTNET}    IdStackDotNet, {$ENDIF}
   IdResourceStrings;
 
@@ -439,7 +445,11 @@ function TIdStack.MakeCanonicalIPv6Address(const AAddr: string): string;
 // for easy checking if its an address or not.
 var
   p, i: integer;
+  {$IFDEF FPC}
+  dots, colons: Byte;
+  {$ELSE}
   dots, colons: integer;
+  {$ENDIF}
   colonpos: array[1..8] of integer;
   dotpos: array[1..3] of integer;
   LAddr: string;
@@ -793,9 +803,17 @@ begin
 end;
 
 initialization
+//done this way so we can have a separate stack just for FPC under Unix systems
   GStackClass :=
-   {$IFDEF LINUX}     TIdStackLinux;   {$ENDIF}
-   {$IFDEF MSWINDOWS} TIdStackWindows; {$ENDIF}
+   {$IFDEF UNIX}
+     {$IFDEF UseLibc}
+     TIdStackLinux;
+     {$ENDIF}
+     {$IFDEF UseBaseUnix}
+     TIdStackUnix;
+     {$ENDIF}
+   {$ENDIF}
+   {$IFDEF win32_or_win64_or_winCE}  TIdStackWindows; {$ENDIF}
    {$IFDEF DOTNET}    TIdStackDotNet;  {$ENDIF}
   GStackCriticalSection := TIdCriticalSection.Create;
 finalization

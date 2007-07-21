@@ -16,16 +16,16 @@
   $Log$
 }
 {
-{   Rev 1.2    2004.05.20 11:38:10 AM  czhower
-{ IdStreamVCL
+   Rev 1.2    2004.05.20 11:38:10 AM  czhower
+ IdStreamVCL
 }
 {
-{   Rev 1.1    2004.02.03 3:15:54 PM  czhower
-{ Updates to move to System.
+   Rev 1.1    2004.02.03 3:15:54 PM  czhower
+ Updates to move to System.
 }
 {
-{   Rev 1.0    2004.02.03 2:36:04 PM  czhower
-{ Move
+   Rev 1.0    2004.02.03 2:36:04 PM  czhower
+ Move
 }
 unit IdResourceStrings;
 
@@ -37,6 +37,7 @@ resourcestring
   // Winsock
   RSWinsockCallError = 'Error on call to Winsock2 library function %s';
   RSWinsockLoadError = 'Error on loading Winsock2 library (%s)';
+  RSWinsockInitializationError = 'Winsock Initialization Error.';
   // Status
   RSStatusResolving = 'Resolving hostname %s.';
   RSStatusConnecting = 'Connecting to %s.';
@@ -108,6 +109,10 @@ resourcestring
   RSSetSizeExceeded = 'Set Size Exceeded.';
   RSStreamNotEnoughBytes = 'Not enough bytes read from stream.';
   RSEndOfStream = 'End of stream: Class %s at %d';
+
+ //DNS Resolution error messages
+  RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
+  RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
 
 implementation
 

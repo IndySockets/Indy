@@ -31,7 +31,7 @@ type
   public
     class function ReadBytes(
           const AStream: TStream;
-          var VBytes: TIdBytes;
+          out VBytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
     class procedure Write(
@@ -43,7 +43,7 @@ type
 
 implementation
 
-class function TIdStreamHelperVCL.ReadBytes(const AStream: TStream; var VBytes: TIdBytes;
+class function TIdStreamHelperVCL.ReadBytes(const AStream: TStream; out VBytes: TIdBytes;
   const ACount, AOffset: Integer): Integer;
 var
  LActual: Integer;
