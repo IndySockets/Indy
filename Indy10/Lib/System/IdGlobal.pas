@@ -1142,7 +1142,7 @@ function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUIn
 begin
   {$IFDEF CPU32}
     {$IFDEF FPC}
-     Result := InterlockedExchange(LongWord(VTarget),AValue);
+     Result := InterlockedExchange(LongInt(VTarget),AValue);
     {$ELSE}
     Result := InterlockedExchange(Integer(VTarget),AValue);
     {$ENDIF}
@@ -3002,7 +3002,7 @@ const
   monthnames: array[1..12] of string = ('Jan', 'Feb', 'Mar', 'Apr', 'May'    {Do not Localize}
    , 'Jun',  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'); {do not localize}
 
-{$IFDEF VCL7ORABOVE}
+{$IFDEF TFormatSettings}
 //Delphi5 does not have TFormatSettings
 //this should be changed to a singleton?
 function GetEnglishSetting: TFormatSettings;
@@ -3075,7 +3075,7 @@ end;
 function IndyFormat(const AFormat: string;
   const Args: array of const): string;
 begin
-  {$IFDEF VCL7ORABOVE}
+  {$IFDEF TFormatSettings}
   Result := Format(AFormat, Args, GetEnglishSetting);
   {$ELSE}
   //Is there a way to get delphi5 to use locale in format? something like:
@@ -3084,7 +3084,7 @@ begin
   //  Application.UpdateFormatSettings := False; //needed?
   //  format()
   //  set locale back to prior
-  Result := Format(Format, Args);
+  Result := Format(AFormat, Args);
   {$ENDIF}
 end;
 
