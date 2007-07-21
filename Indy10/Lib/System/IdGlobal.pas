@@ -1140,7 +1140,7 @@ var
 
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUInt) : THandle;
-{$ENDIF}
+
 {$IFDEF USEINLINE}inline;{$ENDIF}
   //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
   //only handles 32bit values.  In Win64, the THandle is 64 bits and is define
@@ -1153,6 +1153,7 @@ begin
   InterlockedExchange64(PtrInt(VTarget),0);
   {$ENDIF}
 end;
+{$ENDIF}
 {Little Endian Byte order functions from:
 
 From: http://community.borland.com/article/0,1410,16854,00.html
@@ -3912,7 +3913,7 @@ begin
     {$IFDEF win32_or_win64}
     Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, PChar(S), LLen, PChar(SubS), LLen) = 2;
     {$ELSE}
-    Result := Sys.AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
+    Result := AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
     {$ENDIF}
   end;
   {$ENDIF}
@@ -3931,12 +3932,12 @@ begin
   {$ELSE}
   Result := LLen <= Length(S);
   if Result then begin
-    {$IFDEF MSWINDOWS}
+    {$IFDEF win32_or_win64}
     P := PChar(S);
     Inc(P, Length(S)-LLen);
     Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P, LLen, PChar(SubS), LLen) = 2;
     {$ELSE}
-    Result := Sys.AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
+    Result := AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
     {$ENDIF}
   end;
   {$ENDIF}
