@@ -1598,7 +1598,7 @@ var
 begin
   {$IFDEF DOTNET}
   LWord := System.BitConverter.GetBytes(ASource);
-  System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(Int64));
+  System.array.Copy(LWord, 0, VDest, ADestIndex, SizeOf(LongInt));
   {$ELSE}
   PLongInt(@VDest[ADestIndex])^ := ASource;
   {$ENDIF}
