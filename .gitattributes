@@ -1489,6 +1489,7 @@ Indy10/Lib/System/IdStackBSDBase.pas -text
 Indy10/Lib/System/IdStackConsts.pas -text
 Indy10/Lib/System/IdStackDotNet.pas -text
 Indy10/Lib/System/IdStackLinux.pas -text
+Indy10/Lib/System/IdStackUnix.pas -text
 Indy10/Lib/System/IdStackWindows.pas -text
 Indy10/Lib/System/IdStream.pas -text
 Indy10/Lib/System/IdStreamNET.pas -text
