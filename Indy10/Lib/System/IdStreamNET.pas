@@ -28,7 +28,7 @@ type
   TIdStreamHelperNET = class
   public
     class function ReadBytes(
-          AStream: TIdStream;
+          AStream: TStream;
           out VBytes: TIdBytes;
           ACount: Integer = -1;
           AOffset: Integer = 0): Integer; static;
@@ -41,7 +41,7 @@ type
 
 implementation
 
-class function TIdStreamHelperNET.ReadBytes(AStream: TStream; var VBytes: TIdBytes;
+class function TIdStreamHelperNET.ReadBytes(AStream: TStream; out VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
 var
   LActual: Integer;
