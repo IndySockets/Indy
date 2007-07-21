@@ -161,7 +161,6 @@ uses
   System.Collections;
 
 type
-
   TIdSocketListDotNet = class(TIdSocketList)
   protected
      Sockets:ArrayList;
@@ -233,7 +232,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
 
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: integer;
+             const AOffset: Integer; const AIP: string; const APort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer; override;
 
@@ -269,7 +268,7 @@ type
       var VBuffer : TIdBytes;
       const AOffset : Integer;
       const AIP : String;
-      const APort : Integer;
+      const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
@@ -302,7 +301,7 @@ begin
 end;
 
 procedure TIdStackDotNet.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LEndPoint : IPEndPoint;
   LIP:String;
@@ -363,7 +362,7 @@ begin
 end;
 
 function TIdStackDotNet.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
+  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
   ):TIdStackSocketHandle;
 begin
   try
@@ -375,7 +374,7 @@ begin
   end;
 end;
 
-procedure TIdStackDotNet.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: Integer);
+procedure TIdStackDotNet.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort);
 var
   LEndPoint : EndPoint;
 begin
@@ -514,7 +513,7 @@ begin
 end;
 
 function TIdStackDotNet.ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: Integer;
+             var VIP: string; var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 var
   LEndPoint : EndPoint;
@@ -537,7 +536,7 @@ begin
 end;
 
 function TIdStackDotNet.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: integer;
+             const AOffset: Integer; const AIP: string; const APort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
              ): Integer;
 var
@@ -643,6 +642,7 @@ begin
         Socket.Select(LTempSockets,nil,nil,ATimeout*1000);
       end;
       result := LTempSockets.Count > 0;
+      TIdSocketListDotNet(VSocketList).Sockets:=ArrayList(Sockets.Clone);
     finally
       LTempSockets.free;
     end;
@@ -875,7 +875,7 @@ function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): Cardinal;
 var LIP : String;
-  LPort : Integer;
+  LPort : TIdPort;
 begin
   Result := ReceiveFrom(ASocket,VBuffer,LIP,LPort,AIPVersion);
   APkt.SourceIP := LIP;
@@ -884,7 +884,7 @@ end;
 
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
-  const APort: Integer; const AIPVersion: TIdIPVersion);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion);
 
 begin
   if AIPVersion = Id_IPv4 then
