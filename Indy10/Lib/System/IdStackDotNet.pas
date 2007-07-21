@@ -613,7 +613,7 @@ begin
     LTempSockets:=ArrayList(Sockets.Clone);
     try
       if ATimeout=IdTimeoutInfinite then begin
-        Socket.Select(LTempSockets,nil,nil,MaxLongint);
+        Socket.Select(LTempSockets,nil,nil,-1);
       end else begin
         Socket.Select(LTempSockets,nil,nil,ATimeout*1000);
       end;
@@ -637,12 +637,19 @@ begin
     LTempSockets:=ArrayList(Sockets.Clone);
     try
       if ATimeout=IdTimeoutInfinite then begin
-        Socket.Select(LTempSockets,nil,nil,MaxLongint);
+        Socket.Select(LTempSockets,nil,nil,-1);
       end else begin
         Socket.Select(LTempSockets,nil,nil,ATimeout*1000);
       end;
       result := LTempSockets.Count > 0;
-      TIdSocketListDotNet(VSocketList).Sockets:=ArrayList(Sockets.Clone);
+      if result then
+      begin
+        if not Assigned(VSocketList) then
+        begin
+          VSocketList := TIdSocketListDotNet.CreateSocketList;
+        end;
+        TIdSocketListDotNet(VSocketList).Sockets:=ArrayList(Sockets.Clone);
+      end;
     finally
       LTempSockets.free;
     end;
@@ -661,7 +668,7 @@ begin
       Socket.Select(
         TIdSocketListDotNet(AReadList).Sockets,
         TIdSocketListDotNet(AWriteList).Sockets,
-        TIdSocketListDotNet(AExceptList).Sockets,MaxLongint);
+        TIdSocketListDotNet(AExceptList).Sockets,-1);
     end else begin
       Socket.Select(
         TIdSocketListDotNet(AReadList).Sockets,
