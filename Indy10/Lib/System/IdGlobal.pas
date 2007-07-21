@@ -807,6 +807,12 @@ type
   TIdExtList=class(TList);
   {$ENDIF}
 
+   {$IFDEF FPC}
+     {$DEFINE SIZE64STREAM}
+   {$ENDIF}
+   {$IFDEF VCL6ORABOVE}
+     {$DEFINE SIZE64STREAM}
+   {$ENDIF}
   {$IFNDEF DOTNET}
 //  TSeekOrigin = word;
   {$ENDIF}
@@ -821,7 +827,7 @@ type
     {$IFDEF DOTNET}
     procedure SetSize(ASize: Int64); override;
     {$ELSE}
-      {$IFDEF FPC}
+      {$IFDEF SIZE64STREAM}
     procedure SetSize(const NewSize: Int64); override;
       {$ELSE}
     procedure SetSize(ASize: Integer); override;
@@ -833,15 +839,15 @@ type
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
     function Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
     {$ELSE}
-      {$IFDEF FPC}
+      {.$IFDEF FPC}
     function Read(var Buffer; Count: Longint): Longint; override;
     function Write(const Buffer; Count: Longint): Longint; override;
     function Seek(Offset: Longint; Origin: Word): Longint; override;
-      {$ELSE}
-    function Read(var VBuffer; ACount: Longint): Longint; override;
-    function Write(const ABuffer; ACount: Longint): Longint; override;
-    function Seek(AOffset: Longint; AOrigin: Word): Longint; override;
-      {$ENDIF}
+      {.$ELSE}
+    // function Read(var VBuffer; ACount: Longint): Longint; override;
+    //function Write(const ABuffer; ACount: Longint): Longint; override;
+    //function Seek(AOffset: Longint; AOrigin: Word): Longint; override;
+      {/$ENDIF}
     {$ENDIF}
   end;
 
@@ -3730,12 +3736,17 @@ end;
 
 {$ELSE}
 
-  {$ifdef fpc}
+  {$IFDEF SIZE64STREAM}
 procedure TIdBaseStream.SetSize(const NewSize: Int64);
 begin
-   IdSetSize(NewSize and $FFFFFFFF);
+   IdSetSize(NewSize);
 end;
-
+  {$ELSE}
+procedure TIdBaseStream.SetSize(ASize: Integer);
+begin
+  IdSetSize(ASize);
+end;
+ {$ENDIF}
 function TIdBaseStream.Read(var Buffer; Count: Longint): Longint;
 var
   LBytes: TIdBytes;
@@ -3769,38 +3780,6 @@ begin
   end;
   result := IdSeek(Offset, LSeek) and $FFFFFFFF;
 end;
-
-  {$else}
-procedure TIdBaseStream.SetSize(ASize: Integer);
-begin
-  IdSetSize(ASize);
-end;
-
-function TIdBaseStream.Read(var VBuffer; ACount: Longint): Longint;
-var
-  LBytes: TIdBytes;
-begin
-  SetLength(LBytes, ACount);
-  Result := IdRead(LBytes, 0, ACount);
-  if Result > 0 then begin
-    Move(LBytes[0], VBuffer, Result);
-  end;
-end;
-
-function TIdBaseStream.Write(const ABuffer; ACount: Longint): Longint;
-begin
-  if ACount > 0 then begin
-    Result := IdWrite(RawToBytes(ABuffer, ACount), 0, ACount);
-  end else begin
-    Result := 0;
-  end;
-end;
-
-function TIdBaseStream.Seek(AOffset: Longint; AOrigin: Word): Longint;
-begin
-  result := IdSeek(AOffset,TSeekOrigin( AOrigin));
-end;
-  {$endif}
 {$ENDIF}
 
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0);
