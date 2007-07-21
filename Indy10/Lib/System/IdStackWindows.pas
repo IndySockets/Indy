@@ -11,180 +11,180 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
-{   Rev 1.8    10/26/2004 8:20:04 PM  JPMugaas
-{ Fixed some oversights with conversion.  OOPS!!!
-}
-{
-{   Rev 1.7    07/06/2004 21:31:24  CCostelloe
-{ Kylix 3 changes
-}
-{
-{   Rev 1.6    4/18/04 10:43:24 PM  RLebeau
-{ Fixed syntax error
-}
-{
-{   Rev 1.5    4/18/04 10:29:58 PM  RLebeau
-{ Renamed Int64Parts structure to TIdInt64Parts
-}
-{
-{   Rev 1.4    4/18/04 2:47:46 PM  RLebeau
-{ Conversion support for Int64 values
-}
-{
-{   Rev 1.3    2004.03.07 11:45:28 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.2    3/6/2004 5:16:34 PM  JPMugaas
-{ Bug 67 fixes.  Do not write to const values.
-}
-{
-{   Rev 1.1    3/6/2004 4:23:52 PM  JPMugaas
-{ Error #62 fix.  This seems to work in my tests.
-}
-{
-{   Rev 1.0    2004.02.03 3:14:48 PM  czhower
-{ Move and updates
-}
-{
-{   Rev 1.33    2/1/2004 6:10:56 PM  JPMugaas
-{ GetSockOpt.
-}
-{
-{   Rev 1.32    2/1/2004 3:28:36 AM  JPMugaas
-{ Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
-{ that will work the same in the DotNET as elsewhere.  This is required to
-{ reenable IPWatch.
-}
-{
-{   Rev 1.31    1/31/2004 1:12:48 PM  JPMugaas
-{ Minor stack changes required as DotNET does support getting all IP addresses
-{ just like the other stacks.
-}
-{
-{   Rev 1.30    12/4/2003 3:14:52 PM  BGooijen
-{ Added HostByAddress
-}
-{
-{   Rev 1.29    1/3/2004 12:38:56 AM  BGooijen
-{ Added function SupportsIPv6
-}
-{
-{   Rev 1.28    12/31/2003 9:52:02 PM  BGooijen
-{ Added IPv6 support
-}
-{
-{   Rev 1.27    10/26/2003 05:33:14 PM  JPMugaas
-{ LocalAddresses should work.
-}
-{
-{   Rev 1.26    10/26/2003 5:04:28 PM  BGooijen
-{ UDP Server and Client
-}
-{
-{   Rev 1.25    10/26/2003 09:10:26 AM  JPMugaas
-{ Calls necessary for IPMulticasting.
-}
-{
-{   Rev 1.24    10/22/2003 04:40:52 PM  JPMugaas
-{ Should compile with some restored functionality.  Still not finished.
-}
-{
-{   Rev 1.23    10/21/2003 11:04:20 PM  BGooijen
-{ Fixed name collision
-}
-{
-{   Rev 1.22    10/21/2003 01:20:02 PM  JPMugaas
-{ Restore GWindowsStack because it was needed by SuperCore.
-}
-{
-{   Rev 1.21    10/21/2003 06:24:28 AM  JPMugaas
-{ BSD Stack now have a global variable for refercing by platform specific
-{ things.  Removed corresponding var from Windows stack.
-}
-{
-{   Rev 1.20    10/19/2003 5:21:32 PM  BGooijen
-{ SetSocketOption
-}
-{
-{   Rev 1.19    2003.10.11 5:51:16 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.18    2003.10.02 8:01:08 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.17    2003.10.02 12:44:44 PM  czhower
-{ Fix for Bind, Connect
-}
-{
-{   Rev 1.16    2003.10.02 10:16:32 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.15    2003.10.01 9:11:26 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.14    2003.10.01 12:30:08 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.12    10/1/2003 12:14:12 AM  BGooijen
-{ DotNet: removing CheckForSocketError
-}
-{
-{   Rev 1.11    2003.10.01 1:12:40 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.10    2003.09.30 1:23:04 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.9    9/8/2003 02:13:10 PM  JPMugaas
-{ SupportsIP6 function added for determining if IPv6 is installed on a system.
-}
-{
-{   Rev 1.8    2003.07.14 1:57:24 PM  czhower
-{ -First set of IOCP fixes.
-{ -Fixed a threadsafe problem with the stack class.
-}
-{
-{   Rev 1.7    7/1/2003 05:20:44 PM  JPMugaas
-{ Minor optimizations.  Illiminated some unnecessary string operations.
-}
-{
-{   Rev 1.5    7/1/2003 03:39:58 PM  JPMugaas
-{ Started numeric IP function API calls for more efficiency.
-}
-{
-{   Rev 1.4    7/1/2003 12:46:06 AM  JPMugaas
-{ Preliminary stack functions taking an IP address numerical structure instead
-{ of a string.
-}
-{
+
+
+   Rev 1.8    10/26/2004 8:20:04 PM  JPMugaas
+ Fixed some oversights with conversion.  OOPS!!!
+
+
+   Rev 1.7    07/06/2004 21:31:24  CCostelloe
+ Kylix 3 changes
+
+
+   Rev 1.6    4/18/04 10:43:24 PM  RLebeau
+ Fixed syntax error
+
+
+   Rev 1.5    4/18/04 10:29:58 PM  RLebeau
+ Renamed Int64Parts structure to TIdInt64Parts
+
+
+   Rev 1.4    4/18/04 2:47:46 PM  RLebeau
+ Conversion support for Int64 values
+
+
+   Rev 1.3    2004.03.07 11:45:28 AM  czhower
+ Flushbuffer fix + other minor ones found
+
+
+   Rev 1.2    3/6/2004 5:16:34 PM  JPMugaas
+ Bug 67 fixes.  Do not write to const values.
+
+
+   Rev 1.1    3/6/2004 4:23:52 PM  JPMugaas
+ Error #62 fix.  This seems to work in my tests.
+
+
+   Rev 1.0    2004.02.03 3:14:48 PM  czhower
+ Move and updates
+
+
+   Rev 1.33    2/1/2004 6:10:56 PM  JPMugaas
+ GetSockOpt.
+
+
+   Rev 1.32    2/1/2004 3:28:36 AM  JPMugaas
+ Changed WSGetLocalAddress to GetLocalAddress and moved into IdStack since
+ that will work the same in the DotNET as elsewhere.  This is required to
+ reenable IPWatch.
+
+
+   Rev 1.31    1/31/2004 1:12:48 PM  JPMugaas
+ Minor stack changes required as DotNET does support getting all IP addresses
+ just like the other stacks.
+
+
+   Rev 1.30    12/4/2003 3:14:52 PM  BGooijen
+ Added HostByAddress
+
+
+   Rev 1.29    1/3/2004 12:38:56 AM  BGooijen
+ Added function SupportsIPv6
+
+
+   Rev 1.28    12/31/2003 9:52:02 PM  BGooijen
+ Added IPv6 support
+
+
+   Rev 1.27    10/26/2003 05:33:14 PM  JPMugaas
+ LocalAddresses should work.
+
+
+   Rev 1.26    10/26/2003 5:04:28 PM  BGooijen
+ UDP Server and Client
+
+
+   Rev 1.25    10/26/2003 09:10:26 AM  JPMugaas
+ Calls necessary for IPMulticasting.
+
+
+   Rev 1.24    10/22/2003 04:40:52 PM  JPMugaas
+ Should compile with some restored functionality.  Still not finished.
+
+
+   Rev 1.23    10/21/2003 11:04:20 PM  BGooijen
+ Fixed name collision
+
+
+   Rev 1.22    10/21/2003 01:20:02 PM  JPMugaas
+ Restore GWindowsStack because it was needed by SuperCore.
+
+
+   Rev 1.21    10/21/2003 06:24:28 AM  JPMugaas
+ BSD Stack now have a global variable for refercing by platform specific
+ things.  Removed corresponding var from Windows stack.
+
+
+   Rev 1.20    10/19/2003 5:21:32 PM  BGooijen
+ SetSocketOption
+
+
+   Rev 1.19    2003.10.11 5:51:16 PM  czhower
+ -VCL fixes for servers
+ -Chain suport for servers (Super core)
+ -Scheduler upgrades
+ -Full yarn support
+
+
+   Rev 1.18    2003.10.02 8:01:08 PM  czhower
+ .Net
+
+
+   Rev 1.17    2003.10.02 12:44:44 PM  czhower
+ Fix for Bind, Connect
+
+
+   Rev 1.16    2003.10.02 10:16:32 AM  czhower
+ .Net
+
+
+   Rev 1.15    2003.10.01 9:11:26 PM  czhower
+ .Net
+
+
+   Rev 1.14    2003.10.01 12:30:08 PM  czhower
+ .Net
+
+
+   Rev 1.12    10/1/2003 12:14:12 AM  BGooijen
+ DotNet: removing CheckForSocketError
+
+
+   Rev 1.11    2003.10.01 1:12:40 AM  czhower
+ .Net
+
+
+   Rev 1.10    2003.09.30 1:23:04 PM  czhower
+ Stack split for DotNet
+
+
+   Rev 1.9    9/8/2003 02:13:10 PM  JPMugaas
+ SupportsIP6 function added for determining if IPv6 is installed on a system.
+
+
+   Rev 1.8    2003.07.14 1:57:24 PM  czhower
+ -First set of IOCP fixes.
+ -Fixed a threadsafe problem with the stack class.
+
+
+   Rev 1.7    7/1/2003 05:20:44 PM  JPMugaas
+ Minor optimizations.  Illiminated some unnecessary string operations.
+
+
+   Rev 1.5    7/1/2003 03:39:58 PM  JPMugaas
+ Started numeric IP function API calls for more efficiency.
+
+
+   Rev 1.4    7/1/2003 12:46:06 AM  JPMugaas
+ Preliminary stack functions taking an IP address numerical structure instead
+ of a string.
+
+
     Rev 1.3    5/19/2003 6:00:28 PM  BGooijen
   TIdStackWindows.WSGetHostByAddr raised an ERangeError when the last number in
   the ip>127
-}
-{
+
+
     Rev 1.2    5/10/2003 4:01:28 PM  BGooijen
-}
-{
-{   Rev 1.1    2003.05.09 10:59:28 PM  czhower
-}
-{
-{   Rev 1.0    11/13/2002 08:59:38 AM  JPMugaas
+
+
+   Rev 1.1    2003.05.09 10:59:28 PM  czhower
+
+
+   Rev 1.0    11/13/2002 08:59:38 AM  JPMugaas
 }
 unit IdStackWindows;
 
