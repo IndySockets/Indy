@@ -3147,7 +3147,7 @@ function OffsetFromUTC: TDateTime;
     inline;
     {$ENDIF}
  {$ENDIF}
-{$IFDEF WIN32}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
   iBias: Integer;
   tmez: TTimeZoneInformation;
@@ -3156,7 +3156,7 @@ begin
   {$IFDEF DOTNET}
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ENDIF}
-  {$IFDEF WIN32}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   Case GetTimeZoneInformation(tmez) of
     TIME_ZONE_ID_INVALID:
     begin
