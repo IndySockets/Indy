@@ -1479,6 +1479,7 @@ Indy10/Lib/SuperCore/dclIndySuperCore70.res -text svneol=unset#unset
 Indy10/Lib/System/IdAntiFreezeBase.pas -text
 Indy10/Lib/System/IdAssemblyInfo.pas -text
 Indy10/Lib/System/IdBaseComponent.pas -text
+Indy10/Lib/System/IdCTypes.pas -text
 Indy10/Lib/System/IdCompilerDefines.inc -text
 Indy10/Lib/System/IdComponent.pas -text
 Indy10/Lib/System/IdException.pas -text
