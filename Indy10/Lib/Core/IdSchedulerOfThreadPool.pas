@@ -67,6 +67,7 @@
 unit IdSchedulerOfThreadPool;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdContext,

@@ -65,6 +65,7 @@
 unit IdScheduler;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdBaseComponent, IdThread, IdTask, IdYarn, IdThreadSafe;

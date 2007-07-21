@@ -37,7 +37,7 @@
   Rev 1.119    12/12/04 2:23:52 PM  RLebeau
   Added WriteRFCStrings() method
 
-    Rev 1.118    12/11/2004 9:04:50 PM  DSiders
+  Rev 1.118    12/11/2004 9:04:50 PM  DSiders
   Fixed comparison error in WaitFor.
 
   Rev 1.117    12/10/04 2:00:24 PM  RLebeau
@@ -396,10 +396,8 @@
 
 unit IdIOHandler;
 
-{$I IdCompilerDefines.inc}
-
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdException,
@@ -537,8 +535,8 @@ type
     procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False);
               overload; virtual;
     procedure Write(AValue: Char); overload;
-    procedure Write(AValue: Cardinal; AConvert: Boolean = True); overload;
-    procedure Write(AValue: Integer; AConvert: Boolean = True); overload;
+    procedure Write(AValue: LongWord; AConvert: Boolean = True); overload;
+    procedure Write(AValue: LongInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
     procedure Write(
@@ -596,8 +594,8 @@ type
     function ReadChar: Char;
     function ReadByte: Byte;
     function ReadString(ABytes: Integer): string;
-    function ReadCardinal(AConvert: Boolean = True): Cardinal;
-    function ReadInteger(AConvert: Boolean = True): Integer;
+    function ReadLongWord(AConvert: Boolean = True): LongWord;
+    function ReadLongInt(AConvert: Boolean = True): LongInt;
     function ReadInt64(AConvert: Boolean = True): Int64;
     function ReadSmallInt(AConvert: Boolean = True): SmallInt;
     //
@@ -853,7 +851,7 @@ begin
 }
 end;
 
-procedure TIdIOHandler.Write(AValue: Cardinal; AConvert: boolean);
+procedure TIdIOHandler.Write(AValue: LongWord; AConvert: boolean);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
@@ -861,7 +859,7 @@ begin
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: Integer; AConvert: Boolean = True);
+procedure TIdIOHandler.Write(AValue: LongInt; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := Integer(GStack.HostToNetwork(LongWord(AValue)));
@@ -919,7 +917,7 @@ var
   i: Integer;
 begin
   if AReadLinesCount <= 0 then begin
-    AReadLinesCount := ReadInteger;
+    AReadLinesCount := ReadLongInt;
   end;
   for i := 0 to AReadLinesCount - 1 do begin
     ADest.Add(ReadLn);
@@ -953,14 +951,14 @@ begin
   Result := LBytes[0];
 end;
 
-function TIdIOHandler.ReadInteger(AConvert: boolean): Integer;
+function TIdIOHandler.ReadLongInt(AConvert: boolean): LongInt;
 var
   LBytes: TIdBytes;
 begin
   ReadBytes(LBytes, SizeOf(Integer), False);
-  Result := BytesToInteger(LBytes);
+  Result := BytesToLongInt(LBytes);
   if AConvert then begin
-    Result := Integer(GStack.NetworkToHost(LongWord(Result)));
+    Result := LongInt(GStack.NetworkToHost(LongWord(Result)));
   end;
 end;
 
@@ -975,14 +973,14 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadCardinal(
+function TIdIOHandler.ReadLongWord(
   AConvert: boolean)
   : Cardinal;
 var
   LBytes: TIdBytes;
 begin
   ReadBytes(LBytes, SizeOf(LBytes), False);
-  Result := BytesToCardinal(LBytes);
+  Result := BytesToLongWord(LBytes);
   if AConvert then begin
     Result := GStack.NetworkToHost(Result);
   end;
@@ -1292,7 +1290,7 @@ begin
     if LargeStream then begin
       AByteCount := ReadInt64;
     end else begin
-      AByteCount := ReadInteger;
+    AByteCount := ReadLongInt;
     end;
   end;
 

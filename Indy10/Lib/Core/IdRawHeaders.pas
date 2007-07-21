@@ -48,7 +48,7 @@ uses
 type
 //RFC 3542 definitions
 //IPv6 Extension Headers
-   uint32_t = Cardinal;
+   uint32_t = LongWord;
    uint16_t = word;
    uint8_t = byte;
   // types redeclared to avoid dependencies on stack declarations
@@ -349,7 +349,7 @@ type
     function Getgateway_s_b2: Byte;
     function Getgateway_s_b3: Byte;
     function Getgateway_s_b4: Byte;
-    function Getgateway_s_l: Cardinal;
+    function Getgateway_s_l: LongWord;
     function Getgateway_s_w1: word;
     function Getgateway_s_w2: word;
     procedure Setecho_id(const Value: word);
@@ -360,7 +360,7 @@ type
     procedure Setgateway_s_b2(const Value: Byte);
     procedure Setgateway_s_b3(const Value: Byte);
     procedure Setgateway_s_b4(const Value: Byte);
-    procedure Setgateway_s_l(const Value: Cardinal);
+    procedure Setgateway_s_l(const Value: LongWord);
     procedure Setgateway_s_w1(const Value: word);
     procedure Setgateway_s_w2(const Value: word);
   public
@@ -373,16 +373,16 @@ type
     property gateway_s_b4 : Byte read Getgateway_s_b4 write Setgateway_s_b4;
     property gateway_s_w1 : word read Getgateway_s_w1 write Setgateway_s_w1;
     property gateway_s_w2 : word read Getgateway_s_w2 write Setgateway_s_w2;
-    property gateway_s_l  : Cardinal read Getgateway_s_l write Setgateway_s_l;
+    property gateway_s_l  : LongWord read Getgateway_s_l write Setgateway_s_l;
     property frag_pad: word read Getfrag_pad write Setfrag_pad;
     property frag_mtu: word read Getfrag_mtu write Setfrag_mtu;
   end;
   TIdicmp_dun = class(TIdUnion)
   protected
     function Getdata: Byte;
-    function Getmask: Cardinal;
+    function Getmask: LongWord;
     procedure setdata(const Value: Byte);
-    procedure Setmask(const Value: Cardinal);
+    procedure Setmask(const Value: LongWord);
     function Getts_otime: TIdNetTime;
     function Getts_rtime: TIdNetTime;
     function Getts_ttime: TIdNetTime;
@@ -394,7 +394,7 @@ type
     property ts_otime: TIdNetTime read Getts_otime write Setts_otime;        // time message was sent, to calc roundtrip time
     property ts_rtime: TIdNetTime read Getts_rtime write Setts_rtime;
     property ts_ttime: TIdNetTime read Getts_ttime write Setts_ttime;
-    property mask : Cardinal read Getmask write Setmask;
+    property mask : LongWord read Getmask write Setmask;
     property data : Byte read Getdata write setdata;
   end;
   TIdICMPHdr = class(TIdStruct)
@@ -812,9 +812,9 @@ begin
   begin
     SetLength(VBytes,VIndex+4);
   end;
-  CopyTIdWord(Fs_w1,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fs_w1),VBytes,VIndex);
   inc(VIndex,2);
-  CopyTIdWord(Fs_w2,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fs_w2),VBytes,VIndex);
   inc(VIndex,2);
 end;
 
@@ -837,9 +837,9 @@ begin
   begin
     SetLength(VBytes,VIndex+4);
   end;
-  CopyTIdWord(Fid,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fid),VBytes,VIndex);
   inc(VIndex,2);
-  CopyTIdWord(seq,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(seq),VBytes,VIndex);
   inc(VIndex,2);
 end;
 
@@ -862,9 +862,9 @@ begin
   begin
     SetLength(VBytes,VIndex+4);
   end;
-  CopyTIdWord(Fpad,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fpad),VBytes,VIndex);
   inc(VIndex,2);
-  CopyTIdWord(Fmtu,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fmtu),VBytes,VIndex);
   inc(VIndex,2);
 end;
 
@@ -879,11 +879,11 @@ begin
 }
   inherited ReadStruct(ABytes,VIndex);
 //   Assert(Length(ABytes)>=VIndex+11,'not enough bytes');
-    Fotime := BytesToCardinal(ABytes,VIndex);        // time message was sent, to calc roundtrip time
+    Fotime := BytesToLongWord(ABytes,VIndex);        // time message was sent, to calc roundtrip time
    inc(VIndex,4);
-    Frtime := BytesToCardinal(ABytes,VIndex);
+    Frtime := BytesToLongWord(ABytes,VIndex);
     inc(VIndex,4);
-    Fttime := BytesToCardinal(ABytes,VIndex);
+    Fttime := BytesToLongWord(ABytes,VIndex);
     inc(VIndex,4);
 end;
 
@@ -894,11 +894,11 @@ begin
   begin
     SetLength(VBytes,VIndex+12);
   end;
-  CopyTIdWord(Fotime,VBytes,VIndex);        // time message was sent, to calc roundtrip time
+  CopyTIdWord(HostToLittleEndian(Fotime),VBytes,VIndex);        // time message was sent, to calc roundtrip time
   inc(VIndex,4);
-  CopyTIdWord(  Frtime,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Frtime),VBytes,VIndex);
   inc(VIndex,4);
-  CopyTIdWord(  Fttime,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Fttime),VBytes,VIndex);
   inc(VIndex,4);
 end;
 
@@ -934,12 +934,12 @@ end;
 
 function TIdicmp_hun.Getgateway_s_w1: word;
 begin
-  result := BytesToCardinal(FBuffer,0);
+  result := BytesToLongWord(FBuffer,0);
 end;
 
 procedure TIdicmp_hun.Setgateway_s_w1(const Value: word);
 begin
-  CopyTIdCardinal(Value,FBuffer,0);
+  CopyTIdLongWord(Value,FBuffer,0);
 end;
 
 function TIdicmp_hun.Getgateway_s_w2: word;
@@ -949,7 +949,7 @@ end;
 
 procedure TIdicmp_hun.Setgateway_s_w2(const Value: word);
 begin
-  CopyTIdWord(Value,FBuffer,2);
+  CopyTIdWord(HostToLittleEndian(Value),FBuffer,2);
 end;
 
 function TIdicmp_hun.Getgateway_s_b1: Byte;
@@ -992,14 +992,14 @@ begin
    FBuffer[3] :=  Value;
 end;
 
-function TIdicmp_hun.Getgateway_s_l: Cardinal;
+function TIdicmp_hun.Getgateway_s_l: LongWord;
 begin
-  result := BytesToCardinal(FBuffer,0);
+  result := BytesToLongWord(FBuffer,0);
 end;
 
-procedure TIdicmp_hun.Setgateway_s_l(const Value: Cardinal);
+procedure TIdicmp_hun.Setgateway_s_l(const Value: LongWord);
 begin
-  CopyTIdCardinal(Value,FBuffer,0);
+  CopyTIdLongWord(Value,FBuffer,0);
 end;
 
 function TIdicmp_hun.Getfrag_pad: word;
@@ -1026,40 +1026,40 @@ end;
 
 function TIdicmp_dun.Getts_otime: TIdNetTime;
 begin
-  result := BytesToCardinal(FBuffer,0);
+  result := BytesToLongWord(FBuffer,0);
 end;
 
 procedure TIdicmp_dun.Setts_otime(const Value: TIdNetTime);
 begin
-  CopyTIdCardinal(Value,FBuffer,0);
+  CopyTIdLongWord(Value,FBuffer,0);
 end;
 
 function TIdicmp_dun.Getts_rtime: TIdNetTime;
 begin
-  result := BytesToCardinal(FBuffer,4);
+  result := BytesToLongWord(FBuffer,4);
 end;
 
 procedure TIdicmp_dun.Setts_rtime(const Value: TIdNetTime);
 begin
-  CopyTIdCardinal(Value,FBuffer,4);
+  CopyTIdLongWord(Value,FBuffer,4);
 end;
 
 function TIdicmp_dun.Getts_ttime: TIdNetTime;
 begin
- result := BytesToCardinal(FBuffer,4);
+ result := BytesToLongWord(FBuffer,4);
 end;
 
 procedure TIdicmp_dun.Setts_ttime(const Value: TIdNetTime);
 begin
-  CopyTIdCardinal(Value,FBuffer,8);
+  CopyTIdLongWord(Value,FBuffer,8);
 end;
 
-function TIdicmp_dun.Getmask: Cardinal;
+function TIdicmp_dun.Getmask: LongWord;
 begin
    Result := Getts_otime;
 end;
 
-procedure TIdicmp_dun.Setmask(const Value: Cardinal);
+procedure TIdicmp_dun.Setmask(const Value: LongWord);
 begin
    Setts_otime(Value);
 end;
@@ -1218,7 +1218,7 @@ begin
   Fip_src.ReadStruct(ABytes,VIndex);     // source address
   Fip_dst.ReadStruct(ABytes,VIndex);       // dest address
 
-  Fip_options:=  BytesToCardinal(ABytes,VIndex);  // options + padding
+  Fip_options:=  BytesToLongWord(ABytes,VIndex);  // options + padding
   Inc(VIndex,4);
 end;
 
@@ -1250,7 +1250,7 @@ begin
   Fip_src.WriteStruct(VBytes,VIndex);     // source address
   Fip_dst.WriteStruct(VBytes,VIndex);       // dest address
 
-  CopyTIdCardinal(Fip_options,VBytes,VIndex);  // options + padding
+  CopyTIdLongWord(Fip_options,VBytes,VIndex);  // options + padding
   Inc(VIndex,4);
 end;
 
@@ -1298,9 +1298,9 @@ begin
   Inc(VIndex,2);
     Ftcp_dport:= BytesToWord(ABytes,VIndex);        // destination port
   Inc(VIndex,2);
-    Ftcp_seq := BytesToCardinal(ABytes,VIndex);      // sequence number
+    Ftcp_seq := BytesToLongWord(ABytes,VIndex);      // sequence number
     Inc(VIndex,4);
-   Ftcp_ack := BytesToCardinal(ABytes,VIndex);       // acknowledgement number
+   Ftcp_ack := BytesToLongWord(ABytes,VIndex);       // acknowledgement number
     Inc(VIndex,4);
     Ftcp_x2off := ABytes[VIndex];        // data offset
     Inc(VIndex);
@@ -1325,9 +1325,9 @@ begin
   Inc(VIndex,2);
   CopyTIdWord(   Ftcp_dport,VBytes,VIndex);        // destination port
     Inc(VIndex,2);
-  CopyTIdCardinal(   Ftcp_seq,VBytes,VIndex);       // sequence number
+  CopyTIdLongWord(   Ftcp_seq,VBytes,VIndex);       // sequence number
     Inc(VIndex,4);
-  CopyTIdCardinal(   Ftcp_ack,VBytes,VIndex);      // acknowledgement number
+  CopyTIdLongWord(   Ftcp_ack,VBytes,VIndex);      // acknowledgement number
     Inc(VIndex,4);
   VBytes[VIndex] :=  Ftcp_x2off;         // data offset
     Inc(VIndex);
@@ -1647,13 +1647,13 @@ begin
     Inc(VIndex,2);    //8
     Frip_rt:= BytesToWord(ABytes,VIndex);              // zero (v1) or route tag (v2)
     Inc(VIndex,2);    //10
-    Frip_addr:= BytesToCardinal(ABytes,VIndex);        // IP address
+    Frip_addr:= BytesToLongWord(ABytes,VIndex);        // IP address
     Inc(VIndex,4);   //14
-    Frip_mask:= BytesToCardinal(ABytes,VIndex);      // zero (v1) or subnet mask (v2)
+    Frip_mask:= BytesToLongWord(ABytes,VIndex);      // zero (v1) or subnet mask (v2)
     Inc(VIndex,4);   //18
-    Frip_next_hop:= BytesToCardinal(ABytes,VIndex); // zero (v1) or next hop IP address (v2)
+    Frip_next_hop:= BytesToLongWord(ABytes,VIndex); // zero (v1) or next hop IP address (v2)
     Inc(VIndex,4);   //22
-    Frip_metric:= BytesToCardinal(ABytes,VIndex);     // metric
+    Frip_metric:= BytesToLongWord(ABytes,VIndex);     // metric
     Inc(VIndex,4);    //26
 end;
 
@@ -1674,13 +1674,13 @@ begin
   Inc(VIndex,2);
   CopyTIdWord( Frip_rt,VBytes,VIndex);              // zero (v1) or route tag (v2)
   Inc(VIndex,2);
-  CopyTIdCardinal(Frip_addr,VBytes,VIndex);        // IP address
+  CopyTIdLongWord(Frip_addr,VBytes,VIndex);        // IP address
   Inc(VIndex,4);
-  CopyTIdCardinal(Frip_mask,VBytes,VIndex);        // zero (v1) or subnet mask (v2)
+  CopyTIdLongWord(Frip_mask,VBytes,VIndex);        // zero (v1) or subnet mask (v2)
   Inc(VIndex,4);
-  CopyTIdCardinal(Frip_next_hop,VBytes,VIndex);    // zero (v1) or next hop IP address (v2)
+  CopyTIdLongWord(Frip_next_hop,VBytes,VIndex);    // zero (v1) or next hop IP address (v2)
   Inc(VIndex,4);
-  CopyTIdCardinal(Frip_metric,VBytes,VIndex);      // metric
+  CopyTIdLongWord(Frip_metric,VBytes,VIndex);      // metric
   Inc(VIndex,4);
 end;
 
@@ -1712,12 +1712,12 @@ end;
 
 function TIdicmp6_un.Geticmp6_un_data32: uint32_t;
 begin
-  Result := BytesToCardinal(FBuffer,0);
+  Result := BytesToLongWord(FBuffer,0);
 end;
 
 procedure TIdicmp6_un.Seticmp6_un_data32(const Value: uint32_t);
 begin
-  CopyTIdCardinal(Value,FBuffer,0);
+  CopyTIdLongWord(Value,FBuffer,0);
 end;
 
 function TIdicmp6_un.Geticmp6_un_data8(Index: Integer): uint8_t;
@@ -1820,7 +1820,7 @@ begin
   Inc(VIndex);
   VBytes[VIndex] := FIcmp6_code;
   Inc(VIndex);
-  CopyTIdWord(Ficmp6_cksum,VBytes,VIndex);
+  CopyTIdWord(HostToLittleEndian(Ficmp6_cksum),VBytes,VIndex);
   Inc(VIndex,2);
 
   Fdata.WriteStruct(VBytes,VIndex);

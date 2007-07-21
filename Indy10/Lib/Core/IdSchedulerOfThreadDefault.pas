@@ -64,6 +64,7 @@
 unit IdSchedulerOfThreadDefault;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdThread, IdSchedulerOfThread, IdScheduler, IdYarn, IdContext;

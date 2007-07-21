@@ -55,7 +55,8 @@
 unit IdThreadSafe;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//we need to put this in Delphi mode to work
 uses
   Classes,
   IdGlobal;

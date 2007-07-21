@@ -87,7 +87,8 @@
 unit IdExceptionCore;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//needed to put FCP into Delphi mode
 uses
   IdException, IdStack;
 
@@ -177,9 +178,6 @@ type
   {IdMessage and things use this}
   EIdMessageException = class(EIdException);
 
-  { resolving hostnames }
-  EIdResolveError = class(EIdSocketError);
-  EIdReverseResolveError = class(EIdSocketError);
   //scheduler exception
   EIdSchedulerException = class(EIdException);
   EIdSchedulerMaxThreadsExceeded = class(EIdSchedulerException);

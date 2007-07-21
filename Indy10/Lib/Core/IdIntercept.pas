@@ -62,7 +62,8 @@
 unit IdIntercept;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//here only to put FPC in Delphi mode
 uses
   Classes,
   IdGlobal, IdBaseComponent, IdBuffer, IdException;

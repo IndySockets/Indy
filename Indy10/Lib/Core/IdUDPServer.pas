@@ -68,7 +68,8 @@
 unit IdUDPServer;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//Put FPC into Delphi mode
 uses
   Classes,
   IdComponent,
@@ -132,18 +133,17 @@ type
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
     function GetActive: Boolean; override;
     function GetBinding: TIdSocketHandle; override;
-    function GetDefaultPort: integer;
+    function GetDefaultPort: TIdPort;
     procedure InitComponent; override;
     procedure SetBindings(const Value: TIdSocketHandles);
-    procedure SetDefaultPort(const AValue: integer);
+    procedure SetDefaultPort(const AValue: TIdPort);
   public
     destructor Destroy; override;
     //C+Builder doesn't allow you to publish metaclass properties.
     property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
-
   published
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
-    property DefaultPort: integer read GetDefaultPort write SetDefaultPort;
+    property DefaultPort: TIdPort read GetDefaultPort write SetDefaultPort;
     property OnUDPRead: TUDPReadEvent read FOnUDPRead write FOnUDPRead;
     property OnUDPException : TIdUDPExceptionEvent read FOnUDPException write FOnUDPException;
     property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
@@ -153,8 +153,6 @@ type
 implementation
 
 uses IdGlobalCore, SysUtils;
-
-{$I IdCompilerDefines.inc}
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var
@@ -279,7 +277,7 @@ begin
   Result := FCurrentBinding;
 end;
 
-function TIdUDPServer.GetDefaultPort: Integer;
+function TIdUDPServer.GetDefaultPort: TIdPort;
 begin
   Result := FBindings.DefaultPort;
 end;
@@ -298,7 +296,7 @@ begin
   FBindings.Assign(Value);
 end;
 
-procedure TIdUDPServer.SetDefaultPort(const AValue: integer);
+procedure TIdUDPServer.SetDefaultPort(const AValue: TIdPort);
 begin
   FBindings.DefaultPort := AValue;
 end;
@@ -331,7 +329,8 @@ end;
 procedure TIdUDPListenerThread.Run;
 var
   PeerIP: string;
-  PeerPort, ByteCount: Integer;
+  PeerPort : TIdPort;
+  ByteCount: Integer;
 begin
   if FBinding.Select(AcceptWait) then try
     // Doublecheck to see if we've been stopped

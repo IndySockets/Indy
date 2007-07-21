@@ -50,6 +50,7 @@ unit IdInterceptSimLog;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

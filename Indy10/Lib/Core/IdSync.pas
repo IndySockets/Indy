@@ -64,6 +64,7 @@ unit IdSync;
 // Author: Chad Z. Hower - a.k.a. Kudzu
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

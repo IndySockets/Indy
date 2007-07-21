@@ -11,179 +11,180 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
-  $Log$
-}
-{
-{   Rev 1.38    11/15/2004 11:59:12 PM  JPMugaas
-{ Hopefully, this should handle IPv6 addresses in SOCKS bind and listen.
-}
-{
-{   Rev 1.37    11/12/2004 11:30:18 AM  JPMugaas
-{ Expansions for IPv6.
-}
-{
-{   Rev 1.36    11/11/2004 10:25:24 PM  JPMugaas
-{ Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
-{ from the UDP client with SOCKS.  You must call OpenProxy  before using
-{ RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
-{ any connection to the Proxy.  Connect and disconnect also call OpenProxy and
-{ CloseProxy.
-}
-{
-{   Rev 1.35    11/11/2004 3:42:50 AM  JPMugaas
-{ Moved strings into RS.  Socks will now raise an exception if you attempt to
-{ use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
-{ at all.
-}
-{
-{   Rev 1.34    11/10/2004 10:55:58 PM  JPMugaas
-{ UDP Association bug fix - we now send 0's for IP address and port.
-}
-{
-{   Rev 1.33    11/10/2004 10:38:42 PM  JPMugaas
-{ Bug fixes - UDP with SOCKS now works.
-}
-{
-{   Rev 1.32    11/10/2004 9:42:54 PM  JPMugaas
-{ 1 in a reserved position should be 0 in a UDP request packet.
-}
-{
-{   Rev 1.31    11/9/2004 8:18:00 PM  JPMugaas
-{ Attempt to add SOCKS support in UDP.
-}
-{
-{   Rev 1.30    03/07/2004 10:08:22  CCostelloe
-{ Removed spurious code that generates warning
-}
-{
-{   Rev 1.29    6/9/04 7:44:44 PM  RLebeau
-{ various ReadBytes() tweaks
-{ 
-{ updated MakeSocks4Request() to call AIOHandler.WriteBufferCancel() on error.
-}
-{
-{   Rev 1.28    2004.05.20 1:39:58 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.27    2004.05.20 9:19:24 AM  czhower
-{ Removed unused var
-}
-{
+
+
+ $Log$
+
+
+   Rev 1.38    11/15/2004 11:59:12 PM  JPMugaas
+ Hopefully, this should handle IPv6 addresses in SOCKS bind and listen.
+
+
+   Rev 1.37    11/12/2004 11:30:18 AM  JPMugaas
+ Expansions for IPv6.
+
+
+   Rev 1.36    11/11/2004 10:25:24 PM  JPMugaas
+ Added OpenProxy and CloseProxy so you can do RecvFrom and SendTo functions
+ from the UDP client with SOCKS.  You must call OpenProxy  before using
+ RecvFrom or SendTo.  When you are finished, you must use CloseProxy to close
+ any connection to the Proxy.  Connect and disconnect also call OpenProxy and
+ CloseProxy.
+
+
+   Rev 1.35    11/11/2004 3:42:50 AM  JPMugaas
+ Moved strings into RS.  Socks will now raise an exception if you attempt to
+ use SOCKS4 and SOCKS4A with UDP.  Those protocol versions do not support UDP
+ at all.
+
+
+   Rev 1.34    11/10/2004 10:55:58 PM  JPMugaas
+ UDP Association bug fix - we now send 0's for IP address and port.
+
+
+   Rev 1.33    11/10/2004 10:38:42 PM  JPMugaas
+ Bug fixes - UDP with SOCKS now works.
+
+
+   Rev 1.32    11/10/2004 9:42:54 PM  JPMugaas
+ 1 in a reserved position should be 0 in a UDP request packet.
+
+
+   Rev 1.31    11/9/2004 8:18:00 PM  JPMugaas
+ Attempt to add SOCKS support in UDP.
+
+
+   Rev 1.30    03/07/2004 10:08:22  CCostelloe
+ Removed spurious code that generates warning
+
+
+   Rev 1.29    6/9/04 7:44:44 PM  RLebeau
+ various ReadBytes() tweaks
+ 
+ updated MakeSocks4Request() to call AIOHandler.WriteBufferCancel() on error.
+
+
+   Rev 1.28    2004.05.20 1:39:58 PM  czhower
+ Last of the IdStream updates
+
+
+    Rev 1.27    2004.05.20 9:19:24 AM  czhower
+  Removed unused var
+
+
     Rev 1.26    5/19/2004 10:44:42 PM  DSiders
   Corrected spelling for TIdIPAddress.MakeAddressObject method.
-}
-{
-{   Rev 1.25    5/19/2004 2:44:40 PM  JPMugaas
-{ Fixed compiler warnings in TIdSocksInfo.Listen.
-}
-{
-{   Rev 1.24    5/8/2004 3:45:34 PM  BGooijen
-{ Listen works in Socks 4 now
-}
-{
-{   Rev 1.23    5/7/2004 4:52:44 PM  JPMugaas
-{ Bind in SOCKS4 should work a bit better.  There's still some other work that
-{ needs to be done on it.
-}
-{
-{   Rev 1.22    5/7/2004 8:54:54 AM  JPMugaas
-{ Attempt to add SOCKS4 bind.
-}
-{
-{   Rev 1.21    5/7/2004 7:43:24 AM  JPMugaas
-{ Checked Bas's changes.
-}
-{
-{   Rev 1.20    5/7/2004 5:53:20 AM  JPMugaas
-{ Removed some duplicate code to reduce the probability of error.
-}
-{
-{   Rev 1.19    5/7/2004 1:44:12 AM  BGooijen
-{ Bind
-}
-{
-{   Rev 1.18    5/6/2004 6:47:04 PM  JPMugaas
-{ Attempt to work on bind further.
-}
-{
-{   Rev 1.16    5/6/2004 5:32:58 PM  JPMugaas
-{ Port was being mangled because the compiler was assuming you wanted a 4 byte
-{ byte order instead of only a two byte byte order function.
-{ IP addresses are better handled.  At least I can connect again.
-}
-{
-{   Rev 1.15    5/5/2004 2:09:40 PM  JPMugaas
-{ Attempt to reintroduce bind and listen functionality for FTP.
-}
-{
-{   Rev 1.14    2004.03.07 11:48:44 AM  czhower
-{ Flushbuffer fix + other minor ones found
-}
-{
-{   Rev 1.13    2004.02.03 4:16:52 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.12    2/2/2004 2:33:04 PM  JPMugaas
-{ Should compile better.
-}
-{
-{   Rev 1.11    2/2/2004 12:23:16 PM  JPMugaas
-{ Attempt to fix the last Todo concerning IPv6.
-}
-{
-{   Rev 1.10    2/2/2004 11:43:08 AM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.9    2/2/2004 12:00:08 AM  BGooijen
-{ Socks 4 / 4A working again
-}
-{
-{   Rev 1.8    2004.01.20 10:03:34 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.7    1/11/2004 10:45:56 PM  BGooijen
-{ Socks 5 works on D7 now, Socks 4 almost
-}
-{
-{   Rev 1.6    2003.10.11 5:50:34 PM  czhower
-{ -VCL fixes for servers
-{ -Chain suport for servers (Super core)
-{ -Scheduler upgrades
-{ -Full yarn support
-}
-{
-{   Rev 1.5    2003.10.01 1:37:34 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.4    2003.09.30 7:37:28 PM  czhower
-{ Updates for .net
-}
-{
-    Rev 1.3    4/2/2003 3:23:00 PM  BGooijen
-  fixed and re-enabled
-}
-{
-{   Rev 1.2    2003.01.10 8:21:04 PM  czhower
-{ Removed more warnings
-}
-{
-{   Rev 1.1    2003.01.10 7:21:14 PM  czhower
-{ Removed warnings
-}
-{
-{   Rev 1.0    11/13/2002 08:58:56 AM  JPMugaas
+
+
+   Rev 1.25    5/19/2004 2:44:40 PM  JPMugaas
+ Fixed compiler warnings in TIdSocksInfo.Listen.
+
+
+   Rev 1.24    5/8/2004 3:45:34 PM  BGooijen
+ Listen works in Socks 4 now
+
+
+   Rev 1.23    5/7/2004 4:52:44 PM  JPMugaas
+ Bind in SOCKS4 should work a bit better.  There's still some other work that
+ needs to be done on it.
+
+
+   Rev 1.22    5/7/2004 8:54:54 AM  JPMugaas
+ Attempt to add SOCKS4 bind.
+
+
+   Rev 1.21    5/7/2004 7:43:24 AM  JPMugaas
+ Checked Bas's changes.
+
+
+   Rev 1.20    5/7/2004 5:53:20 AM  JPMugaas
+ Removed some duplicate code to reduce the probability of error.
+
+
+   Rev 1.19    5/7/2004 1:44:12 AM  BGooijen
+ Bind
+
+
+   Rev 1.18    5/6/2004 6:47:04 PM  JPMugaas
+ Attempt to work on bind further.
+
+
+   Rev 1.16    5/6/2004 5:32:58 PM  JPMugaas
+ Port was being mangled because the compiler was assuming you wanted a 4 byte
+ byte order instead of only a two byte byte order function.
+ IP addresses are better handled.  At least I can connect again.
+
+
+   Rev 1.15    5/5/2004 2:09:40 PM  JPMugaas
+ Attempt to reintroduce bind and listen functionality for FTP.
+
+
+   Rev 1.14    2004.03.07 11:48:44 AM  czhower
+ Flushbuffer fix + other minor ones found
+
+
+   Rev 1.13    2004.02.03 4:16:52 PM  czhower
+ For unit name changes.
+
+
+   Rev 1.12    2/2/2004 2:33:04 PM  JPMugaas
+ Should compile better.
+
+
+   Rev 1.11    2/2/2004 12:23:16 PM  JPMugaas
+ Attempt to fix the last Todo concerning IPv6.
+
+
+   Rev 1.10    2/2/2004 11:43:08 AM  BGooijen
+ DotNet
+
+
+   Rev 1.9    2/2/2004 12:00:08 AM  BGooijen
+ Socks 4 / 4A working again
+
+
+   Rev 1.8    2004.01.20 10:03:34 PM  czhower
+ InitComponent
+
+
+   Rev 1.7    1/11/2004 10:45:56 PM  BGooijen
+ Socks 5 works on D7 now, Socks 4 almost
+
+
+   Rev 1.6    2003.10.11 5:50:34 PM  czhower
+ -VCL fixes for servers
+ -Chain suport for servers (Super core)
+ -Scheduler upgrades
+ -Full yarn support
+
+
+   Rev 1.5    2003.10.01 1:37:34 AM  czhower
+ .Net
+
+
+   Rev 1.4    2003.09.30 7:37:28 PM  czhower
+ Updates for .net
+
+
+   Rev 1.3    4/2/2003 3:23:00 PM  BGooijen
+ fixed and re-enabled
+
+
+   Rev 1.2    2003.01.10 8:21:04 PM  czhower
+ Removed more warnings
+
+
+   Rev 1.1    2003.01.10 7:21:14 PM  czhower
+ Removed warnings
+
+
+   Rev 1.0    11/13/2002 08:58:56 AM  JPMugaas
 }
 unit IdSocks;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//we need to put this in Delphi mode to work.
 uses
   Classes,
   IdAssignedNumbers, IdException, IdBaseComponent,
@@ -208,23 +209,23 @@ type
    
     //
     function DisasmUDPReplyPacket(const APacket : TIdBytes;
-      var VHost : String; var VPort : Integer): TIdBytes;
+      var VHost : String; var VPort : TIdPort): TIdBytes;
     function MakeUDPRequestPacket(const AData: TIdBytes;
-      const AHost : String; const APort : Integer) : TIdBytes;
+      const AHost : String; const APort : TIdPort) : TIdBytes;
     procedure AssignTo(ASource: TPersistent); override;
     function GetEnabled: Boolean; override;
     procedure InitComponent; override;
     procedure AuthenticateSocks5Connection(AIOHandler: TIdIOHandler);
     // This must be defined with an port value that's a word so that we use the 2 byte Network Order byte functions instead
     // the 4 byte or 8 byte functions.  If we use the wrong byte order functions, we can get a zero port value causing an error.
-    procedure MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: Word; const ARequest : Byte);
-    procedure MakeSocks5Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: Word; const ARequest : Byte; var VBuf : TIdBytes; var VLen : Integer);
-    procedure MakeSocks4Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer);
-    procedure MakeSocks4Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer);
-    procedure MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+    procedure MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte);
+    procedure MakeSocks5Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte; var VBuf : TIdBytes; var VLen : Integer);
+    procedure MakeSocks4Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort);
+    procedure MakeSocks4Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort);
+    procedure MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure MakeSocks5Bind(AIOHandler: TIdIOHandler; const AHost: string;
-      const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
-    procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+    procedure MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  MakeSocks4Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;
     function  MakeSocks5Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;
 
@@ -233,15 +234,15 @@ type
     procedure CloseSocks5UDPAssociation;
   public
     destructor Destroy; override;
-    procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;override;
-    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function RecvFromUDP(AHandle: TIdSocketHandle;
       var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer; const AIPVersion: TIdIPVersion;
+      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion;
        AMSec: Integer = IdTimeoutDefault): integer; override;
     procedure SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); override;
+      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); override;
     procedure CloseUDP(AHandle: TIdSocketHandle); override;
   published
     property Authentication: TSocksAuthentication read FAuthentication write FAuthentication default ID_SOCKS_AUTH;
@@ -276,7 +277,7 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: Word; const ARequest : Byte);
+procedure TIdSocksInfo.MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte);
 var
   LIpAddr: String;
   LTempPort : Word;
@@ -315,7 +316,8 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks4Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer);
+procedure TIdSocksInfo.MakeSocks4Connection(AIOHandler: TIdIOHandler;   const AHost: string; const APort: TIdPort);
+
 var
   LResponse: TIdBytes;
 begin
@@ -330,7 +332,7 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks5Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: Word; const ARequest : Byte; var VBuf : TIdBytes; var VLen : Integer);
+procedure TIdSocksInfo.MakeSocks5Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte; var VBuf : TIdBytes; var VLen : Integer);
 var LtempPort : Word;
   LIP : TIdIPAddress;
 begin
@@ -398,7 +400,7 @@ begin
   VLen := VLen + 2;
 end;
 
-procedure TIdSocksInfo.MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocksInfo.MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   pos: Integer;
   LBuf: TIdBytes;
@@ -449,7 +451,7 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks4Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer);
+procedure TIdSocksInfo.MakeSocks4Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort);
 var
   LResponse: TIdBytes;
   LClient: TIdTcpClient;
@@ -487,7 +489,7 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocksInfo.MakeConnection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: MakeSocks4Connection(AIOHandler, AHost, APort);
@@ -579,7 +581,7 @@ begin
 end;
 
 procedure TIdSocksInfo.MakeSocks5Bind(AIOHandler: TIdIOHandler; const AHost: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   Lpos: Integer;
   LBuf: TIdBytes;
@@ -656,7 +658,7 @@ begin
 end;
 
 procedure TIdSocksInfo.Bind(AIOHandler: TIdIOHandler; const AHost: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: MakeSocks4Bind(AIOHandler, AHost, APort);
@@ -844,7 +846,7 @@ begin
 end;
 
 procedure TIdSocksInfo.OpenUDP(AHandle: TIdSocketHandle;
-  const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: raise EIdSocksUDPNotSupportedBySOCKSVersion.Create(RSSocksUDPNotSupported);
@@ -853,7 +855,7 @@ begin
 end;
 
 function TIdSocksInfo.DisasmUDPReplyPacket(const APacket : TIdBytes;
-  var VHost : String; var VPort : Integer): TIdBytes;
+  var VHost : String; var VPort : TIdPort): TIdBytes;
 {
 
 
@@ -925,7 +927,7 @@ begin
 end;
 
 function TIdSocksInfo.MakeUDPRequestPacket(const AData: TIdBytes;
-      const AHost : String; const APort : Integer) : TIdBytes;
+      const AHost : String; const APort : TIdPort) : TIdBytes;
 
 {
 
@@ -1021,7 +1023,7 @@ end;
 
 function TIdSocksInfo.RecvFromUDP(AHandle: TIdSocketHandle;
  var ABuffer : TIdBytes;
-  var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion;
+  var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion;
   AMSec: Integer = IdTimeoutDefault): integer;
 var LBuf : TIdBytes;
 
@@ -1045,7 +1047,7 @@ begin
 end;
 
 procedure TIdSocksInfo.SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: Integer; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
+      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
 var LBuf : TIdBytes;
 begin
   case Version of

@@ -178,6 +178,7 @@
 unit IdIOHandlerStack;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

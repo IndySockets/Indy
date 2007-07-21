@@ -30,6 +30,7 @@ unit IdGlobalCore;
 
 interface
 
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdGlobal;

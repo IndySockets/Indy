@@ -42,15 +42,24 @@ uses
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf,
-      DesignEditors;
+      {$IFDEF FPC}
+      ComponentEditors;
+      {$ELSE}
+      DesignIntf, 
+       DesignEditors;
+       {$ENDIF}
+
     {$ELSE}
        Dsgnintf;
     {$ENDIF}
   {$ENDIF}
 
 type
+  {$IFDEF FPC}
+  TIdBaseComponentEditor = class(TDefaultComponentEditor)
+  {$ELSE}
   TIdBaseComponentEditor = class(TDefaultEditor)
+  {$ENDIF}
   public
     procedure ExecuteVerb(Index: Integer); override;
     function GetVerb(Index: Integer): string; override;

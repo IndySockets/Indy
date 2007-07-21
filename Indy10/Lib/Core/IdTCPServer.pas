@@ -23,6 +23,7 @@
 unit IdTCPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses IdCustomTCPServer;
 

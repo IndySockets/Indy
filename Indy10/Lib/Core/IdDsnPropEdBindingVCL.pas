@@ -62,15 +62,23 @@ interface
 
 uses
   Classes,
-  {$IFDEF LINUX}
-  IdSocketHandle, QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Qt, Types;
-  {$ELSE}
-  ActnList,  Controls,
-  ExtCtrls, Forms, Graphics, IdSocketHandle,
-
-  StdCtrls;
+{$ifdef WidgetKylix}
+  QActnList, QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics,  Qt,
+{$endif}
+{$ifdef WidgetVCLLike}
+  ActnList, StdCtrls, Buttons, ExtCtrls, Graphics, Controls, ComCtrls, Forms, Dialogs,
   {$ENDIF}
+{$ifdef Delphi6up}
+  Types
+{$endif}
 
+  {$IFDEF Windows}
+    Windows,
+ {$ENDIF}
+  {$IFDEF LCL}
+    LResources,
+ {$ENDIF}
+  IdSocketHandle;
 {
   Design Note:  It turns out that in DotNET, there are no services file functions and
   IdPorts does not work as expected in DotNET.  It is probably possible to read the
@@ -91,11 +99,15 @@ uses
   TODO:  Maybe there might be a way to find the location in a more elegant
   manner than what I described.
 }
-
 type
   TIdDsnPropEdBindingVCL = class(TForm)
+   {$IFDEF UseTBitBtn}
+    btnOk: TBitBtn;
+    btnCancel: TBitBtn;
+  {$ELSE}
     btnOk: TButton;
     btnCancel: TButton;
+  {$ENDIF}
     lblBindings: TLabel;
     edtPort: TComboBox;
     rdoBindingType: TRadioGroup;
@@ -122,6 +134,7 @@ type
     procedure SetIPv6Addresses(const Value: TStrings);
     procedure UpdateBindingList;
   protected
+    FInUpdateRoutine : Boolean;
     FHandles : TIdSocketHandles;
     FDefaultPort : Integer;
     FIPv4Addresses : TStrings;
@@ -278,14 +291,18 @@ constructor TIdDsnPropEdBindingVCL.Create(AOwner: TComponent);
 var i : Integer;
 begin
   inherited CreateNew(AOwner);
-  {$IFNDEF LINUX}
+  {$IFNDEF WidgetKylix}
   Borderstyle := bsDialog;
   {$ENDIF}
   BorderIcons := [biSystemMenu];
  // Width := 480;
  // Height := 252;
   ClientWidth  := 472;
+  {$IFDEF UseTBitBtn}
+  ClientHeight := 230;
+  {$ELSE}
   ClientHeight := 225;
+  {$ENDIF}
   Constraints.MaxWidth := Width;
   Constraints.MaxHeight := Height;
   Constraints.MinWidth := Width;
@@ -305,8 +322,13 @@ begin
   edtPort := TComboBox.Create(Self);
 
   rdoBindingType := TRadioGroup.Create(Self);
+  {$IFDEF UseTBitBtn}
+  btnOk := TBitBtn.Create(Self);
+  btnCancel := TBitBtn.Create(Self);
+  {$ELSE}
   btnOk := TButton.Create(Self);
   btnCancel := TButton.Create(Self);
+  {$ENDIF}
   with lblBindings do
   begin
     Name := 'lblBindings';  {do not localize}
@@ -440,28 +462,42 @@ begin
   begin
     Name := 'btnOk';  {do not localize}
     Parent := Self;
+    Anchors := [akRight, akBottom];
     Left := 306;
     Top := 193;
     Width := 75;
+    {$IFDEF UseTBitBtn}
+    Height := 30;
+    Kind := bkOk;
+    {$ELSE}
     Height := 25;
-    Anchors := [akRight, akBottom];
+
     Caption := RSOk;
     Default := True;
     ModalResult := 1;
+    {$ENDIF}
     TabOrder := 0;
   end;
   with btnCancel do
   begin
     Name := 'btnCancel';  {do not localize}
     Parent := Self;
+    Anchors := [akRight, akBottom];
     Left := 386;
     Top := 193;
     Width := 75;
+    {$IFDEF UseTBitBtn}
+    Height := 30;
+    Kind := bkCancel;
+    {$ELSE}
     Height := 25;
-    Anchors := [akRight, akBottom];
     Cancel := True;
     Caption := RSCancel;
     ModalResult := 2;
+    {$ENDIF}
+
+    Anchors := [akRight, akBottom];
+
     TabOrder := 1;
   end;
   FHandles := TIdSocketHandles.Create(nil);
@@ -491,13 +527,16 @@ begin
 
   AutoScroll := False;
   Caption := RSBindingFormCaption;
+  {$IFDEF WidgetVCL}
   Scaled := False;
+  {$ENDIF}
   Font.Color := clBtnText;
   Font.Height := -11;
   Font.Name := 'MS Sans Serif';    {Do not Localize}
   Font.Style := [];
   Position := poScreenCenter;
   PixelsPerInch := 96;
+  FInUpdateRoutine := False;
   UpdateEditControls;
 end;
 
@@ -584,7 +623,10 @@ begin
   else
   begin
     edtIPAddress.Text := '';
-    edtPort.ItemIndex := -2;
+    //in LCL, the line below caused an index out of range error.
+    {$IFDEF WidgetVCL}
+    edtPort.ItemIndex := -1; //-2;
+    {$ENDIF}
     edtPort.Text := '';
   end;
 
@@ -593,14 +635,14 @@ begin
   lblPort.Enabled := Assigned(FCurrentHandle);
   edtPort.Enabled := Assigned(FCurrentHandle);
   rdoBindingType.Enabled := Assigned(FCurrentHandle);
-  {$IFDEF LINUX}
+  {$IFDEF WidgetKylix}
   //WOrkaround for CLX quirk that might be Kylix 1
   for i := 0 to rdoBindingType.ControlCount -1 do
   begin
     rdoBindingType.Controls[i].Enabled := Assigned(FCurrentHandle);
   end;
   {$ENDIF}
-  {$IFNDEF LINUX}
+  {$IFDEF WidgetVCLLike}
   //The Win32 VCL does not change the control background to a greyed look
   //when controls are disabled.  This quirk is not present in CLX.
   if Assigned(FCurrentHandle) then
@@ -752,6 +794,13 @@ var
   selected: integer;
   s: string;
 begin
+//in Lazarus, for some odd reason, if you have more than one binding,
+//the routine is called while the items are updated
+  if FInUpdateRoutine then
+  begin
+    Exit;
+  end;
+  FInUpdateRoutine := True;
   selected := lbBindings.ItemIndex;
   lbBindings.Items.BeginUpdate;
   try
@@ -775,6 +824,7 @@ begin
     end else begin
       lbBindings.ItemIndex := Min(selected, lbBindings.Items.Count-1);
     end;
+    FInUpdateRoutine := False;
   end;
 end;
 

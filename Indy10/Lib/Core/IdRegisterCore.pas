@@ -116,7 +116,12 @@ implementation
 {$I IdCompilerDefines.inc}
 
 uses
+  {$IFDEF FPC}
+  LResources,
+  {$ENDIF}
+  {$IFNDEF DOTNET}
   IdIcmpClient,
+  {$ENDIF}
   IdSocks,
 
   IdDsnCoreResourceStrings,
@@ -152,7 +157,7 @@ uses
   {$R IconsDotNet\TIdCmdTCPClient.bmp}
   {$R IconsDotNet\TIdCmdTCPServer.bmp}
   {$R IconsDotNet\TIdConnectionIntercept.bmp}
-  {$R IconsDotNet\TIdIcmpClient.bmp}
+  {$R IconsDotNet\TIdICMPClient.bmp}
   {$R IconsDotNet\TIdInterceptSimLog.bmp}
   {$R IconsDotNet\TIdInterceptThrottler.bmp}
   {$R IconsDotNet\TIdIOHandlerStack.bmp}
@@ -174,23 +179,26 @@ uses
   {$R IconsDotNet\TIdIPMCastServer.bmp}
    {$R IconsDotNet\TIdSocksInfo.bmp}
 {$ELSE}
-  {$IFDEF Borland}
-    {$R IdCoreRegister.dcr}
-  {$ELSE}
-    {$R IdCoreRegisterCool.dcr}
+  {$IFNDEF FPC}
+    {$IFDEF Borland}
+      {$R IdCoreRegister.dcr}
+    {$ELSE}
+      {$R IdCoreRegisterCool.dcr}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
 procedure Register;
 begin
-
+  {$ifndef fpc}
   RegisterComponents(RSRegIndyClients, [
    TIdTCPClient
    ,TIdUDPClient
    ,TIdCmdTCPClient
    ,TIdIPMCastClient
-
+   {$IFNDEF DOTNET}
    ,TIdIcmpClient
+   {$ENDIF}
   ]);
   RegisterComponents(RSRegIndyServers, [
    TIdUDPServer,
@@ -220,6 +228,52 @@ begin
    TIdSchedulerOfThreadPool,
    TIdThreadComponent
   ]);
+  {$else}
+  //This is a tempoary workaround for components not fitting on the palette
+  //in Lazarus.  Unlike Delphi, Lazarus still does not have the ability to
+  //scroll through a palette page.
+  RegisterComponents(RSRegIndyClients+CoreSuffix, [
+   TIdTCPClient
+   ,TIdUDPClient
+   ,TIdCmdTCPClient
+   ,TIdIPMCastClient
+   {$IFNDEF DOTNET}
+   ,TIdIcmpClient
+   {$ENDIF}
+  ]);
+  RegisterComponents(RSRegIndyServers+CoreSuffix, [
+   TIdUDPServer,
+   TIdCmdTCPServer,
+   TIdSimpleServer,
+   TIdTCPServer,
+   TIdIPMCastServer
+  ]);
+  RegisterComponents(RSRegIndyIOHandlers+CoreSuffix,[
+   TIdIOHandlerStack
+   ,TIdIOHandlerStream
+   ,TIdServerIOHandlerStack
+  ]);
+  RegisterComponents(RSRegIndyIntercepts+CoreSuffix, [
+   TIdConnectionIntercept
+   ,TIdInterceptSimLog
+   ,TIdInterceptThrottler
+   ,TIdLogDebug
+   ,TIdLogEvent
+   ,TIdLogFile
+   ,TIdLogStream
+  ]);
+  RegisterComponents(RSRegIndyMisc+CoreSuffix, [
+   TIdSocksInfo,
+   TIdAntiFreeze,
+   TIdSchedulerOfThreadDefault,
+   TIdSchedulerOfThreadPool,
+   TIdThreadComponent
+  ]);
+  {$ENDIF}
 end;
 
+{$IFDEF FPC}
+initialization
+{$i IdRegisterCore.lrs}
+{$ENDIF}
 end.

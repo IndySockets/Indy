@@ -96,7 +96,7 @@ type
   protected
     FBinding: TIdSocketHandle;
     FHost: string;
-    FPort: integer;
+    FPort: TIdPort;
     FReceiveTimeout: integer;
     FProtocol: TIdSocketProtocol;
     FProtocolIPv6 : TIdSocketProtocol;
@@ -116,7 +116,7 @@ type
     //
     property IPVersion : TIdIPVersion read GetIPVersion write SetIPVersion;
     //
-    property Port: Integer read FPort write FPort default Id_TIdRawBase_Port;
+    property Port: TIdPort read FPort write FPort default Id_TIdRawBase_Port;
     property Protocol: TIdSocketProtocol read FProtocol write FProtocol default Id_IPPROTO_RAW;
     property ProtocolIPv6 : TIdSocketProtocol read FProtocolIPv6 write FProtocolIPv6;
     property TTL: Integer read FTTL write SetTTL default GFTTL;
@@ -127,8 +127,8 @@ type
     function ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
     procedure Send(const AData: string); overload; virtual;
     procedure Send(const AData: TIdBytes); overload;  virtual;
-    procedure Send(const AHost: string; const APort: Integer; const AData: string); overload; virtual;
-    procedure Send(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; virtual;
+    procedure Send(const AHost: string; const APort: TIdPort; const AData: string); overload; virtual;
+    procedure Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; virtual;
     //
     property Binding: TIdSocketHandle read GetBinding;
     property ReceiveTimeout: integer read FReceiveTimeout write FReceiveTimeout Default GReceiveTimeout;
@@ -160,7 +160,7 @@ begin
     if FBinding.IPVersion = Id_IPv4 then
     begin
       {$IFDEF LINUX}
-      FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocol);
+      FBinding.AllocateSocket(LongInt(Id_SOCK_RAW), FProtocol);
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
       {$ENDIF}
@@ -169,7 +169,7 @@ begin
     else
     begin
       {$IFDEF LINUX}
-      FBinding.AllocateSocket(Integer(Id_SOCK_RAW), FProtocolIPv6);
+      FBinding.AllocateSocket(LongInt(Id_SOCK_RAW), FProtocolIPv6);
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
       {$ENDIF}
@@ -197,7 +197,7 @@ end;
 function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1): Integer;
 var
   LIP : String;
-  LPort : Integer;
+  LPort : TIdPort;
 begin
   Result := 0;
   // TODO: pass flags to recv()
@@ -238,7 +238,7 @@ begin
   end;
 end;
 
-procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const AData: string);
+procedure TIdRawBase.Send(const AHost: string; const APort: TIdPort; const AData: string);
 begin
   Send(AHost, APort, ToBytes(AData));
 end;
@@ -253,7 +253,7 @@ begin
   Send(Host, Port, AData);
 end;
 
-procedure TIdRawBase.Send(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
+procedure TIdRawBase.Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes);
 var
   LIP : String;
 begin

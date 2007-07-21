@@ -133,10 +133,19 @@
 
 unit IdThread;
 
-{$I IdCompilerDefines.inc}
+{
+2002-03-12 -Andrew P.Rybin
+  -TerminatingExceptionClass, etc.
+2002-06-20 -Andrew P.Rybin
+  -"Terminated Start" bug fix (FLock.Leave AV)
+  -Wait All threads termination in FINALIZATION (prevent AV in WinSock)
+  -HandleRunException
+2003-01-27 -Andrew P.Rybin
+  -TIdThreadOptions
+}
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe, SysUtils;

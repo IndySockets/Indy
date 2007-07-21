@@ -45,6 +45,7 @@ unit IdDsnCoreResourceStrings;
 }
 
 interface
+{$I IdCompilerDefines.inc}
 
 const
   IndyPitCrew = 'Kudzu (Chad Z. Hower)'#13#10
@@ -121,6 +122,9 @@ resourcestring
   RSRegIndyIntercepts = 'Indy Intercepts';
   RSRegIndyIOHandlers = 'Indy I/O Handlers';
   RSRegIndyMisc = 'Indy Misc';
+{$IFDEF FPC}
+  CoreSuffix = ' - Core';
+{$ENDIF}
 
 implementation
 

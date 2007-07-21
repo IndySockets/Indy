@@ -96,7 +96,7 @@ unit IdCmdTCPClient;
 }
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   IdContext,
   IdException,

@@ -65,6 +65,7 @@
 unit IdContext;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

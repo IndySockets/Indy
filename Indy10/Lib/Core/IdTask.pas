@@ -26,6 +26,7 @@
 unit IdTask;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdYarn,

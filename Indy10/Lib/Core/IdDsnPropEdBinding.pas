@@ -78,26 +78,46 @@ unit IdDsnPropEdBinding;
 }
 
 interface
+ {$I IdCompilerDefines.inc}
 
-{$I IdCompilerDefines.inc}
-
-{$IFDEF DOTNET}
+{$IFDEF WidgetWinForms}
 {$R 'IdDsnPropEdBindingNET.TIdDsnPropEdBindingNET.resources' 'IdDsnPropEdBindingNET.resx'}
 {$ENDIF}
-
 uses
   Classes,
   IdSocketHandle,
-  {$IFDEF DOTNET}
+  {$IFDEF WidgetWinForms}
   IdDsnPropEdBindingNET;
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
   IdDsnPropEdBindingVCL;
   {$ENDIF}
 
+{
+Design Note:  It turns out that in DotNET, there are no services file functions and IdPorts
+does not work as expected in DotNET.  It is probably possible to read the services
+file ourselves but that creates some portability problems as the placement is different
+in every operating system.
+
+e.g.
+
+Linux and Unix-like systems - /etc
+Windows 95, 98, and ME - c:\windows
+Windows NT systems - c:\winnt\system32\drivers\etc
+
+Thus, it will undercut whatever benefit we could get with DotNET.
+
+About the best I could think of is to use an edit control because
+we can't offer anything from the services file in DotNET.
+
+TODO:  Maybe there might be a way to find the location in a more eligant
+manner than what I described.
+}
 type
-  {$IFDEF DOTNET}
-  TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
-  {$ELSE}
+  {$IFDEF WidgetWinForms}
+   TIdPropEdBindingEntry = TIdDsnPropEdBindingNET;
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
   TIdPropEdBindingEntry = TIdDsnPropEdBindingVCL;
   {$ENDIF}
 
@@ -105,7 +125,7 @@ procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 function GetListValues(const ASocketHandles : TIdSocketHandles) : String;
 
 implementation
-{$IFDEF DOTNET}
+{$IFDEF WidgetWinForms}
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 begin
   IdDsnPropEdBindingNET.FillHandleList(AList,ADest);
@@ -115,7 +135,8 @@ function GetListValues(const ASocketHandles : TIdSocketHandles) : String;
 begin
   Result := IdDsnPropEdBindingNET.GetListValues(ASocketHandles);
 end;
-{$ELSE}
+{$ENDIF}
+{$IFDEF WidgetVCLLikeOrKylix}
 procedure FillHandleList(const AList: string; ADest: TIdSocketHandles);
 begin
    IdDsnPropEdBindingVCL.FillHandleList(AList,ADest);

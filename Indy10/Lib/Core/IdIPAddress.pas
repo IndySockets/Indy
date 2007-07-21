@@ -23,10 +23,10 @@
   Rev 1.9    28.09.2004 20:54:32  Andreas Hausladen
   Removed unused functions that were moved to IdGlobal
 
-    Rev 1.8    6/11/2004 8:48:20 AM  DSiders
+  Rev 1.8    6/11/2004 8:48:20 AM  DSiders
   Added "Do not Localize" comments.
 
-    Rev 1.7    5/19/2004 10:44:34 PM  DSiders
+  Rev 1.7    5/19/2004 10:44:34 PM  DSiders
   Corrected spelling for TIdIPAddress.MakeAddressObject method.
 
   Rev 1.6    14/04/2004 17:35:38  HHariri
@@ -62,7 +62,8 @@
 unit IdIPAddress;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//we need to put this in Delphi mode to work
 uses
   Classes,
   IdGlobal;
@@ -119,7 +120,7 @@ begin
   end;
 end;
 
-function CompareWord(const AWord1, AWord2 : Word) : Integer;  inline;
+function CompareWord(const AWord1, AWord2 : Word) : Integer;
 {
 AWord1 > AWord2	> 0
 AWord1 < AWord2	< 0
@@ -135,7 +136,7 @@ begin
   end;
 end;
 
-function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer;  inline;
+function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer;
 {
 ACard1 > ACard2	> 0
 ACard1 < ACard2	< 0
@@ -231,7 +232,6 @@ begin
     Result := '';
   end;
 end;
-
 
 function TIdIPAddress.GetIPv6AsString: String;
 var

@@ -11,304 +11,305 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
+
 
 //TODO: Elim read/write methods - they are duped
 //TODO: See second uses comment
 
-{
-{   Rev 1.68    3/7/2005 5:48:18 PM  JPMugaas
-{ Made a backdoor so we can adjust command output in specific ways.
-}
-{
-{   Rev 1.67    1/15/2005 6:02:02 PM  JPMugaas
-{ These should compile again.
-}
-{
-{   Rev 1.66    1/15/05 2:16:04 PM  RLebeau
-{ Misc. tweaks
-}
-{
-{   Rev 1.65    12/21/04 3:20:54 AM  RLebeau
-{ Removed compiler warning
-}
-{
-{   Rev 1.64    12/12/04 2:24:28 PM  RLebeau
-{ Updated WriteRFCStrings() to call new method in the IOHandler.
-}
-{
-{   Rev 1.63    10/26/2004 8:43:02 PM  JPMugaas
-{ Should be more portable with new references to TIdStrings and TIdStringList.
-}
-{
-    Rev 1.62    6/11/2004 8:48:36 AM  DSiders
-  Added "Do not Localize" comments.
-}
-{
-{   Rev 1.61    2004.06.07 1:34:20 PM  czhower
-{ OnWork fix now sends running total as it should.
-}
-{
-{   Rev 1.60    2004.06.06 5:18:04 PM  czhower
-{ OnWork bug fix
-}
-{
-{   Rev 1.59    2004.06.05 9:46:30 AM  czhower
-{ IOHandler OnWork fix
-}
-{
-{   Rev 1.58    11/05/2004 17:13:32  HHariri
-{ Fix brought from IW for overflow of DoWork
-}
-{
-{   Rev 1.57    4/19/2004 9:50:08 AM  BGooijen
-{ Fixed AV in .Disconnect
-}
-{
-{   Rev 1.56    2004.04.18 12:52:04 AM  czhower
-{ Big bug fix with server disconnect and several other bug fixed that I found
-{ along the way.
-}
-{
-{   Rev 1.55    2004.03.06 10:40:30 PM  czhower
-{ Changed IOHandler management to fix bug in server shutdowns.
-}
-{
-{   Rev 1.54    2004.03.06 1:32:58 PM  czhower
-{ -Change to disconnect
-{ -Addition of DisconnectNotifyPeer
-{ -WriteHeader now write bufers
-}
-{
-{   Rev 1.53    3/1/04 7:12:00 PM  RLebeau
-{ Bug fix for SetIOHandler() not updating the FSocket member correctly.
-}
-{
-{   Rev 1.52    2004.02.03 4:16:56 PM  czhower
-{ For unit name changes.
-}
-{
-{   Rev 1.51    1/29/04 9:37:18 PM  RLebeau
-{ Added setter method for Greeting property
-}
-{
-{   Rev 1.50    2004.01.28 9:42:32 PM  czhower
-{ Now checks for connection.
-}
-{
-{   Rev 1.49    2004.01.20 10:03:36 PM  czhower
-{ InitComponent
-}
-{
-{   Rev 1.48    2003.12.31 3:47:44 PM  czhower
-{ Changed to use TextIsSame
-}
-{
-{   Rev 1.47    12/28/2003 4:47:40 PM  BGooijen
-{ Removed ChangeReplyClass
-}
-{
-{   Rev 1.46    14/12/2003 18:14:54  CCostelloe
-{ Added ChangeReplyClass procedure.
-}
-{
-    Rev 1.45    11/4/2003 10:28:34 PM  DSiders
-  Removed exceptions moved to IdException.pas.
-}
-{
-{   Rev 1.44    2003.10.18 9:33:28 PM  czhower
-{ Boatload of bug fixes to command handlers.
-}
-{
-    Rev 1.43    10/15/2003 7:32:48 PM  DSiders
-  Added a resource string for the exception raised in
-  TIdTCPConnection.CreateIOHandler.
-}
-{
-{   Rev 1.42    2003.10.14 1:27:02 PM  czhower
-{ Uupdates + Intercept support
-}
-{
-{   Rev 1.41    10/10/2003 11:00:36 PM  BGooijen
-{ Added GetReplyClass
-}
-{
-{   Rev 1.40    2003.10.02 8:29:40 PM  czhower
-{ Added IdReply back
-}
-{
-{   Rev 1.39    2003.10.02 8:08:52 PM  czhower
-{ Removed unneeded unit in uses.
-}
-{
-{   Rev 1.38    2003.10.01 9:11:28 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.37    2003.10.01 5:05:18 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.36    2003.10.01 2:30:42 PM  czhower
-{ .Net
-}
-{
-{   Rev 1.35    2003.10.01 11:16:38 AM  czhower
-{ .Net
-}
-{
-{   Rev 1.34    2003.09.30 1:23:06 PM  czhower
-{ Stack split for DotNet
-}
-{
-{   Rev 1.33    2003.09.18 7:12:42 PM  czhower
-{ AV Fix in SetIOHandler
-}
-{
-{   Rev 1.32    2003.09.18 5:18:00 PM  czhower
-{ Implemented OnWork
-}
-{
-{   Rev 1.31    2003.06.30 6:17:48 PM  czhower
-{ Moved socket property to public. Dont know how/why it got protected.
-}
-{
-{   Rev 1.30    2003.06.30 5:41:56 PM  czhower
-{ -Fixed AV that occurred sometimes when sockets were closed with chains
-{ -Consolidated code that was marked by a todo for merging as it no longer
-{ needed to be separate
-{ -Removed some older code that was no longer necessary
-{
-{ Passes bubble tests.
-}
-{
-{   Rev 1.29    2003.06.05 10:08:52 AM  czhower
-{ Extended reply mechanisms to the exception handling. Only base and RFC
-{ completed, handing off to J Peter.
-}
-{
-{   Rev 1.28    6/4/2003 03:54:42 PM  JPMugaas
-{ Now should compile.
-}
-{
-{   Rev 1.27    2003.06.04 8:10:00 PM  czhower
-{ Modified CheckResponse string version to allow ''
-}
-{
-{   Rev 1.26    2003.06.04 12:02:30 PM  czhower
-{ Additions for text code and command handling.
-}
-{
-{   Rev 1.25    2003.06.03 3:44:26 PM  czhower
-{ Removed unused variable.
-}
-{
-{   Rev 1.24    2003.05.30 10:25:58 PM  czhower
-{ Implemented IsEndMarker
-}
-{
-{   Rev 1.23    5/26/2003 04:29:52 PM  JPMugaas
-{ Removed GenerateReply and ParseReply.  Those are now obsolete duplicate
-{ functions in the new design.
-}
-{
-{   Rev 1.22    5/26/2003 12:19:56 PM  JPMugaas
-}
-{
-{   Rev 1.21    2003.05.26 11:38:20 AM  czhower
-}
-{
-{   Rev 1.20    5/25/2003 03:34:54 AM  JPMugaas
-}
-{
-{   Rev 1.19    5/25/2003 03:16:22 AM  JPMugaas
-}
-{
-{   Rev 1.18    5/20/2003 02:40:10 PM  JPMugaas
-}
-{
-    Rev 1.17    5/20/2003 12:43:50 AM  BGooijen
-  changeable reply types
-}
-{
+
+   Rev 1.68    3/7/2005 5:48:18 PM  JPMugaas
+ Made a backdoor so we can adjust command output in specific ways.
+
+
+   Rev 1.67    1/15/2005 6:02:02 PM  JPMugaas
+ These should compile again.
+
+
+   Rev 1.66    1/15/05 2:16:04 PM  RLebeau
+ Misc. tweaks
+
+
+   Rev 1.65    12/21/04 3:20:54 AM  RLebeau
+ Removed compiler warning
+
+
+   Rev 1.64    12/12/04 2:24:28 PM  RLebeau
+ Updated WriteRFCStrings() to call new method in the IOHandler.
+
+
+   Rev 1.63    10/26/2004 8:43:02 PM  JPMugaas
+ Should be more portable with new references to TIdStrings and TIdStringList.
+
+
+   Rev 1.62    6/11/2004 8:48:36 AM  DSiders
+ Added "Do not Localize" comments.
+
+
+   Rev 1.61    2004.06.07 1:34:20 PM  czhower
+ OnWork fix now sends running total as it should.
+
+
+   Rev 1.60    2004.06.06 5:18:04 PM  czhower
+ OnWork bug fix
+
+
+   Rev 1.59    2004.06.05 9:46:30 AM  czhower
+ IOHandler OnWork fix
+
+
+   Rev 1.58    11/05/2004 17:13:32  HHariri
+ Fix brought from IW for overflow of DoWork
+
+
+   Rev 1.57    4/19/2004 9:50:08 AM  BGooijen
+ Fixed AV in .Disconnect
+
+
+   Rev 1.56    2004.04.18 12:52:04 AM  czhower
+ Big bug fix with server disconnect and several other bug fixed that I found
+ along the way.
+
+
+   Rev 1.55    2004.03.06 10:40:30 PM  czhower
+ Changed IOHandler management to fix bug in server shutdowns.
+
+
+   Rev 1.54    2004.03.06 1:32:58 PM  czhower
+ -Change to disconnect
+ -Addition of DisconnectNotifyPeer
+ -WriteHeader now write bufers
+
+
+   Rev 1.53    3/1/04 7:12:00 PM  RLebeau
+ Bug fix for SetIOHandler() not updating the FSocket member correctly.
+
+
+   Rev 1.52    2004.02.03 4:16:56 PM  czhower
+ For unit name changes.
+
+
+   Rev 1.51    1/29/04 9:37:18 PM  RLebeau
+ Added setter method for Greeting property
+
+
+   Rev 1.50    2004.01.28 9:42:32 PM  czhower
+ Now checks for connection.
+
+
+   Rev 1.49    2004.01.20 10:03:36 PM  czhower
+ InitComponent
+
+
+   Rev 1.48    2003.12.31 3:47:44 PM  czhower
+ Changed to use TextIsSame
+
+
+   Rev 1.47    12/28/2003 4:47:40 PM  BGooijen
+ Removed ChangeReplyClass
+
+
+   Rev 1.46    14/12/2003 18:14:54  CCostelloe
+ Added ChangeReplyClass procedure.
+
+
+   Rev 1.45    11/4/2003 10:28:34 PM  DSiders
+ Removed exceptions moved to IdException.pas.
+
+
+   Rev 1.44    2003.10.18 9:33:28 PM  czhower
+ Boatload of bug fixes to command handlers.
+
+
+   Rev 1.43    10/15/2003 7:32:48 PM  DSiders
+ Added a resource string for the exception raised in
+ TIdTCPConnection.CreateIOHandler.
+
+
+   Rev 1.42    2003.10.14 1:27:02 PM  czhower
+ Uupdates + Intercept support
+
+
+   Rev 1.41    10/10/2003 11:00:36 PM  BGooijen
+ Added GetReplyClass
+
+
+   Rev 1.40    2003.10.02 8:29:40 PM  czhower
+ Added IdReply back
+
+
+   Rev 1.39    2003.10.02 8:08:52 PM  czhower
+ Removed unneeded unit in uses.
+
+
+   Rev 1.38    2003.10.01 9:11:28 PM  czhower
+ .Net
+
+
+   Rev 1.37    2003.10.01 5:05:18 PM  czhower
+ .Net
+
+
+   Rev 1.36    2003.10.01 2:30:42 PM  czhower
+ .Net
+
+
+   Rev 1.35    2003.10.01 11:16:38 AM  czhower
+ .Net
+
+
+   Rev 1.34    2003.09.30 1:23:06 PM  czhower
+ Stack split for DotNet
+
+
+   Rev 1.33    2003.09.18 7:12:42 PM  czhower
+ AV Fix in SetIOHandler
+
+
+   Rev 1.32    2003.09.18 5:18:00 PM  czhower
+ Implemented OnWork
+
+
+   Rev 1.31    2003.06.30 6:17:48 PM  czhower
+ Moved socket property to public. Dont know how/why it got protected.
+
+
+   Rev 1.30    2003.06.30 5:41:56 PM  czhower
+ -Fixed AV that occurred sometimes when sockets were closed with chains
+ -Consolidated code that was marked by a todo for merging as it no longer
+ needed to be separate
+ -Removed some older code that was no longer necessary
+
+ Passes bubble tests.
+
+
+   Rev 1.29    2003.06.05 10:08:52 AM  czhower
+ Extended reply mechanisms to the exception handling. Only base and RFC
+ completed, handing off to J Peter.
+
+
+   Rev 1.28    6/4/2003 03:54:42 PM  JPMugaas
+ Now should compile.
+
+
+   Rev 1.27    2003.06.04 8:10:00 PM  czhower
+ Modified CheckResponse string version to allow ''
+
+
+   Rev 1.26    2003.06.04 12:02:30 PM  czhower
+ Additions for text code and command handling.
+
+
+   Rev 1.25    2003.06.03 3:44:26 PM  czhower
+ Removed unused variable.
+
+
+   Rev 1.24    2003.05.30 10:25:58 PM  czhower
+ Implemented IsEndMarker
+
+
+   Rev 1.23    5/26/2003 04:29:52 PM  JPMugaas
+ Removed GenerateReply and ParseReply.  Those are now obsolete duplicate
+ functions in the new design.
+
+
+   Rev 1.22    5/26/2003 12:19:56 PM  JPMugaas
+
+
+   Rev 1.21    2003.05.26 11:38:20 AM  czhower
+
+
+   Rev 1.20    5/25/2003 03:34:54 AM  JPMugaas
+
+
+   Rev 1.19    5/25/2003 03:16:22 AM  JPMugaas
+
+
+   Rev 1.18    5/20/2003 02:40:10 PM  JPMugaas
+
+
+   Rev 1.17    5/20/2003 12:43:50 AM  BGooijen
+ changeable reply types
+
+
     Rev 1.16    4/4/2003 8:10:14 PM  BGooijen
-  procedure CreateIOHandler is now public
-}
-{
-    Rev 1.15    3/27/2003 3:17:32 PM  BGooijen
-  Removed MaxLineLength, MaxLineAction, SendBufferSize, RecvBufferSize,
-  ReadLnSplit, ReadLnTimedOut
-}
-{
-    Rev 1.14    3/19/2003 1:04:16 PM  BGooijen
-  changed procedure CreateIOHandler a little (default parameter, and other
-  behavour when parameter = nil (constructs default now))
-}
-{
-    Rev 1.13    3/5/2003 11:07:18 PM  BGooijen
-  removed intercept from this file
-}
-{
-{   Rev 1.12    2003.02.25 7:28:02 PM  czhower
-{ Fixed WriteRFCReply
-}
-{
-{   Rev 1.11    2003.02.25 1:36:20 AM  czhower
-}
-{
-{   Rev 1.10    2/13/2003 02:14:44 PM  JPMugaas
-{ Now calls ReadLn in GetInternelResponse so a space is not dropped.  Dropping
-{ a space throws off some things in FTP such as the FEAT reply.
-}
-{
-{   Rev 1.9    2003.01.18 12:29:52 PM  czhower
-}
-{
-{   Rev 1.8    1-17-2003 22:22:08  BGooijen
-{ new design
-}
-{
-{   Rev 1.7    12-16-2002 20:44:38  BGooijen
-{ Added procedure CreateIOHandler(....)
-}
-{
-{   Rev 1.6    12-15-2002 23:32:32  BGooijen
-{ Added RecvBufferSize
-}
-{
-{   Rev 1.5    12-14-2002 22:16:32  BGooijen
-{ improved method to detect timeouts in ReadLn.
-}
-{
-{   Rev 1.4    12/6/2002 02:11:46 PM  JPMugaas
-{ Protected Port and Host properties added to TCPClient because those are
-{ needed by protocol implementations.  Socket property added to TCPConnection.
-}
-{
-{   Rev 1.3    6/12/2002 11:00:16 AM  SGrobety
-}
-{
-{   Rev 1.0    21/11/2002 12:36:48 PM  SGrobety    Version: Indy 10
-}
-{
-{   Rev 1.2    11/15/2002 01:26:42 PM  JPMugaas
-{ Restored Trim to ReadLnWait and changed GetInternelResponse to use ReadLn
-{ instead of ReadLn wait.
-}
-{
-{   Rev 1.1    11/14/2002 06:44:54 PM  JPMugaas
-{ Removed Trim from ReadLnWait.  It was breaking the new RFC Reply parsing code
-{ by removing the space at the beggining of a line.
-}
-{
-{   Rev 1.0    11/13/2002 09:00:30 AM  JPMugaas
+ procedure CreateIOHandler is now public
+
+
+   Rev 1.15    3/27/2003 3:17:32 PM  BGooijen
+ Removed MaxLineLength, MaxLineAction, SendBufferSize, RecvBufferSize,
+ ReadLnSplit, ReadLnTimedOut
+
+
+   Rev 1.14    3/19/2003 1:04:16 PM  BGooijen
+ changed procedure CreateIOHandler a little (default parameter, and other
+ behavour when parameter = nil (constructs default now))
+
+
+   Rev 1.13    3/5/2003 11:07:18 PM  BGooijen
+ removed intercept from this file
+
+
+   Rev 1.12    2003.02.25 7:28:02 PM  czhower
+ Fixed WriteRFCReply
+
+
+   Rev 1.11    2003.02.25 1:36:20 AM  czhower
+
+
+   Rev 1.10    2/13/2003 02:14:44 PM  JPMugaas
+ Now calls ReadLn in GetInternelResponse so a space is not dropped.  Dropping
+ a space throws off some things in FTP such as the FEAT reply.
+
+
+   Rev 1.9    2003.01.18 12:29:52 PM  czhower
+
+
+   Rev 1.8    1-17-2003 22:22:08  BGooijen
+ new design
+
+
+   Rev 1.7    12-16-2002 20:44:38  BGooijen
+ Added procedure CreateIOHandler(....)
+
+
+   Rev 1.6    12-15-2002 23:32:32  BGooijen
+ Added RecvBufferSize
+
+
+   Rev 1.5    12-14-2002 22:16:32  BGooijen
+ improved method to detect timeouts in ReadLn.
+
+
+   Rev 1.4    12/6/2002 02:11:46 PM  JPMugaas
+ Protected Port and Host properties added to TCPClient because those are
+ needed by protocol implementations.  Socket property added to TCPConnection.
+
+
+   Rev 1.3    6/12/2002 11:00:16 AM  SGrobety
+
+
+   Rev 1.0    21/11/2002 12:36:48 PM  SGrobety    Version: Indy 10
+
+
+   Rev 1.2    11/15/2002 01:26:42 PM  JPMugaas
+ Restored Trim to ReadLnWait and changed GetInternelResponse to use ReadLn
+ instead of ReadLn wait.
+
+
+   Rev 1.1    11/14/2002 06:44:54 PM  JPMugaas
+ Removed Trim from ReadLnWait.  It was breaking the new RFC Reply parsing code
+ by removing the space at the beggining of a line.
+
+
+   Rev 1.0    11/13/2002 09:00:30 AM  JPMugaas
 }
 unit IdTCPConnection;
 
 interface
+{$i IdCompilerDefines.inc}
 
 {
 2003-12-14 - Ciaran Costelloe

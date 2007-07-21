@@ -71,7 +71,8 @@
 unit IdUDPBase;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//here to flip FPC into Delphi mode
 uses
   IdComponent,
   IdGlobal,
@@ -88,7 +89,7 @@ type
     FBufferSize: Integer;
     FDsgnActive: Boolean;
     FHost: String;
-    FPort: Integer;
+    FPort: TIdPort;
     FReceiveTimeout: Integer;
     FIPVersion: TIdIPVersion;
     //
@@ -109,11 +110,11 @@ type
     function GetHost : String; virtual;
     procedure SetHost(const AValue : String); virtual;
 
-    function GetPort : Integer; virtual;
-    procedure SetPort(const AValue : Integer); virtual;
+    function GetPort : TIdPort; virtual;
+    procedure SetPort(const AValue : TIdPort); virtual;
 
     property Host: string read GetHost write SetHost;
-    property Port: Integer read GetPort write SetPort;
+    property Port: TIdPort read GetPort write SetPort;
   public
     destructor Destroy; override;
     //
@@ -121,19 +122,19 @@ type
     procedure Broadcast(const AData: string; const APort: integer); overload;
     procedure Broadcast(const AData: TIdBytes; const APort: integer); overload;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer;
+      var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
      const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
     function ReceiveString(const AMSec: Integer = IdTimeoutDefault): string; overload;
-    function ReceiveString(var VPeerIP: string; var VPeerPort: integer;
+    function ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
      const AMSec: Integer = IdTimeoutDefault): string;  overload;
-    procedure Send(const AHost: string; const APort: Integer; const AData: string);
-    procedure SendBuffer(const AHost: string; const APort: Integer; const AIPVersion : TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
-    procedure SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; virtual;
+    procedure Send(const AHost: string; const APort: TIdPort; const AData: string);
+    procedure SendBuffer(const AHost: string; const APort: TIdPort; const AIPVersion : TIdIPVersion; const ABuffer : TIdBytes); overload; virtual;
+    procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; virtual;
     //
     property ReceiveTimeout: Integer read FReceiveTimeout write FReceiveTimeout default IdTimeoutInfinite;
   published
@@ -203,7 +204,7 @@ begin
   end;
   if not FBinding.HandleAllocated then begin
 {$IFDEF LINUX}
-    FBinding.AllocateSocket(Integer(Id_SOCK_DGRAM));
+    FBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
 {$ELSE}
     FBinding.AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
@@ -222,7 +223,7 @@ begin
   Result := FIPVersion;
 end;
 
-function TIdUDPBase.GetPort: Integer;
+function TIdUDPBase.GetPort: TIdPort;
 begin
   Result := FPort;
 end;
@@ -249,13 +250,13 @@ function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
   const AMSec: Integer = IdTimeoutDefault): Integer;
 var
   VoidIP: string;
-  VoidPort: Integer;
+  VoidPort:  TIdPort;
 begin
   Result := ReceiveBuffer(ABuffer,  VoidIP, VoidPort, AMSec);
 end;
 
 function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
-  var VPeerIP: string; var VPeerPort: integer;
+  var VPeerIP: string; var VPeerPort: TIdPort;
   AMSec: Integer = IdTimeoutDefault): integer;
 var
   LVoidIPVer : TIdIPVersion;
@@ -266,7 +267,7 @@ begin
 end;
 
 function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
-  var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+  var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
   const AMSec: Integer = IdTimeoutDefault): integer;
 var
   LMSec : Integer;
@@ -289,7 +290,7 @@ begin
   Result := Binding.RecvFrom(ABuffer, VPeerIP, VPeerPort);
 end;
 
-function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: integer;
+function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
   const AMSec: Integer = IdTimeoutDefault): string;
 var
   i: Integer;
@@ -303,22 +304,22 @@ end;
 function TIdUDPBase.ReceiveString(const AMSec: Integer): string;
 var
   VoidIP: string;
-  VoidPort: Integer;
+  VoidPort: TIdPort;
 begin
   Result := ReceiveString(VoidIP, VoidPort, AMSec);
 end;
 
-procedure TIdUDPBase.Send(const AHost: string; const APort: Integer; const AData: string);
+procedure TIdUDPBase.Send(const AHost: string; const APort: TIdPort; const AData: string);
 begin
   SendBuffer(AHost, APort, ToBytes(AData));
 end;
 
-procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes);
+procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes);
 begin
   SendBuffer(AHost, APort, IPVersion, ABuffer);
 end;
 
-procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: Integer;
+procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
 var LIP : String;
 begin
@@ -371,7 +372,7 @@ begin
   FIPVersion := AValue;
 end;
 
-procedure TIdUDPBase.SetPort(const AValue: Integer);
+procedure TIdUDPBase.SetPort(const AValue: TIdPort);
 begin
   FPort := AValue;
 end;

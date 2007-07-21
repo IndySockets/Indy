@@ -685,7 +685,7 @@ end;
 
 procedure TIdDsnPropEdBindingNET.SetCaption(const AValue: String);
 begin
-  Self.Text := AValue;
+  Text := AValue;
 end;
 
 end.

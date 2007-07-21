@@ -40,6 +40,7 @@
 unit IdRawFunctions;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
    IdGlobal, IdRawHeaders, IdStack;
@@ -101,7 +102,7 @@ procedure IdRawBuildIcmpUnreach(AType, ACode: byte;
 // IGMP
 procedure IdRawBuildIgmp(AType, ACode: byte;
   AnIp: TIdInAddr;
-  const APayload, APayloadSize: integer;
+  const APayload : Word; const APayloadSize: integer;
   var VBuffer : TIdBytes);
 
 // IP
@@ -528,7 +529,7 @@ end;
 
 procedure IdRawBuildIgmp(AType, ACode: byte;
   AnIp: TIdInAddr;
-  const APayload, APayloadSize: integer;
+  const APayload : Word; const APayloadSize: integer;
   var VBuffer : TIdBytes);
 var
   HdrIgmp: TIdIgmpHdr;
@@ -551,7 +552,7 @@ begin
 
   // copy payload
 
-      CopyTIdWord(APayload,VBuffer, Id_IGMP_HSIZE);
+      CopyTIdWord(HostToLittleEndian(APayload),VBuffer, Id_IGMP_HSIZE);
 
 
     // copy header

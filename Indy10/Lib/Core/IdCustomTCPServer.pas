@@ -250,7 +250,8 @@ unit IdCustomTCPServer;
 }
 
 interface
-
+{$I IdCompilerDefines.inc}
+//here to flip FPC into Delphi mode
 uses
   Classes,
   IdBaseComponent, 

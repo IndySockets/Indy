@@ -777,7 +777,7 @@ begin
   begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToCardinal(FBytes,LIndex);
+  Result := IdGlobal.BytesToLongWord(FBytes,LIndex);
   Result := GStack.NetworkToHost(Result);
   if AIndex<0 then
   begin
@@ -924,7 +924,7 @@ begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
-  CopyTIdCardinal(LVal,FBytes,LIndex);
+  CopyTIdLongWord(LVal,FBytes,LIndex);
   if LIndex>=FSize then
   begin
     FSize := LIndex +4;

@@ -138,7 +138,8 @@ unit IdCommandHandlers;
 }
 
 interface
-
+{$I IdCompilerDefines.inc}
+//Put FPC into Delphi mode
 uses
   Classes,
   IdBaseComponent, IdComponent, IdReply, IdGlobal,

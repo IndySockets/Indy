@@ -151,7 +151,8 @@
 unit IdCmdTCPServer;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//Put FPC into Delphi mode
 uses
   Classes,
   IdCommandHandlers,

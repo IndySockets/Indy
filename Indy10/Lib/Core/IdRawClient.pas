@@ -22,6 +22,7 @@
 unit IdRawClient;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal,

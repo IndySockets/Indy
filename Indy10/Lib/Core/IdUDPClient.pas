@@ -67,7 +67,8 @@
 unit IdUDPClient;
 
 interface
-
+{$I IdCompilerDefines.inc}
+//Put FPC into Delphi mode
 uses
   Classes,
   IdUDPBase,
@@ -93,7 +94,7 @@ type
     //property methods
     procedure SetIPVersion(const AValue: TIdIPVersion); override;
     procedure SetHost(const AValue : String); override;
-    procedure SetPort(const AValue : Integer); override;
+    procedure SetPort(const AValue : TIdPort); override;
     procedure SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
     function GetTransparentProxy: TIdCustomTransparentProxy;
   public
@@ -106,15 +107,15 @@ type
     function ReceiveBuffer(var ABuffer : TIdBytes;
      const AMSec: Integer = IdTimeoutDefault): Integer; overload;  override;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer;
+      var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; override;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: integer;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
     procedure Send(AData: string); overload;
-    procedure SendBuffer(const AHost: string; const APort: Integer; const ABuffer : TIdBytes); overload; override;
+    procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
-    procedure SendBuffer(const AHost: string; const APort: Integer;
+    procedure SendBuffer(const AHost: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
     property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
@@ -263,7 +264,7 @@ function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
   const AMSec: Integer): Integer;
 var LMSec : Integer;
   LHost : String;
-  LPort : Integer;
+  LPort : TIdPort;
 begin
   Result := 0;
   if AMSec = IdTimeoutDefault then begin
@@ -307,7 +308,7 @@ begin
 end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
-  var VPeerIP: string; var VPeerPort: integer; AMSec: Integer): integer;
+  var VPeerIP: string; var VPeerPort: TIdPort; AMSec: Integer): integer;
 begin
 
   Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, AMSec);
@@ -344,7 +345,7 @@ begin
 
 end;
 
-procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: Integer;
+procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: TIdPort;
   const ABuffer: TIdBytes);
 begin
   if UseProxy then
@@ -382,7 +383,7 @@ begin
 
 end;
 
-procedure TIdUDPClient.SetPort(const AValue: Integer);
+procedure TIdUDPClient.SetPort(const AValue: TIdPort);
 begin
   if FPort <> Avalue then
   begin
@@ -463,7 +464,7 @@ begin
 end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
-  var VPeerIP: string; var VPeerPort: integer;
+  var VPeerIP: string; var VPeerPort: TIdPort;
   const AIPVersion: TIdIPVersion; const AMSec: Integer): integer;
 var LMSec : Integer;
 begin
@@ -491,7 +492,7 @@ begin
   Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
 end;
 
-procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: Integer;
+procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
 begin
   if UseProxy then

@@ -65,10 +65,11 @@ unit IdIcmpClient;
   consider revisiting this.
 }
 
-{$I IdCompilerDefines.inc}
+// SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 
 interface
-
+{$I IdCompilerDefines.inc}
+//Put FPC into Delphi mode
 uses
   Classes,
   IdGlobal,
@@ -178,7 +179,7 @@ type
 
   public
     destructor Destroy; override;
-    procedure Send(const AHost: string; const APort: integer; const ABuffer : TIdBytes); override;
+    procedure Send(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); override;
     procedure Send(const ABuffer : TIdBytes); override;
     function Receive(ATimeOut: Integer): TReplyStatus;
   end;
@@ -204,93 +205,6 @@ uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack, SysUtils;
 
-resourcestring
-  RSICMPTimeout = 'Timeout';
-//Destination Address -3
-  RSICMPNetUnreachable  = 'net unreachable;';
-  RSICMPHostUnreachable = 'host unreachable;';
-  RSICMPProtUnreachable = 'protocol unreachable;';
-  RSICMPPortUnreachable = 'Port Unreachable';
-  RSICMPFragmentNeeded = 'Fragmentation Needed and Don''t Fragment was Set';
-  RSICMPSourceRouteFailed = 'Source Route Failed';
-  RSICMPDestNetUnknown = 'Destination Network Unknown';
-  RSICMPDestHostUnknown = 'Destination Host Unknown';
-  RSICMPSourceIsolated = 'Source Host Isolated';
-  RSICMPDestNetProhibitted = 'Communication with Destination Network is Administratively Prohibited';
-  RSICMPDestHostProhibitted = 'Communication with Destination Host is Administratively Prohibited';
-  RSICMPTOSNetUnreach =  'Destination Network Unreachable for Type of Service';
-  RSICMPTOSHostUnreach = 'Destination Host Unreachable for Type of Service';
-  RSICMPAdminProhibitted = 'Communication Administratively Prohibited';
-  RSICMPHostPrecViolation = 'Host Precedence Violation';
-  RSICMPPrecedenceCutoffInEffect =  'Precedence cutoff in effect';
-//for IPv6
-  RSICMPNoRouteToDest = 'no route to destination';
-  RSICMPAAdminDestProhibitted =  'communication with destination administratively prohibited';
-  RSICMPSourceFilterFailed = 'source address failed ingress/egress policy';
-  RSICMPRejectRoutToDest = 'reject route to destination';
-  // Destination Address - 11
-  RSICMPTTLExceeded     = 'time to live exceeded in transit';
-  RSICMPHopLimitExceeded = 'hop limit exceeded in transit';
-  RSICMPFragAsmExceeded = 'fragment reassembly time exceeded.';
-//Parameter Problem - 12
-  RSICMPParamError      = 'Parameter Problem (offset %d)';
-  //IPv6
-  RSICMPParamHeader = 'erroneous header field encountered (offset %d)';
-  RSICMPParamNextHeader = 'unrecognized Next Header type encountered (offset %d)';
-  RSICMPUnrecognizedOpt = 'unrecognized IPv6 option encountered (offset %d)';
-//Source Quench Message -4
-  RSICMPSourceQuenchMsg = 'Source Quench Message';
-//Redirect Message
-  RSICMPRedirNet =        'Redirect datagrams for the Network.';
-  RSICMPRedirHost =       'Redirect datagrams for the Host.';
-  RSICMPRedirTOSNet =     'Redirect datagrams for the Type of Service and Network.';
-  RSICMPRedirTOSHost =    'Redirect datagrams for the Type of Service and Host.';
-//echo
-  RSICMPEcho = 'Echo';
-//timestamp
-  RSICMPTimeStamp = 'Timestamp';
-//information request
-  RSICMPInfoRequest = 'Information Request';
-//mask request
-  RSICMPMaskRequest = 'Address Mask Request';
-// Traceroute
-  RSICMPTracePacketForwarded = 'Outbound Packet successfully forwarded';
-  RSICMPTraceNoRoute = 'No route for Outbound Packet; packet discarded';
-//conversion errors
-
-
-  RSICMPConvUnknownUnspecError = 'Unknown/unspecified error';
-  RSICMPConvDontConvOptPresent = 'Don''t Convert option present';
-  RSICMPConvUnknownMandOptPresent =  'Unknown mandatory option present';
-  RSICMPConvKnownUnsupportedOptionPresent = 'Known unsupported option present';
-  RSICMPConvUnsupportedTransportProtocol = 'Unsupported transport protocol';
-  RSICMPConvOverallLengthExceeded = 'Overall length exceeded';
-  RSICMPConvIPHeaderLengthExceeded = 'IP header length exceeded';
-  RSICMPConvTransportProtocol_255 = 'Transport protocol > 255';
-  RSICMPConvPortConversionOutOfRange = 'Port conversion out of range';
-  RSICMPConvTransportHeaderLengthExceeded = 'Transport header length exceeded';
-  RSICMPConv32BitRolloverMissingAndACKSet = '32 Bit Rollover missing and ACK set';
-  RSICMPConvUnknownMandatoryTransportOptionPresent =      'Unknown mandatory transport option present';
-//mobile host redirect
-  RSICMPMobileHostRedirect = 'Mobile Host Redirect';
-//IPv6 - Where are you
-  RSICMPIPv6WhereAreYou    = 'IPv6 Where-Are-You';
-//IPv6 - I am here
-  RSICMPIPv6IAmHere        = 'IPv6 I-Am-Here';
-// Mobile Regestration request
-  RSICMPMobReg             = 'Mobile Registration Request';
-//Skip
-  RSICMPSKIP               = 'SKIP';
-//Security
-  RSICMPSecBadSPI          = 'Bad SPI';
-  RSICMPSecAuthenticationFailed = 'Authentication Failed';
-  RSICMPSecDecompressionFailed = 'Decompression Failed';
-  RSICMPSecDecryptionFailed = 'Decryption Failed';
-  RSICMPSecNeedAuthentication = 'Need Authentication';
-  RSICMPSecNeedAuthorization = 'Need Authorization';
-//IPv6 Packet Too Big
-  RSICMPPacketTooBig = 'Packet Too Big (MTU = %d)';
-{ TIdCustomIcmpClient }
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
 begin
@@ -426,7 +340,7 @@ end;
 function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
 var
   LIPHeaderLen:Cardinal;
-  RTTime: Cardinal;
+  RTTime: LongWord;
   LActualSeqID: word;
   LIdx : Integer;
   LIPv4 : TIdIPHdr;
@@ -491,13 +405,13 @@ begin
     if AReplyStatus.ReplyStatusType = rsEcho then
     begin
       LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6);
-      RTTime := GetTickDiff( BytesToCardinal( FBufReceive,LIpHeaderLen+8),Ticks); //picmp^.icmp_dun.ts.otime;
+          RTTime := GetTickDiff( BytesToLongWord( FBufReceive,LIpHeaderLen+8),Ticks); //picmp^.icmp_dun.ts.otime;
     end else
     begin
       // not an echo reply: the original IP frame is contained withing the DATA section of the packet
       // pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
       LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
-      RTTime := GetTickDiff( BytesToCardinal( FBufReceive,LIpHeaderLen+8+8),Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
+           RTTime := GetTickDiff( BytesToLongWord( FBufReceive,LIpHeaderLen+8+8),Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
 
       // move to offset
       // pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
@@ -505,7 +419,7 @@ begin
       // ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
       // RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
       // Result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
-    end;
+        end;
 
     Result := LActualSeqID = wSeqNo;//;picmp^.icmp_hun.echo.seq  = wSeqNo;
     if Result then
@@ -514,8 +428,8 @@ begin
       begin
         BytesReceived := BytesRead;
 
-        FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,12)));
-        ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToCardinal( FBufReceive,16)));
+        FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToLongWord( FBufReceive,12)));
+        ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToLongWord( FBufReceive,16)));
         MsgType := FBufReceive[LIpHeaderLen]; //picmp^.icmp_type;
         SequenceId := LActualSeqID;
         MsRoundTripTime := RTTime;
@@ -642,7 +556,7 @@ begin
   //icmp_hun.echo.seq := wSeqNo;
   IdGlobal.CopyTIdWord(wSeqNo, FBufIcmp, 6);
   // icmp_dun.ts.otime := Ticks; - not an official thing but for Indy internal use
-  IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp, 8);
+  IdGlobal.CopyTIdLongWord(Ticks, FBufIcmp,8);
   //data
   if Length(Buffer) > 0 then begin
     IdGlobal.CopyTIdString(Buffer, FBufIcmp, 12);
@@ -665,7 +579,7 @@ begin
     LIPv6.data.icmp6_un_data16[1] := wSeqNo;
     LIPv6.icmp6_cksum := 0;
     LIPv6.WriteStruct(FBufIcmp,LIdx);
-    IdGlobal.CopyTIdCardinal(Ticks, FBufIcmp,LIdx);
+    IdGlobal.CopyTIdLongWord(Ticks, FBufIcmp,LIdx);
     Inc(LIdx,4);
     if Length(Buffer) > 0 then begin
       CopyTIdString(Buffer, FBufIcmp, LIdx, Length(Buffer));
@@ -715,7 +629,7 @@ begin
     LActualSeqID := LIcmp.data.icmp6_seq;
     Result := LActualSeqID = wSeqNo;
 
-    RTTime := GetTickDiff(BytesToCardinal(FBufReceive, LIdx), Ticks);
+    RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIdx), Ticks);
     if Result then
     begin
       AReplyStatus.BytesReceived := BytesRead;
@@ -772,7 +686,7 @@ begin
 end;
 
 {$ENDIF}
-procedure TIdCustomIcmpClient.Send(const AHost: string; const APort: integer;
+procedure TIdCustomIcmpClient.Send(const AHost: string; const APort: TIdPort;
   const ABuffer: TIdBytes);
 var
   LBuffer : TIdBytes;

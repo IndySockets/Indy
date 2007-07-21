@@ -111,10 +111,10 @@
   Rev 1.4    7/1/2003 03:39:52 PM  JPMugaas
   Started numeric IP function API calls for more efficiency.
 
-    Rev 1.3    5/11/2003 11:59:06 AM  BGooijen
+  Rev 1.3    5/11/2003 11:59:06 AM  BGooijen
   Added OverLapped property
 
-    Rev 1.2    5/11/2003 12:35:30 AM  BGooijen
+  Rev 1.2    5/11/2003 12:35:30 AM  BGooijen
   temporary creates overlapped socked handles
 
   Rev 1.1    3/21/2003 01:50:08 AM  JPMugaas
@@ -126,7 +126,7 @@
 unit IdSocketHandle;
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdException, IdGlobal, IdStackConsts, IdStack, IdBaseComponent;
@@ -151,8 +151,8 @@ type
 
   TIdSocketHandle = class(TCollectionItem)
   protected
-    FClientPortMin: Integer;
-    FClientPortMax: Integer;
+    FClientPortMin: TIdPort;
+    FClientPortMax: TIdPort;
     FHandle: TIdStackSocketHandle;
     FHandleAllocated: Boolean;
     FIP: string;
@@ -190,14 +190,14 @@ type
     function Readable(AMSec: Integer = IdTimeoutDefault): boolean;
     function Receive(var VBuffer: TIdBytes): Integer;
     function RecvFrom(var ABuffer : TIdBytes; var VIP: string;
-      var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+      var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
     procedure Reset(const AResetLocal: boolean = True);
     function Send(
       const ABuffer: TIdBytes;
       AOffset: Integer;
       ASize: Integer = -1
       ): Integer;
-    procedure SendTo(const AIP: string; const APort: Integer; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+    procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure SetBinding(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure GetSockOpt(ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
@@ -301,13 +301,13 @@ begin
 ////  (GStack as TIdStackBSDBase).WSSetSockOpt(Handle, level, optname, optval, optlen);
 end;
 
-procedure TIdSocketHandle.SendTo(const AIP: string; const APort: Integer; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   GStack.SendTo(Handle, ABuffer, 0, AIP, APort,AIPVersion);
 end;
 
 function TIdSocketHandle.RecvFrom(var ABuffer : TIdBytes; var VIP: string;
- var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+ var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
   Result := GStack.ReceiveFrom(Handle,ABuffer,VIP,VPort,AIPVersion);
 end;
@@ -375,6 +375,7 @@ begin
   Reset;
   FClientPortMin := 0;
   FClientPortMax := 0;
+  FIPVersion := ID_DEFAULT_IP_VERSION;
   if Assigned(ACollection) then begin
     Port := TIdSocketHandles(ACollection).DefaultPort;
   end;
@@ -461,7 +462,7 @@ end;
 
 function TIdSocketHandle.BindPortReserved: Boolean;
 var
-  i : Integer;
+  i : TIdPort;
 begin
   Result := false;
   for i := FClientPortMax downto FClientPortMin do begin

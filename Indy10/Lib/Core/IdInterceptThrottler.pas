@@ -37,6 +37,7 @@
 unit IdInterceptThrottler;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdComponent, IdIntercept, IdGlobal;

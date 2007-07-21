@@ -33,30 +33,40 @@
 
 unit IdCoreDsnRegister;
 
-{$I IdCompilerDefines.inc}
-
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   {$IFDEF VCL8ORABOVE}
      {$IFDEF DOTNET}
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf,
+      DesignIntf, 
       DesignEditors;
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf,
+      {$IFDEF FPC}
+      PropEdits,
+      ComponentEditors;
+      {$ELSE}
+      DesignIntf, 
       DesignEditors;
+      {$ENDIF}
     {$ELSE}
        Dsgnintf;
     {$ENDIF}
   {$ENDIF}
 
 type
+  {$IFDEF FPC}
+  TIdPropEdBinding = class(TPropertyEditor)
+  protected
+    FValue : String;
+    property Value : String read FValue write FValue;
+  {$ELSE}
   TIdPropEdBinding = class(TClassProperty)
+  {$ENDIF}
   public
     procedure Edit; override;
     function GetAttributes: TPropertyAttributes; override;
