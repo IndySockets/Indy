@@ -187,7 +187,7 @@
   {$define ENDIAN_LITTLE}
   {$define CPU32}
    {$define win32_or_win64}
-     {$define Wi dgetVCLLike} // LCL included.
+     {$define WidgetVCLLike} // LCL included.
     {$define WidgetVCL}
     {$define WidgetVCLLikeOrKylix}
     {$define VCL60plus}
