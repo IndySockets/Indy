@@ -628,37 +628,37 @@ begin
   end;
 end;
 
-function TIdSocketListDotNet.SelectReadList(var VSocketList: TIdSocketList; const ATimeout: Integer): Boolean;
-var
-  LTempSockets:ArrayList;
-begin
-  try
-    // DotNet updates this object on return, so we need to copy it each time we need it
-    LTempSockets:=ArrayList(Sockets.Clone);
-    try
-      if ATimeout=IdTimeoutInfinite then begin
-        Socket.Select(LTempSockets,nil,nil,-1);
-      end else begin
-        Socket.Select(LTempSockets,nil,nil,ATimeout*1000);
-      end;
-      result := LTempSockets.Count > 0;
-      if result then
-      begin
-        if not Assigned(VSocketList) then
-        begin
-          VSocketList := TIdSocketListDotNet.CreateSocketList;
-        end;
-        TIdSocketListDotNet(VSocketList).Sockets:=ArrayList(Sockets.Clone);
-      end;
-    finally
-      LTempSockets.free;
-    end;
-  except
-    on e:exception do begin
-      raise BuildException(e);
-    end;
-  end;
+function TIdSocketListDotNet.SelectReadList(var VSocketList: TIdSocketList; 
+  const ATimeout: Integer): Boolean; 
+var 
+  LTempSockets: ArrayList; 
+  LTimeout: Integer; 
+begin 
+  try 
+    // DotNet updates this object on return, so we need to copy it each time we need it 
+    LTempSockets := ArrayList(Sockets.Clone);
+    try 
+      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000); 
+      Socket.Select(LTempSockets, nil, nil, LTimeout); 
+      Result := LTempSockets.Count > 0; 
+      if Result then begin 
+        if VSocketList = nil then begin 
+          VSocketList := TIdSocketList.CreateSocketList; 
+        end; 
+        TIdSocketListDotNet(VSocketList).Sockets.Free;
+        TIdSocketListDotNet(VSocketList).Sockets := LTempSockets; 
+        LTempSockets := nil; 
+      end; 
+    finally 
+      LTempSockets.Free; 
+    end; 
+  except 
+    on e: Exception do begin 
+      raise BuildException(e); 
+    end; 
+  end; 
 end;
+
 
 class function TIdSocketListDotNet.Select(AReadList, AWriteList,
  AExceptList: TIdSocketList; const ATimeout: Integer): Boolean;
