@@ -904,6 +904,7 @@ function IndyFormat(const AFormat: string;
 function IndyIncludeTrailingPathDelimiter(const S: string): string;
 function IndyExcludeTrailingPathDelimiter(const S: string): string;
 
+procedure IndyRaiseLastError;
 //You could possibly use the standard StrInt and StrIntDef but these
 //also remove spaces from the string using the trim functions.
 function IndyStrToInt(const S: string): Integer; overload;
@@ -1137,6 +1138,16 @@ uses
 var
   GIdPorts: TList;
 {$ENDIF}
+
+procedure IndyRaiseLastError;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  {$IFNDEF VCL6ORABOVE}
+  RaiseLastWin32Error;
+  {$ELSE}
+ 	RaiseLastOSError;
+  {$ENDIF}
+end;
 
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUInt) : THandle;
