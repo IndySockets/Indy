@@ -144,22 +144,7 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  IdException, SysUtils, Windows;
-
-{$ifndef FPC}
-  {$ifdef win32}
-type
-     //needed so that in FreePascal, we can use pointers of different sizes
-   ptrint = integer;
-   ptruint= DWORD;
-   {$endif}
-   {$ifdef win64}
-type
-     //needed so that in FreePascal, we can use pointers of different sizes
-   ptrint = Int64;
-   ptruint= Int64;
-   {$endif}
-{$endif}
+  IdException, IdGlobal, SysUtils, Windows;
 
 type
   EIdWinsockStubError = class(EIdException)
