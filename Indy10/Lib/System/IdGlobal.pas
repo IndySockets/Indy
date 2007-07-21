@@ -662,8 +662,8 @@ const
 //end thread stuff
 
 type
-  {$ifndef DotNET}
-     {$ifndef FPC}
+  {$IFNDEF DOTNET}
+     {$IFNDEF FPC}
      //needed so that in FreePascal, we can use pointers of different sizes
    ptrint = integer;
    ptruint= cardinal;
@@ -714,7 +714,7 @@ type
     procedure Leave;
   end;
   {$ELSE}
-    {$IFNDEF NoRedeclare}
+    {$IFNDEF NOREDECLARE}
    TCriticalSection = SyncObjs.TCriticalSection;
      {$ENDIF}
   {$ENDIF}
@@ -739,7 +739,7 @@ type
   Short = Smallint;  //Only needed for ToBytes(Short) and BytesToShort
   {$ENDIF}
   {$IFNDEF DOTNET}
-    {$IFNDEF NO_Redeclare}
+    {$IFNDEF NOREDECLARE}
   PShort = ^Short;
     {$ENDIF}
   {$ENDIF}
@@ -782,7 +782,7 @@ type
   //This is for IPv6 support when merged into the core
   TIdIPVersion = (Id_IPv4, Id_IPv6);
 
-  {$IFNDEF NoRedeclare}
+  {$IFNDEF NOREDECLARE}
     {$IFDEF LINUX}
       {$IFNDEF VCL6ORABOVE}
   THandle = LongWord; //D6.System
@@ -818,30 +818,30 @@ type
     function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; virtual; abstract;
     function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; virtual; abstract;
     procedure IdSetSize(ASize: Int64); virtual; abstract;
-    {$IFDEF DotNet}
+    {$IFDEF DOTNET}
     procedure SetSize(ASize: Int64); override;
     {$ELSE}
-      {$ifdef fpc}
+      {$IFDEF FPC}
     procedure SetSize(const NewSize: Int64); override;
-      {$else}
+      {$ELSE}
     procedure SetSize(ASize: Integer); override;
-      {$endif}
+      {$ENDIF}
     {$ENDIF}
   public
-    {$IFDEF DotNet}
+    {$IFDEF DOTNET}
     function Read(var VBuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
     function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; override;
     function Seek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
     {$ELSE}
-      {$ifdef FPC}
+      {$IFDEF FPC}
     function Read(var Buffer; Count: Longint): Longint; override;
     function Write(const Buffer; Count: Longint): Longint; override;
     function Seek(Offset: Longint; Origin: Word): Longint; override;
-      {$else}
+      {$ELSE}
     function Read(var VBuffer; ACount: Longint): Longint; override;
     function Write(const ABuffer; ACount: Longint): Longint; override;
     function Seek(AOffset: Longint; AOrigin: Word): Longint; override;
-      {$endif}
+      {$ENDIF}
     {$ENDIF}
   end;
 
@@ -1141,13 +1141,9 @@ function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUIn
   //as a pointer
 begin
   {$IFDEF CPU32}
-    {$IFDEF FPC}
-     Result := InterlockedExchange(PtrInt(VTarget),AValue);
-    {$ELSE}
-    Result := InterlockedExchange(Integer(VTarget),AValue);
-    {$ENDIF}
+  Result := InterlockedExchange(PtrInt(VTarget),AValue);
   {$ENDIF}
-  {$IFDEF CPU64}
+  {$IFDEF WIN64}
   InterlockedExchange64(PtrInt(VTarget),0);
   {$ENDIF}
 end;
