@@ -176,11 +176,7 @@ begin
     EAI_SOCKTYPE: Result := WSAESOCKTNOSUPPORT;
     EAI_SYSTEM:   begin
     	Result := 0; // avoid warning
-    	{$IFNDEF VCL6ORABOVE}
-    	RaiseLastWin32Error;
-    	{$ELSE}
-    	RaiseLastOSError;
-    	{$ENDIF}
+      IndyRaiseLastError;
     	end;
     else
       Result := gaiError;

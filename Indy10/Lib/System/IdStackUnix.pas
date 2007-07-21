@@ -75,7 +75,6 @@ uses
   baseunix,
   IdStack,
   IdStackConsts,
-  IdObjs,
   IdGlobal,
   IdStackBSDBase;
 
@@ -122,7 +121,7 @@ type
     function ReadHostName: string; override;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; override;
     function GetLocalAddress: string; override;
-    function GetLocalAddresses: TIdStrings; override;
+    function GetLocalAddresses: TStrings; override;
     function WSRecv(ASocket: TIdStackSocketHandle;
       var ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
@@ -145,7 +144,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TIdStrings; override;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
       Alevel, AOptname: Integer; AOptval: PChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -614,11 +613,11 @@ begin
   Result := socket(AFamily, AStruct, AProtocol);
 end;
 
-function TIdStackUnix.GetLocalAddresses: TIdStrings;
+function TIdStackUnix.GetLocalAddresses: TStrings;
 begin
   if FLocalAddresses = nil then
   begin
-    FLocalAddresses := TIdStringList.Create;
+    FLocalAddresses := TStringList.Create;
   end;
   PopulateLocalAddresses;
   Result := FLocalAddresses;
@@ -653,10 +652,10 @@ begin
   end;
 end;   }
 
-function TIdStackUnix.WSGetServByPort(const APortNumber: TIdPort): TIdStrings;
+function TIdStackUnix.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 var LS : TServiceEntry;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   try
     if GetServiceByPort(APortNumber,'',LS) then
     begin
@@ -673,7 +672,7 @@ end;
   Li: Integer;
   Lp: array of PChar;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   Lp := nil;
   try
     Lps := GetServByPort(HToNs(APortNumber), nil);

@@ -111,7 +111,7 @@ type
     function ReadHostName: string; override;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; override;
     function GetLocalAddress: string; override;
-    function GetLocalAddresses: TIdStrings; override;
+    function GetLocalAddresses: TStrings; override;
     function WSRecv(ASocket: TIdStackSocketHandle;
       var ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
     function WSSend(ASocket: TIdStackSocketHandle; const ABuffer; const ABufferLength, AFlags: Integer): Integer; override;
@@ -134,7 +134,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TIdStrings; override;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
       Alevel, AOptname: Integer; AOptval: PChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -354,7 +354,7 @@ begin
       LRetVal := getaddrinfo(pchar(AHostName), nil, @LHints, @LAddrInfo);
       if LRetVal<>0 then begin
         if LRetVal = EAI_SYSTEM then begin
-          RaiseLastOSError;
+          IndyRaiseLastError;
         end else begin
           raise EIdResolveError.CreateFmt(RSResolveError, [ahostname, gai_strerror(LRetVal), LRetVal]);
         end;
@@ -578,11 +578,11 @@ begin
   Result := Libc.socket(AFamily, AStruct, AProtocol);
 end;
 
-function TIdStackLinux.GetLocalAddresses: TIdStrings;
+function TIdStackLinux.GetLocalAddresses: TStrings;
 begin
   if FLocalAddresses = nil then
   begin
-    FLocalAddresses := TIdStringList.Create;
+    FLocalAddresses := TStringList.Create;
   end;
   PopulateLocalAddresses;
   Result := FLocalAddresses;
@@ -606,13 +606,13 @@ begin
   end;
 end;
 
-function TIdStackLinux.WSGetServByPort(const APortNumber: TIdPort): TIdStrings;
+function TIdStackLinux.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 var
   Lps: PServEnt;
   Li: Integer;
-  Lp: array of PChar;
+  Lp: PPCharArray;
 begin
-  Result := TIdStringList.Create;
+  Result := TStringList.Create;
   Lp := nil;
   try
     Lps := GetServByPort(HToNs(APortNumber), nil);
@@ -732,7 +732,7 @@ begin
       LRetVal := getaddrinfo(pchar(AAddress), nil, @LHints, @LAddrInfo);
       if LRetVal<>0 then begin
         if LRetVal = EAI_SYSTEM then begin
-          RaiseLastOSError;
+          IndyRaiseLastError;
         end else begin
           raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRetVal), LRetVal]);
         end;

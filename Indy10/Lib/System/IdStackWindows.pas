@@ -609,7 +609,7 @@ function TIdStackWindows.WSGetServByPort(
 var
   ps: PServEnt;
   i: integer;
-  p: array of PChar;
+  p: PPCharArray;
 begin
   Result := TStringList.Create;
   p := nil;
