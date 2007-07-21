@@ -127,6 +127,7 @@
 unit IdSchedulerOfThread;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -187,7 +188,7 @@ end;
 
 function TIdSchedulerOfThread.NewThread: TIdThreadWithTask;
 begin
-  Assert(FThreadClass <> nil);
+  Assert(FThreadClass<>nil);
 
   EIdSchedulerMaxThreadsExceeded.IfTrue(
    (FMaxThreads <> 0) and (not ActiveYarns.IsCountLessThan(FMaxThreads + 1))
@@ -209,7 +210,7 @@ procedure TIdSchedulerOfThread.TerminateYarn(AYarn: TIdYarn);
 var
   LYarn: TIdYarnOfThread;
 begin
-  Assert(AYarn <> nil);
+  Assert(AYarn<>nil);
   LYarn := TIdYarnOfThread(AYarn);
   if LYarn.Thread = nil then begin
     FreeAndNil(LYarn);
