@@ -529,8 +529,10 @@ uses
   {$ENDIF}
     {$IFDEF FPC} 
     syncobjs,
-  {$ELSE}
+
+    {$ELSE}
     SyncObjs,
+  {$ENDIF}
   Classes,
   {$IFDEF UNIX}
     {$IFDEF KYLIX}
@@ -1629,7 +1631,6 @@ begin
   end;
   {$ELSE}
   Move(ASource, VDest[ADestIndex], 16);
-  {$ENDIF}
   {$ENDIF}
 end;
 
