@@ -664,11 +664,17 @@ const
 type
   {$IFNDEF DOTNET}
      {$IFNDEF FPC}
+       {$IFDEF WIN32}
      //needed so that in FreePascal, we can use pointers of different sizes
-   ptrint = integer;
-   ptruint= cardinal;
-     {$endif}
-  {$endif}
+   ptrint = LongInt;
+   ptruint= LongWord;
+       {$ENDIF}
+       {$IFDEF WIN64}
+   ptrint = Int64;
+   ptruint= Int64;  //Dlephi really needs a proper QWord
+       {$ENDIF}
+     {$ENDIF}
+  {$ENDIF}
   TIdEncoding = (enDefault, enANSI, enUTF8);
 
   TIdAppendFileStream = class(TFileStream)
