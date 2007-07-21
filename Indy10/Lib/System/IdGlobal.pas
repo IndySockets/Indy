@@ -1142,13 +1142,13 @@ function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUIn
 begin
   {$IFDEF CPU32}
     {$IFDEF FPC}
-     Result := InterlockedExchange(LongInt(VTarget),AValue);
+     Result := InterlockedExchange(PtrInt(VTarget),AValue);
     {$ELSE}
     Result := InterlockedExchange(Integer(VTarget),AValue);
     {$ENDIF}
   {$ENDIF}
   {$IFDEF CPU64}
-  InterlockedExchange64(VTarget,0);
+  InterlockedExchange64(PtrInt(VTarget),0);
   {$ENDIF}
 end;
 {Little Endian Byte order functions from:
