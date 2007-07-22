@@ -415,7 +415,7 @@ begin
   // with an invalid handle in it.
   // Therefore we raise the exceptions manually on D5 and below
   if (ThreadID = 0) then begin
-    Sys.RaiseLastOSError;
+    IndyRaiseLastError;
   end;
 {$ENDIF}
   // Last, so we only do this if successful
