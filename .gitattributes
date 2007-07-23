@@ -1428,6 +1428,7 @@ Indy10/Lib/Protocols/dclIndyProtocols90.res -text svneol=unset#unset
 Indy10/Lib/Protocols/dclIndyProtocols90Net.bdsproj -text
 Indy10/Lib/Protocols/dclIndyProtocols90Net.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocolsK3.dpk -text
+Indy10/Lib/Protocols/dclindyprotocolslaz.lpk -text
 Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/example.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/gzio.obj -text svneol=unset#unset
