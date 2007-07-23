@@ -1099,6 +1099,7 @@ Indy10/Lib/Protocols/IdCoderUUE.pas -text
 Indy10/Lib/Protocols/IdCoderXXE.pas -text
 Indy10/Lib/Protocols/IdCompilerDefines.inc -text
 Indy10/Lib/Protocols/IdCompressionIntercept.pas -text
+Indy10/Lib/Protocols/IdCompressorZLib.pas -text
 Indy10/Lib/Protocols/IdConnectThroughHttpProxy.pas -text
 Indy10/Lib/Protocols/IdContainers.pas -text
 Indy10/Lib/Protocols/IdCookie.pas -text
@@ -1124,6 +1125,7 @@ Indy10/Lib/Protocols/IdDsnSASLListEditorForm.pas -text
 Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources -text svneol=unset#unset
 Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.pas -text
 Indy10/Lib/Protocols/IdDsnSASLListEditorFormNET.resx -text
+Indy10/Lib/Protocols/IdDsnSASLListEditorFormVCL.lrs -text
 Indy10/Lib/Protocols/IdDsnSASLListEditorFormVCL.pas -text
 Indy10/Lib/Protocols/IdDummyUnit.pas -text
 Indy10/Lib/Protocols/IdEMailAddress.pas -text
