@@ -612,7 +612,6 @@ var
   p: PPCharArray;
 begin
   Result := TStringList.Create;
-  p := nil;
   try
     ps := GetServByPort(HToNs(APortNumber), nil);
     if ps <> nil then
