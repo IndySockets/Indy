@@ -1166,7 +1166,7 @@ begin
   {$IFDEF CPU32}
   Result := InterlockedExchange(PtrInt(VTarget),AValue);
   {$ENDIF}
-  {$IFDEF WIN64}
+  {$IFDEF CPU64}
   InterlockedExchange64(PtrInt(VTarget),0);
   {$ENDIF}
 end;
