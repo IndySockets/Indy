@@ -213,9 +213,7 @@ uses
   IdCompressorZLib,
   IdCompressionIntercept,
   {$ENDIF}
-  {$IFNDEF DOTNET}
   IdConnectThroughHttpProxy,
-  {$ENDIF}
   IdCookieManager,
   IdResourceStringsCore,
   IdDateTimeStamp,
@@ -649,11 +647,12 @@ begin
    TIdUserPassProvider
    ]);
   RegisterComponents(RSRegIndyMisc, [
-  {$IFNDEF DOTNET}
-   TIdConnectThroughHttpProxy,
-   {$ENDIF}
 
+   TIdConnectThroughHttpProxy,
+
+   {$IFNDEF DOTNET}
      TIdCompressorZLib,
+    {$ENDIF}
    TIdCookieManager,
    TIdEncoderMIME,
    TIdEncoderUUE,

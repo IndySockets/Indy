@@ -1420,8 +1420,13 @@ end;
 {$IFDEF DOTNET} 
 function TempPath: WideString; 
 {$IFDEF USEINLINE} inline; {$ENDIF}
-begin 
-  Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath); 
+begin
+  {$IFDEF DOTNET1}
+  Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath);
+  {$ENDIF}
+  {$IFDEF DOTNET2}
+  Result := IndyIncludeTrailingPathDelimiter(System.IO.Path.GetTempPath);
+  {$ENDIF}
 end; 
 {$ELSE} 
    {$ifdef win32_or_win64_or_winCE}
