@@ -39,6 +39,7 @@ unit IdBlockCipherIntercept;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

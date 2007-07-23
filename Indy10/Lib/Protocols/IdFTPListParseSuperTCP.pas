@@ -29,6 +29,7 @@
 unit IdFTPListParseSuperTCP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

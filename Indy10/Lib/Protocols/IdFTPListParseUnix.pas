@@ -107,6 +107,7 @@
 unit IdFTPListParseUnix;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

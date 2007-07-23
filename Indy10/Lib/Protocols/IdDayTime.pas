@@ -45,6 +45,7 @@ unit IdDayTime;
 {*******************************************************}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

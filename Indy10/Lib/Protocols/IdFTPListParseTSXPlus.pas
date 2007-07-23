@@ -33,6 +33,7 @@ unit IdFTPListParseTSXPlus;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

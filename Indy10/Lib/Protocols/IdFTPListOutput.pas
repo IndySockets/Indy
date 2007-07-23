@@ -84,7 +84,7 @@
 unit IdFTPListOutput;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses Classes, IdFTPList;
 
 type

@@ -32,6 +32,7 @@
 unit IdFTPListParseStercomOS390Exp;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

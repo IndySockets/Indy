@@ -103,6 +103,7 @@
 unit IdCoderQuotedPrintable;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

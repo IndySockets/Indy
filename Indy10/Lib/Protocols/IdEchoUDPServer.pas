@@ -34,6 +34,7 @@
 unit IdEchoUDPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;
@@ -68,4 +69,3 @@ begin
 end;
 
 end.
-

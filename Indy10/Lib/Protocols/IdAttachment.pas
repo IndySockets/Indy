@@ -46,6 +46,7 @@
 unit IdAttachment;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

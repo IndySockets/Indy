@@ -31,6 +31,7 @@
 unit IdCoderMIME;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdCoder3to4;

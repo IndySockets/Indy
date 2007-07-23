@@ -124,6 +124,7 @@
 unit IdCoder3to4;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -173,7 +174,7 @@ uses
 class procedure TIdDecoder4to3.ConstructDecodeTable(const ACodingTable: string;
  var ADecodeArray: TIdDecodeTable);
 var
-  i: integer;
+  i: LongInt;
 begin
   //TODO: See if we can find an efficient way, or maybe an option to see if the requested
   //decode char is valid, that is it returns a 255 from the DecodeTable, or at maybe

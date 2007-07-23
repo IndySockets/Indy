@@ -60,6 +60,7 @@ unit IdFTPListParseVM;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

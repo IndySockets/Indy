@@ -11,11 +11,11 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
+
+
   Rev 1.7    9/8/2004 10:10:40 PM  JPMugaas
   Now should work properly in DotNET versions of Delphi.
 
@@ -53,29 +53,31 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF DOTNET}
+  {$IFDEF WidgetWinforms}
   Classes,
   IdDsnSASLListEditorFormNET;
   {$R 'IdDsnSASLListEditorFormNET.TfrmSASLListEditor.resources' 'IdDsnSASLListEditorFormNET.resx'}
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
   IdDsnSASLListEditorFormVCL;
   {$ENDIF}
 
 type
-  {$IFDEF DOTNET}
+  {$IFDEF WidgetWinforms}
   //we make a create here because I'm not sure how the Visual Designer for WinForms
   //we behave in a package.  I know it can act weird if something is renamed
   TfrmSASLListEditor = class(IdDsnSASLListEditorFormNET.TfrmSASLListEditor)
   public
     constructor Create(AOwner : TComponent);
   end;
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLikeOrKylix}
   TfrmSASLListEditor = class(TfrmSASLListEditorVCL);
   {$ENDIF}
 
 implementation
 
-{$IFDEF DOTNET}
+{$IFDEF WidgetWinForms}
 constructor TfrmSASLListEditor.Create(AOwner : TComponent);
 begin
   inherited Create;

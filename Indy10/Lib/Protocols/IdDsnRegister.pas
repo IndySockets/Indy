@@ -43,9 +43,9 @@
 
 unit IdDsnRegister;
 
-{$I IdCompilerDefines.inc}
-
 interface
+
+{$I IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -54,13 +54,18 @@ uses
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf,
+      DesignIntf, 
       DesignEditors;
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
+      {$IFDEF FPC}
+      PropEdits,
+      ComponentEditors;
+      {$ELSE}
       DesignIntf,
       DesignEditors;
+      {$ENDIF}
     {$ELSE}
        Dsgnintf;
     {$ENDIF}

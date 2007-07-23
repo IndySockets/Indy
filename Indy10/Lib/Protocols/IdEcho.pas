@@ -57,6 +57,7 @@ unit IdEcho;
 {*******************************************************}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

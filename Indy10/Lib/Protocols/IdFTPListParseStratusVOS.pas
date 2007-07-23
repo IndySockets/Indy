@@ -33,6 +33,7 @@ unit IdFTPListParseStratusVOS;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

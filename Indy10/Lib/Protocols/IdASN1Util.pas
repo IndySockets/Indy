@@ -65,6 +65,7 @@ unit IdASN1Util;
 {$WEAKPACKAGEUNIT ON}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   SysUtils;

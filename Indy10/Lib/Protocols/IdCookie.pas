@@ -84,6 +84,7 @@ unit IdCookie;
 // TODO: Make this unit to implement completely [Netscape], [RFC2109] & [RFC2965]
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

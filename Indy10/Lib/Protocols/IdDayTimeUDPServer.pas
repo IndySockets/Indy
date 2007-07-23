@@ -34,6 +34,7 @@
 unit IdDayTimeUDPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdGlobal, IdSocketHandle, IdUDPBase, IdUDPServer;

@@ -14,131 +14,132 @@
 }
 {
   $Log$
-}
-{
-{   Rev 1.29    1/31/2005 9:02:44 PM  JPMugaas
-{ Should compile again.  OOPS!!
-}
-{
-{   Rev 1.28    1/28/2005 8:06:08 PM  JPMugaas
-{ Bug with MINFO, it was not returning the responsible E-Mail address.
-}
-{
-{   Rev 1.27    1/28/2005 7:12:34 PM  JPMugaas
-{ Minor formatting adjustments.
-}
-{
-{   Rev 1.26    1/28/2005 3:46:18 PM  JPMugaas
-{ Should compile.
-}
-{
-{   Rev 1.25    2005/1/28 下午 12:40:08  DChang
-{ Add a new method for TIdTextModeResourceRecord to clean the created FAnswer,
-{ then while the record updated, new data can be used in the FAnswer.
-}
-{
-{   Rev 1.23    2005/1/25 下午 12:24:14  DChang
-{ For speeding up the query, one private variable is added into all TIdRR_
-{ series object, only first time query will generate the binary codes, the
-{ others will read the result form the first time generated.
-}
-{
-{   Rev 1.22    2004/12/15 上午 11:12:18  DChang    Version: 1.22
-{ Fix all BinQueryRecord method of TIdRR_*, 
-{ TIdRR_TXT.BinQueryRecord is completed,
-{ and remark the comment of TIdTextModeResourceRecord.BinQueryRecord,
-{ it's should be empty.
-}
-{
-{   Rev 1.21    10/26/2004 9:06:30 PM  JPMugaas
-{ Updated references.
-}
-{
+unit IdDNSCommon;
+
+
+    Rev 1.29    1/31/2005 9:02:44 PM  JPMugaas
+  Should compile again.  OOPS!!
+
+
+    Rev 1.28    1/28/2005 8:06:08 PM  JPMugaas
+  Bug with MINFO, it was not returning the responsible E-Mail address.
+
+
+    Rev 1.27    1/28/2005 7:12:34 PM  JPMugaas
+  Minor formatting adjustments.
+
+
+    Rev 1.26    1/28/2005 3:46:18 PM  JPMugaas
+  Should compile.
+
+
+    Rev 1.25    2005/1/28 下午 12:40:08  DChang
+  Add a new method for TIdTextModeResourceRecord to clean the created FAnswer,
+  then while the record updated, new data can be used in the FAnswer.
+
+
+    Rev 1.23    2005/1/25 下午 12:24:14  DChang
+  For speeding up the query, one private variable is added into all TIdRR_
+  series object, only first time query will generate the binary codes, the
+  others will read the result form the first time generated.
+
+
+    Rev 1.22    2004/12/15 上午 11:12:18  DChang    Version: 1.22
+  Fix all BinQueryRecord method of TIdRR_*,
+  TIdRR_TXT.BinQueryRecord is completed,
+  and remark the comment of TIdTextModeResourceRecord.BinQueryRecord,
+  it's should be empty.
+
+
+    Rev 1.21    10/26/2004 9:06:30 PM  JPMugaas
+  Updated references.
+
+
     Rev 1.20    9/15/2004 4:59:34 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.19    2004/7/19 下午 09:43:40  DChang
-{ 1. Move the TIdTextModeResourceRecords which was defined in
-{ IdDNSServer.pas to here.
-{ 2. Add a QueryType (DqtIXFR) in TDNSQueryRecordTypes.
-}
-{
-{   Rev 1.18    6/29/04 1:22:32 PM  RLebeau
-{ Updated NormalStrToDNSStr() to use CopyTIdBytes() instead of AppendBytes()
-}
-{
-{   Rev 1.17    2/11/2004 5:21:12 AM  JPMugaas
-{ Vladimir Vassiliev changes for removal of byte flipping.  Network conversion
-{ order conversion functions are used instead.
-{ IPv6 addresses are returned in the standard form.
-{ In WKS records, Address was changed to IPAddress to be consistant with other
-{ record types.  Address can also imply a hostname.
-}
-{
-{   Rev 1.16    2/7/2004 7:18:30 PM  JPMugaas
-{ Moved some functions out of IdDNSCommon so we can use them elsewhere.
-}
-{
-{   Rev 1.15    2004.02.07 5:45:10 PM  czhower
-{ Fixed compile error in D7.
-}
-{
-{   Rev 1.14    2004.02.07 5:03:26 PM  czhower
-{ .net fixes.
-}
-{
-{   Rev 1.13    2004.02.03 5:45:56 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.12    12/7/2003 8:07:24 PM  VVassiliev
-{ string -> TIdBytes
-}
-{
-{   Rev 1.11    11/15/2003 1:16:06 PM  VVassiliev
-{ Move AppendByte from IdDNSCommon to IdCoreGlobal
-}
-{
-{   Rev 1.10    11/13/2003 5:46:04 PM  VVassiliev
-{ DotNet
-}
-{
-{   Rev 1.9    10/25/2003 06:51:50 AM  JPMugaas
-{ Updated for new API changes and tried to restore some functionality.
-}
-{
+
+
+    Rev 1.19    2004/7/19 下午 09:43:40  DChang
+  1. Move the TIdTextModeResourceRecords which was defined in
+  IdDNSServer.pas to here.
+  2. Add a QueryType (DqtIXFR) in TDNSQueryRecordTypes.
+
+
+    Rev 1.18    6/29/04 1:22:32 PM  RLebeau
+  Updated NormalStrToDNSStr() to use CopyTIdBytes() instead of AppendBytes()
+
+
+    Rev 1.17    2/11/2004 5:21:12 AM  JPMugaas
+  Vladimir Vassiliev changes for removal of byte flipping.  Network conversion
+  order conversion functions are used instead.
+  IPv6 addresses are returned in the standard form.
+  In WKS records, Address was changed to IPAddress to be consistant with other
+  record types.  Address can also imply a hostname.
+
+
+    Rev 1.16    2/7/2004 7:18:30 PM  JPMugaas
+  Moved some functions out of IdDNSCommon so we can use them elsewhere.
+
+
+    Rev 1.15    2004.02.07 5:45:10 PM  czhower
+  Fixed compile error in D7.
+
+
+    Rev 1.14    2004.02.07 5:03:26 PM  czhower
+  .net fixes.
+
+
+    Rev 1.13    2004.02.03 5:45:56 PM  czhower
+  Name changes
+
+
+    Rev 1.12    12/7/2003 8:07:24 PM  VVassiliev
+  string -> TIdBytes
+
+
+    Rev 1.11    11/15/2003 1:16:06 PM  VVassiliev
+  Move AppendByte from IdDNSCommon to IdCoreGlobal
+
+
+    Rev 1.10    11/13/2003 5:46:04 PM  VVassiliev
+  DotNet
+
+
+    Rev 1.9    10/25/2003 06:51:50 AM  JPMugaas
+  Updated for new API changes and tried to restore some functionality.
+
+
     Rev 1.8    10/19/2003 11:56:12 AM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.7    2003.10.12 3:50:38 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.6    2003/5/8 下午 08:07:12  DChang
-{ Add several constants for IdDNSServer
-}
-{
-{   Rev 1.5    4/28/2003 03:34:56 PM  JPMugaas
-{ Illiminated constant for the service path.  IFDEF's for platforms are only
-{ allowed in designated units.  Besides, the location of the services file is
-{ different in Win9x operating systems than NT operating systems.
-}
-{
-{   Rev 1.4    4/28/2003 02:30:46 PM  JPMugaas
-{ reverted back to the old one as the new one checked will not compile, has
-{ problametic dependancies on Contrs and Dialogs (both not permitted).
-}
-{
-{   Rev 1.2    4/28/2003 07:00:04 AM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.0    11/14/2002 02:18:20 PM  JPMugaas
+
+
+    Rev 1.7    2003.10.12 3:50:38 PM  czhower
+  Compile todos
+
+
+    Rev 1.6    2003/5/8 下午 08:07:12  DChang
+  Add several constants for IdDNSServer
+
+
+    Rev 1.5    4/28/2003 03:34:56 PM  JPMugaas
+  Illiminated constant for the service path.  IFDEF's for platforms are only
+  allowed in designated units.  Besides, the location of the services file is
+  different in Win9x operating systems than NT operating systems.
+
+
+    Rev 1.4    4/28/2003 02:30:46 PM  JPMugaas
+  reverted back to the old one as the new one checked will not compile, has
+  problametic dependancies on Contrs and Dialogs (both not permitted).
+
+
+    Rev 1.2    4/28/2003 07:00:04 AM  JPMugaas
+  Should now compile.
+
+
+    Rev 1.0    11/14/2002 02:18:20 PM  JPMugaas
     Rev 1.3    04/28/2003 01:15:20 AM  DenniesChang
-}
-{
+
+
     // Add iRCode mode constants in May 4, 2003.
     // Modify all DNS relative header in IdDNSCommon.pas
     // Apr. 28, 2003
@@ -159,11 +160,12 @@
 
     Started: Jan. 20, 2002.
     Finished:
-}
 
+}
 unit IdDNSCommon;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -173,8 +175,6 @@ uses
   IdResourceStrings,
   IdResourceStringsProtocols;
 
-Resourcestring
-  RSQueryMustProvideSOARecord = 'You have to provide a TIdRR_SOA object with Serial number and Name to progress IXFR. %d';
 
 const
   IdDNSServerVersion = 'Indy DNSServer 20040121301'; {do not localize}

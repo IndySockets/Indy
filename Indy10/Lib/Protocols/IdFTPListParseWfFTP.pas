@@ -30,6 +30,7 @@ unit IdFTPListParseWfFTP;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

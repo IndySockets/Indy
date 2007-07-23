@@ -14,69 +14,71 @@
 }
 {
   $Log$
-}
-{
-{   Rev 1.17    2/10/2005 2:24:38 PM  JPMugaas
-{ Minor Restructures for some new UnixTime Service components.
-}
-{
-{   Rev 1.16    1/17/2005 7:29:12 PM  JPMugaas
-{ Now uses new TIdBuffer functionality.
-}
-{
-{   Rev 1.15    1/9/2005 6:08:06 PM  JPMugaas
-{ Payload size now specified for CC_GET_FILE.
-{ Now will raise exception if you specify a packet size less than 512.
-}
-{
-{   Rev 1.12    11/12/2004 8:37:36 AM  JPMugaas
-{ Minor compile error.  OOPS!!!
-}
-{
-{   Rev 1.11    11/11/2004 11:22:54 PM  JPMugaas
-{ Removed an $IFDEF that's no longer needed.
-}
-{
-{   Rev 1.10    11/8/2004 8:36:04 PM  JPMugaas
-{ Added value for command that may appear later.
-}
-{
-{   Rev 1.9    11/7/2004 11:34:16 PM  JPMugaas
-{ Now uses inherited methods again.  The inherited methods now use the Binding
-{ methods we used here.
-}
-{
-{   Rev 1.8    11/6/2004 1:46:34 AM  JPMugaas
-{ Minor bug fix for when there is no data in a reply to CC_GET_PRO.
-}
-{
-{   Rev 1.7    11/5/2004 7:55:02 PM  JPMugaas
-{ Changed to use, Connect, Recv, Send, and Disconnect instead of ReceiveFrom
-{ and SendTo.  This should improve performance as we do make repeated contacts
-{ to the host and UDP connect will cause the stack to filter out packets that
-{ aren't from the peer.  There should only be one DNS resolution per session
-{ making this more efficient (cutting down to about 87 seconds to get a dir).
-}
-{
-{   Rev 1.4    10/31/2004 1:49:58 AM  JPMugaas
-{ Now uses item type from TIdFTPList for dirs and files.  We don't use Skip
-{ items or end of dir marker items.
-}
-{
-{   Rev 1.2    10/30/2004 10:23:58 PM  JPMugaas
-{ Should be much faster.
-}
-{
-{   Rev 1.1    10/30/2004 7:04:26 PM  JPMugaas
-{ FSP Upload.
-}
-{
-{   Rev 1.0    10/29/2004 12:34:20 PM  JPMugaas
-{ File Services Protocol implementation started
+
+
+    Rev 1.17    2/10/2005 2:24:38 PM  JPMugaas
+  Minor Restructures for some new UnixTime Service components.
+
+
+    Rev 1.16    1/17/2005 7:29:12 PM  JPMugaas
+  Now uses new TIdBuffer functionality.
+
+
+    Rev 1.15    1/9/2005 6:08:06 PM  JPMugaas
+  Payload size now specified for CC_GET_FILE.
+  Now will raise exception if you specify a packet size less than 512.
+
+
+    Rev 1.12    11/12/2004 8:37:36 AM  JPMugaas
+  Minor compile error.  OOPS!!!
+
+
+    Rev 1.11    11/11/2004 11:22:54 PM  JPMugaas
+  Removed an $IFDEF that's no longer needed.
+
+
+    Rev 1.10    11/8/2004 8:36:04 PM  JPMugaas
+  Added value for command that may appear later.
+
+
+    Rev 1.9    11/7/2004 11:34:16 PM  JPMugaas
+  Now uses inherited methods again.  The inherited methods now use the Binding
+  methods we used here.
+
+
+    Rev 1.8    11/6/2004 1:46:34 AM  JPMugaas
+  Minor bug fix for when there is no data in a reply to CC_GET_PRO.
+
+
+    Rev 1.7    11/5/2004 7:55:02 PM  JPMugaas
+  Changed to use, Connect, Recv, Send, and Disconnect instead of ReceiveFrom
+  and SendTo.  This should improve performance as we do make repeated contacts
+  to the host and UDP connect will cause the stack to filter out packets that
+  aren't from the peer.  There should only be one DNS resolution per session
+  making this more efficient (cutting down to about 87 seconds to get a dir).
+
+
+    Rev 1.4    10/31/2004 1:49:58 AM  JPMugaas
+  Now uses item type from TIdFTPList for dirs and files.  We don't use Skip
+  items or end of dir marker items.
+
+
+    Rev 1.2    10/30/2004 10:23:58 PM  JPMugaas
+  Should be much faster.
+
+
+    Rev 1.1    10/30/2004 7:04:26 PM  JPMugaas
+  FSP Upload.
+
+
+    Rev 1.0    10/29/2004 12:34:20 PM  JPMugaas
+  File Services Protocol implementation started
+
 }
 unit IdFSP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -441,13 +443,13 @@ var
   LC : Cardinal;
 begin
   //we don't parse the file type because there is some variation between CC_GET_DIR and CC_STAT
-  CopyBytesToHostCardinal(AData, VI, LC);
+  CopyBytesToHostLongWord(AData, VI, LC);
 
   VL.FModifiedDateGMT := UnixDateTimeToDelphiDateTime(LC);
   VL.FModifiedDate := VL.FModifiedDateGMT + OffSetFromUTC;
   Inc(VI, 4);
 
-  CopyBytesToHostCardinal(AData, VI, LC);
+  CopyBytesToHostLongWord(AData, VI, LC);
   VL.Size := LC;
   Inc(VI, 5); //we want to skip over the type byte we processed earlier
 end;
@@ -714,7 +716,7 @@ servers do not wishes to be detected.
       //word - max. packet size supported by server
       if FThruputControl then begin
         if Length(LExtraBuf) > 4 then begin
-          CopyBytesToHostCardinal(LExtraBuf, 1, FServerMaxThruPut);
+          CopyBytesToHostLongWord(LExtraBuf,1,FServerMaxThruPut);
           if Length(LExtraBuf) > 6 then begin
             CopyBytesToHostWord(LExtraBuf, 5, FServerMaxPacketSize);
           end;
@@ -868,7 +870,7 @@ begin
       end else begin
         LUnixDate := DateTimeToUnix(AGMTTime);
         SetLength(LSendPacket.FExtraData, 4);
-        CopyTIdNetworkCardinal(LUnixDate, LSendPacket.FExtraData, 0);
+      CopyTIdNetworkLongWord(LUnixDate,LSendPacket.FExtraData,0);
       end;
       SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
     finally
@@ -1114,7 +1116,7 @@ begin
   CopyTIdWord(LW, Result, 6);
   // position
   LC := GStack.HostToNetwork(FFilePosition);
-  CopyTIdCardinal(LC, Result, 8);
+  CopyTIdLongWord(LC, Result, 8);
   //end of header section
 
   //data section
@@ -1177,7 +1179,7 @@ begin
   FSequence := BytesToWord(AData, 4);
   FSequence := GStack.NetworkToHost(FSequence);
   //file position
-  FFilePosition := BytesToCardinal(AData, 8);
+  FFilePosition := BytesToLongWord(AData, 8);
   FFilePosition := GStack.NetworkToHost(FFilePosition);
 
   //extract data

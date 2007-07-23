@@ -44,6 +44,7 @@
 unit IdFTPListParseNCSAForDOS;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

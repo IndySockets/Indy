@@ -38,7 +38,7 @@
 unit IdFTPListParseHellSoft;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware;

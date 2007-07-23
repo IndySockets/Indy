@@ -30,7 +30,7 @@ unit IdFTPServerContextBase;
 }
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdContext;
 

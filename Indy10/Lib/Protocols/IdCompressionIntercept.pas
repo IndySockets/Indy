@@ -11,48 +11,48 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
-{   Rev 1.10    2/22/2004 12:04:00 AM  JPMugaas
-{ Updated for file rename.
-}
-{
-{   Rev 1.9    2/12/2004 11:28:04 PM  JPMugaas
-{ Modified compression intercept to use the ZLibEx unit.
-}
-{
-{   Rev 1.8    2004.02.09 9:56:00 PM  czhower
-{ Fixed for lib changes.
-}
-{
-{   Rev 1.7    5/12/2003 12:31:00 AM  GGrieve
-{ Get compiling again with DotNet Changes
-}
-{
-{   Rev 1.6    10/12/2003 1:49:26 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.5    10/12/2003 1:43:24 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
+
+
+   Rev 1.10    2/22/2004 12:04:00 AM  JPMugaas
+ Updated for file rename.
+
+
+   Rev 1.9    2/12/2004 11:28:04 PM  JPMugaas
+ Modified compression intercept to use the ZLibEx unit.
+
+
+   Rev 1.8    2004.02.09 9:56:00 PM  czhower
+ Fixed for lib changes.
+
+
+   Rev 1.7    5/12/2003 12:31:00 AM  GGrieve
+ Get compiling again with DotNet Changes
+
+
+   Rev 1.6    10/12/2003 1:49:26 PM  BGooijen
+ Changed comment of last checkin
+
+
+   Rev 1.5    10/12/2003 1:43:24 PM  BGooijen
+ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+
     Rev 1.3    6/27/2003 2:38:04 PM  BGooijen
   Fixed bug where last part was not compressed/send
-}
-{
+
+
     Rev 1.2    4/10/2003 4:12:42 PM  BGooijen
   Added TIdServerCompressionIntercept
-}
-{
+
+
     Rev 1.1    4/3/2003 2:55:48 PM  BGooijen
   Now calls DeinitCompressors on disconnect
-}
-{
-{   Rev 1.0    11/14/2002 02:15:50 PM  JPMugaas
+
+
+   Rev 1.0    11/14/2002 02:15:50 PM  JPMugaas
 }
 unit IdCompressionIntercept;
 
@@ -93,12 +93,14 @@ interface
 
 uses
   Classes,
+  IdCTypes,
   IdException,
   IdGlobal,
   IdGlobalProtocols,
   IdIntercept,
   IdTCPClient,
   IdTCPConnection,
+  IdZLibHeaders,
   IdZLib;
 
 type
@@ -107,18 +109,18 @@ type
   EIdDecompressorInitFailure = class(EIdCompressionException);
   EIdCompressionError = class(EIdCompressionException);
   EIdDecompressionError = class(EIdCompressionException);
-  TCompressionLevel = 0..9;
+  TIdCompressionLevel = 0..9;
 
   TIdCompressionIntercept = class(TIdConnectionIntercept)
   protected
-    FCompressionLevel: TCompressionLevel;
+    FCompressionLevel: TIdCompressionLevel;
     FCompressRec: TZStreamRec;
     FDecompressRec: TZStreamRec;
     FRecvBuf: TIdBytes;
-    FRecvCount, FRecvSize: Integer;
+    FRecvCount, FRecvSize: TIdC_UINT;
     FSendBuf: TIdBytes;
-    FSendCount, FSendSize: Integer;
-    procedure SetCompressionLevel(Value: TCompressionLevel);
+    FSendCount, FSendSize: TIdC_UINT;
+    procedure SetCompressionLevel(Value: TIdCompressionLevel);
     procedure InitCompressors;
     procedure DeinitCompressors;
   public
@@ -127,17 +129,17 @@ type
     procedure Receive(var VBuffer: TIdBytes); override;
     procedure Send(var VBuffer: TIdBytes); override;
   published
-    property CompressionLevel: TCompressionLevel read FCompressionLevel write SetCompressionLevel;
+    property CompressionLevel: TIdCompressionLevel read FCompressionLevel write SetCompressionLevel;
   end;
 
   TIdServerCompressionIntercept = class(TIdServerIntercept)
   protected
-    FCompressionLevel: TCompressionLevel;
+    FCompressionLevel: TIdCompressionLevel;
   public
     procedure Init; override;
     function Accept(AConnection: TComponent): TIdConnectionIntercept; override;
   published
-    property CompressionLevel: TCompressionLevel read FCompressionLevel write FCompressionLevel;
+    property CompressionLevel: TIdCompressionLevel read FCompressionLevel write FCompressionLevel;
   end;
 
 
@@ -179,8 +181,8 @@ procedure TIdCompressionIntercept.InitCompressors;
 begin
   if not Assigned(FCompressRec.zalloc) then
   begin
-    FCompressRec.zalloc := IdZLib.zlibAllocMem;
-    FCompressRec.zfree := IdZLib.zlibFreeMem;
+    FCompressRec.zalloc := IdZLibHeaders.zlibAllocMem;
+    FCompressRec.zfree := IdZLibHeaders.zlibFreeMem;
     if deflateInit_(FCompressRec, FCompressionLevel, zlib_Version, SizeOf(FCompressRec)) <> Z_OK then
     begin
       EIdCompressorInitFailure.Toss(RSZLCompressorInitializeFailure);
@@ -188,8 +190,8 @@ begin
   end;
   if not Assigned(FDecompressRec.zalloc) then
   begin
-    FDecompressRec.zalloc := IdZLib.zlibAllocMem;
-    FDecompressRec.zfree := IdZLib.zlibFreeMem;
+    FDecompressRec.zalloc := IdZLibHeaders.zlibAllocMem;
+    FDecompressRec.zfree := IdZLibHeaders.zlibFreeMem;
     if inflateInit_(FDecompressRec, zlib_Version, SizeOf(FDecompressRec)) <> Z_OK then
     begin
       EIdDecompressorInitFailure.Toss(RSZLDecompressorInitializeFailure);
@@ -201,7 +203,7 @@ procedure TIdCompressionIntercept.Receive(var VBuffer: TIdBytes);
 var
   LBuffer: TIdBytes;
   LPos : integer;
-  nChars, C: Integer;
+  nChars, C : TIdC_UINT;
   StreamEnd: Boolean;
 begin
   SetLength(LBuffer, 2048);
@@ -254,7 +256,7 @@ end;
 procedure TIdCompressionIntercept.Send(var VBuffer: TIdBytes);
 var
   LBuffer: TIdBytes;
-  LLen, LSize: Integer;
+  LLen, LSize: TIdC_UINT;
 begin
   SetLength(LBuffer, 1024);
   if FCompressionLevel in [1..9] then
@@ -293,13 +295,13 @@ begin
       end;
       // Place the compressed data back into the input stream
       LLen := Length(VBuffer);
-      SetLength(VBuffer, LLen + Length(LBuffer) - FCompressRec.avail_out);
-      CopyTIdBytes(LBuffer, 0, VBuffer, LLen, Length(LBuffer) - FCompressRec.avail_out);
+      SetLength(VBuffer, LLen + TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
+      CopyTIdBytes(LBuffer, 0, VBuffer, LLen, TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
     end;
   end;
 end;
 
-procedure TIdCompressionIntercept.SetCompressionLevel(Value: TCompressionLevel);
+procedure TIdCompressionIntercept.SetCompressionLevel(Value: TIdCompressionLevel);
 begin
   if Value < 0 then begin
     Value := 0;

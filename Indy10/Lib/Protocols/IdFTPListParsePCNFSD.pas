@@ -26,7 +26,7 @@
 unit IdFTPListParsePCNFSD;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;

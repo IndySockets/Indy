@@ -157,6 +157,7 @@
 unit IdCustomHTTPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

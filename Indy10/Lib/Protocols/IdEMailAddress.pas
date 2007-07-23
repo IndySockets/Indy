@@ -110,6 +110,7 @@ unit IdEMailAddress;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

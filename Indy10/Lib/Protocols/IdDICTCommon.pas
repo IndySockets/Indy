@@ -36,6 +36,7 @@
 unit IdDICTCommon;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes;

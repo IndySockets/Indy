@@ -37,27 +37,28 @@
 
   Rev 1.0    11/14/2002 02:19:56 PM  JPMugaas
 
-2000-May-15  J. Peter Mugaas
-  -Added verbose querry event to complement TIdFinger
+  2000-May-15  J. Peter Mugaas
+    -Added verbose querry event to complement TIdFinger
 
-2000-Apr-22  J Peter Mugass
-  -Ported to Indy
+  2000-Apr-22  J Peter Mugass
+    -Ported to Indy
 
-2000-Jan-13  MTL
-  -Moved to new Palette Scheme (Winshoes Servers)
+  2000-Jan-13  MTL
+    -Moved to new Palette Scheme (Winshoes Servers)
 
-1999-Apr-13
-  -Final Version
+  1999-Apr-13
+    -Final Version
 }
 
 
 unit IdFingerServer;
 
 {
-Original Author: Ozz Nixon
+  Original Author: Ozz Nixon
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

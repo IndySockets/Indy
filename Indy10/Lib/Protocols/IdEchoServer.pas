@@ -11,11 +11,11 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
+
+
   Rev 1.7    12/2/2004 4:23:52 PM  JPMugaas
   Adjusted for changes in Core.
 
@@ -57,6 +57,7 @@ Original Author: Ozz Nixon
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

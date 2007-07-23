@@ -38,6 +38,7 @@
 unit IdFTPListParseXecomMicroRTOS;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

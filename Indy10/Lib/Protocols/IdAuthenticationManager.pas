@@ -34,6 +34,7 @@
 unit IdAuthenticationManager;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -66,6 +66,7 @@ unit IdDICTServer;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols,

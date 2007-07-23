@@ -31,6 +31,7 @@
 unit IdFTPListParseTandemGuardian;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -38,7 +38,7 @@
 unit IdFTPListParseVxWorks;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdFTPList, IdFTPListParseBase;

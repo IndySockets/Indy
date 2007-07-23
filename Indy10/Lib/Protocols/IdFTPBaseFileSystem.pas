@@ -76,6 +76,7 @@
 unit IdFTPBaseFileSystem;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -117,10 +118,8 @@ type
   EIdFileSystemNotADir = class(EIdFileSystemException);
   EIdFileSystemCannotRemoveDir = class(EIdFileSystemException);
 
-resourceString
-  RSFTPFSysErrMsg = 'Permission Denied';
 implementation
-
+uses IdResourceStringsProtocols;
 { TIdFTPBaseFileSystem }
 
 procedure TIdFTPBaseFileSystem.ErrCantRemoveDir;

@@ -344,41 +344,41 @@
   - Merged changes submitted by Andrew P.Rybin
 
   2002 - Aug-23 - J. Peter Mugaas
-   - fixed a parsing bug in all parsers.  A file name begging with a space will
-     throw off the parsers.  Modified VMS parser to permit file names containing spaces
+  - fixed a parsing bug in all parsers.  A file name begging with a space will
+    throw off the parsers.  Modified VMS parser to permit file names containing spaces
 
   2002 - Aug-22 - J. Peter Mugaas
-   - VM/CMS - now returns OwnerName - I think.
-   - Added RecType for VM/CMS.
-   - Renamed BlockSize to NumberBlocks. Note:  Block size in VMS is usually 512 anyway
-(we hard-code that for a constant) and in VM/CMS, the block size is either
-800, 512, 1024, 2048, or 4096 at the whim of the user and we can't get the
-block size from the DIR listing.  In other words, any block size property is
-useless.
-   - Changed VMS behvioar to be consistant with this.
-   - Insider Privillages property added to TIdFTPListItem.  This is the
-OwnerPermissions for Novell Netware.  Note that Novell Privillages are far different
-than Unix permissions so they belong in a different property.
+  - VM/CMS - now returns OwnerName - I think.
+  - Added RecType for VM/CMS.
+  - Renamed BlockSize to NumberBlocks. Note:  Block size in VMS is usually 512 anyway
+    (we hard-code that for a constant) and in VM/CMS, the block size is either
+    800, 512, 1024, 2048, or 4096 at the whim of the user and we can't get the
+    block size from the DIR listing.  In other words, any block size property is
+    useless.
+  - Changed VMS behvioar to be consistant with this.
+  - Insider Privillages property added to TIdFTPListItem.  This is the
+    OwnerPermissions for Novell Netware.  Note that Novell Privillages are far different
+    than Unix permissions so they belong in a different property.
   - added VMS file owner and group.
     See: http://seqaxp.bio.caltech.edu/www/vms_beginners_faq.html#FILE00
   - VMS file protections (permissions).
     See: http://www.djesys.com/vms/freevms/mentor/vms_prot.html#prvs
 
   2002 - Aug-20 - J. Peter Mugaas
-   - Added Novell Netware directory parsing.
-   - Rewrote IdFTPList Novell Netware parsing.  File names with spaces are now
-     properly handled.  The code also has a side effect of stripping out a zero
-     that occurred in a directory that was probably due to a quirk.
+  - Added Novell Netware directory parsing.
+  - Rewrote IdFTPList Novell Netware parsing.  File names with spaces are now
+    properly handled.  The code also has a side effect of stripping out a zero
+    that occurred in a directory that was probably due to a quirk.
 
   2002 - Aug-19 - J. Peter Mugaas
-   - Improved VMS Directory partsing.  It NO LONGER is dependant upon specific
-   column widthes.
-   - Fixed bugs in VM file parsing and determination.
-   - Now handles multiline VMS file list entries.
+  - Improved VMS Directory partsing.  It NO LONGER is dependant upon specific
+    column widthes.
+  - Fixed bugs in VM file parsing and determination.
+  - Now handles multiline VMS file list entries.
 
   2002 - Aug-18 - J. Peter Mugaas
-   - VM/CMS or VM/ESA Mainframe directory format parsing added
-   - VMS parsing added
+  - VM/CMS or VM/ESA Mainframe directory format parsing added
+  - VMS parsing added
 
   February 2001
   - TFTPListItem now descends from TCollectionItem
@@ -416,6 +416,7 @@ unit IdFTPList;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -69,6 +69,7 @@
 unit IdFTPListParseWindowsNT;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

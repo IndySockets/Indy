@@ -49,7 +49,7 @@
 unit IdFTPListTypes;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdFTPList;

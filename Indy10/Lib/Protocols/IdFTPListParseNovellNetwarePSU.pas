@@ -52,7 +52,7 @@
 unit IdFTPListParseNovellNetwarePSU;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;

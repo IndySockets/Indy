@@ -169,6 +169,7 @@
 unit IdFTPCommon;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

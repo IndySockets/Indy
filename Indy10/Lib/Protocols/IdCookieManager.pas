@@ -56,6 +56,7 @@ unit IdCookieManager;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdBaseComponent,

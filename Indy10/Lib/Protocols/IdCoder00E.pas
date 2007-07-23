@@ -35,6 +35,7 @@
 unit IdCoder00E;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

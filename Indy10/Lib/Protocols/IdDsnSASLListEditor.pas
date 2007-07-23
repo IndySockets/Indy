@@ -11,11 +11,11 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
+
+
   Rev 1.6    9/5/2004 3:16:58 PM  JPMugaas
   Should work in D9 DotNET.
 
@@ -55,8 +55,13 @@ uses
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-      DesignIntf,
+          {$IFDEF FPC}
+      PropEdits,
+      ComponentEditors;
+      {$ELSE}
+      DesignIntf, 
       DesignEditors;
+      {$ENDIF}
     {$ELSE}
        Dsgnintf;
     {$ENDIF}

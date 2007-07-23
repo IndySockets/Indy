@@ -52,7 +52,7 @@
 unit IdDICT;
 
 interface
-
+{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdAssignedNumbers, IdComponent,

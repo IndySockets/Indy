@@ -11,44 +11,46 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
-{   Rev 1.6    6/29/04 12:27:14 PM  RLebeau
-{ Updated to remove DotNet conditionals
-{ 
-{ Updated constructor to call SetDataString()
-}
-{
-{   Rev 1.5    2004.02.03 5:44:52 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.4    2004.02.03 2:12:04 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.3    24/01/2004 19:07:18  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.2    14/12/2003 18:07:16  CCostelloe
-{ Changed GetDataString to avoiud error 'String element cannot be passed to var
-{ parameter'
-}
-{
-{   Rev 1.1    13/05/2003 20:28:04  CCostelloe
-{ Bug fix: remove default values in Create to avoid ambiguities with
-{ Create(TCollection)
-}
-{
-{   Rev 1.0    11/14/2002 02:12:46 PM  JPMugaas
+
+
+   Rev 1.6    6/29/04 12:27:14 PM  RLebeau
+ Updated to remove DotNet conditionals
+ 
+ Updated constructor to call SetDataString()
+
+
+   Rev 1.5    2004.02.03 5:44:52 PM  czhower
+ Name changes
+
+
+   Rev 1.4    2004.02.03 2:12:04 PM  czhower
+ $I path change
+
+
+   Rev 1.3    24/01/2004 19:07:18  CCostelloe
+ Cleaned up warnings
+
+
+   Rev 1.2    14/12/2003 18:07:16  CCostelloe
+ Changed GetDataString to avoiud error 'String element cannot be passed to var
+ parameter'
+
+
+   Rev 1.1    13/05/2003 20:28:04  CCostelloe
+ Bug fix: remove default values in Create to avoid ambiguities with
+ Create(TCollection)
+
+
+   Rev 1.0    11/14/2002 02:12:46 PM  JPMugaas
 }
 unit IdAttachmentMemory;
 
 interface
+
+{$I IdCompilerDefines.inc}
 
 uses
   Classes, IdAttachment, IdMessageParts, IdGlobal;

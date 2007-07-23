@@ -128,6 +128,7 @@ unit IdDateTimeStamp;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdBaseComponent;

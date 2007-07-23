@@ -69,6 +69,7 @@
 unit IdExplicitTLSClientServerBase;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
