@@ -854,6 +854,7 @@ Indy10/Lib/Core/IndyCore90.rc -text
 Indy10/Lib/Core/IndyCore90Net.bdsproj -text
 Indy10/Lib/Core/IndyCore90Net.dpk -text
 Indy10/Lib/Core/IndyCoreK3.dpk -text
+Indy10/Lib/Core/Makefile.fpc -text
 Indy10/Lib/Core/Res/IdCreditsBitmap.RES -text svneol=unset#unset
 Indy10/Lib/Core/Res/IdCreditsBitmap.rc -text
 Indy10/Lib/Core/Res/Maint/1sink.jpg -text svneol=unset#image/jpeg
@@ -891,6 +892,7 @@ Indy10/Lib/Core/dclIndyCore90Net.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpk -text
 Indy10/Lib/Core/dclindycorek3.dpkl -text
 Indy10/Lib/Core/dclindycorek3.res -text svneol=unset#unset
+Indy10/Lib/Core/indycorefpc.pas -text
 Indy10/Lib/Design/DsnIndy.bdsproj -text
 Indy10/Lib/Design/DsnIndy.dpr -text
 Indy10/Lib/Design/DsnIndy90.bdsproj -text
