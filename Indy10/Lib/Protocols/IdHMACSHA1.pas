@@ -23,6 +23,7 @@
 unit IdHMACSHA1;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdHash, IdHashSHA1, IdHMAC;

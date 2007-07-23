@@ -53,9 +53,10 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF Linux}
+  {$IFDEF WidgetKylix}
   QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLike}
   Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList, Graphics,
   {$ENDIF}
   Classes, IdSASLCollection;
@@ -67,8 +68,13 @@ type
     lbAssigned: TListBox;
     sbAdd: TSpeedButton;
     sbRemove: TSpeedButton;
-    Button1: TButton;
-    Button2: TButton;
+    {$IFDEF UseTBitBtn}
+    BtnCancel: TBitBtn;
+    BtnOk: TBitBtn;
+    {$ELSE}
+    BtnCancel: TButton;
+    BtnOk: TButton;
+    {$ENDIF}
     Label1: TLabel;
     Label2: TLabel;
     sbUp: TSpeedButton;
@@ -102,14 +108,23 @@ type
 
 implementation
 uses
-   {$IFDEF WIN32}Windows,{$ENDIF}
+{$IFDEF WidgetLCL}
+  LResources,
+{$ENDIF}
   IdDsnCoreResourceStrings,
   IdResourceStrings, IdSASL, SysUtils;
 
 
 { TfrmSASLListEditorVCL }
 
-{$R IdSASLListEditorForm.RES}
+{$IFNDEF WidgetLCL}
+   {$IFDEF WIN32}
+   {$R IdSASLListEditorForm.RES}
+   {$ENDIF}
+   {$IFDEF KYLIX}
+   {$R IdSASLListEditorForm.RES}
+   {$ENDIF}
+{$ENDIF}
 
 constructor TfrmSASLListEditorVCL.Create(AOwner: TComponent);
 begin
@@ -200,13 +215,18 @@ procedure TfrmSASLListEditorVCL.FormCreate;
 begin
   Left := 292;
   Top := 239;
-  {$IFDEF LINUX} // should be CLX, but I can't find CLX defined
+  {$IFDEF WidgetKylix}
   BorderStyle := fbsDialog;
-  {$ELSE}
+  {$ENDIF}
+  {$IFDEF WidgetVCLLike}
   BorderStyle := bsDialog;
   {$ENDIF}
   Caption := RSADlgSLCaption;
+  {$IFDEF UseTBitBtn}
+  ClientHeight := 349;
+  {$ELSE}
   ClientHeight := 344;
+  {$ENDIF}
   ClientWidth := 452;
 
   Position := poScreenCenter;
@@ -250,8 +270,13 @@ begin
   sbDown := TSpeedButton.Create(Self);
   lbAvailable := TListBox.Create(Self);
   lbAssigned := TListBox.Create(Self);
-  Button1 := TButton.Create(Self);
-  Button2 := TButton.Create(Self);
+  {$IFDEF UseTBitBtn}
+  BtnCancel := TBitBtn.Create(Self);
+  BtnOk := TBitBtn.Create(Self);
+  {$ELSE}
+  BtnCancel := TButton.Create(Self);
+  BtnOk := TButton.Create(Self);
+  {$ENDIF}
   SASLList := TIdSASLEntries.Create(Self);
   with sbAdd do
   begin
@@ -263,8 +288,14 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-    Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
-    NumGlyphs := 2;
+    {$IFDEF WidgetLCL}
+    Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+    {$ELSE}
+      {$IFDEF WidgetVCLLikeOrKylix}
+      Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
+      NumGlyphs := 2;
+      {$ENDIF}
+    {$ENDIF}
   end;
   with sbRemove do
   begin
@@ -276,9 +307,14 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-
+    {$IFDEF WidgetLCL}
+    Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+    {$ELSE}
+      {$IFDEF WidgetVCLLikeOrKylix}
     Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
     NumGlyphs := 2;
+      {$ENDIF}
+    {$ENDIF}
   end;
   with Label1 do
   begin
@@ -310,8 +346,14 @@ begin
     Width := 23;
     Height := 22;
     ShowHint := True;
+     {$IFDEF WidgetLCL}
+    Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+    {$ELSE}
+      {$IFDEF WidgetVCLLikeOrKylix}
     Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
     NumGlyphs := 2;
+      {$ENDIF}
+    {$ENDIF}
   end;
   with sbDown do
   begin
@@ -324,8 +366,14 @@ begin
     Height := 22;
 
     ShowHint := True;
+     {$IFDEF WidgetLCL}
+    Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+    {$ELSE}
+      {$IFDEF WidgetVCLLikeOrKylix}
     Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
     NumGlyphs := 2;
+      {$ENDIF}
+    {$ENDIF}
   end;
   with lbAvailable do
   begin
@@ -351,35 +399,44 @@ begin
     ItemHeight := 13;
     TabOrder := 1;
   end;
-  with Button1 do
+  with BtnCancel do
   begin
-    Name := 'Button1';  {do not localize}
+    Name := 'BtnCancel';  {do not localize}
 
     Left := 368;
     Top := 312;
     Width := 75;
+    {$IFDEF WidgetLCL}
+    Height := 30;
+    Kind := bkCancel;
+    {$ELSE}
     Height := 25;
 
     Cancel := True;
     Caption := RSCancel;
     ModalResult := 2;
-
+    {$ENDIF}
     Parent := Self;
 
   end;
-  with Button2 do
+  with BtnOk do
   begin
-    Name := 'Button2';  {do not localize}
+    Name := 'BtnOk';  {do not localize}
     Parent := Self;
 
     Left := 287;
     Top := 312;
     Width := 75;
+    {$IFDEF WidgetLCL}
+    Height := 30;
+    Kind := bkOk;
+    {$ELSE}
     Height := 25;
 
     Caption := RSOk;
     Default := True;
     ModalResult := 1;
+    {$ENDIF}
     TabOrder := 2;
 
     TabOrder := 3;
@@ -402,9 +459,28 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actAddUpdate(Sender: TObject);
+var LEnabled : Boolean;
+//we do this in a round about way because we should update the glyph
+//with an enabled/disabled form so a user can see what is applicable
 begin
-  actAdd.Enabled := (lbAvailable.Items.Count <> 0) and
+   LEnabled := (lbAvailable.Items.Count <> 0) and
     (lbAvailable.ItemIndex <> -1);
+  {$IFDEF WidgetLCL}
+  if LEnabled <> actAdd.Enabled then
+  begin
+    if LEnabled then
+    begin
+       sbAdd.Glyph.LoadFromLazarusResource('ARROWRIGHT');  {do not localize}
+    end
+    else
+    begin
+       sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
+    end;
+  end;
+  {$ENDIF}
+
+  actAdd.Enabled := LEnabled;
+
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveDownExecute(Sender: TObject);
@@ -420,9 +496,25 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveDownUpdate(Sender: TObject);
+var LEnabled : Boolean;
 begin
-  actMoveDown.Enabled := (lbAssigned.Items.Count > 1) and
-    (lbAssigned.ItemIndex <> -1) and (lbAssigned.ItemIndex < (lbAssigned.Items.Count - 1));
+  LEnabled := (lbAssigned.Items.Count > 1) and
+    (lbAssigned.ItemIndex <> -1) and
+      (lbAssigned.ItemIndex < (lbAssigned.Items.Count - 1));
+  {$IFDEF WidgetLCL}
+  if LEnabled <> actMoveDown.Enabled then
+  begin
+    if LEnabled then
+    begin
+       sbDown.Glyph.LoadFromLazarusResource('ARROWDOWN');  {do not localize}
+    end
+    else
+    begin
+       sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
+    end;
+  end;
+  {$ENDIF}
+  actMoveDown.Enabled := LEnabled;
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveUpExecute(Sender: TObject);
@@ -439,9 +531,26 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveUpUpdate(Sender: TObject);
+var LEnabled : Boolean;
+//we do this in a round about way because we should update the glyph
+//with an enabled/disabled form so a user can see what is applicable
 begin
-  sbUp.Enabled := (lbAssigned.Items.Count > 1) and
+   LEnabled := (lbAssigned.Items.Count > 1) and
     (lbAssigned.ItemIndex > 0); // -1 not selected and 0 = top
+  {$IFDEF WidgetLCL}
+  if LEnabled <> actMoveUp.Enabled then
+  begin
+    if LEnabled then
+    begin
+       sbUp.Glyph.LoadFromLazarusResource('ARROWUP');  {do not localize}
+    end
+    else
+    begin
+       sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
+    end;
+  end;
+  {$ENDIF}
+  actMoveUp.Enabled := LEnabled;
 end;
 
 procedure TfrmSASLListEditorVCL.actRemoveExecute(Sender: TObject);
@@ -462,9 +571,24 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actRemoveUpdate(Sender: TObject);
+var LEnabled : Boolean;
 begin
-  actRemove.Enabled := (lbAssigned.Items.Count <> 0) and
+  LEnabled := (lbAssigned.Items.Count <> 0) and
     (lbAssigned.ItemIndex <> -1);
+  {$IFDEF WidgetLCL}
+  if LEnabled <> actRemove.Enabled then
+  begin
+    if LEnabled then
+    begin
+       sbRemove.Glyph.LoadFromLazarusResource('ARROWLEFT');  {do not localize}
+    end
+    else
+    begin
+       sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
+    end;
+  end;
+  {$ENDIF}
+  actRemove.Enabled := LEnabled;
 end;
 
 function TfrmSASLListEditorVCL.Execute: Boolean;
@@ -472,4 +596,8 @@ begin
   Result := ShowModal = mrOk;
 end;
 
+{$IFDEF WidgetLCL}
+initialization
+  {$I IdDsnSASLListEditorFormVCL.lrs}
+{$ENDIF}
 end.

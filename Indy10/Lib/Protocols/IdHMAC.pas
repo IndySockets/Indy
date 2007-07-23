@@ -23,6 +23,7 @@
 unit IdHMAC;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
