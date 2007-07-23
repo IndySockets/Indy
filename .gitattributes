@@ -1355,6 +1355,7 @@ Indy10/Lib/Protocols/IndyProtocols90.res -text svneol=unset#unset
 Indy10/Lib/Protocols/IndyProtocols90Net.bdsproj -text
 Indy10/Lib/Protocols/IndyProtocols90Net.dpk -text
 Indy10/Lib/Protocols/IndyProtocolsK3.dpk -text
+Indy10/Lib/Protocols/Makefile.fpc -text
 Indy10/Lib/Protocols/ZLib/ZLib.pas -text
 Indy10/Lib/Protocols/ZLib/ZLibConst.pas -text
 Indy10/Lib/Protocols/ZLib/adler32.c -text svneol=LF#unset
@@ -1430,6 +1431,7 @@ Indy10/Lib/Protocols/dclIndyProtocolsK3.dpk -text
 Indy10/Lib/Protocols/deflate.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/example.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/gzio.obj -text svneol=unset#unset
+Indy10/Lib/Protocols/indyprotocolsfpc.pas -text
 Indy10/Lib/Protocols/infback.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inffast.obj -text svneol=unset#unset
 Indy10/Lib/Protocols/inflate.obj -text svneol=unset#unset
