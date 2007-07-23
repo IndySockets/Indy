@@ -1,0 +1,395 @@
+[package]
+name=indy
+version=10.2.0.1
+[require]
+packages=fcl
+fpcsubdir=packages/extra
+[target]
+options=-gl
+exampledirs=examples
+
+units=indysystemfpc indycorefpc indyprotocolsfpc
+rsts=IdResourceStrings IdResourceStringsCore IdResourceStringsProtocols
+
+rsts_amiga=
+rsts_atari=
+rsts_beos=
+rsts_darwin=IdZLibConst
+rsts_emx=
+rsts_freebsd=IdZLibConst
+rsts_go32v1=
+rsts_go32v2=
+rsts_linux=IdZLibConst
+rsts_macos=
+rsts_morphos=
+rsts_netbsd=IdZLibConst
+rsts_netware=
+rsts_netwlibc=
+rsts_openbsd=IdZLibConst
+rsts_os2=
+rsts_palmos=
+rsts_qnx=IdZLibConst
+rsts_solaris=IdZLibConst
+rsts_watcom=
+rsts_win32=IdZLibConst
+rsts_win64=
+rsts_wince=
+rsts_gba=
+implicitunits=IdASN1Util \
+  IdAllFTPListParsers \
+  IdAntiFreezeBase \
+  IdAssignedNumbers \
+  IdAttachment \
+  IdAttachmentFile \
+  IdAttachmentMemory \
+  IdAuthentication \
+  IdAuthenticationDigest \
+  IdAuthenticationManager \
+  IdBaseComponent \
+  IdBuffer \
+  IdChargenServer \
+  IdChargenUDPServer \
+  IdCharsets \
+  IdCmdTCPClient \
+  IdCmdTCPServer \
+  IdCoder \
+  IdCoder00E \
+  IdCoder3to4 \
+  IdCoderBinHex4 \
+  IdCoderHeader \
+  IdCoderMIME \
+  IdCoderQuotedPrintable \
+  IdCoderUUE \
+  IdCoderXXE \
+  IdCommandHandlers \
+  IdComponent \
+  IdConnectThroughHttpProxy \
+  IdContainers \
+  IdContext \
+  IdCookie \
+  IdCookieManager \
+  IdCustomHTTPServer \
+  IdCustomTCPServer \
+  IdCustomTransparentProxy \
+  IdDICT \
+  IdDICTCommon \
+  IdDICTServer \
+  IdDNSCommon \
+  IdDNSResolver \
+  IdDNSServer \
+  IdDateTimeStamp \
+  IdDayTime \
+  IdDayTimeServer \
+  IdDayTimeUDP \
+  IdDayTimeUDPServer \
+  IdDiscardServer \
+  IdDiscardUDPServer \
+  IdEMailAddress \
+  IdEcho \
+  IdEchoServer \
+  IdEchoUDP \
+  IdEchoUDPServer \
+  IdException \
+  IdExceptionCore \
+  IdExplicitTLSClientServerBase \
+  IdFSP \
+  IdFTP \
+  IdFTPBaseFileSystem \
+  IdFTPCommon \
+  IdFTPList \
+  IdFTPListOutput \
+  IdFTPListParseAS400 \
+  IdFTPListParseBase \
+  IdFTPListParseBullGCOS7 \
+  IdFTPListParseBullGCOS8 \
+  IdFTPListParseChameleonNewt \
+  IdFTPListParseCiscoIOS \
+  IdFTPListParseDistinctTCPIP \
+  IdFTPListParseEPLF \
+  IdFTPListParseHellSoft \
+  IdFTPListParseKA9Q \
+  IdFTPListParseMPEiX \
+  IdFTPListParseMVS \
+  IdFTPListParseMicrowareOS9 \
+  IdFTPListParseMusic \
+  IdFTPListParseNCSAForDOS \
+  IdFTPListParseNCSAForMACOS \
+  IdFTPListParseNovellNetware \
+  IdFTPListParseNovellNetwarePSU \
+  IdFTPListParseOS2 \
+  IdFTPListParsePCNFSD \
+  IdFTPListParseStercomOS390Exp \
+  IdFTPListParseStercomUnixEnt \
+  IdFTPListParseStratusVOS \
+  IdFTPListParseSuperTCP \
+  IdFTPListParseTOPS20 \
+  IdFTPListParseTSXPlus \
+  IdFTPListParseTandemGuardian \
+  IdFTPListParseUnisysClearPath \
+  IdFTPListParseUnix \
+  IdFTPListParseVM \
+  IdFTPListParseVMS \
+  IdFTPListParseVSE \
+  IdFTPListParseVxWorks \
+  IdFTPListParseWfFTP \
+  IdFTPListParseWinQVTNET \
+  IdFTPListParseWindowsNT \
+  IdFTPListParseXecomMicroRTOS \
+  IdFTPListTypes \
+  IdFTPServer \
+  IdFTPServerContextBase \
+  IdFinger \
+  IdFingerServer \
+  IdGlobal \
+  IdGlobalCore \
+  IdGlobalProtocols \
+  IdGopher \
+  IdGopherConsts \
+  IdGopherServer \
+  IdHTTP \
+  IdHTTPHeaderInfo \
+  IdHTTPProxyServer \
+  IdHTTPServer \
+  IdHash \
+  IdHashAdler32 \
+  IdHashCRC \
+  IdHashElf \
+  IdHashMessageDigest \
+  IdHashSHA1 \
+  IdHeaderList \
+  IdIMAP4 \
+  IdIMAP4Server \
+  IdIOHandler \
+  IdIOHandlerSocket \
+  IdIOHandlerStack \
+  IdIOHandlerStream \
+  IdIPAddrMon \
+  IdIPAddress \
+  IdIPMCastBase \
+  IdIPMCastClient \
+  IdIPMCastServer \
+  IdIPWatch \
+  IdIRC \
+  IdIcmpClient \
+  IdIdent \
+  IdIdentServer \
+  IdIntercept \
+  IdInterceptSimLog \
+  IdInterceptThrottler \
+  IdIrcServer \
+  IdLPR \
+  IdLogBase \
+  IdLogDebug \
+  IdLogEvent \
+  IdLogFile \
+  IdLogStream \
+  IdMIMETypes \
+  IdMailBox \
+  IdMappedFTP \
+  IdMappedPOP3 \
+  IdMappedPortTCP \
+  IdMappedPortUDP \
+  IdMappedTelnet \
+  IdMessage \
+  IdMessageClient \
+  IdMessageCoder \
+  IdMessageCoderMIME \
+  IdMessageCoderQuotedPrintable \
+  IdMessageCoderUUE \
+  IdMessageCoderXXE \
+  IdMessageCoderYenc \
+  IdMessageCollection \
+  IdMessageParts \
+  IdMultipartFormData \
+  IdNNTP \
+  IdNNTPServer \
+  IdNetworkCalculator \
+  IdOSFileName \
+  IdOTPCalculator \
+  IdPOP3 \
+  IdPOP3Server \
+  IdQOTDUDP \
+  IdQOTDUDPServer \
+  IdQotd \
+  IdQotdServer \
+  IdRSH \
+  IdRSHServer \
+  IdRawBase \
+  IdRawClient \
+  IdRawFunctions \
+  IdRawHeaders \
+  IdRemoteCMDClient \
+  IdRemoteCMDServer \
+  IdReply \
+  IdReplyFTP \
+  IdReplyIMAP4 \
+  IdReplyPOP3 \
+  IdReplyRFC \
+  IdReplySMTP \
+  IdResourceStrings \
+  IdResourceStringsCore \
+  IdResourceStringsProtocols \
+  IdRexec \
+  IdRexecServer \
+  IdSASL \
+  IdSASLAnonymous \
+  IdSASLCollection \
+  IdSASLExternal \
+  IdSASLLogin \
+  IdSASLOTP \
+  IdSASLPlain \
+  IdSASLSKey \
+  IdSASLUserPass \
+  IdSASL_CRAM_MD5 \
+  IdSMTP \
+  IdSMTPBase \
+  IdSMTPRelay \
+  IdSMTPServer \
+  IdSNMP \
+  IdSNPP \
+  IdSNTP \
+  IdSSL \
+  IdScheduler \
+  IdSchedulerOfThread \
+  IdSchedulerOfThreadDefault \
+  IdSchedulerOfThreadPool \
+  IdServerIOHandler \
+  IdServerIOHandlerSocket \
+  IdServerIOHandlerStack \
+  IdServerInterceptLogBase \
+  IdServerInterceptLogEvent \
+  IdServerInterceptLogFile \
+  IdSimpleServer \
+  IdSocketHandle \
+  IdSocks \
+  IdSocksServer \
+  IdStack \
+  IdStackConsts \
+  IdStream \
+  IdStreamVCL \
+  IdStrings \
+  IdStruct \
+  IdSync \
+  IdSys \
+  IdSysBase \
+  IdSysLog \
+  IdSysLogMessage \
+  IdSysLogServer \
+  IdSystat \
+  IdSystatServer \
+  IdSystatUDP \
+  IdSystatUDPServer \
+  IdTCPClient \
+  IdTCPConnection \
+  IdTCPServer \
+  IdTCPStream \
+  IdTask \
+  IdTelnet \
+  IdTelnetServer \
+  IdText \
+  IdThread \
+  IdThreadComponent \
+  IdThreadSafe \
+  IdTime \
+  IdTimeServer \
+  IdTimeUDP \
+  IdTimeUDPServer \
+  IdTraceRoute \
+  IdTrivialFTP \
+  IdTrivialFTPBase \
+  IdTrivialFTPServer \
+  IdUDPBase \
+  IdUDPClient \
+  IdUDPServer \
+  IdURI \
+  IdUnixTime \
+  IdUnixTimeServer \
+  IdUnixTimeUDP \
+  IdUnixTimeUDPServer \
+  IdUserAccounts \
+  IdUserPassProvider \
+  IdVCard \
+  IdWhoIsServer \
+  IdWhois \
+  IdYarn \
+  IdZLibCompressorBase
+
+implicitunits_amiga=
+units_amiga=
+implicitunits_atari=
+units_atari=
+implicitunits_beos=
+units_beos=
+implicitunits_darwin=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_darwin=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_emx=
+units_emx=
+units_freebsd=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdSSLOpenSSL \
+             IdCompressionIntercept IdCompressorZLib \
+             IdZLib IdZLibConst IdNTLM
+implicitunits_go_32v1=
+units_go32v1=
+implicitunits_go32v2=
+units_go32v2=
+implicitunits_linux=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_linux=IdCompressorZLib IdSSLOpenSSL \
+IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_macos=
+units_macos=
+implicitunits_morphos=
+units_morphos=
+implicitunits_netbsd=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_netbsd=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_netware=
+units_netware=
+implicitunits_netwlibc=
+units_netwlibc=
+implicitunits_openbsd=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_openbsd=IdCompressorZLib IdSSLOpenSSL \
+IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_os2=
+units_os2=
+implicitunits_palmos=
+units_palmos=
+implicitunits_qnx=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_qnx=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_solaris=IdStackUnix IdStackBSDBase IdSysLinux \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_solaris=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_watcom=
+units_watcom=
+implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32 \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_win32=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32 \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
+             IdZLib IdZLibConst IdNTLM
+units_win64=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
+implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+units_wince=
+implicitunits_wdosx=
+units_wdosx=
+implicitunits_gba=
+units_gba=
+[install]
+fpcpackage=y
+buildunit=indysystemfpc indycorefpc indyprotocolsfpc
+[shared]
+build=n
