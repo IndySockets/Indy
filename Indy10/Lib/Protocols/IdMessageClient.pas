@@ -16,355 +16,355 @@
   $Log$
 }
 {
-{   Rev 1.85    1/6/05 4:38:30 PM  RLebeau
-{ Bug fix for decoding Text part headers
+   Rev 1.85    1/6/05 4:38:30 PM  RLebeau
+ Bug fix for decoding Text part headers
 }
 {
-{   Rev 1.84    11/30/04 10:44:44 AM  RLebeau
-{ Bug fix for previous checkin
+   Rev 1.84    11/30/04 10:44:44 AM  RLebeau
+ Bug fix for previous checkin
 }
 {
-{   Rev 1.83    11/30/2004 12:10:40 PM  JPMugaas
-{ Fix for compiler error.
+   Rev 1.83    11/30/2004 12:10:40 PM  JPMugaas
+ Fix for compiler error.
 }
 {
-{   Rev 1.82    11/28/04 2:22:04 PM  RLebeau
-{ Updated a few hard-coded strings to use resource strings instead
+   Rev 1.82    11/28/04 2:22:04 PM  RLebeau
+ Updated a few hard-coded strings to use resource strings instead
 }
 {
-{   Rev 1.81    28/11/2004 20:08:14  CCostelloe
-{ MessagePart.Boundary now (correctly) holds decoded MIME boundary
+   Rev 1.81    28/11/2004 20:08:14  CCostelloe
+ MessagePart.Boundary now (correctly) holds decoded MIME boundary
 }
 {
-{   Rev 1.80    11/27/2004 8:58:14 PM  JPMugaas
-{ Compile errors.
+   Rev 1.80    11/27/2004 8:58:14 PM  JPMugaas
+ Compile errors.
 }
 {
-{   Rev 1.79    10/26/2004 10:25:46 PM  JPMugaas
-{ Updated refs.
+   Rev 1.79    10/26/2004 10:25:46 PM  JPMugaas
+ Updated refs.
 }
 {
-{   Rev 1.78    24.09.2004 02:16:48  Andreas Hausladen
-{ Added ReadTIdBytesFromStream and ReadCharFromStream function to supress .NET
-{ warnings.
+   Rev 1.78    24.09.2004 02:16:48  Andreas Hausladen
+ Added ReadTIdBytesFromStream and ReadCharFromStream function to supress .NET
+ warnings.
 }
 {
-{   Rev 1.77    27.08.2004 22:04:32  Andreas Hausladen
-{ speed optimization ("const" for string parameters)
-{ Fixed "blank line multiplication"
+   Rev 1.77    27.08.2004 22:04:32  Andreas Hausladen
+ speed optimization ("const" for string parameters)
+ Fixed "blank line multiplication"
 }
 {
-{   Rev 1.76    27.08.2004 00:21:32  Andreas Hausladen
-{ Undo last changes (temporary)
+   Rev 1.76    27.08.2004 00:21:32  Andreas Hausladen
+ Undo last changes (temporary)
 }
 {
-{   Rev 1.75    26.08.2004 22:14:16  Andreas Hausladen
-{ Fixed last line blank line read/write bug
+   Rev 1.75    26.08.2004 22:14:16  Andreas Hausladen
+ Fixed last line blank line read/write bug
 }
 {
-{   Rev 1.74    7/23/04 7:17:20 PM  RLebeau
-{ TFileStream access right tweak for ProcessMessage()
+   Rev 1.74    7/23/04 7:17:20 PM  RLebeau
+ TFileStream access right tweak for ProcessMessage()
 }
 {
-{   Rev 1.73    28/06/2004 23:58:12  CCostelloe
-{ Bug fix
+   Rev 1.73    28/06/2004 23:58:12  CCostelloe
+ Bug fix
 }
 {
-    Rev 1.72    6/11/2004 9:38:08 AM  DSiders
+   Rev 1.72    6/11/2004 9:38:08 AM  DSiders
   Added "Do not Localize" comments.
 }
 {
-{   Rev 1.71    2004.06.06 4:53:04 PM  czhower
-{ Undid 1.70. Not needed, just masked an existing bug and did not fix it.
+   Rev 1.71    2004.06.06 4:53:04 PM  czhower
+ Undid 1.70. Not needed, just masked an existing bug and did not fix it.
 }
 {
-{   Rev 1.70    06/06/2004 01:23:54  CCostelloe
-{ OnWork fix
+   Rev 1.70    06/06/2004 01:23:54  CCostelloe
+ OnWork fix
 }
 {
-{   Rev 1.69    6/4/04 12:41:56 PM  RLebeau
-{ ContentTransferEncoding bug fix
+   Rev 1.69    6/4/04 12:41:56 PM  RLebeau
+ ContentTransferEncoding bug fix
 }
 {
-{   Rev 1.68    2004.05.20 1:39:08 PM  czhower
-{ Last of the IdStream updates
+   Rev 1.68    2004.05.20 1:39:08 PM  czhower
+ Last of the IdStream updates
 }
 {
-{   Rev 1.67    2004.05.20 11:36:52 AM  czhower
-{ IdStreamVCL
+   Rev 1.67    2004.05.20 11:36:52 AM  czhower
+ IdStreamVCL
 }
 {
-{   Rev 1.66    2004.05.20 11:12:56 AM  czhower
-{ More IdStream conversions
-}
-{
-{   Rev 1.65    2004.05.19 3:06:34 PM  czhower
-{ IdStream / .NET fix
-}
-{
-{   Rev 1.64    19/05/2004 00:54:30  CCostelloe
-{ Bug fix (though I claim in my defence that it is only a hint fix)
-}
-{
-{   Rev 1.63    16/05/2004 18:55:06  CCostelloe
-{ New TIdText/TIdAttachment processing
-}
-{
-{   Rev 1.62    2004.05.03 11:15:16 AM  czhower
-{ Fixed compile error and added use of constants.
-}
-{
-{   Rev 1.61    5/2/04 8:02:12 PM  RLebeau
-{ Updated TIdIOHandlerStreamMsg to keep track of the last character received
-{ from the stream so that extra CR LF characters are not added to the end of
-{ the message data unnecessarily.
-}
-{
-{   Rev 1.60    4/23/04 1:54:58 PM  RLebeau
-{ One more tweak for TIdIOHandlerStreamMsg support
-}
-{
-{   Rev 1.59    4/23/04 1:21:16 PM  RLebeau
-{ Minor tweaks for TIdIOHandlerStreamMsg support
-}
-{
-{   Rev 1.58    23/04/2004 20:48:10  CCostelloe
-{ Added TIdIOHandlerStreamMsg to stop looping if no terminating \r\n.\r\n and
-{ added support for emails that are attachments only
-}
-{
-{   Rev 1.57    2004.04.18 1:39:22 PM  czhower
-{ Bug fix for .NET with attachments, and several other issues found along the
-{ way.
-}
-{
-{   Rev 1.56    2004.04.16 11:31:00 PM  czhower
-{ Size fix to IdBuffer, optimizations, and memory leaks
-}
-{
-{   Rev 1.55    2004.03.07 10:36:08 AM  czhower
-{ SendMsg now calls OnWork with NoEncode = True
-}
-{
-{   Rev 1.54    2004.03.04 1:02:58 AM  czhower
-{ Const removed from arguemtns (1 not needed + 1 incorrect)
-}
-{
-{   Rev 1.53    2004.03.03 7:18:32 PM  czhower
-{ Fixed AV bug with ProcessMessage
-}
-{
-{   Rev 1.52    2004.03.03 11:54:34 AM  czhower
-{ IdStream change
-}
-{
-{   Rev 1.51    2/3/04 12:25:50 PM  RLebeau
-{ Updated WriteTextPart() function inside of SendBody() to write the ContentID
-{ property is it is assigned.
-}
-{
-{   Rev 1.50    2004.02.03 5:44:02 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.49    2004.02.03 2:12:16 PM  czhower
-{ $I path change
-}
-{
-{   Rev 1.48    1/27/2004 4:04:06 PM  SPerry
-{ StringStream ->IdStringStream
-}
-{
-{   Rev 1.47    2004.01.27 12:03:28 AM  czhower
-{ Properly named a local variable to fix a .net conflict.
-}
-{
-{   Rev 1.46    1/25/2004 3:52:32 PM  JPMugaas
-{ Fixes for abstract SSL interface to work in NET.
-}
-{
-{   Rev 1.45    24/01/2004 19:24:30  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.44    1/21/2004 1:30:06 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.43    16/01/2004 17:39:34  CCostelloe
-{ Added support for BinHex 4.0 encoding
-}
-{
-{   Rev 1.42    11/01/2004 19:53:40  CCostelloe
-{ Revisions for TIdMessage SaveToFile & LoadFromFile for D7 & D8
-}
-{
-{   Rev 1.40    08/01/2004 23:46:16  CCostelloe
-{ Changes to ProcessMessage to get TIdMessage.LoadFromFile working in D7
-}
-{
-{   Rev 1.39    08/01/2004 00:31:06  CCostelloe
-{ Start of reimplementing LoadFrom/SaveToFile
-}
-{
-{   Rev 1.38    22/12/2003 00:44:52  CCostelloe
-{ .NET fixes
-}
-{
-{   Rev 1.37    11/11/2003 12:06:26 AM  BGooijen
-{ Did all todo's ( TStream to TIdStream mainly )
-}
-{
-{   Rev 1.36    2003.10.24 10:43:10 AM  czhower
-{ TIdSTream to dos
-}
-{
-    Rev 1.35    10/17/2003 12:37:36 AM  DSiders
-  Added localization comments.
-  Added resource string for exception message.
-}
-{
-{   Rev 1.34    2003.10.14 9:57:12 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.33    10/12/2003 1:49:56 PM  BGooijen
-{ Changed comment of last checkin
-}
-{
-{   Rev 1.32    10/12/2003 1:43:40 PM  BGooijen
-{ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
-}
-{
-{   Rev 1.30    10/11/2003 4:21:14 PM  BGooijen
-{ Compiles in D7 again
-}
-{
-{   Rev 1.29    10/10/2003 10:42:28 PM  BGooijen
-{ DotNet
-}
-{
-{   Rev 1.28    9/10/2003 1:50:52 PM  SGrobety
-{ DotNet
-}
-{
-{   Rev 1.27    10/8/2003 9:53:42 PM  GGrieve
-{ Remove $IFDEFs
-}
-{
-{   Rev 1.26    05/10/2003 16:39:52  CCostelloe
-{ Set default ContentType
-}
-{
-{   Rev 1.25    03/10/2003 21:03:40  CCostelloe
-{ Bug fixes
-}
-{
-{   Rev 1.24    2003.10.02 9:27:52 PM  czhower
-{ DotNet Excludes
-}
-{
-{   Rev 1.23    01/10/2003 17:58:56  HHariri
-{ More fixes for Multipart Messages and also fixes for incorrect transfer
-{ encoding settings
-}
-{
-{   Rev 1.20    01/10/2003 10:57:56  CCostelloe
-{ Fixed GenerateTextPartContentType (was ignoring ContentType)
-}
-{
-{   Rev 1.19    26/09/2003 01:03:48  CCostelloe
-{ Modified ProcessAttachment in ReceiveBody to update message's Encoding if
-{ attachment was XX-encoded.  Added decoding of message bodies encoded as
-{ base64 or quoted-printable.  Added support for nested MIME parts
-{ (ParentPart).  Added support for TIdText in UU and XX encoding.  Added
-{ missing base64 and QP support where needed. Rewrote/rearranged most of code.
-}
-{
-{   Rev 1.18    04/09/2003 20:44:56  CCostelloe
-{ In SendBody, removed blank line between boundaries and Text part header;
-{ recoded wDoublePoint
-}
-{
-{   Rev 1.17    30/08/2003 18:40:44  CCostelloe
-{ Updated to use IdMessageCoderMIME's new random boundaries
-}
-{
-{   Rev 1.16    8/8/2003 12:27:18 PM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.15    07/08/2003 00:39:06  CCostelloe
-{ Modified SendBody to deal with unencoded attachments (otherwise 7bit
-{ attachments had the attachment header written out as 7bit but was encoded as
-{ base64)
-}
-{
-{   Rev 1.14    11/07/2003 01:14:20  CCostelloe
-{ SendHeader changed to support new IdMessage.GenerateHeader putting generated
-{ headers in IdMessage.LastGeneratedHeaders.
-}
-{
-{   Rev 1.13    6/15/2003 01:13:10 PM  JPMugaas
-{ Minor fixes and cleanups.
-}
-{
-{   Rev 1.12    5/18/2003 02:31:44 PM  JPMugaas
-{ Reworked some things so IdSMTP and IdDirectSMTP can share code including
-{ stuff for pipelining.
-}
-{
-{   Rev 1.11    5/8/2003 03:18:06 PM  JPMugaas
-{ Flattened ou the SASL authentication API, made a custom descendant of SASL
-{ enabled TIdMessageClient classes.
-}
-{
-{   Rev 1.10    5/8/2003 11:28:02 AM  JPMugaas
-{ Moved feature negoation properties down to the ExplicitTLSClient level as
-{ feature negotiation goes hand in hand with explicit TLS support.
-}
-{
-{   Rev 1.9    5/8/2003 02:17:58 AM  JPMugaas
-{ Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
-{ mechanisms missing more consistant, made IdPOP3 support feature feature
-{ negotiation, and consolidated some duplicate code.
-}
-{
-{   Rev 1.8    3/17/2003 02:16:06 PM  JPMugaas
-{ Now descends from ExplicitTLS base class.
-}
-{
-{   Rev 1.7    2/24/2003 07:25:18 PM  JPMugaas
-{ Now compiles with new code.
-}
-{
-{   Rev 1.6    12-8-2002 21:12:36  BGooijen
-{ Changed calls to Writeln to  IOHandler.WriteLn, because the parent classes
-{ don't provide Writeln, System.Writeln was assumed by the compiler
-}
-{
-{   Rev 1.5    12-8-2002 21:08:58  BGooijen
-{ The TIdIOHandlerStream was not Opened before used, fixed that.
-}
-{
-{   Rev 1.4    12/6/2002 05:30:22 PM  JPMugaas
-{ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
-}
-{
-{   Rev 1.3    12/5/2002 02:54:06 PM  JPMugaas
-{ Updated for new API definitions.
-}
-{
-{   Rev 1.2    11/23/2002 03:33:44 AM  JPMugaas
-{ Reverted changes because they were problematic.  Kudzu didn't explain why.
-}
-{
-{   Rev 1.1    11/19/2002 05:35:30 PM  JPMugaas
-{ Fixed problem with a line starting with a ".".  A double period should only
-{ be used if the line is really just one "." and no other cases.
-}
-{
-{   Rev 1.0    11/13/2002 07:56:58 AM  JPMugaas
+   Rev 1.66    2004.05.20 11:12:56 AM  czhower
+ More IdStream conversions
+}
+{
+   Rev 1.65    2004.05.19 3:06:34 PM  czhower
+ IdStream / .NET fix
+}
+{
+   Rev 1.64    19/05/2004 00:54:30  CCostelloe
+ Bug fix (though I claim in my defence that it is only a hint fix)
+}
+{
+   Rev 1.63    16/05/2004 18:55:06  CCostelloe
+ New TIdText/TIdAttachment processing
+}
+{
+   Rev 1.62    2004.05.03 11:15:16 AM  czhower
+ Fixed compile error and added use of constants.
+}
+{
+   Rev 1.61    5/2/04 8:02:12 PM  RLebeau
+ Updated TIdIOHandlerStreamMsg to keep track of the last character received
+ from the stream so that extra CR LF characters are not added to the end of
+ the message data unnecessarily.
+}
+{
+   Rev 1.60    4/23/04 1:54:58 PM  RLebeau
+ One more tweak for TIdIOHandlerStreamMsg support
+}
+{
+   Rev 1.59    4/23/04 1:21:16 PM  RLebeau
+ Minor tweaks for TIdIOHandlerStreamMsg support
+}
+{
+   Rev 1.58    23/04/2004 20:48:10  CCostelloe
+ Added TIdIOHandlerStreamMsg to stop looping if no terminating \r\n.\r\n and
+ added support for emails that are attachments only
+}
+{
+   Rev 1.57    2004.04.18 1:39:22 PM  czhower
+ Bug fix for .NET with attachments, and several other issues found along the
+ way.
+}
+{
+   Rev 1.56    2004.04.16 11:31:00 PM  czhower
+ Size fix to IdBuffer, optimizations, and memory leaks
+
+
+   Rev 1.55    2004.03.07 10:36:08 AM  czhower
+ SendMsg now calls OnWork with NoEncode = True
+
+
+   Rev 1.54    2004.03.04 1:02:58 AM  czhower
+ Const removed from arguemtns (1 not needed + 1 incorrect)
+
+
+   Rev 1.53    2004.03.03 7:18:32 PM  czhower
+ Fixed AV bug with ProcessMessage
+
+
+   Rev 1.52    2004.03.03 11:54:34 AM  czhower
+ IdStream change
+
+
+   Rev 1.51    2/3/04 12:25:50 PM  RLebeau
+ Updated WriteTextPart() function inside of SendBody() to write the ContentID
+ property is it is assigned.
+
+
+   Rev 1.50    2004.02.03 5:44:02 PM  czhower
+ Name changes
+
+
+   Rev 1.49    2004.02.03 2:12:16 PM  czhower
+ $I path change
+
+
+   Rev 1.48    1/27/2004 4:04:06 PM  SPerry
+ StringStream ->IdStringStream
+
+
+   Rev 1.47    2004.01.27 12:03:28 AM  czhower
+ Properly named a local variable to fix a .net conflict.
+
+
+   Rev 1.46    1/25/2004 3:52:32 PM  JPMugaas
+ Fixes for abstract SSL interface to work in NET.
+
+
+   Rev 1.45    24/01/2004 19:24:30  CCostelloe
+ Cleaned up warnings
+
+
+   Rev 1.44    1/21/2004 1:30:06 PM  JPMugaas
+ InitComponent
+
+
+   Rev 1.43    16/01/2004 17:39:34  CCostelloe
+ Added support for BinHex 4.0 encoding
+
+
+   Rev 1.42    11/01/2004 19:53:40  CCostelloe
+ Revisions for TIdMessage SaveToFile & LoadFromFile for D7 & D8
+
+
+   Rev 1.40    08/01/2004 23:46:16  CCostelloe
+ Changes to ProcessMessage to get TIdMessage.LoadFromFile working in D7
+
+
+   Rev 1.39    08/01/2004 00:31:06  CCostelloe
+ Start of reimplementing LoadFrom/SaveToFile
+
+
+   Rev 1.38    22/12/2003 00:44:52  CCostelloe
+ .NET fixes
+
+
+   Rev 1.37    11/11/2003 12:06:26 AM  BGooijen
+ Did all todo's ( TStream to TIdStream mainly )
+
+
+   Rev 1.36    2003.10.24 10:43:10 AM  czhower
+ TIdSTream to dos
+
+
+   Rev 1.35    10/17/2003 12:37:36 AM  DSiders
+ Added localization comments.
+ Added resource string for exception message.
+
+
+   Rev 1.34    2003.10.14 9:57:12 PM  czhower
+ Compile todos
+
+
+   Rev 1.33    10/12/2003 1:49:56 PM  BGooijen
+ Changed comment of last checkin
+
+
+   Rev 1.32    10/12/2003 1:43:40 PM  BGooijen
+ Changed IdCompilerDefines.inc to Core\IdCompilerDefines.inc
+
+
+   Rev 1.30    10/11/2003 4:21:14 PM  BGooijen
+ Compiles in D7 again
+
+
+   Rev 1.29    10/10/2003 10:42:28 PM  BGooijen
+ DotNet
+
+
+   Rev 1.28    9/10/2003 1:50:52 PM  SGrobety
+ DotNet
+
+
+   Rev 1.27    10/8/2003 9:53:42 PM  GGrieve
+ Remove $IFDEFs
+
+
+   Rev 1.26    05/10/2003 16:39:52  CCostelloe
+ Set default ContentType
+
+
+   Rev 1.25    03/10/2003 21:03:40  CCostelloe
+ Bug fixes
+
+
+   Rev 1.24    2003.10.02 9:27:52 PM  czhower
+ DotNet Excludes
+
+
+   Rev 1.23    01/10/2003 17:58:56  HHariri
+ More fixes for Multipart Messages and also fixes for incorrect transfer
+ encoding settings
+
+
+   Rev 1.20    01/10/2003 10:57:56  CCostelloe
+ Fixed GenerateTextPartContentType (was ignoring ContentType)
+
+
+   Rev 1.19    26/09/2003 01:03:48  CCostelloe
+ Modified ProcessAttachment in ReceiveBody to update message's Encoding if
+ attachment was XX-encoded.  Added decoding of message bodies encoded as
+ base64 or quoted-printable.  Added support for nested MIME parts
+ (ParentPart).  Added support for TIdText in UU and XX encoding.  Added
+ missing base64 and QP support where needed. Rewrote/rearranged most of code.
+
+
+   Rev 1.18    04/09/2003 20:44:56  CCostelloe
+ In SendBody, removed blank line between boundaries and Text part header;
+ recoded wDoublePoint
+
+
+   Rev 1.17    30/08/2003 18:40:44  CCostelloe
+ Updated to use IdMessageCoderMIME's new random boundaries
+
+
+   Rev 1.16    8/8/2003 12:27:18 PM  JPMugaas
+ Should now compile.
+
+
+   Rev 1.15    07/08/2003 00:39:06  CCostelloe
+ Modified SendBody to deal with unencoded attachments (otherwise 7bit
+ attachments had the attachment header written out as 7bit but was encoded as
+ base64)
+
+
+   Rev 1.14    11/07/2003 01:14:20  CCostelloe
+ SendHeader changed to support new IdMessage.GenerateHeader putting generated
+ headers in IdMessage.LastGeneratedHeaders.
+
+
+   Rev 1.13    6/15/2003 01:13:10 PM  JPMugaas
+ Minor fixes and cleanups.
+
+
+   Rev 1.12    5/18/2003 02:31:44 PM  JPMugaas
+ Reworked some things so IdSMTP and IdDirectSMTP can share code including
+ stuff for pipelining.
+
+
+   Rev 1.11    5/8/2003 03:18:06 PM  JPMugaas
+ Flattened ou the SASL authentication API, made a custom descendant of SASL
+ enabled TIdMessageClient classes.
+
+
+   Rev 1.10    5/8/2003 11:28:02 AM  JPMugaas
+ Moved feature negoation properties down to the ExplicitTLSClient level as
+ feature negotiation goes hand in hand with explicit TLS support.
+
+
+   Rev 1.9    5/8/2003 02:17:58 AM  JPMugaas
+ Fixed an AV in IdPOP3 with SASL list on forms.  Made exceptions for SASL
+ mechanisms missing more consistant, made IdPOP3 support feature feature
+ negotiation, and consolidated some duplicate code.
+
+
+   Rev 1.8    3/17/2003 02:16:06 PM  JPMugaas
+ Now descends from ExplicitTLS base class.
+
+
+   Rev 1.7    2/24/2003 07:25:18 PM  JPMugaas
+ Now compiles with new code.
+
+
+   Rev 1.6    12-8-2002 21:12:36  BGooijen
+ Changed calls to Writeln to  IOHandler.WriteLn, because the parent classes
+ don't provide Writeln, System.Writeln was assumed by the compiler
+
+
+   Rev 1.5    12-8-2002 21:08:58  BGooijen
+ The TIdIOHandlerStream was not Opened before used, fixed that.
+
+
+   Rev 1.4    12/6/2002 05:30:22 PM  JPMugaas
+ Now decend from TIdTCPClientCustom instead of TIdTCPClient.
+
+
+   Rev 1.3    12/5/2002 02:54:06 PM  JPMugaas
+ Updated for new API definitions.
+
+
+   Rev 1.2    11/23/2002 03:33:44 AM  JPMugaas
+ Reverted changes because they were problematic.  Kudzu didn't explain why.
+
+
+   Rev 1.1    11/19/2002 05:35:30 PM  JPMugaas
+ Fixed problem with a line starting with a ".".  A double period should only
+ be used if the line is really just one "." and no other cases.
+
+
+   Rev 1.0    11/13/2002 07:56:58 AM  JPMugaas
 }
 unit IdMessageClient;
 
@@ -397,9 +397,9 @@ unit IdMessageClient;
     Added support for generating encoded message body.
 }
 
-{$I IdCompilerDefines.inc}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
    Classes,

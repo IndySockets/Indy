@@ -54,6 +54,7 @@
 unit IdSNPP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdComponent, IdGlobal, IdException, IdGlobalProtocols,
@@ -124,7 +125,7 @@ uses
 
 procedure TIdSNPP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := 7777;
 end;
 

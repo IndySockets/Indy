@@ -172,10 +172,177 @@
 
 unit IdRegister;
 
-{$I IdCompilerDefines.inc}
 
 interface
+{$I IdCompilerDefines.inc}
 
+
+
+
+uses
+  Classes;
+
+
+{$IFDEF WIN32}
+  {$DEFINE USEZLIB}
+  {$DEFINE USEOPENSSL}
+{$ENDIF}
+{$IFDEF UNIX}
+  {$DEFINE USEZLIB}
+  {$DEFINE USEOPENSSL}
+{$ENDIF}
+
+// Procs
+  procedure Register;
+
+implementation
+
+uses
+  {$IFDEF FPC}
+  LResources,
+  {$ENDIF}
+//TODO:  IdBlockCipherIntercept,
+  IdChargenServer,
+  IdChargenUDPServer,
+  IdCoder3to4,
+  IdCoderMIME,
+  IdCoderQuotedPrintable,
+  IdCoderUUE,
+  IdCoderXXE,
+  {$IFDEF USEZLIB}
+  IdCompressorZLib,
+  IdCompressionIntercept,
+  {$ENDIF}
+  {$IFNDEF DOTNET}
+  IdConnectThroughHttpProxy,
+  {$ENDIF}
+  IdCookieManager,
+  IdResourceStringsCore,
+  IdDateTimeStamp,
+  IdDayTime,
+  IdDayTimeServer,
+  IdDayTimeUDP,
+  IdDayTimeUDPServer,
+  IdDICT,
+  IdDICTServer,
+  IdDiscardServer,
+  IdDiscardUDPServer,
+  {$IFNDEF DOTNET}
+  IdDsnRegister,
+  {$ENDIF}
+  {$IFNDEF DOTNET}
+  IdDNSResolver,
+  IdDNSServer,
+  {$ENDIF}
+  IdDsnCoreResourceStrings,
+  IdEcho,
+  IdEchoServer,
+  IdEchoUDP,
+  IdEchoUDPServer,
+  IdFinger,
+  IdFingerServer,
+  IdFSP,
+  IdFTP,
+  IdFTPServer,
+  IdGopher,
+  IdGopherServer,
+  IdHashMessageDigest,
+//  IdHL7,
+  IdHTTP,
+  IdHTTPProxyServer,
+  IdHTTPServer,
+  IdIPAddrMon,
+  IdIdent,
+  IdIdentServer,
+  IdIMAP4,
+  IdIMAP4Server,
+  IdIPWatch,
+  IdIRC,
+  IdIrcServer,
+  IdLPR,
+  IdMailBox,
+  IdMappedFTP,
+  IdMappedPortTCP,
+  IdMappedTelnet,
+  IdMappedPOP3,
+  IdMappedPortUDP,
+  IdMessage,
+  IdMessageCoderMIME,
+  {$IFNDEF DOTNET}
+  IdMessageCoderYenc,
+  IdNetworkCalculator,
+  {$ENDIF}
+  IdNNTP,
+  IdNNTPServer,
+  IdPOP3,
+  IdPOP3Server,
+  IdQotd,
+  IdQotdServer,
+  IdQOTDUDP,
+  IdQOTDUDPServer,
+  IdResourceStrings,
+  IdResourceStringsProtocols,
+  IdRexec,
+  IdRexecServer,
+  IdRSH,
+  IdRSHServer,
+  IdSASLAnonymous,
+  IdSASLExternal,
+  IdSASLLogin,
+  IdSASLOTP,
+  IdSASLPlain,
+  IdSASLSKey,
+  IdSASLUserPass,
+  IdSASL_CRAM_MD5,
+  IdServerInterceptLogEvent,
+  IdServerInterceptLogFile,
+  IdSMTP,
+  {$IFNDEF DOTNET}
+  IdSMTPRelay,
+  {$ENDIF}
+  IdSMTPServer,
+   {$IFNDEF DOTNET}
+  IdSNMP,
+
+  IdSNPP,
+  IdSNTP,
+  IdSocksServer,
+  {$ENDIF}
+
+  {$IFDEF USEOPENSSL}
+    //something else may have to be done about OpenSSL
+  IdSSLOpenSSL,
+  {$ENDIF}
+  IdSysLog,
+  IdSysLogMessage,
+  IdSysLogServer,
+  IdSystat,
+  IdSystatServer,
+  IdSystatUDP,
+  IdSystatUDPServer,
+  IdTelnet,
+  IdTelnetServer,
+  IdTime,
+  IdTimeServer,
+  IdTimeUDP,
+  IdTimeUDPServer,
+  {$IFNDEF DOTNET}
+  IdTrivialFTP,
+  IdTrivialFTPServer,
+  {$ENDIF}
+//TODO:  IdTunnelMaster,
+//TODO:  IdTunnelSlave,
+  IdUnixTime,
+  IdUnixTimeServer,
+  IdUnixTimeUDP,
+  IdUnixTimeUDPServer,
+  IdUserAccounts,
+  IdUserPassProvider,
+  {.$IFNDEF DOTNET}
+  IdVCard,
+  {.$ENDIF}
+  IdWhois,
+  IdWhoIsServer;
 
 {$IFDEF DOTNET}
   {$R IconsDotNet\TIdBinHex40Decoder.bmp}
@@ -254,9 +421,9 @@ interface
   {$R IconsDotNet\TIdMBCSEncoder.bmp}
   {$R IconsDotNet\TIdMessage.bmp}
   {$R IconsDotNet\TIdMessageDecoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageDecoderYenc.bmp}
+  {$R IconsDotNet\TIdMessageDecoderYENC.bmp}
   {$R IconsDotNet\TIdMessageEncoderMIME.bmp}
-  {$R IconsDotNet\TIdMessageEncoderYenc.bmp}
+  {$R IconsDotNet\TIdMessageEncoderYENC.bmp}
   {$R IconsDotNet\TIdNetworkCalculator.bmp}
   {$R IconsDotNet\TIdNNTP.bmp}
   {$R IconsDotNet\TIdNNTPServer.bmp}
@@ -332,170 +499,34 @@ interface
   {$R IconsDotNet\TIdUnixTimeUDP.bmp}
   {$R IconsDotNet\TIdUnixTimeUDPServer.bmp}
 {$ELSE}
-  {$IFDEF Borland}
-    {$R IdRegister.dcr}
-  {$ELSE}
-    {$R IdRegisterCool.dcr}
+  {$IFNDEF FPC}
+    {$IFDEF Borland}
+      {$R IdRegister.dcr}
+    {$ELSE}
+      {$R IdRegisterCool.dcr}
+    {$ENDIF}
   {$ENDIF}
 {$ENDIF}
 
-uses
-  Classes;
-
-// Procs
-  procedure Register;
-
-implementation
-
-uses
-//TODO:  IdBlockCipherIntercept,
-  IdChargenServer,
-  IdChargenUDPServer,
-  IdCoder3to4,
-  IdCoderMIME,
-  IdCoderQuotedPrintable,
-  IdCoderUUE,
-  IdCoderXXE,
-   {$IFDEF WIN32}
-     {$IFNDEF DOTNET}
-     IdCompressorZLibEx,
-     {$ENDIF}
-   {$ENDIF}
-  IdConnectThroughHttpProxy,
-  IdCookieManager,
-  IdResourceStringsCore,
-  IdDateTimeStamp,
-  IdDayTime,
-  IdDayTimeServer,
-  IdDayTimeUDP,
-  IdDayTimeUDPServer,
-  IdDICT,
-  IdDICTServer,
-  IdDiscardServer,
-  IdDiscardUDPServer,
-
-  IdDsnRegister,
-
-  IdDNSResolver,
-  IdDNSServer,
-  IdDsnCoreResourceStrings,
-  IdEcho,
-  IdEchoServer,
-  IdEchoUDP,
-  IdEchoUDPServer,
-  IdFinger,
-  IdFingerServer,
-  IdFSP,
-  IdFTP,
-  IdFTPServer,
-  IdGopher,
-  IdGopherServer,
-  IdHashMessageDigest,
-//  IdHL7,
-  IdHTTP,
-  IdHTTPProxyServer,
-  IdHTTPServer,
-  IdIPAddrMon,
-  IdIdent,
-  IdIdentServer,
-  IdIMAP4,
-  IdIMAP4Server,
-  IdIPWatch,
-  IdIRC,
-  IdIrcServer,
-  IdLPR,
-  IdMailBox,
-  IdMappedFTP,
-  IdMappedPortTCP,
-  IdMappedTelnet,
-  IdMappedPOP3,
-  IdMappedPortUDP,
-  IdMessage,
-  IdMessageCoderMIME,
-  IdMessageCoderYenc,
-  IdNetworkCalculator,
-  IdNNTP,
-  IdNNTPServer,
-  IdPOP3,
-  IdPOP3Server,
-  IdQotd,
-  IdQotdServer,
-  IdQOTDUDP,
-  IdQOTDUDPServer,
-  IdResourceStrings,
-  IdResourceStringsProtocols,
-  IdRexec,
-  IdRexecServer,
-  IdRSH,
-  IdRSHServer,
-  IdSASLAnonymous,
-  IdSASLExternal,
-  IdSASLLogin,
-  IdSASLOTP,
-  IdSASLPlain,
-  IdSASLSKey,
-  IdSASLUserPass,
-  IdSASL_CRAM_MD5,
-  IdServerInterceptLogEvent,
-  IdServerInterceptLogFile,
-  IdServerIOHandler,
-  IdSMTP,
-
-  IdSMTPRelay,
-
-  IdSMTPServer,
-
-
-
-  IdSNPP,
-  {$IFNDEF DOTNET}
-  IdSNMP,
-  IdSNTP,
-  IdSocksServer,
-  {$ENDIF}
-
-  {$IFNDEF DOTNET}
-  IdSSLOpenSSL,
-  {$ENDIF}
-  IdSysLog,
-  IdSysLogMessage,
-  IdSysLogServer,
-  IdSystat,
-  IdSystatServer,
-  IdSystatUDP,
-  IdSystatUDPServer,
-  IdTelnet,
-  IdTelnetServer,
-  IdTime,
-  IdTimeServer,
-  IdTimeUDP,
-  IdTimeUDPServer,
-
-  IdTrivialFTP,
-  IdTrivialFTPServer,
-
-//TODO:  IdTunnelMaster,
-//TODO:  IdTunnelSlave,
-  IdUnixTime,
-  IdUnixTimeServer,
-  IdUnixTimeUDP,
-  IdUnixTimeUDPServer,
-  IdUserAccounts,
-  IdUserPassProvider,
-  IdVCard,
-  IdWhois,
-  IdWhoIsServer;
-
-
+{$IFDEF FPC}
+resourcestring
+  RSProt = ' Protocols ';
+  RSMappedPort = ' Mapped Port';
+  RSEncoder = ' Encoder';
+  RSDecoder = ' Decoder';
+{$ENDIF}
 procedure Register;
 begin
-  RegisterComponents(RSRegIndyClients, [
-   //
+  {$IFNDEF FPC}
+   RegisterComponents(RSRegIndyClients, [
 
    TIdDayTime,
    TIdDayTimeUDP,
    TIdDICT,
+
+   {$IFNDEF DOTNET}
    TIdDNSResolver,
+   {$ENDIF}
    TIdEcho,
    TIdEchoUDP,
 
@@ -515,14 +546,12 @@ begin
    TIdRexec,
    TIdRSH,
    TIdSMTP,
-   TIdSMTPRelay,
    {$IFNDEF DOTNET}
+   TIdSMTPRelay,
    TIdSNMP,
-   {$ENDIF}
    TIdSNPP,
-  {$IFNDEF DOTNET}
    TIdSNTP,
-  {$ENDIF}
+    {$ENDIF}
    TIdSysLog,
    TIdSystat,
    TIdSystatUDP,
@@ -530,12 +559,174 @@ begin
    TIdTime,
 
    TIdTimeUDP,
+   {$IFNDEF DOTNET}
    TIdTrivialFTP,
+   {$ENDIF}
    TIdUnixTime,
    TIdUnixTimeUDP,
    TIdWhois]);
 
   RegisterComponents(RSRegIndyServers, [
+   TIdChargenServer,
+   TIdChargenUDPServer,
+   TIdDayTimeServer,
+   TIdDayTimeUDPServer,
+   TIdDICTServer,
+   TIdDISCARDServer,
+   TIdDiscardUDPServer,
+   {$IFNDEF DOTNET}
+   TIdDNSServer,
+   {$ENDIF}
+   TIdECHOServer,
+   TIdEchoUDPServer,
+   TIdFingerServer,
+   TIdFTPServer,
+   TIdGopherServer,
+   TIdHTTPProxyServer,
+   TIdHTTPServer,
+   TIdIdentServer,
+   TIdIMAP4Server,
+   TIdIRCServer,
+   {$IFNDEF DOTNET}
+   TIdMappedFTP,
+   TIdMappedPOP3,
+   TIdMappedPortTCP,
+   TIdMappedPortUDP,
+   TIdMappedTelnet,
+   {$ENDIF}
+   TIdNNTPServer,
+   TIdPOP3Server,
+   TIdQOTDServer,
+   TIdQotdUDPServer,
+   TIdRexecServer,
+   TIdRSHServer,
+   TIdSMTPServer,
+   {$IFNDEF DOTNET}
+   TIdSocksServer,
+   {$ENDIF}
+   TIdSyslogServer,
+   TIdSystatServer,
+   TIdSystatUDPServer,
+   TIdTelnetServer,
+   TIdTimeServer,
+   TIdTimeUDPServer,
+   {$IFNDEF DOTNET}
+   TIdTrivialFTPServer,
+   //TODO:  TIdTunnelMaster,
+   //TODO: TIdTunnelSlave,
+   {$ENDIF}
+   TIdUnixTimeServer,
+   TIdUnixTimeUDPServer,
+   TIdWhoIsServer
+   ]);
+//  RegisterComponents(RSRegIndyServers, [
+//   TIdFTPServer
+//   ]);
+  RegisterComponents(RSRegIndyIntercepts, [
+   {$IFDEF USEZLIB}
+     TIdCompressionIntercept,
+   {$ENDIF}
+//TODO:   TIdBlockCipherIntercept,
+//TODO:   TIdCompressionIntercept,
+//TODO:   TIdServerCompressionIntercept,
+   TIdServerInterceptLogEvent,
+   TIdServerInterceptLogFile
+   ]);
+  {$IFDEF USEOPENSSL}
+  RegisterComponents(RSRegIndyIOHandlers, [
+   TIdServerIOHandlerSSLOpenSSL,
+   TIdSSLIOHandlerSocketOpenSSL
+   ]);
+  {$ENDIF}
+  RegisterComponents(RSRegSASL, [
+   TIdSASLAnonymous,
+   TIdSASLCRAMMD5,
+   TIdSASLExternal,
+   TIdSASLLogin,
+   TIdSASLOTP,
+   TIdSASLPlain,
+   TIdSASLSKey,
+   TIdUserPassProvider
+   ]);
+  RegisterComponents(RSRegIndyMisc, [
+  {$IFNDEF DOTNET}
+   TIdConnectThroughHttpProxy,
+   {$ENDIF}
+
+     TIdCompressorZLib,
+   TIdCookieManager,
+   TIdEncoderMIME,
+   TIdEncoderUUE,
+   TIdEncoderXXE,
+   TIdEncoderQuotedPrintable,
+{$IFNDEF DOTNET}
+   TIdDateTimeStamp,
+{$ENDIF}
+   TIdDecoderMIME,
+   TIdDecoderUUE,
+   TIdDecoderXXE,
+   TIdDecoderQuotedPrintable,
+   TIdIPWatch,
+   TIdIPAddrMon,
+//   TIdHL7,
+   TIdMailBox,
+   TIdMessage,
+   TIdMessageDecoderMIME,
+   TIdMessageEncoderMIME,
+   {$IFNDEF DOTNET}
+   TIdMessageDecoderYenc,
+   TIdMessageEncoderYenc,
+
+   TIdNetworkCalculator,
+    {$ENDIF}
+   TIdSysLogMessage,
+   TIdUserManager,
+   TIdVCard
+   ]);
+   {$ELSE}
+   //FreePascal Lazarus Registration
+
+  RegisterComponents(RSRegIndyClients+ RSProt+'(a-m)', [
+   //
+   TIdDayTime,
+   TIdDayTimeUDP,
+   TIdDICT,
+   TIdDNSResolver,
+   TIdEcho,
+   TIdEchoUDP,
+   TIdFinger,
+   TIdFSP,
+   TIdFTP,
+   TIdGopher,
+   TIdHTTP,
+   TIdIdent,
+   TIdIMAP4,
+   TIdIRC,
+   TIdLPR]);
+ RegisterComponents(RSRegIndyClients+RSProt+ '(n-z)', [
+   TIdNNTP,
+   TIdPOP3,
+   TIdQOTD,
+   TIdQOTDUDP,
+   TIdRexec,
+   TIdRSH,
+   TIdSMTP,
+   TIdSMTPRelay,
+   TIdSNMP,
+   TIdSNPP,
+   TIdSNTP,
+   TIdSysLog,
+   TIdSystat,
+   TIdSystatUDP,
+   TIdTelnet,
+   TIdTime,
+   TIdTimeUDP,
+   TIdTrivialFTP,
+   TIdUnixTime,
+   TIdUnixTimeUDP,
+   TIdWhois]);
+
+  RegisterComponents(RSRegIndyServers+RSProt+ '(a-m)', [
    TIdChargenServer,
    TIdChargenUDPServer,
    TIdDayTimeServer,
@@ -553,12 +744,9 @@ begin
    TIdHTTPServer,
    TIdIdentServer,
    TIdIMAP4Server,
-   TIdIRCServer,
-   TIdMappedFTP,
-   TIdMappedPOP3,
-   TIdMappedPortTCP,
-   TIdMappedPortUDP,
-   TIdMappedTelnet,
+   TIdIRCServer]);
+
+   RegisterComponents(RSRegIndyServers+RSProt+ '(n-z)', [
    TIdNNTPServer,
    TIdPOP3Server,
    TIdQOTDServer,
@@ -566,43 +754,39 @@ begin
    TIdRexecServer,
    TIdRSHServer,
    TIdSMTPServer,
-   {$IFNDEF DOTNET}
    TIdSocksServer,
-   {$ENDIF}
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
    TIdTelnetServer,
    TIdTimeServer,
    TIdTimeUDPServer,
-
    TIdTrivialFTPServer,
-    {$IFNDEF DOTNET}
    //TODO:  TIdTunnelMaster,
    //TODO: TIdTunnelSlave,
-   {$ENDIF}
    TIdUnixTimeServer,
    TIdUnixTimeUDPServer,
-   TIdWhoIsServer
-   ]);
-  RegisterComponents(RSRegIndyServers, [
-   TIdFTPServer
-   ]);
-  RegisterComponents(RSRegIndyIntercepts, [
+   TIdWhoIsServer]);
+//  RegisterComponents(RSRegIndyServers, [
+//   TIdFTPServer
+//   ]);
+   RegisterComponents(RSRegIndyServers+RSMappedPort,[
+   TIdMappedFTP,
+   TIdMappedPOP3,
+   TIdMappedPortTCP,
+   TIdMappedPortUDP,
+   TIdMappedTelnet]);
+  RegisterComponents(RSRegIndyIntercepts+RSProt, [
+   {$IFDEF USEZLIB}
+    TIdCompressionIntercept,
+   {$ENDIF}
 //TODO:   TIdBlockCipherIntercept,
 //TODO:   TIdCompressionIntercept,
 //TODO:   TIdServerCompressionIntercept,
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
-{$IFNDEF DOTNET}
-  RegisterComponents(RSRegIndyIOHandlers, [
-   {Open SSL should be supported in Kylix now}
-   TIdServerIOHandlerSSLOpenSSL,
-   TIdSSLIOHandlerSocketOpenSSL
-   ]);
-{$ENDIF}
-  RegisterComponents(RSRegSASL, [
+  RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
    TIdSASLExternal,
@@ -612,44 +796,60 @@ begin
    TIdSASLSKey,
    TIdUserPassProvider
    ]);
-  RegisterComponents(RSRegIndyMisc, [
+  {$IFDEF USEOPENSSL}
+  RegisterComponents(RSRegIndyIOHandlers+RSProt, [
+   TIdServerIOHandlerSSLOpenSSL,
+   TIdSSLIOHandlerSocketOpenSSL
+   ]);
+  {$ENDIF}
+
+  RegisterComponents(RSRegIndyMisc+RSProt, [
    TIdConnectThroughHttpProxy,
-   {$IFDEF WIN32}
-     {$IFNDEF DOTNET}
-     TIdCompressorZLibEx,
-     {$ENDIF}
+   {$IFDEF USEZLIB}
+     TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,
-   TIdEncoderMIME,
-   TIdEncoderUUE,
-   TIdEncoderXXE,
-   TIdEncoderQuotedPrintable,
 
+
+{$IFNDEF DOTNET}
    TIdDateTimeStamp,
-   TIdDecoderMIME,
-   TIdDecoderUUE,
-   TIdDecoderXXE,
-   TIdDecoderQuotedPrintable,
+{$ENDIF}
+
    TIdIPWatch,
    TIdIPAddrMon,
 //   TIdHL7,
    TIdMailBox,
    TIdMessage,
-   TIdMessageDecoderMIME,
-   TIdMessageEncoderMIME,
-
-   TIdMessageDecoderYenc,
-   TIdMessageEncoderYenc,
-
+   {$IFNDEF DOTNET}
    TIdNetworkCalculator,
-
+    {$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
-
-   TIdVCard,
-
-   TIdMessage
+   TIdVCard
    ]);
+   //  RSEncoder = ' Encoder';
+   // RSDecoder = ' Decoder';
+   RegisterComponents(RSRegIndyMisc+RSProt + RSEncoder, [
+      TIdEncoderMIME,
+   TIdEncoderUUE,
+   TIdEncoderXXE,
+   TIdEncoderQuotedPrintable,
+   TIdMessageEncoderMIME,
+   TIdMessageEncoderYenc
+   ]);
+   RegisterComponents(RSRegIndyMisc+RSProt + RSDecoder, [
+   TIdDecoderMIME,
+   TIdDecoderUUE,
+   TIdDecoderXXE,
+   TIdDecoderQuotedPrintable,
+    TIdMessageDecoderMIME,
+    TIdMessageDecoderYenc
+   ]);
+   {$ENDIF}
 end;
 
+{$IFDEF FPC}
+initialization
+  {$i IdRegister.lrs}
+{$ENDIF}
 end.

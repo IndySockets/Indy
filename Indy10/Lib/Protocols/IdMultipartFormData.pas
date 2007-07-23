@@ -14,8 +14,8 @@
 }
 {
   $Log$
-}
-{
+
+
   Prior revision history:
 
   Rev 1.17    2/8/05 6:07:16 PM  RLebeau
@@ -401,7 +401,7 @@ function TIdMultiPartFormDataStream.IdSeek(const AOffset: Int64; AOrigin: TSeekO
 begin
   Result := 0;
   case AOrigin of
-    IdFromBeginning: begin
+    soBeginning: begin
         if (AOffset = 0) then begin
           FInitialized := False;
           FPosition := 0;
@@ -410,10 +410,10 @@ begin
           Result := FPosition;
         end;
       end;
-    IdFromCurrent: begin
+    soCurrent: begin
         Result := FPosition;
       end;
-    IdFromEnd: begin
+    soEnd: begin
         Result := FSize + Length(PrepareStreamForDispatch);
       end;
   end;

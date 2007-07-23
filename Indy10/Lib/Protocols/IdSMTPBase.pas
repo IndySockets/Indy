@@ -86,6 +86,7 @@
 unit IdSMTPBase;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdEMailAddress,

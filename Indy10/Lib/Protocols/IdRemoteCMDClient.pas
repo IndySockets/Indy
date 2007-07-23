@@ -25,7 +25,7 @@
   Rev 1.5    1/21/2004 3:27:18 PM  JPMugaas
   InitComponent
 
-    Rev 1.4    4/4/2003 8:03:40 PM  BGooijen
+  Rev 1.4    4/4/2003 8:03:40 PM  BGooijen
   fixed
 
   Rev 1.3    2/24/2003 09:32:56 PM  JPMugaas
@@ -53,6 +53,7 @@ unit IdRemoteCMDClient;
 }              
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdException,  IdTCPClient;
@@ -123,7 +124,7 @@ var
   stdErr : TIdSimpleServer;
   thr : TIdStdErrThread;
 
-  procedure SendAuthentication(APort : Integer);
+  procedure SendAuthentication(APort : TIdPort);
   begin
     // Send authentication and commands
     IOHandler.Write(IntToStr(APort)+#0);  //stdErr Port Number - none for this session

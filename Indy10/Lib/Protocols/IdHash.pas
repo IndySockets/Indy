@@ -53,6 +53,7 @@
 unit IdHash;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

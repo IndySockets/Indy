@@ -69,6 +69,7 @@
 unit IdIrcServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 {
   Original Author: Ozz Nixon

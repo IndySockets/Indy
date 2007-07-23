@@ -186,9 +186,8 @@ unit IdPOP3;
 
 { POP 3 (Post Office Protocol Version 3) }
 
-{$I IdCompilerDefines.inc}
-
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

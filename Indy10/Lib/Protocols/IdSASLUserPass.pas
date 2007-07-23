@@ -30,6 +30,7 @@
 unit IdSASLUserPass;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

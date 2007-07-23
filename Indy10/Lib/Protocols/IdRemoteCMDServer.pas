@@ -39,6 +39,7 @@
 unit IdRemoteCMDServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdContext,IdTCPClient, IdCustomTCPServer;
@@ -66,7 +67,7 @@ uses
 function TIdRemoteCMDServer.DoExecute(AThread: TIdContext): boolean;
 var
   StdError : TIdTCPClient;
-  ErrorPort : Integer;
+  ErrorPort : TIdPort;
   Param1, Param2, Command : String;
 
   procedure ExecuteCMD;

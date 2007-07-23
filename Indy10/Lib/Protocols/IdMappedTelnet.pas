@@ -36,7 +36,7 @@
 unit IdMappedTelnet;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdAssignedNumbers,
   IdMappedPortTCP,

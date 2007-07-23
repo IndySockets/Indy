@@ -27,6 +27,7 @@
 unit IdServerInterceptLogEvent;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdServerInterceptLogBase;

@@ -127,6 +127,7 @@ unit IdSMTPRelay;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

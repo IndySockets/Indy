@@ -64,6 +64,7 @@ unit IdHeaderList;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes;
@@ -142,7 +143,7 @@ end;
 
 procedure TIdHeaderList.ConvertToStdValues(ADest: TStrings);
 var
-  i: integer;
+  i: LongInt;
 begin
   for i := 0 to Count - 1 do begin
     ADest.Add(ReplaceOnlyFirst(Strings[i], NameValueSeparator, '='));    {Do not Localize}
@@ -173,7 +174,7 @@ end;
 
 procedure TIdHeaderList.Extract(const AName: string; ADest: TStrings);
 var
-  idx : Integer;
+  idx : LongInt;
 begin
   if Assigned(ADest) then begin
     for idx := 0 to Count - 1 do
@@ -188,7 +189,7 @@ end;
 procedure TIdHeaderList.FoldAndInsert(AString : String; Index: Integer);
 var
   LStrs : TStringList;
-  idx : Integer;
+  idx : LongInt;
 begin
   LStrs := FoldLine(AString);
   try
@@ -288,7 +289,7 @@ end;
 
 function TIdHeaderList.IndexOfName(const AName: string): Integer;
 var
-  i: Integer;
+  i: LongInt;
 begin
   Result := -1;
   for i := 0 to Count - 1 do begin

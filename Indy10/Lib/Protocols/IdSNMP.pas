@@ -54,11 +54,13 @@ The Synapse SNMP component was converted for use in INDY.
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdASN1Util,
   IdException,
+  IdGlobal,
   IdUDPBase,
   IdUDPClient;
 
@@ -86,7 +88,7 @@ type
     fCommunity: string;
     function GetValue (idx : Integer) : string;
     function GetValueCount: Integer;
-    function GetValueType (idx : Integer) : Integer;
+    function GetValueType (idx : Integer) : PtrUInt;
     function GetValueOID(idx: Integer): string;
     procedure SetCommunity(const Value: string);
   protected
@@ -94,7 +96,7 @@ type
     procedure SyncMIB;
   public
     Host : string;
-    Port : integer;
+    Port : TIdPort;
     Enterprise: string;
     GenTrap: integer;
     SpecTrap: integer;
@@ -123,13 +125,13 @@ type
     property    ValueCount : Integer read GetValueCount;
     property    Value [idx : Integer] : string read GetValue;
     property    ValueOID [idx : Integer] : string read GetValueOID;
-    property    ValueType [idx : Integer] : Integer read GetValueType;
+    property    ValueType [idx : Integer] : PtrUInt read GetValueType;
   end;
 
   TIdSNMP = class(TIdUDPClient)
   protected
     fCommunity: string;
-    fTrapPort: Integer;
+    fTrapPort: TIdPort;
     procedure SetCommunity(const Value: string);
     procedure InitComponent; override;
   public
@@ -147,14 +149,13 @@ type
     function ReceiveTrap: integer;
   published
     property Port default 161;
-    property TrapPort : Integer read fTrapPort Write fTrapPort default 162;
+    property TrapPort : TIdPort read fTrapPort Write fTrapPort default 162;
     property Community : string read fCommunity write SetCommunity;
   end;
 
 implementation
 
 uses
-  IdGlobal,
   IdStack, SysUtils;
 
 //Hernan Sanchez
@@ -272,13 +273,13 @@ function TSNMPInfo.EncodeBuf:string;
 var
   data,s:string;
   n:integer;
-  objType:Integer;
+  objType:PtrUInt;
 begin
   data:='';    {Do not Localize}
   SyncMIB;
   for n:=0 to Self.MIBOID.Count-1 do
     begin
-      objType := Integer (Self.MIBValue.Objects[n]);
+      objType := PtrUInt (Self.MIBValue.Objects[n]);
       if objType = 0 then
         objType := ASN1_OCTSTR;
 
@@ -637,7 +638,7 @@ begin
     Trap.GenTrap := Generic;
     Trap.SpecTrap := Specific;
     for i:=0 to (MIBName.Count - 1) do
-      Trap.MIBAdd(MIBName[i], MIBValue[i], Integer (MibValue.Objects [i]));
+      Trap.MIBAdd(MIBName[i], MIBValue[i], PtrUInt (MibValue.Objects [i]));
     Result := SendTrap;
 end;
 
@@ -703,9 +704,9 @@ end;
  |                                                                            |
  | The function returns the value type.                                       |
  *----------------------------------------------------------------------------*)
-function TSNMPInfo.GetValueType (idx : Integer): Integer;
+function TSNMPInfo.GetValueType (idx : Integer): PtrUInt;
 begin
-  Result := Integer (MIBValue.Objects [idx]);
+  Result := PtrUInt (MIBValue.Objects [idx]);
   if Result = 0 then
     Result := ASN1_OCTSTR
 end;

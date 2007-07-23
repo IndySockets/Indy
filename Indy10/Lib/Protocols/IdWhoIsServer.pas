@@ -69,6 +69,7 @@ unit IdWhoIsServer;
  Orig Author: Ozz Nixon (RFC 954)
 }
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

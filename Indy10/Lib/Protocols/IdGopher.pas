@@ -108,11 +108,13 @@ unit IdGopher;
 {*******************************************************}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdAssignedNumbers,
   IdEMailAddress,
+  IdGlobal,
   IdHeaderList, IdTCPClient, IdBaseComponent;
 
 type
@@ -122,7 +124,7 @@ type
     FItemType : Char;
     FSelector : String;
     FServer : String;
-    FPort : Integer;
+    FPort : TIdPort;
     FGopherPlusItem : Boolean;
     FGopherBlock : TIdHeaderList;
     FViews : TStringList;
@@ -153,7 +155,7 @@ type
     property Server : String read FServer write FServer;
     {This indicates the port you connect to in order to request the item.  Set
     the port property to this value to get an item.}
-    property Port : Integer read FPort write FPort;
+    property Port : TIdPort read FPort write FPort;
     {This indicates if the item is on a Gopher+ server - you can use
     GetExtended Menues for menus}
     property GopherPlusItem : Boolean read FGopherPlusItem
@@ -244,7 +246,7 @@ type
 implementation
 
 uses
-  IdComponent, IdGlobal, IdException,
+  IdComponent, IdException,
   IdGlobalProtocols, IdGopherConsts, IdReplyRFC,
   IdTCPConnection, SysUtils;
 

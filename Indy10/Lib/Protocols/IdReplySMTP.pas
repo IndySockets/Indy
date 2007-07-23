@@ -98,6 +98,7 @@
 unit IdReplySMTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

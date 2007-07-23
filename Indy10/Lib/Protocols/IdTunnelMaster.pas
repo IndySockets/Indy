@@ -27,6 +27,7 @@
 unit IdTunnelMaster;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes, SyncObjs,

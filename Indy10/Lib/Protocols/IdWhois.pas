@@ -53,6 +53,7 @@ Original Author: Hadi Hariri
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
 	IdAssignedNumbers,

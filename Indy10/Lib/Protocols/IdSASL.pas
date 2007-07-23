@@ -54,6 +54,7 @@
 unit IdSASL;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

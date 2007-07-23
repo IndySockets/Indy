@@ -115,6 +115,7 @@
 unit IdMappedPortTCP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

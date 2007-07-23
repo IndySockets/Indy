@@ -47,7 +47,7 @@
 unit IdMappedPOP3;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,

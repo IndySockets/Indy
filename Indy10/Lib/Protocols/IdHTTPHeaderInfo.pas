@@ -64,6 +64,7 @@ unit IdHTTPHeaderInfo;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

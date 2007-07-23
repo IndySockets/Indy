@@ -46,7 +46,7 @@ unit IdIdent;
 }
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses IdAssignedNumbers, IdException, IdTCPClient;
 
 const

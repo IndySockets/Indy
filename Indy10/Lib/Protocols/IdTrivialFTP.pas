@@ -43,10 +43,12 @@
 unit IdTrivialFTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdAssignedNumbers,
+  IdGlobal,
   IdTrivialFTPBase,
   IdUDPClient;
 
@@ -60,7 +62,7 @@ type
   protected
     FMode: TIdTFTPMode;
     FRequestedBlockSize: Integer;
-    FPeerPort: Integer;
+    FPeerPort: TIdPort;
     FPeerIP: String;
     function ModeToStr: string;
     procedure CheckOptionAck(const optionpacket: string);
@@ -85,7 +87,6 @@ implementation
 
 uses
   IdComponent,
-  IdGlobal,
   IdExceptionCore,
   IdGlobalProtocols,
   IdResourceStringsProtocols,

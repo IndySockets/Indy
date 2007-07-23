@@ -87,6 +87,7 @@ unit IdIPAddrMon;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

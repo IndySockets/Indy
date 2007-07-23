@@ -47,6 +47,7 @@ unit IdRexecServer;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdContext, IdRemoteCMDServer, IdTCPClient, IdTCPServer;

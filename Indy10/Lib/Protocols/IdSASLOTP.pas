@@ -38,7 +38,7 @@
 unit IdSASLOTP;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdException,
   IdSASL,

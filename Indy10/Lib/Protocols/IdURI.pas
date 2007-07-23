@@ -67,6 +67,7 @@ unit IdURI;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdException,

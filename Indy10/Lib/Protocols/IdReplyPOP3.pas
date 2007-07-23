@@ -94,6 +94,7 @@
 unit IdReplyPOP3;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

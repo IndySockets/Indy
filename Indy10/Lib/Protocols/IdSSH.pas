@@ -28,6 +28,7 @@
 unit IdSSH;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdContainers,

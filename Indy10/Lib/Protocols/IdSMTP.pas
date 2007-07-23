@@ -185,6 +185,7 @@
 unit IdSMTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

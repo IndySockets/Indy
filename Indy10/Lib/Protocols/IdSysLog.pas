@@ -52,6 +52,7 @@ unit IdSysLog;
   units though. }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
 

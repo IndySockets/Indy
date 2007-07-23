@@ -51,6 +51,7 @@
 unit IdStrings;
 
 interface
+{$i IdCompilerDefines.inc}
 
 function  FindFirstOf(AFind, AText: String): Integer;
 function  FindFirstNotOf(AFind, AText : String) : Integer;

@@ -49,12 +49,14 @@
 unit IdGopherServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdAssignedNumbers,
   IdContext,
-  IdCustomTCPServer;
+  IdCustomTCPServer,
+  IdGlobal;
 
 {
   Typical connection:
@@ -86,10 +88,10 @@ type
   public
     function ReturnGopherItem(ItemType : Char;
       UserFriendlyName, RealResourceName : String;
-      HostServer : String; HostPort : Integer): String;
+      HostServer : String; HostPort : TIdPort): String;
     procedure SendDirectoryEntry(AContext:TIdContext;
       ItemType : Char; UserFriendlyName, RealResourceName : String;
-      HostServer : String; HostPort : Integer);
+      HostServer : String; HostPort : TIdPort);
     procedure SetTruncateUserFriendlyName(truncate : Boolean);
     procedure SetTruncateLength(length : Integer);
   published
@@ -106,7 +108,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGopherConsts, IdResourceStringsProtocols, SysUtils;
+  IdGopherConsts, IdResourceStringsProtocols, SysUtils;
 
 procedure TIdGopherServer.InitComponent;
 begin
@@ -154,7 +156,7 @@ end;
 
 function TIdGopherServer.ReturnGopherItem(ItemType : Char;
   UserFriendlyName, RealResourceName : String;
-  HostServer : String; HostPort : Integer): String;
+  HostServer : String; HostPort : TIdPort): String;
 begin
      if fTruncateUserFriendly then begin
         if (Length(UserFriendlyName) > fTruncateLength)

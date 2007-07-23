@@ -189,11 +189,12 @@ unit IdSSLOpenSSL;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 {$TYPEDADDRESS OFF}
-{$I IdCompilerDefines.inc}
 uses
   Classes,
   IdBuffer,
+  IdCTypes,
   IdGlobal,
   IdException,
   IdStackConsts,
@@ -231,7 +232,7 @@ type
   end;
 
   TEVP_MD = record
-    Length: Integer;
+    Length: TIdC_UINT;
     MD: Array[0..OPENSSL_EVP_MAX_MD_SIZE-1] of Char;
   end;
 
@@ -456,8 +457,70 @@ type
     property OneLine: string read CertInOneLine;
   end;
 
+  TIdX509Info = class(TObject)
+  protected
+      //Do not free this here because it belongs
+      //to the X509 or something else.
+      FX509    : PX509;
+  public
+    constructor Create( aX509: PX509);
+  end;
+  TIdX509Fingerprints = class(TIdX509Info)
+    protected
+
+      function GetMD5: TEVP_MD;
+      function GetMD5AsString:String;
+      function GetSHA1: TEVP_MD;
+      function GetSHA1AsString:String;
+      function GetSHA224 : TEVP_MD;
+      function GetSHA224AsString : String;
+      function GetSHA256 : TEVP_MD;
+      function GetSHA256AsString : String;
+      function GetSHA386 : TEVP_MD;
+      function GetSHA386AsString : String;
+      function GetSHA512 : TEVP_MD;
+      function GetSHA512AsString : String;
+    public
+
+      property MD5 : TEVP_MD read GetMD5;
+      property MD5AsString : String read  GetMD5AsString;
+{IMPORTANT!!!
+
+FIPS approves only these algorithms for hashing.
+SHA-1
+SHA-224
+SHA-256
+SHA-384
+SHA-512
+
+http://csrc.nist.gov/CryptoToolkit/tkhash.html
+}
+      property SHA1 : TEVP_MD read GetSHA1;
+      property SHA1AsString : String read  GetSHA1AsString;
+
+      property SHA224 : TEVP_MD read GetSHA224;
+      property SHA224AsString : String read GetSHA224AsString;
+      property SHA256 : TEVP_MD read GetSHA256;
+      property SHA256AsString : String read GetSHA256AsString;
+      property SHA386 : TEVP_MD read GetSHA386;
+      property SHA386AsString : String read GetSHA386AsString;
+      property SHA512 : TEVP_MD read GetSHA512;
+      property SHA512AsString : String read GetSHA512AsString;
+  end;
+  TIdX509SigInfo = class(TIdX509Info)
+  protected
+    function GetSignature : String;
+    function GetSigType : TIdC_INT;
+    function GetSigTypeAsString : String;
+  public
+    property Signature : String read GetSignature;
+    property SigType : TIdC_INT read  GetSigType ;
+    property SigTypeAsString : String read GetSigTypeAsString;
+  end;
   TIdX509 = class(TObject)
   protected
+    FFingerprints : TIdX509Fingerprints;
+    FSigInfo : TIdX509SigInfo;
     FCanFreeX509 : Boolean;
     FX509    : PX509;
     FSubject : TIdX509Name;
@@ -468,9 +531,15 @@ type
     function RnotAfter:TDateTime;
     function RFingerprint:TEVP_MD;
     function RFingerprintAsString:String;
+    function GetSerialNumber: String;
+    function GetVersion : TIdC_LONG;
   public
     Constructor Create(aX509: PX509; aCanFreeX509: Boolean = True); virtual;
     Destructor Destroy; override;
+    property Version : TIdC_LONG read GetVersion;
+    //
+    property SigInfo : TIdX509SigInfo read FSigInfo;
+    property Fingerprints : TIdX509Fingerprints read  FFingerprints;
     //
     property Fingerprint: TEVP_MD read RFingerprint;
     property FingerprintAsString: String read RFingerprintAsString;
@@ -478,6 +547,7 @@ type
     property Issuer: TIdX509Name read RIssuer;
     property notBefore: TDateTime read RnotBefore;
     property notAfter: TDateTime read RnotAfter;
+    property SerialNumber : string read GetSerialNumber;
   end;
 
   TIdSSLCipher = class(TObject)
@@ -537,7 +607,7 @@ var
   LockVerifyCB: TIdCriticalSection = nil;
   CallbackLockList: TThreadList = nil;
 
-function PasswordCallback(buf:PChar; size:Integer; rwflag:Integer; userdata: Pointer):Integer; cdecl;
+function PasswordCallback(buf:PChar; size:TIdC_INT; rwflag:TIdC_INT; userdata: Pointer):TIdC_INT; cdecl;
 var
   Password: String;
   IdSSLContext: TIdSSLContext;
@@ -564,7 +634,7 @@ begin
   end;
 end;
 
-procedure InfoCallback(sslSocket: PSSL; where: Integer; ret: Integer); cdecl;
+procedure InfoCallback(const sslSocket: PSSL; where, ret: TIdC_INT); cdecl;
 var
   IdSSLSocket: TIdSSLSocket;
   StatusStr : String;
@@ -634,7 +704,7 @@ begin
   Result := DT - TimeZoneBias{ / (24 * 60)};
 end;
 
-procedure SslLockingCallback(mode, n : integer; Afile : PChar; line : integer) cdecl;
+procedure SslLockingCallback(mode, n : TIdC_INT; Afile : PChar; line : TIdC_INT) cdecl;
 var
   Lock : TIdCriticalSection;
 begin
@@ -656,7 +726,7 @@ begin
     Lock.Acquire;
   end else begin
     Lock.Release;
-end;
+  end;
 end;
 
 procedure PrepareOpenSSLLocking;
@@ -682,7 +752,7 @@ begin
   end;
 end;
 
-function _GetThreadID: Integer; cdecl;
+function _GetThreadID: TIdC_ULONG; cdecl;
 begin
   // TODO: Verify how well this will work with fibers potentially running from
   // thread to thread or many on the same thread.
@@ -731,8 +801,10 @@ begin
     end;
 
     Result := IdSSLOpenSSLHeaders.Load;
-    if not Result then Exit;
-
+    if not Result then 
+    begin
+      Exit;
+    end;
     {$IFDEF IDOPENSSLMEMORY}
     //has to be done before anything that uses memory
     IdSslCryptoMallocInit;
@@ -748,8 +820,10 @@ begin
 
     // Successful loading if true
     Result := IdSslAddSslAlgorithms > 0;
-    if not Result then Exit;
-
+    if not Result then 
+    begin
+      Exit;
+    end;
     // Create locking structures, we need them for callback routines
     Assert(LockInfoCB=nil);
     LockInfoCB := TIdCriticalSection.Create;
@@ -777,8 +851,10 @@ var
   i : integer;
 begin
   //ssl was never loaded
-  if LockInfoCB=nil then Exit;
-
+  if LockInfoCB=nil then 
+  begin
+    Exit;
+  end;
   IdSslSetLockingCallback(nil);
   IdSSLOpenSSLHeaders.Unload;
 
@@ -790,9 +866,9 @@ begin
   begin
     with CallbackLockList.LockList do
       try
-        for i := 0 to Count-1 do
+        for i := 0 to Count-1 do begin
           TObject(Items[i]).Free;
-
+        end;
         Clear;
       finally
         CallbackLockList.UnlockList;
@@ -804,6 +880,7 @@ begin
   SSLIsLoaded.Value := False;
 end;
 
+//Note that I define UCTTime as  PASN1_STRING
 function UTCTime2DateTime(UCTTime: PASN1_UTCTIME):TDateTime;
 var
   year  : Word;
@@ -827,9 +904,18 @@ end;
 function TranslateInternalVerifyToSSL(Mode: TIdSSLVerifyModeSet): Integer;
 begin
   Result := OPENSSL_SSL_VERIFY_NONE;
-  if sslvrfPeer in Mode then Result := Result or OPENSSL_SSL_VERIFY_PEER;
-  if sslvrfFailIfNoPeerCert in Mode then Result:= Result or OPENSSL_SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
-  if sslvrfClientOnce in Mode then Result:= Result or OPENSSL_SSL_VERIFY_CLIENT_ONCE;
+  if sslvrfPeer in Mode then 
+  begin
+    Result := Result or OPENSSL_SSL_VERIFY_PEER;
+  end;
+  if sslvrfFailIfNoPeerCert in Mode then 
+  begin
+    Result:= Result or OPENSSL_SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
+  end;
+  if sslvrfClientOnce in Mode then
+  begin 
+    Result:= Result or OPENSSL_SSL_VERIFY_CLIENT_ONCE;
+  end;
 end;
 
 {function TranslateSLLVerifyToInternal(Mode: Integer): TIdSSLVerifyModeSet;
@@ -845,7 +931,33 @@ begin
   Result := (A and B) = B;
 end;
 
-function VerifyCallback(Ok: Integer; ctx: PX509_STORE_CTX): Integer; cdecl;
+ function BytesToHexString(ptr : Pointer; ALen : Integer) : String;
+var i : PtrInt;
+begin
+  Result := '';
+  for i := 0 to (ALen - 1) do
+  begin
+    if I<>0 then
+    begin
+      Result := Result + ':';    {Do not Localize}
+    end;
+    Result := Result +  IndyFormat('%.2x', [Byte(Pointer(PtrInt(ptr)+I)^)]);
+  end;
+end;
+
+function MDAsString(AMD : TEVP_MD) : String;
+var I : Integer;
+begin
+  Result := '';
+  for I := 0 to AMD.Length - 1 do begin
+    if I <> 0 then begin
+      Result := Result + ':';    {Do not Localize}
+    end;
+    Result := Result + IndyFormat('%.2x', [Byte(AMD.MD[I])]);  {do not localize}
+  end;
+end;
+
+function VerifyCallback(Ok: TIdC_INT; ctx: PX509_STORE_CTX): TIdC_INT; cdecl;
 var
   hcert: PX509;
   Certificate: TIdX509;
@@ -1552,7 +1664,7 @@ begin
   //should use SSL_CTX_check_private_key to check key+cert match
 
   if StatusInfoOn then begin
-    IdSslCtxSetInfoCallback(fContext, PFunction(@InfoCallback));
+    IdSslCtxSetInfoCallback(fContext, InfoCallback);
   end;
 
   //f_SSL_CTX_set_tmp_rsa_callback(hSSLContext, @RSACallback);
@@ -1588,12 +1700,12 @@ end;
 
 procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
 var
-  Func: PFunction;
+  Func: TSSL_CTX_set_verify_callback;
 begin
   if fContext<>nil then begin
 //    IdSSLCtxSetDefaultVerifyPaths(fContext);
     if CheckRoutine then begin
-      Func := PFunction(@VerifyCallback);
+      Func := VerifyCallback;
     end else begin
       Func := nil;
     end;
@@ -2047,6 +2159,114 @@ end;
 //  X509 Certificate
 ///////////////////////////////////////////////////////////////
 
+{ TIdX509Info }
+
+constructor TIdX509Info.Create(aX509: PX509);
+begin
+  inherited Create;
+  Self.FX509 :=  aX509;
+end;
+
+{ TIdX509Fingerprints }
+
+function TIdX509Fingerprints.GetMD5: TEVP_MD;
+begin
+   IdSslX509Digest(FX509, IdSslEvpMd5, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetMD5AsString: String;
+var
+//  I: Integer;
+  EVP_MD: TEVP_MD;
+begin
+  EVP_MD := MD5;
+{  for I := 0 to EVP_MD.Length - 1 do begin
+    if I <> 0 then begin
+      Result := Result + ':';    {Do not Localize}
+{    end;
+    Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
+{  end;      }
+  Result := MDAsString(EVP_MD);
+end;
+
+function TIdX509Fingerprints.GetSHA1: TEVP_MD;
+begin
+  IdSslX509Digest(FX509, IdSslEvpSHA1, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetSHA1AsString: String;
+var EVP_MD : TEVP_MD;
+begin
+  EVP_MD := SHA1;
+  Result := MDAsString(EVP_MD);
+end;
+
+function TIdX509Fingerprints.GetSHA224 : TEVP_MD;
+begin
+   IdSslX509Digest(FX509, IdSslEvpSHA224, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetSHA224AsString : String;
+var EVP_MD : TEVP_MD;
+begin
+  EVP_MD := SHA224;
+  Result := MDAsString(EVP_MD);
+end;
+
+function TIdX509Fingerprints.GetSHA256 : TEVP_MD;
+begin
+  IdSslX509Digest(FX509, IdSslEvpSHA256, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetSHA256AsString : String;
+var EVP_MD : TEVP_MD;
+begin
+  EVP_MD := SHA256;
+  Result := MDAsString(EVP_MD);
+end;
+
+function TIdX509Fingerprints.GetSHA386 : TEVP_MD;
+begin
+   IdSslX509Digest(FX509, IdSslEvpSHA386, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetSHA386AsString : String;
+var EVP_MD : TEVP_MD;
+begin
+  EVP_MD := SHA386;
+  Result := MDAsString(EVP_MD);
+end;
+
+function TIdX509Fingerprints.GetSHA512 : TEVP_MD;
+begin
+    IdSslX509Digest(FX509, IdSslEvpSHA512, PChar(@Result.MD), Result.Length);
+end;
+
+function TIdX509Fingerprints.GetSHA512AsString : String;
+var EVP_MD : TEVP_MD;
+begin
+  EVP_MD := SHA512;
+  Result := MDAsString(EVP_MD);
+end;
+
+
+{ TIdX509SigInfo }
+
+function TIdX509SigInfo.GetSignature: String;
+begin
+ Result := BytesToHexString( FX509^.signature^.data, FX509^.signature^.length);
+end;
+
+function TIdX509SigInfo.GetSigType: TIdC_INT;
+begin
+  Result := IdSslX509GetSignatureType(FX509);
+end;
+
+function TIdX509SigInfo.GetSigTypeAsString: String;
+begin
+  Result := IdSslOBJNid2ln(SigType);
+end;
+
 { TIdX509 }
 
 constructor TIdX509.Create(aX509: PX509; aCanFreeX509: Boolean = True);
@@ -2054,10 +2274,14 @@ begin
   inherited Create;
 
   FX509 := aX509;
-  FCanFreeX509 := aCanFreeX509; 
 
+  FCanFreeX509 := aCanFreeX509;
+  FFingerprints := TIdX509Fingerprints.Create(FX509);
+  FSigInfo := TIdX509SigInfo.Create(FX509);
   FSubject := nil;
   FIssuer := nil;
+
+
 end;
 
 destructor TIdX509.Destroy;
@@ -2077,15 +2301,38 @@ begin
   inherited Destroy;
 end;
 
+function TIdX509.GetSerialNumber: String;
+var LSN : PASN1_INTEGER;
+begin
+  if FX509<>nil then
+  begin
+    LSN := IdSslX509GetSerialNumber(FX509);
+    Result := BytesToHexString(LSN.data,LSN.length);
+  end
+  else
+  begin
+    Result := '';
+  end;
+end;
+
+function TIdX509.GetVersion : TIdC_LONG;
+begin
+  Result := IdSslX509GetVersion(FX509);
+end;
+
 function TIdX509.RSubject: TIdX509Name;
 var
   x509_name: PX509_NAME;
 Begin
   if not Assigned(FSubject) then begin
     if FX509<>nil then
-      x509_name := IdSslX509GetSubjectName(FX509)
+    begin
+      x509_name := IdSslX509GetSubjectName(FX509);
+    end
     else
+    begin
       x509_name := nil;
+    end;
     FSubject := TIdX509Name.Create(x509_name);
   end;
   Result := FSubject;
@@ -2097,9 +2344,13 @@ var
 begin
   if not Assigned(FIssuer) then begin
     if FX509<>nil then
-      x509_name := IdSslX509GetIssuerName(FX509)
+    begin
+      x509_name := IdSslX509GetIssuerName(FX509);
+    end
     else
+    begin
       x509_name := nil;
+    end;
     FIssuer := TIdX509Name.Create(x509_name);
   End;
   Result := FIssuer;
@@ -2107,30 +2358,32 @@ end;
 
 function TIdX509.RFingerprint: TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpMd5, PChar(@Result.MD), @Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpMd5, PChar(@Result.MD), Result.Length);
 end;
 
 function TIdX509.RFingerprintAsString: String;
 var
-  I: Integer;
+//  I: Integer;
   EVP_MD: TEVP_MD;
 begin
-  Result := '';
   EVP_MD := Fingerprint;
-  for I := 0 to EVP_MD.Length - 1 do begin
+{  for I := 0 to EVP_MD.Length - 1 do begin
     if I <> 0 then begin
       Result := Result + ':';    {Do not Localize}
-    end;
-    Result := Result + IndyFormat('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
-  end;
+{    end;
+    Result := Result + Sys.Format('%.2x', [Byte(EVP_MD.MD[I])]);  {do not localize}
+{  end;      }
+  Result := MDAsString(EVP_MD);
 end;
 
 function TIdX509.RnotBefore: TDateTime;
 begin
   if FX509 = nil then begin
     Result := 0
-  end else begin                                    
-    Result := UTCTime2DateTime(IdSslX509GetNotBefore(FX509));
+  end else begin
+    //This is a safe typecast since PASN1_UTCTIME and PASN1_TIME are really
+    //pointers to ASN1 strings since ASN1_UTCTIME amd ASM1_TIME are ASN1_STRING.
+    Result := UTCTime2DateTime(PASN1_UTCTIME(IdSslX509GetNotBefore(FX509)));
   end;
 end;
 
@@ -2140,7 +2393,7 @@ begin
   if FX509 = nil then begin
     Result := 0
   end else begin
-    Result := UTCTime2DateTime(IdSslX509GetNotAfter(FX509));
+    Result := UTCTime2DateTime(PASN1_UTCTIME(IdSslX509GetNotAfter(FX509)));
   end;
 end;
 
@@ -2171,9 +2424,9 @@ begin
   Result := StrPas(IdSSLCipherGetName(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
-function TIdSSLCipher.GetBits:Integer;
+function TIdSSLCipher.GetBits:TIdC_INT;
 begin
-  IdSSLCipherGetBits(IdSSLGetCurrentCipher(FSSLSocket.fSSL), @Result);
+  IdSSLCipherGetBits(IdSSLGetCurrentCipher(FSSLSocket.fSSL), Result);
 end;
 
 function TIdSSLCipher.GetVersion:String;

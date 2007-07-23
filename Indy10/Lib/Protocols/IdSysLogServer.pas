@@ -43,6 +43,7 @@
 unit IdSysLogServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

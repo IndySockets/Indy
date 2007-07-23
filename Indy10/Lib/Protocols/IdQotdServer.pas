@@ -48,6 +48,7 @@
 unit IdQotdServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 {
   Original Author: Ozz Nixon

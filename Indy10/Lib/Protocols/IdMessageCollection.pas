@@ -38,6 +38,7 @@ unit IdMessageCollection;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

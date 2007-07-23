@@ -68,6 +68,7 @@
 unit IdMessageCoderYenc;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

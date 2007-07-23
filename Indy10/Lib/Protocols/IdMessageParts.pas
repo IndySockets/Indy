@@ -63,6 +63,7 @@
 unit IdMessageParts;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

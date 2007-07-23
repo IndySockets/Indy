@@ -61,6 +61,7 @@
 unit IdTelnetServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

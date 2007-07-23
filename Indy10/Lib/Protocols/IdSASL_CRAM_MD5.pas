@@ -57,9 +57,8 @@ unit IdSASL_CRAM_MD5;
   IETF draft draft-ietf-ipsec-hmac-md5-txt.00
 }
 
-{$I IdCompilerDefines.inc}
-
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdHMACMD5,

@@ -47,6 +47,7 @@
 unit IdTimeServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 {
  2000-3-May    J. Peter Mugaas
@@ -117,7 +118,7 @@ function TIdCustomTimeServer.DoExecute(AContext: TIdContext): Boolean;
 begin
   Result := true;
   with AContext.Connection do begin
-    IOHandler.Write(Cardinal(Trunc(extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
+    IOHandler.Write(LongWord(Trunc(extended(Now + TimeZoneBias - Int(FBaseDate)) * 24 * 60 * 60)));
     Disconnect;
   end;
 end;

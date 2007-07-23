@@ -37,6 +37,7 @@
 unit IdHostnameServer;
 
 interface
+{$i IdCompilerDefines.inc}
 {
   Original Author: Ozz Nixon
   Based on RFC 953

@@ -65,6 +65,7 @@ unit IdIPWatch;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

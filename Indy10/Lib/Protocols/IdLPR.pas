@@ -68,6 +68,7 @@ unit IdLPR;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -41,6 +41,7 @@ unit IdRSH;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdGlobal, IdRemoteCMDClient, IdTCPClient;

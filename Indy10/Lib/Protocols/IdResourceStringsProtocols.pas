@@ -154,6 +154,7 @@
 unit IdResourceStringsProtocols;
 
 interface
+{$i IdCompilerDefines.inc}
 
 resourcestring
   // General
@@ -709,7 +710,6 @@ resourcestring
   RSFTPFileOpSuccess = 'File Operation Successful';
   RSFTPInvalidOps = 'Invalid %s options';
   RSFTPOptNotRecog = 'Option not recognized.';
-  RSFTPPropNotNeg = 'Property can not be a negative number.';
   RSFTPClntNoted = 'Noted.';
   RSFTPQuitGoodby = 'Goodbye.';
   RSFTPPASVBoundPortMaxMustBeGreater = 'PASVBoundPortMax must be greater than PASVBoundPortMax.';

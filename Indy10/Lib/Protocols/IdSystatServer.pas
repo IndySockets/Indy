@@ -52,7 +52,7 @@ unit IdSystatServer;
 }
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdAssignedNumbers,

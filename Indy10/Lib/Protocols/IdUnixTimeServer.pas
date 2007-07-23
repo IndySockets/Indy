@@ -22,6 +22,7 @@
 unit IdUnixTimeServer;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   IdAssignedNumbers,
   IdCustomTCPServer,

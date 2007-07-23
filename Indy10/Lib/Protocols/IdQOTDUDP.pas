@@ -25,7 +25,7 @@
 unit IdQOTDUDP;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdAssignedNumbers, IdUDPBase, IdUDPClient;
 

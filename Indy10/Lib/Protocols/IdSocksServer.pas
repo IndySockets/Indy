@@ -95,6 +95,7 @@
 unit IdSocksServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

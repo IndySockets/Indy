@@ -22,10 +22,10 @@
   Rev 1.3    24/01/2004 19:29:12  CCostelloe
   Cleaned up warnings
 
-    Rev 1.2    10/17/2003 12:55:00 AM  DSiders
+  Rev 1.2    10/17/2003 12:55:00 AM  DSiders
   Added localization comments.
 
-    Rev 1.1    5/28/2003 9:12:06 PM  BGooijen
+  Rev 1.1    5/28/2003 9:12:06 PM  BGooijen
   ReverseIndian -> ReverseEndian
 
   Rev 1.0    11/13/2002 07:58:14 AM  JPMugaas
@@ -56,6 +56,7 @@
 unit IdOTPCalculator;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdException;

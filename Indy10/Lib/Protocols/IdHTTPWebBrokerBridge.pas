@@ -42,7 +42,6 @@
 
 unit IdHTTPWebBrokerBridge;
 
-{$I IdCompilerDefines.inc}
 
 {
   Original Author: Dave Nottage.
@@ -51,6 +50,7 @@ unit IdHTTPWebBrokerBridge;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

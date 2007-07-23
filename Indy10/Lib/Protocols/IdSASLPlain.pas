@@ -31,7 +31,7 @@
 unit IdSASLPlain;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdSASL,
   IdSASLUserPass;

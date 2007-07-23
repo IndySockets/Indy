@@ -54,6 +54,7 @@ unit IdRexec;
  }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers,

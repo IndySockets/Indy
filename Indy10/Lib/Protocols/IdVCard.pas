@@ -70,6 +70,7 @@ unit IdVCard;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

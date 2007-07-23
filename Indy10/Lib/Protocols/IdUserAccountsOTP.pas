@@ -52,7 +52,7 @@ during the authentication process.
 unit IdUserAccountsOTP;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdBaseComponent,
   IdComponent,

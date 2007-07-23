@@ -50,6 +50,7 @@
 unit IdSMTPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

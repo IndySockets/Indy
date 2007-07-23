@@ -45,6 +45,7 @@
 unit IdHashSHA1;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

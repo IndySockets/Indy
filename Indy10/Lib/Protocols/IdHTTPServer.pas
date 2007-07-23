@@ -35,6 +35,7 @@ unit IdHTTPServer;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdCustomHTTPServer;

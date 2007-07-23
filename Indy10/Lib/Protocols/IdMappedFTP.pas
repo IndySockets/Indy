@@ -79,6 +79,7 @@
 unit IdMappedFTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

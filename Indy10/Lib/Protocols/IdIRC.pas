@@ -29,6 +29,7 @@ unit IdIRC;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -132,6 +132,7 @@
 unit IdNNTPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 {
   Original Author: Ozz Nixon (Winshoes 7)
@@ -363,8 +364,6 @@ uses
   IdReplyRFC,
   IdSSL, SysUtils;
 
-resourcestring
-  RSNNTPSvrImplicitTLSRequiresSSL='Implicit NNTP requires that IOHandler be set to a TIdSSLIOHandlerSocketBase.';
 
 const
   AuthTypes: array [1..2] of string = ('USER', 'PASS'); {Do not localize}

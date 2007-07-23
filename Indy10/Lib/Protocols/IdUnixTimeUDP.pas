@@ -23,7 +23,7 @@
 unit IdUnixTimeUDP;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdAssignedNumbers, IdTimeUDP, IdUDPClient;
 

@@ -110,6 +110,7 @@
 unit IdReplyIMAP4;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

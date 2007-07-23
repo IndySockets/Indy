@@ -40,6 +40,7 @@
 unit IdText;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdMessageParts;

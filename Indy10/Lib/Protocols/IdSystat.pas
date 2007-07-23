@@ -44,7 +44,7 @@ unit IdSystat;
 }
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdAssignedNumbers,

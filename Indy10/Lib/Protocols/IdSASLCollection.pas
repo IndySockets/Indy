@@ -41,6 +41,7 @@
 unit IdSASLCollection;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

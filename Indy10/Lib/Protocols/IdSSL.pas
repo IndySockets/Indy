@@ -56,6 +56,7 @@
 unit IdSSL;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

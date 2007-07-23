@@ -84,6 +84,7 @@ unit IdTime;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdAssignedNumbers, IdGlobalProtocols, IdTCPClient;
@@ -106,7 +107,7 @@ type
     {This synchronizes the local clock with the Time Server}
     function SyncTime: Boolean;
     {This is the number of seconds since 12:00 AM, 1900 - Jan-1}
-    property DateTimeCard: Cardinal read GetDateTimeCard;
+    property DateTimeCard: LongWord read GetDateTimeCard;
     {This is the current time according to the server.  TimeZone and Time used
     to receive the data are accounted for}
     property DateTime: TDateTime read GetDateTime;
@@ -149,7 +150,7 @@ end;
 
 function TIdCustomTime.GetDateTime: TDateTime;
 var
-  BufCard: Cardinal;
+  BufCard: LongWord;
 begin
   BufCard := GetDateTimeCard;
   if BufCard <> 0 then begin
@@ -165,7 +166,7 @@ begin
   end;
 end;
 
-function TIdCustomTime.GetDateTimeCard: Cardinal;
+function TIdCustomTime.GetDateTimeCard: LongWord;
 var
   LTimeBeforeRetrieve: Cardinal;
 begin
@@ -174,7 +175,7 @@ begin
     // Timeout is actually a time with no traffic, not a total timeout.
     IOHandler.ReadTimeout:=Timeout;
     LTimeBeforeRetrieve := Ticks;
-    Result := IOHandler.ReadCardinal;
+    Result := IOHandler.ReadLongWord;
     {Theoritically, it should take about 1/2 of the time to receive the data
     but in practice, it could be any portion depending upon network conditions. This is also
     as per RFC standard}

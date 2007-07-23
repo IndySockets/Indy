@@ -27,7 +27,7 @@
 unit IdSASLAnonymous;
 
 interface
-
+{$i IdCompilerDefines.inc}
 uses
   IdSASL, IdTCPConnection;
 

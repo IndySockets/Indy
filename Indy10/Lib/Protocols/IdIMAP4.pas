@@ -427,7 +427,7 @@ to avoid ending up with ""INBOX""
 {CC3: WARNING - if the following gives a "File not found" error on compilation,
 you need to add the path "C:\Program Files\Borland\Delphi7\Source\Indy" in
 Project -> Options -> Directories/Conditionals -> Search Path}
-{$I IdCompilerDefines.inc}
+{$i IdCompilerDefines.inc}
 
 uses
     Classes,

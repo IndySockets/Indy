@@ -35,6 +35,7 @@
 unit IdHashCRC;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdHash;

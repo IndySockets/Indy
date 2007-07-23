@@ -77,6 +77,7 @@ unit IdSNTP;
 *}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
 	Classes,
@@ -93,17 +94,17 @@ type
     Head2: byte;
     Head3: byte;
     Head4: byte;
-    RootDelay: Cardinal;
-    RootDispersion: Cardinal;
-    RefID: Cardinal;
-    Ref1: Cardinal;
-    Ref2: Cardinal;
-    Org1: Cardinal;
-    Org2: Cardinal;
-    Rcv1: Cardinal;
-    Rcv2: Cardinal;
-    Xmit1: Cardinal;
-    Xmit2: Cardinal;
+    RootDelay: LongWord;
+    RootDispersion: LongWord;
+    RefID: LongWord;
+    Ref1: LongWord;
+    Ref2: LongWord;
+    Org1: LongWord;
+    Org2: LongWord;
+    Rcv1: LongWord;
+    Rcv2: LongWord;
+    Xmit1: LongWord;
+    Xmit2: LongWord;
   end;    }
 
   TNTPGram	= class(TObject)
@@ -112,17 +113,17 @@ type
     FHead2: byte;
     FHead3: byte;
     FHead4: byte;
-    FRootDelay: Cardinal;
-    FRootDispersion: Cardinal;
-    FRefID: Cardinal;
-    FRef1: Cardinal;
-    FRef2: Cardinal;
-    FOrg1: Cardinal;
-    FOrg2: Cardinal;
-    FRcv1: Cardinal;
-    FRcv2: Cardinal;
-    FXmit1: Cardinal;
-    FXmit2: Cardinal;
+    FRootDelay: LongWord;
+    FRootDispersion: LongWord;
+    FRefID: LongWord;
+    FRef1: LongWord;
+    FRef2: LongWord;
+    FOrg1: LongWord;
+    FOrg2: LongWord;
+    FRcv1: LongWord;
+    FRcv2: LongWord;
+    FXmit1: LongWord;
+    FXmit2: LongWord;
         function GetBytes: TIdBytes;
     procedure SetBytes(const AValue: TIdBytes);
   public
@@ -131,17 +132,17 @@ type
     property Head2: byte read FHead2 write FHead2;
     property Head3: byte read FHead3 write FHead3;
     property Head4: byte read FHead4 write FHead4;
-    property RootDelay: Cardinal read FRootDelay write FRootDelay;
-    property RootDispersion: Cardinal read FRootDispersion write FRootDispersion;
-    property RefID: Cardinal read FRefID write FRefID;
-    property Ref1: Cardinal read FRef1 write FRef1;
-    property Ref2: Cardinal read FRef2 write FRef2;
-    property Org1: Cardinal read FOrg1 write FOrg1;
-    property Org2: Cardinal read FOrg2 write FOrg2;
-    property Rcv1: Cardinal read FRcv1 write FRcv1;
-    property Rcv2: Cardinal read FRcv2 write FRcv2;
-    property Xmit1: Cardinal read FXmit1 write FXmit1;
-    property Xmit2: Cardinal read FXmit2 write FXmit2;
+    property RootDelay: LongWord read FRootDelay write FRootDelay;
+    property RootDispersion: LongWord read FRootDispersion write FRootDispersion;
+    property RefID: LongWord read FRefID write FRefID;
+    property Ref1: LongWord read FRef1 write FRef1;
+    property Ref2: LongWord read FRef2 write FRef2;
+    property Org1: LongWord read FOrg1 write FOrg1;
+    property Org2: LongWord read FOrg2 write FOrg2;
+    property Rcv1: LongWord read FRcv1 write FRcv1;
+    property Rcv2: LongWord read FRcv2 write FRcv2;
+    property Xmit1: LongWord read FXmit1 write FXmit1;
+    property Xmit2: LongWord read FXmit2 write FXmit2;
   end;
   TIdSNTP = class(TIdUDPClient)
   protected
@@ -154,7 +155,7 @@ type
     FCheckStratum: Boolean;
     //
     procedure DateTimeToNTP(ADateTime: TDateTime;var Second,Fraction: Cardinal);
-    function NTPToDateTime(Second, Fraction: Cardinal): TDateTime;
+    function NTPToDateTime(Second, Fraction: LongWord): TDateTime;
 
     function Disregard(ANTPMessage: TNTPGram): Boolean;
     function GetAdjustmentTime: TDateTime;
@@ -179,7 +180,7 @@ uses
 
 const NTGRAMSIZE = 48;
 
-procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime;var Second,Fraction: Cardinal);
+procedure TIdSNTP.DateTimeToNTP(ADateTime: TDateTime;var Second,Fraction: LongWord);
 var
   Value1,
   Value2: Double;
@@ -192,7 +193,7 @@ begin
     Value2 := Value2 - NTPMaxInt;
   end;
 
-  Second := Cardinal(Trunc(Value2));
+  Second := LongWord(Trunc(Value2));
   Value2 := ((Frac(Value1) * 1000) / 1000) * NTPMaxInt;
 
   if Value2 > NTPMaxInt then
@@ -203,7 +204,7 @@ begin
   Fraction := Trunc(Value2);
 end;
 
-function TIdSNTP.NTPToDateTime(Second, Fraction: Cardinal): TDateTime;
+function TIdSNTP.NTPToDateTime(Second, Fraction: LongWord): TDateTime;
 var
   Value1: Double;
   Value2: Double;
@@ -360,17 +361,17 @@ procedure TNTPGram.SetBytes(const AValue: TIdBytes);
     Head2: byte;                1
     Head3: byte;                2
     Head4: byte;                3
-    RootDelay: Cardinal;      4567    4- 7
-    RootDispersion: Cardinal; 8901    8-11
-    RefID: Cardinal;          2345   12-15
-    Ref1: Cardinal;           6789   16-19
-    Ref2: Cardinal;           0123   20-23
-    Org1: Cardinal;           4567   24-27
-    Org2: Cardinal;           8901   28-31
-    Rcv1: Cardinal;           2345   32-35
-    Rcv2: Cardinal;           6789   36-39
-    Xmit1: Cardinal;          0123   40-43
-    Xmit2: Cardinal;          4567   44-47
+    RootDelay: LongWord;      4567    4- 7
+    RootDispersion: LongWord; 8901    8-11
+    RefID: LongWord;          2345   12-15
+    Ref1: LongWord;           6789   16-19
+    Ref2: LongWord;           0123   20-23
+    Org1: LongWord;           4567   24-27
+    Org2: LongWord;           8901   28-31
+    Rcv1: LongWord;           2345   32-35
+    Rcv2: LongWord;           6789   36-39
+    Xmit1: LongWord;          0123   40-43
+    Xmit2: LongWord;          4567   44-47
   end;    }
 begin
   if Length(AValue)>0 then
@@ -392,57 +393,57 @@ begin
   if Length(AValue)>6 then
   begin
     //4-7
-    FRootDelay      := OrdFourByteToCardinal(AValue[4],AValue[5],AValue[6],AValue[7]);
+    FRootDelay      := OrdFourByteToLongWord(AValue[4],AValue[5],AValue[6],AValue[7]);
   end;
   if Length(AValue)>10 then
   begin
     //8-11
-    FRootDispersion := OrdFourByteToCardinal(AValue[8],AValue[9],AValue[10],AValue[11]);
+    FRootDispersion := OrdFourByteToLongWord(AValue[8],AValue[9],AValue[10],AValue[11]);
   end;
   if Length(AValue)>14 then
   begin
     //12-16
-    FRefID         := OrdFourByteToCardinal(AValue[12],AValue[13],AValue[14],AValue[15]);
+    FRefID         := OrdFourByteToLongWord(AValue[12],AValue[13],AValue[14],AValue[15]);
   end;
   if Length(AValue)>18 then
   begin
   //16-19
-    FRef1          := OrdFourByteToCardinal(AValue[16],AValue[17],AValue[18],AValue[19]);
+    FRef1          := OrdFourByteToLongWord(AValue[16],AValue[17],AValue[18],AValue[19]);
   end;
   if Length(AValue)>22 then
   begin
     //20-23
-    FRef2          := OrdFourByteToCardinal(AValue[20],AValue[21],AValue[22],AValue[23]);
+    FRef2          := OrdFourByteToLongWord(AValue[20],AValue[21],AValue[22],AValue[23]);
   end;
   if Length(AValue)>26 then
   begin
     //24-27
-    FOrg1          := OrdFourByteToCardinal(AValue[24],AValue[25],AValue[26],AValue[27]);
+    FOrg1          := OrdFourByteToLongWord(AValue[24],AValue[25],AValue[26],AValue[27]);
   end;
   if Length(AValue)>30 then
   begin
     //28-31
-    FOrg2          := OrdFourByteToCardinal(AValue[28],AValue[29],AValue[30],AValue[31]);
+    FOrg2          := OrdFourByteToLongWord(AValue[28],AValue[29],AValue[30],AValue[31]);
   end;
   if Length(AValue)>34 then
   begin
     //32-35
-    FRcv1          := OrdFourByteToCardinal(AValue[32],AValue[33],AValue[34],AValue[35]);
+    FRcv1          := OrdFourByteToLongWord(AValue[32],AValue[33],AValue[34],AValue[35]);
   end;
   if Length(AValue)>38 then
   begin
     //36-39
-    FRcv2          := OrdFourByteToCardinal(AValue[36],AValue[37],AValue[38],AValue[39]);
+    FRcv2          := OrdFourByteToLongWord(AValue[36],AValue[37],AValue[38],AValue[39]);
   end;
   if Length(AValue)>42 then
   begin
     //40-43
-    FXmit1         := OrdFourByteToCardinal(AValue[40],AValue[41],AValue[42],AValue[43]);
+    FXmit1         := OrdFourByteToLongWord(AValue[40],AValue[41],AValue[42],AValue[43]);
   end;
   if Length(AValue)>46 then
   begin
     //44-47
-    Xmit2         := OrdFourByteToCardinal(AValue[44],AValue[45],AValue[46],AValue[47]);
+    Xmit2         := OrdFourByteToLongWord(AValue[44],AValue[45],AValue[46],AValue[47]);
   end;
 end;
 

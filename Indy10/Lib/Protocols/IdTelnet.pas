@@ -86,6 +86,7 @@ unit IdTelnet;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

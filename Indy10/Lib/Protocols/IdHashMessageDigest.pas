@@ -43,6 +43,7 @@
 unit IdHashMessageDigest;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal, IdHash, Classes;

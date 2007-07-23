@@ -25,6 +25,7 @@
 unit IdHashElf;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdHash;

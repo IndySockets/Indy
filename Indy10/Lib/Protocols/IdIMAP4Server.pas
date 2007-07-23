@@ -212,7 +212,7 @@ Prior to this, it was a simple wrapper class with a few problems.
 
 interface
 
-{$I IdCompilerDefines.inc}
+{$i IdCompilerDefines.inc}
 
 {$IFDEF DOTNET}
 {$WARN UNIT_PLATFORM OFF}
@@ -522,7 +522,7 @@ begin
   if FSaferMode then begin
     DoSendReply(AContext, '* OK');     {Do not Localize}
   end else begin
-    DoSendReply(AContext, '* OK Indy IMAP server version ' + GetVersion); {Do not Localize}
+    DoSendReply(AContext, '* OK Indy IMAP server version ' + GetIndyVersion); {Do not Localize}
   end;
 end;
 
@@ -590,7 +590,7 @@ begin
   ContextClass := TIdIMAP4PeerContext;
   FSaferMode := False;
   FUseDefaultMechanismsForUnassignedCommands := True;
-{$IFDEF LINUX}
+{$IFDEF UNIX}
   FRootPath := GPathDelim + 'var' + GPathDelim + 'imapmail'; {Do not Localize}
 {$ELSE}
   FRootPath := GPathDelim + 'imapmail'; {Do not Localize}

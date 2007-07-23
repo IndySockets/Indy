@@ -34,6 +34,7 @@
 unit IdTrivialFTPBase;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdGlobal,

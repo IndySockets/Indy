@@ -40,6 +40,7 @@
 unit IdTrivialFTPServer;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

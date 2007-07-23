@@ -42,6 +42,7 @@
 unit IdHashAdler32;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdHash;

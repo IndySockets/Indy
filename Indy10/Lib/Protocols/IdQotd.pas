@@ -41,6 +41,7 @@ unit IdQotd;
 {*******************************************************}
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
    IdAssignedNumbers,

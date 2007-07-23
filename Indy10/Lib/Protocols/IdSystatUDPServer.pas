@@ -47,6 +47,7 @@ unit IdSystatUDPServer;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

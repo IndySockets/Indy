@@ -28,6 +28,7 @@
 unit IdMessageCoderXXE;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   IdMessageCoderUUE, IdMessageCoder, IdMessage;

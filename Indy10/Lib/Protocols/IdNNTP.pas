@@ -145,6 +145,7 @@
 unit IdNNTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

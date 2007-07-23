@@ -74,6 +74,7 @@
 unit IdReplyFTP;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

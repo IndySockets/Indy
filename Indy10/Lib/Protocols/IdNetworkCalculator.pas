@@ -34,6 +34,7 @@
 unit IdNetworkCalculator;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

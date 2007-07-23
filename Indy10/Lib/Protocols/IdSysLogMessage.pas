@@ -63,6 +63,7 @@ unit IdSysLogMessage;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -66,6 +66,7 @@
 unit IdMessageCoderUUE;
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,

@@ -44,6 +44,7 @@ unit IdUserAccounts;
 }
 
 interface
+{$i IdCompilerDefines.inc}
 
 uses
   Classes,
