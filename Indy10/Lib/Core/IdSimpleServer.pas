@@ -92,7 +92,9 @@
 unit IdSimpleServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdException,
@@ -142,8 +144,8 @@ type
     property Binding: TIdSocketHandle read GetBinding;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
 
-    property OnBeforeBind:TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
-    property OnAfterBind:TNotifyEvent read FOnAfterBind write FOnAfterBind;
+    property OnBeforeBind: TNotifyEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
   end;
 
   EIdCannotUseNonSocketIOHandler = class(EIdException);
@@ -243,10 +245,8 @@ end;
 procedure TIdSimpleServer.SetIPVersion(const AValue: TIdIPVersion);
 begin
   FIPVersion := AValue;
-  if Assigned(IOHandler) then begin
-    if IOHandler is TIdIOHandlerSocket then begin
-      TIdIOHandlerSocket(IOHandler).IPVersion := AValue;
-    end;
+  if IOHandler is TIdIOHandlerSocket then begin
+    TIdIOHandlerSocket(IOHandler).IPVersion := AValue;
   end;
 end;
 
@@ -297,17 +297,17 @@ var
   end;
 
 begin
+  Assert(IOHandler <> nil);
+
   if not FListening then begin
     BeginListen;
   end;
 
-  Assert(IOHandler<>nil);
-
   if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
     LAccepted := DoListenTimeout(ATimeout, True);
-  end else begin
+  end else
+  begin
     LAccepted := DoListenTimeout(ATimeout, False);
-
     if LAccepted then begin
       Binding.Accept(Binding.Handle);
       IOHandler.AfterAccept;
