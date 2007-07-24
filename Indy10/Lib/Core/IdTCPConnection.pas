@@ -309,6 +309,7 @@
 unit IdTCPConnection;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 {
@@ -381,11 +382,9 @@ type
     procedure SetIntercept(AValue: TIdConnectionIntercept); virtual;
     procedure SetIOHandler(AValue: TIdIOHandler); virtual;
     procedure SetGreeting(AValue: TIdReply);
-    procedure WorkBeginEvent(ASender: TObject; AWorkMode: TWorkMode;
-     AWorkCountMax: Integer);
+    procedure WorkBeginEvent(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
     procedure WorkEndEvent(ASender: TObject; AWorkMode: TWorkMode);
-    procedure WorkEvent(ASender: TObject; AWorkMode: TWorkMode;
-     AWorkCount: Integer);
+    procedure WorkEvent(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
     procedure PrepareCmd(var aCmd: string); virtual;
   public
     procedure CreateIOHandler(ABaseType: TIdIOHandlerClass = nil);
@@ -759,20 +758,19 @@ begin
   Result := AResponse;
 end;
 
-procedure TIdTCPConnection.WorkBeginEvent(ASender: TObject;
-  AWorkMode: TWorkMode; AWorkCountMax: Integer);
+procedure TIdTCPConnection.WorkBeginEvent(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCountMax: Int64);
 begin
   BeginWork(AWorkMode, AWorkCountMax)
 end;
 
-procedure TIdTCPConnection.WorkEndEvent(ASender: TObject;
-  AWorkMode: TWorkMode);
+procedure TIdTCPConnection.WorkEndEvent(ASender: TObject; AWorkMode: TWorkMode);
 begin
   EndWork(AWorkMode)
 end;
 
-procedure TIdTCPConnection.WorkEvent(ASender: TObject;
-  AWorkMode: TWorkMode; AWorkCount: Integer);
+procedure TIdTCPConnection.WorkEvent(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
 begin
   DoWork(AWorkMode, AWorkCount)
 end;
