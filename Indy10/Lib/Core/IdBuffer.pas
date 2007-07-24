@@ -343,9 +343,9 @@ type
     function ExtractToLongWord(const AIndex : Integer): LongWord;
     function ExtractToInt64(const AIndex : Integer): Int64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
-    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0;
+    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;
+    function IndexOf(const AString: string; AStartPos: Integer = 0;
       AEncoding: TIdEncoding = enDefault): Integer; overload;
-    function IndexOf(const AString: string; AStartPos: Integer = 0): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
     procedure Remove(AByteCount: Integer);
     procedure SaveToStream(const AStream: TStream);
@@ -595,7 +595,7 @@ begin
   end;
 end;
 
-function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer;
+function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer = 0;
   AEncoding: TIdEncoding = enDefault): Integer;
 begin
   if AEncoding = enDefault then begin
@@ -604,7 +604,7 @@ begin
   Result := IndexOf(ToBytes(AString, -1, AEncoding), AStartPos);
 end;
 
-function TIdBuffer.IndexOf(const ABytes: TIdBytes; AStartPos: Integer): Integer;
+function TIdBuffer.IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;
 var
   i, j, LEnd, BytesLen: Integer;
   LFound: Boolean;
