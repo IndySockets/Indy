@@ -253,7 +253,7 @@ var
 begin
   Result := TIdIPAddress.Create;
   try
-    Result.IPv6 := IPv6ToIdIPv6Address(AIP, LErr);
+    IPv6ToIdIPv6Address(AIP, Result.IPv6, LErr);
     if not LErr then begin
       Result.FAddrType := Id_IPv6;
       Exit;
@@ -288,7 +288,7 @@ begin
         end;
       Id_IPv6:
         begin
-          Result.IPv6 := IPv6ToIdIPv6Address(AIP, LErr);
+          IPv6ToIdIPv6Address(AIP, Result.IPv6, LErr);
           if not LErr then begin
             Result.FAddrType := Id_IPv6;
             Exit;
