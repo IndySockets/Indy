@@ -657,7 +657,7 @@ begin
 end;
 
 procedure TIdSocksInfo.Bind(AIOHandler: TIdIOHandler; const AHost: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: MakeSocks4Bind(AIOHandler, AHost, APort);
@@ -848,7 +848,7 @@ begin
 end;
 
 procedure TIdSocksInfo.OpenUDP(AHandle: TIdSocketHandle;
-  const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: raise EIdSocksUDPNotSupportedBySOCKSVersion.Create(RSSocksUDPNotSupported);
@@ -857,7 +857,7 @@ begin
 end;
 
 function TIdSocksInfo.DisasmUDPReplyPacket(const APacket : TIdBytes;
-  var VHost : String; var VPort : Integer): TIdBytes;
+  var VHost : String; var VPort : TIdPort): TIdBytes;
 {
 
 
@@ -910,7 +910,7 @@ begin
       LLen := 16 + 4; // 16 is for address, 2 is for port length,4 - 2 reserved, 1 frag, 1 atype
       SetLength(LHost,16);
       CopyTIdBytes(APacket, 5, LHost, 0, 16);
-      LIP6 := BytesToIPv6(LHost);
+      BytesToIPv6(LHost,LIP6);
       for i := 0 to 7 do begin
         LIP6[i] := GStack.NetworkToHost(LIP6[i]);
       end;
@@ -1026,7 +1026,7 @@ begin
     VPeerPort := 0;
     Exit;
   end;
-  Result := AHandle.RecvFrom(LBuf, VPeerIP VPeerPort, AIPVersion);
+  Result := AHandle.RecvFrom(LBuf, VPeerIP, VPeerPort, AIPVersion);
   SetLength(LBuf, Result);
   LBuf := DisasmUDPReplyPacket(LBuf, VPeerIP, VPeerPort);
   Result := Length(LBuf);
@@ -1034,7 +1034,7 @@ begin
 end;
 
 procedure TIdSocksInfo.SendToUDP(AHandle: TIdSocketHandle; const AHost: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
 var
   LBuf : TIdBytes;
 begin
