@@ -145,7 +145,9 @@ unit IdThread;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdGlobal, IdException, IdYarn, IdTask, IdThreadSafe, SysUtils;
@@ -238,7 +240,7 @@ type
     // And a bit crazy to create a non looped task
     constructor Create(
       ATask: TIdTask = nil;
-      AName: string = ''
+      const AName: string = ''
       ); reintroduce; virtual;
     destructor Destroy; override;
     //
@@ -387,9 +389,9 @@ end;
 
 constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; AName: string);
 begin
-{$IFDEF DOTNET}
+  {$IFDEF DOTNET}
   inherited Create(True);
-{$ENDIF}
+  {$ENDIF}
   FOptions := [itoDataOwner];
   if ACreateSuspended then begin
     Include(FOptions, itoStopped);
@@ -398,26 +400,26 @@ begin
   Loop := ALoop;
   Name := AName;
   //
-{$IFDEF DOTNET}
+  {$IFDEF DOTNET}
   if not ACreateSuspended then begin
     Resume;
   end;
-{$ELSE}
+  {$ELSE}
   //
   // Most things BEFORE inherited - inherited creates the actual thread and if
   // not suspended will start before we initialize
   inherited Create(ACreateSuspended);
-{$ENDIF}
-{$IFNDEF VCL6ORABOVE}
-  // Delphi 6 and above raise an exception when an error occures
-  // while creating a thread (eg. not enough address space to allocate a stack)
-  // Delphi 5 and below don't do that, which results in a TIdThread instance
-  // with an invalid handle in it.
-  // Therefore we raise the exceptions manually on D5 and below
+    {$IFNDEF VCL6ORABOVE}
+    // Delphi 6 and above raise an exception when an error occures while
+    // creating a thread (eg. not enough address space to allocate a stack)
+    // Delphi 5 and below don't do that, which results in a TIdThread
+    // instance with an invalid handle in it, therefore we raise the
+    // exceptions manually on D5 and below
   if (ThreadID = 0) then begin
     IndyRaiseLastError;
   end;
-{$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
   // Last, so we only do this if successful
   GThreadCount.Increment;
 end;
@@ -562,7 +564,7 @@ begin
   FTask.DoException(AException);
 end;
 
-constructor TIdThreadWithTask.Create(ATask: TIdTask; AName: string);
+constructor TIdThreadWithTask.Create(ATask: TIdTask; const AName: string);
 begin
   inherited Create(True, True, AName);
   FTask := ATask;
@@ -580,10 +582,30 @@ begin
     Stop;
   end;
 end;
+
+{$IFNDEF IDFREEONFINAL}
+  {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+type
+  TIdThreadSafeIntegerAccess = class(TIdThreadSafeInteger);
+  {$ENDIF}
+{$ENDIF}
   
 initialization
   SetThreadName('Main');  {do not localize}
   GThreadCount := TIdThreadSafeInteger.Create;
+  {$IFNDEF IDFREEONFINAL}
+    {$IFDEF REGISTER_EXPECTED_MEMORY_LEAK}
+  SysRegisterExpectedMemoryLeak(GThreadCount);
+  SysRegisterExpectedMemoryLeak(TIdThreadSafeIntegerAccess(GThreadCount).FCriticalSection);
+    {$ENDIF}
+  {$ENDIF}
 finalization
+  // This call hangs if not all threads have been properly destroyed.
+  // But without this, bad threads can often have worse results. Catch 22.
+//  TIdThread.WaitAllThreadsTerminated;
+
+  {$IFDEF IDFREEONFINAL}
+  //only enable this if you know your code exits thread-clean
   FreeAndNil(GThreadCount);
+  {$ENDIF}
 end.
