@@ -60,8 +60,10 @@
 unit IdLogFile;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdLogBase;
@@ -72,13 +74,13 @@ type
     FFilename: String;
     FFileStream: TStream;
     //
-    procedure LogFormat(AFormat: string; AArgs: array of const); virtual;
+    procedure LogFormat(const AFormat: string; AArgs: array of const); virtual;
     procedure LogReceivedData(const AText, AData: string); override;
     procedure LogSentData(const AText, AData: string); override;
     procedure LogStatus(const AText: string); override;
-    procedure LogWriteString(AText: string); virtual;
+    procedure LogWriteString(const AText: string); virtual;
     //
-    procedure SetFilename(AFilename: String);
+    procedure SetFilename(const AFilename: String);
   public
     procedure Open; override;
     procedure Close; override;
@@ -115,47 +117,44 @@ end;
 
 procedure TIdLogFile.Open;
 begin
-  if not IsDesignTime then
-  begin
+  if not IsDesignTime then begin
     FFileStream := TIdAppendFileStream.Create(Filename);
   end;
 end;
 
-procedure TIdLogFile.LogWriteString(AText: string);
+procedure TIdLogFile.LogWriteString(const AText: string);
 begin
   WriteStringToStream(FFileStream, AText);
 end;
 
-procedure TIdLogFile.LogFormat(AFormat: string; AArgs: array of const);
+procedure TIdLogFile.LogFormat(const AFormat: string; AArgs: array of const);
 var
   sPre: string;
   sMsg: string;
   sData: string;
 begin
   // forces Open to be called prior to Connect
-  if not Active then
-  begin
+  if not Active then begin
     Active := True;
   end;
 
   sPre := '';   {Do not translate}
   sMsg := '';   {Do not translate}
 
-  if LogTime then
-  begin
-    sPre := DateTimeToStr(Now) + ' ' ;      {Do not translate}
+  if LogTime then begin
+    sPre := DateTimeToStr(Now) + ' ';      {Do not translate}
   end;
 
   sData := IndyFormat(AFormat, AArgs);
   if FReplaceCRLF then begin
-    sData :=  ReplaceCR(sData);
+    sData := ReplaceCR(sData);
   end;
   sMsg := sPre + sData + EOL;
 
   LogWriteString(sMsg);
 end;
 
-procedure TIdLogFile.SetFilename(AFilename: String);
+procedure TIdLogFile.SetFilename(const AFilename: String);
 begin
   EIdException.IfAssigned(FFileStream, RSLogFileAlreadyOpen);
   FFilename := AFilename;
