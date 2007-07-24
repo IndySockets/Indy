@@ -182,7 +182,7 @@ Begin
   end;
 End;
 
-procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TIdOperation);
+procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, OPeration);
   if (Operation = opRemove) and (AComponent = Intercept) then begin
