@@ -334,68 +334,41 @@ type
     // will extract number of bytes and treat as AnsiString though WideString will be returned in DotNet
     function Extract(AByteCount: Integer = -1): string;
     // all 3 extract routines append to existing data, if any
-    procedure ExtractToStream(const AStream: TStream;AByteCount: Integer = -1; const AIndex : Integer=-1);
-    procedure ExtractToIdBuffer( ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer=-1);
-    procedure ExtractToBytes(
-      var VBytes: TIdBytes;
-      AByteCount: Integer = -1;
-      AAppend: Boolean = True;
-      AIndex : Integer = -1
-      );
-    function ExtractToByte(const AIndex : Integer) : Byte;
-    function ExtractToWord(const AIndex : Integer) : Word;
-    function ExtractToCardinal(const AIndex : Integer) : Cardinal;
-    function ExtractToInt64(const AIndex : Integer) : Int64;
-    function ExtractToIPv6(const AIndex : Integer) : TIdIPv6Address;
-    function IndexOf(
-      const ABytes: TIdBytes;
-      AStartPos: Integer = 0
-      ): Integer;
-      overload;
-    function IndexOf(
-      const AString: string;
-      AStartPos: Integer = 0
-      ): Integer;
-      overload;
-    function PeekByte(
-      AIndex: Integer
-      ): Byte;
+    procedure ExtractToStream(const AStream: TStream; AByteCount: Integer = -1; const AIndex: Integer = -1);
+    procedure ExtractToIdBuffer(ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer = -1);
+    procedure ExtractToBytes(var VBytes: TIdBytes; AByteCount: Integer = -1;
+      AAppend: Boolean = True; AIndex : Integer = -1);
+    function ExtractToByte(const AIndex : Integer): Byte;
+    function ExtractToWord(const AIndex : Integer): Word;
+    function ExtractToLongWord(const AIndex : Integer): LongWord;
+    function ExtractToInt64(const AIndex : Integer): Int64;
+    procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
+    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0;
+      AEncoding: TIdEncoding = enDefault): Integer; overload;
+    function IndexOf(const AString: string; AStartPos: Integer = 0): Integer; overload;
+    function PeekByte(AIndex: Integer): Byte;
     procedure Remove(AByteCount: Integer);
-    procedure SaveToStream(const AStream: TStream);
-        {
-    Most of these now have an ADestIndex parameter.  If that is less than 0,
-    we are writing data sequentially.
+    procedure SaveToStream(const AStream: TIdStream);
+      { Most of these now have an ADestIndex parameter.  If that is less than 0,
+        we are writing data sequentially.
 
-    If ADestIndex is 0 or greater, you are setting bytes in a particular location in
-    a random access manner.
-
-    }
+        If ADestIndex is 0 or greater, you are setting bytes in a particular
+	location in a random access manner.
+      }
     //we can't name this as a Write overload because
     //it would cause an abmigous overload error.
-    procedure WriteLen(
-      ABytes : TIdBytes;
-      const ALength : Integer;
-      const ADestIndex : Integer=-1);
+    procedure WriteLen(ABytes : TIdBytes; const ALength : Integer;
+      const ADestIndex : Integer = -1);
     // Write
-    procedure Write(
-      const AString: string;
-      AEncoding: TIdEncoding = enDefault;
-      const ADestIndex : Integer=-1
-      ); overload;
-    procedure Write(
-      ABytes: TIdBytes;
-      const ADestIndex : Integer=-1
-      ); overload;
-
-    procedure Write(
-      AStream: TStream;
-      AByteCount: Integer = 0
-      ); overload;
-    procedure Write(const AValue : Int64; const ADestIndex : Integer=-1); overload;
-    procedure Write(const AValue : Cardinal; const ADestIndex : Integer=-1); overload;
-    procedure Write(const AValue : Word; const ADestIndex : Integer=-1); overload;
-    procedure Write(const AValue : Byte; const ADestIndex : Integer=-1); overload;
-    procedure Write(const AValue : TIdIPv6Address; const ADestIndex : Integer=-1); overload;
+    procedure Write(const AString: string; AEncoding: TIdEncoding = enDefault;
+      const ADestIndex: Integer = -1); overload;
+    procedure Write(ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
+    procedure Write(AStream: TIdStream; AByteCount: Integer = 0); overload;
+    procedure Write(const AValue: Int64; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: LongWord; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: Word; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: Byte; const ADestIndex: Integer = -1); overload;
+    procedure Write(const AValue: TIdIPv6Address; const ADestIndex: Integer = -1); overload;
     //
     //Kudzu: I have removed the Bytes property. Do not add it back - it allowed "internal" access
     // which caused compacting or internal knowledge. Access via Extract or other such methods
@@ -409,7 +382,7 @@ type
     property GrowthFactor: Integer read FGrowthFactor write FGrowthFactor;
     property Size: Integer read FSize;
     //useful for testing. returns buffer as string without extraction.
-    property AsString:string read GetAsString;
+    property AsString: string read GetAsString;
   end;
 
 implementation
@@ -429,8 +402,8 @@ begin
   if VByteCount = -1 then begin
     VByteCount := Size+AIndex;
   end else begin
-    EIdNotEnoughDataInBuffer.IfTrue(VByteCount > (Size+AIndex), RSNotEnoughDataInBuffer + ' ('
-     + IntToStr(VByteCount) + '/' + IntToStr(Size) + ')');
+    EIdNotEnoughDataInBuffer.IfTrue(VByteCount > (Size+AIndex),
+      RSNotEnoughDataInBuffer + ' (' + IntToStr(VByteCount) + '/' + IntToStr(Size) + ')'); {do not localize}
   end;
 end;
 
@@ -441,37 +414,31 @@ begin
   FSize := Length(FBytes);
 end;
 
-constructor TIdBuffer.Create(
-  AGrowthFactor: Integer
-  );
+constructor TIdBuffer.Create(AGrowthFactor: Integer);
 begin
   Create;
   FGrowthFactor := AGrowthFactor;
 end;
 
-constructor TIdBuffer.Create(
-  AOnBytesRemoved: TIdBufferBytesRemoved
-  );
+constructor TIdBuffer.Create(AOnBytesRemoved: TIdBufferBytesRemoved);
 begin
   Create;
   FOnBytesRemoved := AOnBytesRemoved;
 end;
 
-constructor TIdBuffer.Create(const ABytes: TIdBytes;
-  const ALength: Integer);
+constructor TIdBuffer.Create(const ABytes: TIdBytes; const ALength: Integer);
 begin
   Create;
-  if ALength=-1 then
+  if ALength < 0 then
   begin
     FBytes := ABytes;
     FSize := Length(ABytes);
-  end
-  else
+  end else
   begin
-    SetLength(FBytes,ALength);
+    SetLength(FBytes, ALength);
     if ALength > 0 then
     begin
-      CopyTIdBytes(ABytes,0,FBytes,0,ALength);
+      CopyTIdBytes(ABytes, 0, FBytes, 0, ALength);
       FSize := ALength;
     end;
   end;
@@ -485,13 +452,11 @@ begin
   TIdStack.DecUsage;
 end;
 
-function TIdBuffer.Extract(
-  AByteCount: Integer = -1
-  ): string;
+function TIdBuffer.Extract(AByteCount: Integer = -1): string;
 var
   LBytes: TIdBytes;
 begin
-  if AByteCount = -1 then begin
+  if AByteCount < 0 then begin
     AByteCount := Size;
   end;
   if AByteCount > 0 then begin
@@ -502,23 +467,18 @@ begin
   end;
 end;
 
-procedure TIdBuffer.ExtractToBytes(
-  var VBytes: TIdBytes;
-  AByteCount: Integer = -1;
-  AAppend: Boolean = True;
-  AIndex : Integer = -1
-  );
+procedure TIdBuffer.ExtractToBytes(var VBytes: TIdBytes; AByteCount: Integer = -1;
+  AAppend: Boolean = True; AIndex : Integer = -1);
 var
   LOldSize: Integer;
   LIndex : Integer;
 begin
-  if AByteCount = -1 then begin
+  if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  LIndex := Max(AIndex,0);
-
+  LIndex := Max(AIndex, 0);
   if AByteCount > 0 then begin
-    CheckByteCount(AByteCount,LIndex);
+    CheckByteCount(AByteCount, LIndex);
     if AAppend then begin
       LOldSize := Length(VBytes);
       SetLength(VBytes, LOldSize + AByteCount);
@@ -528,52 +488,52 @@ begin
         SetLength(VBytes, AByteCount);
       end;
     end;
-    if AIndex<0 then
+    if AIndex < 0 then
     begin
       CopyTIdBytes(FBytes, FHeadIndex, VBytes, LOldSize, AByteCount);
       Remove(AByteCount);
-    end
-    else
+    end else
     begin
       CopyTIdBytes(FBytes, AIndex, VBytes, LOldSize, AByteCount);
     end;
   end;
 end;
 
-procedure TIdBuffer.ExtractToIdBuffer( ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer=-1);
+procedure TIdBuffer.ExtractToIdBuffer(ABuffer: TIdBuffer; AByteCount: Integer = -1;
+  const AIndex: Integer = -1);
 var
   LBytes: TIdBytes;
 begin
-  if AByteCount = -1 then begin
+  if AByteCount < 0 then begin
     AByteCount := Size;
   end;
   //TODO: Optimize this routine to directly copy from one to the other
-  ExtractToBytes(LBytes, AByteCount,True,AIndex);
+  ExtractToBytes(LBytes, AByteCount, True, AIndex);
   ABuffer.Write(LBytes);
 end;
 
-procedure TIdBuffer.ExtractToStream(const AStream: TStream;AByteCount: Integer = -1; const AIndex : Integer=-1);
+procedure TIdBuffer.ExtractToStream(const AStream: TStream; AByteCount: Integer = -1;
+  const AIndex: Integer = -1);
 var
   LIndex : Integer;
   LBytes : TIdBytes;
 begin
-  if AByteCount = -1 then begin
+  if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  LIndex := Max(AIndex,0);
-  if AIndex <0 then
+  LIndex := Max(AIndex, 0);
+  if AIndex < 0 then
   begin
     CompactHead;
-    CheckByteCount(AByteCount,LIndex);
-    TIdStreamHelper.Write(AStream,FBytes,AByteCount);
+    CheckByteCount(AByteCount, LIndex);
+    TIdStreamHelper.Write(AStream, FBytes, AByteCount);
     Remove(AByteCount);
-  end
-  else
+  end else
   begin
-    CheckByteCount(AByteCount,LIndex);
-    SetLength(LBytes,AByteCount);
-    CopyTIdBytes(FBytes,AIndex,LBytes,0,AByteCount);
-    TIdStreamHelper.Write(AStream,LBytes,AByteCount);
+    CheckByteCount(AByteCount, LIndex);
+    SetLength(LBytes, AByteCount);
+    CopyTIdBytes(FBytes, AIndex, LBytes, 0, AByteCount);
+    TIdStreamHelper.Write(AStream, LBytes, AByteCount);
   end;
 end;
 
@@ -593,35 +553,29 @@ begin
   end;
 end;
 
-procedure TIdBuffer.CompactHead(
-  ACanShrink: Boolean = True
-  );
+procedure TIdBuffer.CompactHead(ACanShrink: Boolean = True);
 begin
   // Only try to compact if needed.
   if FHeadIndex > 0 then begin
     CopyTIdBytes(FBytes, FHeadIndex, FBytes, 0, Size);
     FHeadIndex := 0;
-    if ACanShrink and (Capacity - Size - FHeadIndex > GrowthFactor) then begin
+    if ACanShrink and ((Capacity - Size - FHeadIndex) > GrowthFactor) then begin
       SetLength(FBytes, FHeadIndex + Size + GrowthFactor);
     end;
   end;
 end;
 
-procedure TIdBuffer.Write(ABytes: TIdBytes; const ADestIndex : Integer=-1);
+procedure TIdBuffer.Write(ABytes: TIdBytes; const ADestIndex: Integer = -1);
 begin
-  WriteLen(ABytes,Length(ABytes),ADestIndex);
+  WriteLen(ABytes, Length(ABytes), ADestIndex);
 end;
 
-procedure TIdBuffer.Write(
-  AStream: TStream;
-  AByteCount: Integer
-  );
+procedure TIdBuffer.Write(AStream: TStream; AByteCount: Integer);
 var
   LAdded: Integer;
   LLength: Integer;
-
 begin
-  if AByteCount = -1 then begin
+  if AByteCount < 0 then begin
     // Copy remaining
     LAdded := AStream.Size - AStream.Position;
   end else if AByteCount = 0 then begin
@@ -633,17 +587,21 @@ begin
   end;
   if LAdded > 0 then begin
     LLength := Size;
-    CheckAdd(LAdded,0);
+    CheckAdd(LAdded, 0);
     CompactHead;
     SetLength(FBytes, LLength + LAdded);
-    TIdStreamHelper.ReadBytes(AStream,FBytes,LAdded,LLength);
+    TIdStreamHelper.ReadBytes(AStream, FBytes, LAdded, LLength);
     Inc(FSize, LAdded);
   end;
 end;
 
-function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer): Integer;
+function TIdBuffer.IndexOf(const AString: string; AStartPos: Integer;
+  AEncoding: TIdEncoding = enDefault): Integer;
 begin
-  Result := IndexOf(ToBytes(AString), AStartPos);
+  if AEncoding = enDefault then begin
+    AEncoding := FEncoding;
+  end;
+  Result := IndexOf(ToBytes(AString, -1, AEncoding), AStartPos);
 end;
 
 function TIdBuffer.IndexOf(const ABytes: TIdBytes; AStartPos: Integer): Integer;
@@ -661,14 +619,13 @@ begin
     for i := FHeadIndex + AStartPos to LEnd - BytesLen do begin
       LFound := True;
       for j := 0 to BytesLen - 1 do begin
-        if i + j < LEnd then begin
-          if FBytes[i + j] <> ABytes[j] then begin
-            LFound := False;
-            Break;
-          end;
-        end
-        else
+        if (i + j) >= LEnd then begin
           Break;
+        end;
+        if FBytes[i + j] <> ABytes[j] then begin
+          LFound := False;
+          Break;
+        end;
       end;
       if LFound then begin
         Result := i - FHeadIndex;
@@ -679,16 +636,13 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(
-  const AString: string;
-  AEncoding: TIdEncoding = enDefault;
-  const ADestIndex : Integer=-1
-  );
+procedure TIdBuffer.Write(const AString: string; AEncoding: TIdEncoding = enDefault;
+  const ADestIndex : Integer = -1);
 begin
   if AEncoding = enDefault then begin
-    AEncoding := Encoding;
+    AEncoding := FEncoding;
   end;
-  Write(ToBytes(AString, -1, AEncoding),ADestIndex);
+  Write(ToBytes(AString, -1, AEncoding), ADestIndex);
 end;
 
 function TIdBuffer.GetCapacity: Integer;
@@ -706,15 +660,13 @@ end;
 constructor TIdBuffer.Create;
 begin
   inherited Create;
-  FEncoding := enANSI;
+  FEncoding := en7Bit;
   FGrowthFactor := 2048;
   Clear;
   TIdStack.IncUsage;
 end;
 
-function TIdBuffer.PeekByte(
-  AIndex: Integer
-  ): Byte;
+function TIdBuffer.PeekByte(AIndex: Integer): Byte;
 begin
   EIdException.IfTrue(Size = 0, 'No bytes in buffer.'); {do not localize}
   EIdException.IfNotInRange(AIndex, 0, Size - 1, 'Index out of bounds.'); {do not localize}
@@ -724,164 +676,143 @@ end;
 procedure TIdBuffer.SaveToStream(const AStream: TStream);
 begin
   CompactHead(False);
-  TIdStreamHelper.Write(AStream,FBytes,Size);
+  TIdStreamHelper.Write(AStream, FBytes, Size);
 end;
 
-function TIdBuffer.ExtractToIPv6(const AIndex: Integer): TIdIPv6Address;
-var LIndex : Integer;
+procedure TIdBuffer.ExtractToIPv6(const AIndex: Integer; var VAddress: TIdIPv6Address);
+var
+  LIndex : Integer;
 begin
-  if AIndex < 0 then
-  begin
+  if AIndex < 0 then begin
     LIndex := FHeadIndex;
-  end
-  else
-  begin
+  end else begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToIPv6(FBytes,LIndex);
-  Result := GStack.NetworkToHost(Result);
-  if AIndex<0 then
-  begin
+  BytesToIPv6(FBytes, VAddress, LIndex);
+  VAddress := GStack.NetworkToHost(Result);
+  if AIndex < 0 then begin
     Remove(16);
   end;
 end;
 
 function TIdBuffer.ExtractToInt64(const AIndex: Integer): Int64;
-var LIndex : Integer;
+var
+  LIndex : Integer;
 begin
-  if AIndex < 0 then
-  begin
+  if AIndex < 0 then begin
     LIndex := FHeadIndex;
-  end
-  else
-  begin
+  end else begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToInt64(FBytes,LIndex);
+  Result := IdGlobal.BytesToInt64(FBytes, LIndex);
   Result := GStack.NetworkToHost(Result);
-  if AIndex<0 then
-  begin
+  if AIndex < 0 then begin
     Remove(8);
   end;
 end;
 
-
-function TIdBuffer.ExtractToCardinal(const AIndex: Integer): Cardinal;
-var LIndex : Integer;
+function TIdBuffer.ExtractToLongWord(const AIndex: Integer): LongWord;
+var
+  LIndex : Integer;
 begin
-  if AIndex < 0 then
-  begin
+  if AIndex < 0 then begin
     LIndex := FHeadIndex;
-  end
-  else
-  begin
+  end else begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToLongWord(FBytes,LIndex);
+  Result := IdGlobal.BytesToLongWord(FBytes, LIndex);
   Result := GStack.NetworkToHost(Result);
-  if AIndex<0 then
-  begin
+  if AIndex < 0 then begin
     Remove(4);
   end;
 end;
 
 function TIdBuffer.ExtractToWord(const AIndex: Integer): Word;
-var LIndex : Integer;
+var
+  LIndex : Integer;
 begin
-  if AIndex < 0 then
-  begin
+  if AIndex < 0 then begin
     LIndex := FHeadIndex;
-  end
-  else
-  begin
+  end else begin
     LIndex := AIndex;
   end;
-  Result := BytesToWord(FBytes,LIndex);
+  Result := BytesToWord(FBytes, LIndex);
   Result := GStack.NetworkToHost(Result);
-  if AIndex<0 then
-  begin
+  if AIndex < 0 then begin
     Remove(2);
   end;
 end;
 
 function TIdBuffer.ExtractToByte(const AIndex: Integer): Byte;
-var LIndex : Integer;
+var
+  LIndex : Integer;
 begin
-  if AIndex < 0 then
-  begin
+  if AIndex < 0 then begin
     LIndex := FHeadIndex;
-  end
-  else
-  begin
+  end else begin
     LIndex := AIndex;
   end;
   Result := FBytes[LIndex];
-
-  if AIndex<0 then
-  begin
+  if AIndex < 0 then begin
     Remove(1);
   end;
 end;
 
 procedure TIdBuffer.Write(const AValue: Word; const ADestIndex: Integer);
-var LVal : Word;
-   LIndex : Integer;
+var
+  LVal : Word;
+  LIndex : Integer;
 begin
-  if ADestIndex<0 then
+  if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes,LIndex+2);
-  end
-  else
+    SetLength(FBytes, LIndex+2);
+  end else
   begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
-  CopyTIdWord(LVal,FBytes,LIndex);
-  if LIndex>=FSize then
-  begin
-    FSize := LIndex +2;
+  CopyTIdWord(LVal, FBytes, LIndex);
+  if LIndex >= FSize then begin
+    FSize := LIndex+2;
   end;
 end;
 
 procedure TIdBuffer.Write(const AValue: Byte; const ADestIndex: Integer);
-var LIndex : Integer;
+var
+  LIndex : Integer;
 begin
-  if ADestIndex<0 then
+  if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes,LIndex+1);
-  end
-  else
+    SetLength(FBytes, LIndex+1);
+  end else
   begin
     LIndex := ADestIndex;
   end;
   FBytes[LIndex] := AValue;
-  if LIndex>=FSize then
-  begin
-    FSize := LIndex +1;
+  if LIndex >= FSize then begin
+    FSize := LIndex+1;
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: TIdIPv6Address;
-  const ADestIndex: Integer);
-var LVal : TIdIPv6Address;
+procedure TIdBuffer.Write(const AValue: TIdIPv6Address; const ADestIndex: Integer);
+var
+  LVal : TIdIPv6Address;
   LIndex : Integer;
 begin
-  if ADestIndex<0 then
+  if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes,LIndex + 16);
-  end
-  else
+    SetLength(FBytes, LIndex + 16);
+  end else
   begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
-  CopyTIdIPV6Address(LVal,FBytes,LIndex);
-  if LIndex>=FSize then
-  begin
-    FSize := LIndex +16;
+  CopyTIdIPV6Address(LVal, FBytes, LIndex);
+  if LIndex >= FSize then begin
+    FSize := LIndex+16;
   end;
 end;
 
@@ -896,87 +827,78 @@ begin
   begin
     LIndex := FHeadIndex + Size;
     SetLength(FBytes, LIndex + LSize);
-  end
-  else
+  end else
   begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
   CopyTIdInt64(LVal, FBytes, LIndex);
-  if LIndex >= FSize then
-  begin
+  if LIndex >= FSize then begin
     FSize := LIndex + LSize;
   end;
 end;
 
-procedure TIdBuffer.Write(const AValue: Cardinal;
-  const ADestIndex: Integer);
-var LVal : Cardinal;
+procedure TIdBuffer.Write(const AValue: LongWord; const ADestIndex: Integer);
+var
+  LVal : LongWord;
   LIndex : Integer;
 begin
-  if ADestIndex<0 then
+  if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes, LIndex + SizeOf(Cardinal));
-  end
-  else
+    SetLength(FBytes, LIndex + LongWord));
+  end else
   begin
     LIndex := ADestIndex;
   end;
   LVal := GStack.HostToNetwork(AValue);
-  CopyTIdLongWord(LVal,FBytes,LIndex);
-  if LIndex>=FSize then
-  begin
-    FSize := LIndex +4;
+  CopyTIdLongWord(LVal, FBytes, LIndex);
+  if LIndex >= FSize then begin
+    FSize := LIndex+4;
   end;
 end;
 
-procedure TIdBuffer.WriteLen(ABytes: TIdBytes; const ALength,
-  ADestIndex: Integer);
+procedure TIdBuffer.WriteLen(ABytes: TIdBytes; const ALength, ADestIndex: Integer);
 var
   LByteLength: Integer;
   LIndex : Integer;
 begin
   LByteLength := ALength;
-  LIndex := Max(ADestIndex,0);
-  CheckAdd(LByteLength,LIndex);
+  LIndex := Max(ADestIndex, 0);
+  CheckAdd(LByteLength, LIndex);
   if Size = 0 then begin
     FHeadIndex := 0;
     if ADestIndex < 0 then
     begin
       FBytes := ABytes;
       FSize := ALength;
-    end
-    else
+    end else
     begin
-      FSize := Length(ABytes)+ADestIndex;
-      SetLength(FBytes,FSize);
-      CopyTIdBytes(ABytes,0,FBytes,ADestIndex,LByteLength);
+      FSize := Length(ABytes) + ADestIndex;
+      SetLength(FBytes, FSize);
+      CopyTIdBytes(ABytes, 0, FBytes, ADestIndex, LByteLength);
     end;
-  end else begin
-    if ADestIndex < 0 then
-    begin
-      CompactHead(False);
-      if (Capacity - Size - FHeadIndex) < LByteLength then begin
-        SetLength(FBytes, Size + LByteLength + GrowthFactor);
-      end;
-      CopyTIdBytes(ABytes, 0, FBytes, FHeadIndex + Size, LByteLength);
-      Inc(FSize, LByteLength);
-    end
-    else
-    begin
-      CopyTIdBytes(ABytes, 0, FBytes, LIndex, LByteLength);
-      if LIndex>=FSize then
-      begin
-        FSize := LIndex +LByteLength;
-      end;
+  end
+  else if ADestIndex < 0 then
+  begin
+    CompactHead(False);
+    if (Capacity - Size - FHeadIndex) < LByteLength then begin
+      SetLength(FBytes, Size + LByteLength + GrowthFactor);
+    end;
+    CopyTIdBytes(ABytes, 0, FBytes, FHeadIndex + Size, LByteLength);
+    Inc(FSize, LByteLength);
+  end else
+  begin
+    CopyTIdBytes(ABytes, 0, FBytes, LIndex, LByteLength);
+    if LIndex >= FSize then begin
+      FSize := LIndex + LByteLength;
     end;
   end;
 end;
 
 function TIdBuffer.GetAsString: string;
 begin
- Result:=BytesToString(FBytes,0,FSize);
+  Result := BytesToString(FBytes, 0, MaxInt, FEncoding);
 end;
 
 end.
