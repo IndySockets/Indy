@@ -62,8 +62,10 @@
 unit IdIPAddress;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
+
 uses
   Classes,
   IdGlobal;
@@ -81,6 +83,7 @@ type
   public
     //We can't make this into a property for C++Builder
     IPv6 : TIdIPv6Address;
+
     constructor Create; virtual;
     class function MakeAddressObject(const AIP : String) : TIdIPAddress; overload;
     class function MakeAddressObject(const AIP : String; const AIPVersion: TIdIPVersion) : TIdIPAddress; overload;
@@ -89,14 +92,15 @@ type
 
     property IPv4 : Cardinal read FIPv4 write FIPv4;
     property IPv4AsString : String read GetIPv4AsString;
-  //  property IPv6 : TIdIPv6Address read FIPv6 write FIPv6;
     property IPv6AsString : String read GetIPv6AsString;
     property AddrType : TIdIPVersion read FAddrType write FAddrType;
     property IPAsString : String read GetIPAddress;
   end;
 
 implementation
-uses IdStack, SysUtils;
+
+uses
+  IdStack, SysUtils;
 
 //The power constants are for processing IP addresses
 //They are powers of 255.
@@ -121,6 +125,7 @@ begin
 end;
 
 function CompareWord(const AWord1, AWord2 : Word) : Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 {
 AWord1 > AWord2	> 0
 AWord1 < AWord2	< 0
@@ -136,7 +141,8 @@ begin
   end;
 end;
 
-function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer;
+function CompareCardinal(const ACard1, ACard2 : Cardinal) : Integer; 
+{$IFDEF USEINLINE}inline;{$ENDIF}
 {
 ACard1 > ACard2	> 0
 ACard1 < ACard2	< 0
@@ -238,7 +244,7 @@ var
   I: Integer;
 begin
   if FAddrType = Id_IPv6 then begin
-    Result :=IntToHex(IPv6[0], 4);
+    Result := IntToHex(IPv6[0], 4);
     for i := 1 to 7 do begin
       Result := Result + ':' + IntToHex(IPv6[i], 4);
     end;
