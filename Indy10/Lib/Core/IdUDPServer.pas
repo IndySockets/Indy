@@ -68,8 +68,10 @@
 unit IdUDPServer;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdComponent,
@@ -139,7 +141,6 @@ type
     procedure SetDefaultPort(const AValue: TIdPort);
   public
     destructor Destroy; override;
-    //C+Builder doesn't allow you to publish metaclass properties.
     property ThreadClass: TIdUDPListenerThreadClass read FThreadClass write FThreadClass;
   published
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
@@ -152,7 +153,8 @@ type
 
 implementation
 
-uses IdGlobalCore, SysUtils;
+uses
+  IdGlobalCore, SysUtils;
 
 procedure TIdUDPServer.BroadcastEnabledChanged;
 var
