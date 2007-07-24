@@ -815,7 +815,7 @@ function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   const AIPVersion: TIdIPVersion): Cardinal;
 var
   LIP : String;
-  LPort : Integer;
+  LPort : TIdPort;
 begin
   Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, AIPVersion);
   APkt.SourceIP := LIP;
