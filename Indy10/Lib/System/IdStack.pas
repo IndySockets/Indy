@@ -222,7 +222,7 @@ type
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
              var VPort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): TIdStackSocketHandle; overload;
+             ): TIdStackSocketHandle; overload; virtual;
     function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
              var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion
              ): TIdStackSocketHandle; overload; virtual; abstract;
@@ -239,11 +239,11 @@ type
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort); overload;
+              var VPort: TIdPort); overload; virtual;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
               var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort); overload;
+              var VPort: TIdPort); overload; virtual;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
               var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
     function HostByAddress(const AAddress: string;
@@ -431,7 +431,7 @@ begin
 end;
 
 function TIdStack.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
 var
   LIPVersion: TIdIPVersion;
 begin
@@ -439,7 +439,7 @@ begin
 end;
 
 procedure TIdStack.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: Integer);
+  var VPort: TIdPort);
 var
   LIPVersion: TIdIPVersion;
 begin
