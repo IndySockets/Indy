@@ -64,6 +64,7 @@ unit IdSync;
 // Author: Chad Z. Hower - a.k.a. Kudzu
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -73,16 +74,16 @@ uses
 type
   TIdSync = class(TObject)
   protected
-    FThread: TThread;
+    FThread: TIdThread;
     //
     procedure DoSynchronize; virtual; abstract;
   public
     constructor Create; overload; virtual;
-    constructor Create(AThread: TThread); overload; virtual;
+    constructor Create(AThread: TIdThread); overload; virtual;
     procedure Synchronize;
     class procedure SynchronizeMethod(AMethod: TThreadMethod);
     //
-    property Thread: TThread read FThread;
+    property Thread: TIdThread read FThread;
   end;
 
   TIdNotify = class(TObject)
@@ -108,9 +109,11 @@ type
   public
     constructor Create(AMethod: TThreadMethod); reintroduce; virtual;
   end;
-
+  
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 type
   // This is done with a NotifyThread instead of PostMessage because starting
@@ -141,11 +144,30 @@ end;
 
 { TIdSync }
 
-constructor TIdSync.Create(AThread: TThread);
+constructor TIdSync.Create(AThread: TIdThread);
 begin
   inherited Create;
   FThread := AThread;
 end;
+
+constructor TIdSync.Create;
+begin
+  CreateNotifyThread;
+  Create(GNotifyThread);
+end;
+
+procedure TIdSync.Synchronize;
+begin
+  FThread.Synchronize(DoSynchronize);
+end;
+
+class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
+begin
+  CreateNotifyThread;
+  GNotifyThread.Synchronize(AMethod);
+end;
+
+{ TIdNotify }
 
 constructor TIdNotify.Create;
 begin
@@ -165,7 +187,7 @@ end;
 
 procedure TIdNotify.Notify;
 begin
-  if InMainThread and (MainThreadUsesNotify = False) then begin
+  if InMainThread and (not MainThreadUsesNotify) then begin
     DoNotify;
     Free;
   end else begin
@@ -177,24 +199,6 @@ end;
 class procedure TIdNotify.NotifyMethod(AMethod: TThreadMethod);
 begin
   TIdNotifyMethod.Create(AMethod).Notify;
-end;
-
-constructor TIdSync.Create;
-begin
-  CreateNotifyThread;
-  Create(GNotifyThread);
-end;
-
-procedure TIdSync.Synchronize;
-begin
- // FThread.Synchronize(DoSynchronize);
-end;
-
-class procedure TIdSync.SynchronizeMethod(AMethod: TThreadMethod);
-begin
-  with Create do try
- //   FThread.Synchronize(AMethod);
-  finally Free; end;
 end;
 
 { TIdNotifyThread }
@@ -210,7 +214,7 @@ begin
   FEvent := TIdLocalEvent.Create;
   FNotifications := TThreadList.Create;
   // Must be before - Thread starts running when we call inherited
-  inherited Create(False, False,'IdNotify');
+  inherited Create(False, False, 'IdNotify');
 end;
 
 destructor TIdNotifyThread.Destroy;
@@ -239,17 +243,21 @@ begin
   // If terminated while waiting on the event or during the loop
   while not Stopped do begin
     try
-      LNotifications := FNotifications.LockList; try
+      LNotifications := FNotifications.LockList;
+      try
         if LNotifications.Count = 0 then begin
           Break;
         end;
         LNotify := TIdNotify(LNotifications.Items[0]);
-      finally FNotifications.UnlockList; end;
-      Synchronize(LNotify.DoNotify);
-      FreeAndNil(LNotify);
-      with FNotifications.LockList do try
-        Delete(0);
-      finally FNotifications.UnlockList; end;
+        LNotifications.Delete(0);
+      finally
+        FNotifications.UnlockList;
+      end;
+      try
+        Synchronize(LNotify.DoNotify);
+      finally
+        FreeAndNil(LNotify);
+      end;
     except // Catch all exceptions especially these which are raised during the application close
     end;
   end;
