@@ -65,6 +65,7 @@
 unit IdContext;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -124,7 +125,7 @@ constructor TIdContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; ALi
 begin
   inherited Create(AYarn);
   FConnection := AConnection;
-  FOwnsConnection :=True;
+  FOwnsConnection := True;
   FContextList := AList;
 end;
 
