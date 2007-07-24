@@ -96,30 +96,26 @@ var
   pSockets: TIdSocketHandles;
 begin
   inherited Edit;
-  if PropCount > 0 then
-  begin
-    with TIdPropEdBindingEntry.Create do
-    try
 
-      {$IFNDEF DOTNET}
-      pSockets := TIdSocketHandles(GetOrdValue);
-      {$ELSE}
-      pSockets := GetObjValue as TIdSocketHandles;
-      {$ENDIF}
-      Caption := TComponent(GetComponent(0)).Name;
-      DefaultPort := pSockets.DefaultPort;
-      Value := GetListValues(pSockets);
-      SetList(Value);
-      if Execute then
-      begin
-        Value := GetList;
-        if PropCount > 0 then begin
-          FillHandleList(Value, pSockets);
-      end;
+  {$IFNDEF DOTNET}
+  pSockets := TIdSocketHandles(GetOrdValue);
+  {$ELSE}
+  pSockets := GetObjValue as TIdSocketHandles;
+  {$ENDIF}
+
+  with TIdPropEdBindingEntry.Create do
+  try
+    Caption := TComponent(GetComponent(0)).Name;
+    DefaultPort := pSockets.DefaultPort;
+    Value := GetListValues(pSockets);
+    SetList(Value);
+    if Execute then
+    begin
+      Value := GetList;
+      FillHandleList(Value, pSockets);
     end;
-    finally
-      Free;
-    end;
+  finally
+    Free;
   end;
 end;
 
