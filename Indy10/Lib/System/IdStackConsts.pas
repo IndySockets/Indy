@@ -69,76 +69,74 @@
 unit IdStackConsts;
 
 interface
+
 {$I IdCompilerDefines.inc}
-{This should be the only unit except OS Stack units that reference
-Winsock or lnxsock}
+
+{ This should be the only unit except OS Stack units that reference
+  Winsock or lnxsock }
+
 uses
- {$IFDEF DotNet}
+  {$IFDEF DOTNET}
   System.Net.Sockets;
- {$ENDIF}
- //TODO:  I'm not really sure how other platforms are supported with asockets header
- //Do I use the sockets unit or do something totally different for each platform
-   {$ifdef win32_or_win64_or_winCE}
+  {$ENDIF}
+  //TODO:  I'm not really sure how other platforms are supported with asockets header
+  //Do I use the sockets unit or do something totally different for each platform
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   IdWship6, //for some constants that supplement IdWinsock
   IdWinsock2;
-   {$endif}
-   {$ifdef os2}
-    pmwsock;
-   {$endif}
-   {$ifdef netware_clib}
-    winsock; //not sure if this is correct
-   {$endif}
-   {$ifdef netware_libc}
-    winsock;  //not sure if this is correct
-   {$endif}
-   {$ifdef MacOS}
-   {$endif}
-   {$ifdef Unix}
-     {$ifdef UseLibc}
-     libc;
-     {$else}
-     Sockets,BaseUnix,Unix; // FPC "native" Unix units.
+  {$ENDIF}
+  {$IFDEF OS2}
+  pmwsock;
+  {$ENDIF}
+  {$IFDEF NETWARE_CLIB}
+  winsock; //not sure if this is correct
+  {$ENDIF}
+  {$IFDEF NETWARE_LIBC}
+  winsock;  //not sure if this is correct
+  {$ENDIF}
+  {$IFDEF MACOS}
+  {$ENDIF}
+  {$IFDEF UNIX}
+    {$IFDEF USELIBC}
+    libc;
+    {$ELSE}
+    Sockets, BaseUnix, Unix; // FPC "native" Unix units.
      //Marco may want to change the socket interface unit
      //so we don't use the libc header.
-     {$endif}
-   {$endif}
-
+    {$ENDIF}
+  {$ENDIF}
 
 type
-  {$IFDEF UseBaseUnix}
-   TSocket = cint;  // TSocket is afaik not POSIX, so we have to add it
-                    // (Socket() returns a C int according to opengroup)
+  {$IFDEF USEUNIXBASE}
+  TSocket = cint;  // TSocket is afaik not POSIX, so we have to add it
+                   // (Socket() returns a C int according to opengroup)
+  {$ENDIF}
 
-  {$ENDIF}
-  TIdStackSocketHandle =
-  {$IFDEF DOTNET}
-     Socket;
-  {$ELSE}
-     TSocket;
-  {$ENDIF}
+  TIdStackSocketHandle = {$IFDEF DOTNET}Socket{$ELSE}TSocket{$ENDIF};
   
 var
   Id_SO_True: Integer = 1;
   Id_SO_False: Integer = 0;
 
 const
-  {$IFDEF DotNet}
-  Id_IPV6_UNICAST_HOPS = System.Net.Sockets.SocketOptionName.IpTimeToLive;
-  Id_IPV6_MULTICAST_IF = System.Net.Sockets.SocketOptionName.MulticastInterface;
-  Id_IPV6_MULTICAST_HOPS = System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
-  Id_IPV6_MULTICAST_LOOP = System.Net.Sockets.SocketOptionName.MulticastLoopback;
-  Id_IPV6_ADD_MEMBERSHIP = System.Net.Sockets.SocketOptionName.AddMembership;
-  Id_IPV6_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.DropMembership;
-  Id_IPV6_PKTINFO =         System.Net.Sockets.SocketOptionName.PacketInformation;
-  Id_IP_MULTICAST_TTL =    System.Net.Sockets.SocketOptionName.MulticastTimeToLive;
-  Id_IP_MULTICAST_LOOP =   System.Net.Sockets.SocketOptionName.MulticastLoopback;
-  Id_IP_ADD_MEMBERSHIP =   System.Net.Sockets.SocketOptionName.AddMembership;
-  Id_IP_DROP_MEMBERSHIP = System.Net.Sockets.SocketOptionName.DropMembership;
-  Id_IP_HDR_INCLUDED =    System.Net.Sockets.SocketOptionName.HeaderIncluded;
+  {$IFDEF DOTNET}
+  Id_IPV6_UNICAST_HOPS    = SocketOptionName.IpTimeToLive;
+  Id_IPV6_MULTICAST_IF    = SocketOptionName.MulticastInterface;
+  Id_IPV6_MULTICAST_HOPS  = SocketOptionName.MulticastTimeToLive;
+  Id_IPV6_MULTICAST_LOOP  = SocketOptionName.MulticastLoopback;
+  Id_IPV6_ADD_MEMBERSHIP  = SocketOptionName.AddMembership;
+  Id_IPV6_DROP_MEMBERSHIP = SocketOptionName.DropMembership;
+  Id_IPV6_PKTINFO         = SocketOptionName.PacketInformation;
+  Id_IP_MULTICAST_TTL     = SocketOptionName.MulticastTimeToLive;
+  Id_IP_MULTICAST_LOOP    = SocketOptionName.MulticastLoopback;
+  Id_IP_ADD_MEMBERSHIP    = SocketOptionName.AddMembership;
+  Id_IP_DROP_MEMBERSHIP   = SocketOptionName.DropMembership;
+  Id_IP_HDR_INCLUDED      = SocketOptionName.HeaderIncluded;
   {$ENDIF}
+
   {$IFDEF UNIX}
-  Id_IPV6_UNICAST_HOPS = IPV6_UNICAST_HOPS;
-  Id_IPV6_MULTICAST_IF = IPV6_MULTICAST_IF;
+  Id_IPV6_UNICAST_HOPS   = IPV6_UNICAST_HOPS;
+  Id_IPV6_MULTICAST_IF   = IPV6_MULTICAST_IF;
   Id_IPV6_MULTICAST_HOPS = IPV6_MULTICAST_HOPS;
   Id_IPV6_MULTICAST_LOOP = IPV6_MULTICAST_LOOP;
     {$IFDEF LINUX}
@@ -148,47 +146,47 @@ const
     // Probably the JOIN_GROUP ones replaced these,
     // but they have different numbers in Linux, and possibly
     // also different behaviour?
-      {$ifndef Kylix}
-        {$ifdef USEBASEUNIX}
-        
+      {$IFNDEF KYLIX}
+        {$IFDEF USEBASEUNIX}
       //In Linux, the libc.pp header maps the old values to new ones,
       //probably for consistancy.  I'm doing this because we can't link
       //to Libc for Basic Unix stuff and some people may want to use this API
       //in Linux instead of the libc API.
-      IPV6_ADD_MEMBERSHIP = IPV6_JOIN_GROUP;
+      IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
       IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
-        {$endif}
-      {$endif}
-    {$else}
-      IPV6_ADD_MEMBERSHIP = IPV6_JOIN_GROUP;
+        {$ENDIF}
+      {$ENDIF}
+    {$ELSE}
+      IPV6_ADD_MEMBERSHIP  = IPV6_JOIN_GROUP;
       IPV6_DROP_MEMBERSHIP = IPV6_LEAVE_GROUP;
-      IPV6_CHECKSUM = 26;
-    {$endif}
-  Id_IPV6_ADD_MEMBERSHIP = IPV6_ADD_MEMBERSHIP;
+      IPV6_CHECKSUM        = 26;
+    {$ENDIF}
+  Id_IPV6_ADD_MEMBERSHIP  = IPV6_ADD_MEMBERSHIP;
   Id_IPV6_DROP_MEMBERSHIP = IPV6_DROP_MEMBERSHIP;
-  Id_IPV6_PKTINFO = IPV6_PKTINFO;
-  Id_IPV6_HOPLIMIT = IPV6_HOPLIMIT;
-  Id_IP_MULTICAST_TTL = IP_MULTICAST_TTL; // TODO integrate into IdStackConsts
-  Id_IP_MULTICAST_LOOP = IP_MULTICAST_LOOP; // TODO integrate into IdStackConsts
-  Id_IP_ADD_MEMBERSHIP = IP_ADD_MEMBERSHIP; // TODO integrate into IdStackConsts
-  Id_IP_DROP_MEMBERSHIP = IP_DROP_MEMBERSHIP; // TODO integrate into IdStackConsts
-  Id_IP_HDR_INCLUDED = IP_HDRINCL; // TODO integrate into IdStackConsts
+  Id_IPV6_PKTINFO         = IPV6_PKTINFO;
+  Id_IPV6_HOPLIMIT        = IPV6_HOPLIMIT;
+  Id_IP_MULTICAST_TTL     = IP_MULTICAST_TTL; // TODO integrate into IdStackConsts
+  Id_IP_MULTICAST_LOOP    = IP_MULTICAST_LOOP; // TODO integrate into IdStackConsts
+  Id_IP_ADD_MEMBERSHIP    = IP_ADD_MEMBERSHIP; // TODO integrate into IdStackConsts
+  Id_IP_DROP_MEMBERSHIP   = IP_DROP_MEMBERSHIP; // TODO integrate into IdStackConsts
+  Id_IP_HDR_INCLUDED      = IP_HDRINCL; // TODO integrate into IdStackConsts
   {$ENDIF}
-  {$ifdef win32_or_win64_or_winCE}
-  Id_IPV6_HDRINCL = IPV6_HDRINCL;
-  Id_IPV6_UNICAST_HOPS = IPV6_UNICAST_HOPS;
-  Id_IPV6_MULTICAST_IF = IPV6_MULTICAST_IF;
-  Id_IPV6_MULTICAST_HOPS = IPV6_MULTICAST_HOPS;
-  Id_IPV6_MULTICAST_LOOP = IPV6_MULTICAST_LOOP;
-  Id_IPV6_ADD_MEMBERSHIP = IPV6_ADD_MEMBERSHIP;
+
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  Id_IPV6_HDRINCL         = IPV6_HDRINCL;
+  Id_IPV6_UNICAST_HOPS    = IPV6_UNICAST_HOPS;
+  Id_IPV6_MULTICAST_IF    = IPV6_MULTICAST_IF;
+  Id_IPV6_MULTICAST_HOPS  = IPV6_MULTICAST_HOPS;
+  Id_IPV6_MULTICAST_LOOP  = IPV6_MULTICAST_LOOP;
+  Id_IPV6_ADD_MEMBERSHIP  = IPV6_ADD_MEMBERSHIP;
   Id_IPV6_DROP_MEMBERSHIP = IPV6_DROP_MEMBERSHIP;
-  Id_IPV6_PKTINFO = IPV6_PKTINFO;
-  Id_IPV6_HOPLIMIT =  IPV6_HOPLIMIT;
-  Id_IP_MULTICAST_TTL = 10; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
-  Id_IP_MULTICAST_LOOP = 11; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
-  Id_IP_ADD_MEMBERSHIP = 12; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
-  Id_IP_DROP_MEMBERSHIP = 13; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
-  Id_IP_HDR_INCLUDED = 2; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
+  Id_IPV6_PKTINFO         = IPV6_PKTINFO;
+  Id_IPV6_HOPLIMIT        = IPV6_HOPLIMIT;
+  Id_IP_MULTICAST_TTL     = 10; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
+  Id_IP_MULTICAST_LOOP    = 11; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
+  Id_IP_ADD_MEMBERSHIP    = 12; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
+  Id_IP_DROP_MEMBERSHIP   = 13; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
+  Id_IP_HDR_INCLUDED      = 2; // TODO integrate into IdStackConsts FIX ERROR in IdWinsock
   {$ENDIF}
 
 (*
@@ -215,20 +213,22 @@ const
   {$IFNDEF DOTNET}
   Id_PF_INET4 = PF_INET;
   Id_PF_INET6 = PF_INET6;
-  {$else}
+  {$ELSE}
   Id_PF_INET4 = ProtocolFamily.InterNetwork;
   Id_PF_INET6 = ProtocolFamily.InterNetworkV6;
-  {$endif}
-  {$IFDEF UseBaseUnix}
-    // These constants are actually WinSock specific, not std TCP/IP
-    // FPC doesn't emulate WinSock.
-    INVALID_SOCKET = -1;
-    SOCKET_ERROR   = -1;
   {$ENDIF}
 
-  // Socket Type
+  {$IFDEF USEBASEUNIX}
+  // These constants are actually WinSock specific, not std TCP/IP
+  // FPC doesn't emulate WinSock.
+  INVALID_SOCKET = -1;
+  SOCKET_ERROR   = -1;
+  {$ENDIF}
+
 type
-  TIdSocketType = {$IFDEF DotNet} SocketType; {$ELSE} TSocket; {$ENDIF}
+  // Socket Type
+  TIdSocketType = {$IFDEF DOTNET}SocketType{$ELSE}TSocket{$ENDIF};
+
 const
   {$IFNDEF DOTNET}
   Id_SOCK_STREAM     = SOCK_STREAM;      //1               /* stream socket */
@@ -244,66 +244,65 @@ const
   Id_SOCK_SEQPACKET  = SocketType.Seqpacket;      // /* sequenced packet stream */
   {$ENDIF}
 
-  // IP Protocol type
 type
-  TIdSocketProtocol     = {$IFDEF DotNet} ProtocolType; {$ELSE} Integer; {$ENDIF}
-  TIdSocketOption       = {$IFDEF DotNet} SocketOptionName; {$ELSE} Integer; {$ENDIF}
-  TIdSocketOptionLevel  = {$IFDEF DotNet} SocketOptionLevel; {$ELSE} Integer; {$ENDIF}
+  // IP Protocol type
+  TIdSocketProtocol     = {$IFDEF DOTNET}ProtocolType{$ELSE}Integer{$ENDIF};
+  TIdSocketOption       = {$IFDEF DOTNET}SocketOptionName{$ELSE}Integer{$ENDIF};
+  TIdSocketOptionLevel  = {$IFDEF DOTNET}SocketOptionLevel{$ELSE}Integer{$ENDIF};
   
 const
-  {$ifndef DOTNET}
-    {$ifdef os2}
-  Id_IPPROTO_GGP =  IPPROTO_GGP; //OS/2 does something strange and we might wind up
+  {$IFNDEF DOTNET}
+    {$IFDEF OS2}
+  Id_IPPROTO_GGP    = IPPROTO_GGP; //OS/2 does something strange and we might wind up
   //supporting it later for all we know.
-    {$else}
-  Id_IPPROTO_GGP = 3;// IPPROTO_GGP; may not be defined in some headers in FPC
-    {$endif}
-  Id_IPPROTO_ICMP = IPPROTO_ICMP;
+    {$ELSE}
+  Id_IPPROTO_GGP    = 3;// IPPROTO_GGP; may not be defined in some headers in FPC
+    {$ENDIF}
+  Id_IPPROTO_ICMP   = IPPROTO_ICMP;
   Id_IPPROTO_ICMPV6 = IPPROTO_ICMPV6;
-  Id_IPPROTO_IDP = IPPROTO_IDP;
-  Id_IPPROTO_IGMP = IPPROTO_IGMP;
-  Id_IPPROTO_IP = IPPROTO_IP;
-  Id_IPPROTO_IPv6 = IPPROTO_IPV6;
-  Id_IPPROTO_ND = 77; //IPPROTO_ND; is not defined in some headers in FPC
-  Id_IPPROTO_PUP = IPPROTO_PUP;
-  Id_IPPROTO_RAW = IPPROTO_RAW;
-  Id_IPPROTO_TCP = IPPROTO_TCP;
-  Id_IPPROTO_UDP = IPPROTO_UDP;
-  Id_IPPROTO_MAX = IPPROTO_MAX;
+  Id_IPPROTO_IDP    = IPPROTO_IDP;
+  Id_IPPROTO_IGMP   = IPPROTO_IGMP;
+  Id_IPPROTO_IP     = IPPROTO_IP;
+  Id_IPPROTO_IPv6   = IPPROTO_IPV6;
+  Id_IPPROTO_ND     = 77; //IPPROTO_ND; is not defined in some headers in FPC
+  Id_IPPROTO_PUP    = IPPROTO_PUP;
+  Id_IPPROTO_RAW    = IPPROTO_RAW;
+  Id_IPPROTO_TCP    = IPPROTO_TCP;
+  Id_IPPROTO_UDP    = IPPROTO_UDP;
+  Id_IPPROTO_MAX    = IPPROTO_MAX;
   {$ELSE}
-  Id_IPPROTO_GGP = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
-  Id_IPPROTO_ICMP = ProtocolType.Icmp; //Internet Control Message Protocol.
-  Id_IPPROTO_IDP =  ProtocolType.Idp;   //IDP Protocol.
-  Id_IPPROTO_IGMP = ProtocolType.Igmp; //Internet Group Management Protocol.
-  Id_IPPROTO_IP = ProtocolType.IP;     //Internet Protocol.
-  Id_IPPROTO_IPv6 = ProtocolType.IPv6;
-  Id_IPPROTO_IPX =  ProtocolType.Ipx; //IPX Protocol.
-  Id_IPPROTO_ND  = ProtocolType.ND;  //Net Disk Protocol (unofficial).
-  Id_IPPROTO_PUP = ProtocolType.Pup; //PUP Protocol.
-  Id_IPPROTO_RAW = ProtocolType.Raw;  //Raw UP packet protocol.
-  Id_IPPROTO_SPX = ProtocolType.Spx;  //SPX Protocol.
-  Id_IPPROTO_SPXII = ProtocolType.SpxII; //SPX Version 2 Protocol.
-  Id_IPPROTO_TCP = ProtocolType.Tcp;  //Transmission Control Protocol.
-  Id_IPPROTO_UDP = ProtocolType.Udp;  //User Datagram Protocol.
-  Id_IPPROTO_UNKNOWN = ProtocolType.Unknown; //Unknown protocol.
+  Id_IPPROTO_GGP         = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
+  Id_IPPROTO_ICMP        = ProtocolType.Icmp; //Internet Control Message Protocol.
+  Id_IPPROTO_IDP         = ProtocolType.Idp;   //IDP Protocol.
+  Id_IPPROTO_IGMP        = ProtocolType.Igmp; //Internet Group Management Protocol.
+  Id_IPPROTO_IP          = ProtocolType.IP;     //Internet Protocol.
+  Id_IPPROTO_IPv6        = ProtocolType.IPv6;
+  Id_IPPROTO_IPX         = ProtocolType.Ipx; //IPX Protocol.
+  Id_IPPROTO_ND          = ProtocolType.ND;  //Net Disk Protocol (unofficial).
+  Id_IPPROTO_PUP         = ProtocolType.Pup; //PUP Protocol.
+  Id_IPPROTO_RAW         = ProtocolType.Raw;  //Raw UP packet protocol.
+  Id_IPPROTO_SPX         = ProtocolType.Spx;  //SPX Protocol.
+  Id_IPPROTO_SPXII       = ProtocolType.SpxII; //SPX Version 2 Protocol.
+  Id_IPPROTO_TCP         = ProtocolType.Tcp;  //Transmission Control Protocol.
+  Id_IPPROTO_UDP         = ProtocolType.Udp;  //User Datagram Protocol.
+  Id_IPPROTO_UNKNOWN     = ProtocolType.Unknown; //Unknown protocol.
   Id_IPPROTO_UNSPECIFIED = ProtocolType.Unspecified; //unspecified protocol.
-
 //  Id_IPPROTO_MAX = ProtocolType.; ?????????????????????
   {$ENDIF}
 
   // Socket Option level
   {$IFNDEF DOTNET}
   Id_SOL_SOCKET = SOL_SOCKET;
-  Id_SOL_IP  = IPPROTO_IP;
-  Id_SOL_IPv6 = IPPROTO_IPV6;
-  Id_SOL_TCP  = IPPROTO_TCP;
-  Id_SOL_UDP  = IPPROTO_UDP;
+  Id_SOL_IP     = IPPROTO_IP;
+  Id_SOL_IPv6   = IPPROTO_IPV6;
+  Id_SOL_TCP    = IPPROTO_TCP;
+  Id_SOL_UDP    = IPPROTO_UDP;
   {$ELSE}
   Id_SOL_SOCKET = SocketOptionLevel.Socket;
-  Id_SOL_IP = SocketOptionLevel.Ip;
-  Id_SOL_IPv6 = SocketOptionLevel.IPv6;
-  Id_SOL_TCP = SocketOptionLevel.Tcp;
-  Id_SOL_UDP = SocketOptionLevel.Udp;
+  Id_SOL_IP     = SocketOptionLevel.Ip;
+  Id_SOL_IPv6   = SocketOptionLevel.IPv6;
+  Id_SOL_TCP    = SocketOptionLevel.Tcp;
+  Id_SOL_UDP    = SocketOptionLevel.Udp;
   {$ENDIF}
 
   // Socket options
@@ -381,296 +380,289 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_SO_IP_TTL              = SocketOptionName.IpTimeToLive; //  Set the IP header time-to-live field.
   {$ENDIF}
 
-  //
   {$IFNDEF DOTNET}
-  Id_INADDR_ANY = INADDR_ANY;
+  Id_INADDR_ANY  = INADDR_ANY;
   Id_INADDR_NONE = INADDR_NONE;
   {$ENDIF}
 
   // TCP Options
   {$IFNDEF DOTNET}
-  Id_TCP_NODELAY = TCP_NODELAY;
-  Id_INVALID_SOCKET = INVALID_SOCKET;
-  Id_SOCKET_ERROR = SOCKET_ERROR;
+  Id_TCP_NODELAY           = TCP_NODELAY;
+  Id_INVALID_SOCKET        = INVALID_SOCKET;
+  Id_SOCKET_ERROR          = SOCKET_ERROR;
   Id_SOCKETOPTIONLEVEL_TCP = Id_IPPROTO_TCP; // BGO: rename to Id_SOL_TCP
   {$ELSE}
-  Id_TCP_NODELAY = SocketOptionName.NoDelay;
-  Id_INVALID_SOCKET = nil;
+  Id_TCP_NODELAY           = SocketOptionName.NoDelay;
+  Id_INVALID_SOCKET        = nil;
   // RLebeau: Id_SOCKET_ERROR = ?;
   Id_SOCKETOPTIONLEVEL_TCP = SocketOptionLevel.TCP; // BGO: rename to Id_SOL_TCP
   {$ENDIF}
-  //
-  {$IFDEF UseLibC}
+
+  {$IFDEF USELIBC}
   // Shutdown Options
   Id_SD_Recv = SHUT_RD;
   Id_SD_Send = SHUT_WR;
   Id_SD_Both = SHUT_RDWR;
   //
-  Id_WSAEINTR = EINTR;
-  Id_WSAEBADF = EBADF;
-  Id_WSAEACCES = EACCES;
-  Id_WSAEFAULT = EFAULT;
-  Id_WSAEINVAL = EINVAL;
-  Id_WSAEMFILE = EMFILE;
-  Id_WSAEWOULDBLOCK = EWOULDBLOCK;
-  Id_WSAEINPROGRESS = EINPROGRESS;
-  Id_WSAEALREADY = EALREADY;
-  Id_WSAENOTSOCK = ENOTSOCK;
-  Id_WSAEDESTADDRREQ = EDESTADDRREQ;
-  Id_WSAEMSGSIZE = EMSGSIZE;
-  Id_WSAEPROTOTYPE = EPROTOTYPE;
-  Id_WSAENOPROTOOPT = ENOPROTOOPT;
+  Id_WSAEINTR           = EINTR;
+  Id_WSAEBADF           = EBADF;
+  Id_WSAEACCES          = EACCES;
+  Id_WSAEFAULT          = EFAULT;
+  Id_WSAEINVAL          = EINVAL;
+  Id_WSAEMFILE          = EMFILE;
+  Id_WSAEWOULDBLOCK     = EWOULDBLOCK;
+  Id_WSAEINPROGRESS     = EINPROGRESS;
+  Id_WSAEALREADY        = EALREADY;
+  Id_WSAENOTSOCK        = ENOTSOCK;
+  Id_WSAEDESTADDRREQ    = EDESTADDRREQ;
+  Id_WSAEMSGSIZE        = EMSGSIZE;
+  Id_WSAEPROTOTYPE      = EPROTOTYPE;
+  Id_WSAENOPROTOOPT     = ENOPROTOOPT;
   Id_WSAEPROTONOSUPPORT = EPROTONOSUPPORT;
   Id_WSAESOCKTNOSUPPORT = ESOCKTNOSUPPORT;
+  Id_WSAEOPNOTSUPP      = EOPNOTSUPP;
+  Id_WSAEPFNOSUPPORT    = EPFNOSUPPORT;
+  Id_WSAEAFNOSUPPORT    = EAFNOSUPPORT;
+  Id_WSAEADDRINUSE      = EADDRINUSE;
+  Id_WSAEADDRNOTAVAIL   = EADDRNOTAVAIL;
+  Id_WSAENETDOWN        = ENETDOWN;
+  Id_WSAENETUNREACH     = ENETUNREACH;
+  Id_WSAENETRESET       = ENETRESET;
+  Id_WSAECONNABORTED    = ECONNABORTED;
+  Id_WSAECONNRESET      = ECONNRESET;
+  Id_WSAENOBUFS         = ENOBUFS;
+  Id_WSAEISCONN         = EISCONN;
+  Id_WSAENOTCONN        = ENOTCONN;
+  Id_WSAESHUTDOWN       = ESHUTDOWN;
+  Id_WSAETOOMANYREFS    = ETOOMANYREFS;
+  Id_WSAETIMEDOUT       = ETIMEDOUT;
+  Id_WSAECONNREFUSED    = ECONNREFUSED;
+  Id_WSAELOOP           = ELOOP;
+  Id_WSAENAMETOOLONG    = ENAMETOOLONG;
+  Id_WSAEHOSTDOWN       = EHOSTDOWN;
+  Id_WSAEHOSTUNREACH    = EHOSTUNREACH;
+  Id_WSAENOTEMPTY       = ENOTEMPTY;
+  {$ENDIF}
 
-  Id_WSAEOPNOTSUPP = EOPNOTSUPP;
-  Id_WSAEPFNOSUPPORT = EPFNOSUPPORT;
-  Id_WSAEAFNOSUPPORT = EAFNOSUPPORT;
-  Id_WSAEADDRINUSE = EADDRINUSE;
-  Id_WSAEADDRNOTAVAIL = EADDRNOTAVAIL;
-  Id_WSAENETDOWN = ENETDOWN;
-  Id_WSAENETUNREACH = ENETUNREACH;
-  Id_WSAENETRESET = ENETRESET;
-  Id_WSAECONNABORTED = ECONNABORTED;
-  Id_WSAECONNRESET = ECONNRESET;
-  Id_WSAENOBUFS = ENOBUFS;
-  Id_WSAEISCONN = EISCONN;
-  Id_WSAENOTCONN = ENOTCONN;
-  Id_WSAESHUTDOWN = ESHUTDOWN;
-  Id_WSAETOOMANYREFS = ETOOMANYREFS;
-  Id_WSAETIMEDOUT = ETIMEDOUT;
-  Id_WSAECONNREFUSED = ECONNREFUSED;
-  Id_WSAELOOP = ELOOP;
-  Id_WSAENAMETOOLONG = ENAMETOOLONG;
-  Id_WSAEHOSTDOWN = EHOSTDOWN;
-  Id_WSAEHOSTUNREACH = EHOSTUNREACH;
-  Id_WSAENOTEMPTY = ENOTEMPTY;
-  {$endif}
-  {$IFDEF UseBaseUnix}
+  {$IFDEF USEBASEUNIX}
   // Shutdown Options
   Id_SD_Recv = SHUT_RD;
   Id_SD_Send = SHUT_WR;
   Id_SD_Both = SHUT_RDWR;
   //
-  Id_WSAEINTR = ESysEINTR;
-  Id_WSAEBADF = ESysEBADF;
-  Id_WSAEACCES = ESysEACCES;
-  Id_WSAEFAULT = ESysEFAULT;
-  Id_WSAEINVAL = ESysEINVAL;
-  Id_WSAEMFILE = ESysEMFILE;
-  Id_WSAEWOULDBLOCK = ESysEWOULDBLOCK;
-  Id_WSAEINPROGRESS = ESysEINPROGRESS;
-  Id_WSAEALREADY = ESysEALREADY;
-  Id_WSAENOTSOCK = ESysENOTSOCK;
-  Id_WSAEDESTADDRREQ = ESysEDESTADDRREQ;
-  Id_WSAEMSGSIZE = ESysEMSGSIZE;
-  Id_WSAEPROTOTYPE = ESysEPROTOTYPE;
-  Id_WSAENOPROTOOPT = ESysENOPROTOOPT;
+  Id_WSAEINTR           = ESysEINTR;
+  Id_WSAEBADF           = ESysEBADF;
+  Id_WSAEACCES          = ESysEACCES;
+  Id_WSAEFAULT          = ESysEFAULT;
+  Id_WSAEINVAL          = ESysEINVAL;
+  Id_WSAEMFILE          = ESysEMFILE;
+  Id_WSAEWOULDBLOCK     = ESysEWOULDBLOCK;
+  Id_WSAEINPROGRESS     = ESysEINPROGRESS;
+  Id_WSAEALREADY        = ESysEALREADY;
+  Id_WSAENOTSOCK        = ESysENOTSOCK;
+  Id_WSAEDESTADDRREQ    = ESysEDESTADDRREQ;
+  Id_WSAEMSGSIZE        = ESysEMSGSIZE;
+  Id_WSAEPROTOTYPE      = ESysEPROTOTYPE;
+  Id_WSAENOPROTOOPT     = ESysENOPROTOOPT;
   Id_WSAEPROTONOSUPPORT = ESysEPROTONOSUPPORT;
   Id_WSAESOCKTNOSUPPORT = ESysESOCKTNOSUPPORT;
+  Id_WSAEOPNOTSUPP      = ESysEOPNOTSUPP;
+  Id_WSAEPFNOSUPPORT    = ESysEPFNOSUPPORT;
+  Id_WSAEAFNOSUPPORT    = ESysEAFNOSUPPORT;
+  Id_WSAEADDRINUSE      = ESysEADDRINUSE;
+  Id_WSAEADDRNOTAVAIL   = ESysEADDRNOTAVAIL;
+  Id_WSAENETDOWN        = ESysENETDOWN;
+  Id_WSAENETUNREACH     = ESysENETUNREACH;
+  Id_WSAENETRESET       = ESysENETRESET;
+  Id_WSAECONNABORTED    = ESysECONNABORTED;
+  Id_WSAECONNRESET      = ESysECONNRESET;
+  Id_WSAENOBUFS         = ESysENOBUFS;
+  Id_WSAEISCONN         = ESysEISCONN;
+  Id_WSAENOTCONN        = ESysENOTCONN;
+  Id_WSAESHUTDOWN       = ESysESHUTDOWN;
+  Id_WSAETOOMANYREFS    = ESysETOOMANYREFS;
+  Id_WSAETIMEDOUT       = ESysETIMEDOUT;
+  Id_WSAECONNREFUSED    = ESysECONNREFUSED;
+  Id_WSAELOOP           = ESysELOOP;
+  Id_WSAENAMETOOLONG    = ESysENAMETOOLONG;
+  Id_WSAEHOSTDOWN       = ESysEHOSTDOWN;
+  Id_WSAEHOSTUNREACH    = ESysEHOSTUNREACH;
+  Id_WSAENOTEMPTY       = ESysENOTEMPTY;
+  {$ENDIF}
 
-  Id_WSAEOPNOTSUPP = ESysEOPNOTSUPP;
-  Id_WSAEPFNOSUPPORT = ESysEPFNOSUPPORT;
-  Id_WSAEAFNOSUPPORT = ESysEAFNOSUPPORT;
-  Id_WSAEADDRINUSE = ESysEADDRINUSE;
-  Id_WSAEADDRNOTAVAIL = ESysEADDRNOTAVAIL;
-  Id_WSAENETDOWN = ESysENETDOWN;
-  Id_WSAENETUNREACH = ESysENETUNREACH;
-  Id_WSAENETRESET = ESysENETRESET;
-  Id_WSAECONNABORTED = ESysECONNABORTED;
-  Id_WSAECONNRESET = ESysECONNRESET;
-  Id_WSAENOBUFS = ESysENOBUFS;
-  Id_WSAEISCONN = ESysEISCONN;
-  Id_WSAENOTCONN = ESysENOTCONN;
-  Id_WSAESHUTDOWN = ESysESHUTDOWN;
-  Id_WSAETOOMANYREFS = ESysETOOMANYREFS;
-  Id_WSAETIMEDOUT = ESysETIMEDOUT;
-  Id_WSAECONNREFUSED = ESysECONNREFUSED;
-  Id_WSAELOOP = ESysELOOP;
-  Id_WSAENAMETOOLONG = ESysENAMETOOLONG;
-  Id_WSAEHOSTDOWN = ESysEHOSTDOWN;
-  Id_WSAEHOSTUNREACH = ESysEHOSTUNREACH;
-  Id_WSAENOTEMPTY = ESysENOTEMPTY;
-  {$endif}
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   // Shutdown Options
   Id_SD_Recv = 0;
   Id_SD_Send = 1;
   Id_SD_Both = 2;
   //
-  Id_WSAEINTR = WSAEINTR;
-  Id_WSAEBADF = WSAEBADF;
-  Id_WSAEACCES = WSAEACCES;
-  Id_WSAEFAULT = WSAEFAULT;
-  Id_WSAEINVAL = WSAEINVAL;
-  Id_WSAEMFILE = WSAEMFILE;
-  Id_WSAEWOULDBLOCK = WSAEWOULDBLOCK;
-  Id_WSAEINPROGRESS = WSAEINPROGRESS;
-  Id_WSAEALREADY = WSAEALREADY;
-  Id_WSAENOTSOCK = WSAENOTSOCK;
-  Id_WSAEDESTADDRREQ = WSAEDESTADDRREQ;
-  Id_WSAEMSGSIZE = WSAEMSGSIZE;
-  Id_WSAEPROTOTYPE = WSAEPROTOTYPE;
-  Id_WSAENOPROTOOPT = WSAENOPROTOOPT;
+  Id_WSAEINTR           = WSAEINTR;
+  Id_WSAEBADF           = WSAEBADF;
+  Id_WSAEACCES          = WSAEACCES;
+  Id_WSAEFAULT          = WSAEFAULT;
+  Id_WSAEINVAL          = WSAEINVAL;
+  Id_WSAEMFILE          = WSAEMFILE;
+  Id_WSAEWOULDBLOCK     = WSAEWOULDBLOCK;
+  Id_WSAEINPROGRESS     = WSAEINPROGRESS;
+  Id_WSAEALREADY        = WSAEALREADY;
+  Id_WSAENOTSOCK        = WSAENOTSOCK;
+  Id_WSAEDESTADDRREQ    = WSAEDESTADDRREQ;
+  Id_WSAEMSGSIZE        = WSAEMSGSIZE;
+  Id_WSAEPROTOTYPE      = WSAEPROTOTYPE;
+  Id_WSAENOPROTOOPT     = WSAENOPROTOOPT;
   Id_WSAEPROTONOSUPPORT = WSAEPROTONOSUPPORT;
   Id_WSAESOCKTNOSUPPORT = WSAESOCKTNOSUPPORT;
-
-  Id_WSAEOPNOTSUPP = WSAEOPNOTSUPP;
-  Id_WSAEPFNOSUPPORT = WSAEPFNOSUPPORT;
-  Id_WSAEAFNOSUPPORT = WSAEAFNOSUPPORT;
-  Id_WSAEADDRINUSE = WSAEADDRINUSE;
-  Id_WSAEADDRNOTAVAIL = WSAEADDRNOTAVAIL;
-  Id_WSAENETDOWN = WSAENETDOWN;
-  Id_WSAENETUNREACH = WSAENETUNREACH;
-  Id_WSAENETRESET = WSAENETRESET;
-  Id_WSAECONNABORTED = WSAECONNABORTED;
-  Id_WSAECONNRESET = WSAECONNRESET;
-  Id_WSAENOBUFS = WSAENOBUFS;
-  Id_WSAEISCONN = WSAEISCONN;
-  Id_WSAENOTCONN = WSAENOTCONN;
-  Id_WSAESHUTDOWN = WSAESHUTDOWN;
-  Id_WSAETOOMANYREFS = WSAETOOMANYREFS;
-  Id_WSAETIMEDOUT = WSAETIMEDOUT;
-  Id_WSAECONNREFUSED = WSAECONNREFUSED;
-  Id_WSAELOOP = WSAELOOP;
-  Id_WSAENAMETOOLONG = WSAENAMETOOLONG;
-  Id_WSAEHOSTDOWN = WSAEHOSTDOWN;
-  Id_WSAEHOSTUNREACH = WSAEHOSTUNREACH;
-  Id_WSAENOTEMPTY = WSAENOTEMPTY;
+  Id_WSAEOPNOTSUPP      = WSAEOPNOTSUPP;
+  Id_WSAEPFNOSUPPORT    = WSAEPFNOSUPPORT;
+  Id_WSAEAFNOSUPPORT    = WSAEAFNOSUPPORT;
+  Id_WSAEADDRINUSE      = WSAEADDRINUSE;
+  Id_WSAEADDRNOTAVAIL   = WSAEADDRNOTAVAIL;
+  Id_WSAENETDOWN        = WSAENETDOWN;
+  Id_WSAENETUNREACH     = WSAENETUNREACH;
+  Id_WSAENETRESET       = WSAENETRESET;
+  Id_WSAECONNABORTED    = WSAECONNABORTED;
+  Id_WSAECONNRESET      = WSAECONNRESET;
+  Id_WSAENOBUFS         = WSAENOBUFS;
+  Id_WSAEISCONN         = WSAEISCONN;
+  Id_WSAENOTCONN        = WSAENOTCONN;
+  Id_WSAESHUTDOWN       = WSAESHUTDOWN;
+  Id_WSAETOOMANYREFS    = WSAETOOMANYREFS;
+  Id_WSAETIMEDOUT       = WSAETIMEDOUT;
+  Id_WSAECONNREFUSED    = WSAECONNREFUSED;
+  Id_WSAELOOP           = WSAELOOP;
+  Id_WSAENAMETOOLONG    = WSAENAMETOOLONG;
+  Id_WSAEHOSTDOWN       = WSAEHOSTDOWN;
+  Id_WSAEHOSTUNREACH    = WSAEHOSTUNREACH;
+  Id_WSAENOTEMPTY       = WSAENOTEMPTY;
   {$ENDIF}
-  {$ifdef DOTNET}
-//In DotNET, the constants are the same as in Winsock2.
 
-//Ripped from IdWinsock2 - don't use that in DotNET.
+  {$IFDEF DOTNET}
+  //In DotNET, the constants are the same as in Winsock2.
 
-  wsabaseerr              = 10000;
+  //Ripped from IdWinsock2 - don't use that in DotNET.
 
-// Windows Sockets definitions of regular Microsoft C error constants
+  WSABASEERR              = 10000;
 
-  wsaeintr                = wsabaseerr+  4;
-  wsaebadf                = wsabaseerr+  9;
-  wsaeacces               = wsabaseerr+ 13;
-  wsaefault               = wsabaseerr+ 14;
-  wsaeinval               = wsabaseerr+ 22;
-  wsaemfile               = wsabaseerr+ 24;
+  // Windows Sockets definitions of regular Microsoft C error constants
+  WSAEINTR                = WSABASEERR + 4;
+  WSAEBADF                = WSABASEERR + 9;
+  WSAEACCESS              = WSABASEERR + 13;
+  WSAEFAULT               = WSABASEERR + 14;
+  WSAEINVAL               = WSABASEERR + 22;
+  WSAEMFILE               = WSABASEERR + 24;
 
-// Windows Sockets definitions of regular Berkeley error constants
+  // Windows Sockets definitions of regular Berkeley error constants
+  WSAEWOULDBLOCK          = WSABASEERR + 35;
+  WSAEINPROGRESS          = WSABASEERR + 36;
+  WSAEALREADY             = WSABASEERR + 37;
+  WSAENOTSOCK             = WSABASEERR + 38;
+  WSAEDESTADDRREQ         = WSABASEERR + 39;
+  WSAEMSGSIZE             = WSABASEERR + 40;
+  WSAEPROTOTYPE           = WSABASEERR + 41;
+  WSAENOPROTOOPT          = WSABASEERR + 42;
+  WSAEPROTONOSUPPORT      = WSABASEERR + 43;
+  WSAESOCKTNOSUPPORT      = WSABASEERR + 44;
+  WSAEOPNOTSUPP           = WSABASEERR + 45;
+  WSAEPFNOSUPPORT         = WSABASEERR + 46;
+  WSAEAFNOSUPPORT         = WSABASEERR + 47;
+  WSAEADDRINUSE           = WSABASEERR + 48;
+  WSAEADDRNOTAVAIL        = WSABASEERR + 49;
+  WSAENETDOWN             = WSABASEERR + 50;
+  WSAENETUNREACH          = WSABASEERR + 51;
+  WSAENETRESET            = WSABASEERR + 52;
+  WSAECONNABORTED         = WSABASEERR + 53;
+  WSAECONNRESET           = WSABASEERR + 54;
+  WSAENOBUFS              = WSABASEERR + 55;
+  WSAEISCONN              = WSABASEERR + 56;
+  WSAENOTCONN             = WSABASEERR + 57;
+  WSAESHUTDOWN            = WSABASEERR + 58;
+  WSAETOOMANYREFS         = WSABASEERR + 59;
+  WSAETIMEDOUT            = WSABASEERR + 60;
+  WSAECONNREFUSED         = WSABASEERR + 61;
+  WSAELOOP                = WSABASEERR + 62;
+  WSAENAMETOOLONG         = WSABASEERR + 63;
+  WSAEHOSTDOWN            = WSABASEERR + 64;
+  WSAEHOSTUNREACH         = WSABASEERR + 65;
+  WSAENOTEMPTY            = WSABASEERR + 66;
+  WSAEPROCLIM             = WSABASEERR + 67;
+  WSAEUSERS               = WSABASEERR + 68;
+  WSAEDQUOT               = WSABASEERR + 69;
+  WSAESTALE               = WSABASEERR + 70;
+  WSAEREMOTE              = WSABASEERR + 71;
 
-  wsaewouldblock          = wsabaseerr+ 35;
-  wsaeinprogress          = wsabaseerr+ 36;
-  wsaealready             = wsabaseerr+ 37;
-  wsaenotsock             = wsabaseerr+ 38;
-  wsaedestaddrreq         = wsabaseerr+ 39;
-  wsaemsgsize             = wsabaseerr+ 40;
-  wsaeprototype           = wsabaseerr+ 41;
-  wsaenoprotoopt          = wsabaseerr+ 42;
-  wsaeprotonosupport      = wsabaseerr+ 43;
-  wsaesocktnosupport      = wsabaseerr+ 44;
-  wsaeopnotsupp           = wsabaseerr+ 45;
-  wsaepfnosupport         = wsabaseerr+ 46;
-  wsaeafnosupport         = wsabaseerr+ 47;
-  wsaeaddrinuse           = wsabaseerr+ 48;
-  wsaeaddrnotavail        = wsabaseerr+ 49;
-  wsaenetdown             = wsabaseerr+ 50;
-  wsaenetunreach          = wsabaseerr+ 51;
-  wsaenetreset            = wsabaseerr+ 52;
-  wsaeconnaborted         = wsabaseerr+ 53;
-  wsaeconnreset           = wsabaseerr+ 54;
-  wsaenobufs              = wsabaseerr+ 55;
-  wsaeisconn              = wsabaseerr+ 56;
-  wsaenotconn             = wsabaseerr+ 57;
-  wsaeshutdown            = wsabaseerr+ 58;
-  wsaetoomanyrefs         = wsabaseerr+ 59;
-  wsaetimedout            = wsabaseerr+ 60;
-  wsaeconnrefused         = wsabaseerr+ 61;
-  wsaeloop                = wsabaseerr+ 62;
-  wsaenametoolong         = wsabaseerr+ 63;
-  wsaehostdown            = wsabaseerr+ 64;
-  wsaehostunreach         = wsabaseerr+ 65;
-  wsaenotempty            = wsabaseerr+ 66;
-  wsaeproclim             = wsabaseerr+ 67;
-  wsaeusers               = wsabaseerr+ 68;
-  wsaedquot               = wsabaseerr+ 69;
-  wsaestale               = wsabaseerr+ 70;
-  wsaeremote              = wsabaseerr+ 71;
+  // Extended Windows Sockets error constant definitions
+  WSASYSNOTREADY          = WSABASEERR + 91;
+  WSAVERNOTSUPPORTED      = WSABASEERR + 92;
+  WSANOTINITIALIZED       = WSABASEERR + 93;
+  WSAEDISCON              = WSABASEERR + 101;
+  WSAENOMORE              = WSABASEERR + 102;
+  WSAECANCELLED           = WSABASEERR + 103;
+  WSAEINVALIDPROCTABLE    = WSABASEERR + 104;
+  WSAEINVALIDPROVIDER     = WSABASEERR + 105;
+  WSAEPROVIDERFAILEDINIT  = WSABASEERR + 106;
+  WSASYSCALLFAILURE       = WSABASEERR + 107;
+  WSASERVICE_NOT_FOUND    = WSABASEERR + 108;
+  WSATYPE_NOT_FOUND       = WSABASEERR + 109;
+  WSA_E_NO_MORE           = WSABASEERR + 110;
+  WSA_E_CANCELLED         = WSABASEERR + 111;
+  WSAEREFUSED             = WSABASEERR + 112;
 
-// Extended Windows Sockets error constant definitions
+  { Error return codes from gethostbyname() and gethostbyaddr()
+  when using the resolver. Note that these errors are retrieved
+  via WSAGetLastError() and must therefore follow the rules for
+  avoiding clashes with error numbers from specific implementations
+  or language run-time systems. For this reason the codes are based
+  at WSABASEERR+1001. Note also that [WSA]NO_ADDRESS is defined
+  only for compatibility purposes. }
 
-  wsasysnotready          = wsabaseerr+ 91;
-  wsavernotsupported      = wsabaseerr+ 92;
-  wsanotinitialised       = wsabaseerr+ 93;
-  wsaediscon              = wsabaseerr+101;
-  wsaenomore              = wsabaseerr+102;
-  wsaecancelled           = wsabaseerr+103;
-  wsaeinvalidproctable    = wsabaseerr+104;
-  wsaeinvalidprovider     = wsabaseerr+105;
-  wsaeproviderfailedinit  = wsabaseerr+106;
-  wsasyscallfailure       = wsabaseerr+107;
-  wsaservice_not_found    = wsabaseerr+108;
-  wsatype_not_found       = wsabaseerr+109;
-  wsa_e_no_more           = wsabaseerr+110;
-  wsa_e_cancelled         = wsabaseerr+111;
-  wsaerefused             = wsabaseerr+112;
+  // Authoritative Answer: Host not found
+  WSAHOST_NOT_FOUND        = WSABASEERR + 1001;
+  HOST_NOT_FOUND           = WSAHOST_NOT_FOUND;
 
+  // Non-Authoritative: Host not found, or SERVERFAIL
+  WSATRY_AGENT             = WSABASEERR + 1002;
+  TRY_AGAIN                = WSATRY_AGAIN;
 
-{ Error return codes from gethostbyname() and gethostbyaddr()
-  (when using the resolver). Note that these errors are
-  retrieved via WSAGetLastError() and must therefore follow
-  the rules for avoiding clashes with error numbers from
-  specific implementations or language run-time systems.
-  For this reason the codes are based at WSABASEERR+1001.
-  Note also that [WSA]NO_ADDRESS is defined only for
-  compatibility purposes. }
+  // Non recoverable errors, FORMERR, REFUSED, NOTIMP
+  WSANO_RECOVERY           = WSABASEERR + 1003;
+  NO_RECOVERY              = WSANO_RECOVERY;
 
-// Authoritative Answer: Host not found
-  wsahost_not_found        = wsabaseerr+1001;
-  host_not_found           = wsahost_not_found;
+  // Valid name, no data record of requested type
+  WSANO_DATA               = WSABASEERR + 1004;
+  NO_DATA                  = WSANO_DATA;
 
-// Non-Authoritative: Host not found, or SERVERFAIL
-  wsatry_again             = wsabaseerr+1002;
-  try_again                = wsatry_again;
+  // no address, look for MX record
+  WSANO_ADDRESS            = WSANO_DATA;
+  NO_ADDRESS               = WSANO_ADDRESS;
 
-// Non recoverable errors, FORMERR, REFUSED, NOTIMP
-  wsano_recovery           = wsabaseerr+1003;
-  no_recovery              = wsano_recovery;
-
-// Valid name, no data record of requested type
-  wsano_data               = wsabaseerr+1004;
-  no_data                  = wsano_data;
-
-// no address, look for MX record
-  wsano_address            = wsano_data;
-  no_address               = wsano_address;
-
-// Define QOS related error return codes
-
-  wsa_qos_receivers          = wsabaseerr+1005; // at least one reserve has arrived
-  wsa_qos_senders            = wsabaseerr+1006; // at least one path has arrived
-  wsa_qos_no_senders         = wsabaseerr+1007; // there are no senders
-  wsa_qos_no_receivers       = wsabaseerr+1008; // there are no receivers
-  wsa_qos_request_confirmed  = wsabaseerr+1009; // reserve has been confirmed
-  wsa_qos_admission_failure  = wsabaseerr+1010; // error due to lack of resources
-  wsa_qos_policy_failure     = wsabaseerr+1011; // rejected for administrative reasons - bad credentials
-  wsa_qos_bad_style          = wsabaseerr+1012; // unknown or conflicting style
-  wsa_qos_bad_object         = wsabaseerr+1013; // problem with some part of the filterspec or providerspecific buffer in general
-  wsa_qos_traffic_ctrl_error = wsabaseerr+1014; // problem with some part of the flowspec
-  wsa_qos_generic_error      = wsabaseerr+1015; // general error
-  wsa_qos_eservicetype       = wsabaseerr+1016; // invalid service type in flowspec
-  wsa_qos_eflowspec          = wsabaseerr+1017; // invalid flowspec
-  wsa_qos_eprovspecbuf       = wsabaseerr+1018; // invalid provider specific buffer
-  wsa_qos_efilterstyle       = wsabaseerr+1019; // invalid filter style
-  wsa_qos_efiltertype        = wsabaseerr+1020; // invalid filter type
-  wsa_qos_efiltercount       = wsabaseerr+1021; // incorrect number of filters
-  wsa_qos_eobjlength         = wsabaseerr+1022; // invalid object length
-  wsa_qos_eflowcount         = wsabaseerr+1023; // incorrect number of flows
-  wsa_qos_eunkownpsobj       = wsabaseerr+1024; // unknown object in provider specific buffer
-  wsa_qos_epolicyobj         = wsabaseerr+1025; // invalid policy object in provider specific buffer
-  wsa_qos_eflowdesc          = wsabaseerr+1026; // invalid flow descriptor in the list
-  wsa_qos_epsflowspec        = wsabaseerr+1027; // inconsistent flow spec in provider specific buffer
-  wsa_qos_epsfilterspec      = wsabaseerr+1028; // invalid filter spec in provider specific buffer
-  wsa_qos_esdmodeobj         = wsabaseerr+1029; // invalid shape discard mode object in provider specific buffer
-  wsa_qos_eshaperateobj      = wsabaseerr+1030; // invalid shaping rate object in provider specific buffer
-  wsa_qos_reserved_petype    = wsabaseerr+1031; // reserved policy element in provider specific buffer
+  // Define QOS related error return codes
+  WSA_QOS_RECEIVERS          = WSABASEERR + 1005; // at least one reserve has arrived
+  WSA_QOS_SENDERS            = WSABASEERR + 1006; // at least one path has arrived
+  WSA_QOS_NO_SENDERS         = WSABASEERR + 1007; // there are no senders
+  WSA_QOS_NO_RECEIVERS       = WSABASEERR + 1008; // there are no receivers
+  WSA_QOS_REQUEST_CONFIRMED  = WSABASEERR + 1009; // reserve has been confirmed
+  WSA_QOS_ADMISSION_FAILURE  = WSABASEERR + 1010; // error due to lack of resources
+  WSA_QOS_POLICY_FAILURE     = WSABASEERR + 1011; // rejected for administrative reasons - bad credentials
+  WSA_QOS_BAD_STYLE          = WSABASEERR + 1012; // unknown or conflicting style
+  WSA_QOS_BAD_OBJECT         = WSABASEERR + 1013; // problem with some part of the filterspec or providerspecific buffer in general
+  WSA_QOS_TRAFFIC_CTRL_ERROR = WSABASEERR + 1014; // problem with some part of the flowspec
+  WSA_QOS_GENERIC_ERROR      = WSABASEERR + 1015; // general error
+  WSA_QOS_ESERVICETYPE       = WSABASEERR + 1016; // invalid service type in flowspec
+  WSA_QOS_EFLOWSPEC          = WSABASEERR + 1017; // invalid flowspec
+  WSA_QOS_EPROVSPECBUF       = WSABASEERR + 1018; // invalid provider specific buffer
+  WSA_QOS_EFILTERSTYLE       = WSABASEERR + 1019; // invalid filter style
+  WSA_QOS_EFILTERTYPE        = WSABASEERR + 1020; // invalid filter type
+  WSA_QOS_EFILTERCOUNT       = WSABASEERR + 1021; // incorrect number of filters
+  WSA_QOS_EOBJLENGTH         = WSABASEERR + 1022; // invalid object length
+  WSA_QOS_EFLOWCOUNT         = WSABASEERR + 1023; // incorrect number of flows
+  WSA_QOS_EUNKNOWNSOBJ       = WSABASEERR + 1024; // unknown object in provider specific buffer
+  WSA_QOS_EPOLICYOBJ         = WSABASEERR + 1025; // invalid policy object in provider specific buffer
+  WSA_QOS_EFLOWDESC          = WSABASEERR + 1026; // invalid flow descriptor in the list
+  WSA_QOS_EPSFLOWSPEC        = WSABASEERR + 1027; // inconsistent flow spec in provider specific buffer
+  WSA_QOS_EPSFILTERSPEC      = WSABASEERR + 1028; // invalid filter spec in provider specific buffer
+  WSA_QOS_ESDMODEOBJ         = WSABASEERR + 1029; // invalid shape discard mode object in provider specific buffer
+  WSA_QOS_ESHAPERATEOBJ      = WSABASEERR + 1030; // invalid shaping rate object in provider specific buffer
+  WSA_QOS_RESERVED_PETYPE    = WSABASEERR + 1031; // reserved policy element in provider specific buffer
 
   {This section defines error constants used in Winsock 2 indirectly.  These
   are from Borland's header.}
@@ -693,57 +685,56 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   { Overlapped I/O operation is in progress. }
   ERROR_IO_PENDING = 997;   { dderror }
 
-{ WinSock 2 extension -- new error codes and type definition }
-  wsa_io_pending          = error_io_pending;
-  wsa_io_incomplete       = error_io_incomplete;
-  wsa_invalid_handle      = error_invalid_handle;
-  wsa_invalid_parameter   = error_invalid_parameter;
-  wsa_not_enough_memory   = error_not_enough_memory;
-  wsa_operation_aborted   = error_operation_aborted;
+  { WinSock 2 extension -- new error codes and type definition }
+  WSA_IO_PENDING          = ERROR_IO_PENDING;
+  WSA_IO_INCOMPLETE       = ERROR_IO_INCOMPLETE;
+  WSA_INVALID_HANDLE      = ERROR_INVALID_HANDLE;
+  WSA_INVALID_PARAMETER   = ERROR_INVALID_PARAMETER;
+  WSA_NOT_ENOUGH_MEMORY   = ERROR_NOT_ENOUGH_MEMORY;
+  WSA_OPERATION_ABORTED   = ERROR_OPERATION_ABORTED;
 
   //TODO: Map these to .net constants. Unfortunately .net does not seem to
   //define these anywhere.
 
-
-  Id_WSAEINTR = WSAEINTR;
-  Id_WSAEBADF = WSAEBADF;
-  Id_WSAEACCES = WSAEACCES;
-  Id_WSAEFAULT = WSAEFAULT;
-  Id_WSAEINVAL = WSAEINVAL;
-  Id_WSAEMFILE = WSAEMFILE;
-  Id_WSAEWOULDBLOCK = WSAEWOULDBLOCK;
-  Id_WSAEINPROGRESS = WSAEINPROGRESS;
-  Id_WSAEALREADY = WSAEALREADY;
-  Id_WSAENOTSOCK = WSAENOTSOCK;
-  Id_WSAEDESTADDRREQ = WSAEDESTADDRREQ;
-  Id_WSAEMSGSIZE = WSAEMSGSIZE;
-  Id_WSAEPROTOTYPE = WSAEPROTOTYPE;
-  Id_WSAENOPROTOOPT = WSAENOPROTOOPT;
+  Id_WSAEINTR           = WSAEINTR;
+  Id_WSAEBADF           = WSAEBADF;
+  Id_WSAEACCES          = WSAEACCES;
+  Id_WSAEFAULT          = WSAEFAULT;
+  Id_WSAEINVAL          = WSAEINVAL;
+  Id_WSAEMFILE          = WSAEMFILE;
+  Id_WSAEWOULDBLOCK     = WSAEWOULDBLOCK;
+  Id_WSAEINPROGRESS     = WSAEINPROGRESS;
+  Id_WSAEALREADY        = WSAEALREADY;
+  Id_WSAENOTSOCK        = WSAENOTSOCK;
+  Id_WSAEDESTADDRREQ    = WSAEDESTADDRREQ;
+  Id_WSAEMSGSIZE        = WSAEMSGSIZE;
+  Id_WSAEPROTOTYPE      = WSAEPROTOTYPE;
+  Id_WSAENOPROTOOPT     = WSAENOPROTOOPT;
   Id_WSAEPROTONOSUPPORT = WSAEPROTONOSUPPORT;
   Id_WSAESOCKTNOSUPPORT = WSAESOCKTNOSUPPORT;
+  Id_WSAEOPNOTSUPP      = WSAEOPNOTSUPP;
+  Id_WSAEPFNOSUPPORT    = WSAEPFNOSUPPORT;
+  Id_WSAEAFNOSUPPORT    = WSAEAFNOSUPPORT;
+  Id_WSAEADDRINUSE      = WSAEADDRINUSE;
+  Id_WSAEADDRNOTAVAIL   = WSAEADDRNOTAVAIL;
+  Id_WSAENETDOWN        = WSAENETDOWN;
+  Id_WSAENETUNREACH     = WSAENETUNREACH;
+  Id_WSAENETRESET       = WSAENETRESET;
+  Id_WSAECONNABORTED    = WSAECONNABORTED;
+  Id_WSAECONNRESET      = WSAECONNRESET;
+  Id_WSAENOBUFS         = WSAENOBUFS;
+  Id_WSAEISCONN         = WSAEISCONN;
+  Id_WSAENOTCONN        = WSAENOTCONN;
+  Id_WSAESHUTDOWN       = WSAESHUTDOWN;
+  Id_WSAETOOMANYREFS    = WSAETOOMANYREFS;
+  Id_WSAETIMEDOUT       = WSAETIMEDOUT;
+  Id_WSAECONNREFUSED    = WSAECONNREFUSED;
+  Id_WSAELOOP           = WSAELOOP;
+  Id_WSAENAMETOOLONG    = WSAENAMETOOLONG;
+  Id_WSAEHOSTDOWN       = WSAEHOSTDOWN;
+  Id_WSAEHOSTUNREACH    = WSAEHOSTUNREACH;
+  Id_WSAENOTEMPTY       = WSAENOTEMPTY;
 
-  Id_WSAEOPNOTSUPP = WSAEOPNOTSUPP;
-  Id_WSAEPFNOSUPPORT = WSAEPFNOSUPPORT;
-  Id_WSAEAFNOSUPPORT = WSAEAFNOSUPPORT;
-  Id_WSAEADDRINUSE = WSAEADDRINUSE;
-  Id_WSAEADDRNOTAVAIL = WSAEADDRNOTAVAIL;
-  Id_WSAENETDOWN = WSAENETDOWN;
-  Id_WSAENETUNREACH = WSAENETUNREACH;
-  Id_WSAENETRESET = WSAENETRESET;
-  Id_WSAECONNABORTED = WSAECONNABORTED;
-  Id_WSAECONNRESET = WSAECONNRESET;
-  Id_WSAENOBUFS = WSAENOBUFS;
-  Id_WSAEISCONN = WSAEISCONN;
-  Id_WSAENOTCONN = WSAENOTCONN;
-  Id_WSAESHUTDOWN = WSAESHUTDOWN;
-  Id_WSAETOOMANYREFS = WSAETOOMANYREFS;
-  Id_WSAETIMEDOUT = WSAETIMEDOUT;
-  Id_WSAECONNREFUSED = WSAECONNREFUSED;
-  Id_WSAELOOP = WSAELOOP;
-  Id_WSAENAMETOOLONG = WSAENAMETOOLONG;
-  Id_WSAEHOSTDOWN = WSAEHOSTDOWN;
-  Id_WSAEHOSTUNREACH = WSAEHOSTUNREACH;
-  Id_WSAENOTEMPTY = WSAENOTEMPTY;
   Id_SD_Recv = SocketShutdown.Receive;
   Id_SD_Send = SocketShutdown.Send;
   Id_SD_Both = SocketShutdown.Both;
