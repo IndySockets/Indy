@@ -546,7 +546,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   // Windows Sockets definitions of regular Microsoft C error constants
   WSAEINTR                = WSABASEERR + 4;
   WSAEBADF                = WSABASEERR + 9;
-  WSAEACCESS              = WSABASEERR + 13;
+  WSAEACCES               = WSABASEERR + 13;
   WSAEFAULT               = WSABASEERR + 14;
   WSAEINVAL               = WSABASEERR + 22;
   WSAEMFILE               = WSABASEERR + 24;
@@ -698,7 +698,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 
   Id_WSAEINTR           = WSAEINTR;
   Id_WSAEBADF           = WSAEBADF;
-  Id_WSAEACCES          = WSAEACCESS;
+  Id_WSAEACCES          = WSAEACCES;
   Id_WSAEFAULT          = WSAEFAULT;
   Id_WSAEINVAL          = WSAEINVAL;
   Id_WSAEMFILE          = WSAEMFILE;
