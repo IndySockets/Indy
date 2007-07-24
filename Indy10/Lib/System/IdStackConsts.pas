@@ -620,7 +620,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   HOST_NOT_FOUND           = WSAHOST_NOT_FOUND;
 
   // Non-Authoritative: Host not found, or SERVERFAIL
-  WSATRY_AGENT             = WSABASEERR + 1002;
+  WSATRY_AGAIN             = WSABASEERR + 1002;
   TRY_AGAIN                = WSATRY_AGAIN;
 
   // Non recoverable errors, FORMERR, REFUSED, NOTIMP
