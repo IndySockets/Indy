@@ -1,7 +1,9 @@
 unit IdAbout;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   {$IFDEF DOTNET}
   IdAboutDotNET;
@@ -9,23 +11,23 @@ uses
   IdAboutVCL;
   {$ENDIF}
 
-Procedure ShowAboutBox(const AProductName, AProductVersion : String);
-Procedure ShowDlg;
+procedure ShowAboutBox(const AProductName, AProductVersion : String);
+procedure ShowDlg;
 
 implementation
- {$IFDEF DOTNET}
- //for some reason, the Winforms designer doesn't like this in the same unit
- //as the class it's for
- {$R 'IdAboutDotNET.TfrmAbout.resources' 'IdAboutDotNET.resx'}
- {$ENDIF}
 
-Procedure ShowAboutBox(const AProductName, AProductVersion : String);
+{$IFDEF DOTNET}
+  //for some reason, the Winforms designer doesn't like this in the same unit
+  //as the class it's for
+  {$R 'IdAboutDotNET.TfrmAbout.resources' 'IdAboutDotNET.resx'}
+{$ENDIF}
+
+procedure ShowAboutBox(const AProductName, AProductVersion : String);
 begin
-                                     
   TfrmAbout.ShowAboutBox(AProductName, AProductVersion);
 end;
 
-Procedure ShowDlg;
+procedure ShowDlg;
 begin
   TfrmAbout.ShowDlg;
 end;

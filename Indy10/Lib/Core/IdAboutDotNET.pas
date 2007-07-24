@@ -54,7 +54,9 @@ type
   [assembly: RuntimeRequiredAttribute(TypeOf(TfrmAbout))]
 
 implementation
-uses   IdDsnCoreResourceStrings,  System.Diagnostics,
+
+uses
+  IdDsnCoreResourceStrings, System.Diagnostics,
   IdGlobal, System.Reflection, System.Resources, SysUtils;
 
 const
@@ -237,7 +239,7 @@ class procedure TfrmAbout.ShowAboutBox(const AProductName,
 begin
   with TfrmAbout.Create do
   try
-     Version := IndyFormat ( RSAAboutBoxVersion, [AProductVersion] );
+     Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
      ProductName := AProductName;
      Text := AProductName;
      ShowDialog;
@@ -252,22 +254,21 @@ begin
 end;
 
 procedure TfrmAbout.lblURL_LinkClicked(sender: System.Object; e: System.Windows.Forms.LinkLabelLinkClickedEventArgs);
-var LDest : String;
+var
+  LDest : String;
 begin
   LDest := e.Link.LinkData as string;
-   System.Diagnostics.Process.Start(LDest);
-    e.Link.Visited := True;
+  System.Diagnostics.Process.Start(LDest);
+  e.Link.Visited := True;
 end;
 
 function TfrmAbout.LoadBitmap(AResName: string): Bitmap;
 var
   LR: System.Resources.ResourceManager;
-
 begin
   LR := System.Resources.ResourceManager.Create('AboutIndyNET', System.Reflection.Assembly.GetExecutingAssembly);
   Result := (Bitmap(LR.GetObject('IndyCar.bmp')));
   Result := Result;
 end;
-
 
 end.

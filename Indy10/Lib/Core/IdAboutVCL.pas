@@ -1,7 +1,9 @@
 unit IdAboutVCL;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   {$IFDEF LINUX}
   QStdCtrls, QForms, QExtCtrls, QControls, QComCtrls, QGraphics, Types, Qt,
@@ -34,22 +36,24 @@ type
     property Version : String read GetVersion write SetVersion;
   end;
 
-Procedure ShowAboutBox(const AProductName, AProductVersion : String);
-Procedure ShowDlg;
+procedure ShowAboutBox(const AProductName, AProductVersion : String);
+procedure ShowDlg;
 
 implementation
+
 {$R IdAboutVCL.RES}
+
 uses
   {$IFNDEF Linux}ShellApi, {$ENDIF}
   IdDsnCoreResourceStrings,
   IdGlobal;
 
-Procedure ShowAboutBox(const AProductName, AProductVersion : String);
+procedure ShowAboutBox(const AProductName, AProductVersion : String);
 begin
   with TfrmAbout.Create(Application) do
   try
     ProductName := AProductName;
-    Version := Format ( RSAAboutBoxVersion, [ AProductVersion ] );
+    Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
     ShowModal;
   finally
     Free;
@@ -65,7 +69,7 @@ end;
 
 constructor TfrmAbout.Create(AOwner: TComponent);
 begin
-  inherited CreateNew(AOwner,0);
+  inherited CreateNew(AOwner, 0);
 
   FimLogo := TImage.Create(Self);
   FlblCopyRight := TLabel.Create(Self);
@@ -75,27 +79,28 @@ begin
   FlblURL := TLabel.Create(Self);
   FbbtnOk := TButton.Create(Self);
 
-    Name := 'formAbout';
-    Left := 0;
-    Top := 0;
-    Anchors := [];//[akLeft, akTop, akRight,akBottom];
-    BorderIcons := [biSystemMenu];
-    BorderStyle := bsDialog;
+  Name := 'formAbout';
+  Left := 0;
+  Top := 0;
+  Anchors := [];//[akLeft, akTop, akRight,akBottom];
+  BorderIcons := [biSystemMenu];
+  BorderStyle := bsDialog;
 
-    Caption := RSAAboutFormCaption;
-    ClientHeight := 336;
-    ClientWidth := 554;
-    Color := clBtnFace;
-    Font.Charset := DEFAULT_CHARSET;
-    Font.Color := clBtnText;
-    Font.Height := -11;
-    Font.Name := 'Tahoma';
-    Font.Style := [];
-    OldCreateOrder := False;
-    Position := poScreenCenter;
-    Scaled := True;
-    Self.Constraints.MinHeight := Height;
-     Self.Constraints.MinWidth := Width;
+  Caption := RSAAboutFormCaption;
+  ClientHeight := 336;
+  ClientWidth := 554;
+  Color := clBtnFace;
+  Font.Charset := DEFAULT_CHARSET;
+  Font.Color := clBtnText;
+  Font.Height := -11;
+  Font.Name := 'Tahoma';
+  Font.Style := [];
+  OldCreateOrder := False;
+  Position := poScreenCenter;
+  Scaled := True;
+  Constraints.MinHeight := Height;
+  Constraints.MinWidth := Width;
+
   //  PixelsPerInch := 96;
   with FimLogo do
   begin
@@ -105,10 +110,11 @@ begin
     Top := 0;
     Width := 388;
     Height := 240;
-   // AutoSize := True;
+    // AutoSize := True;
     Picture.Bitmap.LoadFromResourceName(HInstance, 'INDYCAR');    {Do not Localize}
     Transparent := True;
   end;
+
   with FlblName do
   begin
     Name := 'lblName';
@@ -128,8 +134,8 @@ begin
     ParentFont := False;
     Transparent := True;
     WordWrap := True;
-
   end;
+
   with FlblVersion do
   begin
     Name := 'lblVersion';
@@ -149,6 +155,7 @@ begin
     Transparent := True;
     Anchors := [akLeft, akTop, akRight];
   end;
+
   with FlblCopyRight do
   begin
     Name := 'lblCopyRight';
@@ -171,7 +178,6 @@ begin
     WordWrap := True;
   end;
 
-
   with FlblPleaseVisitUs do
   begin
     Name := 'lblPleaseVisitUs';
@@ -188,6 +194,7 @@ begin
     Caption := RSAAboutBoxPleaseVisit;
     Anchors := [akLeft, akTop, akRight];
   end;
+
   with FlblURL do
   begin
     Name := 'lblURL';
@@ -195,7 +202,6 @@ begin
     Top := 260;
     Width := 540;
     Height := 23;
-
     Cursor := crHandPoint;
     Alignment := taCenter;
     AutoSize := False;
@@ -205,16 +211,16 @@ begin
     Font.Name := 'Verdana';
     Font.Style := [fsUnderline];
     ParentFont := False;
-   Transparent := True;
+    Transparent := True;
     OnClick := lblURLClick;
     Caption := RSAAboutBoxIndyWebsite;
     Anchors := [akLeft, akTop, akRight];
     Parent := Self;
   end;
+
   with FbbtnOk do
   begin
     Name := 'bbtnOk';
-
     Left := 475;
     Top := 302;
     Width := 75;
@@ -224,10 +230,9 @@ begin
     Default := True;
     ModalResult := 1;
     TabOrder := 0;
-     Caption := RSOk;
+    Caption := RSOk;
     Anchors := [akLeft, akTop, akRight];
     Parent := Self;
-
   end;
 end;
 
@@ -244,7 +249,7 @@ end;
 procedure TfrmAbout.lblURLClick(Sender: TObject);
 begin
   {$IFDEF MSWINDOWS}
-  ShellAPI.shellExecute((Self as TControl).Handle,PChar('open'),PChar(FlblURL.Caption),nil,nil, 0);    {Do not Localize}
+  ShellAPI.ShellExecute(Handle, PChar('open'), PChar(FlblURL.Caption), nil, nil, 0);    {Do not Localize}
   FlblURL.Font.Color := clPurple;
   {$ENDIF}
 end;
@@ -259,12 +264,11 @@ begin
   FlblName.Caption := AValue;
 end;
 
-class procedure TfrmAbout.ShowAboutBox(const AProductName,
-  AProductVersion: String);
+class procedure TfrmAbout.ShowAboutBox(const AProductName, AProductVersion: String);
 begin
   with TfrmAbout.Create do
   try
-     Version := IndyFormat ( RSAAboutBoxVersion, [AProductVersion] );
+     Version := IndyFormat(RSAAboutBoxVersion, [AProductVersion]);
      ProductName := AProductName;
      ShowModal;
   finally

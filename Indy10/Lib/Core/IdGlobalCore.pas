@@ -31,13 +31,13 @@ unit IdGlobalCore;
 interface
 
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdGlobal;
 
-{$I IdCompilerDefines.inc}
 const
-  {$IFDEF Linux}
+  {$IFDEF LINUX}
   tpListener = tpIdNormal;
   {$ELSE}
   tpListener = tpHighest;
