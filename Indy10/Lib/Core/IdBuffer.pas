@@ -348,7 +348,7 @@ type
     function IndexOf(const AString: string; AStartPos: Integer = 0): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
     procedure Remove(AByteCount: Integer);
-    procedure SaveToStream(const AStream: TIdStream);
+    procedure SaveToStream(const AStream: TStream);
       { Most of these now have an ADestIndex parameter.  If that is less than 0,
         we are writing data sequentially.
 
@@ -363,7 +363,7 @@ type
     procedure Write(const AString: string; AEncoding: TIdEncoding = enDefault;
       const ADestIndex: Integer = -1); overload;
     procedure Write(ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
-    procedure Write(AStream: TIdStream; AByteCount: Integer = 0); overload;
+    procedure Write(AStream: TStream; AByteCount: Integer = 0); overload;
     procedure Write(const AValue: Int64; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: LongWord; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: Word; const ADestIndex: Integer = -1); overload;
