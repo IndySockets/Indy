@@ -153,7 +153,7 @@ type
     FWin32ErrorMessage : String;
     FTitle : String;
   public
-    constructor Build(AWin32Error: DWORD; const ATitleFmt: String; AArgs: array of const);
+    constructor Build(AWin32Error: DWORD; const ATitle: String; AArgs: array of const);
     property Win32Error : DWORD read FWin32Error;
     property Win32ErrorMessage : String read FWin32ErrorMessage;
     property Title : String read FTitle;
