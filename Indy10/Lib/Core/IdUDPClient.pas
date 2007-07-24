@@ -67,8 +67,10 @@
 unit IdUDPClient;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdUDPBase,
@@ -110,9 +112,9 @@ type
       var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; override;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; override;
-    procedure Send(AData: string); overload;
+    procedure Send(const AData: string); overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort; const ABuffer : TIdBytes); overload; override;
     procedure SendBuffer(const ABuffer: TIdBytes); reintroduce; overload;
     procedure SendBuffer(const AHost: string; const APort: TIdPort;
@@ -129,34 +131,30 @@ type
   end;
 
 implementation
-uses IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
+
+uses
+  IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
   SysUtils;
 
 { TIdUDPClient }
 
 procedure TIdUDPClient.CloseProxy;
 begin
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-       FTransparentProxy.CloseUDP(Binding);
-       FProxyOpened := False;
-    end;
+  if UseProxy and FProxyOpened then begin
+    FTransparentProxy.CloseUDP(Binding);
+    FProxyOpened := False;
   end;
 end;
 
 procedure TIdUDPClient.Connect;
-var LIP : String;
+var
+  LIP : String;
 begin
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
-  if Assigned(FTransparentProxy) then
-  begin
-    if FTransparentProxy.Enabled then
-    begin
+  if Assigned(FTransparentProxy) then begin
+    if FTransparentProxy.Enabled then begin
       //we don't use proxy open because we want to pass a peer's hostname and port
       //in case a proxy type in the future requires this.
       FTransparentProxy.OpenUDP(Binding,Host,Port);
@@ -165,7 +163,6 @@ begin
       Exit;  //we're done, the transparentProxy takes care of the work.
     end;
   end;
-
 
   if not GStack.IsIP(Host) then begin
     if Assigned(OnStatus) then begin
@@ -187,12 +184,9 @@ function TIdUDPClient.Connected: Boolean;
 begin
   Result := FConnected;
   if Result then begin
-    if Assigned(FBinding) then
-    begin
+    if Assigned(FBinding) then begin
       Result := FBinding.HandleAllocated;
-    end
-    else
-    begin
+    end else begin
       Result := False;
     end;
   end;
@@ -200,16 +194,10 @@ end;
 
 procedure TIdUDPClient.Disconnect;
 begin
-  if Connected then
-  begin
-
+  if Connected then begin
     DoStatus(hsDisconnecting);
-    if UseProxy then
-    begin
-      if FProxyOpened then
-      begin
-        CloseProxy;
-      end;
+    if UseProxy and FProxyOpened then begin
+      CloseProxy;
     end;
     FBinding.CloseSocket;
     DoOnDisconnected;
@@ -250,13 +238,9 @@ end;
 
 procedure TIdUDPClient.OpenProxy;
 begin
-  if UseProxy then
-  begin
-    if not FProxyOpened then
-    begin
-       FTransparentProxy.OpenUDP(Binding);
-       FProxyOpened := True;
-    end;
+  if UseProxy and (not FProxyOpened) then begin
+    FTransparentProxy.OpenUDP(Binding);
+    FProxyOpened := True;
   end;
 end;
 
@@ -276,125 +260,94 @@ begin
   end else begin
     LMSec := AMSec;
   end;
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      Result := FTransparentProxy.RecvFromUDP(Binding,ABuffer,LHost,LPort,IPversion,LMSec );
-      Exit;
-    end
-    else
-    begin
+  if UseProxy then begin
+    if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
-  end;
-  if Connected then
+    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, LHost, LPort, IPVersion, LMSec);
+  end else
   begin
-
-    if FBinding.Readable(LMSec) then //Select(LMSec)  then
-    begin
-      Result := FBinding.Receive(ABuffer);
+    if Connected then begin
+      if FBinding.Readable(LMSec) then begin //Select(LMSec)  then
+        Result := FBinding.Receive(ABuffer);
+      end;
+    end else begin
+      Result := inherited ReceiveBuffer(ABuffer, LMSec);
     end;
-  end
-  else
-  begin
-    Result := inherited ReceiveBuffer(ABuffer, LMSec);
   end;
 end;
 
 procedure TIdUDPClient.RaiseUseProxyError;
 begin
-   raise EIdMustUseOpenProxy.Create(RSUDPMustUseProxyOpen);
+  raise EIdMustUseOpenProxy.Create(RSUDPMustUseProxyOpen);
 end;
 
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
   var VPeerIP: string; var VPeerPort: TIdPort; AMSec: Integer): integer;
 begin
-
   Result := ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, AMSec);
 end;
 
-procedure TIdUDPClient.Send(AData: string);
+procedure TIdUDPClient.Send(const AData: string);
 begin
   Send(Host, Port, AData);
 end;
 
 procedure TIdUDPClient.SendBuffer(const ABuffer : TIdBytes);
 begin
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      FTransparentProxy.SendToUDP(Binding,Host,Port,IPVersion,ABuffer);
-       Exit;
-    end
-    else
-    begin
+  if UseProxy then begin
+    if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
-  end;
-
-  if Connected then
+    FTransparentProxy.SendToUDP(Binding, Host, Port, IPVersion, ABuffer);
+  end else
   begin
-    FBinding.Send(ABuffer,0,-1);
-  end
-  else
-  begin
-    inherited SendBuffer(Host, Port, IPVersion, ABuffer);
+    if Connected then begin
+      FBinding.Send(ABuffer, 0, -1);
+    end else begin
+      inherited SendBuffer(Host, Port, IPVersion, ABuffer);
+    end;
   end;
-
 end;
 
 procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: TIdPort;
   const ABuffer: TIdBytes);
 begin
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      FTransparentProxy.SendToUDP(Binding,AHost,APort,IPVersion,ABuffer);
-      Exit;
-    end
-    else
-    begin
+  if UseProxy then begin
+    if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
+    FTransparentProxy.SendToUDP(Binding, AHost, APort, IPVersion, ABuffer);
+  end else begin
+    inherited SendBuffer(AHost, APort, ABuffer);
   end;
-  inherited SendBuffer(AHost, APort, ABuffer);
 end;
 
 procedure TIdUDPClient.SetHost(const AValue: String);
 begin
-  if FHost<>AValue then
-  begin
+  if FHost <> AValue then begin
     Disconnect;
   end;
   inherited SetHost(AValue);
-
 end;
 
 procedure TIdUDPClient.SetIPVersion(const AValue: TIdIPVersion);
 begin
-  if FIPVersion <> AValue then
-  begin
+  if FIPVersion <> AValue then begin
     Disconnect;
   end;
   inherited SetIPVersion(AValue);
-
 end;
 
 procedure TIdUDPClient.SetPort(const AValue: TIdPort);
 begin
-  if FPort <> Avalue then
-  begin
+  if FPort <> AValue then begin
     Disconnect;
   end;
   inherited SetPort(AValue);
-
 end;
 
-procedure TIdUDPClient.SetTransparentProxy(
-  AProxy: TIdCustomTransparentProxy);
+procedure TIdUDPClient.SetTransparentProxy(AProxy: TIdCustomTransparentProxy);
 var
   LClass: TIdCustomTransparentProxyClass;
 begin
@@ -403,61 +356,50 @@ begin
   // In the case when the ASocks points to an object with owner it is treated as component on form.
 
   if Assigned(AProxy) then begin
-    if NOT Assigned(AProxy.Owner) then begin
+    if not Assigned(AProxy.Owner) then begin
       if Assigned(FTransparentProxy) and Assigned(FTransparentProxy.Owner) then begin
         FTransparentProxy := nil;
       end;
       LClass := TIdCustomTransparentProxyClass(AProxy.ClassType);
-      // SG: was:
-      // LClass := Pointer(AProxy.ClassType);
-      if Assigned(FTransparentProxy) then begin
-        if FTransparentProxy.ClassType <> LClass then begin
-          FreeAndNil(FTransparentProxy);
-          FTransparentProxy := LClass.Create(NIL);
-        end;
-      end else begin
-        FTransparentProxy := LClass.Create(NIL);
+      if Assigned(FTransparentProxy) and (FTransparentProxy.ClassType <> LClass) then begin
+        FreeAndNil(FTransparentProxy);
+      end;
+      if not Assigned(FTransparentProxy) then begin
+        FTransparentProxy := LClass.Create(nil);
       end;
       FTransparentProxy.Assign(AProxy);
     end else begin
-      if Assigned(FTransparentProxy) then begin
-        if NOT Assigned(FTransparentProxy.Owner) then begin
-          FreeAndNIL(FTransparentProxy);//tmp obj
-        end;
+      if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+        FreeAndNil(FTransparentProxy);
       end;
       FTransparentProxy := AProxy;
-      FTransparentProxy.FreeNotification(SELF);
+      FTransparentProxy.FreeNotification(Self);
     end;
   end
   else begin
-    if Assigned(FTransparentProxy) and NOT Assigned(FTransparentProxy.Owner) then begin
-      FreeAndNIL(FTransparentProxy);//tmp obj
+    if Assigned(FTransparentProxy) and not Assigned(FTransparentProxy.Owner) then begin
+      FreeAndNil(FTransparentProxy);
     end else begin
-      FTransparentProxy := NIL; //remove link
+      FTransparentProxy := nil; //remove link
     end;
   end;
 end;
 
 function TIdUDPClient.UseProxy: Boolean;
 begin
-  Result := False;
-  if Assigned(FTransparentProxy) then
-  begin
+  if Assigned(FTransparentProxy) then begin
     Result := FTransparentProxy.Enabled;
+  end else begin
+    Result := False;
   end;
 end;
 
 destructor TIdUDPClient.Destroy;
 begin
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      CloseProxy;
-    end;
+  if UseProxy and FProxyOpened then begin
+    CloseProxy;
   end;
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
   inherited Destroy;
@@ -466,7 +408,8 @@ end;
 function TIdUDPClient.ReceiveBuffer(var ABuffer: TIdBytes;
   var VPeerIP: string; var VPeerPort: TIdPort;
   const AIPVersion: TIdIPVersion; const AMSec: Integer): integer;
-var LMSec : Integer;
+var
+  LMSec : Integer;
 begin
   if AMSec = IdTimeoutDefault then begin
     if ReceiveTimeout = 0 then begin
@@ -477,38 +420,27 @@ begin
   end else begin
     LMSec := AMSec;
   end;
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      Result := FTransparentProxy.RecvFromUDP(Binding,ABuffer,VPeerIP,VPeerPort,IPVersion,LMSec );
-      Exit;
-    end
-    else
-    begin
+  if UseProxy then begin
+    if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
+    Result := FTransparentProxy.RecvFromUDP(Binding, ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
+  end else begin
+    Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
   end;
-  Result := inherited ReceiveBuffer(ABuffer, VPeerIP, VPeerPort, IPVersion, LMSec);
 end;
 
 procedure TIdUDPClient.SendBuffer(const AHost: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
 begin
-  if UseProxy then
-  begin
-    if FProxyOpened then
-    begin
-      FTransparentProxy.SendToUDP(Binding,AHost,APort,IPVersion,ABuffer);
-      Exit;
-    end
-    else
-    begin
+  if UseProxy then begin
+    if not FProxyOpened then begin
       RaiseUseProxyError;
     end;
+    FTransparentProxy.SendToUDP(Binding, AHost, APort, IPVersion, ABuffer);
+  end else begin
+    inherited SendBuffer(AHost, APort, AIPVersion, ABuffer);
   end;
-  inherited SendBuffer(AHost, APort, AIPVersion, ABuffer);
-
 end;
 
 end.
