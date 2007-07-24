@@ -37,8 +37,10 @@
 unit IdLogBase;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdIntercept, IdGlobal, IdSocketHandle, IdBaseComponent;
@@ -79,12 +81,10 @@ uses
 
 const
   LOldStr : array [0..2] of string =
-    ( EOL,  CR,
-      LF);
+    ( EOL,  CR, LF );
   LNewStr : array [0..2] of string =
-     (RSLogEOL,
-     RSLogCR,
-     RSLogLF);
+    ( RSLogEOL, RSLogCR, RSLogLF );
+
 { TIdLogBase }
 
 procedure TIdLogBase.Close;
@@ -143,7 +143,7 @@ begin
     end;
     s := BytesToString(ABuffer);
     if FReplaceCRLF then begin
-      s :=  ReplaceCR(S);
+      s := ReplaceCR(S);
     end;
     LogReceivedData(LMsg, s);
   end;
@@ -151,7 +151,7 @@ end;
 
 function TIdLogBase.ReplaceCR(const AString: String): String;
 begin
-  Result := StringsReplace(AString,LOldStr,LNewStr);
+  Result := StringsReplace(AString, LOldStr, LNewStr);
 end;
 
 procedure TIdLogBase.Send(var ABuffer: TIdBytes);
@@ -175,17 +175,18 @@ end;
 
 procedure TIdLogBase.SetActive(AValue: Boolean);
 begin
-  if IsLoading then
-    FStreamedActive := AValue
-  else
-    if FActive <> AValue then
-    begin
-      FActive := AValue;
-      if FActive then
-        Open
-      else
-        Close;
+  if IsLoading then begin
+    FStreamedActive := AValue;
+  end
+  else if FActive <> AValue then
+  begin
+    FActive := AValue;
+    if FActive then begin
+      Open;
+    end else begin
+      Close;
     end;
+  end;
 end;
 
 end.
