@@ -1062,7 +1062,7 @@ begin
   inherited Parse(CompleteMessage, APos);
   if Length(RData) >= 15 then
   begin
-     FIP6 := BytesToIPv6(RData);
+     BytesToIPv6(RData,FIP6);
      for i := 0 to 7 do
      begin
        FIP6[i] := GStack.NetworkToHost(FIP6[i]);
