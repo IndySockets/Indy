@@ -28,15 +28,16 @@
 unit IdLogEvent;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   IdLogBase, IdBaseComponent, Classes;
 
 type
-  TLogItemStatusEvent = procedure(ASender: TComponent; AText: string) of object;
-  TLogItemDataEvent = procedure(ASender: TComponent; AText: string; AData: string)
-   of object;
+  TLogItemStatusEvent = procedure(ASender: TComponent; const AText: string) of object;
+  TLogItemDataEvent = procedure(ASender: TComponent; const AText, AData: string) of object;
 
   TIdLogEvent = class(TIdLogBase)
   protected
