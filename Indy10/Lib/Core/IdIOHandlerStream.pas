@@ -115,8 +115,7 @@
 unit IdIOHandlerStream;
 
 interface
-{$I IdCompilerDefines.inc}
-//Put FPC into Delphi mode
+
 uses
   Classes,
   IdBaseComponent,
@@ -127,11 +126,8 @@ uses
 type
   TIdIOHandlerStream = class;
   TIdIOHandlerStreamType = (stRead, stWrite, stReadWrite);
-  TIdOnGetStreams = procedure(
-    ASender: TIdIOHandlerStream;
-    var VReceiveStream: TStream;
-    var VSendStream: TStream
-    ) of object;
+  TIdOnGetStreams = procedure(ASender: TIdIOHandlerStream;
+    var VReceiveStream: TStream; var VSendStream: TStream) of object;
 
   TIdIOHandlerStream = class(TIdIOHandler)
   protected
@@ -141,55 +137,30 @@ type
     FSendStream: TStream;
     FStreamType: TIdIOHandlerStreamType;
     //
-    function GetReceiveStream: TStream;
-    function GetSendStream: TStream;
-    procedure SetReceiveStream(AStream: TStream);
-    procedure SetSendStream(AStream: TStream);
-    function ReadFromSource(
-      ARaiseExceptionIfDisconnected: Boolean = True;
-      ATimeout: Integer = IdTimeoutDefault;
-      ARaiseExceptionOnTimeout: Boolean = True
-      ): Integer; override;
+    function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
+      ATimeout: Integer = IdTimeoutDefault; ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
   public
-    procedure CheckForDataOnSource(
-      ATimeout: Integer = 0
-      ); override;
-    procedure CheckForDisconnect(
-      ARaiseExceptionIfDisconnected: Boolean = True;
-      AIgnoreBuffer: Boolean = False
-      ); override;
-
-    constructor Create(
-      AOwner: TComponent;
-      AReceiveStream: TStream;
-      ASendStream: TStream = nil
-      ); reintroduce; overload; virtual;
-    constructor Create(
-      AOwner: TComponent
-      ); reintroduce; overload;
-    function Connected
-      : Boolean;
-      override;
-    procedure Close;
-      override;
-    procedure Open;
-      override;
+    procedure CheckForDataOnSource(ATimeout: Integer = 0); override;
+    procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
+      AIgnoreBuffer: Boolean = False); override;
+    constructor Create(AOwner: TComponent; AReceiveStream: TStream; ASendStream: TStream = nil); reintroduce; overload; virtual;
+    constructor Create(AOwner: TComponent); reintroduce; overload;
+    function Connected: Boolean; override;
+    procedure Close; override;
+    procedure Open; override;
     function Readable(AMSec: integer = IdTimeoutDefault): boolean; override;
     procedure WriteDirect(var ABuffer: TIdBytes); override;
     //
-    property ReceiveStream: TStream read GetReceiveStream {write SetReceiveStream};
-    property SendStream: TStream read GetSendStream {write SetSendStream};
+    property ReceiveStream: TStream read FReceiveStream;
+    property SendStream: TStream read FSendStream;
   published
     property FreeStreams: Boolean read FFreeStreams write FFreeStreams;
-    property StreamType: TIdIOHandlerStreamType read FStreamType
-     write FStreamType;
+    property StreamType: TIdIOHandlerStreamType read FStreamType;
     //
-    property OnGetStreams: TIdOnGetStreams read FOnGetStreams
-     write FOnGetStreams;
+    property OnGetStreams: TIdOnGetStreams read FOnGetStreams write FOnGetStreams;
   end;
 
 implementation
-uses SysUtils;
 
 { TIdIOHandlerStream }
 
@@ -204,7 +175,7 @@ procedure TIdIOHandlerStream.CheckForDisconnect(
   ARaiseExceptionIfDisconnected: Boolean = True;
   AIgnoreBuffer: Boolean = False);
 begin
-  FClosedGracefully := (FSendStream = nil) and (FReceiveStream = nil);
+  FClosedGracefully := not Self.Connected;
   if FClosedGracefully and ARaiseExceptionIfDisconnected then begin
     RaiseConnClosedGracefully;
   end;
@@ -223,37 +194,35 @@ function TIdIOHandlerStream.Connected: Boolean;
 begin
   Result := False;  // Just to avoid warning message
   case FStreamType of
-    stRead: Result := ReceiveStream <> nil;
-    stWrite: Result := SendStream <> nil;
-    stReadWrite: Result := (ReceiveStream <> nil) and (SendStream <> nil);
+    stRead: Result := Assigned(ReceiveStream);
+    stWrite: Result := Assigned(SendStream);
+    stReadWrite: Result := Assigned(ReceiveStream) and Assigned(SendStream);
   end;
 end;
 
-constructor TIdIOHandlerStream.Create( AOwner: TComponent );
+constructor TIdIOHandlerStream.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FFreeStreams := True;
-  //
   FStreamType := stReadWrite;
 end;
 
-constructor TIdIOHandlerStream.Create(
-  AOwner: TComponent;
-  AReceiveStream: TStream;
-  ASendStream: TStream = nil
-  );
+constructor TIdIOHandlerStream.Create(AOwner: TComponent; AReceiveStream: TStream;
+  ASendStream: TStream = nil);
 begin
   inherited Create(AOwner);
-  FFreeStreams := True;
   //
-  FStreamType := stReadWrite;
-  if (AReceiveStream <> nil) and (ASendStream = nil) then begin
-    FStreamType := stWrite;
-  end else if (AReceiveStream = nil) and (ASendStream <> nil) then begin
+  FFreeStreams := True;
+  FReceiveStream := AReceiveStream;
+  FSendStream := ASendStream;
+  //
+  if Assigned(FReceiveStream) and (not Assigned(FSendStream)) then begin
     FStreamType := stRead;
+  end else if (not Assigned(FReceiveStream)) and Assigned(FSendStream) then begin
+    FStreamType := stWrite;
+  end else begin
+    FStreamType := stReadWrite;
   end;
-  SetReceiveStream(AReceiveStream);
-  SetSendStream(ASendStream);
 end;
 
 procedure TIdIOHandlerStream.Open;
@@ -262,24 +231,30 @@ begin
   if Assigned(OnGetStreams) then begin
     OnGetStreams(Self, FReceiveStream, FSendStream);
   end;
+  if Assigned(FReceiveStream) and (not Assigned(FSendStream)) then begin
+    FStreamType := stRead;
+  end else if (not Assigned(FReceiveStream)) and Assigned(FSendStream) then begin
+    FStreamType := stWrite;
+  end else begin
+    FStreamType := stReadWrite;
+  end;
 end;
 
 function TIdIOHandlerStream.Readable(AMSec: Integer): Boolean;
 begin
-  Result := ReceiveStream <> nil;
+  Result := Assigned(ReceiveStream);
   if Result then begin
     Result := ReceiveStream.Position < ReceiveStream.Size;
   end;
 end;
 
-function TIdIOHandlerStream.ReadFromSource(
-  ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
-  ARaiseExceptionOnTimeout: Boolean): Integer;
+function TIdIOHandlerStream.ReadFromSource(ARaiseExceptionIfDisconnected: Boolean;
+  ATimeout: Integer; ARaiseExceptionOnTimeout: Boolean): Integer;
 var
   LBuffer: TIdBytes;
 begin
   Result := 0;
-  if ReceiveStream <> nil then begin
+  if Assigned(ReceiveStream) then begin
     // We dont want to read the whole stream in at a time. If its a big file will consume way too
     // much memory by loading it all at once. So lets read it in chunks.
     Result := Min(32 * 1024, FReceiveStream.Size - FReceiveStream.Position);
@@ -302,34 +277,9 @@ end;
 procedure TIdIOHandlerStream.WriteDirect(var ABuffer: TIdBytes);
 begin
   inherited WriteDirect(ABuffer);
-  if FSendStream <> nil then begin
+  if Assigned(FSendStream) then begin
     TIdStreamHelper.Write(FSendStream, ABuffer, Length(ABuffer));
   end;
 end;
 
-function TIdIOHandlerStream.GetReceiveStream: TStream;
-begin
-  Result := FReceiveStream;
-end;
-
-function TIdIOHandlerStream.GetSendStream: TStream;
-begin
-  Result := FSendStream;
-end;
-
-procedure TIdIOHandlerStream.SetReceiveStream(AStream: TStream);
-begin
-  if AStream <> nil then begin
-    FReceiveStream := AStream;
-  end;
-end;
-
-procedure TIdIOHandlerStream.SetSendStream(AStream: TStream);
-begin
-  if AStream <> nil then begin
-    FSendStream := AStream;
-  end;
-end;
-
 end.
-
