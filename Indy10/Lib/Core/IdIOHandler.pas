@@ -397,7 +397,9 @@
 unit IdIOHandler;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdException,
@@ -532,18 +534,13 @@ type
     procedure Write(const AOut: string); overload; virtual;
     procedure WriteLn(const AOut: string = ''); virtual;
     procedure WriteLnRFC(const AOut: string = ''); virtual;
-    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False);
-              overload; virtual;
+    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False); overload; virtual;
     procedure Write(AValue: Char); overload;
     procedure Write(AValue: LongWord; AConvert: Boolean = True); overload;
     procedure Write(AValue: LongInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
-    procedure Write(
-      AStream: TStream;
-      ASize: Int64 = 0;
-      AWriteByteCount: Boolean = False
-      ); overload; virtual;
+    procedure Write(AStream: TStream; ASize: Int64 = 0; AWriteByteCount: Boolean = False); overload; virtual;
     procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True);
     // Not overloaded because it does not have a unique type for source
     // and could be easily unresolvable with future additions
@@ -738,8 +735,7 @@ begin
   RegisterIOHandler;
 end;
 
-class function TIdIOHandler.MakeDefaultIOHandler(AOwner: TComponent = nil)
- : TIdIOHandler;
+class function TIdIOHandler.MakeDefaultIOHandler(AOwner: TComponent = nil): TIdIOHandler;
 begin
   Result := GIOHandlerClassDefault.Create(AOwner);
 end;
@@ -762,7 +758,7 @@ end;
   Creates an IOHandler of type ABaseType, or descendant.
 }
 class function TIdIOHandler.MakeIOHandler(ABaseType: TIdIOHandlerClass;
- AOwner: TComponent = nil): TIdIOHandler;
+  AOwner: TComponent = nil): TIdIOHandler;
 var
   i: Integer;
 begin
@@ -772,7 +768,7 @@ begin
       Exit;
     end;
   end;
-  raise EIdException.Create(IndyFormat(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]));
+  raise EIdException.CreateFmt(RSIOHandlerTypeNotInstalled, [ABaseType.ClassName]);
 end;
 
 function TIdIOHandler.GetDestination: string;
@@ -851,7 +847,7 @@ begin
 }
 end;
 
-procedure TIdIOHandler.Write(AValue: LongWord; AConvert: boolean);
+procedure TIdIOHandler.Write(AValue: LongWord; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := GStack.HostToNetwork(AValue);
@@ -886,13 +882,13 @@ begin
     for i := 0 to AValue.Count - 1 do begin
       WriteLn(AValue.Strings[i]);
     end;
-  // Kudzu: I had an except here and a close, but really even if error we should
-  // write out whatever we have. Very doubtful any errors will occur in above
-  // code anyways unless given bad input, which incurs bigger problems anyways.
+    // Kudzu: I had an except here and a close, but really even if error we should
+    // write out whatever we have. Very doubtful any errors will occur in above
+    // code anyways unless given bad input, which incurs bigger problems anyways.
   finally WriteBufferClose; end;
 end;
 
-procedure TIdIOHandler.Write(AValue: SmallInt; AConvert: boolean = true);
+procedure TIdIOHandler.Write(AValue: SmallInt; AConvert: Boolean = True);
 begin
   if AConvert then begin
     AValue := SmallInt(GStack.HostToNetwork(Word(AValue)));
@@ -924,7 +920,7 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadSmallInt(AConvert: boolean = true): SmallInt;
+function TIdIOHandler.ReadSmallInt(AConvert: Boolean = True): SmallInt;
 var
   LBytes: TIdBytes;
 begin
@@ -951,7 +947,7 @@ begin
   Result := LBytes[0];
 end;
 
-function TIdIOHandler.ReadLongInt(AConvert: boolean): LongInt;
+function TIdIOHandler.ReadLongInt(AConvert: Boolean): LongInt;
 var
   LBytes: TIdBytes;
 begin
@@ -973,9 +969,7 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadLongWord(
-  AConvert: boolean)
-  : Cardinal;
+function TIdIOHandler.ReadLongWord(AConvert: Boolean): LongWord;
 var
   LBytes: TIdBytes;
 begin
@@ -986,17 +980,13 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadLn
-  : string;
+function TIdIOHandler.ReadLn: string;
 begin
   Result := ReadLn(LF);
 end;
 
-function TIdIOHandler.ReadLn(
-  ATerminator: string;
-  ATimeout: Integer = IdTimeoutDefault;
-  AMaxLineLength: Integer = -1)
-  : string;
+function TIdIOHandler.ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
+  AMaxLineLength: Integer = -1): string;
 var
   LInputBufferSize: Integer;
   LSize: Integer;
@@ -1142,57 +1132,36 @@ begin
   // Also, forcing write buffering in this method is having major
   // impacts on TIdFTP, TIdFTPServer, and TIdHTTPServer.
 
-  {
-  LBufferingStarted := not WriteBufferingActive;
-  LBufferingStarted := False;
-
-  if LBufferingStarted then begin
-    WriteBufferOpen;
+  if AWriteByteCount then begin
+    if LargeStream then begin
+      Write(ASize);
+    end else begin
+      Write(Integer(ASize));
+    end;
   end;
-  }
 
-  //try
-    if AWriteByteCount then begin
-      if LargeStream then begin
-      	Write(ASize);
-      end else begin
-      	Write(Integer(ASize));
+  BeginWork(wmWrite, ASize);
+  try
+    while ASize > 0 do begin
+      SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
+      LBufSize := Min(ASize, FSendBufferSize);
+      // Do not use ReadBuffer. Some source streams are real time and will not
+      // return as much data as we request. Kind of like recv()
+      // NOTE: We use .Size - size must be supported even if real time
+      LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
+      if LBufSize = 0 then begin
+        raise EIdNoDataToRead.Create(RSIdNoDataToRead);
       end;
+      SetLength(LBuffer, LBufSize);
+      Write(LBuffer);
+      // RLebeau: DoWork() is called in TIdIOHandlerStack.WriteDirect()
+      //DoWork(wmWrite, LBufSize);
+      Dec(ASize, LBufSize);
     end;
-
-    BeginWork(wmWrite, ASize);
-    try
-      while ASize > 0 do begin
-        SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
-        LBufSize := Min(ASize, FSendBufferSize);
-        // Do not use ReadBuffer. Some source streams are real time and will not
-        // return as much data as we request. Kind of like recv()
-        // NOTE: We use .Size - size must be supported even if real time
-        LBufSize := TIdStreamHelper.ReadBytes(AStream, LBuffer, LBufSize);
-        if LBufSize = 0 then begin
-          raise EIdNoDataToRead.Create(RSIdNoDataToRead);
-        end;
-        SetLength(LBuffer, LBufSize);
-        Write(LBuffer);
-        // RLebeau: DoWork() is called in TIdIOHandlerStack.WriteDirect()
-        //DoWork(wmWrite, LBufSize);
-        Dec(ASize, LBufSize);
-      end;
-    finally
-      EndWork(wmWrite);
-      LBuffer := nil;
-    end;
-  {
-    if LBufferingStarted then begin
-      WriteBufferClose;
-    end;
-  except
-    if LBufferingStarted then begin
-      WriteBufferCancel;
-    end;
-    raise;
+  finally
+    EndWork(wmWrite);
+    LBuffer := nil;
   end;
-  }
 end;
 
 procedure TIdIOHandler.ReadBytes(var VBuffer: TIdBytes; AByteCount: Integer; AAppend: Boolean = True);
@@ -1641,7 +1610,9 @@ var
 //TODO: There is a way in linux to dump a file to a socket as well. use it.
   LStream: TStream;
 begin
-  EIdFileNotFound.IfFalse(FileExists(AFile), IndyFormat(RSFileNotFound, [AFile]));
+  if not FileExists(AFile) then begin
+    raise EIdFileNotFound.CreateFmt(RSFileNotFound, [AFile]);
+  end;
   LStream := TIdReadFileExclusiveStream.Create(AFile); try
     Write(LStream);
     Result := LStream.Size;
