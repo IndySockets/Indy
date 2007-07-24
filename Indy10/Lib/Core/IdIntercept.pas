@@ -62,8 +62,10 @@
 unit IdIntercept;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //here only to put FPC in Delphi mode
+
 uses
   Classes,
   IdGlobal, IdBaseComponent, IdBuffer, IdException;
@@ -72,10 +74,7 @@ type
   EIdInterceptCircularLink = class(EIdException);
   TIdConnectionIntercept = class;
   TIdInterceptNotifyEvent = procedure(ASender: TIdConnectionIntercept) of object;
-  TIdInterceptStreamEvent = procedure(
-    ASender: TIdConnectionIntercept;
-    var ABuffer: TIdBytes
-    ) of object;
+  TIdInterceptStreamEvent = procedure(ASender: TIdConnectionIntercept; var ABuffer: TIdBytes) of object;
 
   TIdConnectionIntercept = class(TIdBaseComponent)
   protected
@@ -95,14 +94,9 @@ type
     //
   public
     procedure Connect(AConnection: TComponent); virtual;
-    procedure Disconnect;
-      virtual;
-    procedure Receive(
-      var ABuffer: TIdBytes
-      ); virtual;
-    procedure Send(
-      var ABuffer: TIdBytes
-      ); virtual;
+    procedure Disconnect; virtual;
+    procedure Receive(var VBuffer: TIdBytes); virtual;
+    procedure Send(var VBuffer: TIdBytes); virtual;
     //
     property Connection: TComponent read FConnection;
     property IsClient: Boolean read FIsClient;
@@ -149,23 +143,23 @@ begin
   end;
 end;
 
-procedure TIdConnectionIntercept.Receive(var ABuffer: TIdBytes);
+procedure TIdConnectionIntercept.Receive(var VBuffer: TIdBytes);
 begin
   if Intercept <> nil then begin
-    Intercept.Receive(ABuffer);
+    Intercept.Receive(VBuffer);
   end;
   if Assigned(OnReceive) then begin
-    OnReceive(Self, ABuffer);
+    OnReceive(Self, VBuffer);
   end;
 end;
 
-procedure TIdConnectionIntercept.Send(var ABuffer: TIdBytes);
+procedure TIdConnectionIntercept.Send(var VBuffer: TIdBytes);
 begin
   if Assigned(OnSend) then begin
-    OnSend(Self, ABuffer);
+    OnSend(Self, VBuffer);
   end;
   if Intercept <> nil then begin
-    Intercept.Send(ABuffer);
+    Intercept.Send(VBuffer);
   end;
 end;
 
@@ -175,8 +169,8 @@ var
 Begin
   LIntercept := AValue;
   while Assigned(LIntercept) do begin
-    if LIntercept = SELF then begin //recursion
-      raise EIdInterceptCircularLink.Create(IndyFormat(RSInterceptCircularLink,[ClassName])); // TODO: Resource string and more english
+    if LIntercept = Self then begin //recursion
+      raise EIdInterceptCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]); // TODO: Resource string and more english
     end;
     LIntercept := LIntercept.Intercept;
   end;
@@ -188,13 +182,11 @@ Begin
   end;
 End;
 
-procedure TIdConnectionIntercept.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdConnectionIntercept.Notification(AComponent: TComponent; Operation: TIdOperation);
 begin
   inherited Notification(AComponent, OPeration);
-
   if (Operation = opRemove) and (AComponent = Intercept) then begin
-    FIntercept := NIL;
+    FIntercept := nil;
   end;
 end;
 
