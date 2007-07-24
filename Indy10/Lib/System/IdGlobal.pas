@@ -2185,9 +2185,9 @@ begin
     2: Result := (AInt and POWER_2);
   else
   {$IFDEF FPC}
-    Result := AInt and POWER_1;
-  {$ELSE}
     Result := Lo(AInt and POWER_1);
+  {$ELSE}
+    Result := AInt and POWER_1;
   {$ENDIF}
   end;
 end;
@@ -3248,8 +3248,12 @@ begin
 end;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
+ {$IFDEF VCL6ORABOVE}
+ {$IFDEF USEINLINE}inline;{$ENDIF}
+ {$ELSE}
 var
   LTM : TTimeStamp;
+{$ENDIF}
 begin
   {$IFDEF VCL6ORABOVE}
   Result := DateUtils.IncMilliSecond(ADateTime, AMSec);
@@ -3613,9 +3617,6 @@ function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0;
   AMaxCount: Integer = MaxInt; const AEncoding: TIdEncoding = en7Bit): string;
 var
   LLength: Integer;
-{$IFDEF DOTNET}
-  I: Integer;
-{$ENDIF}
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
   LLength := IndyLength(AValue, AMaxCount, AStartIndex);
