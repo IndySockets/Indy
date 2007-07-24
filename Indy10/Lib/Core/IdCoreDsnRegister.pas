@@ -34,14 +34,16 @@
 unit IdCoreDsnRegister;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   {$IFDEF VCL8ORABOVE}
      {$IFDEF DOTNET}
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
      {$ENDIF}
   {$ELSE}
@@ -86,55 +88,33 @@ uses
   IdComponent,
   IdGlobal,
   IdDsnPropEdBinding,
-  IdIPMCastClient,
   IdStack,
-  IdSocketHandle,
-
-  IdTCPServer,
-  IdUDPServer;
+  IdSocketHandle;
 
 procedure TIdPropEdBinding.Edit;
+var
+  pSockets: TIdSocketHandles;
 begin
   inherited Edit;
   with TIdPropEdBindingEntry.Create do
   try
     if PropCount > 0 then
     begin
+      {$IFNDEF DOTNET}
+      pSockets := TIdSocketHandles(GetOrdValue);
+      {$ELSE}
+      pSockets := GetObjValue as TIdSocketHandles;
+      {$ENDIF}
       Caption := TComponent(GetComponent(0)).Name;
-      if (GetComponent(0) is TIdTCPServer) then
-      begin
-        DefaultPort := TIdTCPServer(GetComponent(0)).DefaultPort;
-        Value := GetListValues( TIdTCPServer(GetComponent(0)).Bindings);
-      end;
-      if (GetComponent(0) is TIdUDPServer) then
-      begin
-        DefaultPort := TIdUDPServer(GetComponent(0)).DefaultPort;
-        Value := GetListValues( TIdUDPServer(GetComponent(0)).Bindings);
-      end;
-      if (GetComponent(0) is TIdIPMCastClient) then
-      begin
-        DefaultPort := TIdIPMCastClient(GetComponent(0)).DefaultPort;
-        Value := GetListValues( TIdIPMCastClient(GetComponent(0)).Bindings);
-      end;
+      DefaultPort := pSockets.DefaultPort;
+      Value := GetListValues(pSockets);
     end;
     SetList(Value);
     if Execute then
     begin
       Value := GetList;
-      if PropCount > 0 then
-      begin
-        if (GetComponent(0) is TIdTCPServer) then
-        begin
-          FillHandleList(Value,TIdTCPServer(GetComponent(0)).Bindings);
-        end;
-        if (GetComponent(0) is TIdUDPServer) then
-        begin
-          FillHandleList(Value,TIdUDPServer(GetComponent(0)).Bindings);
-        end;
-        if (GetComponent(0) is TIdIPMCastClient) then
-        begin
-          FillHandleList(Value,TIdIPMCastClient(GetComponent(0)).Bindings);
-        end;
+      if PropCount > 0 then begin
+        FillHandleList(Value, pSockets);
       end;
     end;
   finally
@@ -144,42 +124,42 @@ end;
 
 function TIdPropEdBinding.GetAttributes: TPropertyAttributes;
 begin
-  result := [paDialog];
+  Result := inherited GetAttributes + [paDialog];
 end;
 
 function TIdPropEdBinding.GetValue: string;
+var
+  pSockets: TIdSocketHandles;
 begin
   {$IFNDEF DOTNET}
-  Result := GetListValues(TIdSocketHandles(GetOrdValue));
+  pSockets := TIdSocketHandles(GetOrdValue);
   {$ELSE}
-  Result := GetListValues(GetObjValue as TIdSocketHandles);
+  pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
+  Result := GetListValues(pSockets);
 end;
 
 procedure TIdPropEdBinding.SetValue(const Value: string);
 var
-  IdSockets: TIdSocketHandles;
+  pSockets: TIdSocketHandles;
 begin
   inherited SetValue(Value);
   {$IFNDEF DOTNET}
-  IdSockets := TIdSocketHandles(GetOrdValue);
+  pSockets := TIdSocketHandles(GetOrdValue);
   {$ELSE}
-  IdSockets := GetObjValue as TIdSocketHandles;
+  pSockets := GetObjValue as TIdSocketHandles;
   {$ENDIF}
-  IdSockets.BeginUpdate;
+  pSockets.BeginUpdate;
   try
-    FillHandleList(Value, IdSockets);
+    FillHandleList(Value, pSockets);
   finally
-    IdSockets.EndUpdate;
+    pSockets.EndUpdate;
   end;
 end;
 
 procedure Register;
 begin
-
-  RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdTCPServer, '', TIdPropEdBinding);    {Do not Localize}
-   RegisterPropertyEditor(TypeInfo(TIdSocketHandles), TIdUDPServer, '', TIdPropEdBinding);    {Do not Localize}
-   RegisterPropertyEditor(TypeInfo(TIdSocketHandles),TIdIPMCastClient,'',TIdPropEdBinding);  {Do not localize}
+  RegisterPropertyEditor(TypeInfo(TIdSocketHandles), nil, '', TIdPropEdBinding);    {Do not Localize}
   RegisterComponentEditor(TIdBaseComponent, TIdBaseComponentEditor);
 end;
 
