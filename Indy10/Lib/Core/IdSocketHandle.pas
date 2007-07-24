@@ -355,7 +355,7 @@ function TIdSocketHandle.Accept(ASocket: TIdStackSocketHandle): Boolean;
 var
   LAcceptedSocket: TIdStackSocketHandle;
   LIP: String;
-  LPort: Integer;
+  LPort: TIdPort;
 begin
   Reset;
   LAcceptedSocket := GStack.Accept(ASocket, LIP, LPort);
