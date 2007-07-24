@@ -94,6 +94,7 @@
 unit IdResourceStringsCore;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 resourcestring
@@ -123,7 +124,7 @@ resourcestring
   RSNotConnected = 'Not Connected';
   RSObjectTypeNotSupported = 'Object type not supported.';
   RSIdNoDataToRead = 'No data to read.';
-  RSReadTimeout = 'Read Timeout';
+  RSReadTimeout = 'Read timed out.';
   RSAcceptTimeout = 'Accept timed out.';
   RSReadLnMaxLineLengthExceeded = 'Max line length exceeded.';
   RSConnectTimeout = 'Connect timed out.';
@@ -171,6 +172,7 @@ resourcestring
   RSIOHandlerTypeNotInstalled = 'No IOHandler of type %s is installed.';
 
   RSReplyInvalidCode = 'Reply Code is not valid: %s';
+  RSReplyCodeAlreadyExists = 'Reply Code already exists: %s';
 
   RSThreadSchedulerThreadRequired = 'Thread must be specified for the scheduler.';
   RSNoOnExecute = 'You must have an OnExecute event.';
@@ -237,8 +239,6 @@ resourcestring
   RSICMPTracePacketForwarded = 'Outbound Packet successfully forwarded';
   RSICMPTraceNoRoute = 'No route for Outbound Packet; packet discarded';
 //conversion errors
-
-
   RSICMPConvUnknownUnspecError = 'Unknown/unspecified error';
   RSICMPConvDontConvOptPresent = 'Don''t Convert option present';
   RSICMPConvUnknownMandOptPresent =  'Unknown mandatory option present';
