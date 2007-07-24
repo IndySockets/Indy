@@ -698,7 +698,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
 
   Id_WSAEINTR           = WSAEINTR;
   Id_WSAEBADF           = WSAEBADF;
-  Id_WSAEACCES          = WSAEACCES;
+  Id_WSAEACCES          = WSAEACCESS;
   Id_WSAEFAULT          = WSAEFAULT;
   Id_WSAEINVAL          = WSAEINVAL;
   Id_WSAEMFILE          = WSAEMFILE;
