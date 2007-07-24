@@ -126,7 +126,9 @@
 unit IdSocketHandle;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdException, IdGlobal, IdStackConsts, IdStack, IdBaseComponent;
@@ -165,7 +167,7 @@ type
     FConnectionHandle: TIdCriticalSection;
     //
     function BindPortReserved: Boolean;
-    procedure SetOverLapped(const AValue:boolean);
+    procedure SetOverLapped(const AValue: Boolean);
     procedure SetHandle(AHandle: TIdStackSocketHandle);
     procedure SetIPVersion(const Value: TIdIPVersion);
     function TryBind: Boolean;
@@ -226,9 +228,8 @@ uses
 
 { TIdSocketHandle }
 
-procedure TIdSocketHandle.AllocateSocket(
- const ASocketType: TIdSocketType;
- const AProtocol: TIdSocketProtocol);
+procedure TIdSocketHandle.AllocateSocket(const ASocketType: TIdSocketType;
+  const AProtocol: TIdSocketProtocol);
 begin
   // If we are reallocating a socket - close and destroy the old socket handle
   CloseSocket;
@@ -259,7 +260,7 @@ procedure TIdSocketHandle.Connect;
 begin
   GStack.Connect(Handle, PeerIP, PeerPort, FIPVersion);
   FConnectionHandle.Enter; try
-    if (HandleAllocated) then begin
+    if HandleAllocated then begin
       // UpdateBindingLocal needs to be called even though Bind calls it. After
       // Bind is may be 0.0.0.0 (INADDR_ANY). After connect it will be a real IP.
       UpdateBindingLocal;
@@ -303,31 +304,29 @@ end;
 
 procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  GStack.SendTo(Handle, ABuffer, 0, AIP, APort,AIPVersion);
+  GStack.SendTo(Handle, ABuffer, 0, AIP, APort, AIPVersion);
 end;
 
 function TIdSocketHandle.RecvFrom(var ABuffer : TIdBytes; var VIP: string;
  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
-  Result := GStack.ReceiveFrom(Handle,ABuffer,VIP,VPort,AIPVersion);
+  Result := GStack.ReceiveFrom(Handle, ABuffer, VIP, VPort, AIPVersion);
 end;
 
 procedure TIdSocketHandle.Bind;
 begin
   if (Port = 0) and (FClientPortMin <> 0) and (FClientPortMax <> 0) then begin
     if (FClientPortMin > FClientPortMax) then begin
-      raise EIdInvalidPortRange.Create(IndyFormat(RSInvalidPortRange
-       , [FClientPortMin, FClientPortMax]));
+      raise EIdInvalidPortRange.CreateFmt(RSInvalidPortRange, [FClientPortMin, FClientPortMax]);
     end else if not BindPortReserved then begin
-      raise EIdCanNotBindPortInRange.Create(IndyFormat(RSCanNotBindRange
-       , [FClientPortMin, FClientPortMax]));
+      raise EIdCanNotBindPortInRange.CreateFmt(RSCanNotBindRange, [FClientPortMin, FClientPortMax]);
     end;
   end else if not TryBind then begin
     raise EIdCouldNotBindSocket.Create(RSCouldNotBindSocket);
   end;
 end;
 
-procedure TIdSocketHandle.SetPeer(const AIP: string; const APort: TIdPort;  const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocketHandle.SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   FPeerIP := AIP;
   FPeerPort := APort;
@@ -355,9 +354,11 @@ end;
 function TIdSocketHandle.Accept(ASocket: TIdStackSocketHandle): Boolean;
 var
   LAcceptedSocket: TIdStackSocketHandle;
+  LIP: String;
+  LPort: Integer;
 begin
   Reset;
-  LAcceptedSocket := GStack.Accept(ASocket, FIP, FPort, FIPVersion);
+  LAcceptedSocket := GStack.Accept(ASocket, LIP, LPort);
   Result := (LAcceptedSocket <> Id_INVALID_SOCKET);
   if Result then begin
     SetHandle(LAcceptedSocket);
@@ -429,12 +430,12 @@ end;
 
 procedure TIdSocketHandle.UpdateBindingLocal;
 begin
-  GStack.GetSocketName(Handle, FIP, FPort);
+  GStack.GetSocketName(Handle, FIP, FPort, FIPVersion);
 end;
 
 procedure TIdSocketHandle.UpdateBindingPeer;
 begin
-  GStack.GetPeerName(Handle, FPeerIP, FPeerPort);
+  GStack.GetPeerName(Handle, FPeerIP, FPeerPort, FIPVersion);
 end;
 
 procedure TIdSocketHandle.Reset(const AResetLocal: boolean = True);
