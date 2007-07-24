@@ -65,6 +65,7 @@
 unit IdScheduler;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -77,26 +78,15 @@ type
     //
     procedure InitComponent; override;
   public
-    function AcquireYarn
-      : TIdYarn;
-      virtual; abstract;
-    destructor Destroy;
-      override;
-    procedure Init;
-      virtual;
+    destructor Destroy; override;
+    function AcquireYarn: TIdYarn; virtual; abstract;
+    procedure Init; virtual;
     // ReleaseYarn is to remove a yarn from the list that has already been
     // terminated (usually self termination);
-    procedure ReleaseYarn(
-      AYarn: TIdYarn
-      ); virtual;
-    procedure StartYarn(
-      AYarn: TIdYarn;
-      ATask: TIdTask
-      ); virtual; abstract;
+    procedure ReleaseYarn(AYarn: TIdYarn); virtual;
+    procedure StartYarn(AYarn: TIdYarn; ATask: TIdTask); virtual; abstract;
     // TerminateYarn is to terminate a yarn explicitly and remove it also
-    procedure TerminateYarn(
-      AYarn: TIdYarn
-      ); virtual; abstract;
+    procedure TerminateYarn(AYarn: TIdYarn); virtual; abstract;
     procedure TerminateAllYarns; virtual;
     //
     property ActiveYarns: TIdThreadSafeList read FActiveYarns;

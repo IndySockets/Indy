@@ -67,6 +67,7 @@
 unit IdSchedulerOfThreadPool;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -78,19 +79,18 @@ uses
   IdYarn;
 
 type
-
   TIdSchedulerOfThreadPool = class(TIdSchedulerOfThread)
   protected
     FPoolSize: Integer;
     FThreadPool: TIdThreadSafeList;
     procedure InitComponent; override;
   public
-    function AcquireYarn: TIdYarn;override;
     destructor Destroy; override;
+    function AcquireYarn: TIdYarn; override;
     procedure Init; override;
-    function NewThread: TIdThreadWithTask;override;
-    procedure ReleaseYarn(AYarn: TIdYarn);override;
-    procedure TerminateAllYarns;override;
+    function NewThread: TIdThreadWithTask; override;
+    procedure ReleaseYarn(AYarn: TIdYarn); override;
+    procedure TerminateAllYarns; override;
   published
     //TODO: Poolsize is only looked at during loading and when threads are
     // needed. Probably should add an Active property to schedulers like
@@ -133,8 +133,8 @@ var
   LThread: TIdThreadWithTask;
 begin
   //take posession of the thread
-  LThread:=TIdYarnOfThread(aYarn).Thread;
-  TIdYarnOfThreadAccess(AYarn).FThread:=nil;
+  LThread := TIdYarnOfThread(AYarn).Thread;
+  TIdYarnOfThreadAccess(AYarn).FThread := nil;
   //Currently LThread can =nil. Is that a valid condition?
   //Assert(LThread<>nil);
 
@@ -142,16 +142,19 @@ begin
   inherited ReleaseYarn(AYarn);
 
   with FThreadPool.LockList do try
-    if (Count < PoolSize) and (LThread<>nil) then begin
+    if (Count < PoolSize) and (LThread <> nil) then begin
       Add(LThread);
       LThread := nil;
     end;
   finally FThreadPool.UnlockList; end;
+
   // Was not redeposited to pool, need to destroy it
   if LThread <> nil then begin
-    LThread.Terminate;
-    LThread.Resume;
-    LThread.WaitFor;
+    with LThread do begin
+      Terminate;
+      Resume;
+      WaitFor;
+    end;
     FreeAndNil(LThread);
   end;
 end;
