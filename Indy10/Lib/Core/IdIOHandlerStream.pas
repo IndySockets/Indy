@@ -161,7 +161,7 @@ type
   end;
 
 implementation
-
+uses SysUtils;
 { TIdIOHandlerStream }
 
 procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
