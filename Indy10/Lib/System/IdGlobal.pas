@@ -1456,7 +1456,7 @@ var
   I, LCount: Integer;
 begin
   Result := '';
-  LCount := IndyLength(AValue, ALength, AIndex);
+  LCount := IndyLength(AValue, ACount, AIndex);
   if LCount > 0 then begin
     SetLength(Result, LCount*2);
     for I := 0 to LCount-1 do begin
@@ -3611,7 +3611,6 @@ end;
 
 function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0;
   AMaxCount: Integer = MaxInt; const AEncoding: TIdEncoding = en7Bit): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LLength: Integer;
 {$IFDEF DOTNET}
