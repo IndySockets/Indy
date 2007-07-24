@@ -154,18 +154,20 @@
 unit IdStackDotNet;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdGlobal, IdStack, IdStackConsts,
   System.Collections;
 
 type
+
   TIdSocketListDotNet = class(TIdSocketList)
   protected
-     Sockets:ArrayList;
-
-     function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
+    FSockets: ArrayList;
+    function GetItem(AIndex: Integer): TIdStackSocketHandle; override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -176,11 +178,10 @@ type
     function Clone: TIdSocketList; override;
     function Contains(AHandle: TIdStackSocketHandle): boolean; override;
     class function Select(AReadList: TIdSocketList; AWriteList: TIdSocketList;
-     AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
-    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean;
-     override;
+      AExceptList: TIdSocketList; const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+    function SelectRead(const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
     function SelectReadList(var VSocketList: TIdSocketList;
-     const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
+      const ATimeout: Integer = IdTimeoutInfinite): Boolean; override;
   end;
 
   TIdStackDotNet = class(TIdStack)
@@ -188,54 +189,42 @@ type
     function ReadHostName: string; override;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
-    function GetLocalAddress: string; override;
-    function GetLocalAddresses: TStrings; override;
     procedure PopulateLocalAddresses; override;
     //internal IP Mutlicasting membership stuff
     procedure MembershipSockOpt(AHandle: TIdStackSocketHandle;
-      const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+      const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
-    procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-                    const APort: TIdPort;
-                    const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string; const APort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
-                    const APort: TIdPort;
-                    const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-                    var VPort: TIdPort); override;
+      var VPort: TIdPort); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-                    var VPort: TIdPort); override;
-    function  NewSocketHandle(const ASocketType:TIdSocketType;
-                    const AProtocol: TIdSocketProtocol;
-                    const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-                    const AOverlapped: Boolean = False) : TIdStackSocketHandle; override;
+      var VPort: TIdPort); override;
+    function  NewSocketHandle(const ASocketType: TIdSocketType;
+      const AProtocol: TIdSocketProtocol;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      const AOverlapped: Boolean = False) : TIdStackSocketHandle; override;
     // Result:
     // > 0: Number of bytes received
     //   0: Connection closed gracefully
     // Will raise exceptions in other cases
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes) : Integer; override;
-    function Send(
-      ASocket: TIdStackSocketHandle;
-      const ABuffer: TIdBytes;
-      AOffset: Integer = 0;
-      ASize: Integer = -1
-      ): Integer; override;
-    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
+    function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+      AOffset: Integer = 0; ASize: Integer = -1): Integer; override;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
+      var arg: LongWord): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; override;
-    function ReceiveMsg(ASocket: TIdStackSocketHandle;
-      var VBuffer: TIdBytes;
-      APkt :  TIdPacketInfo;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
-
+      var VIP: string; var VPort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+    function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
+      APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; override;
-
+      const AOffset: Integer; const AIP: string; const APort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function HostToNetwork(AValue: Word): Word; override;
     function NetworkToHost(AValue: Word): Word; override;
     function HostToNetwork(AValue: LongWord): LongWord; override;
@@ -243,35 +232,28 @@ type
     function HostToNetwork(AValue: Int64): Int64; override;
     function NetworkToHost(AValue: Int64): Int64; override;
     function HostByAddress(const AAddress: string;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
-
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);override;
-    function Accept(ASocket: TIdStackSocketHandle;
-             var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ):TIdStackSocketHandle; override;
-    procedure GetSocketOption(ASocket: TIdStackSocketHandle;
-      ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
-      out AOptVal: Integer); override;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle; override;
+    procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; out AOptVal: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
-             AOptName: TIdSocketOption; AOptVal: Integer); overload;override;
-    function SupportsIPv6:boolean; override;
+      AOptName: TIdSocketOption; AOptVal: Integer); overload; override;
+    function SupportsIPv6: Boolean; override;
     //multicast stuff Kudzu permitted me to add here.
-    procedure SetMulticastTTL(AHandle: TIdStackSocketHandle;
-      const AValue : Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure SetMulticastTTL(AHandle: TIdStackSocketHandle; const AValue : Byte;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    procedure SetLoopBack(AHandle: TIdStackSocketHandle; const AValue: Boolean;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure DropMulticastMembership(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure AddMulticastMembership(AHandle: TIdStackSocketHandle;
       const AGroupIP, ALocalIP : String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    procedure WriteChecksum(s : TIdStackSocketHandle;
-      var VBuffer : TIdBytes;
-      const AOffset : Integer;
-      const AIP : String;
-      const APort : TIdPort;
+    procedure WriteChecksum(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
+      const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
-
 
 implementation
 
@@ -281,7 +263,7 @@ uses
   System.Net.Sockets;
 
 const
-  IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6 );
+  IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);
 
 { TIdStackDotNet }
 
@@ -290,14 +272,12 @@ var
   LSocketError : System.Net.Sockets.SocketException;
 begin
   if AException is System.Net.Sockets.SocketException then
-    begin
+  begin
     LSocketError := AException as System.Net.Sockets.SocketException;
-    result := EIdSocketError.createError(LSocketError.ErrorCode, LSocketError.Message)
-    end
-  else
-    begin
-    result := EIdWrapperException.create(AException.Message, AException);
-    end;
+    Result := EIdSocketError.CreateError(LSocketError.ErrorCode, LSocketError.Message)
+  end else begin
+    Result := EIdWrapperException.Create(AException.Message, AException);
+  end;
 end;
 
 procedure TIdStackDotNet.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
@@ -308,24 +288,25 @@ var
 begin
   try
     LIP := AIP;
-    if LIP='' then begin
-      if (AIPVersion=Id_IPv4) then begin
+    if LIP = '' then begin
+      if AIPVersion = Id_IPv4 then begin
         LIP := '0.0.0.0'; {do not localize}
-      end else if (AIPVersion=Id_IPv6) then begin
+      end
+      else if AIPVersion = Id_IPv6 then begin
         LIP := '::'; {do not localize}
       end;
     end;
     LEndPoint := IPEndPoint.Create(IPAddress.Parse(LIP), APort);
     ASocket.Bind(LEndPoint);
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
 procedure TIdStackDotNet.Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
-  const APort: TIdPort;const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LEndPoint : IPEndPoint;
 begin
@@ -333,7 +314,7 @@ begin
     LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
     ASocket.Connect(LEndPoint);
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -344,7 +325,7 @@ begin
   try
     ASocket.Close;
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -355,26 +336,26 @@ begin
   try
     ASocket.Listen(ABackLog);
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
 function TIdStackDotNet.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-  ):TIdStackSocketHandle;
+  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
 begin
   try
-    result := ASocket.Accept();
+    Result := ASocket.Accept();
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
-procedure TIdStackDotNet.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort);
+procedure TIdStackDotNet.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
+  var VPort: TIdPort);
 var
   LEndPoint : EndPoint;
 begin
@@ -383,24 +364,25 @@ begin
     VIP := (LEndPoint as IPEndPoint).Address.ToString;
     VPort := (LEndPoint as IPEndPoint).Port;
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
-procedure TIdStackDotNet.GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort);
+procedure TIdStackDotNet.GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
+  var VPort: TIdPort);
 var
   LEndPoint : EndPoint;
 begin
   try
-    if ASocket.Connected or (VIP<>'') then begin
+    if ASocket.Connected or (VIP <> '') then begin
       LEndPoint := ASocket.localEndPoint;
       VIP := (LEndPoint as IPEndPoint).Address.ToString;
       VPort := (LEndPoint as IPEndPoint).Port;
     end;
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -409,8 +391,8 @@ end;
 function TIdStackDotNet.HostByName(const AHostName: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
-  LIP : array of IPAddress;
-  a:integer;
+  LIP: array of IPAddress;
+  a: Integer;
 begin
   try
     {
@@ -424,15 +406,15 @@ begin
     {$IFDEF DOTNET1}
     LIP := Dns.Resolve(AHostName).AddressList;
     {$ENDIF}
-    for a:=low(LIP) to high(LIP) do begin
-      if LIP[a].AddressFamily=IdIPFamily[AIPVersion] then begin
-        result := LIP[a].toString;
-        exit;
+    for a := Low(LIP) to High(LIP) do begin
+      if LIP[a].AddressFamily = IdIPFamily[AIPVersion] then begin
+        Result := LIP[a].ToString;
+        Exit;
       end;
     end;
     raise System.Net.Sockets.SocketException.Create(11001);
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -443,26 +425,26 @@ function TIdStackDotNet.HostByAddress(const AAddress: string;
 begin
   try
     {$IFDEF DOTNET2}
-    result := Dns.GetHostEntry(AAddress).HostName;
+    Result := Dns.GetHostEntry(AAddress).HostName;
     {$ENDIF}
     {$IFDEF DOTNET1}
-    result := Dns.GetHostByAddress(AAddress).HostName;
+    Result := Dns.GetHostByAddress(AAddress).HostName;
     {$ENDIF}
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
-
 function TIdStackDotNet.NewSocketHandle(const ASocketType:TIdSocketType;
-  const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = false): TIdStackSocketHandle;
+  const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+  const AOverlapped: Boolean = False): TIdStackSocketHandle;
 begin
   try
     case AIPVersion of
-      Id_IPv4: result := Socket.Create(AddressFamily.InterNetwork, ASocketType, AProtocol);
-      Id_IPv6: result := Socket.Create(AddressFamily.InterNetworkV6, ASocketType, AProtocol);
+      Id_IPv4: Result := Socket.Create(AddressFamily.InterNetwork, ASocketType, AProtocol);
+      Id_IPv6: Result := Socket.Create(AddressFamily.InterNetworkV6, ASocketType, AProtocol);
       else
         raise EIdException.Create('Invalid socket type'); {do not localize}
     end;
@@ -476,9 +458,9 @@ end;
 function TIdStackDotNet.ReadHostName: string;
 begin
   try
-    result := System.Net.DNS.GetHostName;
+    Result := System.Net.DNS.GetHostName;
   except
-    on e:exception do begin
+    on E: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -487,9 +469,9 @@ end;
 function TIdStackDotNet.Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer;
 begin
   try
-    result := ASocket.Receive(VBuffer,length(VBuffer),SocketFlags.None);
+    Result := ASocket.Receive(VBuffer, Length(VBuffer), SocketFlags.None);
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -513,8 +495,7 @@ begin
 end;
 
 function TIdStackDotNet.ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+  var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 var
   LEndPoint : EndPoint;
 begin
@@ -522,9 +503,9 @@ begin
   LEndPoint := IPEndPoint.Create(IPAddress.Any, 0);
   try
     try
-      Result := ASocket.ReceiveFrom(VBuffer,SocketFlags.None,LEndPoint);
+      Result := ASocket.ReceiveFrom(VBuffer, SocketFlags.None, LEndPoint);
     except
-      on e:exception do begin
+      on e: Exception do begin
         raise BuildException(e);
       end;
     end;
@@ -536,9 +517,8 @@ begin
 end;
 
 function TIdStackDotNet.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer;
+  const AOffset: Integer; const AIP: string; const APort: TIdPort;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 var
   LEndPoint : EndPoint;
 begin
@@ -546,9 +526,9 @@ begin
   LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
   try
     try
-      Result := ASocket.SendTo(ABuffer,SocketFlags.None,LEndPoint);
+      Result := ASocket.SendTo(ABuffer, SocketFlags.None, LEndPoint);
     except
-      on e:exception do begin
+      on e: Exception do begin
         raise BuildException(e);
       end;
     end;
@@ -557,133 +537,124 @@ begin
   end;
 end;
 
-
 //////////////////////////////////////////////////////////////
-
-
 
 constructor TIdSocketListDotNet.Create;
 begin
   inherited Create;
-  Sockets:=ArrayList.Create;
+  FSockets := ArrayList.Create;
 end;
 
 destructor TIdSocketListDotNet.Destroy;
 begin
-  Sockets.free;
+  FSockets.Free;
   inherited Destroy;
 end;
 
 procedure TIdSocketListDotNet.Add(AHandle: TIdStackSocketHandle);
 begin
-  Sockets.Add(AHandle);
+  FSockets.Add(AHandle);
 end;
 
 procedure TIdSocketListDotNet.Clear;
 begin
-  Sockets.Clear;
+  FSockets.Clear;
 end;
 
 function TIdSocketListDotNet.Contains(AHandle: TIdStackSocketHandle): Boolean;
 begin
-  result:=Sockets.Contains(AHandle);
+  Result := FSockets.Contains(AHandle);
 end;
 
 function TIdSocketListDotNet.Count: Integer;
 begin
-  result:=Sockets.Count;
+  Result := FSockets.Count;
 end;
 
 function TIdSocketListDotNet.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
-  result:=(Sockets.Item[AIndex]) as TIdStackSocketHandle;
+  Result := (FSockets.Item[AIndex]) as TIdStackSocketHandle;
 end;
 
 procedure TIdSocketListDotNet.Remove(AHandle: TIdStackSocketHandle);
 begin
-  Sockets.Remove(AHandle);
+  FSockets.Remove(AHandle);
 end;
 
 function TIdSocketListDotNet.SelectRead(const ATimeout: Integer): Boolean;
 var
-  LTempSockets:ArrayList;
+  LTempSockets: ArrayList;
+  LTimeout: Integer;
 begin
   try
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTempSockets:=ArrayList(Sockets.Clone);
+    LTempSockets := ArrayList(FSockets.Clone);
     try
-      if ATimeout=IdTimeoutInfinite then begin
-        Socket.Select(LTempSockets,nil,nil,-1);
-      end else begin
-        Socket.Select(LTempSockets,nil,nil,ATimeout*1000);
-      end;
-      result := LTempSockets.Count > 0;
+      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
+      Socket.Select(LTempSockets, nil, nil, LTimeout);
+      Result := LTempSockets.Count > 0;
     finally
-      LTempSockets.free;
+      LTempSockets.Free;
     end;
   except
-    on e:exception do begin
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
 end;
 
-function TIdSocketListDotNet.SelectReadList(var VSocketList: TIdSocketList; 
-  const ATimeout: Integer): Boolean; 
-var 
-  LTempSockets: ArrayList; 
-  LTimeout: Integer; 
-begin 
-  try 
-    // DotNet updates this object on return, so we need to copy it each time we need it 
-    LTempSockets := ArrayList(Sockets.Clone);
-    try 
-      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000); 
-      Socket.Select(LTempSockets, nil, nil, LTimeout); 
-      Result := LTempSockets.Count > 0; 
-      if Result then begin 
-        if VSocketList = nil then begin 
-          VSocketList := TIdSocketList.CreateSocketList; 
-        end; 
-        TIdSocketListDotNet(VSocketList).Sockets.Free;
-        TIdSocketListDotNet(VSocketList).Sockets := LTempSockets; 
-        LTempSockets := nil; 
-      end; 
-    finally 
-      LTempSockets.Free; 
-    end; 
-  except 
-    on e: Exception do begin 
-      raise BuildException(e); 
-    end; 
-  end; 
-end;
-
-
-class function TIdSocketListDotNet.Select(AReadList, AWriteList,
- AExceptList: TIdSocketList; const ATimeout: Integer): Boolean;
+function TIdSocketListDotNet.SelectReadList(var VSocketList: TIdSocketList;
+  const ATimeout: Integer): Boolean;
+var
+  LTempSockets: ArrayList;
+  LTimeout: Integer;
 begin
   try
-    if ATimeout=IdTimeoutInfinite then begin
-      Socket.Select(
-        TIdSocketListDotNet(AReadList).Sockets,
-        TIdSocketListDotNet(AWriteList).Sockets,
-        TIdSocketListDotNet(AExceptList).Sockets,-1);
-    end else begin
-      Socket.Select(
-        TIdSocketListDotNet(AReadList).Sockets,
-        TIdSocketListDotNet(AWriteList).Sockets,
-        TIdSocketListDotNet(AExceptList).Sockets,ATimeout*1000);
+    // DotNet updates this object on return, so we need to copy it each time we need it
+    LTempSockets := ArrayList(FSockets.Clone);
+    try
+      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
+      Socket.Select(LTempSockets, nil, nil, LTimeout);
+      Result := LTempSockets.Count > 0;
+      if Result then begin
+        if VSocketList = nil then begin
+          VSocketList := TIdSocketList.CreateSocketList;
+        end;
+        TIdSocketListDotNet(VSocketList).FSockets.Free;
+        TIdSocketListDotNet(VSocketList).FSockets := LTempSockets;
+        LTempSockets := nil;
+      end;
+    finally
+      LTempSockets.Free;
     end;
-    result:=
-      (TIdSocketListDotNet(AReadList).Sockets.Count>0) or
-      (TIdSocketListDotNet(AWriteList).Sockets.Count>0) or
-      (TIdSocketListDotNet(AExceptList).Sockets.Count>0);
   except
-    on e:ArgumentNullException do begin
-      result:=false;
+    on e: Exception do begin
+      raise BuildException(e);
     end;
-    on e:exception do begin
+  end;
+end;
+
+class function TIdSocketListDotNet.Select(AReadList, AWriteList, AExceptList: TIdSocketList;
+  const ATimeout: Integer): Boolean;
+var
+  LTimeout: Integer;
+begin
+  try
+    LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
+    Socket.Select(
+      TIdSocketListDotNet(AReadList).FSockets,
+      TIdSocketListDotNet(AWriteList).FSockets,
+      TIdSocketListDotNet(AExceptList).FSockets,
+      LTimeout);
+    Result:=
+      (TIdSocketListDotNet(AReadList).FSockets.Count > 0) or
+      (TIdSocketListDotNet(AWriteList).FSockets.Count > 0) or
+      (TIdSocketListDotNet(AExceptList).FSockets.Count > 0);
+  except
+    on e: ArgumentNullException do begin
+      Result := False;
+    end;
+    on e: Exception do begin
       raise BuildException(e);
     end;
   end;
@@ -691,9 +662,9 @@ end;
 
 function TIdSocketListDotNet.Clone: TIdSocketList;
 begin
-  Result:=TIdSocketListDotNet.Create; //BGO: TODO: make prettier
-  TIdSocketListDotNet(Result).Sockets.Free;
-  TIdSocketListDotNet(Result).Sockets:=ArrayList(Sockets.Clone);
+  Result := TIdSocketListDotNet.Create; //BGO: TODO: make prettier
+  TIdSocketListDotNet(Result).FSockets.Free;
+  TIdSocketListDotNet(Result).FSockets := ArrayList(FSockets.Clone);
 end;
 
 function TIdStackDotNet.HostToNetwork(AValue: Word): Word;
@@ -718,7 +689,7 @@ end;
 
 function TIdStackDotNet.NetworkToHost(AValue: LongWord): LongWord;
 begin
-  Result := LongWord(IPAddress.NetworkToHostOrder(integer(AValue)));
+  Result := LongWord(IPAddress.NetworkToHostOrder(Integer(AValue)));
 end;
 
 function TIdStackDotNet.NetworkToHost(AValue: Int64): Int64;
@@ -727,164 +698,126 @@ begin
 end;
 
 procedure TIdStackDotNet.GetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
-  out AOptVal: Integer);
-var L : System.Object;
+  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; out AOptVal: Integer);
+var
+  L : System.Object;
 begin
-  L := ASocket.GetSocketOption(ALevel,AoptName);
+  L := ASocket.GetSocketOption(ALevel, AoptName);
   AOptVal := Integer(L);
 end;
 
 procedure TIdStackDotNet.SetSocketOption(ASocket: TIdStackSocketHandle;
-  ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
+  ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
   ASocket.SetSocketOption(ALevel, AOptName, AOptVal);
 end;
 
-function TIdStackDotNet.SupportsIPv6:boolean;
+function TIdStackDotNet.SupportsIPv6: Boolean;
 begin
-{
-[Warning] IdStackDotNet.pas(734): W1000 Symbol 'SupportsIPv6' is deprecated:
-'SupportsIPv6 is obsoleted for this type, please use OSSupportsIPv6 instead.
-http://go.microsoft.com/fwlink/?linkid=14202'
-}
+  {
+  [Warning] IdStackDotNet.pas(734): W1000 Symbol 'SupportsIPv6' is deprecated:
+  'SupportsIPv6 is obsoleted for this type, please use OSSupportsIPv6 instead.
+  http://go.microsoft.com/fwlink/?linkid=14202'
+  }
   {$IFDEF DOTNET2}
-  result := Socket.OSSupportsIPv6;
+  Result := Socket.OSSupportsIPv6;
   {$ENDIF}
   {$IFDEF DOTNET1}
-  result := Socket.SupportsIPv6;
+  Result := Socket.SupportsIPv6;
   {$ENDIF}
-end;
-
-function TIdStackDotNet.GetLocalAddresses: TStrings;
-begin
-  if FLocalAddresses = nil then
-  begin
-    FLocalAddresses := TStringList.Create;
-  end;
-  PopulateLocalAddresses;
-  Result := FLocalAddresses;
-
 end;
 
 procedure TIdStackDotNet.PopulateLocalAddresses;
 var
-   {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1}
   LAddr : IPAddress;
   {$ENDIF}
   LHost : IPHostEntry;
   i : Integer;
-
 begin
- FLocalAddresses.Clear;
-
   {$IFDEF DOTNET2}
-  LHost := DNS.GetHostEntry( DNS.GetHostName );
+  LHost := DNS.GetHostEntry(DNS.GetHostName);
   {$ENDIF}
   {$IFDEF DOTNET1}
   LAddr := IPAddress.Any;
   LHost := DNS.GetHostByAddress(LAddr);
   {$ENDIF}
-  if Length(LHost.AddressList)>0 then
+  if Length(LHost.AddressList) > 0 then
   begin
     for i := Low(LHost.AddressList) to High(LHost.AddressList) do
     begin
       //This may be returning various types of addresses.
-      if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then
-      begin
+      if LHost.AddressList[i].AddressFamily = AddressFamily.InterNetwork then begin
         FLocalAddresses.Add(LHost.AddressList[i].ToString);
       end;
     end;
   end;
 end;
 
-function TIdStackDotNet.GetLocalAddress: string;
-begin
-  Result := LocalAddresses[0];
-end;
-
 procedure TIdStackDotNet.SetLoopBack(AHandle: TIdStackSocketHandle;
   const AValue: Boolean; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
-var LVal : Integer;
 begin
   //necessary because SetSocketOption only accepts an integer
   //see: http://groups-beta.google.com/group/microsoft.public.dotnet.languages.csharp/browse_thread/thread/6a35c6d9052cfc2b/f01fea11f9a24508?q=SetSocketOption+DotNET&rnum=2&hl=en#f01fea11f9a24508
-  if AValue then
-  begin
-    LVal := 1;
-  end
-  else
-  begin
-    LVal := 0;
-  end;
-  AHandle.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback , LVal);
+  AHandle.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastLoopback, iif(AValue, 1, 0));
 end;
 
 procedure TIdStackDotNet.DropMulticastMembership(AHandle: TIdStackSocketHandle;
   const AGroupIP, ALocalIP: String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
-
 begin
-  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,SocketOptionName.DropMembership );
+  MembershipSockOpt(AHandle, AGroupIP, ALocalIP, SocketOptionName.DropMembership);
 end;
 
 procedure TIdStackDotNet.AddMulticastMembership(AHandle: TIdStackSocketHandle;
   const AGroupIP, ALocalIP: String; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  MembershipSockOpt(AHandle,AGroupIP,ALocalIP,SocketOptionName.AddMembership);
+  MembershipSockOpt(AHandle, AGroupIP, ALocalIP, SocketOptionName.AddMembership);
 end;
 
 procedure TIdStackDotNet.SetMulticastTTL(AHandle: TIdStackSocketHandle;
   const AValue: Byte; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  if AIPVersion=Id_IPv4 then
-  begin
-    AHandle.SetSocketOption(SocketOptionLevel.IP,
-	   	SocketOptionName.MulticastTimeToLive,AValue);
-  end
-  else
-  begin
-    AHandle.SetSocketOption(SocketOptionLevel.IPv6 ,
-     SocketOptionName.MulticastTimeToLive,AValue);
+  if AIPVersion = Id_IPv4 then begin
+    AHandle.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, AValue);
+  end else begin
+    AHandle.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.MulticastTimeToLive, AValue);
   end;
 end;
 
 procedure TIdStackDotNet.MembershipSockOpt(AHandle: TIdStackSocketHandle;
-  const AGroupIP, ALocalIP: String; const ASockOpt: TIdSocketOption; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
-var LM4 : MulticastOption;
-   LM6 : IPv6MulticastOption;
+  const AGroupIP, ALocalIP: String; const ASockOpt: TIdSocketOption;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+var
+  LM4 : MulticastOption;
+  LM6 : IPv6MulticastOption;
   LGroupIP, LLocalIP : System.Net.IPAddress;
-
 begin
-
   LGroupIP := IPAddress.Parse(AGroupIP);
   if LGroupIP.AddressFamily = AddressFamily.InterNetworkV6 then
   begin
     LM6  := IPv6MulticastOption.Create(LGroupIP);
-    AHandle.SetSocketOption(SocketOptionLevel.IPv6 , SocketOptionName.AddMembership , LM6);
-  end
-  else
+    AHandle.SetSocketOption(SocketOptionLevel.IPv6, SocketOptionName.AddMembership, LM6);
+  end else
   begin
-    if ALocalIP.Length =0 then
-    begin
-      LM4 :=  System.Net.Sockets.MulticastOption.Create(LGroupIP);
-    end
-    else
+    if ALocalIP.Length = 0 then begin
+      LM4 := System.Net.Sockets.MulticastOption.Create(LGroupIP);
+    end else
     begin
       LLocalIP := IPAddress.Parse(ALocalIP);
-
-      LM4 :=  System.Net.Sockets.MulticastOption.Create(LGroupIP,LLocalIP);
+      LM4 := System.Net.Sockets.MulticastOption.Create(LGroupIP, LLocalIP);
     end;
     AHandle.SetSocketOption(SocketOptionLevel.IP, ASockOpt, LM4);
-   end;
+  end;
 end;
 
 function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): Cardinal;
-var LIP : String;
-  LPort : TIdPort;
+var
+  LIP : String;
+  LPort : Integer;
 begin
-  Result := ReceiveFrom(ASocket,VBuffer,LIP,LPort,AIPVersion);
+  Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, AIPVersion);
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
 end;
@@ -892,33 +825,28 @@ end;
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
-
 begin
-  if AIPVersion = Id_IPv4 then
+  if AIPVersion = Id_IPv4 then begin
+    CopyTIdWord(CalcCheckSum(VBuffer), VBuffer, AOffset);
+  end else
   begin
-    CopyTIdWord(CalcCheckSum(VBuffer),VBuffer,AOffset);
-  end
-  else
-  begin
-{This is a todo because to do a checksum for ICMPv6, you need to obtain
-the address for the IP the packet will come from (querry the network interfaces).
-You then have to make a IPv6 pseudo header.  About the only other alternative is
-to have the kernal (or DotNET Framework generate the checksum but we don't have
-an API for it.
+    {This is a todo because to do a checksum for ICMPv6, you need to obtain
+    the address for the IP the packet will come from (query the network interfaces).
+    You then have to make a IPv6 pseudo header.  About the only other alternative is
+    to have the kernel (or DotNET Framework) generate the checksum but we don't have
+    an API for it.
 
-I'm not sure if we have an API for it at all.  Even if we did, would it be worth
-doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
-in its enumerations.
-}
+    I'm not sure if we have an API for it at all.  Even if we did, would it be worth
+    doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
+    in its enumerations.}
     Todo;
   end;
-
 end;
 
 function TIdStackDotNet.IOControl(const s: TIdStackSocketHandle;
-  const cmd: cardinal; var arg: cardinal): Integer;
-var LTmp : TIdBytes;
-
+  const cmd: LongWord; var arg: LongWord): Integer;
+var
+  LTmp : TIdBytes;
 begin
   LTmp := ToBytes(arg);
   s.IOControl(cmd, ToBytes(arg), LTmp);
@@ -928,4 +856,5 @@ end;
 
 initialization
   GSocketListClass := TIdSocketListDotNet;
+
 end.
