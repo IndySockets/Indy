@@ -343,7 +343,7 @@ type
     function ExtractToLongWord(const AIndex : Integer): LongWord;
     function ExtractToInt64(const AIndex : Integer): Int64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
-    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;
+    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;  overload;
     function IndexOf(const AString: string; AStartPos: Integer = 0;
       AEncoding: TIdEncoding = enDefault): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
@@ -689,7 +689,7 @@ begin
     LIndex := AIndex;
   end;
   BytesToIPv6(FBytes, VAddress, LIndex);
-  VAddress := GStack.NetworkToHost(Result);
+  VAddress := GStack.NetworkToHost(VAddress);
   if AIndex < 0 then begin
     Remove(16);
   end;
@@ -846,7 +846,7 @@ begin
   if ADestIndex < 0 then
   begin
     LIndex := FHeadIndex + Size;
-    SetLength(FBytes, LIndex + LongWord));
+    SetLength(FBytes, LIndex + SizeOf(LongWord));
   end else
   begin
     LIndex := ADestIndex;
