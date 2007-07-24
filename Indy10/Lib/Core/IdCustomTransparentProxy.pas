@@ -60,8 +60,10 @@
 unit IdCustomTransparentProxy;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
+
 uses
   Classes,
   IdComponent,
@@ -92,20 +94,19 @@ type
     procedure SetChainedProxy(const AValue: TIdCustomTransparentProxy);
   public
     procedure Assign(ASource: TPersistent); override;
-    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
+    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string = ''; const APort: TIdPort = 0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual;
     procedure CloseUDP(AHandle: TIdSocketHandle); virtual;
-    function RecvFromUDP(AHandle: TIdSocketHandle;
-      var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort;
-      const AIPVersion: TIdIPVersion;
-       AMSec: Integer = IdTimeoutDefault): integer; virtual;
+    function RecvFromUDP(AHandle: TIdSocketHandle; var ABuffer : TIdBytes;
+      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion;
+       AMSec: Integer = IdTimeoutDefault): Integer; virtual;
     procedure SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); virtual;
+      const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion;
+      const ABuffer : TIdBytes); virtual;
     procedure Connect(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
     //
     procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);overload;virtual;
-    procedure Bind(AIOHandler: TIdIOHandler; const APort: TIdPort);overload;
-    function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;virtual;
+    procedure Bind(AIOHandler: TIdIOHandler; const APort: TIdPort); overload;
+    function  Listen(AIOHandler: TIdIOHandler; const ATimeOut: Integer): Boolean; virtual;
     //
     property  Enabled: Boolean read GetEnabled write SetEnabled;
     property  Host: String read FHost write FHost;
@@ -142,7 +143,7 @@ procedure TIdCustomTransparentProxy.Connect(AIOHandler: TIdIOHandler; const AHos
 begin
   if Assigned(FChainedProxy) and FChainedProxy.Enabled then begin
     MakeConnection(AIOHandler, FChainedProxy.Host, FChainedProxy.Port);
-    FChainedProxy.Connect(AIOHandler, AHost, APort,AIPVersion);
+    FChainedProxy.Connect(AIOHandler, AHost, APort, AIPVersion);
   end else begin
     MakeConnection(AIOHandler, AHost, APort, AIPVersion);
   end;
@@ -160,7 +161,6 @@ end;
 
 procedure TIdCustomTransparentProxy.Bind(AIOHandler: TIdIOHandler; const APort: TIdPort);
 begin
-
   Bind(AIOHandler, '0.0.0.0', APort);   {do not localize}
 end;
 
@@ -182,14 +182,12 @@ var
 begin
   LNextValue := AValue;
   while Assigned(LNextValue) do begin
-    if LNextValue = SELF then begin
-      raise EIdTransparentProxyCircularLink.Create(IndyFormat(RSInterceptCircularLink,[ClassName]));// -> One EIDCircularLink exception
+    if LNextValue = Self then begin
+      raise EIdTransparentProxyCircularLink.CreateFmt(RSInterceptCircularLink, [ClassName]);// -> One EIDCircularLink exception
     end;
     LNextValue := LNextValue.FChainedProxy;
   end;
-
   FChainedProxy := AValue;
-
   if Assigned(AValue) then begin
     AValue.FreeNotification(Self);
   end;
@@ -200,24 +198,23 @@ begin
   raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
 
-procedure TIdCustomTransparentProxy.OpenUDP(AHandle : TIdSocketHandle;
-  const AHost: string='';
-  const APort: TIdPort=0;
+procedure TIdCustomTransparentProxy.OpenUDP(AHandle: TIdSocketHandle;
+  const AHost: string = ''; const APort: TIdPort = 0;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  raise EIdTransparentProxyUDPNotSupported.Create( RSTransparentProxyCanNotSupportUDP );
+  raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
 
 function TIdCustomTransparentProxy.RecvFromUDP(AHandle: TIdSocketHandle;
-      var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion;
-       AMSec: Integer = IdTimeoutDefault): integer;
+  var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
+  const AIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
 begin
    raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
 
 procedure TIdCustomTransparentProxy.SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
+  const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion;
+  const ABuffer : TIdBytes);
 begin
    raise EIdTransparentProxyUDPNotSupported.Create(RSTransparentProxyCanNotSupportUDP);
 end;
