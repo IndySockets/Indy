@@ -1066,7 +1066,7 @@ function IPv4ToDWord(const AIPAddress: string): LongWord; overload;
 function IPv4ToDWord(const AIPAddress: string; var VErr: Boolean): LongWord; overload;
 function IPv4ToHex(const AIPAddress: string; const ASDotted: Boolean = False): string;
 function IPv4ToOctal(const AIPAddress: string): string;
-procedure IPv6ToIdIPv6Address(const AIPAddress: String; var VAddress: TIdIPv6Address);
+procedure IPv6ToIdIPv6Address(const AIPAddress: String; var VAddress: TIdIPv6Address); overload;
 procedure IPv6ToIdIPv6Address(const AIPAddress: String; var VAddress: TIdIPv6Address; var VErr : Boolean); overload;
 function IsAlpha(const AChar: Char): Boolean; overload;
 function IsAlpha(const AString: String): Boolean; overload;
@@ -1158,7 +1158,7 @@ begin
   Result := InterlockedExchange(PtrInt(VTarget), AValue);
   {$ENDIF}
   {$IFDEF CPU64}
-  InterlockedExchange64(PtrInt(VTarget), 0);
+  Result := InterlockedExchange64(PtrInt(VTarget), 0);
   {$ENDIF}
 end;
 {$ENDIF}
@@ -1283,6 +1283,7 @@ begin
     en8Bit: Result := System.Text.Encoding.GetEncoding(1252); // Windows-1252
   else
     Result := nil;
+  end;
 end;
 {$ENDIF}
 
