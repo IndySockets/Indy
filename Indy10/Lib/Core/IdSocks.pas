@@ -183,8 +183,10 @@
 unit IdSocks;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work.
+
 uses
   Classes,
   IdAssignedNumbers, IdException, IdBaseComponent,
@@ -211,7 +213,7 @@ type
     function DisasmUDPReplyPacket(const APacket : TIdBytes;
       var VHost : String; var VPort : TIdPort): TIdBytes;
     function MakeUDPRequestPacket(const AData: TIdBytes;
-      const AHost : String; const APort : TIdPort) : TIdBytes;
+      const AHost: String; const APort: TIdPort) : TIdBytes;
     procedure AssignTo(ASource: TPersistent); override;
     function GetEnabled: Boolean; override;
     procedure InitComponent; override;
@@ -236,13 +238,12 @@ type
     destructor Destroy; override;
     procedure Bind(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     function  Listen(AIOHandler: TIdIOHandler; const ATimeOut:integer):boolean;override;
-    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    function RecvFromUDP(AHandle: TIdSocketHandle;
-      var ABuffer : TIdBytes;
+    procedure OpenUDP(AHandle : TIdSocketHandle; const AHost: string = ''; const APort: TIdPort = 0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
+    function RecvFromUDP(AHandle: TIdSocketHandle; var ABuffer : TIdBytes;
       var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion;
-       AMSec: Integer = IdTimeoutDefault): integer; override;
-    procedure SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); override;
+      AMSec: Integer = IdTimeoutDefault): Integer; override;
+    procedure SendToUDP(AHandle: TIdSocketHandle; const AHost: string;
+      const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes); override;
     procedure CloseUDP(AHandle: TIdSocketHandle); override;
   published
     property Authentication: TSocksAuthentication read FAuthentication write FAuthentication default ID_SOCKS_AUTH;
@@ -277,10 +278,11 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte);
+procedure TIdSocksInfo.MakeSocks4Request(AIOHandler: TIdIOHandler; const AHost: string;
+  const APort: TIdPort; const ARequest : Byte);
 var
   LIpAddr: String;
-  LTempPort : Word;
+  LTempPort : TIdPort;
 begin
   AIOHandler.WriteBufferOpen;
   try
@@ -316,8 +318,7 @@ begin
   end;
 end;
 
-procedure TIdSocksInfo.MakeSocks4Connection(AIOHandler: TIdIOHandler;   const AHost: string; const APort: TIdPort);
-
+procedure TIdSocksInfo.MakeSocks4Connection(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort);
 var
   LResponse: TIdBytes;
 begin
@@ -333,7 +334,8 @@ begin
 end;
 
 procedure TIdSocksInfo.MakeSocks5Request(AIOHandler: TIdIOHandler; const AHost: string; const APort: TIdPort; const ARequest : Byte; var VBuf : TIdBytes; var VLen : Integer);
-var LtempPort : Word;
+var
+  LtempPort : TIdPort;
   LIP : TIdIPAddress;
 begin
   // Connection process
@@ -341,43 +343,40 @@ begin
   VBuf[1] := ARequest; //request method
   VBuf[2] := $0;   // reserved
 
-  if (length(MakeCanonicalIPv6Address(AHost))>0) then begin
+  if Length(MakeCanonicalIPv6Address(AHost)) > 0 then
+  begin
     VBuf[3] := $4;   // address type: IP V4 address: X'01'    {Do not Localize}
                            //               DOMAINNAME:    X'03'    {Do not Localize}
                            //               IP V6 address: X'04'    {Do not Localize}
 
-    VBuf[4] :=16; // 16 bytes for the ip
+    VBuf[4] := 16; // 16 bytes for the ip
     VLen := 5;
     LIP := TIdIPAddress.MakeAddressObject(AHost);
     try
-      if Assigned(LIP) then
-      begin
-        CopyTIdBytes(LIP.HToNBytes,0,VBuf,4,16);
+      if Assigned(LIP) then begin
+        CopyTIdBytes(LIP.HToNBytes, 0, VBuf, 4, 16);
       end;
     finally
       FreeAndNil(LIP);
     end;
     VLen := VLen + 16;
-  end
-  else
+  end else
   begin
     // for now we stick with domain name, must ask Chad how to detect
     // address type
-    if GStack.IsIP( AHost ) then
+    if GStack.IsIP(AHost) then
     begin
       VBuf[3] := $01;  //IPv4 address
       LIP := TIdIPAddress.MakeAddressObject(AHost);
       try
-        if Assigned(LIP) then
-        begin
-          CopyTIdBytes(LIP.HToNBytes,0,VBuf,4,4);
+        if Assigned(LIP) then begin
+          CopyTIdBytes(LIP.HToNBytes, 0, VBuf, 4, 4);
         end;
       finally
         FreeAndNil(LIP);
       end;
       VLen := 8;
-    end
-    else
+    end else
     begin
       VBuf[3] := $3;   // address type: IP V4 address: X'01'    {Do not Localize}
                            //               DOMAINNAME:    X'03'    {Do not Localize}
@@ -386,17 +385,16 @@ begin
       VBuf[4] := Length(AHost);
       VLen := 5;
       if Length(AHost) > 0 then begin
-        CopyTIdBytes(ToBytes(AHost),0,VBuf,VLen,Length(AHost));
+        CopyTIdBytes(ToBytes(AHost), 0, VBuf, VLen, Length(AHost));
       end;
       VLen := VLen + Length(AHost);
     end;
-
   end;
 
   // port
 
   LtempPort := GStack.HostToNetwork(APort);
-  CopyTIdBytes(ToBytes(LtempPort),0,VBuf,VLen,2);
+  CopyTIdBytes(ToBytes(LtempPort), 0, VBuf, VLen, 2);
   VLen := VLen + 2;
 end;
 
@@ -404,7 +402,6 @@ procedure TIdSocksInfo.MakeSocks5Connection(AIOHandler: TIdIOHandler; const AHos
 var
   pos: Integer;
   LBuf: TIdBytes;
-
 begin
   AuthenticateSocks5Connection(AIOHandler);
   SetLength(LBuf, 255);
@@ -479,7 +476,7 @@ begin
     try
       // Socks server replies on connect, this is the second part
       AIOHandler.ReadBytes(LResponse, 6, False); //overwrite the first part for now
-      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding( IntToStr(LResponse[2])+'.'+IntToStr(LResponse[3])+'.'+IntToStr(LResponse[4])+'.'+IntToStr(LResponse[5]) , LResponse[0]*256+LResponse[1]);
+      TIdIOHandlerSocket(AIOHandler).Binding.SetBinding(IntToStr(LResponse[2])+'.'+IntToStr(LResponse[3])+'.'+IntToStr(LResponse[4])+'.'+IntToStr(LResponse[5]), LResponse[0]*256+LResponse[1]);
     except
       raise EIdSocksServerRespondError.Create(RSSocksServerRespondError);
     end;
@@ -585,8 +582,9 @@ procedure TIdSocksInfo.MakeSocks5Bind(AIOHandler: TIdIOHandler; const AHost: str
 var
   Lpos: Integer;
   LBuf: TIdBytes;
-  LClient:TIdTcpClient;
-   LType : Byte;
+  LClient: TIdTCPClient;
+  LType : Byte;
+  LAddress: TIdIPv6Address;
 begin
   LClient := TIdTCPClient.Create(nil);
   try
@@ -639,13 +637,14 @@ begin
       case LType of
         1 : begin
               //IPv4
-              TIdIOHandlerSocket(AIOHandler).binding.SetPeer( IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]) ,LBuf[4]*256+LBuf[5],Id_IPv4);
+              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]), LBuf[4]*256+LBuf[5], Id_IPv4);
             end;
         3 : begin
-              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
+              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2)), LBuf[4]*256+LBuf[5], TIdIOHandlerSocket(AIOHandler).IPVersion);
             end;
         4 : begin
-              TIdIOHandlerSocket(AIOHandler).binding.SetPeer( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
+              BytesToIPv6(LBuf, LAddress);
+              TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IPv6AddressToStr(LAddress), LBuf[16]*256+LBuf[17], Id_IPv6);
             end;
       end;
     except
@@ -658,7 +657,7 @@ begin
 end;
 
 procedure TIdSocksInfo.Bind(AIOHandler: TIdIOHandler; const AHost: string;
-  const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const APort: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: MakeSocks4Bind(AIOHandler, AHost, APort);
@@ -682,6 +681,7 @@ var
   Lpos: Integer;
   LBuf: TIdBytes;
   LType : Byte;
+  LAddress: TIdIPv6Address;
 begin
   SetLength(LBuf, 255);
   Result := TIdIOHandlerSocket(AIOHandler).Binding.Readable(ATimeOut);
@@ -715,13 +715,19 @@ begin
     // Socks server replies on connect, this is the second part
     AIOHandler.ReadBytes(LBuf, Lpos, False);      // just write it over the first part for now
     case LType of
-    //IPv4
-      1 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]),LBuf[4]*256+LBuf[5],Id_IPv4);
-    //FQN
-      3 : TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString( LBuf,0,LPos-2 )),LBuf[4]*256+LBuf[5],TIdIOHandlerSocket(AIOHandler).IPVersion );
-    else
-    //IPv6
-      TIdIOHandlerSocket(AIOHandler).binding.SetPeer( IPv6AddressToStr(BytesToIPv6(LBuf)) ,LBuf[16]*256+LBuf[17],Id_IPv6);
+      1 : begin
+            //IPv4
+            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[0])+'.'+IntToStr(LBuf[1])+'.'+IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3]), LBuf[4]*256+LBuf[5], Id_IPv4);
+          end;
+      3 : begin
+            //FQN
+            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(GStack.ResolveHost(BytesToString(LBuf,0,LPos-2)), LBuf[4]*256+LBuf[5], TIdIOHandlerSocket(AIOHandler).IPVersion);
+          end;
+      else begin
+            //IPv6
+            BytesToIPv6(LBuf, LAddress);
+            TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IPv6AddressToStr(LAddress), LBuf[16]*256+LBuf[17], Id_IPv6);
+           end;
     end;
   end;
 end;
@@ -741,19 +747,18 @@ begin
       91: raise EIdSocksRequestFailed.Create(RSSocksRequestFailed);
       92: raise EIdSocksRequestServerFailed.Create(RSSocksRequestServerFailed);
       93: raise EIdSocksRequestIdentFailed.Create(RSSocksRequestIdentFailed);
-    else raise EIdSocksUnknownError.Create(RSSocksUnknownError);
+      else raise EIdSocksUnknownError.Create(RSSocksUnknownError);
     end;
 
     // Socks server replies on connect, this is the second part
     AIOHandler.ReadBytes(LBuf, 6, False);      // just write it over the first part for now
-    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3])+'.'+IntToStr(LBuf[4])+'.'+IntToStr(LBuf[5]) , LBuf[0]*256+LBuf[1]);
+    TIdIOHandlerSocket(AIOHandler).Binding.SetPeer(IntToStr(LBuf[2])+'.'+IntToStr(LBuf[3])+'.'+IntToStr(LBuf[4])+'.'+IntToStr(LBuf[5]), LBuf[0]*256+LBuf[1]);
   end;
 end;
 
 procedure TIdSocksInfo.CloseSocks5UDPAssociation;
 begin
-  if Assigned(FUDPSocksAssociation) then
-  begin
+  if Assigned(FUDPSocksAssociation) then begin
     FUDPSocksAssociation.Close;
   end;
 end;
@@ -775,12 +780,9 @@ begin
     // Associate process
     //For SOCKS5 Associate, the IP address and port is the client's IP address and port which may
     //not be known
-    if IPVersion = IdGlobal.Id_IPv4 then
-    begin
+    if IPVersion = Id_IPv4 then begin
       MakeSocks5Request(FUDPSocksAssociation, '0.0.0.0', 0, $03, LBuf, LPos); //associate request
-    end
-    else
-    begin
+    end else begin
       MakeSocks5Request(FUDPSocksAssociation, '::0', 0, $03, LBuf, LPos); //associate request
     end;
     //
@@ -846,7 +848,7 @@ begin
 end;
 
 procedure TIdSocksInfo.OpenUDP(AHandle: TIdSocketHandle;
-  const AHost: string=''; const APort: TIdPort=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+  const AHost: string=''; const APort: Integer=0; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
   case Version of
     svSocks4, svSocks4A: raise EIdSocksUDPNotSupportedBySOCKSVersion.Create(RSSocksUDPNotSupported);
@@ -855,7 +857,7 @@ begin
 end;
 
 function TIdSocksInfo.DisasmUDPReplyPacket(const APacket : TIdBytes;
-  var VHost : String; var VPort : TIdPort): TIdBytes;
+  var VHost : String; var VPort : Integer): TIdBytes;
 {
 
 
@@ -877,58 +879,52 @@ function TIdSocksInfo.DisasmUDPReplyPacket(const APacket : TIdBytes;
           o  DST.PORT       desired destination port
           o  DATA     user data
 }
-var LLen : Integer;
-//  LIP : TIdIPAddress;
+var
+  LLen : Integer;
   LIP6 : TIdIPv6Address;
-  LtempPort : Word;
   LHost : TIdBytes;
   i : Integer;
 begin
-  if Length(APacket)<5 then
-  begin
+  if Length(APacket) < 5 then begin
     Exit;
   end;
-    // type of destination address is domain name
-    case APacket[3] of
-      // IP V4
-      1: begin
-           LLen := 4 + 4; //4 IPv4 address len, 4- 2 reserved, 1 frag, 1 atype
-           VHost := IntToStr(APacket[4])+'.'+IntToStr(APacket[5])+'.'+IntToStr(APacket[6])+'.'+IntToStr(APacket[7]);
-
+  // type of destination address is domain name
+  case APacket[3] of
+    // IP V4
+    1: begin
+         LLen := 4 + 4; //4 IPv4 address len, 4- 2 reserved, 1 frag, 1 atype
+         VHost := IntToStr(APacket[4])+'.'+IntToStr(APacket[5])+'.'+IntToStr(APacket[6])+'.'+IntToStr(APacket[7]);
+       end;
+    // FQDN
+    3: begin
+         LLen := APacket[4] +4; // 2 is for port length, 4 - 2 reserved, 1 frag, 1 atype
+         if Length(APacket)< (5+LLen) then begin
+           Exit;
          end;
-      // FQDN
-      3: begin
-           LLen := APacket[4] +4; // 2 is for port length, 4 - 2 reserved, 1 frag, 1 atype
-           if Length(APacket)< (5+LLen) then
-           begin
-             Exit;
-           end;
-           SetLength(LHost,APacket[4]);
-           CopyTIdBytes(APacket,5,LHost,0,APacket[4]);
-           VHost := BytesToString(LHost);
-         end;
-      // IP V6  - 4:
-    else
+         SetLength(LHost, APacket[4]);
+         CopyTIdBytes(APacket, 5, LHost, 0, APacket[4]);
+         VHost := BytesToString(LHost);
+       end;
+    // IP V6  - 4:
+    else begin
       LLen := 16 + 4; // 16 is for address, 2 is for port length,4 - 2 reserved, 1 frag, 1 atype
       SetLength(LHost,16);
-      CopyTIdBytes(APacket,5,LHost,0,16);
+      CopyTIdBytes(APacket, 5, LHost, 0, 16);
       LIP6 := BytesToIPv6(LHost);
-      for i := 0 to 7 do
-      begin
+      for i := 0 to 7 do begin
         LIP6[i] := GStack.NetworkToHost(LIP6[i]);
       end;
       VHost := IPv6AddressToStr(LIP6);
     end;
-    LtempPort := APacket[LLen]*256+ APacket[LLen+1];
-    VPort := LtempPort;
+  end;
+  VPort := APacket[LLen]*256 + APacket[LLen+1];
   LLen := LLen + 2;
-  SetLength(Result,Length(APacket)-LLen);
-  CopyTIdBytes(APacket,LLen,Result,0,Length(APacket)-LLen);
+  SetLength(Result, Length(APacket)-LLen);
+  CopyTIdBytes(APacket, LLen, Result, 0, Length(APacket)-LLen);
 end;
 
 function TIdSocksInfo.MakeUDPRequestPacket(const AData: TIdBytes;
-      const AHost : String; const APort : TIdPort) : TIdBytes;
-
+  const AHost : String; const APort : TIdPort) : TIdBytes;
 {
 
 
@@ -950,88 +946,79 @@ function TIdSocksInfo.MakeUDPRequestPacket(const AData: TIdBytes;
           o  DST.PORT       desired destination port
           o  DATA     user data
 }
-var LLen : Integer;
+var
+  LLen : Integer;
   LIP : TIdIPAddress;
-  LtempPort : Word;
+  LtempPort : TIdPort;
 begin
-  SetLength(Result,1024);
+  SetLength(Result, 1024);
   Result[0] := 0;
   Result[1] := 0;
   Result[2] := 0; //no fragmentation - too lazy to implement it
-  if (length(MakeCanonicalIPv6Address(AHost))>0) then begin
+  if Length(MakeCanonicalIPv6Address(AHost)) > 0 then
+  begin
     Result[3] := $4;   // address type: IP V4 address: X'01'    {Do not Localize}
                            //               DOMAINNAME:    X'03'    {Do not Localize}
                            //               IP V6 address: X'04'    {Do not Localize}
 
-    Result[4] :=16; // 16 bytes for the ip
+    Result[4] := 16; // 16 bytes for the ip
     LLen := 5;
     LIP := TIdIPAddress.MakeAddressObject(AHost);
     try
-      if Assigned(LIP) then
-      begin
-        CopyTIdBytes(LIP.HToNBytes,0,Result,4,16);
+      if Assigned(LIP) then begin
+        CopyTIdBytes(LIP.HToNBytes, 0, Result, 4, 16);
       end;
     finally
       FreeAndNil(LIP);
     end;
     LLen := LLen + 16;
   end
-  else
+  else if GStack.IsIP(AHost) then
   begin
-    // for now we stick with domain name, must ask Chad how to detect
-    // address type
-    if GStack.IsIP( AHost ) then
-    begin
-      Result[3] := $01;  //IPv4 address
-      Result[4] :=4; // 4 bytes for the ip
-      LIP := TIdIPAddress.MakeAddressObject(AHost);
-      try
-        if Assigned(LIP) then
-        begin
-          CopyTIdBytes(LIP.HToNBytes,0,Result,4,4);
-        end;
-      finally
-        FreeAndNil(LIP);
+    Result[3] := $01; //IPv4 address
+    Result[4] := 4;   // 4 bytes for the ip
+    LIP := TIdIPAddress.MakeAddressObject(AHost);
+    try
+      if Assigned(LIP) then begin
+        CopyTIdBytes(LIP.HToNBytes, 0, Result, 4, 4);
       end;
-      LLen := 8;
-    end
-    else
-    begin
-      Result[3] := $3;   // address type: IP V4 address: X'01'    {Do not Localize}
-                           //               DOMAINNAME:    X'03'    {Do not Localize}
-                           //               IP V6 address: X'04'    {Do not Localize}
-      // host name
-      Result[4] := Length(AHost);
-      LLen := 5;
-      if Length(AHost) > 0 then begin
-        CopyTIdBytes(ToBytes(AHost),0,Result,LLen,Length(AHost));
-      end;
-      LLen := LLen + Length(AHost);
+    finally
+      FreeAndNil(LIP);
     end;
-
+    LLen := 8;
+  end else
+  begin
+    Result[3] := $3;   // address type: IP V4 address: X'01'    {Do not Localize}
+                       //               DOMAINNAME:    X'03'    {Do not Localize}
+                       //               IP V6 address: X'04'    {Do not Localize}
+    // host name
+    Result[4] := Length(AHost);
+    LLen := 5;
+    if Length(AHost) > 0 then begin
+      CopyTIdBytes(ToBytes(AHost), 0, Result, LLen, Length(AHost));
+    end;
+    LLen := LLen + Length(AHost);
   end;
 
   // port
-  LtempPort := APort;  //done this way to avoid a range check error
-  LtempPort := GStack.HostToNetwork(LtempPort);
-  CopyTIdBytes(ToBytes(LtempPort),0,Result,LLen,2);
+  LtempPort := GStack.HostToNetwork(APort);
+  CopyTIdBytes(ToBytes(LtempPort), 0, Result, LLen, 2);
   LLen := LLen + 2;
   //now do the rest of the packet
-  SetLength(Result,LLen + Length(AData));
-  CopyTIdBytes(AData,0,Result,LLen,Length(AData));
+  SetLength(Result, LLen + Length(AData));
+  CopyTIdBytes(AData, 0, Result, LLen, Length(AData));
 end;
 
 function TIdSocksInfo.RecvFromUDP(AHandle: TIdSocketHandle;
- var ABuffer : TIdBytes;
-  var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion;
-  AMSec: Integer = IdTimeoutDefault): integer;
-var LBuf : TIdBytes;
-
+  var ABuffer : TIdBytes; var VPeerIP: string; var VPeerPort: TIdPort;
+  const AIPVersion: TIdIPVersion; AMSec: Integer = IdTimeoutDefault): Integer;
+var
+  LBuf : TIdBytes;
 begin
   case Version of
     svSocks4, svSocks4A: raise EIdSocksUDPNotSupportedBySOCKSVersion.Create(RSSocksUDPNotSupported);
   end;
-  SetLength(LBuf,Length(ABuffer)+200);
+  SetLength(LBuf, Length(ABuffer)+200);
 
   if not AHandle.Readable(AMSec) then begin
     Result := 0;
@@ -1039,28 +1026,29 @@ begin
     VPeerPort := 0;
     Exit;
   end;
-  Result := AHandle.RecvFrom(LBuf,VPeerIP, VPeerPort);
-  SetLength(LBuf,Result);
+  Result := AHandle.RecvFrom(LBuf, VPeerIP VPeerPort, AIPVersion);
+  SetLength(LBuf, Result);
   LBuf := DisasmUDPReplyPacket(LBuf, VPeerIP, VPeerPort);
   Result := Length(LBuf);
-  IdGlobal.CopyTIdBytes(LBuf,0,ABuffer,0,Result);
+  CopyTIdBytes(LBuf, 0, ABuffer, 0, Result);
 end;
 
-procedure TIdSocksInfo.SendToUDP(AHandle: TIdSocketHandle;
-      AHost: string; const APort: TIdPort; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
-var LBuf : TIdBytes;
+procedure TIdSocksInfo.SendToUDP(AHandle: TIdSocketHandle; const AHost: string;
+  const APort: Integer; const AIPVersion: TIdIPVersion; const ABuffer : TIdBytes);
+var
+  LBuf : TIdBytes;
 begin
   case Version of
     svSocks4, svSocks4A: raise EIdSocksUDPNotSupportedBySOCKSVersion.Create(RSSocksUDPNotSupported);
   end;
-  LBuf := MakeUDPRequestPacket(ABuffer, AHost,APort);
-  AHandle.Send(LBuf,0);
+  LBuf := MakeUDPRequestPacket(ABuffer, AHost, APort);
+  AHandle.Send(LBuf, 0);
 end;
 
 destructor TIdSocksInfo.Destroy;
 begin
- FreeAndNil(FUDPSocksAssociation);
- inherited Destroy;
+  FreeAndNil(FUDPSocksAssociation);
+  inherited Destroy;
 end;
 
 end.
