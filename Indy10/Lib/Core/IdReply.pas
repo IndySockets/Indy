@@ -113,8 +113,10 @@
 unit IdReply;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //we need to put this in Delphi mode to work
+
 uses
   Classes,
   IdException;
@@ -177,14 +179,8 @@ type
     function Add: TIdReply; overload;
     function Add(ACode: Integer; AText: string): TIdReply; overload;
     function Add(ACode: string; AText: string): TIdReply; overload;
-    constructor Create(
-      AOwner: TPersistent;
-      const AReplyClass: TIdReplyClass
-      ); reintroduce; virtual;
-    function Find(
-      const ACode: string;
-      AIgnore: TIdReply = nil): TIdReply;
-      virtual;
+    constructor Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass); reintroduce; virtual;
+    function Find(const ACode: string; AIgnore: TIdReply = nil): TIdReply; virtual;
     procedure UpdateText(AReply: TIdReply); virtual;
     //
     property Items[Index: Integer]: TIdReply read GetItem write SetItem; default;
@@ -220,10 +216,7 @@ begin
   FCode := '';
 end;
 
-constructor TIdReply.CreateWithReplyTexts(
-  ACollection: TCollection;
-  AReplyTexts: TIdReplies
-  );
+constructor TIdReply.CreateWithReplyTexts(ACollection: TCollection; AReplyTexts: TIdReplies);
 begin
   inherited Create(ACollection);
   FReplyTexts := AReplyTexts;
@@ -288,12 +281,16 @@ var
   LMatchedReply: TIdReply;
 begin
   if FCode <> AValue then begin
-    EIdException.IfFalse(CheckIfCodeIsValid(AValue), IndyFormat(RSReplyInvalidCode, [AValue]));
+    if not CheckIfCodeIsValid(AValue) then begin
+      raise EIdException.CreateFmt(RSReplyInvalidCode, [AValue]);
+    end;
     // Only check for duplicates if we are in a collection. NormalReply etc are not in collections
     // Also dont check FReplyTexts, as non members can be duplicates of members
     if Collection <> nil then begin
       LMatchedReply := TIdReplies(Collection).Find(AValue);
-      EIdException.IfAssigned(LMatchedReply, 'Reply already exists for ' + AValue); {do not localize}
+      if Assigned(LMatchedReply) then begin
+        raise EIdException.CreateFmt(RSReplyCodeAlreadyExists, [AValue]);
+      end;
     end;
     Clear;
     FCode := AValue;
@@ -361,7 +358,7 @@ begin
   end;
 end;
 
-constructor TIdReplies.Create(AOwner: TPersistent; const AReplyClass:TIdReplyClass);
+constructor TIdReplies.Create(AOwner: TPersistent; const AReplyClass: TIdReplyClass);
 begin
   inherited Create(AOwner, AReplyClass);
 end;
