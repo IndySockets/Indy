@@ -46,6 +46,7 @@
 unit IdAttachment;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -84,11 +85,13 @@ type
     //  4) FinishTempStream is called of the newly created attachment
     function  PrepareTempStream: TStream; virtual; abstract;
     procedure FinishTempStream; virtual; abstract;
+
+    procedure LoadFromFile(const FileName: String); virtual;
+    procedure LoadFromStream(AStream: TStream); virtual;
     procedure SaveToFile(const FileName: String); virtual;
     procedure SaveToStream(AStream: TStream); virtual;
 
     procedure Assign(Source: TPersistent); override;
-
 
     property  FileName: String read FFileName write FFileName;
     property  ContentDisposition: string read GetContentDisposition write SetContentDisposition;
@@ -134,13 +137,13 @@ end;
 function TIdAttachment.GetContentDisposition: string;
 begin
   Result := Headers.Values[SContentDisposition]; {do not localize}
-  Result := Fetch(Result,';');
+  Result := Fetch(Result, ';');
 end;
 
 function TIdAttachment.GetContentType: String;
 Begin
   Result := inherited GetContentType;
-  Result := Fetch(Result,';');
+  Result := Fetch(Result, ';');
 End;//
 
 function TIdAttachment.GetContentTypeName: String;
@@ -153,24 +156,47 @@ begin
   Result := mptAttachment;
 end;
 
+procedure TIdAttachment.LoadFromFile(const FileName: String);
+var
+  LStrm: TIdReadFileExclusiveStream;
+begin
+  LStrm := TIdReadFileExclusiveStream.Create(FileName); try
+    LoadFromStream(LStrm);
+  finally
+    Sys.FreeAndNil(LStrm);
+  end;
+end;
+
+procedure TIdAttachment.LoadFromStream(AStream: TIdStream);
+var
+  LStrm: TIdStream;
+begin
+  LStrm := PrepareTempStream;
+  try
+    LStrm.CopyFrom(AStream, 0);
+  finally
+    FinishTempStream;
+  end;
+end;
+
 procedure TIdAttachment.SaveToFile(const FileName: String);
 var
-  fs: TFileStream;
+  LStrm: TIdFileCreateStream;
 begin
-  fs := TFileStream.Create(FileName, fmCreate); try
-    SaveToStream(fs);
+  LStrm := TIdFileCreateStream.Create(FileName); try
+    SaveToStream(LStrm);
   finally
     FreeAndNil(fs);
   end;
 end;
 
-procedure TIdAttachment.SaveToStream(AStream: TStream);
+procedure TIdAttachment.SaveToStream(AStream: TIdStream);
 var
-  os: TStream;
+  LStrm: TStream;
 begin
-  os := OpenLoadStream;
+  LStrm := OpenLoadStream;
   try
-    AStream.CopyFrom(os, 0);
+    AStream.CopyFrom(LStrm, 0);
   finally
     CloseLoadStream;
   end;
@@ -180,7 +206,6 @@ procedure TIdAttachment.SetContentDisposition(const Value: string);
 begin
   Headers.Values[SContentDisposition] := Value;
 end;
-
 
 procedure TIdAttachment.SetContentType(const Value: String);
 begin
