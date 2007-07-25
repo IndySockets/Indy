@@ -1163,7 +1163,7 @@ end;
 
 function TIdIPHdr.GetBytesLen: Integer;
 begin
-  Result := inherited GetBytesLen + 12 + Fip_src.BytesLen + Fip_dst.BytesLen + 4);
+  Result := inherited GetBytesLen + 12 + Fip_src.BytesLen + Fip_dst.BytesLen + 4;
 end;
 
 procedure TIdIPHdr.CopyFrom(const ASource: TIdIPHdr);
