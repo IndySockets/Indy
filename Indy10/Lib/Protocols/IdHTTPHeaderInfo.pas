@@ -64,6 +64,7 @@ unit IdHTTPHeaderInfo;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -79,6 +80,7 @@ type
     FCacheControl: String;
     FRawHeaders: TIdHeaderList;
     FConnection: string;
+    FContentDisposition: string;
     FContentEncoding: string;
     FContentLanguage: string;
     FContentLength: Int64;
@@ -115,6 +117,7 @@ type
   published
     property CacheControl: String read FCacheControl write FCacheControl;
     property Connection: string read FConnection write FConnection;
+    property ContentDisposition: string read FContentDisposition write FContentDisposition;
     property ContentEncoding: string read FContentEncoding write FContentEncoding;
     property ContentLanguage: string read FContentLanguage write FContentLanguage;
     property ContentLength: Int64 read FContentLength write SetContentLength;
@@ -230,7 +233,9 @@ type
   end;
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 const
   DefaultUserAgent = 'Mozilla/3.0 (compatible; Indy Library)'; {do not localize}
@@ -262,6 +267,7 @@ begin
     with Destination as TIdEntityHeaderInfo do
     begin
       FRawHeaders.Assign(Self.FRawHeaders);
+      FContentDisposition := Self.FContentDisposition;
       FContentEncoding := Self.FContentEncoding;
       FContentLanguage := Self.FContentLanguage;
       FContentType := Self.FContentType;
@@ -285,6 +291,7 @@ procedure TIdEntityHeaderInfo.Clear;
 begin
   FConnection := '';
   FContentVersion := '';
+  FContentDisposition := '';
   FContentEncoding := '';
   FContentLanguage := '';
 
@@ -319,6 +326,7 @@ begin
   begin
     FConnection := Values['Connection']; {do not localize}
     FContentVersion := Values['Content-Version']; {do not localize}
+    FContentDisposition := Values['Content-Disposition']; {do not localize}
     FContentEncoding := Values['Content-Encoding']; {do not localize}
     FContentLanguage := Values['Content-Language']; {do not localize}
     FContentType := Values['Content-Type']; {do not localize}
@@ -385,6 +393,10 @@ begin
     if Length(FContentVersion) > 0 then
     begin
       Values['Content-Version'] := FContentVersion; {do not localize}
+    end;
+    if Length(FContentDisposition) > 0 then
+    begin
+     Values['Content-Disposition'] := FContentDisposition; {do not localize}
     end;
     if Length(FContentEncoding) > 0 then
     begin
@@ -572,12 +584,8 @@ begin
 
     // strip off the 'bytes=' portion of the header
     lRangeHdr := Values['Range'];                   {do not localize}
-    lRangeVal := '';
-    if Length(lRangeHdr) > 0 then
-    begin
-      lRangeVal := Fetch(lRangeHdr, '=');           {do not localize}
-    end;
-    FRange := lRangeVal;
+    Fetch(lRangeHdr, '=');                          {do not localize}
+    FRange := lRangeHdr;
   end;
 end;
 
@@ -781,7 +789,7 @@ begin
     setting the content-range header is allowed in server responses...
     moved here TIdEntityHeaderInfo
   }
-  if (HasContentRange or HasContentRangeInstance) then
+  if HasContentRange or HasContentRangeInstance then
   begin
     sCR := iif(HasContentRange,
       IndyFormat('%d%s%d', [FContentRangeStart, '-', FContentRangeEnd]), '*');
