@@ -1538,6 +1538,15 @@ Indy10/Lib/System/IndySystem90Net.dpk -text
 Indy10/Lib/System/IndySystemK3.dpk -text
 Indy10/Lib/System/Makefile.fpc -text
 Indy10/Lib/System/indysystemfpc.pas -text
+Indy10/Lib/examples/elizaweb/Makefile -text
+Indy10/Lib/examples/elizaweb/Makefile.fpc -text
+Indy10/Lib/examples/elizaweb/elizaweb.pas -text
+Indy10/Lib/examples/elizaweb/ezBillClinton.pas -text
+Indy10/Lib/examples/elizaweb/ezEliza.pas -text
+Indy10/Lib/examples/elizaweb/ezEngine.pas -text
+Indy10/Lib/examples/elizaweb/ezIFM.pas -text
+Indy10/Lib/examples/elizaweb/ezMSTechSupport.pas -text
+Indy10/Lib/examples/elizaweb/ezpersonality.pas -text
 Indy10/Lib/indymaster-Makefile.fpc -text
 Indy10/Lib/lspFix.dpr -text
 Indy10/NUnit/Sys.cs -text
