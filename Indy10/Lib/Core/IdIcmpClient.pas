@@ -153,7 +153,7 @@ type
     FOnReply: TOnReplyEvent;
     FReplydata: String;
     //
-    {$IFNDEF DOTNET}
+    {$IFNDEF DOTNET2}
     function DecodeIPv6Packet(BytesRead: LongWord): Boolean;
     {$ENDIF}
     function DecodeIPv4Packet(BytesRead: LongWord): Boolean;
@@ -161,11 +161,11 @@ type
     procedure DoReply; virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
-    {$IFNDEF DOTNET}
-    procedure PrepareEchoRequestIPv6(const Buffer: String);
+    {$IFNDEF DOTNET2}
+    procedure PrepareEchoRequestIPv6(const ABuffer: String);
     {$ENDIF}
-    procedure PrepareEchoRequestIPv4(const Buffer: String);
-    procedure PrepareEchoRequest(const Buffer: String);
+    procedure PrepareEchoRequestIPv4(const ABuffer: String);
+    procedure PrepareEchoRequest(const ABuffer: String);
     procedure SendEchoRequest; overload;
     procedure SendEchoRequest(const AIP : String); overload;
     function GetPacketSize: Integer;
@@ -192,7 +192,7 @@ type
     property ReplyStatus;
   published
     property Host;
-    {$IFNDEF DOTNET}
+    {$IFNDEF DOTNET2}
     property IPVersion;
     {$ENDIF}
     property PacketSize;
@@ -204,20 +204,20 @@ implementation
 
 uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
-  IdStack, SysUtils;
+  IdStack, IdStruct, SysUtils;
 
 { TIdCustomIcmpClient }
 
-procedure TIdCustomIcmpClient.PrepareEchoRequest(const Buffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
 begin
-  {$IFNDEF DOTNET}
+  {$IFNDEF DOTNET2}
   if IPVersion = Id_IPv4 then begin
-    PrepareEchoRequestIPv4(Buffer);
+    PrepareEchoRequestIPv4(ABuffer);
   end else begin
-    PrepareEchoRequestIPv6(Buffer);
+    PrepareEchoRequestIPv6(ABuffer);
   end;
   {$ELSE}
-  PrepareEchoRequestIPv4(Buffer);
+  PrepareEchoRequestIPv4(ABuffer);
   {$ENDIF}
 end;
 
@@ -241,15 +241,16 @@ type
 constructor TIdIPv4_ICMP.Create;
 begin
   inherited Create;
-  ip_hdr := TIdIPHdr.Create;
-  icmp_hdr : TIdICMPHdr.Create;
+  Fip_hdr := TIdIPHdr.Create;
+  Ficmp_hdr := TIdICMPHdr.Create;
 end;
   
 destructor TIdIPv4_ICMP.Destroy;
 begin
-  inherited Create;
-  ip_hdr := TIdIPHdr.Create;
-  icmp_hdr : TIdICMPHdr.Create;
+
+  FreeAndNil( Fip_hdr );
+  FreeAndNil( Ficmp_hdr);
+  inherited Destroy;
 end;
 
 function TIdIPv4_ICMP.GetBytesLen: Integer;
@@ -266,9 +267,9 @@ end;
 
 procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);
 begin
-  inherited WriteStruct(ABytes, VIndex);
-  Fip_hdr.WriteStruct(ABytes, VIndex);
-  Ficmp_hdr.WriteStruct(ABytes, VIndex);
+  inherited WriteStruct(VBytes, VIndex);
+  Fip_hdr.WriteStruct(VBytes, VIndex);
+  Ficmp_hdr.WriteStruct(VBytes, VIndex);
 end;
 
 { TIdCustomIcmpClient }
@@ -306,7 +307,7 @@ begin
   end else
   begin
     FReplyStatus.ReplyStatusType := rsError;
-    {$IFNDEF DOTNET}
+    {$IFNDEF DOTNET2}
     if IPVersion = Id_IPv6 then begin
       Result := DecodeIPv6Packet(BytesRead);
       Exit;
@@ -374,7 +375,7 @@ begin
   inherited InitComponent;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
-  {$IFNDEF DOTNET}
+  {$IFNDEF DOTNET2}
   ProtocolIPv6 := Id_IPPROTO_ICMPv6;
   {$ENDIF}
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
@@ -390,7 +391,7 @@ end;
 
 function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: LongWord): Boolean;
 var
-  LIPHeaderLen: LongWord;
+  LIPHeaderLen: Integer;
   LIdx: Integer;
   RTTime: LongWord;
   LActualSeqID: word;
@@ -596,7 +597,7 @@ begin
   end;
 end;
 
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const Buffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const ABuffer: String);
 var
   LIcmp: TIdICMPHdr;
   LIdx: Integer;
@@ -616,15 +617,15 @@ begin
     LIcmp.WriteStruct(FBufIcmp, LIdx);
     CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
     Inc(LIdx, 4);
-    if Length(Buffer) > 0 then begin
-      CopyTIdString(Buffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
+    if Length(ABuffer) > 0 then begin
+      CopyTIdString(ABuffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);
   end;
 end;
 
-{$IFNDEF DOTNET}
+{$IFNDEF DOTNET2}
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const Buffer: String);
 var
   LIcmp : TIdicmp6_hdr;
