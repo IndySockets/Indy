@@ -54,7 +54,7 @@ uses
       Borland.Vcl.Design.DesignIntF,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
      {$ENDIF}
   {$ELSE}
@@ -71,32 +71,20 @@ uses
     {$ENDIF}
   {$ENDIF}
 // Procs
-  procedure Register;
+
+procedure Register;
 
 implementation
+
 uses
-  IdComponent,
-  IdGlobal,
-  IdDICT,
   IdDsnSASLListEditor,
-  IdIMAP4,
-  IdMessage,
   {Since we are removing New Design-Time part, we remove the "New Message Part Editor"}
   {IdDsnNewMessagePart, }
-  IdSMTP,
-  IdPOP3,
-  IdStack,
-  IdSocketHandle,
-  IdTCPServer,
-  IdUDPServer,
   IdSASLCollection;
 
 procedure Register;
 begin
-  RegisterPropertyEditor(TypeInfo(TIdSASLEntries),TIdSMTP, '',TIdPropEdSASL);
-  RegisterPropertyEditor(TypeInfo(TIdSASLEntries),TIdIMAP4, '',TIdPropEdSASL);
-  RegisterPropertyEditor(TypeInfo(TIdSASLEntries),TIdPOP3, '',TIdPropEdSASL);
-  RegisterPropertyEditor(TypeInfo(TIdSASLEntries),TIdDICT, '',TIdPropEdSASL);
+  RegisterPropertyEditor(TypeInfo(TIdSASLEntries), nil, '', TIdPropEdSASL);
 end;
 
 end.
