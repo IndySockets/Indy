@@ -68,8 +68,10 @@ unit IdIcmpClient;
 // SG 25/1/02: Modified the component to support multithreaded PING and traceroute
 
 interface
+
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdGlobal,
@@ -143,8 +145,8 @@ type
   protected
     FStartTime : Cardinal; //this is a fallabk if no packet is returned
     FPacketSize : Integer;
-    FbufReceive: TIdBytes;
-    FbufIcmp: TIdBytes;
+    FBufReceive: TIdBytes;
+    FBufIcmp: TIdBytes;
     wSeqNo: word;
     iDataSize: integer;
     FReplyStatus: TReplyStatus;
@@ -152,20 +154,19 @@ type
     FReplydata: String;
     //
     {$IFNDEF DOTNET}
-    function DecodeIPv6Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
+    function DecodeIPv6Packet(BytesRead: LongWord): Boolean;
     {$ENDIF}
-    function DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
-
-    function DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
-    procedure DoReply(const AReplyStatus: TReplyStatus); virtual;
+    function DecodeIPv4Packet(BytesRead: LongWord): Boolean;
+    function DecodeResponse(BytesRead: LongWord): Boolean;
+    procedure DoReply; virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
     {$IFNDEF DOTNET}
-    procedure PrepareEchoRequestIPv6(Buffer: String);
+    procedure PrepareEchoRequestIPv6(const Buffer: String);
     {$ENDIF}
-    procedure PrepareEchoRequestIPv4(Buffer : String='');
-    procedure PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
-    procedure SendEchoRequest;   overload;
+    procedure PrepareEchoRequestIPv4(const Buffer: String);
+    procedure PrepareEchoRequest(const Buffer: String);
+    procedure SendEchoRequest; overload;
     procedure SendEchoRequest(const AIP : String); overload;
     function GetPacketSize: Integer;
     procedure SetPacketSize(const AValue: Integer);
@@ -205,8 +206,9 @@ uses
   IdExceptionCore, IdRawHeaders, IdResourceStringsCore,
   IdStack, SysUtils;
 
+{ TIdCustomIcmpClient }
 
-procedure TIdCustomIcmpClient.PrepareEchoRequest(Buffer: string = '');    {Do not Localize}
+procedure TIdCustomIcmpClient.PrepareEchoRequest(const Buffer: String);
 begin
   {$IFNDEF DOTNET}
   if IPVersion = Id_IPv4 then begin
@@ -219,54 +221,104 @@ begin
   {$ENDIF}
 end;
 
-procedure TIdCustomIcmpClient.SendEchoRequest;
+{ TIdIPv4_ICMP }
+
+type
+  TIdIPv4_ICMP = class(TIdStruct)
+  protected
+    Fip_hdr: TIdIPHdr;
+    Ficmp_hdr: TIdICMPHdr;
+    function GetBytesLen: Integer; override;
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    property ip_hdr: TIdIPHdr read Fip_hdr;
+    property icmp_hdr: TIdICMPHdr read Ficmp_hdr;
+  end;
+
+constructor TIdIPv4_ICMP.Create;
 begin
-  Send(FbufIcmp);
+  inherited Create;
+  ip_hdr := TIdIPHdr.Create;
+  icmp_hdr : TIdICMPHdr.Create;
+end;
+  
+destructor TIdIPv4_ICMP.Destroy;
+begin
+  inherited Create;
+  ip_hdr := TIdIPHdr.Create;
+  icmp_hdr : TIdICMPHdr.Create;
 end;
 
-function TIdCustomIcmpClient.DecodeResponse(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): Boolean;
+function TIdIPv4_ICMP.GetBytesLen: Integer;
+begin
+  Result := inherited GetBytesLen + Fip_hdr.BytesLen + Ficmp_hdr.BytesLen;
+end;
+
+procedure TIdIPv4_ICMP.ReadStruct(const ABytes : TIdBytes; var VIndex : Integer);
+begin
+  inherited ReadStruct(ABytes, VIndex);
+  Fip_hdr.ReadStruct(ABytes, VIndex);
+  Ficmp_hdr.ReadStruct(ABytes, VIndex);
+end;
+
+procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);
+begin
+  inherited WriteStruct(ABytes, VIndex);
+  Fip_hdr.WriteStruct(ABytes, VIndex);
+  Ficmp_hdr.WriteStruct(ABytes, VIndex);
+end;
+
+{ TIdCustomIcmpClient }
+
+procedure TIdCustomIcmpClient.SendEchoRequest;
+begin
+  Send(FBufIcmp);
+end;
+
+function TIdCustomIcmpClient.DecodeResponse(BytesRead: LongWord): Boolean;
 begin
   if BytesRead = 0 then begin
     // Timed out
-    AReplyStatus.MsRoundTripTime := GetTickDiff(FStartTime, Ticks);
+    FReplyStatus.MsRoundTripTime := GetTickDiff(FStartTime, Ticks);
     if IPVersion = Id_IPv4 then
     begin
-      AReplyStatus.BytesReceived   := 0;
-      AReplyStatus.FromIpAddress   := '0.0.0.0';
-      AReplyStatus.ToIpAddress     := '0.0.0.0';
-      AReplyStatus.MsgType         := 0;
-      AReplyStatus.SequenceId      := wSeqNo;
-      AReplyStatus.TimeToLive      := 0;
-      AReplyStatus.ReplyStatusType := rsTimeOut;
+      FReplyStatus.BytesReceived   := 0;
+      FReplyStatus.FromIpAddress   := '0.0.0.0';
+      FReplyStatus.ToIpAddress     := '0.0.0.0';
+      FReplyStatus.MsgType         := 0;
+      FReplyStatus.SequenceId      := wSeqNo;
+      FReplyStatus.TimeToLive      := 0;
+      FReplyStatus.ReplyStatusType := rsTimeOut;
     end else
     begin
-      AReplyStatus.BytesReceived   := 0;
-      AReplyStatus.FromIpAddress   := '::0';
-      AReplyStatus.ToIpAddress     := '::0';
-      AReplyStatus.MsgType         := 0;
-      AReplyStatus.SequenceId      := wSeqNo;
-      AReplyStatus.TimeToLive      := 0;
-      AReplyStatus.ReplyStatusType := rsTimeOut;
+      FReplyStatus.BytesReceived   := 0;
+      FReplyStatus.FromIpAddress   := '::0';
+      FReplyStatus.ToIpAddress     := '::0';
+      FReplyStatus.MsgType         := 0;
+      FReplyStatus.SequenceId      := wSeqNo;
+      FReplyStatus.TimeToLive      := 0;
+      FReplyStatus.ReplyStatusType := rsTimeOut;
     end;
     Result := True;
   end else
   begin
-    AReplyStatus.ReplyStatusType := rsError;
+    FReplyStatus.ReplyStatusType := rsError;
     {$IFNDEF DOTNET}
-    if IPVersion = Id_IPv4 then begin
-      Result := DecodeIPv4Packet(BytesRead, AReplyStatus);
-    end else begin
-      Result := DecodeIPv6Packet(BytesRead, AReplyStatus);
+    if IPVersion = Id_IPv6 then begin
+      Result := DecodeIPv6Packet(BytesRead);
+      Exit;
     end;
-    {$ELSE}
-     Result := DecodeIPv4Packet(BytesRead, AReplyStatus);
     {$ENDIF}
+    Result := DecodeIPv4Packet(BytesRead);
   end;
 end;
 
 procedure TIdCustomIcmpClient.GetEchoReply;
 begin
-  FReplyStatus := Receive(FReceiveTimeout);
+  Receive(FReceiveTimeout);
 end;
 
 function TIdCustomIcmpClient.Receive(ATimeOut: Integer): TReplyStatus;
@@ -275,12 +327,11 @@ var
   TripTime: Cardinal;
 begin
   Result := FReplyStatus;
-  FillBytes(FbufReceive, Length(FbufReceive), 0);
+  FillBytes(FBufReceive, Length(FBufReceive), 0);
   FStartTime := Ticks;
   repeat
-    BytesRead := ReceiveBuffer(FbufReceive, ATimeOut);
-    if DecodeResponse(BytesRead, Result) then
-    begin
+    BytesRead := ReceiveBuffer(FBufReceive, ATimeOut);
+    if DecodeResponse(BytesRead) then begin
       Break;
     end;
     TripTime := GetTickDiff(FStartTime, Ticks);
@@ -311,10 +362,10 @@ begin
   until ATimeOut <= 0;
 end;
 
-procedure TIdCustomIcmpClient.DoReply(const AReplyStatus: TReplyStatus);
+procedure TIdCustomIcmpClient.DoReply;
 begin
   if Assigned(FOnReply) then begin
-    FOnReply(Self, AReplyStatus);
+    FOnReply(Self, FReplyStatus);
   end;
 end;
 
@@ -337,260 +388,272 @@ begin
   inherited Destroy;
 end;
 
-function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: Cardinal; var AReplyStatus: TReplyStatus): boolean;
+function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: LongWord): Boolean;
 var
-  LIPHeaderLen:Cardinal;
+  LIPHeaderLen: LongWord;
+  LIdx: Integer;
   RTTime: LongWord;
   LActualSeqID: word;
-  LIdx : Integer;
-  LIPv4 : TIdIPHdr;
-  LIcmp : TIdICMPHdr;
+  LIcmp: TIdIPv4_ICMP;
 begin
   Result := False;
-  LIdx := 0;
-  LIPv4 := TIdIPHdr.Create;
-  LIcmp := TIdICMPHdr.Create;
+
+  LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
+  if BytesRead < (LIpHeaderLen + ICMP_MIN) then begin
+    raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
+  end;
+
+  LIcmp := TIdIPv4_ICMP.Create;
   try
-    LIpHeaderLen := (FBufReceive[0] and $0F) * 4;
-    if (BytesRead < LIpHeaderLen + ICMP_MIN) then begin
-      raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
-    end;
-    LIPv4.ReadStruct(FBufReceive, LIdx);
-    LIdx := LIpHeaderLen;
+    LIcmp.ReadStruct(FBufReceive, LIdx);
 
     {$IFDEF LINUX}
     // TODO: baffled as to why linux kernel sends back echo from localhost
     {$ENDIF}
-    case FBufReceive[LIpHeaderLen] of
+
+    case LIcmp.icmp_hdr.icmp_type of
       Id_ICMP_ECHOREPLY, Id_ICMP_ECHO:
       begin
-        AReplyStatus.ReplyStatusType := rsEcho;
-        //                                                    SizeOf(picmp^)
-        FReplydata := BytesToString(FBufReceive,LIpHeaderLen + 8, Length(FbufReceive));
-        //Copy(FbufReceive, iIpHeaderLen + SizeOf(picmp^) + 1, Length(FbufReceive));
+        FReplyStatus.ReplyStatusType := rsEcho;
+        FReplyData := BytesToString(FBufReceive, LIdx);
         // result is only valid if the seq. number is correct
       end;
       Id_ICMP_UNREACH:
-        AReplyStatus.ReplyStatusType := rsErrorUnreachable;
+        FReplyStatus.ReplyStatusType := rsErrorUnreachable;
       Id_ICMP_TIMXCEED:
-        AReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
+        FReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
       Id_ICMP_PARAMPROB :
-        AReplyStatus.ReplyStatusType := rsErrorParameter;
+        FReplyStatus.ReplyStatusType := rsErrorParameter;
       Id_ICMP_REDIRECT :
-        AReplyStatus.ReplyStatusType := rsRedirect;
+        FReplyStatus.ReplyStatusType := rsRedirect;
       Id_ICMP_TSTAMP, Id_ICMP_TSTAMPREPLY :
-        AReplyStatus.ReplyStatusType := rsTimeStamp;
+        FReplyStatus.ReplyStatusType := rsTimeStamp;
       Id_ICMP_IREQ, Id_ICMP_IREQREPLY :
-        AReplyStatus.ReplyStatusType := rsInfoRequest;
+        FReplyStatus.ReplyStatusType := rsInfoRequest;
       Id_ICMP_MASKREQ, Id_ICMP_MASKREPLY :
-        AReplyStatus.ReplyStatusType := rsAddressMaskRequest;
+        FReplyStatus.ReplyStatusType := rsAddressMaskRequest;
       Id_ICMP_TRACEROUTE :
-        AReplyStatus.ReplyStatusType := rsTraceRoute;
+        FReplyStatus.ReplyStatusType := rsTraceRoute;
       Id_ICMP_DATAGRAM_CONV :
-        AReplyStatus.ReplyStatusType := rsErrorDatagramConversion;
+        FReplyStatus.ReplyStatusType := rsErrorDatagramConversion;
       Id_ICMP_MOB_HOST_REDIR :
-        AReplyStatus.ReplyStatusType := rsMobileHostRedir;
+        FReplyStatus.ReplyStatusType := rsMobileHostRedir;
       Id_ICMP_IPv6_WHERE_ARE_YOU :
-        AReplyStatus.ReplyStatusType := rsIPv6WhereAreYou;
+        FReplyStatus.ReplyStatusType := rsIPv6WhereAreYou;
       Id_ICMP_IPv6_I_AM_HERE :
-        AReplyStatus.ReplyStatusType := rsIPv6IAmHere;
+        FReplyStatus.ReplyStatusType := rsIPv6IAmHere;
       Id_ICMP_MOB_REG_REQ, Id_ICMP_MOB_REG_REPLY :
-        AReplyStatus.ReplyStatusType := rsMobileHostReg;
+        FReplyStatus.ReplyStatusType := rsMobileHostReg;
       Id_ICMP_PHOTURIS :
-        AReplyStatus.ReplyStatusType := rsErrorSecurityFailure;
+        FReplyStatus.ReplyStatusType := rsErrorSecurityFailure;
       else
         raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
     end;    // case
-    // check if we got a reply to the packet that was actually sent
-    if AReplyStatus.ReplyStatusType = rsEcho then
-    begin
-      LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6);
-          RTTime := GetTickDiff( BytesToLongWord( FBufReceive,LIpHeaderLen+8),Ticks); //picmp^.icmp_dun.ts.otime;
-    end else
-    begin
-      // not an echo reply: the original IP frame is contained withing the DATA section of the packet
-      // pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
-      LActualSeqID := BytesToWord( FBufReceive,LIpHeaderLen+6+8);//pOriginalICMP^.icmp_hun.echo.seq;
-           RTTime := GetTickDiff( BytesToLongWord( FBufReceive,LIpHeaderLen+8+8),Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
 
-      // move to offset
-      // pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
-      // extract information from original ICMP frame
-      // ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
-      // RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
-      // Result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
+    // check if we got a reply to the packet that was actually sent
+    case FReplyStatus.ReplyStatusType of
+      rsEcho:
+      begin
+        LActualSeqID := LIcmp.icmp_hdr.icmp_hun.echo_seq;
+        RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIdx), Ticks);
+      end;
+      rsTimeStamp:
+      begin
+        LActualSeqID := LIcmp.icmp_hdr.icmp_hun.echo_seq;
+        with TIdICMPTs.Create do
+        try
+          ReadStruct(FBufReceive, LIpHeaderLen);
+          RTTime := (ttime and $80000000) - (otime and $80000000);
+        finally
+          Free;
         end;
+      end;
+    else
+      begin
+        // not an echo or timestamp reply: the original IP frame is
+        // contained withing the DATA section of the packet...
+        // pOriginalIP := PIdIPHdr(@picmp^.icmp_dun.data);
+
+        // TODO: verify this!  I don't think it is indexing far enough into the data
+        LActualSeqID := BytesToWord(FBufReceive, LIpHeaderLen+8+6);//pOriginalICMP^.icmp_hun.echo.seq;
+        RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIpHeaderLen+8+8), Ticks); //pOriginalICMP^.icmp_dun.ts.otime;
+
+        // move to offset
+        // pOriginalICMP := Pointer(Cardinal(pOriginalIP) + (iIpHeaderLen));
+        // extract information from original ICMP frame
+        // ActualSeqID := pOriginalICMP^.icmp_hun.echo.seq;
+        // RTTime := Ticks - pOriginalICMP^.icmp_dun.ts.otime;
+        // Result := pOriginalICMP^.icmp_hun.echo.seq = wSeqNo;
+      end;
+    end;
 
     Result := LActualSeqID = wSeqNo;//;picmp^.icmp_hun.echo.seq  = wSeqNo;
     if Result then
     begin
-      with AReplyStatus do
-      begin
-        BytesReceived := BytesRead;
+      if FReplyStatus.ReplyStatusType = rsEcho then begin
+        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN + SizeOf(LongWord));
+      end else begin
+        FReplyStatus.BytesReceived := BytesRead - (Id_IP_HSIZE + ICMP_MIN);
+      end;
 
-        FromIpAddress := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToLongWord( FBufReceive,12)));
-        ToIpAddress   := IdGlobal.MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( BytesToLongWord( FBufReceive,16)));
-        MsgType := FBufReceive[LIpHeaderLen]; //picmp^.icmp_type;
-        SequenceId := LActualSeqID;
-        MsRoundTripTime := RTTime;
-        TimeToLive := FBufReceive[8];
-        // TimeToLive := pip^.ip_ttl;
-        // now process our message stuff
+      FReplyStatus.FromIpAddress := MakeDWordIntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_src.s_l));
+      FReplyStatus.ToIpAddress   := MakeDWordIntoIPv4Address(GStack.NetworkToHost(Licmp.ip_hdr.ip_dst.s_l));
+      FReplyStatus.MsgType := LIcmp.icmp_hdr.icmp_type; //picmp^.icmp_type;
+      FReplyStatus.MsgCode := LIcmp.icmp_hdr.icmp_code; //picmp^.icmp_code;
+      FReplyStatus.SequenceId := LActualSeqID;
+      FReplyStatus.MsRoundTripTime := RTTime;
+      FReplyStatus.TimeToLive := LIcmp.ip_hdr.ip_ttl;
+      // now process our message stuff
 
-        case AReplyStatus.FMsgType of
-          Id_ICMP_UNREACH:
-          begin
-            case AReplyStatus.FMsgCode of
-              Id_ICMP_UNREACH_NET                : AReplyStatus.Msg := RSICMPNetUnreachable;
-              Id_ICMP_UNREACH_HOST               : AReplyStatus.Msg := RSICMPHostUnreachable;
-              Id_ICMP_UNREACH_PROTOCOL           : AReplyStatus.Msg := RSICMPProtUnreachable;
-              Id_ICMP_UNREACH_NEEDFRAG           : AReplyStatus.Msg := RSICMPFragmentNeeded;
-              Id_ICMP_UNREACH_SRCFAIL            : AReplyStatus.Msg := RSICMPSourceRouteFailed;
-              Id_ICMP_UNREACH_NET_UNKNOWN        : AReplyStatus.Msg := RSICMPDestNetUnknown;
-              Id_ICMP_UNREACH_HOST_UNKNOWN       : AReplyStatus.Msg := RSICMPDestHostUnknown;
-              Id_ICMP_UNREACH_ISOLATED           : AReplyStatus.Msg := RSICMPSourceIsolated;
-              Id_ICMP_UNREACH_NET_PROHIB         : AReplyStatus.Msg := RSICMPDestNetProhibitted;
-              Id_ICMP_UNREACH_HOST_PROHIB        : AReplyStatus.Msg := RSICMPDestHostProhibitted;
-              Id_ICMP_UNREACH_TOSNET             : AReplyStatus.Msg := RSICMPTOSNetUnreach;
-              Id_ICMP_UNREACH_TOSHOST            : AReplyStatus.Msg := RSICMPTOSHostUnreach;
-              Id_ICMP_UNREACH_FILTER_PROHIB      : AReplyStatus.Msg := RSICMPAdminProhibitted;
-              Id_ICMP_UNREACH_HOST_PRECEDENCE    : AReplyStatus.Msg := RSICMPHostPrecViolation;
-              Id_ICMP_UNREACH_PRECEDENCE_CUTOFF  : AReplyStatus.Msg := RSICMPPrecedenceCutoffInEffect;
-            end;
+      case FReplyStatus.MsgType of
+        Id_ICMP_UNREACH:
+        begin
+          case FReplyStatus.MsgCode of
+            Id_ICMP_UNREACH_NET                : FReplyStatus.Msg := RSICMPNetUnreachable;
+            Id_ICMP_UNREACH_HOST               : FReplyStatus.Msg := RSICMPHostUnreachable;
+            Id_ICMP_UNREACH_PROTOCOL           : FReplyStatus.Msg := RSICMPProtUnreachable;
+            Id_ICMP_UNREACH_NEEDFRAG           : FReplyStatus.Msg := RSICMPFragmentNeeded;
+            Id_ICMP_UNREACH_SRCFAIL            : FReplyStatus.Msg := RSICMPSourceRouteFailed;
+            Id_ICMP_UNREACH_NET_UNKNOWN        : FReplyStatus.Msg := RSICMPDestNetUnknown;
+            Id_ICMP_UNREACH_HOST_UNKNOWN       : FReplyStatus.Msg := RSICMPDestHostUnknown;
+            Id_ICMP_UNREACH_ISOLATED           : FReplyStatus.Msg := RSICMPSourceIsolated;
+            Id_ICMP_UNREACH_NET_PROHIB         : FReplyStatus.Msg := RSICMPDestNetProhibitted;
+            Id_ICMP_UNREACH_HOST_PROHIB        : FReplyStatus.Msg := RSICMPDestHostProhibitted;
+            Id_ICMP_UNREACH_TOSNET             : FReplyStatus.Msg := RSICMPTOSNetUnreach;
+            Id_ICMP_UNREACH_TOSHOST            : FReplyStatus.Msg := RSICMPTOSHostUnreach;
+            Id_ICMP_UNREACH_FILTER_PROHIB      : FReplyStatus.Msg := RSICMPAdminProhibitted;
+            Id_ICMP_UNREACH_HOST_PRECEDENCE    : FReplyStatus.Msg := RSICMPHostPrecViolation;
+            Id_ICMP_UNREACH_PRECEDENCE_CUTOFF  : FReplyStatus.Msg := RSICMPPrecedenceCutoffInEffect;
           end;
-          Id_ICMP_TIMXCEED:
-          begin
-            case AReplyStatus.MsgCode of
-              0 : AReplyStatus.Msg :=  RSICMPTTLExceeded;
-              1 : AReplyStatus.Msg :=  RSICMPFragAsmExceeded;
-            end;
+        end;
+        Id_ICMP_TIMXCEED:
+        begin
+          case FReplyStatus.MsgCode of
+            0 : FReplyStatus.Msg := RSICMPTTLExceeded;
+            1 : FReplyStatus.Msg := RSICMPFragAsmExceeded;
           end;
-          Id_ICMP_PARAMPROB:
-            AReplyStatus.Msg := IndyFormat(RSICMPParamError,[ReplyStatus.MsgCode]);
-          Id_ICMP_REDIRECT :
-          begin
-            AReplyStatus.RedirectTo := MakeDWordIntoIPv4Address ( GStack.NetworkToHOst( LIcmp.icmp_hun.gateway_s_l));
-            case AReplyStatus.MsgCode of
-              0 :  AReplyStatus.Msg :=  RSICMPRedirNet;
-              1 :  AReplyStatus.Msg := RSICMPRedirHost;
-              2 :  AReplyStatus.Msg :=  RSICMPRedirTOSNet;
-              3 :  AReplyStatus.Msg :=  RSICMPRedirTOSHost;
-            end;
+        end;
+        Id_ICMP_PARAMPROB                   : FReplyStatus.Msg := IndyFormat(RSICMPParamError, [FReplyStatus.MsgCode]);
+        Id_ICMP_REDIRECT:
+        begin
+          FReplyStatus.RedirectTo := MakeDWordIntoIPv4Address(GStack.NetworkToHOst(LIcmp.icmp_hdr.icmp_hun.gateway_s_l));
+          case FReplyStatus.MsgCode of
+            0 : FReplyStatus.Msg := RSICMPRedirNet;
+            1 : FReplyStatus.Msg := RSICMPRedirHost;
+            2 : FReplyStatus.Msg := RSICMPRedirTOSNet;
+            3 : FReplyStatus.Msg := RSICMPRedirTOSHost;
           end;
-          Id_ICMP_SOURCEQUENCH :
-            AReplyStatus.Msg := RSICMPSourceQuenchMsg;
-          Id_ICMP_ECHOREPLY, Id_ICMP_ECHO :
-            AReplyStatus.Msg := RSICMPEcho;
-          Id_ICMP_TSTAMP, Id_ICMP_TSTAMPREPLY:
-            AReplyStatus.Msg := RSICMPTimeStamp;
-          Id_ICMP_IREQ, Id_ICMP_IREQREPLY :
-            AReplyStatus.Msg := RSICMPTimeStamp;
-          Id_ICMP_MASKREQ, Id_ICMP_MASKREPLY :
-            AReplyStatus.Msg := RSICMPMaskRequest;
-          Id_ICMP_TRACEROUTE :
-          begin
-            case AReplyStatus.MsgCode of
-              Id_ICMP_TRACEROUTE_PACKET_FORWARDED : AReplyStatus.Msg := RSICMPTracePacketForwarded;
-              Id_ICMP_TRACEROUTE_NO_ROUTE : AReplyStatus.Msg := RSICMPTraceNoRoute;
-            end;
+        end;
+        Id_ICMP_SOURCEQUENCH                : FReplyStatus.Msg := RSICMPSourceQuenchMsg;
+        Id_ICMP_ECHOREPLY, Id_ICMP_ECHO     : FReplyStatus.Msg := RSICMPEcho;
+        Id_ICMP_TSTAMP, Id_ICMP_TSTAMPREPLY : FReplyStatus.Msg := RSICMPTimeStamp;
+        Id_ICMP_IREQ, Id_ICMP_IREQREPLY     : FReplyStatus.Msg := RSICMPTimeStamp;
+        Id_ICMP_MASKREQ, Id_ICMP_MASKREPLY  : FReplyStatus.Msg := RSICMPMaskRequest;
+        Id_ICMP_TRACEROUTE :
+        begin
+          case FReplyStatus.MsgCode of
+            Id_ICMP_TRACEROUTE_PACKET_FORWARDED : FReplyStatus.Msg := RSICMPTracePacketForwarded;
+            Id_ICMP_TRACEROUTE_NO_ROUTE         : FReplyStatus.Msg := RSICMPTraceNoRoute;
           end;
-          Id_ICMP_DATAGRAM_CONV :
-          begin
-            case AReplyStatus.MsgCode of
-              Id_ICMP_CONV_UNSPEC                    : AReplyStatus.Msg := RSICMPTracePacketForwarded;
-              Id_ICMP_CONV_DONTCONV_OPTION           : AReplyStatus.Msg := RSICMPTraceNoRoute;
-              Id_ICMP_CONV_UNKNOWN_MAN_OPTION        : AReplyStatus.Msg := RSICMPConvUnknownMandOptPresent;
-              Id_ICMP_CONV_UNKNWON_UNSEP_OPTION      : AReplyStatus.Msg := RSICMPConvKnownUnsupportedOptionPresent;
-              Id_ICMP_CONV_UNSEP_TRANSPORT           : AReplyStatus.Msg := RSICMPConvUnsupportedTransportProtocol;
-              Id_ICMP_CONV_OVERALL_LENGTH_EXCEEDED   : AReplyStatus.Msg := RSICMPConvOverallLengthExceeded;
-              Id_ICMP_CONV_IP_HEADER_LEN_EXCEEDED    : AReplyStatus.Msg := RSICMPConvIPHeaderLengthExceeded;
-              Id_ICMP_CONV_TRANS_PROT_255            : AReplyStatus.Msg := RSICMPConvTransportProtocol_255;
-              Id_ICMP_CONV_PORT_OUT_OF_RANGE         : AReplyStatus.Msg := RSICMPConvPortConversionOutOfRange;
-              Id_ICMP_CONV_TRANS_HEADER_LEN_EXCEEDED : AReplyStatus.Msg := RSICMPConvTransportHeaderLengthExceeded;
-              Id_ICMP_CONV_32BIT_ROLLOVER_AND_ACK    : AReplyStatus.Msg := RSICMPConv32BitRolloverMissingAndACKSet;
-              Id_ICMP_CONV_UNKNOWN_MAN_TRANS_OPTION  : AReplyStatus.Msg := RSICMPConvUnknownMandatoryTransportOptionPresent;
-            end;
+        end;
+        Id_ICMP_DATAGRAM_CONV:
+        begin
+          case FReplyStatus.MsgCode of
+            Id_ICMP_CONV_UNSPEC                    : FReplyStatus.Msg := RSICMPTracePacketForwarded;
+            Id_ICMP_CONV_DONTCONV_OPTION           : FReplyStatus.Msg := RSICMPTraceNoRoute;
+            Id_ICMP_CONV_UNKNOWN_MAN_OPTION        : FReplyStatus.Msg := RSICMPConvUnknownMandOptPresent;
+            Id_ICMP_CONV_UNKNWON_UNSEP_OPTION      : FReplyStatus.Msg := RSICMPConvKnownUnsupportedOptionPresent;
+            Id_ICMP_CONV_UNSEP_TRANSPORT           : FReplyStatus.Msg := RSICMPConvUnsupportedTransportProtocol;
+            Id_ICMP_CONV_OVERALL_LENGTH_EXCEEDED   : FReplyStatus.Msg := RSICMPConvOverallLengthExceeded;
+            Id_ICMP_CONV_IP_HEADER_LEN_EXCEEDED    : FReplyStatus.Msg := RSICMPConvIPHeaderLengthExceeded;
+            Id_ICMP_CONV_TRANS_PROT_255            : FReplyStatus.Msg := RSICMPConvTransportProtocol_255;
+            Id_ICMP_CONV_PORT_OUT_OF_RANGE         : FReplyStatus.Msg := RSICMPConvPortConversionOutOfRange;
+            Id_ICMP_CONV_TRANS_HEADER_LEN_EXCEEDED : FReplyStatus.Msg := RSICMPConvTransportHeaderLengthExceeded;
+            Id_ICMP_CONV_32BIT_ROLLOVER_AND_ACK    : FReplyStatus.Msg := RSICMPConv32BitRolloverMissingAndACKSet;
+            Id_ICMP_CONV_UNKNOWN_MAN_TRANS_OPTION  : FReplyStatus.Msg := RSICMPConvUnknownMandatoryTransportOptionPresent;
           end;
-          Id_ICMP_MOB_HOST_REDIR :
-            AReplyStatus.Msg :=  RSICMPMobileHostRedirect;
-          Id_ICMP_IPv6_WHERE_ARE_YOU :
-            AReplyStatus.Msg :=  RSICMPIPv6WhereAreYou;
-          Id_ICMP_IPv6_I_AM_HERE :
-            AReplyStatus.Msg := RSICMPIPv6IAmHere;
-          Id_ICMP_MOB_REG_REQ, Id_ICMP_MOB_REG_REPLY :
-            AReplyStatus.Msg := RSICMPIPv6IAmHere;
-          Id_ICMP_SKIP :
-            AReplyStatus.Msg := RSICMPSKIP;
-          Id_ICMP_PHOTURIS :
-          begin
-            case AReplyStatus.MsgCode of
-              Id_ICMP_BAD_SPI : AReplyStatus.Msg := RSICMPSecBadSPI;
-              Id_ICMP_AUTH_FAILED : AReplyStatus.Msg := RSICMPSecAuthenticationFailed;
-              Id_ICMP_DECOMPRESS_FAILED : AReplyStatus.Msg :=  RSICMPSecDecompressionFailed;
-              Id_ICMP_DECRYPTION_FAILED : AReplyStatus.Msg := RSICMPSecDecryptionFailed;
-              Id_ICMP_NEED_AUTHENTICATION : AReplyStatus.Msg := RSICMPSecNeedAuthentication;
-              Id_ICMP_NEED_AUTHORIZATION  : AReplyStatus.Msg := RSICMPSecNeedAuthorization;
-            end;
+        end;
+        Id_ICMP_MOB_HOST_REDIR                     : FReplyStatus.Msg := RSICMPMobileHostRedirect;
+        Id_ICMP_IPv6_WHERE_ARE_YOU                 : FReplyStatus.Msg := RSICMPIPv6WhereAreYou;
+        Id_ICMP_IPv6_I_AM_HERE                     : FReplyStatus.Msg := RSICMPIPv6IAmHere;
+        Id_ICMP_MOB_REG_REQ, Id_ICMP_MOB_REG_REPLY : FReplyStatus.Msg := RSICMPIPv6IAmHere;
+        Id_ICMP_SKIP                               : FReplyStatus.Msg := RSICMPSKIP;
+        Id_ICMP_PHOTURIS :
+        begin
+          case FReplyStatus.MsgCode of
+            Id_ICMP_BAD_SPI             : FReplyStatus.Msg := RSICMPSecBadSPI;
+            Id_ICMP_AUTH_FAILED         : FReplyStatus.Msg := RSICMPSecAuthenticationFailed;
+            Id_ICMP_DECOMPRESS_FAILED   : FReplyStatus.Msg := RSICMPSecDecompressionFailed;
+            Id_ICMP_DECRYPTION_FAILED   : FReplyStatus.Msg := RSICMPSecDecryptionFailed;
+            Id_ICMP_NEED_AUTHENTICATION : FReplyStatus.Msg := RSICMPSecNeedAuthentication;
+            Id_ICMP_NEED_AUTHORIZATION  : FReplyStatus.Msg := RSICMPSecNeedAuthorization;
           end;
         end;
       end;
     end;
   finally
     FreeAndNil(LIcmp);
-    FreeAndNil(LIPv4);
   end;
 end;
 
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(Buffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const Buffer: String);
+var
+  LIcmp: TIdICMPHdr;
+  LIdx: Integer;
 begin
-  iDataSize := DEF_PACKET_SIZE + 8;
-  FillBytes(FbufIcmp, iDataSize, 0);
-  //icmp_type
-  FBufIcmp[0] := Id_ICMP_ECHO;
-  //icmp_code := 0;
-  FBufIcmp[1] := 0;
-  //skip checksum for now
+  SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + FPacketSize);
+  FillBytes(FBufIcmp, Length(FBufIcmp), 0);
+  SetLength(FBufReceive, Length(FBufIcmp) + Id_IP_HSIZE);
 
-  //icmp_hun.echo.id := word(CurrentProcessId);
-  IdGlobal.CopyTIdWord(CurrentProcessId, FBufIcmp, 4);
-  //icmp_hun.echo.seq := wSeqNo;
-  IdGlobal.CopyTIdWord(wSeqNo, FBufIcmp, 6);
-  // icmp_dun.ts.otime := Ticks; - not an official thing but for Indy internal use
-  IdGlobal.CopyTIdLongWord(Ticks, FBufIcmp,8);
-  //data
-  if Length(Buffer) > 0 then begin
-    IdGlobal.CopyTIdString(Buffer, FBufIcmp, 12);
+  LIdx := 0;
+  LIcmp := TIdICMPHdr.Create;
+  try
+    LIcmp.icmp_type :=  Id_ICMP_ECHO;
+    LIcmp.icmp_code := 0;
+    LIcmp.icmp_sum := 0;
+    LIcmp.icmp_hun.echo_id := Word(CurrentProcessId);
+    LIcmp.icmp_hun.echo_seq := wSeqNo;
+    LIcmp.WriteStruct(FBufIcmp, LIdx);
+    CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
+    Inc(LIdx, 4);
+    if Length(Buffer) > 0 then begin
+      CopyTIdString(Buffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
+    end;
+  finally
+    FreeAndNil(LIcmp);
   end;
-  //the checksum is done in a send override
 end;
 
 {$IFNDEF DOTNET}
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(Buffer: String);
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const Buffer: String);
 var
-  LIPv6 : TIdicmp6_hdr;
+  LIcmp : TIdicmp6_hdr;
   LIdx : Integer;
 begin
-  LIPv6 := TIdicmp6_hdr.create;
+  SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + FPacketSize);
+  FillBytes(FBufIcmp, Length(FBufIcmp), 0);
+  SetLength(FBufReceive, Length(FBufIcmp) + (Id_IPv6_HSIZE*2));
+
+  LIdx := 0;
+  LIcmp := TIdicmp6_hdr.Create;
   try
-    LIdx := 0;
-    LIPv6.icmp6_type := ICMP6_ECHO_REQUEST;
-    LIPv6.icmp6_code := 0;
-    LIPv6.data.icmp6_un_data16[0] := word(CurrentProcessId);
-    LIPv6.data.icmp6_un_data16[1] := wSeqNo;
-    LIPv6.icmp6_cksum := 0;
-    LIPv6.WriteStruct(FBufIcmp,LIdx);
-    IdGlobal.CopyTIdLongWord(Ticks, FBufIcmp,LIdx);
-    Inc(LIdx,4);
+    LIcmp.icmp6_type := ICMP6_ECHO_REQUEST;
+    LIcmp.icmp6_code := 0;
+    LIcmp.data.icmp6_un_data16[0] := Word(CurrentProcessId);
+    LIcmp.data.icmp6_un_data16[1] := wSeqNo;
+    LIcmp.icmp6_cksum := 0;
+    LIcmp.WriteStruct(FBufIcmp, LIdx);
+    CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
+    Inc(LIdx, 4);
     if Length(Buffer) > 0 then begin
-      CopyTIdString(Buffer, FBufIcmp, LIdx, Length(Buffer));
+      CopyTIdString(Buffer, FBufIcmp, LIdx, Min(Length(Buffer), FPacketSize));
     end;
   finally
-    FreeAndNil(LIPv6);
+    FreeAndNil(LIcmp);
   end;
 end;
 
-function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: Cardinal;
-  var AReplyStatus: TReplyStatus): boolean;
+function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: LongWord): Boolean;
 var
   LIdx : Integer;
   LIcmp : TIdicmp6_hdr;
@@ -600,79 +663,78 @@ begin
   LIdx := 0;
   LIcmp := TIdicmp6_hdr.Create;
   try
-    //NOte that IPv6 raw headers are not being returned.
+    // Note that IPv6 raw headers are not being returned.
     LIcmp.ReadStruct(FBufReceive, LIdx);
+
     case LIcmp.icmp6_type of
       ICMP6_ECHO_REQUEST,
-      ICMP6_ECHO_REPLY :
-        AReplyStatus.ReplyStatusType := rsEcho;
+      ICMP6_ECHO_REPLY           : FReplyStatus.ReplyStatusType := rsEcho;
       //group membership messages
-      ICMP6_MEMBERSHIP_QUERY : ;
-      ICMP6_MEMBERSHIP_REPORT : ;
-      ICMP6_MEMBERSHIP_REDUCTION :;
+      ICMP6_MEMBERSHIP_QUERY     : ;
+      ICMP6_MEMBERSHIP_REPORT    : ;
+      ICMP6_MEMBERSHIP_REDUCTION : ;
       //errors
-      ICMP6_DST_UNREACH :    AReplyStatus.ReplyStatusType := rsErrorUnreachable;
-      ICMP6_PACKET_TOO_BIG : AReplyStatus.ReplyStatusType := rsErrorPacketTooBig;
-      ICMP6_TIME_EXCEEDED :  AReplyStatus.ReplyStatusType :=  rsErrorTTLExceeded;
-      ICMP6_PARAM_PROB :     AReplyStatus.ReplyStatusType := rsErrorParameter;
+      ICMP6_DST_UNREACH          : FReplyStatus.ReplyStatusType := rsErrorUnreachable;
+      ICMP6_PACKET_TOO_BIG       : FReplyStatus.ReplyStatusType := rsErrorPacketTooBig;
+      ICMP6_TIME_EXCEEDED        : FReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
+      ICMP6_PARAM_PROB           : FReplyStatus.ReplyStatusType := rsErrorParameter;
     else
-      AReplyStatus.ReplyStatusType := rsError;
+      FReplyStatus.FReplyStatus  := rsError;
     end;
-    AReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
-    AReplyStatus.MsgCode := LIcmp.icmp6_code;
+    FReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
+    FReplyStatus.MsgCode := LIcmp.icmp6_code;
+
     //errors are values less than ICMP6_INFOMSG_MASK
     if LIcmp.icmp6_type < ICMP6_INFOMSG_MASK then
     begin
       //read info from the original packet part
       LIcmp.ReadStruct(FBufReceive, LIdx);
     end;
+
     LActualSeqID := LIcmp.data.icmp6_seq;
     Result := LActualSeqID = wSeqNo;
 
     RTTime := GetTickDiff(BytesToLongWord(FBufReceive, LIdx), Ticks);
+    Inc(LIdx, 4);
+    
     if Result then
     begin
-      AReplyStatus.BytesReceived := BytesRead;
-      AReplyStatus.SequenceId := LActualSeqID;
-      AReplyStatus.MsRoundTripTime := RTTime;
+      FReplyStatus.BytesReceived := BytesRead - LIdx;
+      FReplyStatus.SequenceId := LActualSeqID;
+      FReplyStatus.MsRoundTripTime := RTTime;
       // TimeToLive := FBufReceive[8];
       // TimeToLive := pip^.ip_ttl;
-      AReplyStatus.TimeToLive := FPkt.TTL;
-      AReplyStatus.FromIpAddress := FPkt.SourceIP;
-      AReplyStatus.ToIpAddress := FPkt.DestIP;
-      case LIcmp.icmp6_type of
-        ICMP6_ECHO_REQUEST,
-        ICMP6_ECHO_REPLY :
-          AReplyStatus.Msg := RSICMPEcho;
+      FReplyStatus.TimeToLive := FPkt.TTL;
+      FReplyStatus.FromIpAddress := FPkt.SourceIP;
+      FReplyStatus.ToIpAddress := FPkt.DestIP;
+
+      case FReplyStatus.MsgType of
+        ICMP6_ECHO_REQUEST, ICMP6_ECHO_REPLY : FReplyStatus.Msg := RSICMPEcho;
         ICMP6_TIME_EXCEEDED :
         begin
-          case LIcmp.icmp6_code of
-            ICMP6_TIME_EXCEED_TRANSIT :     AReplyStatus.Msg := RSICMPHopLimitExceeded;
-            ICMP6_TIME_EXCEED_REASSEMBLY :  AReplyStatus.Msg := RSICMPFragAsmExceeded;
+          case FReplyStatus.MsgCode of
+            ICMP6_TIME_EXCEED_TRANSIT    : FReplyStatus.Msg := RSICMPHopLimitExceeded;
+            ICMP6_TIME_EXCEED_REASSEMBLY : FReplyStatus.Msg := RSICMPFragAsmExceeded;
           end;
         end;
         ICMP6_DST_UNREACH :
         begin
-          case LIcmp.icmp6_code of
-            ICMP6_DST_UNREACH_NOROUTE :           AReplyStatus.Msg := RSICMPNoRouteToDest;
-            ICMP6_DST_UNREACH_ADMIN :             AReplyStatus.Msg := RSICMPAdminProhibitted;
-            ICMP6_DST_UNREACH_ADDR :              AReplyStatus.Msg :=  RSICMPHostUnreachable;
-            ICMP6_DST_UNREACH_NOPORT  :           AReplyStatus.Msg := RSICMPProtUnreachable;
-            ICMP6_DST_UNREACH_SOURCE_FILTERING :  AReplyStatus.Msg := RSICMPSourceFilterFailed;
-            ICMP6_DST_UNREACH_REJCT_DST :         AReplyStatus.Msg := RSICMPRejectRoutToDest;
+          case FReplyStatus.MsgCode of
+            ICMP6_DST_UNREACH_NOROUTE          : FReplyStatus.Msg := RSICMPNoRouteToDest;
+            ICMP6_DST_UNREACH_ADMIN            : FReplyStatus.Msg := RSICMPAdminProhibitted;
+            ICMP6_DST_UNREACH_ADDR             : FReplyStatus.Msg := RSICMPHostUnreachable;
+            ICMP6_DST_UNREACH_NOPORT           : FReplyStatus.Msg := RSICMPProtUnreachable;
+            ICMP6_DST_UNREACH_SOURCE_FILTERING : FReplyStatus.Msg := RSICMPSourceFilterFailed;
+            ICMP6_DST_UNREACH_REJCT_DST        : FReplyStatus.Msg := RSICMPRejectRoutToDest;
           end;
         end;
-        ICMP6_PACKET_TOO_BIG :
-          AReplyStatus.Msg := IndyFormat(RSICMPPacketTooBig, [LIcmp.data.icmp6_mtu]);
+        ICMP6_PACKET_TOO_BIG           : FReplyStatus.Msg := IndyFormat(RSICMPPacketTooBig, [LIcmp.data.icmp6_mtu]);
         ICMP6_PARAM_PROB :
         begin
-          case LIcmp.icmp6_code of
-            ICMP6_PARAMPROB_HEADER :
-              AReplyStatus.Msg := IndyFormat(RSICMPParamHeader, [LIcmp.data.icmp6_pptr]);
-            ICMP6_PARAMPROB_NEXTHEADER :
-              AReplyStatus.Msg := IndyFormat(RSICMPParamNextHeader, [LIcmp.data.icmp6_pptr]);
-            ICMP6_PARAMPROB_OPTION :
-              AReplyStatus.Msg :=  IndyFormat(RSICMPUnrecognizedOpt, [LIcmp.data.icmp6_pptr]);
+          case FReplyStatus.MsgCode of
+            ICMP6_PARAMPROB_HEADER     : FReplyStatus.Msg := IndyFormat(RSICMPParamHeader, [LIcmp.data.icmp6_pptr]);
+            ICMP6_PARAMPROB_NEXTHEADER : FReplyStatus.Msg := IndyFormat(RSICMPParamNextHeader, [LIcmp.data.icmp6_pptr]);
+            ICMP6_PARAMPROB_OPTION     : FReplyStatus.Msg := IndyFormat(RSICMPUnrecognizedOpt, [LIcmp.data.icmp6_pptr]);
           end;
         end;
         ICMP6_MEMBERSHIP_QUERY : ;
@@ -724,34 +786,24 @@ begin
   if SequenceID <> 0 then begin
     wSeqNo := SequenceID;
   end;
-  SetLength(FbufIcmp, FPacketSize);
-  if IPVersion = Id_IPv4 then begin
-    SetLength(FbufReceive, FPacketSize+Id_IP_HSIZE);
-  end else begin
-    SetLength(FbufReceive, FPacketSize+(Id_IPv6_HSIZE*2));
-  end;
   PrepareEchoRequest(ABuffer);
   SendEchoRequest(AIP);
   GetEchoReply;
   Binding.CloseSocket;
-
-  DoReply(FReplyStatus);
-  Inc(wSeqNo); // SG 25/1/02: Only incread sequence number when finished.
+  DoReply;
+  Inc(wSeqNo); // SG 25/1/02: Only increase sequence number when finished.
 end;
 
 procedure TIdCustomIcmpClient.SendEchoRequest(const AIP: String);
 begin
-  Send(AIP, 0, FbufIcmp);
+  Send(AIP, 0, FBufIcmp);
 end;
 
 { TIdIcmpClient }
 
 procedure TIdIcmpClient.Ping(const ABuffer: String; SequenceID: Word);
-var
-  LIP : String;
 begin
-  LIP := GStack.ResolveHost(Host, IPVersion);
-  InternalPing(LIP, ABuffer, SequenceID);
+  InternalPing(GStack.ResolveHost(Host, IPVersion), ABuffer, SequenceID);
 end;
 
 end.
