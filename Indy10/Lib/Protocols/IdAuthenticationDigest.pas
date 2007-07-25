@@ -46,6 +46,7 @@ unit IdAuthenticationDigest;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -97,13 +98,13 @@ end;
 
 function TIdDigestAuthentication.Authentication: String;
 
-  function ResultString(const s: String): String;
+  function ResultString(const S: String): String;
   begin
     with TIdHashMessageDigest5.Create do try
       Result := LowerCase(HashStringAsHex(S));
     finally Free end;
     // RLebeau: how can spaces get into the Hex output?
-    Result := StringReplace(Result, ' ', '0',[rfReplaceAll]); //Stupid uppercase, cost me a whole day to figure this one out
+    Result := StringReplace(Result, ' ', '0', [rfReplaceAll]); //Stupid uppercase, cost me a whole day to figure this one out
   end;
 
 var
@@ -180,7 +181,6 @@ function TIdDigestAuthentication.DoNext: TIdAuthWhatsNext;
 var
   S, LstrTempNonce: String;
   LParams: TStringList;
-  f: String;
   i: Integer;
 begin
   Result := wnDoRequest;
@@ -206,15 +206,12 @@ begin
         LParams := TStringList.Create;
         try
           while Length(S) > 0 do begin
-            f := Fetch(S, ', ');
-            LParams.Add(f);
+            LParams.Add(Fetch(S, ', '));
           end;
 
-          for i := lParams.Count-1 downto 0 do
+          for i := LParams.Count-1 downto 0 do
           begin
-            f := lParams.Values[lParams.Names[i]];
-            f := RemoveQuote(f);
-            LParams.Values[LParams.Names[i]] := f;
+            LParams.Values[LParams.Names[i]] := RemoveQuote(LParams.Values[LParams.Names[i]]);
           end;
 
           FRealm := LParams.Values['realm'];
@@ -233,7 +230,7 @@ begin
           FOpaque := LParams.Values['opaque'];
           FStale := TextIsSame(LParams.Values['stale'], 'True');
           FAlgorithm := LParams.Values['algorithm'];
-          FQopOptions.CommaText := Params.Values['qop'];
+          FQopOptions.CommaText := LParams.Values['qop'];
 
           if not TextIsSame(FAlgorithm, 'MD5') then begin
             //FAlgorithm:='MD5';
