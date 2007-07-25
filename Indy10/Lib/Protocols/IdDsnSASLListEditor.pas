@@ -47,7 +47,7 @@ interface
 uses
   {$IFDEF VCL9ORABOVE}
      {$IFDEF DOTNET}
-      Borland.Vcl.Design.DesignIntF,
+      Borland.Vcl.Design.DesignIntf,
       Borland.Vcl.Design.DesignEditors;
      {$ELSE}
       DesignIntf,
@@ -55,11 +55,11 @@ uses
      {$ENDIF}
   {$ELSE}
     {$IFDEF VCL6ORABOVE}
-          {$IFDEF FPC}
+      {$IFDEF FPC}
       PropEdits,
       ComponentEditors;
       {$ELSE}
-      DesignIntf, 
+      DesignIntf,
       DesignEditors;
       {$ENDIF}
     {$ELSE}
@@ -77,67 +77,34 @@ type
   end;
 
 implementation
+
 uses
   Classes,
-  IdBaseComponent,
-  IdDICT,
   IdDsnResourceStrings, IdDsnSASLListEditorForm,
-  IdIMAP4,
-  IdPOP3,
-  IdSASL,
-  IdSASLCollection,
-  IdSMTP,
+  IdSASL, IdSASLCollection,
   SysUtils;
-
 
 { TIdPropEdSASL }
 
 procedure TIdPropEdSASL.Edit;
-var LF : TfrmSASLListEditor;
+var
+  LF: TfrmSASLListEditor;
+  LComp: TPersistent;
+  LList: TIdSASLEntries;
 begin
   inherited Edit;
+
+  LComp := GetComponent(0);
+  LList := TIdSASLEntries(GetOrdProp(LComp, GetPropInfo));
+
   LF := TfrmSASLListEditor.Create(nil);
   try
-    if PropCount > 0 then
-    begin
-
-      if GetComponent(0) is TComponent then
-      begin
-        LF.SetComponentName(TComponent(GetComponent(0)).Name);
-      end;
-//      LF.SetComponentName(GetComponent(0).Name );
-      if GetComponent(0) is TIdSMTP then
-      begin
-        LF.SetList(TIdSMTP(GetComponent(0)).SASLMechanisms);
-        if LF.Execute then
-        begin
-          LF.GetList(TIdSMTP(GetComponent(0)).SASLMechanisms);
-        end;
-      end;
-      if GetComponent(0) is TIdIMAP4 then
-      begin
-        LF.SetList(TIdIMAP4(GetComponent(0)).SASLMechanisms);
-        if LF.Execute then
-        begin
-          LF.GetList(TIdIMAP4(GetComponent(0)).SASLMechanisms);
-        end;
-      end;
-      if GetComponent(0) is TIdPOP3 then
-      begin
-        LF.SetList(TIdPOP3(GetComponent(0)).SASLMechanisms);
-        if LF.Execute then
-        begin
-          LF.GetList(TIdPOP3(GetComponent(0)).SASLMechanisms);
-        end;
-      end;
-      if GetComponent(0) is TIdDICT then
-      begin
-        LF.SetList(TIdDICT(GetComponent(0)).SASLMechanisms);
-        if LF.Execute then
-        begin
-          LF.GetList(TIdDICT(GetComponent(0)).SASLMechanisms);
-        end;
-      end;
+    if LComp is TComponent then begin
+      LF.SetComponentName(TComponent(LComp).Name);
+    end;
+    LF.SetList(LList);
+    if LF.Execute then begin
+      LF.GetList(LList);
     end;
   finally
     FreeAndNil(LF);
@@ -146,12 +113,12 @@ end;
 
 function TIdPropEdSASL.GetAttributes: TPropertyAttributes;
 begin
-  result := [paDialog];
+  Result := inherited GetAttributes + [paDialog];
 end;
 
 function TIdPropEdSASL.GetValue: string;
 begin
-  Result := '';
+  Result := GetStrValue;
 end;
 
 procedure TIdPropEdSASL.SetValue(const Value: string);
