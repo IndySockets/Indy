@@ -22,6 +22,13 @@
   {$DEFINE DELPHI4}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE MSWINDOWS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCL}
 {$ENDIF}
 
 // C++ Builder 4
@@ -31,6 +38,14 @@
   {$DEFINE CBUILDER4}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE MSWINDOWS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCL}
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
 {$ENDIF}
 
 // Delphi 5 & CBuilder 5
@@ -46,6 +61,14 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE MSWINDOWS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCL}
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
 {$ENDIF}
 
 //Delphi 6
@@ -62,6 +85,15 @@
   {$DEFINE SAMETEXT}
   {$DEFINE VCL6ORABOVE}
   {$DEFINE VCL60}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCL}
+  {$DEFINE VCL60PLUS}
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
 {$ENDIF}
 
 //Delphi 7
@@ -79,6 +111,15 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
+  {$DEFINE WIDGETVCL}
+  {$DEFINE VCL60PLUS}
 {$ENDIF}
 
 //Delphi 8
@@ -93,6 +134,11 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  //Widget defines are omitted since D8 only supports NET
 {$ENDIF}
 
 //Delphi 9 - 2005
@@ -108,6 +154,17 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$IFNDEF CIL}
+    {$DEFINE WIDGETVCLLIKE} // LCL included.
+    {$DEFINE WIDGETLIKEORKYLIX}
+    {$DEFINE WIDGETVCL}
+    {$DEFINE VCL60PLUS}
+  {$ENDIF}
 {$ENDIF}
 
 //Delphi 10 - Delphi 2006, Delphi 2007
@@ -125,11 +182,20 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCL}
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
+  {$DEFINE VCL60PLUS}
 {$ENDIF}
 
 //Delphi 11 - 2007
 {$IFDEF VER185}
-
   {$DEFINE USEINLINE}
   {$DEFINE VCL4ORABOVE}
   {$DEFINE VCL5ORABOVE}
@@ -146,23 +212,90 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
+  {$DEFINE TFormatSettings}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIN32_OR_WIN64}
+  {$IFNDEF CIL}
+    {$DEFINE WIDGETVCLLIKE} // LCL included.
+    {$DEFINE WIDGETVCLLIKEORKYLIX}
+    {$DEFINE WIDGETVCL}
+    {$DEFINE VCL60PLUS}
+  {$ENDIF}
+{$ENDIF}
+
+{$IFDEF CIL}
+  {$DEFINE WIDGETWINFORMS}
 {$ENDIF}
 
 //Delphi.NET
 // Covers D8+
 {$IFDEF CIL}
+  {$DEFINE I386}
+  {$DEFINE ENDIAN_LITTLE}
+  {$DEFINE CPU32}
+  {$DEFINE WIDGETWINFORMS}
   // Platform specific conditional. Used for platform specific code.
-  {$DEFINE DotNet}
+  {$DEFINE DOTNET}
   //differences in DotNET Framework versions.
   {$IFDEF VCL11ORABOVE}
-     {$DEFINE DotNet2}
+    {$DEFINE DOTNET2}
   {$ELSE}
-     {$DEFINE DotNet1}
+    {$DEFINE DOTNET1}
   {$ENDIF}
   // Extra include used in D7 for testing. Remove later when all comps are
   // ported. Used to selectively exclude non ported parts. Allowed in places
   // IFDEFs are otherwise not permitted.
-  {$DEFINE DotNetExclude}
+  {$DEFINE DOTNETEXCLUDE}
+{$ENDIF}
+
+// FPC (2+)
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+  {$DEFINE WIDGETVCLLIKE} // LCL included.
+  {$DEFINE WIDGETVCLLIKEORKYLIX}
+  {$DEFINE USETBITBTN} //use Bit Buttons instead of Buttons
+  {$DEFINE WIDGETLCL}
+  //note that we may need further defines for widget types depending on
+  //what we do and what platforms we support in FPC.
+  //I'll let Marco think about that one.
+  {$IFDEF UNIX}
+    {$IFDEF LINUX}
+      //In Linux, you can either use USELIBC or USEBASEUNIX.
+      //If you choose USELIBC, you need to modify the Makefile.fpc in
+      //in the System folder and generate the Makefile (preferably
+      // with the complete source tree.
+      {.$DEFINE USELIBC}
+      {$DEFINE USEBASEUNIX}
+    {$ELSE}
+      {$DEFINE USEBASEUNIX}
+    {$ENDIF}
+  {$ENDIF}
+  {$IF DEFINED(WIN32) OR DEFINED(win64)}
+    {$DEFINE WIN32_OR_WIN64}
+  {$IFEND}
+  //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
+  {$IF DEFINED(WINCE)} 
+    {$DEFINE UNICODE} //CE is UNICODE ONLY
+    {$DEFINE WIN32_OR_WIN64_OR_WINCE}
+  {$IFEND}
+  {$DEFINE VCL4ORABOVE}
+  {$DEFINE VCL5ORABOVE}
+  {$DEFINE VCL6ORABOVE}
+  {$DEFINE VCL7ORABOVE}
+  {$DEFINE VCL70}
+  {$DEFINE DELPHI7}
+  {$DEFINE OPTIONALPARAMS}
+  {$DEFINE SAMETEXT}
+  {$DEFINE ALLOW_NAMED_THREADS}
+  {$DEFINE NO_TMultiReadExclusiveWriteSynchronizer}
+  {$DEFINE FPC_REINTRODUCE_BUG}
+  {$DEFINE FPC_CIRCULARBUG}
+  {$DEFINE NOREDECLARE}
+  {$DEFINE BYTECOMPARESETS}
 {$ENDIF}
 
 // Kylix
@@ -196,5 +329,10 @@
   {$DEFINE SAMETEXT}
   {$DEFINE VCL6ORABOVE}
   {$DEFINE VCL60}
+  {$DEFINE WIDGETKYLIX}
+  {$DEFINE WIDGETVCLLIKEORKYLIX}  
 {$ENDIF}
 
+{$IFDEF WIN32_OR_WIN64}
+  {$DEFINE WIN32_OR_WIN64_OR_WINCE}
+{$ENDIF}
