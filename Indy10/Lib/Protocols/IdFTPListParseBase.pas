@@ -56,7 +56,7 @@
   Can now optionally support LastAccessTime like Smartftp's FTP Server could.
   I also made the MLST listing object and parser support this as well.
 
-  Rev 1.13    6/11/2004 9:35:00 AM  DSiders
+    Rev 1.13    6/11/2004 9:35:00 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.12    6/7/2004 7:38:42 PM  JPMugaas
@@ -83,7 +83,7 @@
   facilitate some mirroring software if the server supports unique ID with EPLF
   and MLSD.
 
-  Rev 1.7    10/19/2003 2:27:02 PM  DSiders
+    Rev 1.7    10/19/2003 2:27:02 PM  DSiders
   Added localization comments.
 
   Rev 1.6    10/6/2003 08:58:00 PM  JPMugaas
@@ -118,6 +118,7 @@
 unit IdFTPListParseBase;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -132,23 +133,24 @@ type
   TIdFTPListBase = class(TObject)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; virtual;
-  //This is probably going to be a commonly used thing so it may be best to define it here.
-  //THis is for parsing an individual line of data using AItem.Data
-  //AItem is the item that was already created
-  //APath should probably be a path passed to the parser for qualitying the filename and should
-  //used only for recursive lists
+    //This is probably going to be a commonly used thing so it may be best to define it here.
+    //This is for parsing an individual line of data using AItem.Data
+    //AItem is the item that was already created
+    //APath should probably be a path passed to the parser for qualitying the filename and should
+    //used only for recursive lists
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; virtual;
   public
-
-  //This should return a unique string indicating the type of format the parser supports
+    //This should return a unique string indicating the type of format the parser supports
     class function GetIdent : String; virtual;
     //This determines if the parser is appropriate and returns True if it is or False if another parser
     //should be used
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; virtual;
-    //This parses the AListing TStrings and fills in the ADir object
+    //This parses the AListing and fills in the ADir object
     class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; virtual;
   end;
+
   TIdFTPListParseClass = class of TIdFTPListBase;
+
   TIdFTPRegParseList = class(TList)
   protected
     function FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
@@ -159,9 +161,9 @@ type
     function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean; virtual;
     function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var VFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
     function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String; virtual;
-   {
-   This is for TIdFTP.  This parses a list, returns the Parser ID, and the capabilities of the parser.
-   }
+    {
+    This is for TIdFTP.  This parses a list, returns the Parser ID, and the capabilities of the parser.
+    }
     function CheckListParseCapa(AListing : TStrings; ADir : TIdFTPListItems; var VFormat : String; var VClass :  TIdFTPListParseClass; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
   end;
 
@@ -171,16 +173,16 @@ type
     class function IsHeader(const AData : String): Boolean; virtual;
     class function IsFooter(const AData : String): Boolean; virtual;
   public
-
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
     class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
   end;
+
   //base class for line-by-line items where there is a file owner along with mod date and file size
   TIdFTPLineOwnedList = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-  public
   end;
+
   //These two parsers are manditory for the FTP Protocol
   TIdFTPLPNList = class(TIdFTPListBase)
   protected
@@ -189,17 +191,18 @@ type
     class function GetIdent : String; override;
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
+
   TIdFTPLPMList = class(TIdFTPListBase)
   protected
     class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
   public
-
     class function GetIdent : String; override;
     class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
   end;
-   //these are for some MS-DOS, OS/2, and Windows servers that report Attributes
-   //in their listings
+
+  //these are for some MS-DOS, OS/2, and Windows servers that report Attributes
+  //in their listings
   TIdFTPLPBaseDOS = class(TIdFTPListBase)
   protected
     class function IsValidAttr(const AAttr : String) : Boolean; virtual;
@@ -208,10 +211,8 @@ type
 function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
 function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
 function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
-function CheckListParseCapa(AListing: TStrings;
-  ADir: TIdFTPListItems; var VFormat: String;
-  var VClass:  TIdFTPListParseClass; const ASysDescript: String;
-  const ADetails: Boolean=True): boolean;
+function CheckListParseCapa(AListing: TStrings; ADir: TIdFTPListItems; var VFormat: String;
+  var VClass: TIdFTPListParseClass; const ASysDescript: String; const ADetails: Boolean=True): Boolean;
 
 procedure RegisterFTPListParser(const AParser : TIdFTPListParseClass);
 procedure UnregisterFTPListParser(const AParser : TIdFTPListParseClass);
@@ -242,8 +243,7 @@ var
 begin
   Result := '';
   LCurParser := Self.FindParserByDirData(AListing, ASysDescript, ADetails);
-  if LCurParser<>nil then
-  begin
+  if LCurParser <> nil then begin
     Result := LCurParser.GetIdent;
   end;
 end;
@@ -257,58 +257,54 @@ begin
   //such as something only containing a "total 0".
   Result := True;
   ADir.Clear;
-  LCurParser := Self.FindParserByIdent(AFormatID);
-  if LCurParser<>nil then
-  begin
-    Result := LCurParser.ParseListing(AListing,ADir);
+  LCurParser := FindParserByIdent(AFormatID);
+  if LCurParser <> nil then begin
+    Result := LCurParser.ParseListing(AListing, ADir);
   end;
 end;
 
 function TIdFTPRegParseList.CheckListParse(AListing : TStrings;
   ADir : TIdFTPListItems;var VFormat : String;
   const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
-var LCurParser : TIdFTPListParseClass;
+var
+  LCurParser : TIdFTPListParseClass;
 begin
   LCurParser := FindParserByDirData(AListing);
   Result := Assigned(LCurParser);
-  if Result then
-  begin
+  if Result then begin
     VFormat := LCurParser.GetIdent;
-    Result := ParseListing(AListing,ADir,VFormat);
+    Result := ParseListing(AListing, ADir, VFormat);
   end;
 end;
 
-function TIdFTPRegParseList.FindParserByIdent(
-  const AIdent: String): TIdFTPListParseClass;
-var i : Integer;
+function TIdFTPRegParseList.FindParserByIdent(const AIdent: String): TIdFTPListParseClass;
+var
+  i : Integer;
   LCurParser : TIdFTPListParseClass;
 begin
-  Result := nil;
-  for i := 0 to Count - 1 do
-  begin
+  for i := 0 to Count - 1 do begin
     LCurParser := TIdFTPListParseClass(Items[i]);
-    if LCurParser.GetIdent = AIdent then
-    begin
+    if LCurParser.GetIdent = AIdent then begin
       Result := LCurParser;
-      break;
+      Exit;
     end;
   end;
+  Result := nil;
 end;
 
-function TIdFTPRegParseList.FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
-var i : Integer;
+function TIdFTPRegParseList.FindParserByDirData(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True) : TIdFTPListParseClass;
+var
+  i : Integer;
   LCurParser : TIdFTPListParseClass;
 begin
-  Result := nil;
-  for i := 0 to Count - 1 do
-  begin
+  for i := 0 to Count - 1 do begin
     LCurParser := TIdFTPListParseClass(Items[i]);
-    if LCurParser.CheckListing(AListing,ASysDescript,ADetails) then
-    begin
+    if LCurParser.CheckListing(AListing, ASysDescript, ADetails) then begin
       Result := LCurParser;
-      break;
+      Exit;
     end;
   end;
+  Result := nil;
 end;
 
 function TIdFTPRegParseList.CheckListParseCapa(AListing: TStrings;
@@ -316,17 +312,13 @@ function TIdFTPRegParseList.CheckListParseCapa(AListing: TStrings;
   var VClass:  TIdFTPListParseClass; const ASysDescript: String;
   const ADetails: Boolean): boolean;
 begin
-  VFormat := '';
-  VClass := FindParserByDirData(AListing,ASysDescript,ADetails);
-  Result := VClass<>nil;
-  if Result then
-  begin
-
+  VClass := FindParserByDirData(AListing, ASysDescript, ADetails);
+  Result := Assigned(VClass);
+  if Result then begin
     VFormat := VClass.GetIdent;
-    Result := VClass.ParseListing(AListing,ADir);
-  end
-  else
-  begin
+    Result := VClass.ParseListing(AListing, ADir);
+  end else begin
+    VFormat := '';
     ADir.Clear;
   end;
 end;
@@ -336,55 +328,49 @@ end;
 {register and unreg procedures}
 procedure RegisterFTPListParser(const AParser : TIdFTPListParseClass);
 begin
- GParserList.Add(TObject(AParser));
+  GParserList.Add(TObject(AParser));
 end;
 
 procedure UnregisterFTPListParser(const AParser : TIdFTPListParseClass);
 begin
-  if Assigned(GParserList) then
-  begin
+  if Assigned(GParserList) then begin
     GParserList.Remove(TObject(AParser));
   end;
 end;
 
-function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
+function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String) : boolean;
 begin
-  Result := GParserList.ParseListing(AListing,ADir,AFormatID);
+  Result := GParserList.ParseListing(AListing, ADir, AFormatID);
 end;
 
 function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
 begin
-  Result := GParserList.CheckListParse(AListing,ADir,AFormat,ASysDescript,ADetails);
+  Result := GParserList.CheckListParse(AListing, ADir, AFormat, ASysDescript, ADetails);
 end;
 
 function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
 begin
-  Result := GParserList.CheckListing(AListing,ASysDescript,ADetails);
+  Result := GParserList.CheckListing(AListing, ASysDescript, ADetails);
 end;
 
 function CheckListParseCapa(AListing: TStrings;
   ADir: TIdFTPListItems; var VFormat: String;
   var VClass :  TIdFTPListParseClass; const ASysDescript: String;
-  const ADetails: Boolean): boolean;
+  const ADetails: Boolean): Boolean;
 begin
-  Result := GParserList.CheckListParseCapa(AListing,
-    ADir, VFormat,
-    VClass,
-    ASysDescript,
-    ADetails);
+  Result := GParserList.CheckListParseCapa(AListing, ADir, VFormat, VClass, ASysDescript, ADetails);
 end;
 
 procedure TIdFTPRegParseList.EnumFTPListParsers(AData: TStrings);
-var i : Integer;
+var
+  i : Integer;
   LDesc : String;
 begin
   AData.Clear;
-  for i := 0 to GParserList.Count -1 do
-  begin
+  for i := 0 to GParserList.Count -1 do begin
     //we need to exclude protocol specified parsers
     LDesc := TIdFTPListParseClass(Items[i]).GetIdent;
-    if PosInStrArray(LDesc,[ NLST, MLST])=-1 then
-    begin
+    if PosInStrArray(LDesc, [NLST, MLST]) = -1 then begin
       AData.Add(LDesc);
     end;
   end;
@@ -395,7 +381,7 @@ end;
 class function TIdFTPListBase.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
 begin
-//C++Builder can not use abstract virtual class methods.
+  //C++Builder can not use abstract virtual class methods.
   Result := False;
 end;
 
@@ -409,35 +395,32 @@ begin
   Result := AOwner.Add;
 end;
 
-class function TIdFTPListBase.ParseLine(const AItem: TIdFTPListItem;
-  const APath: String): Boolean;
+class function TIdFTPListBase.ParseLine(const AItem: TIdFTPListItem; const APath: String): Boolean;
 begin
-//C++Builder can not use abstract virtual class methods.
+  //C++Builder can not use abstract virtual class methods.
   Result := False;
 end;
 
-class function TIdFTPListBase.parselisting(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var i : Integer;
+class function TIdFTPListBase.ParseListing(AListing: TStrings; ADir: TIdFTPListItems): Boolean;
+var
+  i : Integer;
   AItem : TIdFTPListItem;
 begin
   Result := True;
-  for i := 0 to AListing.Count -1 do
-  begin
-    if ( AListing[i]<>'') then
-    begin
+  for i := 0 to AListing.Count -1 do begin
+    if AListing[i] <> '' then begin
       AItem := MakeNewItem(ADir);
       AItem.Data := AListing[i];
-      ParseLine(AItem,'');
+      ParseLine(AItem, '');
     end;
   end;
 end;
 
 { TIdFTPLPNList }
 
-class function TIdFTPLPNList.CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
+class function TIdFTPLPNList.CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): boolean;
 begin
-  Result := (ADetails=False);
+  Result := not ADetails;
 end;
 
 class function TIdFTPLPNList.GetIdent: String;
@@ -454,9 +437,9 @@ end;
 
 { TIdFTPLPMList }
 
-class function TIdFTPLPMList.CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean;
+class function TIdFTPLPMList.CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): boolean;
 begin
-//user has to specifically ask for this parser
+  //user has to specifically ask for this parser
   Result := False;
 end;
 
@@ -473,9 +456,10 @@ end;
 
 class function TIdFTPLPMList.ParseLine(const AItem: TIdFTPListItem;
   const APath: String =''): Boolean;
-var LFacts : TStrings;
-    LBuffer : String;
-    LI : TIdMLSTFTPListItem;
+var
+  LFacts : TStrings;
+  LBuffer : String;
+  LI : TIdMLSTFTPListItem;
 //based on:
 //
 //http://www.ietf.org/internet-drafts/draft-ietf-ftpext-mlst-15.txt
@@ -483,7 +467,7 @@ begin
   LI := AItem as TIdMLSTFTPListItem;
   LFacts := TStringList.Create;
   try
-    LI.FileName := ParseFacts(AItem.Data,LFacts);
+    LI.FileName := ParseFacts(AItem.Data, LFacts);
     LI.LocalFileName := AItem.FileName;
 
     LBuffer := LFacts.Values['type']; {do not localize}
@@ -493,93 +477,75 @@ begin
 //   dir          -- a directory or sub-directory
 //   OS.name=type -- an OS or file system dependent file type
 
-    if (LBuffer = 'cdir') or (LBuffer='pdir') or  {do not localize}
-      (LBuffer = 'dir') then  {do not localize}
-    begin
+    if PosInStrArray(LBuffer, ['cdir', 'pdir', 'dir']) <> -1 then begin {do not localize}
       LI.ItemType := ditDirectory;
-    end
-    else
-    begin
+    end else begin
       LI.ItemType := ditFile;
     end;
     LBuffer := LFacts.Values['modify']; {do not localize}
-    if LBuffer <> '' then
-    begin
+    if LBuffer <> '' then begin
       LI.ModifiedDate := FTPMLSToLocalDateTime(LBuffer);
       LI.ModifiedDateGMT := FTPMLSToGMTDateTime(LBuffer);
       LI.ModifiedAvail := True;
-    end
-    else
-    begin
+    end else begin
       LI.ModifiedAvail := False;
     end;
     //create
     LBuffer := LFacts.Values['create']; {do not localize}
-    if LBuffer <> '' then
-    begin
+    if LBuffer <> '' then begin
       LI.CreationDate := FTPMLSToLocalDateTime(LBuffer);
       LI.CreationDateGMT := FTPMLSToGMTDateTime(LBuffer);
     end;
     //last access time
     LBuffer := LFacts.Values['windows.lastaccesstime']; {do not localize}
-    if LBuffer <> '' then
-    begin
+    if LBuffer <> '' then begin
       LI.LastAccessDate := FTPMLSToLocalDateTime(LBuffer);
       LI.LastAccessDateGMT := FTPMLSToGMTDateTime(LBuffer);
     end;
     LBuffer := LFacts.Values['size']; {do not localize}
-    if LBuffer<>'' then
-    begin
+    if LBuffer <> '' then begin
       LI.Size := IndyStrToInt64(LBuffer, 0);
       LI.SizeAvail := True;
-    end
-    else
-    begin
+    end else begin
       LI.SizeAvail := False;
     end;
-    if LI.SizeAvail = False and (LI.ItemType=ditDirectory) then
+    if (not LI.SizeAvail) and (LI.ItemType = ditDirectory) then
     begin
       {PureFTPD uses a sizd fact for directories instead of the size fact}
       LBuffer := LFacts.Values['sizd']; {Do not localize}
-      if LBuffer<>'' then
+      if LBuffer <> '' then
       begin
         LI.Size := IndyStrToInt64(LBuffer, 0);
         LI.SizeAvail := True;
-      end
-      else
-      begin
-        LI.SizeAvail := False;
       end;
     end;
-    if LFacts.IndexOfName('perm')>-1 then
+    LBuffer := LFacts.Values['perm']; {do not localize}
+    if LBuffer <> '' then
     begin
-      LI.MLISTPermissions := LFacts.Values['perm'];  {do not localize}
+      LI.MLISTPermissions := LBuffer;
       LI.PermissionDisplay := LI.MLISTPermissions;
-    end
-    else
+    end else
     begin
       //maybe there is a UNIX.mode value
-      if LFacts.IndexOfName('UNIX.mode')>-1 then
+      LBuffer := LFacts.Values['UNIX.mode']; {do not localize}
+      if LBuffer <> '' then
       begin
         //Surge FTP does something like this:
         //type=dir;size=4096;modify=20040901012354;create=20040901012354;unique=833.32641;perm=cdeflmp;unix.mode=drwxr-xr-x;unix.owner=root;unix.group=root pub
         //type=file;size=1376687;modify=20031212015717;create=20031212015717;unique=833.195842;perm=r;unix.mode=-rw-r--r--;unix.owner=root;unix.group=root v.zip
         //
         //while other servers simply give the chmod number
-        LBuffer := LFacts.Values['UNIX.mode'];
-        if IsNumeric(LBuffer) then
-        begin
-
-           ChmodNoToPerms( IndyStrToInt( LBuffer,0),LBuffer);
-           case  LI.ItemType of
-             ditFile : LBuffer := '-'+LBuffer;
-             ditDirectory : LBuffer := 'd'+LBuffer;
+        if IsNumeric(LBuffer) then begin
+           ChmodNoToPerms(IndyStrToInt(LBuffer, 0), LBuffer);
+           case LI.ItemType of
+             ditFile      : LBuffer := '-' + LBuffer; {do not localize}
+             ditDirectory : LBuffer := 'd' + LBuffer; {do not localize}
              ditSymbolicLink,
-             ditSymbolicLinkDir : LBuffer := 'l'+LBuffer;
-             ditBlockDev : LBuffer := 'b'+LBuffer;
-              ditCharDev : LBuffer := 'c'+LBuffer;
-              ditFIFO    : LBuffer := 'p'+LBuffer;
-              ditSocket  : LBuffer := 's'+LBuffer;
+             ditSymbolicLinkDir : LBuffer := 'l' + LBuffer; {do not localize}
+             ditBlockDev  : LBuffer := 'b' + LBuffer; {do not localize}
+             ditCharDev   : LBuffer := 'c' + LBuffer; {do not localize}
+             ditFIFO      : LBuffer := 'p' + LBuffer; {do not localize}
+             ditSocket    : LBuffer := 's' + LBuffer; {do not localize}
            end;
         end;
         LI.PermissionDisplay := LBuffer;
@@ -587,17 +553,17 @@ begin
     end;
     LI.UniqueID := LFacts.Values['unique']; {do not localize}
     //Win32.ea
-    if LFacts.IndexOfName('win32.ea') >0 then
-    begin
-//format like this:
-//
-//size=0;lang=utf8;modify=20050308020346;create=20041109093936;type=cdir;UNIX.mode=0666;UNIX.owner=a;UNIX.group=default;win32.ea=0x00000810 .
-//
-      LBuffer := LFacts.Values['win32.ea'];
-      Fetch(LBuffer,'x');
+    //
+    //format like this:
+    //
+    //size=0;lang=utf8;modify=20050308020346;create=20041109093936;type=cdir;UNIX.mode=0666;UNIX.owner=a;UNIX.group=default;win32.ea=0x00000810 .
+    //
+    LBuffer := LFacts.Values['win32.ea'];
+    if LBuffer <> '' then begin
+      Fetch(LBuffer, 'x');
       LBuffer := '$'+LBuffer;
       LI.AttributesAvail := True;
-      LI.Attributes.FileAttributes  := IndyStrToInt( LBuffer,0);
+      LI.Attributes.FileAttributes := IndyStrToInt(LBuffer, 0);
     end;
     Result := True;
   finally
@@ -610,19 +576,14 @@ end;
 
 class function TIdFTPListBaseHeader.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := False;
-  for i := 0 to AListing.Count -1 do
-  begin
-    if IsWhiteString(AListing[i])
-       or IsLineStr(AListing[i]) then
-    begin
-    end
-    else
-    begin
+  for i := 0 to AListing.Count -1 do begin
+    if (not IsWhiteString(AListing[i])) and (not IsLineStr(AListing[i])) then begin
       Result := IsHeader(AListing[i]);
-      break;
+      Break;
     end;
   end;
 end;
@@ -639,33 +600,25 @@ end;
 
 class function TIdFTPListBaseHeader.ParseListing(AListing: TStrings;
   ADir: TIdFTPListItems): boolean;
-var LStart : Integer;
-   i : Integer;
-   LItem : TIdFTPListItem;
+var
+  LStart : Integer;
+  i : Integer;
+  LItem : TIdFTPListItem;
 begin
-  if AListing.Count >0 then
-  begin
+  if AListing.Count > 0 then begin
     //find the entries below the header
     LStart := 0;
-    for i := 0 to AListing.Count -1 do
-    begin
-      if IsHeader(AListing[i]) or IsWhiteString(AListing[i])
-       or IsLineStr(AListing[i]) then
+    for i := 0 to AListing.Count-1 do begin
+      if IsHeader(AListing[i]) or IsWhiteString(AListing[i]) or IsLineStr(AListing[i]) then
       begin
         LStart := i+1;
-      end
-      else
-      begin
+      end else begin
         //we found where the header ends
-        break;
+        Break;
       end;
     end;
-    for i := LStart to AListing.Count -1 do
-    begin
-      if (IsWhiteString(AListing[i])=False) and
-        (IsLineStr(AListing[i])=False)
-        and (IsFooter(AListing[i])=False) then
-      begin
+    for i := LStart to AListing.Count -1 do begin
+      if (not IsWhiteString(AListing[i])) and (not IsLineStr(AListing[i])) and (not IsFooter(AListing[i])) then begin
         LItem := MakeNewItem(ADir);
         LItem.Data := AListing[i];
         ParseLine(LItem);
@@ -686,15 +639,14 @@ end;
 { TIdFTPLPBaseDOS }
 
 class function TIdFTPLPBaseDOS.IsValidAttr(const AAttr: String): Boolean;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := False;
-  for i := 1 to Length(AAttr) do
-  begin
-    Result := CharIsInSet(AAttr,i,'RASH');
-    if False then
-    begin
-      break;
+  for i := 1 to Length(AAttr) do begin
+    Result := CharIsInSet(AAttr, i, 'RASH');
+    if not Result then begin
+      Break;
     end;
   end;
 end;
@@ -713,4 +665,6 @@ initialization
 
 finalization
   FreeAndNil(GParserList);
+
 end.
+
