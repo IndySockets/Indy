@@ -1,0 +1,119 @@
+# New ports collection makefile for:	indy-fpc
+# Date Created:				2006-08-16
+# Whom:					J. Peter Mugaas <oma00215@mail.wvnet.edu>
+#
+# $FreeBSD$
+#
+
+PORTNAME=	indy
+PORTVERSION=	10.2.0.1
+#DISTVERSIONPREFIX=	[]
+#DISTVERSION=	[]
+#DISTVERSIONSUFFIX=	[]
+#PORTREVISION=	[]
+#PORTEPOCH=	[]
+CATEGORIES=	devel
+MASTER_SITES=	http://www.indyproject.org/sockets/fpc/
+#MASTER_SITE_SUBDIR=	${PORTNAME}
+#PKGNAMEPREFIX=	[]
+PKGNAMESUFFIX=	-fpc
+DISTNAME=	${PORTNAME}-${PORTVERSION}
+#EXTRACT_SUFX=	[]
+#DISTFILES=	${PORTNAME}-${PORTVERSION:S/$/-0/}${EXTRACT_SUFX} \
+#		fpc-${FPC_MINVER:S/$/.source/}${EXTRACT_SUFX}
+#DIST_SUBDIR=	fpc
+#EXTRACT_ONLY=	[]
+
+MAINTAINER=	oma00215@mail.wvnet.edu
+COMMENT=	Indy.Sockets (FreePascal Version)
+
+BUILD_DEPENDS=	ppc386:${PORTSDIR}/lang/fpc \
+		fpcmake:${PORTSDIR}/lang/fpc-utils
+
+ONLY_FOR_ARCHS=	i386
+
+#USE_ICONV=	yes
+#USE_GETTEXT=	yes
+#USE_GNOME=	gtk12 gdkpixbuf
+USE_GMAKE=	yes
+
+MAKE_ENV=	OPT="-Fu${UNITSDIR}/* -Fl${LOCALBASE}/lib -Fl${X11BASE}/lib"
+#EXTRACT_AFTER_ARGS=	| ${TAR} xf - fpc/fcl/image fpc/fcl/inc lazarus
+WRKSRC=	${WRKDIR}/${PORTNAME}-${PORTVERSION}
+#BUILDNAME=	${ARCH}-freebsd
+OSTARNAME!=	uname -s | tr [A-Z] [a-z]
+BUILDNAME=	${ARCH}-${OSTARNAME}
+FPC_MINVER=	2.0.2
+UNITSRELDIR=	lib/fpc/${FPC_MINVER}/units/${BUILDNAME}
+UNITSDIR=	${LOCALBASE}/${UNITSRELDIR}
+UNITTARGET=	${PREFIX}/${UNITSRELDIR}
+BASE_UNITS=	LIBASYNC NETDB
+ALL_UNITS=	${BASE_UNITS} FCL
+
+# Base units
+LIBASYNC_UNIT=	net/fpc-libasync
+NETDB_UNIT=	net/fpc-netdb
+
+# Extra units
+FCL_UNIT=	devel/fpc-fcl
+
+# Plist-Sub for calculating dir locations in the pkg-plist file
+PLIST_SUB=	UNITTARGET=${UNITTARGET}/${PORTNAME}
+.include <bsd.port.pre.mk>
+
+.for OPT in ${ALL_UNITS}
+BUILD_DEPENDS+=	${UNITSDIR}/${OPT:L}/Package.fpc:${PORTSDIR}/${${OPT}_UNIT}
+.endfor
+	
+#post-extract:
+#	${CP} ${WRKDIR}/fpc/fcl/inc/zstream.pp ${WRKSRC}/lcl && \
+#		${CP} ${WRKDIR}/fpc/fcl/image/fpreadpng.pp \
+#			${WRKDIR}/fpc/fcl/image/fpwritepng.pp ${WRKSRC}/lcl
+
+post-depends:
+.if exists(${LOCALBASE}/bin/fpc)
+FPC_VER!=	${LOCALBASE}/bin/fpc -i -v | ${SED} -n -e 's/^Free Pascal Compiler version //' -e '1p'
+FPC_DIR=	${LOCALBASE}/lib/fpc/${FPC_VER}
+FPC_REQVER!=	${ECHO_CMD} $$(expr ${FPC_VER:C/^[^\.]*\.//} \>= ${FPC_MINVER:C/^[^\.]*\.//})
+
+.if (${FPC_REQVER} != 1)
+IGNORE=	requires fpc ${FPC_MINVER} or above. Please upgrade
+.endif
+.endif
+
+#post-patch:
+#	@${REINPLACE_CMD} -e 's|%%LOCALBASE%%|${LOCALBASE}|g' -e 's|%%DATADIR%%|${DATADIR}|g' \
+#		${WRKSRC}/${MAKEFILE}
+do-build:
+	@cd ${WRKSRC}/fpc && \
+		${GMAKE} ${MAKE_ENV}
+
+post-build:
+	@cd ${WRKSRC}/fpc && \
+		${RM} -Rf COPYING* debian
+
+do-install:
+	@cd ${WRKSRC}/fpc && \
+		${GMAKE} ${INSTALL} INSTALL_PREFIX=${PREFIX}
+#.for DIRE in components converter debugger designer doceditor docs examples ide ideintf images install \
+#	languages lcl packager tools units
+#		${MKDIR} ${DATADIR}/${DIRE}
+#		@cd ${WRKSRC}/${DIRE} && \
+#			${FIND} * -type d -exec ${MKDIR} "${DATADIR}/${DIRE}/{}" \; && \
+#				${FIND} * -type f -exec ${INSTALL_DATA} "{}" "${DATADIR}/${DIRE}/{}" \;
+#.endfor
+
+info:
+	@${ECHO_CMD} "   PORTNAME=${PORTNAME}"
+	@${ECHO_CMD} "PORTVERSION=${PORTVERSION}"
+	@${ECHO_CMD} "    FPC_VER=${FPC_VER}"
+	@${ECHO_CMD} " UNITTARGET=${UNITTARGET}"
+	@${ECHO_CMD} ""
+	@${ECHO_CMD} "==== commands ====='
+	@${ECHO_CMD} "        CP=${CP}"
+	@${ECHO_CMD} "  ECHO_CMD=${ECHO_CMD}"
+	@${ECHO_CMD} "     MKDIR=${MKDIR}"
+	@${ECHO_CMD} "        RM=${RM}"
+	@${ECHO_CMD} "     UNAME=${UNAME}"
+
+.include <bsd.port.post.mk>
