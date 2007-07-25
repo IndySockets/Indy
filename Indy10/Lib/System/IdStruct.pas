@@ -42,7 +42,7 @@ type
   protected
     FBuffer: TIdBytes;
     function GetBytesLen: Integer; override;
-    procedure SetBytesLen(AByteLen: Integer);
+    procedure SetBytesLen(const ABytesLen: Integer);
   public
     procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  override;
@@ -96,7 +96,7 @@ end;
 
 procedure TIdStruct.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 var
-  Len: Integer
+  Len: Integer;
 begin
   Len := VIndex + BytesLen;
   if Length(VBytes) < Len then begin
@@ -111,7 +111,7 @@ begin
   Result := Length(FBuffer);
 end;
 
-procedure TIdUnion.SetBytesLen(ABytesLen: Integer);
+procedure TIdUnion.SetBytesLen(const ABytesLen: Integer);
 begin
   SetLength(FBuffer, ABytesLen);
 end;
