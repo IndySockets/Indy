@@ -53,13 +53,15 @@ type
     procedure SetList(const CopyFrom: TIdSASLEntries);
     procedure GetList(const CopyTo: TIdSASLEntries);
     procedure SetComponentName(const Name: string);
-     function Execute : Boolean;
+    function Execute : Boolean;
   end;
 
   [assembly: RuntimeRequiredAttribute(TypeOf(TfrmSASLListEditor))]
 
 implementation
-uses System.Reflection, System.Resources,
+
+uses
+  System.Reflection, System.Resources,
   IdDsnCoreResourceStrings,
   IdGlobal,
   IdResourceStrings,
@@ -67,7 +69,8 @@ uses System.Reflection, System.Resources,
   SysUtils;
 
 {$R IdSASLListEditorForm.resources}
-const ResourceBaseName = 'IdSASLListEditorForm';
+const
+  ResourceBaseName = 'IdSASLListEditorForm';
 
 {$AUTOBOX ON}
 
@@ -217,8 +220,9 @@ procedure TfrmSASLListEditor.Dispose(Disposing: Boolean);
 begin
   if Disposing then
   begin
-    if Components <> nil then
+    if Components <> nil then begin
       Components.Dispose();
+    end;
     FreeAndNil(FSASLList);
     FreeAndNil(FAvailObjs);
   end;
@@ -240,7 +244,7 @@ begin
   lblAvailable.Text :=  RSADlgSLAvailable;
   lblAssigned.Text := RSADlgSLAssigned;
   FSASLList := TIdSASLEntries.Create(Self);
-   FAvailObjs := TList.Create;
+  FAvailObjs := TList.Create;
   LoadBitmaps;
   btnCancel.Text := RSCancel;
   btnOk.Text := RSOk;
@@ -248,7 +252,7 @@ end;
 
 function TfrmSASLListEditor.Execute: Boolean;
 begin
-  Result :=  Self.ShowDialog = System.Windows.Forms.DialogResult.OK;
+  Result := Self.ShowDialog = System.Windows.Forms.DialogResult.OK;
 end;
 
 procedure TfrmSASLListEditor.btnDown_Click(sender: System.Object; e: System.EventArgs);
@@ -256,7 +260,7 @@ var
   sel: integer;
 begin
   sel := lbAssigned.SelectedIndex;
-  if (sel>=0) and (sel<lbAssigned.Items.Count-1) then begin
+  if (sel >= 0) and (sel < lbAssigned.Items.Count-1) then begin
     FSASLList.Items[sel].Index := sel+1;
     Updatelist;
     lbAssigned.SelectedIndex := sel+1;
@@ -264,19 +268,21 @@ begin
 end;
 
 procedure TfrmSASLListEditor.btnUp_Click(sender: System.Object; e: System.EventArgs);
-var sel : Integer;
+var
+  sel : Integer;
 begin
   sel := lbAssigned.SelectedIndex;
   // >0 is intentional, can't move the top element up!!
-  if sel>0 then begin
+  if sel > 0 then begin
      FSASLList.Items[Sel].Index := sel-1;
      UpdateList;
-     lbAssigned.SelectedIndex := sel -1;
+     lbAssigned.SelectedIndex := sel-1;
   end;
 end;
 
 procedure TfrmSASLListEditor.btnRemove_Click(sender: System.Object; e: System.EventArgs);
-var sel : Integer;
+var
+  sel : Integer;
 begin
   sel := lbAssigned.SelectedIndex;
   if sel >= 0 then
@@ -292,7 +298,7 @@ var
   LCI : TIdSASLListEntry;
 begin
   sel := lbAvailable.SelectedIndex ;
-  if sel >=0 then begin
+  if sel >= 0 then begin
     LCI := FSASLList.Add;
     LCI.SASL := TIdSASL(FAvailObjs[sel]);
  //   SASLList.Add(TIdSASL(lbAvailable.Items.Objects[sel]));
@@ -312,16 +318,8 @@ begin
 end;
 
 procedure TfrmSASLListEditor.GetList(const CopyTo: TIdSASLEntries);
-var
-  i: integer;
-  LCI : TIdSASLListEntry;
 begin
-  CopyTo.Clear;
-  for i := 0 to FSASLList.Count -1 do
-  begin
-    LCI := CopyTo.Add;
-    LCI.Assign(FSASLList[i]);
-  end;
+  CopyTo.Assign(FSASLList);
 end;
 
 procedure TfrmSASLListEditor.SetList(const CopyFrom: TIdSASLEntries);
@@ -329,17 +327,12 @@ var
   i, idx: integer;
   LCI : TIdSASLListEntry;
 begin
-  FSASLList.Clear;
-  for i := 0 to CopyFrom.Count -1 do begin
-    LCI := FSASLList.Add;
-    LCI.Assign(CopyFrom[i]);
-  end;
-  for i:=0 to CopyFrom.Count-1 do begin
+  FSASLList.Assign(CopyFrom);
+  for i := 0 to CopyFrom.Count-1 do begin
     if Assigned(CopyFrom[i].SASL) then
     begin
       idx := lbAvailable.Items.IndexOf(CopyFrom[i].SASL.Name);
-      if idx>=0 then begin
-        
+      if idx >= 0 then begin
         lbAvailable.Items.Remove(idx);
       end;
     end;
@@ -354,7 +347,7 @@ var
   LR: System.Resources.ResourceManager;
   LB : Bitmap;
 begin
- LR := System.Resources.ResourceManager.Create(ResourceBaseName, System.Reflection.Assembly.GetExecutingAssembly);
+  LR := System.Resources.ResourceManager.Create(ResourceBaseName, System.Reflection.Assembly.GetExecutingAssembly);
   try
     LB := Bitmap(LR.GetObject( 'ARROWLEFT.bmp'));
     LB.MakeTransparent;
@@ -376,26 +369,24 @@ end;
 procedure TfrmSASLListEditor.UpdateList;
 var
   i: integer;
-  l : TList;
+  l : TIdList;
 begin
   lbAssigned.Items.Clear;
   FAvailObjs.Clear;
-  for i := 0 to FSASLList.Count -1 do begin
-    if Assigned(FSASLList[i].SASL) then
-    begin
-
-      lbAssigned.Items.Add(FSASLList[i].SASL.Name+': '+FSASLList[i].SASL.ServiceName);
+  for i := 0 to FSASLList.Count-1 do begin
+    if Assigned(FSASLList[i].SASL) then begin
+      lbAssigned.Items.Add(FSASLList[i].SASL.Name + ': ' + FSASLList[i].SASL.ServiceName);
     end;
   end;
   lbAvailable.Items.Clear;
   l := GlobalSASLList.LockList;
   try
-    for i:=0 to l.count-1 do begin
+    for i := 0 to l.Count-1 do begin
       if FSASLList.IndexOfComp(TIdSASL(l[i])) < 0 then begin
         if Assigned(l[i]) then
         begin
           FAvailObjs.Add(l[i]);
-          lbAvailable.Items.Add(TIdSASL(l[i]).Name+': '+TIdSASL(l[i]).ServiceName);
+          lbAvailable.Items.Add(TIdSASL(l[i]).Name + ': ' + TIdSASL(l[i]).ServiceName);
         end;
       end;
     end;
