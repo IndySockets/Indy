@@ -157,6 +157,7 @@
 unit IdCustomHTTPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -190,11 +191,11 @@ const
 
 type
   // Forwards
-  TIdHTTPSession = Class;
-  TIdHTTPCustomSessionList = Class;
-  TIdHTTPRequestInfo = Class;
-  TIdHTTPResponseInfo = Class;
-  TIdCustomHTTPServer = Class;
+  TIdHTTPSession = class;
+  TIdHTTPCustomSessionList = class;
+  TIdHTTPRequestInfo = class;
+  TIdHTTPResponseInfo = class;
+  TIdCustomHTTPServer = class;
 
   //events
   TOnSessionEndEvent = procedure(Sender: TIdHTTPSession) of object;
@@ -291,8 +292,8 @@ type
     procedure WriteHeader;
     procedure WriteContent;
     //
-    function ServeFile(AContext:TIdContext; aFile: String): cardinal; virtual;
-    function SmartServeFile(AContext:TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
+    function ServeFile(AContext: TIdContext; const AFile: String): Int64; virtual;
+    function SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64;
     //
     property AuthRealm: string read FAuthRealm write FAuthRealm;
     property CloseConnection: Boolean read FCloseConnection write SetCloseConnection;
@@ -319,7 +320,6 @@ type
     FRemoteHost: string;
     //
     procedure SetContent(const Value: TStrings);
-    function GetContent: TStrings;
     function IsSessionStale: boolean; virtual;
     procedure DoSessionEnd; virtual;
   public
@@ -330,7 +330,7 @@ type
     procedure Lock;
     procedure Unlock;
     //
-    property Content: TStrings read GetContent write SetContent;
+    property Content: TStrings read FContent write SetContent;
     property LastTimeStamp: TDateTime read FLastTimeStamp;
     property RemoteHost: string read FRemoteHost;
     property SessionID: String read FSessionID;
@@ -394,7 +394,7 @@ type
     procedure DoConnect(AContext: TIdContext); override;
     function DoHeadersAvailable(ASender: TIdContext; AHeaders: TIdHeaderList): Boolean; virtual;
     procedure DoHeadersBlocked(ASender: TIdContext; AHeaders: TIdHeaderList; var VResponseNo: Integer; var VResponseText, VContentText: String); virtual;
-    function DoHeaderExpectations(ASender: TIdContext; const AExpectations: string): Boolean; virtual;
+    function DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean; virtual;
     //
     function DoExecute(AContext:TIdContext): Boolean; override;
     //
@@ -450,7 +450,7 @@ type
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    property SessionList:TThreadList read FSessionList;
+    property SessionList: TThreadList read FSessionList;
     procedure Clear; override;
     procedure Add(ASession: TIdHTTPSession); override;
     procedure PurgeStaleSessions(PurgeAll: Boolean = false); override;
@@ -471,7 +471,7 @@ const
 
 function TimeStampInterval(const AStartStamp, AEndStamp: TDateTime): integer;
 begin
-  result := trunc((AEndStamp - AStartStamp) * MSecsPerDay);
+  Result := Trunc((AEndStamp - AStartStamp) * MSecsPerDay);
 end;
 
 { //(Bas Gooijen) was:
@@ -482,7 +482,7 @@ var
 begin
   days := Trunc(EndStamp - StartStamp); // whole days
   DecodeTime(EndStamp - StartStamp, hour, min, s, ms);
-  result := (((days * 24 + hour) * 60 + min) * 60 + s) * 1000 + ms;
+  Result := (((days * 24 + hour) * 60 + min) * 60 + s) * 1000 + ms;
 end;
 }
 
@@ -535,7 +535,7 @@ begin
   DefaultPort := IdPORT_HTTP;
   ParseParams := Id_TId_HTTPServer_ParseParams;
   FSessionList := TIdHTTPDefaultSessionList.Create(Self);
-  FMIMETable := TIdMimeTable.Create(True);
+  FMIMETable := TIdMimeTable.Create(False);
   FSessionTimeOut := Id_TId_HTTPSessionTimeOut;
   FAutoStartSession := Id_TId_HTTPAutoStartSession;
   FKeepAlive := Id_TId_HTTPServer_KeepAlive;
@@ -581,8 +581,7 @@ end;
 
 destructor TIdCustomHTTPServer.Destroy;
 begin
-  Active := false; // Set Active to false in order to cloase all active sessions.
-
+  Active := False; // Set Active to false in order to close all active sessions.
   FreeAndNil(FMIMETable);
   FreeAndNil(FSessionList);
   inherited Destroy;
@@ -631,7 +630,7 @@ begin
   end;
 end;
 
-function TIdCustomHTTPServer.DoHeaderExpectations(ASender: TIdContext; const AExpectations: string):Boolean;
+function TIdCustomHTTPServer.DoHeaderExpectations(ASender: TIdContext; const AExpectations: String): Boolean;
 begin
   Result := TextIsSame(AExpectations, '100-continue');  {Do not Localize}
   if Assigned(OnHeaderExpectations) then begin
@@ -790,12 +789,6 @@ begin
               IOHandler.Capture(LRequestInfo.RawHeaders, '');    {Do not Localize}
               LRequestInfo.ProcessHeaders;
 
-              // RLebeau 12/14/2005: provide the user with the headers and let the
-              // user decide whether the response processing should continue...
-              if not HeadersCanContinue then begin
-                Break;
-              end;
-
               {TODO Check for 1.0 only at this point}
               LCmd := UpperCase(Fetch(LInputLine, ' '));    {Do not Localize}
 
@@ -803,6 +796,12 @@ begin
               LRequestInfo.FRemoteIP := GetRemoteIP(Socket);
               LRequestInfo.FCommand := LCmd;
               LRequestInfo.FCommandType := DecodeHTTPCommand(LCmd);
+
+              // RLebeau 12/14/2005: provide the user with the headers and let the
+              // user decide whether the response processing should continue...
+              if not HeadersCanContinue then begin
+                Break;
+              end;
 
               // Grab Params so we can parse them
               // POSTed data - may exist with GETs also. With GETs, the action
@@ -966,9 +965,8 @@ var
   ASession: TIdHTTPSession;
 begin
   ASession := SessionList.GetSession(SessionName, '');    {Do not Localize}
-  result := Assigned(ASession);
-  if result then
-  begin
+  Result := Assigned(ASession);
+  if Result then begin
     FreeAndNil(ASession);
   end;
 end;
@@ -1065,11 +1063,10 @@ begin
   FLock := TIdCriticalSection.Create;
   FContent := TStringList.Create;
   FOwner := AOwner;
-  if assigned( AOwner ) then
+  if Assigned(AOwner) then
   begin
-    if assigned(AOwner.OnSessionStart) then
-    begin
-      AOwner.OnSessionStart(self);
+    if Assigned(AOwner.OnSessionStart) then begin
+      AOwner.OnSessionStart(Self);
     end;
   end;
 end;
@@ -1085,11 +1082,10 @@ begin
   FLock := TIdCriticalSection.Create;
   FContent := TStringList.Create;
   FOwner := AOwner;
-  if assigned( AOwner ) then
+  if Assigned(AOwner) then
   begin
-    if assigned(AOwner.OnSessionStart) then
-    begin
-      AOwner.OnSessionStart(self);
+    if Assigned(AOwner.OnSessionStart) then begin
+      AOwner.OnSessionStart(Self);
     end;
   end;
 end;
@@ -1114,11 +1110,6 @@ begin
     FOwner.FOnSessionEnd(self);
 end;
 
-function TIdHTTPSession.GetContent: TStrings;
-begin
-  result := FContent;
-end;
-
 function TIdHTTPSession.IsSessionStale: boolean;
 begin
   result := TimeStampInterval(FLastTimeStamp, Now) > Integer(FOwner.SessionTimeout);
@@ -1130,7 +1121,7 @@ begin
   FLock.Enter;
 end;
 
-procedure TIdHTTPSession.SetContent(const Value: TStrings);
+procedure TIdHTTPSession.SetContent(const Value: TIdStrings);
 begin
   FContent.Assign(Value);
 end;
@@ -1172,7 +1163,7 @@ begin
       end;
       s := copy(AValue, i, j-i);
       // See RFC 1866 section 8.2.1. TP
-      s := StringReplace(s, '+', ' ',[rfReplaceAll]);  {do not localize}
+      s := StringReplace(s, '+', ' ', [rfReplaceAll]);  {do not localize}
       Params.Add(TIdURI.URLDecode(s));
       i := j + 1;
     end;
@@ -1257,30 +1248,22 @@ end;
 procedure TIdHTTPResponseInfo.SetHeaders;
 begin
   inherited SetHeaders;
-
   with RawHeaders do
   begin
-    if Server <> '' then
+    if Server <> '' then begin
       Values['Server'] := Server;    {Do not Localize}
-    if ContentType <> '' then
-      Values['Content-Type'] := ContentType;    {Do not Localize}
-    if Location <> '' then
-    begin
+    end;
+    if Location <> '' then begin
       Values['Location'] := Location;    {Do not Localize}
     end;
-    if ContentLength > -1 then
-    begin
-      Values['Content-Length'] := IntToStr(ContentLength);    {Do not Localize}
-    end;
-    if FLastModified > 0 then
-    begin
+    if FLastModified > 0 then begin
       Values['Last-Modified'] := DateTimeGMTToHttpStr(FLastModified); {do not localize}
     end;
-
     if AuthRealm <> '' then {Do not Localize}
     begin
       ResponseNo := 401;
       Values['WWW-Authenticate'] := 'Basic realm="' + AuthRealm + '"';    {Do not Localize}
+      Values['Content-Type'] := 'text/html';    {Do not Localize}
       FContentText := '<HTML><BODY><B>' + IntToStr(ResponseNo) + ' ' + RSHTTPUnauthorized + '</B></BODY></HTML>';    {Do not Localize}
     end;
   end;
@@ -1312,7 +1295,7 @@ begin
     404: begin
       ResponseText := RSHTTPNotFound;
       // Close connection
-      CloseConnection := true;
+      CloseConnection := True;
     end;
     405: ResponseText := RSHTTPMethodNotAllowed;
     406: ResponseText := RSHTTPNotAcceptable;
@@ -1343,19 +1326,22 @@ begin
   end;}
 end;
 
-
-function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; AFile: String): Cardinal;
+function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; const AFile: String): Int64;
 begin
   if Length(ContentType) = 0 then begin
-    ContentType := HTTPServer.MIMETable.GetFileMIMEType(aFile);
+    ContentType := HTTPServer.MIMETable.GetFileMIMEType(AFile);
   end;
-  ContentLength := FileSizeByName(aFile);
+  ContentLength := FileSizeByName(AFile);
+  if Length(ContentDisposition) = 0 then begin
+    ContentDisposition := IndyFormat('attachment: filename="%s";', [ExtractFileName(AFile)]);
+  end;
   WriteHeader;
   //TODO: allow TransferFileEnabled function
-  result := AContext.Connection.IOHandler.WriteFile(aFile);
+  Result := AContext.Connection.IOHandler.WriteFile(AFile);
 end;
 
-function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo; aFile: String): cardinal;
+function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
+  const AFile: String): Int64;
 var
   LFileDate : TDateTime;
   LReqDate : TDateTime;
@@ -1367,21 +1353,14 @@ begin
   // actual file, then we will send a 304. We don't use the ETag - offers nothing
   // over the file date for static files on windows. Linux: consider using iNode
   if (LReqDate <> 0) and (abs(LReqDate - LFileDate) < 2 * (1 / (24 * 60 * 60))) then
-    begin
+  begin
     ResponseNo := 304;
-    result := 0;
-    end
-  else
-    begin
-    if Length(ContentType) = 0 then begin
-      ContentType := HTTPServer.MIMETable.GetFileMIMEType(aFile);
-    end;
+    Result := 0;
+  end else
+  begin
     Date := LFileDate;
-    ContentLength := FileSizeByName(aFile);
-    WriteHeader;
-    //TODO: allow TransferFileEnabled function
-    result := AContext.Connection.IOHandler.WriteFile(aFile);
-    end;
+    Result := ServeFile(AContext, AFile);
+  end;
 end;
 
 procedure TIdHTTPResponseInfo.WriteContent;
