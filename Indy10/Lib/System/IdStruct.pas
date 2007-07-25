@@ -19,56 +19,59 @@
 unit IdStruct;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
-uses IdGlobal;
+uses
+  IdGlobal;
 
 type
-
   TIdStruct = class(TObject)
+  protected
+    function GetBytesLen: Integer; virtual;
   public
-    constructor create; virtual;
+    constructor Create; virtual;
     //done this way in case we also need to advance an index pointer
     //after a read or write
     procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); virtual;
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  virtual;
+    property BytesLen: Integer read GetBytesLen;
   end;
 
   TIdUnion = class(TIdStruct)
   protected
-    FBuffer : TIdBytes;
-    FBytesLen : Integer;//set this in a descendant's create
+    FBuffer: TIdBytes;
+    function GetBytesLen: Integer; override;
+    procedure SetBytesLen(AByteLen: Integer);
   public
-    constructor create; override;
     procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  override;
-    property BytesLen : Integer read FBytesLen;
   end;
 
-  TIdLongWord =class(TIdUnion)
+  TIdLongWord = class(TIdUnion)
   protected
     function Get_l: LongWord;
     function Gets_b1: Byte;
     function Gets_b2: Byte;
     function Gets_b3: Byte;
     function Gets_b4: Byte;
-    function Gets_w1: word;
-    function Gets_w2: word;
+    function Gets_w1: Word;
+    function Gets_w2: Word;
     procedure Set_l(const Value: LongWord);
     procedure Sets_b1(const Value: Byte);
     procedure Sets_b2(const Value: Byte);
     procedure Sets_b3(const Value: Byte);
     procedure Sets_b4(const Value: Byte);
-    procedure SetS_w1(const Value: word);
-    procedure SetS_w2(const Value: word);
+    procedure SetS_w1(const Value: Word);
+    procedure SetS_w2(const Value: Word);
   public
-    constructor create; override;
+    constructor Create; override;
     property s_b1 : Byte read Gets_b1 write Sets_b1;
     property s_b2 : Byte read Gets_b2 write Sets_b2;
     property s_b3 : Byte read Gets_b3 write Sets_b3;
     property s_b4 : Byte read Gets_b4 write Sets_b4;
-    property s_w1 : word read Gets_w1 write SetS_w1;
-    property s_w2 : word read Gets_w2 write SetS_w2;
+    property s_w1 : Word read Gets_w1 write SetS_w1;
+    property s_w2 : Word read Gets_w2 write SetS_w2;
     property s_l  : LongWord read Get_l write Set_l;
   end;
 
@@ -76,57 +79,73 @@ implementation
 
 { TIdStruct }
 
-constructor TIdStruct.create;
+constructor TIdStruct.Create;
 begin
   inherited Create;
+end;
+
+function TIdStruct.GetBytesLen: Integer;
+begin
+  Result := 0;
 end;
 
 procedure TIdStruct.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
-
+  Assert(Length(ABytes) >= VIndex + BytesLen, 'not enough bytes'); {do not localize}
 end;
 
 procedure TIdStruct.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+var
+  Len: Integer
 begin
-
+  Len := VIndex + BytesLen;
+  if Length(VBytes) < Len then begin
+    SetLength(VBytes, Len);
+  end;
 end;
 
 { TIdUnion }
 
-constructor TIdUnion.create;
+function TIdUnion.GetBytesLen;
 begin
-  inherited Create;
+  Result := Length(FBuffer);
+end;
+
+procedure TIdUnion.SetBytesLen(ABytesLen: Integer);
+begin
+  SetLength(FBuffer, ABytesLen);
 end;
 
 procedure TIdUnion.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
 begin
   inherited ReadStruct(ABytes, VIndex);
-  Assert(Length(ABytes)>VIndex+FBytesLen-1,'not enough bytes');
-  CopyTIdBytes(ABytes,VIndex,FBuffer,0,FBytesLen);
-  Inc(VIndex,FBytesLen);
+  CopyTIdBytes(ABytes, VIndex, FBuffer, 0, Length(FBuffer));
+  Inc(VIndex, Length(FBuffer));
 end;
 
 procedure TIdUnion.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
 begin
   inherited WriteStruct(VBytes, VIndex);
-  if Length(FBuffer)<VIndex+FBytesLen then
-  begin
-    SetLength(FBuffer,Length(VBytes)+FBytesLen);
-  end;
-  CopyTIdBytes(FBuffer,0,VBytes,VIndex,FBytesLen);
-  Inc(VIndex,FBytesLen);
+  CopyTIdBytes(FBuffer, 0, VBytes, VIndex, Length(FBuffer));
+  Inc(VIndex, Length(FBuffer));
 end;
 
 { TIdLongWord }
 
-function TIdLongWord.Gets_w1: word;
+constructor TIdLongWord.Create;
 begin
-  Result := BytesToWord(FBuffer,0);
+  inherited Create;
+  SetBytesLen(4);
 end;
 
-procedure TIdLongWord.SetS_w1(const Value: word);
+function TIdLongWord.Gets_w1: Word;
 begin
-  CopyTIdWord(Value,FBuffer,0);
+  Result := BytesToWord(FBuffer, 0);
+end;
+
+procedure TIdLongWord.SetS_w1(const Value: Word);
+begin
+  CopyTIdWord(Value, FBuffer, 0);
 end;
 
 function TIdLongWord.Gets_b1: Byte;
@@ -166,34 +185,27 @@ end;
 
 procedure TIdLongWord.Sets_b4(const Value: Byte);
 begin
- FBuffer[3] :=  Value;
+  FBuffer[3] := Value;
 end;
 
 function TIdLongWord.Get_l: LongWord;
 begin
-  result := BytesToLongWord(FBuffer,0);
+  Result := BytesToLongWord(FBuffer, 0);
 end;
 
 procedure TIdLongWord.Set_l(const Value: LongWord);
 begin
-  CopyTIdLongWord(Value,FBuffer,0);
+  CopyTIdLongWord(Value, FBuffer, 0);
 end;
 
-function TIdLongWord.Gets_w2: word;
+function TIdLongWord.Gets_w2: Word;
 begin
-   Result := BytesToWord(FBuffer,2);
+  Result := BytesToWord(FBuffer, 2);
 end;
 
-procedure TIdLongWord.SetS_w2(const Value: word);
+procedure TIdLongWord.SetS_w2(const Value: Word);
 begin
-  CopyTIdWord(Value,FBuffer,2);
-end;
-
-constructor TIdLongWord.create;
-begin
-  inherited create;
-   FBytesLen := 4;
-   SetLength(FBuffer,FBytesLen);
+  CopyTIdWord(Value, FBuffer, 2);
 end;
 
 end.
