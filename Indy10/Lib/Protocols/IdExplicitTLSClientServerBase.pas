@@ -33,7 +33,7 @@
   Note that TLS support is different in that component because of the way it
   works.
 
-  Rev 1.9    5/21/2003 3:36:42 PM  BGooijen
+    Rev 1.9    5/21/2003 3:36:42 PM  BGooijen
   Fixed design time bug regarding the Active property
 
   Rev 1.8    5/8/2003 11:27:38 AM  JPMugaas
@@ -53,7 +53,7 @@
   Rev 1.4    3/26/2003 04:19:18 PM  JPMugaas
   Cleaned-up some code and illiminated some duplicate things.
 
-  Rev 1.3    3/23/2003 11:45:02 PM  BGooijen
+    Rev 1.3    3/23/2003 11:45:02 PM  BGooijen
   classes -> Classes
 
   Rev 1.2    3/18/2003 04:36:52 PM  JPMugaas
@@ -69,6 +69,7 @@
 unit IdExplicitTLSClientServerBase;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -105,7 +106,6 @@ type
     procedure SetUseTLS(AValue : TIdUseTLS); virtual;
     property UseTLS : TIdUseTLS read FUseTLS write SetUseTLS default  DEF_USETLS;
     procedure InitComponent; override;
-  public
   end;
 
   TIdExplicitTLSClient = class(TIdTCPClientCustom)
@@ -119,7 +119,7 @@ type
 
     //feature negotiation stuff
     FCapabilities : TStrings;
-    function GetSupportsTLS : boolean; virtual;
+    function GetSupportsTLS : boolean; virtual; 
     procedure CheckIfCanUseTLS; virtual;
     procedure Loaded; override;
     procedure TLSNotAvailable;
@@ -151,7 +151,6 @@ type
     property OnTLSNegCmdFailed : TIdOnTLSNegotiationFailure read FOnTLSNegCmdFailed write FOnTLSNegCmdFailed;
   end;
 
-type
   EIdTLSClientException = class(EIdException);
   EIdTLSClientSSLIOHandlerRequred = class(EIdTLSClientException);
   EIdTLSClientCanNotSetWhileConnected = class(EIdTLSClientException);
@@ -178,56 +177,43 @@ end;
 procedure TIdExplicitTLSServer.Loaded;
 begin
   inherited Loaded;
-  if ((IOHandler is TIdServerIOHandler)=False) then
-  begin
+  if not (IOHandler is TIdServerIOHandler) then begin
     SetUseTLS(utNoTLSSupport);
   end;
 end;
 
-procedure TIdExplicitTLSServer.SetIOHandler(
-  const AValue: TIdServerIOHandler);
+procedure TIdExplicitTLSServer.SetIOHandler(const AValue: TIdServerIOHandler);
 begin
   inherited SetIOHandler(AValue);
-  if ((IOHandler is TIdServerIOHandlerSSLBase)=False) then
-  begin
+  if not (IOHandler is TIdServerIOHandlerSSLBase) then begin
     SetUseTLS(utNoTLSSupport);
   end;
 end;
 
 procedure TIdExplicitTLSServer.SetUseTLS(AValue: TIdUseTLS);
 begin
-  if not Active or (IsDesignTime) then
+  if (not Active) or IsDesignTime then
   begin
-    if IsLoading then
-    begin
+    if IsLoading then begin
       FUseTLS := AValue;
-      exit;
+      Exit;
     end;
-    if ((IOHandler is TIdServerIOHandlerSSLBase)=False) and (AValue<>utNoTLSSupport) then
-    begin
+    if (not (IOHandler is TIdServerIOHandlerSSLBase)) and (AValue <> utNoTLSSupport) then begin
       raise EIdTLSServerSSLIOHandlerRequired.Create(RSTLSSSLIOHandlerRequired);
     end;
-    if FUseTLS <> AValue then
-    begin
-      if AValue=utUseImplicitTLS then
-      begin
-        if DefaultPort = FRegularProtPort then
-        begin
+    if FUseTLS <> AValue then begin
+      if AValue = utUseImplicitTLS then begin
+        if DefaultPort = FRegularProtPort then begin
           DefaultPort := FImplicitTLSProtPort;
         end;
-      end
-      else
-      begin
-        if DefaultPort = FImplicitTLSProtPort then
-        begin
+      end else begin
+        if DefaultPort = FImplicitTLSProtPort then begin
           DefaultPort := FRegularProtPort;
         end;
       end;
       FUseTLS := AValue;
     end;
-  end
-  else
-  begin
+  end else begin
     raise EIdTLSClientCanNotSetWhileActive.Create(RSTLSSLCanNotSetWhileConnected);
   end;
 end;
@@ -236,37 +222,36 @@ end;
 
 procedure TIdExplicitTLSClient.CheckIfCanUseTLS;
 begin
-  if ((IOHandler is TIdSSLIOHandlerSocketBase)=False) then
-  begin
+  if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
     raise EIdTLSClientSSLIOHandlerRequred.Create(RSTLSSSLIOHandlerRequired);
   end;
 end;
 
 procedure TIdExplicitTLSClient.Connect;
 begin
-  if UseTLS in ExplicitTLSVals then
-  begin
+  if UseTLS in ExplicitTLSVals then begin
     // TLS only enabled later in this case!
-    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
+    (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
   end;
   if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
-      case FUseTLS of
-       utNoTLSSupport :
-       begin
-        (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
-       end;
-       utUseImplicitTLS :
-       begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
-       end
-       else
-        if FUseTLS<>utUseImplicitTLS then begin
-         (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := true;
+    case FUseTLS of
+      utNoTLSSupport :
+        begin
+          (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
         end;
-      end;
+      utUseImplicitTLS :
+        begin
+          (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
+        end;
+      else
+        begin
+          if FUseTLS <> utUseImplicitTLS then begin
+            (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := True;
+          end;
+        end;
+    end;
   end;
   inherited Connect;
-
 end;
 
 procedure TIdExplicitTLSClient.InitComponent; 
@@ -282,93 +267,77 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdExplicitTLSClient.DoOnTLSHandShakeFailed;
 //OnTLSHandShakeFailed
-var LContinue : Boolean;
+procedure TIdExplicitTLSClient.DoOnTLSHandShakeFailed;
+var
+  LContinue : Boolean;
 begin
   LContinue := False;
-  if Assigned(OnTLSHandShakeFailed ) then
-  begin
-    FOnTLSHandShakeFailed(Self,LContinue);
+  if Assigned(OnTLSHandShakeFailed) then begin
+    FOnTLSHandShakeFailed(Self, LContinue);
   end;
-  if LContinue = False then
-  begin
+  if not LContinue then begin
     TLSHandShakeFailed;
   end;
 end;
 
 procedure TIdExplicitTLSClient.DoOnTLSNegCmdFailed;
-var LContinue : Boolean;
+var
+  LContinue : Boolean;
 begin
   LContinue := False;
-  if Assigned(OnTLSNegCmdFailed ) then
-  begin
-    FOnTLSNegCmdFailed(Self,LContinue);
+  if Assigned(OnTLSNegCmdFailed) then begin
+    FOnTLSNegCmdFailed(Self, LContinue);
   end;
-  if LContinue = False then
-  begin
+  if not LContinue then begin
     TLSNotAvailable;
   end;
 end;
 
-
-
 procedure TIdExplicitTLSClient.DoOnTLSNotAvailable;
-var LContinue : Boolean;
+var
+  LContinue : Boolean;
 begin
-  if Assigned(FOnTLSNotAvailable) then
-  begin
-    LContinue := True;
-    FOnTLSNotAvailable(Self,LContinue);
-    if LContinue = False then
-    begin
-      TLSNotAvailable;
-    end;
+  LContinue := True;
+  if Assigned(FOnTLSNotAvailable) then begin
+    FOnTLSNotAvailable(Self, LContinue);
+  end;
+  if not LContinue then begin
+    TLSNotAvailable;
   end;
 end;
 
 procedure TIdExplicitTLSClient.Loaded;
 begin
   inherited Loaded;
-  if ((IOHandler is TIdSSLIOHandlerSocketBase)=False) then
-  begin
+  if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
     SetUseTLS(utNoTLSSupport);
   end;
 end;
 
 procedure TIdExplicitTLSClient.ProcessTLSHandShakeFailed;
-
 begin
-  if FUseTLS = utUseRequireTLS then
-  begin
+  if FUseTLS = utUseRequireTLS then begin
     TLSHandShakeFailed;
-  end
-  else
-  begin
+  end else begin
     DoOnTLSHandShakeFailed;
   end;
 end;
 
 procedure TIdExplicitTLSClient.ProcessTLSNegCmdFailed;
 begin
-  if FUseTLS = utUseRequireTLS then
-  begin
+  if FUseTLS = utUseRequireTLS then begin
     TLSNegCmdFailed;
-  end
-  else
-  begin
+  end else begin
     DoOnTLSNegCmdFailed;
   end;
 end;
 
 procedure TIdExplicitTLSClient.ProcessTLSNotAvail;
 begin
-  if FUseTLS = utUseRequireTLS then
-  begin
+  if FUseTLS = utUseRequireTLS then begin
     TLSNotAvailable;
-  end
-  else
-  begin
+  end else begin
     DoOnTLSNotAvailable;
   end;
 end;
@@ -376,10 +345,8 @@ end;
 procedure TIdExplicitTLSClient.SetIOHandler(AValue: TIdIOHandler);
 begin
   inherited SetIOHandler(AValue);
-  if ((IOHandler is TIdSSLIOHandlerSocketBase)=False) then
-  begin
-    if FUseTLS <> utNoTLSSupport then
-    begin
+  if not (IOHandler is TIdSSLIOHandlerSocketBase) then begin
+    if FUseTLS <> utNoTLSSupport then begin
       SetUseTLS(utNoTLSSupport);
     end;
   end;
@@ -387,79 +354,63 @@ end;
 
 procedure TIdExplicitTLSClient.SetUseTLS(AValue: TIdUseTLS);
 begin
-  if not Connected then
-  begin
-    if IsLoading then
-    begin
-      FUseTLS := AValue;
-      exit;
-    end;
-    if (AValue<>utNoTLSSupport) then
-    begin
-      CheckIfCanUseTLS;
-    end;
-    if FUseTLS <> AValue then
-    begin
-      if AValue=utUseImplicitTLS then
-      begin
-        if Port = FRegularProtPort then
-        begin
-          Port := FImplicitTLSProtPort;
-        end;
-      end
-      else
-      begin
-        if Port = FImplicitTLSProtPort then
-        begin
-          Port := FRegularProtPort;
-        end;
-      end;
-      FUseTLS := AValue;
-    end;
-  end
-  else
-  begin
+  if Connected then begin
     raise EIdTLSClientCanNotSetWhileConnected.Create(RSTLSSLCanNotSetWhileConnected);
+  end;
+  if IsLoading then begin
+    FUseTLS := AValue;
+    Exit;
+  end;
+  if AValue <> utNoTLSSupport then begin
+    CheckIfCanUseTLS;
+  end;
+  if FUseTLS <> AValue then begin
+    if AValue = utUseImplicitTLS then begin
+      if Port = FRegularProtPort then begin
+        Port := FImplicitTLSProtPort;
+      end;
+    end else begin
+      if Port = FImplicitTLSProtPort then begin
+        Port := FRegularProtPort;
+      end;
+    end;
+    FUseTLS := AValue;
   end;
 end;
 
 procedure TIdExplicitTLSClient.TLSHandshake;
 begin
   try
-    if (IOHandler is TIdSSLIOHandlerSocketBase) then
-    begin
+    if (IOHandler is TIdSSLIOHandlerSocketBase) then begin
       (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := False;
     end;
   except
-    Self.ProcessTLSHandShakeFailed;
+    ProcessTLSHandShakeFailed;
   end;
 end;
 
 procedure TIdExplicitTLSClient.TLSHandShakeFailed;
 begin
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
-  raise EIdTLSClientTLSHandShakeFailed.Create( RSTLSSLSSLNotAvailable);
+  raise EIdTLSClientTLSHandShakeFailed.Create(RSTLSSLSSLNotAvailable);
 end;
 
 procedure TIdExplicitTLSClient.TLSNegCmdFailed;
 begin
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
-  raise  EIdTLSClientTLSNotAvailable.Create( RSTLSSLSSLNotAvailable);
+  raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLNotAvailable);
 end;
 
 procedure TIdExplicitTLSClient.TLSNotAvailable;
 begin
-  if Connected then
-  begin
+  if Connected then begin
     Disconnect;
   end;
-  raise  EIdTLSClientTLSNotAvailable.Create( RSTLSSLSSLCmdFailed);
+  raise EIdTLSClientTLSNotAvailable.Create(RSTLSSLSSLCmdFailed);
 end;
 
 function TIdExplicitTLSClient.GetSupportsTLS: boolean;
