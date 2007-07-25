@@ -29,7 +29,7 @@ type
   protected
     FIPAddr : String;
     FResolveHostNames : Boolean;
-    procedure DoReply(const AReplyStatus: TReplyStatus); override;
+    procedure DoReply; override;
   public
     procedure Trace;
   published
@@ -43,24 +43,24 @@ uses IdStack;
 
 { TIdTraceRoute }
 
-procedure TIdTraceRoute.DoReply(const AReplyStatus: TReplyStatus);
+procedure TIdTraceRoute.DoReply;
 begin
-  if FResolveHostNames and (AReplyStatus.FromIpAddress<>'0.0.0.0') and
-  (AReplyStatus.FromIpAddress<>'::0') then
+  if FResolveHostNames and (FReplyStatus.FromIpAddress<>'0.0.0.0') and
+  (FReplyStatus.FromIpAddress<>'::0') then
   begin
     //resolve IP to hostname
     try
-      AReplyStatus.HostName := GStack.HostByAddress(AReplyStatus.FromIpAddress,FBinding.IPVersion);
+      FReplyStatus.HostName := GStack.HostByAddress(FReplyStatus.FromIpAddress,FBinding.IPVersion);
     except
 {
 We do things this way because we are likely have a reverse DNS
 failure if you have a computer with IP address and no DNS name at all.
 
 }
-      AReplyStatus.HostName := AReplyStatus.FromIpAddress;
+      FReplyStatus.HostName := FReplyStatus.FromIpAddress;
     end;
   end;
-  inherited DoReply(AReplyStatus);
+  inherited DoReply;
 
 end;
 
