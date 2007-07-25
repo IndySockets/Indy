@@ -1,0 +1,18 @@
+[target]
+dirs=httpget elizaweb
+
+[require]
+packages=indy
+packagedir=../
+
+[compiler]
+unittargetdir=units/$(CPU_TARGET)-$(OS_TARGET)
+#For some reason, we can't use "unitdir" here.  It causes some strange bugs.  
+#This is a workaround.
+options=-dUseCThreads -gl -Fu../System/lib/$(CPU_TARGET)-$(OS_TARGET) \
+-Fu../Core/lib/$(CPU_TARGET)-$(OS_TARGET) \
+-Fu../Protocols/lib/$(CPU_TARGET)-$(OS_TARGET) \
+-Fu../lib/$(CPU_TARGET)-$(OS_TARGET) 
+
+[install]
+fpcpackage=y

@@ -1559,6 +1559,8 @@ Indy10/Lib/debian/preinst.ex -text
 Indy10/Lib/debian/prerm.ex -text
 Indy10/Lib/debian/rules -text
 Indy10/Lib/debian/watch.ex -text
+Indy10/Lib/examples/Makefile -text
+Indy10/Lib/examples/Makefile.fpc -text
 Indy10/Lib/examples/elizaweb/Makefile -text
 Indy10/Lib/examples/elizaweb/Makefile.fpc -text
 Indy10/Lib/examples/elizaweb/elizaweb.pas -text
@@ -1574,8 +1576,10 @@ Indy10/Lib/examples/httpget/ftpprothandler.pas -text
 Indy10/Lib/examples/httpget/httpget.pas -text
 Indy10/Lib/examples/httpget/httpprothandler.pas -text
 Indy10/Lib/examples/httpget/prothandler.pas -text
+Indy10/Lib/indy-fpc.spec.template -text
 Indy10/Lib/indymaster-Makefile.fpc -text
 Indy10/Lib/lspFix.dpr -text
+Indy10/Lib/makeindyrpm.sh -text svneol=LF#unset
 Indy10/NUnit/Sys.cs -text
 Indy10/Other/Protocols/IdCompressorAbbrevia.pas -text
 Indy10/Test/Core/IdTestBuffer.pas -text
