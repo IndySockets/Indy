@@ -1021,6 +1021,7 @@ function ByteIsInEOL(const ABytes: TIdBytes; const AIndex: Integer): Boolean;
 function CompareDate(const D1, D2: TDateTime): Integer;
 function CurrentProcessId: TIdPID;
 function DateTimeGMTToHttpStr(const GMTValue: TDateTime) : String;
+function DateTimeGMTToCookieStr(const GMTValue: TDateTime) : String;
 function DateTimeToInternetStr(const Value: TDateTime; const AIsGMT : Boolean = False) : String;
 function DateTimeToGmtOffSetStr(ADateTime: TDateTime; SubGMT: Boolean): string;
 procedure DebugOutput(const AText: string);
@@ -1281,8 +1282,7 @@ begin
     en7Bit: Result := System.Text.Encoding.ASCII;
     enUTF8: Result := System.Text.Encoding.UTF8;
     en8Bit: Result := System.Text.Encoding.GetEncoding(1252); // Windows-1252
-  else
-    Result := nil;
+    else    Result := nil;
   end;
 end;
 {$ENDIF}
@@ -3075,7 +3075,7 @@ end;
 function IndyFormat(const AFormat: string; const Args: array of const): string;
 begin
   {$IFDEF TFormatSettings}
-  Result := Format(AFormat, Args, GetEnglishSetting);
+  Result := SysUtils.Format(AFormat, Args, GetEnglishSetting);
   {$ELSE}
   //Is there a way to get delphi5 to use locale in format? something like:
   //  SetThreadLocale(TheNewLocaleId);
@@ -3083,7 +3083,7 @@ begin
   //  Application.UpdateFormatSettings := False; //needed?
   //  format()
   //  set locale back to prior
-  Result := Format(AFormat, Args);
+  Result := SysUtils.Format(AFormat, Args);
   {$ENDIF}
 end;
 
@@ -3095,9 +3095,22 @@ var
   wYear: Word;
 begin
   DecodeDate(GMTValue, wYear, wMonth, wDay);
-  Result := Format('%s, %.2d %s %.4d %s %s',    {do not localize}
+  Result := IndyFormat('%s, %.2d %s %.4d %s %s',    {do not localize}
                    [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime('HH":"nn":"ss',GMTValue),'GMT']);  {do not localize}
+                    wYear, FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
+end;
+
+function DateTimeGMTToCookieStr(const GMTValue: TDateTime) : String;
+// Wdy, DD-Mon-YY HH:MM:SS GMT
+var
+  wDay,
+  wMonth,
+  wYear: Word;
+begin
+  DecodeDate(GMTValue, wYear, wMonth, wDay);
+  Result := IndyFormat('%s, %.2d-%s-%.2d %s %s',    {do not localize}
+                   [wdays[DayOfWeek(GMTValue)], wDay, monthnames[wMonth],
+                    wYear, FormatDateTime('HH":"nn":"ss',GMTValue), 'GMT']);  {do not localize}
 end;
 
 {This should never be localized}
@@ -3108,9 +3121,9 @@ var
   wYear: Word;
 begin
   DecodeDate(Value, wYear, wMonth, wDay);
-  Result := Format('%s, %d %s %d %s %s',    {do not localize}
+  Result := IndyFormat('%s, %d %s %d %s %s',    {do not localize}
                    [wdays[DayOfWeek(Value)], wDay, monthnames[wMonth],
-                    wYear, FormatDateTime( 'HH":"nn":"ss', Value), {do not localize}
+                    wYear, FormatDateTime('HH":"nn":"ss', Value), {do not localize}
                     DateTimeToGmtOffSetStr(OffsetFromUTC, AIsGMT)]);
 end;
 
@@ -3124,7 +3137,7 @@ begin
     Exit;
   end;
   DecodeTime(ADateTime, AHour, AMin, ASec, AMSec);
-  Result := Format(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
+  Result := IndyFormat(' %0.2d%0.2d', [AHour, AMin]); {do not localize}
   if ADateTime < 0.0 then begin
     Result[1] := '-'; {do not localize}
   end else begin
@@ -3248,9 +3261,9 @@ begin
 end;
 
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
- {$IFDEF VCL6ORABOVE}
- {$IFDEF USEINLINE}inline;{$ENDIF}
- {$ELSE}
+{$IFDEF VCL6ORABOVE}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$ELSE}
 var
   LTM : TTimeStamp;
 {$ENDIF}
