@@ -82,7 +82,7 @@ uses
   Classes,
   IdDsnResourceStrings, IdDsnSASLListEditorForm,
   IdSASL, IdSASLCollection,
-  SysUtils;
+  SysUtils, TypInfo;
 
 { TIdPropEdSASL }
 
