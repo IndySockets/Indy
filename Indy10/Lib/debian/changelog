@@ -1,0 +1,16 @@
+indy-fpc (10.2.0.1-2) unstable; urgency=low
+
+  * Started indy-fpc-src but that's still buggy.
+  * added homepage reference http://www.IndyProject.org/sockets/fpc
+  * removed some unneeded files
+  * fixed misspeallings in the control file.
+
+ -- J. Peter Mugaas <oma00215@mail.wvnet.edu>  Wed, 09 Aug 2006 04:08:38 -0400
+
+
+indy-fpc (10.2.0.1-1) unstable; urgency=low
+
+  * Started indy-fpc package for Chad Z. Hower (Kudzu) and the Indy Pit Crew - http://www.IndyProject.org/
+
+ -- J. Peter Mugaas <oma00215@mail.wvnet.edu>  Mon, 17 Jul 2006 23:39:33 -0400
+

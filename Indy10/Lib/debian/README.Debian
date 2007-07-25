@@ -1,0 +1,10 @@
+indy-fpc for Debian
+-------------------
+
+This package only contains a precompiled subset of the Indy distribution.  Specifically, it contains only files from the indy*/fpc directory, example programs for FreePascal, licensing information, and notes from the main distribution.  
+
+The main distribution includes property editors for Lazarus in the indy*/Lazarus folder but we do not install them here because the Indy run-time code is independent of Lazarus and we do not want to recompile the Lazarus IDE in a Debian package because it would be done as root.
+
+COPYING, COPYING.modifiedBSD, and COPYING.MPL are merged into a copyright file for consistency with Debian policy.
+
+ -- J. Peter Mugaas <oma00215@mail.wvnet.edu>, Wed, 02 Aug 2006 04:23:54 -0400
