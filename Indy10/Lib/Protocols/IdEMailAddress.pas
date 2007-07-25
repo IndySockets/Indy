@@ -110,6 +110,7 @@ unit IdEMailAddress;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -403,7 +404,7 @@ var
   i: Integer;
   tempName, resName: string;
 begin
-  if (FName <> '') and (UpperCase(FAddress) <> FName) then
+  if (FName <> '') and (not TextIsSame(FAddress, FName) then
   begin
     i := FindFirstNotOf(IETF_ATEXT_SPACE, FName);
     if i > 0 then
@@ -911,7 +912,7 @@ begin
     AStrings.Clear;
     for i := 0 to Count-1 do
     begin
-      LCurDom :=  Lowercase(Items[i].Domain);
+      LCurDom :=  LowerCase(Items[i].Domain);
       if AStrings.IndexOf(LCurDom) = -1 then begin
         AStrings.Add(LCurDom);
       end;
@@ -923,16 +924,12 @@ procedure TIdEMailAddressList.AddressesByDomain(AList: TIdEMailAddressList;
   const ADomain: string);
 var
   i: Integer;
-  LDomain: string;
-  LCurDom: string;
   LEnt : TIdEMailAddressItem;
 begin
-  LDomain := LowerCase(ADomain);
   AList.Clear;
   for i := 0 to Count-1 do
   begin
-    LCurDom := LowerCase(Items[i].Domain);
-    if LCurDom = LDomain then
+    if TextIsSame(Items[i].Domain, ADomain) then
     begin
       LEnt := AList.Add;
       LEnt.Text := Items[i].Text;
