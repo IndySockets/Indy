@@ -1547,6 +1547,12 @@ Indy10/Lib/examples/elizaweb/ezEngine.pas -text
 Indy10/Lib/examples/elizaweb/ezIFM.pas -text
 Indy10/Lib/examples/elizaweb/ezMSTechSupport.pas -text
 Indy10/Lib/examples/elizaweb/ezpersonality.pas -text
+Indy10/Lib/examples/httpget/Makefile -text
+Indy10/Lib/examples/httpget/Makefile.fpc -text
+Indy10/Lib/examples/httpget/ftpprothandler.pas -text
+Indy10/Lib/examples/httpget/httpget.pas -text
+Indy10/Lib/examples/httpget/httpprothandler.pas -text
+Indy10/Lib/examples/httpget/prothandler.pas -text
 Indy10/Lib/indymaster-Makefile.fpc -text
 Indy10/Lib/lspFix.dpr -text
 Indy10/NUnit/Sys.cs -text
