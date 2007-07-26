@@ -52,7 +52,9 @@
 unit IdFTPListParseNovellNetware;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -64,14 +66,15 @@ versions of Novell Netware as well.
 }
 type
   TIdNovellNetwareFTPListItem = class(TIdNovellBaseFTPListItem);
+
   TIdFTPLPNovellNetware = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
 implementation
@@ -82,10 +85,11 @@ uses
 { TIdFTPLPNovellNetware }
 
 class function TIdFTPLPNovellNetware.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 
-  function IsNetwareLine(AData : String) : Boolean;
-  var LPerms : String;
+  function IsNetwareLine(const AData : String) : Boolean;
+  var
+    LPerms : String;
   begin
     Result := AData <> '';
     if Result then
@@ -94,7 +98,7 @@ class function TIdFTPLPNovellNetware.CheckListing(AListing: TStrings;
       //from a website.  I don't know if that is an real FTP list or not but it's
       //better to be safe then sorry.  At least I did tighten up the Novell Permissions
       //check.
-      Result := (CharIsInSet(AData, 1, 'dD- '));  {Do not translate}
+      Result := CharIsInSet(AData, 1, 'dD- ');  {Do not localize}
       if Result then
       begin
         // we need to test HellSoft separately from this even though they will be handled by
@@ -102,8 +106,9 @@ class function TIdFTPLPNovellNetware.CheckListing(AListing: TStrings;
         if Result then
         begin
           LPerms := ExtractNovellPerms(AData);
-          Result := IsValidNovellPermissionStr(LPerms) and (Length(LPerms)=8) and
-                    (IsNovelPSPattern(AData)=False);
+          Result := IsValidNovellPermissionStr(LPerms) and
+                    (Length(LPerms) = 8) and
+                    (not IsNovelPSPattern(AData));
         end;
       end;
     end;
@@ -113,12 +118,9 @@ begin
   Result := False;
   if AListing.Count > 0 then
   begin
-    if IsTotalLine(AListing[0]) then
-    begin
-      Result := (AListing.Count >1) and IsNetwareLine(AListing[1]);
-    end
-    else
-    begin
+    if IsTotalLine(AListing[0]) then begin
+      Result := (AListing.Count > 1) and IsNetwareLine(AListing[1]);
+    end else begin
       Result := IsNetwareLine(AListing[0]);
     end;
   end;
@@ -129,15 +131,15 @@ begin
   Result := 'Novell Netware'; {do not localize}
 end;
 
-class function TIdFTPLPNovellNetware.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPNovellNetware.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdNovellNetwareFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPNovellNetware.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var strs : TStrings;
+var
+  strs : TStrings;
   wYear, LCurrentMonth, wMonth, wDay: Word;
   wHour, wMin, wSec, wMSec: Word;
   ADate: TDateTime;
@@ -146,21 +148,19 @@ var strs : TStrings;
   NameStartIdx : Integer;
   LName : String;
   LI : TIdNovellNetwareFTPListItem;
-{
-- [RWCEAFMS]          0                       1576 Feb 08  2000 00README
-- [RWCEAFMS]          0                        742 Jan 03  2001 00INDEX
-- [RWCEAFMS] tjhamalainen                  1020928 Sep 25  2001 winntnw.exe
-d [RWCEAFMS] Okkola                            512 Aug 17 03:42 WINDOWS
-
--[R----F-]  1 raj           857 Feb 23  2000 !info!
-d[R----F-]  1 raj           512 Nov 30  2001 incoming
-
-d [R----F--] supervisor            512       Jan 16 18:53    login
-- [R----F--] rhesus             214059       Oct 20 15:27    cx.exe
-
-
-}
 begin
+  {
+  - [RWCEAFMS]          0                       1576 Feb 08  2000 00README
+  - [RWCEAFMS]          0                        742 Jan 03  2001 00INDEX
+  - [RWCEAFMS] tjhamalainen                  1020928 Sep 25  2001 winntnw.exe
+  d [RWCEAFMS] Okkola                            512 Aug 17 03:42 WINDOWS
+
+  -[R----F-]  1 raj           857 Feb 23  2000 !info!
+  d[R----F-]  1 raj           512 Nov 30  2001 incoming
+
+  d [R----F--] supervisor            512       Jan 16 18:53    login
+  - [R----F--] rhesus             214059       Oct 20 15:27    cx.exe
+  }
   LI := AItem as TIdNovellNetwareFTPListItem;
   NameStartIdx := 5;
   // Get defaults for modified date/time
@@ -169,32 +169,29 @@ begin
   DecodeTime(ADate, wHour, wMin, wSec, wMSec);
   LCurrentMonth := wMonth;
 
-  if TextStartsWith(LI.Data, 'D') then
-  begin
-    LI.ItemType :=  ditDirectory;
+  if TextStartsWith(LI.Data, 'D') then begin {do not localize}
+    LI.ItemType := ditDirectory;
   end else begin
-    LI.ItemType :=  ditFile;
+    LI.ItemType := ditFile;
   end;
   //Most FTP Clients don't support permissions on a Novel Netware server.
-  LBuf :=  AItem.Data;
+  LBuf := AItem.Data;
   LI.NovellPermissions := ExtractNovellPerms(LBuf);
-  LI.PermissionDisplay := '['+ LI.NovellPermissions + ']';
-  Fetch(LBuf,'] ');
+  LI.PermissionDisplay := '[' + LI.NovellPermissions + ']'; {do not localize}
+  Fetch(LBuf, '] '); {do not localize}
   if LBuf <> '' then
   begin
     //One Novell Server I found at nf.wsp.krakow.pl
     //uses an old version of Novell Netware (3.12 or so).  That differs slightly
-    if (LBuf[1] = ' ') then
+    if LBuf[1] = ' ' then {do not localize}
     begin
-      IdDelete(LBuf,1,1);
+      IdDelete(LBuf, 1, 1);
       // LBuf := TrimLeft(LBuf);
       Fetch(LBuf);
     end;
     strs := TStringList.Create;
     try
       SplitColumns(LBuf, strs);
-   //   IdStrings.SplitColumns(LBuf,strs);
-
       {
       0 - owner
       1 - size
@@ -204,46 +201,43 @@ begin
       5 - start of file name or time
       6 - start of file name if 5 was time
       }
-      if (strs.Count > 4) then
+      if strs.Count > 4 then
       begin
         LI.OwnerName := strs[0];
-        LI.Size := IndyStrToInt64(strs[1],0);
+        LI.Size := IndyStrToInt64(strs[1], 0);
         wMonth := StrToMonth(strs[2]);
-        if wMonth < 1 then
-        begin
+        if wMonth < 1 then begin
           wMonth := LCurrentMonth;
         end;
-        wDay := IndyStrToInt(strs[3],wDay);
-        if (IndyPos(':',Strs[4])=0) then
+        wDay := IndyStrToInt(strs[3], wDay);
+        if IndyPos(':', Strs[4]) = 0 then {do not localize}
         begin
-          wYear := IndyStrToInt(strs[4],wYear);
+          wYear := IndyStrToInt(strs[4], wYear);
           wYear := Y2Year(wYear);
           wHour := 0;
           wMin := 0;
-          if (Strs.Count > 5) and (IndyPos(':',Strs[5])>0) then
+          if (Strs.Count > 5) and (IndyPos(':', Strs[5]) > 0) then {do not localize}
           begin
             LBuf := Strs[5];
-            wHour := IndyStrToInt(Fetch(LBuf,':'),wHour);
-            wMin := IndyStrToInt(Fetch(LBuf,':'),wMin);
+            wHour := IndyStrToInt(Fetch(LBuf, ':'), wHour); {do not localize}
+            wMin := IndyStrToInt(Fetch(LBuf, ':'), wMin);   {do not localize}
             NameStartIdx := 6;
           end;
-        end
-        else
+        end else
         begin
-          wYear := AddMissingYear(wDay,wMonth);
+          wYear := AddMissingYear(wDay, wMonth);
           LBuf := Strs[4];
-          wHour := IndyStrToInt(Fetch(LBuf,':'),wHour);
-          wMin := IndyStrToInt(Fetch(LBuf,':'),wMin);
+          wHour := IndyStrToInt(Fetch(LBuf, ':'), wHour); {do not localize}
+          wMin := IndyStrToInt(Fetch(LBuf, ':'), wMin);   {do not localize}
         end;
-        LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
-        LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,0,0);
+        LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay);
+        LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour, wMin, 0, 0);
         //Note that I doubt a file name can start with a space in Novel/
         //Netware.  Some code I've seen strips those off.
-        for NameStartPos := NameStartIdx to Strs.Count -1 do
-        begin
-          LName := LName + ' '+Strs[NameStartPos];
+        for NameStartPos := NameStartIdx to Strs.Count -1 do begin
+          LName := LName + ' ' + Strs[NameStartPos]; {do not localize}
         end;
-        IdDelete(LName,1,1);
+        IdDelete(LName, 1, 1);
         LI.FileName := LName;
         //Novell Netware is case sensitive I think.
         LI.LocalFileName := LName;
@@ -256,29 +250,26 @@ begin
 end;
 
 class function TIdFTPLPNovellNetware.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var LStartLine : Integer;
-    i : Integer;
-    LItem : TIdFTPListItem;
+  ADir: TIdFTPListItems): Boolean;
+var
+  LStartLine, i : Integer;
+  LItem : TIdFTPListItem;
 begin
   if AListing.Count = 0 then
   begin
     Result := True;
     Exit;
   end;
-  If IsTotalLine(AListing[0]) then
-  begin
+  If IsTotalLine(AListing[0]) then begin
     LStartLine := 1;
-  end
-  else
-  begin
+  end else begin
     LStartLine := 0;
   end;
   for i := LStartLine to AListing.Count -1 do
   begin
-    LItem := Self.MakeNewItem(ADir);
+    LItem := MakeNewItem(ADir);
     LItem.Data := AListing[i];
-    ParseLine( LItem);
+    ParseLine(LItem);
   end;
   Result := True;
 end;
@@ -287,4 +278,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPNovellNetware);
 finalization
   UnRegisterFTPListParser(TIdFTPLPNovellNetware);
+
 end.
