@@ -40,7 +40,9 @@
 unit IdFTPListParseMicrowareOS9;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase,IdFTPListTypes;
@@ -51,18 +53,19 @@ type
     FOS9OwnerPermissions : String;
     FOS9PublicPermissions : String;
     FOS9MiscPermissions : String;
-    FOS9Sector: Cardinal;
+    FOS9Sector: LongWord;
   public
     property OS9OwnerPermissions : String read FOS9OwnerPermissions write FOS9OwnerPermissions;
     property OS9PublicPermissions : String read FOS9PublicPermissions write FOS9PublicPermissions;
     property OS9MiscPermissions : String read FOS9MiscPermissions write FOS9MiscPermissions;
-    property OS9Sector : Cardinal read FOS9Sector write FOS9Sector;
+    property OS9Sector : LongWord read FOS9Sector write FOS9Sector;
   end;
+
   TIdFTPLPMicrowareOS9 = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean;  override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
@@ -83,28 +86,33 @@ begin
 end;
 
 class function TIdFTPLPMicrowareOS9.IsHeader(const AData: String): Boolean;
-var LWrds : TStrings;
-{The banner is usually something like this:
-
-                            Directory of . 11:44:44
- Owner    Last modified  Attributes Sector Bytecount Name
-–––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
-}
+var
+  LWrds : TStrings;
 begin
+  {The banner is usually something like this:
+
+                              Directory of . 11:44:44
+    Owner   Last modified  Attributes Sector Bytecount Name
+  –––––––   –––––––––––––  –––––––––– –––––– ––––––––– ––––
+  }
   LWrds := TStringList.Create;
   try
     Result := False;
-    SplitColumns(AData,LWrds);
-    if (LWrds.Count > 2) then
+    SplitColumns(AData, LWrds);
+    if LWrds.Count > 2 then
     begin
       Result := (LWrds[0] = 'Directory') and (LWrds[1] = 'of') and  {do not localize}
-        (PatternsInStr(':',LWrds[LWrds.Count - 1])=2);
-      if Result = False then
+        (PatternsInStr(':', LWrds[LWrds.Count - 1]) = 2);
+      if not Result then
       begin
         Result := (LWrds.Count = 7) and
-          (LWrds[0] = 'Owner') and (LWrds[1] = 'Last') and (LWrds[2] = 'modified') and  {do not localize}
-          (LWrds[3] = 'Attributes') and (LWrds[4] = 'Sector') and (LWrds[5] = 'Bytecount') and  {do not localize}
-          (LWrds[6] = 'Name');  {do not localize}
+          (LWrds[0] = 'Owner') and      {do not localize}
+          (LWrds[1] = 'Last') and       {do not localize}
+          (LWrds[2] = 'modified') and   {do not localize}
+          (LWrds[3] = 'Attributes') and {do not localize}
+          (LWrds[4] = 'Sector') and     {do not localize}
+          (LWrds[5] = 'Bytecount') and  {do not localize}
+          (LWrds[6] = 'Name');          {do not localize}
       end;
     end;
   finally
@@ -112,17 +120,17 @@ begin
   end;
 end;
 
-class function TIdFTPLPMicrowareOS9.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMicrowareOS9.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdMicrowareOS9FTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPMicrowareOS9.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
-    LPerms : String;
-    LI : TIdMicrowareOS9FTPListItem;
+var
+  LBuf : String;
+  LPerms : String;
+  LI : TIdMicrowareOS9FTPListItem;
 begin
   LI := AItem as TIdMicrowareOS9FTPListItem;
   LBuf := TrimLeft(LI.Data);
@@ -138,26 +146,28 @@ begin
   //permissions
   LPerms := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
-  if TextStartsWith(LPerms, 'd') then
-  begin
+  if TextStartsWith(LPerms, 'd') then begin
     LI.ItemType := ditDirectory;
   end else begin
     LI.ItemType := ditFile;
   end;
   LI.PermissionDisplay := LPerms;
-  LI.OS9MiscPermissions := Copy(LPerms,1,2);
-  LI.OS9PublicPermissions := Copy(LPerms,3,3);
-  LI.OS9OwnerPermissions := Copy(LPerms,5,3);
+  LI.OS9MiscPermissions := Copy(LPerms, 1, 2);
+  LI.OS9PublicPermissions := Copy(LPerms, 3, 3);
+  LI.OS9OwnerPermissions := Copy(LPerms, 5, 3);
   //sector
-  LI.OS9Sector := IndyStrToInt64('$'+Fetch(LBuf),0);
+  LI.OS9Sector := IndyStrToInt64('$'+Fetch(LBuf), 0);
   LBuf := TrimLeft(LBuf);
   //size not sure if in decimal or hexidecimal
-  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
+  LI.Size := IndyStrToInt64(Fetch(LBuf), 0);
   //name
   LI.FileName := LBuf;
   Result := True;
 end;
 
 initialization
-  IdFTPListParseBase.RegisterFTPListParser(TIdFTPLPMicrowareOS9);
+  RegisterFTPListParser(TIdFTPLPMicrowareOS9);
+finalization
+  UnRegisterFTPListParser(TIdFTPLPMicrowareOS9);
+
 end.
