@@ -56,10 +56,10 @@ type
     Fs_b2,
     Fs_b3,
     Fs_b4: Byte;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property s_b1 : Byte read Fs_b1 write Fs_b1;
     property s_b2 : Byte read Fs_b2 write Fs_b2;
@@ -70,10 +70,10 @@ type
   TIdSunW = class(TIdStruct)
   protected
     Fs_w1, Fs_w2: Word;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property s_w1 : Word read Fs_w1 write Fs_w1;
     property s_w2 : Word read Fs_w2 write Fs_w2;
@@ -301,10 +301,10 @@ type
   protected
     Fid: Word;                 // identifier to match requests with replies
     Fseq: Word;                // sequence number to match requests with replies
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property id: Word read Fid write FId;                 // identifier to match requests with replies
     property seq: Word read Fseq write FSeq;                // sequence number to match requests with replies
   end;
@@ -313,10 +313,10 @@ type
   protected
     Fpad: Word;
     Fmtu: Word;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property pad: Word read Fpad write Fpad;
     property mtu: Word read Fmtu write Fmtu;
   end;
@@ -326,10 +326,10 @@ type
     Fotime: TIdNetTime;        // time message was sent, to calc roundtrip time
     Frtime: TIdNetTime;
     Fttime: TIdNetTime;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property otime: TIdNetTime read Fotime write Fotime;        // time message was sent, to calc roundtrip time
     property rtime: TIdNetTime read Frtime write Frtime;
     property ttime: TIdNetTime read Fttime write Fttime;
@@ -403,12 +403,12 @@ type
     Ficmp_sum: Word;           // one's complement checksum    {Do not Localize}
     Ficmp_hun: TIdicmp_hun;
     Ficmp_dun: TIdicmp_dun;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property icmp_type: Byte read Ficmp_type write Ficmp_type;          // message type
     property icmp_code: Byte read Ficmp_code write Ficmp_code;          // error code
     property icmp_sum: Word read Ficmp_sum write Ficmp_sum;             // one's complement checksum
@@ -457,12 +457,12 @@ type
     FIcmp6_code : uint8_t;   //* code field */
     Ficmp6_cksum : uint16_t;  //* checksum field */
     Fdata : TIdicmp6_un;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
 
     property icmp6_type : uint8_t read Ficmp6_type write Ficmp6_type;     //* type field */
     property icmp6_code : uint8_t read Ficmp6_code write Ficmp6_code;     //* code field */
@@ -508,12 +508,12 @@ type
     Fip_src: TIdInAddr;      // source address
     Fip_dst: TIdInAddr;      // dest address
     Fip_options: LongWord;   // options + padding
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     procedure CopyFrom(const ASource : TIdIPHdr);
     property ip_verlen: Byte read Fip_verlen write Fip_verlen;  // 1st nibble version, 2nd nibble header length div 4 (little-endian)
     property ip_tos: Byte read Fip_tos write Fip_tos;           // type of service
@@ -559,10 +559,10 @@ type
     Ftcp_win: Word;          // window
     Ftcp_sum: Word;          // checksum
     Ftcp_urp: Word;          // urgent pointer
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property tcp_sport: Word read Ftcp_sport write Ftcp_sport;    // source port
     property tcp_dport: Word read Ftcp_dport write Ftcp_dport;    // destination port
@@ -586,10 +586,10 @@ type
     Fudp_dport: Word;        // destination port
     Fudp_ulen: Word;         // length
     Fudp_sum: Word;          // checksum
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property udp_sport: Word read Fudp_sport write Fudp_sport;    // source port
     property udp_dport: Word read Fudp_dport write Fudp_dport;    // destination port
     property udp_ulen: Word read Fudp_ulen write Fudp_ulen;       // length
@@ -608,12 +608,12 @@ type
     Figmp_code: Byte;
     Figmp_sum: Word;
     Figmp_group: TIdInAddr;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property igmp_type: Byte read Figmp_type write Figmp_type;
     property igmp_code: Byte read Figmp_code write Figmp_code;
@@ -649,13 +649,13 @@ type
     Fether_dhost: TIdEtherAddr;            // destination ethernet address
     Fether_shost: TIdEtherAddr;            // source ethernet address
     Fether_type: Word;                     // packet type ID
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
     procedure CopyFrom(const ASource : TIdEthernetHdr);
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property ether_dhost: TIdEtherAddr read Fether_dhost;            // destination ethernet address
     property ether_shost: TIdEtherAddr read Fether_shost;            // source ethernet address
@@ -679,12 +679,12 @@ type
     Farp_spa: TIdInAddr;                   // sender protocol address
     Farp_tha: TIdEtherAddr;                // target hardware address
     Farp_tpa: TIdInAddr;                   // target protocol address
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property arp_hrd: Word read Farp_hrd write Farp_hrd;         // format of hardware address
     property arp_pro: Word read Farp_pro write Farp_pro;         // format of protocol address
@@ -712,10 +712,10 @@ type
     Fdns_num_answ_rr: Word;                // number of answer resource records
     Fdns_num_auth_rr: Word;                // number of authority resource records
     Fdns_num_addi_rr: Word;                // number of additional resource records
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property dns_id: Word read Fdns_id write Fdns_id;                            // DNS packet ID
     property dns_flags: Word read Fdns_flags write Fdns_flags;                   // DNS flags
@@ -741,10 +741,10 @@ type
     Frip_mask: LongWord;       // zero (v1) or subnet mask (v2)
     Frip_next_hop: LongWord;   // zero (v1) or next hop IP address (v2)
     Frip_metric: LongWord;     // metric
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
 
     property rip_cmd: Byte read Frip_cmd write Frip_cmd;                    // RIP command
     property rip_ver: Byte read Frip_ver write Frip_ver;                    // RIP version
@@ -767,12 +767,12 @@ uses
 
 { TIdSunB }
 
-function TIdSunB.GetBytesLen: Integer;
+function TIdSunB.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4;
 end;
 
-procedure TIdSunB.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdSunB.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fs_b1 := ABytes[VIndex];
@@ -785,7 +785,7 @@ begin
   Inc(VIndex);
 end;
 
-procedure TIdSunB.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdSunB.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Fs_b1;
@@ -800,12 +800,12 @@ end;
 
 { TIdSunW }
 
-function TIdSunW.GetBytesLen: Integer;
+function TIdSunW.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4;
 end;
 
-procedure TIdSunW.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdSunW.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fs_w1 := BytesToWord(ABytes, VIndex);
@@ -814,7 +814,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdSunW.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdSunW.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(HostToLittleEndian(Fs_w1), VBytes, VIndex);
@@ -825,12 +825,12 @@ end;
 
 { TIdICMPEcho }
 
-function TIdICMPEcho.GetBytesLen: Integer;
+function TIdICMPEcho.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4;
 end;
 
-procedure TIdICMPEcho.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPEcho.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fid := BytesToWord(ABytes, VIndex);
@@ -839,7 +839,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdICMPEcho.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPEcho.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(HostToLittleEndian(Fid), VBytes, VIndex);
@@ -850,12 +850,12 @@ end;
 
 { TIdICMPFrag }
 
-function TIdICMPFrag.GetBytesLen: Integer;
+function TIdICMPFrag.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4;
 end;
 
-procedure TIdICMPFrag.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPFrag.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fpad := BytesToWord(ABytes, VIndex);
@@ -864,7 +864,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdICMPFrag.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPFrag.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(HostToLittleEndian(Fpad), VBytes, VIndex);
@@ -875,12 +875,12 @@ end;
 
 { TIdICMPTs }
 
-function TIdICMPTs.GetBytesLen: Integer;
+function TIdICMPTs.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 12;
 end;
 
-procedure TIdICMPTs.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPTs.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fotime := BytesToLongWord(ABytes, VIndex);        // time message was sent, to calc roundtrip time
@@ -891,7 +891,7 @@ begin
   Inc(VIndex, 4);
 end;
 
-procedure TIdICMPTs.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPTs.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(HostToLittleEndian(Fotime), VBytes, VIndex);        // time message was sent, to calc roundtrip time
@@ -1094,12 +1094,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdICMPHdr.GetBytesLen: Integer;
+function TIdICMPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4 + Ficmp_hun.BytesLen + Ficmp_dun.BytesLen;
 end;
 
-procedure TIdICMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWOrd);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Ficmp_type := ABytes[VIndex];
@@ -1112,7 +1112,7 @@ begin
   Ficmp_dun.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdICMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdICMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Ficmp_type;
@@ -1161,7 +1161,7 @@ begin
   inherited Destroy;
 end;
 
-function TIdIPHdr.GetBytesLen: Integer;
+function TIdIPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 12 + Fip_src.BytesLen + Fip_dst.BytesLen + 4;
 end;
@@ -1181,7 +1181,7 @@ begin
   Fip_options := ASource.ip_options;
 end;
 
-procedure TIdIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fip_verlen := ABytes[VIndex];      // 1st nibble version, 2nd nibble header length div 4 (little-endian)
@@ -1206,9 +1206,8 @@ begin
   Inc(VIndex, 4);
 end;
 
-procedure TIdIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
-var
-  LMinLen : Integer;
+procedure TIdIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
+
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Fip_verlen;      // 1st nibble version, 2nd nibble header length div 4 (little-endian)
@@ -1255,12 +1254,12 @@ end;
 
 { TIdTCPHdr }
 
-function TIdTCPHdr.GetBytesLen: Integer;
+function TIdTCPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 20;
 end;
 
-procedure TIdTCPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdTCPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Ftcp_sport := BytesToWord(ABytes, VIndex);       // source port
@@ -1283,7 +1282,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdTCPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdTCPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(Ftcp_sport, VBytes, VIndex);        // source port
@@ -1308,12 +1307,12 @@ end;
 
 { TIdUDPHdr }
 
-function TIdUDPHdr.GetBytesLen: Integer;
+function TIdUDPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 8;
 end;
 
-procedure TIdUDPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdUDPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fudp_sport := BytesToWord(ABytes, VIndex);        // source port
@@ -1326,7 +1325,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdUDPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdUDPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(Fudp_sport, VBytes, VIndex);        // source port
@@ -1353,12 +1352,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdIGMPHdr.GetBytesLen: Integer;
+function TIdIGMPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4 + Figmp_group.BytesLen;
 end;
 
-procedure TIdIGMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdIGMPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Figmp_type := ABytes[VIndex];
@@ -1370,7 +1369,7 @@ begin
   Figmp_group.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdIGMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdIGMPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Figmp_type;
@@ -1428,12 +1427,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdEthernetHdr.GetBytesLen: Integer;
+function TIdEthernetHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + Fether_dhost.BytesLen + Fether_shost.BytesLen + 2;
 end;
 
-procedure TIdEthernetHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdEthernetHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fether_dhost.ReadStruct(ABytes, VIndex);            // destination ethernet address
@@ -1442,9 +1441,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdEthernetHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
-var
-  Len : Integer;
+procedure TIdEthernetHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   Fether_dhost.WriteStruct(VBytes, VIndex);            // destination ethernet address
@@ -1480,12 +1477,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdARPHdr.GetBytesLen: Integer;
+function TIdARPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 8 + Farp_sha.BytesLen + Farp_spa.BytesLen + Farp_tha.BytesLen + Farp_tpa.BytesLen;
 end;
 
-procedure TIdARPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdARPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Farp_hrd := BytesToWord(ABytes, VIndex);  // format of hardware address
@@ -1505,7 +1502,7 @@ begin
   Farp_tpa.ReadStruct(ABytes, VIndex);    // target protocol address
 end;
 
-procedure TIdARPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdARPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(Farp_hrd, VBytes, VIndex);  // format of hardware address
@@ -1527,12 +1524,12 @@ end;
 
 { TIdDNSHdr }
 
-function TIdDNSHdr.GetBytesLen: Integer;
+function TIdDNSHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 12;
 end;
 
-procedure TIdDNSHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdDNSHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fdns_id := BytesToWord(ABytes, VIndex);      // DNS packet ID
@@ -1549,7 +1546,7 @@ begin
   Inc(VIndex, 2);
 end;
 
-procedure TIdDNSHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdDNSHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdWord(Fdns_id, VBytes, VIndex);     // DNS packet ID
@@ -1568,12 +1565,12 @@ end;
 
 { TIdRIPHdr }
 
-function TIdRIPHdr.GetBytesLen: Integer;
+function TIdRIPHdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 24;
 end;
 
-procedure TIdRIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdRIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Frip_cmd := ABytes[VIndex];            // RIP command
@@ -1596,7 +1593,7 @@ begin
   Inc(VIndex, 4);
 end;
 
-procedure TIdRIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdRIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Frip_cmd;            // RIP command
@@ -1717,12 +1714,12 @@ begin
   inherited Destroy;
 end;
 
-function TIdicmp6_hdr.GetBytesLen: Integer;
+function TIdicmp6_hdr.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + 4 + Fdata.BytesLen;
 end;
 
-procedure TIdicmp6_hdr.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdicmp6_hdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Ficmp6_type := ABytes[VIndex];
@@ -1734,7 +1731,7 @@ begin
   Fdata.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdicmp6_hdr.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdicmp6_hdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   VBytes[VIndex] := Ficmp6_type;

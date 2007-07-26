@@ -28,24 +28,24 @@ uses
 type
   TIdStruct = class(TObject)
   protected
-    function GetBytesLen: Integer; virtual;
+    function GetBytesLen: LongWord; virtual;
   public
     constructor Create; virtual;
     //done this way in case we also need to advance an index pointer
     //after a read or write
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); virtual;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  virtual;
-    property BytesLen: Integer read GetBytesLen;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); virtual;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  virtual;
+    property BytesLen: LongWord read GetBytesLen;
   end;
 
   TIdUnion = class(TIdStruct)
   protected
     FBuffer: TIdBytes;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
     procedure SetBytesLen(const ABytesLen: Integer);
   public
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);  override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
   end;
 
   TIdLongWord = class(TIdUnion)
@@ -84,17 +84,17 @@ begin
   inherited Create;
 end;
 
-function TIdStruct.GetBytesLen: Integer;
+function TIdStruct.GetBytesLen: LongWord;
 begin
   Result := 0;
 end;
 
-procedure TIdStruct.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdStruct.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
-  Assert(Length(ABytes) >= VIndex + BytesLen, 'not enough bytes'); {do not localize}
+  Assert(LongWord(Length(ABytes)) >= VIndex + BytesLen, 'not enough bytes'); {do not localize}
 end;
 
-procedure TIdStruct.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdStruct.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 var
   Len: Integer;
 begin
@@ -116,14 +116,14 @@ begin
   SetLength(FBuffer, ABytesLen);
 end;
 
-procedure TIdUnion.ReadStruct(const ABytes: TIdBytes; var VIndex: Integer);
+procedure TIdUnion.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   CopyTIdBytes(ABytes, VIndex, FBuffer, 0, Length(FBuffer));
   Inc(VIndex, Length(FBuffer));
 end;
 
-procedure TIdUnion.WriteStruct(var VBytes: TIdBytes; var VIndex: Integer);
+procedure TIdUnion.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   CopyTIdBytes(FBuffer, 0, VBytes, VIndex, Length(FBuffer));

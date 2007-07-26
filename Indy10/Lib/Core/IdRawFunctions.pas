@@ -117,11 +117,13 @@ procedure IdRawBuildArp(const AHwAddressFormat, AProtocolFormat: Word;
   ATargetPr: TIdInAddr; const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrArp: TIdArpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_ARP_HSIZE + Length(VBuffer);
-  if Length(VBuffer) < LIdx then begin
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -156,11 +158,13 @@ procedure IdRawBuildDns(const AnId, AFlags, ANumQuestions, ANumAnswerRecs,
   var VBuffer: TIdBytes);
 var
   HdrDns: TIdDnsHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Length(APayload) + Id_DNS_HSIZE;
-  if Length(VBuffer) < LIdx then begin
+  LLen := LongWord(Length(VBuffer));
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -191,11 +195,13 @@ procedure IdRawBuildEthernet(ADest, ASource: TIdEtherAddr; AType: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrEth: TIdEthernetHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // make sure VBuffer will be long enough
   LIdx := Length(ASource.Data) + Length(ADest.Data) + 2 + Length(APayload);
-  if Length(VBuffer) < LIdx then begin
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -225,11 +231,13 @@ procedure IdRawBuildIp(ALen: Word; ATos: Byte; AnId, AFrag: Word; ATtl, AProtoco
   const AIdx: Integer = 0);
 var
   HdrIp: TIdIpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+   LLen : LongWord;
 begin
   // check input
   LIdx := Id_IP_HSIZE + Length(APayload) + AIdx;
-  if Length(VBuffer) < LIdx then begin
+   LLen := Length(VBuffer);
+  if  LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -264,11 +272,12 @@ procedure IdRawBuildIcmpEcho(AType, ACode: Byte; AnId, ASeq: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx, LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_ECHO_HSIZE + Length(APayload);
-  if Length(VBuffer) < LIdx then begin
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -297,11 +306,13 @@ procedure IdRawBuildIcmpMask(AType, ACode: Byte; AnId, ASeq: Word; AMask: LongWo
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_ECHO_HSIZE + Length(APayload);
-  if Length(VBuffer) < LIdx then begin
+  LLen :=  Length(VBuffer);
+  if llen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -333,11 +344,13 @@ procedure IdRawBuildIcmpUnreach(AType, ACode: Byte; AnOrigLen: Word;
   var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  Llen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + 2;
-  if Length(VBuffer) < LIdx then begin
+  Llen :=  Length(VBuffer);
+  if Llen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -367,11 +380,13 @@ procedure IdRawBuildIcmpTimeExceed(const AType, ACode: Byte; const AnOrigLen: Wo
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_TIMEXCEED_HSIZE + Length(AnOrigPayload) + Id_IP_HSIZE;
-  if Length(VBuffer) < LIdx then begin
+  Llen := Length(VBuffer);
+  if Llen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -400,11 +415,12 @@ procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Wo
   var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx, Llen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + Length(APayload);
-  if Length(VBuffer) < LIdx then begin
+  Llen :=  Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -438,11 +454,13 @@ procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx: Integer;
+  LIdx, Llen : LongWord;
+
 begin
   // check input
   LIdx := Id_ICMP_REDIRECT_HSIZE + Length(AnOrigPayload) + Id_IP_HSIZE;
-  if Length(VBuffer) < LIdx then begin
+  Llen := Length(VBuffer);
+  if Llen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -469,11 +487,13 @@ procedure IdRawBuildIgmp(AType, ACode: Byte; AnIp: TIdInAddr;
   const APayload: Word; var VBuffer: TIdBytes);
 var
   HdrIgmp: TIdIgmpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := 2 + Id_IGMP_HSIZE;
-  if Length(VBuffer) < LIdx then begin
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -502,11 +522,13 @@ procedure IdRawBuildRip(const ACommand, AVersion: Byte;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrRip: TIdRipHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  Llen : LongWord;
 begin
   // check input
   LIdx := Id_RIP_HSIZE + Length(APayload);
-  if Length(VBuffer) < LIdx then begin
+  LLen := Length(VBuffer);
+  if Llen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -543,11 +565,12 @@ procedure IdRawBuildTcp(const ASourcePort, ADestPort: Word;
   var VBuffer: TIdBytes);
 var
   HdrTcp: TIdTcpHdr;
-  LIdx: Integer;
+  LIdx, LLen: LongWord;
 begin
   // check input
   LIdx := Id_TCP_HSIZE + Length(VBuffer);
-  if Length(VBuffer) < LIdx then begin
+  Llen :=  Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -581,11 +604,13 @@ procedure IdRawBuildUdp(const ASourcePort, ADestPort: Word;
   const APayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrUdp: TIdUdpHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_UDP_HSIZE + Length(APayload);
-  if Length(VBuffer) < Lidx then begin
+  LLen := Length(VBuffer);
+  if LLen < Lidx then begin
     SetLength(VBuffer, LIdx);
   end;
 

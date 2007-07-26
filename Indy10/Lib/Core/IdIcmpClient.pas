@@ -228,12 +228,12 @@ type
   protected
     Fip_hdr: TIdIPHdr;
     Ficmp_hdr: TIdICMPHdr;
-    function GetBytesLen: Integer; override;
+    function GetBytesLen: LongWord; override;
   public
     constructor Create; override;
     destructor Destroy; override;
-    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : Integer); override;
-    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : Integer); override;
+    procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
+    procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord); override;
     property ip_hdr: TIdIPHdr read Fip_hdr;
     property icmp_hdr: TIdICMPHdr read Ficmp_hdr;
   end;
@@ -253,19 +253,19 @@ begin
   inherited Destroy;
 end;
 
-function TIdIPv4_ICMP.GetBytesLen: Integer;
+function TIdIPv4_ICMP.GetBytesLen: LongWord;
 begin
   Result := inherited GetBytesLen + Fip_hdr.BytesLen + Ficmp_hdr.BytesLen;
 end;
 
-procedure TIdIPv4_ICMP.ReadStruct(const ABytes : TIdBytes; var VIndex : Integer);
+procedure TIdIPv4_ICMP.ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord);
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fip_hdr.ReadStruct(ABytes, VIndex);
   Ficmp_hdr.ReadStruct(ABytes, VIndex);
 end;
 
-procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : Integer);
+procedure TIdIPv4_ICMP.WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);
 begin
   inherited WriteStruct(VBytes, VIndex);
   Fip_hdr.WriteStruct(VBytes, VIndex);
@@ -391,8 +391,8 @@ end;
 
 function TIdCustomIcmpClient.DecodeIPv4Packet(BytesRead: LongWord): Boolean;
 var
-  LIPHeaderLen: Integer;
-  LIdx: Integer;
+  LIPHeaderLen: LongWord;
+  LIdx: LongWord;
   RTTime: LongWord;
   LActualSeqID: word;
   LIcmp: TIdIPv4_ICMP;
@@ -600,7 +600,7 @@ end;
 procedure TIdCustomIcmpClient.PrepareEchoRequestIPv4(const ABuffer: String);
 var
   LIcmp: TIdICMPHdr;
-  LIdx: Integer;
+  LIdx: LongWord;
 begin
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + FPacketSize);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
