@@ -1121,7 +1121,7 @@ begin
   FLock.Enter;
 end;
 
-procedure TIdHTTPSession.SetContent(const Value: TIdStrings);
+procedure TIdHTTPSession.SetContent(const Value: TStrings);
 begin
   FContent.Assign(Value);
 end;

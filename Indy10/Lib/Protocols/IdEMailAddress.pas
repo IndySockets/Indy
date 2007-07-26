@@ -404,7 +404,7 @@ var
   i: Integer;
   tempName, resName: string;
 begin
-  if (FName <> '') and (not TextIsSame(FAddress, FName) then
+  if (FName <> '') and (not TextIsSame(FAddress, FName)) then
   begin
     i := FindFirstNotOf(IETF_ATEXT_SPACE, FName);
     if i > 0 then

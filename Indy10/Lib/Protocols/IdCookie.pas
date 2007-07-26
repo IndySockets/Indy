@@ -383,7 +383,7 @@ begin
   end;
 end;
 
-procedure TIdNetscapeCookie.LoadProperties(APropertyList: TIdStrings);
+procedure TIdNetscapeCookie.LoadProperties(APropertyList: TStrings);
 begin
   FPath := APropertyList.Values['PATH'];    {Do not Localize}
   // Tomcat can return SetCookie2 with path wrapped in "

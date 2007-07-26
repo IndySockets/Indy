@@ -163,13 +163,13 @@ begin
   LStrm := TIdReadFileExclusiveStream.Create(FileName); try
     LoadFromStream(LStrm);
   finally
-    Sys.FreeAndNil(LStrm);
+    FreeAndNil(LStrm);
   end;
 end;
 
-procedure TIdAttachment.LoadFromStream(AStream: TIdStream);
+procedure TIdAttachment.LoadFromStream(AStream: TStream);
 var
-  LStrm: TIdStream;
+  LStrm: TStream;
 begin
   LStrm := PrepareTempStream;
   try
@@ -186,11 +186,11 @@ begin
   LStrm := TIdFileCreateStream.Create(FileName); try
     SaveToStream(LStrm);
   finally
-    FreeAndNil(fs);
+    FreeAndNil(LStrm);
   end;
 end;
 
-procedure TIdAttachment.SaveToStream(AStream: TIdStream);
+procedure TIdAttachment.SaveToStream(AStream: TStream);
 var
   LStrm: TStream;
 begin
