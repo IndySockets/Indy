@@ -242,6 +242,7 @@ const
   Id_SOCK_RAW        = SocketType.Raw;            // /* raw-protocol interface */
   Id_SOCK_RDM        = SocketType.Rdm;            // /* reliably-delivered message */
   Id_SOCK_SEQPACKET  = SocketType.Seqpacket;      // /* sequenced packet stream */
+
   {$ENDIF}
 
 type
@@ -273,6 +274,9 @@ const
   {$ELSE}
   Id_IPPROTO_GGP         = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
   Id_IPPROTO_ICMP        = ProtocolType.Icmp; //Internet Control Message Protocol.
+  {$IFNDEF DOTNET1}
+  Id_IPPROTO_ICMPv6      = ProtocolType.IcmpV6; //ICMP for IPv6
+  {$ENDIF}
   Id_IPPROTO_IDP         = ProtocolType.Idp;   //IDP Protocol.
   Id_IPPROTO_IGMP        = ProtocolType.Igmp; //Internet Group Management Protocol.
   Id_IPPROTO_IP          = ProtocolType.IP;     //Internet Protocol.

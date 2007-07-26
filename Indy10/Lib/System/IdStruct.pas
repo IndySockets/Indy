@@ -111,7 +111,7 @@ begin
   Result := Length(FBuffer);
 end;
 
-procedure TIdUnion.SetBytesLen(const ABytesLen: Integer);
+procedure TIdUnion.SetBytesLen(const ABytesLen: LongWord);
 begin
   SetLength(FBuffer, ABytesLen);
 end;

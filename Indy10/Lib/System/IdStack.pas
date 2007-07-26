@@ -155,6 +155,9 @@ type
   end;
 
   { resolving hostnames }
+  EIdStackError = class (EIdException);
+  EIdIPVersionUnsupported = class (EIdStackError);
+
   EIdResolveError = class(EIdSocketError);
   EIdReverseResolveError = class(EIdSocketError);
 
@@ -210,6 +213,7 @@ type
   protected
     FLocalAddresses: TStrings;
     //
+    procedure IPVersionUnsupported;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
 
@@ -413,6 +417,11 @@ constructor TIdStack.Create;
 begin
   // Here for .net
   inherited Create;
+end;
+
+procedure TIdStack.IPVersionUnsupported;
+begin
+  raise EIdIPVersionUnsupported.Create(RSIPVersionUnsupported);
 end;
 
 function TIdStack.Accept(ASocket: TIdStackSocketHandle; var VIP: string;

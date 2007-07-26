@@ -358,9 +358,9 @@ begin
       VIP := LEndPoint.Address.ToString();
       VPort := LEndPoint.Port;
       if Result.AddressFamily = AddressFamily.InterNetworkV6 then begin
-        VIPVersion = Id_IPv6;
+        VIPVersion := Id_IPv6;
       end else begin
-        VIPVersion = Id_IPv4;
+        VIPVersion := Id_IPv4;
       end;
     end else
     begin
@@ -388,9 +388,9 @@ begin
       VIP := LEndPoint.Address.ToString;
       VPort := LEndPoint.Port;
       if ASocket.AddressFamily = AddressFamily.InterNetworkV6 then begin
-        VIPVersion = Id_IPv6;
+        VIPVersion := Id_IPv6;
       end else begin
-        VIPVersion = Id_IPv4;
+        VIPVersion := Id_IPv4;
       end;
     end else begin
       IPVersionUnsupported;
@@ -416,9 +416,9 @@ begin
       VIP := LEndPoint.Address.ToString;
       VPort := LEndPoint.Port;
       if ASocket.AddressFamily = AddressFamily.InterNetworkV6 then begin
-        VIPVersion = Id_IPv6;
+        VIPVersion := Id_IPv6;
       end else begin
-        VIPVersion = Id_IPv4;
+        VIPVersion := Id_IPv4;
       end;
     end else begin
       IPVersionUnsupported;
