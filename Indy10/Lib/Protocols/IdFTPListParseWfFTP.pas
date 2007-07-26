@@ -30,6 +30,7 @@ unit IdFTPListParseWfFTP;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -100,15 +101,14 @@ uses
 
 type
   TIdWfFTPFTPListItem = class(TIdOwnerFTPListItem)
-  protected
   end;
 
   TIdFTPLPWfFTP = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function IsHeader(const AData: String): Boolean;  override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function IsHeader(const AData: String): Boolean; override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
@@ -129,21 +129,25 @@ begin
 end;
 
 class function TIdFTPLPWfFTP.IsFooter(const AData: String): Boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
-  Result := (IndyPos('bytes - Total size',AData)>1) or
-    (IndyPos('bytes - Contiguous free space',AData)>1) or
-    (IndyPos('bytes - Available free space',AData)>1);
-  if Result = False then
+  Result := (IndyPos('bytes - Total size', AData) > 1) or            {do not localize}
+            (IndyPos('bytes - Contiguous free space', AData) > 1) or {do not localize}
+            (IndyPos('bytes - Available free space', AData) > 1);    {do not localize}
+  if not Result then
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AData,s);
+      SplitColumns(AData, s);
       if s.Count = 6 then
       begin
-        Result := (s[0] = 'File') and (s[1]='Name') and
-          (s[2]='Size') and (s[3]='Date') and
-          (s[4]='Day') and (s[5]='Time');
+        Result := (s[0] = 'File') and {do not localize}
+                  (s[1] = 'Name') and {do not localize}
+                  (s[2] = 'Size') and {do not localize}
+                  (s[3] = 'Date') and {do not localize}
+                  (s[4] = 'Day') and {do not localize}
+                  (s[5] = 'Time');   {do not localize}
       end;
     finally
       FreeAndNil(s);
@@ -152,30 +156,30 @@ begin
 end;
 
 class function TIdFTPLPWfFTP.IsHeader(const AData: String): Boolean;
-begin                         //  1234567890123456
+begin
   Result := TextStartsWith(AData, ' Volume - drive ') or TextStartsWith(AData, ' Directory of ');  {Do not translate}
 end;
 
-class function TIdFTPLPWfFTP.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPWfFTP.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdWfFTPFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPWfFTP.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LLine : String;
+var
+  LLine : String;
 begin
   Result := True;
   //we'll assume that this is flat - not unusual in some routers
   AItem.ItemType := ditFile;
-///config               50140  04/20/98  Mon.    22:08:01
+  //config               50140  04/20/98  Mon.    22:08:01
   LLine := AItem.Data;
   //file name
   AItem.FileName := Fetch(LLine);
   //size
   LLine := TrimLeft(LLine);
-  AItem.Size := IndyStrToInt64(Fetch(LLine),0);
+  AItem.Size := IndyStrToInt64(Fetch(LLine), 0);
   // date
   LLine := TrimLeft(LLine);
   AItem.ModifiedDate := DateMMDDYY(Fetch(LLine));
@@ -191,4 +195,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPWfFTP);
 finalization
   UnRegisterFTPListParser(TIdFTPLPWfFTP);
+
 end.

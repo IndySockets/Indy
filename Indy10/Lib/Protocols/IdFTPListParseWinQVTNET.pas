@@ -38,6 +38,7 @@
 unit IdFTPListParseWinQVTNET;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -57,11 +58,11 @@ type
 
   TIdFTPLPWinQVNet = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -73,23 +74,26 @@ uses
 { TIdFTPLPWinQVNet }
 
 class function TIdFTPLPWinQVNet.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LData : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LData : String;
 begin
   Result := False;
 
-  if AListing.Count >0 then
- {
+  if AListing.Count > 0 then
+  {
   test.txt                        0  10-23-2003 01:01
   123456789012345678901234567890123456789012345678901234567890
            1         2         3         4         5         6
   }
   begin
     LData := AListing[0];
-    Result := (Copy(LData,38,1)='-') and (Copy(LData,41,1)='-') and
-              (Copy(LData,49,1)=':') and
-              IsMMDDYY(Copy(LData,36,10),'-') and
-              (Copy(LData,46,1)=' ') and IsHHMMSS(Copy(LData,47,5),':');
+    Result := (Copy(LData, 38, 1) = '-') and         {do not localize}
+              (Copy(LData, 41, 1) = '-') and         {do not localize}
+              (Copy(LData, 49, 1) = ':') and         {do not localize}
+              IsMMDDYY(Copy(LData, 36, 10), '-') and {do not localize}
+              (Copy(LData, 46, 1) = ' ') and         {do not localize}
+              IsHHMMSS(Copy(LData, 47, 5), ':');     {do not localize}
   end;
 end;
 
@@ -98,22 +102,21 @@ begin
   Result := 'WinQVT/NET'; {do not localize}
 end;
 
-class function TIdFTPLPWinQVNet.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPWinQVNet.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdWinQVNetFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPWinQVNet.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
+var
+  LBuf : String;
 begin
   //filename (note that it can contain spaces on WinNT with my test case
   AItem.FileName := ExtractQVNETFileName(AItem.Data);
   LBuf := AItem.Data;
   //item type
-  if (IndyPos('/',Copy(LBuf, 1, 13)) > 0) then
-  begin
+  if IndyPos('/', Copy(LBuf, 1, 13)) > 0 then begin {do not localize}
     AItem.ItemType := ditDirectory;
   end;
   IdDelete(LBuf, 1, 13);
@@ -133,4 +136,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPWinQVNet);
 finalization
   UnRegisterFTPListParser(TIdFTPLPWinQVNet);
+
 end.
