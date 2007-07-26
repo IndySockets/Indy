@@ -45,7 +45,9 @@
 unit IdFTPListParseBullGCOS8;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -55,10 +57,10 @@ type
   TIdFTPLPGOS8 = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -69,35 +71,37 @@ uses
 { TIdFTPLPGOS8 }
 
 class function TIdFTPLPGOS8.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LData : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LData : String;
 begin
-  Result := False;
-  if AListing.Count > 0 then
   {
   d rwx rwx ---           0 02/25/98           ftptest2      catalog1
   - rwx rwx ---        1280 05/06/98 10:12:10  uid           testbcd
   12345678901234567890123456789012345678901234567890123456789012345678901234567890
            1         2         3         4         5         6         7         8
   }
+  Result := False;
+  if AListing.Count > 0 then
   begin
     LData := AListing[0];
-    Result := (Length(LData)>59) and
+    Result := (Length(LData) > 59) and
       (CharIsInSet(LData, 1, 'd-')) and    {Do not Localize}
-      (LData[2]=' ') and
+      (LData[2] = ' ') and
       (CharIsInSet(LData, 3, 'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 4, 'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 5, 'tsrwx-')) and    {Do not Localize}
-      (LData[6]=' ') and
+      (LData[6] = ' ') and
       (CharIsInSet(LData, 7, 'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 8, 'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 9, 'tsrwx-')) and    {Do not Localize}
-      (LData[10]=' ') and
+      (LData[10] = ' ') and
       (CharIsInSet(LData, 11,'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 12,'tsrwx-')) and    {Do not Localize}
       (CharIsInSet(LData, 13,'tsrwx-')) and    {Do not Localize}
-      (LData[14]=' ') and
-      IsNumeric(LData[25]) and (LData[26]=' ');
+      (LData[14] = ' ') and
+      IsNumeric(LData[25]) and
+      (LData[26] = ' ');
   end;
 end;
 
@@ -106,8 +110,7 @@ begin
   Result := 'Bull GCOS8'; {do not localize}
 end;
 
-class function TIdFTPLPGOS8.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPGOS8.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdFTPLPGOS8ListItem.Create(AOwner);
 end;
@@ -122,18 +125,16 @@ class function TIdFTPLPGOS8.ParseLine(const AItem: TIdFTPListItem;
 //                12345678901                    12345678901234
 //  12345678901234567890123456789012345678901234567890123456789012345678901234567890
 //           1         2         3         4         5         6         7         8
-var LBuf : String;
+var
+  LBuf : String;
   LI : TIdUnixPermFTPListItem;
 begin
   LI := AItem as TIdFTPLPGOS8ListItem;
-  if Length(AItem.Data)>0 then
+  if Length(AItem.Data) > 0 then
   begin
-    if LI.Data[1] = 'd' then
-    begin
+    if LI.Data[1] = 'd' then begin
       LI.ItemType := ditDirectory;
-    end
-    else
-    begin
+    end else begin
       LI.ItemType := ditFile;
     end;
 
@@ -144,15 +145,12 @@ begin
     LI.UnixGroupPermissions := Copy(AItem.Data, 7, 3);
     LI.UnixOtherPermissions := Copy(AItem.Data, 11, 3);
     LI.PermissionDisplay    := Copy(AItem.Data, 1, 13);
-
     LI.Size := IndyStrToInt64(Copy(AItem.Data, 15, 11), 0);
-
-    LI.OwnerName := Trim(Copy(AItem.Data,46,14));
+    LI.OwnerName := Trim(Copy(AItem.Data, 46, 14));
 
     LI.ModifiedDate := DateMMDDYY(Copy(AItem.Data, 27, 8));
     LBuf := Copy(AItem.Data, 36, 8);
-    if Length(Trim(LBuf)) > 0 then
-    begin
+    if Length(Trim(LBuf)) > 0 then begin
       LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LBuf);
     end;
   end;
