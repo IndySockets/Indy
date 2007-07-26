@@ -68,6 +68,7 @@ unit IdFTPListParseVMS;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -102,15 +103,15 @@ type
 
   TIdFTPLPVMS = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsVMSHeader(const AData: String): Boolean;
     class function IsVMSFooter(const AData: String): Boolean;
     class function IsContinuedLine(const AData: String): Boolean;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
 implementation
@@ -122,9 +123,10 @@ uses
 { TIdFTPLPVMS }
 
 class function TIdFTPLPVMS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LData : String;
-   i : Integer;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LData : String;
+  i : Integer;
 begin
   Result := False;
     for i := 0 to AListing.Count - 1 do
@@ -132,7 +134,7 @@ begin
       if AListing[i] <> '' then
       begin
         LData := AListing[i];
-        Result := (Length(LData)>1);
+        Result := Length(LData) > 1;
         if Result then
         begin
           Result := IsVMSHeader(LData);
@@ -140,11 +142,11 @@ begin
           if not Result then
           begin
             LData := Fetch(LData);
-            Fetch(LData,';');
+            Fetch(LData, ';');  {do not localize}
             Result := IsNumeric(LData);
           end;
         end;
-        break;
+        Break;
       end;
     end;
 end;
@@ -156,175 +158,162 @@ end;
 
 class function TIdFTPLPVMS.IsContinuedLine(const AData: String): Boolean;
 begin
-  Result := (AData <> '') and (AData[1] = ' ')
-    and (IndyPos(';', AData) = 0 );
+  Result := TextStartsWith(AData, ' ') and (IndyPos(';', AData) = 0); {do not localize}
 end;
 
 class function TIdFTPLPVMS.IsVMSFooter(const AData: String): Boolean;
-var LData : String;
-//The bottum banner may be in the following forms:
-//Total of 1 file, 0 blocks.
-//Total of 6 Files, 1582 Blocks.
-//Grand total of 87 directories, 2593 files, 2220036 blocks.
-//*.*;               <%RMS-E-FNF, file not found>
+var
+  LData : String;
 begin
+  //The bottum banner may be in the following forms:
+  //Total of 1 file, 0 blocks.
+  //Total of 6 Files, 1582 Blocks.
+  //Grand total of 87 directories, 2593 files, 2220036 blocks.
+  //*.*;               <%RMS-E-FNF, file not found>
+
   //VMS returns TOTAL at the end.  We test for "blocks." at the end of the line
   //so we don't break something with another parser.
   LData := UpperCase(AData);
-  Result := (IndyPos('TOTAL OF ', LData) = 1) {do not localize}
-         or (IndyPos('GRAND TOTAL OF ', LData )=1); {do not localize}
+  Result := TextStartsWith(LData, 'TOTAL OF ') or {do not localize}
+            TextStartsWith(LData, 'GRAND TOTAL OF '); {do not localize}
   if Result then
   begin
     Result := (IndyPos(' BLOCK', LData) > 9) and    {do not localize}
-            (RightStr(AData,1) = '.') and
-            (IndyPos(' FILE', LData) > 9);        {do not localize}
-    if not Result then
-    begin
-      Result := Fetch(LData)='*.*;';
+              TextEndsWith(AData, '.') and          {do not localize}
+              (IndyPos(' FILE', LData) > 9);        {do not localize}
+    if not Result then begin
+      Result := Fetch(LData) = '*.*;';              {do not localize}
     end;
   end;
 end;
 
 class function TIdFTPLPVMS.IsVMSHeader(const AData: String): Boolean;
 begin
-  Result := (RightStr(AData,1)=']') and  {Do not translate}
-           (IndyPos(':[',AData)>0);          {Do not translate}
+  Result := TextEndsWith(AData, ']') and  {Do not localize}
+            (IndyPos(':[', AData) > 0);   {Do not localize}
 end;
 
-class function TIdFTPLPVMS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPVMS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdVMSFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPVMS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-{
-         1         2         3         4         5         6
-1234567890123456789012345678901234567890123456789012345678901234567890
-BILF.C;2                13  5-JUL-1991 12:00 [1,1] (RWED,RWED,RE,RE)
-
-
- and non-MutliNet VMS:
-
-CII-MANUAL.TEX;1  213/216  29-JAN-1996 03:33:12  [ANONYMOU,ANONYMOUS]   (RWED,RWED,,)
-
-or possibly VMS TCPware V5.5-3
-
-.WELCOME;1                 2  13-FEB-2002 23:32:40.47
-}
-
-var LBuffer, LBuf2 : String;
-    LLine : String;
-    LDay, LMonth, LYear : Integer;
-//    LHour, LMinute, LSec : Integer;
-    LCols : TStrings;
-    LOwnerIdx : Integer;
-    LVMSError : Boolean;
+var
+  LBuffer, LBuf2, LLine : String;
+  LDay, LMonth, LYear : Integer;
+  //LHour, LMinute, LSec : Integer;
+  LCols : TStrings;
+  LOwnerIdx : Integer;
+  LVMSError : Boolean;
   LI : TIdVMSFTPListItem;
-
 begin
+  {
+           1         2         3         4         5         6
+  1234567890123456789012345678901234567890123456789012345678901234567890
+  BILF.C;2                13  5-JUL-1991 12:00 [1,1] (RWED,RWED,RE,RE)
+
+
+   and non-MutliNet VMS:
+
+  CII-MANUAL.TEX;1  213/216  29-JAN-1996 03:33:12  [ANONYMOU,ANONYMOUS]   (RWED,RWED,,)
+
+  or possibly VMS TCPware V5.5-3
+
+  .WELCOME;1                 2  13-FEB-2002 23:32:40.47
+  }
   LI := AItem as TIdVMSFTPListItem;
   LVMSError := False;
+
+  LLine := LI.Data;
+  //File Name
+  //We do this in a roundabout way because spaces in VMS files may actually
+  //be legal and that throws of a typical non-position based column parser.
+  //this assumes that the file contains a ";".  In VMS, this separates the name
+  //from the version number.
+  LBuffer := Fetch(LLine, ';'); {do not localize}
+  LI.LocalFileName := LowerCase(LBuffer);
+  LBuf2 := Fetch(LLine);
+  LI.Version := IndyStrToInt(LBuf2, 0);
+  LBuffer := LBuffer + ';' + LBuf2; {do not localize}
+
+  //Dirs have to be processed differently then
+  //files because a version mark and .DIR exctension
+  //are not used to CWD into a subdir although they are
+  //listed in a dir listed.
+  if (IndyPos('.DIR;', LBuffer) > 0) then {do not localize}
+  begin
+    AItem.ItemType := ditDirectory;
+    //note that you can NOT simply do a Fetch('.') to extract the dir name
+    //you use with a CD because the period is also a separator between pathes
+    //
+    //e.g.
+    //
+    //[VMSSERV.FILES]ALARM.DIR;1      1/3          5-MAR-1993 18:09
+    if IndyPos(PATH_FILENAME_SEP_VMS, LBuffer) = 0 then begin
+      LBuf2 := '';
+    end else begin
+      LBuf2 := Fetch(LBuffer, PATH_FILENAME_SEP_VMS) + PATH_FILENAME_SEP_VMS; {Do not localize}
+    end;
+    AItem.FileName := LBuf2 + Fetch(LBuffer, '.'); {do not localize}
+    AItem.LocalFileName := LowerCase(AItem.FileName);
+  end else
+  begin
+    AItem.ItemType := ditFile;
+    AItem.FileName := LBuffer;
+  end;
+  if APath <> '' then begin
+    AItem.FileName := APath + AItem.FileName;
+  end;
+
   LCols := TStringList.Create;
   try
-    LLine := LI.Data;
-    //File Name
-    //We do this in a roundabout way because spaces in VMS files may actually
-    //be legal and that throws of a typical non-position based column parser.
-    //this assumes that the file contains a ";".  In VMS, this separates the name
-    //from the version number.
-    LBuffer := Fetch(LLine,';');
-    LI.LocalFileName := LowerCase(LBuffer);
-    LBuf2 := Fetch(LLine);
-    LI.Version := IndyStrToInt(LBuf2,0);
-    LBuffer := LBuffer + ';'+ LBuf2;
-
-    //Dirs have to be processed differently then
-    //files because a version mark and .DIR exctension
-    //are not used to CWD into a subdir although they are
-    //listed in a dir listed.
-    if (IndyPos('.DIR;', LBuffer) > 0) then {do not localize}
-    begin
-      AItem.ItemType := ditDirectory;
-      //note that you can NOT simply do a Fetch('.') to extract the dir name
-      //you use with a CD because the period is also a separator between pathes
-      //
-      //e.g.
-      //
-      //[VMSSERV.FILES]ALARM.DIR;1      1/3          5-MAR-1993 18:09
-      if IndyPos(PATH_FILENAME_SEP_VMS,LBuffer)=0 then
-      begin
-        LBuf2 := '';
-      end
-      else
-      begin
-        LBuf2 := Fetch(LBuffer,PATH_FILENAME_SEP_VMS) + PATH_FILENAME_SEP_VMS; {Do not localize}
-      end;
-      AItem.FileName := LBuf2 + Fetch(LBuffer,'.');
-      AItem.LocalFileName := LowerCase(AItem.FileName);
-    end
-    else
-    begin
-      AItem.ItemType := ditFile;
-      AItem.FileName := LBuffer;
-    end;
-    if APath<>'' then
-    begin
-      AItem.FileName := APath + AItem.FileName;
-    end;
-    SplitColumns(LLine,LCols);
+    SplitColumns(LLine, LCols);
     LOwnerIdx := 3;
     //if this isn't numeric, there may be an error that is
     //is reported in the File list.  Do not parse the line further.
-    if (LCols.Count >0) then
+    if LCols.Count > 0 then
     begin
-      if (IsNumeric(LCols[0])) then
+      if IsNumeric(LCols[0]) then
       begin
         //File Size
         LBuffer := LCols[0];
-        LI.NumberBlocks :=  IndyStrToInt(LBuffer,0);
+        LI.NumberBlocks :=  IndyStrToInt(LBuffer, 0);
         LI.BlockSize := VMS_BLOCK_SIZE;
-        LI.Size := IndyStrToInt(LBuffer,0)* VMS_BLOCK_SIZE; //512 is the size of a VMS block
-      end
-      else
+        LI.Size := IndyStrToInt(LBuffer, 0) * VMS_BLOCK_SIZE; //512 is the size of a VMS block
+      end else
       begin
-      //on the UCX VMS server, the file size might not be reported.  Probably the file owner
-        if LCols[0][1]<>'[' then
+        //on the UCX VMS server, the file size might not be reported.  Probably the file owner
+        if not TextStartsWith(LCols[0], '[') then {do not localize}
         begin
-          if IsNumeric(LCols[0][1])=False then
+          if not IsNumeric(LCols[0][1]) then
           begin
-          //the server probably reported an error in the FTP list such as no permission
-          //we need to stop right there.
+            //the server probably reported an error in the FTP list such as no permission
+            //we need to stop right there.
             LVMSError := True;
             AItem.SizeAvail := False;
             AItem.ModifiedAvail := False;
           end;
-        end
-        else
-        begin
+        end else begin
           LOwnerIdx := 0;
         end;
       end;
-      if LVMSError = False then
+      if not LVMSError then
       begin
         if LOwnerIdx > 0 then
         begin
           //Date
-          if (LCols.Count >1) then
+          if LCols.Count > 1 then
           begin
-
             LBuffer := LCols[1];
-            LDay := IndyStrToInt(Fetch(LBuffer,'-'),1);
-            LMonth := StrToMonth( Fetch ( LBuffer,'-' )  );
-
-            LYear := IndyStrToInt( Fetch (LBuffer),1989);
-
-            LI.ModifiedDate := EncodeDate( LYear,LMonth,LDay );
+            LDay := IndyStrToInt(Fetch(LBuffer, '-'), 1); {do not localize}
+            LMonth := StrToMonth(Fetch(LBuffer, '-')); {do not localize}
+            LYear := IndyStrToInt(Fetch(LBuffer), 1989);
+            LI.ModifiedDate := EncodeDate(LYear, LMonth, LDay);
           end;
-
           //Time
-          if (LCols.Count >2) then
+          if LCols.Count > 2 then
           begin
             //Modified Time of Day
             //Some dir listings might be missing the time
@@ -332,12 +321,9 @@ begin
             //
             //vms_dir_2.DIR;1  1 19-NOV-2001 [root,root] (RWE,RWE,RE,RE)
 
-            if IndyPos(':',LCols[2])=0 then
-            begin
+            if IndyPos(':', LCols[2]) = 0 then begin {do not localize}
               Dec(LOwnerIdx);
-            end
-            else
-            begin
+            end else begin
               LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[2]);
             end;
           end;
@@ -346,37 +332,38 @@ begin
         //This is in the order of Group/Owner
         //See:
         // http://seqaxp.bio.caltech.edu/www/vms_beginners_faq.html#FILE00
-        if (LCols.Count >LOwnerIdx) then
+        if LCols.Count > LOwnerIdx then
         begin
           LBuffer := LCols[LOwnerIdx];
-          Fetch(LBuffer,'[');
+          Fetch(LBuffer, '['); {do not localize}
           LBuffer := Fetch(LBuffer,']');
-          LI.GroupName := Trim(Fetch(LBuffer,','));
-          LI.OwnerName := Trim(LBuffer);
+          LI.GroupName := Trim(Fetch(LBuffer, ',')); {do not localize}
+          LI.OwnerName := Trim(LBuffer); {do not localize}
         end;
         //Protections
-        if (LCols.Count >LOwnerIdx+1) then
+        if LCols.Count > (LOwnerIdx+1) then
         begin
           LBuffer := LCols[LOwnerIdx+1];
-          Fetch(LBuffer,'(');
-          LBuffer := Fetch(LBuffer,')');
-          LI.PermissionDisplay := '('+LBuffer+')';
-          LI.VMSSystemPermissions := Trim(Fetch(LBuffer,','));
-          LI.VMSOwnerPermissions := Trim(Fetch(LBuffer,','));
-          LI.VMSGroupPermissions := Trim(Fetch(LBuffer,','));
+          Fetch(LBuffer, '('); {do not localize}
+          LBuffer := Fetch(LBuffer, ')'); {do not localize}
+          LI.PermissionDisplay := '(' + LBuffer + ')'; {do not localize}
+          LI.VMSSystemPermissions := Trim(Fetch(LBuffer, ',')); {do not localize}
+          LI.VMSOwnerPermissions := Trim(Fetch(LBuffer, ',')); {do not localize}
+          LI.VMSGroupPermissions := Trim(Fetch(LBuffer, ',')); {do not localize}
           LI.VMSWorldPermissions := Trim(LBuffer);
         end;
       end;
     end;
   finally
-    LCols.Free;
+    FreeAndNil(LCols);
   end;
   Result := True;
 end;
 
 class function TIdFTPLPVMS.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var i : Integer;
+  ADir: TIdFTPListItems): Boolean;
+var
+  i : Integer;
   LItem : TIdFTPListItem;
   LStartLine, LEndLine : Integer;
   LRootPath : String; //needed for recursive dir listings "DIR [...]"
@@ -388,15 +375,13 @@ begin
   banner
   }
   LStartLine := 0;
-   LRelPath := '';
-  LEndLine := AListing.Count -1;
+  LRelPath := '';
+  LEndLine := AListing.Count-1;
   for i := 0 to LEndLine do
   begin
-    if IsWhiteString(AListing[i]) then
-    begin
-       Inc(LStartLine);
-    end
-    else
+    if IsWhiteString(AListing[i]) then begin
+      Inc(LStartLine);
+    end else
     begin
       if IsVMSHeader(AListing[i]) then
       begin
@@ -410,42 +395,40 @@ begin
         //Directory ANONYMOUS_ROOT:[000000.VMS-FREEWARE.NARNIA.COM]
         // then result = [.COM]
 
-        LRootPath := Fetch(LRootPath,PATH_FILENAME_SEP_VMS)+'.';
+        LRootPath := Fetch(LRootPath, PATH_FILENAME_SEP_VMS) + '.'; {do not localize}
         Inc(LStartLine);
       end;
-      break;
+      Break;
     end;
   end;
   //find the end of our parsing
   for i := LEndLine downto LStartLine do
   begin
-    if IsWhiteString(AListing[i]) or
-      (IsVMSFooter(AListing[i])) then
-    begin
+    if IsWhiteString(AListing[i]) or IsVMSFooter(AListing[i]) then begin
       Dec(LEndLine);
-    end
-    else
-    begin
-      break;
+    end else begin
+      Break;
     end;
   end;
   for i := LStartLine to LEndLine do
   begin  
     if not IsWhiteString(AListing[i]) then
     begin
-      if  IsVMSHeader(AListing[i]) then
+      if IsVMSHeader(AListing[i]) then
       begin
         //+1 is used because there's a period that we are dropping and then adding back
-        LRelPath := Copy(AListing[i],Length(LRootPath)+1,Length(AListing[i]));
-        LRelPath := VMS_RELPATH_PREFIX+ LRelPath;
+        LRelPath := Copy(AListing[i], Length(LRootPath)+1, MaxInt);
+        LRelPath := VMS_RELPATH_PREFIX + LRelPath;
       end
-      else
+      else if not IsContinuedLine(AListing[i]) then //needed because some VMS computers return entries with multiple lines
       begin
-        if (IsContinuedLine(AListing[i]) = False ) then //needed because some VMS computers return entries with multiple lines
+        LItem := MakeNewItem(ADir);
+        LItem.Data := UnfoldLines(AListing[i], i, AListing);
+        Result := ParseLine(LItem, LRelPath);
+        if not Result then
         begin
-          LItem := MakeNewItem(ADir);
-          LItem.Data := UnfoldLines(AListing[i],i,AListing);
-          ParseLine(LItem, LRelPath);
+          FreeAndNil(LItem);
+          Exit;
         end;
       end;
     end;
@@ -457,4 +440,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPVMS);
 finalization
   UnRegisterFTPListParser(TIdFTPLPVMS);
+
 end.
