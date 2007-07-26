@@ -307,7 +307,7 @@ begin
   //Note that spaces are illegal in MVS file names (Data set namess)
   //http://www.snee.com/bob/opsys/part6mvs.pdf
   //but for filenames enclosed in '', we should tolorate spaces.
-  if (AItem.Data <> '') and (TextEndsWith(AItem.Data, '''') then
+  if (AItem.Data <> '') and (TextEndsWith(AItem.Data, '''')) then
   begin
     i := IndyPos('''', AItem.Data)+1;
     AItem.FileName := Copy(AItem.Data, i, Length(AItem.Data)-i-1);
