@@ -847,7 +847,7 @@ type
     procedure SendPassive(var VIP: string; var VPort: TIdPort);
     procedure SendPort(AHandle: TIdSocketHandle); overload;
     procedure SendPort(const AIP : String; const APort : TIdPort); overload;
-    procedure ParseEPSV(const AReply : String; var VIP : String; VPort : TIdPort);
+    procedure ParseEPSV(const AReply : String; var VIP : String; var VPort : TIdPort);
     //These two are for RFC 2428.txt
     procedure SendEPort(AHandle: TIdSocketHandle); overload;
     procedure SendEPort(const AIP : String; const APort : TIdPort; const AIPVersion : TIdIPVersion); overload;
@@ -2496,7 +2496,7 @@ begin
   FUseExtensionDataPort := AValue;
 end;
 
-procedure TIdFTP.ParseEPSV(const AReply : String; var VIP : String; VPort : TIdPort);
+procedure TIdFTP.ParseEPSV(const AReply : String; var VIP : String; var VPort : TIdPort);
 var
   bLeft, bRight, LPort: Integer;
   delim : Char;
