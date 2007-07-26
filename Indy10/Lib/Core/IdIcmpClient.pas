@@ -153,7 +153,7 @@ type
     FOnReply: TOnReplyEvent;
     FReplydata: String;
     //
-    {$IFNDEF DOTNET2}
+    {$IFNDEF DOTNET1}
     function DecodeIPv6Packet(BytesRead: LongWord): Boolean;
     {$ENDIF}
     function DecodeIPv4Packet(BytesRead: LongWord): Boolean;
@@ -161,7 +161,7 @@ type
     procedure DoReply; virtual;
     procedure GetEchoReply;
     procedure InitComponent; override;
-    {$IFNDEF DOTNET2}
+    {$IFNDEF DOTNET1}
     procedure PrepareEchoRequestIPv6(const ABuffer: String);
     {$ENDIF}
     procedure PrepareEchoRequestIPv4(const ABuffer: String);
@@ -192,7 +192,7 @@ type
     property ReplyStatus;
   published
     property Host;
-    {$IFNDEF DOTNET2}
+    {$IFNDEF DOTNET1}
     property IPVersion;
     {$ENDIF}
     property PacketSize;
@@ -210,7 +210,7 @@ uses
 
 procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
 begin
-  {$IFNDEF DOTNET2}
+  {$IFNDEF DOTNET1}
   if IPVersion = Id_IPv4 then begin
     PrepareEchoRequestIPv4(ABuffer);
   end else begin
@@ -307,7 +307,7 @@ begin
   end else
   begin
     FReplyStatus.ReplyStatusType := rsError;
-    {$IFNDEF DOTNET2}
+    {$IFNDEF DOTNET1}
     if IPVersion = Id_IPv6 then begin
       Result := DecodeIPv6Packet(BytesRead);
       Exit;
@@ -375,7 +375,7 @@ begin
   inherited InitComponent;
   FReplyStatus:= TReplyStatus.Create;
   FProtocol := Id_IPPROTO_ICMP;
-  {$IFNDEF DOTNET2}
+  {$IFNDEF DOTNET1}
   ProtocolIPv6 := Id_IPPROTO_ICMPv6;
   {$ENDIF}
   wSeqNo := 3489; // SG 25/1/02: Arbitrary Constant <> 0
@@ -625,11 +625,12 @@ begin
   end;
 end;
 
-{$IFNDEF DOTNET2}
-procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const Buffer: String);
+{$IFNDEF DOTNET1}
+procedure TIdCustomIcmpClient.PrepareEchoRequestIPv6(const ABuffer: String);
 var
   LIcmp : TIdicmp6_hdr;
-  LIdx : Integer;
+  LIdx : LongWord;
+  LLen : LongWord;
 begin
   SetLength(FBufIcmp, ICMP_MIN + SizeOf(LongWord) + FPacketSize);
   FillBytes(FBufIcmp, Length(FBufIcmp), 0);
@@ -646,8 +647,9 @@ begin
     LIcmp.WriteStruct(FBufIcmp, LIdx);
     CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
     Inc(LIdx, 4);
-    if Length(Buffer) > 0 then begin
-      CopyTIdString(Buffer, FBufIcmp, LIdx, Min(Length(Buffer), FPacketSize));
+    LLen := Length(ABuffer);
+    if LLen > 0 then begin
+      CopyTIdString(ABuffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);
@@ -656,7 +658,7 @@ end;
 
 function TIdCustomIcmpClient.DecodeIPv6Packet(BytesRead: LongWord): Boolean;
 var
-  LIdx : Integer;
+  LIdx : LongWord;
   LIcmp : TIdicmp6_hdr;
   RTTime : Cardinal;
   LActualSeqID : Word;
@@ -680,7 +682,7 @@ begin
       ICMP6_TIME_EXCEEDED        : FReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
       ICMP6_PARAM_PROB           : FReplyStatus.ReplyStatusType := rsErrorParameter;
     else
-      FReplyStatus.FReplyStatus  := rsError;
+      FReplyStatus.ReplyStatusType  := rsError;
     end;
     FReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
     FReplyStatus.MsgCode := LIcmp.icmp6_code;
