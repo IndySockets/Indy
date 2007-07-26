@@ -35,7 +35,9 @@
 unit IdFTPListParseCiscoIOS;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase,IdFTPListTypes;
@@ -51,12 +53,13 @@ uses
 
 type
   TIdCiscoIOSFTPListItem = class(TIdMinimalFTPListItem);
+
   TIdFTPLPCiscoIOS = class(TIdFTPLPNList)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -67,12 +70,12 @@ uses
 { TIdFTPLPCiscoIOS }
 
 class function TIdFTPLPCiscoIOS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 begin
   // Identifier obtained from
   // http://www.cisco.com/univercd/cc/td/doc/product/access/acs_serv/as5800/sc_3640/features.htm#xtocid210805
   // 1234567890
-   Result := (Copy(ASysDescript, 1, 10) = 'Cisco IOS ');  {do not localize}
+  Result := TextStartsWith(ASysDescript, 'Cisco IOS ');  {do not localize}
 end;
 
 class function TIdFTPLPCiscoIOS.GetIdent: String;
@@ -80,8 +83,7 @@ begin
   Result := 'Cisco IOS';  {do not localize}
 end;
 
-class function TIdFTPLPCiscoIOS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPCiscoIOS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdCiscoIOSFTPListItem.Create(AOwner);
 end;
