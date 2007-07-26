@@ -68,25 +68,28 @@
 unit IdFTPListParseTOPS20;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdTOPS20FTPListItem = class(TIdCreationDateFTPListItem);
+
   TIdFTPLPTOPS20 = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 const
-  TOPS20_VOLPATH_SEP = ':<';
-  TOPS20_DIRFILE_SEP = '>';
+  TOPS20_VOLPATH_SEP = ':<'; {do not localize}
+  TOPS20_DIRFILE_SEP = '>';  {do not localize}
 
 implementation
 
@@ -97,11 +100,11 @@ uses
 { TIdFTPLPTOPS20 }
 
 class function TIdFTPLPTOPS20.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : String;
   LParts : TStrings;
   i : Integer;
-
 begin
   s := ASysDescript;
   s := Fetch(s);
@@ -114,64 +117,57 @@ begin
     begin
       LParts := TStringList.Create;
       try
-        SplitColumnsNoTrim(AListing[0],LParts,',');
-
-        if LParts.Count >0 then
+        SplitColumnsNoTrim(AListing[0], LParts, ','); {do not localize}
+        if LParts.Count > 0 then
         begin
-          if PatternsInStr(';',LParts[0])=2 then
+          if PatternsInStr(';', LParts[0]) = 2 then {do not localize}
           begin
-
-            if LParts.Count >3 then
+            if LParts.Count > 3 then
             begin
               s := LParts[2];
 
-              Result := IsDDMonthYY(Fetch(s),'-');// and IsDDMonthYY(LParts[3],'-');
-              if Result then
-              begin
-                Result := IsHHMMSS(s,':');
+              Result := IsDDMonthYY(Fetch(s), '-'); {do not localize}
+              if Result then begin
+                Result := IsHHMMSS(s, ':'); {do not localize}
               end;
               s := LParts[3];
 
-              Result := IsDDMonthYY(Fetch(s),'-');// and IsDDMonthYY(LParts[3],'-');
-              if Result then
-              begin
-                Result := IsHHMMSS(s,':');
+              Result := IsDDMonthYY(Fetch(s), '-'); {do not localize}
+              if Result then begin
+                Result := IsHHMMSS(s, ':'); {do not localize}
               end;
             end;
           end;
-        {
-        maybe pattern like this:
-TOPS20:<ACCT>
-LOGIN.CMD.1
-MSGS.TXT.1
-        }
+          {
+          maybe pattern like this:
+          TOPS20:<ACCT>
+          LOGIN.CMD.1
+          MSGS.TXT.1
+          }
           s := AListing[0];
-          if IndyPos(TOPS20_VOLPATH_SEP,s) >0 then
+          if IndyPos(TOPS20_VOLPATH_SEP, s) >0 then
           begin
-            if IndyPos(TOPS20_VOLPATH_SEP,s) < IndyPos(TOPS20_DIRFILE_SEP,s) then
+            if IndyPos(TOPS20_VOLPATH_SEP, s) < IndyPos(TOPS20_DIRFILE_SEP, s) then
             begin
               Result := True;
-              for i := 1 to AListing.Count -1 do
+              for i := 1 to AListing.Count-1 do
               begin
                 LParts.Clear;
-                Result := IndyPos(' ',AListing[i])=0;
+                Result := IndyPos(' ', AListing[i]) = 0; {do not localize}
                 if Result then
                 begin
-                  SplitColumnsNoTrim(AListing[i],LParts,'.');
-                  if LParts.Count = 3 then
-                  begin
+                  SplitColumnsNoTrim(AListing[i], LParts, '.'); {do not localize}
+                  if LParts.Count = 3 then begin
                     Result := IsNumeric(LParts[2]);
                   end;
                 end;
-                if not result then
-                begin
-                  break;
+                if not Result then begin
+                  Break;
                 end;
               end;
             end;
           end;
         end;
-
       finally
         FreeAndNil(LParts);
       end;
@@ -184,16 +180,17 @@ begin
   Result := 'TOPS20'; {do not localize}
 end;
 
-class function TIdFTPLPTOPS20.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPTOPS20.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdTOPS20FTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPTOPS20.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
+var
+  LBuf : String;
   LI : TIdTOPS20FTPListItem;
+
 {
 Notes from the FTP Server greeting at toad.xkl.com
 
@@ -234,84 +231,77 @@ Notes from the FTP Server greeting at toad.xkl.com
 230- *.%.0
 }
   function StripBuild(const AFileName : String): String;
-  var LPos : Integer;
+  var
+    LPos : Integer;
   begin
-    LPos := RPos('.',AFileName,-1);
-    if LPos=0 then
-    begin
+    LPos := RPos('.', AFileName, -1); {do not localize}
+    if LPos = 0 then begin
       Result := AFileName;
-    end
-    else
-    begin
-      Result := Copy(AFileName,1,LPos-1);
+    end else begin
+      Result := Copy(AFileName, 1, LPos-1);
     end;
   end;
 
 begin
   LI := AItem as TIdTOPS20FTPListItem;
   LBuf := AItem.Data;
-  if (IndyPos(TOPS20_VOLPATH_SEP,LBuf)>0) and (IndyPos(TOPS20_DIRFILE_SEP,LBuf)=Length(LBuf)) then
+  if (IndyPos(TOPS20_VOLPATH_SEP, LBuf) > 0) and (IndyPos(TOPS20_DIRFILE_SEP, LBuf) = Length(LBuf)) then
   begin
-      //Tape and subdir should work for CD
-      //Note this is probably something like a "CD ." on other systems.
-      //From what I saw at one server, they had to give a list including
-      //subdirectories because the server never returned those.
-      AItem.FileName := LBuf;
-      //You can tree this like a directory.  It contains the device so it might
-      //look weird.
-      AItem.ItemType := ditDirectory;
-
-      //strip off device in and path suffix >
-      Fetch(LBuf,TOPS20_VOLPATH_SEP);
-      LBuf := Fetch(LBuf,TOPS20_DIRFILE_SEP);
-      AItem.LocalFileName := LowerCase(Fetch(LBuf,'.'));
-      AItem.SizeAvail := False;
-      AItem.ModifiedAvail := False;
-      Result := True;
-      Exit;
+    //Tape and subdir should work for CD
+    //Note this is probably something like a "CD ." on other systems.
+    //From what I saw at one server, they had to give a list including
+    //subdirectories because the server never returned those.
+    AItem.FileName := LBuf;
+    //You can tree this like a directory.  It contains the device so it might
+    //look weird.
+    AItem.ItemType := ditDirectory;
+    //strip off device in and path suffix >
+    Fetch(LBuf, TOPS20_VOLPATH_SEP);
+    LBuf := Fetch(LBuf, TOPS20_DIRFILE_SEP);
+    AItem.LocalFileName := LowerCase(Fetch(LBuf, '.'));
+    AItem.SizeAvail := False;
+    AItem.ModifiedAvail := False;
+    Result := True;
+    Exit;
   end;
-  if IndyPos('<',LBuf)=1 then
+  if TextStartsWith(LBuf, '<') then {do not localize}
   begin
-      //we may be dealing with a data format such as this:
-      //
-      //<ANONYMOUS>INSTALL.MEM.1;P775252;A,210,10-Apr-1990 13:17:41,10-Apr-1990 13:18:26,11-Jan-2003 11:34:26
-      AItem.FileName := Fetch(LBuf,';');
-      //P775252;
-      Fetch(LBuf,';');
-      //A,
-      Fetch(LBuf,',');
-      //210,
-      Fetch(LBuf,',');
-      //Creation Date - date - I think
-      LI.CreationDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
-      //creation date - time
-      LI.CreationDate := LI.CreationDate + IdFTPCommon.TimeHHMMSS(Trim(Fetch(LBuf,',')));
-      //Last modified - date
-      AItem.ModifiedDate := IdFTPCommon.DateDDStrMonthYY(Fetch(LBuf));
-      //Last modified - time
-      AItem.ModifiedDate := AItem.ModifiedDate + IdFTPCommon.TimeHHMMSS(Trim(LBuf));
-      //strip off path information and build no for file
-      LBuf := LowerCase(AItem.FileName);
-      Fetch(LBuf,TOPS20_DIRFILE_SEP);
-      if IndyPos('.DIRECTORY.',LBuf)>0 then
-      begin
-        AItem.ItemType := ditDirectory;
-        AItem.LocalFileName := Fetch(LBuf,'.');
-      end
-      else
-      begin
-        AItem.LocalFileName := StripBuild(LBuf);
-      end;
-  end
-  else
+    //we may be dealing with a data format such as this:
+    //
+    //<ANONYMOUS>INSTALL.MEM.1;P775252;A,210,10-Apr-1990 13:17:41,10-Apr-1990 13:18:26,11-Jan-2003 11:34:26
+    AItem.FileName := Fetch(LBuf, ';'); {do not localize}
+    //P775252;
+    Fetch(LBuf, ';'); {do not localize}
+    //A,
+    Fetch(LBuf, ','); {do not localize}
+    //210,
+    Fetch(LBuf, ','); {do not localize}
+    //Creation Date - date - I think
+    LI.CreationDate := DateDDStrMonthYY(Fetch(LBuf));
+    //creation date - time
+    LI.CreationDate := LI.CreationDate + TimeHHMMSS(Trim(Fetch(LBuf, ','))); {do not localize}
+    //Last modified - date
+    AItem.ModifiedDate := DateDDStrMonthYY(Fetch(LBuf));
+    //Last modified - time
+    AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Trim(LBuf));
+    //strip off path information and build no for file
+    LBuf := LowerCase(AItem.FileName);
+    Fetch(LBuf, TOPS20_DIRFILE_SEP);
+    if IndyPos('.DIRECTORY.', LBuf) > 0 then {do not localize}
+    begin
+      AItem.ItemType := ditDirectory;
+      AItem.LocalFileName := Fetch(LBuf, '.'); {do not localize}
+    end else begin
+      AItem.LocalFileName := StripBuild(LBuf);
+    end;
+  end else
   begin
     //That's right - it only returned the file name, no dates, no size, nothing else
     AItem.FileName := LBuf;
     AItem.LocalFileName := LowerCase(StripBuild(LBuf));
     AItem.ModifiedAvail := False;
     AItem.SizeAvail := False;
-    if IndyPos('.DIRECTORY.',LBuf)>0 then
-    begin
+    if IndyPos('.DIRECTORY.', LBuf) > 0 then begin {do not localize}
       AItem.ItemType := ditDirectory;
     end;
   end;
@@ -322,4 +312,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPTOPS20);
 finalization
   UnRegisterFTPListParser(TIdFTPLPTOPS20);
+
 end.
