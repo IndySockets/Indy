@@ -28,7 +28,7 @@
   Rev 1.4    2004.02.03 5:45:24 PM  czhower
   Name changes
 
-  Rev 1.3    10/19/2003 3:36:02 PM  DSiders
+    Rev 1.3    10/19/2003 3:36:02 PM  DSiders
   Added localization comments.
 
   Rev 1.2    4/7/2003 04:03:58 PM  JPMugaas
@@ -46,16 +46,18 @@
 unit IdFTPListParseMVS;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
-  This should work with IBM MVS, OS/390, and z/OS.
+This should work with IBM MVS, OS/390, and z/OS.
 
-  Note that in z/OS, there is no need for a parser for the HFS (hierarchical file
-  system) because the server would present a Unix-like list for that file system.
+Note that in z/OS, there is no need for a parser for the HFS (hierarchical file
+system) because the server would present a Unix-like list for that file system.
 }
 
 type
@@ -68,7 +70,7 @@ type
     FVolume : String;
     FUnit : String;
     FOrg : String; //data set organization
-        FMVSNumberExtents: Integer;
+    FMVSNumberExtents: Integer;
     FMVSNumberTracks: Integer;
   public
     constructor Create(AOwner: TCollection); override;
@@ -84,6 +86,7 @@ type
     property NumberExtents: Integer read FMVSNumberExtents write FMVSNumberExtents;
     property NumberTracks: Integer read FMVSNumberTracks write FMVSNumberTracks;
   end;
+
   TIdMVSJESFTPListItem = class(TIdOwnerFTPListItem)
   protected
     FMVSJobStatus : TIdJESJobStatus;
@@ -93,6 +96,7 @@ type
     property JobStatus : TIdJESJobStatus read FMVSJobStatus write FMVSJobStatus;
     property JobSpoolFiles : Integer read FMVSJobSpoolFiles write FMVSJobSpoolFiles;
   end;
+
   TIdMVSJESIntF2FTPListItem = class(TIdOwnerFTPListItem)
   protected
     FJobStatus : TIdJESJobStatus;
@@ -109,39 +113,42 @@ type
 
   TIdFTPLPMVS = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
+
   TIdFTPLPMVSPartitionedDataSet = class(TIdFTPListBaseHeader)
   protected
-    class function IsHeader(const AData: String): Boolean;  override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function IsHeader(const AData: String): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
+
   //Jes queues
   TIdFTPLPMVSJESInterface1 = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsMVS_JESNoJobsMsg(const AData: String): Boolean; virtual;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
+
   TIdFTPLPMVSJESInterface2 = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsMVS_JESIntF2Header(const AData: String): Boolean;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
 implementation
@@ -158,28 +165,27 @@ end;
 
 class function TIdFTPLPMVS.IsHeader(const AData: String): Boolean;
 //Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
-//Volume Unit  Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
-//Volume Unit     Date  Ext Used Recfm Lrecl BlkSz Dsorg Dsname
-var lvolp, lunp, lrefp, lextp, lusedp,
-    lrecp, lBlkSz, lDsorg, lDsnp : Integer;
-
-{Note that this one is a little more difficult because I could not find
- a MVS machine that accepts anonymous FTP.  So I have to do the best I can
- with some old posts where people had posted dir structures they got from FTP.}
+//Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+//Volume Unit       Date  Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+var
+  lvolp, lunp, lrefp, lextp, lusedp,
+  lrecp, lBlkSz, lDsorg, lDsnp : Integer;
 begin
-  lvolp := IndyPos('Volume',AData);  {Do not translate}
-  lunp := IndyPos('Unit',AData);    {Do not translate}
-  lrefp := IndyPos('Referred',AData);  {Do not translate}
-  if lrefp = 0 then
-  begin
-    lrefp := IndyPos('Date',AData);  {Do not translate}
+  {Note that this one is a little more difficult because I could not find
+  a MVS machine that accepts anonymous FTP.  So I have to do the best I can
+  with some old posts where people had posted dir structures they got from FTP.}
+  lvolp := IndyPos('Volume', AData);    {Do not translate}
+  lunp := IndyPos('Unit', AData);       {Do not translate}
+  lrefp := IndyPos('Referred', AData);  {Do not translate}
+  if lrefp = 0 then begin
+    lrefp := IndyPos('Date', AData);    {Do not translate}
   end;
-  lextp := IndyPos('Ext',AData);     {Do not translate}
-  lusedp := IndyPos('Used',AData);   {Do not translate}
-  lrecp := IndyPos('Lrecl',AData);   {Do not translate}
-  lBlkSz := IndyPos('BlkSz',AData);   {Do not translate}
-  lDsorg := IndyPos('Dsorg',AData);    {Do not translate}
-  lDsnp := IndyPos('Dsname',AData);   {Do not translate}
+  lextp := IndyPos('Ext', AData);       {Do not translate}
+  lusedp := IndyPos('Used', AData);     {Do not translate}
+  lrecp := IndyPos('Lrecl', AData);     {Do not translate}
+  lBlkSz := IndyPos('BlkSz', AData);    {Do not translate}
+  lDsorg := IndyPos('Dsorg', AData);    {Do not translate}
+  lDsnp := IndyPos('Dsname', AData);    {Do not translate}
   Result := (lvolp <> 0) and (lunp > lvolp) and
             (lrefp > lunp) and (lextp > lrefp) and
             (lusedp > lextp) and (lrecp > lusedp) and
@@ -187,8 +193,7 @@ begin
             (lDsnp > lDsorg);
 end;
 
-class function TIdFTPLPMVS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMVS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result :=  TIdMVSFTPListItem.Create(AOwner);
 end;
@@ -233,37 +238,33 @@ var
   i : Integer;
   s : TStrings;
   LI : TIdMVSFTPListItem;
-//NOTE:  File Size is not supported at all
-//because the file size is calculated with something like this:
-//      BlkSz * Blks/Trk * Trks
-//but you can not get MVS DEVINFO macro so you do not have enough information
-//to work with.
 begin
+  //NOTE:  File Size is not supported at all
+  //because the file size is calculated with something like this:
+  //      BlkSz * Blks/Trk * Trks
+  //but you can not get MVS DEVINFO macro so you do not have enough information
+  //to work with.
   AItem.ModifiedAvail := False;
   AItem.SizeAvail := False;
   LI := AItem as TIdMVSFTPListItem;
-  if IsMVSMigrated(AItem.Data) then
-  begin
+  if IsMVSMigrated(AItem.Data) then begin
     LI.Migrated := True;
   end;
-  if IsPseudoDir(AItem.Data) then
-  begin
+  if IsPseudoDir(AItem.Data) then begin
     LI.ItemType :=  ditDirectory;
   end;
   if CanGetAttributes(AItem.Data) then
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AItem.Data,s);
-      if s.Count >0 then
-      begin
+      SplitColumns(AItem.Data, s);
+      if s.Count > 0 then begin
         LI.Volume := s[0];
       end;
-      if s.Count >1 then
-      begin
+      if s.Count > 1 then begin
         LI.Units := s[1];
       end;
-      if s.Count >2 then
+      if s.Count > 2 then
       begin
         //Sometimes, the Referred Column will contain a date.
         //e.g. **NONE**
@@ -271,39 +272,31 @@ begin
         //URL: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
         if IsNumeric(s[2][1]) then
         begin
-          LI.ModifiedDate :=  MVSDate(s[2]);
-            LI.ModifiedAvail := True;
+          LI.ModifiedDate := MVSDate(s[2]);
+          LI.ModifiedAvail := True;
         end;
       end;
-      if s.Count >3 then
-      begin
-        LI.NumberExtents := IndyStrToInt(s[3],0);
+      if s.Count > 3 then begin
+        LI.NumberExtents := IndyStrToInt(s[3], 0);
       end;
-      if s.Count >4 then
-      begin
-        LI.NumberTracks := IndyStrToInt(s[4],0);
+      if s.Count >4 then begin
+        LI.NumberTracks := IndyStrToInt(s[4], 0);
       end;
-      if s.Count >5 then
-      begin
+      if s.Count > 5 then begin
         LI.RecFormat := s[5];
       end;
-      if s.Count >6 then
-      begin
-        LI.RecLength := IndyStrToInt(s[6],0);
+      if s.Count >6 then begin
+        LI.RecLength := IndyStrToInt(s[6], 0);
       end;
-      if s.Count >7 then
-      begin
-        LI.BlockSize := IndyStrToInt(s[7],0);
+      if s.Count > 7 then begin
+        LI.BlockSize := IndyStrToInt(s[7], 0);
       end;
-      if s.Count >8 then
+      if s.Count > 8 then
       begin
         LI.Org := s[8];
-        if (LI.Org = 'PO') then {do not localize}
-        begin
+        if LI.Org = 'PO' then begin {do not localize}
           LI.ItemType :=  ditDirectory;
-        end
-        else
-        begin
+        end else begin
           LI.ItemType :=  ditFile;
         end;
       end;
@@ -314,15 +307,14 @@ begin
   //Note that spaces are illegal in MVS file names (Data set namess)
   //http://www.snee.com/bob/opsys/part6mvs.pdf
   //but for filenames enclosed in '', we should tolorate spaces.
-  if (AItem.Data<>'') and (AItem.Data[Length(AItem.Data)]='''') then
+  if (AItem.Data <> '') and (TextEndsWith(AItem.Data, '''') then
   begin
-    i := IndyPos('''',AItem.Data)+1;
-    AItem.FileName := Copy(AItem.Data,i,Length(AItem.Data)-i-1);
-  end
-  else
+    i := IndyPos('''', AItem.Data)+1;
+    AItem.FileName := Copy(AItem.Data, i, Length(AItem.Data)-i-1);
+  end else
   begin
-    i := RPos(' ',AItem.Data) +1;
-    AItem.FileName := Copy(AItem.Data,i,Length(AItem.Data));
+    i := RPos(' ', AItem.Data)+1;
+    AItem.FileName := Copy(AItem.Data, i, MaxInt);
   end;
   Result := True;
 end;
@@ -334,29 +326,27 @@ begin
   Result := 'MVS:  Partitioned Data Set'; {do not localize}
 end;
 
-class function TIdFTPLPMVSPartitionedDataSet.IsHeader(
-  const AData: String): Boolean;
-//Name     VV.MM  Created     Changed     Size  Init   Mod   Id
-//
-//or
-//
-//Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode
-//if there are loaded moduals
-
-var LPName,
-  LPSize : Integer;
-
+class function TIdFTPLPMVSPartitionedDataSet.IsHeader( const AData: String): Boolean;
+var
+  LPName, LPSize : Integer;
 begin
+  //Name     VV.MM  Created     Changed     Size  Init   Mod   Id
+  //
+  //or
+  //
+  //Name      Size   TTR   Alias-of AC --------- Attributes --------- Amode Rmode
+  //if there are loaded moduals
   LPName := IndyPos('Name', AData); {do not localize}
   LPSize := IndyPos('Size', AData); {do not localize}
-  Result := (LPName>0) and (LPSize > LPName);
+  Result := (LPName > 0) and (LPSize > LPName);
 end;
 
-class function TIdFTPLPMVSPartitionedDataSet.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
+class function TIdFTPLPMVSPartitionedDataSet.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  s : TStrings;
 //MVS Particianed data sets must be treated differently than
 //the regular MVS catalog.
-var s : TStrings;
 
 //NOTE:  File Size is not supported at all.  Size is usually size in records, not bytes
 //  This is based on stuff at:
@@ -442,14 +432,13 @@ begin
   AItem.SizeAvail := False;
   s := TStringList.Create;
   try
-    SplitColumns(AItem.Data,s);
+    SplitColumns(AItem.Data, s);
     if s.Count > 0 then
     begin
       AItem.FileName := s[0];
       //in some particianed data sets, dates are missing.
-      if (s.Count > 7) and (s[3]<>'') and IsNumeric(s[3][1]) and (IndyPos('/',s[3])>0) then
+      if (s.Count > 7) and (s[3] <> '') and IsNumeric(s[3][1]) and (IndyPos('/', s[3]) > 0) then
       begin
-
         AItem.ModifiedDate := MVSDate(s[3]);
         //    Name     VV.MM  Created     Changed     Size  Init   Mod   Id
         //$README   01.10 89/04/19 94/12/15 18:55    90     1     0 EWZ
@@ -469,30 +458,26 @@ end;
 { TIdFTPLPMVSJESInterface1 }
 
 class function TIdFTPLPMVSJESInterface1.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : TStrings;
 begin
+  Result := False;
   if AListing.Count > 0 then
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0],s);
-      Result := (s.Count >2) and (PosInStrArray(Trim(s[2]),MVS_JES_Status)>-1);
-      if Result and (s.Count > 3) then
-      begin
-        Result := IsNumeric(s[3]) or (s[3][1]='-');
+      SplitColumns(AListing[0], s);
+      Result := (s.Count > 2) and (PosInStrArray(Trim(s[2]), MVS_JES_Status) > -1);
+      if Result and (s.Count > 3) then begin
+        Result := IsNumeric(s[3]) or (s[3][1] = '-');
       end;
-      if Result = False then
-      begin
+      if not Result then begin
         Result := IsMVS_JESNoJobsMsg(AListing[0]);
       end;
     finally
       FreeAndNil(s);
     end;
-  end
-  else
-  begin
-    Result := False;
   end;
 end;
 
@@ -501,32 +486,31 @@ begin
   Result := 'MVS:  JES Queue Interface 1';  {do not localize}
 end;
 
-class function TIdFTPLPMVSJESInterface1.IsMVS_JESNoJobsMsg(
-  const AData: String): Boolean;
+class function TIdFTPLPMVSJESInterface1.IsMVS_JESNoJobsMsg(const AData: String): Boolean;
 begin
   Result := (AData = 'No jobs found on JES queue'); {do not localize}
 end;
 
-class function TIdFTPLPMVSJESInterface1.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMVSJESInterface1.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdMVSJESFTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPMVSJESInterface1.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-{
-ALFREDCA  JOB03192  OUTPUT    3 Spool Files
-ALFREDCA  JOB03193  OUTPUT    0 Spool Files
-ALFREDCA  JOB03194  INPUT
-12345678901234567890123456789012345678901234567890
-         1         2         3         4         5
-#From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
-#Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
-}
-var LBuf : String;
+class function TIdFTPLPMVSJESInterface1.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  LBuf : String;
   LI : TIdMVSJESFTPListItem;
 begin
+  {
+  ALFREDCA  JOB03192  OUTPUT    3 Spool Files
+  ALFREDCA  JOB03193  OUTPUT    0 Spool Files
+  ALFREDCA  JOB03194  INPUT
+  12345678901234567890123456789012345678901234567890
+           1         2         3         4         5
+  #From: IBM Communications Server for OS/390 V2R10 TCP/IP Implementation Guide Volume 2: UNIX Applications
+  #Obtained at: http://www.redbooks.ibm.com/pubs/pdfs/redbooks/sg245228.pdf
+  }
   AItem.ModifiedAvail := False;
   AItem.SizeAvail := False;
   LI := AItem as TIdMVSJESFTPListItem;
@@ -535,9 +519,9 @@ begin
   LI.OwnerName := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
   //filename
-  LI.FileName  := Fetch(LBuf);
+  LI.FileName := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
-  case PosInStrArray (Fetch(LBuf),MVS_JES_Status) of
+  case PosInStrArray(Fetch(LBuf), MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;        // 'INPUT'  job received but not run yet
     1 : LI.JobStatus := IdJESHold;            // 'HELD'   job is in hold status
     2 : LI.JobStatus := IdJESRunning;         // 'ACTIVE' job is running
@@ -545,19 +529,20 @@ begin
   end;
   //spool file output if available
   LBuf := TrimLeft(LBuf);
-  LI.JobSpoolFiles := IndyStrToInt(Fetch(LBuf),0);
+  LI.JobSpoolFiles := IndyStrToInt(Fetch(LBuf), 0);
   Result := True;
 end;
 
 class function TIdFTPLPMVSJESInterface1.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var LItem : TIdFTPListItem;
+  ADir: TIdFTPListItems): Boolean;
+var
+  LItem : TIdFTPListItem;
   i : Integer;
 begin
   Result := False;
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
-    if IsMVS_JESNoJobsMsg(Alisting[0])=False then
+    if not IsMVS_JESNoJobsMsg(Alisting[0]) then
     begin
       for i := 0 to AListing.Count -1 do
       begin
@@ -565,8 +550,7 @@ begin
         LItem.Data := AListing[i];
         ParseLine(LItem);
       end;
-    end
-    else
+    end else
     begin
       Result := True;
     end;
@@ -576,11 +560,10 @@ end;
 { TIdFTPLPMVSJESInterface2 }
 
 class function TIdFTPLPMVSJESInterface2.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 begin
   Result := False;
-  if AListing.Count > -1 then
-  begin
+  if AListing.Count > 0 then begin
     Result := IsMVS_JESIntF2Header(AListing[0]);
   end;
 end;
@@ -590,50 +573,48 @@ begin
   Result := 'MVS:  JES Queue Interface 2';  {do not localize}
 end;
 
-class function TIdFTPLPMVSJESInterface2.IsMVS_JESIntF2Header(
-  const AData: String): Boolean;
+class function TIdFTPLPMVSJESInterface2.IsMVS_JESIntF2Header(const AData: String): Boolean;
 begin
   Result := (AData = 'JOBNAME  JOBID    OWNER    STATUS CLASS');  {do not localize}
 end;
 
-class function TIdFTPLPMVSJESInterface2.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMVSJESInterface2.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdMVSJESIntF2FTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPMVSJESInterface2.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-{
-JOBNAME  JOBID    OWNER    STATUS CLASS
-BPXAS    STC02133 ++++++++ OUTPUT STC      RC=000 2 spool
-BPXAS    STC00916 ++++++++ OUTPUT STC      RC=000 2 spool
-BPXAS    STC02132 ++++++++ ACTIVE STC
-BPXAS    STC02131 ++++++++ ACTIVE STC
-123456789012345678901234567890123456789012345678901234567890
-         1         2         3         4         5         6
-}
-var LBuf, LNo : String;
-    LPos, LPos2 : Integer;
+class function TIdFTPLPMVSJESInterface2.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  LBuf, LNo : String;
+  LPos, LPos2 : Integer;
   LI : TIdMVSJESIntF2FTPListItem;
 begin
+  {
+  JOBNAME  JOBID    OWNER    STATUS CLASS
+  BPXAS    STC02133 ++++++++ OUTPUT STC      RC=000 2 spool
+  BPXAS    STC00916 ++++++++ OUTPUT STC      RC=000 2 spool
+  BPXAS    STC02132 ++++++++ ACTIVE STC
+  BPXAS    STC02131 ++++++++ ACTIVE STC
+  123456789012345678901234567890123456789012345678901234567890
+           1         2         3         4         5         6
+  }
   LI := AItem as TIdMVSJESIntF2FTPListItem;
   LI.ModifiedAvail := False;
   LI.SizeAvail := False;
-  LI.FileName := Trim(Copy(AItem.Data,10,8));
-  LI.OwnerName := Trim(Copy(AItem.Data,19,7));
-  if IsLineStr(LI.OwnerName) then
-  begin
+  LI.FileName := Trim(Copy(AItem.Data, 10, 8));
+  LI.OwnerName := Trim(Copy(AItem.Data, 19, 7));
+  if IsLineStr(LI.OwnerName) then begin
     LI.OwnerName := '';
   end;
-  case PosInStrArray (Trim(Copy(AItem.Data,28,7)),MVS_JES_Status) of
+  case PosInStrArray(Trim(Copy(AItem.Data, 28, 7)), MVS_JES_Status) of
     0 : LI.JobStatus := IdJESReceived;          // 'INPUT'   job received but not run yet
     1 : LI.JobStatus := IdJESHold;              // 'HELD'    job is in hold status
     2 : LI.JobStatus := IdJESRunning;           // 'ACTIVE'  job is running
     3 : LI.JobStatus := IdJESOuptutAvailable;   // 'OUTPUT'  job has finished and has output available
   end;
-  LBuf := Trim(Copy(AItem.Data,35,Length(AItem.Data)));
-  LPos := IndyPos(' spool',LBuf); {do not localize}
+  LBuf := Trim(Copy(AItem.Data, 35, MaxInt));
+  LPos := IndyPos(' spool', LBuf); {do not localize}
   if LPos = 0 then
   begin
     Result := False;
@@ -642,67 +623,53 @@ begin
   LNo := '';
   for LPos2 := LPos-1 downto 1 do
   begin
-    if (LBuf[LPos2]=' ') then
-    begin
-      break;
-    end
-    else
-    begin
-      LNo := LBuf[LPos2] + LNo;
+    if LBuf[LPos2] = ' ' then begin
+      Break;
     end;
+    LNo := LBuf[LPos2] + LNo;
   end;
-  LI.JobSpoolFiles := IndyStrToInt(LNo,0);
+  LI.JobSpoolFiles := IndyStrToInt(LNo, 0);
   Result := True;
 end;
 
 class function TIdFTPLPMVSJESInterface2.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var LItem : TIdFTPListItem;
+  ADir: TIdFTPListItems): Boolean;
+var
+  LItem : TIdFTPListItem;
   i : Integer;
   LStartLine : Integer;
   LDetailFlag : Boolean;
   LI : TIdMVSJESIntF2FTPListItem;
 begin
-  if AListing.Count >0 then
+  Result := False;
+  if AListing.Count > 0 then
   begin
-    if IsMVS_JESIntf2Header(AListing[0]) then
-    begin
+    if IsMVS_JESIntf2Header(AListing[0]) then begin
       LStartLine := 1;
-    end
-    else
-    begin
+    end else begin
       LStartLine := 0;
     end;
     LDetailFlag := False;
-    for i := LStartLine to AListing.Count -1 do
+    for i := LStartLine to AListing.Count-1 do
     begin
       if LDetailFlag then
       begin
         if ADir.Count > 0 then
         begin
-          LI := ADir.Items[ADir.Count -1] as TIdMVSJESIntF2FTPListItem;
+          LI := ADir.Items[ADir.Count-1] as TIdMVSJESIntF2FTPListItem;
           LI.Details.Add(AListing[i]);
         end;
       end
-      else
+      else if AListing[i] = '--------' then begin
+        LDetailFlag := True;
+      end else
       begin
-        if AListing[i] = '--------' then
-        begin
-          LDetailFlag := True;
-        end
-        else
-        begin
-          LItem := MakeNewItem(ADir);
-          LItem.Data := AListing[i];
-          ParseLine(LItem);
-        end;
+        LItem := MakeNewItem(ADir);
+        LItem.Data := AListing[i];
+        ParseLine(LItem);
       end;
     end;
     Result := True;
-  end
-  else
-  begin
-    Result := False;
   end;
 end;
 
@@ -738,7 +705,7 @@ end;
 constructor TIdMVSJESFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
-   Self.JobStatus := IdJESNotApplicable;
+  JobStatus := IdJESNotApplicable;
 end;
 
 initialization
@@ -751,5 +718,5 @@ finalization
   UnRegisterFTPListParser(TIdFTPLPMVSPartitionedDataSet);
   UnRegisterFTPListParser(TIdFTPLPMVSJESInterface1);
   UnRegisterFTPListParser(TIdFTPLPMVSJESInterface2);
-end.
 
+end.
