@@ -32,6 +32,7 @@
 unit IdFTPListParseStercomOS390Exp;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -41,22 +42,22 @@ uses
 type
   TIdSterCommExpOS390FTPListItem = class(TIdFTPListItem)
   protected
-      FRecFormat : String;
+    FRecFormat : String;
     FRecLength : Integer;
     FBlockSize : Integer;
   public
-     property RecFormat : String read FRecFormat write FRecFormat;
+    property RecFormat : String read FRecFormat write FRecFormat;
     property RecLength : Integer read FRecLength write FRecLength;
     property BlockSize : Integer read FBlockSize write FBlockSize;
   end;
 
   TIdFTPLPSterCommExpOS390 = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-      class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 const
@@ -92,8 +93,9 @@ uses
 { TIdFTPLPSterCommExpOS390 }
 
 class function TIdFTPLPSterCommExpOS390.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LBuf : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LBuf : String;
 begin
   Result := False;
   if AListing.Count > 0 then
@@ -123,38 +125,34 @@ begin
   Result := STIRCOMEXPOS390;
 end;
 
-class function TIdFTPLPSterCommExpOS390.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPSterCommExpOS390.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdSterCommExpOS390FTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPSterCommExpOS390.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPSterCommExpOS390.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  s : TStrings;
   LI : TIdSterCommExpOS390FTPListItem;
 begin
   LI := AItem as TIdSterCommExpOS390FTPListItem;
   s := TStringList.Create;
   try
-    SplitColumns(AItem.Data,s);
+    SplitColumns(AItem.Data, s);
     if s.Count > 3 then
     begin
-      if s[3]<>'-' then
-      begin
+      if s[3] <> '-' then begin {do not localize}
         LI.RecFormat := s[3];
       end;
     end;
-    if s.Count > 4 then
-    begin
-      LI.RecLength := IndyStrToInt64(s[4],0);
+    if s.Count > 4 then begin
+      LI.RecLength := IndyStrToInt64(s[4], 0);
     end;
-    if s.Count > 5 then
-    begin
-      LI.BlockSize := IndyStrToInt64(s[5],0);
+    if s.Count > 5 then begin
+      LI.BlockSize := IndyStrToInt64(s[5], 0);
     end;
-    if s.Count > 6 then
-    begin
+    if s.Count > 6 then begin
       LI.FileName := s[6];
     end;
   finally
