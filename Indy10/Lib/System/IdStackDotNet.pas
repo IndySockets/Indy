@@ -814,12 +814,32 @@ function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): Cardinal;
 var
+  {$IFDEF DOTNET1}
   LIP : String;
   LPort : TIdPort;
+  {$ELSE}
+  LSF : SocketFlags;
+  LRemEP : EndPoint;
+  LPki : IPPacketInformation;
+  {$ENDIF}
 begin
+  {$IFDEF DOTNET1}
   Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, AIPVersion);
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
+  {$ELSE}
+
+  LSF := SocketFlags.None;
+  Result := ASocket.ReceiveMessageFrom(VBuffer,0,Length(VBUffer),LSF,LRemEP,lpki);
+
+  if LRemEP is IPEndPoint then
+  begin
+    APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
+    APkt.SourcePort := IPEndPoint(LRemEP).Port;
+  end;
+  APkt.DestIP := LPki.Address.ToString;
+  APkt.DestIF := LPki.&Interface;
+  {$ENDIF}
 end;
 
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
