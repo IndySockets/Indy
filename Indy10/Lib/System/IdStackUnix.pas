@@ -129,9 +129,8 @@ type
     procedure SetBlocking(ASocket: TIdStackSocketHandle; const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     function WSTranslateSocketErrorMsg(const AErr: Integer): string; override;
-    function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-      var VPort: TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -147,9 +146,9 @@ type
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
       out AOptVal: Integer); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-     var VPort: TIdPort); override;
+     var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-     var VPort: TIdPort); override;
+     var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
     function HostToNetwork(AValue: Word): Word; override;
     function NetworkToHost(AValue: Word): Word; override;
@@ -241,8 +240,9 @@ begin
   errno := AError;
 end;
 
-function TIdStackUnix.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+function TIdStackUnix.Accept(ASocket: TIdStackSocketHandle;
+  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
+  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   LA : LongInt;
   LAddr: sockaddr_in6;
@@ -253,19 +253,23 @@ begin
   //calls prefixed by fp to avoid clashing with libc
 
   if Result <> ID_SOCKET_ERROR then begin
-    case AIPVersion of
-     Id_IPv4 :
-     begin
-       PIP4 := @LA;
-       VIP :=  NetAddrToStr(PIP4^.sin_addr);
-       VPort := NToHs(PIP4^.sin_port);
-     end;
-     Id_IPv6 :
-     begin
-       VIP := NetAddrToStr6(LAddr.sin6_addr);
-       VPort := NToHs(LAddr.sin6_port);
-     end;
-         //TranslateTInAddrToString(TIdIn6Addr(LAddr.sin6_addr), AIPVersion);
+    case LAddr.sin6_family of
+      PF_INET : begin
+        PIP4 := @LAddr;
+        VIP := NetAddrToStr(PIP4^.sin_addr);
+        VPort := Ntohs(PIP4^.sin_port);
+        VIPVersion := Id_IPv4;
+      end;
+      PF_INET6: begin
+        VIP := NetAddrToStr6(LAddr.sin6_addr);
+        VPort := Ntohs(LAddr.sin6_port);
+        VIPVersion := Id_IPv6;
+      end;
+      else begin
+        fpclose(Result);
+        Result := Id_INVALID_SOCKET;
+        IPVersionUnsupported;
+      end;
     end;
   end else begin
     if GetLastError = ESysEBADF then begin
@@ -816,7 +820,7 @@ begin
 end;
 
 procedure TIdStackUnix.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort);
+  var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
   i: tsocklen;
   LAddr6: sockaddr_in6;
@@ -829,10 +833,12 @@ begin
       LP := @LAddr6;
       VIP := NetAddrToStr(LP^.sin_addr );
       VPort := Ntohs(LP^.sin_port);
+      VIPVersion := Id_IPv4;
     end;
     PF_INET6: begin
       VIP := NetAddrToStr6(LAddr6.sin6_addr);
       VPort := Ntohs(LAddr6.sin6_port);
+      VIPVersion := Id_IPv6;
     end;
     else begin
       IPVersionUnsupported;
@@ -841,7 +847,7 @@ begin
 end;
 
 procedure TIdStackUnix.GetSocketName(ASocket: TIdStackSocketHandle;
-  var VIP: string; var VPort: TIdPort);
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
   i: tsocklen;
   PIP4 : PSockAddr;
@@ -853,13 +859,13 @@ begin
     PF_INET : begin
       PIP4 := @LAddr6;
       VIP := NetAddrToStr(PIP4^.sin_addr);
-      //TranslateTInAddrToString(Psockaddr(@LAddr6)^.sin_addr, Id_IPv4);
       VPort := Ntohs(PIP4^.sin_port);
+      VIPVersion := Id_IPV4;
     end;
     PF_INET6: begin
       VIP := NetAddrToStr6(LAddr6.sin6_addr);
-      //TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
       VPort := Ntohs(LAddr6.sin6_port);
+      VIPVersion := Id_IPv6;
     end;
     else begin
       IPVersionUnsupported;
