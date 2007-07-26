@@ -38,7 +38,9 @@
 unit IdFTPListParseMPEiX;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -54,6 +56,7 @@ type
     property NumberRecs;
     property Limit : Cardinal read FLimit write FLimit;
   end;
+
   //Anscestor for the MPE/iX Parsers
   //This is necessary because they both have a second line a function parses
   //Do not register this one
@@ -64,16 +67,18 @@ type
   public
     class function GetIdent : String; override;
   end;
+
   TIdFTPLPMPiX = class(TIdFTPLPMPiXBase)
   protected
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
     class function IsHeader(const AData: String): Boolean;  override;
   public
     class function GetIdent : String; override;
   end;
+
   TIdFTPLPMPiXWithPOSIX = class(TIdFTPLPMPiXBase)
   protected
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
     class function IsHeader(const AData: String): Boolean;  override;
   public
     class function GetIdent : String; override;
@@ -91,20 +96,19 @@ begin
   Result := 'MPE/iX:  ';  {do not localize}
 end;
 
-class function TIdFTPLPMPiXBase.IsSecondHeader(
-  ACols: TStrings): Boolean;
+class function TIdFTPLPMPiXBase.IsSecondHeader(ACols: TStrings): Boolean;
 begin
   Result := (ACols.Count > 3) and
             (ACols[0] = 'SIZE') and     {do not localize}
             (ACols[1] = 'TYP') and      {do not localize}
             (ACols[2] = 'EOF') and      {do not localize}
             (ACols[3] = 'LIMIT');       {do not localize}
-  if Result and (ACols.Count =8) then
+  if Result and (ACols.Count = 8) then
   begin
-    Result := (ACols[4] = 'R/B') and    {do not localize}
-            (ACols[5] = 'SECTORS') and  {do not localize}
-            (ACols[6] = '#X') and       {do not localize}
-            (ACols[7] = 'MX')           {do not localize}
+    Result := (ACols[4] = 'R/B') and      {do not localize}
+              (ACols[5] = 'SECTORS') and  {do not localize}
+              (ACols[6] = '#X') and       {do not localize}
+              (ACols[7] = 'MX')           {do not localize}
   end;
   {
 This is for a Not Found banner such as:
@@ -113,16 +117,15 @@ This is for a Not Found banner such as:
 "./@ not found"
 
   }
-  if (Result = False) and (ACols.Count = 3) then
+  if (not Result) and (ACols.Count = 3) then
   begin
-    Result := (IndyPos('@', ACols[0])>0) and
+    Result := (IndyPos('@', ACols[0]) > 0) and
               (ACols[1] = 'not') and    {do not localize}
               (ACols[2] = 'found');     {do not localize}
   end;
 end;
 
-class function TIdFTPLPMPiXBase.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMPiXBase.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdMPiXFTPListItem.Create(AOwner);
 end;
@@ -135,39 +138,36 @@ begin
 end;
 
 class function TIdFTPLPMPiX.IsHeader(const AData: String): Boolean;
-var LCols : TStrings;
-    LAccP, LGrpP : Integer;
+var
+  LCols : TStrings;
+  LAccP, LGrpP : Integer;
 begin
   LAccP := IndyPos('ACCOUNT=', AData);  {do not localize}
-  if (LAccP = 0) then
-  begin
+  if LAccP = 0 then begin
     LAccP := IndyPos('ACCOUNT =', AData); {do not localize}
   end;
   LGrpP := IndyPos('GROUP=', AData);  {do not localize}
-  if (LGrpP = 0) then
-  begin
+  if LGrpP = 0 then begin
     LGrpP := IndyPos('GROUP =', AData); {do not localize}
   end;
   Result := (LAccP > 0) and (LGrpP > LAccP);
-  if Result = False then
+  if not Result then
   begin
     LCols := TStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
-      if Result = False then
+      SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LCols);
+      if not Result then
       begin
         Result := (LCols.Count > 3) and
                   (LCols[0] = 'FILENAME') and   {do not localize}
                   (LCols[1] = 'CODE') and       {do not localize}
                   (LCols[2] = 'LOGICAL') and    {do not localize}
                   (LCols[3] = 'RECORD');        {do not localize}
-        if Result and (LCols.Count = 5) then
-        begin
+        if Result and (LCols.Count = 5) then begin
           Result := (LCols[4] = 'SPACE');       {do not localize}
         end;
       end;
-      if (Result = False) then
-      begin
+      if not Result then begin
         Result := IsSecondHeader(LCols);
       end;
     finally
@@ -189,30 +189,24 @@ begin
     //According to "HP ARPA File Transfer Protocol, User’s Guide, HP 3000 MPE/iX Computer Systems,Edition 6"
     //the filename here can be 8 chars long
     LI.FileName := Trim(Copy(AItem.Data, 1, 8));
-    LBuf := Copy(AItem.Data, 8, Length(AItem.Data));
-    if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then
-    begin
+    LBuf := Copy(AItem.Data, 8, MaxInt);
+    if (Length(LBuf) > 0) and (LBuf[1] <> ' ') then begin
       Fetch(LBuf);
     end;
-    SplitColumns(Trim(LBuf),LCols);
-
-    if LCols.Count > 1 then
-    begin
+    SplitColumns(Trim(LBuf), LCols);
+    if LCols.Count > 1 then begin
       LI.Size := ExtractNumber(LCols[1]);
     end;
     //Type
-    if LCols.Count > 2 then
-    begin
+    if LCols.Count > 2 then begin
       LI.RecFormat := LCols[2];
     end;
     //record COunt - EOF
-    if LCols.Count > 3 then
-    begin
+    if LCols.Count > 3 then begin
       LI.NumberRecs := IndyStrToInt64(LCols[3], 0);
     end;
     //Limit
-    if LCols.Count > 4 then
-    begin
+    if LCols.Count > 4 then begin
       LI.Limit := IndyStrToInt64(LCols[4], 0);
     end;
     {
@@ -240,40 +234,39 @@ begin
   Result := inherited GetIdent + 'With POSIX';  {do not localize}
 end;
 
-class function TIdFTPLPMPiXWithPOSIX.IsHeader(
-  const AData: String): Boolean;
-{
-Often is something like this (spacing may very):
-==
-
- PATH= /PH/SAPHP/
-
- CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
-         SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
-
-==
-or maybe this:
-===
-ACCOUNT=  SYS         GROUP=  WORK
-FILENAME  CODE  ------------LOGICAL RECORD-----------  ----SPACE----
-===
-}
-var LCols : TStrings;
+class function TIdFTPLPMPiXWithPOSIX.IsHeader(const AData: String): Boolean;
+var
+  LCols : TStrings;
 begin
-  Result := (IndyPos('PATH=', AData) > 0);  {do not localize}
-  if Result = False then
+  {
+  Often is something like this (spacing may very):
+  ==
+
+   PATH= /PH/SAPHP/
+
+   CODE  ------------LOGICAL RECORD-----------  ----SPACE----  FILENAME
+           SIZE  TYP        EOF      LIMIT R/B  SECTORS #X MX
+
+  ==
+  or maybe this:
+  ===
+  ACCOUNT=  SYS         GROUP=  WORK
+  FILENAME  CODE  ------------LOGICAL RECORD-----------  ----SPACE----
+  ===
+  }
+  Result := IndyPos('PATH=', AData) > 0;  {do not localize}
+  if not Result then
   begin
     LCols := TStringList.Create;
     try
-      SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LCols);
+      SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LCols);
       Result := (LCols.Count = 5) and
                 (LCols[0] = 'CODE') and       {do not localize}
                 (LCols[1] = 'LOGICAL') and    {do not localize}
                 (LCols[2] = 'RECORD') and     {do not localize}
                 (LCols[3] = 'SPACE') and      {do not localize}
                 (LCols[4] = 'FILENAME');      {do not localize}
-      if (Result = False) then
-      begin
+      if not Result then begin
         Result := IsSecondHeader(LCols);
       end;
     finally
@@ -291,31 +284,26 @@ begin
   LI := AItem as TIdMPiXFTPListItem;
   LCols := TStringList.Create;
   try
-    SplitColumns(Trim(AItem.Data),LCols);
-    if LCols.Count > 0 then
-    begin
+    SplitColumns(Trim(AItem.Data), LCols);
+    if LCols.Count > 0 then begin
       LI.Size := ExtractNumber(LCols[0]);
     end;
-    if (LCols.Count > 1) then
-    begin
+    if LCols.Count > 1 then begin
       LI.RecFormat := LCols[1];
     end;
-    if (LCols.Count > 2) then
-    begin
-      LI.NumberRecs := IndyStrToInt64(LCols[2],0);
+    if LCols.Count > 2 then begin
+      LI.NumberRecs := IndyStrToInt64(LCols[2], 0);
     end;
-    if (LCols.Count > 3) then
-    begin
-      LI.Limit := IndyStrToInt64(LCols[3],0);
+    if LCols.Count > 3 then begin
+      LI.Limit := IndyStrToInt64(LCols[3], 0);
     end;
-    if (LCols.Count > 8) then
-    begin
+    if LCols.Count > 8 then begin
       LI.FileName := LCols[8];
     end;
     {
     The original HP3000 is a flat file system where there are no
     subdirs.  There is a file group created by the user
-    but that is mroe logical than anything.  There might
+    but that is more logical than anything.  There might
     be a command for obtaining file groups but I have not
     seen one.  Note that file groups can not obtain other groups.
 
@@ -324,13 +312,11 @@ begin
 
     jazz.external.hp.com
     }
-    if (LI.FileName <> '') and (LI.FileName[Length(AItem.FileName)] = '/') then
+    if TextEndsWith(LI.FileName, '/') then
     begin
       LI.ItemType := ditDirectory;
-      LI.FileName := Copy(AItem.FileName, 1, Length(AItem.FileName) - 1);
-    end
-    else
-    begin
+      LI.FileName := Copy(AItem.FileName, 1, Length(LI.FileName) - 1);
+    end else begin
       LI.ItemType := ditFile;
     end;
     {
@@ -357,4 +343,5 @@ initialization
 finalization
   UnRegisterFTPListParser(TIdFTPLPMPiX);
   UnRegisterFTPListParser(TIdFTPLPMPiXWithPOSIX);
+
 end.
