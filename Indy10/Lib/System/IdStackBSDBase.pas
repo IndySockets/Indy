@@ -232,7 +232,7 @@ type
 
   TIdStackBSDBase = class(TIdStack)
   protected
-    procedure IPVersionUnsupported;
+
     procedure RaiseLastSocketError;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; virtual; abstract;
     function WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
@@ -304,11 +304,11 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
-  EIdStackError = class (EIdException);
+
   EIdInvalidServiceName = class(EIdException);
   EIdStackInitializationFailed = class (EIdStackError);
   EIdStackSetSizeExceeded = class (EIdStackError);
-  EIdIPVersionUnsupported = class (EIdStackError);
+
 
 var
   GServeFileProc: TIdServeFile = nil;
@@ -527,10 +527,7 @@ begin
   Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
 
-procedure TIdStackBSDBase.IPVersionUnsupported;
-begin
-  raise EIdIPVersionUnsupported.Create(RSIPVersionUnsupported);
-end;
+
 
 constructor TIdStackBSDBase.Create;
 begin
