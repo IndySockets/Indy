@@ -69,6 +69,7 @@
 unit IdFTPListParseWindowsNT;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -92,12 +93,12 @@ type
 
   TIdFTPLPWindowsNT = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
 const
@@ -112,12 +113,12 @@ uses
 { TIdFTPLPWindowsNT }
 
 class function TIdFTPLPWindowsNT.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var SDir, sSize : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  SDir, sSize : String;
   i : Integer;
   SData : String;
 begin
-
   //maybe, we are dealing with this pattern
   //2002-09-02  18:48       <DIR>          DOS dir 2
   //
@@ -137,16 +138,14 @@ begin
   Result := False;
   for i := 0 to AListing.Count - 1 do
   begin
-    if (AListing[i]<>'') and
-      (IsSubDirContentsBanner(AListing[i])=False) then
+    if (AListing[i] <> '') and (not IsSubDirContentsBanner(AListing[i])) then
     begin
       SData := UpperCase(AListing[i]);
       sDir := Copy(SData, 25, 5);
       //maybe this is two spacs off.  We don't use TrimLeft at this point
       //because we can't assume that this is a valid WIndows FTP Service listing.
 
-      if sDir = '  <DI' then    {do not localize}
-      begin
+      if sDir = '  <DI' then begin   {do not localize}
         sDir := Copy(SData, 27, 5);
       end;
       sDir := TrimLeft(sDir);
@@ -155,71 +154,45 @@ begin
       //09-08-05  10:22AM            628551680 Test.txt
       //09-08-05  10:23AM            628623360 Test2.txt
 
-      if IsNumeric(TrimLeft(sDir)) then
-      begin
+      if IsNumeric(TrimLeft(sDir)) then begin
         sDir := '';
       end;
-      sSize := StringReplace(TrimLeft(Copy(SData, 20, 19)), ',', '',[rfReplaceAll]);    {Do not Localize}
+      sSize := StringReplace(TrimLeft(Copy(SData, 20, 19)), ',', '', [rfReplaceAll]);    {Do not Localize}
       //VM/BFS does share the date/time format as MS-DOS for the first two columns
   //    if ((CharIsInSet(SData, 3, ['/', '-'])) and (CharIsInSet(SData, 6, ['/', '-']))) then
-      if IsMMDDYY(Copy(SData,1,8),'-') or IsMMDDYY(Copy(SData,1,8),'/') then
+      if IsMMDDYY(Copy(SData, 1, 8), '-') or IsMMDDYY(Copy(SData, 1, 8), '/') then
       begin
-        if (sDir = '<DIR>') then  {do not localize}
+        if sDir = '<DIR>' then begin {do not localize}
         begin
-          Result := IsVMBFS(SData)=False;
+          Result := not IsVMBFS(SData);
         end
-        else
-        begin
+        else if (sDir = '') and (IndyStrToInt64(sSize, -1) <> -1) then
           //may be a file - see if we can get the size if sDir is empty
-          if ((sDir = '') and    {Do not Localize}
-            (IndyStrToInt64(sSize, -1) <> -1)) then
-          begin
-            Result := IsVMBFS(SData)=False;
-          end;
+          Result := not IsVMBFS(SData);
         end;
       end
-      else
+      else if IsYYYYMMDD(SData) then
       begin
-
-        if IsYYYYMMDD(SData) then
-        begin
-          if (sDir = '<DIR>') then  {do not localize}
-          begin
-            Result := IsVMBFS(SData)=False;
-          end
-          else
-          begin
-            //may be a file - see if we can get the size if sDir is empty
-            if ((sDir = '') and    {Do not Localize}
-              (IndyStrToInt64(sSize, -1) <> -1)) then
-            begin
-              Result := IsVMBFS(SData)=False;
-            end;
-          end;
+        if sDir = '<DIR>' then begin {do not localize}
+          Result := not IsVMBFS(SData);
         end
-        else
-        begin
-          if IsMMDDYY(SData,'-') then
-          begin
-          {
-It might be like this:
-02-16-2005  04:16AM       <DIR>          pub
-02-14-2005  07:22AM              9112103 ethereal-setup-0.10.9.exe
-
-          }
-            if (sDir = '<DIR>') then  {do not localize}
-            begin
-              Result := IsVMBFS(SData)=False;
-            end
-            else
-            begin
-              if ((sDir = '') and    {Do not Localize}
-               (IndyStrToInt64(sSize, -1) <> -1)) then
-              begin
-                Result := IsVMBFS(SData)=False;
-              end;
-            end;
-          end;
+        else if (sDir = '') and (IndyStrToInt64(sSize, -1) <> -1) then begin {Do not Localize}
+          //may be a file - see if we can get the size if sDir is empty
+          Result := not IsVMBFS(SData);
+        end;
+      end
+      else if IsMMDDYY(SData, '-') then {do not localize}
+      begin
+        {
+        It might be like this:
+        02-16-2005  04:16AM       <DIR>          pub
+        02-14-2005  07:22AM              9112103 ethereal-setup-0.10.9.exe
+        }
+        if sDir = '<DIR>' then begin {do not localize}
+          Result := not IsVMBFS(SData);
+        end
+        else if (sDir = '') and (IndyStrToInt64(sSize, -1) <> -1) then begin {Do not Localize}
+          Result := not IsVMBFS(SData);
         end;
       end;
     end;
@@ -231,8 +204,7 @@ begin
   Result := WINNTID;
 end;
 
-class function TIdFTPLPWindowsNT.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPWindowsNT.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdWindowsNTFTPListItem.Create(AOwner);
 end;
@@ -247,38 +219,37 @@ var
   LBuffer: string;
   LPosMarker : Integer;
 begin
-//Note that there is quite a bit of duplicate code in this if.
-//That is because there are two similar forms but the dates are in
-//different forms and have to be processed differently.
-  if IsNumeric(Copy(AItem.Data,1,4)) and (IsNumeric(Copy(AItem.Data,5,1))=False) then
+  //Note that there is quite a bit of duplicate code in this if.
+  //That is because there are two similar forms but the dates are in
+  //different forms and have to be processed differently.
+  if IsNumeric(Copy(AItem.Data, 1, 4)) and (not IsNumeric(Copy(AItem.Data, 5, 1))) then
   begin
+    LModified := Copy(AItem.Data, 1, 4) + '/' +  {do not localize}
+                 Copy(AItem.Data, 6, 2) + '/' +  {do not localize}
+                 Copy(AItem.Data, 9, 2) + ' ';   {do not localize}
 
-    LModified := Copy(AItem.Data, 1,4) + '/' + Copy(AItem.Data, 6, 2) + '/' +
-      Copy(AItem.Data, 9, 2) + ' ';
-
-    LBuffer := Trim(Copy(AItem.Data, 11, Length(AItem.Data)));
-      // Scan time info
+    LBuffer := Trim(Copy(AItem.Data, 11, MaxInt));
+    // Scan time info
     LTime := Fetch(LBuffer);
     // Scan optional letter in a[m]/p[m]
     LModified := LModified + LTime;
     // Convert modified to date time
     try
-      AItem.ModifiedDate := IdFTPCommon.DateYYMMDD(Fetch(LModified));
+      AItem.ModifiedDate := DateYYMMDD(Fetch(LModified));
       AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LModified);
     except
       AItem.ModifiedDate := 0.0;
     end;
-  end
-  else
+  end else
   begin
     LBuffer := AItem.Data;
     //get the date
     LModified := Fetch(LBuffer);
     LBuffer := TrimLeft(LBuffer);
-      // Scan time info
+    // Scan time info
     LTime := Fetch(LBuffer);
     // Scan optional letter in a[m]/p[m]
-    LModified := LModified + ' '+LTime;
+    LModified := LModified + ' ' + LTime; {do not localize}
     // Convert modified to date time
     try
       AItem.ModifiedDate := DateMMDDYY(Fetch(LModified));
@@ -294,44 +265,38 @@ begin
   LValue := Fetch(LBuffer);
 
   // Strip commas or StrToInt64Def will barf
-  if (IndyPos(',', LValue) <> 0) then    {Do not Localize}
-  begin
-    LValue := StringReplace(LValue, ',', '',[rfReplaceAll]);    {Do not Localize}
+  if IndyPos(',', LValue) <> 0 then begin   {Do not Localize}
+    LValue := StringReplace(LValue, ',', '', [rfReplaceAll]);    {Do not Localize}
   end;
 
   // What did we get?
-  if (UpperCase(LValue) = '<DIR>') then    {Do not Localize}
+  if TextIsSame(LValue, '<DIR>') then    {Do not Localize}
   begin
     AItem.ItemType := ditDirectory;
     AItem.SizeAvail := False;
-  end
-  else
+  end else
   begin
     AItem.ItemType := ditFile;
     AItem.Size := IndyStrToInt64(LValue, 0);
   end;
 
   //We do things this way because a space starting a file name is legel
-  if (AItem.ItemType = ditDirectory) then
-  begin
+  if AItem.ItemType = ditDirectory then begin
     LPosMarker := 10;
-  end
-  else
-  begin
+  end else begin
     LPosMarker := 1;
   end;
 
   // Rest of the buffer is item name
   AItem.LocalFileName := LName;
-  LName := Copy(LBuffer,LPosMarker,Length(LBuffer ));
-  if APath<>'' then
+  LName := Copy(LBuffer, LPosMarker, MaxInt);
+  if APath <> '' then
   begin
-  //MS_DOS_CURDIR
+    //MS_DOS_CURDIR
     AItem.LocalFileName := LName;
     LName := APath + PATH_FILENAME_SEP_DOS + LName;
-    if Copy(LName,1,Length(MS_DOS_CURDIR))=MS_DOS_CURDIR then
-    begin
-      IdDelete(LName,1,Length(MS_DOS_CURDIR));
+    if TextStartsWith(LName, MS_DOS_CURDIR) then begin
+      IdDelete(LName, 1, Length(MS_DOS_CURDIR));
     end;
   end;
   AItem.FileName := LName;
@@ -339,27 +304,27 @@ begin
 end;
 
 class function TIdFTPLPWindowsNT.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var i : Integer;
+  ADir: TIdFTPListItems): Boolean;
+var
+  i : Integer;
   LPathSpec : String;
   LItem : TIdFTPListItem;
 begin
   for i := 0 to AListing.Count -1 do
   begin
-    if (AListing[i] ='') then
+    if AListing[i] <> '' then
     begin
-    end
-    else
-    begin
-      if IsSubDirContentsBanner(AListing[i]) then
+      if IsSubDirContentsBanner(AListing[i]) then begin
+        LPathSpec := Copy(AListing[i], 1, Length(AListing[i])-1);
+      end else
       begin
-        LPathSpec := Copy(AListing[i],1,Length(AListing[i])-1);
-      end
-      else
-      begin
-        LItem := MakeNewItem (ADir);
+        LItem := MakeNewItem(ADir);
         LItem.Data := AListing[i];
-        ParseLine( LItem, LPathSpec);
+        Result := ParseLine(LItem, LPathSpec);
+        if not Result then begin
+          FreeAndNil(LItem);
+          Exit;
+        end
       end;
     end;
   end;
@@ -370,4 +335,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPWindowsNT);
 finalization
   UnRegisterFTPListParser(TIdFTPLPWindowsNT);
+
 end.
