@@ -221,6 +221,8 @@ type
     property Port: TIdPort read FPort write FPort;
   end;
 
+  TIdSocketHandleEvent = procedure(AHandle: TIdSocketHandle) of object;
+
 implementation
 
 uses
