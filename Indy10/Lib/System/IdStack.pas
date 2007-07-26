@@ -157,7 +157,6 @@ type
   { resolving hostnames }
   EIdStackError = class (EIdException);
   EIdIPVersionUnsupported = class (EIdStackError);
-
   EIdResolveError = class(EIdSocketError);
   EIdReverseResolveError = class(EIdSocketError);
 
@@ -223,12 +222,9 @@ type
     function GetLocalAddress: string;
     function GetLocalAddresses: TStrings;
   public
-    function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-             var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): TIdStackSocketHandle; overload;
-    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
-             var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion
-             ): TIdStackSocketHandle; overload; virtual; abstract;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort): TIdStackSocketHandle; overload;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion): TIdStackSocketHandle; overload; virtual; abstract;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
               const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ); virtual; abstract;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -425,11 +421,11 @@ begin
 end;
 
 function TIdStack.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+  var VPort: TIdPort): TIdStackSocketHandle;
 var
   LIPVersion: TIdIPVersion;
 begin
-  Result := Accept(ASocket, AIPVersion, VIP, VPort, LIPVersion);
+  Result := Accept(ASocket, VIP, VPort, LIPVersion);
 end;
 
 procedure TIdStack.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
