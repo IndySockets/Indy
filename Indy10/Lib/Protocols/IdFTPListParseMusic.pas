@@ -38,7 +38,9 @@
 unit IdFTPListParseMusic;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -55,9 +57,9 @@ type
   end;
   TIdFTPLPMusic = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function IsHeader(const AData: String): Boolean;  override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function IsHeader(const AData: String): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
@@ -75,11 +77,12 @@ begin
 end;
 
 class function TIdFTPLPMusic.IsHeader(const AData: String): Boolean;
-var LWords : TStrings;
+var
+  LWords : TStrings;
 begin
   LWords := TStringList.Create;
   try
-    SplitColumns(AData,LWords);
+    SplitColumns(AData, LWords);
     Result := (LWords.Count > 7) and
       ((LWords[0] = 'File') and         {do not localize}
       (LWords[1] = 'name') and          {do not localize}
@@ -97,17 +100,16 @@ begin
   end;
 end;
 
-class function TIdFTPLPMusic.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPMusic.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdMusicFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPMusic.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
-    LTmp : String;
-    LDay, LMonth, LYear : Integer;
+var
+  LBuf, LTmp : String;
+  LDay, LMonth, LYear : Integer;
   LI : TIdMusicFTPListItem;
 begin
   LI := AItem as TIdMusicFTPListItem;
@@ -124,8 +126,7 @@ begin
   LTmp := Fetch(LBuf);
   LI.RecFormat := ExtractRecFormat(StripNo(LTmp));
   LI.RecLength := ExtractNumber(LTmp);
-  if LI.RecFormat = 'DIR' then {do not localize}
-  begin
+  if LI.RecFormat = 'DIR' then begin {do not localize}
     LI.ItemType := ditDirectory;
   end;
   //Size - estimate
@@ -134,31 +135,28 @@ begin
   LI.Size := ExtractNumber(LTmp) * 1024;  //usually, K ends the number
   //Read - not sure so lets skip it
   LBuf := TrimLeft(LBuf);
-
   Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
   //Write date - I think this is last modified
   LTmp := Fetch(LBuf);
-  LDay := IndyStrToInt(Copy(LTmp,1,2),1);
-  LMonth := StrToMonth(Copy(LTmp,3,3));
-  LYear := Y2Year(IndyStrToInt(Copy(LTmp,6,Length(LTmp)),0));
-  LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
+  LDay := IndyStrToInt(Copy(LTmp, 1, 2), 1);
+  LMonth := StrToMonth(Copy(LTmp, 3, 3));
+  LYear := Y2Year(IndyStrToInt(Copy(LTmp, 6, MaxInt), 0));
+  LI.ModifiedDate := EncodeDate(LYear, LMonth, LDay);
   LBuf := TrimLeft(LBuf);
   //Write time
-  LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS( Fetch(LBuf));
+  LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(Fetch(LBuf));
   LBuf := TrimLeft(LBuf);
   //Owner
   LI.OwnerName := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
   //attribs and rec count
-  if IndyPos(' ',LBuf)>0 then
+  if IndyPos(' ', LBuf) > 0 then
   begin
     Fetch(LBuf);
     LBuf := TrimLeft(LBuf);
-  end
-  else
-  begin
-    LI.NumberRecs := IndyStrToInt(LBuf,0);
+  end else begin
+    LI.NumberRecs := IndyStrToInt(LBuf, 0);
   end;
   Result := True;
 end;
@@ -167,4 +165,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPMusic);
 finalization
   RegisterFTPListParser(TIdFTPLPMusic)
+
 end.
