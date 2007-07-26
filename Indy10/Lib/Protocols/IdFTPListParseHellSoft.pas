@@ -38,7 +38,9 @@
 unit IdFTPListParseHellSoft;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListParseNovellNetware;
@@ -53,13 +55,13 @@ uses
 
 type
   TIdHellSoftFTPListItem = class(TIdNovellNetwareFTPListItem);
+
   TIdFTPLPHellSoft = class(TIdFTPLPNovellNetware)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
   public
-
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -70,10 +72,11 @@ uses
 { TIdFTPLPHellSoft }
 
 class function TIdFTPLPHellSoft.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 
-  function IsHellSoftLine(AData : String) : Boolean;
-  var LPerms : String;
+  function IsHellSoftLine(const AData : String) : Boolean;
+  var
+    LPerms : String;
   begin
     Result := AData <> '';
     if Result then
@@ -93,11 +96,9 @@ begin
   Result := False;
   if AListing.Count > 0 then
   begin
-    if IsTotalLine(AListing[0]) then
-    begin
+    if IsTotalLine(AListing[0]) then begin
       Result := (AListing.Count > 1) and IsHellSoftLine(AListing[1]);
-    end
-    else
+    end else
     begin
       Result := IsHellSoftLine(AListing[0]);
     end;
@@ -109,8 +110,7 @@ begin
   Result := 'Hellsoft'; {do not localize}
 end;
 
-class function TIdFTPLPHellSoft.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPHellSoft.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result :=  TIdHellSoftFTPListItem.Create(AOwner);
 end;
@@ -119,5 +119,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPHellSoft);
 finalization
   UnRegisterFTPListParser(TIdFTPLPHellSoft);
-end.
 
+end.
