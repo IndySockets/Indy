@@ -52,29 +52,34 @@
 unit IdFTPListParseNovellNetwarePSU;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdNovellPSU_DOSFTPListItem = class(TIdNovellBaseFTPListItem);
+
   TIdFTPLPNetwarePSUDos = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
+
   TIdNovellPSU_NFSFTPListItem = class(TIdUnixBaseFTPListItem);
+
   TIdFTPLPNetwarePSUNFS = class(TIdFTPListBase)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 const
@@ -89,9 +94,9 @@ uses
 { TIdFTPLPNetwarePSUDos }
 
 class function TIdFTPLPNetwarePSUDos.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-
-var LPerms : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LPerms : String;
   LData : String;
 begin
   Result := True;
@@ -101,14 +106,15 @@ begin
     Result := LData <> '';
     if Result then
     begin
-      Result := (CharIsInSet(LData, 1, 'dD-')); {do not localize}
+      Result := CharIsInSet(LData, 1, 'dD-'); {do not localize}
       if Result then
       begin
         //we have to be careful to distinguish between Hellsoft and
         //NetWare Print Services for UNIX, FTP File Transfer Service
-        LPerms := ExtractNovellPerms(Copy(LData,1,12));
-        Result := (Length(LPerms)=8) and IsValidNovellPermissionStr(LPerms);
-        Result := Result and IsNovelPSPattern(LData);
+        LPerms := ExtractNovellPerms(Copy(LData, 1, 12));
+        Result := (Length(LPerms) = 8) and
+                  IsValidNovellPermissionStr(LPerms) and
+                  IsNovelPSPattern(LData);
       end;
     end;
   end;
@@ -119,60 +125,57 @@ begin
   Result := NOVELLNETWAREPSU + 'DOS Namespace'; {do not localize}
 end;
 
-class function TIdFTPLPNetwarePSUDos.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPNetwarePSUDos.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdNovellPSU_DOSFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPNetwarePSUDos.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
-   LModifiedDate : String;
-   LModifiedTime : String;
-   LI : TIdNovellPSU_DOSFTPListItem;
-//-[RWCEAFMS] server1          3166     Sept 14, 99 2:30 pm vol$log.err
+var
+  LBuf : String;
+  LModifiedDate : String;
+  LModifiedTime : String;
+  LI : TIdNovellPSU_DOSFTPListItem;
 begin
+  //-[RWCEAFMS] server1          3166     Sept 14, 99 2:30 pm vol$log.err
   LI := AItem as TIdNovellPSU_DOSFTPListItem;
   LBuf := LI.Data;
   //item type
-  if (UpperCase(Copy(LBuf,1,1))='D') then
-  begin
+  if TextStartsWith(LBuf, 'D') then begin {do not localize}
     LI.ItemType := ditDirectory;
-  end
-  else
-  begin
+  end else begin
     LI.ItemType := ditFile;
   end;
-  IdDelete(LBuf,1,1);
+  IdDelete(LBuf, 1, 1);
   LBuf := TrimLeft(LBuf);
   //Permissions
   LI.NovellPermissions := ExtractNovellPerms(Fetch(LBuf));
-  LI.PermissionDisplay := '['+LI.NovellPermissions+']';
+  LI.PermissionDisplay := '[' + LI.NovellPermissions + ']'; {do not localize}
   LBuf := TrimLeft(LBuf);
   //Owner
   LI.OwnerName := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
   //size
-  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
+  LI.Size := IndyStrToInt64(Fetch(LBuf), 0);
   LBuf := TrimLeft(LBuf);
   //month
   //we have to make sure that the month is 3 chars.  The list might return Sept instead of Sep
-  LModifiedDate := Copy(Fetch(LBuf),1,3);
+  LModifiedDate := Copy(Fetch(LBuf), 1, 3);
   LBuf := TrimLeft(LBuf);
   //day
-  LModifiedDate := LModifiedDate + ' '+Fetch(LBuf);
-  LModifiedDate := Fetch(LModifiedDate,',');
+  LModifiedDate := LModifiedDate + ' ' + Fetch(LBuf); {do not localize}
+  LModifiedDate := Fetch(LModifiedDate, ','); {do not localize}
   LBuf := TrimLeft(LBuf);
   //year
-  LModifiedDate := LModifiedDate + ' '+Fetch(LBuf);
+  LModifiedDate := LModifiedDate + ' ' + Fetch(LBuf); } {do not localize}
   LBuf := TrimLeft(LBuf);
-  LI.ModifiedDate := DateStrMonthDDYY(LModifiedDate,' ');
+  LI.ModifiedDate := DateStrMonthDDYY(LModifiedDate, ' '); {do not localize}
   //time
   LModifiedTime := Fetch(LBuf);
   LBuf := TrimLeft(LBuf);
   //am/pm
-  LModifiedTime := LModifiedTime+Fetch(LBuf);
+  LModifiedTime := LModifiedTime + Fetch(LBuf);
   LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LModifiedTime);
   //name
   LI.FileName := LBuf;
@@ -182,12 +185,11 @@ end;
 { TIdFTPLPNetwarePSUNFS }
 
 class function TIdFTPLPNetwarePSUNFS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-  var s : TStrings;
-      lbuf : string;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : TStrings;
+  LBuf : string;
 begin
-  Result := False;
-  if AListing.Count > 0 then
   {
   1234567890
   -rw------ - 2 root wheel   512  Oct 14, 99 8:45 pm deleted.sav
@@ -199,30 +201,29 @@ begin
   -rw------ 1 bill support 1285 Oct 14  99 9:55 pm 123456789.123456
 
   }
+  Result := False;
+  if AListing.Count > 0 then
   begin
-    lbuf := AListing[0];
+    LBuf := AListing[0];
     //remove the extra space that sometimes appears in older versions to "flatten"
     //out the listing
-    if (Length(lbuf) > 9) and (lbuf[10] =' ') then
-    begin
-      IdDelete(lbuf,10,1);
+    if (Length(LBuf) > 9) and (LBuf[10] = ' ') then {do not localize}
+      IdDelete(LBuf, 10, 1);
     end;
-
-    Result := IsValidUnixPerms(lbuf,True);
+    Result := IsValidUnixPerms(LBuf, True);
     if Result then
     begin
       s := TStringList.Create;
       try
-        SplitColumns(lbuf,s);
-        Result := (s.Count > 9) and (TextIsSame(s[9], 'AM') or TextIsSame(s[9], 'PM')); {do not localize}
+        SplitColumns(LBuf, s);
+        Result := (s.Count > 9) and (PosInStrArray(s[9], ['AM', 'PM'], False) <> -1); {do not localize}
         if Result then
         begin
-          lbuf := s[6];
-          lbuf := Fetch(lbuf,',');
-          Result := IsNumeric(lbuf);
-          if Result then
-          begin
-            Result := (StrToMonth(s[5])>0 );
+          LBuf := s[6];
+          LBuf := Fetch(LBuf, ','); {do not localize}
+          Result := IsNumeric(LBuf);
+          if Result then begin
+            Result := StrToMonth(s[5]) > 0;
           end;
         end;
       finally
@@ -237,9 +238,7 @@ begin
   Result := NOVELLNETWAREPSU + 'NFS Namespace'; {do not localize}
 end;
 
-
-class function TIdFTPLPNetwarePSUNFS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPNetwarePSUNFS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdNovellPSU_NFSFTPListItem.Create(AOwner);
 end;
@@ -247,12 +246,10 @@ end;
 class function TIdFTPLPNetwarePSUNFS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
 var
-  LBuf,LBuf2 : String;
+  LBuf, LBuf2 : String;
   LI : TIdNovellPSU_NFSFTPListItem;
 begin
-
-{
-
+  {
   -rw------ - 2 root wheel   512  Oct 14, 99 8:45 pm deleted.sav
   -rw------ - 1 bill support 1285 Oct 14, 99 9:55 pm 123456789.123456
 
@@ -264,39 +261,33 @@ begin
   drw------- 2 mary support 512  Oct 14,  99 7:33 pm locktst
   drwxr-xr-x 1 root wheel   512  Oct 14,  99 4:33 pm brief
 
-Based on:
-http://www.novell.com/documentation/lg/nw42/unixpenu/data/tut0i3h5.html#cnovdocsdocenglishnw42unixpenudatahpyvrshhhtml
-http://www.novell.com/documentation/lg/nw5/usprint/unixpenu/data/tut0i3h5.html#dnovdocsdocenglishnw5usprintunixpenudatahpyvrshhhtm
-http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/hpyvrshh.html
-
-}
-
-      {
-      0 - type of item and Permissions
-      1 - # of links
-      2 - Owner
-      3 - Group
-      4 - size
-      5 - month
-      6 - day
-      7 - year
-      8 - time
-      9 - am/pm
-      10 - name
-      }
+  Based on:
+  http://www.novell.com/documentation/lg/nw42/unixpenu/data/tut0i3h5.html#cnovdocsdocenglishnw42unixpenudatahpyvrshhhtml
+  http://www.novell.com/documentation/lg/nw5/usprint/unixpenu/data/tut0i3h5.html#dnovdocsdocenglishnw5usprintunixpenudatahpyvrshhhtm
+  http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/hpyvrshh.html
+  }
+  {
+    0 - type of item and Permissions
+    1 - # of links
+    2 - Owner
+    3 - Group
+    4 - size
+    5 - month
+    6 - day
+    7 - year
+    8 - time
+    9 - am/pm
+    10 - name
+  }
   LI := AItem as TIdNovellPSU_NFSFTPListItem;
   LBuf := LI.Data;
   LBuf2 := Fetch(LBuf);
-  if (IsNumeric(Fetch(LBuf,' ',False))=False) then
-  begin
-    LBuf2 := LBuf2+Fetch(LBuf);
+  if not IsNumeric(Fetch(LBuf, ' ', False)) then begin {do not localize}
+    LBuf2 := LBuf2 + Fetch(LBuf);
   end;
-  if (UpperCase(Copy(LBuf2, 1, 1))='-') then
-  begin
+  if TextStartsWith(LBuf2, '-') then begin {do not localize}
     LI.ItemType := ditFile;
-  end
-  else
-  begin
+  end else begin
     LI.ItemType := ditDirectory;
   end;
   LI.UnixOwnerPermissions := Copy(LBuf2, 2, 3);
@@ -304,7 +295,7 @@ http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/h
   LI.UnixOtherPermissions := Copy(LBuf2, 8, 3);
   LI.PermissionDisplay := LBuf2;
   //number of links
-  LI.LinkCount := IndyStrToInt(Fetch(LBuf),0);
+  LI.LinkCount := IndyStrToInt(Fetch(LBuf), 0);
   //Owner
   LBuf := TrimLeft(LBuf);
   LI.OwnerName := Fetch(LBuf);
@@ -313,19 +304,19 @@ http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/h
   LI.GroupName := Fetch(LBuf);
   //Size
    LBuf := TrimLeft(LBuf);
-  AItem.Size := IndyStrToInt64(Fetch(LBuf),0);
+  AItem.Size := IndyStrToInt64(Fetch(LBuf), 0);
   //Date - month
   LBuf := TrimLeft(LBuf);
-  LBuf2 := UpperCase(Fetch(LBuf))+' ';
+  LBuf2 := UpperCase(Fetch(LBuf)) + ' '; {do not localize}
   //Date - day
   LBuf := TrimLeft(LBuf);
-  LBuf2 := TrimRight(LBuf2) + ' '+ Fetch(LBuf);
-  LBuf2 := Fetch(LBuf2,',');
+  LBuf2 := TrimRight(LBuf2) + ' ' + Fetch(LBuf); {do not localize}
+  LBuf2 := Fetch(LBuf2, ','); {do not localize}
   //Year - year
   LBuf := TrimLeft(LBuf);
-  LBuf2 := Fetch(LBuf)+' '+LBuf2;
+  LBuf2 := Fetch(LBuf) + ' ' + LBuf2; {do not localize}
   //Process Day
-  LI.ModifiedDate :=  DateYYStrMonthDD(LBuf2,' ');
+  LI.ModifiedDate := DateYYStrMonthDD(LBuf2, ' '); {do not localize}
   //time
   LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
@@ -333,22 +324,18 @@ http://www.novell.com/documentation/lg/nfs24/docui/index.html#../nfs24enu/data/h
   LBuf2 := LBuf2 + Fetch(LBuf);
   LI.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LBuf2);
   // File name
-  if (IndyPos(UNIX_LINKTO_SYM,LBuf)>0) then
+  if IndyPos(UNIX_LINKTO_SYM,LBuf) > 0 then
   begin
-    LI.FileName := Fetch(LBuf,UNIX_LINKTO_SYM);
+    LI.FileName := Fetch(LBuf, UNIX_LINKTO_SYM);
     LI.LinkedItemName := LBuf;
   end
-  else
+  else if IndyPos(UNIX_LINKTO_SYM, LBuf) > 0 then
   begin
-    if (IndyPos(UNIX_LINKTO_SYM,LBuf)>0) then
-    begin
-      LI.FileName := Fetch(LBuf,UNIX_LINKTO_SYM);
-      LI.LinkedItemName := LBuf;
-    end
-    else
-    begin
-      LI.FileName := LBuf;
-    end;
+    LI.FileName := Fetch(LBuf, UNIX_LINKTO_SYM);
+    LI.LinkedItemName := LBuf;
+  end else
+  begin
+    LI.FileName := LBuf;
   end;
   //Novell Netware is case sensitive I think.
   LI.LocalFileName := AItem.FileName;
@@ -361,4 +348,5 @@ initialization
 finalization
   UnRegisterFTPListParser(TIdFTPLPNetwarePSUDos);
   UnRegisterFTPListParser(TIdFTPLPNetwarePSUNFS);
+
 end.
