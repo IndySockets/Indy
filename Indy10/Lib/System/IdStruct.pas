@@ -42,7 +42,7 @@ type
   protected
     FBuffer: TIdBytes;
     function GetBytesLen: LongWord; override;
-    procedure SetBytesLen(const ABytesLen: Integer);
+    procedure SetBytesLen(const ABytesLen: LongWord);
   public
     procedure ReadStruct(const ABytes : TIdBytes; var VIndex : LongWord); override;
     procedure WriteStruct(var VBytes : TIdBytes; var VIndex : LongWord);  override;
@@ -96,10 +96,10 @@ end;
 
 procedure TIdStruct.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
 var
-  Len: Integer;
+  Len: LongWord;
 begin
   Len := VIndex + BytesLen;
-  if Length(VBytes) < Len then begin
+  if LongWord(Length(VBytes)) < Len then begin
     SetLength(VBytes, Len);
   end;
 end;
