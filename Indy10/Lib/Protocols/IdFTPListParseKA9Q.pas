@@ -43,21 +43,24 @@
 unit IdFTPListParseKA9Q;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase;
 
 type
   TIdKA9QFTPListItem = class(TIdFTPListItem);
+
   TIdFTPLPKA9Q = class(TIdFTPListBaseHeader)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean; override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): Boolean; override;
     class function GetIdent : String; override;
   end;
 
@@ -70,18 +73,18 @@ uses
 
 class function TIdFTPLPKA9Q.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
+var
+  s : TStrings;
 
-var s : TStrings;
+  function IsKAQ9TS(const AData : String) : Boolean;
+  begin
+    Result := (PatternsInStr(':', AData) = 1) and IsHHMMSS(AData, ':');
+  end;
 
-    function IsKAQ9TS(const AData : String) : Boolean;
-    begin
-      Result := (PatternsInStr(':',AData)=1) and IsHHMMSS(AData,':');
-    end;
-
-    function IsKAQ9DS(const AData : String) : Boolean;
-    begin
-      Result := (PatternsInStr('/',AData)=2) and IsMMDDYY(AData,'/');
-    end;
+  function IsKAQ9DS(const AData : String) : Boolean;
+  begin
+    Result := (PatternsInStr('/', AData) = 2) and IsMMDDYY(AData, '/');
+  end;
 
 begin
   Result := False;
@@ -90,19 +93,18 @@ begin
     Result := False;
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0],s);
-      if (s.Count > 2) then
+      SplitColumns(AListing[0], s);
+      if s.Count > 2 then
       begin
-        if s[0][Length(s[0])]='/' then
+        if TextEndsWith(s[0], '/') then
         begin
           //could be a dir
           Result := IsKAQ9TS(s[1]) and IsKAQ9DS(s[2]);
-        end
-        else
+        end else
         begin
           //could be a file
           Result := (s.Count > 3) and
-            (ExtractNumber(s[1],False)>-1) and
+            (ExtractNumber(s[1], False) > -1) and
             IsKAQ9TS(s[2]) and
             IsKAQ9DS(s[3]);
         end;
@@ -119,18 +121,19 @@ begin
 end;
 
 class function TIdFTPLPKA9Q.IsFooter(const AData: String): Boolean;
-var LWords : TStrings;
+var
+  LWords : TStrings;
 begin
   Result := False;
-  if AData = '#' then
+  if AData = '#' then  {do not localize}
   begin
     Result := True;
     Exit;
   end;
   LWords := TStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData,'-',' ',[rfReplaceAll])),LWords);
-    if (LWords.Count >1) then
+    SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LWords);
+    if LWords.Count > 1 then
     begin
       Result := (LWords[1] = 'files.') or (LWords[1] = 'file.') or  {do not localize}
         (LWords[1] = 'files') or (LWords[1] = 'file');  {do not localize}
@@ -145,35 +148,34 @@ begin
   Result := False;
 end;
 
-class function TIdFTPLPKA9Q.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPKA9Q.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdKA9QFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPKA9Q.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf, LPt : String;
-{
-Note that this parser is odd because it will create a new TIdFTPListItem.
-I know that is not according to the current conventional design.  However, KA9Q
-is unusual because a single line can have two items (maybe more)
-}
+var
+  LBuf, LPt : String;
   LNewItem : TIdFTPListItem;
   LDir : TIdFTPListItems;
 begin
+  {
+  Note that this parser is odd because it will create a new TIdFTPListItem.
+  I know that is not according to the current conventional design.  However, KA9Q
+  is unusual because a single line can have two items (maybe more)
+  }
   LBuf := AItem.Data;
   {filename - note that a space is illegal in MS-DOS so this should be safe}
   LPt := Fetch(LBuf);
-  if (LPt <> '') then
+  if LPt <> '' then
   begin
-    if LPt[Length(LPt)] = '/' then
+    if TextEndsWith(LPt, '/') then
     begin
-      AItem.FileName := Fetch(LPt,'/');
+      AItem.FileName := Fetch(LPt, '/');
       AItem.ItemType := ditDirectory;
       AItem.SizeAvail := False;
-    end
-    else
+    end else
     begin
       AItem.FileName := LPt;
       AItem.ItemType := ditFile;
@@ -197,7 +199,7 @@ begin
           LDir := AItem.Collection as TIdFTPListItems;
           LNewItem := LDir.Add;
           LNewItem.Data := LBuf;
-          TIdFTPLPKA9Q.ParseLine(LNewItem,APath);
+          TIdFTPLPKA9Q.ParseLine(LNewItem, APath);
         end;
       end;
     end;
@@ -209,5 +211,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPKA9Q);
 finalization
   UnRegisterFTPListParser(TIdFTPLPKA9Q);
-end.
 
+end.
