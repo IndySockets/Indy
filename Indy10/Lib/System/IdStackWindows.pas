@@ -242,8 +242,8 @@ type
       const ABufferLength, AFlags: Integer): Integer; override;
     function WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer; override;
   public
-    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
-      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     function HostToNetwork(AValue: Word): Word; override;
     function HostToNetwork(AValue: LongWord): LongWord; override;
     function HostToNetwork(AValue: Int64): Int64; override;
@@ -348,8 +348,7 @@ begin
 end;
 
 function TIdStackWindows.Accept(ASocket: TIdStackSocketHandle;
-  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
-  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   i: Integer;
   LAddr: TSockAddrIn6;

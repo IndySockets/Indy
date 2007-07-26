@@ -234,8 +234,8 @@ type
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);override;
-    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
-      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; out AOptVal: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
@@ -343,8 +343,7 @@ begin
 end;
 
 function TIdStackDotNet.Accept(ASocket: TIdStackSocketHandle;
-  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
-  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   LEndPoint: IPEndPoint;
 begin
@@ -364,7 +363,7 @@ begin
       end;
     end else
     begin
-      Result := nil;
+      Result := Id_INVALID_SOCKET;
       IPVersionUnsupported;
     end;
   except

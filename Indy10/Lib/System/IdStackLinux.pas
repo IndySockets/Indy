@@ -121,8 +121,8 @@ type
      const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     function WSTranslateSocketErrorMsg(const AErr: Integer): string; override;
-    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
-      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -228,8 +228,7 @@ begin
 end;
 
 function TIdStackLinux.Accept(ASocket: TIdStackSocketHandle;
-  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
-  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   LN: Cardinal;
   LAddr: sockaddr_in6;
