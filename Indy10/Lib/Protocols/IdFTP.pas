@@ -607,6 +607,7 @@ unit IdFTP;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -693,7 +694,7 @@ type
   protected
     FHost, FUserName, FPassword: String;
     FProxyType: TIdFtpProxyType;
-    FPort: Integer;
+    FPort: TIdPort;
   public
     procedure Assign(Source: TPersistent); override;
   published
@@ -701,7 +702,7 @@ type
     property  Host: String read FHost write FHost;
     property  UserName: String read FUserName write FUserName;
     property  Password: String read FPassword write FPassword;
-    property  Port: Integer read FPort write FPort;
+    property  Port: TIdPort read FPort write FPort;
   end;
 
   TIdFTPTZInfo = class(TPersistent)
@@ -736,9 +737,9 @@ type
 
     FDataPortProtection : TIdFTPDataPortSecurity;
     FAUTHCmd : TAuthCmd;
-    FDataPort: Integer;
-    FDataPortMin: Integer;
-    FDataPortMax: Integer;
+    FDataPort: TIdPort;
+    FDataPortMin: TIdPort;
+    FDataPortMax: TIdPort;
     FExternalIP : String;
     FResumeTested: Boolean;
     FSystemDesc: string;
@@ -874,7 +875,7 @@ type
     function IsOldServU: Boolean;
     function IsBPFTP : Boolean;
     function IsTitan : Boolean;
-	  function CheckAccount: Boolean;
+    function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
     //
@@ -900,14 +901,14 @@ type
     procedure FileStructure(AStructure: TIdFTPDataStructure);
     procedure Get(const ASourceFile: string; ADest: TStream; AResume: Boolean = false); overload;
     procedure Get(const ASourceFile, ADestFile: string; const ACanOverwrite: boolean = false; AResume: Boolean = false); overload;
-    procedure Help(var AHelpContents: TStringList; ACommand: String = '');
+    procedure Help(AHelpContents: TStrings; ACommand: String = '');
     procedure KillDataChannel; virtual;
     //.NET Overload
     procedure List; overload;
     //.NET Overload
     procedure List(const ASpecifier: string; ADetails: Boolean = True); overload;
     procedure List(ADest: TStrings; const ASpecifier: string = ''; ADetails: Boolean = True); overload;
-    procedure ExtListDir(const ADest: TStrings=nil; const ADirectory: string = '');
+    procedure ExtListDir(ADest: TStrings = nil; const ADirectory: string = '');
     procedure ExtListItem(ADest: TStrings; AFList : TIdFTPListItems; const AItem: string='');  overload;
     procedure ExtListItem(ADest: TStrings; const AItem: string = ''); overload;
     procedure ExtListItem(AFList : TIdFTPListItems; const AItem : String= ''); overload;
@@ -980,9 +981,9 @@ type
     property PassiveUseControlHost: Boolean read FPassiveUseControlHost write FPassiveUseControlHost default DEF_Id_FTP_PassiveUseControlHost;
     property DataPortProtection : TIdFTPDataPortSecurity read FDataPortProtection write SetDataPortProtection default Id_TIdFTP_DataPortProtection;
     property AUTHCmd : TAuthCmd read FAUTHCmd write SetAUTHCmd default DEF_Id_FTP_AUTH_CMD;
-    property DataPort: Integer read FDataPort write FDataPort default 0;
-    property DataPortMin: Integer read FDataPortMin write FDataPortMin default 0;
-    property DataPortMax: Integer read FDataPortMax write FDataPortMax default 0;
+    property DataPort: TIdPort read FDataPort write FDataPort default 0;
+    property DataPortMin: TIdPort read FDataPortMin write FDataPortMin default 0;
+    property DataPortMax: TIdPort read FDataPortMax write FDataPortMax default 0;
     property ExternalIP : String read FExternalIP write FExternalIP;
     property Password;
     property TransferType: TIdFTPTransferType read FTransferType write SetTransferType default Id_TIdFTP_TransferType;
@@ -1119,7 +1120,7 @@ end;
 procedure TIdFTP.Connect;
 var
   LHost: String;
-  LPort: Integer;
+  LPort: TIdPort;
   LBuf : String;
   LCode: SmallInt;
   LSendQuitOnError: Boolean;
@@ -1160,7 +1161,7 @@ begin
     finally
       FHost := LHost;
       FPort := LPort;
-    end;//tryf
+    end;
     // RLebeau: RFC 959 says that the greeting can be preceeded by a 1xx
     // reply and that the client should wait for the 220 reply when this 
     // happens.  Also, the RFC says that 120 should be used, but some
@@ -1453,7 +1454,7 @@ This is a bug fix for servers will do something like this:
   end;
 end;
 
-procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream; AFromBeginning: Boolean = true);
+procedure TIdFTP.InternalPut(const ACommand: string; ASource: TStream; AFromBeginning: Boolean = True);
 var
   LIP: string;
   LPort: TIdPort;
@@ -1482,18 +1483,20 @@ begin
         if PassiveUseControlHost then begin
           //Do not use an assignment from Self.Host
           //because a DNS name may not resolve to the same
-          //IP address every time.  This is the case where the
+          //IP address every time.  This is the case where
           //the workload is distributed around several servers.
           //Besides, we already know the Peer's IP address so
-          //why waste time querrying it.     
+          //why waste time querying it.     
           LIP := Self.Socket.Binding.PeerIP;
         end;
 
         LPasvCl.Host := LIP;
         LPasvCl.Port := LPort;
+
         if Assigned(FOnDataChannelCreate) then begin
           OnDataChannelCreate(Self, FDataChannel);
         end;
+
         LPasvCl.Connect;
         try
           Self.GetResponse([110, 125, 150]);
@@ -1610,10 +1613,10 @@ begin
       if PassiveUseControlHost then begin
         //Do not use an assignment from Self.Host
         //because a DNS name may not resolve to the same
-        //IP address every time.  This is the case where the
+        //IP address every time.  This is the case where
         //the workload is distributed around several servers.
         //Besides, we already know the Peer's IP address so
-        //why waste time querrying it.
+        //why waste time querying it.
         LIP := Self.Socket.Binding.PeerIP;
       end;
 
@@ -1768,8 +1771,8 @@ end;
 procedure TIdFTP.SendPort(const AIP: String; const APort: TIdPort);
 begin
   SendDataSettings;
-  SendCmd('PORT ' + StringReplace(AIP, '.', ',',[rfReplaceAll])   {do not localize}
-   + ',' + IntToStr(APort div 256) + ',' + IntToStr(APort mod 256), [200]); {do not localize}
+  SendCmd('PORT ' + StringReplace(AIP, '.', ',', [rfReplaceAll])   {do not localize}
+    + ',' + IntToStr(APort div 256) + ',' + IntToStr(APort mod 256), [200]); {do not localize}
 end;
 
 procedure TIdFTP.InitDataChannel;
@@ -1877,10 +1880,10 @@ begin
   end;
   IdDelete(VIP, 1, 1);
   // Determine port
-  VPort := IndyStrToInt(Fetch(s, ',')) shl 8;   {do not localize}
+  VPort := TIdPort(IndyStrToInt(Fetch(s, ',')) and $FF) shl 8;   {do not localize}
   //use trim as one server sends something like this:
   //"227 Passive mode OK (195,92,195,164,4,99 )"
-  VPort := VPort + IndyStrToInt(Trim(Fetch(s, ','))); {Do not translate}
+  VPort := VPort + TIdPort(IndyStrToInt(Fetch(s, ',')) and $FF); {Do not translate}
 end;
 
 procedure TIdFTP.SendPassive(var VIP: string; var VPort: TIdPort);
@@ -2020,19 +2023,10 @@ begin
   end;
 end;
 
-procedure TIdFTP.Help(var AHelpContents: TStringList; ACommand: String = ''); {do not localize}
-var
-  LStream: TStringStream;
+procedure TIdFTP.Help(AHelpContents: TStrings; ACommand: String = ''); {do not localize}
 begin
-  LStream := TStringStream.Create('');    {do not localize}
-  try
-    if SendCmd('HELP ' + ACommand, [211, 214, 500]) <> 500 then begin      {do not localize}
-      LStream.Position := 0;
-      IOHandler.ReadStream(LStream, -1, True);
-      AHelpContents.Text := LStream.DataString;
-    end;
-  finally
-    FreeAndNil(LStream);
+  if SendCmd(Trim('HELP ' + ACommand), [211, 214, 500]) <> 500 then begin      {do not localize}
+    AHelpContents.Text := LastCmdResult.Text.Text;
   end;
 end;
 
@@ -2050,15 +2044,10 @@ begin
 end;
 
 procedure TIdFTP.FileStructure(AStructure: TIdFTPDataStructure);
-var
-  s: String;
+const
+  StructureTypes: array[TIdFTPDataStructure] of String = ('F', 'R', 'P'); {do not localize}
 begin
-  case AStructure of
-    dsFile: s := 'F';         {do not localize}
-    dsRecord: s := 'R';       {do not localize}
-    dsPage: s := 'P';         {do not localize}
-  end;
-  SendCmd('STRU ' + s, [200, 500]);  {do not localize}
+  SendCmd('STRU ' + StructureTypes[AStructure], [200, 500]);  {do not localize}
   { TODO: Needs to be finished }
 end;
 
@@ -2509,7 +2498,7 @@ end;
 
 procedure TIdFTP.ParseEPSV(const AReply : String; var VIP : String; VPort : TIdPort);
 var
-  bLeft, bRight: Integer;
+  bLeft, bRight, LPort: Integer;
   delim : Char;
   s : String;
 begin
@@ -2522,14 +2511,15 @@ begin
   Fetch(S, delim);
   Fetch(S, delim);
   VIP := Fetch(S, delim);
-  s := Trim(Fetch(S, delim));
-  VPort := IndyStrToInt(s, 0);
-  if VPort = 0 then begin
-    raise EIdFTPServerSentInvalidPort.Create(IndyFormat(RSFTPServerSentInvalidPort, [s]));
-  end;
   if VIP = '' then begin
     VIP := Host;
   end;
+  s := Trim(Fetch(S, delim));
+  LPort := IndyStrToInt(s, 0);
+  if (LPort < 1) or (LPort > 65535) then begin
+    raise EIdFTPServerSentInvalidPort.CreateFmt(RSFTPServerSentInvalidPort, [s]);
+  end;
+  VPort := TIdPort(LPort and $FFFF);
 end;
 
 procedure TIdFTP.SendEPassive(var VIP: string; var VPort: TIdPort);
@@ -2608,7 +2598,7 @@ begin
   SendCmd('OPTS ' + ACmd + ' ' + AOptions, 200); {do not localize}
 end;
 
-procedure TIdFTP.ExtListDir(const ADest: TStrings = nil; const ADirectory: string = '');
+procedure TIdFTP.ExtListDir(ADest: TStrings = nil; const ADirectory: string = '');
 var
   LDest: TStringStream;
 begin
