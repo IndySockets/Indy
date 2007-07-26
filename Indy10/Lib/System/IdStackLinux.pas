@@ -121,8 +121,8 @@ type
      const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     function WSTranslateSocketErrorMsg(const AErr: Integer): string; override;
-    function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-      var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -138,9 +138,9 @@ type
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
       out AOptVal: Integer); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-     var VPort: TIdPort); override;
+     var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-     var VPort: TIdPort); override;
+     var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
     function HostToNetwork(AValue: Word): Word; override;
     function NetworkToHost(AValue: Word): Word; override;
@@ -228,7 +228,8 @@ begin
 end;
 
 function TIdStackLinux.Accept(ASocket: TIdStackSocketHandle;
-  var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
+  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   LN: Cardinal;
   LAddr: sockaddr_in6;
@@ -236,8 +237,23 @@ begin
   LN := SizeOf(LAddr);
   Result := Libc.accept(ASocket, PSockAddr(@LAddr), @LN);
   if Result <> SOCKET_ERROR then begin
-    VIP := TranslateTInAddrToString(TIdIn6Addr(LAddr.sin6_addr), AIPVersion);
-    VPort := NToHs(LAddr.sin6_port);
+    case LAddr.sin6_family of
+      Id_PF_INET4: begin
+        VIP := TranslateTInAddrToString(Psockaddr(@LAddr)^.sin_addr, Id_IPv4);
+        VPort := Ntohs(Psockaddr(@LAddr)^.sin_port);
+        VIPVersion := Id_IPV4;
+      end;
+      Id_PF_INET6: begin
+        VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
+        VPort := Ntohs(LAddr6.sin6_port);
+        VIPVersion := Id_IPV6;
+      end;
+      else begin
+        Libc.__close(Result);
+        Result := Id_INVALID_SOCKET;
+        IPVersionUnsupported;
+      end;
+    end;
   end else begin
     if GetLastError = EBADF then begin
       SetLastError(EINTR);
@@ -760,7 +776,7 @@ begin
 end;
 
 procedure TIdStackLinux.GetPeerName(ASocket: TIdStackSocketHandle;
- var VIP: string; var VPort: TIdPort);
+ var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
   i: Cardinal;
   LAddr6: sockaddr_in6;
@@ -771,10 +787,12 @@ begin
     Id_PF_INET4: begin
       VIP := TranslateTInAddrToString(Psockaddr(@LAddr6)^.sin_addr, Id_IPv4);
       VPort := Ntohs(Psockaddr(@LAddr6)^.sin_port);
+      VIPVersion := Id_IPV4;
     end;
     Id_PF_INET6: begin
       VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
       VPort := Ntohs(LAddr6.sin6_port);
+      VIPVersion := Id_IPV6;
     end;
     else begin
       IPVersionUnsupported;
@@ -783,7 +801,7 @@ begin
 end;
 
 procedure TIdStackLinux.GetSocketName(ASocket: TIdStackSocketHandle;
- var VIP: string; var VPort: TIdPort);
+  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
   i: Cardinal;
   LAddr6: sockaddr_in6;
@@ -794,10 +812,12 @@ begin
     Id_PF_INET4: begin
       VIP := TranslateTInAddrToString(Psockaddr(@LAddr6)^.sin_addr, Id_IPv4);
       VPort := Ntohs(Psockaddr(@LAddr6)^.sin_port);
+      VIPVersion := Id_IPV4;
     end;
     Id_PF_INET6: begin
       VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
       VPort := Ntohs(LAddr6.sin6_port);
+      VIPVersion := Id_IPV6;
     end;
     else begin
       IPVersionUnsupported;
