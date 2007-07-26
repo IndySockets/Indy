@@ -33,6 +33,7 @@ unit IdFTPListParseStratusVOS;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -62,22 +63,23 @@ type
     //where the > is a path separator
     property LinkedItemName : string read FLinkedItemName write FLinkedItemName;
   end;
+
   TIdFTPLPStratusVOS = class(TIdFTPListBase)
   protected
     class function IsValidFileEntry(const ALine : String) : Boolean;
     class function IsValidDirEntry(const ALine : String): Boolean;
-    class function IsFilesHeader(ALine : String): Boolean;
-    class function IsDirsHeader(ALine : String): Boolean;
-    class function IsLinksHeader(ALine : String): Boolean;
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function IsFilesHeader(const ALine : String): Boolean;
+    class function IsDirsHeader(const ALine : String): Boolean;
+    class function IsLinksHeader(const ALine : String): Boolean;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function ParseDirEntry(const AItem: TIdFTPListItem): Boolean;
     class function ParseFileEntry(const AItem : TIdFTPListItem): Boolean;
     class function ParseLinkEntry(const AItem : TIdFTPListItem): Boolean;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
   end;
 
     {
@@ -156,58 +158,49 @@ hierarchy. A single period (.) also refers to the current directory
 and two periods (..) refers to the parent directory. Thus,
 change_current_dir .. is the same as the change_current_dir <.
     }
+
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
+
+uses
+  IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPStratusVOS }
 
 class function TIdFTPLPStratusVOS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var i : Integer;
-
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  i : Integer;
   LMode : TIdDirItemType;
 begin
-  LMode := ditFile;
   Result := False;
+  LMode := ditFile;
   for i := 0 to AListing.Count - 1 do
   begin
-    if AListing[i]<>'' then
+    if AListing[i] <> '' then
     begin
-      if IsFilesHeader(AListing[i]) then
-      begin
+      if IsFilesHeader(AListing[i]) then begin
         LMode := ditFile;
       end
-      else
+      else if IsDirsHeader(AListing[i]) then begin
+        LMode := ditDirectory;
+      end
+      else if IsLinksHeader(AListing[i]) then begin
+        LMode := ditSymbolicLink;
+      end else
       begin
-        if IsDirsHeader(AListing[i]) then
-        begin
-          LMode := ditDirectory;
-        end
-        else
-        begin
-          if Self.IsLinksHeader(AListing[i]) then
-          begin
-            LMode := ditSymbolicLink;
-          end
-          else
-          begin
-            case LMode of
-              ditFile :
-              begin
-                if not IsValidFileEntry(AListing[i]) then
-                begin
-                  Exit;
-                end;
-              end;
-              ditDirectory :
-              begin
-                if not IsValidDirEntry(AListing[i]) then
-                begin
-                  Exit;
-                end;
+        case LMode of
+          ditFile :
+            begin
+              if not IsValidFileEntry(AListing[i]) then begin
+                Exit;
               end;
             end;
-          end;
+          ditDirectory :
+            begin
+              if not IsValidDirEntry(AListing[i]) then begin
+                Exit;
+              end;
+            end;
         end;
       end;
     end;
@@ -217,127 +210,100 @@ end;
 
 class function TIdFTPLPStratusVOS.GetIdent: String;
 begin
-  Result := 'Stratus VOS';
+  Result := 'Stratus VOS'; {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.IsDirsHeader(ALine: String): Boolean;
-
-{
-
-Files: 4 Blocks: 609
-}
+class function TIdFTPLPStratusVOS.IsDirsHeader(const ALine: String): Boolean;
 begin
-  Result := (IndyPos('Dirs: ',ALine)=1);
+  { Dirs: 0 }
+  Result := TextStartsWith(ALine, 'Dirs: '); {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.IsFilesHeader(ALine: String): Boolean;
-{
-
-Dirs: 0
-}
+class function TIdFTPLPStratusVOS.IsFilesHeader(const ALine: String): Boolean;
 begin
-  Result := (IndyPos('Files: ',ALine)=1) and (IndyPos('Blocks: ',ALine)>8);
+  { Files: 4 Blocks: 609 }
+  Result := TextStartsWith(ALine, 'Files: ') and (IndyPos('Blocks: ', ALine) > 8); {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.IsLinksHeader(ALine: String): Boolean;
-{
-
-Links: 0
-}
+class function TIdFTPLPStratusVOS.IsLinksHeader(const ALine: String): Boolean;
 begin
-  Result := (IndyPos('Links: ',ALine)=1);
-
+  { Links: 0 }
+  Result := TextStartsWith(ALine, 'Links: '); {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.IsValidDirEntry(
-  const ALine: String): Boolean;
+class function TIdFTPLPStratusVOS.IsValidDirEntry(const ALine: String): Boolean;
 var
   s, s2 : String;
 begin
   Result := False;
-            s := ALine;
-            //a listing may start of with one space
-            //permissions
-            if TextStartsWith(s, ' ') then
-            begin
-              IdDelete(s, 1, 1);
-            end;
-            if Length(Fetch(s))<>1 then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            //block count
-            if not IsNumeric(Fetch(s)) then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            s2 := Fetch(s);
-            //date
-            if not IsYYYYMMDD(s2) then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            s2 := Fetch(s);
-            //time
-            if not IsHHMMSS(s2,':') then
-            begin
-              Exit;
-            end;
-  Result := True;
+  s := ALine;
+  //a listing may start of with one space
+  //permissions
+  if TextStartsWith(s, ' ') then begin {do not localize}
+    IdDelete(s, 1, 1);
+  end;
+  if Length(Fetch(s)) <> 1 then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  //block count
+  if not IsNumeric(Fetch(s)) then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  s2 := Fetch(s);
+  //date
+  if not IsYYYYMMDD(s2) then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  s2 := Fetch(s);
+  //time
+  Result := IsHHMMSS(s2, ':'); {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.IsValidFileEntry(
-  const ALine: String): Boolean;
+class function TIdFTPLPStratusVOS.IsValidFileEntry(const ALine: String): Boolean;
 var
   s, s2 : String;
 begin
   Result := False;
-            s := ALine;
-            //a listing may start of with one space
-            if TextStartsWith(s, ' ') then
-            begin
-              IdDelete(s, 1, 1);
-            end;
-            if Length(Fetch(s))<>1 then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            if not IsNumeric(Fetch(s)) then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            s2 := Fetch(s);
-            if not IsNumeric(Copy(s2,1,2)) then
-            begin
-              s := TrimLeft(s);
-              s2 := Fetch(s);
-            end;
-            if not IsYYYYMMDD(s2) then
-            begin
-              Exit;
-            end;
-            s := TrimLeft(s);
-            s2 := Fetch(s);
-            if not IsHHMMSS(s2,':') then
-            begin
-              Exit;
-            end;
-  Result := True;
+  s := ALine;
+  //a listing may start of with one space
+  if TextStartsWith(s, ' ') then begin {do not localize}
+    IdDelete(s, 1, 1);
+  end;
+  if Length(Fetch(s)) <> 1 then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  if not IsNumeric(Fetch(s)) then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  s2 := Fetch(s);
+  if not IsNumeric(Copy(s2, 1, 2)) then
+  begin
+    s := TrimLeft(s);
+    s2 := Fetch(s);
+  end;
+  if not IsYYYYMMDD(s2) then begin
+    Exit;
+  end;
+  s := TrimLeft(s);
+  s2 := Fetch(s);
+  Result := IsHHMMSS(s2, ':'); {do not localize}
 end;
 
-class function TIdFTPLPStratusVOS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPStratusVOS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdStratusVOSFTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPStratusVOS.ParseDirEntry(
-  const AItem: TIdFTPListItem): Boolean;
+class function TIdFTPLPStratusVOS.ParseDirEntry(const AItem: TIdFTPListItem): Boolean;
+var
+  LV : TIdStratusVOSFTPListItem;
+  LBuf, LPart : String;
+begin
 //w    158 stm       90-05-19 11:53:44  acctng.cobol
 {
 Files
@@ -383,14 +349,10 @@ status       s     Allows the user to list the contents of the
 modify       m     Gives the user full access to the contents of
                    the directory.
                    }
-var LV : TIdStratusVOSFTPListItem;
-  LBuf, LPart : String;
-begin
    Result := False;
    LV := AItem as TIdStratusVOSFTPListItem;
    LBuf := AItem.Data;
-   if TextStartsWith(LBuf, ' ') then
-   begin
+   if TextStartsWith(LBuf, ' ') then begin {do not localize}
      IdDelete(LBuf, 1, 1);
    end;
    LV.FAccess := Fetch(LBuf);
@@ -403,11 +365,10 @@ begin
    LBuf := TrimLeft(LBuf);
    //block count
    LPart := Fetch(LBuf);
-   if not IsNumeric(LPart) then
-   begin
+   if not IsNumeric(LPart) then begin
      Exit;
    end;
-   LV.NumberBlocks := IndyStrToInt(LPart,0);
+   LV.NumberBlocks := IndyStrToInt(LPart, 0);
    //size
    LV.Size := (LV.NumberBlocks * 4096);
    LV.SizeAvail := True;
@@ -415,33 +376,27 @@ begin
    //date
    LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
-   if IsYYYYMMDD(LPart) then
-   begin
-     LV.ModifiedDate := DateYYMMDD(LPart);
-   end
-   else
-   begin
+   if not IsYYYYMMDD(LPart) then begin
      Exit;
    end;
+   LV.ModifiedDate := DateYYMMDD(LPart);
    //time
    LBuf := TrimLeft(LBuf);
    LPart := Fetch(LBuf);
-   if IsHHMMSS(LPart,':') then
-   begin
-     LV.ModifiedDate := LV.ModifiedDate + IdFTPCommon.TimeHHMMSS(LPart);
-   end
-   else
-   begin
+   if not IsHHMMSS(LPart, ':') then begin {do not localize}
      Exit;
    end;
+   LV.ModifiedDate := LV.ModifiedDate + TimeHHMMSS(LPart);
    LBuf := TrimLeft(LBuf);
    LV.FileName := LBuf;
-   
    Result := True;
 end;
 
-class function TIdFTPLPStratusVOS.ParseFileEntry(
-  const AItem: TIdFTPListItem): Boolean;
+class function TIdFTPLPStratusVOS.ParseFileEntry(const AItem: TIdFTPListItem): Boolean;
+var
+  LV : TIdStratusVOSFTPListItem;
+  LBuf, LPart : String;
+begin
 //w    158 stm       90-05-19 11:53:44  acctng.cobol
 {
 Files
@@ -487,36 +442,31 @@ status       s     Allows the user to list the contents of the
 modify       m     Gives the user full access to the contents of
                    the directory.
                    }
-var LV : TIdStratusVOSFTPListItem;
-  LBuf, LPart : String;
-begin
-   Result := False;
-   LV := AItem as TIdStratusVOSFTPListItem;
-   LBuf := AItem.Data;
-   if TextStartsWith(LBuf, ' ') then
-   begin
-     IdDelete(LBuf, 1, 1);
-   end;
-   LV.FAccess := Fetch(LBuf);
-   LV.PermissionDisplay := LV.Access;
-   if Length(LV.FAccess)<>1 then
-   begin
-     //invalid
-     LV.FAccess := '';
-     Exit;
-   end;
-   LBuf := TrimLeft(LBuf);
-   //block count
-   LPart := Fetch(LBuf);
-   if not IsNumeric(LPart) then
-   begin
-     Exit;
-   end;
-   LV.NumberBlocks := IndyStrToInt(LPart,0);
-   //file format
-   LBuf := TrimLeft(LBuf);
-   LV.FileFormat := Fetch(LBuf);
-   {
+  Result := False;
+  LV := AItem as TIdStratusVOSFTPListItem;
+  LBuf := AItem.Data;
+  if TextStartsWith(LBuf, ' ') then begin {do not localize}
+    IdDelete(LBuf, 1, 1);
+  end;
+  LV.FAccess := Fetch(LBuf);
+  LV.PermissionDisplay := LV.Access;
+  if Length(LV.FAccess) <> 1 then
+  begin
+    //invalid
+    LV.FAccess := '';
+    Exit;
+  end;
+  LBuf := TrimLeft(LBuf);
+  //block count
+  LPart := Fetch(LBuf);
+  if not IsNumeric(LPart) then begin
+    Exit;
+  end;
+  LV.NumberBlocks := IndyStrToInt(LPart, 0);
+  //file format
+  LBuf := TrimLeft(LBuf);
+  LV.FileFormat := Fetch(LBuf);
+  {
 Charlie Spitzer, stratus customer service, made this note in an E-Mail to me:
 
 not all files can be directly calculated in size. there are different file
@@ -537,17 +487,16 @@ contains data blocks + index blocks, if any. there is no way to get a record
 count, and if the file is sparse (not all records of the file are written,
 since it's possible to write a record not at the beginning of a file), the
 block count may be wildly inaccurate.
-   }
+  }
+  LV.Size := LV.NumberBlocks;
 
-     LV.Size := LV.NumberBlocks;
-
-   {
+  {
 John M. Cassidy, CISSP, euroConex  noted in a private E-Mail that the blocksize
 is 4096 bytes.
 
 This will NOT be exact.  That's one reason why I don't use file sizes right from
 a directory listing when writing FTP programs.
-   }
+  }
   LV.Size := LV.NumberBlocks * 4096;
 
 {
@@ -555,32 +504,24 @@ Otto Newman noted this, Stratus Technologies noted this:
 
 Transmit sizes are shown in terms of bytes which are blocks * 4096.
 }
-   LV.SizeAvail := True;
-   //date
-   LBuf := TrimLeft(LBuf);
-   LPart := Fetch(LBuf);
-   if IsYYYYMMDD(LPart) then
-   begin
-     LV.ModifiedDate := DateYYMMDD(LPart);
-   end
-   else
-   begin
-     Exit;
-   end;
-   //time
-   LBuf := TrimLeft(LBuf);
-   LPart := Fetch(LBuf);
-   if IsHHMMSS(LPart,':') then
-   begin
-     LV.ModifiedDate := LV.ModifiedDate + IdFTPCommon.TimeHHMMSS(LPart);
-   end
-   else
-   begin
-     Exit;
-   end;
-   {           From:
+  LV.SizeAvail := True;
+  //date
+  LBuf := TrimLeft(LBuf);
+  LPart := Fetch(LBuf);
+  if not IsYYYYMMDD(LPart) then gegin
+    Exit;
+  end;
+  LV.ModifiedDate := DateYYMMDD(LPart);
+  //time
+  LBuf := TrimLeft(LBuf);
+  LPart := Fetch(LBuf);
+  if not IsHHMMSS(LPart, ':') then begin {do not localize}
+    Exit;
+  end;
+  LV.ModifiedDate := LV.ModifiedDate + TimeHHMMSS(LPart);
+  {           From:
 
-   Manual Name: VOS Reference Manual 
+  Manual Name: VOS Reference Manual 
 
 Part Number: R002
 
@@ -603,12 +544,11 @@ the decimal digits
 the ASCII national use characters
 //@ [ \ ] ^ ` { | close-bracket ~
 " $ + , - . / : _
-   }
-   LBuf := TrimLeft(LBuf);
-   LV.FileName := LBuf;
-   Result := True;
-   //item type can't be determined here, that has to be done in the main parsing procedure
-
+  }
+  LBuf := TrimLeft(LBuf);
+  LV.FileName := LBuf;
+  Result := True;
+  //item type can't be determined here, that has to be done in the main parsing procedure
 end;
 
 class function TIdFTPLPStratusVOS.ParseLine(const AItem: TIdFTPListItem;
@@ -616,173 +556,138 @@ class function TIdFTPLPStratusVOS.ParseLine(const AItem: TIdFTPListItem;
 begin
   Result := False;
   case AItem.ItemType of
-    DitFile : Result := ParseFileEntry(AItem);
-    DitDirectory : Result := ParseDirEntry(AItem);
+    DitFile         : Result := ParseFileEntry(AItem);
+    DitDirectory    : Result := ParseDirEntry(AItem);
     ditSymbolicLink : Result := ParseLinkEntry(AItem);
   end;
 end;
 
-class function TIdFTPLPStratusVOS.ParseLinkEntry(
-  const AItem: TIdFTPListItem): Boolean;
-
-//04-07-13 21:15:43  backholding_logs ->  %descc#m2_d01>l3s>db>lti>in>cp_exception
-var LV : TIdStratusVOSFTPListItem;
+class function TIdFTPLPStratusVOS.ParseLinkEntry(const AItem: TIdFTPListItem): Boolean;
+var
+  LV : TIdStratusVOSFTPListItem;
   LBuf, LPart : String;
 begin
-   Result := False;
-   LV := AItem as TIdStratusVOSFTPListItem;
-   LBuf := AItem.Data;
-   //date
-   LPart := Fetch(LBuf);
-   if IsYYYYMMDD(LPart) then
-   begin
-     LV.ModifiedDate := DateYYMMDD(LPart);
-   end
-   else
-   begin
-     Exit;
-   end;
-   //time
-   LBuf := TrimLeft(LBuf);
+  //04-07-13 21:15:43  backholding_logs ->  %descc#m2_d01>l3s>db>lti>in>cp_exception
+  Result := False;
+  LV := AItem as TIdStratusVOSFTPListItem;
+  LBuf := AItem.Data;
+  //date
+  LPart := Fetch(LBuf);
+  if not IsYYYYMMDD(LPart) then begin
+    Exit;
+  end;
+  LV.ModifiedDate := DateYYMMDD(LPart);
+  //time
+  LBuf := TrimLeft(LBuf);
 
-   LPart := Fetch(LBuf);
-   if IsHHMMSS(LPart,':') then
-   begin
-     LV.ModifiedDate := LV.ModifiedDate + TimeHHMMSS(LPart);
-   end
-   else
-   begin
-     Exit;
-   end;
-   //name
-   LBuf := TrimLeft(LBuf);
-   LV.FileName := TrimRight(Fetch(LBuf,'->'));
-   //link to
-   LBuf := TrimLeft(LBuf);
-   LV.LinkedItemName := Trim(LBuf);
-   Result := True;
-   //size
-   LV.SizeAvail := False;
+  LPart := Fetch(LBuf);
+  if not IsHHMMSS(LPart, ':') then begin {do not localize}
+    Exit;
+  end;
+  LV.ModifiedDate := LV.ModifiedDate + TimeHHMMSS(LPart);
+  //name
+  LBuf := TrimLeft(LBuf);
+  LV.FileName := TrimRight(Fetch(LBuf, '->')); {do not localize}
+  //link to
+  LBuf := TrimLeft(LBuf);
+  LV.LinkedItemName := Trim(LBuf);
+  //size
+  LV.SizeAvail := False;
+  Result := True;
 end;
 
 class function TIdFTPLPStratusVOS.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
+  ADir: TIdFTPListItems): Boolean;
 var
   LDit : TIdDirItemType; //for tracking state
   LItem : TIdFTPListItem;
   i : Integer;
   LIsContinuedLine : Boolean;
-  LLine, LPart : String;
+  LLine, LPart, LBuf : String;
 begin
-  Result := True;
+  Result := False;
   LDit := ditFile;
   LIsContinuedLine := False;
   for i := 0 to AListing.Count -1 do
   begin
-    if (AListing[i] ='') then
+    LBuf := AListing[i];
+    if LBuf <> '' then
     begin
-    end
-    else
-    begin
-      if IsFilesHeader(AListing[i]) then
-      begin
+      if IsFilesHeader(LBuf) then begin
         LDit := ditFile;
       end
-      else
+      else if IsDirsHeader(LBuf) then begin
+        LDit := ditDirectory;
+      end
+      else if IsLinksHeader(LBuf) then begin
+        LDit := ditSymbolicLink;
+      end
+      else if LDit <> ditSymbolicLink then
       begin
-        if IsDirsHeader(AListing[i]) then
+        LItem := MakeNewItem(ADir);
+        LItem.ItemType := LDit;
+        LItem.Data := LBuf;
+        if not ParseLine(LItem) then begin
+          FreeAndNil(LItem);
+          Exit;
+        end;
+      end
+      else if not LIsContinuedLine then
+      begin
+        LLine := TrimRight(LBuf);
+        if TextEndsWith(LLine, '->') then begin {do not localize}
+          LIsContinuedLine := True;
+        end else
         begin
-          LDit := ditDirectory;
-        end
-        else
+          LItem := MakeNewItem(ADir);
+          LItem.ItemType := LDit;
+          LItem.Data := LLine;
+          if not ParseLine(LItem) then begin
+            FreeAndNil(LItem);
+            Exit;
+          end;
+        end;
+      end else
+      begin
+        LPart := LBuf;
+        if TextStartsWith(LPart, '+') then begin
+          IdDelete(LPart, 1, 1);
+        end;
+        LLine := LLine + LPart;
+        LIsContinuedLine := False;
+        if i < (AListing.Count-2) then
         begin
-          if IsLinksHeader(AListing[i]) then
+          if TextStartsWith(AListing[i+1], '+') then begin
+            LIsContinuedLine := True;
+          end else
           begin
-            LDit := ditSymbolicLink;
-          end
-          else
-          begin
-            if LDit<> ditSymbolicLink then
-            begin
-              LItem := MakeNewItem (ADir);
-              LItem.ItemType := LDit;
-              LItem.Data := AListing[i];
-
-              if not ParseLine( LItem) then
-              begin
-                FreeAndNil(LItem);
-              end;
-            end
-            else
-            begin
-              if not LIsContinuedLine then
-              begin
-                LLine := TrimRight(AListing[i]);
-                if IdGlobalProtocols.RightStr(LLine,2)='->' then
-                begin
-                  LIsContinuedLine := True;
-                end
-                else
-                begin
-                  LItem := MakeNewItem (ADir);
-                  LItem.ItemType := LDit;
-                  LItem.Data := LLine;
-
-                  if not ParseLine( LItem) then
-                  begin
-                    FreeAndNil(LItem);
-                  end;
-                end;
-              end
-              else
-              begin
-                LPart := AListing[i];
-                if TextStartsWith(LPart, '+') then
-                begin
-                  IdDelete(LPart, 1, 1);
-                end;
-                LLine := LLine + LPart;
-                LIsContinuedLine := False;
-                if i < (AListing.Count -2) then
-                begin
-                  if TextStartsWith(AListing[i+1], '+') then
-                  begin
-                    LIsContinuedLine := True;
-                  end
-                  else
-                  begin
-                    LItem := MakeNewItem (ADir);
-                    LItem.ItemType := LDit;
-                    LItem.Data := LLine;
-
-                    if not ParseLine( LItem) then
-                    begin
-                      FreeAndNil(LItem);
-                    end;
-                  end;
-                end
-                else
-                begin
-                  LItem := MakeNewItem (ADir);
-                  LItem.ItemType := LDit;
-                  LItem.Data := LLine;
-
-                  if not ParseLine( LItem) then
-                  begin
-                    FreeAndNil(LItem);
-                  end;
-                end;
-              end;
+            LItem := MakeNewItem(ADir);
+            LItem.ItemType := LDit;
+            LItem.Data := LLine;
+            if not ParseLine(LItem) then begin
+              FreeAndNil(LItem);
+              Exit;
             end;
+          end;
+        end else
+        begin
+          LItem := MakeNewItem(ADir);
+          LItem.ItemType := LDit;
+          LItem.Data := LLine;
+          if not ParseLine(LItem) then begin
+            FreeAndNil(LItem);
+            Exit;
           end;
         end;
       end;
     end;
   end;
+  Result := True;
 end;
 
 initialization
   RegisterFTPListParser(TIdFTPLPStratusVOS);
 finalization
   UnRegisterFTPListParser(TIdFTPLPStratusVOS);
+
 end.
