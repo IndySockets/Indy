@@ -44,6 +44,7 @@
 unit IdFTPListParseNCSAForDOS;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -52,14 +53,15 @@ uses
 
 type
   TIdNCSAforDOSFTPListItem = class(TIdFTPListItem);
+
   TIdFTPLPNCSAforDOS = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean; override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
     class function GetIdent : String; override;
   end;
 
@@ -72,8 +74,9 @@ uses
 { TIdFTPLPNCSAforDOS }
 
 class function TIdFTPLPNCSAforDOS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : TStrings;
   LData : String;
   i : Integer;
 begin
@@ -81,31 +84,28 @@ begin
   if AListing.Count > 0 then
   begin
     //we have to loop through because there is a similar format
-    //in SuperTCP but that one has an additional feild with spaces
+    //in SuperTCP but that one has an additional field with spaces
     //for long filenames.
-    for i := 0 to AListing.Count -2 do
+    for i := 0 to AListing.Count-2 do
     begin
       LData := AListing[i];
-
       s := TStringList.Create;
       try
-        SplitColumns(LData,s);
-        if (s.Count = 4) then
+        SplitColumns(LData, s);
+        if s.Count = 4 then
         begin
-          Result := (s[1] = '<DIR>') or (IsNumeric(s[1]));  {do not localize}
-          Result := Result and IsHHMMSS(s[3], ':') and IsMMDDYY(s[2], '-')
-            and ExcludeQVNET(LData);
+          Result := ((s[1] = '<DIR>') or IsNumeric(s[1])) and  {do not localize}
+                    IsMMDDYY(s[2], '-') and IsHHMMSS(s[3], ':') and {do not localize}
+		    ExcludeQVNET(LData);
         end;
       finally
         FreeAndNil(s);
       end;
-      if not Result then
-      begin
-        break;
+      if not Result then begin
+        Break;
       end;
     end;
     Result := IsFooter(AListing[AListing.Count-1]);
-
   end;
 end;
 
@@ -115,18 +115,17 @@ begin
 end;
 
 class function TIdFTPLPNCSAforDOS.IsFooter(const AData: String): Boolean;
-var LWords : TStrings;
+var
+  LWords : TStrings;
 begin
   Result := False;
   LWords := TStringList.Create;
   try
-    SplitColumns(Trim(StringReplace(AData, '-', ' ',[rfReplaceAll])), LWords);
-    while (LWords.Count >2) do
-    begin
+    SplitColumns(Trim(StringReplace(AData, '-', ' ', [rfReplaceAll])), LWords);
+    while LWords.Count > 2 do begin
       LWords.Delete(0);
     end;
-    if LWords.Count = 2 then
-    begin
+    if LWords.Count = 2 then begin
       Result := (LWords[0] = 'Bytes') and (LWords[1] = 'Available');  {do not localize}
     end;
   finally
@@ -139,16 +138,15 @@ begin
   Result := False;
 end;
 
-class function TIdFTPLPNCSAforDOS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPNCSAforDOS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdNCSAforDOSFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPNCSAforDOS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf, LPt : String;
-
+var
+  LBuf, LPt : String;
 begin
   LBuf := AItem.Data;
   {filename - note that a space is illegal in MS-DOS so this should be safe}
@@ -160,11 +158,10 @@ begin
   begin
     AItem.ItemType := ditDirectory;
     AItem.SizeAvail := False;
-  end
-  else
+  end else
   begin
     AItem.ItemType := ditFile;
-    AItem.Size := IndyStrToInt64(LPt,0);
+    AItem.Size := IndyStrToInt64(LPt, 0);
   end;
   //time stamp
   if LBuf <> '' then
@@ -177,8 +174,7 @@ begin
       AItem.ModifiedDate := DateMMDDYY(LPt);
       LBuf := Trim(LBuf);
       LPt := Fetch(LBuf);
-      if LPt <> '' then
-      begin
+      if LPt <> '' then begin
         AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LPt);
       end;
     end;
@@ -190,4 +186,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPNCSAforDOS);
 finalization
   UnRegisterFTPListParser(TIdFTPLPNCSAforDOS);
+
 end.
