@@ -38,7 +38,9 @@
 unit IdFTPListParseVxWorks;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase;
@@ -48,10 +50,10 @@ type
 
   TIdFTPLPVxWorks = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean;  override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
@@ -73,39 +75,42 @@ begin
   {Not sure if the value string is in the FTP list
    because I didn't see it first hand, it could've been a VxWorks command
    prompt, but just in case.}
-  Result := IndyPos('value', AData) = 1;  {do not localize}
+  Result := TextStartsWith(AData, 'value');  {do not localize}
 end;
 
 class function TIdFTPLPVxWorks.IsHeader(const AData: String): Boolean;
-var LCols : TStrings;
+var
+  LCols : TIdStrings;
 begin
   Result := False;
   LCols := TStringList.Create;
   try
-     SplitColumns(Trim(AData),LCols);
-     if (LCols[0] = 'size') and (LCols[1] = 'date') and   {do not localize}
-        (LCols[2] = 'time') and (LCols[3] = 'name') then  {do not localize}
-        begin
-          Result := True;
-        end;
+    SplitColumns(Trim(AData), LCols);
+    if LCols.Count > 3 then
+    begin
+      Result := (LCols[0] = 'size') and   {do not localize}
+                (LCols[1] = 'date') and   {do not localize}
+                (LCols[2] = 'time') and   {do not localize}
+                (LCols[3] = 'name');      {do not localize}
+    end;
   finally
     FreeAndNil(LCols);
   end;
 end;
 
-class function TIdFTPLPVxWorks.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPVxWorks.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdVxWorksFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPVxWorks.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuffer : String;
+var
+  LBuffer : String;
 begin
   LBuffer := Trim(AItem.Data);
   //Size
-  AItem.Size := IndyStrToInt64(Fetch(LBuffer),0);
+  AItem.Size := IndyStrToInt64(Fetch(LBuffer), 0);
   //  date
   LBuffer := TrimLeft(LBuffer);
   AItem.ModifiedDate := DateStrMonthDDYY(Fetch(LBuffer));
@@ -129,4 +134,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPVxWorks);
 finalization
   UnRegisterFTPListParser(TIdFTPLPVxWorks);
+
 end.
