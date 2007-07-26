@@ -125,12 +125,17 @@ type
     FCurrentBinding: TIdSocketHandle;
     FListenerThreads: TThreadList;
     FThreadClass: TIdUDPListenerThreadClass;
+    FThreadedEvent: boolean;
+    //
+    FOnBeforeBind: TIdSocketHandleEvent;
+    FOnAfterBind: TNotifyEvent;
     FOnUDPRead: TUDPReadEvent;
     FOnUDPException : TIdUDPExceptionEvent;
-    FThreadedEvent: boolean;
     //
     procedure BroadcastEnabledChanged; override;
     procedure CloseBinding; override;
+    procedure DoBeforeBind(AHandle: TIdSocketHandle); virtual;
+    procedure DoAfterBind; virtual;
     procedure DoOnUDPException(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);  virtual;
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); virtual;
     function GetActive: Boolean; override;
@@ -145,10 +150,14 @@ type
   published
     property Bindings: TIdSocketHandles read FBindings write SetBindings;
     property DefaultPort: TIdPort read GetDefaultPort write SetDefaultPort;
+    property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
+    //
+    property OnBeforeBind: TIdSocketHandleEvent read FOnBeforeBind write FOnBeforeBind;
+    property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnUDPRead: TUDPReadEvent read FOnUDPRead write FOnUDPRead;
     property OnUDPException : TIdUDPExceptionEvent read FOnUDPException write FOnUDPException;
-    property ThreadedEvent: boolean read FThreadedEvent write FThreadedEvent default False;
   end;
+
   EIdUDPServerException = class(EIdUDPException);
 
 implementation
@@ -203,6 +212,20 @@ begin
   inherited Destroy;
 end;
 
+procedure TIdUDPServer.DoBeforeBind(AHandle: TIdSocketHandle);
+begin
+  if Assigned(FOnBeforeBind) then begin
+    FOnBeforeBind(AHandle);
+  end;
+end;
+
+procedure TIdUDPServer.DoAfterBind;
+begin
+  if Assigned(FOnAfterBind) then begin
+    FOnAfterBind(Self);
+  end;
+end;
+
 procedure TIdUDPServer.DoOnUDPException(AThread: TIdUDPListenerThread; ABinding: TIdSocketHandle; const AMessage : String; const AExceptionClass : TClass);
 begin
   if Assigned(FOnUDPException) then begin
@@ -252,6 +275,7 @@ begin
 {$ELSE}
           AllocateSocket(Id_SOCK_DGRAM);
 {$ENDIF}
+          DoBeforeBind(Bindings[i]);
           Bind;
         end;
         Inc(i);
@@ -264,6 +288,9 @@ begin
       end;
       raise;
     end;
+
+    DoAfterBind;
+
     for i := 0 to Bindings.Count - 1 do begin
       LListenerThread := FThreadClass.Create(Self, Bindings[i]);
       LListenerThread.Name := Name + ' Listener #' + IntToStr(i + 1); {do not localize}
