@@ -220,46 +220,38 @@ type
     function GetLocalAddresses: TStrings;
   public
     function Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-             var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): TIdStackSocketHandle; overload; virtual;
+             var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
+             ): TIdStackSocketHandle; overload;
     function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
              var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion
              ): TIdStackSocketHandle; overload; virtual; abstract;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string;
-              const APort: TIdPort;
-              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ); virtual; abstract;
+              const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ); virtual; abstract;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
-              const APort: TIdPort;
-              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
+              const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     constructor Create; virtual;
     procedure Disconnect(ASocket: TIdStackSocketHandle); virtual; abstract;
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord; var arg: LongWord): Integer; virtual; abstract;
     class procedure Make;
     class procedure IncUsage; //create stack if necessary and inc counter
     class procedure DecUsage; //decrement counter and free if it gets to zero
-    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort); overload; virtual;
-    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
-    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort); overload; virtual;
-    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-              var VPort: TIdPort; var VIPVersion: TIdIPVersion); overload; virtual; abstract;
+    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort); overload;
+    procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion); overload; virtual; abstract;
+    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort); overload;
+    procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
+      var VIPVersion: TIdIPVersion); overload; virtual; abstract;
     function HostByAddress(const AAddress: string;
-              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; virtual; abstract;
     function HostToNetwork(AValue: Word): Word; overload; virtual; abstract;
     function HostToNetwork(AValue: LongWord): LongWord; overload; virtual; abstract;
     function HostToNetwork(AValue: Int64): Int64; overload; virtual; abstract;
     function HostToNetwork(AValue: TIdIPv6Address): TIdIPv6Address; overload; virtual;
     function IsIP(AIP: string): Boolean;
-    procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual;
-              abstract;
-    function NewSocketHandle(const ASocketType:TIdSocketType;
-              const AProtocol: TIdSocketProtocol;
-              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
-              const AOverlapped: Boolean = False)
-              : TIdStackSocketHandle; virtual; abstract;
+    procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
+    function NewSocketHandle(const ASocketType:TIdSocketType; const AProtocol: TIdSocketProtocol;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION; const AOverlapped: Boolean = False)
+      : TIdStackSocketHandle; virtual; abstract;
     function NetworkToHost(AValue: Word): Word; overload; virtual; abstract;
     function NetworkToHost(AValue: LongWord): LongWord; overload; virtual; abstract;
     function NetworkToHost(AValue: Int64): Int64; overload; virtual; abstract;
@@ -267,32 +259,25 @@ type
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
       ALevel: TIdSocketOptionLevel; AOptName: TIdSocketOption;
       out AOptVal: Integer); virtual; abstract;
-    procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
-             AOptName: TIdSocketOption; AOptVal: Integer); overload;virtual;abstract;
+    procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
+      AOptName: TIdSocketOption; AOptVal: Integer); overload; virtual; abstract;
     function ResolveHost(const AHost: string;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 
     // Result:
     // > 0: Number of bytes received
     //   0: Connection closed gracefully
     // Will raise exceptions in other cases
-    function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes)
-             : Integer; virtual; abstract;
-    function Send(
-      ASocket: TIdStackSocketHandle;
-      const ABuffer: TIdBytes;
-      AOffset: Integer = 0;
-      ASize: Integer = -1
-      ): Integer; virtual; abstract;
+    function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer; virtual; abstract;
+    function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+      AOffset: Integer = 0; ASize: Integer = -1): Integer; virtual; abstract;
 
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
              var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; virtual; abstract;
+             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
              const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; virtual; abstract;
+             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes; APkt: TIdPacketInfo;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
