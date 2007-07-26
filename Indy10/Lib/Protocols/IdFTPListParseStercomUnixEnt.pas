@@ -35,7 +35,9 @@
 unit IdFTPListParseStercomUnixEnt;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -49,38 +51,43 @@ type
     property FlagsProt : String read FFlagsProt write FFlagsProt;
     property ProtIndicator : String read FProtIndicator write FProtIndicator;
   end;
+
   TIdFTPLPSterComEntBase = class(TIdFTPListBaseHeader)
   protected
     class function IsFooter(const AData : String): Boolean; override;
   end;
+
   TIdFTPLPSterCommEntUx = class(TIdFTPLPSterComEntBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-      class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
+
   TIdSterCommEntUxNSFTPListItem = class(TIdOwnerFTPListItem);
+
   TIdFTPLPSterCommEntUxNS = class(TIdFTPLPSterComEntBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class procedure StripPlus(var VString : String);
-
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
+
   TIdSterCommEntUxRootFTPListItem = class(TIdMinimalFTPListItem);
+
   TIdFTPLPSterCommEntUxRoot = class(TIdFTPLPSterComEntBase)
   protected
-   class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 const
@@ -97,17 +104,17 @@ uses
 { TIdFTPLPSterCommEntUx }
 
 class function TIdFTPLPSterCommEntUx.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LBuf : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LBuf : String;
 
   function IsSterPrefix(const AStr : String) : Boolean;
   begin
     Result := False;
     if Length(AStr) = 13 then
     begin
-      if IsValidSterCommFlags(Copy(AStr,1,10)) then
-      begin
-        Result := IsValidSterCommProt(Copy(AStr,11,3));
+      if IsValidSterCommFlags(Copy(AStr, 1, 10)) then begin
+        Result := IsValidSterCommProt(Copy(AStr, 11, 3));
       end;
     end;
   end;
@@ -143,12 +150,11 @@ The two sets of numbers represent batch IDs and file sizes.
 -SR--M------- A steve      1     369 Sep 02 13:47 <<ACTIVITY LOG>>
 }
   Result := False;
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
     LBuf := AListing[0];
     Result := IsSterPrefix(Fetch(LBuf));
-    if Result then
-    begin
+    if Result then begin
       Result := IsValidSterCommProt(Fetch(LBuf));
     end;
   end;
@@ -159,20 +165,20 @@ begin
   Result := STIRCOMUNIX;
 end;
 
-class function TIdFTPLPSterCommEntUx.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPSterCommEntUx.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdSterCommEntUxFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPSterCommEntUx.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf, LTmp : String;
+var
+  LBuf, LTmp : String;
   wYear, wMonth, wDay, wHour, wMin, wSec : Word;
   LI : TIdSterCommEntUxFTPListItem;
 begin
   LI := AItem as TIdSterCommEntUxFTPListItem;
-  DecodeDate(Now,wYear,wMonth,wDay);
+  DecodeDate(Now, wYear, wMonth, wDay);
   wHour := 0;
   wMin := 0;
   wSec := 0;
@@ -189,52 +195,47 @@ begin
   repeat
     LBuf := TrimLeft(LBuf);
     LTmp := Fetch(LBuf);
-    if LBuf<>'' then
+    if LBuf <> '' then
     begin
-      if IsNumeric(LBuf[1])=False then
-      begin
-        LI.Size := IndyStrToInt(LTmp,0);
-      end
-      else
+      if IsNumeric(LBuf[1]) then begin
       begin
         //we found the month
-        break;
+        Break;
       end;
+      LI.Size := IndyStrToInt(LTmp, 0);
     end;
   until False;
   //month
   wMonth := StrToMonth(LTmp);
   //day
-    LBuf := TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
-  wDay := IndyStrToInt(LTmp,wDay);
+  wDay := IndyStrToInt(LTmp, wDay);
   //year or time
-    LBuf := TrimLeft(LBuf);
+  LBuf := TrimLeft(LBuf);
   LTmp := Fetch(LBuf);
-  if IndyPos(':',LTmp)>0 then
+  if IndyPos(':', LTmp) > 0 then {do not localize}
   begin
-  //year is missing - just get the time
-    wYear := AddMissingYear(wDay,wMonth);
-    wHour := IndyStrToInt(Fetch(LTmp,':'), 0);
-    wMin := IndyStrToInt(Fetch(LTmp,':'), 0);
-  end
-  else
+    //year is missing - just get the time
+    wYear := AddMissingYear(wDay, wMonth);
+    wHour := IndyStrToInt(Fetch(LTmp, ':'), 0); {do not localize}
+    wMin := IndyStrToInt(Fetch(LTmp, ':'), 0);  {do not localize}
+  end else
   begin
-    wYear := IndyStrToInt(LTmp,wYear);
+    wYear := IndyStrToInt(LTmp, wYear);
   end;
   LI.FileName := LBuf;
-  LI.ModifiedDate := EncodeDate(wYear,wMonth,wDay);
-  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour,wMin,wSec,0);
+  LI.ModifiedDate := EncodeDate(wYear, wMonth, wDay);
+  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(wHour, wMin, wSec, 0);
   Result := True;
 end;
-
 
 { TIdFTPLPSterCommEntUxNS }
 
 class function TIdFTPLPSterCommEntUxNS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LBuf, LBuf2 : String;
-
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LBuf, LBuf2 : String;
 {
 The list format is this:
 
@@ -255,66 +256,60 @@ solution 00002172 120072022 <c3967287.zi>          030929-1059  A RT      TCP BI
 Total Number of batches listed: 14
 }
    function IsValidDate(const ADate : String) : Boolean;
-   var LBuf, LDate : String;
+   var
+     LBuf, LDate : String;
      LDay, LMonth, LHour, LMin : Word;
    begin
      LBuf := ADate;
-     LDate := Fetch(LBuf,'-');
-     LMonth := IndyStrToInt(Copy(LDate,3,2),0);
-     Result := (LMonth>0) and (LMonth<13);
-     if not Result then
-     begin
+     LDate := Fetch(LBuf, '-'); {do not localize}
+     LMonth := IndyStrToInt(Copy(LDate, 3, 2), 0);
+     Result := (LMonth > 0) and (LMonth < 13);
+     if not Result then begin
        Exit;
      end;
-     LDay := IndyStrToInt(Copy(LDate,5,2),0);
-     Result := (LDay > 0) and (LDay<32);
-     if not result then
-     begin
+     LDay := IndyStrToInt(Copy(LDate, 5, 2), 0);
+     Result := (LDay > 0) and (LDay < 32);
+     if not Result then begin
        Exit;
      end;
-     LHour := IndyStrToInt(Copy(LBuf,1,2),0);
-     Result := (LHour > 0) and (LHour<25);
-     if not result then
-     begin
+     LHour := IndyStrToInt(Copy(LBuf, 1, 2), 0);
+     Result := (LHour > 0) and (LHour < 25);
+     if not Result then begin
        Exit;
      end;
-     LMin := IndyStrToInt(Copy(LBuf,3,2),0);
+     LMin := IndyStrToInt(Copy(LBuf, 3, 2), 0);
      Result := (LMin < 60);
    end;
 
 begin
-
   Result := False;
   if AListing.Count > 0 then
   begin
     if IsFooter(AListing[0]) then
     begin
       Result := True;
-    end
-    else
+      Exit;
+    end;
+    if IndyPos('>', AListing[0]) > 0 then {do not localize}
     begin
-      if IndyPos('>',AListing[0])>0 then
+      LBuf := AListing[0];
+      Fetch(LBuf, '>'); {do not localize}
+      StripPlus(LBuf);
+      LBuf := TrimLeft(LBuf);
+      if IsValidDate(Fetch(LBuf)) then
       begin
-        LBuf := AListing[0];
-        Fetch(LBuf,'>');
-        StripPlus(LBuf);
-        LBuf := TrimLeft(LBuf);
-        if IsValidDate(Fetch(LBuf)) then
+        LBuf2 := RightStr(LBuf, 7);
+        if IsValidSterCommProt(Copy(LBuf2, 1, 3)) then
         begin
-          LBuf2 := RightStr(LBuf,7);
-          if IsValidSterCommProt(Copy(LBuf2,1,3)) then
+          if IsValidSterCommData(Copy(LBuf2, 5, 3)) then
           begin
-            if IsValidSterCommData(Copy(LBuf2,5,3)) then
-            begin
-              LBuf := Copy(LBuf,1,Length(LBuf)-7);
-              Result := IsValidSterCommFlags(LBuf);
-            end;
+            LBuf := Copy(LBuf, 1, Length(LBuf)-7);
+            Result := IsValidSterCommFlags(LBuf);
           end;
         end;
       end;
     end;
   end;
-
 end;
 
 class function TIdFTPLPSterCommEntUxNS.GetIdent: String;
@@ -322,33 +317,33 @@ begin
   Result := STIRCOMUNIXNS;
 end;
 
-class function TIdFTPLPSterCommEntUxNS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPSterCommEntUxNS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdSterCommEntUxNSFTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPSterCommEntUxNS.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-{
-The format is like this:
-
-ACME    00000020 00000152 <test batch>       990926-1431 CD   FTP ASC
-ACME    00000019 00000152 <test batch>       990926-1435 CD   FTP ASC
-ACME    00000014 00000606 <cmuadded locally> 990929-1306 A R TCP BIN
-ACME    00000013 00000606 <orders>           990929-1308 A R TCP EBC
-ACME    00000004 00000606 <orders>           990929-1309 A R TCP ASC
-Total Number of batches listed: 5
-
-Note that this was taken from:
-"Connect:Enterprise® UNIX Remote User’s Guide Version 2.1 " Copyright
-1999, 2002, 2003 Sterling Commerce, Inc.
-}
-var LBuf : String;
+class function TIdFTPLPSterCommEntUxNS.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  LBuf : String;
   LYear, LMonth, LDay : Word;
   LHour, LMin : Word;
   LI : TIdSterCommEntUxNSFTPListItem;
 begin
+  {
+  The format is like this:
+
+  ACME    00000020 00000152 <test batch>       990926-1431 CD   FTP ASC
+  ACME    00000019 00000152 <test batch>       990926-1435 CD   FTP ASC
+  ACME    00000014 00000606 <cmuadded locally> 990929-1306 A R TCP BIN
+  ACME    00000013 00000606 <orders>           990929-1308 A R TCP EBC
+  ACME    00000004 00000606 <orders>           990929-1309 A R TCP ASC
+  Total Number of batches listed: 5
+
+  Note that this was taken from:
+  "Connect:Enterprise® UNIX Remote User’s Guide Version 2.1 " Copyright
+  1999, 2002, 2003 Sterling Commerce, Inc.
+  }
   LI := AItem as TIdSterCommEntUxNSFTPListItem;
   // owner
   LBuf := AItem.Data;
@@ -358,35 +353,34 @@ begin
   Fetch(LBuf);
   //size
   LBuf := TrimLeft(LBuf);
-  LI.Size := IndyStrToInt64( Fetch(LBuf),0);
+  LI.Size := IndyStrToInt64(Fetch(LBuf), 0);
   //filename
-  Fetch(LBuf,'<');
-  LI.FileName := Fetch(LBuf,'>');
-  Self.StripPlus(LBuf);
+  Fetch(LBuf, '<'); {do not localize}
+  LI.FileName := Fetch(LBuf, '>'); {do not localize}
+  StripPlus(LBuf);
   //date
   LBuf := TrimLeft(LBuf);
   //since we aren't going to do anything else after the date,
   //we should process as a string;
   //Date format:  990926-1431
-  LBuf := Copy(LBuf,1,11);
-  LYear := IndyStrToInt(Copy(LBuf,1,2),0);
-  LYear := Y2Year( LYear);
-  LMonth := IndyStrToInt(Copy(LBuf,3,2),0);
-  LDay := IndyStrToInt(Copy(LBuf,5,2),0);
+  LBuf := Copy(LBuf, 1, 11);
+  LYear := IndyStrToInt(Copy(LBuf, 1, 2), 0);
+  LYear := Y2Year(LYear);
+  LMonth := IndyStrToInt(Copy(LBuf, 3, 2), 0);
+  LDay := IndyStrToInt(Copy(LBuf, 5, 2), 0);
   //  got the date
   StripPlus(LBuf);
-  Fetch(LBuf,'-');
-  LI.ModifiedDate := EncodeDate(LYear,LMonth,LDay);
-  LHour := IndyStrToInt(Copy(LBuf,1,2),0);
-  LMin := IndyStrToInt(Copy(LBuf,3,2),0);
-  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(LHour,LMin,0,0);
+  Fetch(LBuf, '-'); {do not localize}
+  LI.ModifiedDate := EncodeDate(LYear, LMonth, LDay);
+  LHour := IndyStrToInt(Copy(LBuf, 1, 2), 0);
+  LMin := IndyStrToInt(Copy(LBuf, 3, 2), 0);
+  LI.ModifiedDate := LI.ModifiedDate + EncodeTime(LHour, LMin, 0, 0);
   Result := True;
 end;
 
 class procedure TIdFTPLPSterCommEntUxNS.StripPlus(var VString: String);
 begin
-  if TextStartsWith(VString, '+') then
-  begin
+  if TextStartsWith(VString, '+') then begin {do not localize}
     IdDelete(VString, 1, 1);
   end;
 end;
@@ -394,45 +388,44 @@ end;
 { TIdFTPLPSterCommEntUxRoot }
 
 class function TIdFTPLPSterCommEntUxRoot.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LBuf : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LBuf : String;
 begin
   Result := False;
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
-    if IsFooter(AListing[0]) then
+    if IsFooter(AListing[0]) then begin
+      Result := True;
+      Exit;
+    end;
+    //The line may be something like this:
+    //d   -   -   -  -  -  -  - steve
+    //123456789012345678901234567890
+    //         1         2         3
+    //do not check for the "-" in case its something we don't know
+    //about.  Checking for "d" should be okay as a mailbox listed here
+    //is probably like a dir
+    LBuf := AListing[0];
+    if (Length(LBuf) >= 26) and
+       (LBuf[1] = 'd') and             {do not localize}
+       (Copy(LBuf, 2, 3)  = '   ') and {do not localize}
+       (LBuf[5] <> ' ') and            {do not localize}
+       (Copy(LBuf, 6, 3)  = '   ') and {do not localize}
+       (LBuf[9] <> ' ') and            {do not localize}
+       (Copy(LBuf, 10, 3) = '   ') and {do not localize}
+       (LBuf[13] <> ' ') and           {do not localize}
+       (Copy(LBuf, 14, 2) = '  ') and  {do not localize}
+       (LBuf[16] <> ' ') and           {do not localize}
+       (Copy(LBuf, 17, 2) = '  ') and  {do not localize}
+       (LBuf[19] <> ' ') and           {do not localize}
+       (Copy(LBuf, 20, 2) = '  ') and  {do not localize}
+       (LBuf[22] <> ' ') and           {do not localize}
+       (Copy(LBuf, 23, 2) = '  ') and  {do not localize}
+       (LBuf[25] <> ' ') and           {do not localize}
+       (LBuf[26] = ' ') then           {do not localize}
     begin
       Result := True;
-    end
-    else
-    begin
-      //The line may be something like this:
-      //d   -   -   -  -  -  -  - steve
-      //123456789012345678901234567890
-      //         1         2         3
-      //do not check for the "-" in case its something we don't know
-      //about.  Checking for "d" should be okay as a mailbox listed here
-      //is probably like a dir
-      LBuf := AListing[0];
-      if (Copy(LBuf,1,1)  = 'd') and
-         (Copy(LBuf,2,3)  = '   ') and
-         (Copy(LBuf,5,1) <> ' ') and
-         (Copy(LBuf,6,3)  = '   ') and
-         (Copy(LBuf,9,1) <> ' ') and
-         (Copy(LBuf,10,3) = '   ') and
-         (Copy(LBuf,13,1)<> ' ') and
-         (Copy(LBuf,14,2) = '  ') and
-         (Copy(LBuf,16,1)<> ' ') and
-         (Copy(LBuf,17,2) = '  ') and
-         (Copy(LBuf,19,1)<> ' ') and
-         (Copy(LBuf,20,2) = '  ') and
-         (Copy(LBuf,22,1)<> ' ') and
-         (Copy(LBuf,23,2) = '  ') and
-         (Copy(LBuf,25,1)<> ' ') and
-         (Copy(LBuf,26,1) = ' ') then
-         begin
-           Result := True;
-         end;
     end;
   end;
 end;
@@ -442,23 +435,20 @@ begin
   Result := STIRCOMUNIXROOT;
 end;
 
-class function TIdFTPLPSterCommEntUxRoot.IsFooter(
-  const AData: String): Boolean;
+class function TIdFTPLPSterCommEntUxRoot.IsFooter(const AData: String): Boolean;
 begin
-  Result := (IndyPos('Total number of Mailboxes = ', AData) = 1); {do not localize}
-
+  Result := TextStartsWith(AData, 'Total number of Mailboxes = '); {do not localize}
 end;
 
-class function TIdFTPLPSterCommEntUxRoot.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPSterCommEntUxRoot.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
-  Result :=  TIdSterCommEntUxRootFTPListItem.Create(AOwner);
+  Result := TIdSterCommEntUxRootFTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPSterCommEntUxRoot.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
+class function TIdFTPLPSterCommEntUxRoot.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
 begin
-  AItem.FileName := Copy(AItem.Data,27,Length(AItem.Data));
+  AItem.FileName := Copy(AItem.Data, 27, MaxInt);
   //mailboxes are just subdirs
   AItem.ItemType := ditDirectory;
   Result := True;
@@ -467,12 +457,13 @@ end;
 { TIdFTPLPSterComEntBase }
 
 class function TIdFTPLPSterComEntBase.IsFooter(const AData: String): Boolean;
-var LData : String;
+var
+  LData : String;
 begin
-  LData :=  UpperCase(AData);
+  LData := UpperCase(AData);
   Result := (IndyPos('TOTAL NUMBER OF ', LData) > 0) and  {do not localize}
-    (IndyPos(' BATCH', LData) > 0) and (IndyPos('LISTED:', LData) > 0); {do not localize}
-
+            (IndyPos(' BATCH', LData) > 0) and            {do not localize}
+	    (IndyPos('LISTED:', LData) > 0);              {do not localize}
 end;
 
 initialization
@@ -483,4 +474,5 @@ finalization
   UnRegisterFTPListParser(TIdFTPLPSterCommEntUx);
   UnRegisterFTPListParser(TIdFTPLPSterCommEntUxNS);
   UnRegisterFTPListParser(TIdFTPLPSterCommEntUxRoot);
+
 end.
