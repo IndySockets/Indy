@@ -369,7 +369,7 @@ end;
 procedure TfrmSASLListEditor.UpdateList;
 var
   i: integer;
-  l : TIdList;
+  l : TList;
 begin
   lbAssigned.Items.Clear;
   FAvailObjs.Clear;
