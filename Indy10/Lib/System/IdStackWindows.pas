@@ -228,15 +228,9 @@ type
   TIdStackWindows = class(TIdStackBSDBase)
   protected
      procedure WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
-       const AIP: String;
-       const APort : Word;
-       var VSource;
-       var VDest);
-    procedure WriteChecksumIPv6(s : TIdStackSocketHandle;
-      var VBuffer : TIdBytes;
-      const AOffset : Integer;
-      const AIP : String;
-      const APort : TIdPort);
+       const AIP: String; const APort : Word; var VSource; var VDest);
+    procedure WriteChecksumIPv6(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
+      const AOffset : Integer; const AIP : String; const APort : TIdPort);
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure PopulateLocalAddresses; override;
@@ -253,16 +247,13 @@ type
     function HostToNetwork(AValue: Word): Word; override;
     function HostToNetwork(AValue: LongWord): LongWord; override;
     function HostToNetwork(AValue: Int64): Int64; override;
-    procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);
-              override;
+    procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); override;
     function NetworkToHost(AValue: Word): Word; override;
     function NetworkToHost(AValue: LongWord): LongWord; override;
     function NetworkToHost(AValue: Int64): Int64; override;
-    procedure SetBlocking(ASocket: TIdStackSocketHandle;
-              const ABlocking: Boolean); override;
+    procedure SetBlocking(ASocket: TIdStackSocketHandle; const ABlocking: Boolean); override;
     function WouldBlock(const AResult: Integer): Boolean; override;
     //
-
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
 
@@ -361,43 +352,27 @@ function TIdStackWindows.Accept(ASocket: TIdStackSocketHandle;
   var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
   i: Integer;
-  Addr4: TSockAddrIn;
-  Addr6: TSockAddrIn6;
+  LAddr: TSockAddrIn6;
 begin
-  VIPVersion := AIPVersion;
-  case AIPVersion of
-    Id_IPv4: begin
-      i := SizeOf(Addr4);
-      Result := IdWinsock2.Accept(ASocket, Pointer(@Addr4), @i);
-      if Result <> INVALID_SOCKET then begin
-        VIP := TranslateTInAddrToString(Addr4.sin_addr, Id_IPv4); //BGO FIX
-        VPort := NToHs(Addr4.sin_port);
-        Exit;
+  i := SizeOf(LAddr);
+  Result := IdWinsock2.Accept(ASocket, Pointer(@LAddr), @i);
+  if Result <> INVALID_SOCKET then begin
+    case LAddr.sin6_family of
+      Id_PF_INET4: begin
+        VIP := TranslateTInAddrToString(TSockAddr(Pointer(@LAddr)^).sin_addr, Id_IPv4);
+        VPort := Ntohs(TSockAddr(Pointer(@LAddr)^).sin_port);
+        VIPVersion := Id_IPv4;
       end;
-      // RLebeau: Windows Vista introduces an "IP Helper" service
-      // that allows IPv6 connections on an IPv4 network, so check
-      // if the client is actually IPv6 instead ...
-      if WSAGetLastError = WSAEFAULT then begin
-        i := SizeOf(Addr6);
-        Result := IdWinsock2.Accept(ASocket, Pointer(@Addr6), @i);
-        if Result <> INVALID_SOCKET then begin
-          VIP := TranslateTInAddrToString(Addr6.sin6_addr, Id_IPv6);
-          VPort := NToHs(Addr6.sin6_port);
-          VIPVersion := Id_IPv6;
-        end;
+      Id_PF_INET6: begin
+        VIP := TranslateTInAddrToString(LAddr.sin6_addr, Id_IPv6);
+        VPort := Ntohs(LAddr.sin6_port);
+        VIPVersion := Id_IPv6;
       end;
-    end;
-    Id_IPv6: begin
-      i := SizeOf(Addr6);
-      Result := IdWinsock2.Accept(ASocket, Pointer(@Addr6), @i);
-      if Result <> INVALID_SOCKET then begin
-        VIP := TranslateTInAddrToString(Addr6.sin6_addr, Id_IPv6);
-        VPort := NToHs(Addr6.sin6_port);
+      else begin
+        Result := CloseSocket(Result);
+        Result := INVALID_SOCKET;
+        IPVersionUnsupported;
       end;
-    end;
-    else begin
-      Result := INVALID_SOCKET; // avoid compiler warning
-      IPVersionUnsupported;
     end;
   end;
 end;
@@ -636,11 +611,11 @@ begin
     begin
       Result.Add(ps^.s_name);
       i := 0;
-      p := pointer(ps^.s_aliases);
+      p := Pointer(ps^.s_aliases);
       while p[i] <> nil do
       begin
-        Result.Add(PChar(p[i]));
-        inc(i);
+        Result.Add(p[i]);
+        Inc(i);
       end;
     end;
   except
