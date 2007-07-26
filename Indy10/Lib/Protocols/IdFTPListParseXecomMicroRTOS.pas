@@ -38,6 +38,7 @@
 unit IdFTPListParseXecomMicroRTOS;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -47,20 +48,20 @@ uses
 type
    TIdXecomMicroRTOSTPListItem = class(TIdFTPListItem)
    protected
-     FMemStart: Cardinal;
-     FMemEnd: Cardinal;
+     FMemStart: LongWord;
+     FMemEnd: LongWord;
    public
      constructor Create(AOwner: TCollection); override;
-     property MemStart: Cardinal read FMemStart write FMemStart;
-     property MemEnd: Cardinal read FMemEnd write FMemEnd;
+     property MemStart: LongWord read FMemStart write FMemStart;
+     property MemEnd: LongWord read FMemEnd write FMemEnd;
    end;
 
   TIdFTPLPXecomMicroRTOS = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
     class function IsHeader(const AData: String): Boolean;  override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
@@ -78,65 +79,72 @@ begin
   Result := 'Xercom Micro RTOS';  {do not localize}
 end;
 
-class function TIdFTPLPXecomMicroRTOS.IsFooter(
-  const AData: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPXecomMicroRTOS.IsFooter(const AData: String): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData,s);
+    SplitColumns(AData, s);
     if s.Count = 7 then
     begin
-      Result := (s[0] = '**') and (s[1] = 'Total') and IsNumeric(s[2]) and  {do not localize}
-      (s[3] = 'files,') and IsNumeric(s[4]) and (s[5] = 'bytes') and        {do not localize}
-      (s[6] = '**');                                                        {do not localize}
+      Result := (s[0] = '**') and      {do not localize}
+                (s[1] = 'Total') and   {do not localize}
+                IsNumeric(s[2]) and
+                (s[3] = 'files,') and  {do not localize}
+                IsNumeric(s[4]) and
+                (s[5] = 'bytes') and   {do not localize}
+                (s[6] = '**');         {do not localize}
     end;
   finally
     FreeAndNil(s);
   end;
 end;
 
-class function TIdFTPLPXecomMicroRTOS.IsHeader(
-  const AData: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPXecomMicroRTOS.IsHeader(const AData: String): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData,s);
+    SplitColumns(AData, s);
     if s.Count = 5 then
     begin
-      Result := (s[0] = 'Start') and (s[1] = 'End') and (s[2] = 'length') and {do not localize}
-         (s[3] = 'File') and (s[4] = 'name');                                 {do not localize}
+      Result := (s[0] = 'Start') and    {do not localize}
+                (s[1] = 'End') and      {do not localize}
+                (s[2] = 'length') and   {do not localize}
+                (s[3] = 'File') and     {do not localize}
+                (s[4] = 'name');        {do not localize}
     end;
   finally
     FreeAndNil(s);
   end;
 end;
 
-class function TIdFTPLPXecomMicroRTOS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPXecomMicroRTOS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdXecomMicroRTOSTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPXecomMicroRTOS.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-var LBuf : String;
+class function TIdFTPLPXecomMicroRTOS.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  LBuf : String;
   LI : TIdXecomMicroRTOSTPListItem;
 begin
   LI := AItem as TIdXecomMicroRTOSTPListItem;
   LBuf := TrimLeft(AItem.Data);
   //start memory offset
   LBuf := TrimLeft(LBuf);
-  LI.MemStart := IndyStrToInt('$'+Fetch(LBuf),0);
+  LI.MemStart := IndyStrToInt('$'+Fetch(LBuf), 0);
   //end memory offset
   LBuf := TrimLeft(LBuf);
   LI.MemEnd := IndyStrToInt('$'+Fetch(LBuf),0);
   //file size
   LBuf := TrimLeft(LBuf);
-  LI.Size := IndyStrToInt64(Fetch(LBuf),0);
+  LI.Size := IndyStrToInt64(Fetch(LBuf), 0);
   //File name
   LI.FileName := TrimLeft(LBuf);
   //note that the date is not provided and I do not think there are
@@ -156,4 +164,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPXecomMicroRTOS);
 finalization
   UnRegisterFTPListParser(TIdFTPLPXecomMicroRTOS);
+
 end.
