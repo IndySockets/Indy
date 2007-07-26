@@ -1110,7 +1110,7 @@ var
   LAddr6 : TSockAddrIn6;
   Bytes : Cardinal;
 begin
-  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
+//  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
   //make our LAddrInfo structure
   FillChar(LAddr6, SizeOf(LAddr6), 0);
   LAddr6.sin6_family := AF_INET6;
@@ -1145,7 +1145,7 @@ var
   LDest : TIdIn6Addr;
   LTmp : TIdBytes;
   LIdx : Integer;
-  LC : Cardinal;
+  LC : LongWord;
   LW : Word;
 {
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

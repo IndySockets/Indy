@@ -186,6 +186,14 @@ type
 
   TIdStackDotNet = class(TIdStack)
   protected
+    //Stuff for ICMPv6
+    {$IFNDEF DOTNET1}
+    procedure QueryRoute(s : TIdStackSocketHandle; const AIP: String;
+      const APort: TIdPort; var VSource, VDest : TIdBytes);
+    procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
+      var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+      const APort: TIdPort);
+    {$ENDIF}
     function ReadHostName: string; override;
     function HostByName(const AHostName: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
@@ -876,6 +884,90 @@ begin
   {$ENDIF}
 end;
 
+{$IFNDEF DOTNET1}
+procedure TIdStackDotNet.QueryRoute(s : TIdStackSocketHandle; const AIP: String;
+  const APort: TIdPort; var VSource, VDest : TIdBytes);
+var LEP : IPEndPoint;
+    LSa : SocketAddress;
+    i : Integer;
+begin
+  LEP := IPEndPoint.Create(IPAddress.Parse(AIP),APort);
+  LSa := LEP.Serialize;
+  SetLength(VSource,LSA.Size);
+  for i  := 0 to LSa.Size - 1 do
+  begin
+    VSource[i] := LSa[i]
+  end;
+  SetLength(VDest,Length(VSource));
+  s.IOControl( IOControlCode.RoutingInterfaceQuery, VSource, VDest);
+end;
+
+procedure TIdStackDotNet.WriteChecksumIPv6(s: TIdStackSocketHandle;
+  var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
+  const APort: TIdPort);
+var 
+  LSource : TIdBytes;
+  LDest : TIdBytes;
+  LTmp : TIdBytes;
+  LIdx : Integer;
+  LC : LongWord;
+  LW : Word;
+{
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                         Source Address                        +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +                      Destination Address                      +
+   |                                                               |
+   +                                                               +
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   Upper-Layer Packet Length                   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      zero                     |  Next Header  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+}
+begin
+
+  QueryRoute(s, AIP, APort, LSource, LDest);
+  SetLength(LTmp, Length(VBuffer)+40);
+  System.&Array.Clear(LTmp,0,Length(LTmp));
+  //16
+  CopyTIdBytes(LSource, 0, LTmp, 0, Length(LSource));
+  LIdx := Length(LSource);
+  //32
+  CopyTIdBytes(LDest, 0, LTmp,LIdx, Length(LDest));
+  Inc(LIdx, Length(LDest));
+  //use a word so you don't wind up using the wrong network byte order function
+  LC := Length(VBuffer);
+  CopyTIdLongWord(GStack.HostToNetwork(LC), LTmp, LIdx);
+  Inc(LIdx, 4);
+  //36
+  //zero the next three bytes
+  //done in the begging
+  Inc(LIdx, 3);
+  //next header (protocol type determines it
+  LTmp[LIdx] := 58;
+   // Id_IPPROTO_ICMP6;
+  Inc(LIdx);
+  //zero our checksum feild for now
+  VBuffer[2] := 0;
+  VBuffer[3] := 0;
+  //combine the two
+  CopyTIdBytes(VBuffer, 0, LTmp, LIdx, Length(VBuffer));
+  LW := CalcCheckSum(LTmp);
+
+  CopyTIdWord(HostToLittleEndian(LW), VBuffer, AOffset);
+end;
+ {$ENDIF}
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
@@ -884,6 +976,7 @@ begin
     CopyTIdWord(CalcCheckSum(VBuffer), VBuffer, AOffset);
   end else
   begin
+    {$IFDEF DOTNET1}
     {This is a todo because to do a checksum for ICMPv6, you need to obtain
     the address for the IP the packet will come from (query the network interfaces).
     You then have to make a IPv6 pseudo header.  About the only other alternative is
@@ -894,6 +987,9 @@ begin
     doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
     in its enumerations.}
     Todo;
+    {$ELSE}
+    WriteChecksumIPv6(s,VBuffer,AOffset,AIP,APort);
+    {$ENDIF}
   end;
 end;
 
