@@ -43,10 +43,12 @@
 unit IdFTPListParseOS2;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
   This parser is based on some data that I had managed to obtain second hand
@@ -55,13 +57,14 @@ uses
 
 type
   TIdOS2FTPListItem = class(TIdDOSBaseFTPListItem);
+
   TIdFTPLPOS2 = class(TIdFTPLPBaseDOS)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 const
@@ -77,70 +80,57 @@ uses
 { TIdFTPLPOS2 }
 
 class function TIdFTPLPOS2.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var LBuf, LBuf2 : String;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  LBuf, LBuf2 : String;
   LNum : String;
 begin
-  if AListing.Count > 0 then
-  begin
   {
- "             73098      A          04-06-97   15:15  ds0.internic.net1996052434624.txt"
- "                 0           DIR   12-11-95   13:55  z"
+  "             73098      A          04-06-97   15:15  ds0.internic.net1996052434624.txt"
+  "                 0           DIR   12-11-95   13:55  z"
   or maybe this:
   taken from the FileZilla source-code comments
- "     0           DIR   05-12-97   16:44  PSFONTS"
- "36611      A    04-23-103   10:57  OS2 test1.file"
- " 1123      A    07-14-99   12:37  OS2 test2.file"
- "    0 DIR       02-11-103   16:15  OS2 test1.dir"
- " 1123 DIR  A    10-05-100   23:38  OS2 test2.dir"
-
-
+  "     0           DIR   05-12-97   16:44  PSFONTS"
+  "36611      A    04-23-103   10:57  OS2 test1.file"
+  " 1123      A    07-14-99   12:37  OS2 test2.file"
+  "    0 DIR       02-11-103   16:15  OS2 test1.dir"
+  " 1123 DIR  A    10-05-100   23:38  OS2 test2.dir"
   }
-    LBuf := AListing[0];
-    LBuf := TrimLeft(LBuf);
+  Result := False;
+  if AListing.Count > 0 then
+  begin
+    LBuf := TrimLeft(AListing[0]);
     LNum := Fetch(LBuf);
-    if IsNumeric(LNum)=False then
-    begin
-      Result := False;
+    if not IsNumeric(LNum) then
       Exit;
     end;
     repeat
       LBuf := TrimLeft(LBuf);
       LBuf2 := Fetch(LBuf);
-        if LBuf2='DIR' then {do not localize}
-        begin
-          LBuf := TrimLeft(LBuf);
-          LBuf2 := Fetch(LBuf);
-        end;
-      if IsMMDDYY(LBuf2,'-') then
+      if LBuf2 = 'DIR' then {do not localize}
+      begin
+        LBuf := TrimLeft(LBuf);
+        LBuf2 := Fetch(LBuf);
+      end;
+      if IsMMDDYY(LBuf2, '-') then
       begin
         //we found a date
-        break;
+        Break;
       end;
-      if Self.IsValidAttr(LBuf2)=False then
-      begin
-        Result := False;
+      if not IsValidAttr(LBuf2) then begin
         Exit;
       end;
     until False;
     //there must be two spaces between the date and time
-    if not TextStartsWith(LBuf, '  ') then
-    begin
-      Result := False;
+    if not TextStartsWith(LBuf, '  ') then begin {do not localize}
       Exit;
     end;
-    if (Length(LBuf) >= 3) and (LBuf[3] = ' ') then
-    begin
-      Result := False;
+    if (Length(LBuf) >= 3) and (LBuf[3] = ' ') then {do not localize}
       Exit;
     end;
     LBuf := TrimLeft(LBuf);
     LBuf2 := Fetch(LBuf);
-    Result := IsHHMMSS(LBuf2,':');
-  end
-  else
-  begin
-    Result := False;
+    Result := IsHHMMSS(LBuf2, ':');
   end;
 end;
 
@@ -149,66 +139,64 @@ begin
   Result := OS2PARSER;
 end;
 
-class function TIdFTPLPOS2.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPOS2.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdOS2FTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPOS2.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf, lBuf2, LNum : String;
-{
-Assume layout such as:
+var
+  LBuf, lBuf2, LNum : String;
+  LO :  TIdOS2FTPListItem;
+begin
+  {
+  Assume layout such as:
 
-                 0           DIR   02-18-94   19:47  BC
-             79836      A          11-19-96   19:08  w.txt
-12345678901234567890123456789012345678901234567890123456789012345678
-         1         2         3         4         5         6
-}
-var LO :  TIdOS2FTPListItem;
-begin                         //AddAttribut
+                   0           DIR   02-18-94   19:47  BC
+               79836      A          11-19-96   19:08  w.txt
+  12345678901234567890123456789012345678901234567890123456789012345678
+           1         2         3         4         5         6
+  }
   Result := False;
   LBuf := AItem.Data;
   LBuf := TrimLeft(LBuf);
   LNum := Fetch(LBuf);
-  AItem.Size := IndyStrToInt64(LNum,0);
+  AItem.Size := IndyStrToInt64(LNum, 0);
   LO := AItem as TIdOS2FTPListItem;
   repeat
-  //keep going until we find a date
-      LBuf := TrimLeft(LBuf);
-      LBuf2 := Fetch(LBuf);
-      if LNum='0' then
+    //keep going until we find a date
+    LBuf := TrimLeft(LBuf);
+    LBuf2 := Fetch(LBuf);
+    if LNum = '0' then
+    begin
+      if LBuf2 = 'DIR' then {do not localize}
       begin
-        if LBuf2 = 'DIR' then {do not localize}
-        begin
-          LO.ItemType := ditDirectory;
-          LBuf := TrimLeft(LBuf);
-          LBuf2 := Fetch(LBuf);
-        end;
+        LO.ItemType := ditDirectory;
+        LBuf := TrimLeft(LBuf);
+        LBuf2 := Fetch(LBuf);
       end;
-      if IsMMDDYY(LBuf2,'-') then
-      begin
-        //we found a date
-        LO.ModifiedDate := DateMMDDYY(LBuf2);
-        break;
-      end;
-      LO.Attributes.AddAttribute(LBuf2);
-      if LBuf = '' then
-      begin
-        Exit;
-      end;
+    end;
+    if IsMMDDYY(LBuf2, '-') then
+    begin
+      //we found a date
+      LO.ModifiedDate := DateMMDDYY(LBuf2);
+      Break;
+    end;
+    LO.Attributes.AddAttribute(LBuf2);
+    if LBuf = '' then begin
+      Exit;
+    end;
   until False;
   //time
   LBuf := TrimLeft(LBuf);
   LBuf2 := Fetch(LBuf);
-  if IsHHMMSS(LBuf2,':') then
-  begin
+  if IsHHMMSS(LBuf2, ':') then begin {do not localize}
     LO.ModifiedDate := LO.ModifiedDate + TimeHHMMSS(LBuf2);
   end;
-  //fetch removes one space.  We ned to remove an adidtional one
+  //fetch removes one space.  We ned to remove an additional one
   //before the filename as a filename might start with a space
-  Delete(LBuf,1,1);
+  Delete(LBuf, 1, 1);
   LO.FileName := LBuf;
   Result := True;
 end;
@@ -217,5 +205,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPOS2);
 finalization
   UnRegisterFTPListParser(TIdFTPLPOS2);
-end.
 
+end.
