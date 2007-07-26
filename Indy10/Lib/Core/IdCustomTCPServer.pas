@@ -250,8 +250,10 @@ unit IdCustomTCPServer;
 }
 
 interface
+
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
 uses
   Classes,
   IdBaseComponent, 
@@ -311,6 +313,7 @@ type
     FOnException: TIdServerThreadExceptionEvent;
     FOnExecute: TIdServerThreadEvent;
     FOnListenException: TIdListenExceptionEvent;
+    FOnBeforeBind: TIdSocketHandleEvent;
     FOnAfterBind: TNotifyEvent;
     FOnBeforeListenerRun: TIdNotifyThreadEvent;
     //
@@ -319,6 +322,7 @@ type
     procedure ContextCreated(AContext: TIdContext); virtual;
     procedure ContextConnected(AContext: TIdContext); virtual;
     procedure ContextDisconnected(AContext: TIdContext); virtual;
+    procedure DoBeforeBind(AHandle: TIdSocketHandle); virtual;
     procedure DoAfterBind; virtual;
     procedure DoBeforeListenerRun(AThread: TIdThread); virtual;
     procedure DoConnect(AContext: TIdContext); virtual;
@@ -366,7 +370,8 @@ type
     property IOHandler: TIdServerIOHandler read FIOHandler write SetIOHandler;
     property ListenQueue: integer read FListenQueue write FListenQueue default IdListenQueueDefault;
     property MaxConnections: Integer read FMaxConnections write FMaxConnections default 0;
-    // right after binding all sockets
+    // right before/after binding sockets
+    property OnBeforeBind: TIdSocketHandleEvent read FOnBeforeBind write FOnBeforeBind;
     property OnAfterBind: TNotifyEvent read FOnAfterBind write FOnAfterBind;
     property OnBeforeListenerRun: TIdNotifyThreadEvent read FOnBeforeListenerRun write FOnBeforeListenerRun;
     // Occurs in the context of the peer thread
@@ -426,6 +431,13 @@ begin
   FreeAndNil(FListenerThreads);
   //
   inherited Destroy;
+end;
+
+procedure TIdCustomTCPServer.DoBeforeBind(AHandle: TIdSocketHandle);
+begin
+  if Assigned(FOnBeforeBind) then begin
+    FOnBeforeBind(AHandle);
+  end;
 end;
 
 procedure TIdCustomTCPServer.DoAfterBind;
@@ -638,6 +650,7 @@ begin
           if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
             SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
           end;
+          DoBeforeBind(Bindings[I]);
           Bind;
         end;
         Inc(I);
