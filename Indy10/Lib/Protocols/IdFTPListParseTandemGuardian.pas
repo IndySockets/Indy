@@ -31,6 +31,7 @@
 unit IdFTPListParseTandemGuardian;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -110,7 +111,7 @@ type
     FGroupName : String;
     //this may be an integer value but I'm not sure
     //because one
-    FCode : Cardinal;
+    FCode : LongWord;
     //This is the RWEP value
     { It's done like this:
 
@@ -127,24 +128,26 @@ type
     FPermissions : String;
   public
     property GroupName : String read FGroupName write FGroupName;
-    property Code : Cardinal read FCode write FCode;
+    property Code : LongWord read FCode write FCode;
     property Permissions : String read  FPermissions write FPermissions;
   end;
 
   TIdFTPLPTandemGuardian = class(TIdFTPListBaseHeader)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function IsHeader(const AData: String): Boolean;  override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function IsHeader(const AData: String): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
   end;
 
 const
-  TANDEM_GUARDIAN_ID = 'Tandem NonStop Guardian';
+  TANDEM_GUARDIAN_ID = 'Tandem NonStop Guardian'; {do not localize}
 
 implementation
-uses IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
+
+uses
+  IdFTPCommon, IdGlobal, IdGlobalProtocols, SysUtils;
 
 { TIdFTPLPTandemGuardian }
 
@@ -154,43 +157,46 @@ begin
 end;
 
 class function TIdFTPLPTandemGuardian.IsHeader(const AData: String): Boolean;
-var LCols : TStrings;
+var
+  LCols : TStrings;
 begin
   Result := False;
   LCols := TStringList.Create;
   try
-     SplitColumns(Trim(AData),LCols);
+     SplitColumns(Trim(AData), LCols);
      if LCols.Count = 7 then
      begin
-       Result := (LCols[0]='File') and (LCols[1]='Code') and
-                 (LCols[2]='EOF') and (LCols[3]='Last') and
-                 (LCols[4]='Modification') and (LCols[5]='Owner') and
-                 (LCols[6]='RWEP')
+       Result := (LCols[0] = 'File') and            {do not localize}
+                 (LCols[1] = 'Code') and            {do not localize}
+                 (LCols[2] = 'EOF') and             {do not localize}
+                 (LCols[3] = 'Last') and            {do not localize}
+                 (LCols[4] = 'Modification') and    {do not localize}
+                 (LCols[5] = 'Owner') and           {do not localize}
+                 (LCols[6] = 'RWEP')                {do not localize}
      end;
   finally
     FreeAndNil(LCols);
   end;
 end;
 
-class function TIdFTPLPTandemGuardian.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPTandemGuardian.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdTandemGuardianFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPTandemGuardian.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LItem : TIdTandemGuardianFTPListItem;
-  LLine,LBuffer : String;
+var
+  LItem : TIdTandemGuardianFTPListItem;
+  LLine, LBuffer : String;
   LDay, LMonth, LYear : Integer;
-{
-Parse lines like these:
-
-ALV           101             2522 27-Aug-02 13:57:10 155,106 "nnnn"
-ALVO         1000             2048 27-Aug-02 13:57:22 155,106 "nunu"
-}
 begin
-  Result := True;
+  {
+  Parse lines like these:
+
+  ALV           101             2522 27-Aug-02 13:57:10 155,106 "nnnn"
+  ALVO         1000             2048 27-Aug-02 13:57:22 155,106 "nunu"
+  }
   //
   { Note from Steeve Howe:
   ===
@@ -205,6 +211,7 @@ files within that
 subvolume of the volume on the server.
 ===
   }
+  Result := True;
   LItem := AItem as TIdTandemGuardianFTPListItem;
   LLine := Trim(LItem.Data);
   LItem.ItemType := ditFile;
@@ -214,39 +221,40 @@ subvolume of the volume on the server.
   LItem.FileName := Fetch(LLine);
   LLine := TrimLeft(LLine);
   //code
-  LItem.Code := IndyStrToInt(Fetch(LLine),0);
+  LItem.Code := IndyStrToInt(Fetch(LLine), 0);
   LLine := TrimLeft(LLine);
   //EOF
-  LItem.Size := IndyStrToInt64(Fetch(LLine),0);
+  LItem.Size := IndyStrToInt64(Fetch(LLine), 0);
   LLine := TrimLeft(LLine);
   //Last Modification
-    //date
+  //date
   LBuffer := Fetch(LLine);
   LLine := TrimLeft(LLine);
-  LDay := IndyStrToInt(Fetch(LBuffer,'-'),1);
-  LMonth := StrToMonth( Fetch ( LBuffer,'-' )  );
+  LDay := IndyStrToInt(Fetch(LBuffer, '-'), 1); {do not localize}
+  LMonth := StrToMonth(Fetch(LBuffer, '-'));   {do not localize}
 
-  LYear := IndyStrToInt( TrimLeft(Fetch (LBuffer)),1989);
+  LYear := IndyStrToInt(Fetch(LBuffer), 1989);
   LYear := Y2Year(LYear);
-     //time
-  LItem.ModifiedDate := EncodeDate( LYear,LMonth,LDay );
+  //time
+  LItem.ModifiedDate := EncodeDate(LYear, LMonth, LDay);
   LBuffer := Fetch(LLine);
   LLine := TrimLeft(LLine);
   LItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LBuffer);
   LLine := TrimLeft(LLine);
   //group,Owner
-  //Steeve how advised me that the first number in this column is a group
+  //Steve how advised me that the first number in this column is a group
   //and the number after the comma is an owner
-  LItem.GroupName := Fetch(LLine,',');;
+  LItem.GroupName := Fetch(LLine, ','); {do not localize}
   LLine := TrimLeft(LLine);
   LItem.OwnerName := Fetch(LLine);
   //RWEP
   LItem.Permissions := UnquotedStr(LLine);
-  LItem.PermissionDisplay := '"'+LItem.Permissions+'"';
+  LItem.PermissionDisplay := '"' + LItem.Permissions + '"';
 end;
 
 initialization
   RegisterFTPListParser(TIdFTPLPTandemGuardian);
 finalization
   UnRegisterFTPListParser(TIdFTPLPTandemGuardian);
+
 end.
