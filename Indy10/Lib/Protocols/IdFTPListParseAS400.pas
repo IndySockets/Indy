@@ -38,7 +38,9 @@
 unit IdFTPListParseAS400;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -63,14 +65,15 @@ uses
 
 class function TIdFTPLPAS400.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0],s);
+      SplitColumns(AListing[0], s);
       if s.Count > 4 then
       begin
         Result := (s[4][1]='*') or (s[4]='DIR');  {Do not translate}
@@ -86,19 +89,19 @@ begin
   Result := 'AS400';  {do not localize}
 end;
 
-class function TIdFTPLPAS400.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPAS400.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdAS400FTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPAS400.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuffer : String;
-    LDate : String;
-    LTime : String;
-    LObjType : String;
-   LI : TIdOwnerFTPListItem;
+var
+  LBuffer : String;
+  LDate : String;
+  LTime : String;
+  LObjType : String;
+  LI : TIdOwnerFTPListItem;
 begin
 {  From:
 http://groups.google.com/groups?q=AS400+LISTFMT+%3D+0&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=9onmpt%24dhe%2402%241%40news.t-online.com&rnum=1
@@ -222,8 +225,8 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
   //Sometimes the date and time feilds will not present
   if (LBuffer<>'') and (IsNumeric(LBuffer[1])) then
   begin
-    LDate := Trim(StrPart(LBuffer,8));
-    if (LBuffer <> '') and (LBuffer[1]<>' ') then
+    LDate := Trim(StrPart(LBuffer, 8));
+    if (LBuffer <> '') and (LBuffer[1] <> ' ') then
     begin
       LDate := LDate + Fetch(LBuffer);
     end;
@@ -232,8 +235,8 @@ QSYS      8704  11/15/95 16:15:33 *FILE      /QSYS.LIB/QSYS.LIB/QPRTSPLQ.PRTF
       LI.ModifiedDate := AS400Date(LDate);
        LI.ModifiedAvail := True;
     end;
-    LTime := Trim(StrPart(LBuffer,8));
-    if (LBuffer <> '') and (LBuffer[1]<>' ') then
+    LTime := Trim(StrPart(LBuffer, 8));
+    if (LBuffer <> '') and (LBuffer[1] <> ' ') then
     begin
       LTime := LTime + Fetch(LBuffer);
     end;

@@ -51,7 +51,9 @@
 unit IdFTPListParseDistinctTCPIP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -66,13 +68,14 @@ type
     //break someone's code
     property Dist32FileAttributes : string read FDist32FileAttributes write FDist32FileAttributes;
   end;
+
   TIdFTPLPDistinctTCPIP = class(TIdFTPLPBaseDOS)
   protected
     class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -83,26 +86,27 @@ uses
 { TIdFTPLPDistinctTCPIP }
 
 class function TIdFTPLPDistinctTCPIP.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
-  const DistValidTypes  = '-d';
-    DistValidAttrs  = 'wash-d';
-    //w - can write - read attribute not set
-    //a - archive bit set
-    //s - system attribute bit set
-    //h - hidden system bit set
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+const
+  DistValidTypes = '-d';
+  DistValidAttrs  = 'wash-d';
+  //w - can write - read attribute not set
+  //a - archive bit set
+  //s - system attribute bit set
+  //h - hidden system bit set
+var
+  s : TStrings;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
-    Result := False;
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0],s);
-      if (s.Count > 2) then
+      SplitColumns(AListing[0], s);
+      if s.Count > 2 then
       begin
-        Result := (Length(s[0])=5) and (CharIsInSet(s[0], 1, DistValidTypes))
-          and IsNumeric(s[1]) and ( StrToMonth(s[2])>0);
+        Result := (Length(s[0]) = 5) and (CharIsInSet(s[0], 1, DistValidTypes))
+          and IsNumeric(s[1]) and (StrToMonth(s[2]) > 0);
         if Result then
         begin
           Result := (CharIsInSet(s[0], 1, DistValidAttrs)) and
@@ -123,20 +127,17 @@ begin
   Result := 'Distinct TCP/IP';  {do not localize}
 end;
 
-class function TIdFTPLPDistinctTCPIP.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPDistinctTCPIP.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdDistinctTCPIPFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPDistinctTCPIP.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuf : String;
-    LBuf2 : String;
-    LDate : String;
-   LI : TIdDistinctTCPIPFTPListItem;
+var
+  LBuf, LBuf2, LDate : String;
+  LI : TIdDistinctTCPIPFTPListItem;
 begin
-
   Result := False;
   LI := AItem as TIdDistinctTCPIPFTPListItem;
   LI.Attributes.Read_Only := True;
@@ -144,10 +145,9 @@ begin
   //attributes and attributes
   LBuf2 := Fetch(LBuf);
   LI.Dist32FileAttributes := LBuf2;
-  LI.Attributes.AddAttribute( Lbuf2);
+  LI.Attributes.AddAttribute(LBuf2);
   LBuf := TrimLeft(LBuf);
-  if TextStartsWith(LI.Dist32FileAttributes, 'd') then
-  begin
+  if TextStartsWith(LI.Dist32FileAttributes, 'd') then begin
     LI.ItemType := ditDirectory;
   end;
   //size
@@ -155,8 +155,7 @@ begin
   LBuf := TrimLeft(LBuf);
   //date - month
   LDate := Fetch(LBuf);
-  if StrToMonth(LDate) = 0 then
-  begin
+  if StrToMonth(LDate) = 0 then begin
     Exit;
   end;
   LBuf := TrimLeft(LBuf);
@@ -165,13 +164,12 @@ begin
   //we do it this way because a year might sometimes be missing
   //in which case, we just add the current year.
   LDate := LDate + ',' + LBuf2;
-  LDate := StringReplace(LDate, ',', ' ',[rfReplaceAll]);
+  LDate := StringReplace(LDate, ',', ' ', [rfReplaceAll]);
   LI.ModifiedDate := DateStrMonthDDYY(LDate, ' ', True);
   //time
   LBuf := TrimLeft(LBuf);
   LDate := Fetch(LBuf);
-  if not IsHHMMSS(LDate,':') then
-  begin
+  if not IsHHMMSS(LDate, ':') then begin
     Exit;
   end;
   LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LDate);
@@ -181,7 +179,7 @@ begin
   // 12/29/2002  01:42p                  23 CreateTest.txt
   // I suspect that this server returns the timestamp as GMT
   LI.ModifiedDateGMT := LI.ModifiedDate;
-  LI.ModifiedDate := LI.ModifiedDate -TimeZoneBias;
+  LI.ModifiedDate := LI.ModifiedDate - TimeZoneBias;
   // file name
   LBuf := StripSpaces(LBuf, 1);
   LI.FileName := LBuf;
@@ -192,4 +190,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPDistinctTCPIP);
 finalization
   UnRegisterFTPListParser(TIdFTPLPDistinctTCPIP);
+
 end.
