@@ -43,7 +43,7 @@
   Rev 1.3    2004.02.03 5:45:22 PM  czhower
   Name changes
 
-  Rev 1.2    10/19/2003 3:48:12 PM  DSiders
+    Rev 1.2    10/19/2003 3:48:12 PM  DSiders
   Added localization comments.
 
   Rev 1.1    4/7/2003 04:04:30 PM  JPMugaas
@@ -60,6 +60,7 @@ unit IdFTPListParseVM;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -88,29 +89,32 @@ type
   end;
 
   TIdVMBFSFTPListItem = class(TIdFTPListItem);
+
   TIdFTPLPVMCMS = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
+
   TIdFTPLPVMBFS = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
+
   TIdFTPLVirtualReader = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -121,25 +125,26 @@ uses
 
 { TIdFTPLPVMCMS }
 
-class function TIdFTPLPVMCMS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-const VMTypes : array [1..3] of string = ('F','V','DIR'); {do not localize}
-var LData : String;
+class function TIdFTPLPVMCMS.CheckListing(AListing: TStrings; const ASysDescript: String;
+  const ADetails: Boolean): Boolean;
+const
+  VMTypes : array [1..3] of string = ('F','V','DIR'); {do not localize}
+var
+  LData : String;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
     LData := AListing[0];
-    Result := PosInStrArray(( Trim(Copy(LData,19,3))),VMTypes) <> -1;
+    Result := PosInStrArray(Trim(Copy(LData, 19, 3)), VMTypes) <> -1;
     if Result then
     begin
-      Result := (Copy(LData,56,1)='/') and (Copy(LData,59,1)='/');
-      if Result = False then
+      Result := (Copy(LData, 56, 1) = '/') and (Copy(LData, 59, 1) = '/'); {do not localize}
+      if not Result then
       begin
-        Result := (Copy(LData,58,1)='-') and (Copy(LData,61,1)='-');
-        if Result = False then
-        begin
-          Result := (Copy(LData,48,1)='-') and (Copy(LData,51,1)='-');
+        Result := (Copy(LData, 58, 1) = '-') and (Copy(LData, 61, 1) = '-'); {do not localize}
+        if not Result then begin
+          Result := (Copy(LData, 48, 1) = '-') and (Copy(LData, 51, 1) = '-'); {do not localize}
         end;
       end;
     end;
@@ -151,15 +156,15 @@ begin
   Result := 'VM/CMS'; {do not localize}
 end;
 
-class function TIdFTPLPVMCMS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPVMCMS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdVMCMSFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPVMCMS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuffer : String;
+var
+  LBuffer : String;
   LCols : TStrings;
   LI : TIdVMCMSFTPListItem;
   LSize : Int64;
@@ -190,43 +195,34 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
 }
   LI := AItem as TIdVMCMSFTPListItem;
   //File Name
-  LI.FileName := Copy(AItem.Data,1,8);
-  LI.FileName := Trim(AItem.FileName);
+  LI.FileName := Trim(Copy(AItem.Data, 1, 8));
   //File Type - extension
-  if (LI.Data[9] = ' ') then
-  begin
-    LBuffer := Copy(AItem.Data,10,9);
-  end
-  else
-  begin
-    LBuffer := Copy(AItem.Data,9,9);
+  if LI.Data[9] = ' ' then begin
+    LBuffer := Copy(AItem.Data, 10, 9);
+  end else begin
+    LBuffer := Copy(AItem.Data, 9, 9);
   end;
   LBuffer := Trim(LBuffer);
-  if (LBuffer <> '') then
-  begin
-    LI.FileName := LI.FileName + '.'+LBuffer;
+  if LBuffer <> '' then begin
+    LI.FileName := LI.FileName + '.' + LBuffer; {do not localize}
   end;
   //Record format
-  LBuffer := Copy(AItem.Data,19,3);
-  LBuffer := Trim(LBuffer);
+  LBuffer := Trim(Copy(AItem.Data, 19, 3));
   LI.RecFormat := LBuffer;
   if LI.RecFormat = 'DIR' then {do not localize}
   begin
     LI.ItemType := ditDirectory;
     LI.RecLength := 0;
-  end
-  else
+  end else
   begin
     LI.ItemType := ditFile;
     //Record Length - for files
-    LBuffer := Copy(AItem.Data,22,9);
-    LBuffer := Trim(LBuffer);
-    LI.RecLength := IndyStrToInt(LBuffer,0);
+    LBuffer := Copy(AItem.Data, 22, 9);
+    LI.RecLength := IndyStrToInt(LBuffer, 0);
     //Record numbers
-    LBuffer := Copy(AItem.Data,31,11);
-    LBuffer := Trim(LBuffer);
+    LBuffer := Trim(Copy(AItem.Data, 31, 11));
     LBuffer := Fetch(LBuffer);
-    LI.NumberRecs := IndyStrToInt(LBuffer,0);
+    LI.NumberRecs := IndyStrToInt(LBuffer, 0);
     //Number of Blocks
     {
     From:
@@ -247,9 +243,8 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
 
     Anyway, you can not know from the directory list.
     }
-    LBuffer := Copy(AItem.Data,42,11);
-    LBuffer := Trim(LBuffer);
-    LI.NumberBlocks := IndyStrToInt(LBuffer,0);
+    LBuffer := Trim(Copy(AItem.Data, 42, 11));
+    LI.NumberBlocks := IndyStrToInt(LBuffer, 0);
     LI.Size := LI.RecLength * LI.NumberRecs;
     //File Size - note that this is just an estimiate
 
@@ -272,9 +267,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     if LI.RecFormat = 'V' then
     begin
       LSize := LI.NumberBlocks * 4096;
-
-      if LI.Size > LSize then
-      begin
+      if LI.Size > LSize then begin
         LI.Size := LSize;
       end;
     end;
@@ -286,27 +279,23 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     //and some columns could be off.
     //Note that the start position in one server it's column 44 while in others, it's column 54
     // handle both cases.
-    if (Copy(AItem.Data,48,1)='-') and (Copy(AItem.Data,51,1)='-') then
-    begin
-      LBuffer := Trim(Copy(AItem.Data, 44,Length(AItem.Data)));
-    end
-    else
-    begin
-      LBuffer := Trim(Copy(AItem.Data, 54,Length(AItem.Data)));
+    if (Copy(AItem.Data, 48, 1) = '-') and (Copy(AItem.Data, 51, 1) = '-') then begin {do not localize}
+      LBuffer := Trim(Copy(AItem.Data, 44, MaxInt));
+    end else begin
+      LBuffer := Trim(Copy(AItem.Data, 54, MaxInt));
     end;
     SplitColumns(LBuffer,LCols);
     //LCols - 0 - Date
     //LCols - 1 - Time
     //LCols - 2 - Owner if present
-    if (LCols.Count >0) then
+    if LCols.Count > 0 then
     begin
       //date
-      if IsNumeric(Copy(LCols[0],1,3)) then
+      if IsNumeric(Copy(LCols[0], 1, 3)) then
       begin
         // vm.sc.edu date stamps yyyy-mm-dd
         LI.ModifiedDate := DateYYMMDD(LCols[0]);
-      end
-      else
+      end else
       begin
         //Note that the date is displayed as 2 digits not 4 digits
         //mm/dd/yy
@@ -315,8 +304,7 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
       //time
       LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LCols[1]);
       //owner
-      if (LCols.Count > 2) and (LCols[2]<>'-') then
-      begin
+      if (LCols.Count > 2) and (LCols[2] <> '-') then begin {do not localize}
         LI.OwnerName := LCols[2];
       end;
     end;
@@ -324,40 +312,37 @@ ENDTRACE TCPIP    F      80       1      1 1999-07-28 12:24:01 TCM191
     FreeAndNil(LCols);
   end;
   Result := True;
-
 end;
 
 { TIdFTPLPVMBFS }
 
 class function TIdFTPLPVMBFS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
 
-  if AListing.Count >0 then
+  if AListing.Count > 0 then
   begin
     //should have a "'" as the terminator
     if AListing[0] <> '' then
     begin
-      if not TextEndsWith(AListing[0], '''') then
-      begin
+      if not TextEndsWith(AListing[0], '''') then begin
         Exit;
       end;
     end;
     s := TStringList.Create;
     try
-      SplitColumns(TrimRight(AListing[0]),s);
-      if s.Count >4 then
+      SplitColumns(TrimRight(AListing[0]), s);
+      if s.Count > 4 then
       begin
-        if not IsMMDDYY(s[0],'/') then
-        begin
+        if not IsMMDDYY(s[0], '/') then begin {do not localize}
           Exit;
         end;
-        Result := (s[2]='F') or (s[2]='D');
-        if Result then
-        begin
-          Result := IsNumeric(s[4]) or (s[4]<>'-');
+        Result := CharIsInSet(s, 2, 'FD'); {do not localize}
+        if Result then begin
+          Result := IsNumeric(s[4]) or (s[4] <> '-'); {do not localize}
         end;
       end;
     finally
@@ -371,61 +356,56 @@ begin
   Result := 'VM/BFS'; {do not localize}
 end;
 
-class function TIdFTPLPVMBFS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPVMBFS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdVMBFSFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPVMBFS.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LBuffer : String;
-    LCols : TStrings;
-// z/VM Byte File System
-
-//This is based on:
-//
-//   z/VM: TCP/IP Level 430 User's Guide Version 4 Release 3.0
-//
-// http://www.vm.ibm.com/pubs/pdf/hcsk7a10.pdf
-//
+var
+  LBuffer : String;
+  LCols : TStrings;
 begin
+  // z/VM Byte File System
+
+  //This is based on:
+  //
+  //   z/VM: TCP/IP Level 430 User's Guide Version 4 Release 3.0
+  //
+  // http://www.vm.ibm.com/pubs/pdf/hcsk7a10.pdf
+  //
   LBuffer := AItem.Data;
   LCols := TStringList.Create;
   try
-    SplitColumns(Fetch(LBuffer,''''),LCols);
+    SplitColumns(Fetch(LBuffer, ''''), LCols); {do not localize}
     //0 - date
     //1 - time
     //2 - (D) dir or file (F)
     //3 - not sure what this is
     //4 - file size
     AItem.FileName :=  LBuffer;
-    if (Length(AItem.FileName)>0) and (AItem.FileName[Length(AItem.FileName)]='''') then
-    begin
-      AItem.FileName := Copy(AItem.FileName,1,Length(AItem.FileName)-1);
+    if TextEndsWith(AItem.FileName, '''') then begin
+      AItem.FileName := Copy(AItem.FileName, 1, Length(AItem.FileName)-1);
     end;
     //date
-    if (LCols.Count > 0) then
-    begin
+    if LCols.Count > 0 then begin
       AItem.ModifiedDate := DateMMDDYY(LCols[0]);
     end;
-    if (LCols.Count > 1) then
-    begin
-      AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS( LCols[1] );
+    if LCols.Count > 1 then begin
+      AItem.ModifiedDate := AItem.ModifiedDate + TimeHHMMSS(LCols[1]);
     end;
-    if (LCols.Count > 2) then
+    if LCols.Count > 2 then
     begin
-      if LCols[2]='D' then
-      begin
+      if LCols[2] = 'D' then begin
         AItem.ItemType := ditDirectory;
       end else begin
         AItem.ItemType := ditFile;
       end;
     end;
     //file size
-    if (LCols.Count > 4) then
-    begin
-      AItem.Size := IndyStrToInt64(LCols[4],0);
+    if LCols.Count > 4 then begin
+      AItem.Size := IndyStrToInt64(LCols[4], 0);
     end;
   finally
     FreeAndNil(LCols);
@@ -436,20 +416,20 @@ end;
 { TIdFTPLVirtualReader }
 
 class function TIdFTPLVirtualReader.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var s : TStrings;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
   if AListing.Count > 0 then
   begin
     s := TStringList.Create;
     try
-      SplitColumns(AListing[0],s);
-      if s.Count >2 then
+      SplitColumns(AListing[0], s);
+      if s.Count > 2 then
       begin
-        if (Length(s[0])=4) and IsNumeric(s[0]) then
-        begin
-          Result := (Length(s[2])=8) and (IsNumeric(s[2]));
+        if (Length(s[0]) = 4) and IsNumeric(s[0]) then begin
+          Result := (Length(s[2]) = 8) and (IsNumeric(s[2]));
         end;
       end;
     finally
@@ -463,60 +443,54 @@ begin
   Result := 'VM Virtual Reader';  {do not localize}
 end;
 
-class function TIdFTPLVirtualReader.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLVirtualReader.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdVMVirtualReaderFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLVirtualReader.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-//This is based on:
-//
-//   z/VM: TCP/IP Level 430 User's Guide Version 4 Release 3.0
-//
-// http://www.vm.ibm.com/pubs/pdf/hcsk7a10.pdf
-//
-
-// z/VM Virtual Reader (RDR)
-//Col 0 - spool ID
-//Col 1 - origin
-//Col 2 - records
-//Col 3 - date
-//Col 4 - time
-//Col 5 - filename
-//Col 6 - file type
 var
-    LCols : TStrings;
+  LCols : TStrings;
   LI : TIdVMVirtualReaderFTPListItem;
-// z/VM Byte File System
 begin
+  // z/VM Byte File System
+
+  //This is based on:
+  //
+  //   z/VM: TCP/IP Level 430 User's Guide Version 4 Release 3.0
+  //
+  // http://www.vm.ibm.com/pubs/pdf/hcsk7a10.pdf
+  //
   LI := AItem as TIdVMVirtualReaderFTPListItem;
   LCols := TStringList.Create;
   try
-    SplitColumns(AItem.Data,LCols);
-    if (LCols.Count > 5) then
-    begin
+    // z/VM Virtual Reader (RDR)
+    //Col 0 - spool ID
+    //Col 1 - origin
+    //Col 2 - records
+    //Col 3 - date
+    //Col 4 - time
+    //Col 5 - filename
+    //Col 6 - file type
+    SplitColumns(AItem.Data, LCols);
+    if LCols.Count > 5 then begin
       LI.FileName := LCols[5];
     end;
-    if (LCols.Count > 6) then
-    begin
-      LI.FileName := LI.FileName + '.' + LCols[6];
+    if LCols.Count > 6 then begin
+      LI.FileName := LI.FileName + '.' + LCols[6]; {do not localize}
     end;
     //record count
-    if (LCols.Count > 2) then
-    begin
-      LI.NumberRecs := IndyStrToInt(LCols[2],0);
+    if LCols.Count > 2 then begin
+      LI.NumberRecs := IndyStrToInt(LCols[2], 0);
     end;
     //date
-    if (LCols.Count > 3) then
-    begin
+    if LCols.Count > 3 then begin
       LI.ModifiedDate := DateYYMMDD(LCols[3]);
     end;
     //Time
-    if (LCols.Count > 4) then
-    begin
-      LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS( LCols[1] );
+    if LCols.Count > 4 then begin
+      LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(LCols[1]);
     end;
     //Note that IBM does not even try to give an estimate
     //with reader file sizes when emulating Unix. We can't support file sizes
@@ -533,7 +507,7 @@ constructor TIdVMVirtualReaderFTPListItem.Create(AOwner: TCollection);
 begin
   inherited Create(AOwner);
   //There's no size for things in a virtual reader
-  Self.SizeAvail := False;
+  SizeAvail := False;
 end;
 
 initialization
@@ -544,4 +518,5 @@ finalization
   UnRegisterFTPListParser(TIdFTPLVirtualReader);
   UnRegisterFTPListParser(TIdFTPLPVMBFS);
   UnRegisterFTPListParser(TIdFTPLPVMCMS);
+
 end.
