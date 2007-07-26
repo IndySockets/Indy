@@ -201,9 +201,9 @@ type
       const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Disconnect(ASocket: TIdStackSocketHandle); override;
     procedure GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-      var VPort: TIdPort); override;
+      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-      var VPort: TIdPort); override;
+      var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     function  NewSocketHandle(const ASocketType: TIdSocketType;
       const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
@@ -234,8 +234,8 @@ type
     function HostByAddress(const AAddress: string;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);override;
-    function Accept(ASocket: TIdStackSocketHandle; var VIP: string; var VPort: TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle; override;
+    function Accept(ASocket: TIdStackSocketHandle; const AIPVersion: TIdIPVersion;
+      var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle; override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle; ALevel: TIdSocketOptionLevel;
       AOptName: TIdSocketOption; out AOptVal: Integer); override;
     procedure SetSocketOption(ASocket: TIdStackSocketHandle; ALevel:TIdSocketOptionLevel;
@@ -284,7 +284,7 @@ procedure TIdStackDotNet.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
   const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 var
   LEndPoint : IPEndPoint;
-  LIP:String;
+  LIP: String;
 begin
   try
     LIP := AIP;
@@ -342,11 +342,31 @@ begin
   end;
 end;
 
-function TIdStackDotNet.Accept(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): TIdStackSocketHandle;
+function TIdStackDotNet.Accept(ASocket: TIdStackSocketHandle;
+  const AIPVersion: TIdIPVersion; var VIP: string; var VPort: TIdPort;
+  var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
+var
+  LEndPoint: IPEndPoint;
 begin
   try
     Result := ASocket.Accept();
+    LEndPoint := Result.RemoteEndPoint as IPEndPoint;
+
+    if (Result.AddressFamily = AddressFamily.InterNetwork) or
+       (Result.AddressFamily = AddressFamily.InterNetworkV6) then
+    begin
+      VIP := LEndPoint.Address.ToString();
+      VPort := LEndPoint.Port;
+      if Result.AddressFamily = AddressFamily.InterNetworkV6 then begin
+        VIPVersion = Id_IPv6;
+      end else begin
+        VIPVersion = Id_IPv4;
+      end;
+    end else
+    begin
+      Result := nil;
+      IPVersionUnsupported;
+    end;
   except
     on e: Exception do begin
       raise BuildException(e);
@@ -355,14 +375,26 @@ begin
 end;
 
 procedure TIdStackDotNet.GetPeerName(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort);
+  var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  LEndPoint : EndPoint;
+  LEndPoint : IPEndPoint;
 begin
   try
-    LEndPoint := ASocket.remoteEndPoint;
-    VIP := (LEndPoint as IPEndPoint).Address.ToString;
-    VPort := (LEndPoint as IPEndPoint).Port;
+    if (ASocket.AddressFamily = AddressFamily.InterNetwork) or
+       (ASocket.AddressFamily = AddressFamily.InterNetworkV6) then
+    begin
+      LEndPoint := ASocket.RemoteEndPoint as IPEndPoint;
+
+      VIP := LEndPoint.Address.ToString;
+      VPort := LEndPoint.Port;
+      if ASocket.AddressFamily = AddressFamily.InterNetworkV6 then begin
+        VIPVersion = Id_IPv6;
+      end else begin
+        VIPVersion = Id_IPv4;
+      end;
+    end else begin
+      IPVersionUnsupported;
+    end;
   except
     on e: Exception do begin
       raise BuildException(e);
@@ -371,15 +403,25 @@ begin
 end;
 
 procedure TIdStackDotNet.GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
-  var VPort: TIdPort);
+  var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  LEndPoint : EndPoint;
+  LEndPoint : IPEndPoint;
 begin
   try
-    if ASocket.Connected or (VIP <> '') then begin
-      LEndPoint := ASocket.localEndPoint;
-      VIP := (LEndPoint as IPEndPoint).Address.ToString;
-      VPort := (LEndPoint as IPEndPoint).Port;
+    if (ASocket.AddressFamily = AddressFamily.InterNetwork) or
+       (ASocket.AddressFamily = AddressFamily.InterNetworkV6) then
+    begin
+      LEndPoint := ASocket.LocalEndPoint as IPEndPoint;
+
+      VIP := LEndPoint.Address.ToString;
+      VPort := LEndPoint.Port;
+      if ASocket.AddressFamily = AddressFamily.InterNetworkV6 then begin
+        VIPVersion = Id_IPv6;
+      end else begin
+        VIPVersion = Id_IPv4;
+      end;
+    end else begin
+      IPVersionUnsupported;
     end;
   except
     on e: Exception do begin
@@ -437,17 +479,12 @@ begin
   end;
 end;
 
-function TIdStackDotNet.NewSocketHandle(const ASocketType:TIdSocketType;
+function TIdStackDotNet.NewSocketHandle(const ASocketType: TIdSocketType;
   const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
   const AOverlapped: Boolean = False): TIdStackSocketHandle;
 begin
   try
-    case AIPVersion of
-      Id_IPv4: Result := Socket.Create(AddressFamily.InterNetwork, ASocketType, AProtocol);
-      Id_IPv6: Result := Socket.Create(AddressFamily.InterNetworkV6, ASocketType, AProtocol);
-      else
-        raise EIdException.Create('Invalid socket type'); {do not localize}
-    end;
+    Result := Socket.Create(IdIPFamily[AIPVersion], ASocketType, AProtocol);
   except
     on E: Exception do begin
       raise BuildException(E);
@@ -828,10 +865,8 @@ begin
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
   {$ELSE}
-
   LSF := SocketFlags.None;
-  Result := ASocket.ReceiveMessageFrom(VBuffer,0,Length(VBUffer),LSF,LRemEP,lpki);
-
+  Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
   if LRemEP is IPEndPoint then
   begin
     APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
