@@ -26,7 +26,9 @@
 unit IdFTPListParsePCNFSD;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -45,17 +47,19 @@ uses
 
 type
   TIdPCNFSDFTPListItem = class(TIdFTPListItem);
+
   TIdFTPLPPCNFSD = class(TIdFTPListBase)
   protected
     class function CheckLine(const AData : String): Boolean;
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
+
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
@@ -65,41 +69,38 @@ const
 { TIdFTPLPPC-NFSD }
 
 class function TIdFTPLPPCNFSD.CheckLine(const AData: String): Boolean;
-var s : TStrings;
-    i : Integer;
-
 var
+  s : TStrings;
+  i : Integer;
   LBuf : String;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData,s);
-    if s.Count >3 then
+    SplitColumns(AData, s);
+    if s.Count > 3 then
     begin
       //last col -time
       i := s.Count - 1;
       LBuf := s[i];
-      if CharIsInSet(LBuf,Length(LBuf),'ap') then   {do not localize}
+      if CharIsInSet(LBuf, Length(LBuf), 'ap') then   {do not localize}
       begin
-        LBuf := Fetch(LBuf,'a');          {Do not localize}
-        LBuf := Fetch(LBuf,'p');          {Do not localize}
-        if IsHHMMSS(LBuf,':') then
+        LBuf := Fetch(LBuf, 'a');          {Do not localize}
+        LBuf := Fetch(LBuf, 'p');          {Do not localize}
+        if IsHHMMSS(LBuf, ':') then
         begin
-          dec(i);
+          Dec(i);
           //date
-          if IsMMDDYY(s[i],'-') then
+          if IsMMDDYY(s[i], '-') then
           begin
-            dec(i);
+            Dec(i);
             // size or dir
-            if IsNumeric(s[i]) or (s[i]=DIR) then
-            begin
-              Result := (i=0) or (i=1);
+            if IsNumeric(s[i]) or (s[i] = DIR) then begin
+              Result := (i = 0) or (i = 1);
             end;
           end;
         end;
       end;
-
     end;
   finally
     FreeAndNil(s);
@@ -107,16 +108,16 @@ begin
 end;
 
 class function TIdFTPLPPCNFSD.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
-var i : Integer;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  i : Integer;
 begin
   Result := False;
   for i := 0 to AListing.Count -1 do
   begin
     Result := CheckLine(AListing[i]);
-    if Result = True then
-    begin
-      break;
+    if Result then begin
+      Break;
     end;
   end;
 end;
@@ -126,54 +127,51 @@ begin
   Result := 'PC-NFSD';   {Do not localize}
 end;
 
-class function TIdFTPLPPCNFSD.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPPCNFSD.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdPCNFSDFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPPCNFSD.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LI : TIdPCNFSDFTPListItem;
+var
+  LI : TIdPCNFSDFTPListItem;
   s : TStrings;
   i : Integer;
-
 begin
   Result := False;
   LI := AItem as TIdPCNFSDFTPListItem;
   s := TStringList.Create;
   try
-    IdGlobal.SplitColumns(LI.Data,s);
-    if s.Count >3 then
+    SplitColumns(LI.Data, s);
+    if s.Count > 3 then
     begin
       LI.FileName := s[0];
       //assume filename 8.3 requirements in MS-DOS
-      if Length(s[1])<4 then
+      if Length(s[1]) < 4 then
       begin
-        LI.FFileName := LI.FFileName + '.'+s[1];
+        LI.FFileName := LI.FFileName + '.' + s[1];
         i := 2;
-      end
-      else
-      begin
+      end else begin
         i := 1;
       end;
       //<dir> or size
-      LI.Size := ExtractNumber(s[i],False);
-      if (LI.Size <>-1) or (s[i]=DIR) then
+      LI.Size := ExtractNumber(s[i], False);
+      if (LI.Size <> -1) or (s[i] = DIR) then
       begin
-        if s[i] =DIR then
+        if s[i] = DIR then
         begin
-          LI.ItemType:=ditDirectory;
+          LI.ItemType := ditDirectory;
           LI.SizeAvail := False;
         end;
         Inc(i);
         //date
-        if IsMMDDYY(s[i],'-') then
+        if IsMMDDYY(s[i], '-') then
         begin
           LI.ModifiedDate := DateMMDDYY(s[i]);
           Inc(i);
           //time
-          if CharIsInSet(s[i],Length(s[i]),'ap') then  {Do not localize}
+          if CharIsInSet(s[i], Length(s[i]), 'ap') then  {Do not localize}
           begin
             LI.ModifiedDate := LI.ModifiedDate + TimeHHMMSS(s[i]);
             Result := True;
@@ -190,4 +188,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPPCNFSD);
 finalization
   UnRegisterFTPListParser(TIdFTPLPPCNFSD);
+
 end.
