@@ -64,9 +64,12 @@ unit IdFTPListParseUnisysClearPath;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
-  Classes, IdFTPList, IdFTPListParseBase, IdFTPListTypes;
+  Classes,
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 type
   TIdUnisysClearPathFTPListItem = class(TIdCreationDateFTPListItem)
@@ -75,19 +78,21 @@ type
   public
     property FileKind : String read FFileKind write FFileKind;
   end;
+
   TIdFTPLPUnisysClearPath = class(TIdFTPListBaseHeader)
   protected
     class function IsContinuedLine(const AData: String): Boolean;
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function IsHeader(const AData: String): Boolean;  override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function IsHeader(const AData: String): Boolean; override;
     class function IsFooter(const AData : String): Boolean; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
-    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : boolean; override;
+    class function ParseListing(AListing : TStrings; ADir : TIdFTPListItems) : Boolean; override;
     class function GetIdent : String; override;
   end;
 
 implementation
+
 uses
   IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
@@ -95,28 +100,26 @@ uses
 
 class function TIdFTPLPUnisysClearPath.GetIdent: String;
 begin
-  Result := 'Unisys Clearpath';
+  Result := 'Unisys Clearpath'; {Do not localize}
 end;
 
-class function TIdFTPLPUnisysClearPath.IsContinuedLine(
-  const AData: String): Boolean;
+class function TIdFTPLPUnisysClearPath.IsContinuedLine(const AData: String): Boolean;
 begin
-  Result := (AData <> '') and (AData[1] = ' ');
+  Result := TextStartsWith(AData, ' '); {Do not localize}
 end;
 
-class function TIdFTPLPUnisysClearPath.IsFooter(
-  const AData: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPUnisysClearPath.IsFooter(const AData: String): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData,s);
-    if s.Count=4 then
+    SplitColumns(AData, s);
+    if s.Count = 4 then
     begin
-      if (s[1]='Files') or (s[1]='File') then  {Do not localize}
-      begin
-        Result := (s[3]='Octets') or (s[3]='Octet');  {Do not localize}
+      if (s[1] = 'Files') or (s[1] = 'File') then begin {Do not localize}
+        Result := (s[3] = 'Octets') or (s[3] = 'Octet');  {Do not localize}
       end;
     end;
   finally
@@ -124,54 +127,53 @@ begin
   end;
 end;
 
-class function TIdFTPLPUnisysClearPath.IsHeader(
-  const AData: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPUnisysClearPath.IsHeader(const AData: String): Boolean;
+var
+  s : TStrings;
 begin
   Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(AData,s);
-    if s.Count>2 then
-    begin
-      Result := (s[0]='Report') and (s[1]='for:');
+    SplitColumns(AData, s);
+    if s.Count > 2 then begin
+      Result := (s[0] = 'Report') and (s[1] = 'for:');
     end;
   finally
     FreeAndNil(s);
   end;
 end;
 
-class function TIdFTPLPUnisysClearPath.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPUnisysClearPath.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdUnisysClearPathFTPListItem.Create(AOwner);
 end;
 
-class function TIdFTPLPUnisysClearPath.ParseLine(
-  const AItem: TIdFTPListItem; const APath: String): Boolean;
-var s : TStrings;
+class function TIdFTPLPUnisysClearPath.ParseLine(const AItem: TIdFTPListItem;
+  const APath: String): Boolean;
+var
+  s : TStrings;
   LI : TIdUnisysClearPathFTPListItem;
 begin
+  Result := False;
   LI := AItem as TIdUnisysClearPathFTPListItem;
   LI.ItemType := ditFile;
-  Result := False;
   s := TStringList.Create;
   try
-    SplitColumns(LI.Data,s);
-    if s.Count >4 then
+    SplitColumns(LI.Data, s);
+    if s.Count > 4 then
     begin
       LI.FileName := s[0];
       LI.FileKind := s[1];
       //size
       if IsNumeric(s[2]) then
       begin
-        LI.Size := IndyStrToInt(s[2],0);
+        LI.Size := IndyStrToInt(s[2], 0);
         AItem.SizeAvail := True;
         //creation date
-        if IsMMDDYY(s[3],'/') then
+        if IsMMDDYY(s[3], '/') then {Do not localize}
         begin
           LI.CreationDate := DateMMDDYY(s[3]);
-          if IsHHMMSS(s[4],':') then
+          if IsHHMMSS(s[4], ':') then {Do not localize}
           begin
             LI.CreationDate := LI.CreationDate + TimeHHMMSS(s[4]);
             Result := True;
@@ -180,14 +182,10 @@ begin
       end;
       s.Clear;
       //remove path from localFileName
-      SplitColumns(LI.FileName,s,'/');
-      if s.Count >0 then
-      begin
+      SplitColumns(LI.FileName, s, '/'); {Do not localize}
+      if s.Count > 0 then begin
         LI.LocalFileName := s[s.Count-1];
-
-      end
-      else
-      begin
+      end else begin
         Result := False;
       end;
     end;
@@ -197,37 +195,37 @@ begin
 end;
 
 class function TIdFTPLPUnisysClearPath.ParseListing(AListing: TStrings;
-  ADir: TIdFTPListItems): boolean;
-var i : Integer;
+  ADir: TIdFTPListItems): Boolean;
+var
+  i : Integer;
   LItem : TIdFTPListItem;
 begin
-  Result := True;
+  Result := False;
   for i := 0  to AListing.Count-1 do
   begin
     if not IsWhiteString(AListing[i]) then
     begin
-      if Self.IsHeader(AListing[i]) or Self.IsFooter(AListing[i]) then
+      if not (IsHeader(AListing[i]) or IsFooter(AListing[i])) then
       begin
-      end
-      else
-      begin
-        if (IsContinuedLine(AListing[i]) = False ) then //needed because some VMS computers return entries with multiple lines
+        if (not IsContinuedLine(AListing[i])) then //needed because some VMS computers return entries with multiple lines
         begin
           LItem := MakeNewItem(ADir);
-          LItem.Data := UnfoldLines(AListing[i],i,AListing);
+          LItem.Data := UnfoldLines(AListing[i], i, AListing);
           Result := ParseLine(LItem);
-          if Not Result then
-          begin
+          if not Result then begin
             FreeAndNil(LItem);
+            Exit;
           end;
         end;
       end;
     end;
   end;
+  Result := True;
 end;
 
 initialization
   RegisterFTPListParser(TIdFTPLPUnisysClearPath);
 finalization
   UnRegisterFTPListParser(TIdFTPLPUnisysClearPath);
+
 end.
