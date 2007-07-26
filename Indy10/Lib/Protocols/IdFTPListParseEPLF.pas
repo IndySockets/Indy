@@ -44,7 +44,9 @@
 unit IdFTPListParseEPLF;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdFTPList, IdFTPListParseBase, IdFTPListTypes;
@@ -59,13 +61,14 @@ type
     //Valid only with EPLF and MLST
     property UniqueID : string read FUniqueID write FUniqueID;
   end;
+
   TIdFTPLPEPLF = class(TIdFTPListBase)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
@@ -76,10 +79,16 @@ uses
 { TIdFTPLPEPLF }
 
 class function TIdFTPLPEPLF.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
+var
+  s: String;
 begin
-  Result := (AListing.Count > 0) and (Length(AListing[0])>2) and (AListing[0][1]='+')
-      and (IndyPos(#9,AListing[0])>0);
+  Result := (AListing.Count > 0);
+  if Result then
+  begin
+    s := AListing[0];
+    Result := (Length(s) > 2) and (s[1] = '+') and (IndyPos(#9, s) > 0);
+  end;
 end;
 
 class function TIdFTPLPEPLF.GetIdent: String;
@@ -87,40 +96,47 @@ begin
   Result := 'EPLF'; {do not localize}
 end;
 
-class function TIdFTPLPEPLF.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPEPLF.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdAEPLFFTPListItem.Create(AOwner);
 end;
 
 class function TIdFTPLPEPLF.ParseLine(const AItem: TIdFTPListItem;
   const APath: String): Boolean;
-var LFacts : TStrings;
-    i : Integer;
+var
+  LFacts : TStrings;
+  i : Integer;
   LI : TIdAEPLFFTPListItem;
+  LBuf: String;
 begin
   LI := AItem as TIdAEPLFFTPListItem;
   LFacts := TStringList.Create;
   try
-    LI.FileName := ParseFacts(Copy(LI.Data, 2, Length(LI.Data)), LFacts, ',', #9);
-    for i := 0 to LFacts.Count -1 do
+    LI.FileName := ParseFacts(Copy(LI.Data, 2, MaxInt), LFacts, ',', #9);
+    for i := 0 to LFacts.Count-1 do
     begin
-      if LFacts[i] = '/' then   {do not localize}
-      begin
+      LBuf := LFacts[i];
+      if LBuf = '/' then begin  {do not localize}
         LI.ItemType := ditDirectory;
       end;
-      if (Length(LFacts[i]) > 0) and (LFacts[i][1] = 's') then
+      if Length(LBuf) > 0 then
       begin
-        AItem.Size := IndyStrToInt64(Copy(LFacts[i], 2, Length(LFacts[i])), 0);
-      end;
-      if LFacts[i][1] = 'm' then  {do not localize}
-      begin
-        LI.ModifiedDate := EPLFDateToLocalDateTime(Copy(LFacts[i], 2, Length(LFacts[i])));
-        LI.ModifiedDateGMT := EPLFDateToGMTDateTime(Copy(LFacts[i], 2, Length(LFacts[i])));
-      end;
-      if LFacts[i][1] = 'i' then   {do not localize}
-      begin
-        LI.UniqueID := Copy(LFacts[i],2,Length(LFacts[i]));
+        case LBuf[1] of
+          's':  {do not localize}
+            begin
+              AItem.Size := IndyStrToInt64(Copy(LBuf, 2, MaxInt), 0);
+            end;
+          'm': {do not localize}
+            begin
+              LBuf := Copy(s, 2, MaxInt);
+              LI.ModifiedDate := EPLFDateToLocalDateTime(LBuf);
+              LI.ModifiedDateGMT := EPLFDateToGMTDateTime(LBuf);
+            end;
+          'i': {do not localize}
+            begin
+              LI.UniqueID := Copy(LBuf, 2, MaxInt);
+            end;
+        end;
       end;
     end;
   finally
@@ -133,4 +149,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPEPLF);
 finalization
   UnRegisterFTPListParser(TIdFTPLPEPLF);
+
 end.
