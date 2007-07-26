@@ -23,10 +23,12 @@
 unit IdFTPListParseNCSAForMACOS;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
-  IdFTPList, IdFTPListParseBase,IdFTPListTypes;
+  IdFTPList, IdFTPListParseBase, IdFTPListTypes;
 
 {
 NCSA Telnet for MacIntosh's FTP Server only lists the filenames followed by a /
@@ -53,30 +55,33 @@ http://web.mit.edu/afs/dev.mit.edu/project/andydev/src/andrew-8.0/WWW/Library/Im
 }
 type
   TIdNCSAforMACOSFTPListItem = class(TIdMinimalFTPListItem);
+
   TIdFTPLPNCSAforMACOS = class(TIdFTPLPNList)
   protected
-    class function MakeNewItem(AOwner : TIdFTPListItems)  : TIdFTPListItem; override;
-    class function ParseLine(const AItem : TIdFTPListItem; const APath : String=''): Boolean; override;
+    class function MakeNewItem(AOwner : TIdFTPListItems) : TIdFTPListItem; override;
+    class function ParseLine(const AItem : TIdFTPListItem; const APath : String = ''): Boolean; override;
   public
     class function GetIdent : String; override;
-    class function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): boolean; override;
+    class function CheckListing(AListing : TStrings; const ASysDescript : String = ''; const ADetails : Boolean = True): Boolean; override;
   end;
 
 implementation
-uses IdGlobal;
+
+uses
+  IdGlobal;
 
 { TIdFTPLPNCSAforMACOS }
 
 class function TIdFTPLPNCSAforMACOS.CheckListing(AListing: TStrings;
-  const ASysDescript: String; const ADetails: Boolean): boolean;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 begin
-  Result := (ASysDescript  = 'MAC NCSA') or
   // From Google: http://groups.google.com/groups?q=MAC-OS+TCP/Connect&hl=en&lr=&selm=881%40lts.UUCP&rnum=4
   //Intercon's MAC-OS reports "MAC-OS TCP/Connect for the Macintosh Version x.x"
   //but LibWWW
   //http://dev.w3.org/cvsweb/libwww/Library/src/HTFTP.c?rev=1.109&content-type=text/x-cvsweb-markup
   //"MAC-OS TCP/ConnectII"
-    TextStartsWith(ASysDescript, ' MAC-OS TCP/Connect');
+  Result := (ASysDescript = 'MAC NCSA') or
+             TextStartsWith(ASysDescript, ' MAC-OS TCP/Connect');
 end;
 
 class function TIdFTPLPNCSAforMACOS.GetIdent: String;
@@ -84,8 +89,7 @@ begin
   Result := 'NCSA for MACOS'; {do not localize}
 end;
 
-class function TIdFTPLPNCSAforMACOS.MakeNewItem(
-  AOwner: TIdFTPListItems): TIdFTPListItem;
+class function TIdFTPLPNCSAforMACOS.MakeNewItem(AOwner: TIdFTPListItems): TIdFTPListItem;
 begin
   Result := TIdNCSAforMACOSFTPListItem.Create(AOwner);
 end;
@@ -95,12 +99,11 @@ class function TIdFTPLPNCSAforMACOS.ParseLine(const AItem: TIdFTPListItem;
 begin
   Result := True;
   try
-    if IdGlobal.CharIsInSet(AItem.Data,Length(AItem.Data),'/\') then
+    if CharIsInSet(AItem.Data, Length(AItem.Data), '/\') then
     begin
       AItem.ItemType := ditDirectory;
-      AItem.FileName := Copy(AItem.Data,1,Length(AItem.Data)-1);
-    end
-    else
+      AItem.FileName := Copy(AItem.Data, 1, Length(AItem.Data)-1);
+    end else
     begin
       AItem.ItemType := ditFile;
       AItem.FileName := AItem.Data;
@@ -114,4 +117,5 @@ initialization
   RegisterFTPListParser(TIdFTPLPNCSAforMACOS);
 finalization
   UnRegisterFTPListParser(TIdFTPLPNCSAforMACOS);
+
 end.
