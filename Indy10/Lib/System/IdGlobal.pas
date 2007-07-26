@@ -895,7 +895,7 @@ const
 // otherwise the minimum of the two lengths is returned instead.
 function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer; overload;
 function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer; overload;
-function IndyLength(const ABuffer: TStream; const ALength: Integer = -1): Integer; overload;
+function IndyLength(const ABuffer: TStream; const ALength: Int64 = -1): Int64; overload;
 
 function IndyFormat(const AFormat: string; const Args: array of const): string;
 function IndyIncludeTrailingPathDelimiter(const S: string): string;
@@ -915,9 +915,7 @@ function IndyDirectoryExists(const Directory: string): Boolean;
 function IndyStrToInt64(const S: string; const Default: Int64): Int64; overload;
 function IndyStrToInt64(const S: string): Int64;  overload;
 
-function AddMSecToTime(const ADateTime: TDateTime;
-  const AMSec: Integer): TDateTime;
-
+function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
 
 // To and From Bytes conversion routines
 function ToBytes(const AValue: string; const ALength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
@@ -1011,7 +1009,8 @@ procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestI
 // Need to change prob not to use this set
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
-function CharIsInEOL(const AString: string; ACharPos: Integer): Boolean;
+function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean;
+function CharMatches(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
@@ -2967,33 +2966,42 @@ end;
 
 function IndyLength(const ABuffer: String; const ALength: Integer = -1; const AIndex: Integer = 1): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LAvailable: Integer;
 begin
   Assert(AIndex >= 1);
+  LAvailable := Max(Length(ABuffer)-AIndex+1, 0);
   if ALength < 0 then begin
-    Result := Length(ABuffer)-AIndex+1;
+    Result := LAvailable;
   end else begin
-    Result := Min(Length(ABuffer)-AIndex+1, ALength);
+    Result := Min(LAvailable, ALength);
   end;
 end;
 
 function IndyLength(const ABuffer: TIdBytes; const ALength: Integer = -1; const AIndex: Integer = 0): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LAvailable: Integer;
 begin
   Assert(AIndex >= 0);
+  LAvailable := Max(Length(ABuffer)-AIndex, 0);
   if ALength < 0 then begin
-    Result := Length(ABuffer)-AIndex;
+    Result := LAvailable;
   end else begin
-    Result := Min(Length(ABuffer)-AIndex, ALength);
+    Result := Min(LAvailable, ALength);
   end;
 end;
 
-function IndyLength(const ABuffer: TStream; const ALength: Integer = -1): Integer; overload;
+function IndyLength(const ABuffer: TStream; const ALength: Int64 = -1): Int64; overload;
 {$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LAvailable: Int64;
 begin
+  LAvailable := Max(ABuffer.Size - ABuffer.Position, 0);
   if ALength < 0 then begin
-    Result := ABuffer.Size - ABuffer.Position;
+    Result := LAvailable;
   end else begin
-    Result := Min(ABuffer.Size - ABuffer.Position, ALength);
+    Result := Min(LAvailable, ALength);
   end;
 end;
 
@@ -3991,10 +3999,20 @@ begin
   Result := CharPosInSet(AString, ACharPos, ASet) > 0;
 end;
 
-function CharIsInEOL(const AString: string; ACharPos: Integer): Boolean;
+function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := CharIsInSet(AString, ACharPos, EOL);
+end;
+
+function CharMatches(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos');{ do not localize }
+  Result := ACharPos <= Length(AString);
+  if Result then begin
+    Result := AString[ACharPos] = AValue;
+  end;
 end;
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
