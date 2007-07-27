@@ -200,20 +200,22 @@ begin
 end;
 
 procedure TIdIdent.Query(APortOnServer, APortOnClient: Word);
+var
+  RTO : Boolean;
 begin
   FReplyString := '';    {Do not Localize}
+  Connect;
   try
-    Connect;
-    try
-      WriteLn(IntToStr(APortOnServer) + ', ' + IntToStr(APortOnClient));    {Do not Localize}
-      FReplyString := IOHandler.ReadLn('', FQueryTimeOut);    {Do not Localize}
-    finally
-      Disconnect;
-    end;
-  except
-    on E: EIdReadTimeout do begin
-      raise EIdIdentQueryTimeOut.Create(RSIdentReplyTimeout);
-    end;
+    WriteLn(IntToStr(APortOnServer) + ', ' + IntToStr(APortOnClient));    {Do not Localize}
+    FReplyString := IOHandler.ReadLn('', FQueryTimeOut);    {Do not Localize}
+    {We check here and not return an exception at the moment so we can close our
+    connection before raising our exception if the read timed out}
+    RTO := IOHandler.ReadLnTimedOut;
+  finally
+    Disconnect;
+  end;
+  if RTO then begin
+    raise EIdIdentQueryTimeOut.Create(RSIdentReplyTimeout);
   end;
   ParseError;
 end;
