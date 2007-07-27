@@ -4292,7 +4292,6 @@ var
   LStatus: Integer;
   LBytesSend: DWORD;
 begin
-  VStub := nil;
   LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SizeOf(AGuid),
     VStub, SizeOf(VStub), @LBytesSend, nil, nil);
   if LStatus <> 0 then begin
