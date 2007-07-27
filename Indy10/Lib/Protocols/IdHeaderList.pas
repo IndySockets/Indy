@@ -64,6 +64,7 @@ unit IdHeaderList;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -81,7 +82,7 @@ type
     {This deletes lines which were folded}
     Procedure DeleteFoldedLines(Index : Integer);
     {This folds one line into several lines}
-    function FoldLine(AString : string) : TStringList;
+    function FoldLine(AString : string) : TStrings;
     {Folds lines and inserts them into a position, Index}
     procedure FoldAndInsert(AString : String; Index : Integer);
     {Name property get method}
@@ -207,14 +208,14 @@ begin
   end;  //finally
 end;
 
-function TIdHeaderList.FoldLine(AString : string): TStringList;
+function TIdHeaderList.FoldLine(AString : string): TStrings;
 var
   s : String;
 begin
   Result := TStringList.Create;
   try
     {we specify a space so that starts a folded line}
-    s := IdGlobalProtocols.WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
+    s := WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
     while s <> '' do begin  {Do not Localize}
       Result.Add(TrimRight(Fetch(s, EOL)));
     end; // while s <> '' do    {Do not Localize}
