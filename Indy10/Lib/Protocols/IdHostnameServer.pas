@@ -24,23 +24,25 @@
 
   Rev 1.0    11/13/2002 07:54:06 AM  JPMugaas
 
-  2000-May-18: J. Peter Mugaas
-    -Ported to Indy
+2000-May-18: J. Peter Mugaas
+  -Ported to Indy
 
-  2000-Jan-13: MTL
-    -13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
+2000-Jan-13: MTL
+  -13-JAN-2000 MTL: Moved to new Palette Scheme (Winshoes Servers)
 
-  1999-May-13: Ozz Nixon
-    -Final version
+1999-May-13: Ozz Nixon
+  -Final version
 }
 
 unit IdHostnameServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 {
   Original Author: Ozz Nixon
-  Based on RFC 953
+Based on RFC 953
 }
 
 uses
@@ -49,7 +51,7 @@ uses
   IdCustomTCPServer;
 
 Const
-   KnownCommands:Array [1..9] of string=
+   KnownCommands: array [0..8] of string =
       (
       'HNAME',    {Do not Localize}
       'HADDR',    {Do not Localize}
@@ -63,34 +65,32 @@ Const
       );
 
 Type
-  THostNameGetEvent = procedure(AThread: TIdContext) of object;
-  THostNameOneParmEvent = procedure(AThread: TIdContext; AParam:String) of object;
+  THostNameOneParmEvent = procedure(AThread: TIdContext; const AParam: String) of object;
 
   TIdHostNameServer = class(TIdCustomTCPServer)
   protected
-    FOnCommandHNAME:THostNameOneParmEvent;
-    FOnCommandHADDR:THostNameOneParmEvent;
-    FOnCommandALL:THostNameGetEvent;
-    FOnCommandHELP:THostNameGetEvent;
-    FOnCommandVERSION:THostNameGetEvent;
-    FOnCommandALLOLD:THostNameGetEvent;
-    FOnCommandDOMAINS:THostNameGetEvent;
-    FOnCommandALLDOM:THostNameGetEvent;
-    FOnCommandALLINGWAY:THostNameGetEvent;
+    FOnCommandHNAME: THostNameOneParmEvent;
+    FOnCommandHADDR: THostNameOneParmEvent;
+    FOnCommandALL: TIdContextEvent;
+    FOnCommandHELP: TIdContextEvent;
+    FOnCommandVERSION: TIdContextEvent;
+    FOnCommandALLOLD: TIdContextEvent;
+    FOnCommandDOMAINS: TIdContextEvent;
+    FOnCommandALLDOM: TIdContextEvent;
+    FOnCommandALLINGWAY: TIdContextEvent;
     //
-    function DoExecute(Thread: TIdContext): boolean; override;
+    function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
-  public
   published
     property OnCommandHNAME: THostNameOneParmEvent read fOnCommandHNAME write fOnCommandHNAME;
     property OnCommandHADDR: THostNameOneParmEvent read fOnCommandHADDR write fOnCommandHADDR;
-    property OnCommandALL: THostNameGetEvent read fOnCommandALL write fOnCommandALL;
-    property OnCommandHELP: THostNameGetEvent read fOnCommandHELP write fOnCommandHELP;
-    property OnCommandVERSION: THostNameGetEvent read fOnCommandVERSION write fOnCommandVERSION;
-    property OnCommandALLOLD: THostNameGetEvent read fOnCommandALLOLD write fOnCommandALLOLD;
-    property OnCommandDOMAINS: THostNameGetEvent read fOnCommandDOMAINS write fOnCommandDOMAINS;
-    property OnCommandALLDOM: THostNameGetEvent read fOnCommandALLDOM write fOnCommandALLDOM;
-    property OnCommandALLINGWAY: THostNameGetEvent read fOnCommandALLINGWAY write fOnCommandALLINGWAY;
+    property OnCommandALL: TIdContextEvent read fOnCommandALL write fOnCommandALL;
+    property OnCommandHELP: TIdContextEvent read fOnCommandHELP write fOnCommandHELP;
+    property OnCommandVERSION: TIdContextEvent read fOnCommandVERSION write fOnCommandVERSION;
+    property OnCommandALLOLD: TIdContextEvent read fOnCommandALLOLD write fOnCommandALLOLD;
+    property OnCommandDOMAINS: TIdContextEvent read fOnCommandDOMAINS write fOnCommandDOMAINS;
+    property OnCommandALLDOM: TIdContextEvent read fOnCommandALLDOM write fOnCommandALLDOM;
+    property OnCommandALLINGWAY: TIdContextEvent read fOnCommandALLINGWAY write fOnCommandALLINGWAY;
   end;
 
 implementation
@@ -105,47 +105,45 @@ begin
   DefaultPort := IdPORT_HOSTNAME;
 end;
 
-function TIdHostNameServer.DoExecute(Thread: TIdContext): boolean;
-Var
-   S,sCmd:String;
-
+function TIdHostNameServer.DoExecute(AContext: TIdContext): Boolean;
+var
+  S: String;
 begin
-  result := true;
-  while Thread.Connection.Connected do
+  Result := True;
+  while AContext.Connection.Connected do
   begin
-    S := Thread.Connection.IOHandler.ReadLn;
-    sCmd := Sys.UpperCase ( Fetch ( s, CHAR32 ) );
-    case Succ(PosInStrArray ( Uppercase ( sCmd ), KnownCommands ) ) of
-      1 : {hname}
-          if assigned ( OnCommandHNAME ) then
-            OnCommandHNAME ( Thread, S );
-      2 : {haddr}
-          if assigned ( OnCommandHADDR ) then
-            OnCommandHADDR ( Thread, S );
-      3 : {all}
-          if assigned ( OnCommandALL ) then
-            OnCommandALL ( Thread );
-      4 : {help}
-          if assigned ( OnCommandHELP ) then
-            OnCommandHELP ( Thread );
-      5 : {version}
-          if assigned ( OnCommandVERSION ) then
-            OnCommandVERSION ( Thread );
-      6 : {all-old}
-          if assigned ( OnCommandALLOLD ) then
-            OnCommandALLOLD ( Thread );
-      7 : {domains}
-          if assigned ( OnCommandDOMAINS ) then
-            OnCommandDOMAINS ( Thread );
-      8 : {all-dom}
-          if assigned ( OnCommandALLDOM ) then
-            OnCommandALLDOM ( Thread );
-      9 : {all-ingway}
-          if assigned ( OnCommandALLINGWAY ) then
-            OnCommandALLINGWAY ( Thread );
-    end; //while Thread.Connection.Connected do
-  end; //while Thread.Connection.Connected do
-  Thread.Connection.Disconnect;
-end; {doExecute}
+    S := AContext.Connection.IOHandler.ReadLn;
+    case PosInStrArray(Fetch(S, CHAR32), KnownCommands, False) of
+      0 : {hname}
+          if Assigned(OnCommandHNAME) then
+            OnCommandHNAME(AContext, S);
+      1 : {haddr}
+          if Assigned(OnCommandHADDR) then
+            OnCommandHADDR(AContext, S);
+      2 : {all}
+          if Assigned(OnCommandALL) then
+            OnCommandALL(AContext);
+      3 : {help}
+          if Assigned(OnCommandHELP) then
+            OnCommandHELP(AContext);
+      4 : {version}
+          if Assigned(OnCommandVERSION) then
+            OnCommandVERSION(AContext);
+      5 : {all-old}
+          if Assigned(OnCommandALLOLD) then
+            OnCommandALLOLD(AContext);
+      6 : {domains}
+          if Assigned(OnCommandDOMAINS) then
+            OnCommandDOMAINS(AContext);
+      7 : {all-dom}
+          if Assigned(OnCommandALLDOM) then
+            OnCommandALLDOM(AContext);
+      8 : {all-ingway}
+          if Assigned(OnCommandALLINGWAY) then
+            OnCommandALLINGWAY(AContext);
+    end;
+  end;
+  AContext.Connection.Disconnect;
+end;
 
 end.
