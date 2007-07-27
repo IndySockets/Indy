@@ -22,7 +22,7 @@
   Rev 1.9    1/21/2004 3:11:20 PM  JPMugaas
   InitComponent
 
-  Rev 1.8    10/19/2003 5:23:20 PM  DSiders
+    Rev 1.8    10/19/2003 5:23:20 PM  DSiders
   Added localization comments.
 
   Rev 1.7    2003.10.18 9:42:08 PM  czhower
@@ -48,31 +48,32 @@
 
   Rev 1.0    11/13/2002 07:55:52 AM  JPMugaas
 
-  2002-10-July: Sergio Perry
-    -Switched to using TIdCmdServer
+2002-10-July: Sergio Perry
+  -Switched to using TIdCmdServer
 
-  2002-17-Aug: Bas Gooijen
-    -Changed to DoXXXXX
+2002-17-Aug: Bas Gooijen
+  -Changed to DoXXXXX
 
-  2000-15-May:  Renamed events to Id Prefix
+2000-15-May:  Renamed events to Id Prefix
 
-  2000-22-Apr: J Peter Mugass
-    -Ported to Indy
+2000-22-Apr: J Peter Mugass
+  -Ported to Indy
 
-  2000-13-Jan MTL
-    -Moved to new Palette Scheme (Winshoes Servers)
+2000-13-Jan MTL
+  -Moved to new Palette Scheme (Winshoes Servers)
 
-  1999-13-Apr
-    -Final Version
+1999-13-Apr
+  -Final Version
 }
 
 unit IdIrcServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
   -RFC 1459 - Internet Relay Chat
 }
 
@@ -461,358 +462,312 @@ end;
 procedure TIdIRCServer.DoCommandOther(ASender: TIdCommandHandler;
   ACommand: TIdCommand; const AData, AMessage: String);
 begin
-  if Assigned(OnCommandOther) then
-  begin
+  if Assigned(OnCommandOther) then begin
     OnCommandOther(ACommand, ACommand.Params[0], ACommand.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandPass(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandPass) then
-  begin
+  if Assigned(OnCommandPass) then begin
     OnCommandPass(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandNick(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandNick) then
-  begin
+  if Assigned(OnCommandNick) then begin
     OnCommandNick(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandUser(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandUser) then
-  begin
-    OnCommandUser(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2],
-      ASender.Params[3]);
+  if Assigned(OnCommandUser) then begin
+    OnCommandUser(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2], ASender.Params[3]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandServer(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandServer) then
-  begin
+  if Assigned(OnCommandServer) then begin
     OnCommandServer(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandOper(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandNick) then
-  begin
+  if Assigned(OnCommandNick) then begin
     OnCommandNick(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandQuit(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandQuit) then
-  begin
+  if Assigned(OnCommandQuit) then begin
     OnCommandQuit(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandSQuit(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandSQuit) then
-  begin
+  if Assigned(OnCommandSQuit) then begin
     OnCommandSQuit(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandJoin(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandJoin) then
-  begin
+  if Assigned(OnCommandJoin) then begin
     OnCommandJoin(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandPart(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandPart) then
-  begin
+  if Assigned(OnCommandPart) then begin
     OnCommandPart(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandMode(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandMode) then
-  begin
-    OnCommandMode(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2],
-      ASender.Params[3], ASender.Params[4]);
+  if Assigned(OnCommandMode) then begin
+    OnCommandMode(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2], ASender.Params[3], ASender.Params[4]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandTopic(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandTopic) then
-  begin
+  if Assigned(OnCommandTopic) then begin
     OnCommandTopic(ASender, ASender.Params[0], ASender.Params[1]) ;
   end;
 end;
 
 procedure TIdIRCServer.DoCommandNames(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandNames) then
-  begin
+  if Assigned(OnCommandNames) then begin
     OnCommandNames(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandList(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandList) then
-  begin
+  if Assigned(OnCommandList) then begin
     OnCommandList(ASender, ASender.Params[0], ASender.Params[1]) ;
   end;
 end;
 
 procedure TIdIRCServer.DoCommandInvite(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandInvite) then
-  begin
+  if Assigned(OnCommandInvite) then begin
     OnCommandInvite(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandKick(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandKick) then
-  begin
+  if Assigned(OnCommandKick) then begin
     OnCommandKick(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandVersion(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandVersion) then
-  begin
+  if Assigned(OnCommandVersion) then begin
     OnCommandVersion(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandStats(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandStats) then
-  begin
+  if Assigned(OnCommandStats) then begin
     OnCommandStats(ASender, ASender.Params[0], ASender.Params[1]) ;
   end;
 end;
 
 procedure TIdIRCServer.DoCommandLinks(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandLinks) then
-  begin
+  if Assigned(OnCommandLinks) then begin
     OnCommandLinks(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandTime(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandTime) then
-  begin
+  if Assigned(OnCommandTime) then begin
     OnCommandTime(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandConnect(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandConnect) then
-  begin
+  if Assigned(OnCommandConnect) then begin
     OnCommandConnect(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandTrace(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandTrace) then
-  begin
+  if Assigned(OnCommandTrace) then begin
     OnCommandTrace(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandAdmin(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandAdmin) then
-  begin
+  if Assigned(OnCommandAdmin) then begin
     OnCommandAdmin(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandInfo(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandInfo) then
-  begin
+  if Assigned(OnCommandInfo) then begin
     OnCommandInfo(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandPrivMsg(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandPrivMsg) then
-  begin
+  if Assigned(OnCommandPrivMsg) then begin
     OnCommandPrivMsg(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandNotice(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandNotice) then
-  begin
+  if Assigned(OnCommandNotice) then begin
     OnCommandNotice(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandWho(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandWho) then
-  begin
+  if Assigned(OnCommandWho) then begin
     OnCommandWho(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandWhoIs(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandWhoIs) then
-  begin
+  if Assigned(OnCommandWhoIs) then begin
     OnCommandWhoIs(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandWhoWas(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandWhoWas) then
-  begin
+  if Assigned(OnCommandWhoWas) then begin
     OnCommandWhoWas(ASender, ASender.Params[0], ASender.Params[1], ASender.Params[2]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandKill(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandKill) then
-  begin
+  if Assigned(OnCommandKill) then begin
     OnCommandKill(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandPing(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandPing) then
-  begin
+  if Assigned(OnCommandPing) then begin
     OnCommandPing(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandPong(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandPong) then
-  begin
+  if Assigned(OnCommandPong) then begin
     OnCommandPong(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandError(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandError) then
-  begin
+  if Assigned(OnCommandError) then begin
     OnCommandError(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandAway(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandAway) then
-  begin
+  if Assigned(OnCommandAway) then begin
     OnCommandAway(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandRehash(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandRehash) then
-  begin
+  if Assigned(OnCommandRehash) then begin
     OnCommandRehash(ASender);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandRestart(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandRestart) then
-  begin
+  if Assigned(OnCommandRestart) then begin
     OnCommandRestart(ASender);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandSummon(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandSummon) then
-  begin
+  if Assigned(OnCommandSummon) then begin
     OnCommandSummon(ASender, ASender.Params[0], ASender.Params[1]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandUsers(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandUsers) then
-  begin
+  if Assigned(OnCommandUsers) then begin
     OnCommandUsers(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandWallops(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandWallops) then
-  begin
+  if Assigned(OnCommandWallops) then begin
     OnCommandWallops(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandUserHost(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandUserHost) then
-  begin
+  if Assigned(OnCommandUserHost) then begin
     OnCommandUserHost(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoCommandIsOn(ASender: TIdCommand);
 begin
-  if Assigned(OnCommandIsOn) then
-  begin
+  if Assigned(OnCommandIsOn) then begin
     OnCommandIsOn(ASender, ASender.Params[0]);
   end;
 end;
 
 procedure TIdIRCServer.DoConnect(AContext: TIdContext);
 begin
-  inherited;
   if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
-    TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough:=false;
+    TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
   end;
+  inherited DoConnect(AContext);
 end;
 
 procedure TIdIRCServer.SetIOHandler(const AValue: TIdServerIOHandler);
 begin
-  inherited;
+  inherited SetIOHandler(AValue);
   //we do it this way so that if a user is using a custom value <> default, the default port
   //is not set when the IOHandler is changed.
-  if (IOHandler is TIdServerIOHandlerSSLBase) then
+  if IOHandler is TIdServerIOHandlerSSLBase then
   begin
-    if DefaultPort = IdPORT_IRC then
-    begin
+    if DefaultPort = IdPORT_IRC then begin
       DefaultPort := IdPORT_IRCS;
     end;
-  end
-  else
+  end else
   begin
-    if DefaultPort = IdPORT_IRCS then
-    begin
+    if DefaultPort = IdPORT_IRCS then begin
       DefaultPort := IdPORT_IRC;
     end;
   end;
