@@ -1219,7 +1219,9 @@ var
   LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
-  if (Win32MajorVersion > 4) and (Win32MinorVersion > 0) then
+  // XP 5.1 at least, Vista 6.0
+  if ((Win32MajorVersion = 5) and (Win32MinorVersion > 0)) or
+     (Win32MajorVersion > 5) then
   begin
     //we call the macro twice because we specified two possible structures.
     //Id_IPV6_HOPLIMIT and Id_IPV6_PKTINFO
