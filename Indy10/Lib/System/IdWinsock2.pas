@@ -4279,11 +4279,11 @@ end;
 procedure FixupStub(hDll: THandle; const AName: string; var VStub: Pointer);
 begin
   if hDll = 0 then begin
-    EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
+    raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
   VStub := Windows.GetProcAddress(hDll, PChar(AName));
   if VStub = nil then begin
-    EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
+    raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;
 end;
 
@@ -4292,10 +4292,11 @@ var
   LStatus: Integer;
   LBytesSend: DWORD;
 begin
+  VStub := nil;
   LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SizeOf(AGuid),
     VStub, SizeOf(VStub), @LBytesSend, nil, nil);
   if LStatus <> 0 then begin
-    EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
+    raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
 end;
 
