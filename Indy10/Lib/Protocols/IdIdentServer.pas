@@ -57,7 +57,9 @@ unit IdIdentServer;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdAssignedNumbers, IdContext, IdCustomTCPServer, IdGlobal;
 
@@ -98,28 +100,25 @@ begin
   FQueryTimeOut := IdDefIdentQueryTimeOut;
 end;
 
-function TIdIdentServer.DoExecute(AContext:TIdContext): boolean;
-var s : String;
-    ServerPort, ClientPort : TIdPort;
+function TIdIdentServer.DoExecute(AContext:TIdContext): Boolean;
+var
+  s : String;
+  ServerPort, ClientPort : TIdPort;
 begin
   Result := True;
-  s := AContext.Connection.IOHandler.ReadLn('',FQueryTimeOut);    {Do not Localize}
-  if AContext.Connection.IOHandler.ReadLnTimedOut then
-  begin
-    AContext.Connection.Disconnect;
-  end
-  else
+  s := AContext.Connection.IOHandler.ReadLn('', FQueryTimeOut);    {Do not Localize}
+  if not AContext.Connection.IOHandler.ReadLnTimedOut then begin
   begin
     ServerPort := IndyStrToInt(Fetch(s,','));    {Do not Localize}
     ClientPort := IndyStrToInt(s);
-    If Assigned(FOnIdentQuery) then
-      FOnIdentQuery(AContext,ServerPort,ClientPort)
-    else
+    if Assigned(FOnIdentQuery) then
     begin
-      ReplyError(AContext,ServerPort,ClientPort,ieUnknownError);
-      AContext.Connection.Disconnect;
-    end;
+      FOnIdentQuery(AContext, ServerPort, ClientPort);
+      Exit;
+    end
+    ReplyError(AContext, ServerPort, ClientPort, ieUnknownError);
   end;
+  AContext.Connection.Disconnect;
 end;
 
 procedure TIdIdentServer.ReplyError(AContext:TIdContext; AServerPort,
