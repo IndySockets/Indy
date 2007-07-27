@@ -98,8 +98,8 @@ type
 
   TIdExplicitTLSServer = class(TIdCmdTCPServer)
   protected
-    FRegularProtPort : Integer;
-    FImplicitTLSProtPort : Integer;
+    FRegularProtPort : TIdPort;
+    FImplicitTLSProtPort : TIdPort;
     FUseTLS : TIdUseTLS;
     procedure Loaded; override;
     procedure SetIOHandler(const AValue: TIdServerIOHandler); override;
@@ -110,8 +110,8 @@ type
 
   TIdExplicitTLSClient = class(TIdTCPClientCustom)
   protected
-    FRegularProtPort : Integer;
-    FImplicitTLSProtPort : Integer;
+    FRegularProtPort : TIdPort;
+    FImplicitTLSProtPort : TIdPort;
     FUseTLS : TIdUseTLS;
     FOnTLSNotAvailable : TIdOnTLSNegotiationFailure;
     FOnTLSNegCmdFailed : TIdOnTLSNegotiationFailure;
@@ -119,7 +119,7 @@ type
 
     //feature negotiation stuff
     FCapabilities : TStrings;
-    function GetSupportsTLS : boolean; virtual; 
+    function GetSupportsTLS : Boolean; virtual; 
     procedure CheckIfCanUseTLS; virtual;
     procedure Loaded; override;
     procedure TLSNotAvailable;
@@ -201,12 +201,15 @@ begin
     if (not (IOHandler is TIdServerIOHandlerSSLBase)) and (AValue <> utNoTLSSupport) then begin
       raise EIdTLSServerSSLIOHandlerRequired.Create(RSTLSSSLIOHandlerRequired);
     end;
-    if FUseTLS <> AValue then begin
-      if AValue = utUseImplicitTLS then begin
+    if FUseTLS <> AValue then
+    begin
+      if AValue = utUseImplicitTLS then
+      begin
         if DefaultPort = FRegularProtPort then begin
           DefaultPort := FImplicitTLSProtPort;
         end;
-      end else begin
+      end else
+      begin
         if DefaultPort = FImplicitTLSProtPort then begin
           DefaultPort := FRegularProtPort;
         end;
