@@ -368,7 +368,7 @@ begin
         VIPVersion := Id_IPv6;
       end;
       else begin
-        Result := CloseSocket(Result);
+        CloseSocket(Result);
         Result := INVALID_SOCKET;
         IPVersionUnsupported;
       end;
