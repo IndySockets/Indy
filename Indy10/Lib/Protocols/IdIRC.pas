@@ -29,6 +29,7 @@ unit IdIRC;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -412,6 +413,8 @@ begin
     FVersion := LSource.Version;
     FUserInfo := LSource.UserInfo;
     FClientInfo := LSource.ClientInfo;
+  end else begin
+    inherited Assign(Source);
   end;
 end;
 
@@ -422,7 +425,7 @@ var
   LTmp: String;
 begin
   LTmp := TrimLeft(S);
-  if (LTmp <> '') and (LTmp[1] = ':') then
+  if TextStartsWith(LTmp, ':') then
   begin
     Result := Copy(LTmp, 2, MaxInt);
     S := '';
@@ -781,7 +784,7 @@ var
   LTmp: String;
 begin
   // ":sender!pc@domain"
-  if (AData <> '') and (AData[1] = ':') then begin
+  if TextStartsWith(AData, ':') then begin
     LTmp := Fetch(AData, #32);
     Delete(LTmp, 1, 1); // remove ':'
     FSenderNick := Fetch(LTmp, '!');
@@ -1423,12 +1426,12 @@ end;
 
 function TIdIRC.IsOp(const ANickname: String): Boolean;
 begin
-  Result := (Length(ANickname) > 0) and (ANickname[1] = '@');
+  Result := TextStartsWith(ANickname, '@');
 end;
 
 function TIdIRC.IsVoice(const ANickname: String): Boolean;
 begin
-  Result := (Length(ANickname) > 0) and (ANickname[Length(Nickname)] = '+');
+  Result := TextEndsWith(ANickname, '+');
 end;
 
 procedure TIdIRC.Say(const ATarget, AMsg: String);
