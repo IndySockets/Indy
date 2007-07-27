@@ -22,7 +22,7 @@
   Rev 1.5    1/21/2004 3:10:36 PM  JPMugaas
   InitComponent
 
-  Rev 1.4    3/27/2003 3:42:00 PM  BGooijen
+    Rev 1.4    3/27/2003 3:42:00 PM  BGooijen
   Changed because some properties are moved to IOHandler
 
   Rev 1.3    2/24/2003 09:00:34 PM  JPMugaas
@@ -46,21 +46,16 @@ unit IdIdent;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
-uses IdAssignedNumbers, IdException, IdTCPClient;
+
+uses
+  IdAssignedNumbers, IdException, IdTCPClient;
 
 const
   IdIdentQryTimeout = 60000;
 
 type
-  EIdIdentException = class(EIdException);
-  EIdIdentReply = class(EIdIdentException);
-  EIdIdentInvalidPort = class(EIdIdentReply);
-  EIdIdentNoUser = class(EIdIdentReply);
-  EIdIdentHiddenUser = class(EIdIdentReply);
-  EIdIdentUnknownError = class(EIdIdentReply);
-  EIdIdentQueryTimeOut = class(EIdIdentReply);
-
   TIdIdent = class(TIdTCPClientCustom)
   protected
     FQueryTimeOut : Integer;
@@ -71,85 +66,100 @@ type
     function GetReplyUserName: String;
     function FetchUserReply : String;
     function FetchOS : String;
-    Procedure ParseError;
+    procedure ParseError;
     procedure InitComponent; override;
   public
-    Procedure Query(APortOnServer, APortOnClient : Word);
-    Property Reply : String read FReplyString;
-    Property ReplyCharset : String read GetReplyCharset;
-    Property ReplyOS : String read GetReplyOS;
-    Property ReplyOther : String read GetReplyOther;
-    Property ReplyUserName : String read GetReplyUserName;
-
+    procedure Query(APortOnServer, APortOnClient : Word);
+    property Reply : String read FReplyString;
+    property ReplyCharset : String read GetReplyCharset;
+    property ReplyOS : String read GetReplyOS;
+    property ReplyOther : String read GetReplyOther;
+    property ReplyUserName : String read GetReplyUserName;
   published
     property QueryTimeOut : Integer read FQueryTimeOut write FQueryTimeOut default IdIdentQryTimeout;
-    Property Port default IdPORT_AUTH;
+    property Port default IdPORT_AUTH;
     property Host;
   end;
+
+  EIdIdentException = class(EIdException);
+  EIdIdentReply = class(EIdIdentException);
+  EIdIdentInvalidPort = class(EIdIdentReply);
+  EIdIdentNoUser = class(EIdIdentReply);
+  EIdIdentHiddenUser = class(EIdIdentReply);
+  EIdIdentUnknownError = class(EIdIdentReply);
+  EIdIdentQueryTimeOut = class(EIdIdentReply);
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
+  IdGlobal,
+  IdGlobalProtocols,
+  IdResourceStringsProtocols,
+  SysUtils;
 
-const IdentErrorText : Array[0..3] of string =
-  ('INVALID-PORT', 'NO-USER', 'HIDDEN-USER', 'UNKNOWN-ERROR');    {Do not Localize}
+const
+  IdentErrorText : Array[0..3] of string = (
+    'INVALID-PORT', 'NO-USER', 'HIDDEN-USER', 'UNKNOWN-ERROR'    {Do not Localize}
+  );
 
 { TIdIdent }
 
 procedure TIdIdent.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FQueryTimeOut := IdIdentQryTimeout;
   Port := IdPORT_AUTH;
 end;
 
 function TIdIdent.FetchOS: String;
-var Buf : String;
+var
+  Buf : String;
 begin
   Buf := FetchUserReply;
   Result := Trim(Fetch(Buf,':'));    {Do not Localize}
 end;
 
 function TIdIdent.FetchUserReply: String;
-var Buf : String;
+var
+  Buf : String;
 begin
   Result := '';    {Do not Localize}
   Buf := FReplyString;
   Fetch(Buf,':');    {Do not Localize}
-  if UpperCase(Trim(Fetch(Buf,':'))) = 'USERID' then    {Do not Localize}
+  if TextIsSame(Trim(Fetch(Buf,':')), 'USERID') then begin   {Do not Localize}
     Result := TrimLeft(Buf);
+  end;
 end;
 
 function TIdIdent.GetReplyCharset: String;
-var Buf : String;
+var
+  Buf : String;
 begin
   Buf := FetchOS;
-  if (Length(Buf) > 0) and (Pos(',',Buf)>0) then    {Do not Localize}
-  begin
+  if (Length(Buf) > 0) and (Pos(',', Buf) > 0) then begin   {Do not Localize}
     Result := Trim(Fetch(Buf,','));    {Do not Localize}
-  end
-  else
+  end else begin
     Result := 'US-ASCII';    {Do not Localize}
+  end;
 end;
 
 function TIdIdent.GetReplyOS: String;
-var Buf : String;
+var
+  Buf : String;
 begin
   Buf := FetchOS;
-  if Length(Buf) > 0 then
-  begin
+  if Length(Buf) > 0 then begin
     Result := Trim(Fetch(Buf,','));    {Do not Localize}
-  end
-  else
+  end else begin
     Result := '';    {Do not Localize}
+  end;
 end;
 
 function TIdIdent.GetReplyOther: String;
-var Buf : String;
+var
+  Buf : String;
 begin
-  if FetchOS = 'OTHER' then    {Do not Localize}
-  begin
+  if FetchOS = 'OTHER' then begin   {Do not Localize}
     Buf := FetchUserReply;
     Fetch(Buf,':');    {Do not Localize}
     Result := TrimLeft(Buf);
@@ -157,55 +167,55 @@ begin
 end;
 
 function TIdIdent.GetReplyUserName: String;
-var Buf : String;
+var
+  Buf : String;
 begin
-  if FetchOS <> 'OTHER' then    {Do not Localize}
-  begin
+  if FetchOS <> 'OTHER' then begin   {Do not Localize}
     Buf := FetchUserReply;
     {OS ID}
-    Fetch(Buf,':');    {Do not Localize}
+    Fetch(Buf, ':');    {Do not Localize}
     Result := TrimLeft(Buf);
   end;
 end;
 
 procedure TIdIdent.ParseError;
-var Buf : String;
+var
+  Buf : String;
 begin
   Buf := FReplyString;
-  Fetch(Buf,':');    {Do not Localize}
-  if Trim(Fetch(Buf,':')) = 'ERROR' then    {Do not Localize}
-  begin
-    case PosInStrArray(UpperCase(Trim(Buf)),IdentErrorText) of
-          {Invalid Port}
+  Fetch(Buf, ':');    {Do not Localize}
+  if Trim(Fetch(Buf, ':')) = 'ERROR' then begin   {Do not Localize}
+    case PosInStrArray(Trim(Buf), IdentErrorText, False) of
+      {Invalid Port}
       0 : Raise EIdIdentInvalidPort.Create(RSIdentInvalidPort);
-          {No user}
+      {No user}
       1 : Raise EIdIdentNoUser.Create(RSIdentNoUser);
-          {Hidden User}
+      {Hidden User}
       2 : Raise EIdIdentHiddenUser.Create(RSIdentHiddenUser)
-    else  {Unknwon or other error}
-      Raise EIdIdentUnknownError.Create(RSIdentUnknownError);
+    else
+      {Unknown or other error}
+      raise EIdIdentUnknownError.Create(RSIdentUnknownError);
     end;
   end;
 end;
 
 procedure TIdIdent.Query(APortOnServer, APortOnClient: Word);
-var RTO : Boolean;
 begin
   FReplyString := '';    {Do not Localize}
-  Connect;
   try
-    WriteLn(IntToStr(APortOnServer)+', '+IntToStr(APortOnClient));    {Do not Localize}
-    FReplyString := IOHandler.ReadLn('',FQueryTimeOut);    {Do not Localize}
-    {We check here and not return an exception at the moment so we can close our
-    connection before raising our exception if the read timed out}
-    RTO := IOHandler.ReadLnTimedOut;
-  finally
-    Disconnect;
+    Connect;
+    try
+      WriteLn(IntToStr(APortOnServer) + ', ' + IntToStr(APortOnClient));    {Do not Localize}
+      FReplyString := IOHandler.ReadLn('', FQueryTimeOut);    {Do not Localize}
+    finally
+      Disconnect;
+    end;
+  except
+    on E: EIdReadTimeout do begin
+      raise EIdIdentQueryTimeOut.Create(RSIdentReplyTimeout);
+    end;
   end;
-  if RTO then
-    Raise EIdIdentQueryTimeOut.Create(RSIdentReplyTimeout)
-  else
-    ParseError;
+  ParseError;
 end;
 
 end.
