@@ -47,7 +47,9 @@
 unit IdMappedPOP3;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdAssignedNumbers,
   IdMappedPortTCP, IdMappedTelnet, IdReplyPOP3,
@@ -92,12 +94,13 @@ destructor TIdMappedPOP3.Destroy;
 begin
   FreeAndNil(FReplyUnknownCommand);
   FreeAndNil(FGreeting);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdMappedPOP3.InitComponent;
 Begin
-  inherited;
+  inherited InitComponent;
+
   FUserHostDelimiter := '#';//standard    {Do not Localize}
   FGreeting := TIdReplyPOP3.Create(nil);
   FGreeting.SetReply('+OK', RSPop3ProxyGreeting);    {Do not Localize}
@@ -108,7 +111,7 @@ Begin
   DefaultPort := IdPORT_POP3;
   MappedPort := IdPORT_POP3;
   FContextClass := TIdMappedPOP3Thread;
-End;//TIdMappedPOP3.Create
+end;
 
 procedure TIdMappedPOP3.SetGreeting(AValue: TIdReplyPOP3);
 begin
@@ -128,9 +131,9 @@ var
 Begin
   //don`t call inherited, NEW behavior
   with TIdMappedPOP3(Server) do begin
-    Connection.IOHandler.Write(Greeting.FormattedReply);
+    Connection.IOHandler.Write(Greeting.FormattedReply);   
 
-    FOutboundClient := TIdTCPClient.Create(NIL);
+    FOutboundClient := TIdTCPClient.Create(nil);
     with TIdTcpClient(FOutboundClient) do begin
       Port := MappedPort;
       Host := MappedHost;
@@ -145,25 +148,26 @@ Begin
       try
         // Greeting
         LHostPort := Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
-        LPop3Cmd := UpperCase(Fetch(LHostPort,' ',TRUE));    {Do not Localize}
-        if LPop3Cmd = 'QUIT' then begin    {Do not Localize}
-          Connection.IOHandler.WriteLn('+OK '+RSPop3QuitMsg);    {Do not Localize}
+        LPop3Cmd := Fetch(LHostPort, ' ', True);    {Do not Localize}
+        if TextIsSame(LPop3Cmd, 'QUIT') then begin    {Do not Localize}
+          Connection.IOHandler.WriteLn('+OK ' + RSPop3QuitMsg);    {Do not Localize}
           Connection.Disconnect;
-          BREAK;
-        end else if LPop3Cmd = 'USER' then begin    {Do not Localize}
-          LUserName := Fetch(LHostPort,FUserHostDelimiter,TRUE,FALSE);//?:CaseSensetive
+          Break;
+        end else if TextIsSame(LPop3Cmd, 'USER') then begin    {Do not Localize}
+          LUserName := Fetch(LHostPort, FUserHostDelimiter, True, False);//?:CaseSensetive
           FNetData := LUserName; //save for OnCheckHostPort
           LHostPort := TrimLeft(LHostPort); //TrimRight above
-          ExtractHostAndPortFromLine(SELF,LHostPort);
+          ExtractHostAndPortFromLine(Self, LHostPort);
           LUserName := FNetData; //allow username substitution
         end else begin
           Connection.IOHandler.Write(ReplyUnknownCommand.FormattedReply);
           Continue;
         end;//if
 
-        if Length(TIdTcpClient(FOutboundClient).Host)<1 then begin
+        if Length(TIdTcpClient(FOutboundClient).Host) < 1 then begin
           raise EIdException.Create(RSEmptyHost);
         end;
+
         TIdTcpClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;
         TIdTcpClient(FOutboundClient).Connect;
         FNetData := FOutboundClient.IOHandler.ReadLn;//Read Pop3 Banner for OnOutboundClientConnect
@@ -171,18 +175,19 @@ Begin
         FOutboundClient.IOHandler.WriteLn('USER ' + LUserName);    {Do not Localize}
       except
         on E: Exception do begin // DONE: Handle connect failures
-          FNetData :='-ERR [' + E.ClassName+'] ' + E.Message;    {Do not Localize}
-          DoOutboundClientConnect(Self,E);//?DoException(AThread,E);
+          FNetData := '-ERR [' + E.ClassName + '] ' + E.Message;    {Do not Localize}
+          DoOutboundClientConnect(Self, E);//?DoException(AThread,E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
     until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);
 
     if FOutboundClient.Connected then begin
-      DoOutboundClientConnect(Self)
+      DoOutboundClientConnect(Self);
     end else begin
       Connection.Disconnect; //prevent all next work
     end;
   end;//with
-End;//TIdMappedPOP3.OutboundConnect
+end;
+
 end.
