@@ -1504,14 +1504,18 @@ begin
             if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
               TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
             end;
-            if FCurrentTransferMode <> dmDeflate then begin
+            if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
+            begin
+              FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
+                FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
+            end
+            else
+            begin
               if AFromBeginning then begin
                 FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
               end else begin
                 FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
               end;
-            end else begin
-              FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
             end;
           except
             on E: EIdSocketError do
@@ -1555,15 +1559,17 @@ begin
         if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
           TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
         end;
-
-        if FCurrentTransferMode <> dmDeflate then begin
+        if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
+        begin
+          FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
+        end
+        else
+        begin
           if AFromBeginning then begin
             FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
           end else begin
             FDataChannel.IOHandler.Write(ASource, -1, False); // from current position
           end;
-        end else begin
-          FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
         end;
       finally
         FinalizeDataOperation;
@@ -1642,11 +1648,13 @@ begin
           if (FDataPortProtection = ftpdpsPrivate) then begin
             TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
           end;
-          if FCurrentTransferMode = dmStream then begin
-            LPasvCl.IOHandler.ReadStream(ADest, -1, True);
-          end else begin
+          if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
+          begin
             FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
-            //ReadCompressedData(FCompressor, ADest, LPasvCl.IOHandler, FZLibWindowBits);
+          end
+          else
+          begin
+            LPasvCl.IOHandler.ReadStream(ADest, -1, True);
           end;
         end;
       finally
@@ -1686,12 +1694,13 @@ begin
       if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
         TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
       end;
-
-      if FCurrentTransferMode = dmStream then begin
+      if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
+      begin
+        FCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
+      end
+      else
+      begin
         FDataChannel.IOHandler.ReadStream(ADest, -1, True);
-      end else begin
-        FCompressor.DecompressFTPFromIO( FDataChannel.IOHandler, ADest, FZLibWindowBits);
-        //ReadCompressedData(FCompressor, ADest, FDataChannel.IOHandler, FZLibWindowBits);
       end;
     finally
       FinalizeDataOperation;
