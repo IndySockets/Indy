@@ -32,26 +32,27 @@
 
   Rev 1.0    11/13/2002 07:58:40 AM  JPMugaas
 
-  2000-May-15  J. Peter Mugaas
-  -renamed events to have Id prefix
+2000-May-15  J. Peter Mugaas
+ -renamed events to have Id prefix
 
-  2000-Apr-22  J Peter Mugaas
-    Ported to Indy
+2000-Apr-22  J Peter Mugaas
+  Ported to Indy
 
-  2000-Jan-13 MTL
-    Moved to new Palette Scheme (Winshoes Servers)
+2000-Jan-13 MTL
+  Moved to new Palette Scheme (Winshoes Servers)
 
-  1999-May-13
-    Final Version
+1999-May-13
+  Final Version
 }
 
 unit IdQotdServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 {
-  Original Author: Ozz Nixon
+Original Author: Ozz Nixon
   (RFC 865) [less than 512 characters total, multiple lines OK!]
 }
 
@@ -61,40 +62,37 @@ uses
   IdCustomTCPServer;
 
 Type
-  TIdQOTDGetEvent = procedure ( AContext:TIdContext; var AQuote : String ) of object;
+  TIdQOTDGetEvent = procedure(AContext: TIdContext; var AQuote: String) of object;
 
-  TIdQOTDServer = class ( TIdCustomTCPServer )
+  TIdQOTDServer = class(TIdCustomTCPServer)
   protected
     FOnCommandQOTD : TIdQOTDGetEvent;
     //
-    function DoExecute ( AContext:TIdContext ): boolean; override;
+    function DoExecute(AContext: TIdContext): Boolean; override;
     procedure InitComponent; override;
   published
-    property OnCommandQOTD : TIdQOTDGetEvent read fOnCommandQOTD
-      write fOnCommandQOTD;
+    property OnCommandQOTD : TIdQOTDGetEvent read fOnCommandQOTD write fOnCommandQOTD;
     property DefaultPort default IdPORT_QOTD;
   end;
 
 implementation
 
-
 procedure TIdQOTDServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_QOTD;
 end;
 
-function TIdQOTDServer.DoExecute ( AContext:TIdContext ) : boolean;
-var LQuote : String;
+function TIdQOTDServer.DoExecute(AContext:TIdContext) : Boolean;
+var
+  LQuote : String;
 begin
-  result := true;
-  if AContext.Connection.Connected then begin
-    if assigned ( OnCommandQOTD ) then begin
-      OnCommandQOTD ( AContext,LQuote );
-      AContext.Connection.IOHandler.Write(LQuote);
-    end;
+  if Assigned(OnCommandQOTD) then
+  begin
+    OnCommandQOTD(AContext, LQuote);
+    AContext.Connection.IOHandler.Write(LQuote);
   end;
   AContext.Connection.Disconnect;
-end; {doExecute}
+end;
 
 end.
