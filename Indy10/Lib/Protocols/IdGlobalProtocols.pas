@@ -524,7 +524,12 @@ const
    {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
   TIME_BASEDATE = 2;
-  
+
+  //These are moved here to facilitate inlining
+const
+  HexNumbers = '01234567890ABCDEF';  {Do not Localize}
+  BinNumbers = '01'; {Do not localize}
+
 implementation
 
 uses
@@ -828,10 +833,10 @@ var
   LCardinal: TIdBytes;
 begin
   LCardinal := ToBytes(AValue);
-  AByte1: LCardinal[0];
-  AByte2: LCardinal[1];
-  AByte3: LCardinal[2];
-  AByte4: LCardinal[3];
+  LCardinal[0] := VByte1;
+  LCardinal[1] := VByte2;
+  LCardinal[2] := VByte3;
+  LCardinal[3] := VByte4;
 end;
 
 function TwoCharToWord(AChar1,AChar2: Char):Word;
@@ -1341,9 +1346,21 @@ begin
 end;
 
 function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
-{$IFNDEF UNIX}
-  {$IFDEF USEINLINE}inline;{$ENDIF}
-{$ELSE}
+ {$IFDEF DOTNET}
+   {$IFDEF USEINLINE}inline;{$ENDIF}
+   {$DEFINE NONATIVECOPYFILETO} 
+ {$ENDIF}
+{$IFDEF UNIX}
+   {$IFDEF USEINLINE}inline;{$ENDIF}
+   {$DEFINE NONATIVECOPYFILETO}
+{$ENDIF}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF USEINLINE}inline;{$ENDIF}
+   {$DEFINE NONATIVECOPYFILETO}
+{$ENDIF}
+
+{$IFNDEF NONATIVECOPYFILETO}
+
 var
   SourceF, DestF : File;
   NumRead, NumWritten: Word;
@@ -1359,7 +1376,8 @@ begin
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64}
   Result := CopyFile(PChar(Source), PChar(Destination), true);
-  {$ELSE}
+  {$ENDIF}
+  {$IFNDEF NONATIVECOPYFILETO}
   //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
 
   //note that I do use the I+ and I- directive.
@@ -1721,7 +1739,7 @@ end;
 
 function SetLocalTime(Value: TDateTime): Boolean;
 {$IFNDEF WIN32_OR_WIN64_OR_WINCE}
-  {$IFUSEINLINE}inline;{$ENDIF}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}
 var
    dSysTime: TSystemTime;
@@ -1821,9 +1839,7 @@ begin
   Result := AStr;
 end;
 
-const
-  HexNumbers = '01234567890ABCDEF';  {Do not Localize}
-  BinNumbers = '01'; {Do not localize}
+
 
 function IsHex(const AChar : Char) : Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
