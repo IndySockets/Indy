@@ -85,7 +85,7 @@ interface
 uses
   Classes,
   IdContext, IdAssignedNumbers, IdMappedPortTCP, IdStack, IdYarn,
-  IdTCPConnection,IdTCPServer, IdThread;
+  IdTCPConnection,IdTCPServer, IdThread, IdGlobal;
 
 type
   TIdMappedFtpDataThread = class;
@@ -95,7 +95,7 @@ type
     FFtpCommand: string;
     FFtpParams: string;
     FHost, FoutboundHost: string; //local,remote(mapped)
-    FPort, FoutboundPort: Integer;
+    FPort, FoutboundPort: TIdPort;
     FDataChannelThread: TIdMappedFtpDataThread;
     //
     procedure CheckForData(DoRead: Boolean); override;
@@ -163,7 +163,7 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdIOHandlerSocket, IdException,
+  IdGlobalProtocols, IdIOHandlerSocket, IdException,
   IdResourceStringsProtocols, IdTcpClient, IdSimpleServer, IdStackConsts,
   SysUtils;
 
@@ -218,7 +218,7 @@ begin
     Connection.IOHandler.Write(FNetData);
   end;
   // FTP Client
-  while not Connection.IOHandler.InputBufferIsEmpty then
+  while not Connection.IOHandler.InputBufferIsEmpty do
   begin
     FNetData := Connection.IOHandler.ReadLn;  //USeR REQuest
     if Length(FNetData) > 0 then
@@ -226,10 +226,10 @@ begin
       FFtpParams := FNetData;
       FFtpCommand := UpperCase(Fetch(FFtpParams, ' ', True));    {Do not Localize}
       if ProcessFtpCommand then begin
-        TIdMappedFTP(Server).DoLocalClientData(AContext); //bServer
+        TIdMappedFTP(Server).DoLocalClientData(Self); //bServer
       end else
       begin
-        TIdMappedFTP(Server).DoLocalClientData(AContext); //bServer
+        TIdMappedFTP(Server).DoLocalClientData(Self); //bServer
         FOutboundClient.IOHandler.WriteLn(FtpCmdLine); //send USRREQ to FtpServer
         ProcessDataCommand;
       end;
@@ -334,7 +334,7 @@ var
 
   procedure SendPort;
   begin
-    OutboundHost := (OutboundClient.Socket.Binding.IP;
+    OutboundHost := (OutboundClient.Socket.Binding.IP);
 
     DataChannelThread.FOutboundClient := TIdSimpleServer.Create(nil);
 
@@ -494,7 +494,7 @@ begin
           if Contains(LConnectionHandle) then
           begin
             Connection.IOHandler.CheckForDataOnSource(0);
-            SetLength(FNetData, 0)
+            SetLength(FNetData, 0);
             Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
             if Length(FNetData) > 0 then
             begin
