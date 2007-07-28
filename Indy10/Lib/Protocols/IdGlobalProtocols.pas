@@ -1352,9 +1352,6 @@ end;
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   {$DEFINE APICOPYFILETO}
 {$ENDIF}
-{$IFDEF UNIX}
-  {$DEFINE APICOPYFILETO}
-{$ENDIF}
 
 function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
 {$IFDEF APICOPYFILETO} 
