@@ -145,6 +145,7 @@
 unit IdNNTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -164,7 +165,7 @@ type
   TIdNNTPPermission = (crCanPost, crNoPost, crAuthRequired, crTempUnavailable);
   TIdModeSetResult = (mrCanStream, mrNoStream, mrCanIHAVE, mrNoIHAVE, mrCanPost, mrNoPost);
   TIdEventStreaming = procedure (AMesgID: string; var AAccepted: Boolean)of object;
-  TIdNewsTransporTIdEvent = procedure (AMsg: TStringList) of object;
+  TIdNewsTransporTIdEvent = procedure (AMsg: TStrings) of object;
    //AMsg can be an index number or a message ID depending upon the parameters of XHDR
   TIdEvenTIdNewsgroupList = procedure(ANewsgroup: string; ALow, AHigh: Integer;
    AType: string; var ACanContinue: Boolean) of object;
@@ -207,7 +208,7 @@ type
     procedure XOVERCommon(AParam : String);
     procedure StartTLS;
   public
-    procedure Check(AMsgIDs: TStringList; var AResponses: TStringList);
+    procedure Check(AMsgIDs: TStrings; AResponses: TStrings);
     procedure Connect; override;
     destructor Destroy; override;
     procedure DisconnectNotifyPeer; override;
@@ -249,9 +250,9 @@ type
       ADate: TDateTime; AGMT: boolean; ADistributions: string); overload;
     procedure GetNewNewsList(ANewsgroups: string; ADate: TDateTime;
       AGMT: boolean; ADistributions: string; AList : TStrings); overload;
-    procedure GetOverviewFMT(AResponse: TStringList);
+    procedure GetOverviewFMT(AResponse: TStrings);
     function IsExtCmdSupported(AExtension : String) : Boolean;
-    procedure IHAVE(AMsg: TStringList);
+    procedure IHAVE(AMsg: TStrings);
     function Next: Boolean;
     function Previous: Boolean;
     procedure ParseXOVER(Aline: String; var AArticleIndex : Integer; var ASubject,
@@ -372,12 +373,9 @@ begin
   // NOTE: Responses must be passed as arrays so that the proper inherited SendCmd is called
   // and a stack overflow is not caused.
   Result := inherited SendCmd(AOut, []);
-  if (Result = 480) or (Result = 450) then begin
-    // RLebeau - RFC 2980 says that if the password is not required,
-    // then 281 will be returned for the username request, not 381.
-    if (inherited SendCmd('AUTHINFO USER ' + Username, [281, 381]) = 381) then begin {do not localize}
-      inherited SendCmd('AUTHINFO PASS ' + Password, 281);  {do not localize}
-    end;
+  if (Result = 480) or (Result = 450) then
+  begin
+    SendAuth;
     Result := inherited SendCmd(AOut, AResponse);
   end else begin
     CheckResponse(Result, AResponse);
@@ -397,7 +395,7 @@ begin
 end;
 
 { This procedure gets the overview format as suported by the server }
-procedure TIdNNTP.GetOverviewFMT(AResponse: TStringList);
+procedure TIdNNTP.GetOverviewFMT(AResponse: TStrings);
 begin
   SendCmd('LIST OVERVIEW.FMT', 215);  {do not localize}
   IOHandler.Capture(AResponse);
@@ -479,7 +477,7 @@ use for NNTP client readers as readers are generally denied the privelege
 to execute the IHAVE command. this is a news transport command. So use this
 when you are implementing a NNTP server send unit }
 
-procedure TIdNNTP.IHAVE(AMsg: TStringList);
+procedure TIdNNTP.IHAVE(AMsg: TStrings);
 var
   i     : Integer;
   MsgID : string;
@@ -492,11 +490,13 @@ begin
   // We need to get the message ID from the stringlist because it's required
   // that we send it s part of the IHAVE command
   for i := 0 to AMsg.Count - 1 do
+  begin
     if IndyPos('Message-ID', AMsg.Strings[i]) > 0 then begin  {do not localize}
       MsgID := AMsg.Strings[i];
       Fetch(MsgID,':');
       Break;
     end;
+  end;
   SendCmd('IHAVE ' + MsgID, 335); {do not localize}
   WriteRFCStrings(AMsg);
   // Why is the response ignored? What is it?
@@ -536,7 +536,7 @@ end;
       480 Transfer permission denied
       500 Command not understood
 *)
-procedure TIdNNTP.Check(AMsgIDs: TStringList; var AResponses: TStringList);
+procedure TIdNNTP.Check(AMsgIDs: TStrings; AResponses: TStrings);
 var
   i: Integer;
 begin
@@ -1222,8 +1222,7 @@ begin
   //flatten everything out for easy processing
   for i := 0 to FCapabilities.Count -1 do
   begin
-    s := Trim(UpperCase(FCapabilities[i]));
-    FCapabilities[i] := s;
+    FCapabilities[i] := Trim(UpperCase(FCapabilities[i]));
   end;
   FOVERSupported := IsExtCmdSupported('OVER');  {do not localize}
   FHDRSupported := IsExtCmdSupported('HDR');  {do not localize}
@@ -1232,34 +1231,30 @@ end;
 
 function TIdNNTP.IsExtCmdSupported(AExtension: String): Boolean;
 begin
-  Result := FCapabilities.IndexOf(Trim(UpperCase(AExtension)))>-1;
+  Result := FCapabilities.IndexOf(Trim(UpperCase(AExtension))) > -1;
 end;
 
 procedure TIdNNTP.StartTLS;
-var LIO : TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
 begin
-
-  if (IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS<>utNoTLSSupport) then
+  if (IOHandler is TIdSSLIOHandlerSocketBase) and (FUseTLS <> utNoTLSSupport) then
   begin
     LIO := TIdSSLIOHandlerSocketBase(IOHandler);
     //we check passthrough because we can either be using TLS currently with
     //implicit TLS support or because STARTLS was issued previously.
     if LIO.PassThrough then
     begin
-      if Self.IsExtCmdSupported('STARTTLS') then  {do not localize}
+      if IsExtCmdSupported('STARTTLS') then  {do not localize}
       begin
-        if SendCmd('STARTTLS')=382 then {do not localize}
+        if SendCmd('STARTTLS') = 382 then {do not localize}
         begin
-          Self.TLSHandshake;
+          TLSHandshake;
           AfterConnect;
-        end
-        else
-        begin
+        end else begin
           ProcessTLSNegCmdFailed;
         end;
-      end
-      else
-      begin
+      end else begin
         ProcessTLSNotAvail;
       end;
     end;
@@ -1272,7 +1267,8 @@ begin
 end;
 
 procedure TIdNNTP.XHDR(AHeader, AParam: string);
-var LLine : String;
+var
+  LLine : String;
   LMsg, LHeaderData : String;
   LCanContinue : Boolean;
 begin
@@ -1292,8 +1288,7 @@ begin
     finally
       EndWork(wmRead);
     end;
-  end
-  else
+  end else
   begin
     raise EIdNNTPNoOnXHDREntry.Create(RSNNTPNoOnXHDREntry);
   end;
@@ -1330,8 +1325,7 @@ begin
     finally
       EndWork(wmRead);
     end;
-  end
-  else
+  end else
   begin
     raise EIdNNTPNoOnXOVER.Create(RSNNTPNoOnXOVER);
   end;
@@ -1366,8 +1360,7 @@ begin
   //says the correct reply code is 225 but RFC 2980 specifies 221 for the
   //XHDR command so we should accept both to CYA.
     SendCmd('HDR '+ AHeader + ' ' + AParam, [225, 221]);  {do not localize}
-  end
-  else
+  end else
   begin
     SendCmd('XHDR ' + AHeader + ' ' + AParam, 221); {do not localize}
   end;
@@ -1390,6 +1383,8 @@ end;
 
 procedure TIdNNTP.SendAuth;
 begin
+  // RLebeau - RFC 2980 says that if the password is not required,
+  // then 281 will be returned for the username request, not 381.
   if (inherited SendCmd('AUTHINFO USER ' + Username, [281, 381]) = 381) then begin {do not localize}
     inherited SendCmd('AUTHINFO PASS ' + Password, 281);  {do not localize}
   end;
