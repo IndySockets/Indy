@@ -320,10 +320,12 @@
 unit IdGlobalProtocols;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   Windows,
   {$ENDIF}
   IdCharsets,
@@ -346,6 +348,7 @@ type
   {$ELSE}
   TIdFileName = String;
   {$ENDIF}
+
   TIdReadLnFunction = function: string of object;
   TStringEvent = procedure(ASender: TComponent; const AString: String);
 
@@ -353,8 +356,8 @@ type
   protected
     FLoadTypesFromOS: Boolean;
     FOnBuildCache: TNotifyEvent;
-    FMIMEList: TStringList;
-    FFileExt: TStringList;
+    FMIMEList: TStrings;
+    FFileExt: TStrings;
     procedure BuildDefaultCache; virtual;
   public
     property LoadTypesFromOS: Boolean read FLoadTypesFromOS write FLoadTypesFromOS;
@@ -381,7 +384,7 @@ type
   PWord =^Word;
   {$ENDIF}
 
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   TIdWin32Type = (Win32s,
     WindowsNT40PreSP6Workstation, WindowsNT40PreSP6Server, WindowsNT40PreSP6AdvancedServer,
     WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer,
@@ -445,7 +448,7 @@ type
   function GmtOffsetStrToDateTime(S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
   function IdGetDefaultCharSet : TIdCharSet;
-  function IntToBin(Value: cardinal): string;
+  function IntToBin(Value: LongWord): string;
   function IndyComputerName : String; // DotNet: see comments regarding GDotNetComputerName below
 
   function IndyStrToBool(const AString: String): Boolean;
@@ -461,7 +464,8 @@ type
   function Max(AValueOne,AValueTwo: Integer): Integer;
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
-   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
+  function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
+  function LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
 
@@ -473,7 +477,7 @@ type
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
   {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
-  function SetLocalTime(Value: TDateTime): boolean;
+  function SetLocalTime(Value: TDateTime): Boolean;
 
   function StartsWith(const ANSIStr, APattern : String) : Boolean;
 
@@ -491,7 +495,7 @@ type
   function UpCaseFirst(const AStr: string): string;
   function UpCaseFirstWord(const AStr: string): string;
   function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
-  {$ifdef win32_or_win64}
+  {$IFDEF WIN32_OR_WIN64}
   function Win32Type : TIdWin32Type;
   {$ENDIF}
   procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
@@ -529,17 +533,17 @@ uses
   Libc,
     {$ENDIF}
     {$IFDEF FPC}
-     {$IFDEF UseLibC}
-       libc,
-     {$endif}
-     {$ifdef UseBaseUnix}
-       BaseUnix,
-       Unix,
-       DateUtils,
-     {$endif}
+      {$IFDEF USELIBC}
+      libc,
+      {$ENDIF}
+      {$IFDEF USEBASEUNIX}
+      BaseUnix,
+      Unix,
+      DateUtils,
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   Registry,
   {$ENDIF}
   {$IFDEF DOTNET}
@@ -671,7 +675,7 @@ begin
 end;
 {$ENDIF}
 
-{$ifdef win32_or_win64_or_winCE}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
   ATempPath: string;
 {$ENDIF}
@@ -739,20 +743,21 @@ end;
 
 // BGO: TODO: Move somewhere else
 procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
-{$ifdef DotNet}
-var a:integer;
-{$endif}
+{$IFDEF DOTNET}
+var
+  a: Integer;
+{$ENDIF}
 //Inline function must not have open array arguement.
 begin
-  {$ifdef DotNet}
-  for a:=1 to ALen do begin
-    ADest[ADestStart]:= ASource[ASourceStart];
+  {$IFDEF DOTNET}
+  for a := 1 to ALen do begin
+    ADest[ADestStart] := ASource[ASourceStart];
     inc(ADestStart);
     inc(ASourceStart);
   end;
-  {$else}
-    System.Move(ASource[ASourceStart], ADest[ADestStart], ALen);
-  {$endif}
+  {$ELSE}
+  Move(ASource[ASourceStart], ADest[ADestStart], ALen);
+  {$ENDIF}
 end;
 
 Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
@@ -805,15 +810,28 @@ begin
 end;
 
 function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LCardinal: TIdBytes;
 begin
-  SetLength(LCardinal,4);
+  SetLength(LCardinal, 4);
   LCardinal[0] := AByte1;
   LCardinal[1] := AByte2;
   LCardinal[2] := AByte3;
   LCardinal[3] := AByte4;
-  Result := BytesToLongWord( LCardinal);
+  Result := BytesToLongWord(LCardinal);
+end;
+
+function LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LCardinal: TIdBytes;
+begin
+  LCardinal := ToBytes(AValue);
+  AByte1: LCardinal[0];
+  AByte2: LCardinal[1];
+  AByte3: LCardinal[2];
+  AByte4: LCardinal[3];
 end;
 
 function TwoCharToWord(AChar1,AChar2: Char):Word;
@@ -838,7 +856,7 @@ Note that JPM Open is under a different Open Source license model.
 
 It is available at http://www.wvnet.edu/~oma00215/jpm.html }
 
-{$ifdef win32_or_win64}
+{$IFDEF WIN32_OR_WIN64}
 type
   TNTEditionType = (workstation, server, advancedserver);
 
@@ -848,20 +866,20 @@ These assume you checked for Windows NT, 2000, XP, or 2003}
 {Returns the NTEditionType on Windows NT, 2000, XP, or 2003, and return workstation on non-nt platforms (95,98,me) }
 function GetNTType : TNTEditionType;
 var
-  RtlGetNtProductType:function(ProductType:PULONG):BOOL;stdcall;
-  Lh:THandle;
-  LVersion:ULONG;
+  RtlGetNtProductType: function(ProductType:PULONG):BOOL;stdcall;
+  Lh: THandle;
+  LVersion: ULONG;
 begin
-  result:=workstation;
-  lh:=LoadLibrary('ntdll.dll'); {do not localize}
-  if Lh>0 then begin
-    @RtlGetNtProductType:=GetProcAddress(lh,'RtlGetNtProductType'); {do not localize}
-    if @RtlGetNtProductType<>nil then begin
+  Result := Workstation;
+  lh := LoadLibrary('ntdll.dll'); {do not localize}
+  if Lh > 0 then begin
+    @RtlGetNtProductType := GetProcAddress(lh, 'RtlGetNtProductType'); {do not localize}
+    if @RtlGetNtProductType <> nil then begin
       RtlGetNtProductType(@LVersion);
       case LVersion of
-        1: result := workstation;
-        2: result := server;
-        3: result := advancedserver;
+        1: Result := Workstation;
+        2: Result := Server;
+        3: Result := AdvancedServer;
       end;
     end;
     FreeLibrary(lh);
@@ -869,7 +887,8 @@ begin
 end;
 
 function GetOSServicePack : Integer;
-var LNumber : String;
+var
+  LNumber : String;
   LBuf : String;
   i : Integer;
   OS : TOSVersionInfo;
@@ -884,12 +903,9 @@ begin
   LNumber := '';
   for i := 1 to Length(LBuf) do
   begin
-    if IsNumeric(LBuf[i]) then
-    begin
+    if IsNumeric(LBuf[i]) then begin
       LNumber := LNumber+LBuf[i];
-    end
-    else
-    begin
+    end else begin
       Break;
     end;
   end;
@@ -903,26 +919,25 @@ begin
   if Win32MajorVersion >= 5 then begin
     if Win32MinorVersion >= 2 then begin
       case GetNTType of
-        server : Result := Windows2003Server;
-        advancedserver : Result := Windows2003Server;
+        Server : Result := Windows2003Server;
+        AdvancedServer : Result := Windows2003Server;
       else
         Result := WindowsXPPro; // Windows 2003 has no desktop version
       end;
-    end
-    else
+    end else
     begin
       if Win32MinorVersion >= 1 then begin
         case GetNTType of
-          server : Result := Windows2000Server; // hmmm, winXp has no server versions
-          advancedserver : Result := Windows2000AdvancedServer; // hmmm, winXp has no server versions
+          Server : Result := Windows2000Server; // hmmm, winXp has no server versions
+          AdvancedServer : Result := Windows2000AdvancedServer; // hmmm, winXp has no server versions
         else
           Result := WindowsXPPro;
         end;
       end
       else begin
         case GetNTType of
-          server : Result := Windows2000Server;
-          advancedserver : Result := Windows2000AdvancedServer;
+          Server : Result := Windows2000Server;
+          AdvancedServer : Result := Windows2000AdvancedServer;
         else
           Result := Windows2000Pro;
         end;
@@ -934,21 +949,20 @@ begin
     if Win32MajorVersion > 3 then begin
       if Win32Platform = VER_PLATFORM_WIN32_NT then begin
         //Bas requested that we specifically check for anything below SP6
-        if (GetOSServicePack<6) then
+        if GetOSServicePack < 6 then
         begin
           case GetNTType of
-            server : Result := WindowsNT40PreSP6Server;
-            advancedserver : Result := WindowsNT40PreSP6AdvancedServer;
+            Server : Result := WindowsNT40PreSP6Server;
+            AdvancedServer : Result := WindowsNT40PreSP6AdvancedServer;
           else
             Result := WindowsNT40PreSP6Workstation;
           end;
-        end
-        else
+        end else
         begin
           case GetNTType of
         //WindowsNT40Workstation, WindowsNT40Server, WindowsNT40AdvancedServer
-            server : Result := WindowsNT40Server;
-            advancedserver : Result := WindowsNT40AdvancedServer;
+            Server : Result := WindowsNT40Server;
+            AdvancedServer : Result := WindowsNT40AdvancedServer;
           else
             Result := WindowsNT40Workstation;
           end;
@@ -979,12 +993,12 @@ begin
             end;
           end;
         end;
-      end;//if VER_PLATFORM_WIN32_NT
+      end;
     end
     else begin
       Result := Win32s;
     end;
-  end;//if Win32MajorVersion >= 5
+  end;
 end;
 {$ENDIF}
 
@@ -1083,9 +1097,9 @@ begin
     {Day of Week}
     if StrToDay(Copy(Value, 1, 3)) > 0 then begin
       //workaround in case a space is missing after the initial column
-      if (Copy(Value, 4, 1) = ',') and (Copy(Value, 5, 1) <> ' ') then
+      if (Copy(Value,4,1)=',') and (Copy(Value,5,1)<>' ') then
       begin
-        Insert(' ', Value, 5);
+        Insert(' ',Value,5);
       end;
       Fetch(Value);
       Value := TrimLeft(Value);
@@ -1185,32 +1199,14 @@ begin
   end;
 end;
 
-{$ifdef win32_or_win64_or_winCE}
-  {$IFNDEF VCL5ORABOVE}
-  function CreateTRegistry: TRegistry;
-  {$IFDEF USEINLINE} inline; {$ENDIF}
-  begin
-    Result := TRegistry.Create;
-  end;
-  {$ELSE}
-  function CreateTRegistry: TRegistry;
-  begin
-    Result := TRegistry.Create(KEY_READ);
-  end;
-  {$ENDIF}
-{$ENDIF}
-
 function Max(AValueOne,AValueTwo: Integer): Integer;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  if AValueOne < AValueTwo then
-  begin
-    Result := AValueTwo
-  end //if AValueOne < AValueTwo then
-  else
-  begin
+  if AValueOne < AValueTwo then begin
+    Result := AValueTwo;
+  end else begin
     Result := AValueOne;
-  end; //else..if AValueOne < AValueTwo then
+  end;
 end;
 
 {This should never be localized}
@@ -1231,7 +1227,7 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := IndyStrToInt(Copy( LBuffer,1,4),0);
+      LYear := IndyStrToInt( Copy( LBuffer,1,4),0);
       LMonth := IndyStrToInt(Copy(LBuffer,5,2),0);
       LDay := IndyStrToInt(Copy(LBuffer,7,2),0);
 
@@ -1272,7 +1268,7 @@ begin
       Result := Result + IndyFormat('.%3d',[LMSec]);
     end;
   end;
-  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
+  Result := StringReplace(Result, ' ', '0', [rfReplaceAll]);
 end;
 {
 Note that MS-DOS displays the time in the Local Time Zone - MLISx commands use
@@ -1294,9 +1290,9 @@ begin
     if EndOfCurrentString = 0 then begin
       StringList.Add(BaseString);
     end else begin
-      StringList.Add(Copy(BaseString, 1, EndOfCurrentString - 1));
+      StringList.add(Copy(BaseString, 1, EndOfCurrentString - 1));
     end;
-    Delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
+    delete(BaseString, 1, EndOfCurrentString + Length(BreakString) - 1); //Copy(BaseString, EndOfCurrentString + length(BreakString), length(BaseString) - EndOfCurrentString);
   until EndOfCurrentString = 0;
   Result := StringList;
 end;
@@ -1343,83 +1339,70 @@ begin
     iQuote := 0 ;
   end ;
 end;
-{$IFDEF DOTNET}
-function CopyFileTo(const Source, Destination: string): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  System.IO.File.Copy(Source, Destination, true);
-  result := true; // or you'll get an exception
-end;
+
+function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
+{$IFNDEF UNIX}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}
-  {$ifdef win32_or_win64_or_winCE}
-    {$ifdef wince}
-function CopyFileTo(const Source, Destination: WideString): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := CopyFile(PWideChar(Source), PWideChar(Destination), true);
-end;
-    {$else}
-function CopyFileTo(const Source, Destination: string): Boolean;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := CopyFile(PChar(Source), PChar(Destination), true);
-end;
-    {$endif}
-  {$ELSE}
-//LEave in for IdAttachment
-function CopyFileTo(const Source, Destination: string): Boolean;
-//mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
-
-//note that I do use the I+ and I- directive.
-// decided not to use streams because some may not handle more than
-// 2GB'sand it would run counter to the intent of this, return false
-//on failure.
-
-//This is intended to be generic because it may run in many different
-//Operating systems
 var
   SourceF, DestF : File;
   NumRead, NumWritten: Word;
   Buffer: array[1..2048] of Byte;
+{$ENDIF}
 begin
+  {$IFDEF DOTNET}
+  System.IO.File.Copy(Source, Destination, True);
+  Result := True; // or you'll get an exception
+  {$ENDIF}
+  {$IFDEF WINCE}
+  Result := CopyFile(PWideChar(Source), PWideChar(Destination), True);
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64}
+  Result := CopyFile(PChar(Source), PChar(Destination), true);
+  {$ELSE}
+  //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
+
+  //note that I do use the I+ and I- directive.
+  // decided not to use streams because some may not handle more than
+  // 2GB'sand it would run counter to the intent of this, return false
+  //on failure.
+
+  //This is intended to be generic because it may run in many different
+  //Operating systems
+
   // -TODO: Change to use a Linux copy function
   // There is no native Linux copy function (at least "cp" doesn't use one
   // and I can't find one anywhere (Johannes Berg))
   
-  Assign(SourceF,Source);
+  Assign(SourceF, Source);
   {$I-} //turn off IO checking - no exception
-  Reset(SourceF,1);
+  Reset(SourceF, 1);
   {$I+} //turn it back on
-  Result := IOResult <>0;
-  if not result then
-  begin
+  Result := IOResult <> 0;
+  if not Result then begin
     Exit;
   end;
-  Assign(DestF,Destination);
+  Assign(DestF, Destination);
   {$I-} //turn off IO checking - no exception
-
-  Rewrite(DestF,1);
+  Rewrite(DestF, 1);
   {$I+} //turn it back on
-  result := IOResult<>0;
+  Result := IOResult <> 0;
   if Result then
   begin
     repeat
-      BlockRead(SourceF, Buffer, SizeOf(Buffer), NumRead) ;
-      BlockWrite(DestF, Buffer, NumRead, NumWritten) ;
-    until (NumRead = 0) or (NumWritten <> NumRead) ;
+      BlockRead(SourceF, Buffer, SizeOf(Buffer), NumRead);
+      BlockWrite(DestF, Buffer, NumRead, NumWritten);
+    until (NumRead = 0) or (NumWritten <> NumRead);
     Close(DestF);
     Result := True;
   end;
   Close(SourceF);
-
- // Result := IndyCopyFile(Source, Destination, True);
-end;
   {$ENDIF}
-{$ENDIF}
+end;
 
-{$IFDEF DOTNET} 
-function TempPath: WideString; 
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF DOTNET}
+function TempPath: String; 
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET1}
   Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath);
@@ -1428,25 +1411,23 @@ begin
   Result := IndyIncludeTrailingPathDelimiter(System.IO.Path.GetTempPath);
   {$ENDIF}
 end; 
-{$ELSE} 
-   {$ifdef win32_or_win64_or_winCE}
+{$ENDIF} 
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
 function TempPath: {$IFDEF UNICODE}WideString{$ELSE}String{$ENDIF}; 
 var
-	i: integer;
+  i: Integer;
 begin
   SetLength(Result, MAX_PATH);
   i := GetTempPath(Length(Result), PChar(Result));
   SetLength(Result, i);
   Result := IndyIncludeTrailingPathDelimiter(Result);
 end;
-  {$endif}
 {$ENDIF}
 
 function MakeTempFilename(const APath: String = ''): string;
 var
   lPath: string;
   lExt: string;
-
 begin
   lPath := APath;
 
@@ -1456,9 +1437,8 @@ begin
   lExt := '.tmp';
   {$ENDIF}
 
-  {$ifdef win32_or_win64_or_winCE}
-  if lPath = '' then
-  begin
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  if lPath = '' then begin
     lPath := ATempPath;
   end;
   {$ENDIF}
@@ -1466,7 +1446,12 @@ begin
   {$IFDEF DOTNET}
   if lPath = '' then
   begin
+    {$IFDEF DOTNET1}
+    lPath := System.IO.GetTempPath;
+    {$ENDIF}
+    {$IFDEF DOTNET2}
     lPath := System.IO.Path.GetTempPath;
+    {$ENDIF}
   end;
   {$ENDIF}
 
@@ -1500,22 +1485,20 @@ begin
 
   if APath = '' then
   begin
-    {$IFDEF UseLibC}
+    {$IFDEF USELIBC}
     Result := libc.tempnam(nil, 'Indy');
     {$ENDIF}
-    {$IFDEF UseBaseUnix} // FPC has wrapper function in SysUtils
-			 // This might be an addition to a later 2.0 version
-       Result:=GetTempFileName('','Indy');
+    {$IFDEF USEBASEUNIX} // FPC has wrapper function in SysUtils
+     // This might be an addition to a later 2.0 version
+    Result := GetTempFileName('', 'Indy');
     {$ENDIF}
-  end
-  
-  else
+  end else
   begin
-    {$IFDEF UseLibC}
+    {$IFDEF USELIBC}
     Result := libc.tempnam(PChar(APath), 'Indy');
     {$ENDIF}
-    {$IFDEF UseBaseUnix}
-       Result:=GetTempFileName(APath,'Indy');
+    {$IFDEF USEBASEUNIX}
+    Result := GetTempFileName(APath, 'Indy');
     {$ENDIF}
   end;
   {$ELSE}
@@ -1604,77 +1587,63 @@ begin
   {$ENDIF}
 end;
 
-{$IFDEF WINCE}
-function GetGMTDateByName(const AFileName : TIdFileName) : TIdDateTime;
-var LRec : TWin32FindData;
+function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+var
+  LRec : TWin32FindData;
   LHandle : THandle;
-   LTime : TSystemTime;
+  LTime : {$IFDEF WINCE}TSystemTime{$ELSE}Integer{$ENDIF};
+{$ENDIF}
+{$IFDEF UNIX}
+var
+  LTime : Integer;
+  {$IFDEF USELIBC}
+  LRec : TStatBuf;
+  LU : TUnixTime;
+  {$ELSE}
+  LRec : TStat;
+  LU : time_t;
+  {$ENDIF}
+{$ENDIF}
 begin
-
-  LHandle := Windows.FindFirstFile(@AFileName, LRec);
+  Result := -1;
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  LHandle := Windows.FindFirstFile({$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LRec);
   if LHandle <> INVALID_HANDLE_VALUE then
   begin
     Windows.FindClose(LHandle);
     if (LRec.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
     begin
+      {$IFDEF WINCE}
       FileTimeToSystemTime(@LRec,@LTime);
       Result := SystemTimeToDateTime(LTime);
+      {$ELSE}
+      FileTimeToDosDateTime(LRec.ftLastWriteTime, LongRec(LTime).Hi, LongRec(LTime).Lo);
+      Result := FileDateToDateTime(LTime);
+      {$ENDIF}
     end;
   end;
-end;
-{$ELSE}
-function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
- {$ifdef win32_or_win64_or_winCE}
-var LRec : TWin32FindData;
-  LHandle : THandle;
-   LTime : Integer;
- {$ENDIF}
- {$IFDEF UNIX}
-var 
-  LTime : Integer;
-  {$IFDEF UseLibc}
-   LRec : TStatBuf;
-   LU : TUnixTime;
-  {$ELSE}
-   LRec : TStat;
-   LU : time_t;
-  {$endif}
- {$ENDIF}
-begin
-  Result := -1;
+  {$ENDIF}
   {$IFDEF DOTNET}
   if System.IO.File.Exists(AFileName) then begin
     Result := System.IO.File.GetLastWriteTimeUtc(AFileName).ToOADate;
   end;
   {$ENDIF}
-  {$ifdef win32_or_win64}
-  LHandle := FindFirstFile(PChar(AFileName), LRec);
-  if LHandle <> INVALID_HANDLE_VALUE then
-  begin
-    Windows.FindClose(LHandle);
-    if (LRec.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
-    begin
-       FileTimeToDosDateTime(LRec.ftLastWriteTime, LongRec(LTime).Hi, LongRec(LTime).Lo);
-       Result := FileDateToDateTime(LTime);
-    end;
-  end;
-  {$ENDIF}
   {$IFDEF UNIX}
-  if {$ifdef UseLibc}stat{$else}fpstat{$endif}(PChar(AFileName), LRec) = 0 then
+  if {$IFDEF USELIBC}stat{$ELSE}fpstat{$ENDIF}(PChar(AFileName), LRec) = 0 then
   begin
     LTime := LRec.st_mtime;
-    {$IFDEF UseLibc}
+    {$IFDEF USELIBC}
     gmtime_r(LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
 
     {$ELSE}
-      Result:=UnixToDateTime(LTime);
+    Result := UnixToDateTime(LTime);
     {$ENDIF}
   end;
   {$ENDIF}
 end;
-{$ENDIF}
 
 function RightStr(const AStr: String; const Len: Integer): String;
 var
@@ -1696,31 +1665,27 @@ begin
   Result := IndyStrToInt64(AStr, 0);
 end;
 
-{$IFDEF UNIX}
 function TimeZoneBias: TDateTime;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  //TODO: Fix TimeZoneBias for Linux to be automatic
-  Result := GTimeZoneBias;
-end;
-{$ENDIF}
-{$IFDEF DOTNET}
-function TimeZoneBias: TDateTime;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := -OffsetFromUTC;
-end;
-{$ENDIF}
-{$ifdef win32_or_win64_or_winCE}
-function TimeZoneBias: TDateTime;
+{$IFNDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+{$ELSE}
 var
   ATimeZone: TTimeZoneInformation;
+{$ENDIF}
 begin
-  {$IFNDEF WINCE}
-  case GetTimeZoneInformation(ATimeZone) of
-  {$ELSE}
-  case GetTimeZoneInformation(@ATimeZone) of
+  {$IFDEF UNIX}
+  //TODO: Fix TimeZoneBias for Linux to be automatic
+  Result := GTimeZoneBias;
   {$ENDIF}
+  {$IFDEF DOTNET}
+  Result := -OffsetFromUTC;
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFNDEF WINCE}
+  case GetTimeZoneInformation(ATimeZone) of
+    {$ELSE}
+  case GetTimeZoneInformation(@ATimeZone) of
+    {$ENDIF}
     TIME_ZONE_ID_DAYLIGHT:
       Result := ATimeZone.Bias + ATimeZone.DaylightBias;
     TIME_ZONE_ID_STANDARD:
@@ -1731,97 +1696,75 @@ begin
       raise EIdException.Create(SysErrorMessage(GetLastError));
   end;
   Result := Result / 1440;
+  {$ENDIF}
 end;
-{$ENDIF}
 
 function IndyStrToBool(const AString : String) : Boolean;
-var
-  LCount : Integer;
 begin
   // First check against each of the elements of the FalseBoolStrs
-  for LCount := Low(IndyFalseBoolStrs) to High(IndyFalseBoolStrs) do
+  if PosInStrArray(AString, IndyFalseBoolStrs, False) <> -1 then
   begin
-    if TextIsSame(AString, IndyFalseBoolStrs[LCount]) then
-    begin
-      result := false;
-      exit;
-    end;
+    Result := False;
+    Exit;
   end;
   // Second check against each of the elements of the TrueBoolStrs
-  for LCount := Low(IndyTrueBoolStrs) to High(IndyTrueBoolStrs) do
+  if PosInStrArray(AString, IndyTrueBoolStrs, False) <> -1 then
   begin
-    if TextIsSame(AString, IndyTrueBoolStrs[LCount]) then
-    begin
-      result := true;
-      exit;
-    end;
+    Result := True;
+    Exit;
   end;
   // None of the strings match, so convert to numeric (allowing an
   // EConvertException to be thrown if not) and test against zero.
   // If zero, return false, otherwise return true.
-  LCount := IndyStrToInt(AString);
-  if LCount = 0 then
-  begin
-    result := false;
-  end else
-  begin
-    result := true;
-  end;
+  Result := IndyStrToInt(AString) <> 0;
 end;
 
-{$IFDEF UNIX}
-function SetLocalTime(Value: TDateTime): boolean;
-begin
-  //TODO: Implement SetTime for Linux. This call is not critical.
-  result := False;
-end;
-{$ENDIF}
-{$IFDEF DOTNET}
-function SetLocalTime(Value: TDateTime): boolean;
-begin
-  //TODO: Figure out how to do this
-  result := False;
-end;
-{$ENDIF}
-{$ifdef win32_or_win64_or_winCE}
-function SetLocalTime(Value: TDateTime): boolean;
-{I admit that this routine is a little more complicated than the one
-in Indy 8.0.  However, this routine does support Windows NT privillages
-meaning it will work if you have administrative rights under that OS
-
-Original author Kerry G. Neighbour with modifications and testing
-from J. Peter Mugaas}
+function SetLocalTime(Value: TDateTime): Boolean;
+{$IFNDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFUSEINLINE}inline;{$ENDIF}
+{$ELSE}
 var
    dSysTime: TSystemTime;
    buffer: DWord;
    tkp, tpko: TTokenPrivileges;
    hToken: THandle;
+{$ENDIF}
 begin
-  {$IFNDEF WINCE}
   Result := False;
+  {$IFDEF LINUX}
+  //TODO: Implement SetTime for Linux. This call is not critical.
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  //TODO: Figure out how to do this
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {I admit that this routine is a little more complicated than the one
+  in Indy 8.0.  However, this routine does support Windows NT privillages
+  meaning it will work if you have administrative rights under that OS
+
+  Original author Kerry G. Neighbour with modifications and testing
+  from J. Peter Mugaas}
+    {$IFNDEF WINCE}
   if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then
   begin
-    if not Windows.OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY,
-      hToken) then
-    begin
-      exit;
+    if not Windows.OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES or TOKEN_QUERY, hToken) then begin
+      Exit;
     end;
     Windows.LookupPrivilegeValue(nil, 'SE_SYSTEMTIME_NAME', tkp.Privileges[0].Luid);    {Do not Localize}
     tkp.PrivilegeCount := 1;
     tkp.Privileges[0].Attributes := SE_PRIVILEGE_ENABLED;
-    if not Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, sizeof(tkp), tpko, buffer) then
-    begin
-      exit;
+    if not Windows.AdjustTokenPrivileges(hToken, FALSE, tkp, sizeof(tkp), tpko, buffer) then begin
+      Exit;
     end;
   end;
-  {$ENDIF}
+    {$ENDIF}
   DateTimeToSystemTime(Value, dSysTime);
-  {$IFDEF FPC}
+    {$IFDEF FPC}
   Result := Windows.SetLocalTime(@dSysTime);
-  {$ELSE}
+    {$ELSE}
   Result := Windows.SetLocalTime(dSysTime);
-  {$ENDIF}
-  {$IFNDEF WINCE}
+    {$ENDIF}
+    {$IFNDEF WINCE}
   {Undo the Process Privillage change we had done for the set time
   and close the handle that was allocated}
   if SysUtils.Win32Platform = VER_PLATFORM_WIN32_NT then
@@ -1829,9 +1772,9 @@ begin
     Windows.AdjustTokenPrivileges(hToken, False, tpko, SizeOf(tpko), tkp, Buffer);
     Windows.CloseHandle(hToken);
   end;
+    {$ENDIF}
   {$ENDIF}
 end;
-{$ENDIF}
 
 function StrToDay(const ADay: string): Byte;
 {$IFDEF USEINLINE} inline; {$ENDIF}
@@ -1885,13 +1828,13 @@ const
 function IsHex(const AChar : Char) : Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := IndyPos(UpperCase(AChar), '01234567890ABCDEF') > 0; {Do not Localize}
+  Result := IndyPos(UpperCase(AChar), HexNumbers) > 0;
 end;
 
 function IsBinary(const AChar : Char) : Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := IndyPos(UpperCase(AChar), '01') > 0;   {Do not localize}
+  Result := IndyPos(UpperCase(AChar), BinNumbers) > 0;
 end;
 
 function BinStrToInt(const ABinary: String): Integer;
@@ -2003,44 +1946,6 @@ begin
   end;
 end;
 
-// Currently this function is not used
-(*
-procedure BuildMIMETypeMap(dest: TStringList);
-{$IFDEF UNIX}
-begin
-  // TODO: implement BuildMIMETypeMap in Linux
-  raise EIdException.Create('BuildMIMETypeMap not implemented yet.');    {Do not Localize}
-end;
-{$ENDIF}
-{$ifdef win32_or_win64_or_winCE}
-var
-  Reg: TRegistry;
-  slSubKeys: TStringList;
-  i: integer;
-begin
-  Reg := CreateTRegistry; try
-    Reg.RootKey := HKEY_CLASSES_ROOT;
-    Reg.OpenKeyreadOnly('\MIME\Database\Content Type'); {do not localize}
-    slSubKeys := TStringList.Create;
-    try
-      Reg.GetKeyNames(slSubKeys);
-      reg.Closekey;
-      for i := 0 to slSubKeys.Count - 1 do
-      begin
-        Reg.OpenKeyreadOnly('\MIME\Database\Content Type\' + slSubKeys[i]);  {do not localize}
-        dest.Append(LowerCase(reg.ReadString('Extension')) + '=' + slSubKeys[i]); {do not localize}
-        Reg.CloseKey;
-      end;
-    finally
-      slSubKeys.Free;
-    end;
-  finally
-    reg.free;
-  end;
-end;
-{$ENDIF}
-*)
-
 function GetMIMETypeFromFile(const AFile: TIdFileName): string;
 var
   MIMEMap: TIdMIMETable;
@@ -2092,12 +1997,11 @@ var  {-Always returns date/time relative to GMT!!  -Replaces StrInternetToDateTi
   DateTimeOffset: TDateTime;
 begin
   if s = '' then
-    begin
+  begin
     // just hardcode to 0 - don't need all the work below and the spurious timezone adjustment. GDG 20-Mar 2003
-    result := 0;
-    end
-  else
-    begin
+    Result := 0;
+  end else
+  begin
     Result := RawStrInternetToDateTime(S);
     if Length(S) < 5 then begin
       DateTimeOffset := 0.0
@@ -2111,36 +2015,36 @@ begin
       Result := Result - DateTimeOffset;
     end;
     // Apply local offset
-    Result := Result + OffsetFromUTC;
-    end;
+    Result := Result + OffSetFromUTC;
+  end;
 end;
 
 { Takes a cardinal (DWORD)  value and returns the string representation of it's binary value}    {Do not Localize}
-function IntToBin(Value: cardinal): string;
+function IntToBin(Value: LongWord): string;
 var
   i: Integer;
 begin
-  SetLength(result, 32);
+  SetLength(Result, 32);
   for i := 1 to 32 do
   begin
     if ((Value shl (i-1)) shr 31) = 0 then
-      result[i] := '0'  {do not localize}
+      Result[i] := '0'  {do not localize}
     else
-      result[i] := '1'; {do not localize}
+      Result[i] := '1'; {do not localize}
   end;
 end;
 
 { TIdMimeTable }
 
 {$IFDEF UNIX}
-procedure LoadMIME(const AFileName : String; AMIMEList : TStringList);
+procedure LoadMIME(const AFileName : String; AMIMEList : TStrings);
 var
   KeyList: TStringList;
   i, p: Integer;
   s, LMimeType, LExtension: String;
 begin
-  If FileExists(AFileName) Then  {Do not localize}
-  Begin
+  if FileExists(AFileName) then  {Do not localize}
+  begin
     // build list from /etc/mime.types style list file
     // I'm lazy so I'm using a stringlist to load the file, ideally
     // this should not be done, reading the file line by line is better
@@ -2148,11 +2052,11 @@ begin
     KeyList := TStringList.Create;
     try
       KeyList.LoadFromFile(AFileName); {Do not localize}
-      for i := 0 to KeyList.Count -1 do begin
+      for i := 0 to KeyList.Count -1 do
+      begin
         s := KeyList[i];
         p := IndyPos('#', s); {Do not localize}
-        if p > 0 then
-        begin
+        if p > 0 then begin
           SetLength(s, p-1);
         end;
         if s <> '' then {Do not localize}
@@ -2184,8 +2088,8 @@ begin
 end;
 {$ENDIF}
 
-procedure FillMimeTable(const AMIMEList: TStringList; const ALoadFromOS: Boolean = True);
-{$ifdef win32_or_win64_or_winCE}
+procedure FillMimeTable(const AMIMEList: TStrings; const ALoadFromOS: Boolean = True);
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
   reg: TRegistry;
   KeyList: TStringList;
@@ -2193,16 +2097,18 @@ var
   s, LExt: String;
 {$ENDIF}
 begin
-  { Protect if someone is allready filled (custom MomeConst) }
+  { Protect if someone is already filled (custom MomeConst) }
   if not Assigned(AMIMEList) then begin
     Exit;
   end;
+
   if AMIMEList.Count > 0 then
   begin
     Exit;
   end;
 
-  with AMIMEList do begin
+  with AMIMEList do
+  begin
     {NOTE:  All of these strings should never be translated
     because they are protocol specific and are important for some
     web-browsers}
@@ -2553,16 +2459,17 @@ begin
     Exit;
   end;
 
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   // Build the file type/MIME type map
-  Reg := CreateTRegistry; try
+  Reg := TRegistry.Create;
+  try
     KeyList := TStringList.create;
     try
       Reg.RootKey := HKEY_CLASSES_ROOT;
       if Reg.OpenKeyReadOnly('\') then  {do not localize}
       begin
         Reg.GetKeyNames(KeyList);
-      //  reg.Closekey;
+        Reg.Closekey;
       end;
       // get a list of registered extentions
       for i := 0 to KeyList.Count - 1 do
@@ -2570,14 +2477,13 @@ begin
         LExt := KeyList[i];
         if TextStartsWith(LExt, '.') then   {do not localize}
         begin
-          if reg.OpenKeyReadOnly(LExt) then
+          if Reg.OpenKeyReadOnly(LExt) then
           begin
             s := Reg.ReadString('Content Type');  {do not localize}
-            if Length(s) > 0 then
-            begin
+            if Length(s) > 0 then begin
               AMIMEList.Values[IndyLowerCase(LExt)] := IndyLowerCase(s);
             end;
-            reg.CloseKey;
+            Reg.CloseKey;
           end;
         end;
       end;
@@ -2586,13 +2492,13 @@ begin
         // get a list of registered MIME types
         KeyList.Clear;
         Reg.GetKeyNames(KeyList);
-        reg.CloseKey;
+        Reg.CloseKey;
 
         for i := 0 to KeyList.Count - 1 do
         begin
           if Reg.OpenKeyReadOnly('\MIME\Database\Content Type\' + KeyList[i]) then {do not localize}
           begin
-            LExt := IndyLowerCase(reg.ReadString('Extension'));  {do not localize}
+            LExt := IndyLowerCase(Reg.ReadString('Extension'));  {do not localize}
             if Length(LExt) > 0 then
             begin
               if LExt[1] <> '.' then begin
@@ -2608,10 +2514,10 @@ begin
       KeyList.Free;
     end;
   finally
-    reg.free;
+    Reg.Free;
   end;
-{$ENDIF}
-{$IFDEF UNIX}
+  {$ENDIF}
+  {$IFDEF UNIX}
   {
     /etc/mime.types is not present in all Linux distributions.
 
@@ -2625,7 +2531,7 @@ begin
   LoadMIME('/etc/mime.types', AMIMEList);                   {do not localize}
   LoadMIME('/etc/htdig/mime.types', AMIMEList);             {do not localize}
   LoadMIME('/etc/usr/share/webmin/mime.types', AMIMEList);  {do not localize}
-{$ENDIF}
+  {$ENDIF}
 end;
 
 procedure TIdMimeTable.AddMimeType(const Ext, MIMEType: string; const ARaiseOnError: Boolean = True);
@@ -2750,6 +2656,7 @@ begin
 
   FFileExt.Clear;
   FMIMEList.Clear;
+
   for I := 0 to AStrings.Count - 1 do
   begin
     S := AStrings[I];
@@ -2770,8 +2677,9 @@ var
 begin
   Assert(AStrings <> nil);
   AStrings.Clear;
-  for I := 0 to FFileExt.Count - 1 do
+  for I := 0 to FFileExt.Count - 1 do begin
     AStrings.Add(FFileExt[I] + MimeSeparator + FMIMEList[I]);
+  end;
 end;
 
 function IsValidIP(const S: String): Boolean;
@@ -2930,55 +2838,56 @@ begin
   end;
 end;
 
-{$ifdef win32_or_win64_or_winCE}
 function GetClockValue : Int64;
-var LFTime : TFileTime;
+{$IFDEF DOTNET}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+{$ENDIF}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
 type
- TLong64Rec = record
-   case LongInt of
-   0 : (High : Cardinal;
-       Low : Cardinal);
-   1 : (Long : Int64);
- end;
+  TLong64Rec = record
+    case LongInt of
+      0 : (High : Cardinal;
+           Low : Cardinal);
+      1 : (Long : Int64);
+    end;
+  end;
+var
+  LFTime : TFileTime;
+{$ENDIF}
+{$IFDEF UNIX}
+var
+  TheTms: tms;
+{$ENDIF}
 begin
-  {$IFDEF WINCE}
-  {$ELSE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINCE}
+    // TODO
+    {$ELSE}
   Windows.GetSystemTimeAsFileTime(LFTime);
   TLong64Rec(Result).Low := LFTime.dwLowDateTime;
   TLong64Rec(Result).High := LFTime.dwHighDateTime;
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF UNIX}
+  //Is the following correct?
+  Result := {$IFDEF USEBASEUNIX}fptimes{$ELSE}Libc.Times{$ENDIF}(TheTms);
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  Result := System.DateTime.Now.Ticks;
   {$ENDIF}
 end;
-{$ENDIF}
-
-{$IFDEF UNIX}
-function GetClockValue : Int64;
-var
-  TheTms: tms;
-begin
-  //Is the following correct?
-  Result := {$ifdef UseBaseUnix}fptimes{$else}Libc.Times{$endif}(TheTms);
-end;
-{$ENDIF}
-
-{$IFDEF DOTNET}
-function GetClockValue : Int64;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  result := System.DateTime.Now.Ticks;
-end;
-{$ENDIF}
 
 {$UNDEF DONTHAVENATIVEX86}
 {$IFDEF DOTNET}
   {$DEFINE DONTHAVENATIVEX86}
 {$ENDIF}
 {$IFDEF FPC}
-  {$IFNDEF i386}
-     {$DEFINE  DONTHAVENATIVEX86}
+  {$IFNDEF I386}
+     {$DEFINE DONTHAVENATIVEX86}
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF  DONTHAVENATIVEX86}
+{$IFDEF DONTHAVENATIVEX86}
 function ROL(AVal: LongWord; AShift: Byte): LongWord;
 begin
    Result := (AVal shl AShift) or (AVal shr (32 - AShift));
@@ -3005,84 +2914,75 @@ asm
 end;
 {$ENDIF}
 
-{$IFDEF UNIX}
 function IndyComputerName: string;
+{$IFDEF DOTNET}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+{$ENDIF}
+{$IFDEF UNIX}
 var
   LHost: array[1..255] of Char;
   i: LongWord;
+{$ENDIF}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+var
+  i: LongWord;
+{$ENDIF}
 begin
+  {$IFDEF UNIX}
   //TODO: No need for LHost at all? Prob can use just Result
-  {$IFDEF UseLibc}
-  if GetHostname(@LHost[1], 255) <> -1 then begin
+    {$IFDEF USELIBC}
+  if GetHostname(@LHost[1], 255) <> -1 then
+  begin
     i := IndyPos(#0, LHost);
     SetLength(Result, i - 1);
     Move(LHost, Result[1], i - 1);
   end;
-  {$else}
-     Result:=Unix.GetHostName;
-  {$endif}
-end;
-{$ENDIF}
-{$ifdef win32_or_win64_or_winCE}
-function IndyComputerName: string;
-var
-  i: LongWord;
-begin
-  {$IFDEF WINCE}
-  {$WARNING To Do - find some way to get the Computer Name.}
-  {$ELSE}
+    {$ELSE}
+  Result := Unix.GetHostName;
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF WINCE}
+      {$WARNING To Do - find some way to get the Computer Name.}
+    {$ELSE}
   SetLength(Result, MAX_COMPUTERNAME_LENGTH + 1);
   i := Length(Result);
-  if GetComputerName(@Result[1], i) then begin
+  if GetComputerName(PChar(Result), i) then begin
     SetLength(Result, i);
   end;
+    {$ENDIF}
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  Result := Environment.MachineName;
   {$ENDIF}
 end;
-{$ENDIF}
-{$IFDEF DOTNET}
-function IndyComputerName: string;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  result := Environment.MachineName;
-end;
-{$ENDIF}
 
 function IsLeadChar(ACh : Char):Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  result := false;
+  Result := False;
   {$ELSE}
-  result := ACh in LeadBytes;
+  Result := ACh in LeadBytes;
   {$ENDIF}
 end;
 
-{$IFDEF UNIX}
 function IdGetDefaultCharSet: TIdCharSet;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
+  {$IFDEF UNIX}
   Result := GIdDefaultCharSet;
-end;
-{$ENDIF}
-
-{$IFDEF DOTNET}
-function IdGetDefaultCharSet: TIdCharSet;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  result := idcsUNICODE_1_1;
+  {$ENDIF}
+  {$IFDEF DOTNET}
+  Result := idcsUNICODE_1_1;
   // not a particular Unicode encoding - just unicode in general
   // i.e. DotNet native string is 2 byte Unicode, we do not concern ourselves
   // with Byte order. (though we have to concern ourselves once we start
   // writing to some stream or Bytes
-end;
-{$ENDIF}
-
-{$ifdef win32_or_win64_or_winCE}
-// Many defaults are set here when the choice is ambiguous. However for
-// IdMessage OnInitializeISO can be used by user to choose other.
-function IdGetDefaultCharSet: TIdCharSet;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  // Many defaults are set here when the choice is ambiguous. However for
+  // IdMessage OnInitializeISO can be used by user to choose other.
   case SysLocale.PriLangID of
     LANG_CHINESE: begin
       if SysLocale.SubLangID = SUBLANG_CHINESE_SIMPLIFIED then begin
@@ -3105,8 +3005,8 @@ begin
       Result := idcsISO_8859_1;
     end;
   end;
+  {$ENDIF}
 end;
-{$ENDIF}
 
 //The following is for working on email headers and message part headers.
 //For example, to remove the boundary from the ContentType header, call
@@ -3120,23 +3020,25 @@ begin
   LPos := Pos(LowerCase(AEntry), LowerCase(AHeader));
   if LPos = 0 then begin
     Result := AHeader;
-  end else begin
+  end else
+  begin
     Result := Copy(AHeader, 1, LPos-1);
     LS := Copy(AHeader, LPos, MaxInt);
     //See if there is a following ; that is not within quotes...
     //LPos := Pos(';', LS);
-    for LPos := 1 to Length(LS) do begin
+    for LPos := 1 to Length(LS) do
+    begin
       LInQuotes := False;
-      if LS[LPos] = '"' then begin
+      if LS[LPos] = '"' then begin {do not localize}
         LInQuotes := not LInQuotes;
       end;
-      if ((LS[LPos] = ';') and (LInQuotes = False)) then begin
+      if (LS[LPos] = ';') and (not LInQuotes) then begin {do not localize}
         Result := Result + Copy(LS, LPos+1, MaxInt);
         Exit;
       end;
     end;
     Result := Trim(Result);
-    if TextEndsWith(Result, ';') then begin
+    if TextEndsWith(Result, ';') then begin {do not localize}
       Delete(Result, Length(Result), 1);
     end;
   end;
@@ -3163,14 +3065,12 @@ begin
 end;
 
 initialization
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   ATempPath := TempPath;
   {$ENDIF}
-
   SetLength(IndyFalseBoolStrs, 1);
   IndyFalseBoolStrs[Low(IndyFalseBoolStrs)] := 'FALSE';    {Do not Localize}
   SetLength(IndyTrueBoolStrs, 1);
   IndyTrueBoolStrs[Low(IndyTrueBoolStrs)] := 'TRUE';    {Do not Localize}
+
 end.
-
-
