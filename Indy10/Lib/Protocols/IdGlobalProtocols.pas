@@ -465,7 +465,7 @@ type
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
-  function LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+  procedure LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
 
@@ -822,7 +822,7 @@ begin
   Result := BytesToLongWord(LCardinal);
 end;
 
-function LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+procedure LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LCardinal: TIdBytes;
