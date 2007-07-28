@@ -2860,7 +2860,7 @@ type
            Low : Cardinal);
       1 : (Long : Int64);
     end;
-  end;
+
 var
   LFTime : TFileTime;
 {$ENDIF}
