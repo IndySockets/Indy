@@ -189,7 +189,7 @@ end;
 
 procedure TIdHeaderList.FoldAndInsert(AString : String; Index: Integer);
 var
-  LStrs : TStringList;
+  LStrs : TStrings;
   idx : LongInt;
 begin
   LStrs := FoldLine(AString);
