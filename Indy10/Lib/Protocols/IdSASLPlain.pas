@@ -21,7 +21,7 @@
 
   Rev 1.0    11/13/2002 08:00:36 AM  JPMugaas
 
-  PLAIN mechanism
+  PLAIN mechanism 
   This is of type TIdSASLUserPass because it needs a username/password,
   additionally it has a LoginAs property - this is the "effective username"
   after connecting, which could be different as your "real" username
@@ -31,7 +31,9 @@
 unit IdSASLPlain;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdSASL,
   IdSASLUserPass;
@@ -40,22 +42,24 @@ type
   TIdSASLPlain = class(TIdSASLUserPass)
   protected
     FLoginAs: String;
-    procedure InitComponent; override;
   public
+    function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
     function StartAuthenticate(const AChallenge:string) : String; override;
   published
-    property LoginAs  : String read FLoginAs write FLoginAs;
+    property LoginAs : String read FLoginAs write FLoginAs;
   end;
 
 implementation
 
 { TIdSASLPlain }
 
-procedure TIdSASLPlain.InitComponent;
+function TIdSASLPlain.IsReadyToStart: Boolean;
 begin
-  inherited InitComponent;
-
+  Result := inherited IsReadyToStart;
+  if not Result then begin
+    Result := (LoginAs <> '');
+  end;
 end;
 
 class function TIdSASLPlain.ServiceName: TIdSASLServiceName;
