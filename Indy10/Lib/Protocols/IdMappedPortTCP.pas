@@ -285,7 +285,6 @@ end;
 
 function TIdMappedPortTCP.DoExecute(AContext: TIdContext): Boolean;
 begin
-  Result := True;
   with TIdMappedPortContext(AContext) do begin
     try
       CheckForData(True);
@@ -411,7 +410,7 @@ begin
     except
       on E: Exception do
       begin
-        DoException(Self, E); // DONE: Handle connect failures
+        Self.DoException(E);// DONE: Handle connect failures
         Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
         raise;
       end;
