@@ -30,6 +30,7 @@
 unit IdSASLUserPass;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -42,14 +43,13 @@ type
   protected
     FUserPassProvider: TIdUserPassProvider;
     procedure SetUserPassProvider(const Value: TIdUserPassProvider);
-    procedure Notification(AComponent: TComponent; Operation: TOperation);
-      override;
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     function GetUsername: string;
     function GetPassword: string;
+  public
+    function IsReadyToStart: Boolean; override;
   published
-    property UserPassProvider: TIdUserPassProvider
-      read FUserPassProvider
-      write SetUserPassProvider;
+    property UserPassProvider: TIdUserPassProvider read FUserPassProvider write SetUserPassProvider;
   end;
 
   EIdUserPassProviderUnassigned = class(EIdException);
@@ -76,23 +76,30 @@ begin
   end;
 end;
 
-procedure TIdSASLUserPass.Notification(AComponent: TComponent;
-  Operation: TOperation);
+function TIdSASLUserPass.IsReadyToStart;
 begin
-  if Operation = opRemove then begin
-    if AComponent = FUserPassProvider then begin
-      FUserPassProvider := nil;
-    end;
+  if Assigned(FUserPassProvider) then begin
+    Result := (FUserPassProvider.GetUsername <> '');
+  end else begin
+    Result := False;
   end;
-  inherited;
 end;
 
-procedure TIdSASLUserPass.SetUserPassProvider(
-  const Value: TIdUserPassProvider);
+procedure TIdSASLUserPass.Notification(AComponent: TComponent; Operation: TOperation);
 begin
-  FUserPassProvider := Value;
-  if Assigned(FUserPassProvider) then begin
-    FUserPassProvider.FreeNotification(Self);
+  if (Operation = opRemove) and (AComponent = FUserPassProvider) then begin
+    FUserPassProvider := nil;
+  end;
+  inherited Notification(AComponent, Operation);
+end;
+
+procedure TIdSASLUserPass.SetUserPassProvider(const Value: TIdUserPassProvider);
+begin
+  if FUserPassProvider <> Value then begin
+    FUserPassProvider := Value;
+    if Assigned(FUserPassProvider) then begin
+      FUserPassProvider.FreeNotification(Self);
+    end;
   end;
 end;
 
