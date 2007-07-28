@@ -65,12 +65,12 @@ type
     function GetAsDoubleWord: LongWord;
     function GetAsString: String;
     function GetByteArray(Index: Byte): Boolean;
-    function GetByte(Index: Byte): Byte;
+    function GetByte(Index: Integer): Byte;
     procedure SetAsBinaryString(const Value: String);
     procedure SetAsDoubleWord(const Value: LongWord);
     procedure SetAsString(const Value: String);
     procedure SetByteArray(Index: Byte; const Value: Boolean);
-    procedure SetByte(Index: Byte; const Value: Byte);
+    procedure SetByte(Index: Integer; const Value: Byte);
     //
     property ReadOnly: Boolean read FReadOnly write FReadOnly default False;
   public
@@ -83,10 +83,10 @@ type
     property ByteArray[Index: Byte]: Boolean read GetByteArray write SetByteArray;
     property AddressType: TIdIPAddressType read GetAddressType;
   published
-    property Byte1: Byte read GetByte write SetByte index 0 stored False;
-    property Byte2: Byte read GetByte write SetByte index 1 stored False;
-    property Byte3: Byte read GetByte write SetByte index 2 stored False;
-    property Byte4: Byte read GetByte write SetByte index 3 stored False;
+    property Byte1: Byte index 0 read GetByte write SetByte stored False;
+    property Byte2: Byte index 1 read GetByte write SetByte stored False;
+    property Byte3: Byte index 2 read GetByte write SetByte stored False;
+    property Byte4: Byte index 3 read GetByte write SetByte stored False;
     property AsDoubleWord: LongWord read GetAsDoubleWord write SetAsDoubleWord stored False;
     property AsBinaryString: String read GetAsBinaryString write SetAsBinaryString stored False;
     property AsString: String read GetAsString write SetAsString;
@@ -140,18 +140,18 @@ uses
 type
   TIdLongWordIP = class(TIdLongWord)
   protected
-    function GetByte(Index: Byte): Byte;
-    procedure SetByte(Index: Byte; const Value: Byte);
+    function GetByte(Index: Integer): Byte;
+    procedure SetByte(Index: Integer; const Value: Byte);
   public
-    property ByteValue[Index: Byte] read GetByte write SetByte;
+    property ByteValue[Index: Integer] read GetByte write SetByte;
   end;
 
-function TIdLongWordIP.GetByte(Index: Byte): Byte;
+function TIdLongWordIP.GetByte(Index: Integer): Byte;
 begin
   Result := FBuffer[Index];
 end;
 
-procedure TIdLongWordIP.SetByte(Index: Byte; const Value: Byte);
+procedure TIdLongWordIP.SetByte(Index: Integer; const Value: Byte);
 begin
   FBuffer[Index] := Value;
 end;
@@ -481,7 +481,7 @@ begin
   end;
 end;
 
-function TIpProperty.GetByte(Index: Byte): Byte;
+function TIpProperty.GetByte(Index: Integer): Byte;
 begin
   Result := FValue.ByteValue[Index];
 end;
@@ -519,7 +519,7 @@ begin
   end;
 end;
 
-procedure TIpProperty.SetByte(Index: Byte; const Value: Byte);
+procedure TIpProperty.SetByte(Index: Integer; const Value: Byte);
 begin
   if (not ReadOnly) and (GetByte(Index) <> Value) then
   begin
