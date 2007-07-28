@@ -524,8 +524,8 @@ const
    {This indicates that the default date is Jan 1, 1900 which was specified
     by RFC 868.}
   TIME_BASEDATE = 2;
-
-  //These are moved here to facilitate inlining
+  
+//These are moved here to facilitate inlining
 const
   HexNumbers = '01234567890ABCDEF';  {Do not Localize}
   BinNumbers = '01'; {Do not localize}
@@ -827,14 +827,14 @@ begin
   Result := BytesToLongWord(LCardinal);
 end;
 
-procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1,VByte2, VByte3, VByte4 : Byte);
+procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LCardinal: TIdBytes;
 begin
   LCardinal := ToBytes(AValue);
   VByte1 := LCardinal[0];
-  VByte2 := LCardinal[0];
+  VByte2 := LCardinal[1];
   VByte3 := LCardinal[2];
   VByte4 := LCardinal[3];
 end;
@@ -1345,22 +1345,18 @@ begin
   end ;
 end;
 
-function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
- {$IFDEF DOTNET}
-   {$IFDEF USEINLINE}inline;{$ENDIF}
-   {$DEFINE NONATIVECOPYFILETO} 
- {$ENDIF}
-{$IFDEF UNIX}
-   {$IFDEF USEINLINE}inline;{$ENDIF}
-   {$DEFINE NONATIVECOPYFILETO}
+{$UNDEF NATIVECOPYFILETO} 
+{$IFDEF DOTNET}
+  {$DEFINE NATIVECOPYFILETO} 
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    {$IFDEF USEINLINE}inline;{$ENDIF}
-   {$DEFINE NONATIVECOPYFILETO}
+  {$DEFINE NATIVECOPYFILETO}
 {$ENDIF}
 
-{$IFNDEF NONATIVECOPYFILETO}
-
+function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
+{$DEFINE NATIVECOPYFILETO} 
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$ELSE}
 var
   SourceF, DestF : File;
   NumRead, NumWritten: Word;
@@ -1377,7 +1373,7 @@ begin
   {$IFDEF WIN32_OR_WIN64}
   Result := CopyFile(PChar(Source), PChar(Destination), true);
   {$ENDIF}
-  {$IFNDEF NONATIVECOPYFILETO}
+  {$IFNDEF NATIVECOPYFILETO}
   //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
 
   //note that I do use the I+ and I- directive.
@@ -1838,8 +1834,6 @@ begin
   end;
   Result := AStr;
 end;
-
-
 
 function IsHex(const AChar : Char) : Boolean;
 {$IFDEF USEINLINE} inline; {$ENDIF}
