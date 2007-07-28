@@ -39,7 +39,8 @@ interface
 
 uses
   Classes,
-  IdBaseComponent;
+  IdBaseComponent,
+  IdStruct;
   
 type
   TNetworkClass = (
@@ -115,7 +116,7 @@ type
   public
     destructor Destroy; override;
     function IsAddressInNetwork(const Address: String): Boolean;
-    function NumIP: Integer;
+    function NumIP: LongWord;
     function StartIP: String;
     function EndIP: String;
     //
@@ -135,7 +136,7 @@ type
 implementation
 
 uses
-  IdException, IdGlobal, IdResourceStringsProtocols, SysUtils;
+  IdException, IdGlobal, IdGlobalProtocols, IdResourceStringsProtocols, SysUtils;
 
 type
   TIdLongWordIP = class(TIdLongWord)
@@ -277,7 +278,7 @@ begin
     fNetworkClass := ID_NET_CLASS_C;
   end;
   // Network class D is reserved for multicast
-  if TextStartsWith(sBuffer, '1110', s) then begin   {Do not Localize}
+  if TextStartsWith(sBuffer, '1110') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_D;
   end;
   // network class E is reserved and shouldn't be used    {Do not Localize}
@@ -367,7 +368,7 @@ begin
   Result := IndyFormat('%d.%d.%d.%d', [Byte1, Byte2, Byte3, Byte4]);    {Do not Localize}
 end;
 
-function TIdNetworkCalculator.NumIP: integer;
+function TIdNetworkCalculator.NumIP: LongWord;
 begin
   NumIP := 1 shl (32 - NetworkMaskLength);
 end;
@@ -396,7 +397,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TIpProperty.Assign(Source: TIdPersistent);
+procedure TIpProperty.Assign(Source: TPersistent);
 begin
   if Source is TIpProperty then
   begin
@@ -433,6 +434,7 @@ begin
 end;
 
 function TIpProperty.GetAsBinaryString: String;
+var i : Integer;
 begin
   // get the binary string
   SetLength(Result, 32);
@@ -483,7 +485,7 @@ end;
 
 function TIpProperty.GetByte(Index: Integer): Byte;
 begin
-  Result := FValue.ByteValue[Index];
+  Result := TIdLongWordIP(FValue).ByteValue[Index];
 end;
 
 procedure TIpProperty.SetAsDoubleWord(const Value: LongWord);
