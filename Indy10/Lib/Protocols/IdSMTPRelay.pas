@@ -127,6 +127,7 @@ unit IdSMTPRelay;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -162,19 +163,15 @@ type
     FEmailAddress: String;
     FReplyCode : Integer;
     FEnhancedCode : TIdSMTPEnhancedCode;
-    procedure SetSent(const Value: Boolean);
-    procedure SetExceptionMessage(const Value: String);
-    procedure SetEmailAddress(const Value: String);
     procedure SetEnhancedCode(const Value: TIdSMTPEnhancedCode);
-    procedure SetReplyCode(const Value: Integer);
   public
     constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
   published
-    property EmailAddress: String read FEmailAddress write SetEmailAddress;
-    property ExceptionMessage:String read FExceptionMessage write SetExceptionMessage;
-    property Sent:Boolean read FSent write SetSent default DEF_SENT;
-    property ReplyCode : Integer read FReplyCode write SetReplyCode default DEF_REPLY_CODE;
+    property EmailAddress: String read FEmailAddress write FEmailAddress;
+    property ExceptionMessage: String read FExceptionMessage write FExceptionMessage;
+    property Sent: Boolean read FSent write FSent default DEF_SENT;
+    property ReplyCode : Integer read FReplyCode write FReplyCode default DEF_REPLY_CODE;
     property EnhancedCode : TIdSMTPEnhancedCode read FEnhancedCode write SetEnhancedCode;
   end;
 
@@ -207,8 +204,8 @@ type
 
   TIdSMTPRelay = class(TIdSMTPBase)
   protected
-    FMXServerList:TStringList;
-    FStatusList:TIdSMTPRelayStatusList;
+    FMXServerList: TStrings;
+    FStatusList: TIdSMTPRelayStatusList;
     FDNSServer: String;
     FOnDirectSMTPStatus: TIdSMTPRelayStatus;
     FMailAgent: string;
@@ -236,7 +233,7 @@ type
     procedure Assign(Source: TPersistent); override;
     destructor Destroy; override;
     procedure DisconnectNotifyPeer; override;
-    procedure Send (AMsg: TIdMessage); override;
+    procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); override;
   published
     property DNSServer: String read FDNSServer write SetDNSServer;
     property RelaySender: String read FRelaySender write SetRelaySender;
@@ -263,7 +260,7 @@ begin
   begin
     MailAgent := TIdSMTPRelay(Source).MailAgent;
     Port := TIdSMTPRelay(Source).Port;
-    DNSServer:=TIdSMTPRelay(Source).DNSServer;
+    DNSServer := TIdSMTPRelay(Source).DNSServer;
   end else begin
     inherited Assign(Source);
   end;
@@ -288,15 +285,13 @@ begin
           (E.LastError = Id_WSAETIMEDOUT) then
         begin
           LCanImplicitTLS := False;
-        end
-        else
-        begin
+        end else begin
           raise;
         end;
       end;
     end;
   end;
-  if LCanImplicitTLS=False then
+  if not LCanImplicitTLS then
   begin
     case Self.FSSLOptions.FSSLSupport of
      SupportSSL : FUseTLS := utUseExplicitTLS;
@@ -322,10 +317,10 @@ end;
 
 procedure TIdSMTPRelay.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FSSLOptions := TIdSSLSupportOptions.Create(Self);
-  FMXServerList:=TStringList.Create;
-  FStatusList:=TIdSMTPRelayStatusList.Create(Self,TIdSMTPRelayStatusItem);
+  FMXServerList := TStringList.Create;
+  FStatusList := TIdSMTPRelayStatusList.Create(Self, TIdSMTPRelayStatusItem);
 end;
 
 destructor TIdSMTPRelay.Destroy;
@@ -333,7 +328,7 @@ begin
   FreeAndNil(FSSLOptions);
   FreeAndNil(FMXServerList);
   FreeAndNil(FStatusList);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdSMTPRelay.DisconnectNotifyPeer;
@@ -382,10 +377,8 @@ begin
   if Pos('@',AAddress) > 0 then
   begin
      LDomain := Copy(AAddress, IndyPos('@',AAddress)+1, Length(AAddress)-Pos('@',AAddress));
-  end
-  else
-  begin
-    raise EIdDirectSMTPCannotResolveMX.Create(IndyFormat(RSDirSMTPInvalidEMailAddress,[AAddress]));
+  end else begin
+    raise EIdDirectSMTPCannotResolveMX.CreateFmt(RSDirSMTPInvalidEMailAddress, [AAddress]);
   end;
   IdDNSResolver1 := TIdDNSResolver.Create(Self);
   try
@@ -426,14 +419,14 @@ begin
     end;
     if FMXServerList.Count = 0 then
     begin
-      raise EIdDirectSMTPCannotResolveMX.Create(IndyFormat(RSDirSMTPNoMXRecordsForDomain, [LDomain]));
+      raise EIdDirectSMTPCannotResolveMX.CreateFmt(RSDirSMTPNoMXRecordsForDomain, [LDomain]);
     end;
   finally
     FreeAndNil(IdDNSResolver1);
   end;
 end;
 
-procedure TIdSMTPRelay.Send(AMsg: TIdMessage);
+procedure TIdSMTPRelay.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
 var
   LAllEntries, LCurDomEntries: TIdEMailAddressList;
   SDomains: TStrings;
@@ -506,7 +499,7 @@ var
         end;
         if (not Connected) and (not EMailSent) then // If we were unable to connect to all the servers, throw exception
         begin
-           raise EIdTCPConnectionError.Create(IndyFormat(RSDirSMTPCantConnectToSMTPSvr, [AEmailAddresses[0].Address]));
+           raise EIdTCPConnectionError.CreateFmt(RSDirSMTPCantConnectToSMTPSvr, [AEmailAddresses[0].Address]);
         end;
       except
         on E : Exception do
@@ -526,19 +519,26 @@ begin
     LFrom := AMsg.From.Address;
   end;
 
-  LAllEntries := TIdEMailAddressList.Create(nil);
+  if Assigned(ARecipients) then begin
+    LAllEntries := ARecipients;
+  end else begin
+    LAllEntries := TIdEMailAddressList.Create(nil);
+  end;
+
   try
-    LAllEntries.AddItems(AMsg.Recipients);
-    LAllEntries.AddItems(AMsg.CCList);
-    LAllEntries.AddItems(AMsg.BccList);
+    if not Assigned(ARecipients) then begin
+      LAllEntries.AddItems(AMsg.Recipients);
+      LAllEntries.AddItems(AMsg.CCList);
+      LAllEntries.AddItems(AMsg.BccList);
+    end;
     SDomains := TStringList.Create;
     try
       LAllEntries.GetDomains(SDomains);
       LCurDomEntries := TIdEMailAddressList.Create(nil);
       try
-        for i := 0 to SDomains.Count -1 do// LCurDomEntries.Count -1 do
+        for i := 0 to SDomains.Count -1 do
         begin
-          LAllEntries.AddressesByDomain(LCurDomEntries,SDomains[i]);
+          LAllEntries.AddressesByDomain(LCurDomEntries, SDomains[i]);
           RelayInternalSend(AMsg, LFrom, LCurDomEntries);
         end;
       finally
@@ -548,7 +548,9 @@ begin
       FreeAndNil(SDomains);
     end;
   finally
-    FreeAndNil(LAllEntries);
+    if not Assigned(ARecipients) then begin
+      FreeAndNil(LAllEntries);
+    end;
   end;
 end;
 
@@ -587,17 +589,15 @@ end;
 
 function TIdSMTPRelayStatusList.Add: TIdSMTPRelayStatusItem;
 begin
-  Result:=TIdSMTPRelayStatusItem(inherited Add);
+  Result := TIdSMTPRelayStatusItem(inherited Add);
 end;
 
-function TIdSMTPRelayStatusList.GetItems(
-  Index: Integer): TIdSMTPRelayStatusItem;
+function TIdSMTPRelayStatusList.GetItems(Index: Integer): TIdSMTPRelayStatusItem;
 begin
-   Result:=TIdSMTPRelayStatusItem(inherited Items[Index]);
+   Result := TIdSMTPRelayStatusItem(inherited Items[Index]);
 end;
 
-procedure TIdSMTPRelayStatusList.SetItems(Index: Integer;
-  const Value: TIdSMTPRelayStatusItem);
+procedure TIdSMTPRelayStatusList.SetItems(Index: Integer; const Value: TIdSMTPRelayStatusItem);
 begin
   Items[Index].Assign(Value);
 end;
@@ -608,8 +608,8 @@ constructor TIdSMTPRelayStatusItem.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
   FEnhancedCode := TIdSMTPEnhancedCode.Create;
-  Sent := DEF_SENT;
-  ReplyCode :=   DEF_REPLY_CODE;
+  FSent := DEF_SENT;
+  FReplyCode := DEF_REPLY_CODE;
 end;
 
 destructor TIdSMTPRelayStatusItem.Destroy;
@@ -618,30 +618,10 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdSMTPRelayStatusItem.SetEmailAddress(const Value: String);
-begin
-  FEmailAddress := Value;
-end;
-
 procedure TIdSMTPRelayStatusItem.SetEnhancedCode(
   const Value: TIdSMTPEnhancedCode);
 begin
   FEnhancedCode.ReplyAsStr := Value.ReplyAsStr;
-end;
-
-procedure TIdSMTPRelayStatusItem.SetExceptionMessage(const Value: String);
-begin
-  FExceptionMessage := Value;
-end;
-
-procedure TIdSMTPRelayStatusItem.SetReplyCode(const Value: Integer);
-begin
-  FReplyCode := Value;
-end;
-
-procedure TIdSMTPRelayStatusItem.SetSent(const Value: Boolean);
-begin
-  FSent := Value;
 end;
 
 { TIdSSLSupportOptions }
