@@ -185,6 +185,7 @@
 unit IdSMTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -236,7 +237,7 @@ type
     procedure Disconnect(ANotifyPeer: Boolean); override;
     procedure DisconnectNotifyPeer; override;
     class procedure QuickSend(const AHost, ASubject, ATo, AFrom, AText: string);
-    procedure Send(AMsg: TIdMessage); override;
+    procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); override;
     procedure Expand(AUserName : String; AResults : TStrings); virtual;
     function Verify(AUserName : String) : String; virtual;
     //
@@ -404,26 +405,14 @@ begin
   finally FreeAndNil(LSMTP); end;
 end;
 
-procedure TIdSMTP.Send(AMsg: TIdMessage);
-var
-  LRecipients : TIdEMailAddressList;
+procedure TIdSMTP.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
 begin
   //Authenticate now calls StartTLS
   //so that you do not send login information before TLS negotiation (big oops security wise).
   //It also should see if authentication should be done according to your settings.
   Authenticate;
-
   AMsg.ExtraHeaders.Values[XMAILER_HEADER] := MailAgent;
-  //LRecipients := TIdEMailAddressList.Create(nil);
-  LRecipients := TIdEMailAddressList.Create(Self);
-  try
-    LRecipients.AddItems(AMsg.Recipients);
-    LRecipients.AddItems(AMsg.CCList);
-    LRecipients.AddItems(AMsg.BccList);
-    InternalSend(AMsg, AMsg.From.Address, LRecipients);
-  finally
-    FreeAndNil(LRecipients);
-  end;
+  inherited Send(AMsg, ARecipients);
 end;
 
 procedure TIdSMTP.SetAuthType(const Value: TIdSMTPAuthenticationType);
@@ -454,8 +443,7 @@ begin
   Result := LastCmdResult.Text[0];
 end;
 
-procedure TIdSMTP.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdSMTP.Notification(AComponent: TComponent; Operation: TIdOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);
