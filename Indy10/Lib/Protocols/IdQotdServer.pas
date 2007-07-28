@@ -87,6 +87,7 @@ function TIdQOTDServer.DoExecute(AContext:TIdContext) : Boolean;
 var
   LQuote : String;
 begin
+  Result := True;
   if Assigned(OnCommandQOTD) then
   begin
     OnCommandQOTD(AContext, LQuote);
