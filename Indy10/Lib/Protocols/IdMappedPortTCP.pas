@@ -397,21 +397,21 @@ begin
         Port := MappedPort;
         Host := MappedHost;
       end;
-      Server.DoLocalClientConnect(Self);
+      DoLocalClientConnect(Self);
 
       with TIdTcpClient(FOutboundClient) do
       begin
         ConnectTimeout := Self.FConnectTimeOut;
         Connect;
       end;
-      Server.DoOutboundClientConnect(Self);
+      DoOutboundClientConnect(Self);
 
       //APR: buffer can contain data from prev (users) read op.
       CheckForData(False);
     except
       on E: Exception do
       begin
-        Server.DoException(Self, E); // DONE: Handle connect failures
+        DoException(Self, E); // DONE: Handle connect failures
         Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
         raise;
       end;
