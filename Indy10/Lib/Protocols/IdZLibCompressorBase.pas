@@ -148,7 +148,12 @@ type
   TIdCompressionLevel = 0..9;
 
   TIdZLibCompressorBase = class(TIdBaseComponent)
+  protected
+    //this is to prevent ZLib compression where a dynamically load
+    //of ZLib fails.
+    function GetIsReady : Boolean; virtual;
   public
+
   //these call the standard InflateInit and DeflateInit
     procedure DeflateStream(AInStream, AOutStream : TStream;
       const ALevel : TIdCompressionLevel=0); virtual; abstract;
@@ -180,6 +185,7 @@ type
     procedure DecompressHTTPDeflate(AInStream, AOutStream : TStream);
     //RFC 1952 complient input and output
     procedure DecompressGZipStream(AInStream, AOutStream : TStream); virtual;
+    property IsReady : Boolean read GetIsReady;
   end;
 
   TIdZLibCompressorBaseClass = class of TIdZLibCompressorBase;
@@ -313,6 +319,11 @@ begin
   AInStream.Position := LOrgPos;
   InflateStream(AInStream,AOutStream);
   AInStream.Position := LOrgPos;
+end;
+
+function TIdZLibCompressorBase.GetIsReady: Boolean;
+begin
+  Result := True;
 end;
 
 end.

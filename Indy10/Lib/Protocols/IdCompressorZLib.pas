@@ -69,6 +69,7 @@ uses
 type
   TIdCompressorZLib = class(TIdZLibCompressorBase)
   protected
+    function GetIsReady : Boolean; override;
     procedure InternalDecompressStream(LZstream: TZStreamRec; AIOHandler : TIdIOHandler;
       AOutStream: TStream);
   public
@@ -300,6 +301,11 @@ end;
 procedure TIdCompressorZLib.DeflateStream(AInStream, AOutStream : TStream; const ALevel : TIdCompressionLevel=0);
 begin
   IdZLib.IndyCompressStream(AInStream,AOutStream,ALevel);
+end;
+
+function TIdCompressorZLib.GetIsReady: Boolean;
+begin
+  Result := IdZLibHeaders.Loaded;
 end;
 
 procedure TIdCompressorZLib.InflateStream(AInStream, AOutStream : TStream);
