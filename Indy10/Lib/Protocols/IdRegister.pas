@@ -25,7 +25,7 @@
   Rev 1.49    12/12/2004 20:26:16  ANeillans
   Fixed compile error
 
-  Rev 1.48    12/10/2004 4:57:52 PM  DSiders
+    Rev 1.48    12/10/2004 4:57:52 PM  DSiders
   Added TIdIPAddrMon to Misc pallette.
 
   Rev 1.47    11/14/2004 10:30:10 PM  JPMugaas
@@ -134,10 +134,10 @@
   Rev 1.11    4/10/2003 02:43:44 PM  JPMugaas
   Fixed compile error.
 
-  Rev 1.10    4/10/2003 4:36:54 PM  BGooijen
+    Rev 1.10    4/10/2003 4:36:54 PM  BGooijen
   Added TIdServerCompressionIntercept
 
-  Rev 1.9    3/22/2003 11:11:26 PM  BGooijen
+    Rev 1.9    3/22/2003 11:11:26 PM  BGooijen
   Added TIdServerInterceptLogEvent and TIdServerInterceptLogFile
 
   Rev 1.8    3/13/2003 11:06:26 AM  JPMugaas
@@ -174,16 +174,14 @@ unit IdRegister;
 
 
 interface
-{$I IdCompilerDefines.inc}
 
-
-
+{$i IdCompilerDefines.inc}
 
 uses
   Classes;
 
 
-{$IFDEF WIN32}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
   {$DEFINE USEZLIB}
   {$DEFINE USEOPENSSL}
 {$ENDIF}
@@ -193,7 +191,7 @@ uses
 {$ENDIF}
 
 // Procs
-  procedure Register;
+procedure Register;
 
 implementation
 
@@ -201,7 +199,7 @@ uses
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
-//TODO:  IdBlockCipherIntercept,
+  //TODO:  IdBlockCipherIntercept,
   IdChargenServer,
   IdChargenUDPServer,
   IdCoder3to4,
@@ -227,8 +225,6 @@ uses
   IdDiscardUDPServer,
   {$IFNDEF DOTNET}
   IdDsnRegister,
-  {$ENDIF}
-  {$IFNDEF DOTNET}
   IdDNSResolver,
   IdDNSServer,
   {$ENDIF}
@@ -245,7 +241,7 @@ uses
   IdGopher,
   IdGopherServer,
   IdHashMessageDigest,
-//  IdHL7,
+  //IdHL7,
   IdHTTP,
   IdHTTPProxyServer,
   IdHTTPServer,
@@ -299,16 +295,14 @@ uses
   IdSMTPRelay,
   {$ENDIF}
   IdSMTPServer,
-   {$IFNDEF DOTNET}
+  {$IFNDEF DOTNET}
   IdSNMP,
-
   IdSNPP,
   IdSNTP,
   IdSocksServer,
   {$ENDIF}
-
   {$IFDEF USEOPENSSL}
-    //something else may have to be done about OpenSSL
+  //something else may have to be done about OpenSSL
   IdSSLOpenSSL,
   {$ENDIF}
   IdSysLog,
@@ -328,8 +322,8 @@ uses
   IdTrivialFTP,
   IdTrivialFTPServer,
   {$ENDIF}
-//TODO:  IdTunnelMaster,
-//TODO:  IdTunnelSlave,
+  //TODO:  IdTunnelMaster,
+  //TODO:  IdTunnelSlave,
   IdUnixTime,
   IdUnixTimeServer,
   IdUnixTimeUDP,
@@ -498,10 +492,10 @@ uses
   {$R IconsDotNet\TIdUnixTimeUDPServer.bmp}
 {$ELSE}
   {$IFNDEF FPC}
-    {$IFDEF Borland}
-      {$R IdRegister.dcr}
+    {$IFDEF BORLAND}
+    {$R IdRegister.dcr}
     {$ELSE}
-      {$R IdRegisterCool.dcr}
+    {$R IdRegisterCool.dcr}
     {$ENDIF}
   {$ENDIF}
 {$ENDIF}
@@ -513,21 +507,19 @@ resourcestring
   RSEncoder = ' Encoder';
   RSDecoder = ' Decoder';
 {$ENDIF}
+
 procedure Register;
 begin
   {$IFNDEF FPC}
-   RegisterComponents(RSRegIndyClients, [
-
+  RegisterComponents(RSRegIndyClients, [
    TIdDayTime,
    TIdDayTimeUDP,
    TIdDICT,
-
    {$IFNDEF DOTNET}
    TIdDNSResolver,
    {$ENDIF}
    TIdEcho,
    TIdEchoUDP,
-
    TIdFinger,
    TIdFSP,
    TIdFTP,
@@ -549,13 +541,12 @@ begin
    TIdSNMP,
    TIdSNPP,
    TIdSNTP,
-    {$ENDIF}
+   {$ENDIF}
    TIdSysLog,
    TIdSystat,
    TIdSystatUDP,
    TIdTelnet,
    TIdTime,
-
    TIdTimeUDP,
    {$IFNDEF DOTNET}
    TIdTrivialFTP,
@@ -617,25 +608,29 @@ begin
    TIdUnixTimeUDPServer,
    TIdWhoIsServer
    ]);
+
 //  RegisterComponents(RSRegIndyServers, [
 //   TIdFTPServer
 //   ]);
+
   RegisterComponents(RSRegIndyIntercepts, [
    {$IFDEF USEZLIB}
-     TIdCompressionIntercept,
+   TIdCompressionIntercept,
    {$ENDIF}
-//TODO:   TIdBlockCipherIntercept,
-//TODO:   TIdCompressionIntercept,
-//TODO:   TIdServerCompressionIntercept,
+   //TODO:   TIdBlockCipherIntercept,
+   //TODO:   TIdCompressionIntercept,
+   //TODO:   TIdServerCompressionIntercept,
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
+
   {$IFDEF USEOPENSSL}
   RegisterComponents(RSRegIndyIOHandlers, [
    TIdServerIOHandlerSSLOpenSSL,
    TIdSSLIOHandlerSocketOpenSSL
    ]);
   {$ENDIF}
+
   RegisterComponents(RSRegSASL, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
@@ -646,28 +641,27 @@ begin
    TIdSASLSKey,
    TIdUserPassProvider
    ]);
+
   RegisterComponents(RSRegIndyMisc, [
-
    TIdConnectThroughHttpProxy,
-
    {$IFNDEF DOTNET}
-     TIdCompressorZLib,
-    {$ENDIF}
+   TIdCompressorZLib,
+   {$ENDIF}
    TIdCookieManager,
    TIdEncoderMIME,
    TIdEncoderUUE,
    TIdEncoderXXE,
    TIdEncoderQuotedPrintable,
-{$IFNDEF DOTNET}
+   {$IFNDEF DOTNET}
    TIdDateTimeStamp,
-{$ENDIF}
+   {$ENDIF}
    TIdDecoderMIME,
    TIdDecoderUUE,
    TIdDecoderXXE,
    TIdDecoderQuotedPrintable,
    TIdIPWatch,
    TIdIPAddrMon,
-//   TIdHL7,
+   //TIdHL7,
    TIdMailBox,
    TIdMessage,
    TIdMessageDecoderMIME,
@@ -675,16 +669,16 @@ begin
    {$IFNDEF DOTNET}
    TIdMessageDecoderYenc,
    TIdMessageEncoderYenc,
-
    TIdNetworkCalculator,
-    {$ENDIF}
+   {$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
    TIdVCard
    ]);
-   {$ELSE}
-   //FreePascal Lazarus Registration
 
+  {$ELSE}
+
+  //FreePascal Lazarus Registration
   RegisterComponents(RSRegIndyClients+ RSProt+'(a-m)', [
    //
    TIdDayTime,
@@ -702,7 +696,8 @@ begin
    TIdIMAP4,
    TIdIRC,
    TIdLPR]);
- RegisterComponents(RSRegIndyClients+RSProt+ '(n-z)', [
+
+  RegisterComponents(RSRegIndyClients+RSProt+ '(n-z)', [
    TIdNNTP,
    TIdPOP3,
    TIdQOTD,
@@ -745,7 +740,7 @@ begin
    TIdIMAP4Server,
    TIdIRCServer]);
 
-   RegisterComponents(RSRegIndyServers+RSProt+ '(n-z)', [
+  RegisterComponents(RSRegIndyServers+RSProt+ '(n-z)', [
    TIdNNTPServer,
    TIdPOP3Server,
    TIdQOTDServer,
@@ -766,25 +761,29 @@ begin
    TIdUnixTimeServer,
    TIdUnixTimeUDPServer,
    TIdWhoIsServer]);
+
 //  RegisterComponents(RSRegIndyServers, [
 //   TIdFTPServer
 //   ]);
-   RegisterComponents(RSRegIndyServers+RSMappedPort,[
+
+  RegisterComponents(RSRegIndyServers+RSMappedPort,[
    TIdMappedFTP,
    TIdMappedPOP3,
    TIdMappedPortTCP,
    TIdMappedPortUDP,
    TIdMappedTelnet]);
+
   RegisterComponents(RSRegIndyIntercepts+RSProt, [
    {$IFDEF USEZLIB}
-    TIdCompressionIntercept,
+   TIdCompressionIntercept,
    {$ENDIF}
-//TODO:   TIdBlockCipherIntercept,
-//TODO:   TIdCompressionIntercept,
-//TODO:   TIdServerCompressionIntercept,
+   //TODO:   TIdBlockCipherIntercept,
+   //TODO:   TIdCompressionIntercept,
+   //TODO:   TIdServerCompressionIntercept,
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
+
   RegisterComponents(RSRegSASL+RSProt, [
    TIdSASLAnonymous,
    TIdSASLCRAMMD5,
@@ -795,6 +794,7 @@ begin
    TIdSASLSKey,
    TIdUserPassProvider
    ]);
+
   {$IFDEF USEOPENSSL}
   RegisterComponents(RSRegIndyIOHandlers+RSProt, [
    TIdServerIOHandlerSSLOpenSSL,
@@ -805,38 +805,38 @@ begin
   RegisterComponents(RSRegIndyMisc+RSProt, [
    TIdConnectThroughHttpProxy,
    {$IFDEF USEZLIB}
-     TIdCompressorZLib,
+   TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,
-
-
-{$IFNDEF DOTNET}
+   {$IFNDEF DOTNET}
    TIdDateTimeStamp,
-{$ENDIF}
+   {$ENDIF}
 
    TIdIPWatch,
    TIdIPAddrMon,
-//   TIdHL7,
+   //TIdHL7,
    TIdMailBox,
    TIdMessage,
    {$IFNDEF DOTNET}
    TIdNetworkCalculator,
-    {$ENDIF}
+   {$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
    TIdVCard
    ]);
-   //  RSEncoder = ' Encoder';
+
+   // RSEncoder = ' Encoder';
    // RSDecoder = ' Decoder';
-   RegisterComponents(RSRegIndyMisc+RSProt + RSEncoder, [
-      TIdEncoderMIME,
+  RegisterComponents(RSRegIndyMisc+RSProt + RSEncoder, [
+   TIdEncoderMIME,
    TIdEncoderUUE,
    TIdEncoderXXE,
    TIdEncoderQuotedPrintable,
    TIdMessageEncoderMIME,
    TIdMessageEncoderYenc
    ]);
-   RegisterComponents(RSRegIndyMisc+RSProt + RSDecoder, [
+
+  RegisterComponents(RSRegIndyMisc+RSProt + RSDecoder, [
    TIdDecoderMIME,
    TIdDecoderUUE,
    TIdDecoderXXE,
@@ -844,11 +844,13 @@ begin
     TIdMessageDecoderMIME,
     TIdMessageDecoderYenc
    ]);
-   {$ENDIF}
+
+ {$ENDIF}
 end;
 
 {$IFDEF FPC}
 initialization
-  {$i IdRegister.lrs}
+{$i IdRegister.lrs}
 {$ENDIF}
+
 end.
