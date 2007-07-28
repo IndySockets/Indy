@@ -184,7 +184,9 @@ begin
   LBuffer := Trim(LBuffer);
   if PosInStrArray(LBuffer, VSERootDirItemTypes) = 5 then begin
     AItem.ItemType := ditFile;
+  end
   else
+  begin
     AItem.ItemType := ditDirectory;
   end;
   Result := True;

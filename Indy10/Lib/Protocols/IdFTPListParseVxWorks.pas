@@ -80,7 +80,7 @@ end;
 
 class function TIdFTPLPVxWorks.IsHeader(const AData: String): Boolean;
 var
-  LCols : TIdStrings;
+  LCols : TStrings;
 begin
   Result := False;
   LCols := TStringList.Create;

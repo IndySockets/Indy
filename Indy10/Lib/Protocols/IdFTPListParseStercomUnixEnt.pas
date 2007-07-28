@@ -198,7 +198,6 @@ begin
     if LBuf <> '' then
     begin
       if IsNumeric(LBuf[1]) then begin
-      begin
         //we found the month
         Break;
       end;

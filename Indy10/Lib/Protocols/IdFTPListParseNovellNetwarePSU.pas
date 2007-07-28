@@ -168,7 +168,7 @@ begin
   LModifiedDate := Fetch(LModifiedDate, ','); {do not localize}
   LBuf := TrimLeft(LBuf);
   //year
-  LModifiedDate := LModifiedDate + ' ' + Fetch(LBuf); } {do not localize}
+  LModifiedDate := LModifiedDate + ' ' + Fetch(LBuf);  {do not localize}
   LBuf := TrimLeft(LBuf);
   LI.ModifiedDate := DateStrMonthDDYY(LModifiedDate, ' '); {do not localize}
   //time
@@ -190,6 +190,7 @@ var
   s : TStrings;
   LBuf : string;
 begin
+  Result := False;
   {
   1234567890
   -rw------ - 2 root wheel   512  Oct 14, 99 8:45 pm deleted.sav
@@ -201,13 +202,13 @@ begin
   -rw------ 1 bill support 1285 Oct 14  99 9:55 pm 123456789.123456
 
   }
-  Result := False;
   if AListing.Count > 0 then
   begin
     LBuf := AListing[0];
     //remove the extra space that sometimes appears in older versions to "flatten"
     //out the listing
     if (Length(LBuf) > 9) and (LBuf[10] = ' ') then {do not localize}
+    begin
       IdDelete(LBuf, 10, 1);
     end;
     Result := IsValidUnixPerms(LBuf, True);

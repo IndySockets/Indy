@@ -163,12 +163,14 @@ begin
       if IsMMDDYY(Copy(SData, 1, 8), '-') or IsMMDDYY(Copy(SData, 1, 8), '/') then
       begin
         if sDir = '<DIR>' then begin {do not localize}
-        begin
           Result := not IsVMBFS(SData);
         end
-        else if (sDir = '') and (IndyStrToInt64(sSize, -1) <> -1) then
+        else
+        begin
+          if (sDir = '') and (IndyStrToInt64(sSize, -1) <> -1) then begin
           //may be a file - see if we can get the size if sDir is empty
-          Result := not IsVMBFS(SData);
+            Result := not IsVMBFS(SData);
+          end;
         end;
       end
       else if IsYYYYMMDD(SData) then

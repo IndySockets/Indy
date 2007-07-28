@@ -128,7 +128,7 @@ begin
             end;
           'm': {do not localize}
             begin
-              LBuf := Copy(s, 2, MaxInt);
+              LBuf := Copy(LBuf, 2, MaxInt);
               LI.ModifiedDate := EPLFDateToLocalDateTime(LBuf);
               LI.ModifiedDateGMT := EPLFDateToGMTDateTime(LBuf);
             end;

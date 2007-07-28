@@ -508,7 +508,7 @@ Transmit sizes are shown in terms of bytes which are blocks * 4096.
   //date
   LBuf := TrimLeft(LBuf);
   LPart := Fetch(LBuf);
-  if not IsYYYYMMDD(LPart) then gegin
+  if not IsYYYYMMDD(LPart) then begin
     Exit;
   end;
   LV.ModifiedDate := DateYYMMDD(LPart);

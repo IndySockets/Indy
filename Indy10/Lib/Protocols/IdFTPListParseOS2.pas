@@ -101,7 +101,7 @@ begin
   begin
     LBuf := TrimLeft(AListing[0]);
     LNum := Fetch(LBuf);
-    if not IsNumeric(LNum) then
+    if not IsNumeric(LNum) then begin
       Exit;
     end;
     repeat
@@ -112,8 +112,7 @@ begin
         LBuf := TrimLeft(LBuf);
         LBuf2 := Fetch(LBuf);
       end;
-      if IsMMDDYY(LBuf2, '-') then
-      begin
+      if IsMMDDYY(LBuf2, '-') then begin
         //we found a date
         Break;
       end;
@@ -125,7 +124,7 @@ begin
     if not TextStartsWith(LBuf, '  ') then begin {do not localize}
       Exit;
     end;
-    if (Length(LBuf) >= 3) and (LBuf[3] = ' ') then {do not localize}
+    if (Length(LBuf) >= 3) and (LBuf[3] = ' ') then begin {do not localize}
       Exit;
     end;
     LBuf := TrimLeft(LBuf);
