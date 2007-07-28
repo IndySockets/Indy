@@ -325,7 +325,6 @@ end;
 procedure TfrmSASLListEditor.SetList(const CopyFrom: TIdSASLEntries);
 var
   i, idx: integer;
-  LCI : TIdSASLListEntry;
 begin
   FSASLList.Assign(CopyFrom);
   for i := 0 to CopyFrom.Count-1 do begin
