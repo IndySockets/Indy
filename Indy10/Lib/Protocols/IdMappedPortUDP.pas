@@ -40,6 +40,7 @@
 unit IdMappedPortUDP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 {
@@ -57,7 +58,7 @@ uses
 type
   TIdMappedPortUDP = class(TIdUDPServer)
   protected
-    FMappedPort: Integer;
+    FMappedPort: TIdPort;
     FMappedHost: String;
     FOnRequest: TNotifyEvent;
     //
@@ -66,8 +67,8 @@ type
     procedure DoUDPRead(AThread: TIdUDPListenerThread; const AData: TIdBytes; ABinding: TIdSocketHandle); override;
   published
     property MappedHost: string read FMappedHost write FMappedHost;
-    property MappedPort: Integer read FMappedPort write FMappedPort;
-    property OnRequest: TNotifyEvent read fOnRequest write fOnRequest;
+    property MappedPort: TIdPort read FMappedPort write FMappedPort;
+    property OnRequest: TNotifyEvent read FOnRequest write FOnRequest;
   end;
 
 implementation
@@ -78,7 +79,7 @@ uses
 
 procedure TIdMappedPortUDP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_DOMAIN;
 end;
 
@@ -106,10 +107,12 @@ begin
     SetLength(LData, LClient.BufferSize);
     i := LClient.ReceiveBuffer(LData);
     SetLength(LData, i);
-    if i > 0 then begin    {Do not Localize}
-      SendBuffer(ABinding.PeerIP, ABinding.PeerPort, LData);
+    if i > 0 then begin
+      ABinding.Send(LData, 0, i);
     end;
-  finally FreeAndNil(LClient); end;
+  finally
+    FreeAndNil(LClient);
+  end;
 end;
 
 end.
