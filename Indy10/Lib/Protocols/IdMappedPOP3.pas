@@ -60,8 +60,7 @@ type
   TIdMappedPOP3Thread = class (TIdMappedTelnetThread)
   protected
     procedure OutboundConnect; override;
-  public
-  End;//TIdMappedPOP3Thread
+  end;
 
   TIdMappedPOP3 = class (TIdMappedTelnet)
   protected
@@ -80,13 +79,13 @@ type
     property DefaultPort default IdPORT_POP3;
     property MappedPort default IdPORT_POP3;
     property UserHostDelimiter: String read FUserHostDelimiter write FUserHostDelimiter;
-  End;//TIdMappedPOP3
+  end;
 
 implementation
 
 uses
-  IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols, IdTCPClient
-  , IdTCPConnection, SysUtils;
+  IdGlobal, IdException, IdIOHandlerSocket, IdResourceStringsProtocols,
+  IdTCPClient, IdTCPConnection, SysUtils;
 
 { TIdMappedPOP3 }
 
@@ -127,10 +126,11 @@ end;
 
 procedure TIdMappedPOP3Thread.OutboundConnect;
 var
-  LHostPort,LUserName,LPop3Cmd: String;
+  LHostPort, LUserName, LPop3Cmd: String;
 Begin
   //don`t call inherited, NEW behavior
-  with TIdMappedPOP3(Server) do begin
+  with TIdMappedPOP3(Server) do
+  begin
     Connection.IOHandler.Write(Greeting.FormattedReply);   
 
     FOutboundClient := TIdTCPClient.Create(nil);
@@ -138,7 +138,8 @@ Begin
       Port := MappedPort;
       Host := MappedHost;
     end;//with
-    FAllowedConnectAttempts := TIdMappedPOP3(Server).AllowedConnectAttempts;
+
+    Self.FAllowedConnectAttempts := AllowedConnectAttempts;
     DoLocalClientConnect(Self);
 
     repeat
@@ -149,11 +150,13 @@ Begin
         // Greeting
         LHostPort := Trim(Connection.IOHandler.ReadLn);//USER username#host OR QUIT
         LPop3Cmd := Fetch(LHostPort, ' ', True);    {Do not Localize}
-        if TextIsSame(LPop3Cmd, 'QUIT') then begin    {Do not Localize}
+        if TextIsSame(LPop3Cmd, 'QUIT') then    {Do not Localize}
+        begin
           Connection.IOHandler.WriteLn('+OK ' + RSPop3QuitMsg);    {Do not Localize}
           Connection.Disconnect;
           Break;
-        end else if TextIsSame(LPop3Cmd, 'USER') then begin    {Do not Localize}
+        end else if TextIsSame(LPop3Cmd, 'USER') then    {Do not Localize}
+        begin
           LUserName := Fetch(LHostPort, FUserHostDelimiter, True, False);//?:CaseSensetive
           FNetData := LUserName; //save for OnCheckHostPort
           LHostPort := TrimLeft(LHostPort); //TrimRight above
@@ -168,15 +171,19 @@ Begin
           raise EIdException.Create(RSEmptyHost);
         end;
 
-        TIdTcpClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;
-        TIdTcpClient(FOutboundClient).Connect;
-        FNetData := FOutboundClient.IOHandler.ReadLn;//Read Pop3 Banner for OnOutboundClientConnect
+        with TIdTcpClient(FOutboundClient) do
+        begin
+          ConnectTimeout := Self.FConnectTimeOut;
+          Connect;
+        end;
 
+        FNetData := FOutboundClient.IOHandler.ReadLn;//Read Pop3 Banner for OnOutboundClientConnect
         FOutboundClient.IOHandler.WriteLn('USER ' + LUserName);    {Do not Localize}
       except
-        on E: Exception do begin // DONE: Handle connect failures
+        on E: Exception do // DONE: Handle connect failures
+        begin
           FNetData := '-ERR [' + E.ClassName + '] ' + E.Message;    {Do not Localize}
-          DoOutboundClientConnect(Self, E);//?DoException(AThread,E);
+          DoException(Self, E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
