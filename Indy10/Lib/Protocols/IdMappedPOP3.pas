@@ -183,7 +183,8 @@ Begin
         on E: Exception do // DONE: Handle connect failures
         begin
           FNetData := '-ERR [' + E.ClassName + '] ' + E.Message;    {Do not Localize}
-          DoException( E);
+
+          Self.DoException( E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
