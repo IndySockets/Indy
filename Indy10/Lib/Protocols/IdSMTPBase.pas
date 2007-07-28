@@ -86,6 +86,7 @@
 unit IdSMTPBase;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -130,7 +131,7 @@ type
     FOnFailedRecipient: TIdSMTPFailedRecipient;
     //
     function GetSupportsTLS : Boolean; override;
-    function GetReplyClass:TIdReplyClass; override;
+    function GetReplyClass: TIdReplyClass; override;
     procedure InitComponent; override;
     procedure SendGreeting;
     procedure SetUseEhlo(const AValue: Boolean); virtual;
@@ -148,7 +149,8 @@ type
     procedure SendPipelining(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList);
     procedure InternalSend(AMsg: TIdMessage; const AFrom: String; ARecipients: TIdEMailAddressList); overload;
   public
-    procedure Send(AMsg: TIdMessage); virtual; abstract;
+    procedure Send(AMsg: TIdMessage); overload; virtual;
+    procedure Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList); overload; virtual;
   published
     property MailAgent: string read FMailAgent write FMailAgent;
     property HeloName : string read FHeloName write FHeloName;
@@ -423,6 +425,26 @@ begin
   end else begin
     SendNoPipelining(AMsg, AFrom, ARecipients);
   end;
+end;
+
+procedure TIdSMTPBase.Send(AMsg: TIdMessage);
+var
+  LRecipients: TIdEMailAddressList;
+begin
+  LRecipients := TIdEMailAddressList.Create(Self);
+  try
+    LRecipients.AddItems(AMsg.Recipients);
+    LRecipients.AddItems(AMsg.CCList);
+    LRecipients.AddItems(AMsg.BccList);
+    Send(AMsg, LRecipients);
+  finally
+    FreeAndNil(LRecipients);
+  end;
+end;
+
+procedure TIdSMTPBase.Send(AMsg: TIdMessage; ARecipients: TIdEMailAddressList);
+begin
+  InternalSend(AMsg, AMsg.From.Address, ARecipients);
 end;
 
 end.
