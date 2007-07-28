@@ -465,7 +465,7 @@ type
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
-  procedure LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+  procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 
   function PadString(const AString : String; const ALen : Integer; const AChar: Char): String;
 
@@ -827,16 +827,16 @@ begin
   Result := BytesToLongWord(LCardinal);
 end;
 
-procedure LongWordToOrdFourByte(AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
+procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1,VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LCardinal: TIdBytes;
 begin
   LCardinal := ToBytes(AValue);
-  LCardinal[0] := VByte1;
-  LCardinal[1] := VByte2;
-  LCardinal[2] := VByte3;
-  LCardinal[3] := VByte4;
+  VByte1 := LCardinal[0];
+  VByte2 := LCardinal[0];
+  VByte3 := LCardinal[2];
+  VByte4 := LCardinal[3];
 end;
 
 function TwoCharToWord(AChar1,AChar2: Char):Word;
