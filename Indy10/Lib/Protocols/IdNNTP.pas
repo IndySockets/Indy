@@ -1212,7 +1212,6 @@ end;
 procedure TIdNNTP.GetCapability;
 var
   i: Integer;
-  s: String;
 begin
   FCapabilities.Clear;
   if SendCmd('LIST EXTENSIONS') in [202, 215] then  {do not localize}
