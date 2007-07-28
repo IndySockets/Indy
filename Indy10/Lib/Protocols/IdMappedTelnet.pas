@@ -61,9 +61,9 @@ type
     FAllowedConnectAttempts: Integer;
     FOnCheckHostPort: TIdMappedTelnetCheckHostPort;
 
-    procedure DoCheckHostPort (AThread: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String); virtual;
+    procedure DoCheckHostPort (AContext: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String); virtual;
     procedure SetAllowedConnectAttempts(const Value: Integer);
-    procedure ExtractHostAndPortFromLine(AThread: TIdMappedPortContext; const AHostPort: String);
+    procedure ExtractHostAndPortFromLine(AContext: TIdMappedPortContext; const AHostPort: String);
     procedure InitComponent; override;
   public
     //
@@ -137,14 +137,14 @@ Begin
     LPort := TrimLeft(LPort);
   end;
 
-  DoCheckHostPort(AThread, AHostPort, LHost, LPort);
+  DoCheckHostPort(AContext, AHostPort, LHost, LPort);
 
   if Length(LHost) > 0 then begin
-    TIdTcpClient(AThread.OutboundClient).Host := LHost;
+    TIdTcpClient(AContext.OutboundClient).Host := LHost;
   end;
 
   if Length(LPort) > 0 then begin
-    TIdTcpClient(AThread.OutboundClient).Port := IndyStrToInt(LPort, TIdTcpClient(AThread.OutboundClient).Port);
+    TIdTcpClient(AContext.OutboundClient).Port := IndyStrToInt(LPort, TIdTcpClient(AContext.OutboundClient).Port);
   end;
 end;
 
@@ -185,7 +185,7 @@ Begin
         on E: Exception do // DONE: Handle connect failures
         begin
           FNetData := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
-          DoException(Self, E);
+          Self.DoException(E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
