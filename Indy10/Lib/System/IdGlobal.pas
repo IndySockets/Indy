@@ -1010,7 +1010,7 @@ procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestI
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
 function CharIsInSet(const AString: string; const ACharPos: Integer; const ASet: String): Boolean;
 function CharIsInEOL(const AString: string; const ACharPos: Integer): Boolean;
-function CharMatches(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
+function CharEquals(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
 
 function ByteIndex(const AByte: Byte; const ABytes: TIdBytes; const AStartIndex: Integer = 0): Integer;
 function ByteIdxInSet(const ABytes: TIdBytes; const AIndex: Integer; const ASet: TIdBytes): Integer;
@@ -4005,7 +4005,7 @@ begin
   Result := CharIsInSet(AString, ACharPos, EOL);
 end;
 
-function CharMatches(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
+function CharEquals(const AString: string; const ACharPos: Integer; const AValue: Char): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   EIdException.IfTrue(ACharPos < 1, 'Invalid ACharPos');{ do not localize }
