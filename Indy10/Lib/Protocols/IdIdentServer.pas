@@ -108,14 +108,12 @@ begin
   Result := True;
   s := AContext.Connection.IOHandler.ReadLn('', FQueryTimeOut);    {Do not Localize}
   if not AContext.Connection.IOHandler.ReadLnTimedOut then begin
-  begin
     ServerPort := IndyStrToInt(Fetch(s,','));    {Do not Localize}
     ClientPort := IndyStrToInt(s);
-    if Assigned(FOnIdentQuery) then
-    begin
+    if Assigned(FOnIdentQuery) then begin
       FOnIdentQuery(AContext, ServerPort, ClientPort);
       Exit;
-    end
+    end;
     ReplyError(AContext, ServerPort, ClientPort, ieUnknownError);
   end;
   AContext.Connection.Disconnect;

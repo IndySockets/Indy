@@ -147,7 +147,7 @@ type
 
   TIdOnAuthenticate = procedure( AThread: TIdSocksServerContext; const AUsername, APassword: string; var AAuthenticated: boolean ) of object;
   TIdOnBeforeConnect = procedure( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) of object;
-  TIdOnBeforeBind = procedure( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) of object;
+  TIdOnBeforeSocksBind = procedure( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) of object;
 
   TIdCustomSocksServer = class( TIdCustomTCPServer )
   private
@@ -156,8 +156,8 @@ type
     fAllowSocks4: boolean;
     fAllowSocks5: boolean;
     fOnAuthenticate: TIdOnAuthenticate;
-    fOnBeforeConnect: TIdOnBeforeConnect;
-    fOnBeforeBind: TIdOnBeforeBind;
+    fOnBeforeSocksConnect: TIdOnBeforeConnect;
+    fOnBeforeSocksBind: TIdOnBeforeSocksBind;
 
     function DoExecute( AThread: TIdContext ) : boolean; override;
 
@@ -165,8 +165,8 @@ type
     procedure CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; virtual; abstract; //
 
     procedure DoAuthenticate( AThread: TIdSocksServerContext; const AUsername, APassword: string; var AAuthenticated: boolean ) ; virtual;
-    procedure DoBeforeConnectUser( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
-    procedure DoBeforeBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
+    procedure DoBeforeSocksConnect( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
+    procedure DoBeforeSocksBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
     procedure HandleConnectV4( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ; virtual;
     procedure HandleConnectV5( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ; virtual;
     procedure InitComponent; override;
@@ -179,8 +179,8 @@ type
     property AllowSocks5: boolean read fAllowSocks5 write fAllowSocks5;
 
     property OnAuthenticate: TIdOnAuthenticate read fOnAuthenticate write fOnAuthenticate;
-    property OnBeforeConnect: TIdOnBeforeConnect read fOnBeforeConnect write fOnBeforeConnect;
-    property OnBeforeBind: TIdOnBeforeBind read fOnBeforeBind write fOnBeforeBind;
+    property OnBeforeSocksConnect: TIdOnBeforeConnect read fOnBeforeSocksConnect write fOnBeforeSocksConnect;
+    property OnBeforeSocksBind: TIdOnBeforeSocksBind read fOnBeforeSocksBind write fOnBeforeSocksBind;
   end;
 
   TIdSocksServer = class( TIdCustomSocksServer )
@@ -283,19 +283,19 @@ begin
   end;
 end;
 
-procedure TIdCustomSocksServer.DoBeforeConnectUser( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
+procedure TIdCustomSocksServer.DoBeforeSocksConnect( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
 begin
-  if assigned( OnBeforeConnect ) then
+  if assigned( OnBeforeSocksConnect ) then
   begin
-    OnBeforeConnect( AThread, AUserId, AHost, APort, AAllowed ) ;
+    OnBeforeSocksConnect( AThread, AUserId, AHost, APort, AAllowed ) ;
   end;
 end;
 
-procedure TIdCustomSocksServer.DoBeforeBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
+procedure TIdCustomSocksServer.DoBeforeSocksBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
 begin
-  if assigned( OnBeforeBind ) then
+  if assigned( OnBeforeSocksBind ) then
   begin
-    OnBeforeBind( AThread, AUserId, AHost, APort, AAllowed ) ;
+    OnBeforeSocksBind( AThread, AUserId, AHost, APort, AAllowed ) ;
   end;
 end;
 
@@ -444,7 +444,7 @@ var
   LAlowed: boolean;
 begin
   LAlowed := true;
-  DoBeforeConnectUser( AThread, AUserId, AHost, Aport, LAlowed ) ;
+  DoBeforeSocksConnect( AThread, AUserId, AHost, Aport, LAlowed ) ;
   if not LAlowed then
   begin
     if AThread.SocksVersion = 4 then
@@ -535,7 +535,7 @@ var
   LAlowed: boolean;
 begin
   LAlowed := true;
-  DoBeforeBind( AThread, AUserId, AHost, Aport, LAlowed ) ;
+  DoBeforeSocksBind( AThread, AUserId, AHost, Aport, LAlowed ) ;
   if not LAlowed then
   begin
     if AThread.SocksVersion = 4 then

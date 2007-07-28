@@ -200,7 +200,6 @@ var
   i : Integer;
   LItem : TIdFTPListItem;
 begin
-  Result := False;
   for i := 0  to AListing.Count-1 do
   begin
     if not IsWhiteString(AListing[i]) then
