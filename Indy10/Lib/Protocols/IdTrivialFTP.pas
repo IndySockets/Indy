@@ -172,7 +172,8 @@ begin
             begin
               DataLen := Length(s) - 4;
               try
-                DestinationStream.WriteBuffer(s[5], DataLen);
+                IdGlobal.WriteStringToStream(DestinationStream,s,DataLen,5);
+               // DestinationStream.WriteBuffer(s[5], DataLen);
                 DoWork(wmRead, DataLen)
               except
                 on E:Exception do
