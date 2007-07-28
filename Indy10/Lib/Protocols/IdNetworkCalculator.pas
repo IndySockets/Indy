@@ -143,7 +143,7 @@ type
     function GetByte(Index: Integer): Byte;
     procedure SetByte(Index: Integer; const Value: Byte);
   public
-    property ByteValue[Index: Integer] read GetByte write SetByte;
+    property ByteValue[Index: Integer]: Byte read GetByte write SetByte;
   end;
 
 function TIdLongWordIP.GetByte(Index: Integer): Byte;
