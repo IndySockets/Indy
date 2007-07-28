@@ -115,6 +115,7 @@
 unit IdMappedPortTCP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -136,6 +137,7 @@ type
     FConnectTimeOut: Integer;
     FServer : TIdMappedPortTCP;
     //
+    procedure CheckForData(DoRead: Boolean); virtual;
     procedure OutboundConnect; virtual;
   public
     constructor Create(
@@ -149,35 +151,30 @@ type
     property  ConnectTimeOut: Integer read FConnectTimeOut write FConnectTimeOut default IdTimeoutDefault;
     property  NetData: String read FNetData write FNetData;
     property  OutboundClient: TIdTCPConnection read FOutboundClient write FOutboundClient;
-
-    property  ReadList: TIdSocketList read FReadList;
-    property  DataAvailList: TIdSocketList read FDataAvailList;
   end;//TIdMappedPortContext
-
-  TIdMappedPortOutboundConnectEvent = procedure(AContext:TIdContext; AException: Exception) of object;//E=NIL-OK
 
   TIdMappedPortTCP = class(TIdCustomTCPServer)
   protected
     FMappedHost: string;
-    FMappedPort: Integer;
+    FMappedPort: TIdPort;
     FOnBeforeConnect: TIdServerThreadEvent;
 
     //AThread.Connection.Server & AThread.OutboundClient
-    FOnOutboundConnect: TIdMappedPortOutboundConnectEvent;
+    FOnOutboundConnect: TIdServerThreadEvent;
     FOnOutboundData: TIdServerThreadEvent;
     FOnOutboundDisConnect: TIdServerThreadEvent;
     //
     procedure ContextCreated(AContext:TIdContext); override;
     procedure DoBeforeConnect(AContext: TIdContext); virtual;
-    procedure DoConnect(AContext:TIdContext); override;
-    function  DoExecute(AContext:TIdContext): boolean; override;
-    procedure DoDisconnect(AContext:TIdContext); override; //DoLocalClientDisconnect
-    procedure DoLocalClientConnect(AContext:TIdContext); virtual;
-    procedure DoLocalClientData(AContext:TIdContext); virtual;//APR: bServer
+    procedure DoConnect(AContext: TIdContext); override;
+    function  DoExecute(AContext: TIdContext): boolean; override;
+    procedure DoDisconnect(AContext: TIdContext); override; //DoLocalClientDisconnect
+    procedure DoLocalClientConnect(AContext: TIdContext); virtual;
+    procedure DoLocalClientData(AContext: TIdContext); virtual;//APR: bServer
 
-    procedure DoOutboundClientConnect(AContext:TIdContext; const AException: Exception=NIL); virtual;
-    procedure DoOutboundClientData(AContext:TIdContext); virtual;
-    procedure DoOutboundDisconnect(AContext:TIdContext); virtual;
+    procedure DoOutboundClientConnect(AContext: TIdContext); virtual;
+    procedure DoOutboundClientData(AContext: TIdContext); virtual;
+    procedure DoOutboundDisconnect(AContext: TIdContext); virtual;
     function  GetOnConnect: TIdServerThreadEvent;
     function  GetOnExecute: TIdServerThreadEvent;
     procedure SetOnConnect(const Value: TIdServerThreadEvent);
@@ -188,10 +185,10 @@ type
   published
     property  OnBeforeConnect: TIdServerThreadEvent read FOnBeforeConnect write FOnBeforeConnect;
     property  MappedHost: String read FMappedHost write FMappedHost;
-    property  MappedPort: Integer read FMappedPort write FMappedPort;
+    property  MappedPort: TIdPort read FMappedPort write FMappedPort;
     //
     property  OnConnect: TIdServerThreadEvent read GetOnConnect write SetOnConnect; //OnLocalClientConnect
-    property  OnOutboundConnect: TIdMappedPortOutboundConnectEvent read FOnOutboundConnect write FOnOutboundConnect;
+    property  OnOutboundConnect: TIdServerThreadEvent read FOnOutboundConnect write FOnOutboundConnect;
 
     property  OnExecute: TIdServerThreadEvent read GetOnExecute write SetOnExecute;//OnLocalClientData
     property  OnOutboundData: TIdServerThreadEvent read FOnOutboundData write FOnOutboundData;
@@ -231,10 +228,10 @@ begin
   end;
 end;
 
-procedure TIdMappedPortTCP.DoOutboundClientConnect(AContext: TIdContext; const AException: Exception = nil);
+procedure TIdMappedPortTCP.DoOutboundClientConnect(AContext: TIdContext);
 begin
   if Assigned(FOnOutboundConnect) then begin
-    FOnOutboundConnect(AContext, AException);
+    FOnOutboundConnect(AContext);
   end;
 end;
 
@@ -291,30 +288,13 @@ begin
   Result := True;
   with TIdMappedPortContext(AContext) do begin
     try
-      if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then begin
-        //1.LConnectionHandle
-        if FDataAvailList.Contains((AContext.Connection.IOHandler as TIdIOHandlerSocket).Binding.Handle) then begin
-          // TODO: WSAECONNRESET (Exception [EIdSocketError] Socket Error # 10054 Connection reset by peer)
-          AContext.Connection.IOHandler.CheckForDataOnSource;
-          FNetData := AContext.Connection.IOHandler.InputBufferAsString;
-          if Length(FNetData) > 0 then begin
-            DoLocalClientData(AContext);//bServer
-            FOutboundClient.IOHandler.Write(FNetData);
-          end;
-        end;
-        //2.LOutBoundHandle
-        if FDataAvailList.Contains((FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle) then begin
-          FOutboundClient.IOHandler.CheckForDataOnSource;
-          FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-          if Length(FNetData) > 0 then begin
-            DoOutboundClientData(AContext);
-            AContext.Connection.IOHandler.Write(FNetData);
-          end;
-        end;
-      end;
+      CheckForData(True);
     finally
       if not FOutboundClient.Connected then begin
+        Result := False;
         DoOutboundDisconnect(AContext); //&Connection.Disconnect
+      end else begin;
+        Result := AContext.Connection.Connected;
       end;
     end;
   end;
@@ -367,45 +347,71 @@ end;
 
 destructor TIdMappedPortContext.Destroy;
 begin
-  //Sys.FreeAndNil(FOutboundClient);
-  FreeAndNIL(FOutboundClient);
+  FreeAndNil(FOutboundClient);
   FreeAndNIL(FReadList);
   FreeAndNIL(FDataAvailList);
   inherited Destroy;
-End;
+end;
+
+procedure TIdMappedPortContext.CheckForData(DoRead: Boolean);
+begin
+  if DoRead then
+  begin
+    if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
+    begin
+      //1.LConnectionHandle
+      if FDataAvailList.Contains(Connection.Socket.Binding.Handle) then
+      begin
+        // TODO: WSAECONNRESET (Exception [EIdSocketError] Socket Error # 10054 Connection reset by peer)
+        Connection.IOHandler.CheckForDataOnSource(0);
+      end;
+      //2.LOutBoundHandle
+      if FDataAvailList.Contains(FOutboundClient.Socket.Binding.Handle) then
+      begin
+        FOutboundClient.IOHandler.CheckForDataOnSource(0);
+      end;
+    end;        
+  end;
+  if not Connection.IOHandler.InputBufferIsEmpty then
+  begin
+    FNetData := Connection.IOHandler.InputBufferAsString;
+    Server.DoLocalClientData(Self);
+    FOutboundClient.IOHandler.Write(FNetData);
+  end;
+  if not FOutboundClient.IOHandler.InputBufferIsEmpty then
+  begin
+    FNetData := FOutboundClient.IOHandler.InputBufferAsString;
+    Server.DoOutboundClientData(Self);
+    Connection.IOHandler.Write(FNetData);
+  end;
+end;
 
 procedure TIdMappedPortContext.OutboundConnect;
-Begin
-  FOutboundClient := TIdTCPClient.Create(NIL);
-  with TIdMappedPortTCP(Server) do begin
+begin
+  FOutboundClient := TIdTCPClient.Create(nil);
+  with TIdMappedPortTCP(Server) do
+  begin
     try
-      with TIdTcpClient(FOutboundClient) do begin
+      with TIdTcpClient(FOutboundClient) do
+      begin
         Port := MappedPort;
         Host := MappedHost;
       end;
-      DoLocalClientConnect(Self);
+      Server.DoLocalClientConnect(Self);
 
-      FOutboundClient.CreateIOHandler(TIdIOHandlerSocket);
-
-      TIdTcpClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;
-      TIdTcpClient(FOutboundClient).Connect;
-      DoOutboundClientConnect(Self);
+      with TIdTcpClient(FOutboundClient) do
+      begin
+        ConnectTimeout := Self.FConnectTimeOut;
+        Connect;
+      end;
+      Server.DoOutboundClientConnect(Self);
 
       //APR: buffer can contain data from prev (users) read op.
-      FNetData := Connection.IOHandler.InputBufferAsString;
-      if FNetData <> '' then begin
-        DoLocalClientData(Self);
-        FOutboundClient.IOHandler.Write(FNetData);
-      end;
-
-      FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-      if FNetData <> '' then begin
-        DoOutboundClientData(Self);
-        Connection.IOHandler.Write(FNetData);
-      end;
+      CheckForData(False);
     except
-      on E: Exception do begin
-        DoOutboundClientConnect(Self, E); // DONE: Handle connect failures
+      on E: Exception do
+      begin
+        Server.DoException(Self, E); // DONE: Handle connect failures
         Connection.Disconnect; //req IdTcpServer with "Stop this thread if we were disconnected"
         raise;
       end;
