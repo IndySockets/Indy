@@ -4287,7 +4287,7 @@ end;
 
 procedure FixupStub(hDll: THandle; const AName: string; var VStub);
 var
-  LProc: FARPROC:
+  LProc: FARPROC;
 begin
   if hDll = 0 then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
@@ -4303,7 +4303,7 @@ procedure FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID;
 var
   LStatus: Integer;
   LBytesSend: DWORD;
-  LProc: FARPROC:
+  LProc: FARPROC;
 begin
   LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SizeOf(AGuid),
     @LProc, SizeOf(LProc), @LBytesSend, nil, nil);
