@@ -443,7 +443,7 @@ begin
   Result := LastCmdResult.Text[0];
 end;
 
-procedure TIdSMTP.Notification(AComponent: TComponent; Operation: TIdOperation);
+procedure TIdSMTP.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);
