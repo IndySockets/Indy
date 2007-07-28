@@ -30,8 +30,7 @@ interface
 
 uses
   Classes,
-  IdHTTP,
-  IdGlobal;
+  IdHTTP;
 
 const
   Id_HTTPMethodPropFind = 'PROPFIND';
@@ -77,7 +76,7 @@ type
   end;
 
 implementation
-
+uses SysUtils;
 {todo place somewhere else?
 procedure Register;
 begin
@@ -96,7 +95,7 @@ procedure TIdWebDAV.DAVPropfind(const AURL: string;const XMLQuery, AResponseCont
   const RangeFrom:Integer;const RangeTo:Integer);
 begin
   if rangeTo>-1 then
-    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+sys.intToStr(rangeFrom)+'-'+Sys.IntToStr(rangeTo));
+    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+intToStr(rangeFrom)+'-'+IntToStr(rangeTo));
   request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
   try
     DoRequest(Id_HTTPMethodPropfind, AURL, XMLQuery, AResponseContent,[]);
@@ -115,7 +114,9 @@ end;
 procedure TIdWebDAV.DAVSearch(const AURL: string;const rangeFrom, rangeTo:integer;const XMLQuery, AResponseContent: TStream;const Depth:string);
 begin
   if rangeTo>-1 then
-    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+Sys.IntToStr(rangeFrom)+'-'+Sys.IntToStr(rangeTo));
+  begin
+    request.CustomHeaders.Add('Range'+request.CustomHeaders.NameValueSeparator+' Rows='+IntToStr(rangeFrom)+'-'+IntToStr(rangeTo));
+  end;
   request.CustomHeaders.Add('Depth'+request.CustomHeaders.NameValueSeparator+' '+depth);
   try
     DoRequest(Id_HTTPMethodSearch, AURL, XMLQuery, AResponseContent, []);
