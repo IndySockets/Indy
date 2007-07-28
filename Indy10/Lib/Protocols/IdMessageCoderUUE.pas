@@ -66,6 +66,7 @@
 unit IdMessageCoderUUE;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -119,8 +120,8 @@ var
   LPermissionCode: integer;
 begin
   Result := nil;
-  if TextStartsWith(ALine, 'begin ') and (Length(ALine) >= 10) and (ALine[10] = ' ') then begin {Do not Localize}
-    LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
+  if TextStartsWith(ALine, 'begin ') and CharEquals(ALine, 10, ' ') then begin {Do not Localize}
+  LPermissionCode := IndyStrToInt(Copy(ALine, 7, 3), 0);
     if LPermissionCode > 0 then begin
       Result := TIdMessageDecoderUUE.Create(ASender);
       with TIdMessageDecoderUUE(Result) do begin
