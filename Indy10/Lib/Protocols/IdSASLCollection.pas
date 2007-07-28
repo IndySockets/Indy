@@ -99,7 +99,7 @@ implementation
 uses
   IdCoderMIME,
   IdGlobal,
-  IdGlobalProtocols, SysUtils;
+  IdGlobalProtocols, IdReply, SysUtils;
 
 { TIdSASLListEntry }
 
@@ -213,7 +213,7 @@ var
 
   function SetupErrorReply: TIdReply;
   begin
-    Result := AClient.LastCmdResult.ClassType.Create(nil);
+    Result := (AClient.LastCmdResult.ClassType.Create as TIdReply);
     Result.Assign(AClient.LastCmdResult);
   end;
 
@@ -261,7 +261,7 @@ begin
           finally
             FreeAndNil(LE);
           end;
-          if Assigned(LError) then
+          if Assigned(LError) then begin
             LError.RaiseReplyError;
           end;
         end;
@@ -375,7 +375,7 @@ begin
   end;
 end;
 
-procedure TIdSASLEntries.RemoveByComp(AComponent: TIdNativeComponent);
+procedure TIdSASLEntries.RemoveByComp(AComponent: TComponent);
 var
   i : Integer;
 begin
