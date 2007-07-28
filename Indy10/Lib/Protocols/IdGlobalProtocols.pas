@@ -1345,16 +1345,19 @@ begin
   end ;
 end;
 
-{$UNDEF NATIVECOPYFILETO} 
+{$UNDEF APICOPYFILETO}
 {$IFDEF DOTNET}
-  {$DEFINE NATIVECOPYFILETO} 
+  {$DEFINE APICOPYFILETO}
 {$ENDIF}
 {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  {$DEFINE NATIVECOPYFILETO}
+  {$DEFINE APICOPYFILETO}
+{$ENDIF}
+{$IFDEF UNIX}
+  {$DEFINE APICOPYFILETO}
 {$ENDIF}
 
 function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
-{$DEFINE NATIVECOPYFILETO} 
+{$IFDEF APICOPYFILETO} 
   {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}
 var
@@ -1373,7 +1376,7 @@ begin
   {$IFDEF WIN32_OR_WIN64}
   Result := CopyFile(PChar(Source), PChar(Destination), true);
   {$ENDIF}
-  {$IFNDEF NATIVECOPYFILETO}
+  {$IFNDEF APICOPYFILETO}
   //mostly from  http://delphi.about.com/od/fileio/a/untypedfiles.htm
 
   //note that I do use the I+ and I- directive.
