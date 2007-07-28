@@ -36,7 +36,9 @@
 unit IdMappedTelnet;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdAssignedNumbers,
   IdMappedPortTCP,
@@ -50,16 +52,16 @@ type
     procedure OutboundConnect; override;
   public
     property  AllowedConnectAttempts: Integer read FAllowedConnectAttempts;
-  End;//TIdMappedTelnetThread
+  end;
 
-  TIdMappedTelnetCheckHostPort = procedure (AThread: TIdMappedPortContext; const AHostPort: String; var VHost,VPort: String) of object;
+  TIdMappedTelnetCheckHostPort = procedure (AContext: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String) of object;
 
   TIdCustomMappedTelnet = class (TIdMappedPortTCP)
   protected
     FAllowedConnectAttempts: Integer;
     FOnCheckHostPort: TIdMappedTelnetCheckHostPort;
 
-    procedure DoCheckHostPort (AThread: TIdMappedPortContext; const AHostPort: String; var VHost,VPort: String); virtual;
+    procedure DoCheckHostPort (AThread: TIdMappedPortContext; const AHostPort: String; var VHost, VPort: String); virtual;
     procedure SetAllowedConnectAttempts(const Value: Integer);
     procedure ExtractHostAndPortFromLine(AThread: TIdMappedPortContext; const AHostPort: String);
     procedure InitComponent; override;
@@ -71,14 +73,14 @@ type
   published
     property  DefaultPort default IdPORT_TELNET;
     property  MappedPort default IdPORT_TELNET;
-  End;//TIdCustomMappedTelnet
+  end;
 
   TIdMappedTelnet = class (TIdCustomMappedTelnet)
   published
     property  AllowedConnectAttempts: Integer read FAllowedConnectAttempts write SetAllowedConnectAttempts default -1;
     //
     property  OnCheckHostPort: TIdMappedTelnetCheckHostPort read FOnCheckHostPort write FOnCheckHostPort;
-  End;//TIdMappedTelnet
+  end;
 
 implementation
 
@@ -87,105 +89,79 @@ uses
   IdIOHandlerSocket, IdTCPClient, SysUtils;
 
 const
-  NAMESEP = #0+#9+' :';
+  NAMESEP = #0+#9+' :'; {do not localize}
 
 { TIdCustomMappedTelnet }
 
 procedure TIdCustomMappedTelnet.InitComponent;
-Begin
-  inherited;
+begin
+  inherited InitComponent;
   FAllowedConnectAttempts := -1;
   FContextClass := TIdMappedTelnetThread;
   DefaultPort := IdPORT_TELNET;
   MappedPort := IdPORT_TELNET;
-End;//TIdMappedTelnet.Create
+end;
 
-procedure TIdCustomMappedTelnet.DoCheckHostPort(AThread: TIdMappedPortContext; const AHostPort: String; var VHost,VPort: String);
+procedure TIdCustomMappedTelnet.DoCheckHostPort(AContext: TIdMappedPortContext;
+  const AHostPort: String; var VHost, VPort: String);
 Begin
-  if Assigned(FOnCheckHostPort) then
-  begin
-    FOnCheckHostPort(AThread,AHostPort,VHost,VPort);
+  if Assigned(FOnCheckHostPort) then begin
+    FOnCheckHostPort(AContext, AHostPort, VHost, VPort);
   end;
-End;//
+end;
 
-{procedure TIdCustomMappedTelnet.ExtractHostAndPortFromLine(AThread: TIdMappedPortContext; const AHostPort: String);
+procedure TIdCustomMappedTelnet.ExtractHostAndPortFromLine(AContext: TIdMappedPortContext;
+  const AHostPort: String);
 var
-  LHost,LPort: String;
-  P,L: PChar;
-Begin
-  if Length(AHostPort)>0 then begin
-    P := Pointer(AHostPort);
-    L := P + Length(AHostPort);
-    while (P<L) and NOT(P^ in [#0,#9,' ',':']) do begin {Do not Localize}
-{      inc(P);
-    end;
-    SetString(LHost, PChar(Pointer(AHostPort)), P-Pointer(AHostPort));
-    while (P<L) and (P^ in [#9,' ',':']) do begin {Do not Localize}
-{      inc(P);
-    end;
-    SetString(LPort, P, L-P);
-    LHost := TrimRight(LHost);
-    LPort := TrimLeft(LPort);
-  end
-  else begin
-    LHost := '';    {Do not Localize}
-{    LPort := '';    {Do not Localize}
-{  end;//if
-  DoCheckHostPort(AThread, AHostPort,LHost,LPort);
-
-  TIdTcpClient(AThread.OutboundClient).Host := LHost;
-  TIdTcpClient(AThread.OutboundClient).Port := StrToIntDef(LPort,TIdTcpClient(AThread.OutboundClient).Port);
-End;//ExtractHostAndPortFromLine    }
-
-
-procedure TIdCustomMappedTelnet.ExtractHostAndPortFromLine(AThread: TIdMappedPortContext; const AHostPort: String);
-var
-  LHost,LPort: String;
+  LHost, LPort: String;
   i : Integer;
-
 Begin
-  if Length(AHostPort)>0 then begin
+  LHost := '';    {Do not Localize}
+  LPort := '';    {Do not Localize}
+
+  if Length(AHostPort) > 0 then
+  begin
     i := 1;
-    LHost := '';
-    while (i <= Length(AHostPort)) and
-      ( not CharIsInSet( AHostPort, i, NAMESEP )) do
+    while (i <= Length(AHostPort)) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
     begin
       LHost := LHost + AHostPort[i];
       Inc(i);
     end;
-    LPort := '';
-    inc(i);
-    while (i <= Length(AHostPort)) and
-      ( not CharIsInSet( AHostPort, i, NAMESEP )) do
+    Inc(i);
+    while (i <= Length(AHostPort)) and (not CharIsInSet(AHostPort, i, NAMESEP)) do
     begin
       LPort := LPort + AHostPort[i];
       Inc(i);
     end;
     LHost := TrimRight(LHost);
     LPort := TrimLeft(LPort);
-  end
-  else begin
-    LHost := '';    {Do not Localize}
-    LPort := '';    {Do not Localize}
-  end;//if
-  DoCheckHostPort(AThread, AHostPort,LHost,LPort);
+  end;
 
-  TIdTcpClient(AThread.OutboundClient).Host := LHost;
-  TIdTcpClient(AThread.OutboundClient).Port := IndyStrToInt(LPort,TIdTcpClient(AThread.OutboundClient).Port);
-End;//ExtractHostAndPortFromLine
+  DoCheckHostPort(AThread, AHostPort, LHost, LPort);
+
+  if Length(LHost) > 0 then begin
+    TIdTcpClient(AThread.OutboundClient).Host := LHost;
+  end;
+
+  if Length(LPort) > 0 then begin
+    TIdTcpClient(AThread.OutboundClient).Port := IndyStrToInt(LPort, TIdTcpClient(AThread.OutboundClient).Port);
+  end;
+end;
 
 procedure TIdMappedTelnetThread.OutboundConnect;
 var
   LHostPort: String;
 Begin
   //don`t call inherited, NEW behavior
-  FOutboundClient := TIdTCPClient.Create(NIL);
-  with TIdCustomMappedTelnet(Server) do begin
+  FOutboundClient := TIdTCPClient.Create(nil);
+  with TIdCustomMappedTelnet(Server) do
+  begin
     with TIdTcpClient(FOutboundClient) do begin
       Port := MappedPort;
       Host := MappedHost;
     end;//with
-    FAllowedConnectAttempts := TIdCustomMappedTelnet(Server).AllowedConnectAttempts;
+
+    Self.FAllowedConnectAttempts := AllowedConnectAttempts;
     DoLocalClientConnect(Self);
 
     repeat
@@ -194,38 +170,42 @@ Begin
       end;
       try
         LHostPort := Trim(Connection.IOHandler.InputLn); //~telnet input
-        ExtractHostAndPortFromLine(SELF,LHostPort);
+        ExtractHostAndPortFromLine(Self, LHostPort);
 
         if Length(TIdTcpClient(FOutboundClient).Host) < 1 then begin
           raise EIdException.Create(RSEmptyHost);
         end;
-        TIdTcpClient(FOutboundClient).ConnectTimeout := FConnectTimeOut;
-        TIdTcpClient(FOutboundClient).Connect;
+
+        with TIdTcpClient(FOutboundClient) do
+        begin
+          ConnectTimeout := Self.FConnectTimeOut;
+          Connect;
+         end;
       except
-        on E: Exception do begin // DONE: Handle connect failures
+        on E: Exception do // DONE: Handle connect failures
+        begin
           FNetData := 'ERROR: ['+E.ClassName+'] ' + E.Message;    {Do not Localize}
-          DoOutboundClientConnect(Self,E);//?DoException(AThread,E);
+          DoException(Self, E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
     until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);
 
     if FOutboundClient.Connected then begin
-      DoOutboundClientConnect(Self)
-    end
-    else begin
+      DoOutboundClientConnect(Self);
+    end else begin
       Connection.Disconnect; //prevent all next work
     end;
   end;//with
-End;//TIdMappedTelnet.OutboundConnect
+end;
 
 procedure TIdCustomMappedTelnet.SetAllowedConnectAttempts(const Value: Integer);
 Begin
   if Value >= 0 then begin
-    FAllowedConnectAttempts := Value
+    FAllowedConnectAttempts := Value;
   end else begin
     FAllowedConnectAttempts := -1; //unlimited
   end;
-End;//
+end;
 
 end.
