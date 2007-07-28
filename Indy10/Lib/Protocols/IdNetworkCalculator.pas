@@ -275,7 +275,7 @@ begin
     fNetworkClass := ID_NET_CLASS_C;
   end;
   // Network class D is reserved for multicast
-  if TextStartsWith(sBuffer, '1110', s) then begin   {Do not Localize}
+  if TextStartsWith(sBuffer, '1110') then begin   {Do not Localize}
     fNetworkClass := ID_NET_CLASS_D;
   end;
   // network class E is reserved and shouldn't be used    {Do not Localize}
@@ -351,7 +351,7 @@ end;
 
 { TIpProperty }
 
-procedure TIpProperty.Assign(Source: TIdPersistent);
+procedure TIpProperty.Assign(Source: TPersistent);
 begin
   if Source is TIpProperty then
   begin
