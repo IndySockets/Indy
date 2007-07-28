@@ -187,10 +187,6 @@ end;
 
 { TIdMappedFtpContext }
 
-type
-  TIdMappedPortTCPAccess = class(TIdMappedPortTCP)
-  end;
-
 constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
@@ -218,7 +214,7 @@ begin
   if not FOutboundClient.IOHandler.InputBufferIsEmpty then
   begin
     FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-    TIdMappedPortTCPAccess(Server).DoOutboundClientData(Self);
+    TIdMappedFTP(Server).DoOutboundClientData(Self);
     Connection.IOHandler.Write(FNetData);
   end;
   // FTP Client
@@ -230,10 +226,10 @@ begin
       FFtpParams := FNetData;
       FFtpCommand := UpperCase(Fetch(FFtpParams, ' ', True));    {Do not Localize}
       if ProcessFtpCommand then begin
-        TIdMappedPortTCPAccess(Server).DoLocalClientData(AContext); //bServer
+        TIdMappedFTP(Server).DoLocalClientData(AContext); //bServer
       end else
       begin
-        Server.DoLocalClientData(AContext); //bServer
+        TIdMappedFTP(Server).DoLocalClientData(AContext); //bServer
         FOutboundClient.IOHandler.WriteLn(FtpCmdLine); //send USRREQ to FtpServer
         ProcessDataCommand;
       end;
