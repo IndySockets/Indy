@@ -1027,7 +1027,7 @@ begin
     //before we read from the IOHandler.  If there is compression,
     //then we use the LM stream to hold the compressed data that was downloaded
     //and decompress it.  If no compression is used, LS will equal ContentStream
-    if Assigned(Compressor) then
+    if Assigned(Compressor) and Compressor.IsReady then
     begin
        if TextIsSame(Response.ContentEncoding, 'deflate') then begin  {do not localize}
          LDecMeth := 1;
@@ -1254,7 +1254,7 @@ begin
       end;
   end;
 
-  if Assigned(FCompressor) then begin
+  if Assigned(FCompressor) and FCompressor.IsReady then begin
     if (IndyPos('deflate',Request.AcceptEncoding)=0) and  {do not localize}
       (IndyPos('gzip',Request.AcceptEncoding)=0) then     {do not localize}
     begin
