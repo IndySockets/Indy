@@ -544,11 +544,7 @@ type
     procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True);
     // Not overloaded because it does not have a unique type for source
     // and could be easily unresolvable with future additions
-    function WriteFile(
-      const AFile: String;
-      AEnableTransferFile: Boolean = False
-      ): Int64;
-      virtual;
+    function WriteFile(const AFile: String; AEnableTransferFile: Boolean = False): Int64; virtual;
     //
     // Read methods
     //
@@ -634,7 +630,7 @@ type
     property MaxCapturedLines: Integer read FMaxCapturedLines write FMaxCapturedLines default Id_IOHandler_MaxCapturedLines;
     property Opened: Boolean read FOpened;
     property ReadTimeout: Integer read FReadTimeOut write FReadTimeOut default IdTimeoutDefault;
-    property ReadLnTimedout:boolean read fReadLnTimedout ;
+    property ReadLnTimedout: Boolean read FReadLnTimedout ;
     property WriteBufferThreshhold: Integer read FWriteBufferThreshhold;
     //
     // Events
@@ -1189,7 +1185,7 @@ end;
 
 procedure TIdIOHandler.WriteLnRFC(const AOut: string);
 begin
-  if (AOut <> '') and (AOut[1] = '.') then begin {do not localize}
+  if TextStartsWith(AOut, '.') then begin {do not localize}
     WriteLn('.' + AOut); {do not localize}
   end else begin
     WriteLn(AOut);
@@ -1613,10 +1609,13 @@ begin
   if not FileExists(AFile) then begin
     raise EIdFileNotFound.CreateFmt(RSFileNotFound, [AFile]);
   end;
-  LStream := TIdReadFileExclusiveStream.Create(AFile); try
+  LStream := TIdReadFileExclusiveStream.Create(AFile);
+  try
     Write(LStream);
     Result := LStream.Size;
-  finally FreeAndNil(LStream); end;
+  finally
+    FreeAndNil(LStream);
+  end;
 end;
 
 function TIdIOHandler.WriteBufferingActive: Boolean;
