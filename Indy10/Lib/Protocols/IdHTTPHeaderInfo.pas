@@ -567,7 +567,6 @@ end;
 procedure TIdRequestHeaderInfo.ProcessHeaders;
 var
   lRangeHdr: String;
-  lRangeVal: String;
 begin
   inherited ProcessHeaders;
 
