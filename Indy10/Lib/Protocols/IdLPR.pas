@@ -68,6 +68,7 @@ unit IdLPR;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -478,7 +479,7 @@ var
 begin
   Ret := IOHandler.ReadByte;
   if Ret <> $00 then begin
-    raise EIdLPRErrorException.Create(IndyFormat(RSLPRError, [Integer(Ret), JobID]));
+    raise EIdLPRErrorException.CreateFmt(RSLPRError, [Integer(Ret), JobID]);
   end;
 end;
 
