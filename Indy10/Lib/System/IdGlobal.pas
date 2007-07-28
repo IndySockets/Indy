@@ -979,7 +979,8 @@ procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex:
 function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1): Boolean; overload;
 function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = False): string; overload;
 function ReadStringFromStream(AStream: TStream; ASize: Integer = -1): string;
-procedure WriteStringToStream(AStream: TStream; const AStr: string);
+procedure WriteStringToStream(AStream: TStream; const AStr :string;
+  const ACount : Integer = -1; const AOffset : Integer = 1);
 function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
 {$IFDEF FPC}
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Int64): Int64;
@@ -3709,11 +3710,12 @@ begin
   TIdStreamHelper.Write(AStream, ABytes, ASize);
 end;
 
-procedure WriteStringToStream(AStream: TStream; const AStr :string);
+procedure WriteStringToStream(AStream: TStream; const AStr :string;
+  const ACount : Integer = -1; const AOffset : Integer = 1);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AStr <> '' then begin
-    TIdStreamHelper.Write(AStream, ToBytes(AStr));
+    TIdStreamHelper.Write(AStream, ToBytes(AStr),ACount,AOffset-1);
   end;
 end;
 
