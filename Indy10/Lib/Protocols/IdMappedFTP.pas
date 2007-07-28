@@ -79,6 +79,7 @@
 unit IdMappedFTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -96,6 +97,8 @@ type
     FHost, FoutboundHost: string; //local,remote(mapped)
     FPort, FoutboundPort: Integer;
     FDataChannelThread: TIdMappedFtpDataThread;
+    //
+    procedure CheckForData(DoRead: Boolean); override;
     //
     function GetFtpCmdLine: string; //Cmd+' '+Params    {Do not Localize}
     procedure CreateDataChannelThread;
@@ -115,8 +118,8 @@ type
 
     property Host: string read FHost write FHost;
     property OutboundHost: string read FOutboundHost write FOutboundHost;
-    property Port: Integer read FPort write FPort;
-    property OutboundPort: Integer read FOutboundPort write FOutboundPort;
+    property Port: TIdPort read FPort write FPort;
+    property OutboundPort: TIdPort read FOutboundPort write FOutboundPort;
 
     property DataChannelThread: TIdMappedFtpDataThread read FDataChannelThread;
   end;
@@ -127,7 +130,7 @@ type
     FConnection: TIdTcpConnection;
     FOutboundClient: TIdTCPConnection;
     FReadList: TIdSocketList;
-    FNetData: string;
+    FNetData: TIdBytes;
     //
     procedure BeforeRun; override;
     procedure Run; override;
@@ -138,7 +141,7 @@ type
     property MappedFtpThread: TIdMappedFtpContext read FMappedFtpThread;
     property Connection: TIdTcpConnection read FConnection; //local
     property OutboundClient: TIdTCPConnection read FOutboundClient; //remote(mapped)
-    property NetData: string read FNetData write FNetData;
+    property NetData: TIdBytes read FNetData write FNetData;
   end;
 
   TIdMappedFtpOutboundDcMode = (fdcmClient, fdcmPort, fdcmPasv);
@@ -147,7 +150,6 @@ type
   protected
     FOutboundDcMode: TIdMappedFtpOutboundDcMode;
 
-    function DoExecute(AContext:TIdContext): boolean; override;
     procedure InitComponent; override;
   published
     property DefaultPort default IdPORT_FTP;
@@ -161,8 +163,9 @@ type
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, IdIOHandlerSocket, IdException, IdResourceStringsProtocols,
-  IdTcpClient, IdSimpleServer, IdStackConsts, SysUtils;
+  IdGlobal, IdGlobalProtocols, IdIOHandlerSocket, IdException,
+  IdResourceStringsProtocols, IdTcpClient, IdSimpleServer, IdStackConsts,
+  SysUtils;
 
 const
   //  iLastGetCmd = 2;
@@ -175,80 +178,18 @@ const
 
 procedure TIdMappedFTP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   DefaultPort := IdPORT_FTP;
   MappedPort := IdPORT_FTP;
   FContextClass := TIdMappedFtpContext;
   FOutboundDcMode := fdcmClient;
 end;
 
-function TIdMappedFTP.DoExecute(AContext: TIdContext): Boolean;
-var
-  LConnectionHandle: TIdStackSocketHandle;
-  LOutBoundHandle: TIdStackSocketHandle;
-  LTmp : String;
-begin
-  Result := True;
-  try
-    //local client
-    LConnectionHandle := (AContext.Connection.IOHandler as TIdIOHandlerSocket).Binding.Handle;
-    //remote (mapped) server
-    LOutBoundHandle := (TIdMappedFtpContext(AContext).FOutboundClient.IOHandler as TIdIOHandlerSocket).Binding.Handle;
-    with TIdMappedFtpContext(AContext).FReadList do
-    begin
-      Clear;
-      Add(LConnectionHandle);
-      Add(LOutBoundHandle);
-
-      if TIdMappedFtpContext(AContext).FReadList.SelectRead(IdTimeoutInfinite) then
-      begin
-        if Contains(LOutBoundHandle) then
-        begin
-          repeat
-            TIdMappedFtpContext(AContext).FNetData :=
-              TIdMappedFtpContext(AContext).FOutboundClient.IOHandler.ReadLn; //Reply
-            if Length(TIdMappedFtpContext(AContext).FNetData) > 0 then
-            begin
-              DoOutboundClientData(AContext);
-              AContext.Connection.IOHandler.WriteLn(TIdMappedFtpContext(AContext).FNetData);
-            end;
-          until TIdMappedFtpContext(AContext).FOutboundClient.IOHandler.InputBufferIsEmpty;
-        end;
-        //FTP Client:
-        if Contains(LConnectionHandle) then
-        begin
-          repeat
-            TIdMappedFtpContext(AContext).FNetData := AContext.Connection.IOHandler.ReadLn;  //USeR REQuest
-            if Length(TIdMappedFtpContext(AContext).FNetData) > 0 then
-            begin
-              TIdMappedFtpContext(AContext).FFtpParams := TIdMappedFtpContext(AContext).FNetData;
-              LTmp := TIdMappedFtpContext(AContext).FFtpParams;
-              TIdMappedFtpContext(AContext).FFtpCommand := Fetch(LTmp, ' ', TRUE);    {Do not Localize}
-              TIdMappedFtpContext(AContext).FFtpParams := LTmp;
-              if TIdMappedFtpContext(AContext).ProcessFtpCommand then
-              begin
-                DoLocalClientData(AContext); //bServer
-              end
-              else
-              begin
-                DoLocalClientData(AContext); //bServer
-                TIdMappedFtpContext(AContext).FOutboundClient.IOHandler.WriteLn(TIdMappedFtpContext(AContext).FtpCmdLine); //send USRREQ to FtpServer
-                TIdMappedFtpContext(AContext).ProcessDataCommand;
-              end;
-            end;
-          until  AContext.Connection.IOHandler.InputBufferIsEmpty;
-        end;
-      end;
-    end;
-  finally
-    if not TIdMappedFtpContext(AContext).FOutboundClient.Connected then
-    begin
-      DoOutboundDisconnect(AContext);
-    end;
-  end;
-end;
-
 { TIdMappedFtpContext }
+
+type
+  TIdMappedPortTCPAccess = class(TIdMappedPortTCP)
+  end;
 
 constructor TIdMappedFtpContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
 begin
@@ -259,6 +200,47 @@ begin
   FoutboundPort := 0;
 end;
 
+procedure TIdMappedFtpContext.CheckForData(DoRead: Boolean);
+begin
+  if DoRead then
+  begin
+    if FReadList.SelectReadList(FDataAvailList, IdTimeoutInfinite) then
+    begin
+      if FDataAvailList.Contains(FOutboundClient.Socket.Binding.Handle) then begin
+        FOutboundClient.IOHandler.CheckForDataOnSource(0);
+      end;
+      if FDataAvailList.Contains(Connection.Socket.Binding.Handle) then begin
+        Connection.IOHandler.CheckForDataOnSource(0);
+      end;
+    end;        
+  end;
+  // FTP Server
+  if not FOutboundClient.IOHandler.InputBufferIsEmpty then
+  begin
+    FNetData := FOutboundClient.IOHandler.InputBufferAsString;
+    TIdMappedPortTCPAccess(Server).DoOutboundClientData(Self);
+    Connection.IOHandler.Write(FNetData);
+  end;
+  // FTP Client
+  while not Connection.IOHandler.InputBufferIsEmpty then
+  begin
+    FNetData := Connection.IOHandler.ReadLn;  //USeR REQuest
+    if Length(FNetData) > 0 then
+    begin
+      FFtpParams := FNetData;
+      FFtpCommand := UpperCase(Fetch(FFtpParams, ' ', True));    {Do not Localize}
+      if ProcessFtpCommand then begin
+        TIdMappedPortTCPAccess(Server).DoLocalClientData(AContext); //bServer
+      end else
+      begin
+        Server.DoLocalClientData(AContext); //bServer
+        FOutboundClient.IOHandler.WriteLn(FtpCmdLine); //send USRREQ to FtpServer
+        ProcessDataCommand;
+      end;
+    end;
+  end;
+end;
+
 procedure TIdMappedFtpContext.CreateDataChannelThread;
 begin
   FDataChannelThread := TIdMappedFtpDataThread.Create(Self);
@@ -267,7 +249,7 @@ end;
 
 procedure TIdMappedFtpContext.ProcessDataCommand;
 begin
-  if PosInStrArray(FFtpCommand, saDataCommands, False) > -1 then begin
+  if PosInStrArray(FFtpCommand, saDataCommands) > -1 then begin
     FDataChannelThread.Start;
   end;
 end;
@@ -281,11 +263,10 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
   begin
     //1.setup local
     LParm := FtpParams;
-    Host := '';    {Do not Localize}
-    Host := Host + Fetch(LParm, ',') + '.'; //h1    {Do not Localize}
-    Host := Host + Fetch(LParm, ',') + '.'; //h2    {Do not Localize}
-    Host := Host + Fetch(LParm, ',') + '.'; //h3    {Do not Localize}
-    Host := Host + Fetch(LParm, ','); //h4    {Do not Localize}
+    Host := Fetch(LParm, ',') + '.' + //h1    {Do not Localize}
+            Fetch(LParm, ',') + '.' + //h2    {Do not Localize}
+            Fetch(LParm, ',') + '.' + //h3    {Do not Localize}
+            Fetch(LParm, ',');        //h4    {Do not Localize}
 
     LLo := IndyStrToInt(Fetch(LParm, ',')); //p1    {Do not Localize}
     LHi := IndyStrToInt(LParm); //p2
@@ -312,7 +293,7 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
     LParm: string;
   begin
     //1.setup local
-    Host := TIdIOHandlerSocket(Connection.IOHandler).Binding.IP;
+    Host := Connection.Socket.Binding.IP;
 
     CreateDataChannelThread;
     DataChannelThread.FConnection := TIdSimpleServer.Create(nil);
@@ -324,9 +305,10 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
       BeginListen;
       Self.Host := Binding.IP;
       Self.Port := Binding.Port;
-      LParm := StringReplace(Self.Host, '.', ',',[rfReplaceAll]);    {Do not Localize}
-      LParm := LParm + ',' + IntToStr(Self.Port div 256) + ',' + IntToStr(Self.Port mod 256);    {Do not Localize}
     end;
+
+    LParm := StringReplace(Host, '.', ',',[rfReplaceAll]);    {Do not Localize}
+    LParm := LParm + ',' + IntToStr(Port div 256) + ',' + IntToStr(Port mod 256);    {Do not Localize}
 
     //2.setup remote (mapped)
     ProcessOutboundDc(True);
@@ -336,8 +318,6 @@ function TIdMappedFtpContext.ProcessFtpCommand: Boolean;
   end;
 
 begin
-  Result := False; //comamnd NOT processed
-  FFtpCommand := UpperCase(FFtpCommand);
   if FFtpCommand = 'PORT' then    {Do not Localize}
   begin
     ParsePort;
@@ -347,6 +327,8 @@ begin
   begin
     ParsePasv;
     Result := True;
+  end else begin
+    Result := False; //command NOT processed
   end;
 end;
 
@@ -356,7 +338,7 @@ var
 
   procedure SendPort;
   begin
-    OutboundHost := (OutboundClient.IOHandler as TIdIOHandlerSocket).Binding.IP;
+    OutboundHost := (OutboundClient.Socket.Binding.IP;
 
     DataChannelThread.FOutboundClient := TIdSimpleServer.Create(nil);
 
@@ -411,7 +393,7 @@ var
 
     with TIdTCPClient(DataChannelThread.FOutboundClient) do
     begin
-      Host := Self.FOutboundHost;
+      Host := Self.OutboundHost;
       Port := Self.OutboundPort;
     end;
   end;
@@ -427,12 +409,11 @@ begin
     end;
   end;
 
-  if Mode = fdcmPasv then
-  begin //PASV (IfFtp.pas)
+  if Mode = fdcmPasv then begin
+    //PASV (IfFtp.pas)
     SendPasv;
-  end
-  else
-  begin //PORT
+  end else begin
+    //PORT
     SendPort;
   end;
 end;
@@ -465,13 +446,15 @@ begin
   // TODO: check error. Send reply to client, send abort to server
 
   //1.Outbound PASV => connect
-  if FOutboundClient is TIdTCPClient then begin
+  if FOutboundClient is TIdTCPClient then
+  begin
     TIdTCPClient(FOutboundClient).Connect;
     TIdSimpleServer(FConnection).Listen;
   end
 
   //2.Local PORT => Connect
-  else if FOutboundClient is TIdSimpleServer then begin
+  else if FOutboundClient is TIdSimpleServer then
+  begin
     TIdTCPClient(FConnection).Connect;
     TIdSimpleServer(FOutboundClient).Listen;
   end;
@@ -514,9 +497,9 @@ begin
         begin
           if Contains(LConnectionHandle) then
           begin
-            Connection.IOHandler.CheckForDataOnSource;
-            FNetData := Connection.IOHandler.InputBufferAsString;
-            //CurrentReadBuffer;
+            Connection.IOHandler.CheckForDataOnSource(0);
+            SetLength(FNetData, 0)
+            Connection.IOHandler.InputBuffer.ExtractToBytes(FNetData);
             if Length(FNetData) > 0 then
             begin
               // TODO: DoLocalClientData(TIdMappedPortThread(AThread));//bServer
@@ -525,9 +508,9 @@ begin
           end;
           if Contains(LOutBoundHandle) then
           begin
-            Connection.IOHandler.CheckForDataOnSource;
-            FNetData := FOutboundClient.IOHandler.InputBufferAsString;
-            //CurrentReadBuffer;
+            Connection.IOHandler.CheckForDataOnSource(0);
+            SetLength(FNetData, 0);
+            FOutboundClient.IOHandler.InputBuffer.ExtractToBytes(FNetData);
             if Length(FNetData) > 0 then
             begin
               // TODO: DoOutboundClientData(TIdMappedPortThread(AThread));
@@ -543,7 +526,6 @@ begin
         FConnection.Disconnect; //disconnect local
         Stop;
       end;
-
       if not FConnection.Connected then
       begin
         // TODO: ^^^
