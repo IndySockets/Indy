@@ -27,14 +27,16 @@
 unit IdSASLAnonymous;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdSASL, IdTCPConnection;
 
 {
-  Implements RFC 2245
-  Anonymous SASL Mechanism
-  Oxymoron if you ask me :-).
+Implements RFC 2245
+Anonymous SASL Mechanism
+Oxymoron if you ask me :-).
 }
 
 type
@@ -43,6 +45,7 @@ type
     FTraceInfo : String;
     procedure InitComponent; override;
   public
+    function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
     function StartAuthenticate(const AChallenge: String): String; override;
   published
@@ -60,13 +63,17 @@ begin
                          // newsgroup for good measure
 end;
 
+function TIdSASLAnonymous.IsReadyToStart: Boolean;
+begin
+  Result := (TraceInfo <> '');
+end;
+
 class function TIdSASLAnonymous.ServiceName: TIdSASLServiceName;
 begin
   Result := 'ANONYMOUS';   {Do not translate}
 end;
 
-function TIdSASLAnonymous.StartAuthenticate(
-  const AChallenge: String): String;
+function TIdSASLAnonymous.StartAuthenticate(const AChallenge: String): String;
 begin
   Result := TraceInfo;
 end;

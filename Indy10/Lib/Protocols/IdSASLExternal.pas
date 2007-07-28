@@ -25,7 +25,9 @@
 unit IdSASLExternal;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdSASL, IdTCPConnection;
 
@@ -40,9 +42,9 @@ type
     FAuthIdentity: String;
     procedure InitComponent; override;
   public
+    function IsReadyToStart: Boolean; override;
     class function ServiceName: TIdSASLServiceName; override;
     function StartAuthenticate(const AChallenge: String): String; override;
-
   published
     property AuthorizationIdentity : String read FAuthIdentity write FAuthIdentity;
   end;
@@ -55,6 +57,11 @@ procedure TIdSASLExternal.InitComponent;
 begin
   inherited;
   FSecurityLevel := 0; // unknown, depends on what the server does
+end;
+
+function TIdSASLExternal.IsReadyToStart: Boolean;
+begin
+  Result := (AuthorizationIdentity <> '');
 end;
 
 class function TIdSASLExternal.ServiceName: TIdSASLServiceName;
