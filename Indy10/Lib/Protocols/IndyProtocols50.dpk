@@ -239,6 +239,7 @@ contains
   IdUserAccounts in 'IdUserAccounts.pas',
   IdUserPassProvider in 'IdUserPassProvider.pas',
   IdVCard in 'IdVCard.pas',
+  IdWebDAV in 'IdWebDAV.pas',
   IdWhoIsServer in 'IdWhoIsServer.pas',
   IdWhois in 'IdWhois.pas',
   IdZLib in 'IdZLib.pas',
