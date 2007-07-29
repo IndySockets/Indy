@@ -801,6 +801,7 @@ Indy10/Lib/Core/IdRawBase.pas -text
 Indy10/Lib/Core/IdRawClient.pas -text
 Indy10/Lib/Core/IdRawFunctions.pas -text
 Indy10/Lib/Core/IdRawHeaders.pas -text
+Indy10/Lib/Core/IdRegisterCore.lrs -text
 Indy10/Lib/Core/IdRegisterCore.pas -text
 Indy10/Lib/Core/IdReply.pas -text
 Indy10/Lib/Core/IdReplyRFC.pas -text
@@ -1257,6 +1258,7 @@ Indy10/Lib/Protocols/IdQotdServer.pas -text
 Indy10/Lib/Protocols/IdRSH.pas -text
 Indy10/Lib/Protocols/IdRSHServer.pas -text
 Indy10/Lib/Protocols/IdRegister.dcr -text svneol=unset#unset
+Indy10/Lib/Protocols/IdRegister.lrs -text
 Indy10/Lib/Protocols/IdRegister.pas -text
 Indy10/Lib/Protocols/IdRegisterCool.dcr -text svneol=unset#unset
 Indy10/Lib/Protocols/IdRemoteCMDClient.pas -text
