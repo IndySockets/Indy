@@ -666,6 +666,7 @@ Indy10/Builder/UnitAliaser.exe -text svneol=unset#unset
 Indy10/Builder/UnitAliaser.ini -text
 Indy10/Builder/VersionMarker.exe -text svneol=unset#unset
 Indy10/Builder/VersionMarker.ini -text
+Indy10/Builder/VersionMarker/Data/FreeBSDMakefile -text
 Indy10/Builder/VersionMarker/Data/IdAssemblyInfo.pas -text
 Indy10/Builder/VersionMarker/Data/IdCore90ASM90.inc -text
 Indy10/Builder/VersionMarker/Data/IdProtocols90ASM90.inc -text
