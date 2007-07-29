@@ -479,16 +479,18 @@ uses
   {$R IconsDotNet\TIdTrivialFTPServer.bmp}
   {$R IconsDotNet\TIdTunnelMaster.bmp}
   {$R IconsDotNet\TIdTunnelSlave.bmp}
-  {$R IconsDotNet\TIdUserAccounts.bmp}
-  {$R IconsDotNet\TIdUserManager.bmp}
-  {$R IconsDotNet\TIdUserPassProvider.bmp}
-  {$R IconsDotNet\TIdVCard.bmp}
-  {$R IconsDotNet\TIdWhois.bmp}
-  {$R IconsDotNet\TIdWhoIsServer.bmp}
   {$R IconsDotNet\TIdUnixTime.bmp}
   {$R IconsDotNet\TIdUnixTimeServer.bmp}
   {$R IconsDotNet\TIdUnixTimeUDP.bmp}
   {$R IconsDotNet\TIdUnixTimeUDPServer.bmp}
+  {$R IconsDotNet\TIdUserAccounts.bmp}
+  {$R IconsDotNet\TIdUserManager.bmp}
+  {$R IconsDotNet\TIdUserPassProvider.bmp}
+  {$R IconsDotNet\TIdWebDav.bmp}
+  {$R IconsDotNet\TIdVCard.bmp}
+  {$R IconsDotNet\TIdWhois.bmp}
+  {$R IconsDotNet\TIdWhoIsServer.bmp}
+
 {$ELSE}
   {$IFNDEF FPC}
     {$IFDEF BORLAND}
