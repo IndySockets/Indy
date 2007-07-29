@@ -318,10 +318,10 @@ uses
   IdTimeServer,
   IdTimeUDP,
   IdTimeUDPServer,
-  {$IFNDEF DOTNET}
+
   IdTrivialFTP,
   IdTrivialFTPServer,
-  {$ENDIF}
+
   //TODO:  IdTunnelMaster,
   //TODO:  IdTunnelSlave,
   IdUnixTime,
@@ -330,9 +330,8 @@ uses
   IdUnixTimeUDPServer,
   IdUserAccounts,
   IdUserPassProvider,
-  {.$IFNDEF DOTNET}
   IdVCard,
-  {.$ENDIF}
+  IdWebDAV,
   IdWhois,
   IdWhoIsServer;
 
@@ -553,6 +552,7 @@ begin
    {$ENDIF}
    TIdUnixTime,
    TIdUnixTimeUDP,
+   TIdWebDAV,
    TIdWhois]);
 
   RegisterComponents(RSRegIndyServers, [
@@ -606,6 +606,7 @@ begin
    {$ENDIF}
    TIdUnixTimeServer,
    TIdUnixTimeUDPServer,
+   TIdWebDAV,
    TIdWhoIsServer
    ]);
 
