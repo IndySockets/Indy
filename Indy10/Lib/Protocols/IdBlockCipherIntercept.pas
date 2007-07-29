@@ -84,7 +84,7 @@ implementation
 
 uses
   IdResourceStrings,
-  IdSys;
+  SysUtils;
 
 const
   bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
@@ -172,7 +172,7 @@ Begin
       CopyTIdBytes(FIncoming, LCount * FBlockSize, LBlock, 0, FBlockSize);
       Decrypt(LBlock);
       if (LBlock[LMaxDataSize] = 0) or (LBlock[LMaxDataSize] >= FBlockSize) then begin
-        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength + ' (' + Sys.IntToStr(LBlock[LMaxDataSize]) + ')');
+        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength + ' (' + IntToStr(LBlock[LMaxDataSize]) + ')');
       end;
       CopyTIdBytes(LBlock, 0, VBuffer, LPos, LBlock[LMaxDataSize]);
       Inc(LPos, LBlock[LMaxDataSize]);
