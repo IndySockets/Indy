@@ -68,20 +68,28 @@ uses
 
 {$I ..\Core\IdCompilerDefines.inc}
 
-{$IFDEF Borland}
-  {$R IdSuperCoreRegister.dcr}
+{$IFDEF DOTNET}
+  {$R IconsDotNet\TIdChainEngine.bmp}
+  {$R IconsDotNet\TIdFiberWeaverInline.bmp}
+  {$R IconsDotNet\TIdFiberWeaverThreaded.bmp}
+  {$R IconsDotNet\TIdSchedulerOfFiber.bmp}
+  {$R IconsDotNet\TIdServerIOHandlerChain.bmp}
 {$ELSE}
-  {$R IdSuperCoreRegisterCool.dcr}
+  {$IFDEF Borland}
+    {$R IdSuperCoreRegister.dcr}
+  {$ELSE}
+    {$R IdSuperCoreRegisterCool.dcr}
+  {$ENDIF}
 {$ENDIF}
 
 procedure Register;
 begin
   RegisterComponents('Indy Super Core',  {do not localize}
-  [ TIdServerIOHandlerChain,
-    TIdChainEngine,
-    TIdSchedulerOfFiber,
+  [ TIdChainEngine,
     TIdFiberWeaverInline,
-    TIdFiberWeaverThreaded
+    TIdFiberWeaverThreaded,
+    TIdSchedulerOfFiber,
+    TIdServerIOHandlerChain
    ]);
 end;
 
