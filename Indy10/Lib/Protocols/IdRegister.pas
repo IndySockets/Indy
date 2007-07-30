@@ -199,10 +199,11 @@ uses
   {$IFDEF FPC}
   LResources,
   {$ENDIF}
-  //TODO:  IdBlockCipherIntercept,
+  IdBlockCipherIntercept,
   IdChargenServer,
   IdChargenUDPServer,
   IdCoder3to4,
+  IdCoderBinHex4,
   IdCoderMIME,
   IdCoderQuotedPrintable,
   IdCoderUUE,
@@ -223,11 +224,9 @@ uses
   IdDICTServer,
   IdDiscardServer,
   IdDiscardUDPServer,
-  {/$IFNDEF DOTNET}
   IdDsnRegister,
   IdDNSResolver,
   IdDNSServer,
-  {/$ENDIF}
   IdDsnCoreResourceStrings,
   IdEcho,
   IdEchoServer,
@@ -262,10 +261,8 @@ uses
   IdMappedPortUDP,
   IdMessage,
   IdMessageCoderMIME,
-  {.$IFNDEF DOTNET}
   IdMessageCoderYenc,
   IdNetworkCalculator,
-  {.$ENDIF}
   IdNNTP,
   IdNNTPServer,
   IdPOP3,
@@ -291,9 +288,7 @@ uses
   IdServerInterceptLogEvent,
   IdServerInterceptLogFile,
   IdSMTP,
-  {$IFNDEF DOTNET}
   IdSMTPRelay,
-  {$ENDIF}
   IdSMTPServer,
   {$IFNDEF DOTNET}
   IdSNMP,
@@ -344,6 +339,7 @@ uses
   {$R IconsDotNet\TIdDayTimeServer.bmp}
   {$R IconsDotNet\TIdDayTimeUDP.bmp}
   {$R IconsDotNet\TIdDayTimeUDPServer.bmp}
+  {$R IconsDotNET\TIdDecoderBinHex4.bmp}  
   {$R IconsDotNet\TIdDecoderMIME.bmp}
   {$R IconsDotNet\TIdDecoderQuotedPrintable.bmp}
   {$R IconsDotNet\TIdDecoderUUE.bmp}
@@ -358,6 +354,7 @@ uses
   {$R IconsDotNet\TIdECHOServer.bmp}
   {$R IconsDotNet\TIdEchoUDP.bmp}
   {$R IconsDotNet\TIdEchoUDPServer.bmp}
+  {$R IconsDotNet\TIdEncoderBinHex4.bmp}
   {$R IconsDotNet\TIdEncoderMIME.bmp}
   {$R IconsDotNet\TIdEncoderQuotedPrintable.bmp}
   {$R IconsDotNet\TIdEncoderUUE.bmp}
@@ -405,7 +402,6 @@ uses
   {$R IconsDotNet\TIdQOTDServer.bmp}
   {$R IconsDotNet\TIdQOTDUDP.bmp}
   {$R IconsDotNet\TIdQotdUDPServer.bmp}
-  {$R IconsDotNet\TIdRawClient.bmp}
   {$R IconsDotNet\TIdRexec.bmp}
   {$R IconsDotNet\TIdRexecServer.bmp}
   {$R IconsDotNet\TIdRSH.bmp}
@@ -427,7 +423,6 @@ uses
   {$R IconsDotNet\TIdSMTP.bmp}
   {$R IconsDotNet\TIdSMTPRelay.bmp}
   {$R IconsDotNet\TIdSMTPServer.bmp}
-  {$R IconsDotNet\TIdSNMP.bmp}
   {$R IconsDotNet\TIdSNPP.bmp}
   {$R IconsDotNet\TIdSNTP.bmp}
   {$R IconsDotNet\TIdSocksInfo.bmp}
@@ -468,14 +463,6 @@ uses
   {$ENDIF}
 {$ENDIF}
 
-{$IFDEF FPC}
-resourcestring
-  RSProt = ' Protocols ';
-  RSMappedPort = ' Mapped Port';
-  RSEncoder = ' Encoder';
-  RSDecoder = ' Decoder';
-{$ENDIF}
-
 procedure Register;
 begin
   {$IFNDEF FPC}
@@ -502,21 +489,20 @@ begin
    TIdRexec,
    TIdRSH,
    TIdSMTP,
-   {$IFNDEF DOTNET}
    TIdSMTPRelay,
+   {$IFNDEF DOTNET}
    TIdSNMP,
+   {$ENDIF}
    TIdSNPP,
    TIdSNTP,
-   {$ENDIF}
+
    TIdSysLog,
    TIdSystat,
    TIdSystatUDP,
    TIdTelnet,
    TIdTime,
    TIdTimeUDP,
-   {$IFNDEF DOTNET}
    TIdTrivialFTP,
-   {$ENDIF}
    TIdUnixTime,
    TIdUnixTimeUDP,
    TIdWebDAV,
@@ -530,9 +516,7 @@ begin
    TIdDICTServer,
    TIdDISCARDServer,
    TIdDiscardUDPServer,
-   {$IFNDEF DOTNET}
    TIdDNSServer,
-   {$ENDIF}
    TIdECHOServer,
    TIdEchoUDPServer,
    TIdFingerServer,
@@ -543,13 +527,11 @@ begin
    TIdIdentServer,
    TIdIMAP4Server,
    TIdIRCServer,
-   {$IFNDEF DOTNET}
    TIdMappedFTP,
    TIdMappedPOP3,
    TIdMappedPortTCP,
    TIdMappedPortUDP,
    TIdMappedTelnet,
-   {$ENDIF}
    TIdNNTPServer,
    TIdPOP3Server,
    TIdQOTDServer,
@@ -563,11 +545,9 @@ begin
    TIdTelnetServer,
    TIdTimeServer,
    TIdTimeUDPServer,
-   {$IFNDEF DOTNET}
    TIdTrivialFTPServer,
    //TODO:  TIdTunnelMaster,
    //TODO: TIdTunnelSlave,
-   {$ENDIF}
    TIdUnixTimeServer,
    TIdUnixTimeUDPServer,
    TIdWebDAV,
@@ -575,12 +555,11 @@ begin
    ]);
 
   RegisterComponents(RSRegIndyIntercepts, [
+   TIdBlockCipherIntercept,
    {$IFDEF USEZLIB}
    TIdCompressionIntercept,
-   {$ENDIF}
-   //TODO:   TIdBlockCipherIntercept,
-   //TODO:   TIdCompressionIntercept,
-   //TODO:   TIdServerCompressionIntercept,
+   TIdServerCompressionIntercept,
+    {$ENDIF}
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
@@ -609,6 +588,7 @@ begin
    TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,
+   TIdEncoderBinHex4,
    TIdEncoderMIME,
    TIdEncoderUUE,
    TIdEncoderXXE,
@@ -616,6 +596,7 @@ begin
    {$IFNDEF DOTNET}
    TIdDateTimeStamp,
    {$ENDIF}
+   TIdDecoderBinHex4,
    TIdDecoderMIME,
    TIdDecoderUUE,
    TIdDecoderXXE,
@@ -627,11 +608,9 @@ begin
    TIdMessage,
    TIdMessageDecoderMIME,
    TIdMessageEncoderMIME,
-   {.$IFNDEF DOTNET}
    TIdMessageDecoderYenc,
    TIdMessageEncoderYenc,
    TIdNetworkCalculator,
-   {.$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
    TIdVCard
@@ -640,7 +619,7 @@ begin
   {$ELSE}
 
   //FreePascal Lazarus Registration
-  RegisterComponents(RSRegIndyClients+ RSProt+'(a-m)', [
+  RegisterComponents(RSRegIndyClients+ RSProtam, [
    //
    TIdDayTime,
    TIdDayTimeUDP,
@@ -658,7 +637,7 @@ begin
    TIdIRC,
    TIdLPR]);
 
-  RegisterComponents(RSRegIndyClients+RSProt+ '(n-z)', [
+  RegisterComponents(RSRegIndyClients+RSProtnz, [
    TIdNNTP,
    TIdPOP3,
    TIdQOTD,
@@ -681,7 +660,7 @@ begin
    TIdUnixTimeUDP,
    TIdWhois]);
 
-  RegisterComponents(RSRegIndyServers+RSProt+ '(a-m)', [
+  RegisterComponents(RSRegIndyServers+RSProtam, [
    TIdChargenServer,
    TIdChargenUDPServer,
    TIdDayTimeServer,
@@ -701,7 +680,7 @@ begin
    TIdIMAP4Server,
    TIdIRCServer]);
 
-  RegisterComponents(RSRegIndyServers+RSProt+ '(n-z)', [
+  RegisterComponents(RSRegIndyServers+RSProtnz, [
    TIdNNTPServer,
    TIdPOP3Server,
    TIdQOTDServer,
@@ -723,10 +702,6 @@ begin
    TIdUnixTimeUDPServer,
    TIdWhoIsServer]);
 
-//  RegisterComponents(RSRegIndyServers, [
-//   TIdFTPServer
-//   ]);
-
   RegisterComponents(RSRegIndyServers+RSMappedPort,[
    TIdMappedFTP,
    TIdMappedPOP3,
@@ -738,9 +713,11 @@ begin
    {$IFDEF USEZLIB}
    TIdCompressionIntercept,
    {$ENDIF}
-   //TODO:   TIdBlockCipherIntercept,
-   //TODO:   TIdCompressionIntercept,
-   //TODO:   TIdServerCompressionIntercept,
+   TIdBlockCipherIntercept,
+   TIdCompressionIntercept,
+   {$IFDEF USEZLIB}
+   TIdServerCompressionIntercept,
+   {$ENDIF}
    TIdServerInterceptLogEvent,
    TIdServerInterceptLogFile
    ]);
@@ -769,25 +746,19 @@ begin
    TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,
-   {$IFNDEF DOTNET}
    TIdDateTimeStamp,
-   {$ENDIF}
 
    TIdIPWatch,
    TIdIPAddrMon,
    //TIdHL7,
    TIdMailBox,
    TIdMessage,
-   {$IFNDEF DOTNET}
    TIdNetworkCalculator,
-   {$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
    TIdVCard
    ]);
 
-   // RSEncoder = ' Encoder';
-   // RSDecoder = ' Decoder';
   RegisterComponents(RSRegIndyMisc+RSProt + RSEncoder, [
    TIdEncoderMIME,
    TIdEncoderUUE,
