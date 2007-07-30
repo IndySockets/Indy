@@ -24,6 +24,9 @@ unit IdDsnResourceStrings;
 { This is only for resource strings that appear in the design-time editors in the main Indy package }
 
 interface
+//Here just so we can IFDEF some things for a Lazarus Workaround
+//This should make things a little easier for GNU Make.
+{$I IdCompilerDefines.inc}
 
 resourcestring
   {Binding Editor stuff}
@@ -49,6 +52,15 @@ resourcestring
   RSADlgSLAssigned = 'A&ssigned (tried in order listed)';
   {Note that the Ampersand indicates an ALT keyboard sequence}
   RSADlgSLEditList = 'Edit &List';
+{$IFDEF FPC}
+  //This is part of a workaround for the Lazarus IDE Toolbar being
+  //unable to scroll.
+  RSProtam = ' Protocols (am)';
+  RSProtnz = ' Protocols (nz)';
+  RSMappedPort = ' Mapped Port';
+  RSEncoder = ' Encoder';
+  RSDecoder = ' Decoder';
+{$ENDIF}
 
 implementation
 
