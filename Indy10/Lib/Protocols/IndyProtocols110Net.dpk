@@ -40,6 +40,7 @@ contains
   IdAuthentication in 'IdAuthentication.pas',
   IdAuthenticationDigest in 'IdAuthenticationDigest.pas',
   IdAuthenticationManager in 'IdAuthenticationManager.pas',
+  IdBlockCipherIntercept in 'IdBlockCipherIntercept.pas',
   IdChargenServer in 'IdChargenServer.pas',
   IdChargenUDPServer in 'IdChargenUDPServer.pas',
   IdCharsets in 'IdCharsets.pas',
