@@ -414,8 +414,8 @@ type
     property OnReceiveError: TReceiveErrorEvent Read FOnReceiveError Write FOnReceiveError;
   end;
 
-resourcestring
-  KdeVersionMark = {!!uv}'!-!IdHL7.pas,0.00-011,08 Mar 02 17:59,12259';
+//resourcestring
+//  KdeVersionMark = {!!uv}'!-!IdHL7.pas,0.00-011,08 Mar 02 17:59,12259';
 
 implementation
 
