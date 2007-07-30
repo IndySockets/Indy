@@ -42,8 +42,6 @@ contains
   IdStackLinux in 'IdStackLinux.pas',
   IdStream in 'IdStream.pas',
   IdStreamVCL in 'IdStreamVCL.pas',
-  IdStruct in 'IdStruct.pas',
-  IdSys in 'IdSys.pas',
-  IdSysBase in 'IdSysBase.pas';
+  IdStruct in 'IdStruct.pas';
 
 end.

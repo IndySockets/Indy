@@ -1,7 +1,6 @@
 package IndySystem110;
 
 {$R *.res}
-{$ALIGN 8}
 {$ASSERTIONS ON}
 {$BOOLEVAL OFF}
 {$DEBUGINFO ON}
@@ -32,6 +31,7 @@ requires
 contains
   IdAntiFreezeBase in 'IdAntiFreezeBase.pas',
   IdBaseComponent in 'IdBaseComponent.pas',
+  IdCTypes in 'IdCTypes.pas',
   IdComponent in 'IdComponent.pas',
   IdException in 'IdException.pas',
   IdGlobal in 'IdGlobal.pas',
@@ -41,11 +41,8 @@ contains
   IdStackConsts in 'IdStackConsts.pas',
   IdStackWindows in 'IdStackWindows.pas',
   IdStream in 'IdStream.pas',
-  IdStreamRandomAccess in 'IdStreamRandomAccess.pas',
   IdStreamVCL in 'IdStreamVCL.pas',
-  IdStreamVCLBase in 'IdStreamVCLBase.pas',
-  IdStreamVCLWin32 in 'IdStreamVCLWin32.pas',
-  IdTStrings in 'IdTStrings.pas',
+  IdStruct in 'IdStruct.pas',
   IdWinsock2 in 'IdWinsock2.pas',
   IdWship6 in 'IdWship6.pas';
 
