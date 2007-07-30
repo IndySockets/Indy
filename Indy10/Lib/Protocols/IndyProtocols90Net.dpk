@@ -26,7 +26,6 @@ package IndyProtocols90Net;
 {$IMPLICITBUILD OFF}
 
 requires
-  System.Windows.Forms,
   Borland.Delphi,
   Borland.VclRtl,
   IndySystem90Net,
@@ -129,6 +128,9 @@ contains
   IdGopher in 'IdGopher.pas',
   IdGopherConsts in 'IdGopherConsts.pas',
   IdGopherServer in 'IdGopherServer.pas',
+  IdHMAC in 'IdHMAC.pas',
+  IdHMACMD5 in 'IdHMACMD5.pas',
+  IdHMACSHA1 in 'IdHMACSHA1.pas',
   IdHTTP in 'IdHTTP.pas',
   IdHTTPHeaderInfo in 'IdHTTPHeaderInfo.pas',
   IdHTTPProxyServer in 'IdHTTPProxyServer.pas',
@@ -203,6 +205,7 @@ contains
   IdSMTPRelay in 'IdSMTPRelay.pas',
   IdSMTPServer in 'IdSMTPServer.pas',
   IdSNPP in 'IdSNPP.pas',
+  IdSNTP in 'IdSNTP.pas',
   IdSSL in 'IdSSL.pas',
   IdServerInterceptLogBase in 'IdServerInterceptLogBase.pas',
   IdServerInterceptLogEvent in 'IdServerInterceptLogEvent.pas',
@@ -233,6 +236,7 @@ contains
   IdUserAccounts in 'IdUserAccounts.pas',
   IdUserPassProvider in 'IdUserPassProvider.pas',
   IdVCard in 'IdVCard.pas',
+  IdWebDAV in 'IdWebDAV.pas',
   IdWhoIsServer in 'IdWhoIsServer.pas',
   IdWhois in 'IdWhois.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas';
