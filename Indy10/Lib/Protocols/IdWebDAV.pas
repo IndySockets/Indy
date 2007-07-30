@@ -76,13 +76,7 @@ type
   end;
 
 implementation
-uses SysUtils;
-{todo place somewhere else?
-procedure Register;
-begin
-  RegisterComponents('Indy Clients', [TIdWebDAV]);
-end;
-}
+uses IdGlobal, SysUtils;
 
 procedure TIdWebDAV.DAVProppatch(const AURL:string;const XMLQuery,AResponseContent:TStream;const Depth:string);
 begin
@@ -181,7 +175,7 @@ begin
       try
         s:=('<?xml version="1.0" encoding="utf-8" ?><propertyupdate xmlns:D="DAV:"><set><prop>'
          +'<comment>'+AComment+'</comment></set></set></propertyupdate>');
-        xml.write(s[1], length(s));
+        WriteStringToStream(xml,s);
         DoRequest(Id_HTTPMethodPropPatch, AURL, xml, Nil, []);
       finally
         xml.free;
@@ -201,7 +195,7 @@ begin
       try
         s:=('<?xml version="1.0" encoding="utf-8" ?><propertyupdate xmlns:D="DAV:"><set><prop>'
          +'<comment>'+AComment+'</comment></set></set></propertyupdate>');
-        xml.write(s[1], length(s));
+        WriteStringToStream(xml,s);
         DoRequest(Id_HTTPMethodPropPatch, AURL, xml, Nil, []);
       finally
         xml.free;
