@@ -223,11 +223,11 @@ uses
   IdDICTServer,
   IdDiscardServer,
   IdDiscardUDPServer,
-  {$IFNDEF DOTNET}
+  {/$IFNDEF DOTNET}
   IdDsnRegister,
   IdDNSResolver,
   IdDNSServer,
-  {$ENDIF}
+  {/$ENDIF}
   IdDsnCoreResourceStrings,
   IdEcho,
   IdEchoServer,
@@ -262,10 +262,10 @@ uses
   IdMappedPortUDP,
   IdMessage,
   IdMessageCoderMIME,
-  {$IFNDEF DOTNET}
+  {.$IFNDEF DOTNET}
   IdMessageCoderYenc,
   IdNetworkCalculator,
-  {$ENDIF}
+  {.$ENDIF}
   IdNNTP,
   IdNNTPServer,
   IdPOP3,
@@ -297,12 +297,10 @@ uses
   IdSMTPServer,
   {$IFNDEF DOTNET}
   IdSNMP,
+  {$ENDIF}
   IdSNPP,
   IdSNTP,
-  IdSocksServer,
-  {$ENDIF}
   {$IFDEF USEOPENSSL}
-  //something else may have to be done about OpenSSL
   IdSSLOpenSSL,
   {$ENDIF}
   IdSysLog,
@@ -336,18 +334,9 @@ uses
   IdWhoIsServer;
 
 {$IFDEF DOTNET}
-  {$R IconsDotNet\TIdBinHex40Decoder.bmp}
-  {$R IconsDotNet\TIdBinHex40Encoder.bmp}
   {$R IconsDotNet\TIdBlockCipherIntercept.bmp}
-  {$R IconsDotNet\TIdChainEngine.bmp}
   {$R IconsDotNet\TIdChargenServer.bmp}
   {$R IconsDotNet\TIdChargenUDPServer.bmp}
-  {$R IconsDotNet\TIdCoderMD2.bmp}
-  {$R IconsDotNet\TIdCoderMD4.bmp}
-  {$R IconsDotNet\TIdCoderMD5.bmp}
-  {$R IconsDotNet\TIdCompressionIntercept.bmp}
-  {$R IconsDotNet\TIdCompressorBorZLib.bmp}
-  {$R IconsDotNet\TIdConnectionInterceptOpenSSL.bmp}
   {$R IconsDotNet\TIdConnectThroughHttpProxy.bmp}
   {$R IconsDotNet\TIdCookieManager.bmp}
   {$R IconsDotNet\TIdDateTimeStamp.bmp}
@@ -373,17 +362,13 @@ uses
   {$R IconsDotNet\TIdEncoderQuotedPrintable.bmp}
   {$R IconsDotNet\TIdEncoderUUE.bmp}
   {$R IconsDotNet\TIdEncoderXXE.bmp}
-  {$R IconsDotNet\TIdFiberWeaverInline.bmp}
-  {$R IconsDotNet\TIdFiberWeaverThreaded.bmp}
   {$R IconsDotNet\TIdFinger.bmp}
   {$R IconsDotNet\TIdFingerServer.bmp}
   {$R IconsDotNet\TIdFTP.bmp}
   {$R IconsDotNet\TIdFSP.bmp}
-  {$R IconsDotNet\TIdFTPFileSystem.bmp}
   {$R IconsDotNet\TIdFTPServer.bmp}
   {$R IconsDotNet\TIdGopher.bmp}
   {$R IconsDotNet\TIdGopherServer.bmp}
-  {$R IconsDotNet\TIdHL7.bmp}
   {$R IconsDotNet\TIdHostnameServer.bmp}
   {$R IconsDotNet\TIdHTTP.bmp}
   {$R IconsDotNet\TIdHTTPProxyServer.bmp}
@@ -392,8 +377,6 @@ uses
   {$R IconsDotNet\TIdIdentServer.bmp}
   {$R IconsDotNet\TIdIMAP4.bmp}
   {$R IconsDotNet\TIdIMAP4Server.bmp}
-  {$R IconsDotNet\TIdIMFDecoder.bmp}
-  {$R IconsDotNet\TIdIMFEncoder.bmp}
   {$R IconsDotNet\TIdIOHandlerChain.bmp}
   {$R IconsDotNet\TIdIOHandlerSocket.bmp}
   {$R IconsDotNet\TIdIOHandlerThrottle.bmp}
@@ -408,8 +391,6 @@ uses
   {$R IconsDotNet\TIdMappedPortTCP.bmp}
   {$R IconsDotNet\TIdMappedPortUDP.bmp}
   {$R IconsDotNet\TIdMappedTelnet.bmp}
-  {$R IconsDotNet\TIdMBCSDecoder.bmp}
-  {$R IconsDotNet\TIdMBCSEncoder.bmp}
   {$R IconsDotNet\TIdMessage.bmp}
   {$R IconsDotNet\TIdMessageDecoderMIME.bmp}
   {$R IconsDotNet\TIdMessageDecoderYENC.bmp}
@@ -427,8 +408,6 @@ uses
   {$R IconsDotNet\TIdRawClient.bmp}
   {$R IconsDotNet\TIdRexec.bmp}
   {$R IconsDotNet\TIdRexecServer.bmp}
-  {$R IconsDotNet\TIdRLECompress.bmp}
-  {$R IconsDotNet\TIdRLEDecompress.bmp}
   {$R IconsDotNet\TIdRSH.bmp}
   {$R IconsDotNet\TIdRSHServer.bmp}
   {$R IconsDotNet\TIdSASL.bmp}
@@ -440,15 +419,10 @@ uses
   {$R IconsDotNet\TIdSASLOTP.bmp}
   {$R IconsDotNet\TIdSASLPlain.bmp}
   {$R IconsDotNet\TIdSASLSKey.bmp}
-  {$R IconsDotNet\TIdSchedulerOfFiber.bmp}
   {$R IconsDotNet\TIdServerCompressionIntercept.bmp}
   {$R IconsDotNet\TIdServerInterceptLogEvent.bmp}
   {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
-  {$R IconsDotNet\TIdServerInterceptOpenSSL.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerChain.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerOpenSSL.bmp}
   {$R IconsDotNet\TIdServerIOHandlerSocket.bmp}
-  {$R IconsDotNet\TIdServerIOHandlerSSL.bmp}
   {$R IconsDotNet\TIdServerIOHandlerStream.bmp}
   {$R IconsDotNet\TIdSMTP.bmp}
   {$R IconsDotNet\TIdSMTPRelay.bmp}
@@ -457,9 +431,6 @@ uses
   {$R IconsDotNet\TIdSNPP.bmp}
   {$R IconsDotNet\TIdSNTP.bmp}
   {$R IconsDotNet\TIdSocksInfo.bmp}
-  {$R IconsDotNet\TIdSOCKSServer.bmp}
-  {$R IconsDotNet\TIdSSLIOHandlerSocket.bmp}
-  {$R IconsDotNet\TIdSSLIOHandlerSocketOpenSSL.bmp}
   {$R IconsDotNet\TIdSysLog.bmp}
   {$R IconsDotNet\TIdSysLogMessage.bmp}
   {$R IconsDotNet\TIdSyslogServer.bmp}
@@ -469,16 +440,12 @@ uses
   {$R IconsDotNet\TIdSystatUDPServer.bmp}
   {$R IconsDotNet\TIdTelnet.bmp}
   {$R IconsDotNet\TIdTelnetServer.bmp}
-  {$R IconsDotNet\TIdThreadMgrDefault.bmp}
-  {$R IconsDotNet\TIdThreadMgrPool.bmp}
   {$R IconsDotNet\TIdTime.bmp}
   {$R IconsDotNet\TIdTimeServer.bmp}
   {$R IconsDotNet\TIdTimeUDP.bmp}
   {$R IconsDotNet\TIdTimeUDPServer.bmp}
   {$R IconsDotNet\TIdTrivialFTP.bmp}
   {$R IconsDotNet\TIdTrivialFTPServer.bmp}
-  {$R IconsDotNet\TIdTunnelMaster.bmp}
-  {$R IconsDotNet\TIdTunnelSlave.bmp}
   {$R IconsDotNet\TIdUnixTime.bmp}
   {$R IconsDotNet\TIdUnixTimeServer.bmp}
   {$R IconsDotNet\TIdUnixTimeUDP.bmp}
@@ -516,9 +483,7 @@ begin
    TIdDayTime,
    TIdDayTimeUDP,
    TIdDICT,
-   {$IFNDEF DOTNET}
    TIdDNSResolver,
-   {$ENDIF}
    TIdEcho,
    TIdEchoUDP,
    TIdFinger,
@@ -592,9 +557,6 @@ begin
    TIdRexecServer,
    TIdRSHServer,
    TIdSMTPServer,
-   {$IFNDEF DOTNET}
-   TIdSocksServer,
-   {$ENDIF}
    TIdSyslogServer,
    TIdSystatServer,
    TIdSystatUDPServer,
@@ -611,10 +573,6 @@ begin
    TIdWebDAV,
    TIdWhoIsServer
    ]);
-
-//  RegisterComponents(RSRegIndyServers, [
-//   TIdFTPServer
-//   ]);
 
   RegisterComponents(RSRegIndyIntercepts, [
    {$IFDEF USEZLIB}
@@ -664,16 +622,16 @@ begin
    TIdDecoderQuotedPrintable,
    TIdIPWatch,
    TIdIPAddrMon,
-   //TIdHL7,
+  // TIdHL7,
    TIdMailBox,
    TIdMessage,
    TIdMessageDecoderMIME,
    TIdMessageEncoderMIME,
-   {$IFNDEF DOTNET}
+   {.$IFNDEF DOTNET}
    TIdMessageDecoderYenc,
    TIdMessageEncoderYenc,
    TIdNetworkCalculator,
-   {$ENDIF}
+   {.$ENDIF}
    TIdSysLogMessage,
    TIdUserManager,
    TIdVCard
