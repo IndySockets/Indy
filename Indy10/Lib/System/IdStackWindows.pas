@@ -780,7 +780,9 @@ function TIdSocketListWindows.GetItem(AIndex: Integer): TIdStackSocketHandle;
 begin
   Result := 0;
   Lock; try
-    if (AIndex >= 0) and (AIndex < FFDSet.fd_count) then begin
+    //We can't redefine AIndex to be a LongWord because the libc Interface
+    //and DotNET define it as a LongInt.  OS/2 defines it as a Word.
+    if (AIndex >= 0) and (u_int(AIndex) < FFDSet.fd_count) then begin
       Result := FFDSet.fd_array[AIndex];
     end else begin
       raise EIdStackSetSizeExceeded.Create(RSSetSizeExceeded);
