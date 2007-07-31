@@ -249,6 +249,7 @@ contains
   IdWhois in 'IdWhois.pas',
   IdZLib in 'IdZLib.pas',
   IdZLibCompressorBase in 'IdZLibCompressorBase.pas',
-  IdZLibConst in 'IdZLibConst.pas';
+  IdZLibConst in 'IdZLibConst.pas',
+  IdZLibHeaders in 'IdZLibHeaders.pas';
 
 end.
