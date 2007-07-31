@@ -179,7 +179,7 @@ type
   {$EXTERNALSYM u_short}
   u_short = Word;
   {$EXTERNALSYM u_int}
-  u_int   = Integer;
+  u_int   = DWord;  //Integer;
   {$EXTERNALSYM u_long}
   u_long  = DWORD;
 // The new type to be used in all instances which refer to sockets.
@@ -5269,7 +5269,7 @@ end;
 
 procedure FD_CLR(Socket: TSocket; var FDSet: TFDSet);
 var
-  i: Integer;
+  i: u_int;
 begin
   i := 0;
   while i < FDSet.fd_count do
