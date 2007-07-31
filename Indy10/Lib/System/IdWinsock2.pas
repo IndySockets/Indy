@@ -2011,6 +2011,21 @@ const
   {$EXTERNALSYM MSG_MCAST}
   MSG_MCAST     =  $0800;
 
+  //Windows Vista WSAPoll
+//* Event flag definitions for WSAPoll(). */
+  POLLRDNORM  = $0100;
+  POLLRDBAND  = $0200;
+  POLLIN      = (POLLRDNORM or POLLRDBAND);
+  POLLPRI     = $0400;
+
+  POLLWRNORM  = $0010;
+  POLLOUT     = (POLLWRNORM);
+  POLLWRBAND  = $0020;
+
+  POLLERR     = $0001;
+  POLLHUP     = $0002;
+  POLLNVAL    = $0004;
+  
 type
 // Service Address Registration and Deregistration Data Types.
   {$EXTERNALSYM WSAESETSERVICEOP}
@@ -2172,6 +2187,19 @@ type
   PWSACMSGHDR = ^TWSACMsgHdr;
   {$EXTERNALSYM LPWSACMSGHDR}
   LPWSACMSGHDR = PWSACMSGHDR;
+
+//
+  {$EXTERNALSYM WSAPOLLFD}
+  WSAPOLLFD = packed record
+    fd : TSOCKET;
+    events : SHORT;
+    revents : SHORT;
+  end;
+  TWSAPOLLFD = WSAPOLLFD;
+  {$EXTERNALSYM PWSAPOLLFD}
+  PWSAPOLLFD = ^TWSAPOLLFD;
+  {$EXTERNALSYM LPWSAPOLLFD}
+  LPWSAPOLLFD = PWSAPOLLFD;
 
 //JPM
 //I just made this one up so we don't have to determine the record size at run-time
@@ -2563,19 +2591,36 @@ type
   {$EXTERNALSYM LPFN_DISCONNECTEX}
   {$EXTERNALSYM LPFN_WSARECVMSG} //XP and Server 2003 only
   {$EXTERNALSYM LPFN_TRANSMITPACKETS}
-
+  {$EXTERNALSYM LPFN_WSASENDMSG}
+  {$EXTERNALSYM LPFN_WSAPOLL}
   {$IFDEF CIL}
+  //Windows Server 2003, Windows Vista
   LPFN_CONNECTEX = function(const s : TSocket; const name: PSOCKADDR; const namelen: Integer; lpSendBuffer : Pointer; dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; var lpOverlapped : WSAOVERLAPPED) : BOOL;
   LPFN_DISCONNECTEX = function(const hSocket : TSocket; AOverlapped: Pointer; const dwFlags : DWORD; const dwReserved : DWORD) : BOOL;
   LPFN_WSARECVMSG = function(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;
   LPFN_TRANSMITPACKETS = function(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT; nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL;
+  //Windows Vista, Windows Server 2008
+  LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer;
+  LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer;
   {$ELSE}
+  //Windows Server 2003, Windows Vista
   LPFN_CONNECTEX = function(const s : TSocket; const name: PSOCKADDR; const namelen: Integer; lpSendBuffer : Pointer; dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;
   LPFN_DISCONNECTEX = function(const hSocket : TSocket; AOverlapped: Pointer; const dwFlags : DWORD; const dwReserved : DWORD) : BOOL;
   LPFN_WSARECVMSG = function(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;
   LPFN_TRANSMITPACKETS = function(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT; nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL;
+  //Windows Vista, Windows Server 2008
+  LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer;
+  LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer;
   {$ENDIF}
 
+const
+  //GUID's for Microsoft extensions
+   GuidConnectEx: TGuid = (D1:$25a207b9;D2:$ddf3;D3:$4660;D4:($8e,$e9,$76,$e5,$8c,$74,$06,$3e));
+   GuidDisconnectEx: TGuid = (D1:$7fda2e11;D2:$8630;D3:$436f;D4:($a0,$31,$f5,$36,$a6,$ee,$c1,$57));
+   GuidWSARecvMsg: TGuid = (D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
+   GuidTransmitPackets: TGUID = (D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
+   GuidWSASendMsg : TGUID = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
+   GuidWSAPoll : TGUID = (D1:$18C76F85;D2:$DC66;D3:$4964;D4:($97,$2E,$23,$C2,$72,$38,$31,$2B));
 {$ENDIF} // $IFDEF INCL_WINSOCK_API_TYPEDEFS
 
 {$IFDEF WS2_DLL_FUNC_VARS}
@@ -5071,24 +5116,18 @@ end;
 
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
   dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;
-const
-  GuidConnectEx: TGuid = (D1:$25a207b9;D2:$ddf3;D3:$4660;D4:($8e,$e9,$76,$e5,$8c,$74,$06,$3e));
 begin
   FixupStubEx(s, 'ConnectEx', GuidConnectEx, ConnectEx);
   Result := ConnectEx(s, name, namelen, lpSendBuffer, dwSendDataLength, lpdwBytesSent, lpOverlapped);
 end;
 
 function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL;
-const
-  GuidDisconnectEx: TGuid = (D1:$7fda2e11;D2:$8630;D3:$436f;D4:($a0,$31,$f5,$36,$a6,$ee,$c1,$57));
 begin
   FixupStubEx(s, 'DisconnectEx', GuidDisconnectEx, DisconnectEx);
   Result := DisconnectEx(s, AOverlapped, dwFlags, dwReserved);
 end;
 
 function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;
-const
-  GuidWSARecvMsg: TGuid = (D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
 begin
   FixupStubEx(s, 'WSARecvMsg', GuidWSARecvMsg, WSARecvMsg);
   Result := WSARecvMsg(s, lpMsg, lpNumberOfBytesRecvd, AOverlapped, lpCompletionRoutine);
@@ -5096,8 +5135,6 @@ end;
 
 function Stub_TransmitPackets(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT;
   nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL;
-const
-  GuidTransmitPackets: TGUID = (D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
 begin
   FixupStubEx(s, 'TransmitPackets', GuidTransmitPackets, TransmitPackets);
   Result := TransmitPackets(s, lpPacketArray, nElementCount, nSendSize, lpOverlapped, dwFlags);
