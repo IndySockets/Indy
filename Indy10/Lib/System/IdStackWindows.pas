@@ -196,7 +196,7 @@ uses
   Classes,
   IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack,
   SyncObjs, 
-  SysUtils, // Legal because this is a Windows only unit already
+  SysUtils, 
   Windows;
 
 type
@@ -1218,7 +1218,7 @@ var
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
   LCurPt : PInPktInfo;
   LCurPt6 : PIn6PktInfo;
-  LDummy, LDummy2 : Cardinal;
+ // LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
   // XP 5.1 at least, Vista 6.0
@@ -1256,8 +1256,8 @@ begin
         begin
           LMsg.name := PSOCKADDR(@LAddr6);
           LMsg.namelen := SizeOf(LAddr6);
-
-          CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, @LDummy, LPWSAOVERLAPPED_COMPLETION_ROUTINE(@LDummy2)));
+          CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, nil, nil));
+        //  CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, @LDummy, LPWSAOVERLAPPED_COMPLETION_ROUTINE(@LDummy2)));
           APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
 
           APkt.SourcePort := NToHs(LAddr6.sin6_port);
