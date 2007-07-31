@@ -1743,7 +1743,9 @@ const
   {$EXTERNALSYM NS_WINS}
   NS_WINS        = 14;
   {$EXTERNALSYM NS_NLA}
-  NS_NLA         = 15;  // Network Location Awareness
+  NS_NLA         = 15;  //* Network Location Awareness*/ - WindowsXP
+  {$EXTERNALSYM NS_BTH}
+  NS_BTH         = 16;  //* Bluetooth SDP Namespace */ - Windows Vista
 
   {$EXTERNALSYM NS_NBP}
   NS_NBP         = 20;
@@ -1754,6 +1756,15 @@ const
   NS_STDA        = 31;
   {$EXTERNALSYM NS_NTDS}
   NS_NTDS        = 32;
+
+  //Windows Vista namespaces
+  {$EXTERNALSYM NS_EMAIL}
+  NS_EMAIL      = 37;
+  {$EXTERNALSYM NS_PNRPNAME}
+  NS_PNRPNAME   = 38;
+  {$EXTERNALSYM NS_PNRPCLOUD}
+  NS_PNRPCLOUD   = 39;
+  //
 
   {$EXTERNALSYM NS_X500}
   NS_X500        = 40;
@@ -1835,6 +1846,16 @@ type
   {$EXTERNALSYM PSOCKET_ADDRESS}
   PSOCKET_ADDRESS = ^TSocket_Address;
 
+  {$EXTERNALSYM SOCKET_ADDRESS_LIST}
+  SOCKET_ADDRESS_LIST = packed record
+    iAddressCount : Integer;
+    Address : SOCKET_ADDRESS;
+  end;
+  TSocket_Address_List = SOCKET_ADDRESS_LIST;
+  {$EXTERNALSYM PSOCKET_ADDRESS_LIST}
+  PSOCKET_ADDRESS_LIST = ^TSocket_Address_List;
+  {$EXTERNALSYM LPSOCKET_ADDRESS_LIST}
+  LPSOCKET_ADDRESS_LIST = PSOCKET_ADDRESS_LIST;
 // CSAddr Information
   {$EXTERNALSYM CSADDR_INFO}
   CSADDR_INFO = packed record
@@ -1848,16 +1869,6 @@ type
   PCSADDR_INFO = ^TCSAddr_Info;
   {$EXTERNALSYM LPCSADDR_INFO}
   LPCSADDR_INFO = PCSADDR_INFO;
-
-// Address list returned via WSAIoctl( SIO_ADDRESS_LIST_QUERY )
-  {$EXTERNALSYM SOCKET_ADDRESS_LIST}
-  SOCKET_ADDRESS_LIST = packed record
-    iAddressCount : Integer;
-    Address       : Array [0..0] of TSocket_Address;
-  end;
-  TSocket_Address_List = SOCKET_ADDRESS_LIST;
-  {$EXTERNALSYM LPSOCKET_ADDRESS_LIST}
-  LPSOCKET_ADDRESS_LIST = ^TSocket_Address_List;
 
 // Address Family/Protocol Tuples
   {$EXTERNALSYM AFPROTOCOLS}
@@ -2144,6 +2155,59 @@ type
   PWSANAMESPACE_INFOW = ^TWSANameSpace_InfoW;
   {$EXTERNALSYM LPWSANAMESPACE_INFOW}
   LPWSANAMESPACE_INFOW = PWSANAMESPACE_INFOW;
+  {$IFNDEF UNDER_CE}
+  {$EXTERNALSYM WSANAMESPACE_INFOEXW}
+  WSANAMESPACE_INFOEXW = packed record
+     NSProviderId : TGUID;
+     dwNameSpace : DWord;
+     fActive : LongBool;
+     lpszIdentifier : LPWSTR;
+     ProviderSpecific : BLOB;
+  end;
+  TWSANameSpace_InfoExW = WSANAMESPACE_INFOEXW;
+  {$EXTERNALSYM WSANAMESPACE_INFOEXW}
+  PWSANAMESPACE_INFOEXW = ^TWSANameSpace_InfoExW;
+  {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
+  LPWSANAMESPACE_INFOEXW = PWSANAMESPACE_INFOEXW;
+
+   {$EXTERNALSYM WSANAMESPACE_INFOEXA}
+  WSANAMESPACE_INFOEXA = packed record
+     NSProviderId : TGUID;
+     dwNameSpace : DWord;
+     fActive : LongBool;
+     lpszIdentifier : LPSTR;
+     ProviderSpecific : BLOB;
+  end;
+  TWSANameSpace_InfoExA = WSANAMESPACE_INFOEXA;
+  {$EXTERNALSYM WSANAMESPACE_INFOEXW}
+  PWSANAMESPACE_INFOEXA = ^TWSANameSpace_InfoExA;
+  {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
+  LPWSANAMESPACE_INFOEXA = PWSANAMESPACE_INFOEXA;
+
+  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersExW}
+  LPFN_WSAEnumNameSpaceProvidersExW = function (var lpdwBufferLength : DWord;
+    lpnspBuffer : PWSANAMESPACE_INFOEXW): Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersExA}
+  LPFN_WSAEnumNameSpaceProvidersExA = function (var lpdwBufferLength : DWord;
+    lpnspBuffer : PWSANAMESPACE_INFOEXA): Integer; stdcall;
+  {$EXTERNALSYM WSANAMESPACE_INFOEX}
+  {$EXTERNALSYM PWSANAMESPACE_INFOEX}
+  {$EXTERNALSYM LPWSANAMESPACE_INFOEX}
+  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersEx}
+    {$IFDEF UNICODE}
+    WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
+    TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
+    PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
+    LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
+    LPFN_WSAEnumNameSpaceProvidersEx = LPFN_WSAEnumNameSpaceProvidersExW;
+    {$ELSE}
+    WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
+    TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
+    PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
+    LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
+    LPFN_WSAEnumNameSpaceProvidersEx = LPFN_WSAEnumNameSpaceProvidersExA;
+    {$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM WSANAMESPACE_INFO}
   {$EXTERNALSYM PWSANAMESPACE_INFO}
@@ -2286,7 +2350,7 @@ type
   LPFN_GETHOSTNAME = function(name: PChar; len: Integer): Integer; stdcall;
 {$IFDEF UNDER_CE}
   // WinCE specific for setting the host name
-  {$EXTERNALSYM LPFN_SETHOSTNAME} 
+  {$EXTERNALSYM LPFN_SETHOSTNAME}
   LPFN_SETHOSTNAME = function(pName : PChar; len : Integer) : Integer; stdcall;
 {$ENDIF}
   {$EXTERNALSYM LPFN_GETSERVBYPORT}
@@ -2376,9 +2440,31 @@ type
     lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
     dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
     lpOverlapped: POverlapped): BOOL; stdcall;
+  {$EXTERNALSYM LPFN_WSAConnectByList}
+  LPFN_WSAConnectByList = function(const s : TSocket; SocketAddressList : PSOCKET_ADDRESS_LIST;
+    var LocalAddressLength : DWORD;  LocalAddress : LPSOCKADDR;
+    var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
+    timeout : Ptimeval; Reserved : LPWSAOVERLAPPED):LongBool; stdcall;
+  {$EXTERNALSYM LPFN_WSAConnectByNameA}
+  LPFN_WSAConnectByNameA = function(const s : TSOCKET;
+    nodename : PChar; servicename : PChar;
+    var LocalAddressLength : DWORD; LocalAddress : LPSOCKADDR;
+    var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
+    timeout : Ptimeval;  Reserved : LPWSAOVERLAPPED) : Integer; stdcall;
+   {$EXTERNALSYM LPFN_WSAConnectByNameW}
+  LPFN_WSAConnectByNameW = function(const s : TSOCKET;
+    nodename : PWChar; servicename : PWChar;
+    var LocalAddressLength : DWORD; LocalAddress : LPSOCKADDR;
+    var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
+    timeout : Ptimeval;  Reserved : LPWSAOVERLAPPED) : Integer; stdcall;
+   {$EXTERNALSYM LPFN_WSAConnectByName}
+   {$IFDEF UNICODE}
+  LPFN_WSAConnectByName = LPFN_WSAConnectByNameW;
+   {$ELSE}
+  LPFN_WSAConnectByName = LPFN_WSAConnectByNameA;
+   {$ENDIF}
 {$ENDIF}
   {$ENDIF}
-
   {$EXTERNALSYM LPFN_WSAENUMPROTOCOLS}
 {$IFDEF UNICODE}
   LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSW;
@@ -2390,6 +2476,7 @@ type
   LPFN_WSACLOSEEVENT = function(const hEvent : WSAEVENT) : WordBool; stdcall;
   {$EXTERNALSYM LPFN_WSACONNECT}
   LPFN_WSACONNECT = function(const s : TSocket; const name : PSOCKADDR; const namelen : Integer; lpCallerData, lpCalleeData : LPWSABUF; lpSQOS, lpGQOS : LPQOS) : Integer; stdcall;
+
   {$EXTERNALSYM LPFN_WSACREATEEVENT}
   LPFN_WSACREATEEVENT  = function: WSAEVENT; stdcall;
 
@@ -3260,6 +3347,22 @@ type
   {$EXTERNALSYM LPADDRINFO}
   LPADDRINFO = PAddrInfo;
 
+  PAddrInfoW = ^ADDRINFOW;
+  {$EXTERNALSYM ADDRINFOW}
+  ADDRINFOW = packed record
+    ai_flags        : Integer;      // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    ai_family       : Integer;      // PF_xxx
+    ai_socktype     : Integer;      // SOCK_xxx
+    ai_protocol     : Integer;      // 0 or IPPROTO_xxx for IPv4 and IPv6
+    ai_addrlen      : ULONG;        // Length of ai_addr
+    ai_canonname    : PWideChar;        // Canonical name for nodename
+    ai_addr         : PSOCKADDR;    // Binary address
+    ai_next         : PAddrInfo;    // Next structure in linked list
+  end;
+  TAddrInfoW = ADDRINFOW;
+  {$EXTERNALSYM LPADDRINFO}
+  LPADDRINFOW = PAddrInfoW;
+
 // Flags used in "hints" argument to getaddrinfo()
 const
   {$EXTERNALSYM AI_PASSIVE}
@@ -3268,6 +3371,49 @@ const
   AI_CANONNAME          = $2;   // Return canonical name in first ai_canonname
   {$EXTERNALSYM AI_NUMERICHOST}
   AI_NUMERICHOST        = $4;   // Nodename must be a numeric address string
+
+type
+  {$EXTERNALSYM PADDRINFOEXA}
+  PADDRINFOEXA = ^TAddrInfoEXA;
+  {$EXTERNALSYM ADDRINFOEXA}
+  ADDRINFOEXA = packed record
+    ai_flags : Integer;       // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    ai_family : Integer;      // PF_xxx
+    ai_socktype : Integer;    // SOCK_xxx
+    ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
+    ai_addrlen : Integer; // size_t;     // Length of ai_addr
+    ai_canonname : PChar;   // Canonical name for nodename
+    ai_addr : Psockaddr;        // Binary address
+    ai_blob : Pointer;
+    ai_bloblen : Integer;  //size_t
+    ai_provider : LPGUID;
+    ai_next : PADDRINFOEXA;        // Next structure in linked list
+  end;
+  TAddrInfoEXA = ADDRINFOEXA;
+
+  {$EXTERNALSYM LPADDRINFOEXA}
+  LPADDRINFOEXA = PADDRINFOEXA;
+
+  {$EXTERNALSYM PADDRINFOEXW}
+  PADDRINFOEXW = ^TAddrInfoEXW;
+  {$EXTERNALSYM ADDRINFOEXW}
+  ADDRINFOEXW = packed record
+    ai_flags : Integer;       // AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST
+    ai_family : Integer;      // PF_xxx
+    ai_socktype : Integer;    // SOCK_xxx
+    ai_protocol : Integer;    // 0 or IPPROTO_xxx for IPv4 and IPv6
+    ai_addrlen : Integer; // size_t;     // Length of ai_addr
+    ai_canonname : PWideChar;   // Canonical name for nodename
+    ai_addr : Psockaddr;        // Binary address
+    ai_blob : Pointer;
+    ai_bloblen : Integer;  //size_t
+    ai_provider : LPGUID;
+    ai_next : PADDRINFOEXW;        // Next structure in linked list
+  end;
+  TAddrInfoEXW = ADDRINFOEXA;
+
+  {$EXTERNALSYM LPADDRINFOEXW}
+  LPADDRINFOEXW = PADDRINFOEXW;
 
 var
   {$EXTERNALSYM in6addr_any}
@@ -4245,6 +4391,7 @@ type
   procedure InitializeWinSock;
   procedure UninitializeWinSock;
   function Winsock2Loaded: Boolean;
+  function WinsockHandle : THandle;
 
 //=============================================================
 implementation
@@ -4255,6 +4402,11 @@ uses IdResourceStrings;
 var
   hWinSockDll : THandle = 0; // WS2_32.DLL handle
   hMSWSockDll : THandle = 0; // MSWSOCK.DLL handle
+
+function WinsockHandle : THandle;
+begin
+  Result := hWinSockDll;
+end;
 
 function Winsock2Loaded : Boolean;
 begin
