@@ -113,9 +113,9 @@ const
 
   {$EXTERNALSYM SOCKET_SETTINGS_GUARANTEE_ENCRYPTION}
   SOCKET_SETTINGS_GUARANTEE_ENCRYPTION = $00000001;
-    {$EXTERNALSYM SOCKET_SETTINGS_ALLOW_INSECURE}
+  {$EXTERNALSYM SOCKET_SETTINGS_ALLOW_INSECURE}
   SOCKET_SETTINGS_ALLOW_INSECURE = $00000002;
-
+  
   {$EXTERNALSYM SOCKET_INFO_CONNECTION_SECURED}
   SOCKET_INFO_CONNECTION_SECURED =  $00000001;
   {$EXTERNALSYM SOCKET_INFO_CONNECTION_ENCRYPTED}
@@ -183,7 +183,6 @@ type
   LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PChar; hostlen: u_int; serv: PChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFOW}
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
-
   {$EXTERNALSYM LPFN_FREEADDRINFO}
   LPFN_FREEADDRINFO = procedure(ai: Paddrinfo); stdcall;
 
@@ -240,24 +239,24 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   {$ENDIF}
 
   //  Fwpuclnt.dll - API
-  {$EXTERNALSYM LPFN_WSADeleteSocketPeerTargetName}
-  LPFN_WSADeleteSocketPeerTargetName = function (Socket : TSocket;
+  {$EXTERNALSYM LPFN_WSADELETESOCKETPEERTARGETNAME}
+  LPFN_WSADELETESOCKETPEERTARGETNAME = function (Socket : TSocket;
     PeerAddr : Psockaddr; PeerAddrLen : ULONG;
     Overlapped : LPWSAOVERLAPPED;  CompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
-  {$EXTERNALSYM LPFN_WSASetSocketPeerTargetName}
-  LPFN_WSASetSocketPeerTargetName = function (Socket : TSocket;
+  {$EXTERNALSYM LPFN_WSASETSOCKETPEERTARGETNAME}
+  LPFN_WSASETSOCKETPEERTARGETNAME = function (Socket : TSocket;
     PeerTargetName : PSOCKET_PEER_TARGET_NAME; PeerTargetNameLen : ULONG;
     Overlapped : LPWSAOVERLAPPED; CompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
-  {$EXTERNALSYM LPFN_WSAImpersonateSocketPeer}
-  LPFN_WSAImpersonateSocketPeer = function (Socket : TSocket;
+  {$EXTERNALSYM LPFN_WSAIMPERSONATESOCKETPEER}
+  LPFN_WSAIMPERSONATESOCKETPEER = function (Socket : TSocket;
     PeerAddress : Psockaddr;  peerAddressLen :  ULONG) : Integer; stdcall;
-  {$EXTERNALSYM LPFN_WSAQuerySocketSecurity}
-  LPFN_WSAQuerySocketSecurity = function (Socket : TSocket;
+  {$EXTERNALSYM LPFN_WSAQUERYSOCKETSECURITY}
+  LPFN_WSAQUERYSOCKETSECURITY = function (Socket : TSocket;
     SecurityQueryTemplate : PSOCKET_SECURITY_QUERY_TEMPLATE; const SecurityQueryTemplateLen : ULONG;
     var SecurityQueryInfo : PSOCKET_SECURITY_QUERY_INFO; var SecurityQueryInfoLen : ULONG;
      Overlapped : LPWSAOVERLAPPED;  CompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
-  {$EXTERNALSYM LPFN_WSARevertImpersonation}
-  LPFN_WSARevertImpersonation = function : Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSAREVERTIMPERSONATION}
+  LPFN_WSAREVERTIMPERSONATION = function : Integer; stdcall;
 
 const
   {$IFDEF UNICODE}
@@ -319,17 +318,18 @@ var
   {$ELSE}
   FreeAddrInfoEx : LPFN_FREEADDRINFOEXW = nil;
   {$ENDIF}
+
   //Fwpuclnt.dll available for Windows Vista and later
-  {$EXTERNALSYM WSASetSocketPeerTargetName}
-  WSASetSocketPeerTargetName : LPFN_WSASetSocketPeerTargetName = nil;
-  {$EXTERNALSYM WSADeleteSocketPeerTargetName}
-  WSADeleteSocketPeerTargetName : LPFN_WSADeleteSocketPeerTargetName = nil;
+  {$EXTERNALSYM WSASETSOCKETPEERTARGETNAME}
+  WSASetSocketPeerTargetName : LPFN_WSASETSOCKETPEERTARGETNAME = nil;
+  {$EXTERNALSYM WSADELETESOCKETPEERTARGETNAME}
+  WSADeleteSocketPeerTargetName : LPFN_WSADELETESOCKETPEERTARGETNAME = nil;
   {$EXTERNALSYM WSAImpersonateSocketPeer}
-  WSAImpersonateSocketPeer : LPFN_WSAImpersonateSocketPeer = nil;
-  {$EXTERNALSYM WSAQuerySocketSecurity}
-  WSAQuerySocketSecurity : LPFN_WSAQuerySocketSecurity = nil;
-  {$EXTERNALSYM WSARevertImpersonation}
-  WSARevertImpersonation : LPFN_WSARevertImpersonation = nil;
+  WSAImpersonateSocketPeer : LPFN_WSAIMPERSONATESOCKETPEER = nil;
+  {$EXTERNALSYM WSAQUERYSOCKETSECURITY}
+  WSAQUERYSOCKETSECURITY : LPFN_WSAQUERYSOCKETSECURITY = nil;
+  {$EXTERNALSYM WSAREVERTIMPERSONATION}
+  WSARevertImpersonation : LPFN_WSAREVERTIMPERSONATION = nil;
 
 var
   IdIPv6Available: Boolean = False;
@@ -374,18 +374,26 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
-  h := InterlockedExchangeTHandle(hWship6Dll,0);
+  h := InterlockedExchangeTHandle(hWship6Dll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
-  h := InterlockedExchangeTHandle(hfwpuclntDll,0);
+  h := InterlockedExchangeTHandle(hfwpuclntDll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
-  end;  
+  end;
+
   IdIPv6Available := False;
+
   getaddrinfo := nil;
   getnameinfo := nil;
   freeaddrinfo := nil;
+
+  WSASetSocketPeerTargetName := nil;
+  WSADeleteSocketPeerTargetName := nil;
+  WSAImpersonateSocketPeer := nil;
+  WSAQuerySocketSecurity := nil;
+  WSARevertImpersonation := nil;
 end;
 
 procedure InitLibrary;
@@ -409,6 +417,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
     IdWinsock2.InitializeWinSock;
     hProcHandle := IdWinsock2.WinsockHandle;
   end;
+
   getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);
   if not Assigned(getaddrinfo) then
   begin
@@ -433,15 +442,17 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
         GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
         SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
         FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
-        hfwpuclntDll := LoadLibrary(PChar(fwpuclnt_dll));
+
+        hfwpuclntDll := LoadLibrary(fwpuclnt_dll);
         if hfwpuclntDll <> 0 then
         begin
-          WSASetSocketPeerTargetName := GetProcAddress(hfwpuclntDll,'WSASetSocketPeerTargetName'); {Do not localize}
-          WSADeleteSocketPeerTargetName := GetProcAddress(hfwpuclntDll,'WSADeleteSocketPeerTargetName');  {Do not localize}
-          WSAImpersonateSocketPeer := GetProcAddress(hfwpuclntDll,'WSAImpersonateSocketPeer'); {Do not localize}
-          WSAQuerySocketSecurity := GetProcAddress(hfwpuclntDll,'WSAQuerySocketSecurity'); {Do not localize}
-          WSARevertImpersonation := GetProcAddress(hfwpuclntDll,'WSARevertImpersonation'); {Do not localize}
+          WSASetSocketPeerTargetName := GetProcAddress(hfwpuclntDll, 'WSASetSocketPeerTargetName'); {Do not localize}
+          WSADeleteSocketPeerTargetName := GetProcAddress(hfwpuclntDll, 'WSADeleteSocketPeerTargetName');  {Do not localize}
+          WSAImpersonateSocketPeer := GetProcAddress(hfwpuclntDll, 'WSAImpersonateSocketPeer'); {Do not localize}
+          WSAQuerySocketSecurity := GetProcAddress(hfwpuclntDll, 'WSAQuerySocketSecurity'); {Do not localize}
+          WSARevertImpersonation := GetProcAddress(hfwpuclntDll, 'WSARevertImpersonation'); {Do not localize}
         end;
+
         Exit;
       end;
     end;
@@ -456,4 +467,3 @@ finalization
   CloseLibrary;
 
 end.
-
