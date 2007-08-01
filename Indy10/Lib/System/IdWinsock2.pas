@@ -1168,11 +1168,7 @@ const
   {$EXTERNALSYM WSA_OPERATION_ABORTED}
   WSA_OPERATION_ABORTED   = ERROR_OPERATION_ABORTED;
   {$EXTERNALSYM WSA_INVALID_EVENT}
-  {$IFDEF CIL}
-  WSA_INVALID_EVENT       = WSAEVENT(0);
-  {$ELSE}
   WSA_INVALID_EVENT       = WSAEVENT(nil);
-  {$ENDIF}
   {$EXTERNALSYM WSA_MAXIMUM_WAIT_EVENTS}
   WSA_MAXIMUM_WAIT_EVENTS = MAXIMUM_WAIT_OBJECTS;
   {$EXTERNALSYM WSA_WAIT_FAILED}
@@ -1703,7 +1699,7 @@ type
 
   {$EXTERNALSYM BLOB}
   BLOB = packed record
-    cbSize : {$IFDEF CIL}ULONG{$ELSE}U_LONG{$ENDIF};
+    cbSize : U_LONG;
     pBlobData : PBYTE;
   end;
   TBLOB = BLOB;
@@ -1805,19 +1801,11 @@ const
   {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORTW}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_UDPPORTW}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_OBJECTIDW}
-  {$IFDEF CIL}
-  SERVICE_TYPE_VALUE_IPXPORTW : WideString  = 'IpxSocket';    {Do not Localize}
-  SERVICE_TYPE_VALUE_SAPIDW : WideString    = 'SapId';    {Do not Localize}
-  SERVICE_TYPE_VALUE_TCPPORTW : WideString  = 'TcpPort';    {Do not Localize}
-  SERVICE_TYPE_VALUE_UDPPORTW : WideString  = 'UdpPort';    {Do not Localize}
-  SERVICE_TYPE_VALUE_OBJECTIDW : WideString = 'ObjectId';    {Do not Localize}
-  {$ELSE}
   SERVICE_TYPE_VALUE_IPXPORTW : PWideChar  = 'IpxSocket';    {Do not Localize}
   SERVICE_TYPE_VALUE_SAPIDW : PWideChar    = 'SapId';    {Do not Localize}
   SERVICE_TYPE_VALUE_TCPPORTW : PWideChar  = 'TcpPort';    {Do not Localize}
   SERVICE_TYPE_VALUE_UDPPORTW : PWideChar  = 'UdpPort';    {Do not Localize}
   SERVICE_TYPE_VALUE_OBJECTIDW : PWideChar = 'ObjectId';    {Do not Localize}
-  {$ENDIF}
 
   {$EXTERNALSYM SERVICE_TYPE_VALUE_SAPID}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORT}
@@ -2297,11 +2285,7 @@ type
   {$EXTERNALSYM LPFN_WSACLEANUP}
   LPFN_WSACLEANUP = function: Integer; stdcall;
   {$EXTERNALSYM LPFN_ACCEPT}
-  {$IFDEF CIL}
-  LPFN_ACCEPT = function(const s: TSocket; addr: PSOCKADDR; var addrlen: Integer): TSocket; stdcall;
-  {$ELSE}
   LPFN_ACCEPT = function(const s: TSocket; addr: PSOCKADDR; addrlen: PInteger): TSocket; stdcall;
-  {$ENDIF}
   {$EXTERNALSYM LPFN_BIND}
   LPFN_BIND = function(const s: TSocket; const name: PSOCKADDR; const namelen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_CLOSESOCKET}
@@ -2333,11 +2317,7 @@ type
   {$EXTERNALSYM LPFN_RECV}
   LPFN_RECV = function(const s: TSocket; var Buf; len, flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_RECVFROM}
-  {$IFDEF CIL}
-  LPFN_RECVFROM = function(const s: TSocket; var Buf; len, flags: Integer; from: PSOCKADDR; var fromlen: Integer): Integer; stdcall;
-  {$ELSE}
   LPFN_RECVFROM = function(const s: TSocket; var Buf; len, flags: Integer; from: PSOCKADDR; fromlen: PInteger): Integer; stdcall;
-  {$ENDIF}
   {$EXTERNALSYM LPFN_SELECT}
   LPFN_SELECT = function(nfds: Integer; readfds, writefds, exceptfds: PFDSet; timeout: PTimeVal): Integer; stdcall;
   {$EXTERNALSYM LPFN_SEND}
@@ -2413,26 +2393,6 @@ type
   {$EXTERNALSYM LPFN_TRANSMITFILE}
   {$EXTERNALSYM LPFN_ACCEPTEX}
 {$ENDIF}
-  {$IFDEF CIL}
-  LPFN_WSAACCEPT = function(const s : TSocket; addr : PSOCKADDR; var addrlen : Integer; lpfnCondition : LPCONDITIONPROC; const dwCallbackData : DWORD): TSocket; stdcall;
-  LPFN_WSAENUMPROTOCOLSA = function(var lpiProtocols : Integer; lpProtocolBuffer : LPWSAPROTOCOL_INFOA; var lpdwBufferLength : DWORD) : Integer; stdcall;
-  LPFN_WSAENUMPROTOCOLSW = function(var lpiProtocols : Integer; lpProtocolBuffer : LPWSAPROTOCOL_INFOW; var lpdwBufferLength : DWORD) : Integer; stdcall;
-  LPFN_WSAGETOVERLAPPEDRESULT = function(const s : TSocket; var AOverlapped: WSAOVERLAPPED; var lpcbTransfer : DWORD; fWait : BOOL; var lpdwFlags : DWORD) : WordBool; stdcall;
-  // IOCTL under CIL ???
-//  LPFN_WSAIOCTL = function ( const s : TSocket; dwIoControlCode : DWORD; lpvInBuffer : Pointer; cbInBuffer : DWORD; lpvOutBuffer : Pointer; cbOutBuffer : DWORD;
-//    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE ) : Integer; stdcall;
-  LPFN_WSARECVFROM = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesRecvd : DWORD; var lpFlags : DWORD;
-    lpFrom : PSOCKADDR; var lpFromlen : Integer; var AOverlapped: WSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
-   {$IFNDEF UNDER_CE}
-  LPFN_TRANSMITFILE = function(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite, nNumberOfBytesPerSend: DWORD;
-    var lpOverlapped: Overlapped; lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
-
-  LPFN_ACCEPTEX = function(sListenSocket, sAcceptSocket: TSocket;
-    lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
-    dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
-    var lpOverlapped: Overlapped): BOOL; stdcall;
-   {$ENDIF}
- {$ELSE}
   LPFN_WSAACCEPT = function(const s : TSocket; addr : PSOCKADDR; addrlen : PInteger; lpfnCondition : LPCONDITIONPROC; const dwCallbackData : DWORD): TSocket; stdcall;
   LPFN_WSAENUMPROTOCOLSA = function(lpiProtocols : PInteger; lpProtocolBuffer : LPWSAPROTOCOL_INFOA; var lpdwBufferLength : DWORD) : Integer; stdcall;
   LPFN_WSAENUMPROTOCOLSW = function(lpiProtocols : PInteger; lpProtocolBuffer : LPWSAPROTOCOL_INFOW; var lpdwBufferLength : DWORD) : Integer; stdcall;
@@ -2688,16 +2648,6 @@ type
   {$EXTERNALSYM LPFN_TRANSMITPACKETS}
   {$EXTERNALSYM LPFN_WSASENDMSG}
   {$EXTERNALSYM LPFN_WSAPOLL}
-  {$IFDEF CIL}
-  //Windows Server 2003, Windows Vista
-  LPFN_CONNECTEX = function(const s : TSocket; const name: PSOCKADDR; const namelen: Integer; lpSendBuffer : Pointer; dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; var lpOverlapped : WSAOVERLAPPED) : BOOL; stdcall;
-  LPFN_DISCONNECTEX = function(const hSocket : TSocket; AOverlapped: Pointer; const dwFlags : DWORD; const dwReserved : DWORD) : BOOL; stdcall;
-  LPFN_WSARECVMSG = function(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
-  LPFN_TRANSMITPACKETS = function(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT; nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL; stdcall;
-  //Windows Vista, Windows Server 2008
-  LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
-  LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
-  {$ELSE}
   //Windows Server 2003, Windows Vista
   LPFN_CONNECTEX = function(const s : TSocket; const name: PSOCKADDR; const namelen: Integer; lpSendBuffer : Pointer; dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL; stdcall;
   LPFN_DISCONNECTEX = function(const hSocket : TSocket; AOverlapped: Pointer; const dwFlags : DWORD; const dwReserved : DWORD) : BOOL; stdcall;
@@ -2706,7 +2656,7 @@ type
   //Windows Vista, Windows Server 2008
   LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
-  {$ENDIF}
+
 
 const
   //GUID's for Microsoft extensions
@@ -2716,7 +2666,6 @@ const
    GuidTransmitPackets: TGUID = (D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
    GuidWSASendMsg : TGUID = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
    GuidWSAPoll : TGUID = (D1:$18C76F85;D2:$DC66;D3:$4964;D4:($97,$2E,$23,$C2,$72,$38,$31,$2B));
-{$ENDIF} // $IFDEF INCL_WINSOCK_API_TYPEDEFS
 
 {$IFDEF WS2_DLL_FUNC_VARS}
 var
@@ -3770,11 +3719,7 @@ const
 
 //	A macro convenient for setting up NETBIOS SOCKADDRs.
 {$EXTERNALSYM SET_NETBIOS_SOCKADDR}
-{$IFDEF CIL}
-procedure SET_NETBIOS_SOCKADDR(var snb : TSockAddrNB; const SnbType : Word; const Name : String; const Port : Char);
-{$ELSE}
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
-{$ENDIF}
 
 
 //=============================================================
@@ -5802,11 +5747,7 @@ begin
 end;
 
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
-{$IFDEF CIL}
-procedure SET_NETBIOS_SOCKADDR(var snb : TSockAddrNB; const SnbType : Word; const Name : String; const Port : Char);
-{$ELSE}
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
-{$ENDIF}
 var
   len : Integer;
 begin
