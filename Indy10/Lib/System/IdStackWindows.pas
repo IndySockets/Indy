@@ -795,13 +795,22 @@ var
   i: Integer;
 begin
   Lock; try
-    for i:= 0 to FFDSet.fd_count - 1 do begin
-      if FFDSet.fd_array[i] = AHandle then begin
-        dec(FFDSet.fd_count);
-        FFDSet.fd_array[i] := FFDSet.fd_array[FFDSet.fd_count];
-        FFDSet.fd_array[FFDSet.fd_count] := 0; //extra purity
-        Break;
-      end;//if found
+{
+IMPORTANT!!!
+
+Sometimes, there may not be a member of the FDSET.  If you attempt to "remove"
+an item, the for loop would execute once.
+}
+    if FFDSet.fd_count > 0 then
+    begin
+      for i:= 0 to FFDSet.fd_count - 1 do begin
+        if FFDSet.fd_array[i] = AHandle then begin
+          dec(FFDSet.fd_count);
+          FFDSet.fd_array[i] := FFDSet.fd_array[FFDSet.fd_count];
+          FFDSet.fd_array[FFDSet.fd_count] := 0; //extra purity
+          Break;
+        end;//if found
+      end;
     end;
   finally Unlock; end;
 end;
