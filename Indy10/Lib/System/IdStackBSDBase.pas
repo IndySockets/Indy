@@ -161,8 +161,7 @@ This unit must NOT be linked into DotNet applications.
 
 uses
   Classes,
-  IdException, IdStack, IdStackConsts, IdGlobal,
-  SyncObjs;
+  IdException, IdStack, IdStackConsts, IdGlobal;
 
 type
   EIdNotASocket = class(EIdSocketError);

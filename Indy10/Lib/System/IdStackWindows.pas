@@ -195,7 +195,6 @@ interface
 uses
   Classes,
   IdGlobal, IdException, IdStackBSDBase, IdStackConsts, IdWinsock2, IdStack,
-  SyncObjs, 
   SysUtils, 
   Windows;
 
