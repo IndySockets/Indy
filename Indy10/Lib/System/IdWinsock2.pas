@@ -142,7 +142,7 @@ interface
 {$WRITEABLECONST OFF}
 
 uses
-  IdException, IdGlobal, SysUtils, Windows;
+ IdException, IdGlobal, SysUtils, Windows;
 
 type
   EIdWinsockStubError = class(EIdException)
@@ -1653,43 +1653,43 @@ const
   IOC_VENDOR    = $18000000;
 
   {$EXTERNALSYM SIO_ASSOCIATE_HANDLE}
-  SIO_ASSOCIATE_HANDLE                =  IOC_IN or IOC_WS2 or 1;
+  SIO_ASSOCIATE_HANDLE                =  DWORD(IOC_IN or IOC_WS2 or 1);
   {$EXTERNALSYM SIO_ENABLE_CIRCULAR_QUEUEING}
-  SIO_ENABLE_CIRCULAR_QUEUEING        =  IOC_VOID or IOC_WS2 or 2;
+  SIO_ENABLE_CIRCULAR_QUEUEING        =  DWORD(IOC_VOID or IOC_WS2 or 2);
   {$EXTERNALSYM SIO_FIND_ROUTE}
-  SIO_FIND_ROUTE                      =  IOC_OUT or IOC_WS2 or 3;
+  SIO_FIND_ROUTE                      =  DWORD(IOC_OUT or IOC_WS2 or 3);
   {$EXTERNALSYM SIO_FLUSH}
-  SIO_FLUSH                           =  IOC_VOID or IOC_WS2 or 4;
+  SIO_FLUSH                           =  DWORD(IOC_VOID or IOC_WS2 or 4);
   {$EXTERNALSYM SIO_GET_BROADCAST_ADDRESS}
-  SIO_GET_BROADCAST_ADDRESS           =  IOC_OUT or IOC_WS2 or 5;
+  SIO_GET_BROADCAST_ADDRESS           =  DWORD(IOC_OUT or IOC_WS2 or 5);
   {$EXTERNALSYM SIO_GET_EXTENSION_FUNCTION_POINTER}
-  SIO_GET_EXTENSION_FUNCTION_POINTER  =  IOC_INOUT or IOC_WS2 or 6;
+  SIO_GET_EXTENSION_FUNCTION_POINTER  =  DWORD(IOC_INOUT or IOC_WS2 or 6);
   {$EXTERNALSYM SIO_GET_QOS}
-  SIO_GET_QOS                         =  IOC_INOUT or IOC_WS2 or 7;
+  SIO_GET_QOS                         =  DWORD(IOC_INOUT or IOC_WS2 or 7);
   {$EXTERNALSYM SIO_GET_GROUP_QOS}
-  SIO_GET_GROUP_QOS                   =  IOC_INOUT or IOC_WS2 or 8;
+  SIO_GET_GROUP_QOS                   =  DWORD(IOC_INOUT or IOC_WS2 or 8);
   {$EXTERNALSYM SIO_MULTIPOINT_LOOPBACK}
-  SIO_MULTIPOINT_LOOPBACK             =  IOC_IN or IOC_WS2 or 9;
+  SIO_MULTIPOINT_LOOPBACK             =  DWORD(IOC_IN or IOC_WS2 or 9);
   {$EXTERNALSYM SIO_MULTICAST_SCOPE}
-  SIO_MULTICAST_SCOPE                 = IOC_IN or IOC_WS2 or 10;
+  SIO_MULTICAST_SCOPE                 = DWORD(IOC_IN or IOC_WS2 or 10);
   {$EXTERNALSYM SIO_SET_QOS}
-  SIO_SET_QOS                         = IOC_IN or IOC_WS2 or 11;
+  SIO_SET_QOS                         = DWORD(IOC_IN or IOC_WS2 or 11);
   {$EXTERNALSYM SIO_SET_GROUP_QOS}
-  SIO_SET_GROUP_QOS                   = IOC_IN or IOC_WS2 or 12;
+  SIO_SET_GROUP_QOS                   = DWORD(IOC_IN or IOC_WS2 or 12);
   {$EXTERNALSYM SIO_TRANSLATE_HANDLE}
-  SIO_TRANSLATE_HANDLE                = IOC_INOUT or IOC_WS2 or 13;
+  SIO_TRANSLATE_HANDLE                = DWORD(IOC_INOUT or IOC_WS2 or 13);
   {$EXTERNALSYM SIO_ROUTING_INTERFACE_QUERY}
-  SIO_ROUTING_INTERFACE_QUERY         = IOC_INOUT or IOC_WS2 or 20;
+  SIO_ROUTING_INTERFACE_QUERY         = DWORD(IOC_INOUT or IOC_WS2 or 20);
   {$EXTERNALSYM SIO_ROUTING_INTERFACE_CHANGE}
-  SIO_ROUTING_INTERFACE_CHANGE        = IOC_IN or IOC_WS2 or 21;
+  SIO_ROUTING_INTERFACE_CHANGE        = DWORD(IOC_IN or IOC_WS2 or 21);
   {$EXTERNALSYM SIO_ADDRESS_LIST_QUERY}
-  SIO_ADDRESS_LIST_QUERY              = IOC_OUT or IOC_WS2 or 22; // see below SOCKET_ADDRESS_LIST
+  SIO_ADDRESS_LIST_QUERY              = DWORD(IOC_OUT or IOC_WS2 or 22); // see below SOCKET_ADDRESS_LIST
   {$EXTERNALSYM SIO_ADDRESS_LIST_CHANGE}
-  SIO_ADDRESS_LIST_CHANGE             = IOC_VOID or IOC_WS2 or 23;
+  SIO_ADDRESS_LIST_CHANGE             = DWORD(IOC_VOID or IOC_WS2 or 23);
   {$EXTERNALSYM SIO_QUERY_TARGET_PNP_HANDLE}
-  SIO_QUERY_TARGET_PNP_HANDLE         = IOC_OUT or IOC_WS2 or 24;
+  SIO_QUERY_TARGET_PNP_HANDLE         = DWORD(IOC_OUT or IOC_WS2 or 24);
   {$EXTERNALSYM SIO_ADDRESS_LIST_SORT}
-  SIO_ADDRESS_LIST_SORT               = IOC_INOUT or IOC_WS2 or 25;
+  SIO_ADDRESS_LIST_SORT               = DWORD(IOC_INOUT or IOC_WS2 or 25);
 
 //  WinSock 2 extension -- manifest constants for SIO_TRANSLATE_HANDLE ioctl
   {$EXTERNALSYM TH_NETDEV}
@@ -2394,7 +2394,7 @@ type
   LPFN_WSAGETOVERLAPPEDRESULT = function(const s : TSocket; AOverlapped: Pointer; lpcbTransfer : LPDWORD; fWait : BOOL; var lpdwFlags : DWORD) : WordBool; stdcall;
   {$EXTERNALSYM LPFN_WSAIOCTL}
   LPFN_WSAIOCTL = function(const s : TSocket; dwIoControlCode : DWORD; lpvInBuffer : Pointer; cbInBuffer : DWORD; lpvOutBuffer : Pointer; cbOutBuffer : DWORD;
-    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
+    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : LongInt; stdcall;
   {$EXTERNALSYM LPFN_WSARECVFROM}
   LPFN_WSARECVFROM = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesRecvd : DWORD; var lpFlags : DWORD;
     lpFrom : PSOCKADDR; lpFromlen : PInteger; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
@@ -4607,23 +4607,23 @@ so it should give us the numbers.
 }
  {$EXTERNALSYM SIZE_WSACMSGHDR}
 const
-  SIZE_WSACMSGHDR = SizeOf(WSACMSGHDR);
+  SIZE_WSACMSGHDR = DWORD(SizeOf(WSACMSGHDR));
   {$EXTERNALSYM SIZE_FARPROC}
-  SIZE_FARPROC = SizeOf(FARPROC);
+  SIZE_FARPROC = DWORD(SizeOf(FARPROC));
   {$EXTERNALSYM MAX_NATURAL_ALIGNMENT_SUB_1}
-  MAX_NATURAL_ALIGNMENT_SUB_1 = MAX_NATURAL_ALIGNMENT - 1;
+  MAX_NATURAL_ALIGNMENT_SUB_1 = DWORD(MAX_NATURAL_ALIGNMENT - 1);
   {$EXTERNALSYM SIZE_IP_MSFILTER}
-  SIZE_IP_MSFILTER = SizeOf(ip_msfilter);
+  SIZE_IP_MSFILTER = DWORD(SizeOf(ip_msfilter));
   {$EXTERNALSYM SIZE_TINADDR}
-  SIZE_TINADDR = SizeOf(TInAddr);
+  SIZE_TINADDR = DWORD(SizeOf(TInAddr));
   {$EXTERNALSYM SIZE_TIN6ADDR}
-  SIZE_TIN6ADDR = SizeOf(TIn6Addr);
+  SIZE_TIN6ADDR = DWORD(SizeOf(TIn6Addr));
   {$EXTERNALSYM SIZE_GROUP_FILTER}
-  SIZE_GROUP_FILTER = SizeOf(GROUP_FILTER);
+  SIZE_GROUP_FILTER = DWORD(SizeOf(GROUP_FILTER));
   {$EXTERNALSYM SIZE_SOCKADDR_STORAGE}
-  SIZE_SOCKADDR_STORAGE = sizeof(SOCKADDR_STORAGE);
+  SIZE_SOCKADDR_STORAGE = DWORD(sizeof(SOCKADDR_STORAGE));
   {$EXTERNALSYM SIZE_GUID}
-  SIZE_GUID = SizeOf(TGuid);
+  SIZE_GUID = DWORD(SizeOf(TGuid));
 
   //=============================================================
 implementation
@@ -4732,11 +4732,11 @@ end;
 
 procedure FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID; var VStub);
 var
-  LStatus: Integer;
+  LStatus: LongInt;
   LBytesSend: DWORD;
   LProc: FARPROC;
 begin
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SIZE_GUID,
+  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, LongWord(SIZE_GUID),
     @LProc, SIZE_FARPROC, @LBytesSend, nil, nil);
   if LStatus <> 0 then begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
@@ -5796,13 +5796,13 @@ end;
 function WSA_CMSG_SPACE(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length));
+  Result := WSA_CMSGDATA_ALIGN(DWORD(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
 function WSA_CMSG_LEN(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length;
+  Result := DWORD(WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length);
 end;
 
 function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
