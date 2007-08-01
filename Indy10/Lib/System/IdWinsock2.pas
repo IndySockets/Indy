@@ -5234,26 +5234,26 @@ begin
 end;
 
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
-  dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;
+  dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;  stdcall;
 begin
   FixupStubEx(s, 'ConnectEx', WSAID_CONNECTEX, ConnectEx); {Do not localize}
   Result := ConnectEx(s, name, namelen, lpSendBuffer, dwSendDataLength, lpdwBytesSent, lpOverlapped);
 end;
 
-function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL;
+function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL;  stdcall;
 begin
   FixupStubEx(s, 'DisconnectEx', WSAID_DISCONNECTEX, DisconnectEx); {Do not localize}
   Result := DisconnectEx(s, AOverlapped, dwFlags, dwReserved);
 end;
 
-function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;
+function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;  stdcall;
 begin
   FixupStubEx(s, 'WSARecvMsg', WSAID_WSARECVMSG, WSARecvMsg); {Do not localize}
   Result := WSARecvMsg(s, lpMsg, lpNumberOfBytesRecvd, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_TransmitPackets(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT;
-  nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL;
+  nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL; stdcall;
 begin
   FixupStubEx(s, 'TransmitPackets', WSAID_TRANSMITPACKETS, TransmitPackets); {Do not localize}
   Result := TransmitPackets(s, lpPacketArray, nElementCount, nSendSize, lpOverlapped, dwFlags);
@@ -5267,7 +5267,7 @@ end;
 
 function Stub_WSAPoll(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
 begin
-  FixupStubEx(s, 'WSAPoll', WSAID_WSAPOLL, WSAPoll); {Do not localize}
+  FixupStubEx(fdarray.fd, 'WSAPoll', WSAID_WSAPOLL, WSAPoll); {Do not localize}
   Result := WSAPoll(fdarray, nfds, timeout);
 end;
 
