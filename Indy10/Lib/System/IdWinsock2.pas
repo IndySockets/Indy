@@ -337,13 +337,13 @@ type
   servent = packed record
     s_name: PChar;                 // official service name
     s_aliases: ^PChar;             // alias list
-{$IFDEF _WIN64}
+    {$IFDEF _WIN64}
     s_proto: PChar;                // protocol to use
     s_port: Smallint;              // port #
-{$ELSE}
+    {$ELSE}
     s_port: Smallint;              // port #
     s_proto: PChar;                // protocol to use
-{$ENDIF}
+    {$ENDIF}
   end;
   TServEnt = servent;
   PServEnt = ^TServEnt;
@@ -1271,19 +1271,19 @@ type
   WSADATA = packed record
     wVersion       : Word;
     wHighVersion   : Word;
-{$IFDEF _WIN64}
+    {$IFDEF _WIN64}
     iMaxSockets    : Word;
     iMaxUdpDg      : Word;
     lpVendorInfo   : PChar;
     szDescription  : array[0..WSADESCRIPTION_LEN] of Char;
     szSystemStatus : array[0..WSASYS_STATUS_LEN] of Char;
-{$ELSE}
+    {$ELSE}
     szDescription  : array[0..WSADESCRIPTION_LEN] of Char;
     szSystemStatus : array[0..WSASYS_STATUS_LEN] of Char;
     iMaxSockets    : Word;
     iMaxUdpDg      : Word;
     lpVendorInfo   : PChar;
-{$ENDIF}
+    {$ENDIF}
   end;
   TWSAData = WSADATA;
   PWSAData = ^TWSAData;
@@ -1547,17 +1547,17 @@ type
 
   {$EXTERNALSYM WSAPROTOCOL_INFO}
   {$EXTERNALSYM LPWSAPROTOCOL_INFO}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   WSAPROTOCOL_INFO = TWSAProtocol_InfoW;
   TWSAProtocol_Info = TWSAProtocol_InfoW;
   PWSAProtocol_Info = PWSAProtocol_InfoW;
   LPWSAPROTOCOL_INFO = PWSAProtocol_InfoW;
-{$ELSE}
+  {$ELSE}
   WSAPROTOCOL_INFO = TWSAProtocol_InfoA;
   TWSAProtocol_Info = TWSAProtocol_InfoA;
   PWSAProtocol_Info = PWSAProtocol_InfoA;
   LPWSAPROTOCOL_INFO = PWSAProtocol_InfoA;
-{$ENDIF}
+  {$ENDIF}
 
 const
 //  flag bit definitions for dwProviderFlags
@@ -1797,31 +1797,31 @@ const
   SERVICE_TYPE_VALUE_OBJECTIDA             = 'ObjectId';    {Do not Localize}
 
   {$EXTERNALSYM SERVICE_TYPE_VALUE_IPXPORTW}
-  {$EXTERNALSYM SERVICE_TYPE_VALUE_SAPIDW}
-  {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORTW}
-  {$EXTERNALSYM SERVICE_TYPE_VALUE_UDPPORTW}
-  {$EXTERNALSYM SERVICE_TYPE_VALUE_OBJECTIDW}
   SERVICE_TYPE_VALUE_IPXPORTW : PWideChar  = 'IpxSocket';    {Do not Localize}
+  {$EXTERNALSYM SERVICE_TYPE_VALUE_SAPIDW}
   SERVICE_TYPE_VALUE_SAPIDW : PWideChar    = 'SapId';    {Do not Localize}
+  {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORTW}
   SERVICE_TYPE_VALUE_TCPPORTW : PWideChar  = 'TcpPort';    {Do not Localize}
+  {$EXTERNALSYM SERVICE_TYPE_VALUE_UDPPORTW}
   SERVICE_TYPE_VALUE_UDPPORTW : PWideChar  = 'UdpPort';    {Do not Localize}
+  {$EXTERNALSYM SERVICE_TYPE_VALUE_OBJECTIDW}
   SERVICE_TYPE_VALUE_OBJECTIDW : PWideChar = 'ObjectId';    {Do not Localize}
 
   {$EXTERNALSYM SERVICE_TYPE_VALUE_SAPID}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_TCPPORT}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_UDPPORT}
   {$EXTERNALSYM SERVICE_TYPE_VALUE_OBJECTID}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   SERVICE_TYPE_VALUE_SAPID : PWideChar = 'SapId';         {Do not Localize}
   SERVICE_TYPE_VALUE_TCPPORT : PWideChar = 'TcpPort';     {Do not Localize}
   SERVICE_TYPE_VALUE_UDPPORT : PWideChar = 'UdpPort';     {Do not Localize}
   SERVICE_TYPE_VALUE_OBJECTID : PWideChar = 'ObjectId';   {Do not Localize}
-{$ELSE}
+  {$ELSE}
   SERVICE_TYPE_VALUE_SAPID    = SERVICE_TYPE_VALUE_SAPIDA;
   SERVICE_TYPE_VALUE_TCPPORT  = SERVICE_TYPE_VALUE_TCPPORTA;
   SERVICE_TYPE_VALUE_UDPPORT  = SERVICE_TYPE_VALUE_UDPPORTA;
   SERVICE_TYPE_VALUE_OBJECTID = SERVICE_TYPE_VALUE_OBJECTIDA;
-{$ENDIF}
+  {$ENDIF}
 
 // SockAddr Information
 type
@@ -1844,6 +1844,7 @@ type
   PSOCKET_ADDRESS_LIST = ^TSocket_Address_List;
   {$EXTERNALSYM LPSOCKET_ADDRESS_LIST}
   LPSOCKET_ADDRESS_LIST = PSOCKET_ADDRESS_LIST;
+
 // CSAddr Information
   {$EXTERNALSYM CSADDR_INFO}
   CSADDR_INFO = packed record
@@ -1938,15 +1939,15 @@ type
 
   {$EXTERNALSYM LPWSAQUERYSET}
   {$EXTERNALSYM PWSAQUERYSET}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   TWSAQuerySet  = TWSAQuerySetA;
   PWSAQUERYSET  = PWSAQUERYSETW;
   LPWSAQUERYSET = LPWSAQUERYSETW;
-{$ELSE}
+  {$ELSE}
   TWSAQuerySet  = TWSAQuerySetA;
   PWSAQUERYSET  = PWSAQUERYSETA;
   LPWSAQUERYSET = LPWSAQUERYSETA;
-{$ENDIF}
+  {$ENDIF}
 
 const
   {$EXTERNALSYM LUP_DEEP}
@@ -2071,17 +2072,17 @@ type
   {$EXTERNALSYM WSANSCLASSINFO}
   {$EXTERNALSYM PWSANSCLASSINFO}
   {$EXTERNALSYM LPWSANSCLASSINFO}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   TWSANSClassInfo  = TWSANSClassInfoW;
   WSANSCLASSINFO   = TWSANSClassInfoW;
   PWSANSCLASSINFO  = PWSANSCLASSINFOW;
   LPWSANSCLASSINFO = LPWSANSCLASSINFOW;
-{$ELSE}
+  {$ELSE}
   TWSANSClassInfo  = TWSANSClassInfoA;
   WSANSCLASSINFO   = TWSANSClassInfoA;
   PWSANSCLASSINFO  = PWSANSCLASSINFOA;
   LPWSANSCLASSINFO = LPWSANSCLASSINFOA;
-{$ENDIF // UNICODE}
+  {$ENDIF // UNICODE}
 
   {$EXTERNALSYM WSASERVICECLASSINFOA}
   WSASERVICECLASSINFOA = packed record
@@ -2112,17 +2113,17 @@ type
   {$EXTERNALSYM WSASERVICECLASSINFO}
   {$EXTERNALSYM PWSASERVICECLASSINFO}
   {$EXTERNALSYM LPWSASERVICECLASSINFO}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   TWSAServiceClassInfo  = TWSAServiceClassInfoW;
   WSASERVICECLASSINFO   = TWSAServiceClassInfoW;
   PWSASERVICECLASSINFO  = PWSASERVICECLASSINFOW;
   LPWSASERVICECLASSINFO = LPWSASERVICECLASSINFOW;
-{$ELSE}
+  {$ELSE}
   TWSAServiceClassInfo  = TWSAServiceClassInfoA;
   WSASERVICECLASSINFO   = TWSAServiceClassInfoA;
   PWSASERVICECLASSINFO  = PWSASERVICECLASSINFOA;
   LPWSASERVICECLASSINFO = LPWSASERVICECLASSINFOA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM WSANAMESPACE_INFOA}
   WSANAMESPACE_INFOA = packed record
@@ -2151,7 +2152,8 @@ type
   PWSANAMESPACE_INFOW = ^TWSANameSpace_InfoW;
   {$EXTERNALSYM LPWSANAMESPACE_INFOW}
   LPWSANAMESPACE_INFOW = PWSANAMESPACE_INFOW;
-  {$IFNDEF UNDER_CE}
+
+{$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSANAMESPACE_INFOEXW}
   WSANAMESPACE_INFOEXW = packed record
      NSProviderId : TGUID;
@@ -2166,7 +2168,7 @@ type
   {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
   LPWSANAMESPACE_INFOEXW = PWSANAMESPACE_INFOEXW;
 
-   {$EXTERNALSYM WSANAMESPACE_INFOEXA}
+  {$EXTERNALSYM WSANAMESPACE_INFOEXA}
   WSANAMESPACE_INFOEXA = packed record
      NSProviderId : TGUID;
      dwNameSpace : DWord;
@@ -2180,45 +2182,46 @@ type
   {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
   LPWSANAMESPACE_INFOEXA = PWSANAMESPACE_INFOEXA;
 
-  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersExW}
-  LPFN_WSAEnumNameSpaceProvidersExW = function (var lpdwBufferLength : DWord;
+  {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEXW}
+  LPFN_WSAENUMNAMESPACEPROVIDERSEXW = function (var lpdwBufferLength : DWord;
     lpnspBuffer : PWSANAMESPACE_INFOEXW): Integer; stdcall;
-  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersExA}
-  LPFN_WSAEnumNameSpaceProvidersExA = function (var lpdwBufferLength : DWord;
+  {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEXA}
+  LPFN_WSAENUMNAMESPACEPROVIDERSEXA = function (var lpdwBufferLength : DWord;
     lpnspBuffer : PWSANAMESPACE_INFOEXA): Integer; stdcall;
   {$EXTERNALSYM WSANAMESPACE_INFOEX}
   {$EXTERNALSYM PWSANAMESPACE_INFOEX}
   {$EXTERNALSYM LPWSANAMESPACE_INFOEX}
-  {$EXTERNALSYM LPFN_WSAEnumNameSpaceProvidersEx}
-    {$IFDEF UNICODE}
-    WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
-    TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
-    PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
-    LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
-    LPFN_WSAEnumNameSpaceProvidersEx = LPFN_WSAEnumNameSpaceProvidersExW;
-    {$ELSE}
-    WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
-    TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
-    PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
-    LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
-    LPFN_WSAEnumNameSpaceProvidersEx = LPFN_WSAEnumNameSpaceProvidersExA;
-    {$ENDIF}
+  {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEX}
+
+  {$IFDEF UNICODE}
+  WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
+  TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
+  PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
+  LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
+  LPFN_WSAENUMNAMESPACEPROVIDERSEX = LPFN_WSAENUMNAMESPACEPROVIDERSEXW;
+  {$ELSE}
+  WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
+  TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
+  PWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEXW;
+  LPWSANAMESPACE_INFOEX = PWSANAMESPACE_INFOEX;
+  LPFN_WSAENUMNAMESPACEPROVIDERSEX = LPFN_WSAENUMNAMESPACEPROVIDERSEXA;
   {$ENDIF}
+{$ENDIF} // UNDER_CE
 
   {$EXTERNALSYM WSANAMESPACE_INFO}
   {$EXTERNALSYM PWSANAMESPACE_INFO}
   {$EXTERNALSYM LPWSANAMESPACE_INFO}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   TWSANameSpace_Info  = TWSANameSpace_InfoW;
   WSANAMESPACE_INFO   = TWSANameSpace_InfoW;
   PWSANAMESPACE_INFO  = PWSANAMESPACE_INFOW;
   LPWSANAMESPACE_INFO = LPWSANAMESPACE_INFOW;
-{$ELSE}
+  {$ELSE}
   TWSANameSpace_Info  = TWSANameSpace_InfoA;
   WSANAMESPACE_INFO   = TWSANameSpace_InfoA;
   PWSANAMESPACE_INFO  = PWSANAMESPACE_INFOA;
   LPWSANAMESPACE_INFO = LPWSANAMESPACE_INFOA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM WSAMSG}
   WSAMSG = packed record
@@ -2248,10 +2251,9 @@ type
   {$EXTERNALSYM LPWSACMSGHDR}
   LPWSACMSGHDR = PWSACMSGHDR;
 
-//
   {$EXTERNALSYM WSAPOLLFD}
   WSAPOLLFD = packed record
-    fd : TSOCKET;
+    fd : TSocket;
     events : SHORT;
     revents : SHORT;
   end;
@@ -2338,7 +2340,7 @@ type
   LPFN_GETHOSTNAME = function(name: PChar; len: Integer): Integer; stdcall;
 {$IFDEF UNDER_CE}
   // WinCE specific for setting the host name
-  {$EXTERNALSYM LPFN_SETHOSTNAME}
+  {$EXTERNALSYM LPFN_SETHOSTNAME} 
   LPFN_SETHOSTNAME = function(pName : PChar; len : Integer) : Integer; stdcall;
 {$ENDIF}
   {$EXTERNALSYM LPFN_GETSERVBYPORT}
@@ -2384,61 +2386,59 @@ type
 
 // WinSock 2 API new function prototypes
   {$EXTERNALSYM LPFN_WSAACCEPT}
-  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSA}
-  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSW}
-  {$EXTERNALSYM LPFN_WSAGETOVERLAPPEDRESULT}
-  {$EXTERNALSYM LPFN_WSAIOCTL}
-  {$EXTERNALSYM LPFN_WSARECVFROM}
-{$IFNDEF UNDER_CE}
-  {$EXTERNALSYM LPFN_TRANSMITFILE}
-  {$EXTERNALSYM LPFN_ACCEPTEX}
-{$ENDIF}
   LPFN_WSAACCEPT = function(const s : TSocket; addr : PSOCKADDR; addrlen : PInteger; lpfnCondition : LPCONDITIONPROC; const dwCallbackData : DWORD): TSocket; stdcall;
+  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSA}
   LPFN_WSAENUMPROTOCOLSA = function(lpiProtocols : PInteger; lpProtocolBuffer : LPWSAPROTOCOL_INFOA; var lpdwBufferLength : DWORD) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSW}
   LPFN_WSAENUMPROTOCOLSW = function(lpiProtocols : PInteger; lpProtocolBuffer : LPWSAPROTOCOL_INFOW; var lpdwBufferLength : DWORD) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSAGETOVERLAPPEDRESULT}
   LPFN_WSAGETOVERLAPPEDRESULT = function(const s : TSocket; AOverlapped: Pointer; lpcbTransfer : LPDWORD; fWait : BOOL; var lpdwFlags : DWORD) : WordBool; stdcall;
+  {$EXTERNALSYM LPFN_WSAIOCTL}
   LPFN_WSAIOCTL = function(const s : TSocket; dwIoControlCode : DWORD; lpvInBuffer : Pointer; cbInBuffer : DWORD; lpvOutBuffer : Pointer; cbOutBuffer : DWORD;
     lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSARECVFROM}
   LPFN_WSARECVFROM = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesRecvd : DWORD; var lpFlags : DWORD;
     lpFrom : PSOCKADDR; lpFromlen : PInteger; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 {$IFNDEF UNDER_CE} 
+  {$EXTERNALSYM LPFN_TRANSMITFILE}
   LPFN_TRANSMITFILE = function(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite, nNumberOfBytesPerSend: DWORD;
     lpOverlapped: POverlapped; lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
+  {$EXTERNALSYM LPFN_ACCEPTEX}
   LPFN_ACCEPTEX = function(sListenSocket, sAcceptSocket: TSocket;
     lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
     dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
     lpOverlapped: POverlapped): BOOL; stdcall;
-  {$EXTERNALSYM LPFN_WSAConnectByList}
-  LPFN_WSAConnectByList = function(const s : TSocket; SocketAddressList : PSOCKET_ADDRESS_LIST;
+  {$EXTERNALSYM LPFN_WSACONNECTBYLIST}
+  LPFN_WSACONNECTBYLIST = function(const s : TSocket; SocketAddressList : PSOCKET_ADDRESS_LIST;
     var LocalAddressLength : DWORD;  LocalAddress : LPSOCKADDR;
     var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
     timeout : Ptimeval; Reserved : LPWSAOVERLAPPED):LongBool; stdcall;
-  {$EXTERNALSYM LPFN_WSAConnectByNameA}
-  LPFN_WSAConnectByNameA = function(const s : TSOCKET;
+  {$EXTERNALSYM LPFN_WSACONNECTBYNAMEA}
+  LPFN_WSACONNECTBYNAMEA = function(const s : TSOCKET;
     nodename : PChar; servicename : PChar;
     var LocalAddressLength : DWORD; LocalAddress : LPSOCKADDR;
     var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
     timeout : Ptimeval;  Reserved : LPWSAOVERLAPPED) : Integer; stdcall;
-   {$EXTERNALSYM LPFN_WSAConnectByNameW}
-  LPFN_WSAConnectByNameW = function(const s : TSOCKET;
+  {$EXTERNALSYM LPFN_WSACONNECTBYNAMEW}
+  LPFN_WSACONNECTBYNAMEW = function(const s : TSOCKET;
     nodename : PWChar; servicename : PWChar;
     var LocalAddressLength : DWORD; LocalAddress : LPSOCKADDR;
     var RemoteAddressLength : DWORD; RemoteAddress : LPSOCKADDR;
     timeout : Ptimeval;  Reserved : LPWSAOVERLAPPED) : Integer; stdcall;
-   {$EXTERNALSYM LPFN_WSAConnectByName}
-   {$IFDEF UNICODE}
-  LPFN_WSAConnectByName = LPFN_WSAConnectByNameW;
-   {$ELSE}
-  LPFN_WSAConnectByName = LPFN_WSAConnectByNameA;
-   {$ENDIF}
-{$ENDIF}
+  {$EXTERNALSYM LPFN_WSACONNECTBYNAME}
+  {$IFDEF UNICODE}
+  LPFN_WSACONNECTBYNAME = LPFN_WSACONNECTBYNAMEW;
+  {$ELSE}
+  LPFN_WSACONNECTBYNAME = LPFN_WSACONNECTBYNAMEA;
   {$ENDIF}
-  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLS}
-{$IFDEF UNICODE}
-  LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSW;
-{$ELSE}
-  LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSA;
 {$ENDIF}
+
+  {$EXTERNALSYM LPFN_WSAENUMPROTOCOLS}
+  {$IFDEF UNICODE}
+  LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSW;
+  {$ELSE}
+  LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSA;
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSACLOSEEVENT}
   LPFN_WSACLOSEEVENT = function(const hEvent : WSAEVENT) : WordBool; stdcall;
@@ -2453,11 +2453,11 @@ type
   {$EXTERNALSYM LPFN_WSADUPLICATESOCKETW}
   LPFN_WSADUPLICATESOCKETW = function(const s : TSocket; const dwProcessId : DWORD; lpProtocolInfo : LPWSAPROTOCOL_INFOW) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSADUPLICATESOCKET}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSADUPLICATESOCKET = LPFN_WSADUPLICATESOCKETW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSADUPLICATESOCKET = LPFN_WSADUPLICATESOCKETA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAENUMNETWORKEVENTS}
   LPFN_WSAENUMNETWORKEVENTS = function(const s : TSocket; const hEventObject : WSAEVENT; lpNetworkEvents : LPWSANETWORKEVENTS) :Integer; stdcall;
@@ -2508,11 +2508,11 @@ type
   {$EXTERNALSYM LPFN_WSASOCKETW}
   LPFN_WSASOCKETW = function(af, iType, protocol : Integer; lpProtocolInfo : LPWSAPROTOCOL_INFOW; g : GROUP; dwFlags : DWORD): TSocket; stdcall;
   {$EXTERNALSYM LPFN_WSASOCKET}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSASOCKET = LPFN_WSASOCKETW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSASOCKET = LPFN_WSASOCKETA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAWAITFORMULTIPLEEVENTS}
   LPFN_WSAWAITFORMULTIPLEEVENTS = function(cEvents : DWORD; lphEvents : PWSAEVENT; fWaitAll : LongBool;
@@ -2525,11 +2525,11 @@ type
   LPFN_WSAADDRESSTOSTRINGW = function(lpsaAddress : PSOCKADDR; const dwAddressLength : DWORD; const lpProtocolInfo : LPWSAPROTOCOL_INFOW;
       const lpszAddressString : PWideChar; var lpdwAddressStringLength : DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAADDRESSTOSTRING}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSAADDRESSTOSTRING = LPFN_WSAADDRESSTOSTRINGW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSAADDRESSTOSTRING = LPFN_WSAADDRESSTOSTRINGA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSASTRINGTOADDRESSA}
   LPFN_WSASTRINGTOADDRESSA = function(const AddressString : PChar; const AddressFamily: Integer; const lpProtocolInfo : LPWSAPROTOCOL_INFOA;
@@ -2538,11 +2538,11 @@ type
   LPFN_WSASTRINGTOADDRESSW = function(const AddressString : PWideChar; const AddressFamily: Integer; const lpProtocolInfo : LPWSAPROTOCOL_INFOW;
       var lpAddress : TSockAddr; var lpAddressLength : Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSASTRINGTOADDRESS}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSASTRINGTOADDRESS = LPFN_WSASTRINGTOADDRESSW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSASTRINGTOADDRESS = LPFN_WSASTRINGTOADDRESSA;
-{$ENDIF}
+  {$ENDIF}
 
 // Registration and Name Resolution API functions
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEBEGINA}
@@ -2550,22 +2550,22 @@ type
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEBEGINw}
   LPFN_WSALOOKUPSERVICEBEGINW = function(var qsRestrictions : TWSAQuerySetW; const dwControlFlags : DWORD; var hLookup : THandle): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEBEGIN}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSALOOKUPSERVICEBEGIN = LPFN_WSALOOKUPSERVICEBEGINW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSALOOKUPSERVICEBEGIN = LPFN_WSALOOKUPSERVICEBEGINA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICENEXTA}
   LPFN_WSALOOKUPSERVICENEXTA = function(const hLookup : THandle; const dwControlFlags : DWORD; var dwBufferLength : DWORD; lpqsResults : PWSAQUERYSETA): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICENEXTW}
   LPFN_WSALOOKUPSERVICENEXTW = function(const hLookup : THandle; const dwControlFlags : DWORD; var dwBufferLength : DWORD; lpqsResults : PWSAQUERYSETW): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICENEXT}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSALOOKUPSERVICENEXT = LPFN_WSALOOKUPSERVICENEXTW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSALOOKUPSERVICENEXT = LPFN_WSALOOKUPSERVICENEXTA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEEND}
   LPFN_WSALOOKUPSERVICEEND = function(const hLookup : THandle): Integer; stdcall;
@@ -2575,11 +2575,11 @@ type
   {$EXTERNALSYM LPFN_WSAINSTALLSERVICECLASSW}
   LPFN_WSAINSTALLSERVICECLASSW = function(const lpServiceClassInfo : LPWSASERVICECLASSINFOW) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAINSTALLSERVICECLASS}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSAINSTALLSERVICECLASS = LPFN_WSAINSTALLSERVICECLASSW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSAINSTALLSERVICECLASS = LPFN_WSAINSTALLSERVICECLASSA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAREMOVESERVICECLASS}
   LPFN_WSAREMOVESERVICECLASS = function(const lpServiceClassId : LPGUID) : Integer; stdcall;
@@ -2591,11 +2591,11 @@ type
   LPFN_WSAGETSERVICECLASSINFOW = function(const lpProviderId : LPGUID; const lpServiceClassId : LPGUID; var lpdwBufSize : DWORD;
       lpServiceClassInfo : LPWSASERVICECLASSINFOW): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSINFO}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSAGETSERVICECLASSINFO = LPFN_WSAGETSERVICECLASSINFOW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSAGETSERVICECLASSINFO = LPFN_WSAGETSERVICECLASSINFOA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSA}
   LPFN_WSAENUMNAMESPACEPROVIDERSA = function(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOA): Integer; stdcall;
@@ -2613,22 +2613,22 @@ type
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PWideChar; var lpdwBufferLength: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSID}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSASETSERVICEA}
   LPFN_WSASETSERVICEA = function(const lpqsRegInfo: LPWSAQUERYSETA; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSASETSERVICEW}
   LPFN_WSASETSERVICEW = function(const lpqsRegInfo: LPWSAQUERYSETW; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSASETSERVICE}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSASETSERVICE = LPFN_WSASETSERVICEW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSASETSERVICE = LPFN_WSASETSERVICEA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAPROVIDERCONFIGCHANGE}
   LPFN_WSAPROVIDERCONFIGCHANGE = function(var lpNotificationHandle : THandle; lpOverlapped : LPWSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
@@ -2642,30 +2642,42 @@ type
   {$EXTERNALSYM LPFN_WSARECVEX}
   LPFN_WSARECVEX = function(s: TSocket; var buf; len: Integer; var flags: Integer): Integer; stdcall;
 
-  {$EXTERNALSYM LPFN_CONNECTEX}
-  {$EXTERNALSYM LPFN_DISCONNECTEX}
-  {$EXTERNALSYM LPFN_WSARECVMSG} //XP and Server 2003 only
-  {$EXTERNALSYM LPFN_TRANSMITPACKETS}
-  {$EXTERNALSYM LPFN_WSASENDMSG}
-  {$EXTERNALSYM LPFN_WSAPOLL}
   //Windows Server 2003, Windows Vista
+  {$EXTERNALSYM LPFN_CONNECTEX}
   LPFN_CONNECTEX = function(const s : TSocket; const name: PSOCKADDR; const namelen: Integer; lpSendBuffer : Pointer; dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL; stdcall;
+  {$EXTERNALSYM LPFN_DISCONNECTEX}
   LPFN_DISCONNECTEX = function(const hSocket : TSocket; AOverlapped: Pointer; const dwFlags : DWORD; const dwReserved : DWORD) : BOOL; stdcall;
+  {$EXTERNALSYM LPFN_WSARECVMSG} //XP and Server 2003 only
   LPFN_WSARECVMSG = function(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
+  {$EXTERNALSYM LPFN_TRANSMITPACKETS}
   LPFN_TRANSMITPACKETS = function(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT; nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL; stdcall;
   //Windows Vista, Windows Server 2008
+  {$EXTERNALSYM LPFN_WSASENDMSG}
   LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_WSAPOLL}
   LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
-
+{$ENDIF} // $IFDEF INCL_WINSOCK_API_TYPEDEFS
 
 const
   //GUID's for Microsoft extensions
-   GuidConnectEx: TGuid = (D1:$25a207b9;D2:$ddf3;D3:$4660;D4:($8e,$e9,$76,$e5,$8c,$74,$06,$3e));
-   GuidDisconnectEx: TGuid = (D1:$7fda2e11;D2:$8630;D3:$436f;D4:($a0,$31,$f5,$36,$a6,$ee,$c1,$57));
-   GuidWSARecvMsg: TGuid = (D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
-   GuidTransmitPackets: TGUID = (D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
-   GuidWSASendMsg : TGUID = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
-   GuidWSAPoll : TGUID = (D1:$18C76F85;D2:$DC66;D3:$4964;D4:($97,$2E,$23,$C2,$72,$38,$31,$2B));
+  {$EXTERNALSYM WSAID_ACCEPTEX}
+  WSAID_ACCEPTEX: TGuid = (D1:$b5367df1;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
+  {$EXTERNALSYM WSAID_CONNECTEX}
+  WSAID_CONNECTEX: TGuid = (D1:$25a207b9;D2:$ddf3;D3:$4660;D4:($8e,$e9,$76,$e5,$8c,$74,$06,$3e));
+  {$EXTERNALSYM WSAID_DISCONNECTEX}
+  WSAID_DISCONNECTEX: TGuid = (D1:$7fda2e11;D2:$8630;D3:$436f;D4:($a0,$31,$f5,$36,$a6,$ee,$c1,$57));
+  {$EXTERNALSYM WSAID_GETACCEPTEXSOCKADDRS}
+  WSAID_GETACCEPTEXSOCKADDRS: TGuid = (D1:$b5367df2;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
+  {$EXTERNALSYM WSAID_TRANSMITFILE}
+  WSAID_TRANSMITFILE: TGuid = (D1:$b5367df0; D2:$cbac; D3:$11cf; D4:($95, $ca, $00, $80, $5f, $48, $a1, $92));
+  {$EXTERNALSYM WSAID_TRANSMITPACKETS}
+  WSAID_TRANSMITPACKETS: TGuid = (D1:$d9689da0;D2:$1f90;D3:$11d3;D4:($99,$71,$00,$c0,$4f,$68,$c8,$76));
+  {$EXTERNALSYM WSAID_WSAPOLL}
+  WSAID_WSAPOLL: TGuid = (D1:$18C76F85;D2:$DC66;D3:$4964;D4:($97,$2E,$23,$C2,$72,$38,$31,$2B));
+  {$EXTERNALSYM WSAID_WSARECVMSG}
+  WSAID_WSARECVMSG: TGuid = (D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
+  {$EXTERNALSYM WSAID_WSASENDMSG}
+  WSAID_WSASENDMSG : TGuid = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
 
 {$IFDEF WS2_DLL_FUNC_VARS}
 var
@@ -2912,6 +2924,11 @@ var
   {$EXTERNALSYM TransmitPackets}
   TransmitPackets : LPFN_TRANSMITPACKETS = nil;
 
+  //Windows Vista, Windows Server 2008
+  {$EXTERNALSYM WSASendMsg}
+  WSASendMsg: LPFN_WSASENDMSG = nil;
+  {$EXTERNALSYM WSAPoll}
+  WSAPoll: LPFN_WSAPOLL = nil;
 {$ENDIF} // $IFDEF WS2_DLL_FUNC_VARS
 
   { Macros }
@@ -4349,8 +4366,10 @@ type
 //=============================================================
 implementation
 //=============================================================
-uses IdResourceStrings;
-// (c) March 2001,  "Alex Konshin"<alexk@mtgroup.ru>
+
+uses
+  IdResourceStrings;
+  // (c) March 2001,  "Alex Konshin"<alexk@mtgroup.ru>
 
 var
   hWinSockDll : THandle = 0; // WS2_32.DLL handle
@@ -4945,11 +4964,11 @@ end;
 
 function Stub_WSASocket(af, iType, protocol: Integer; lpProtocolInfo: LPWSAPROTOCOL_INFO; g: GROUP; dwFlags: DWORD): TSocket; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSASocketW', WSASocket); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSASocketA', WSASocket); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSASocket(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
 
@@ -4975,11 +4994,11 @@ function Stub_WSAAddressToString(lpsaAddress: PSockAddr; const dwAddressLength: 
   const lpszAddressString: {$IFDEF UNICODE}PWideChar{$ELSE}PChar{$ENDIF};
   var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAAddressToStringW', WSAAddressToString); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAAddressToStringA', WSAAddressToString); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAAddressToString(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
 end;
 
@@ -4999,11 +5018,11 @@ function Stub_WSAStringToAddress (const AddressString: {$IFDEF UNICODE}PWideChar
   const AddressFamily: Integer; const lpProtocolInfo: LPWSAProtocol_Info; var lpAddress: TSockAddr;
   var lpAddressLength: Integer): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAStringToAddressW', WSAStringToAddress); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAStringToAddressA', WSAStringToAddress); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAStringToAddress(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
 end;
 
@@ -5021,11 +5040,11 @@ end;
 
 function Stub_WSALookupServiceBegin(var qsRestrictions: TWSAQuerySet; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSALookupServiceBeginW', WSALookupServiceBegin); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSALookupServiceBeginA', WSALookupServiceBegin); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSALookupServiceBegin(qsRestrictions, dwControlFlags, hLookup);
 end;
 
@@ -5043,11 +5062,11 @@ end;
 
 function Stub_WSALookupServiceNext(const hLookup: THandle; const dwControlFlags: DWORD; var dwBufferLength: DWORD; lpqsResults: LPWSAQUERYSET): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSALookupServiceNextW', WSALookupServiceNext); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSALookupServiceNextA', WSALookupServiceNext); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSALookupServiceNext(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
@@ -5071,11 +5090,11 @@ end;
 
 function Stub_WSAInstallServiceClass(const lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAInstallServiceClassW', WSAInstallServiceClass); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAInstallServiceClassA', WSAInstallServiceClass); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAInstallServiceClass(lpServiceClassInfo);
 end;
 
@@ -5099,11 +5118,11 @@ end;
 
 function Stub_WSAGetServiceClassInfo(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW', WSAGetServiceClassInfo); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAGetServiceClassInfoA', WSAGetServiceClassInfo); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAGetServiceClassInfo(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
 
@@ -5121,11 +5140,11 @@ end;
 
 function Stub_WSAEnumNameSpaceProviders(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFO): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersW', WSAEnumNameSpaceProviders); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersA', WSAEnumNameSpaceProviders); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAEnumNameSpaceProviders(lpdwBufferLength, lpnspBuffer);
 end;
 
@@ -5145,11 +5164,11 @@ function Stub_WSAGetServiceClassNameByClassId(const lpServiceClassId: PGUID;
   lpszServiceClassName: {$IFDEF UNICODE}PWideChar{$ELSE}PChar{$ENDIF};
   var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW', WSAGetServiceClassNameByClassId); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA', WSAGetServiceClassNameByClassId); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAGetServiceClassNameByClassId(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
 end;
 
@@ -5167,11 +5186,11 @@ end;
 
 function Stub_WSASetService(const lpqsRegInfo: LPWSAQUERYSET; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   FixupStub(hWinSockDll, 'WSASetServiceW', WSASetService); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   FixupStub(hWinSockDll, 'WSASetServiceA', WSASetService); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSASetService(lpqsRegInfo, essoperation, dwControlFlags);
 end;
 
@@ -5184,10 +5203,8 @@ end;
 function Stub_TransmitFile(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite: DWORD;
   nNumberOfBytesPerSend: DWORD; lpOverlapped: POverlapped;
   lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
-const
-  GuidTransmitFile: TGUID = (D1:$b5367df0; D2:$cbac; D3:$11cf; D4:($95, $ca, $00, $80, $5f, $48, $a1, $92));
 begin
-  FixupStubEx(hSocket, 'TransmitFile', GuidTransmitFile, TransmitFile);
+  FixupStubEx(hSocket, 'TransmitFile', WSAID_TRANSMITFILE, TransmitFile); {Do not localize}
   Result := TransmitFile(hSocket, hFile, nNumberOfBytesToWrite, nNumberOfBytesPerSend, lpOverlapped, lpTransmitBuffers, dwReserved);
 end;
 
@@ -5201,13 +5218,10 @@ function Stub_AcceptEx(sListenSocket, sAcceptSocket: TSocket;
   lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
   dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
   lpOverlapped: POverlapped): BOOL; stdcall;
-const
-  GuidAcceptEx: TGuid = (D1:$b5367df1;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
-  GuidGetAcceptExSockaddrs: TGuid = (D1:$b5367df2;D2:$cbac;D3:$11cf;D4:($95,$ca,$00,$80,$5f,$48,$a1,$92));
 begin
   {RLebeau - loading GetAcceptExSockaddrs() first in case it fails}
-  FixupStubEx(sListenSocket, 'GetAcceptExSockaddrs', GuidGetAcceptExSockaddrs, GetAcceptExSockaddrs);
-  FixupStubEx(sListenSocket, 'AcceptEx', GuidAcceptEx, AcceptEx);
+  FixupStubEx(sListenSocket, 'GetAcceptExSockaddrs', WSAID_GETACCEPTEXSOCKADDRS, GetAcceptExSockaddrs); {Do not localize}
+  FixupStubEx(sListenSocket, 'AcceptEx', WSAID_ACCEPTEX, AcceptEx); {Do not localize}
   Result := AcceptEx(sListenSocket, sAcceptSocket, lpOutputBuffer, dwReceiveDataLength,
     dwLocalAddressLength, dwRemoteAddressLength, lpdwBytesReceived, lpOverlapped);
 end;
@@ -5215,34 +5229,46 @@ end;
 function Stub_WSARecvEx(s: TSocket; var buf; len: Integer; var flags: Integer): Integer; stdcall;
 begin
   LoadMSWSock;
-  FixupStub(hMSWSockDll, 'WSARecvEx', WSARecvEx);
+  FixupStub(hMSWSockDll, 'WSARecvEx', WSARecvEx); {Do not localize}
   Result := WSARecvEx(s, buf, len, flags);
 end;
 
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
-  dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;  stdcall;
+  dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;
 begin
-  FixupStubEx(s, 'ConnectEx', GuidConnectEx, ConnectEx);
+  FixupStubEx(s, 'ConnectEx', WSAID_CONNECTEX, ConnectEx); {Do not localize}
   Result := ConnectEx(s, name, namelen, lpSendBuffer, dwSendDataLength, lpdwBytesSent, lpOverlapped);
 end;
 
-function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL; stdcall;
+function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL;
 begin
-  FixupStubEx(s, 'DisconnectEx', GuidDisconnectEx, DisconnectEx);
+  FixupStubEx(s, 'DisconnectEx', WSAID_DISCONNECTEX, DisconnectEx); {Do not localize}
   Result := DisconnectEx(s, AOverlapped, dwFlags, dwReserved);
 end;
 
-function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
+function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;
 begin
-  FixupStubEx(s, 'WSARecvMsg', GuidWSARecvMsg, WSARecvMsg);
+  FixupStubEx(s, 'WSARecvMsg', WSAID_WSARECVMSG, WSARecvMsg); {Do not localize}
   Result := WSARecvMsg(s, lpMsg, lpNumberOfBytesRecvd, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_TransmitPackets(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT;
-  nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL; stdcall;
+  nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL;
 begin
-  FixupStubEx(s, 'TransmitPackets', GuidTransmitPackets, TransmitPackets);
+  FixupStubEx(s, 'TransmitPackets', WSAID_TRANSMITPACKETS, TransmitPackets); {Do not localize}
   Result := TransmitPackets(s, lpPacketArray, nElementCount, nSendSize, lpOverlapped, dwFlags);
+end;
+
+function Stub_WSASendMsg(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
+begin
+  FixupStubEx(s, 'WSASendMsg', WSAID_WSASENDMSG, WSASendMsg); {Do not localize}
+  Result := WSASendMsg(s, lpMsg, dwFlags, lpNumberOfBytesSent, lpOverlapped, lpCompletionRoutine);
+end;
+
+function Stub_WSAPoll(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
+begin
+  FixupStubEx(s, 'WSAPoll', WSAID_WSAPOLL, WSAPoll); {Do not localize}
+  Result := WSAPoll(fdarray, nfds, timeout);
 end;
 
 procedure InitializeStubs;
@@ -5362,14 +5388,16 @@ begin
   WSASetService                    := Stub_WSASetService;
   WSAProviderConfigChange          := Stub_WSAProviderConfigChange;
 {$IFNDEF UNDER_CE}
-  TransmitFile                     := Stub_TransmitFile;
   AcceptEx                         := Stub_AcceptEx;
   //GetAcceptExSockaddrs           := Stub_GetAcceptExSockaddrs;
   WSARecvEx                        := Stub_WSARecvEx;
   ConnectEx                        := Stub_ConnectEx;
   DisconnectEx                     := Stub_DisconnectEx;
-  WSARecvMsg                       := Stub_WSARecvMsg;
+  TransmitFile                     := Stub_TransmitFile;
   TransmitPackets                  := Stub_TransmitPackets;
+  WSAPoll                          := Stub_WSAPoll;
+  WSARecvMsg                       := Stub_WSARecvMsg;
+  WSASendMsg                       := Stub_WSASendMsg;
 {$ENDIF}
 end;
 
