@@ -141,8 +141,6 @@ interface
 {$RANGECHECKS OFF}
 {$WRITEABLECONST OFF}
 
-
-
 uses
   IdException, IdGlobal, SysUtils, Windows;
 
@@ -2271,13 +2269,6 @@ type
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
 
-//JPM
-//I just made this one up so we don't have to determine the record size at run-time
-//and we can use the value as a specific integer type (signed or unsigned).  
- {$EXTERNALSYM SIZE_WSACMSGHDR}
-const
-  SIZE_WSACMSGHDR = SizeOf(WSACMSGHDR);
-  
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
 type
@@ -3029,6 +3020,7 @@ type
 
 // TCP/IP specific Ioctl codes
 const
+  {Commented out because it's part of an enumeration}
  // {$EXTERNALSYM MCAST_INCLUDE}
 //  MCAST_INCLUDE             = 0;
 //  {$EXTERNALSYM MCAST_EXCLUDE}
@@ -3134,13 +3126,14 @@ type
   {$EXTERNALSYM LPIN6_ADDR}
   LPIN6_ADDR = PIN6_ADDR;
 
+  {$IFNDEF NOREDECLARE}
   // Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP
   {$EXTERNALSYM ipv6_mreq}
   ipv6_mreq = packed record
     ipv6mr_multiaddr: TIn6Addr; // IPv6 multicast address
     ipv6mr_interface: u_int; // Interface index
   end;
-
+ {$ENDIF}
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
   sockaddr_in6_old = packed record
@@ -4604,7 +4597,35 @@ type
   function Winsock2Loaded: Boolean;
   function WinsockHandle : THandle;
 
-//=============================================================
+//JPM
+{
+I made these symbols up so to prevent range check warnings in FreePascal.
+SizeOf is a smallInt when an expression is evaluated at run-time.  This
+run-time evaluation makes no sense because the compiler knows these when compiling
+so it should give us the numbers.  
+
+}
+ {$EXTERNALSYM SIZE_WSACMSGHDR}
+const
+  SIZE_WSACMSGHDR = SizeOf(WSACMSGHDR);
+  {$EXTERNALSYM SIZE_FARPROC}
+  SIZE_FARPROC = SizeOf(FARPROC);
+  {$EXTERNALSYM MAX_NATURAL_ALIGNMENT_SUB_1}
+  MAX_NATURAL_ALIGNMENT_SUB_1 = MAX_NATURAL_ALIGNMENT - 1;
+  {$EXTERNALSYM SIZE_IP_MSFILTER}
+  SIZE_IP_MSFILTER = SizeOf(ip_msfilter);
+  {$EXTERNALSYM SIZE_TINADDR}
+  SIZE_TINADDR = SizeOf(TInAddr);
+  {$EXTERNALSYM SIZE_TIN6ADDR}
+  SIZE_TIN6ADDR = SizeOf(TIn6Addr);
+  {$EXTERNALSYM SIZE_GROUP_FILTER}
+  SIZE_GROUP_FILTER = SizeOf(GROUP_FILTER);
+  {$EXTERNALSYM SIZE_SOCKADDR_STORAGE}
+  SIZE_SOCKADDR_STORAGE = sizeof(SOCKADDR_STORAGE);
+  {$EXTERNALSYM SIZE_GUID}
+  SIZE_GUID = SizeOf(TGuid);
+
+  //=============================================================
 implementation
 //=============================================================
 
@@ -4715,8 +4736,8 @@ var
   LBytesSend: DWORD;
   LProc: FARPROC;
 begin
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SizeOf(AGuid),
-    @LProc, SizeOf(LProc), @LBytesSend, nil, nil);
+  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SIZE_GUID,
+    @LProc, SIZE_FARPROC, @LBytesSend, nil, nil);
   if LStatus <> 0 then begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
@@ -5739,13 +5760,13 @@ end;
 function WSA_CMSGDATA_ALIGN(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (length + MAX_NATURAL_ALIGNMENT-1) and not (MAX_NATURAL_ALIGNMENT-1);
+  Result := DWORD(length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
 function WSA_CMSG_FIRSTHDR(msg: LPWSAMSG): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  if (msg <> nil) and (msg^.Control.len >= SizeOf(WSACMSGHDR)) then begin
+  if (msg <> nil) and (msg^.Control.len >= SIZE_WSACMSGHDR) then begin
     Result := LPWSACMSGHDR(msg^.Control.buf);
   end else begin
     Result := nil;
@@ -5775,19 +5796,19 @@ end;
 function WSA_CMSG_SPACE(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length));
+  Result := WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length));
 end;
 
 function WSA_CMSG_LEN(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length;
+  Result := WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length;
 end;
 
 function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := SizeOf(ip_msfilter) - SizeOf(TInAddr) + (numsrc*SizeOf(TInAddr));
+  Result := SIZE_IP_MSFILTER - SIZE_TINADDR + (numsrc*SIZE_TINADDR);
 end;
 
 function SS_PORT(ssp: PSockAddrIn): u_short;
@@ -5804,7 +5825,7 @@ function IN6ADDR_ANY_INIT: TIn6Addr;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   with Result do begin
-    System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
+    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
   end;
 end;
 
@@ -5812,7 +5833,7 @@ function IN6ADDR_LOOPBACK_INIT: TIn6Addr;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   with Result do begin
-    System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
+    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
     s6_addr[15] := 1;
   end;
 end;
@@ -5884,7 +5905,7 @@ end;
 function IN6_ADDR_EQUAL(const a: PIn6Addr; const b: PIn6Addr): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.CompareMem(a, b, SizeOf(TIn6Addr));
+  Result := SysUtils.CompareMem(a, b, SIZE_TIN6ADDR);
 end;
 
 function IN6_IS_ADDR_UNSPECIFIED(const a: PIn6Addr): Boolean;
@@ -6018,7 +6039,7 @@ end;
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
 var
-  len : Integer;
+  len : DWORD;
 begin
   if snb <> nil then begin
     with snb^ do begin
@@ -6046,8 +6067,8 @@ function GROUP_FILTER_SIZE(numsrc : DWord) : DWord;
    + (numsrc) * sizeof(SOCKADDR_STORAGE))
 }
 begin
-   Result :=  (sizeof(GROUP_FILTER) -  sizeof(SOCKADDR_STORAGE) +
-     numsrc *  sizeof(SOCKADDR_STORAGE));
+   Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +
+     (numsrc * SIZE_SOCKADDR_STORAGE);
 end;
 
 initialization
