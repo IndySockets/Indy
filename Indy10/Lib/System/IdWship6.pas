@@ -141,12 +141,29 @@ type
     SOCKET_SECURITY_PROTOCOL_DEFAULT, SOCKET_SECURITY_PROTOCOL_IPSEC, SOCKET_SECURITY_PROTOCOL_INVALID
     );
 
+  {$EXTERNALSYM SOCKET_SECURITY_SETTINGS_IPSEC}
+  SOCKET_SECURITY_SETTINGS_IPSEC = packed record
+    SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
+    SecurityFlags : ULONG;
+    IpsecFlags : ULONG;
+    AuthipMMPolicyKey : TGUID;
+    AuthipQMPolicyKey : TGUID;
+    Reserved : TGUID;
+    Reserved2 : UINT64;
+    UserNameStringLen : ULONG;
+    DomainNameStringLen : ULONG;
+    PasswordStringLen : ULONG;
+  //  wchar_t AllStrings[0];
+  end;
+  {$EXTERNALSYM SOCKET_SECURITY_SETTINGS_IPSEC}
+  PSOCKET_SECURITY_SETTINGS_IPSEC = ^SOCKET_SECURITY_SETTINGS_IPSEC;
+
   {$EXTERNALSYM SOCKET_PEER_TARGET_NAME}
   SOCKET_PEER_TARGET_NAME = packed record
     SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
     PeerAddress : SOCKADDR_STORAGE;
     PeerTargetNameStringLen : ULONG;
-    AllStrings : Word;//wchar_t;
+    //wchar_t AllStrings[0];
   end;
   {$EXTERNALSYM PSOCKET_PEER_TARGET_NAME}
   PSOCKET_PEER_TARGET_NAME = ^SOCKET_PEER_TARGET_NAME;
