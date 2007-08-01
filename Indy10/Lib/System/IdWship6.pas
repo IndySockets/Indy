@@ -113,7 +113,7 @@ const
 
   {$EXTERNALSYM SOCKET_SETTINGS_GUARANTEE_ENCRYPTION}
   SOCKET_SETTINGS_GUARANTEE_ENCRYPTION = $00000001;
-    {$EXTERNALSYM SOCKET_SETTINGS_ALLOW_INSECURE}
+  {$EXTERNALSYM SOCKET_SETTINGS_ALLOW_INSECURE}
   SOCKET_SETTINGS_ALLOW_INSECURE = $00000002;
   
 type
@@ -132,9 +132,11 @@ type
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_DEFAULT}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_IPSEC}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL_INVALID}
-  SOCKET_SECURITY_PROTOCOL = (SOCKET_SECURITY_PROTOCOL_DEFAULT,
-  SOCKET_SECURITY_PROTOCOL_IPSEC,
-  SOCKET_SECURITY_PROTOCOL_INVALID);
+  SOCKET_SECURITY_PROTOCOL = (
+    SOCKET_SECURITY_PROTOCOL_DEFAULT, SOCKET_SECURITY_PROTOCOL_IPSEC, SOCKET_SECURITY_PROTOCOL_INVALID
+    );
+
+  {$EXTERNALSYM SOCKET_PEER_TARGET_NAME}
   SOCKET_PEER_TARGET_NAME = packed record
     SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
     PeerAddress : SOCKADDR_STORAGE;
@@ -158,7 +160,6 @@ type
   LPFN_GETNAMEINFO = function(sa: psockaddr; salen: u_int; host: PChar; hostlen: u_int; serv: PChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_GETNAMEINFOW}
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
-
   {$EXTERNALSYM LPFN_FREEADDRINFO}
   LPFN_FREEADDRINFO = procedure(ai: Paddrinfo); stdcall;
 
@@ -170,25 +171,25 @@ procedure freehostent(ptr:phostent);stdcall; external Wship6_dll;
 function inet_pton(af:integer; const src:pchar; dst:pointer):integer;stdcall; external Wship6_dll;
 function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;stdcall; external Wship6_dll;
 }
-  {$EXTERNALSYM LPFN_inet_pton}
-  LPFN_inet_pton = function (af:integer; const src:pchar; dst:pointer):integer;stdcall;
-  {$EXTERNALSYM LPFN_inet_ptonW}
-  LPFN_inet_ptonW = function (af:integer; const src:pWideChar; dst:pointer):integer;stdcall;
-  {$EXTERNALSYM LPFN_inet_ntop}
-  LPFN_inet_ntop = function (af:integer; const src:pointer; dst:pchar;size:integer):pchar;stdcall;
-  {$EXTERNALSYM LPFN_inet_ntopW}
-  LPFN_inet_ntopW = function (af:integer; const src:pointer; dst:PWideChar;size:integer):pchar;stdcall;
+  {$EXTERNALSYM LPFN_INET_PTON}
+  LPFN_INET_PTON = function (af:integer; const src:pchar; dst:pointer):integer;stdcall;
+  {$EXTERNALSYM LPFN_INET_PTONW}
+  LPFN_INET_PTONW = function (af:integer; const src:pWideChar; dst:pointer):integer;stdcall;
+  {$EXTERNALSYM LPFN_INET_NTOP}
+  LPFN_INET_NTOP = function (af:integer; const src:pointer; dst:pchar;size:integer):pchar;stdcall;
+  {$EXTERNALSYM LPFN_INET_NTOPW}
+  LPFN_INET_NTOPW = function (af:integer; const src:pointer; dst:PWideChar;size:integer):pchar;stdcall;
 
 { end the following are not used, nor tested}
 //These are provided in case we need them later
 //Windows Vista
- {$EXTERNALSYM LPFN_GETADDRINFOEXA}
+  {$EXTERNALSYM LPFN_GETADDRINFOEXA}
   LPFN_GETADDRINFOEXA = function(pName : PChar; pServiceName : PChar;
     const dwNameSpace: DWord; lpNspId : LPGUID;hints : PADDRINFOEXA;
     ppResult : PADDRINFOEXA; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE;
     var lpNameHandle : THandle) : Integer; stdcall;
- {$EXTERNALSYM LPFN_GETADDRINFOEXW}
+  {$EXTERNALSYM LPFN_GETADDRINFOEXW}
   LPFN_GETADDRINFOEXW = function(pName : PWideChar; pServiceName : PWideChar;
     const dwNameSpace: DWord; lpNspId : LPGUID;hints : PADDRINFOEXW;
     ppResult : PADDRINFOEXW; timeout : Ptimeval; lpOverlapped : LPWSAOVERLAPPED;
@@ -207,11 +208,11 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   LPFN_FREEADDRINFOEXW = procedure(pAddrInfoEx : PADDRINFOEXW) ; stdcall;
 
   {$IFDEF UNICODE}
-    LPFN_GetAddrInfoEx = LPFN_GetAddrInfoExW;
-   LPFN_SetAddrInfoEx = LPFN_SetAddrInfoExW;
+  LPFN_GETADDRINFOEX = LPFN_GETADDRINFOEXW;
+  LPFN_SETADDRINFOEX = LPFN_SETADDRINFOEXW;
   {$ELSE}
-   LPFN_GetAddrInfoEx = LPFN_GetAddrInfoExA;
-   LPFN_SetAddrInfoEx = LPFN_SetAddrInfoExA;
+  LPFN_GETADDRINFOEX = LPFN_GETADDRINFOEXA;
+  LPFN_SETADDRINFOEX = LPFN_SETADDRINFOEXA;
   {$ENDIF}
 
 const
@@ -265,14 +266,14 @@ var
   {$EXTERNALSYM GetAddrInfoEx}
   GetAddrInfoEx :  LPFN_GETADDRINFOEX = nil;
   {$EXTERNALSYM SetAddrInfoEx}
-  SetAddrInfoEx : LPFN_SetAddrInfoEx = nil;
+  SetAddrInfoEx : LPFN_SETADDRINFOEX = nil;
   {$EXTERNALSYM FreeAddrInfoEx}
   //You can't alias the LPFN for this because the ASCII version of this
   //does not end with an "a"
-   {$IFDEF UNICODE}
-  FreeAddrInfoEx : LPFN_FreeAddrInfoEx = nil;
+  {$IFDEF UNICODE}
+  FreeAddrInfoEx : LPFN_FREEADDRINFOEX = nil;
   {$ELSE}
-  FreeAddrInfoEx : LPFN_FreeAddrInfoExW = nil;
+  FreeAddrInfoEx : LPFN_FREEADDRINFOEXW = nil;
   {$ENDIF}
 
 var
@@ -294,19 +295,20 @@ function gaiErrorToWsaError(const gaiError: Integer): Integer;
 begin
   case gaiError of
     EAI_ADDRFAMILY: Result := 0; // TODO: find a decent error for here
-    EAI_AGAIN:    Result := WSATRY_AGAIN;
-    EAI_BADFLAGS: Result := WSAEINVAL;
-    EAI_FAIL:     Result := WSANO_RECOVERY;
-    EAI_FAMILY:   Result := WSAEAFNOSUPPORT;
-    EAI_MEMORY:   Result := WSA_NOT_ENOUGH_MEMORY;
-    EAI_NODATA:   Result := WSANO_DATA;
-    EAI_NONAME:   Result := WSAHOST_NOT_FOUND;
-    EAI_SERVICE:  Result := WSATYPE_NOT_FOUND;
-    EAI_SOCKTYPE: Result := WSAESOCKTNOSUPPORT;
-    EAI_SYSTEM:   begin
-    	Result := 0; // avoid warning
-      IndyRaiseLastError;
-    	end;
+    EAI_AGAIN:      Result := WSATRY_AGAIN;
+    EAI_BADFLAGS:   Result := WSAEINVAL;
+    EAI_FAIL:       Result := WSANO_RECOVERY;
+    EAI_FAMILY:     Result := WSAEAFNOSUPPORT;
+    EAI_MEMORY:     Result := WSA_NOT_ENOUGH_MEMORY;
+    EAI_NODATA:     Result := WSANO_DATA;
+    EAI_NONAME:     Result := WSAHOST_NOT_FOUND;
+    EAI_SERVICE:    Result := WSATYPE_NOT_FOUND;
+    EAI_SOCKTYPE:   Result := WSAESOCKTNOSUPPORT;
+    EAI_SYSTEM:
+      begin
+        Result := 0; // avoid warning
+        IndyRaiseLastError;
+      end;
     else
       Result := gaiError;
   end;
@@ -316,7 +318,7 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
-  h := InterlockedExchangeTHandle(hWship6Dll,0);
+  h := InterlockedExchangeTHandle(hWship6Dll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
@@ -332,15 +334,14 @@ begin
 {
 IMPORTANT!!!
 
-I am doing things this way because the functions we want are probably in the
-Winsock2 .dll.  If they are not there, only then do you actually want to
-try the Wship6.dll.   I know it's a mess but I found that the functions
+I am doing things this way because the functions we want are probably in
+the Winsock2 dll.  If they are not there, only then do you actually want
+to try the Wship6.dll.   I know it's a mess but I found that the functions
 may not load if they aren't in Wship6.dll (and they aren't there in some
-versions of Winsdows).
+versions of Windows).
 
- hProcHandle provides a transparant way of managing
-the two possible library locations.  hWship6Dll is kept so we can unload
-the Wship6.dll if necessary.
+hProcHandle provides a transparant way of managing the two possible library
+locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
 }
   //Winsock2 has to be loaded by IdWinsock first.
   if not IdWinsock2.Winsock2Loaded then
@@ -348,38 +349,41 @@ the Wship6.dll if necessary.
     IdWinsock2.InitializeWinSock;
     hProcHandle := IdWinsock2.WinsockHandle;
   end;
-  getaddrinfo := GetProcAddress(hProcHandle,fn_getaddrinfo);
+  getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);
   if not Assigned(getaddrinfo) then
   begin
-    hWship6Dll := LoadLibrary( Wship6_dll );
+    hWship6Dll := LoadLibrary(Wship6_dll);
     hProcHandle := hWship6Dll;
-    getaddrinfo := GetProcAddress(hProcHandle,fn_getaddrinfo);  {do not localize}
+    getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);  {do not localize}
   end;
 
-  if Assigned(getaddrinfo) then begin
-    getnameinfo := GetProcAddress(hProcHandle,fn_getnameinfo);  {do not localize}
-    if Assigned(getnameinfo) then begin
-      freeaddrinfo := GetProcAddress(hProcHandle,fn_freeaddrinfo);  {do not localize}
-      if Assigned(freeaddrinfo) then begin
+  if Assigned(getaddrinfo) then
+  begin
+    getnameinfo := GetProcAddress(hProcHandle, fn_getnameinfo);  {do not localize}
+    if Assigned(getnameinfo) then
+    begin
+      freeaddrinfo := GetProcAddress(hProcHandle, fn_freeaddrinfo);  {do not localize}
+      if Assigned(freeaddrinfo) then
+      begin
         IdIPv6Available := True;
 
         //Additional functions should be initialized here.
-        inet_pton := GetProcAddress(hProcHandle,fn_inet_pton);  {do not localize}
-        inet_ntop := GetProcAddress(hProcHandle,fn_inet_ntop);  {do not localize}
-        GetAddrInfoEx := GetProcAddress(hProcHandle,fn_GetAddrInfoEx); {Do not localize}
+        inet_pton := GetProcAddress(hProcHandle, fn_inet_pton);  {do not localize}
+        inet_ntop := GetProcAddress(hProcHandle, fn_inet_ntop);  {do not localize}
+        GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
         SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
-        FreeAddrInfoEx := GetProcAddress(hProcHandle,fn_FreeAddrInfoEx); {Do not localize}
+        FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
         Exit;
       end;
     end;
   end;
-  CloseLibrary;
 
+  CloseLibrary;
 end;
 
 initialization
   InitLibrary;
 finalization
   CloseLibrary;
-end.
 
+end.
