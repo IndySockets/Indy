@@ -198,6 +198,7 @@ function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1
 var
   LIP : String;
   LPort : TIdPort;
+
 begin
   Result := 0;
   // TODO: pass flags to recv()
@@ -232,7 +233,6 @@ begin
       For IPv6 and raw sockets, we call this to get information about the destination
       IP address and hopefully, the TTL (hop count).
       }
-
       Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt, Id_IPv6);
     end;
   end;
