@@ -218,7 +218,7 @@
   Rev 1.0    11/13/2002 08:38:32 AM  JPMugaas
 }
 unit IdBuffer;
-
+{$I IdCompilerDefines.inc}
 {
   .Net forces us to perform copies from strings to Bytes so that it can do the
   proper unicode and other conversions.
