@@ -113,7 +113,7 @@
 }
 
 unit IdIOHandlerStream;
-
+{$I IdCompilerDefines.inc}
 interface
 
 uses
