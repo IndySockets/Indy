@@ -329,7 +329,7 @@ except from configure script:
 // with Win32 API header files
 (*$HPPEMIT '#include <time.h>'*)
 uses 
-{$IFDEF FPC} SysUtils, {$ENDIF}
+  SysUtils, 
   IdCTypes;
 
 const
@@ -7095,7 +7095,6 @@ function ErrMsg(AErr : TIdC_ULONG) : string;
 implementation
 
 uses
-  SysUtils,
   Classes,
   IdGlobal  //needed for Sys symbol
   {$IFDEF KYLIX}
