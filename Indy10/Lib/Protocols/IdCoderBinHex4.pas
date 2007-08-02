@@ -44,7 +44,7 @@
 }
 
 unit IdCoderBinHex4;
-{$i IdCompilerDefines.inc}
+
 
 {
   Written by Ciaran Costelloe, ccostelloe@flogas.ie, December 2003.
