@@ -52,14 +52,16 @@ during the authentication process.
 unit IdUserAccountsOTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
+  Classes,
   IdBaseComponent,
   IdComponent,
   IdException,
-  IdObjs,
   IdUserAccounts,
-  SyncObjs;
+  IdGlobal;
 
 const
   DEF_MAXCount = 900;
@@ -73,24 +75,24 @@ type
   TIdOTPUserAccount = class(TIdUserAccount)
   protected
     FPasswordType : TIdOTPPassword;
-    FCurrentCount : Cardinal;
+    FCurrentCount : LongWord;
     FSeed : String;
     FAuthenticating : Boolean;
-    FNoReenter : TIdCriticalSection;
+    FNoReenter : TCriticalSection;
     procedure SetSeed(const AValue : String);
     procedure SetPassword(const AValue: String); override;
   public
-    constructor Create(Collection: TIdCollection); override;
+    constructor Create(Collection: TCollection); override;
     destructor Destroy; override;
     function  CheckPassword(const APassword: String): Boolean; override;
   published
-    property CurrentCount : Cardinal read FCurrentCount write FCurrentCount;
+    property CurrentCount : LongWord read FCurrentCount write FCurrentCount;
     property Seed : String read FSeed write SetSeed;
     property PasswordType : TIdOTPPassword read FPasswordType write FPasswordType;
     property Authenticating : Boolean read FAuthenticating write FAuthenticating;
   end;
 
-  TIdOTPUserAccounts = class(TIdOwnedCollection)
+  TIdOTPUserAccounts = class(TOwnedCollection)
   protected
     //
     function  GetAccount(const AIndex: Integer): TIdOTPUserAccount;
@@ -106,15 +108,15 @@ type
 
   TIdOTPUserManager = class(TIdCustomUserManager)
   protected
-    FMaxCount : Cardinal;
+    FMaxCount : LongWord;
     FAccounts : TIdOTPUserAccounts;
     FDefaultPassword : String;
     procedure DoAuthentication(const AUsername: String; var VPassword: String;
       var VUserHandle: TIdUserHandle; var VUserAccess: TIdUserAccess); override;
-    procedure SetMaxCount(const AValue: Cardinal);
+    procedure SetMaxCount(const AValue: LongWord);
     procedure SetDefaultPassword(const AValue : String);
   public
-    constructor Create(AOwner: TIdNativeComponent); override;
+    constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UserDisconnected(const AUser : String); override;
         //Challenge user is a nice backdoor for some things we will do in a descendent class
@@ -124,7 +126,7 @@ type
     property Accounts : TIdOTPUserAccounts  read FAccounts;
   published
     property DefaultPassword : String read FDefaultPassword write SetDefaultPassword;
-    property MaxCount : Cardinal read FMaxCount write SetMaxCount default DEF_MAXCount;
+    property MaxCount : LongWord read FMaxCount write SetMaxCount default DEF_MAXCount;
   end;
 
   EIdOTPException = class(EIdException);
@@ -137,7 +139,6 @@ function GenerateSeed : String;
 implementation
 
 uses
-  IdGlobal,
   IdOTPCalculator;
 
 resourcestring
@@ -151,10 +152,10 @@ resourcestring
 const
   CharMap = 'abcdefghijklmnopqrstuvwxyz1234567890';    {Do not Localize}
 
-function GetRandomString(NumChar: Cardinal): string;
+function GetRandomString(NumChar: LongWord): string;
 var
   i: Integer;
-  MaxChar: cardinal;
+  MaxChar: LongWord;
 begin
   randomize;
   MaxChar := Length(CharMap) - 1;
@@ -170,7 +171,7 @@ begin
   Result := (Length(AValue) > 9) and (Length(AValue) < 64);
 end;
 
-function IsValidSeed(ASeed : String) : Boolean;
+function IsValidSeed(const ASeed : String) : Boolean;
 var
   i : Integer;
 begin
@@ -202,7 +203,7 @@ begin
   begin
     if not (AString[i] in LWS) then
     begin
-      Result := Result + Sys.LowerCase(AString[i]);
+      Result := Result + LowerCase(AString[i]);
     end;
   end;
 end;
@@ -233,15 +234,15 @@ begin
         IdPW_OTP_MD5  : Result := Result + 'md5 ';  {Do not translate}
         IdPW_OTP_SHA1 : Result := Result + 'sha1 '; {Do not translate}
       end;
-      Result := Result + Sys.IntToStr(LUser.CurrentCount) + ' ' + LUser.Seed;
-      Result := Sys.Format(RSOTP_Challenge, [Result]);
+      Result := Result + IntToStr(LUser.CurrentCount) + ' ' + LUser.Seed;
+      Result := IndyFormat(RSOTP_Challenge, [Result]);
     finally
       LUser.FNoReenter.Release;
     end;
   end;
 end;
 
-constructor TIdOTPUserManager.Create(AOwner: TIdNativeComponent);
+constructor TIdOTPUserManager.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAccounts := TIdOTPUserAccounts.Create(Self);
@@ -251,7 +252,7 @@ end;
 
 destructor TIdOTPUserManager.Destroy;
 begin
-  Sys.FreeAndNil(FAccounts);
+  FreeAndNil(FAccounts);
   inherited Destroy;;
 end;
 
@@ -288,7 +289,7 @@ begin
   FDefaultPassword := AValue;
 end;
 
-procedure TIdOTPUserManager.SetMaxCount(const AValue: Cardinal);
+procedure TIdOTPUserManager.SetMaxCount(const AValue: LongWord);
 begin
   EIdOTPInvalidCount.IfFalse(AValue > 1, RSOTP_InvalidCount);
   FMaxCount := AValue;
@@ -409,7 +410,7 @@ end;
 
 destructor TIdOTPUserAccount.Destroy;
 begin
-  Sys.FreeAndNil(FNoReenter);
+  FreeAndNil(FNoReenter);
   inherited Destroy;
 end;
 
@@ -421,8 +422,8 @@ end;
 
 procedure TIdOTPUserAccount.SetSeed(const AValue: String);
 begin
-  EIdOTPInvalidSeed.IfFalse(IsValidSeed(Sys.LowerCase(AValue)), RSOTP_SeedBadFormat);
-  FSeed := Sys.LowerCase(AValue);
+  EIdOTPInvalidSeed.IfFalse(IsValidSeed(LowerCase(AValue)), RSOTP_SeedBadFormat);
+  FSeed := LowerCase(AValue);
   FCurrentCount := TIdOTPUserManager(TIdOTPUserAccounts(Collection).GetOwner).MaxCount;
 end;
 
