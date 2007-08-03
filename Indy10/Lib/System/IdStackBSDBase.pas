@@ -231,7 +231,6 @@ type
 
   TIdStackBSDBase = class(TIdStack)
   protected
-
     procedure RaiseLastSocketError;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; virtual; abstract;
     function WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
@@ -253,13 +252,11 @@ type
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       AOffset: Integer = 0; ASize: Integer = -1): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-             var VIP: string; var VPort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; override;
+      var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
+      ): Integer; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-             const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
-             ): Integer; override;
+      const AOffset: Integer; const AIP: string; const APort: TIdPort;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
       const Alevel, Aoptname: Integer; Aoptval: PChar;
       const Aoptlen: Integer); overload; virtual; abstract;
@@ -303,11 +300,9 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
-
   EIdInvalidServiceName = class(EIdException);
   EIdStackInitializationFailed = class (EIdStackError);
   EIdStackSetSizeExceeded = class (EIdStackError);
-
 
 var
   GServeFileProc: TIdServeFile = nil;
@@ -411,7 +406,7 @@ var
   i: Integer;
   LLastError: Integer;
 begin
-  Result := 0;
+  Result := AResult;
   if AResult = Id_SOCKET_ERROR then begin
     LLastError := WSGetLastError;
     for i := Low(AIgnore) to High(AIgnore) do begin
@@ -525,8 +520,6 @@ begin
   end;
   Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
-
-
 
 constructor TIdStackBSDBase.Create;
 begin
