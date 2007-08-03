@@ -52,6 +52,7 @@ unit IdSysLog;
   units though. }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses IdAssignedNumbers, IdSocketHandle, IdSysLogMessage, IdUDPBase, IdUDPClient;
@@ -85,18 +86,17 @@ uses
 
 procedure TIdSysLog.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := IdPORT_syslog;
 end;
 
 
 procedure TIdSysLog.SendLogMessage(const AMsg: TIdSyslogMessage; const AAutoTimeStamp: Boolean = true);
 begin
-  if AAutoTimeStamp then
-  begin
+  if AAutoTimeStamp then begin
     AMsg.TimeStamp := Now;
   end;
-  Send( AMsg.EncodeMessage );
+  Send(AMsg.EncodeMessage);
 end;
 
 
@@ -116,7 +116,8 @@ end;
 procedure TIdSysLog.SendLogMessage(const AMsg: String;
   const AFacility: TidSyslogFacility;
   const ASeverity: TIdSyslogSeverity);
-var LMsg : TIdSyslogMessage;
+var
+  LMsg : TIdSyslogMessage;
 begin
   LMsg := TIdSyslogMessage.Create(nil);
   try
@@ -134,7 +135,8 @@ procedure TIdSysLog.SendLogMessage(const AProcess, AText: String;
   const ASeverity: TIdSyslogSeverity;
   const AUsePID: Boolean;
   const APID: Integer);
-var LMsg : TIdSyslogMessage;
+var
+  LMsg : TIdSyslogMessage;
 begin
   LMsg := TIdSyslogMessage.Create(nil);
   try
@@ -143,13 +145,10 @@ begin
     // <TP>
     // AUsePID was not honored
     LMsg.Msg.PIDAvailable := AUsePID;
-    if AUsePID then
-    begin
+    if AUsePID then begin
       LMsg.Msg.PID := APID;
-      LMsg.Msg.Content := AText;
-    end
-    else
-      LMsg.Msg.Content := AText;
+    end;
+    LMsg.Msg.Content := AText;
     // </TP>
 
     LMsg.Msg.Process := AProcess;
