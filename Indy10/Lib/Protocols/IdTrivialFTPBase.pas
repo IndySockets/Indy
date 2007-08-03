@@ -34,6 +34,7 @@
 unit IdTrivialFTPBase;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -48,9 +49,9 @@ type
 
 // Procs
   function MakeAckPkt(const BlockNumber: Word): string;
-  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: Integer; const ErrNumber: Word; ErrorString: string); overload;
+  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; ErrorString: string); overload;
   procedure SendError(UDPClient: TIdUDPClient; const ErrNumber: Word; ErrorString: string); overload;
-  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: Integer;  E: Exception); overload;
+  procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception); overload;
   procedure SendError(UDPClient: TIdUDPClient; E: Exception); overload;
 
 const  // TFTP opcodes
@@ -84,14 +85,12 @@ implementation
 uses
   IdGlobalProtocols, IdExceptionCore, IdStack;
 
-
-
 function MakeAckPkt(const BlockNumber: Word): string;
 begin
   Result := WordToStr(GStack.HostToNetwork(TFTP_ACK)) + WordToStr(GStack.HostToNetwork(BlockNumber));
 end;
 
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: Integer; const ErrNumber: Word; ErrorString: string);
+procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; const ErrNumber: Word; ErrorString: string);
 begin
   UDPBase.Send(APeerIP, APort, WordToStr(GStack.HostToNetwork(Word(TFTP_ERROR))) + WordToStr(ErrNumber) + ErrorString + #0);
 end;
@@ -101,7 +100,7 @@ begin
   SendError(UDPClient, UDPClient.Host, UDPClient.Port, ErrNumber, ErrorString);
 end;
 
-procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: Integer;  E: Exception);
+procedure SendError(UDPBase: TIdUDPBase; APeerIP: string; const APort: TIdPort; E: Exception);
 var
   ErrNumber: Word;
 begin
@@ -145,6 +144,5 @@ procedure SendError(UDPClient: TIdUDPClient; E: Exception);
 begin
   SendError(UDPClient, UDPClient.Host, UDPClient.Port, E);
 end;
-
 
 end.
