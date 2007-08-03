@@ -95,7 +95,6 @@ constructor TIdText.Create(Collection: TIdMessageParts; ABody: TStrings = nil);
 begin
   inherited Create(Collection);
   FBody := TStringList.Create;
-  FBody.Duplicates := dupAccept;
   if ABody <> nil then begin
     FBody.Assign(ABody);
   end;
