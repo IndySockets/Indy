@@ -314,7 +314,7 @@ type
 
 var
 //This is for the Win32-only package (SuperCore)
-  GWindowsStack : TIdStackWindows;
+  GWindowsStack : TIdStackWindows = nil;
 
 implementation
 
@@ -509,8 +509,7 @@ end;
 function TIdStackWindows.WSSend(ASocket: TIdStackSocketHandle;
   const ABuffer; const ABufferLength, AFlags: Integer): Integer;
 begin
-  Result := CheckForSocketError(IdWinsock2.Send(ASocket, ABuffer, ABufferLength
-   , AFlags));
+  Result := CheckForSocketError(IdWinsock2.Send(ASocket, ABuffer, ABufferLength, AFlags));
 end;
 
 procedure TIdStackWindows.WSSendTo(ASocket: TIdStackSocketHandle;
@@ -851,7 +850,7 @@ begin
   end;
   LResult := IdWinsock2.Select(0, AReadSet, AWriteSet, AExceptSet, LTimePtr);
   //TODO: Remove this cast
-  Result := (GStack as TIdStackBSDBase).CheckForSocketError(LResult) > 0;
+  Result := GBSDStack.CheckForSocketError(LResult) > 0;
 end;
 
 function TIdSocketListWindows.SelectReadList(var VSocketList: TIdSocketList; const ATimeout: Integer): Boolean;
@@ -1182,7 +1181,7 @@ var
 }
 begin
 
-  GWindowsStack.WSQuerryIPv6Route(s, AIP, APort, LSource, LDest);
+  WSQuerryIPv6Route(s, AIP, APort, LSource, LDest);
   SetLength(LTmp, Length(VBuffer)+40);
 
   //16
@@ -1226,7 +1225,6 @@ var
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
   LCurPt : PInPktInfo;
   LCurPt6 : PIn6PktInfo;
- // LDummy, LDummy2 : Cardinal;
 begin
   //This runs only on WIndowsXP or later
   // XP 5.1 at least, Vista 6.0
@@ -1255,7 +1253,7 @@ begin
           LMsg.name :=  @LAddr4;
           LMsg.namelen := SizeOf(LAddr4);
 
-          GWindowsStack.CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
+          CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
           APkt.SourceIP := TranslateTInAddrToString(LAddr4.sin_addr, Id_IPv4);
 
           APkt.SourcePort := NToHs(LAddr4.sin_port);
@@ -1265,9 +1263,7 @@ begin
           LMsg.name := PSOCKADDR(@LAddr6);
           LMsg.namelen := SizeOf(LAddr6);
           CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, nil, nil));
-        //  CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, @LDummy, LPWSAOVERLAPPED_COMPLETION_ROUTINE(@LDummy2)));
           APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
-
           APkt.SourcePort := NToHs(LAddr6.sin6_port);
         end;
       else begin
@@ -1288,13 +1284,13 @@ begin
           if AIPVersion = Id_IPv4 then
           begin
             LCurPt := PInPktInfo(WSA_CMSG_DATA(LCurCmsg));
-            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt^.ipi_addr, Id_IPv4);
+            APkt.DestIP := TranslateTInAddrToString(LCurPt^.ipi_addr, Id_IPv4);
             APkt.DestIF := LCurPt^.ipi_ifindex;
           end;
           if AIPVersion = Id_IPv6 then
           begin
             LCurPt6 := PIn6PktInfo(WSA_CMSG_DATA(LCurCmsg));
-            APkt.DestIP := GWindowsStack.TranslateTInAddrToString(LCurPt6^.ipi6_addr, Id_IPv6);
+            APkt.DestIP := TranslateTInAddrToString(LCurPt6^.ipi6_addr, Id_IPv6);
             APkt.DestIF := LCurPt6^.ipi6_ifindex;
           end;
         end;
