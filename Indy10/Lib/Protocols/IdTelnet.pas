@@ -86,6 +86,7 @@ unit IdTelnet;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -219,7 +220,6 @@ type
     fThreadedEvent: Boolean;
     FOnDataAvailable: TIdTelnetDataAvailEvent;
     fIamTelnet: Boolean;
-    FOnDisconnect: TNotifyEvent;
     FOnTelnetCommand: TIdTelnetCommandEvent;
     FTelnetThread: TIdTelnetReadThread;
     //
@@ -262,7 +262,6 @@ type
     property OnDataAvailable: TIdTelnetDataAvailEvent read FOnDataAvailable write FOnDataAvailable;
     property Terminal: string read fTerminal write fTerminal;
     property ThreadedEvent: Boolean read fThreadedEvent write fThreadedEvent default False;
-    property OnDisconnect: TNotifyEvent read FOnDisconnect write FOnDisconnect;
   end;
 
   EIdTelnetError = class(EIdException);
@@ -343,7 +342,7 @@ end;
 
 destructor TIdTelnet.Destroy;
 begin
-  Disconnect(True);
+  Disconnect;
   inherited Destroy;
 end;
 
@@ -352,16 +351,16 @@ begin
   if Assigned(FTelnetThread) then begin
     FTelnetThread.Terminate;
   end;
-  IAmTelnet := False;
-  inherited Disconnect(ANotifyPeer);
-  if Assigned(FOnDisconnect) then begin
-    FOnDisconnect(Self);
+  try
+    IAmTelnet := False;
+    inherited Disconnect(ANotifyPeer);
+  finally
+    if Assigned(FTelnetThread) then begin
+      FTelnetThread.WaitFor;
+    end;
+    FreeAndNil(FTelnetThread);
   end;
-  if Assigned(FTelnetThread) then begin
-    FTelnetThread.WaitFor;
-  end;
-  FreeAndNil(FTelnetThread);
-End;//Disconnect
+end;
 
 procedure TIdTelnet.DoOnDataAvailable(const Buf: String);
 begin
@@ -377,7 +376,7 @@ begin
   inherited Connect;
   try
     // create the reading thread and assign the current Telnet object to it
-    FTelnetThread := TIdTelnetReadThread.Create(SELF);
+    FTelnetThread := TIdTelnetReadThread.Create(Self);
   except
     Disconnect(True);
     raise EIdTelnetClientConnectError.Create(RSNoCreateListeningThread);  // translate
