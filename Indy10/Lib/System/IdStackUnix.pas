@@ -462,7 +462,7 @@ begin
         LMsg.name :=  @LAddr4;
         LMsg.namelen := SizeOf(LAddr4);
 
-        GWindowsStack.CheckForSocketError(RecvMsg(ASocket,@LMsg,Result,nil,nil));
+        CheckForSocketError(RecvMsg(ASocket,@LMsg,Result,nil,nil));
         APkt.SourceIP :=  TranslateTInAddrToString(LAddr4.sin_addr,Id_IPv4);
 
         APkt.SourcePort := NToHs(LAddr4.sin_port);
