@@ -22,7 +22,6 @@
   {$DEFINE DELPHI4}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE MSWINDOWS}
-  {$DEFINE TFormatSettings}
   {$DEFINE I386}
   {$DEFINE ENDIAN_LITTLE}
   {$DEFINE CPU32}
@@ -38,7 +37,6 @@
   {$DEFINE CBUILDER4}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE MSWINDOWS}
-  {$DEFINE TFormatSettings}
   {$DEFINE I386}
   {$DEFINE ENDIAN_LITTLE}
   {$DEFINE CPU32}
@@ -61,7 +59,6 @@
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
   {$DEFINE MSWINDOWS}
-  {$DEFINE TFormatSettings}
   {$DEFINE I386}
   {$DEFINE ENDIAN_LITTLE}
   {$DEFINE CPU32}
@@ -85,7 +82,6 @@
   {$DEFINE SAMETEXT}
   {$DEFINE VCL6ORABOVE}
   {$DEFINE VCL60}
-  {$DEFINE TFormatSettings}
   {$DEFINE I386}
   {$DEFINE ENDIAN_LITTLE}
   {$DEFINE CPU32}
@@ -301,7 +297,7 @@
 // Kylix
 //
 //Important:  Don't use CompilerVersion here as
-//$IF's are evaluated before $IFDEF's
+//IF's are evaluated before IFDEF's
 //and Kylix 1 does not have CompilerVersion defined at all.
 {$IFDEF LINUX}
   {$IFDEF CONDITIONALEXPRESSIONS}
