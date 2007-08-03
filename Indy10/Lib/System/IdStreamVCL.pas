@@ -34,7 +34,7 @@ type
           out VBytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
-    class procedure Write(
+    class function Write(
           const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
@@ -75,7 +75,7 @@ begin
   Result := AStream.Read(VBytes[AOffset], LActual);
 end;
 
-class procedure TIdStreamHelperVCL.Write(const AStream: TStream; const ABytes: TIdBytes;
+class function TIdStreamHelperVCL.Write(const AStream: TStream; const ABytes: TIdBytes;
   const ACount: Integer; const AOffset: Integer): Integer;
 var
   LActual: Integer;

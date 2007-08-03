@@ -32,7 +32,7 @@ type
           out VBytes: TIdBytes;
           ACount: Integer = -1;
           AOffset: Integer = 0): Integer; static;
-    class procedure Write(
+    class function Write(
           const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
@@ -72,7 +72,7 @@ begin
   Result := AStream.Read(VBytes, AOffset, LActual);
 end;
 
-class procedure TIdStreamHelperNET.Write(const AStream: TStream;
+class function TIdStreamHelperNET.Write(const AStream: TStream;
   const ABytes: TIdBytes; const ACount: Integer; const AOffset: Integer): Integer;
 var
   LActual: Integer;
