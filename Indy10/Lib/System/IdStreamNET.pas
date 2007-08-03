@@ -36,7 +36,7 @@ type
           const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
-          const AOffset: Integer = 0); static;
+          const AOffset: Integer = 0): Integer; static;
   end;
 
 implementation
@@ -63,7 +63,7 @@ begin
   if LActual = 0 then begin
     Exit;
   end;
-
+  
   if Length(VBytes) < (AOffset+LActual) then begin
     SetLength(VBytes, AOffset+LActual);
   end;
@@ -73,17 +73,21 @@ begin
 end;
 
 class procedure TIdStreamHelperNET.Write(const AStream: TStream;
-  const ABytes: TIdBytes; const ACount: Integer; const AOffset: Integer);
+  const ABytes: TIdBytes; const ACount: Integer; const AOffset: Integer): Integer;
 var
   LActual: Integer;
 begin
+  Result := 0;
   Assert(AStream<>nil);
   //should we raise assert instead of this nil check?
   if ABytes <> nil then
   begin
     LActual := IndyLength(ABytes, ACount, AOffset);
-    if LActual > 0 then begin
+    if LActual > 0 then
+    begin
+      // RLebeau: Write raises an exception if the buffer can't be written in full
       AStream.Write(ABytes, AOffset, LActual);
+      Result := LActual;
     end;
   end;
 end;

@@ -19,6 +19,7 @@
 unit IdStreamVCL;
 
 interface
+
 {$I IdCompilerDefines.inc}
 
 uses
@@ -26,7 +27,6 @@ uses
   IdGlobal;
 
 type
-
   TIdStreamHelperVCL = class
   public
     class function ReadBytes(
@@ -38,7 +38,7 @@ type
           const AStream: TStream;
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
-          const AOffset: Integer = 0); {$IFDEF DOTNET} static; {$ENDIF}
+          const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
   end;
 
 implementation
@@ -46,7 +46,7 @@ implementation
 class function TIdStreamHelperVCL.ReadBytes(const AStream: TStream; out VBytes: TIdBytes;
   const ACount, AOffset: Integer): Integer;
 var
- LActual: Integer;
+  LActual: Integer;
 begin
   Assert(AStream<>nil);
   Result := 0;
@@ -76,10 +76,11 @@ begin
 end;
 
 class procedure TIdStreamHelperVCL.Write(const AStream: TStream; const ABytes: TIdBytes;
-  const ACount: Integer; const AOffset: Integer);
+  const ACount: Integer; const AOffset: Integer): Integer;
 var
   LActual: Integer;
 begin
+  Result := 0;
   Assert(AStream<>nil);
   //should we raise assert instead of this nil check?
   if ABytes <> nil then begin
@@ -87,7 +88,7 @@ begin
     // TODO: loop the writing, or use WriteBuffer(), to mimic .NET where
     // System.IO.Stream.Write() writes all provided bytes in a single operation
     if LActual > 0 then begin
-      AStream.Write(ABytes[AOffset], LActual);
+      Result := AStream.Write(ABytes[AOffset], LActual);
     end;
   end;
 end;
