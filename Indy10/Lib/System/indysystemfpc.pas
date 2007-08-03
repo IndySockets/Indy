@@ -12,9 +12,7 @@ uses
   IdStackConsts,
   IdStream,
   IdStreamVCL,
-  IdStruct,
-  IdSys,
-  IdSysBase;
+  IdStruct;
 
 implementation
 

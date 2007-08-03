@@ -188,12 +188,10 @@ implicitunits=IdASN1Util \
   IdSMTPServer \
   IdSNMP \
   IdSNPP \
-  IdSNTP \
   IdSSL \
   IdServerInterceptLogBase \
   IdServerInterceptLogEvent \
   IdServerInterceptLogFile \
-  IdSocksServer \
   IdStrings \
   IdSysLog \
   IdSysLogMessage \
