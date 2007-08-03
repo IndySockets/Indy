@@ -70,6 +70,7 @@ unit IdVCard;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -524,7 +525,7 @@ var
   Hour, Minute, Second : Integer;
 begin
   //outlook format = 20050531T195358Z
-  if Copy(DateString, 9, 1) = 'T' then begin
+  if CharEquals(DateString, 9, 'T') then begin
     Year  := IndyStrToInt(Copy(DateString, 1, 4));
     Month := IndyStrToInt(Copy(DateString, 5, 2));
     Day   := IndyStrToInt(Copy(DateString, 7, 2));
@@ -869,15 +870,15 @@ begin
   {Keep adding until end VCard }
   while idx < s.Count do begin
     if Length(s[idx]) > 0 then begin
-      if TextIsSame(Trim(s[idx]), 'END:VCARD') then    {Do not Localize}
-      begin
-        // Have an END:
-        Dec(level);
-      end
-      else if TextIsSame(Trim(s[idx]), 'BEGIN:VCARD') then    {Do not Localize}
-      begin
-        // Have a new object - increment the counter & add
-        Inc(level);
+      case PosInStrArray(Trim(s[idx]), ['BEGIN:VCARD', 'END:VCARD'], False) of {Do not Localize}
+        0: begin
+          // Have a new object - increment the counter & add
+          Inc(level);
+        end;
+        1: begin
+          // Have an END:
+          Dec(level);
+        end;
       end;
       // regardless of content, add it 
       FRawForm.Add(s[idx]);
