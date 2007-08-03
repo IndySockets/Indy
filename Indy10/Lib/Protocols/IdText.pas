@@ -28,19 +28,21 @@
   Rev 1.2    10/17/03 12:06:50 PM  RLebeau
   Updated Assign() to copy all available header values rather than select ones.
 
-  Rev 1.1    10/17/2003 1:11:14 AM  DSiders
+    Rev 1.1    10/17/2003 1:11:14 AM  DSiders
   Added localization comments.
 
   Rev 1.0    11/13/2002 08:03:00 AM  JPMugaas
 
-  2002-08-30 Andrew P.Rubin
+2002-08-30 Andrew P.Rubin
   - extract charset & IsBodyEncodingRequired (true = 8 bit)
 }
 
 unit IdText;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdMessageParts;
@@ -48,20 +50,20 @@ uses
 type
   TIdText = class(TIdMessagePart)
   protected
-    FBody: TStringList;
+    FBody: TStrings;
     function  GetContentType: string; override; //Content-Type
-    procedure SetBody(const AStrs : TStringList); virtual;
+    procedure SetBody(const AStrs : TStrings); virtual;
     procedure SetContentType(const AValue: string); override;
     procedure SetCharSet(const AValue: String); virtual;
   public
     constructor Create(Collection: TIdMessageParts; ABody: TStrings = nil); reintroduce;
     destructor Destroy; override;
     procedure Assign(Source: TPersistent); override;
-    function  IsBodyEncodingRequired: Boolean;
+    function IsBodyEncodingRequired: Boolean;
 
     class function PartType: TIdMessagePartType; override;
     //
-    property  Body: TStringList read FBody write SetBody;
+    property Body: TStrings read FBody write SetBody;
   end;
 
 implementation
@@ -76,20 +78,16 @@ const
 { TIdText }
 
 procedure TIdText.Assign(Source: TPersistent);
-var mp : TIdText;
 begin
-  if ClassType <> Source.ClassType then
-  begin
-    inherited;
-  end
-  else begin
-    mp := TIdText(Source);
-
-    // RLebeau 10/17/2003
-    Headers.Assign(mp.Headers);
-
-    ExtraHeaders.Assign(mp.ExtraHeaders);
-    Body.Assign(mp.Body);
+  if Source is TIdText then begin
+    with Source as TIdText do begin
+      // RLebeau 10/17/2003
+      Self.Headers.Assign(Headers);
+      Self.ExtraHeaders.Assign(ExtraHeaders);
+      Self.Body.Assign(Body);
+    end;
+  end else begin
+    inherited Assign(Source);
   end;
 end;
 
@@ -105,8 +103,8 @@ end;
 
 destructor TIdText.Destroy;
 begin
-  FBody.Free;
-  inherited;
+  FreeAndNil(FBody);
+  inherited Destroy;
 end;
 
 function TIdText.GetContentType: string;
@@ -119,16 +117,16 @@ end;
 
 function TIdText.IsBodyEncodingRequired: Boolean;
 var
-  i,j: Integer;
+  i, j: Integer;
   S: String;
 begin
-  Result := FALSE;//7bit
-  for i:=0 to FBody.Count-1 do begin
+  Result := False;//7bit
+  for i := 0 to FBody.Count-1 do begin
     S := FBody[i];
     for j := 1 to Length(S) do begin
       if S[j] > #127 then begin
-        Result := TRUE;
-        EXIT;
+        Result := True;
+        Exit;
       end;
     end;
   end;
@@ -139,23 +137,22 @@ begin
   Result := mptText;
 end;
 
-procedure TIdText.SetBody(const AStrs: TStringList);
+procedure TIdText.SetBody(const AStrs: TStrings);
 begin
   FBody.Assign(AStrs);
 end;
 
 procedure TIdText.SetCharSet(const AValue: String);
 begin
-  inherited SetContentType(IndyFormat(SContentType,[GetContentType,AValue]));
+  inherited SetContentType(IndyFormat(SContentType, [GetContentType, AValue]));
 end;
 
 procedure TIdText.SetContentType(const AValue: string);
 begin
-  inherited SetContentType(IndyFormat(SContentType, [AValue,GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
+  inherited SetContentType(IndyFormat(SContentType, [AValue, GetCharSet(Headers.Values['Content-Type'])]));  {do not localize}
 end;
 
 initialization
-
-//  RegisterClasses([TIdText]);
+// RegisterClasses([TIdText]);
 end.
 
