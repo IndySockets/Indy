@@ -95,6 +95,7 @@ uses
   IdGlobalProtocols,
   IdResourceStringsProtocols,
   IdStack,
+  IdThread,
   IdUDPClient,
   SysUtils;
 
@@ -172,7 +173,7 @@ begin
 end;
 
 procedure TIdTrivialFTPServer.DoTransferComplete(const Success: Boolean;
-  const PeerInfo: TPeerInfo; SourceStream: TStream; const WriteOperation: Boolean);
+  const PeerInfo: TPeerInfo; var SourceStream: TStream; const WriteOperation: Boolean); 
 begin
   if Assigned(FOnTransferComplete) then begin
     FOnTransferComplete(Self, Success, PeerInfo, SourceStream, WriteOperation)
@@ -250,7 +251,7 @@ begin
       FOnWriteFile(Self, FileName, PeerInfo, CanWrite, LStream, FreeOnComplete);
     end;
     if not CanWrite then begin
-      raise EIdTFTPAccessViolation.Create(Sys.Format(RSTFTPAccessDenied, [FileName]));
+      raise EIdTFTPAccessViolation.Create(Format(RSTFTPAccessDenied, [FileName]));
     end;
     if LStream = nil then begin
       LStream := TIdFileCreateStream.Create(FileName);
@@ -274,7 +275,7 @@ begin
     0, 1: Result := tfOctet;
     2: Result := tfNetAscii;
     else
-      raise EIdTFTPIllegalOperation.Create(Sys.Format(RSTFTPUnsupportedTrxMode, [mode])); // unknown mode
+      raise EIdTFTPIllegalOperation.Create(Format(RSTFTPUnsupportedTrxMode, [mode])); // unknown mode
   end;
 end;
 
@@ -414,7 +415,7 @@ begin
     TFTP_ACK:
       begin
         if not (Self is TIdTFTPServerSendFileThread) then begin
-          raise EIdTFTPIllegalOperation.Create(Sys.Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
+          raise EIdTFTPIllegalOperation.Create(Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
         end;
         i := GStack.NetworkToHost(StrToWord(Copy(Buffer, 3, 2)));
         if i = FBlkCounter then begin
@@ -428,7 +429,7 @@ begin
     TFTP_DATA:
       begin
         if not (Self is TIdTFTPServerReceiveFileThread) then begin
-          raise EIdTFTPIllegalOperation.Create(Sys.Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
+          raise EIdTFTPIllegalOperation.Create(Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
         end;
         i := GStack.NetworkToHost(StrToWord(Copy(Buffer, 3, 2)));
         if i = Word(FBlkCounter + 1) then begin
@@ -440,11 +441,11 @@ begin
       end;
     TFTP_ERROR:
       begin
-        Sys.Abort;
+        Abort;
       end;
     else
       begin
-        raise EIdTFTPIllegalOperation.Create(Sys.Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
+        raise EIdTFTPIllegalOperation.Create(Format(RSTFTPUnexpectedOp, [FUDPClient.Host, FUDPClient.Port]));
       end;
   end;
 end;
