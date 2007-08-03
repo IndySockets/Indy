@@ -136,15 +136,13 @@
 unit IdWinSock2;
 
 interface
-
+ {$I IdCompilerDefines.inc}
 {$ALIGN OFF}
 {$RANGECHECKS OFF}
 {$WRITEABLECONST OFF}
 
-{$I IdCompilerDefines.inc}
-
 uses
-  IdException, IdGlobal, SysUtils, Windows;
+ IdException, IdGlobal, SysUtils, Windows;
 
 type
   EIdWinsockStubError = class(EIdException)
@@ -1702,7 +1700,7 @@ const
 type
 //  Manifest constants and type definitions related to name resolution and
 //  registration (RNR) API
-
+  {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM BLOB}
   BLOB = packed record
     cbSize : U_LONG;
@@ -1710,6 +1708,7 @@ type
   end;
   TBLOB = BLOB;
   PBLOB = ^TBLOB;
+  {$ENDIF}
   {$EXTERNALSYM LPBLOB}
   LPBLOB = PBLOB;
 
@@ -2270,13 +2269,6 @@ type
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
 
-//JPM
-//I just made this one up so we don't have to determine the record size at run-time
-//and we can use the value as a specific integer type (signed or unsigned).  
- {$EXTERNALSYM SIZE_WSACMSGHDR}
-const
-  SIZE_WSACMSGHDR = SizeOf(WSACMSGHDR);
-  
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
 type
@@ -2402,7 +2394,7 @@ type
   LPFN_WSAGETOVERLAPPEDRESULT = function(const s : TSocket; AOverlapped: Pointer; lpcbTransfer : LPDWORD; fWait : BOOL; var lpdwFlags : DWORD) : WordBool; stdcall;
   {$EXTERNALSYM LPFN_WSAIOCTL}
   LPFN_WSAIOCTL = function(const s : TSocket; dwIoControlCode : DWORD; lpvInBuffer : Pointer; cbInBuffer : DWORD; lpvOutBuffer : Pointer; cbOutBuffer : DWORD;
-    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
+    lpcbBytesReturned : LPDWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : LongInt; stdcall;
   {$EXTERNALSYM LPFN_WSARECVFROM}
   LPFN_WSARECVFROM = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesRecvd : DWORD; var lpFlags : DWORD;
     lpFrom : PSOCKADDR; lpFromlen : PInteger; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
@@ -3028,10 +3020,11 @@ type
 
 // TCP/IP specific Ioctl codes
 const
-  {$EXTERNALSYM MCAST_INCLUDE}
-  MCAST_INCLUDE             = 0;
-  {$EXTERNALSYM MCAST_EXCLUDE}
-  MCAST_EXCLUDE             = 1;
+  {Commented out because it's part of an enumeration}
+ // {$EXTERNALSYM MCAST_INCLUDE}
+//  MCAST_INCLUDE             = 0;
+//  {$EXTERNALSYM MCAST_EXCLUDE}
+ // MCAST_EXCLUDE             = 1;
 
   {$EXTERNALSYM SIO_GET_INTERFACE_LIST}
   SIO_GET_INTERFACE_LIST    = IOC_OUT or ((SizeOf(u_long) and IOCPARM_MASK) shl 16) or (Ord('t') shl 8) or 127;    {Do not Localize}
@@ -3133,13 +3126,14 @@ type
   {$EXTERNALSYM LPIN6_ADDR}
   LPIN6_ADDR = PIN6_ADDR;
 
+  {$IFNDEF NOREDECLARE}
   // Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP
   {$EXTERNALSYM ipv6_mreq}
   ipv6_mreq = packed record
     ipv6mr_multiaddr: TIn6Addr; // IPv6 multicast address
     ipv6mr_interface: u_int; // Interface index
   end;
-
+ {$ENDIF}
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
   sockaddr_in6_old = packed record
@@ -3259,6 +3253,7 @@ const
   IFF_POINTTOPOINT = $00000008;  // this is point-to-point interface
   {$EXTERNALSYM IFF_MULTICAST}
   IFF_MULTICAST    = $00000010;  // multicast is supported
+
 
 type
   {$EXTERNALSYM MULTICAST_MODE_TYPE}
@@ -3492,6 +3487,7 @@ type
   {$ENDIF}
 
 type
+
 // structure for IP_PKTINFO option
   {$EXTERNALSYM IN_PKTINFO}
   IN_PKTINFO = packed record
@@ -4629,7 +4625,7 @@ const
   {$EXTERNALSYM SIZE_GUID}
   SIZE_GUID = DWORD(SizeOf(TGuid));
 
-//=============================================================
+  //=============================================================
 implementation
 //=============================================================
 
@@ -4720,6 +4716,19 @@ end;
   EIdWinsockStubError should be raised each time, so the stub has to be
   preserved in order for FixupStub/Ex() to be called. }
 
+function FixupStub(hDll: THandle; const AName: string): Pointer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if hDll = 0 then begin
+    EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
+  end;
+  Result := Windows.GetProcAddress(hDll, PChar(AName));
+  if Result = nil then begin
+     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
+  end;
+end;
+
+{
 procedure FixupStub(hDll: THandle; const AName: string; var VStub);
 var
   LProc: FARPROC;
@@ -4732,527 +4741,541 @@ begin
     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;
   Pointer(VStub) := LProc;
-end;
+end;    }
 
+function FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID) : Pointer;
+var
+  LStatus: LongInt;
+  LBytesSend: DWORD;
+begin
+  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, LongWord(SIZE_GUID),
+    @Result, SIZE_FARPROC, @LBytesSend, nil, nil);
+  if LStatus <> 0 then begin
+    raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
+  end;
+
+end;
+{
 procedure FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID; var VStub);
 var
-  LStatus: Integer;
+  LStatus: LongInt;
   LBytesSend: DWORD;
   LProc: FARPROC;
 begin
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, SizeOf(AGuid),
-    @LProc, SizeOf(LProc), @LBytesSend, nil, nil);
+  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, LongWord(SIZE_GUID),
+    @LProc, SIZE_FARPROC, @LBytesSend, nil, nil);
   if LStatus <> 0 then begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
   Pointer(VStub) := LProc;
-end;
+end;    }
+
 
 function Stub_WSAStartup(const wVersionRequired: word; out WSData: TWSAData): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAStartup', WSAStartup); {Do not Localize}
+  @WSAStartup := FixupStub(hWinSockDll, 'WSAStartup'); {Do not Localize}
   Result := WSAStartup(wVersionRequired, WSData);
 end;
 
 function Stub_WSACleanup: Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSACleanup', WSACleanup); {Do not Localize}
+  @WSACleanup := FixupStub(hWinSockDll, 'WSACleanup'); {Do not Localize}
   Result := WSACleanup;
 end;
 
 function Stub_accept(const s: TSocket; addr: PSockAddr; addrlen: PInteger): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'accept', accept); {Do not Localize}
+  @accept := FixupStub(hWinSockDll, 'accept'); {Do not Localize}
   Result := accept(s, addr, addrlen);
 end;
 
 function Stub_bind(const s: TSocket; const name: PSockAddr; const namelen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'bind', bind); {Do not Localize}
+  @bind := FixupStub(hWinSockDll, 'bind'); {Do not Localize}
   Result := bind(s, name, namelen);
 end;
 
 function Stub_closesocket(const s: TSocket): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'closesocket', closesocket); {Do not Localize}
+  @closesocket := FixupStub(hWinSockDll, 'closesocket'); {Do not Localize}
   Result := closesocket(s);
 end;
 
 function Stub_connect(const s: TSocket; const name: PSockAddr; const namelen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'connect', connect); {Do not Localize}
+  @connect := FixupStub(hWinSockDll, 'connect'); {Do not Localize}
   Result := connect(s, name, namelen);
 end;
 
 function Stub_ioctlsocket(const s: TSocket; const cmd: DWORD; var arg: u_long): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'ioctlsocket', ioctlsocket); {Do not Localize}
+  @ioctlsocket := FixupStub(hWinSockDll, 'ioctlsocket'); {Do not Localize}
   Result := ioctlsocket(s, cmd, arg);
 end;
 
 function Stub_getpeername(const s: TSocket; const name: PSockAddr; var namelen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getpeername', getpeername); {Do not Localize}
+  @getpeername := FixupStub(hWinSockDll, 'getpeername'); {Do not Localize}
   Result := getpeername(s, name, namelen);
 end;
 
 function Stub_getsockname(const s: TSocket; const name: PSockAddr; var namelen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getsockname', getsockname); {Do not Localize}
+  @getsockname := FixupStub(hWinSockDll, 'getsockname'); {Do not Localize}
   Result := getsockname(s, name, namelen);
 end;
 
 function Stub_getsockopt(const s: TSocket; const level, optname: Integer; optval: PChar; var optlen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getsockopt', getsockopt); {Do not Localize}
+  @getsockopt := FixupStub(hWinSockDll, 'getsockopt'); {Do not Localize}
   Result := getsockopt(s, level, optname, optval, optlen);
 end;
 
 function Stub_htonl(hostlong: u_long): u_long; stdcall;
 begin
-  FixupStub(hWinSockDll, 'htonl', htonl); {Do not Localize}
+  @htonl := FixupStub(hWinSockDll, 'htonl'); {Do not Localize}
   Result := htonl(hostlong);
 end;
 
 function Stub_htons(hostshort: u_short): u_short; stdcall;
 begin
-  FixupStub(hWinSockDll, 'htons', htons); {Do not Localize}
+  @htons := FixupStub(hWinSockDll, 'htons'); {Do not Localize}
   Result := htons(hostshort);
 end;
 
 function Stub_inet_addr(cp: PChar): u_long; stdcall;
 begin
-  FixupStub(hWinSockDll, 'inet_addr', inet_addr); {Do not Localize}
+  @inet_addr := FixupStub(hWinSockDll, 'inet_addr'); {Do not Localize}
   Result := inet_addr(cp);
 end;
 
 function Stub_inet_ntoa(inaddr: TInAddr): PChar; stdcall;
 begin
-  FixupStub(hWinSockDll, 'inet_ntoa', inet_ntoa); {Do not Localize}
+  @inet_ntoa := FixupStub(hWinSockDll, 'inet_ntoa'); {Do not Localize}
   Result := inet_ntoa(inaddr);
 end;
 
 function Stub_listen(const s: TSocket; backlog: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'listen', listen); {Do not Localize}
+  @listen := FixupStub(hWinSockDll, 'listen'); {Do not Localize}
   Result := listen(s, backlog);
 end;
 
 function Stub_ntohl(netlong: u_long): u_long; stdcall;
 begin
-  FixupStub(hWinSockDll, 'ntohl', ntohl); {Do not Localize}
+  @ntohl := FixupStub(hWinSockDll, 'ntohl'); {Do not Localize}
   Result := ntohl(netlong);
 end;
 
 function Stub_ntohs(netshort: u_short): u_short; stdcall;
 begin
-  FixupStub(hWinSockDll, 'ntohs', ntohs); {Do not Localize}
+  @ntohs := FixupStub(hWinSockDll, 'ntohs'); {Do not Localize}
   Result := ntohs(netshort);
 end;
 
 function Stub_recv(const s: TSocket; var Buf; len, flags: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'recv', recv); {Do not Localize}
+  @recv := FixupStub(hWinSockDll, 'recv'); {Do not Localize}
   Result := recv(s, Buf, len, flags);
 end;
 
 function Stub_recvfrom(const s: TSocket; var Buf; len, flags: Integer; from: PSockAddr; fromlen: PInteger): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'recvfrom', recvfrom); {Do not Localize}
+  @recvfrom := FixupStub(hWinSockDll, 'recvfrom'); {Do not Localize}
   Result := recvfrom(s, Buf, len, flags, from, fromlen);
 end;
 
 function Stub_select(nfds: Integer; readfds, writefds, exceptfds: PFDSet; timeout: PTimeVal): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'select', select); {Do not Localize}
+  @select := FixupStub(hWinSockDll, 'select'); {Do not Localize}
   Result := select(nfds, readfds, writefds, exceptfds, timeout);
 end;
 
 function Stub_send(const s: TSocket; const Buf; len, flags: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'send', send); {Do not Localize}
+  @send := FixupStub(hWinSockDll, 'send'); {Do not Localize}
   Result := send(s, Buf, len, flags);
 end;
 
 function Stub_sendto(const s: TSocket; const Buf; const len, flags: Integer; const addrto: PSockAddr; const tolen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'sendto', sendto); {Do not Localize}
+  @sendto := FixupStub(hWinSockDll, 'sendto'); {Do not Localize}
   Result := sendto(s, Buf, len, flags, addrto, tolen);
 end;
 
 function Stub_setsockopt(const s: TSocket; const level, optname: Integer; optval: PChar; const optlen: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'setsockopt', setsockopt); {Do not Localize}
+  @setsockopt := FixupStub(hWinSockDll, 'setsockopt'); {Do not Localize}
   Result := setsockopt(s, level, optname, optval, optlen);
 end;
 
 function Stub_shutdown(const s: TSocket; const how: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'shutdown', shutdown); {Do not Localize}
+  @shutdown := FixupStub(hWinSockDll, 'shutdown'); {Do not Localize}
   Result := shutdown(s, how);
 end;
 
 function Stub_socket(const af, istruct, protocol: Integer): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'socket', socket); {Do not Localize}
+  @socket := FixupStub(hWinSockDll, 'socket'); {Do not Localize}
   Result := socket(af, istruct, protocol);
 end;
 
 function Stub_gethostbyaddr(addr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'gethostbyaddr', gethostbyaddr); {Do not Localize}
+  @gethostbyaddr := FixupStub(hWinSockDll, 'gethostbyaddr'); {Do not Localize}
   Result := gethostbyaddr(addr, len, addrtype);
 end;
 
 function Stub_gethostbyname(name: PChar): PHostEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'gethostbyname', gethostbyname); {Do not Localize}
+  @gethostbyname := FixupStub(hWinSockDll, 'gethostbyname' ); {Do not Localize}
   Result := gethostbyname(name);
 end;
 
 {$IFDEF UNDER_CE}
 function Stub_sethostname(pName : PChar; cName : Integer) : Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'sethostname', sethostname); {Do not Localize}
+  @sethostname := FixupStub(hWinSockDll, 'sethostname'); {Do not Localize}
   Result := sethostname(pName, cName);  
 end;
 {$ENDIF}
 
 function Stub_gethostname(name: PChar; len: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'gethostname', gethostname); {Do not Localize}
+  @gethostname := FixupStub(hWinSockDll, 'gethostname'); {Do not Localize}
   Result := gethostname(name, len);
 end;
 
 function Stub_getservbyport(const port: Integer; const proto: PChar): PServEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getservbyport', getservbyport); {Do not Localize}
+  @getservbyport := FixupStub(hWinSockDll, 'getservbyport'); {Do not Localize}
   Result := getservbyport(port, proto);
 end;
 
 function Stub_getservbyname(const name, proto: PChar): PServEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getservbyname', getservbyname); {Do not Localize}
+  @getservbyname := FixupStub(hWinSockDll, 'getservbyname'); {Do not Localize}
   Result := getservbyname(name, proto);
 end;
 
 function Stub_getprotobynumber(const proto: Integer): PProtoEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getprotobynumber', getprotobynumber); {Do not Localize}
+  @getprotobynumber := FixupStub(hWinSockDll, 'getprotobynumber' ); {Do not Localize}
   Result := getprotobynumber(proto);
 end;
 
 function Stub_getprotobyname(const name: PChar): PProtoEnt; stdcall;
 begin
-  FixupStub(hWinSockDll, 'getprotobyname', getprotobyname); {Do not Localize}
+  @getprotobyname := FixupStub(hWinSockDll, 'getprotobyname'); {Do not Localize}
   Result := getprotobyname(name);
 end;
 
 procedure Stub_WSASetLastError(const iError: Integer); stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASetLastError', WSASetLastError); {Do not Localize}
+  @WSASetLastError := FixupStub(hWinSockDll, 'WSASetLastError'); {Do not Localize}
   WSASetLastError(iError);
 end;
 
 function Stub_WSAGetLastError: Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetLastError', WSAGetLastError); {Do not Localize}
+  @WSAGetLastError := FixupStub(hWinSockDll, 'WSAGetLastError' ); {Do not Localize}
   Result := WSAGetLastError;
 end;
 
 {$IFNDEF UNDER_CE}
 function Stub_WSAIsBlocking: BOOL; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAIsBlocking', WSAIsBlocking); {Do not Localize}
+  @WSAIsBlocking := FixupStub(hWinSockDll, 'WSAIsBlocking'); {Do not Localize}
   Result := WSAIsBlocking;
 end;
 
 function Stub_WSAUnhookBlockingHook: Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAUnhookBlockingHook', WSAUnhookBlockingHook); {Do not Localize}
+  @WSAUnhookBlockingHook := FixupStub(hWinSockDll, 'WSAUnhookBlockingHook'); {Do not Localize}
   Result := WSAUnhookBlockingHook;
 end;
 
 function Stub_WSASetBlockingHook(lpBlockFunc: TFarProc): TFarProc; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASetBlockingHook', WSASetBlockingHook); {Do not Localize}
+  @WSASetBlockingHook := FixupStub(hWinSockDll, 'WSASetBlockingHook'); {Do not Localize}
   Result := WSASetBlockingHook(lpBlockFunc);
 end;
 
 function Stub_WSACancelBlockingCall: Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSACancelBlockingCall', WSACancelBlockingCall); {Do not Localize}
+  @WSACancelBlockingCall := FixupStub(hWinSockDll, 'WSACancelBlockingCall'); {Do not Localize}
   Result := WSACancelBlockingCall;
 end;
 
 function Stub_WSAAsyncGetServByName(HWindow: HWND; wMsg: u_int; name, proto, buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetServByName', WSAAsyncGetServByName); {Do not Localize}
+  @WSAAsyncGetServByName := FixupStub(hWinSockDll, 'WSAAsyncGetServByName'); {Do not Localize}
   Result := WSAAsyncGetServByName(HWindow, wMsg, name, proto, buf, buflen);
 end;
 
 function Stub_WSAAsyncGetServByPort(HWindow: HWND; wMsg, port: u_int; proto, buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetServByPort', WSAAsyncGetServByPort); {Do not Localize}
+  @WSAAsyncGetServByPort := FixupStub(hWinSockDll, 'WSAAsyncGetServByPort'); {Do not Localize}
   Result := WSAAsyncGetServByPort(HWindow, wMsg, port, proto, buf, buflen);
 end;
 
 function Stub_WSAAsyncGetProtoByName(HWindow: HWND; wMsg: u_int; name, buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetProtoByName', WSAAsyncGetProtoByName); {Do not Localize}
+  @WSAAsyncGetProtoByName := FixupStub(hWinSockDll, 'WSAAsyncGetProtoByName'); {Do not Localize}
   Result := WSAAsyncGetProtoByName(HWindow, wMsg, name, buf, buflen);
 end;
 
 function Stub_WSAAsyncGetProtoByNumber(HWindow: HWND; wMsg: u_int; number: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetProtoByNumber', WSAAsyncGetProtoByNumber); {Do not Localize}
+  @WSAAsyncGetProtoByNumber := FixupStub(hWinSockDll, 'WSAAsyncGetProtoByNumber'); {Do not Localize}
   Result := WSAAsyncGetProtoByNumber(HWindow, wMsg, number, buf, buflen);
 end;
 
 function Stub_WSAAsyncGetHostByName(HWindow: HWND; wMsg: u_int; name, buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetHostByName', WSAAsyncGetHostByName); {Do not Localize}
+  @WSAAsyncGetHostByName := FixupStub(hWinSockDll, 'WSAAsyncGetHostByName'); {Do not Localize}
   Result := WSAAsyncGetHostByName(HWindow, wMsg, name, buf, buflen);
 end;
 
 function Stub_WSAAsyncGetHostByAddr(HWindow: HWND; wMsg: u_int; addr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncGetHostByAddr', WSAAsyncGetHostByAddr); {Do not Localize}
+  @WSAAsyncGetHostByAddr := FixupStub(hWinSockDll, 'WSAAsyncGetHostByAddr'); {Do not Localize}
   Result := WSAAsyncGetHostByAddr(HWindow, wMsg, addr, len, istruct, buf, buflen);
 end;
 
 function Stub_WSACancelAsyncRequest(hAsyncTaskHandle: THandle): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSACancelAsyncRequest', WSACancelAsyncRequest); {Do not Localize}
+  @WSACancelAsyncRequest := FixupStub(hWinSockDll, 'WSACancelAsyncRequest'); {Do not Localize}
   Result := WSACancelAsyncRequest(hAsyncTaskHandle);
 end;
 {$ENDIF}
 
 function Stub_WSAAsyncSelect(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAsyncSelect', WSAAsyncSelect); {Do not Localize}
+ @WSAAsyncSelect := FixupStub(hWinSockDll, 'WSAAsyncSelect'); {Do not Localize}
   Result := WSAAsyncSelect(s, HWindow, wMsg, lEvent);
 end;
 
 function Stub___WSAFDIsSet(const s: TSocket; var FDSet: TFDSet): Bool; stdcall;
 begin
-  FixupStub(hWinSockDll, '__WSAFDIsSet', __WSAFDIsSet); {Do not Localize}
+  @__WSAFDIsSet := FixupStub(hWinSockDll, '__WSAFDIsSet' ); {Do not Localize}
   Result := __WSAFDIsSet(s, FDSet);
 end;
 
 function Stub_WSAAccept(const s: TSocket; addr: PSockAddr; addrlen: PInteger; lpfnCondition: LPCONDITIONPROC; const dwCallbackData: DWORD): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAccept', WSAAccept); {Do not Localize}
+  @WSAAccept := FixupStub(hWinSockDll, 'WSAAccept'); {Do not Localize}
   Result := WSAAccept(s, addr, addrlen, lpfnCondition, dwCallbackData);
 end;
 
 function Stub_WSACloseEvent(const hEvent: wsaevent): WordBool; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSACloseEvent', WSACloseEvent); {Do not Localize}
+  @WSACloseEvent := FixupStub(hWinSockDll, 'WSACloseEvent'); {Do not Localize}
   Result := WSACloseEvent(hEvent);
 end;
 
 function Stub_WSAConnect(const s: TSocket; const name: PSockAddr; const namelen: Integer; lpCallerData, lpCalleeData: LPWSABUF; lpSQOS, lpGQOS: LPQOS): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAConnect', WSAConnect); {Do not Localize}
+  @WSAConnect := FixupStub(hWinSockDll, 'WSAConnect'); {Do not Localize}
   Result := WSAConnect(s, name, namelen, lpCallerData, lpCalleeData, lpSQOS, lpGQOS);
 end;
 
 function Stub_WSACreateEvent: wsaevent; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSACreateEvent', WSACreateEvent); {Do not Localize}
+  @WSACreateEvent := FixupStub(hWinSockDll, 'WSACreateEvent'); {Do not Localize}
   Result := WSACreateEvent;
 end;
 
 function Stub_WSADuplicateSocketA(const s: TSocket; const dwProcessId: DWORD; lpProtocolInfo: LPWSAPROTOCOL_INFOA): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSADuplicateSocketA', WSADuplicateSocketA); {Do not Localize}
+  @WSADuplicateSocketA := FixupStub(hWinSockDll, 'WSADuplicateSocketA'); {Do not Localize}
   Result := WSADuplicateSocketA(s, dwProcessId, lpProtocolInfo);
 end;
 
 function Stub_WSADuplicateSocketW(const s: TSocket; const dwProcessId: DWORD; lpProtocolInfo: LPWSAPROTOCOL_INFOW): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSADuplicateSocketW', WSADuplicateSocketW); {Do not Localize}
+  @WSADuplicateSocketW := FixupStub(hWinSockDll, 'WSADuplicateSocketW'); {Do not Localize}
   Result := WSADuplicateSocketW(s, dwProcessId, lpProtocolInfo);
 end;
 
 function Stub_WSADuplicateSocket(const s: TSocket; const dwProcessId: DWORD; lpProtocolInfo: LPWSAPROTOCOL_INFO): Integer; stdcall;
 begin
 {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSADuplicateSocketW', WSADuplicateSocket); {Do not Localize}
+  @WSADuplicateSocket := FixupStub(hWinSockDll, 'WSADuplicateSocketW'); {Do not Localize}
 {$ELSE}
-  FixupStub(hWinSockDll, 'WSADuplicateSocketA', WSADuplicateSocket); {Do not Localize}
+  @WSADuplicateSocket := FixupStub(hWinSockDll, 'WSADuplicateSocketA'); {Do not Localize}
 {$ENDIF}
   Result := WSADuplicateSocket(s, dwProcessId, lpProtocolInfo);
 end;
 
 function Stub_WSAEnumNetworkEvents(const s: TSocket; const hEventObject: WSAEVENT; lpNetworkEvents: LPWSANETWORKEVENTS): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEnumNetworkEvents', WSAEnumNetworkEvents); {Do not Localize}
+  @WSAEnumNetworkEvents := FixupStub(hWinSockDll, 'WSAEnumNetworkEvents'); {Do not Localize}
   Result := WSAEnumNetworkEvents(s, hEventObject, lpNetworkEvents);
 end;
 
 function Stub_WSAEnumProtocolsA(lpiProtocols: PInteger; lpProtocolBuffer: LPWSAPROTOCOL_INFOA; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEnumProtocolsA', WSAEnumProtocolsA); {Do not Localize}
+  @WSAEnumProtocolsA := FixupStub(hWinSockDll, 'WSAEnumProtocolsA' ); {Do not Localize}
   Result := WSAEnumProtocolsA(lpiProtocols, lpProtocolBuffer, lpdwBufferLength);
 end;
 
 function Stub_WSAEnumProtocolsW(lpiProtocols: PInteger; lpProtocolBuffer: LPWSAPROTOCOL_INFOW; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEnumProtocolsW', WSAEnumProtocolsW); {Do not Localize}
+  @WSAEnumProtocolsW := FixupStub(hWinSockDll, 'WSAEnumProtocolsW'); {Do not Localize}
   Result := WSAEnumProtocolsW(lpiProtocols, lpProtocolBuffer, lpdwBufferLength);
 end;
 
 function Stub_WSAEnumProtocols(lpiProtocols: PInteger; lpProtocolBuffer: LPWSAPROTOCOL_INFO; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
 {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAEnumProtocolsW', WSAEnumProtocols); {Do not Localize}
+  @WSAEnumProtocols := FixupStub(hWinSockDll, 'WSAEnumProtocolsW', ); {Do not Localize}
 {$ELSE}
-  FixupStub(hWinSockDll, 'WSAEnumProtocolsA', WSAEnumProtocols); {Do not Localize}
+  @WSAEnumProtocols := FixupStub(hWinSockDll, 'WSAEnumProtocolsA'); {Do not Localize}
 {$ENDIF}
   Result := WSAEnumProtocols(lpiProtocols, lpProtocolBuffer, lpdwBufferLength);
 end;
 
 function Stub_WSAEventSelect(const s: TSocket; const hEventObject: WSAEVENT; lNetworkEvents: LongInt): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEventSelect', WSAEventSelect); {Do not Localize}
+  @WSAEventSelect := FixupStub(hWinSockDll, 'WSAEventSelect'); {Do not Localize}
   Result := WSAEventSelect(s, hEventObject, lNetworkEvents);
 end;
 
 function Stub_WSAGetOverlappedResult(const s: TSocket; AOverlapped: Pointer; lpcbTransfer: LPDWORD; fWait: BOOL; var lpdwFlags: DWORD): WordBool; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetOverlappedResult', WSAGetOverlappedResult); {Do not Localize}
+  @WSAGetOverlappedResult := FixupStub(hWinSockDll, 'WSAGetOverlappedResult'); {Do not Localize}
   Result := WSAGetOverlappedResult(s, AOverlapped, lpcbTransfer, fWait, lpdwFlags);
 end;
 
 function Stub_WSAGetQOSByName(const s: TSocket; lpQOSName: LPWSABUF; lpQOS: LPQOS): WordBool; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetQOSByName', WSAGetQOSByName); {Do not Localize}
+  @WSAGetQOSByName := FixupStub(hWinSockDll, 'WSAGetQOSByName'); {Do not Localize}
   Result := WSAGetQOSByName(s, lpQOSName, lpQOS);
 end;
 
 function Stub_WSAHtonl(const s: TSocket; hostlong: u_long; var lpnetlong: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAHtonl', WSAHtonl); {Do not Localize}
+  @WSAHtonl := FixupStub(hWinSockDll, 'WSAHtonl' ); {Do not Localize}
   Result := WSAHtonl(s, hostlong, lpnetlong);
 end;
 
 function Stub_WSAHtons(const s: TSocket; hostshort: u_short; var lpnetshort: WORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAHtons', WSAHtons); {Do not Localize}
+  @WSAHtons := FixupStub(hWinSockDll, 'WSAHtons' ); {Do not Localize}
   Result := WSAHtons(s, hostshort, lpnetshort);
 end;
 
 function Stub_WSAIoctl(const s: TSocket; dwIoControlCode: DWORD; lpvInBuffer: Pointer; cbInBuffer: DWORD; lpvOutBuffer: Pointer; cbOutBuffer: DWORD; lpcbBytesReturned: LPDWORD; AOverlapped: Pointer; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAIoctl', WSAIoctl); {Do not Localize}
+  @WSAIoctl := FixupStub(hWinSockDll, 'WSAIoctl'); {Do not Localize}
   Result := WSAIoctl(s, dwIoControlCode, lpvInBuffer, cbInBuffer, lpvOutBuffer, cbOutBuffer, lpcbBytesReturned, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSAJoinLeaf(const s: TSocket; name: PSockAddr; namelen: Integer; lpCallerData, lpCalleeData: LPWSABUF; lpSQOS, lpGQOS: LPQOS; dwFlags: DWORD): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAJoinLeaf', WSAJoinLeaf); {Do not Localize}
+  @WSAJoinLeaf := FixupStub(hWinSockDll, 'WSAJoinLeaf'); {Do not Localize}
   Result := WSAJoinLeaf(s, name, namelen, lpCallerData, lpCalleeData, lpSQOS, lpGQOS, dwFlags);
 end;
 
 function Stub_WSANtohl(const s: TSocket; netlong: u_long; var lphostlong: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSANtohl', WSANtohl); {Do not Localize}
+  @WSANtohl := FixupStub(hWinSockDll, 'WSANtohl' ); {Do not Localize}
   Result := WSANtohl(s, netlong, lphostlong);
 end;
 
 function Stub_WSANtohs(const s: TSocket; netshort: u_short; var lphostshort: WORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSANtohs', WSANtohs); {Do not Localize}
+  @WSANtohs := FixupStub(hWinSockDll, 'WSANtohs' ); {Do not Localize}
   Result := WSANtohs(s, netshort, lphostshort);
 end;
 
 function Stub_WSARecv(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesRecvd: DWORD; var lpFlags: DWORD; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSARecv', WSARecv); {Do not Localize}
+  @WSARecv := FixupStub(hWinSockDll, 'WSARecv'); {Do not Localize}
   Result := WSARecv(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd, lpFlags, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSARecvDisconnect(const s: TSocket; lpInboundDisconnectData: LPWSABUF): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSARecvDisconnect', WSARecvDisconnect); {Do not Localize}
+  @WSARecvDisconnect := FixupStub(hWinSockDll, 'WSARecvDisconnect' ); {Do not Localize}
   Result := WSARecvDisconnect(s, lpInboundDisconnectData);
 end;
 
 function Stub_WSARecvFrom(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesRecvd: DWORD; var lpFlags: DWORD; lpFrom: PSockAddr; lpFromlen: PInteger; AOverlapped: Pointer; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSARecvFrom', WSARecvFrom); {Do not Localize}
+  @WSARecvFrom := FixupStub(hWinSockDll, 'WSARecvFrom'); {Do not Localize}
   Result := WSARecvFrom(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd, lpFlags, lpFrom, lpFromlen, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSAResetEvent(hEvent: wsaevent): WordBool; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAResetEvent', WSAResetEvent); {Do not Localize}
+ @WSAResetEvent := FixupStub(hWinSockDll, 'WSAResetEvent'); {Do not Localize}
   Result := WSAResetEvent(hEvent);
 end;
 
 function Stub_WSASend(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesSent: DWORD; dwFlags: DWORD; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASend', WSASend); {Do not Localize}
+  @WSASend := FixupStub(hWinSockDll, 'WSASend'); {Do not Localize}
   Result := WSASend(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent, dwFlags, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSASendDisconnect(const s: TSocket; lpOutboundDisconnectData: LPWSABUF): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASendDisconnect', WSASendDisconnect); {Do not Localize}
+  @WSASendDisconnect := FixupStub(hWinSockDll, 'WSASendDisconnect'); {Do not Localize}
   Result := WSASendDisconnect(s, lpOutboundDisconnectData);
 end;
 
 function Stub_WSASendTo(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesSent: DWORD; dwFlags: DWORD; lpTo: PSOCKADDR; iTolen: Integer; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASendTo', WSASendTo); {Do not Localize}
+  @WSASendTo := FixupStub(hWinSockDll, 'WSASendTo'); {Do not Localize}
   Result := WSASendTo(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent, dwFlags, lpTo, iTolen, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSASetEvent(hEvent: WSAEVENT): WordBool; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASetEvent', WSASetEvent); {Do not Localize}
+  @WSASetEvent := FixupStub(hWinSockDll, 'WSASetEvent' ); {Do not Localize}
   Result := WSASetEvent(hEvent);
 end;
 
 function Stub_WSASocketA(af, iType, protocol: Integer; lpProtocolInfo: LPWSAPROTOCOL_INFOA; g: GROUP; dwFlags: DWORD): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASocketA', WSASocketA); {Do not Localize}
+  @WSASocketA := FixupStub(hWinSockDll, 'WSASocketA'); {Do not Localize}
   Result := WSASocketA(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
 
 function Stub_WSASocketW(af, iType, protocol: Integer; lpProtocolInfo: LPWSAPROTOCOL_INFOW; g: GROUP; dwFlags: DWORD): TSocket; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASocketW', WSASocketW); {Do not Localize}
+  @WSASocketW := FixupStub(hWinSockDll, 'WSASocketW'); {Do not Localize}
   Result := WSASocketW(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
 
 function Stub_WSASocket(af, iType, protocol: Integer; lpProtocolInfo: LPWSAPROTOCOL_INFO; g: GROUP; dwFlags: DWORD): TSocket; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSASocketW', WSASocket); {Do not Localize}
+  @WSASocket := FixupStub(hWinSockDll, 'WSASocketW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSASocketA', WSASocket); {Do not Localize}
+  @WSASocket := FixupStub(hWinSockDll, 'WSASocketA' ); {Do not Localize}
   {$ENDIF}
   Result := WSASocket(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
 
 function Stub_WSAWaitForMultipleEvents(cEvents: DWORD; lphEvents: Pwsaevent; fWaitAll: LongBool; dwTimeout: DWORD; fAlertable: LongBool): DWORD; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAWaitForMultipleEvents', WSAWaitForMultipleEvents); {Do not Localize}
+  @WSAWaitForMultipleEvents := FixupStub(hWinSockDll, 'WSAWaitForMultipleEvents'); {Do not Localize}
   Result := WSAWaitForMultipleEvents(cEvents, lphEvents, fWaitAll, dwTimeout, fAlertable);
 end;
 
 function Stub_WSAAddressToStringA(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; const lpszAddressString: PChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAddressToStringA', WSAAddressToStringA); {Do not Localize}
+  @WSAAddressToStringA := FixupStub(hWinSockDll, 'WSAAddressToStringA'); {Do not Localize}
   Result := WSAAddressToStringA(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
 end;
 
 function Stub_WSAAddressToStringW(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFOW; const lpszAddressString: PWideChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAAddressToStringW', WSAAddressToStringW); {Do not Localize}
+  @WSAAddressToStringW := FixupStub(hWinSockDll, 'WSAAddressToStringW'); {Do not Localize}
   Result := WSAAddressToStringW(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
 end;
 
@@ -5261,22 +5284,22 @@ function Stub_WSAAddressToString(lpsaAddress: PSockAddr; const dwAddressLength: 
   var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAAddressToStringW', WSAAddressToString); {Do not Localize}
+  @WSAAddressToString := FixupStub(hWinSockDll, 'WSAAddressToStringW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAAddressToStringA', WSAAddressToString); {Do not Localize}
+  @WSAAddressToString := FixupStub(hWinSockDll, 'WSAAddressToStringA'); {Do not Localize}
   {$ENDIF}
   Result := WSAAddressToString(lpsaAddress, dwAddressLength, lpProtocolInfo, lpszAddressString, lpdwAddressStringLength);
 end;
 
 function Stub_WSAStringToAddressA(const AddressString: PChar; const AddressFamily: Integer; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; var lpAddress: TSockAddr; var lpAddressLength: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAStringToAddressA', WSAStringToAddressA); {Do not Localize}
+  @WSAStringToAddressA := FixupStub(hWinSockDll, 'WSAStringToAddressA'); {Do not Localize}
   Result := WSAStringToAddressA(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
 end;
 
 function Stub_WSAStringToAddressW(const AddressString: PWideChar; const AddressFamily: Integer; const lpProtocolInfo: LPWSAPROTOCOL_INFOW; var lpAddress: TSockAddr; var lpAddressLength: Integer): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAStringToAddressW', WSAStringToAddressW); {Do not Localize}
+  @WSAStringToAddressW := FixupStub(hWinSockDll, 'WSAStringToAddressW'); {Do not Localize}
   Result := WSAStringToAddressW(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
 end;
 
@@ -5285,144 +5308,144 @@ function Stub_WSAStringToAddress (const AddressString: {$IFDEF UNICODE}PWideChar
   var lpAddressLength: Integer): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAStringToAddressW', WSAStringToAddress); {Do not Localize}
+  @WSAStringToAddress := FixupStub(hWinSockDll, 'WSAStringToAddressW', ); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAStringToAddressA', WSAStringToAddress); {Do not Localize}
+  @WSAStringToAddress := FixupStub(hWinSockDll, 'WSAStringToAddressA'); {Do not Localize}
   {$ENDIF}
   Result := WSAStringToAddress(AddressString, AddressFamily, lpProtocolInfo, lpAddress, lpAddressLength);
 end;
 
 function Stub_WSALookupServiceBeginA(var qsRestrictions: TWSAQuerySetA; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSALookupServiceBeginA', WSALookupServiceBeginA); {Do not Localize}
+  @WSALookupServiceBeginA := FixupStub(hWinSockDll, 'WSALookupServiceBeginA'); {Do not Localize}
   Result := WSALookupServiceBeginA(qsRestrictions, dwControlFlags, hLookup);
 end;
 
 function Stub_WSALookupServiceBeginW(var qsRestrictions: TWSAQuerySetW; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSALookupServiceBeginW', WSALookupServiceBeginW); {Do not Localize}
+  @WSALookupServiceBeginW := FixupStub(hWinSockDll, 'WSALookupServiceBeginW'); {Do not Localize}
   Result := WSALookupServiceBeginW(qsRestrictions, dwControlFlags, hLookup);
 end;
 
 function Stub_WSALookupServiceBegin(var qsRestrictions: TWSAQuerySet; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSALookupServiceBeginW', WSALookupServiceBegin); {Do not Localize}
+  @WSALookupServiceBegin := FixupStub(hWinSockDll, 'WSALookupServiceBeginW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSALookupServiceBeginA', WSALookupServiceBegin); {Do not Localize}
+  @WSALookupServiceBegin := FixupStub(hWinSockDll, 'WSALookupServiceBeginA'); {Do not Localize}
   {$ENDIF}
   Result := WSALookupServiceBegin(qsRestrictions, dwControlFlags, hLookup);
 end;
 
 function Stub_WSALookupServiceNextA(const hLookup: THandle; const dwControlFlags: DWORD; var dwBufferLength: DWORD; lpqsResults: LPWSAQUERYSETA): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSALookupServiceNextA', WSALookupServiceNextA); {Do not Localize}
+  @WSALookupServiceNextA := FixupStub(hWinSockDll, 'WSALookupServiceNextA'); {Do not Localize}
   Result := WSALookupServiceNextA(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
 function Stub_WSALookupServiceNextW(const hLookup: THandle; const dwControlFlags: DWORD; var dwBufferLength: DWORD; lpqsResults: LPWSAQUERYSETW): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSALookupServiceNextW', WSALookupServiceNextW); {Do not Localize}
+  @WSALookupServiceNextW := FixupStub(hWinSockDll, 'WSALookupServiceNextW'); {Do not Localize}
   Result := WSALookupServiceNextW(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
 function Stub_WSALookupServiceNext(const hLookup: THandle; const dwControlFlags: DWORD; var dwBufferLength: DWORD; lpqsResults: LPWSAQUERYSET): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSALookupServiceNextW', WSALookupServiceNext); {Do not Localize}
+  @WSALookupServiceNext := FixupStub(hWinSockDll, 'WSALookupServiceNextW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSALookupServiceNextA', WSALookupServiceNext); {Do not Localize}
+  @WSALookupServiceNext := FixupStub(hWinSockDll, 'WSALookupServiceNextA'); {Do not Localize}
   {$ENDIF}
   Result := WSALookupServiceNext(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
 function Stub_WSALookupServiceEnd(const hLookup: THandle): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSALookupServiceEnd', WSALookupServiceEnd); {Do not Localize}
+  @WSALookupServiceEnd := FixupStub(hWinSockDll, 'WSALookupServiceEnd'); {Do not Localize}
   Result := WSALookupServiceEnd(hLookup);
 end;
 
 function Stub_WSAInstallServiceClassA(const lpServiceClassInfo: LPWSASERVICECLASSINFOA): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAInstallServiceClassA', WSAInstallServiceClassA); {Do not Localize}
+  @WSAInstallServiceClassA := FixupStub(hWinSockDll, 'WSAInstallServiceClassA'); {Do not Localize}
   Result := WSAInstallServiceClassA(lpServiceClassInfo);
 end;
 
 function Stub_WSAInstallServiceClassW(const lpServiceClassInfo: LPWSASERVICECLASSINFOW): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAInstallServiceClassW', WSAInstallServiceClassW); {Do not Localize}
+  @WSAInstallServiceClassW := FixupStub(hWinSockDll, 'WSAInstallServiceClassW'); {Do not Localize}
   Result := WSAInstallServiceClassW(lpServiceClassInfo);
 end;
 
 function Stub_WSAInstallServiceClass(const lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAInstallServiceClassW', WSAInstallServiceClass); {Do not Localize}
+  @WSAInstallServiceClass := FixupStub(hWinSockDll, 'WSAInstallServiceClassW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAInstallServiceClassA', WSAInstallServiceClass); {Do not Localize}
+  @WSAInstallServiceClass := FixupStub(hWinSockDll, 'WSAInstallServiceClassA'); {Do not Localize}
   {$ENDIF}
   Result := WSAInstallServiceClass(lpServiceClassInfo);
 end;
 
 function Stub_WSARemoveServiceClass(const lpServiceClassId: PGUID): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSARemoveServiceClass', WSARemoveServiceClass); {Do not Localize}
+  @WSARemoveServiceClass := FixupStub(hWinSockDll, 'WSARemoveServiceClass'); {Do not Localize}
   Result := WSARemoveServiceClass(lpServiceClassId);
 end;
 
 function Stub_WSAGetServiceClassInfoA(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFOA): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetServiceClassInfoA', WSAGetServiceClassInfoA); {Do not Localize}
+  @WSAGetServiceClassInfoA := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoA'); {Do not Localize}
   Result := WSAGetServiceClassInfoA(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
 
 function Stub_WSAGetServiceClassInfoW(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFOW): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW', WSAGetServiceClassInfoW); {Do not Localize}
+  @WSAGetServiceClassInfoW := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW'); {Do not Localize}
   Result := WSAGetServiceClassInfoW(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
 
 function Stub_WSAGetServiceClassInfo(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW', WSAGetServiceClassInfo); {Do not Localize}
+  @WSAGetServiceClassInfo := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAGetServiceClassInfoA', WSAGetServiceClassInfo); {Do not Localize}
+  @WSAGetServiceClassInfo := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoA'); {Do not Localize}
   {$ENDIF}
   Result := WSAGetServiceClassInfo(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
 
 function Stub_WSAEnumNameSpaceProvidersA(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOA): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersA', WSAEnumNameSpaceProvidersA); {Do not Localize}
+  @WSAEnumNameSpaceProvidersA := FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersA'); {Do not Localize}
   Result := WSAEnumNameSpaceProvidersA(lpdwBufferLength, lpnspBuffer);
 end;
 
 function Stub_WSAEnumNameSpaceProvidersW(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOW): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersW', WSAEnumNameSpaceProvidersW); {Do not Localize}
+  @WSAEnumNameSpaceProvidersW := FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersW'); {Do not Localize}
   Result := WSAEnumNameSpaceProvidersW(lpdwBufferLength, lpnspBuffer);
 end;
 
 function Stub_WSAEnumNameSpaceProviders(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFO): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersW', WSAEnumNameSpaceProviders); {Do not Localize}
+  @WSAEnumNameSpaceProviders := FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersA', WSAEnumNameSpaceProviders); {Do not Localize}
+  @WSAEnumNameSpaceProviders := FixupStub(hWinSockDll, 'WSAEnumNameSpaceProvidersA'); {Do not Localize}
   {$ENDIF}
   Result := WSAEnumNameSpaceProviders(lpdwBufferLength, lpnspBuffer);
 end;
 
 function Stub_WSAGetServiceClassNameByClassIdA(const lpServiceClassId: PGUID; lpszServiceClassName: PChar; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA', WSAGetServiceClassNameByClassIdA); {Do not Localize}
+  @WSAGetServiceClassNameByClassIdA := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA'); {Do not Localize}
   Result := WSAGetServiceClassNameByClassIdA(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
 end;
 
 function Stub_WSAGetServiceClassNameByClassIdW(const lpServiceClassId: PGUID; lpszServiceClassName: PWideChar; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW', WSAGetServiceClassNameByClassIdW); {Do not Localize}
+  @WSAGetServiceClassNameByClassIdW := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW'); {Do not Localize}
   Result := WSAGetServiceClassNameByClassIdW(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
 end;
 
@@ -5431,38 +5454,38 @@ function Stub_WSAGetServiceClassNameByClassId(const lpServiceClassId: PGUID;
   var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW', WSAGetServiceClassNameByClassId); {Do not Localize}
+  @WSAGetServiceClassNameByClassId := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA', WSAGetServiceClassNameByClassId); {Do not Localize}
+  @WSAGetServiceClassNameByClassId := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA'); {Do not Localize}
   {$ENDIF}
   Result := WSAGetServiceClassNameByClassId(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
 end;
 
 function Stub_WSASetServiceA(const lpqsRegInfo: LPWSAQUERYSETA; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASetServiceA', WSASetServiceA); {Do not Localize}
+  @WSASetServiceA := FixupStub(hWinSockDll, 'WSASetServiceA'); {Do not Localize}
   Result := WSASetServiceA(lpqsRegInfo, essoperation, dwControlFlags);
 end;
 
 function Stub_WSASetServiceW(const lpqsRegInfo: LPWSAQUERYSETW; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSASetServiceW', WSASetServiceW); {Do not Localize}
+  @WSASetServiceW := FixupStub(hWinSockDll, 'WSASetServiceW'); {Do not Localize}
   Result := WSASetServiceW(lpqsRegInfo, essoperation, dwControlFlags);
 end;
 
 function Stub_WSASetService(const lpqsRegInfo: LPWSAQUERYSET; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  FixupStub(hWinSockDll, 'WSASetServiceW', WSASetService); {Do not Localize}
+  @WSASetService := FixupStub(hWinSockDll, 'WSASetServiceW'); {Do not Localize}
   {$ELSE}
-  FixupStub(hWinSockDll, 'WSASetServiceA', WSASetService); {Do not Localize}
+  @WSASetService := FixupStub(hWinSockDll, 'WSASetServiceA'); {Do not Localize}
   {$ENDIF}
   Result := WSASetService(lpqsRegInfo, essoperation, dwControlFlags);
 end;
 
 function Stub_WSAProviderConfigChange(var lpNotificationHandle: THandle; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
-  FixupStub(hWinSockDll, 'WSAProviderConfigChange', WSAProviderConfigChange); {Do not Localize}
+  @WSAProviderConfigChange := FixupStub(hWinSockDll, 'WSAProviderConfigChange'); {Do not Localize}
   Result := WSAProviderConfigChange(lpNotificationHandle, AOverlapped, lpCompletionRoutine);
 end;
 
@@ -5470,7 +5493,7 @@ function Stub_TransmitFile(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWri
   nNumberOfBytesPerSend: DWORD; lpOverlapped: POverlapped;
   lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
 begin
-  FixupStubEx(hSocket, 'TransmitFile', WSAID_TRANSMITFILE, TransmitFile); {Do not localize}
+  @TransmitFile := FixupStubEx(hSocket, 'TransmitFile', WSAID_TRANSMITFILE); {Do not localize}
   Result := TransmitFile(hSocket, hFile, nNumberOfBytesToWrite, nNumberOfBytesPerSend, lpOverlapped, lpTransmitBuffers, dwReserved);
 end;
 
@@ -5486,8 +5509,8 @@ function Stub_AcceptEx(sListenSocket, sAcceptSocket: TSocket;
   lpOverlapped: POverlapped): BOOL; stdcall;
 begin
   {RLebeau - loading GetAcceptExSockaddrs() first in case it fails}
-  FixupStubEx(sListenSocket, 'GetAcceptExSockaddrs', WSAID_GETACCEPTEXSOCKADDRS, GetAcceptExSockaddrs); {Do not localize}
-  FixupStubEx(sListenSocket, 'AcceptEx', WSAID_ACCEPTEX, AcceptEx); {Do not localize}
+  @GetAcceptExSockaddrs := FixupStubEx(sListenSocket, 'GetAcceptExSockaddrs', WSAID_GETACCEPTEXSOCKADDRS); {Do not localize}
+  @AcceptEx := FixupStubEx(sListenSocket, 'AcceptEx', WSAID_ACCEPTEX); {Do not localize}
   Result := AcceptEx(sListenSocket, sAcceptSocket, lpOutputBuffer, dwReceiveDataLength,
     dwLocalAddressLength, dwRemoteAddressLength, lpdwBytesReceived, lpOverlapped);
 end;
@@ -5495,45 +5518,45 @@ end;
 function Stub_WSARecvEx(s: TSocket; var buf; len: Integer; var flags: Integer): Integer; stdcall;
 begin
   LoadMSWSock;
-  FixupStub(hMSWSockDll, 'WSARecvEx', WSARecvEx); {Do not localize}
+  @WSARecvEx := FixupStub(hMSWSockDll, 'WSARecvEx'); {Do not localize}
   Result := WSARecvEx(s, buf, len, flags);
 end;
 
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
   dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;  stdcall;
 begin
-  FixupStubEx(s, 'ConnectEx', WSAID_CONNECTEX, ConnectEx); {Do not localize}
+  @ConnectEx := FixupStubEx(s, 'ConnectEx', WSAID_CONNECTEX); {Do not localize}
   Result := ConnectEx(s, name, namelen, lpSendBuffer, dwSendDataLength, lpdwBytesSent, lpOverlapped);
 end;
 
 function Stub_DisconnectEx(const s : TSocket; AOverlapped: Pointer; const dwFlags : DWord; const dwReserved : DWORD) : BOOL;  stdcall;
 begin
-  FixupStubEx(s, 'DisconnectEx', WSAID_DISCONNECTEX, DisconnectEx); {Do not localize}
+  @DisconnectEx := FixupStubEx(s, 'DisconnectEx', WSAID_DISCONNECTEX); {Do not localize}
   Result := DisconnectEx(s, AOverlapped, dwFlags, dwReserved);
 end;
 
 function Stub_WSARecvMsg(const s : TSocket; lpMsg : LPWSAMSG; var lpNumberOfBytesRecvd : DWORD; AOverlapped: Pointer; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer;  stdcall;
 begin
-  FixupStubEx(s, 'WSARecvMsg', WSAID_WSARECVMSG, WSARecvMsg); {Do not localize}
+  @WSARecvMsg := FixupStubEx(s, 'WSARecvMsg', WSAID_WSARECVMSG); {Do not localize}
   Result := WSARecvMsg(s, lpMsg, lpNumberOfBytesRecvd, AOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_TransmitPackets(s: TSocket; lpPacketArray: LPTRANSMIT_PACKETS_ELEMENT;
   nElementCount: DWORD; nSendSize: DWORD; lpOverlapped: LPWSAOVERLAPPED; dwFlags: DWORD): BOOL; stdcall;
 begin
-  FixupStubEx(s, 'TransmitPackets', WSAID_TRANSMITPACKETS, TransmitPackets); {Do not localize}
+  @TransmitPackets := FixupStubEx(s, 'TransmitPackets', WSAID_TRANSMITPACKETS); {Do not localize}
   Result := TransmitPackets(s, lpPacketArray, nElementCount, nSendSize, lpOverlapped, dwFlags);
 end;
 
 function Stub_WSASendMsg(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
 begin
-  FixupStubEx(s, 'WSASendMsg', WSAID_WSASENDMSG, WSASendMsg); {Do not localize}
+  @WSASendMsg := FixupStubEx(s, 'WSASendMsg', WSAID_WSASENDMSG); {Do not localize}
   Result := WSASendMsg(s, lpMsg, dwFlags, lpNumberOfBytesSent, lpOverlapped, lpCompletionRoutine);
 end;
 
 function Stub_WSAPoll(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
 begin
-  FixupStubEx(fdarray.fd, 'WSAPoll', WSAID_WSAPOLL, WSAPoll); {Do not localize}
+  @WSAPoll := FixupStubEx(fdarray.fd, 'WSAPoll', WSAID_WSAPOLL); {Do not localize}
   Result := WSAPoll(fdarray, nfds, timeout);
 end;
 
@@ -5764,13 +5787,13 @@ end;
 function WSA_CMSGDATA_ALIGN(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (length + MAX_NATURAL_ALIGNMENT-1) and not (MAX_NATURAL_ALIGNMENT-1);
+  Result := DWORD(length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
 function WSA_CMSG_FIRSTHDR(msg: LPWSAMSG): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  if (msg <> nil) and (msg^.Control.len >= SizeOf(WSACMSGHDR)) then begin
+  if (msg <> nil) and (msg^.Control.len >= SIZE_WSACMSGHDR) then begin
     Result := LPWSACMSGHDR(msg^.Control.buf);
   end else begin
     Result := nil;
@@ -5800,19 +5823,19 @@ end;
 function WSA_CMSG_SPACE(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length));
+  Result := WSA_CMSGDATA_ALIGN(DWORD(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
 function WSA_CMSG_LEN(length: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length;
+  Result := DWORD(WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length);
 end;
 
 function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := SizeOf(ip_msfilter) - SizeOf(TInAddr) + (numsrc*SizeOf(TInAddr));
+  Result := SIZE_IP_MSFILTER - SIZE_TINADDR + (numsrc*SIZE_TINADDR);
 end;
 
 function SS_PORT(ssp: PSockAddrIn): u_short;
@@ -5829,7 +5852,7 @@ function IN6ADDR_ANY_INIT: TIn6Addr;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   with Result do begin
-    System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
+    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
   end;
 end;
 
@@ -5837,7 +5860,7 @@ function IN6ADDR_LOOPBACK_INIT: TIn6Addr;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   with Result do begin
-    System.FillChar(s6_addr, SizeOf(s6_addr), 0);    {Do not Localize}
+    System.FillChar(s6_addr, SIZE_TIN6ADDR, 0);    {Do not Localize}
     s6_addr[15] := 1;
   end;
 end;
@@ -5909,7 +5932,7 @@ end;
 function IN6_ADDR_EQUAL(const a: PIn6Addr; const b: PIn6Addr): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := SysUtils.CompareMem(a, b, SizeOf(TIn6Addr));
+  Result := SysUtils.CompareMem(a, b, SIZE_TIN6ADDR);
 end;
 
 function IN6_IS_ADDR_UNSPECIFIED(const a: PIn6Addr): Boolean;
@@ -6043,7 +6066,7 @@ end;
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
 var
-  len : Integer;
+  len : DWORD;
 begin
   if snb <> nil then begin
     with snb^ do begin
@@ -6074,10 +6097,10 @@ begin
    Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +
      (numsrc * SIZE_SOCKADDR_STORAGE);
 end;
+
 initialization
   in6addr_any := IN6ADDR_ANY_INIT;
   in6addr_loopback := IN6ADDR_LOOPBACK_INIT;
   InitializeStubs;
 
 end.
-
