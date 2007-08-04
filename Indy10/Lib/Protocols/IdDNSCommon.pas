@@ -14,8 +14,6 @@
 }
 {
   $Log$
-unit IdDNSCommon;
-
 
     Rev 1.29    1/31/2005 9:02:44 PM  JPMugaas
   Should compile again.  OOPS!!
@@ -160,11 +158,12 @@ unit IdDNSCommon;
 
     Started: Jan. 20, 2002.
     Finished:
-
 }
+
 unit IdDNSCommon;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -174,7 +173,6 @@ uses
   IdGlobal,
   IdResourceStrings,
   IdResourceStringsProtocols;
-
 
 const
   IdDNSServerVersion = 'Indy DNSServer 20040121301'; {do not localize}
@@ -335,7 +333,7 @@ type
     constructor Create;
     procedure ClearByteCode;
     function ParseQuery(Data : TIdBytes) : integer;
-    function GenerateBinaryHeader : TIdBytes ;
+    function GenerateBinaryHeader : TIdBytes;
 
     property ID: Word read FID write FID;
     property Qr: Word read GetQr write SetQr;
@@ -352,40 +350,42 @@ type
     property ARCount: Word read FARCount write FARCount;
   end;
 
-  TIdTextModeResourceRecord = class (TObject)
-  private
-    FRRName: string;
-    FRRDatas: TStrings;  //TODO Should not be TStrings
-    FTTL: integer;
-    FTypeCode: integer;
-    FTimeOut: string;
-    procedure SetRRDatas(const Value: TStrings);
-    procedure SetTTL(const Value: integer);
+  TIdTextModeResourceRecord = class(TObject)
   protected
     FAnswer : TIdBytes;
+    FRRName: string;
+    FRRDatas: TStrings;  //TODO Should not be TIdStrings
+    FTTL: integer;
+    FTypeCode: Integer;
+    FTimeOut: string;
+    function FormatQName(const AFullName: string): string; overload;
+    function FormatQName(const AName, AFullName: string): string; overload;
+    function FormatQNameFull(const AFullName: string): string;
+    function FormatRecord(const AFullName: String; const ARRData: TIdBytes): TIdBytes;
+    procedure SetRRDatas(const Value: TStrings);
+    procedure SetTTL(const Value: integer);
   public
-    constructor Create;
+    constructor CreateInit(const ARRName: String; ATypeCode: Integer);
     destructor Destroy; override;
-    property TypeCode : integer read FTypeCode write FTypeCode;
+    property TypeCode : Integer read FTypeCode;
     property RRName : string read FRRName write FRRName;
     property RRDatas : TStrings read FRRDatas write SetRRDatas;
     property TTL : integer read FTTL write SetTTL;
-    property TimeOut :string read FTimeOut write FTimeOut;
-    procedure AddOneParameter(ParameterName, Value : string);
-    function ifAddFullName(FullName : string; givenName : string= '') : boolean;
-    function GetValue(ParameterName : string) : string;
-    function ItemCount : integer;
-    function BinQueryRecord(FullName : string): TIdBytes; virtual;
-    function TextRecord(FullName : string) : string; virtual;
+    property TimeOut : string read FTimeOut write FTimeOut;
+    function ifAddFullName(AFullName: string; AGivenName: string = ''): boolean;
+    function GetValue(const AName: string): string;
+    procedure SetValue(const AName, AValue: string);
+    function ItemCount : Integer;
+    function BinQueryRecord(AFullName: string): TIdBytes; virtual;
+    function TextRecord(AFullName: string): string; virtual;
     procedure ClearAnswer;
   end;
 
-  TIdTextModeRRs = class (TIdObjectList)
+  TIdTextModeRRs = class(TIdObjectList)
   private
     FItemNames : TStrings;
     function GetItem(Index: Integer): TIdTextModeResourceRecord;
-    procedure SetItem(Index: Integer;
-      const Value: TIdTextModeResourceRecord);
+    procedure SetItem(Index: Integer; const Value: TIdTextModeResourceRecord);
     procedure SetItemNames(const Value: TStrings);
   public
     constructor Create;
@@ -397,19 +397,19 @@ type
 
 
   TIdRR_CName = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetCName: AnsiString;
     procedure SetCName(const Value: AnsiString);
   public
     constructor Create;
     property CName : AnsiString read GetCName write SetCName;
-    function BinQueryRecord(FullName: string): TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName: string): TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_HINFO = class(TIdTextModeResourceRecord)
-  private
+  protected
     procedure SetCPU(const Value: AnsiString);
     function GetCPU: AnsiString;
     function GetOS: AnsiString;
@@ -418,37 +418,37 @@ type
     constructor Create;
     property CPU : AnsiString read GetCPU write SetCPU;
     property OS : AnsiString read GetOS write SetOS;
-    function BinQueryRecord(FullName : string): TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string): TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_MB = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetMADName: AnsiString;
     procedure SetMADName(const Value: AnsiString);
   public
     constructor Create;
     property MADName : AnsiString read GetMADName write SetMADName;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_MG = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetMGMName: AnsiString;
     procedure SetMGMName(const Value: AnsiString);
   public
     constructor Create;
     property MGMName : AnsiString read GetMGMName write SetMGMName;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_MINFO = class(TIdTextModeResourceRecord)
-  private
+  protected
     procedure SetErrorHandle_Mail(const Value: AnsiString);
     procedure SetResponsible_Mail(const Value: AnsiString);
     function GetEMail: AnsiString;
@@ -457,25 +457,25 @@ type
     constructor Create;
     property Responsible_Mail : AnsiString read GetRMail write SetResponsible_Mail;
     property ErrorHandle_Mail : AnsiString read GetEMail write SetErrorHandle_Mail;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_MR = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetNewName: AnsiString;
     procedure SetNewName(const Value: AnsiString);
   public
     constructor Create;
     property NewName : AnsiString read GetNewName write SetNewName;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_MX = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetExchang: AnsiString;
     procedure SetExchange(const Value: AnsiString);
     function GetPref: AnsiString;
@@ -484,37 +484,37 @@ type
     constructor Create;
     property Exchange : AnsiString read GetExchang write SetExchange;
     property Preference : AnsiString read GetPref write SetPref;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_NS = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetNS: AnsiString;
     procedure SetNS(const Value: AnsiString);
   public
     constructor Create;
     property NSDName : AnsiString read GetNS write SetNS;
-    function BinQueryRecord(FullName : string): TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string): TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_PTR = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetPTRName: AnsiString;
     procedure SetPTRName(const Value: AnsiString);
   public
     constructor Create;
     property PTRDName : AnsiString read GetPTRName write SetPTRName;
-    function BinQueryRecord(FullName : string): TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string): TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_SOA = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetName(CLabel : string):AnsiString;
     procedure SetName(CLabel, Value : AnsiString);
     function GetMName: AnsiString;
@@ -540,31 +540,31 @@ type
     property Retry : AnsiString read GetRetry write SetRetry;
     property Expire : AnsiString read GetExpire write SetExpire;
     property Minimum : AnsiString read GetMin write SetMin;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
 
   TIdRR_A = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetA: AnsiString;
     procedure SetA(const Value: AnsiString);
   public
     constructor Create;
     property Address : AnsiString read GetA write SetA;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
   TIdRR_AAAA = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetA: AnsiString;
     procedure SetA(const Value: AnsiString);
   public
      constructor Create;
      property Address : AnsiString read GetA write SetA;
-     function BinQueryRecord(FullName : string) : TIdBytes; override;
-     function TextRecord(FullName : string) : string; override;
+     function BinQueryRecord(AFullName : string) : TIdBytes; override;
+     function TextRecord(AFullName : string) : string; override;
   end;
 
      { TODO : implement WKS record class }
@@ -574,14 +574,14 @@ type
   end;
 
   TIdRR_TXT = class(TIdTextModeResourceRecord)
-  private
+  protected
     function GetTXT: AnsiString;
     procedure SetTXT(const Value: AnsiString);
   public
     constructor Create;
     property TXT : AnsiString read GetTXT write SetTXT;
-    function BinQueryRecord(FullName : string) : TIdBytes; override;
-    function TextRecord(FullName : string) : string; override;
+    function BinQueryRecord(AFullName : string) : TIdBytes; override;
+    function TextRecord(AFullName : string) : string; override;
   end;
 
   TIdRR_Error = class(TIdTextModeResourceRecord)
@@ -590,17 +590,17 @@ type
   end;
 
 //this can not be const because the temp copy is modified
-function DomainNameToDNSStr(ADomain : String): TIdBytes;
-function NormalStrToDNSStr(Str : String): TIdBytes;
-function IPAddrToDNSStr(IPAddress : String): TIdBytes;
-function IsValidIPv6(v6Address : String): boolean;
-function ConvertToValidv6IP(OrgIP : String) : string;
-function ConvertToCanonical6IP(OrgIP : String) : string;
+function DomainNameToDNSStr(const ADomain : String): TIdBytes;
+function NormalStrToDNSStr(const Str : String): TIdBytes;
+function IPAddrToDNSStr(const IPAddress : String): TIdBytes;
+function IsValidIPv6(const v6Address : String): Boolean;
+function ConvertToValidv6IP(const OrgIP : String) : string;
+function ConvertToCanonical6IP(const OrgIP : String) : string;
 function IPv6AAAAToDNSStr(const AIPv6Address : String): TIdBytes;
-function GetErrorStr(Code, Id :Integer): String;
+function GetErrorStr(const Code, Id: Integer): String;
 function GetRCodeStr(RCode : Integer): String;
 function ReplaceSpecString(Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
-function IsBig5(ch1, ch2:char) : boolean;
+function IsBig5(ch1, ch2: Char) : Boolean;
 
 implementation
 
@@ -608,70 +608,84 @@ uses
   IdGlobalProtocols,
   IdStack, SysUtils;
 
-function DomainNameToDNSStr(ADomain : String): TIdBytes;
-var
-   BufStr : String;
-   aPos : Integer;
-begin                         { DomainNameToDNSStr }
-  SetLength(Result, 0);
-  while Length(ADomain) > 0 do
-  begin
-    aPos := IndyPos ( '.', ADomain );  {do not localize}
-    if aPos = 0 then
-    begin
-      aPos := Length(ADomain) + 1;
-    end; //if aPos = 0 then
-    BufStr := Copy(ADomain, 1, aPos - 1);
-    IdDelete(ADomain, 1, aPos);
-    AppendByte(Result, Length (BufStr));
-    AppendBytes(Result, ToBytes(BufStr));
-  end;
+const
+  ValidHexChars = '0123456789ABCDEFabcdef';
 
-  if Length(Result) > 0 then
-  begin
-    AppendByte(Result, 0);
+procedure IdBytesCopyBytes(const ASource: TIdBytes; var VDest: TIdBytes; var VDestIndex: Integer);
+begin
+  CopyTIdBytes(ASource, 0, VDest, VDestIndex, Length(ASource));
+  Inc(VDestIndex, Length(ASource));
+end;
+
+procedure IdBytesCopyWord(const ASource: Word; var VDest: TIdBytes; var VDestIndex: Integer);
+begin
+  CopyTIdWord(ASource, VDest, VDestIndex);
+  Inc(VDestIndex, SizeOf(Word));
+end;
+
+procedure IdBytesCopyLongWord(const ASource: LongWord; var VDest: TIdBytes; var VDestIndex: Integer);
+begin
+  CopyTIdLongWord(ASource, VDest, VDestIndex);
+  Inc(VDestIndex, SizeOf(LongWord));
+end;
+
+function DomainNameToDNSStr(const ADomain : String): TIdBytes;
+var
+  BufStr, LDomain : String;
+  LIdx : Integer;
+  LLen: Byte;
+begin
+  if Length(ADomain) = 0 then begin
+    SetLength(Result, 0);
+  end else begin
+    SetLength(Result, Length(ADomain)+1);
+    LIdx := 0;
+    LDomain := ADomain;
+    repeat
+      BufStr := Fetch(LDomain, '.');
+      LLen := Length(BufStr);
+      Result[LIdx] := LLen;
+      CopyTIdString(BufStr, Result, LIdx+1, LLen);
+      Inc(LIdx, LLen+1);
+    until LDomain = '';
+    Result[LIdx] := 0;
+    SetLength(Result, LIdx+1);
   end;
 end;
 
-function NormalStrToDNSStr(Str : String): TIdBytes;
+function NormalStrToDNSStr(const Str : String): TIdBytes;
 var
   LLen: Byte;
 begin
   LLen := Length(Str);
   SetLength(Result, 1 + LLen);
   Result[0] := LLen;
-  CopyTIdBytes(ToBytes(Str), 0, Result, 1, LLen);
-  //AppendBytes(Result, ToBytes(Str));
-  //Result := Chr(Length(Str)) + Str;
+  CopyTIdString(Str, Result, 1, LLen);
 end;
 
-function IPAddrToDNSStr(IPAddress : String): TIdBytes;
+function IPAddrToDNSStr(const IPAddress : String): TIdBytes;
 Var
   j, i: Integer;
   s : string;
-  ret : boolean;
 begin
   SetLength(Result, 0);
-  if IsValidIP(IPAddress) then
-  begin
+  if IsValidIP(IPAddress) then begin
     s := Trim(IPAddress);
-    ret := True;
-    for i := 1 to 4 do
-    begin
-      j := IndyStrToInt(Fetch(IPAddress, '.'), -1); {do not localize}
-      ret := ret and (j > -1) and (j < 256);
-      if not ret then
-      begin
+    SetLength(Result, 4);
+    for i := 0 to 3 do begin
+      j := IndyStrToInt(Fetch(s, '.'), -1); {do not localize}
+      if (j < 0) or (j > 255) then begin
         Result := ToBytes('Error IP'); {do not localize}
-        break;
-      end else
-        AppendByte(Result, j);
+        Exit;
+      end;
+      Result[I] := Byte(j);
     end;
-  end else
+  end else begin
     Result := ToBytes('Error IP'); {do not localize}
+  end;
 end;
 
-function IdHexToBin(Text, Buffer: TIdBytes; BufSize: Integer): Integer;
+procedure IdHexToBin(const Text: TIdBytes; var Buffer: TIdBytes; const BufSize: Integer);
 const
   Convert: array['0'..'f'] of SmallInt =                   {do not localize}
     ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
@@ -679,69 +693,43 @@ const
      -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
      -1,10,11,12,13,14,15);
 var
-  I: Integer;
-  s: string;
   BufferPos, TextPos: Integer;
+  ValidChars: TIdBytes;
 begin
-  I := BufSize;
+  ValidChars := ToBytes(ValidHexChars);
   BufferPos := 0;
   TextPos := 0;
-  s := BytesToString(Text);
-  while I > 0 do begin
-    if not CharIsInSet(s, TextPos, CharRange('0','9')+CharRange( 'a','f')+CharRange('A','F')) then begin
-      Break;   {do not localize}
+  repeat
+    if (not ByteIsInSet(Text, TextPos, ValidChars)) or
+      (not ByteIsInSet(Text, TextPos+1, ValidChars)) then
+    begin
+      Break;
     end;
-    Buffer[BufferPos] := (Convert[char(Text[TextPos])] shl 4) + Convert[char(Text[TextPos + 1])];
+    Buffer[BufferPos] := (Convert[Char(Text[TextPos])] shl 4) + Convert[Char(Text[TextPos + 1])];
     Inc(BufferPos);
     Inc(TextPos, 2);
-    Dec(I);
-  end;
-  Result := BufSize - I;
+  until False;
 end;
 
 function IPv6AAAAToDNSStr(const AIPv6Address : String): TIdBytes;
 var
-   TempAddr, Selected : string;
-   TempMem : TIdBytes;
-   //array [0..15] of char;
-   TempOrg : TIdBytes;
-   //array [0..31] of char;
-   //PRet, Porg : PChar;
-   Count : integer;
+  LAddr : string;
+  TempAddr : TIdBytes;
 begin
-  SetLength(Result, 0);
-  TempAddr := AIPv6Address;
+  LAddr := AIPv6Address;
+  SetLength(TempAddr, 0);
   repeat
-     Selected := Fetch(TempAddr, ':');   {do not localize}
-     AppendBytes(Result, ToBytes(Selected));
-  until TempAddr = '';                   {do not localize}
-  SetLength(TempMem, 16);
-  SetLength(TempOrg, 32);
-  {Porg := @TempOrg[0];
-  StrPCopy(Porg, Result);
-  PRet := @TempMem[0];}
-  IdHexToBin(Result, TempMem, 16);
-  SetLength(Result, 0);
-
-  for Count := 0 to 15 do
-  begin
-    if TempMem[Count] <> 0 then
-    begin
-      AppendByte(Result, TempMem[Count]);
-         //Result := Result + Copy(TempMem[Count], 1, 1)
-    end
-    else
-    begin
-      AppendByte(Result, 0);
-    end;
-  end;
+    AppendString(TempAddr, Fetch(LAddr, ':')); {do not localize}
+  until LAddr = '';                   {do not localize}
+  SetLength(Result, 16);
+  IdHexToBin(TempAddr, Result, 16);
 end;
 
-function IsValidIPv6(v6Address : String): boolean;
+function IsValidIPv6(const v6Address : String): boolean;
 var
-   Temps : TStrings;
-   Apart, All: String;
-   Count, Loc, Goal : integer;
+  Temps : TStrings;
+  Apart, All: String;
+  Count, Loc, Goal : integer;
 begin
   All := v6Address;
   Temps := TStringList.Create;
@@ -750,135 +738,123 @@ begin
     Count := 0;
 
     repeat
-     Loc := IndyPos('::', All);               {do not localize}
-     if Loc > 0 then
-     begin
-       Count := Count + 1;
-       IdDelete(All, Loc, 2);
-     end;
+      Loc := IndyPos('::', All);               {do not localize}
+      if Loc > 0 then begin
+        Count := Count + 1;
+        IdDelete(All, Loc, 2);
+      end;
     until Loc = 0;
 
-    if Count <= 1 then
-    begin
-      All := v6Address;
-
-     // Convert Double colon into compatible format.
-      All := ReplaceSpecString(All, '::', ':Multi:'); {do not localize}
+    if Count <= 1 then begin
+      // Convert Double colon into compatible format.
+      All := ReplaceSpecString(v6Address, '::', ':Multi:'); {do not localize}
       repeat
         Apart := Fetch(All, ':');                     {do not localize}
         Temps.Add(Apart);
-      until (All = '');                               {do not localize}
+      until All = '';                               {do not localize}
+
       Loc := Temps.IndexOf('Multi');  {do not localize}
-      if Loc > -1 then
-      begin
+      if Loc > -1 then begin
         Goal := 8 - Temps.Count;
         Temps.Strings[Loc] := '0000';  {do not localize}
-        for Count := 0 to Goal -1 do
-        begin
+        for Count := 0 to Goal -1 do begin
           Temps.Insert(Loc, '0000'); {do not localize}
         end;
-        if Temps.Strings[0] = '' then  {do not localize}
-        begin
+        if Temps.Strings[0] = '' then begin {do not localize}
           Temps.Strings[0] := '0000';  {do not localize}
         end;
       end;
-      All := Temps.CommaText;
-      All := ReplaceSpecString(All, ',', ':');      {do not localize}
+
+      All := ReplaceSpecString(Temps.CommaText, ',', ':');      {do not localize}
       Result := True;
       Temps.Clear;
+
       repeat
         Apart := Trim(Fetch(All, ':'));             {do not localize}
-        if Length(Apart) <= 4 then
-        begin
+        if Length(Apart) <= 4 then begin
           Apart := '0000' + Apart;  {do not localize}
           Apart := Copy(Apart, Length(Apart)-3, 4);
           Temps.Add(Apart);
-        end else
-        begin
+        end else begin
           Result := False;
         end;
       until (All = '') or (not Result);            {do not localize}
 
-      if (not Result) or (Temps.Count > 8) then
-      begin
+      if (not Result) or (Temps.Count > 8) then begin
         Result := False;
-      end else
-      begin
-        for Count := 0 to Temps.Count -1 do
-        begin
+      end else begin
+        for Count := 0 to Temps.Count -1 do begin
           All := All + Temps.Strings[Count];
         end;
-
         Result := Length(All) > 0;
-        for Count := 1 to Length(All) do
-        begin
+        for Count := 1 to Length(All) do begin
+          Result := CharIsInSet(All, Count, ValidHexChars);
           if not Result then begin
             Break;
           end;
-          Result := Result and CharIsInSet(All, Count, CharRange('0','9')+CharRange('A','F')+CharRange( 'a','f')); {do not localize}
         end;
       end;
-    end else
-    begin
+    end else begin
        // mulitple Double colon, it's an incorrect IPv6 address.
-     Result := False;
+      Result := False;
     end;
   finally
-    Temps.Free;
+    FreeAndNil(Temps);
   end;
 end;
 
-function ConvertToValidv6IP(OrgIP : String) : string;
+function ConvertToValidv6IP(const OrgIP : String) : string;
 var
-   All, Apart : string;
-   Temps : TStrings;
-   Count, Loc, Goal : integer;
+  All, Apart : string;
+  Temps : TStrings;
+  Count, Loc, Goal : integer;
 begin
-   All := OrgIP;
-   Temps := TStringList.Create;
+  Result := '';
+  All := OrgIP;
+  Temps := TStringList.Create;
+  try
+    // Check Double Colon existence, but only single.
+    // Count := 0;
 
-   // Check Double Colon existence, but only single.
-  // Count := 0;
-
-   repeat
+    repeat
       Loc := IndyPos('::', All);    {do not localize}
       if Loc > 0 then begin
-     //    Count := Count + 1;
-         IdDelete(All, Loc, 2);
+        //    Count := Count + 1;
+        IdDelete(All, Loc, 2);
       end;
-   until Loc = 0;
+    until Loc = 0;
 
-   All := OrgIP;
-
-   // Convert Double colon into compatible format.
-   All := ReplaceSpecString(All, '::', ':Multi:');  {do not localize}
-   repeat
+    // Convert Double colon into compatible format.
+    All := ReplaceSpecString(OrgIP, '::', ':Multi:');  {do not localize}
+    repeat
       Apart := Fetch(All, ':');  {do not localize}
       Temps.Add(Apart);
-   until (All = '');             {do not localize}
-   Loc := Temps.IndexOf('Multi'); {do not localize}
-   if Loc > -1 then begin
+    until All = '';             {do not localize}
+
+    Loc := Temps.IndexOf('Multi'); {do not localize}
+    if Loc > -1 then begin
       Goal := 8 - Temps.Count;
       Temps.Strings[Loc] := '0000'; {do not localize}
       for Count := 0 to Goal -1 do begin
-          Temps.Insert(Loc, '0000');  {do not localize}
+        Temps.Insert(Loc, '0000');  {do not localize}
       end;
-      if Temps.Strings[0] = '' then Temps.Strings[0] := '0000'; {do not localize}
-   end;
-   All := Temps.CommaText;
-   All := ReplaceSpecString(All, ',', ':'); {do not localize}
-
-   Temps.Free;
-   Result := All;
+      if Temps.Strings[0] = '' then begin
+        Temps.Strings[0] := '0000'; {do not localize}
+      end;
+    end;
+    Result := ReplaceSpecString(Temps.CommaText, ',', ':'); {do not localize}
+  finally
+    FreeAndNil(Temps);
+  end;
 end;
 
-function ConvertToCanonical6IP(OrgIP : String) : string;
+function ConvertToCanonical6IP(const OrgIP : String) : string;
 var
   All, Apart: string;
 begin
-  {Supposed OrgIp is valid IPV6 string}
-  All := ConvertToValidv6IP(OrgIp);
+  {Supposed OrgIP is valid IPV6 string}
   Result := '';                      {do not localize}
+  All := ConvertToValidv6IP(OrgIP);
   repeat
     Apart := Trim(Fetch(All, ':'));  {do not localize}
     if Length(Apart) < 4 then
@@ -892,26 +868,25 @@ begin
 end;
 
 { TODO : Move these to member }
-function GetErrorStr(Code, Id :Integer): String;
+function GetErrorStr(const Code, Id: Integer): String;
 begin
-  case code Of
-    1 : Result := IndyFormat ( RSQueryInvalidQueryCount, [ Id ] );
-    2 : Result := IndyFormat ( RSQueryInvalidPacketSize, [ Id ] );
-    3 : Result := IndyFormat ( RSQueryLessThanFour, [ Id ] );
-    4 : Result := IndyFormat ( RSQueryInvalidHeaderID, [ Id ] );
-    5 : Result := IndyFormat ( RSQueryLessThanTwelve, [ Id ] );
-    6 : Result := IndyFormat ( RSQueryPackReceivedTooSmall, [Id] );
+  case Code of
+    1 : Result := IndyFormat(RSQueryInvalidQueryCount, [Id]);
+    2 : Result := IndyFormat(RSQueryInvalidPacketSize, [Id]);
+    3 : Result := IndyFormat(RSQueryLessThanFour, [Id]);
+    4 : Result := IndyFormat(RSQueryInvalidHeaderID, [Id] );
+    5 : Result := IndyFormat(RSQueryLessThanTwelve, [Id]);
+    6 : Result := IndyFormat(RSQueryPackReceivedTooSmall, [Id]);
+    else
+        Result := IndyFormat(RSQueryUnknownError, [Code, Id]);
   end;  //case code Of
 end;
 
 function GetRCodeStr(RCode : Integer): String;
 begin
-  if Rcode in [cRCodeNoError..cRCodeRefused] then
-  begin
+  if Rcode in [cRCodeNoError..cRCodeRefused] then begin
     Result :=  cRCodeStrs[Rcode];
-  end  // if Rcode in [cRCodeNoError..cRCodeRefused] then
-  else
-  begin
+  end else begin // if Rcode in [cRCodeNoError..cRCodeRefused] then
     Result := RSCodeQueryUnknownError;
   end; //else.. if Rcode in [cRCodeNoError..cRCodeRefused] then
 end;
@@ -1050,14 +1025,14 @@ ARCOUNT         an unsigned 16 bit integer specifying the number of
 }
 begin
   SetLength(Result, 12);
-   WordToTwoBytes(GStack.HostToNetwork( Self.ID), Result, 0);
+  WordToTwoBytes(GStack.HostToNetwork(ID), Result, 0);
   //strip off reserved bits
   BitCode := BitCode and $F1FF; //E00
-  WordToTwoBytes(GStack.HostToNetwork(Self.BitCode), Result, 2);
-  WordToTwoBytes(GStack.HostToNetwork(Self.QDCount), Result, 4);
-  WordToTwoBytes(GStack.HostToNetwork(Self.ANCount), Result, 6);
-  WordToTwoBytes(GStack.HostToNetwork(Self.NSCount), Result, 8);
-  WordToTwoBytes(GStack.HostToNetwork(Self.ARCount), Result, 10); 
+  WordToTwoBytes(GStack.HostToNetwork(BitCode), Result, 2);
+  WordToTwoBytes(GStack.HostToNetwork(QDCount), Result, 4);
+  WordToTwoBytes(GStack.HostToNetwork(ANCount), Result, 6);
+  WordToTwoBytes(GStack.HostToNetwork(NSCount), Result, 8);
+  WordToTwoBytes(GStack.HostToNetwork(ARCount), Result, 10);
 end;
 
 function TDNSHeader.GetAA: Word;
@@ -1097,32 +1072,29 @@ end;
 
 function TDNSHeader.ParseQuery(Data: TIdBytes): integer;
 begin
-  if Length(Data) >= 12 then
-  try
-     Self.ID := GStack.NetworkToHost(TwoByteToWord(Data[0],Data[1]));
-     Self.BitCode := GStack.NetworkToHost(TwoByteToWord(Data[2], Data[3]));
-     Self.QDCount := GStack.NetworkToHost(TwoByteToWord(Data[4], Data[5]));
-     Self.ANCount := GStack.NetworkToHost(TwoByteToWord(Data[6], Data[7]));
-     Self.NSCount := GStack.NetworkToHost(TwoByteToWord(Data[8], Data[9]));
-     Self.ARCount := GStack.NetworkToHost(TwoByteToWord(Data[10], Data[11]));
-     Result := 0;
-  except
-        Result := -1;
-  end
-  else
-  begin
-    Result := -1;
+  Result := -1;
+  if Length(Data) >= 12 then begin
+    try
+      ID      := GStack.NetworkToHost(BytesToWord(Data, 0));
+      BitCode := GStack.NetworkToHost(BytesToWord(Data, 2));
+      QDCount := GStack.NetworkToHost(BytesToWord(Data, 4));
+      ANCount := GStack.NetworkToHost(BytesToWord(Data, 6));
+      NSCount := GStack.NetworkToHost(BytesToWord(Data, 8));
+      ARCount := GStack.NetworkToHost(BytesToWord(Data, 10));
+      Result := 0;
+    except
+    end;
   end;
 end;
 
 procedure TDNSHeader.SetAA(const Value: Word);
 begin
   if Value = 0 then begin
-   // FBitCode := FBitCode and $FBFF;
-   FBitCode := FBitCode and $FFDF;
+    // FBitCode := FBitCode and $FBFF;
+    FBitCode := FBitCode and $FFDF;
   end else begin
     FBitCode := FBitCode or $0020;
-//    FBitCode := FBitCode or $0400;
+    // FBitCode := FBitCode or $0400;
   end;
 end;
 
@@ -1133,7 +1105,6 @@ end;
 
 procedure TDNSHeader.SetOpCode(const Value: Word);
 begin
-
   case Value of  // $1E should mask the bits
     0: FBitCode := FBitCode and $FFE1;
       //FBitCode := FBitCode and $87FF;
@@ -1148,21 +1119,21 @@ procedure TDNSHeader.SetQr(const Value: Word);
 begin
   if Value = 0 then begin
     FBitCode := FBitCode and $FFFE;
-//    FBitCode := FBitCode and $EFFF;
+    // FBitCode := FBitCode and $EFFF;
   end else begin
     FBitCode := FBitCode or  $0001;
-//    FBitCode := FBitCode or $8000;
+    // FBitCode := FBitCode or $8000;
   end;
 end;
 
 procedure TDNSHeader.SetRA(const Value: Word);
 begin
   if Value = 0 then begin
-  //  FBitCode := FBitCode and $FF7F;
+    // FBitCode := FBitCode and $FF7F;
     FBitCode := FBitCode or $FEFF;
   end else begin
     FBitCode := FBitCode or  $100;
- //   FBitCode := FBitCode or $0080;
+    // FBitCode := FBitCode or $0080;
   end;
 end;
 
@@ -1192,14 +1163,7 @@ end;
 
 { TIdTextModeResourceRecord }
 
-procedure TIdTextModeResourceRecord.AddOneParameter(ParameterName,
-  Value: string);
-begin
-  Self.RRDatas.Values[ParameterName] := Value;
-end;
-
-function TIdTextModeResourceRecord.BinQueryRecord(
-  FullName: string): TIdBytes;
+function TIdTextModeResourceRecord.BinQueryRecord(AFullName: string): TIdBytes;
 begin
   // This was empty? Where did it go?
   //todo;
@@ -1210,66 +1174,115 @@ end;
 
 procedure TIdTextModeResourceRecord.ClearAnswer;
 begin
-   FAnswer := toBytes('');
+  SetLength(FAnswer, 0);
 end;
 
-constructor TIdTextModeResourceRecord.Create;
+constructor TIdTextModeResourceRecord.CreateInit(const ARRName: String; ATypeCode: Integer);
 begin
   inherited Create;
-  Self.FRRDatas := TStringList.Create;
-  Self.TTL := 0;
+  SetLength(FAnswer, 0);
+  FRRName := ARRName;
+  FTypeCode := ATypeCode;
+  FRRDatas := TStringList.Create;
+  TTL := 0;
 end;
 
 destructor TIdTextModeResourceRecord.Destroy;
 begin
-  Self.FRRDatas.Free;
+  FreeAndNil(FRRDatas);
   inherited Destroy;
 end;
 
-function TIdTextModeResourceRecord.GetValue(ParameterName: string): string;
+function TIdTextModeResourceRecord.FormatQName(const AFullName: string): string;
 begin
-  Result := Self.RRDatas.Values[ParameterName];
+  Result := FormatQName(FRRName, AFullName);
 end;
 
-function TIdTextModeResourceRecord.ifAddFullName(FullName,
-  givenName: string): boolean;
-var
-   TailString, BackString, Destination : string;
-   LTS, LRR : integer;
-   TailwithDot : boolean;
+function TIdTextModeResourceRecord.FormatQName(const AName, AFullName: string): string;
 begin
-   if givenName = '' then begin
-      Destination := Self.RRName;
-   end else begin
-       Destination := givenName;
-   end;
+  if Copy(AName, Length(AName), 1) <> '.' then begin
+    Result := AName + '.' + AFullName;
+  end else begin
+    Result := AName;
+  end;
+end;
 
-   TailwithDot := Copy(Destination, Length(Destination),1) = '.';
+function TIdTextModeResourceRecord.FormatQNameFull(const AFullName: string): string;
+var
+  LQName: string;
+begin
+  LQName := FRRName + '.';
+  if LQName <> AFullName then begin
+    LQName := FormatQName(AFullName);
+  end;
+  if LQName = AFullName then begin
+    Result := '@';
+  end else begin
+    Result := LQName;
+  end;
+end;
 
-   if TailwithDot then begin
-      Result := False;
-   end else begin
-       if Copy(FullName, Length(FullName),1) = '.' then begin
-          TailString := Copy(FullName, 1, Length(FullName) - 1);
-       end else begin
-           TailString := FullName;
-       end;
+function TIdTextModeResourceRecord.FormatRecord(const AFullName: String; const ARRData: TIdBytes): TIdBytes;
+var
+  LDomain: TIdBytes;
+  LIdx: Integer;
+begin
+  LDomain := DomainNameToDNSStr(FormatQName(AFullName));
+  SetLength(Result, Length(LDomain)+(SizeOf(Word)*3)+SizeOf(Cardinal)+Length(ARRData));
+  LIdx := 0;
+  IdBytesCopyBytes(LDomain, Result, LIdx);
+  IdBytesCopyWord(GStack.HostToNetwork(Word(TypeCode)), Result, LIdx);
+  IdBytesCopyWord(GStack.HostToNetwork(Word(Class_IN)), Result, LIdx);
+  IdBytesCopyLongWord(GStack.HostToNetwork(LongWord(TTL)), Result, LIdx);
+  IdBytesCopyWord(GStack.HostToNetwork(Word(Length(ARRData))), Result, LIdx);
+  IdBytesCopyBytes(ARRData, Result, LIdx);
+end;
 
-       LTS := Length(TailString);
-       LRR := Length(Destination);
+function TIdTextModeResourceRecord.GetValue(const AName: string): string;
+begin
+  Result := RRDatas.Values[AName];
+end;
 
-       if LRR >= LTS then begin
-          BackString := Copy(Destination, LRR - LTS + 1 , LTS);
-          Result := not (BackString = TailString);
-       end else begin
-           Result := True;
-       end;
-   end;
+procedure TIdTextModeResourceRecord.SetValue(const AName, AValue: string);
+begin
+  RRDatas.Values[AName] := AValue;
+end;
+
+function TIdTextModeResourceRecord.ifAddFullName(AFullName, AGivenName: string): boolean;
+var
+  LTailString, LBackString, LDestination : string;
+  LTS, LRR : integer;
+begin
+  if AGivenName = '' then begin
+    LDestination := RRName;
+  end else begin
+    LDestination := AGivenName;
+  end;
+
+  if TextEndsWith(LDestination, '.') then begin
+    Result := False;
+  end else begin
+    if TextEndsWith(AFullName, '.') then begin
+      LTailString := Copy(AFullName, 1, Length(AFullName) - 1);
+    end else begin
+      LTailString := AFullName;
+    end;
+
+    LTS := Length(LTailString);
+    LRR := Length(LDestination);
+
+    if LRR >= LTS then begin
+      LBackString := Copy(LDestination, LRR - LTS + 1 , LTS);
+      Result := not (LBackString = LTailString);
+    end else begin
+      Result := True;
+    end;
+  end;
 end;
 
 function TIdTextModeResourceRecord.ItemCount: integer;
 begin
-  Result := Self.RRDatas.Count;
+  Result := RRDatas.Count;
 end;
 
 procedure TIdTextModeResourceRecord.SetRRDatas(const Value: TStrings);
@@ -1278,16 +1291,14 @@ begin
 end;
 
 procedure TIdTextModeResourceRecord.SetTTL(const Value: integer);
-
 begin
   FTTL := Value;
-                                               
-  Self.FTimeOut := DateTimeToStr(AddMSecToTime(Now,(Value * 1000)));
+  FTimeOut := DateTimeToStr(AddMSecToTime(Now, Value * 1000));
 end;
 
-function TIdTextModeResourceRecord.TextRecord(FullName: string): string;
+function TIdTextModeResourceRecord.TextRecord(AFullName: string): string;
 begin
-
+  Result := '';
 end;
 
 { TIdTextModeRRs }
@@ -1295,12 +1306,12 @@ end;
 constructor TIdTextModeRRs.Create;
 begin
   inherited Create;
-  Self.FItemNames := TStringList.Create;
+  FItemNames := TStringList.Create;
 end;
 
 destructor TIdTextModeRRs.Destroy;
 begin
-  Self.FItemNames.Free;
+  FreeAndNil(FItemNames);
   inherited Destroy;
 end;
 
@@ -1309,8 +1320,7 @@ begin
   Result := TIdTextModeResourceRecord(inherited GetItem(Index));
 end;
 
-procedure TIdTextModeRRs.SetItem(Index: Integer;
-  const Value: TIdTextModeResourceRecord);
+procedure TIdTextModeRRs.SetItem(Index: Integer; const Value: TIdTextModeResourceRecord);
 begin
   inherited SetItem(Index, Value);
 end;
@@ -1322,320 +1332,160 @@ end;
 
 { TIdRR_CName }
 
-function TIdRR_CName.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_CName.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end
-     else
-     begin
-       QName := Self.RRName;
-     end;
-
-     RRData := DomainNameToDNSStr((Self.CName));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_CName))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(CName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_CName.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'CName'; {do not localize}
-  Self.CName := '';
-  Self.TypeCode := TypeCode_CName;
+  inherited CreateInit('CName', TypeCode_CName); {do not localize}
+  CName := '';
 end;
 
 function TIdRR_CName.GetCName: AnsiString;
 begin
-  Result := Self.GetValue('CName'); {do not localize}
+  Result := GetValue('CName'); {do not localize}
 end;
 
 procedure TIdRR_CName.SetCName(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['CName'] := Value;  {do not localize}
+  SetValue('CName', Value);  {do not localize}
 end;
 
-function TIdRR_CName.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_CName.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-     if not TextEndsWith(Self.RRName, '.') then begin
-        QName := Self.RRName + '.' + FullName;
-     end else begin
-         QName := Self.RRName;
-     end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'CNAME' + Chr(9) + Self.CName + #13+#10; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'CNAME' + Chr(9) + CName + #13+#10; {do not localize}
 end;
 
 { TIdRR_HINFO }
 
-function TIdRR_HINFO.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_HINFO.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end
-     else
-     begin
-       QName := Self.RRName;
-     end;
-
-     RRData := NormalStrToDNSStr(Self.CPU);
-     AppendBytes(RRData, NormalStrToDNSStr(Self.OS));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_HINFO))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := NormalStrToDNSStr(CPU);
+    AppendBytes(RRData, NormalStrToDNSStr(OS));
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_HINFO.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'HINFO'; {do not localize}
-  Self.CPU := '';
-  Self.OS := '';
-  Self.TypeCode := TypeCode_HINFO;
+  inherited CreateInit('HINFO', TypeCode_HINFO); {do not localize}
+  CPU := '';
+  OS := '';
 end;
 
 function TIdRR_HINFO.GetCPU: AnsiString;
 begin
-  Result := Self.RRDatas.Values['CPU']; {do not localize}
+  Result := GetValue('CPU'); {do not localize}
 end;
 
 function TIdRR_HINFO.GetOS: AnsiString;
 begin
-  Result := Self.RRDatas.Values['OS'];  {do not localize}
+  Result := GetValue('OS');  {do not localize}
 end;
 
 procedure TIdRR_HINFO.SetCPU(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['CPU'] := Value;  {do not localize}
+  SetValue('CPU', Value);  {do not localize}
 end;
 
 procedure TIdRR_HINFO.SetOS(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['OS'] := Value; {do not localize}
+  SetValue('OS', Value); {do not localize}
 end;
 
-function TIdRR_HINFO.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_HINFO.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-     if not TextEndsWith(Self.RRName, '.') then begin
-        QName := Self.RRName + '.' + FullName;
-     end else begin
-         QName := Self.RRName;
-     end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'HINFO' + Chr(9) + '"' + Self.CPU + '" "' + Self.OS + '"' + #13+#10; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'HINFO' + Chr(9) + '"' + CPU + '" "' + OS + '"' + #13+#10; {do not localize}
 end;
 
 { TIdRR_MB }
 
-function TIdRR_MB.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_MB.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end
-     else
-     begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr((Self.MADName));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_MB))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(MADName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_MB.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'MB';  {do not localize}
-  Self.MADName := '';
-  Self.TypeCode := TypeCode_MB;
+  inherited CreateInit('MB', TypeCode_MB);  {do not localize}
+  MADName := '';
 end;
 
 function TIdRR_MB.GetMADName: AnsiString;
 begin
-  Result := Self.RRDatas.Values['MADNAME']; {do not localize}
+  Result := GetValue('MADNAME'); {do not localize}
 end;
 
 procedure TIdRR_MB.SetMADName(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['MADNAME'] := Value;  {do not localize}
+  SetValue('MADNAME', Value);  {do not localize}
 end;
 
-function TIdRR_MB.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_MB.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-     if not TextEndsWith(Self.RRName, '.') then begin
-        QName := Self.RRName + '.' + FullName;
-     end else begin
-         QName := Self.RRName;
-     end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'MB' + Chr(9) + Self.MADName + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MB' + Chr(9) + MADName + #13+#10;  {do not localize}
 end;
 
 { TIdRR_MG }
 
-function TIdRR_MG.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_MG.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-        QName := Self.RRName + '.' + FullName;
-     end
-     else
-     begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr((Self.MGMName));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word((TypeCode_MG)))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(MGMName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_MG.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'MG';  {do not localize}
-  Self.MGMName := '';
-  Self.TypeCode := TypeCode_MG;
+  inherited CreateInit('MG', TypeCode_MG);  {do not localize}
+  MGMName := '';
 end;
 
 function TIdRR_MG.GetMGMName: AnsiString;
 begin
-  Result := Self.RRDatas.Values['MGMNAME']; {do not localize}
+  Result := GetValue('MGMNAME'); {do not localize}
 end;
 
 procedure TIdRR_MG.SetMGMName(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['MGMNAME'] := Value;  {do not localize}
+  SetValue('MGMNAME', Value);  {do not localize}
 end;
 
-function TIdRR_MG.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_MG.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'MG' + Chr(9) + Self.MGMName + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MG' + Chr(9) + MGMName + #13+#10;  {do not localize}
 end;
 
 { TIdRR_MINFO }
 
-function TIdRR_MINFO.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_MINFO.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: String;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 {
 From: http://www.its.uq.edu.au/DMT/RFC/rfc1035.html#MINFO_RR
 3.3.7. MINFO RDATA format (EXPERIMENTAL)
@@ -1648,823 +1498,484 @@ From: http://www.its.uq.edu.au/DMT/RFC/rfc1035.html#MINFO_RR
 }
 begin
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end
-     else
-     begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr(Self.Responsible_Mail);
-     AppendBytes(RRData, DomainNameToDNSStr(Self.ErrorHandle_Mail));
-                        
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_MINFO))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal((Self.TTL)))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word((Length(RRData))))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(Responsible_Mail);
+    AppendBytes(RRData, DomainNameToDNSStr(ErrorHandle_Mail));
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_MINFO.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'MINFO'; {do not localize}
-  Self.Responsible_Mail := '';
-  Self.ErrorHandle_Mail := '';
-  Self.TypeCode := TypeCode_MINFO;
+  inherited CreateInit('MINFO', TypeCode_MINFO); {do not localize}
+  Responsible_Mail := '';
+  ErrorHandle_Mail := '';
 end;
 
 function TIdRR_MINFO.GetEMail: AnsiString;
 begin
-  Result := Self.RRDatas.Values['EMAILBX']; {do not localize}
+  Result := GetValue('EMAILBX'); {do not localize}
 end;
 
 function TIdRR_MINFO.GetRMail: AnsiString;
 begin
-  Result := Self.RRDatas.Values['RMAILBX']; {do not localize}
+  Result := GetValue('RMAILBX'); {do not localize}
 end;
 
 procedure TIdRR_MINFO.SetErrorHandle_Mail(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['EMAILBX'] := Value;  {do not localize}
+  SetValue('EMAILBX', Value);  {do not localize}
 end;
 
 procedure TIdRR_MINFO.SetResponsible_Mail(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['RMAILBX'] := Value;  {do not localize}
+  SetValue('RMAILBX', Value);  {do not localize}
 end;
 
-function TIdRR_MINFO.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_MINFO.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'MINFO' + Chr(9) + Self.Responsible_Mail + ' ' + Self.ErrorHandle_Mail + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MINFO' + Chr(9) + Responsible_Mail + ' ' + ErrorHandle_Mail + #13+#10;  {do not localize}
 end;
 
 { TIdRR_MR }
 
-function TIdRR_MR.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_MR.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr((Self.NewName));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_MR))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal((Self.TTL)))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(NewName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_MR.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'MR';  {do not localize}
-  Self.NewName := '';
-  Self.TypeCode := TypeCode_MR;
+  inherited CreateInit('MR', TypeCode_MR);  {do not localize}
+  NewName := '';
 end;
 
 function TIdRR_MR.GetNewName: AnsiString;
 begin
-  Result := Self.RRDatas.Values['NewName']; {do not localize}
+  Result := GetValue('NewName'); {do not localize}
 end;
 
 procedure TIdRR_MR.SetNewName(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['NewName'] := Value;  {do not localize}
+  SetValue('NewName', Value);  {do not localize}
 end;
 
-function TIdRR_MR.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_MR.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'MR' + Chr(9) + Self.NewName + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MR' + Chr(9) + NewName + #13+#10;  {do not localize}
 end;
 
 { TIdRR_MX }
 
-function TIdRR_MX.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_MX.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
-   Pref : Word;
+  RRData: TIdBytes;
+  Pref : Word;
 begin
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     Pref := IndyStrToInt(Self.Preference);
-     RRData := ToBytes(SmallInt(Pref));
-     if not TextEndsWith(Self.Exchange, '.') then
-     begin
-        AppendBytes(RRData, DomainNameToDNSStr(Self.Exchange + '.' + FullName));
-     end else begin
-       AppendBytes(RRData, DomainNameToDNSStr(Self.Exchange));
-     end;
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_MX))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal((Self.TTL)))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    Pref := IndyStrToInt(Preference);
+    RRData := ToBytes(SmallInt(Pref));
+    AppendBytes(RRData, DomainNameToDNSStr(FormatQName(Exchange, AFullName)));
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_MX.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'MX';  {do not localize}
-  Self.Exchange := '';
-  Self.TypeCode := TypeCode_MX;
+  inherited CreateInit('MX', TypeCode_MX);  {do not localize}
+  Exchange := '';
 end;
 
 function TIdRR_MX.GetExchang: AnsiString;
 begin
-  Result := Self.RRDatas.Values['EXCHANGE'];  {do not localize}
+  Result := GetValue('EXCHANGE');  {do not localize}
 end;
 
 function TIdRR_MX.GetPref: AnsiString;
 begin
-  Result := Self.RRDatas.Values['PREF'];  {do not localize}
+  Result := GetValue('PREF');  {do not localize}
 end;
 
 procedure TIdRR_MX.SetExchange(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['EXCHANGE'] := Value; {do not localize}
+  SetValue('EXCHANGE', Value); {do not localize}
 end;
 
 procedure TIdRR_MX.SetPref(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['PREF'] := Value; {do not localize}
+  SetValue('PREF', Value); {do not localize}
 end;
 
-function TIdRR_MX.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_MX.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'MX' + Chr(9) + Self.Preference + ' ' + Self.Exchange + #13+#10; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'MX' + Chr(9) + Preference + ' ' + Exchange + #13+#10; {do not localize}
 end;
 
 { TIdRR_NS }
 
-function TIdRR_NS.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_NS.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr((Self.NSDName));
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_NS))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(NSDName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_NS.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'NS';  {do not localize}
-  Self.NSDName := '';
-  Self.TypeCode := TypeCode_NS;
+  inherited CreateInit('NS', TypeCode_NS);  {do not localize}
+  NSDName := '';
 end;
 
 function TIdRR_NS.GetNS: AnsiString;
 begin
-  Result := Self.RRDatas.Values['NSDNAME']; {do not localize}
+  Result := GetValue('NSDNAME'); {do not localize}
 end;
 
 procedure TIdRR_NS.SetNS(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['NSDNAME'] := Value;  {do not localize}
+  SetValue('NSDNAME', Value);  {do not localize}
 end;
 
-function TIdRR_NS.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_NS.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'NS' + Chr(9) + Self.NSDName + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'NS' + Chr(9) + NSDName + #13+#10;  {do not localize}
 end;
 
 { TIdRR_PTR }
 
-function TIdRR_PTR.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_PTR.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     RRData := DomainNameToDNSStr(Self.PTRDName);
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_PTR))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    RRData := DomainNameToDNSStr(PTRDName);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_PTR.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'PTR'; {do not localize}
-  Self.PTRDName := '';
-  Self.TypeCode := TypeCode_PTR;
+  inherited CreateInit('PTR', TypeCode_PTR); {do not localize}
+  PTRDName := '';
 end;
 
 function TIdRR_PTR.GetPTRName: AnsiString;
 begin
-  Result := Self.RRDatas.Values['PTRDNAME'];  {do not localize}
+  Result := GetValue('PTRDNAME');  {do not localize}
 end;
 
 procedure TIdRR_PTR.SetPTRName(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['PTRDNAME'] := Value; {do not localize}
+  SetValue('PTRDNAME', Value); {do not localize}
 end;
 
-function TIdRR_PTR.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_PTR.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'PTR' + Chr(9) + Self.PTRDName + #13+#10;  {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'PTR' + Chr(9) + PTRDName + #13+#10;  {do not localize}
 end;
 
 { TIdRR_SOA }
 
-function TIdRR_SOA.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_SOA.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  LMName, LRName, RRData: TIdBytes;
+  LIdx: Integer;
 begin
+  // keep the compiler happy
+  LMName := nil; 
+  LRName := nil;
+  RRData := nil;
+
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
+    LMName := DomainNameToDNSStr(MName);
+    LRName := DomainNameToDNSStr(RName);
 
-     RRData := DomainNameToDNSStr((Self.MName));
-     AppendBytes(RRData, DomainNameToDNSStr((Self.RName)));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Serial)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Refresh)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Retry)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Expire)))));
-     AppendBytes(RRData, ToBytes(GStack.HostToNetwork(Word(IndyStrToInt(Self.Minimum)))));
+    SetLength(RRData, Length(LMName)+Length(LRName)+(SizeOf(Word)*5));
 
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_SOA))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
+    LIdx := 0;
+    IdBytesCopyBytes(LMName, RRData, LIdx);
+    IdBytesCopyBytes(LRName, RRData, LIdx);
+    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Serial))), RRData, LIdx);
+    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Refresh))), RRData, LIdx);
+    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Retry))), RRData, LIdx);
+    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Expire))), RRData, LIdx);
+    IdBytesCopyWord(GStack.HostToNetwork(Word(IndyStrToInt(Minimum))), RRData, LIdx);
 
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_SOA.Create;
 begin
-  inherited Create;
-
-  SetLength(FAnswer, 0);
-  Self.RRName := 'SOA'; {do not localize}
-  Self.TypeCode := TypeCode_SOA;
-
-  Self.MName := '';
-  Self.RName := '';
-  Self.Serial := '';
-  Self.Refresh := '';
-  Self.Retry := '';
-  Self.Expire := '';
-  Self.Minimum := '';
+  inherited CreateInit('SOA', TypeCode_SOA); {do not localize}
+  MName := '';
+  RName := '';
+  Serial := '';
+  Refresh := '';
+  Retry := '';
+  Expire := '';
+  Minimum := '';
 end;
 
 function TIdRR_SOA.GetExpire: AnsiString;
 begin
-  Result := Self.GetName('EXPIRE'); {do not localize}
+  Result := GetName('EXPIRE'); {do not localize}
 end;
 
 function TIdRR_SOA.GetMin: AnsiString;
 begin
-  Result := Self.GetName('MINIMUM');  {do not localize}
+  Result := GetName('MINIMUM');  {do not localize}
 end;
 
 function TIdRR_SOA.GetMName: AnsiString;
 begin
-  Result := Self.GetName('MNAME');  {do not localize}
+  Result := GetName('MNAME');  {do not localize}
 end;
 
 function TIdRR_SOA.GetName(CLabel: string): AnsiString;
 begin
-  Result := Self.RRDatas.Values[CLabel];
+  Result := GetValue(CLabel);
 end;
 
 function TIdRR_SOA.GetRefresh: AnsiString;
 begin
-  Result := Self.GetName('REFRESH');  {do not localize}
+  Result := GetName('REFRESH');  {do not localize}
 end;
 
 function TIdRR_SOA.GetRetry: AnsiString;
 begin
-  Result := Self.GetName('RETRY');  {do not localize}
+  Result := GetName('RETRY');  {do not localize}
 end;
 
 function TIdRR_SOA.GetRName: AnsiString;
 begin
-  Result := Self.GetName('RNAME');  {do not localize}
+  Result := GetName('RNAME');  {do not localize}
 end;
 
 function TIdRR_SOA.GetSerial: AnsiString;
 begin
-  Result := Self.GetName('SERIAL'); {do not localize}
+  Result := GetName('SERIAL'); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetExpire(const Value: AnsiString);
 begin
-  Self.SetName('EXPIRE', Value);  {do not localize}
+  SetName('EXPIRE', Value);  {do not localize}
 end;
 
 procedure TIdRR_SOA.SetMin(const Value: AnsiString);
 begin
-  Self.SetName('MINIMUM', Value); {do not localize}
+  SetName('MINIMUM', Value); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetMName(const Value: AnsiString);
 begin
-  Self.SetName('MNAME', Value); {do not localize}
+  SetName('MNAME', Value); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetName(CLabel, Value: AnsiString);
 begin
-  Self.RRDatas.Values[CLabel] := Value;
+  SetValue(CLabel, Value);
 end;
 
 procedure TIdRR_SOA.SetRefresh(const Value: AnsiString);
 begin
-  Self.SetName('REFRESH', Value); {do not localize}
+  SetName('REFRESH', Value); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetRetry(const Value: AnsiString);
 begin
-  Self.SetName('RETRY', Value); {do not localize}
+  SetName('RETRY', Value); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetRName(const Value: AnsiString);
 begin
-  Self.SetName('RNAME', Value); {do not localize}
+  SetName('RNAME', Value); {do not localize}
 end;
 
 procedure TIdRR_SOA.SetSerial(const Value: AnsiString);
 begin
-  Self.SetName('SERIAL', Value);  {do not localize}
+  SetName('SERIAL', Value);  {do not localize}
 end;
 
-function TIdRR_SOA.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_SOA.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'SOA' + Chr(9) +         {do not localize}
-            Self.MName + ' ' + Self.RName + ' ' +
-            Self.Serial + ' ' + Self.Refresh + ' ' + Self.Retry + ' '+
-            Self.Expire + ' ' + Self.Minimum +
-            #13+#10;
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'SOA' + {do not localize}
+            Chr(9) + MName + ' ' + RName + ' ' + Serial + ' ' + Refresh +
+            ' ' + Retry + ' ' + Expire + ' ' + Minimum + #13+#10;
 end;
 
 { TIdRR_A }
 
-function TIdRR_A.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_A.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(Self.FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     RRData := IPAddrToDNSStr(Self.Address);
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_A))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-     AppendBytes(Result, RRData);
-
-     Self.FAnswer := ToBytes(Result, Length(Result));
-  end else begin
-      SetLength(Result, 0);
-      Result := ToBytes(Self.FAnswer, Length(Self.FAnswer));
+    RRData := IPAddrToDNSStr(Address);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_A.Create;
 begin
-  inherited Create;
-  SetLength(Self.FAnswer, 0);
-  Self.RRName := 'A';   {do not localize}
-  Self.Address := '';
-  Self.TypeCode := TypeCode_A;
+  inherited CreateInit('A', TypeCode_A);   {do not localize}
+  Address := '';
 end;
 
 function TIdRR_A.GetA: AnsiString;
 begin
-  Result := Self.RRDatas.Values['A']; {do not localize}
+  Result := GetValue('A'); {do not localize}
 end;
 
 procedure TIdRR_A.SetA(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['A'] := Value;  {do not localize}
+  SetValue('A', Value);  {do not localize}
 end;
 
-function TIdRR_A.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_A.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'A' + Chr(9) + Self.Address + #13+#10; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'A' + Chr(9) + Address + #13+#10; {do not localize}
 end;
 
 { TIdRR_AAAA }
 
-function TIdRR_AAAA.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_AAAA.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
-  if Length(self.FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-
-     RRData := IPv6AAAAToDNSStr(Self.Address);
-
-     Result := DomainNameToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_AAAA))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(16))));
-     AppendBytes(Result, RRData);
-
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(Self.FAnswer, Length(Self.FAnswer));
+  RRData := nil; // keep the compiler happy
+  if Length(FAnswer) = 0 then begin
+    RRData := IPv6AAAAToDNSStr(Address);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_AAAA.Create;
 begin
-  inherited Create;
-  SetLength(Self.FAnswer, 0);
-  Self.RRName := 'AAAA';  {do not localize}
-  Self.Address := '';
-  Self.TypeCode := TypeCode_AAAA;
+  inherited CreateInit('AAAA', TypeCode_AAAA);  {do not localize}
+  Address := '';
 end;
 
 function TIdRR_AAAA.GetA: AnsiString;
 begin
-  Result := Self.RRDatas.Values['AAAA'];  {do not localize}
+  Result := GetValue('AAAA');  {do not localize}
 end;
 
 procedure TIdRR_AAAA.SetA(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['AAAA'] := Value; {do not localize}
+  SetValue('AAAA', Value); {do not localize}
 end;
 
-function TIdRR_AAAA.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_AAAA.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'AAAA' + Chr(9) + Self.Address + #13+#10;  {do not localize}
-
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'AAAA' + Chr(9) + Address + #13+#10;  {do not localize}
 end;
 
 { TIdRR_TXT }
 
-function TIdRR_TXT.BinQueryRecord(FullName: string): TIdBytes;
+function TIdRR_TXT.BinQueryRecord(AFullName: string): TIdBytes;
 var
-   QName: string;
-   RRData: TIdBytes;
+  RRData: TIdBytes;
 begin
-  RRData := nil;
+  RRData := nil; // keep the compiler happy
   if Length(FAnswer) = 0 then begin
-     SetLength(Result, 0);
-     if not TextEndsWith(Self.RRName, '.') then
-     begin
-       QName := Self.RRName + '.' + FullName;
-     end else begin
-       QName := Self.RRName;
-     end;
-     Result := NormalStrToDNSStr((QName));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(TypeCode_TXT))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Class_IN))));
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Cardinal(Self.TTL))));
-     RRData := NormalStrToDNSStr(Self.TXT);
-     AppendBytes(Result, ToBytes(GStack.HostToNetwork(Word(Length(RRData)))));
-                             //Fix here, make the RRData being DNSStr.
-                             //Fixed in 2005 Jan 25.
-     AppendBytes(Result, RRData);
-     FAnswer := toBytes(Result, Length(Result));
-  end else begin
-      Result := toBytes(FAnswer, Length(FAnswer));
+    //Fix here, make the RRData being DNSStr.
+    //Fixed in 2005 Jan 25.
+    RRData := NormalStrToDNSStr(TXT);
+    FAnswer := FormatRecord(AFullName, RRData);
   end;
+  Result := ToBytes(FAnswer, Length(FAnswer));
 end;
 
 constructor TIdRR_TXT.Create;
 begin
-  inherited Create;
-  SetLength(Self.FAnswer, 0);
-  Self.RRName := 'TXT'; {do not localize}
-  Self.TXT := '';
-  Self.TypeCode := TypeCode_TXT;
+  inherited CreateInit('TXT', TypeCode_TXT); {do not localize}
+  TXT := '';
 end;
 
 function TIdRR_TXT.GetTXT: AnsiString;
 begin
-  Result := Self.RRDatas.Values['TXT']; {do not localize}
+  Result := GetValue('TXT'); {do not localize}
 end;
 
 procedure TIdRR_TXT.SetTXT(const Value: AnsiString);
 begin
-  Self.RRDatas.Values['TXT'] := Value;  {do not localize}
+  SetValue('TXT', Value);  {do not localize}
 end;
 
-function TIdRR_TXT.TextRecord(FullName: string): string;
-var
-   QName: string;
+function TIdRR_TXT.TextRecord(AFullName: string): string;
 begin
-  Result := '';
-  QName := Self.RRName + '.';
-  if QName <> FullName then begin
-    if not TextEndsWith(Self.RRName, '.') then begin
-      QName := Self.RRName + '.' + FullName;
-    end else begin
-      QName := Self.RRName;
-    end;
-  end;
-
-  if QName = FullName then
-  begin
-    QName := '@';
-  end;
-
-  Result := QName + Chr(9) + 'IN' + Chr(9) + 'TXT' + Chr(9) + '"' + Self.TXT + '"' + #13+#10; {do not localize}
+  Result := FormatQNameFull(AFullName) + Chr(9) + 'IN' + Chr(9) + 'TXT' + Chr(9) + '"' + TXT + '"' + #13+#10; {do not localize}
 end;
 
 { TIdRR_WKS }
 
 constructor TIdRR_WKS.Create;
 begin
-  inherited Create;
-  Self.RRName := 'WKS'; {do not localize}
-  Self.TypeCode := TypeCode_WKS;
+  inherited CreateInit('WKS', TypeCode_WKS); {do not localize}
 end;
 
 { TIdRR_Error }
 
 constructor TIdRR_Error.Create;
 begin
-   inherited Create;
-
-   Self.TypeCode := TypeCode_Error;
+   inherited CreateInit('', TypeCode_Error); {do not localize}
 end;
 
 function ReplaceSpecString(Source, Target, NewString : string; ReplaceAll : boolean = True) : string;
 var
-   FixingString, MiddleString, FixedString : string;
+  FixingString, MiddleString, FixedString : string;
 begin
-   if Target = NewString then
-   begin
-     Result := Source;
-   end
-   else begin
-        FixingString := Source;
-        MiddleString := '';                     {do not localize}
-        FixedString := '';                      {do not localize}
+  if Target = NewString then begin
+    Result := Source;
+  end else begin
+    FixingString := Source;
+    MiddleString := '';                     {do not localize}
+    FixedString := '';                      {do not localize}
 
-        if (IndyPos(Target, Source) > 0) then begin
-           repeat
-              MiddleString := Fetch(FixingString, Target);
-              FixedString := FixedString + MiddleString + NewString;
-           until (IndyPos(Target, FixingString) = 0) or (not ReplaceAll);
-           FixedString := FixedString + FixingString;
-
-           Result := FixedString;
-        end else begin
-            Result := Source;
-        end;
-   end;
+    if Pos(Target, Source) > 0 then begin
+      repeat
+        MiddleString := Fetch(FixingString, Target);
+        FixedString := FixedString + MiddleString + NewString;
+      until (Pos(Target, FixingString) = 0) or (not ReplaceAll);
+      Result := FixedString + FixingString;
+    end else begin
+      Result := Source;
+    end;
+  end;
 end;
 
 function IsBig5(ch1, ch2:char) : boolean;
 begin
-    if (not (((ch1 >= #161) and (ch1 <= #254)) or
-           ((ch1 >= #142) and (ch1 <= #160)) or
-           ((ch1 >= #129) and (ch1 <= #141))) ) or
-
-       (not (((ch2 >= #64) and (ch2 <= #126)) or
-           ((ch2 >= #161) and (ch2 <= #254))) ) then
-    begin
-       Result := False;
-    end
-    else
-    begin
-        Result := True;
-    end;
+  if (not (((ch1 >= #161) and (ch1 <= #254)) or
+    ((ch1 >= #142) and (ch1 <= #160)) or
+    ((ch1 >= #129) and (ch1 <= #141))) ) or
+    (not (((ch2 >= #64) and (ch2 <= #126)) or
+    ((ch2 >= #161) and (ch2 <= #254))) ) then
+   begin
+    Result := False;
+  end else begin
+    Result := True;
+  end;
 end;
 
 end.
