@@ -154,6 +154,7 @@ unit IdMessageCoderMIME;
 // presized outputs when possible, or presize only and reposition if stream
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -174,8 +175,7 @@ type
     procedure InitComponent; override;
   public
     constructor Create(AOwner: TComponent; const ALine: string); reintroduce; overload;
-    function ReadBody(ADestStream: TStream;
-      var VMsgEnd: Boolean): TIdMessageDecoder; override;
+    function ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder; override;
     procedure CheckAndSetType(const AContentType: string; AContentDisposition: string);
     procedure ReadHeader; override;
     function GetAttachmentFilename(const AContentType, AContentDisposition: string): string;
@@ -202,24 +202,10 @@ type
   end;
 
   TIdMIMEBoundaryStrings = class
-  private
-    {CC2: After recoding SendBody et al, dont need FIndyMultiPartAlternativeBoundary
-    or FIndyMultiPartRelatedBoundary.}
-    FIndyMIMEBoundary: string;
-    //FIndyMultiPartAlternativeBoundary: string;
-    //FIndyMultiPartRelatedBoundary: string;
-    procedure GenerateStrings;
   public
-    function GenerateRandomChar: Char;
-    function IndyMIMEBoundary: string;
-    //function IndyMultiPartAlternativeBoundary: string;
-    //function IndyMultiPartRelatedBoundary: string;
+    class function GenerateRandomChar: Char;
+    class function GenerateBoundary: String;
   end;
-
-var
-  //Note the following is created in the initialization section, so that the
-  //overhead of boundary creation is only done at most once per session...
-  IdMIMEBoundaryStrings: TIdMIMEBoundaryStrings;
 
 const
   //NOTE: If you used IndyMIMEBoundary, just prefix it with "IdMIMEBoundaryStrings." now.
@@ -229,6 +215,8 @@ const
   MIMEGenericText = 'text/'; {do not localize}
   MIMEGenericMultiPart = 'multipart/'; {do not localize}
   MIME7Bit = '7bit'; {do not localize}
+  MIMEAttachment = 'attachment'; {do not localize}
+  MIMEInline = 'inline'; {do not localize}
   // MtW: Inversed: see http://support.microsoft.com/default.aspx?scid=kb;en-us;207188
   InvalidWindowsFilenameChars = '\/:*?"<>|'; {do not localize}
 
@@ -239,15 +227,18 @@ uses
   IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader, SysUtils;
 
 { TIdMIMEBoundaryStrings }
-function TIdMIMEBoundaryStrings.GenerateRandomChar: Char;
+class function TIdMIMEBoundaryStrings.GenerateRandomChar: Char;
 var
   LOrd: integer;
   LFloat: Double;
 begin
+  if RandSeed = 0 then begin
+    Randomize;
+  end;
   {Allow only digits (ASCII 48-57), upper-case letters (65-90) and lowercase
   letters (97-122), which is 62 possible chars...}
-  LFloat := (Random* 61) + 1.5;  //Gives us 1.5 to 62.5
-  LOrd := Trunc(LFloat)+47;  //(1..62) -> (48..109)
+  LFloat := (Random * 61) + 1.5;  //Gives us 1.5 to 62.5
+  LOrd := Trunc(LFloat) + 47;  //(1..62) -> (48..109)
   if LOrd > 83 then begin
     LOrd := LOrd + 13;  {Move into lowercase letter range}
   end else if LOrd > 57 then begin
@@ -256,57 +247,26 @@ begin
   Result := Chr(LOrd);
 end;
 
-procedure TIdMIMEBoundaryStrings.GenerateStrings;
-{This generates random MIME boundaries.  They are only generated once each time
-a program containing this unit is run.}
+class function TIdMIMEBoundaryStrings.GenerateBoundary: String;
+{This generates a random MIME boundary.}
 var
-  LN: integer;
+  LN: Integer;
   LFloat: Double;
 begin
   {Generate a string 34 characters long (34 is a whim, not a requirement)...}
-  FIndyMIMEBoundary := '1234567890123456789012345678901234';  {do not localize}
-  Randomize;
-  for LN := 1 to Length(FIndyMIMEBoundary) do begin
-    FIndyMIMEBoundary[LN] := GenerateRandomChar;
+  Result := '1234567890123456789012345678901234';  {do not localize}
+  for LN := 1 to Length(Result) do begin
+    Result[LN] := GenerateRandomChar;
   end;
   {CC2: RFC 2045 recommends including "=_" in the boundary, insert in random location...}
-  //LN := RandomRange(1,Length(FIndyMIMEBoundary)-1);
-  LFloat := (Random * (Length(FIndyMIMEBoundary)-2)) + 1.5;  //Gives us 1.5 to Length-0.5
+  LFloat := (Random * (Length(Result)-2)) + 1.5;  //Gives us 1.5 to Length-0.5
   LN := Trunc(LFloat);  // 1 to Length-1 (we are inserting a 2-char string)
-  FIndyMIMEBoundary[LN] := '=';
-  FIndyMIMEBoundary[LN+1] := '_';
-  {The Alternative boundary is the same with a random lowercase letter added...}
-  //FIndyMultiPartAlternativeBoundary := FIndyMIMEBoundary + Chr(RandomRange(97,122));
-  {The Related boundary is the same with a random upper-case letter added...}
-  //FIndyMultiPartRelatedBoundary := FIndyMultiPartAlternativeBoundary + Chr(RandomRange(65,90));
+  Result[LN] := '=';
+  Result[LN+1] := '_';
 end;
 
-function TIdMIMEBoundaryStrings.IndyMIMEBoundary: string;
-begin
-  if FIndyMIMEBoundary = '' then begin
-    GenerateStrings;
-  end;
-  Result := FIndyMIMEBoundary;
-end;
-{
-function TIdMIMEBoundaryStrings.IndyMultiPartAlternativeBoundary: string;
-begin
-  if FIndyMIMEBoundary = '' then begin
-    GenerateStrings;
-  end;
-  Result := FIndyMultiPartAlternativeBoundary;
-end;
-}
-{
-function TIdMIMEBoundaryStrings.IndyMultiPartRelatedBoundary: string;
-begin
-  if FIndyMIMEBoundary = '' then begin
-    GenerateStrings;
-  end;
-  Result := FIndyMultiPartRelatedBoundary;
-end;
-}
 { TIdMessageDecoderInfoMIME }
+
 function TIdMessageDecoderInfoMIME.CheckForStart(ASender: TIdMessage;
  const ALine: string): TIdMessageDecoder;
 begin
@@ -328,7 +288,7 @@ end;
 
 constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
 begin
-  Create(AOwner);
+  inherited Create(AOwner);
   FFirstLine := ALine;
   FProcessFirstLine := True;
 end;
@@ -391,6 +351,9 @@ begin
         if LLine = '.' then begin {Do not Localize}
           VMsgEnd := True;
           Break;
+        end;
+        if TextStartsWith(LLine, '..') then begin
+          Delete(LLine, 1, 1);
         end;
       end;
       if VMsgEnd then begin
@@ -500,7 +463,7 @@ end;
 
 procedure TIdMessageDecoderMIME.CheckAndSetType(const AContentType: string; AContentDisposition: string);
 var
-  LDisposition, LFileName: string;
+  LDisposition: string;
 begin
   LDisposition := Fetch(AContentDisposition, ';');    {Do not Localize}
 
@@ -508,22 +471,19 @@ begin
   a filename, or else does NOT have a ContentType starting with text/ or multipart/.
   Anything left is a TIdText.}
 
-  //WARNING: Attachments may not necessarily have filenames!
-  LFileName := GetAttachmentFilename(AContentType, AContentDisposition);
+  {RLebeau 3/28/2006: RFC 2183 states that inlined text can have
+  filenames as well, so do NOT treat inlined text as attachments!}
 
-  if TextIsSame(LDisposition, 'attachment') or (LFileName <> '') then begin {Do not Localize}
-    {A filename is specified, so irrespective of type, this is an attachment...}
-    FPartType := mcptAttachment;
-    FFilename := LFileName;
+  //WARNING: Attachments may not necessarily have filenames, and Text parts may have filenames!
+  FFileName := GetAttachmentFilename(AContentType, AContentDisposition);
+
+  {see what type the part is...}
+  if (TextStartsWith(AContentType, MIMEGenericText) or TextStartsWith(AContentType, MIMEGenericMultiPart)) and
+    (not TextIsSame(LDisposition, MIMEAttachment)) then
+  begin
+    FPartType := mcptText;
   end else begin
-    {No filename is specified, so see what type the part is...}
-    if TextStartsWith(AContentType, MIMEGenericText) or
-      TextStartsWith(AContentType, MIMEGenericMultiPart) then
-    begin
-      FPartType := mcptText;
-    end else begin
-      FPartType := mcptAttachment;
-    end;
+    FPartType := mcptAttachment;
   end;
 end;
 
@@ -713,8 +673,6 @@ initialization
    , TIdMessageDecoderInfoMIME.Create);
   TIdMessageEncoderList.RegisterEncoder('MIME'    {Do not Localize}
    , TIdMessageEncoderInfoMIME.Create);
-  IdMIMEBoundaryStrings := TIdMIMEBoundaryStrings.Create;
 finalization
-  IdMIMEBoundaryStrings.Free;
-  IdMIMEBoundaryStrings := nil;  {Global vars always initialised to 0, not nil}
+
 end.
