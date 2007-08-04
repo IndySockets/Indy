@@ -25,16 +25,16 @@
   Rev 1.9    9/18/2003 10:20:28 AM  JPMugaas
   Updated for new API.
 
-  Rev 1.8    3/30/2003 12:38:56 AM  BGooijen
+    Rev 1.8    3/30/2003 12:38:56 AM  BGooijen
   Removed warning
 
-  Rev 1.7    3/30/2003 12:15:12 AM  BGooijen
+    Rev 1.7    3/30/2003 12:15:12 AM  BGooijen
   Added MakeFTPSvrPort/MakeFTPSvrPasv
 
-  Rev 1.6    3/23/2003 11:44:24 PM  BGooijen
+    Rev 1.6    3/23/2003 11:44:24 PM  BGooijen
   Added MakeClientIOHandler(ATheThread:TIdThreadHandle ):...
 
-  Rev 1.5    3/14/2003 10:00:36 PM  BGooijen
+    Rev 1.5    3/14/2003 10:00:36 PM  BGooijen
   Removed TIdServerIOHandlerSSLBase.PeerPassthrough, the ssl is now enabled in
   the server-protocol-files
 
@@ -45,7 +45,7 @@
   Rev 1.2    3/13/2003 11:55:44 AM  JPMugaas
   Updated registration framework to give more information.
 
-  Rev 1.1    3/13/2003 4:08:42 PM  BGooijen
+    Rev 1.1    3/13/2003 4:08:42 PM  BGooijen
   classes -> Classes
 
   Rev 1.0    3/13/2003 09:51:18 AM  JPMugaas
@@ -56,6 +56,7 @@
 unit IdSSL;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -70,18 +71,22 @@ uses
 
 type
   //client
-   TIdSSLIOHandlerSocketBase = class(TIdIOHandlerStack)
-   protected
-      fPassThrough: Boolean;
-      fIsPeer : Boolean;
-     FURIToCheck : String;
-     procedure SetPassThrough(const AValue: Boolean); virtual;
-     procedure SetURIToCheck(const AValue: String); virtual;
-   public
-     function Clone :  TIdSSLIOHandlerSocketBase; virtual; abstract;
-     procedure StartSSL; virtual; abstract;
-     property PassThrough: Boolean read fPassThrough write SetPassThrough;
-     property IsPeer : Boolean read fIsPeer write fIsPeer;
+  TIdSSLIOHandlerSocketBase = class(TIdIOHandlerStack)
+  protected
+    fPassThrough: Boolean;
+    fIsPeer : Boolean;
+    FURIToCheck : String;
+    function RecvEnc(var ABuffer: TIdBytes): Integer; virtual; abstract;
+    function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
+    function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
+    function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
+    procedure SetPassThrough(const AValue: Boolean); virtual;
+    procedure SetURIToCheck(const AValue: String); virtual;
+  public
+    function Clone :  TIdSSLIOHandlerSocketBase; virtual; abstract;
+    procedure StartSSL; virtual; abstract;
+    property PassThrough: Boolean read fPassThrough write SetPassThrough;
+    property IsPeer : Boolean read fIsPeer write fIsPeer;
      {
 Pasted from private corresponance from Henrick Hellström - StreamSec http://www.streamsec.com
 
@@ -91,8 +96,8 @@ the SSL handler implementation units. The reason for this is that the
 SSL/TLS handler should verify that the URI entered by the client user
 matches the identity information present in the server certificate.
      }
-     property URIToCheck : String read FURIToCheck write SetURIToCheck;
-   end;
+    property URIToCheck : String read FURIToCheck write SetURIToCheck;
+  end;
 
    //server
    TIdServerIOHandlerSSLBase = class(TIdServerIOHandler)
@@ -132,6 +137,7 @@ type
     property ClientClass : TIdClientSSLClass read FClientClass write FClientClass;
     property ServerClass : TIdServerSSLClass read FServerClass write FServerClass;
   end;
+
   TIdSSLRegistry = class(TCollection)
   protected
     function GetItem ( Index: Integer ) : TIdSSLRegEntry;
@@ -148,7 +154,8 @@ var
 
 implementation
 
-uses SysUtils;
+uses
+  SysUtils;
 
 Procedure RegisterSSL(const AProduct, AVendor, ACopyright,
   ADescription, AURL : String;
@@ -167,6 +174,25 @@ end;
 
 { TIdSSLIOHandlerSocketBase }
 
+function TIdSSLIOHandlerSocketBase.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
+begin
+  if PassThrough then begin
+    Result := inherited ReadDataFromSource(VBuffer);
+  end else begin
+    Result := RecvEnc(VBuffer);
+  end;
+end;
+
+function TIdSSLIOHandlerSocketBase.WriteDataToTarget(const ABuffer: TIdBytes;
+  const AOffset, ALength: Integer): Integer;
+begin
+  if PassThrough then begin
+    Result := inherited WriteDataToTarget(ABuffer, AOffset, ALength);
+  end else begin
+    Result := SendEnc(ABuffer, AOffset, ALength);
+  end;
+end;
+
 procedure TIdSSLIOHandlerSocketBase.SetPassThrough(const AValue: Boolean);
 begin
   fPassThrough := AValue;
@@ -181,7 +207,7 @@ end;
 
 function TIdServerIOHandlerSSLBase.MakeClientIOHandler(ATheThread:TIdYarn ): TIdIOHandler;
 begin
-  result:=MakeClientIOHandler;
+  Result := MakeClientIOHandler;
 end;
 
 { TIdSSLRegistry }
