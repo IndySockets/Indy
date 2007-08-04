@@ -32,12 +32,11 @@
 unit IdYarn;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 type
   TIdYarn = class(TObject)
-  protected
-  public
   end;
 
 implementation
