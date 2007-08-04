@@ -106,7 +106,7 @@
   Rev 1.24    10/17/2003 7:42:54 PM  BGooijen
   Changed default Encoding to MIME
 
-  Rev 1.23    10/17/2003 12:14:08 AM  DSiders
+    Rev 1.23    10/17/2003 12:14:08 AM  DSiders
   Added localization comments.
 
   Rev 1.22    2003.10.14 9:57:04 PM  czhower
@@ -168,7 +168,7 @@
   Rev 1.5    6/3/2003 10:46:54 PM  JPMugaas
   In-Reply-To header now supported.
 
-  Rev 1.4    1/27/2003 10:07:46 PM  DSiders
+    Rev 1.4    1/27/2003 10:07:46 PM  DSiders
   Corrected error setting file stream permissions in LoadFromFile.  Bug Report
   649502.
 
@@ -184,80 +184,80 @@
 
   Rev 1.0    11/13/2002 07:56:52 AM  JPMugaas
 
-  2004-05-04 Ciaran Costelloe
-    - Replaced meUU with mePlainText.  This also meant that UUE/XXE encoding was pushed
-      down from the message-level to the MessagePart level, where it belongs.
+2004-05-04 Ciaran Costelloe
+  - Replaced meUU with mePlainText.  This also meant that UUE/XXE encoding was pushed
+    down from the message-level to the MessagePart level, where it belongs.
 
-  2004-04-20 Ciaran Costelloe
-    - Added support for multiple From addresses (per RFC 2822, section 3.6.2) by
+2004-04-20 Ciaran Costelloe
+  - Added support for multiple From addresses (per RFC 2822, section 3.6.2) by
       adding a FromList field.  The previous From field now maps to FromList[0].
 
-  2003-10-04 Ciaran Costelloe (see comments starting CC4)
+2003-10-04 Ciaran Costelloe (see comments starting CC4)
 
-  2003-09-20 Ciaran Costelloe (see comments starting CC2)
-    - Added meDefault, meXX to TIdMessageEncoding.
+2003-09-20 Ciaran Costelloe (see comments starting CC2)
+  - Added meDefault, meXX to TIdMessageEncoding.
       Code now sets TIdMessage.Encoding when it decodes an email.
       Modified TIdMIMEBoundary to work as a straight stack, now Push/Pops ParentPart also.
-      Added meDefault, meXX to TIdMessageEncoding.
-      Moved logic from SendBody to GenerateHeader, added extra logic to avoid exceptions:
+    Added meDefault, meXX to TIdMessageEncoding.
+    Moved logic from SendBody to GenerateHeader, added extra logic to avoid exceptions:
         Change any encodings we dont know to base64
-        We dont support attachments in an encoded body, change it to a supported combination
-      Made changes to support ConvertPreamble and MIME message bodies with a
-        ContentTransferEncoding of base64, quoted-printable.
+      We dont support attachments in an encoded body, change it to a supported combination
+    Made changes to support ConvertPreamble and MIME message bodies with a
+      ContentTransferEncoding of base64, quoted-printable.
       ProcessHeaders now decodes BCC list.
 
-  2003-09-02 Ciaran Costelloe
-    - Added fix to FindBoundary suggested by Juergen Haible to remove trailing space
-      after boundary added by some clients.
+2003-09-02 Ciaran Costelloe
+  - Added fix to FindBoundary suggested by Juergen Haible to remove trailing space
+    after boundary added by some clients.
 
-  2003-07-10 Ciaran Costelloe
-    - Added LastGeneratedHeaders property, see comments starting CC.  Changed
+2003-07-10 Ciaran Costelloe
+  - Added LastGeneratedHeaders property, see comments starting CC.  Changed
       GenerateHeader from function to procedure, it now puts the generated headers
-      into LastGeneratedHeaders, which is where dependant units should take the
-      results from.  This ensures that the headers that were generated are
-      recorded, which some users' programs may need.
+    into LastGeneratedHeaders, which is where dependant units should take the
+    results from.  This ensures that the headers that were generated are
+    recorded, which some users' programs may need.
 
-  2002-12-09 Andrew Neillans
-    - Removed X-Library line
+2002-12-09 Andrew Neillans
+  - Removed X-Library line
 
-  2002-08-30 Andrew P.Rybin
+2002-08-30 Andrew P.Rybin
     - Now InitializeISO is IdMessage method
 
-  2001-12-27 Andrew P.Rybin
-    Custom InitializeISO, ExtractCharSet
+2001-12-27 Andrew P.Rybin
+  Custom InitializeISO, ExtractCharSet
 
-  2001-Oct-29 Don Siders
-    Added EIdMessageCannotLoad exception.
-    Added RSIdMessageCannotLoad constant.
-    Added TIdMessage.LoadFromStream.
-    Modified TIdMessage.LoadFromFile to call LoadFromStream.
-    Added TIdMessage.SaveToStream.
-    Modified TIdMessage.SaveToFile to call SaveToStream.
-    Modified TIdMessage.GenerateHeader to include headers received but not used in properties.
+2001-Oct-29 Don Siders
+  Added EIdMessageCannotLoad exception.
+  Added RSIdMessageCannotLoad constant.
+  Added TIdMessage.LoadFromStream.
+  Modified TIdMessage.LoadFromFile to call LoadFromStream.
+  Added TIdMessage.SaveToStream.
+  Modified TIdMessage.SaveToFile to call SaveToStream.
+  Modified TIdMessage.GenerateHeader to include headers received but not used in properties.
 
-  2001-Sep-14 Andrew Neillans
-    Added LoadFromFile Header only
+2001-Sep-14 Andrew Neillans
+  Added LoadFromFile Header only
 
-  2001-Sep-12 Johannes Berg
-    Fixed upper/Sys.LowerCase in uses clause for Kylix
+2001-Sep-12 Johannes Berg
+  Fixed upper/Sys.LowerCase in uses clause for Kylix
 
-  2001-Aug-09 Allen O'Neill
-    Added line to check for valid charset value before adding second ';' after content-type boundry
+2001-Aug-09 Allen O'Neill
+  Added line to check for valid charset value before adding second ';' after content-type boundry
 
-  2001-Aug-07 Allen O'Neill
-    Added SaveToFile & LoadFromFile ... Doychin fixed
+2001-Aug-07 Allen O'Neill
+  Added SaveToFile & LoadFromFile ... Doychin fixed
 
-  2001-Jul-11 Hadi Hariri
-    Added Encoding for both MIME and UU.
+2001-Jul-11 Hadi Hariri
+  Added Encoding for both MIME and UU.
 
-  2000-Jul-25 Hadi Hariri
-  - Added support for MBCS
+2000-Jul-25 Hadi Hariri
+ - Added support for MBCS
 
-  2000-Jun-10 Pete Mee
-  - Fixed some minor but annoying bugs.
+2000-Jun-10 Pete Mee
+ - Fixed some minor but annoying bugs.
 
-  2000-May-06 Pete Mee
-  - Added coder support directly into TIdMessage.
+2000-May-06 Pete Mee
+ - Added coder support directly into TIdMessage.
 }
 
 unit IdMessage;
@@ -350,22 +350,21 @@ type
 
   TIdMessageFlagsSet = set of TIdMessageFlags;
 
-  { WARNING: Replaced meUU with mePlainText in Indy 10 due to meUU being misleading.
-    This is the MESSAGE-LEVEL "encoding", really the Sys.Format or layout of the message.
-    When encoding, the user can let Indy decide on the encoding by leaving it at
-    meDefault, or he can pick meMIME or mePlainText }
+  {WARNING: Replaced meUU with mePlainText in Indy 10 due to meUU being misleading.
+  This is the MESSAGE-LEVEL "encoding", really the Sys.Format or layout of the message.
+  When encoding, the user can let Indy decide on the encoding by leaving it at
+  meDefault, or he can pick meMIME or mePlainText }
 
   //TIdMessageEncoding = (meDefault, meMIME, meUU, meXX);
   TIdMessageEncoding = (meDefault, meMIME, mePlainText);
 
-  TIdInitializeIsoEvent = procedure (var VTransferHeader: TTransfer; var VHeaderEncoding: Char;
+  TIdInitializeIsoEvent = procedure (var VHeaderEncoding: Char;
     var VCharSet: string) of object;
 
   TIdMessage = class;
 
   TIdCreateAttachmentEvent = procedure(const AMsg: TIdMessage;
-   const AHeaders: TStrings;
-   var AAttachment: TIdAttachment) of object;
+    const AHeaders: TStrings; var AAttachment: TIdAttachment) of object;
 
   TIdMessage = class(TIdBaseComponent)
   private
@@ -412,7 +411,7 @@ type
     FExceptionOnBlockedAttachments: Boolean; // used in TIdAttachmentFile
     //
     function  FixUpMsgID(const AValue: String) : String;
-    procedure DoInitializeISO(var VTransferHeader: TTransfer; var VHeaderEncoding: Char; var VCharSet: String); virtual;
+    procedure DoInitializeISO(var VHeaderEncoding: Char; var VCharSet: String); virtual;
     function  GetAttachmentEncoding: string;
     function  GetInReplyTo: String;
     function  GetUseNowForDate: Boolean;
@@ -443,10 +442,8 @@ type
     procedure ClearBody;
     procedure ClearHeader;
     procedure GenerateHeader;
-    procedure InitializeISO(var VTransferHeader: TTransfer;
-     var VHeaderEncoding: Char; var VCharSet: String);
+    procedure InitializeISO(var VHeaderEncoding: Char; var VCharSet: String);
     function  IsBodyEncodingRequired: Boolean;
-    function  DetermineIfMsgIsSinglePartMime: Boolean;
     function  IsBodyEmpty: Boolean;
 
     procedure LoadFromFile(const AFileName: string; const AHeadersOnly: Boolean = False);
@@ -458,8 +455,7 @@ type
     procedure SaveToFile(const AFileName : string; const AHeadersOnly: Boolean = False);
     procedure SaveToStream(AStream: TStream; const AHeadersOnly: Boolean = False);
 
-    procedure DoCreateAttachment(const AHeaders: TStrings;
-      var VAttachment: TIdAttachment); virtual;
+    procedure DoCreateAttachment(const AHeaders: TStrings; var VAttachment: TIdAttachment); virtual;
     //
     property Flags: TIdMessageFlagsSet read FFlags write FFlags;
     property IsEncoded : Boolean read FIsEncoded write FIsEncoded;
@@ -511,8 +507,6 @@ type
 
   TIdMessageEvent = procedure(ASender : TComponent; var AMsg : TIdMessage) of object;
 
-  TStringMessageEvent = procedure(ASender : TComponent; const AString : String; var AMsg : TIdMessage) of object;
-
   EIdTextInvalidCount = class(EIdMessageException);
 
   // 2001-Oct-29 Don Siders
@@ -521,10 +515,10 @@ type
 const
   MessageFlags : array [mfAnswered..mfRecent] of String =
   ( '\Answered', {Do not Localize} //Message has been answered.
-    '\Flagged', {Do not Localize} //Message is "flagged" for urgent/special attention.
-    '\Deleted', {Do not Localize} //Message is "deleted" for removal by later EXPUNGE.
-    '\Draft', {Do not Localize} //Message has not completed composition (marked as a draft).
-    '\Seen', {Do not Localize} //Message has been read.
+    '\Flagged',  {Do not Localize} //Message is "flagged" for urgent/special attention.
+    '\Deleted',  {Do not Localize} //Message is "deleted" for removal by later EXPUNGE.
+    '\Draft',    {Do not Localize} //Message has not completed composition (marked as a draft).
+    '\Seen',     {Do not Localize} //Message has been read.
     '\Recent' ); {Do not Localize} //Message is "recently" arrived in this mailbox.
 
   INREPLYTO = 'In-Reply-To'; {Do not localize}
@@ -576,13 +570,13 @@ begin
   Fetch(s, 'BOUNDARY', True, False); {do not localize}
   if Length(s) > 0 then begin
     s := Trim(s);
-    if (Length(s) > 0) and (s[1] = '=') then begin       {do not localize}
+    if TextStartsWith(s, '=') then begin       {do not localize}
       s := Copy(s, 2, MaxInt);
     end;
     {CC: Fix suggested by Juergen Haible - some clients add a space after the boundary,
-    remove it by calling Sys.Trim(s)...}
+    remove it by calling Trim(s)...}
     s := Trim(s);
-    if (Length(s) > 0) and (s[1] = '"') then begin {do not localize}
+    if TextStartsWith(s, '"') then begin {do not localize}
       Delete(s, 1, 1);
       Result := Fetch(s, '"'); {do not localize}
     // Should never occur, and if so bigger problems but just in case we'll try
@@ -640,7 +634,7 @@ end;
 
 procedure TIdMessage.ClearBody;
 begin
-  MessageParts.Clear ;
+  MessageParts.Clear;
   Body.Clear;
 end;
 
@@ -716,7 +710,7 @@ begin
   FreeAndNil(FReceiptRecipient);
   FreeAndNil(FMIMEBoundary);
   FreeAndNil(FLastGeneratedHeaders);
-  inherited destroy;
+  inherited Destroy;
 end;
 
 function  TIdMessage.IsBodyEmpty: Boolean;
@@ -735,23 +729,10 @@ begin
   Result := True;
 end;
 
-function  TIdMessage.DetermineIfMsgIsSinglePartMime: Boolean;
-//Sets up FIsMsgSinglePartMime.
-begin
-  FIsMsgSinglePartMime := False;
-  Result := FIsMsgSinglePartMime;
-  if ((Encoding <> meMIME) or (MessageParts.Count <> 1) or (IsBodyEmpty = False)) then begin
-    Exit;
-  end;
-  FIsMsgSinglePartMime := True;
-  Result := FIsMsgSinglePartMime;
-end;
-
 procedure TIdMessage.GenerateHeader;
 var
   ISOCharset: string;
   HeaderEncoding: Char;
-  TransferHeader: TTransfer;
   LN: Integer;
   LEncoding: string;
   LMIMEBoundary: string;
@@ -773,18 +754,12 @@ begin
     LEncoding := MessageParts[LN].ContentTransfer;
     if LEncoding <> '' then begin
       if Encoding = meMIME then begin
-        if ( (TextIsSame(LEncoding, '7bit') = False) and                     {do not localize}
-         (TextIsSame(LEncoding, '8bit') = False) and                         {do not localize}
-         (TextIsSame(LEncoding, 'binary') = False) and                     {do not localize}
-         (TextIsSame(LEncoding, 'base64') = False) and                       {do not localize}
-         (TextIsSame(LEncoding, 'quoted-printable') = False) and             {do not localize}
-         (TextIsSame(LEncoding, 'binhex40') = False)) then begin             {do not localize}
-          MessageParts[LN].ContentTransfer := 'base64';                      {do not localize}
+        if PosInStrArray(LEncoding, ['7bit', '8bit', 'binary', 'base64', 'quoted-printable', 'binhex40'], False) = -1 then begin {do not localize}
+          MessageParts[LN].ContentTransfer := 'base64';                 {do not localize}
         end;
       end else begin  //mePlainText
-        if ( (TextIsSame(LEncoding, 'UUE') = False) and                      {do not localize}
-         (TextIsSame(LEncoding, 'XXE') = False)) then begin                  {do not localize}
-          MessageParts[LN].ContentTransfer := 'UUE';                         {do not localize}
+        if PosInStrArray(LEncoding, ['UUE', 'XXE'], False) = -1 then begin {do not localize}
+          MessageParts[LN].ContentTransfer := 'UUE';                    {do not localize}
         end;
       end;
     end;
@@ -792,16 +767,14 @@ begin
   {CC2: We dont support attachments in an encoded body.
   Change it to a supported combination...}
   if MessageParts.Count > 0 then begin
-    if ((ContentTransferEncoding <> '') and
-        (not TextIsSame(ContentTransferEncoding, '7bit')) and         {do not localize}
-        (not TextIsSame(ContentTransferEncoding, 'binary')) and       {do not localize}
-        (not TextIsSame(ContentTransferEncoding, '8bit'))) then begin {do not localize}
+    if (ContentTransferEncoding <> '') and
+     (PosInStrArray(ContentTransferEncoding, ['7bit', '8bit', 'binary'], False) = -1) then begin {do not localize}
       ContentTransferEncoding := '';
     end;
   end;
   if Encoding = meMIME then begin
     //HH: Generate Boundary here so we know it in the headers
-    LMIMEBoundary := IdMIMEBoundaryStrings.IndyMIMEBoundary;
+    LMIMEBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
     //CC: Moved this logic up from SendBody to here, where it fits better...
     if Length(ContentType) = 0 then begin
       //User has omitted ContentType.  We have to guess here, it is impossible
@@ -825,31 +798,28 @@ begin
     TIdMessageEncoderInfo(MessageParts.MessageEncoderInfo).InitializeHeaders(Self);
   end;
 
-  InitializeISO(TransferHeader, HeaderEncoding, ISOCharSet);
-  LastGeneratedHeaders.Clear;
-
-  if (FHeaders.Count > 0) then begin
-    LastGeneratedHeaders.Assign(FHeaders);
-  end;
+  InitializeISO(HeaderEncoding, ISOCharSet);
+  LastGeneratedHeaders.Assign(FHeaders);
+  FIsMsgSinglePartMime := (Encoding = meMIME) and (MessageParts.Count = 1) and IsBodyEmpty;
 
   with LastGeneratedHeaders do
   begin
     {CC: If From has no Name field, use the Address field as the Name field by setting last param to True (for SA)...}
-    Values['From'] := EncodeAddress(FromList, HeaderEncoding, TransferHeader, ISOCharSet, True); {do not localize}
-    Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
-    Values['To'] := EncodeAddress(Recipients, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
-    Values['Cc'] := EncodeAddress(CCList, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
+    Values['From'] := EncodeAddress(FromList, HeaderEncoding, ISOCharSet, True); {do not localize}
+    Values['Subject'] := EncodeHeader(Subject, '', HeaderEncoding, ISOCharSet); {do not localize}
+    Values['To'] := EncodeAddress(Recipients, HeaderEncoding, ISOCharSet); {do not localize}
+    Values['Cc'] := EncodeAddress(CCList, HeaderEncoding, ISOCharSet); {do not localize}
     {CC: SaveToFile sets FGenerateBCCListInHeader to True so that BCC names are saved
      when saving to file and omitted otherwise (as required by SMTP)...}
-    if FGenerateBCCListInHeader = False then begin
+    if not FGenerateBCCListInHeader then begin
       Values['Bcc'] := ''; {do not localize}
     end else begin
-      Values['Bcc'] := EncodeAddress(BCCList, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
+      Values['Bcc'] := EncodeAddress(BCCList, HeaderEncoding, ISOCharSet); {do not localize}
     end;
     Values['Newsgroups'] := NewsGroups.CommaText; {do not localize}
     if Encoding = meMIME then
     begin
-      if DetermineIfMsgIsSinglePartMime = True then begin
+      if IsMsgSinglePartMime then begin
         {This is a single-part MIME: the part may be a text part or an attachment.
         The relevant headers need to be taken from MessageParts[0].  The problem,
         however, is that we have not yet processed MessageParts[0] yet, so we do
@@ -876,11 +846,10 @@ begin
       Values['Content-Type'] := ContentType;  {do not localize}
     end;
     Values['Sender'] := Sender.Text; {do not localize}
-    Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
-    Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, TransferHeader, ISOCharSet); {do not localize}
+    Values['Reply-To'] := EncodeAddress(ReplyTo, HeaderEncoding, ISOCharSet); {do not localize}
+    Values['Organization'] := EncodeHeader(Organization, '', HeaderEncoding, ISOCharSet); {do not localize}
 
-    Values['Disposition-Notification-To'] := EncodeAddressItem(ReceiptRecipient, {do not localize}
-      HeaderEncoding, TransferHeader, ISOCharSet);
+    Values['Disposition-Notification-To'] := EncodeAddressItem(ReceiptRecipient, HeaderEncoding, ISOCharSet); {do not localize}
 
     Values['References'] := References; {do not localize}
 
@@ -951,7 +920,7 @@ var
       Result := mpLow;
     end else begin
       s := Trim(Priority);
-      s := Trim(Fetch(s, ' '));   {do not localize}
+      s := Fetch(s, ' ');   {do not localize}
       Num := IndyStrToInt(s, 3);
       Result := TIdMessagePriority(Num - 1);
     end;
@@ -998,7 +967,7 @@ begin
   if LBoundary <> '' then begin
     MIMEBoundary.Push(LBoundary, -1);
   end;
-  {CC2: Set MESSAGE_LEVEL "encoding" (really the Sys.Format or layout)}
+  {CC2: Set MESSAGE_LEVEL "encoding" (really the format or layout)}
   LMIMEVersion := Headers.Values['MIME-Version']; {do not localize}
   if LMIMEVersion = '' then begin
     Encoding := mePlainText;
@@ -1136,7 +1105,7 @@ procedure TIdMessage.SaveToFile(const AFileName: string; const AHeadersOnly: Boo
 var
   LStream : TFileStream;
 begin
-  LStream := TFileStream.Create(AFileName, fmCreate); try
+  LStream := TIdFileCreateStream.Create(AFileName); try
     FGenerateBCCListInHeader := True; try
       SaveToStream(LStream, AHeadersOnly);
     finally FGenerateBCCListInHeader := False; end;
@@ -1161,17 +1130,15 @@ begin
   finally FreeAndNil(LMsgClient); end;
 end;
 
-procedure TIdMessage.DoInitializeISO(var VTransferHeader: TTransfer;
-  var VHeaderEncoding: Char; var VCharSet: string);
+procedure TIdMessage.DoInitializeISO(var VHeaderEncoding: Char; var VCharSet: string);
 Begin
   if Assigned(FOnInitializeISO) then begin
-    FOnInitializeISO(VTransferHeader, VHeaderEncoding, VCharSet);//APR
+    FOnInitializeISO(VHeaderEncoding, VCharSet);//APR
   end;
 End;//
 
-procedure TIdMessage.InitializeISO(var VTransferHeader: TTransfer; var VHeaderEncoding: Char; var VCharSet: String);
+procedure TIdMessage.InitializeISO(var VHeaderEncoding: Char; var VCharSet: String);
 Begin
-  VTransferHeader := bit8;    { header part conversion type }
   VHeaderEncoding := 'B';     { base64 / quoted-printable }    {Do not Localize}
   VCharSet := IdCharsetNames[IdGetDefaultCharSet];
 
@@ -1179,13 +1146,12 @@ Begin
   // Comments welcome on atozedsoftware.indy.general
 
   case IdGetDefaultCharSet of
-    idcsISO_2022_JP : VTransferHeader := iso2022jp; { header needs conversion }
     idcsISO_8859_1 : VHeaderEncoding := 'Q';    {Do not Localize}
     idcsUNICODE_1_1 : VCharSet := IdCharsetNames[idcsUTF_8];
   else
     // nothing
   end;
-  DoInitializeISO(VTransferHeader, VHeaderEncoding, VCharSet);
+  DoInitializeISO(VHeaderEncoding, VCharSet);
 End;
 
 procedure TIdMessage.DoCreateAttachment(const AHeaders: TStrings;
@@ -1196,7 +1162,7 @@ begin
     FOnCreateAttachment(Self, AHeaders, VAttachment);
   end;
   if VAttachment = nil then begin
-    VAttachment := TIdAttachmentFile.Create(Self.MessageParts);
+    VAttachment := TIdAttachmentFile.Create(MessageParts);
   end;
 end;
 
@@ -1204,18 +1170,18 @@ function TIdMessage.IsBodyEncodingRequired: Boolean;
 var
   i,j: Integer;
   S: String;
-Begin
-  Result := FALSE;//7bit
+begin
+  Result := False;//7bit
   for i:= 0 to FBody.Count - 1 do begin
     S := FBody[i];
     for j := 1 to Length(S) do begin
       if S[j] > #127 then begin
-        Result := TRUE;
-        EXIT;
+        Result := True;
+        Exit;
       end;
     end;
   end;
-End;//
+end;//
 
 function TIdMessage.GetInReplyTo: String;
 begin
@@ -1230,11 +1196,11 @@ end;
 function TIdMessage.FixUpMsgID(const AValue: String): String;
 begin
   Result := AValue;
-  if (Length(Result) > 0) then begin
-    if (Result[1] <> '<') then begin
+  if Length(Result) > 0 then begin
+    if not TextStartsWith(Result, '<') then begin
       Result := '<' + Result;
     end;
-    if (Result[Length(Result)] <> '>') then begin
+    if not TextEndsWith(Result, '>') then begin
       Result := Result + '>';
     end;
   end;
