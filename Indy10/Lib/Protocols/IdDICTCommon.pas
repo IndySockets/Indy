@@ -25,7 +25,7 @@
   Rev 1.2    8/16/2004 1:15:00 PM  JPMugaas
   Create and Destroy need to have the same visibility as inherited methods.
 
-  Rev 1.1    6/11/2004 6:16:48 AM  DSiders
+    Rev 1.1    6/11/2004 6:16:48 AM  DSiders
   Corrected spelling in class names, properties, and methods.
 
   Rev 1.0    3/4/2004 2:43:26 PM  JPMugaas
@@ -36,6 +36,7 @@
 unit IdDICTCommon;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -50,6 +51,7 @@ type
     property DB : String read FDB write FDB;
     property Word : String read FWord write FWord;
   end;
+
   TIdMatchList = class(TCollection)
   protected
     function GetItems(AIndex: Integer): TIdMatchItem;
@@ -60,6 +62,7 @@ type
     function Add: TIdMatchItem;
     property Items[AIndex: Integer]: TIdMatchItem read GetItems write SetItems; default;
   end;
+
   TIdGeneric = class(TCollectionItem)
   protected
     FName : String;
@@ -122,7 +125,9 @@ type
   end;
 
 implementation
-uses IdGlobal, SysUtils;
+
+uses
+  IdGlobal, SysUtils;
 
 { TIdDefinitions }
 
@@ -145,11 +150,11 @@ function TIdDefinitions.IndexOf(AItem: TIdDefinition): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
+  Result := -1;
   for i := 0 to Count - 1 do
     if AItem = Items[i] then begin
-      result := i;
-      break;
+      Result := i;
+      Break;
     end;
 end;
 
@@ -201,11 +206,11 @@ function TIdDBList.IndexOf(AItem: TIdDBInfo): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
+  Result := -1;
   for i := 0 to Count - 1 do
     if AItem = Items[i] then begin
-      result := i;
-      break;
+      Result := i;
+      Break;
     end;
 end;
 
@@ -235,11 +240,11 @@ function TIdStrategyList.IndexOf(AItem: TIdStrategy): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
+  Result := -1;
   for i := 0 to Count - 1 do
     if AItem = Items[i] then begin
-      result := i;
-      break;
+      Result := i;
+      Break;
     end;
 end;
 
@@ -270,11 +275,11 @@ function TIdMatchList.IndexOf(AItem: TIdMatchItem): Integer;
 Var
   i: Integer;
 begin
-  result := -1;
+  Result := -1;
   for i := 0 to Count - 1 do
     if AItem = Items[i] then begin
-      result := i;
-      break;
+      Result := i;
+      Break;
     end;
 end;
 
