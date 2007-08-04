@@ -1457,7 +1457,7 @@ begin
   {$IFDEF DOTNET}
   LChars[0] := AChar;
   LChars[1] := Char(0);
-  GetEncoder(enUTF8).GetBytes(LChars, 0, 1, Result, 0);
+  GetEncoder(enUTF8).GetBytes(LChars, 0, 1, VDest, 0);
   {$ELSE}
   LWC := Word(AChar);
   if LWC <= $007F then
@@ -1562,7 +1562,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  Result := GetEncoder(enUTF8).GetString(AValue, AIndex, ALength);
+  Result := GetEncoder(enUTF8).GetString(ABytes, AIndex, ALength);
   {$ELSE}
   Result := '';
   SetLength(Temp, ALength);
