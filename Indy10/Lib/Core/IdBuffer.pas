@@ -218,7 +218,9 @@
   Rev 1.0    11/13/2002 08:38:32 AM  JPMugaas
 }
 unit IdBuffer;
+
 {$I IdCompilerDefines.inc}
+
 {
   .Net forces us to perform copies from strings to Bytes so that it can do the
   proper unicode and other conversions.
@@ -311,16 +313,10 @@ type
   public
     procedure Clear;
     constructor Create; overload;
-    constructor Create(
-      AOnBytesRemoved: TIdBufferBytesRemoved
-      ); overload;
-    constructor Create(
-      AGrowthFactor: Integer
-      ); overload;
-    constructor Create(const ABytes : TIdBytes; const ALength : Integer=-1); overload;
-    procedure CompactHead(
-      ACanShrink: Boolean = True
-      );
+    constructor Create(AOnBytesRemoved: TIdBufferBytesRemoved); overload;
+    constructor Create(AGrowthFactor: Integer); overload;
+    constructor Create(const ABytes : TIdBytes; const ALength : Integer = -1); overload;
+    procedure CompactHead(ACanShrink: Boolean = True);
     destructor Destroy; override;
     {
     Most of these now have an AIndex parameter.  If that is less than 0,
@@ -331,8 +327,8 @@ type
     You are just reading from a particular location in a random access manner.
 
     }
-    // will extract number of bytes and treat as AnsiString though WideString will be returned in DotNet
-    function Extract(AByteCount: Integer = -1): string;
+    // will extract number of bytes and decode as specified
+    function Extract(AByteCount: Integer = -1; AEncoding: TIdEncoding = enDefault): string;
     // all 3 extract routines append to existing data, if any
     procedure ExtractToStream(const AStream: TStream; AByteCount: Integer = -1; const AIndex: Integer = -1);
     procedure ExtractToIdBuffer(ABuffer: TIdBuffer; AByteCount: Integer = -1; const AIndex : Integer = -1);
@@ -343,7 +339,7 @@ type
     function ExtractToLongWord(const AIndex : Integer): LongWord;
     function ExtractToInt64(const AIndex : Integer): Int64;
     procedure ExtractToIPv6(const AIndex : Integer; var VAddress: TIdIPv6Address);
-    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;  overload;
+    function IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer; overload;
     function IndexOf(const AString: string; AStartPos: Integer = 0;
       AEncoding: TIdEncoding = enDefault): Integer; overload;
     function PeekByte(AIndex: Integer): Byte;
@@ -357,8 +353,7 @@ type
       }
     //we can't name this as a Write overload because
     //it would cause an abmigous overload error.
-    procedure WriteLen(ABytes : TIdBytes; const ALength : Integer;
-      const ADestIndex : Integer = -1);
+    procedure WriteLen(ABytes : TIdBytes; const ALength : Integer; const ADestIndex : Integer = -1);
     // Write
     procedure Write(const AString: string; AEncoding: TIdEncoding = enDefault;
       const ADestIndex: Integer = -1); overload;
@@ -452,16 +447,20 @@ begin
   TIdStack.DecUsage;
 end;
 
-function TIdBuffer.Extract(AByteCount: Integer = -1): string;
+function TIdBuffer.Extract(AByteCount: Integer = -1; AEncoding: TIdEncoding = enDefault): string;
 var
   LBytes: TIdBytes;
 begin
   if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  if AByteCount > 0 then begin
+  if AByteCount > 0 then
+  begin
+    if AEncoding = enDefault then begin
+      AEncoding := FEncoding;
+    end;
     ExtractToBytes(LBytes, AByteCount);
-    Result := BytesToString(LBytes);
+    Result := BytesToString(LBytes, AEncoding);
   end else begin
     Result := '';
   end;
@@ -601,7 +600,7 @@ begin
   if AEncoding = enDefault then begin
     AEncoding := FEncoding;
   end;
-  Result := IndexOf(ToBytes(AString, -1, AEncoding), AStartPos);
+  Result := IndexOf(ToBytes(AString, AEncoding), AStartPos);
 end;
 
 function TIdBuffer.IndexOf(const ABytes: TIdBytes; AStartPos: Integer = 0): Integer;
@@ -642,7 +641,7 @@ begin
   if AEncoding = enDefault then begin
     AEncoding := FEncoding;
   end;
-  Write(ToBytes(AString, -1, AEncoding), ADestIndex);
+  Write(ToBytes(AString, AEncoding), ADestIndex);
 end;
 
 function TIdBuffer.GetCapacity: Integer;
@@ -704,7 +703,7 @@ begin
   end else begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToInt64(FBytes, LIndex);
+  Result := BytesToInt64(FBytes, LIndex);
   Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(8);
@@ -720,7 +719,7 @@ begin
   end else begin
     LIndex := AIndex;
   end;
-  Result := IdGlobal.BytesToLongWord(FBytes, LIndex);
+  Result := BytesToLongWord(FBytes, LIndex);
   Result := GStack.NetworkToHost(Result);
   if AIndex < 0 then begin
     Remove(4);
@@ -858,7 +857,8 @@ begin
   end;
 end;
 
-procedure TIdBuffer.WriteLen(ABytes: TIdBytes; const ALength, ADestIndex: Integer);
+procedure TIdBuffer.WriteLen(ABytes: TIdBytes; const ALength: Integer;
+  const ADestIndex: Integer = -1);
 var
   LByteLength: Integer;
   LIndex : Integer;
@@ -898,7 +898,7 @@ end;
 
 function TIdBuffer.GetAsString: string;
 begin
-  Result := BytesToString(FBytes, 0, MaxInt, FEncoding);
+  Result := BytesToString(FBytes, FEncoding);
 end;
 
 end.
