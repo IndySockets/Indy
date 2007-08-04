@@ -563,7 +563,7 @@ begin
 end;
 
 procedure TIdBuffer.Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1);
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USECLASSINLINE}inline;{$ENDIF}
 begin
   Write(ABytes, 0, Length(ABytes), ADestIndex);
 end;
