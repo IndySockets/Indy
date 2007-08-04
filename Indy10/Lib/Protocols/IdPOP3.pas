@@ -187,6 +187,7 @@ unit IdPOP3;
 { POP 3 (Post Office Protocol Version 3) }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -278,7 +279,6 @@ uses
 function TIdPOP3.CheckMessages: longint;
 var
   s: string;
-
 begin
   Result := 0;
   SendCmd('STAT', ST_OK);    {Do not Localize}
@@ -519,8 +519,7 @@ begin
  // ParseCapaReply(FCapabilities,'SASL');
 end;
 
-procedure TIdPOP3.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TIdPOP3.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   if (Operation = opRemove) and (FSASLMechanisms <> nil) then begin
     FSASLMechanisms.RemoveByComp(AComponent);
@@ -551,8 +550,8 @@ begin
     (IOHandler as TIdSSLIOHandlerSocketBase).PassThrough := (FUseTLS <> utUseImplicitTLS);
   end;
 
+  inherited Connect;
   try
-    inherited Connect;
     GetResponse(ST_OK);
 
     // the initial greeting text is needed to determine APOP availability
@@ -571,7 +570,7 @@ begin
       Login;
     end;
   except
-    Disconnect;
+    Disconnect(False);
     raise;
   end;
 end;
