@@ -68,6 +68,7 @@
 unit IdMessageCoder;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -94,9 +95,11 @@ type
     procedure ReadHeader; virtual;
     //CC: ATerminator param added because Content-Transfer-Encoding of binary needs
     //an ATerminator of EOL...
-    function ReadLn(const ATerminator: string = LF): string;
+    function ReadLn(const ATerminator: string = LF; const AEncoding: TIdEncoding = en7Bit): string;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String = LF; const ADelim: String = '.'): String;
+    function ReadLnRFC(var VMsgEnd: Boolean; const AEncoding: TIdEncoding = en7Bit): String; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
+      const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): String; overload; {do not localize}
     destructor Destroy; override;
     //
     property Filename: string read FFilename;
@@ -115,7 +118,7 @@ type
 
   TIdMessageDecoderList = class
   protected
-    FMessageCoders: TStringList;
+    FMessageCoders: TStrings;
   public
     class function ByName(const AName: string): TIdMessageDecoderInfo;
     class function CheckForStart(ASender: TIdMessage; const ALine: string): TIdMessageDecoder;
@@ -153,7 +156,7 @@ type
 
   TIdMessageEncoderList = class
   protected
-    FMessageCoders: TStringList;
+    FMessageCoders: TStrings;
   public
     class function ByName(const AName: string): TIdMessageEncoderInfo;
     constructor Create;
@@ -212,7 +215,7 @@ begin
     TIdMessageDecoderInfo(FMessageCoders.Objects[i]).Free;
   end;
   FreeAndNil(FMessageCoders);
-  inherited;
+  inherited Destroy;
 end;
 
 class procedure TIdMessageDecoderList.RegisterDecoder(const AMessageCoderName: string;
@@ -248,37 +251,45 @@ begin
   end else begin
     FSourceStream := nil;
   end;
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TIdMessageDecoder.ReadHeader;
 begin
 end;
 
-function TIdMessageDecoder.ReadLn(const ATerminator: string = LF): string;
+function TIdMessageDecoder.ReadLn(const ATerminator: string = LF;
+  const AEncoding: TIdEncoding = en7Bit): string;
 var
   LWasSplit: Boolean;  //Needed for lines > 16K, e.g. if Content-Transfer-Encoding is 'binary'
 begin
   Result := '';
   if SourceStream is TIdTCPStream then begin
     repeat
-      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator);
-    until (not LWasSplit);
+      Result := Result + TIdTCPStream(SourceStream).Connection.IOHandler.ReadLnSplit(LWasSplit, ATerminator, IdTimeoutDefault, -1, AEncoding);
+    until not LWasSplit;
   end else begin
-    Result := ReadLnFromStream(SourceStream);
+    Result := ReadLnFromStream(SourceStream, -1, False, AEncoding);
   end;
 end;
 
-function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String = LF; const ADelim: String = '.'): String;
+function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean;
+  const AEncoding: TIdEncoding = en7Bit): String;
 begin
-  Result := ReadLn(ALineTerminator);
+  Result := ReadLnRFC(VMsgEnd, LF, '.', AEncoding); {do not localize}
+end;
+
+function TIdMessageDecoder.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: String;
+  const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): String;
+begin
+  Result := ReadLn(ALineTerminator, AEncoding);
   // Do not use ATerminator since always ends with . (standard)
   if Result = ADelim then {do not localize}
   begin
     VMsgEnd := True;
     Exit;
   end;
-  if (Result <> '') and (Result[1] = '.') then begin {do not localize}
+  if TextStartsWith(Result, '.') then begin {do not localize}
     IdDelete(Result, 1, 1);
   end;
   VMsgEnd := False;
@@ -323,7 +334,7 @@ begin
     TIdMessageEncoderInfo(FMessageCoders.Objects[i]).Free;
   end;
   FreeAndNil(FMessageCoders);
-  inherited;
+  inherited Destroy;
 end;
 
 class procedure TIdMessageEncoderList.RegisterEncoder(const AMessageEncoderName: string;
@@ -348,7 +359,7 @@ end;
 
 procedure TIdMessageEncoder.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FPermissionCode := 660;
 end;
 
