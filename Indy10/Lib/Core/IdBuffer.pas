@@ -349,15 +349,13 @@ type
         we are writing data sequentially.
 
         If ADestIndex is 0 or greater, you are setting bytes in a particular
-	location in a random access manner.
+        location in a random access manner.
       }
-    //we can't name this as a Write overload because
-    //it would cause an abmigous overload error.
-    procedure WriteLen(ABytes : TIdBytes; const ALength : Integer; const ADestIndex : Integer = -1);
     // Write
     procedure Write(const AString: string; AEncoding: TIdEncoding = enDefault;
       const ADestIndex: Integer = -1); overload;
-    procedure Write(ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
+    procedure Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
+    procedure Write(const ABytes: TIdBytes; const AOffset, ALength: Integer; const ADestIndex : Integer = -1); overload;
     procedure Write(AStream: TStream; AByteCount: Integer = 0); overload;
     procedure Write(const AValue: Int64; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: LongWord; const ADestIndex: Integer = -1); overload;
@@ -564,9 +562,10 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(ABytes: TIdBytes; const ADestIndex: Integer = -1);
+procedure TIdBuffer.Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  WriteLen(ABytes, Length(ABytes), ADestIndex);
+  Write(ABytes, 0, Length(ABytes), ADestIndex);
 end;
 
 procedure TIdBuffer.Write(AStream: TStream; AByteCount: Integer);
@@ -857,26 +856,29 @@ begin
   end;
 end;
 
-procedure TIdBuffer.WriteLen(ABytes: TIdBytes; const ALength: Integer;
+procedure TIdBuffer.Write(const ABytes: TIdBytes; const AOffset, ALength: Integer;
   const ADestIndex: Integer = -1);
 var
   LByteLength: Integer;
   LIndex : Integer;
 begin
-  LByteLength := ALength;
+  LByteLength := IndyLength(ABytes, ALength, AOffset);
+  if LByteLength = 0 then begin
+    Exit;
+  end;
   LIndex := Max(ADestIndex, 0);
   CheckAdd(LByteLength, LIndex);
   if Size = 0 then begin
     FHeadIndex := 0;
     if ADestIndex < 0 then
     begin
-      FBytes := ABytes;
-      FSize := ALength;
+      FBytes := ToBytes(ABytes, LByteLength, AOffset);
+      FSize := LByteLength;
     end else
     begin
-      FSize := Length(ABytes) + ADestIndex;
+      FSize := ADestIndex + LByteLength;
       SetLength(FBytes, FSize);
-      CopyTIdBytes(ABytes, 0, FBytes, ADestIndex, LByteLength);
+      CopyTIdBytes(ABytes, AOffset, FBytes, ADestIndex, LByteLength);
     end;
   end
   else if ADestIndex < 0 then
@@ -885,11 +887,11 @@ begin
     if (Capacity - Size - FHeadIndex) < LByteLength then begin
       SetLength(FBytes, Size + LByteLength + GrowthFactor);
     end;
-    CopyTIdBytes(ABytes, 0, FBytes, FHeadIndex + Size, LByteLength);
+    CopyTIdBytes(ABytes, AOffset, FBytes, FHeadIndex + Size, LByteLength);
     Inc(FSize, LByteLength);
   end else
   begin
-    CopyTIdBytes(ABytes, 0, FBytes, LIndex, LByteLength);
+    CopyTIdBytes(ABytes, AOffset, FBytes, LIndex, LByteLength);
     if LIndex >= FSize then begin
       FSize := LIndex + LByteLength;
     end;
