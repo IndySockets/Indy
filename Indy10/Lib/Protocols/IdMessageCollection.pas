@@ -38,6 +38,7 @@ unit IdMessageCollection;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -81,30 +82,29 @@ end;
 
 { TIdMessageItem }
 
-constructor TIdMessageItem.Create;
+constructor TIdMessageItem.Create(Collection: TCollection);
 begin
-  inherited;
+  inherited Create(Collection);
   Msg := TIdMessage.Create(nil);
 end;
 
 destructor TIdMessageItem.Destroy;
 begin
   FreeAndNil(Msg);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdMessageCollection.GetIdMessage(index: Integer): TIdMessage;
 begin
-     Result := TIdMessageItem(Items[index]).Msg;
+  Result := TIdMessageItem(Items[index]).Msg;
 end;
 
-procedure TIdMessageCollection.SetIdMessage(index: Integer;
-  const Value: TIdMessage);
+procedure TIdMessageCollection.SetIdMessage(index: Integer; const Value: TIdMessage);
 begin
-     //I think it should be freed before the new value is assigned or else the
-     //pointer will be lost.
-     TIdMessageItem(Items[index]).Msg.Free;
-     TIdMessageItem(Items[index]).Msg := Value;
+  //I think it should be freed before the new value is assigned or else the
+  //pointer will be lost.
+  TIdMessageItem(Items[index]).Msg.Free;
+  TIdMessageItem(Items[index]).Msg := Value;
 end;
 
 end.
