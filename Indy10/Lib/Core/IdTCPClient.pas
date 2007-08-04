@@ -133,7 +133,9 @@
 }
 
 unit IdTCPClient;
+
 {$i IdCompilerDefines.inc}
+
 interface
 
 uses
@@ -145,9 +147,9 @@ type
   TIdTCPClientCustom = class(TIdTCPConnection)
   protected
     FBoundIP: String;
-    FBoundPort: Integer;
-    FBoundPortMax: Integer;
-    FBoundPortMin: Integer;
+    FBoundPort: TIdPort;
+    FBoundPortMax: TIdPort;
+    FBoundPortMin: TIdPort;
     FConnectTimeout: Integer;
     FDestination: string;
     FHost: string;
@@ -170,9 +172,9 @@ type
     procedure SetReadTimeout(const AValue: Integer);
     procedure SetReuseSocket(const AValue: TIdReuseSocket);
     procedure SetBoundIP(const AValue: String);
-    procedure SetBoundPort(const AValue: Integer);
-    procedure SetBoundPortMax(const AValue: Integer);
-    procedure SetBoundPortMin(const AValue: Integer);
+    procedure SetBoundPort(const AValue: TIdPort);
+    procedure SetBoundPortMax(const AValue: TIdPort);
+    procedure SetBoundPortMin(const AValue: TIdPort);
     procedure SetHost(const AValue: string); virtual;
     procedure SetPort(const AValue: TIdPort); virtual;
     procedure SetIPVersion(const AValue: TIdIPVersion); virtual;
@@ -203,9 +205,9 @@ type
     function ConnectAndGetAll: string; virtual;
     //
     property BoundIP: string read FBoundIP write SetBoundIP;
-    property BoundPort: Integer read FBoundPort write SetBoundPort default 0;
-    property BoundPortMax: Integer read FBoundPortMax write SetBoundPortMax;
-    property BoundPortMin: Integer read FBoundPortMin write SetBoundPortMin;
+    property BoundPort: TIdPort read FBoundPort write SetBoundPort default 0;
+    property BoundPortMax: TIdPort read FBoundPortMax write SetBoundPortMax;
+    property BoundPortMin: TIdPort read FBoundPortMin write SetBoundPortMin;
     //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
@@ -361,7 +363,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetBoundPort(const AValue: Integer);
+procedure TIdTCPClientCustom.SetBoundPort(const AValue: TIdPort);
 begin
   FBoundPort := AValue;
   if Socket <> nil then begin
@@ -369,7 +371,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetBoundPortMax(const AValue: Integer);
+procedure TIdTCPClientCustom.SetBoundPortMax(const AValue: TIdPort);
 begin
   FBoundPortMax := AValue;
   if Socket <> nil then begin
@@ -377,7 +379,7 @@ begin
   end;
 end;
 
-procedure TIdTCPClientCustom.SetBoundPortMin(const AValue: Integer);
+procedure TIdTCPClientCustom.SetBoundPortMin(const AValue: TIdPort);
 begin
   FBoundPortMin := AValue;
   if Socket <> nil then begin
