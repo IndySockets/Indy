@@ -231,7 +231,6 @@ type
 
   TIdStackBSDBase = class(TIdStack)
   protected
-    procedure RaiseLastSocketError;
     function WSCloseSocket(ASocket: TIdStackSocketHandle): Integer; virtual; abstract;
     function WSRecv(ASocket: TIdStackSocketHandle; var ABuffer;
      const ABufferLength, AFlags: Integer): Integer; virtual; abstract;
@@ -247,7 +246,6 @@ type
     constructor Create; override;
     destructor Destroy; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; virtual; abstract;
-    procedure RaiseSocketError(AErr: integer);
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer; override;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       AOffset: Integer = 0; ASize: Integer = -1): Integer; override;
@@ -272,8 +270,6 @@ type
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); virtual; abstract;
     function WSSocket(AFamily, AStruct, AProtocol: Integer;
       const AOverlapped: Boolean = False): TIdStackSocketHandle; virtual; abstract;
-    function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
-    function WSGetLastError: Integer; virtual; abstract;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
       AOptval: PChar; var AOptlen: Integer); virtual; abstract;
     procedure SetBlocking(ASocket: TIdStackSocketHandle;
@@ -387,11 +383,6 @@ begin
   end;
 end;
 
-procedure TIdStackBSDBase.RaiseLastSocketError;
-begin
-  RaiseSocketError(WSGetLastError);
-end;
-
 function TIdStackBSDBase.CheckForSocketError(const AResult: Integer): Integer;
 begin
   if AResult = Id_SOCKET_ERROR then begin
@@ -426,99 +417,6 @@ function TIdStackBSDBase.NewSocketHandle(const ASocketType:TIdSocketType;
 begin
   Result := CheckForSocketError(WSSocket(IdIPFamily[AIPVersion], ASocketType,
     AProtocol, AOverlapped));
-end;
-
-procedure TIdStackBSDBase.RaiseSocketError(AErr: integer);
-begin
-  (*
-    RRRRR    EEEEEE   AAAA   DDDDD         MM     MM  EEEEEE    !!  !!  !!
-    RR  RR   EE      AA  AA  DD  DD        MMMM MMMM  EE        !!  !!  !!
-    RRRRR    EEEE    AAAAAA  DD   DD       MM MMM MM  EEEE      !!  !!  !!
-    RR  RR   EE      AA  AA  DD  DD        MM     MM  EE
-    RR   RR  EEEEEE  AA  AA  DDDDD         MM     MM  EEEEEE    ..  ..  ..
-
-    Please read the note in the next comment.
-  *)
-  if AErr = Id_WSAENOTSOCK then begin
-    // You can add this to your exception ignore list for easier debugging.
-    // However please note that sometimes it is a true error. Your program
-    // will still run correctly, but the debugger will not stop on it if you
-    // list it in the ignore list. But for most times its fine to put it in
-    // the ignore list, it only affects your debugging.
-    raise EIdNotASocket.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
-  end;
-  (*
-    It is normal to receive a 10038 exception (10038, NOT others!) here when
-    *shutting down* (NOT at other times!) servers (NOT clients!).
-
-    If you receive a 10038 exception here please see the FAQ at:
-    http://www.IndyProject.org/
-
-    If you insist upon requesting help via our email boxes on the 10038 error
-    that is already answered in the FAQ and you are simply too slothful to
-    search for your answer and ask your question in the public forums you may be
-    publicly flogged, tarred and feathered and your name may be added to every
-    chain letter / EMail in existence today."
-
-    Otherwise, if you DID read the FAQ and have further questions, please feel
-    free to ask using one of the methods (Carefullly note that these methods do
-    not list email) listed on the Tech Support link at:
-    http://www.IndyProject.org/
-
-    RRRRR    EEEEEE   AAAA   DDDDD         MM     MM  EEEEEE    !!  !!  !!
-    RR  RR   EE      AA  AA  DD  DD        MMMM MMMM  EE        !!  !!  !!
-    RRRRR    EEEE    AAAAAA  DD   DD       MM MMM MM  EEEE      !!  !!  !!
-    RR  RR   EE      AA  AA  DD  DD        MM     MM  EE
-    RR   RR  EEEEEE  AA  AA  DDDDD         MM     MM  EEEEEE    ..  ..  ..
-  *)
-  raise EIdSocketError.CreateError(AErr, WSTranslateSocketErrorMsg(AErr));
-end;
-
-function TIdStackBSDBase.WSTranslateSocketErrorMsg(const AErr: integer): string;
-begin
-  Result := '';    {Do not Localize}
-  case AErr of
-    Id_WSAEINTR: Result           := RSStackEINTR;
-    Id_WSAEBADF: Result           := RSStackEBADF;
-    Id_WSAEACCES: Result          := RSStackEACCES;
-    Id_WSAEFAULT: Result          := RSStackEFAULT;
-    Id_WSAEINVAL: Result          := RSStackEINVAL;
-    Id_WSAEMFILE: Result          := RSStackEMFILE;
-
-    Id_WSAEWOULDBLOCK: Result     := RSStackEWOULDBLOCK;
-    Id_WSAEINPROGRESS: Result     := RSStackEINPROGRESS;
-    Id_WSAEALREADY: Result        := RSStackEALREADY;
-    Id_WSAENOTSOCK: Result        := RSStackENOTSOCK;
-    Id_WSAEDESTADDRREQ: Result    := RSStackEDESTADDRREQ;
-    Id_WSAEMSGSIZE: Result        := RSStackEMSGSIZE;
-    Id_WSAEPROTOTYPE: Result      := RSStackEPROTOTYPE;
-    Id_WSAENOPROTOOPT: Result     := RSStackENOPROTOOPT;
-    Id_WSAEPROTONOSUPPORT: Result := RSStackEPROTONOSUPPORT;
-    Id_WSAESOCKTNOSUPPORT: Result := RSStackESOCKTNOSUPPORT;
-    Id_WSAEOPNOTSUPP: Result      := RSStackEOPNOTSUPP;
-    Id_WSAEPFNOSUPPORT: Result    := RSStackEPFNOSUPPORT;
-    Id_WSAEAFNOSUPPORT: Result    := RSStackEAFNOSUPPORT;
-    Id_WSAEADDRINUSE: Result      := RSStackEADDRINUSE;
-    Id_WSAEADDRNOTAVAIL: Result   := RSStackEADDRNOTAVAIL;
-    Id_WSAENETDOWN: Result        := RSStackENETDOWN;
-    Id_WSAENETUNREACH: Result     := RSStackENETUNREACH;
-    Id_WSAENETRESET: Result       := RSStackENETRESET;
-    Id_WSAECONNABORTED: Result    := RSStackECONNABORTED;
-    Id_WSAECONNRESET: Result      := RSStackECONNRESET;
-    Id_WSAENOBUFS: Result         := RSStackENOBUFS;
-    Id_WSAEISCONN: Result         := RSStackEISCONN;
-    Id_WSAENOTCONN: Result        := RSStackENOTCONN;
-    Id_WSAESHUTDOWN: Result       := RSStackESHUTDOWN;
-    Id_WSAETOOMANYREFS: Result    := RSStackETOOMANYREFS;
-    Id_WSAETIMEDOUT: Result       := RSStackETIMEDOUT;
-    Id_WSAECONNREFUSED: Result    := RSStackECONNREFUSED;
-    Id_WSAELOOP: Result           := RSStackELOOP;
-    Id_WSAENAMETOOLONG: Result    := RSStackENAMETOOLONG;
-    Id_WSAEHOSTDOWN: Result       := RSStackEHOSTDOWN;
-    Id_WSAEHOSTUNREACH: Result    := RSStackEHOSTUNREACH;
-    Id_WSAENOTEMPTY: Result       := RSStackENOTEMPTY;
-  end;
-  Result := IndyFormat(RSStackError, [AErr, Result]);
 end;
 
 constructor TIdStackBSDBase.Create;
