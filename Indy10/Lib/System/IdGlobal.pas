@@ -811,6 +811,7 @@ type
   TIdExtList = class(TList);
   {$ENDIF}
 
+  {$UNDEF SIZE64STREAM}
   {$IFDEF FPC}
     {$DEFINE SIZE64STREAM}
   {$ENDIF}
@@ -818,8 +819,14 @@ type
     {$DEFINE SIZE64STREAM}
   {$ENDIF}
 
-  {$IFNDEF DOTNET}
-//  TSeekOrigin = word;
+  {$IFNDEF SIZE64STREAM}
+  const
+    soFromBeginning = 0;
+    soFromCurrent = 1;
+    soFromEnd = 2;
+
+  type
+    TSeekOrigin = Word;
   {$ENDIF}
 
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
@@ -847,7 +854,11 @@ type
     {$ELSE}
     function Read(var Buffer; Count: Longint): Longint; override;
     function Write(const Buffer; Count: Longint): Longint; override;
+      {$IFDEF SIZE64STREAM}
+    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; override;
+      {$ELSE}
     function Seek(Offset: Longint; Origin: Word): Longint; override;
+      {$ENDIF}
     {$ENDIF}
   end;
 
@@ -918,7 +929,9 @@ function IndyStrToInt64(const S: string): Int64;  overload;
 function AddMSecToTime(const ADateTime: TDateTime; const AMSec: Integer): TDateTime;
 
 // To and From Bytes conversion routines
-function ToBytes(const AValue: string; const ALength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
+function ToBytes(const AValue: string; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
+function ToBytes(const AValue: string; const ALength: Integer; const AIndex: Integer = 1;
+  const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
 function ToBytes(const AValue: Char; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
 function ToBytes(const AValue: LongInt): TIdBytes; overload;
 function ToBytes(const AValue: Short): TIdBytes; overload;
@@ -935,7 +948,7 @@ function RawToBytes(const AValue; const ASize: Integer): TIdBytes;
 
 // The following functions are faster but except that Bytes[] must have enough
 // space for at least SizeOf(AValue) bytes.
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char); overload;
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; const AEncoding: TIdEncoding = en7Bit); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: LongInt); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Short); overload;
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: Word); overload;
@@ -949,13 +962,15 @@ procedure ToBytesF(var Bytes: TIdBytes; const AValue: TIdBytes; const ASize: Int
 procedure RawToBytesF(var Bytes: TIdBytes; const AValue; const ASize: Integer);
 {$ENDIF}
 
-function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
-function BytesToLongWord(const AValue: TIdBytes; const AIndex : Integer = 0): LongWord;
-
 function ToHex(const AValue: TIdBytes; const ACount: Integer = -1; const AIndex: Integer = 0): AnsiString; overload;
 function ToHex(const AValue: array of LongWord): AnsiString; overload; // for IdHash
-function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0): Char;
+function BytesToString(const AValue: TIdBytes; const AEncoding: TIdEncoding = en7Bit): string; overload;
+function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer; const ALength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): string; overload;
+function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0; const AEncoding: TIdEncoding = en7Bit): Char; overload;
+function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Integer = 0; const AEncoding: TIdEncoding = en7Bit): Integer; overload;
 function BytesToShort(const AValue: TIdBytes; const AIndex: Integer = 0): Short;
+function BytesToWord(const AValue: TIdBytes; const AIndex : Integer = 0): Word;
+function BytesToLongWord(const AValue: TIdBytes; const AIndex : Integer = 0): LongWord;
 function BytesToLongInt(const AValue: TIdBytes; const AIndex: Integer = 0): LongInt;
 function BytesToInt64(const AValue: TIdBytes; const AIndex: Integer = 0): Int64;
 function BytesToIPv4Str(const AValue: TIdBytes; const AIndex: Integer = 0): String;
@@ -965,23 +980,24 @@ procedure BytesToRaw(const AValue: TIdBytes; var VBuffer; const ASize: Integer);
 {$ENDIF}
 
 // TIdBytes utilities
-function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0; AMaxCount: Integer = MaxInt; const AEncoding: TIdEncoding = en7Bit): string;
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0);
 procedure AppendByte(var VBytes: TIdBytes; const AByte: Byte);
 procedure AppendString(var VBytes: TIdBytes; const AStr: String; ALength: Integer = -1);
-
 procedure ExpandBytes(var VBytes: TIdBytes; const AIndex: Integer; const ACount: Integer; const AFillByte: Byte = 0);
 procedure InsertBytes(var VBytes: TIdBytes; const ADestIndex: Integer; const ASource: TIdBytes; const ASourceIndex: Integer = 0);
 procedure InsertByte(var VBytes: TIdBytes; const AByte: Byte; const AIndex: Integer);
 procedure RemoveBytes(var VBytes: TIdBytes; const ACount: Integer; const AIndex: Integer = 0);
 
 // Common Streaming routines
-function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1): Boolean; overload;
-function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = False): string; overload;
-function ReadStringFromStream(AStream: TStream; ASize: Integer = -1): string;
-procedure WriteStringToStream(AStream: TStream; const AStr :string;
-  const ACount : Integer = -1; const AOffset : Integer = 1);
-function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
+function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1;
+  const AEncoding: TIdEncoding = en7Bit): Boolean; overload;
+function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1;
+  AExceptionIfEOF: Boolean = False; const AEncoding: TIdEncoding = en7Bit): string; overload;
+function ReadStringFromStream(AStream: TStream; ASize: Integer = -1; const AEncoding: TIdEncoding = en7Bit): string;
+procedure WriteStringToStream(AStream: TStream; const AStr: string; const AEncoding: TIdEncoding); overload;
+procedure WriteStringToStream(AStream: TStream; const AStr: string; const ALength: Integer = -1;
+  const AIndex: Integer = 1; const AEncoding: TIdEncoding = en7Bit); overload;
+function ReadCharFromStream(AStream: TStream; var VChar: Char; const AEncoding: TIdEncoding = en7Bit): Integer;
 {$IFDEF FPC}
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Int64): Int64;
 {$ELSE}
@@ -998,14 +1014,16 @@ procedure CopyTIdBytes(const ASource: TIdBytes; const ASourceIndex: Integer;
 procedure CopyTIdByteArray(const ASource: array of Byte; const ASourceIndex: Integer;
   var VDest: array of Byte; const ADestIndex: Integer; const ALength: Integer);
 
-procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer);
+procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer;
+  const AEncoding: TIdEncoding = en7Bit);
 procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdWord(const ASource: Word; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdLongInt(const ASource: LongInt; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdLongWord(const ASource: LongWord; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdInt64(const ASource: Int64; var VDest: TIdBytes; const ADestIndex: Integer);
 procedure CopyTIdIPV6Address(const ASource: TIdIPv6Address; var VDest: TIdBytes; const ADestIndex: Integer);
-procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1);
+procedure CopyTIdString(const ASource: String; var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1); overload;
+procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer; var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1); overload;
 
 // Need to change prob not to use this set
 function CharPosInSet(const AString: string; const ACharPos: Integer; const ASet: String): Integer;
@@ -1124,6 +1142,27 @@ function TwoByteToWord(AByte1, AByte2: Byte): Word;
 
 var
   IndyPos: TPosProc = nil;
+
+type
+  {
+  RLebeau 8/3/2007: This is probably not the best way to handle UTF-8,
+  I'm sure.  But this does allow us to support on-the-fly decoding of
+  streams and byte buffers equally.  The reason this class is declared
+  publically here and not made exclusively private to IdGlobal is
+  because it is currently being used by TIdIOHandler.ReadChar() in order
+  to read a single UTF-8 character that may span multiple bytes. There
+  is no way for it to know ahead of time how many bytes will need to be
+  read from the connection, so ReadChar() does on-the-fly decoding.  The
+  other IOHandler operations on strings know the string length ahead of
+  time, or have delimiters they can look for, so this is not a problem
+  for them.
+  }
+  TIdUTF8Decoder = class
+  public
+    function ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean; virtual; abstract;
+  end;
+
+function GetUTF8Decoder: TIdUTF8Decoder;
 
 implementation
 
@@ -1286,6 +1325,339 @@ begin
   end;
 end;
 {$ENDIF}
+
+{      RFC 2279 table for reference
+UCS-4   range   (hex.)  UTF-8 octet sequence (binary)
+ 0000 0000-0000  007F   0xxxxxxx
+ 0000 0080-0000  07FF   110xxxxx 10xxxxxx
+
+ 0000 0800-0000  FFFF   1110xxxx 10xxxxxx 10xxxxxx
+ 0001 0000-001F  FFFF   11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ 0020 0000-03FF  FFFF   111110xx 10xxxxxx 10xxxxxx 10xxxxxx
+ 0400 0000-7FFF  FFFF   1111110x 10xxxxxx ... 10xxxxxx
+}
+
+{$IFDEF DOTNET}
+type
+  TIdUTF8DecoderNET = class(TIdUTF8Decoder)
+  private
+    fValue: array[0..1] of Char;
+    fDecoder: System.Text.Decoder;
+  public
+    constructor Create;
+    function ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean; override;
+  end;
+
+constructor TIdUTF8DecoderNET.Create;
+begin
+  fValue[0] := 0;
+  fValue[1] := 0;
+  fDecoder := System.Text.Encoding.UTF8.GetDecoder;
+end;
+
+function TIdUTF8DecoderNET.ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean;
+var
+  LByte: array[0..1] of Byte;
+begin
+  Result := False;
+  LByte[0] := AByte;
+  LByte[1] := 0;
+  if fDecoder.GetChars(LByte, 0, 1, fValue, 0) = 1 then
+  begin
+    VChar := fValue[0];
+    Result := True;
+    fDecoder.Reset;
+  end;
+end
+
+{$ELSE}
+type
+  TIdUTF8DecodeStep = (utf8Step1, utf8Step2, utf8Step3);
+
+  TIdUTF8DecoderIndy = class(TIdUTF8Decoder)
+  private
+    fValue: Word;
+    fStep: TIdUTF8DecodeStep;
+  public
+    constructor Create;
+    function ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean; override;
+  end;
+
+constructor TIdUTF8DecoderIndy.Create;
+begin
+  inherited Create;
+  fValue := 0;
+  fStep := utf8Step1;
+end;
+
+function TIdUTF8DecoderIndy.ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean;
+begin
+  Result := False;
+
+  case fStep of
+    utf8Step1:
+    begin
+      fValue := Word(AByte);
+      if (fValue and $0080) <> 0 then
+      begin
+        fValue := fValue and $003F;
+        if (fValue and $0020) <> 0 then begin
+          fStep := utf8Step2;
+        end else begin
+          fStep := utf8Step3;
+        end;
+        Exit;
+      end;
+    end;
+
+    utf8Step2:
+    begin
+      if (AByte and $C0) <> $80 then begin
+        raise EIdException.Create('Byte is invalid for this UTF-8 sequence'); {do not localize}
+      end;
+      fValue := ((fValue and $000F) shl 6) or Word(AByte and $3F);
+      fStep := utf8Step3;
+      Exit;
+    end;
+
+    utf8Step3:
+    begin
+      if (AByte and $C0) <> $80 then begin
+        raise EIdException.Create('Byte is invalid for this UTF-8 sequence'); {do not localize}
+      end;
+      fValue := (fValue shl 6) or Word(AByte and $3F);
+    end;
+  end;
+
+  fStep := utf8Step1;
+  VChar := WideChar(fValue);
+  Result := True;
+end;
+{$ENDIF}
+
+function GetUTF8Decoder: TIdUTF8Decoder;
+begin
+  {$IFDEF DOTNET}
+  Result := TIdUTF8DecoderNET.Create;
+  {$ELSE}
+  Result := TIdUTF8DecoderIndy.Create;
+  {$ENDIF}
+end;
+
+function EncodeCharToUTF8(const AChar: Char; var VDest: TIdBytes; const AIndex: Integer): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  {$IFDEF DOTNET}
+  LChars : array[0..1] of Char;
+  {$ELSE}
+  LWC: Word;
+  {$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  LChars[0] := AChar;
+  LChars[1] := Char(0);
+  GetEncoder(enUTF8).GetBytes(LChars, 0, 1, Result, 0);
+  {$ELSE}
+  LWC := Word(AChar);
+  if LWC <= $007F then
+  begin
+    VDest[AIndex] := Byte(LWC);
+    Result := 1;
+  end
+  else if LWC <= $07FF then
+  begin
+    VDest[AIndex] := Byte($00C0 or (LWC shr 6));
+    VDest[AIndex+1] := Byte($0080 or (LWC and $003F));
+    Result := 2;
+  end else // (LWC >= $8000)
+  begin
+    VDest[AIndex] := Byte($00E0 or (LWC shr 12));
+    VDest[AIndex+1] := Byte($0080 or ((LWC shr 6) and $003F));
+    VDest[AIndex+2] := Byte($0080 or (LWC and $003F));
+    Result := 3;
+  end;
+  {$ENDIF}
+end;
+
+{ RLebeau - .NET does not have a function to calculate how many bytes a UTF-8
+  character in a byte array occupies (or I haven't found one) so here is our own }
+function CalcBytesOfUTF8Char(const ABytes: TIdBytes; const AIndex: Integer): Integer;
+var
+  I, LLength: Integer;
+  LCh: WideChar;
+begin
+  Result := 0;
+  LLength := IndyLength(ABytes, -1, AIndex);
+  if LLength > 0 then
+  begin
+    with GetUTF8Decoder do
+    try
+      for I := 0 to LLength-1 do
+      begin
+        Inc(Result);
+        if ProcessByte(ABytes[AIndex+I], LCh) then begin
+          Break;
+        end;
+      end;
+    finally
+      Free;
+    end;
+  end;
+end;
+
+{ RLebeau: Under .NET 1.x, System.Text.Encoding.GetByteCount() does not have
+  an overload that accepts index/length parameters for string values. Under
+  .NET 2.0, it has an overload that accepts a Char* and a length, but it is
+  not CLS compliant.  Would like to be able to calculate this without having
+  to make a copy of the desired string block in memory. }
+
+function CalcBytesForUTF8Char(const AChar: Char): Integer;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LWC: Word;
+begin
+  {$IFDEF DOTNET2}
+  { RLebeau: maybe use the System.Text.UTF8Encoding.GetEncoder()
+    method to get an Encoder object that can be called in a loop
+    to calculate the necessary byte count? }
+  {$ENDIF}
+  LWC := Word(AChar);
+  if LWC <= $007F then begin
+    Result := 1;
+  end
+  else if LWC <= $07FF then begin
+    Result := 2;
+  end else
+  begin // (LWC >= $8000)
+    Result := 3;
+  end;
+end;
+
+function CalcBytesForUTF8String(const AStr: String; const AIndex, ALength: Integer): Integer;
+var
+  I: Integer;
+begin
+  Result := 0;
+
+  {$IFDEF DOTNET2}
+  { RLebeau: maybe use the System.Text.UTF8Encoding.GetEncoder()
+    method to get an Encoder object that can be called in a loop
+    to calculate the necessary byte count? }
+  {$ENDIF}
+
+  for I := AIndex to ALength do begin
+    Inc(Result, CalcBytesForUTF8Char(AStr[I]));
+  end;
+end;
+
+function UTF8BytesToString(const ABytes: TIdBytes; const AIndex, ALength: Integer): String;
+{$IFDEF DOTNET}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$ELSE}
+var
+  I, LLength: Integer;
+  LCh: WideChar;
+  Temp: WideString;
+{$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  Result := GetEncoder(enUTF8).GetString(AValue, AIndex, ALength);
+  {$ELSE}
+  Result := '';
+  SetLength(Temp, ALength);
+
+  LLength := 0;
+
+  with GetUTF8Decoder do
+  try
+    for I := 0 to ALength-1 do
+    begin
+      if ProcessByte(ABytes[AIndex+I], LCh) then
+      begin
+        Temp[LLength] := LCh;
+        Inc(LLength);
+      end;
+    end;
+  finally
+    Free;
+  end;
+
+  if LLength > 0 then
+  begin
+    if LLength < ALength then begin
+      SetLength(Temp, LLength);
+    end;
+    Result := Temp;
+  end;
+  {$ENDIF}
+end;
+
+function UTF8BytesToChar(const ABytes: TIdBytes; const AIndex, ALength: Integer): Char;
+var
+  {$IFDEF DOTNET}
+  LChars: array[0..1] of Char;
+  {$ELSE}
+  I: Integer;
+  LCh: WideChar;
+  Temp: String;
+  {$ENDIF}
+begin
+  {$IFDEF DOTNET}
+  if GetEncoder(enUTF8).GetChars(ABytes, AIndex, ALength, LChars, 0) > 0 then
+  begin
+    Result := LChars[0];
+    Exit;
+  end;
+  {$ELSE}
+  with GetUTF8Decoder do
+  try
+    for I := 0 to ALength-1 do
+    begin
+      if ProcessByte(ABytes[AIndex+I], LCh) then
+      begin
+        Temp := LCh;
+        Result := Temp[1];
+        Exit;
+      end;
+    end;
+  finally
+    Free;
+  end;
+  {$ENDIF}
+  raise EIdException.Create('Not enough bytes to decode UTF-8 character'); {do not localize}
+end;
+
+function StringToUTF8Bytes(const AStr: String; const AIndex, ALength: Integer): TIdBytes;
+{$IFDEF DOTNET}
+  {$IFDEF USEINLINE}inline;{$ENDIF}
+{$ENDIF}
+var
+  LLength: Integer;
+  {$IFNDEF DOTNET}
+  I: Integer;
+  {$ENDIF}
+begin
+  LLength := CalcBytesForUTF8String(AStr, AIndex, ALength);
+  SetLength(Result, LLength);
+  {$IFDEF DOTNET}
+  GetEncoder(enUTF8).GetBytes(AStr, AIndex, ALength, Result, 0);
+  {$ELSE}
+  LLength := 0;
+  for I := AIndex to ALength do begin
+    LLength := LLength + EncodeCharToUTF8(AStr[I], Result, LLength);
+  end;
+  {$ENDIF}
+end;
+
+function CharToUTF8Bytes(const AChar: Char): TIdBytes;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LLength: Integer;
+begin
+  LLength := CalcBytesForUTF8Char(AChar);
+  SetLength(Result, LLength);
+  EncodeCharToUTF8(AChar, Result, 0);
+end;
 
 // TODO: add an AIndex parameter
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
@@ -1552,20 +1924,15 @@ begin
   {$ENDIF}
 end;
 
-procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer);
-{$IFDEF DOTNET}
-var
-  LChar : TIdBytes;
-{$ELSE}
- {$IFDEF USEINLINE}inline;{$ENDIF}
-{$ENDIF}
+procedure CopyTIdChar(const ASource: Char; var VDest: TIdBytes; const ADestIndex: Integer;
+  const AEncoding: TIdEncoding = en7Bit);
 begin
-  {$IFDEF DOTNET}
-  LChar := ToBytes(ASource);
-  System.array.Copy(LChar, 0, VDest, ADestIndex, 1);
-  {$ELSE}
-  VDest[ADestIndex] := Byte(ASource);
-  {$ENDIF}
+  if AEncoding = enUTF8 then begin
+    EncodeCharToUTF8(ASource, VDest, ADestIndex);
+  end else
+  begin
+    VDest[ADestIndex] := Byte(ASource);
+  end;
 end;
 
 procedure CopyTIdShort(const ASource: Short; var VDest: TIdBytes; const ADestIndex: Integer);
@@ -1676,20 +2043,25 @@ begin
 end;
 
 procedure CopyTIdString(const ASource: String; var VDest: TIdBytes;
-  const ADestIndex: Integer; const ALength: Integer = -1);
+  const ADestIndex: Integer; const ALength: Integer = -1); overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  CopyTIdString(ASource, 1, VDest, ADestIndex, ALength);
+end;
+
+procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer;
+  var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1); overload;
 var
   LLength: Integer;
-{$IFDEF DOTNET}
-  LStr : TIdBytes;
-{$ENDIF}
 begin
-  LLength := IndyLength(ASource, ALength);
-  if LLength > 0 then begin
+  LLength := IndyLength(ASource, ALength, ASourceIndex);
+  if LLength > 0 then
+  begin
+    // TODO: support UTF-8
     {$IFDEF DOTNET}
-    LStr := ToBytes(ASource, LLength);
-    System.array.Copy(LStr, 0, VDest, ADestIndex, Length(LStr));
+    GetEncoder(en7Bit).GetBytes(ASource, ASourceIndex, LLength, VDest, ADestIndex);
     {$ELSE}
-    Move(ASource[1], VDest[ADestIndex], LLength);
+    Move(ASource[ASourceIndex], VDest[ADestIndex], LLength);
     {$ENDIF}
   end;
 end;
@@ -2268,7 +2640,7 @@ begin
         //There was an error meaning an invalid IP address
         Exit;
       end;
-      if (LBuf[1] = '0') and IsOctal(LBuf) then begin
+      if TextStartsWith(LBuf, '0') and IsOctal(LBuf) then begin {do not localize}
         //this is octal
         Result := Result + IPv4MakeLongWordInRange(OctalToInt64(LBuf), LParts);
       end else begin
@@ -2329,12 +2701,13 @@ var
 begin
   Result := ''; // error
   LAddr := AAddr;
-  if Length(LAddr) = 0 then Exit;
-
-  if LAddr[1] = ':' then begin
+  if Length(LAddr) = 0 then begin
+    Exit;
+  end;
+  if TextStartsWith(LAddr, ':') then begin
     LAddr := '0' + LAddr;
   end;
-  if LAddr[Length(LAddr)] = ':' then begin
+  if TextEndsWith(LAddr, ':') then begin
     LAddr := LAddr + '0';
   end;
   dots := 0;
@@ -2397,8 +2770,9 @@ begin
       end;
       haddoublecolon := True;
       fillzeros := 8 - colons;
-      if dots > 0 then
+      if dots > 0 then begin
         Dec(fillzeros, 2);
+      end;
       for i := 1 to fillzeros do begin
         Result := Result + '0:'; {do not localize}
       end;
@@ -3328,54 +3702,47 @@ begin
   Result := SysUtils.StrToInt64(Trim(S));
 end;
 
-function ToBytes(const AValue: string; const ALength: Integer = -1;
+function ToBytes(const AValue: string; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := ToBytes(AValue, -1, 1, AEncoding);
+end;
+
+function ToBytes(const AValue: string; const ALength: Integer; const AIndex: Integer = 1;
   const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
 var
   LLength: Integer;
-{$IFDEF DOTNET}
-  LEncoder: System.Text.Encoding;
-{$ENDIF}
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
-  LLength := IndyLength(AValue, ALength);
-  if LLength > 0 then begin
-    {$IFDEF DOTNET}
-    LEncoder := GetEncoder(AEncoding);
-    SetLength(Result, LEncoder.GetByteCount(AValue));
-    LEncoder.GetBytes(AValue, 0, LLength, Result, 0);
-    {$ELSE}
-    // For now we just ignore encodings in VCL
-    // TODO: support UTF-8
-    SetLength(Result, LLength);
-    Move(AValue[1], Result[0], LLength);
-    {$ENDIF}
+  LLength := IndyLength(AValue, ALength, AIndex);
+  if LLength > 0 then
+  begin
+    if AEncoding = enUTF8 then begin
+      Result := StringToUTF8Bytes(AValue, AIndex, LLength);
+    end else
+    begin
+      // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+      // With MBCS we still map 1:1
+      SetLength(Result, LLength);
+      CopyTIdString(AValue, AIndex, Result, 0, LLength);
+    end;
   end else begin
     SetLength(Result, 0);
   end;
 end;
 
 function ToBytes(const AValue: Char; const AEncoding: TIdEncoding = en7Bit): TIdBytes; overload;
-{$IFDEF DOTNET}
-var
-  LChars: array[0..1] of Char;
-  LEncoder: Encoding;
-{$ELSE}
-  {$IFDEF USEINLINE}inline;{$ENDIF}
-{$ENDIF}
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
-  {$IFDEF DOTNET}
-  LChars[0] := AValue;
-  LChars[1] := Char(0);
-  LEncoder := GetEncoder(AEncoding);
-  SetLength(Result, LEncoder.GetByteCount(LChars, 0, 1));
-  LEncoder.GetBytes(LChars, 0, 1, Result, 0);
-  {$ELSE}
-  // For now we just ignore encodings in VCL
-  // TODO: support UTF-8
-  SetLength(Result, SizeOf(Byte));
-  Result[0] := Byte(AValue);
-  {$ENDIF}
+  if AEncoding = enUTF8 then begin
+    Result := CharToUTF8Bytes(AValue);
+  end else
+  begin
+    // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+    // With MBCS we still map 1:1
+    SetLength(Result, SizeOf(Byte));
+    Result[0] := Byte(AValue);
+  end;
 end;
 
 function ToBytes(const AValue: Int64): TIdBytes; overload;
@@ -3456,11 +3823,18 @@ begin
 end;
 {$ENDIF}
 
-procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char);
+procedure ToBytesF(var Bytes: TIdBytes; const AValue: Char; const AEncoding: TIdEncoding = en7Bit);
 {$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LLength: Integer;
 begin
-  Assert(Length(Bytes) >= SizeOf(Byte));
-  CopyTIdChar(AValue, Bytes, 0);
+  if AEncoding = enUTF8 then begin
+    LLength := CalcBytesForUTF8Char(AValue);
+  end else begin
+    LLength := SizeOf(Byte);
+  end;
+  Assert(Length(Bytes) >= LLength);
+  CopyTIdChar(AValue, Bytes, 0, AEncoding);
 end;
 
 procedure ToBytesF(var Bytes: TIdBytes; const AValue: LongInt);
@@ -3521,35 +3895,33 @@ begin
 end;
 {$ENDIF}
 
-function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0): Char;
-const
-  //don't use SizeOf(Char) as it's different depending on OS
-  cSizeOfChar = 1;
-{$IFDEF DotNet}
-var
-  //aEnc:Encoding;
-  LBytes: TIdBytes;
-{$ENDIF}
+function BytesToChar(const AValue: TIdBytes; const AIndex: Integer = 0;
+  const AEncoding: TIdEncoding = en7Bit): Char; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Assert(Length(AValue) >= (AIndex+cSizeOfChar));
-  {$IFDEF DotNet}
-  //there is possibly a nicer way to do this
-  //ToChar requires a 2-byte array
-  SetLength(LBytes, 2);
-  LBytes[0] := AValue[0];
-  LBytes[1] := 0;
+  BytesToChar(AValue, Result, AIndex, AEncoding);
+end;
 
-  //to get mime working, may need something like this, ISO-8859-1 codepage
-  //aEnc:=Encoding.GetEncoding(1252);//28591);
-  //Result := aEnc.GetChars(aBytes,0,1)[0];
-
-  // RLebeau: TODO - support an AEncoding parameter
-  Result := System.BitConverter.ToChar(LBytes, AIndex);
-  {$ELSE}
-  // For now we just ignore encodings in VCL
-  // TODO: support UTF-8
-  Result := Char(AValue[AIndex]);
-  {$ENDIF}
+function BytesToChar(const AValue: TIdBytes; var VChar: Char; const AIndex: Integer = 0;
+  const AEncoding: TIdEncoding = en7Bit): Integer; overload;
+var
+  LLength: Integer;
+begin
+  EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
+  if AEncoding = enUTF8 then
+  begin
+    LLength := CalcBytesOfUTF8Char(AValue, AIndex);
+    Assert(LLength > 0);
+    VChar := UTF8BytesToChar(AValue, AIndex, LLength);
+  end else
+  begin
+    // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+    // With MBCS we still map 1:1
+    LLength := Min(IndyLength(AValue, -1, AIndex), 1);
+    Assert(LLength > 0);
+    VChar := Char(AValue[AIndex]);
+  end;
+  Result := LLength;
 end;
 
 function BytesToLongInt(const AValue: TIdBytes; const AIndex: Integer = 0): LongInt;
@@ -3635,24 +4007,30 @@ begin
   {$ENDIF}
 end;
 
-function BytesToString(const AValue: TIdBytes; AStartIndex: Integer = 0;
-  AMaxCount: Integer = MaxInt; const AEncoding: TIdEncoding = en7Bit): string;
+function BytesToString(const AValue: TIdBytes; const AEncoding: TIdEncoding = en7Bit): string; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := BytesToString(AValue, 0, -1, AEncoding);
+end;
+
+function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer;
+  const ALength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): string; overload;
 var
   LLength: Integer;
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
-  LLength := IndyLength(AValue, AMaxCount, AStartIndex);
+  LLength := IndyLength(AValue, ALength, AStartIndex);
   if LLength > 0 then
   begin
-    {$IFDEF DOTNET}
-    Result := GetEncoder(AEncoding).GetString(AValue, AStartIndex, LLength);
-    {$ELSE}
-    // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
-    // With MBCS we still map 1:1
-    // TODO: support UTF-8
-    SetLength(Result, LLength);
-    Move(AValue[AStartIndex], Result[1], LLength);
-    {$ENDIF}
+    if AEncoding = enUTF8 then begin
+      Result := UTF8BytesToString(AValue, AStartIndex, LLength);
+    end else
+    begin
+      // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+      // With MBCS we still map 1:1
+      SetLength(Result, LLength);
+      Move(AValue[AStartIndex], Result[1], LLength);
+    end;
   end else begin
     Result := '';
   end;
@@ -3680,28 +4058,80 @@ begin
 //  Result := Word((AByte1 shl 8) and $FF00) or Word(AByte2 and $00FF);
 end;
 
-function ReadStringFromStream(AStream: TStream; ASize: Integer): string;
+function ReadStringFromStream(AStream: TStream; ASize: Integer = -1;
+  const AEncoding: TIdEncoding = en7Bit): string;
 var
   LBytes: TIdBytes;
 begin
   ASize := TIdStreamHelper.ReadBytes(AStream, LBytes, ASize);
-  Result := BytesToString(LBytes, 0, ASize);
+  Result := BytesToString(LBytes, 0, ASize, AEncoding);
 end;
 
-{$ifdef fpc}
+{$IFDEF FPC}
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Int64): Int64;
-{$else}
+{$ELSE}
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Integer): Integer;
-{$endif}
+{$ENDIF}
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := TIdStreamHelper.ReadBytes(AStream, ABytes, Count);
 end;
 
-function ReadCharFromStream(AStream: TStream; var AChar: Char): Integer;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+function ReadCharFromStream(AStream: TStream; var VChar: Char;
+  const AEncoding: TIdEncoding = en7Bit): Integer;
+var
+  StartPos: Int64;
+  NumRead: Integer;
+  Lb: Byte;
+  LCh: WideChar;
+  Temp: String;
+
+  function ReadByte: Byte;
+  begin
+    if AStream.Read(Result{$IFNDEF DOTNET}, 1{$ENDIF}) <> 1 then begin
+      raise EIdException.Create('Unable to read byte for UTF-8 character'); {do not localize}
+    end;
+  end;
+
 begin
-  Result := AStream.Read(AChar{$IFNDEF DotNet}, 1{$ENDIF});
+  Result := 0;
+
+  EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
+  StartPos := AStream.Position;
+
+  // don't raise an exception here, backwards compatibility for now
+  if AStream.Read(Lb{$IFNDEF DOTNET}, 1{$ENDIF}) <> 1 then begin
+    Exit;
+  end;
+  NumRead := 1;
+
+  if AEncoding = enUTF8 then
+  begin
+    try
+      with GetUTF8Decoder do
+      try
+        while not ProcessByte(Lb, LCh) do
+	begin
+          Lb := ReadByte;
+          Inc(NumRead);
+        end;
+      finally
+        Free;
+      end;
+      Temp := LCh;
+      VChar := Temp[1];
+    except
+      AStream.Position := StartPos;
+      raise;
+    end;
+  end else
+  begin
+    // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+    // With MBCS we still map 1:1
+    VChar := Char(Lb);
+  end;
+  
+  Result := NumRead;
 end;
 
 procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1);
@@ -3710,12 +4140,27 @@ begin
   TIdStreamHelper.Write(AStream, ABytes, ASize);
 end;
 
-procedure WriteStringToStream(AStream: TStream; const AStr :string;
-  const ACount : Integer = -1; const AOffset : Integer = 1);
+procedure WriteStringToStream(AStream: TStream; const AStr: string;
+  const AEncoding: TIdEncoding);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  if AStr <> '' then begin
-    TIdStreamHelper.Write(AStream, ToBytes(AStr),ACount,AOffset-1);
+  WriteStringToStream(AStream, AStr, -1, 1, AEncoding);
+end;
+
+procedure WriteStringToStream(AStream: TStream; const AStr: string;
+  const ALength: Integer = -1; const AIndex: Integer = 1;
+  const AEncoding: TIdEncoding = en7Bit);
+{$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LLength: Integer;
+  LStr: TIdBytes;
+begin
+  LStr := nil;
+  LLength := IndyLength(AStr, ALength, AIndex);
+  if LLength > 0 then
+  begin
+    LStr := ToBytes(AStr, LLength, AIndex, AEncoding);
+    TIdStreamHelper.Write(AStream, LStr);
   end;
 end;
 
@@ -3759,6 +4204,7 @@ begin
   IdSetSize(ASize);
 end;
  {$ENDIF}
+
 function TIdBaseStream.Read(var Buffer; Count: Longint): Longint;
 var
   LBytes: TIdBytes;
@@ -3779,8 +4225,15 @@ begin
   end;
 end;
 
+  {$IFDEF SIZE64STREAM}
+function TIdBaseStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
+begin
+  Result := IdSeek(Offset, Origin);
+end;
+  {$ELSE}
 function TIdBaseStream.Seek(Offset: Longint; Origin: Word): Longint;
-var LSeek : TSeekOrigin;
+var
+  LSeek : TSeekOrigin;
 begin
   case Origin of
     soFromBeginning : LSeek := soBeginning;
@@ -3790,16 +4243,17 @@ begin
     Result := 0;
     Exit;
   end;
-  result := IdSeek(Offset, LSeek) and $FFFFFFFF;
+  Result := IdSeek(Offset, LSeek) and $FFFFFFFF;
 end;
+  {$ENDIF}
+
 {$ENDIF}
 
 procedure AppendBytes(var VBytes: TIdBytes; const AToAdd: TIdBytes; const AIndex: Integer = 0);
 var
   LOldLen, LAddLen: Integer;
 begin
-  Assert(AIndex >= 0);
-  LAddLen := Length(AToAdd)-AIndex;
+  LAddLen := IndyLength(AToAdd, -1, AIndex);
   if LAddLen > 0 then begin
     LOldLen := Length(VBytes);
     SetLength(VBytes, LOldLen + LAddLen);
@@ -3856,8 +4310,7 @@ procedure InsertBytes(var VBytes: TIdBytes; const ADestIndex: Integer;
 var
   LAddLen: Integer;
 begin
-  Assert(ASourceIndex >= 0);
-  LAddLen := Length(ASource) - ASourceIndex;
+  LAddLen := IndyLength(ASource, -1, ASourceIndex);
   if LAddLen > 0 then begin
     ExpandBytes(VBytes, ADestIndex, LAddLen);
     CopyTIdBytes(ASource, ASourceIndex, VBytes, ADestIndex, LAddLen);
@@ -4057,21 +4510,23 @@ begin
   Result := ByteIsInSet(ABytes, AIndex, LSet);
 end;
 
-function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1; AExceptionIfEOF: Boolean = False): String;
+function ReadLnFromStream(AStream: TStream; AMaxLineLength: Integer = -1;
+  AExceptionIfEOF: Boolean = False; const AEncoding: TIdEncoding = en7Bit): String;
 begin
-  if not ReadLnFromStream(AStream, Result, AMaxLineLength) then begin
+  if not ReadLnFromStream(AStream, Result, AMaxLineLength, AEncoding) then begin
     EIdEndOfStream.IfTrue(AExceptionIfEOF, IndyFormat(RSEndOfStream, ['', AStream.Position]));
   end;
 end;
 
-//TODO: Continue to optimize this function. Its performance severely impacts
-// the coders
-function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1): Boolean;
+//TODO: Continue to optimize this function. Its performance severely impacts the coders
+function ReadLnFromStream(AStream: TStream; var VLine: String; AMaxLineLength: Integer = -1;
+  const AEncoding: TIdEncoding = en7Bit): Boolean;
 const
   LBUFMAXSIZE = 2048;
 var
   LStringLen, LResultLen: LongInt;
   LBuf: TIdBytes;
+  LLine: TIdBytes;
   // LBuf: packed array [0..LBUFMAXSIZE] of Char;
   {$IFDEF FPC}
   LBufSize, LStrmPos, LStrmSize: Int64; //LBytesToRead = stream size - Position
@@ -4117,6 +4572,7 @@ var
 begin
   Assert(AStream<>nil);
   VLine := '';
+  SetLength(LLine, 0);
 
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxInt;
@@ -4139,7 +4595,7 @@ begin
 
   repeat
     LBufSize := Min(LStrmSize - LStrmPos, LBUFMAXSIZE);
-    ReadTIdBytesFromStream(AStream, LBuf, LBufSize);
+    LBufSize := ReadTIdBytesFromStream(AStream, LBuf, LBufSize);
     LStringLen := FindEOL(LBuf, LBufSize, LCrEncountered);
     Inc(LStrmPos, LBufSize);
 
@@ -4151,11 +4607,14 @@ begin
       Inc(LStrmPos, LStringLen);
     end;
     if LStringLen > 0 then begin
-      VLine := VLine + BytesToString(LBuf, 0, LStringLen);
+      LBufSize := Length(LLine);
+      SetLength(LLine, LBufSize+LStringLen);
+      CopyTIdBytes(LBuf, 0, LLine, LBufSize, LStringLen);
     end;
   until (LStrmPos >= LStrmSize) or LCrEncountered;
 
   AStream.Position := LStrmPos;
+  VLine := BytesToString(LLine, 0, -1, AEncoding);
   Result := True;
 end;
 
