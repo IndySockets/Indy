@@ -1369,7 +1369,7 @@ begin
     Result := True;
     fDecoder.Reset;
   end;
-end
+end;
 
 {$ELSE}
 type
