@@ -61,6 +61,7 @@
 unit IdTelnetServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -84,7 +85,7 @@ type
   end;
 
   // Custom Peer thread class
-  TIdTelnetPeerContext = Class(TIdContext)
+  TIdTelnetServerContext = class(TIdContext)
   private
     FTelnetData: TTelnetData;
   public
@@ -131,11 +132,11 @@ uses
 
 procedure TIdTelnetServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   LoginAttempts := GLoginAttempts;
   LoginMessage := RSTELNETSRVWelcomeString;
   DefaultPort := IdPORT_TELNET;
-  FContextClass := TIdTelnetPeerContext;
+  FContextClass := TIdTelnetServerContext;
 end;
 
 function TIdTelnetServer.DoAuthenticate;
@@ -154,7 +155,7 @@ Var
 begin
   try
     inherited;
-    Data := (AContext as TIdTelnetPeerContext).TelnetData;
+    Data := (AContext as TIdTelnetServerContext).TelnetData;
     // do protocol negotiation first
     DoNegotiate(AContext);
     // Welcome the user
@@ -197,24 +198,24 @@ end;
 
 procedure TIdTelnetServer.DoNegotiate(AContext: TIdContext);
 begin
-  if assigned(FOnNegotiate) then begin
+  if Assigned(FOnNegotiate) then begin
     FOnNegotiate(AContext);
   end;
 end;
 
-{ TIdTelnetPeerContext }
+{ TIdTelnetServerContext }
 
-constructor TIdTelnetPeerContext.Create;
+constructor TIdTelnetServerContext.Create(AConnection: TIdTCPConnection;
+  AYarn: TIdYarn; AList: TThreadList = nil);
 begin
-  inherited;
+  inherited Create(AConnection, AYarn, AList);
   FTelnetData := TTelnetData.Create;
 end;
 
-destructor TIdTelnetPeerContext.Destroy;
+destructor TIdTelnetServerContext.Destroy;
 begin
   FreeAndNil(FTelnetData);
-  inherited;
+  inherited Destroy;
 end;
-
 
 end.
