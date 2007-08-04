@@ -136,13 +136,15 @@
 unit IdWinSock2;
 
 interface
- {$I IdCompilerDefines.inc}
+
+{$I IdCompilerDefines.inc}
+
 {$ALIGN OFF}
 {$RANGECHECKS OFF}
 {$WRITEABLECONST OFF}
 
 uses
- IdException, IdGlobal, SysUtils, Windows;
+  IdException, IdGlobal, SysUtils, Windows;
 
 type
   EIdWinsockStubError = class(EIdException)
@@ -1299,6 +1301,7 @@ type
   {$EXTERNALSYM PROVIDERINFOLSPCATEGORIES}
   {$EXTERNALSYM PROVIDERINFOAUDIT}
   WSC_PROVIDER_INFO_TYPE = (ProviderInfoLspCategories, ProviderInfoAudit);
+
 { WinSock 2 extension -- WSABUF and QOS struct, include qos.h }
 { to pull in FLOWSPEC and related definitions }
 
@@ -1414,7 +1417,7 @@ type
   PTransmitFileBuffers = ^TTransmitFileBuffers;
   {$ENDIF}
   {$EXTERNALSYM LPTRANSMIT_FILE_BUFFERS}
-  LPTRANSMIT_FILE_BUFFERS = PTransmitFileBuffers;  
+  LPTRANSMIT_FILE_BUFFERS = PTransmitFileBuffers;
 {$ENDIF}
 
 const
@@ -1884,6 +1887,7 @@ type
   TWSAEComparator = WSAECOMPARATOR;
   {$EXTERNALSYM PWSAECOMPARATOR}
   PWSAECOMPARATOR = ^WSAECOMPARATOR;
+
   {$EXTERNALSYM WSAVERSION}
   WSAVERSION = record
     dwVersion : DWORD;
@@ -2268,7 +2272,7 @@ type
   PWSAPOLLFD = ^TWSAPOLLFD;
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
-
+  
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
 type
@@ -3020,12 +3024,6 @@ type
 
 // TCP/IP specific Ioctl codes
 const
-  {Commented out because it's part of an enumeration}
- // {$EXTERNALSYM MCAST_INCLUDE}
-//  MCAST_INCLUDE             = 0;
-//  {$EXTERNALSYM MCAST_EXCLUDE}
- // MCAST_EXCLUDE             = 1;
-
   {$EXTERNALSYM SIO_GET_INTERFACE_LIST}
   SIO_GET_INTERFACE_LIST    = IOC_OUT or ((SizeOf(u_long) and IOCPARM_MASK) shl 16) or (Ord('t') shl 8) or 127;    {Do not Localize}
 // New IOCTL with address size independent address array
@@ -3134,6 +3132,7 @@ type
     ipv6mr_interface: u_int; // Interface index
   end;
  {$ENDIF}
+
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
   sockaddr_in6_old = packed record
@@ -3254,7 +3253,6 @@ const
   {$EXTERNALSYM IFF_MULTICAST}
   IFF_MULTICAST    = $00000010;  // multicast is supported
 
-
 type
   {$EXTERNALSYM MULTICAST_MODE_TYPE}
   {$EXTERNALSYM MCAST_INCLUDE}
@@ -3268,8 +3266,8 @@ type
     gf_numsrc : ULONG;            // Number of sources.
     gf_slist : SOCKADDR_STORAGE;  //gf_slist[1] : SOCKADDR_STORAGE; // Source address.
   end;
-   {$EXTERNALSYM PGROUP_FILTER}
-   PGROUP_FILTER = ^GROUP_FILTER;
+  {$EXTERNALSYM PGROUP_FILTER}
+  PGROUP_FILTER = ^GROUP_FILTER;
 
   {$EXTERNALSYM GROUP_REQ}
   GROUP_REQ  = packed record
@@ -3288,7 +3286,7 @@ type
   {$EXTERNALSYM GROUP_SOURCE_REQ}
   PGROUP_SOURCE_REQ = ^GROUP_SOURCE_REQ;
 
-function GROUP_FILTER_SIZE(numsrc : DWord) : DWord; inline;
+function GROUP_FILTER_SIZE(numsrc : DWord) : DWord;
 
 type
   {$EXTERNALSYM WSAQUERYSET2}
@@ -3313,11 +3311,11 @@ type
   {$EXTERNALSYM LPWSAQUERYSET2}
   LPWSAQUERYSET2 = PWSAQUERYSET2;
 
-   {$EXTERNALSYM NAPI_PROVIDER_TYPE}
+  {$EXTERNALSYM NAPI_PROVIDER_TYPE}
   {$EXTERNALSYM PROVIDERTYPE_APPLICATION}
   {$EXTERNALSYM PROVIDERTYPE_SERVICE}
   NAPI_PROVIDER_TYPE = (ProviderType_Application=1, ProviderType_Service);
- {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
+  {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
   NAPI_DOMAIN_DESCRIPTION_BLOB = packed record
     AuthLevel : DWORD;
     cchDomainName : DWORD;
@@ -3356,10 +3354,10 @@ type
   end;
   {$ENDIF}
   {$EXTERNALSYM SERVICE_ADDRESS}
-  PSERVICE_ADDRESS = ^SERVICE_ADDRESS;  
+  PSERVICE_ADDRESS = ^SERVICE_ADDRESS;
   {$EXTERNALSYM LPSERVICE_ADDRESS}
   LPSERVICE_ADDRESS = PSERVICE_ADDRESS;
-
+  
   {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM SERVICE_ADDRESSES}
   SERVICE_ADDRESSES = packed record
@@ -3374,7 +3372,7 @@ type
   {$EXTERNALSYM PSERVICE_ADDRESSES}
   PSERVICE_ADDRESSES = ^SERVICE_ADDRESSES;
   {$EXTERNALSYM LPSERVICE_ADDRESSES}
-  LPSERVICE_ADDRESSES = PSERVICE_ADDRESSES;  
+  LPSERVICE_ADDRESSES = PSERVICE_ADDRESSES;
   {$ENDIF}
 
 const
@@ -3471,7 +3469,7 @@ type
   PNS_SERVICE_INFOW = ^NS_SERVICE_INFOW;
   {$EXTERNALSYM LPNS_SERVICE_INFOW}
   LPNS_SERVICE_INFOW = NS_SERVICE_INFOW;
-   {$IFNDEF NOREDECLARE}
+  {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM NS_SERVICE_INFO}
   {$EXTERNALSYM PNS_SERVICE_INFO}
   {$EXTERNALSYM LPNS_SERVICE_INFO}
@@ -3487,7 +3485,6 @@ type
   {$ENDIF}
 
 type
-
 // structure for IP_PKTINFO option
   {$EXTERNALSYM IN_PKTINFO}
   IN_PKTINFO = packed record
@@ -4605,8 +4602,8 @@ run-time evaluation makes no sense because the compiler knows these when compili
 so it should give us the numbers.  
 
 }
- {$EXTERNALSYM SIZE_WSACMSGHDR}
 const
+ {$EXTERNALSYM SIZE_WSACMSGHDR}
   SIZE_WSACMSGHDR = DWORD(SizeOf(WSACMSGHDR));
   {$EXTERNALSYM SIZE_FARPROC}
   SIZE_FARPROC = DWORD(SizeOf(FARPROC));
@@ -4625,7 +4622,7 @@ const
   {$EXTERNALSYM SIZE_GUID}
   SIZE_GUID = DWORD(SizeOf(TGuid));
 
-  //=============================================================
+//=============================================================
 implementation
 //=============================================================
 
@@ -4707,43 +4704,19 @@ begin
   end;
 end;
 
-{ RLebeau: using a 'var' parameter for the VStub parameter of FixupStub/Ex().
-  DO NOT use 'out' here! The passed in function pointer should not be replaced
-  unless the load was successful.  If 'out' is used, the input pointer will be
-  initialized to nil automatically.  If the load then fails, and the function
-  that failed to load is called again later on, an AV will be raised due to the
-  function pointer being nil instead of pointing to our original stub.
-  EIdWinsockStubError should be raised each time, so the stub has to be
-  preserved in order for FixupStub/Ex() to be called. }
-
 function FixupStub(hDll: THandle; const AName: string): Pointer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if hDll = 0 then begin
-    EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
+    raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
   Result := Windows.GetProcAddress(hDll, PChar(AName));
   if Result = nil then begin
-     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
+    raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;
 end;
 
-{
-procedure FixupStub(hDll: THandle; const AName: string; var VStub);
-var
-  LProc: FARPROC;
-begin
-  if hDll = 0 then begin
-    raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
-  end;
-  LProc := Windows.GetProcAddress(hDll, PChar(AName));
-  if LProc = nil then begin
-    raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
-  end;
-  Pointer(VStub) := LProc;
-end;    }
-
-function FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID) : Pointer;
+function FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID): Pointer;
 var
   LStatus: LongInt;
   LBytesSend: DWORD;
@@ -4753,23 +4726,7 @@ begin
   if LStatus <> 0 then begin
     raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
   end;
-
 end;
-{
-procedure FixupStubEx(hSocket: TSocket; const AName: string; const AGuid: TGUID; var VStub);
-var
-  LStatus: LongInt;
-  LBytesSend: DWORD;
-  LProc: FARPROC;
-begin
-  LStatus := WSAIoctl(hSocket, SIO_GET_EXTENSION_FUNCTION_POINTER, @AGuid, LongWord(SIZE_GUID),
-    @LProc, SIZE_FARPROC, @LBytesSend, nil, nil);
-  if LStatus <> 0 then begin
-    raise EIdWinsockStubError.Build(WSAGetLastError, RSWinsockCallError, [AName]);
-  end;
-  Pointer(VStub) := LProc;
-end;    }
-
 
 function Stub_WSAStartup(const wVersionRequired: word; out WSData: TWSAData): Integer; stdcall;
 begin
@@ -4929,7 +4886,7 @@ end;
 
 function Stub_gethostbyname(name: PChar): PHostEnt; stdcall;
 begin
-  @gethostbyname := FixupStub(hWinSockDll, 'gethostbyname' ); {Do not Localize}
+  @gethostbyname := FixupStub(hWinSockDll, 'gethostbyname'); {Do not Localize}
   Result := gethostbyname(name);
 end;
 
@@ -4961,7 +4918,7 @@ end;
 
 function Stub_getprotobynumber(const proto: Integer): PProtoEnt; stdcall;
 begin
-  @getprotobynumber := FixupStub(hWinSockDll, 'getprotobynumber' ); {Do not Localize}
+  @getprotobynumber := FixupStub(hWinSockDll, 'getprotobynumber'); {Do not Localize}
   Result := getprotobynumber(proto);
 end;
 
@@ -4979,7 +4936,7 @@ end;
 
 function Stub_WSAGetLastError: Integer; stdcall;
 begin
-  @WSAGetLastError := FixupStub(hWinSockDll, 'WSAGetLastError' ); {Do not Localize}
+  @WSAGetLastError := FixupStub(hWinSockDll, 'WSAGetLastError'); {Do not Localize}
   Result := WSAGetLastError;
 end;
 
@@ -5053,13 +5010,13 @@ end;
 
 function Stub_WSAAsyncSelect(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
 begin
- @WSAAsyncSelect := FixupStub(hWinSockDll, 'WSAAsyncSelect'); {Do not Localize}
+  @WSAAsyncSelect := FixupStub(hWinSockDll, 'WSAAsyncSelect'); {Do not Localize}
   Result := WSAAsyncSelect(s, HWindow, wMsg, lEvent);
 end;
 
 function Stub___WSAFDIsSet(const s: TSocket; var FDSet: TFDSet): Bool; stdcall;
 begin
-  @__WSAFDIsSet := FixupStub(hWinSockDll, '__WSAFDIsSet' ); {Do not Localize}
+  @__WSAFDIsSet := FixupStub(hWinSockDll, '__WSAFDIsSet'); {Do not Localize}
   Result := __WSAFDIsSet(s, FDSet);
 end;
 
@@ -5101,11 +5058,11 @@ end;
 
 function Stub_WSADuplicateSocket(const s: TSocket; const dwProcessId: DWORD; lpProtocolInfo: LPWSAPROTOCOL_INFO): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   @WSADuplicateSocket := FixupStub(hWinSockDll, 'WSADuplicateSocketW'); {Do not Localize}
-{$ELSE}
+  {$ELSE}
   @WSADuplicateSocket := FixupStub(hWinSockDll, 'WSADuplicateSocketA'); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSADuplicateSocket(s, dwProcessId, lpProtocolInfo);
 end;
 
@@ -5117,7 +5074,7 @@ end;
 
 function Stub_WSAEnumProtocolsA(lpiProtocols: PInteger; lpProtocolBuffer: LPWSAPROTOCOL_INFOA; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-  @WSAEnumProtocolsA := FixupStub(hWinSockDll, 'WSAEnumProtocolsA' ); {Do not Localize}
+  @WSAEnumProtocolsA := FixupStub(hWinSockDll, 'WSAEnumProtocolsA'); {Do not Localize}
   Result := WSAEnumProtocolsA(lpiProtocols, lpProtocolBuffer, lpdwBufferLength);
 end;
 
@@ -5129,11 +5086,11 @@ end;
 
 function Stub_WSAEnumProtocols(lpiProtocols: PInteger; lpProtocolBuffer: LPWSAPROTOCOL_INFO; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
-{$IFDEF UNICODE}
-  @WSAEnumProtocols := FixupStub(hWinSockDll, 'WSAEnumProtocolsW', ); {Do not Localize}
-{$ELSE}
+  {$IFDEF UNICODE}
+  @WSAEnumProtocols := FixupStub(hWinSockDll, 'WSAEnumProtocolsW'); {Do not Localize}
+  {$ELSE}
   @WSAEnumProtocols := FixupStub(hWinSockDll, 'WSAEnumProtocolsA'); {Do not Localize}
-{$ENDIF}
+  {$ENDIF}
   Result := WSAEnumProtocols(lpiProtocols, lpProtocolBuffer, lpdwBufferLength);
 end;
 
@@ -5157,13 +5114,13 @@ end;
 
 function Stub_WSAHtonl(const s: TSocket; hostlong: u_long; var lpnetlong: DWORD): Integer; stdcall;
 begin
-  @WSAHtonl := FixupStub(hWinSockDll, 'WSAHtonl' ); {Do not Localize}
+  @WSAHtonl := FixupStub(hWinSockDll, 'WSAHtonl'); {Do not Localize}
   Result := WSAHtonl(s, hostlong, lpnetlong);
 end;
 
 function Stub_WSAHtons(const s: TSocket; hostshort: u_short; var lpnetshort: WORD): Integer; stdcall;
 begin
-  @WSAHtons := FixupStub(hWinSockDll, 'WSAHtons' ); {Do not Localize}
+  @WSAHtons := FixupStub(hWinSockDll, 'WSAHtons'); {Do not Localize}
   Result := WSAHtons(s, hostshort, lpnetshort);
 end;
 
@@ -5181,13 +5138,13 @@ end;
 
 function Stub_WSANtohl(const s: TSocket; netlong: u_long; var lphostlong: DWORD): Integer; stdcall;
 begin
-  @WSANtohl := FixupStub(hWinSockDll, 'WSANtohl' ); {Do not Localize}
+  @WSANtohl := FixupStub(hWinSockDll, 'WSANtohl'); {Do not Localize}
   Result := WSANtohl(s, netlong, lphostlong);
 end;
 
 function Stub_WSANtohs(const s: TSocket; netshort: u_short; var lphostshort: WORD): Integer; stdcall;
 begin
-  @WSANtohs := FixupStub(hWinSockDll, 'WSANtohs' ); {Do not Localize}
+  @WSANtohs := FixupStub(hWinSockDll, 'WSANtohs'); {Do not Localize}
   Result := WSANtohs(s, netshort, lphostshort);
 end;
 
@@ -5199,7 +5156,7 @@ end;
 
 function Stub_WSARecvDisconnect(const s: TSocket; lpInboundDisconnectData: LPWSABUF): Integer; stdcall;
 begin
-  @WSARecvDisconnect := FixupStub(hWinSockDll, 'WSARecvDisconnect' ); {Do not Localize}
+  @WSARecvDisconnect := FixupStub(hWinSockDll, 'WSARecvDisconnect'); {Do not Localize}
   Result := WSARecvDisconnect(s, lpInboundDisconnectData);
 end;
 
@@ -5211,7 +5168,7 @@ end;
 
 function Stub_WSAResetEvent(hEvent: wsaevent): WordBool; stdcall;
 begin
- @WSAResetEvent := FixupStub(hWinSockDll, 'WSAResetEvent'); {Do not Localize}
+  @WSAResetEvent := FixupStub(hWinSockDll, 'WSAResetEvent'); {Do not Localize}
   Result := WSAResetEvent(hEvent);
 end;
 
@@ -5235,7 +5192,7 @@ end;
 
 function Stub_WSASetEvent(hEvent: WSAEVENT): WordBool; stdcall;
 begin
-  @WSASetEvent := FixupStub(hWinSockDll, 'WSASetEvent' ); {Do not Localize}
+  @WSASetEvent := FixupStub(hWinSockDll, 'WSASetEvent'); {Do not Localize}
   Result := WSASetEvent(hEvent);
 end;
 
@@ -5256,7 +5213,7 @@ begin
   {$IFDEF UNICODE}
   @WSASocket := FixupStub(hWinSockDll, 'WSASocketW'); {Do not Localize}
   {$ELSE}
-  @WSASocket := FixupStub(hWinSockDll, 'WSASocketA' ); {Do not Localize}
+  @WSASocket := FixupStub(hWinSockDll, 'WSASocketA'); {Do not Localize}
   {$ENDIF}
   Result := WSASocket(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
@@ -5308,7 +5265,7 @@ function Stub_WSAStringToAddress (const AddressString: {$IFDEF UNICODE}PWideChar
   var lpAddressLength: Integer): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
-  @WSAStringToAddress := FixupStub(hWinSockDll, 'WSAStringToAddressW', ); {Do not Localize}
+  @WSAStringToAddress := FixupStub(hWinSockDll, 'WSAStringToAddressW'); {Do not Localize}
   {$ELSE}
   @WSAStringToAddress := FixupStub(hWinSockDll, 'WSAStringToAddressA'); {Do not Localize}
   {$ENDIF}
@@ -5678,7 +5635,7 @@ begin
   WSAProviderConfigChange          := Stub_WSAProviderConfigChange;
 {$IFNDEF UNDER_CE}
   AcceptEx                         := Stub_AcceptEx;
-  //GetAcceptExSockaddrs           := Stub_GetAcceptExSockaddrs;
+  //GetAcceptExSockaddrs is loaded by Stub_AcceptEx
   WSARecvEx                        := Stub_WSARecvEx;
   ConnectEx                        := Stub_ConnectEx;
   DisconnectEx                     := Stub_DisconnectEx;
@@ -6088,11 +6045,6 @@ end;
 
 function GROUP_FILTER_SIZE(numsrc : DWord) : DWord;
 {$IFDEF USEINLINE}inline;{$ENDIF}
-{
-#define GROUP_FILTER_SIZE(numsrc) \
-   (sizeof(GROUP_FILTER) - sizeof(SOCKADDR_STORAGE) \
-   + (numsrc) * sizeof(SOCKADDR_STORAGE))
-}
 begin
    Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +
      (numsrc * SIZE_SOCKADDR_STORAGE);
@@ -6104,3 +6056,4 @@ initialization
   InitializeStubs;
 
 end.
+
