@@ -53,10 +53,10 @@ interface
 {$I IdCompilerDefines.inc}
 
 uses
-  {$IFDEF WidgetKylix}
+  {$IFDEF WIDGETKYLIX}
   QControls, QForms, QStdCtrls, QButtons, QExtCtrls, QActnList, QGraphics,
   {$ENDIF}
-  {$IFDEF WidgetVCLLike}
+  {$IFDEF WIDGETVCLLIKE}
   Controls, Forms, StdCtrls, Buttons, ExtCtrls, ActnList, Graphics,
   {$ENDIF}
   Classes, IdSASLCollection;
@@ -68,7 +68,7 @@ type
     lbAssigned: TListBox;
     sbAdd: TSpeedButton;
     sbRemove: TSpeedButton;
-    {$IFDEF UseTBitBtn}
+    {$IFDEF USETBITBTN}
     BtnCancel: TBitBtn;
     BtnOk: TBitBtn;
     {$ELSE}
@@ -98,32 +98,32 @@ type
     procedure UpdateList;
   public
     { Public declarations }
+    constructor Create(AOwner: TComponent); override;
     function Execute : Boolean;
     procedure SetList(const CopyFrom: TIdSASLEntries);
     procedure GetList(const CopyTo: TIdSASLEntries);
     procedure SetComponentName(const Name: string);
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
 implementation
-uses
-{$IFDEF WidgetLCL}
-  LResources,
-{$ENDIF}
-  IdDsnCoreResourceStrings,
-  IdResourceStrings, IdSASL, SysUtils;
 
+uses
+  {$IFDEF WIDGETLCL}
+  LResources,
+  {$ENDIF}
+  IdDsnCoreResourceStrings,
+  IdGlobal, IdResourceStrings, IdSASL,
+  SysUtils;
 
 { TfrmSASLListEditorVCL }
 
-{$IFNDEF WidgetLCL}
-   {$IFDEF WIN32}
-   {$R IdSASLListEditorForm.RES}
-   {$ENDIF}
-   {$IFDEF KYLIX}
-   {$R IdSASLListEditorForm.RES}
-   {$ENDIF}
+{$IFNDEF WIDGETLCL}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$R IdSASLListEditorForm.RES}
+  {$ENDIF}
+  {$IFDEF KYLIX}
+  {$R IdSASLListEditorForm.RES}
+  {$ENDIF}
 {$ENDIF}
 
 constructor TfrmSASLListEditorVCL.Create(AOwner: TComponent);
@@ -133,48 +133,27 @@ begin
   UpdateList;
 end;
 
-destructor TfrmSASLListEditorVCL.Destroy;
-begin
-  inherited Destroy;
-end;
-
 procedure TfrmSASLListEditorVCL.GetList(const CopyTo: TIdSASLEntries);
-var
-  i: integer;
-  LCI : TIdSASLListEntry;
 begin
-  CopyTo.Clear;
-  for i := 0 to SASLList.Count -1 do
-  begin
-    LCI := CopyTo.Add;
-    LCI.Assign(SASLList[i]);
-  end;
+  CopyTo.Assign(SASLList);
 end;
 
 procedure TfrmSASLListEditorVCL.SetList(const CopyFrom: TIdSASLEntries);
 var
   i, idx: integer;
-  LCI : TIdSASLListEntry;
 begin
-  SASLList.Clear;
-  for i := 0 to CopyFrom.Count -1 do begin
-    LCI := SASLList.Add;
-    LCI.Assign(CopyFrom[i]);
-  end;
-  for i:=0 to CopyFrom.Count-1 do begin
+  SASLList.Assign(CopyFrom);
+  for i := 0 to CopyFrom.Count-1 do begin
     if Assigned(CopyFrom[i].SASL) then
     begin
       idx := lbAvailable.Items.IndexOf(CopyFrom[i].SASL.Name);
-      if idx>=0 then begin
+      if idx >= 0 then begin
         lbAvailable.Items.Delete(idx);
       end;
     end;
   end;
-
   UpdateList;
 end;
-
-
 
 procedure TfrmSASLListEditorVCL.UpdateList;
 var
@@ -182,21 +161,20 @@ var
   l : TList;
 begin
   lbAssigned.Clear;
-
   for i := 0 to SASLList.Count -1 do begin
     if Assigned(SASLList[i].SASL) then
     begin
-      lbAssigned.Items.AddObject(SASLList[i].SASL.Name+': '+SASLList[i].SASL.ServiceName, SASLList[i]);
+      lbAssigned.Items.AddObject(SASLList[i].SASL.Name + ': ' + SASLList[i].SASL.ServiceName, SASLList[i]);
     end;
   end;
   lbAvailable.Clear;
   l := GlobalSASLList.LockList;
   try
-    for i:=0 to l.count-1 do begin
+    for i := 0 to l.Count-1 do begin
       if SASLList.IndexOfComp(TIdSASL(l[i])) < 0 then begin
         if Assigned(l[i]) then
         begin
-          lbAvailable.Items.AddObject(TIdSASL(l[i]).Name+': '+TIdSASL(l[i]).ServiceName, TIdSASL(l[i]));
+          lbAvailable.Items.AddObject(TIdSASL(l[i]).Name + ': ' + TIdSASL(l[i]).ServiceName, TIdSASL(l[i]));
         end;
       end;
     end;
@@ -205,24 +183,28 @@ begin
   end;
 end;
 
-
 procedure TfrmSASLListEditorVCL.SetComponentName(const Name: string);
 begin
-  Caption := Format(Caption, [Name]);
+  Caption := IndyFormat(Caption, [Name]);
 end;
 
 procedure TfrmSASLListEditorVCL.FormCreate;
 begin
+  SASLList := TIdSASLEntries.Create(Self);
+
   Left := 292;
   Top := 239;
-  {$IFDEF WidgetKylix}
+
+  {$IFDEF WIDGETKYLIX}
   BorderStyle := fbsDialog;
   {$ENDIF}
-  {$IFDEF WidgetVCLLike}
+  {$IFDEF WIDGETVCLLIKE}
   BorderStyle := bsDialog;
   {$ENDIF}
+
   Caption := RSADlgSLCaption;
-  {$IFDEF UseTBitBtn}
+
+  {$IFDEF USETBITBTN}
   ClientHeight := 349;
   {$ELSE}
   ClientHeight := 344;
@@ -235,49 +217,33 @@ begin
   Top  := (Screen.Height - Height) div 2;
 
   {we do the actions here so that the rest of the components can bind to them}
-  actEditor:= TActionList.Create(Self);
+  actEditor := TActionList.Create(Self);
 
-  actAdd:= TAction.Create(Self);
+  actAdd := TAction.Create(Self);
   actAdd.ActionList := actEditor;
   actAdd.Hint := RSADlgSLAdd;
   actAdd.OnExecute := actAddExecute;
   actAdd.OnUpdate  := actAddUpdate;
 
-  actRemove:= TAction.Create(Self);
+  actRemove := TAction.Create(Self);
   actRemove.ActionList := actEditor;
   actRemove.Hint := RSADlgSLRemove;
   actRemove.OnExecute := actRemoveExecute;
   actRemove.OnUpdate  := actRemoveUpdate;
 
-  actMoveUp:= TAction.Create(Self);
+  actMoveUp := TAction.Create(Self);
   actMoveUp.ActionList := actEditor;
   actMoveUp.Hint := RSADlgSLMoveUp;
   actMoveUp.OnExecute := actMoveUpExecute;
   actMoveUp.OnUpdate  := actMoveUpUpdate;
 
-  actMoveDown:= TAction.Create(Self);
+  actMoveDown := TAction.Create(Self);
   actMoveDown.ActionList := actEditor;
   actMoveDown.Hint := RSADlgSLMoveDown;
   actMoveDown.OnExecute := actMoveDownExecute;
   actMoveDown.OnUpdate  := actMoveDownUpdate;
 
   sbAdd := TSpeedButton.Create(Self);
-
-  sbRemove := TSpeedButton.Create(Self);
-  Label1 := TLabel.Create(Self);
-  Label2 := TLabel.Create(Self);
-  sbUp := TSpeedButton.Create(Self);
-  sbDown := TSpeedButton.Create(Self);
-  lbAvailable := TListBox.Create(Self);
-  lbAssigned := TListBox.Create(Self);
-  {$IFDEF UseTBitBtn}
-  BtnCancel := TBitBtn.Create(Self);
-  BtnOk := TBitBtn.Create(Self);
-  {$ELSE}
-  BtnCancel := TButton.Create(Self);
-  BtnOk := TButton.Create(Self);
-  {$ENDIF}
-  SASLList := TIdSASLEntries.Create(Self);
   with sbAdd do
   begin
     Name := 'sbAdd';  {do not localize}
@@ -288,15 +254,17 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-    {$IFDEF WidgetLCL}
+    {$IFDEF WIDGETLCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
     {$ELSE}
-      {$IFDEF WidgetVCLLikeOrKylix}
-      Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
-      NumGlyphs := 2;
+      {$IFDEF WIDGETVCLLIKEORKYLIX}
+    Glyph.LoadFromResourceName(HInstance, 'ARROWRIGHT');  {do not localize}
+    NumGlyphs := 2;
       {$ENDIF}
     {$ENDIF}
   end;
+
+  sbRemove := TSpeedButton.Create(Self);
   with sbRemove do
   begin
     Name := 'sbRemove'; {do not localize}
@@ -307,15 +275,17 @@ begin
     Width := 57;
     Height := 25;
     ShowHint := True;
-    {$IFDEF WidgetLCL}
+    {$IFDEF WIDGETLCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
     {$ELSE}
-      {$IFDEF WidgetVCLLikeOrKylix}
+      {$IFDEF WIDGETVCLLIKEORKYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWLEFT'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
     {$ENDIF}
   end;
+
+  Label1 := TLabel.Create(Self);
   with Label1 do
   begin
     Name := 'Label1'; {do not localize}
@@ -326,6 +296,8 @@ begin
     Height := 13;
     Caption :=  RSADlgSLAvailable;
   end;
+
+  Label2 := TLabel.Create(Self);
   with Label2 do
   begin
     Name := 'Label2'; {do not localize}
@@ -336,6 +308,8 @@ begin
     Height := 13;
     Caption := RSADlgSLAssigned
   end;
+
+  sbUp := TSpeedButton.Create(Self);
   with sbUp do
   begin
     Name := 'sbUp'; {do not localize}
@@ -346,15 +320,17 @@ begin
     Width := 23;
     Height := 22;
     ShowHint := True;
-     {$IFDEF WidgetLCL}
+     {$IFDEF WIDGETLCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
     {$ELSE}
-      {$IFDEF WidgetVCLLikeOrKylix}
+      {$IFDEF WIDGETVCLLIKEORKYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWUP'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
     {$ENDIF}
   end;
+
+  sbDown := TSpeedButton.Create(Self);
   with sbDown do
   begin
     Name := 'sbDown'; {do not localize}
@@ -366,15 +342,17 @@ begin
     Height := 22;
 
     ShowHint := True;
-     {$IFDEF WidgetLCL}
+    {$IFDEF WIDGETLCL}
     Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
     {$ELSE}
-      {$IFDEF WidgetVCLLikeOrKylix}
+      {$IFDEF WIDGETVCLLIKEORKYLIX}
     Glyph.LoadFromResourceName(HInstance, 'ARROWDOWN'); {do not localize}
     NumGlyphs := 2;
       {$ENDIF}
     {$ENDIF}
   end;
+
+  lbAvailable := TListBox.Create(Self);
   with lbAvailable do
   begin
     Name := 'lbAvailable';  {do not localize}
@@ -386,101 +364,104 @@ begin
     ItemHeight := 13;
     TabOrder := 0;
   end;
+
+  lbAssigned := TListBox.Create(Self);
   with lbAssigned do
   begin
     Name := 'lbAssigned'; {do not localize}
     Parent := Self;
-
     Left := 248;
     Top := 24;
     Width := 169;
     Height := 281;
-
     ItemHeight := 13;
     TabOrder := 1;
   end;
+
+  {$IFDEF USETBITBTN}
+  BtnCancel := TBitBtn.Create(Self);
+  {$ELSE}
+  BtnCancel := TButton.Create(Self);
+  {$ENDIF}
+
   with BtnCancel do
   begin
     Name := 'BtnCancel';  {do not localize}
-
     Left := 368;
     Top := 312;
     Width := 75;
-    {$IFDEF WidgetLCL}
+    {$IFDEF WIDGETLCL}
     Height := 30;
     Kind := bkCancel;
     {$ELSE}
     Height := 25;
-
     Cancel := True;
     Caption := RSCancel;
     ModalResult := 2;
     {$ENDIF}
     Parent := Self;
-
   end;
+
+  {$IFDEF USETBITBTN}
+  BtnOk := TBitBtn.Create(Self);
+  {$ELSE}
+  BtnOk := TButton.Create(Self);
+  {$ENDIF}
+
   with BtnOk do
   begin
     Name := 'BtnOk';  {do not localize}
     Parent := Self;
-
     Left := 287;
     Top := 312;
     Width := 75;
-    {$IFDEF WidgetLCL}
+    {$IFDEF WIDGETLCL}
     Height := 30;
     Kind := bkOk;
     {$ELSE}
     Height := 25;
-
     Caption := RSOk;
     Default := True;
     ModalResult := 1;
     {$ENDIF}
     TabOrder := 2;
-
     TabOrder := 3;
   end;
-
 end;
-
 
 procedure TfrmSASLListEditorVCL.actAddExecute(Sender: TObject);
 var
   sel: integer;
-  LCI : TIdSASLListEntry;
 begin
   sel := lbAvailable.ItemIndex;
-  if sel >=0 then begin
-    LCI := SASLList.Add;
-    LCI.SASL := TIdSASL(lbAvailable.Items.Objects[sel]);
+  if sel >= 0 then begin
+    SASLList.Add.SASL := TIdSASL(lbAvailable.Items.Objects[sel]);
     UpdateList;
   end;
 end;
 
 procedure TfrmSASLListEditorVCL.actAddUpdate(Sender: TObject);
-var LEnabled : Boolean;
-//we do this in a round about way because we should update the glyph
-//with an enabled/disabled form so a user can see what is applicable
+var
+  LEnabled : Boolean;
 begin
+  //we do this in a round about way because we should update the glyph
+  //with an enabled/disabled form so a user can see what is applicable
+
    LEnabled := (lbAvailable.Items.Count <> 0) and
     (lbAvailable.ItemIndex <> -1);
-  {$IFDEF WidgetLCL}
+
+  {$IFDEF WIDGETLCL}
   if LEnabled <> actAdd.Enabled then
   begin
-    if LEnabled then
-    begin
+    if LEnabled then begin
        sbAdd.Glyph.LoadFromLazarusResource('ARROWRIGHT');  {do not localize}
-    end
-    else
-    begin
+    end else begin
        sbAdd.Glyph.LoadFromLazarusResource('DIS_ARROWRIGHT');  {do not localize}
     end;
   end;
   {$ENDIF}
 
   actAdd.Enabled := LEnabled;
-
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveDownExecute(Sender: TObject);
@@ -488,7 +469,7 @@ var
   sel: integer;
 begin
   sel := lbAssigned.ItemIndex;
-  if (sel>=0) and (sel<lbAssigned.Items.Count-1) then begin
+  if (sel >= 0) and (sel < lbAssigned.Items.Count-1) then begin
     SASLList.Items[sel].Index := sel+1;
     Updatelist;
     lbAssigned.ItemIndex := sel+1;
@@ -496,24 +477,24 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveDownUpdate(Sender: TObject);
-var LEnabled : Boolean;
+var
+  LEnabled : Boolean;
 begin
   LEnabled := (lbAssigned.Items.Count > 1) and
     (lbAssigned.ItemIndex <> -1) and
       (lbAssigned.ItemIndex < (lbAssigned.Items.Count - 1));
-  {$IFDEF WidgetLCL}
+
+  {$IFDEF WIDGETLCL}
   if LEnabled <> actMoveDown.Enabled then
   begin
-    if LEnabled then
-    begin
+    if LEnabled then begin
        sbDown.Glyph.LoadFromLazarusResource('ARROWDOWN');  {do not localize}
-    end
-    else
-    begin
+    end else begin
        sbDown.Glyph.LoadFromLazarusResource('DIS_ARROWDOWN');  {do not localize}
     end;
   end;
   {$ENDIF}
+
   actMoveDown.Enabled := LEnabled;
 end;
 
@@ -523,7 +504,7 @@ var
 begin
   sel := lbAssigned.ItemIndex;
   // >0 is intentional, can't move the top element up!!
-  if sel>0 then begin
+  if sel > 0 then begin
      SASLList.Items[Sel].Index := sel-1;
      UpdateList;
      lbAssigned.ItemIndex := sel -1;
@@ -531,25 +512,26 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actMoveUpUpdate(Sender: TObject);
-var LEnabled : Boolean;
-//we do this in a round about way because we should update the glyph
-//with an enabled/disabled form so a user can see what is applicable
+var
+  LEnabled : Boolean;
 begin
-   LEnabled := (lbAssigned.Items.Count > 1) and
+  //we do this in a round about way because we should update the glyph
+  //with an enabled/disabled form so a user can see what is applicable
+
+  LEnabled := (lbAssigned.Items.Count > 1) and
     (lbAssigned.ItemIndex > 0); // -1 not selected and 0 = top
-  {$IFDEF WidgetLCL}
+
+  {$IFDEF WIDGETLCL}
   if LEnabled <> actMoveUp.Enabled then
   begin
-    if LEnabled then
-    begin
+    if LEnabled then begin
        sbUp.Glyph.LoadFromLazarusResource('ARROWUP');  {do not localize}
-    end
-    else
-    begin
+    end else begin
        sbUp.Glyph.LoadFromLazarusResource('DIS_ARROWUP');  {do not localize}
     end;
   end;
   {$ENDIF}
+
   actMoveUp.Enabled := LEnabled;
 end;
 
@@ -558,8 +540,7 @@ var
   sel: integer;
 begin
   sel := lbAssigned.ItemIndex;
-  if sel >= 0 then
-  begin
+  if sel >= 0 then begin
     SASLList.Delete(sel);
   end;
   UpdateList;
@@ -571,23 +552,23 @@ begin
 end;
 
 procedure TfrmSASLListEditorVCL.actRemoveUpdate(Sender: TObject);
-var LEnabled : Boolean;
+var
+  LEnabled : Boolean;
 begin
   LEnabled := (lbAssigned.Items.Count <> 0) and
     (lbAssigned.ItemIndex <> -1);
-  {$IFDEF WidgetLCL}
+
+  {$IFDEF WIDGETLCL}
   if LEnabled <> actRemove.Enabled then
   begin
-    if LEnabled then
-    begin
+    if LEnabled then begin
        sbRemove.Glyph.LoadFromLazarusResource('ARROWLEFT');  {do not localize}
-    end
-    else
-    begin
+    end else begin
        sbRemove.Glyph.LoadFromLazarusResource('DIS_ARROWLEFT');  {do not localize}
     end;
   end;
   {$ENDIF}
+
   actRemove.Enabled := LEnabled;
 end;
 
@@ -596,8 +577,10 @@ begin
   Result := ShowModal = mrOk;
 end;
 
-{$IFDEF WidgetLCL}
+{$IFDEF WIDGETLCL}
 initialization
   {$I IdDsnSASLListEditorFormVCL.lrs}
 {$ENDIF}
+
 end.
+
