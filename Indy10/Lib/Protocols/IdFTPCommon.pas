@@ -130,7 +130,7 @@
   Rev 1.11    10/26/2003 9:18:10 PM  BGooijen
   Compiles in DotNet, and partially works there
 
-  Rev 1.10    10/19/2003 1:11:06 PM  DSiders
+    Rev 1.10    10/19/2003 1:11:06 PM  DSiders
   Added localization comments.
 
   Rev 1.9    10/7/2003 05:46:34 AM  JPMugaas
@@ -169,12 +169,14 @@
 unit IdFTPCommon;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdGlobal,
-  IdGlobalProtocols;
+  IdGlobalProtocols,
+  SysUtils;
 
 type
   TIdFTPTransferType = (ftASCII, ftBinary);
@@ -277,7 +279,7 @@ const
   PARENT_DIR = '..';
 
   VMS_RELPATH_PREFIX = '[.';
-
+  
   MS_DOS_CURDIR = CUR_DIR + PATH_FILENAME_SEP_DOS;
   UNIX_CURDIR = CUR_DIR +  PATH_FILENAME_SEP_UNIX;
 
@@ -413,7 +415,7 @@ function IndyGetFilePath(const AFileName : String):String;
 function IndyGetFileName(const AFileName : String):String;
 function IndyIsRelativePath(const APathName : String): Boolean;
 function IndyGetFileExt(const AFileName : String) : String;
-function StripInitPathDelin(const AStr : String): String;
+function StripInitPathDelim(const AStr : String): String;
 function IsNavPath(const APath : String): Boolean;
 function RemoveDuplicatePathSyms(APath : String): String;
 
@@ -421,16 +423,16 @@ function RemoveDuplicatePathSyms(APath : String): String;
 EPLF time stamp processing
 ***}
 function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
-function EPLFDateToGMTDateTime(const AData: String): TDateTIme;
-function GMTDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
-function LocalDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
+function EPLFDateToGMTDateTime(const AData: String): TDateTime;
+function GMTDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
 
 {***
 Misc parsing
 ***}
 function PatternsInStr(const ASearchPattern, AString : String): Integer;
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
-function StripPath(const AFileName : String; const PathDelin : String = '/'): String;
+function StripPath(const AFileName : String; const PathDelim : String = '/'): String;
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
 function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
 function StrPart(var AInput: string; const AMaxLength : Integer; const ADelete: Boolean = IdFetchDeleteDefault) : String;
@@ -440,7 +442,6 @@ function FetchLength(var AInput: string;
  const ADelete: Boolean = IdFetchDeleteDefault;
  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): String;
 function IsLineStr(const AData : String): Boolean;
-function PadSpaces(const AString : String; const ALen : Integer):String;
 
 {FTP Pattern recognition}
 function IsTotalLine(const AData: String): Boolean;
@@ -464,28 +465,28 @@ Date parsing and processing
 **}
 function IsValidTimeStamp(const AString : String) : Boolean;
 function IsMDTMDate(const ADate : String) : Boolean;
-function IsDDMonthYY(const AData : String; const ADelin : String) : Boolean;
-function IsMMDDYY(const AData : String; const ADelin : String) : Boolean;
+function IsDDMonthYY(const AData : String; const ADelim : String) : Boolean;
+function IsMMDDYY(const AData : String; const ADelim : String) : Boolean;
 function IsYYYYMMDD(const AData : String) : Boolean;
 function Y2Year(const AYear : Integer): Integer;
-function DateYYMMDD(const AData: String): TDateTIme;
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTIme;
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTIme;
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTIme;
-function DateMMDDYY(const AData: String): TDateTIme;
-function TimeHHMMSS(const AData : String):TDateTIme;
-function IsIn6MonthWindow(const AMDate : TDateTIme):Boolean;
+function DateYYMMDD(const AData: String): TDateTime;
+function DateYYStrMonthDD(const AData: String; const ADelim : String='-'): TDateTime;
+function DateStrMonthDDYY(const AData:String; const ADelim : String = '-'; const AAddMissingYear : Boolean=False): TDateTime;
+function DateDDStrMonthYY(const AData: String; const ADelim : String='-'): TDateTime;
+function DateMMDDYY(const AData: String): TDateTime;
+function TimeHHMMSS(const AData : String):TDateTime;
+function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
-function IsHHMMSS(const AData : String; const ADelin : String) : Boolean;
+function IsHHMMSS(const AData : String; const ADelim : String) : Boolean;
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
-function MVSDate(const AData: String): TDateTIme;
-function AS400Date(const AData: String): TDateTIme;
+function MVSDate(const AData: String): TDateTime;
+function AS400Date(const AData: String): TDateTime;
 
 //MDTM Set filedate support and SITE ZONE support
 function MinutesFromGMT : Integer;
-function MDTMOffset(const AOffs : String) : TDateTIme;
-function FTPDateTimeToMDTMD(const ATimeStamp : TDateTIme; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTIme;
+function MDTMOffset(const AOffs : String) : TDateTime;
+function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True ): String;
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;
 
 
 {***
@@ -529,7 +530,7 @@ function TIdVSEPQDispositionDispositionCode(const ADisp : TIdVSEPQDisposition) :
 
 {EPLF and MLST/MLSD support}
 function ParseFacts(AData : String; AResults : TStrings;
-  const AFactDelin : String = ';'; const ANameDelin : String=' '): String;
+  const AFactDelim : String = ';'; const ANameDelim : String=' '): String;
 
 {Sterling Commerce support routines}
 
@@ -577,47 +578,45 @@ const
   IdS_IXOTH = IdS_IXGRP shr 3;  { Execute by others.  }
   { Read, write, and execute by others.  }
   IdS_IRWXO = IdS_IRWXG shr 3;
-
+  
 implementation
-uses SysUtils;
+
 {Misc Parsing}
 
 function StripSpaces(const AString : String; const ASpaces : Cardinal): String;
-var i : Integer;
+var
+  i : Integer;
+  L: Cardinal;
 begin
-  Result := AString;
-  for i := 1 to ASpaces do
-  begin
-    if (Result <> '') and (Result[1]=' ') then
-    begin
-      Delete(Result,1,1);
-    end
-    else
-    begin
+  L := Min(ASpaces, Length(AString));
+  for i := 1 to L do begin
+    if Result[i] <> ' ' then begin
       Break;
     end;
   end;
+  if i > 1 then begin
+    Result := Copy(AString, i, MaxInt);
+  end else begin
+    Result := AString;
+  end;
 end;
 
-function StripPath(const AFileName : String; const PathDelin : String = '/'): String;
-var LBuf : String;
+function StripPath(const AFileName : String; const PathDelim : String = '/'): String;
+var
+  LBuf : String;
 begin
   LBuf := AFileName;
   repeat
-    Result := Fetch(LBuf,PathDelin);
-    if (LBuf = '') then
-    begin
-      break;
-    end;
-  until False;
+    Result := Fetch(LBuf, PathDelim);
+  until LBuf = '';
 end;
 
 function CharsInStr(const ASearchChar : Char; const AString : String) : Integer;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := 0;
-  for i := 1 to Length(AString) do
-  begin
+  for i := 1 to Length(AString) do begin
     if AString[i] = ASearchChar then
     begin
       Inc(Result);
@@ -626,59 +625,52 @@ begin
 end;
 
 function PatternsInStr(const ASearchPattern, AString : String): Integer;
-var LBuf : String;
+var
+  LBuf : String;
 begin
   Result := 0;
   LBuf := AString;
   repeat
-    Fetch(LBuf,ASearchPattern);
-    if LBuf = '' then
-    begin
+    Fetch(LBuf, ASearchPattern);
+    if LBuf = '' then begin
       Break;
-    end
-    else
-    begin
+    end else begin
       Inc(Result);
     end;
   until False;
 end;
 
 function UnfoldLines(const AData : String; ALine : Integer; AStrings : TStrings): String;
-var  LFoldedLine : String;
+var
+  LFoldedLine : String;
 begin
-
   Result := AData;
-  while True do begin
+  repeat
     Inc(ALine);
     if ALine = AStrings.Count then begin
       Break;
     end;
     LFoldedLine := AStrings[ALine];
-    if LFoldedLine = '' then
-    begin
+    if LFoldedLine = '' then begin
       Exit;
     end;
-    if not (CharIsInSet(LFoldedLine, 1, LWS)) then begin
+    if not CharIsInSet(LFoldedLine, 1, LWS) then begin
        Break;
     end;
     Result := Trim(Result) + ' ' + Trim(LFoldedLine); {Do not Localize}
-  end;
+  until False;
 end;
 
 function StrPart(var AInput: string; const AMaxLength : Integer; const ADelete: Boolean = IdFetchDeleteDefault) : String;
 begin
   Result := Copy(AInput, 1, AMaxLength);
-  if ADelete then
-  begin
+  if ADelete then begin
     Delete(AInput, 1, AMaxLength);
   end;
 end;
 
-function FetchLength(var AInput: string;
-  const AMaxLength : Integer;
-  const ADelim: string = IdFetchDelimDefault;
-  const ADelete: Boolean = IdFetchDeleteDefault;
-  const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): String;
+function FetchLength(var AInput: string; const AMaxLength : Integer; const ADelim: string = IdFetchDelimDefault;
+ const ADelete: Boolean = IdFetchDeleteDefault; const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): String;
 var
   i : Integer;
 begin
@@ -688,16 +680,12 @@ begin
   end else begin
     i := IndyPos(ADelim, AInput);
   end;
-  if (i > AMaxLength) or (i = 0) then
-  begin
+  if (i > AMaxLength) or (i = 0) then begin
     Result := Copy(AInput, 1, AMaxLength);
-    if ADelete then
-    begin
+    if ADelete then begin
       Delete(AInput, 1, AMaxLength);
     end;
-  end
-  else
-  begin
+  end else begin
     Result := Fetch(AInput, ADelim, ADelete, ACaseSensitive);
   end;
 end;
@@ -716,83 +704,63 @@ var
 Begin
   LLen := Length(AData);
   if LLen > 0 then begin
-    Result:=TRUE; //only white
-    for i:=1 to LLen do begin
-      if NOT (CharIsInSet(AData, i, LineSet)) then begin
-        Result:=FALSE;
-        EXIT;
+    Result := True; //only white
+    for i := 1 to LLen do begin
+      if not CharIsInSet(AData, i, LineSet) then begin
+        Result := False;
+        Exit;
       end;
     end;
   end
   else begin
-    Result:=TRUE; //empty
-  end;
-End;//IsLineString
-
-function PadSpaces(const AString : String; const ALen : Integer):String;
-var i : Integer;
-begin
-  Result := AString;
-  for i := 1 to ALen - Length(AString) do
-  begin
-    Result := Result + ' ';
+    Result := True; //empty
   end;
 end;
 
 {Number extraction}
 function FindDelimInNumbers(const AData : String) : String;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := '';
-  for i := 1 to Length(AData) do
-  begin
-    if (IsNumeric(AData[i])=False) then
-    begin
+  for i := 1 to Length(AData) do begin
+    if not IsNumeric(AData[i]) then begin
       Result := AData[i];
-      Break;
+      Exit;
     end;
   end;
 end;
 
 function ExtractNumber(const AData : String; const ARetZero : Boolean = True): Integer;
-var i : Integer;
-    LBuf : String;
+var
+  i : Integer;
+  LBuf : String;
 begin
   LBuf := '';
-  for i := 1 to Length(AData) do
-  begin
-    if IsNumeric(AData[i]) then
-    begin
+  for i := 1 to Length(AData) do begin
+    if IsNumeric(AData[i]) then begin
       LBuf := LBuf + AData[i];
     end
-    else
-    begin
-      if AData[i]<>',' then
-      begin
-        Break;
-      end;
+    else if AData[i] <> ',' then begin
+      Break;
     end;
   end;
-  if ARetZero then
-  begin
-    Result := IndyStrToInt(LBuf,0);
-  end
-  else
-  begin
-    Result := IndyStrToInt(LBuf,-1);
+  if ARetZero then begin
+    Result := IndyStrToInt(LBuf, 0);
+  end else begin
+    Result := IndyStrToInt(LBuf, -1);
   end;
 end;
 
 function StripNo(const AData : String): String;
-var i : Integer;
-    LPos : Integer;
+var
+  i : Integer;
+  LPos : Integer;
 begin
   LPos := 1;
-  for i := 1 to Length(AData) do
-  begin
+  for i := 1 to Length(AData) do begin
     LPos := i;
-    if (not IsNumeric(AData[i])) and (AData[i] <> ',') then
-    begin
+    if (not IsNumeric(AData[i])) and (AData[i] <> ',') then begin
       Break;
     end;
   end;
@@ -810,14 +778,12 @@ use both separators because we need to handle both for crossplatform
 client/server work.
 
 }
-function LastPathDelin(const APath : String):Integer;
-var i : Integer;
+function LastPathDelim(const APath : String):Integer;
+var
+  i : Integer;
 begin
-  for i := Length(APath) downto 1 do
-  begin
-    if (APath[i] = PATH_FILENAME_SEP_DOS) or
-      (APath[i] = PATH_FILENAME_SEP_UNIX) then
-    begin
+  for i := Length(APath) downto 1 do begin
+    if CharIsInSet(APath, i, PATH_FILENAME_SEP_DOS + PATH_FILENAME_SEP_UNIX) then begin
       Result := i;
       Exit;
     end;
@@ -826,39 +792,36 @@ begin
 end;
 
 function IndyGetFilePath(const AFileName : String):String;
-var i : Integer;
+var
+  i : Integer;
 begin
-  i := LastPathDelin(AFileName);
-  if i > 0 then
-  begin
+  i := LastPathDelim(AFileName);
+  if i > 0 then begin
     Result := Copy(AFileName, 1, i-1);
-  end
-  else
-  begin
+  end else begin
     Result := '';
   end;
 end;
 
 function IndyGetFileName(const AFileName : String):String;
-var i : Integer;
+var
+  i : Integer;
 begin
-  i := LastPathDelin(AFileName);
-  if i = 0 then
-  begin
+  i := LastPathDelim(AFileName);
+  if i = 0 then begin
     Result := AFileName;
-  end
-  else
-  begin
-    Result := Copy(AFileName, i+1, MaxInt);
+  end else begin
+    Result := Copy(AFileName, i+1, Length(AFileName));
   end;
 end;
 
 function IndyIsRelativePath(const APathName : String): Boolean;
 begin
-  Result := False;
-  if APathName<>'' then
+  if APathName <> '' then
   begin
-    Result := (APathName[1]=PATH_SUBDIR_SEP_UNIX) or (APathName[1]=PATH_SUBDIR_SEP_DOS);
+    Result := CharIsInSet(APathName, 1, PATH_SUBDIR_SEP_UNIX + PATH_SUBDIR_SEP_DOS);
+  end else begin
+    Result := False;
   end;
 end;
 
@@ -877,35 +840,33 @@ gun, the bullet, and your foot :-).
 }
 var
   LBuf : String;
-  I: Integer;
+  LPos : Integer;
 begin
   Result := '';
   LBuf := IndyGetFileName(AFileName);
-  I := IndyPos('.', LBuf);
-  if I > 0 then begin
-    Result := Copy(LBuf, I, $FFFF);
+  LPos := IndyPos('.', LBuf);
+  if LPos > 0 then begin
+    Result := Copy(LBuf, LPos, MaxInt);
   end;
 end;
 
-function StripInitPathDelin(const AStr : String): String;
+function StripInitPathDelim(const AStr : String): String;
 begin
   Result := AStr;
-  //strip off any beggining / or \
-  if TextStartsWith(Result, PATH_FILENAME_SEP_UNIX) then
-  begin
-    IdDelete(Result, 1, Length(PATH_FILENAME_SEP_UNIX));
-  end;
-  if TextStartsWith(Result, PATH_FILENAME_SEP_DOS) then
-  begin
-    IdDelete(Result, 1, Length(PATH_FILENAME_SEP_DOS));
+  if Result <> '' then begin
+    //strip off any beggining / or \
+    if CharIsInSet(Result, 1, PATH_FILENAME_SEP_UNIX + PATH_FILENAME_SEP_DOS) then begin
+      IdDelete(Result, 1, 1);
+    end;
   end;
 end;
 
 function IsNavPath(const APath : String): Boolean;
-var LTmp : String;
+var
+  LTmp : String;
 begin
-  LTmp := IndyGetFileName(StripInitPathDelin(APath));
-  Result := (LTmp = CUR_DIR) or (LTmp=PARENT_DIR);
+  LTmp := IndyGetFileName(StripInitPathDelim(APath));
+  Result := (LTmp = CUR_DIR) or (LTmp = PARENT_DIR);
 end;
 
 const
@@ -916,33 +877,28 @@ const
 
 function RemoveDuplicatePathSyms(APath : String): String;
 begin
-  Result := APath;
-  Result := StringsReplace(APath,TrailingPathCorrectionOrg,TrailingPathCorrectionNew);
+  Result := StringsReplace(APath, TrailingPathCorrectionOrg, TrailingPathCorrectionNew);
 end;
 
 {Path conversion}
 
 function UnixPathToDOSPath(const APath : String):String;
 begin
-  Result := StringReplace(APath,PATH_SUBDIR_SEP_UNIX,PATH_SUBDIR_SEP_DOS,[rfReplaceAll]);
+  Result := StringReplace(APath, PATH_SUBDIR_SEP_UNIX, PATH_SUBDIR_SEP_DOS, [rfReplaceAll]);
 end;
 
 function DOSPathToUnixPath(const APath : String):String;
 begin
-  Result := StringReplace(APath,PATH_SUBDIR_SEP_DOS,PATH_SUBDIR_SEP_UNIX,[rfReplaceAll]);
+  Result := StringReplace(APath, PATH_SUBDIR_SEP_DOS, PATH_SUBDIR_SEP_UNIX, [rfReplaceAll]);
 end;
 
 {Pattern recognition}
 
 function IsSubDirContentsBanner(const AData: String): Boolean;
 begin
-  Result := TextEndsWith(AData, ':');
-  if Result then
-  begin
-    //A line ending in : might be a standard Unix list item where the filename
-    //ends with a ":".  Unix-xbox-MediaCenter.txt is an example.
-    Result := not IsValidUnixPerms(AData);
-  end;
+  //A line ending in : might be a standard Unix list item where the filename
+  //ends with a ":".  Unix-xbox-MediaCenter.txt is an example.
+  Result := TextEndsWith(AData, ':') and (not IsValidUnixPerms(AData));
 end;
 
 function IsTotalLine(const AData: String): Boolean;
@@ -953,20 +909,21 @@ end;
 
 {Quoted strings}
 
+
 function UnquotedStr(const AStr : String): String;
 begin
   Result := AStr;
-  if TextStartsWith(Result, '"') then
-  begin
-    Delete(Result,1,1);
-    Result := Fetch(Result,'"');
+  if TextStartsWith(Result, '"') then begin
+    IdDelete(Result, 1, 1);
+    Result := Fetch(Result, '"');
   end;
 end;
 
 procedure ParseQuotedArgs(const AParams : String; AStrings : TStrings);
-var lComma, LOpenQuote : Integer;
-    LBuf : String;
-    LArg : String;
+var
+  lComma, LOpenQuote : Integer;
+  LBuf : String;
+  LArg : String;
  //filename.ext
 //"../SomeDir/A ,File.txt", filename.ext
 //filename.ext, ".."
@@ -974,27 +931,21 @@ begin
   AStrings.Clear;
   LBuf  := AParams;
   repeat
-    if LBuf = '' then
-    begin
+    if LBuf = '' then begin
       Break;
     end;
     lComma := IndyPos(',', LBuf);
     LOpenQuote := IndyPos('"', LBuf);
-    if LComma = 0 then
-    begin
+    if LComma = 0 then begin
       LComma := Length(LBuf);
     end;
-    if (LOpenQuote = 0) or (LComma < LOpenQuote) then
-    begin
+    if (LOpenQuote = 0) or (LComma < LOpenQuote) then begin
       LArg := TrimLeft(Fetch(LBuf,','));
-    end
-    else
-    begin
+    end else begin
       Fetch(LBuf,'"');
-      LArg := '"'+Fetch(LBuf,'"')+'"';
+      LArg := '"' + Fetch(LBuf,'"') + '"';
     end;
-    if LArg<>'' then
-    begin
+    if LArg <> '' then begin
       AStrings.Add(LArg);
     end;
   until False;
@@ -1002,40 +953,36 @@ end;
 
 {EPLF Date processing}
 
-function EPLFDateToLocalDateTime(const AData: String): TDateTIme;
-{note - code stolen from TIdTime and mofied for our
-needs.}
-var LSecs : Int64;
-//const BASE_DATE = 2;
-const BASE_DATE = 25569; //Jan 1, 1970
+function EPLFDateToLocalDateTime(const AData: String): TDateTime;
+{note - code stolen from TIdTime and modified for our needs.}
+const
+  BASE_DATE = 25569; //Jan 1, 1970
+var
+  LSecs : Int64;
 begin
   LSecs := IndyStrToInt(AData);
-  Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE))
-    -IdGlobalProtocols.TimeZoneBias;
+  Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(BASE_DATE)) - IdGlobalProtocols.TimeZoneBias;
 end;
 
-function EPLFDateToGMTDateTime(const AData: String): TDateTIme;
-{note - code stolen from TIdTime and mofied for our
-needs.}
-var LSecs : Int64;
-//const BASE_DATE = 2;
-
+function EPLFDateToGMTDateTime(const AData: String): TDateTime;
+{note - code stolen from TIdTime and modified for our needs.}
+var
+  LSecs : Int64;
 begin
   LSecs := IndyStrToInt(AData);
   Result := Extended( ((LSecs)/ (24 * 60 * 60) ) + Int(EPLF_BASE_DATE));
 end;
 
-function GMTDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
-//const BASE_DATE = 2;
-const BASE_DATE = 25569;
-
+function GMTDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
+const
+  BASE_DATE = 25569;
 begin
-  Result := FloatToStr( extended(ADateTime - Int(BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr( Extended(ADateTime - Int(BASE_DATE)) * 24 * 60 * 60);
 end;
 
-function LocalDateTimeToEPLFDate(const ADateTime : TDateTIme) : String;
+function LocalDateTimeToEPLFDate(const ADateTime : TDateTime) : String;
 begin
-  Result := FloatToStr(extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
+  Result := FloatToStr( Extended(ADateTime + IdGlobalProtocols.TimeZoneBias - Int(EPLF_BASE_DATE)) * 24 * 60 * 60);
 end;
 
 {Date routines}
@@ -1043,34 +990,28 @@ function IsValidTimeStamp(const AString : String) : Boolean;
 var
   LMonth, LDay, LHour, LMin, LSec : Integer;
 begin
-  Result:=False;
+  Result := False;
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
- // LYear :=  IndyStrToInt( Copy( LBuffer,1,4),0);
-  LMonth := IndyStrToInt(Copy(AString,5,2),0);
-  if (LMonth < 1) or (LMonth > 12) then
-  begin
+  LMonth := IndyStrToInt(Copy(AString, 5, 2), 0);
+  if (LMonth < 1) or (LMonth > 12) then begin
     Exit;
   end;
-  LDay := IndyStrToInt(Copy(AString,7,2),0);
-  if (LDay < 1) or (LDay > 31) then
-  begin
+  LDay := IndyStrToInt(Copy(AString, 7, 2), 0);
+  if (LDay < 1) or (LDay > 31) then begin
     Exit;
   end;
-  LHour := IndyStrToInt(Copy(AString,9,2),0);
-  if (LHour < 0) or (LHour > 24) then
-  begin
+  LHour := IndyStrToInt(Copy(AString, 9, 2), 0);
+  if (LHour < 0) or (LHour > 24) then begin
     Exit;
   end;
-  LMin := IndyStrToInt(Copy(AString,11,2),0);
-  if (LMin < 0) or (LMin > 59) then
-  begin
+  LMin := IndyStrToInt(Copy(AString, 11, 2), 0);
+  if (LMin < 0) or (LMin > 59) then begin
     Exit;
   end;
-  LSec := IndyStrToInt(Copy(AString,13,2),0);
-  if (LSec < 0) or (LSec > 59) then
-  begin
+  LSec := IndyStrToInt(Copy(AString, 13, 2), 0);
+  if (LSec < 0) or (LSec > 59) then begin
     Exit;
   end;
   Result := True;
@@ -1101,8 +1042,7 @@ begin
   begin
     LMSecPart := LBuffer;
     LBuffer := Fetch(LMSecPart, '-');
-    if not IsNumeric(LMSecPart) then
-    begin
+    if not IsNumeric(LMSecPart) then begin
       Exit;
     end;
   end;
@@ -1110,31 +1050,26 @@ begin
   begin
     LMSecPart := LBuffer;
     LBuffer := Fetch(LMSecPart, '+');
-    if not IsNumeric(LMSecPart) then
-    begin
+    if not IsNumeric(LMSecPart) then begin
       Exit;
     end;
   end;
-  if IndyPos('.', LBuffer) > 0 then
-  begin
+  if IndyPos('.', LBuffer) > 0 then begin
     LMSecPart := Fetch(LBuffer, '.');
   end;
-  if Length(LBuffer)<>14 then
-  begin
+  if Length(LBuffer) <> 14 then begin
     Exit;
   end;
-  if IsNumeric(LBuffer)=False then
-  begin
+  if not IsNumeric(LBuffer) then begin
     Exit;
   end;
-  if (LMSecPart<>'') and (IsNumeric(LMSecPart)=False) then
-  begin
+  if (LMSecPart <> '') and (not IsNumeric(LMSecPart)) then begin
     Exit;
   end;
   Result := IsValidTimeStamp(LBuffer);
 end;
 
-function MDTMOffset(const AOffs : String) : TDateTIme;
+function MDTMOffset(const AOffs : String) : TDateTime;
 var
   LOffs : Integer;
 begin
@@ -1147,65 +1082,56 @@ begin
 end;
 
 function MinutesFromGMT : Integer;
-var LD : TDateTIme;
-    LHour, LMin, LSec, LMSec : Word;
+var
+  LD : TDateTime;
+  LHour, LMin, LSec, LMSec : Word;
 begin
   LD := OffsetFromUTC;
-  if LD < 0.0 then
-  begin
-    DecodeTime(LD,LHour, LMin, LSec,LMSec);
+  DecodeTime(LD, LHour, LMin, LSec, LMSec);
+  if LD < 0.0 then begin
     Result := 0 - (LHour * 60 + LMin);
-  end
-  else
-  begin
-    DecodeTime(LD,LHour, LMin, LSec,LMSec);
+  end else begin
     Result := LHour * 60 + LMin;
   end;
 end;
 
-function FTPDateTimeToMDTMD(const ATimeStamp : TDateTIme; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
-var LYear, LMonth, LDay,
-    LHour, LMin, LSec, LMSec : Word;
-    LOfs : Integer;
+function FTPDateTimeToMDTMD(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True; const AIncludeGMTOffset : Boolean=True): String;
+var
+  LYear, LMonth, LDay,
+  LHour, LMin, LSec, LMSec : Word;
+  LOfs : Integer;
 begin
-  DecodeDate(ATimeStamp,LYear,LMonth,LDay);
-  DecodeTime(ATimeStamp,LHour,LMin,LSec,LMSec);
-  Result := IndyFormat('%4d%2d%2d%2d%2d%2d',[LYear,LMonth,LDay,LHour,LMin,LSec]); {Do not translate}
-  if AIncludeMSecs then
-  begin
-    Result := Result + IndyFormat('.%3d',[LMSec]);  {Do not translate}
+  DecodeDate(ATimeStamp, LYear, LMonth, LDay);
+  DecodeTime(ATimeStamp, LHour, LMin, LSec, LMSec);
+  Result := IndyFormat('%4d%2d%2d%2d%2d%2d', [LYear,LMonth,LDay,LHour,LMin,LSec]); {Do not translate}
+  if AIncludeMSecs then begin
+    Result := Result + IndyFormat('.%3d', [LMSec]);  {Do not translate}
   end;
-  if AIncludeGMTOffset then
-  begin
+  if AIncludeGMTOffset then begin
     LOfs := MinutesFromGMT;
-    if LOfs < 0 then
-    begin
+    if LOfs < 0 then begin
       Result := Result + IntToStr(LOfs);
-    end
-    else
-    begin
+    end else begin
       Result := Result + '+' + IntToStr(LOfs);
     end;
   end;
-  Result := StringReplace(Result,' ','0',[rfReplaceAll]);
+  Result := StringReplace(Result, ' ', '0', [rfReplaceAll]);
 end;
 
-function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTIme;
-var LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
-    LBuffer : String;
-    LOffset : String;
-
+function FTPMDTMToGMTDateTime(const ATimeStamp : String):TDateTime;
+var
+  LYear, LMonth, LDay, LHour, LMin, LSec, LMSec : Integer;
+  LBuffer : String;
+  LOffset : String;
 begin
   Result := 0;
   LBuffer := ATimeStamp;
-  if LBuffer <> '' then
-  begin
+  if LBuffer <> '' then begin
     //extract any offset
-      if IndyPos('-',LBuffer) > 0 then
-      begin
+      if IndyPos('-', LBuffer) > 0 then begin
         LOffset := LBuffer;
         LBuffer := Fetch(LOffset, '-');
-        LOffset := '-'+LOffset;
+        LOffset := '-' + LOffset;
       end;
       if IndyPos('+', LBuffer) > 0 then
       begin
@@ -1215,23 +1141,19 @@ begin
   //  1234 56 78  90 12 34
   //  ---------- ---------
   //  1998 11 07  08 52 15
-      LYear := IndyStrToInt(Copy(LBuffer,1,4),0);
-      LMonth := IndyStrToInt(Copy(LBuffer,5,2),0);
-      LDay := IndyStrToInt(Copy(LBuffer,7,2),0);
-
-      LHour := IndyStrToInt(Copy(LBuffer,9,2),0);
-      LMin := IndyStrToInt(Copy(LBuffer,11,2),0);
-      LSec := IndyStrToInt(Copy(LBuffer,13,2),0);
-      Fetch(LBuffer,'.');
-      LMSec := IndyStrToInt(LBuffer,0);
-      Result := EncodeDate(LYear,LMonth,LDay);
-      Result := Result + EncodeTime(LHour,LMin,LSec,LMSec);
-      if LOffset='' then
-      begin
+      LYear := IndyStrToInt(Copy(LBuffer, 1, 4), 0);
+      LMonth := IndyStrToInt(Copy(LBuffer, 5, 2), 0);
+      LDay := IndyStrToInt(Copy(LBuffer, 7, 2), 0);
+      LHour := IndyStrToInt(Copy(LBuffer, 9, 2), 0);
+      LMin := IndyStrToInt(Copy(LBuffer, 11, 2), 0);
+      LSec := IndyStrToInt(Copy(LBuffer, 13, 2), 0);
+      Fetch(LBuffer, '.');
+      LMSec := IndyStrToInt(LBuffer, 0);
+      Result := EncodeDate(LYear, LMonth, LDay);
+      Result := Result + EncodeTime(LHour, LMin, LSec, LMSec);
+      if LOffset = '' then begin
         Result := Result - OffsetFromUTC;
-      end
-      else
-      begin
+      end else begin
         Result := Result - MDTMOffset(LOffset);
       end;
   end;
@@ -1246,65 +1168,51 @@ function IsYYYYMMDD(const AData : String) : Boolean;
 //90-05-19
 //1234567890
 begin
-  Result := ((CharIsInSet(AData, 5, '/-')) and
-    (CharIsInSet(AData , 8, '/-')));
-
-  if Result then
-  begin
-    Result := IsNumeric(Copy(AData,1,4)) and IsNumeric(Copy(AData,6,2))
-      and IsNumeric(Copy(AData,9,2));
+  Result := CharIsInSet(AData, 5, '/-') and CharIsInSet(AData, 8, '/-');
+  if Result then begin
+    Result := IsNumeric(Copy(AData, 1, 4)) and IsNumeric(Copy(AData, 6, 2)) and IsNumeric(Copy(AData, 9, 2));
   end;
-  if not Result then
-  begin
-    Result := ((CharIsInSet(AData, 3, CDATE_PART_SEP )) and
-      (CharIsInSet(AData , 6, CDATE_PART_SEP)));
-    if Result then
-    begin
-      Result := IsNumeric(Copy(AData,1,2)) and IsNumeric(Copy(AData,4,2))
-        and IsNumeric(Copy(AData,7,2));
+  if not Result then begin
+    Result := CharIsInSet(AData, 3, CDATE_PART_SEP) and CharIsInSet(AData, 6, CDATE_PART_SEP);
+    if Result then begin
+      Result := IsNumeric(Copy(AData, 1, 2)) and IsNumeric(Copy(AData, 4, 2)) and IsNumeric(Copy(AData, 7, 2));
     end;
   end;
 end;
 
-function IsDDMonthYY(const AData : String; const ADelin : String) : Boolean;
-var LBuf, LPt : String;
+function IsDDMonthYY(const AData : String; const ADelim : String) : Boolean;
+var
+  LBuf, LPt : String;
 begin
   Result := False;
-  if PatternsInStr(ADelin,AData)=2 then
-  begin
+  if PatternsInStr(ADelim, AData) = 2 then begin
     LBuf := AData;
-    LPt := Fetch(LBuf,ADelin);
+    LPt := Fetch(LBuf,ADelim);
     //day
-    if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<32) then
-    begin
+    if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 32) then begin
       //month
-      LPt := Fetch(LBuf,ADelin);
-      if StrToMonth(LPt)>0 then
-      begin
-       //year
-         LPt := Fetch(LBuf,ADelin);
-        if IsNumeric(LPt) then
-        begin
-          Result := True;
-        end;
+      LPt := Fetch(LBuf, ADelim);
+      if StrToMonth(LPt) > 0 then begin
+        //year
+        LPt := Fetch(LBuf, ADelim);
+        Result := IsNumeric(LPt);
       end;
     end;
   end;
 end;
 
-function IsMMDDYY(const AData : String; const ADelin : String) : Boolean;
-var LBuf, LPt : String;
+function IsMMDDYY(const AData : String; const ADelim : String) : Boolean;
+var
+  LBuf, LPt : String;
 begin
   Result := False;
-  if PatternsInStr(ADelin,AData)=2 then
-  begin
+  if PatternsInStr(ADelim, AData) = 2 then begin
     LBuf := AData;
-    LPt := Fetch(LBuf,ADelin);
-    if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<13) then
+    LPt := Fetch(LBuf, ADelim);
+    if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 13) then
     begin
-      LPt := Fetch(LBuf,ADelin);
-      if (IndyStrToInt(LPt,0)>0) and (IndyStrToInt(LPt,0)<33) then
-      begin
+      LPt := Fetch(LBuf, ADelim);
+      if (IndyStrToInt(LPt, 0) > 0) and (IndyStrToInt(LPt, 0) < 33) then begin
         Result := IsNumeric(LBuf);
       end;
     end;
@@ -1318,9 +1226,10 @@ by some FTP servers are interpretted just like Borland's year
 handling routines.
 }
   function CurrentYear : Integer;
-  var LYear, LMonth, LDay : Word;
+  var
+    LYear, LMonth, LDay : Word;
   begin
-    DecodeDate(Now,LYear,LMonth,LDay);
+    DecodeDate(Now, LYear, LMonth, LDay);
     Result := LYear;
   end;
 
@@ -1329,316 +1238,278 @@ begin
   //Y2K Complience for current code
   //Note that some OS/2 servers return years greater than 100 for
   //years such as 2000 and 2003
-  if (Result < 1000) then
-  begin
+  if Result < 1000 then begin
     if TwoDigitYearCenturyWindow > 0 then
     begin
-      if Result > TwoDigitYearCenturyWindow then
-      begin
-        Result := Result + (((CurrentYear div 100)-1)*100);
-      end
-      else
-      begin
-        Result := Result + ((CurrentYear div 100)*100);
+      if Result > TwoDigitYearCenturyWindow then begin
+        Inc(Result, ((CurrentYear div 100)-1)*100);
+      end else begin
+        Inc(Result, (CurrentYear div 100)*100);
       end;
-    end
-    else
-    begin
-      Result := Result + ((CurrentYear div 100)*100);
+    end else begin
+      Inc(Result, (CurrentYear div 100)*100);
     end;
   end;
 end;
 
-function DateYYMMDD(const AData: String): TDateTIme;
-var LMonth, LDay, LYear : Integer;
+function DateYYMMDD(const AData: String): TDateTime;
+var
+  LMonth, LDay, LYear : Integer;
   LBuffer : String;
-  LDelin : String;
-
+  LDelim : String;
 begin
   LBuffer := AData;
-  LDelin := FindDelimInNumbers(AData);
-  LYear := IndyStrToInt(Fetch(LBuffer,LDelin),0);
-  LMonth := IndyStrToInt(Fetch(LBuffer,LDelin),0);
-  LDay := IndyStrToInt(Fetch(LBuffer,LDelin),0);
-
+  LDelim := FindDelimInNumbers(AData);
+  LYear := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
+  LMonth := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
+  LDay := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function DateYYStrMonthDD(const AData: String; const ADelin : String='-'): TDateTIme;
-var LMonth, LDay, LYear : Integer;
+function DateYYStrMonthDD(const AData: String; const ADelim : String = '-'): TDateTime;
+var
+  LMonth, LDay, LYear : Integer;
   LBuffer : String;
-
 begin
   LBuffer := AData;
-  LYear := IndyStrToInt(Fetch(LBuffer,ADelin),0);
-  LMonth := StrToMonth(Fetch(LBuffer,ADelin));
-  LDay := IndyStrToInt(Fetch(LBuffer,ADelin),0);
-
+  LYear := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
+  LMonth := StrToMonth(Trim(Fetch(LBuffer,ADelim)));
+  LDay := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function DateStrMonthDDYY(const AData:String; const ADelin : String = '-'; const AAddMissingYear : Boolean=False): TDateTIme;
-var LMonth, LDay, LYear : Integer;
+function DateStrMonthDDYY(const AData:String; const ADelim : String = '-'; const AAddMissingYear : Boolean = False): TDateTime;
+var
+  LMonth, LDay, LYear : Integer;
   LBuffer : String;
   LMnth : String;
 begin
   LBuffer := AData;
-  LMnth := Trim(Trim(Fetch(LBuffer,ADelin)));
-  LMonth := IndyStrToInt(LMnth,0);
-  if LMonth = 0 then
-  begin
+  LMnth := Trim(Fetch(LBuffer,ADelim));
+  LMonth := IndyStrToInt(LMnth, 0);
+  if LMonth = 0 then begin
     LMonth := StrToMonth(LMnth);
   end;
-  LDay := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
-  LYear := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
-  if AAddMissingYear and (LYear = 0) then
-  begin
-    LYear := AddMissingYear(LDay,LMonth);
+  LDay := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
+  LYear := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
+  if AAddMissingYear and (LYear = 0) then begin
+    LYear := AddMissingYear(LDay, LMonth);
   end;
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function DateDDStrMonthYY(const AData: String; const ADelin : String='-'): TDateTIme;
-var LMonth, LDay, LYear : Integer;
+function DateDDStrMonthYY(const AData: String; const ADelim : String='-'): TDateTime;
+var
+  LMonth, LDay, LYear : Integer;
   LBuffer : String;
-
 begin
   LBuffer := AData;
-  LDay := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
-  LMonth := StrToMonth(Trim(Fetch(LBuffer,ADelin)));
-  LYear := IndyStrToInt(Trim(Fetch(LBuffer,ADelin)),0);
-
+  LDay := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
+  LMonth := StrToMonth(Trim(Fetch(LBuffer,ADelim)));
+  LYear := IndyStrToInt(Fetch(LBuffer,ADelim), 0);
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function DateMMDDYY(const AData: String): TDateTIme;
-var LMonth, LDay, LYear : Integer;
+function DateMMDDYY(const AData: String): TDateTime;
+var
+  LMonth, LDay, LYear : Integer;
   LBuffer : String;
-  LDelin : String;
-
+  LDelim : String;
 begin
   LBuffer := AData;
-  LDelin := FindDelimInNumbers(AData);
-
-  LMonth := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
-  LDay := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
-  LYear := IndyStrToInt(Trim(Fetch(LBuffer,LDelin)),0);
+  LDelim := FindDelimInNumbers(AData);
+  LMonth := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
+  LDay := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
+  LYear := IndyStrToInt(Fetch(LBuffer,LDelim), 0);
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function TimeHHMMSS(const AData : String):TDateTIme;
-var LCHour, LCMin, LCSec, LCMSec : Word;
-    LHour, LMin, LSec, LMSec : Word;
-    LBuffer : String;
-    LDelin : String;
-    LPM : Boolean;
-    LAM : Boolean; //necessary because we have to remove 12 hours
-    //if the time was 12:01:00 AM
+function TimeHHMMSS(const AData : String):TDateTime;
+var
+  LCHour, LCMin, LCSec, LCMSec : Word;
+  LHour, LMin, LSec, LMSec : Word;
+  LBuffer : String;
+  LDelim : String;
+  LPM : Boolean;
+  LAM : Boolean; //necessary because we have to remove 12 hours if the time was 12:01:00 AM
 begin
   LPM := False;
   LAM := False;
   LBuffer := UpperCase(AData);
-  if IndyPos('PM', LBuffer) > 0 then {do not localize}
-  begin
+  if IndyPos('PM', LBuffer) > 0 then begin {do not localize}
     LPM := True;
     LBuffer := Fetch(LBuffer, 'PM'); {do not localize}
   end;
-  if IndyPos('AM', LBuffer) > 0 then {do not localize}
-  begin
+  if IndyPos('AM', LBuffer) > 0 then begin {do not localize}
     LAM := True;
     LBuffer := Fetch(LBuffer, 'AM'); {do not localize}
   end;
   //one server only gives an a or p instead of am or pm
-  if IndyPos('P', LBuffer) > 0 then {do not localize}
-  begin
+  if IndyPos('P', LBuffer) > 0 then begin {do not localize}
     LPM := True;
-    LBuffer := Fetch(LBuffer, 'P'); {do not localize}
+    LBuffer := Fetch(LBuffer,'P'); {do not localize}
   end;
-  if IndyPos('A', LBuffer) >0 then {do not localize}
-  begin
+  if IndyPos('A', LBuffer) > 0 then begin {do not localize}
     LAM := True;
     LBuffer := Fetch(LBuffer, 'A'); {do not localize}
   end;
   LBuffer := Trim(LBuffer);
-  DecodeTime(Now,LCHour,LCMin,LCSec,LCMSec);
-  LDelin := FindDelimInNumbers(AData);
-  LHour :=   IndyStrToInt( Fetch(LBuffer,LDelin),0);
-  LMin :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
-  if LPM then
-  begin
+  DecodeTime(Now, LCHour, LCMin, LCSec, LCMSec);
+  LDelim := FindDelimInNumbers(AData);
+  LHour := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  LMin :=  IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  if LPM then begin
     //in the 12 hour format, afternoon is 12:00PM followed by 1:00PM
     //while midnight is written as 12:00 AM
     //Not exactly technically correct but pritty accurate
-    if LHour < 12 then
-    begin
-      LHour := LHour + 12;
+    if LHour < 12 then begin
+      Inc(LHour, 12);
     end;
   end;
-  if LAM then
-  begin
-    if LHour = 12 then
-    begin
+  if LAM then begin
+    if LHour = 12 then begin
       LHour := 0;
     end;
   end;
-  LSec :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
-  LMSec :=  IndyStrToInt( Fetch(LBuffer,LDelin),0);
-  Result := EncodeTime(LHour,LMin,LSec,LMSec);
+  LSec := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  LMSec := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  Result := EncodeTime(LHour, LMin, LSec, LMSec);
 end;
 
-function IsIn6MonthWindow(const AMDate : TDateTIme):Boolean;
+function IsIn6MonthWindow(const AMDate : TDateTime):Boolean;
 //based on http://www.opengroup.org/onlinepubs/007908799/xbd/utilconv.html#usg
 //For dates, we display the time only if the date is within 6 monthes of the current
 //date.  Otherwise, we send the year.
-var LCurMonth, LCurDay, LCurYear : Word;  //Now
-      LPMonth,  LPYear : Word;
-      LMMonth, LMDay, LMYear : Word;//AMDate
+var
+  LCurMonth, LCurDay, LCurYear : Word;  //Now
+  LPMonth,  LPYear : Word;
+  LMMonth, LMDay, LMYear : Word;//AMDate
 begin
-  DecodeDate(Now,LCurYear,LCurMonth,LCurDay);
-  DecodeDate(AMDate,LMYear,LMMonth,LMDay);
-  if (LCurMonth - 6) < 1 then
-  begin
-    LPMonth :=  12 + (LCurMonth - 6);
+  DecodeDate(Now, LCurYear, LCurMonth, LCurDay);
+  DecodeDate(AMDate, LMYear, LMMonth, LMDay);
+  if (LCurMonth - 6) < 1 then begin
+    LPMonth := 12 + (LCurMonth - 6);
     LPYear := LCurYear - 1;
-  end
-  else
-  begin
+  end else begin
     LPMonth := LCurMonth - 6;
     LPYear := LCurYear;
   end;
-  if LMYear < LPYear then
-  begin
+  if LMYear < LPYear then begin
     Result := False;
     Exit;
   end;
-  if LMYear = LPYear then
-  begin
+  if LMYear = LPYear then begin
     Result := (LMMonth >= LPMonth);
-    if Result and (LMMonth = LPMonth) then
-    begin
+    if Result and (LMMonth = LPMonth) then begin
       Result := (LMDay >= LCurDay);
       Exit;
     end;
-  end
-  else
-  begin
+  end else begin
     Result := True;
   end;
 end;
 
 function AddMissingYear(const ADay, AMonth : Cardinal): Cardinal;
-var LDay, LMonth, LYear : Word;
+var
+  LDay, LMonth, LYear : Word;
 begin
-  DecodeDate(Now,LYear,LMonth,LDay);
+  DecodeDate(Now, LYear, LMonth, LDay);
   Result := LYear;
-  if (LMonth < AMonth) or (LMonth=AMonth) and (ADay > LDay) then begin
+  if (LMonth < AMonth) or (LMonth = AMonth) and (ADay > LDay) then begin
     Result := LYear - 1;
   end;
 end;
 
-function IsHHMMSS(const AData : String; const ADelin : String) : Boolean;
+function IsHHMMSS(const AData : String; const ADelim : String) : Boolean;
 //This assumes hours in the form 0-23 instead of the 12 AM/PM hour system used in the US.
-var LBuf, LPt : String;
+var
+  LBuf, LPt : String;
 begin
   Result := False;
   LBuf := AData;
-  if PatternsInStr(ADelin,AData)>0 then
-  begin
-    LPt := Fetch(LBuf,ADelin);
-    if ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,-1)<24) then
-    begin
-      LPt := Fetch(LBuf,ADelin);
-      if ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,0)<60) then
-      begin
-        LPt := Fetch(LBuf,ADelin);
-        if LPt = '' then
-        begin
+  if PatternsInStr(ADelim, AData) > 0 then begin
+    LPt := Fetch(LBuf, ADelim);
+    if (IndyStrToInt(LPt, -1) > -1) and (IndyStrToInt(LPt, -1) < 24) then begin
+      LPt := Fetch(LBuf, ADelim);
+      if (IndyStrToInt(LPt, -1) > -1) and (IndyStrToInt(LPt, 0) < 60) then begin
+        LPt := Fetch(LBuf, ADelim);
+        if LPt = '' then begin
           Result := True;
-        end
-        else
-        begin
+        end else begin
           //seconds are also given - check those
-          Result := ( IndyStrToInt(LPt,-1)>-1) and ( IndyStrToInt(LPt,0)<60);
+          Result := (IndyStrToInt(LPt, -1) > -1) and (IndyStrToInt(LPt, 0) < 60);
         end;
       end;
     end;
   end;
 end;
 
-function MVSDate(const AData: String): TDateTIme;
+function MVSDate(const AData: String): TDateTime;
 var
-    LYear, LMonth, LDay : Integer;
-    LCYear, LCMonth, LCDay : Word;
-    LBuffer : String;
+  LYear, LMonth, LDay : Integer;
+  LCYear, LCMonth, LCDay : Word;
+  LBuffer : String;
 begin
-  DecodeDate(Now,LCYear,LCMonth,LCDay);
+  DecodeDate(Now, LCYear, LCMonth, LCDay);
   LBuffer := AData;
-  if IndyPos('/', LBuffer) = 3 then
-  begin
+  if IndyPos('/', LBuffer) = 3 then begin
     //two digit things could be in order of yy/mm/dd or mm/dd/yy in a partitionned dtaset
-    LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
-    if (LYear < 13) and (LYear > 0) then
-    begin
+    LYear := IndyStrToInt(Fetch(LBuffer, '/'), LCYear);
+    if (LYear < 13) and (LYear > 0) then begin
       LMonth := LYear;
-      LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
-      LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
-    end
-    else
-    begin
-      LMonth := IndyStrToInt(Fetch(LBuffer,'/'), LCMonth);
-      LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
+      LDay :=  IndyStrToInt(Fetch(LBuffer, '/'), LCDay);
+      LYear :=   IndyStrToInt(Fetch(LBuffer, '/'), LCYear);
+    end else begin
+      LMonth := IndyStrToInt(Fetch(LBuffer, '/'), LCMonth);
+      LDay := IndyStrToInt(Fetch(LBuffer, '/'), LCDay);
     end;
-  end
-  else
-  begin
-    LYear := IndyStrToInt(Fetch(LBuffer,'/'), LCYear);
-    LMonth := IndyStrToInt(Fetch(LBuffer,'/'), LCMonth);
-    LDay := IndyStrToInt(Fetch(LBuffer,'/'), LCDay);
+  end else begin
+    LYear := IndyStrToInt(Fetch(LBuffer, '/'), LCYear);
+    LMonth := IndyStrToInt(Fetch(LBuffer, '/'), LCMonth);
+    LDay :=  IndyStrToInt(Fetch(LBuffer, '/'), LCDay);
   end;
   LYear := Y2Year(LYear);
   Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
-function AS400Date(const AData: String): TDateTIme;
-var LDelim : String;
-    LBuffer : String;
+function AS400Date(const AData: String): TDateTime;
+var
+  LDelim : String;
+  LBuffer : String;
+  LDay, LMonth, LYear : Integer;
 
-    LDay, LMonth, LYear : Integer;
-
-    procedure SWapNos(var An1, An2 : Integer);
-    var LN : Integer;
-    begin
-      LN := An2;
-      An2 := An1;
-      An1 := LN;
-    end;
+  procedure SwapNos(var An1, An2 : Integer);
+  var
+    LN : Integer;
+  begin
+   LN := An2;
+   An2 := An1;
+   An1 := LN;
+  end;
 
 begin
   Result := 0;
   LDelim := FindDelimInNumbers(AData);
-  if LDelim = '' then
-  begin
+  if LDelim = '' then begin
     Exit;
   end;
   LBuffer := AData;
-  LDay :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
-  LMonth :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
-  LYear :=  IndyStrToInt(Trim(Fetch(LBuffer,LDelim)),0);
-  if (LMonth>12) then
-  begin
-    SwapNos(LDay,LMonth);
+  LDay := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  LMonth := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  LYear := IndyStrToInt(Fetch(LBuffer, LDelim), 0);
+  if LMonth > 12 then begin
+    SwapNos(LDay, LMonth);
   end;
-  if (LDay>31) then
-  begin
-    SwapNos(LYear,LDay);
+  if LDay > 31 then begin
+    SwapNos(LYear, LDay);
   end;
   LYear := Y2Year(LYear);
-  Result := EncodeDate(LYear,LMonth,LDay);
+  Result := EncodeDate(LYear, LMonth, LDay);
 end;
 
 //=== platform stuff
@@ -1648,52 +1519,49 @@ function IsValidUnixPerms(AData : String; const AStrict : Boolean = False) : Boo
 //Stict mode is for things such as Novell Netware Unix Print Services FTP Deamon
 //which are not quite like Unix.
 //Non-strict mode is for Unix servers or servers that emulate Unix because some are broken.
-var SData : String;
+var
+  SData : String;
 begin
-
-  if AStrict=False then
-  begin
+  if not AStrict then begin
     SData := UpperCase(AData);
-    result := (Length(SData)>9) and
-       (CharIsInSet(SData, 1, 'LD-BCPS')) and    {Do not Localize}
-       (CharIsInSet(SData, 2, 'TSRWX-')) and    {Do not Localize}
-       {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'A" here }
-       (CharIsInSet(SData, 3, 'TSRWX-A')) and    {Do not Localize}
-       (CharIsInSet(SData, 4, 'TSRWX-')) and    {Do not Localize}
-       {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'H" here for hidden files}
-       (CharIsInSet(SData, 5, 'TSRWX-H')) and    {Do not Localize}
-        (CharIsInSet(SData, 6, 'TSRWX-')) and    {Do not Localize}
-        {Distinct's FTP Server Active X may report a "Y" by mistake, saw in manual
-        FTP Server, ActiveX Control, File Transfer Protocol (RFC 959), ActiveX Control,
-        for Microsoftâ Windowsä, Version 4.01
-        Copyright Ó 1996 - 1998 by Distinct Corporation
-        All rights reserved
-    }
-        (CharIsInSet(SData, 7, 'TSRWX-Y')) and    {Do not Localize}
-        (CharIsInSet(SData, 8, 'TSRWX-A')) and    {Do not Localize}
-         {VxWorks 5.3.1 FTP Server has a quirk where a "A" is in the permissions
-        See:
-  http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=slrn73rfie.
-  1g2.chc%40nasa2.ksc.nasa.gov&rnum=1&prev=/groups%3Fq%3DVxWorks%2BFTP%2BLIST%2
-  Bformat%2Bdate%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26selm%3D
-  slrn73rfie.1g2.chc%2540nasa2.ksc.nasa.gov%26rnum%3D1
-
-}
-        (CharIsInSet(SData, 9, 'TSRWX-')) and    {Do not Localize}
-        (CharIsInSet(SData, 10, 'TSRWX-'));    {Do not Localize}
-  end
-  else
+    Result := (Length(SData) > 9) and
+      CharIsInSet(SData, 1, 'LD-BCPS') and   {Do not Localize}
+      CharIsInSet(SData, 2, 'TSRWX-') and    {Do not Localize}
+      {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'A" here }
+      CharIsInSet(SData, 3, 'TSRWX-A') and   {Do not Localize}
+      CharIsInSet(SData, 4, 'TSRWX-') and    {Do not Localize}
+      {Distinct TCP/IP FTP Server-32 3.0 errs by reporting an 'H" here for hidden files}
+      CharIsInSet(SData, 5, 'TSRWX-H') and   {Do not Localize}
+      CharIsInSet(SData, 6, 'TSRWX-') and    {Do not Localize}
+      {Distinct's FTP Server Active X may report a "Y" by mistake, saw in manual
+      FTP Server, ActiveX Control, File Transfer Protocol (RFC 959), ActiveX Control,
+      for Microsoftâ Windowsä, Version 4.01
+      Copyright Ó 1996 - 1998 by Distinct Corporation
+      All rights reserved
+      }
+      CharIsInSet(SData, 7, 'TSRWX-Y') and   {Do not Localize}
+      CharIsInSet(SData, 8, 'TSRWX-A') and   {Do not Localize}
+      {VxWorks 5.3.1 FTP Server has a quirk where a "A" is in the permissions
+      See:
+       http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&oe=utf-8&threadm=slrn73rfie.
+       1g2.chc%40nasa2.ksc.nasa.gov&rnum=1&prev=/groups%3Fq%3DVxWorks%2BFTP%2BLIST%2
+       Bformat%2Bdate%26hl%3Den%26lr%3D%26ie%3DUTF-8%26oe%3Dutf-8%26selm%3D
+       slrn73rfie.1g2.chc%2540nasa2.ksc.nasa.gov%26rnum%3D1
+      }
+      CharIsInSet(SData, 9, 'TSRWX-') and   {Do not Localize}
+      CharIsInSet(SData, 10, 'TSRWX-');     {Do not Localize}
+  end else
   begin
-    Result := (CharIsInSet(AData, 1, 'd-')) and    {Do not Localize}
-         (CharIsInSet(AData, 2, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 3, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 4, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 5, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 6, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 7, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 8, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 9, 'tsrwx-')) and    {Do not Localize}
-         (CharIsInSet(AData, 10, 'tsrwx- '));    {Do not Localize}
+    Result := CharIsInSet(AData, 1, 'd-') and   {Do not Localize}
+      CharIsInSet(AData, 2, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 3, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 4, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 5, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 6, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 7, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 8, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 9, 'tsrwx-') and    {Do not Localize}
+      CharIsInSet(AData, 10, 'tsrwx- ');     {Do not Localize}
   end;
 end;
 
@@ -1703,294 +1571,194 @@ begin
 end;
 
 function IsUnixHiddenFile(const AFileName : String): Boolean;
-var LName : String;
+var
+  LName : String;
 begin
-  LName := IndyGetFileName(StripInitPathDelin(AFileName));
+  LName := IndyGetFileName(StripInitPathDelim(AFileName));
   Result := (not IsNavPath(AFileName)) and TextStartsWith(LName, '.');
 end;
 
 function IsUnixExec(const LUPer, LGPer, LOPer : String): Boolean;
 begin
-  if (Length(LUPer)>2) and (Length(LGPer)>2) and (Length(LOPer)>2) then
-  begin
-    Result := False;
-    if CharIsInSet(LUPer, 3, 'xSs') then {do not localize}
-    begin
-      Result := True;
-      Exit;
-    end;
-    if CharIsInSet(LGPer, 3, 'xSs') then {do not localize}
-    begin
-      Result := True;
-      Exit;
-    end;
-    if CharIsInSet(LOPer, 3, 'xSs') then {do not localize}
-    begin
-      Result := True;
-      Exit;
-    end;
-  end
-  else
-  begin
+  if (Length(LUPer) > 2) and (Length(LGPer) > 2) and (Length(LOPer) > 2) then begin
+    Result := CharIsInSet(LUPer, 3, 'xSs') or {do not localize}
+      CharIsInSet(LGPer, 3, 'xSs') or         {do not localize}
+      CharIsInSet(LOPer, 3, 'xSs');           {do not localize}
+  end else begin
     Result := False;
   end;
 end;
 
 function PermStringToModeBits(const APerms : String): Cardinal;
-var
-  Len: Integer;
 begin
   Result := 0;
-  Len := Length(APerms);
   //owner bits
-  if (Len > 0) and (APerms[1] = 'r') then
-  begin
+  if (Length(APerms) > 0) and (APerms[1] = 'r') then begin
     Result := Result or IdS_IRUSR;
   end;
-  if (Len > 1) and (APerms[2] ='w') then
-  begin
+  if (Length(APerms) > 1) and (APerms[2] = 'w') then begin
     Result := Result or IdS_IWUSR;
   end;
-  if Len > 2 then
+  if Length(APerms) > 2 then
   begin
     case APerms[3] of
       'x' : //exec
-      begin
-        Result := Result or IdS_IXUSR;
-      end;
+        begin
+          Result := Result or IdS_IXUSR;
+        end;
       's' : //SUID and exec
-      begin
-        Result := Result or IdS_IXUSR or IdS_ISUID;
-      end;
+        begin
+          Result := Result or IdS_IXUSR;
+          Result := Result or IdS_ISUID;
+        end;
       'S' : //SUID bit without owner exec
-      begin
-        Result := Result or IdS_ISUID;
-      end;
+        begin
+          Result := Result or IdS_ISUID;
+        end;
     end;
   end;
   //group bits
-  if (Len > 3) and (APerms[4] = 'r') then
-  begin
+  if (Length(APerms) > 3) and (APerms[4] = 'r') then begin
     Result := Result or IdS_IRGRP;
   end;
-  if (Len > 4) and (APerms[5] ='w') then
-  begin
+  if (Length(APerms) > 4) and (APerms[5] = 'w') then begin
     Result := Result or IdS_IWGRP;
   end;
-  if Len > 5 then
+  if Length(APerms) > 5 then
   begin
     case APerms[6] of
       'x' : //exec
-      begin
-        Result := Result or IdS_IXGRP;
-      end;
+        begin
+          Result := Result or IdS_IXGRP;
+        end;
       's' : //SUID and exec
-      begin
-        Result := Result or IdS_IXGRP or IdS_ISGID;
-      end;
+        begin
+          Result := Result or IdS_IXGRP;
+          Result := Result or IdS_ISGID;
+        end;
       'S' : //SGID bit without group exec
-      begin
-        Result := Result or IdS_ISGID;
-      end;
+        begin
+          Result := Result or IdS_ISGID;
+        end;
     end;
   end;
   //Other permissions
-  if (Len > 6) and (APerms[7] = 'r') then
-  begin
+  if (Length(APerms) > 6) and (APerms[7] = 'r') then begin
     Result := Result or IdS_IROTH;
   end;
-  if (Len > 7) and (APerms[8] = 'w') then
-  begin
+  if (Length(APerms) > 7) and (APerms[8] = 'w') then begin
     Result := Result or IdS_IWOTH;
   end;
-  if Len > 8 then
-  begin
+  if Length(APerms) > 8 then begin
     case APerms[9] of
       'x' :
-      begin
-        Result := Result or IdS_IXOTH;
-      end;
+        begin
+	  Result := Result or IdS_IXOTH;
+        end;
       't' :
-      begin
-        Result := Result or IdS_IXOTH or IdS_ISVTX;
-      end;
+        begin
+          Result := Result or IdS_IXOTH;
+          Result := Result or IdS_ISVTX;
+        end;
       'T' :
-      begin
-        Result := Result or IdS_ISVTX;
-      end;
+        begin
+	  Result := Result or IdS_ISVTX;
+	end;
     end;
   end;
 end;
 
 function ModeBitsToPermString(const AMode : Cardinal) : String;
+
+  function GetPerm1Bit(ABit: Cardinal; AIfSet: Char): Char;
+  begin
+    if (AMode and ABit) = ABit then begin
+      Result := AIfSet;
+    end else begin
+      Result := '-';
+    end;
+  end;
+
+  function GetPerm2Bits(ABit1, ABit2: Cardinal; AIfBit1Set, AIfBit2Set: Char): Char;
+  begin
+    Result := GetPerm1Bit(ABit1, AIfBit1Set);
+    if Result = '-' then begin
+      Result := GetPerm1Bit(ABit2, AIfBit2Set);
+    end;
+  end;
+  
 begin
-      //owner Resultissions
-      //read by owner
-      if AMode and IdS_IRUSR = IdS_IRUSR then
-      begin
-        Result := 'r';
-      end
-      else
-      begin
-        Result := '-';
-      end;
-      //write by owner
-      if AMode and IdS_IWUSR = IdS_IWUSR then
-      begin
-        Result := Result + 'w';
-      end
-      else
-      begin
-        Result := Result + '-';
-      end;
-      //execute by owner
-      if AMode and IdS_ISUID=IdS_ISUID then
-      begin
-        //SUID Bit - run with permissions of the file owner
-        Result := Result + 's';
-      end
-      else
-      begin
-        if AMode and IdS_IXUSR=IdS_IXUSR then
-        begin
-          Result := Result + 'x';
-        end
-        else
-        begin
-          Result := Result + '-';
-        end;
-      end;
-      //group permissions
-      //read by group
-      if AMode and IdS_IRGRP = IdS_IRGRP then
-      begin
-        Result := Result + 'r';
-      end
-      else
-      begin
-        Result := Result + '-';
-      end;
-      //write by group
-      if AMode and IdS_IWGRP = IdS_IWGRP then
-      begin
-        Result := Result + 'w';
-      end
-      else
-      begin
-        Result := Result + '-';
-      end;
-      //execute by group
-      if AMode and IdS_ISGID=IdS_ISGID then
-      begin
-        //SGID Bit - run with permissions of the file group
-        Result := Result + 's';
-      end
-      else
-      begin
-        if AMode and IdS_IXGRP=IdS_IXGRP then
-        begin
-          Result := Result + 'x';
-        end
-        else
-        begin
-          Result := Result + '-';
-        end;
-      end;
-      //other's permissions
-      //read by others
-      if AMode and IdS_IROTH = IdS_IROTH then
-      begin
-        Result := Result + 'r';
-      end
-      else
-      begin
-        Result := Result + '-';
-      end;
-      //write by others
-      if AMode and IdS_IWOTH = IdS_IWOTH then
-      begin
-        Result := Result + 'w';
-      end
-      else
-      begin
-        Result := Result + '-';
-      end;
-      //execute by others
-      if AMode and IdS_ISVTX=IdS_ISVTX then
-      begin
-        //Sticky bit - only owner can delete files in dir.
-        //on older systems, it means to keep the file in memory as a "cache"
-        Result := Result + 't';
-      end
-      else
-      begin
-        if AMode and IdS_IXOTH=IdS_IXOTH then
-        begin
-          Result := Result + 'x';
-        end
-        else
-        begin
-          Result := Result + '-';
-        end;
-      end;
+  SetLength(Result, 9);
+  //owner Permissions
+  //read by owner
+  Result[1] := GetPerm1Bit(IdS_IRUSR, 'r');
+  //write by owner
+  Result[2] := GetPerm1Bit(IdS_IWUSR, 'w');
+  //execute by owner
+  Result[3] := GetPerm2Bits(IdS_ISUID, IdS_IXUSR, 's', 'x');
+  //group permissions
+  //read by group
+  Result[4] := GetPerm1Bit(IdS_IRGRP, 'r');
+  //write by group
+  Result[5] := GetPerm1Bit(IdS_IWGRP, 'w');
+  //execute by group
+  Result[6] := GetPerm2Bits(IdS_ISGID, IdS_IXGRP, 's', 'x');
+  //other's permissions
+  //read by others
+  Result[7] := GetPerm1Bit(IdS_IROTH, 'r');
+  //write by others
+  Result[8] := GetPerm1Bit(IdS_IWOTH, 'w');
+  //execute by others
+  //Sticky bit - only owner can delete files in dir.
+  //on older systems, it means to keep the file in memory as a "cache"
+  Result[9] := GetPerm2Bits(IdS_ISVTX, IdS_IXOTH, 't', 'x');
 end;
 
-function ModeBitsToChmodNo(const AMode : Cardinal):Integer;
+function ModeBitsToChmodNo(const AMode : Cardinal): Integer;
 begin
   Result := 0;
-  if AMode and IdS_ISUID = IdS_ISUID then
-  begin
+  if (AMode and IdS_ISUID) = IdS_ISUID then begin
     Result := Result + 4000;
   end;
-  if AMode and IdS_ISGID = IdS_ISGID then
-  begin
+  if (AMode and IdS_ISGID) = IdS_ISGID then begin
     Result := Result + 2000;
   end;
-  if AMode and IdS_ISVTX = IdS_ISVTX then
-  begin
+  if (AMode and IdS_ISVTX) = IdS_ISVTX then begin
     Result := Result + 1000;
   end;
-  if AMode and IdS_IRUSR = IdS_IRUSR then
-  begin
+  if (AMode and IdS_IRUSR) = IdS_IRUSR then begin
     Result := Result + 400;
   end;
-  if AMode and IdS_IWUSR = IdS_IWUSR then
-  begin
+  if (AMode and IdS_IWUSR) = IdS_IWUSR then begin
     Result := Result + 200;
   end;
-  if AMode and IdS_IXUSR = IdS_IXUSR then
-  begin
+  if (AMode and IdS_IXUSR) = IdS_IXUSR then begin
     Result := Result + 100;
   end;
-  if AMode and IdS_IRGRP = IdS_IRGRP then
-  begin
+  if (AMode and IdS_IRGRP) = IdS_IRGRP then begin
     Result := Result + 40;
   end;
-  if AMode and IdS_IWGRP = IdS_IWGRP then
-  begin
+  if (AMode and IdS_IWGRP) = IdS_IWGRP then begin
     Result := Result + 20;
   end;
-  if AMode and IdS_IXGRP = IdS_IXGRP then
-  begin
+  if (AMode and IdS_IXGRP) = IdS_IXGRP then begin
     Result := Result + 10;
   end;
-  if AMode and IdS_IROTH = IdS_IROTH then
-  begin
+  if (AMode and IdS_IROTH) = IdS_IROTH then begin
     Result := Result + 4;
   end;
-  if AMode and IdS_IWOTH = IdS_IWOTH then
-  begin
+  if (AMode and IdS_IWOTH) = IdS_IWOTH then begin
     Result := Result + 2;
   end;
-  if AMode and IdS_IXOTH = IdS_IXOTH then
-  begin
+  if (AMode and IdS_IXOTH) = IdS_IXOTH then begin
     Result := Result + 1;
   end;
 end;
 
 function ChmodNoToModeBits(const AModVal : Cardinal): Cardinal;
-var LSpecBits, LUBits, LGBits, LOBits : Cardinal;
-    LTmp : Cardinal;
+var
+  LSpecBits, LUBits, LGBits, LOBits : Cardinal;
+  LTmp : Cardinal;
 begin
   Result := 0;
   LSpecBits := AModVal div 1000;
@@ -2004,55 +1772,43 @@ begin
   LGBits := LGBits and 7;
   LTmp := LTmp mod 10;
   LOBits := LTmp and 7;
-  if LSpecBits and 4=4 then
-  begin
+  if (LSpecBits and 4) = 4 then begin
     Result := Result + IdS_ISUID;
   end;
-  if LSpecBits and 2=2 then
-  begin
+  if (LSpecBits and 2) = 2 then begin
     Result := Result + IdS_ISGID;
   end;
-  if LSpecBits and 1=1 then
-  begin
+  if (LSpecBits and 1) = 1 then begin
     Result := Result + IdS_ISVTX;
   end;
   //user bits
-  if LUBits and 4=4 then
-  begin
+  if (LUBits and 4) = 4 then begin
     Result := Result + IdS_IRUSR;
   end;
-  if LUBits and 2=2 then
-  begin
+  if (LUBits and 2) = 2 then begin
     Result := Result + IdS_IWUSR;
   end;
-  if LUBits and 1=1 then
-  begin
+  if (LUBits and 1) = 1 then begin
     Result := Result + IdS_IXUSR;
   end;
   //group bits
-  if LGBits and 4=4 then
-  begin
+  if (LGBits and 4) = 4 then begin
     Result := Result + IdS_IRGRP;
   end;
-  if LGBits and 2=2 then
-  begin
+  if (LGBits and 2) = 2 then begin
     Result := Result + IdS_IWGRP;
   end;
-  if LGBits and 1=1 then
-  begin
+  if (LGBits and 1) = 1 then begin
     Result := Result + IdS_IXGRP;
   end;
   //other bits
-  if LOBits and 4=4 then
-  begin
+  if (LOBits and 4) = 4 then begin
     Result := Result + IdS_IROTH;
   end;
-  if LOBits and 2=2 then
-  begin
+  if (LOBits and 2) = 2 then begin
     Result := Result + IdS_IWOTH;
   end;
-  if LOBits and 1=1 then
-  begin
+  if (LOBits and 1) = 1 then begin
     Result := Result + IdS_IXOTH;
   end;
 end;
@@ -2063,32 +1819,34 @@ begin
 end;
 
 procedure ChmodNoToPerms(const AChmodNo : Integer; var VUser, VGroup, VOther : String);
-var LPerms : String;
+var
+  LPerms : String;
 begin
   ChmodNoToPerms(AChmodNo,LPerms);
-  VUser := Copy(LPerms,1,3);
-  VGroup := Copy(LPerms,4,3);
-  VOther := Copy(LPerms,7,3);
+  VUser := Copy(LPerms, 1, 3);
+  VGroup := Copy(LPerms, 4, 3);
+  VOther := Copy(LPerms, 7, 3);
 end;
 
 function PermsToChmodNo(const AUser, AGroup, AOther : String): Integer;
 begin
-  Result := ModeBitsToChmodNo( PermStringToModeBits(AUser+AGroup+AOther));
+  Result := ModeBitsToChmodNo(PermStringToModeBits(AUser+AGroup+AOther));
 end;
+
 //===== Novell Netware
-            //ftp.sips.state.nc.us
+//ftp.sips.state.nc.us
 function IsNovelPSPattern(const AStr : String): Boolean;
-var s : TStrings;
+var
+  s : TStrings;
   LModStr : String;
 begin
   LModStr := AStr;
-  if (Length(LModStr) > 1) and (LModStr[2] = '[') then
-  begin
+  if (Length(LModStr) > 1) and (LModStr[2] = '[') then begin
     IdInsert(' ', LModStr, 2);
   end;
   s := TStringList.Create;
   try
-    SplitColumns(LModStr,s);
+    SplitColumns(LModStr, s);
      //0-type
      //1-permissions
      //2-owner
@@ -2100,42 +1858,40 @@ begin
      //8-am/pm
      //9- start of filename
      Result := (s.Count > 8) and IsNumeric(s[6]) and IsHHMMSS(s[7], ':') and
-       ((UpperCase(s[8]) = 'AM') or (UpperCase(s[8]) = 'PM'));  {do not localize}
+       (TextIsSame(s[8], 'AM') or TextIsSame(s[8], 'PM'));  {do not localize}
   finally
     FreeAndNil(s);
   end;
 end;
 
 function IsValidNovellPermissionStr(const AStr : String): Boolean;
-var i : Integer;
-const PermSet = '-RWCEAFMS';  {do not localize}
+const
+  PermSet = '-RWCEAFMS';  {do not localize}
+var
+  i : Integer;
 begin
-  if AStr='' then
-  begin
-    Result := False;
+  Result := False;
+  if AStr = '' then begin
     Exit;
   end;
-  Result := True;
-  for i := 1 to Length(AStr) do
-  begin
-    if not (CharIsInSet(AStr, i, PermSet)) then
-    begin
-      Result := False;
-      break;
+  for i := 1 to Length(AStr) do begin
+    if not CharIsInSet(AStr, i, PermSet) then begin
+      Exit;
     end;
   end;
+  Result := True;
 end;
 
 function ExtractNovellPerms(const AData : String) : String;
 //extract the Novell Netware permissions from the enclosing brackets
-var LOpen, LClose : Integer;
+var
+  LOpen, LClose : Integer;
 begin
   Result := '';
-  LOpen := IndyPos('[',AData);         {Do not translate}
-  LClose := IndyPos(']',AData);       {Do not translate}
-  if (LOpen <> 0) and (LClose <> 0) and (LOpen < LClose) then
-  begin
-    Result := Copy(AData,LOpen+1,LClose-LOpen-1);
+  LOpen := IndyPos('[', AData);         {Do not translate}
+  LClose := IndyPos(']', AData);       {Do not translate}
+  if (LOpen <> 0) and (LClose <> 0) and (LOpen < LClose) then begin
+    Result := Copy(AData, LOpen+1, LClose-LOpen-1);
   end;
   Result := Trim(Result);
 end;
@@ -2146,9 +1902,8 @@ function ExcludeQVNET(const AData : String) : Boolean;
 //A few tests will return a false positive with WinQVTNet
 //This function prevents this.
 begin
-  Result := (not IsMMDDYY(Copy(AData,36,10),'-')) or
-              (Copy(AData,46,1) <> ' ') or (not IsHHMMSS(Copy(AData,47,5),':'));
-
+  Result := (not IsMMDDYY(Copy(AData, 36, 10), '-')) or
+            (Copy(AData, 46, 1) <> ' ') or (not IsHHMMSS(Copy(AData, 47, 5), ':'));
 end;
 
 function ExtractQVNETFileName(const AData : String): String;
@@ -2156,32 +1911,29 @@ function ExtractQVNETFileName(const AData : String): String;
 //but unlike the standard MS-DOS form, spaces will appear if running
 //on Win32 Operating systems and filenames have spaces.  Note that
 //long file names will not appear at all.  I found this out with a rigged test case.
-var LBuf : String;
+var
+  LBuf : String;
 begin
-  LBuf := Copy(AData,1,12);
-  Result := Fetch(LBuf,'.');
+  LBuf := Copy(AData, 1, 12);
+  Result := Fetch(LBuf, '.');
   LBuf := Trim(LBuf);
-  if LBuf <> '' then
-  begin
-    Result := Result + '.'+Fetch(LBuf);
+  if LBuf <> '' then begin
+    Result := Result + '.' + Fetch(LBuf);
   end;
-  Result := Fetch(Result,'/');
+  Result := Fetch(Result, '/');
 end;
 
 //===== Mainframe support
 function ExtractRecFormat(const ARecFM : String): String;
 begin
   Result := ARecFM;
-  if TextStartsWith(Result, '<') then
-  begin
+  if TextStartsWith(Result, '<') then begin
     IdDelete(Result, 1, 1);
   end;
-  if TextEndsWith(Result, '>') then
-  begin
+  if TextEndsWith(Result, '>') then begin
     Result := Fetch(Result, '>');
   end;
 end;
-
 //===== IBM VSE Power Queue
 function DispositionCodeToTIdVSEPQDisposition(const ADisp : Char) : TIdVSEPQDisposition;
 begin
@@ -2224,40 +1976,36 @@ begin
 end;
 
 function IsVMBFS(AData : String) : Boolean;
-var s : TStrings;
+var
+  s : TStrings;
 begin
-    Result := False;
-    s := TStringList.Create;
-    try
-      SplitColumns(TrimRight(AData),s);
-      if s.Count >4 then
-      begin
-        Result := (s[2]='F') or (s[2]='D');
-        if Result then
-        begin
-          Result := IsNumeric(s[4]) or (s[4]<>'-');
-        end;
-      end;
-    finally
-      FreeAndNil(s);
+  Result := False;
+  s := TStringList.Create;
+  try
+   SplitColumns(TrimRight(AData), s);
+   if s.Count > 4 then begin
+     Result := (s[2] = 'F') or (s[2] = 'D');
+     if Result then begin
+       Result := IsNumeric(s[4]) or (s[4] <> '-');
+     end;
     end;
+  finally
+   FreeAndNil(s);
+  end;
 end;
 
 //===== MLST/MLSD and EPLF formats
 function ParseFacts(AData : String; AResults : TStrings;
-  const AFactDelin : String = ';'; const ANameDelin : String=' '): String;
-var LBuf : String;
+  const AFactDelim : String = ';'; const ANameDelim : String = ' '): String;
+var
+  LBuf : String;
 begin
-  LBuf := Fetch(AData,ANameDelin);
+  LBuf := Fetch(AData, ANameDelim);
   Result := AData;
   AResults.Clear;
   repeat
-    AResults.Add( Fetch(LBuf,AFactDelin));
-    if LBuf = '' then
-    begin
-      Break;
-    end;
-  until False;
+    AResults.Add(Fetch(LBuf, AFactDelim));
+  until LBuf = '';
 end;
 
 {Sterling Commerce support routines}
@@ -2284,58 +2032,51 @@ const
 function RawIsValidSterPattern(const AString : String; AOneChar, AThreeChar : array of String) : Boolean;
 begin
   Result := False;
-  if AString='' then
-  begin
+  if AString = '' then begin
     Exit;
   end;
-  if Length(AString)=3 then
+  if Length(AString) = 3 then
   begin
-    if AString='---' then
-    begin
+    if AString = '---' then begin
       Result := True;
     end;
-    if PosInStrArray(AString,AThreeChar)>-1 then
-    begin
+    if PosInStrArray(AString, AThreeChar) > -1 then begin
       Result := True;
     end;
   end;
-  if Length(AString)=1 then
-  begin
-    if PosInStrArray(AString,AOneChar)>-1 then
-    begin
+  if Length(AString) = 1 then begin
+    if PosInStrArray(AString, AOneChar) > -1 then begin
       Result := True;
     end;
   end;
 end;
 
 function IsValidSterCommFlags(const AString : String) : Boolean;
-var i : Integer;
+var
+  i : Integer;
 begin
-  if AString = '' then
-  begin
-    Result := False;
+  Result := False;
+  if AString = '' then begin
     Exit;
   end;
-  Result := True;
   for i := 1 to Length(AString) do
   begin
     if (IndyPos(AString[i], CValidFlags) = 0) and
-      (IndyPos(AString[i], CWhiteSpace) = 0) then
-    begin
-      Result := False;
-      Break;
+      (IndyPos(AString[i], CWhiteSpace) = 0) then begin
+      Exit;
     end;
   end;
+  Result := True;
 end;
 
 function IsValidSterCommProt(const AString : String) : Boolean;
 begin
-  Result := RawIsValidSterPattern(AString,CSterOneCharProt,CSterThreeCharProt);
+  Result := RawIsValidSterPattern(AString, CSterOneCharProt, CSterThreeCharProt);
 end;
 
 function IsValidSterCommData(const AString : String) : Boolean;
 begin
-  Result := RawIsValidSterPattern(AString,CSterOneCharDataFlag,CSterThreeCharDataFlag);
+  Result := RawIsValidSterPattern(AString, CSterOneCharDataFlag, CSterThreeCharDataFlag);
 end;
 
 end.
