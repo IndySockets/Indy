@@ -11,66 +11,66 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
-{   Rev 1.13    9/8/2004 8:55:46 PM  JPMugaas
-{ Fix for compile problem where a char is being compared with an incompatible
-{ type in some compilers.
-}
-{
-{   Rev 1.12    02/07/2004 21:59:28  CCostelloe
-{ Bug fix
-}
-{
-{   Rev 1.11    17/06/2004 14:19:00  CCostelloe
-{ Bug fix for long subject lines that have characters needing CharSet encoding
-}
-{
-{   Rev 1.10    23/04/2004 20:33:04  CCostelloe
-{ Minor change to support From headers holding multiple addresses
-}
-{
-{   Rev 1.9    2004.02.03 5:44:58 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.8    24/01/2004 19:08:14  CCostelloe
-{ Cleaned up warnings
-}
-{
-{   Rev 1.7    1/22/2004 3:56:38 PM  SPerry
-{ fixed set problems
-}
-{
-{   Rev 1.6    2004.01.22 2:34:58 PM  czhower
-{ TextIsSame + D8 bug workaround
-}
-{
+
+
+    Rev 1.13    9/8/2004 8:55:46 PM  JPMugaas
+  Fix for compile problem where a char is being compared with an incompatible
+  type in some compilers.
+
+
+    Rev 1.12    02/07/2004 21:59:28  CCostelloe
+  Bug fix
+
+
+    Rev 1.11    17/06/2004 14:19:00  CCostelloe
+  Bug fix for long subject lines that have characters needing CharSet encoding
+
+
+    Rev 1.10    23/04/2004 20:33:04  CCostelloe
+  Minor change to support From headers holding multiple addresses
+
+
+    Rev 1.9    2004.02.03 5:44:58 PM  czhower
+  Name changes
+
+
+   Rev 1.8    24/01/2004 19:08:14  CCostelloe
+ Cleaned up warnings
+
+
+    Rev 1.7    1/22/2004 3:56:38 PM  SPerry
+  fixed set problems
+
+
+   Rev 1.6    2004.01.22 2:34:58 PM  czhower
+  TextIsSame + D8 bug workaround
+
+
     Rev 1.5    10/16/2003 11:11:02 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.4    10/8/2003 9:49:36 PM  GGrieve
-{ Use IdDelete
-}
-{
-{   Rev 1.3    6/10/2003 5:48:46 PM  SGrobety
-{ DotNet updates
-}
-{
-{   Rev 1.2    04/09/2003 20:35:28  CCostelloe
-{ Parameter AUseAddressForNameIfNameMissing (defaulting to False to preserve
-{ existing code) added to EncodeAddressItem
-}
-{
-{   Rev 1.1    2003.06.23 9:46:52 AM  czhower
-{ Russian, Ukranian support for headers.
-}
-{
-{   Rev 1.0    11/14/2002 02:14:46 PM  JPMugaas
+
+
+    Rev 1.4    10/8/2003 9:49:36 PM  GGrieve
+  Use IdDelete
+
+
+    Rev 1.3    6/10/2003 5:48:46 PM  SGrobety
+  DotNet updates
+
+
+    Rev 1.2    04/09/2003 20:35:28  CCostelloe
+  Parameter AUseAddressForNameIfNameMissing (defaulting to False to preserve
+  existing code) added to EncodeAddressItem
+
+
+    Rev 1.1    2003.06.23 9:46:52 AM  czhower
+  Russian, Ukranian support for headers.
+
+
+   Rev 1.0    11/14/2002 02:14:46 PM  JPMugaas
 }
 unit IdCoderHeader;
 
