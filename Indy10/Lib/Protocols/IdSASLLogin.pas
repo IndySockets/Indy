@@ -32,7 +32,9 @@
 unit IdSASLLogin;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdSASL,
   IdSASLUserPass;
@@ -45,18 +47,22 @@ type
     class function ServiceName: TIdSASLServiceName; override;
 
     function StartAuthenticate(const AChallenge:string) : String; override;
-    function ContinueAuthenticate(const ALastResponse: String): String;
-      override;
+    function ContinueAuthenticate(const ALastResponse: String): String; override;
   end;
 
 implementation
 
-uses IdUserPassProvider, IdBaseComponent;
+uses
+  IdUserPassProvider, IdBaseComponent;
 
 { TIdSASLLogin }
 
-function TIdSASLLogin.ContinueAuthenticate(
-  const ALastResponse: String): String;
+function TIdSASLLogin.StartAuthenticate(const AChallenge: string): String;
+begin
+  Result := GetUsername;
+end;
+
+function TIdSASLLogin.ContinueAuthenticate(const ALastResponse: String): String;
 begin
   Result := GetPassword;
 end;
@@ -70,12 +76,6 @@ end;
 class function TIdSASLLogin.ServiceName: TIdSASLServiceName;
 begin
   Result := 'LOGIN'; {Do not translate}
-end;
-
-function TIdSASLLogin.StartAuthenticate(
-  const AChallenge: string): String;
-begin
-  Result := GetUsername;
 end;
 
 end.
