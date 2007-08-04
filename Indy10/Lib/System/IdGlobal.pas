@@ -1369,7 +1369,7 @@ begin
     Result := True;
     fDecoder.Reset;
   end;
-end
+end;
 
 {$ELSE}
 type
@@ -1562,7 +1562,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  Result := GetEncoder(enUTF8).GetString(AValue, AIndex, ALength);
+  Result := GetEncoder(enUTF8).GetString(ABytes, AIndex, ALength);
   {$ELSE}
   Result := '';
   SetLength(Temp, ALength);
