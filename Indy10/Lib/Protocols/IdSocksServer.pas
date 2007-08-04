@@ -19,7 +19,7 @@
   Rev 1.15    12/2/2004 4:23:58 PM  JPMugaas
   Adjusted for changes in Core.
 
-  Rev 1.14    5/30/2004 7:50:44 PM  DSiders
+    Rev 1.14    5/30/2004 7:50:44 PM  DSiders
   Corrected case in ancestor for TIdCustomSocksServer.
 
   Rev 1.13    2004.03.03 10:28:48 AM  czhower
@@ -43,7 +43,7 @@
   Rev 1.7    9/16/2003 11:59:16 PM  JPMugaas
   Should compile.
 
-  Rev 1.6    1/20/2003 1:15:38 PM  BGooijen
+    Rev 1.6    1/20/2003 1:15:38 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
 
   Rev 1.5    1/17/2003 07:10:54 PM  JPMugaas
@@ -95,6 +95,7 @@
 unit IdSocksServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -114,8 +115,15 @@ const
   IdSocksAuthUsernamePassword = 2;
   IdSocksAuthNoAcceptableMethods = $FF;
 
-  IdSocksLoginSuccess = 0;
-  IdSocksLoginFailure = 1; // any value except 0
+  IdSocks5ReplySuccess = 0;
+  IdSocks5ReplyGeneralFailure = 1;
+  IdSocks5ReplyConnNotAllowed = 2;
+  IdSocks5ReplyNetworkUnreachable = 3;
+  IdSocks5ReplyHostUnreachable = 4;
+  IdSocks5ReplyConnRefused = 5;
+  IdSocks5ReplyTTLExpired = 6;
+  IdSocks5ReplyCmdNotSupported = 7;
+  IdSocks5ReplyAddrNotSupported = 8;
 
 type
   EIdSocksSvrException = class(EIdException);
@@ -126,476 +134,558 @@ type
   EIdSocksSvrWrongSocksCmd = class(EIdSocksSvrException);
   EIdSocksSvrAccessDenied = class(EIdSocksSvrException);
   EIdSocksSvrUnexpectedClose = class(EIdSocksSvrException);
+  EIdSocksSvrPeerMismatch = class(EIdSocksSvrException);
 
-  TIdSocksServerContext = class( TIdContext )
+  TIdSocksServerContext = class(TIdContext)
   protected
-    // what needs to be stored...
-    fUser: string;
-    fPassword: string;
-    FSocksVersion: byte; // either 4 or 5, or 0 when version not known yet
+    FIPVersion: TIdIPVersion;
+    FUsername: string;
+    FPassword: string;
+    FSocksVersion: Byte; // either 4 or 5, or 0 when version not known yet
   public
-    constructor Create(
-      AConnection: TIdTCPConnection;
-      AYarn: TIdYarn;
-      AList: TThreadList = nil
-      ); override;
-    destructor Destroy; override;
-    property Username: string read fUser write fUser;
-    property Password: string read fPassword write fPassword;
-    property SocksVersion: byte read FSocksVersion write FSocksVersion;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
+    property IPVersion: TIdIPVersion read FIPVersion;
+    property Username: string read FUsername;
+    property Password: string read FPassword;
+    property SocksVersion: Byte read FSocksVersion;
   end;
 
-  TIdOnAuthenticate = procedure( AThread: TIdSocksServerContext; const AUsername, APassword: string; var AAuthenticated: boolean ) of object;
-  TIdOnBeforeConnect = procedure( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) of object;
-  TIdOnBeforeSocksBind = procedure( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) of object;
+  TIdOnAuthenticate = procedure(AContext: TIdSocksServerContext; var AAuthenticated: Boolean) of object;
+  TIdOnBeforeEvent = procedure(AContext: TIdSocksServerContext; var VHost: string; var VPort: TIdPort; var VAllowed: Boolean) of object;
+  TIdOnVerifyEvent = procedure(AContext: TIdSocksServerContext; const AHost, APeer: string; var VAllowed: Boolean) of object;
 
-  TIdCustomSocksServer = class( TIdCustomTCPServer )
-  private
+  TIdCustomSocksServer = class(TIdCustomTCPServer)
   protected
-    fSocks5NeedsAuthentication: boolean;
-    fAllowSocks4: boolean;
-    fAllowSocks5: boolean;
-    fOnAuthenticate: TIdOnAuthenticate;
-    fOnBeforeSocksConnect: TIdOnBeforeConnect;
-    fOnBeforeSocksBind: TIdOnBeforeSocksBind;
+    FNeedsAuthentication: Boolean;
+    FAllowSocks4: Boolean;
+    FAllowSocks5: Boolean;
+    FOnAuthenticate: TIdOnAuthenticate;
+    FOnBeforeSocksConnect: TIdOnBeforeEvent;
+    FOnBeforeSocksBind: TIdOnBeforeEvent;
+    FOnVerifyBoundPeer: TIdOnVerifyEvent;
 
-    function DoExecute( AThread: TIdContext ) : boolean; override;
+    function DoExecute(AContext: TIdContext) : Boolean; override;
 
-    procedure CommandConnect( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; virtual; abstract; //
-    procedure CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; virtual; abstract; //
+    procedure CommandConnect(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort); virtual; abstract;
+    procedure CommandBind(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort); virtual; abstract;
 
-    procedure DoAuthenticate( AThread: TIdSocksServerContext; const AUsername, APassword: string; var AAuthenticated: boolean ) ; virtual;
-    procedure DoBeforeSocksConnect( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
-    procedure DoBeforeSocksBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ; virtual;
-    procedure HandleConnectV4( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ; virtual;
-    procedure HandleConnectV5( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ; virtual;
+    function DoAuthenticate(AContext: TIdSocksServerContext): Boolean; virtual;
+    function DoBeforeSocksConnect(AContext: TIdSocksServerContext; var VHost: string; var VPort: TIdPort): Boolean; virtual;
+    function DoBeforeSocksBind(AContext: TIdSocksServerContext; var VHost: string; var VPort: TIdPort): Boolean; virtual;
+    function DoVerifyBoundPeer(AContext: TIdSocksServerContext; const AExpected, AActual: string): Boolean; virtual;
+    procedure HandleConnectV4(AContext: TIdSocksServerContext; var VCommand: Byte; var VHost: string; var VPort: TIdPort); virtual;
+    procedure HandleConnectV5(AContext: TIdSocksServerContext; var VCommand: Byte; var VHost: string; var VPort: TIdPort); virtual;
     procedure InitComponent; override;
-  public
-    destructor Destroy; override;
   published
     property DefaultPort default IdPORT_SOCKS;
-    property Socks5NeedsAuthentication: boolean read fSocks5NeedsAuthentication write fSocks5NeedsAuthentication;
-    property AllowSocks4: boolean read fAllowSocks4 write fAllowSocks4;
-    property AllowSocks5: boolean read fAllowSocks5 write fAllowSocks5;
+    property AllowSocks4: Boolean read FAllowSocks4 write FAllowSocks4;
+    property AllowSocks5: Boolean read FAllowSocks5 write FAllowSocks5;
+    property NeedsAuthentication: Boolean read FNeedsAuthentication write FNeedsAuthentication;
 
-    property OnAuthenticate: TIdOnAuthenticate read fOnAuthenticate write fOnAuthenticate;
-    property OnBeforeSocksConnect: TIdOnBeforeConnect read fOnBeforeSocksConnect write fOnBeforeSocksConnect;
-    property OnBeforeSocksBind: TIdOnBeforeSocksBind read fOnBeforeSocksBind write fOnBeforeSocksBind;
+    property OnAuthenticate: TIdOnAuthenticate read FOnAuthenticate write FOnAuthenticate;
+    property OnBeforeSocksConnect: TIdOnBeforeEvent read FOnBeforeSocksConnect write FOnBeforeSocksConnect;
+    property OnBeforeSocksBind: TIdOnBeforeEvent read FOnBeforeSocksBind write FOnBeforeSocksBind;
+    property OnVerifyBoundPeer: TIdOnVerifyEvent read FOnVerifyBoundPeer write FOnVerifyBoundPeer;
   end;
 
-  TIdSocksServer = class( TIdCustomSocksServer )
+  TIdSocksServer = class(TIdCustomSocksServer)
   protected
-    procedure CommandConnect( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; override; //
-    procedure CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; override; //
-  public
-  published
+    procedure CommandConnect(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort); override;
+    procedure CommandBind(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort); override;
   end;
 
-  TIdOnCommandConnect = procedure( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) of object;
-  TIdOnCommandBind = procedure( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) of object;
+  TIdOnCommandEvent = procedure(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort) of object;
 
-  TIdEventSocksServer = class( TIdCustomSocksServer )
-  private
+  TIdEventSocksServer = class(TIdCustomSocksServer)
   protected
-    fOnCommandConnect: TIdOnCommandConnect;
-    fOnCommandBind: TIdOnCommandBind;
-    procedure CommandConnect( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; override; //
-    procedure CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ; override; //
-  public
+    FOnCommandConnect: TIdOnCommandEvent;
+    FOnCommandBind: TIdOnCommandEvent;
+    procedure CommandConnect(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort) ; override;
+    procedure CommandBind(AContext: TIdSocksServerContext; const AHost: string; const APort: TIdPort); override;
   published
-    property OnCommandConnect: TIdOnCommandConnect read fOnCommandConnect write fOnCommandConnect;
-    property OnCommandBind: TIdOnCommandBind read fOnCommandBind write fOnCommandBind;
+    property OnCommandConnect: TIdOnCommandEvent read FOnCommandConnect write FOnCommandConnect;
+    property OnCommandBind: TIdOnCommandEvent read FOnCommandBind write FOnCommandBind;
   end;
 
 implementation
 
 uses
+  IdGlobalProtocols,
+  IdIOHandlerStack,
+  IdIPAddress,
   IdResourceStringsProtocols,
   IdTcpClient,
   IdSimpleServer,
-  IdIOHandlerStack,
-  IdStack,
-  IdGlobalProtocols;
+  IdStack;
 
-function ReadBufferEx( AFrom: TIdTCPConnection; var ABuffer; const AMaxSize: Integer; const ATimeOut: integer = 25 ) : integer;
-begin
-  if ( AMaxSize > 0 ) and ( @ABuffer <> nil ) then begin
-
-todo;
-//    if AFrom.IOHandler.Buffer.Size { from.CurrentReadBufferSize} < AMaxSize then
-//    begin
-      AFrom.IOHandler.CheckForDataOnSource(ATimeOut ) ;
-//    end;
-
-todo;
-//    if AFrom.IOHandler.Buffer.Size { from.CurrentReadBufferSize} > AMaxSize then
-//    begin
-//      result := AMaxSize;
-//    end
-//    else
-//    begin
-//      result := AFrom.IOHandler.Buffer.Size {from.CurrentReadBufferSize};
-//    end;
-//    AFrom.IOHandler.ReadBuffer( ABuffer, result ) ;
-//  end
-//  else
-//  begin
-   // result := 0;
-  end;
-Result := 0;
-end;
-
-function GetBufferSize( AFrom: TIdTCPConnection; const ATimeOut: integer = 25 ) : integer;
-begin
-  AFrom.IOHandler.CheckForDataOnSource(ATimeOut ) ;
-todo;
-//  result := AFrom.IOHandler.Buffer.Size {from.CurrentReadBufferSize};
-Result := 0;
-end;
-
-procedure TransferData( const FromConn, ToConn: TIdTCPConnection ) ;
+function IPToBytes(AIP: string; const AIPVersion: TIdIPVersion): TIdBytes;
 var
-  buff: array[0..4095] of char;
-  amount: integer;
+  LIP: TIdIPAddress;
 begin
-  while FromConn.Connected and ToConn.Connected do
-  begin
-    amount := ReadBufferEx( FromConn, buff, sizeof( buff ) ) ;
-    if amount > 0 then
-    begin
-todo;
-//      ToConn.IOHandler.WriteBuffer( buff, amount ) ;
+  if AIPVersion = Id_IPv4 then begin
+    SetLength(Result, 4);
+  end else begin
+    SetLength(Result, 16);
+  end;
+  LIP := TIdIPAddress.MakeAddressObject(AIP, AIPVersion);
+  try
+    if Assigned(LIP) then begin
+      CopyTIdBytes(LIP.HToNBytes, 0, Result, 0, Length(Result));
+    end else begin
+      FillBytes(Result, Length(Result), 0);
     end;
-    amount := ReadBufferEx( ToConn, buff, sizeof( buff ) ) ;
-    if amount > 0 then
-    begin
-todo;
-//      FromConn.IOHandler.WriteBuffer( buff, amount ) ;
-    end;
+  finally
+    FreeAndNil(LIP);
   end;
 end;
 
-procedure TIdCustomSocksServer.DoAuthenticate( AThread: TIdSocksServerContext; const AUsername, APassword: string; var AAuthenticated: boolean ) ;
-begin
-  if assigned( OnAuthenticate ) then
-  begin
-    OnAuthenticate( AThread, AUsername, APassword, AAuthenticated ) ;
-  end;
-end;
-
-procedure TIdCustomSocksServer.DoBeforeSocksConnect( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
-begin
-  if assigned( OnBeforeSocksConnect ) then
-  begin
-    OnBeforeSocksConnect( AThread, AUserId, AHost, APort, AAllowed ) ;
-  end;
-end;
-
-procedure TIdCustomSocksServer.DoBeforeSocksBind( AThread: TIdSocksServerContext; const AUserId: string; var AHost: string; var APort: integer; var AAllowed: boolean ) ;
-begin
-  if assigned( OnBeforeSocksBind ) then
-  begin
-    OnBeforeSocksBind( AThread, AUserId, AHost, APort, AAllowed ) ;
-  end;
-end;
-
-procedure SendV5Response( AThread: TIdSocksServerContext; const AResponse: byte ) ;
-begin
-  AThread.Connection.IOHandler.Write( #5 + chr( AResponse ) ) ;
-end;
-
-procedure TIdCustomSocksServer.HandleConnectV5( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ;
+procedure TransferData(const FromConn, ToConn: TIdTCPConnection);
+const
+  cMaxBufSize: Integer = 4096;
 var
-  LLine: string;
+  LBuffer: TMemoryStream;
+  LAmount: Integer;
 
-  LTyp: byte;
-  LSupportsAuth: boolean;
-
-  Lusername, Lpassword: string;
-  LValidLogin: boolean;
-
-  a: integer;
-begin
-  LSupportsAuth := false;
-  for a := 1 to byte( AThread.Connection.IOHandler.ReadChar ) do
+  function ReadFrom(AFrom: TIdTCPConnection): Integer;
   begin
-    if byte( AThread.Connection.IOHandler.ReadChar ) = IdSocksAuthUsernamePassword then
-    begin
-      LSupportsAuth := true;
+    AFrom.IOHandler.CheckForDataOnSource(25);
+    Result := AFrom.IOHandler.InputBuffer.Size;
+    if Result > 0 then begin
+      Result := Min(Result, cMaxBufSize);
+      LBuffer.Position := 0;
+      AFrom.IOHandler.InputBuffer.ExtractToStream(LBuffer, Result);
     end;
   end;
-  if not Socks5NeedsAuthentication then
-  begin
-    SendV5Response( AThread, IdSocksAuthNoAuthenticationRequired )
-  end
-  else
-  begin
-    if not LSupportsAuth then
+
+begin
+  LBuffer := TMemoryStream.Create;
+  try
+    LBuffer.Size := cMaxBufSize;
+    while FromConn.Connected and ToConn.Connected do
     begin
-      SendV5Response( AThread, IdSocksAuthNoAcceptableMethods ) ;
-      AThread.Connection.disconnect; // not sure the server has to disconnect
-      raise EIdSocksSvrNotSupported.create(RSSocksSvrNotSupported);
-//      exit; //exception
-    end
-    else
-    begin
-      SendV5Response( AThread, IdSocksAuthUsernamePassword ) ;
-      AThread.Connection.IOHandler.ReadChar; //subversion, we don't need it.
-      LUsername := AThread.Connection.IOHandler.ReadString( byte( AThread.Connection.IOHandler.readchar ) ) ;
-      LPassword := AThread.Connection.IOHandler.ReadString( byte( AThread.Connection.IOHandler.readchar ) ) ;
-      LValidLogin := false;
-      DoAuthenticate( TIdSocksServerContext( AThread ) , LUsername, LPassword, LValidLogin ) ;
-      if LValidLogin then
-      begin
-        AThread.Connection.IOHandler.Write(#1+chr(IdSocksLoginSuccess) );
-      end
-      else
-      begin
-        AThread.Connection.IOHandler.Write(#1+chr(IdSocksLoginFailure )) ;
-        AThread.Connection.disconnect;
-        raise EIdSocksSvrNotSupported.create(RSSocksSvrInvalidLogin);
-        //exit; //exception
+      // TODO: use TIdSocketList here
+      LAmount := ReadFrom(FromConn);
+      if LAmount > 0 then begin
+        LBuffer.Position := 0;
+        ToConn.IOHandler.Write(LBuffer, LAmount);
+      end;
+      LAmount := ReadFrom(ToConn);
+      if LAmount > 0 then begin
+        LBuffer.Position := 0;
+        FromConn.IOHandler.Write(LBuffer, LAmount);
       end;
     end;
+  finally
+    FreeAndNil(LBuffer);
   end;
-  AThread.Connection.IOHandler.ReadChar; // socks version, should be 5
+end;
 
-  Acommand := byte( AThread.Connection.IOHandler.ReadChar ) ;
+function TIdCustomSocksServer.DoAuthenticate(AContext: TIdSocksServerContext): Boolean;
+begin
+  Result := Assigned(OnAuthenticate);
+  if Result then begin
+    OnAuthenticate(AContext, Result);
+  end;
+end;
 
-  AThread.Connection.IOHandler.ReadChar; //reserved, should be 0
+function TIdCustomSocksServer.DoBeforeSocksConnect(AContext: TIdSocksServerContext;
+  var VHost: string; var VPort: TIdPort): Boolean;
+begin
+  Result := True;
+  if Assigned(OnBeforeSocksConnect) then begin
+    OnBeforeSocksConnect(AContext, VHost, VPort, Result);
+  end;
+end;
 
-  LTyp := byte( AThread.Connection.IOHandler.ReadChar ) ;
+function TIdCustomSocksServer.DoBeforeSocksBind(AContext: TIdSocksServerContext;
+  var VHost: string; var VPort: TIdPort): Boolean;
+begin
+  Result := True;
+  if Assigned(OnBeforeSocksBind) then begin
+    OnBeforeSocksBind(AContext, VHost, VPort, Result);
+  end;
+end;
 
-  case LTyp of
+function TIdCustomSocksServer.DoVerifyBoundPeer(AContext: TIdSocksServerContext;
+  const AExpected, AActual: string): Boolean;
+begin
+  Result := True;
+  if Assigned(OnVerifyBoundPeer) then begin
+    OnVerifyBoundPeer(AContext, AExpected, AActual, Result);
+  end;
+end;
+
+
+procedure SendV4Response(AContext: TIdSocksServerContext; const AStatus: Byte;
+  const AIP: String = ''; const APort: TIdPort = 0);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 8);
+  LResponse[0] := 4; // SOCKS version
+  LResponse[1] := AStatus;
+  CopyTIdWord(GStack.HostToNetwork(APort), LResponse, 2);
+  CopyTIdBytes(IPToBytes(AIP, Id_IPv4), 0, LResponse, 4, 4);
+  AContext.Connection.IOHandler.Write(LResponse);
+end;
+
+procedure SendV5MethodResponse(AContext: TIdSocksServerContext; const AMethod: Byte);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 2);
+  LResponse[0] := 5; // SOCKS version
+  LResponse[1] := AMethod;
+  AContext.Connection.IOHandler.Write(LResponse);
+end;
+
+procedure SendV5AuthResponse(AContext: TIdSocksServerContext; const AStatus: Byte);
+var
+  LResponse: TIdBytes;
+begin
+  SetLength(LResponse, 2);
+  LResponse[0] := 1; // AUTH version
+  LResponse[1] := AStatus;
+  AContext.Connection.IOHandler.Write(LResponse);
+end;
+
+procedure SendV5Response(AContext: TIdSocksServerContext; const AStatus: Byte;
+  const AIP: String = ''; const APort: TIdPort = 0);
+const
+  LTypes: array[TIdIPVersion] of Byte = ($1, $4);
+var
+  LResponse, LIP: TIdBytes;
+begin
+  LIP := IPToBytes(AIP, AContext.IPVersion);
+  SetLength(LResponse, 4 + Length(LIP) + 2);
+
+  LResponse[0] := 5; // SOCKS version
+  LResponse[1] := AStatus;
+  LResponse[2] := 0;
+  LResponse[3] := LTypes[AContext.IPVersion];
+  CopyTIdBytes(LIP, 0, LResponse, 4, Length(LIP));
+  CopyTIdWord(GStack.HostToNetwork(APort), LResponse, 4+Length(LIP));
+
+  AContext.Connection.IOHandler.Write(LResponse);
+end;
+
+procedure TIdCustomSocksServer.HandleConnectV4(AContext: TIdSocksServerContext;
+  var VCommand: Byte; var VHost: string; var VPort: TIdPort);
+var
+  LData: TIdBytes;
+
+  function ReadStringNullTerm: String;
+  var
+    C: Char;
+  begin
+    Result := '';
+    repeat
+      // TODO: use ReadLn() instead
+      C := AContext.Connection.IOHandler.ReadChar;
+      if C <> #0 then begin
+        Result := Result + C;
+      end;
+    until C = #0;
+  end;
+
+begin
+  AContext.Connection.IOHandler.ReadBytes(LData, 7);
+  VCommand := LData[0];
+  VPort := GStack.NetworkToHost(BytesToWord(LData, 1));
+  VHost := BytesToIPv4Str(LData, 3);
+  AContext.FUsername := ReadStringNullTerm;
+  AContext.FPassword := '';
+
+  // According to the Socks 4a spec:
+  //
+  // "For version 4A, if the client cannot resolve the destination
+  // host's domain name to find its IP address, it should set the first
+  // three bytes of DSTIP to NULL and the last byte to a non-zero value.
+  //
+  // In other words, do not check for '0.0.0.1' specifically, but '0.0.0.x' generically.
+
+  // if VHost = '0.0.0.1' then begin
+  if (LData[3] = 0) and (LData[4] = 0) and (LData[5] = 0) and (LData[6] <> 0) then begin
+    VHost := ReadStringNullTerm;
+    if AContext.Connection.Socket <> nil then begin
+      AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
+    end else begin
+      AContext.FIPVersion := ID_DEFAULT_IP_VERSION;
+    end;
+  end else begin
+    AContext.FIPVersion := Id_IPv4;
+  end;
+
+  if not DoAuthenticate(AContext) then begin
+    SendV4Response(AContext, 93);
+    AContext.Connection.Disconnect;
+    EIdSocksSvrInvalidLogin.Toss(RSSocksSvrInvalidLogin);
+  end;
+
+  Sendv4Response(AContext, 90);
+end;
+
+procedure TIdCustomSocksServer.HandleConnectV5(AContext: TIdSocksServerContext;
+  var VCommand: Byte; var VHost: string; var VPort: TIdPort);
+var
+  LType: Byte;
+  LMethods, LData: TIdBytes;
+  LIP6: TIdIPv6Address;
+  I: Integer;
+begin
+  AContext.Connection.IOHandler.ReadBytes(LMethods, AContext.Connection.IOHandler.ReadByte);
+  if not NeedsAuthentication then begin
+    AContext.FUsername := '';
+    AContext.FPassword := '';
+    SendV5MethodResponse(AContext, IdSocksAuthNoAuthenticationRequired);
+  end else begin
+    if ByteIndex(IdSocksAuthUsernamePassword, LMethods) = -1 then begin
+      SendV5MethodResponse(AContext, IdSocksAuthNoAcceptableMethods);
+      AContext.Connection.Disconnect; // not sure the server has to disconnect
+      EIdSocksSvrNotSupported.Toss(RSSocksSvrNotSupported);
+    end;
+    SendV5MethodResponse(AContext, IdSocksAuthUsernamePassword);
+    AContext.Connection.IOHandler.ReadByte; //subversion, we don't need it.
+    AContext.FUsername := AContext.Connection.IOHandler.ReadString(AContext.Connection.IOHandler.ReadByte);
+    AContext.FPassword := AContext.Connection.IOHandler.ReadString(AContext.Connection.IOHandler.ReadByte);
+    if not DoAuthenticate(AContext) then begin
+      SendV5AuthResponse(AContext, IdSocks5ReplyGeneralFailure);
+      AContext.Connection.Disconnect;
+      EIdSocksSvrInvalidLogin.Toss(RSSocksSvrInvalidLogin);
+    end;
+    SendV5AuthResponse(AContext, IdSocks5ReplySuccess);
+  end;
+
+  AContext.Connection.IOHandler.ReadByte; // socks version, should be 5
+  VCommand := AContext.Connection.IOHandler.ReadByte;
+  AContext.Connection.IOHandler.ReadByte; // reserved, should be 0
+  LType := AContext.Connection.IOHandler.ReadByte;
+
+  case LType of
     1:
       begin
-        Lline := AThread.Connection.IOHandler.ReadString( 6 ) ;
-        Ahost := IntToStr( ord( Lline[1] ) ) + '.' + IntToStr( ord( Lline[2] ) ) + '.' + IntToStr( ord( Lline[3] ) ) + '.' + IntToStr( ord( Lline[4] ) ) ;
-        Aport := ord( Lline[5] ) * 256 + ord( Lline[6] ) ;
+        AContext.Connection.IOHandler.ReadBytes(LData, 6);
+        VHost := BytesToIPv4Str(LData);
+        VPort := GStack.NetworkToHost(BytesToWord(LData, 4));
+        AContext.FIPVersion := Id_IPv4;
       end;
     3:
       begin
-        Ahost := AThread.Connection.IOHandler.ReadString( byte( AThread.Connection.IOHandler.readchar ) ) ;
-        Lline := AThread.Connection.IOHandler.ReadString( 2 ) ;
-        Aport := ord( Lline[1] ) * 256 + ord( Lline[2] ) ;
+        AContext.Connection.IOHandler.ReadBytes(LData, AContext.Connection.IOHandler.ReadByte+2);
+        VHost := BytesToString(LData, Length(LData)-2);
+        VPort := GStack.NetworkToHost(BytesToWord(LData, Length(LData)-2));
+        if AContext.Connection.Socket <> nil then begin
+          AContext.FIPVersion := AContext.Connection.Socket.IPVersion;
+        end else begin
+          AContext.FIPVersion := ID_DEFAULT_IP_VERSION;
+        end;
       end;
-    4:  // ip v6
+    4:
       begin
-        AThread.Connection.IOHandler.Readchar;// should be 18 (16 for host, and 2 for port)
-        Lline := AThread.Connection.IOHandler.ReadString( 18 ) ;
-todo;
-//        Ahost:=GStack.TInAddrToString(lline[1],id_ipv6);
-        Aport := ord( Lline[17] ) * 256 + ord( Lline[18] ) ;
+        AContext.Connection.IOHandler.ReadBytes(LData, 18);
+        BytesToIPv6(LData, LIP6);
+        for I := 0 to 7 do begin
+          LIP6[I] := GStack.NetworkToHost(LIP6[I]);
+        end;
+        VHost := IPv6AddressToStr(LIP6);
+        VPort := GStack.NetworkToHost(BytesToWord(LData, 16));
+        AContext.FIPVersion := Id_IPv6;
       end;
-  else
-    raise EIdSocksSvrSocks5WrongATYP.Create( RSSocksSvrWrongATYP ) ;
+    else
+      begin
+        SendV5Response(AContext, IdSocks5ReplyAddrNotSupported);
+        AContext.Connection.Disconnect;
+        EIdSocksSvrSocks5WrongATYP.Toss(RSSocksSvrWrongATYP);
+      end;
   end;
 end;
 
-procedure TIdCustomSocksServer.HandleConnectV4( AThread: TIdSocksServerContext; var ACommand: byte; var AUserId, AHost: string; var Aport: integer ) ;
+function TIdCustomSocksServer.DoExecute(AContext: TIdContext): Boolean;
 var
-  Lline: string;
-begin
-  Acommand := byte( AThread.Connection.IOHandler.ReadChar ) ;
-  Lline := AThread.Connection.IOHandler.ReadString( 2 ) ;
-  Aport := ord( Lline[1] ) * 256 + ord( Lline[2] ) ;
-  Lline := AThread.Connection.IOHandler.ReadString( 5 ) ;
-  Ahost := IntToStr( ord( Lline[1] ) ) + '.' +
-           IntToStr( ord( Lline[2] ) ) + '.' +
-           IntToStr( ord( Lline[3] ) ) + '.' +
-           IntToStr( ord( Lline[4] ) ) ;
-end;
-
-function TIdCustomSocksServer.DoExecute( AThread: TIdContext ) : boolean;
-var
-  LVersion: byte;
-  LCommand: byte;
-  LUserId: string;
+  LCommand: Byte;
   LHost: string;
-  Lport: integer;
-  LSocksServerThread: TIdSocksServerContext absolute AThread;
+  LPort: TIdPort;
+  LContext: TIdSocksServerContext;
 begin
   //just to keep the compiler happy
   Result := True;
+  LContext := AContext as TIdSocksServerContext;
 
-  LVersion := byte( AThread.Connection.IOHandler.ReadChar ) ;
-  TIdSocksServerContext( AThread ) .SocksVersion := LVersion;
+  LContext.FSocksVersion := AContext.Connection.IOHandler.ReadByte;
 
-  if not ( ( ( LVersion = 4 ) and AllowSocks4 ) or ( ( LVersion = 5 ) and AllowSocks5 ) ) then
-    raise EIdSocksSvrWrongSocksVer.Create( RSSocksSvrWrongSocksVersion ) ;
+  if not ((LContext.SocksVersion = 4) and AllowSocks4) or
+    ((LContext.SocksVersion = 5) and AllowSocks5) then
+  begin
+    EIdSocksSvrWrongSocksVer.Toss(RSSocksSvrWrongSocksVersion);
+  end;
 
-  case LVersion of
-    4: HandleConnectV4( TIdSocksServerContext( AThread ) , LCommand, LUserId, LHost, Lport ) ;
-    5: HandleConnectV5( TIdSocksServerContext( AThread ) , LCommand, LUserId, LHost, Lport ) ;
+  case LContext.SocksVersion of
+    4: HandleConnectV4(LContext, LCommand, LHost, LPort);
+    5: HandleConnectV5(LContext, LCommand, LHost, LPort);
   end;
 
   case LCommand of
-    1: CommandConnect( TIdSocksServerContext( AThread ) , LUserId, LHost, LPort ) ;
-    2: CommandBind( TIdSocksServerContext( AThread ) , LUserId, LHost, LPort ) ;
+    1: CommandConnect(LContext, LHost, LPort);
+    2: CommandBind(LContext, LHost, LPort);
     //3: //udp bind
   else
-    raise EIdSocksSvrWrongSocksCmd.Create( RSSocksSvrWrongSocksCommand ) ;
+    begin
+      case LContext.SocksVersion of
+        4: SendV4Response(LContext, 93);
+        5: SendV5Response(LContext, IdSocks5ReplyCmdNotSupported);
+      end;
+      AContext.Connection.Disconnect;
+      EIdSocksSvrWrongSocksCmd.Toss(RSSocksSvrWrongSocksCommand);
+    end;
   end;
 end;
 
-procedure TIdSocksServer.CommandConnect( AThread: TIdSocksServerContext; AUserId, AHost: string; APort: integer ) ;
+procedure TIdSocksServer.CommandConnect(AContext: TIdSocksServerContext;
+  const AHost: string; const APort: TIdPort);
 var
-  LIdtcpclient: tidtcpclient;
-  LAlowed: boolean;
+  LClient: TIdTCPClient;
+  LHost: String;
+  LPort: TIdPort;
 begin
-  LAlowed := true;
-  DoBeforeSocksConnect( AThread, AUserId, AHost, Aport, LAlowed ) ;
-  if not LAlowed then
-  begin
-    if AThread.SocksVersion = 4 then
-    begin
-      AThread.Connection.IOHandler.write( #0#2#0#1 + #0#0#0#0#0#0 )
-    end
-    else
-    begin
-      AThread.Connection.IOHandler.write( chr( AThread.SocksVersion ) + #2#0#1 + #0#0#0#0#0#0 ) ;
+  LHost := AHost;
+  LPort := APort;
+
+  if not DoBeforeSocksConnect(AContext, LHost, LPort) then begin
+    if AContext.SocksVersion = 4 then begin
+      SendV4Response(AContext, 91);
+    end else begin
+      SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
     end;
-    raise EIdSocksSvrAccessDenied.Create( RSSocksSvrAccessDenied ) ;
+    AContext.Connection.Disconnect;
+    EIdSocksSvrAccessDenied.Toss(RSSocksSvrAccessDenied);
   end;
 
-  LIdtcpclient := nil;
+  LClient := nil;
   try
-
-    LIdtcpclient := tidtcpclient.create( nil ) ;
-    LIdtcpclient.IOHandler:=TIdIOHandlerStack.Create(nil);
-    LIdtcpclient.port := Aport;
-    LIdtcpclient.host := Ahost;
     try
-      if Length(MakeCanonicalIPv6Address(Ahost))>0 then
-      begin
-todo;
-//        (LIdtcpclient.IOHandler as TIdIOHandlerStack).IPVersion:=Id_IPv6;
-      end;
-      LIdtcpclient.Connect;
-      if AThread.SocksVersion = 4 then
-      begin
-        AThread.Connection.IOHandler.write( #4#90 + #0#0#0#0#0#0 )
-      end
-      else
-      begin
-        AThread.Connection.IOHandler.write( chr( AThread.SocksVersion ) + #0#0#1 + #0#0#0#0#0#0 )
-      end;
+      LClient := TIdTCPClient.Create(nil);
+      LClient.Port := LPort;
+      LClient.Host := LHost;
+      LClient.IPVersion := AContext.IPVersion;
+      LClient.ConnectTimeout := 120000; // 2 minutes
+      LClient.Connect;
     except
-      if AThread.SocksVersion = 4 then
-      begin
-        AThread.Connection.IOHandler.write( #4#91#0#1 + #0#0#0#0#0#0 )
-      end
-      else
-      begin
-        AThread.Connection.IOHandler.write( chr( AThread.SocksVersion ) + #4#0#1 + #0#0#0#0#0#0 ) ;
-        raise;
+      if AContext.SocksVersion = 4 then begin
+        SendV4Response(AContext, 91);
+      end else begin
+        SendV5Response(AContext, IdSocks5ReplyHostUnreachable);
       end;
+      AContext.Connection.Disconnect;
+      raise;
     end;
-    TransferData( AThread.Connection, LIdtcpclient ) ;
-    LIdtcpclient.Disconnect;
-    AThread.Connection.Disconnect;
+
+    if AContext.SocksVersion = 4 then begin
+      SendV4Response(AContext, 90, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
+    end else begin
+      SendV5Response(AContext, IdSocks5ReplySuccess, LClient.Socket.Binding.IP, LClient.Socket.Binding.Port);
+    end;
+
+    TransferData(AContext.Connection, LClient);
+    LClient.Disconnect;
+    AContext.Connection.Disconnect;
   finally
-    if assigned(LIdtcpclient.IOHandler) then begin
-    	LIdtcpclient.IOHandler.free;
-    	LIdtcpclient.IOHandler:=nil;
-    end;
-    LIdtcpclient.free;
+    FreeAndNil(LClient);
   end;
 end;
 
-function ipStrToStr( ip: string ) : string;
+procedure TIdSocksServer.CommandBind(AContext: TIdSocksServerContext;
+  const AHost: string; const APort: TIdPort);
 var
-  a: integer;
+  LServer: TIdSimpleServer;
+  LHost: String;
+  LPort: TIdPort;
 begin
-  setlength( result, 4 ) ;
+  LHost := AHost;
+  LPort := APort;
 
-  a := pos( '.', ip ) ;
-  result[1] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
-  ip := copy( ip, a + 1, maxint ) ;
-
-  a := pos( '.', ip ) ;
-  result[2] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
-  ip := copy( ip, a + 1, maxint ) ;
-
-  a := pos( '.', ip ) ;
-  result[3] := chr( IndyStrToInt( copy( ip, 1, a - 1 ) ) ) ;
-  ip := copy( ip, a + 1, maxint ) ;
-
-  result[4] := chr( IndyStrToInt( ip ) ) ;
-end;
-
-function PortToStr( const port: word ) : string;
-begin
-  result := chr( Port div 256 ) + chr( Port mod 256 )
-end;
-
-procedure TIdSocksServer.CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; APort: integer ) ;
-var
-  LIdSimpleServer: TIdSimpleServer;
-  LAlowed: boolean;
-begin
-  LAlowed := true;
-  DoBeforeSocksBind( AThread, AUserId, AHost, Aport, LAlowed ) ;
-  if not LAlowed then
-  begin
-    if AThread.SocksVersion = 4 then
-    begin
-      AThread.Connection.IOHandler.write( #0#2#0#1 + #0#0#0#0#0#0 )
-    end
-    else
-    begin
-      AThread.Connection.IOHandler.write( #5#2#0#1 + #0#0#0#0#0#0 ) ;
+  if not DoBeforeSocksBind(AContext, LHost, LPort) then begin
+    if AContext.SocksVersion = 4 then begin
+      SendV4Response(AContext, 91);
+    end else begin
+      SendV5Response(AContext, IdSocks5ReplyConnNotAllowed);
     end;
-    raise EIdSocksSvrAccessDenied.Create( RSSocksSvrAccessDenied ) ;
+    AContext.Connection.Disconnect;
+    EIdSocksSvrAccessDenied.Toss(RSSocksSvrAccessDenied);
   end;
 
-  LIdSimpleServer := nil;
+  LServer := nil;
   try
-    LIdSimpleServer := TIdSimpleServer.create( nil ) ;
-
-    LIdSimpleServer.BeginListen;
-
-    if AThread.SocksVersion = 4 then
-    begin
-      AThread.Connection.IOHandler.write( #0 + #90 + PortToStr( LIdSimpleServer.Binding.Port ) + ipstrtostr( LIdSimpleServer.Binding.IP ) )
-    end
-    else
-    begin
-      AThread.Connection.IOHandler.write( chr( AThread.SocksVersion ) + #0#0#1 + ipstrtostr( LIdSimpleServer.Binding.IP ) + chr( LIdSimpleServer.Binding.Port div 256 ) + chr( LIdSimpleServer.Binding.Port mod 256 ) ) ;
+    try
+      LServer := TIdSimpleServer.Create(nil);
+      LServer.IPVersion := AContext.IPVersion;
+      LServer.BeginListen;
+    except
+      if AContext.SocksVersion = 4 then begin
+        SendV4Response(AContext, 91);
+      end else begin
+        SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+      end;
+      AContext.Connection.Disconnect;
+      raise;
     end;
 
-    //  while AThread.Connection.Connected do
-    //    LIdSimpleServer.Listen(30000); // wait 30 secs
-    LIdSimpleServer.Listen;
-
-//    assert( LIdSimpleServer.binding.PeerIP = AHost ) ;
-
-    if not AThread.Connection.Connected then
-    begin
-      raise EIdSocksSvrUnexpectedClose.create( RSSocksSvrUnexpectedClose ) ;
+    if AContext.SocksVersion = 4 then begin
+      SendV4Response(AContext, 90, LServer.Binding.IP, LServer.Binding.Port);
+    end else begin
+      SendV5Response(AContext, IdSocks5ReplySuccess, LServer.Binding.IP, LServer.Binding.Port);
     end;
-    TransferData( AThread.Connection, LIdSimpleServer ) ;
 
-    LIdSimpleServer.Disconnect;
-    AThread.Connection.Disconnect;
+    try
+      LServer.Listen(120000); // 2 minutes
+    except
+      if AContext.SocksVersion = 4 then begin
+        SendV4Response(AContext, 93);
+      end else begin
+        SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+      end;
+      AContext.Connection.Disconnect;
+      raise;
+    end;
+
+    // verify that the connected host is the one actually expected
+    if not DoVerifyBoundPeer(AContext, LHost, LServer.Binding.PeerIP) then begin
+      LServer.Disconnect;
+      if AContext.SocksVersion = 4 then begin
+        SendV4Response(AContext, 91);
+      end else begin
+        SendV5Response(AContext, IdSocks5ReplyGeneralFailure);
+      end;
+      AContext.Connection.Disconnect;
+      EIdSocksSvrPeerMismatch.Toss(RSSocksSvrPeerMismatch);
+    end;
+
+    if AContext.SocksVersion = 4 then begin
+      SendV4Response(AContext, 90, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
+    end else begin
+      SendV5Response(AContext, IdSocks5ReplySuccess, LServer.Binding.PeerIP, LServer.Binding.PeerPort);
+    end;
+
+    TransferData(AContext.Connection, LServer);
+    LServer.Disconnect;
+    AContext.Connection.Disconnect;
   finally
-    LIdSimpleServer.free;
+    FreeAndNil(LServer);
   end;
 end;
 
-procedure TIdEventSocksServer.CommandConnect( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ;
+procedure TIdEventSocksServer.CommandConnect(AContext: TIdSocksServerContext;
+  const AHost: string; const APort: TIdPort);
 begin
-  if assigned( foncommandconnect ) then
-  begin
-    foncommandconnect( AThread, AUserId, AHost, Aport ) ;
+  if Assigned(FOnCommandConnect) then begin
+    FOnCommandConnect(AContext, AHost, APort);
   end;
 end;
 
-procedure TIdEventSocksServer.CommandBind( AThread: TIdSocksServerContext; AUserId, AHost: string; Aport: integer ) ;
+procedure TIdEventSocksServer.CommandBind(AContext: TIdSocksServerContext;
+  const AHost: string; const APort: TIdPort);
 begin
-  if assigned( foncommandbind ) then
-  begin
-    foncommandbind( AThread, AUserId, AHost, Aport ) ;
+  if Assigned(FOnCommandBind) then begin
+    FOnCommandBind(AContext, AHost, APort);
   end;
 end;
 
@@ -603,32 +693,23 @@ end;
 
 procedure TIdCustomSocksServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FContextClass := TIdSocksServerContext;
   DefaultPort := IdPORT_SOCKS;
-  AllowSocks4 := true;
-  AllowSocks5 := true;
-  Socks5NeedsAuthentication := false;
-end;
-
-destructor TIdCustomSocksServer.Destroy;
-begin
-  inherited;
+  AllowSocks4 := True;
+  AllowSocks5 := True;
+  NeedsAuthentication := False;
 end;
 
 { TIdSocksServerContext }
 
-constructor TIdSocksServerContext.Create;
+constructor TIdSocksServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
 begin
-  inherited;
-  FUser := '';
+  inherited Create(AConnection, AYarn, AList);
+  FIPVersion := ID_DEFAULT_IP_VERSION;
+  FUsername := '';
   FPassword := '';
   FSocksVersion := 0;
-end;
-
-destructor TIdSocksServerContext.Destroy;
-begin
-  inherited;
 end;
 
 end.
