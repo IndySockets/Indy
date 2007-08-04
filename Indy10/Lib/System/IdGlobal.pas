@@ -1456,8 +1456,8 @@ var
 begin
   {$IFDEF DOTNET}
   LChars[0] := AChar;
-  LChars[1] := Char(0);
-  GetEncoder(enUTF8).GetBytes(LChars, 0, 1, VDest, 0);
+  LChars[1] := #0;
+  Result := GetEncoder(enUTF8).GetBytes(LChars, 0, 1, VDest, 0);
   {$ELSE}
   LWC := Word(AChar);
   if LWC <= $007F then
