@@ -11,11 +11,11 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-
-
+}
+{
   $Log$
-
-
+}
+{
   Rev 1.5    1/21/2004 1:44:18 PM  JPMugaas
   InitComponent
 
@@ -34,6 +34,7 @@
 unit IdCoderXXE;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses

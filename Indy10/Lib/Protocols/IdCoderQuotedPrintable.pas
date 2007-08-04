@@ -80,246 +80,236 @@
 
   Rev 1.0    11/14/2002 02:15:00 PM  JPMugaas
 
-  2002-08-13/14 - Johannes Berg
-    completely rewrote the Encoder. May do the Decoder later.
-    The encoder will add an EOL to the end of the file if it had no EOL
-    at start. I can't avoid this due to the design of IdStream.ReadLn,
-    but its also no problem, because in transmission this would happen
-    anyway.
+ 2002-08-13/14 - Johannes Berg
+   completely rewrote the Encoder. May do the Decoder later.
+   The encoder will add an EOL to the end of the file if it had no EOL
+   at start. I can't avoid this due to the design of IdStream.ReadLn,
+   but its also no problem, because in transmission this would happen
+   anyway.
 
-  9-17-2001 - J. Peter Mugaas
-    made the interpretation of =20 + EOL to mean a hard line break
-    soft line breaks are now ignored.  It does not make much sense
-    in plain text.  Soft breaks do not indicate the end of paragraphs unlike
-    hard line breaks that do end paragraphs.
+ 9-17-2001 - J. Peter Mugaas
+  made the interpretation of =20 + EOL to mean a hard line break
+  soft line breaks are now ignored.  It does not make much sense
+  in plain text.  Soft breaks do not indicate the end of paragraphs unlike
+  hard line breaks that do end paragraphs.
 
-  3-24-2001 - J. Peter Mugaas
-    Rewrote the Decoder according to a new design.
+ 3-24-2001 - J. Peter Mugaas
+  Rewrote the Decoder according to a new design.
 
-  3-25-2001 - J. Peter Mugaas
+ 3-25-2001 - J. Peter Mugaas
     Rewrote the Encoder according to the new design
 }
 
 unit IdCoderQuotedPrintable;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdCoder,
-  IdStream;
+  IdStream,
+  SysUtils;
 
 type
   TIdDecoderQuotedPrintable = class(TIdDecoder)
   public
-    procedure Decode(const AIn: string;
-      const AStartPos: Integer = 1; const ABytes: Integer = -1); override;
+    procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
   end;
 
   TIdEncoderQuotedPrintable = class(TIdEncoder)
   public
-    function Encode(ASrcStream: TStream; const ABytes: integer = MaxInt): string; override;
+    procedure Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1); override;
   end;
 
 implementation
 
 uses
-  IdGlobal, IdGlobalProtocols, SysUtils;
-
+  IdGlobal,
+  IdGlobalProtocols;
 
 { TIdDecoderQuotedPrintable }
 
-procedure TIdDecoderQuotedPrintable.Decode(const AIn: string;
-      const AStartPos: Integer = 1; const ABytes: Integer = -1);
-
+procedure TIdDecoderQuotedPrintable.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
-  LBuffer, LLine : String;
+  LBuffer: TIdBytes;
   i : Integer;
-  Ch: Char;
-  b : Byte;
-  LBufferLen: integer;
-  LBufferIndex: integer;
+  B, DecodedByte : Byte;
+  LBufferLen: Integer;
+  LBufferIndex: Integer;
   LPos: integer;
 
   procedure StripEOLChars;
   var
     j: Integer;
   begin
-    for j := 1 to Length(sLineBreak) do begin
-      if (LBufferIndex <= LBufferLen) and CharIsInEOL(LBuffer, LBufferIndex) then begin
-        Inc(LBufferIndex);
-      end else begin
-        break;
+    for j := 1 to 2 do begin
+      if (LBufferIndex >= LBufferLen) or (not ByteIsInEOL(LBuffer, LBufferIndex)) then begin
+        Break;
       end;
+      Inc(LBufferIndex);
     end;
   end;
 
-  function TrimRightWhiteSpace(const Str: string): string;
+  function TrimRightWhiteSpace(const ABuf: TIdBytes): TIdBytes;
   var
-    i, LenStr: Integer;
-    LSaveStr: string;
+    LSaveBytes: TIdBytes;
+    i, LLen: Integer;
   begin
-    LSaveStr := '';
-    LenStr := Length(Str);
-    i := LenStr;
-    while i > 0 do
-    begin
-      case Str[i] of
-        #9, #32: ;
-        #10, #13:
-          //BGO: TODO: Change this
-           Insert(Str[i], LSaveStr, 1);
+    SetLength(LSaveBytes, 0);
+    LLen := Length(ABuf);
+    for i := Length(ABuf)-1 downto 0 do begin
+      case ABuf[i] of
+        9, 32: ;
+        10, 13:
+          begin
+            //BGO: TODO: Change this
+            InsertByte(LSaveBytes, ABuf[i], 0);
+          end;
       else
-        Break;
+        begin
+          Break;
+        end;
       end;
-      Dec(i);
+      Dec(LLen);
     end;
-    if i + Length(LSaveStr) >= LenStr then
-      Result := Str
-    else
-      Result := Copy(Str, 1, i) + LSaveStr;
+    SetLength(Result, LLen + Length(LSaveBytes));
+    if LLen > 0 then begin
+      CopyTIdBytes(ABuf, 0, Result, 0, LLen);
+    end;
+    if Length(LSaveBytes) > 0 then begin
+      CopyTIdBytes(LSaveBytes, 0, Result, LLen, Length(LSaveBytes));
+    end;
   end;
 
 begin
-  //LLine := '';     {Do not Localize} // for local strings the compiler generates the ":= ''" code.
+  LBufferLen := IndyLength(ASrcStream, ABytes);
+  if LBufferLen <= 0 then begin
+    Exit;
+  end;
+  SetLength(LBuffer, LBufferLen);
+  TIdStreamHelper.ReadBytes(ASrcStream, LBuffer, LBufferLen);
   { when decoding a Quoted-Printable body, any trailing
   white space on a line must be deleted, - RFC 1521}
-  LBuffer := TrimRightWhiteSpace(AIn);
+  LBuffer := TrimRightWhiteSpace(LBuffer);
   LBufferLen := Length(LBuffer);
-  LBufferIndex := 1;
-  while LBufferIndex <= LBufferLen do begin
-    LPos := 0;
-    for i := LBufferIndex to LBufferLen do begin
-      if LBuffer[i] = '=' then begin
-        LPos := i;
-        break;
+  LBufferIndex := 0;
+  while LBufferIndex < LBufferLen do begin
+    LPos := ByteIndex(Ord('='), LBuffer, LBufferIndex);
+    if LPos = -1 then begin
+      if Assigned(FStream) then begin
+        TIdStreamHelper.Write(FStream, LBuffer, -1, LBufferIndex);
       end;
+      Break;
     end;
-    if LPos = 0 then begin
-      LLine := Copy(LBuffer, LBufferIndex, MAXINT);
-      WriteStringToStream(FStream, LLine);
-      LBufferIndex := LBufferLen+1;
-    end else begin
-      LLine := Copy(LBuffer, LBufferIndex, LPos-LBufferIndex);
-      WriteStringToStream(FStream, LLine);
-      LBufferIndex := LPos+1;
-      // process any following hexidecimal representation
-      if LBufferIndex <= LBufferLen then begin
-        i := 0;
-        b := 0;
-        while LBufferIndex <= LBufferLen do begin
-          Ch := LBuffer[LBufferIndex];
-          case Ch of
-            '0'..'9':                                       {Do not Localize}
-              b := (b shl 4) or (Ord(Ch) - Ord('0'));       {Do not Localize}
-            'A'..'F':                                       {Do not Localize}
-              b := (b shl 4) or (Ord(Ch) - Ord('A') + 10);  {Do not Localize}
-            'a'..'f':                                       {Do not Localize}
-              b := (b shl 4) or (Ord(Ch) - Ord('a') + 10);  {Do not Localize}
-          else
-            Break;
-          end;
-          Inc(i);
-          Inc(LBufferIndex);
-          if i > 1 then begin
-            Break;
-          end;
+    if Assigned(FStream) then begin
+      TIdStreamHelper.Write(FStream, LBuffer, LPos-LBufferIndex, LBufferIndex);
+    end;
+    LBufferIndex := LPos+1;
+    // process any following hexidecimal representation
+    if LBufferIndex < LBufferLen then begin
+      i := 0;
+      DecodedByte := 0;
+      while LBufferIndex < LBufferLen do begin
+        B := LBuffer[LBufferIndex];
+        case B of
+          48..57: //0-9                                           {Do not Localize}
+            DecodedByte := (DecodedByte shl 4) or (B - 48);       {Do not Localize}
+          65..70: //A-F                                           {Do not Localize}
+            DecodedByte := (DecodedByte shl 4) or (B - 65 + 10);  {Do not Localize}
+          97..102://a-f                                           {Do not Localize}
+            DecodedByte := (DecodedByte shl 4) or (B - 97 + 10);  {Do not Localize}
+        else
+          Break;
         end;
-        if i > 0 then begin
-          //if =20 + EOL, this is a hard line break after a space
-          if (b = 32) and (LBufferIndex <= LBufferLen) and CharIsInEOL(LBuffer, LBufferIndex) then begin
-            WriteStringToStream(FStream, Char(b) + EOL);
-            StripEOLChars;
-          end else begin
-             TIdStreamHelper.Write(FStream,ToBytes(b));
-
+        Inc(i);
+        Inc(LBufferIndex);
+        if i > 1 then begin
+          Break;
+        end;
+      end;
+      if i > 0 then begin
+        //if =20 + EOL, this is a hard line break after a space
+        if (DecodedByte = 32) and (LBufferIndex < LBufferLen) and ByteIsInEOL(LBuffer, LBufferIndex) then begin
+          if Assigned(FStream) then begin
+            WriteStringToStream(FStream, Char(DecodedByte) + EOL);
           end;
-        end else begin
-          //ignore soft line breaks -
           StripEOLChars;
+        end else begin
+          WriteStringToStream(FStream, Char(DecodedByte));
         end;
+      end else begin
+        //ignore soft line breaks -
+        StripEOLChars;
       end;
     end;
   end;
 end;
 
 { TIdEncoderQuotedPrintable }
-function TIdEncoderQuotedPrintable.Encode(ASrcStream: TStream; const ABytes: integer): string;
+procedure TIdEncoderQuotedPrintable.Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1);
 const
   SafeChars = [#33..#60, #62..#126];
   HalfSafeChars = [#32, TAB];
   // Rule #2, #3
 var
-  st: TStringList;
-  CurrentLine: shortstring;
+  CurrentLine: ShortString;
   // this is a shortstring for performance reasons.
   // the lines may never get longer than 76, so even if I go a bit
   // further, they won't go longer than 80 or so
   SourceLine: AnsiString;
-  CurrentPos: integer;
+  CurrentPos: Integer;
 
-    procedure WriteToString(const s: shortstring);
-    var
-      SLen: integer;
-    begin
-      SLen := Length(s);
-      MoveChars(s,1, CurrentLine,CurrentPos, SLen);
-      Inc(CurrentPos, SLen);
-    end;
+  procedure WriteToString(const s: ShortString);
+  var
+    SLen: Integer;
+  begin
+    SLen := Length(s);
+    MoveChars(s, 1, CurrentLine, CurrentPos, SLen);
+    Inc(CurrentPos, SLen);
+  end;
 
-    Procedure NewLine;
-    begin
-      WriteToString('=');  {Do not Localize}
-      st.Add(Copy(CurrentLine, 1, CurrentPos-1));
-      CurrentPos := 1;
-    end;
-
-    Procedure FinishLine;
-    begin
-      st.Add(Copy(CurrentLine, 1, CurrentPos - 1));
-      CurrentPos := 1;
-    end;
+  procedure FinishLine;
+  begin
+    WriteStringToStream(ADestStream, Copy(CurrentLine, 1, CurrentPos-1) + EOL);
+    CurrentPos := 1;
+  end;
 
 var
-  i: integer;
-  SourceLen: integer;
+  I: Integer;
+  LSourceSize: Integer;
 begin
-  st := TStringList.Create;
   SetLength(CurrentLine, 255);
-  try
-    //ie while not eof
-    while (ASrcStream.Position < ASrcStream.Size) do begin
-      SourceLine := ReadLnFromStream(ASrcStream, -1, False);
-      CurrentPos := 1;
-      SourceLen := length(SourceLine);
-      for i := 1 to SourceLen do begin
-        if not (SourceLine[i] in SafeChars) then begin
-          if (SourceLine[i] in HalfSafeChars) then begin
-            if i = SourceLen then begin
-              WriteToString(CharToHex('=',SourceLine[i]));
-            end else begin
-              WriteToString(SourceLine[i]);
-            end;
-          end else begin
-            WriteToString(CharToHex('=',SourceLine[i]));
-          end;
-        end else begin
-          if (CurrentPos = 1) and (SourceLine[i] = '.') then begin
-            WriteToString(CharToHex('=',SourceLine[i]));
+  //ie while not eof
+  LSourceSize := ASrcStream.Size;
+  while ASrcStream.Position < LSourceSize do begin
+    SourceLine := ReadLnFromStream(ASrcStream, -1, False);
+    CurrentPos := 1;
+    for i := 1 to Length(SourceLine) do begin
+      if not (SourceLine[i] in SafeChars) then
+      begin
+        if (SourceLine[i] in HalfSafeChars) then begin
+          if i = Length(SourceLine) then begin
+            WriteToString(CharToHex('=', SourceLine[i]));
           end else begin
             WriteToString(SourceLine[i]);
           end;
+        end else begin
+          WriteToString(CharToHex('=', SourceLine[i]));
         end;
-        if CurrentPos > 70 then begin
-          NewLine;
-        end;
+      end
+      else if ((CurrentPos = 1) or (CurrentPos = 71)) and (SourceLine[i] = '.') then begin
+        WriteToString(CharToHex('=', SourceLine[i]));
+      end else begin
+        WriteToString(SourceLine[i]);
       end;
-      FinishLine;
+      if CurrentPos > 70 then begin
+        WriteToString('=');  {Do not Localize}
+        FinishLine;
+      end;
     end;
-    Result := st.Text;
-  finally
-    FreeAndNil(st);
+    FinishLine;
   end;
 end;
 

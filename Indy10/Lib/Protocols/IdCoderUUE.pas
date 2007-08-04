@@ -36,8 +36,9 @@
 
 unit IdCoderUUE;
 
-interface
 {$i IdCompilerDefines.inc}
+
+interface
 
 uses
   IdCoder00E, IdCoder3to4;
