@@ -68,6 +68,7 @@
 unit IdMessageCoderYenc;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -234,12 +235,12 @@ begin
   LH := TIdHashCRC32.Create;
   try
     LH.HashStart(LHash);
-    // note that we have to do hashing here because there's no seek
+    //note that we have to do hashing here because there's no seek
     // in the TStream class, changing definitions in this API might
     // break something, and storing in an extra buffer will just eat space
     while True do
     begin
-      LLine := ReadLnRFC(LMsgEnd);
+      LLine := ReadLnRFC(LMsgEnd, en8Bit);
       if (IndyPos('=yend', LowerCase(LLine)) <> 0) or LMsgEnd then {Do not Localize}
       begin
         Break;
@@ -319,14 +320,14 @@ var
 
   procedure FlushOutputBuffer;
   begin
-    ADest.Write(LOutputBuffer, LOutputBufferUsed);
+    WriteTIdBytesToStream(ADest, LOutputBuffer, LOutputBufferUsed);
     LOutputBufferUsed := 0;
   end;
 
   procedure AddByteToOutputBuffer(const AChar: Byte);
   begin
-    LOutputBuffer[LOutputBufferUsed]:=AChar;
-    inc(LOutputBufferUsed);
+    LOutputBuffer[LOutputBufferUsed] := AChar;
+    Inc(LOutputBufferUsed);
     if LOutputBufferUsed >= BUFLEN then begin
       FlushOutputBuffer;
     end;
@@ -335,9 +336,8 @@ var
   function ReadByteFromInputBuffer: Byte;
   begin
     if LInputBufferPos >= LInputBufferSize then begin
+      LInputBufferSize := ReadTIdBytesFromStream(ASrc, LInputBuffer, BUFLEN);
       LInputBufferPos := 0;
-      Todo;
-//      LInputBufferSize := ASrc.Read(LInputBuffer, 4096);
     end;
     Result := LInputBuffer[LInputBufferPos];
     Inc(LInputBufferPos);
