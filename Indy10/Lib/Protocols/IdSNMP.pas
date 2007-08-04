@@ -54,6 +54,7 @@ The Synapse SNMP component was converted for use in INDY.
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -66,23 +67,24 @@ uses
 
 const
   //PDU type
-  PDUGetRequest=$a0;
-  PDUGetNextRequest=$a1;
-  PDUGetResponse=$a2;
-  PDUSetRequest=$a3;
-  PDUTrap=$a4;
+  PDUGetRequest     = $a0;
+  PDUGetNextRequest = $a1;
+  PDUGetResponse    = $a2;
+  PDUSetRequest     = $a3;
+  PDUTrap           = $a4;
 
   //errors
-  ENoError=0;
-  ETooBig=1;
-  ENoSuchName=2;
-  EBadValue=3;
-  EReadOnly=4;
-  EGenErr=5;
+  ENoError    = 0;
+  ETooBig     = 1;
+  ENoSuchName = 2;
+  EBadValue   = 3;
+  EReadOnly   = 4;
+  EGenErr     = 5;
 
 type
   TIdSNMP = class;
-  TSNMPInfo=class(TObject)
+
+  TSNMPInfo = class(TObject)
   private
     fOwner : TIdSNMP;
     fCommunity: string;
@@ -106,19 +108,19 @@ type
     ID : integer;
     ErrorStatus : integer;
     ErrorIndex : integer;
-    MIBOID : TStringList;
-    MIBValue : TStringList;
+    MIBOID : TStrings;
+    MIBValue : TStrings;
 
     constructor Create (AOwner : TIdSNMP);
     destructor  Destroy; override;
     function    EncodeTrap: integer;
     function    DecodeTrap: integer;
-    procedure   DecodeBuf(Buffer:string);
-    function    EncodeBuf:string;
+    procedure   DecodeBuf(Buffer: string);
+    function    EncodeBuf: string;
     procedure   Clear;
-    procedure   MIBAdd(MIB,Value:string; valueType : Integer = ASN1_OCTSTR);
-    procedure   MIBDelete(Index:integer);
-    function    MIBGet(MIB:string):string;
+    procedure   MIBAdd(MIB, Value: string; ValueType: Integer = ASN1_OCTSTR);
+    procedure   MIBDelete(Index: integer);
+    function    MIBGet(MIB: string): string;
 
     property    Owner : TIdSNMP read fOwner;
     property    Community : string read fCommunity write SetCommunity;
@@ -139,12 +141,14 @@ type
     Reply : TSNMPInfo;
     Trap  : TSNMPInfo;
     destructor Destroy; override;
-    function SendQuery : boolean;
-    function QuickSend(const Mib, Community, Host:string; var Value:string):Boolean;
-    function QuickSendTrap(const Dest, Enterprise, Community: string;
-                      Port, Generic, Specific: integer; MIBName, MIBValue: TStringList): integer;
-    function QuickReceiveTrap(var Source, Enterprise, Community: string;
-                      var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TStringList): integer;
+    function SendQuery : Boolean;
+    function QuickSend(const Mib, DestCommunity, DestHost: string; var Value: string):Boolean;
+    function QuickSendTrap(const DestHost, Enterprise, DestCommunity: string;
+                      DestPort: TIdPort; Generic, Specific: integer;
+		      MIBName, MIBValue: TStrings): integer;
+    function QuickReceiveTrap(var SrcHost, Enterprise, SrcCommunity: string;
+                      var SrcPort: TIdPort; var Generic, Specific, Seconds: integer;
+		      MIBName, MIBValue: TStrings): integer;
     function SendTrap: integer;
     function ReceiveTrap: integer;
   published
@@ -195,8 +199,8 @@ constructor TSNMPInfo.Create(AOwner : TIdSNMP);
 begin
   inherited Create;
   fOwner := AOwner;
-  MIBOID:=TStringList.create;
-  MIBValue:=TStringList.create;
+  MIBOID := TStringList.Create;
+  MIBValue := TStringList.Create;
   fCommunity := AOwner.Community;
   Port := AOwner.Port;
 end;
@@ -208,9 +212,9 @@ end;
  *----------------------------------------------------------------------------*)
 destructor TSNMPInfo.Destroy;
 begin
-  MIBValue.Free;
-  MIBOID.Free;
-  inherited destroy;
+  FreeAndNil(MIBValue);
+  FreeAndNil(MIBOID);
+  inherited Destroy;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -220,11 +224,10 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.SyncMIB;
 var
-  n,x:integer;
+  n,x: integer;
 begin
-  x:=MIBValue.Count;
-  for n:=x to MIBOID.Count-1 do
-  begin
+  x := MIBValue.Count;
+  for n := x to MIBOID.Count-1 do begin
     MIBValue.Add('');    {Do not Localize}
   end;
 end;
@@ -237,29 +240,28 @@ end;
  | Parameters:                                                                |
  |   Buffer:string             The ASN buffer to decode                       |
  *----------------------------------------------------------------------------*)
-procedure TSNMPInfo.DecodeBuf(Buffer:string);
+procedure TSNMPInfo.DecodeBuf(Buffer: string);
 var
-  Pos:integer;
-  endpos,vt:integer;
-  sm,sv:string;
+  Pos: integer;
+  endpos,vt: integer;
+  sm,sv: string;
 begin
-  Pos:=2;
-  Endpos:=ASNDecLen(Pos,buffer);
-  Self.version:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.community:=ASNItem(Pos,buffer,vt);
-  Self.PDUType:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ID:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorStatus:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
-  Self.ErrorIndex:=IndyStrToInt(ASNItem(Pos,buffer,vt),0);
-  ASNItem(Pos,buffer,vt);
-  while Pos<Endpos do           // Decode MIB/Value pairs
-    begin
-      ASNItem(Pos,buffer,vt);
-      Sm:=ASNItem(Pos,buffer,vt);
-      Sv:=ASNItem(Pos,buffer,vt);
-
-      MIBadd(sm,sv, vt);
-    end;
+  Pos := 2;
+  Endpos := ASNDecLen(Pos, Buffer);
+  Version := IndyStrToInt(ASNItem(Pos,Buffer,vt),0);
+  Community := ASNItem(Pos,buffer,vt);
+  PDUType := IndyStrToInt(ASNItem(Pos,Buffer,vt),0);
+  ID := IndyStrToInt(ASNItem(Pos,Buffer,vt),0);
+  ErrorStatus := IndyStrToInt(ASNItem(Pos,Buffer,vt),0);
+  ErrorIndex := IndyStrToInt(ASNItem(Pos,Buffer,vt),0);
+  ASNItem(Pos, Buffer, vt);
+  while Pos < Endpos do           // Decode MIB/Value pairs
+  begin
+    ASNItem(Pos, Buffer, vt);
+    Sm := ASNItem(Pos, Buffer, vt);
+    Sv := ASNItem(Pos, Buffer, vt);
+    MIBadd(sm, sv, vt);
+  end;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -269,48 +271,48 @@ end;
  |                                                                            |
  | The function returns the encoded ASN string                                |
  *----------------------------------------------------------------------------*)
-function TSNMPInfo.EncodeBuf:string;
+function TSNMPInfo.EncodeBuf: string;
 var
-  data,s:string;
-  n:integer;
-  objType:PtrUInt;
+  data,s: string;
+  n: integer;
+  objType: PtrUInt;
 begin
-  data:='';    {Do not Localize}
+  data := '';    {Do not Localize}
   SyncMIB;
-  for n:=0 to Self.MIBOID.Count-1 do
-    begin
-      objType := PtrUInt (Self.MIBValue.Objects[n]);
-      if objType = 0 then
-        objType := ASN1_OCTSTR;
-
-      case objType of
-        ASN1_INT:
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncInt(IndyStrToInt(Self.MIBValue[n], 0)), objType);
-        ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(ASNEncUInt(IndyStrToInt(Self.MIBValue[n], 0)), objType);
-        ASN1_OBJID:
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(MibToID(Self.MIBValue[n]), objType);
-        ASN1_IPADDR:
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(IPToID(Self.MIBValue[n]), objType);
-        ASN1_NULL:
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject('', ASN1_NULL);    {Do not Localize}
-        else
-          s := ASNObject(MibToID(Self.MIBOID[n]), ASN1_OBJID) +
-            ASNObject(Self.MIBValue[n], objType);
-      end;
-      data:=data+ASNObject(s,$30);
+  for n := 0 to MIBOID.Count-1 do
+  begin
+    objType := PtrUInt(MIBValue.Objects[n]);
+    if objType = 0 then begin
+      objType := ASN1_OCTSTR;
     end;
-  data:=ASNObject(data,$30);
-  data:=ASNObject(char(Self.ID),2)+ASNObject(char(Self.ErrorStatus),2)
-         +ASNObject(char(Self.ErrorIndex),2)+data;
-  data:=ASNObject(char(Self.Version),2)+ASNObject(Self.community,4)+ASNObject(data,Self.PDUType);
-  data:=ASNObject(data,$30);
-  Result:=data;
+    case objType of
+      ASN1_INT:
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject(ASNEncInt(IndyStrToInt(MIBValue[n], 0)), objType);
+      ASN1_COUNTER, ASN1_GAUGE, ASN1_TIMETICKS:
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject(ASNEncUInt(IndyStrToInt(MIBValue[n], 0)), objType);
+      ASN1_OBJID:
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject(MibToID(MIBValue[n]), objType);
+      ASN1_IPADDR:
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject(IPToID(MIBValue[n]), objType);
+      ASN1_NULL:
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject('', ASN1_NULL);    {Do not Localize}
+      else
+        s := ASNObject(MibToID(MIBOID[n]), ASN1_OBJID) +
+          ASNObject(MIBValue[n], objType);
+    end;
+    data := data + ASNObject(s, $30);
+  end;
+  data := ASNObject(data, $30);
+  data := ASNObject(char(ID),2)+ASNObject(char(ErrorStatus),2)
+         + ASNObject(char(ErrorIndex),2)+data;
+  data := ASNObject(char(Version),2)+ASNObject(Community,4)+ASNObject(data,PDUType);
+  data := ASNObject(data, $30);
+  Result := data;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -320,21 +322,18 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.Clear;
 begin
-  version:=0;
-  fCommunity:=Owner.Community;
-  if Self = fOwner.Trap then
-  begin
-    Port := Owner.TrapPort;
-  end
-  else
-  begin
+  Version:=0;
+  fCommunity := Owner.Community;
+  if Self = fOwner.Trap then begin
+    Port := Owner.TrapPort
+  end else begin
     Port := Owner.Port;
   end;
   Host := Owner.Host;
-  PDUType:=0;
-  ID:=0;
-  ErrorStatus:=0;
-  ErrorIndex:=0;
+  PDUType := 0;
+  ID := 0;
+  ErrorStatus := 0;
+  ErrorIndex := 0;
   MIBOID.Clear;
   MIBValue.Clear;
 end;
@@ -350,21 +349,20 @@ end;
  |  valueType : Integer         The Value's type.  Optional - defaults to     |    {Do not Localize}
  |                              ASN1_OCTSTR                                   |
  *----------------------------------------------------------------------------*)
-procedure TSNMPInfo.MIBAdd(MIB,Value:string; valueType : Integer);
+procedure TSNMPInfo.MIBAdd(MIB, Value: string; ValueType: Integer);
 var
-  x:integer;
+  x: integer;
 begin
   SyncMIB;
-  MIBOID.Add (MIB);
-  x:=MIBOID.Count;
-  if MIBValue.Count>x then
+  MIBOID.Add(MIB);
+  x := MIBOID.Count;
+  if MIBValue.Count > x then
   begin
-    MIBvalue[x-1]:=Value;
-    MibValue.Objects [x-1] := TObject (valueType)
-  end
-  else 
+    MIBValue[x-1] := Value;
+    MIBValue.Objects[x-1] := TObject(ValueType);
+  end else 
   begin
-    MIBValue.AddObject(Value, TObject (valueType));
+    MIBValue.AddObject(Value, TObject(ValueType));
   end;  
 end;
 
@@ -376,12 +374,11 @@ end;
  | Parameters:                                                                |
  |   Index:integer                      The index of the pair to delete       |
  *----------------------------------------------------------------------------*)
-procedure TSNMPInfo.MIBDelete(Index:integer);
+procedure TSNMPInfo.MIBDelete(Index: integer);
 begin
   SyncMIB;
   MIBOID.Delete(Index);
-  if (MIBValue.Count-1)>= Index then 
-  begin
+  if (MIBValue.Count-1) >= Index then begin
     MIBValue.Delete(Index);
   end;  
 end;
@@ -396,19 +393,16 @@ end;
  |                                                                            |
  | The function returns the string representation of the value.               |
  *----------------------------------------------------------------------------*)
-function TSNMPInfo.MIBGet(MIB:string):string;
+function TSNMPInfo.MIBGet(MIB: string): string;
 var
-  x:integer;
+  x: integer;
 begin
   SyncMIB;
-  x:=MIBOID.IndexOf(MIB);
-  if x<0 then 
-  begin
-    Result:=''    {Do not Localize}
-  end
-  else
-  begin 
-    Result:=MIBValue[x];
+  x := MIBOID.IndexOf(MIB);
+  if x < 0 then begin
+    Result := '';    {Do not Localize}
+  end else begin 
+    Result := MIBValue[x];
   end;
 end;
 
@@ -468,7 +462,7 @@ begin
   Spectrap := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
   TimeTicks := IndyStrToInt(ASNItem(Pos, Buffer, vt), 0);
   ASNItem(Pos, Buffer, vt);
-  while (Pos < EndPos) do
+  while Pos < EndPos do
   begin
     ASNItem(Pos, Buffer, vt);
     Sm := ASNItem(Pos, Buffer, vt);
@@ -488,11 +482,11 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TSNMPInfo.SetCommunity(const Value: string);
 begin
-  if Community <> Value then
+  if fCommunity <> Value then
   begin
     Clear;
-    fCommunity := Value
-  end
+    fCommunity := Value;
+  end;
 end;
 
 { TIdSNMP }
@@ -510,17 +504,17 @@ end;
  *----------------------------------------------------------------------------*)
 procedure TIdSNMP.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   Port := 161;
   fTrapPort := 162;
   fCommunity := 'public';    {Do not Localize}
-  Query:=TSNMPInfo.Create (Self);
-  Reply:=TSNMPInfo.Create (Self);
-  Trap :=TSNMPInfo.Create (Self);
+  Query := TSNMPInfo.Create(Self);
+  Reply := TSNMPInfo.Create(Self);
+  Trap  := TSNMPInfo.Create(Self);
   Query.Clear;
   Reply.Clear;
   Trap.Clear;
-  FReceiveTimeout:=5000;
+  FReceiveTimeout := 5000;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -530,9 +524,9 @@ end;
  *----------------------------------------------------------------------------*)
 destructor TIdSNMP.Destroy;
 begin
-  Reply.Free;
-  Query.Free;
-  Trap.Free;
+  FreeAndNil(Reply);
+  FreeAndNil(Query);
+  FreeAndNil(Trap);
   inherited destroy;
 end;
 
@@ -558,23 +552,28 @@ end;
  | The function returns True if a response was received.  IF a response was   |
  | received, it will be decoded into Reply.Value                              |
  *----------------------------------------------------------------------------*)
-function TIdSNMP.SendQuery:boolean;
+function TIdSNMP.SendQuery: Boolean;
 begin
-  reply.clear;
-  Query.Buffer:=Query.Encodebuf;
-  Send(Query.host, Query.port, Query.buffer);
+  Reply.Clear;
+  Query.Buffer := Query.EncodeBuf;
+  Send(Query.Host, Query.Port, Query.Buffer);
   try
-    reply.Buffer := ReceiveString(Query.host, Query.port, FReceiveTimeout);
+    Reply.Buffer := ReceiveString(Query.Host, Query.Port, FReceiveTimeout);
   except
     on e : EIdSocketError do
-      if e.LastError <> 10054 then
+    begin
+      if e.LastError = 10054 then begin
+        Reply.Buffer := '';    {Do not Localize}
+      end else begin
         raise
-      else
-        reply.buffer := '';    {Do not Localize}
+      end;
+    end;
   end;
 
-  if reply.Buffer<>'' then reply.DecodeBuf(reply.Buffer);    {Do not Localize}
-  Result := (reply.Buffer <> '') and (reply.ErrorStatus = 0)    {Do not Localize}
+  if Reply.Buffer <> '' then begin
+    Reply.DecodeBuf(Reply.Buffer);    {Do not Localize}
+  end;
+  Result := (Reply.Buffer <> '') and (Reply.ErrorStatus = 0);    {Do not Localize}
 end;
 
 (*----------------------------------------------------------------------------*
@@ -590,16 +589,17 @@ end;
  |                                                                            |
  | The function returns true if a value was returned for the MIB OID          |
  *----------------------------------------------------------------------------*)
-function TIdSNMP.QuickSend (const Mib, Community,Host:string; var Value:string):Boolean;
+function TIdSNMP.QuickSend (const Mib, DestCommunity, DestHost: string; var Value: string): Boolean;
 begin
-  self.Community := Community;
-  self.Host := Host;
+  Community := DestCommunity;
+  Host := DestHost;
   Query.Clear;
-  Query.PDUType:=PDUGetRequest;
-
-  Query.MIBAdd(MIB,'');    {Do not Localize}
-  Result:=SendQuery;
-  if Result then Value:=Reply.MIBGet(MIB);
+  Query.PDUType := PDUGetRequest;
+  Query.MIBAdd(MIB, '');    {Do not Localize}
+  Result := SendQuery;
+  if Result then begin
+    Value := Reply.MIBGet(MIB);
+  end;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -621,50 +621,53 @@ function TIdSNMP.ReceiveTrap: integer;
 begin
   Trap.PDUType := PDUTrap;
   Result := 0;
-  Trap.Buffer := ReceiveString(trap.host, trap.port, FReceiveTimeout);
+  Trap.Buffer := ReceiveString(Trap.Host, Trap.Port, FReceiveTimeout);
   if Trap.Buffer <> '' then begin    {Do not Localize}
      Trap.DecodeTrap;
      Result := 1;
   end;
 end;
 
-function TIdSNMP.QuickSendTrap(const Dest, Enterprise, Community: string;
-  Port, Generic, Specific: integer; MIBName, MIBValue: TStringList): integer;
+function TIdSNMP.QuickSendTrap(const DestHost, Enterprise, DestCommunity: string;
+  DestPort: TIdPort; Generic, Specific: integer; MIBName, MIBValue: TStrings): integer;
 var
   i: integer;
 begin
-    Trap.Host := Dest;
-    Trap.Enterprise := Enterprise;
-    Trap.GenTrap := Generic;
-    Trap.SpecTrap := Specific;
-    for i:=0 to (MIBName.Count - 1) do
-      Trap.MIBAdd(MIBName[i], MIBValue[i], PtrUInt (MibValue.Objects [i]));
-    Result := SendTrap;
+  Trap.Host := DestHost;
+  Trap.Port := DestPort;
+  Trap.Community := DestCommunity;
+  Trap.Enterprise := Enterprise;
+  Trap.GenTrap := Generic;
+  Trap.SpecTrap := Specific;
+  for i := 0 to MIBName.Count-1 do
+    Trap.MIBAdd(MIBName[i], MIBValue[i], PtrUInt(MibValue.Objects [i]));
+  Result := SendTrap;
 end;
 
-function TIdSNMP.QuickReceiveTrap(var Source, Enterprise, Community: string;
-  var Port, Generic, Specific, Seconds: integer; var MIBName, MIBValue: TStringList): integer;
+function TIdSNMP.QuickReceiveTrap(var SrcHost, Enterprise, SrcCommunity: string;
+  var SrcPort: TIdPort; var Generic, Specific, Seconds: integer;
+  MIBName, MIBValue: TStrings): integer;
 var
   i: integer;
 begin
-    Result := ReceiveTrap;
-    if (Result <> 0) then
+  Result := ReceiveTrap;
+  if Result <> 0 then
+  begin
+    SrcHost := Trap.Host;
+    SrcPort := Trap.Port;
+    Enterprise := Trap.Enterprise;
+    SrcCommunity := Trap.Community;
+    Generic := Trap.GenTrap;
+    Specific := Trap.SpecTrap;
+    Seconds := Trap.TimeTicks;
+    MIBName.Clear;
+    MIBValue.Clear;
+    for i := 0 to Trap.MIBOID.Count-1 do
     begin
-      Source := Trap.Host;
-      Port := Trap.Port;
-      Enterprise := Trap.Enterprise;
-      Community := Trap.Community;
-      Generic := Trap.GenTrap;
-      Specific := Trap.SpecTrap;
-      Seconds := Trap.TimeTicks;
-      MIBName.Clear;
-      MIBValue.Clear;
-      for i:=0 to (Trap.MIBOID.Count - 1) do
-        begin
-          MIBName.Add(Trap.MIBOID[i]);
-          MIBValue.Add(Trap.MIBValue[i]);
-        end;
+      MIBName.Add(Trap.MIBOID[i]);
+      MIBValue.Add(Trap.MIBValue[i]);
     end;
+  end;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -679,7 +682,7 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValue (idx : Integer) : string;
 begin
-  Result := MIBValue [idx]
+  Result := MIBValue[idx];
 end;
 
 (*----------------------------------------------------------------------------*
@@ -691,7 +694,7 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValueCount: Integer;
 begin
-  Result := MIBValue.Count
+  Result := MIBValue.Count;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -706,9 +709,10 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValueType (idx : Integer): PtrUInt;
 begin
-  Result := PtrUInt (MIBValue.Objects [idx]);
-  if Result = 0 then
-    Result := ASN1_OCTSTR
+  Result := PtrUInt(MIBValue.Objects [idx]);
+  if Result = 0 then begin
+    Result := ASN1_OCTSTR;
+  end;
 end;
 
 (*----------------------------------------------------------------------------*
@@ -723,7 +727,7 @@ end;
  *----------------------------------------------------------------------------*)
 function TSNMPInfo.GetValueOID(idx: Integer): string;
 begin
-  Result := MIBOID [idx];
+  Result := MIBOID[idx];
 end;
 
 (*----------------------------------------------------------------------------*
