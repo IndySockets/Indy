@@ -71,8 +71,10 @@
 unit IdUDPBase;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //here to flip FPC into Delphi mode
+
 uses
   IdComponent,
   IdGlobal,
@@ -125,7 +127,7 @@ type
       var VPeerIP: string; var VPeerPort: TIdPort;
       AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
-      var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+      var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AMSec: Integer = IdTimeoutDefault): integer; overload; virtual;
     function ReceiveBuffer(var ABuffer : TIdBytes;
      const AMSec: Integer = IdTimeoutDefault): Integer; overload;  virtual;
@@ -263,11 +265,11 @@ var
 begin
   LVoidIPVer := IPVersion;
   Result := ReceiveBuffer(ABuffer,VPeerIP,VPeerPort, LVoidIPVer,AMSec);
- // (GStack as TIdStackBSDBase).CheckForSocketError(Result);
+ // GBSDStack.CheckForSocketError(Result);
 end;
 
 function TIdUDPBase.ReceiveBuffer(var ABuffer : TIdBytes;
-  var VPeerIP: string; var VPeerPort: TIdPort;  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
+  var VPeerIP: string; var VPeerPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
   const AMSec: Integer = IdTimeoutDefault): integer;
 var
   LMSec : Integer;
@@ -287,7 +289,7 @@ begin
     VPeerPort := 0;
     Exit;
   end;
-  Result := Binding.RecvFrom(ABuffer, VPeerIP, VPeerPort);
+  Result := Binding.RecvFrom(ABuffer, VPeerIP, VPeerPort, AIPVersion);
 end;
 
 function TIdUDPBase.ReceiveString(var VPeerIP: string; var VPeerPort: TIdPort;
@@ -321,7 +323,8 @@ end;
 
 procedure TIdUDPBase.SendBuffer(const AHost: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);
-var LIP : String;
+var
+  LIP : String;
 begin
   LIP := GStack.ResolveHost(AHost, AIPVersion);
   Binding.SendTo(LIP, APort, ABuffer);
