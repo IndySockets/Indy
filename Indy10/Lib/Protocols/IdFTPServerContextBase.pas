@@ -30,35 +30,41 @@ unit IdFTPServerContextBase;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdContext;
 
 type
   TIdFTPUserType = (utNone, utAnonymousUser, utNormalUser);
+
   TIdFTPServerContextBase = class(TIdContext)
   protected
-      FUserType: TIdFTPUserType;
+    FUserType: TIdFTPUserType;
     FAuthenticated: Boolean;
     FALLOSize: Integer;
     FCurrentDir: string;
-      FHomeDir: string;
+    FHomeDir: string;
     FUsername: string;
     FPassword: string;
-     FRESTPos: Integer;
+    FRESTPos: Integer;
     FRNFR: string;
+    FNLSTUtf8: Boolean;
+    FUseUtf8: Boolean;
     procedure ReInitialize; virtual;
   public
     property Authenticated: Boolean read FAuthenticated write FAuthenticated;
     property ALLOSize: Integer read FALLOSize write FALLOSize;
     property CurrentDir: string read FCurrentDir write FCurrentDir;
-
     property HomeDir: string read FHomeDir write FHomeDir;
     property Password: string read FPassword write FPassword;
     property Username: string read FUsername write FUsername;
     property UserType: TIdFTPUserType read FUserType write FUserType;
     property RESTPos: Integer read FRESTPos write FRESTPos;
     property RNFR: string read FRNFR write FRNFR;
+    property NLSTUtf8: Boolean read FNLSTUtf8 write FNLSTUtf8;
+    property UseUtf8: Boolean read FUseUtf8 write FUseUtf8;
   end;
 
 implementation
@@ -71,11 +77,13 @@ begin
   FAuthenticated := False;
   FALLOSize := 0;
   FCurrentDir := '/';    {Do not Localize}
-    FHomeDir := '';    {Do not Localize}
+  FHomeDir := '';    {Do not Localize}
   FUsername := '';    {Do not Localize}
   FPassword := '';    {Do not Localize}
-    FRESTPos := 0;
+  FRESTPos := 0;
   FRNFR := '';    {Do not Localize}
+  FNLSTUtf8 := False;
+  FUseUtf8 := False;
 end;
 
 end.
