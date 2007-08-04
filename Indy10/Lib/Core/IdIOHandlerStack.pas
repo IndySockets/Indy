@@ -178,6 +178,7 @@
 unit IdIOHandlerStack;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -189,18 +190,14 @@ type
   TIdIOHandlerStack = class(TIdIOHandlerSocket)
   protected
     procedure ConnectClient; override;
-    function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
-     ATimeout: Integer = IdTimeoutDefault;
-     ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
+    function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
+    function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
   public
     procedure CheckForDataOnSource(ATimeout: Integer = 0); override;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
-     AIgnoreBuffer: Boolean = False); override;
+      AIgnoreBuffer: Boolean = False); override;
     function Connected: Boolean; override;
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; override;
-    // In TIdIOHandlerStack, WriteBytes must be the ONLY call to
-    // WriteToDestination - all data goes thru this method
-    procedure WriteDirect(var ABuffer: TIdBytes); override;
   published
     property ReadTimeout;
   end;
@@ -362,108 +359,23 @@ begin
   Result := Binding.Readable(AMSec);
 end;
 
-procedure TIdIOHandlerStack.WriteDirect(var ABuffer: TIdBytes);
-var
-  LCount: Integer;
-  LPos: Integer;
-  LSize: Integer;
+function TIdIOHandlerStack.WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer;
 begin
-  inherited WriteDirect(ABuffer);
-
   Assert(Binding<>nil);
-
-  LSize := Length(ABuffer);
-  LPos := 0;
-  repeat
-    LCount := Binding.Send(ABuffer, LPos, LSize - LPos);
-    // TODO - Have a AntiFreeze param which allows the send to be split up so that process
-    // can be called more. Maybe a prop of the connection, MaxSendSize?
-    TIdAntiFreezeBase.DoProcess(False);
-    FClosedGracefully := LCount = 0;
-
-    // Check if other side disconnected
-    CheckForDisconnect;
-    DoWork(wmWrite, LCount);
-    Inc(LPos, LCount);
-  until LPos >= LSize;
+  Result := Binding.Send(ABuffer, AOffset, ALength);
 end;
 
-function TIdIOHandlerStack.ReadFromSource(
- ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
- ARaiseExceptionOnTimeout: Boolean): Integer;
 // Reads any data in tcp/ip buffer and puts it into Indy buffer
 // This must be the ONLY raw read from Winsock routine
 // This must be the ONLY call to RECV - all data goes thru this method
-var
-  LByteCount: Integer;
-  LBuffer: TIdBytes;
+function TIdIOHandlerStack.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
 begin
-  if ATimeout = IdTimeoutDefault then begin
-    if (ReadTimeout = IdTimeoutDefault)
-      or (ReadTimeout = 0) then begin // MtW: check for 0 too, for compatibility
-      ATimeout := IdTimeoutInfinite;
-    end else begin
-      ATimeout := ReadTimeout;
-    end;
-  end;
-  Result := 0;
-  // Check here as this side may have closed the socket
-  CheckForDisconnect(ARaiseExceptionIfDisconnected);
-  if BindingAllocated then begin
-    LByteCount := 0;
-    repeat
-      if Readable(ATimeout) then begin
-        if Opened then begin
-          // No need to call AntiFreeze, the Readable does that.
-          if BindingAllocated then begin
-            // TODO: Whey are we reallocating LBuffer every time? This should
-            // be a one time operation per connection.
-            SetLength(LBuffer, RecvBufferSize); try
-              LByteCount := Binding.Receive(LBuffer);
-              SetLength(LBuffer, LByteCount);
-              if LByteCount > 0 then begin
-                if Intercept <> nil then begin
-                  Intercept.Receive(LBuffer);
-                  LByteCount := Length(LBuffer);
-                end;
-    //AsciiFilter - needs to go in TIdIOHandler base class
-    //            if ASCIIFilter then begin
-    //              for i := 1 to IOHandler.RecvBuffer.Size do begin
-    //                PChar(IOHandler.RecvBuffer.Memory)[i] := Chr(Ord(PChar(IOHandler.RecvBuffer.Memory)[i]) and $7F);
-    //              end;
-    //            end;
-                // Pass through LBuffer first so it can go through Intercept
-                //TODO: If not intercept, we can skip this step
-                InputBuffer.Write(LBuffer);
-              end;
-            finally LBuffer := nil; end;
-          end else begin
-            EIdClosedSocket.Toss(RSStatusDisconnected);
-          end;
-        end else begin
-          LByteCount := 0;
-          EIdNotConnected.IfTrue(ARaiseExceptionIfDisconnected, RSNotConnected);
-        end;
-        FClosedGracefully := LByteCount = 0;
-        // Check here as other side may have closed connection
-        CheckForDisconnect(ARaiseExceptionIfDisconnected);
-        Result := LByteCount;
-      end else begin
-        // Timeout
-        EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout, RSReadTimeout);
-        Result := -1;
-        Break;
-      end;
-    until (LByteCount <> 0) or (not BindingAllocated);
-  end else begin
-    if ARaiseExceptionIfDisconnected then begin
-      raise EIdException.Create(RSNotConnected);
-    end;
-  end;
+  Assert(Binding<>nil);
+  Result := Binding.Receive(VBuffer);
 end;
 
 procedure TIdIOHandlerStack.CheckForDisconnect(
- ARaiseExceptionIfDisconnected: Boolean; AIgnoreBuffer: Boolean);
+  ARaiseExceptionIfDisconnected: Boolean; AIgnoreBuffer: Boolean);
 var
   LDisconnected: Boolean;
 begin
