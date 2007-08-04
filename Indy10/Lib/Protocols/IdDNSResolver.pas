@@ -197,6 +197,7 @@ VV 01/02/03 TQueryResult.DNSStrToDomain fix
 unit IdDNSResolver;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -211,7 +212,6 @@ uses
   IdTCPClient,
   IdTCPConnection,
   IdUDPClient;
-
 
 type
   { TODO : Solve problem with obsolete records }
@@ -240,8 +240,9 @@ const
   Class_IN = 1;
   Class_CHAOS = 3;
   // Lookup table for query record values.
-  QueryRecordCount=30;
-  QueryRecordValues: array [0..QueryRecordCount] of word= (1,2,3,4,
+  QueryRecordCount = 30;
+  QueryRecordValues: array [0..QueryRecordCount] of Word = (
+                                             1,2,3,4,
                                              5,6,7,8,
                                              9,10,11,12,
                                              13,14,15,16,
@@ -276,13 +277,13 @@ const
 type
   TQueryType = set of TQueryRecordTypes;
 
-  TResultSection = (rsAnswer,rsNameServer,rsAdditional);
+  TResultSection = (rsAnswer, rsNameServer, rsAdditional);
   TResultSections = set of TResultSection;
 
   TResultRecord = class(TCollectionItem) // Rename to REsourceRecord
   protected
     FRecType: TQueryRecordTypes;
-    FRecClass: word;
+    FRecClass: Word;
     FName: string;
     FTTL: LongWord;
     FRDataLength: Integer;
@@ -294,13 +295,12 @@ type
     procedure Parse(CompleteMessage: TIdBytes; APos: Integer); virtual;
     { TODO : This needs to change (to what? why?) }
     property RecType: TQueryRecordTypes read FRecType;
-    property RecClass: word read FRecClass;
+    property RecClass: Word read FRecClass;
     property Name: string read FName;
     property TTL: LongWord read FTTL;
     property RDataLength: Integer read FRDataLength;
     property RData: TIdBytes read FRData;
-    property Section:TResultSection read FSection;
-    destructor Destroy; override;
+    property Section: TResultSection read FSection;
   end;
 
   TResultRecordClass = class of TResultRecord;
@@ -481,8 +481,6 @@ type
     FQueryClass: Word;
     FQueryType: Word;
     FQueryPointerList: TStringList;
-    function DNSStrToDomain(SrcStr: TIdBytes; var Idx: Integer): string;
-    function NextDNSLabel(DNSStr: TIdBytes; Var APos: Integer): string;
     procedure SetItem(Index: Integer; Value: TResultRecord);
     function GetItem(Index: Integer): TResultRecord;
   public
@@ -491,8 +489,8 @@ type
     procedure Assign(Source: TPersistent); override;
     function Add(Answer: TIdBytes; var APos: Integer): TResultRecord;
     procedure Clear; reintroduce;
-    procedure FilterBySection(const aKeep:TResultSections=[rsAnswer]);
-    procedure FilterByClass(const aKeep:TResultRecordClass);
+    procedure FilterBySection(const AKeep: TResultSections=[rsAnswer]);
+    procedure FilterByClass(const AKeep: TResultRecordClass);
 
     Property QueryClass: Word read FQueryClass;
     Property QueryType: Word read FQueryType;
@@ -519,18 +517,18 @@ type
     FWaitingTime: integer;
     FPlainTextResult: TIdBytes;
     FDNSHeader : TDNSHeader;
+
     procedure SetInternalQuery(const Value: TIdBytes);
     procedure SetPlainTextResult(const Value: TIdBytes);
     procedure InitComponent; override;
+
     procedure SetIPVersion(const AValue: TIdIPVersion); virtual;
-    function GetIPVersion: TIdIPVersion;
-    function GetPort: TIdPort;
     procedure SetPort(const AValue: TIdPort); virtual;
   public
     property DNSHeader:TDNSHeader read FDNSHeader;
     procedure ClearInternalQuery;
     destructor Destroy; override;
-    procedure ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes; ResetResult : boolean = true);
+    procedure ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes; ResetResult: Boolean = True);
     procedure CreateQuery(ADomain: string; SOARR : TIdRR_SOA; QueryClass:integer = Class_IN);
     procedure FillResult(AResult: TIdBytes; checkID : boolean = true;
               ResetResult : boolean = true);
@@ -546,9 +544,12 @@ type
     property WaitingTime : integer read FWaitingTime write FWaitingTime;
     property AllowRecursiveQueries : boolean read FAllowRecursiveQueries write FAllowRecursiveQueries;
     property Host : string read FHost write FHost;
-    property Port : TIdPort read FPort write FPort default IdPORT_DOMAIN;
-    property IPVersion: TIdIPVersion read GetIPVersion write SetIPVersion;
+    property Port : TIdPort read FPort write SetPort default IdPORT_DOMAIN;
+    property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion;
   end;
+
+function DNSStrToDomain(const DNSStr: TIdBytes; var VPos: Integer): string;
+function NextDNSLabel(const DNSStr: TIdBytes; var VPos: Integer): string;
 
 implementation
 
@@ -558,88 +559,85 @@ uses
   IdStack, SysUtils;
 
 // SG 28/1/02: Changed that function according to original Author of the old comp: Ray Malone
-function TQueryResult.DNSStrToDomain(SrcStr: TIdBytes; var Idx: Integer): string;
+function DNSStrToDomain(const DNSStr: TIdBytes; var VPos: Integer): string;
 var
   LabelStr : String;
   Len : Integer;
   SavedIdx : Integer;
-  AChar :Byte;
-  fRPackSize: Integer;
-  i: Integer;
+  B : Byte;
+  PackSize: Integer;
 begin
-    Result := '';                {Do not Localize}
-    fRPackSize := Length(SrcStr);
-    SavedIdx := -1;
-    repeat
-      Len := SrcStr[Idx];
-      while (Len and $C0) = $C0 do // {!!0.01} added loop for pointer
-      begin                         // that points to a pointer. Removed  >63 hack. Am I really that stupid?
-        if SavedIdx < 0 then
-        begin
-          SavedIdx := Succ(Idx); // it is important to return to original index  spot
-        end;
-	// when we go down more than 1 level.
-        aChar := Len and $3F;                       // strip first two bits ($C) from first byte of offset pos
-        Idx := GStack.NetworkToHost(TwoByteToWord(aChar, SrcStr[Idx + 1]));// + 1; // add one to index for delphi string index //VV
-        Len := SrcStr[Idx];  // if len is another $Cx we will (while) loop again
+  Result := ''; {Do not Localize}
+  PackSize := Length(DNSStr);
+  SavedIdx := -1;
+
+  repeat
+    Len := DNSStr[VPos];
+
+    while (Len and $C0) = $C0 do  // {!!0.01} added loop for pointer
+    begin                         // that points to a pointer. Removed  >63 hack. Am I really that stupid?
+      if SavedIdx < 0 then begin
+        SavedIdx := Succ(VPos);  // it is important to return to original index spot
       end;
-      Assert(Idx < fRPackSize, GetErrorStr(2, 2)); // loop screwed up. This  very very unlikely now  could be removed.
-      SetLength(LabelStr, Len);
-      if Len > 0 then
-      begin
-        for i := 1 to Len do
-        begin
-          LabelStr[i] := Char(SrcStr[Idx + i]);
-        //Move(SrcStr[Idx + 1], LabelStr[1], Length(LabelStr));
-        end;
-        Inc(Idx, Length(LabelStr) + 1);
-      end;
-      if Pred(Idx) > fRPackSize then // len byte was corrupted puting us past end of packet
-        raise  EIdDnsResolverError.Create(GetErrorStr(2, 3));
-      Result := Result + LabelStr + '.';  // concat and add period.  {Do not Localize}
-    until (SrcStr[Idx] = 0) or (Idx >= Length(SrcStr)); // name field ends with nul byte
-    if Result[Length(Result)] = '.' then  // remove final period    {Do not Localize}
-    begin
-      //System.Delete(Result, Length(Result), 1);
-      SetLength(Result, Length(Result) - 1);
+      // when we go down more than 1 level.
+      B := Len and $3F;                       // strip first two bits ($C) from first byte of offset pos
+      VPos := GStack.NetworkToHost(TwoByteToWord(B, DNSStr[VPos + 1]));// + 1; // add one to index for delphi string index //VV
+      Len := DNSStr[VPos];  // if len is another $Cx we will (while) loop again
     end;
-    if SavedIdx >= 0 then Idx := SavedIdx; // restore original Idx +1
-    Inc(Idx); // set to first char of next item in  the resource
+
+    Assert(VPos < PackSize, GetErrorStr(2, 2)); // loop screwed up. This very very unlikely now could be removed.
+
+    LabelStr := BytesToString(DNSStr, VPos+1, Len);
+    Inc(VPos, 1+Len);
+
+    if Pred(VPos) > PackSize then begin // len byte was corrupted puting us past end of packet
+      raise EIdDnsResolverError.Create(GetErrorStr(2, 3));
+    end;
+
+    Result := Result + LabelStr + '.';  // concat and add period.  {Do not Localize}
+
+  until (DNSStr[VPos] = 0) or (VPos >= Length(DNSStr)); // name field ends with nul byte
+
+  if TextEndsWith(Result, '.') then begin // remove final period    {Do not Localize}
+    SetLength(Result, Length(Result) - 1);
+  end;
+
+  if SavedIdx >= 0 then VPos := SavedIdx; // restore original Idx +1
+  Inc(VPos); // set to first char of next item in the resource
 end;
 
-function TQueryResult.NextDNSLabel(DNSStr: TIdBytes; Var APos: Integer): string;
+function NextDNSLabel(const DNSStr: TIdBytes; var VPos: Integer): string;
 var
   LabelLength: Byte;
 begin
-  if Length(DNSStr) > APos then begin
-    LabelLength := Integer(DNSStr[APos]);
-    Inc(APos);
+  if Length(DNSStr) > VPos then begin
+    LabelLength := DNSStr[VPos];
+    Inc(VPos);
     //VV Shouldn't be pointers in Text messages
-      if (LabelLength > 0) then begin
-        Result := BytesToString(DNSStr, APos, LabelLength);
-        Inc(APos, LabelLength);
-        Exit;
-      end;
+    if LabelLength > 0 then begin
+      Result := BytesToString(DNSStr, VPos, LabelLength);
+      Inc(VPos, LabelLength);
+      Exit;
+    end;
   end;
-  Result := '';      {Do not Localize}
+  Result := ''; {Do not Localize}
 end;
+
+{ TARecord }
 
 procedure TRDATARecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
-  if Source is TARecord then
-  begin
-    FIPAddress := TARecord(Source).IPAddress;
+  if Source is TRDATARecord then begin
+    FIPAddress := TRDATARecord(Source).IPAddress;
   end;
 end;
 
 procedure TRDATARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  if Length(RData) > 0 then
-  begin
-    FIPAddress := MakeDWordIntoIPv4Address( GStack.NetworkToHost( OrdFourByteToLongWord(RData[0], RData[1], RData[2], RData[3])));
-//    FIPAddress := Format('%d.%d.%d.%d',[RData[0], RData[1], RData[2], RData[3]]);  {Do not Localize}
+  if Length(RData) > 0 then begin
+    FIPAddress := MakeDWordIntoIPv4Address(GStack.NetworkToHost(OrdFourByteToLongWord(RData[0], RData[1], RData[2], RData[3])));
   end;
 end;
 
@@ -650,17 +648,19 @@ begin
   inherited Assign(Source);
   if Source is TMXRecord then
   begin
-    FExchangeServer := TMXRecord(Source).ExchangeServer;
-    FPreference := TMXRecord(Source).Preference;
+    with Source as TMXRecord do begin
+      Self.FExchangeServer := ExchangeServer;
+      Self.FPreference := Preference;
+    end;
   end;
 end;
+
+{ TCNAMERecord }
 
 procedure TNAMERecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
-
-  if Source is TNAMERecord then
-  begin
+  if Source is TNAMERecord then begin
     FHostName := TNAMERecord(Source).HostName;
   end;
 end;
@@ -679,7 +679,7 @@ begin
   RRName := DNSStrToDomain(Answer, APos);
   RR_Type := GStack.NetworkToHost( TwoByteToWord(Answer[APos], Answer[APos + 1]));
   RR_Class := GStack.NetworkToHost(TwoByteToWord(Answer[APos + 2], Answer[APos + 3]));
-  RR_TTL := GStack.NetworkToHost( OrdFourByteToLongWord(Answer[APos + 4], Answer[APos + 5], Answer[APos + 6], Answer[APos + 7]));
+  RR_TTL := GStack.NetworkToHost(OrdFourByteToLongWord(Answer[APos + 4], Answer[APos + 5], Answer[APos + 6], Answer[APos + 7]));
   RD_Length := GStack.NetworkToHost(TwoByteToWord(Answer[APos + 8], Answer[APos + 9]));
   RData := Copy(Answer, APos + 10, RD_Length);
   // remove what we have read from the buffer
@@ -689,91 +689,92 @@ begin
   // in IdDNSCommon to select all record type.
   case RR_Type of
     TypeCode_A ://qtA:
-    begin
-      result := TARecord.Create(Self);
-    end;
+      begin
+        Result := TARecord.Create(Self);
+      end;
     TypeCode_NS : //qtNS:
-    begin
-      result := TNSRecord.Create(Self);
-    end;
+      begin
+        Result := TNSRecord.Create(Self);
+      end;
     TypeCode_MX ://qtMX:
-    begin
-      result := TMXRecord.Create(Self);
-    end;
+      begin
+        Result := TMXRecord.Create(Self);
+      end;
     TypeCode_CName : // qtName:
-    begin
-      result := TNAMERecord.Create(Self);
-    end;
+      begin
+        Result := TNAMERecord.Create(Self);
+      end;
     TypeCode_SOA : //qtSOA:
-    begin
-      result := TSOARecord.Create(Self);
-    end;
+      begin
+        Result := TSOARecord.Create(Self);
+      end;
     TypeCode_HINFO : //qtHINFO:
-    begin
-      result := THINFORecord.Create(Self);
-    end;
+      begin
+        Result := THINFORecord.Create(Self);
+      end;
     TypeCode_TXT ://qtTXT:
-    begin
-      result := TTextRecord.Create(Self);
-    end;
+      begin
+        Result := TTextRecord.Create(Self);
+      end;
     TypeCode_WKS ://qtWKS:
-    begin
-      result := TWKSRecord.Create(Self);
-    end;
+      begin
+        Result := TWKSRecord.Create(Self);
+      end;
     TypeCode_PTR :// qtPTR:
-    begin
-      result := TPTRRecord.Create(Self);
-    end;
+      begin
+        Result := TPTRRecord.Create(Self);
+      end;
     TypeCode_MINFO ://qtMINFO:
-    begin
-      result := TMINFORecord.Create(Self);
-    end;
+      begin
+        Result := TMINFORecord.Create(Self);
+      end;
     TypeCode_AAAA : //qtAAAA:
-    begin
-      result := TAAAARecord.Create(Self);
-    end;
-    TypeCode_Service :
-    begin
-      result := TSRVRecord.Create(Self);
-    end;
-    TypeCode_NAPTR :
-    begin
-      result := TNAPTRRecord.Create(Self);
-    end;
-    else
+      begin
+        Result := TAAAARecord.Create(Self);
+      end;
+    TypeCode_Service : //qtService
+      begin
+        Result := TSRVRecord.Create(Self);
+      end;
+    TypeCode_NAPTR : //qtNAPTR
+      begin
+        Result := TNAPTRRecord.Create(Self);
+      end;
+    else begin
       // Unsupported query type, return generic record
-      result := TResultRecord.Create(self);
+      Result := TResultRecord.Create(Self);
+    end;
   end; // case
-  // Set the "general purpose" options
-  if assigned(result) then
+  // Set the "general purprose" options
+  if Assigned(Result) then
   begin
     //if RR_Type <= High(QueryRecordTypes) then
     // modified in 2004 7/15.
     case RR_Type of
-         TypeCode_A : result.FRecType := qtA;
-         TypeCode_NS : result.FRecType := qtNS;
-         TypeCode_MD : result.FRecType := qtMD;
-         TypeCode_MF : result.FRecType := qtMF;
-         TypeCode_CName: result.FRecType := qtName;
-         TypeCode_SOA  : result.FRecType := qtSOA;
-         TypeCode_MB   : result.FRecType := qtMB;
-         TypeCode_MG   : result.FRecType := qtMG;
-         TypeCode_MR   : result.FRecType := qtMR;
-         TypeCode_NULL : result.FRecType := qtNull;
-         TypeCode_WKS  : result.FRecType := qtWKS;
-         TypeCode_PTR  : result.FRecType := qtPTR;
-         TypeCode_HINFO: result.FRecType := qtHINFO;
-         TypeCode_MINFO: result.FRecType := qtMINFO;
-         TypeCode_MX   : result.FRecType := qtMX;
-         TypeCode_TXT  : result.FRecType := qtTXT;
-         //TypeCode_NSAP : result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
-         //TypeCode_NSAP_PTR : result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
-         TypeCode_AAAA : result.FRecType := qtAAAA;
-         //TypeCode_LOC :  result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
-         TypeCode_Service : Result.FRecType := qtService;
-         TypeCode_NAPTR : Result.FRecType := qtNAPTR;
-         TypeCode_AXFR : result.FRecType := qtAXFR;
-         //TypeCode_STAR : result.FRecType := qtSTAR;
+      TypeCode_A:      Result.FRecType := qtA;
+      TypeCode_NS:     Result.FRecType := qtNS;
+      TypeCode_MD:     Result.FRecType := qtMD;
+      TypeCode_MF:     Result.FRecType := qtMF;
+      TypeCode_CName:  Result.FRecType := qtName;
+      TypeCode_SOA:    Result.FRecType := qtSOA;
+      TypeCode_MB:     Result.FRecType := qtMB;
+      TypeCode_MG:     Result.FRecType := qtMG;
+      TypeCode_MR:     Result.FRecType := qtMR;
+      TypeCode_NULL:   Result.FRecType := qtNull;
+      TypeCode_WKS:    Result.FRecType := qtWKS;
+      TypeCode_PTR:    Result.FRecType := qtPTR;
+      TypeCode_HINFO:  Result.FRecType := qtHINFO;
+      TypeCode_MINFO:  Result.FRecType := qtMINFO;
+      TypeCode_MX:     Result.FRecType := qtMX;
+      TypeCode_TXT:    Result.FRecType := qtTXT;
+      //TypeCode_NSAP: Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
+      //TypeCode_NSAP_PTR: Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
+      TypeCode_AAAA:   Result.FRecType := qtAAAA;
+      //TypeCode_LOC:  Result.FRecType := QueryRecordTypes[Ord(RR_Type) - 1];
+      TypeCode_Service:Result.FRecType := qtService;
+      TypeCode_NAPTR:  Result.FRecType := qtNAPTR;
+      TypeCode_AXFR:   Result.FRecType := qtAXFR;
+      //TypeCode_STAR: Result.FRecType := qtSTAR;
     end;
 
     result.FRecClass := RR_Class;
@@ -797,10 +798,10 @@ begin
   FQueryPointerList := TStringList.Create;
 end;
 
-destructor TQueryResult.destroy;
+destructor TQueryResult.Destroy;
 begin
   FreeAndNil(FQueryPointerList);
-  inherited destroy;
+  inherited Destroy;
 end;
 
 function TQueryResult.GetItem(Index: Integer): TResultRecord;
@@ -813,43 +814,39 @@ begin
   inherited SetItem(Index, Value);
 end;
 
-procedure TResultRecord.Assign(Source: TPersistent);
-var
- aSource:TResultRecord;
-begin
- if Source is TResultRecord then
- begin
-   aSource:=TResultRecord(Source);
-   FRecType:=aSource.RecType;
-   FRecClass:=aSource.RecClass;
-   FName:=aSource.Name;
-   FTTL:=aSource.TTL;
-   FRDataLength:=aSource.RDataLength;
-   FRData:=ToBytes(aSource.RData,Length(aSource.RData));
-   FSection:=aSource.Section;
- end
- else
- begin
-   inherited Assign(Source);
- end;
-end;
+{ TResultRecord }
 
-destructor TResultRecord.Destroy;
+procedure TResultRecord.Assign(Source: TPersistent);
 begin
-  inherited Destroy;
+  if Source is TResultRecord then
+  begin
+    with Source as TResultRecord do begin
+      Self.FRecType := RecType;
+      Self.FRecClass := RecClass;
+      Self.FName := Name;
+      Self.FTTL := TTL;
+      Self.FRDataLength := RDataLength;
+      Self.FRData := ToBytes(RData, Length(RData));
+      Self.FSection := Section;
+    end;
+  end else begin
+    inherited Assign(Source);
+  end;
 end;
 
 procedure TResultRecord.Parse;
 begin
-
 end;
+
+{ TNAMERecord }
 
 procedure TNAMERecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FHostName := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
+  FHostName := DNSStrToDomain(CompleteMessage, APos);
 end;
 
+{ TQueryResult }
 
 procedure TQueryResult.Clear;
 begin
@@ -857,41 +854,45 @@ begin
   FQueryPointerList.Clear;
 end;
 
-procedure TMXRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
-begin
-  inherited Parse(CompleteMessage, APos);
-  FPreference := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos + 1]));
-  Inc(Apos, 2);
-  FExchangeServer := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
-end;
-
 procedure TQueryResult.Assign(Source: TPersistent);
 //TCollection.Assign doesn't create correct Item class.
 var
- i:Integer;
- aRec:TResultRecord;
- aNew:TResultRecord;
+  i: Integer;
+  LRec: TResultRecord;
+  LNew: TResultRecord;
 begin
-  //no inherited;
   if Source is TQueryResult then
   begin
     BeginUpdate;
     try
       Clear;
-      for i:=0 to TQueryResult(Source).Count-1 do
+      for i := 0 to TQueryResult(Source).Count-1 do
       begin
-        aRec:=TQueryResult(Source).Items[i];
-        aNew:=TResultRecordClass(aRec.ClassType).Create(Self);
-        aNew.Assign(aRec);
+        LRec := TQueryResult(Source).Items[i];
+        LNew := TResultRecordClass(LRec.ClassType).Create(Self);
+        try
+          LNew.Assign(LRec);
+        except
+          FreeAndNil(LNew);
+          raise;
+        end;
       end;
     finally
       EndUpdate;
     end;
-  end
-  else
-  begin
+  end else begin
     inherited Assign(Source);
   end;
+end;
+
+{ TMXRecord }
+
+procedure TMXRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
+begin
+  inherited Parse(CompleteMessage, APos);
+  FPreference := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos + 1]));
+  Inc(APos, 2);
+  FExchangeServer := DNSStrToDomain(CompleteMessage, APos);
 end;
 
 { TTextRecord }
@@ -899,8 +900,7 @@ end;
 procedure TTextRecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
-  if Source is TTextRecord then
-  begin
+  if Source is TTextRecord then begin
     FText.Assign(TTextRecord(Source).Text);
   end;
 end;
@@ -913,77 +913,84 @@ end;
 
 destructor TTextRecord.Destroy;
 begin
- FreeAndNil(FText);
+  FreeAndNil(FText);
   inherited Destroy;
 end;
 
-procedure TTextRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 //the support for long text values is required for DomainKeys,
 //which has an encoded public key
+procedure TTextRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var
-  aStart:Integer;
+  LStart: Integer;
   Buffer: string;
 begin
   FText.Clear;
 
-  aStart:=APos;
-  while APos<aStart+RDataLength do
-  begin
-    Buffer := Buffer+(Collection as TQueryResult).NextDNSLabel(CompleteMessage, APos);
+  LStart := APos;
+  while APos < (LStart+RDataLength) do
+  begin  
+    Buffer := NextDNSLabel(CompleteMessage, APos);
+    if Buffer <> '' then begin  {Do not Localize}
+      FText.Add(Buffer);
+    end;
   end;
 
-  if Buffer <> '' then   {Do not Localize}
-  begin
-    FText.Add(Buffer);
-  end;
   inherited Parse(CompleteMessage, APos);
 end;
 
 { TSOARecord }
 
 procedure TSOARecord.Assign(Source: TPersistent);
-var
- aSource:TSOARecord;
 begin
   inherited Assign(Source);
-  aSource:=Source as TSOARecord;
-  FSerial:=aSource.Serial;
-  FMinimumTTL:=aSource.MinimumTTL;
-  FRefresh:=aSource.Refresh;
-  FRetry:=aSource.Retry;
-  FMNAME:=aSource.FMNAME;
-  FRNAME:=aSource.FRNAME;
-  FExpire:=aSource.Expire;
+  if Source is TSOARecord then begin
+    with Source as TSOARecord do begin
+      Self.FSerial := Serial;
+      Self.FMinimumTTL := MinimumTTL;
+      Self.FRefresh := Refresh;
+      Self.FRetry := Retry;
+      Self.FMNAME := FMNAME;
+      Self.FRNAME := FRNAME;
+      Self.FExpire := Expire;
+    end;
+  end;
 end;
 
 procedure TSOARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FMNAME := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
-  FRNAME := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
-  FSerial := GStack.NetworkToHost( OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  inc(Apos, 4);
+
+  FMNAME := DNSStrToDomain(CompleteMessage, APos);
+  FRNAME := DNSStrToDomain(CompleteMessage, APos);
+
+  FSerial := GStack.NetworkToHost(OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
+  Inc(APos, 4);
+
   FRefresh := GStack.NetworkToHost( OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  inc(Apos, 4);
+  Inc(APos, 4);
+
   FRetry := GStack.NetworkToHost( OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  inc(Apos, 4);
+  Inc(APos, 4);
+
   FExpire := GStack.NetworkToHost( OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
-  inc(Apos, 4);
+  Inc(APos, 4);
+
   FMinimumTTL := GStack.NetworkToHost( OrdFourByteToLongWord(CompleteMessage[APos], CompleteMessage[APos + 1], CompleteMessage[APos + 2], CompleteMessage[APos + 3]));
 end;
 
 { TWKSRecord }
 
 procedure TWKSRecord.Assign(Source: TPersistent);
-var
-  aSource:TWKSRecord;
 begin
   inherited Assign(Source);
-  aSource:=Source as TWKSRecord;
-  FIPAddress:=aSource.IPAddress;
-  FProtocol:=aSource.Protocol;
-  FByteCount:=aSource.ByteCount;
-  FData:=ToBytes(aSource.FData,Length(aSource.FData));
+  if Source is TWKSRecord then begin
+    with Source as TWKSRecord do begin
+      Self.FIPAddress := IPAddress;
+      Self.FProtocol := Protocol;
+      Self.FByteCount := ByteCount;
+      Self.FData := ToBytes(FData, Length(FData));
+    end;
+  end;
 end;
 
 function TWKSRecord.GetABit(AIndex: Integer): Byte;
@@ -994,85 +1001,77 @@ end;
 procedure TWKSRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FIPAddress := MakeDWordIntoIPv4Address( GStack.NetworkToHost( OrdFourByteToLongWord(RData[0], RData[1], RData[2], RData[3])));
-    //Format('%d.%d.%d.%d',[Word(RData[0]), Word(RData[1]), Word(RData[2]), Word(RData[3])]);   {Do not Localize}
-  FProtocol := Word(Rdata[4]);
-  //TODO: This is really inefficient - just slice off the first 5 bytes instead. This code is old
-  // and this way just because I ported it direct from an older implementation
-  with TIdBuffer.Create do try
-    Write(FRData);
-    Remove(5);
-    ExtractToBytes(FData);
-  finally Free; end;
+  FIPAddress := MakeDWordIntoIPv4Address(GStack.NetworkToHost(OrdFourByteToLongWord(RData[0], RData[1], RData[2], RData[3])));
+  FProtocol := Word(RData[4]);
+  FData := ToBytes(RData, Length(RData)-5, 5);
 end;
 
 { TMINFORecord }
 
 procedure TMINFORecord.Assign(Source: TPersistent);
-var
- aSource:TMINFORecord;
 begin
   inherited Assign(Source);
-  aSource:=Source as TMINFORecord;
-  FResponsiblePerson:=aSource.ResponsiblePersonMailbox;
-  FErrorMailbox:=aSource.ErrorMailbox;
+  if Source is TMINFORecord then
+  begin
+    with Source as TMINFORecord do begin
+      Self.FResponsiblePerson := ResponsiblePersonMailbox;
+      Self.FErrorMailbox := ErrorMailbox;
+    end;
+  end;
 end;
 
 procedure TMINFORecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FResponsiblePerson := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
-  FErrorMailbox := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
+  FResponsiblePerson := DNSStrToDomain(CompleteMessage, APos);
+  FErrorMailbox := DNSStrToDomain(CompleteMessage, APos);
 end;
 
 { THINFORecord }
 
 procedure THINFORecord.Assign(Source: TPersistent);
-var
- aSource:THINFORecord;
 begin
   inherited Assign(Source);
-  aSource:=Source as THINFORecord;
-  FCPU:=aSource.CPU;
-  FOS:=aSource.OS;
+  if Source is THINFORecord then
+  begin
+    with Source as THINFORecord do
+    begin
+      Self.FCPU := CPU;
+      Self.FOS := OS;
+    end;
+  end;
 end;
 
 procedure THINFORecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 begin
   inherited Parse(CompleteMessage, APos);
-  FCPU := (Collection as TQueryResult).NextDNSLabel(CompleteMessage, APos);
-  FOS := (Collection as TQueryResult).NextDNSLabel(CompleteMessage, APos);
+  FCPU := NextDNSLabel(CompleteMessage, APos);
+  FOS := NextDNSLabel(CompleteMessage, APos);
 end;
+
 
 { TAAAARecord }
 
 procedure TAAAARecord.Assign(Source: TPersistent);
 begin
   inherited Assign(Source);
-  if Source is TAAAARecord then
-  begin
+  if Source is TAAAARecord then begin
     FAddress := TAAAARecord(Source).Address;
   end;
 end;
 
 procedure TAAAARecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
-var FIP6 : TIdIPv6Address;
+var
+  FIP6 : TIdIPv6Address;
   i : Integer;
 begin
   inherited Parse(CompleteMessage, APos);
-  if Length(RData) >= 15 then
-  begin
-     BytesToIPv6(RData,FIP6);
-     for i := 0 to 7 do
-     begin
+  if Length(RData) >= 15 then begin
+     BytesToIPv6(RData, FIP6);
+     for i := 0 to 7 do begin
        FIP6[i] := GStack.NetworkToHost(FIP6[i]);
      end;
      FAddress :=  IPv6AddressToStr(FIP6);
-     { := Format('%.2x%.2x:%.2x%.2x:%.2x%.2x:%.2x%.2x:%.2x%.2x:%.2x%.2x:%.2x%.2x:%.2x%.2x',  {Do not Localize}
-{                            [RData[0], RData[1], RData[2], RData[3],
-                             RData[4], RData[5], RData[6], RData[7],
-                             RData[8], RData[9], RData[10], RData[11],
-                             RData[12], RData[13], RData[14], RData[15]]); }
   end;
 end;
 
@@ -1091,49 +1090,50 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
   var
     BufStr : String;
     LLen : Byte;
-  begin                         { DoDomainName }
+  begin
     SetLength(Result, 0);
-    while Length(aDns) > 0 do begin
-      BufStr := Fetch(aDns, '.');    {Do not Localize}
+    while Length(ADNS) > 0 do begin
+      BufStr := Fetch(ADNS, '.');    {Do not Localize}
       LLen := Length(BufStr);
       AppendByte(Result, LLen);
       AppendString(Result, BufStr, LLen);
     end;
   end;
 
-  function DoHostAddressV6(const aDNS :String): TIdBytes;
+  function DoHostAddressV6(const ADNS: String): TIdBytes;
   var
-    IPV6str, IPV6Ptr: string;
-    i: integer;
+    IPV6Str, IPV6Ptr: string;
+    i: Integer;
   begin
-    if not IsValidIPv6(aDNS) then
-      raise EIdDnsResolverError.Create(IndyFormat(RSQueryInvalidIpV6, [aDNS]));
-    IPV6str := ConvertToCanonical6IP(aDNS);
+    if not IsValidIPv6(ADNS) then begin
+      raise EIdDnsResolverError.CreateFmt(RSQueryInvalidIpV6, [aDNS]);
+    end;
+    IPV6Str := ConvertToCanonical6IP(ADNS);
     IPV6Ptr := '';                               {Do not Localize}
-    for i := Length(IPV6str) downto 1 do
-    begin
-      if IPV6str[i] <> ':' then                 {Do not Localize}
-        IPV6Ptr := IPV6Ptr + IPV6str[i] + '.';  {Do not Localize}
+    for i := Length(IPV6Str) downto 1 do begin
+      if IPV6Str[i] <> ':' then begin           {Do not Localize}
+        IPV6Ptr := IPV6Ptr + IPV6Str[i] + '.';  {Do not Localize}
+      end;
     end;
     IPV6Ptr := IPV6Ptr + 'IP6.INT';  {Do not Localize}
     Result := DoDomainName(IPV6Ptr);
   end;
 
-  function DoHostAddress(aDNS :String): TIdBytes;
+  function DoHostAddress(const ADNS: String): TIdBytes;
   var
-    sBufStr, First, Second, Third, Fourth : String;
+    BufStr, First, Second, Third, Fourth: String;
     LLen: Byte;
   begin                         { DoHostAddress }
-    if pos(':', aDNS) > 0 then begin  {Do not Localize}
-      Result := DoHostAddressV6(aDNS)
+    if Pos(':', ADNS) > 0 then begin  {Do not Localize}
+      Result := DoHostAddressV6(ADNS);
     end else begin
       SetLength(Result, 0);
-      sBufStr := aDNS;
+      BufStr := ADNS;
 
-      First := Fetch(sBufStr, '.');
-      Second := Fetch(sBufStr, '.');
-      Third := Fetch(sBufStr, '.');
-      Fourth := sBufStr;
+      First := Fetch(BufStr, '.');
+      Second := Fetch(BufStr, '.');
+      Third := Fetch(BufStr, '.');
+      Fourth := BufStr;
 
       LLen := Length(Fourth);
       AppendByte(Result, LLen);
@@ -1153,11 +1153,11 @@ procedure TIdDNSResolver.CreateQuery(ADomain: string; SOARR : TIdRR_SOA;
 
       AppendByte(Result, 7);
       AppendString(Result, 'in-addr', 7); {do not localize}
+
       AppendByte(Result, 4);
       AppendString(Result, 'arpa', 4); {do not localize}
     end;
-  end;                          { DoHostAddress }
-
+  end;
 
 var
   ARecType: TQueryRecordTypes;
@@ -1174,52 +1174,45 @@ begin
   FDNSHeader.Qr := 0;
   FDNSHeader.OpCode := 0;
   FDNSHeader.ANCount := 0;
-  FDNSHeader.NSCount :=0;
-  FDNSHeader.ARCount :=0;
+  FDNSHeader.NSCount := 0;
+  FDNSHeader.ARCount := 0;
   //do not reverse the bytes because this is a bit set
   FDNSHeader.RD := Word(FAllowRecursiveQueries);
 
   iQ := 0;
   // Iterate thru questions
   { TODO : Optimize for non-double loop }
-  if not ((qtAXFR in QueryType) and (qtIXFR in QueryType))then
-  begin
-    for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do
-    begin
-     if ARecType in QueryType then
-     begin
-       inc(iQ);
-     end;
+  if not ((qtAXFR in QueryType) and (qtIXFR in QueryType)) then begin
+    for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
+      if ARecType in QueryType then begin
+        Inc(iQ);
+      end;
     end;
   end else
   begin
     iQ := 1; // if exec AXFR, there can be only one Question.
-
-    if (qtIXFR in QueryType) then
-    begin
-         // if exec IXFR, we must include a SOA record in Authority Section (RFC 1995)
-         if Assigned(SOARR) then begin
-            AAuthority := SOARR.BinQueryRecord('');
-         end else begin
-             raise  EIdDnsResolverError.Create(GetErrorStr(7, 3));
-         end;
-
-         FDNSHeader.AA := 1;
+    if qtIXFR in QueryType then begin
+      // if exec IXFR, we must include a SOA record in Authority Section (RFC 1995)
+      if Assigned(SOARR) then begin
+        AAuthority := SOARR.BinQueryRecord('');
+      end else begin
+        raise EIdDnsResolverError.Create(GetErrorStr(7, 3));
+      end;
+      FDNSHeader.AA := 1;
     end;
   end;
 
   FDNSHeader.QDCount := iQ;
-  if FDNSHeader.QDCount = 0 then
-  begin
+  if FDNSHeader.QDCount = 0 then begin
     ClearInternalQuery;
     Exit;
   end;
 
   InternalQuery := FDNSHeader.GenerateBinaryHeader;
 
-  if (qtAXFR in Self.QueryType) then begin
+  if qtAXFR in QueryType then begin
     if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-      (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
+       (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
     begin
       AppendBytes(AQuestion, DoHostAddress(ADomain));
       AppendByte(AQuestion, 0);
@@ -1233,55 +1226,56 @@ begin
     w := 252;
     w := GStack.HostToNetwork(w);
     WordToTwoBytes(w, TempBytes, 0);
-    AppendBytes(AQuestion, TempBytes)   ; // Type = AXFR
+    AppendBytes(AQuestion, TempBytes); // Type = AXFR
     w := QueryClass;
     w := GStack.HostToNetwork(w);
     WordToTwoBytes(w, TempBytes, 0);
     AppendBytes(AQuestion, TempBytes);
-  end else begin
-    if (qtIXFR in Self.QueryType) then begin
-         if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
-            (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then  {do not localize}
-         begin
-              AppendBytes(AQuestion, DoHostAddress(ADomain));
-              AppendByte(AQuestion, 0);
-         end else
-         begin
-              AppendBytes(AQuestion, DoDomainName(ADomain));
-              AppendByte(AQuestion, 0);
-         end;
-         //we do this in a round about manner because HostToNetwork will not always
-         //work the same
-         w := 251;
-         w := GStack.HostToNetwork(w);
-         WordToTwoBytes(w, TempBytes, 0);
-         AppendBytes(AQuestion, TempBytes)   ; // Type = IXFR
-         w := QueryClass;
-         w := GStack.HostToNetwork(w);
-         WordToTwoBytes(w, TempBytes, 0);
-         AppendBytes(AQuestion, TempBytes);
-    end else begin
-         for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
-               if ARecType in QueryType then begin
-                    // Create the question
-                    if (ARecType = qtPTR) and (IndyPos('IN-ADDR', UpperCase(ADomain)) = 0) and {Do not Localize}
-                       (IndyPos('IP6.INT', UpperCase(ADomain)) = 0) then begin {do not localize}
-                          AppendBytes(AQuestion, DoHostAddress(ADomain));
-                          AppendByte(AQuestion, 0);
-                    end else begin
-                         AppendBytes(AQuestion, DoDomainName(ADomain));
-                         AppendByte(AQuestion, 0);
-                    end;
-                    w := QueryRecordValues[Ord(ARecType)];
-                    w := GStack.HostToNetwork(w);
-                    WordToTwoBytes(w, TempBytes, 0);
-                    AppendBytes(AQuestion, TempBytes);
-                    w := QueryClass;
-                    w := GStack.HostToNetwork(w);
-                    WordToTwoBytes(w, TempBytes, 0);
-                    AppendBytes(AQuestion, TempBytes);
-               end;
-         end;
+  end
+  else if qtIXFR in QueryType then begin
+    if (IndyPos('IN-ADDR', UpperCase(ADomain)) > 0) or   {Do not Localize}
+       (IndyPos('IP6.INT', UpperCase(ADomain)) > 0) then {do not localize}
+    begin
+      AppendBytes(AQuestion, DoHostAddress(ADomain));
+      AppendByte(AQuestion, 0);
+    end else
+    begin
+      AppendBytes(AQuestion, DoDomainName(ADomain));
+      AppendByte(AQuestion, 0);
+    end;
+    //we do this in a round about manner because HostToNetwork will not always
+    //work the same
+    w := 251;
+    w := GStack.HostToNetwork(w);
+    WordToTwoBytes(w, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes); // Type = IXFR
+    w := QueryClass;
+    w := GStack.HostToNetwork(w);
+    WordToTwoBytes(w, TempBytes, 0);
+    AppendBytes(AQuestion, TempBytes);
+  end else
+  begin
+    for ARecType := Low(TQueryRecordTypes) to High(TQueryRecordTypes) do begin
+      if ARecType in QueryType then begin
+        // Create the question
+        if (ARecType = qtPTR) and
+           (IndyPos('IN-ADDR', UpperCase(ADomain)) = 0) and {Do not Localize}
+           (IndyPos('IP6.INT', UpperCase(ADomain)) = 0) then {do not localize}
+        begin
+          AppendBytes(AQuestion, DoHostAddress(ADomain));
+        end else begin
+          AppendBytes(AQuestion, DoDomainName(ADomain));
+        end;
+        AppendByte(AQuestion, 0);
+        w := QueryRecordValues[Ord(ARecType)];
+        w := GStack.HostToNetwork(w);
+        WordToTwoBytes(w, TempBytes, 0);
+        AppendBytes(AQuestion, TempBytes);
+        w := QueryClass;
+        w := GStack.HostToNetwork(w);
+        WordToTwoBytes(w, TempBytes, 0);
+        AppendBytes(AQuestion, TempBytes);
+      end;
     end;
   end;
   AppendBytes(FInternalQuery, AQuestion);
@@ -1296,8 +1290,8 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdDNSResolver.FillResult(AResult: TIdBytes; checkID : boolean = true;
-          ResetResult : boolean = true);
+procedure TIdDNSResolver.FillResult(AResult: TIdBytes; CheckID: Boolean = True;
+  ResetResult: Boolean = True);
 var
   ReplyId: Word;
   NAnswers: Word;
@@ -1311,23 +1305,23 @@ begin
     raise EIdDnsResolverError.Create(GetErrorStr(5, 30));
   end;      }
 
-  ReplyId := GStack.NetworkToHost(TwoByteToWord(AResult[0],AResult[1]));
+  ReplyId := GStack.NetworkToHost(TwoByteToWord(AResult[0], AResult[1]));
 
-  if checkID then begin
-     if ReplyId <> FDNSHeader.Id then raise EIdDnsResolverError.Create(GetErrorStr(4, FDNSHeader.id));
+  if CheckID then begin
+    if ReplyId <> FDNSHeader.Id then begin
+      raise EIdDnsResolverError.Create(GetErrorStr(4, FDNSHeader.id));
+    end;
   end;
   FDNSHeader.ParseQuery(AResult);
 
-  if FDNSHeader.RCode <> 0 then
-  begin
+  if FDNSHeader.RCode <> 0 then begin
     raise EIdDnsResolverError.Create(GetRCodeStr(FDNSHeader.RCode));
   end;
 
   NAnswers := FDNSHeader.ANCount + FDNSHeader.NSCount + FDNSHeader.ARCount;
   if NAnswers > 0 then begin
     // Move Pointer to Start of answers
-    if Length(AResult) > 12 then
-    begin
+    if Length(AResult) > 12 then begin
       ParseAnswers(FDNSHeader, AResult, ResetResult);
     end;
   end;
@@ -1339,52 +1333,44 @@ var
   //TempHeader : TDNSHeader;
   InternalResult : TIdBytes;
 begin
-  SetLength(InternalResult, 0);
   InternalResult := ToBytes(AResult);
-  Self.FDNSHeader.ParseQuery(InternalResult);
+  FDNSHeader.ParseQuery(InternalResult);
 
   if Length(InternalResult) < 12 then begin
-    Raise EIdDnsResolverError.Create(GetErrorStr(5, 29));
+    raise EIdDnsResolverError.Create(GetErrorStr(5, 29));
   end;
 
-  NAnswers := Self.FDNSHeader.ANCount +
-           Self.FDNSHeader.NSCount + Self.FDNSHeader.ARCount;
+  NAnswers := FDNSHeader.ANCount + FDNSHeader.NSCount + FDNSHeader.ARCount;
   if NAnswers > 0 then begin
     // Move Pointer to Start of answers
-    if Length(InternalResult) > 12 then
-      ParseAnswers(Self.FDNSHeader, InternalResult);
+    if Length(InternalResult) > 12 then begin
+      ParseAnswers(FDNSHeader, InternalResult);
+    end;
   end;
 end;
 
-
-procedure TQueryResult.FilterBySection(const aKeep: TResultSections);
+procedure TQueryResult.FilterBySection(const AKeep: TResultSections);
 var
- i:Integer;
+  i: Integer;
 begin
- for i:=Count-1 downto 0 do
- begin
-   if not (Items[i].Section in aKeep) then Delete(i);
- end;
+  for i := Count-1 downto 0 do
+  begin
+    if not (Items[i].Section in AKeep) then begin
+      Delete(i);
+    end;
+  end;
 end;
 
-procedure TQueryResult.FilterByClass(const aKeep:TResultRecordClass);
+procedure TQueryResult.FilterByClass(const AKeep: TResultRecordClass);
 var
- i:Integer;
+  i: Integer;
 begin
- for i:=Count-1 downto 0 do
- begin
-   if not (Items[i] is aKeep) then Delete(i);
- end;
-end;
-
-function TIdDNSResolver.GetIPVersion: TIdIPVersion;
-begin
-  result := FIPVersion;
-end;
-
-function TIdDNSResolver.GetPort: TIdPort;
-begin
-  Result := FPort;
+  for i := Count-1 downto 0 do
+  begin
+    if not (Items[i] is AKeep) then begin
+      Delete(i);
+    end;
+  end;
 end;
 
 procedure TIdDNSResolver.InitComponent;
@@ -1397,53 +1383,48 @@ begin
   Self.WaitingTime := 5000;
 end;
 
-procedure TIdDNSResolver.ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes; ResetResult : boolean = true);
+procedure TIdDNSResolver.ParseAnswers(DNSHeader: TDNSHeader; Answer: TIdBytes;
+  ResetResult: Boolean = True);
 var
   i: integer;
   APos: Integer;
-  aResult:TResultRecord;
 begin
-  if ResetResult then
-  begin
+  if ResetResult then begin
     QueryResult.Clear;
   end;
+
   APos := 12; //13; // Header is 12 byte long we need next byte
   // if QDCount = 1, we need to process Question first.
 
-  if DNSHeader.QDCount = 1 then begin
-     // first, get the question
-     // extract the domain name
-     QueryResult.FDomainName :=  QueryResult.DNSStrToDomain(Answer, APos);
-     // get the query type
-     QueryResult.FQueryType := TwoByteToWord(Answer[APos], Answer[APos + 1]);
-     Inc(APos, 2);
-     // get the Query Class
-     QueryResult.FQueryClass := TwoByteToWord(Answer[APos], Answer[APos + 1]);
-     Inc(APos, 2);
+  if DNSHeader.QDCount = 1 then
+  begin
+    // first, get the question
+    // extract the domain name
+    QueryResult.FDomainName := DNSStrToDomain(Answer, APos);
+    // get the query type
+    QueryResult.FQueryType := TwoByteToWord(Answer[APos], Answer[APos + 1]);
+    Inc(APos, 2);
+    // get the Query Class
+    QueryResult.FQueryClass := TwoByteToWord(Answer[APos], Answer[APos + 1]);
+    Inc(APos, 2);
   end;
 
-  for i:= 1 to DNSHeader.ANCount do
-  begin
-    aResult:=QueryResult.Add(Answer, APos);
-    aResult.FSection:=rsAnswer;
+  for i := 1 to DNSHeader.ANCount do begin
+    QueryResult.Add(Answer, APos).FSection := rsAnswer;
   end;
 
-  for i:= 1 to DNSHeader.NSCount do
-  begin
-    aResult:=QueryResult.Add(Answer, APos);
-    aResult.FSection:=rsNameServer;
+  for i := 1 to DNSHeader.NSCount do begin
+    QueryResult.Add(Answer, APos).FSection := rsNameServer;
   end;
 
-  for i:= 1 to DNSHeader.ARCount do
-  begin
-    aResult:=QueryResult.Add(Answer, APos);
-    aResult.FSection:=rsAdditional;
+  for i := 1 to DNSHeader.ARCount do begin
+    QueryResult.Add(Answer, APos).FSection := rsAdditional;
   end;
 
 end;
 
 procedure TIdDNSResolver.Resolve(ADomain: string; SOARR : TIdRR_SOA = nil;
-          QClass: integer = Class_IN);
+  QClass: integer = Class_IN);
 var
   UDP_Tunnel : TIdUDPClient;
   TCP_Tunnel : TIdTCPClient;
@@ -1454,140 +1435,50 @@ begin
   ClearInternalQuery;
   // Resolve queries the DNS for the records contained in the
   if FQuestionLength = 0 then begin
-    if not (qtIXFR in Self.QueryType) then
-       CreateQuery(ADomain, nil, QClass)
-    else CreateQuery(ADomain, SOARR, QClass);
+    if qtIXFR in QueryType then begin
+      CreateQuery(ADomain, SOARR, QClass);
+    end else begin
+      CreateQuery(ADomain, nil, QClass)
+    end;
   end;
 
-  if Self.FQuestionLength = 0 then begin
+  if FQuestionLength = 0 then begin
     raise EIdDnsResolverError.Create(IndyFormat(RSQueryInvalidQueryCount, [0]));
   end;
 
-  if not (qtAXFR in Self.QueryType) then begin
-     if not (qtIXFR in Self.QueryType) then begin
-        UDP_Tunnel := TIdUDPClient.Create;
-        try
-           UDP_Tunnel.Host := Self.Host;
-           UDP_Tunnel.Port := Self.Port;
-           UDP_Tunnel.IPVersion := Self.IPVersion;
-
-           UDP_Tunnel.SendBuffer(InternalQuery);
-
-           SetLength(LResult, 8192);
-           BytesReceived := UDP_Tunnel.ReceiveBuffer(LResult, WaitingTime);
-           SetLength(LResult, BytesReceived);
-
-           if Length(LResult) > 0 then begin
-              PlainTextResult := LResult;
-           end else begin
-               SetLength(FPlainTextResult, 0);
-           end;
-        finally
-           FreeAndNil(UDP_Tunnel);
-        end;
-
-        if Length(LResult) > 4 then begin
-           FillResult(LResult);
-        end;
-        {
-        end else begin
-             raise EIdDnsResolverError.Create(RSDNSTimeout);
-        end;
-        }
-     end else begin
-         // IXFR
-         TCP_Tunnel := TIdTCPClient.Create(Self);
-         try
-            TCP_Tunnel.Host := Self.Host;
-            TCP_Tunnel.Port := Self.Port;
-            TCP_Tunnel.IPVersion := Self.IPVersion;
-            TCP_Tunnel.IOHandler := IOHandler;
-
-            { Thanks RLebeau, you fix a lot of codes which I do not spend time
-              to do - Dennies Chang.
-            }
-
-            try
-               TCP_Tunnel.Connect;
-               TCP_Tunnel.IOHandler.Write(SmallInt(Self.FQuestionLength));
-               TCP_Tunnel.IOHandler.Write(Self.InternalQuery);
-
-               Self.QueryResult.Clear;
-
-               LRet := TCP_Tunnel.IOHandler.ReadSmallInt();
-               SetLength(LResult, LRet);
-               TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet);
-               PlainTextResult := LResult;
-
-               if LRet > 4 then begin
-                  FillResult(LResult, False, False);
-
-                  if Self.QueryResult.Count = 0 then begin
-                  {
-                     for Count := 0 to Self.QueryResult.Count -1 do begin
-                         if Self.QueryResult.Items[Count] is TSOARecord then
-                            Inc(NSCount);
-                     end;
-                  end else begin
-                  }
-                      raise EIdDnsResolverError.Create(GetErrorStr(2,3));
-                  end
-               end else raise EIdDnsResolverError.Create(RSDNSTimeout);
-
-               TCP_Tunnel.Disconnect;
-            except
-                  on EIdConnectTimeout do begin
-                     SetLength(FPlainTextResult, 0);
-                     EIdDNSResolverError.Create(RSDNSTimeout);
-                  end;
-                  on EIdConnectException do begin
-                     SetLength(FPlainTextResult, 0);
-                     EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed);
-                  end;
-            end;
-         finally
-               FreeAndNil(TCP_Tunnel);
-         end;
-     end;
-  end else begin
+  if qtAXFR in QueryType then begin
     // AXFR
-    TCP_Tunnel := TIdTCPClient.Create(Self);
+    TCP_Tunnel := TIdTCPClient.Create;
     try
-      TCP_Tunnel.Host := Self.Host;
-      TCP_Tunnel.Port := Self.Port;
-      TCP_Tunnel.IPVersion := Self.IPVersion;
+      TCP_Tunnel.Host := Host;
+      TCP_Tunnel.Port := Port;
+      TCP_Tunnel.IPVersion := IPVersion;
       TCP_Tunnel.IOHandler := IOHandler;
-
-{ RLebeau - already performed above...
-      if Self.FQuestionLength = 0 then begin
-        raise EIdDnsResolverError.CreateFmt(RSQueryInvalidQueryCount, [0]);
-      end;
-}
 
       try
         TCP_Tunnel.Connect;
-        TCP_Tunnel.IOHandler.Write(SmallInt(Self.FQuestionLength));
-        TCP_Tunnel.IOHandler.Write(Self.InternalQuery);
+        try
+          TCP_Tunnel.IOHandler.Write(SmallInt(FQuestionLength));
+          TCP_Tunnel.IOHandler.Write(InternalQuery);
 
-        Self.QueryResult.Clear;
+          QueryResult.Clear;
 
-        LRet := TCP_Tunnel.IOHandler.ReadSmallInt();
-        SetLength(LResult, LRet);
-        TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet);
-        PlainTextResult := LResult;
+          LRet := TCP_Tunnel.IOHandler.ReadSmallInt;
+          SetLength(LResult, LRet);
+          TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet);
+          PlainTextResult := LResult;
 
-        if LRet > 4 then begin
-           FillResult(LResult, False, False);
-
-           {for Count := 0 to Self.QueryResult.Count -1 do begin
-               if Self.QueryResult.Items[Count] is TSOARecord then
-                  Inc(NSCount);
-           end;
-           }
-
-        end else raise EIdDnsResolverError.Create(RSDNSTimeout);
-
-        TCP_Tunnel.Disconnect;
+          if LRet > 4 then begin
+            FillResult(LResult, False, False);
+            if QueryResult.Count = 0 then begin
+              raise EIdDnsResolverError.Create(GetErrorStr(2,3));
+            end;
+          end else begin
+            raise EIdDnsResolverError.Create(RSDNSTimeout);
+          end;
+        finally
+          TCP_Tunnel.Disconnect;
+        end;
       except
         on EIdConnectTimeout do begin
           SetLength(FPlainTextResult, 0);
@@ -1600,6 +1491,84 @@ begin
       end;
     finally
       FreeAndNil(TCP_Tunnel);
+    end;
+  end
+  else if qtIXFR in QueryType then begin
+    // IXFR
+    TCP_Tunnel := TIdTCPClient.Create;
+    try
+      TCP_Tunnel.Host := Host;
+      TCP_Tunnel.Port := Port;
+      TCP_Tunnel.IPVersion := IPVersion;
+      TCP_Tunnel.IOHandler := IOHandler;
+
+      { Thanks RLebeau, you fix a lot of codes which I do not spend time to do - Dennies Chang. }
+
+      try
+        TCP_Tunnel.Connect;
+        try
+          TCP_Tunnel.IOHandler.Write(SmallInt(FQuestionLength));
+          TCP_Tunnel.IOHandler.Write(InternalQuery);
+
+          QueryResult.Clear;
+
+          LRet := TCP_Tunnel.IOHandler.ReadSmallInt;
+          SetLength(LResult, LRet);
+          TCP_Tunnel.IOHandler.ReadBytes(LResult, LRet);
+          PlainTextResult := LResult;
+
+          if LRet > 4 then begin
+            FillResult(LResult, False, False);
+            if QueryResult.Count = 0 then begin
+              raise EIdDnsResolverError.Create(GetErrorStr(2,3));
+            end;
+          end else begin
+            raise EIdDnsResolverError.Create(RSDNSTimeout);
+          end;
+        finally
+          TCP_Tunnel.Disconnect;
+        end;
+      except
+        on EIdConnectTimeout do begin
+          SetLength(FPlainTextResult, 0);
+          raise EIdDNSResolverError.Create(RSDNSTimeout);
+        end;
+        on EIdConnectException do begin
+          SetLength(FPlainTextResult, 0);
+          raise EIdDNSResolverError.Create(RSTunnelConnectToMasterFailed);
+        end;
+      end;
+    finally
+      FreeAndNil(TCP_Tunnel);
+    end;
+  end
+  else begin
+    UDP_Tunnel := TIdUDPClient.Create;
+    try
+      UDP_Tunnel.Host := Host;
+      UDP_Tunnel.Port := Port;
+      UDP_Tunnel.IPVersion := IPVersion;
+
+      UDP_Tunnel.SendBuffer(InternalQuery);
+
+      SetLength(LResult, 8192);
+      BytesReceived := UDP_Tunnel.ReceiveBuffer(LResult, WaitingTime);
+      SetLength(LResult, BytesReceived);
+
+      if Length(LResult) > 0 then begin
+        PlainTextResult := LResult;
+      end else begin
+        SetLength(FPlainTextResult, 0);
+      end;
+    finally
+      FreeAndNil(UDP_Tunnel);
+    end;
+
+    if Length(LResult) > 4 then begin
+       FillResult(LResult);
+       if QueryResult.Count = 0 then begin
+         raise EIdDnsResolverError.Create(GetErrorStr(2,3));
+      end;
     end;
   end;
 end;
@@ -1628,104 +1597,98 @@ end;
 
 procedure TIdDNSResolver.SetPort(const AValue: TIdPort);
 begin
- FPort := AValue;
+  FPort := AValue;
 end;
 
 procedure TSRVRecord.Assign(Source: TPersistent);
-var
- aSource:TSRVRecord;
 begin
   inherited Assign(Source);
-
   if Source is TSRVRecord then
   begin
-    aSource:=TSRVRecord(Source);
-    FService := aSource.Service;
-    FProtocol := aSource.Protocol;
-    FPriority := aSource.Priority;
-    FWeight := aSource.Weight;
-    FPort := aSource.Port;
-    FTarget := aSource.Target;
+    with Source as TSRVRecord do
+    begin
+      Self.FService := Service;
+      Self.FProtocol := Protocol;
+      Self.FPriority := Priority;
+      Self.FWeight := Weight;
+      Self.FPort := Port;
+      Self.FTarget := Target;
+    end;
   end;
-
 end;
 
 function TSRVRecord.CleanIdent(const aStr: string): string;
 begin
- Result:=Copy(aStr,2,Length(aStr)-1);
+  Result := Copy(aStr, 2, MaxInt);
 end;
 
-function TSRVRecord.IsValidIdent(const aStr: string): Boolean;
+function TSRVRecord.IsValidIdent(const AStr: string): Boolean;
 begin
- Result:=(Length(aStr)>1) and (aStr[1]='_'); {Do not Localize}
+  Result := (Length(AStr) > 1) and (AStr[1] = '_'); {Do not Localize}
 end;
 
 procedure TSRVRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
 var
- aName,aService,aProtocol:string;
+  LName, LService, LProtocol: string;
 begin
   inherited Parse(CompleteMessage, APos);
 
-  FOriginalName:=FName;
+  FOriginalName := FName;
 
   //this is to split: _sip._udp.example.com
-  aName:=FName;
-  aService:=Fetch(aName,'.',True,False);
-  aProtocol:=Fetch(aName,'.',True,False);
-  if IsValidIdent(aService) and IsValidIdent(aProtocol) and (aName<>'') then
+  LName := FName;
+  LService := Fetch(LName, '.', True, False);
+  LProtocol := Fetch(LName,'.', True, False);
+  if IsValidIdent(LService) and IsValidIdent(LProtocol) and (LName <> '') then
   begin
-    FService:=CleanIdent(aService);
-    FProtocol:=CleanIdent(aProtocol);
-    FName:=aName;
+    FService := CleanIdent(LService);
+    FProtocol := CleanIdent(LProtocol);
+    FName := LName;
   end;
 
-  Self.FPriority := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
-  Inc(Apos, 2);
+  FPriority := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos+1]));
+  Inc(APos, 2);
 
-  Self.FWeight := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
-  Inc(Apos, 2);
+  FWeight := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos+1]));
+  Inc(APos, 2);
 
-  Self.FPort := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
-  Inc(Apos, 2);
+  FPort := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos+1]));
+  Inc(APos, 2);
 
-  Self.FTarget := (Collection as TQueryResult).DNSStrToDomain(CompleteMessage, APos);
+  FTarget := DNSStrToDomain(CompleteMessage, APos);
 end;
 
 procedure TNAPTRRecord.Assign(Source: TPersistent);
-var
- aSource:TNAPTRRecord;
 begin
  inherited Assign(Source);
-
  if Source is TNAPTRRecord then
  begin
-   aSource:=Source as TNAPTRRecord;
-   FOrder:=aSource.Order;
-   FPreference:=aSource.Preference;
-   FFlags:=aSource.FFlags;
-   FService:=aSource.Service;
-   FRegExp:=aSource.RegExp;
-   FReplacement:=aSource.Replacement;
+   with Source as TNAPTRRecord do
+  begin
+     Self.FOrder := Order;
+     Self.FPreference := Preference;
+     Self.FFlags := FFlags;
+     Self.FService := Service;
+     Self.FRegExp := RegExp;
+     Self.FReplacement := Replacement;
+  end;
  end;
-
 end;
 
 procedure TNAPTRRecord.Parse(CompleteMessage: TIdBytes; APos: Integer);
-var
-  aResult:TQueryResult;
 begin
   inherited Parse(CompleteMessage, APos);
-  Self.fOrder := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
-  Inc(Apos, 2);
 
-  Self.fPreference := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos],CompleteMessage[APos+1]));
-  Inc(Apos, 2);
+  FOrder := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos+1]));
+  Inc(APos, 2);
 
-  aResult:=(Collection as TQueryResult);
-  Self.FFlags := aResult.NextDNSLabel(CompleteMessage, APos);
-  Self.FService := aResult.NextDNSLabel(CompleteMessage, APos);
-  Self.FRegExp := aResult.NextDNSLabel(CompleteMessage, APos);
-  Self.FReplacement := aResult.DNSStrToDomain(CompleteMessage, APos);
+  FPreference := GStack.NetworkToHost(TwoByteToWord(CompleteMessage[APos], CompleteMessage[APos+1]));
+  Inc(APos, 2);
+
+  FFlags := NextDNSLabel(CompleteMessage, APos);
+  FService := NextDNSLabel(CompleteMessage, APos);
+  FRegExp := NextDNSLabel(CompleteMessage, APos);
+  FReplacement := DNSStrToDomain(CompleteMessage, APos);
 end;
 
 end.
