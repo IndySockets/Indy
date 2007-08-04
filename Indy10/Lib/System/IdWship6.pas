@@ -122,6 +122,10 @@ const
   SOCKET_INFO_CONNECTION_ENCRYPTED = $00000002;
 
 type
+  // RLebeau: find a better place for this
+  {$EXTERNALSYM UINT64}
+  UINT64 = Int64;
+
   {$NODEFINE PPaddrinfo}
   PPaddrinfo = ^PAddrInfo;
 ///* Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP */
