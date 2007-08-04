@@ -36,7 +36,9 @@
 unit IdOSFileName;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdBaseComponent, IdFTPCommon;
 
@@ -106,15 +108,16 @@ DKA0:[MYDIR.SUBDIR1.SUBDIR2]MYFILE.TXT;1
 Note VMS uses 39 chars for name and type
 
 valid chars are:
-letters A through Z
-numbers 0 through 9
+letters A through Z 
+numbers 0 through 9 
 underscore ( _ )
 hyphen ( -)
 dollar sign ( $ )
 
 See:  http://www.uh.edu/infotech/services/documentation/vms/v0505.html
 }
-var   VMS_Valid_Chars : String;
+var
+  VMS_Valid_Chars : String;
 begin
   VMS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_-$';
   //VMS is case insensitive - UpperCase to simplify processing
@@ -164,7 +167,8 @@ var LFName, LFExt : String;
 
 //Note: Macintosh does not allow colin (:) in it's file name and supports upto 32 characters.
 
-var   MSDOS_Valid_Chars : String;
+var
+  MSDOS_Valid_Chars : String;
 begin
   MSDOS_Valid_Chars := CharRange('A','Z')+CharRange('0','9')+'_$~!#%&-{}()@'''+#180;
   Result := UpperCase(AUnixFileName);
@@ -183,8 +187,9 @@ end;
 
 function FileNameUnixToWin32(const AUnixFileName : String):String;
 //from: http://linux-ntfs.sourceforge.net/ntfs/concepts/filename_namespace.html
-const WIN32_INVALID_CHARS  = '"*/:<>?\|' + #0;
-    WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32
+const
+  WIN32_INVALID_CHARS  = '"*/:<>?\|' + #0;
+  WIN32_INVALID_LAST  = ' .';  //not permitted as the last character in Win32
 begin
   Result := EnsureValidCharsByInvalidSet(AUnixFileName,WIN32_INVALID_CHARS);
   if Result <> '' then begin
@@ -213,9 +218,9 @@ function FileNameUnixToVMCMS(const AUnixFileName : String): String;
 //      The filename and filetype can contain from one to eight characters (letters,
 //      numbers, and these seven special characters: @#$+-:_).  Choose filenames and
 //      filetypes that help to identify the contents of the file.
-var LFName, LFExt : String;
-
-   Valid_VMCMS_Chars : String;
+var
+  LFName, LFExt : String;
+  Valid_VMCMS_Chars : String;
 begin
   Valid_VMCMS_Chars := CharRange('A','Z')+ CharRange('0','9')+'@#$+-:_';
   Result := UpperCase(AUnixFileName);
@@ -252,11 +257,12 @@ Letters (A to Z), digits (0 to 9), and some special characters
 (including $ # @ _ + - . % & !) can be used, but the first character
 of each part must not be a digit or + - . % & !.
 }
-var Valid_MUSICSP : String;
-    MUSICSP_Cant_Start : String;
+var
+  Valid_MUSICSP : String;
+  MUSICSP_Cant_Start : String;
 begin
   Valid_MUSICSP := CharRange('A','Z')+CharRange('0','9')+'$#@_+-.%&!';
-    MUSICSP_Cant_Start := CharRange('0','9')+ '+-.%!';
+  MUSICSP_Cant_Start := CharRange('0','9')+ '+-.%!';
 // note we have to do our vality checks before truncating the length in
 // case we need to replace the default replacement char and the length changes
 // because of that.
@@ -280,14 +286,13 @@ begin
 end;
 
 function FileNameUnixToMVS(const AUnixFileName : String; const AUserID : String; const AUseAnotherID : Boolean=False) : String;
-var LQualifier : String;
-  LMaxLen : Integer;
-  LBuf : String;
 const
   MVS_FQN_MAX_LEN = 44;
   MVS_MAX_QUAL_LEN = 8;
-
 var
+  LQualifier : String;
+  LMaxLen : Integer;
+  LBuf : String;
   MVS_Valid_Qual_Chars : String;
   MVS_Valid_First_Char : String;
 begin
@@ -388,11 +393,12 @@ described it.
 The MPE/iX file system is basically flat with an account, group, and file name.
 }
 function MPEiXValidateFIlePart(AFilePart : String) : String;
-var Valid_MPEIX_Start : String;
-    Valid_MPEIX_FName : String;
+var
+  Valid_MPEIX_Start : String;
+  Valid_MPEIX_FName : String;
 begin
-Valid_MPEIX_Start := CharRange('A','Z');
-    Valid_MPEIX_FName :=  Valid_MPEIX_Start + CharRange('0','9');
+  Valid_MPEIX_Start := CharRange('A','Z');
+  Valid_MPEIX_FName :=  Valid_MPEIX_Start + CharRange('0','9');
   Result := UpperCase(AFilePart);
   if IndyPos('.',Result)>1 then
   begin
@@ -402,7 +408,7 @@ Valid_MPEIX_Start := CharRange('A','Z');
   begin
     Result := EnsureValidCharsByValidSet(Result,VALID_MPEIX_FNAME,'');
     repeat
-      if ((CharIsInSet(Result, 1, VALID_MPEIX_START))=False) then
+      if not CharIsInSet(Result, 1, VALID_MPEIX_START) then
       begin
         Delete(Result,1,1);
         if Result='' then
@@ -480,8 +486,9 @@ be a file under the PAYROLL HFS subdirectory, which is under the FINANCE HFS
 directory, which is under the root directory.
 }
 
-var MPEIX_Valid_Chars : String;
-    MPEIX_CantStart : String;
+var
+  MPEIX_Valid_Chars : String;
+  MPEIX_CantStart : String;
 begin
   MPEIX_Valid_Chars := CharRange('a','z')+CharRange('A','Z')+CharRange('0','9')+'._-';
   MPEIX_CantStart := '-';
