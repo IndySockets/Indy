@@ -16,7 +16,7 @@
   $Log$
 }
 {
-  Rev 1.3    6/11/2004 9:33:58 AM  DSiders
+    Rev 1.3    6/11/2004 9:33:58 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.2    13.1.2004 ã. 17:26:06  DBondzhev
@@ -39,6 +39,7 @@ unit IdAuthenticationSSPI;
 {$DEFINE SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -50,59 +51,59 @@ uses
   IdSSPI;
 
 const
-  SEC_E_OK                          = 0;
-  SEC_E_INSUFFICIENT_MEMORY         = HRESULT($80090300);
-  SEC_E_INVALID_HANDLE              = HRESULT($80090301);
-  SEC_E_UNSUPPORTED_FUNCTION        = HRESULT($80090302);
-  SEC_E_TARGET_UNKNOWN              = HRESULT($80090303);
-  SEC_E_INTERNAL_ERROR              = HRESULT($80090304);
-  SEC_E_SECPKG_NOT_FOUND            = HRESULT($80090305);
-  SEC_E_NOT_OWNER                   = HRESULT($80090306);
-  SEC_E_CANNOT_INSTALL              = HRESULT($80090307);
-  SEC_E_INVALID_TOKEN               = HRESULT($80090308);
-  SEC_E_CANNOT_PACK                 = HRESULT($80090309);
-  SEC_E_QOP_NOT_SUPPORTED           = HRESULT($8009030A);
-  SEC_E_NO_IMPERSONATION            = HRESULT($8009030B);
-  SEC_E_LOGON_DENIED                = HRESULT($8009030C);
-  SEC_E_UNKNOWN_CREDENTIALS         = HRESULT($8009030D);
-  SEC_E_NO_CREDENTIALS              = HRESULT($8009030E);
-  SEC_E_MESSAGE_ALTERED             = HRESULT($8009030F);
-  SEC_E_OUT_OF_SEQUENCE             = HRESULT($80090310);
+  SEC_E_OK                         = 0;
+  SEC_E_INSUFFICIENT_MEMORY        = HRESULT($80090300);
+  SEC_E_INVALID_HANDLE             = HRESULT($80090301);
+  SEC_E_UNSUPPORTED_FUNCTION       = HRESULT($80090302);
+  SEC_E_TARGET_UNKNOWN             = HRESULT($80090303);
+  SEC_E_INTERNAL_ERROR             = HRESULT($80090304);
+  SEC_E_SECPKG_NOT_FOUND           = HRESULT($80090305);
+  SEC_E_NOT_OWNER                  = HRESULT($80090306);
+  SEC_E_CANNOT_INSTALL             = HRESULT($80090307);
+  SEC_E_INVALID_TOKEN              = HRESULT($80090308);
+  SEC_E_CANNOT_PACK                = HRESULT($80090309);
+  SEC_E_QOP_NOT_SUPPORTED          = HRESULT($8009030A);
+  SEC_E_NO_IMPERSONATION           = HRESULT($8009030B);
+  SEC_E_LOGON_DENIED               = HRESULT($8009030C);
+  SEC_E_UNKNOWN_CREDENTIALS        = HRESULT($8009030D);
+  SEC_E_NO_CREDENTIALS             = HRESULT($8009030E);
+  SEC_E_MESSAGE_ALTERED            = HRESULT($8009030F);
+  SEC_E_OUT_OF_SEQUENCE            = HRESULT($80090310);
   SEC_E_NO_AUTHENTICATING_AUTHORITY = HRESULT($80090311);
-  SEC_I_CONTINUE_NEEDED             = HRESULT($00090312);
-  SEC_I_COMPLETE_NEEDED             = HRESULT($00090313);
-  SEC_I_COMPLETE_AND_CONTINUE       = HRESULT($00090314);
-  SEC_I_LOCAL_LOGON                 = HRESULT($00090315);
-  SEC_E_BAD_PKGID                   = HRESULT($80090316);
-  SEC_E_CONTEXT_EXPIRED             = HRESULT($80090317);
-  SEC_E_INCOMPLETE_MESSAGE          = HRESULT($80090318);
-  SEC_E_INCOMPLETE_CREDENTIALS      = HRESULT($80090320);
-  SEC_E_BUFFER_TOO_SMALL            = HRESULT($80090321);
-  SEC_I_INCOMPLETE_CREDENTIALS      = HRESULT($00090320);
-  SEC_I_RENEGOTIATE                 = HRESULT($00090321);
-  SEC_E_WRONG_PRINCIPAL             = HRESULT($80090322);
-  SEC_I_NO_LSA_CONTEXT              = HRESULT($00090323);
-  SEC_E_TIME_SKEW                   = HRESULT($80090324);
-  SEC_E_UNTRUSTED_ROOT              = HRESULT($80090325);
-  SEC_E_ILLEGAL_MESSAGE             = HRESULT($80090326);
-  SEC_E_CERT_UNKNOWN                = HRESULT($80090327);
-  SEC_E_CERT_EXPIRED                = HRESULT($80090328);
-  SEC_E_ENCRYPT_FAILURE             = HRESULT($80090329);
-  SEC_E_DECRYPT_FAILURE             = HRESULT($80090330);
-  SEC_E_ALGORITHM_MISMATCH          = HRESULT($80090331);
-  SEC_E_SECURITY_QOS_FAILED         = HRESULT($80090332);
+  SEC_I_CONTINUE_NEEDED            = HRESULT($00090312);
+  SEC_I_COMPLETE_NEEDED            = HRESULT($00090313);
+  SEC_I_COMPLETE_AND_CONTINUE      = HRESULT($00090314);
+  SEC_I_LOCAL_LOGON                = HRESULT($00090315);
+  SEC_E_BAD_PKGID                  = HRESULT($80090316);
+  SEC_E_CONTEXT_EXPIRED            = HRESULT($80090317);
+  SEC_E_INCOMPLETE_MESSAGE         = HRESULT($80090318);
+  SEC_E_INCOMPLETE_CREDENTIALS     = HRESULT($80090320);
+  SEC_E_BUFFER_TOO_SMALL           = HRESULT($80090321);
+  SEC_I_INCOMPLETE_CREDENTIALS     = HRESULT($00090320);
+  SEC_I_RENEGOTIATE                = HRESULT($00090321);
+  SEC_E_WRONG_PRINCIPAL            = HRESULT($80090322);
+  SEC_I_NO_LSA_CONTEXT             = HRESULT($00090323);
+  SEC_E_TIME_SKEW                  = HRESULT($80090324);
+  SEC_E_UNTRUSTED_ROOT             = HRESULT($80090325);
+  SEC_E_ILLEGAL_MESSAGE            = HRESULT($80090326);
+  SEC_E_CERT_UNKNOWN               = HRESULT($80090327);
+  SEC_E_CERT_EXPIRED               = HRESULT($80090328);
+  SEC_E_ENCRYPT_FAILURE            = HRESULT($80090329);
+  SEC_E_DECRYPT_FAILURE            = HRESULT($80090330);
+  SEC_E_ALGORITHM_MISMATCH         = HRESULT($80090331);
+  SEC_E_SECURITY_QOS_FAILED        = HRESULT($80090332);
 
 type
-
   ESSPIException = class(Exception)
   public
-    class function GetErrorMessageByNo(aErrorNo: LongWord): string;
+    class function GetErrorMessageByNo(AErrorNo: LongWord): string;
   public
-    constructor CreateError(
-      aFailedFuncName: string; anErrorNo: Longint = SEC_E_OK);
+    constructor CreateError(AFailedFuncName: string; AErrorNo: LongInt = SEC_E_OK);
   end;
 
   ESSPIInterfaceInitFailed = class(ESSPIException);
+
+  { TSSPIInterface }
 
   TSSPIInterface = class(TObject)
   private
@@ -121,6 +122,8 @@ type
     constructor Create;
     destructor Destroy; override;
   end;
+
+  { TSSPIPackages }
 
   TSSPIPackage = class(TObject)
   private
@@ -147,6 +150,8 @@ type
   public
     constructor Create;
   end;
+
+  { TSSPICredentials }
 
   TSSPICredentialsUse = (scuInBound, scuOutBound, scuBoth);
 
@@ -175,6 +180,8 @@ type
     destructor Destroy; override;
   end;
 
+  { TSSPIWinNTCredentials }
+
   TSSPIWinNTCredentials = class(TSSPICredentials)
   protected
   public
@@ -184,6 +191,8 @@ type
       aUse: TSSPICredentialsUse; aDomain,
       aUserName, aPassword: string); overload;
   end;
+
+  { TSSPIContext }
 
   TSSPIContext = class(TObject)
   private
@@ -219,6 +228,8 @@ type
     destructor Destroy; override;
   end;
 
+  { TSSPIConnectionContext }
+
   TCustomSSPIConnectionContext = class(TSSPIContext)
   private
     fStatus: SECURITY_STATUS;
@@ -232,10 +243,9 @@ type
       const aErrorsToIgnore: array of SECURITY_STATUS
       ): SECURITY_STATUS; virtual; abstract;
   public
+    constructor Create(ACredentials: TSSPICredentials);
     function UpdateAndGenerateReply(
       const aFromPeerToken: string; var aToPeerToken: string): Boolean;
-  public
-    constructor Create(aCredentials: TSSPICredentials);
   end;
 
   TSSPIClientConnectionContext = class(TCustomSSPIConnectionContext)
@@ -397,14 +407,14 @@ begin
 end;
 
 constructor ESSPIException.CreateError
-  (aFailedFuncName: string; anErrorNo: Longint = SEC_E_OK);
+  (AFailedFuncName: string; AErrorNo: LongInt = SEC_E_OK);
 begin
-  if anErrorNo = SEC_E_OK then
-    inherited Create(aFailedFuncName)
-  else
-    inherited CreateFmt(
-      RSHTTPSSPIErrorMsg,
-      [aFailedFuncName, anErrorNo, anErrorNo, GetErrorMessageByNo(anErrorNo)]);
+  if AErrorNo = SEC_E_OK then begin
+    inherited Create(AFailedFuncName);
+  end else begin
+    inherited CreateFmt(RSHTTPSSPIErrorMsg,
+      [AFailedFuncName, AErrorNo, AErrorNo, GetErrorMessageByNo(AErrorNo)]);
+  end;
 end;
 
 { TSSPIInterface }
@@ -418,9 +428,9 @@ end;
 
 procedure TSSPIInterface.checkAvailable;
 begin
-  if not IsAvailable then
-    raise ESSPIInterfaceInitFailed.Create(
-      RSHTTPSSPIInterfaceInitFailed);
+  if not IsAvailable then begin
+    raise ESSPIInterfaceInitFailed.Create(RSHTTPSSPIInterfaceInitFailed);
+  end;
 end;
 
 function TSSPIInterface.getFunctionTable: SecurityFunctionTableA;
@@ -432,8 +442,9 @@ end;
 class procedure TSSPIInterface.RaiseIfError
   (aStatus: SECURITY_STATUS; aFunctionName: string);
 begin
-  if not SEC_SUCCESS(aStatus) then
+  if not SEC_SUCCESS(aStatus) then begin
     raise ESSPIException.CreateError(aFunctionName, aStatus);
+  end;
 end;
 
 function TSSPIInterface.IsAvailable: Boolean;
@@ -478,28 +489,26 @@ function TSSPIInterface.IsAvailable: Boolean;
           Assigned(QueryContextAttributesA) and
           Assigned(MakeSignature) and
           Assigned(VerifySignature);
-{$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
+        {$IFDEF SET_ENCRYPT_IN_FT_WITH_GETPROCADDRESS_FUDGE}
         { fudge for Encrypt/DecryptMessage }
         if (not Assigned(EncryptMessage)) and (GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE) <> nil) then
           EncryptMessage := GetProcAddress(fDLLHandle, ENCRYPT_MESSAGE);
         if (not Assigned(DecryptMessage)) and (GetProcAddress(fDLLHandle, DECRYPT_MESSAGE) <> nil) then
           DecryptMessage := GetProcAddress(fDLLHandle, DECRYPT_MESSAGE);
-{$ENDIF}
+        {$ENDIF}
       end;
     end;
   end;
 
 begin
-  if fIsAvailable then
-    Result := True
-  else begin
+  if not fIsAvailable then begin
     if fLoadPending then begin
       releaseFunctionTable;
       loadDLL;
       fLoadPending := False;
     end;
-    Result := fIsAvailable;
   end;
+  Result := fIsAvailable;
 end;
 
 constructor TSSPIInterface.Create;
@@ -521,8 +530,9 @@ end;
 
 function TSSPIPackage.getPSecPkgInfo: PSecPkgInfo;
 begin
-  if fPSecPkginfo = nil then
+  if not Assigned(fPSecPkginfo) then begin
     raise ESSPIException.Create(RSHTTPSSPINoPkgInfoSpecified);
+  end;
   Result := fPSecPkginfo;
 end;
 
@@ -554,9 +564,10 @@ end;
 
 destructor TCustomSSPIPackage.Destroy;
 begin
-  if fInfo <> nil then
+  if fInfo <> nil then begin
     g.RaiseIfError(
-      g.FunctionTable.FreeContextBuffer(fInfo), 'FreeContextBuffer');  {Do not translate}
+      g.FunctionTable.FreeContextBuffer(fInfo), 'FreeContextBuffer');  {Do not localize}
+  end;
   inherited Destroy;
 end;
 
@@ -571,15 +582,16 @@ end;
 
 procedure TSSPICredentials.CheckAcquired;
 begin
-  if not fAcquired then
+  if not fAcquired then begin
     raise ESSPIException.Create(RSHTTPSSPINoCredentialHandle);
+  end;
 end;
 
 procedure TSSPICredentials.CheckNotAcquired;
 begin
-  if fAcquired then
-    raise ESSPIException.Create(
-     RSHTTPSSPICanNotChangeCredentials);
+  if fAcquired then begin
+    raise ESSPIException.Create(RSHTTPSSPICanNotChangeCredentials);
+  end;
 end;
 
 procedure TSSPICredentials.DoAcquire
@@ -703,16 +715,18 @@ var
   i: Integer;
 begin
   doRaise := not SEC_SUCCESS(aFuncResult);
-  if doRaise then
-    for i := Low(aErrorsToIgnore) to High(aErrorsToIgnore) do
+  if doRaise then begin
+    for i := Low(aErrorsToIgnore) to High(aErrorsToIgnore) do begin
       if aFuncResult = aErrorsToIgnore[i] then begin
         doRaise := False;
-        break;
+        Break;
       end;
-  if doRaise then
+    end;
+  end;
+  if doRaise then begin
     raise ESSPIException.CreateError(aFuncName, aFuncResult);
-  if not fHasHandle then
-    fHasHandle := True;
+  end;
+  fHasHandle := True;
 end;
 
 function TSSPIContext.DoInitialize
@@ -758,14 +772,16 @@ end;
 
 procedure TSSPIContext.CheckHasHandle;
 begin
-  if not HasHandle then
+  if not HasHandle then begin
     raise ESSPIException.Create(RSHTTPSSPINoCredentialHandle);
+  end;
 end;
 
 procedure TSSPIContext.CheckCredentials;
 begin
-  if (not Assigned(Credentials)) or (not Credentials.Acquired) then
+  if (not Assigned(Credentials)) or (not Credentials.Acquired) then begi
     raise ESSPIException.Create(RSHTTPSSPIDoAuquireCredentialHandle);
+  end;
 end;
 
 function TSSPIContext.getExpiry: TimeStamp;
@@ -824,8 +840,7 @@ begin
       SEC_I_COMPLETE_NEEDED,
         SEC_I_COMPLETE_AND_CONTINUE:
         begin
-          if not Assigned(g.FunctionTable.CompleteAuthToken) then
-          begin
+          if not Assigned(g.FunctionTable.CompleteAuthToken) then begin
             raise ESSPIException.Create(RSHTTPSSPICompleteTokenNotSupported);
           end;
           fStatus := g.FunctionTable.CompleteAuthToken(Handle, @fOutBuffDesc);
@@ -836,9 +851,11 @@ begin
       (fStatus = SEC_I_CONTINUE_NEEDED) or
       (fStatus = SEC_I_COMPLETE_AND_CONTINUE) or
       (fOutBuff.cbBuffer > 0);
-    if Result then
-      with fOutBuff do
+    if Result then begin
+      with fOutBuff do begin
         SetString(aToPeerToken, PChar(pvBuffer), cbBuffer);
+      end;
+    end;
   finally
     FreeMem(fOutBuff.pvBuffer);
   end;
@@ -906,9 +923,9 @@ end;
 
 destructor TIndySSPINTLMClient.Destroy;
 begin
-  Sys.FreeAndNil(fContext);
-  Sys.FreeAndNil(fCredentials);
-  Sys.FreeAndNil(fNTLMPackage);
+  FreeAndNil(fContext);
+  FreeAndNil(fCredentials);
+  FreeAndNil(fNTLMPackage);
   inherited Destroy;
 end;
 
@@ -945,13 +962,13 @@ end;
 
 function TIdSSPINTLMAuthentication.DoNext: TIdAuthWhatsNext;
 begin
-  result := wnDoRequest;
+  Result := wnDoRequest;
   case FCurrentStep of
     0:
       begin
         {if (Length(Username) > 0) and (Length(Password) > 0) then
         begin}
-        result := wnDoRequest;
+        Result := wnDoRequest;
         FCurrentStep := 1;
         {end
         else begin
@@ -961,21 +978,21 @@ begin
     1:
       begin
         FCurrentStep := 2;
-        result := wnDoRequest;
+        Result := wnDoRequest;
       end;
     //Authentication does the 2>3 progression
     3:
       begin
         FCurrentStep := 4;
-        result := wnDoRequest;
+        Result := wnDoRequest;
       end;
     4:
       begin
         FCurrentStep := 0;
-        If Username = '' then
-          result := wnAskTheProgram
-        else begin
-        result := wnFail;
+        if Username = '' then begin
+          Result := wnAskTheProgram;
+        end else begin
+          Result := wnFail;
           Username := '';
           Password := '';
           Domain := IndyComputerName;
@@ -988,33 +1005,32 @@ function TIdSSPINTLMAuthentication.Authentication: string;
 var
   S: string;
 begin
-  result := '';
+  Result := '';
   case FCurrentStep of
     1:
       begin
-        if Length(Username) = 0 then
-          FSSPIClient.SetCredentialsAsCurrentUser
-        else
+        if Length(Username) = 0 then begin
+          FSSPIClient.SetCredentialsAsCurrentUser;
+        end else begin
           FSSPIClient.SetCredentials(Domain, Username, Password);
-        result := 'NTLM ' + EncodeString(TIdEncoderMIME,FSSPIClient.InitAndBuildType1Message);  {Do not translate}
+        end;
+        Result := 'NTLM ' + EncodeString(TIdEncoderMIME, FSSPIClient.InitAndBuildType1Message);  {Do not translate}
         FNTLMInfo := '';    {Do not translate}
       end;
     2:
       begin
-        if Length(FNTLMInfo) = 0 then
-        begin
+        if Length(FNTLMInfo) = 0 then begin
           FNTLMInfo := ReadAuthInfo('NTLM');  {Do not translate}
           Fetch(FNTLMInfo);
         end;
 
-        if Length(FNTLMInfo) = 0 then
-        begin
+        if Length(FNTLMInfo) = 0 then begin
           Reset;
           Abort;
         end;
 
-        S := DecodeString(TIdDecoderMIME,FNTLMInfo);
-        result := 'NTLM ' + EncodeString(TIdEncoderMIME,FSSPIClient.UpdateAndBuildType3Message(S));  {Do not translate}
+        S := DecodeString(TIdDecoderMIME, FNTLMInfo);
+        Result := 'NTLM ' + EncodeString(TIdEncoderMIME, FSSPIClient.UpdateAndBuildType3Message(S));  {Do not translate}
         FCurrentStep := 3;
       end;
     3: begin
@@ -1031,12 +1047,12 @@ end;
 
 function TIdSSPINTLMAuthentication.KeepAlive: Boolean;
 begin
-  result := FCurrentStep >= 1;
+  Result := FCurrentStep >= 1;
 end;
 
 function TIdSSPINTLMAuthentication.GetSteps: Integer;
 begin
-  result := 3;
+  Result := 3;
 end;
 
 procedure TIdSSPINTLMAuthentication.SetDomain(const Value: String);
@@ -1046,7 +1062,7 @@ end;
 
 function TIdSSPINTLMAuthentication.GetDomain: String;
 begin
-  result := Params.Values['Domain']; {do not localize}
+  Result := Params.Values['Domain']; {do not localize}
 end;
 
 procedure TIdSSPINTLMAuthentication.SetUserName(const Value: String);
@@ -1058,31 +1074,27 @@ begin
     Domain := Copy(S, 1, IndyPos('\', S) - 1);
     Delete(S, 1, Length(Domain) + 1);
   end;
-
   inherited SetUserName(S);
 end;
 
 destructor TIdSSPINTLMAuthentication.Destroy;
 begin
-  Sys.FreeAndNil(FSSPIClient);
+  FreeAndNil(FSSPIClient);
   inherited;
 end;
 
 initialization
-
   g := TSSPIInterface.Create;
   if g.IsAvailable then begin
     RegisterAuthenticationMethod('NTLM', TIdSSPINTLMAuthentication); {do not localize}
     RegisterAuthenticationMethod('Negotiate', TIdSSPINTLMAuthentication); {do not localize}
   end;
-
 finalization
-
   if g.IsAvailable then begin
     UnregisterAuthenticationMethod('NTLM'); {do not localize}
     UnregisterAuthenticationMethod('Negotiate'); {do not localize}
   end;
-  Sys.FreeAndNil(g);
+  FreeAndNil(g);
 
 end.
 
