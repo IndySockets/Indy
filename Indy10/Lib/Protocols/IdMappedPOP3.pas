@@ -127,9 +127,11 @@ end;
 procedure TIdMappedPOP3Thread.OutboundConnect;
 var
   LHostPort, LUserName, LPop3Cmd: String;
+  LServer: TIdMappedPOP3;
 Begin
   //don`t call inherited, NEW behavior
-  with TIdMappedPOP3(Server) do
+  LServer := TIdMappedPOP3(Server);
+  with LServer do
   begin
     Connection.IOHandler.Write(Greeting.FormattedReply);   
 
@@ -139,12 +141,12 @@ Begin
       Host := MappedHost;
     end;//with
 
-    Self.FAllowedConnectAttempts := AllowedConnectAttempts;
+    Self.FAllowedConnectAttempts := Lserver.AllowedConnectAttempts;
     DoLocalClientConnect(Self);
 
     repeat
-      if FAllowedConnectAttempts > 0 then begin
-        Dec(FAllowedConnectAttempts);
+      if Self.FAllowedConnectAttempts > 0 then begin
+        Dec(Self.FAllowedConnectAttempts);
       end;
       try
         // Greeting
@@ -183,12 +185,11 @@ Begin
         on E: Exception do // DONE: Handle connect failures
         begin
           FNetData := '-ERR [' + E.ClassName + '] ' + E.Message;    {Do not Localize}
-
-          Self.DoException( E);
+          Self.DoException(E);
           Connection.IOHandler.WriteLn(FNetData);
         end;
       end;//trye
-    until FOutboundClient.Connected or (FAllowedConnectAttempts = 0);
+    until FOutboundClient.Connected or (Self.FAllowedConnectAttempts < 1);
 
     if FOutboundClient.Connected then begin
       DoOutboundClientConnect(Self);
