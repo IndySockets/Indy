@@ -24,6 +24,8 @@ unit IdLDAPV3;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
   Classes,
   IdContainers;
