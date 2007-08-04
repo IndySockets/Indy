@@ -67,6 +67,7 @@ unit IdURI;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -151,7 +152,7 @@ end;
 procedure TIdURI.SetURI(const Value: String);
 var
   LBuffer: string;
-  LTokenPos, LPramsPos: Integer;
+  LTokenPos: Integer;
   LURI: string;
 begin
   FURI := Value;
@@ -175,91 +176,69 @@ begin
     // Get the protocol
     FProtocol := Copy(LURI, 1, LTokenPos  - 1);
     Delete(LURI, 1, LTokenPos + 2);
+    // separate the path from the parameters
+    LTokenPos := IndyPos('?', LURI);    {Do not Localize}
+    if LTokenPos = 0 then begin
+      LTokenPos := IndyPos('=', LURI);    {Do not Localize}
+    end;
+    if LTokenPos > 0 then begin
+      FParams := Copy(LURI, LTokenPos + 1, MaxInt);
+      LURI := Copy(LURI, 1, LTokenPos - 1);
+    end;
     // Get the user name, password, host and the port number
     LBuffer := Fetch(LURI, '/', True);    {Do not Localize}
     // Get username and password
     LTokenPos := IndyPos('@', LBuffer);    {Do not Localize}
-    FPassword := Copy(LBuffer, 1, LTokenPos  - 1);
-    if LTokenPos > 0 then
+    if LTokenPos > 0 then begin
+      FPassword := Copy(LBuffer, 1, LTokenPos  - 1);
       Delete(LBuffer, 1, LTokenPos);
-    FUserName := Fetch(FPassword, ':', True);    {Do not Localize}
-    // Ignore cases where there is only password (http://:password@host/pat/doc)
-    if Length(FUserName) = 0 then begin
-      FPassword := '';    {Do not Localize}
+      FUserName := Fetch(FPassword, ':');    {Do not Localize}
+      // Ignore cases where there is only password (http://:password@host/pat/doc)
+      if Length(FUserName) = 0 then begin
+        FPassword := '';    {Do not Localize}
+      end;
     end;
     // Get the host and the port number
-    if (IndyPos('[',LBuffer)>0) and (IndyPos(']',LBuffer) > IndyPos('[',LBuffer)) then
-    begin
-    //This is for IPv6 Hosts
-      FHost := Fetch(LBuffer,']');
-      Fetch(FHost,'[');
-      Fetch(LBuffer,':');
+    if (IndyPos('[', LBuffer) > 0) and (IndyPos(']', LBuffer) > IndyPos('[', LBuffer)) then begin {Do not Localize}
+      //This is for IPv6 Hosts
+      FHost := Fetch(LBuffer, ']'); {Do not Localize}
+      Fetch(FHost, '['); {Do not Localize}
+      Fetch(LBuffer, ':'); {Do not Localize}
       FIPVersion := Id_IPv6;
-    end
-    else
-    begin
+    end else begin
       FHost := Fetch(LBuffer, ':', True);    {Do not Localize}
     end;
     FPort := LBuffer;
     // Get the path
-    LPramsPos := IndyPos('?', LURI);    {Do not Localize}
-    if LPramsPos > 0 then begin // The case when there is parameters after the document name '?'    {Do not Localize}
-      LTokenPos := RPos('/', LURI, LPramsPos);    {Do not Localize}
-    end
-    else begin
-      LPramsPos := IndyPos('=', LURI);    {Do not Localize}
-      if LPramsPos > 0 then begin // The case when there is parameters after the document name '='    {Do not Localize}
-        LTokenPos := RPos('/', LURI, LPramsPos);    {Do not Localize}
-      end
-      else begin
-        LTokenPos := RPos('/', LURI, -1);    {Do not Localize}
-      end;
+    LTokenPos := RPos('/', LURI, -1);
+    if LTokenPos > 0 then begin
+      FPath := '/' + Copy(LURI, 1, LTokenPos);    {Do not Localize}
+      Delete(LURI, 1, LTokenPos);
+    end else begin
+      FPath := '/';    {Do not Localize}
     end;
-
-    FPath := '/' + Copy(LURI, 1, LTokenPos);    {Do not Localize}
-    // Get the document
-    if LPramsPos > 0 then begin
-      FDocument := Copy(LURI, 1, LPramsPos - 1);
-      Delete(LURI, 1, LPramsPos - 1);
-      FParams := LURI;
-    end
-    else
-    FDocument := LURI;
-    Delete(FDocument, 1, LTokenPos);
-
-    FBookmark := FDocument;
-    FDocument := Fetch(FBookmark, '#');    {Do not Localize}
   end else begin
     // received an absolute path, not an URI
-    LPramsPos := IndyPos('?', LURI);    {Do not Localize}
-    if LPramsPos > 0 then begin // The case when there is parameters after the document name '?'    {Do not Localize}
-      LTokenPos := RPos('/', LURI, LPramsPos);    {Do not Localize}
-    end else begin
-      LPramsPos := IndyPos('=', LURI);    {Do not Localize}
-      if LPramsPos > 0 then begin // The case when there is parameters after the document name '='    {Do not Localize}
-        LTokenPos := RPos('/', LURI, LPramsPos);    {Do not Localize}
-      end else begin
-        LTokenPos := RPos('/', LURI, -1);    {Do not Localize}
-      end;
+    LTokenPos := IndyPos('?', LURI);    {Do not Localize}
+    if LTokenPos = 0 then begin
+      LTokenPos := IndyPos('=', LURI);    {Do not Localize}
     end;
-
-    FPath := Copy(LURI, 1, LTokenPos);
-    // Get the document
-    if LPramsPos > 0 then begin
-      FDocument := Copy(LURI, 1, LPramsPos - 1);
-      Delete(LURI, 1, LPramsPos - 1);
-      FParams := LURI;
-    end else begin
-      FDocument := LURI;
+    if LTokenPos > 0 then begin // The case when there is parameters after the document name
+      FParams := Copy(LURI, LTokenPos + 1, MaxInt);
+      LURI := Copy(LURI, 1, LTokenPos - 1);
     end;
-    Delete(FDocument, 1, LTokenPos);
+    // Get the path
+    LTokenPos := RPos('/', LURI, -1);    {Do not Localize}
+    if LTokenPos > 0 then begin
+      FPath := Copy(LURI, 1, LTokenPos);
+      Delete(LURI, 1, LTokenPos);
+    end;
   end;
-
+  // Get the document
+  FDocument := LURI;
   // Parse the # bookmark from the document
-  if FBookmark = '' then begin
-    FBookmark := FParams;
-    FParams := Fetch(FBookmark, '#');    {Do not Localize}
-  end;
+  FBookmark := FDocument;
+  FDocument := Fetch(FBookmark, '#');    {Do not Localize}
 end;
 
 function TIdURI.GetURI: String;
@@ -267,14 +246,14 @@ begin
   FURI := GetFullURI;
   // Result must contain only the proto://host/path/document
   // If you need the full URI then you have to call GetFullURI
-  result := GetFullURI([]);
+  Result := GetFullURI([]);
 end;
 
 class function TIdURI.URLDecode(ASrc: string): string;
 var
-  i: integer;
-  ESC: string[2];
-  CharCode: integer;
+  i: Integer;
+  ESC: string[4];
+  CharCode: Integer;
 begin
   Result := '';    {Do not Localize}
   // S.G. 27/11/2002: Spaces is NOT to be encoded as "+".
@@ -284,17 +263,34 @@ begin
   i := 1;
   while i <= Length(ASrc) do begin
     if ASrc[i] <> '%' then begin  {do not localize}
-      Result := Result + ASrc[i]
+      Result := Result + ASrc[i]; // Copy the char
+      Inc(i); // Then skip it
     end else begin
       Inc(i); // skip the % char
-      ESC := Copy(ASrc, i, 2); // Copy the escape code
-      Inc(i, 1); // Then skip it.
-      try
-        CharCode := IndyStrToInt('$' + ESC);  {do not localize}
-        Result := Result + Char(CharCode);
-      except end;
+      if not CharIsInSet(ASrc, i, 'uU') then begin  {do not localize}
+        // simple ESC char
+        ESC := Copy(ASrc, i, 2); // Copy the escape code
+        Inc(i, 2); // Then skip it.
+        try
+          CharCode := IndyStrToInt('$' + ESC);  {do not localize}
+          Result := Result + Char(CharCode);
+        except end;
+      end else
+      begin
+        // unicode ESC code
+
+        // RLebeau 5/10/2006: under Win32, the character will end
+        // up as '?' in the Result when converted from Unicode to Ansi,
+        // but at least the URL will be parsed properly
+        
+        ESC := Copy(ASrc, i+1, 4); // Copy the escape code
+        Inc(i, 5); // Then skip it.
+        try
+          CharCode := IndyStrToInt('$' + ESC);  {do not localize}
+          Result := Result + WideChar(CharCode);
+        except end;
+      end;
     end;
-    Inc(i);
   end;
 end;
 
@@ -312,12 +308,9 @@ begin
     // S.G. 27/11/2002: a new parameter"
     // S.G. 27/11/2002: ref: Message-ID: <3de30169@newsgroups.borland.com> borland.public.delphi.internet.winsock
     // S.G. 27/11/2002: Most low-ascii is actually Ok in parameters encoding.
-    if ((CharIsInSet(ASrc, i, UnsafeChars)) or (not (CharIsInSet(ASrc, i, CharRange(#33,#128))))) then
-    begin {do not localize}
+    if CharIsInSet(ASrc, i, UnsafeChars) or (not CharIsInSet(ASrc, i, CharRange(#33,#128))) then begin {do not localize}
       Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
-    end
-    else
-    begin
+    end else begin
       Result := Result + ASrc[i];
     end;
   end;
@@ -331,7 +324,7 @@ var
 begin
   Result := '';    {Do not Localize}
   for i := 1 to Length(ASrc) do begin
-    if (CharIsInSet(ASrc, i, UnsafeChars)) or (ASrc[i] >= #$80) or (ASrc[i] < #32) then begin
+    if CharIsInSet(ASrc, i, UnsafeChars) or (not CharIsInSet(ASrc, i, CharRange(#32, #127))) then begin
       Result := Result + '%' + IntToHex(Ord(ASrc[i]), 2);  {do not localize}
     end else begin
       Result := Result + ASrc[i];
@@ -349,13 +342,16 @@ begin
   finally Free; end;
 end;
 
-function TIdURI.GetFullURI(
- const AOptionalFields: TIdURIOptionalFieldsSet): String;
-Var
+function TIdURI.GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet): String;
+var
   LURI: String;
 begin
   if FProtocol = '' then begin
     raise EIdURIException.Create(RSURINoProto);
+  end;
+
+  if FHost = '' then begin
+    raise EIdURIException.Create(RSURINoHost);
   end;
 
   LURI := FProtocol + '://';    {Do not Localize}
@@ -367,17 +363,16 @@ begin
     LURI := LURI + '@';    {Do not Localize}
   end;
 
-  if FHost = '' then begin
-    raise EIdURIException.Create(RSURINoHost);
-  end;
   LURI := LURI + FHost;
   if (FPort <> '') and (FPort <> '80') then begin
     LURI := LURI + ':' + FPort;    {Do not Localize}
   end;
+
   LURI := LURI + FPath + FDocument + FParams;
   if (FBookmark <> '') and (ofBookmark in AOptionalFields) then begin
     LURI := LURI + '#' + FBookmark;    {Do not Localize}
   end;
+
   Result := LURI;
 end;
 
