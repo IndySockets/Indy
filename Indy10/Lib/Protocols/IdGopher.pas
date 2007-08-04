@@ -66,33 +66,33 @@
   Rev 1.0    11/13/2002 08:29:48 AM  JPMugaas
   Initial import from FTP VC.
 
-  2000-June- 9  J. Peter Mugaas
-    -adjusted the Gopher+ support so that line-unfolding is disabled in
-    FGopherBlock.  Many headers we use start with spaces
-    -made the ASK block into a TIdHeaderList to facilitate use better.  This does
-    unfold lines
+ 2000-June- 9  J. Peter Mugaas
+  -adjusted the Gopher+ support so that line-unfolding is disabled in
+   FGopherBlock.  Many headers we use start with spaces
+  -made the ASK block into a TIdHeaderList to facilitate use better.  This does
+   unfold lines
 
-  2000-May -24  J. Peter Mugaas
-    -changed interface of file retrieval routines to so DestStream property does
-    not have to even exist now.
+ 2000-May -24  J. Peter Mugaas
+  -changed interface of file retrieval routines to so DestStream property does
+   not have to even exist now.
 
-  2000-May -17  J. Peter Mugaas
-    -Optimized the DoneSettingInfoBlock method in the TIdGopherMenuItem object
-    -Added Ask property to the TIdGopherMenuItem
+ 2000-May -17  J. Peter Mugaas
+  -Optimized the DoneSettingInfoBlock method in the TIdGopherMenuItem object
+  -Added Ask property to the TIdGopherMenuItem 
 
-  2000-May -13  J. Peter Mugaas
-    -Chanded the event types and classes to be prefixed with Id.
+ 2000-May -13  J. Peter Mugaas
+  -Chanded the event types and classes to be prefixed with Id.
 
-  2000-Apr.-28  J. Peter Mugaas
-    -Added built in Gopher+ support
+ 2000-Apr.-28  J. Peter Mugaas
+  -Added built in Gopher+ support
 
-  2000-Apr.-21  J. Peter Mugaas
-    -Added the ability to receive a file
-    -Restructured this component to make the code more reabible,
-    facilitate processing, and improve object orientation
+ 2000-Apr.-21  J. Peter Mugaas
+  -Added the ability to receive a file
+  -Restructured this component to make the code more reabible,
+   facilitate processing, and improve object orientation
 
-  2000-Apr.-20  J. Peter Mugaas
-    -Started this unit
+ 2000-Apr.-20  J. Peter Mugaas
+  -Started this unit
 }
 
 unit IdGopher;
@@ -108,6 +108,7 @@ unit IdGopher;
 {*******************************************************}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -127,9 +128,9 @@ type
     FPort : TIdPort;
     FGopherPlusItem : Boolean;
     FGopherBlock : TIdHeaderList;
-    FViews : TStringList;
+    FViews : TStrings;
     FURL : String;
-    FAbstract : TStringList;
+    FAbstract : TStrings;
     FAsk : TIdHeaderList;
     fAdminEmail : TIdEMailAddressItem;
     function GetLastModified : String;
@@ -167,11 +168,11 @@ type
     property URL : String read FURL;
     {This is the Gopher Views available for the item.  You can include this
     when requesting it}
-    property Views : TStringList read FViews;
+    property Views : TStrings read FViews;
     {abstract of Gopher item - had to be AAbstract due to Pascal reserved word}
     {this is a summery of a particular item - e.g. "Read about our greate
      products"}
-    property AAbstract : TStringList read FAbstract;
+    property AAbstract : TStrings read FAbstract;
     {This is the date that the item was last modified}
     property LastModified : String read GetLastModified;
     {This is contact information for the adminst}
@@ -188,6 +189,7 @@ type
     {This Gopher+ information is used for prmoting users for Query data}
     property Ask : TIdHeaderList read FAsk;
   end;
+
   TIdGopherMenu = class ( TCollection )
   protected
     function GetItem ( Index: Integer ) : TIdGopherMenuItem;
@@ -198,6 +200,7 @@ type
     property Items [ Index: Integer ] : TIdGopherMenuItem read GetItem
       write SetItem; default;
   end;
+
   TIdGopherMenuEvent = procedure ( Sender : TObject;
     MenuItem : TIdGopherMenuItem ) of object;
 
@@ -657,7 +660,7 @@ var
   idx : Integer;
   line : String;
 
-    Procedure ParseBlock ( Block : TStringList);
+    Procedure ParseBlock ( Block : TStrings);
     {Put our the sublock in the Block TIdStrings and increment
     the pointer appropriatriately}
     begin
@@ -677,17 +680,17 @@ begin
   while ( idx < FGopherBlock.Count ) do
   begin
     Line := FGopherBlock [ idx ];
-    Line := UpperCase ( Fetch( Line, ':' ) );    {Do not Localize}
-    case PosInStrArray ( Line, BlockTypes ) of
+    Line := Fetch( Line, ':' );    {Do not Localize}
+    case PosInStrArray ( Line, BlockTypes, False ) of
       {+VIEWS:}
       0 : ParseBlock ( FViews );
       {+ABSTRACT:}
       1 : ParseBlock ( FAbstract );
       {+ASK:}
       2 : ParseBlock ( FAsk );
-    end; //case PosInStrArray ( Line, BlockTypes ) of
+    end;
     Inc ( idx );
-  end;  //while ( idx < FGopherBlock.Count ) do
+  end;
   fAdminEmail.Text := FGopherBlock.Values [ ' Admin' ];    {Do not Localize}
 end;
 
