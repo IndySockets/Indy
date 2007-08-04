@@ -84,17 +84,23 @@
 unit IdFTPListOutput;
 
 interface
+
 {$i IdCompilerDefines.inc}
-uses Classes, IdFTPList;
+
+uses
+  Classes,
+  IdFTPList;
 
 type
   // we can't use the standard FTP MLSD option types in the FTP Server
   // because we support some minimal things that the user can't set.
   // We have the manditory items to make it harder for the user to mess up.
 
-  TIdFTPFactOutput = (ItemType,Modify,Size,Perm,Unique,UnixMODE,UnixOwner,
-    UnixGroup,CreateTime,LastAccessTime,WinAttribs);
+  TIdFTPFactOutput = (ItemType, Modify, Size, Perm, Unique, UnixMODE, UnixOwner,
+    UnixGroup, CreateTime, LastAccessTime, WinAttribs);
+
   TIdFTPFactOutputs = set of TIdFTPFactOutput;
+
   TIdDirOutputFormat = (doUnix, doWin32, doEPLF);
 
   TIdFTPListOutputItem = class(TIdFTPListItem)
@@ -125,13 +131,10 @@ type
   public
     property NumberBlocks : Integer read FNumberBlocks write FNumberBlocks;
     property Inode : Integer read FInode write FInode;
-      //Last Access time values are for MLSD data output and can be returned by the
-      //MLST command
+    //Last Access time values are for MLSD data output and can be returned by the MLST command
     property LastAccessDate: TDateTime read FLastAccessDate write FLastAccessDate;
     property LastAccessDateGMT : TDateTime read FLastAccessDateGMT write FLastAccessDateGMT;
-
-      //Creation time values are for MLSD data output and can be returned by the
-      //MLST command
+    //Creation time values are for MLSD data output and can be returned by the MLST command
     property CreationDate: TDateTime read FCreationDate write FCreationDate;
     property CreationDateGMT : TDateTime read FCreationDateGMT write FCreationDateGMT;
     // If this is not blank, you can use this as a unique identifier for an item to prevent
@@ -156,7 +159,6 @@ type
     property OwnerName: string read FOwnerName write FOwnerName;
     property GroupName: string read FGroupName write FGroupName;
     property LinkedItemName : string read FLinkedItemName write FLinkedItemName;
-
     property DirError : Boolean read FDirError write FDirError;
   end;
 
@@ -167,12 +169,13 @@ type
     FDirFormat : TIdDirOutputFormat;
     FExportTotalLine : Boolean;
     function GetLocalModTime(AItem : TIdFTPListOutputItem) : TDateTime; virtual;
+    function HasSwitch(const ASwitch: String): Boolean;
     function UnixItem(AItem : TIdFTPListOutputItem) : String; virtual;
     function Win32Item(AItem : TIdFTPListOutputItem) : String; virtual;
     function EPLFItem(AItem : TIdFTPListOutputItem) : String; virtual;
     function NListItem(AItem : TIdFTPListOutputItem) : String; virtual;
     function MListItem(AItem : TIdFTPListOutputItem; AMLstOpts : TIdFTPFactOutputs) : String; virtual;
-    procedure InternelOutputDir(AOutput : TStrings; ADetails : Boolean = true); virtual;
+    procedure InternelOutputDir(AOutput : TStrings; ADetails : Boolean = True); virtual;
     function UnixINodeOutput(AItem : TIdFTPListOutputItem) : String;
     function UnixBlocksOutput(AItem : TIdFTPListOutputItem) : String;
     function UnixGetOutputOwner(AItem : TIdFTPListOutputItem) : String;
@@ -193,7 +196,6 @@ type
     procedure LISTOutputDir(AOutput : TStrings); virtual;
     procedure MLISTOutputDir(AOutput : TStrings; AMLstOpts : TIdFTPFactOutputs); virtual;
     procedure NLISTOutputDir(AOutput : TStrings); virtual;
-
 
     property DirFormat : TIdDirOutputFormat read FDirFormat write FDirFormat;
     property Switches : String read FSwitches write FSwitches;
@@ -221,6 +223,7 @@ const
   Microsoft IIS even honors a subset of these switches dealing sort order
   and recursive listings.   It does not honor some sort-by-switches although
   we honor those in Win32 (hey, we did MS one better, not that it says much though.
+
 }
 const
   {format switches - used by Unix mode only}
@@ -294,221 +297,174 @@ type
   end;
 
 function RawSortAscFName(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
-var LItem1, LItem2 : TIdFTPListItem;
+var
 {
-> 0 (positive)	Item1 is less than Item2
-   0	Item1 is equal to Item2
-< 0 (negative)	Item1 is greater than Item2
+> 0 (positive)  Item1 is less than Item2
+= 0             Item1 is equal to Item2
+< 0 (negative)  Item1 is greater than Item2
 }
   LTmpPath1, LTmpPath2 : String;
+  LPath1Dot, LPath2Dot : Boolean;
 begin
-    LItem1 := TIdFTPListItem(AItem1);
-    LItem2 := TIdFTPListItem(AItem2);
-    LTmpPath1 := IndyGetFileName( LItem1.FileName );
-    LTmpPath2 := IndyGetFileName( LItem2.FileName );
-    //periods are always greater then letters in dir lists
-    if TextStartsWith(LTmpPath1, '.') and TextStartsWith(LTmpPath2, '.') then
-    begin
-      if (LTmpPath1 = CUR_DIR) and (LTmpPath2 = PARENT_DIR) then
-      begin
-        Result := 1;
-        Exit;
-      end;
-      if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = PARENT_DIR) then
-      begin
-        Result := -1;
-        Exit;
-      end;
-      if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = CUR_DIR) then
-      begin
-        Result := 0;
-        Exit;
-      end;
-      if (LTmpPath2 = PARENT_DIR) and (LTmpPath1 = PARENT_DIR) then
-      begin
-        Result := 0;
-        Exit;
-      end;
-    end;
-    if TextStartsWith(LTmpPath2, '.') and (not TextStartsWith(LTmpPath1, '.')) then
-    begin
-      Result := -1;
-      Exit;
-    end;
-    if TextStartsWith(LTmpPath1, '.') and (not TextStartsWith(LTmpPath2, '.')) then
-    begin
+  LTmpPath1 := IndyGetFileName(TIdFTPListItem(AItem1).FileName);
+  LTmpPath2 := IndyGetFileName(TIdFTPListItem(AItem2).FileName);
+
+  //periods are always greater then letters in dir lists
+  LPath1Dot := TextStartsWith(LTmpPath1, '.');
+  LPath2Dot := TextStartsWith(LTmpPath2, '.');
+
+  if LPath1Dot and LPath2Dot then begin
+    if (LTmpPath1 = CUR_DIR) and (LTmpPath2 = PARENT_DIR) then begin
       Result := 1;
       Exit;
     end;
-    Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
+    if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = PARENT_DIR) then begin
+      Result := -1;
+      Exit;
+    end;
+    if (LTmpPath2 = CUR_DIR) and (LTmpPath1 = CUR_DIR) then begin
+      Result := 0;
+      Exit;
+    end;
+    if (LTmpPath2 = PARENT_DIR) and (LTmpPath1 = PARENT_DIR) then begin
+      Result := 0;
+      Exit;
+    end;
+  end;
+  if LPath2Dot and (not LPath1Dot) then begin
+    Result := -1;
+    Exit;
+  end;
+  if LPath1Dot and (not LPath2Dot) then begin
+    Result := 1;
+    Exit;
+  end;
+  Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
 end;
 
 function RawSortDescFName(AItem1, AItem2: TObject): Integer;
 begin
-  Result := -RawSortAscFName(AItem1,AItem2);
+  Result := -RawSortAscFName(AItem1, AItem2);
 end;
 
 function RawSortAscFNameExt(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
-var LItem1, LItem2 : TIdFTPListItem;
+var
 {
-> 0 (positive)	Item1 is less than Item2
-   0	Item1 is equal to Item2
-< 0 (negative)	Item1 is greater than Item2
+> 0 (positive)  Item1 is less than Item2
+= 0             Item1 is equal to Item2
+< 0 (negative)  Item1 is greater than Item2
 }
   LTmpPath1, LTmpPath2 : String;
 begin
-  LItem1 := TIdFTPListItem(AItem1);
-  LItem2 := TIdFTPListItem(AItem2);
-
-  LTmpPath1 := ExtractFileExt(LItem1.FileName);
-  LTmpPath2 := ExtractFileExt(LItem2.FileName);
+  LTmpPath1 := ExtractFileExt(TIdFTPListItem(AItem1).FileName);
+  LTmpPath2 := ExtractFileExt(TIdFTPListItem(AItem2).FileName);
   Result := -IndyCompareStr(LTmpPath1, LTmpPath2);
-  if Result = 0 then
-  begin
-    Result := RawSortAscFName(AItem1,AItem2);
+  if Result = 0 then begin
+    Result := RawSortAscFName(AItem1, AItem2);
   end;
-
 end;
 
 function RawSortDescFNameExt(AItem1, AItem2: TObject): Integer;
 begin
-    Result := -RawSortAscFNameExt(AItem1,AItem2,False);
+  Result := -RawSortAscFNameExt(AItem1, AItem2, False);
 end;
 
 function RawSortAscMTime(AItem1, AItem2: TObject): Integer;
-var LItem1, LItem2 : TIdFTPListItem;
+var
+  LItem1, LItem2 : TIdFTPListItem;
 {
-> 0 (positive)	Item1 is less than Item2
-   0	Item1 is equal to Item2
-< 0 (negative)	Item1 is greater than Item2
+> 0 (positive)  Item1 is less than Item2
+  0             Item1 is equal to Item2
+< 0 (negative)  Item1 is greater than Item2
 }
 
 begin
-
   LItem1 := TIdFTPListItem(AItem1);
   LItem2 := TIdFTPListItem(AItem2);
-  if LItem1.ModifiedDate < LItem2.ModifiedDate then
-  begin
+  if LItem1.ModifiedDate < LItem2.ModifiedDate then begin
     Result := -1;
   end
-  else
-  begin
-    if LItem1.ModifiedDate > LItem2.ModifiedDate then
-    begin
-      Result := 1;
-    end
-    else
-    begin
-      Result := 0;
-    end;
-  end;
-  if Result=0 then
-  begin
-    Result := RawSortAscFName (AItem1, AItem2);
+  else if LItem1.ModifiedDate > LItem2.ModifiedDate then begin
+    Result := 1;
+  end
+  else begin
+    Result := RawSortAscFName(AItem1, AItem2);
   end;
 end;
 
 function RawSortDescMTime(AItem1, AItem2: TObject): Integer;
 begin
-  Result := -RawSortAscMTime(AItem1,AItem2);
+  Result := -RawSortAscMTime(AItem1, AItem2);
 end;
 
 function RawSortAscSize(AItem1, AItem2: TObject; const ASubDirs : Boolean = True): Integer;
-var LItem1, LItem2 : TIdFTPListItem;
-    LSize1, LSize2 : Int64;
+var
+  LItem1, LItem2 : TIdFTPListItem;
+  LSize1, LSize2 : Int64;
 {
-> 0 (positive)	Item1 is less than Item2
-   0	Item1 is equal to Item2
-< 0 (negative)	Item1 is greater than Item2
+> 0 (positive)  Item1 is less than Item2
+= 0             Item1 is equal to Item2
+< 0 (negative)  Item1 is greater than Item2
 }
-
 begin
   LItem1 := TIdFTPListItem(AItem1);
   LItem2 := TIdFTPListItem(AItem2);
   LSize1 := LItem1.Size;
   LSize2 := LItem2.Size;
-  if TIdFTPListOutput(LItem1.Collection).DirFormat = doUnix then
-  begin
-    if LItem1.ItemType = ditDirectory then
-    begin
+  if TIdFTPListOutput(LItem1.Collection).DirFormat = doUnix then begin
+    if LItem1.ItemType = ditDirectory then begin
       LSize1 := UNIX_DIR_SIZE;
     end;
-    if LItem2.ItemType = ditDirectory then
-    begin
+    if LItem2.ItemType = ditDirectory then begin
       LSize2 := UNIX_DIR_SIZE;
     end;
   end;
-  if LSize1 < LSize2 then
-  begin
+  if LSize1 < LSize2 then begin
     Result := -1;
   end
-  else
-  begin
-    if LSize1 > LSize2 then
-    begin
-      Result := 1;
-    end
-    else
-    begin
-      Result := 0;
-    end;
-  end;
-  if Result=0 then
-  begin
+  else if LSize1 > LSize2 then begin
+    Result := 1;
+  end else begin
     Result := RawSortAscFName (AItem1, AItem2);
   end;
 end;
 
 function RawSortDescSize(AItem1, AItem2: TObject): Integer;
 begin
-  Result := -RawSortAscSize(AItem1,AItem2,False);
+  Result := -RawSortAscSize(AItem1, AItem2, False);
 end;
 
 {DirEntry objects}
 function DESortAscFName(AItem1, AItem2: TObject): Integer;
-var L1, L2 : TDirEntry;
 begin
-  L1 := TDirEntry(AItem1);
-  L2 := TDirEntry(AItem2);
-  Result := -IndyCompareStr(L1.PathName,L2.PathName);
+  Result := -IndyCompareStr(TDirEntry(AItem1).PathName, TDirEntry(AItem2).PathName);
 end;
 
 function DESortAscMTime(AItem1, AItem2: TObject): Integer;
-var L1, L2 : TIdFTPListItem;
+var
+  L1, L2 : TIdFTPListItem;
 {
-> 0 (positive)	Item1 is less than Item2
-   0	Item1 is equal to Item2
-< 0 (negative)	Item1 is greater than Item2
+> 0 (positive)  Item1 is less than Item2
+= 0             Item1 is equal to Item2
+< 0 (negative)  Item1 is greater than Item2
 }
 begin
   L1 := TDirEntry(AItem1).DirListItem;
   L2 := TDirEntry(AItem2).DirListItem;
-  if L1.ModifiedDate > L2.ModifiedDate then
-  begin
+  if L1.ModifiedDate > L2.ModifiedDate then begin
     Result := -1;
   end
-  else
-  begin
-    if L1.ModifiedDate = L2.ModifiedDate then
-    begin
-      Result := 0;
-    end
-    else
-    begin
-      Result := 1;
-    end;
-  end;
-  if Result = 0 then
-  begin
-    Result := DESortAscFName(AItem1,AItem2);
+  else if L1.ModifiedDate < L2.ModifiedDate then begin
+    Result := 1;
+  end else begin
+    Result := DESortAscFName(AItem1, AItem2);
   end;
 end;
 
 function DESortDescMTime(AItem1, AItem2: TObject): Integer;
 begin
-  Result := -DESortAscMTime(AItem1,AItem2);
+  Result := -DESortAscMTime(AItem1, AItem2);
 end;
-
 
 function DESortDescFName(AItem1, AItem2: TObject): Integer;
 begin
@@ -517,74 +473,66 @@ end;
 
 {stringlist objects}
 function StrSortAscMTime(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortAscMTime(L1,L2);
+  Result := RawSortAscMTime(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortDescMTime(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortDescMTime(L1,L2);
+  Result := RawSortDescMTime(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortAscSize(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortAscSize(L1,L2);
+  Result := RawSortAscSize(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortDescSize(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortDescSize(L1,L2);
+  Result := RawSortDescSize(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortAscFName(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortAscFName(L1,L2);
+  Result := RawSortAscFName(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortDescFName(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortDescFName(L1,L2);
+  Result := RawSortDescFName(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortAscFNameExt(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortAscFNameExt(L1,L2);
+  Result := RawSortAscFNameExt(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 function StrSortDescFNameExt(List: TStringList; Index1, Index2: Integer): Integer;
-var L1, L2 : TIdFTPListItem;
 begin
-  L1 := TIdFTPListItem(List.Objects[Index1]);
-  L2 := TIdFTPListItem(List.Objects[Index2]);
-  Result := RawSortDescFNameExt(L1,L2);
+  Result := RawSortDescFNameExt(
+    TIdFTPListItem(List.Objects[Index1]),
+    TIdFTPListItem(List.Objects[Index2]));
 end;
 
 { TIdFTPListOutput }
 
 function TIdFTPListOutput.Add: TIdFTPListOutputItem;
 begin
-  Result := TIdFTPListOutputItem( inherited Add);
+  Result := TIdFTPListOutputItem(inherited Add);
 end;
 
 constructor TIdFTPListOutput.Create;
@@ -594,579 +542,470 @@ begin
 end;
 
 function TIdFTPListOutput.EPLFItem(AItem: TIdFTPListOutputItem): String;
-var LFileName : String;
+var
+  LFileName : String;
 begin
   LFileName := IndyGetFileName(AItem.FileName);
-  if AItem.ModifiedDateGMT > EPLF_BASE_DATE then
-  begin
-        Result := '+m'+GMTDateTimeToEPLFDate(AItem.ModifiedDateGMT);
+  if AItem.ModifiedDateGMT > EPLF_BASE_DATE then begin
+    Result := '+m' + GMTDateTimeToEPLFDate(AItem.ModifiedDateGMT);
   end
-  else
-  begin
-    if AItem.ModifiedDate > EPLF_BASE_DATE then
-    begin
-      Result := '+m'+LocalDateTimeToEPLFDate(AItem.ModifiedDate);
-    end;
+  else if AItem.ModifiedDate > EPLF_BASE_DATE then begin
+    Result := '+m'+LocalDateTimeToEPLFDate(AItem.ModifiedDate);
+  end else begin
+    Result := '';
   end;
-  if AItem.ItemType = ditFile then
-  begin
-        Result := Result + ',r';
-  end
-  else
-  begin
-        Result := Result + ',/';
+  if AItem.ItemType = ditFile then begin
+    Result := Result + ',r';
+  end else begin
+    Result := Result + ',/';
   end;
-  Result := Result + ',s'+IntToStr(AItem.Size);
+  Result := Result + ',s' + IntToStr(AItem.Size);
   Result := Result + #9 + LFileName;
 end;
 
 function TIdFTPListOutput.GetItems(AIndex: Integer): TIdFTPListOutputItem;
 begin
-  Result := TIdFTPListOutputItem( inherited GetItem(AIndex));
+  Result := TIdFTPListOutputItem(inherited GetItem(AIndex));
 end;
 
-function TIdFTPListOutput.GetLocalModTime(
-  AItem: TIdFTPListOutputItem): TDateTime;
+function TIdFTPListOutput.GetLocalModTime(AItem: TIdFTPListOutputItem): TDateTime;
 begin
-  if AItem.ModifiedDateGMT<>0 then
-  begin
+  if AItem.ModifiedDateGMT <> 0 then begin
     Result := AItem.ModifiedDateGMT - TimeZoneBias;
-  end
-  else
-  begin
+  end else begin
     Result := AItem.ModifiedDate;
   end;
 end;
 
-function TIdFTPListOutput.IndexOf(AItem: TIdFTPListOutputItem): Integer;
-Var
-  i: Integer;
+function TIdFTPListOutput.HasSwitch(const ASwitch: String): Boolean;
 begin
-  result := -1;
-  for i := 0 to Count - 1 do
-    if AItem = Items[i] then begin
-      result := i;
-      break;
-    end;
+  Result := IndyPos(ASwitch, Switches) > 0;
 end;
 
-procedure TIdFTPListOutput.InternelOutputDir(AOutput: TStrings;
-  ADetails: Boolean);
-type TIdDirOutputType = (doColsAccross, doColsDown, doOneCol, doOnlyDirs, doComma, doLong);
+function TIdFTPListOutput.IndexOf(AItem: TIdFTPListOutputItem): Integer;
+var
+  i : Integer;
+begin
+  Result := -1;
+  for i := 0 to Count - 1 do begin
+    if AItem = Items[i] then begin
+      Result := i;
+      Exit;
+    end;
+  end;
+end;
 
-var i : Integer;
-//    LIdx : Integer;
-//    LBlockCount : Integer;
-    //note we use this for sorting pathes with recursive dirs
-    LRootPath : TDirEntry;
-    LShowNavSym : BOolean;
+procedure TIdFTPListOutput.InternelOutputDir(AOutput: TStrings; ADetails: Boolean);
+type
+  TIdDirOutputType = (doColsAccross, doColsDown, doOneCol, doOnlyDirs, doComma, doLong);
+var
+  i : Integer;
+  //note we use this for sorting pathes with recursive dirs
+  LRootPath : TDirEntry;
+  LShowNavSym : BOolean;
 
-    function DetermineOp : TIdDirOutputType;
-    //we do things this way because the last switch in a mutually exclusive set
-    //always takes precidence over the others.
-    var
-        LStopScan : Boolean;
-        i : Integer;
-    begin
-      if ADetails then
-      begin
-        Result := doLong;
-      end
-      else
-      begin
-        Result := doOneCol;
+  function DetermineOp : TIdDirOutputType;
+  //we do things this way because the last switch in a mutually exclusive set
+  //always takes precidence over the others.
+  var
+    LStopScan : Boolean;
+    i : Integer;
+  begin
+    if ADetails then begin
+      Result := doLong;
+    end else begin
+      Result := doOneCol;
+    end;
+    if DirFormat <> doUnix then begin
+      Exit;
+    end;
+    LStopScan := False;
+    for i := Length(Switches) downto 1 do begin
+      case Switches[i] of
+        SWITCH_COLS_ACCROSS :
+          begin
+            Result := doColsAccross;
+            LStopScan := True;
+          end;
+        SWITCH_COLS_DOWN :
+          begin
+            Result := doColsDown;
+            LStopScan := True;
+          end;
+        SWITCH_ONE_COL :
+          begin
+            Result := doOneCol;
+            LStopScan := True;
+          end;
+        SWITCH_ONE_DIR :
+          begin
+            Result := doOnlyDirs;
+            LStopScan := True;
+          end;
+        SWITCH_COMMA_STREAM :
+          begin
+            Result := doComma;
+            LStopScan := True;
+          end;
+        SWITCH_LONG_FORM :
+          begin
+            Result := doLong;
+            LStopScan := True;
+          end;
       end;
-      if DirFormat <> doUnix then
-      begin
-        Exit;
-      end;
-
-      LStopScan := False;
-      for i := Length(Switches) downto 1 do
-      begin
-        case Switches[i] of
-          SWITCH_COLS_ACCROSS : begin
-                  Result := doColsAccross;
-                  LStopScan := True;
-                end;
-          SWITCH_COLS_DOWN : begin
-                  Result := doColsDown;
-                  LStopScan := True;
-                end;
-          SWITCH_ONE_COL : begin
-                  Result := doOneCol;
-                  LStopScan := True;
-                end;
-          SWITCH_ONE_DIR : begin
-                  Result := doOnlyDirs;
-                  LStopScan := True;
-                end;
-          SWITCH_COMMA_STREAM : begin
-                  Result := doComma;
-                  LStopScan := True;
-                end;
-          SWITCH_LONG_FORM : begin
-                  Result := doLong;
-                  LStopScan := True;
-                end;
-        end;
-        if LStopScan then
-        begin
-          break;
-        end;
+      if LStopScan then begin
+          Break;
       end;
     end;
+  end;
 
-    procedure PrintSubDirHeader(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var LUnixPrependPath : Boolean;
-    begin
-       LUnixPrependPath := (IndyPos(SWITCH_SORT_REVERSE,Switches)>0) or (IndyPos(SWITCH_SORTBY_MTIME,Switches)>0)
-         or (DetermineOp<>doLong);
-        if (ACurDir <> ARoot) or LUnixPrependPath then
-        begin
-          //we don't want an empty line to start the list
-          if (ACurDir <> ARoot) then
-          begin
+  procedure PrintSubDirHeader(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    LUnixPrependPath : Boolean;
+  begin
+    LUnixPrependPath := HasSwitch(SWITCH_SORT_REVERSE) or HasSwitch(SWITCH_SORTBY_MTIME) or (DetermineOp <> doLong);
+
+    if (ACurDir <> ARoot) or LUnixPrependPath then begin
+      //we don't want an empty line to start the list
+      if ACurDir <> ARoot then begin
+        AOutput.Add('');
+      end;
+      if DirFormat = doWin32 then begin
+        AOutput.Add(MS_DOS_CURDIR + UnixPathToDOSPath(ACurDir.PathName) + ':');
+      end
+      else if LUnixPrependPath then begin
+        if ACurDir = ARoot then begin
+          AOutput.Add(CUR_DIR + ':');
+        end else begin
+          AOutput.Add(UNIX_CURDIR + DOSPathToUnixPath(ACurDir.PathName) + ':');
+        end;
+      end else begin
+        AOutput.Add(DOSPathToUnixPath(ACurDir.PathName) + ':');
+      end;
+    end;
+  end;
+
+  procedure ProcessOnePathCol(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    i : Integer;
+    LCurItem : TIdFTPListOutputItem;
+  begin
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      if Recurse then begin
+        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+      end;
+    end;
+    for i := 0 to ACurDir.FileList.Count-1 do begin
+      AOutput.Add(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])));
+    end;
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+        if LCurItem.DirError then begin
+          if i = 0 then begin
             AOutput.Add('');
           end;
-          if Self.DirFormat = doWin32 then
-          begin
-            AOutput.Add(MS_DOS_CURDIR + UnixPathToDOSPath(ACurDir.PathName)+':');
-          end
-          else
-          begin
-            if LUnixPrependPath then
-            begin
-              if ACurDir = ARoot then
-              begin
-                AOutput.Add(CUR_DIR+':')
-              end
-              else
-              begin
-                AOutput.Add(UNIX_CURDIR + DOSPathToUnixPath (ACurDir.PathName)+':');
-              end;
-            end
-            else
-            begin
-              AOutput.Add(DOSPathToUnixPath (ACurDir.PathName)+':');
-            end;
-          end;
-        end;
-    end;
-
-    procedure ProcessOnePathCol(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var i : Integer;
-      LCurItem : TIdFTPListOutputItem;
-    begin
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        if Recurse then
-        begin
-          PrintSubDirHeader(ARoot,ACurDir,AOutput,Recurse);
-        end;
-      end;
-      for i := 0 to ACurDir.FileList.Count -1 do
-      begin
-        AOutput.Add(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])));
-      end;
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
-          if LCurItem.DirError then
-          begin
-            if i = 0 then
-            begin
-              AOutput.Add('');
-            end;
-            AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
-          end
-          else
-          begin
-            ProcessOnePathCol(ARoot,TDirEntry(ACurDir.SubDirs[i]),AOutput,Recurse);
-          end;
+          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+        end else begin
+          ProcessOnePathCol(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
         end;
       end;
     end;
+  end;
 
-    function CalcMaxLen(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False) : Integer;
-    var LEntryMaxLen : Integer;
-        i : Integer;
-    begin
-      Result := 0;
-      for i := 0 to ACurDir.FileList.Count -1 do
-      begin
-        LEntryMaxLen := Length(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])) );
-        if LEntryMaxLen > Result then
-        begin
+  function CalcMaxLen(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False) : Integer;
+  var
+    LEntryMaxLen : Integer;
+    i : Integer;
+  begin
+    Result := 0;
+    for i := 0 to ACurDir.FileList.Count-1 do begin
+      LEntryMaxLen := Length(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])));
+      if LEntryMaxLen > Result then begin
+        Result := LEntryMaxLen;
+      end;
+    end;
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count-1 do begin
+        LEntryMaxLen := CalcMaxLen(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+        if LEntryMaxLen > Result then begin
           Result := LEntryMaxLen;
         end;
       end;
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LEntryMaxLen := CalcMaxLen(ARoot,TDirEntry(ACurDir.SubDirs[i]),AOutput,Recurse);
-          if LEntryMaxLen > Result then
-          begin
-            Result := LEntryMaxLen;
-          end;
-        end;
-      end;
     end;
+  end;
 
-    procedure ProcessPathAccross(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var i, j : Integer;
-        LTmp : String;
-        LMaxLen : Integer;
-        LCols : Integer;
-        LCurItem : TIdFTPListOutputItem;
-    begin
-      if ACurDir.FileList.Count = 0 then
-      begin
-        Exit;
-      end;
+  procedure ProcessPathAccross(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    i, j : Integer;
+    LTmp : String;
+    LMaxLen : Integer;
+    LCols : Integer;
+    LCurItem : TIdFTPListOutputItem;
+  begin
+    if ACurDir.FileList.Count = 0 then begin
+      Exit;
+    end;
     //Note that we will assume a console width of 80 and we don't want something to wrap
     //causing a blank line
-      LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
-      //if more than 39, we probably are going to exceed the width of the screen,
-      //just treat as one column
-      if (LMaxLen > 39) then
-      begin
-        ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
-        Exit;
-      end;
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        if Recurse then
-        begin
-          PrintSubDirHeader(ARoot,ACurDir,AOutput,Recurse);
-        end;
-      end;
-      LCols := 79 div (LMaxLen + 2);//2 spaces between columns
-      j := 0;
-      repeat
-        LTmp := '';
-        for i := 0 to LCols -1 do
-        begin
-          LTmp := LTmp + PadSpaces(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[j])),LMaxLen)+'  ';
-          Inc(j);
-          if j = ACurDir.FileList.Count then
-          begin
-            Break;
-          end;
-        end;
-        AOutput.Add(TrimRight(LTmp));
-      until (j = ACurDir.FileList.Count);
-
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
-          if LCurItem.DirError then
-          begin
-            if i = 0 then
-            begin
-              AOutput.Add('');
-            end;
-            AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
-          end
-          else
-          begin
-            ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
-          end;
-        end;
+    LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
+    //if more than 39, we probably are going to exceed the width of the screen,
+    //just treat as one column
+    if LMaxLen > 39 then begin
+      ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
+      Exit;
+    end;
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      if Recurse then begin
+        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
       end;
     end;
-
-    procedure ProcessPathDown(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var i, j : Integer;
-        LTmp : String;
-        LMaxLen : Integer;
-        LCols : Integer;
-        LLines : Integer;
-        LFrm : String;
-        LCurItem : TIdFTPListOutputItem;
-    begin
-      LFrm := '';
-      if ACurDir.FileList.Count = 0 then
-      begin
-        Exit;
-      end;
-    //Note that we will assume a console width of 80 and we don't want something to wrap
-    //causing a blank line
-      LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
-      //if more than 39, we probably are going to exceed the width of the screen,
-      //just treat as one column
-      if (LMaxLen > 39) then
-      begin
-        ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
-        Exit;
-      end;
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        if Recurse then
-        begin
-          PrintSubDirHeader(ARoot,ACurDir,AOutput,Recurse);
-        end;
-      end;
-      LCols := 79 div (LMaxLen + 2);//2 spaces between columns
-      LLines := ACurDir.FileList.COunt div LCols;
-      LFrm := '%'+IntToStr(LMaxLen+2)+'s';
-      if (ACurDir.FileList.COunt mod LCols >0) then
-      begin
-        Inc(LLines);
-      end;
-      for i := 1 to LLines do
-      begin
-        j := 0;
-        LTmp := '';
-        repeat
-          if (i-1)+(LLInes*j) < ACurDir.FileList.Count then
-          begin
-            LTmp := LTmp + PadSpaces(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[(i-1)+(LLInes*j)])),LMaxLen)+ '  ';
-          end;
-          Inc(j);
-        until (j > LCols);
-        AOutput.Add(TrimRight(LTmp));
-      end;
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
-          if LCurItem.DirError then
-          begin
-            if i = 0 then
-            begin
-              AOutput.Add('');
-            end;
-            AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
-          end
-          else
-          begin
-            ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
-          end;
-        end;
-      end;
-    end;
-
-    procedure ProcessPathComma(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var i : Integer;
-      LTmp : String;
-      LCurItem : TIdFTPListOutputItem;
-    begin
-      if Recurse then
-      begin
-        PrintSubDirHeader(ARoot,ACurDir,AOutput,Recurse);
-      end;
+    LCols := 79 div (LMaxLen + 2);//2 spaces between columns
+    j := 0;
+    repeat
       LTmp := '';
-      for i := 0 to ACurDir.FileList.Count -1 do
-      begin
-          LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])) +
-            ', ';
+      for i := 0 to LCols -1 do begin
+        LTmp := LTmp + PadString(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[j])), LMaxLen, ' ') + '  ';
+        Inc(j);
+        if j = ACurDir.FileList.Count then begin
+          Break;
+        end;
       end;
-      IdDelete(LTmp,Length(LTmp)-1,2);
-      AOutput.Text := AOutput.Text + IdGlobalProtocols.WrapText(LTmp,EOL+' ', LWS+',',79);  //79 good maxlen for text only terminals
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
-          if LCurItem.DirError then
-          begin
-            if i = 0 then
-            begin
+      AOutput.Add(TrimRight(LTmp));
+    until j = ACurDir.FileList.Count;
+
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+        if LCurItem.DirError then begin
+          if i = 0 then begin
+            AOutput.Add('');
+          end;
+          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+        end else begin
+          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+        end;
+      end;
+    end;
+  end;
+
+  procedure ProcessPathDown(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    i, j : Integer;
+    LTmp : String;
+    LMaxLen : Integer;
+    LCols : Integer;
+    LLines : Integer;
+    LFrm : String;
+    LCurItem : TIdFTPListOutputItem;
+  begin
+    LFrm := '';
+    if ACurDir.FileList.Count = 0 then begin
+      Exit;
+    end;
+    //Note that we will assume a console width of 80 and we don't want something to wrap
+    //causing a blank line
+    LMaxLen := CalcMaxLen(ARoot, ACurDir, AOutput, Recurse);
+    //if more than 39, we probably are going to exceed the width of the screen,
+    //just treat as one column
+    if LMaxLen > 39 then begin
+      ProcessOnePathCol(ARoot, ACurDir, AOutput, Recurse);
+      Exit;
+    end;
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      if Recurse then begin
+        PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+      end;
+    end;
+    LCols := 79 div (LMaxLen + 2);//2 spaces between columns
+    LLines := ACurDir.FileList.COunt div LCols;
+    LFrm := '%' + IntToStr(LMaxLen+2) + 's';
+    if (ACurDir.FileList.COunt mod LCols) > 0 then begin
+      Inc(LLines);
+    end;
+    for i := 1 to LLines do begin
+      j := 0;
+      LTmp := '';
+      repeat
+        if ((i-1)+(LLInes*j)) < ACurDir.FileList.Count then begin
+          LTmp := LTmp + PadString(NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[(i-1)+(LLInes*j)])), LMaxLen, ' ') + '  ';
+        end;
+        Inc(j);
+      until (j > LCols);
+      AOutput.Add(TrimRight(LTmp));
+    end;
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count -1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+        if LCurItem.DirError then begin
+          if i = 0 then begin
+            AOutput.Add('');
+          end;
+          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+        end else begin
+          ProcessPathAccross(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+        end;
+      end;
+    end;
+  end;
+
+  procedure ProcessPathComma(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    i : Integer;
+    LTmp : String;
+    LCurItem : TIdFTPListOutputItem;
+  begin
+    if Recurse then begin
+      PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+    end;
+    LTmp := '';
+    for i := 0 to ACurDir.FileList.Count -1 do begin
+      LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])) + ', ';
+    end;
+    IdDelete(LTmp, Length(LTmp)-1, 2);
+    AOutput.Text := AOutput.Text + IdGlobalProtocols.WrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count -1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+        if LCurItem.DirError then begin
+          if i = 0 then begin
+            AOutput.Add('');
+          end;
+          AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
+        end else begin
+          ProcessPathComma(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
+        end;
+      end;
+    end;
+  end;
+
+  procedure ProcessPathLong(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
+  var
+    i : Integer;
+    LBlockCount : Integer;
+    LCurItem : TIdFTPListOutputItem;
+  begin
+    if Recurse then begin
+      PrintSubDirHeader(ARoot, ACurDir, AOutput, Recurse);
+    end;
+
+    if (DirFormat = doUnix) and ExportTotalLine then begin
+      LBlockCount := 0;
+      for i := 0 to ACurDir.FileList.Count-1 do begin
+        LBlockCount := LBlockCount + TIdFTPListOutputItem(ACurDir.FileList.Objects[i]).NumberBlocks;
+      end;
+      AOutput.Add(IndyFormat('total %d', [LBlockCount]));  {Do not translate}
+    end;
+
+    for i := 0 to ACurDir.FileList.Count-1 do begin
+      LCurItem := TIdFTPListOutputItem(ACurDir.FileList.Objects[i]);
+      case DirFormat of
+        doEPLF : AOutput.Add(EPLFItem(LCurItem));
+        doWin32 : AOutput.Add(Win32Item(LCurItem));
+      else
+        AOutput.Add(UnixItem(LCurItem));
+      end;
+    end;
+
+    if Recurse and Assigned(ACurDir.SubDirs) then begin
+      for i := 0 to ACurDir.SubDirs.Count-1 do begin
+        LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
+        if LCurItem.DirError then begin
+          if DirFormat = doUnix then begin
+            if i = 0 then begin
               AOutput.Add('');
             end;
             AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
-          end
-          else
-          begin
-            ProcessPathComma(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
           end;
         end;
+        ProcessPathLong(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
       end;
     end;
+  end;
 
-    procedure ProcessPathLong(ARoot, ACurDir : TDirEntry; AOutput : TStrings; const Recurse : Boolean = False);
-    var i : Integer;
-      LBlockCount : Integer;
-      LCurItem : TIdFTPListOutputItem;
-    begin
-      if Recurse then
-      begin
-        PrintSubDirHeader(ARoot,ACurDir,AOutput,Recurse);
-      end;
-        if (DirFormat = doUnix) and ExportTotalLine then
-        begin
-          LBlockCount := 0;
-          for i := 0 to ACurDir.FileList.Count -1 do
-          begin
-            LBlockCount := LBlockCount +
-              TIdFTPListOutputItem(ACurDir.FileList.Objects[i]).NumberBlocks;
-          end;
-          AOutput.Add(IndyFormat('total %d',[LBlockCount]));  {Do not translate}
-        end;
-
-        for i := 0 to ACurDir.FileList.Count -1 do
-        begin
-          LCurItem := TIdFTPListOutputItem(ACurDir.FileList.Objects[i]);
-          case DirFormat of
-            doEPLF : AOutput.Add(Self.EPLFItem(LCurItem));
-            doWin32 : AOutput.Add(Self.Win32Item (LCurItem));
-          else
-            AOutput.Add(Self.UnixItem (LCurItem));
-          end;
-        end;
-
-      if Recurse and Assigned(ACurDir.SubDirs) then
-      begin
-        for i := 0 to ACurDir.SubDirs.Count -1 do
-        begin
-          LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;
-          if LCurItem.DirError then
-          begin
-            if DirFormat = doUnix then
-            begin
-              if i = 0 then
-              begin
-                AOutput.Add('');
-              end;
-              AOutput.Add(IndyFormat('/bin/ls: %s: Permission denied', [LCurItem.FileName])); {do not localize}
-            end;
-          end
-          else
-          begin
-            ProcessPathLong(ARoot, TDirEntry(ACurDir.SubDirs[i]), AOutput, Recurse);
-          end;
-        end;
+  procedure DoUnixfParam(ARoot : TDirEntry; AOutput : TStrings);
+  var
+    i : Integer;
+    LI : TIdFTPListItem;
+  begin
+    for i := 0 to ARoot.FileList.Count -1 do begin
+      LI := TIdFTPListItem(ARoot.FileList.Objects[i]);
+      if LI.ItemType = ditDirectory then begin
+        AOutput.Add(IndyGetFileName(LI.FileName));
       end;
     end;
-
-    procedure DoUnixfParam(ARoot : TDirEntry; AOutput : TStrings);
-    var i : Integer;
-        LI : TIdFTPListItem;
-    begin
-      for i := 0 to ARoot.FileList.Count -1 do
-      begin
-        LI := TIdFTPListItem(ARoot.FileList.Objects[i]);
-        if LI.ItemType = ditDirectory then
-        begin
-          AOutput.Add( IndyGetFileName(LI.FileName));
-        end;
-      end;
-    end;
+  end;
 
 begin
-  LShowNavSym := (DirFormat=doUnix) and
-    (IndyPos(SWITCH_SHOW_ALLPERIOD,Switches)>0);
-  if LShowNavSym then
-  begin
-    LShowNavSym := (IndyPos(SWITCH_HIDE_DIRPOINT,Switches)=0);
+  LShowNavSym := (DirFormat = doUnix) and HasSwitch(SWITCH_SHOW_ALLPERIOD);
+  if LShowNavSym then begin
+    LShowNavSym := not HasSwitch(SWITCH_HIDE_DIRPOINT);
   end;
-  LRootPath := TDirEntry.Create('',nil);
+  LRootPath := TDirEntry.Create('', nil);
   try
-    for i := 0 to Count -1 do
+    for i := 0 to Count-1 do
     begin
-      if (Items[i].ItemType in [ditDirectory,ditSymbolicLinkDir])  then
-      begin
-        if IsNavPath(StripInitPathDelin(IndyGetFileName( Items[i].FileName)))=False then
-        begin
-          LRootPath.AddSubDir(StripInitPathDelin(Items[i].FileName),Items[i]);
-        end
-        else
-        begin
+      if Items[i].ItemType in [ditDirectory, ditSymbolicLinkDir] then begin
+        if not IsNavPath(StripInitPathDelim(IndyGetFileName(Items[i].FileName))) then begin
+          LRootPath.AddSubDir(StripInitPathDelim(Items[i].FileName), Items[i]);
+        end else begin
           //if it's a "." or "..", we show it only in Unix mode and only with eht -a switch
-          if LShowNavSym then
-          begin
-            LRootPath.AddFileName(StripInitPathDelin(Items[i].FileName),Items[i]);
+          if LShowNavSym then begin
+            LRootPath.AddFileName(StripInitPathDelim(Items[i].FileName), Items[i]);
           end;
         end;
       end;
     end;
     //add the file names
-    for i := 0 to Count -1 do
-    begin
-      if (Items[i].ItemType in [ditFile, ditSymbolicLink]) then
-      begin
-        if IsNavPath(StripInitPathDelin(IndyGetFileName( Items[i].FileName))) then
-        begin
-          if LShowNavSym then
-          begin
-            LRootPath.AddFileName(StripInitPathDelin(Items[i].FileName),Items[i]);
+    for i := 0 to Count-1 do begin
+      if Items[i].ItemType in [ditFile, ditSymbolicLink] then begin
+        if IsNavPath(StripInitPathDelim(IndyGetFileName(Items[i].FileName))) then begin
+          if LShowNavSym then begin
+            LRootPath.AddFileName(StripInitPathDelim(Items[i].FileName), Items[i]);
           end;
-        end
-        else
-        begin
-          LRootPath.AddFileName(StripInitPathDelin(Items[i].FileName),Items[i]);
+        end else begin
+          LRootPath.AddFileName(StripInitPathDelim(Items[i].FileName), Items[i]);
         end;
       end;
     end;
     //Note that Indy does not support a Last Access time in some file systems
     //so we use the u parameter to mean the same as the t parameter
-    if IndyPos(SWITCH_SORT_REVERSE,Switches)>0 then
-    begin
-      if (IndyPos(SWITCH_SORTBY_MTIME,Switches)>0) or (IndyPos(SWITCH_SORTBY_CTIME,Switches)>0) then
-      begin
+    if HasSwitch(SWITCH_SORT_REVERSE) then begin
+      if HasSwitch(SWITCH_SORTBY_MTIME) or HasSwitch(SWITCH_SORTBY_CTIME) then begin
         LRootPath.SortDescendMTime;
       end
-      else
-      begin
-        if (IndyPos(SWITCH_SORTBY_EXT, Switches)>0) then
-        begin
-          LRootPath.SortDescendFNameExt;
-        end
-        else
-        begin
-          if (IndyPos(SWITCH_SORTBY_SIZE, Switches)>0) then
-          begin
-            LRootPath.SortDescendSize;
-          end
-          else
-          begin
-            LRootPath.SortDescendFName;
-          end;
-        end;
+      else if HasSwitch(SWITCH_SORTBY_EXT) then begin
+        LRootPath.SortDescendFNameExt;
+      end
+      else if HasSwitch(SWITCH_SORTBY_SIZE) then begin
+        LRootPath.SortDescendSize;
+      end
+      else begin
+        LRootPath.SortDescendFName;
       end;
     end
-    else
-    begin
-      if (IndyPos(SWITCH_SORTBY_MTIME,Switches)>0) or (IndyPos(SWITCH_SORTBY_CTIME,Switches)>0) then
-      begin
-        LRootPath.SortAscendMTime;
-      end
-      else
-      begin
-        if (IndyPos(SWITCH_SORTBY_EXT, Switches)>0) then
-        begin
-          LRootPath.SortAscendFNameExt;
-        end
-        else
-        begin
-          if (IndyPos(SWITCH_SORTBY_SIZE, Switches)>0) then
-          begin
-            LRootPath.SortAscendSize;
-          end
-          else
-          begin
-            LRootPath.SortAscendFName;
-          end;
-        end;
-      end;
+    else if HasSwitch(SWITCH_SORTBY_MTIME) or HasSwitch(SWITCH_SORTBY_CTIME) then begin
+      LRootPath.SortAscendMTime;
+    end
+    else if HasSwitch(SWITCH_SORTBY_EXT) then begin
+      LRootPath.SortAscendFNameExt;
+    end
+    else if HasSwitch(SWITCH_SORTBY_SIZE) then begin
+      LRootPath.SortAscendSize;
+    end
+    else begin
+      LRootPath.SortAscendFName;
     end;
     //select the operation
     // do the selected output operation
     case DetermineOp of
-      doColsAccross : ProcessPathAccross(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
-      doColsDown : ProcessPathDown(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
-      doOneCol   : ProcessOnePathCol(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
-      doOnlyDirs : DoUnixfParam(LRootPath,AOutput);
-      doComma :  ProcessPathComma(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
+      doColsAccross : ProcessPathAccross(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
+      doColsDown    : ProcessPathDown(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
+      doOneCol      : ProcessOnePathCol(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
+      doOnlyDirs    : DoUnixfParam(LRootPath, AOutput);
+      doComma       : ProcessPathComma(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
     else
-      ProcessPathLong(LRootPath,LRootPath,AOutput, IndyPos(SWITCH_RECURSIVE,Switches)>0 );
+      ProcessPathLong(LRootPath, LRootPath, AOutput, HasSwitch(SWITCH_RECURSIVE));
     end;
   finally
     FreeAndNil(LRootPath);
@@ -1175,281 +1014,221 @@ end;
 
 procedure TIdFTPListOutput.LISTOutputDir(AOutput: TStrings);
 begin
-  InternelOutputDir(AOutput,True);
+  InternelOutputDir(AOutput, True);
 end;
 
-function TIdFTPListOutput.MListItem(AItem: TIdFTPListOutputItem;
-  AMLstOpts: TIdFTPFactOutputs): String;
+function TIdFTPListOutput.MListItem(AItem: TIdFTPListOutputItem; AMLstOpts: TIdFTPFactOutputs): String;
 begin
-  if AMLstOpts <> [] then
-  begin
-    if Size in AMLstOpts then  {do not localize}
-    begin
-      Result := 'size=' + IntToStr(AItem.Size) + ';'; {do not localize}
-    end;
+  if AMLstOpts = [] then begin
+    Result := AItem.FileName;
+    Exit;
+  end;
 
-    if ItemType in AMLstOpts then  {do not localize}
-    begin
-      Result := Result + 'type='; {do not localize}
-      case AItem.ItemType of
-        ditFile : Result := Result + 'file;'; {do not localize}
-        ditDirectory :
+  if Size in AMLstOpts then begin
+    Result := 'size=' + IntToStr(AItem.Size) + ';'; {do not localize}
+  end;
+
+  if ItemType in AMLstOpts then begin
+    Result := Result + 'type='; {do not localize}
+    case AItem.ItemType of
+      ditFile :
         begin
-          if (AItem.FileName = '..') then {do not localize}
-          begin
+          Result := Result + 'file;'; {do not localize}
+        end;
+      ditDirectory :
+        begin
+          if AItem.FileName = '..' then begin {do not localize}
             Result := Result + 'pdir;'; {do not localize}
           end
-          else
-          begin
-            if (AItem.FileName = '.') then
-            begin
-              Result := Result + 'cdir;'; {do not localize}
-            end
-            else
-            begin
+          else if AItem.FileName = '.' then begin
+            Result := Result + 'cdir;'; {do not localize}
+          end
+          else begin
             Result := Result + 'dir;';  {do not localize}
-            end;
           end;
         end;
-        ditSymbolicLink :
+      ditSymbolicLink :
+        begin
           Result := Result + 'OS.unix=slink:' + AItem.FileName + ';';  {do not localize}
-      end;
-    end;
-
-    if Perm in AMLstOpts then  {do not localize}
-    begin
-      Result := Result + 'perm=' + AItem.MLISTPermissions + ';';  {do not localize}
-    end;
-
-    if CreateTime in AMLstOpts then  {do not localize}
-    begin
-      if AItem.CreationDateGMT<>0 then
-      begin
-        Result := Result + 'create='+ FTPGMTDateTimeToMLS(AItem.CreationDateGMT ) + ';';  {do not localize}
-      end
-      else
-      begin
-        if AItem.CreationDate<>0 then
-        begin
-          Result := Result + 'create='+ FTPLocalDateTimeToMLS(AItem.CreationDate ) + ';';  {do not localize}
         end;
-      end;
     end;
-
-    if Modify in AMLstOpts then  {do not localize}
-    begin
-      if AItem.ModifiedDateGMT<>0 then
-      begin
-        Result := Result + 'modify='+  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT ) + ';';  {do not localize}
-      end
-      else
-      begin
-        if AItem.ModifiedDate<>0 then
-        begin
-          Result := Result + 'modify='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
-        end;
-      end;
-    end;
-    if UnixMODE in AMLstOpts then {do not localize}
-    begin
-      Result := Result + 'UNIX.mode='+ IndyFormat('%.4d', [PermsToChmodNo(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem) )] ) + ';';  {do not localize}
-    end;
-    if UnixOwner in AMLstOpts then  {do not localize}
-    begin
-      Result := Result + 'UNIX.owner=' + UnixGetOutputOwner(AItem) + ';'; {do not localize}
-    end;
-    if UnixGroup in AMLstOpts then  {do not localize}
-    begin
-      Result := Result + 'UNIX.group=' + UnixGetOutputGroup(AItem) + ';'; {do not localize}
-    end;
-    if Unique in AMLstOpts then
-    begin
-      if AItem.UniqueID <> '' then
-      begin
-        Result := Result + 'unique=' + AItem.UniqueID+';'; {do not localize}
-      end;
-    end;
-
-    if LastAccessTime in AMLstOpts then  {do not localize}
-    begin
-      if AItem.ModifiedDateGMT<>0 then
-      begin
-        Result := Result + 'windows.lastaccesstime='+  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT ) + ';';  {do not localize}
-      end
-      else
-      begin
-        if AItem.ModifiedDate<>0 then
-        begin
-          Result := Result + 'windows.lastaccesstime='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
-        end;
-      end;
-    end;
-
-    if WinAttribs in AMLstOpts then  {do not localize}
-    begin
-      Result := Result + 'win32.ea=0x'+ IntToHex(AItem.WinAttribs,8)+';';
-    end;
-    Result := Result + ' ' + AItem.FileName;
-  end
-  else
-  begin
-    Result := AItem.FileName;
   end;
+
+  if Perm in AMLstOpts then begin
+    Result := Result + 'perm=' + AItem.MLISTPermissions + ';';  {do not localize}
+  end;
+
+  if CreateTime in AMLstOpts then begin
+    if AItem.CreationDateGMT <> 0 then begin
+      Result := Result + 'create='+ FTPGMTDateTimeToMLS(AItem.CreationDateGMT) + ';';  {do not localize}
+    end
+    else if AItem.CreationDate <> 0 then begin
+      Result := Result + 'create='+ FTPLocalDateTimeToMLS(AItem.CreationDate) + ';';  {do not localize}
+    end;
+  end;
+
+  if Modify in AMLstOpts then begin
+    if AItem.ModifiedDateGMT <> 0 then begin
+      Result := Result + 'modify='+  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT) + ';';  {do not localize}
+    end
+    else if AItem.ModifiedDate <> 0 then begin
+      Result := Result + 'modify='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
+    end;
+  end;
+
+  if UnixMODE in AMLstOpts then begin
+    Result := Result + 'UNIX.mode='+ IndyFormat('%.4d', [PermsToChmodNo(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem) )] ) + ';';  {do not localize}
+  end;
+
+  if UnixOwner in AMLstOpts then begin
+    Result := Result + 'UNIX.owner=' + UnixGetOutputOwner(AItem) + ';'; {do not localize}
+  end;
+
+  if UnixGroup in AMLstOpts then begin
+    Result := Result + 'UNIX.group=' + UnixGetOutputGroup(AItem) + ';'; {do not localize}
+  end;
+
+  if (Unique in AMLstOpts) and (AItem.UniqueID <> '') then begin
+    Result := Result + 'unique=' + AItem.UniqueID + ';'; {do not localize}
+  end;
+
+  if LastAccessTime in AMLstOpts then begin
+    if AItem.ModifiedDateGMT <> 0 then begin
+      Result := Result + 'windows.lastaccesstime=' +  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT) + ';';  {do not localize}
+    end
+    else if AItem.ModifiedDate <> 0 then begin
+      Result := Result + 'windows.lastaccesstime=' + FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
+    end;
+  end;
+
+  if WinAttribs in AMLstOpts then begin
+    Result := Result + 'win32.ea=0x' + IntToHex(AItem.WinAttribs, 8) + ';'; {do not localize}
+  end;
+
+  Result := Result + ' ' + AItem.FileName;
 end;
 
 procedure TIdFTPListOutput.MLISTOutputDir(AOutput : TStrings; AMLstOpts: TIdFTPFactOutputs);
-var i : Integer;
+var
+  i : Integer;
 begin
   AOutput.Clear;
-  for i := 0 to Count -1 do
-  begin
-    AOutput.Add(MListItem(Items[i],AMLstOpts));
+  for i := 0 to Count-1 do begin
+    AOutput.Add(MListItem(Items[i], AMLstOpts));
   end;
 end;
 
 function TIdFTPListOutput.NListItem(AItem: TIdFTPListOutputItem): String;
 begin
   Result := IndyGetFileName(AItem.FileName);
-  case Self.DirFormat of
-
-    doUnix : begin
-      if (IndyPos(SWITCH_QUOTEDNAME,Switches) >0) then
-      begin
-        Result := '"'+Result+'"';
-      end;
-      if (IndyPos(SWITCH_CLASSIFY,Switches)>0) or (IndyPos(SWITCH_SLASHDIR,Switches)>0) then
-      begin
-        case AItem.ItemType of
-        ditDirectory : Result := Result + PATH_SUBDIR_SEP_UNIX;
-        ditSymbolicLink, ditSymbolicLinkDir : Result := Result + '@';
-        else
-          if IsUnixExec(AItem.UnixOwnerPermissions, AItem.UnixGroupPermissions , AItem.UnixOtherPermissions) then
-          begin
-            Result := Result + '*';
-          end;
-        end;
-      end;
-      Result := UnixinodeOutput(AItem)+ UnixBlocksOutput(AItem)+ Result;
+  if DirFormat = doUnix then begin
+    if HasSwitch(SWITCH_QUOTEDNAME) then begin
+      Result := '"' + Result + '"';
     end;
+    if HasSwitch(SWITCH_CLASSIFY) or HasSwitch(SWITCH_SLASHDIR) then begin
+      case AItem.ItemType of
+        ditDirectory :
+          Result := Result + PATH_SUBDIR_SEP_UNIX;
+        ditSymbolicLink, ditSymbolicLinkDir :
+          Result := Result + '@';
+        else
+          begin
+            if IsUnixExec(AItem.UnixOwnerPermissions, AItem.UnixGroupPermissions , AItem.UnixOtherPermissions) then begin
+              Result := Result + '*';
+            end;
+          end;
+      end;
+    end;
+    Result := UnixinodeOutput(AItem)+ UnixBlocksOutput(AItem) + Result;
   end;
 end;
 
 procedure TIdFTPListOutput.NLISTOutputDir(AOutput: TStrings);
 begin
-  InternelOutputDir(AOutput,False);
+  InternelOutputDir(AOutput, False);
 end;
 
-procedure TIdFTPListOutput.SetItems(AIndex: Integer;
-  const AValue: TIdFTPListOutputItem);
+procedure TIdFTPListOutput.SetItems(AIndex: Integer; const AValue: TIdFTPListOutputItem);
 begin
   inherited Items[AIndex] := AValue;
 end;
 
 function TIdFTPListOutput.UnixBlocksOutput(AItem: TIdFTPListOutputItem): String;
 begin
-  Result := '';
-  if IndyPos(SWITCH_PRINT_BLOCKS,Switches)>0 then
-  begin
-    Result := Result + IndyFormat('%4d ',[ AItem.NumberBlocks ]);
+  if HasSwitch(SWITCH_PRINT_BLOCKS) then begin
+    Result := IndyFormat('%4d ', [AItem.NumberBlocks]);
+  end else begin
+    Result := '';
   end;
 end;
 
-function TIdFTPListOutput.UnixGetOutputGroup(
-  AItem: TIdFTPListOutputItem): String;
+function TIdFTPListOutput.UnixGetOutputGroup(AItem: TIdFTPListOutputItem): String;
 begin
-  if AItem.GroupName = '' then
-  begin
+  if AItem.GroupName = '' then begin
     Result := UnixGetOutputOwner(AItem);
-  end
-  else
-  begin
+  end else begin
     Result := AItem.GroupName;
   end;
 end;
 
-function TIdFTPListOutput.UnixGetOutputGroupPerms(
-  AItem: TIdFTPListOutputItem): String;
+function TIdFTPListOutput.UnixGetOutputGroupPerms(AItem: TIdFTPListOutputItem): String;
 begin
-  if AItem.UnixOtherPermissions = '' then
-  begin
-    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then
-    begin
+  if AItem.UnixOtherPermissions = '' then begin
+    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then begin
       Result := DEF_DIR_GRP_PERM;
-    end
-    else
-    begin
+    end else begin
       Result := DEF_FILE_GRP_PERM;
     end;
-  end
-  else
-  begin
+  end else begin
     Result := AItem.UnixOtherPermissions;
   end;
 end;
 
-function TIdFTPListOutput.UnixGetOutputOtherPerms(
-  AItem: TIdFTPListOutputItem): String;
+function TIdFTPListOutput.UnixGetOutputOtherPerms(AItem: TIdFTPListOutputItem): String;
 begin
-  if AItem.UnixOtherPermissions = '' then
-  begin
-    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then
-    begin
+  if AItem.UnixOtherPermissions = '' then begin
+    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then begin
       Result := DEF_DIR_OTHER_PERM;
-    end
-    else
-    begin
-      Result := DEF_FILE_OTHER_PERM
+    end else begin
+      Result := DEF_FILE_OTHER_PERM;
     end;
-  end
-  else
-  begin
+  end else begin
     Result := AItem.UnixOtherPermissions;
   end;
 end;
 
-function TIdFTPListOutput.UnixGetOutputOwner(
-  AItem: TIdFTPListOutputItem): String;
+function TIdFTPListOutput.UnixGetOutputOwner(AItem: TIdFTPListOutputItem): String;
 begin
-  if AItem.OwnerName = '' then
-  begin
+  if AItem.OwnerName = '' then begin
     Result := DEF_OWNER;
-  end
-  else
-  begin
+  end else begin
     Result := AItem.OwnerName;
   end;
 end;
 
-function TIdFTPListOutput.UnixGetOutputOwnerPerms(
-  AItem: TIdFTPListOutputItem): String;
+function TIdFTPListOutput.UnixGetOutputOwnerPerms(AItem: TIdFTPListOutputItem): String;
 begin
-  if AItem.UnixOwnerPermissions = '' then
-  begin
-    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then
-    begin
-      Result := DEF_DIR_OWN_PERM
-    end
-    else
-    begin
+  if AItem.UnixOwnerPermissions = '' then begin
+    if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then begin
+      Result := DEF_DIR_OWN_PERM;
+    end else begin
       Result := DEF_FILE_OWN_PERM;
     end;
-  end
-  else
-  begin
+  end else begin
     Result := AItem.UnixOwnerPermissions;
   end;
 end;
 
 function TIdFTPListOutput.UnixINodeOutput(AItem: TIdFTPListOutputItem): String;
-var LInode : String;
+var
+  LInode : String;
 begin
   Result := '';
-  if IndyPos(SWITCH_PRINT_INODE,Switches)>0 then
-  begin
+  if HasSwitch(SWITCH_PRINT_INODE) then begin
     LInode := IntToStr(Abs(AItem.Inode));
     //should be no more than 10 digits
-    LInode := Copy(LInode,1,10);
-    Result := Result + IndyFormat('%10s ',[ LInode ]);
+    LInode := Copy(LInode, 1, 10);
+    Result := Result + IndyFormat('%10s ', [LInode]);
   end;
 end;
 
@@ -1462,26 +1241,26 @@ var
   LFormat : String;
   LMTime : TDateTime;
 begin
-
   LFileName := IndyGetFileName(AItem.FileName);
-  Result := '';
-
-  Result := Result + UnixINodeOutput(AItem);
-  Result := Result + UnixBlocksOutput(AItem);
-  LSize := '-';    {Do not Localize}
+  Result := UnixINodeOutput(AItem) + UnixBlocksOutput(AItem);
   case AItem.ItemType of
-    ditDirectory: begin
-      AItem.Size := UNIX_DIR_SIZE;
-      LSize := 'd';    {Do not Localize}
-    end;
-    ditSymbolicLink: LSize := 'l';    {Do not Localize}
+    ditDirectory:
+      begin
+        AItem.Size := UNIX_DIR_SIZE;
+        LSize := 'd';    {Do not Localize}
+      end;
+    ditSymbolicLink:
+      begin
+        LSize := 'l';    {Do not Localize}
+      end;
+    else
+      begin
+        LSize := '-';    {Do not Localize}
+      end;
   end;
-  if AItem.LinkCount = 0 then
-  begin
+  if AItem.LinkCount = 0 then begin
     LLinkNum := 1;
-  end
-  else
-  begin
+  end else begin
     LLinkNum := AItem.LinkCount;
   end;
   LFormat := '%3:3s%4:3s%5:3s %6:3d '; {Do not localize}
@@ -1489,55 +1268,44 @@ begin
   //lrwxrwxrwx   1 other          7 Nov 16  2001 bin -> usr/bin
   //where it would normally print
   //lrwxrwxrwx   1 root     other          7 Nov 16  2001 bin -> usr/bin
-  if (IndyPos('g',Switches)=0) then
-  begin
+  if not HasSwitch('g') then begin
     LFormat := LFormat + '%1:-8s '; {Do not localize}
   end;
   //o - surpress group
   //lrwxrwxrwx   1 root           7 Nov 16  2001 bin -> usr/bin
   //where it would normally print
   //lrwxrwxrwx   1 root     other          7 Nov 16  2001 bin -> usr/bin
-  if (IndyPos('o',Switches)=0) then
-  begin
+  if not HasSwitch('o') then begin
     LFormat := LFormat + '%2:-8s ';  {Do not localize}
   end;
   LFormat := LFormat + '%0:8d'; {Do not localize}
-  LSize := LSize + IndyFormat(LFormat
-       , [AItem.Size, UnixGetOutputOwner(AItem), UnixGetOutputGroup(AItem), UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem),LLinkNum]);
+  LSize := LSize + IndyFormat(LFormat, [AItem.Size, UnixGetOutputOwner(AItem),
+    UnixGetOutputGroup(AItem), UnixGetOutputOwnerPerms(AItem),
+    UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem), LLinkNum]);
   LMTime := GetLocalModTime(AItem);
   DecodeDate(LMTime, l, month, l);
   LTime := MonthNames[month] + FormatDateTime(' dd', LMTime);    {Do not Localize}
-  if (IndyPos(SWITCH_BOTH_TIME_YEAR,Switches)>0) then
-  begin
-    LTime := LTime + FormatDateTime(' hh:nn:ss yyyy',LMTime);    {Do not Localize}
+  if HasSwitch(SWITCH_BOTH_TIME_YEAR) then begin
+    LTime := LTime + FormatDateTime(' hh:nn:ss yyyy', LMTime);   {Do not Localize}
   end
-  else
-  begin
-    if IsIn6MonthWindow(LMTime) then begin    {Do not Localize}
-      LTime := LTime + FormatDateTime(' hh:nn', LMTime);    {Do not Localize}
-    end else begin
-      LTime := LTime + FormatDateTime('  yyyy', LMTime);    {Do not Localize}
-    end;
+  else if IsIn6MonthWindow(LMTime) then begin    {Do not Localize}
+    LTime := LTime + FormatDateTime(' hh:nn', LMTime);    {Do not Localize}
+  end
+  else begin
+    LTime := LTime + FormatDateTime('  yyyy', LMTime);    {Do not Localize}
   end;
   // A.Neillans, 20 Apr 2002, Fixed glitch, extra space in front of names.
   //      Result := LSize + ' ' + LTime + '  ' + FileName;    {Do not Localize}
   Result := Result + LSize + ' ' + LTime + ' ';
-  if (IndyPos(SWITCH_QUOTEDNAME,Switches)>0) then
-  begin
-    Result := Result + '"'+LFileName+'"';
-  end
-  else
-  begin
-    Result := Result + LFileName;    {Do not Localize}
+  if HasSwitch(SWITCH_QUOTEDNAME) then begin
+    Result := Result + '"' + LFileName + '"'; {Do not Localize}
+  end else begin
+    Result := Result + LFileName;
   end;
-  if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then
-  begin
-    if (IndyPos(SWITCH_QUOTEDNAME,Switches)>0) then
-    begin
-      Result := Result + UNIX_LINKTO_SYM + '"'+AItem.LinkedItemName+'"';
-    end
-    else
-    begin
+  if AItem.ItemType in [ditSymbolicLink, ditSymbolicLinkDir] then begin
+    if HasSwitch(SWITCH_QUOTEDNAME) then begin
+      Result := Result + UNIX_LINKTO_SYM + '"' + AItem.LinkedItemName + '"'; {Do not Localize}
+    end else begin
       Result := Result + UNIX_LINKTO_SYM + AItem.LinkedItemName;
     end;
   end;
@@ -1546,9 +1314,8 @@ begin
   begin
     Result := Result + PATH_SUBDIR_SEP_UNIX;
   end;
-  if (IndyPos(SWITCH_CLASSIFY,Switches)>0) and  {Do not translate}
-        (AItem.ItemType = ditFile) and
-         IsUnixExec( UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem)) then
+  if HasSwitch(SWITCH_CLASSIFY) and (AItem.ItemType = ditFile) and
+    IsUnixExec(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem)) then
   begin
     //star is placed at the end of a file name
     //like this:
@@ -1558,103 +1325,84 @@ begin
 end;
 
 function TIdFTPListOutput.Win32Item(AItem: TIdFTPListOutputItem): String;
-var LSize, LFileName : String;
+var
+  LSize, LFileName : String;
 begin
   LFileName := IndyGetFileName(AItem.FileName);
   if AItem.ItemType = ditDirectory then begin
-    LSize := '      ' + '<DIR>' + StringOfChar(' ', 9);    {Do not Localize}
+    LSize := '      <DIR>' + StringOfChar(' ', 9);    {Do not Localize}
   end else begin
     LSize := StringOfChar(' ', 20 - Length(IntToStr(AItem.Size))) + IntToStr(AItem.Size);    {Do not Localize}
   end;
-  Result := FormatDateTime('mm-dd-yy  hh:nnAM/PM', GetLocalModTime( AItem) ) + ' ' + LSize    {Do not Localize}
-       + ' ' + LFileName;    {Do not Localize}
+  Result := FormatDateTime('mm-dd-yy  hh:nnAM/PM', GetLocalModTime(AItem)) + ' ' + LSize + ' ' + LFileName;    {Do not Localize}
 end;
-
 
 { TDirEntry }
 
-function TDirEntry.AddFileName(const APathName: String;
-  ADirEnt: TIdFTPListOutputItem) : Boolean;
-var i : Integer;
+function TDirEntry.AddFileName(const APathName: String; ADirEnt: TIdFTPListOutputItem) : Boolean;
+var
+  i : Integer;
   LParentPart : String;
   LDirEnt : TDirEntry;
 begin
   Result := False;
-  LParentPart := StripInitPathDelin(IndyGetFilePath(APathName));
-//  LParentPart := IndyGetFileName(LParentPart);
-  if LParentPart = PathName then
-  begin
-
-    if FFileList.IndexOf(APathName)=-1 then
-    begin
-      FFileList.AddObject(APathName,ADirEnt);
+  LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
+  if LParentPart = PathName then begin
+    if FFileList.IndexOf(APathName) = -1 then begin
+      FFileList.AddObject(APathName, ADirEnt);
     end;
     Result := True;
-  end
-  else
-  begin
-    if Assigned( SubDirs) then
-    begin
-      for i := 0 to SubDirs.Count -1 do
-      begin
-        LDirEnt := TDirEntry(SubDirs[i]);
-        LParentPart := StripInitPathDelin( IndyGetFilePath(LDirEnt.FDirListItem.FileName));
-        if TextStartsWith(APathName, LParentPart) then
-        begin
-          if TDirEntry(SubDirs[i]).AddFileName(APathName, ADirEnt) then
-          begin
-            Result := True;
-            Break;
-          end;
+    Exit;
+  end;
+  if Assigned(SubDirs) then begin
+    for i := 0 to SubDirs.Count-1 do begin
+      LDirEnt := TDirEntry(SubDirs[i]);
+      LParentPart := StripInitPathDelim(IndyGetFilePath(LDirEnt.FDirListItem.FileName));
+      if TextStartsWith(APathName, LParentPart) then begin
+        if TDirEntry(SubDirs[i]).AddFileName(APathName, ADirEnt) then begin
+          Result := True;
+          Break;
         end;
       end;
     end;
   end;
 end;
 
-function TDirEntry.AddSubDir(const APathName: String;
-  ADirEnt: TIdFTPListOutputItem) : Boolean;
-var LDirEnt : TDirEntry;
-   i : Integer;
-   LParentPart : String;
+function TDirEntry.AddSubDir(const APathName: String; ADirEnt: TIdFTPListOutputItem) : Boolean;
+var
+  LDirEnt : TDirEntry;
+  i : Integer;
+  LParentPart : String;
 begin
   Result := False;
-  LParentPart := StripInitPathDelin(IndyGetFilePath(APathName));
-  if LParentPart = PathName then
-  begin
-    if Assigned(FSubDirs)=False then
-    begin
+  LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
+  if LParentPart = PathName then begin
+    if not Assigned(FSubDirs) then begin
       FSubDirs := TIdObjectList.Create;
     end;
-    LParentPart := StripInitPathDelin( IndyGetFilePath(APathName));
+    LParentPart := StripInitPathDelim(IndyGetFilePath(APathName));
     LParentPart := IndyGetFileName(LParentPart);
-    LDirEnt := TDirEntry.Create(APathName,ADirEnt);
+    LDirEnt := TDirEntry.Create(APathName, ADirEnt);
     FSubDirs.Add(LDirEnt);
     AddFileName(APathName, ADirEnt);
     Result := True;
-  end
-  else
-  begin
-    if Assigned(SubDirs) then
-    begin
-      for i := 0 to SubDirs.Count -1 do
-      begin
-        LDirEnt := TDirEntry(SubDirs[i]);
-        LParentPart := StripInitPathDelin( IndyGetFilePath(LDirEnt.FDirListItem.FileName));
-        if TextStartsWith(APathName, LParentPart) then
-        begin
-          if LDirEnt.AddSubDir(APathName, ADirEnt) then
-          begin
-            Result := True;
-            Break;
-          end;
+    Exit;
+  end;
+  if Assigned(SubDirs) then begin
+    for i := 0 to SubDirs.Count-1 do begin
+      LDirEnt := TDirEntry(SubDirs[i]);
+      LParentPart := StripInitPathDelim(IndyGetFilePath(LDirEnt.FDirListItem.FileName));
+      //  if Copy(APathName,1, Length(LParentPart))=
+      //    LParentPart then
+      if TextStartsWith(APathName, LParentPart) then begin
+        if LDirEnt.AddSubDir(APathName, ADirEnt) then begin
+          Result := True;
+          Break;
         end;
       end;
     end;
   end;
 end;
-
-
 
 constructor TDirEntry.Create(const APathName : String; ADirListItem : TIdFTPListOutputItem);
 begin
@@ -1668,129 +1416,117 @@ end;
 
 destructor TDirEntry.Destroy;
 begin
-  FreeAndNil( FFileList );
-  FreeAndNil( FSubDirs );
+  FreeAndNil(FFileList);
+  FreeAndNil(FSubDirs);
   inherited Destroy;
 end;
 
 procedure TDirEntry.SortAscendFName;
-var i : Integer;
+var
+  i : Integer;
 begin
-  if Assigned(FFileList) then
-  begin
+  if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscFName);
   end;
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscFName);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendFName;
     end;
   end;
 end;
 
 procedure TDirEntry.SortAscendMTime;
-var i : Integer;
+var
+  i : Integer;
 begin
   FFileList.BubbleSort(StrSortAscMTime);
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscMTime);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendMTime;
     end;
   end;
 end;
 
 procedure TDirEntry.SortDescendMTime;
-var i : Integer;
+var
+  i : Integer;
 begin
   FFileList.BubbleSort(StrSortDescMTime);
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortDescMTime);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count -1 do begin
       TDirEntry(FSubDirs[i]).SortDescendMTime;
     end;
   end;
 end;
 
 procedure TDirEntry.SortDescendFName;
-var i : Integer;
+var
+  i : Integer;
 begin
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortDescFName);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortDescendFName;
     end;
   end;
   FFileList.BubbleSort(StrSortDescFName);
-
 end;
 
 procedure TDirEntry.SortAscendFNameExt;
-var i : Integer;
+var
+  i : Integer;
 begin
-  if Assigned(FFileList) then
-  begin
+  if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortAscFNameExt);
   end;
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscFName);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendFNameExt;
     end;
   end;
 end;
 
 procedure TDirEntry.SortDescendFNameExt;
-var i : Integer;
+var
+  i : Integer;
 begin
-  if Assigned(FFileList) then
-  begin
+  if Assigned(FFileList) then begin
     FFileList.BubbleSort(StrSortDescFNameExt);
   end;
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscFName);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortDescendFNameExt;
     end;
   end;
 end;
 
 procedure TDirEntry.SortAscendSize;
-var i : Integer;
+var
+  i : Integer;
 begin
   FFileList.BubbleSort(StrSortAscSize);
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortAscMTime);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
+    for i := 0 to FSubDirs.Count-1 do begin
       TDirEntry(FSubDirs[i]).SortAscendSize;
     end;
   end;
 end;
 
 procedure TDirEntry.SortDescendSize;
-var i : Integer;
+var
+  i : Integer;
 begin
   FFileList.BubbleSort(StrSortDescSize);
-  if Assigned(FSubDirs) then
-  begin
+  if Assigned(FSubDirs) then begin
     FSubDirs.BubbleSort(DESortDescFName);
-    for i := 0 to FSubDirs.Count -1 do
-    begin
-      TDirEntry(FSubDirs[i]).SortDescendSize ;
+    for i := 0 to FSubDirs.Count-1 do begin
+      TDirEntry(FSubDirs[i]).SortDescendSize;
     end;
   end;
 end;
