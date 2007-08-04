@@ -472,7 +472,7 @@ type
       );
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure PerformCapture(const ADest: TObject; out VLineCount: Integer;
-     const ADelim: string; AIsRFCMessage: Boolean); virtual;
+     const ADelim: string; AIsRFCMessage: Boolean; const AEncoding: TIdEncoding = en7Bit); virtual;
     procedure RaiseConnClosedGracefully;
     procedure SetDestination(const AValue: string); virtual;
     procedure SetHost(const AValue: string); virtual;
@@ -482,8 +482,10 @@ type
     // use.
     function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
      ATimeout: Integer = IdTimeoutDefault;
-     ARaiseExceptionOnTimeout: Boolean = True): Integer; virtual;
-     abstract;
+     ARaiseExceptionOnTimeout: Boolean = True): Integer;
+    function ReadDataFromSource(var VBuffer: TIdBytes): Integer; virtual; abstract;
+    function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; virtual; abstract;
+    function SourceIsAvailable: Boolean; virtual; abstract;
   public
     procedure AfterAccept; virtual;
     function Connected: Boolean; virtual;
@@ -506,7 +508,7 @@ type
     class procedure RegisterIOHandler;
     class procedure SetDefaultClass;
     function WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
-      AInclusive: Boolean = False): string;
+      AInclusive: Boolean = False; const AEncoding: TIdEncoding = en7Bit): string;
     // This is different than WriteDirect. WriteDirect goes
     // directly to the network or next level. WriteBuffer allows for buffering
     // using WriteBuffers. This should be the only call to WriteDirect
@@ -515,7 +517,7 @@ type
     procedure Write(ABuffer: TIdBytes); overload; virtual;
     // This is the main write function which all other default implementations
     // use. If default implementations are used, this must be implemented.
-    procedure WriteDirect(var ABuffer: TIdBytes); virtual;
+    procedure WriteDirect(var ABuffer: TIdBytes);
     //
     procedure Open; virtual;
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; virtual;
@@ -531,62 +533,71 @@ type
     //
     // Only the ones that have a hope of being better optimized in descendants
     // have been marked virtual
-    procedure Write(const AOut: string); overload; virtual;
-    procedure WriteLn(const AOut: string = ''); virtual;
-    procedure WriteLnRFC(const AOut: string = ''); virtual;
-    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False); overload; virtual;
-    procedure Write(AValue: Char); overload;
+    procedure Write(const AOut: string; const AEncoding: TIdEncoding = en7Bit); overload; virtual;
+    procedure WriteLn(const AEncoding: TIdEncoding = en7Bit); overload;
+    procedure WriteLn(const AOut: string; const AEncoding: TIdEncoding = en7Bit); overload; virtual;
+    procedure WriteLnRFC(const AOut: string = ''; const AEncoding: TIdEncoding = en7Bit); virtual;
+    procedure Write(AValue: TStrings; AWriteLinesCount: Boolean = False; const AEncoding: TIdEncoding = en7Bit); overload; virtual;
+    procedure Write(AValue: Byte); overload;
+    procedure Write(AValue: Char; const AEncoding: TIdEncoding = en7Bit); overload;
     procedure Write(AValue: LongWord; AConvert: Boolean = True); overload;
     procedure Write(AValue: LongInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: SmallInt; AConvert: Boolean = True); overload;
     procedure Write(AValue: Int64; AConvert: Boolean = True); overload;
     procedure Write(AStream: TStream; ASize: Int64 = 0; AWriteByteCount: Boolean = False); overload; virtual;
-    procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True);
+    procedure WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True; const AEncoding: TIdEncoding = en7Bit);
     // Not overloaded because it does not have a unique type for source
     // and could be easily unresolvable with future additions
     function WriteFile(const AFile: String; AEnableTransferFile: Boolean = False): Int64; virtual;
     //
     // Read methods
     //
-    function AllData: string; virtual;
+    function AllData(const AEncoding: TIdEncoding = en7Bit): string; virtual;
     function InputLn(const AMask: String = ''; AEcho: Boolean = True;
-     ATabWidth: Integer = 8; AMaxLineLength: Integer = -1): String; virtual;
+      ATabWidth: Integer = 8; AMaxLineLength: Integer = -1;
+      const AEncoding: TIdEncoding = en7Bit): String; virtual;
     // Capture
     // Not virtual because each calls PerformCapture which is virtual
-    procedure Capture(ADest: TStream); overload; // .Net overload
+    procedure Capture(ADest: TStream; const AEncoding: TIdEncoding = en7Bit); overload; // .Net overload
     procedure Capture(ADest: TStream; ADelim: string;
-              AIsRFCMessage: Boolean = True); overload;
+              AIsRFCMessage: Boolean = True; const AEncoding: TIdEncoding = en7Bit); overload;
     procedure Capture(ADest: TStream; out VLineCount: Integer;
-              const ADelim: string = '.'; AIsRFCMessage: Boolean = True);
-              overload;
-    procedure Capture(ADest: TStrings); overload; // .Net overload
+              const ADelim: string = '.'; AIsRFCMessage: Boolean = True;
+              const AEncoding: TIdEncoding = en7Bit); overload;
+    procedure Capture(ADest: TStrings; const AEncoding: TIdEncoding = en7Bit); overload; // .Net overload
     procedure Capture(ADest: TStrings; const ADelim: string;
-              AIsRFCMessage: Boolean = True); overload;
+              AIsRFCMessage: Boolean = True; const AEncoding: TIdEncoding = en7Bit); overload;
     procedure Capture(ADest: TStrings; out VLineCount: Integer;
-              const ADelim: string = '.'; AIsRFCMessage: Boolean = True);
-              overload;
+              const ADelim: string = '.'; AIsRFCMessage: Boolean = True;
+	      const AEncoding: TIdEncoding = en7Bit); overload;
     //
     // Read___
     // Cannot overload, compiler cannot overload on return values
     //
     procedure ReadBytes(var VBuffer: TIdBytes; AByteCount: Integer; AAppend:boolean=true); virtual;
     // ReadLn
-    function ReadLn: string; overload; // .Net overload
+    function ReadLn(const AEncoding: TIdEncoding = en7Bit): string; overload; // .Net overload
+    function ReadLn(ATerminator: string; const AEncoding: TIdEncoding): string; overload;
     function ReadLn(ATerminator: string;
              ATimeout: Integer = IdTimeoutDefault;
-             AMaxLineLength: Integer = -1)
+             AMaxLineLength: Integer = -1;
+	     const AEncoding: TIdEncoding = en7Bit)
              : string; overload; virtual;
     //RLebeau: added for RFC 822 retrieves
-    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string = LF; const ADelim: String = '.'): string;
-    function ReadLnWait(AFailCount: Integer = MaxInt): string; virtual;
+    function ReadLnRFC(var VMsgEnd: Boolean; const AEncoding: TIdEncoding = en7Bit): string; overload;
+    function ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string;
+             const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): string; overload;
+    function ReadLnWait(AFailCount: Integer = MaxInt;
+             const AEncoding: TIdEncoding = en7Bit): string; virtual;
     // Added for retrieving lines over 16K long}
     function ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
              ATimeout: Integer = IdTimeoutDefault;
-             AMaxLineLength: Integer = -1): string;
+             AMaxLineLength: Integer = -1;
+	     const AEncoding: TIdEncoding = en7Bit): string;
     // Read - Simple Types
-    function ReadChar: Char;
+    function ReadChar(const AEncoding: TIdEncoding = en7Bit): Char;
     function ReadByte: Byte;
-    function ReadString(ABytes: Integer): string;
+    function ReadString(ABytes: Integer; const AEncoding: TIdEncoding = en7Bit): string;
     function ReadLongWord(AConvert: Boolean = True): LongWord;
     function ReadLongInt(AConvert: Boolean = True): LongInt;
     function ReadInt64(AConvert: Boolean = True): Int64;
@@ -594,7 +605,8 @@ type
     //
     procedure ReadStream(AStream: TStream; AByteCount: Int64 = -1;
      AReadUntilDisconnect: Boolean = False); virtual;
-    procedure ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1);
+    procedure ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1;
+      const AEncoding: TIdEncoding = en7Bit);
     //
     // WriteBuffering Methods
     //
@@ -613,7 +625,7 @@ type
     //
     // These two are direct access and do no reading of connection
     procedure InputBufferToStream(AStream: TStream; AByteCount: Integer = -1);
-    function InputBufferAsString: string;
+    function InputBufferAsString(const AEncoding: TIdEncoding = enDefault): string;
     //
     // Properties
     //
@@ -662,7 +674,7 @@ type
 implementation
 
 uses
-  IdStack, IdResourceStrings, SysUtils;
+  IdStack, IdStackConsts, IdResourceStrings, SysUtils;
 
 var
   GIOHandlerClassDefault: TIdIOHandlerClass = nil;
@@ -824,23 +836,21 @@ begin
   WriteBufferClose;
 end;
 
-procedure TIdIOHandler.Write(const AOut: string);
+procedure TIdIOHandler.Write(const AOut: string; const AEncoding: TIdEncoding = en7Bit);
 begin
   if AOut <> '' then begin
-    Write(ToBytes(AOut));
+    Write(ToBytes(AOut, -1, 1, AEncoding));
   end;
 end;
 
-procedure TIdIOHandler.Write(AValue: Char);
+procedure TIdIOHandler.Write(AValue: Byte);
 begin
   Write(ToBytes(AValue));
-{
-var
-  TempValue: string;
+end;
+
+procedure TIdIOHandler.Write(AValue: Char; const AEncoding: TIdEncoding = en7Bit);
 begin
-  TempValue := AValue;
-  Write(ToBytes(TempValue));
-}
+  Write(ToBytes(AValue, AEncoding));
 end;
 
 procedure TIdIOHandler.Write(AValue: LongWord; AConvert: Boolean = True);
@@ -867,7 +877,8 @@ begin
   Write(ToBytes(AValue));
 end;
 
-procedure TIdIOHandler.Write(AValue: TStrings; AWriteLinesCount: Boolean = False);
+procedure TIdIOHandler.Write(AValue: TStrings; AWriteLinesCount: Boolean = False;
+  const AEncoding: TIdEncoding = en7Bit);
 var
   i: Integer;
 begin
@@ -876,7 +887,7 @@ begin
       Write(AValue.Count);
     end;
     for i := 0 to AValue.Count - 1 do begin
-      WriteLn(AValue.Strings[i]);
+      WriteLn(AValue.Strings[i], AEncoding);
     end;
     // Kudzu: I had an except here and a close, but really even if error we should
     // write out whatever we have. Very doubtful any errors will occur in above
@@ -892,19 +903,20 @@ begin
   Write(ToBytes(AValue));
 end;
 
-function TIdIOHandler.ReadString(ABytes: Integer): string;
+function TIdIOHandler.ReadString(ABytes: Integer; const AEncoding: TIdEncoding = en7Bit): string;
 var
   LBytes: TIdBytes;
 begin
   if ABytes > 0 then begin
     ReadBytes(LBytes, ABytes, False);
-    Result := BytesToString(LBytes);
+    Result := BytesToString(LBytes, 0, ABytes, AEncoding);
   end else begin
     Result := ''
   end;
 end;
 
-procedure TIdIOHandler.ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1);
+procedure TIdIOHandler.ReadStrings(ADest: TStrings; AReadLinesCount: Integer = -1;
+  const AEncoding: TIdEncoding = en7Bit);
 var
   i: Integer;
 begin
@@ -912,7 +924,7 @@ begin
     AReadLinesCount := ReadLongInt;
   end;
   for i := 0 to AReadLinesCount - 1 do begin
-    ADest.Add(ReadLn);
+    ADest.Add(ReadLn(AEncoding));
   end;
 end;
 
@@ -927,12 +939,38 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadChar: Char;
+function TIdIOHandler.ReadChar(const AEncoding: TIdEncoding = en7Bit): Char;
 var
   LBytes: TIdBytes;
+  LCh: WideChar;
+  Temp: String;
 begin
+  {
   ReadBytes(LBytes, 1, False);
-  Result := BytesToChar(LBytes);
+  Result := BytesToChar(LBytes, 0, 1, AEncoding);
+  }
+  EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
+  ReadBytes(LBytes, 1, False);
+
+  if AEncoding <> enUTF8 then
+  begin
+    // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
+    // With MBCS we still map 1:1
+    Result := Char(LBytes[0]);
+    Exit;
+  end;
+
+  with GetUTF8Decoder do
+  try
+    while not ProcessByte(LBytes[0], LCh) do begin
+      ReadBytes(LBytes, 1, False);
+    end;
+  finally
+    Free;
+  end;
+
+  Temp := LCh;
+  Result := Temp[1];
 end;
 
 function TIdIOHandler.ReadByte: Byte;
@@ -976,18 +1014,25 @@ begin
   end;
 end;
 
-function TIdIOHandler.ReadLn: string;
+function TIdIOHandler.ReadLn(const AEncoding: TIdEncoding = en7Bit): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := ReadLn(LF);
+  Result := ReadLn(LF, IdTimeoutDefault, -1, AEncoding);
+end;
+
+function TIdIOHandler.ReadLn(ATerminator: string; const AEncoding: TIdEncoding): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  Result := ReadLn(ATerminator, IdTimeoutDefault, -1, AEncoding);
 end;
 
 function TIdIOHandler.ReadLn(ATerminator: string; ATimeout: Integer = IdTimeoutDefault;
-  AMaxLineLength: Integer = -1): string;
+  AMaxLineLength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): string;
 var
   LInputBufferSize: Integer;
   LSize: Integer;
   LTermPos: Integer;
-  LReadLnStartTime: Cardinal;
+  LReadLnStartTime: LongWord;
 begin
   if AMaxLineLength < 0 then begin
     AMaxLineLength := MaxLineLength;
@@ -1005,7 +1050,7 @@ begin
     LInputBufferSize := FInputBuffer.Size;
     if LInputBufferSize > 0 then begin
       if LSize < LInputBufferSize then begin
-        LTermPos := FInputBuffer.IndexOf(ATerminator, LSize);
+        LTermPos := FInputBuffer.IndexOf(ATerminator, LSize, AEncoding);
       end else begin
         LTermPos := -1;
       end;
@@ -1014,14 +1059,14 @@ begin
     if (AMaxLineLength > 0) and (LTermPos > AMaxLineLength) then begin
       EIdReadLnMaxLineLengthExceeded.IfTrue(MaxLineAction = maException, RSReadLnMaxLineLengthExceeded);
       FReadLnSplit := True;
-      Result := FInputBuffer.Extract(AMaxLineLength);
+      Result := FInputBuffer.Extract(AMaxLineLength, AEncoding);
       Exit;
     // ReadFromSource blocks - do not call unless we need to
     end else if LTermPos = -1 then begin
       if (AMaxLineLength > 0) and (LSize > AMaxLineLength) then begin
         EIdReadLnMaxLineLengthExceeded.IfTrue(MaxLineAction = maException, RSReadLnMaxLineLengthExceeded);
         FReadLnSplit := True;
-        Result := FInputBuffer.Extract(AMaxLineLength);
+        Result := FInputBuffer.Extract(AMaxLineLength, AEncoding);
         Exit;
       end;
       // ReadLn needs to call this as data may exist in the buffer, but no EOL yet disconnected
@@ -1029,7 +1074,7 @@ begin
       // Can only return -1 if timeout
       FReadLnTimedOut := ReadFromSource(True, ATimeout, False) = -1;
       if (not FReadLnTimedOut) and (ATimeout >= 0) then begin
-        if GetTickDiff(LReadLnStartTime, Ticks) >= Cardinal(ATimeout) then begin
+        if GetTickDiff(LReadLnStartTime, Ticks) >= LongWord(ATimeout) then begin
           FReadLnTimedOut := True;
         end;
       end;
@@ -1040,7 +1085,7 @@ begin
     end;
   until LTermPos > -1;
   // Extract actual data
-  Result := FInputBuffer.Extract(LTermPos + Length(ATerminator));
+  Result := FInputBuffer.Extract(LTermPos + Length(ATerminator), AEncoding);
   if (ATerminator = LF) and (LTermPos > 0) then begin
     if Result[LTermPos] = CR then begin
       Dec(LTermPos);
@@ -1049,50 +1094,140 @@ begin
   SetLength(Result, LTermPos);
 end;
 
-function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string = LF; const ADelim: String = '.'): string;
+function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean;
+  const AEncoding: TIdEncoding = en7Bit): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := ReadLn(ALineTerminator);
+  Result := ReadLnRFC(VMsgEnd, LF, '.', AEncoding); {do not localize}
+end;
+
+function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean; const ALineTerminator: string;
+  const ADelim: String = '.'; const AEncoding: TIdEncoding = en7Bit): string;
+begin
+  Result := ReadLn(ALineTerminator, AEncoding);
   // Do not use ATerminator since always ends with . (standard)
   if Result = ADelim then
   begin
     VMsgEnd := True;
     Exit;
   end;
-  if (Result <> '') and (Result[1] = '.') then begin {do not localize}
+  if TextStartsWith(Result, '.') then begin {do not localize}
     Delete(Result, 1, 1);
   end;
   VMsgEnd := False;
 end;
 
-function TIdIOHandler.ReadLnSplit(
-  var AWasSplit: Boolean;
-  ATerminator: string = LF;
-  ATimeout: Integer = IdTimeoutDefault;
-  AMaxLineLength: Integer = -1)
-  : string;
+function TIdIOHandler.ReadLnSplit(var AWasSplit: Boolean; ATerminator: string = LF;
+  ATimeout: Integer = IdTimeoutDefault; AMaxLineLength: Integer = -1;
+  const AEncoding: TIdEncoding = en7Bit): string;
 var
   FOldAction: TIdMaxLineAction;
 begin
   FOldAction := MaxLineAction;
   MaxLineAction := maSplit;
   try
-    Result := ReadLn(ATerminator, ATimeout, AMaxLineLength);
+    Result := ReadLn(ATerminator, ATimeout, AMaxLineLength, AEncoding);
     AWasSplit := FReadLnSplit;
   finally
     MaxLineAction := FOldAction;
   end;
 end;
 
-function TIdIOHandler.ReadLnWait(AFailCount: Integer = MaxInt): string;
+function TIdIOHandler.ReadLnWait(AFailCount: Integer = MaxInt;
+  const AEncoding: TIdEncoding = en7Bit): string;
 var
   LAttempts: Integer;
 begin
 // MtW: this is mostly used when empty lines could be send.
   Result := '';
   LAttempts := 0;
-  while (Length(Result) = 0) and (LAttempts < AFailCount) do begin
+  while (Length(Result) = 0) and (LAttempts < AFailCount) do
+  begin
     Inc(LAttempts);
-    Result := Trim(ReadLn);
+    Result := Trim(ReadLn(AEncoding));
+  end;
+end;
+
+function TIdIOHandler.ReadFromSource(ARaiseExceptionIfDisconnected: Boolean;
+  ATimeout: Integer; ARaiseExceptionOnTimeout: Boolean): Integer;
+var
+  LByteCount: Integer;
+  LLastError: Integer;
+  LBuffer: TIdBytes;
+begin
+  if ATimeout = IdTimeoutDefault then begin
+    // MtW: check for 0 too, for compatibility
+    if (ReadTimeout = IdTimeoutDefault) or (ReadTimeout = 0) then begin
+      ATimeout := IdTimeoutInfinite;
+    end else begin
+      ATimeout := ReadTimeout;
+    end;
+  end;
+  Result := 0;
+  // Check here as this side may have closed the socket
+  CheckForDisconnect(ARaiseExceptionIfDisconnected);
+  if SourceIsAvailable then begin
+    LByteCount := 0;
+    repeat
+      if Readable(ATimeout) then begin
+        if Opened then begin
+          // No need to call AntiFreeze, the Readable does that.
+          if SourceIsAvailable then begin
+            // TODO: Whey are we reallocating LBuffer every time? This should
+            // be a one time operation per connection.
+            SetLength(LBuffer, RecvBufferSize); try
+              LByteCount := ReadDataFromSource(LBuffer);
+              if LByteCount > 0 then begin
+                SetLength(LBuffer, LByteCount);
+                if Intercept <> nil then begin
+                  Intercept.Receive(LBuffer);
+                  LByteCount := Length(LBuffer);
+                end;
+    //AsciiFilter - needs to go in TIdIOHandler base class
+    //            if ASCIIFilter then begin
+    //              for i := 1 to IOHandler.RecvBuffer.Size do begin
+    //                PChar(IOHandler.RecvBuffer.Memory)[i] := Chr(Ord(PChar(IOHandler.RecvBuffer.Memory)[i]) and $7F);
+    //              end;
+    //            end;
+                // Pass through LBuffer first so it can go through Intercept
+                //TODO: If not intercept, we can skip this step
+                InputBuffer.Write(LBuffer);
+              end;
+            finally LBuffer := nil; end;
+          end else begin
+            EIdClosedSocket.Toss(RSStatusDisconnected);
+          end;
+        end else begin
+          LByteCount := 0;
+          EIdNotConnected.IfTrue(ARaiseExceptionIfDisconnected, RSNotConnected);
+        end;
+        if LByteCount < 0 then
+        begin
+          LLastError := GStack.CheckForSocketError(Result, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
+          FClosedGracefully := True;
+          Close;
+          // Do not raise unless all data has been read by the user
+          if InputBufferIsEmpty then begin
+            GStack.RaiseSocketError(LLastError);
+          end;
+          LByteCount := 0;
+        end;
+        if LByteCount = 0 then begin
+          FClosedGracefully := True;
+        end;
+        // Check here as other side may have closed connection
+        CheckForDisconnect(ARaiseExceptionIfDisconnected);
+        Result := LByteCount;
+      end else begin
+        // Timeout
+        EIdReadTimeout.IfTrue(ARaiseExceptionOnTimeout, RSReadTimeout);
+        Result := -1;
+        Break;
+      end;
+    until (LByteCount <> 0) or (not SourceIsAvailable);
+  end
+  else if ARaiseExceptionIfDisconnected then begin
+    raise EIdException.Create(RSNotConnected);
   end;
 end;
 
@@ -1150,7 +1285,7 @@ begin
       end;
       SetLength(LBuffer, LBufSize);
       Write(LBuffer);
-      // RLebeau: DoWork() is called in TIdIOHandlerStack.WriteDirect()
+      // RLebeau: DoWork() is called in WriteDirect()
       //DoWork(wmWrite, LBufSize);
       Dec(ASize, LBufSize);
     end;
@@ -1177,18 +1312,24 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.WriteLn(const AOut: string);
+procedure TIdIOHandler.WriteLn(const AEncoding: TIdEncoding = en7Bit);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  // Do as one write so it only makes one call to network
-  Write(AOut + EOL);
+  WriteLn('', AEncoding);
 end;
 
-procedure TIdIOHandler.WriteLnRFC(const AOut: string);
+procedure TIdIOHandler.WriteLn(const AOut: string; const AEncoding: TIdEncoding = en7Bit);
+begin
+  // Do as one write so it only makes one call to network
+  Write(AOut + EOL, AEncoding);
+end;
+
+procedure TIdIOHandler.WriteLnRFC(const AOut: string = ''; const AEncoding: TIdEncoding = en7Bit);
 begin
   if TextStartsWith(AOut, '.') then begin {do not localize}
-    WriteLn('.' + AOut); {do not localize}
+    WriteLn('.' + AOut, AEncoding); {do not localize}
   end else begin
-    WriteLn(AOut);
+    WriteLn(AOut, AEncoding);
   end;
 end;
 
@@ -1354,18 +1495,20 @@ begin
   raise EIdConnClosedGracefully.Create(RSConnectionClosedGracefully);
 end;
 
-function TIdIOHandler.InputBufferAsString: string;
+function TIdIOHandler.InputBufferAsString(const AEncoding: TIdEncoding = enDefault): string;
 begin
-  Result := FInputBuffer.Extract(FInputBuffer.Size);
+  Result := FInputBuffer.Extract(FInputBuffer.Size, AEncoding);
 end;
 
-function TIdIOHandler.AllData: string;
+function TIdIOHandler.AllData(const AEncoding: TIdEncoding = en7Bit): string;
 var
   LBytes: Integer;
 begin
   Result := '';
-  BeginWork(wmRead); try
-    if Connected then begin
+  BeginWork(wmRead);
+  try
+    if Connected then
+    begin
       try
         try
           repeat
@@ -1373,17 +1516,19 @@ begin
           until LBytes = 0; // -1 on timeout
         finally
           if not InputBufferIsEmpty then begin
-            Result := InputBufferAsString;
+            Result := InputBufferAsString(AEncoding);
           end;
         end;
       except end;
     end;
-  finally EndWork(wmRead); end;
+  finally
+    EndWork(wmRead);
+  end;
 end;
 
 procedure TIdIOHandler.PerformCapture(const ADest: TObject;
   out VLineCount: Integer; const ADelim: string;
-  AIsRFCMessage: Boolean);
+  AIsRFCMessage: Boolean; const AEncoding: TIdEncoding = en7Bit);
 var
   s: string;
   LStream: TStream;
@@ -1404,7 +1549,7 @@ begin
 
   BeginWork(wmRead); try
     repeat
-      s := ReadLn;
+      s := ReadLn(AEncoding);
       if s = ADelim then begin
         Exit;
       end;
@@ -1426,14 +1571,14 @@ begin
       if LStrings <> nil then begin
         LStrings.Add(s);
       end else if LStream <> nil then begin
-        WriteStringToStream(LStream, s+EOL);
+        WriteStringToStream(LStream, s+EOL, AEncoding);
       end;
     until False;
   finally EndWork(wmRead); end;
 end;
 
-function TIdIOHandler.InputLn(const AMask: String; AEcho: Boolean;
-  ATabWidth, AMaxLineLength: Integer): String;
+function TIdIOHandler.InputLn(const AMask: String = ''; AEcho: Boolean = True;
+  ATabWidth: Integer = 8; AMaxLineLength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): String;
 var
   i: Integer;
   LChar: Char;
@@ -1444,7 +1589,7 @@ begin
   end;
   Result := '';
   repeat
-    LChar := ReadChar;
+    LChar := ReadChar(AEncoding);
     i := Length(Result);
     if i <= AMaxLineLength then begin
       case LChar of
@@ -1453,7 +1598,7 @@ begin
             if i > 0 then begin
               SetLength(Result, i - 1);
               if AEcho then begin
-                Write(BACKSPACE + ' ' + BACKSPACE);
+                Write(BACKSPACE + ' ' + BACKSPACE, AEncoding);
               end;
             end;
           end;
@@ -1464,12 +1609,12 @@ begin
               LTmp := StringOfChar(' ', i);
               Result := Result + LTmp;
               if AEcho then begin
-                Write(LTmp);
+                Write(LTmp, AEncoding);
               end;
             end else begin
               Result := Result + LChar;
               if AEcho then begin
-                Write(LChar);
+                Write(LChar, AEncoding);
               end;
             end;
           end;
@@ -1480,9 +1625,9 @@ begin
         Result := Result + LChar;
         if AEcho then begin
           if Length(AMask) = 0 then begin
-            Write(LChar);
+            Write(LChar, AEncoding);
           end else begin
-            Write(AMask);
+            Write(AMask, AEncoding);
           end;
         end;
       end;
@@ -1490,17 +1635,17 @@ begin
   until LChar = LF;
   // Remove CR trail
   i := Length(Result);
-  while (i > 0) and ((Result[i] = CR) or (Result[1] = LF)) do begin
+  while (i > 0) and CharIsInSet(Result, i, EOL) do begin
     Dec(i);
   end;
   SetLength(Result, i);
   if AEcho then begin
-    WriteLn;
+    WriteLn(AEncoding);
   end;
 end;
 
 function TIdIOHandler.WaitFor(const AString: string; ARemoveFromBuffer: Boolean = True;
-  AInclusive: Boolean = False): string;
+  AInclusive: Boolean = False; const AEncoding: TIdEncoding = en7Bit): string;
   //TODO: Add a time out (default to infinite) and event to pass data
   //TODO: Add a max size argument as well.
   //TODO: Add a case insensitive option
@@ -1509,19 +1654,19 @@ var
   LPos: Integer;
 begin
   Result := '';
-  LBytes := ToBytes(AString);
+  LBytes := ToBytes(AString, AEncoding);
   LPos := 0;
   repeat
     CheckForDataOnSource(250);
     LPos := InputBuffer.IndexOf(LBytes, LPos);
     if LPos <> -1 then begin
       if ARemoveFromBuffer and AInclusive then begin
-        Result := InputBuffer.Extract(LPos+Length(LBytes));
+        Result := InputBuffer.Extract(LPos+Length(LBytes), AEncoding);
       end else begin
         if AInclusive then begin
-          Result := InputBuffer.Extract(LPos) + AString;
+          Result := InputBuffer.Extract(LPos, AEncoding) + AString;
         end else begin
-          Result := InputBuffer.Extract(LPos);
+          Result := InputBuffer.Extract(LPos, AEncoding);
         end;
         if ARemoveFromBuffer then begin
           InputBuffer.Remove(Length(LBytes));
@@ -1534,32 +1679,46 @@ begin
   until False;
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream; out VLineCount: Integer;
-  const ADelim: string; AIsRFCMessage: Boolean);
+procedure TIdIOHandler.Capture(ADest: TStream; const AEncoding: TIdEncoding = en7Bit);
 begin
-  PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage);
+  Capture(ADest, '.', True, AEncoding); {do not localize}
+end;
+
+procedure TIdIOHandler.Capture(ADest: TStream; out VLineCount: Integer;
+  const ADelim: string = '.'; AIsRFCMessage: Boolean = True;
+  const AEncoding: TIdEncoding = en7Bit);
+begin
+  PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage, AEncoding);
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStream; ADelim: string;
-  AIsRFCMessage: Boolean);
+  AIsRFCMessage: Boolean = True; const AEncoding: TIdEncoding = en7Bit);
 var
   LLineCount: Integer;
 begin
-  PerformCapture(ADest, LLineCount, ADelim, AIsRFCMessage);
+  PerformCapture(ADest, LLineCount, '.', AIsRFCMessage, AEncoding); {do not localize}
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStrings; out VLineCount: Integer;
-  const ADelim: string; AIsRFCMessage: Boolean);
+  const ADelim: string = '.'; AIsRFCMessage: Boolean = True;
+  const AEncoding: TIdEncoding = en7Bit);
 begin
-  PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage);
+  PerformCapture(ADest, VLineCount, ADelim, AIsRFCMessage, AEncoding);
+end;
+
+procedure TIdIOHandler.Capture(ADest: TStrings; const AEncoding: TIdEncoding = en7Bit);
+var
+  LLineCount: Integer; 
+begin
+  PerformCapture(ADest, LLineCount, '.', True, AEncoding); {do not localize}
 end;
 
 procedure TIdIOHandler.Capture(ADest: TStrings; const ADelim: string;
-  AIsRFCMessage: Boolean);
+  AIsRFCMessage: Boolean = True; const AEncoding: TIdEncoding = en7Bit);
 var
   LLineCount: Integer;
 begin
-  PerformCapture(ADest, LLineCount, ADelim, AIsRFCMessage);
+  PerformCapture(ADest, LLineCount, ADelim, AIsRFCMessage, AEncoding);
 end;
 
 procedure TIdIOHandler.InputBufferToStream(AStream: TStream; AByteCount: Integer = -1);
@@ -1589,15 +1748,16 @@ begin
   end;
 end;
 
-procedure TIdIOHandler.WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True);
+procedure TIdIOHandler.WriteRFCStrings(AStrings: TStrings; AWriteTerminator: Boolean = True;
+  const AEncoding: TIdEncoding = en7Bit);
 var
   i: Integer;
 begin
   for i := 0 to AStrings.Count - 1 do begin
-    WriteLnRFC(AStrings[i]);
+    WriteLnRFC(AStrings[i], AEncoding);
   end;
   if AWriteTerminator then begin
-    WriteLn('.');
+    WriteLn('.', AEncoding);
   end;
 end;
 
@@ -1647,20 +1807,6 @@ begin
   FInputBuffer := TIdBuffer.Create(BufferRemoveNotify);
 end;
 
-procedure TIdIOHandler.Capture(ADest: TStream);
-var
-  LLineCount: Integer;
-begin
-  PerformCapture(ADest, LLineCount, '.', True);
-end;
-
-procedure TIdIOHandler.Capture(ADest: TStrings);
-var
-  LLineCount: Integer;
-begin
-  PerformCapture(ADest, LLineCount, '.', True);
-end;
-
 procedure TIdIOHandler.WriteBufferFlush;
 begin
   WriteBufferFlush(-1);
@@ -1671,13 +1817,40 @@ begin
   WriteBufferOpen(-1);
 end;
 
-procedure TIdIOHandler.WriteDirect(var aBuffer: TIdBytes);
+procedure TIdIOHandler.WriteDirect(var ABuffer: TIdBytes);
+var
+  LCount: Integer;
+  LPos: Integer;
+  LSize: Integer;
+  LLastError: Integer;
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
   if Intercept <> nil then begin
     Intercept.Send(ABuffer);
   end;
+  LSize := Length(ABuffer);
+  LPos := 0;
+  repeat
+    LCount := WriteDataToTarget(ABuffer, LPos, LSize - LPos);
+    if LCount < 0 then
+    begin
+      LLastError := GStack.CheckForSocketError(LCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
+      FClosedGracefully := True;
+      Close;
+      GStack.RaiseSocketError(LLastError);
+    end;
+    // TODO - Have a AntiFreeze param which allows the send to be split up so that process
+    // can be called more. Maybe a prop of the connection, MaxSendSize?
+    TIdAntiFreezeBase.DoProcess(False);
+    if LCount = 0 then begin
+      FClosedGracefully := True;
+    end;
+    // Check if other side disconnected
+    CheckForDisconnect;
+    DoWork(wmWrite, LCount);
+    Inc(LPos, LCount);
+  until LPos >= LSize;
 end;
 
 initialization
