@@ -1015,13 +1015,13 @@ begin
 end;
 
 function TIdIOHandler.ReadLn(const AEncoding: TIdEncoding = en7Bit): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+
 begin
   Result := ReadLn(LF, IdTimeoutDefault, -1, AEncoding);
 end;
 
 function TIdIOHandler.ReadLn(ATerminator: string; const AEncoding: TIdEncoding): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
+
 begin
   Result := ReadLn(ATerminator, IdTimeoutDefault, -1, AEncoding);
 end;
@@ -1096,7 +1096,6 @@ end;
 
 function TIdIOHandler.ReadLnRFC(var VMsgEnd: Boolean;
   const AEncoding: TIdEncoding = en7Bit): string;
-{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := ReadLnRFC(VMsgEnd, LF, '.', AEncoding); {do not localize}
 end;
@@ -1313,7 +1312,6 @@ begin
 end;
 
 procedure TIdIOHandler.WriteLn(const AEncoding: TIdEncoding = en7Bit);
-{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   WriteLn('', AEncoding);
 end;
