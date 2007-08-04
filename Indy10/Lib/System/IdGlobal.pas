@@ -1003,7 +1003,8 @@ function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; co
 {$ELSE}
 function ReadTIdBytesFromStream(const AStream: TStream; var ABytes: TIdBytes; const Count: Integer): Integer;
 {$ENDIF}
-procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1);
+procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes;
+  const ASize: Integer = -1; const AIndex: Integer = 0);
 
 function ByteToHex(const AByte: Byte): string;
 function ByteToOctal(const AByte: Byte): string;
@@ -4144,10 +4145,11 @@ begin
   Result := NumRead;
 end;
 
-procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes; const ASize: Integer = -1);
+procedure WriteTIdBytesToStream(const AStream: TStream; const ABytes: TIdBytes;
+  const ASize: Integer = -1; const AIndex: Integer = 0);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  TIdStreamHelper.Write(AStream, ABytes, ASize);
+  TIdStreamHelper.Write(AStream, ABytes, ASize, AIndex);
 end;
 
 procedure WriteStringToStream(AStream: TStream; const AStr: string;
