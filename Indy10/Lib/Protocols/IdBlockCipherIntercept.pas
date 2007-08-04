@@ -39,6 +39,7 @@ unit IdBlockCipherIntercept;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -109,6 +110,8 @@ var
   LCount, LMaxDataSize: Integer;
   LCompleteBlocks, LRemaining: Integer;
 Begin
+  LSrc := nil; // keep the compiler happy
+
   if Length(VBuffer) = 0 then begin
     Exit;
   end;
