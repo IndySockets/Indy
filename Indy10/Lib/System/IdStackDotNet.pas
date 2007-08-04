@@ -204,8 +204,9 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
     [ThreadStatic]
-    LastSocketError: Integer; static;
-
+    LastSocketError: Integer; //static;
+    constructor Create; override;
+    destructor Destroy; override;
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -267,6 +268,9 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
+var
+ GDotNETStack : TIdStackDotNet = nil;
+
 implementation
 
 uses
@@ -291,6 +295,18 @@ begin
   end else begin
     Result := EIdWrapperException.Create(AException.Message, AException);
   end;
+end;
+
+constructor TIdStackDotNet.Create;
+begin
+  inherited Create;
+  GDotNETStack := Self;
+end;
+
+destructor TIdStackDotNet.Destroy; 
+begin
+  GDotNETStack := nil;
+  inherited Destroy;
 end;
 
 procedure TIdStackDotNet.Bind(ASocket: TIdStackSocketHandle; const AIP: string;
@@ -494,7 +510,7 @@ end;
 function TIdStackDotNet.WSGetLastError: Integer;
 begin
   Result := LastSocketError;
-end
+end;
 
 function TIdStackDotNet.NewSocketHandle(const ASocketType: TIdSocketType;
   const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
@@ -652,7 +668,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      raise BuildException( GDotNETStack , e);
     end;
   end;
 end;
@@ -683,7 +699,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(Self, e);
+      raise BuildException(GDotNETStack, e);
     end;
   end;
 end;
@@ -709,7 +725,7 @@ begin
       Result := False;
     end;
     on e: Exception do begin
-      raise BuildException(Self, e);
+      raise BuildException(GDotNETStack, e);
     end;
   end;
 end;
