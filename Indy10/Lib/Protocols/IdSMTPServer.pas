@@ -50,6 +50,7 @@
 unit IdSMTPServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -150,7 +151,7 @@ type
     function CreateGreeting: TIdReply; override;
     function CreateReplyUnknownCommand: TIdReply; override;
     //
-    function DoAuthLogin(ASender: TIdCommand; const Login: string): Boolean;
+    procedure DoAuthLogin(ASender: TIdCommand; const Login: string);
     //
     //command handlers
     procedure CommandNOOP(ASender: TIdCommand);
@@ -211,8 +212,7 @@ type
     //
     procedure DoReset(AContext: TIdSMTPServerContext; AIsTLSReset: Boolean = False);
     procedure SetMaxMsgSize(AValue: Integer);
-    function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
-      const ACmd, ADomain, AIdentity: String): Boolean;
+    function SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply; const ACmd, ADomain, AIdentity: String): Boolean;
   published
     //events
     property OnMailFrom : TOnMailFromEvent read FOnMailFrom write FOnMailFrom;
@@ -272,7 +272,7 @@ type
   end;
 
 const
-  IdSMTPSvrReceivedString = 'Received: from $hostname[$ipaddress] (helo=$helo) by $svrhostname[$svripaddress] with $protocol ($servername)'; {do not localize}
+ IdSMTPSvrReceivedString = 'Received: from $hostname[$ipaddress] (helo=$helo) by $svrhostname[$svripaddress] with $protocol ($servername)'; {do not localize}
 
 implementation
 
@@ -378,7 +378,7 @@ end;
 
 procedure TIdSMTPServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   FContextClass := TIdSMTPServerContext;
   HelpReply.Code := ''; //we will handle the help ourselves
   FRegularProtPort := IdPORT_SMTP;
@@ -519,7 +519,7 @@ begin
   end;
 end;
 
-function TIdSMTPServer.DoAuthLogin(ASender: TIdCommand; const Login: string): Boolean;
+procedure TIdSMTPServer.DoAuthLogin(ASender: TIdCommand; const Login: string);
 var
   S: string;
   LUsername, LPassword: string;
@@ -530,7 +530,6 @@ var
   LDecoder: TIdDecoderMIME;
 begin
   LContext := TIdSMTPServerContext(ASender.Context);
-  Result := False;
   LAuthFailed := False;
   LContext.PipeLining := False;
   if TextIsSame(Login, 'LOGIN') then begin   {Do not Localize}
@@ -575,25 +574,20 @@ begin
 
   // Add other login units here
 
-  if LAuthFailed then begin
-    Result := False;
-    AuthFailed(ASender);
-  end else begin
-    LAccepted := False;
-    if Assigned(FOnUserLogin) then begin
+  if not LAuthFailed then begin
+    LAccepted := not Assigned(FOnUserLogin);
+    if not LAccepted then begin
       FOnUserLogin(LContext, LUsername, LPassword, LAccepted);
-    end else begin
-      LAccepted := True;
     end;
     LContext.LoggedIn := LAccepted;
     LContext.Username := LUsername;
-    if not LAccepted then begin
-      AuthFailed(ASender);
-    end else begin
+    if LAccepted then begin
       SetEnhReply(ASender.Reply, 235, Id_EHR_SEC_OTHER_OK, ' welcome ' + Trim(LUsername), LContext.EHLO);    {Do not Localize}
       ASender.SendReply;
+      Exit;
     end;
   end;
+  AuthFailed(ASender);
 end;
 
 procedure TIdSMTPServer.SetEnhReply(AReply: TIdReply; const ANumericCode: Integer;
@@ -634,7 +628,7 @@ end;
 
 procedure TIdSMTPServer.AddrValid(ASender: TIdCommand; const AAddress : String = '');
 begin
-  SetEnhReply(ASender.Reply,250, Id_EHR_MSG_VALID_DEST,IndyFormat(RSSMTPSvrAddressOk, [AAddress]),
+  SetEnhReply(ASender.Reply, 250, Id_EHR_MSG_VALID_DEST, IndyFormat(RSSMTPSvrAddressOk, [AAddress]),
     TIdSMTPServerContext(ASender.Context).EHLO);
 end;
 
@@ -769,7 +763,7 @@ begin
               LM := mLimitExceeded;
             end else begin
               if Assigned(FOnMailFrom) then begin
-                FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
+              FOnMailFrom(LContext, EMailAddress.Address, LParams, LM);
               end;
             end;
           finally
@@ -1063,10 +1057,9 @@ begin
         // RLebeau: verify the message size now
         if (FMaxMsgSize > 0) and (AMsg.Size > FMaxMsgSize) then begin
           LAction := dLimitExceeded;
-        end else begin
-          if Assigned(FOnMsgReceive) then begin
-            FOnMsgReceive(LContext, AMsg, LAction);
-          end;
+        end
+        else if Assigned(FOnMsgReceive) then begin
+          FOnMsgReceive(LContext, AMsg, LAction);
         end;
       finally
         FreeAndNil(AMsg);
@@ -1075,12 +1068,12 @@ begin
       FreeAndNil(LStream);
     end;
     case LAction of
-      dOk                   : MailSubmitOk(ASender); //accept the mail message
-      dMBFull               : MailSubmitStorageExceededFull(ASender); //Mail box full
-      dSystemFull           : MailSubmitSystemFull(ASender); //no more space on server
-      dLocalProcessingError : MailSubmitLocalProcessingError(ASender); //local processing error
-      dTransactionFailed    : MailSubmitTransactionFailed(ASender); //transaction failed
-      dLimitExceeded        : MailSubmitLimitExceeded(ASender); //exceeded administrative limit
+    dOk                   : MailSubmitOk(ASender); //accept the mail message
+    dMBFull               : MailSubmitStorageExceededFull(ASender); //Mail box full
+    dSystemFull           : MailSubmitSystemFull(ASender); //no more space on server
+    dLocalProcessingError : MailSubmitLocalProcessingError(ASender); //local processing error
+    dTransactionFailed    : MailSubmitTransactionFailed(ASender); //transaction failed
+    dLimitExceeded        : MailSubmitLimitExceeded(ASender); //exceeded administrative limit
     end;
   end else begin // No EHLO / HELO was received
     NoHello(ASender);
@@ -1098,8 +1091,7 @@ end;
 
 procedure TIdSMTPServer.SetMaxMsgSize(AValue: Integer);
 begin
-  if AValue < 0 then AValue := 0;
-  FMaxMsgSize := AValue;
+  FMaxMsgSize := Max(AValue, 0);
 end;
 
 function TIdSMTPServer.SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
@@ -1107,21 +1099,22 @@ function TIdSMTPServer.SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdRepl
 var
   LAction: TIdSPFReply;
 begin
+  Result := False;
   LAction := spfNeutral;
   if Assigned(FOnSPFCheck) then begin
     FOnSPFCheck(AContext, AContext.Binding.PeerIP, ADomain, AIdentity, LAction);
   end;
   case LAction of
     spfNone, spfNeutral, spfPass, spfSoftFail:
-      Result := True; // let the caller handle the reply as needed
-    else
+      // let the caller handle the reply as needed
+      Result := True;
+    spfFail:
     begin
-      if LAction = spfFail then begin
-        SetEnhReply(AReply, 550, '5.7.1', IndyFormat(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
-      end else begin
-        SetEnhReply(AReply, 451, '4.4.3', IndyFormat(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
-      end;
-      Result := False;
+      SetEnhReply(AReply, 550, '5.7.1', IndyFormat(RSSMTPSvrSPFCheckFailed, [ACmd]), AContext.EHLO); {do not localize}
+    end;
+    spfTempError, spfPermError:
+    begin
+      SetEnhReply(AReply, 451, '4.4.3', IndyFormat(RSSMTPSvrSPFCheckError, [ACmd]), AContext.EHLO); {do not localize}
     end;
   end;
 end;
@@ -1136,9 +1129,9 @@ begin
 end;
 
 constructor TIdSMTPServerContext.Create(AConnection: TIdTCPConnection;
-  AYarn: TIdYarn; AList: TThreadList);
+  AYarn: TIdYarn; AList: TThreadList = nil);
 begin
-  inherited;
+  inherited Create(AConnection, AYarn, AList);
   SMTPState := idSMTPNone;
   From := '';
   HELO := False;
@@ -1152,7 +1145,7 @@ end;
 destructor TIdSMTPServerContext.Destroy;
 begin
   FreeAndNil(FRCPTList);
-  inherited;
+  inherited Destroy;
 end;
 
 function TIdSMTPServerContext.GetUsingTLS: Boolean;
