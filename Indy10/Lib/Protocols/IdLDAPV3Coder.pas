@@ -24,6 +24,8 @@ unit IdLDAPV3Coder;
 
 interface
 
+{$i IdCompilerDefines.inc}
+
 uses
   IdASN1Coder,
   IdLdapV3;
@@ -69,7 +71,6 @@ type
     procedure Produce(oMessage : TIdLDAPV3Message); Overload; Virtual;
   end;
 
-type
   TIdLDAPV3Decoder = Class (TIdASN1Decoder)
   private
     procedure ReadFilter(oFilter : TIdLDAPV3Filter);
@@ -93,7 +94,6 @@ type
   public
     procedure ReadMessage(oMessage : TIdLDAPV3Message); Overload; Virtual;
   end;
-
 
 implementation
 
