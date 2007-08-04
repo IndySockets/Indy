@@ -98,7 +98,8 @@ uses
   IdMessage,
   IdException,
   IdAttachment,
-  IdAttachmentFile;
+  IdAttachmentFile,
+  SysUtils;
 
 type
   TIdCoderTNEF = class(TObject)
@@ -109,8 +110,11 @@ type
     FLog: string;           //The (optional) debugging log goes here
     FDoLogging: Boolean;    //Should we be doing the optional logging?
     FMsg: TIdMessage;       //The destination for our extracted attachments
-    FCurrentAttachment: TIdAttachmentFile;  //Attachment we are currently decoding into
+    FCurrentAttachment: TIdAttachment;  //Attachment we are currently decoding into
     FReceiptRequested: Boolean;  //Need to cache this because receipt flag may precede sender address
+    //
+    procedure DoLog(const AMsg: String; const AAppendSize: Boolean = True);
+    procedure DoLogFmt(const AFormat: string; const Args: array of const; AAppendSize: Boolean = True);
     //Low-level utility functions:
     function  GetMultipleUnicodeOrString8String(AType: Word): WideString;
     function  GetUnicodeOrString8String(AType: Word): WideString;
@@ -127,7 +131,7 @@ type
     procedure Skip(ACount: integer);
     procedure CheckForEof(ANumBytesRequested: integer);
     procedure Checksum(ANumBytesToCheck: integer);
-    function  PadWithZeroes(AStr: string; ACount: integer): string;
+    function  PadWithZeroes(const AStr: string; ACount: integer): string;
     procedure DumpBytes(ApByte: PByte; ACount: integer);
     //Attribute-specific stuff...
     function  GetAttributeString(const AAttributeName: string; AType: Word): string;
@@ -212,40 +216,40 @@ const
   IdTNEFAtpMax      = 9;
 
   //Attribute types...
-  IdTNEFattNull						= $0000;
-  IdTNEFattFrom						= $8000;  // /* PR_ORIGINATOR_RETURN_ADDRESS */
-  IdTNEFattSubject					= $8004;  // /* PR_SUBJECT */
-  IdTNEFattDateSent					= $8005;  // /* PR_CLIENT_SUBMIT_TIME */
-  IdTNEFattDateRecd					= $8006;  // /* PR_MESSAGE_DELIVERY_TIME */
-  IdTNEFattMessageStatus			= $8007;  // /* PR_MESSAGE_FLAGS */
-  IdTNEFattMessageClass				= $8008;  // /* PR_MESSAGE_CLASS */
-  IdTNEFattMessageID				= $8009;  // /* PR_MESSAGE_ID */
-  IdTNEFattParentID					= $800A;  // /* PR_PARENT_ID */
-  IdTNEFattConversationID			= $800B;  // /* PR_CONVERSATION_ID */
-  IdTNEFattBody						= $800C;  // /* PR_BODY */
-  IdTNEFattPriority					= $800D;  // /* PR_IMPORTANCE */
-  IdTNEFattAttachData				= $800F;  // /* PR_ATTACH_DATA_xxx */
-  IdTNEFattAttachTitle				= $8010;  // /* PR_ATTACH_FILENAME */
-  IdTNEFattAttachMetaFile			= $8011;  // /* PR_ATTACH_RENDERING */
-  IdTNEFattAttachCreateDate			= $8012;  // /* PR_CREATION_TIME */
-  IdTNEFattAttachModifyDate			= $8013;  // /* PR_LAST_MODIFICATION_TIME */
-  IdTNEFattDateModified				= $8020;  // /* PR_LAST_MODIFICATION_TIME */
-  IdTNEFattAttachTransportFilename	= $9001;  // /* PR_ATTACH_TRANSPORT_NAME */
-  IdTNEFattAttachRenddata			= $9002;  //
-  IdTNEFattMAPIProps				= $9003;  //
-  IdTNEFattRecipTable				= $9004;  // /* PR_MESSAGE_RECIPIENTS */
-  IdTNEFattAttachment				= $9005;  //
-  IdTNEFattTnefVersion				= $9006;  //
-  IdTNEFattOemCodepage				= $9007;  //
-  IdTNEFattOriginalMessageClass		= $0006;  // /* PR_ORIG_MESSAGE_CLASS */
+  IdTNEFattNull	                         = $0000;
+  IdTNEFattFrom                          = $8000;  // /* PR_ORIGINATOR_RETURN_ADDRESS */
+  IdTNEFattSubject                       = $8004;  // /* PR_SUBJECT */
+  IdTNEFattDateSent                      = $8005;  // /* PR_CLIENT_SUBMIT_TIME */
+  IdTNEFattDateRecd                      = $8006;  // /* PR_MESSAGE_DELIVERY_TIME */
+  IdTNEFattMessageStatus                 = $8007;  // /* PR_MESSAGE_FLAGS */
+  IdTNEFattMessageClass                  = $8008;  // /* PR_MESSAGE_CLASS */
+  IdTNEFattMessageID                     = $8009;  // /* PR_MESSAGE_ID */
+  IdTNEFattParentID                      = $800A;  // /* PR_PARENT_ID */
+  IdTNEFattConversationID                = $800B;  // /* PR_CONVERSATION_ID */
+  IdTNEFattBody                          = $800C;  // /* PR_BODY */
+  IdTNEFattPriority                      = $800D;  // /* PR_IMPORTANCE */
+  IdTNEFattAttachData                    = $800F;  // /* PR_ATTACH_DATA_xxx */
+  IdTNEFattAttachTitle                   = $8010;  // /* PR_ATTACH_FILENAME */
+  IdTNEFattAttachMetaFile                = $8011;  // /* PR_ATTACH_RENDERING */
+  IdTNEFattAttachCreateDate              = $8012;  // /* PR_CREATION_TIME */
+  IdTNEFattAttachModifyDate              = $8013;  // /* PR_LAST_MODIFICATION_TIME */
+  IdTNEFattDateModified                  = $8020;  // /* PR_LAST_MODIFICATION_TIME */
+  IdTNEFattAttachTransportFilename       = $9001;  // /* PR_ATTACH_TRANSPORT_NAME */
+  IdTNEFattAttachRenddata                = $9002;  //
+  IdTNEFattMAPIProps                     = $9003;  //
+  IdTNEFattRecipTable                    = $9004;  // /* PR_MESSAGE_RECIPIENTS */
+  IdTNEFattAttachment                    = $9005;  //
+  IdTNEFattTnefVersion                   = $9006;  //
+  IdTNEFattOemCodepage                   = $9007;  //
+  IdTNEFattOriginalMessageClass          = $0006;  // /* PR_ORIG_MESSAGE_CLASS */
 
-  IdTNEFattOwner					= $0000;  // /* PR_RCVD_REPRESENTING_xxx  or PR_SENT_REPRESENTING_xxx */
-  IdTNEFattSentFor					= $0001;  // /* PR_SENT_REPRESENTING_xxx */
-  IdTNEFattDelegate					= $0002;  // /* PR_RCVD_REPRESENTING_xxx */
-  IdTNEFattDateStart				= $0006;  // /* PR_DATE_START */
-  IdTNEFattDateEnd					= $0007;  // /* PR_DATE_END */
-  IdTNEFattAidOwner					= $0008;  // /* PR_OWNER_APPT_ID */
-  IdTNEFattRequestRes				= $0009;  // /* PR_RESPONSE_REQUESTED */
+  IdTNEFattOwner                         = $0000;  // /* PR_RCVD_REPRESENTING_xxx  or PR_SENT_REPRESENTING_xxx */
+  IdTNEFattSentFor                       = $0001;  // /* PR_SENT_REPRESENTING_xxx */
+  IdTNEFattDelegate                      = $0002;  // /* PR_RCVD_REPRESENTING_xxx */
+  IdTNEFattDateStart                     = $0006;  // /* PR_DATE_START */
+  IdTNEFattDateEnd                       = $0007;  // /* PR_DATE_END */
+  IdTNEFattAidOwner                      = $0008;  // /* PR_OWNER_APPT_ID */
+  IdTNEFattRequestRes                    = $0009;  // /* PR_RESPONSE_REQUESTED */
 
   //Message priorities...
   IdTNEFprioLow		= 3;
@@ -259,7 +263,7 @@ const
   IdTNEF_PT_LONG		= 3;	//* Signed 32-bit value */
   IdTNEF_PT_R4			= 4;	//* 4-byte floating point */
   IdTNEF_PT_DOUBLE		= 5;	//TODO: * Floating point double */
-  IdTNEF_PT_CURRENCY	= 6;	//TODO: * Signed 64-bit int (decimal w/	4 digits right of decimal pt) */
+  IdTNEF_PT_CURRENCY		= 6;	//TODO: * Signed 64-bit int (decimal w/	4 digits right of decimal pt) */
   IdTNEF_PT_APPTIME		= 7;	//TODO: * Application time */
   IdTNEF_PT_ERROR		= 10;	//TODO: * 32-bit error value */
   IdTNEF_PT_BOOLEAN		= 11;	//* 16-bit boolean (non-zero true) */
@@ -1288,1357 +1292,1517 @@ const
 
 }
 
+procedure TIdCoderTNEF.DoLog(const AMsg: String; const AAppendSize: Boolean = True);
+begin
+  if AAppendSize then begin
+    FLog := FLog + IntToStr(FNumBytesLeft) + ':' + AMsg + EOL;  {Do not localize}
+  end else begin
+    FLog := FLog + AMsg + EOL;
+  end;
+end;
+
+procedure TIdCoderTNEF.DoLogFmt(const AFormat: string; const Args: array of const; AAppendSize: Boolean = True);
+begin
+  DoLog(IndyFormat(AFormat, Args), AAppendSize);
+end;
+
 function TIdCoderTNEF.GetStringForMapiType(AType: Word): string;
 begin
-    case AType of
-      IdTNEF_PT_UNSPECIFIED: begin
-        Result := 'Unspecified';  {Do not localize}
-      end;
-      IdTNEF_PT_NULL: begin
-        Result := 'Null';  {Do not localize}
-      end;
-      IdTNEF_PT_I2: begin
-        Result := 'Short';  {Do not localize}
-      end;
-      IdTNEF_PT_LONG: begin
-        Result := 'Long';  {Do not localize}
-      end;
-      IdTNEF_PT_R4: begin
-        Result := 'Float';  {Do not localize}
-      end;
-      IdTNEF_PT_DOUBLE: begin
-        Result := 'Double';  {Do not localize}
-      end;
-      IdTNEF_PT_CURRENCY: begin
-        Result := 'Currency';  {Do not localize}
-      end;
-      IdTNEF_PT_APPTIME: begin
-        Result := 'Application time';  {Do not localize}
-      end;
-      IdTNEF_PT_ERROR: begin
-        Result := 'Error code';  {Do not localize}
-      end;
-      IdTNEF_PT_BOOLEAN: begin
-        Result := 'Boolean';  {Do not localize}
-      end;
-      IdTNEF_PT_OBJECT: begin
-        Result := 'Object';  {Do not localize}
-      end;
-      IdTNEF_PT_I8: begin
-        Result := '64-bit integer';  {Do not localize}
-      end;
-      IdTNEF_PT_STRING8: begin
-        Result := 'String8';  {Do not localize}
-      end;
-      IdTNEF_PT_UNICODE: begin
-        Result := 'Unicode';  {Do not localize}
-      end;
-      IdTNEF_PT_SYSTIME: begin
-        Result := 'SysTime';  {Do not localize}
-      end;
-      IdTNEF_PT_CLSID: begin
-        Result := 'ClsId';  {Do not localize}
-      end;
-      IdTNEF_PT_BINARY: begin
-        Result := 'Binary';  {Do not localize}
-      end;
-    else
-      Result := 'Unknown';  {Do not localize}
+  case AType of
+    IdTNEF_PT_UNSPECIFIED: begin
+      Result := 'Unspecified';  {Do not localize}
     end;
+    IdTNEF_PT_NULL: begin
+      Result := 'Null';  {Do not localize}
+    end;
+    IdTNEF_PT_I2: begin
+      Result := 'Short';  {Do not localize}
+    end;
+    IdTNEF_PT_LONG: begin
+      Result := 'Long';  {Do not localize}
+    end;
+    IdTNEF_PT_R4: begin
+      Result := 'Float';  {Do not localize}
+    end;
+    IdTNEF_PT_DOUBLE: begin
+      Result := 'Double';  {Do not localize}
+    end;
+    IdTNEF_PT_CURRENCY: begin
+      Result := 'Currency';  {Do not localize}
+    end;
+    IdTNEF_PT_APPTIME: begin
+      Result := 'Application time';  {Do not localize}
+    end;
+    IdTNEF_PT_ERROR: begin
+      Result := 'Error code';  {Do not localize}
+    end;
+    IdTNEF_PT_BOOLEAN: begin
+      Result := 'Boolean';  {Do not localize}
+    end;
+    IdTNEF_PT_OBJECT: begin
+      Result := 'Object';  {Do not localize}
+    end;
+    IdTNEF_PT_I8: begin
+      Result := '64-bit integer';  {Do not localize}
+    end;
+    IdTNEF_PT_STRING8: begin
+      Result := 'String8';  {Do not localize}
+    end;
+    IdTNEF_PT_UNICODE: begin
+      Result := 'Unicode';  {Do not localize}
+    end;
+    IdTNEF_PT_SYSTIME: begin
+      Result := 'SysTime';  {Do not localize}
+    end;
+    IdTNEF_PT_CLSID: begin
+      Result := 'ClsId';  {Do not localize}
+    end;
+    IdTNEF_PT_BINARY: begin
+      Result := 'Binary';  {Do not localize}
+    end;
+  else
+    Result := 'Unknown';  {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.GetStringForType(AType: Word): string;
 begin
-    case AType of
-      IdTNEFAtpTriples: begin
-        Result := 'Triples';  {Do not localize}
-      end;
-      IdTNEFAtpString: begin
-        Result := 'String';  {Do not localize}
-      end;
-      IdTNEFAtpText: begin
-        Result := 'Text';  {Do not localize}
-      end;
-      IdTNEFAtpDate: begin
-        Result := 'Date';  {Do not localize}
-      end;
-      IdTNEFAtpShort: begin
-        Result := 'Short';  {Do not localize}
-      end;
-      IdTNEFAtpLong: begin
-        Result := 'Long';  {Do not localize}
-      end;
-      IdTNEFAtpByte: begin
-        Result := 'Byte';  {Do not localize}
-      end;
-      IdTNEFAtpWord: begin
-        Result := 'Word';  {Do not localize}
-      end;
-      IdTNEFAtpDWord: begin
-        Result := 'DWord';  {Do not localize}
-      end;
-      IdTNEFAtpMax: begin
-        Result := 'Max';  {Do not localize}
-      end;
-    else
-      Result := 'Unknown';  {Do not localize}
+  case AType of
+    IdTNEFAtpTriples: begin
+      Result := 'Triples';  {Do not localize}
     end;
+    IdTNEFAtpString: begin
+      Result := 'String';  {Do not localize}
+    end;
+    IdTNEFAtpText: begin
+      Result := 'Text';  {Do not localize}
+    end;
+    IdTNEFAtpDate: begin
+      Result := 'Date';  {Do not localize}
+    end;
+    IdTNEFAtpShort: begin
+      Result := 'Short';  {Do not localize}
+    end;
+    IdTNEFAtpLong: begin
+      Result := 'Long';  {Do not localize}
+    end;
+    IdTNEFAtpByte: begin
+      Result := 'Byte';  {Do not localize}
+    end;
+    IdTNEFAtpWord: begin
+      Result := 'Word';  {Do not localize}
+    end;
+    IdTNEFAtpDWord: begin
+      Result := 'DWord';  {Do not localize}
+    end;
+    IdTNEFAtpMax: begin
+      Result := 'Max';  {Do not localize}
+    end;
+  else
+    Result := 'Unknown';  {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.GetStringForAttribute(AAttribute: Word): string;
 begin
-    case AAttribute of
-      IdTNEFattNull: begin
-        Result := 'Null';  {Do not localize}
-      end;
-      IdTNEFattFrom: begin
-        Result := 'From';  {Do not localize}
-      end;
-      IdTNEFattSubject: begin
-        Result := 'Subject';  {Do not localize}
-      end;
-      IdTNEFattDateSent: begin
-        Result := 'DateSent';  {Do not localize}
-      end;
-      IdTNEFattDateRecd: begin
-        Result := 'DateRecd';  {Do not localize}
-      end;
-      IdTNEFattMessageStatus: begin
-        Result := 'MessageStatus';  {Do not localize}
-      end;
-      IdTNEFattMessageClass: begin
-        Result := 'MessageClass';  {Do not localize}
-      end;
-      IdTNEFattMessageID: begin
-        Result := 'MessageID';  {Do not localize}
-      end;
-      IdTNEFattParentID: begin
-        Result := 'ParentID';  {Do not localize}
-      end;
-      IdTNEFattConversationID: begin
-        Result := 'ConversationID';  {Do not localize}
-      end;
-      IdTNEFattPriority: begin
-        Result := 'Priority';  {Do not localize}
-      end;
-      IdTNEFattAttachData: begin
-        Result := 'AttachData';  {Do not localize}
-      end;
-      IdTNEFattAttachTitle: begin
-        Result := 'AttachTitle';  {Do not localize}
-      end;
-      IdTNEFattAttachMetaFile: begin
-        Result := 'AttachMetaFile';  {Do not localize}
-      end;
-      IdTNEFattAttachCreateDate: begin
-        Result := 'AttachCreateDate';  {Do not localize}
-      end;
-      IdTNEFattAttachModifyDate: begin
-        Result := 'AttachModifyDate';  {Do not localize}
-      end;
-      IdTNEFattDateModified: begin
-        Result := 'DateModified';  {Do not localize}
-      end;
-      IdTNEFattAttachTransportFilename: begin
-        Result := 'AttachTransportFilename';  {Do not localize}
-      end;
-      IdTNEFattAttachRenddata: begin
-        Result := 'AttachRenddata';  {Do not localize}
-      end;
-      IdTNEFattMAPIProps: begin
-        Result := 'MAPIProps';  {Do not localize}
-      end;
-      IdTNEFattRecipTable: begin
-        Result := 'RecipTable';  {Do not localize}
-      end;
-      IdTNEFattAttachment: begin
-        Result := 'Null';  {Do not localize}
-      end;
-      IdTNEFattTnefVersion: begin
-        Result := 'TnefVersion';  {Do not localize}
-      end;
-      IdTNEFattOemCodepage: begin
-        Result := 'OemCodepage';  {Do not localize}
-      end;
-      IdTNEFattOriginalMessageClass: begin
-        Result := 'OriginalMessageClass';  {Do not localize}
-      end;
-      //IdTNEFattOwner: begin
-      //  Result := 'Owner';  {Do not localize}
-      //end;
-      IdTNEFattSentFor: begin
-        Result := 'SentFor';  {Do not localize}
-      end;
-      IdTNEFattDelegate: begin
-        Result := 'Delegate';  {Do not localize}
-      end;
-      //IdTNEFattDateStart: begin
-      //  Result := 'DateStart';  {Do not localize}
-      //end;
-      IdTNEFattDateEnd: begin
-        Result := 'DateEnd';  {Do not localize}
-      end;
-      IdTNEFattAidOwner: begin
-        Result := 'OwnerAID';  {Do not localize}
-      end;
-      IdTNEFattRequestRes: begin
-        Result := 'ResponseRequested';  {Do not localize}
-      end;
-    else
-      Result := 'Unknown';  {Do not localize}
+  case AAttribute of
+    IdTNEFattNull: begin
+      Result := 'Null';  {Do not localize}
     end;
+    IdTNEFattFrom: begin
+      Result := 'From';  {Do not localize}
+    end;
+    IdTNEFattSubject: begin
+      Result := 'Subject';  {Do not localize}
+    end;
+    IdTNEFattDateSent: begin
+      Result := 'DateSent';  {Do not localize}
+    end;
+    IdTNEFattDateRecd: begin
+      Result := 'DateRecd';  {Do not localize}
+    end;
+    IdTNEFattMessageStatus: begin
+      Result := 'MessageStatus';  {Do not localize}
+    end;
+    IdTNEFattMessageClass: begin
+      Result := 'MessageClass';  {Do not localize}
+    end;
+    IdTNEFattMessageID: begin
+      Result := 'MessageID';  {Do not localize}
+    end;
+    IdTNEFattParentID: begin
+      Result := 'ParentID';  {Do not localize}
+    end;
+    IdTNEFattConversationID: begin
+      Result := 'ConversationID';  {Do not localize}
+    end;
+    IdTNEFattPriority: begin
+      Result := 'Priority';  {Do not localize}
+    end;
+    IdTNEFattAttachData: begin
+      Result := 'AttachData';  {Do not localize}
+    end;
+    IdTNEFattAttachTitle: begin
+      Result := 'AttachTitle';  {Do not localize}
+    end;
+    IdTNEFattAttachMetaFile: begin
+      Result := 'AttachMetaFile';  {Do not localize}
+    end;
+    IdTNEFattAttachCreateDate: begin
+      Result := 'AttachCreateDate';  {Do not localize}
+    end;
+    IdTNEFattAttachModifyDate: begin
+      Result := 'AttachModifyDate';  {Do not localize}
+    end;
+    IdTNEFattDateModified: begin
+      Result := 'DateModified';  {Do not localize}
+    end;
+    IdTNEFattAttachTransportFilename: begin
+      Result := 'AttachTransportFilename';  {Do not localize}
+    end;
+    IdTNEFattAttachRenddata: begin
+      Result := 'AttachRenddata';  {Do not localize}
+    end;
+    IdTNEFattMAPIProps: begin
+      Result := 'MAPIProps';  {Do not localize}
+    end;
+    IdTNEFattRecipTable: begin
+      Result := 'RecipTable';  {Do not localize}
+    end;
+    IdTNEFattAttachment: begin
+      Result := 'Null';  {Do not localize}
+    end;
+    IdTNEFattTnefVersion: begin
+      Result := 'TnefVersion';  {Do not localize}
+    end;
+    IdTNEFattOemCodepage: begin
+      Result := 'OemCodepage';  {Do not localize}
+    end;
+    IdTNEFattOriginalMessageClass: begin
+      Result := 'OriginalMessageClass';  {Do not localize}
+    end;
+    //IdTNEFattOwner: begin
+    //  Result := 'Owner';  {Do not localize}
+    //end;
+    IdTNEFattSentFor: begin
+      Result := 'SentFor';  {Do not localize}
+    end;
+    IdTNEFattDelegate: begin
+      Result := 'Delegate';  {Do not localize}
+    end;
+    //IdTNEFattDateStart: begin
+    //  Result := 'DateStart';  {Do not localize}
+    //end;
+    IdTNEFattDateEnd: begin
+      Result := 'DateEnd';  {Do not localize}
+    end;
+    IdTNEFattAidOwner: begin
+      Result := 'OwnerAID';  {Do not localize}
+    end;
+    IdTNEFattRequestRes: begin
+      Result := 'ResponseRequested';  {Do not localize}
+    end;
+  else
+    Result := 'Unknown';  {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.IsFilenameTnef(AFilename: string): Boolean;
-var
-    i: integer;
 begin
-    if TextIsSame(AFilename, 'winmail.dat') then begin
-        Result := True;
-    end
-    else if TextStartsWith(AFilename, 'att') and TextEndsWith(AFilename, '.dat') then begin
-        Result := Sys.StrToInt(Copy(AFilename, 4, Length(AFilename)-7), -1) > -1;
-    end else begin
-        Result := False;
-    end;
+  if TextIsSame(AFilename, 'winmail.dat') then begin
+    Result := True;
+  end
+  else if TextStartsWith(AFilename, 'att') and TextEndsWith(AFilename, '.dat') then begin
+    Result := IndyStrToInt(Copy(AFilename, 4, Length(AFilename)-7), -1) > -1;
+  end else begin
+    Result := False;
+  end;
 end;
 
 function TIdCoderTNEF.GetMultipleUnicodeOrString8String(AType: Word): WideString;
 var
-    LIndex, LCount: LongWord;
+  LIndex, LCount: LongWord;
 begin
-    //Usually this will only contain one string, but if there are more, return
-    //them as a single string concatenated with semicolons.
-    LCount := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Found '+Sys.IntToStr(LCount)+' '+GetStringForMapiType(AType)+' String(s):'+#13#10;  {Do not localize}
-    if LCount = 0 then begin  //Very unlikely, just paranoia
-        Result := '';
-        Exit;
-    end;
-    Result := GetUnicodeOrString8String(AType);
-    for LIndex := 2 to LCount do begin
-        Result := ';' + GetUnicodeOrString8String(AType);    {Do not localize}
-    end;
+  //Usually this will only contain one string, but if there are more, return
+  //them as a single string concatenated with semicolons.
+  LCount := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('     Found %d %s String(s):', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
+  end;
+  if LCount = 0 then begin  //Very unlikely, just paranoia
+    Result := '';
+    Exit;
+  end;
+  Result := GetUnicodeOrString8String(AType);
+  for LIndex := 2 to LCount do begin
+    Result := ';' + GetUnicodeOrString8String(AType);    {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.GetUnicodeOrString8String(AType: Word): WideString;
 var
-    LIndex, LLength: LongWord;
-    LpwTemp: PWideChar;
-    LwsTemp: WideString;
-    LsTemp: string;
-    LpTemp: PChar;
+  LIndex, LLength: LongWord;
+  LpwTemp: PWideChar;
+  LwsTemp: WideString;
+  LsTemp: string;
+  LpTemp: PChar;
 begin
-    LLength := GetLongWord;
-    //Note the length count includes a terminating null.
-    case AType of
-      IdTNEF_PT_UNICODE: begin
-        SetLength(LwsTemp, LLength-1);
-        LpwTemp := PWideChar(FByte);
-        for LIndex := 1 to LLength-1 do begin
-            LwsTemp[LIndex] := LpwTemp^;
-            LpwTemp := LpwTemp+1;
-        end;
-        Result := LwsTemp;
+  LLength := GetLongWord;
+  //Note the length count includes a terminating null.
+  case AType of
+    IdTNEF_PT_UNICODE: begin
+      SetLength(LwsTemp, LLength-1);
+      LpwTemp := PWideChar(FByte);
+      for LIndex := 1 to LLength-1 do begin
+        LwsTemp[LIndex] := LpwTemp^;
+        LpwTemp := LpwTemp+1;
       end;
-      IdTNEF_PT_STRING8: begin
-        SetLength(LsTemp, LLength-1);
-        LpTemp := PChar(FByte);
-        for LIndex := 1 to LLength-1 do begin
-            LsTemp[LIndex] := LpTemp^;
-            LpTemp := LpTemp+1;
-        end;
-        Result := LsTemp;
+      Result := LwsTemp;
+    end;
+    IdTNEF_PT_STRING8: begin
+      SetLength(LsTemp, LLength-1);
+      LpTemp := PChar(FByte);
+      for LIndex := 1 to LLength-1 do begin
+        LsTemp[LIndex] := LpTemp^;
+        LpTemp := LpTemp+1;
       end;
+      Result := LsTemp;
     end;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Found string value: '+Result+#13#10;  {Do not localize}
-    //Note the strings are padded to 4-byte boundaries...
-    if (LLength mod 4) > 0 then begin
-        LLength := ((LLength div 4) + 1) * 4;
-    end;
-    Inc(FByte, LLength);
-    Dec(FNumBytesLeft, LLength);
+  end;
+  if FDoLogging then begin
+    DoLog('     Found string value: ' + Result);  {Do not localize}
+  end;
+  //Note the strings are padded to 4-byte boundaries...
+  if (LLength mod 4) > 0 then begin
+    LLength := ((LLength div 4) + 1) * 4;
+  end;
+  Inc(FByte, LLength);
+  Dec(FNumBytesLeft, LLength);
 end;
 
-function TIdCoderTNEF.PadWithZeroes(AStr: string; ACount: integer): string;
-var
-    LsTemp: string;
+function TIdCoderTNEF.PadWithZeroes(const AStr: string; ACount: integer): string;
 begin
-    LsTemp := AStr;
-    while Length(LsTemp) < ACount do LsTemp := '0' + LsTemp;  {Do not localize}
-    Result := LsTemp;
+  if Length(AStr) < ACount then begin
+    Result := StringOfChar('0', ACount-Length(AStr)) + AStr;
+  end else begin
+    Result := AStr;
+  end;
 end;
 
-function TIdCoderTNEF.GetByteAsChar(AByte: Byte): char;
+function TIdCoderTNEF.GetByteAsChar(AByte: Byte): Char;
 begin
-    //Return a displayable char or '.' if not displayable.
-    if ((Ord(AByte) > 31) and (Ord(AByte) < 127)) then begin
-        Result := Chr(AByte);
-    end else begin
-        Result := '.';  {Do not localize}
-    end;
+  //Return a displayable char or '.' if not displayable.
+  if (Ord(AByte) > 31) and (Ord(AByte) < 127) then begin
+    Result := Chr(AByte);
+  end else begin
+    Result := '.';  {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.GetByteAsHexString(AByte: Byte): string;
 var
-    LsTemp: string;
+  LsTemp: string;
 begin
-    LsTemp := Sys.Format('%x', [Integer(AByte)]);    {Do not localize}
-    Result := PadWithZeroes(LsTemp, 2);
+  LsTemp := IndyFormat('%x', [AByte]);    {Do not localize}
+  Result := PadWithZeroes(LsTemp, 2);
 end;
 
 function TIdCoderTNEF.GetByteAsHexString: string;
 var
-    LnTemp: Byte;
-    LsTemp: string;
+  LnTemp: Byte;
+  LsTemp: string;
 begin
-    LnTemp := GetByte;
-    LsTemp := Sys.Format('%x', [Integer(LnTemp)]);  {Do not localize}
-    Result := PadWithZeroes(LsTemp, 2);
+  LnTemp := GetByte;
+  LsTemp := IndyFormat('%x', [LnTemp]);  {Do not localize}
+  Result := PadWithZeroes(LsTemp, 2);
 end;
 
 function TIdCoderTNEF.GetBytesAsHexString(ACount: integer): string;
 var
-    i: integer;
+  i: integer;
 begin
-    Result := '';
-    for i := 0 to ACount-1 do begin
-        Result := Result + GetByteAsHexString + ' ';  {Do not localize}
-    end;
+  Result := '';
+  for i := 0 to ACount-1 do begin
+    Result := Result + GetByteAsHexString + ' ';  {Do not localize}
+  end;
 end;
 
 function TIdCoderTNEF.GetByte: Byte;
 begin
-    CheckForEof(sizeof(Byte));
-    Result := FByte^;
-    Inc(FByte, sizeof(Byte));
-    Dec(FNumBytesLeft, sizeof(Byte));
+  CheckForEof(SizeOf(Byte));
+  Result := FByte^;
+  Inc(FByte, SizeOf(Byte));
+  Dec(FNumBytesLeft, SizeOf(Byte));
 end;
 
 function TIdCoderTNEF.GetWord: Word;
 var
-    LTemp: PWord;
+  LTemp: PWord;
 begin
-    CheckForEof(sizeof(Word));
-    LTemp := PWord(FByte);
-    Inc(FByte, sizeof(Word));
-    Result := LTemp^;
-    Dec(FNumBytesLeft, sizeof(Word));
+  CheckForEof(SizeOf(Word));
+  LTemp := PWord(FByte);
+  Inc(FByte, SizeOf(Word));
+  Result := LTemp^;
+  Dec(FNumBytesLeft, SizeOf(Word));
 end;
 
 function TIdCoderTNEF.GetLongWord: LongWord;
 var
-    LTemp: PLongword;
+  LTemp: PLongword;
 begin
-    CheckForEof(sizeof(LongWord));
-    LTemp := PLongWord(FByte);
-    Inc(FByte, sizeof(LongWord));
-    Result := LTemp^;
-    Dec(FNumBytesLeft, sizeof(LongWord));
+  CheckForEof(SizeOf(LongWord));
+  LTemp := PLongWord(FByte);
+  Inc(FByte, SizeOf(LongWord));
+  Result := LTemp^;
+  Dec(FNumBytesLeft, SizeOf(LongWord));
 end;
 
 function TIdCoderTNEF.GetString(ALength: Word): string;
 var
-    i: integer;
+  i: integer;
 begin
-    SetLength(Result, ALength-1);
-    for i := 1 to ALength-1 do begin
-        Result[i] := Char(FByte^);
-        Inc(FByte);
-    end;
-    Inc(FByte);  //Skip terminating null
-    Dec(FNumBytesLeft, ALength);
+  SetLength(Result, ALength-1);
+  for i := 1 to ALength-1 do begin
+    Result[i] := Char(FByte^);
+    Inc(FByte);
+  end;
+  Inc(FByte);  //Skip terminating null
+  Dec(FNumBytesLeft, ALength);
 end;
 
 function  TIdCoderTNEF.GetDate(ALength: Word): TDateTime;
 var
-    LYear, LMonth, LDay, LHour, LMinute, LSecond: Word;
+  LYear, LMonth, LDay, LHour, LMinute, LSecond: Word;
 begin
-    LYear   := GetWord;
-    LMonth  := GetWord;
-    LDay    := GetWord;
-    LHour   := GetWord;
-    LMinute := GetWord;
-    LSecond := GetWord;
-    Skip(sizeof(Word));  //Day-of-week
-    Result := EncodeDateTime(LYear, LMonth, LDay, LHour, LMinute, LSecond, 0);
+  LYear   := GetWord;
+  LMonth  := GetWord;
+  LDay    := GetWord;
+  LHour   := GetWord;
+  LMinute := GetWord;
+  LSecond := GetWord;
+  Skip(SizeOf(Word));  //Day-of-week
+  Result := EncodeDateTime(LYear, LMonth, LDay, LHour, LMinute, LSecond, 0);
 end;
 
 procedure TIdCoderTNEF.Skip(ACount: integer);
 begin
-    CheckForEof(ACount);
-    Inc(FByte, ACount);
-    Dec(FNumBytesLeft, ACount);
+  CheckForEof(ACount);
+  Inc(FByte, ACount);
+  Dec(FNumBytesLeft, ACount);
 end;
 
 procedure TIdCoderTNEF.Checksum(ANumBytesToCheck: integer);
 var
-    LChecksum: Word;
-    i: integer;
-    LByte: PByte;
-    LTNEFChecksum: PWord;
+  LChecksum: Word;
+  i: integer;
+  LByte: PByte;
+  LTNEFChecksum: PWord;
 begin
-    //Do a checksum on ANumBytesToCheck bytes from the current position.
-    //Compare to the recorded TNEF value in the word after these bytes.
-    //DONT move our pointer FByte forward.
-    CheckForEof(ANumBytesToCheck + 2);
-    LByte := FByte;
-    LChecksum := 0;
-    for i := 1 to ANumBytesToCheck do begin
-        Inc(LChecksum, LByte^);
-        Inc(LByte);
-    end;
-    LTNEFChecksum := PWord(LByte);
-    if LChecksum <> LTNEFChecksum^ then begin
-        raise EIdTnefChecksumFailure.Create('Checksum failure - TNEF is corrupt or truncated');  {Do not localize}
-    end;
+  //Do a checksum on ANumBytesToCheck bytes from the current position.
+  //Compare to the recorded TNEF value in the word after these bytes.
+  //DONT move our pointer FByte forward.
+  CheckForEof(ANumBytesToCheck + 2);
+  LByte := FByte;
+  LChecksum := 0;
+  for i := 1 to ANumBytesToCheck do begin
+    Inc(LChecksum, LByte^);
+    Inc(LByte);
+  end;
+  LTNEFChecksum := PWord(LByte);
+  if LChecksum <> LTNEFChecksum^ then begin
+    raise EIdTnefChecksumFailure.Create('Checksum failure - TNEF is corrupt or truncated');  {Do not localize}
+  end;
 end;
 
 procedure TIdCoderTNEF.CheckForEof(ANumBytesRequested: integer);
 begin
-    //See if you have enough bytes left to satisfy the request for nNumBytesRequested...
-    if ANumBytesRequested > FNumBytesLeft then begin
-        raise EIdTnefRanOutOfBytes.Create('Hit end of file prematurely - TNEF is corrupt or truncated');  {Do not localize}
-    end;
+  //See if you have enough bytes left to satisfy the request for nNumBytesRequested...
+  if ANumBytesRequested > FNumBytesLeft then begin
+    raise EIdTnefRanOutOfBytes.Create('Hit end of file prematurely - TNEF is corrupt or truncated');  {Do not localize}
+  end;
 end;
 
 procedure TIdCoderTNEF.SplitLongWord(ALongWord: LongWord; var AHigh: Word; var ALow: Word);
 var
-    LTemp: LongWord;
+  LTemp: LongWord;
 begin
-    LTemp := ALongWord and $FFFF0000;
-    LTemp := LTemp shr 16;
-    AHigh := Word(LTemp);
-    LTemp := ALongWord and $0000FFFF;
-    ALow  := Word(LTemp);
+  LTemp := ALongWord and $FFFF0000;
+  LTemp := LTemp shr 16;
+  AHigh := Word(LTemp);
+  LTemp := ALongWord and $0000FFFF;
+  ALow  := Word(LTemp);
 end;
 
 procedure TIdCoderTNEF.Parse(const AIn: string; AMsg: TIdMessage; ALog: Boolean = False);
 var
-    LIn: TIdBytes;
+  LIn: TIdBytes;
 begin
-    LIn := ToBytes(AIn);
-    Parse(LIn, AMsg, ALog);
+  LIn := ToBytes(AIn);
+  Parse(LIn, AMsg, ALog);
     SetLength(LIn, 0);
 end;
 
 procedure TIdCoderTNEF.Parse(const AIn: TIdAttachment; AMsg: TIdMessage; ALog: Boolean = False);
 var
-    LTempStream: TStream;
+  LTempStream: TIdStream;
 begin
-    LTempStream := AIn.OpenLoadStream;
-    try
-      Parse(LTempStream, AMsg, ALog);
-    finally
-      AIn.CloseLoadStream;
-    end;
+  LTempStream := AIn.OpenLoadStream;
+  try
+    Parse(LTempStream, AMsg, ALog);
+  finally
+    AIn.CloseLoadStream;
+  end;
 end;
 
 procedure TIdCoderTNEF.Parse(const AIn: TStream; AMsg: TIdMessage; ALog: Boolean = False);
 var
-    LSSize: integer;
-    LIn: TIdBytes;
-    LStr: string;
+  LStr: String;
 begin
-    LSSize := AIn.Size;
-    AIn.Position := 0;
-    SetLength(LStr, LSSize);
-    AIn.Read(LStr[1], LSSize);
-    LIn := ToBytes(LStr);
-    Parse(LIn, AMsg, ALog);
-    SetLength(LStr, 0);
-    SetLength(LIn, 0);
+  LStr := ReadStringFromStream(AIn);
+  Parse(LStr, AMsg, ALog);
 end;
 
 procedure TIdCoderTNEF.ParseMessageBlock;
 var
-    LAttributeType: LongWord;
+  LAttributeType: LongWord;
 begin
-    LAttributeType := GetLongWord;
-    ParseAttribute(LAttributeType);
+  LAttributeType := GetLongWord;
+  ParseAttribute(LAttributeType);
 end;
 
 procedure TIdCoderTNEF.IsCurrentAttachmentValid;
 begin
-    if FCurrentAttachment = nil then begin
-        raise EIdTnefCurrentAttachmentInvalid.Create('Attempt to access invalid attachment - invalid TNEF missing attAttachRenddata attribute at start of attachment?');  {Do not localize}
-    end;
+  if FCurrentAttachment = nil then begin
+    raise EIdTnefCurrentAttachmentInvalid.Create('Attempt to access invalid attachment - invalid TNEF missing attAttachRenddata attribute at start of attachment?');  {Do not localize}
+  end;
 end;
 
 function  TIdCoderTNEF.GetAttributeString(const AAttributeName: string; AType: Word): string;
 var
-    LLength: LongWord;
+  LLength: LongWord;
 begin
-    LLength := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock found '+AAttributeName+' type, length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-    if AType <> IdTNEFAtpString then begin
-        raise EIdTnefAttributeUnexpectedType.Create(AAttributeName+' not a String');  {Do not localize}
-    end;
-    Checksum(LLength);
-    Result := GetString(LLength);
-    Skip(2);  //Checksum
+  LLength := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('   ParseAttachmentBlock found %s type, length: %d', [AAttributeName, LLength]);  {Do not localize}
+  end;
+  if AType <> IdTNEFAtpString then begin
+    raise EIdTnefAttributeUnexpectedType.Create(AAttributeName + ' not a String');  {Do not localize}
+  end;
+  Checksum(LLength);
+  Result := GetString(LLength);
+  Skip(2);  //Checksum
 end;
 
 procedure TIdCoderTNEF.ParseAttachmentBlock;
 var
-    LAttachmentType: LongWord;
-    LType, LAttribute: Word;
-    LLength: LongWord;
-    LStream: TIdStreamVCL;
-    LDestStream: TStream;
+  LAttachmentType: LongWord;
+  LType, LAttribute: Word;
+  LLength: LongWord;
+  LDestStream: TStream;
 begin
-    LAttachmentType := GetLongWord;
-    SplitLongWord(LAttachmentType, LType, LAttribute);
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock passed a '+GetStringForAttribute(LAttribute)+' type '+GetStringForType(LType)+#13#10;  {Do not localize}
-    case LAttribute of
-      IdTNEFattAttachRenddata: begin
-        //Per Microsoft, you get this first, at the start of every attachment,
-        //create a new attachment when you encounter this.
-        LLength := GetLongWord;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock found IdTNETattAttachRenddata type, length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-        Checksum(LLength);
-        Skip(LLength);
-        Skip(2);  //Checksum
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   Adding attachment to decoded message.'+#13#10;  {Do not localize}
-        AddAttachment;
-        FCurrentAttachment.ParentPart := -1;
+  LAttachmentType := GetLongWord;
+  SplitLongWord(LAttachmentType, LType, LAttribute);
+  if FDoLogging then begin
+    DoLogFmt('   ParseAttachmentBlock passed a %s type %s', [GetStringForAttribute(LAttribute), GetStringForType(LType)]);  {Do not localize}
+  end;
+  case LAttribute of
+    IdTNEFattAttachRenddata: begin
+      //Per Microsoft, you get this first, at the start of every attachment,
+      //create a new attachment when you encounter this.
+      LLength := GetLongWord;
+      if FDoLogging then begin
+        DoLog('   ParseAttachmentBlock found IdTNETattAttachRenddata type, length: ' + IntToStr(LLength));  {Do not localize}
       end;
-      IdTNEFattAttachTitle: begin
-        //This is the filename of the attachment, set the already-created attachment's
-        //filename to this.
-        FCurrentAttachment.FileName := GetAttributeString('IdTNEFattAttachTitle', LType);  {Do not localize}
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock parsed attachment filename: '+FCurrentAttachment.FileName+#13#10;  {Do not localize}
-        IsCurrentAttachmentValid;
+      Checksum(LLength);
+      Skip(LLength);
+      Skip(2);  //Checksum
+      if FDoLogging then begin
+        DoLog('   Adding attachment to decoded message.');  {Do not localize}
       end;
-      IdTNEFattAttachData: begin
-        //This is the attachment file contents, set it for the already-created
-        //attachment.
-        LLength := GetLongWord;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock found IdTNEFattAttachData type, length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-        if LType <> IdTNEFAtpByte then begin
-            raise EIdTnefAttributeUnexpectedType.Create('TNEF AttachmentData not a Byte');  {Do not localize}
-        end;
-        Checksum(LLength);
-        try
-          LDestStream := FCurrentAttachment.PrepareTempStream;
-          try
-            LStream := TIdStreamVCL.Create(LDestStream);
-            LStream.Write(TIdBytes(FByte), LLength);
-          finally
-            Sys.FreeAndNil(LStream);
-          end;
-        finally
-          FCurrentAttachment.FinishTempStream;
-        end;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock copied '+Sys.IntToStr(LLength)+' bytes to attachment.'+#13#10;  {Do not localize}
-        Skip(LLength);
-        Skip(2);  //Checksum
+      AddAttachment;
+      FCurrentAttachment.ParentPart := -1;
+    end;
+    IdTNEFattAttachTitle: begin
+      //This is the filename of the attachment, set the already-created attachment's
+      //filename to this.
+      FCurrentAttachment.FileName := GetAttributeString('IdTNEFattAttachTitle', LType);  {Do not localize}
+      if FDoLogging then begin
+        DoLog('   ParseAttachmentBlock parsed attachment filename: ' + FCurrentAttachment.FileName);  {Do not localize}
+      end;
+      IsCurrentAttachmentValid;
+    end;
+    IdTNEFattAttachData: begin
+      //This is the attachment file contents, set it for the already-created
+      //attachment.
+      LLength := GetLongWord;
+      if FDoLogging then begin
+        DoLog('   ParseAttachmentBlock found IdTNEFattAttachData type, length: ' + IntToStr(LLength));  {Do not localize}
+      end;
+      if LType <> IdTNEFAtpByte then begin
+        raise EIdTnefAttributeUnexpectedType.Create('TNEF AttachmentData not a Byte');  {Do not localize}
+      end;
+      Checksum(LLength);
+      LDestStream := FCurrentAttachment.PrepareTempStream;
+      try
+        TIdStreamHelper.Write(LDestStream, RawToBytes(FByte, LLength));
+      finally
+        FCurrentAttachment.FinishTempStream;
+      end;
+      if FDoLogging then begin
+        DoLogFmt('   ParseAttachmentBlock copied %d bytes to attachment.', [LLength]);  {Do not localize}
+      end;
+      Skip(LLength);
+      Skip(2);  //Checksum
       end;
     else
-      if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   ParseAttachmentBlock found unknown type, passing to ParseAttribute.'+#13#10;  {Do not localize}
+      if FDoLogging then begin
+        DoLog('   ParseAttachmentBlock found unknown type, passing to ParseAttribute.');  {Do not localize}
+      end;
       ParseAttribute(LAttachmentType);
-    end;
+  end;
 end;
 
 procedure TIdCoderTNEF.AddAttachment;
 begin
-    FCurrentAttachment := nil;
-    FMsg.DoCreateAttachment(nil, TIdAttachment(FCurrentAttachment));
-    Assert(Assigned(FCurrentAttachment), 'Attachment must not be unassigned here!');  {Do not localize}
+  FCurrentAttachment := nil;
+  FMsg.DoCreateAttachment(nil, FCurrentAttachment);
+  Assert(Assigned(FCurrentAttachment), 'Attachment must not be unassigned here!');  {Do not localize}
 end;
 
-function  TIdCoderTNEF.GetMapiBoolean(AType: Word; AText: string): Smallint;
+function TIdCoderTNEF.GetMapiBoolean(AType: Word; AText: string): Smallint;
 begin
-    if AType <> IdTNEF_PT_BOOLEAN then begin
-      raise EIdTnefUnexpectedType.Create('Expected Boolean for '+AText);  {Do not localize}
-    end;
-    Result := GetWord;
-    GetWord;  //Skip next two bytes (padded to 4 bytes)
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseMapiProp found '+AText+' Boolean, value: '+Sys.IntToStr(Result)+#13#10;  {Do not localize}
+  if AType <> IdTNEF_PT_BOOLEAN then begin
+    raise EIdTnefUnexpectedType.Create('Expected Boolean for '+AText);  {Do not localize}
+  end;
+  Result := GetWord;
+  GetWord;  //Skip next two bytes (padded to 4 bytes)
+  if FDoLogging then begin
+    DoLogFmt('     ParseMapiProp found %s Boolean, value: %d', [AText, Result]);  {Do not localize}
+  end;
 end;
 
-function  TIdCoderTNEF.GetMapiLong(AType: Word; AText: string): Longint;
+function TIdCoderTNEF.GetMapiLong(AType: Word; AText: string): Longint;
 begin
-    if AType <> IdTNEF_PT_LONG then begin
-      raise EIdTnefUnexpectedType.Create('Expected Long for '+AText);  {Do not localize}
-    end;
-    Result := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseMapiProp found '+AText+' Long, value: '+Sys.IntToStr(Result)+#13#10;  {Do not localize}
+  if AType <> IdTNEF_PT_LONG then begin
+    raise EIdTnefUnexpectedType.Create('Expected Long for ' + AText);  {Do not localize}
+  end;
+  Result := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('     ParseMapiProp found %s Long, value: %d', [AText, Result]);  {Do not localize}
+  end;
 end;
 
 function  TIdCoderTNEF.GetMapiSysTime(AType: Word; AText: string): TDateTime;
 var
-    LHour, LMinute, LSecond, LMilliSecond: Word;
-    LVal: Int64;
-    LPVal: PInt64;
-    LTime: Double;
+  LHour, LMinute, LSecond, LMilliSecond: Word;
+  LVal: Int64;
+  LPVal: PInt64;
+  LTime: Double;
 begin
-    //MAPI's SysTime is a 64-bit integer holding the number of 100ns intervals
-    //since 1st Jan 1601.
-    if AType <> IdTNEF_PT_SYSTIME then begin
-      raise EIdTnefUnexpectedType.Create('Expected SysTime for '+AText);  {Do not localize}
-    end;
-    LPVal := PInt64(FByte);
-    LVal := LPVal^;
-    //I am sure there is a better way of doing the following...
-    LVal := LVal div 10;  //Ditch the 100ns
-    LVal := LVal div 1000;  //Ditch the ms
-    LMilliSecond := LVal mod 1000;
-    LVal := LVal div 1000;
-    LSecond := LVal mod 60;
-    LVal := LVal div 60;
-    LMinute := LVal mod 60;
-    LVal := LVal div 60;
-    LHour := LVal mod 24;
-    LVal := LVal div 24;
-    //LVal is now the days since 1/1/1601.  Subtract Delphi's 300-year offset...
-    Result := LVal;
-    Result := Result + Sys.EncodeDate(1601,1,1);  {Do not localize}
-    //Is the hour out by 1 or is it WET vs GMT time?  Or is it GetDate that is the hour out?
-    LTime := ((((((LHour*60)+LMinute)*60)+LSecond)*1000)+LMilliSecond)/(24*60*60*1000);
-    Result := Result + LTime;
-    Skip(8);
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseMapiProp found '+AText+' SysTime, value: '+Sys.DateTimeToStr(Result)+#13#10;  {Do not localize}
+  //MAPI's SysTime is a 64-bit integer holding the number of 100ns intervals
+  //since 1st Jan 1601.
+  if AType <> IdTNEF_PT_SYSTIME then begin
+    raise EIdTnefUnexpectedType.Create('Expected SysTime for '+AText);  {Do not localize}
+  end;
+  LPVal := PInt64(FByte);
+  LVal := LPVal^;
+  //I am sure there is a better way of doing the following...
+  LVal := LVal div 10;  //Ditch the 100ns
+  LVal := LVal div 1000;  //Ditch the ms
+  LMilliSecond := LVal mod 1000;
+  LVal := LVal div 1000;
+  LSecond := LVal mod 60;
+  LVal := LVal div 60;
+  LMinute := LVal mod 60;
+  LVal := LVal div 60;
+  LHour := LVal mod 24;
+  LVal := LVal div 24;
+  //LVal is now the days since 1/1/1601.  Subtract Delphi's 300-year offset...
+  Result := LVal;
+  Result := Result + EncodeDate(1601, 1, 1);  {Do not localize}
+  //Is the hour out by 1 or is it WET vs GMT time?  Or is it GetDate that is the hour out?
+  LTime := ((((((LHour*60)+LMinute)*60)+LSecond)*1000)+LMilliSecond)/(24*60*60*1000);
+  Result := Result + LTime;
+  Skip(8);
+  if FDoLogging then begin
+    DoLogFmt('     ParseMapiProp found %s SysTime, value: %s', [AText, DateTimeToStr(Result)]);  {Do not localize}
+  end;
 end;
 
-function  TIdCoderTNEF.GetMapiStrings(AType: Word; AText: string): string;
+function TIdCoderTNEF.GetMapiStrings(AType: Word; AText: string): string;
 begin
-    //May be PT_UNICODE or PT_STRING8 (PT_TSTRING will be aliased to one of these)...
-    if ((AType <> IdTNEF_PT_UNICODE) and (AType <> IdTNEF_PT_STRING8)) then begin
-      raise EIdTnefUnexpectedType.Create('Expected Unicode or String8 for '+AText);  {Do not localize}
-    end;
-    Result := GetMultipleUnicodeOrString8String(AType);
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseMapiProp found '+AText+' String, value: '+Result+#13#10;  {Do not localize}
+  //May be PT_UNICODE or PT_STRING8 (PT_TSTRING will be aliased to one of these)...
+  if (AType <> IdTNEF_PT_UNICODE) and (AType <> IdTNEF_PT_STRING8) then begin
+    raise EIdTnefUnexpectedType.Create('Expected Unicode or String8 for ' + AText);  {Do not localize}
+  end;
+  Result := GetMultipleUnicodeOrString8String(AType);
+  if FDoLogging then begin
+    DoLogFmt('     ParseMapiProp found %s String, value: %s', [AText, Result]);  {Do not localize}
+  end;
 end;
 
-{ GetMapiObject was previously needed, may be needed later in devolpment...
-function  TIdCoderTNEF.GetMapiObject(AType: Word; AText: string): TIdBytes;
+{ GetMapiObject was previously needed, may be needed later in development...
+function TIdCoderTNEF.GetMapiObject(AType: Word; AText: string): TIdBytes;
 begin
-    if AType <> IdTNEF_PT_OBJECT then begin
-      raise EIdTnefUnexpectedType.Create('Expected Object for '+AText);  {Do not localize}
-{    end;
-    Result := GetMapiItemAsBytes(AType, AText);
+  if AType <> IdTNEF_PT_OBJECT then begin
+    raise EIdTnefUnexpectedType.Create('Expected Object for '+AText);  {Do not localize}
+{  end;
+  Result := GetMapiItemAsBytes(AType, AText);
 end;
 }
 
-function  TIdCoderTNEF.GetMapiBinaryAsString(AType: Word; AText: string): string;
+function TIdCoderTNEF.GetMapiBinaryAsString(AType: Word; AText: string): string;
 var
-    LBinary: TIdBytes;
-    LStrLen: integer;
-    LIndex: integer;
+  LBinary: TIdBytes;
+  LStrLen: integer;
+  LIndex: integer;
 begin
-    //You MUST know that the binary data is really a null-terminated string.
-    LBinary := GetMapiBinary(AType, AText);
-    LStrLen := Length(LBinary)-1;
-    Result := '';
-    for LIndex := 0 to LStrLen-1 do begin
-        Result := Result + Chr(LBinary[LIndex]);
-    end;
+  //You MUST know that the binary data is really a null-terminated string.
+  LBinary := GetMapiBinary(AType, AText);
+  LStrLen := Length(LBinary)-1;
+  Result := '';
+  for LIndex := 0 to LStrLen-1 do begin
+    Result := Result + Chr(LBinary[LIndex]);
+  end;
 end;
 
-function  TIdCoderTNEF.GetMapiBinaryAsEmailName(AType: Word; AText: string): string;
+function TIdCoderTNEF.GetMapiBinaryAsEmailName(AType: Word; AText: string): string;
 begin
-    Result := GetMapiBinaryAsString(AType, AText);
-    //If it starts SMTP: then remove SMTP:, but leave anything else (e.g. FAX:)
-    if TextStartsWith(Result, 'SMTP:') then begin  {Do not localize}
-        Result := Sys.Trim(Copy(Result, 6, MaxInt));
-    end;
-    Result := Sys.LowerCase(Result);
+  Result := GetMapiBinaryAsString(AType, AText);
+  //If it starts SMTP: then remove SMTP:, but leave anything else (e.g. FAX:)
+  if TextStartsWith(Result, 'SMTP:') then begin  {Do not localize}
+    Result := Trim(Copy(Result, 6, MaxInt));
+  end;
+  Result := LowerCase(Result);
 end;
 
-function  TIdCoderTNEF.GetMapiBinary(AType: Word; AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiBinary(AType: Word; AText: string): TIdBytes;
 begin
-    if AType <> IdTNEF_PT_BINARY then begin
-      raise EIdTnefUnexpectedType.Create('Expected Binary for '+AText);  {Do not localize}
-    end;
-    Result := GetMapiItemAsBytesPossiblyCompressed(AType, AText);
+  if AType <> IdTNEF_PT_BINARY then begin
+    raise EIdTnefUnexpectedType.Create('Expected Binary for ' + AText);  {Do not localize}
+  end;
+  Result := GetMapiItemAsBytesPossiblyCompressed(AType, AText);
 end;
 
-function  TIdCoderTNEF.GetMapiItemAsBytesPossiblyCompressed(AType: Word; AText: string): TIdBytes;
+function TIdCoderTNEF.GetMapiItemAsBytesPossiblyCompressed(AType: Word; AText: string): TIdBytes;
 var
-    LCount, LLength: LongWord;
-    LpMagicNumber: PLongWord;
-    LMagicNumber: LongWord;
-    LCompressedSize, LUncompressedSize: LongWord;
-    LpByte: PByte;
+  LCount, LLength: LongWord;
+  LpMagicNumber: PLongWord;
+  LMagicNumber: LongWord;
+  LCompressedSize, LUncompressedSize: LongWord;
+  LpByte: PByte;
 begin
-    LCount := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Found '+Sys.IntToStr(LCount)+' '+GetStringForMapiType(AType)+':'+#13#10;  {Do not localize}
-    if LCount = 0 then begin  //Very unlikely, just paranoia
-        SetLength(Result, 0);
-        Exit;
-    end;
-    if LCount <> 1 then begin
-        raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
-    end;
-    LLength := GetLongWord;
-    if LLength < 12 then begin
-        //Cannot be compressed, too short...
-        Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
-        Exit;
-    end;
-    //Peek ahead to see if it has an optional magic number, indicating that it
-    //has another header here.
-    //If it has a valid magic number, then the next long is the
-    //uncompressed size, then the compressed size, next is the magic (long) number,
-    //next is a CRC.
-    //We initially only want to see if it has a magic number...
-    LpByte := FByte;
-    Inc(LpByte, 8);
-    LpMagicNumber := PLongWord(LpByte);
-    LMagicNumber := LpMagicNumber^;
-    if LMagicNumber = $414C454D then begin
-        //It has a header, but this magic number means it is NOT compressed.
-        //Note: I have never seen this option existing in reality.
-        LCompressedSize := GetLongWord;
-        LUncompressedSize := GetLongWord;
-        GetLongWord;  //Magic word
-        GetLongWord;    //Checksum, ignore this, this block was crc-checked already
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Has header with magic number $414C454D (uncompressed), uncompressed size '+Sys.IntToStr(LUncompressedSize)+' and compressed size '+Sys.IntToStr(LCompressedSize)+#13#10;  {Do not localize}
-        Result := InternalGetMapiItemAsBytes(LCount, LLength-16, AType, AText);
-        Exit;
-    end;
-    if LMagicNumber <> $75465A4C then begin
-        //Not compressed (or not compressed in a format we recognise)...
-        Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
-        Exit;
-    end;
-    //It is compressed.  Decompress it.
-    Result := DecompressRtf(LCount, LLength, AType, AText);
-end;
-
-function  TIdCoderTNEF.DecompressRtf(ACount, ALength: LongWord; AType: Word; AText: string): TIdBytes;
-var
-    LCompressedSize, LUncompressedSize: LongWord;
-    LData: TIdBytes;
-    LInIndex, LOutIndex: LongWord;
-    LFlags: Byte;
-    LShifts: integer;
-    LFlag: Byte;
-    LCodePosition: integer;
-    LCodeLength: integer;
-    LDecodeString: string;
-    LDecodeStringLength: LongWord;
-    LTemp: Integer;
-    LOutBufferSize: LongWord;
-begin
-    //Read header...
-    LCompressedSize := GetLongWord;  //Length AFTER this field (LLength - 4)
-    LUncompressedSize := GetLongWord;
-    GetLongWord;  //Magic number
-    GetLongWord;     //Checksum, ignore this, this block was crc-checked already
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Has header with magic number $414C454D (compressed), uncompressed size '+Sys.IntToStr(LUncompressedSize)+' and compressed size '+Sys.IntToStr(LCompressedSize)+#13#10;  {Do not localize}
-    //Get the compressed bytes...
-    LData := InternalGetMapiItemAsBytes(ACount, ALength-16, AType, AText);
-    LDecodeStringLength := Length(IdTNEF_decode_string);
-    LOutBufferSize := LDecodeStringLength + LUncompressedSize;
-    SetLength(Result, LOutBufferSize);
-    //Copy the preload decode string into the output...
-    LDecodeString := IdTNEF_decode_string;
-    for LTemp := 0 to LDecodeStringLength-1 do begin
-        Result[LTemp] := Byte(LDecodeString[LTemp+1]);
-    end;
-    LInIndex := 0;
-    LOutIndex := LDecodeStringLength;
-    Dec(ALength, 16);  //Adjust for the header.
-    LShifts := 8;  //Force an initial load of the first flag byte
-    LFlags := 0;  //Stop warning
-    while LInIndex < ALength do begin
-        //This scheme blocks that contain a starting byte of eight flags followed by
-        //eight 1 or 2-byte entries.  If the flag is 0, its entry is a single
-        //literal byte, if 1 then its entry is a two-byte compression code.
-        if LShifts = 8 then begin
-            LFlags := LData[LInIndex];
-            LShifts := 0;
-            Inc(LInIndex);
-        end;
-        LFlag := LFlags and 1;
-        LFlags := LFlags shr 1;
-        Inc(LShifts);
-        if LFlag = 0 then begin
-            //A single literal byte...
-            Result[LOutIndex] := LData[LInIndex];
-            Inc(LInIndex);
-            Inc(LOutIndex);
-        end else begin
-            //A two-byte code telling us that the bytes we want to output are
-            //a copy of bytes that were previously outputted.  The position of
-            //the previous bytes is the first three nibbles, the number of
-            //bytes to copy is the last nibble.
-            LCodePosition := LData[LInIndex];
-            Inc(LInIndex);
-            LCodeLength := LData[LInIndex];
-            Inc(LInIndex);
-            LCodePosition := LCodePosition shl 4;
-            LCodePosition := LCodePosition or (LCodeLength shr 4);
-            LCodeLength := LCodeLength and $F;   //The low nibble
-            //Since repetitions of 0 or 1 byte would be a waste of time, the
-            //length runs from 2 to 17 instead of 0 to 15...
-            LCodeLength := LCodeLength + 2;
-            //LCodePosition points to the byte sequence we are to copy from the
-            //previously-decoded output data.  The output data is viewed as a
-            //4096-byte circular buffer into which LCodePosition points.  It is
-            //further complicated by the fact that the buffer is preloaded with
-            //the string IdTNEF_decode_string.  Rather than using a real buffer,
-            //we just calculate the corresponding position in the output data.
-            LCodePosition := ((Integer(LOutIndex) div 4096) * 4096) + LCodePosition;
-            //The flag byte always has 8 bits, but at the end of the data, the
-            //last bits may be padding.  In this case, both LOutPosition and
-            //LOutIndex will equal LOutBufferSize (1 byte past our output).
-            //If we don't filter them out, we will get an access violation.
-            if LOutIndex >= LOutBufferSize then begin
-                if FDoLogging then FLog := FLog+'  Ignoring EOD padding: '+Sys.IntToStr(LCodeLength)+' bytes from offset '+Sys.IntToStr(LCodePosition)+' to '+Sys.IntToStr(LOutIndex)+' destlen '+Sys.IntToStr(LOutBufferSize)+#13#10;  {Do not localize}
-            end else begin
-                if LCodePosition >= Integer(LOutIndex) then begin
-                    //The buffer is supposed to be a circular buffer.  Since we
-                    //made it a linear buffer, we need to wrap around...
-                    LCodePosition := LCodePosition - 4096;
-                end;
-                if LCodePosition < 0 then begin
-                    //This should never happen, would cause an AV...
-                    raise EIdTnefCorruptData.Create('Corrupt compressed rtf: negative code position');  {Do not localize}
-                end;
-                if FDoLogging then FLog := FLog+'  Copying '+Sys.IntToStr(LCodeLength)+' bytes from offset '+Sys.IntToStr(LCodePosition)+' to '+Sys.IntToStr(LOutIndex)+' destlen '+Sys.IntToStr(LOutBufferSize)+#13#10;  {Do not localize}
-                for LTemp := 0 to LCodeLength-1 do begin
-                    Result[LOutIndex] := Result[LCodePosition+LTemp];         //GPFs here
-                    Inc(LOutIndex);
-                end;
-            end;
-        end;
-    end;
-    //Remove the decode string from the output...
-    for LOutIndex := 0 to LUncompressedSize-1 do begin
-        Result[LOutIndex] := Result[LOutIndex+LDecodeStringLength];
-    end;
-    SetLength(Result, LUncompressedSize);
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Uncompressed bytes:'+#13#10;  {Do not localize}
-    if FDoLogging then DumpBytes(PByte(Result), LUncompressedSize);
-end;
-
-function  TIdCoderTNEF.GetMapiItemAsBytes(AType: Word; AText: string): TIdBytes;
-var
-    LCount, LLength: LongWord;
-begin
-    LCount := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Found '+Sys.IntToStr(LCount)+' '+GetStringForMapiType(AType)+':'+#13#10;  {Do not localize}
-    if LCount = 0 then begin  //Very unlikely, just paranoia
-        SetLength(Result, 0);
-        Exit;
-    end;
-    if LCount <> 1 then begin
-        raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
-    end;
-    LLength := GetLongWord;
+  SetLength(Result, 0);
+  LCount := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('     Found %d %s:', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
+  end;
+  if LCount = 0 then begin  //Very unlikely, just paranoia
+    Exit;
+  end;
+  if LCount <> 1 then begin
+    raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
+  end;
+  LLength := GetLongWord;
+  if LLength < 12 then begin
+    //Cannot be compressed, too short...
     Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
+    Exit;
+  end;
+  //Peek ahead to see if it has an optional magic number, indicating that it
+  //has another header here.
+  //If it has a valid magic number, then the next long is the
+  //uncompressed size, then the compressed size, next is the magic (long) number,
+  //next is a CRC.
+  //We initially only want to see if it has a magic number...
+  LpByte := FByte;
+  Inc(LpByte, 8);
+  LpMagicNumber := PLongWord(LpByte);
+  LMagicNumber := LpMagicNumber^;
+  if LMagicNumber = $414C454D then begin
+    //It has a header, but this magic number means it is NOT compressed.
+    //Note: I have never seen this option existing in reality.
+    LCompressedSize := GetLongWord;
+    LUncompressedSize := GetLongWord;
+    GetLongWord;  //Magic word
+    GetLongWord;  //Checksum, ignore this, this block was crc-checked already
+    if FDoLogging then begin
+      DoLogFmt('     Is uncompressed, uncompressed size %d, compressed size %d',   {Do not localize}
+        [LUncompressedSize, LCompressedSize]);
+    end;
+    Result := InternalGetMapiItemAsBytes(LCount, LLength-16, AType, AText);
+    Exit;
+  end;
+  if LMagicNumber <> $75465A4C then begin
+    //Not compressed (or not compressed in a format we recognise)...
+    Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
+    Exit;
+  end;
+  //It is compressed.  Decompress it.
+  Result := DecompressRtf(LCount, LLength, AType, AText);
 end;
 
-function  TIdCoderTNEF.InternalGetMapiItemAsBytes(ACount, ALength: LongWord; AType: Word; AText: string): TIdBytes;
+function TIdCoderTNEF.DecompressRtf(ACount, ALength: LongWord; AType: Word; AText: string): TIdBytes;
 var
-    LIndex: LongWord;
-    LpbTemp: PByte;  //Is this OK under .NET?
+  LCompressedSize, LUncompressedSize: LongWord;
+  LData: TIdBytes;
+  LInIndex, LOutIndex: LongWord;
+  LFlags: Byte;
+  LShifts: integer;
+  LFlag: Byte;
+  LCodePosition: integer;
+  LCodeLength: integer;
+  LDecodeString: string;
+  LDecodeStringLength: LongWord;
+  LTemp: Integer;
+  LOutBufferSize: LongWord;
 begin
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Item had '+Sys.IntToStr(ALength)+' bytes.'+#13#10;  {Do not localize}
-    SetLength(Result, ALength);
-    LpbTemp := FByte;
-    for LIndex := 1 to ALength do begin
-        Result[LIndex-1] := LpbTemp^;
-        Inc(LpbTemp, 1);
+  //Read header...
+  LCompressedSize := GetLongWord;  //Length AFTER this field (LLength - 4)
+  LUncompressedSize := GetLongWord;
+  GetLongWord;  //Magic number
+  GetLongWord;     //Checksum, ignore this, this block was crc-checked already
+  if FDoLogging then begin
+    DoLogFmt('     Is compressed, uncompressed size %d, compressed size %d',  {Do not localize}
+      [LUncompressedSize, LCompressedSize]);
+  end;
+  //Get the compressed bytes...
+  LData := InternalGetMapiItemAsBytes(ACount, ALength-16, AType, AText);
+  LDecodeStringLength := Length(IdTNEF_decode_string);
+  LOutBufferSize := LDecodeStringLength + LUncompressedSize;
+  SetLength(Result, LOutBufferSize);
+  //Copy the preload decode string into the output...
+  LDecodeString := IdTNEF_decode_string;
+  for LTemp := 0 to LDecodeStringLength-1 do begin
+      Result[LTemp] := Byte(LDecodeString[LTemp+1]);
+  end;
+  LInIndex := 0;
+  LOutIndex := LDecodeStringLength;
+  Dec(ALength, 16);  //Adjust for the header.
+  LShifts := 8;  //Force an initial load of the first flag byte
+  LFlags := 0;  //Stop warning
+  while LInIndex < ALength do begin
+    //This scheme blocks that contain a starting byte of eight flags followed by
+    //eight 1 or 2-byte entries.  If the flag is 0, its entry is a single
+    //literal byte, if 1 then its entry is a two-byte compression code.
+    if LShifts = 8 then begin
+      LFlags := LData[LInIndex];
+      LShifts := 0;
+      Inc(LInIndex);
     end;
-    if FDoLogging then DumpBytes(FByte, ALength);
-    //Note the bytes are padded to 4-byte boundaries...
-    if (ALength mod 4) > 0 then begin
-        ALength := ((ALength div 4) + 1) * 4;
+    LFlag := LFlags and 1;
+    LFlags := LFlags shr 1;
+    Inc(LShifts);
+    if LFlag = 0 then begin
+      //A single literal byte...
+      Result[LOutIndex] := LData[LInIndex];
+      Inc(LInIndex);
+      Inc(LOutIndex);
+    end else begin
+      //A two-byte code telling us that the bytes we want to output are
+      //a copy of bytes that were previously outputted.  The position of
+      //the previous bytes is the first three nibbles, the number of
+      //bytes to copy is the last nibble.
+      LCodePosition := LData[LInIndex];
+      Inc(LInIndex);
+      LCodeLength := LData[LInIndex];
+      Inc(LInIndex);
+      LCodePosition := LCodePosition shl 4;
+      LCodePosition := LCodePosition or (LCodeLength shr 4);
+      LCodeLength := LCodeLength and $F;   //The low nibble
+      //Since repetitions of 0 or 1 byte would be a waste of time, the
+      //length runs from 2 to 17 instead of 0 to 15...
+      LCodeLength := LCodeLength + 2;
+      //LCodePosition points to the byte sequence we are to copy from the
+      //previously-decoded output data.  The output data is viewed as a
+      //4096-byte circular buffer into which LCodePosition points.  It is
+      //further complicated by the fact that the buffer is preloaded with
+      //the string IdTNEF_decode_string.  Rather than using a real buffer,
+      //we just calculate the corresponding position in the output data.
+      LCodePosition := ((Integer(LOutIndex) div 4096) * 4096) + LCodePosition;
+      //The flag byte always has 8 bits, but at the end of the data, the
+      //last bits may be padding.  In this case, both LOutPosition and
+      //LOutIndex will equal LOutBufferSize (1 byte past our output).
+      //If we don't filter them out, we will get an access violation.
+      if LOutIndex >= LOutBufferSize then begin
+        if FDoLogging then begin
+          DoLogFmt('  Ignoring EOD padding: %d bytes from offset %d to %d destlen %d',   {Do not localize}
+            [LCodeLength, LCodePosition, LOutIndex, LOutBufferSize],
+            False);
+        end;
+      end else begin
+        if LCodePosition >= Integer(LOutIndex) then begin
+          //The buffer is supposed to be a circular buffer.  Since we
+          //made it a linear buffer, we need to wrap around...
+          LCodePosition := LCodePosition - 4096;
+        end;
+        if LCodePosition < 0 then begin
+          //This should never happen, would cause an AV...
+          raise EIdTnefCorruptData.Create('Corrupt compressed rtf: negative code position');  {Do not localize}
+        end;
+        if FDoLogging then begin
+          DoLogFmt('  Copying %d bytes from offset %d to %d destlen %d',   {Do not localize}
+            [LCodeLength, LCodePosition, LOutIndex, LOutBufferSize]),
+	    False);
+        end;
+        for LTemp := 0 to LCodeLength-1 do begin
+          Result[LOutIndex] := Result[LCodePosition+LTemp];         //GPFs here
+          Inc(LOutIndex);
+        end;
+      end;
     end;
-    Inc(FByte, ALength);
-    Dec(FNumBytesLeft, ALength);
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseMapiProp found '+AText+' Bytes, count: '+Sys.IntToStr(ACount)+#13#10;  {Do not localize}
+  end;
+  //Remove the decode string from the output...
+  for LOutIndex := 0 to LUncompressedSize-1 do begin
+    Result[LOutIndex] := Result[LOutIndex+LDecodeStringLength];
+  end;
+  SetLength(Result, LUncompressedSize);
+  if FDoLogging then begin
+    DoLog('     Uncompressed bytes:');  {Do not localize}
+    DumpBytes(PByte(Result), LUncompressedSize);
+  end;
+end;
+
+function TIdCoderTNEF.GetMapiItemAsBytes(AType: Word; AText: string): TIdBytes;
+var
+  LCount, LLength: LongWord;
+begin
+  SetLength(Result, 0);
+  LCount := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('     Found %d %s:', [LCount, GetStringForMapiType(AType)]);  {Do not localize}
+  end;
+  if LCount = 0 then begin  //Very unlikely, just paranoia
+    Exit;
+  end;
+  if LCount <> 1 then begin
+    raise EIdTnefNotSupported.Create('Binary/Object not supported with a count > 1');  {Do not localize}
+  end;
+  LLength := GetLongWord;
+  Result := InternalGetMapiItemAsBytes(LCount, LLength, AType, AText);
+end;
+
+function TIdCoderTNEF.InternalGetMapiItemAsBytes(ACount, ALength: LongWord; AType: Word; AText: string): TIdBytes;
+var
+  LIndex: LongWord;
+  LpbTemp: PByte;  //Is this OK under .NET?
+begin
+  if FDoLogging then begin
+    DoLogFmt('     Item had %d bytes.', [ALength]);  {Do not localize}
+  end;
+  SetLength(Result, ALength);
+  LpbTemp := FByte;
+  for LIndex := 1 to ALength do begin
+    Result[LIndex-1] := LpbTemp^;
+    Inc(LpbTemp, 1);
+  end;
+  if FDoLogging then begin
+    DumpBytes(FByte, ALength);
+  end;
+  //Note the bytes are padded to 4-byte boundaries...
+  if (ALength mod 4) > 0 then begin
+    ALength := ((ALength div 4) + 1) * 4;
+  end;
+  Inc(FByte, ALength);
+  Dec(FNumBytesLeft, ALength);
+  if FDoLogging then begin
+    DoLogFmt('     ParseMapiProp found %s Bytes, count: %d', [AText, ACount]);  {Do not localize}
+  end;
 end;
 
 procedure TIdCoderTNEF.DumpBytes(ApByte: PByte; ACount: integer);
 var
-    LIndex: integer;
-    LLHS, LRHS: string;
-    LByte: PByte;
+  LIndex: integer;
+  LLHS, LRHS: string;
+  LByte: PByte;
 begin
-    LLHS := '';
-    LRHS := '';
-    LByte := ApByte;
-    for LIndex := 0 to ACount-1 do begin
-        LLHS := LLHS + GetByteAsHexString(LByte^)+' ';  {Do not localize}
-        LRHS := LRHS + GetByteAsChar(LByte^);
-        if ((LIndex+1) mod 16) = 0 then begin
-            FLog := FLog+'      ' + LLHS + '  ' + LRHS + #13#10;  {Do not localize}
-            LLHS := '';
-            LRHS := '';
-        end;
-        Inc(LByte);
+  LLHS := '';
+  LRHS := '';
+  LByte := ApByte;
+  for LIndex := 0 to ACount-1 do begin
+    LLHS := LLHS + GetByteAsHexString(LByte^)+' ';  {Do not localize}
+    LRHS := LRHS + GetByteAsChar(LByte^);
+    if ((LIndex+1) mod 16) = 0 then begin
+      DoLog('      ' + LLHS + '  ' + LRHS, False);  {Do not localize}
+      LLHS := '';
+      LRHS := '';
     end;
-    if LLHS <> '' then begin
-        while Length(LLHS) < 48 do begin
-            LLHS := LLHS + ' ';  {Do not localize}
-        end;
-        FLog := FLog+'      ' + LLHS + '  ' + LRHS + #13#10;  {Do not localize}
+    Inc(LByte);
+  end;
+  if LLHS <> '' then begin
+    while Length(LLHS) < 48 do begin
+      LLHS := LLHS + ' ';  {Do not localize}
     end;
+    DoLog('      ' + LLHS + '  ' + LRHS, False);  {Do not localize}
+  end;
 end;
 
 procedure TIdCoderTNEF.ParseMapiProp;
 var
-    LType, LAttribute: Word;
-    LLength: LongWord;
-    //LGUIDType: LongWord;
-    LShort: Smallint;
-    LStr: string;
-    LGUID: string;
-    LTextPart: TIdText;
-    LDate: TDateTime;
+  LType, LAttribute: Word;
+  LLength: LongWord;
+  //LGUIDType: LongWord;
+  LShort: Smallint;
+  LStr: string;
+  LGUID: string;
+  LTextPart: TIdText;
+  LDate: TDateTime;
 begin
-    LType := GetWord;
-    LAttribute := GetWord;
-    //Initially, just parse out the common attributes and the ones we are interested in.
-    if LAttribute >= $8000 then begin
-        //A named property: this has a GUID and some other optional stuff...
-        LGUID := GetBytesAsHexString(16);
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     MAPI item has a named property, GUID: '+LGUID+#13#10;  {Do not localize}
-        LLength := GetLongWord;
-        if LLength = 0 then begin
-            //In this case, the named property uses an identifier...
-            //TODO: What is the LGUIDType below?
-            {LGUIDType :=} GetLongWord;
-        end else begin
-            //In this case, the named property uses a string...
-            //TODO: Following code not tested...
-            Skip(LLength);
-        end;
+  LType := GetWord;
+  LAttribute := GetWord;
+  //Initially, just parse out the common attributes and the ones we are interested in.
+  if LAttribute >= $8000 then begin
+    //A named property: this has a GUID and some other optional stuff...
+    LGUID := GetBytesAsHexString(16);
+    if FDoLogging then begin
+      DoLog('     MAPI item has a named property, GUID: ' + LGUID);  {Do not localize}
     end;
-    case LAttribute of
-      IdTNEF_PR_ALTERNATE_RECIPIENT_ALLOWED: begin
-        {LShort := } GetMapiBoolean(LType, 'ALTERNATE_RECIPIENT_ALLOWED');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINATOR_DELIVERY_REPORT_REQUESTED: begin
-        //A delivery receipt, not supported by most systems, implement as a read receipt
-        LShort := GetMapiBoolean(LType, 'ORIGINATOR_DELIVERY_REPORT_REQUESTED');  {Do not localize}
-        if LShort > 0 then begin
-            //Have we already parsed the sender?
-            if FMsg.From.Address <> '' then begin
-                FMsg.ReceiptRecipient.Address := FMsg.From.Address;
-            end else begin
-                FReceiptRequested := True;
-            end;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Delivery receipt requested.'+#13#10;  {Do not localize}
+    LLength := GetLongWord;
+    if LLength = 0 then begin
+      //In this case, the named property uses an identifier...
+      //TODO: What is the LGUIDType below?
+      {LGUIDType :=} GetLongWord;
+    end else begin
+      //In this case, the named property uses a string...
+      //TODO: Following code not tested...
+      Skip(LLength);
+    end;
+  end;
+  case LAttribute of
+    IdTNEF_PR_ALTERNATE_RECIPIENT_ALLOWED: begin
+      {LShort := } GetMapiBoolean(LType, 'ALTERNATE_RECIPIENT_ALLOWED');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINATOR_DELIVERY_REPORT_REQUESTED: begin
+      //A delivery receipt, not supported by most systems, implement as a read receipt
+      LShort := GetMapiBoolean(LType, 'ORIGINATOR_DELIVERY_REPORT_REQUESTED');  {Do not localize}
+      if LShort > 0 then begin
+        //Have we already parsed the sender?
+        if FMsg.From.Address <> '' then begin
+          FMsg.ReceiptRecipient.Address := FMsg.From.Address;
         end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Delivery receipt not requested.'+#13#10;  {Do not localize}
+          FReceiptRequested := True;
+        end;
+        if FDoLogging then begin
+          DoLog('     Delivery receipt requested.');  {Do not localize}
+        end;
+      end else begin
+        if FDoLogging then begin
+          DoLog('     Delivery receipt not requested.');  {Do not localize}
         end;
       end;
-      IdTNEF_PR_PRIORITY: begin
-        {LLong := } GetMapiLong(LType, 'PRIORITY');  {Do not localize}
-      end;
-      IdTNEF_PR_READ_RECEIPT_REQUESTED: begin
-        LShort := GetMapiBoolean(LType, 'READ_RECEIPT_REQUESTED');  {Do not localize}
-        if LShort > 0 then begin
-            //Have we already parsed the sender?
-            if FMsg.From.Address <> '' then begin
-                FMsg.ReceiptRecipient.Address := FMsg.From.Address;
-            end else begin
-                FReceiptRequested := True;
-            end;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Read receipt requested.'+#13#10;  {Do not localize}
+    end;
+    IdTNEF_PR_PRIORITY: begin
+      {LLong := } GetMapiLong(LType, 'PRIORITY');  {Do not localize}
+    end;
+    IdTNEF_PR_READ_RECEIPT_REQUESTED: begin
+      LShort := GetMapiBoolean(LType, 'READ_RECEIPT_REQUESTED');  {Do not localize}
+      if LShort > 0 then begin
+        //Have we already parsed the sender?
+        if FMsg.From.Address <> '' then begin
+          FMsg.ReceiptRecipient.Address := FMsg.From.Address;
         end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Read receipt not requested.'+#13#10;  {Do not localize}
+          FReceiptRequested := True;
+        end;
+        if FDoLogging then begin
+          DoLog('     Read receipt requested.');  {Do not localize}
+        end;
+      end else begin
+        if FDoLogging then begin
+          DoLog('     Read receipt not requested.');  {Do not localize}
         end;
       end;
-      IdTNEF_PR_ORIGINAL_SENSITIVITY: begin
-        {LLong := } GetMapiLong(LType, 'ORIGINAL_SENSITIVITY');  {Do not localize}
-      end;
-      IdTNEF_PR_SENSITIVITY: begin
-        {LLong := } GetMapiLong(LType, 'SENSITIVITY');  {Do not localize}
-      end;
-      IdTNEF_PR_SUBJECT_PREFIX: begin
-        {LStr := } GetMapiStrings(LType, 'SUBJECT_PREFIX');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_AUTHOR_NAME: begin
-        {LStr := } GetMapiStrings(LType, 'ORIGINAL_AUTHOR_NAME');  {Do not localize}
-      end;
-      IdTNEF_PR_CONVERSATION_TOPIC: begin
-        LStr := GetMapiStrings(LType, 'CONVERSATION_TOPIC');  {Do not localize}
-        if FMsg.Subject = '' then begin //Only use this as subject if did not find subject at a higher level
-            FMsg.Subject := LStr;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has subject (from CONVERSATION_TOPIC): '+LStr+#13#10;  {Do not localize}
-        end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     CONVERSATION_TOPIC ignored, already have subject.  CONVERSATION_TOPIC: '+LStr+#13#10;  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENSITIVITY: begin
+      {LLong := } GetMapiLong(LType, 'ORIGINAL_SENSITIVITY');  {Do not localize}
+    end;
+    IdTNEF_PR_SENSITIVITY: begin
+      {LLong := } GetMapiLong(LType, 'SENSITIVITY');  {Do not localize}
+    end;
+    IdTNEF_PR_SUBJECT_PREFIX: begin
+      {LStr := } GetMapiStrings(LType, 'SUBJECT_PREFIX');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_AUTHOR_NAME: begin
+      {LStr := } GetMapiStrings(LType, 'ORIGINAL_AUTHOR_NAME');  {Do not localize}
+    end;
+    IdTNEF_PR_CONVERSATION_TOPIC: begin
+      LStr := GetMapiStrings(LType, 'CONVERSATION_TOPIC');  {Do not localize}
+      if FMsg.Subject = '' then begin //Only use this as subject if did not find subject at a higher level
+        FMsg.Subject := LStr;
+        if FDoLogging then begin
+          DoLog('     Message has subject (from CONVERSATION_TOPIC): ' + LStr);  {Do not localize}
+        end;
+      end else begin
+        if FDoLogging then begin
+          DoLog('     CONVERSATION_TOPIC ignored, already have subject.  CONVERSATION_TOPIC: ' + LStr);  {Do not localize}
         end;
       end;
-      IdTNEF_PR_CLIENT_SUBMIT_TIME: begin
-        LDate := GetMapiSysTime(LType, 'CLIENT_SUBMIT_TIME');  {Do not localize}
-        if FMsg.Date = 0 then begin //Only use this as date if did not find date at a higher level
-            FMsg.Date := LDate;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has date (from CLIENT_SUBMIT_TIME): '+Sys.DateTimeToStr(LDate)+#13#10;  {Do not localize}
-        end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     CLIENT_SUBMIT_TIME ignored, already have date.  CLIENT_SUBMIT_TIME: '+Sys.DateTimeToStr(LDate)+#13#10;  {Do not localize}
+    end;
+    IdTNEF_PR_CLIENT_SUBMIT_TIME: begin
+      LDate := GetMapiSysTime(LType, 'CLIENT_SUBMIT_TIME');  {Do not localize}
+      if FMsg.Date = 0 then begin //Only use this as date if did not find date at a higher level
+        FMsg.Date := LDate;
+        if FDoLogging then begin
+          DoLog('     Message has date (from CLIENT_SUBMIT_TIME): ' + DateTimeToStr(LDate));  {Do not localize}
+        end;
+      end else begin
+        if FDoLogging then begin
+          DoLog('     CLIENT_SUBMIT_TIME ignored, already have date.  CLIENT_SUBMIT_TIME: ' + DateTimeToStr(LDate));  {Do not localize}
         end;
       end;
-      IdTNEF_PR_CONVERSATION_INDEX: begin
-        GetMapiBinary(LType, 'CONVERSATION_INDEX');  {Do not localize}
+    end;
+    IdTNEF_PR_CONVERSATION_INDEX: begin
+      GetMapiBinary(LType, 'CONVERSATION_INDEX');  {Do not localize}
+    end;
+    IdTNEF_PR_MESSAGE_SUBMISSION_ID: begin
+      GetMapiBinary(LType, 'MESSAGE_SUBMISSION_ID');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SUBJECT: begin
+      {LStr :=} GetMapiStrings(LType, 'ORIGINAL_SUBJECT');  {Do not localize}
+    end;
+    IdTNEF_PR_REPLY_REQUESTED: begin
+      {LShort :=} GetMapiBoolean(LType, 'REPLY_REQUESTED');  {Do not localize}
+    end;
+    IdTNEF_PR_SENDER_SEARCH_KEY: begin
+      LStr := GetMapiBinaryAsEmailName(LType, 'SENDER_SEARCH_KEY');  {Do not localize}
+      FMsg.From.Address := LStr;
+      if FReceiptRequested = True then begin
+        FMsg.ReceiptRecipient.Address := FMsg.From.Address;
       end;
-      IdTNEF_PR_MESSAGE_SUBMISSION_ID: begin
-        GetMapiBinary(LType, 'MESSAGE_SUBMISSION_ID');  {Do not localize}
+      if FDoLogging then begin
+        DoLog('     Message sender: ' + LStr);  {Do not localize}
       end;
-      IdTNEF_PR_ORIGINAL_SUBJECT: begin
-        {LStr :=} GetMapiStrings(LType, 'ORIGINAL_SUBJECT');  {Do not localize}
-      end;
-      IdTNEF_PR_REPLY_REQUESTED: begin
-        {LShort :=} GetMapiBoolean(LType, 'REPLY_REQUESTED');  {Do not localize}
-      end;
-      IdTNEF_PR_SENDER_SEARCH_KEY: begin
-        LStr := GetMapiBinaryAsEmailName(LType, 'SENDER_SEARCH_KEY');  {Do not localize}
+    end;
+    IdTNEF_PR_DELETE_AFTER_SUBMIT: begin
+      GetMapiBoolean(LType, 'DELETE_AFTER_SUBMIT');  {Do not localize}
+    end;
+    IdTNEF_PR_MESSAGE_DELIVERY_TIME: begin
+      GetMapiSysTime(LType, 'MESSAGE_DELIVERY_TIME');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SUBMIT_TIME: begin
+      GetMapiSysTime(LType, 'ORIGINAL_SUBMIT_TIME');  {Do not localize}
+    end;
+    IdTNEF_PR_SENTMAIL_ENTRYID: begin
+      GetMapiBinary(LType, 'SENTMAIL_ENTRYID');  {Do not localize}
+    end;
+    IdTNEF_PR_RTF_IN_SYNC: begin
+      GetMapiBoolean(LType, 'RTF_IN_SYNC');  {Do not localize}
+    end;
+    IdTNEF_PR_MAPPING_SIGNATURE: begin
+      GetMapiBinary(LType, 'MAPPING_SIGNATURE');  {Do not localize}
+    end;
+    IdTNEF_PR_STORE_RECORD_KEY: begin
+      GetMapiBinary(LType, 'STORE_RECORD_KEY');  {Do not localize}
+    end;
+    IdTNEF_PR_STORE_ENTRYID: begin
+      GetMapiBinary(LType, 'STORE_ENTRYID');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENDER_NAME: begin
+      LStr := GetMapiStrings(LType, 'ORIGINAL_SENDER_NAME');  {Do not localize}
+      if FMsg.From.Address = '' then begin
         FMsg.From.Address := LStr;
-        if FReceiptRequested = True then begin
-            FMsg.ReceiptRecipient.Address := FMsg.From.Address;
+        if FDoLogging then begin
+          DoLog('     Message has From (from ORIGINAL_SENDER_NAME): ' + LStr);  {Do not localize}
         end;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message sender: '+LStr+#13#10;  {Do not localize}
-      end;
-      IdTNEF_PR_DELETE_AFTER_SUBMIT: begin
-        GetMapiBoolean(LType, 'DELETE_AFTER_SUBMIT');  {Do not localize}
-      end;
-      IdTNEF_PR_MESSAGE_DELIVERY_TIME: begin
-        GetMapiSysTime(LType, 'MESSAGE_DELIVERY_TIME');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SUBMIT_TIME: begin
-        GetMapiSysTime(LType, 'ORIGINAL_SUBMIT_TIME');  {Do not localize}
-      end;
-      IdTNEF_PR_SENTMAIL_ENTRYID: begin
-        GetMapiBinary(LType, 'SENTMAIL_ENTRYID');  {Do not localize}
-      end;
-      IdTNEF_PR_RTF_IN_SYNC: begin
-        GetMapiBoolean(LType, 'RTF_IN_SYNC');  {Do not localize}
-      end;
-      IdTNEF_PR_MAPPING_SIGNATURE: begin
-        GetMapiBinary(LType, 'MAPPING_SIGNATURE');  {Do not localize}
-      end;
-      IdTNEF_PR_STORE_RECORD_KEY: begin
-        GetMapiBinary(LType, 'STORE_RECORD_KEY');  {Do not localize}
-      end;
-      IdTNEF_PR_STORE_ENTRYID: begin
-        GetMapiBinary(LType, 'STORE_ENTRYID');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENDER_NAME: begin
-        LStr := GetMapiStrings(LType, 'ORIGINAL_SENDER_NAME');  {Do not localize}
-        if FMsg.From.Address = '' then begin
-            FMsg.From.Address := LStr;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has From (from ORIGINAL_SENDER_NAME): '+LStr+#13#10;  {Do not localize}
-        end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ORIGINAL_SENDER_NAME ignored, already have From.  ORIGINAL_SENDER_NAME: '+LStr+#13#10;  {Do not localize}
+      end else begin
+        if FDoLogging then begin
+          DoLog('     ORIGINAL_SENDER_NAME ignored, already have From.  ORIGINAL_SENDER_NAME: ' + LStr);  {Do not localize}
         end;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message From: '+FMsg.From.Address+#13#10;  {Do not localize}
       end;
-      IdTNEF_PR_ORIGINAL_SENDER_ENTRYID: begin
-        GetMapiBinary(LType, 'ORIGINAL_SENDER_ENTRYID');  {Do not localize}
+      if FDoLogging then begin
+        DoLog('     Message From: ' + FMsg.From.Address);  {Do not localize}
       end;
-      IdTNEF_PR_ORIGINAL_SENDER_SEARCH_KEY: begin
-        GetMapiBinary(LType, 'ORIGINAL_SENDER_SEARCH_KEY');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_NAME: begin
-        GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_NAME');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_ENTRYID: begin
-        GetMapiBinary(LType, 'ORIGINAL_SENT_REPRESENTING_ENTRYID');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_SEARCH_KEY: begin
-        GetMapiBinary(LType, 'ORIGINAL_SENT_REPRESENTING_SEARCH_KEY');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENDER_ADDRTYPE: begin
-        GetMapiStrings(LType, 'ORIGINAL_SENDER_ADDRTYPE');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENDER_EMAIL_ADDRESS: begin
-        GetMapiStrings(LType, 'ORIGINAL_SENDER_EMAIL_ADDRESS');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_ADDRTYPE: begin
-        GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_ADDRTYPE');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS: begin
-        GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS');  {Do not localize}
-      end;
-      IdTNEF_PR_SENDER_NAME: begin
-        GetMapiStrings(LType, 'SENDER_NAME');  {Do not localize}
-      end;
-      IdTNEF_PR_NORMALIZED_SUBJECT: begin
-        GetMapiStrings(LType, 'NORMALIZED_SUBJECT');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_DISPLAY_CC: begin
-        GetMapiStrings(LType, 'ORIGINAL_DISPLAY_CC');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINAL_DISPLAY_TO: begin
-        GetMapiStrings(LType, 'ORIGINAL_DISPLAY_TO');  {Do not localize}
-      end;
-      IdTNEF_PR_OBJECT_TYPE: begin
-        {LLong := } GetMapiLong(LType, 'OBJECT_TYPE');  {Do not localize}
-      end;
-      IdTNEF_PR_STORE_SUPPORT_MASK: begin
-        {LLong := } GetMapiLong(LType, 'STORE_SUPPORT_MASK');  {Do not localize}
-      end;
-      IdTNEF_PR_TNEF_CORRELATION_KEY: begin
-        LStr := GetMapiBinaryAsString(LType, 'CORRELATION_KEY');  {Do not localize}
-        if FMsg.MsgId = '' then begin
-            FMsg.MsgId := LStr;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has message ID (from CORRELATION_KEY): '+LStr+#13#10;  {Do not localize}
-        end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     CORRELATION_KEY ignored, already have message ID.  CORRELATION_KEY: '+LStr+#13#10;  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENDER_ENTRYID: begin
+      GetMapiBinary(LType, 'ORIGINAL_SENDER_ENTRYID');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENDER_SEARCH_KEY: begin
+      GetMapiBinary(LType, 'ORIGINAL_SENDER_SEARCH_KEY');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_NAME: begin
+      GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_NAME');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_ENTRYID: begin
+      GetMapiBinary(LType, 'ORIGINAL_SENT_REPRESENTING_ENTRYID');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_SEARCH_KEY: begin
+      GetMapiBinary(LType, 'ORIGINAL_SENT_REPRESENTING_SEARCH_KEY');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENDER_ADDRTYPE: begin
+      GetMapiStrings(LType, 'ORIGINAL_SENDER_ADDRTYPE');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENDER_EMAIL_ADDRESS: begin
+      GetMapiStrings(LType, 'ORIGINAL_SENDER_EMAIL_ADDRESS');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_ADDRTYPE: begin
+      GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_ADDRTYPE');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS: begin
+      GetMapiStrings(LType, 'ORIGINAL_SENT_REPRESENTING_EMAIL_ADDRESS');  {Do not localize}
+    end;
+    IdTNEF_PR_SENDER_NAME: begin
+      GetMapiStrings(LType, 'SENDER_NAME');  {Do not localize}
+    end;
+    IdTNEF_PR_NORMALIZED_SUBJECT: begin
+      GetMapiStrings(LType, 'NORMALIZED_SUBJECT');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_DISPLAY_CC: begin
+      GetMapiStrings(LType, 'ORIGINAL_DISPLAY_CC');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINAL_DISPLAY_TO: begin
+      GetMapiStrings(LType, 'ORIGINAL_DISPLAY_TO');  {Do not localize}
+    end;
+    IdTNEF_PR_OBJECT_TYPE: begin
+      {LLong := } GetMapiLong(LType, 'OBJECT_TYPE');  {Do not localize}
+    end;
+    IdTNEF_PR_STORE_SUPPORT_MASK: begin
+      {LLong := } GetMapiLong(LType, 'STORE_SUPPORT_MASK');  {Do not localize}
+    end;
+    IdTNEF_PR_TNEF_CORRELATION_KEY: begin
+      LStr := GetMapiBinaryAsString(LType, 'CORRELATION_KEY');  {Do not localize}
+      if FMsg.MsgId = '' then begin
+        FMsg.MsgId := LStr;
+        if FDoLogging then begin
+          DoLog('     Message has message ID (from CORRELATION_KEY): ' + LStr);  {Do not localize}
         end;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message ID: '+FMsg.MsgId+#13#10;  {Do not localize}
+      end else begin
+        if FDoLogging then begin
+          DoLog('     CORRELATION_KEY ignored, already have message ID.  CORRELATION_KEY: ' + LStr);  {Do not localize}
+        end;
       end;
-      IdTNEF_PR_RTF_SYNC_BODY_CRC: begin
-        {LLong := } GetMapiLong(LType, 'RTF_SYNC_BODY_CRC');  {Do not localize}
+      if FDoLogging then begin
+        DoLog('     Message ID: ' + FMsg.MsgId);  {Do not localize}
       end;
-      IdTNEF_PR_RTF_SYNC_BODY_COUNT: begin
-        {LLong := } GetMapiLong(LType, 'RTF_SYNC_BODY_COUNT');  {Do not localize}
+    end;
+    IdTNEF_PR_RTF_SYNC_BODY_CRC: begin
+      {LLong := } GetMapiLong(LType, 'RTF_SYNC_BODY_CRC');  {Do not localize}
+    end;
+    IdTNEF_PR_RTF_SYNC_BODY_COUNT: begin
+      {LLong := } GetMapiLong(LType, 'RTF_SYNC_BODY_COUNT');  {Do not localize}
+    end;
+    IdTNEF_PR_RTF_SYNC_BODY_TAG: begin
+      {LStr :=} GetMapiStrings(LType, 'RTF_SYNC_BODY_TAG');  {Do not localize}
+    end;
+    IdTNEF_PR_BODY: begin
+      LStr := GetMapiStrings(LType, 'BODY');  {Do not localize}
+      FMsg.Body.Text := LStr;
+    end;
+    IdTNEF_PR_RTF_COMPRESSED: begin
+      LStr := GetMapiBinaryAsString(LType, 'RTF_COMPRESSED');  {Do not localize}
+      //Add this as a TIdText part of type text/rtf...
+      LTextPart := TIdText.Create(FMsg.MessageParts);
+      LTextPart.ContentType := 'text/rtf';  {Do not localize}
+      LTextPart.Body.Text := LStr;
+    end;
+    IdTNEF_PR_RTF_SYNC_PREFIX_COUNT: begin
+      {LLong := } GetMapiLong(LType, 'RTF_SYNC_PREFIX_COUNT');  {Do not localize}
+    end;
+    IdTNEF_PR_RTF_SYNC_TRAILING_COUNT: begin
+      {LLong := } GetMapiLong(LType, 'RTF_SYNC_TRAILING_COUNT');  {Do not localize}
+    end;
+    IdTNEF_PR_ORIGINALLY_INTENDED_RECIP_ENTRYID: begin
+      GetMapiBinary(LType, 'ORIGINALLY_INTENDED_RECIP_ENTRYID');  {Do not localize}
+    end;
+  else
+    //For the types we are not interested in, skip past them...
+    case LType of
+      IdTNEF_PT_BOOLEAN,
+      IdTNEF_PT_LONG,
+      IdTNEF_PT_I2,
+      IdTNEF_PT_R4,
+      IdTNEF_PT_ERROR,
+      IdTNEF_PT_APPTIME: begin
+        if FDoLogging then begin
+          DoLogFmt('     Skipping MAPI attribute 0x%x of type %s', [LAttribute, GetStringForMapiType(LType)]);  {Do not localize}
+        end;
+        Skip(4);  //Only 2 bytes used, but padded to 4
       end;
-      IdTNEF_PR_RTF_SYNC_BODY_TAG: begin
-        {LStr :=} GetMapiStrings(LType, 'RTF_SYNC_BODY_TAG');  {Do not localize}
+      IdTNEF_PT_BINARY,
+      IdTNEF_PT_OBJECT: begin
+        if FDoLogging then begin
+          DoLogFmt('     Skipping MAPI attribute 0x%x of type %s', [LAttribute, GetStringForMapiType(LType)]);  {Do not localize}
+        end;
+        GetMapiItemAsBytes(LType, 'ignored data');
       end;
-      IdTNEF_PR_BODY: begin
-        LStr := GetMapiStrings(LType, 'BODY');  {Do not localize}
-        FMsg.Body.Text := LStr;
+      IdTNEF_PT_UNICODE,
+      IdTNEF_PT_STRING8: begin
+        if FDoLogging then begin
+          DoLogFmt('     Skipping MAPI attribute 0x%x of type %s', [LAttribute, GetStringForMapiType(LType)]);  {Do not localize}
+        end;
+        GetMapiStrings(LType, 'ignored data');
       end;
-      IdTNEF_PR_RTF_COMPRESSED: begin
-        LStr := GetMapiBinaryAsString(LType, 'RTF_COMPRESSED');  {Do not localize}
-        //Add this as a TIdText part of type text/rtf...
-        LTextPart := TIdText.Create(FMsg.MessageParts);
-        LTextPart.ContentType := 'text/rtf';  {Do not localize}
-        LTextPart.Body.Text := LStr;
-      end;
-      IdTNEF_PR_RTF_SYNC_PREFIX_COUNT: begin
-        {LLong := } GetMapiLong(LType, 'RTF_SYNC_PREFIX_COUNT');  {Do not localize}
-      end;
-      IdTNEF_PR_RTF_SYNC_TRAILING_COUNT: begin
-        {LLong := } GetMapiLong(LType, 'RTF_SYNC_TRAILING_COUNT');  {Do not localize}
-      end;
-      IdTNEF_PR_ORIGINALLY_INTENDED_RECIP_ENTRYID: begin
-        GetMapiBinary(LType, 'ORIGINALLY_INTENDED_RECIP_ENTRYID');  {Do not localize}
+      IdTNEF_PT_SYSTIME,
+      IdTNEF_PT_DOUBLE,
+      IdTNEF_PT_I8,
+      IdTNEF_PT_CURRENCY: begin
+        if FDoLogging then begin
+          DoLogFmt('     Skipping MAPI attribute 0x%x of type %s', [LAttribute, GetStringForMapiType(LType)]);  {Do not localize}
+        end;
+        Skip(8);
       end;
     else
-        //For the types we are not interested in, skip past them...
-        case LType of
-          IdTNEF_PT_BOOLEAN,
-          IdTNEF_PT_LONG,
-          IdTNEF_PT_I2,
-          IdTNEF_PT_R4,
-          IdTNEF_PT_ERROR,
-          IdTNEF_PT_APPTIME:
-          begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Skipping MAPI attribute '+Sys.Format('0x%x', [LAttribute])+' of type '+GetStringForMapiType(LType)+#13#10;  {Do not localize}
-            Skip(4);  //Only 2 bytes used, but padded to 4
-          end;
-          IdTNEF_PT_BINARY,
-          IdTNEF_PT_OBJECT:
-          begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Skipping MAPI attribute '+Sys.Format('0x%x', [LAttribute])+' of type '+GetStringForMapiType(LType)+#13#10;  {Do not localize}
-            GetMapiItemAsBytes(LType, 'ignored data');
-          end;
-          IdTNEF_PT_UNICODE,
-          IdTNEF_PT_STRING8:
-          begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Skipping MAPI attribute '+Sys.Format('0x%x', [LAttribute])+' of type '+GetStringForMapiType(LType)+#13#10;  {Do not localize}
-            GetMapiStrings(LType, 'ignored data');
-          end;
-          IdTNEF_PT_SYSTIME,
-          IdTNEF_PT_DOUBLE,
-          IdTNEF_PT_I8,
-          IdTNEF_PT_CURRENCY:
-          begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Skipping MAPI attribute '+Sys.Format('0x%x', [LAttribute])+' of type '+GetStringForMapiType(LType)+#13#10;  {Do not localize}
-            Skip(8);
-          end;
-        else
-          raise EIdTnefUnknownMapiType.Create('Encountered unknown MAPI type');  {Do not localize}
-        end;
+      raise EIdTnefUnknownMapiType.Create('Encountered unknown MAPI type');  {Do not localize}
     end;
+  end;
 end;
 
 procedure TIdCoderTNEF.ParseMapiProps(ALength: LongWord);
 var
-    LNumEntries: LongWord;
-    LIndex: LongWord;
+  LNumEntries: LongWord;
+  LIndex: LongWord;
 begin
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   Parsing MAPI block, '+Sys.IntToStr(ALength)+' bytes.'+#13#10;  {Do not localize}
-    LNumEntries := GetLongWord;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':   Contains '+Sys.IntToStr(LNumEntries)+' entries.'+#13#10;  {Do not localize}
-    for LIndex := 0 to LNumEntries-1 do begin
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':    Entry '+Sys.IntToStr(LIndex)+':'+#13#10;  {Do not localize}
-        ParseMapiProp;
+  if FDoLogging then begin
+    DoLogFmt('   Parsing MAPI block, %d bytes.', [ALength]);  {Do not localize}
+  end;
+  LNumEntries := GetLongWord;
+  if FDoLogging then begin
+    DoLogFmt('   Contains %d entries.', [LNumEntries]);  {Do not localize}
+  end;
+  for LIndex := 0 to LNumEntries-1 do begin
+    if FDoLogging then begin
+      DoLogFmt('    Entry %d:', [LIndex]);  {Do not localize}
     end;
+    ParseMapiProp;
+  end;
 end;
 
 procedure TIdCoderTNEF.ParseAttribute(AAttribute: LongWord);
 var
-    LType, LAttribute: Word;
-    LLength: LongWord;
-    LTemp: LongWord;
-    LLow, LHigh: Word;
-    LShort: Smallint;
+  LType, LAttribute: Word;
+  LLength: LongWord;
+  LTemp: LongWord;
+  LLow, LHigh: Word;
+  LShort: Smallint;
 begin
-    SplitLongWord(AAttribute, LType, LAttribute);
-    LLength := GetLongWord;
-    Checksum(LLength);
-    case LAttribute of
-      IdTNEFattTnefVersion: begin
-        if LType <> IdTNEFAtpDWord then begin
-          raise EIdTnefUnexpectedType.Create('Expected DWord for TnefVersion');  {Do not localize}
+  SplitLongWord(AAttribute, LType, LAttribute);
+  LLength := GetLongWord;
+  Checksum(LLength);
+  case LAttribute of
+    IdTNEFattTnefVersion: begin
+      if LType <> IdTNEFAtpDWord then begin
+        raise EIdTnefUnexpectedType.Create('Expected DWord for TnefVersion');  {Do not localize}
+      end;
+      LTemp := GetLongWord;
+      SplitLongWord(LTemp, LHigh, LLow);
+      if FDoLogging then begin
+        DoLogFmt('     ParseAttribute found TNef Version DWord.  Major version: %d Minor version: %d', [LHigh, LLow]);  {Do not localize}
+      end;
+      if (LHigh <> 1) and (LLow <> 0) then begin
+        if FDoLogging then begin
+          DoLog('     Expected a version with Major = 1, Minor = 0.  Some elements may not parse correctly.');  {Do not localize}
         end;
-        LTemp := GetLongWord;
-        SplitLongWord(LTemp, LHigh, LLow);
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found TNef Version DWord.  Major version: '+Sys.IntToStr(LHigh)+' Minor version: '+Sys.IntToStr(LLow)+#13#10;  {Do not localize}
-        if ((LHigh <> 1) and (LLow <> 0)) then begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Expected a version with Major = 1, Minor = 0.  Some elements may not parse correctly.'+#13#10;  {Do not localize}
-        end else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     This is the expected version.'+#13#10;  {Do not localize}
+      end else begin
+        if FDoLogging then begin
+          DoLog('     This is the expected version.');  {Do not localize}
         end;
       end;
-      IdTNEFattSubject: begin
-        if LType <> IdTNEFAtpString then begin
-          raise EIdTnefUnexpectedType.Create('Expected String for TnefSubject');  {Do not localize}
-        end;
-        FMsg.Subject := GetString(LLength);
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found TNef Subject String: '+FMsg.Subject+#13#10;  {Do not localize}
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has subject: '+FMsg.Subject+#13#10;  {Do not localize}
+    end;
+    IdTNEFattSubject: begin
+      if LType <> IdTNEFAtpString then begin
+        raise EIdTnefUnexpectedType.Create('Expected String for TnefSubject');  {Do not localize}
       end;
-      IdTNEFattDateSent: begin
-        if LType <> IdTNEFAtpDate then begin
-          raise EIdTnefUnexpectedType.Create('Expected Date for TnefDateSent');  {Do not localize}
-        end;
-        FMsg.Date := GetDate(LLength);
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found TNef Date Sent.'+#13#10;  {Do not localize}
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has date: '+Sys.DateTimeToStr(FMsg.Date)+#13#10;  {Do not localize}
+      FMsg.Subject := GetString(LLength);
+      if FDoLogging then begin
+        DoLog('     ParseAttribute found TNef Subject String: ' + FMsg.Subject);  {Do not localize}
+        DoLog('     Message has subject: ' + FMsg.Subject);  {Do not localize}
       end;
-      IdTNEFattMessageID: begin
-        if LType <> IdTNEFAtpString then begin
-          raise EIdTnefUnexpectedType.Create('Expected String for TnefMessageID');  {Do not localize}
-        end;
-        FMsg.MsgId := GetString(LLength);
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found TNef Message ID.'+#13#10;  {Do not localize}
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has ID: '+FMsg.MsgId+#13#10;  {Do not localize}
+    end;
+    IdTNEFattDateSent: begin
+      if LType <> IdTNEFAtpDate then begin
+        raise EIdTnefUnexpectedType.Create('Expected Date for TnefDateSent');  {Do not localize}
       end;
-      IdTNEFattPriority: begin
-        if LType <> IdTNEFAtpShort then begin
-          raise EIdTnefUnexpectedType.Create('Expected Short for TnefPriority');  {Do not localize}
-        end;
-        LShort := GetWord;
-        if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found Priority Short.'+#13#10;  {Do not localize}
-        case LShort of
-          IdTNEFprioLow: begin
-            FMsg.Priority := mpLow;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has low priority.'+#13#10;  {Do not localize}
+      FMsg.Date := GetDate(LLength);
+      if FDoLogging then begin
+        DoLog('     ParseAttribute found TNef Date Sent.');  {Do not localize}
+        DoLog('     Message has date: ' + DateTimeToStr(FMsg.Date));  {Do not localize}
+      end;
+    end;
+    IdTNEFattMessageID: begin
+      if LType <> IdTNEFAtpString then begin
+        raise EIdTnefUnexpectedType.Create('Expected String for TnefMessageID');  {Do not localize}
+      end;
+      FMsg.MsgId := GetString(LLength);
+      if FDoLogging then begin
+        DoLog('     ParseAttribute found TNef Message ID.');  {Do not localize}
+        DoLog('     Message has ID: ' + FMsg.MsgId);  {Do not localize}
+      end;
+    end;
+    IdTNEFattPriority: begin
+      if LType <> IdTNEFAtpShort then begin
+        raise EIdTnefUnexpectedType.Create('Expected Short for TnefPriority');  {Do not localize}
+      end;
+      LShort := GetWord;
+      if FDoLogging then begin
+        DoLog('     ParseAttribute found Priority Short.');  {Do not localize}
+      end;
+      case LShort of
+        IdTNEFprioLow: begin
+          FMsg.Priority := mpLow;
+          if FDoLogging then begin
+            DoLog('     Message has low priority.');  {Do not localize}
           end;
-          IdTNEFprioNorm: begin
-            FMsg.Priority := mpNormal;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has normal priority.'+#13#10;  {Do not localize}
-          end;
-          IdTNEFprioHigh: begin
-            FMsg.Priority := mpHigh;
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     Message has high priority.'+#13#10;  {Do not localize}
-          end;
-        else
-          raise EIdTnefUnexpectedValue.Create('Unexpected value for priority.');  {Do not localize}
         end;
+        IdTNEFprioNorm: begin
+          FMsg.Priority := mpNormal;
+          if FDoLogging then begin
+            DoLog('     Message has normal priority.');  {Do not localize}
+          end;
+        end;
+        IdTNEFprioHigh: begin
+          FMsg.Priority := mpHigh;
+          if FDoLogging then begin
+            DoLog('     Message has high priority.');  {Do not localize}
+          end;
+        end;
+      else
+        raise EIdTnefUnexpectedValue.Create('Unexpected value for priority.');  {Do not localize}
       end;
-      IdTNEFattMAPIProps: begin
-        ParseMapiProps(LLength);
+    end;
+    IdTNEFattMAPIProps: begin
+      ParseMapiProps(LLength);
+    end;
+  else
+    case LType of
+      IdTNEFAtpTriples: begin
+        if FDoLogging then begin
+          DoLogFmt('     ParseAttribute found AtpTriples type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpString: begin
+        if FDoLogging then begin
+          DoLogFmt('     ParseAttribute found AtpString type, %s, length: %d',  {Do not localize}
+            [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpText: begin
+        if FDoLogging then begin
+          DoLogFmt('     ParseAttribute found AtpText type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpDate: begin
+        if FDoLogging then begin
+	  DoLogFtm('     ParseAttribute found AtpDate type, %s, length: %d',  {Do not localize}
+            [GetStringForAttribute(LAttribute), LLength]);
+ 	end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpShort: begin
+        if FDoLogging then begin
+          DoLogFmt('     ParseAttribute found AtpShort type, %s, length: %d', [GetStringForAttribute(LAttribute), LLength]);  {Do not localize}
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpLong: begin
+        if FDoLogging then begin
+          DoLogFmt('     ParseAttribute found AtpLong type, %s, length: %d',  {Do not localize}
+            [GetStringForAttribute(LAttribute), LLength]);
+         end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpByte: begin
+        if FDoLogging then begin
+	  DoLogFmt('     ParseAttribute found AtpByte type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+	end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpWord: begin
+        if FDoLogging then begin
+	  DoLogFmt('     ParseAttribute found AtpWord type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpDWord: begin
+        if FDoLogging then begin
+	  DoLogFmt('     ParseAttribute found AtpDWord type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
+      end;
+      IdTNEFAtpMax: begin
+        if FDoLogging then begin
+	  DoLogFmt('     ParseAttribute found AtpMax type, %s, length: %d',  {Do not localize}
+	    [GetStringForAttribute(LAttribute), LLength]);
+        end;
+        Skip(LLength);
       end;
     else
-        case LType of
-          IdTNEFAtpTriples: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpTriples type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpString: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpString type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpText: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpText type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpDate: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpDate type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpShort: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpShort type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpLong: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpLong type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpByte: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpByte type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpWord: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpWord type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpDWord: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpDWord type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-          IdTNEFAtpMax: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found AtpMax type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-            Skip(LLength);
-          end;
-        else
-          if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+':     ParseAttribute found unknown type, '+GetStringForAttribute(LAttribute)+', length: '+Sys.IntToStr(LLength)+#13#10;  {Do not localize}
-          Skip(LLength);
-        end;
+      if FDoLogging then begin
+        DoLogFmt('     ParseAttribute found unknown type, %s, length: %d',  {Do not localize}
+	  [GetStringForAttribute(LAttribute), LLength]);
+      end;
+      Skip(LLength);
     end;
-    Skip(2);  //Checksum
+  end;
+  Skip(2);  //Checksum
 end;
 
 procedure TIdCoderTNEF.Parse(const AIn: TIdBytes; AMsg: TIdMessage; ALog: Boolean = False);
 var
-    LdwTemp: LongWord;
-    LBlockType: Byte;
-    LThereIsMore: Boolean;
+  LdwTemp: LongWord;
+  LBlockType: Byte;
+  LThereIsMore: Boolean;
 begin
-    FLog := '';
-    FDoLogging := ALog;
-    FMsg := AMsg;
-    FMsg.Clear;
-    FMsg.ContentType := 'multipart/mixed';  //Default: improve on this at a later stage.
-    FReceiptRequested := False;
-    FCurrentAttachment := nil;
-    FByte := PByte(AIn);
-    FNumBytesLeft := Length(AIn);
-    if FDoLogging then FLog := FLog+'Bytes in TNEF: '+Sys.IntToStr(FNumBytesLeft)+#13#10;  {Do not localize}
-    //Check for a valid TNEF signature...
-    LdwTemp := GetLongWord;
-    if LdwTemp <> IdTNEFSignature then begin
-        if FDoLogging then FLog := FLog+'Invalid TNEF signature'+#13#10;  {Do not localize}
-        raise EIdTnefInvalidTNEFSignature.Create('Invalid TNEF signature');  {Do not localize}
+  FLog := '';
+  FDoLogging := ALog;
+  FMsg := AMsg;
+  FMsg.Clear;
+  FMsg.ContentType := 'multipart/mixed';  //Default: improve on this at a later stage.
+  FReceiptRequested := False;
+  FCurrentAttachment := nil;
+  FByte := PByte(AIn);
+  FNumBytesLeft := Length(AIn);
+  if FDoLogging then begin
+    DoLogFmt('Bytes in TNEF: %d', [FNumBytesLeft], False);  {Do not localize}
+  end;
+  //Check for a valid TNEF signature...
+  LdwTemp := GetLongWord;
+  if LdwTemp <> IdTNEFSignature then begin
+    if FDoLogging then begin
+      DoLog('Invalid TNEF signature', False);  {Do not localize}
     end;
-    FKey := GetWord;
-    if FDoLogging then FLog := FLog+'Key: '+Sys.IntToStr(FKey)+#13#10;  {Do not localize}
-    if FDoLogging then FLog := FLog+'Bytes left plus message: '+#13#10;  {Do not localize}
-    LThereIsMore := True;
-    while LThereIsMore do begin
-        LBlockType := GetByte;
-        case LBlockType of
-          IdTNEFLvlMessage: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+': Calling ParseMessageBlock:'+#13#10;  {Do not localize}
-            ParseMessageBlock;
-          end;
-          IdTNEFLvlAttachment: begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+': Calling ParseAttachmentBlock:'+#13#10;  {Do not localize}
-            ParseAttachmentBlock;
-          end;
-        else begin
-            if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+': Hit unknown block type '+Sys.IntToStr(LBlockType)+#13#10;  {Do not localize}
-            raise EIdTnefUnknownBlockType.Create('Hit unknown block type in TNEF - corrupt TNEF?');  {Do not localize}
-          end;
+    raise EIdTnefInvalidTNEFSignature.Create('Invalid TNEF signature');  {Do not localize}
+  end;
+  FKey := GetWord;
+  if FDoLogging then begin
+    DoLogFmt('Key: %d' + EOL + 'Bytes left plus message:', [FKey], False);  {Do not localize}
+  end;
+  LThereIsMore := True;
+  while LThereIsMore do begin
+    LBlockType := GetByte;
+    case LBlockType of
+      IdTNEFLvlMessage: begin
+        if FDoLogging then begin
+          DoLog(' Calling ParseMessageBlock:');  {Do not localize}
         end;
-        if FNumBytesLeft < 1 then begin
-            LThereIsMore := False;
+        ParseMessageBlock;
+      end;
+      IdTNEFLvlAttachment: begin
+        if FDoLogging then begin
+          DoLog(' Calling ParseAttachmentBlock:');  {Do not localize}
         end;
+        ParseAttachmentBlock;
+      end;
+    else
+      begin
+        if FDoLogging then begin
+          DoLogFmt(' Hit unknown block type %d', [LBlockType]);  {Do not localize}
+        end;
+        raise EIdTnefUnknownBlockType.Create('Hit unknown block type in TNEF - corrupt TNEF?');  {Do not localize}
+      end;
     end;
-    if FDoLogging then FLog := FLog+Sys.IntToStr(FNumBytesLeft)+': Finished processing TNEF.'+#13#10;  {Do not localize}
+    if FNumBytesLeft < 1 then begin
+      LThereIsMore := False;
+    end;
+  end;
+  if FDoLogging then begin
+    DoLog(' Finished processing TNEF.');  {Do not localize}
+  end;
 end;
 
 end.
