@@ -29,7 +29,7 @@
   Rev 1.21    08.08.2004 10:35:56  OMonien
   Greeting removed
 
-  Rev 1.20    6/11/2004 9:36:28 AM  DSiders
+    Rev 1.20    6/11/2004 9:36:28 AM  DSiders
   Added "Do not Localize" comments.
 
   Rev 1.19    2004.05.20 1:39:24 PM  czhower
@@ -62,7 +62,7 @@
   Rev 1.11    2003.10.24 10:43:10 AM  czhower
   TIdSTream to dos
 
-  Rev 1.10    10/17/2003 12:10:08 AM  DSiders
+    Rev 1.10    10/17/2003 12:10:08 AM  DSiders
   Added localization comments.
 
   Rev 1.9    2003.10.12 3:50:44 PM  czhower
@@ -75,7 +75,7 @@
 
   Rev 1.5    2/24/2003 08:56:50 PM  JPMugaas
 
-  Rev 1.4    1/20/2003 1:15:44 PM  BGooijen
+    Rev 1.4    1/20/2003 1:15:44 PM  BGooijen
   Changed to TIdTCPServer / TIdCmdTCPServer classes
 
   Rev 1.3    1-14-2003 19:19:22  BGooijen
@@ -98,6 +98,7 @@
 unit IdHTTPProxyServer;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 {
@@ -117,238 +118,281 @@ uses
   IdHeaderList,
   IdTCPConnection,
   IdCmdTCPServer,
-  IdCommandHandlers;
+  IdCommandHandlers,
+  IdContext,
+  IdYarn;
 
 const
   IdPORT_HTTPProxy = 8080;
 
 type
-{ not needed (yet)
-  TIdHTTPProxyServerThread = class( TIdPeerThread )
+  TIdHTTPProxyTransferMode = ( tmFullDocument, tmStreaming );
+  TIdHTTPProxyTransferSource = ( tsClient, tsServer );
+
+  TIdHTTPProxyServerContext = class(TIdContext)
   protected
-    // what needs to be stored...
-    fUser: string;
-    fPassword: string;
+    FHeaders: TIdHeaderList;
+    FCommand: String;
+    FDocument: String;
+    FOutboundClient: TIdTCPConnection;
+    FTransferMode: TIdHTTPProxyTransferMode;
+    FTransferSource: TIdHTTPProxyTransferSource;
   public
-    constructor Create( ACreateSuspended: Boolean = True ) ; override;
+    constructor Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil); override;
     destructor Destroy; override;
-    // Any functions for vars
-    property Username: string read fUser write fUser;
-    property Password: string read fPassword write fPassword;
+    property Headers: TIdHeaderList read FHeaders;
+    property Command: String read FCommand;
+    property Document: String read FDocument;
+    property OutboundClient: TIdTCPConnection read FOutboundClient;
+    property TransferMode: TIdHTTPProxyTransferMode read FTransferMode write FTransferMode;
+    property TransferSource: TIdHTTPProxyTransferSource read FTransferSource;
   end;
-}
+
   TIdHTTPProxyServer = class;
-  TOnHTTPDocument = procedure(ASender: TIdHTTPProxyServer; const ADocument: string;
-   var VStream: TStream; const AHeaders: TIdHeaderList) of object;
+
+  TOnHTTPContextEvent = procedure(AContext: TIdHTTPProxyServerContext) of object;
+  TOnHTTPDocument = procedure(AContext: TIdHTTPProxyServerContext; var VStream: TStream) of object;
 
   TIdHTTPProxyServer = class(TIdCmdTCPServer)
   protected
+    FDefTransferMode: TIdHTTPProxyTransferMode;
+    FOnHTTPBeforeCommand: TOnHTTPContextEvent;
+    FOnHTTPResponse: TOnHTTPContextEvent;
     FOnHTTPDocument: TOnHTTPDocument;
     // CommandHandlers
-    procedure CommandGET(ASender: TIdCommand);
-    procedure CommandPOST(ASender: TIdCommand);
-    procedure CommandHEAD(ASender: TIdCommand);
-    procedure CommandConnect(ASender: TIdCommand); // for ssl
-    procedure DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
+    procedure CommandPassThrough(ASender: TIdCommand);
+    procedure CommandCONNECT(ASender: TIdCommand); // for ssl
+    procedure DoHTTPBeforeCommand(AContext: TIdHTTPProxyServerContext);
+    procedure DoHTTPDocument(AContext: TIdHTTPProxyServerContext; var VStream: TStream);
+    procedure DoHTTPResponse(AContext: TIdHTTPProxyServerContext);
     procedure InitializeCommandHandlers; override;
-    procedure TransferData(ASrc: TIdTCPConnection; ADest: TIdTCPConnection; const ADocument: string;
-      const ASize: Integer; const AHeaders: TIdHeaderList);
+    procedure TransferData(AContext: TIdHTTPProxyServerContext; ASrc, ADest: TIdTCPConnection);
     procedure InitComponent; override;
   published
     property DefaultPort default IdPORT_HTTPProxy;
+    property DefaultTransferMode: TIdHTTPProxyTransferMode read FDefTransferMode write FDefTransferMode default tmFullDocument;
+    property OnHTTPBeforeCommand: TOnHTTPContextEvent read FOnHTTPBeforeCommand write FOnHTTPBeforeCommand;
+    property OnHTTPResponse: TOnHTTPContextEvent read FOnHTTPResponse write FOnHTTPResponse;
     property OnHTTPDocument: TOnHTTPDocument read FOnHTTPDocument write FOnHTTPDocument;
   end;
 
 implementation
 
 uses
-  IdResourceStrings, IdReplyRFC,  IdTCPClient, IdURI, IdGlobalProtocols, SysUtils;
+  IdResourceStrings, IdReplyRFC, IdTCPClient, IdURI, IdGlobalProtocols, IdTCPStream, SysUtils;
+
+constructor TIdHTTPProxyServerContext.Create(AConnection: TIdTCPConnection;
+  AYarn: TIdYarn; AList: TThreadList = nil);
+begin
+  inherited Create(AConnection, AYarn, AList);
+  FHeaders := TIdHeaderList.Create;
+end;
+
+destructor TIdHTTPProxyServerContext.Destroy;
+begin
+  FreeAndNil(FHeaders);
+end;
+
+{ TIdHTTPProxyServer }
 
 procedure TIdHTTPProxyServer.InitializeCommandHandlers;
 begin
   inherited;
   with CommandHandlers.Add do begin
     Command := 'GET';             {do not localize}
-    OnCommand := CommandGet;
+    OnCommand := CommandPassThrough;
     ParseParams := True;
-    Disconnect := true;
+    Disconnect := True;
   end;
   with CommandHandlers.Add do
   begin
     Command := 'POST';            {do not localize}
-    OnCommand := CommandPOST;
+    OnCommand := CommandPassThrough;
     ParseParams := True;
-    Disconnect := true;
+    Disconnect := True;
   end;
   with CommandHandlers.Add do
   begin
     Command := 'HEAD';            {do not localize}
-    OnCommand := CommandHEAD;
+    OnCommand := CommandPassThrough;
     ParseParams := True;
-    Disconnect := true;
+    Disconnect := True;
   end;
   with CommandHandlers.Add do 
   begin
     Command := 'CONNECT';         {do not localize}
-    OnCommand := Commandconnect;
+    OnCommand := CommandCONNECT;
     ParseParams := True;
-    Disconnect := true;
+    Disconnect := True;
   end;
   //HTTP Servers/Proxies do not send a greeting
   Greeting.Clear;
 end;
 
-procedure TIdHTTPProxyServer.TransferData(
-  ASrc: TIdTCPConnection;
-  ADest: TIdTCPConnection;
-  const ADocument: string;
-  const ASize: Integer;
-  const AHeaders: TIdHeaderList
-  );
-//TODO: This captures then sends. This is great and we need this as an option for proxies that
-// modify data. However we also need another option that writes as it captures.
-// Two modes? Intercept and not?
+procedure TIdHTTPProxyServer.TransferData(AContext: TIdHTTPProxyServerContext;
+  ASrc, ADest: TIdTCPConnection);
 var
   LStream: TStream;
+  LSize: Integer;
 begin
-  //TODO: Have an event to let the user perform stream creation
-  LStream := TMemoryStream.Create; try
-    ASrc.IOHandler.ReadStream(LStream, ASize, ASize = -1);
-    LStream.Position := 0;
-    DoHTTPDocument(ADocument, LStream, AHeaders);
-    // Need to recreate IdStream, DoHTTPDocument passes it as a var and user can change the
-    // stream that is returned
-    ADest.IOHandler.Write(LStream);
-  finally FreeAndNil(LStream); end;
-end;
+  if AContext.TransferSource = tsClient then begin
+    ADest.IOHandler.WriteLn(AContext.Command + ' ' + AContext.Document + ' HTTP/1.0'); {Do not Localize}
+  end;
+  ADest.IOHandler.Write(AContext.Headers);
+  ADest.IOHandler.WriteLn('');
 
-procedure TIdHTTPProxyServer.CommandGET( ASender: TIdCommand ) ;
-var
-  LClient: TIdTCPClient;
-  LDocument: string;
-  LHeaders: TIdHeaderList;
-  LRemoteHeaders: TIdHeaderList;
-  LURI: TIdURI;
-  LPageSize: Integer;
-begin
-  ASender.PerformReply := false;
-  LHeaders := TIdHeaderList.Create; try
-    ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LClient := TIdTCPClient.Create(nil); try
-      LURI := TIdURI.Create(ASender.Params.Strings[0]); try
-        LClient.Port := IndyStrToInt(LURI.Port, 80);
-        LClient.Host := LURI.Host;
-        //We have to remove the host and port from the request
-        LDocument := LURI.Path + LURI.Document + LURI.Params;
-      finally FreeAndNil(LURI); end;
-      LClient.Connect; try
-        LClient.IOHandler.WriteLn('GET ' + LDocument + ' HTTP/1.0'); {Do not Localize}
-        LClient.IOHandler.Write(LHeaders);
-        LClient.IOHandler.WriteLn('');
-        LRemoteHeaders := TIdHeaderList.Create; try
-          LClient.IOHandler.Capture(LRemoteHeaders, '');
-          ASender.Context.Connection.IOHandler.Write(LRemoteHeaders);
-          ASender.Context.Connection.IOHandler.WriteLn('');
-          LPageSize := IndyStrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
-          TransferData(LClient, ASender.Context.Connection, LDocument, LPageSize, LRemoteHeaders);
-        finally FreeAndNil(LRemoteHeaders); end;
-      finally LClient.Disconnect; end;
-    finally FreeAndNil(LClient); end;
-  finally FreeAndNil(LHeaders); end;
-end;
+  LSize := IndyStrToInt(AContext.Headers.Values['Content-Length'], -1) ; {Do not Localize}
 
-procedure TIdHTTPProxyServer.CommandPOST( ASender: TIdCommand ) ;
-var
-  LClient: TIdTCPClient;
-  LDocument: string;
-  LHeaders: TIdHeaderList;
-  LRemoteHeaders: TIdHeaderList;
-  LURI: TIdURI;
-  LPageSize: Integer;
-  LPostStream: TMemoryStream;
-begin
-  ASender.PerformReply := false;
-  LHeaders := TIdHeaderList.Create; try
-    ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LPostStream:= TMemorystream.Create;
+  if (AContext.TransferSource = tsServer) or (LSize > 0) then
+  begin
+    if AContext.TransferMode = tmFullDocument then begin
+      //TODO: Have an event to let the user perform stream creation
+      LStream := TMemoryStream.Create;
+    end else begin
+      LStream := TIdTCPStream.Create(ADest);
+    end;
+
     try
-      LPostStream.size:=IndyStrToInt( LHeaders.Values['Content-Length'], 0 ); {Do not Localize}
-      ASender.Context.Connection.IOHandler.ReadStream(LPostStream,LPostStream.Size,false);
-      LClient := TIdTCPClient.Create(nil); try
-        LURI := TIdURI.Create(ASender.Params.Strings[0]); try
-          LClient.Port := IndyStrToInt(LURI.Port, 80);
-          LClient.Host := LURI.Host;
-          //We have to remove the host and port from the request
-          LDocument := LURI.Path + LURI.Document + LURI.Params;
-        finally FreeAndNil(LURI); end;
-        LClient.Connect; try
-          LClient.IOHandler.WriteLn('POST ' + LDocument + ' HTTP/1.0'); {Do not Localize}
-          LClient.IOHandler.Write(LHeaders);
-          LClient.IOHandler.WriteLn('');
-          LClient.IOHandler.Write(LPostStream,0,false);
-          LRemoteHeaders := TIdHeaderList.Create; try
-            LClient.IOHandler.Capture(LRemoteHeaders, '');
-            ASender.Context.Connection.IOHandler.Write(LRemoteHeaders);
-            ASender.Context.Connection.IOHandler.Writeln('');
-            LPageSize := IndyStrToInt(LRemoteHeaders.Values['Content-Length'], -1) ; {Do not Localize}
-            TransferData(LClient, ASender.Context.Connection, LDocument, LPageSize, LRemoteHeaders);
-          finally FreeAndNil(LRemoteHeaders); end;
-        finally LClient.Disconnect; end;
-      finally FreeAndNil(LClient); end;
-    finally FreeAndNil(LPostStream); end;
-  finally FreeAndNil(LHeaders); end;
+      ASrc.IOHandler.ReadStream(LStream, LSize, LSize < 0);
+      if AContext.TransferMode = tmFullDocument then begin
+        LStream.Position := 0;
+        DoHTTPDocument(AContext, LStream);
+        ADest.IOHandler.Write(LStream);
+      end;
+    finally
+      FreeAndNil(LStream);
+    end;
+  end;
 end;
 
-procedure TIdHTTPProxyServer.CommandConnect( ASender: TIdCommand ) ;
+procedure TIdHTTPProxyServer.CommandPassThrough(ASender: TIdCommand);
 var
-  LHeaders: tidheaderlist;
-  LClient: TIdTCPClient;
-  LRemoteHost: string;
-  LBuffer:TIdBytes;
+  LURI: TIdURI;
+  LContext: TIdHTTPProxyServerContext;
 begin
-  ASender.PerformReply := false;
-  LHeaders := TIdHeaderList.Create; try
-    ASender.Context.Connection.IOHandler.Capture(LHeaders, '');
-    LRemoteHost := ASender.Params.Strings[0];
-    LClient := TIdTCPClient.Create(nil); try
-      LClient.Host := Fetch(LRemoteHost,':',True);
-      LClient.Port := IndyStrToInt(LRemoteHost, 443);
-      LClient.Connect; try
-        ASender.Context.Connection.IOHandler.WriteLn('');
-        ASender.Context.Connection.IOHandler.WriteLn('HTTP/1.0 200 Connection established'); {do not localize}
-        ASender.Context.Connection.IOHandler.WriteLn('Proxy-agent: Indy-Proxy/1.1'); {do not localize}
-        ASender.Context.Connection.IOHandler.WriteLn('');
-        ASender.Context.Connection.IOHandler.ReadTimeout:=100;
-        LClient.IOHandler.ReadTimeout:=100;
-        while ASender.Context.Connection.Connected and LClient.Connected do begin
-          ASender.Context.Connection.IOHandler.ReadBytes(LBuffer,-1,true);
-          LClient.IOHandler.Write(LBuffer);
-          SetLength(LBuffer,0);
-          LClient.IOHandler.ReadBytes(LBuffer,-1,true);
-          ASender.Context.Connection.IOHandler.Write(LBuffer);
-          SetLength(LBuffer,0);
-        end;
-      finally LClient.Disconnect; end;
-    finally FreeAndNil(LClient); end;
-  finally FreeAndNil(LHeaders); end;
+  ASender.PerformReply := False;
+
+  LContext := TIdHTTPProxyServerContext(ASender.Context);
+  LContext.FCommand := ASender.CommandHandler.Command;
+
+  LContext.Headers.Clear;
+  LContext.Connection.IOHandler.Capture(LContext.Headers, '');
+
+  LContext.FOutboundClient := TIdTCPClient.Create(nil);
+  try
+    LURI := TIdURI.Create(ASender.Params.Strings[0]);
+    try
+      TIdTCPClient(LContext.FOutboundClient).Host := LURI.Host;
+      TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LURI.Port, 80);
+      //We have to remove the host and port from the request
+      LContext.FDocument := LURI.Path + LURI.Document + LURI.Params;
+    finally
+      FreeAndNil(LURI);
+    end;
+
+    LContext.FTransferMode := FDefTransferMode;
+    LContext.FTransferSource := tsClient;
+    DoHTTPBeforeCommand(LContext);
+
+    TIdTCPClient(LContext.FOutboundClient).Connect;
+    try
+      TransferData(LContext, LContext.Connection, LContext.FOutboundClient);
+      
+      LContext.Headers.Clear;
+      LContext.FOutboundClient.IOHandler.Capture(LContext.Headers, '');
+
+      LContext.FTransferMode := FDefTransferMode;
+      LContext.FTransferSource := tsServer;
+      DoHTTPResponse(LContext);
+
+      TransferData(LContext, LContext.FOutboundClient, LContext.Connection);
+    finally
+      LContext.FOutboundClient.Disconnect;
+    end;
+  finally
+    FreeAndNil(LContext.FOutboundClient);
+  end;
 end;
 
-procedure TIdHTTPProxyServer.CommandHEAD( ASender: TIdCommand ) ;
+procedure TIdHTTPProxyServer.CommandCONNECT(ASender: TIdCommand);
+var
+  LRemoteHost: string;
+  LBuffer: TIdBytes;
+  LContext: TIdHTTPProxyServerContext;
 begin
+  ASender.PerformReply := False;
+
+  LContext := TIdHTTPProxyServerContext(ASender.Context);
+  LContext.FCommand := 'CONNECT';
+
+  LContext.Headers.Clear;
+  LContext.Connection.IOHandler.Capture(LContext.Headers, '');
+
+  LContext.FOutboundClient := TIdTCPClient.Create(nil);
+  try
+    LRemoteHost := ASender.Params.Strings[0];
+    TIdTCPClient(LContext.FOutboundClient).Host := Fetch(LRemoteHost, ':', True);
+    TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LRemoteHost, 443);
+
+    LContext.FTransferMode := FDefTransferMode;
+    LContext.FTransferSource := tsClient;
+    DoHTTPBeforeCommand(LContext);
+
+    TIdTCPClient(LContext.FOutboundClient).Connect;
+    try
+      LContext.Connection.IOHandler.WriteLn('HTTP/1.0 200 Connection established'); {do not localize}
+      LContext.Connection.IOHandler.WriteLn('Proxy-agent: Indy-Proxy/1.1'); {do not localize}
+      LContext.Connection.IOHandler.WriteLn('');
+
+      LContext.Connection.IOHandler.ReadTimeout := 100;
+      LContext.FOutboundClient.IOHandler.ReadTimeout := 100;
+
+      while LContext.Connection.Connected and LContext.FOutboundClient.Connected do
+      begin
+        SetLength(LBuffer, 0);
+        LContext.Connection.IOHandler.ReadBytes(LBuffer, -1, True);
+        LContext.FOutboundClient.IOHandler.Write(LBuffer);
+        SetLength(LBuffer, 0);
+        LContext.FOutboundClient.IOHandler.ReadBytes(LBuffer, -1, True);
+        LContext.Connection.IOHandler.Write(LBuffer);
+      end;
+    finally
+      LContext.FOutboundClient.Disconnect;
+    end;
+  finally
+    FreeAndNil(LContext.FOutboundClient);
+  end;
 end;
 
 procedure TIdHTTPProxyServer.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
+  ContextClass := TIdHTTPProxyServerContext;
   DefaultPort := IdPORT_HTTPProxy;
+  FDefTransferMode := tmFullDocument;
   Greeting.Text.Text := ''; // RS
   ReplyUnknownCommand.Text.Text := ''; // RS
 end;
 
-procedure TIdHTTPProxyServer.DoHTTPDocument(const ADocument: string; var VStream: TStream; const AHeaders: TIdHeaderList);
+procedure TIdHTTPProxyServer.DoHTTPBeforeCommand(AContext: TIdHTTPProxyServerContext);
+begin
+  if Assigned(OnHTTPBeforeCommand) then begin
+    OnHTTPBeforeCommand(AContext);
+  end;
+end;
+
+procedure TIdHTTPProxyServer.DoHTTPDocument(AContext: TIdHTTPProxyServerContext;
+  var VStream: TStream);
 begin
   if Assigned(OnHTTPDocument) then begin
-    OnHTTPDocument(Self, ADocument, VStream, AHeaders);
+    OnHTTPDocument(AContext, VStream);
+  end;
+end;
+
+procedure TIdHTTPProxyServer.DoHTTPResponse(AContext: TIdHTTPProxyServerContext);
+begin
+  if Assigned(OnHTTPResponse) then begin
+    OnHTTPResponse(AContext);
   end;
 end;
 
