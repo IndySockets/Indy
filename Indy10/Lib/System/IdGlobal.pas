@@ -1157,7 +1157,7 @@ type
   time, or have delimiters they can look for, so this is not a problem
   for them.
   }
-  TIdUTF8Decoder = class
+  TIdUTF8Decoder = class(TObject)
   public
     function ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean; virtual; abstract;
   end;
@@ -1350,8 +1350,9 @@ type
 
 constructor TIdUTF8DecoderNET.Create;
 begin
-  fValue[0] := 0;
-  fValue[1] := 0;
+  inherited Create;
+  fValue[0] := #0;
+  fValue[1] := #0;
   fDecoder := System.Text.Encoding.UTF8.GetDecoder;
 end;
 
