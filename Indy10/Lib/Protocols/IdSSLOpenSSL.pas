@@ -189,8 +189,10 @@ unit IdSSLOpenSSL;
 }
 
 interface
-{$i IdCompilerDefines.inc}
+
+{$I IdCompilerDefines.inc}
 {$TYPEDADDRESS OFF}
+
 uses
   Classes,
   IdBuffer,
@@ -334,8 +336,8 @@ type
     destructor Destroy; override;
     procedure Accept(const pHandle: TIdStackSocketHandle);
     procedure Connect(const pHandle: TIdStackSocketHandle);
-    function Send(const ABuf : TIdBytes): integer;
-    function Recv(var ABuf : TIdBytes): integer;
+    function Send(const ABuffer : TIdBytes; const AOffset, ALength: Integer): Integer;
+    function Recv(var ABuffer : TIdBytes): Integer;
     function GetSessionID: TByteArray;
     function GetSessionIDAsString:String;
     procedure SetCipherList(CipherList: String);
@@ -349,7 +351,6 @@ type
     fSSLContext: TIdSSLContext;
     fxSSLOptions: TIdSSLOptions;
     fSSLSocket: TIdSSLSocket;
-    fRecvBuffer: TIdBuffer;
     //fPeerCert: TIdX509;
     fOnStatusInfo: TCallbackEvent;
     fOnGetPassword: TPasswordEvent;
@@ -364,19 +365,15 @@ type
     procedure DoStatusInfo(Msg: String); virtual;
     procedure DoGetPassword(var Password: String); virtual;
     function DoVerifyPeer(Certificate: TIdX509; AOk: Boolean; ADepth: Integer): Boolean; virtual;
-    function RecvEnc(var ABuf : TIdBytes): integer; virtual;
-    function SendEnc(const ABuf : TIdBytes): integer; virtual;
+    function RecvEnc(var VBuffer: TIdBytes): Integer; override;
+    function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     procedure Init;
     procedure OpenEncodedConnection; virtual;
     //some overrides from base classes
     procedure InitComponent; override;
 
     procedure ConnectClient; override;
-    function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
-     ATimeout: Integer = IdTimeoutDefault;
-     ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
   public
-    procedure WriteDirect(var ABuffer: TIdBytes); override;
     destructor Destroy; override;
     function Clone :  TIdSSLIOHandlerSocketBase; override;
     procedure StartSSL; override;
@@ -385,9 +382,6 @@ type
 
     procedure Close; override;
     procedure Open; override;
-
-    function Recv(var ABuf : TIdBytes): integer;
-    function Send(const ABuf : TIdBytes): integer;
 
     property SSLSocket: TIdSSLSocket read fSSLSocket write fSSLSocket;
     property PassThrough: Boolean read fPassThrough write SetPassThrough;
@@ -420,11 +414,8 @@ type
     procedure Init; override;
     procedure Shutdown; override;
     // AListenerThread is a thread and not a yarn. Its the listener thread.
-    function Accept(
-      ASocket: TIdSocketHandle;
-      AListenerThread: TIdThread;
-      AYarn: TIdYarn
-      ): TIdIOHandler; override;
+    function Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread;
+      AYarn: TIdYarn): TIdIOHandler; override;
 
 //    function Accept(ASocket: TIdSocketHandle; AThread: TIdThread) : TIdIOHandler;  override;
 
@@ -459,31 +450,30 @@ type
 
   TIdX509Info = class(TObject)
   protected
-      //Do not free this here because it belongs
-      //to the X509 or something else.
-      FX509    : PX509;
+    //Do not free this here because it belongs
+    //to the X509 or something else.
+    FX509 : PX509;
   public
     constructor Create( aX509: PX509);
   end;
+
   TIdX509Fingerprints = class(TIdX509Info)
-    protected
-
-      function GetMD5: TEVP_MD;
-      function GetMD5AsString:String;
-      function GetSHA1: TEVP_MD;
-      function GetSHA1AsString:String;
-      function GetSHA224 : TEVP_MD;
-      function GetSHA224AsString : String;
-      function GetSHA256 : TEVP_MD;
-      function GetSHA256AsString : String;
-      function GetSHA386 : TEVP_MD;
-      function GetSHA386AsString : String;
-      function GetSHA512 : TEVP_MD;
-      function GetSHA512AsString : String;
-    public
-
-      property MD5 : TEVP_MD read GetMD5;
-      property MD5AsString : String read  GetMD5AsString;
+  protected
+    function GetMD5: TEVP_MD;
+    function GetMD5AsString:String;
+    function GetSHA1: TEVP_MD;
+    function GetSHA1AsString:String;
+    function GetSHA224 : TEVP_MD;
+    function GetSHA224AsString : String;
+    function GetSHA256 : TEVP_MD;
+    function GetSHA256AsString : String;
+    function GetSHA386 : TEVP_MD;
+    function GetSHA386AsString : String;
+    function GetSHA512 : TEVP_MD;
+    function GetSHA512AsString : String;
+  public
+     property MD5 : TEVP_MD read GetMD5;
+     property MD5AsString : String read  GetMD5AsString;
 {IMPORTANT!!!
 
 FIPS approves only these algorithms for hashing.
@@ -495,18 +485,18 @@ SHA-512
 
 http://csrc.nist.gov/CryptoToolkit/tkhash.html
 }
-      property SHA1 : TEVP_MD read GetSHA1;
-      property SHA1AsString : String read  GetSHA1AsString;
-
-      property SHA224 : TEVP_MD read GetSHA224;
-      property SHA224AsString : String read GetSHA224AsString;
-      property SHA256 : TEVP_MD read GetSHA256;
-      property SHA256AsString : String read GetSHA256AsString;
-      property SHA386 : TEVP_MD read GetSHA386;
-      property SHA386AsString : String read GetSHA386AsString;
-      property SHA512 : TEVP_MD read GetSHA512;
-      property SHA512AsString : String read GetSHA512AsString;
+    property SHA1 : TEVP_MD read GetSHA1;
+    property SHA1AsString : String read  GetSHA1AsString;
+    property SHA224 : TEVP_MD read GetSHA224;
+    property SHA224AsString : String read GetSHA224AsString;
+    property SHA256 : TEVP_MD read GetSHA256;
+    property SHA256AsString : String read GetSHA256AsString;
+    property SHA386 : TEVP_MD read GetSHA386;
+    property SHA386AsString : String read GetSHA386AsString;
+    property SHA512 : TEVP_MD read GetSHA512;
+    property SHA512AsString : String read GetSHA512AsString;
   end;
+
   TIdX509SigInfo = class(TIdX509Info)
   protected
     function GetSignature : String;
@@ -517,6 +507,7 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
     property SigType : TIdC_INT read  GetSigType ;
     property SigTypeAsString : String read GetSigTypeAsString;
   end;
+
   TIdX509 = class(TObject)
   protected
     FFingerprints : TIdX509Fingerprints;
@@ -706,7 +697,7 @@ end;
 
 procedure SslLockingCallback(mode, n : TIdC_INT; Afile : PChar; line : TIdC_INT) cdecl;
 var
-  Lock : TIdCriticalSection;
+  Lock: TIdCriticalSection;
 begin
   Assert(CallbackLockList<>nil);
   Lock := nil;
@@ -781,9 +772,9 @@ procedure IdSslCryptoMallocInit;
 //this is useful if you are using a memory manager that can report on leaks
 //at shutdown time.
 var
- r:Integer;
+ r: Integer;
 begin
- r:=IdSslCryptoSetMemFunctions(@IdMalloc,@IdRealloc,@IdFree);
+ r := IdSslCryptoSetMemFunctions(@IdMalloc, @IdRealloc, @IdFree);
  Assert(r<>0);
 end;
 {$ENDIF}
@@ -931,8 +922,9 @@ begin
   Result := (A and B) = B;
 end;
 
- function BytesToHexString(ptr : Pointer; ALen : Integer) : String;
-var i : PtrInt;
+function BytesToHexString(ptr : Pointer; ALen : Integer) : String;
+var
+  i : PtrInt;
 begin
   Result := '';
   for i := 0 to (ALen - 1) do
@@ -954,7 +946,7 @@ begin
       Result := Result + ':';    {Do not Localize}
     end;
     Result := Result + IndyFormat('%.2x', [Byte(AMD.MD[I])]);  {do not localize}
-  end;
+end;
 end;
 
 function VerifyCallback(Ok: TIdC_INT; ctx: PX509_STORE_CTX): TIdC_INT; cdecl;
@@ -1060,7 +1052,7 @@ end;
 
 procedure TIdServerIOHandlerSSLOpenSSL.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
   fxSSLOptions := TIdSSLOptions.Create;
 end;
 
@@ -1101,12 +1093,9 @@ begin
 end;
 
 {function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle; AThread: TIdThread) : TIdIOHandler;  }
-function TIdServerIOHandlerSSLOpenSSL.Accept(
-      ASocket: TIdSocketHandle;
-      // This is a thread and not a yarn. Its the listener thread.
-      AListenerThread: TIdThread;
-      AYarn: TIdYarn
-      ): TIdIOHandler;
+function TIdServerIOHandlerSSLOpenSSL.Accept(ASocket: TIdSocketHandle;
+  // This is a thread and not a yarn. Its the listener thread.
+  AListenerThread: TIdThread; AYarn: TIdYarn ): TIdIOHandler;
 var
   tmpIdCIOpenSSL: TIdSSLIOHandlerSocketOpenSSL;
 begin
@@ -1123,9 +1112,9 @@ begin
     tmpIdCIOpenSSL.fxSSLOptions := fxSSLOptions;
     tmpIdCIOpenSSL.fSSLSocket := TIdSSLSocket.Create(self);
     tmpIdCIOpenSSL.fSSLContext := fSSLContext;
-    result := tmpIdCIOpenSSL;
+    Result := tmpIdCIOpenSSL;
   end else begin
-    result := nil;
+    Result := nil;
     FreeAndNil(tmpIdCIOpenSSL);
   end;
 end;
@@ -1161,8 +1150,8 @@ begin
   //todo memleak here - setting IsPeer causes SSLOptions to not free
   LIO.IsPeer := True;
   LIO.SSLOptions.Assign(SSLOptions);
-  LIO.SSLOptions.Mode:= sslmBoth;{doesn't really matter}
-  LIO.SSLContext:= SSLContext;
+  LIO.SSLOptions.Mode := sslmBoth;{doesn't really matter}
+  LIO.SSLContext := SSLContext;
 
   Result := LIO;
 end;
@@ -1170,7 +1159,7 @@ end;
 procedure TIdServerIOHandlerSSLOpenSSL.Shutdown;
 begin
   FreeAndNil(fSSLContext);
-  inherited;
+  inherited Shutdown;
 end;
 
 function TIdServerIOHandlerSSLOpenSSL.MakeFTPSvrPasv : TIdSSLIOHandlerSocketBase;
@@ -1182,9 +1171,9 @@ begin
   LIO.OnGetPassword := OnGetPassword;
 
   //todo memleak here - setting IsPeer causes SSLOptions to not free
-  LIO.IsPeer:=True;
+  LIO.IsPeer := True;
   LIO.SSLOptions.Assign(SSLOptions);
-  LIO.SSLOptions.Mode:= sslmBoth;{or sslmServer}
+  LIO.SSLOptions.Mode := sslmBoth;{or sslmServer}
   LIO.SSLContext := nil;
 
   Result := LIO;
@@ -1220,16 +1209,14 @@ begin
   fxSSLOptions := TIdSSLOptions.Create;
   fSSLLayerClosed := True;
   fSSLContext := nil;
-  fRecvBuffer := TIdBuffer.Create;
 end;
 
 destructor TIdSSLIOHandlerSocketOpenSSL.Destroy;
 begin
-  FreeAndNil(fRecvBuffer);
   FreeAndNil(fSSLSocket);
   if not IsPeer then begin
-  //we do not destroy these in IsPeer equals true
-  //because these do not belong to us when we are in a server.
+    //we do not destroy these in IsPeer equals true
+    //because these do not belong to us when we are in a server.
     FreeAndNil(fSSLContext);
     FreeAndNil(fxSSLOptions);
   end;
@@ -1275,42 +1262,16 @@ end;
 procedure TIdSSLIOHandlerSocketOpenSSL.Close;
 begin
   FreeAndNil(fSSLSocket);
-
-  //if close is being called from destroy then this buffer is already freed
-  if Assigned(fRecvBuffer) then begin
-    fRecvBuffer.Clear;
-  end;
-
   if not IsPeer then begin
     FreeAndNil(fSSLContext);
   end;
-
   inherited Close;
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.Open;
 begin
   FOpened := False;
-  fRecvBuffer.Clear;
   inherited Open;
-end;
-
-function TIdSSLIOHandlerSocketOpenSSL.Recv(var ABuf : TIdBytes): integer;
-begin
-  if PassThrough then begin
-    Result := Binding.Receive(ABuf);
-  end else begin
-    Result := RecvEnc(ABuf);
-  end;
-end;
-
-function TIdSSLIOHandlerSocketOpenSSL.Send(const ABuf : TIdBytes): integer;
-begin
-  if PassThrough then begin
-    Result := Binding.Send(ABuf,0);
-  end else begin
-    Result := SendEnc(ABuf);
-  end;
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.SetPassThrough(const Value: Boolean);
@@ -1329,14 +1290,15 @@ begin
   end;
 end;
 
-function TIdSSLIOHandlerSocketOpenSSL.RecvEnc(var ABuf : TIdBytes): integer;
+function TIdSSLIOHandlerSocketOpenSSL.RecvEnc(var VBuffer: TIdBytes): Integer;
 begin
-  Result := fSSLSocket.Recv(ABuf);
+  Result := fSSLSocket.Recv(VBuffer);
 end;
 
-function TIdSSLIOHandlerSocketOpenSSL.SendEnc(const ABuf : TIdBytes): integer;
+function TIdSSLIOHandlerSocketOpenSSL.SendEnc(const ABuffer: TIdBytes;
+  const AOffset, ALength: Integer): Integer;
 begin
-  Result := fSSLSocket.Send(ABuf);
+  Result := fSSLSocket.Send(ABuffer, AOffset, ALength);
 end;
 
 procedure TIdSSLIOHandlerSocketOpenSSL.AfterAccept;
@@ -1427,142 +1389,6 @@ begin
   end;
 end;
 
-procedure TIdSSLIOHandlerSocketOpenSSL.WriteDirect(var ABuffer: TIdBytes);
-var
-  LBuffer: TIdBytes;
-  LBufLen: Integer;
-  LCount: Integer;
-  LPos: Integer;
-begin
-  LPos := 0;
-  repeat
-    LBufLen := Length(ABuffer) - LPos;
-    SetLength(LBuffer,LBufLen);
-    CopyTIdBytes(ABuffer, LPos, LBuffer, 0, LBufLen);
-      //we have to make sure we call the Intercept for logging
-    if Intercept <> nil then begin
-      Intercept.Send(LBuffer);
-    end;
-    LCount := Send(LBuffer);
-    // TODO - Have a AntiFreeze param which allows the send to be split up so that process
-    // can be called more. Maybe a prop of the connection, MaxSendSize?
-    TIdAntiFreezeBase.DoProcess(False);
-    if LCount = 0 then begin
-      FClosedGracefully := True;
-    end;
-    // Check if other side disconnected
-    CheckForDisconnect;
-    //TODO: This relies on Stack - make it abstract
-    // Check to see if the error signifies disconnection
-    if GBSDStack.CheckForSocketError(LCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]) <> 0 then begin
-      FClosedGracefully := True;
-      Close;
-      GBSDStack.RaiseSocketError(GBSDStack.WSGetLastError);
-    end;
-    DoWork(wmWrite, LCount);
-    Inc(LPos, LCount);
-  until LPos >= Length(ABuffer);
-end;
-
-function TIdSSLIOHandlerSocketOpenSSL.ReadFromSource(
- ARaiseExceptionIfDisconnected: Boolean; ATimeout: Integer;
- ARaiseExceptionOnTimeout: Boolean): Integer;
-//refer to TIdIOHandlerStack.ReadFromSource,
-//this is basically copied from there
-var
-  LByteCount: Integer;
-  LBuffer: TIdBytes;
-  LLastError: Integer;
-begin
-  if ATimeout = IdTimeoutDefault then begin
-    if (ReadTimeout = IdTimeoutDefault) or (ReadTimeOut = 0) then begin
-      ATimeout := IdTimeoutInfinite;
-    end else begin
-      ATimeout := FReadTimeout;
-    end;
-  end;
-  Result := 0;
-  // Check here as this side may have closed the socket
-  CheckForDisconnect(ARaiseExceptionIfDisconnected);
-  if BindingAllocated then begin
-    LByteCount := 0;
-    repeat
-      if Readable(ATimeout) then begin
-        if Opened then begin
-          // No need to call AntiFreeze, the Readable does that.
-          if BindingAllocated then begin
-            SetLength(LBuffer, RecvBufferSize);
-            try
-              LByteCount := Recv(LBuffer);
-              SetLength(LBuffer, LByteCount);
-              if LByteCount > 0 then begin
-                if Intercept <> nil then begin
-                  Intercept.Receive(LBuffer);
-                  LByteCount := Length(LBuffer);
-                end;
-                fRecvBuffer.Write(LBuffer);
-              end;
-            finally
-              SetLength(LBuffer, 0);
-            end;
-          end else begin
-            raise EIdClosedSocket.Create(RSStatusDisconnected);
-          end;
-        end else begin
-          LByteCount := 0;
-          if ARaiseExceptionIfDisconnected then
-            raise EIdException.Create(RSNotConnected);
-        end;
-        if LByteCount = 0 then begin
-          FClosedGracefully := True;
-        end;
-        if not ClosedGracefully then begin
-          LLastError := GBSDStack.CheckForSocketError(LByteCount, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
-          if LLastError <> 0 then begin
-            LByteCount := 0;
-            Close;
-            // Do not raise unless all data has been read by the user
-            if InputBufferIsEmpty then begin
-              GBSDStack.RaiseSocketError(LLastError);
-            end;
-          end;
-
-          // InputBuffer.Size is modified above
-          if LByteCount > 0 then begin
-
-{            if Assigned(Intercept) then begin
-              IOHandler.RecvBuffer.Position := 0;
-              Intercept.Receive(IOHandler.RecvBuffer);
-              LByteCount := IOHandler.RecvBuffer.Size;
-            end;  }
-//AsciiFilter - needs to go in TIdIOHandler
-//            if ASCIIFilter then begin
-//              for i := 1 to IOHandler.RecvBuffer.Size do begin
-//                PChar(IOHandler.RecvBuffer.Memory)[i] := Chr(Ord(PChar(IOHandler.RecvBuffer.Memory)[i]) and $7F);
-//              end;
-//            end;
-            fRecvBuffer.ExtractToIdBuffer(FInputBuffer,-1);
-          end;
-        end;
-        // Check here as other side may have closed connection
-        CheckForDisconnect(ARaiseExceptionIfDisconnected);
-        Result := LByteCount;
-      end else begin
-        // Timeout
-        if ARaiseExceptionOnTimeout then begin
-          raise EIdReadTimeout.Create(RSReadTimeout);
-        end;
-        Result := -1;
-        Break;
-      end;
-    until (LByteCount <> 0) or (not Connected);
-  end else begin
-    if ARaiseExceptionIfDisconnected then begin
-      raise EIdException.Create(RSNotConnected);
-    end;
-  end;
-end;
-
 function TIdSSLIOHandlerSocketOpenSSL.Clone: TIdSSLIOHandlerSocketBase;
 var
   LIO : TIdSSLIOHandlerSocketOpenSSL;
@@ -1584,7 +1410,7 @@ begin
   //an exception here probably means that you are using the wrong version
   //of the openssl libraries. refer to comments at the top of this file.
   if not IdSSLOpenSSL.LoadOpenSSLLibrary then begin
-   raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+    raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
   end;
 
   fVerifyMode := [];
@@ -1695,7 +1521,6 @@ begin
     IdSSLCtxSetClientCAList(fContext, IdSSLLoadClientCAFile(pRootCertFile));
     StrDispose(pRootCertFile);
   end
-
 end;
 
 procedure TIdSSLContext.SetVerifyMode(Mode: TIdSSLVerifyModeSet; CheckRoutine: Boolean);
@@ -2031,25 +1856,25 @@ begin
 
 end;
 
-function TIdSSLSocket.Recv(var ABuf : TIdBytes): integer;
+function TIdSSLSocket.Recv(var ABuffer: TIdBytes): Integer;
 var
   err: Integer;
 begin
-  Result := IdSslRead(fSSL, @ABuf[0], Length(ABuf));
+  Result := IdSslRead(fSSL, @ABuffer[0], Length(ABuffer));
   err := GetSSLError(Result);
   if (err = OPENSSL_SSL_ERROR_WANT_READ) or (err = OPENSSL_SSL_ERROR_WANT_WRITE) then begin
-    Result := IdSslRead(fSSL, @ABuf[0], Length(ABuf));
+    Result := IdSslRead(fSSL, @ABuffer[0], Length(ABuffer));
   end;
 end;
 
-function TIdSSLSocket.Send(const ABuf : TIdBytes): integer;
+function TIdSSLSocket.Send(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer;
 var
   err: Integer;
 begin
-  Result := IdSslWrite(fSSL, @ABuf[0], Length(ABuf));
+  Result := IdSslWrite(fSSL, @ABuffer[AOffset], ALength);
   err := GetSSLError(Result);
   if (err = OPENSSL_SSL_ERROR_WANT_READ) or (err = OPENSSL_SSL_ERROR_WANT_WRITE) then begin
-    Result := IdSslWrite(fSSL, @ABuf[0], Length(ABuf));
+    Result := IdSslWrite(fSSL, @ABuffer[AOffset], ALength);
   end;
 end;
 
@@ -2195,7 +2020,8 @@ begin
 end;
 
 function TIdX509Fingerprints.GetSHA1AsString: String;
-var EVP_MD : TEVP_MD;
+var
+  EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA1;
   Result := MDAsString(EVP_MD);
@@ -2207,7 +2033,8 @@ begin
 end;
 
 function TIdX509Fingerprints.GetSHA224AsString : String;
-var EVP_MD : TEVP_MD;
+var
+  EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA224;
   Result := MDAsString(EVP_MD);
@@ -2219,7 +2046,8 @@ begin
 end;
 
 function TIdX509Fingerprints.GetSHA256AsString : String;
-var EVP_MD : TEVP_MD;
+var
+  EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA256;
   Result := MDAsString(EVP_MD);
@@ -2227,11 +2055,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA386 : TEVP_MD;
 begin
-   IdSslX509Digest(FX509, IdSslEvpSHA386, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA386, PChar(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA386AsString : String;
-var EVP_MD : TEVP_MD;
+var
+  EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA386;
   Result := MDAsString(EVP_MD);
@@ -2239,11 +2068,12 @@ end;
 
 function TIdX509Fingerprints.GetSHA512 : TEVP_MD;
 begin
-    IdSslX509Digest(FX509, IdSslEvpSHA512, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA512, PChar(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA512AsString : String;
-var EVP_MD : TEVP_MD;
+var
+  EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA512;
   Result := MDAsString(EVP_MD);
@@ -2272,16 +2102,12 @@ end;
 constructor TIdX509.Create(aX509: PX509; aCanFreeX509: Boolean = True);
 begin
   inherited Create;
-
   FX509 := aX509;
-
   FCanFreeX509 := aCanFreeX509;
   FFingerprints := TIdX509Fingerprints.Create(FX509);
   FSigInfo := TIdX509SigInfo.Create(FX509);
   FSubject := nil;
   FIssuer := nil;
-
-
 end;
 
 destructor TIdX509.Destroy;
@@ -2302,7 +2128,8 @@ begin
 end;
 
 function TIdX509.GetSerialNumber: String;
-var LSN : PASN1_INTEGER;
+var
+  LSN : PASN1_INTEGER;
 begin
   if FX509<>nil then
   begin
@@ -2328,9 +2155,7 @@ Begin
     if FX509<>nil then
     begin
       x509_name := IdSslX509GetSubjectName(FX509);
-    end
-    else
-    begin
+    end else begin
       x509_name := nil;
     end;
     FSubject := TIdX509Name.Create(x509_name);
@@ -2346,9 +2171,7 @@ begin
     if FX509<>nil then
     begin
       x509_name := IdSslX509GetIssuerName(FX509);
-    end
-    else
-    begin
+    end else begin
       x509_name := nil;
     end;
     FIssuer := TIdX509Name.Create(x509_name);
@@ -2366,6 +2189,7 @@ var
 //  I: Integer;
   EVP_MD: TEVP_MD;
 begin
+  Result := '';
   EVP_MD := Fingerprint;
 {  for I := 0 to EVP_MD.Length - 1 do begin
     if I <> 0 then begin
@@ -2380,7 +2204,7 @@ function TIdX509.RnotBefore: TDateTime;
 begin
   if FX509 = nil then begin
     Result := 0
-  end else begin
+  end else begin                                    
     //This is a safe typecast since PASN1_UTCTIME and PASN1_TIME are really
     //pointers to ASN1 strings since ASN1_UTCTIME amd ASM1_TIME are ASN1_STRING.
     Result := UTCTime2DateTime(PASN1_UTCTIME(IdSslX509GetNotBefore(FX509)));
