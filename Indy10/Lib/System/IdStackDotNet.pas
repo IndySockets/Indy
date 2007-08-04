@@ -899,33 +899,104 @@ begin
   APkt.SourcePort := LPort;
   {$ELSE}
   LSF := SocketFlags.None;
-  Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
-  if LRemEP is IPEndPoint then
-  begin
-    APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
-    APkt.SourcePort := IPEndPoint(LRemEP).Port;
+  {
+  The AddressFamily of the EndPoint used in ReceiveFrom needs to match the
+   AddressFamily of the EndPoint used in SendTo.
+   }
+  case AIPVersion of
+    Id_IPv4 :
+    begin
+      LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
+ //     LRemEP.AddressFamily := AddressFamily.InterNetwork;
+    end;
+    Id_IPv6 :
+    begin
+      LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
+    //LRemEP.AddressFamily := AddressFamily.InterNetworkV6;
+    end;
   end;
+  Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
+  APkt.SourceIP := IPEndPoint(LRemEP).Address.ToString;
+  APkt.SourcePort := IPEndPoint(LRemEP).Port;
   APkt.DestIP := LPki.Address.ToString;
   APkt.DestIF := LPki.&Interface;
   {$ENDIF}
 end;
 
 {$IFNDEF DOTNET1}
+const
+  SIO_ROUTING_INTERFACE_QUERY = 3355443220;
+
+{
+This extracts an IP address as a series of bytes from a TIdBytes that contains
+one SockAddress structure.
+}
+procedure SockAddrToIPBytes(const ASockAddr : TIdBytes; var VIPAddr : TIdBytes);
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  case IdGlobal.BytesToWord(ASockAddr,0) of
+    23 : //AddressFamily.InterNetworkV6 :
+    begin
+      //16 = size of SOCKADDR_IN6.sin6_addr
+      SetLength(VIPAddr,16);
+//    6 = offset of sin6_addr in SOCKADDR_IN6
+//    sin6_family   : Smallint;         // AF_INET6
+//    sin6_port     : u_short;          // Transport level port number
+//    sin6_flowinfo : u_long;           // IPv6 flow information
+
+      System.array.Copy(ASockAddr,6, VIPAddr, 0, 16);
+    end;
+    2 : //AddressFamily.InterNetwork :
+    begin
+      //size of sockaddr_in.sin_addr
+      SetLength(VIPAddr,4);
+//  4 = offset of  sockaddr_in.sin_addr
+//  sin_family : u_short;
+//  sin_port   : u_short;
+      System.array.Copy(ASockAddr,4, VIPAddr, 0, 4);
+    end;
+  end;
+end;
+
 procedure TIdStackDotNet.QueryRoute(s : TIdStackSocketHandle; const AIP: String;
   const APort: TIdPort; var VSource, VDest : TIdBytes);
 var LEP : IPEndPoint;
-    LSa : SocketAddress;
+    LDestIF : SocketAddress;
+    LIn, LOut : TBytes;
     i : Integer;
 begin
   LEP := IPEndPoint.Create(IPAddress.Parse(AIP),APort);
-  LSa := LEP.Serialize;
-  SetLength(VSource,LSA.Size);
-  for i  := 0 to LSa.Size - 1 do
+  LDestIf := LEP.Serialize;
+{
+The first 2 bytes of the underlying buffer are reserved for the AddressFamily
+enumerated value. When the SocketAddress is used to store a serialized
+IPEndPoint, the third and fourth bytes are used to store port number
+information. The next bytes are used to store the IP address. You can access any
+information within this underlying byte buffer by referring to its index
+position; the byte buffer uses zero-based indexing. You can also use the Family
+and Size properties to get the AddressFamily value and the buffer size,
+respectively. To view any of this information as a string, use the ToString
+method.
+}
+  SetLength(LIn,LDestIf.Size);
+  for i := 0 to LDestIf.Size - 1 do
   begin
-    VSource[i] := LSa[i]
+    LIn[i] := LDestIf[i];
   end;
-  SetLength(VDest,Length(VSource));
-  s.IOControl( IOControlCode.RoutingInterfaceQuery, VSource, VDest);
+  SetLength(LOut,LDestIf.Size);
+{
+IMPORTANT!!!!
+
+We can not do something like:
+
+ s.IOControl( IOControlCode.RoutingInterfaceQuery, LIn, LOut);
+
+ because to IOControlCode.RoutingInterfaceQuery has a value of -539371432
+ and that is not correct.  I found that out the hard way.
+}
+  s.IOControl(LongInt(SIO_ROUTING_INTERFACE_QUERY),Lin,LOut);
+  SockAddrToIPBytes(LOut,VSource);
+  SockAddrToIPBytes(LIn,VDest);
 end;
 
 procedure TIdStackDotNet.WriteChecksumIPv6(s: TIdStackSocketHandle;
@@ -993,6 +1064,7 @@ begin
 
   CopyTIdWord(HostToLittleEndian(LW), VBuffer, AOffset);
 end;
+
  {$ENDIF}
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
