@@ -203,6 +203,9 @@ type
       const AGroupIP, ALocalIP : String; const ASockOpt : TIdSocketOption;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
   public
+    [ThreadStatic]
+    LastSocketError: Integer; static;
+
     procedure Bind(ASocket: TIdStackSocketHandle; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
     procedure Connect(const ASocket: TIdStackSocketHandle; const AIP: string;
@@ -212,6 +215,7 @@ type
       var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
     procedure GetSocketName(ASocket: TIdStackSocketHandle; var VIP: string;
       var VPort: TIdPort; var VIPVersion: TIdIPVersion); override;
+    function WSGetLastError: Integer; override;
     function  NewSocketHandle(const ASocketType: TIdSocketType;
       const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
@@ -275,13 +279,14 @@ const
 
 { TIdStackDotNet }
 
-function BuildException(AException : System.Exception) : Exception;
+function BuildException(AStack: TIdStackDotNet; AException: System.Exception) : EIdException;
 var
   LSocketError : System.Net.Sockets.SocketException;
 begin
   if AException is System.Net.Sockets.SocketException then
   begin
     LSocketError := AException as System.Net.Sockets.SocketException;
+    AStack.LastSocketError := LSocketError.ErrorCode;
     Result := EIdSocketError.CreateError(LSocketError.ErrorCode, LSocketError.Message)
   end else begin
     Result := EIdWrapperException.Create(AException.Message, AException);
@@ -308,7 +313,7 @@ begin
     ASocket.Bind(LEndPoint);
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -323,7 +328,7 @@ begin
     ASocket.Connect(LEndPoint);
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -334,7 +339,7 @@ begin
     ASocket.Close;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -345,7 +350,7 @@ begin
     ASocket.Listen(ABackLog);
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -376,7 +381,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -404,7 +409,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -432,7 +437,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -464,7 +469,7 @@ begin
     raise System.Net.Sockets.SocketException.Create(11001);
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -481,10 +486,15 @@ begin
     {$ENDIF}
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
+
+function TIdStackDotNet.WSGetLastError: Integer;
+begin
+  Result := LastSocketError;
+end
 
 function TIdStackDotNet.NewSocketHandle(const ASocketType: TIdSocketType;
   const AProtocol: TIdSocketProtocol; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
@@ -494,7 +504,7 @@ begin
     Result := Socket.Create(IdIPFamily[AIPVersion], ASocketType, AProtocol);
   except
     on E: Exception do begin
-      raise BuildException(E);
+      raise BuildException(Self, E);
     end;
   end;
 end;
@@ -505,7 +515,7 @@ begin
     Result := System.Net.DNS.GetHostName;
   except
     on E: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -516,7 +526,7 @@ begin
     Result := ASocket.Receive(VBuffer, Length(VBuffer), SocketFlags.None);
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -530,7 +540,7 @@ begin
       Result := ASocket.Send(ABuffer, AOffset, ASize, SocketFlags.None);
     except
       on E: Exception do begin
-        raise BuildException(E);
+        raise BuildException(Self, E);
       end;
     end;
   end else begin
@@ -550,7 +560,7 @@ begin
       Result := ASocket.ReceiveFrom(VBuffer, SocketFlags.None, LEndPoint);
     except
       on e: Exception do begin
-        raise BuildException(e);
+        raise BuildException(Self, e);
       end;
     end;
     VIP := IPEndPoint(LEndPoint).Address.ToString;
@@ -573,7 +583,7 @@ begin
       Result := ASocket.SendTo(ABuffer, SocketFlags.None, LEndPoint);
     except
       on e: Exception do begin
-        raise BuildException(e);
+        raise BuildException(Self, e);
       end;
     end;
   finally
@@ -642,7 +652,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -673,7 +683,7 @@ begin
     end;
   except
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
@@ -699,7 +709,7 @@ begin
       Result := False;
     end;
     on e: Exception do begin
-      raise BuildException(e);
+      raise BuildException(Self, e);
     end;
   end;
 end;
