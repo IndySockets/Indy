@@ -52,7 +52,9 @@
 unit IdDICT;
 
 interface
+
 {$I IdCompilerDefines.inc}
+
 uses
   Classes,
   IdAssignedNumbers, IdComponent,
@@ -120,7 +122,8 @@ const
 { TIdDICT }
 
 procedure TIdDICT.Connect;
-var LBuf : String;
+var
+  LBuf : String;
   LFeat : String;
   s : String;
 begin
@@ -153,11 +156,11 @@ begin
       LBuf := Trim(LBuf);
     end;
     SendCmd('CLIENT '+FClient); {do not localize}
-    if Self.FAuthType = atDefault then
+    if FAuthType = atDefault then
     begin
-      if Self.IsCapaSupported('auth') then {do not localize}
+      if IsCapaSupported('auth') then {do not localize}
       begin
-        if (FPassword<>'') and (FUserName<>'') then
+        if (FPassword <> '') and (FUserName <> '') then
         begin
           with TIdHashMessageDigest5.Create do
           try
@@ -178,7 +181,8 @@ begin
       SendCmd('OPTION MIME'); {do not localize}
     end;
   except
-    Disconnect;
+    Disconnect(False);
+    raise;
   end;
 end;
 
@@ -261,7 +265,7 @@ end;
 
 procedure TIdDICT.GetDictInfo(const ADict: String; AResults: TStrings);
 begin
-  InternalGetStrs('SHOW INFO ' + ADict,AResults); {do not localize}
+  InternalGetStrs('SHOW INFO ' + ADict, AResults); {do not localize}
 end;
 
 procedure TIdDICT.GetStrategyList(AStrats: TIdStrategyList);
