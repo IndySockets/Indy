@@ -46,6 +46,7 @@ unit IdAuthentication;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -148,8 +149,8 @@ begin
     end;
   end
   else begin
-    raise EIdAlreadyRegisteredAuthenticationMethod.Create(IndyFormat(RSHTTPAuthAlreadyRegistered,
-      [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]));
+    raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered,
+      [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]);
   end;
 end;
 
@@ -168,10 +169,11 @@ end;
 
 function FindAuthClass(const AuthName: String): TIdAuthenticationClass;
 begin
-  if AuthList.IndexOf(AuthName) = -1 then
-    result := nil
-  else
-    result := TAuthListObject(AuthList.Objects[AuthList.IndexOf(AuthName)]).Auth;
+  if AuthList.IndexOf(AuthName) = -1 then begin
+    Result := nil;
+  end else begin
+    Result := TAuthListObject(AuthList.Objects[AuthList.IndexOf(AuthName)]).Auth;
+  end;
 end;
 
 { TIdAuthentication }
@@ -221,22 +223,22 @@ end;
 
 function TIdAuthentication.GetPassword: String;
 begin
-  result := Params.Values['password'];    {Do not Localize}
+  Result := Params.Values['password'];    {Do not Localize}
 end;
 
 function TIdAuthentication.GetUserName: String;
 begin
-  result := Params.Values['username'];  {Do not Localize}
+  Result := Params.Values['username'];  {Do not Localize}
 end;
 
 procedure TIdAuthentication.SetPassword(const Value: String);
 begin
-  Params.Values['password'] := Value;   {Do not Localize}
+  Params.Values['Password'] := Value;   {Do not Localize}
 end;
 
 procedure TIdAuthentication.SetUserName(const Value: String);
 begin
-  Params.Values['username'] := Value;     {Do not Localize}
+  Params.Values['Username'] := Value;     {Do not Localize}
 end;
 
 function TIdAuthentication.GetSteps: Integer;
@@ -263,32 +265,28 @@ function TIdBasicAuthentication.DoNext: TIdAuthWhatsNext;
 var
   S: String;
 begin
-  Result := wnDoRequest;
-
   S := ReadAuthInfo('Basic');        {Do not Localize}
   Fetch(S);
 
-  while Length(S) > 0 do
+  while Length(S) > 0 do begin
     with Params do begin
       // realm have 'realm="SomeRealmValue"' format    {Do not Localize}
       // FRealm never assigned without StringReplace
       Add(ReplaceOnlyFirst(Fetch(S, ', '), '=', NameValueSeparator));  {do not localize}
+    end;
   end;
 
   FRealm := Copy(Params.Values['realm'], 2, Length(Params.Values['realm']) - 2);   {Do not Localize}
 
-  case FCurrentStep of
-    0: begin
-      if (Length(Username) > 0) {and (Length(Password) > 0)} then begin
-        Result := wnDoRequest;
-      end
-      else begin
-        Result := wnAskTheProgram;
-      end;
+  if FCurrentStep = 0 then
+  begin
+    if Length(Username) > 0 then begin
+      Result := wnDoRequest;
+    end else begin
+      Result := wnAskTheProgram;
     end;
-    1: begin
-      Result := wnFail;
-    end;
+  end else begin
+    Result := wnFail;
   end;
 end;
 
