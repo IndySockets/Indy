@@ -595,15 +595,17 @@ TODO:
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
-  IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException, IdExplicitTLSClientServerBase,
-  IdFTPBaseFileSystem, IdFTPCommon, IdBaseComponent,
-  IdFTPList, IdFTPListOutput, IdFTPServerContextBase,  IdReply, IdReplyFTP,
-  IdReplyRFC, IdScheduler, IdServerIOHandler, IdTCPConnection, IdCmdTCPServer,  IdTCPServer,
-  IdThread, IdUserAccounts,  IdYarn, IdZLibCompressorBase, SysUtils;
+  IdAssignedNumbers, IdCommandHandlers, IdGlobal, IdContext, IdException,
+  IdExplicitTLSClientServerBase, IdFTPBaseFileSystem, IdFTPCommon,
+  IdBaseComponent, IdFTPList, IdFTPListOutput, IdFTPServerContextBase,
+  IdReply, IdReplyFTP, IdReplyRFC, IdScheduler, IdServerIOHandler,
+  IdTCPConnection, IdCmdTCPServer,  IdTCPServer, IdThread, IdUserAccounts,
+  IdYarn, IdZLibCompressorBase, SysUtils;
 
 type
   TIdFTPDirFormat = (ftpdfDOS, ftpdfUnix, ftpdfEPLF, ftpdfCustom, ftpdfOSDependent);
@@ -647,7 +649,7 @@ const
   SYST_ID_NT = 'Windows_NT';   {Do not translate}
 
 const AAlwaysValidOpts : array [0..2] of string =
-  ('SIZE','TYPE','MODIFY'); {Do not translate}
+  ('SIZE', 'TYPE', 'MODIFY'); {Do not translate}
 
 type
   TIdFTPServerContext = class;
@@ -656,7 +658,7 @@ type
   //the "type" fact to be several different things.
   //
   //http://www.ietf.org/internet-drafts/draft-ietf-ftpext-mlst-16.txt
-  TIdOnMLST = procedure(ASender : TIdFTPServerContext;const APath: string;
+  TIdOnMLST = procedure(ASender : TIdFTPServerContext; const APath: string;
     ADirectoryListing: TIdFTPListOutput) of object;
   //data port binding events
   TOnDataPortBind = procedure(ASender : TIdFTPServerContext) of object;
@@ -694,7 +696,7 @@ type
 
   TOnFileEvent = procedure(ASender: TIdFTPServerContext; const APathName: string) of object;
   TOnCheckFileEvent = procedure(ASender: TIdFTPServerContext; const APathName: string; var VExist : Boolean) of object;
-  TOnRenameFileEvent = procedure(ASender: TIdFTPServerContext; const ARenameFromFile,ARenameToFile: string) of object;
+  TOnRenameFileEvent = procedure(ASender: TIdFTPServerContext; const ARenameFromFile, ARenameToFile: string) of object;
   TOnRetrieveFileEvent = procedure(ASender: TIdFTPServerContext; const AFileName: string;
     var VStream: TStream) of object;
   TOnStoreFileEvent = procedure(ASender: TIdFTPServerContext; const AFileName: string;
@@ -709,26 +711,28 @@ type
   TOnSiteUTIME = procedure(ASender: TIdFTPServerContext; const AFileName : String;
     var VLastAccessTime, VLastModTime, VCreateDate : TDateTime;
     var VAUth : Boolean) of object;
+
   EIdFTPServerException = class(EIdException);
   EIdFTPServerNoOnListDirectory = class(EIdFTPServerException);
   EIdFTPImplicitTLSRequiresSSL = class(EIdFTPServerException);
   EIdFTPBoundPortMaxGreater = class(EIdFTPServerException);
   EIdFTPBoundPortMinLess = class(EIdFTPServerException);
   EIdFTPCannotBeNegative = class(EIdFTPServerException);
+
   //we don't parse CLNT parameters as they might be freeform for all we know
   TIdOnClientID = procedure(ASender: TIdFTPServerContext; const AID : String) of object;
   TIdOnFTPStatEvent = procedure(ASender: TIdFTPServerContext; AStatusInfo : TStrings) of object;
   TIdOnBanner = procedure(ASender: TIdFTPServerContext; AGreeting : TIdReply) of object;
   //This is for EPSV and PASV support - do not change the values unless you
   //have an extremely compelling reason to do so.  This even is ONLY for those compelling case.
-  TIdOnPASV = procedure(ASender: TIdFTPServerContext; var VIP : String; var VPort : Word; const AIPVer : TIdIPVersion) of object;
+  TIdOnPASV = procedure(ASender: TIdFTPServerContext; var VIP : String; var VPort : TIdPort; const AIPVer : TIdIPVersion) of object;
 
   TIdFTPServer = class;
   TIdFTPSecurityOptions = class(TPersistent)
   protected
-  // RFC 2577 Recommends these
-  // Note that the current code already hides user ID's by
-  //only authenticating after the password
+    // RFC 2577 Recommends these
+    // Note that the current code already hides user ID's by
+    // only authenticating after the password
     FPasswordAttempts : Cardinal;
     FInvalidPassDelay : Cardinal;
     // http://cr.yp.to/ftp/security.html Recommends these
@@ -803,8 +807,7 @@ type
     constructor Create(APASV: Boolean; AControlContext: TIdFTPServerContext; const ARequirePASVFromSameIP : Boolean; AServer : TIdFTPServer); reintroduce;
     destructor Destroy; override;
     procedure InitOperation(const AConnectMode : Boolean = False);
-    procedure SetPortParameters(const AIP: string;
-       const APort: Integer; const AIPVersion: TIdIPVersion);
+    procedure SetPortParameters(const AIP: string; const APort: TIdPort; const AIPVersion: TIdIPVersion);
     property PeerIP : String read GetPeerIP;
     property PeerPort : TIdPort read GetPeerPort;
     property Stopped : Boolean read FStopped write FStopped;
@@ -822,14 +825,14 @@ type
     FCCC : Boolean; //flag for CCC issuance
     FDataType: TIdFTPTransferType;
     FDataMode : TIdFTPTransferMode;
-    FDataPort: Integer;
-    FDataProtBufSize : Cardinal;
+    FDataPort: TIdPort;
+    FDataProtBufSize : LongWord;
     FDataStruct: TIdFTPDataStructure;
 
-    FPasswordAttempts : Cardinal;
+    FPasswordAttempts : LongWord;
     FPASV: Boolean;
 
-    FEPSVAll: boolean;
+    FEPSVAll: Boolean;
     FDataPortDenied : Boolean;
     FDataProtection : TIdFTPDataPortSecurity;
     FDataPBSZCalled : Boolean;
@@ -875,10 +878,10 @@ type
     property AuthMechanism : String read FAuthMechanism write FAuthMechanism;
     property DataType: TIdFTPTransferType read FDataType write FDataType;
     property DataMode : TIdFTPTransferMode read FDataMode write FDataMode;
-    property DataPort: Integer read FDataPort;
+    property DataPort: TIdPort read FDataPort;
     //We do not use this much for now but if more AUTH mechanisms are added,
     //we may need this property
-    property DataProtBufSize : Cardinal read FDataProtBufSize write FDataProtBufSize;
+    property DataProtBufSize : LongWord read FDataProtBufSize write FDataProtBufSize;
     property DataPBSZCalled : Boolean read FDataPBSZCalled write FDataPBSZCalled;
     property DataStruct: TIdFTPDataStructure read FDataStruct write FDataStruct;
     //currently, only <C>lear and <P>rivate are used.  This could change
@@ -899,10 +902,10 @@ type
     property ZLibWindowBits : Integer read FZLibWindowBits write FZLibWindowBits; //-15
     property ZLibMemLevel : Integer read FZLibMemLevel write FZLibMemLevel; //8
     property ZLibStratagy : Integer read FZLibStratagy write FZLibStratagy; //0 - default
-
   end;
+
   TIdOnGetCustomListFormat = procedure(ASender: TIdFTPServer; AItem: TIdFTPListItem;
-   var VText: string) of object;
+    var VText: string) of object;
 
   { FTP Server }
   TIdFTPServer = class(TIdExplicitTLSServer)
@@ -914,7 +917,7 @@ type
     FSITECommands: TIdCommandHandlers;
     FOPTSCommands: TIdCommandHandlers;
     FMLSDFacts : TIdMLSDAttrs;
-    FAnonymousAccounts: TStringList;
+    FAnonymousAccounts: TStrings;
     FAllowAnonymousLogin: Boolean;
     FAnonymousPassStrictCheck: Boolean;
     FCmdHandlerList: TIdCommandHandler;
@@ -963,21 +966,21 @@ type
     FOnDataPortAfterBind : TOnDataPortBind;
     FOnPASVBeforeBind : TIdOnPASV;
     FOnPASVReply : TIdOnPASV;
-    FFTPFileSystem:TIdFTPBaseFileSystem;
+    FFTPFileSystem: TIdFTPBaseFileSystem;
     FEndOfHelpLine : String;
     FCustomSystID : String;
     FReplyUnknownSITECommand : TIdReply;
     FCompressor : TIdZLibCompressorBase;
     FOnMLST : TIdOnMLST;
     FOnSiteUTIME : TOnSiteUTIME;
-    function SupportTaDirSwitches(ACxt : TIdFTPServerContext) : Boolean;
-    function IgnoreLastPathDelin(const APath : String) : String;
+    function SupportTaDirSwitches(AContext : TIdFTPServerContext) : Boolean;
+    function IgnoreLastPathDelim(const APath : String) : String;
     procedure DoOnPASVBeforeBind(ASender : TIdFTPServerContext; var VIP : String;
-      var VPort : Word; const AIPVersion : TIdIPVersion);
+      var VPort : TIdPort; const AIPVersion : TIdIPVersion);
     procedure DoOnPASVReply(ASender : TIdFTPServerContext; var VIP : String;
-      var VPort : Word; const AIPVersion : TIdIPVersion);
+      var VPort : TIdPort; const AIPVersion : TIdIPVersion);
     function InternalPASV(ASender: TIdCommand; var VIP : String;
-      var VPort: Word; var VIPVersion : TIdIPVersion): Boolean;
+      var VPort: TIdPort; var VIPVersion : TIdIPVersion): Boolean;
     function DoSysType(ASender : TIdFTPServerContext) : String;
     function DoProcessPath(ASender : TIdFTPServerContext; const APath: string): string;
 
@@ -1084,9 +1087,10 @@ type
 
     procedure CommandOptsMLST(ASender : TIdCommand);
     procedure CommandOptsMODEZ(ASender : TIdCommand);
-    Procedure COmmandHELP(ASender: TIdCommand);
+    procedure CommandOptsUTF8(ASender: TIdCommand);
+    procedure CommandHELP(ASender: TIdCommand);
     //
-    procedure DoOnRenameFile(ASender: TIdFTPServerContext; const ARenameFromFile,ARenameToFile: string);
+    procedure DoOnRenameFile(ASender: TIdFTPServerContext; const ARenameFromFile, ARenameToFile: string);
     procedure DoOnDeleteFile(ASender: TIdFTPServerContext; const APathName: string);
     procedure DoOnChangeDirectory(AContext: TIdFTPServerContext; var VDirectory: string);
     procedure DoOnMakeDirectory(AContext: TIdFTPServerContext; var VDirectory: string);
@@ -1104,19 +1108,18 @@ type
     procedure DoOnMD5Verify(ASender: TIdFTPServerContext; const AFileName : String; const ACheckSum : String);
     procedure DoOnMD5Cache(ASender: TIdFTPServerContext; const AFileName : String; var VCheckSum : String);
     procedure DoOnCombineFiles(ASender: TIdFTPServerContext; const ATargetFileName: string; AParts : TStrings);
-
     procedure DoOnSetATTRIB(ASender: TIdFTPServerContext; var VAttr : Cardinal; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteUMASK(ASender: TIdFTPServerContext; var VUMASK : Integer; var VAUth : Boolean);
     procedure DoOnSiteCHMOD(ASender: TIdFTPServerContext; var APermissions : Integer; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner, AGroup : String; const AFileName : String; var VAUth : Boolean);
     procedure DoOnSiteCHGRP(ASender: TIdFTPServerContext; var AGroup : String; const AFileName : String; var VAUth : Boolean);
-    procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);    
+    procedure DoOnClientID(ASender: TIdFTPServerContext; const AIDString : String);
     procedure SetUseTLS(AValue: TIdUseTLS); override;
     procedure InitializeCommandHandlers; override;
     procedure ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
-      var ADirContents: TStringList; ADetails: Boolean; const ACmd : String = 'LIST'; const ASwitches : String=''); {do not localize}
+      ADirContents: TStrings; ADetails: Boolean; const ACmd : String = 'LIST'; const ASwitches : String = ''); {do not localize}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure SetAnonymousAccounts(const AValue: TStringList);
+    procedure SetAnonymousAccounts(const AValue: TStrings);
     procedure SetUserAccounts(const AValue: TIdCustomUserManager);
     procedure SetFTPSecurityOptions(const AValue: TIdFTPSecurityOptions);
     procedure SetPASVBoundPortMax(const AValue: TIdPort);
@@ -1125,17 +1128,18 @@ type
     procedure SetSITECommands(AValue: TIdCommandHandlers);
     procedure ThreadException(AThread: TIdThread; AException: Exception);
     procedure SetFTPFileSystem(const AValue: TIdFTPBaseFileSystem);
-    function  GetMD5Checksum(ASender : TIdFTPServerContext; const AFileName : String ) : String;
+    function  GetMD5Checksum(ASender : TIdFTPServerContext; const AFileName : String) : String;
     //overrides from TIdTCPServer
-    procedure DoConnect(AContext: TIdContext); override;
-    procedure DoDisconnect(AContext: TIdContext); override;
-    procedure ContextCreated(AContext: TIdContext); override;
-    function CalculateCRCHash(AStrm: TStream; const ABeginPos,AEndPos: Int64): String;
-    function CalculateMD5Checksum(AStrm: TStream; const ABeginPos, AEndPos: Int64) : String;
+    procedure DoConnect(AContext:TIdContext); override;
+    procedure DoDisconnect(AContext:TIdContext); override;
+    procedure ContextCreated(AContext:TIdContext); override;
+    function CalculateCRCHash(AStrm : TStream; const AStartPos, AEndPos: Int64): String;
+    function CalculateMD5Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64): String;
     procedure DoOnDataPortBeforeBind(ASender : TIdFTPServerContext); virtual;
-    procedure DoDataChannelOperation(ASender: TIdCommand;const AConnectMode : Boolean=False);virtual;
+    procedure DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean = False);virtual;
     procedure DoOnDataPortAfterBind(ASender : TIdFTPServerContext); virtual;
-    procedure DoOnCustomListDirectory(ASender: TIdFTPServerContext; const APath: string; ADirectoryListing: TStrings; const ACmd : String; const ASwitches : String);
+    procedure DoOnCustomListDirectory(ASender: TIdFTPServerContext; const APath: string;
+      ADirectoryListing: TStrings; const ACmd : String; const ASwitches : String);
     function GetReplyClass: TIdReplyClass; override;
     function GetRepliesClass: TIdRepliesClass; override;
     procedure InitComponent; override;
@@ -1154,7 +1158,7 @@ type
     property PathProcessing : TIdFTPPathProcessing read FPathProcessing write FPathProcessing default DEF_PATHPROCESSING;
     property UseTLS;
     property AllowAnonymousLogin: Boolean read FAllowAnonymousLogin write FAllowAnonymousLogin default Id_DEF_AllowAnon;
-    property AnonymousAccounts: TStringList read FAnonymousAccounts write SetAnonymousAccounts;
+    property AnonymousAccounts: TStrings read FAnonymousAccounts write SetAnonymousAccounts;
     property AnonymousPassStrictCheck: Boolean read FAnonymousPassStrictCheck
      write FAnonymousPassStrictCheck default Id_DEF_PassStrictCheck;
     property DefaultDataPort : TIdPort read FDefaultDataPort write FDefaultDataPort default IdPORT_FTP_DATA;
@@ -1229,9 +1233,9 @@ type
 implementation
 
 uses
-  IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols, IdGlobalProtocols,
-  IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle, IdStrings,
-  IdTCPClient, IdEMailAddress, IdStack, IdFTPListTypes;
+  IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols,
+  IdGlobalProtocols, IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle,
+  IdStrings, IdTCPClient, IdEMailAddress, IdStack, IdFTPListTypes;
 
 const
   //THese commands need some special treatment in the Indy 10 FTP Server help system
@@ -1240,55 +1244,61 @@ const
     ('SIZE','MDTM',                                                 {do not localize}
      'AUTH','PBSZ','PROT','CCC','MIC','CONF','ENC', 'SSCN','CPSV',  {do not localize}
      'MFMT','MFF','MD5','MMD5','XCRC','XMD5',                       {do not localize}
-     'COMB'); {do not localize}
+     'COMB');                                                       {do not localize}
 
-   //These commands must always be present even if not implemented
-   //alt help topics and superscripts should be used sometimes.
-   //These are mandated by RFC 1123
-   HELP_ALT_MD_CMD : array [0..17] of string =
-     ('RETR',         {do not localize}
-      'STOR','STOU',  {do not localize}
-      'APPE',         {do not localize}
-      'RNFR', 'RNTO', {do not localize}
-      'DELE',         {do not localize}
-      'LIST','NLST',  {do not localize}
-      'CWD','XCWD',   {do not localize}
-      'CDUP','XCUP',  {do not localize}
-      'RMD','XRMD',   {do not localize}
-      'MKD', 'XMKD',  {do not localize}
-      'SYST');        {do not localize}
-    HELP_ALT_MD_TP  :array [0..17] of string =
-      ('RETR        (retrieve); unimplemented.',                    {do not localize}
-       'STOR        (store); unimplemented.',                       {do not localize}
-       'STOU        (store unique); unimplemented.',                {do not localize}
-       'APPE        (append); unimplemented.',                      {do not localize}
-       'RNFR        (rename from); unimplemented.',                 {do not localize}
-       'RNTO        (rename to); unimplemented.',                   {do not localize}
-       'DELE        (delete); unimplemented.',                      {do not localize}
-       'LIST        (list); unimplemented.',                        {do not localize}
-       'NLIST       (name-list); unimplemented.',                   {do not localize}
-       'CWD         (change working directory); unimplemented.',    {do not localize}
-       'XCWD        (change working directory); unimplemented.',    {do not localize}
-       'CDUP        (change to parent directory); unimplemented.',  {do not localize}
-       'XCDUP       (change to parent directory); unimplemented.',  {do not localize}
-       'RMD         (remove Directory); unimplemented.',            {do not localize}
-       'XRMD        (remove Directory); unimplemented.',            {do not localize}
-       'MKD         (make Directory); unimplemented.',              {do not localize}
-       'XMKD        (make Directory); unimplemented.',              {do not localize}
-       'SYST        (system); unimplemented.'                       {do not localize}
-       );
-  //SSCN and OPTS MODE Z EXTRA states
-  STATES : array [0..1] of string = ('ON','OFF'); {do not localize}
+  //These commands must always be present even if not implemented
+  //alt help topics and superscripts should be used sometimes.
+  //These are mandated by RFC 1123
+  HELP_ALT_MD_CMD : array [0..17] of string =
+    ('RETR',         {do not localize}
+     'STOR','STOU',  {do not localize}
+     'APPE',         {do not localize}
+     'RNFR', 'RNTO', {do not localize}
+     'DELE',         {do not localize}
+     'LIST','NLST',  {do not localize}
+     'CWD','XCWD',   {do not localize}
+     'CDUP','XCUP',  {do not localize}
+     'RMD','XRMD',   {do not localize}
+     'MKD', 'XMKD',  {do not localize}
+     'SYST');        {do not localize}
+
+  HELP_ALT_MD_TP  : array [0..17] of string =
+    ('RETR        (retrieve); unimplemented.',                    {do not localize}
+     'STOR        (store); unimplemented.',                       {do not localize}
+     'STOU        (store unique); unimplemented.',                {do not localize}
+     'APPE        (append); unimplemented.',                      {do not localize}
+     'RNFR        (rename from); unimplemented.',                 {do not localize}
+     'RNTO        (rename to); unimplemented.',                   {do not localize}
+     'DELE        (delete); unimplemented.',                      {do not localize}
+     'LIST        (list); unimplemented.',                        {do not localize}
+     'NLIST       (name-list); unimplemented.',                   {do not localize}
+     'CWD         (change working directory); unimplemented.',    {do not localize}
+     'XCWD        (change working directory); unimplemented.',    {do not localize}
+     'CDUP        (change to parent directory); unimplemented.',  {do not localize}
+     'XCDUP       (change to parent directory); unimplemented.',  {do not localize}
+     'RMD         (remove Directory); unimplemented.',            {do not localize}
+     'XRMD        (remove Directory); unimplemented.',            {do not localize}
+     'MKD         (make Directory); unimplemented.',              {do not localize}
+     'XMKD        (make Directory); unimplemented.',              {do not localize}
+     'SYST        (system); unimplemented.'                       {do not localize}
+     );
+
+  //SSCN, OPTS MODE Z EXTRA, and OPTS UTF8 states
+  STATES : array [0..1] of string =
+    ('ON', {do not localize}
+     'OFF' {do not localize}
+     );
 
 { TIdFTPServer }
-constructor TIdFTPServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn; AList: TThreadList = nil);
+constructor TIdFTPServerContext.Create(AConnection: TIdTCPConnection; AYarn: TIdYarn;
+  AList: TThreadList = nil);
 begin
   inherited Create(AConnection, AYarn, AList);
   FUserSecurity := TIdFTPSecurityOptions.Create;
   //we don't initialize FCCC flag here because that shouldn't be cleared with implicit SSL
   FCCC := False;
   FDataMode := dmStream;
-  FMLSOpts := [ItemType,Modify,Size];
+  FMLSOpts := [ItemType, Modify, Size];
   //no write permissions for group and others
   FUMask := 22;
   ResetZLibSettings;
@@ -1334,15 +1344,12 @@ end;
 
 procedure TIdFTPServerContext.ReInitialize;
 begin
-
   FDataType := ftASCII;
  // FDataMode := dmStream;
   FDataPort := 0;
   FDataStruct := dsFile;
-
   FPASV := False;
-  FEPSVAll := false;
-
+  FEPSVAll := False;
   FDataProtection := ftpdpsClear;
   DataPBSZCalled := False;
   FDataProtBufSize := 0;
@@ -1350,28 +1357,16 @@ end;
 
 function TIdFTPServerContext.IsAuthenticated(ASender: TIdCommand): Boolean;
 begin
-  if not FAuthenticated then begin
-    ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
-  end else begin
-//    if Assigned(FDataChannelContext) then begin
-//      if not FDataChannelContext.Stopped and
-//        not TextIsSame(ASender.CommandHandler.Command, 'ABOR') and {Do not Localize}
-//        not TextIsSame(ASender.CommandHandler.Command, #$FF#$F4#$FF#$FF'ABOR') and // ABOR with telnet escape {Do not Localize}
-//        not TextIsSame(ASender.CommandHandler.Command, 'STAT') {Do not Localize}
-//      then begin
-//        Result := False;
-//        Exit;
-//      end;
-//    end;
-  end;
   Result := FAuthenticated;
+  if not Result then begin
+    ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
+  end;
 end;
 
 { TIdFTPServer }
 
 procedure TIdFTPServer.InitComponent;
 begin
-
   inherited InitComponent;
   HelpReply.Code := ''; //we will handle the help ourselves
   FDataChannelCommands := TIdCommandHandlers.Create(Self, FReplyClass, ReplyTexts, ExceptionReply);
@@ -1394,7 +1389,7 @@ begin
   Greeting.SetReply(220, RSFTPDefaultGreeting);
 
   FContextClass := TIdFTPServerContext;
-  ReplyUnknownCommand.SetReply(500, 'Unknown Command');
+  ReplyUnknownCommand.SetReply(500, 'Unknown Command'); {do not localize}
 
   FReplyUnknownSITECommand := FReplyClass.Create(nil);
   FReplyUnknownSITECommand.SetReply(500, 'Invalid SITE command.'); {do not localize}
@@ -1424,82 +1419,82 @@ var
   i : Integer;
   LExp : String;
 
-    function ShouldShowCommand(const ACommand : String) : Boolean;
-    begin
-      Result := False;
-      case PosInStrArray(ACommand, HELP_SPEC_CMDS, False) of
-        -1 : Result := True;
-         0 : //'SIZE'
-           if Assigned(FOnGetFileSize) then
-           begin
-             Result := True;
-           end;
-         1 :// 'MDTM',
-           if Assigned(FOnGetFileDate)or Assigned(FTPFileSystem) then
-           begin
-             Result := True;
-           end;
-         2 : // 'AUTH'
-           if (FUseTLS in ExplicitTLSVals) then
-           begin
-             Result := True;
-           end;
-         3,4,5,6,7,8,9,10 : //'PBSZ','PROT', 'CCC','MIC','CONF','ENC','SSCN','CPSV',
-           if (FUseTLS <> utNoTLSSupport) then
-           begin
-             Result := True;
-           end;
-         11,12 : // 'MFMT','MFF',
-          if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem)  then
+  function ShouldShowCommand(const ACommand : String) : Boolean;
+  begin
+    Result := False;
+    case PosInStrArray(ACommand, HELP_SPEC_CMDS, False) of
+       -1 :
+         Result := True;
+        0 : //'SIZE'
+          if Assigned(FOnGetFileSize) then
           begin
             Result := True;
           end;
-         13,14,15,16 ://'MD5','MMD5','XCRC','XMD5'
+        1 :// 'MDTM',
+          if Assigned(FOnGetFileDate) or Assigned(FTPFileSystem) then
+          begin
+            Result := True;
+          end;
+        2 : // 'AUTH'
+          if (FUseTLS in ExplicitTLSVals) then
+          begin
+            Result := True;
+          end;
+        3,4,5,6,7,8,9,10 : //'PBSZ','PROT', 'CCC','MIC','CONF','ENC','SSCN','CPSV',
+          if (FUseTLS <> utNoTLSSupport) then
+          begin
+            Result := True;
+          end;
+        11,12 : // 'MFMT','MFF',
+          if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then
+          begin
+            Result := True;
+          end;
+        13,14,15,16 : //'MD5','MMD5','XCRC','XMD5'
           if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
           begin
             Result := True;
           end;
-         17 : //  'COMB');
+        17 : //  'COMB');
           if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
           begin
             Result := True;
-          end
-      end;
+          end;
     end;
+  end;
 
-    function IsNotImplemented(const ACommand : String; var VHelp : String) : Boolean;
-    var idx : Integer;
-    begin
-      Result := False; //presume that the command is implemented
-      idx := PosInStrArray(ACommand, HELP_ALT_MD_CMD, False);
-      if idx = -1 then
-      begin
-        Result := False;
-        exit;
-      end;
-      case idx of
-        0 : // 'RETR'
+  function IsNotImplemented(const ACommand : String; var VHelp : String) : Boolean;
+  var
+    idx : Integer;
+  begin
+    Result := False; //presume that the command is implemented
+    idx := PosInStrArray(ACommand, HELP_ALT_MD_CMD, False);
+    if idx = -1 then begin
+      Exit;
+    end;
+    case idx of
+      0 : // 'RETR'
         begin
           if (not Assigned(FOnRetrieveFile)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
-        1,2,3 : //'STOR','STOU', 'APPE',
+      1,2,3 : //'STOR','STOU', 'APPE',
         begin
           if (not Assigned(FOnStoreFile)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
-        4,5 : // 'RNFR', 'RNTO',
+      4,5 : // 'RNFR', 'RNTO',
         begin
           if (not Assigned(FOnRenameFile)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
-       6 : //  'DELE',
+      6 : //  'DELE',
         begin
           if (not Assigned(FOnDeleteFile)) and (not Assigned(FFTPFileSystem)) then
           begin
@@ -1509,76 +1504,71 @@ var
       7,8 :// 'LIST','NLST',
         begin
           if (not Assigned(FOnListDirectory)) or
-           ((FDirFormat=ftpdfCustom) and (not Assigned(Self.OnCustomListDirectory))) then
+           ((FDirFormat = ftpdfCustom) and (not Assigned(OnCustomListDirectory))) then
           begin
             Result := True;
           end;
         end;
-      9, 10,  //'CWD','XCWD',
+      9, 10,   //'CWD','XCWD',
       11, 12 : // 'CDUP','XCUP',
         begin
-          if (not Assigned(FOnChangeDirectory)) and (not Assigned(FFTPFileSystem))  then
+          if (not Assigned(FOnChangeDirectory)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
       13, 14 : //'RMD','XRMD',
         begin
-          if (not Assigned(FOnRemoveDirectory)) and (not Assigned(FFTPFileSystem))  then
+          if (not Assigned(FOnRemoveDirectory)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
-      15,16 ://'MKD', 'XMKD',
+      15,16 : //'MKD', 'XMKD',
         begin
-          if (not Assigned(FOnMakeDirectory)) and (not Assigned(FFTPFileSystem))  then
+          if (not Assigned(FOnMakeDirectory)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
       17 :// 'SYST',
         begin
-          if (not Assigned(FOnMakeDirectory)) and (not Assigned(FFTPFileSystem))  then
+          if (not Assigned(FOnMakeDirectory)) and (not Assigned(FFTPFileSystem)) then
           begin
             Result := True;
           end;
         end;
       end;
-      if Result then
-      begin
+      if Result then begin
         LExp := HELP_ALT_MD_TP[idx];
       end;
     end;
+
 begin
-  if ASender.Params.Count >0 then
+  if ASender.Params.Count > 0 then
   begin
-    for i := 0 to CommandHandlers.Count -1 do
+    for i := 0 to CommandHandlers.Count-1 do
     begin
       if TextIsSame(ASender.Params[0], CommandHandlers.Items[i].Command) then
       begin
         if CommandHandlers.Items[i].HelpVisible and ShouldShowCommand(ASender.Params[0]) then
         begin
-          if IsNotImplemented(CommandHandlers.Items[i].Command,LExp) then
-          begin
-            ASender.Reply.SetReply(214,LExp);
-          end
-          else
-          begin
-            ASender.Reply.SetReply(214,CommandHandlers.Items[i].Description.Text);
+          if IsNotImplemented(CommandHandlers.Items[i].Command, LExp) then begin
+            ASender.Reply.SetReply(214, LExp);
+          end else begin
+            ASender.Reply.SetReply(214, CommandHandlers.Items[i].Description.Text);
           end;
-        end
-        else
+        end else
         begin
-          ASender.Reply.SetReply(502,IndyFormat(RSFTPCmdHelpNotKnown,[UpperCase(ASender.Params[0])]));
+          ASender.Reply.SetReply(502, IndyFormat(RSFTPCmdHelpNotKnown, [UpperCase(ASender.Params[0])]));
         end;
         Exit;
       end;
     end;
-    ASender.Reply.SetReply(502,IndyFormat(RSFTPCmdHelpNotKnown,[UpperCase(ASender.Params[0])]));
-  end
-  else
+    ASender.Reply.SetReply(502, IndyFormat(RSFTPCmdHelpNotKnown, [UpperCase(ASender.Params[0])]));
+  end else
   begin
-    s := RSFTPHelpBegining+EOL;
+    s := RSFTPHelpBegining + EOL;
     LCmds := TStringList.Create;
     try
       //
@@ -1586,23 +1576,19 @@ begin
       begin
         if CommandHandlers.Items[i].HelpVisible and ShouldShowCommand(CommandHandlers.Items[i].Command) then
         begin
-          if IsNotImplemented(CommandHandlers.Items[i].Command,LExp) then
-          begin
-            LCmds.Add( CommandHandlers.Items[i].Command+ '*' );
-          end
-          else
-          begin
-            LCmds.Add( CommandHandlers.Items[i].Command+ CommandHandlers.Items[i].HelpSuperScript );
+          if IsNotImplemented(CommandHandlers.Items[i].Command, LExp) then begin
+            LCmds.Add(CommandHandlers.Items[i].Command + '*'); {do not localize}
+          end else begin
+            LCmds.Add(CommandHandlers.Items[i].Command + CommandHandlers.Items[i].HelpSuperScript);
           end;
         end;
       end;
       LCmds.Sort;
-      s := s + HelpText(LCmds)+FEndOfHelpLine;
-      if FEndOfHelpLine = '' then
-      begin
+      s := s + HelpText(LCmds) + FEndOfHelpLine;
+      if FEndOfHelpLine = '' then begin
         s := s + EOL;  //prevent ugliness if last row out of alignment with the rest
       end;
-      ASender.Reply.SetReply(214,s);
+      ASender.Reply.SetReply(214, s);
     finally
       FreeAndNil(LCmds);
     end;
@@ -1610,7 +1596,8 @@ begin
 end;
 
 procedure TIdFTPServer.InitializeCommandHandlers;
-var LCmd : TIdCommandHandler;
+var
+  LCmd : TIdCommandHandler;
 begin
   inherited InitializeCommandHandlers;
 
@@ -1630,7 +1617,7 @@ begin
   //ACCT <SP> <account-information> <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'ACCT';    {Do not Localize}
-  LCMd.NormalReply.SetReply(502,IndyFormat(RSFTPCmdNotImplemented, ['ACCT'])); {do not localize}
+  LCMd.NormalReply.SetReply(502, IndyFormat(RSFTPCmdNotImplemented, ['ACCT'])); {do not localize}
   LCmd.HelpSuperScript := '*'; //not supported
   LCmd.Description.Text := 'ACCT        (specify account); unimplemented.'; {do not localize}
 
@@ -1661,7 +1648,7 @@ begin
   LCmd.Command := 'QUIT';    {Do not Localize}
   LCmd.OnCommand := CommandQUIT;
   LCmd.Disconnect := True;
-  LCmd.NormalReply.SetReply(221,RSFTPQuitGoodby);    {Do not Localize}
+  LCmd.NormalReply.SetReply(221, RSFTPQuitGoodby);    {Do not Localize}
   LCmd.Description.Text := 'Syntax: QUIT (terminate service)'; {do not localize}
 
   //REIN <CRLF>
@@ -1767,11 +1754,6 @@ begin
   LCmd.OnCommand := CommandABOR;
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.Description.Text := 'Syntax: ABOR (abort operation)'; {do not localize}
-  //ABOR <CRLF>
-{  LCmd := CommandHandlers.Add; // ABOR with telnet escape
-  LCmd.Command := #$FF#$F4#$FF#$FF'ABOR';    {Do not Localize}
-{  LCmd.OnCommand := CommandABOR;
-  LCmd.ExceptionReply.NumericCode := 550;  }
 
   //DELE <SP> <pathname> <CRLF>
   LCmd := CommandHandlers.Add;
@@ -1837,7 +1819,7 @@ begin
   //NOOP <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'NOOP';    {Do not Localize}
-  LCmd.NormalReply.SetReply(200,IndyFormat(RSFTPCmdSuccessful, ['NOOP']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(200, IndyFormat(RSFTPCmdSuccessful, ['NOOP']));    {Do not Localize}
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.Description.Text := 'Syntax: NOOP'; {do not localize}
   //RFC 775
@@ -1895,7 +1877,6 @@ begin
   LCmd.OnCommand := CommandEPSV;
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.Description.Text := 'Syntax: EPSV (returns port |||port|)'; {do not localize}
-
   //EPRT [address/port string] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'EPRT';    {Do not Localize}
@@ -1950,7 +1931,6 @@ begin
   LCmd.OnCommand := CommandSecRFC;
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'ENC         (privacy protected command); unimplemented.'; {do not localize}
-
   //These are from IETF Draft "Extensions to FTP"
   //MLSD [Pathname] <CRLF>
   LCmd := CommandHandlers.Add;
@@ -2082,19 +2062,19 @@ begin
   //         MSAM [<SP> <ident>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MSAM';    {Do not Localize}
-  LCmd.NormalReply.SetReply(502,IndyFormat(RSFTPCmdNotImplemented, ['MSAM']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, IndyFormat(RSFTPCmdNotImplemented, ['MSAM']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MSAM        (mail send to terminal and mailbox); unimplemented.'; {do not localize}
   //         MRSQ [<SP> <scheme>] <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MRSQ';    {Do not Localize}
-  LCmd.NormalReply.SetReply( 502,IndyFormat(RSFTPCmdNotImplemented, ['MRSQ']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, IndyFormat(RSFTPCmdNotImplemented, ['MRSQ']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MRSQ        (mail recipient scheme question); unimplemented.'; {do not localize}
   //         MRCP <SP> <ident> <CRLF>
   LCmd := CommandHandlers.Add;
   LCmd.Command := 'MRCP';    {Do not Localize}
-  LCmd.NormalReply.SetReply( 502,IndyFormat(RSFTPCmdNotImplemented, ['MRCP']));    {Do not Localize}
+  LCmd.NormalReply.SetReply(502, IndyFormat(RSFTPCmdNotImplemented, ['MRCP']));    {Do not Localize}
   LCmd.HelpSuperScript := '*';
   LCmd.Description.Text := 'MRCP        (mail recipient); unimplemented.'; {do not localize}
  //
@@ -2103,6 +2083,7 @@ begin
   LCmd.OnCommand := COmmandHELP;
   LCmd.NormalReply.NumericCode := 214;
   LCmd.Description.Text := 'Syntax: HELP [ <sp> <string> ]'; {do not localize}
+
 //We use a separate command handler collection for some things which are
 //valid durring the data connection.
 
@@ -2132,7 +2113,6 @@ begin
   LCmd.OnCommand := CommandSiteATTRIB;
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.Description.Text := 'Syntax: SITE ATTRIB<SP>Attribs<SP>Filename'; {do not localize}
-
   //SITE UMASK<SP>[mask]
   LCmd := FSITECommands.Add;
   LCmd.Command := 'UMASK';    {Do not Localize}
@@ -2158,7 +2138,6 @@ begin
   LCmd.OnCommand := CommandSiteCHGRP;
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.Description.Text := 'Syntax: SITE CHGRP<SP>Group<SP>Filename<CRLF>'; {do not localize}
-
   //Microsoft IIS SITE commands
   //SITE DIRSTYLE
   LCmd := FSITECommands.Add;
@@ -2182,69 +2161,74 @@ begin
   LCmd.Description.Text := 
   'Syntax:  SITE UTIME <file> <access-time> <modification-time> <creation time>'+CR+LF+ {do not localize}
   '         Each timestamp must be in the format YYYYMMDDhhmmss';          {do not localize}
-  //OPTS settings
+
+  //OPTS MLST
   LCmd := FOPTSCommands.Add;
   LCmd.Command := 'MLST';  {Do not localize}
   LCmd.ExceptionReply.NumericCode := 501;
-  LCmd.OnCommand := Self.CommandOptsMLST;
-
+  LCmd.OnCommand := CommandOptsMLST;
+  //OPTS MODE Z
   LCmd := FOPTSCommands.Add;
   LCmd.Command := 'MODE Z'; {Do not localize}
   LCmd.ExceptionReply.NumericCode := 501;
   LCmd.OnCommand := CommandOptsMODEZ;
+
+  // OPTS UTF-8 <NLST>
+  LCmd := FOPTSCommands.Add;
+  LCmd.Command := 'UTF-8'; {Do not localize}
+  LCmd.ExceptionReply.NumericCode := 501;
+  LCmd.NormalReply.NumericCode := 200;
+  LCmd.OnCommand := CommandOptsUTF8;
+  // OPTS UTF8 <ON|OFF>
+  LCmd := FOPTSCommands.Add;
+  LCmd.Command := 'UTF8'; {Do not localize}
+  LCmd.ExceptionReply.NumericCode := 501;
+  LCmd.NormalReply.NumericCode := 200;
+  LCmd.OnCommand := CommandOptsUTF8;
 end;
 
-procedure TIdFTPServer.ContextCreated(AContext:TIdContext);
-var LFTPCx : TIdFTPServerContext;
+procedure TIdFTPServer.ContextCreated(AContext: TIdContext);
+var
+  LContext : TIdFTPServerContext;
 begin
-  LFTPCx := (AContext as TIdFTPServerContext);
-  LFTPCx.Server := Self as TIdFTPServer;
+  LContext := (AContext as TIdFTPServerContext);
+  LContext.Server := Self;
   //from Before run method
-  LFTPCx.FDataPort := 0;
-  LFTPCx.FPasswordAttempts := 0;
-  LFTPCx.FDataPortDenied := False;
-  LFTPCx.FUserSecurity.Assign(Self.FTPSecurityOptions);
-  if (DirFormat=ftpdfOSDependent) and (GOSType = otWindows) then
-  begin
-    LFTPCx.MSDOSMode := True;
+  LContext.FDataPort := 0;
+  LContext.FPasswordAttempts := 0;
+  LContext.FDataPortDenied := False;
+  LContext.FUserSecurity.Assign(FTPSecurityOptions);
+  if (DirFormat = ftpdfOSDependent) and (GOSType = otWindows) then begin
+    LContext.MSDOSMode := True;
   end;
   //
-  if mlsdUnixModes in FMLSDFacts then
-  begin
-    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixMODE];
+  if mlsdUnixModes in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [UnixMODE];
   end;
-  if mlsdUnixOwner in FMLSDFacts then
-  begin
-    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixOwner];
+  if mlsdUnixOwner in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [UnixOwner];
   end;
-  if mlsdUnixGroup in FMLSDFacts then
-  begin
-    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [UnixGroup];
+  if mlsdUnixGroup in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [UnixGroup];
   end;
-  if mlsdFileCreationTime in FMLSDFacts then
-  begin
-    LFTPCX.MLSOpts := LFTPCX.MLSOpts + [CreateTime];
+  if mlsdFileCreationTime in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [CreateTime];
   end;
-  if mlsdPerms in FMLSDFacts then
-  begin
-    LFTPCx.MLSOpts := LFTPCX.MLSOpts + [Perm];
+  if mlsdPerms in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [Perm];
   end;
-  if mlsdUniqueID in FMLSDFacts then
-  begin
-    LFTPCx.MLSOpts := LFTPCX.MLSOpts +  [Unique];
+  if mlsdUniqueID in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts +  [Unique];
   end;
-  if mlsdFileLastAccessTime in FMLSDFacts then
-  begin
-    LFTPCx.MLSOpts := LFTPCX.MLSOpts +  [LastAccessTime];
+  if mlsdFileLastAccessTime in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts +  [LastAccessTime];
   end;
-  if mlsdWin32Attributes in FMLSDFacts then
-  begin
-    LFTPCx.MLSOpts := LFTPCX.MLSOpts + [WinAttribs];
+  if mlsdWin32Attributes in FMLSDFacts then begin
+    LContext.MLSOpts := LContext.MLSOpts + [WinAttribs];
   end;
   //MS-DOS mode on for MS-DOS
-  if Self.FDirFormat = ftpdfDOS then
-  begin
-    LFTPCx.FMSDOSMode := True;
+  if FDirFormat = ftpdfDOS then begin
+    LContext.FMSDOSMode := True;
   end;
 end;
 
@@ -2252,7 +2236,6 @@ destructor TIdFTPServer.Destroy;
 begin
   FreeAndNil(FAnonymousAccounts);
   FreeAndNil(FFTPSecurityOptions);
-
   FreeAndNil(FOPTSCommands);
   FreeAndNil(FDataChannelCommands);
   FreeAndNil(FSITECommands);
@@ -2261,59 +2244,53 @@ begin
 end;
 
 procedure TIdFTPServer.ListDirectory(ASender: TIdFTPServerContext; ADirectory: string;
- var ADirContents: TStringList; ADetails: Boolean; const ACmd : String = 'LIST'; const ASwitches : String=''); {do not localize}
+  ADirContents: TStrings; ADetails: Boolean; const ACmd : String = 'LIST'; const ASwitches : String = ''); {do not localize}
 var
   LDirectoryList: TIdFTPListOutput;
   LPathSep: string;
+  LIsMLST: Boolean;
 begin
-  if (FDirFormat = ftpdfCustom) and (ACMD <> 'MLSD') and (ACmd <> 'MLST') then {do not localize}
+  LIsMLST := PosInStrArray(ACmd, ['MLSD', 'MLST']) <> -1; {do not localize}
+
+  if (FDirFormat = ftpdfCustom) and (not LIsMLST) then
   begin
-    DoOnCustomListDirectory(ASender,ADirectory,ADirContents,ACmd,ASwitches);
+    DoOnCustomListDirectory(ASender, ADirectory, ADirContents, ACmd, ASwitches);
     Exit;
   end;
-
-  if Assigned(FOnListDirectory) or Assigned(FFTPFileSystem) then begin
-    LDirectoryList := TIdFTPListOutput.Create; try
-
+  if Assigned(FOnListDirectory) or Assigned(FFTPFileSystem) then
+  begin
+    LDirectoryList := TIdFTPListOutput.Create;
+    try
       case FDirFormat of
-      ftpdfEPLF :  LDirectoryList.DirFormat := doEPLF;
+      ftpdfEPLF :
+        LDirectoryList.DirFormat := doEPLF;
       ftpdfDOS  :
-        if ASender.FMSDOSMode then
-        begin
+        if ASender.FMSDOSMode then begin
           LDirectoryList.DirFormat := DoWin32;
-        end
-        else
-        begin
+        end else begin
           LDirectoryList.DirFormat := DoUnix;
         end;
       ftpdfOSDependent :
-        if (GOSType=otWindows) and (ASender.FMSDOSMode) then
-        begin
+        if (GOSType = otWindows) and (ASender.FMSDOSMode) then begin
           LDirectoryList.DirFormat := DoWin32;
-        end
-        else
-        begin
+        end else begin
           LDirectoryList.DirFormat := DoUnix;
         end;
       else
         LDirectoryList.DirFormat := DoUnix;
       end;
       //someone might be using the STAT -l to get a dir without a data channel
-      if IndyPos('l',ASwitches)>0 then
-      begin
+      if IndyPos('l', ASwitches) > 0 then begin
         LDirectoryList.Switches := LDirectoryList.Switches + 'l';
       end;
       //we do things this way because the 'a' and 'T' swithces only make sense
       //when listing Unix dirs.
-      if Self.SupportTaDirSwitches(ASender) then
+      if SupportTaDirSwitches(ASender) then
       begin
-
-        if IndyPos('a',ASwitches)>0 then
-        begin
+        if IndyPos('a', ASwitches) > 0 then begin
           LDirectoryList.Switches := LDirectoryList.Switches + 'a';
         end;
-        if IndyPos('T',ASwitches)>0 then
-        begin
+        if IndyPos('T', ASwitches) > 0 then begin
           LDirectoryList.Switches := LDirectoryList.Switches + 'T';
         end;
       end;
@@ -2322,30 +2299,24 @@ begin
       if not TextEndsWith(ADirectory, LPathSep) then begin
         ADirectory := ADirectory + LPathSep;
       end;
-      if Assigned(FFTPFileSystem) then
-      begin
+      if Assigned(FFTPFileSystem) then begin
         FFTPFileSystem.ListDirectory(ASender, ADirectory, LDirectoryList, ACmd, ASwitches);
-      end
-      else
+      end else
       begin
-        FOnListDirectory(ASender, ADirectory, LDirectoryList,ACmd,ASwitches); // Event
+        FOnListDirectory(ASender, ADirectory, LDirectoryList, ACmd, ASwitches); // Event
       end;
-      if (ACMD = 'MLSD') or (ACmd = 'MLST') then     {Do not translate}
-      begin
+      if LIsMLST then begin    {Do not translate}
         LDirectoryList.MLISTOutputDir(ADirContents, ASender.MLSOpts);
       end
-      else
+      else if ADetails then
       begin
-        if ADetails then
-        begin
-          LDirectoryList.LISTOutputDir(ADirContents);
-        end
-        else
-        begin
-          LDirectoryList.NLISTOutputDir(ADirContents);
-        end;
+        LDirectoryList.LISTOutputDir(ADirContents);
+      end else begin
+        LDirectoryList.NLISTOutputDir(ADirContents);
       end;
-    finally FreeAndNil(LDirectoryList); end;
+    finally
+      FreeAndNil(LDirectoryList);
+    end;
   end else begin
     raise EIdFTPServerNoOnListDirectory.Create(RSFTPNoOnDirEvent);    {Do not Localize}
   end;
@@ -2380,28 +2351,27 @@ end;
 procedure TIdFTPServer.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
-  if (Operation = opRemove) then begin
-    if (AComponent = FUserAccounts) then begin
+  if Operation = opRemove then
+  begin
+    if AComponent = FUserAccounts then begin
       FUserAccounts := nil;
-    end else if (AComponent = FFTPFileSystem) then begin
+    end
+    else if AComponent = FFTPFileSystem then begin
       FFTPFileSystem := nil;
     end;
   end;
 end;
 
-procedure TIdFTPServer.SetAnonymousAccounts(const AValue: TStringList);
+procedure TIdFTPServer.SetAnonymousAccounts(const AValue: TStrings);
 begin
-  if Assigned(AValue) then
-  begin
+  if Assigned(AValue) then begin
     FAnonymousAccounts.Assign(AValue);
   end;
 end;
 
-procedure TIdFTPServer.ThreadException(AThread: TIdThread;
-  AException: Exception);
+procedure TIdFTPServer.ThreadException(AThread: TIdThread; AException: Exception);
 begin
-  //we might not want to show an exception in a dialog-box
- // ShowException(AException, nil);
+  //we do not want to show an exception in a dialog-box
 end;
 
 //Command Replies/Handling
@@ -2409,42 +2379,42 @@ procedure TIdFTPServer.CommandUSER(ASender: TIdCommand);
 var
   LSafe: Boolean;
   LChallenge: String;
-  LF: TIdFTPServerContext;
+  LContext: TIdFTPServerContext;
 begin
-  lChallenge := '';
-  LF := TIdFTPServerContext(ASender.Context);
-  if (FUseTLS=utUseRequireTLS) and (LF.AuthMechanism<>'TLS') then {do not localize}
+  LChallenge := '';
+  LContext := ASender.Context as TIdFTPServerContext;
+  if (FUseTLS = utUseRequireTLS) and (LContext.AuthMechanism <> 'TLS') then {do not localize}
   begin
     DisconUser(ASender);
     Exit;
   end;
-  LF.Authenticated := FALSE;
-  if (FAnonymousAccounts.IndexOf(Lowercase(ASender.UnparsedParams)) >= 0)
-   and AllowAnonymousLogin then begin
-    LF.UserType := utAnonymousUser;
-    LF.Username := ASender.UnparsedParams;
+  LContext.Authenticated := False;
+  if (FAnonymousAccounts.IndexOf(LowerCase(ASender.UnparsedParams)) >= 0) and AllowAnonymousLogin then
+  begin
+    LContext.UserType := utAnonymousUser;
+    LContext.Username := ASender.UnparsedParams;
     ASender.Reply.SetReply(331, RSFTPAnonymousUserOkay);
-  end else begin
-    LF.UserType := utNormalUser;
-    if Length(ASender.UnparsedParams) > 0 then begin
-      LF.Username := ASender.UnparsedParams;
+  end else
+  begin
+    LContext.UserType := utNormalUser;
+    if Length(ASender.UnparsedParams) > 0 then
+    begin
+      LContext.Username := ASender.UnparsedParams;
       if Assigned(FUserAccounts) then
       begin
-        lChallenge := FUserAccounts.ChallengeUser(LSafe,LF.Username);
-        if LSafe = False then
+        LChallenge := FUserAccounts.ChallengeUser(LSafe, LContext.Username);
+        if not LSafe then
         begin
           //we do this to prevent a potential race attack
-          Self.DisconUser(ASender);
+          DisconUser(ASender);
           Exit;
         end;
       end;
-      if lChallenge = '' then
-      begin
+      if LChallenge = '' then begin
         ASender.Reply.SetReply(331, RSFTPUserOkay);
-      end
-      else
+      end else
       begin
-        ASender.Reply.SetReply(331, lChallenge);
+        ASender.Reply.SetReply(331, LChallenge);
       end;
     end else begin
       ASender.Reply.SetReply(332, RSFTPNeedAccountForLogin);
@@ -2455,155 +2425,159 @@ end;
 procedure TIdFTPServer.CommandPASS(ASender: TIdCommand);
 var
   LValidated: Boolean;
-  LF : TIdFTPServerContext;
+  LContext: TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext:= ASender.Context as TIdFTPServerContext;
   try
-    if (FUseTLS=utUseRequireTLS) and (LF.AuthMechanism<>'TLS') then {do not localize}
+    if (FUseTLS = utUseRequireTLS) and (LContext.AuthMechanism <> 'TLS') then {do not localize}
     begin
       DisconUser(ASender);
       Exit;
     end;
-    LF.FAuthenticated := FALSE;
-    case LF.FUserType of
+    LContext.FAuthenticated := False;
+    case LContext.FUserType of
       utAnonymousUser:
       begin
         LValidated := Length(ASender.UnparsedParams) > 0;
-        if FAnonymousPassStrictCheck and LValidated then begin
+        if FAnonymousPassStrictCheck and LValidated then
+        begin
           LValidated := False;
           if FindFirstOf('@.', ASender.UnparsedParams) > 0 then begin    {Do not Localize}
             LValidated := True;
           end;
         end;
-        if LValidated then begin
-          LF.FAuthenticated := True;
-          LF.FPassword := ASender.UnparsedParams;
+        if LValidated then
+        begin
+          LContext.FAuthenticated := True;
+          LContext.FPassword := ASender.UnparsedParams;
           ASender.Reply.SetReply(230, RSFTPAnonymousUserLogged);
-          if Assigned(OnLoginSuccessBanner) then begin
-            OnLoginSuccessBanner(LF, ASender.Reply);
+          if Assigned(OnLoginSuccessBanner) then
+          begin
+            OnLoginSuccessBanner(LContext, ASender.Reply);
             ASender.Reply.SetReply(230, ASender.Reply.Text.Text);
           end;
-          LF.FPasswordAttempts := 0;
-        end else begin
-          LF.FUserType := utNone;
-          LF.FAuthenticated := False;
-          LF.FPassword := '';    {Do not Localize}
-          Inc(LF.FPasswordAttempts);
-          if LF.UserSecurity.InvalidPassDelay > 0 then
+          LContext.FPasswordAttempts := 0;
+        end else
+        begin
+          LContext.FUserType := utNone;
+          LContext.FAuthenticated := False;
+          LContext.FPassword := '';    {Do not Localize}
+          Inc(LContext.FPasswordAttempts);
+          if LContext.UserSecurity.InvalidPassDelay > 0 then
           begin
             //Delay our error response to slow down a dictionary attack
-            Sleep( FFTPSecurityOptions.InvalidPassDelay);
+            Sleep(FFTPSecurityOptions.InvalidPassDelay);
           end;
-          if (LF.UserSecurity.PasswordAttempts > 0) and (LF.FPasswordAttempts >= LF.UserSecurity.PasswordAttempts) then
+          if (LContext.UserSecurity.PasswordAttempts > 0) and
+            (LContext.FPasswordAttempts >= LContext.UserSecurity.PasswordAttempts) then
           begin
             DisconUser(ASender);
             Exit;
-          end
-          else
-          begin
-            ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
           end;
+          ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
         end;
-      end;//utAnonymousUser
+      end;
       utNormalUser:
       begin
         if Assigned(FUserAccounts) then begin
-          LF.FAuthenticated := FUserAccounts.AuthenticateUser(LF.FUsername, ASender.UnparsedParams);
-          if LF.FAuthenticated then begin
-            LF.FPassword := ASender.UnparsedParams;
+          LContext.FAuthenticated := FUserAccounts.AuthenticateUser(LContext.FUsername, ASender.UnparsedParams);
+          if LContext.FAuthenticated then
+          begin
+            LContext.FPassword := ASender.UnparsedParams;
+            LContext.FPasswordAttempts := 0;
             ASender.Reply.SetReply(230, RSFTPUserLogged);
-            LF.FPasswordAttempts:=0;
-          end else begin
-            LF.FPassword := '';    {Do not Localize}
-            Inc(LF.FPasswordAttempts);
-            if LF.UserSecurity.InvalidPassDelay > 0 then
+          end else
+          begin
+            LContext.FPassword := '';    {Do not Localize}
+            Inc(LContext.FPasswordAttempts);
+            if LContext.UserSecurity.InvalidPassDelay > 0 then
             begin
               //Delay our error response to slow down a dictionary attack
-              Sleep( LF.UserSecurity.InvalidPassDelay);
+              Sleep(LContext.UserSecurity.InvalidPassDelay);
             end;
-            if (LF.UserSecurity.PasswordAttempts > 0) and (LF.FPasswordAttempts >= LF.UserSecurity.PasswordAttempts) then
+            if (LContext.UserSecurity.PasswordAttempts > 0) and
+              (LContext.FPasswordAttempts >= LContext.UserSecurity.PasswordAttempts) then
             begin
               //Max login attempts exceeded, close the connection
               DisconUser(ASender);
               Exit;
-            end
-            else
-            begin
-              ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
             end;
+            ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
           end;
         end
-        else if Assigned(FOnUserLogin) then begin
+        else if Assigned(FOnUserLogin) then
+        begin
           LValidated := False;
-          FOnUserLogin(LF, LF.FUsername, ASender.UnparsedParams, LValidated);
-          LF.FAuthenticated := LValidated;
-          LF.FPassword := ASender.UnparsedParams;
-          if LValidated then begin
-            LF.FPassword := ASender.UnparsedParams;
+          FOnUserLogin(LContext, LContext.FUsername, ASender.UnparsedParams, LValidated);
+          LContext.FAuthenticated := LValidated;
+          LContext.FPassword := ASender.UnparsedParams;
+          if LValidated then
+          begin
+            LContext.FPassword := ASender.UnparsedParams;
             ASender.Reply.SetReply(230, RSFTPUserLogged);
             if Assigned(OnLoginSuccessBanner) then
             begin
-              OnLoginSuccessBanner(LF, ASender.Reply);
+              OnLoginSuccessBanner(LContext, ASender.Reply);
               ASender.Reply.SetReply(230, ASender.Reply.Text.Text);
             end;
-            LF.FPasswordAttempts := 0;
-          end else begin
-            LF.FPassword := '';    {Do not Localize}
-            Inc(LF.FPasswordAttempts);
-            if (LF.UserSecurity.PasswordAttempts > 0) and (LF.FPasswordAttempts >= LF.UserSecurity.PasswordAttempts) then
+            LContext.FPasswordAttempts := 0;
+          end else
+          begin
+            LContext.FPassword := '';    {Do not Localize}
+            Inc(LContext.FPasswordAttempts);
+            if (LContext.UserSecurity.PasswordAttempts > 0) and
+              (LContext.FPasswordAttempts >= LContext.UserSecurity.PasswordAttempts) then
             begin
               //Max login attempts exceeded, close the connection
-               DisconUser(ASender);
-               Exit;
-            end
-            else
-            begin
-              ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
+              DisconUser(ASender);
+              Exit;
             end;
+            ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn);
           end;
         end
-        //APR 020423
         else begin
+          //APR 020423
           ASender.Reply.SetReply(530, RSFTPUserNotLoggedIn); // user manager not found
         end;
-      end;//utNormalUser
+      end;
     else
       ASender.Reply.SetReply(503, RSFTPNeedLoginWithUser);
     end;//case
   except
     on E : Exception do
     begin
-      ASender.Reply.SetReply(503,E.Message);
+      ASender.Reply.SetReply(503, E.Message);
     end;
-  end;//with
+  end;
   //After login
-  if LF.FAuthenticated and Assigned(FOnAfterUserLogin) then begin
-    FOnAfterUserLogin(LF);
+  if LContext.FAuthenticated and Assigned(FOnAfterUserLogin) then begin
+    FOnAfterUserLogin(LContext);
   end;
 end;
 
 procedure TIdFTPServer.CommandCWD(ASender: TIdCommand);
 var
   s: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := ASender.Context as TIdFTPServerContext;
   s := ASender.UnparsedParams;
-  if LF.IsAuthenticated(ASender) then begin
-    s := IgnoreLastPathDelin(s);
+  if LContext.IsAuthenticated(ASender) then
+  begin
+    s := IgnoreLastPathDelim(s);
     if Assigned(OnChangeDirectory) or Assigned(FFTPFileSystem) then begin
-      if  s = '..' then begin
-        s := CDUPDir(LF);
-      end else begin
-        if s = '.' then
-        begin
-          s := LF.CurrentDir;
-        end;
+      if  s = '..' then begin {do not localize}
+        s := CDUPDir(LContext);
+      end
+      else if s = '.' then begin {do not localize}
+        s := LContext.CurrentDir;
+      end
+      else begin
+        s := DoProcessPath(LContext, s);
       end;
-      s := DoProcessPath(LF,s);
       s := RemoveDuplicatePathSyms(s);
-      DoOnChangeDirectory(LF, s);
-      LF.CurrentDir := s;
+      DoOnChangeDirectory(LContext, s);
+      LContext.CurrentDir := s;
       CmdCommandSuccessful(ASender);
     end else begin
       CmdNotImplemented(ASender);
@@ -2614,16 +2588,17 @@ end;
 procedure TIdFTPServer.CommandCDUP(ASender: TIdCommand);
 var
   s: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
-    s := CDUPDir(LF);
-    s := DoProcessPath(LF,s);
-    if Assigned(FOnChangeDirectory) or Assigned(FFTPFileSystem) then begin
-      DoOnChangeDirectory(LF, s);
-      LF.FCurrentDir := s;
-      ASender.Reply.SetReply(250, IndyFormat(RSFTPCurrentDirectoryIs, [LF.FCurrentDir]));
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    s := CDUPDir(LContext);
+    s := DoProcessPath(LContext, s);
+    if Assigned(FOnChangeDirectory) or Assigned(FFTPFileSystem) then
+    begin
+      DoOnChangeDirectory(LContext, s);
+      LContext.FCurrentDir := s;
+      ASender.Reply.SetReply(250, IndyFormat(RSFTPCurrentDirectoryIs, [LContext.FCurrentDir]));
     end else begin
       CmdNotImplemented(ASender);
     end;
@@ -2631,19 +2606,21 @@ begin
 end;
 
 procedure TIdFTPServer.CommandREIN(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
-  LF :  TIdFTPServerContext;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
+  LContext :  TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
-    LF.ReInitialize;
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    LContext.ReInitialize;
     ASender.Reply.SetReply(220, RSFTPServiceOpen);
-    if (FUseTLS in ExplicitTLSVals) then begin
+    if (FUseTLS in ExplicitTLSVals) then
+    begin
       LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
       if not LIO.PassThrough then begin
         LIO.Passthrough := True;
       end;
-      LF.FCCC := False;
+      LContext.FCCC := False;
     end;
   end;
 end;
@@ -2652,23 +2629,23 @@ procedure TIdFTPServer.CommandPORT(ASender: TIdCommand);
 var
   LLo, LHi: Integer;
   LParm, IP : string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  LF.FDataPortDenied := False;
-  if LF.IsAuthenticated(ASender) then begin
-    if LF.FEPSVAll then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  LContext.FDataPortDenied := False;
+  if LContext.IsAuthenticated(ASender) then begin
+    if LContext.FEPSVAll then begin
       ASender.Reply.SetReply(501, IndyFormat(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
       Exit;
     end;
-    if LF.UserSecurity.BlockAllPORTTransfers then
+    if LContext.UserSecurity.BlockAllPORTTransfers then
     begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(502, RSFTPPORTDisabled);
       Exit;
     end;
-    LF.FPASV := False;
+    LContext.FPASV := False;
     LParm := ASender.UnparsedParams;
     IP := '';    {Do not Localize}
     { h1 }
@@ -2678,32 +2655,32 @@ begin
     { h3 }
     IP := IP + Fetch(LParm, ',') + '.';    {Do not Localize}
     { h4 }
-    IP := IP + Fetch(LParm, ',');    {Do not Localize}
+    IP := IP + Fetch(LParm, ',');          {Do not Localize}
     { p1 }
     LLo := IndyStrToInt(Fetch(LParm, ','));    {Do not Localize}
     { p2 }
     LHi := IndyStrToInt(LParm);
-    LF.FDataPort := (LLo * 256) + LHi;
-    if LF.UserSecurity.NoReservedRangePORT and
-      ((LF.FDataPort > 0) and (LF.FDataPort <= 1024)) then
+    LContext.FDataPort := TIdPort((LLo * 256) + LHi);
+    if LContext.UserSecurity.NoReservedRangePORT and
+      ((LContext.FDataPort > 0) and (LContext.FDataPort <= 1024)) then
     begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPPORTRange);
       Exit;
     end;
     {//BGO}
-    if LF.UserSecurity.FRequirePORTFromSameIP and
-      (IP <> LF.Binding.PeerIP) then
+    if LContext.UserSecurity.FRequirePORTFromSameIP and
+      (IP <> LContext.Binding.PeerIP) then
     begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPSameIPAddress);
       Exit;
     end;
     {//BGO}
-    LF.CreateDataChannel(False);
-    LF.FDataChannel.SetPortParameters(IP, LF.FDataPort, ID_IPv4);
+    LContext.CreateDataChannel(False);
+    LContext.FDataChannel.SetPortParameters(IP, LContext.FDataPort, ID_IPv4);
     CmdCommandSuccessful(ASender, 200);
   end;
 end;
@@ -2712,13 +2689,13 @@ procedure TIdFTPServer.CommandPASV(ASender: TIdCommand);
 var
   LParam: string;
   LBPort: Word;
-  LIPVer : TIdIPVersion;
+  LIPVersion : TIdIPVersion;
 begin
   //InternalPASV does all of the checking
-  if InternalPASV(ASender, LParam, LBPort, LIPVer) then
+  if InternalPASV(ASender, LParam, LBPort, LIPVersion) then
   begin
-    DoOnPASVReply(TIdFTPServerContext(ASender.Context), LParam, LBPort, LIPVer);
-    LParam := StringReplace(LParam, '.', ',',[rfReplaceAll]);    {Do not Localize}
+    DoOnPASVReply(TIdFTPServerContext(ASender.Context), LParam, LBPort, LIPVersion);
+    LParam := StringReplace(LParam, '.', ',', [rfReplaceAll]);    {Do not Localize}
     LParam := LParam + ',' + IntToStr(LBPort div 256) + ',' + IntToStr(LBPort mod 256);    {Do not Localize}
     ASender.Reply.SetReply(227, IndyFormat(RSFTPPassiveMode, [LParam]));
   end;
@@ -2726,93 +2703,83 @@ end;
 
 procedure TIdFTPServer.CommandTYPE(ASender: TIdCommand);
 var
-  LType: Char;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
+  s: string;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Length(ASender.UnparsedParams) = 1 then
+    s := ASender.UnparsedParams;
+    s := UpperCase(Fetch(s));
+    if Length(s) = 1 then
     begin
       //Default data type is ASCII
-      LType := UpperCase(ASender.UnparsedParams)[1];
-      case LType of
-        'A': LF.FDataType := ftASCII;    {Do not Localize}
-        'I': LF.FDataType := ftBinary;    {Do not Localize}
+      case s[1] of
+        'A': LContext.FDataType := ftASCII;    {Do not Localize}
+        'I': LContext.FDataType := ftBinary;   {Do not Localize}
+        else Exit;
       end;
-      if LF.FDataType in  [ftASCII, ftBinary] then
-      begin
-        ASender.Reply.SetReply(200, IndyFormat(RSFTPTYPEChanged, [LType]));
-      end;
+      ASender.Reply.SetReply(200, IndyFormat(RSFTPTYPEChanged, [s]));
     end;
   end;
 end;
 
 procedure TIdFTPServer.CommandSTRU(ASender: TIdCommand);
 var
-  LDataStruct: Char;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
+  s: String;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Length(ASender.UnparsedParams) = 1 then
+    s := ASender.UnparsedParams;
+    s := UpperCase(Fetch(s));
+    if Length(s) = 1 then
     begin
       //Default structure is file
-      LDataStruct := UpperCase(ASender.UnparsedParams)[1];
-      case LDataStruct of
-        'F': LF.FDataStruct := dsFile;    {Do not Localize}
-        'R': LF.FDataStruct := dsRecord;    {Do not Localize}
-        'P': LF.FDataStruct := dsPage;    {Do not Localize}
+      case s[1] of
+        'F': LContext.FDataStruct := dsFile;    {Do not Localize}
+        'R': LContext.FDataStruct := dsRecord;  {Do not Localize}
+        'P': LContext.FDataStruct := dsPage;    {Do not Localize}
+        else Exit;
       end;
-      if LF.FDataStruct in [dsFile, dsRecord, dsPage] then
-      begin
-        ASender.Reply.SetReply(200, IndyFormat(RSFTPSTRUChanged, [LDataStruct]));
-      end;
+      ASender.Reply.SetReply(200, IndyFormat(RSFTPSTRUChanged, [s]));
     end;
   end;
 end;
 
 procedure TIdFTPServer.CommandMODE(ASender: TIdCommand);
 var
-  LMode: Char;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
+  s: String;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := TIdFTPServerContext(ASender.Context);
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Length(ASender.UnparsedParams) = 1 then
+    s := ASender.UnparsedParams;
+    s := UpperCase(Fetch(s));
+    if Length(s) = 1 then
     begin
       //Default data mode is stream
-      LMode := UpperCase(ASender.UnparsedParams)[1];
-      case LMode of
-         'S' : //stream mode
-         begin
-           LF.DataMode := dmStream;
-           ASender.Reply.SetReply(200, IndyFormat(RSFTPMODEChanged, [LMode]));
-         end;
-         'Z' : //deflate
-         begin
-           if Assigned(FCompressor) then
-           begin
-             LF.DataMode := dmDeflate;
-             ASender.Reply.SetReply(200, IndyFormat(RSFTPMODEChanged, [LMode]));
-           end
-           else
-           begin
-             ASender.Reply.SetReply(504,RSFTPMODENotSupported);
-             Exit;
-           end;
-         end;
-        else
-          ASender.Reply.SetReply(504,RSFTPMODENotSupported);
+      case s[1] of
+        'S' : //stream mode
+        begin
+          LContext.DataMode := dmStream;
+          ASender.Reply.SetReply(200, IndyFormat(RSFTPMODEChanged, [s]));
           Exit;
         end;
+        'Z' : //deflate
+        begin
+          if Assigned(FCompressor) then
+          begin
+            LContext.DataMode := dmDeflate;
+            ASender.Reply.SetReply(200, IndyFormat(RSFTPMODEChanged, [s]));
+            Exit;
+          end;
+        end;
+      end;
+      ASender.Reply.SetReply(504, RSFTPMODENotSupported);
     end;
-  end
-  else
-  begin
   end;
 end;
 
@@ -2820,50 +2787,51 @@ procedure TIdFTPServer.CommandRETR(ASender: TIdCommand);
 var
   s: string;
   LStream: TStream;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
-    if LF.FDataPortDenied then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
+  begin
+    if LContext.FDataPortDenied then
+    begin
       ASender.Reply.SetReply(425, RSFTPCantOpenData);
       Exit;
     end;
     //TODO: Fix reference to /
-    s := DoProcessPath(LF, ASender.UnparsedParams);
-    if Assigned(FOnRetrieveFile) or Assigned(FFTPFileSystem) then begin
+    s := DoProcessPath(LContext, ASender.UnparsedParams);
+    if Assigned(FOnRetrieveFile) or Assigned(FFTPFileSystem) then
+    begin
       LStream := nil;
       try
         //some file stream creations can fail with an exception so
         //we need to handle this gracefully.
-        if Assigned(FFTPFileSystem) then
-        begin
-          FFTPFileSystem.RetrieveFile(LF, s, LStream)
-        end
-        else
-        begin
-          FOnRetrieveFile(LF, s, LStream);
+        if Assigned(FFTPFileSystem) then begin
+          FFTPFileSystem.RetrieveFile(LContext, s, LStream)
+        end else begin
+          FOnRetrieveFile(LContext, s, LStream);
         end;
       except
         on E : Exception do
         begin
           ASender.Reply.SetReply(550,E.Message);
           ASender.SendReply;
-          LF.KillDataChannel;
+          LContext.KillDataChannel;
           Exit;
         end;
       end;
-      if Assigned(LStream) then begin
-        LStream.Position := LF.FRESTPos;
-        LF.FRESTPos := 0;
+      if Assigned(LStream) then
+      begin
+        LStream.Position := LContext.FRESTPos;
+        LContext.FRESTPos := 0;
         //it should be safe to assume that the FDataChannel object exists because
         //we checked it earlier
-        LF.FDataChannel.FFtpOperation := ftpRetr;
-        LF.FDataChannel.FData := LStream;
-        LF.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LF.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+        LContext.FDataChannel.FFtpOperation := ftpRetr;
+        LContext.FDataChannel.FData := LStream;
+        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
         ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
         ASender.SendReply;
-        DoDataChannelOperation(ASender,LF.SSCNOn);
+        DoDataChannelOperation(ASender, LContext.SSCNOn);
       end else begin
         CmdFileActionAborted(ASender);
       end;
@@ -2878,83 +2846,74 @@ var
   LStream: TStream;
   LTmp1: string;
   LAppend: Boolean;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if not Assigned(LF.FDataChannel) then
+    if not Assigned(LContext.FDataChannel) then
     begin
-      ASender.Reply.SetReply(425,RSFTPCantOpenData);
+      ASender.Reply.SetReply(425, RSFTPCantOpenData);
       Exit;
     end;
-    if TextIsSame(ASender.CommandHandler.Command, 'STOU') then
-    begin    {Do not Localize}
-      LTmp1 := GetUniqueFileName('','Temp',''); {Do not localize}
-      //THis is a standardized format
-      ASender.Reply.SetReply(150, IndyFormat('FILE: %s',[LTmp1]));  {Do not translate}
-    end
-    else
+    if TextIsSame(ASender.CommandHandler.Command, 'STOU') then    {Do not Localize}
+    begin
+      LTmp1 := GetUniqueFileName('', 'Temp', ''); {Do not localize}
+      //This is a standardized format
+      ASender.Reply.SetReply(150, IndyFormat('FILE: %s', [LTmp1]));  {Do not translate}
+    end else
     begin
       LTmp1 := ASender.UnparsedParams;
       ASender.Reply.SetReply(150, RSFTPDataConnToOpen);
     end;
-    LTmp1 := DoProcessPath(TIdFTPServerContext(ASender.Context), LTmp1);
+    LTmp1 := DoProcessPath(LContext, LTmp1);
     LAppend := TextIsSame(ASender.CommandHandler.Command, 'APPE');    {Do not Localize}
-      //
+
     if Assigned(FOnStoreFile) or Assigned(FFTPFileSystem) then
     begin
       LStream := nil;
       try
-        if Assigned(FFTPFileSystem) then
-        begin
-          FFTPFileSystem.StoreFile(TIdFTPServerContext(ASender.Context),LTmp1, LAppend, LStream)
-        end
-        else
-        begin
-          FOnStoreFile(TIdFTPServerContext(ASender.Context), LTmp1, LAppend, LStream);
+        if Assigned(FFTPFileSystem) then begin
+          FFTPFileSystem.StoreFile(LContext, LTmp1, LAppend, LStream);
+        end else begin
+          FOnStoreFile(LContext, LTmp1, LAppend, LStream);
         end;
       except
         on E : Exception do
         begin
-          ASender.Reply.SetReply(550,E.Message);
+          ASender.Reply.SetReply(550, E.Message);
           ASender.SendReply;
-          (ASender.Context as TIdFTPServerContext).KillDataChannel;
+          LContext.KillDataChannel;
           Exit;
         end;
       end;
       if Assigned(LStream) then
       begin
         //Issued previously by ALLO cmd
-        if LF.ALLOSize > 0 then
-        begin
-          LStream.Size := LF.FALLOSize;
+        if LContext.ALLOSize > 0 then begin
+          LStream.Size := LContext.FALLOSize;
         end;
-        if LAppend then
-        begin
+        if LAppend then begin
           LStream.Position := LStream.Size;
-        end
-        else
+        end else
         begin
-          LStream.Position := LF.FRESTPos;
-          LF.FRESTPos:=0;
+          LStream.Position := LContext.FRESTPos;
+          LContext.FRESTPos := 0;
         end;
         { Data transfer }
         //it should be safe to assume that the FDataChannel object exists because
         //we checked it earlier
-        LF.FDataChannel.FFtpOperation := ftpStor;
-        LF.FDataChannel.Data := LStream;
-        LF.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LF.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+        LContext.FDataChannel.FFtpOperation := ftpStor;
+        LContext.FDataChannel.Data := LStream;
+        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
         ASender.SendReply;
-        DoDataChannelOperation(ASender,LF.SSCNOn);
-      end
-      else
+        DoDataChannelOperation(ASender, LContext.SSCNOn);
+      end else
       begin
         CmdFileActionAborted(ASender);
       end;
-    end
-    else
+    end else
     begin
       CmdNotImplemented(ASender);
     end;
@@ -2972,24 +2931,19 @@ begin
       LALLOSize := '';
       if Length(ASender.UnparsedParams) > 0 then
       begin
-        s := UpperCase(ASender.UnparsedParams);
-        if Length(s) > 1 then
+        if TextStartsWith(ASender.UnparsedParams, 'R ') then {Do not localize}
         begin
-          if (s[1] = 'R') and (s[2] = #32) then begin    {Do not Localize}
-            LALLOSize := Copy(s, 3, Length(s) - 2);
-          end;
-        end
-        else
-        begin
-          LALLOSize := s;
+          LALLOSize := TrimLeft(Copy(s, 3, MaxInt));
+        end else begin
+          LALLOSize := TrimLeft(ASender.UnparsedParams);
         end;
+        LALLOSize := Fetch(LALLOSize);
       end;
       if LALLOSize <> '' then
       begin
         FALLOSize := IndyStrToInt(LALLOSize, 0);
         CmdCommandSuccessful(ASender, 200);
-      end
-      else
+      end else
       begin
         ASender.Reply.SetReply(504, RSFTPInvalidForParam);
       end;
@@ -3018,12 +2972,11 @@ begin
     if IsAuthenticated(ASender) then
     begin
       s := ASender.UnparsedParams;
-      if Assigned(FOnRenameFile) or Assigned( FTPFileSystem) then
+      if Assigned(FOnRenameFile) or Assigned(FTPFileSystem) then
       begin
         ASender.Reply.SetReply(350, RSFTPFileActionPending);
-        FRNFR := DoProcessPath(TIdFTPServerContext(ASender.Context),s);
-      end
-      else
+        FRNFR := DoProcessPath(TIdFTPServerContext(ASender.Context), s);
+      end else
       begin
         CmdNotImplemented(ASender);
       end;
@@ -3034,15 +2987,15 @@ end;
 procedure TIdFTPServer.CommandRNTO(ASender: TIdCommand);
 var
   s: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := ASender.Context as TIdFTPServerContext;
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     s := ASender.UnparsedParams;
     if Assigned(FFTPFileSystem) or Assigned(FOnRenameFile) then
     begin
-      DoOnRenameFile(LF, LF.FRNFR, DoProcessPath(LF,s));
+      DoOnRenameFile(LContext, LContext.FRNFR, DoProcessPath(LContext, s));
       ASender.Reply.NumericCode := 250;
     end else begin
       CmdNotImplemented(ASender);
@@ -3052,29 +3005,29 @@ end;
 
 procedure TIdFTPServer.CommandABOR(ASender: TIdCommand);
 begin
-  with TIdFTPServerContext(ASender.Context) do begin
-    if IsAuthenticated(ASender) then begin
+  with TIdFTPServerContext(ASender.Context) do
+  begin
+    if IsAuthenticated(ASender) then
+    begin
       if Assigned(FDataChannel) then
       begin
-        if not FDataChannel.Stopped then begin
+        if not FDataChannel.Stopped then
+        begin
           FDataChannel.OkReply.SetReply(426, RSFTPDataConnClosedAbnormally);
           FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
           KillDataChannel;
           ASender.Reply.SetReply(226, RSFTPDataConnClosed);
-        end else begin
-          CmdCommandSuccessful(ASender,226);
+          Exit;
         end;
-      end
-      else
-      begin
-        CmdCommandSuccessful(ASender,226);
       end;
+      CmdCommandSuccessful(ASender, 226);
     end;
   end;
 end;
 
 procedure TIdFTPServer.CommandDELE(ASender: TIdCommand);
-var LF : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
 (*
 DELE <SP> <pathname> <CRLF>
   250 Requested file action okay, completed.
@@ -3089,11 +3042,12 @@ DELE <SP> <pathname> <CRLF>
 //TODO: Need to set replies when not authenticated and set NormalReply to 250
 // do for all procs, list valid replies in comments. Or maybe default is 550
 begin
-  LF := ASender.Context as TIdFTPServerContext;
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned(FOnDeleteFile) or Assigned(FTPFileSystem) then begin
-      DoOnDeleteFile(LF, DoProcessPath(LF,ASender.UnparsedParams));
+    if Assigned(FOnDeleteFile) or Assigned(FTPFileSystem) then
+    begin
+      DoOnDeleteFile(LContext, DoProcessPath(LContext, ASender.UnparsedParams));
       ASender.Reply.SetReply(250, RSFTPFileActionCompleted);
     end else begin
       CmdNotImplemented(ASender);
@@ -3106,16 +3060,17 @@ end;
 procedure TIdFTPServer.CommandRMD(ASender: TIdCommand);
 var
   s: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := ASender.Context as TIdFTPServerContext;
-  if LF.IsAuthenticated(ASender) then begin
-    S := IgnoreLastPathDelin(S);
-    s := DoProcessPath(LF,ASender.UnparsedParams);
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
+  begin
+    S := IgnoreLastPathDelim(S);
+    s := DoProcessPath(LContext, ASender.UnparsedParams);
 
     if Assigned(FFTPFileSystem) or Assigned(FOnRemoveDirectory) then
     begin
-      DoOnRemoveDirectory(LF, s);
+      DoOnRemoveDirectory(LContext, s);
       ASender.Reply.SetReply(250, RSFTPFileActionCompleted);
     end else begin
       CmdNotImplemented(ASender);
@@ -3126,13 +3081,14 @@ end;
 procedure TIdFTPServer.CommandMKD(ASender: TIdCommand);
 var
   S: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := ASender.Context as TIdFTPServerContext;
-  if LF.IsAuthenticated(ASender) then begin
-    S := IgnoreLastPathDelin(S);
-    S := DoProcessPath(LF, ASender.UnparsedParams );
-    DoOnMakeDirectory(LF, s);
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
+  begin
+    S := IgnoreLastPathDelim(S);
+    S := DoProcessPath(LContext, ASender.UnparsedParams);
+    DoOnMakeDirectory(LContext, s);
     ASender.Reply.SetReply(257, RSFTPFileActionCompleted);
   end;
 end;
@@ -3141,8 +3097,7 @@ procedure TIdFTPServer.CommandPWD(ASender: TIdCommand);
 begin
   with TIdFTPServerContext(ASender.Context) do
   begin
-    if IsAuthenticated(ASender) then
-    begin
+    if IsAuthenticated(ASender) then begin
       ASender.Reply.SetReply(257, IndyFormat(RSFTPCurrentDirectoryIs, [FCurrentDir]));
     end;
   end;
@@ -3153,34 +3108,34 @@ var
   LStream: TStringList;
   LSendData : Boolean;
   LPath, LSwitches : String;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 
-    function DeletRSwitch(const AString : String):String;
-    var i : Integer;
-    begin
-      Result := '';
-      for i := 1 to Length(AString) do
-      begin
-        if AString[i]<>'R' then
-        begin
-          Result := Result + AString[i];
-        end;
+  function DeletRSwitch(const AString : String): String;
+  var
+    i : Integer;
+  begin
+    Result := '';
+    for i := 1 to Length(AString) do begin
+      if AString[i] <> 'R' then begin
+        Result := Result + AString[i];
       end;
     end;
+  end;
 
 begin
-
   LSendData := False;
-  LF := TIdFTPServerContext(ASender.Context);
-  with LF do begin
-    if IsAuthenticated(ASender) then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  with LContext do
+  begin
+    if IsAuthenticated(ASender) then
+    begin
       if FDataPortDenied then
       begin
         ASender.Reply.SetReply(425, RSFTPCantOpenData);
         Exit;
       end;
       if (not Assigned(FOnListDirectory)) and
-       ((FDirFormat=ftpdfCustom) and (not Assigned(FOnCustomListDirectory))) then
+       ((FDirFormat = ftpdfCustom) and (not Assigned(FOnCustomListDirectory))) then
       begin
         CmdNotImplemented(ASender);
         Exit;
@@ -3189,47 +3144,40 @@ begin
       try
         LSwitches := '';
         LPath := ASender.UnparsedParams;
-        if (LPath<>'') and (LPath[1]='-') then  {Do not Localize}
-        begin
+        if TextStartsWith(LPath, '-') then begin {Do not Localize}
           LSwitches := Fetch(LPath);
         end;
         //we can't support recursive lists with EPLF
-        if DirFormat = ftpdfEPLF then
-        begin
-          LSwitches :=  DeletRSwitch(LSwitches);
+        if DirFormat = ftpdfEPLF then begin
+          LSwitches := DeletRSwitch(LSwitches);
         end;
-        ListDirectory(LF, DoProcessPath(LF, LPath), LStream, ASender.CommandHandler = FCmdHandlerList,ASender.CommandHandler.Command,LSwitches);
+        ListDirectory(LContext, DoProcessPath(LContext, LPath), LStream,
+        ASender.CommandHandler = FCmdHandlerList, ASender.CommandHandler.Command,
+          LSwitches);
         LSendData := True;
       finally
         if LSendData then
         begin
           //it should be safe to assume that the FDataChannel object exists because
           //we checked it earlier
-          Assert(FDataChannel<>nil);
+          Assert(FDataChannel <> nil);
           FDataChannel.Data := LStream;
           FDataChannel.FFtpOperation := ftpRetr;
           FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
           FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-          if (FDirFormat = ftpdfEPLF) then
+          if FDirFormat = ftpdfEPLF then
           begin
-            ASender.Reply.SetReply(125,RSFTPDataConnToOpen);
+            ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
             FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
           end
-          else
-          begin
-            if TextIsSame(ASender.CommandHandler.Command, 'LIST') or (LSwitches <> '') then {do not localize}
-            begin
-              ASender.Reply.SetReply(125, RSFTPDataConnList);
-            end
-            else
-            begin
-              ASender.Reply.SetReply(125, RSFTPDataConnNList);
-            end;
+          else if TextIsSame(ASender.CommandHandler.Command, 'LIST') or (LSwitches <> '') then begin {do not localize}
+            ASender.Reply.SetReply(125, RSFTPDataConnList);
+          end else begin
+            ASender.Reply.SetReply(125, RSFTPDataConnNList);
           end;
           ASender.SendReply;
           DoDataChannelOperation(ASender);
-        end
-        else
+        end else
         begin
           FreeAndNil(LStream);
           TerminateAndFreeDataChannel;
@@ -3240,42 +3188,44 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean=False);
-var
-  LMemStream: TStream;
-  LCxt : TIdFTPServerContext;
-  LCmdQueue : TStrings; 
-  LLine : String;
-  LStrm : TStream;
-
+procedure TIdFTPServer.DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean = False);
 const
   DEF_BLOCKSIZE = 10*10240;
   DEF_CHECKCMD_WAIT = 1;
+var
+  LMemStream: TStream;
+  LContext : TIdFTPServerContext;
+  LCmdQueue : TStringList; 
+  LLine : String;
+  LStrm : TStream;
 
   procedure CheckControlConnection(AContext : TIdFTPServerContext; ACmdQueue : TStrings);
-  var LLine : String;
+  var
+    LLine : String;
   begin
     LLine := ReadCommandLine(AContext);
-    if LLine <> '' then begin
-       if not FDataChannelCommands.HandleCommand(AContext, LLine) then begin
-          ACmdQueue.Add(LLine);
-       end;
+    if LLine <> '' then
+    begin
+      if not FDataChannelCommands.HandleCommand(AContext, LLine) then begin
+        ACmdQueue.Add(LLine);
+      end;
     end;
   end;
 
   procedure ReadFromStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings; AStream : TStream);
-  var LM : TStream;
+  var
+    LM : TStream;
   begin
     if AContext.DataMode = dmDeflate then begin
       LM := TMemoryStream.Create;
     end else begin
-      LM := TStream(LCxt.FDataChannel.Data);
+      LM := TStream(LContext.FDataChannel.Data);
     end;
     try
       repeat
         AContext.FDataChannel.FDataChannel.IOHandler.CheckForDisconnect(False);
         AContext.FDataChannel.FDataChannel.IOHandler.ReadStream(LM, DEF_BLOCKSIZE, True);
-        CheckControlConnection(AContext,ACmdQueue);
+        CheckControlConnection(AContext, ACmdQueue);
       until not AContext.FDataChannel.FDataChannel.IOHandler.Connected;
       if AContext.DataMode = dmDeflate then
       begin
@@ -3283,69 +3233,64 @@ const
         FCompressor.DecompressFTPDeflate(LM, AStream, AContext.ZLibWindowBits);
       end;
     finally
-      if AContext.DataMode = dmDeflate then
-      begin
+      if AContext.DataMode = dmDeflate then begin
         FreeAndNil(LM);
       end;
     end;
   end;
 
-  procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings; AStream : TStream;
-    const AIgnoreCompression : Boolean=False);
-  var LBufSize : Int64;
+  procedure WriteToStream(AContext : TIdFTPServerContext; ACmdQueue : TStrings;
+    AStream : TStream; const AIgnoreCompression : Boolean = False);
+  var
+    LBufSize : Int64;
     LOutStream : TStream;
   begin
-    if (AContext.DataMode = dmDeflate) then
+    if AContext.DataMode = dmDeflate then
     begin
       LOutStream := TMemoryStream.Create;
       FCompressor.CompressFTPDeflate(AStream, LOutStream,
-      AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
-      AContext.ZLibMemLevel, AContext.ZLibStratagy );
+        AContext.ZLibCompressionLevel, AContext.ZLibWindowBits,
+        AContext.ZLibMemLevel, AContext.ZLibStratagy);
       LOutStream.Position := 0;
-    end
-    else
+    end else
     begin
       LOutStream := AStream;
     end;
     try
       repeat
         LBufSize := LOutStream.Size - LOutStream.Position;
-        if LBufSize > DEF_BLOCKSIZE then
-        begin
+        if LBufSize > DEF_BLOCKSIZE then begin
            LBufSize := DEF_BLOCKSIZE;
         end;
         if LBufSize > 0 then
         begin
-          AContext.FDataChannel.FDataChannel.IOHandler.Write(LOutStream,LBufSize,False);
-          if AStream.Position < AStream.Size then
-          begin
-            CheckControlConnection(AContext,ACmdQueue);
+          AContext.FDataChannel.FDataChannel.IOHandler.Write(LOutStream, LBufSize, False);
+          if AStream.Position < AStream.Size then begin
+            CheckControlConnection(AContext, ACmdQueue);
           end;
         end;
-      until (LBufSize=0) or
-        (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
+      until (LBufSize = 0) or (not AContext.FDataChannel.FDataChannel.IOHandler.Connected);
     finally
-      if (AContext.DataMode = dmDeflate) then
-      begin
+      if AContext.DataMode = dmDeflate then begin
         FreeAndNil(LOutStream);
       end;
     end;
   end;
 
   procedure WriteStrings(AContext : TIdFTPServerContext; ACmdQueue : TStrings; AStrings : TStrings);
-  var i : Integer;
+  var
+    i : Integer;
     LM : TStream;
   begin
     if AContext.DataMode = dmDeflate then
     begin
       LM := TMemoryStream.Create;
       try
-        for i := 0 to AStrings.Count-1 do
-        begin
+        for i := 0 to AStrings.Count-1 do begin
           WriteStringToStream(LM, AStrings[i]+ EOL);
         end;
         LM.Position := 0;
-        WriteToStream(AContext,ACmdQueue,LM,True);
+        WriteToStream(AContext, ACmdQueue, LM,True);
       finally
         FreeAndNil(LM);
       end;
@@ -3356,7 +3301,7 @@ const
       if AContext.FDataChannel.FDataChannel.IOHandler.Connected then
       begin
         AContext.FDataChannel.FDataChannel.IOHandler.WriteLn(AStrings[i]);
-        if (i mod 10=0) and (i<> AStrings.Count-1) then
+        if ((i mod 10) = 0) and (i <> (AStrings.Count-1)) then
         begin
           if AContext.FDataChannel.FDataChannel.IOHandler.Connected then begin
             CheckControlConnection(AContext, ACmdQueue);
@@ -3377,46 +3322,46 @@ begin
   if not Assigned(ASender.Context) then begin
     Exit;
   end;
-  LCxt := ASender.Context as TIdFTPServerContext;
-  if not Assigned(LCxt.FDataChannel) then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if not Assigned(LContext.FDataChannel) then begin
     Exit;
   end;
   try
     LCmdQueue := TStringList.Create;
     try
       try
-        LCxt.FDataChannel.InitOperation(AConnectMode);
+        LContext.FDataChannel.InitOperation(AConnectMode);
         try
           try
-            if LCxt.FDataChannel.Data is TStream then begin
-              LStrm := LCxt.FDataChannel.Data as TStream;
+            if LContext.FDataChannel.Data is TStream then begin
+              LStrm := LContext.FDataChannel.Data as TStream;
               try
-                case LCxt.FDataChannel.FFtpOperation of
+                case LContext.FDataChannel.FFtpOperation of
                   ftpRetr:
-                    WriteToStream(LCxt, LCmdQueue, LStrm);
+                    WriteToStream(LContext, LCmdQueue, LStrm);
                   ftpStor:
-                    ReadFromStream(LCxt, LCmdQueue, LStrm);
+                    ReadFromStream(LContext, LCmdQueue, LStrm);
                 end;
               finally
                 FreeAndNil(LStrm);
-                LCxt.FDataChannel.Data:=nil;
+                LContext.FDataChannel.Data := nil;
               end;
-            end else begin
-              case LCxt.FDataChannel.FFtpOperation of
+            end else
+            begin
+              case LContext.FDataChannel.FFtpOperation of
                 ftpRetr:
-                  if Assigned(LCxt.FDataChannel.Data) then
+                  if Assigned(LContext.FDataChannel.Data) then
                   begin
-                    WriteStrings(LCxt, LCmdQueue, LCxt.FDataChannel.Data as TStrings);
-           //       LCxt.FDataChannel.FDataChannel.IOHandler.WriteStrings(LCxt.FDataChannel.Data as TStrings);
+                    WriteStrings(LContext, LCmdQueue, LContext.FDataChannel.Data as TStrings);
                   end;
                 ftpStor:
-                  if Assigned(LCxt.FDataChannel.Data) then
+                  if Assigned(LContext.FDataChannel.Data) then
                   begin
                     LMemStream := TMemoryStream.Create;
                     try
-                      ReadFromStream(LCxt, LCmdQueue, LStrm);
+                      ReadFromStream(LContext, LCmdQueue, LStrm);
         //TODO;
-        //              SplitLines(LMemStream.Memory, LMemStream.Size, TStrings(LCxt.FDataChannel.FData));
+        //              SplitLines(LMemStream.Memory, LMemStream.Size, TStrings(LContext.FDataChannel.FData));
                     finally
                       FreeAndNil(LMemStream);
                     end;
@@ -3424,24 +3369,25 @@ begin
               end;//case
             end;
           finally
-            if assigned(LCxt.FDataChannel.FDataChannel) then begin
-              LCxt.FDataChannel.FDataChannel.Disconnect;
+            if Assigned(LContext.FDataChannel.FDataChannel) then begin
+              LContext.FDataChannel.FDataChannel.Disconnect;
             end;
           end;
-          LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FOKReply); //226
+          LContext.FDataChannel.FReply.Assign(LContext.FDataChannel.FOKReply); //226
         except
-          On E: Exception do
+          on E: Exception do
           begin
             if not (E is EIdSilentException) then begin
-              LCxt.FDataChannel.FReply.Assign(LCxt.FDataChannel.FErrorReply); //426
+              LContext.FDataChannel.FReply.Assign(LContext.FDataChannel.FErrorReply); //426
             end;
           end;
         end;
       finally
-        ASender.Reply.Assign(LCxt.FDataChannel.FReply);
+        ASender.Reply.Assign(LContext.FDataChannel.FReply);
         ASender.SendReply;
         //now we have to handle the FIFO queue we had made
-        while LCmdQueue.Count > 0 do begin
+        while LCmdQueue.Count > 0 do
+        begin
           LLine := LCmdQueue[0];
           if not FCommandHandlers.HandleCommand(ASender.Context, LLine) then begin
             DoReplyUnknownCommand(ASender.Context, LLine);
@@ -3460,57 +3406,57 @@ begin
       FreeAndNil(LCmdQueue);
     end;
   finally
-    FreeAndNil(LCxt.FDataChannel.FData);
-    FreeAndNil(LCxt.FDataChannel);
+    FreeAndNil(LContext.FDataChannel.FData);
+    FreeAndNil(LContext.FDataChannel);
   end;
 end;
 
 procedure TIdFTPServer.CommandSYST(ASender: TIdCommand);
-var LF : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.UserSecurity.DisableSYSTCommand then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.UserSecurity.DisableSYSTCommand then
   begin
     CmdNotImplemented(ASender);
     Exit;
   end;
   //this should keep CuteFTP Pro 3.0 from stopping there's no custom ID and
   //the Dir format is custonm.
-  if (Self.FDirFormat = ftpdfCustom) and (Trim(FCustomSystID)='') then
+  if (FDirFormat = ftpdfCustom) and (Trim(FCustomSystID) = '') then
   begin
     CmdNotImplemented(ASender);
     Exit;
   end;
-  if LF.IsAuthenticated(ASender) then begin
-    ASender.Reply.SetReply(215, DoSysType(LF) );
+  if LContext.IsAuthenticated(ASender) then begin
+    ASender.Reply.SetReply(215, DoSysType(LContext));
   end;
 end;
 
 procedure TIdFTPServer.CommandSTAT(ASender: TIdCommand);
 var
   LStream: TStringList;
-  LActAsList:boolean;
+  LActAsList: boolean;
   LSwitches, LPath : String;
   i : Integer;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := ASender.Context as TIdFTPServerContext;
   LActAsList := (ASender.Params.Count > 0);
   if not LActAsList then begin
-    if LF.UserSecurity.DisableSTATCommand then
+    if LContext.UserSecurity.DisableSTATCommand then
     begin
-      if ASender.UnparsedParams='' then
+      if ASender.UnparsedParams = '' then
       begin
         CmdNotImplemented(ASender);
         Exit;
       end;
     end;
   end;
-  if LF.IsAuthenticated(ASender) then begin
-
-    if Assigned(LF.DataChannel) then begin
-      if not LF.DataChannel.Stopped then begin
-        LActAsList := false;
+  if LContext.IsAuthenticated(ASender) then begin
+    if Assigned(LContext.DataChannel) then begin
+      if not LContext.DataChannel.Stopped then begin
+        LActAsList := False;
       end;
     end;
     if not LActAsList then begin
@@ -3521,7 +3467,7 @@ begin
         LStream := TStringList.Create;
         try
           SetRFCReplyFormat(ASender.Reply);
-          FOnStat(LF, LStream);
+          FOnStat(LContext, LStream);
           for i := 0 to LStream.Count - 1 do
           begin
             if i = 0 then begin
@@ -3535,7 +3481,8 @@ begin
         end;
       end;
       ASender.Reply.Text.Add(RSFTPCmdEndOfStat);
-    end else begin //else act as LIST command without a data channel
+    end else
+    begin //else act as LIST command without a data channel
       LStream := TStringList.Create;
       try
         LSwitches := '';
@@ -3544,13 +3491,13 @@ begin
         begin
           LSwitches := Fetch(LPath);
         end;
-        ListDirectory(LF, DoProcessPath(LF, LPath), LStream, True, LSwitches);
+        ListDirectory(LContext, DoProcessPath(LContext, LPath), LStream, True, LSwitches);
         //we use IOHandler.WriteLn here because we need better control over what
         //we send than what Reply.SendReply offers.  This is important as the dir
         //is written using WriteStrings and I found that with Reply.SetReply, a stat
         //reply could throw off a FTP client.
-        LF.Connection.IOHandler.WriteLn(IndyFormat('213-%s',[RSFTPDataConnToOpen])); {Do not Localize}
-        LF.Connection.IOHandler.Write(LStream);
+        LContext.Connection.IOHandler.WriteLn(IndyFormat('213-%s', [RSFTPDataConnToOpen])); {Do not Localize}
+        LContext.Connection.IOHandler.Write(LStream);
         ASender.PerformReply := True;
         ASender.Reply.SetReply(213, RSFTPCmdEndOfStat);
       finally
@@ -3565,8 +3512,11 @@ const
   MFFPREFIX = 'MFF '; {Do not Localize}
 var
   LTmp : String;
+  LContext: TIdFTPServerContext;
 begin
-  with TIdFTPServerContext(ASender.Context) do begin
+  LContext := TIdFTPServerContext(ASender.Context);
+  with LContext do
+  begin
     ASender.Reply.Clear;
     SetRFCReplyFormat(ASender.Reply);
     ASender.Reply.NumericCode := 211;
@@ -3590,7 +3540,7 @@ begin
       ASender.Reply.Text.Add('COMB target;source_list'); {Do not translate}
     end;
     //CPSV
-      //CPSV is not supported in IPv6 - same problem as PASV
+    //CPSV is not supported in IPv6 - same problem as PASV
     if (UseTLS <> utNoTLSSupport) and
       (ASender.Context.Connection.Socket.IPVersion = Id_IPv4) then begin
       ASender.Reply.Text.Add('CPSV');   {Do not translate}
@@ -3607,7 +3557,7 @@ begin
       //we do things this way because the 'a' and 'T' swithces only make sense
       //when listing Unix dirs.
       LTmp := 'LIST -l';    {Do not translate}
-      if SupportTaDirSwitches( TIdFTPServerContext(ASender.Context)) then
+      if SupportTaDirSwitches(LContext) then
       begin
         LTmp := LTmp + 'aT';  {Do not translate}
       end;
@@ -3639,15 +3589,15 @@ begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LTmp := LTmp + 'Modify;';  {Do not Localize}
     end;
-    if Assigned(Self.FOnSiteCHMOD) then
+    if Assigned(FOnSiteCHMOD) then
     begin
       LTmp := LTmp + 'Unix.mode;';
     end;
-    if Assigned(Self.FOnSiteCHOWN) then
+    if Assigned(FOnSiteCHOWN) then
     begin
       LTmp := LTmp + 'Unix.owner;';
     end;
-    if Assigned(Self.FOnSiteCHGRP) then
+    if Assigned(FOnSiteCHGRP) then
     begin
       LTmp := LTmp + 'Unix.group;';
     end;
@@ -3696,22 +3646,22 @@ begin
     //is more problematic because Serve-U is a trademark and we would then
     //then be stuck with a situation where everyone has to use it down the road.
     //This would amount to the same mess we had with "Mozilla" in the HTTP
-    //User-Agent header feild.
+    //User-Agent header field.
     //also list other supported site commands;
-     LTmp := 'SITE ZONE';
-    if Assigned(Self.FOnSetATTRIB) then
+    LTmp := 'SITE ZONE';
+    if Assigned(FOnSetATTRIB) then
     begin
       LTmp := LTmp + ';ATTRIB';
     end;
-    if Assigned(Self.FOnSiteUMASK) then
+    if Assigned(FOnSiteUMASK) then
     begin
       LTmp := LTmp + 'UMASK';
     end;
-    if Assigned(Self.FOnSiteCHMOD) then
+    if Assigned(FOnSiteCHMOD) then
     begin
       LTmp := LTmp + ';CHMOD';
     end;
-    if Self.FDirFormat = ftpdfDOS then
+    if FDirFormat = ftpdfDOS then
     begin
       LTmp := LTmp + ';DIRSTYLE';
     end;
@@ -3746,7 +3696,7 @@ begin
         //we do things this way because the 'a' and 'T' swithces only make sense
       //when listing Unix dirs.
       LTmp := 'STAT -l';   {Do not translate}
-      if SupportTaDirSwitches(  TIdFTPServerContext(ASender.Context)) then
+      if SupportTaDirSwitches(LContext) then
       begin
         LTmp := LTmp + 'aT';   {Do not translate}
       end;
@@ -3758,6 +3708,10 @@ begin
       //we don't know what a person will do.
       ASender.Reply.Text.Add('TVFS'); {Do not localize}
     end;
+    // UTF-8
+    // RFC 2640 says that "Servers MUST support the UTF-8 feature in response to the FEAT command [RFC2389]."
+    // TODO: finish actually implementing UTF-8 support
+    ASender.Reply.Text.Add('UTF8'); {Do not localize}
     //XCRC
     if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then begin
       ASender.Reply.Text.Add('XCRC filename;start;end');  {Do not Localize}
@@ -3769,22 +3723,24 @@ begin
 end;
 
 procedure TIdFTPServer.CommandOPTS(ASender: TIdCommand);
-var LCmd : String;
+var
+  LCmd : String;
 begin
-
   LCmd := ASender.UnparsedParams;
   ASender.Reply.Clear;
-  if TextIsSame(Fetch(LCmd, ' ', False), 'MLST') then begin {do not localize}
+  if TextIsSame(Fetch(LCmd, ' ', False), 'MLST') then {do not localize}
+  begin
     //just in case the user doesn't create a ListDirectory event.
-    if not Assigned(FOnListDirectory) then begin
+    if not Assigned(FOnListDirectory) then
+    begin
       ASender.Reply.SetReply(501, RSFTPOptNotRecog);
       Exit;
     end;
   end;
-  if not FOPTSCommands.HandleCommand(ASender.Context, LCmd) then begin
+  if not FOPTSCommands.HandleCommand(ASender.Context, LCmd) then
+  begin
     ASender.Reply.SetReply(501, RSFTPOptNotRecog);
-  end
-  else
+  end else
   begin
     //we don't want an extra 200 reply.
     ASender.PerformReply := False;
@@ -3795,15 +3751,15 @@ procedure TIdFTPServer.CommandSIZE(ASender: TIdCommand);
 var
   s: string;
   LSize: Int64;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     if Assigned(FOnGetFileSize) or Assigned(FFTPFileSystem) then begin
       LSize := -1;
-      s := DoProcessPath(LF, ASender.UnparsedParams);
-      DoOnGetFileSize(LF, s, LSize);
+      s := DoProcessPath(LContext, ASender.UnparsedParams);
+      DoOnGetFileSize(LContext, s, LSize);
       if LSize > -1 then begin
         ASender.Reply.SetReply(213, IntToStr(LSize));
       end else begin
@@ -3835,8 +3791,8 @@ end;
 
 procedure TIdFTPServer.DoOnMakeDirectory(AContext: TIdFTPServerContext; var VDirectory: string);
 begin
-  if Assigned(FFTPFileSystem ) then begin
-    Self.FFTPFileSystem.MakeDirectory(AContext, VDirectory);
+  if Assigned(FFTPFileSystem) then begin
+    FFTPFileSystem.MakeDirectory(AContext, VDirectory);
   end else if Assigned(FOnMakeDirectory) then begin
     FOnMakeDirectory(AContext, VDirectory);
   end;
@@ -3849,16 +3805,16 @@ var
   LDelim: char;
   LAddrFamily: integer;
   LReqIPVersion: TIdIPVersion;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  LF.FDataPortDenied := False;
-  if LF.IsAuthenticated(ASender) then begin
-    LIPVersion := TIdIOHandlerSocket(ASender.Context.Connection.IOHandler).IPVersion;
-    LF.FPASV := False;
+  LContext := ASender.Context as TIdFTPServerContext;
+  LContext.FDataPortDenied := False;
+  if LContext.IsAuthenticated(ASender) then begin
+    LIPVersion := ASender.Context.Connection.Socket.IPVersion;
+    LContext.FPASV := False;
     LParm := ASender.UnparsedParams;
     if Length(LParm) = 0 then begin
-      LF.FDataPortDenied := True;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
       Exit;
     end;
@@ -3871,62 +3827,60 @@ begin
     Fetch(LParm, LDelim);
     LAddrFamily := IndyStrToInt(Fetch(LParm, LDelim), -1);
     LIP := Fetch(LParm, LDelim);
-    LF.FDataPort := IndyStrToInt(Fetch(LParm, LDelim), -1);
+    LContext.FDataPort := TIdPort(IndyStrToInt(Fetch(LParm, LDelim), 0));
     LReqIPVersion := ID_DEFAULT_IP_VERSION; // avoid warning
     case LAddrFamily of
       1: LReqIPVersion := Id_IPv4;
       2: if GStack.SupportsIPv6 then
          begin
            LReqIPVersion := Id_IPv6;
-        end
-        else
+        end else
         begin
-          LF.FDataPort := 0;
-          LF.FDataPortDenied := True;
-          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup,['(1)'])); {Do not translate}
+          LContext.FDataPort := 0;
+          LContext.FDataPortDenied := True;
+          ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {Do not translate}
           Exit;
         end;
     end;
     if (not (LAddrFamily in [1,2])) or (LReqIPVersion <> LIPVersion) then begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       case LIPVersion of
         Id_IPv4: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (1)'); {do not localize}
         Id_IPv6: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (2)'); {do not localize}
       end;
       Exit;
     end;
-    if (LF.FDataPort < 0) or (LF.FDataPort > 65535) then begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+    if LContext.FDataPort = 0 then begin
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(500, RSFTPInvalidPort);
       Exit;
     end;
     if FFTPSecurityOptions.NoReservedRangePORT and
-      ((LF.FDataPort > 0) and (LF.FDataPort <= 1024)) then
+      ((LContext.FDataPort > 0) and (LContext.FDataPort <= 1024)) then
     begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPPORTRange);
       Exit;
     end;
-    if (Length(LIP) = 0) then begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+    if Length(LIP) = 0 then begin
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(500, RSFTPInvalidIP);
       Exit;
     end;
     if FFTPSecurityOptions.FRequirePORTFromSameIP and
-      (LIP <> LF.Binding.PeerIP) then
+      (LIP <> LContext.Binding.PeerIP) then
     begin
-      LF.FDataPort := 0;
-      LF.FDataPortDenied := True;
+      LContext.FDataPort := 0;
+      LContext.FDataPortDenied := True;
       ASender.Reply.SetReply(504, RSFTPSameIPAddress);
       Exit;
     end;
-    LF.CreateDataChannel(False);
-    LF.FDataChannel.SetPortParameters(LIP, LF.FDataPort, LIPVersion);
-    CmdCommandSuccessful(ASender,200);
+    LContext.CreateDataChannel(False);
+    LContext.FDataChannel.SetPortParameters(LIP, LContext.FDataPort, LIPVersion);
+    CmdCommandSuccessful(ASender, 200);
   end;
 end;
 
@@ -3938,12 +3892,11 @@ var
   LIPVersion: TIdIPVersion;
   LProtocol: integer;
   LProtocols: string;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
-
-    LIPVersion := TIdIOHandlerSocket(LF.Connection.IOHandler).IPVersion;
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    LIPVersion := LContext.Connection.Socket.IPVersion;
     LParam := ASender.UnparsedParams;
     if Length(LParam) > 0 then begin
       LProtocol := IndyStrToInt(LParam, -1);
@@ -3952,22 +3905,22 @@ begin
         2: if GStack.SupportsIPv6 then begin
              LIPVersion := Id_IPv6;
            end else begin
-             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup,['(1)'])); {do not localize}
+             ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {do not localize}
              Exit;
            end;
         -1: begin
               if TextIsSame(LParam, 'ALL') then begin { do not localize }
-                LF.FEPSVAll := True;
+                LContext.FEPSVAll := True;
                 ASender.Reply.SetReply(200, RSFTPEPSVAllEntered);
               end else if GStack.SupportsIPv6 then begin
-                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup,['(1,2)'])); {do not localize}
+                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1,2)'])); {do not localize}
               end else begin
-                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup,['(1)'])); {do not localize}
+                ASender.Reply.SetReply(522, IndyFormat(RSFTPNetProtNotSup, ['(1)'])); {do not localize}
               end;
               Exit;
             end;
         else begin
-          if TIdIOHandlerSocket(LF.Connection.IOHandler).IPVersion=Id_IPv6 then begin
+          if LContext.Connection.Socket.IPVersion = Id_IPv6 then begin
             LProtocols := '2';
           end else begin
             LProtocols := '1';
@@ -3977,28 +3930,28 @@ begin
         end;
       end;
     end;
-    if (TIdIOHandlerSocket(LF.Connection.IOHandler).IPVersion <> LIPVersion) then begin
-      case TIdIOHandlerSocket(LF.Connection.IOHandler).IPVersion of
+    if LContext.Connection.Socket.IPVersion <> LIPVersion then begin
+      case LContext.Connection.Socket.IPVersion of
         Id_IPv4: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (1)'); {do not localize}
         Id_IPv6: ASender.Reply.SetReply(522, RSFTPProtocolMismatch + ' (2)'); {do not localize}
       end;
       Exit;
     end;
-    LIP := TIdIOHandlerSocket(LF.Connection.IOHandler).Binding.IP;
+    LIP := LContext.Connection.Socket.Binding.IP;
     LBPort := FDefaultDataPort;
-    DoOnPASVBeforeBind(LF, LIP, LBPort, LIPVersion);
-    LF.CreateDataChannel(True);
-    LF.FDataChannel.SetPortParameters(LIP, LBPort, LIPVersion);
-    with TIdSimpleServer(LF.FDataChannel.FDataChannel) do begin
+    DoOnPASVBeforeBind(LContext, LIP, LBPort, LIPVersion);
+    LContext.CreateDataChannel(True);
+    LContext.FDataChannel.SetPortParameters(LIP, LBPort, LIPVersion);
+    with TIdSimpleServer(LContext.FDataChannel.FDataChannel) do begin
       BeginListen;
       LBPort := Binding.Port;
       LIP := Binding.IP;
     end;
     //Note that only LBPort can work with EPSV
-    DoOnPASVReply(LF, LIP, LBPort, LIPVersion);
-    LParam := '|||'+ IntToStr(LBPort)+'|';
+    DoOnPASVReply(LContext, LIP, LBPort, LIPVersion);
+    LParam := '|||' + IntToStr(LBPort) + '|'; {Do not localize}
     ASender.Reply.SetReply(229, IndyFormat(RSFTPEnteringEPSV, [LParam]));
-    LF.FPASV := True;
+    LContext.FPASV := True;
   end;
 end;
 
@@ -4006,7 +3959,7 @@ procedure TIdFTPServer.CommandMDTM(ASender: TIdCommand);
 var
   s: string;
   LDate: TDateTime;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LSDate : String;
   LExists : Boolean;
 {
@@ -4063,32 +4016,31 @@ begin
     CmdSyntaxError(ASender);
     Exit;
   end;
-  LF := ASender.Context as TIdFTPServerContext;
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     s := ASender.UnparsedParams;
     LSDate := Fetch(s);
     if IsMDTMDate(LSDate) then
     begin
-
-      s := DoProcessPath(LF, ASender.UnparsedParams );
-      DoOnFileExistCheck(LF,s, LExists);
+      s := DoProcessPath(LContext, ASender.UnparsedParams );
+      DoOnFileExistCheck(LContext, s, LExists);
       if not LExists then
       begin
         s := ASender.UnparsedParams;
         Fetch(s);
-        s := DoProcessPath(LF, s );
+        s := DoProcessPath(LContext, s);
         LDate := FTPMDTMToGMTDateTime(LSDate);
-        Self.DoOnSetModifiedTime(LF,s, LDate);
+        DoOnSetModifiedTime(LContext, s, LDate);
       //  Self.DoOnSetModifiedTime(LF,s, LSDate);
         ASender.Reply.SetReply(253, 'Date/time changed okay.'); {do not localize}
         Exit;
       end;
     end;
 
-    s := DoProcessPath(LF, ASender.UnparsedParams );
+    s := DoProcessPath(LContext, ASender.UnparsedParams);
     LDate := 0;
-    DoOnGetFileDate(LF,s,LDate);
+    DoOnGetFileDate(LContext, s, LDate);
     if LDate > 0 then begin
       ASender.Reply.SetReply(213, FTPGMTDateTimeToMLS(LDate));
     end else begin
@@ -4097,17 +4049,17 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.SetFTPSecurityOptions(
-  const AValue: TIdFTPSecurityOptions);
+procedure TIdFTPServer.SetFTPSecurityOptions(const AValue: TIdFTPSecurityOptions);
 begin
   FFTPSecurityOptions.Assign(AValue);
 end;
 
 procedure TIdFTPServer.CommandAUTH(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
-  LF : TIdFTPServerContext;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := ASender.Context as TIdFTPServerContext;
   if (PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) > -1) and (IOHandler is TIdServerIOHandlerSSLBase)
     and (FUseTLS in ExplicitTLSVals) then
   begin
@@ -4124,45 +4076,42 @@ begin
     we don't break older and newer clients.
     }
     case PosInStrArray(ASender.UnparsedParams, TLS_AUTH_NAMES) of
-      0,2 : LF.DataProtection := ftpdpsClear; //AUTH TLS, AUTH TLS-C
-      1,3 : LF.DataProtection := ftpdpsPrivate; //AUTH SSL, AUTH TLS-P
+      0,2 : LContext.DataProtection := ftpdpsClear; //AUTH TLS, AUTH TLS-C
+      1,3 : LContext.DataProtection := ftpdpsPrivate; //AUTH SSL, AUTH TLS-P
     end;
-    LF.AuthMechanism := 'TLS';  {Do not localize}
-  end
-  else
+    LContext.AuthMechanism := 'TLS';  {Do not localize}
+  end else
   begin
     CmdSyntaxError(ASender);
   end;
 end;
 
 procedure TIdFTPServer.CommandCCC(ASender: TIdCommand);
-var LIO : TIdSSLIOHandlerSocketBase;
-  LF : TIdFTPServerContext;
+var
+  LIO : TIdSSLIOHandlerSocketBase;
+  LContext : TIdFTPServerContext;
 begin
-
-  LF := TIdFTPServerContext(ASender.Context);
-  if (FUseTLS <> utNoTLSSupport) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if FUseTLS <> utNoTLSSupport then
   begin
     //Not sure if it's proper to require authentication before a CCC
     //but it is a good idea anyway because you definately want to
     //prevent eavesdropping
-    if LF.IsAuthenticated(ASender) then
+    if LContext.IsAuthenticated(ASender) then
     begin
-      if LF.FUserSecurity.PermitCCC then
+      if LContext.FUserSecurity.PermitCCC then
       begin
-        ASender.Reply.SetReply(200,RSFTPClearCommandConnection);
+        ASender.Reply.SetReply(200, RSFTPClearCommandConnection);
         ASender.SendReply;
         LIO := ASender.Context.Connection.IOHandler as TIdSSLIOHandlerSocketBase;
         LIO.Passthrough := True;
-        LF.FCCC := True;
-      end
-      else
+        LContext.FCCC := True;
+      end else
       begin
-        ASender.Reply.SetReply(534,RSFTPClearCommandNotPermitted);
+        ASender.Reply.SetReply(534, RSFTPClearCommandNotPermitted);
       end;
     end;
-  end
-  else
+  end else
   begin
     CmdSyntaxError(ASender);
   end;
@@ -4170,108 +4119,104 @@ end;
 
 procedure TIdFTPServer.CommandPBSZ(ASender: TIdCommand);
 {Note that this may have to be expanded and reworked for other AUTH mechanisms}
-var LF : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if (IOHandler is TIdServerIOHandlerSSLBase) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if IOHandler is TIdServerIOHandlerSSLBase then
   begin
-    if (LF.AuthMechanism = '') and (FUseTLS<>utUseImplicitTLS) then
+    if (LContext.AuthMechanism = '') and (FUseTLS <> utUseImplicitTLS) then
     begin
-      ASender.Reply.SetReply(503,RSFTPPBSZAuthDataRequired);
+      ASender.Reply.SetReply(503, RSFTPPBSZAuthDataRequired);
       Exit;
     end;
-    if LF.FCCC then
+    if LContext.FCCC then
     begin
       ASender.Reply.SetReply(503, RSFTPPBSZNotAfterCCC);
       Exit;
     end;
-    if (LF.AuthMechanism = 'TLS') or (FUseTLS=utUseImplicitTLS) then   {Do not localize}
+    if (LContext.AuthMechanism = 'TLS') or (FUseTLS = utUseImplicitTLS) then   {Do not localize}
     begin
-      LF.FDataProtBufSize := 0;
-      if  (ASender.UnparsedParams = '0') then
+      LContext.FDataProtBufSize := 0;
+      if ASender.UnparsedParams = '0' then
       begin
         ASender.Reply.SetReply(200,RSFTPDataProtBuffer0);
-        LF.DataPBSZCalled := True;
+        LContext.DataPBSZCalled := True;
       end
-      else
+      else if IsNumeric(ASender.UnparsedParams) then
       begin
-        if IsNumeric(ASender.UnparsedParams) then
-        begin
-          ASender.Reply.SetReply(200,'PBSZ=0'); {Do not translate}
-          LF.DataPBSZCalled := True;
-        end
-        else
-        begin
-          ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
-        end;
+        ASender.Reply.SetReply(200,'PBSZ=0'); {Do not translate}
+        LContext.DataPBSZCalled := True;
+      end else
+      begin
+        ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
       end;
     end;
-  end
-  else
+  end else
   begin
     CmdSyntaxError(ASender);
   end;
 end;
 
 procedure TIdFTPServer.CommandPROT(ASender: TIdCommand);
-const LValidParams : array [0..3] of string =
- ('C','S','E','P'); {Do not translate}
+const
+  LValidParams : array [0..3] of string = ('C','S','E','P'); {Do not translate}
 {Note that this may have to be expanded and reworked for other AUTH mechanisms}
-var LF : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if (IOHandler is TIdServerIOHandlerSSLBase) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if IOHandler is TIdServerIOHandlerSSLBase then
   begin
-    if LF.FCCC then
+    if LContext.FCCC then
     begin
-      ASender.Reply.SetReply(503,RSFTPPBSZNotAfterCCC);
+      ASender.Reply.SetReply(503, RSFTPPBSZNotAfterCCC);
       Exit;
     end;
-    if not LF.DataPBSZCalled then begin
-      ASender.Reply.SetReply(503,RSFTPPROTProtBufRequired);
+    if not LContext.DataPBSZCalled then begin
+      ASender.Reply.SetReply(503, RSFTPPROTProtBufRequired);
       Exit;
     end;
     case PosInStrArray(ASender.UnparsedParams, LValidParams) of
       0 : begin
-            LF.FDataProtection := ftpdpsClear;
-            ASender.Reply.SetReply(200,RSFTPProtTypeClear);
+            LContext.FDataProtection := ftpdpsClear;
+            ASender.Reply.SetReply(200, RSFTPProtTypeClear);
           end;
-      1, 2 : ASender.Reply.SetReply(536,  RSFTPInvalidProtTypeForMechanism);
+      1, 2 : ASender.Reply.SetReply(536, RSFTPInvalidProtTypeForMechanism);
       3 : begin
-            LF.FDataProtection := ftpdpsPrivate;
-            ASender.Reply.SetReply(200,RSFTPProtTypePrivate);
+            LContext.FDataProtection := ftpdpsPrivate;
+            ASender.Reply.SetReply(200, RSFTPProtTypePrivate);
           end;
     else
       ASender.Reply.SetReply(504,  RSFTPInvalidForParam);
     end;
-  end
-  else
+  end else
   begin
     CmdNotImplemented(ASender);
   end;
 end;
 
-
 procedure TIdFTPServer.CommandCOMB(ASender: TIdCommand);
-var LFileParts : TStrings;
-    LBuf : String;
-    LTargetFileName : String;
-    LF : TIdFTPServerContext;
+var
+  LFileParts : TStringList;
+  LBuf : String;
+  LTargetFileName : String;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if (not Assigned(FOnCombineFiles)) and (not Assigned(Self.FTPFileSystem)) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if (not Assigned(FOnCombineFiles)) and (not Assigned(FTPFileSystem)) then
   begin
     CmdNotImplemented(ASender);
     Exit;
   end;
-  if LF.IsAuthenticated(ASender) then
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Pos('"', ASender.UnparsedParams)>0 then
+    if Pos('"', ASender.UnparsedParams) > 0 then
     begin
       LBuf := ASender.UnparsedParams;
       Fetch(LBuf,'"');
-      LTargetFileName := Fetch(LBuf,'"');
-      LTargetFileName := DoProcessPath(LF,LTargetFileName);
+      LTargetFileName := Fetch(LBuf, '"');
+      LTargetFileName := DoProcessPath(LContext, LTargetFileName);
       LBuf := Trim(LBuf);
       LFileParts := TStringList.Create;
       try
@@ -4281,36 +4226,35 @@ begin
             break;
           end;
           Fetch(LBuf,'"');
-          LFileParts.Add( DoProcessPath(LF, Fetch(LBuf,'"')));
+          LFileParts.Add(DoProcessPath(LContext, Fetch(LBuf,'"')));
         until False;
-        DoOnCombineFiles(LF,LTargetFileName,LFileParts);
-        ASender.Reply.SetReply(250,RSFTPFileOpSuccess);
+        DoOnCombineFiles(LContext, LTargetFileName, LFileParts);
+        ASender.Reply.SetReply(250, RSFTPFileOpSuccess);
       finally
         FreeAndNil(LFileParts);
       end;
-    end
-    else
+    end else
     begin
       ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
     end;
   end;
 end;
 
-function TIdFTPServer.CalculateCRCHash(AStrm: TStream; const ABeginPos, AEndPos: Int64): String;
+function TIdFTPServer.CalculateCRCHash(AStrm: TStream; const AStartPos, AEndPos: Int64): String;
 begin
   with TIdHashCRC32.Create do
   try
-    Result := HashStreamAsHex(AStrm, ABeginPos, AEndPos);
+    Result := HashStreamAsHex(AStrm, AStartPos, AEndPos-AStartPos);
   finally
     Free;
   end;
 end;
 
-function TIdFTPServer.CalculateMD5Checksum(AStrm: TStream; const ABeginPos, AEndPos: Int64) : String;
+function TIdFTPServer.CalculateMD5Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64) : String;
 begin
   with TIdHashMessageDigest5.Create do
   try
-    Result := HashStreamAsHex(AStrm, ABeginPos, AEndPos);
+    Result := HashStreamAsHex(AStrm, AStartPos, AEndPos-AStartPos);
   finally
     Free;
   end;
@@ -4322,18 +4266,18 @@ var
   LBuf : String;
   LFileName : String;
   LBeginPos, LEndPos : Int64;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned(FOnCRCFile) or (Assigned(FTPFileSystem)) then
+    if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
     begin
       LBuf := ASender.UnparsedParams;
       if Pos('"', LBuf) > 0 then
       begin
-        Fetch(LBuf,'"');
-        LFileName := Fetch(LBuf, '"');
+        Fetch(LBuf, '"');
+        LFileName := Fetch(LBuf,'"');
      end else begin
         LFileName := Fetch(LBuf);
       end;
@@ -4346,8 +4290,8 @@ begin
         Exit;
       end;
       LCalcStream := nil;
-      LFileName := DoProcessPath(LF, LFileName);
-      DoOnCRCFile(LF, LFileName, LCalcStream);
+      LFileName := DoProcessPath(LContext, LFileName);
+      DoOnCRCFile(LContext, LFileName, LCalcStream);
       if Assigned(LCalcStream) then begin
         try
           LCalcStream.Position := 0;
@@ -4370,7 +4314,7 @@ var
   LGreeting : TIdReplyRFC;
 begin
   if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then begin
-    if (FUseTLS=utUseImplicitTLS) then begin
+    if FUseTLS = utUseImplicitTLS then begin
       TIdSSLIOHandlerSocketBase(AContext.Connection.IOHandler).PassThrough := False;
     end;
   end;
@@ -4410,41 +4354,40 @@ procedure TIdFTPServer.CommandMLSD(ASender: TIdCommand);
 var
   LStream: TStringList;
   LSendData : Boolean;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
   if not Assigned(OnListDirectory) then
   begin
     CmdSyntaxError(ASender);
     Exit;
   end;
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := ASender.Context as TIdFTPServerContext;
   LSendData := False;
-  if LF.IsAuthenticated(ASender) then begin
-    if not Assigned(LF.FDataChannel) then begin
-      ASender.Reply.SetReply(425,RSFTPCantOpenData);
+  if LContext.IsAuthenticated(ASender) then begin
+    if not Assigned(LContext.FDataChannel) then begin
+      ASender.Reply.SetReply(425, RSFTPCantOpenData);
       Exit;
     end;
     LStream := TStringList.Create;
     try
-      ListDirectory(LF, DoProcessPath(LF, ASender.UnparsedParams), LStream, ASender.CommandHandler = FCmdHandlerList,'MLSD'); {Do not translate}
+      ListDirectory(LContext, DoProcessPath(LContext, ASender.UnparsedParams), LStream, ASender.CommandHandler = FCmdHandlerList,'MLSD'); {Do not translate}
       LSendData := True;
     finally
       if LSendData then
       begin
-       //it should be safe to assume that the FDataChannel object exists because
-       //we checked it earlier
-        LF.FDataChannel.Data := LStream;
-        LF.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
-        LF.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
-        LF.FDataChannel.FFtpOperation := ftpRetr;
+        //it should be safe to assume that the FDataChannel object exists because
+        //we checked it earlier
+        LContext.FDataChannel.Data := LStream;
+        LContext.FDataChannel.OKReply.SetReply(226, RSFTPDataConnClosed);
+        LContext.FDataChannel.ErrorReply.SetReply(426, RSFTPDataConnClosedAbnormally);
+        LContext.FDataChannel.FFtpOperation := ftpRetr;
         ASender.Reply.SetReply(125, RSFTPDataConnToOpen);
         ASender.SendReply;
         DoDataChannelOperation(ASender);
-      end
-      else
+      end else
       begin
         FreeAndNil(LStream);
-        LF.TerminateAndFreeDataChannel;
+        LContext.TerminateAndFreeDataChannel;
         ASender.Reply.SetReply(426, RSFTPDataConnClosedAbnormally);
       end;
     end;
@@ -4452,11 +4395,12 @@ begin
 end;
 
 procedure TIdFTPServer.CommandMLST(ASender: TIdCommand);
-var LStream : TStringList;
-    i : Integer;
-    LF : TIdFTPServerContext;
-    LPath : String;
-    LDir : TIdFTPListOutput;
+var
+  LStream : TStringList;
+  i : Integer;
+  LContext : TIdFTPServerContext;
+  LPath : String;
+  LDir : TIdFTPListOutput;
 begin
   if not Assigned(OnListDirectory) then begin
     if not Assigned(FOnMLST) then
@@ -4465,32 +4409,29 @@ begin
       Exit;
     end;
   end;
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
     LStream := TStringList.Create;
     try
-      LPath := DoProcessPath(LF, ASender.UnparsedParams);
+      LPath := DoProcessPath(LContext, ASender.UnparsedParams);
       if Assigned(FOnMLST) then
       begin
         LDir := TIdFTPListOutput.Create;
         try
-          FOnMLST(LF,LPath,LDir);
-          LDir.MLISTOutputDir(LStream,LF.MLSOpts);
+          FOnMLST(LContext, LPath, LDir);
+          LDir.MLISTOutputDir(LStream, LContext.MLSOpts);
         finally
           FreeAndNil(LDir);
         end;
-      end
-      else
-      begin
+      end else begin
         //this part is kept just for backwards compatibility
-        ListDirectory(LF, LPath, LStream, True, 'MLST');  {Do not translate}
+        ListDirectory(LContext, LPath, LStream, True, 'MLST');  {Do not translate}
       end;
       ASender.Reply.Clear;
       SetRFCReplyFormat(ASender.Reply);
       ASender.Reply.NumericCode := 250;
       ASender.Reply.Text.Add('Begin'); {do not localize}
-      for i := 0 to LStream.Count -1 do
-      begin
+      for i := 0 to LStream.Count -1 do begin
         ASender.Reply.Text.Add(' ' + LStream[i]);
       end;
       ASender.Reply.Text.Add('End'); {do not localize}
@@ -4503,7 +4444,7 @@ end;
 
 procedure TIdFTPServer.DoOnSetModifiedTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
 begin
-  if Assigned(Self.FTPFileSystem) then begin
+  if Assigned(FTPFileSystem) then begin
     FTPFileSystem.SetModifiedFileDate(AContext, AFileName, VDateTime);
   end else if Assigned(FOnSetModifiedTime) then begin
     FOnSetModifiedTime(AContext, AFileName, VDateTime);
@@ -4515,59 +4456,58 @@ var
   LTime : TDateTime;
 begin
   LTime := FTPMLSToGMTDateTime(VDateTimeStr);
-  Self.DoOnSetModifiedTime(AContext, AFileName, LTime);
+  DoOnSetModifiedTime(AContext, AFileName, LTime);
   VDateTimeStr := FTPGMTDateTimeToMLS(LTime);
 end;
 
 procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTime: TDateTime);
 begin
-  if Assigned(Self.FTPFileSystem) then begin
+  if Assigned(FTPFileSystem) then begin
  //   FTPFileSystem.SetModifiedFileDate(AContext,AFileName,VDateTime);
   end else if Assigned(FOnSetCreationTime) then begin
-    FOnSetCreationTime(AContext,AFileName,VDateTime);
+    FOnSetCreationTime(AContext, AFileName, VDateTime);
   end;
 end;
 
-procedure TIdFTPServer.DoOnSetCreationTimeGMT(
-  AContext: TIdFTPServerContext; const AFileName: String;
-  var VDateTime: TDateTime);
+procedure TIdFTPServer.DoOnSetCreationTimeGMT(AContext: TIdFTPServerContext;
+  const AFileName: String; var VDateTime: TDateTime);
 begin
   if Assigned(FOnSetModifiedTime) then begin
     FOnSetCreationTime(AContext, AFileName, VDateTime);
   end;
 end;
 
-procedure TIdFTPServer.DoOnSetModifiedTimeGMT(
-  AContext: TIdFTPServerContext; const AFileName: String;
-  var VDateTime: TDateTime);
+procedure TIdFTPServer.DoOnSetModifiedTimeGMT(AContext: TIdFTPServerContext;
+  const AFileName: String; var VDateTime: TDateTime);
 begin
   if Assigned(FOnSetModifiedTime) then begin
     FOnSetModifiedTime(AContext, AFileName, VDateTime);
   end;
 end;
 
-procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext; const AFileName : String; var VDateTimeStr : String);
+procedure TIdFTPServer.DoOnSetCreationTime(AContext: TIdFTPServerContext;
+  const AFileName : String; var VDateTimeStr : String);
 var
   LTime : TDateTime;
 begin
   LTime := FTPMLSToLocalDateTime(VDateTimeStr);
-  DoOnSetModifiedTime(AContext, AFileName,LTime);
+  DoOnSetModifiedTime(AContext, AFileName, LTime);
   VDateTimeStr := FTPLocalDateTimeToMLS(LTime);
 end;
 
 procedure TIdFTPServer.CommandMFMT(ASender: TIdCommand);
 var
   LTimeStr, LFileName : String;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then begin
       LFileName := ASender.UnparsedParams;
-      LFileName := DoProcessPath(LF,LFileName);
+      LFileName := DoProcessPath(LContext, LFileName);
       LTimeStr := Fetch(LFileName);
-      DoOnSetModifiedTime(LF,LFileName,LTimeStr);
-      ASender.Reply.SetReply(213,IndyFormat('Modify=%s %s',[LTimeStr,LFileName])); {Do not translate}
+      DoOnSetModifiedTime(LContext, LFileName, LTimeStr);
+      ASender.Reply.SetReply(213, IndyFormat('Modify=%s %s', [LTimeStr, LFileName])); {Do not translate}
     end else begin
       CmdSyntaxError(ASender);
     end;
@@ -4575,18 +4515,19 @@ begin
 end;
 
 procedure TIdFTPServer.CommandMFCT(ASender: TIdCommand);
-var LTimeStr, LFileName : String;
-  LF : TIdFTPServerContext;
+var
+  LTimeStr, LFileName : String;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
+  LContext := TIdFTPServerContext(ASender.Context);
+  if LContext.IsAuthenticated(ASender) then begin
     if Assigned(FOnSetModifiedTime) or Assigned(FTPFileSystem) then
     begin
       LFileName := ASender.UnparsedParams;
-      LFileName := DoProcessPath(LF,LFileName);
+      LFileName := DoProcessPath(LContext, LFileName);
       LTimeStr := Fetch(LFileName);
-      DoOnSetCreationTime(LF,LFileName,LTimeStr);
-      ASender.Reply.SetReply(213, IndyFormat('CreateTime=%s %s',[LTimeStr,LFileName])); {Do not translate}
+      DoOnSetCreationTime(LContext, LFileName, LTimeStr);
+      ASender.Reply.SetReply(213, IndyFormat('CreateTime=%s %s', [LTimeStr, LFileName])); {Do not translate}
     end else begin
       CmdSyntaxError(ASender);
     end;
@@ -4595,11 +4536,11 @@ end;
 
 procedure TIdFTPServer.CommandMFF(ASender: TIdCommand);
 var
-  LFacts : TStrings;
+  LFacts : TStringList;
   LFileName : String;
   LValue : String;
   s : String;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LAttrib : Cardinal;
   LAuth : Boolean;
   LDummyDate1, LDummyDate2 : TDateTime;
@@ -4609,7 +4550,7 @@ var
 begin
   LAuth := True;
   LDummy := ''; //empty value for passing a var in case we need to do that
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := TIdFTPServerContext(ASender.Context);
   //this may need to change if we make more facts to modify
   if not Assigned(FOnSetModifiedTime) then
   begin
@@ -4617,70 +4558,70 @@ begin
     Exit;
   end;
   s := '';
-  if LF.IsAuthenticated(ASender) then begin
+  if LContext.IsAuthenticated(ASender) then begin
     LFacts := TStringList.Create;
     try
-      LFileName := ParseFacts(ASender.UnparsedParams,LFacts);
-      LFileName := DoProcessPath(LF,LFileName);
-      if LFacts.Values['Modify']<>'' then  {Do not translate}
+      LFileName := ParseFacts(ASender.UnparsedParams, LFacts);
+      LFileName := DoProcessPath(LContext, LFileName);
+      if LFacts.Values['Modify'] <> '' then  {Do not translate}
       begin
         if Assigned(FOnSetModifiedTime) then
         begin
           LValue := LFacts.Values['Modify'];  {Do not translate}
-          DoOnSetModifiedTime(LF,LFileName,LValue);
-          s := s + IndyFormat('Modify=%s;',[LValue]); {Do not translate}
+          DoOnSetModifiedTime(LContext, LFileName, LValue);
+          s := s + IndyFormat('Modify=%s;', [LValue]); {Do not translate}
         end;
       end;
-      if LFacts.Values['Create']<>'' then    {Do not translate}
+      if LFacts.Values['Create'] <> '' then    {Do not translate}
       begin
          if Assigned(FOnSetModifiedTime) then
          begin
            LValue := LFacts.Values['Create'];   {Do not translate}
-           DoOnSetCreationTime(LF,LFileName,LValue);
-           s := s + IndyFormat('Create=%s;',[LValue]);  {Do not translate}
+           DoOnSetCreationTime(LContext, LFileName, LValue);
+           s := s + IndyFormat('Create=%s;', [LValue]);  {Do not translate}
          end;
       end;
-      if LFacts.Values['Win32.ea']<>'' then
+      if LFacts.Values['Win32.ea'] <> '' then
       begin
-        if Assigned(Self.FOnSetATTRIB) then
+        if Assigned(FOnSetATTRIB) then
         begin
           LValue := LFacts.Values['Win32.ea'];  {Do not localize}
           LAttrib := IndyStrToInt(LValue);
-          DoOnSetAttrib(LF,LAttrib,LFileName,LAuth);
-          LValue := '0x'+IntToHex(LAttrib,8);
-          s := s + IndyFormat('Win32.ea=%s;',[LValue]);  {Do not translate}
+          DoOnSetAttrib(LContext, LAttrib, LFileName, LAuth);
+          LValue := '0x' + IntToHex(LAttrib, 8);
+          s := s + IndyFormat('Win32.ea=%s;', [LValue]);  {Do not translate}
         end;
       end;
-      if LFacts.Values['Unix.mode']<>'' then
+      if LFacts.Values['Unix.mode'] <> '' then
       begin
         LValue := LFacts.Values['Unix.mode'];  {Do not localize}
-        if Assigned(Self.FOnSiteCHMOD) then
+        if Assigned(FOnSiteCHMOD) then
         begin
           If IsValidPermNumbers(LValue) then begin
             LCHMOD := IndyStrToInt(LValue);
-            DoOnSiteCHMOD(LF,LCHMOD,LFileName,LAuth);
-            LValue := IndyFormat('%.4d',[LCHMOD]);
-            s := s + IndyFormat('Unix.mode=%s;',[LValue]);  {Do not translate}
+            DoOnSiteCHMOD(LContext, LCHMOD, LFileName, LAuth);
+            LValue := IndyFormat('%.4d', [LCHMOD]);
+            s := s + IndyFormat('Unix.mode=%s;', [LValue]);  {Do not translate}
           end;
         end;
       end;
-      if LFacts.Values['Unix.owner']<>'' then  {Do not localize}
+      if LFacts.Values['Unix.owner'] <> '' then  {Do not localize}
       begin
         LValue := LFacts.Values['Unix.owner'];   {Do not localize}
-        if Assigned(Self.FOnSiteCHOWN) then begin
-          DoOnSiteCHOWN(LF,LValue,LDummy,LFileName,LAuth);
-          s := s + IndyFormat('Unix.owner=%s;',[LValue]); {Do not localize}
+        if Assigned(FOnSiteCHOWN) then begin
+          DoOnSiteCHOWN(LContext, LValue, LDummy, LFileName, LAuth);
+          s := s + IndyFormat('Unix.owner=%s;', [LValue]); {Do not localize}
         end;
       end;
-      if LFacts.Values['Unix.group']<>'' then  {Do not localize}
+      if LFacts.Values['Unix.group'] <> '' then  {Do not localize}
       begin
         LValue := LFacts.Values['Unix.group'];   {Do not localize}
-        if Assigned(Self.FOnSiteCHGRP) then begin
-          DoOnSiteCHGRP(LF,LValue,LFileName,LAuth);
-          s := s + IndyFormat('Unix.group=%s;',[LValue]);  {Do not localize}
+        if Assigned(FOnSiteCHGRP) then begin
+          DoOnSiteCHGRP(LContext, LValue, LFileName, LAuth);
+          s := s + IndyFormat('Unix.group=%s;', [LValue]);  {Do not localize}
         end;
       end;
-      if LFacts.Values['Windows.lastaccesstime']<>'' then
+      if LFacts.Values['Windows.lastaccesstime'] <> '' then
       begin
         LValue := LFacts.Values['Windows.lastaccesstime'];
         if Assigned(FOnSiteUTIME) then
@@ -4688,19 +4629,18 @@ begin
           LDate := FTPMLSToGMTDateTime(LValue);
           LDummyDate1 := 0;
           LDummyDate2 := 0;
-          FOnSiteUTIME(LF,LFileName,LDate,LDummyDate1,LDummyDate2,LAuth);
+          FOnSiteUTIME(LContext, LFileName, LDate, LDummyDate1, LDummyDate2, LAuth);
           LValue := FTPGMTDateTimeToMLS(LDate);
-          s := s + IndyFormat('Windows.lastaccesstime=%s;',[LValue]);
+          s := s + IndyFormat('Windows.lastaccesstime=%s;', [LValue]);
         end;
       end;
       if s <> '' then
       begin
-        s := s+' '+LFileName;
-        ASender.Reply.SetReply(213,s);
-      end
-      else
+        s := s + ' ' + LFileName;
+        ASender.Reply.SetReply(213, s);
+      end else
       begin
-        ASender.Reply.SetReply(504,IndyFormat(RSFTPParamError,['MFF']));  {Do not translate}
+        ASender.Reply.SetReply(504, IndyFormat(RSFTPParamError, ['MFF']));  {Do not translate}
       end;
     finally
       FreeAndNil(LFacts);
@@ -4720,7 +4660,7 @@ begin
     DoOnCRCFile(ASender, AFileName, LCalcStream);
     if Assigned(LCalcStream) then try
       LCalcStream.Position := 0;
-      Result := CalculateMD5Checksum(LCalcStream, 0, 0);
+      Result := CalculateMD5Checksum(LCalcStream, 0, LCalcStream.Size);
       DoOnMD5Verify(ASender, AFileName, Result);
     finally
       FreeAndNil(LCalcStream);
@@ -4732,28 +4672,27 @@ procedure TIdFTPServer.CommandMMD5(ASender: TIdCommand);
 var
   LChecksum : String;
   LRes : String;
-  LFiles : TStrings;
+  LFiles : TStringList;
   LError : Boolean;
   i : Integer;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := ASender.Context as TIdFTPServerContext;
   LError := False;
   LChecksum := '';
   LRes := '';
-  if LF.IsAuthenticated(ASender) then begin
-    if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then begin
+  if LContext.IsAuthenticated(ASender) then begin
+    if Assigned(FOnCRCFile) or Assigned(FOnMD5Cache) or Assigned(FTPFileSystem) then begin
       LFiles := TStringList.Create;
       try
         ParseQuotedArgs(ASender.UnparsedParams, LFiles);
         for i := 0 to LFiles.Count -1 do begin
-          LChecksum := GetMD5Checksum(LF,DoProcessPath(LF,UnquotedStr(LFiles[i])));
+          LChecksum := GetMD5Checksum(LContext, DoProcessPath(LContext, UnquotedStr(LFiles[i])));
           if LChecksum = '' then begin
             LError := True;
             Break;
-          end else begin
-            LRes := LRes + ',' + LFiles[i] + ' '+ LChecksum;
           end;
+          LRes := LRes + ',' + LFiles[i] + ' '+ LChecksum;
         end;
         IdDelete(LRes,1,1);
       finally
@@ -4775,13 +4714,13 @@ end;
 procedure TIdFTPServer.CommandMD5(ASender: TIdCommand);
 var
   LChecksum : String;
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LF := TIdFTPServerContext(ASender.Context);
+  LContext := TIdFTPServerContext(ASender.Context);
   LChecksum := '';
-  if LF.IsAuthenticated(ASender) then begin
+  if LContext.IsAuthenticated(ASender) then begin
     if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then begin
-      LChecksum := GetMD5Checksum(LF, DoProcessPath(LF, ASender.UnparsedParams));
+      LChecksum := GetMD5Checksum(LContext, DoProcessPath(LContext, ASender.UnparsedParams));
       if LChecksum = '' then begin
         CmdTwineFileActionAborted(ASender);
       end else begin
@@ -4797,7 +4736,7 @@ procedure TIdFTPServer.DoOnMD5Verify(ASender: TIdFTPServerContext;
   const AFileName, ACheckSum: String);
 begin
   if Assigned(OnMD5Verify) then begin
-    OnMD5Verify(ASender,AFileName, AChecksum);
+    OnMD5Verify(ASender, AFileName, AChecksum);
   end;
 end;
 
@@ -4809,7 +4748,7 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.DoDisconnect(AContext:TIdContext);
+procedure TIdFTPServer.DoDisconnect(AContext: TIdContext);
 begin
   if Assigned(FUserAccounts) then begin
     FUserAccounts.UserDisconnected(TIdFTPServerContext(AContext).UserName);
@@ -4861,7 +4800,7 @@ end;
 procedure TIdFTPServer.DoOnGetFileSize(ASender: TIdFTPServerContext;
   const AFilename: string; var VFileSize: Int64);
 begin
-  if Assigned( FFTPFileSystem) then begin
+  if Assigned(FFTPFileSystem) then begin
     FFTPFileSystem.GetFileSize(ASender, AFileName, VFileSize);
   end else if Assigned(FOnGetFileSize) then begin
     FOnGetFileSize(ASender, AFileName, VFileSize);
@@ -4881,19 +4820,14 @@ end;
 procedure TIdFTPServer.SetUseTLS(AValue: TIdUseTLS);
 begin
   inherited SetUseTLS(AValue);
-  if AValue=utUseImplicitTLS then
+  if AValue = utUseImplicitTLS then
   begin
-    if DefaultDataPort = IdPORT_FTP_DATA then
-    begin
+    if DefaultDataPort = IdPORT_FTP_DATA then begin
       DefaultDataPort := IdPORT_ftps_data;
     end;
   end
-  else
-  begin
-    if DefaultDataPort = IdPORT_ftps_data then
-    begin
-      DefaultDataPort := IdPORT_FTP_DATA;
-    end;
+  else if DefaultDataPort = IdPORT_ftps_data then begin
+    DefaultDataPort := IdPORT_FTP_DATA;
   end;
 end;
 
@@ -4917,7 +4851,7 @@ end;
 
 procedure TIdFTPServer.CommandSiteATTRIB(ASender : TIdCommand);
 var
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LFileName,
   LAttrs : String;
   LAttrVal : Cardinal;
@@ -4926,7 +4860,7 @@ var
   function ValidAttribStr(const AAttrib : String) : Boolean;
   var i : Integer;
   begin
-    Result := Copy(AAttrib,1,1)='+';
+    Result := TextStartsWith(AAttrib, '+');
     if Result then
     begin
       Result := Length(AAttrib)>1;
@@ -4949,10 +4883,10 @@ var
   end;
 
 begin
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned( OnSetAttrib ) then begin
+    if Assigned(OnSetAttrib) then begin
       LFileName := ASender.UnparsedParams;
       LAttrs := Fetch(LFileName);
       LPermitted := True;
@@ -4964,37 +4898,35 @@ begin
           LAttrVal := 0;
           ASender.Reply.Clear;
           ASender.Reply.SetReply(220,'');
-          if IndyPos('R',LATTRS) > 0 then
+          if IndyPos('R', LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_READONLY;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_READONLY'); {Do not localize}
           end;
-          if IndyPos('A',LATTRS) > 0 then
+          if IndyPos('A', LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_ARCHIVE;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_ARCHIVE'); {Do not localize}
           end;
-          if IndyPos('S',LATTRS) > 0 then
+          if IndyPos('S', LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_SYSTEM;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_SYSTEM'); {Do not localize}
           end;
-          if IndyPos('H',LATTRS) > 0 then
+          if IndyPos('H', LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_HIDDEN;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_HIDDEN'); {Do not localize}
           end;
-          if IndyPos('N',LATTRS) > 0 then
+          if IndyPos('N', LATTRS) > 0 then
           begin
             LAttrVal := LAttrVal or IdFILE_ATTRIBUTE_NORMAL;
             ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+' : +FILE_ATTRIBUTE_NORMAL'); {Do not localize}
           end;
-          ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg+IndyFormat(RSFTPSiteATTRIBDone,[IntToStr(Length(LAttrs)-1)]));
-          LFileName := DoProcessPath(LCx, LFileName);
-          Self.DoOnSetATTRIB(LCx, LAttrVal, LFileName, LPermitted);
-
-        end
-        else
+          ASender.Reply.Text.Add(RSFTPSiteATTRIBMsg + IndyFormat(RSFTPSiteATTRIBDone, [IntToStr(Length(LAttrs)-1)]));
+          LFileName := DoProcessPath(LContext, LFileName);
+          DoOnSetATTRIB(LContext, LAttrVal, LFileName, LPermitted);
+        end else
         begin
           ASender.Reply.SetReply(550,RSFTPSiteATTRIBInvalid);
           Exit;
@@ -5014,15 +4946,15 @@ end;
 
 procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
 
-
-  procedure TrygFTPSyntax( ACxt : TIdFTPServerContext;ASender: TIdCommand);
-  var LgMTime : TDateTime;
+  procedure TrygFTPSyntax(AContext: TIdFTPServerContext; ASender: TIdCommand);
+  var
+    LgMTime : TDateTime;
     LgPermitted : Boolean;
     LFileName : String;
     LDummy1, LDummy2 : TDateTime;
   begin
-  //this is for gFTP Syntax
-  //such as: "SITE UTIME 20050815041129 /.bashrc"
+    //this is for gFTP Syntax
+    //such as: "SITE UTIME 20050815041129 /.bashrc"
     LgPermitted := True;
     if ASender.Params.Count = 0 then
     begin
@@ -5034,43 +4966,37 @@ procedure TIdFTPServer.CommandSiteUTIME(ASender: TIdCommand);
       LFileName := ASender.UnparsedParams;
       //This is local Time
       LgMTime := FTPMLSToGMTDateTime(Fetch(LFileName)) - OffSetFromUTC;
-      LFileName := DoProcessPath(ACxt,LFileName);
+      LFileName := DoProcessPath(AContext, LFileName);
       if Assigned(FOnSiteUTIME) then
       begin
         //indicate that both creation time and last access time should not be set
         LDummy1 := 0;
         LDummy2 := 0;
-        FOnSiteUTIME(Acxt,LFileName,LDummy1, LgMTime,LDummy2,LgPermitted);
-
+        FOnSiteUTIME(AContext, LFileName, LDummy1, LgMTime, LDummy2, LgPermitted);
       end
-      else
+      else if Assigned(FOnSetModifiedTime) then
       begin
-       if Assigned(FOnSetModifiedTime) then
-        begin
-          FOnSetModifiedTime(Acxt,LFileName, LgMTime);
-        end;
+        FOnSetModifiedTime(AContext, LFileName, LgMTime);
       end;
       if LgPermitted then begin
         ASender.Reply.SetReply(200, RSFTPCHMODSuccessful);
       end else begin
         ASender.Reply.SetReply(553, RSFTPPermissionDenied);
       end;
-    end
-    else
+    end else
     begin
       CmdSyntaxError(ASender);
     end;
   end;
 
 var
-  LCxt : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LPermitted : Boolean;
   LFileName : String;
   LIdx : Integer;
   LDateCount : Integer;
   LAccessTime, LModTime, LCreateTime : TDateTime;
   i : Integer;
-
 begin
 {
 This is used by NcFTP like this:
@@ -5095,17 +5021,17 @@ where the timestamp is probably in based on the local time.
   LAccessTime := 0;
   LModTime := 0;
   LCreateTime := 0;
-  LCxt := ASender.Context as TIdFTPServerContext;
-  if LCxt.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     if Assigned(OnSiteUTIME) or Assigned(OnSetModifiedTime) then
     begin
       LDateCount := 0;
       LIdx := ASender.Params.Count - 1;
-      if ASender.Params.Count >2 then
+      if ASender.Params.Count > 2 then
       begin
         LPermitted := True;
-        if UpperCase( ASender.Params[LIdx] ) = 'UTC' then
+        if TextIsSame(ASender.Params[LIdx], 'UTC') then
         begin
           //figure out how many dates we have and where the end of the filename is
           Dec(LIdx);
@@ -5119,19 +5045,18 @@ where the timestamp is probably in based on the local time.
               Dec(LIdx);
               Inc(LDateCount);
             end;
-          end
-          else
+          end else
           begin
-            TrygFTPSyntax(LCxt,ASender);
+            TrygFTPSyntax(LContext, ASender);
             Exit;
           end;
           //now extract the date
           LAccessTime := FTPMLSToGMTDateTime(ASender.Params[LIdx]);
-          if LDateCount >1 then
+          if LDateCount > 1 then
           begin
             LModTime := FTPMLSToGMTDateTime(ASender.Params[LIdx+1]);
           end;
-          if LDateCount >2 then
+          if LDateCount > 2 then
           begin
              LCreateTime := FTPMLSToGMTDateTime(ASender.Params[LIdx+2]);
           end;
@@ -5139,24 +5064,23 @@ where the timestamp is probably in based on the local time.
           LFileName := '';
           for i := 0 to LIdx-1 do
           begin
-            LFileName := LFileName + ' '+ASender.Params[i];
+            LFileName := LFileName + ' ' + ASender.Params[i];
           end;
           IdDelete(LFileName,1,1);
-          LFileName := DoProcessPath(LCxt,LFileName);
+          LFileName := DoProcessPath(LContext,LFileName);
           //now do it
-          if Assigned(Self.FOnSiteUTIME) then
+          if Assigned(FOnSiteUTIME) then
           begin
-            FOnSiteUTIME(Lcxt,LFileName,LAccessTime,LModTime,LCreateTime,LPermitted);
-          end
-          else
+            FOnSiteUTIME(LContext, LFileName, LAccessTime, LModTime, LCreateTime, LPermitted);
+          end else
           begin
             if (LModTime <> 0) and Assigned(FOnSetModifiedTime) then
             begin
-              FOnSetModifiedTime(Lcxt,LFileName,LModTime);
+              FOnSetModifiedTime(LContext, LFileName, LModTime);
             end;
-            if (LCreateTime <> 0) and Assigned( FOnSetCreationTime ) then
+            if (LCreateTime <> 0) and Assigned(FOnSetCreationTime) then
             begin
-              FOnSetCreationTime(Lcxt,LFileName,LCreateTime);
+              FOnSetCreationTime(LContext, LFileName, LCreateTime);
             end;
           end;
           if LPermitted then begin
@@ -5164,20 +5088,13 @@ where the timestamp is probably in based on the local time.
           end else begin
             ASender.Reply.SetReply(553, RSFTPPermissionDenied);
           end;
-        end
-        else
-        begin
-          TrygFTPSyntax(LCxt,ASender);
+          Exit;
         end;
-      end
-      else
-      begin
-        TrygFTPSyntax(LCxt,ASender);
       end;
-    end else begin
-      TrygFTPSyntax(LCxt,ASender);
-//      CmdNotImplemented(ASender);
     end;
+
+    TrygFTPSyntax(LContext, ASender);
+    // CmdNotImplemented(ASender);
   end;
 end;
 
@@ -5186,7 +5103,7 @@ procedure TIdFTPServer.DoOnSiteCHGRP(ASender: TIdFTPServerContext;
 begin
   if Assigned(FOnSiteCHGRP) then
   begin
-    FOnSiteCHGRP(ASender,AGroup,AFileName,VAuth);
+    FOnSiteCHGRP(ASender, AGroup, AFileName, VAuth);
   end;
 end;
 
@@ -5195,30 +5112,29 @@ procedure TIdFTPServer.DoOnSiteCHOWN(ASender: TIdFTPServerContext; var AOwner,
 begin
   if Assigned(FOnSiteCHOWN) then
   begin
-    OnSiteCHOWN(ASender,AOwner,AGroup,AFileName,VAuth);
+    OnSiteCHOWN(ASender, AOwner, AGroup, AFileName, VAuth);
   end;
 end;
 
 procedure TIdFTPServer.CommandSiteCHOWN(ASender: TIdCommand);
 var
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LPermitted : Boolean;
   LFileName : String;
   LOwner, LGroup : string;
 begin
-
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned( OnSiteCHOWN) then
+    if Assigned(OnSiteCHOWN) then
     begin
       LPermitted := True;
       LFileName := ASender.UnparsedParams;
       LGroup := Fetch(LFileName);
       LOwner := Fetch(LGroup,':');
-      DoOnSiteCHOWN(LCx,LOwner,LGroup,DoProcessPath(LCx,LFileName),LPermitted);
+      DoOnSiteCHOWN(LContext, LOwner, LGroup, DoProcessPath(LContext, LFileName), LPermitted);
       if LPermitted then begin
-        ASender.Reply.SetReply(220, IndyFormat(RSFTPCmdSuccessful,[ASender.RawLine]));
+        ASender.Reply.SetReply(220, IndyFormat(RSFTPCmdSuccessful, [ASender.RawLine]));
       end else begin
         ASender.Reply.SetReply(553, RSFTPPermissionDenied);
       end;
@@ -5228,22 +5144,22 @@ end;
 
 procedure TIdFTPServer.CommandSiteCHGRP(ASender: TIdCommand);
 var
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LPermitted : Boolean;
   LFileName : String;
   LGroup : String;
 begin
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned( Self.FOnSiteCHGRP) then
+    if Assigned(FOnSiteCHGRP) then
     begin
       LPermitted := True;
       LFileName := ASender.UnparsedParams;
       LGroup := Fetch(LFileName);
-      DoOnSiteCHGRP(LCx,LGroup,DoProcessPath(LCx,LFileName),LPermitted);
+      DoOnSiteCHGRP(LContext, LGroup, DoProcessPath(LContext, LFileName), LPermitted);
       if LPermitted then begin
-        ASender.Reply.SetReply(200, IndyFormat(RSFTPCmdSuccessful,[ASender.RawLine]));
+        ASender.Reply.SetReply(200, IndyFormat(RSFTPCmdSuccessful, [ASender.RawLine]));
       end else begin
         ASender.Reply.SetReply(553, RSFTPPermissionDenied);
       end;
@@ -5253,22 +5169,22 @@ end;
 
 procedure TIdFTPServer.CommandSiteCHMOD(ASender: TIdCommand);
 var
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LPermitted : Boolean;
   LFileName : String;
   LPerms : String;
   LPermNo : Integer;
 begin
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
-    if Assigned( OnSiteCHMOD ) or Assigned(FTPFileSystem) then begin
+    if Assigned(OnSiteCHMOD ) or Assigned(FTPFileSystem) then begin
       LFileName := ASender.UnparsedParams;
       LPerms := Fetch(LFileName);
       If IsValidPermNumbers(LPerms) then begin
         LPermitted := True;
-        LPermNo := IndyStrToInt(LPerms,0);
-        DoOnSiteCHMOD(LCx, LPermNo, DoProcessPath(LCx,LFileName), LPermitted);
+        LPermNo := IndyStrToInt(LPerms, 0);
+        DoOnSiteCHMOD(LContext, LPermNo, DoProcessPath(LContext, LFileName), LPermitted);
         if LPermitted then begin
           ASender.Reply.SetReply(220, RSFTPCHMODSuccessful);
         end else begin
@@ -5285,12 +5201,12 @@ end;
 
 procedure TIdFTPServer.CommandSiteUMASK(ASender: TIdCommand);
 var
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LNewMask : Integer;
   LPermitted : Boolean;
 begin
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     if Assigned(FOnSiteUMASK) then
     begin
@@ -5298,10 +5214,10 @@ begin
         If IsValidPermNumbers(ASender.Params[0]) then begin
           LPermitted := True;
           LNewMask := IndyStrToInt(ASender.Params[0], 0);
-          Self.DoOnSiteUMASK(LCx, LNewMask, LPermitted);
+          DoOnSiteUMASK(LContext, LNewMask, LPermitted);
           if LPermitted then begin
-            ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskSet,[LNewMask,LCx.FUMask]));
-            LCx.FUMask := LNewMask;
+            ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskSet, [LNewMask, LContext.FUMask]));
+            LContext.FUMask := LNewMask;
           end else begin
             ASender.Reply.SetReply(553, RSFTPPermissionDenied);
           end;
@@ -5309,7 +5225,7 @@ begin
           CmdNotImplemented(ASender);
         end;
       end else begin
-        ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskIs,[LCx.FUMask]));
+        ASender.Reply.SetReply(200, IndyFormat(RSFTPUMaskIs, [LContext.FUMask]));
       end;
     end else begin
       CmdNotImplemented(ASender);
@@ -5350,8 +5266,7 @@ begin
 end;
 
 procedure TIdFTPServer.DoOnSiteCHMOD(ASender: TIdFTPServerContext;
- var APermissions: Integer; const AFileName: String;
-  var VAUth: Boolean);
+  var APermissions: Integer; const AFileName: String; var VAUth: Boolean);
 begin
   if Assigned(FOnSiteCHMOD) then
   begin
@@ -5361,44 +5276,41 @@ end;
 
 procedure TIdFTPServer.CommandSiteDIRSTYLE(ASender: TIdCommand);
 //FMSDOSMode
-var LCx : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
 //SITE DIRSTYLE is only for MS-DOS formatted directory lists so
 //a program can flip to Unix directory list format.  This is
 //for compatability purposes, ONLY.
 begin
-
-  LCx := ASender.Context as TIdFTPServerContext;
-  if Self.FDirFormat = ftpdfDOS then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if FDirFormat = ftpdfDOS then
   begin
-    if LCx.IsAuthenticated(ASender) then
+    if LContext.IsAuthenticated(ASender) then
     begin
       if ASender.Params.Count = 0 then
       begin
-        LCx.FMSDOSMode := not LCx.FMSDOSMode;
-        if LCx.FMSDOSMode then
-        begin
-          ASender.Reply.SetReply(200,IndyFormat(RSFTPDirStyle,[RSFTPOn]));
-        end
-        else
-        begin
-          ASender.Reply.SetReply(200,IndyFormat(RSFTPDirStyle,[RSFTPOff]));
+        LContext.FMSDOSMode := not LContext.FMSDOSMode;
+        if LContext.FMSDOSMode then begin
+          ASender.Reply.SetReply(200, IndyFormat(RSFTPDirStyle, [RSFTPOn]));
+        end else begin
+          ASender.Reply.SetReply(200, IndyFormat(RSFTPDirStyle, [RSFTPOff]));
         end;
       end;
     end;
-  end
-  else
+  end else
   begin
     ASender.Reply.Assign(FReplyUnknownSITECommand);
   end;
 end;
 
 procedure TIdFTPServer.CommandSiteHELP(ASender: TIdCommand);
-var s : String;
+var
+  s : String;
   LCmds : TStringList;
-  LCx : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
-  LCx := ASender.Context as TIdFTPServerContext;
-  if LCx.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     s := RSFTPSITECmdsSupported+EOL;
     LCmds := TStringList.Create;
@@ -5411,7 +5323,7 @@ begin
       begin
          LCmds.Add('CHMOD'); {Do not translate}
       end;
-      if Self.FDirFormat = ftpdfDOS then
+      if FDirFormat = ftpdfDOS then
       begin
         LCmds.Add('DIRSTYLE'); {Do not translate}
       end;
@@ -5420,8 +5332,8 @@ begin
         LCmds.Add('UMASK'); {Do not translate}
       end;
       LCmds.Add('ZONE');  {Do not translate}
-      s := s + HelpText( LCmds ) + FEndOfHelpLine;
-      ASender.Reply.SetReply(214,s);
+      s := s + HelpText(LCmds) + FEndOfHelpLine;
+      ASender.Reply.SetReply(214, s);
     finally
       FreeAndNil(LCmds);
     end;
@@ -5429,7 +5341,8 @@ begin
 end;
 
 function TIdFTPServer.HelpText(Cmds: TStrings): String;
-var LRows : Integer;
+var
+  LRows : Integer;
   LMod : Integer;
   i : Integer;
 begin
@@ -5440,17 +5353,15 @@ begin
   end;
   LRows := Cmds.Count div 6;
   LMod := Cmds.Count mod 6;
-  if (Cmds.Count < 6) then
+  if Cmds.Count < 6 then
   begin
     Result := '    ';
     for i := 0 to Cmds.Count -1 do
     begin
-      Result := Result + IndyFormat('%-10s',
-          [ Cmds[i]]);
+      Result := Result + IndyFormat('%-10s', [Cmds[i]]);
     end;
     Result := Result + CR;
-  end
-  else
+  end else
   begin
     for i := 0 to (LRows -1) do
     begin
@@ -5460,8 +5371,7 @@ begin
           [ Cmds[i],Cmds[i+LRows],Cmds[(LRows*2)+i],
           Cmds[(LRows*3)+i],Cmds[(LRows*4)+i],Cmds[(LRows*5)+i],
           Cmds[(LRows*6)+i]])+CR;
-      end
-      else
+      end else
       begin
         Result := Result + IndyFormat('    %-10s%-10s%-10s%-10s%-10s%-10s',  {Do not translate}
           [ Cmds[i],Cmds[i+LRows],Cmds[(LRows*2)+i],
@@ -5489,130 +5399,98 @@ function TIdFTPServer.MLSFEATLine(const AFactMask: TIdMLSDAttrs;
   const AFacts: TIdFTPFactOutputs): String;
 begin
   Result := 'MLST size'; {Do not translate}
-      //the * indicates if the option is selected for MLST
-      if Size in AFacts then {Do not translate}
-      begin
-        Result := Result + '*;';
-      end
-      else
-      begin
-        Result := Result + ';'
-      end;
-      Result := Result + 'Type'; {Do not translate}
-      if ItemType in AFacts then {Do not translate}
-      begin
-        Result := Result + '*;';  {Do not translate}
-      end
-      else
-      begin
-        Result := Result + ';';
-      end;
-      if mlsdPerms in FMLSDFacts then
-      begin
-        Result := Result + 'Perm'; {Do not translate}
-        if Perm in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      if mlsdFileCreationTime in FMLSDFacts then
-      begin
-        Result := Result + 'Create';  {Do not translate}
-        if CreateTime in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      Result := Result + 'Modify';  {Do not translate}
-      if Modify in AFacts then
-      begin
-        Result := Result + '*;';
-      end
-      else
-      begin
-        Result := Result + ';';
-      end;
-      if mlsdUnixModes in FMLSDFacts then
-      begin
-        Result := Result + 'UNIX.mode';  {Do not translate}
-        if UnixMODE in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      if mlsdUnixOwner in FMLSDFacts then
-      begin
-        Result := Result + 'UNIX.owner'; {Do not translate}
-        if UnixOwner in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      if mlsdUnixGroup in FMLSDFacts then
-      begin
-        Result := Result + 'UNIX.group';  {Do not translate}
-        if UnixGroup in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-
-      if mlsdUniqueID in FMLSDFacts then
-      begin
-        Result := Result + 'Unique'; {Do not translate}
-        if Unique in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      if mlsdFileLastAccessTime in FMLSDFacts then
-      begin
-        Result := Result + 'Windows.lastaccesstime';  {Do not translate}
-        if CreateTime in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
-      if mlsdWin32Attributes in FMLSDFacts then
-      begin
-        Result := Result + 'Win32.ea';  {Do not translate}
-        if WinAttribs in AFacts then {Do not translate}
-        begin
-          Result := Result + '*;';  {Do not translate}
-        end
-        else
-        begin
-          Result := Result + ';';
-        end;
-      end;
+  //the * indicates if the option is selected for MLST
+  if Size in AFacts then {Do not translate}
+  begin
+    Result := Result + '*;';
+  end else begin
+    Result := Result + ';'
+  end;
+  Result := Result + 'Type'; {Do not translate}
+  if ItemType in AFacts then {Do not translate}
+  begin
+    Result := Result + '*;';  {Do not translate}
+  end else begin
+    Result := Result + ';';
+  end;
+  if mlsdPerms in FMLSDFacts then
+  begin
+    Result := Result + 'Perm'; {Do not translate}
+    if Perm in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdFileCreationTime in FMLSDFacts then
+  begin
+    Result := Result + 'Create';  {Do not translate}
+    if CreateTime in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  Result := Result + 'Modify';  {Do not translate}
+  if Modify in AFacts then begin
+    Result := Result + '*;';
+  end else begin
+    Result := Result + ';';
+  end;
+  if mlsdUnixModes in FMLSDFacts then
+  begin
+    Result := Result + 'UNIX.mode';  {Do not translate}
+    if UnixMODE in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdUnixOwner in FMLSDFacts then
+  begin
+    Result := Result + 'UNIX.owner'; {Do not translate}
+    if UnixOwner in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdUnixGroup in FMLSDFacts then
+  begin
+    Result := Result + 'UNIX.group';  {Do not translate}
+    if UnixGroup in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdUniqueID in FMLSDFacts then
+  begin
+    Result := Result + 'Unique'; {Do not translate}
+    if Unique in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdFileLastAccessTime in FMLSDFacts then
+  begin
+    Result := Result + 'Windows.lastaccesstime';  {Do not translate}
+    if CreateTime in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
+  if mlsdWin32Attributes in FMLSDFacts then
+  begin
+    Result := Result + 'Win32.ea';  {Do not translate}
+    if WinAttribs in AFacts then begin {Do not translate}
+      Result := Result + '*;';  {Do not translate}
+    end else begin
+      Result := Result + ';';
+    end;
+  end;
 end;
 
 procedure TIdFTPServer.DoOnClientID(ASender: TIdFTPServerContext;
@@ -5620,51 +5498,35 @@ procedure TIdFTPServer.DoOnClientID(ASender: TIdFTPServerContext;
 begin
   if Assigned(FOnClientID) then
   begin
-    FOnClientID(ASender,AIDString);
+    FOnClientID(ASender, AIDString);
   end;
 end;
 
 procedure TIdFTPServer.CommandCLNT(ASender: TIdCommand);
 begin
-  DoOnClientID(ASender.Context as TIdFTPServerContext,ASender.UnparsedParams);
+  DoOnClientID(ASender.Context as TIdFTPServerContext, ASender.UnparsedParams);
 end;
 
 procedure TIdFTPServer.SetPASVBoundPortMax(const AValue: TIdPort);
 begin
-  if FPASVBoundPortMin<>0 then
+  if FPASVBoundPortMin <> 0 then
   begin
-    if AValue > FPASVBoundPortMin then
-    begin
-      FPASVBoundPortMax := AValue;
-    end
-    else
-    begin
+    if AValue <= FPASVBoundPortMin then begin
       raise EIdFTPBoundPortMaxGreater.Create(RSFTPPASVBoundPortMaxMustBeGreater);
     end;
-  end
-  else
-  begin
-    FPASVBoundPortMax := AValue;
   end;
+  FPASVBoundPortMax := AValue;
 end;
 
 procedure TIdFTPServer.SetPASVBoundPortMin(const AValue: TIdPort);
 begin
-  if FPASVBoundPortMax<>0 then
+  if FPASVBoundPortMax <> 0 then
   begin
-    if FPASVBoundPortMax > AValue then
-    begin
-      FPASVBoundPortMin := AValue;
-    end
-    else
-    begin
+    if FPASVBoundPortMax <= AValue then begin
       raise EIdFTPBoundPortMinLess.Create(RSFTPPASVBoundPortMinMustBeLess);
     end;
-  end
-  else
-  begin
-    FPASVBoundPortMin := AValue;
   end;
+  FPASVBoundPortMin := AValue;
 end;
 
 procedure TIdFTPServer.DoOnDataPortAfterBind(ASender: TIdFTPServerContext);
@@ -5675,8 +5537,7 @@ begin
   end;
 end;
 
-procedure TIdFTPServer.DoOnDataPortBeforeBind(
-  ASender: TIdFTPServerContext);
+procedure TIdFTPServer.DoOnDataPortBeforeBind(ASender: TIdFTPServerContext);
 begin
   if Assigned(FOnDataPortBeforeBind) then
   begin
@@ -5696,37 +5557,31 @@ this is really desirable as both file systems are like apples and oranges.
 }
 begin
   case FPathProcessing of
-    ftppDOS : Result := StringReplace(APath,'\','/',[rfReplaceAll]);
+    ftppDOS : Result := StringReplace(APath, '\', '/', [rfReplaceAll]);
     ftpOSDependent :
-    begin
-      if GOSType = otWindows then
       begin
-        Result := StringReplace(APath,'\','/',[rfReplaceAll]);
-      end
-      else
-      begin
-        Result := APath;
+        if GOSType = otWindows then begin
+          Result := StringReplace(APath, '\', '/', [rfReplaceAll]);
+        end else begin
+          Result := APath;
+        end;
       end;
-    end
-  else
-    Result := APath;
+    else
+      Result := APath;
   end;
 end;
 
-function TIdFTPServer.DoProcessPath(ASender : TIdFTPServerContext; const APath: string): string;
-
+function TIdFTPServer.DoProcessPath(ASender: TIdFTPServerContext; const APath: string): string;
 begin
-  Result := APath;
-  if Self.FPathProcessing <> ftppCustom then
+  if FPathProcessing <> ftppCustom then
   begin
-    Result := FTPNormalizePath(Result);
-    Result := ProcessPath(ASender.CurrentDir,Result);    {Do not Localize}
-  end
-  else
+    Result := FTPNormalizePath(APath);
+    Result := ProcessPath(ASender.CurrentDir, Result);    {Do not Localize}
+  end else
   begin
-    if Assigned(FOnCustomPathProcess) then
-    begin
-      FOnCustomPathProcess(ASender,Result);
+    Result := APath;
+    if Assigned(FOnCustomPathProcess) then begin
+      FOnCustomPathProcess(ASender, Result);
     end;
   end;
 end;
@@ -5736,20 +5591,17 @@ const
   LCDUP_DOS = '..\';
   CDUP_UNIX = '../';
 begin
-  case Self.FPathProcessing of
+  case FPathProcessing of
     ftppDOS : Result := LCDUP_DOS;
     ftpOSDependent :
-      if GOSType = otWindows then
-      begin
+      if GOSType = otWindows then begin
         Result := LCDUP_DOS;
-      end
-      else
-      begin
+      end else begin
         Result := CDUP_UNIX;
       end;
-    ftppCustom : Result := DoProcessPath(AContext,'..');
-  else
-    Result := CDUP_UNIX;
+    ftppCustom : Result := DoProcessPath(AContext, '..');
+    else
+      Result := CDUP_UNIX;
   end;
 end;
 
@@ -5759,15 +5611,12 @@ begin
 //reasons.  Some FTP clients use the SYST descriptor to determine what
 //type of FTP directory list parsing to do.  I think TurboPower IPros does this.
 //Note that I personally do not find this to be sound as a general rule.
-  case Self.FDirFormat of
+  case FDirFormat of
     ftpdfOSDependent :
     begin
-      if GOSType = otWindows then
-      begin
+      if GOSType = otWindows then begin
         Result := SYST_ID_NT;
-      end
-      else
-      begin
+      end else begin
         Result := SYST_ID_UNIX;
       end;
     end;
@@ -5808,44 +5657,40 @@ begin
 end;
 
 procedure TIdFTPServer.CommandSSCN(ASender: TIdCommand);
-var LF : TIdFTPServerContext;
 const
   SSCN_ON = 'SSCN:CLIENT METHOD';                 {do not localize}
   SSCN_OFF = 'SSCN:SERVER METHOD';                {do not localize}
-
+var
+  LContext : TIdFTPServerContext;
 begin
   if UseTLS = utNoTLSSupport then
   begin
     CmdNotImplemented(ASender);
     Exit;
   end;
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then
   begin
     if ASender.Params.Count = 0 then
     begin
       //check state
-      if LF.SSCNOn then
-      begin
-        ASender.Reply.SetReply(200,SSCN_ON);
-      end
-      else
-      begin
-        ASender.Reply.SetReply(200,SSCN_OFF);
+      if LContext.SSCNOn then begin
+        ASender.Reply.SetReply(200, SSCN_ON);
+      end else begin
+        ASender.Reply.SetReply(200, SSCN_OFF);
       end;
-    end
-    else
+    end else
     begin
       //set state
       case PosInStrArray(ASender.Params[0], STATES, False) of
         0 : //'ON'
         begin
-          LF.SSCNOn := True;
-          ASender.Reply.SetReply(200,SSCN_ON);
+          LContext.SSCNOn := True;
+          ASender.Reply.SetReply(200, SSCN_ON);
         end;
         1 : //'OFF'
         begin
-          LF.SSCNOn := False;
+          LContext.SSCNOn := False;
           ASender.Reply.SetReply(200,SSCN_OFF);
         end;
       else
@@ -5856,7 +5701,8 @@ begin
 end;
 
 procedure TIdFTPServer.CommandCPSV(ASender: TIdCommand);
-var LF : TIdFTPServerContext;
+var
+  LContext : TIdFTPServerContext;
   LIO : TIdSSLIOHandlerSocketBase;
 begin
   //CPSV must be used with SSL and can only be used with IPv4
@@ -5867,15 +5713,15 @@ begin
     Exit;
   end;
   CommandPASV(ASender);
-  LF := TIdFTPServerContext(ASender.Context);
-  LIO := LF.DataChannel.FDataChannel.IOHandler as TIdSSLIOHandlerSocketBase;
+  LContext := TIdFTPServerContext(ASender.Context);
+  LIO := LContext.DataChannel.FDataChannel.IOHandler as TIdSSLIOHandlerSocketBase;
    //tell IOHandler to use ssl_Conntect
   LIO.IsPeer := False;
 end;
 
 procedure TIdFTPServer.CommandSiteZONE(ASender: TIdCommand);
-
-var LMin : Integer;
+var
+  LMin : Integer;
 begin
   LMin := MinutesFromGMT;
   //plus must always be displayed for positive numbers
@@ -5887,49 +5733,49 @@ begin
 end;
 
 procedure TIdFTPServer.CommandXMD5(ASender: TIdCommand);
-var LCalcStream : TStream;
-    LBuf : String;
-    LFileName : String;
-    LBeginPos, LEndPos : Cardinal;
-    LF : TIdFTPServerContext;
+var
+  LCalcStream : TStream;
+  LBuf : String;
+  LFileName : String;
+  LBeginPos, LEndPos : Int64;
+  LContext : TIdFTPServerContext;
 begin
-  if Assigned(FOnCRCFile) or (Assigned(FTPFileSystem)) then
+  if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
   begin
-    LF := TIdFTPServerContext(ASender.Context);
-    if LF.IsAuthenticated(ASender) then
+    LContext := TIdFTPServerContext(ASender.Context);
+    if LContext.IsAuthenticated(ASender) then
     begin
       LBuf := ASender.UnparsedParams;
-      if (Pos('"',LBuf) > 0) then
+      if Pos('"', LBuf) > 0 then
       begin
-        Fetch(LBuf,'"');
-        LFileName := Fetch(LBuf,'"');
-      end
-      else
+        Fetch(LBuf, '"');
+        LFileName := Fetch(LBuf, '"');
+      end else
       begin
         LFileName := Fetch(LBuf);
       end;
       LBuf := Trim(LBuf);
-      LBeginPos := IndyStrToInt(Fetch(LBuf),0);
-      LEndPos := IndyStrToInt(Fetch(LBuf),0);
+      LBeginPos := IndyStrToInt(Fetch(LBuf), 0);
+      LEndPos := IndyStrToInt(Fetch(LBuf), 0);
       if LFileName = '' then
       begin
         ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
         Exit;
       end;
       LCalcStream := nil;
-      LFileName := DoProcessPath(LF,LFileName);
-      DoOnCRCFile(LF,LFileName,LCalcStream);
-      if assigned(LCalcStream) then try
+      LFileName := DoProcessPath(LContext, LFileName);
+      DoOnCRCFile(LContext, LFileName, LCalcStream);
+      if Assigned(LCalcStream) then try
         LCalcStream.Position := 0;
         ASender.Reply.SetReply(250, CalculateMD5Checksum(LCalcStream, LBeginPos, LEndPos));
       finally
         FreeAndNil(LCalcStream);
-      end else begin
+      end else
+      begin
         CmdFileActionAborted(ASender);
       end;
     end;
-  end
-  else
+  end else
   begin
     CmdSyntaxError(ASender);
   end;
@@ -5952,7 +5798,6 @@ var
 begin
   //just to keep the compiler happy
   LBPort := 0;
-
   if InternalPASV(ASender, LIP, LBPort, LIPVer) then
   begin
     ASender.Reply.SetReply(227, IntToStr(LBPort));
@@ -5960,36 +5805,35 @@ begin
 end;
 
 function TIdFTPServer.InternalPASV(ASender: TIdCommand; var VIP : String;
-  var VPort: Word; var VIPVersion : TIdIPVersion): Boolean;
+  var VPort: TIdPort; var VIPVersion : TIdIPVersion): Boolean;
 var
-  LF : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
 begin
   Result := False;
-  LF := TIdFTPServerContext(ASender.Context);
-  if LF.IsAuthenticated(ASender) then begin
-    if LF.FEPSVAll then begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  if LContext.IsAuthenticated(ASender) then begin
+    if LContext.FEPSVAll then begin
       ASender.Reply.SetReply(501, IndyFormat(RSFTPNotAllowedAfterEPSVAll, [ASender.CommandHandler.Command]));
       Exit;
     end;
-    VIP := LF.Connection.Socket.Binding.IP;
-
+    VIP := LContext.Connection.Socket.Binding.IP;
     VPort := FDefaultDataPort;
-    VIPVersion := LF.Connection.Socket.IPVersion;
-    DoOnPASVBeforeBind(LF, VIP, VPort, VIPVersion);
-    LF.CreateDataChannel(True);
-    LF.FDataChannel.SetPortParameters(VIP, VPort, VIPVersion);
-    with TIdSimpleServer(LF.FDataChannel.FDataChannel) do begin
+    VIPVersion := LContext.Connection.Socket.IPVersion;
+    DoOnPASVBeforeBind(LContext, VIP, VPort, VIPVersion);
+    LContext.CreateDataChannel(True);
+    LContext.FDataChannel.SetPortParameters(VIP, VPort, VIPVersion);
+    with TIdSimpleServer(LContext.FDataChannel.FDataChannel) do begin
       BeginListen;
       VPort := Binding.Port;
       VIP := Binding.IP;
     end;
-    LF.FPASV := True;
+    LContext.FPASV := True;
     Result := True;
   end;
 end;
 
 procedure TIdFTPServer.DoOnPASVBeforeBind(ASender: TIdFTPServerContext;
-  var VIP: String; var VPort: Word; const AIPVersion: TIdIPVersion);
+  var VIP: String; var VPort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   if Assigned(FOnPASVBeforeBind) then begin
     FOnPASVBeforeBind(ASender, VIP, VPort, AIPVersion);
@@ -5997,7 +5841,7 @@ begin
 end;
 
 procedure TIdFTPServer.DoOnPASVReply(ASender: TIdFTPServerContext;
-  var VIP: String; var VPort: Word; const AIPVersion: TIdIPVersion);
+  var VIP: String; var VPort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   if Assigned(FOnPASVReply) then begin
     FOnPASVReply(ASender, VIP, VPort, AIPVersion);
@@ -6005,11 +5849,18 @@ begin
 end;
 
 function TIdFTPServer.ReadCommandLine(AContext: TIdContext): string;
+const
+  cEncoding: array[Boolean] of TIdEncoding = (en8Bit, enUTF8);
 var
-  c : char;
   i : Integer;
   State: TIdFTPTelnetState;
   lb : Byte;
+  LContext: TIdFTPServerContext;
+  { Receive the line in 8-bit initially so that .NET can then
+    decode any UTF-8 data into a Unicode string afterwards if
+    needed }
+  LLine: TIdBytes;
+  Finished: Boolean;
 const
 {
   //These are the telnet commands we have to deal with
@@ -6023,128 +5874,127 @@ const
   TELNET_IP = #$FF#$F4;  //Interrupt process
   TELNET_DM = #$FF#$F2; //Data Mark
 begin
+  Result := '';
+  LContext := AContext as TIdFTPServerContext;
   //we do it this way in case there's no data.  We don't want to stop
   //a data channel operation if that's the case.
-  Result := '';
   AContext.Connection.IOHandler.CheckForDataOnSource(1);
   if AContext.Connection.IOHandler.InputBufferIsEmpty then begin
     Exit;
   end;
-  //we do
+  //
+  SetLength(LLine, 0);
+  Finished := False;
+
   State := tsData;
   repeat
-
-    c := AContext.Connection.IOHandler.ReadChar;
+    lb := AContext.Connection.IOHandler.ReadByte;
     case State of
-
       tsData:
       begin
-        case c of
-          #$FF: //is a command
+        case lb of
+          $FF: //is a command
           begin
             State := tsIAC;
           end;
-          #13: //wait for the next character to see what to do
+          $0D: //wait for the next character to see what to do
           begin
             State := tsCheckCR;
           end;
         else
-          if (c <> #10) then begin
-            Result := Result + c;
-          end;
+          AppendByte(LLine, lb);
         end;
       end;
 
       tsCheckCR:
       begin
-        case c of
-          #0: // must preserve CR
+        case lb of
+          $0: // preserve CR
           begin
-            // ASCII servers must treat CR NUL the same as CR LF
-            if IsASCII(Ord(c)) then
-            begin
-              c := #10;
-              State := tsData;
-            end else begin
-              Result := Result + #13;
-            end;
+            AppendByte(LLine, $0D);
+            State := tsData;
           end;
-          #$FF: //unexpected IAC, just in case
+          $0A:
           begin
-            Result := Result + #13;
+            State := tsData;
+            Finished := True;
+          end;
+          $FF: //unexpected IAC, just in case
+          begin
+            AppendByte(LLine, $0D);
             State := tsIAC;
           end;
         else
-          if (c <> #10) then begin
-            Result := Result + #13 + c;
-          end;
+          ExpandBytes(LLine, Length(LLine), 2);
+          LLine[Length(LLine)-2] := $0D;
+          LLine[Length(LLine)-1] := lb;
           State := tsData;
         end;
       end;
 
       tsIAC:
       begin
-        case c of
-          #$F1, //no-operation - do nothing
-          #$F3: //break - do nothing for now
+        case lb of
+          $F1, //no-operation - do nothing
+          $F3: //break - do nothing for now
           begin
             State := tsData;
           end;
-          #$F4: //interrupt process - clear result and wait for data mark
+          $F4: //interrupt process - clear result and wait for data mark
           begin
-            Result := '';
+            SetLength(LLine, 0);
             State := tsInterrupt;
           end;
-          #$F5: //abort output
+          $F5: //abort output
           begin
             // note - the DM needs to be sent as OOB "Urgent" data
             AContext.Connection.IOHandler.Write(TELNET_IP + TELNET_DM);
             State := tsData;
           end;
-          #$F6: //are you there - do nothing for now
+          $F6: //are you there - do nothing for now
           begin
             State := tsData;
           end;
-          #$F7: //erase character
+          $F7: //erase character
           begin
-            i := Length(Result);
-            if (i > 0) then begin
-              SetLength(Result, i-1);
+            i := Length(LLine);
+            if i > 0 then begin
+              SetLength(LLine, i-1);
             end;
             State := tsData;
           end;
-          #$F8 : //erase line
+          $F8 : //erase line
           begin
-            Result := '';
+            SetLength(LLine, 0);
             State := tsData;
           end;
-          #$F9 : //go ahead - do nothing for now
+          $F9 : //go ahead - do nothing for now
           begin
             State := tsData;
           end;
-          #$FA : //begin sub-negotiation
+          $FA : //begin sub-negotiation
           begin
             State := tsNegotiate;
           end;
-          #$FB : //I will use
+          $FB : //I will use
           begin
             State := tsWill;
           end;
-          #$FC : //you won't use
+          $FC : //you won't use
           begin
             State := tsWont;
           end;
-          #$FD : //please, you use option
+          $FD : //please, you use option
           begin
             State := tsDo;
           end;
-          #$FE : //please, you stop option
+          $FE : //please, you stop option
           begin
             State := tsDont;
           end;
-          #$FF : //data $FF
+          $FF : //data $FF
           begin
-            Result := Result + #$FF;
+            AppendByte(LLine, $FF);
             State := tsData;
           end;
         else
@@ -6155,13 +6005,15 @@ begin
 
       tsWill:
       begin
-        AContext.Connection.IOHandler.Write(TELNET_WONT + c);
+        AContext.Connection.IOHandler.Write(TELNET_WONT);
+        AContext.Connection.IOHandler.Write(lb);
         State := tsData;
       end;
 
       tsDo:
       begin
-        AContext.Connection.IOHandler.Write(TELNET_DONT + c);
+        AContext.Connection.IOHandler.Write(TELNET_DONT);
+        AContext.Connection.IOHandler.Write(lb);
         State := tsData;
       end;
 
@@ -6178,8 +6030,8 @@ begin
 
       tsNegotiateData:
       begin
-        case c of
-          #$FF: //is a command?
+        case lb of
+          $FF: //is a command?
           begin
             State := tsNegotiateIAC;
           end;
@@ -6188,8 +6040,8 @@ begin
 
       tsNegotiateIAC:
       begin
-        case c of
-          #$F0: //end sub-negotiation
+        case lb of
+          $F0: //end sub-negotiation
           begin
             State := tsData;
           end;
@@ -6200,8 +6052,8 @@ begin
 
       tsInterrupt:
       begin
-        case c of
-          #$FF: //is a command?
+        case lb of
+          $FF: //is a command?
           begin
             State := tsInterruptIAC;
           end;
@@ -6210,8 +6062,8 @@ begin
 
       tsInterruptIAC:
       begin
-        case c of
-          #$F2: //data mark
+        case lb of
+          $F2: //data mark
           begin
             State := tsData;
           end;
@@ -6222,26 +6074,28 @@ begin
       State := tsData;
     end;
 
-  until ((c = #10) and (State = tsData)) or (not AContext.Connection.IOHandler.Connected);
-  //The last char was #13, we have to make sure that we remove a trailing #10 if it exists
-  //so that it doesn't appear in the next line.
-  if (c = #13) and (State = tsData) then
+  until Finished or (not AContext.Connection.IOHandler.Connected);
+
+  //The last char was #13, we have to make sure that we remove a trailing
+  //#10 if it exists so that it doesn't appear in the next line.
+  if (lb = $0D) and (State = tsData) then
   begin
     i := AContext.Connection.IOHandler.InputBuffer.Size;
-    if (i > 0) then
+    if i > 0 then
     begin
       lb := AContext.Connection.IOHandler.InputBuffer.PeekByte(i - 1);
-      if (lb = 10) then begin
-        AContext.Connection.IOHandler.ReadChar;
+      if lb = $0A then begin
+        AContext.Connection.IOHandler.ReadByte;
       end;
     end;
   end;
+
+  Result := BytesToString(LLine, 0, MaxInt, cEncoding[LContext.UseUtf8]);
 end;
 
-procedure TIdFTPServer.DoReplyUnknownCommand(AContext: TIdContext;
-  ALine: string);
+procedure TIdFTPServer.DoReplyUnknownCommand(AContext: TIdContext; ALine: string);
 begin
-  CmdSyntaxError(AContext,ALine);
+  CmdSyntaxError(AContext, ALine);
 end;
 
 procedure TIdFTPServer.DoTerminateContext(AContext: TIdContext);
@@ -6279,7 +6133,7 @@ end;
 
 procedure TIdFTPServer.CmdSyntaxError(ASender: TIdCommand);
 begin
-  CmdSyntaxError(ASender.Context, ASender.RawLine, Self.FReplyUnknownCommand );
+  CmdSyntaxError(ASender.Context, ASender.RawLine, FReplyUnknownCommand );
   ASender.PerformReply := False;
 end;
 
@@ -6287,36 +6141,29 @@ procedure TIdFTPServer.CommandSecRFC(ASender: TIdCommand);
 //stub for RFC 2228 commands that we don't implement as
 //part of the SSL framework.
 begin
-  if (IOHandler is TIdServerIOHandlerSSLBase) then
-  begin
+  if IOHandler is TIdServerIOHandlerSSLBase then begin
     CmdNotImplemented(ASender);
-  end
-  else
-  begin
+  end else begin
     CmdSyntaxError(ASender);
   end;
 end;
 
 procedure TIdFTPServer.CommandOptsMLST(ASender: TIdCommand);
-var
-  s: string;
-  LCxt : TIdFTPServerContext;
-
 const
   LVALIDOPTS : array [0..10] of string =
   ('type', 'size', 'modify', 'UNIX.mode', 'UNIX.owner', 'UNIX.group', 'unique', 'perm', 'create','windows.lastaccesstime','win32.ea'); {Do not localize}
+var
+  s: string;
+  LContext : TIdFTPServerContext;
 
   function ParseMLSParms(ASvr : TIdFTPServer; const AParms : String) : TIdFTPFactOutputs;
-  var Ls : String;
-
+  var
+    Ls : String;
   begin
     Result := [];
     Ls := UpperCase(AParms);
-    repeat
-      if Ls = '' then
-      begin
-        break;
-      end;
+    while Ls <> '' do
+    begin
       case PosInStrArray(Fetch(Ls,';'), LVALIDOPTS, False) of
         0 : Result := Result + [ItemType]; //type
         1 : Result := Result + [Size]; //size
@@ -6354,7 +6201,7 @@ const
               Result := Result + [WinAttribs];
             end;
       end;
-    until False;
+    end;
   end;
 
   function SetToOptsStr(AFacts : TIdFTPFactOutputs) : String;
@@ -6407,41 +6254,39 @@ const
   end;
 
 begin
-  LCxt := ASender.Context as TIdFTPServerContext;
+  LContext := ASender.Context as TIdFTPServerContext;
   s := ASender.UnparsedParams;
-  if IndyPos(' ',s)=0 then
+  if IndyPos(' ', s) = 0 then
   begin
-    LCxt.MLSOpts := ParseMLSParms(Self,Trim(s));
+    LContext.MLSOpts := ParseMLSParms(Self, Trim(s));
     //the string is standardized format
-    ASender.Reply.SetReply(200,Trim(IndyFormat('MLST OPTS %s',[SetToOptsStr(LCxt.MLSOpts)]))); {Do not Localize}
-  end
-  else
+    ASender.Reply.SetReply(200, Trim(IndyFormat('MLST OPTS %s', [SetToOptsStr(LContext.MLSOpts)]))); {Do not Localize}
+  end else
   begin
-    ASender.Reply.SetReply(501, IndyFormat(RSFTPInvalidOps,['MLST'])); {Do not Localize}
+    ASender.Reply.SetReply(501, IndyFormat(RSFTPInvalidOps, ['MLST'])); {Do not Localize}
   end;
 end;
 
 procedure TIdFTPServer.CommandOptsMODEZ(ASender: TIdCommand);
+const
+  OPT_NAMES : Array[0..4] of String =
+    ('ENGINE','LEVEL','METHOD','BLOCKSIZE','EXTRA'); {do not localize}
 var
   s: string;
   LOptName, LOptVal : String;
-  LCxt : TIdFTPServerContext;
+  LContext : TIdFTPServerContext;
   LFirstPar : Boolean;
   LError : Boolean;
   LNoVal : Integer;
   LReset : Boolean;
-
-const
-  OPT_NAMES : Array[0..4] of String =
-    ('ENGINE','LEVEL','METHOD','BLOCKSIZE','EXTRA'); {do not localize}
 
   procedure ReportSettings(ACxt : TIdFTPServerContext; AReply : TIdReply);
   begin
     AReply.NumericCode := 200;
     AReply.Text.Clear;
     AReply.Text.Add('MODE Z ENGINE set to ZLIB.');  {do not localize}
-    AReply.Text.Add('MODE Z LEVEL set to '+IntToStr(ACxt.FZLibCompressionLevel)+'.'); {do not localize}
-    AReply.Text.Add('MODE Z METHOD set to '+IntToStr(DEF_ZLIB_METHOD)+'.'); {do not localize}
+    AReply.Text.Add('MODE Z LEVEL set to ' + IntToStr(ACxt.FZLibCompressionLevel) + '.'); {do not localize}
+    AReply.Text.Add('MODE Z METHOD set to ' + IntToStr(DEF_ZLIB_METHOD) + '.'); {do not localize}
   end;
 
   procedure SyntaxError(AReply : TIdCommand);
@@ -6452,18 +6297,18 @@ const
     LOpts := ASender.RawLine;
     Fetch(LOpts);
     LOpts := TrimLeft(LOpts);
-    ASender.Reply.SetReply(501, IndyFormat(RSFTPInvalidOps,[LOpts]));
+    ASender.Reply.SetReply(501, IndyFormat(RSFTPInvalidOps, [LOpts]));
   end;
 
 begin
   LFirstPar := True;
   LReset := True;
   LError := True;
-  LCxt := ASender.Context as TIdFTPServerContext;
+  LContext := ASender.Context as TIdFTPServerContext;
   s := Trim(ASender.UnparsedParams);
   if s = '' then begin
-    LCxt.ResetZLibSettings;
-    ReportSettings(LCxt,ASender.Reply);
+    LContext.ResetZLibSettings;
+    ReportSettings(LContext, ASender.Reply);
   end;
   repeat
     LOptName := Fetch(s);
@@ -6491,7 +6336,7 @@ begin
       1 : begin  //,'LEVEL', - implemented
             LNoVal := IndyStrToInt(LOptVal, -1);
             if (LNoVal > -1) and (LNoVal < 8) then begin
-              LCxt.FZLibCompressionLevel := LNoVal;
+              LContext.FZLibCompressionLevel := LNoVal;
               LReset := False;
               LError := False;
             end;
@@ -6521,33 +6366,91 @@ begin
     Exit;
   end;
   if LReset then begin
-    LCxt.ResetZLibSettings;
+    LContext.ResetZLibSettings;
   end;
-  ReportSettings(LCxt,ASender.Reply);
+  ReportSettings(LContext, ASender.Reply);
 end;
 
-//This internal function is needed becaus epath processing is different in Windows
+procedure TIdFTPServer.CommandOptsUTF8(ASender: TIdCommand);
+var
+  s: String;
+  LContext: TIdFTPServerContext;
+
+  procedure SyntaxError(AReply : TIdCommand);
+  var
+    LOpts : String;
+  begin
+    //drop the OPTS part of the command for display
+    LOpts := ASender.RawLine;
+    Fetch(LOpts);
+    LOpts := TrimLeft(LOpts);
+    ASender.Reply.SetReply(501, IndyFormat(RSFTPInvalidOps, [LOpts]));
+  end;
+
+begin
+  LContext := ASender.Context as TIdFTPServerContext;
+  s := Trim(ASender.UnparsedParams);
+  if s = '' then
+  begin
+    // not sure if this is accurate.  The parameter
+    // of both OPTS UTF8 and OPTS UTF-8 is optional
+    LContext.NLSTUtf8 := False;
+    LContext.UseUtf8 := False;
+  end else
+  begin
+    if TextIsSame(ASender.CommandHandler.Command, 'UTF-8') then
+    begin
+      if not TextIsSame(s, 'NLST') then
+      begin
+        SyntaxError(ASender);
+        Exit;
+      end;
+      LContext.NLSTUtf8 := True;
+    end else
+    begin
+      case PosInStrArray(s, STATES, False) of
+        0: begin
+             LContext.NLSTUtf8 := True;
+             LContext.UseUtf8 := True;
+           end;
+        1: begin
+             LContext.UseUtf8 := False;
+           end;
+        else
+          begin
+            SyntaxError(ASender);
+            Exit;
+         end;
+      end;
+    end;
+  end;
+  ASender.Reply.NumericCode := 200;
+end;
+
+function TIdFTPServer.IgnoreLastPathDelim(const APath: String): String;
+//This internal function is needed because path processing is different in Windows
 //than in Linux.  The path separators on a FTP server on either system will be different.
 //
 //On Windows machines, both '/' and '\'
 //
 //On a Linux machine, a FTP server would probably only use '/' because '\' is a valid
 //filename char.
-function TIdFTPServer.IgnoreLastPathDelin(const APath: String): String;
 var
+  i : Integer;
   LPathProcessing : TIdFTPPathProcessing;
 begin
   Result := APath;
+  i := Length(Result);
   if FPathProcessing <> ftpOSDependent then
   begin
-    LPathProcessing := FPathProcessing;
+     LPathProcessing :=  FPathProcessing;
   end
   else
   begin
     case GOSType of
       otLinux :
       begin
-        LPathProcessing := ftppUnix;
+        LPathProcessing :=  ftppUnix;
       end;
       otUnknown :
       begin
@@ -6562,19 +6465,19 @@ begin
     begin
       if Result <>'' then
       begin
-        if CharIsInSet(Result, Length(Result), '/\') then
+        if CharIsInSet(Result, i, '/\') then
         begin
-          IdDelete(Result, Length(Result), 1);
+          IdDelete(Result, i, 1);
         end;
       end;
     end;
     ftppUnix :
     begin
-      if Result <> '' then
+      if Result <>'' then
       begin
         if TextEndsWith(Result, '/') then
         begin
-          IdDelete(Result, Length(Result), 1);
+          IdDelete(Result, i, 1);
         end;
       end;
     end;
@@ -6591,37 +6494,26 @@ begin
   end;
 end;
 
-function TIdFTPServer.SupportTaDirSwitches(ACxt : TIdFTPServerContext): Boolean;
+function TIdFTPServer.SupportTaDirSwitches(AContext : TIdFTPServerContext): Boolean;
 begin
   Result := True;
-  if (FDirFormat = ftpdfCustom ) or (FDirFormat = ftpdfEPLF) then
-  begin
-    Result := False;
-    Exit;
-  end;
-  if (FDirFormat = ftpdfDOS ) then
-  begin
-    if (ACxt.FMSDOSMode) then
-    begin
+  case FDirFormat of
+    ftpdfCustom, ftpdfEPLF:
       Result := False;
-    end;
-  end;
-  if (FDirFOrmat = ftpdfOSDependent) then
-  begin
-    if (GOSType=otWindows) or (GOSType=otDotNET) then
-    begin
-      if (ACxt.FMSDOSMode) then
-      begin
-        Result := False;
+    ftpdfDOS:
+      Result := not AContext.FMSDOSMode;
+    ftpdfOSDependent:
+      if (GOSType = otWindows) or (GOSType = otDotNET) then begin
+        Result := not AContext.FMSDOSMode;
       end;
-    end;
   end;
 end;
 
 { TIdFTPSecurityOptions }
 
 procedure TIdFTPSecurityOptions.Assign(Source: TPersistent);
-var LSrc : TIdFTPSecurityOptions;
+var
+  LSrc : TIdFTPSecurityOptions;
 begin
   if Source is TIdFTPSecurityOptions then
   begin
@@ -6681,8 +6573,7 @@ end;
 
 { TIdDataChannel }
 
-constructor TIdDataChannel.Create(APASV: Boolean;
-  AControlContext: TIdFTPServerContext;
+constructor TIdDataChannel.Create(APASV: Boolean; AControlContext: TIdFTPServerContext;
   const ARequirePASVFromSameIP: Boolean; AServer: TIdFTPServer);
 var
   LIO: TIdIOHandlerSocket;
@@ -6761,12 +6652,12 @@ end;
 
 function TIdDataChannel.GetPeerIP: String;
 begin
-  result := '';
+  Result := '';
   if Assigned(FDataChannel) then
   begin
-    if Assigned( FDataChannel.Socket ) then
+    if Assigned(FDataChannel.Socket) then
     begin
-      if Assigned( FDataChannel.Socket.Binding ) then
+      if Assigned(FDataChannel.Socket.Binding) then
       begin
         Result := FDataChannel.Socket.Binding.PeerIP;
       end;
@@ -6779,9 +6670,9 @@ begin
   result := 0;
   if Assigned(FDataChannel) then
   begin
-    if Assigned( FDataChannel.Socket ) then
+    if Assigned(FDataChannel.Socket) then
     begin
-      if Assigned( FDataChannel.Socket.Binding ) then
+      if Assigned(FDataChannel.Socket.Binding) then
       begin
         Result := FDataChannel.Socket.Binding.PeerPort;
       end;
@@ -6800,13 +6691,13 @@ begin
       if FRequirePASVFromSameIP then
       begin
         {//BGO}
-        if FControlContext.Binding.PeerIP<>TIdSimpleServer(FDataChannel).Binding.PeerIp then
+        if FControlContext.Binding.PeerIP <> TIdSimpleServer(FDataChannel).Binding.PeerIP then
         begin
           TIdFTPServerContext(FControlContext).FDataPortDenied := True;
-          ErrorReply.SetReply(504,RSFTPSameIPAddress);
+          ErrorReply.SetReply(504, RSFTPSameIPAddress);
           FControlContext.Connection.IOHandler.Write(ErrorReply.FormattedReply);
           TIdSimpleServer(FDataChannel).Disconnect;
-          exit;
+          Exit;
         end;
       end;
         {//BGO}
@@ -6850,7 +6741,7 @@ begin
 end;
 
 procedure TIdDataChannel.SetPortParameters(const AIP: string;
-  const APort: Integer; const AIPVersion: TIdIPVersion);
+  const APort: TIdPort; const AIPVersion: TIdIPVersion);
 begin
   if FDataChannel is TIdTCPClient then
   begin
