@@ -19,12 +19,13 @@
 unit IdTraceRoute;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdICMPClient, IdRawBase, IdRawClient, IdThread;
 
 type
-
   TIdTraceRoute = class(TIdCustomICMPClient)
   protected
     FIPAddr : String;
@@ -39,29 +40,28 @@ type
 
 implementation
 
-uses IdStack;
+uses
+  IdGlobal, IdStack;
 
 { TIdTraceRoute }
 
 procedure TIdTraceRoute.DoReply;
 begin
-  if FResolveHostNames and (FReplyStatus.FromIpAddress<>'0.0.0.0') and
-  (FReplyStatus.FromIpAddress<>'::0') then
+  if FResolveHostNames and
+    (PosInStrArray(FReplyStatus.FromIpAddress, ['0.0.0.0', '::0']) = -1) then {do not localize}
   begin
     //resolve IP to hostname
     try
-      FReplyStatus.HostName := GStack.HostByAddress(FReplyStatus.FromIpAddress,FBinding.IPVersion);
+      FReplyStatus.HostName := GStack.HostByAddress(FReplyStatus.FromIpAddress, FBinding.IPVersion);
     except
-{
-We do things this way because we are likely have a reverse DNS
-failure if you have a computer with IP address and no DNS name at all.
-
-}
+      {
+      We do things this way because we are likely have a reverse DNS
+      failure if you have a computer with IP address and no DNS name at all.
+      }
       FReplyStatus.HostName := FReplyStatus.FromIpAddress;
     end;
   end;
   inherited DoReply;
-
 end;
 
 procedure TIdTraceRoute.Trace;
@@ -77,7 +77,7 @@ begin
 //  PacketSize := 64;
 //We do things this way because we only want to resolve the destination host name
 //only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
-  FIPAddr :=  GStack.ResolveHost(FHost,FBinding.IPVersion);
+  FIPAddr := GStack.ResolveHost(FHost, FBinding.IPVersion);
   try
 
    LSeq := $1;
@@ -86,12 +86,12 @@ begin
    for i := 1 to 30 do
    begin
      ReplyStatus.PacketNumber := i;
-     InternalPing(FIPAddr,'',LSeq);
+     InternalPing(FIPAddr, '', LSeq);
      case ReplyStatus.ReplyStatusType of
        rsErrorTTLExceeded,
        rsTimeout : ;
      else
-       break;
+       Break;
      end;
 
      Inc(LTTL);
