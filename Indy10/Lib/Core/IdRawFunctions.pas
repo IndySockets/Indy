@@ -236,7 +236,7 @@ var
 begin
   // check input
   LIdx := Id_IP_HSIZE + Length(APayload) + AIdx;
-   LLen := Length(VBuffer);
+  LLen := Length(VBuffer);
   if  LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
@@ -345,12 +345,12 @@ procedure IdRawBuildIcmpUnreach(AType, ACode: Byte; AnOrigLen: Word;
 var
   HdrIcmp: TIdIcmpHdr;
   LIdx: LongWord;
-  Llen : LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + 2;
-  Llen :=  Length(VBuffer);
-  if Llen < LIdx then begin
+  LLen :=  Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -415,11 +415,11 @@ procedure IdRawBuildIcmpTimestamp(const AType, ACode: Byte; const AnId, ASeq: Wo
   var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx, Llen : LongWord;
+  LIdx, LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_UNREACH_HSIZE + Id_IP_HSIZE + Length(APayload);
-  Llen :=  Length(VBuffer);
+  LLen :=  Length(VBuffer);
   if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
@@ -454,13 +454,12 @@ procedure IdRawBuildIcmpRedirect(const AType, ACode: Byte; AGateway: TIdInAddr;
   const AnOrigPayload: TIdBytes; var VBuffer: TIdBytes);
 var
   HdrIcmp: TIdIcmpHdr;
-  LIdx, Llen : LongWord;
-
+  LIdx, LLen : LongWord;
 begin
   // check input
   LIdx := Id_ICMP_REDIRECT_HSIZE + Length(AnOrigPayload) + Id_IP_HSIZE;
-  Llen := Length(VBuffer);
-  if Llen < LIdx then begin
+  LLen := Length(VBuffer);
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -523,12 +522,12 @@ procedure IdRawBuildRip(const ACommand, AVersion: Byte;
 var
   HdrRip: TIdRipHdr;
   LIdx: LongWord;
-  Llen : LongWord;
+  LLen : LongWord;
 begin
   // check input
   LIdx := Id_RIP_HSIZE + Length(APayload);
   LLen := Length(VBuffer);
-  if Llen < LIdx then begin
+  if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
 
@@ -569,7 +568,7 @@ var
 begin
   // check input
   LIdx := Id_TCP_HSIZE + Length(VBuffer);
-  Llen :=  Length(VBuffer);
+  LLen :=  Length(VBuffer);
   if LLen < LIdx then begin
     SetLength(VBuffer, LIdx);
   end;
