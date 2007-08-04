@@ -513,9 +513,9 @@ begin
     FByteArray[Index] := Value;
     NewIP := FValue.s_l;
     if Value then begin
-      NewIP := NewIP + (1 shl index);
+      NewIP := NewIP + LongWord(1 shl index);
     end else begin
-      NewIP := NewIP - (1 shl index);
+      NewIP := NewIP - LongWord(1 shl index);
     end;
     SetAsDoubleWord(NewIP);
   end;
