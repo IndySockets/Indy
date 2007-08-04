@@ -552,19 +552,24 @@ end;
 
 function TIdStack.CheckForSocketError(const AResult: Integer): Integer;
 begin
+  {$IFNDEF DOTNET}
   if AResult = Id_SOCKET_ERROR then begin
     RaiseLastSocketError;
   end;
+  {$ENDIF}
   Result := AResult;
 end;
 
 function TIdStack.CheckForSocketError(const AResult: Integer;
   const AIgnore: array of integer): Integer;
+ {$IFNDEF DOTNET}
 var
   i: Integer;
   LLastError: Integer;
+{$ENDIF}
 begin
   Result := AResult;
+    {$IFNDEF DOTNET}
   if AResult = Id_SOCKET_ERROR then begin
     LLastError := WSGetLastError;
     for i := Low(AIgnore) to High(AIgnore) do begin
@@ -575,6 +580,7 @@ begin
     end;
     RaiseSocketError(LLastError);
   end;
+  {$ENDIF}
 end;
 
 procedure TIdStack.RaiseLastSocketError;
