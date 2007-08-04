@@ -23,6 +23,7 @@
 unit IdHMAC;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -43,6 +44,7 @@ type
     FKey: TIdBytes;
     FHash: TIdHash;
     FHashName: string;
+    procedure InitHash; virtual; abstract;
     procedure InitKey;
   public
     constructor Create; virtual;
@@ -55,7 +57,9 @@ type
   end;
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
 
 { TIdHMACKeyBuilder }
 
@@ -64,8 +68,7 @@ var
   I: Integer;
 begin
   SetLength(Result, ASize);
-  for I := Low(Result) to High(Result) do
-  begin
+  for I := Low(Result) to High(Result) do begin
     Result[I] := Byte(Random(255));
   end;
 end;
@@ -75,8 +78,7 @@ var
   I: Integer;
 begin
   SetLength(Result, ASize);
-  for I := Low(Result) to High(Result) do
-  begin
+  for I := Low(Result) to High(Result) do begin
     Result[I] := Byte(Random(255));
   end;
 end;
@@ -87,8 +89,7 @@ constructor TIdHMAC.Create;
 begin
   inherited Create;
   SetLength(FKey, 0);
-  FHashSize := 0;
-  FBlockSize := 0;
+  InitHash;
 end;
 
 destructor TIdHMAC.Destroy;
@@ -136,19 +137,16 @@ end;
 
 procedure TIdHMAC.InitKey;
 begin
-  if FKey = nil then
-  begin
+  if FKey = nil then begin
     TIdHMACKeyBuilder.Key(FHashSize);
   end
-  else
+  else if Length(FKey) > FBlockSize then
   begin
-    if Length(FKey) > FBlockSize then
-    begin
-      FKey := FHash.HashBytes(FKey);
-    end;
+    FKey := FHash.HashBytes(FKey);
   end;
 end;
 
 initialization
   Randomize;
+
 end.

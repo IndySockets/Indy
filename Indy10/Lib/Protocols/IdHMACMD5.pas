@@ -23,6 +23,7 @@
 unit IdHMACMD5;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -30,21 +31,20 @@ uses
 
 type
   TIdHMACMD5 = class(TIdHMAC)
-  public
-    constructor Create; override;
+  protected
+    procedure InitHash; override;
   end;
 
 implementation
 
 { TIdHMACMD5 }
 
-constructor TIdHMACMD5.Create;
+procedure TIdHMACMD5.InitHash;
 begin
-  inherited Create;
-  FHash := TIdHashMessageDigest5.Create;
   FHashName := 'MD5';
   FHashSize := 16;
   FBlockSize := 64;
+  FHash := TIdHashMessageDigest5.Create;
 end;
 
 end.

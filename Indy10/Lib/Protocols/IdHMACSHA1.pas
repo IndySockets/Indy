@@ -23,6 +23,7 @@
 unit IdHMACSHA1;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -30,24 +31,24 @@ uses
 
 type
   TIdHMACSHA1 = class(TIdHMAC)
-  public
-    constructor Create; override;
+  protected
+    procedure InitHash; override;
   end;
 
 implementation
 
 { TIdHMACSHA1 }
 
-constructor TIdHMACSHA1.Create;
+procedure TIdHMACSHA1.InitHash;
 begin
-  inherited Create;
+  inherited;
   FHash := TIdHashSHA1.Create;
-  FHashName := 'SHA1';
   FHashSize := 20;
   FBlockSize := 64;
+  FHashName := 'SHA1';
 end;
 
-
 initialization
+  // RLebeau: why do this?
   TIdHMACSHA1.Create.Destroy;
 end.
