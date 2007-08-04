@@ -191,17 +191,15 @@ type
     procedure SetTransparentProxy(AProxy: TIdCustomTransparentProxy); virtual;
     procedure SetUseNagle(AValue: Boolean);
     procedure SetNagleOpt(AEnabled: Boolean);
+    //
+    function SourceIsAvailable: Boolean; override;
   public
     destructor Destroy; override;
     function BindingAllocated: Boolean;
     procedure Close; override;
     function Connected: Boolean; override;
     procedure Open; override;
-    function WriteFile(
-      const AFile: String;
-      AEnableTransferFile: Boolean = False
-      ): Int64;
-      override;
+    function WriteFile(const AFile: String; AEnableTransferFile: Boolean = False): Int64; override;
     //
     property Binding: TIdSocketHandle read FBinding;
     property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax;
@@ -216,8 +214,7 @@ type
     property DefaultPort: TIdPort read FDefaultPort write FDefaultPort;
     property IPVersion: TIdIPVersion read FIPVersion write FIPVersion default ID_DEFAULT_IP_VERSION;
     property ReuseSocket: TIdReuseSocket read FReuseSocket write FReuseSocket default rsOSDependent;
-    property TransparentProxy: TIdCustomTransparentProxy
-             read GetTransparentProxy write SetTransparentProxy;
+    property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
     property UseNagle: boolean read FUseNagle write SetUseNagle default True;
   end;
 
@@ -267,7 +264,7 @@ end;
 
 function TIdIOHandlerSocket.Connected: Boolean;
 begin
-  Result := (BindingAllocated and inherited Connected) or not InputBufferIsEmpty;
+  Result := (BindingAllocated and inherited Connected) or (not InputBufferIsEmpty);
 end;
 
 destructor TIdIOHandlerSocket.Destroy;
@@ -329,13 +326,14 @@ begin
 end;
 
 procedure TIdIOHandlerSocket.SetDestination(const AValue: string);
-var LPortStart:integer;
+var
+  LPortStart: integer;
 begin
   // Bas Gooijen 06-Dec-2002: Changed to search the last ':', instead of the first:
   LPortStart := LastDelimiter(':', AValue);
   if LPortStart > 0 then begin
-    Host := Copy(AValue,1,LPortStart-1);
-    Port := IndyStrToInt(Copy(AValue, LPortStart + 1, $FF), DefaultPort);
+    Host := Copy(AValue, 1, LPortStart-1);
+    Port := IndyStrToInt(Trim(Copy(AValue, LPortStart + 1, $FF)), DefaultPort);
   end;
 end;
 
@@ -348,24 +346,19 @@ begin
 end;
 
 function TIdIOHandlerSocket.WriteFile(const AFile: String;
- AEnableTransferFile: Boolean): Int64;
-var
-  LProcessed: Boolean;
+  AEnableTransferFile: Boolean): Int64;
 begin
-  Result := 0;
-  LProcessed := False;
+// TODO: Reenable this
+//  Result := 0;
 //  if FileExists(AFile) then begin
-  //TODO: Reenable this
-//    if Assigned(GServeFileProc) and (WriteBufferingActive = False)
+//    if Assigned(GServeFileProc) and (not WriteBufferingActive)
 //     {and (Intercept = nil)} and AEnableTransferFile
 //     then begin
 //      Result := GServeFileProc(Binding.Handle, AFile);
-//      LProcessed := True;
+//      Exit;
 //    end;
 //  end;
-  if not LProcessed then begin
-    Result := inherited WriteFile(AFile, AEnableTransferFile);
-  end;
+  Result := inherited WriteFile(AFile, AEnableTransferFile);
 end;
 
 procedure TIdIOHandlerSocket.SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
@@ -445,6 +438,11 @@ begin
   inherited InitComponent;
   FUseNagle := True;
   FIPVersion := ID_DEFAULT_IP_VERSION;
+end;
+
+function TIdIOHandlerSocket.SourceIsAvailable: Boolean;
+begin
+  Result := BindingAllocated;
 end;
 
 end.
