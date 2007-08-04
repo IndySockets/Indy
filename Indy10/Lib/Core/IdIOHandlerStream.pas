@@ -113,7 +113,7 @@
 }
 
 unit IdIOHandlerStream;
-{$I IdCompilerDefines.inc}
+
 interface
 
 uses
@@ -137,8 +137,9 @@ type
     FSendStream: TStream;
     FStreamType: TIdIOHandlerStreamType;
     //
-    function ReadFromSource(ARaiseExceptionIfDisconnected: Boolean = True;
-      ATimeout: Integer = IdTimeoutDefault; ARaiseExceptionOnTimeout: Boolean = True): Integer; override;
+    function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
+    function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
+    function SourceIsAvailable: Boolean; override;
   public
     procedure CheckForDataOnSource(ATimeout: Integer = 0); override;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
@@ -149,7 +150,6 @@ type
     procedure Close; override;
     procedure Open; override;
     function Readable(AMSec: integer = IdTimeoutDefault): boolean; override;
-    procedure WriteDirect(var ABuffer: TIdBytes); override;
     //
     property ReceiveStream: TStream read FReceiveStream;
     property SendStream: TStream read FSendStream;
@@ -161,7 +161,10 @@ type
   end;
 
 implementation
-uses SysUtils;
+
+uses
+  SysUtils;
+
 { TIdIOHandlerStream }
 
 procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
@@ -248,38 +251,29 @@ begin
   end;
 end;
 
-function TIdIOHandlerStream.ReadFromSource(ARaiseExceptionIfDisconnected: Boolean;
-  ATimeout: Integer; ARaiseExceptionOnTimeout: Boolean): Integer;
-var
-  LBuffer: TIdBytes;
+function TIdIOHandlerStream.ReadDataFromSource(var VBuffer: TIdBytes): Integer;
 begin
-  Result := 0;
-  if Assigned(ReceiveStream) then begin
-    // We dont want to read the whole stream in at a time. If its a big file will consume way too
-    // much memory by loading it all at once. So lets read it in chunks.
-    Result := Min(32 * 1024, FReceiveStream.Size - FReceiveStream.Position);
-    if Result > 0 then begin
-      SetLength(LBuffer, Result);
-      TIdStreamHelper.ReadBytes(FReceiveStream, LBuffer, Result);
-      if Intercept <> nil then begin
-        Intercept.Receive(LBuffer);
-        Result := Length(LBuffer);
-      end;
-      if Result > 0 then begin
-        FInputBuffer.Write(LBuffer);
-      end;
-    end;
-  end else begin
-    FInputBuffer.Clear;
+  // We dont want to read the whole stream in at a time. If its a big
+  // file will consume way too much memory by loading it all at once.
+  // So lets read it in chunks.
+  Result := Min(32 * 1024, Length(VBuffer));
+  if Result > 0 then begin
+    Result := TIdStreamHelper.ReadBytes(FReceiveStream, VBuffer, Result);
   end;
 end;
 
-procedure TIdIOHandlerStream.WriteDirect(var ABuffer: TIdBytes);
+function TIdIOHandlerStream.WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer;
 begin
-  inherited WriteDirect(ABuffer);
   if Assigned(FSendStream) then begin
-    TIdStreamHelper.Write(FSendStream, ABuffer, Length(ABuffer));
+    Result := TIdStreamHelper.Write(FSendStream, ABuffer, ALength, AOffset);
+  end else begin
+    Result := 0;
   end;
+end;
+
+function TIdIOHandlerStream.SourceIsAvailable: Boolean;
+begin
+  Result := Assigned(ReceiveStream);
 end;
 
 end.
