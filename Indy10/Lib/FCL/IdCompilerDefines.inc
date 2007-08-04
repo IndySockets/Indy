@@ -222,9 +222,6 @@
   {$ENDIF}
 {$ENDIF}
 
-
-
-
 {$IFDEF CIL}
   {$DEFINE WIDGETWINFORMS}
 {$ENDIF}
