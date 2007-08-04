@@ -58,6 +58,7 @@ unit IdFinger;
 {*******************************************************}
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -107,7 +108,8 @@ end;
 {This is the method used for retreiving Finger Data which is returned in the
  result}
 function TIdFinger.Finger: String;
-var QStr : String;
+var
+  QStr : String;
 begin
   QStr := FQuery;
   if VerboseOutPut then
@@ -132,20 +134,19 @@ begin
 end;
 
 procedure TIdFinger.SetCompleteQuery(AQuery: String);
-var p : Integer;
+var
+  p : Integer;
 begin
   p := RPos('@', AQuery, -1);       {Do not Localize}
-  if (p <> 0) then begin
-    if ( p < Length ( AQuery ) ) then
+  if p <> 0 then begin
+    if p < Length(AQuery) then
     begin
-      Host := Copy(AQuery, p + 1, Length ( AQuery ) );
-    end; // if ( p < Length ( AQuery ) ) then
-    FQuery := Copy(AQuery, 1, p - 1);
-  end  //if (p <> 0) then begin
-  else
-  begin
+      Host := Copy(AQuery, p+1, MaxInt);
+    end;
+    FQuery := Copy(AQuery, 1, p-1);
+  end else begin
     FQuery := AQuery;
-  end;  //else..if (p <> 0) then begin
+  end;
 end;
 
 end.
