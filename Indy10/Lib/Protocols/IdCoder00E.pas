@@ -35,52 +35,77 @@
 unit IdCoder00E;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
-  IdCoder3to4, IdGlobal;
+  IdCoder3to4;
 
 type
   TIdDecoder00E = class(TIdDecoder4to3)
   public
-    procedure Decode(const AIn: string; const AStartPos: Integer = 1;
-     const ABytes: Integer = -1); override;
+    procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
   end;
 
   TIdEncoder00E = class(TIdEncoder3to4)
   public
-    function Encode(ASrcStream: TStream; const ABytes: Integer = MaxInt)
-     : string; override;
+    procedure Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1); override;
   end;
 
 implementation
 
+uses
+  IdGlobal,
+  IdStream,
+  SysUtils;
+
 { TIdDecoder00E }
 
-procedure TIdDecoder00E.Decode(const AIn: string; const AStartPos: Integer = 1;
- const ABytes: Integer = -1);
+procedure TIdDecoder00E.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
+var
+  LBuf: TIdBytes;
 begin
-  if ABytes <> -1 then begin
-    inherited Decode(AIn, AStartPos, ABytes);
-  end else if AIn <> '' then begin
+  if ABytes < 0 then begin
+    inherited Decode(ASrcStream, ABytes);
+  end
+  else if ABytes > 0 then begin
     //Param 2 - Start at second char since 00E's have byte 1 as length
     //Param 3 - Get expected length of input. This is length in bytes, not chars
-    inherited Decode(AIn, 2, FDecodeTable[Ord(AIn[1])]);
+    TIdStreamHelper.ReadBytes(ASrcStream, LBuf, 1);
+    inherited Decode(ASrcStream, FDecodeTable[Ord(LBuf[0])]);
   end;
 end;
 
 { TIdEncoder00E }
 
-function TIdEncoder00E.Encode(ASrcStream: TStream; const ABytes: integer): string;
+procedure TIdEncoder00E.Encode(ASrcStream, ADestStream: TStream; const ABytes: Integer = -1);
 var
-  LStart, LSize: Int64;
+  LStream: TMemoryStream;
+  LSize: Int64;
+  LBuf: TIdBytes;
 begin
-  LStart := ASrcStream.Position;
-  Result := inherited Encode(ASrcStream, ABytes);
-  LSize := ASrcStream.Position-LStart;
-  Assert(LSize<High(Integer));
-  Result := FCodingTable[Integer(LSize) + 1] + Result;
+  SetLength(LBuf, 1024);
+  LStream := TMemoryStream.Create;
+  try
+    LBuf[0] := 0;
+    TIdStreamHelper.Write(LStream, LBuf, 1);
+    inherited Encode(ASrcStream, LStream, ABytes);
+    LSize := LStream.Size - 1;
+    Assert(LSize<High(Integer));
+    LBuf[0] := Byte(FCodingTable[Integer(LSize) + 1]);
+    LStream.Position := 0;
+    TIdStreamHelper.Write(LStream, LBuf, 1);
+    LStream.Position := 0;
+    repeat
+      LSize := TIdStreamHelper.ReadBytes(LStream, LBuf, Length(LBuf));
+      if LSize > 0 then begin
+        TIdStreamHelper.Write(ADestStream, LBuf, Integer(LSize));
+      end;
+    until LSize = 0;
+  finally
+    FreeAndNil(LStream);
+  end;
 end;
 
 end.

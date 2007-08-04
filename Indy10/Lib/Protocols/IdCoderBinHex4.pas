@@ -45,7 +45,6 @@
 
 unit IdCoderBinHex4;
 
-
 {
   Written by Ciaran Costelloe, ccostelloe@flogas.ie, December 2003.
   Based on TIdCoderMIME, derived from TIdCoder3to4, derived from TIdCoder.
@@ -149,32 +148,34 @@ unit IdCoderBinHex4;
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
   Classes,
   IdException,
-  IdStream,
   IdCoder,
   IdCoder3to4,
-  IdGlobal;
+  IdGlobal,
+  IdStream,
+  SysUtils;
 
 type
   TIdEncoderBinHex4 = class(TIdEncoder3to4)
   protected
-    function GetCRC(ABlock: TIdBytes): word;
-    procedure AddByteCRC(var ACRC: word; AByte: Byte);
+    function GetCRC(const ABlock: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Word;
+    procedure AddByteCRC(var ACRC: Word; AByte: Byte);
     procedure InitComponent; override;
   public
     //We cannot override Encode because we need different parameters...
     procedure EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
   end;
+
   TIdDecoderBinHex4 = class(TIdDecoder4to3)
   protected
     procedure InitComponent; override;
   public
-    procedure Decode(const AIn: string; const AStartPos: Integer = 1;
-     const ABytes: Integer = -1); override;
+    procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); override;
   end;
 
 const
@@ -203,56 +204,58 @@ begin
   FFillChar := '=';  {Do not Localize}
 end;
 
-procedure TIdDecoderBinHex4.Decode(const AIn: string; const AStartPos: Integer = 1;
-  const ABytes: Integer = -1);
+procedure TIdDecoderBinHex4.Decode(ASrcStream: TStream; const ABytes: Integer = -1);
 var
   LCopyToPos: integer;
   LIn : TIdBytes;
+  LInSize: Integer;
   LOut: TIdBytes;
-  LN: integer;
-  LM: integer;
-  LRepetition: integer;
-  LForkLength: integer;
+  LN: Integer;
+  LRepetition: Integer;
+  LForkLength: Integer;
 begin
-  if AIn = '' then Exit;
-  LIn := ToBytes(AIn);
+  LInSize := IndyLength(ASrcStream, ABytes);
+  if LInSize <= 0 then begin
+    Exit;
+  end;
+
+  SetLength(LIn, LInSize);
+  TIdStreamHelper.ReadBytes(ASrcStream, LIn, LInSize);
 
   //We don't need to check if the identification string is present, since the
   //attachment is bounded by a : at the start and end, and the identification
   //string may have been stripped off already.
   //While we are at it, remove all the CRs and LFs...
   LCopyToPos := -1;
-  for LN := 0 to Length(LIn)-1 do begin
+  for LN := 0 to LInSize-1 do begin
     if LIn[LN] = 58 then begin  //Ascii 58 is a colon :
       if LCopyToPos = -1 then begin
         //This is the start of the file...
         LCopyToPos := 0;
       end else begin
         //This is the second :, i.e. the end of the file...
-        SetLength(Lin, LCopyToPos);
+        SetLength(LIn, LCopyToPos);
         LCopyToPos := -2; //Flag that we got an end marker
-        break;
+        Break;
       end;
     end else begin
-      if LCopyToPos > -1 then begin
-        if ((LIn[LN] <> 13) and (LIn[LN] <> 10)) then begin
-          LIn[LCopyToPos] := LIn[LN];
-          Inc(LCopyToPos);
-        end;
+      if (LCopyToPos > -1) and (not ByteIsInEOL(LIn, LN)) then begin
+        LIn[LCopyToPos] := LIn[LN];
+        Inc(LCopyToPos);
       end;
     end;
   end;
-  //Did we get the start and end : ?
-  if LCopyToPos = -1 then begin
-    //We did not get the initial :
-    raise EIdMissingColon.Create('Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
-  end else if LCopyToPos <> -2 then begin
-    //We did not get the terminating :
-    raise EIdMissingColon.Create('Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
+
+  //did we get the initial colon?
+  EIdMissingColon.IfFalse(LCopyToPos <> -1, 'Block passed to TIdDecoderBinHex4.Decode is missing a starting colon :');    {Do not Localize}
+  //did we get the terminating colon?
+  EIdMissingColon.IfFalse(LCopyToPos = -2, 'Block passed to TIdDecoderBinHex4.Decode is missing a terminating colon :'); {Do not Localize}
+
+  if Length(LIn) = 0 then begin
+    Exit;
   end;
 
-  if Length(LIn) = 0 then Exit;
-  LOut := InternalDecode(LIn, AStartPos, ABytes);
+  LOut := InternalDecode(LIn);
 
   //Now expand the run-length encoding.
   //$90 is the marker, encoding is made for 3->255 characters
@@ -262,63 +265,54 @@ begin
   LN := 0;
   while LN < Length(LOut) do begin
     if LOut[LN] = $90 then begin
-      if LOut[LN+1] = 0 then begin
-        //The 90 is followed by an 00, so it is just a 90.  Remove the 00.
-        for LM := LN+1 to Length(LOut)- 2 do begin
-          LOut[LM] := LOut[LM+1];
-        end;
-        SetLength(LOut, Length(LOut)-1);
+      LRepetition := LOut[LN+1];
+      if LRepetition = 0 then begin
+        //90 is by itself, so just remove the 00
+        //22 90 00 -> 22 90
+        RemoveBytes(LOut, LN+1, 1);
         Inc(LN);  //Move past the $90
-      end else begin
-        LRepetition := LOut[LN+1];
-        if LRepetition = 1 then begin
-          //Not allowed: 22 90 01 -> 22
-          //Throw an exception or deal with it?  Deal with it.
-          for LM := LN to Length(LOut)- 3 do begin
-            LOut[LM] := LOut[LM+2];
-          end;
-          SetLength(LOut, Length(LOut)-2);
-        end else if LRepetition = 2 then begin
-          //Not allowed: 22 90 02 -> 22 22
-          //Throw an exception or deal with it?  Deal with it.
-          LOut[LN] := LOut[LN-1];
-          for LM := LN + 1 to Length(LOut)- 2 do begin
-            LOut[LM] := LOut[LM+1];
-          end;
-          SetLength(LOut, Length(LOut)-1);
-          Inc(LN);
-        end else if LRepetition = 3 then begin
-          //22 90 03 -> 22 22 22
-          LOut[LN] := LOut[LN-1];
-          LOut[LN+1] := LOut[LN-1];
-          Inc(LN, 2);
-        end else begin
-          //Repetition is 4 to 255: expand the sequence.
-          //22 90 04 -> 22 22 22 22
-          SetLength(LOut, Length(Lout) + LRepetition - 3);
-          //Move up the bytes AFTER our 22 90 04...
-          for LM := Length(LOut)-1 downto LN+2 do begin
-            LOut[LM] := LOut[LM-(LRepetition-3)];
-          end;
-          //Now that we have the space, expand our 22 90 04
-          for LM := LN to LN+LRepetition-2 do begin
-            LOut[LM] := LOut[LN-1];
-          end;
-          Inc(LN, LRepetition - 1);
-        end;
+      end
+      else if LRepetition = 1 then begin
+        //Not allowed: 22 90 01 -> 22
+        //Throw an exception or deal with it?  Deal with it.
+        RemoveBytes(LOut, LN, 2);
+      end
+      else if LRepetition = 2 then begin
+        //Not allowed: 22 90 02 -> 22 22
+        //Throw an exception or deal with it?  Deal with it.
+        LOut[LN] := LOut[LN-1];
+        RemoveBytes(LOut, LN+1, 1);
+        Inc(LN);
+      end
+      else if LRepetition = 3 then begin
+        //22 90 03 -> 22 22 22
+        LOut[LN] := LOut[LN-1];
+        LOut[LN+1] := LOut[LN-1];
+        Inc(LN, 2);
+      end
+      else begin
+        //Repetition is 4 to 255: expand the sequence.
+        //22 90 04 -> 22 22 22 22
+        LOut[LN] := LOut[LN-1];
+        LOut[LN+1] := LOut[LN-1];
+        ExpandBytes(LOut, LN+2, LRepetition-2, LOut[LN-1]);
+        Inc(LN, LRepetition-1);
       end;
     end else begin
       Inc(LN);
     end;
   end;
+
   //We are not finished yet.  Strip off the header, by calculating the offset
   //of the start of the attachment and it's length.
   LN := 1 + LOut[0];        //Length byte + length of filename
   Inc(LN, 1 + 4 + 4 + 2);   //Version, type, creator, flags
+  // TODO: use one of the BytesTo...() functions here instead?
   LForkLength := (((((LOut[LN]*256)+LOut[LN+1])*256)+LOut[LN+2])*256)+LOut[LN+3];
   Inc(LN, 4);               //Go past the data fork length
   if LForkLength = 0 then begin
     //No data fork present, save the resource fork instead...
+    // TODO: use one of the BytesTo...() functions here instead?
     LForkLength := (((((LOut[LN]*256)+LOut[LN+1])*256)+LOut[LN+2])*256)+LOut[LN+3];
   end;
   Inc(LN, 4);               //Go past the resource fork length
@@ -326,11 +320,7 @@ begin
 
   //At this point, LOut[LN] points to the actual data (the data fork, if there
   //is one, or else the resource fork if there is no data fork).
-  for LM := 0 to LForkLength-1 do begin
-    LOut[LM] := LOut[LM+LN];
-  end;
-  SetLength(LOut, LForkLength);
-  TIdStreamHelper.Write(FStream, LOut, LForkLength);
+  TIdStreamHelper.Write(FStream, LOut, LForkLength, LN);
 end;
 
 { TIdEncoderBinHex4 }
@@ -342,19 +332,23 @@ begin
   FFillChar := '=';   {Do not Localize}
 end;
 
-function TIdEncoderBinHex4.GetCRC(ABlock: TIdBytes): word;
+function TIdEncoderBinHex4.GetCRC(const ABlock: TIdBytes; const AOffset: Integer = 0;
+  const ASize: Integer = -1): Word;
 var
-  LCRC: word;
-  LN: integer;
+  LN: Integer;
+  LActual: Integer;
 begin
-  LCRC := 0;
-  for LN := 0 to Length(ABlock) do begin
-    AddByteCRC(LCRC, ABlock[LN]);
+  Result := 0;
+  LActual := IndyLength(ABlock, ASize, AOffset);
+  if LActual > 0 then
+  begin
+    for LN := 0 to LActual-1 do begin
+      AddByteCRC(Result, ABlock[AOffset+LN]);
+    end;
   end;
-  Result := LCRC;
 end;
 
-procedure TIdEncoderBinHex4.AddByteCRC(var ACRC: word; AByte: Byte);
+procedure TIdEncoderBinHex4.AddByteCRC(var ACRC: Word; AByte: Byte);
   //BinHex 4.0 uses a 16-bit CRC with an 0x1021 seed.
 var
   LWillShiftedOutBitBeA1: boolean;
@@ -373,22 +367,17 @@ end;
 
 procedure TIdEncoderBinHex4.EncodeFile(AFileName: string; ASrcStream: TStream; ADestStream: TStream);
 var
-  LN: integer;
-  LM: integer;
-  LOffset: integer;
-  LBlocks: integer;
+  LN: Integer;
+  LOffset: Integer;
+  LBlocks: Integer;
   LOut: TIdBytes;
-  LSSize, LTemp: Int64;
-  LFile: TIdBytes;
+  LSSize, LTemp: Integer;
   LFileName: string;
   LCRC: word;
-  LOutgoing: TIdBytes;
   LRemainder: integer;
 begin
   //Read in the attachment first...
-  LSSize := ASrcStream.Size;
-  SetLength(LFile, LSSize);
-  TIdStreamHelper.ReadBytes(ASrcStream,LFile,LSSize);
+  LSSize := Min(ASrcStream.Size - ASrcStream.Position, MaxInt);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
   if Length(AFileName) > 255 then begin
@@ -397,108 +386,82 @@ begin
     LFileName := AFileName;
   end;
   //Construct the header...
-  SetLength(LOut, 1+Length(LFileName)+1+4+4+2+4+4);
-  LOut[0] := Length(LFileName);               //Length of filename is 1st byte
+  SetLength(LOut, 1+Length(LFileName)+1+4+4+2+4+4+2+LSSize+2);
+  LOut[0] := Length(LFileName);         //Length of filename in 1st byte
   for LN := 1 to Length(LFileName) do begin
     LOut[LN] := Byte(LFileName[LN]);
   end;
-  LOffset := Length(LFileName)+1;             //Points to byte after filename
+  LOffset := 1+Length(LFileName);             //Points to byte after filename
   LOut[LOffset] := 0;                         //Version
-  for LN := 1 to 8 do begin
+  Inc(LOffset);
+  for LN := 0 to 7 do begin
     LOut[LOffset+LN] := 32;                   //Use spaces for Type & Creator
   end;
-  LOut[LOffset+9] := 0;                       //Flags
-  LOut[LOffset+10] := 0;                      //Flags
+  Inc(LOffset, 8);
+  LOut[LOffset] := 0;                         //Flags
+  LOut[LOffset] := 0;                         //Flags
+  Inc(LOffset, 2);
   LTemp := LSSize;
-  LOut[LOffset+14] := LTemp mod 256;          //Length of data fork
+  LOut[LOffset] := LTemp mod 256;             //Length of data fork
   LTemp := LTemp div 256;
-  LOut[LOffset+13] := LTemp mod 256;          //Length of data fork
+  LOut[LOffset+1] := LTemp mod 256;           //Length of data fork
   LTemp := LTemp div 256;
-  LOut[LOffset+12] := LTemp mod 256;          //Length of data fork
+  LOut[LOffset+2] := LTemp mod 256;           //Length of data fork
   LTemp := LTemp div 256;
-  LOut[LOffset+11] := LTemp;                  //Length of data fork
-  LOut[LOffset+15] := 0;                      //Length of resource fork
-  LOut[LOffset+16] := 0;                      //Length of resource fork
-  LOut[LOffset+17] := 0;                      //Length of resource fork
-  LOut[LOffset+18] := 0;                      //Length of resource fork
+  LOut[LOffset+3] := LTemp;                   //Length of data fork
+  Inc(LOffset, 4);
+  LOut[LOffset] := 0;                         //Length of resource fork
+  LOut[LOffset+1] := 0;                       //Length of resource fork
+  LOut[LOffset+2] := 0;                       //Length of resource fork
+  LOut[LOffset+3] := 0;                       //Length of resource fork
+  Inc(LOffset, 4);
   //Next comes the CRC for the header...
-  LCRC := GetCRC(LOut);
-  SetLength(LOut, Length(LOut)+2);
-  LOut[LOffset+20] := LCRC mod 256;           //CRC of data fork
+  LCRC := GetCRC(LOut, 0, LOffset);
+  LOut[LOffset] := LCRC mod 256;              //CRC of data fork
   LCRC := LCRC div 256;
-  LOut[LOffset+19] := LCRC;                   //CRC of data fork
+  LOut[LOffset+1] := LCRC;                    //CRC of data fork
+  Inc(LOffset, 2);
   //Next comes the data fork (we will not be using the resource fork)...
-  SetLength(LOut, Length(LOut) + LSSize + 2); //2 for the CRC
-  LOffset := LOffset + 21;  //LOut[LOffset] now points to where the attachment goes
   //Copy in the attachment...
-  LN := 0;
-  while LN < LSSize do begin
-    LOut[LN+LOffset] := LFile[LN];
-    LN := LN+1;
-  end;
-  LCRC := GetCRC(LFile);
-  SetLength(LFile, 0);
-  LOffset := LOffset + LSSize;
-  LOut[LOffset+1] := LCRC mod 256;            //CRC of data fork
+  TIdStreamHelper.ReadBytes(ASrcStream, LOut, LSSize, LOffset);
+  LCRC := GetCRC(LOut, LOffset, LSSize);
+  Inc(LOffset, LSSize);
+  LOut[LOffset] := LCRC mod 256;              //CRC of data fork
   LCRC := LCRC div 256;
-  LOut[LOffset] := LCRC;                      //CRC of data fork
+  LOut[LOffset+1] := LCRC;                    //CRC of data fork
+  Inc(LOffset, 2);
   //To prepare for the 3to4 encoder, make sure our block is a multiple of 3...
-  LOffset := Length(LOut) mod 3;
-  if LOffset > 0 then begin
-    SetLength(LOut, Length(LOut)+3-LOffset);
+  LSSize := LOffset mod 3;
+  if LSSize > 0 then begin
+    ExpandBytes(LOut, LOffset, 3-LSSize);
   end;
   //We now need to 3to4 encode LOut...
-  LOutgoing := EncodeIdBytes(LOut);
-  SetLength(LOut, 0);  //Free memory
+  LOut := InternalEncode(LOut);
   //Need to add a colon at the start & end of the block...
-  LSSize := Length(LOutgoing);
-  SetLength(LOutgoing, Length(LOutgoing)+2);
-  LN := LSSize;
-  while LN >= 0 do begin
-    LOutGoing[LN] := LOutgoing[LN-1];
-    LN := LN-1;
-  end;
-  LOutgoing[0] := 58;                    //58 = :
-  LOutgoing[Length(LOutgoing)-1] := 58;  //58 = :
+  InsertByte(LOut, 58, 0);
+  AppendByte(LOut, 58);
   //Expand any 90 to 90 00
   LN := 0;
-  while LN < Length(LOutgoing) do begin
-    if LOutgoing[LN] = $90 then begin
-      SetLength(LOutgoing, Length(LOutgoing)+1);
-      LM := Length(LOutgoing)-1;
-      while LM > LN + 1 do begin
-       LOutgoing[LM] := LOutgoing[LM-1];
-        Dec(LM);
-      end;
-      LOutgoing[LN+1] := 0;
+  while LN < Length(LOut) do begin
+    if LOut[LN] = $90 then begin
+      InsertByte(LOut, 0, LN+1);
+      Inc(LN);
     end;
     Inc(LN);
   end;
 
   WriteStringToStream(ADestStream, GBinHex4IdentificationString + EOL);
+
   //Put back in our CRLFs.  A max of 64 chars are allowed per line.
-  LBlocks := Length(LOutgoing); //The number of complete 64-char blocks
-  LBlocks := LBlocks div 64; //The number of complete 64-char blocks
-  SetLength(LOut, 64+2);
+  LBlocks := Length(LOut) div 64;
   for LN := 0 to LBlocks-1 do begin
-    LOffset := LN*64;
-    for LM := 0 to 63 do begin
-      LOut[LM] := LOutgoing[LM+LOffset];
-    end;
-    LOut[64] := 13;
-    LOut[65] := 10;
-    TIdStreamHelper.Write(ADestStream, LOut, 64 + 2);
+    TIdStreamHelper.Write(ADestStream, LOut, 64, LN*64);
+    WriteStringToStream(ADestStream, EOL);
   end;
-  LRemainder := Length(LOutgoing) mod 64;
+  LRemainder := Length(LOut) mod 64;
   if LRemainder > 0 then begin
-    SetLength(LOut, LRemainder+2);
-    LOffset := LBlocks*64;
-    for LM := 0 to LRemainder-1 do begin
-      LOut[LM] := LOutgoing[LM+LOffset];
-    end;
-    LOut[LRemainder] := 13;
-    LOut[LRemainder+1] := 10;
-    TIdStreamHelper.Write(ADestStream, LOut, LRemainder + 2);
+    TIdStreamHelper.Write(ADestStream, LOut, LRemainder, LBlocks*64);
+    WriteStringToStream(ADestStream, EOL);
   end;
 end;
 
