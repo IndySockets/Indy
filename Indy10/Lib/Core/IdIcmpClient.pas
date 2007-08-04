@@ -211,14 +211,12 @@ uses
 procedure TIdCustomIcmpClient.PrepareEchoRequest(const ABuffer: String);
 begin
   {$IFNDEF DOTNET1}
-  if IPVersion = Id_IPv4 then begin
-    PrepareEchoRequestIPv4(ABuffer);
-  end else begin
+  if IPVersion = Id_IPv6 then begin
     PrepareEchoRequestIPv6(ABuffer);
+    Exit;
   end;
-  {$ELSE}
-  PrepareEchoRequestIPv4(ABuffer);
   {$ENDIF}
+  PrepareEchoRequestIPv4(ABuffer);
 end;
 
 { TIdIPv4_ICMP }
@@ -247,9 +245,8 @@ end;
   
 destructor TIdIPv4_ICMP.Destroy;
 begin
-
-  FreeAndNil( Fip_hdr );
-  FreeAndNil( Ficmp_hdr);
+  FreeAndNil(Fip_hdr);
+  FreeAndNil(Ficmp_hdr);
   inherited Destroy;
 end;
 
@@ -284,25 +281,20 @@ begin
   if BytesRead = 0 then begin
     // Timed out
     FReplyStatus.MsRoundTripTime := GetTickDiff(FStartTime, Ticks);
+    FReplyStatus.BytesReceived   := 0;
     if IPVersion = Id_IPv4 then
     begin
-      FReplyStatus.BytesReceived   := 0;
       FReplyStatus.FromIpAddress   := '0.0.0.0';
       FReplyStatus.ToIpAddress     := '0.0.0.0';
-      FReplyStatus.MsgType         := 0;
-      FReplyStatus.SequenceId      := wSeqNo;
-      FReplyStatus.TimeToLive      := 0;
-      FReplyStatus.ReplyStatusType := rsTimeOut;
     end else
     begin
-      FReplyStatus.BytesReceived   := 0;
       FReplyStatus.FromIpAddress   := '::0';
       FReplyStatus.ToIpAddress     := '::0';
-      FReplyStatus.MsgType         := 0;
-      FReplyStatus.SequenceId      := wSeqNo;
-      FReplyStatus.TimeToLive      := 0;
-      FReplyStatus.ReplyStatusType := rsTimeOut;
     end;
+    FReplyStatus.MsgType         := 0;
+    FReplyStatus.SequenceId      := wSeqNo;
+    FReplyStatus.TimeToLive      := 0;
+    FReplyStatus.ReplyStatusType := rsTimeOut;
     Result := True;
   end else
   begin
@@ -341,25 +333,20 @@ begin
     FReplyStatus.Msg := RSICMPTimeout;
     // We caught a response that wasn't meant for this thread - so we must
     // make sure we don't report it as such in case we time out after this
+    FReplyStatus.BytesReceived   := 0;
     if IPVersion = Id_IPv4 then
     begin
-      FReplyStatus.BytesReceived   := 0;
       FReplyStatus.FromIpAddress   := '0.0.0.0';
       FReplyStatus.ToIpAddress     := '0.0.0.0';
-      FReplyStatus.MsgType         := 0;
-      FReplyStatus.SequenceId      := wSeqNo;
-      FReplyStatus.TimeToLive      := 0;
-      FReplyStatus.ReplyStatusType := rsTimeOut;
     end else
     begin
-      FReplyStatus.BytesReceived   := 0;
       FReplyStatus.FromIpAddress   := '::0';
       FReplyStatus.ToIpAddress     := '::0';
-      FReplyStatus.MsgType         := 0;
-      FReplyStatus.SequenceId      := wSeqNo;
-      FReplyStatus.TimeToLive      := 0;
-      FReplyStatus.ReplyStatusType := rsTimeOut;
     end;
+    FReplyStatus.MsgType         := 0;
+    FReplyStatus.SequenceId      := wSeqNo;
+    FReplyStatus.TimeToLive      := 0;
+    FReplyStatus.ReplyStatusType := rsTimeOut;
   until ATimeOut <= 0;
 end;
 
@@ -681,8 +668,7 @@ begin
       ICMP6_PACKET_TOO_BIG       : FReplyStatus.ReplyStatusType := rsErrorPacketTooBig;
       ICMP6_TIME_EXCEEDED        : FReplyStatus.ReplyStatusType := rsErrorTTLExceeded;
       ICMP6_PARAM_PROB           : FReplyStatus.ReplyStatusType := rsErrorParameter;
-    else
-      FReplyStatus.ReplyStatusType  := rsError;
+      else                         FReplyStatus.ReplyStatusType  := rsError;
     end;
     FReplyStatus.MsgType := LIcmp.icmp6_type; //picmp^.icmp_type;
     FReplyStatus.MsgCode := LIcmp.icmp6_code;
