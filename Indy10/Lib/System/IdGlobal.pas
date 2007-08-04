@@ -1369,7 +1369,7 @@ begin
     Result := True;
     fDecoder.Reset;
   end;
-end;
+end
 
 {$ELSE}
 type
@@ -1562,7 +1562,7 @@ var
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
-  Result := GetEncoder(enUTF8).GetString(ABytes, AIndex, ALength);
+  Result := GetEncoder(enUTF8).GetString(AValue, AIndex, ALength);
   {$ELSE}
   Result := '';
   SetLength(Temp, ALength);
@@ -4017,6 +4017,9 @@ end;
 function BytesToString(const AValue: TIdBytes; const AStartIndex: Integer;
   const ALength: Integer = -1; const AEncoding: TIdEncoding = en7Bit): string; overload;
 var
+  {$IFDEF DOTNET}
+  I: Integer;
+  {$ENDIF}
   LLength: Integer;
 begin
   EIdException.IfTrue(AEncoding = enDefault, 'No encoding specified.'); {do not localize}
@@ -4030,7 +4033,13 @@ begin
       // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
       // With MBCS we still map 1:1
       SetLength(Result, LLength);
+      {$IFDEF DOTNET}
+      for I := 0 to LLength-1 do begin
+        Result[I+1] := Char(AValue[AStartIndex+I]);
+      end;
+      {$ELSE}
       Move(AValue[AStartIndex], Result[1], LLength);
+      {$ENDIF}
     end;
   end else begin
     Result := '';
