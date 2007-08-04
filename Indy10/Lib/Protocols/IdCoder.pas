@@ -90,6 +90,7 @@
 unit IdCoder;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -98,12 +99,19 @@ uses
   IdGlobal;
 
 type
-
   TIdEncoder = class(TIdBaseComponent)
   public
-    function Encode(const ASrc: string): string; overload;
-    function Encode(ASrcStream: TStream; const ABytes: Integer = MaxInt)
-     : string; overload; virtual; abstract;
+    function Encode(const AIn: string): string; overload;
+    procedure Encode(const AIn: string; ADestStrings: TStrings); overload;
+    procedure Encode(const AIn: string; ADestStream: TStream); overload;
+
+    function Encode(ASrcStream: TStream; const ABytes: Integer = -1): string; overload;
+    procedure Encode(ASrcStream: TStream; ADestStrings: TStrings; const ABytes: Integer = -1); overload;
+    procedure Encode(ASrcStream: TStream; ADestStream: TStream; const ABytes: Integer = -1); overload; virtual; abstract;
+
+    class function EncodeString(const AIn: string): string; overload;
+    class procedure EncodeString(const AIn: string; ADestStrings: TStrings); overload;
+    class procedure EncodeString(const AIn: string; ADestStream: TStream); overload;
   end;
 
   TIdEncoderClass = class of TIdEncoder;
@@ -112,73 +120,23 @@ type
   protected
     FStream: TStream;
   public
-    procedure Decode(const AIn: string; const AStartPos: Integer = 1;
-     const ABytes: Integer = -1); virtual; abstract;
-    // This is not an overload as it is "Encapselated" for one time encoding, not progressive
-    function DecodeString(const aIn: string): string;
     procedure DecodeBegin(ADestStream: TStream); virtual;
     procedure DecodeEnd; virtual;
+
+    procedure Decode(const AIn: string); overload;
+    procedure Decode(ASrcStream: TStream; const ABytes: Integer = -1); overload; virtual; abstract;
+
+    class function DecodeString(const AIn: string): string;
   end;
 
   TIdDecoderClass = class of TIdDecoder;
-
-  //these replace class functions for encode/decode
-  //they cant be used as .net cant handle class functions that refer to Self
-  //so instead pass the class as a parameter
-  function EncodeString(const aClass:TIdEncoderClass;const aIn:string):string;
-  function DecodeString(const aClass:TIdDecoderClass;const aIn:string):string;
 
 implementation
 
 uses
   IdGlobalProtocols, SysUtils;
 
-function EncodeString(const aClass:TIdEncoderClass;const aIn:string):string;
-var
-  aCoder:TIdEncoder;
-begin
-  Assert(aClass<>nil);
-
-  aCoder:=aClass.Create;
-  try
-    Result:=aCoder.Encode(aIn);
-  finally
-    FreeAndNil(aCoder);
-  end;
-end;
-
-function DecodeString(const aClass:TIdDecoderClass;const aIn:string):string;
-var
-  aCoder:TIdDecoder;
-begin
-  Assert(aClass<>nil);
-
-  aCoder:=aClass.Create;
-  try
-    Result:=aCoder.DecodeString(aIn);
-  finally
-    FreeAndNil(aCoder);
-  end;
-end;
-
-function TIdDecoder.DecodeString(const aIn: string): string;
-var
-  LStream: TMemoryStream;
-begin
-  LStream := TMemoryStream.Create;
-  try
-    DecodeBegin(LStream);
-    try
-      Decode(AIn);
-      LStream.Position := 0;
-      Result := ReadStringFromStream(LStream);
-    finally
-      DecodeEnd;
-    end;
-  finally
-    FreeAndNil(LStream);
-  end;
-end;
+{ TIdDecoder }
 
 procedure TIdDecoder.DecodeBegin(ADestStream: TStream);
 begin
@@ -187,17 +145,139 @@ end;
 
 procedure TIdDecoder.DecodeEnd;
 begin
+  FStream := nil;
 end;
 
-function TIdEncoder.Encode(const ASrc: string): string;
+procedure TIdDecoder.Decode(const AIn: string);
 var
-  LStream: TStream;
+  LStream: TStringStream;
 begin
-  LStream := TMemoryStream.Create; try
-      WriteStringToStream(LStream, ASrc);
-      LStream.Position := 0;
-      Result := Encode(LStream);
-  finally FreeAndNil(LStream); end;
+  LStream := TStringStream.Create(AIn);
+  try
+    Decode(LStream);
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+class function TIdDecoder.DecodeString(const AIn: string): string;
+var
+  LDecoder: TIdDecoder;
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create(AIn);
+  try
+    LDecoder := Create(nil);
+    try
+      LDecoder.DecodeBegin(LStream);
+      try
+        LDecoder.Decode(AIn);
+      finally
+        LDecoder.DecodeEnd;
+      end;
+      Result := LStream.DataString;
+    finally
+      FreeAndNil(LDecoder);
+    end;
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+{ TIdEncoder }
+
+function TIdEncoder.Encode(const AIn: string): string;
+var
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create(AIn);
+  try
+    Result := Encode(LStream);
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+procedure TIdEncoder.Encode(const AIn: string; ADestStrings: TStrings);
+var
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create(AIn);
+  try
+    Encode(LStream, ADestStrings);
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+procedure TIdEncoder.Encode(const AIn: string; ADestStream: TStream);
+var
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create(AIn);
+  try
+    Encode(LStream, ADestStream);
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+function TIdEncoder.Encode(ASrcStream: TStream; const ABytes: Integer = -1) : string;
+var
+  LStream: TStringStream;
+begin
+  LStream := TStringStream.Create('');
+  try
+    Encode(ASrcStream, LStream, ABytes);
+    Result := LStream.DataString;
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+procedure TIdEncoder.Encode(ASrcStream: TStream; ADestStrings: TStrings; const ABytes: Integer = -1);
+var
+  LStream: TStringStream;
+begin
+  ADestStrings.Clear;
+  LStream := TStringStream.Create('');
+  try
+    Encode(ASrcStream, LStream, ABytes);
+    LStream.Position := 0;
+    ADestStrings.LoadFromStream(LStream);
+  finally
+    FreeAndNil(LStream);
+  end;
+end;
+
+class function TIdEncoder.EncodeString(const AIn: string): string;
+begin
+  with Create(nil) do
+  try
+    Result := Encode(AIn);
+  finally
+    Free;
+  end;
+end;
+
+class procedure TIdEncoder.EncodeString(const AIn: string; ADestStrings: TStrings);
+begin
+  with Create(nil) do
+  try
+    Encode(AIn, ADestStrings);
+  finally
+    Free;
+  end;
+end;
+
+class procedure TIdEncoder.EncodeString(const AIn: string; ADestStream: TStream);
+begin
+  with Create(nil) do
+  try
+    Encode(AIn, ADestStream);
+  finally
+    Free;
+  end;
 end;
 
 end.
