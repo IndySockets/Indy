@@ -1118,6 +1118,7 @@ var
   LPLocalIP : PSOCKADDR_IN6;
   LAddr6 : TSockAddrIn6;
   Bytes : Cardinal;
+
 begin
 //  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
   //make our LAddrInfo structure
