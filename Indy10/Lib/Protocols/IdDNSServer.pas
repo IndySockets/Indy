@@ -11,203 +11,202 @@
 
   Copyright:
    (c) 1993-2005, Chad Z. Hower and the Indy Pit Crew. All rights reserved.
-}
-{
+
+
   $Log$
-}
-{
-{   Rev 1.40    3/4/2005 12:35:32 PM  JPMugaas
-{ Removed some compiler warnings.
-}
-{
-{   Rev 1.39    2/9/2005 4:35:06 AM  JPMugaas
-{ Should compile.
-}
-{
-{   Rev 1.38    2/8/05 6:13:02 PM  RLebeau
-{ Updated to use new AppendString() function in IdGlobal unit
-{ 
-{ Updated TIdDNS_ProcessThread.CompleteQuery() to use CopyTId...() functions
-{ instead of ToBytes() and AppendBytes().
-}
-{
-{   Rev 1.37    2005/1/25 下午 12:25:26  DChang
-{ Modify UpdateTree method, make the NS record can be save in the lower level
-{ node.
-}
-{
-{   Rev 1.36    2005/1/5 下午 04:21:06  DChang    Version: 1.36
-{ Fix parsing procedure while processing TXT record, in pass version, double
-{ quota will not be processed, but now, any charector between 2 double quotas
-{ will be treated as TXT message.
-}
-{
-{   Rev 1.35    2004/12/15 下午 12:05:26  DChang    Version: 1.35
-{ 1. Move UpdateTree to public section.
-{ 2. add DoUDPRead of TIdDNSServer.
-{ 3. Fix TIdDNS_ProcessThread.CompleteQuery and
-{     InternalQuery to fit Indy 10 Core.
-}
-{
-{   Rev 1.34    12/2/2004 4:23:50 PM  JPMugaas
-{ Adjusted for changes in Core.
-}
-{
-{   Rev 1.33    2004.10.27 9:17:46 AM  czhower
-{ For TIdStrings
-}
-{
-{   Rev 1.32    10/26/2004 9:06:32 PM  JPMugaas
-{ Updated references.
-}
-{
-{   Rev 1.31    2004.10.26 1:06:26 PM  czhower
-{ Further fixes for aliaser
-}
-{
-{   Rev 1.30    2004.10.26 12:01:32 PM  czhower
-{ Resolved alias conflict.
-}
-{
+
+
+    Rev 1.40    3/4/2005 12:35:32 PM  JPMugaas
+  Removed some compiler warnings.
+
+
+    Rev 1.39    2/9/2005 4:35:06 AM  JPMugaas
+  Should compile.
+
+
+    Rev 1.38    2/8/05 6:13:02 PM  RLebeau
+  Updated to use new AppendString() function in IdGlobal unit
+
+  Updated TIdDNS_ProcessThread.CompleteQuery() to use CopyTId...() functions
+  instead of ToBytes() and AppendBytes().
+
+
+    Rev 1.37    2005/1/25 下午 12:25:26  DChang
+  Modify UpdateTree method, make the NS record can be save in the lower level
+  node.
+
+
+    Rev 1.36    2005/1/5 下午 04:21:06  DChang    Version: 1.36
+  Fix parsing procedure while processing TXT record, in pass version, double
+  quota will not be processed, but now, any charector between 2 double quotas
+  will be treated as TXT message.
+
+
+    Rev 1.35    2004/12/15 下午 12:05:26  DChang    Version: 1.35
+  1. Move UpdateTree to public section.
+  2. add DoUDPRead of TIdDNSServer.
+  3. Fix TIdDNS_ProcessThread.CompleteQuery and
+     InternalQuery to fit Indy 10 Core.
+
+
+    Rev 1.34    12/2/2004 4:23:50 PM  JPMugaas
+  Adjusted for changes in Core.
+
+
+    Rev 1.33    2004.10.27 9:17:46 AM  czhower
+  For TIdStrings
+
+
+    Rev 1.32    10/26/2004 9:06:32 PM  JPMugaas
+  Updated references.
+
+
+    Rev 1.31    2004.10.26 1:06:26 PM  czhower
+  Further fixes for aliaser
+
+
+    Rev 1.30    2004.10.26 12:01:32 PM  czhower
+  Resolved alias conflict.
+
+
     Rev 1.29    9/15/2004 4:59:52 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.28    22/07/2004 18:14:22  ANeillans
-{ Fixed compile error.
-}
-{
-{   Rev 1.27    7/21/04 2:38:04 PM  RLebeau
-{ Removed redundant string copying in TIdDNS_ProcessThread constructor and
-{ procedure QueryDomain() method
-{
-{ Removed local variable from TIdDNS_ProcessThread.SendData(), not needed
-}
-{
-{   Rev 1.26    2004/7/21 下午 06:37:48  DChang
-{ Fix compile error in TIdDNS_ProcessThread.SendData, and mark a case statment
-{ to comments in TIdDNS_ProcessThread.SaveToCache.
-}
-{
-{   Rev 1.25    2004/7/19 下午 09:55:52  DChang
-{ 1. Move all textmoderecords to IdDNSCommon.pas
-{ 2.Making DNS Server load the domain definition file while DNS Server
-{ component is active.
-{ 3. Add a new event : OnAfterCacheSaved
-{ 4. Add Full name condition to indicate if a domain is empty
-{ (ConvertDNtoString)
-{ 5. Make Query request processed with independent thread.
-{ 6. Rewrite TIdDNSServer into multiple thread mode, all queries will search
-{ and assemble the answer, and then share the TIdSocketHandle to send answer
-{ back.
-{ 7. Add version information in TIdDNSServer, so class CHAOS can be taken, but
-{ only for the label : "version.bind.".
-{ 8. Fix TIdRR_TXT.BinQueryRecord, to make sure it can be parsed in DNS client.
-{ 9. Modify the AXFR function, reduce the response data size and quantity.
-{ 10. Move all TIdTextModeResourceRecord and derived classes to IdDNSCommon.pas
-}
-{
-{   Rev 1.24    7/8/04 11:43:54 PM  RLebeau
-{ Updated TIdDNS_TCPServer.DoConnect() to use new BytesToString() parameters
-}
-{
-{   Rev 1.23    7/7/04 1:45:16 PM  RLebeau
-{ Compiler fixes
-}
-{
-{   Rev 1.22    6/29/04 1:43:30 PM  RLebeau
-{ Bug fixes for various property setters
-}
-{
-{   Rev 1.21    2004.05.20 1:39:32 PM  czhower
-{ Last of the IdStream updates
-}
-{
-{   Rev 1.20    2004.03.01 9:37:06 PM  czhower
-{ Fixed name conflicts for .net
-}
-{
-{   Rev 1.19    2004.02.07 5:03:32 PM  czhower
-{ .net fixes.
-}
-{
-{   Rev 1.18    2/7/2004 5:39:44 AM  JPMugaas
-{ IdDNSServer should compile in both DotNET and WIn32.
-}
-{
-{   Rev 1.17    2004.02.03 5:45:58 PM  czhower
-{ Name changes
-}
-{
-{   Rev 1.16    1/22/2004 8:26:40 AM  JPMugaas
-{ Ansi* calls changed.
-}
-{
-{   Rev 1.15    1/21/2004 2:12:48 PM  JPMugaas
-{ InitComponent
-}
-{
-{   Rev 1.14    12/7/2003 8:07:26 PM  VVassiliev
-{ string -> TIdBytes
-}
-{
-{   Rev 1.13    2003.10.24 10:38:24 AM  czhower
-{ UDP Server todos
-}
-{
+
+
+    Rev 1.28    22/07/2004 18:14:22  ANeillans
+  Fixed compile error.
+
+
+    Rev 1.27    7/21/04 2:38:04 PM  RLebeau
+  Removed redundant string copying in TIdDNS_ProcessThread constructor and
+  procedure QueryDomain() method
+
+  Removed local variable from TIdDNS_ProcessThread.SendData(), not needed
+
+
+    Rev 1.26    2004/7/21 下午 06:37:48  DChang
+  Fix compile error in TIdDNS_ProcessThread.SendData, and mark a case statment
+  to comments in TIdDNS_ProcessThread.SaveToCache.
+
+
+    Rev 1.25    2004/7/19 下午 09:55:52  DChang
+  1. Move all textmoderecords to IdDNSCommon.pas
+  2. Making DNS Server load the domain definition file while DNS Server
+     component is active.
+  3. Add a new event : OnAfterCacheSaved
+  4. Add Full name condition to indicate if a domain is empty
+     (ConvertDNtoString)
+  5. Make Query request processed with independent thread.
+  6. Rewrite TIdDNSServer into multiple thread mode, all queries will search
+     and assemble the answer, and then share the TIdSocketHandle to send answer
+     back.
+  7. Add version information in TIdDNSServer, so class CHAOS can be taken, but
+     only for the label : "version.bind.".
+   8. Fix TIdRR_TXT.BinQueryRecord, to make sure it can be parsed in DNS client.
+   9. Modify the AXFR function, reduce the response data size and quantity.
+  10. Move all TIdTextModeResourceRecord and derived classes to IdDNSCommon.pas
+
+
+    Rev 1.24    7/8/04 11:43:54 PM  RLebeau
+  Updated TIdDNS_TCPServer.DoConnect() to use new BytesToString() parameters
+
+
+    Rev 1.23    7/7/04 1:45:16 PM  RLebeau
+  Compiler fixes
+
+
+    Rev 1.22    6/29/04 1:43:30 PM  RLebeau
+  Bug fixes for various property setters
+
+
+    Rev 1.21    2004.05.20 1:39:32 PM  czhower
+  Last of the IdStream updates
+
+
+    Rev 1.20    2004.03.01 9:37:06 PM  czhower
+  Fixed name conflicts for .net
+
+
+    Rev 1.19    2004.02.07 5:03:32 PM  czhower
+  .net fixes.
+
+
+    Rev 1.18    2/7/2004 5:39:44 AM  JPMugaas
+  IdDNSServer should compile in both DotNET and WIn32.
+
+
+    Rev 1.17    2004.02.03 5:45:58 PM  czhower
+  Name changes
+
+
+    Rev 1.16    1/22/2004 8:26:40 AM  JPMugaas
+  Ansi* calls changed.
+
+
+    Rev 1.15    1/21/2004 2:12:48 PM  JPMugaas
+  InitComponent
+
+
+    Rev 1.14    12/7/2003 8:07:26 PM  VVassiliev
+  string -> TIdBytes
+
+
+    Rev 1.13    2003.10.24 10:38:24 AM  czhower
+  UDP Server todos
+
+
     Rev 1.12    10/19/2003 12:16:30 PM  DSiders
   Added localization comments.
-}
-{
-{   Rev 1.11    2003.10.12 3:50:40 PM  czhower
-{ Compile todos
-}
-{
-{   Rev 1.10    2003/5/14 上午 01:17:36  DChang
-{ Fix a flag named denoted in the function which check if a domain correct.
-{ Update the logic of UpdateTree functions (make them unified).
-{ Update the TextRecord function of all TIdRR_ classes, it checks if the RRName
-{ the same as FullName, if RRName = FullName, it will not append the Fullname
-{ to RRName.
-}
-{
-{   Rev 1.9    2003/5/10 上午 01:09:42  DChang
-{ Patch the domainlist update when axfr action.
-}
-{
-{   Rev 1.8    2003/5/9 上午 10:03:36  DChang
-{ Modify the sequence of records. To make sure when we resolve MX record, the
-{ mail host A record can be additional record section.
-}
-{
-{   Rev 1.7    2003/5/8 下午 08:11:34  DChang
-{ Add TIdDNSMap, TIdDomainNameServerMapping to monitor primary DNS, and
-{ detecting if the primary DNS record changed, it will update automatically if
-{ necessary.
-}
-{
-{   Rev 1.6    2003/5/2 下午 03:39:38  DChang
-{ Fix all compile warnings and hints.
-}
-{
-{   Rev 1.5    4/29/2003 08:26:30 PM  DenniesChang
-{ Fix TIdDNSServer Create, the older version miss to create the FBindings.
-{ fix AXFR procedure, fully support BIND 8 AXFR procedures.
-}
-{   Rev 1.4    4/28/2003 02:30:58 PM  JPMugaas
-{ reverted back to the old one as the new one checked will not compile, has
-{ problametic dependancies on Contrs and Dialogs (both not permitted).
-}
-{   Rev 1.3    04/28/2003 01:15:10 AM  DenniesChang
-}
-{
-{   Rev 1.2    4/28/2003 07:00:18 AM  JPMugaas
-{ Should now compile.
-}
-{
-{   Rev 1.0    11/14/2002 02:18:42 PM  JPMugaas
-}
-{
+
+
+    Rev 1.11    2003.10.12 3:50:40 PM  czhower
+  Compile todos
+
+
+    Rev 1.10    2003/5/14 上午 01:17:36  DChang
+  Fix a flag named denoted in the function which check if a domain correct.
+  Update the logic of UpdateTree functions (make them unified).
+  Update the TextRecord function of all TIdRR_ classes, it checks if the RRName
+  the same as FullName, if RRName = FullName, it will not append the Fullname
+  to RRName.
+
+
+    Rev 1.9    2003/5/10 上午 01:09:42  DChang
+  Patch the domainlist update when axfr action.
+
+
+    Rev 1.8    2003/5/9 上午 10:03:36  DChang
+  Modify the sequence of records. To make sure when we resolve MX record, the
+  mail host A record can be additional record section.
+
+
+    Rev 1.7    2003/5/8 下午 08:11:34  DChang
+  Add TIdDNSMap, TIdDomainNameServerMapping to monitor primary DNS, and
+  detecting if the primary DNS record changed, it will update automatically if
+  necessary.
+
+
+    Rev 1.6    2003/5/2 下午 03:39:38  DChang
+  Fix all compile warnings and hints.
+
+
+    Rev 1.5    4/29/2003 08:26:30 PM  DenniesChang
+  Fix TIdDNSServer Create, the older version miss to create the FBindings.
+  fix AXFR procedure, fully support BIND 8 AXFR procedures.
+
+    Rev 1.4    4/28/2003 02:30:58 PM  JPMugaas
+  reverted back to the old one as the new one checked will not compile, has
+  problametic dependancies on Contrs and Dialogs (both not permitted).
+
+    Rev 1.3    04/28/2003 01:15:10 AM  DenniesChang
+
+
+     Rev 1.2    4/28/2003 07:00:18 AM  JPMugaas
+  Should now compile.
+
+
+    Rev 1.0    11/14/2002 02:18:42 PM  JPMugaas
+
   // Ver: 2003-04-28-0115
   // Combine TCP, UDP Tunnel into single TIdDNSServer component.
   // Update TIdDNSServer from TIdUDPServer to TComponent.
@@ -344,7 +343,10 @@ type
   public
     constructor Create(AList : TIdDNSMap);
     destructor Destroy; override;
-  published
+  //You can not make methods and properties published in this class.
+  //If you want to make properties publishes, this has to derrive from TPersistant
+  //and be used by TPersistant in a published property.
+    //  published
     procedure SyncAndUpdate(Sender : TObject);
     property Host : string read FHost write SetHost;
     property DomainName : string read FDomainName write FDomainName;
