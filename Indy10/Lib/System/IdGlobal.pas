@@ -820,13 +820,8 @@ type
   {$ENDIF}
 
   {$IFNDEF SIZE64STREAM}
-  const
-    soFromBeginning = 0;
-    soFromCurrent = 1;
-    soFromEnd = 2;
-
   type
-    TSeekOrigin = Word;
+    TSeekOrigin = (soBeginning, soCurrent, soEnd);
   {$ENDIF}
 
   // TIdBaseStream is defined here to allow TIdMultiPartFormData to be defined
