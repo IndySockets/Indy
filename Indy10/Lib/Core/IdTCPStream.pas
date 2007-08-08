@@ -61,6 +61,7 @@
 unit IdTCPStream;
 
 interface
+
 {$I IdCompilerDefines.inc}
 //TODO: This should be renamed to IdStreamTCP for consistency, and class too
 
@@ -69,40 +70,22 @@ uses
   IdGlobal, IdTCPConnection;
 
 type
-  TIdTCPStream = class(TStream)
+  TIdTCPStream = class(TIdBaseStream)
   protected
     FConnection: TIdTCPConnection;
-    {$IFDEF DOTNET}
-    procedure SetSize(NewSize: Int64); override;
-    {$ELSE}
-    {$IFDEF VCL6ORABOVE}
-    procedure SetSize(const NewSize: Int64); override;
-    {$ELSE}
-    procedure SetSize(NewSize: Longint); override;
-    {$ENDIF}
-    {$ENDIF}
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
   public
     constructor Create(AConnection: TIdTCPConnection); reintroduce;
-    {$IFDEF DOTNET}
-    function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
-    function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
-    {$ELSE}
-    function Read(var Buffer; Count: Longint): Longint;  override;
-    function Write(const Buffer; Count: Longint): Longint;  override;
-    {$ENDIF}
-    {$IFDEF VCL6ORABOVE}
-    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; overload; override;
-    {$ELSE}
-    function Seek(Offset: Longint; Origin: Word): Longint; override;
-    {$ENDIF}
     property Connection: TIdTCPConnection read FConnection;
   end;
 
 implementation
 
-{$IFNDEF DOTNET}
-uses SysUtils;
-{$ENDIF}
+uses
+  SysUtils;
 
 constructor TIdTCPStream.Create(AConnection: TIdTCPConnection);
 begin
@@ -110,68 +93,30 @@ begin
   FConnection := AConnection;
 end;
 
-{$IFDEF DOTNET}
-function TIdTCPStream.Read(var ABuffer: array of Byte; AOffset,
-  ACount: Longint): Longint;
-var
-  TempBuff: TIdBytes;
+function TIdTCPStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  TempBuff := ABuffer;
-  Connection.IOHandler.ReadBytes(TempBuff, ACount, false);
-  ABuffer := TempBuff;
+  if AOffset <> 0 then begin
+    ToDo;
+  end;
+  Connection.IOHandler.ReadBytes(VBuffer, ACount, False);
   Result := ACount;
 end;
-{$ELSE}
-function TIdTCPStream.Read(var Buffer; Count: Longint): Longint;
-var
-  TempBuff: TIdBytes;
-begin
-  SetLength(TempBuff,Count);
 
-  Connection.IOHandler.ReadBytes(TempBuff, Count, false);
-  Move(TempBuff,Buffer,Count);
-  Result := Count;
-end;
-{$ENDIF}
-
-{$IFDEF VCL6ORABOVE}
-function TIdTCPStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
-{$ELSE}
-function TIdTCPStream.Seek(Offset: Longint; Origin: Word): Longint;
-{$ENDIF}
+function TIdTCPStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
 begin
   Result := 0;
 end;
 
-{$IFDEF DOTNET}
-procedure TIdTCPStream.SetSize(NewSize: Int64);
-{$ELSE}
-{$IFDEF VCL6ORABOVE}
-procedure TIdTCPStream.SetSize(const NewSize: Int64);
-{$ELSE}
-procedure TIdTCPStream.SetSize(NewSize: Longint);
-{$ENDIF}
-{$ENDIF}
+procedure TIdTCPStream.IdSetSize(ASize: Int64);
 begin
 //
 end;
 
-{$IFDEF DOTNET}
-function TIdTCPStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
+function TIdTCPStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
-  if AOffset > 0 then
-    ToDo;
-
-  Connection.IOHandler.Write(ToBytes(ABuffer, ACount));
-  Result := ACount - AOffset;
+  Connection.IOHandler.Write(ABuffer, ACount, AOffset);
+  Result := ACount;
 end;
-{$ELSE}
-function TIdTCPStream.Write(const Buffer; Count: Longint): Longint;
-begin
-  Connection.IOHandler.Write(RawToBytes(Buffer,Count));
-  Result := Count;
-end;
-{$ENDIF}
 
 end.
 
