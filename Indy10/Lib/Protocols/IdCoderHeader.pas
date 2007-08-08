@@ -107,8 +107,8 @@ type
   
   TIdHeaderCoder = class(TIdComponent)
   public
-    function Decode(const AData: String): String; virtual; abstract;
-    function Encode(const AData: String): String; virtual; abstract;
+    function Decode(const ACharSet, AData: String): String; virtual; abstract;
+    function Encode(const ACharSet, AData: String): String; virtual; abstract;
     function CanHandle(const ACharSet: String): Boolean; virtual; abstract;
   end;
 
@@ -185,7 +185,7 @@ var
 begin
   LCoder := ByCharSet(ACharSet);
   if LCoder <> nil then begin
-    Result := LCoder.Decode(AData);
+    Result := LCoder.Decode(ACharSet, AData);
   end
   else if Assigned(ADecodeEvent) then begin
     Result := '';
@@ -199,9 +199,10 @@ class function TIdHeaderCoderList.Encode(const ACharSet, AData: string): String;
 var
   LCoder: TIdHeaderCoder;
 begin
+  // TODO: add an AEncodeNeeded event
   LCoder := ByCharSet(ACharSet);
   if LCoder <> nil then begin
-    Result := LCoder.Encode(AData);
+    Result := LCoder.Encode(ACharSet, AData);
   end else begin
     Result := AData;
   end;
@@ -263,7 +264,7 @@ begin
       for I := 1 to Length(EmailAddr.Name) do
       begin              { quote special characters }
         if (EmailAddr.Name[I] = '\') or (EmailAddr.Name[I] = '"') then begin
-	  S := S + '\';    {Do not Localize}
+          S := S + '\';    {Do not Localize}
         end;
         S := S + EmailAddr.Name[I];
       end;
@@ -378,11 +379,11 @@ var
         if AData[i] = '_' then begin {Do not Localize}
           VDecoded := VDecoded + ' ';    {Do not Localize}
         end
-	else if (AData[i] = '=') and (Length(AData) >= (i+2)) then begin //make sure we can access i+2
+        else if (AData[i] = '=') and (Length(AData) >= (i+2)) then begin //make sure we can access i+2
           VDecoded := VDecoded + Chr(IndyStrToInt('$' + Copy(AData, i+1, 2), 32));   {Do not Localize}
           Inc(I, 2);
         end else
-	begin
+        begin
           VDecoded := VDecoded + AData[i];
         end;
         Inc(I);
