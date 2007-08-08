@@ -242,7 +242,6 @@ const
   Id_SOCK_RAW        = SocketType.Raw;            // /* raw-protocol interface */
   Id_SOCK_RDM        = SocketType.Rdm;            // /* reliably-delivered message */
   Id_SOCK_SEQPACKET  = SocketType.Seqpacket;      // /* sequenced packet stream */
-
   {$ENDIF}
 
 type
@@ -398,7 +397,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   {$ELSE}
   Id_TCP_NODELAY           = SocketOptionName.NoDelay;
   Id_INVALID_SOCKET        = nil;
-  // RLebeau: Id_SOCKET_ERROR = ?;
+  Id_SOCKET_ERROR          = -1;
   Id_SOCKETOPTIONLEVEL_TCP = SocketOptionLevel.TCP; // BGO: rename to Id_SOL_TCP
   {$ENDIF}
 
