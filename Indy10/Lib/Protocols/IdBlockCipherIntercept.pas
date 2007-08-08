@@ -91,7 +91,7 @@ const
   bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
 
 procedure TIdBlockCipherIntercept.Encrypt(var VData : TIdBytes);
-Begin
+begin
   if Assigned(FOnSend) then begin
     FOnSend(Self, VData);
   end;//ex: EncryptAES(LTempIn, ExpandedKey, LTempOut);
@@ -107,23 +107,24 @@ end;
 procedure TIdBlockCipherIntercept.Send(var VBuffer: TIdBytes);
 var
   LSrc, LBlock : TIdBytes;
-  LCount, LMaxDataSize: Integer;
+  LSize, LCount, LMaxDataSize: Integer;
   LCompleteBlocks, LRemaining: Integer;
-Begin
+begin
   LSrc := nil; // keep the compiler happy
 
-  if Length(VBuffer) = 0 then begin
+  LSize := Length(VBuffer);
+  if LSize = 0 then begin
     Exit;
   end;
 
   LSrc := VBuffer;
 
   LMaxDataSize := FBlockSize - 1;
-  SetLength(VBuffer, ((Length(LSrc) + LMaxDataSize - 1) div LMaxDataSize) * FBlockSize);
+  SetLength(VBuffer, ((LSize + LMaxDataSize - 1) div LMaxDataSize) * FBlockSize);
   SetLength(LBlock, FBlockSize);
 
-  LCompleteBlocks := Length(LSrc) div LMaxDataSize;
-  LRemaining := Length(LSrc) mod LMaxDataSize;
+  LCompleteBlocks := LSize div LMaxDataSize;
+  LRemaining := LSize mod LMaxDataSize;
 
   //process all complete blocks
   for LCount := 0 to LCompleteBlocks-1 do
@@ -137,7 +138,7 @@ Begin
   //process the possible remaining bytes, ie less than a full block
   if LRemaining > 0 then
   begin
-    CopyTIdBytes(LSrc, Length(LSrc) - LRemaining, LBlock, 0, LRemaining);
+    CopyTIdBytes(LSrc, LSize - LRemaining, LBlock, 0, LRemaining);
     LBlock[LMaxDataSize] := LRemaining;
     Encrypt(LBlock);
     CopyTIdBytes(LBlock, 0, VBuffer, Length(VBuffer) - FBlockSize, FBlockSize);
@@ -147,43 +148,37 @@ end;
 procedure TIdBlockCipherIntercept.Receive(var VBuffer: TIdBytes);
 var
   LBlock : TIdBytes;
-  LCount : Integer;
-  LPos : Integer;
-  LMaxDataSize: Integer;
-  LCompleteBlocks: Integer;
+  LSize, LCount, LPos, LMaxDataSize, LCompleteBlocks: Integer;
   LRemaining: Integer;
 Begin
   LPos := 0;
-  LCount := Length(FIncoming);
+  AppendBytes(FIncoming, VBuffer);
 
-  SetLength(FIncoming, LCount + Length(VBuffer));
-  CopyTIdBytes(VBuffer, 0, FIncoming, LCount, Length(VBuffer));
-
-  if Length(FIncoming) >= FBlockSize then
+  LSize := Length(FIncoming);
+  if LSize >= FBlockSize then
   begin
     // the length of ABuffer when we have finished is currently unknown, but must be less than
     // the length of FIncoming. We will reserve this much, then reallocate at the end
-    SetLength(VBuffer, Length(FIncoming));
+    SetLength(VBuffer, LSize);
     SetLength(LBlock, FBlockSize);
 
     LMaxDataSize := FBlockSize - 1;
-    LCompleteBlocks := Length(FIncoming) div FBlockSize;
-    LRemaining := Length(FIncoming) mod FBlockSize;
+    LCompleteBlocks := LSize div FBlockSize;
+    LRemaining := LSize mod FBlockSize;
 
     for LCount := 0 to LCompleteBlocks-1 do
     begin
       CopyTIdBytes(FIncoming, LCount * FBlockSize, LBlock, 0, FBlockSize);
       Decrypt(LBlock);
       if (LBlock[LMaxDataSize] = 0) or (LBlock[LMaxDataSize] >= FBlockSize) then begin
-        raise EIdBlockCipherInterceptException.Create(RSBlockIncorrectLength + ' (' + IntToStr(LBlock[LMaxDataSize]) + ')');
+        raise EIdBlockCipherInterceptException.CreateFmt(RSBlockIncorrectLength, [LBlock[LMaxDataSize]]);
       end;
       CopyTIdBytes(LBlock, 0, VBuffer, LPos, LBlock[LMaxDataSize]);
       Inc(LPos, LBlock[LMaxDataSize]);
     end;
 
-    if LRemaining > 0 then
-    begin
-      CopyTIdBytes(FIncoming, Length(FIncoming) - LRemaining, FIncoming, 0, LRemaining);
+    if LRemaining > 0 then begin
+      CopyTIdBytes(FIncoming, LSize - LRemaining, FIncoming, 0, LRemaining);
     end;
 
     SetLength(FIncoming, LRemaining);
