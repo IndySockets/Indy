@@ -321,7 +321,7 @@ resourcestring
   RSHTTPSSPICompleteTokenNotSupported = 'CompleteAuthToken is not supported';
 
   //Block Cipher Intercept
-  RSBlockIncorrectLength = 'Incorrect length in received block';
+  RSBlockIncorrectLength = 'Incorrect length in received block (%d)';
 
   // FTP
   RSFTPUnknownHost = 'Unknown';
