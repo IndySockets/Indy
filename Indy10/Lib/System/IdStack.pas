@@ -252,8 +252,8 @@ type
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
     function WSGetLastError: Integer; virtual; abstract;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
-    function CheckForSocketError(const AResult: Integer): Integer; overload; virtual;
-    function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload; virtual;
+    function CheckForSocketError(const AResult: Integer): Integer; overload;
+    function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType:TIdSocketType; const AProtocol: TIdSocketProtocol;
