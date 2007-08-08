@@ -514,10 +514,10 @@ type
     // using WriteBuffers. This should be the only call to WriteDirect
     // unless the calls that bypass this are aware of WriteBuffering or are
     // intended to bypass it.
-    procedure Write(ABuffer: TIdBytes); overload; virtual;
+    procedure Write(const ABuffer: TIdBytes; const ALength: Integer = -1; const AOffset: Integer = 0); overload; virtual;
     // This is the main write function which all other default implementations
     // use. If default implementations are used, this must be implemented.
-    procedure WriteDirect(var ABuffer: TIdBytes);
+    procedure WriteDirect(const ABuffer: TIdBytes; const ALength: Integer = -1; const AOffset: Integer = 0);
     //
     procedure Open; virtual;
     function Readable(AMSec: Integer = IdTimeoutDefault): Boolean; virtual;
@@ -911,7 +911,7 @@ begin
     ReadBytes(LBytes, ABytes, False);
     Result := BytesToString(LBytes, 0, ABytes, AEncoding);
   end else begin
-    Result := ''
+    Result := '';
   end;
 end;
 
@@ -1731,14 +1731,20 @@ begin
   Result := FInputBuffer.Size = 0;
 end;
 
-procedure TIdIOHandler.Write(ABuffer: TIdBytes);
+procedure TIdIOHandler.Write(const ABuffer: TIdBytes; const ALength: Integer = -1;
+  const AOffset: Integer = 0);
+var
+  LLength: Integer;
+  LTemp: TIdBytes;
 begin
-  if Length(ABuffer) > 0 then begin
+  LTemp := nil; // keep the compiler happy
+  LLength := IndyLength(ABuffer, ALength, AOffset);
+  if LLength > 0 then begin
     if FWriteBuffer = nil then begin
-      WriteDirect(ABuffer);
-    // Write Buffering is enabled
+      WriteDirect(ABuffer, LLength, AOffset);
     end else begin
-      FWriteBuffer.Write(ABuffer);
+      // Write Buffering is enabled
+      FWriteBuffer.Write(ABuffer, LLength, AOffset);
       if (FWriteBuffer.Size >= WriteBufferThreshhold) and (WriteBufferThreshhold > 0) then begin
         repeat
           WriteBufferFlush(WriteBufferThreshhold);
@@ -1817,22 +1823,29 @@ begin
   WriteBufferOpen(-1);
 end;
 
-procedure TIdIOHandler.WriteDirect(var ABuffer: TIdBytes);
+procedure TIdIOHandler.WriteDirect(const ABuffer: TIdBytes; const ALength: Integer = -1;
+  const AOffset: Integer = 0);
 var
-  LCount: Integer;
+  LTemp: TIdBytes;
   LPos: Integer;
   LSize: Integer;
+  LCount: Integer;
   LLastError: Integer;
+
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
+  // TODO: pass offset/size parameters to the Intercept
+  // so that a copy is no longer needed here
+  LTemp := ToBytes(ABuffer, ALength, AOffset);
   if Intercept <> nil then begin
-    Intercept.Send(ABuffer);
+    Intercept.Send(LTemp);
   end;
-  LSize := Length(ABuffer);
+  LSize := Length(LTemp);
   LPos := 0;
-  repeat
-    LCount := WriteDataToTarget(ABuffer, LPos, LSize - LPos);
+  while LPos < LSize do
+  begin
+    LCount := WriteDataToTarget(LTemp, LPos, LSize - LPos);
     if LCount < 0 then
     begin
       LLastError := GStack.CheckForSocketError(LCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
@@ -1850,7 +1863,7 @@ begin
     CheckForDisconnect;
     DoWork(wmWrite, LCount);
     Inc(LPos, LCount);
-  until LPos >= LSize;
+  end;
 end;
 
 initialization
