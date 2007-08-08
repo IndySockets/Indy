@@ -252,8 +252,8 @@ type
     procedure Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer); virtual; abstract;
     function WSGetLastError: Integer; virtual; abstract;
     function WSTranslateSocketErrorMsg(const AErr: integer): string; virtual;
-    function CheckForSocketError(const AResult: Integer): Integer; overload;
-    function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload;
+    function CheckForSocketError(const AResult: Integer): Integer; overload; virtual;
+    function CheckForSocketError(const AResult: Integer; const AIgnore: array of Integer): Integer; overload; virtual;
     procedure RaiseLastSocketError;
     procedure RaiseSocketError(AErr: integer); virtual;
     function NewSocketHandle(const ASocketType:TIdSocketType; const AProtocol: TIdSocketProtocol;
@@ -552,24 +552,19 @@ end;
 
 function TIdStack.CheckForSocketError(const AResult: Integer): Integer;
 begin
-  {$IFNDEF DOTNET}
   if AResult = Id_SOCKET_ERROR then begin
     RaiseLastSocketError;
   end;
-  {$ENDIF}
   Result := AResult;
 end;
 
 function TIdStack.CheckForSocketError(const AResult: Integer;
   const AIgnore: array of integer): Integer;
- {$IFNDEF DOTNET}
 var
   i: Integer;
   LLastError: Integer;
-{$ENDIF}
 begin
   Result := AResult;
-    {$IFNDEF DOTNET}
   if AResult = Id_SOCKET_ERROR then begin
     LLastError := WSGetLastError;
     for i := Low(AIgnore) to High(AIgnore) do begin
@@ -580,7 +575,6 @@ begin
     end;
     RaiseSocketError(LLastError);
   end;
-  {$ENDIF}
 end;
 
 procedure TIdStack.RaiseLastSocketError;
