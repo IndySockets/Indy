@@ -1211,6 +1211,11 @@ Indy10/Lib/Protocols/IdHashCRC.pas -text
 Indy10/Lib/Protocols/IdHashElf.pas -text
 Indy10/Lib/Protocols/IdHashMessageDigest.pas -text
 Indy10/Lib/Protocols/IdHashSHA1.pas -text
+Indy10/Lib/Protocols/IdHeaderCoder2022JP.pas -text
+Indy10/Lib/Protocols/IdHeaderCoderBig5.pas -text
+Indy10/Lib/Protocols/IdHeaderCoderDotNet.pas -text
+Indy10/Lib/Protocols/IdHeaderCoderPlain.pas -text
+Indy10/Lib/Protocols/IdHeaderCoderUTF8.pas -text
 Indy10/Lib/Protocols/IdHeaderList.pas -text
 Indy10/Lib/Protocols/IdHostnameServer.pas -text
 Indy10/Lib/Protocols/IdIMAP4.pas -text
