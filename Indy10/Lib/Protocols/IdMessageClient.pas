@@ -961,7 +961,7 @@ var
               LQuotedPrintableEncoder.Encode(ATextPart.Body[i] + EOL, LData);
               for j := 0 to LData.Count-1 do begin
                 if (LData[j] <> '') and (LHeaderCoder <> nil) then begin
-                  LData[j] := LHeaderCoder.Encode(LData[j]);
+                  LData[j] := LHeaderCoder.Encode(ISOCharSet, LData[j]);
                 end;
               end;
             end;
@@ -1023,7 +1023,7 @@ begin
       LHeaderCoder := TIdHeaderCoderList.ByCharSet(ISOCharSet);
       if LHeaderCoder <> nil then begin
         for i := 0 to AMsg.Body.Count - 1 do begin
-          LBodyLine := LHeaderCoder.Encode(AMsg.Body[i]);
+          LBodyLine := LHeaderCoder.Encode(ISOCharSet, AMsg.Body[i]);
           IOHandler.WriteLnRFC(LBodyLine); {do not localize}
         end;
       end else begin
