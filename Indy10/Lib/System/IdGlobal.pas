@@ -3811,9 +3811,14 @@ end;
 
 function ToBytes(const AValue: TIdBytes; const ASize: Integer; const AIndex: Integer = 0): TIdBytes; overload;
 {$IFDEF USEINLINE}inline;{$ENDIF}
+var
+  LSize: Integer;
 begin
-  SetLength(Result, ASize);
-  CopyTIdBytes(AValue, AIndex, Result, 0, ASize);
+  LSize := IndyLength(AValue, ASize, AIndex);
+  SetLength(Result, LSize);
+  if LSize > 0 then begin
+    CopyTIdBytes(AValue, AIndex, Result, 0, LSize);
+  end;
 end;
 
 {$IFNDEF DOTNET}
