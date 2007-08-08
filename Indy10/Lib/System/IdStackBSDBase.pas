@@ -275,10 +275,7 @@ type
     procedure SetBlocking(ASocket: TIdStackSocketHandle;
      const ABlocking: Boolean); virtual; abstract;
     function WouldBlock(const AResult: Integer): Boolean; virtual; abstract;
-    function CheckForSocketError(const AResult: Integer): Integer; overload;
-    function CheckForSocketError(const AResult: Integer;
-     const AIgnore: array of Integer): Integer; overload;
-    function NewSocketHandle(const ASocketType:TIdSocketType;
+    function NewSocketHandle(const ASocketType: TIdSocketType;
       const AProtocol: TIdSocketProtocol;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION;
       const AOverlapped: Boolean = False)
@@ -380,33 +377,6 @@ begin
     else begin
       IPVersionUnsupported;
     end;
-  end;
-end;
-
-function TIdStackBSDBase.CheckForSocketError(const AResult: Integer): Integer;
-begin
-  if AResult = Id_SOCKET_ERROR then begin
-    RaiseLastSocketError;
-  end;
-  Result := AResult;
-end;
-
-function TIdStackBSDBase.CheckForSocketError(const AResult: Integer;
-  const AIgnore: array of integer): Integer;
-var
-  i: Integer;
-  LLastError: Integer;
-begin
-  Result := AResult;
-  if AResult = Id_SOCKET_ERROR then begin
-    LLastError := WSGetLastError;
-    for i := Low(AIgnore) to High(AIgnore) do begin
-      if LLastError = AIgnore[i] then begin
-        Result := LLastError;
-        Exit;
-      end;
-    end;
-    RaiseSocketError(LLastError);
   end;
 end;
 
