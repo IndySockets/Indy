@@ -21,7 +21,7 @@
 
 
    Rev 1.6    10/26/2004 8:12:32 PM  JPMugaas
- Now uses TIdStrings and TIdStringList for portability.
+ Now uses TStrings and TStringList for portability.
 
 
    Rev 1.5    12/06/2004 15:17:20  CCostelloe
@@ -79,8 +79,9 @@ uses
   IdStackBSDBase;
 
 type
+  {$IFNDEF NOREDECLARE}
   Psockaddr = ^sockaddr;
-
+  {$ENDIF}
   TIdSocketListUnix = class (TIdSocketList)
   protected
     FCount: Integer;
@@ -139,7 +140,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TIdStrings; override;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle; Alevel, AOptname: Integer;
       AOptval: PChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -188,11 +189,12 @@ type
     function IOControl(const s: TIdStackSocketHandle; const cmd: Cardinal;
       var arg: Cardinal): Integer; override;
   end;
-
+  {$IFNDEF NOREDECLARE}
   TLinger = record
     l_onoff: Word;
     l_linger: Word;
   end;
+  {$ENDIF}
   TIdLinger = TLinger;
 
 implementation
@@ -207,8 +209,8 @@ uses
 
 //from: netdbh.inc, we can not include it with the I derrective and netdb.pas
 //does not expose it.
-const
-  EAI_SYSTEM = -(11);
+{const
+  EAI_SYSTEM = -(11);}
 
 const
   FD_SETSIZE = FD_MAXFDSET;
@@ -426,6 +428,17 @@ end;
 function TIdStackUnix.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt :  TIdPacketInfo;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal;
+var
+  LIP : String;
+  LPort : TIdPort;
+begin
+  
+  LongWord(Result) := RecvFrom(ASocket, VBuffer[0], Length(VBuffer),0,LIP,LPort);
+  APkt.SourceIP := LIP;
+  APkt.SourcePort := LPort;
+  SetLength(VBuffer,Result);
+end;
+{The stuff below is commented out until I figure out what to do}
 {var
   LIP : String;
   LPort : TIdPort;
@@ -512,8 +525,7 @@ begin
         end;
       end;
     until False; }
-begin
-end;
+
 
 function TIdStackUnix.WSSend(ASocket: TIdStackSocketHandle;
   const ABuffer; const ABufferLength, AFlags: Integer): Integer;
@@ -602,22 +614,6 @@ begin
     raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
   end;
 end;
-{var
-  Lps: PServEnt;
-begin
-  Lps := GetServByName(PChar(AServiceName), nil);
-  if Lps <> nil then begin
-    Result := Ntohs(Lps^.s_port);
-  end else begin
-    try
-      Result := StrToInt(AServiceName);
-    except
-      on EConvertError do begin
-        raise EIdInvalidServiceName.CreateFmt(RSInvalidServiceName, [AServiceName]);
-      end;
-    end;
-  end;
-end;   }
 
 function TIdStackUnix.WSGetServByPort(const APortNumber: TIdPort): TStrings;
 var
@@ -633,28 +629,6 @@ begin
     raise;
   end;
 end;
-{var
-  Lps: PServEnt;
-  Li: Integer;
-  Lp: array of PChar;
-begin
-  Result := TStringList.Create;
-  Lp := nil;
-  try
-    Lps := GetServByPort(HToNs(APortNumber), nil);
-    if Lps <> nil then begin
-      Result.Add(Lps^.s_name);
-      Li := 0;
-      Lp := pointer(Lps^.s_aliases);
-      while Lp[Li] <> nil do begin
-        Result.Add(PChar(Lp[Li]));
-        inc(Li);
-      end;
-    end;
-  except
-    Result.Free;
-  end;
-end; }
 
 function TIdStackUnix.HostToNetwork(AValue: Word): Word;
 begin
@@ -754,56 +728,6 @@ begin
   end;
 end;
 
-{var
-  LHints: AddrInfo; //The T is no omission - that's what I found in the header
-  LAddrInfo: PAddrInfo;
-  LRetVal: integer;
-begin
-  case AIPVersion of
-    Id_IPv6, Id_IPv4: begin
-      FillChar(LHints,sizeof(LHints), 0);
-      LHints.ai_family := IdIPFamily[AIPVersion];
-      LHints.ai_socktype := Integer(SOCK_STREAM);
-      LHints.ai_flags := AI_CANONNAME + AI_NUMERICHOST;
-      LAddrInfo:=nil;
-      LRetVal := getaddrinfo(pchar(AAddress), nil, @LHints, @LAddrInfo);
-      if LRetVal<>0 then begin
-        if LRetVal = EAI_SYSTEM then begin
-          RaiseLastOSError;
-        end else begin
-          raise EIdReverseResolveError.CreateFmt(RSReverseResolveError, [AAddress, gai_strerror(LRetVal), LRetVal]);
-        end;
-      end else begin
-        result := LAddrInfo^.ai_canonname;
-        freeaddrinfo(LAddrInfo);
-      end;
-    end;
-(* JMB: I left this in here just in case someone
-        complains, but the other code works on all
-        linux systems for all addresses and is thread-safe
-
-variables for it:
-  Host: PHostEnt;
-  LAddr: u_long;
-
-    Id_IPv4: begin
-      // GetHostByAddr is thread-safe in Linux.
-      // It might not be safe in Solaris or BSD Unix
-      LAddr := inet_addr(PChar(AAddress));
-      Host := GetHostByAddr(@LAddr,SizeOf(LAddr),AF_INET);
-      if (Host <> nil) then begin
-        Result := Host^.h_name;
-      end else begin
-        RaiseSocketError(h_errno);
-      end;
-    end;
-*)
-    else begin
-      IPVersionUnsupported;
-    end;
-  end;
-end;
-}
 
 function TIdStackUnix.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
 begin
