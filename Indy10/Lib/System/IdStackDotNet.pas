@@ -1038,11 +1038,11 @@ begin
   SetLength(LTmp, Length(VBuffer)+40);
   System.&Array.Clear(LTmp,0,Length(LTmp));
   //16
-  CopyTIdBytes(LSource, 0, LTmp, 0, Length(LSource));
-  LIdx := Length(LSource);
+  CopyTIdBytes(LSource, 0, LTmp, 0, 16);
+  LIdx := 16;
   //32
-  CopyTIdBytes(LDest, 0, LTmp,LIdx, Length(LDest));
-  Inc(LIdx, Length(LDest));
+  CopyTIdBytes(LDest, 0, LTmp,LIdx, 16);
+  Inc(LIdx, 16);
   //use a word so you don't wind up using the wrong network byte order function
   LC := Length(VBuffer);
   CopyTIdLongWord(GStack.HostToNetwork(LC), LTmp, LIdx);
@@ -1052,8 +1052,7 @@ begin
   //done in the begging
   Inc(LIdx, 3);
   //next header (protocol type determines it
-  LTmp[LIdx] := 58;
-   // Id_IPPROTO_ICMP6;
+  LTmp[LIdx] := Ord(Id_IPPROTO_ICMPv6);
   Inc(LIdx);
   //zero our checksum feild for now
   VBuffer[2] := 0;
