@@ -3158,10 +3158,11 @@ type
   PQ_64BIT = QWord;
   {$else}
   PQ_64BIT = Int64;
-    {$NODEFINE size_t}
-    size_t	  = Integer;
+
   {$endif}
 
+    {$NODEFINE size_t}
+    size_t	  = Integer;
 // REMY - the following value was conflicting with iphlpapi.h under C++Builder
 //	(and possibly other headers) so using the HPPEMIT further above as a workaround
 
@@ -7055,7 +7056,6 @@ function WhichFailedToLoad: String;
 
 procedure InitializeRandom;
 
-
 function IdSslX509StoreCtxGetAppData(ctx:PX509_STORE_CTX):Pointer;
 function IdSslX509GetVersion(x : PX509): TIdC_LONG;
 function IdSslX509GetSignatureType(x : PX509) : TIdC_INT;
@@ -9764,11 +9764,15 @@ begin
   Result := IdSSL_get_ex_data(s, 0);
 end;
 
+
 procedure InitializeRandom;
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
+  {$IFDEF SYS_WIN}
   if @IdSslRandScreen <> nil then begin
     IdSslRandScreen;
   end;
+  {$ENDIF}
 end;
 
 //#define M_ASN1_STRING_length(x)	((x)->length)
