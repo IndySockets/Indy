@@ -69,7 +69,6 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
-  IdException,
   IdCoderMIME,
   IdResourceStringsProtocols,
   IdSSLOpenSSLHeaders,
