@@ -796,7 +796,9 @@ type
   {$IFDEF DOTNET}
   THandle = Integer;
   {$ELSE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   THandle = Windows.THandle;
+     {$ENDIF}
   {$ENDIF}
 
   TPosProc = function(const substr, str: {$IFDEF DOTNET}WideString{$ELSE}String{$ENDIF}): Integer;
@@ -1186,15 +1188,59 @@ end;
 {$IFNDEF DOTNET}
 function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUInt) : THandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
-begin
+
   //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
-  //only handles 32bit values.  In Win64, the THandle is 64 bits and is define
-  //as a pointer
-  {$IFDEF CPU32}
-  Result := InterlockedExchange(PtrInt(VTarget), AValue);
-  {$ENDIF}
+  //only handles 32bit values.  Some Operating Systems may have 64bit  
+  // THandles.  This is not always tied to the platform architecture.
+
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF SOLARIS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BEOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GBA}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARE}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WATCOM}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BSD}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF EMX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF AMIGA}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF EMBEDDED}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF MACOS}
+   {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+
+{$IFDEF THANDLECPUBITS}  
   {$IFDEF CPU64}
-  Result := InterlockedExchange64(PtrInt(VTarget), 0);
+     {$DEFINE THANDLE64}
+  {$ELSE}
+     {$DEFINE THANDLE32}
+  {$ENDIF}
+{$ENDIF}
+begin
+
+  {$IFDEF THANDLE32}
+  Result := InterlockedExchange(LongInt(VTarget), AValue);
+  {$ENDIF}
+  {$IFDEF THANDLE64}
+  Result := InterlockedExchange64(Int64(VTarget), AValue);
   {$ENDIF}
 end;
 {$ENDIF}
