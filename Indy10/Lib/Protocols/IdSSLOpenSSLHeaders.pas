@@ -9766,7 +9766,9 @@ end;
 
 
 procedure InitializeRandom;
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFNDEF SYS_WIN}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+{$ENDIF}
 begin
   {$IFDEF SYS_WIN}
   if @IdSslRandScreen <> nil then begin
