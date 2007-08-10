@@ -234,7 +234,7 @@ type
       var VIP: string; var VPort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
+      APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
       const AOffset: Integer; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
@@ -582,7 +582,7 @@ begin
     VIP := IPEndPoint(LEndPoint).Address.ToString;
     VPort := IPEndPoint(LEndPoint).Port;
   finally
-    LEndPoint.free;
+    LEndPoint.Free;
   end;
 end;
 
@@ -882,7 +882,7 @@ end;
 
 function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
-  const AIPVersion: TIdIPVersion): Cardinal;
+  const AIPVersion: TIdIPVersion): LongWord;
 var
   {$IFDEF DOTNET1}
   LIP : String;
@@ -904,12 +904,12 @@ begin
    AddressFamily of the EndPoint used in SendTo.
    }
   case AIPVersion of
-    Id_IPv4 :
+  Id_IPv4 :
     begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
  //     LRemEP.AddressFamily := AddressFamily.InterNetwork;
     end;
-    Id_IPv6 :
+  Id_IPv6 :
     begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
     //LRemEP.AddressFamily := AddressFamily.InterNetworkV6;
@@ -960,10 +960,11 @@ end;
 
 procedure TIdStackDotNet.QueryRoute(s : TIdStackSocketHandle; const AIP: String;
   const APort: TIdPort; var VSource, VDest : TIdBytes);
-var LEP : IPEndPoint;
-    LDestIF : SocketAddress;
-    LIn, LOut : TBytes;
-    i : Integer;
+var
+  LEP : IPEndPoint;
+  LDestIF : SocketAddress;
+  LIn, LOut : TBytes;
+  i : Integer;
 begin
   LEP := IPEndPoint.Create(IPAddress.Parse(AIP),APort);
   LDestIf := LEP.Serialize;
@@ -1063,8 +1064,8 @@ begin
 
   CopyTIdWord(HostToLittleEndian(LW), VBuffer, AOffset);
 end;
+{$ENDIF}
 
- {$ENDIF}
 procedure TIdStackDotNet.WriteChecksum(s: TIdStackSocketHandle;
   var VBuffer: TIdBytes; const AOffset: Integer; const AIP: String;
   const APort: TIdPort; const AIPVersion: TIdIPVersion);
