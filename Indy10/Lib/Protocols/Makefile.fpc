@@ -122,6 +122,10 @@ implicitunits=IdASN1Util \
   IdHashElf \
   IdHashMessageDigest \
   IdHashSHA1 \
+  IdHeaderCoder2022JP \
+  IdHeaderCoderBig5 \
+  IdHeaderCoderPlain \
+  IdHeaderCoderUTF8 \
   IdHeaderList \
   IdIMAP4 \
   IdIMAP4Server \
