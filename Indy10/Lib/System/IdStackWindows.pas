@@ -263,7 +263,7 @@ type
      const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
      AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
    function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt : TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
+      APkt : TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
 
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -292,7 +292,7 @@ type
       ALevel: TIdSocketProtocol; AOptName: TIdSocketOption;
       AOptVal: Integer); overload; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle; const Alevel, Aoptname: Integer; Aoptval: PChar; const Aoptlen: Integer ); overload; override;
-    function IOControl(const s:  TIdStackSocketHandle; const cmd: cardinal; var arg: cardinal ): Integer; override;
+    function IOControl(const s:  TIdStackSocketHandle; const cmd: LongWord; var arg: LongWord): Integer; override;
     function SupportsIPv6:boolean; override;
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; override;
     procedure WriteChecksum(s : TIdStackSocketHandle;
@@ -690,7 +690,7 @@ end;
 { TIdStackVersionWinsock }
 
 {$IFNDEF WINCE}
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Cardinal;
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
 var
   LFileHandle: THandle;
 begin
@@ -924,9 +924,9 @@ end;
 procedure TIdStackWindows.SetBlocking(ASocket: TIdStackSocketHandle;
  const ABlocking: Boolean);
 var
-  LValue: Cardinal;
+  LValue: LongWord;
 begin
-  LValue := Cardinal(not ABlocking);
+  LValue := LongWord(not ABlocking);
   CheckForSocketError(ioctlsocket(ASocket, FIONBIO, LValue));
 end;
 
@@ -1076,7 +1076,8 @@ function TIdStackWindows.SupportsIPv6:boolean;
 based on
 http://groups.google.com/groups?q=Winsock2+Delphi+protocol&hl=en&lr=&ie=UTF-8&oe=utf-8&selm=3cebe697_2%40dnews&rnum=9
 }
-var LLen : Cardinal;
+var
+  LLen : LongWord;
   LPInfo, LPCurPtr : LPWSAProtocol_Info;
   LCount : Integer;
   i : Integer;
@@ -1106,9 +1107,9 @@ begin
 end;
 
 function TIdStackWindows.IOControl(const s: TIdStackSocketHandle;
-  const cmd: cardinal; var arg: cardinal): Integer;
+  const cmd: LongWord; var arg: LongWord): Integer;
 begin
-  Result := IdWinsock2.ioctlsocket(s,cmd,arg);
+  Result := IdWinsock2.ioctlsocket(s, cmd, arg);
 end;
 
 procedure TIdStackWindows.WSQuerryIPv6Route(ASocket: TIdStackSocketHandle;
@@ -1117,8 +1118,7 @@ var
   Llocalif : SOCKADDR_STORAGE;
   LPLocalIP : PSOCKADDR_IN6;
   LAddr6 : TSockAddrIn6;
-  Bytes : Cardinal;
-
+  Bytes : LongWord;
 begin
 //  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
   //make our LAddrInfo structure
@@ -1130,8 +1130,8 @@ begin
   LPLocalIP := PSockAddr_in6(@Llocalif);
   // Find out which local interface for the destination
   CheckForSocketError( WSAIoctl(ASocket, SIO_ROUTING_INTERFACE_QUERY,
-    @LAddr6, Cardinal(SizeOf(TSockAddrIn6)), @Llocalif,
-    Cardinal(SizeOf(Llocalif)), @Bytes, nil, nil));
+    @LAddr6, LongWord(SizeOf(TSockAddrIn6)), @Llocalif,
+    LongWord(SizeOf(Llocalif)), @Bytes, nil, nil));
   Move( LPLocalIP^.sin6_addr, VSource, SizeOf(in6_addr));
 end;
 
@@ -1213,11 +1213,11 @@ begin
 end;
 
 function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer : TIdBytes;
-  APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion): Cardinal;
+  APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion): LongWord;
 var
   LIP : String;
   LPort : TIdPort;
-  LSize: Cardinal;
+  LSize: LongWord;
   LAddr4: TSockAddrIn;
   LAddr6: TSockAddrIn6;
   LMsg : TWSAMSG;

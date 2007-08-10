@@ -21,7 +21,7 @@
 
 
    Rev 1.6    10/26/2004 8:12:32 PM  JPMugaas
- Now uses TStrings and TStringList for portability.
+ Now uses TIdStrings and TIdStringList for portability.
 
 
    Rev 1.5    12/06/2004 15:17:20  CCostelloe
@@ -68,7 +68,9 @@
 unit IdStackUnix;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   Classes,
   sockets,
@@ -82,6 +84,7 @@ type
   {$IFNDEF NOREDECLARE}
   Psockaddr = ^sockaddr;
   {$ENDIF}
+
   TIdSocketListUnix = class (TIdSocketList)
   protected
     FCount: Integer;
@@ -161,7 +164,7 @@ type
       const ALength, AFlags: Integer; var VIP: string; var VPort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
-      APkt :  TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
+      APkt :  TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer; const AIP: string; const APort: TIdPort;
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -186,9 +189,10 @@ type
     procedure WriteChecksum(s : TIdStackSocketHandle; var VBuffer : TIdBytes;
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
-    function IOControl(const s: TIdStackSocketHandle; const cmd: Cardinal;
-      var arg: Cardinal): Integer; override;
+    function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
+      var arg: LongWord): Integer; override;
   end;
+
   {$IFNDEF NOREDECLARE}
   TLinger = record
     l_onoff: Word;
@@ -427,13 +431,12 @@ end;
 
 function TIdStackUnix.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt :  TIdPacketInfo;
-  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord;
 var
   LIP : String;
   LPort : TIdPort;
 begin
-  
-  LongWord(Result) := RecvFrom(ASocket, VBuffer[0], Length(VBuffer),0,LIP,LPort);
+  LongWord(Result) := RecvFrom(ASocket, VBuffer[0], Length(VBuffer), 0, LIP, LPort);
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
   SetLength(VBuffer,Result);
@@ -710,6 +713,7 @@ var
   LAddr4: THostAddr;
   LAddr6: THostAddr6;
 begin
+  Result := '';
   case AIPVersion of
     Id_IPv4 :
     begin
@@ -721,13 +725,12 @@ begin
     Id_IPv6 :
     begin
       LAddr6 := StrToNetAddr6(AAddress);
-      if ResolveAddress6(LAddr6,LI) = 0 then begin
+      if ResolveAddress6(LAddr6, LI) = 0 then begin
         Result := LI[0];
       end;
     end;
   end;
 end;
-
 
 function TIdStackUnix.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
 begin
@@ -887,8 +890,8 @@ begin
   CheckForSocketError(fpsetsockopt(s, Id_IPPROTO_IPV6, IPV6_CHECKSUM, @Loffset, SizeOf(Loffset)));
 end;
 
-function TIdStackUnix.IOControl(const s: TIdStackSocketHandle; const cmd: Cardinal;
-  var arg: Cardinal ): Integer;
+function TIdStackUnix.IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
+  var arg: LongWord): Integer;
 var
   LArg : PtrUInt;
 begin
