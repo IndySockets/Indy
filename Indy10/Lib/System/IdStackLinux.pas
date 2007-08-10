@@ -153,7 +153,7 @@ type
       AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
        APkt: TIdPacketInfo;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; override;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
     procedure WSSendTo(ASocket: TIdStackSocketHandle; const ABuffer;
       const ABufferLength, AFlags: Integer;
       const AIP: string; const APort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
@@ -230,7 +230,7 @@ end;
 function TIdStackLinux.Accept(ASocket: TIdStackSocketHandle;
   var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion): TIdStackSocketHandle;
 var
-  LN: Cardinal;
+  LN: LongWord;
   LAddr: sockaddr_in6;
 begin
   LN := SizeOf(LAddr);
@@ -402,7 +402,7 @@ function TIdStackLinux.RecvFrom(const ASocket: TIdStackSocketHandle;
   var VBuffer; const ALength, AFlags: Integer; var VIP: string;
   var VPort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ): Integer;
 var
-  LiSize: Cardinal;
+  LiSize: LongWord;
   LAddr6: sockaddr_in6;
 begin
   case AIPVersion of
@@ -422,7 +422,7 @@ end;
 
 function TIdStackLinux.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
-  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord;
 {var
   LIP : String;
   LPort : TIdPort;
@@ -777,7 +777,7 @@ end;
 procedure TIdStackLinux.GetPeerName(ASocket: TIdStackSocketHandle;
  var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  i: Cardinal;
+  i: LongWord;
   LAddr6: sockaddr_in6;
 begin
   i := SizeOf(LAddr6);
@@ -802,7 +802,7 @@ end;
 procedure TIdStackLinux.GetSocketName(ASocket: TIdStackSocketHandle;
   var VIP: string; var VPort: TIdPort; var VIPVersion: TIdIPVersion);
 var
-  i: Cardinal;
+  i: LongWord;
   LAddr6: sockaddr_in6;
 begin
   i := SizeOf(LAddr6);
@@ -826,7 +826,7 @@ end;
 
 procedure TIdStackLinux.WSGetSockOpt(ASocket: TIdStackSocketHandle; ALevel, AOptname: Integer; AOptval: PChar; var AOptlen: Integer);
 begin
-  CheckForSocketError(Libc.GetSockOpt(ASocket, ALevel, AOptname, AOptval, Cardinal(AOptlen)));
+  CheckForSocketError(Libc.GetSockOpt(ASocket, ALevel, AOptname, AOptval, LongWord(AOptlen)));
 end;
 
 procedure TIdStackLinux.GetSocketOption(ASocket: TIdStackSocketHandle;

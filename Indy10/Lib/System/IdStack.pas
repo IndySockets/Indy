@@ -167,19 +167,19 @@ type
     FSourcePort : Integer;
     FDestIP: String;
     FDestPort : Integer;
-    FSourceIF: Cardinal;
-    FDestIF: Cardinal;
+    FSourceIF: LongWord;
+    FDestIF: LongWord;
     FTTL: Byte;
   public
     property TTL : Byte read FTTL write FTTL;
     //The computer that sent it to you
     property SourceIP : String read FSourceIP write FSourceIP;
     property SourcePort : Integer read FSourcePort write FSourcePort;
-    property SourceIF : Cardinal read FSourceIF write FSourceIF;
+    property SourceIF : LongWord read FSourceIF write FSourceIF;
     //you, the receiver - this is provided for multihorned machines
     property DestIP : String read FDestIP write FDestIP;
     property DestPort : Integer read FDestPort write FDestPort;
-    property DestIF : Cardinal read FDestIF write FDestIF;
+    property DestIF : LongWord read FDestIF write FDestIF;
   end;
   TIdSocketListClass = class of TIdSocketList;
 
@@ -286,7 +286,7 @@ type
              const AOffset: Integer; const AIP: string; const APort: TIdPort;
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes; APkt: TIdPacketInfo;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Cardinal; virtual; abstract;
+      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
 
     //multicast stuff Kudzu permitted me to add here.
@@ -810,9 +810,10 @@ begin
 end;
 
 function TIdStack.CalcCheckSum(const AData: TIdBytes): word;
-var i : Integer;
+var
+  i : Integer;
   LSize : Integer;
-  LCRC : Cardinal;
+  LCRC : LongWord;
 begin
   LCRC := 0;
   i := 0;

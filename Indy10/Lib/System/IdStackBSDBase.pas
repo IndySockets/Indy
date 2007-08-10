@@ -166,7 +166,7 @@ uses
 type
   EIdNotASocket = class(EIdSocketError);
 
-  TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): cardinal;
+  TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
 
   // RP - for use with the HostToNetwork() and NetworkToHost()
   // methods under Windows and Linux since the Socket API doesn't
@@ -185,7 +185,7 @@ type
   TIdIPAddressRec = packed record
     IPVer: TIdIPVersion;
     case Integer of
-    0: (IPv4, Junk1, Junk2, Junk3: Cardinal);
+    0: (IPv4, Junk1, Junk2, Junk3: LongWord);
     2: (IPv6 : TIdIPv6AddressRec);
   end;
 
@@ -210,9 +210,9 @@ type
   PIdIn6Addr = ^TIdIn6Addr;
   TIdIn6Addr = packed record
     case Integer of
-    0: (s6_addr: packed array [0..16-1] of byte);
-    1: (s6_addr16: packed array [0..8-1] of word);
-    2: (s6_addr32: packed array [0..4-1] of cardinal);
+    0: (s6_addr: packed array [0..16-1] of Byte);
+    1: (s6_addr16: packed array [0..8-1] of Word);
+    2: (s6_addr32: packed array [0..4-1] of LongWord);
   end;
 
   PIdInAddr = ^TIdInAddr;
@@ -226,7 +226,7 @@ type
   end;
   TIdIPv6Mreq = packed record
     ipv6mr_multiaddr : TIdIn6Addr;  //IPv6 multicast addr
-    ipv6mr_interface : Cardinal;  //interface index
+    ipv6mr_interface : LongWord;  //interface index
   end;
 
   TIdStackBSDBase = class(TIdStack)
