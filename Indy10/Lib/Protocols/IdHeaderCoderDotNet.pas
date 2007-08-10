@@ -18,7 +18,7 @@ type
 implementation
 
 uses
-  IdGlobal;
+  IdGlobal, System.Text;
 
 function TIdHeaderCoderDotNet.Decode(const ACharSet, AData: String): String;
 var
