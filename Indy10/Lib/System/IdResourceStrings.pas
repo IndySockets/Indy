@@ -30,7 +30,7 @@
 unit IdResourceStrings;
 
 interface
-
+{$I IdCompilerDefines.inc}
 resourcestring
   //IdSys
   RSFailedTimeZoneInfo = 'Failed attempting to retrieve time zone information.';
@@ -113,6 +113,10 @@ resourcestring
  //DNS Resolution error messages
   RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
   RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
+
+ {$IFDEF DOTNET1}
+ RSNotSupportedInMicrosoftNET11 = 'Not Supported in Microsoft.NET 1.1';
+ {$ENDIF}
 
 implementation
 
