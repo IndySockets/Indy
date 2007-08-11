@@ -68,6 +68,11 @@ type
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.IO,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobal, IdGlobalProtocols, IdException, IdResourceStringsProtocols,
   IdMessage, SysUtils;
 
