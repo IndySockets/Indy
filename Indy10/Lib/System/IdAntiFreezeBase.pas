@@ -92,6 +92,11 @@ var
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.Threading,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobal,
   IdResourceStrings,
   IdException;
