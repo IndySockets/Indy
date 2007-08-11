@@ -932,19 +932,19 @@ This extracts an IP address as a series of bytes from a TIdBytes that contains
 one SockAddress structure.
 }
 procedure SockAddrToIPBytes(const ASockAddr : TIdBytes; var VIPAddr : TIdBytes);
-{$IFDEF USEINLINE}inline;{$ENDIF}
+{$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   case IdGlobal.BytesToWord(ASockAddr,0) of
     23 : //AddressFamily.InterNetworkV6 :
     begin
       //16 = size of SOCKADDR_IN6.sin6_addr
       SetLength(VIPAddr,16);
-//    6 = offset of sin6_addr in SOCKADDR_IN6
+//    8 = offset of sin6_addr in SOCKADDR_IN6
 //    sin6_family   : Smallint;         // AF_INET6
 //    sin6_port     : u_short;          // Transport level port number
 //    sin6_flowinfo : u_long;           // IPv6 flow information
 
-      System.array.Copy(ASockAddr,6, VIPAddr, 0, 16);
+      System.array.Copy(ASockAddr,8, VIPAddr, 0, 16);
     end;
     2 : //AddressFamily.InterNetwork :
     begin
@@ -998,6 +998,7 @@ We can not do something like:
   s.IOControl(LongInt(SIO_ROUTING_INTERFACE_QUERY),Lin,LOut);
   SockAddrToIPBytes(LOut,VSource);
   SockAddrToIPBytes(LIn,VDest);
+
 end;
 
 procedure TIdStackDotNet.WriteChecksumIPv6(s: TIdStackSocketHandle;
