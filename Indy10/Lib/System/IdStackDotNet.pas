@@ -267,6 +267,9 @@ type
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
+ {$IFDEF DOTNET1}
+  EIdNotSupportedInMicrosoftNET11 = class(EIdStackError);
+ {$ENDIF}
 
 var
  GDotNETStack : TIdStackDotNet = nil;
@@ -907,12 +910,10 @@ begin
   Id_IPv4 :
     begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('0.0.0.0'),0);
- //     LRemEP.AddressFamily := AddressFamily.InterNetwork;
     end;
   Id_IPv6 :
     begin
       LRemEP := IPEndPoint.Create(IPAddress.Parse('::0'),0);
-    //LRemEP.AddressFamily := AddressFamily.InterNetworkV6;
     end;
   end;
   Result := ASocket.ReceiveMessageFrom(VBuffer, 0, Length(VBUffer), LSF, LRemEP, lpki);
@@ -1085,7 +1086,7 @@ begin
     I'm not sure if we have an API for it at all.  Even if we did, would it be worth
     doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
     in its enumerations.}
-    Todo;
+    raise EIdNotSupportedInMicrosoftNET11.Create(RSNotSupportedInMicrosoftNET11);
     {$ELSE}
     WriteChecksumIPv6(s,VBuffer,AOffset,AIP,APort);
     {$ENDIF}
