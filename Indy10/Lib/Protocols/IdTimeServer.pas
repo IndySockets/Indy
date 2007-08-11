@@ -102,6 +102,7 @@ Type
 implementation
 
 uses
+  IdGlobal, //here to facilitate inlining
   IdGlobalProtocols,
   SysUtils;
 
