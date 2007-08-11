@@ -2102,7 +2102,7 @@ begin
   begin
     // TODO: support UTF-8
     {$IFDEF DOTNET}
-    GetEncoder(en7Bit).GetBytes(ASource, ASourceIndex, LLength, VDest, ADestIndex);
+    GetEncoder(en7Bit).GetBytes(ASource, ASourceIndex-1, LLength, VDest, ADestIndex);
     {$ELSE}
     Move(ASource[ASourceIndex], VDest[ADestIndex], LLength);
     {$ENDIF}
