@@ -636,7 +636,7 @@ begin
     Inc(LIdx, 4);
     LLen := Length(ABuffer);
     if LLen > 0 then begin
-      CopyTIdString(ABuffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
+      CopyTIdString(ABuffer,1,FBufIcmp,LIdx,IdGlobal.Min(LLen, FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);
