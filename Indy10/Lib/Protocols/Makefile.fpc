@@ -123,7 +123,6 @@ implicitunits=IdASN1Util \
   IdHashMessageDigest \
   IdHashSHA1 \
   IdHeaderCoder2022JP \
-  IdHeaderCoderBig5 \
   IdHeaderCoderPlain \
   IdHeaderCoderUTF8 \
   IdHeaderList \

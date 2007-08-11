@@ -109,7 +109,6 @@ uses
   IdHashMessageDigest,
   IdHashSHA1,
   IdHeaderCoder2022JP,
-  IdHeaderCoderBig5,
   IdHeaderCoderPlain,
   IdHeaderCoderUTF8,
   IdHeaderList,

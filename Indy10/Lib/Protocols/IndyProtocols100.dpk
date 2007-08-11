@@ -144,6 +144,7 @@ contains
   IdHashMessageDigest in 'IdHashMessageDigest.pas',
   IdHashSHA1 in 'IdHashSHA1.pas',
   IdHeaderCoder2022JP in 'IdHeaderCoder2022JP.pas',
+  IdHeaderCoderBig5 in 'IdHeaderCoderBig5.pas',
   IdHeaderCoderPlain in 'IdHeaderCoderPlain.pas',
   IdHeaderCoderUTF8 in 'IdHeaderCoderUTF8.pas',
   IdHeaderList in 'IdHeaderList.pas',
