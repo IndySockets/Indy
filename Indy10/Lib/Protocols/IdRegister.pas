@@ -425,7 +425,7 @@ uses
   {$R IconsDotNet\TIdSMTPServer.bmp}
   {$R IconsDotNet\TIdSNPP.bmp}
   {$R IconsDotNet\TIdSNTP.bmp}
-  {$R IconsDotNet\TIdSocksInfo.bmp}
+  {$R IconsDotNet\TIdSocksServer.bmp}
   {$R IconsDotNet\TIdSysLog.bmp}
   {$R IconsDotNet\TIdSysLogMessage.bmp}
   {$R IconsDotNet\TIdSyslogServer.bmp}
