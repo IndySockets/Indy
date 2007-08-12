@@ -674,6 +674,12 @@ type
 implementation
 
 uses
+  //facilitate inlining only.
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.IO,
+    {$ENDIF}
+  {$ENDIF}
   IdStack, IdStackConsts, IdResourceStrings, SysUtils;
 
 var
