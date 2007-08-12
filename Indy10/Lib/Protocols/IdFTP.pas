@@ -1048,6 +1048,12 @@ type
 implementation
 
 uses
+  //facilitate inlining only.
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+     {$IFDEF USEINLINE}
+  Windows,
+     {$ENDIF}
+  {$ENDIF}
   IdComponent, IdResourceStringsCore, IdIOHandlerStack, IdResourceStringsProtocols,
   IdSSL, IdGlobalProtocols, IdHash, IdHashCRC, IdHashSHA1, IdHashMessageDigest,
   IdStack, IdSimpleServer, IdOTPCalculator, SysUtils;
