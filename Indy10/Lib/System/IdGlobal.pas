@@ -1160,6 +1160,9 @@ type
     function ProcessByte(const AByte: Byte; var VChar: WideChar): Boolean; virtual; abstract;
   end;
 
+{$IFDEF DOTNET}
+function GetEncoder(AEncoding: TIdEncoding): Encoding;
+{$ENDIF}
 function GetUTF8Decoder: TIdUTF8Decoder;
 
 implementation
@@ -1358,6 +1361,7 @@ end;
 
 {$IFDEF DOTNET}
 function GetEncoder(AEncoding: TIdEncoding): Encoding;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   case AEncoding of
     en7Bit: Result := System.Text.Encoding.ASCII;
@@ -2094,7 +2098,8 @@ end;
 
 procedure CopyTIdString(const ASource: String; const ASourceIndex: Integer;
   var VDest: TIdBytes; const ADestIndex: Integer; const ALength: Integer = -1); overload;
-var
+{$IFDEF USEINLINE}inline;{$ENDIF}
+  var
   LLength: Integer;
 begin
   LLength := IndyLength(ASource, ALength, ASourceIndex);
@@ -2184,6 +2189,7 @@ end;
 function Fetch(var AInput: string; const ADelim: string = IdFetchDelimDefault;
   const ADelete: Boolean = IdFetchDeleteDefault;
   const ACaseSensitive: Boolean = IdFetchCaseSensitiveDefault): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LPos: Integer;
 begin
@@ -2215,6 +2221,7 @@ end;
 
 function FetchCaseInsensitive(var AInput: string; const ADelim: string;
   const ADelete: Boolean): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LPos: Integer;
 begin
@@ -2475,6 +2482,7 @@ begin
 end;
 
 function IsAlpha(const AString: String): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   i: Integer;
 begin
@@ -2497,6 +2505,7 @@ begin
 end;
 
 function IsAlphaNumeric(const AString: String): Boolean;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   i: Integer;
 begin
@@ -2518,6 +2527,7 @@ begin
 end;
 
 function IsOctal(const AString: string): Boolean; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   i: Integer;
 begin
@@ -2541,6 +2551,7 @@ begin
 end;
 
 function IsHexidecimal(const AString: string): Boolean; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   i: Integer;
 begin
@@ -2580,6 +2591,7 @@ can not deal with anything greater than MaxInt and IP addresses are
 always $0-$FFFFFFFF (unsigned)
 }
 function StrToInt64Def(const S: string; Default: Integer): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   E: Integer;
 begin
@@ -2608,6 +2620,7 @@ begin
 end;
 
 function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LErr: Boolean;
 begin
@@ -2703,6 +2716,7 @@ begin
 end;
 
 function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   i: Integer;
 begin
@@ -2713,6 +2727,7 @@ begin
 end;
 
 function MakeCanonicalIPv4Address(const AAddr: string): string;
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LErr: Boolean;
   LIP: Cardinal;
@@ -2869,6 +2884,7 @@ begin
 end;
 
 procedure IPv6ToIdIPv6Address(const AIPAddress: String; var VAddress: TIdIPv6Address);
+{$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LErr: Boolean;
 begin
