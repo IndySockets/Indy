@@ -2958,19 +2958,19 @@ var
   procedure FD_ZERO(var FDSet: TFDSet);
 
   {$EXTERNALSYM WSA_CMSGHDR_ALIGN}
-  function WSA_CMSGHDR_ALIGN(length: DWORD): DWORD;
+  function WSA_CMSGHDR_ALIGN(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSGDATA_ALIGN}
-  function WSA_CMSGDATA_ALIGN(length: DWORD): DWORD;
+  function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_FIRSTHDR}
-  function WSA_CMSG_FIRSTHDR(msg: LPWSAMSG): LPWSACMSGHDR;
+  function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
   {$EXTERNALSYM WSA_CMSG_NXTHDR}
-  function WSA_CMSG_NXTHDR(msg: LPWSAMSG; cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+  function WSA_CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
   {$EXTERNALSYM WSA_CMSG_DATA}
-  function WSA_CMSG_DATA(cmsg: LPWSACMSGHDR): PByte;
+  function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
   {$EXTERNALSYM WSA_CMSG_SPACE}
-  function WSA_CMSG_SPACE(length: DWORD): DWORD;
+  function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_LEN}
-  function WSA_CMSG_LEN(length: DWORD): DWORD;
+  function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
 
 //=============================================================
 
@@ -3020,7 +3020,7 @@ type
   end;
 
   {$EXTERNALSYM IP_MSFILTER_SIZE}
-  function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
+  function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
 
 // TCP/IP specific Ioctl codes
 const
@@ -5726,7 +5726,12 @@ begin
   FDSet.fd_count := 0;
 end;
 
-function WSA_CMSGHDR_ALIGN(length: DWORD): DWORD;
+{
+#define WSA_CMSGHDR_ALIGN(length)                           \
+            ( ((length) + TYPE_ALIGNMENT(WSACMSGHDR)-1) &   \
+                (~(TYPE_ALIGNMENT(WSACMSGHDR)-1)) )         \
+}
+function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
   TempRec = record
     x: Char;
@@ -5741,13 +5746,25 @@ begin
   Result := (length + (Alignment-1)) and not (Alignment-1);
 end;
 
-function WSA_CMSGDATA_ALIGN(length: DWORD): DWORD;
+{
+
+#define WSA_CMSGDATA_ALIGN(length)                          \
+            ( ((length) + MAX_NATURAL_ALIGNMENT-1) &        \
+                (~(MAX_NATURAL_ALIGNMENT-1)) )
+}
+function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := DWORD(length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
+  Result := (length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
-function WSA_CMSG_FIRSTHDR(msg: LPWSAMSG): LPWSACMSGHDR;
+{
+#define WSA_CMSG_FIRSTHDR(msg) \
+    ( ((msg)->Control.len >= sizeof(WSACMSGHDR))            \
+        ? (LPWSACMSGHDR)(msg)->Control.buf                  \
+        : (LPWSACMSGHDR)NULL )
+}
+function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if (msg <> nil) and (msg^.Control.len >= SIZE_WSACMSGHDR) then begin
@@ -5757,7 +5774,20 @@ begin
   end;
 end;
 
-function WSA_CMSG_NXTHDR(msg: LPWSAMSG; cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
+{
+#define WSA_CMSG_NXTHDR(msg, cmsg)                          \
+    ( ((cmsg) == NULL)                                      \
+        ? WSA_CMSG_FIRSTHDR(msg)                            \
+        : ( ( ((PUCHAR)(cmsg) +                             \
+                    WSA_CMSGHDR_ALIGN((cmsg)->cmsg_len) +   \
+                    sizeof(WSACMSGHDR) ) >                  \
+                (PUCHAR)((msg)->Control.buf) +              \
+                    (msg)->Control.len )                    \
+            ? (LPWSACMSGHDR)NULL                            \
+            : (LPWSACMSGHDR)((PUCHAR)(cmsg) +               \
+                WSA_CMSGHDR_ALIGN((cmsg)->cmsg_len)) ) )
+}
+function WSA_CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if cmsg = nil then begin
@@ -5771,25 +5801,45 @@ begin
   end;
 end;
 
-function WSA_CMSG_DATA(cmsg: LPWSACMSGHDR): PByte;
+{
+#define WSA_CMSG_DATA(cmsg)             \
+            ( (PUCHAR)(cmsg) + WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) )
+
+}
+function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := PByte(PtrUInt(cmsg) + WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR));
 end;
 
-function WSA_CMSG_SPACE(length: DWORD): DWORD;
+{
+#define WSA_CMSG_SPACE(length)  \
+        (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length)))
+
+}
+function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := WSA_CMSGDATA_ALIGN(DWORD(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
-function WSA_CMSG_LEN(length: DWORD): DWORD;
+{
+#define WSA_CMSG_LEN(length)    \
+         (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) + length)
+
+}
+function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := DWORD(WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length);
+  Result := (WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length);
 end;
 
-function IP_MSFILTER_SIZE(numsrc: DWORD): DWORD;
+{
+#define IP_MSFILTER_SIZE(NumSources) \
+    (sizeof(IP_MSFILTER) - sizeof(IN_ADDR) + (NumSources) * sizeof(IN_ADDR))
+
+}
+function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := SIZE_IP_MSFILTER - SIZE_TINADDR + (numsrc*SIZE_TINADDR);
@@ -6023,7 +6073,7 @@ end;
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
 var
-  len : DWORD;
+  len : DWord;
 begin
   if snb <> nil then begin
     with snb^ do begin
@@ -6034,7 +6084,7 @@ begin
         System.Move(Name^, snb_name, NETBIOS_NAME_LENGTH-1)
       end else begin
         if len > 0 then begin
-          System.Move(Name^, snb_name, len);
+          System.Move(Name^, snb_name, LongInt(len));
         end;
         System.FillChar((PChar(@snb_name)+len)^, NETBIOS_NAME_LENGTH-1-len, ' ');    {Do not Localize}
       end;
@@ -6043,7 +6093,12 @@ begin
   end;
 end;
 
-function GROUP_FILTER_SIZE(numsrc : DWord) : DWord;
+{
+#define GROUP_FILTER_SIZE(numsrc) \
+   (sizeof(GROUP_FILTER) - sizeof(SOCKADDR_STORAGE) \
+   + (numsrc) * sizeof(SOCKADDR_STORAGE))
+}
+function GROUP_FILTER_SIZE(numsrc : DWord) : PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
    Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +
