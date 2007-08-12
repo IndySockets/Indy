@@ -3286,7 +3286,7 @@ type
   {$EXTERNALSYM GROUP_SOURCE_REQ}
   PGROUP_SOURCE_REQ = ^GROUP_SOURCE_REQ;
 
-function GROUP_FILTER_SIZE(numsrc : DWord) : DWord;
+function GROUP_FILTER_SIZE(const numsrc : DWord) : PtrUInt;
 
 type
   {$EXTERNALSYM WSAQUERYSET2}
@@ -4615,12 +4615,22 @@ const
   SIZE_TINADDR = DWORD(SizeOf(TInAddr));
   {$EXTERNALSYM SIZE_TIN6ADDR}
   SIZE_TIN6ADDR = DWORD(SizeOf(TIn6Addr));
+  {$EXTERNALSYM SIZE_TSOCKADDRIN}
+  SIZE_TSOCKADDRIN = DWORD(SizeOf(TSockAddrIn));  
+  {$EXTERNALSYM SIZE_TSOCKADDRIN6}
+  SIZE_TSOCKADDRIN6 = DWORD(SizeOf(TSockAddrIn6));
   {$EXTERNALSYM SIZE_GROUP_FILTER}
   SIZE_GROUP_FILTER = DWORD(SizeOf(GROUP_FILTER));
+  {$EXTERNALSYM SIZE_TADDRINFO}
+  SIZE_TADDRINFO = DWORD(SizeOf(TAddrInfo));
   {$EXTERNALSYM SIZE_SOCKADDR_STORAGE}
   SIZE_SOCKADDR_STORAGE = DWORD(sizeof(SOCKADDR_STORAGE));
+  {$EXTERNALSYM SIZE_TWSAMSG}
+  SIZE_TWSAMSG = DWORD(SizeOf(TWSAMSG));
   {$EXTERNALSYM SIZE_GUID}
   SIZE_GUID = DWORD(SizeOf(TGuid));
+  {$EXTERNALSYM SIZE_INTEGER}
+  SIZE_INTEGER = DWORD(SizeOf(Integer));
 
 //=============================================================
 implementation
@@ -6073,7 +6083,11 @@ end;
 //  A macro convenient for setting up NETBIOS SOCKADDRs.
 procedure SET_NETBIOS_SOCKADDR(snb : PSockAddrNB; const SnbType : Word; const Name : PChar; const Port : Char);
 var
+  {$IFDEF FPC}
+  len : sizeint;
+  {$ELSE}
   len : DWord;
+  {$ENDIF}
 begin
   if snb <> nil then begin
     with snb^ do begin
@@ -6098,7 +6112,7 @@ end;
    (sizeof(GROUP_FILTER) - sizeof(SOCKADDR_STORAGE) \
    + (numsrc) * sizeof(SOCKADDR_STORAGE))
 }
-function GROUP_FILTER_SIZE(numsrc : DWord) : PtrUInt;
+function GROUP_FILTER_SIZE(const numsrc : DWord) : PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
    Result := (SIZE_GROUP_FILTER - SIZE_SOCKADDR_STORAGE) +

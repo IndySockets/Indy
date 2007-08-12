@@ -316,6 +316,8 @@ var
 //This is for the Win32-only package (SuperCore)
   GWindowsStack : TIdStackWindows = nil;
 
+const SIZE_HOSTNAME = 250;
+
 implementation
 
 uses
@@ -352,7 +354,7 @@ var
   i: Integer;
   LAddr: TSockAddrIn6;
 begin
-  i := SizeOf(LAddr);
+  i := SIZE_TSOCKADDRIN6;
   Result := IdWinsock2.Accept(ASocket, Pointer(@LAddr), @i);
   if Result <> INVALID_SOCKET then begin
     case LAddr.sin6_family of
@@ -391,7 +393,7 @@ begin
         TranslateStringToTInAddr(AIP, LAddr.sin_addr, Id_IPv4);
       end;
       LAddr.sin_port := HToNS(APort);
-      CheckForSocketError(IdWinsock2.Bind(ASocket, @LAddr, SizeOf(LAddr)));
+      CheckForSocketError(IdWinsock2.Bind(ASocket, @LAddr, SIZE_TSOCKADDRIN));
     end;
     Id_IPv6: begin
       Addr6.sin6_family := Id_PF_INET6;
@@ -403,7 +405,7 @@ begin
         TranslateStringToTInAddr(AIP, Addr6.sin6_addr, Id_IPv6);
       end;
       Addr6.sin6_port := HToNs(APort);
-      CheckForSocketError(IdWinsock2.Bind(ASocket, psockaddr(@addr6), SizeOf(Addr6)));
+      CheckForSocketError(IdWinsock2.Bind(ASocket, psockaddr(@addr6), SIZE_TSOCKADDRIN6));
     end;
     else begin
       IPVersionUnsupported;
@@ -428,7 +430,7 @@ begin
   case AIPVersion of
     Id_IPv4: begin
       LAddr := inet_addr(PChar(AAddress));
-      Host := GetHostByAddr(@LAddr, SizeOf(LAddr), AF_INET);
+      Host := GetHostByAddr(@LAddr, SIZE_TADDRINFO, AF_INET);
       if Host = nil then begin
         CheckForSocketError(SOCKET_ERROR);
       end else begin
@@ -462,8 +464,8 @@ end;
 
 function TIdStackWindows.ReadHostName: string;
 begin
-  SetLength(result, 250);
-  GetHostName(PChar(result), Length(result));
+  SetLength(result, SIZE_HOSTNAME);
+  GetHostName(PChar(result), SIZE_HOSTNAME);
   Result := String(PChar(result));
 end;
 
@@ -488,13 +490,13 @@ var
 begin
   case AIPVersion of
     Id_IPv4: begin
-      iSize := SizeOf(Addr4);
+      iSize := SIZE_TSOCKADDRIN;
       Result := IdWinsock2.RecvFrom(ASocket, VBuffer, ALength, AFlags, @Addr4, @iSize);
       VIP :=  TranslateTInAddrToString(Addr4.sin_addr,Id_IPv4);
       VPort := NToHs(Addr4.sin_port);
     end;
     Id_IPv6: begin
-      iSize := SizeOf(Addr6);
+      iSize := SIZE_TSOCKADDRIN6;
       Result := IdWinsock2.RecvFrom(ASocket, VBuffer, ALength, AFlags, PSockAddr(@Addr6), @iSize);
       VIP := TranslateTInAddrToString(Addr6.sin6_addr, Id_IPv6);
       VPort := NToHs(Addr6.sin6_port);
@@ -528,7 +530,7 @@ begin
         TranslateStringToTInAddr(AIP, sin_addr, Id_IPv4);
         sin_port := HToNs(APort);
       end;
-      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, @Addr4, SizeOf(Addr4));
+      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, @Addr4,SIZE_TSOCKADDRIN );
     end;
     Id_IPv6: begin
       FillChar(Addr6, SizeOf(Addr6), 0);
@@ -538,7 +540,7 @@ begin
         TranslateStringToTInAddr(AIP, sin6_addr, Id_IPv6);
         sin6_port := HToNs(APort);
       end;
-      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, PSockAddr(@Addr6), SizeOf(Addr6));
+      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, PSockAddr(@Addr6), SIZE_TSOCKADDRIN6);
     end;
     else begin
       LBytesOut := 0; // avoid warning
@@ -559,7 +561,7 @@ end;
 procedure TIdStackWindows.SetSocketOption(ASocket: TIdStackSocketHandle;
   ALevel: TIdSocketProtocol; AOptName: TIdSocketOption; AOptVal: Integer);
 begin
-  CheckForSocketError(SetSockOpt(ASocket, ALevel, AOptName, PChar(@AOptVal), SizeOf(AOptVal)));
+  CheckForSocketError(SetSockOpt(ASocket, ALevel, AOptName, PChar(@AOptVal), SIZE_INTEGER));
 end;
 
 function TIdStackWindows.WSGetLastError: Integer;
@@ -716,7 +718,7 @@ var
   i: Integer;
   LAddr: TSockAddrIn6;
 begin
-  i := SizeOf(LAddr);
+  i := SIZE_TSOCKADDRIN6;
   CheckForSocketError(GetSockName(ASocket, PSockAddr(Pointer(@LAddr)), i));
   case LAddr.sin6_family of
     Id_PF_INET4: begin
@@ -970,7 +972,7 @@ begin
     end;
     Id_IPv6: begin
       if not IdIPv6Available then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      ZeroMemory(@Hints,sizeof(Hints));
+      ZeroMemory(@Hints,SIZE_TADDRINFO);
       Hints.ai_family := Id_PF_INET6;
       Hints.ai_socktype := SOCK_STREAM;
       AddrInfo:=nil;
@@ -1002,7 +1004,7 @@ begin
       LAddr.sin_family := Id_PF_INET4;
       TranslateStringToTInAddr(AIP, LAddr.sin_addr, Id_IPv4);
       LAddr.sin_port := HToNS(APort);
-      CheckForSocketError(IdWinsock2.Connect(ASocket, @LAddr, SizeOf(LAddr)));
+      CheckForSocketError(IdWinsock2.Connect(ASocket, @LAddr, SIZE_TSOCKADDRIN));
     end;
     Id_IPv6: begin
       Addr6.sin6_flowinfo:=0;
@@ -1010,7 +1012,7 @@ begin
       Addr6.sin6_family := Id_PF_INET6;
       TranslateStringToTInAddr(AIP, Addr6.sin6_addr, Id_IPv6);
       Addr6.sin6_port := HToNs(APort);
-      CheckForSocketError(IdWinsock2.Connect(ASocket, psockaddr(@Addr6), SizeOf(Addr6)));
+      CheckForSocketError(IdWinsock2.Connect(ASocket, psockaddr(@Addr6), SIZE_TSOCKADDRIN6));
     end;
     else begin
       IPVersionUnsupported;
@@ -1024,7 +1026,7 @@ var
   i: Integer;
   LAddr: TSockAddrIn6;
 begin
-  i := SizeOf(LAddr);
+  i := SIZE_TSOCKADDRIN6;
   CheckForSocketError(IdWinsock2.GetPeerName(ASocket, PSockAddr(Pointer(@LAddr)), i));
   case LAddr.sin6_family of
     Id_PF_INET4: begin
@@ -1066,7 +1068,7 @@ var LP : PAnsiChar;
   LBuf : Integer;
 begin
   LP := Addr(LBuf);
-  LLen := SizeOf(Integer);
+  LLen := SIZE_INTEGER;
   WSGetSockOpt(ASocket,ALevel,AOptName,LP,LLen);
   AOptVal := LBuf;
 end;
@@ -1186,13 +1188,13 @@ begin
   SetLength(LTmp, Length(VBuffer)+40);
 
   //16
-  Move(LSource, LTmp[0], SizeOf(LSource));
-  LIdx := SizeOf(LSource);
+  Move(LSource, LTmp[0], SIZE_TSOCKADDRIN6);
+  LIdx := SIZE_TSOCKADDRIN6;
   //32
-  Move(LDest, LTmp[LIdx], SizeOf(LDest));
-  Inc(LIdx, SizeOf(LDest));
+  Move(LDest, LTmp[LIdx], SIZE_TSOCKADDRIN6);
+  Inc(LIdx, SIZE_TSOCKADDRIN6);
   //use a word so you don't wind up using the wrong network byte order function
-  LC := Length(VBuffer);
+  LC := LongWord(Length(VBuffer));
   CopyTIdLongWord(GStack.HostToNetwork(LC), LTmp, LIdx);
   Inc(LIdx, 4);
   //36
@@ -1217,7 +1219,7 @@ function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer :
 var
   LIP : String;
   LPort : TIdPort;
-  LSize: LongWord;
+  LSize: PtrUInt;
   LAddr4: TSockAddrIn;
   LAddr6: TSockAddrIn6;
   LMsg : TWSAMSG;
@@ -1237,10 +1239,10 @@ begin
     LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
     SetLength(LControl, LSize);
 
-    LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
+    LMsgBuf.len := LongWord(Length(VBuffer)); // Length(VMsgData);
     LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
 
-    FillChar(LMsg, SizeOf(LMsg), 0);
+    FillChar(LMsg, SIZE_TWSAMSG, 0);
 
     LMsg.lpBuffers := @LMsgBuf;
     LMsg.dwBufferCount := 1;
@@ -1252,7 +1254,7 @@ begin
       Id_IPv4:
         begin
           LMsg.name :=  @LAddr4;
-          LMsg.namelen := SizeOf(LAddr4);
+          LMsg.namelen := SIZE_TSOCKADDRIN;
 
           CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
           APkt.SourceIP := TranslateTInAddrToString(LAddr4.sin_addr, Id_IPv4);
@@ -1262,7 +1264,7 @@ begin
       Id_IPv6:
         begin
           LMsg.name := PSOCKADDR(@LAddr6);
-          LMsg.namelen := SizeOf(LAddr6);
+          LMsg.namelen := SIZE_TSOCKADDRIN6;
           CheckForSocketError(WSARecvMsg(ASocket, @LMsg, Result, nil, nil));
           APkt.SourceIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
           APkt.SourcePort := NToHs(LAddr6.sin6_port);

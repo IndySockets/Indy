@@ -820,16 +820,12 @@ var
 begin
   LCRC := 0;
   i := 0;
-
   LSize := Length(AData);
-
   while LSize >1 do
   begin
     LCRC := LCRC + IdGlobal.BytesToWord(AData,i);
-
     Dec(LSize,2);
     inc(i,2);
-
   end;
   if LSize>0 then
   begin

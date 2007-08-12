@@ -111,9 +111,9 @@ end;
 
 { TIdUnion }
 
-function TIdUnion.GetBytesLen;
+function TIdUnion.GetBytesLen  : LongWord;
 begin
-  Result := Length(FBuffer);
+  Result := LongWord(Length(FBuffer));
 end;
 
 procedure TIdUnion.SetBytesLen(const ABytesLen: LongWord);
