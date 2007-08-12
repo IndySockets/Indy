@@ -349,6 +349,9 @@ uses
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    {$IFDEF USEINLINE}
+    Windows,
+    {$ENDIF}
   IdStackWindows,
   {$ENDIF}
   {$IFDEF DOTNET}
