@@ -5830,7 +5830,7 @@ end;
 function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(DWORD(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
+  Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
 {
@@ -5841,7 +5841,7 @@ end;
 function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR) + length);
+  Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length);
 end;
 
 {
