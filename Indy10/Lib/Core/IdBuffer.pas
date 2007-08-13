@@ -355,7 +355,7 @@ type
     procedure Write(const AString: string; AEncoding: TIdEncoding = enDefault;
       const ADestIndex: Integer = -1); overload;
     procedure Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1); overload;
-    procedure Write(const ABytes: TIdBytes; const AOffset, ALength: Integer; const ADestIndex : Integer = -1); overload;
+    procedure Write(const ABytes: TIdBytes; const ALength, AOffset : Integer; const ADestIndex: Integer = -1); overload;
     procedure Write(AStream: TStream; AByteCount: Integer = 0); overload;
     procedure Write(const AValue: Int64; const ADestIndex: Integer = -1); overload;
     procedure Write(const AValue: LongWord; const ADestIndex: Integer = -1); overload;
@@ -565,7 +565,7 @@ end;
 procedure TIdBuffer.Write(const ABytes: TIdBytes; const ADestIndex: Integer = -1);
 {$IFDEF USECLASSINLINE}inline;{$ENDIF}
 begin
-  Write(ABytes, 0, Length(ABytes), ADestIndex);
+  Write(ABytes, Length(ABytes), 0, ADestIndex);
 end;
 
 procedure TIdBuffer.Write(AStream: TStream; AByteCount: Integer);
@@ -856,7 +856,7 @@ begin
   end;
 end;
 
-procedure TIdBuffer.Write(const ABytes: TIdBytes; const AOffset, ALength: Integer;
+procedure TIdBuffer.Write(const ABytes: TIdBytes; const ALength, AOffset : Integer;
   const ADestIndex: Integer = -1);
 var
   LByteLength: Integer;
