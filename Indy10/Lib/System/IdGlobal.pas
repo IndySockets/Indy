@@ -3074,7 +3074,7 @@ end;
 function AnsiPos(const Substr, S: string): Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := AnsiPos(Substr, S);
+  Result := SysUtils.AnsiPos(Substr, S);
 end;
 {$ENDIF}
 
