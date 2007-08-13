@@ -1239,7 +1239,7 @@ begin
     LSize := WSA_CMSG_LEN(WSA_CMSG_LEN(Length(VBuffer)));
     SetLength(LControl, LSize);
 
-    LMsgBuf.len := LongWord(Length(VBuffer)); // Length(VMsgData);
+    LMsgBuf.len := Length(VBuffer); // Length(VMsgData);
     LMsgBuf.buf := @VBuffer[0]; // @VMsgData[0];
 
     FillChar(LMsg, SIZE_TWSAMSG, 0);
@@ -1254,7 +1254,7 @@ begin
       Id_IPv4:
         begin
           LMsg.name :=  @LAddr4;
-          LMsg.namelen := SIZE_TSOCKADDRIN;
+          LMsg.namelen := SIZE_TSOCKADDRIN; //SizeOf(LAddr4);
 
           CheckForSocketError(WSARecvMsg(ASocket,@LMsg,Result,nil,nil));
           APkt.SourceIP := TranslateTInAddrToString(LAddr4.sin_addr, Id_IPv4);
