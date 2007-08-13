@@ -151,6 +151,11 @@ type
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.Threading,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobal,
   IdStack,
   SysUtils;

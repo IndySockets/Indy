@@ -403,6 +403,18 @@ causes that directory can be listable even it do not have
 implementation
 
 uses
+  //facilitate inlining only.
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+     {$IFDEF USEINLINE}
+  Windows,
+     {$ENDIF}
+  {$ENDIF}
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.IO,
+  System.Threading,
+    {$ENDIF}
+  {$ENDIF}  
   IdComponent, IdGlobalProtocols, IdResourceStringsProtocols, IdStack, IdStream, SysUtils;
 
 function ParseASCIIZPos(const ABytes: TIdBytes ; const ALen : Cardinal; var VPos : Cardinal): String;

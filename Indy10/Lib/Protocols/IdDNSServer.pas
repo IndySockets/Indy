@@ -608,6 +608,12 @@ function PosBytes(const SubBytes, SBytes: TIdBytes): Integer;
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.Threading,
+  System.IO,
+    {$ENDIF}
+  {$ENDIF}
   IdIOHandler,
   IdStack,
   SysUtils;

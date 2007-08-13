@@ -1233,6 +1233,11 @@ type
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.Threading,
+    {$ENDIF}
+  {$ENDIF}
   IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols,
   IdGlobalProtocols, IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle,
   IdStrings, IdTCPClient, IdEMailAddress, IdStack, IdFTPListTypes;

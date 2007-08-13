@@ -134,6 +134,12 @@ type
 implementation
 
 uses
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.Threading,
+  System.IO,
+    {$ENDIF}
+  {$ENDIF}
   IdGlobal, IdStack, SysUtils;
 
 { TIdIPWatch }

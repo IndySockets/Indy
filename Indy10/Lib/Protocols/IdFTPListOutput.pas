@@ -266,6 +266,12 @@ const
 implementation
 
 uses
+  //facilitate inlining only.
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+  System.IO,
+    {$ENDIF}
+  {$ENDIF}
   IdContainers, IdGlobal, IdFTPCommon, IdGlobalProtocols, IdStrings, SysUtils;
 
 type
