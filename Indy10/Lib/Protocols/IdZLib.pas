@@ -716,6 +716,10 @@ begin
     until false;
 
     repeat
+      if (strm.avail_in = 0) and (strm.avail_out = 0) then
+      begin
+        WriteOut;
+      end;
       Finished := CCheck(deflate(strm, Z_FINISH)) = Z_STREAM_END;
       WriteOut;
     until Finished;
