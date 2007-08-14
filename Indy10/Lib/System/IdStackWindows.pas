@@ -598,6 +598,11 @@ begin
 end;
 
 function TIdStackWindows.WSGetServByPort(const APortNumber: TIdPort): TStrings;
+{$IFNDEF VCL6ORABOVE}
+type
+  PPCharArray = ^TPCharArray;
+  TPCharArray = packed array[0..(MaxLongint div SizeOf(PChar))-1] of PChar;
+{$ENDIF}
 var
   ps: PServEnt;
   i: integer;
