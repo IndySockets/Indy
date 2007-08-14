@@ -522,7 +522,7 @@ end;
 function TimeStampToDateTime(const ATimeStamp: TIdDateTimeStamp): TDateTime;
 begin
   ValidateTimeStamp(ATimeStamp);
-  Result := EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.Day) +
+  Result := EncodeDate(ATimeStamp.Year, ATimeStamp.MonthOfYear, ATimeStamp.DayOfMonth) +
             EncodeTime(ATimeStamp.HourOf24Day, ATimeStamp.MinuteOfHour, ATimeStamp.SecondOfMinute, ATimeStamp.Millisecond);
 end;
 
@@ -655,8 +655,8 @@ begin
   AddYears(i);
   Dec(ANumber, i * IdMonthsInYear);
 
+  i := MonthOfYear;
   while ANumber > 0 do begin
-    i := MonthOfYear;
     if i = 12 then begin
       i := 1;
     end;
@@ -665,8 +665,8 @@ begin
     end else begin
       AddDays(IdDaysInMonth[i]);
     end;
-
     Dec(ANumber);
+    Inc(i);
   end;
 end;
 
