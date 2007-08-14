@@ -3287,18 +3287,24 @@ var
     i : Integer;
     LM : TStream;
   begin
+    //for loops will execute at least once triggering an out of rrange error.
+    //write nothing if AStrings is empty.
+    if AStrings.Count < 1 then
+    begin
+      Exit;
+    end;
     if AContext.DataMode = dmDeflate then
     begin
-      LM := TMemoryStream.Create;
-      try
-        for i := 0 to AStrings.Count-1 do begin
-          WriteStringToStream(LM, AStrings[i]+ EOL);
+        LM := TMemoryStream.Create;
+        try
+          for i := 0 to AStrings.Count-1 do begin
+            WriteStringToStream(LM, AStrings[i]+ EOL);
+          end;
+          LM.Position := 0;
+          WriteToStream(AContext, ACmdQueue, LM,True);
+        finally
+          FreeAndNil(LM);
         end;
-        LM.Position := 0;
-        WriteToStream(AContext, ACmdQueue, LM,True);
-      finally
-        FreeAndNil(LM);
-      end;
       Exit;
     end;
     for i := 0 to AStrings.Count-1 do
@@ -3524,6 +3530,7 @@ begin
   begin
     ASender.Reply.Clear;
     SetRFCReplyFormat(ASender.Reply);
+    TIdReplyFTP(ASender.Reply).ReplyFormat := rfIndentMidLines;
     ASender.Reply.NumericCode := 211;
     ASender.Reply.Text.Add(RSFTPCmdExtsSupportedStart); {Do not translate}
     //AUTH
