@@ -1605,23 +1605,33 @@ var
   I, LLength: Integer;
   LCh: WideChar;
   Temp: WideString;
+  LSourceLen : Integer;
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
   Result := GetEncoder(enUTF8).GetString(ABytes, AIndex, ALength);
   {$ELSE}
   Result := '';
-  SetLength(Temp, ALength);
-
   LLength := 0;
-
+  //This block of code should prevent range-check errors and AV's
+  //as for loops will always execute one time.
+  LSourceLen := Min(ALength,Length(ABytes)-AIndex);
+  if LSourceLen = 0 then
+  begin
+    Exit;
+  end;
+  Temp := '';
+ // SetLength(Temp,LSourceLen);
+  //
   with GetUTF8Decoder do
   try
     for I := 0 to ALength-1 do
     begin
       if ProcessByte(ABytes[AIndex+I], LCh) then
       begin
-        Temp[LLength] := LCh;
+       //The line I commented out was causing a range check error.
+      //  Temp[LLength] := LCh;
+        Temp := Temp+LCh;
         Inc(LLength);
       end;
     end;
