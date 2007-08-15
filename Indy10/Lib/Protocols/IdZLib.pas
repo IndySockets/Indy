@@ -40,11 +40,12 @@ uses
   SysUtils,
   Classes,
   IdCTypes,
+  IdGlobal,
   IdZLibHeaders;
 
 type
   // Abstract ancestor class
-  TCustomZlibStream = class(TStream)
+  TCustomZlibStream = class(TIdBaseStream)
   private
     FStrm: TStream;
     FStrmPos: Integer;
@@ -70,6 +71,11 @@ type
   TCompressionStream = class(TCustomZlibStream)
   private
     function GetCompressionRate: Single;
+  protected
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
   public
     constructor CreateEx(CompressionLevel: TCompressionLevel; Dest: TStream;
       const StreamType: TZStreamType;
@@ -88,13 +94,17 @@ type
   TDecompressionStream = class(TCustomZlibStream)
   private
     FInitialPos : Int64;
+  protected
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
+
   public
     constructor Create(Source: TStream);
     destructor Destroy; override;
     procedure  InitRead;
-    function Read(var Buffer; Count: Longint): Longint; override;
-    function Write(const Buffer; Count: Longint): Longint; override;
-    function Seek(Offset: Longint; Origin: Word): Longint; override;
+
     property OnProgress;
 
     function IsGZip: boolean;
@@ -190,9 +200,6 @@ const
 implementation
 
 uses
-{$IFNDEF FPC}
-  IdGlobal,
-{$ENDIF}
   IdZLibConst;
 
 const
@@ -897,9 +904,6 @@ begin
   CreateEx(CompressionLevel, Dest, zsGZip, AName, ATime);
 end;
 
-
-
-
 destructor TCompressionStream.Destroy;
 begin
   FZRec.next_in := nil;
@@ -963,6 +967,48 @@ begin
 end;
 
 
+function TCompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
+  ACount: Integer): Longint;
+begin
+  raise ECompressionError.CreateRes(@sInvalidStreamOp);
+end;
+
+function TCompressionStream.IdSeek(const AOffset: Int64;
+  AOrigin: TSeekOrigin): Int64;
+begin
+  if (AOffset = 0) and (AOrigin = soCurrent) then
+    Result := FZRec.total_in
+  else
+    raise ECompressionError.CreateRes(@sInvalidStreamOp);
+end;
+
+procedure TCompressionStream.IdSetSize(ASize: Int64);
+begin
+//  inherited;
+   raise ECompressionError.CreateRes(@sInvalidStreamOp);
+end;
+
+function TCompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset,
+  ACount: Integer): Longint;
+begin
+  FZRec.next_in := @ABuffer[0];
+  FZRec.avail_in := ACount;
+  if FStrm.Position <> FStrmPos then FStrm.Position := FStrmPos;
+  while (FZRec.avail_in > 0) do
+  begin
+    CCheck(deflate(FZRec, 0));
+    if FZRec.avail_out = 0 then
+    begin
+      FStrm.WriteBuffer(FBuffer, sizeof(FBuffer));
+      FZRec.next_out := FBuffer;
+      FZRec.avail_out := sizeof(FBuffer);
+      FStrmPos := FStrm.Position;
+      Progress(Self);
+    end;
+  end;
+  Result := ACount;
+end;
+
 // TDecompressionStream
 constructor TDecompressionStream.Create(Source: TStream);
 begin
@@ -977,6 +1023,76 @@ begin
   FStrm.Seek(-FZRec.avail_in, soCurrent);
   inflateEnd(FZRec);
   inherited Destroy;
+end;
+
+function TDecompressionStream.IdRead(var VBuffer: TIdBytes; AOffset,
+  ACount: Integer): Longint;
+begin
+  FZRec.next_out := @VBuffer[0];
+  FZRec.avail_out := ACount;
+  if FStrm.Position <> FStrmPos then FStrm.Position := FStrmPos;
+  while (FZRec.avail_out > 0) do
+  begin
+    if FZRec.avail_in = 0 then
+    begin
+      //init read if necessary
+      //if FZRec.total_in = 0 then InitRead;
+
+      FZRec.avail_in := FStrm.Read(FBuffer, sizeof(FBuffer));
+      if FZRec.avail_in = 0 then
+        break;
+      FZRec.next_in := FBuffer;
+      FStrmPos := FStrm.Position;
+      Progress(Self);
+    end;
+    if (CCheck(inflate(FZRec, 0)) = Z_STREAM_END) then break;
+  end;
+  Result := TIdC_UINT(ACount) - FZRec.avail_out;
+end;
+
+function TDecompressionStream.IdSeek(const AOffset: Int64;
+  AOrigin: TSeekOrigin): Int64;
+var
+  I: Integer;
+  Buf: array [0..4095] of Char;
+  LOffset : Int64;
+begin
+  if (AOffset = 0) and (AOrigin = soBeginning) then
+  begin
+    DCheck(inflateReset(FZRec));
+    FZRec.next_in := FBuffer;
+    FZRec.avail_in := 0;
+    FStrm.Position := FInitialPos;
+    FStrmPos := FInitialPos;
+  end
+  else if ( (AOffset >= 0) and (AOrigin = soCurrent)) or
+          ( ((TIdC_UINT(AOffset) - FZRec.total_out) > 0) and (AOrigin = soBeginning)) then
+  begin
+    LOffset := AOffset;
+    if AOrigin = soBeginning then
+      Dec(LOffset, FZRec.total_out);
+    if LOffset > 0 then
+    begin
+      for I := 1 to LOffset div sizeof(Buf) do
+        ReadBuffer(Buf, sizeof(Buf));
+      ReadBuffer(Buf, LOffset mod sizeof(Buf));
+    end;
+  end
+  else
+    raise EDecompressionError.CreateRes(@sInvalidStreamOp);
+  Result := FZRec.total_out;
+end;
+
+procedure TDecompressionStream.IdSetSize(ASize: Int64);
+begin
+  inherited;
+
+end;
+
+function TDecompressionStream.IdWrite(const ABuffer: TIdBytes; AOffset,
+  ACount: Integer): Longint;
+begin
+  raise EDecompressionError.CreateRes(@sInvalidStreamOp);
 end;
 
 procedure TDecompressionStream.InitRead;
@@ -1004,64 +1120,6 @@ begin
   FZRec.avail_in := N;
 
   DCheck(inflateInitEx(FZRec, FStreamType));
-end;
-
-function TDecompressionStream.Read(var Buffer; Count: Longint): Longint;
-begin
-  FZRec.next_out := @Buffer;
-  FZRec.avail_out := Count;
-  if FStrm.Position <> FStrmPos then FStrm.Position := FStrmPos;
-  while (FZRec.avail_out > 0) do
-  begin
-    if FZRec.avail_in = 0 then
-    begin
-      //init read if necessary
-      //if FZRec.total_in = 0 then InitRead;
-
-      FZRec.avail_in := FStrm.Read(FBuffer, sizeof(FBuffer));
-      if FZRec.avail_in = 0 then
-        break;
-      FZRec.next_in := FBuffer;
-      FStrmPos := FStrm.Position;
-      Progress(Self);
-    end;
-    if (CCheck(inflate(FZRec, 0)) = Z_STREAM_END) then break;
-  end;
-  Result := TIdC_UINT(Count) - FZRec.avail_out;
-end;
-
-function TDecompressionStream.Write(const Buffer; Count: Longint): Longint;
-begin
-  raise EDecompressionError.CreateRes(@sInvalidStreamOp);
-end;
-
-function TDecompressionStream.Seek(Offset: Longint; Origin: Word): Longint;
-var
-  I: Integer;
-  Buf: array [0..4095] of Char;
-begin
-  if (Offset = 0) and (Origin = soFromBeginning) then
-  begin
-    DCheck(inflateReset(FZRec));
-    FZRec.next_in := FBuffer;
-    FZRec.avail_in := 0;
-    FStrm.Position := FInitialPos;
-    FStrmPos := FInitialPos;
-  end
-  else if ( (Offset >= 0) and (Origin = soFromCurrent)) or
-          ( ((TIdC_UINT(Offset) - FZRec.total_out) > 0) and (Origin = soFromBeginning)) then
-  begin
-    if Origin = soFromBeginning then Dec(Offset, FZRec.total_out);
-    if Offset > 0 then
-    begin
-      for I := 1 to Offset div sizeof(Buf) do
-        ReadBuffer(Buf, sizeof(Buf));
-      ReadBuffer(Buf, Offset mod sizeof(Buf));
-    end;
-  end
-  else
-    raise EDecompressionError.CreateRes(@sInvalidStreamOp);
-  Result := FZRec.total_out;
 end;
 
 function TDecompressionStream.IsGZip: boolean;
