@@ -61,7 +61,7 @@ implementation
 function TIdSASLUserPass.GetPassword: string;
 begin
   if Assigned(FUserPassProvider) then begin
-    Result := FUserPassProvider.GetPassword;
+    Result := FUserPassProvider.Password;
   end else begin
     raise EIdUserPassProviderUnassigned.Create(RSUnassignedUserPassProv);
   end;
@@ -70,7 +70,7 @@ end;
 function TIdSASLUserPass.GetUsername: string;
 begin
   if Assigned(FUserPassProvider) then begin
-    Result := FUserPassProvider.GetUsername;
+    Result := FUserPassProvider.Username;
   end else begin
     raise EIdUserPassProviderUnassigned.Create(RSUnassignedUserPassProv);
   end;
@@ -79,7 +79,7 @@ end;
 function TIdSASLUserPass.IsReadyToStart;
 begin
   if Assigned(FUserPassProvider) then begin
-    Result := (FUserPassProvider.GetUsername <> '');
+    Result := (FUserPassProvider.Username <> '');
   end else begin
     Result := False;
   end;
