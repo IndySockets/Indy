@@ -28,7 +28,9 @@
 unit IdUserPassProvider;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   IdBaseComponent;
 
@@ -37,27 +39,12 @@ type
   protected
     FUsername: string;
     FPassword: string;
-  public
-    function GetPassword: String;
-    function GetUsername: String;
   published
-    property Username: string read GetUsername write FUsername;
-    property Password: string read GetPassword write FPassword;
+    property Username: string read FUsername write FUsername;
+    property Password: string read FPassword write FPassword;
   end;
 
 implementation
-
-{ TIdUserPassProvider }
-
-function TIdUserPassProvider.GetPassword: String;
-begin
-  Result := FPassword;
-end;
-
-function TIdUserPassProvider.GetUsername: String;
-begin
-  Result := FUsername;
-end;
 
 end.
 
