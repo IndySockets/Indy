@@ -79,7 +79,7 @@ begin
       end;
       LWC := (LWC shl 6) or Word(LCh and $3F);
     end;
-    Temp[LLength] := WideChar(LWC);
+    Temp[LLength+1] := WideChar(LWC);
     Inc(LLength);
   end;
 
@@ -120,7 +120,7 @@ begin
 
   {$ELSE}
 
-  LCount := Length(AData);
+  LCount := Min(Length(AData), MaxInt / 3);
   LMax := LCount * 3;
   SetLength(Temp, LMax);
 
@@ -134,18 +134,18 @@ begin
 
     if LWC <= $007F then
     begin
-      Temp[LLength] := AnsiChar(LWC);
+      Temp[LLength+1] := AnsiChar(LWC);
       Inc(LLength);
     end
     else if LWC <= $07FF then begin
-      Temp[LLength] := AnsiChar($00C0 or (LWC shr 6));
-      Temp[LLength+1] := AnsiChar($0080 or (LWC and $003F));
+      Temp[LLength+1] := AnsiChar($00C0 or (LWC shr 6));
+      Temp[LLength+2] := AnsiChar($0080 or (LWC and $003F));
       Inc(LLength, 2);
     end else // (LWC >= $8000)
     begin
-      Temp[LLength] := AnsiChar($00E0 or (LWC shr 12));
-      Temp[LLength+1] := AnsiChar($0080 or ((LWC shr 6) and $003F));
-      Temp[LLength+2] := AnsiChar($0080 or (LWC and $003F));
+      Temp[LLength+1] := AnsiChar($00E0 or (LWC shr 12));
+      Temp[LLength+2] := AnsiChar($0080 or ((LWC shr 6) and $003F));
+      Temp[LLength+3] := AnsiChar($0080 or (LWC and $003F));
       Inc(LLength, 3);
     end;
   end;
