@@ -1052,6 +1052,7 @@ type
     procedure CommandMLSD(ASender: TIdCommand);
     procedure CommandMLST(ASender: TIdCommand);
 
+    procedure CommandXSHA1(ASender: TIdCommand);
     procedure CommandXMD5(ASender: TIdCommand);
     procedure CommandXCRC(ASender: TIdCommand);
     procedure CommandCOMB(ASender: TIdCommand);
@@ -1135,6 +1136,8 @@ type
     procedure ContextCreated(AContext:TIdContext); override;
     function CalculateCRCHash(AStrm : TStream; const AStartPos, AEndPos: Int64): String;
     function CalculateMD5Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64): String;
+    function CalculateSHA1Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64) : String;
+
     procedure DoOnDataPortBeforeBind(ASender : TIdFTPServerContext); virtual;
     procedure DoDataChannelOperation(ASender: TIdCommand; const AConnectMode : Boolean = False);virtual;
     procedure DoOnDataPortAfterBind(ASender : TIdFTPServerContext); virtual;
@@ -1238,17 +1241,17 @@ uses
   System.Threading,
     {$ENDIF}
   {$ENDIF}
-  IdHashCRC, IdHashMessageDigest, IdIOHandlerSocket, IdResourceStringsProtocols,
+  IdHashCRC, IdHashMessageDigest, IdHashSHA1, IdIOHandlerSocket, IdResourceStringsProtocols,
   IdGlobalProtocols, IdSimpleServer, IdSSL, IdIOHandlerStack, IdSocketHandle,
   IdStrings, IdTCPClient, IdEMailAddress, IdStack, IdFTPListTypes;
 
 const
   //THese commands need some special treatment in the Indy 10 FTP Server help system
   //as they will not always work
-  HELP_SPEC_CMDS : array [0..17] of string =
+  HELP_SPEC_CMDS : array [0..18] of string =
     ('SIZE','MDTM',                                                 {do not localize}
      'AUTH','PBSZ','PROT','CCC','MIC','CONF','ENC', 'SSCN','CPSV',  {do not localize}
-     'MFMT','MFF','MD5','MMD5','XCRC','XMD5',                       {do not localize}
+     'MFMT','MFF','MD5','MMD5','XCRC','XMD5','XSHA1',                       {do not localize}
      'COMB');                                                       {do not localize}
 
   //These commands must always be present even if not implemented
@@ -1455,12 +1458,12 @@ var
           begin
             Result := True;
           end;
-        13,14,15,16 : //'MD5','MMD5','XCRC','XMD5'
+        13,14,15,16, 17 : //'MD5','MMD5','XCRC','XMD5', 'XSHA1',
           if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
           begin
             Result := True;
           end;
-        17 : //  'COMB');
+        18 : //  'COMB');
           if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
           begin
             Result := True;
@@ -2021,6 +2024,14 @@ begin
   LCmd.OnCommand := CommandXMD5;
   LCmd.ExceptionReply.NumericCode := 550;
   LCmd.Description.Text := 'Syntax: XMD5 "[filename]" [start] [finish]'; {do not localize}
+ //Seen in RaidenFTPD documentation
+  //XCRC "[filename]" [start] [finish]
+  LCmd := CommandHandlers.Add;
+  LCmd.Command := 'XSHA1';   {Do not translate}
+  LCmd.OnCommand := CommandXSHA1;
+  LCmd.ExceptionReply.NumericCode := 550;
+  LCmd.Description.Text := 'Syntax: XSHA1 "[filename]" [start] [finish]'; {do not localize}
+
   //informal but we might want to support this anyway
   //CLNT
   LCmd := CommandHandlers.Add;
@@ -3726,8 +3737,9 @@ begin
     ASender.Reply.Text.Add('UTF8'); {Do not localize}
     //XCRC
     if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then begin
-      ASender.Reply.Text.Add('XCRC filename;start;end');  {Do not Localize}
-      ASender.Reply.Text.Add('XMD5 filename;start;end');  {Do not Localize}
+      ASender.Reply.Text.Add('XCRC "filename" SP EP');//filename;start;end');  {Do not Localize}
+      ASender.Reply.Text.Add('XMD5 "filename" SP EP');//filename;start;end');  {Do not Localize}
+      ASender.Reply.Text.Add('XSHA1 "filename" SP EP');//filename;start;end');  {Do not Localize}
     end;
     ASender.Reply.Text.Add('Compliance Level: 20020901 (IETF mlst-16)'); {Do not Localize}
     ASender.Reply.Text.Add(RSFTPCmdExtsSupportedEnd);
@@ -4262,6 +4274,16 @@ begin
   end;
 end;
 
+function TIdFTPServer.CalculateSHA1Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64) : String;
+begin
+  with TIdHashMessageDigest5.Create do
+  try
+    Result := HashStreamAsHex(AStrm, AStartPos, AEndPos-AStartPos);
+  finally
+    Free;
+  end;
+end;
+
 function TIdFTPServer.CalculateMD5Checksum(AStrm: TStream; const AStartPos, AEndPos: Int64) : String;
 begin
   with TIdHashMessageDigest5.Create do
@@ -4304,6 +4326,10 @@ begin
       LCalcStream := nil;
       LFileName := DoProcessPath(LContext, LFileName);
       DoOnCRCFile(LContext, LFileName, LCalcStream);
+      if LEndPos = 0 then
+      begin
+        LEndPos := LCalcStream.Size;
+      end;
       if Assigned(LCalcStream) then begin
         try
           LCalcStream.Position := 0;
@@ -5741,6 +5767,55 @@ begin
     ASender.Reply.SetReply(210, IndyFormat('UTC%d', [MinutesFromGMT])); {do not localize}
   end else begin
     ASender.Reply.SetReply(210, IndyFormat('UTC+%d', [MinutesFromGMT])); {do not localize}
+  end;
+end;
+
+procedure TIdFTPServer.CommandXSHA1(ASender: TIdCommand);
+var
+  LCalcStream : TStream;
+  LBuf : String;
+  LFileName : String;
+  LBeginPos, LEndPos : Int64;
+  LContext : TIdFTPServerContext;
+begin
+  if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
+  begin
+    LContext := TIdFTPServerContext(ASender.Context);
+    if LContext.IsAuthenticated(ASender) then
+    begin
+      LBuf := ASender.UnparsedParams;
+      if Pos('"', LBuf) > 0 then
+      begin
+        Fetch(LBuf, '"');
+        LFileName := Fetch(LBuf, '"');
+      end else
+      begin
+        LFileName := Fetch(LBuf);
+      end;
+      LBuf := Trim(LBuf);
+      LBeginPos := IndyStrToInt(Fetch(LBuf), 0);
+      LEndPos := IndyStrToInt(Fetch(LBuf), 0);
+      if LFileName = '' then
+      begin
+        ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
+        Exit;
+      end;
+      LCalcStream := nil;
+      LFileName := DoProcessPath(LContext, LFileName);
+      DoOnCRCFile(LContext, LFileName, LCalcStream);
+      if Assigned(LCalcStream) then try
+        LCalcStream.Position := 0;
+        ASender.Reply.SetReply(250, CalculateMD5Checksum(LCalcStream, LBeginPos, LEndPos));
+      finally
+        FreeAndNil(LCalcStream);
+      end else
+      begin
+        CmdFileActionAborted(ASender);
+      end;
+    end;
+  end else
+  begin
+    CmdSyntaxError(ASender);
   end;
 end;
 
