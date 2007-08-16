@@ -277,7 +277,7 @@ type
     // Will raise exceptions in other cases
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer; virtual; abstract;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-      AOffset: Integer = 0; ASize: Integer = -1): Integer; virtual; abstract;
+      const AOffset: Integer = 0; const ASize: Integer = -1): Integer; virtual; abstract;
 
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
              var VIP: string; var VPort: TIdPort;
