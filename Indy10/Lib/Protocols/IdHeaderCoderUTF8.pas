@@ -120,7 +120,7 @@ begin
 
   {$ELSE}
 
-  LCount := Min(Length(AData), MaxInt / 3);
+  LCount := Min(Length(AData), MaxInt div 3);
   LMax := LCount * 3;
   SetLength(Temp, LMax);
 
