@@ -187,6 +187,7 @@ type
   TSocket = PtrUInt;
   {$EXTERNALSYM WSAEVENT}
   WSAEVENT = THandle;
+  {$NODEFINE PWSAEVENT}
   PWSAEVENT = ^WSAEVENT;
   {$EXTERNALSYM LPWSAEVENT}
   LPWSAEVENT = PWSAEVENT;
@@ -212,40 +213,6 @@ const
 (*$HPPEMIT '}'*)
 (*$HPPEMIT ''*)
 
-// the following emits are to ensure all supported versions
-// of C++Builder know about the latest winsock2 structures
-{$IFNDEF VCL6ORABOVE} // prior to BCB6
-(*$HPPEMIT 'typedef struct in_pktinfo {'*)
-(*$HPPEMIT '    IN_ADDR ipi_addr;    // destination IPv4 address'*)
-(*$HPPEMIT '    UINT    ipi_ifindex; // received interface index'*)
-(*$HPPEMIT '} IN_PKTINFO;'*)
-(*$HPPEMIT ''*)
-(*$HPPEMIT 'typedef struct in6_pktinfo {'*)
-(*$HPPEMIT '    IN6_ADDR ipi6_addr;    // destination IPv6 address'*)
-(*$HPPEMIT '    UINT     ipi6_ifindex; // received interface index'*)
-(*$HPPEMIT '} IN6_PKTINFO;'*)
-(*$HPPEMIT ''*)
-(*$HPPEMIT 'typedef struct addrinfo {'*)
-(*$HPPEMIT '    int ai_flags;              /* AI_PASSIVE, AI_CANONNAME, AI_NUMERICHOST */'*)
-(*$HPPEMIT '    int ai_family;             /* PF_xxx */'*)
-(*$HPPEMIT '    int ai_socktype;           /* SOCK_xxx */'*)
-(*$HPPEMIT '    int ai_protocol;           /* 0 or IPPROTO_xxx for IPv4 and IPv6 */'*)
-(*$HPPEMIT '    size_t ai_addrlen;         /* Length of ai_addr */'*)
-(*$HPPEMIT '    char *ai_canonname;        /* Canonical name for nodename */'*)
-(*$HPPEMIT '    struct sockaddr *ai_addr;  /* Binary address */'*)
-(*$HPPEMIT '    struct addrinfo *ai_next;  /* Next structure in linked list */'*)
-(*$HPPEMIT '} ADDRINFO, FAR * LPADDRINFO;'*)
-{$ENDIF}
-{$IFNDEF VCL5ORABOVE} // prior to BCB5
-(*$HPPEMIT 'typedef struct _INTERFACE_INFO_EX'*)
-(*$HPPEMIT '{'*)
-(*$HPPEMIT '    u_long          iiFlags;            /* Interface flags */'*)
-(*$HPPEMIT '    SOCKET_ADDRESS  iiAddress;          /* Interface address */'*)
-(*$HPPEMIT '    SOCKET_ADDRESS  iiBroadcastAddress; /* Broadcast address */'*)
-(*$HPPEMIT '    SOCKET_ADDRESS  iiNetmask;          /* Network mask */'*)
-(*$HPPEMIT '} INTERFACE_INFO_EX, FAR * LPINTERFACE_INFO_EX;'*)
-{$ENDIF}
-
 type
   {$NODEFINE PFDSet}
   PFDSet = ^TFDSet;
@@ -260,7 +227,9 @@ type
     tv_sec: Longint;
     tv_usec: Longint;
   end;
+  {$NODEFINE TTimeVal}
   TTimeVal = timeval;
+  {$NODEFINE PTimeVal}
   PTimeVal = ^TTimeVal;
 
 const
@@ -318,7 +287,9 @@ type
       0: (h_address_list: ^PChar);
       1: (h_addr: PChar);         // address, for backward compat
   end;
+  {$NODEFINE THostEnt}
   THostEnt = hostent;
+  {$NODEFINE PHostEnt}
   PHostEnt = ^THostEnt;
 
 //  It is assumed here that a network number
@@ -330,7 +301,9 @@ type
     n_addrtype: Smallint;          // net address type
     n_net: u_long;                 // network #
   end;
+  {$NODEFINE TNetEnt}
   TNetEnt = netent;
+  {$NODEFINE PNetEnt}
   PNetEnt = ^TNetEnt;
 
   {$EXTERNALSYM servent}
@@ -345,7 +318,9 @@ type
     s_proto: PChar;                // protocol to use
     {$ENDIF}
   end;
+  {$NODEFINE TServEnt}
   TServEnt = servent;
+  {$NODEFINE PServEnt}
   PServEnt = ^TServEnt;
 
   {$EXTERNALSYM protoent}
@@ -354,7 +329,9 @@ type
     p_aliases: ^PChar;             // alias list
     p_proto: Smallint;             // protocol #
   end;
+  {$NODEFINE TProtoEnt}
   TProtoEnt = protoent;
+  {$NODEFINE PProtoEnt}
   PProtoEnt = ^TProtoEnt;
 
 // Constants and structures defined by the internet system,
@@ -684,7 +661,6 @@ const
   {$EXTERNALSYM AF_MAX}
   AF_MAX          = 32;
 
-
 // protocol families, same as address families for now.
 
   {$EXTERNALSYM PF_UNSPEC}
@@ -768,7 +744,9 @@ type
       1: (S_un_w: SunW);
       2: (S_addr: u_long);
   end;
+  {$NODEFINE TInAddr}
   TInAddr = in_addr;
+  {$NODEFINE PInAddr}
   PInAddr = ^TInAddr;
 
   // Structure used by kernel to store most addresses.
@@ -783,9 +761,12 @@ type
       1: (sa_family  : u_short;
           sa_data    : array[0..13] of Char)
   end;
+  {$NODEFINE TSockAddrIn}
   TSockAddrIn = sockaddr_in;
+  {$NODEFINE PSockAddrIn}
   PSockAddrIn = ^TSockAddrIn;
 
+  {$NODEFINE TSockAddr}
   TSockAddr   = TSockAddrIn;
   {$EXTERNALSYM SOCKADDR}
   SOCKADDR    = TSockAddr;
@@ -807,7 +788,9 @@ type
                                                  // ss_family, __ss_pad1, and
                                                  // __ss_align fields is 112.
   end;
+  {$NODEFINE TSockAddrStorage}
   TSockAddrStorage = SOCKADDR_STORAGE;
+  {$NODEFINE PSockAddrStorage}
   PSockAddrStorage = ^TSockAddrStorage;
   {$EXTERNALSYM PSOCKADDR_STORAGE}
   PSOCKADDR_STORAGE = PSockAddrStorage;
@@ -820,7 +803,9 @@ type
     sp_family   : u_short;
     sp_protocol : u_short;
   end;
+  {$NODEFINE TSockProto}
   TSockProto = sockproto;
+  {$NODEFINE PSockProto}
   PSockProto = ^TSockProto;
 
 // Structure used for manipulating linger option.
@@ -829,6 +814,7 @@ type
     l_onoff: u_short;
     l_linger: u_short;
   end;
+  {$NODEFINE TLinger}
   TLinger = linger;
   {$EXTERNALSYM PLINGER}
   PLINGER = ^TLinger;
@@ -866,7 +852,6 @@ const
   MSG_INTERRUPT    = $10;    // send/recv in the interrupt context
   {$EXTERNALSYM MSG_MAXIOVLEN}
   MSG_MAXIOVLEN    = 16;
-
 
 // Define constant based on rfc883, used by gethostbyxxxx() calls.
 
@@ -1285,14 +1270,18 @@ type
     lpVendorInfo   : PChar;
     {$ENDIF}
   end;
+  {$NODEFINE TWSAData}
   TWSAData = WSADATA;
+  {$NODEFINE PWSAData}
   PWSAData = ^TWSAData;
   {$EXTERNALSYM LPWSADATA}
   LPWSADATA = PWSAData;
 
   {$EXTERNALSYM WSAOVERLAPPED}
   WSAOVERLAPPED   = TOverlapped;
+  {$NODEFINE TWSAOverlapped}
   TWSAOverlapped  = WSAOVERLAPPED;
+  {$NODEFINE PWSAOverlapped}
   PWSAOverlapped  = ^TWSAOverlapped;
   {$EXTERNALSYM LPWSAOVERLAPPED}
   LPWSAOVERLAPPED = PWSAOverlapped;
@@ -1305,19 +1294,21 @@ type
 { WinSock 2 extension -- WSABUF and QOS struct, include qos.h }
 { to pull in FLOWSPEC and related definitions }
 
-
   {$EXTERNALSYM WSABUF}
   WSABUF = packed record
     len: u_long;{ the length of the buffer }
     buf: PChar; { the pointer to the buffer }
   end;
+  {$NODEFINE TWSABuf}
   TWSABuf = WSABUF;
+  {$NODEFINE PWSABuf}
   PWSABuf = ^TWSABuf;
   {$EXTERNALSYM LPWSABUF}
   LPWSABUF = PWSABUF;
 
   {$EXTERNALSYM SERVICETYPE}
   SERVICETYPE = LongInt;
+  {$NODEFINE TServiceType}
   TServiceType = SERVICETYPE;
 
   {$EXTERNALSYM FLOWSPEC}
@@ -1330,6 +1321,7 @@ type
     ServiceType : TServiceType;
     MaxSduSize, MinimumPolicedSize : LongInt;// In Bytes
   end;
+  {$NODEFINE TFlowSpec}
   TFlowSpec = FLOWSPEC;
   {$EXTERNALSYM PFLOWSPEC}
   PFLOWSPEC = ^TFlowSpec;
@@ -1342,7 +1334,9 @@ type
     ReceivingFlowspec: TFlowSpec; { the flow spec for data receiving }
     ProviderSpecific: TWSABuf; { additional provider specific stuff }
   end;
+  {$NODEFINE TQualityOfService}
   TQualityOfService = QOS;
+  {$NODEFINE PQOS}
   PQOS = ^QOS;
   {$EXTERNALSYM LPQOS}
   LPQOS = PQOS;
@@ -1398,7 +1392,9 @@ type
     lNetworkEvents: LongInt;
     iErrorCode: Array[0..FD_MAX_EVENTS-1] of Integer;
   end;
+  {$NODEFINE TWSANetworkEvents}
   TWSANetworkEvents = WSANETWORKEVENTS;
+  {$NODEFINE PWSANetworkEvents}
   PWSANetworkEvents = ^TWSANetworkEvents;
   {$EXTERNALSYM LPWSANETWORKEVENTS}
   LPWSANETWORKEVENTS = PWSANetworkEvents;
@@ -1413,7 +1409,9 @@ type
       Tail: Pointer;
       TailLength: DWORD;
   end;
+  {$NODEFINE TTransmitFileBuffers}
   TTransmitFileBuffers = TRANSMIT_FILE_BUFFERS;
+  {$NODEFINE PTransmitFileBuffers}
   PTransmitFileBuffers = ^TTransmitFileBuffers;
   {$ENDIF}
   {$EXTERNALSYM LPTRANSMIT_FILE_BUFFERS}
@@ -1463,13 +1461,10 @@ type
 
 //  WinSock 2 extension -- WSAPROTOCOL_INFO structure
 
-{$IFNDEF NOREDECLARE}
-  {$IFNDEF VER130}
+  {$NODEFINE PGUID}
   PGUID = ^TGUID;
-  {$ENDIF}
   {$EXTERNALSYM LPGUID}
   LPGUID = PGUID;
-{$ENDIF}
 
 //  WinSock 2 extension -- WSAPROTOCOL_INFO manifest constants
 const
@@ -1491,6 +1486,7 @@ type
     // length > 1 means protocol chain
     ChainEntries: Array[0..MAX_PROTOCOL_CHAIN-1] of LongInt; // a list of dwCatalogEntryIds
   end;
+  {$NODEFINE TWSAProtocolChain}
   TWSAProtocolChain = WSAPROTOCOLCHAIN;
   {$EXTERNALSYM LPWSAPROTOCOLCHAIN}
   LPWSAPROTOCOLCHAIN = ^TWSAProtocolChain;
@@ -1519,7 +1515,9 @@ type
     dwProviderReserved: DWORD;
     szProtocol: Array[0..WSAPROTOCOL_LEN+1-1] of Char;
   end;
+  {$NODEFINE TWSAProtocol_InfoA}
   TWSAProtocol_InfoA = WSAPROTOCOL_INFOA;
+  {$NODEFINE PWSAProtocol_InfoA}
   PWSAProtocol_InfoA = ^WSAPROTOCOL_INFOA;
   {$EXTERNALSYM LPWSAPROTOCOL_INFOA}
   LPWSAPROTOCOL_INFOA = PWSAProtocol_InfoA;
@@ -1547,13 +1545,17 @@ type
     dwProviderReserved: DWORD;
     szProtocol: Array[0..WSAPROTOCOL_LEN+1-1] of WideChar;
   end;
+  {$NODEFINE TWSAProtocol_InfoW}
   TWSAProtocol_InfoW = WSAPROTOCOL_INFOW;
+  {$NODEFINE PWSAProtocol_InfoW}
   PWSAProtocol_InfoW = ^TWSAProtocol_InfoW;
   {$EXTERNALSYM LPWSAPROTOCOL_INFOW}
   LPWSAPROTOCOL_INFOW = PWSAProtocol_InfoW;
 
   {$EXTERNALSYM WSAPROTOCOL_INFO}
   {$EXTERNALSYM LPWSAPROTOCOL_INFO}
+  {$NODEFINE TWSAProtocol_Info}
+  {$NODEFINE PWSAProtocol_Info}
   {$IFDEF UNICODE}
   WSAPROTOCOL_INFO = TWSAProtocol_InfoW;
   TWSAProtocol_Info = TWSAProtocol_InfoW;
@@ -1709,7 +1711,9 @@ type
     cbSize : U_LONG;
     pBlobData : PBYTE;
   end;
+  {$NODEFINE TBLOB}
   TBLOB = BLOB;
+  {$NODEFINE PBLOB}
   PBLOB = ^TBLOB;
   {$ENDIF}
   {$EXTERNALSYM LPBLOB}
@@ -1838,6 +1842,7 @@ type
     lpSockaddr : PSOCKADDR;
     iSockaddrLength : Integer;
   end;
+  {$NODEFINE TSocket_Address}
   TSocket_Address = SOCKET_ADDRESS;
   {$EXTERNALSYM PSOCKET_ADDRESS}
   PSOCKET_ADDRESS = ^TSocket_Address;
@@ -1847,6 +1852,7 @@ type
     iAddressCount : Integer;
     Address : SOCKET_ADDRESS;
   end;
+  {$NODEFINE TSocket_Address_List}
   TSocket_Address_List = SOCKET_ADDRESS_LIST;
   {$EXTERNALSYM PSOCKET_ADDRESS_LIST}
   PSOCKET_ADDRESS_LIST = ^TSocket_Address_List;
@@ -1861,6 +1867,7 @@ type
     iSocketType,
     iProtocol : Integer;
   end;
+  {$NODEFINE TCSAddr_Info}
   TCSAddr_Info = CSADDR_INFO;
   {$EXTERNALSYM PCSADDR_INFO}
   PCSADDR_INFO = ^TCSAddr_Info;
@@ -1873,6 +1880,7 @@ type
     iAddressFamily : Integer;
     iProtocol      : Integer;
   end;
+  {$NODEFINE TAFProtocols}
   TAFProtocols = AFPROTOCOLS;
   {$EXTERNALSYM PAFPROTOCOLS}
   PAFPROTOCOLS = ^TAFProtocols;
@@ -1884,6 +1892,7 @@ type
 // The comparators
   {$EXTERNALSYM WSAECOMPARATOR}
   WSAECOMPARATOR = (COMP_EQUAL {= 0}, COMP_NOTLESS);
+  {$NODEFINE TWSAEComparator}
   TWSAEComparator = WSAECOMPARATOR;
   {$EXTERNALSYM PWSAECOMPARATOR}
   PWSAECOMPARATOR = ^WSAECOMPARATOR;
@@ -1893,6 +1902,7 @@ type
     dwVersion : DWORD;
     ecHow     : TWSAEComparator;
   end;
+  {$NODEFINE TWSAVersion}
   TWSAVersion = WSAVERSION;
   {$EXTERNALSYM PWSAVERSION}
   PWSAVERSION = ^TWSAVersion;
@@ -1917,6 +1927,7 @@ type
     dwOutputFlags           : DWORD;
     lpBlob                  : LPBLOB;
   end;
+  {$NODEFINE TWSAQuerySetA}
   TWSAQuerySetA = WSAQUERYSETA;
   {$EXTERNALSYM PWSAQUERYSETA}
   PWSAQUERYSETA = ^TWSAQuerySetA;
@@ -1941,14 +1952,16 @@ type
     dwOutputFlags           : DWORD;
     lpBlob                  : LPBLOB;
   end;
+  {$NODEFINE TWSAQuerySetW}
   TWSAQuerySetW = WSAQUERYSETW;
   {$EXTERNALSYM PWSAQUERYSETW}
   PWSAQUERYSETW = ^TWSAQuerySetW;
   {$EXTERNALSYM LPWSAQUERYSETW}
   LPWSAQUERYSETW = PWSAQUERYSETW;
 
-  {$EXTERNALSYM LPWSAQUERYSET}
+  {$NODEFINE TWSAQuerySet}
   {$EXTERNALSYM PWSAQUERYSET}
+  {$EXTERNALSYM LPWSAQUERYSET}
   {$IFDEF UNICODE}
   TWSAQuerySet  = TWSAQuerySetA;
   PWSAQUERYSET  = PWSAQUERYSETW;
@@ -2048,6 +2061,7 @@ type
 // Service Address Registration and Deregistration Data Types.
   {$EXTERNALSYM WSAESETSERVICEOP}
   WSAESETSERVICEOP = (RNRSERVICE_REGISTER{=0}, RNRSERVICE_DEREGISTER, RNRSERVICE_DELETE);
+  {$NODEFINE TWSAESetServiceOp}
   TWSAESetServiceOp = WSAESETSERVICEOP;
 
 { Service Installation/Removal Data Types. }
@@ -2059,6 +2073,7 @@ type
     dwValueSize : DWORD;
     lpValue     : Pointer;
   end;
+  {$NODEFINE TWSANSClassInfoA}
   TWSANSClassInfoA = WSANSCLASSINFOA;
   {$EXTERNALSYM PWSANSClassInfoA}
   PWSANSCLASSINFOA = ^TWSANSClassInfoA;
@@ -2072,13 +2087,15 @@ type
     dwValueType : DWORD;
     dwValueSize : DWORD;
     lpValue     : Pointer;
-  end {TWSANSClassInfoW};
+  end;
+  {$NODEFINE TWSANSClassInfoW}
   TWSANSClassInfoW = WSANSCLASSINFOW;
   {$EXTERNALSYM PWSANSClassInfoW}
   PWSANSCLASSINFOW = ^TWSANSClassInfoW;
   {$EXTERNALSYM LPWSANSCLASSINFOW}
   LPWSANSCLASSINFOW = PWSANSCLASSINFOW;
 
+  {$NODEFINE TWSANSClassInfo}
   {$EXTERNALSYM WSANSCLASSINFO}
   {$EXTERNALSYM PWSANSCLASSINFO}
   {$EXTERNALSYM LPWSANSCLASSINFO}
@@ -2101,6 +2118,7 @@ type
     dwCount              : DWORD;
     lpClassInfos         : LPWSANSCLASSINFOA;
   end;
+  {$NODEFINE TWSAServiceClassInfoA}
   TWSAServiceClassInfoA = WSASERVICECLASSINFOA;
   {$EXTERNALSYM PWSASERVICECLASSINFOA}
   PWSASERVICECLASSINFOA  = ^TWSAServiceClassInfoA;
@@ -2114,12 +2132,14 @@ type
     dwCount              : DWORD;
     lpClassInfos         : LPWSANSCLASSINFOW;
   end;
+  {$NODEFINE TWSAServiceClassInfoW}
   TWSAServiceClassInfoW = WSASERVICECLASSINFOW;
   {$EXTERNALSYM PWSASERVICECLASSINFOW}
   PWSASERVICECLASSINFOW  = ^TWSAServiceClassInfoW;
   {$EXTERNALSYM LPWSASERVICECLASSINFOW}
   LPWSASERVICECLASSINFOW = PWSASERVICECLASSINFOW;
 
+  {$NODEFINE TWSAServiceClassInfo}
   {$EXTERNALSYM WSASERVICECLASSINFO}
   {$EXTERNALSYM PWSASERVICECLASSINFO}
   {$EXTERNALSYM LPWSASERVICECLASSINFO}
@@ -2143,6 +2163,7 @@ type
     dwVersion      : DWORD;
     lpszIdentifier : PChar;
   end;
+  {$NODEFINE TWSANameSpace_InfoA}
   TWSANameSpace_InfoA = WSANAMESPACE_INFOA;
   {$EXTERNALSYM PWSANAMESPACE_INFOA}
   PWSANAMESPACE_INFOA = ^TWSANameSpace_InfoA;
@@ -2156,7 +2177,8 @@ type
     fActive        : DWORD{Bool};
     dwVersion      : DWORD;
     lpszIdentifier : PWideChar;
-  end {TWSANameSpace_InfoW};
+  end;
+  {$NODEFINE TWSANameSpace_InfoW}
   TWSANameSpace_InfoW = WSANAMESPACE_INFOW;
   {$EXTERNALSYM PWSANAMESPACE_INFOW}
   PWSANAMESPACE_INFOW = ^TWSANameSpace_InfoW;
@@ -2172,8 +2194,9 @@ type
      lpszIdentifier : LPWSTR;
      ProviderSpecific : BLOB;
   end;
+  {$NODEFINE TWSANameSpace_InfoExW}
   TWSANameSpace_InfoExW = WSANAMESPACE_INFOEXW;
-  {$EXTERNALSYM WSANAMESPACE_INFOEXW}
+  {$EXTERNALSYM PWSANAMESPACE_INFOEXW}
   PWSANAMESPACE_INFOEXW = ^TWSANameSpace_InfoExW;
   {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
   LPWSANAMESPACE_INFOEXW = PWSANAMESPACE_INFOEXW;
@@ -2186,10 +2209,11 @@ type
      lpszIdentifier : LPSTR;
      ProviderSpecific : BLOB;
   end;
+  {$NODEFINE TWSANameSpace_InfoExA}
   TWSANameSpace_InfoExA = WSANAMESPACE_INFOEXA;
-  {$EXTERNALSYM WSANAMESPACE_INFOEXW}
+  {$EXTERNALSYM PWSANAMESPACE_INFOEXA}
   PWSANAMESPACE_INFOEXA = ^TWSANameSpace_InfoExA;
-  {$EXTERNALSYM LPWSANAMESPACE_INFOEXW}
+  {$EXTERNALSYM LPWSANAMESPACE_INFOEXA}
   LPWSANAMESPACE_INFOEXA = PWSANAMESPACE_INFOEXA;
 
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEXW}
@@ -2198,11 +2222,12 @@ type
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEXA}
   LPFN_WSAENUMNAMESPACEPROVIDERSEXA = function (var lpdwBufferLength : DWord;
     lpnspBuffer : PWSANAMESPACE_INFOEXA): Integer; stdcall;
+
+  {$NODEFINE TWSANameSpace_InfoEx}
   {$EXTERNALSYM WSANAMESPACE_INFOEX}
   {$EXTERNALSYM PWSANAMESPACE_INFOEX}
   {$EXTERNALSYM LPWSANAMESPACE_INFOEX}
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSEX}
-
   {$IFDEF UNICODE}
   WSANAMESPACE_INFOEX = WSANAMESPACE_INFOEXW;
   TWSANameSpace_InfoEx = TWSANameSpace_InfoExW;
@@ -2218,6 +2243,7 @@ type
   {$ENDIF}
 {$ENDIF} // UNDER_CE
 
+  {$NODEFINE TWSANameSpace_Info}
   {$EXTERNALSYM WSANAMESPACE_INFO}
   {$EXTERNALSYM PWSANAMESPACE_INFO}
   {$EXTERNALSYM LPWSANAMESPACE_INFO}
@@ -2242,6 +2268,7 @@ type
     Control : WSABUF;  //  /* Control buffer */
     dwFlags : DWord; //  /* Flags */
   end;
+  {$NODEFINE TWSAMSG}
   TWSAMSG = WSAMSG;
   {$EXTERNALSYM PWSAMSG}
   PWSAMSG = ^TWSAMSG;
@@ -2255,6 +2282,7 @@ type
     cmsg_type: Integer;
     { followed by UCHAR cmsg_data[] }
   end;
+  {$NODEFINE TWSACMsgHdr}
   TWSACMsgHdr = WSACMSGHDR;
   {$EXTERNALSYM PWSACMSGHDR}
   PWSACMSGHDR = ^TWSACMsgHdr;
@@ -2267,12 +2295,13 @@ type
     events : SHORT;
     revents : SHORT;
   end;
+  {$NODEFINE TWSAPOLLFD}
   TWSAPOLLFD = WSAPOLLFD;
   {$EXTERNALSYM PWSAPOLLFD}
   PWSAPOLLFD = ^TWSAPOLLFD;
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
-  
+
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
 type
@@ -3117,7 +3146,9 @@ type
       0: (s6_addr: array[0..15] of u_char);
       1: (word: array[0..7] of u_short);
   end;
+  {$NODEFINE TIn6Addr}
   TIn6Addr   = IN6_ADDR;
+  {$NODEFINE PIn6Addr}
   PIn6Addr   = ^TIn6Addr;
   {$EXTERNALSYM PIN6_ADDR}
   PIN6_ADDR  = ^PIn6Addr;
@@ -3151,7 +3182,9 @@ type
     sin6_addr     : TIn6Addr;         // IPv6 address
     sin6_scope_id : u_long;           // set of interfaces for a scope
   end;
+  {$NODEFINE TSockAddrIn6}
   TSockAddrIn6   = SOCKADDR_IN6;
+  {$NODEFINE PSockAddrIn6}
   PSockAddrIn6   = ^TSockAddrIn6;
   {$EXTERNALSYM PSOCKADDR_IN6}
   PSOCKADDR_IN6  = PSockAddrIn6;
@@ -3165,6 +3198,7 @@ type
       2 : ( AddressIn : TSockAddrIn; );
       3 : ( AddressIn6 : sockaddr_in6_old; );
   end;
+  {$NODEFINE TSockAddrGen}
   TSockAddrGen = sockaddr_gen;
 
 // Structure to keep interface specific information
@@ -3175,6 +3209,7 @@ type
     iiBroadcastAddress : TSockAddrGen; // Broadcast address
     iiNetmask          : TSockAddrGen; // Network mask
   end;
+  {$NODEFINE TInterface_Info}
   TInterface_Info  = INTERFACE_INFO;
   {$EXTERNALSYM PINTERFACE_INFO}
   PINTERFACE_INFO = ^TInterface_Info;
@@ -3189,6 +3224,7 @@ type
     iiBroadcastAddress : TSocket_Address; // Broadcast address
     iiNetmask          : TSocket_Address; // Network mask
   end;
+  {$NODEFINE TInterface_Info_Ex}
   TInterface_Info_Ex  = INTERFACE_INFO_EX;
   {$EXTERNALSYM PINTERFACE_INFO_EX}
   PINTERFACE_INFO_EX = ^TInterface_Info_Ex;
@@ -3283,9 +3319,10 @@ type
      gsr_group : SOCKADDR_STORAGE; // Group address.
      gsr_source : SOCKADDR_STORAGE; // Source address.
   end;
-  {$EXTERNALSYM GROUP_SOURCE_REQ}
+  {$EXTERNALSYM PGROUP_SOURCE_REQ}
   PGROUP_SOURCE_REQ = ^GROUP_SOURCE_REQ;
 
+{$EXTERNALSYM GROUP_FILTER_SIZE}
 function GROUP_FILTER_SIZE(const numsrc : DWord) : PtrUInt;
 
 type
@@ -3322,7 +3359,7 @@ type
     OffsetNextDomainDescription : DWORD;
     OffsetThisDomainName : DWORD;
   end;
-  {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
+  {$EXTERNALSYM PNAPI_DOMAIN_DESCRIPTION_BLOB}
   PNAPI_DOMAIN_DESCRIPTION_BLOB = ^NAPI_DOMAIN_DESCRIPTION_BLOB;
 
   {$EXTERNALSYM NAPI_PROVIDER_LEVEL}
@@ -3353,7 +3390,7 @@ type
     lpPrincipal : PByte;
   end;
   {$ENDIF}
-  {$EXTERNALSYM SERVICE_ADDRESS}
+  {$EXTERNALSYM PSERVICE_ADDRESS}
   PSERVICE_ADDRESS = ^SERVICE_ADDRESS;
   {$EXTERNALSYM LPSERVICE_ADDRESS}
   LPSERVICE_ADDRESS = PSERVICE_ADDRESS;
@@ -3390,11 +3427,11 @@ const
   RESOURCEDISPLAYTYPE_GROUP          = $00000005;
   {$EXTERNALSYM RESOURCEDISPLAYTYPE_NETWORK}
   RESOURCEDISPLAYTYPE_NETWORK        = $00000006;
-  {$EXTERNALSYM RESOURCEDISPLAYTYPE_NETWORK}
-  RESOURCEDISPLAYTYPE_ROOT           = $00000007;
   {$EXTERNALSYM RESOURCEDISPLAYTYPE_ROOT}
-  RESOURCEDISPLAYTYPE_SHAREADMIN     = $00000008;
+  RESOURCEDISPLAYTYPE_ROOT           = $00000007;
   {$EXTERNALSYM RESOURCEDISPLAYTYPE_SHAREADMIN}
+  RESOURCEDISPLAYTYPE_SHAREADMIN     = $00000008;
+  {$EXTERNALSYM RESOURCEDISPLAYTYPE_DIRECTORY}
   RESOURCEDISPLAYTYPE_DIRECTORY      = $00000009;
   {$EXTERNALSYM RESOURCEDISPLAYTYPE_TREE}
   RESOURCEDISPLAYTYPE_TREE           = $0000000A;
@@ -3442,6 +3479,8 @@ type
      ServiceSpecificInfo : BLOB;
   end;
 
+  {$EXTERNALSYM SOCKET_USAGE_TYPE}
+  {$EXTERNALSYM SYSTEM_CRITICAL_SOCKET}
   SOCKET_USAGE_TYPE = (SYSTEM_CRITICAL_SOCKET = 1);
   {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM SERVICE_INFO}
@@ -3491,7 +3530,9 @@ type
     ipi_addr    : TInAddr;  // destination IPv4 address
     ipi_ifindex : UINT;    // received interface index
   end;
+  {$NODEFINE TInPktInfo}
   TInPktInfo = IN_PKTINFO;
+  {$NODEFINE PInPktInfo}
   PInPktInfo = ^IN_PKTINFO;
 
 // structure for IPV6_PKTINFO option
@@ -3500,7 +3541,9 @@ type
     ipi6_addr       : TIn6Addr; // destination IPv6 address
     ipi6_ifindex    : UINT;     // received interface index
   end;
+  {$NODEFINE TIn6PktInfo}
   TIn6PktInfo = IN6_PKTINFO;
+  {$NODEFINE PIn6PktInfo}
   PIn6PktInfo = ^TIn6PktInfo;
 
 // Error codes from getaddrinfo()
@@ -3536,6 +3579,7 @@ const
 
 // Structure used in getaddrinfo() call
 type
+  {$NODEFINE PAddrInfo}
   PAddrInfo = ^ADDRINFO;
   {$EXTERNALSYM ADDRINFO}
   ADDRINFO = packed record
@@ -3548,10 +3592,12 @@ type
     ai_addr         : PSOCKADDR;    // Binary address
     ai_next         : PAddrInfo;    // Next structure in linked list
   end;
+  {$NODEFINE TAddrInfo}
   TAddrInfo = ADDRINFO;
   {$EXTERNALSYM LPADDRINFO}
   LPADDRINFO = PAddrInfo;
 
+  {$NODEFINE PAddrInfoW}
   PAddrInfoW = ^ADDRINFOW;
   {$EXTERNALSYM ADDRINFOW}
   ADDRINFOW = packed record
@@ -3564,8 +3610,9 @@ type
     ai_addr         : PSOCKADDR;    // Binary address
     ai_next         : PAddrInfo;    // Next structure in linked list
   end;
+  {$NODEFINE TAddrInfoW}
   TAddrInfoW = ADDRINFOW;
-  {$EXTERNALSYM LPADDRINFO}
+  {$EXTERNALSYM LPADDRINFOW}
   LPADDRINFOW = PAddrInfoW;
 
 // Flags used in "hints" argument to getaddrinfo()
@@ -3594,8 +3641,8 @@ type
     ai_provider : LPGUID;
     ai_next : PADDRINFOEXA;        // Next structure in linked list
   end;
-  TAddrInfoEXA = ADDRINFOEXA;
-
+  {$NODEFINE TAddrInfoEXA}
+  TAddrInfoExA = ADDRINFOEXA;
   {$EXTERNALSYM LPADDRINFOEXA}
   LPADDRINFOEXA = PADDRINFOEXA;
 
@@ -3615,8 +3662,8 @@ type
     ai_provider : LPGUID;
     ai_next : PADDRINFOEXW;        // Next structure in linked list
   end;
-  TAddrInfoEXW = ADDRINFOEXA;
-
+  {$NODEFINE TAddrInfoExW}
+  TAddrInfoExW = ADDRINFOEXA;
   {$EXTERNALSYM LPADDRINFOEXW}
   LPADDRINFOEXW = PADDRINFOEXW;
 
@@ -3659,7 +3706,6 @@ var
 	send.
 }
 
-
 // This is the structure of the SOCKADDR structure for IPX and SPX.
 type
   {$EXTERNALSYM SOCKADDR_IPX}
@@ -3669,7 +3715,9 @@ type
     sa_nodenum : Array [0..5] of Char;
     sa_socket : u_short;
   end;
+  {$NODEFINE TSockAddrIPX}
   TSockAddrIPX = SOCKADDR_IPX;
+  {$NODEFINE PSockAddrIPX}
   PSockAddrIPX = ^TSockAddrIPX;
   {$EXTERNALSYM PSOCKADDR_IPX}
   PSOCKADDR_IPX = PSockAddrIPX;
@@ -3783,7 +3831,9 @@ type
     maxpkt     : Integer;                 // output: max packet size, not including IPX header
     linkspeed  : ULONG;                   // output: link speed in 100 bytes/sec (i.e. 96 == 9600 bps)
   end;
+  {$NODEFINE TIPXAddressData}
   TIPXAddressData = IPX_ADDRESS_DATA;
+  {$NODEFINE PIPXAddressData}
   PIPXAddressData = ^TIPXAddressData;
   {$EXTERNALSYM PIPX_ADDRESS_DATA}
   PIPX_ADDRESS_DATA = PIPXAddressData;
@@ -3808,7 +3858,9 @@ type
     router   : Array [0..5] of Byte;  // output: MAC address of the next hop router, zeroed if
                                       //         the network is directly attached
   end;
+  {$NODEFINE TIPXNetNumData}
   TIPXNetNumData = IPX_NETNUM_DATA;
+  {$NODEFINE PIPXNetNumData}
   PIPXNetNumData = ^TIPXNetNumData;
   {$EXTERNALSYM PIPX_NETNUM_DATA}
   PIPX_NETNUM_DATA = PIPXNetNumData;
@@ -3850,7 +3902,9 @@ type
     RetransmittedPackets    : Word;
     SuppressedPacket        : Word;
   end;
+  {$NODEFINE TIPXSPXConnStatusData}
   TIPXSPXConnStatusData = IPX_SPXCONNSTATUS_DATA;
+  {$NODEFINE PIPXSPXConnStatusData}
   PIPXSPXConnStatusData = ^TIPXSPXConnStatusData;
   {$EXTERNALSYM PIPX_SPXCONNSTATUS_DATA}
   PIPX_SPXCONNSTATUS_DATA = PIPXSPXConnStatusData;
@@ -3947,7 +4001,9 @@ type
     snb_type   : u_short;
     snb_name   : array[0..NETBIOS_NAME_LENGTH-1] of Char;
   end;
+  {$NODEFINE TSockAddrNB}
   TSockAddrNB  = SOCKADDR_NB;
+  {$NODEFINE PSockAddrNB}
   PSockAddrNB  = ^TSockAddrNB;
   {$EXTERNALSYM PSOCKADDR_NB}
   PSOCKADDR_NB = PSockAddrNB;
@@ -4159,7 +4215,9 @@ type
     // Identifies the fields in the B-HLI Information Element that are used along with satm_blli to identify an application.
     satm_bhli   : ATM_BHLI;    // B-HLI
   end;
+  {$NODEFINE TSockAddrATM}
   TSockAddrATM = SOCKADDR_ATM;
+  {$NODEFINE PSockAddrATM}
   PSockAddrATM = ^TSockAddrATM;
   {$EXTERNALSYM PSOCKADDR_ATM}
   PSOCKADDR_ATM = PSockAddrATM;
@@ -4589,7 +4647,9 @@ type
     PvcQos          : QOS;
   end;
 
+  {$NODEFINE InitializeWinSock}
   procedure InitializeWinSock;
+  {$NODEFINE UninitializeWinSock}
   procedure UninitializeWinSock;
   function Winsock2Loaded: Boolean;
   function WinsockHandle : THandle;
@@ -5736,11 +5796,6 @@ begin
   FDSet.fd_count := 0;
 end;
 
-{
-#define WSA_CMSGHDR_ALIGN(length)                           \
-            ( ((length) + TYPE_ALIGNMENT(WSACMSGHDR)-1) &   \
-                (~(TYPE_ALIGNMENT(WSACMSGHDR)-1)) )         \
-}
 function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
   TempRec = record
@@ -5756,24 +5811,12 @@ begin
   Result := (length + (Alignment-1)) and not (Alignment-1);
 end;
 
-{
-
-#define WSA_CMSGDATA_ALIGN(length)                          \
-            ( ((length) + MAX_NATURAL_ALIGNMENT-1) &        \
-                (~(MAX_NATURAL_ALIGNMENT-1)) )
-}
 function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := (length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
-{
-#define WSA_CMSG_FIRSTHDR(msg) \
-    ( ((msg)->Control.len >= sizeof(WSACMSGHDR))            \
-        ? (LPWSACMSGHDR)(msg)->Control.buf                  \
-        : (LPWSACMSGHDR)NULL )
-}
 function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -5784,19 +5827,6 @@ begin
   end;
 end;
 
-{
-#define WSA_CMSG_NXTHDR(msg, cmsg)                          \
-    ( ((cmsg) == NULL)                                      \
-        ? WSA_CMSG_FIRSTHDR(msg)                            \
-        : ( ( ((PUCHAR)(cmsg) +                             \
-                    WSA_CMSGHDR_ALIGN((cmsg)->cmsg_len) +   \
-                    sizeof(WSACMSGHDR) ) >                  \
-                (PUCHAR)((msg)->Control.buf) +              \
-                    (msg)->Control.len )                    \
-            ? (LPWSACMSGHDR)NULL                            \
-            : (LPWSACMSGHDR)((PUCHAR)(cmsg) +               \
-                WSA_CMSGHDR_ALIGN((cmsg)->cmsg_len)) ) )
-}
 function WSA_CMSG_NXTHDR(const msg: LPWSAMSG; const cmsg: LPWSACMSGHDR): LPWSACMSGHDR;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -5811,44 +5841,24 @@ begin
   end;
 end;
 
-{
-#define WSA_CMSG_DATA(cmsg)             \
-            ( (PUCHAR)(cmsg) + WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) )
-
-}
 function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := PByte(PtrUInt(cmsg) + WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR));
 end;
 
-{
-#define WSA_CMSG_SPACE(length)  \
-        (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR) + WSA_CMSGHDR_ALIGN(length)))
-
-}
 function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
 end;
 
-{
-#define WSA_CMSG_LEN(length)    \
-         (WSA_CMSGDATA_ALIGN(sizeof(WSACMSGHDR)) + length)
-
-}
 function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length);
 end;
 
-{
-#define IP_MSFILTER_SIZE(NumSources) \
-    (sizeof(IP_MSFILTER) - sizeof(IN_ADDR) + (NumSources) * sizeof(IN_ADDR))
-
-}
 function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -6107,11 +6117,6 @@ begin
   end;
 end;
 
-{
-#define GROUP_FILTER_SIZE(numsrc) \
-   (sizeof(GROUP_FILTER) - sizeof(SOCKADDR_STORAGE) \
-   + (numsrc) * sizeof(SOCKADDR_STORAGE))
-}
 function GROUP_FILTER_SIZE(const numsrc : DWord) : PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
