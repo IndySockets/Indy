@@ -83,6 +83,10 @@ type
 
   TIdUDPClient = class(TIdUDPBase)
   protected
+    FBoundIP: string;
+    FBoundPort: TIdPort;
+    FBoundPortMin: TIdPort;
+    FBoundPortMax: TIdPort;
     FProxyOpened : Boolean;
     FOnConnected : TNotifyEvent;
     FOnDisconnected: TNotifyEvent;
@@ -98,6 +102,7 @@ type
     procedure SetHost(const AValue : String); override;
     procedure SetPort(const AValue : TIdPort); override;
     procedure SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
+    function GetBinding: TIdSocketHandle; override;
     function GetTransparentProxy: TIdCustomTransparentProxy;
   public
     destructor Destroy; override;
@@ -120,20 +125,23 @@ type
     procedure SendBuffer(const AHost: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
-    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
-    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
+    property BoundIP: string read FBoundIP write FBoundIP;
+    property BoundPort: TIdPort read FBoundPort write FBoundPort;
+    property BoundPortMin: TIdPort read FBoundPortMin write FBoundPortMax;
+    property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax;
     property IPVersion;
     property Host;
     property Port;
     property ReceiveTimeout;
-    property TransparentProxy: TIdCustomTransparentProxy
-             read GetTransparentProxy write SetTransparentProxy;
+    property TransparentProxy: TIdCustomTransparentProxy read GetTransparentProxy write SetTransparentProxy;
+    property OnConnected: TNotifyEvent read FOnConnected write FOnConnected;
+    property OnDisconnected: TNotifyEvent read FOnDisconnected write FOnDisconnected;
   end;
 
 implementation
 
 uses
-  IdComponent,IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
+  IdComponent, IdResourceStringsCore, IdSocks, IdStack, IdStackConsts,
   SysUtils;
 
 { TIdUDPClient }
@@ -157,7 +165,7 @@ begin
     if FTransparentProxy.Enabled then begin
       //we don't use proxy open because we want to pass a peer's hostname and port
       //in case a proxy type in the future requires this.
-      FTransparentProxy.OpenUDP(Binding,Host,Port);
+      FTransparentProxy.OpenUDP(Binding, Host, Port);
       FProxyOpened := True;
       FConnected := True;
       Exit;  //we're done, the transparentProxy takes care of the work.
@@ -172,7 +180,7 @@ begin
   end else begin
     LIP := Host;
   end;
-  Binding.SetPeer(LIP,Port);
+  Binding.SetPeer(LIP, Port);
   Binding.Connect;
 
   DoStatus(hsConnected, [Host]);
@@ -218,6 +226,31 @@ begin
   if Assigned(OnDisconnected) then begin
     OnDisconnected(Self);
   end;
+end;
+
+function TIdUDPClient.GetBinding: TIdSocketHandle;
+begin
+  if FBinding = nil then begin
+    FBinding := TIdSocketHandle.Create(nil);
+  end;
+  with FBinding do
+  begin
+    if not HandleAllocated then begin
+      {$IFDEF LINUX}
+      AllocateSocket(LongInt(Id_SOCK_DGRAM));
+      {$ELSE}
+      AllocateSocket(Id_SOCK_DGRAM);
+      {$ENDIF}
+      IP := FBoundIP;
+      Port := FBoundPort;
+      ClientPortMin := FBoundPortMin;
+      ClientPortMax := FBoundPortMax;
+      IPVersion := FIPVersion;
+      Bind;
+      BroadcastEnabledChanged;
+    end;
+  end;
+  Result := FBinding;
 end;
 
 function TIdUDPClient.GetTransparentProxy: TIdCustomTransparentProxy;
