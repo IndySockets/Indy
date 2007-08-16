@@ -1087,7 +1087,7 @@ begin
           //Secondly, if AMsg.MessageParts.TextPartCount > 0, he may have put the
           //message text in the part, so don't convert the body.
           //Thirdly, if AMsg.MessageParts.Count = 0, then it has no other parts
-          //anyway: in this case, output it without boundaries. 
+          //anyway: in this case, output it without boundaries.
           //if (AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0)) then begin
           if AMsg.ConvertPreamble and (AMsg.MessageParts.TextPartCount = 0) and (AMsg.MessageParts.Count > 0) then begin
             //CC2: There is no text part, the user has not changed ConvertPreamble from
@@ -1121,9 +1121,11 @@ begin
         end;
         IOHandler.WriteLn('');
         //######### SET UP THE BOUNDARY STACK ########
-        AMsg.MIMEBoundary.Clear;
-        LBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
-        AMsg.MIMEBoundary.Push(LBoundary, -1);  //-1 is "top level"
+        LBoundary := AMsg.MIMEBoundary.Boundary;
+        if LBoundary = '' then begin
+          LBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
+          AMsg.MIMEBoundary.Push(LBoundary, -1);  //-1 is "top level"
+        end;
       end;
       //######### OUTPUT THE PARTS ########
       //CC2: Write the text parts in their order, if you change the order you
@@ -1191,7 +1193,7 @@ begin
               //(overriding any ContentType present, if necessary).
               LAttachment.ContentType := 'application/mac-binhex40';            {do not localize}
               if LAttachment.CharSet <> '' then begin
-                IOHandler.WriteLn('Content-Type: '+LAttachment.ContentType+'; charset="' + LAttachment.CharSet + '";'); {do not localize}
+                IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + '; charset="' + LAttachment.CharSet + '";'); {do not localize}
               end else begin
                 IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
               end;
@@ -1216,38 +1218,45 @@ begin
             IOHandler.WriteLn('');
             LDestStream := TIdTCPStream.Create(Self);
             try
-              if PosInStrArray(LAttachment.ContentTransfer, ['base64', 'quoted-printable', 'binhex40'], False) = -1 then begin {do not localize}
-                LAttachStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
-                try
-                  while ReadLnFromStream(LAttachStream, LLine) do begin
-                    {Lines that start with a '.' are required to have an extra '.' inserted per RFC 821.}
-                    if TextStartsWith(LLine, '.') then begin
-                      WriteStringToStream(LDestStream, '.');
+              case PosInStrArray(LAttachment.ContentTransfer, ['base64', 'quoted-printable', 'binhex40'], False) of {do not localize}
+                0:
+                  begin
+                    EncodeAttachment(LDestStream, LAttachment, TIdMessageEncoderMIME);
+                  end;
+                1:
+                  begin
+                    EncodeAttachment(LDestStream, LAttachment, TIdMessageEncoderQuotedPrintable);
+                  end;
+                2:
+                  begin
+                    //This is different, it has to create a header that includes CRC checks
+                    LBinHex4Encoder := TIdEncoderBinHex4.Create(Self);
+                    try
+                      LAttachStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
+                      try
+                        LBinHex4Encoder.EncodeFile(TIdAttachment(AMsg.MessageParts[i]).Filename, LAttachStream, LDestStream);
+                      finally
+                        TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
+                      end;
+                    finally
+                      FreeAndNil(LBinHex4Encoder);
                     end;
-                    WriteStringToStream(LDestStream, LLine + EOL);
                   end;
-                finally
-                  TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
-                end;
-              end
-              else if TextIsSame(LAttachment.ContentTransfer, 'binhex40') then begin  {do not localize}
-                //This is different, it has to create a header that includes CRC checks
-                LBinHex4Encoder := TIdEncoderBinHex4.Create(Self);
-                try
-                  LAttachStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
-                  try
-                    LBinHex4Encoder.EncodeFile(TIdAttachment(AMsg.MessageParts[i]).Filename, LAttachStream, LDestStream);
-                  finally
-                    TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
+                else
+                  begin
+                    LAttachStream := TIdAttachment(AMsg.MessageParts[i]).OpenLoadStream;
+                    try
+                      while ReadLnFromStream(LAttachStream, LLine) do begin
+                        {Lines that start with a '.' are required to have an extra '.' inserted per RFC 821.}
+                        if TextStartsWith(LLine, '.') then begin
+                          WriteStringToStream(LDestStream, '.');
+                        end;
+                        WriteStringToStream(LDestStream, LLine + EOL);
+                      end;
+                    finally
+                      TIdAttachment(AMsg.MessageParts[i]).CloseLoadStream;
+                    end;
                   end;
-                finally
-                  FreeAndNil(LBinHex4Encoder);
-                end;
-              end
-              else if TextIsSame(LAttachment.ContentTransfer, 'base64') then begin {do not localize}
-                EncodeAttachment(LDestStream, LAttachment, TIdMessageEncoderMIME);
-              end else begin  {'quoted-printable'}
-                EncodeAttachment(LDestStream, LAttachment, TIdMessageEncoderQuotedPrintable);
               end;
             finally
               FreeAndNil(LDestStream);
