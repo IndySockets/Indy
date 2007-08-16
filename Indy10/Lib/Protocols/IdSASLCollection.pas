@@ -136,7 +136,6 @@ var
   S: String;
 begin
   Result := False;
-
   AClient.SendCmd(ACmd + ' ' + ASASL.ServiceName, []);//[334, 504]);
   if CheckStrFail(AClient.LastCmdResult.Code, AOkReplies, AContinueReplies) then begin
     Exit; // this mechanism is not supported
@@ -213,7 +212,7 @@ var
 
   function SetupErrorReply: TIdReply;
   begin
-    Result := (AClient.LastCmdResult.ClassType.Create as TIdReply);
+    Result := TIdReplyClass(AClient.LastCmdResult.ClassType).Create(nil);
     Result.Assign(AClient.LastCmdResult);
   end;
 
@@ -234,7 +233,7 @@ begin
                 Continue;
               end;
             end;
-            if LSASLList.IndexOf(LSASL) = -1 then begin
+            if (LSASLList.IndexOf(LSASL) = -1) and LSASL.IsReadyToStart then begin
               LSASLList.Add(LSASL);
             end;
           end;
@@ -286,7 +285,6 @@ var
   LSASL : TIdSASL;
 begin
   Result := False;
-
   LSupportedSASL := ParseCapaReply(ACapaReply, AAuthString);
   try
     if LSupportedSASL <> nil then begin
@@ -296,7 +294,7 @@ begin
     end;
     //determine if we also support the mechanism
     LSASL := FindSASL(AServiceName);
-    if LSASL <> nil then begin
+    if (LSASL <> nil) and LSASL.IsReadyToStart then begin
       //now do it
       LE := TIdEncoderMIME.Create(nil);
       try
