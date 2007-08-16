@@ -248,7 +248,7 @@ type
     function CheckIPVersionSupport(const AIPVersion: TIdIPVersion): boolean; virtual; abstract;
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes): Integer; override;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-      AOffset: Integer = 0; ASize: Integer = -1): Integer; override;
+      const AOffset: Integer = 0; const ASize: Integer = -1): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
       var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
       ): Integer; override;
@@ -408,13 +408,11 @@ begin
 end;
 
 function TIdStackBSDBase.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-  AOffset: Integer = 0; ASize: Integer = -1): Integer;
+  const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
 begin
-  ASize := IndyLength(ABuffer, ASize, AOffset);
-  if ASize > 0 then begin
-    Result := WSSend(ASocket, PChar(@ABuffer[AOffset])^, ASize, 0);
-  end else begin
-    Result := 0;
+  Result := IndyLength(ABuffer, ASize, AOffset);
+  if Result > 0 then begin
+    Result := WSSend(ASocket, PChar(@ABuffer[AOffset])^, Result, 0);
   end;
 end;
 
@@ -431,9 +429,10 @@ function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
   const APort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
-   // must use pointer(ABuffer)^, can't use ABuffer[0], because ABuffer may have a 0 length
-   WSSendTo(ASocket, Pointer(ABuffer)^, Length(ABuffer), 0, AIP, APort, AIPVersion);
-   Result := Length(ABuffer);
+  Result := IndyLength(ABuffer, -1, AOffset);
+  if Result > 0 then begin
+    WSSendTo(ASocket, PChar(@ABuffer[AOffset])^, Result, 0, AIP, APort, AIPVersion);
+  end;
 end;
 
 procedure TIdStackBSDBase.DropMulticastMembership(AHandle: TIdStackSocketHandle;
