@@ -879,7 +879,7 @@ begin
                 try
                   // SG 29/11/01: Per request of Doychin
                   // Try to fill the "host" parameter
-                  LRequestInfo.FDocument := TIdURI.URLDecode(LURI.Path) + TIdURI.URLDecode(LURI.Document) + LURI.Params;
+                  LRequestInfo.FDocument := TIdURI.URLDecode(LURI.Path) + TIdURI.URLDecode(LURI.Document);
                   if (Length(LURI.Host) > 0) and (Length(LRequestInfo.FHost) = 0) then begin
                     LRequestInfo.FHost := LURI.Host;
                   end;
