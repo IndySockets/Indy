@@ -136,7 +136,9 @@ type
     ipv6mr_multiaddr: IN6_ADDR; // IPv6 multicast address
     ipv6mr_interface: u_int;     // Interface index
   end;
+  {$NODEFINE TIPv6_MReq}
   TIPv6_MReq = IPV6_MREQ;
+  {$NODEFINE PIPv6_MReq}
   PIPv6_MReq = ^TIPv6_MReq;
 
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
@@ -161,7 +163,7 @@ type
     PasswordStringLen : ULONG;
   //  wchar_t AllStrings[0];
   end;
-  {$EXTERNALSYM SOCKET_SECURITY_SETTINGS_IPSEC}
+  {$EXTERNALSYM PSOCKET_SECURITY_SETTINGS_IPSEC}
   PSOCKET_SECURITY_SETTINGS_IPSEC = ^SOCKET_SECURITY_SETTINGS_IPSEC;
 
   {$EXTERNALSYM SOCKET_PEER_TARGET_NAME}
@@ -253,6 +255,8 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   {$EXTERNALSYM LPFN_FREEADDRINFOEXW}
   LPFN_FREEADDRINFOEXW = procedure(pAddrInfoEx : PADDRINFOEXW) ; stdcall;
 
+  {$EXTERNALSYM LPFN_GETADDRINFOEX}
+  {$EXTERNALSYM LPFN_SETADDRINFOEX}
   {$IFDEF UNICODE}
   LPFN_GETADDRINFOEX = LPFN_GETADDRINFOEXW;
   LPFN_SETADDRINFOEX = LPFN_SETADDRINFOEXW;
@@ -282,6 +286,14 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
   LPFN_WSAREVERTIMPERSONATION = function : Integer; stdcall;
 
 const
+  {$NODEFINE fn_GetAddrInfoEx}
+  {$NODEFINE fn_SetAddrInfoEx}
+  {$NODEFINE fn_FreeAddrInfoEx}
+  {$NODEFINE fn_GetAddrInfo}
+  {$NODEFINE fn_getnameinfo}
+  {$NODEFINE fn_freeaddrinfo}
+  {$NODEFINE fn_inet_pton}
+  {$NODEFINE fn_inet_ntop}
   {$IFDEF UNICODE}
   fn_GetAddrInfoEx = 'GetAddrInfoExW';
   fn_SetAddrInfoEx = 'SetAddrInfoExW';
