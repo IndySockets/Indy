@@ -272,6 +272,9 @@ resourcestring
   RSICMPPacketTooBig = 'Packet Too Big (MTU = %d)';
 { TIdCustomIcmpClient }
 
+  // TIdSimpleServer
+  RSCannotUseNonSocketIOHandler = 'Cannot use a non-socket IOHandler';
+
 implementation
 
 end.
