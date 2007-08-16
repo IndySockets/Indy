@@ -69,14 +69,14 @@ end;
 
 function TIdSASLPlain.StartAuthenticate(const AChallenge: string): String;
 var
-  fusr, flogas: string;
+  LUser, LUserAs: string;
 begin
-  fusr := GetUsername;
-  flogas := LoginAs;
-  if fusr = '' then begin
-    fusr := flogas;
+  LUser := GetUsername;
+  LUserAs := LoginAs;
+  if LUser = '' then begin
+    LUser := LUserAs;
   end;
-  Result := flogas+#0+fusr+#0+GetPassword;  {Do not translate}
+  Result := LUserAs+#0+LUser+#0+GetPassword;  {Do not translate}
 end;
 
 end.
