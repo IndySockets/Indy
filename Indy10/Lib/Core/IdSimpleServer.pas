@@ -127,6 +127,7 @@ type
     procedure DoAfterBind; virtual;
     function GetBinding: TIdSocketHandle;
     procedure InitComponent; override;
+    procedure SetIOHandler(AValue: TIdIOHandler); override;
     procedure SetIPVersion(const AValue: TIdIPVersion);
   public
     procedure Abort; virtual;
@@ -173,9 +174,9 @@ begin
     EndListen;
     CreateBinding;
   end;
-  if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
-    TIdIOHandlerSocket(IOHandler).Binding.IP := BoundIP;
-    TIdIOHandlerSocket(IOHandler).TransparentProxy.Bind(FIOHandler, BoundPort);
+  if Socket.TransparentProxy.Enabled then begin
+    Socket.Binding.IP := BoundIP;
+    Socket.TransparentProxy.Bind(FIOHandler, BoundPort);
   end else begin
     Bind;
     Binding.Listen(1);
@@ -234,19 +235,28 @@ end;
 
 function TIdSimpleServer.GetBinding: TIdSocketHandle;
 begin
-  Result := nil;
-  if Assigned(IOHandler) then begin
-    if IOHandler is TIdIOHandlerSocket then begin
-      Result := TIdIOHandlerSocket(IOHandler).Binding;
+  if Assigned(Socket) then begin
+    Result := Socket.Binding;
+  end else begin
+    Result := nil;
+  end;
+end;
+
+procedure TIdSimpleServer.SetIOHandler(AValue: TIdIOHandler);
+begin
+  if Assigned(AValue) then begin
+    if not (AValue is TIdIOHandlerSocket) then begin
+      raise EIdCannotUseNonSocketIOHandler.Create(RSCannotUseNonSocketIOHandler);
     end;
   end;
+  inherited SetIOHandler(AValue);
 end;
 
 procedure TIdSimpleServer.SetIPVersion(const AValue: TIdIPVersion);
 begin
   FIPVersion := AValue;
-  if IOHandler is TIdIOHandlerSocket then begin
-    TIdIOHandlerSocket(IOHandler).IPVersion := AValue;
+  if Assigned(Socket) then begin
+    Socket.IPVersion := AValue;
   end;
 end;
 
@@ -267,7 +277,7 @@ var
     if ATimeout = IdTimeoutInfinite then begin
       repeat
         if AUseProxy then begin
-          Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, LSleepTime);
+          Result := Socket.TransparentProxy.Listen(IOHandler, LSleepTime);
         end else begin
           Result := Binding.Select(LSleepTime);
         end;
@@ -277,7 +287,7 @@ var
 
     while ATimeout > LSleepTime do begin
       if AUseProxy then begin
-        Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, LSleepTime);
+        Result := Socket.TransparentProxy.Listen(IOHandler, LSleepTime);
       end else begin
         Result := Binding.Select(LSleepTime);
       end;
@@ -290,20 +300,18 @@ var
     end;
 
     if AUseProxy then begin
-      Result := TIdIOHandlerSocket(IOHandler).TransparentProxy.Listen(IOHandler, ATimeout);
+      Result := Socket.TransparentProxy.Listen(IOHandler, ATimeout);
     end else begin
       Result := Binding.Select(ATimeout);
     end;
   end;
 
 begin
-  Assert(IOHandler <> nil);
-
   if not FListening then begin
     BeginListen;
   end;
 
-  if TIdIOHandlerSocket(IOHandler).TransparentProxy.Enabled then begin
+  if Socket.TransparentProxy.Enabled then begin
     LAccepted := DoListenTimeout(ATimeout, True);
   end else
   begin
