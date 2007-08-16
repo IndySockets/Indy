@@ -103,7 +103,7 @@ type
     procedure SetActive(const Value: Boolean);
     procedure SetBroadcastFlag(const AEnabled: Boolean; ABinding: TIdSocketHandle = nil);
     procedure SetBroadcastEnabled(const AValue: Boolean);
-    function GetBinding: TIdSocketHandle; virtual;
+    function GetBinding: TIdSocketHandle; virtual; abstract;
     procedure Loaded; override;
 
     function GetIPVersion: TIdIPVersion;  virtual;
@@ -192,27 +192,9 @@ begin
   Result := FDsgnActive;
   if not Result then begin
     if Assigned(FBinding) then begin
-      if FBinding.HandleAllocated then begin
-        Result := True;
-      end;
+      Result := FBinding.HandleAllocated;
     end;
   end;
-end;
-
-function TIdUDPBase.GetBinding: TIdSocketHandle;
-begin
-  if FBinding = nil then begin
-    FBinding := TIdSocketHandle.Create(nil);
-  end;
-  if not FBinding.HandleAllocated then begin
-{$IFDEF LINUX}
-    FBinding.AllocateSocket(LongInt(Id_SOCK_DGRAM));
-{$ELSE}
-    FBinding.AllocateSocket(Id_SOCK_DGRAM);
-{$ENDIF}
-    BroadcastEnabledChanged;
-  end;
-  Result := FBinding;
 end;
 
 function TIdUDPBase.GetHost: String;
