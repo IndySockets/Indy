@@ -186,12 +186,12 @@ begin
   LCoder := ByCharSet(ACharSet);
   if LCoder <> nil then begin
     Result := LCoder.Decode(ACharSet, AData);
-  end
-  else if Assigned(ADecodeEvent) then begin
+  end else
+  begin
     Result := '';
-    ADecodeEvent(nil, ACharSet, AData, Result);
-  end else begin
-    Result := AData;
+    if Assigned(ADecodeEvent) then begin
+      ADecodeEvent(nil, ACharSet, AData, Result);
+    end;
   end;
 end;
 
@@ -355,7 +355,7 @@ var
     end;
 
     VStartPos := LCharSet-2;
-    VEndPos := LDataEnd+1;
+    VEndPos := LDataEnd;
 
     VCharSet := Copy(AHeader, LCharSet, LEncoding-LCharSet-1);
     VEncoding := Copy(AHeader, LEncoding, LData-LEncoding-1);
