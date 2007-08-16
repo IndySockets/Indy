@@ -303,25 +303,17 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
 
-  {$IFNDEF NOREDECLARE}
-  TLinger = record
-	  l_onoff: Word;
-	  l_linger: Word;
-  end;
-  {$ENDIF}
-
-  TIdLinger = TLinger;
-
 var
 //This is for the Win32-only package (SuperCore)
   GWindowsStack : TIdStackWindows = nil;
-
-const SIZE_HOSTNAME = 250;
 
 implementation
 
 uses
   IdResourceStrings, IdWship6;
+
+const
+  SIZE_HOSTNAME = 250;
 
 var
   GStarted: Boolean = False;
@@ -464,9 +456,9 @@ end;
 
 function TIdStackWindows.ReadHostName: string;
 begin
-  SetLength(result, SIZE_HOSTNAME);
-  GetHostName(PChar(result), SIZE_HOSTNAME);
-  Result := String(PChar(result));
+  SetLength(Result, SIZE_HOSTNAME);
+  GetHostName(PChar(Result), SIZE_HOSTNAME);
+  Result := String(PChar(Result));
 end;
 
 procedure TIdStackWindows.Listen(ASocket: TIdStackSocketHandle; ABackLog: Integer);
@@ -530,7 +522,7 @@ begin
         TranslateStringToTInAddr(AIP, sin_addr, Id_IPv4);
         sin_port := HToNs(APort);
       end;
-      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, @Addr4,SIZE_TSOCKADDRIN );
+      LBytesOut := IdWinsock2.SendTo(ASocket, ABuffer, ABufferLength, AFlags, @Addr4, SIZE_TSOCKADDRIN);
     end;
     Id_IPv6: begin
       FillChar(Addr6, SizeOf(Addr6), 0);
@@ -977,16 +969,16 @@ begin
     end;
     Id_IPv6: begin
       if not IdIPv6Available then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      ZeroMemory(@Hints,SIZE_TADDRINFO);
+      ZeroMemory(@Hints, SIZE_TADDRINFO);
       Hints.ai_family := Id_PF_INET6;
       Hints.ai_socktype := SOCK_STREAM;
-      AddrInfo:=nil;
+      AddrInfo := nil;
       RetVal := getaddrinfo(pchar(AHostName), nil, @Hints, @AddrInfo);
       try
-        if RetVal<>0 then
-          RaiseSocketError(gaiErrorToWsaError(RetVal))
-        else
-          result:=TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_zero,Id_IPv6);
+        if RetVal <> 0 then begin
+          RaiseSocketError(gaiErrorToWsaError(RetVal));
+        end;
+        Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_zero, Id_IPv6);
       finally
         freeaddrinfo(AddrInfo);
       end;
@@ -1074,7 +1066,7 @@ var LP : PAnsiChar;
 begin
   LP := Addr(LBuf);
   LLen := SIZE_INTEGER;
-  WSGetSockOpt(ASocket,ALevel,AOptName,LP,LLen);
+  WSGetSockOpt(ASocket, ALevel, AOptName, LP, LLen);
   AOptVal := LBuf;
 end;
 
