@@ -109,6 +109,7 @@ type
   EIdDecompressorInitFailure = class(EIdCompressionException);
   EIdCompressionError = class(EIdCompressionException);
   EIdDecompressionError = class(EIdCompressionException);
+
   TIdCompressionLevel = 0..9;
 
   TIdCompressionIntercept = class(TIdConnectionIntercept)
@@ -258,11 +259,11 @@ var
   LBuffer: TIdBytes;
   LLen, LSize: TIdC_UINT;
 begin
-  SetLength(LBuffer, 1024);
+  LBuffer := nil;
   if FCompressionLevel in [1..9] then
   begin
     InitCompressors;
-    // Make sure the Send buffer is large enough to hold the input stream data
+    // Make sure the Send buffer is large enough to hold the input data
     LSize := Length(VBuffer);
     if LSize > FSendSize then
     begin
@@ -274,15 +275,18 @@ begin
       SetLength(FSendBuf, FSendSize);
     end;
 
-    // Get the data from the input stream and save it off
+    // Get the data from the input and save it off
+    // TODO: get rid of FSendBuf and use ABuffer directly
     FSendCount := LSize;
     CopyTIdBytes(VBuffer, 0, FSendBuf, 0, FSendCount);
     FCompressRec.next_in := PChar(@FSendBuf[0]);
     FCompressRec.avail_in := FSendCount;
     FCompressRec.avail_out := 0;
 
-    // reset and clear the input stream in preparation for compression
+    // clear the output stream in preparation for compression
     SetLength(VBuffer, 0);
+    SetLength(LBuffer, 1024);
+
     // As long as data is being outputted, keep compressing
     while FCompressRec.avail_out = 0 do
     begin
@@ -293,7 +297,7 @@ begin
         Z_DATA_ERROR,
         Z_MEM_ERROR: raise EIdCompressionError.Create(RSZLCompressionError);
       end;
-      // Place the compressed data back into the input stream
+      // Place the compressed data into the output stream
       LLen := Length(VBuffer);
       SetLength(VBuffer, LLen + TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
       CopyTIdBytes(LBuffer, 0, VBuffer, LLen, TIdC_UINT(Length(LBuffer)) - FCompressRec.avail_out);
