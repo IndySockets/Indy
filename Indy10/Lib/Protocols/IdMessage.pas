@@ -330,7 +330,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    class function FindBoundary(AContentType: string): string;
+    class function FindBoundary(const AContentType: string): string;
     procedure Push(ABoundary: string; AParentPart: integer);
     procedure Pop;
     procedure Clear;
@@ -565,7 +565,7 @@ begin
   inherited;
 end;
 
-class function TIdMIMEBoundary.FindBoundary(AContentType: string): string;
+class function TIdMIMEBoundary.FindBoundary(const AContentType: string): string;
 var
   s: string;
 begin
@@ -763,10 +763,10 @@ begin
         if PosInStrArray(LEncoding, ['7bit', '8bit', 'binary', 'base64', 'quoted-printable', 'binhex40'], False) = -1 then begin {do not localize}
           MessageParts[LN].ContentTransfer := 'base64';                 {do not localize}
         end;
-      end else begin  //mePlainText
-        if PosInStrArray(LEncoding, ['UUE', 'XXE'], False) = -1 then begin {do not localize}
-          MessageParts[LN].ContentTransfer := 'UUE';                    {do not localize}
-        end;
+      end
+      else if PosInStrArray(LEncoding, ['UUE', 'XXE'], False) = -1 then begin {do not localize}
+        //mePlainText
+        MessageParts[LN].ContentTransfer := 'UUE';                    {do not localize}
       end;
     end;
   end;
@@ -779,8 +779,12 @@ begin
     end;
   end;
   if Encoding = meMIME then begin
-    //HH: Generate Boundary here so we know it in the headers
+    //HH: Generate Boundary here so we know it in the headers and body
+    //######### SET UP THE BOUNDARY STACK ########
+    //RLebeau: Moved this logic up from SendBody to here, where it fits better...
+    MIMEBoundary.Clear;
     LMIMEBoundary := TIdMIMEBoundaryStrings.GenerateBoundary;
+    MIMEBoundary.Push(LMIMEBoundary, -1);  //-1 is "top level"
     //CC: Moved this logic up from SendBody to here, where it fits better...
     if Length(ContentType) = 0 then begin
       //User has omitted ContentType.  We have to guess here, it is impossible
@@ -792,7 +796,8 @@ begin
         end else begin
           ContentType := 'multipart/alternative';   {do not localize}
         end;
-      end else begin
+      end else
+      begin
         //Just one (or 0?) text part.
         if MessageParts.AttachmentCount > 0 then begin
           ContentType := 'multipart/mixed';    {do not localize}
