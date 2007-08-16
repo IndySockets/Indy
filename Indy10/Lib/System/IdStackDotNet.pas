@@ -227,7 +227,7 @@ type
     // Will raise exceptions in other cases
     function Receive(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes) : Integer; override;
     function Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-      AOffset: Integer = 0; ASize: Integer = -1): Integer; override;
+      const AOffset: Integer = 0; const ASize: Integer = -1): Integer; override;
     function IOControl(const s: TIdStackSocketHandle; const cmd: LongWord;
       var arg: LongWord): Integer; override;
     function ReceiveFrom(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
@@ -551,19 +551,17 @@ begin
 end;
 
 function TIdStackDotNet.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-  AOffset: Integer = 0; ASize: Integer = -1): Integer;
+  const AOffset: Integer = 0; ASize: Integer = -1): Integer;
 begin
-  ASize := IndyLength(ABuffer, ASize, AOffset);
-  if ASize > 0 then begin
+  Result := IndyLength(ABuffer, ASize, AOffset);
+  if Result > 0 then begin
     try
-      Result := ASocket.Send(ABuffer, AOffset, ASize, SocketFlags.None);
+      Result := ASocket.Send(ABuffer, AOffset, Result, SocketFlags.None);
     except
       on E: Exception do begin
         raise BuildException(Self, E);
       end;
     end;
-  end else begin
-    Result := 0;
   end;
 end;
 
@@ -595,18 +593,21 @@ function TIdStackDotNet.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TId
 var
   LEndPoint : EndPoint;
 begin
-  Result := 0; // to make the compiler happy
-  LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
-  try
+  Result := IndyLength(ABuffer, -1, AOffset);
+  if Result > 0 then
+  begin
+    LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
     try
-      Result := ASocket.SendTo(ABuffer, SocketFlags.None, LEndPoint);
-    except
-      on e: Exception do begin
-        raise BuildException(Self, e);
+      try
+        Result := ASocket.SendTo(ABuffer, AOffset, Result, SocketFlags.None, LEndPoint);
+      except
+        on e: Exception do begin
+          raise BuildException(Self, e);
+        end;
       end;
+    finally
+      LEndPoint.Free;
     end;
-  finally
-    LEndPoint.free;
   end;
 end;
 
@@ -933,7 +934,7 @@ This extracts an IP address as a series of bytes from a TIdBytes that contains
 one SockAddress structure.
 }
 procedure SockAddrToIPBytes(const ASockAddr : TIdBytes; var VIPAddr : TIdBytes);
-{$IFDEF USEINLINE} inline; {$ENDIF}
+{$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   case IdGlobal.BytesToWord(ASockAddr,0) of
     23 : //AddressFamily.InterNetworkV6 :
@@ -999,7 +1000,6 @@ We can not do something like:
   s.IOControl(LongInt(SIO_ROUTING_INTERFACE_QUERY),Lin,LOut);
   SockAddrToIPBytes(LOut,VSource);
   SockAddrToIPBytes(LIn,VDest);
-
 end;
 
 procedure TIdStackDotNet.WriteChecksumIPv6(s: TIdStackSocketHandle;
@@ -1084,7 +1084,7 @@ begin
     an API for it.
 
     I'm not sure if we have an API for it at all.  Even if we did, would it be worth
-    doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv5
+    doing when you consider that Microsoft's NET Framework 1.1 does not support ICMPv6
     in its enumerations.}
     raise EIdNotSupportedInMicrosoftNET11.Create(RSNotSupportedInMicrosoftNET11);
     {$ELSE}
