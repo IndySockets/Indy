@@ -472,7 +472,7 @@ end;
 { encode a header field if non-ASCII characters are used }
 function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char; const MimeCharSet: string): string;
 const
-  SPACES: String = ' ' + #9 + EOL;    {Do not Localize}
+  SPACES: String = ' ' + TAB + EOL;    {Do not Localize}
 var
   S, T: string;
   L, P, Q, R: Integer;
@@ -500,13 +500,14 @@ var
       0: begin { quoted-printable }
         while Q < P do
         begin
-          if not CharIsInSet(S, Q, csReqQuote) then begin
-            Enc1 := S[Q];
+          if S[Q] = ' ' then begin {Do not Localize}
+            Enc1 := '_';  {Do not Localize}
           end
-          else if S[Q] = ' ' then begin {Do not Localize}
-            Enc1 := '_'   {Do not Localize}
-          end else begin
+          else if CharIsInSet(S, Q, csReqQuote) then begin
             Enc1 := '=' + IntToHex(Ord(S[Q]), 2);     {Do not Localize}
+          end
+          else begin
+            Enc1 := S[Q];
           end;
           if (EncLen + Length(Enc1)) > MaxEncLen then begin
             //T := T + EndEncode + #13#10#9 + BeginEncode;
@@ -532,7 +533,7 @@ var
             //was interpreted by email clients, etc., as the end of the headers
             //and the start of the message body.  FoldWrapText seems to look for
             //and treat correctly the sequence #13#10 + ' ' however...
-            T := T + EndEncode + #13#10 + ' ' + BeginEncode;
+            T := T + EndEncode + EOL + ' ' + BeginEncode;
             EncLen := Length(BeginEncode) + 2;
           end;
 
@@ -589,7 +590,7 @@ begin
   end;//if
 
   csNeedEncode := CreateEncodeRange(#0, #31) + CreateEncodeRange(#127, #255) + Specials;
-  csReqQuote := csNeedEncode + '?=_';   {Do not Localize}
+  csReqQuote := csNeedEncode + '?=_ ';   {Do not Localize}
   BeginEncode := '=?' + MimeCharSet + '?' + HeaderEncoding + '?';    {Do not Localize}
   EndEncode := '?=';  {Do not Localize}
 
