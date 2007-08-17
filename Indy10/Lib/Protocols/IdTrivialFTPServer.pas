@@ -362,7 +362,7 @@ begin
   FRetryCtr := 0;
   FEOT := False;
   if FRequestedBlkSize > 0 then begin
-    FUDPClient.BufferSize := Max(FRequestedBlkSize + hdrsize, FUDPClient.BufferSize);
+    FUDPClient.BufferSize := IndyMax(FRequestedBlkSize + hdrsize, FUDPClient.BufferSize);
     FResponse := WordToStr(GStack.NetworkToHost(Word(TFTP_OACK))) + 'blksize'#0    {Do not Localize}
      + IntToStr(FUDPClient.BufferSize - hdrsize) + #0#0;
   end else begin
