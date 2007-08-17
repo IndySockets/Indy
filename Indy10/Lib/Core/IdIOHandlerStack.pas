@@ -243,7 +243,7 @@ procedure TIdIOHandlerStack.ConnectClient;
       Resume;
       // Sleep
       if TIdAntiFreezeBase.ShouldUse then begin
-        LSleepTime := Min(GAntiFreeze.IdleTimeOut, 125);
+        LSleepTime := IndyMin(GAntiFreeze.IdleTimeOut, 125);
       end else begin
         LSleepTime := 125;
       end;

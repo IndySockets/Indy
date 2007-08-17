@@ -1281,7 +1281,7 @@ begin
   try
     while ASize > 0 do begin
       SetLength(LBuffer, FSendBufferSize); //BGO: bad for speed
-      LBufSize := Min(ASize, FSendBufferSize);
+      LBufSize := IndyMin(ASize, FSendBufferSize);
       // Do not use ReadBuffer. Some source streams are real time and will not
       // return as much data as we request. Kind of like recv()
       // NOTE: We use .Size - size must be supported even if real time
@@ -1424,7 +1424,7 @@ begin
     // If data already exists in the buffer, write it out first.
     // should this loop for all data in buffer up to workcount? not just one block?
     if FInputBuffer.Size > 0 then begin
-      i := Min(FInputBuffer.Size, LWorkCount);
+      i := IndyMin(FInputBuffer.Size, LWorkCount);
       FInputBuffer.ExtractToStream(AStream, i);
       Dec(LWorkCount, i);
     end;
@@ -1435,7 +1435,7 @@ begin
     // prematurely and thus leave unread bytes in the InputBuffer.
     // Let the loop catch the exception before exiting...
     while {Connected and} (LWorkCount > 0) do begin
-      i := Min(LWorkCount, RecvBufferSize);
+      i := IndyMin(LWorkCount, RecvBufferSize);
       //TODO: Improve this - dont like the use of the exception handler
       //DONE -oAPR: Dont use a string, use a memory buffer or better yet the buffer itself.
       try
@@ -1449,7 +1449,7 @@ begin
             // could have filled the InputBuffer with more bytes
             // than actually requested, so don't extract too
             // many bytes here...
-            i := Min(i, FInputBuffer.Size);
+            i := IndyMin(i, FInputBuffer.Size);
             FInputBuffer.ExtractToBytes(LBuf, i);
             if (E is EIdConnClosedGracefully) and AReadUntilDisconnect then begin
               Break;
@@ -1680,7 +1680,7 @@ begin
       end;
       Break;
     end;
-    LPos := Max(0, InputBuffer.Size - (Length(LBytes)-1));
+    LPos := IndyMax(0, InputBuffer.Size - (Length(LBytes)-1));
     CheckForDisconnect;
   until False;
 end;
