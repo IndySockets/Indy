@@ -43,6 +43,7 @@
 unit IdTrivialFTP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -94,7 +95,8 @@ uses
   SysUtils;
 
 procedure TIdTrivialFTP.CheckOptionAck(const optionpacket: string);
-var LBuf : String;
+var
+  LBuf : String;
   LOptName : String;
 //The packet is in a form such as this:
 //
@@ -145,7 +147,7 @@ begin
     while true do
     begin
       if TerminateTransfer then begin
-        RcvTimeout := Min(500, ReceiveTimeout);
+        RcvTimeout := IndyMin(500, ReceiveTimeout);
       end;
       s := ReceiveString(FPeerIP, FPeerPort, RcvTimeout);
       if (s = '') then begin    {Do not Localize}
@@ -172,8 +174,7 @@ begin
             begin
               DataLen := Length(s) - 4;
               try
-                IdGlobal.WriteStringToStream(DestinationStream,s,DataLen,5);
-               // DestinationStream.WriteBuffer(s[5], DataLen);
+                WriteStringToStream(DestinationStream, s, DataLen, 5);
                 DoWork(wmRead, DataLen)
               except
                 on E:Exception do
@@ -193,7 +194,7 @@ begin
           BlockCtr := 0;
         end;
         else
-          raise EIdTFTPException.Create(IndyFormat(RSTFTPUnexpectedOp, [Host, Port]));
+          raise EIdTFTPException.CreateFmt(RSTFTPUnexpectedOp, [Host, Port]);
       end;  { case }
       SendAck(BlockCtr);
     end;  { while }
@@ -207,11 +208,11 @@ procedure TIdTrivialFTP.Get(const ServerFile, LocalFile: String);
 var
   fs: TFileStream;
 begin
-  fs := TFileStream.Create(LocalFile, fmCreate);
+  fs := TIdFileCreateStream.Create(LocalFile);
   try
     Get(ServerFile, fs);
   finally
-    fs.Free;
+    FreeAndNil(fs);
   end;
 end;
 
@@ -240,22 +241,19 @@ begin
     PrevBlockCtr := 0;
     BlockCtr := 1;
     TerminateTransfer := False;
-    while true do
-    begin
+    repeat
       s := ReceiveString(FPeerIP, FPeerPort);
-      if (s = '') then begin    {Do not Localize}
+      if s = '' then begin    {Do not Localize}
         if TerminateTransfer then begin
           Break;
-        end
-        else begin
-          raise EIdTFTPException.Create(RSTimeOut);
         end;
+        raise EIdTFTPException.Create(RSTimeOut);
       end;
       case GStack.HostToNetwork(StrToWord(s)) of
         TFTP_ACK:
           begin
             BlockCtr := GStack.HostToNetwork(StrToWord(Copy(s, 3, 2)));
-            inc(BlockCtr);
+            Inc(BlockCtr);
             if Word(BlockCtr) = 0 then begin
               BlockCtr := 0;
               PrevBlockCtr := -1; // counter wrapped around (1-65535 blocks)
@@ -266,20 +264,20 @@ begin
           end;
         TFTP_ERROR: RaiseError(s);
         TFTP_OACK: CheckOptionAck(s);
-      end;  { case }
+      end;
       if BlockCtr > PrevBlockCtr then
       begin
-        DataLen := Min(BufferSize - hdrsize, SourceStream.Size - SourceStream.Position);
+        DataLen := IndyMin(BufferSize - hdrsize, SourceStream.Size - SourceStream.Position);
         SetLength(CurrentDataBlk, DataLen + hdrsize);
         CurrentDataBlk := WordToStr(GStack.HostToNetwork(Word(TFTP_DATA))) + WordToStr(GStack.HostToNetwork(BlockCtr));
         SetLength(CurrentDataBlk, DataLen + hdrsize);
-     //   SourceStream.ReadBuffer(CurrentDataBlk[hdrsize+1], DataLen);
+        //SourceStream.ReadBuffer(CurrentDataBlk[hdrsize+1], DataLen);
         DoWork(wmWrite, DataLen);
         TerminateTransfer := DataLen < BufferSize - hdrsize;
         PrevBlockCtr := BlockCtr;
       end;
       Send(FPeerIP, FPeerPort, CurrentDataBlk);
-    end;  { while }
+    until False;  { repeat }
   finally
     EndWork(wmWrite);
     Binding.CloseSocket;
@@ -330,6 +328,5 @@ procedure TIdTrivialFTP.SendAck(const BlockNumber: Word);
 begin
   Send(FPeerIP, FPeerPort, MakeAckPkt(BlockNumber));
 end;
-
 
 end.
