@@ -113,8 +113,10 @@
 }
 
 unit IdIOHandlerStream;
-{$I IdCompilerDefines.inc}
+
 interface
+
+{$I IdCompilerDefines.inc}
 
 uses
   Classes,
@@ -256,7 +258,7 @@ begin
   // We dont want to read the whole stream in at a time. If its a big
   // file will consume way too much memory by loading it all at once.
   // So lets read it in chunks.
-  Result := Min(32 * 1024, Length(VBuffer));
+  Result := IndyMin(32 * 1024, Length(VBuffer));
   if Result > 0 then begin
     Result := TIdStreamHelper.ReadBytes(FReceiveStream, VBuffer, Result);
   end;
