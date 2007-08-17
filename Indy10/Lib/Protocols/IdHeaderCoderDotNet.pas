@@ -4,23 +4,62 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-uses
-  IdCoderHeader;
+{
+RLebeau: this unit will not be directly used or referenced anywhere in
+Indy or application code.  However, because of that, C++Builder will end
+up optimizing out this entire unit when statically linking Indy into a
+C++ project, and thus the initialization section below will not be called!
+To get around that, a dummy registrar is being used to force C++ to access
+this unit at program startup and shutdown.
 
-type
-  TIdHeaderCoderDotNet = class(TIdHeaderCoder)
-  public
-    function Decode(const ACharSet, AData: String): String; override;
-    function Encode(const ACharSet, AData: String): String; override;
-    function CanHandle(const ACharSet: String): Boolean; override;
-  end;
+HPPEMITs are always output at the top of the .hpp file, and procedures at the
+bottom.  But to make the registrar work, the reverse is needed, so let the
+HPPEMITs declare the functions instead of letting Delphi do it automatically.
+}
+
+(*$HPPEMIT 'namespace Idheadercoderdotnet'*)
+(*$HPPEMIT '{'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall RegisterHeaderCoderDotNet();'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall UnregisterHeaderCoderDotNet();'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    class TIdHeaderCoderDotNetRegistrar'*)
+(*$HPPEMIT '    {'*)
+(*$HPPEMIT '    public:'*)
+(*$HPPEMIT '        TIdHeaderCoderDotNetRegistrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            RegisterHeaderCoderDotNet();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '        ~TIdHeaderCoderDotNetRegistrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            UnregisterHeaderCoderDotNet();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT '    };'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    TIdHeaderCoderDotNetRegistrar HeaderCoderDotNetRegistrar;'*)
+(*$HPPEMIT '}'*)
+(*$HPPEMIT ''*)
+
+{$NODEFINE RegisterHeaderCoderDotNet}
+procedure RegisterHeaderCoderDotNet;
+{$NODEFINE UnregisterHeaderCoderDotNet}
+procedure UnregisterHeaderCoderDotNet;
 
 implementation
 
 uses
-  IdGlobal, System.Text;
+  IdGlobal, IdCoderHeader,
+  System.Text;
 
-function TIdHeaderCoderDotNet.Decode(const ACharSet, AData: String): String;
+type
+  TIdHeaderCoderDotNet = class(TIdHeaderCoder)
+  public
+    class function Decode(const ACharSet, AData: String): String; override;
+    class function Encode(const ACharSet, AData: String): String; override;
+    class function CanHandle(const ACharSet: String): Boolean; override;
+  end;
+
+class function TIdHeaderCoderDotNet.Decode(const ACharSet, AData: String): String;
 var
   LEncoder: System.Text.Encoding;
   LBytes: TIdBytes;
@@ -37,7 +76,7 @@ begin
   end;
 end;
 
-function TIdHeaderCoderDotNet.Encode(const ACharSet, AData: String): String;
+class function TIdHeaderCoderDotNet.Encode(const ACharSet, AData: String): String;
 var
   LEncoder: System.Text.Encoding;
   LBytes: TIdBytes;
@@ -54,7 +93,7 @@ begin
   end;
 end;
 
-function TIdHeaderCoderDotNet.CanHandle(const ACharSet: String): Boolean;
+class function TIdHeaderCoderDotNet.CanHandle(const ACharSet: String): Boolean;
 var
   LEncoder: System.Text.Encoding;
 begin
@@ -66,7 +105,19 @@ begin
   Result := Assigned(LEncoder);
 end;
 
+procedure RegisterHeaderCoderDotNet;
+begin
+  RegisterHeaderCoder(TIdHeaderCoderDotNet);
+end;
+
+procedure UnregisterHeaderCoderDotNet;
+begin
+  UnregisterHeaderCoder(TIdHeaderCoderDotNet);
+end;
+
 initialization
-  TIdHeaderCoderList.RegisterCoder(TIdHeaderCoderDotNet.Create);
+  RegisterHeaderCoderDotNet;
+finalization
+  UnregisterHeaderCoderDotNet;
 
 end.

@@ -4,24 +4,62 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-uses
-  IdCoderHeader;
+{
+RLebeau: this unit will not be directly used or referenced anywhere in
+Indy or application code.  However, because of that, C++Builder will end
+up optimizing out this entire unit when statically linking Indy into a
+C++ project, and thus the initialization section below will not be called!
+To get around that, a dummy registrar is being used to force C++ to access
+this unit at program startup and shutdown.
 
-type
-  TIdHeaderCoderUTF8 = class(TIdHeaderCoder)
-  public
-    function Decode(const ACharSet, AData: String): String; override;
-    function Encode(const ACharSet, AData: String): String; override;
-    function CanHandle(const ACharSet: String): Boolean; override;
-  end;
+HPPEMITs are always output at the top of the .hpp file, and procedures at the
+bottom.  But to make the registrar work, the reverse is needed, so let the
+HPPEMITs declare the functions instead of letting Delphi do it automatically.
+}
+
+(*$HPPEMIT 'namespace Idheadercoderutf8'*)
+(*$HPPEMIT '{'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall RegisterHeaderCoderUTF8();'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall UnregisterHeaderCoderUTF8();'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    class TIdHeaderCoderUTF8Registrar'*)
+(*$HPPEMIT '    {'*)
+(*$HPPEMIT '    public:'*)
+(*$HPPEMIT '        TIdHeaderCoderUTF8Registrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            RegisterHeaderCoderUTF8();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '        ~TIdHeaderCoderUTF8Registrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            UnregisterHeaderCoderUTF8();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT '    };'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    TIdHeaderCoderUTF8Registrar HeaderCoderUTF8Registrar;'*)
+(*$HPPEMIT '}'*)
+(*$HPPEMIT ''*)
+
+{$NODEFINE RegisterHeaderCoderUTF8}
+procedure RegisterHeaderCoderUTF8;
+{$NODEFINE UnregisterHeaderCoderUTF8}
+procedure UnregisterHeaderCoderUTF8;
 
 implementation
 
 uses
   {$IFDEF DOTNET}System.Text,{$ENDIF}
-  IdGlobal;
+  IdGlobal, IdCoderHeader;
 
-function TIdHeaderCoderUTF8.Decode(const ACharSet, AData: String): String;
+type
+  TIdHeaderCoderUTF8 = class(TIdHeaderCoder)
+  public
+    class function Decode(const ACharSet, AData: String): String; override;
+    class function Encode(const ACharSet, AData: String): String; override;
+    class function CanHandle(const ACharSet: String): Boolean; override;
+  end;
+
+class function TIdHeaderCoderUTF8.Decode(const ACharSet, AData: String): String;
 var
   {$IFDEF DOTNET}
   LBytes: TIdBytes;
@@ -92,7 +130,7 @@ begin
   {$ENDIF}
 end;
 
-function TIdHeaderCoderUTF8.Encode(const ACharSet, AData: String): String;
+class function TIdHeaderCoderUTF8.Encode(const ACharSet, AData: String): String;
 var
   {$IFDEF DOTNET}
   LBytes: TIdBytes;
@@ -158,12 +196,24 @@ begin
   {$ENDIF}
 end;
 
-function TIdHeaderCoderUTF8.CanHandle(const ACharSet: String): Boolean;
+class function TIdHeaderCoderUTF8.CanHandle(const ACharSet: String): Boolean;
 begin
   Result := TextIsSame(ACharSet, 'UTF-8'); {do not localize}
 end;
 
+procedure RegisterHeaderCoderUTF8;
+begin
+  RegisterHeaderCoder(TIdHeaderCoderUTF8);
+end;
+
+procedure UnregisterHeaderCoderUTF8;
+begin
+  UnregisterHeaderCoder(TIdHeaderCoderUTF8);
+end;
+
 initialization
-  TIdHeaderCoderList.RegisterCoder(TIdHeaderCoderUTF8.Create);
+  RegisterHeaderCoderUTF8;
+finalization
+  UnregisterHeaderCoderUTF8;
 
 end.
