@@ -195,8 +195,8 @@ function GetDisplayString(const AIP : String; const APort : Integer; AIPVer : TI
 begin
   Result := '';
   case AIPVer of
-      Id_IPv4 : Result := IndyFormat('%s:%d',[AIP,APort]);
-      Id_IPv6 : Result := IndyFormat('[%s]:%d',[AIP,APort]);
+      Id_IPv4 : Result := IndyFormat('%s:%d', [AIP, APort]);
+      Id_IPv6 : Result := IndyFormat('[%s]:%d', [AIP, APort]);
   end;
 end;
 
@@ -384,10 +384,10 @@ begin
       Components.Dispose();
       FreeAndNil(FHandles);
 
-      FreeAndNil( FIPv4Addresses);
-      FreeAndNil( FIPv6Addresses);
+      FreeAndNil(FIPv4Addresses);
+      FreeAndNil(FIPv6Addresses);
 
-    //don't free   FCurrentHandle; - it's in the handles collection
+      //don't free FCurrentHandle; - it's in the handles collection
       TIdStack.DecUsage;
     end;
   end;
@@ -445,36 +445,29 @@ end;
 
 procedure TIdDsnPropEdBindingNET.SetIPv6Addresses(const Value: TStrings);
 begin
-  if Assigned(Value) then
-  begin
+  if Assigned(Value) then begin
     FIPv6Addresses.Assign(Value);
   end;
   // Ensure that these two are always present
-  if FIPv6Addresses.IndexOf(IPv6Loopback)=-1 then
-  begin
-    FIPv6Addresses.Insert(0,IPv6Loopback);
+  if FIPv6Addresses.IndexOf(IPv6Loopback) = -1 then begin
+    FIPv6Addresses.Insert(0, IPv6Loopback);
   end;
-  if FIPv6Addresses.IndexOf(IPv6Wildcard1)=-1 then
-  begin
-    FIPv6Addresses.Insert(0,IPv6Wildcard1);
+  if FIPv6Addresses.IndexOf(IPv6Wildcard1) = -1 then begin
+    FIPv6Addresses.Insert(0, IPv6Wildcard1);
   end;
 end;
 
 procedure TIdDsnPropEdBindingNET.SetIPv4Addresses(const Value: TStrings);
 begin
-  if Assigned(Value) then
-  begin
+  if Assigned(Value) then begin
     FIPv4Addresses.Assign(Value);
   end;
-    // Ensure that these two are always present
-  if FIPv4Addresses.IndexOf(IPv6Loopback)=-1 then
-  begin
-    FIPv4Addresses.Insert(0,IPv4Loopback);
+  // Ensure that these two are always present
+  if FIPv4Addresses.IndexOf(IPv6Loopback) = -1 then begin
+    FIPv4Addresses.Insert(0, IPv4Loopback);
   end;
-
-  if FIPv4Addresses.IndexOf(IPv4Wildcard)=-1 then
-  begin
-    FIPv4Addresses.Insert(0,IPv4Wildcard);
+  if FIPv4Addresses.IndexOf(IPv4Wildcard) = -1 then begin
+    FIPv4Addresses.Insert(0, IPv4Wildcard);
   end;
 end;
 
@@ -536,8 +529,7 @@ end;
 procedure TIdDsnPropEdBindingNET.edtPort_ValueChanged(sender: System.Object;
   e: System.EventArgs);
 begin
-  if Assigned(FCurrentHandle) then
-  begin
+  if Assigned(FCurrentHandle) then begin
     FCurrentHandle.Port := edtPort.Value.ToInt16(edtPort.Value);
   end;
   UpdateBindingList;
@@ -554,12 +546,11 @@ begin
     i := lbBindings.get_SelectedIndex;
     LSH := Handles[i];
     FreeAndNil(LSH);
-   lbBindings.Items.Remove(i);
+    lbBindings.Items.Remove(i);
     FCurrentHandle := nil;
     UpdateBindingList;
-    
   end;
-  Self.lbBindings_SelectedValueChanged(nil,nil);
+  lbBindings_SelectedValueChanged(nil, nil);
   UpdateEditControls;
 end;
 
@@ -569,7 +560,7 @@ begin
   FCurrentHandle.IP := IPv4Wildcard;
   FCurrentHandle.Port := FDefaultPort;
   UpdateBindingList;
-  FillComboBox(edtIPAddress,FIPv4Addresses);
+  FillComboBox(edtIPAddress, FIPv4Addresses);
   UpdateEditControls;
 end;
 
@@ -600,7 +591,7 @@ begin
      if Assigned(FCurrentHandle) then begin
        lbBindings.SelectedIndex := FCurrentHandle.Index;
      end else begin
-       lbBindings.SelectedIndex := Min(selected, lbBindings.Items.Count-1);
+       lbBindings.SelectedIndex := IndyMin(selected, lbBindings.Items.Count-1);
      end;
    end;
 {  selected := lbBindings.SelectedItem;
@@ -624,13 +615,12 @@ begin
     if Assigned(FCurrentHandle) then begin
       lbBindings.ItemIndex := FCurrentHandle.Index;
     end else begin
-      lbBindings.ItemIndex := Min(selected, lbBindings.Items.Count-1);
+      lbBindings.ItemIndex := IndyMin(selected, lbBindings.Items.Count-1);
     end;
   end;      }
 end;
 
 procedure TIdDsnPropEdBindingNET.UpdateEditControls;
-
 begin
   if Assigned(FCurrentHandle) then
   begin
@@ -639,14 +629,13 @@ begin
     case FCurrentHandle.IPVersion of
       Id_IPv4 :
       begin
-
-          FillComboBox(edtIPAddress,FIPv4Addresses);
-          edtIPAddress.SelectedItem := edtIPAddress.Items[0];
-          cboIPVersion.SelectedItem := cboIPVersion.Items[0];
+        FillComboBox(edtIPAddress, FIPv4Addresses);
+        edtIPAddress.SelectedItem := edtIPAddress.Items[0];
+        cboIPVersion.SelectedItem := cboIPVersion.Items[0];
       end;
       Id_IPv6 :
       begin
-        FillComboBox(edtIPAddress,FIPv6Addresses);
+        FillComboBox(edtIPAddress, FIPv6Addresses);
         edtIPAddress.SelectedItem := edtIPAddress.Items[0];
         cboIPVersion.SelectedItem := cboIPVersion.Items[1];
       end;
@@ -664,11 +653,11 @@ end;
 
 procedure TIdDsnPropEdBindingNET.FillComboBox(
   ACombo: System.Windows.Forms.ComboBox; AStrings: TStrings);
-var i : INteger;
+var
+  i : Integer;
 begin
   ACombo.Items.Clear;
-   for i := 0 to AStrings.Count -1 do
-   begin
+   for i := 0 to AStrings.Count-1 do begin
      ACombo.Items.Add(AStrings[i]);
    end;
 end;
