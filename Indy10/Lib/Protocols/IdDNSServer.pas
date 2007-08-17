@@ -346,7 +346,7 @@ type
   //You can not make methods and properties published in this class.
   //If you want to make properties publishes, this has to derrive from TPersistant
   //and be used by TPersistant in a published property.
-    //  published
+  //  published
     procedure SyncAndUpdate(Sender : TObject);
     property Host : string read FHost write SetHost;
     property DomainName : string read FDomainName write FDomainName;
@@ -3357,7 +3357,7 @@ var
 begin
   LInterval := FInterval;
   while LInterval > 0 do begin
-    LStep := Min(LInterval, 500);
+    LStep := IndyMin(LInterval, 500);
     Sleep(LStep);
     Dec(LInterval, LStep);
     if Terminated then begin
