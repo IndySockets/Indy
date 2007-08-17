@@ -3349,9 +3349,15 @@ type
   LPWSAQUERYSET2 = PWSAQUERYSET2;
 
   {$EXTERNALSYM NAPI_PROVIDER_TYPE}
-  {$EXTERNALSYM PROVIDERTYPE_APPLICATION}
-  {$EXTERNALSYM PROVIDERTYPE_SERVICE}
-  NAPI_PROVIDER_TYPE = (ProviderType_Application=1, ProviderType_Service);
+  {$EXTERNALSYM ProviderType_Application}
+  {$EXTERNALSYM ProviderType_Service}
+  // The Pascal compiler in Delphi/BCB prior to v6 does not
+  // support specifying values for individual enum items
+  {$IFDEF VCL6ORABOVE}
+  NAPI_PROVIDER_TYPE = (ProviderType_Application = 1, ProviderType_Service);
+  {$ELSE}
+  NAPI_PROVIDER_TYPE = (nptUnused, ProviderType_Application, ProviderType_Service);
+  {$ENDIF}
   {$EXTERNALSYM NAPI_DOMAIN_DESCRIPTION_BLOB}
   NAPI_DOMAIN_DESCRIPTION_BLOB = packed record
     AuthLevel : DWORD;
@@ -3481,7 +3487,14 @@ type
 
   {$EXTERNALSYM SOCKET_USAGE_TYPE}
   {$EXTERNALSYM SYSTEM_CRITICAL_SOCKET}
+  // The Pascal compiler in Delphi/BCB prior to v6 does not
+  // support specifying values for individual enum items
+  {$IFDEF VCL6ORABOVE}
   SOCKET_USAGE_TYPE = (SYSTEM_CRITICAL_SOCKET = 1);
+  {$ELSE}
+  SOCKET_USAGE_TYPE = (sutUnused, SYSTEM_CRITICAL_SOCKET);
+  {$ENDIF}
+
   {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM SERVICE_INFO}
     {$IFDEF UNICODE}
