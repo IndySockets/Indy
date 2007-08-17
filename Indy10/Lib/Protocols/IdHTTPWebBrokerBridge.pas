@@ -28,7 +28,7 @@
   Rev 1.4    07/04/2004 20:07:50  HHariri
   Updates for .NET
 
-  Rev 1.3    10/19/2003 4:50:10 PM  DSiders
+    Rev 1.3    10/19/2003 4:50:10 PM  DSiders
   Added localization comments.
 
   Rev 1.2    10/12/2003 1:49:48 PM  BGooijen
@@ -42,14 +42,14 @@
 
 unit IdHTTPWebBrokerBridge;
 
-
 {
-  Original Author: Dave Nottage.
-  Modified by: Grahame Grieve
-  Modified by: Chad Z. Hower (Kudzu)
+Original Author: Dave Nottage.
+Modified by: Grahame Grieve
+Modified by: Chad Z. Hower (Kudzu)
 }
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -68,6 +68,7 @@ type
   EWBBInvalidIdxGetStrVariable = class(EWBBException);
   EWBBInvalidIdxSetStringVar = class(EWBBException);
   EWBBInvalidStringVar = class(EWBBException);
+
   TIdHTTPAppRequest = class(TWebRequest)
   protected
     FRequestInfo   : TIdHTTPRequestInfo;
@@ -312,7 +313,7 @@ var
   LASCII : System.Text.ASCIIEncoding;
 {$ENDIF}
 begin
-  Result := Min(Count, length(FRequestInfo.UnparsedParams)) - FClientCursor;
+  Result := IndyMin(Count, length(FRequestInfo.UnparsedParams)) - FClientCursor;
   if Result > 0 then begin
     {$IFDEF CLR}
     LASCII := System.Text.ASCIIEncoding.Create;
@@ -331,7 +332,7 @@ function TIdHTTPAppRequest.ReadString(Count: Integer): string;
 var
   LLength: Integer;
 begin
-  LLength := Min(Count, length(FRequestInfo.UnparsedParams)) - FClientCursor;
+  LLength := IndyMin(Count, length(FRequestInfo.UnparsedParams)) - FClientCursor;
   if LLength > 0 then
     begin
     Result := copy(FRequestInfo.UnparsedParams, FClientCursor, LLength);
@@ -516,7 +517,6 @@ end;
 
 procedure TIdHTTPAppResponse.SendStream(AStream: TStream);
 begin
-
   FThread.Connection.IOHandler.Write(AStream);
 end;
 
@@ -567,7 +567,7 @@ end;
 
 procedure TIdHTTPWebBrokerBridge.InitComponent;
 begin
-  inherited;
+  inherited InitComponent;
  // FOkToProcessCommand := True;
 end;
 

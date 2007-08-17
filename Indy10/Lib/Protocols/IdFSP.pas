@@ -78,6 +78,7 @@
 unit IdFSP;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -555,13 +556,11 @@ begin
     DeleteFile(ADestFile);
     LDestStream := TIdFileCreateStream.Create(ADestFile);
   end
+  else if (not ACanOverwrite) and AResume then begin
+    LDestStream := TIdAppendFileStream.Create(ADestFile);
+  end
   else begin
-    if (not ACanOverwrite) and AResume then begin
-      LDestStream := TIdAppendFileStream.Create(ADestFile);
-    end
-    else begin
-      raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
-    end;
+    raise EIdFSPFileAlreadyExists.Create(RSDestinationFileAlreadyExists);
   end;
 
   try
@@ -728,7 +727,7 @@ servers do not wishes to be detected.
       //word - max. packet size supported by server
       if FThruputControl then begin
         if Length(LExtraBuf) > 4 then begin
-          CopyBytesToHostLongWord(LExtraBuf,1,FServerMaxThruPut);
+          CopyBytesToHostLongWord(LExtraBuf, 1, FServerMaxThruPut);
           if Length(LExtraBuf) > 6 then begin
             CopyBytesToHostWord(LExtraBuf, 5, FServerMaxPacketSize);
           end;
@@ -882,7 +881,7 @@ begin
       end else begin
         LUnixDate := DateTimeToUnix(AGMTTime);
         SetLength(LSendPacket.FExtraData, 4);
-      CopyTIdNetworkLongWord(LUnixDate,LSendPacket.FExtraData,0);
+        CopyTIdNetworkLongWord(LUnixDate, LSendPacket.FExtraData, 0);
       end;
       SendCmd(LSendPacket, LRecvPacket, LTmpBuf);
     finally
@@ -1056,15 +1055,15 @@ end;
 function TIdFSP.MaxBufferSize: Word;
 //use only for calculating buffer for reading UDP packet
 begin
-  Result := Max(FClientMaxPacketSize, DEF_MAXSIZE);
-  Result := Max(FServerMaxPacketSize, Result);
+  Result := IndyMax(FClientMaxPacketSize, DEF_MAXSIZE);
+  Result := IndyMax(FServerMaxPacketSize, Result);
   Inc(Result, HSIZE); //just in case
 end;
 
 function TIdFSP.PrefPayloadSize: Word;
 //maximum size of the data feild we want to use
 begin
-  Result := Min(FClientMaxPacketSize, FServerMaxPacketSize);
+  Result := IndyMin(FClientMaxPacketSize, FServerMaxPacketSize);
   Dec(Result, HSIZE);
 end;
 

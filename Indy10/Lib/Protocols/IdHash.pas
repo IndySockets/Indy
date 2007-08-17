@@ -53,6 +53,7 @@
 unit IdHash;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -173,7 +174,7 @@ begin
   if ASize < 0 then begin
     LSize := LAvailable;
   end else begin
-    LSize := Min(LAvailable, ASize);
+    LSize := IndyMin(LAvailable, ASize);
   end;
   Result := GetHashBytes(AStream, LSize);
 end;
@@ -225,7 +226,7 @@ begin
 
   while ASize > 0 do
   begin
-    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
+    LSize := ReadTIdBytesFromStream(AStream, LBuffer, IndyMin(cBufSize, ASize));
     if LSize < 1 then begin
       Break; // TODO: throw a stream read exception instead?
     end;
@@ -288,7 +289,7 @@ begin
 
   while ASize > 0 do
   begin
-    LSize := ReadTIdBytesFromStream(AStream, LBuffer, Min(cBufSize, ASize));
+    LSize := ReadTIdBytesFromStream(AStream, LBuffer, IndyMin(cBufSize, ASize));
     if LSize < 1 then begin
       Break;  // TODO: throw a stream read exception instead?
     end;
