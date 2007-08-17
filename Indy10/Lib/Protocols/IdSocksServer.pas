@@ -251,7 +251,7 @@ var
     AFrom.IOHandler.CheckForDataOnSource(25);
     Result := AFrom.IOHandler.InputBuffer.Size;
     if Result > 0 then begin
-      Result := Min(Result, cMaxBufSize);
+      Result := IndyMin(Result, cMaxBufSize);
       LBuffer.Position := 0;
       AFrom.IOHandler.InputBuffer.ExtractToStream(LBuffer, Result);
     end;

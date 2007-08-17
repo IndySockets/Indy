@@ -588,7 +588,7 @@ var
   i : Integer;
   L: Cardinal;
 begin
-  L := Min(ASpaces, Length(AString));
+  L := IndyMin(ASpaces, Length(AString));
   for i := 1 to L do begin
     if Result[i] <> ' ' then begin
       Break;

@@ -214,7 +214,7 @@ begin
     StreamEnd := False;
     LPos := 0;
     repeat
-      nChars := Min(Length(VBuffer) - LPos, Length(LBuffer));
+      nChars := IndyMin(Length(VBuffer) - LPos, Length(LBuffer));
       if nChars = 0 then begin
         Break;
       end;
