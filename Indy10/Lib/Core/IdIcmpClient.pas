@@ -612,7 +612,7 @@ begin
     CopyTIdLongWord(Ticks, FBufIcmp, LIdx);
     Inc(LIdx, 4);
     if Length(ABuffer) > 0 then begin
-      CopyTIdString(ABuffer, FBufIcmp, LIdx, Min(Length(ABuffer), FPacketSize));
+      CopyTIdString(ABuffer, FBufIcmp, LIdx, IndyMin(Length(ABuffer), FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);
@@ -643,7 +643,7 @@ begin
     Inc(LIdx, 4);
     LLen := Length(ABuffer);
     if LLen > 0 then begin
-      CopyTIdString(ABuffer, FBufIcmp, LIdx, Min(LLen, FPacketSize));
+      CopyTIdString(ABuffer, FBufIcmp, LIdx, IndyMin(LLen, FPacketSize));
     end;
   finally
     FreeAndNil(LIcmp);

@@ -812,7 +812,7 @@ begin
       if Assigned(FCurrentHandle) then begin
         lbBindings.ItemIndex := FCurrentHandle.Index;
       end else begin
-        lbBindings.ItemIndex := Min(selected, lbBindings.Items.Count-1);
+        lbBindings.ItemIndex := IndyMin(selected, lbBindings.Items.Count-1);
       end;
     end;
   finally

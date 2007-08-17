@@ -473,7 +473,7 @@ begin
   if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  LIndex := Max(AIndex, 0);
+  LIndex := IndyMax(AIndex, 0);
   if AByteCount > 0 then begin
     CheckByteCount(AByteCount, LIndex);
     if AAppend then begin
@@ -518,7 +518,7 @@ begin
   if AByteCount < 0 then begin
     AByteCount := Size;
   end;
-  LIndex := Max(AIndex, 0);
+  LIndex := IndyMax(AIndex, 0);
   if AIndex < 0 then
   begin
     CompactHead;
@@ -581,7 +581,7 @@ begin
     AStream.Position := 0;
     LAdded := AStream.Size;
   end else begin
-    LAdded := Min(AByteCount, AStream.Size - AStream.Position);
+    LAdded := IndyMin(AByteCount, AStream.Size - AStream.Position);
   end;
   if LAdded > 0 then begin
     LLength := Size;
@@ -866,7 +866,7 @@ begin
   if LByteLength = 0 then begin
     Exit;
   end;
-  LIndex := Max(ADestIndex, 0);
+  LIndex := IndyMax(ADestIndex, 0);
   CheckAdd(LByteLength, LIndex);
   if Size = 0 then begin
     FHeadIndex := 0;
