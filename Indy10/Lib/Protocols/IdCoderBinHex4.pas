@@ -377,7 +377,7 @@ var
   LRemainder: integer;
 begin
   //Read in the attachment first...
-  LSSize := Min(ASrcStream.Size - ASrcStream.Position, MaxInt);
+  LSSize := IndyMin(ASrcStream.Size - ASrcStream.Position, MaxInt);
   //BinHex4.0 allows filenames to be only 255 bytes long (because the length
   //is stored in a byte), so truncate the filename to 255 bytes...
   if Length(AFileName) > 255 then begin
