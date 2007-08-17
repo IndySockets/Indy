@@ -3681,7 +3681,8 @@ begin
     begin
       LTmp := LTmp + ';CHMOD';
     end;
-    if FDirFormat = ftpdfDOS then
+    if (FDirFormat = ftpdfDOS) or
+      ((FDirFormat = ftpdfOSDependent) and (GOSType = otWindows)) then
     begin
       LTmp := LTmp + ';DIRSTYLE';
     end;
@@ -5325,7 +5326,8 @@ var
 //for compatability purposes, ONLY.
 begin
   LContext := ASender.Context as TIdFTPServerContext;
-  if FDirFormat = ftpdfDOS then
+  if (FDirFormat = ftpdfDOS) or
+    ((FDirFormat = ftpdfOSDependent) and (GOSType = otWindows)) then
   begin
     if LContext.IsAuthenticated(ASender) then
     begin
@@ -5365,7 +5367,8 @@ begin
       begin
          LCmds.Add('CHMOD'); {Do not translate}
       end;
-      if FDirFormat = ftpdfDOS then
+      if (FDirFormat = ftpdfDOS) or
+        ((FDirFormat = ftpdfOSDependent) and (GOSType = otWindows)) then
       begin
         LCmds.Add('DIRSTYLE'); {Do not translate}
       end;
