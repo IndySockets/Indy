@@ -1091,7 +1091,7 @@ end;
 
 procedure TIdSMTPServer.SetMaxMsgSize(AValue: Integer);
 begin
-  FMaxMsgSize := Max(AValue, 0);
+  FMaxMsgSize := IndyMax(AValue, 0);
 end;
 
 function TIdSMTPServer.SPFAuthOk(AContext: TIdSMTPServerContext; AReply: TIdReply;
