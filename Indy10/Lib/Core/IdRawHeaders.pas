@@ -1182,10 +1182,12 @@ begin
 end;
 
 procedure TIdIPHdr.ReadStruct(const ABytes: TIdBytes; var VIndex: LongWord);
+var LIpHeaderLen : LongWord;
 begin
   inherited ReadStruct(ABytes, VIndex);
   Fip_verlen := ABytes[VIndex];      // 1st nibble version, 2nd nibble header length div 4 (little-endian)
   Inc(VIndex);
+  LIpHeaderLen := (Fip_verlen and $0F) * 4;
   Fip_tos := ABytes[VIndex];         // type of service
   Inc(VIndex);
   Fip_len := BytesToWord(ABytes, VIndex);     // total length
@@ -1202,8 +1204,14 @@ begin
   Inc(VIndex, 2);
   Fip_src.ReadStruct(ABytes, VIndex);    // source address
   Fip_dst.ReadStruct(ABytes, VIndex);      // dest address
-  Fip_options := BytesToLongWord(ABytes, VIndex); // options + padding
-  Inc(VIndex, 4);
+  //Fip_options may not be present in the packet
+  if VIndex >= LIpHeaderLen then
+  begin
+    Fip_options := BytesToLongWord(ABytes, VIndex); // options + padding
+  end;
+  //be sure that we indicate we read the entire packet in case
+  //the size varies.
+  VIndex :=  LIpHeaderLen;
 end;
 
 procedure TIdIPHdr.WriteStruct(var VBytes: TIdBytes; var VIndex: LongWord);
