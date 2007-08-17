@@ -4,6 +4,7 @@ interface
 uses
   IdASN1Util,
   IdAllFTPListParsers,
+  IdAllHeaderCoders,
   IdAttachment,
   IdAttachmentFile,
   IdAttachmentMemory,

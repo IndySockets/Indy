@@ -18,6 +18,7 @@ units=indyprotocolsfpc
 rsts=IdResourceStringsProtocols
 implicitunits=IdASN1Util \
   IdAllFTPListParsers \
+  IdAllHeaderCoders \
   IdAttachment \
   IdAttachmentFile \
   IdAttachmentMemory \

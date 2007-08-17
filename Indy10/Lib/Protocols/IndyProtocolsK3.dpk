@@ -33,6 +33,7 @@ requires
 contains
   IdASN1Util in 'IdASN1Util.pas',
   IdAllFTPListParsers in 'IdAllFTPListParsers.pas',
+  IdAllHeaderCoders in 'IdAllHeaderCoders.pas',
   IdAttachment in 'IdAttachment.pas',
   IdAttachmentFile in 'IdAttachmentFile.pas',
   IdAttachmentMemory in 'IdAttachmentMemory.pas',
