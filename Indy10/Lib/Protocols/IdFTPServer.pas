@@ -4312,7 +4312,6 @@ end;
 procedure TIdFTPServer.CommandXCRC(ASender: TIdCommand);
 var
   LCalcStream : TStream;
-  LBuf : String;
   LFileName : String;
   LBeginPos, LEndPos : Int64;
   LContext : TIdFTPServerContext;
@@ -5778,7 +5777,6 @@ end;
 procedure TIdFTPServer.CommandXSHA1(ASender: TIdCommand);
 var
   LCalcStream : TStream;
-  LBuf : String;
   LFileName : String;
   LBeginPos, LEndPos : Int64;
   LContext : TIdFTPServerContext;
@@ -5821,7 +5819,6 @@ end;
 procedure TIdFTPServer.CommandXMD5(ASender: TIdCommand);
 var
   LCalcStream : TStream;
-  LBuf : String;
   LFileName : String;
   LBeginPos, LEndPos : Int64;
   LContext : TIdFTPServerContext;
