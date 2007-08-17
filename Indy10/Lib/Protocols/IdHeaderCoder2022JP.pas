@@ -4,22 +4,52 @@ interface
 
 {$i IdCompilerDefines.inc}
 
-uses
-  IdCoderHeader;
+{
+RLebeau: this unit will not be directly used or referenced anywhere in
+Indy or application code.  However, because of that, C++Builder will end
+up optimizing out this entire unit when statically linking Indy into a
+C++ project, and thus the initialization section below will not be called!
+To get around that, a dummy registrar is being used to force C++ to access
+this unit at program startup and shutdown.
 
-type
-  TIdHeaderCoder2022JP = class(TIdHeaderCoder)
-  public
-    function Decode(const ACharSet, AData: String): String; override;
-    function Encode(const ACharSet, AData: String): String; override;
-    function CanHandle(const ACharSet: String): Boolean; override;
-  end;
+HPPEMITs are always output at the top of the .hpp file, and procedures at the
+bottom.  But to make the registrar work, the reverse is needed, so let the
+HPPEMITs declare the functions instead of letting Delphi do it automatically.
+}
+
+(*$HPPEMIT 'namespace Idheadercoder2022jp'*)
+(*$HPPEMIT '{'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall RegisterHeaderCoder2022JP();'*)
+(*$HPPEMIT '    extern PACKAGE void __fastcall UnregisterHeaderCoder2022JP();'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    class TIdHeaderCoder2022JPRegistrar'*)
+(*$HPPEMIT '    {'*)
+(*$HPPEMIT '    public:'*)
+(*$HPPEMIT '        TIdHeaderCoder2022JPRegistrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            RegisterHeaderCoder2022JP();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '        ~TIdHeaderCoder2022JPRegistrar()'*)
+(*$HPPEMIT '        {'*)
+(*$HPPEMIT '            UnregisterHeaderCoder2022JP();'*)
+(*$HPPEMIT '        }'*)
+(*$HPPEMIT '    };'*)
+(*$HPPEMIT ''*)
+(*$HPPEMIT '    TIdHeaderCoder2022JPRegistrar HeaderCoder2022JPRegistrar;'*)
+(*$HPPEMIT '}'*)
+(*$HPPEMIT ''*)
+
+{$NODEFINE RegisterHeaderCoder2022JP}
+procedure RegisterHeaderCoder2022JP;
+{$NODEFINE UnregisterHeaderCoder2022JP}
+procedure UnregisterHeaderCoder2022JP;
 
 implementation
 
 uses
-  IdGlobal;
-  
+  IdGlobal, IdCoderHeader;
+
 const
   kana_tbl : array[#$A1..#$DF] of Word = (
     $2123,$2156,$2157,$2122,$2126,$2572,$2521,$2523,$2525,$2527,
@@ -77,7 +107,15 @@ const
     $0172,$0173,$0174,$0175,$0176,$0177,$0178,$0179,$017A,$017B,
     $017C,$017D,$017E,$0000,$0000,$0000);
 
-function TIdHeaderCoder2022JP.Decode(const ACharSet, AData: String): String;
+type
+  TIdHeaderCoder2022JP = class(TIdHeaderCoder)
+  public
+    class function Decode(const ACharSet, AData: String): String; override;
+    class function Encode(const ACharSet, AData: String): String; override;
+    class function CanHandle(const ACharSet: String): Boolean; override;
+  end;
+
+class function TIdHeaderCoder2022JP.Decode(const ACharSet, AData: String): String;
 var
   T : string;
   I, L : Integer;
@@ -149,7 +187,7 @@ begin
   Result := T;
 end;
 
-function TIdHeaderCoder2022JP.Encode(const ACharSet, AData: String): String;
+class function TIdHeaderCoder2022JP.Encode(const ACharSet, AData: String): String;
 const
   desig_asc = #27'(B';  {Do not Localize}
   desig_jis = #27'$B';   {Do not Localize}
@@ -234,12 +272,24 @@ begin
   Result := T;
 end;
 
-function TIdHeaderCoder2022JP.CanHandle(const ACharSet: String): Boolean;
+class function TIdHeaderCoder2022JP.CanHandle(const ACharSet: String): Boolean;
 begin
   Result := TextIsSame(ACharSet, 'ISO-2022-JP'); {do not localize}
 end;
 
+procedure RegisterHeaderCoder2022JP;
+begin
+  RegisterHeaderCoder(TIdHeaderCoder2022JP);
+end;
+
+procedure UnregisterHeaderCoder2022JP;
+begin
+  UnregisterHeaderCoder(TIdHeaderCoder2022JP);
+end;
+
 initialization
-  TIdHeaderCoderList.RegisterCoder(TIdHeaderCoder2022JP.Create);
+  RegisterHeaderCoder2022JP;
+finalization
+  UnregisterHeaderCoder2022JP;
 
 end.
