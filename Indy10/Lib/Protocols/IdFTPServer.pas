@@ -3541,7 +3541,6 @@ begin
   begin
     ASender.Reply.Clear;
     SetRFCReplyFormat(ASender.Reply);
-    TIdReplyFTP(ASender.Reply).ReplyFormat := rfIndentMidLines;
     ASender.Reply.NumericCode := 211;
     ASender.Reply.Text.Add(RSFTPCmdExtsSupportedStart); {Do not translate}
     //AUTH
@@ -3555,9 +3554,7 @@ begin
       ASender.Reply.Text.Add('CCC'); {Do not translate}
     end;
     //CLNT
-    if Assigned(FOnClientID) then begin
-      ASender.Reply.Text.Add('CLNT');  {Do not translate}
-    end;
+    ASender.Reply.Text.Add('CLNT');  {Do not translate}
     //COMB
     if Assigned(FOnCombineFiles) or Assigned(FTPFileSystem) then begin
       ASender.Reply.Text.Add('COMB target;source_list'); {Do not translate}
@@ -3743,6 +3740,7 @@ begin
     end;
     ASender.Reply.Text.Add('Compliance Level: 20020901 (IETF mlst-16)'); {Do not Localize}
     ASender.Reply.Text.Add(RSFTPCmdExtsSupportedEnd);
+    ASender.SendReply;
   end;
 end;
 
@@ -4264,6 +4262,23 @@ begin
   end;
 end;
 
+procedure ParseCRCCmdParams(const AString : String; var VFileName : String; var VBeginPos, VEndPos : Int64);
+{$IFDEF USEINLINE} Inline; {$ENDIF}
+var LBuf : String;
+begin
+  LBuf := AString;
+  if Pos('"', LBuf) > 0 then
+  begin
+    Fetch(LBuf, '"');
+    VFileName := Fetch(LBuf,'"');
+  end else begin
+    VFileName := Fetch(LBuf);
+  end;
+  LBuf := Trim(LBuf);
+  VBeginPos := IndyStrToInt(Fetch(LBuf), 0);
+  VEndPos := IndyStrToInt(Fetch(LBuf), 0);
+end;
+
 function TIdFTPServer.CalculateCRCHash(AStrm: TStream; const AStartPos, AEndPos: Int64): String;
 begin
   with TIdHashCRC32.Create do
@@ -4307,17 +4322,7 @@ begin
   begin
     if Assigned(FOnCRCFile) or Assigned(FTPFileSystem) then
     begin
-      LBuf := ASender.UnparsedParams;
-      if Pos('"', LBuf) > 0 then
-      begin
-        Fetch(LBuf, '"');
-        LFileName := Fetch(LBuf,'"');
-     end else begin
-        LFileName := Fetch(LBuf);
-      end;
-      LBuf := Trim(LBuf);
-      LBeginPos := IndyStrToInt(Fetch(LBuf), 0);
-      LEndPos := IndyStrToInt(Fetch(LBuf), 0);
+      ParseCRCCmdParams(ASender.UnparsedParams,LFileName, LBeginPos, LEndPos);
       if LFileName = '' then
       begin
         ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
@@ -5783,18 +5788,7 @@ begin
     LContext := TIdFTPServerContext(ASender.Context);
     if LContext.IsAuthenticated(ASender) then
     begin
-      LBuf := ASender.UnparsedParams;
-      if Pos('"', LBuf) > 0 then
-      begin
-        Fetch(LBuf, '"');
-        LFileName := Fetch(LBuf, '"');
-      end else
-      begin
-        LFileName := Fetch(LBuf);
-      end;
-      LBuf := Trim(LBuf);
-      LBeginPos := IndyStrToInt(Fetch(LBuf), 0);
-      LEndPos := IndyStrToInt(Fetch(LBuf), 0);
+      ParseCRCCmdParams(ASender.UnparsedParams,LFileName, LBeginPos, LEndPos);
       if LFileName = '' then
       begin
         ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
@@ -5803,9 +5797,14 @@ begin
       LCalcStream := nil;
       LFileName := DoProcessPath(LContext, LFileName);
       DoOnCRCFile(LContext, LFileName, LCalcStream);
+      if LEndPos = 0 then
+      begin
+        LEndPos := LCalcStream.Size;
+      end;
+
       if Assigned(LCalcStream) then try
         LCalcStream.Position := 0;
-        ASender.Reply.SetReply(250, CalculateMD5Checksum(LCalcStream, LBeginPos, LEndPos));
+        ASender.Reply.SetReply(250, CalculateSHA1Checksum(LCalcStream, LBeginPos, LEndPos));
       finally
         FreeAndNil(LCalcStream);
       end else
@@ -5832,18 +5831,7 @@ begin
     LContext := TIdFTPServerContext(ASender.Context);
     if LContext.IsAuthenticated(ASender) then
     begin
-      LBuf := ASender.UnparsedParams;
-      if Pos('"', LBuf) > 0 then
-      begin
-        Fetch(LBuf, '"');
-        LFileName := Fetch(LBuf, '"');
-      end else
-      begin
-        LFileName := Fetch(LBuf);
-      end;
-      LBuf := Trim(LBuf);
-      LBeginPos := IndyStrToInt(Fetch(LBuf), 0);
-      LEndPos := IndyStrToInt(Fetch(LBuf), 0);
+      ParseCRCCmdParams(ASender.UnparsedParams,LFileName, LBeginPos, LEndPos);
       if LFileName = '' then
       begin
         ASender.Reply.SetReply(501, IndyFormat(RSFTPParamError, [ASender.CommandHandler.Command]));
@@ -5852,6 +5840,10 @@ begin
       LCalcStream := nil;
       LFileName := DoProcessPath(LContext, LFileName);
       DoOnCRCFile(LContext, LFileName, LCalcStream);
+      if LEndPos = 0 then
+      begin
+        LEndPos := LCalcStream.Size;
+      end;
       if Assigned(LCalcStream) then try
         LCalcStream.Position := 0;
         ASender.Reply.SetReply(250, CalculateMD5Checksum(LCalcStream, LBeginPos, LEndPos));
