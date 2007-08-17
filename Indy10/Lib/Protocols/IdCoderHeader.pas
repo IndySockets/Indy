@@ -105,24 +105,14 @@ type
   TIdDecodeNeededEvent = procedure(Sender: TObject; const ACharSet, AData: String;
     var VResult: String) of object;
   
-  TIdHeaderCoder = class(TIdComponent)
+  TIdHeaderCoder = class(TObject)
   public
-    function Decode(const ACharSet, AData: String): String; virtual; abstract;
-    function Encode(const ACharSet, AData: String): String; virtual; abstract;
-    function CanHandle(const ACharSet: String): Boolean; virtual; abstract;
+    class function Decode(const ACharSet, AData: String): String; virtual;
+    class function Encode(const ACharSet, AData: String): String; virtual;
+    class function CanHandle(const ACharSet: String): Boolean; virtual;
   end;
 
-  TIdHeaderCoderList = class(TObject)
-  protected
-    FHeaderCoders: TList;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    class function ByCharSet(const ACharSet: String): TIdHeaderCoder;
-    class function Decode(const ACharSet, AData: String; ADecodeEvent: TIdDecodeNeededEvent = nil): String;
-    class function Encode(const ACharSet, AData: String): String;
-    class procedure RegisterCoder(ACoder: TIdHeaderCoder);
-  end;
+  TIdHeaderCoderClass = class of TIdHeaderCoder;
 
 // Procs
   function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
@@ -135,12 +125,29 @@ type
   procedure DecodeAddress(EMailAddr: TIdEmailAddressItem; ADecodeEvent: TIdDecodeNeededEvent = nil);
   procedure DecodeAddresses(AEMails: String; EMailAddr: TIdEmailAddressList; ADecodeEvent: TIdDecodeNeededEvent = nil);
 
+  function HeaderCoderByCharSet(const ACharSet: String): TIdHeaderCoderClass;
+  procedure RegisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
+  procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
+
+  (*$HPPEMIT '#include <Idallheadercoders.hpp>'*)
+
 implementation
 
 uses
   IdGlobal,
   IdGlobalProtocols,
   SysUtils;
+
+type
+  TIdHeaderCoderList = class(TList)
+  public
+    function ByCharSet(const ACharSet: String): TIdHeaderCoderClass;
+    function Decode(const ACharSet, AData: String; ADecodeEvent: TIdDecodeNeededEvent = nil): String;
+    function Encode(const ACharSet, AData: String): String;
+  end;
+
+var
+  GHeaderCoderList: TIdHeaderCoderList = nil;
 
 const
   csSPECIALS: String = '()[]<>:;.,@\"';  {Do not Localize}
@@ -155,33 +162,45 @@ const
     'w','x','y','z','0','1','2','3',       {Do not Localize}
     '4','5','6','7','8','9','+','/');      {Do not Localize}
 
-var
-  GHeaderCoderList: TIdHeaderCoderList = nil;
+{ TIdHeaderCoder }
 
-{ TIdHeaderDecoderList }
+class function TIdHeaderCoder.Decode(const ACharSet, AData: String): String;
+begin
+  Result := '';
+end;
 
-class function TIdHeaderCoderList.ByCharSet(const ACharSet: string): TIdHeaderCoder;
+class function TIdHeaderCoder.Encode(const ACharSet, AData: String): String;
+begin
+  Result := '';
+end;
+
+class function TIdHeaderCoder.CanHandle(const ACharSet: String): Boolean;
+begin
+  Result := False;
+end;
+
+{ TIdHeaderCoderList }
+
+function TIdHeaderCoderList.ByCharSet(const ACharSet: string): TIdHeaderCoderClass;
 var
   I: Integer;
-  LCoder: TIdHeaderCoder;
+  LCoder: TIdHeaderCoderClass;
 begin
   Result := nil;
-  if Assigned(GHeaderCoderList) then begin
-    // loop backwards so that user-defined coders can override native coders
-    for I := GHeaderCoderList.FHeaderCoders.Count-1 downto 0 do begin
-      LCoder := TIdHeaderCoder(GHeaderCoderList.FHeaderCoders[I]);
-      if LCoder.CanHandle(ACharSet) then begin
-        Result := LCoder;
-        Exit;
-      end;
+  // loop backwards so that user-defined coders can override native coders
+  for I := Count-1 downto 0 do begin
+    LCoder := TIdHeaderCoderClass(Items[I]);
+    if LCoder.CanHandle(ACharSet) then begin
+      Result := LCoder;
+      Exit;
     end;
   end;
 end;
 
-class function TIdHeaderCoderList.Decode(const ACharSet, AData: String;
+function TIdHeaderCoderList.Decode(const ACharSet, AData: String;
   ADecodeEvent: TIdDecodeNeededEvent = nil): String;
 var
-  LCoder: TIdHeaderCoder;
+  LCoder: TIdHeaderCoderClass;
 begin
   LCoder := ByCharSet(ACharSet);
   if LCoder <> nil then begin
@@ -195,9 +214,9 @@ begin
   end;
 end;
 
-class function TIdHeaderCoderList.Encode(const ACharSet, AData: string): String;
+function TIdHeaderCoderList.Encode(const ACharSet, AData: string): String;
 var
-  LCoder: TIdHeaderCoder;
+  LCoder: TIdHeaderCoderClass;
 begin
   // TODO: add an AEncodeNeeded event
   LCoder := ByCharSet(ACharSet);
@@ -206,33 +225,6 @@ begin
   end else begin
     Result := AData;
   end;
-end;
-
-constructor TIdHeaderCoderList.Create;
-begin
-  inherited Create;
-  FHeaderCoders := TList.Create;
-end;
-
-destructor TIdHeaderCoderList.Destroy;
-var
-  i: Integer;
-begin
-  if Assigned(FHeaderCoders) then begin
-    for i := 0 to FHeaderCoders.Count - 1 do begin
-      TIdHeaderCoder(FHeaderCoders[i]).Free;
-    end;
-    FreeAndNil(FHeaderCoders);
-  end;
-  inherited Destroy;
-end;
-
-class procedure TIdHeaderCoderList.RegisterCoder(ACoder: TIdHeaderCoder);
-begin
-  if not Assigned(GHeaderCoderList) then begin
-    GHeaderCoderList := TIdHeaderCoderList.Create;
-  end;
-  GHeaderCoderList.FHeaderCoders.Add(ACoder);
 end;
 
 function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
@@ -372,45 +364,49 @@ var
     a4: array [1..4] of Byte;
   begin
     Result := False;
-    if TextIsSame(AEncoding, 'Q') then begin {Do not Localize}
-      VDecoded := '';        {Do not Localize}
-      I := 1;
-      while I <= Length(AData) do begin
-        if AData[i] = '_' then begin {Do not Localize}
-          VDecoded := VDecoded + ' ';    {Do not Localize}
-        end
-        else if (AData[i] = '=') and (Length(AData) >= (i+2)) then begin //make sure we can access i+2
-          VDecoded := VDecoded + Chr(IndyStrToInt('$' + Copy(AData, i+1, 2), 32));   {Do not Localize}
-          Inc(I, 2);
-        end else
-        begin
-          VDecoded := VDecoded + AData[i];
+    VDecoded := '';        {Do not Localize}
+    case PosInStrArray(AEncoding, ['Q', 'B', '8'], False) of {Do not Localize}
+      0: begin // quoted-printable
+        I := 1;
+        while I <= Length(AData) do begin
+          if AData[i] = '_' then begin {Do not Localize}
+            VDecoded := VDecoded + ' ';    {Do not Localize}
+          end
+          else if (AData[i] = '=') and (Length(AData) >= (i+2)) then begin //make sure we can access i+2
+            VDecoded := VDecoded + Chr(IndyStrToInt('$' + Copy(AData, i+1, 2), 32));   {Do not Localize}
+            Inc(I, 2);
+          end else
+          begin
+            VDecoded := VDecoded + AData[i];
+          end;
+          Inc(I);
         end;
-        Inc(I);
+        Result := True;
       end;
-      Result := True;
-    end
-    else if TextIsSame(AEncoding, 'B') then
-    begin
-      J := Length(AData) div 4;
-      for I := 0 to J-1 do
-      begin
-        a4[1] := B64(AData[(I*4)+1]);
-        a4[2] := B64(AData[(I*4)+2]);
-        a4[3] := B64(AData[(I*4)+3]);
-        a4[4] := B64(AData[(I*4)+4]);
+      1: begin // base64
+        J := Length(AData) div 4;
+        if J > 0 then
+        begin
+          for I := 0 to J-1 do
+          begin
+            a4[1] := B64(AData[(I*4)+1]);
+            a4[2] := B64(AData[(I*4)+2]);
+            a4[3] := B64(AData[(I*4)+3]);
+            a4[4] := B64(AData[(I*4)+4]);
 
-        a3[1] := Byte((a4[1] shl 2) or (a4[2] shr 4));
-        a3[2] := Byte((a4[2] shl 4) or (a4[3] shr 2));
-        a3[3] := Byte((a4[3] shl 6) or (a4[4] shr 0));
+            a3[1] := Byte((a4[1] shl 2) or (a4[2] shr 4));
+            a3[2] := Byte((a4[2] shl 4) or (a4[3] shr 2));
+            a3[3] := Byte((a4[3] shl 6) or (a4[4] shr 0));
 
-        VDecoded := VDecoded + Chr(a3[1]) + Chr(a3[2]) + Chr(a3[3]);
+            VDecoded := VDecoded + Chr(a3[1]) + Chr(a3[2]) + Chr(a3[3]);
+          end;
+        end;
+        Result := True;
       end;
-      Result := True;
-    end
-    else if TextIsSame(HeaderEncoding, '8') then begin
-      VDecoded := AData;
-      Result := True;
+      2: begin // 8-bit
+        VDecoded := AData;
+        Result := True;
+      end;
     end;
   end;
 
@@ -422,7 +418,7 @@ begin
   begin
     if DecodeHeaderData(HeaderEncoding, HeaderData, S) then
     begin
-      S := TIdHeaderCoderList.Decode(HeaderCharSet, S, ADecodeEvent);
+      S := GHeaderCoderList.Decode(HeaderCharSet, S, ADecodeEvent);
       //replace old substring in header with decoded one:
       Result := Copy(Result, 1, LEncodingStartPos - 1) + S + Copy(Result, LEncodingEndPos + 1, MaxInt);
       LStartPos := LEncodingStartPos + Length(S);
@@ -500,70 +496,72 @@ var
     InEncode := 0;
     EncLen := Length(BeginEncode) + 2;
 
-    if TextIsSame(HeaderEncoding, 'Q') then begin { quoted-printable }   {Do not Localize}
-      while Q < P do
-      begin
-        if not CharIsInSet(S, Q, csReqQuote) then begin
-          Enc1 := S[Q];
-        end
-        else if S[Q] = ' ' then begin {Do not Localize}
-          Enc1 := '_'   {Do not Localize}
-        end else begin
-          Enc1 := '=' + IntToHex(Ord(S[Q]), 2);     {Do not Localize}
+    case PosInStrArray(HeaderEncoding, ['Q', 'B'], False) of {Do not Localize}
+      0: begin { quoted-printable }
+        while Q < P do
+        begin
+          if not CharIsInSet(S, Q, csReqQuote) then begin
+            Enc1 := S[Q];
+          end
+          else if S[Q] = ' ' then begin {Do not Localize}
+            Enc1 := '_'   {Do not Localize}
+          end else begin
+            Enc1 := '=' + IntToHex(Ord(S[Q]), 2);     {Do not Localize}
+          end;
+          if (EncLen + Length(Enc1)) > MaxEncLen then begin
+            //T := T + EndEncode + #13#10#9 + BeginEncode;
+            //CC: The #13#10#9 above caused the subsequent call to FoldWrapText to
+            //insert an extra #13#10 which, being a blank line in the headers,
+            //was interpreted by email clients, etc., as the end of the headers
+            //and the start of the message body.  FoldWrapText seems to look for
+            //and treat correctly the sequence #13#10 + ' ' however...
+            T := T + EndEncode + EOL + ' ' + BeginEncode;
+            EncLen := Length(BeginEncode) + 2;
+          end;
+          T := T + Enc1;
+          Inc(EncLen, Length(Enc1));
+          Inc(Q);
         end;
-        if (EncLen + Length(Enc1)) > MaxEncLen then begin
-          //T := T + EndEncode + #13#10#9 + BeginEncode;
-          //CC: The #13#10#9 above caused the subsequent call to FoldWrapText to
-          //insert an extra #13#10 which, being a blank line in the headers,
-          //was interpreted by email clients, etc., as the end of the headers
-          //and the start of the message body.  FoldWrapText seems to look for
-          //and treat correctly the sequence #13#10 + ' ' however...
-          T := T + EndEncode + EOL + ' ' + BeginEncode;
-          EncLen := Length(BeginEncode) + 2;
-        end;
-        T := T + Enc1;
-        Inc(EncLen, Length(Enc1));
-        Inc(Q);
       end;
-    end
-    else if TextIsSame(HeaderEncoding, 'B') then begin { base64 } {Do not Localize}
-      while Q < P do begin
-        if (EncLen + 4) > MaxEncLen then begin
-          //T := T + EndEncode + #13#10#9 + BeginEncode;
-          //CC: The #13#10#9 above caused the subsequent call to FoldWrapText to
-          //insert an extra #13#10 which, being a blank line in the headers,
-          //was interpreted by email clients, etc., as the end of the headers
-          //and the start of the message body.  FoldWrapText seems to look for
-          //and treat correctly the sequence #13#10 + ' ' however...
-          T := T + EndEncode + #13#10 + ' ' + BeginEncode;
-          EncLen := Length(BeginEncode) + 2;
-        end;
+      1: begin { base64 }
+        while Q < P do begin
+          if (EncLen + 4) > MaxEncLen then begin
+            //T := T + EndEncode + #13#10#9 + BeginEncode;
+            //CC: The #13#10#9 above caused the subsequent call to FoldWrapText to
+            //insert an extra #13#10 which, being a blank line in the headers,
+            //was interpreted by email clients, etc., as the end of the headers
+            //and the start of the message body.  FoldWrapText seems to look for
+            //and treat correctly the sequence #13#10 + ' ' however...
+            T := T + EndEncode + #13#10 + ' ' + BeginEncode;
+            EncLen := Length(BeginEncode) + 2;
+          end;
 
-        B0 := Ord(S[Q]);
-        case P - Q of
-          1:
-            begin
-              T := T + base64_tbl[B0 shr 2] + base64_tbl[B0 and $03 shl 4] + '==';  {Do not Localize}
-            end;
-          2:
-            begin
-              B1 := Ord(S[Q + 1]);
-              T := T + base64_tbl[B0 shr 2] +
-                base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
-                base64_tbl[B1 and $0F shl 2] + '=';  {Do not Localize}
-            end;
-          else
-            begin
-              B1 := Ord(S[Q + 1]);
-              B2 := Ord(S[Q + 2]);
-              T := T + base64_tbl[B0 shr 2] +
-                base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
-                base64_tbl[B1 and $0F shl 2 + B2 shr 6] +
-                base64_tbl[B2 and $3F];
-            end;
+          B0 := Ord(S[Q]);
+          case P - Q of
+            1:
+              begin
+                T := T + base64_tbl[B0 shr 2] + base64_tbl[B0 and $03 shl 4] + '==';  {Do not Localize}
+              end;
+            2:
+              begin
+                B1 := Ord(S[Q + 1]);
+                T := T + base64_tbl[B0 shr 2] +
+                  base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
+                  base64_tbl[B1 and $0F shl 2] + '=';  {Do not Localize}
+              end;
+            else
+              begin
+                B1 := Ord(S[Q + 1]);
+                B2 := Ord(S[Q + 2]);
+                T := T + base64_tbl[B0 shr 2] +
+                  base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
+                  base64_tbl[B1 and $0F shl 2 + B2 shr 6] +
+                  base64_tbl[B2 and $3F];
+              end;
+          end;
+          Inc(EncLen, 4);
+          Inc(Q, 3);
         end;
-        Inc(EncLen, 4);
-        Inc(Q, 3);
       end;
     end;
     T := T + EndEncode;
@@ -582,7 +580,7 @@ var
   end;
 
 begin
-  S := TIdHeaderCoderList.Encode(MimeCharSet, Header);
+  S := GHeaderCoderList.Encode(MimeCharSet, Header);
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
   if HeaderEncoding = '8' then begin {Do not Localize}
@@ -638,7 +636,31 @@ begin
   Result := T;
 end;
 
+function HeaderCoderByCharSet(const ACharSet: String): TIdHeaderCoderClass;
+begin
+  if Assigned(GHeaderCoderList) then begin
+    Result := GHeaderCoderList.ByCharSet(ACharSet);
+  end else begin
+    Result := nil;
+  end;
+end;
+
+procedure RegisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
+begin
+  if Assigned(ACoder) and (GHeaderCoderList.IndexOf(TObject(ACoder)) = -1) then begin
+    GHeaderCoderList.Add(TObject(ACoder));
+  end;
+end;
+
+procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
+begin
+  if Assigned(GHeaderCoderList) then begin
+    GHeaderCoderList.Remove(TObject(ACoder));
+  end;
+end;
+
 initialization
+  GHeaderCoderList := TIdHeaderCoderList.Create;
 finalization
   FreeAndNil(GHeaderCoderList);
 
