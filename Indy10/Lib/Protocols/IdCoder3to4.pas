@@ -240,11 +240,11 @@ var
   LOutSize: Integer;
   LInLimit: Integer;
   LInPos: Integer;
-  LWhole : Cardinal;
+  LWhole : LongWord;
   LFillChar: Char; // local copy of FFillChar
 begin
   SetLength(LInBytes, 4);
-  SetLength(LWorkBytes, SizeOf(Cardinal));
+  SetLength(LWorkBytes, SizeOf(LongWord));
 
   LFillChar := FillChar;
   LEmptyBytes := 0;
@@ -338,7 +338,6 @@ end;
 function TIdEncoder3to4.InternalEncode(const ABuffer: TIdBytes): TIdBytes;
 var
   LInBufSize : Integer;
-  LOutBuffer: TIdBytes;
   LOutSize: Integer;
   LLen : integer;
   LPos : Integer;
@@ -348,7 +347,7 @@ var
 begin
   LInBufSize := Length(ABuffer);
   LOutSize := ((LInBufSize + 2) div 3) * 4;
-  SetLength(LOutBuffer, LOutSize); // we know that the string will grow by 4/3 adjusted to 3 boundary
+  SetLength(Result, LOutSize); // we know that the string will grow by 4/3 adjusted to 3 boundary
   LLen := 0;
   LPos := 0;
 
@@ -358,7 +357,7 @@ begin
   begin
     Assert((LLen + 4) <= LOutSize,
       'TIdEncoder3to4.Encode: Calculated length exceeded (expected '+ {do not localize}
-      IntToStr(4 * Trunc((LInBufSize + 2)/3)) +
+      IntToStr(LOutSize) +
       ', about to go '+                                               {do not localize}
       IntToStr(LLen + 4) +
       ' at offset ' +                                                 {do not localize}
@@ -389,26 +388,28 @@ begin
 
     //possible to do a better assert than this?
     Assert(Length(FCodingTable)>0);
-    LOutBuffer[LLen]     := Ord(FCodingTable[((LIn1 shr 2) and 63) + 1]);
-    LOutBuffer[LLen + 1] := Ord(FCodingTable[(((LIn1 shl 4) or (LIn2 shr 4)) and 63) + 1]);
-    LOutBuffer[LLen + 2] := Ord(FCodingTable[(((LIn2 shl 2) or (LIn3 shr 6)) and 63) + 1]);
-    LOutBuffer[LLen + 3] := Ord(FCodingTable[(Ord(LIn3) and 63) + 1]);
+    Result[LLen]     := Ord(FCodingTable[((LIn1 shr 2) and 63) + 1]);
+    Result[LLen + 1] := Ord(FCodingTable[(((LIn1 shl 4) or (LIn2 shr 4)) and 63) + 1]);
+    Result[LLen + 2] := Ord(FCodingTable[(((LIn2 shl 2) or (LIn3 shr 6)) and 63) + 1]);
+    Result[LLen + 3] := Ord(FCodingTable[(Ord(LIn3) and 63) + 1]);
     Inc(LLen, 4);
 
     if LSize < 3 then begin
-      LOutBuffer[LLen-1] := Ord(FillChar);
+      Result[LLen-1] := Ord(FillChar);
       if LSize = 1 then begin
-         LOutBuffer[LLen-2] := Ord(FillChar);
+         Result[LLen-2] := Ord(FillChar);
       end;
     end;
   end;
 
-  Assert(LLen = (4 * Trunc((LInBufSize + 2)/3)),
+  SetLength(Result, LLen);
+
+  Assert(LLen = LOutSize,
     'TIdEncoder3to4.Encode: Calculated length not met (expected ' +  {do not localize}
-    IntToStr(4 * Trunc((LInBufSize + 2)/3)) +
+    IntToStr(LOutSize) +
     ', finished at ' +                                               {do not localize}
     IntToStr(LLen) +
-    ', Bufsize = ' +                                                 {do not localize}
+    ', BufSize = ' +                                                 {do not localize}
     IntToStr(LInBufSize));
 end;
 
