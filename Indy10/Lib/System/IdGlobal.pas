@@ -1105,14 +1105,16 @@ function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUIn
 function MakeCanonicalIPv4Address(const AAddr: string): string;
 function MakeCanonicalIPv6Address(const AAddr: string): string;
 function MakeDWordIntoIPv4Address(const ADWord: LongWord): string;
-function Max(const AValueOne,AValueTwo: Int64): Int64; overload;
-function Max(const AValueOne,AValueTwo: LongInt): LongInt; overload;
+function IndyMin(const AValueOne, AValueTwo: Int64): Int64; overload;
+function IndyMin(const AValueOne, AValueTwo: LongInt): LongInt; overload;
+function IndyMin(const AValueOne, AValueTwo: Word): Word; overload;
+function IndyMax(const AValueOne, AValueTwo: Int64): Int64; overload;
+function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
+function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
-function Min(const AValueOne, AValueTwo: Int64): Int64; overload;
-function Min(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function OffsetFromUTC: TDateTime;
 
 function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal = 0): Cardinal; //For "ignoreCase" use AnsiUpperCase
@@ -1690,6 +1692,9 @@ var
   I: Integer;
   {$ENDIF}
 begin
+  // RLebeau: AIndex and ALength have already been validated/calculated
+  // by StringToBytes() so use them as-is here...
+
   LLength := CalcBytesForUTF8String(AStr, AIndex, ALength);
   SetLength(Result, LLength);
   {$IFDEF DOTNET}
@@ -2915,7 +2920,7 @@ begin
   end;
 end;
 
-function Max(const AValueOne, AValueTwo: Int64): Int64;
+function IndyMax(const AValueOne, AValueTwo: Int64): Int64;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AValueOne < AValueTwo then begin
@@ -2925,7 +2930,17 @@ begin
   end;
 end;
 
-function Max(const AValueOne, AValueTwo: LongInt): LongInt;
+function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if AValueOne < AValueTwo then begin
+    Result := AValueTwo;
+  end else begin
+    Result := AValueOne;
+  end;
+end;
+
+function IndyMax(const AValueOne, AValueTwo: Word): Word;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AValueOne < AValueTwo then begin
@@ -2982,7 +2997,7 @@ begin
 End;
 {$ENDIF}
 
-function Min(const AValueOne, AValueTwo: LongInt): LongInt;
+function IndyMin(const AValueOne, AValueTwo: LongInt): LongInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AValueOne > AValueTwo then begin
@@ -2992,7 +3007,17 @@ begin
   end;
 end;
 
-function Min(const AValueOne, AValueTwo: Int64): Int64;
+function IndyMin(const AValueOne, AValueTwo: Int64): Int64;
+{$IFDEF USEINLINE}inline;{$ENDIF}
+begin
+  if AValueOne > AValueTwo then begin
+    Result := AValueTwo;
+  end else begin
+    Result := AValueOne;
+  end;
+end;
+
+function IndyMin(const AValueOne, AValueTwo: Word): Word;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if AValueOne > AValueTwo then begin
@@ -3410,11 +3435,11 @@ var
   LAvailable: Integer;
 begin
   Assert(AIndex >= 1);
-  LAvailable := Max(Length(ABuffer)-AIndex+1, 0);
+  LAvailable := IndyMax(Length(ABuffer)-AIndex+1, 0);
   if ALength < 0 then begin
     Result := LAvailable;
   end else begin
-    Result := Min(LAvailable, ALength);
+    Result := IndyMin(LAvailable, ALength);
   end;
 end;
 
@@ -3424,11 +3449,11 @@ var
   LAvailable: Integer;
 begin
   Assert(AIndex >= 0);
-  LAvailable := Max(Length(ABuffer)-AIndex, 0);
+  LAvailable := IndyMax(Length(ABuffer)-AIndex, 0);
   if ALength < 0 then begin
     Result := LAvailable;
   end else begin
-    Result := Min(LAvailable, ALength);
+    Result := IndyMin(LAvailable, ALength);
   end;
 end;
 
@@ -3437,11 +3462,11 @@ function IndyLength(const ABuffer: TStream; const ALength: Int64 = -1): Int64; o
 var
   LAvailable: Int64;
 begin
-  LAvailable := Max(ABuffer.Size - ABuffer.Position, 0);
+  LAvailable := IndyMax(ABuffer.Size - ABuffer.Position, 0);
   if ALength < 0 then begin
     Result := LAvailable;
   end else begin
-    Result := Min(LAvailable, ALength);
+    Result := IndyMin(LAvailable, ALength);
   end;
 end;
 
@@ -3987,7 +4012,7 @@ begin
   begin
     // For VCL we just do a byte to byte copy with no translation. VCL uses ANSI or MBCS.
     // With MBCS we still map 1:1
-    LLength := Min(IndyLength(AValue, -1, AIndex), 1);
+    LLength := IndyMin(IndyLength(AValue, -1, AIndex), 1);
     Assert(LLength > 0);
     VChar := Char(AValue[AIndex]);
   end;
@@ -4410,7 +4435,7 @@ var
   LActual: Integer;
 begin
   Assert(AIndex >= 0);
-  LActual := Min(Length(VBytes)-AIndex, ACount);
+  LActual := IndyMin(Length(VBytes)-AIndex, ACount);
   if LActual > 0 then begin
     if (AIndex + LActual) < Length(VBytes) then begin
       // RLebeau: TODO - use Move() here instead?
@@ -4674,7 +4699,7 @@ begin
   LCrEncountered := False;
 
   repeat
-    LBufSize := Min(LStrmSize - LStrmPos, LBUFMAXSIZE);
+    LBufSize := IndyMin(LStrmSize - LStrmPos, LBUFMAXSIZE);
     LBufSize := ReadTIdBytesFromStream(AStream, LBuf, LBufSize);
     LStringLen := FindEOL(LBuf, LBufSize, LCrEncountered);
     Inc(LStrmPos, LBufSize);
