@@ -397,6 +397,7 @@ begin
     raise EIdIcmpException.Create(RSICMPNotEnoughtBytes);
   end;
   LIdx := 0;
+
   LIcmp := TIdIPv4_ICMP.Create;
   try
     LIcmp.ReadStruct(FBufReceive, LIdx);
@@ -441,8 +442,7 @@ begin
       Id_ICMP_PHOTURIS :
         FReplyStatus.ReplyStatusType := rsErrorSecurityFailure;
       else
-        Exit;
-  //      raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
+        raise EIdICMPException.Create(RSICMPNonEchoResponse);// RSICMPNonEchoResponse = 'Non-echo type response received'
     end;    // case
 
     // check if we got a reply to the packet that was actually sent
