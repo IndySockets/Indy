@@ -931,7 +931,7 @@ var
     LData: TStringList;
     i, j: Integer;
     LQuotedPrintableEncoder: TIdEncoderQuotedPrintable;
-    LHeaderCoder: TIdHeaderCoder;
+    LHeaderCoder: TIdHeaderCoderClass;
   begin
     if ATextPart.ContentType = '' then begin
       ATextPart.ContentType := 'text/plain'; {do not localize}
@@ -962,7 +962,7 @@ var
         try
           LData := TStringList.Create;
           try
-            LHeaderCoder := TIdHeaderCoderList.ByCharSet(ISOCharSet);
+            LHeaderCoder := HeaderCoderByCharSet(ISOCharSet);
             for i := 0 to ATextPart.Body.Count - 1 do begin
               LQuotedPrintableEncoder.Encode(ATextPart.Body[i] + EOL, LData);
               for j := 0 to LData.Count-1 do begin
@@ -996,7 +996,7 @@ var
   LAddedTextPart: Boolean;
   LLastPart: Integer;
   LBinHex4Encoder: TIdEncoderBinHex4;
-  LHeaderCoder: TIdHeaderCoder;
+  LHeaderCoder: TIdHeaderCoderClass;
   LAttachStream: TStream; 
 begin
   LBoundary := '';
@@ -1026,7 +1026,7 @@ begin
       //CC2: It is NOT Mime.  It is a body followed by optional attachments
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);
       // Write out Body first
-      LHeaderCoder := TIdHeaderCoderList.ByCharSet(ISOCharSet);
+      LHeaderCoder := HeaderCoderByCharSet(ISOCharSet);
       if LHeaderCoder <> nil then begin
         for i := 0 to AMsg.Body.Count - 1 do begin
           LBodyLine := LHeaderCoder.Encode(ISOCharSet, AMsg.Body[i]);
