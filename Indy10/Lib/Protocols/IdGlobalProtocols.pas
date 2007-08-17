@@ -461,7 +461,6 @@ type
   function IsTopDomain(const AStr: string): Boolean;
   function IsValidIP(const S: String): Boolean;
 
-  function Max(AValueOne,AValueTwo: Integer): Integer;
   function MakeTempFilename(const APath: String = ''): string;
   procedure MoveChars(const ASource:ShortString;ASourceStart:integer;var ADest:ShortString;ADestStart, ALen:integer);
   function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
@@ -1201,16 +1200,6 @@ begin
     Value := TrimLeft(Value);
   except
     Result := 0.0;
-  end;
-end;
-
-function Max(AValueOne,AValueTwo: Integer): Integer;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  if AValueOne < AValueTwo then begin
-    Result := AValueTwo;
-  end else begin
-    Result := AValueOne;
   end;
 end;
 
