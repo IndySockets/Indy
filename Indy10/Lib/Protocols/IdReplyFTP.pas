@@ -138,7 +138,7 @@ end;
 procedure TIdReplyFTP.Clear;
 begin
   inherited Clear;
-  FReplyFormat := DEF_ReplyFormat;
+ // FReplyFormat := DEF_ReplyFormat;
 end;
 
 function TIdReplyFTP.GetFormattedReply: TStrings;
