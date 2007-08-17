@@ -551,7 +551,7 @@ begin
 end;
 
 function TIdStackDotNet.Send(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-  const AOffset: Integer = 0; ASize: Integer = -1): Integer;
+  const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
 begin
   Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
