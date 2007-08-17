@@ -167,7 +167,7 @@ procedure TIdHeaderList.DeleteFoldedLines(Index: Integer);
 begin
   Inc(Index);  {skip the current line}
   if Index < Count then begin
-    while (Index < Count) and CharIsInSet(Get(Index), 1, ' '+#9) do begin {Do not Localize}
+    while (Index < Count) and CharIsInSet(Get(Index), 1, LWS) do begin {Do not Localize}
       Delete(Index);
     end;
   end;
@@ -198,7 +198,7 @@ begin
     Put(Index, LStrs[idx]);
     {We decrement by one because we put the last string into the HeaderList}
     Dec(idx);
-    while (idx > -1) do
+    while idx > -1 do
     begin
       Insert(Index, LStrs[idx]);
       Dec(idx);
@@ -268,24 +268,24 @@ begin
     LName := GetNameFromLine(ALine);
     Result := Copy(Get(ALine), Length(LName) + 2, MaxInt);
     if FUnfoldLines then begin
-      while True do begin
+      repeat
         Inc(ALine);
         if ALine = Count then begin
           Break;
         end;
         LFoldedLine := Get(ALine);
         // s[1] is safe since header lines cannot be empty as that causes then end of the header block
-        if not (CharIsInSet(LFoldedLine, 1, LWS)) then begin
+        if not CharIsInSet(LFoldedLine, 1, LWS) then begin
           Break;
         end;
         Result := Trim(Result) + ' ' + Trim(LFoldedLine); {Do not Localize}
-      end;
+      until False;
     end;
+    // User may be fetching an folded line diretly.
+    Result := Trim(Result);
   end else begin
     Result := ''; {Do not Localize}
   end;
-  // User may be fetching an folded line diretly.
-  Result := Trim(Result);
 end;
 
 function TIdHeaderList.IndexOfName(const AName: string): Integer;
