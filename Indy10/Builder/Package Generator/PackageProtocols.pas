@@ -100,7 +100,7 @@ begin
   else
   begin
     if ACompiler in DelphiNet then begin
-      Code('  System.Windows.Forms,');
+     // Code('  System.Windows.Forms,');
       Code('  Borland.Delphi,');
       Code('  Borland.VclRtl,');
     end else begin
