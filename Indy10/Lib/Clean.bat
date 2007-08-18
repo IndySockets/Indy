@@ -10,6 +10,13 @@ if exist %1*.bak del %1*.bak >nul
 if exist %1Id*.obj del %1*.obj >nul
 if exist %1Id*.hpp del %1*.hpp >nul
 if exist %1*.lib del %1*.lib >nul
+if exist %1*.dcuil del %1*.dcuil >nul
+if exist %1*.dll del %1*.dll >nul
+if exist %1*.dcpil del %1*.dcpil >nul
+if exist %1*.identcache del %1*.identcache
+if exist %1*.local del %1*.local
+if exist %1*.pdb del %1*.pdb
+
 if exist %1*.~*  del %1*.~* >nul
 if exist %1setenv.bat del %1setenv.bat >nul
 
