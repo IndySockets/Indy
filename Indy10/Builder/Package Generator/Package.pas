@@ -68,11 +68,13 @@ type
    , ctDelphi10Net
    , ctDelphi11
    , ctDelphi11Net
+   , ctDelphi12
+   , ctDelphi12Net
    , ctDotNet // Visual Studio
    , ctKylix3);
 
 const
-   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net];
+   DelphiNet = [ctDelphi2005Net, ctDelphi10Net, ctDelphi11Net,ctDelphi12Net];
 
 type
   TPackage = class
@@ -115,6 +117,8 @@ const
    , '100Net'
    , '110'
    , '110Net'
+   , '120'
+   , '120Net'
    , ''
    , 'K3');
 

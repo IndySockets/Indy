@@ -23,13 +23,6 @@ begin
         while not DM.tablFile.Eof do
         begin
           LSt := DM.tablFile.FieldByName('Pkg').AsString+'\' + DM.tablFile.FieldByName('FileName').AsString+'.pas';
-          //This is a temporary hack.  In the FPC view, IdCompressorZLibEx is renamed to IdCompressorZLib
-          //because that's no longer based on the ZLibEx package.  I did not merge this back because
-          //there would be code breakage and I did not want to break code in a minor version.
-          if LSt = 'Protocols\IdCompressorZLib.pas' then
-          begin
-            LSt := 'Protocols\IdCompressorZLibEx.pas';
-          end;
           s.Add(LSt);
           WriteLn(LSt);
           DM.tablFile.Next;

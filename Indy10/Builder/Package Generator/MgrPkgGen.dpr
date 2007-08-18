@@ -1,7 +1,6 @@
 program MgrPkgGen;
 
 uses
-  ExceptionLog,
   Forms,
   MgrPkgGenDBMain in 'MgrPkgGenDBMain.pas' {frmPkgMain},
   DModule in 'DModule.pas' {DM: TDataModule},

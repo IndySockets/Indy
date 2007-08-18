@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, DBCtrls, Grids, DBGrids, DB, ActnList, ImgList, Menus,
-  StdActns, DBActns;
+  StdActns, DBActns, XPMan;
 
 type
   TfrmPkgMain = class(TForm)
@@ -37,6 +37,7 @@ type
     DeleteRecord1: TMenuItem;
     N3: TMenuItem;
     DeleteRecord2: TMenuItem;
+    XPManifest1: TXPManifest;
     procedure actEdtAddExecute(Sender: TObject);
     procedure actDBEditExecute(Sender: TObject);
     procedure FormCreate(Sender: TObject);
