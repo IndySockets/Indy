@@ -6527,7 +6527,7 @@ begin
   else
   begin
     case GOSType of
-      otLinux :
+      otUnix :
       begin
         LPathProcessing :=  ftppUnix;
       end;

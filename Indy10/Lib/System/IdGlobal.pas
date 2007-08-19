@@ -782,7 +782,7 @@ type
 
   {This way instead of a boolean for future expansion of other actions}
   TIdMaxLineAction = (maException, maSplit);
-  TIdOSType = (otUnknown, otLinux, otWindows, otDotNet);
+  TIdOSType = (otUnknown, otUnix, otWindows, otDotNet);
   //This is for IPv6 support when merged into the core
   TIdIPVersion = (Id_IPv4, Id_IPv6);
 

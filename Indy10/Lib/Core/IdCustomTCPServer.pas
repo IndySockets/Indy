@@ -647,7 +647,7 @@ begin
       while I < Bindings.Count do begin
         with Bindings[I] do begin
           AllocateSocket;
-          if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
+          if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
             SetSockOpt(Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
           end;
           DoBeforeBind(Bindings[I]);

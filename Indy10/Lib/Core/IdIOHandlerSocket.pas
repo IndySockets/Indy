@@ -252,7 +252,7 @@ begin
     ClientPortMin := BoundPortMin;
     ClientPortMax := BoundPortMax;
     // Turn on Reuse if specified
-    if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otLinux)) then begin
+    if (FReuseSocket = rsTrue) or ((FReuseSocket = rsOSDependent) and (GOSType = otUnix)) then begin
       GStack.SetSocketOption(FBinding.Handle, Id_SOL_SOCKET, Id_SO_REUSEADDR, Id_SO_True);
     end;
     Bind;
