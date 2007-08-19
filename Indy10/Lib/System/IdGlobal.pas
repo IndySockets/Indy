@@ -4475,7 +4475,14 @@ var
 begin
   LLen := Length(SubS);
   {$IFDEF DOTNET}
-  Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
+  if LLen > S.Length then
+  begin
+    Result := False;
+  end
+  else
+  begin
+    Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
+  end;
   {$ELSE}
   Result := LLen <= Length(S);
   if Result then begin
@@ -4497,7 +4504,14 @@ var
 begin
   LLen := Length(SubS);
   {$IFDEF DOTNET}
-  Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
+  if LLen > S.Length then
+  begin
+    Result := False;
+  end
+  else
+  begin
+    Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
+  end;
   {$ELSE}
   Result := LLen <= Length(S);
   if Result then begin
