@@ -152,9 +152,6 @@ begin
 end;
 
 function TIdRawBase.GetBinding: TIdSocketHandle;
-{$IFNDEF DOTNET1}
-var LC : Cardinal;
-{$ENDIF}
 begin
   if not FBinding.HandleAllocated then begin
     if FBinding.IPVersion = Id_IPv4 then
@@ -165,8 +162,7 @@ begin
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocol);
       {$ENDIF}
       GStack.SetSocketOption(FBinding.Handle, Id_SOL_IP, Id_SO_IP_TTL, FTTL);
-    end
-    else
+    end else
     begin
       {$IFDEF LINUX}
       FBinding.AllocateSocket(LongInt(Id_SOCK_RAW), FProtocolIPv6);
@@ -180,14 +176,12 @@ begin
       in NET 1.1.  NET 2.0 does have a RecvMsg function, BTW.
       }
       //indicate we want packet information with RecvMsg (or WSARecvMsg) calls
-      LC := 1;
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_PKTINFO, LC);
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_PKTINFO, 1);
       {$ENDIF}
       //set hop limit (or TTL as it was called in IPv4
       GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_UNICAST_HOPS, FTTL);
       {$IFNDEF DOTNET}
-      LC := 1;
-      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_HOPLIMIT, LC);
+      GStack.SetSocketOption(FBinding.Handle, Id_SOL_IPv6, Id_IPV6_HOPLIMIT, 1);
       {$ENDIF}
     end;
   end;
@@ -198,7 +192,6 @@ function TIdRawBase.ReceiveBuffer(var VBuffer : TIdBytes; ATimeOut: Integer = -1
 var
   LIP : String;
   LPort : TIdPort;
-
 begin
   Result := 0;
   // TODO: pass flags to recv()
@@ -233,6 +226,7 @@ begin
       For IPv6 and raw sockets, we call this to get information about the destination
       IP address and hopefully, the TTL (hop count).
       }
+
       Result := GStack.ReceiveMsg(Binding.Handle, VBuffer, FPkt, Id_IPv6);
     end;
   end;
