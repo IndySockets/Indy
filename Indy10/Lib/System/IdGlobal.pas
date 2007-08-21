@@ -4474,47 +4474,35 @@ var
   LLen: Integer;
 begin
   LLen := Length(SubS);
-  {$IFDEF DOTNET}
-  if LLen > S.Length then
-  begin
-    Result := False;
-  end
-  else
-  begin
-    Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
-  end;
-  {$ELSE}
   Result := LLen <= Length(S);
-  if Result then begin
+  if Result then
+  begin
+    {$IFDEF DOTNET}
+    Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
+    {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
     Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, PChar(S), LLen, PChar(SubS), LLen) = 2;
     {$ELSE}
     Result := AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
     {$ENDIF}
+    {$ENDIF}
   end;
-  {$ENDIF}
 end;
 
 function TextEndsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
-{$IFDEF MSWINDOWS}
+  {$IFDEF MSWINDOWS}
   P: PChar;
-{$ENDIF}
+  {$ENDIF}
 begin
   LLen := Length(SubS);
-  {$IFDEF DOTNET}
-  if LLen > S.Length then
-  begin
-    Result := False;
-  end
-  else
-  begin
-    Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
-  end;
-  {$ELSE}
   Result := LLen <= Length(S);
-  if Result then begin
+  if Result then
+  begin
+    {$IFDEF DOTNET}
+    Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
+    {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
     P := PChar(S);
     Inc(P, Length(S)-LLen);
@@ -4522,8 +4510,8 @@ begin
     {$ELSE}
     Result := AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
     {$ENDIF}
+    {$ENDIF}
   end;
-  {$ENDIF}
 end;
 
 function IndyLowerCase(const A1: string): string;
