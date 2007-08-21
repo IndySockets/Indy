@@ -122,57 +122,45 @@ implementation
 uses
   IdCoderMIME, IdResourceStringsProtocols, SysUtils;
 
-type
-  TAuthListObject = class(TObject)
-    Auth: TIdAuthenticationClass;
-  end;
-
 var
   AuthList: TStringList = nil;
 
 procedure RegisterAuthenticationMethod(const MethodName: String; const AuthClass: TIdAuthenticationClass);
-var
-  LAuthItem: TAuthListObject;
 begin
   if not Assigned(AuthList) then begin
     AuthList := TStringList.Create;
   end;
 
   if AuthList.IndexOf(MethodName) < 0 then begin
-    LAuthItem := TAuthListObject.Create;
-    LAuthItem.Auth := AuthClass;
-    try
-      AuthList.AddObject(MethodName, LAuthItem);
-    except
-      FreeAndNil(LAuthItem);
-      raise;
-    end;
+    AuthList.AddObject(MethodName, TObject(AuthClass));
   end
   else begin
     raise EIdAlreadyRegisteredAuthenticationMethod.CreateFmt(RSHTTPAuthAlreadyRegistered,
-      [TAuthListObject(AuthList.Objects[AuthList.IndexOf(MethodName)]).Auth.ClassName]);
+      [AuthClass.ClassName]);
   end;
 end;
 
 procedure UnregisterAuthenticationMethod(const MethodName: String);
-Var
+var
   i: Integer;
 begin
   if Assigned(AuthList) then begin
     i := AuthList.IndexOf(MethodName);
     if i >= 0 then begin
-      AuthList.Objects[i].Free;
       AuthList.Delete(i);
     end;
   end;
 end;
 
 function FindAuthClass(const AuthName: String): TIdAuthenticationClass;
+var
+  I: Integer;
 begin
-  if AuthList.IndexOf(AuthName) = -1 then begin
-    Result := nil;
+  I := AuthList.IndexOf(AuthName);
+  if I > -1 then begin
+    Result := TIdAuthenticationClass(AuthList.Objects[I]);
   end else begin
-    Result := TAuthListObject(AuthList.Objects[AuthList.IndexOf(AuthName)]).Auth;
+    Result := nil;
   end;
 end;
 
@@ -203,7 +191,7 @@ Var
   i: Integer;
 begin
   for i := 0 to FAuthParams.Count - 1 do begin
-    if IndyPos(AuthName, FAuthParams[i]) = 1 then begin
+    if TextStartsWith(FAuthParams[i], AuthName) then begin
       Result := FAuthParams[i];
       Exit;
     end;
@@ -223,12 +211,12 @@ end;
 
 function TIdAuthentication.GetPassword: String;
 begin
-  Result := Params.Values['password'];    {Do not Localize}
+  Result := Params.Values['Password'];    {Do not Localize}
 end;
 
 function TIdAuthentication.GetUserName: String;
 begin
-  Result := Params.Values['username'];  {Do not Localize}
+  Result := Params.Values['Username'];  {Do not Localize}
 end;
 
 procedure TIdAuthentication.SetPassword(const Value: String);
@@ -309,14 +297,9 @@ end;
 initialization
   RegisterAuthenticationMethod('Basic', TIdBasicAuthentication);  {Do not Localize}
 finalization
-  // UnregisterAuthenticationMethod('Basic') does not need to be called in this case because
-  // AuthList is freed.
-  if Assigned(AuthList) then begin
-    while AuthList.Count > 0 do begin
-      AuthList.Objects[0].Free;
-      AuthList.Delete(0);
-    end;
-    FreeAndNil(AuthList);
-  end;
+  // UnregisterAuthenticationMethod('Basic') does not need to be called
+  // in this case because AuthList is freed.
+  FreeAndNil(AuthList);
+
 end.
 
