@@ -1217,6 +1217,7 @@ Indy10/Lib/Protocols/IdHashElf.pas -text
 Indy10/Lib/Protocols/IdHashMessageDigest.pas -text
 Indy10/Lib/Protocols/IdHashSHA1.pas -text
 Indy10/Lib/Protocols/IdHeaderCoder2022JP.pas -text
+Indy10/Lib/Protocols/IdHeaderCoderBase.pas -text
 Indy10/Lib/Protocols/IdHeaderCoderBig5.pas -text
 Indy10/Lib/Protocols/IdHeaderCoderDotNet.pas -text
 Indy10/Lib/Protocols/IdHeaderCoderPlain.pas -text
