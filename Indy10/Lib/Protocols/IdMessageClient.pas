@@ -468,11 +468,10 @@ uses
   //
   IdGlobalProtocols,
   IdCoder, IdCoder3to4, IdCoderBinHex4,
-  IdCoderHeader, IdMessageCoder, IdComponent, IdException, IdResourceStringsProtocols,
-  IdTCPConnection,
-  IdTCPStream,
-  IdIOHandler, IdAttachmentFile,
-  IdText, IdAttachment, SysUtils;
+  IdCoderHeader, IdHeaderCoderBase, IdMessageCoder, IdComponent, IdException,
+  IdResourceStringsProtocols, IdTCPConnection, IdTCPStream, IdIOHandler,
+  IdAttachmentFile, IdText, IdAttachment,
+  SysUtils;
 
 const
   SContentType = 'Content-Type'; {do not localize}
