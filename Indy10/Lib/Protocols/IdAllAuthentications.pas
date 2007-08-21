@@ -16,8 +16,10 @@ ABSOLUTELY NO CODE is permitted in this unit.
 implementation
 
 uses
-  IdAuthenticationDigest,
-  IdAuthenticationNTLM;
+  {$IFNDEF DOTNET}
+  IdAuthenticationNTLM,
+  {$ENDIF}
+  IdAuthenticationDigest;
 
 {dee-duh-de-duh, that's all folks.}
 
