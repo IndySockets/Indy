@@ -99,35 +99,21 @@ interface
 uses
   Classes,
   IdComponent,
-  IdEMailAddress;
-
-type
-  TIdDecodeNeededEvent = procedure(Sender: TObject; const ACharSet, AData: String;
-    var VResult: String) of object;
-  
-  TIdHeaderCoder = class(TObject)
-  public
-    class function Decode(const ACharSet, AData: String): String; virtual;
-    class function Encode(const ACharSet, AData: String): String; virtual;
-    class function CanHandle(const ACharSet: String): Boolean; virtual;
-  end;
-
-  TIdHeaderCoderClass = class of TIdHeaderCoder;
+  IdEMailAddress,
+  IdHeaderCoderBase;
 
 // Procs
   function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
-    const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
+    const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False;
+     AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
   function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char;
-   const MimeCharSet: string): string;
+   const MimeCharSet: string; AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
   function EncodeAddress(EmailAddr: TIdEMailAddressList; const HeaderEncoding: Char;
-    const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
-  function DecodeHeader(const Header: string; ADecodeEvent: TIdDecodeNeededEvent = nil): string;
-  procedure DecodeAddress(EMailAddr: TIdEmailAddressItem; ADecodeEvent: TIdDecodeNeededEvent = nil);
-  procedure DecodeAddresses(AEMails: String; EMailAddr: TIdEmailAddressList; ADecodeEvent: TIdDecodeNeededEvent = nil);
-
-  function HeaderCoderByCharSet(const ACharSet: String): TIdHeaderCoderClass;
-  procedure RegisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
-  procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
+    const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False;
+    AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
+  function DecodeHeader(const Header: string; ADecodeEvent: TIdHeaderCodingNeededEvent = nil): string;
+  procedure DecodeAddress(EMailAddr: TIdEmailAddressItem; ADecodeEvent: TIdHeaderCodingNeededEvent = nil);
+  procedure DecodeAddresses(AEMails: String; EMailAddr: TIdEmailAddressList; ADecodeEvent: TIdHeaderCodingNeededEvent = nil);
 
   (*$HPPEMIT '#include <Idallheadercoders.hpp>'*)
 
@@ -136,18 +122,8 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
+  IdAllHeaderCoders,
   SysUtils;
-
-type
-  TIdHeaderCoderList = class(TList)
-  public
-    function ByCharSet(const ACharSet: String): TIdHeaderCoderClass;
-    function Decode(const ACharSet, AData: String; ADecodeEvent: TIdDecodeNeededEvent = nil): String;
-    function Encode(const ACharSet, AData: String): String;
-  end;
-
-var
-  GHeaderCoderList: TIdHeaderCoderList = nil;
 
 const
   csSPECIALS: String = '()[]<>:;.,@\"';  {Do not Localize}
@@ -162,73 +138,9 @@ const
     'w','x','y','z','0','1','2','3',       {Do not Localize}
     '4','5','6','7','8','9','+','/');      {Do not Localize}
 
-{ TIdHeaderCoder }
-
-class function TIdHeaderCoder.Decode(const ACharSet, AData: String): String;
-begin
-  Result := '';
-end;
-
-class function TIdHeaderCoder.Encode(const ACharSet, AData: String): String;
-begin
-  Result := '';
-end;
-
-class function TIdHeaderCoder.CanHandle(const ACharSet: String): Boolean;
-begin
-  Result := False;
-end;
-
-{ TIdHeaderCoderList }
-
-function TIdHeaderCoderList.ByCharSet(const ACharSet: string): TIdHeaderCoderClass;
-var
-  I: Integer;
-  LCoder: TIdHeaderCoderClass;
-begin
-  Result := nil;
-  // loop backwards so that user-defined coders can override native coders
-  for I := Count-1 downto 0 do begin
-    LCoder := TIdHeaderCoderClass(Items[I]);
-    if LCoder.CanHandle(ACharSet) then begin
-      Result := LCoder;
-      Exit;
-    end;
-  end;
-end;
-
-function TIdHeaderCoderList.Decode(const ACharSet, AData: String;
-  ADecodeEvent: TIdDecodeNeededEvent = nil): String;
-var
-  LCoder: TIdHeaderCoderClass;
-begin
-  LCoder := ByCharSet(ACharSet);
-  if LCoder <> nil then begin
-    Result := LCoder.Decode(ACharSet, AData);
-  end else
-  begin
-    Result := '';
-    if Assigned(ADecodeEvent) then begin
-      ADecodeEvent(nil, ACharSet, AData, Result);
-    end;
-  end;
-end;
-
-function TIdHeaderCoderList.Encode(const ACharSet, AData: string): String;
-var
-  LCoder: TIdHeaderCoderClass;
-begin
-  // TODO: add an AEncodeNeeded event
-  LCoder := ByCharSet(ACharSet);
-  if LCoder <> nil then begin
-    Result := LCoder.Encode(ACharSet, AData);
-  end else begin
-    Result := AData;
-  end;
-end;
-
 function EncodeAddressItem(EmailAddr: TIdEmailAddressItem; const HeaderEncoding: Char;
-  const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
+  const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False;
+  AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
 var
   S : string;
   I : Integer;
@@ -249,7 +161,7 @@ begin
       end;
     end;
     if NeedEncode then begin
-      S := EncodeHeader(EmailAddr.Name, csSPECIALS, HeaderEncoding, MimeCharSet);
+      S := EncodeHeader(EmailAddr.Name, csSPECIALS, HeaderEncoding, MimeCharSet, AEncodeEvent);
     end else begin
       { quoted string }
       S := '"';           {Do not Localize}
@@ -280,7 +192,7 @@ begin
   Result := 0;
 end;
 
-function DecodeHeader(const Header: string; ADecodeEvent: TIdDecodeNeededEvent = nil): string;
+function DecodeHeader(const Header: string; ADecodeEvent: TIdHeaderCodingNeededEvent = nil): string;
 const
   WhiteSpace = LF+CR+CHAR32+TAB;
 var
@@ -357,7 +269,7 @@ var
   end;
 
   // TODO: use TIdCoderQuotedPrintable and TIdCoderMIME instead
-  function DecodeHeaderData(const AEncoding, AData: String; var VDecoded: String): Boolean;
+  function ExtractEncodedData(const AEncoding, AData: String; var VDecoded: String): Boolean;
   var
     I, J: Integer;
     a3: array [1..3] of Byte;
@@ -416,9 +328,9 @@ begin
 
   while FindNextEncoding(Result, LStartPos, LEncodingStartPos, LEncodingEndPos, HeaderCharSet, HeaderEncoding, HeaderData) do
   begin
-    if DecodeHeaderData(HeaderEncoding, HeaderData, S) then
+    if ExtractEncodedData(HeaderEncoding, HeaderData, S) then
     begin
-      S := GHeaderCoderList.Decode(HeaderCharSet, S, ADecodeEvent);
+      S := DecodeHeaderData(HeaderCharSet, S, ADecodeEvent);
       //replace old substring in header with decoded one:
       Result := Copy(Result, 1, LEncodingStartPos - 1) + S + Copy(Result, LEncodingEndPos + 1, MaxInt);
       LStartPos := LEncodingStartPos + Length(S);
@@ -437,13 +349,13 @@ begin
   until LStartPos = 0;
 end;
 
-procedure DecodeAddress(EMailAddr : TIdEmailAddressItem; ADecodeEvent: TIdDecodeNeededEvent = nil);
+procedure DecodeAddress(EMailAddr : TIdEmailAddressItem; ADecodeEvent: TIdHeaderCodingNeededEvent = nil);
 begin
   EMailAddr.Name := DecodeHeader(EMailAddr.Name, ADecodeEvent);
 end;
 
 procedure DecodeAddresses(AEMails : String; EMailAddr: TIdEmailAddressList;
-  ADecodeEvent: TIdDecodeNeededEvent = nil);
+  ADecodeEvent: TIdHeaderCodingNeededEvent = nil);
 var
   idx : Integer;
 begin
@@ -454,15 +366,16 @@ begin
 end;
 
 function EncodeAddress(EmailAddr: TIdEMailAddressList; const HeaderEncoding: Char;
-  const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False): string;
+  const MimeCharSet: string; AUseAddressForNameIfNameMissing: Boolean = False;
+  AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
 var
   idx : Integer;
 begin
   if EmailAddr.Count > 0 then begin
-    Result := EncodeAddressItem(EMailAddr[0], HeaderEncoding, MimeCharSet, AUseAddressForNameIfNameMissing);
+    Result := EncodeAddressItem(EMailAddr[0], HeaderEncoding, MimeCharSet, AUseAddressForNameIfNameMissing, AEncodeEvent);
     for idx := 1 to EmailAddr.Count-1 do begin
       Result := Result + ', ' +    {Do not Localize}
-        EncodeAddressItem(EMailAddr[idx], HeaderEncoding, MimeCharSet, AUseAddressForNameIfNameMissing);
+        EncodeAddressItem(EMailAddr[idx], HeaderEncoding, MimeCharSet, AUseAddressForNameIfNameMissing, AEncodeEvent);
     end;
   end else begin
     Result := '';      {Do not Localize}
@@ -470,7 +383,8 @@ begin
 end;
 
 { encode a header field if non-ASCII characters are used }
-function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char; const MimeCharSet: string): string;
+function EncodeHeader(const Header: string; Specials: String; const HeaderEncoding: Char;
+  const MimeCharSet: string; AEncodeEvent: TIdHeaderCodingNeededEvent = nil): string;
 const
   SPACES: String = ' ' + TAB + EOL;    {Do not Localize}
 var
@@ -581,7 +495,7 @@ var
   end;
 
 begin
-  S := GHeaderCoderList.Encode(MimeCharSet, Header);
+  S := EncodeHeaderData(MimeCharSet, Header, AEncodeEvent);
 
   {Suggested by Andrew P.Rybin for easy 8bit support}
   if HeaderEncoding = '8' then begin {Do not Localize}
@@ -636,33 +550,5 @@ begin
   end;
   Result := T;
 end;
-
-function HeaderCoderByCharSet(const ACharSet: String): TIdHeaderCoderClass;
-begin
-  if Assigned(GHeaderCoderList) then begin
-    Result := GHeaderCoderList.ByCharSet(ACharSet);
-  end else begin
-    Result := nil;
-  end;
-end;
-
-procedure RegisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
-begin
-  if Assigned(ACoder) and (GHeaderCoderList.IndexOf(TObject(ACoder)) = -1) then begin
-    GHeaderCoderList.Add(TObject(ACoder));
-  end;
-end;
-
-procedure UnregisterHeaderCoder(const ACoder: TIdHeaderCoderClass);
-begin
-  if Assigned(GHeaderCoderList) then begin
-    GHeaderCoderList.Remove(TObject(ACoder));
-  end;
-end;
-
-initialization
-  GHeaderCoderList := TIdHeaderCoderList.Create;
-finalization
-  FreeAndNil(GHeaderCoderList);
 
 end.
