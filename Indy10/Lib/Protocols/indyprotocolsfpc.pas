@@ -110,6 +110,7 @@ uses
   IdHashMessageDigest,
   IdHashSHA1,
   IdHeaderCoder2022JP,
+  IdHeaderCoderBase,
   IdHeaderCoderPlain,
   IdHeaderCoderUTF8,
   IdHeaderList,
