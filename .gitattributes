@@ -1088,6 +1088,7 @@ Indy10/Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrDefault.bmp -text svneol=unse
 Indy10/Lib/Protocols/IconsDotNet/Unref/TIdThreadMgrPool.bmp -text svneol=unset#unset
 Indy10/Lib/Protocols/IdASN1Coder.pas -text
 Indy10/Lib/Protocols/IdASN1Util.pas -text
+Indy10/Lib/Protocols/IdAllAuthentications.pas -text
 Indy10/Lib/Protocols/IdAllFTPListParsers.pas -text
 Indy10/Lib/Protocols/IdAllHeaderCoders.pas -text
 Indy10/Lib/Protocols/IdAttachment.pas -text
