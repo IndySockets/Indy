@@ -626,8 +626,8 @@ implementation
 
 uses
   SysUtils,
-  IdComponent, IdCoderMIME, IdTCPConnection, IdResourceStringsProtocols,
-  IdGlobalProtocols, IdIOHandler,IdIOHandlerSocket;
+  IdAllAuthentications, IdComponent, IdCoderMIME, IdTCPConnection,
+  IdResourceStringsProtocols, IdGlobalProtocols, IdIOHandler, IdIOHandlerSocket;
 
 const
   ProtocolVersionString: array[TIdHTTPProtocolVersion] of string = ('1.0', '1.1'); {do not localize}
@@ -1218,7 +1218,7 @@ begin
     Disconnect;
   end;
 
-  CheckForGracefulDisconnect(false);
+  CheckForGracefulDisconnect(False);
 
   if not Connected then try
     IPVersion := FURI.IPVersion;
@@ -1265,8 +1265,7 @@ begin
   if IndyPos('identity', Request.AcceptEncoding) = 0 then begin  {do not localize}
     if Request.AcceptEncoding <> '' then begin
       Request.AcceptEncoding := Request.AcceptEncoding + ', identity'; {do not localize}
-    end
-    else begin
+    end else begin
       Request.AcceptEncoding := Request.AcceptEncoding + 'identity'; {do not localize}
     end;
   end;
@@ -1460,7 +1459,7 @@ begin
       AuthParams := AResponse.WWWAuthenticate;
     end;
 
-    result := false;
+    Result := False;
 
     repeat
       case ARequest.Authentication.Next of
@@ -1471,30 +1470,30 @@ begin
               ARequest.Authentication.UserName := ARequest.Username;
               ARequest.Authentication.Password := ARequest.Password;
 
-              OnAuthorization(self, ARequest.Authentication, result);
+              OnAuthorization(Self, ARequest.Authentication, Result);
 
-              if result then begin
-                ARequest.BasicAuthentication := true;
+              if Result then begin
+                ARequest.BasicAuthentication := True;
                 ARequest.Username := ARequest.Authentication.UserName;
                 ARequest.Password := ARequest.Authentication.Password;
               end
               else begin
-                break;
+                Break;
               end;
             end;
           end;
         wnDoRequest:
           begin
-            result := true;
-            break;
+            Result := True;
+            Break;
           end;
         wnFail:
           begin
-            result := False;
+            Result := False;
             Break;
           end;
       end;
-    until false;
+    until False;
   end;
 end;
 
@@ -1693,15 +1692,15 @@ var
 begin
   S := Copy(FResponseText, 6, 3);
 
-  for i := Low(TIdHTtpProtocolVersion) to High(TIdHTtpProtocolVersion) do
+  for i := Low(TIdHTTPProtocolVersion) to High(TIdHTTPProtocolVersion) do
     if TextIsSame(ProtocolVersionString[i], S) then
     begin
       ResponseVersion := i;
-      break;
+      Break;
     end;
 
   if FHTTP.Connected then begin
-    FHTTP.IOHandler.CheckForDisconnect(false);
+    FHTTP.IOHandler.CheckForDisconnect(False);
   end;
   FKeepAlive := FHTTP.Connected;
 
@@ -1726,7 +1725,7 @@ begin
               (Length(Trime(ProxyConnection)) = 0)) };
         end;
     end;
-  result := FKeepAlive;
+  Result := FKeepAlive;
 end;
 
 function TIdHTTPResponse.GetResponseCode: Integer;
