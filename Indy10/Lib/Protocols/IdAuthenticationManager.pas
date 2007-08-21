@@ -34,6 +34,7 @@
 unit IdAuthenticationManager;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -46,22 +47,22 @@ type
   TIdAuthenticationItem = class(TCollectionItem)
   protected
     FURI: TIdURI;
-    FParams: TStringList;
-    procedure SetParams(const Value: TStringList);
+    FParams: TStrings;
+    procedure SetParams(const Value: TStrings);
     procedure SetURI(const Value: TIdURI);
   public
     constructor Create(ACollection: TCollection); override;
     destructor Destroy; override;
+    procedure Assign(Source: TPersistent); override;
 
     property URL: TIdURI read FURI write SetURI;
-    property Params: TStringList read FParams write SetParams;
+    property Params: TStrings read FParams write SetParams;
   end;
 
   TIdAuthenticationCollection = class(TOwnedCollection)
   protected
     function GetAuthItem(AIndex: Integer): TIdAuthenticationItem;
-    procedure SetAuthItem(AIndex: Integer;
-      const Value: TIdAuthenticationItem);
+    procedure SetAuthItem(AIndex: Integer; const Value: TIdAuthenticationItem);
   public
     function Add: TIdAuthenticationItem;
     constructor Create(AOwner: TPersistent);
@@ -76,7 +77,7 @@ type
     procedure InitComponent; override;
   public
     destructor Destroy; override;
-    procedure AddAuthentication(AAuthtetication: TIdAuthentication; AURL: TIdURI);
+    procedure AddAuthentication(AAuthentication: TIdAuthentication; AURL: TIdURI);
     property Authentications: TIdAuthenticationCollection read FAuthentications;
   end;
 
@@ -89,7 +90,7 @@ uses
 
 function TIdAuthenticationCollection.Add: TIdAuthenticationItem;
 begin
-  result := TIdAuthenticationItem.Create(self);
+  Result := TIdAuthenticationItem(inherited Add);
 end;
 
 constructor TIdAuthenticationCollection.Create(AOwner: TPersistent);
@@ -97,28 +98,25 @@ begin
   inherited Create(AOwner, TIdAuthenticationItem);
 end;
 
-function TIdAuthenticationCollection.GetAuthItem(
-  AIndex: Integer): TIdAuthenticationItem;
+function TIdAuthenticationCollection.GetAuthItem(AIndex: Integer): TIdAuthenticationItem;
 begin
-  result := TIdAuthenticationItem(inherited Items[AIndex]);
+  Result := TIdAuthenticationItem(inherited GetItem(AIndex));
 end;
 
 procedure TIdAuthenticationCollection.SetAuthItem(AIndex: Integer;
   const Value: TIdAuthenticationItem);
 begin
-  if Items[AIndex] <> nil then begin
-    Items[AIndex].Assign(Value);
-  end;
+  inherited SetItem(AIndex, Value);
 end;
 
 { TIdAuthenticationManager }
 
 procedure TIdAuthenticationManager.AddAuthentication(
-  AAuthtetication: TIdAuthentication; AURL: TIdURI);
+  AAuthentication: TIdAuthentication; AURL: TIdURI);
 begin
   with Authentications.Add do begin
     URL.URI := AURL.URI;
-    Params.Assign(AAuthtetication.Params);
+    Params.Assign(AAuthentication.Params);
   end;
 end;
 
@@ -139,7 +137,6 @@ end;
 constructor TIdAuthenticationItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
-
   FURI := TIdURI.Create;
   FParams := TStringList.Create;
 end;
@@ -151,7 +148,19 @@ begin
   inherited Destroy;
 end;
 
-procedure TIdAuthenticationItem.SetParams(const Value: TStringList);
+procedure TIdAuthenticationItem.Assign(Source: TPersistent);
+begin
+  if Source is TIdAuthenticationItem then begin
+    with TIdAuthenticationItem(Source) do begin
+      Self.URL.URI := URL.URI;
+      Self.Params.Assign(Params);
+    end;
+  end else begin
+    inherited Assign(Source);
+  end;
+end;
+
+procedure TIdAuthenticationItem.SetParams(const Value: TStrings);
 begin
   FParams.Assign(Value);
 end;
