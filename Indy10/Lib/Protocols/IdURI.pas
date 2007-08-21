@@ -355,6 +355,7 @@ begin
   end;
 
   LURI := FProtocol + '://';    {Do not Localize}
+
   if (FUserName <> '') and (ofAuthInfo in AOptionalFields) then begin
     LURI := LURI + FUserName;
     if FPassword <> '' then begin
@@ -364,11 +365,39 @@ begin
   end;
 
   LURI := LURI + FHost;
-  if (FPort <> '') and (FPort <> '80') then begin
-    LURI := LURI + ':' + FPort;    {Do not Localize}
+  if FPort <> '' then begin
+    case PosInStrArray(FProtocol, ['HTTP', 'HTTPS', 'FTP'], False) of {Do not Localize}
+      0:
+        begin
+          if FPort <> '80' then begin
+            LURI := LURI + ':' + FPort;    {Do not Localize}
+          end;
+        end;
+      1:
+        begin
+          if FPort <> '443' then begin
+            LURI := LURI + ':' + FPort;    {Do not Localize}
+          end;
+        end;
+      2:
+        begin
+          if FPort <> '21' then begin
+            LURI := LURI + ':' + FPort;    {Do not Localize}
+          end;
+        end;
+      else
+        begin
+          LURI := LURI + ':' + FPort;    {Do not Localize}
+        end;
+    end;
   end;
 
-  LURI := LURI + FPath + FDocument + FParams;
+  LURI := LURI + FPath + FDocument;
+
+  if FParams <> '' then begin
+    LURI := LURI + '?' + FParams; {Do not Localize}
+  end;
+
   if (FBookmark <> '') and (ofBookmark in AOptionalFields) then begin
     LURI := LURI + '#' + FBookmark;    {Do not Localize}
   end;
