@@ -1030,11 +1030,8 @@ begin
     Exit;
   end;
 
-  if Size in AMLstOpts then begin
-    if AItem.SizeAvail then
-    begin
+  if (Size in AMLstOpts) and AItem.SizeAvail then begin
     Result := 'size=' + IntToStr(AItem.Size) + ';'; {do not localize}
-    end;
   end;
 
   if ItemType in AMLstOpts then begin
@@ -1075,17 +1072,17 @@ begin
       Result := Result + 'create='+ FTPLocalDateTimeToMLS(AItem.CreationDate) + ';';  {do not localize}
     end;
   end;
-  if AItem.ModifiedAvail then
+
+  if (Modify in AMLstOpts) and AItem.ModifiedAvail then
   begin
-    if Modify in AMLstOpts then begin
-      if AItem.ModifiedDateGMT <> 0 then begin
-        Result := Result + 'modify='+  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT) + ';';  {do not localize}
-      end
-      else if AItem.ModifiedDate <> 0 then begin
-        Result := Result + 'modify='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
-      end;
+    if AItem.ModifiedDateGMT <> 0 then begin
+      Result := Result + 'modify='+  FTPGMTDateTimeToMLS(AItem.ModifiedDateGMT) + ';';  {do not localize}
+    end
+    else if AItem.ModifiedDate <> 0 then begin
+      Result := Result + 'modify='+ FTPLocalDateTimeToMLS(AItem.ModifiedDate) + ';';  {do not localize}
     end;
   end;
+
   if UnixMODE in AMLstOpts then begin
     Result := Result + 'UNIX.mode='+ IndyFormat('%.4d', [PermsToChmodNo(UnixGetOutputOwnerPerms(AItem), UnixGetOutputGroupPerms(AItem), UnixGetOutputOtherPerms(AItem) )] ) + ';';  {do not localize}
   end;
