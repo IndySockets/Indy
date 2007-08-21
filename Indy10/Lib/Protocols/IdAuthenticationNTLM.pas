@@ -43,9 +43,10 @@
 unit IdAuthenticationNTLM;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
-Uses
+uses
   Classes, 
   IdAuthentication;
 
@@ -69,6 +70,7 @@ implementation
 uses
   IdGlobal,
   IdGlobalProtocols,
+  IdException,
   IdCoderMIME,
   IdResourceStringsProtocols,
   IdSSLOpenSSLHeaders,
@@ -76,10 +78,14 @@ uses
   IdNTLM,
   SysUtils;
 
+{ TIdNTLMAuthentication }
+
 constructor TIdNTLMAuthentication.Create;
 begin
   inherited Create;
-  if not LoadOpenSSLLibrary then raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+  if not LoadOpenSSLLibrary then begin
+    raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
+  end;
 end;
 
 function TIdNTLMAuthentication.DoNext: TIdAuthWhatsNext;
@@ -88,11 +94,9 @@ begin
   case FCurrentStep of
     0:
       begin
-        if Length(UserName) > 0 then
-        begin
+        if Length(UserName) > 0 then begin
           Result := wnDoRequest;
-        end
-        else begin
+        end else begin
           Result := wnAskTheProgram;
         end;
         FCurrentStep := 1;
