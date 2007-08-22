@@ -97,6 +97,7 @@ type
   public
     constructor Create(const AURI: string = ''); virtual;    {Do not Localize}
     function GetFullURI(const AOptionalFields: TIdURIOptionalFieldsSet = [ofAuthInfo, ofBookmark]): String;
+    function GetPathAndParams: String;
     class procedure NormalizePath(var APath: string);
     class function URLDecode(ASrc: string): string;
     class function URLEncode(const ASrc: string): string;
@@ -392,17 +393,21 @@ begin
     end;
   end;
 
-  LURI := LURI + FPath + FDocument;
-
-  if FParams <> '' then begin
-    LURI := LURI + '?' + FParams; {Do not Localize}
-  end;
+  LURI := LURI + GetPathAndParams;
 
   if (FBookmark <> '') and (ofBookmark in AOptionalFields) then begin
     LURI := LURI + '#' + FBookmark;    {Do not Localize}
   end;
 
   Result := LURI;
+end;
+
+function TIdURI.GetPathAndParams: String;
+begin
+  Result := FPath + FDocument;
+  if FParams <> '' then begin
+    Result := Result + '?' + FParams; {Do not Localize}
+  end;
 end;
 
 end.
