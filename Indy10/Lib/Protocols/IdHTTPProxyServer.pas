@@ -285,7 +285,7 @@ begin
       TIdTCPClient(LContext.FOutboundClient).Host := LURI.Host;
       TIdTCPClient(LContext.FOutboundClient).Port := IndyStrToInt(LURI.Port, 80);
       //We have to remove the host and port from the request
-      LContext.FDocument := LURI.Path + LURI.Document + LURI.Params;
+      LContext.FDocument := LURI.GetPathAndParams;
     finally
       FreeAndNil(LURI);
     end;

@@ -1171,7 +1171,7 @@ begin
     end;
 
     // The URL part is not URL encoded at this place
-    ARequest.URL := URL.Path + URL.Document + URL.Params;
+    ARequest.URL := URL.GetPathAndParams;
 
     if ARequest.Method = Id_HTTPMethodOptions then
     begin
