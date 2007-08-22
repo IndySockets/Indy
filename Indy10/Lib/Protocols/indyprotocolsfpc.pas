@@ -3,6 +3,7 @@ interface
 
 uses
   IdASN1Util,
+  IdAllAuthentications,
   IdAllFTPListParsers,
   IdAllHeaderCoders,
   IdAttachment,

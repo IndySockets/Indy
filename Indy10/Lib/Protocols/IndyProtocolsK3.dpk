@@ -32,6 +32,7 @@ requires
 
 contains
   IdASN1Util in 'IdASN1Util.pas',
+  IdAllAuthentications in 'IdAllAuthentications.pas',
   IdAllFTPListParsers in 'IdAllFTPListParsers.pas',
   IdAllHeaderCoders in 'IdAllHeaderCoders.pas',
   IdAttachment in 'IdAttachment.pas',

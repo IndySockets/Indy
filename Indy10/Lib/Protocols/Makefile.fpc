@@ -17,6 +17,7 @@ options=-gl
 units=indyprotocolsfpc
 rsts=IdResourceStringsProtocols
 implicitunits=IdASN1Util \
+  IdAllAuthentications \
   IdAllFTPListParsers \
   IdAllHeaderCoders \
   IdAttachment \
