@@ -14,15 +14,26 @@ uses
   System.Security.Cryptography.X509Certificates;
   
 type
+  TOnValidatePeerCertificate = procedure (ASender : TObject;
+    ACertificate : X509Certificate; AChain : X509Chain;
+    AsslPolicyErrors : SslPolicyErrors; var VValid : Boolean) of object;
   TIdSSLIOHandlerSocketNET = class(TIdSSLIOHandlerSocketBase)
   protected
+    FOnValidatePeerCertificate : TOnValidatePeerCertificate;
     FSSL : SslStream;
-    FSocketStream: TIdSocketStream;
+    FSocketStream: Stream;
     FActiveStream: Stream;
     FServerCertificate : X509Certificate;
     FClientCertificates : X509CertificateCollection;
     FEnabledProtocols : System.Security.Authentication.SslProtocols;
     procedure OpenEncodedConnection; virtual;
+
+    //Ssl certificate validation callback
+    function ValidatePeerCertificate(
+              sender : System.&Object;
+              certificate : X509Certificate;
+              chain : X509Chain;
+              sslPolicyErrors : SslPolicyErrors) : Boolean;
 
     function RecvEnc(var VBuffer: TIdBytes): Integer; override;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
@@ -35,15 +46,17 @@ type
     procedure Open; override;
     procedure StartSSL; override;
     function Clone : TIdSSLIOHandlerSocketBase; override;
+    property EnabledProtocols : System.Security.Authentication.SslProtocols read FEnabledProtocols write FEnabledProtocols;
     property ServerCertificate : X509Certificate read FServerCertificate write FServerCertificate;
     property ClientCertificates : X509CertificateCollection read FClientCertificates write FClientCertificates;
   end;
+
   EIdSSLNetException = class(EIdException);
   EIdSSLCertRequiredForSvr = class(EIdSSLNetException);
   
 implementation
 uses
-  IdStack;
+  IdStack, SysUtils;
 
 { TIdSSLIOHandlerSocketNET }
 
@@ -59,9 +72,11 @@ begin
     FSSL.Close;
     FSSL := nil;
   end;         }
-
-  FSocketStream.Close;
-  FSocketStream := nil;
+  if Assigned(FSocketStream) then
+  begin
+    FSocketStream.Close;
+    FreeAndNil(FSocketStream);
+  end;
   inherited;
 
 end;
@@ -90,14 +105,13 @@ end;
 procedure TIdSSLIOHandlerSocketNET.InitComponent;
 begin
   inherited;
-  FEnabledProtocols := System.Security.Authentication.SslProtocols.Tls;
+  FEnabledProtocols := System.Security.Authentication.SslProtocols.Default;
 end;
 
 procedure TIdSSLIOHandlerSocketNET.Open;
 begin
   inherited;
-  FSocketStream := TIdSocketStream.Create(Binding.Handle);
-  FActiveStream := FSocketStream;
+
   if Passthrough then
   begin
     OpenEncodedConnection;
@@ -106,7 +120,11 @@ end;
 
 procedure TIdSSLIOHandlerSocketNET.OpenEncodedConnection;
 begin
-  FSSL := System.Net.Security.SslStream.Create(FSocketStream);
+  FSocketStream := System.Net.Sockets.NetworkStream.Create(FBinding.Handle); //TIdSocketStream.Create(Binding.Handle);
+  //TIdSocketStream.Create(FBinding.Handle);
+  FSSL := System.Net.Security.SslStream.Create(FSocketStream,True,
+     ValidatePeerCertificate);
+ // FSSL.ReadTimeout := ReadTimeout;
   if IsPeer then
   begin
      if Assigned(FServerCertificate) then
@@ -164,6 +182,23 @@ procedure TIdSSLIOHandlerSocketNET.StartSSL;
 begin
   if not PassThrough then begin
     OpenEncodedConnection;
+  end;
+end;
+
+function TIdSSLIOHandlerSocketNET.ValidatePeerCertificate(sender: TObject;
+  certificate: X509Certificate; chain: X509Chain;
+  sslPolicyErrors: SslPolicyErrors): Boolean;
+begin
+  if Assigned(FOnValidatePeerCertificate) then
+  begin
+    FOnValidatePeerCertificate(sender,certificate,chain,sslPolicyErrors, Result);
+  end
+  else
+  begin
+    if sslPolicyErrors = System.Net.Security.SslPolicyErrors.None then
+    begin
+      Result := True;
+    end;
   end;
 end;
 
