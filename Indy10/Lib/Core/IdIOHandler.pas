@@ -1209,7 +1209,7 @@ begin
         end;
         if LByteCount < 0 then
         begin
-          LLastError := GStack.CheckForSocketError(Result, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
+          LLastError := GStack.CheckForSocketError(LByteCount, [Id_WSAESHUTDOWN, Id_WSAECONNABORTED]);
           FClosedGracefully := True;
           Close;
           // Do not raise unless all data has been read by the user
@@ -1835,9 +1835,8 @@ var
   LTemp: TIdBytes;
   LPos: Integer;
   LSize: Integer;
-  LCount: Integer;
+  LByteCount: Integer;
   LLastError: Integer;
-
 begin
   // Check if disconnected
   CheckForDisconnect(True, True);
@@ -1851,10 +1850,10 @@ begin
   LPos := 0;
   while LPos < LSize do
   begin
-    LCount := WriteDataToTarget(LTemp, LPos, LSize - LPos);
-    if LCount < 0 then
+    LByteCount := WriteDataToTarget(LTemp, LPos, LSize - LPos);
+    if LByteCount < 0 then
     begin
-      LLastError := GStack.CheckForSocketError(LCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
+      LLastError := GStack.CheckForSocketError(LByteCount, [ID_WSAESHUTDOWN, Id_WSAECONNABORTED, Id_WSAECONNRESET]);
       FClosedGracefully := True;
       Close;
       GStack.RaiseSocketError(LLastError);
@@ -1862,13 +1861,13 @@ begin
     // TODO - Have a AntiFreeze param which allows the send to be split up so that process
     // can be called more. Maybe a prop of the connection, MaxSendSize?
     TIdAntiFreezeBase.DoProcess(False);
-    if LCount = 0 then begin
+    if LByteCount = 0 then begin
       FClosedGracefully := True;
     end;
     // Check if other side disconnected
     CheckForDisconnect;
-    DoWork(wmWrite, LCount);
-    Inc(LPos, LCount);
+    DoWork(wmWrite, LByteCount);
+    Inc(LPos, LByteCount);
   end;
 end;
 
