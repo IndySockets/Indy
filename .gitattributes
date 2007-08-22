@@ -1304,6 +1304,7 @@ Indy10/Lib/Protocols/IdSNPP.pas -text
 Indy10/Lib/Protocols/IdSNTP.pas -text
 Indy10/Lib/Protocols/IdSSH.pas -text
 Indy10/Lib/Protocols/IdSSL.pas -text
+Indy10/Lib/Protocols/IdSSLDotNET.pas -text
 Indy10/Lib/Protocols/IdSSLOpenSSL.pas -text
 Indy10/Lib/Protocols/IdSSLOpenSSLHeaders.pas -text
 Indy10/Lib/Protocols/IdSSPI.pas -text
