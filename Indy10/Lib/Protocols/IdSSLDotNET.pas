@@ -113,7 +113,7 @@ procedure TIdSSLIOHandlerSocketNET.Open;
 begin
   inherited;
 
-  if Passthrough then
+  if not Passthrough then
   begin
     OpenEncodedConnection;
   end;
