@@ -193,27 +193,13 @@ begin
 end;
 
 function DecodeHeader(const Header: string; ADecodeEvent: TIdHeaderCodingNeededEvent = nil): string;
-const
-  WhiteSpace = LF+CR+CHAR32+TAB;
 var
   HeaderCharSet, HeaderEncoding, HeaderData, S: string;
-  LStartPos, LEncodingStartPos, LEncodingEndPos: Integer;
+  LStartPos, LLength, LEncodingStartPos, LEncodingEndPos, LLastStartPos: Integer;
+  LLastWordWasEncoded: Boolean;
 
-  function ContainsOnlyWhiteSpace(const S: String; const AStartPos, AEndPos: Integer): Boolean;
-  var
-    I: Integer;
-  begin
-    Result := False;
-    for I := AStartPos to AEndPos do begin
-      if CharIsInSet(S, I, WhiteSpace) then begin
-        Result := True;
-        Exit;
-      end;
-    end;
-  end;
-
-  function FindNextEncoding(const AHeader: String; const AStartPos: Integer;
-    var VStartPos, VEndPos: Integer; var VCharSet, VEncoding, VData: String): Boolean;
+  function ExtractEncoding(const AHeader: String; const AStartPos: Integer;
+    var VEndPos: Integer; var VCharSet, VEncoding, VData: String): Boolean;
   var
     LCharSet, LEncoding, LData, LDataEnd: Integer;
   begin
@@ -223,44 +209,30 @@ var
     //to find the end of the substring, we can't just search for '?=',    {Do not Localize}
     //example: '=?ISO-8859-1?Q?=E4?='    {Do not Localize}
 
-    LCharSet := PosIdx('=?', AHeader, AStartPos); {do not localize}
-    if LCharSet = 0 then begin
+    if not (CharEquals(AHeader, AStartPos, '=') and CharEquals(AHeader, AStartPos+1, '?')) then begin {do not localize}
       Exit;
     end;
-    Inc(LCharSet, 2);
+    LCharSet := AStartPos + 2;
 
     LEncoding := PosIdx('?', AHeader, LCharSet);  {Do not Localize}
-    if LEncoding = 0 then begin
+    if (LEncoding = 0) or (LEncoding > VEndPos)then begin
       Exit;
     end;
     Inc(LEncoding);
 
     LData := PosIdx('?', AHeader, LEncoding);  {Do not Localize}
-    if LData = 0 then begin
+    if (LData = 0) or (LData > VEndPos) then begin
       Exit;
     end;
     Inc(LData);
 
     LDataEnd := PosIdx('?=', AHeader, LData);  {Do not Localize}
-    if LDataEnd = 0 then begin
+    if (LDataEnd = 0) or (LDataEnd > VEndPos) then begin
       Exit;
     end;
     Inc(LDataEnd);
 
-    // valid encoded words can not contain spaces
-    // if the user types something *almost* like an encoded word,
-    // and its sent as-is, we need to find this!!
-
-    if ContainsOnlyWhiteSpace(AHeader, LCharSet, LEncoding-2) or
-       ContainsOnlyWhiteSpace(AHeader, LEncoding, LData-2) or
-       ContainsOnlyWhiteSpace(AHeader, LData, LDataEnd-2) then
-    begin
-      Exit;
-    end;
-
-    VStartPos := LCharSet-2;
     VEndPos := LDataEnd;
-
     VCharSet := Copy(AHeader, LCharSet, LEncoding-LCharSet-1);
     VEncoding := Copy(AHeader, LEncoding, LData-LEncoding-1);
     VData := Copy(AHeader, LData, LDataEnd-LData-1);
@@ -323,19 +295,53 @@ var
   end;
 
 begin
-  LStartPos := 1;
   Result := Header;
 
-  while FindNextEncoding(Result, LStartPos, LEncodingStartPos, LEncodingEndPos, HeaderCharSet, HeaderEncoding, HeaderData) do
+  LStartPos := 1;
+  LLength := Length(Result);
+
+  LLastWordWasEncoded := False;
+  LLastStartPos := LStartPos;
+
+  while LStartPos <= LLength do
   begin
-    if ExtractEncodedData(HeaderEncoding, HeaderData, S) then
-    begin
-      S := DecodeHeaderData(HeaderCharSet, S, ADecodeEvent);
-      //replace old substring in header with decoded one:
-      Result := Copy(Result, 1, LEncodingStartPos - 1) + S + Copy(Result, LEncodingEndPos + 1, MaxInt);
-      LStartPos := LEncodingStartPos + Length(S);
+    // valid encoded words can not contain spaces
+    // if the user types something *almost* like an encoded word,
+    // and its sent as-is, we need to find this!!
+    LEncodingStartPos := FindFirstNotOf(LWS, Result, LLength, LStartPos);
+    if LEncodingStartPos = 0 then begin
+      Break;
+    end;
+    LEncodingEndPos := FindFirstOf(LWS, Result, LLength, LEncodingStartPos);
+    if LEncodingEndPos <> 0 then begin
+      Dec(LEncodingEndPos);
     end else begin
-      LStartPos := LEncodingEndPos + 1;
+      LEncodingEndPos := LLength;
+    end;
+    if ExtractEncoding(Result, LEncodingStartPos, LEncodingEndPos, HeaderCharSet, HeaderEncoding, HeaderData) then
+    begin
+      if ExtractEncodedData(HeaderEncoding, HeaderData, S) then begin
+        S := DecodeHeaderData(HeaderCharSet, S, ADecodeEvent);
+      end;
+      //replace old substring in header with decoded string,
+      // ignoring whitespace that separates encoded words:
+      if LLastWordWasEncoded then begin
+        Result := Copy(Result, 1, LLastStartPos - 1) + S + Copy(Result, LEncodingEndPos + 1, MaxInt);
+        LStartPos := LLastStartPos + Length(S);
+      end else begin
+        Result := Copy(Result, 1, LEncodingStartPos - 1) + S + Copy(Result, LEncodingEndPos + 1, MaxInt);
+        LStartPos := LEncodingStartPos + Length(S);
+      end;
+      LLength := Length(Result);
+      LLastWordWasEncoded := True;
+      LLastStartPos := LStartPos;
+    end else
+    begin
+      LStartPos := FindFirstOf(LWS, Result, LLength, LEncodingStartPos);
+      if LStartPos = 0 then begin
+        Break;
+      end;
+      LLastWordWasEncoded := False;
     end;
   end;
 
