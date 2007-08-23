@@ -51,11 +51,8 @@
 unit IdStrings;
 
 interface
-{$i IdCompilerDefines.inc}
 
-function  FindFirstOf(AFind, AText: String): Integer;
-function  FindFirstNotOf(AFind, AText : String) : Integer;
-function  TrimAllOf(ATrim, AText : String) : String;
+{$i IdCompilerDefines.inc}
 
 {
   IsWhiteString
@@ -141,77 +138,6 @@ begin
   Result := StringReplace(Result,  '&gt;',   '>',[rfReplaceAll]); {do not localize}
   Result := StringReplace(Result,  '&lt;',   '<',[rfReplaceAll]); {do not localize}
   Result := StringReplace(Result,  '&amp;',  '&',[rfReplaceAll]); {do not localize}
-end;
-
-function FindFirstOf(AFind, AText: string): Integer;
-var
-  nCount, nPos: Integer;
-begin
-  Result := 0;
-
-  for nCount := 1 to Length(AFind) do
-  begin
-    nPos := IndyPos(AFind[nCount], AText);
-    if nPos > 0 then
-    begin
-      if Result = 0 then
-      begin
-        Result := nPos;
-      end
-      else if Result > nPos then
-      begin
-        Result := nPos;
-      end;
-    end;
-  end;
-end;
-
-function FindFirstNotOf(AFind, AText : String) : Integer;
-var
-  i : Integer;
-begin
-  Result := 0;
-
-  if length(AFind) = 0 then
-  begin
-    Result := 1;
-    exit;
-  end;
-
-  if length(AText) = 0 then
-  begin
-    exit;
-  end;
-
-  for i := 1 to length(AText) do
-  begin
-    if IndyPos(AText[i], AFind) = 0 then
-    begin
-      Result := i;
-      exit;
-    end;
-  end;
-end;
-
-function TrimAllOf(ATrim, AText : String) : String;
-begin
-  while Length(AText) > 0 do
-  begin
-    if Pos(AText[1], ATrim) > 0 then
-    begin
-      IdDelete(AText, 1, 1);
-    end
-    else break;
-  end;
-  while Length(AText) > 0 do
-  begin
-    if Pos(AText[length(AText)], ATrim) > 0 then
-    begin
-      IdDelete(AText, Length(AText), 1);
-    end
-    else break;
-  end;
-  Result := AText;
 end;
 
 // SP - 10/10/2003
