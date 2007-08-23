@@ -505,6 +505,15 @@ type
   //The following is for working on email headers and message part headers...
   function RemoveHeaderEntry(AHeader, AEntry: string): string;
 
+  {
+    Three functions for easier manipulating of strings.  Don't know of any
+    system functions to perform these actions.  If there aren't and someone
+    can find an optimised way of performing then please implement...
+  }
+  function FindFirstOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
+  function FindFirstNotOf(const AFind, AText: string; const ALength: Integer = -1; const AStartPos: Integer = 1): Integer;
+  function TrimAllOf(const ATrim, AText: string): string;
+
 var
   {$IFDEF UNIX}
   // For linux the user needs to set these variables to be accurate where used (mail, etc)
@@ -3039,6 +3048,88 @@ begin
     Result := Trim(Result);
     if TextEndsWith(Result, ';') then begin {do not localize}
       Delete(Result, Length(Result), 1);
+    end;
+  end;
+end;
+
+{
+  Three functions for easier manipulating of strings.  Don't know of any
+  system functions to perform these actions.  If there aren't and someone
+  can find an optimised way of performing then please implement...
+}
+function FindFirstOf(const AFind, AText: string; const ALength: Integer = -1;
+  const AStartPos: Integer = 1): Integer;
+var
+  I, LLength, LPos: Integer;
+begin
+  Result := 0;
+  if Length(AFind) > 0 then
+  begin
+    LLength := IndyLength(AText, ALength, AStartPos);
+    if LLength > 0 then
+    begin
+      for I := 0 to LLength-1 do
+      begin
+        LPos := AStartPos + I;
+        if IndyPos(AText[LPos], AFind) <> 0 then
+        begin
+          Result := LPos;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+end;
+
+function FindFirstNotOf(const AFind, AText: string; const ALength: Integer = -1;
+  const AStartPos: Integer = 1): Integer;
+var
+  I, LLength, LPos: Integer;
+begin
+  Result := 0;
+  LLength := IndyLength(AText, ALength, AStartPos);
+  if LLength > 0 then
+  begin
+    if Length(AFind) = 0 then
+    begin
+      Result := AStartPos;
+      Exit;
+    end;
+    for I := 0 to LLength do
+    begin
+      LPos := AStartPos + I;
+      if IndyPos(AText[LPos], AFind) = 0 then
+      begin
+        Result := LPos;
+        Exit;
+      end;
+    end;
+  end;
+end;
+
+function TrimAllOf(const ATrim, AText: string): string;
+var
+  Len: Integer;
+begin
+  Result := AText;
+  Len := Length(Result);
+  while Len > 0 do
+  begin
+    if IndyPos(Result[1], ATrim) > 0 then
+    begin
+      IdDelete(Result, 1, 1);
+      Dec(Len);
+    end else begin
+      Break;
+    end;
+  end;
+  while Len > 0 do begin
+    if IndyPos(Result[Len], ATrim) > 0 then
+    begin
+      IdDelete(Result, Len, 1);
+      Dec(Len);
+    end else begin
+      Break;
     end;
   end;
 end;
