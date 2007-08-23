@@ -18,10 +18,17 @@ type
   TOnValidatePeerCertificate = procedure (ASender : TObject;
     ACertificate : X509Certificate; AChain : X509Chain;
     AsslPolicyErrors : SslPolicyErrors; var VValid : Boolean) of object;
+  TOnLocalCertificateSelectionCallback = procedure (ASender : TObject;
+      AtargetHost : String;
+      AlocalCertificates : X509CertificateCollection;
+      AremoteCertificate : X509Certificate;
+      AacceptableIssuers : array of String;
+      VCert : X509Certificate) of object;
   TIdSSLIOHandlerSocketNET = class(TIdSSLIOHandlerSocketBase)
   protected
     FEnabledProtocols: System.Security.Authentication.SslProtocols;
     FOnValidatePeerCertificate : TOnValidatePeerCertificate;
+    FOnLocalCertificateSelection : TOnLocalCertificateSelectionCallback;
     FSSL : SslStream;
     FSocketStream: Stream;
     FActiveStream: Stream;
@@ -36,7 +43,12 @@ type
               certificate : X509Certificate;
               chain : X509Chain;
               sslPolicyErrors : SslPolicyErrors) : Boolean;
-
+    function LocalCertificateSelectionCallback (
+     	sender : System.&Object;
+      targetHost : String;
+      localCertificates : X509CertificateCollection;
+      remoteCertificate : X509Certificate;
+      acceptableIssuers : array of String) : X509Certificate;
     function RecvEnc(var VBuffer: TIdBytes): Integer; override;
     function SendEnc(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     procedure SetPassThrough(const Value: Boolean); override;
@@ -52,21 +64,14 @@ type
     function GetIsSigned: Boolean;
     function GetKeyExchangeAlgorithm: ExchangeAlgorithmType;
     function GetKeyExchangeStrength: Integer;
-    function GetRemoteCertificate: X509Certificate;    
-  published
-  published
+    function GetRemoteCertificate: X509Certificate;
+    function GetSslProtocol: SslProtocols;
+
   public
     procedure Close; override;
     procedure Open; override;
     procedure StartSSL; override;
     function Clone : TIdSSLIOHandlerSocketBase; override;
-    function GetSslProtocol: SslProtocols;
-
-    property EnabledProtocols : System.Security.Authentication.SslProtocols read FEnabledProtocols write FEnabledProtocols;
-    property ServerCertificate : X509Certificate read FServerCertificate write FServerCertificate;
-    property ClientCertificates : X509CertificateCollection read FClientCertificates write FClientCertificates;
-
-    property OnSSLHandshakeDone : TNotifyEvent read FOnSSLHandshakeDone write FOnSSLHandshakeDone;
 
     property CipherAlgorithm : CipherAlgorithmType read GetCipherAlgorithm;
     property CipherStrength : Integer read GetCipherStrength;
@@ -78,6 +83,16 @@ type
     property KeyExchangeStrength : Integer read GetKeyExchangeStrength;
     property RemoteCertificate : X509Certificate read GetRemoteCertificate;
     property SslProtocol : SslProtocols read GetSslProtocol;
+  published
+    property EnabledProtocols : System.Security.Authentication.SslProtocols read FEnabledProtocols write FEnabledProtocols;
+    property ServerCertificate : X509Certificate read FServerCertificate write FServerCertificate;
+    property ClientCertificates : X509CertificateCollection read FClientCertificates write FClientCertificates;
+
+    property OnSSLHandshakeDone : TNotifyEvent read FOnSSLHandshakeDone write FOnSSLHandshakeDone;
+    property OnLocalCertificateSelection : TOnLocalCertificateSelectionCallback
+      read FOnLocalCertificateSelection write FOnLocalCertificateSelection;
+    property OnValidatePeerCertificate : TOnValidatePeerCertificate
+      read FOnValidatePeerCertificate write FOnValidatePeerCertificate;
   end;
 
   EIdSSLNetException = class(EIdException);
@@ -259,6 +274,46 @@ begin
   FEnabledProtocols := System.Security.Authentication.SslProtocols.Default;
 end;
 
+function TIdSSLIOHandlerSocketNET.LocalCertificateSelectionCallback(
+  sender: TObject; targetHost: String;
+  localCertificates: X509CertificateCollection;
+  remoteCertificate: X509Certificate;
+  acceptableIssuers: array of String): X509Certificate;
+var i : Integer;
+  LIssuer : String;
+begin
+  Result := nil;
+  if Assigned(FOnLocalCertificateSelection) then
+  begin
+    FOnLocalCertificateSelection(Self,targetHost,localCertificates,remoteCertificate,Acceptableissuers,Result);
+  end
+  else
+  begin
+    if Assigned(acceptableIssuers) and
+      (Length(acceptableIssuers)>0) and
+      Assigned(localCertificates) and
+      (localCertificates.Count > 0) then
+    begin
+       // Use the first certificate that is from an acceptable issuer.
+
+      for I := 0 to LocalCertificates.Count -1 do
+      begin
+        LIssuer := LocalCertificates[i].Issuer;
+        if (System.Array.IndexOf(acceptableIssuers, Lissuer)>-1) then
+        begin
+          Result := LocalCertificates[i];
+          Exit;
+        end;
+      end;
+    end;
+  end;
+  if (localCertificates <> nil) and
+   (localCertificates.Count > 0) then
+  begin
+    Result :=  localCertificates[0];
+  end;
+end;
+
 procedure TIdSSLIOHandlerSocketNET.Open;
 begin
   inherited;
@@ -274,7 +329,7 @@ begin
   FSocketStream :=  System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False);
 //  FSocketStream := TIdSocketStream.Create(Binding.Handle);
   FSSL := System.Net.Security.SslStream.Create(FSocketStream,True,
-     ValidatePeerCertificate);
+     ValidatePeerCertificate,LocalCertificateSelectionCallback);
  // FSSL.ReadTimeout := ReadTimeout;
   if IsPeer then
   begin
@@ -362,7 +417,6 @@ begin
       Result := True;
     end;
   end;
-  Result := True;
 end;
 
 end.
