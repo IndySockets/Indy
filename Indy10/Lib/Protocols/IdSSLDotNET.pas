@@ -93,6 +93,7 @@ begin
   fPassThrough := True;
   try
     inherited ConnectClient;
+
   finally
     fPassThrough := LPassThrough;
   end;
@@ -120,8 +121,8 @@ end;
 
 procedure TIdSSLIOHandlerSocketNET.OpenEncodedConnection;
 begin
-  FSocketStream := System.Net.Sockets.NetworkStream.Create(FBinding.Handle); //TIdSocketStream.Create(Binding.Handle);
-  //TIdSocketStream.Create(FBinding.Handle);
+  FSocketStream :=  System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False);
+//  FSocketStream := TIdSocketStream.Create(Binding.Handle);
   FSSL := System.Net.Security.SslStream.Create(FSocketStream,True,
      ValidatePeerCertificate);
  // FSSL.ReadTimeout := ReadTimeout;
@@ -144,7 +145,7 @@ begin
      end
      else
      begin
-       FSSL.AuthenticateAsClient(FHost);
+       FSSL.AuthenticateAsClient(FHost,nil,FEnabledProtocols,True);
      end;  
 
   end;
