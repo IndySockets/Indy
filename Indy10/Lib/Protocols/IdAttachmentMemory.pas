@@ -58,23 +58,20 @@ uses
 type
   TIdAttachmentMemory = class(TIdAttachment)
   protected
-    FDataStream: TMemoryStream;
+    FDataStream: TStream;
     FDataStreamBeforeLoadPosition: Int64;
 
-    function GetDataStream: TStream;
     function GetDataString: string;
     procedure SetDataStream(const Value: TStream);
     procedure SetDataString(const Value: string);
   public
     {CC: Bug fix, remove default values to resolve ambiguities with Create(TCollection).}
-    {constructor Create(Collection: TIdMessageParts; const CopyFrom: TStream = nil); reintroduce; overload;
-    constructor Create(Collection: TIdMessageParts; const CopyFrom: String = ''); reintroduce; overload;}
+    constructor Create(Collection: TCollection); overload; override;
     constructor Create(Collection: TIdMessageParts; const CopyFrom: TStream); reintroduce; overload;
     constructor Create(Collection: TIdMessageParts; const CopyFrom: String); reintroduce; overload;
-    constructor Create(Collection: TCollection); overload; override;
     destructor Destroy; override;
 
-    property DataStream: TStream read GetDataStream write SetDataStream;
+    property DataStream: TStream read FDataStream write SetDataStream;
     property DataString: string read GetDataString write SetDataString;
     function OpenLoadStream: TStream; override;
     procedure CloseLoadStream; override;
@@ -84,7 +81,16 @@ type
 
 implementation
 
+uses
+  SysUtils;
+
 { TIdAttachmentMemory }
+
+constructor TIdAttachmentMemory.Create(Collection: TCollection);
+begin
+  inherited Create(Collection);
+  FDataStream := TMemoryStream.Create;
+end;
 
 constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
   const CopyFrom: TStream);
@@ -94,11 +100,6 @@ begin
   if Assigned(CopyFrom) then begin
     FDataStream.CopyFrom(CopyFrom, CopyFrom.Size);
   end;
-end;
-
-procedure TIdAttachmentMemory.CloseLoadStream;
-begin
-  DataStream.Position := FDataStreamBeforeLoadPosition;
 end;
 
 constructor TIdAttachmentMemory.Create(Collection: TIdMessageParts;
@@ -111,13 +112,13 @@ end;
 
 destructor TIdAttachmentMemory.Destroy;
 begin
-  FDataStream.Free;
+  FreeAndNil(FDataStream);
   inherited Destroy;
 end;
 
-function TIdAttachmentMemory.GetDataStream: TStream;
+procedure TIdAttachmentMemory.CloseLoadStream;
 begin
-  Result := FDataStream;
+  DataStream.Position := FDataStreamBeforeLoadPosition;
 end;
 
 function TIdAttachmentMemory.GetDataString: string;
@@ -142,6 +143,7 @@ end;
 
 procedure TIdAttachmentMemory.SetDataStream(const Value: TStream);
 begin
+  FDataStream.Size := 0;
   FDataStream.CopyFrom(Value, Value.Size);
 end;
 
@@ -160,12 +162,6 @@ function TIdAttachmentMemory.PrepareTempStream: TStream;
 begin
   DataStream.Size := 0;
   Result := DataStream;
-end;
-
-constructor TIdAttachmentMemory.Create(Collection: TCollection);
-begin
-  inherited Create(Collection);
-  FDataStream := TMemoryStream.Create;
 end;
 
 end.
