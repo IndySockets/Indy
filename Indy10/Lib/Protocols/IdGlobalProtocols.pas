@@ -3095,7 +3095,7 @@ begin
       Result := AStartPos;
       Exit;
     end;
-    for I := 0 to LLength do
+    for I := 0 to LLength-1 do
     begin
       LPos := AStartPos + I;
       if IndyPos(AText[LPos], AFind) = 0 then
