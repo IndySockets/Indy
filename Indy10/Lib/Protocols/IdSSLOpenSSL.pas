@@ -2264,7 +2264,8 @@ initialization
     'Copyright © 1993 - 2004'#10#13 +                                     {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
-    'http://www.indyproject.org/',                                        {do not localize}
+    'http://www.indyproject.org/'#10#13 +                                 {do not localize}
+    'Original Author - Gregor Ibic',                                        {do not localize}
     TIdSSLIOHandlerSocketOpenSSL,
     TIdServerIOHandlerSSLOpenSSL);
 
