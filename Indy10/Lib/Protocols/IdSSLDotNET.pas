@@ -2,6 +2,16 @@ unit IdSSLDotNET;
 
 interface
 {$i IdCompilerDefines.inc}
+{*******************************************************}
+{                                                       }
+{       Indy SSL Support for Microsoft.NET 2.0          }
+{                                                       }
+{       Copyright (C) 2007 Indy Pit Crew                }
+{       Original author J. Peter Mugaas                 }
+{       2007-Aug-22                                     }
+{                                                       }
+{*******************************************************}
+
 uses
   Classes,
   IdException,
@@ -38,8 +48,6 @@ type
     FOnValidatePeerCertificate : TOnValidatePeerCertificate;
     FOnLocalCertificateSelection : TOnLocalCertificateSelectionCallback;
     FSSL : SslStream;
-    FSocketStream: Stream;
-    FActiveStream: Stream;
     FServerCertificate : X509Certificate;
     FClientCertificates : X509CertificateCollection;
     FOnSSLHandshakeDone : TNotifyEvent;
@@ -144,6 +152,7 @@ type
 
 implementation
 uses
+  IdResourceStringsProtocols,
   IdStack, SysUtils;
 
 { TIdSSLIOHandlerSocketNET }
@@ -162,15 +171,10 @@ end;
 
 procedure TIdSSLIOHandlerSocketNET.Close;
 begin
-{  if not PassThrough then
+  if Assigned(FSSL) then
   begin
     FSSL.Close;
-    FSSL := nil;
-  end;         }
-  if Assigned(FSocketStream) then
-  begin
-    FSocketStream.Close;
-    FreeAndNil(FSocketStream);
+    FreeAndNil(FSSL);
   end;
   inherited;
 
@@ -192,9 +196,6 @@ begin
   finally
     fPassThrough := LPassThrough;
   end;
- // DoBeforeConnect(Self);
-  // CreateSSLContext(sslmClient);
-  // CreateSSLContext(SSLOptions.fMode);
   StartSSL;
 end;
 
@@ -378,11 +379,9 @@ end;
 
 procedure TIdSSLIOHandlerSocketNET.OpenEncodedConnection;
 begin
-  FSocketStream := System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False);
-//  FSocketStream := TIdSocketStream.Create(Binding.Handle);
-  FSSL := System.Net.Security.SslStream.Create(FSocketStream,True,
+  FSSL := System.Net.Security.SslStream.Create(
+     System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False),False,
      ValidatePeerCertificate,LocalCertificateSelectionCallback);
- // FSSL.ReadTimeout := ReadTimeout;
   if IsPeer then
   begin
      if Assigned(FServerCertificate) then
@@ -391,7 +390,7 @@ begin
      end
      else
      begin
-       raise EIdSSLCertRequiredForSvr.Create('Certificate required for servers');
+       raise EIdSSLCertRequiredForSvr.Create(RSSSLNETCertificateRequired);
      end;
   end
   else
@@ -401,7 +400,7 @@ begin
        FSSL.AuthenticateAsClient(FHost,FClientCertificates,FenabledSslProtocols,True);
        if not FSSL.IsMutuallyAuthenticated then
        begin
-         raise EIdSSLNotAuthenticated.Create('Not authenticated');
+         raise EIdSSLNotAuthenticated.Create(RSSSLNETNotAuthenticated);
        end;
      end
      else
@@ -409,7 +408,7 @@ begin
        FSSL.AuthenticateAsClient(FHost,nil,FenabledSslProtocols,True);
        if not FSSL.IsAuthenticated then
        begin
-         raise EIdSSLNotAuthenticated.Create('Not authenticated');
+         raise EIdSSLNotAuthenticated.Create(RSSSLNETNotAuthenticated);
        end;
      end;
   end;
@@ -582,4 +581,14 @@ begin
 
 end;
 
+initialization
+
+  RegisterSSL('Indy SSL Support for Microsoft.NET 2.0','Indy Pit Crew',                                  {do not localize}
+    'Copyright © 1993 - 2007'#10#13 +                                     {do not localize}
+    'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
+    'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
+    'http://www.indyproject.org/'#10#13 +                                 {do not localize}
+    'Original Author - J. Peter Mugaas',                               {do not localize}
+    TIdSSLIOHandlerSocketNET,
+    TIdServerIOHandlerSSLNET);
 end.
