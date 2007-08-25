@@ -1399,8 +1399,14 @@ begin
 end;
 
 procedure TIdDateTimeStamp.SubtractTDateTime(ADateTime : TDateTime);
+var LStamp : TIdDateTimeStamp;
 begin
-  SubtractTIdDateTimeStamp(DateTimeToTimeStamp(ADateTime));
+  LStamp := DateTimeToTimeStamp(ADateTime);
+  try
+    SubtractTIdDateTimeStamp(LStamp);
+  finally
+    FreeAndNil(LStamp);
+  end;
 end;
 
 procedure TIdDateTimeStamp.SubtractTIdDateTimeStamp(AIdDateTime : TIdDateTimeStamp);
