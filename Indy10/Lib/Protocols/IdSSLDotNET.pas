@@ -1,18 +1,26 @@
 unit IdSSLDotNET;
 
 interface
+{$i IdCompilerDefines.inc}
 uses
   Classes,
   IdException,
   IdGlobal,
-  IdStackDotNet,
+  IdIOHandler,
+  IdSocketHandle,
   IdSSL,
+  IdThread,
+  IdYarn,
   System.Collections,
   System.IO,
   System.Net.Sockets,
   System.Net.Security,
   System.Security.Authentication,
   System.Security.Cryptography.X509Certificates;
+
+const
+  DEF_clientCertificateRequired = False;
+  DEF_checkCertificateRevocation = True;
   
 type
   TOnValidatePeerCertificate = procedure (ASender : TObject;
@@ -26,7 +34,7 @@ type
       VCert : X509Certificate) of object;
   TIdSSLIOHandlerSocketNET = class(TIdSSLIOHandlerSocketBase)
   protected
-    FEnabledProtocols: System.Security.Authentication.SslProtocols;
+    FenabledSslProtocols: System.Security.Authentication.SslProtocols;
     FOnValidatePeerCertificate : TOnValidatePeerCertificate;
     FOnLocalCertificateSelection : TOnLocalCertificateSelectionCallback;
     FSSL : SslStream;
@@ -35,6 +43,8 @@ type
     FServerCertificate : X509Certificate;
     FClientCertificates : X509CertificateCollection;
     FOnSSLHandshakeDone : TNotifyEvent;
+    FclientCertificateRequired : Boolean;
+    FcheckCertificateRevocation : Boolean;
     procedure OpenEncodedConnection; virtual;
 
     //Ssl certificate validation callback
@@ -84,17 +94,50 @@ type
     property RemoteCertificate : X509Certificate read GetRemoteCertificate;
     property SslProtocol : SslProtocols read GetSslProtocol;
   published
-    property EnabledProtocols : System.Security.Authentication.SslProtocols read FEnabledProtocols write FEnabledProtocols;
+    property enabledSslProtocols : System.Security.Authentication.SslProtocols read FenabledSslProtocols write FenabledSslProtocols;
     property ServerCertificate : X509Certificate read FServerCertificate write FServerCertificate;
     property ClientCertificates : X509CertificateCollection read FClientCertificates write FClientCertificates;
-
+    property clientCertificateRequired : Boolean read FclientCertificateRequired write FclientCertificateRequired;
+    property checkCertificateRevocation : Boolean read FcheckCertificateRevocation write FcheckCertificateRevocation;
     property OnSSLHandshakeDone : TNotifyEvent read FOnSSLHandshakeDone write FOnSSLHandshakeDone;
     property OnLocalCertificateSelection : TOnLocalCertificateSelectionCallback
       read FOnLocalCertificateSelection write FOnLocalCertificateSelection;
     property OnValidatePeerCertificate : TOnValidatePeerCertificate
       read FOnValidatePeerCertificate write FOnValidatePeerCertificate;
   end;
+  TIdServerIOHandlerSSLNET = class(TIdServerIOHandlerSSLBase)
+  protected
+    FOnValidatePeerCertificate : TOnValidatePeerCertificate;
+    FOnLocalCertificateSelection : TOnLocalCertificateSelectionCallback;
+    FOnSSLHandshakeDone : TNotifyEvent;
+    FenabledSslProtocols : System.Security.Authentication.SslProtocols;
+    FServerCertificate : X509Certificate;
+    FclientCertificateRequired : Boolean;
+    FcheckCertificateRevocation : Boolean;
+    procedure InitComponent; override;
+    procedure SetIOHandlerValues(AIO : TIdSSLIOHandlerSocketNET);
+  published
+  public
+    destructor Destroy; override;
+    procedure Init; override;
+    procedure Shutdown; override;
+    function MakeClientIOHandler : TIdSSLIOHandlerSocketBase; override;
+    //
+    function MakeFTPSvrPort : TIdSSLIOHandlerSocketBase; override;
+    function MakeFTPSvrPasv : TIdSSLIOHandlerSocketBase; override;
+    function Accept(ASocket: TIdSocketHandle; AListenerThread: TIdThread; AYarn: TIdYarn): TIdIOHandler; override;
+  published
+    property enabledSslProtocols : System.Security.Authentication.SslProtocols read FenabledSslProtocols write FenabledSslProtocols;
+    property ServerCertificate : X509Certificate read FServerCertificate write FServerCertificate;
+    property clientCertificateRequired : Boolean read FclientCertificateRequired write FclientCertificateRequired;
+    property checkCertificateRevocation : Boolean read FcheckCertificateRevocation write FcheckCertificateRevocation;
+    property OnSSLHandshakeDone : TNotifyEvent read FOnSSLHandshakeDone write FOnSSLHandshakeDone;
+    property OnLocalCertificateSelection : TOnLocalCertificateSelectionCallback
+      read FOnLocalCertificateSelection write FOnLocalCertificateSelection;
+    property OnValidatePeerCertificate : TOnValidatePeerCertificate
+      read FOnValidatePeerCertificate write FOnValidatePeerCertificate;
 
+  end;
   EIdSSLNetException = class(EIdException);
   EIdSSLCertRequiredForSvr = class(EIdSSLNetException);
   EIdSSLNotAuthenticated = class(EIdSSLNetException);
@@ -107,6 +150,13 @@ uses
 
 function TIdSSLIOHandlerSocketNET.Clone: TIdSSLIOHandlerSocketBase;
 begin
+  Result := TIdSSLIOHandlerSocketNET.Create(nil);
+  TIdSSLIOHandlerSocketNET(Result).FenabledSslProtocols := FenabledSslProtocols;
+  TIdSSLIOHandlerSocketNET(Result).FOnValidatePeerCertificate := FOnValidatePeerCertificate;
+  TIdSSLIOHandlerSocketNET(Result).FOnLocalCertificateSelection := FOnLocalCertificateSelection;
+  TIdSSLIOHandlerSocketNET(Result).FServerCertificate :=  FServerCertificate;
+  TIdSSLIOHandlerSocketNET(Result).FClientCertificates :=  FClientCertificates;
+  TIdSSLIOHandlerSocketNET(Result).FOnSSLHandshakeDone :=  FOnSSLHandshakeDone;
 
 end;
 
@@ -271,7 +321,9 @@ end;
 procedure TIdSSLIOHandlerSocketNET.InitComponent;
 begin
   inherited;
-  FEnabledProtocols := System.Security.Authentication.SslProtocols.Default;
+  FenabledSslProtocols := System.Security.Authentication.SslProtocols.Default;
+  FclientCertificateRequired := DEF_clientCertificateRequired;
+  FcheckCertificateRevocation := DEF_checkCertificateRevocation;
 end;
 
 function TIdSSLIOHandlerSocketNET.LocalCertificateSelectionCallback(
@@ -326,7 +378,7 @@ end;
 
 procedure TIdSSLIOHandlerSocketNET.OpenEncodedConnection;
 begin
-  FSocketStream :=  System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False);
+  FSocketStream := System.Net.Sockets.NetworkStream.Create(FBinding.Handle,False);
 //  FSocketStream := TIdSocketStream.Create(Binding.Handle);
   FSSL := System.Net.Security.SslStream.Create(FSocketStream,True,
      ValidatePeerCertificate,LocalCertificateSelectionCallback);
@@ -335,7 +387,7 @@ begin
   begin
      if Assigned(FServerCertificate) then
      begin
-       FSSL.AuthenticateAsServer(FServerCertificate);
+       FSSL.AuthenticateAsServer(FServerCertificate,FclientCertificateRequired,FenabledSslProtocols,FcheckCertificateRevocation);
      end
      else
      begin
@@ -346,7 +398,7 @@ begin
   begin
      if Assigned(FClientCertificates) then
      begin
-       FSSL.AuthenticateAsClient(FHost,FClientCertificates,FEnabledProtocols,True);
+       FSSL.AuthenticateAsClient(FHost,FClientCertificates,FenabledSslProtocols,True);
        if not FSSL.IsMutuallyAuthenticated then
        begin
          raise EIdSSLNotAuthenticated.Create('Not authenticated');
@@ -354,7 +406,7 @@ begin
      end
      else
      begin
-       FSSL.AuthenticateAsClient(FHost,nil,FEnabledProtocols,True);
+       FSSL.AuthenticateAsClient(FHost,nil,FenabledSslProtocols,True);
        if not FSSL.IsAuthenticated then
        begin
          raise EIdSSLNotAuthenticated.Create('Not authenticated');
@@ -384,11 +436,7 @@ begin
   if fPassThrough <> Value then begin
     if not Value then begin
       if BindingAllocated then begin
-   //     if Assigned(fSSLContext) then begin
-          OpenEncodedConnection;
-    //    end else begin
-        //  raise EIdOSSLCouldNotLoadSSLLibrary.Create(RSOSSLCouldNotLoadSSLLibrary);
-    //    end;
+        OpenEncodedConnection;
       end;
     end;
     fPassThrough := Value;
@@ -417,6 +465,104 @@ begin
       Result := True;
     end;
   end;
+end;
+
+{ TIdServerIOHandlerSSLNET }
+
+function TIdServerIOHandlerSSLNET.Accept(ASocket: TIdSocketHandle;
+  AListenerThread: TIdThread; AYarn: TIdYarn): TIdIOHandler;
+var
+  LIO : TIdSSLIOHandlerSocketNET;
+begin
+  LIO := TIdSSLIOHandlerSocketNET.Create(nil);
+  LIO.PassThrough := True;
+  LIO.IsPeer := True;
+  LIO.Open;
+  if LIO.Binding.Accept(ASocket.Handle) then
+  begin
+
+    SetIOHandlerValues(LIO);
+    Result := LIO;
+  end
+  else
+  begin
+    Result := nil;
+    FreeAndNil(LIO);
+  end;
+end;
+
+destructor TIdServerIOHandlerSSLNET.Destroy;
+begin
+
+  inherited;
+end;
+
+procedure TIdServerIOHandlerSSLNET.Init;
+begin
+  inherited;
+
+end;
+
+procedure TIdServerIOHandlerSSLNET.InitComponent;
+begin
+  inherited InitComponent;
+  FenabledSslProtocols := System.Security.Authentication.SslProtocols.Default;
+  FclientCertificateRequired := DEF_clientCertificateRequired;
+  FcheckCertificateRevocation := DEF_checkCertificateRevocation;
+
+end;
+
+function TIdServerIOHandlerSSLNET.MakeClientIOHandler: TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketNET;
+begin
+  LIO := TIdSSLIOHandlerSocketNET.Create(nil);
+  LIO.PassThrough := True;
+  LIO.IsPeer := False;
+  SetIOHandlerValues(LIO); 
+  Result := LIO;
+end;
+
+function TIdServerIOHandlerSSLNET.MakeFTPSvrPasv: TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketNET;
+begin
+  LIO := TIdSSLIOHandlerSocketNET.Create(nil);
+  LIO.PassThrough := True;
+  LIO.IsPeer := True;
+  SetIOHandlerValues(LIO);
+  Result := LIO;
+end;
+
+function TIdServerIOHandlerSSLNET.MakeFTPSvrPort: TIdSSLIOHandlerSocketBase;
+var
+  LIO : TIdSSLIOHandlerSocketNET;
+begin
+  LIO := TIdSSLIOHandlerSocketNET.Create(nil);
+  LIO.PassThrough := True;
+  LIO.IsPeer := True;
+  SetIOHandlerValues(LIO);
+  Result := LIO;
+
+end;
+
+procedure TIdServerIOHandlerSSLNET.SetIOHandlerValues(
+  AIO: TIdSSLIOHandlerSocketNET);
+begin
+  AIO.FServerCertificate := FServerCertificate;
+  AIO.FclientCertificateRequired := FclientCertificateRequired;
+//  AIO.FClientCertificates :=  FClientCertificates;
+  AIO.FcheckCertificateRevocation := FcheckCertificateRevocation;
+  AIO.FOnSSLHandshakeDone := FOnSSLHandshakeDone;
+  AIO.FenabledSslProtocols := FenabledSslProtocols;
+  AIO.FOnLocalCertificateSelection := FOnLocalCertificateSelection;
+  AIO.FOnValidatePeerCertificate := FOnValidatePeerCertificate;
+end;
+
+procedure TIdServerIOHandlerSSLNET.Shutdown;
+begin
+  inherited;
+
 end;
 
 end.
