@@ -460,9 +460,26 @@ begin
   end
   else
   begin
-    if sslPolicyErrors = System.Net.Security.SslPolicyErrors.None then
-    begin
-      Result := True;
+{
+This is a workaround for a quirk.  If using this as a server, the validation routine
+may be called even though there may not be a client certificate and
+FclientCertificateRequired was set to false.  It might be by design though.
+}
+    case sslPolicyErrors of
+      System.Net.Security.SslPolicyErrors.None : Result := True;
+      System.Net.Security.SslPolicyErrors.RemoteCertificateNotAvailable :
+      begin
+        if IsPeer and (not FclientCertificateRequired) then
+        begin
+          Result := True;
+        end
+        else
+        begin
+          Result := False;
+        end;
+      end;
+    else
+      Result := False;
     end;
   end;
 end;
