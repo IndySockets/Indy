@@ -273,7 +273,7 @@ const
   {$ELSE}
   Id_IPPROTO_GGP         = ProtocolType.Ggp;    //Gateway To Gateway Protocol.
   Id_IPPROTO_ICMP        = ProtocolType.Icmp; //Internet Control Message Protocol.
-  {$IFNDEF DOTNET1}
+  {$IFNDEF DOTNET1_1}
   Id_IPPROTO_ICMPv6      = ProtocolType.IcmpV6; //ICMP for IPv6
   {$ENDIF}
   Id_IPPROTO_IDP         = ProtocolType.Idp;   //IDP Protocol.

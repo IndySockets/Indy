@@ -1416,10 +1416,10 @@ end;
 function TempPath: String; 
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   Result := IndyIncludeTrailingPathDelimiter(System.IO.GetTempPath);
   {$ENDIF}
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   Result := IndyIncludeTrailingPathDelimiter(System.IO.Path.GetTempPath);
   {$ENDIF}
 end; 
@@ -1458,10 +1458,10 @@ begin
   {$IFDEF DOTNET}
   if lPath = '' then
   begin
-    {$IFDEF DOTNET1}
+    {$IFDEF DOTNET1_1}
     lPath := System.IO.GetTempPath;
     {$ENDIF}
-    {$IFDEF DOTNET2}
+    {$IFDEF DOTNET2_OR_ABOVE}
     lPath := System.IO.Path.GetTempPath;
     {$ENDIF}
   end;

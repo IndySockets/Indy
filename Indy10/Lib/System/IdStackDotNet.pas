@@ -187,7 +187,7 @@ type
   TIdStackDotNet = class(TIdStack)
   protected
     //Stuff for ICMPv6
-    {$IFNDEF DOTNET1}
+    {$IFNDEF DOTNET1_1}
     procedure QueryRoute(s : TIdStackSocketHandle; const AIP: String;
       const APort: TIdPort; var VSource, VDest : TIdBytes);
     procedure WriteChecksumIPv6(s: TIdStackSocketHandle;
@@ -267,7 +267,7 @@ type
       const AOffset : Integer; const AIP : String; const APort : TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); override;
   end;
- {$IFDEF DOTNET1}
+ {$IFDEF DOTNET1_1}
   EIdNotSupportedInMicrosoftNET11 = class(EIdStackError);
  {$ENDIF}
 
@@ -474,10 +474,10 @@ begin
     'Resolve is obsoleted for this type, please use GetHostEntry instead.
     http://go.microsoft.com/fwlink/?linkid=14202'
     }
-    {$IFDEF DOTNET2}
+    {$IFDEF DOTNET2_OR_ABOVE}
     LIP := Dns.GetHostEntry(AHostName).AddressList;
     {$ENDIF}
-    {$IFDEF DOTNET1}
+    {$IFDEF DOTNET1_1}
     LIP := Dns.Resolve(AHostName).AddressList;
     {$ENDIF}
     for a := Low(LIP) to High(LIP) do begin
@@ -498,10 +498,10 @@ function TIdStackDotNet.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 begin
   try
-    {$IFDEF DOTNET2}
+    {$IFDEF DOTNET2_OR_ABOVE}
     Result := Dns.GetHostEntry(AAddress).HostName;
     {$ENDIF}
-    {$IFDEF DOTNET1}
+    {$IFDEF DOTNET1_1}
     Result := Dns.GetHostByAddress(AAddress).HostName;
     {$ENDIF}
   except
@@ -794,26 +794,26 @@ begin
   'SupportsIPv6 is obsoleted for this type, please use OSSupportsIPv6 instead.
   http://go.microsoft.com/fwlink/?linkid=14202'
   }
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   Result := Socket.OSSupportsIPv6;
   {$ENDIF}
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   Result := Socket.SupportsIPv6;
   {$ENDIF}
 end;
 
 procedure TIdStackDotNet.PopulateLocalAddresses;
 var
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   LAddr : IPAddress;
   {$ENDIF}
   LHost : IPHostEntry;
   i : Integer;
 begin
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   LHost := DNS.GetHostEntry(DNS.GetHostName);
   {$ENDIF}
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   LAddr := IPAddress.Any;
   LHost := DNS.GetHostByAddress(LAddr);
   {$ENDIF}
@@ -889,7 +889,7 @@ function TIdStackDotNet.ReceiveMsg(ASocket: TIdStackSocketHandle;
   var VBuffer: TIdBytes; APkt: TIdPacketInfo;
   const AIPVersion: TIdIPVersion): LongWord;
 var
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   LIP : String;
   LPort : TIdPort;
   {$ELSE}
@@ -898,7 +898,7 @@ var
   LPki : IPPacketInformation;
   {$ENDIF}
 begin
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   Result := ReceiveFrom(ASocket, VBuffer, LIP, LPort, AIPVersion);
   APkt.SourceIP := LIP;
   APkt.SourcePort := LPort;
@@ -926,7 +926,7 @@ begin
   {$ENDIF}
 end;
 
-{$IFNDEF DOTNET1}
+{$IFNDEF DOTNET1_1}
 const
   SIO_ROUTING_INTERFACE_QUERY = 3355443220;
 
@@ -1077,7 +1077,7 @@ begin
     CopyTIdWord(CalcCheckSum(VBuffer), VBuffer, AOffset);
   end else
   begin
-    {$IFDEF DOTNET1}
+    {$IFDEF DOTNET1_1}
     {This is a todo because to do a checksum for ICMPv6, you need to obtain
     the address for the IP the packet will come from (query the network interfaces).
     You then have to make a IPv6 pseudo header.  About the only other alternative is

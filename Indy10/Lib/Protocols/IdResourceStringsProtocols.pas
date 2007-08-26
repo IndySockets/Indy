@@ -930,7 +930,7 @@ resourcestring
   RSFTPFSysErrMsg = 'Permission Denied';
   RSOTPUnknownMethod = 'Unknown OTP method';
 
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   RSSSLNETNotAuthenticated = 'Not authenticated';
   RSSSLNETCertificateRequired = 'Certificate required for servers';
   {$ENDIF}

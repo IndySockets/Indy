@@ -295,7 +295,7 @@ uses
   {$ENDIF}
   IdSNPP,
   IdSNTP,
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   IdSSLDotNET,
   {$ENDIF}
   {$IFDEF USEOPENSSL}
@@ -423,7 +423,7 @@ uses
   {$R IconsDotNet\TIdServerInterceptLogFile.bmp}
   {$R IconsDotNet\TIdServerIOHandlerSocket.bmp}
   {$R IconsDotNet\TIdServerIOHandlerStream.bmp}
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   {$R IconsDotNet\TIdSSLIOHandlerSocketNET.bmp}
   {$R IconsDotNet\TIdServerIOHandlerSSLNET.bmp}
   {$ENDIF}
@@ -571,7 +571,7 @@ begin
    TIdServerInterceptLogFile
    ]);
 
-   {$IFDEF DOTNET2}
+   {$IFDEF DOTNET2_OR_ABOVE}
    RegisterComponents(RSRegIndyIOHandlers, [
     TIdSSLIOHandlerSocketNET,
     TIdServerIOHandlerSSLNET

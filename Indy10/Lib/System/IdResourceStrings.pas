@@ -114,7 +114,7 @@ resourcestring
   RSResolveError = 'Error resolving host %s: %s (%d)'; { hostname, errorstring, errornumber }
   RSReverseResolveError = 'Error resolving Address %s: %s (%d)'; { address, errorstring, errornumber }
 
- {$IFDEF DOTNET1}
+ {$IFDEF DOTNET1_1}
  RSNotSupportedInMicrosoftNET11 = 'Not Supported in Microsoft.NET 1.1';
  {$ENDIF}
 

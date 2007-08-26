@@ -1565,7 +1565,7 @@ function CalcBytesForUTF8Char(const AChar: Char): Integer;
 var
   LWC: Word;
 begin
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   { RLebeau: maybe use the System.Text.UTF8Encoding.GetEncoder()
     method to get an Encoder object that can be called in a loop
     to calculate the necessary byte count? }
@@ -1588,7 +1588,7 @@ var
 begin
   Result := 0;
 
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   { RLebeau: maybe use the System.Text.UTF8Encoding.GetEncoder()
     method to get an Encoder object that can be called in a loop
     to calculate the necessary byte count? }
@@ -2154,7 +2154,7 @@ function CurrentThreadId: TIdPID;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
 {$IFDEF DOTNET}
-  {$IFDEF DOTNET2}
+  {$IFDEF DOTNET2_OR_ABOVE}
   {
   [Warning] IdGlobal.pas(1416): W1000 Symbol 'GetCurrentThreadId'
   is deprecated: 'AppDomain.GetCurrentThreadId has been deprecated because
@@ -2166,7 +2166,7 @@ begin
   Result := System.Threading.Thread.CurrentThread.ManagedThreadId;
    // Thread.ManagedThreadId;
   {$ENDIF}
-  {$IFDEF DOTNET1}
+  {$IFDEF DOTNET1_1}
   // SG: I'm not sure if this return the handle of the dotnet thread or the handle of the application domain itself (or even if there is a difference)
   Result := AppDomain.GetCurrentThreadId;
   // RLebeau
@@ -2655,13 +2655,13 @@ begin
   try
     try
       if AIPaddr.AddressFamily = Addressfamily.InterNetwork then begin
-        {$IFDEF DOTNET2}
+        {$IFDEF DOTNET2_OR_ABOVE}
         //This looks funny but it's just to circvument a warning about
         //a depreciated property in AIPaddr.  We can safely assume
         //this is an IPv4 address.
         Result := BytesToLongWord( AIPAddr.GetAddressBytes,0);
         {$ENDIF}
-        {$IFDEF DOTNET1}
+        {$IFDEF DOTNET1_1}
         Result := AIPaddr.Address;
         {$ENDIF}
         VErr := False;
