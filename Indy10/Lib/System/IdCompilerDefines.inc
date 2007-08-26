@@ -207,7 +207,7 @@
   {$DEFINE DELPHI11}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
-  {$DEFINE ALLOW_NAMED_THREADS}
+  {.$DEFINE ALLOW_NAMED_THREADS}
   {$DEFINE REGISTER_EXPECTED_MEMORY_LEAK}
   {$DEFINE TFormatSettings}
   {$DEFINE I386}
@@ -238,8 +238,11 @@
   //differences in DotNET Framework versions.
   {$IFDEF VCL11ORABOVE}
     {$DEFINE DOTNET2}
+     {$DEFINE DOTNET1_1ORABOVE}
+     {$DEFINE DOTNET2_OR_ABOVE}
   {$ELSE}
-    {$DEFINE DOTNET1}
+    {$DEFINE DOTNET1_1}
+    {$DEFINE DOTNET1_1_OR_ABOVE}
   {$ENDIF}
   // Extra include used in D7 for testing. Remove later when all comps are
   // ported. Used to selectively exclude non ported parts. Allowed in places
@@ -331,6 +334,11 @@
   {$DEFINE WIDGETVCLLIKEORKYLIX}  
 {$ENDIF}
 
+{$IFDEF WIN32}
+  {$DEFINE USEZLIBUNIT}
+{$ENDIF}
+
 {$IFDEF WIN32_OR_WIN64}
+
   {$DEFINE WIN32_OR_WIN64_OR_WINCE}
 {$ENDIF}
