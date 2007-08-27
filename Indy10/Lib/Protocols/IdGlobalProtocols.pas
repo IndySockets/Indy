@@ -1528,7 +1528,7 @@ begin
   // validate path and add path delimiter before file name prefix
   if APath <> '' then
   begin
-    if not DirectoryExists(APath) then begin
+    if not IndyDirectoryExists(APath) then begin
       LFName := APrefix;
     end else begin
       // uses the Indy function... not the Borland one
