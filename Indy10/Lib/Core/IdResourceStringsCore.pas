@@ -125,6 +125,7 @@ resourcestring
   RSObjectTypeNotSupported = 'Object type not supported.';
   RSIdNoDataToRead = 'No data to read.';
   RSReadTimeout = 'Read timed out.';
+  RSReadLnWaitMaxAttemptsExceeded = 'Max line read attempts exceeded.';
   RSAcceptTimeout = 'Accept timed out.';
   RSReadLnMaxLineLengthExceeded = 'Max line length exceeded.';
   RSConnectTimeout = 'Connect timed out.';
