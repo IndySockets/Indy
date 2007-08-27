@@ -659,14 +659,15 @@ end;
 function TIdSocketListDotNet.SelectRead(const ATimeout: Integer): Boolean;
 var
   LTempSockets: ArrayList;
-  LTimeout: Integer;
+//  LTimeout: Integer;
 begin
   try
     // DotNet updates this object on return, so we need to copy it each time we need it
     LTempSockets := ArrayList(FSockets.Clone);
     try
-      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
-      Socket.Select(LTempSockets, nil, nil, LTimeout);
+  //    LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
+  //    Socket.Select(LTempSockets, nil, nil, LTimeout);
+      Socket.Select(LTempSockets, nil, nil, ATimeout);
       Result := LTempSockets.Count > 0;
     finally
       LTempSockets.Free;
