@@ -107,6 +107,7 @@ type
   EIdReadTimeout = class(EIdException);
   EIdAcceptTimeout = class(EIdException);
   EIdReadLnMaxLineLengthExceeded = class(EIdException);
+  EIdReadLnWaitMaxAttemptsExceeded = class(EIdException);
 
   // TIdTCPConnection exceptions
   EIdPortRequired = class(EIdException);
