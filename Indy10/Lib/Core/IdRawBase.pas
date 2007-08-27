@@ -169,7 +169,7 @@ begin
       {$ELSE}
       FBinding.AllocateSocket(Id_SOCK_RAW, FProtocolIPv6);
       {$ENDIF}
-      {$IFNDEF DOTNET1}
+      {$IFNDEF DOTNET1_1}
       {
       Microsoft NET Framework 1.1 may actually have the packetinfo option but that
       will not do you any good because you need a RecvMsg function which is not
