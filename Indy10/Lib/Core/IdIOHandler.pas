@@ -1147,11 +1147,18 @@ begin
 // MtW: this is mostly used when empty lines could be send.
   Result := '';
   LAttempts := 0;
-  while (Length(Result) = 0) and (LAttempts < AFailCount) do
+  while LAttempts < AFailCount do
   begin
-    Inc(LAttempts);
     Result := Trim(ReadLn(AEncoding));
+    if Length(Result) > 0 then begin
+      Exit;
+    end;
+    if ReadLnTimedOut then begin
+      raise EIdReadTimeout.Create(RSReadTimeout);
+    end;
+    Inc(LAttempts);
   end;
+  raise EIdReadLnWaitMaxAttemptsExceeded.Create(RSReadLnWaitMaxAttemptsExceeded);
 end;
 
 function TIdIOHandler.ReadFromSource(ARaiseExceptionIfDisconnected: Boolean;
