@@ -1342,8 +1342,14 @@ begin
     ContentDisposition := IndyFormat('attachment: filename="%s";', [ExtractFileName(AFile)]);
   end;
   WriteHeader;
-  //TODO: allow TransferFileEnabled function
-  Result := AContext.Connection.IOHandler.WriteFile(AFile);
+  if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then
+  begin
+    Result := AContext.Connection.IOHandler.WriteFile(AFile);
+  end
+  else
+  begin
+    Result := AContext.Connection.IOHandler.WriteFile(AFile,True);
+  end;
 end;
 
 function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
