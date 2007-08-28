@@ -1029,11 +1029,9 @@ begin
     //and decompress it.  If no compression is used, LS will equal ContentStream
     if Assigned(Compressor) and Compressor.IsReady then
     begin
-       if TextIsSame(Response.ContentEncoding, 'deflate') then begin  {do not localize}
-         LDecMeth := 1;
-       end
-       else if TextIsSame(Response.ContentEncoding, 'gzip') then begin  {do not localize}
-         LDecMeth := 2;
+       case PosInStrArray(AResponse.ContentEncoding, ['deflate', 'gzip'], False) of  {do not localize}
+         0: LDecMeth := 1;
+         1: LDecMeth := 2;
        end;
     end;
 
@@ -1055,36 +1053,35 @@ begin
           Size := ChunkSize;
         end;
         IOHandler.ReadLn; // blank line
-      end else begin
-        if AResponse.ContentLength > 0 then // If chunked then this is also 0
-        begin
-          // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
-          // The server is supposed to send a 'Content-Length' header
-          // without sending the actual data...
-          try
-            if AUnexpectedContentTimeout > 0 then begin
-              IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
-              if not IOHandler.InputBufferIsEmpty then begin
-                IOHandler.ReadStream(LS, AResponse.ContentLength);
-              end;
-            end else begin
-              IOHandler.ReadStream(LS, AResponse.ContentLength);
-            end;
-          except
-            on E: EIdConnClosedGracefully do
-          end;
-        end
-        else if not AResponse.HasContentLength then
-        begin
-          // RLebeau 2/15/2006: only read if an entity body is actually expected
+      end
+      else if AResponse.ContentLength > 0 then // If chunked then this is also 0
+      begin
+        // RLebeau 6/30/2006: DO NOT READ IF THE REQUEST IS HEAD!!!
+        // The server is supposed to send a 'Content-Length' header
+        // without sending the actual data...
+        try
           if AUnexpectedContentTimeout > 0 then begin
             IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
             if not IOHandler.InputBufferIsEmpty then begin
-              IOHandler.ReadStream(LS, -1, True);
+              IOHandler.ReadStream(LS, AResponse.ContentLength);
             end;
           end else begin
+            IOHandler.ReadStream(LS, AResponse.ContentLength);
+          end;
+        except
+          on E: EIdConnClosedGracefully do
+        end;
+      end
+      else if not AResponse.HasContentLength then
+      begin
+        // RLebeau 2/15/2006: only read if an entity body is actually expected
+        if AUnexpectedContentTimeout > 0 then begin
+          IOHandler.CheckForDataOnSource(AUnexpectedContentTimeout);
+          if not IOHandler.InputBufferIsEmpty then begin
             IOHandler.ReadStream(LS, -1, True);
           end;
+        end else begin
+          IOHandler.ReadStream(LS, -1, True);
         end;
       end;
       if LDecMeth > 0 then begin
@@ -1098,20 +1095,6 @@ begin
       if LDecMeth > 0 then begin
         FreeAndNil(LS);
       end;
-    end;
-  end;
-end;
-
-function IsStringInArray(const aStr: string; const aArray: array of string): boolean;
-var
-  i: Integer;
-begin
-  Result := False;
-  for i := Low(aArray) to High(aArray) do
-  begin
-    if aStr = aArray[i] then begin
-      Result := True;
-      Exit;
     end;
   end;
 end;
@@ -1185,7 +1168,7 @@ begin
     FURI.IPVersion := ARequest.IPVersion;
 
     // Check for valid HTTP request methods
-    if IsStringInArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete]) then
+    if PosInStrArray(ARequest.Method, [Id_HTTPMethodTrace, Id_HTTPMethodPut, Id_HTTPMethodOptions, Id_HTTPMethodDelete], False) > -1 then
     begin
       if ProtocolVersion <> pv1_1 then
       begin
@@ -1327,7 +1310,7 @@ begin
 
   FHTTPProto.BuildAndSendRequest(URL);
 
-  if IsStringInArray(ARequest.Method, [Id_HTTPMethodPost, Id_HTTPMethodPut]) then
+  if PosInStrArray(ARequest.Method, [Id_HTTPMethodPost, Id_HTTPMethodPut], False) > -1 then
   begin
     IOHandler.Write(ARequest.Source, 0, False);
   end;
@@ -1941,7 +1924,7 @@ begin
     if FHTTP.Connected then begin
       // This is a workaround for buggy HTTP 1.1 servers which
       // does not return any body with 302 response code
-      DiscardContent(5000); // Lets wait 5 seconds for any kind of content
+      DiscardContent(5000); // Lets wait for any kind of content
     end;
   end else begin
     //Ciaran, 30th Nov 2004: I commented out the following code.  When a https server
@@ -2003,7 +1986,7 @@ begin
           end;
         else begin
           if (LResponseDigit = 1) or (LResponseCode = 304) then begin
-            CheckException(LResponseCode, AIgnoreReplies, 5000);
+            CheckException(LResponseCode, AIgnoreReplies, 100);
           end else begin
             CheckException(LResponseCode, AIgnoreReplies);
           end;
@@ -2022,7 +2005,7 @@ begin
         // Have noticed one case where a non-conforming server did send an
         // entity body in response to a HEAD request, so just ignore anything
         // the server may send by accident
-        DiscardContent(5000); // Lets wait 5 seconds for any kind of content
+        DiscardContent(100); // Lets wait for any kind of content
       end else begin
         FHTTP.ReadResult(Response);
       end;
