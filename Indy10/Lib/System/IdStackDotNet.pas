@@ -282,7 +282,6 @@ uses
 const
   IdIPFamily : array[TIdIPVersion] of AddressFamily = (AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);
 
-
 { TIdStackDotNet }
 
 function BuildException(AStack: TIdStackDotNet; AException: System.Exception) : EIdException;
@@ -656,46 +655,62 @@ begin
   FSockets.Remove(AHandle);
 end;
 
+const
+  cMaxMSPerLoop = MaxInt div 1000; // max milliseconds per Socket.Select() call
+
 function TIdSocketListDotNet.SelectRead(const ATimeout: Integer): Boolean;
 var
-  LTempSockets: ArrayList;
   LTimeout: Integer;
-{
-NOte that there seems to be a bug with Select.
 
-http://groups.google.com/group/microsoft.public.dotnet.framework/browse_thread/thread/e58f729f5081c428/7d8c07780f6312e0?lnk=st&q=dotnet+socket+select+timeout&rnum=2#7d8c07780f6312e0
-http://groups.google.com/group/microsoft.public.dotnet.languages.csharp/browse_thread/thread/ae7cb9d3f7c42fb5/be320d8dd31ee49b?lnk=st&q=dotnet+socket+select+timeout&rnum=5#be320d8dd31ee49b
-
-So for indefinate timeouts, we have to loop.
-}
-begin
-  try
+  function DoSelect(const AList: ArrayList; const AInterval: Integer): Boolean;
+  var
+    LTemp: ArrayList;
+  begin
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTempSockets := ArrayList(FSockets.Clone);
+    LTemp := ArrayList(AList.Clone);
     try
-      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
-      if LTimeout = -1 then
-      begin
-        repeat
-          Socket.Select(LTempSockets, nil, nil, MaxInt);
-          Result := LTempSockets.Count > 0;
-          if not result then
-          begin
-            LTempSockets := ArrayList(FSockets.Clone);
-          end;
-        until Result;
-      end
-      else
-      begin
-        Socket.Select(LTempSockets, nil, nil, LTimeout);
-        Result := LTempSockets.Count > 0;
-      end;
+      Socket.Select(LTemp, nil, nil, AInterval);
+      Result := LTemp.Count > 0;
     finally
-      LTempSockets.Free;
+      LTemp.Free;
+    end;
+  end;
+
+begin
+  Result := False;
+  try
+    // RLebeau 8/27/2007: the .NET docs say that -1 is supposed to
+    // cause an infinite timeout, but it doesn't actually work!
+    // So loop manually instead until Microsoft fixes it...
+    if ATimeout = IdTimeoutInfinite then
+    begin
+      repeat
+        Result := DoSelect(FSockets, MaxInt);
+      until Result;
+    end else
+    begin
+      // RLebeau: Select() accepts a timeout in microseconds, not
+      // milliseconds, so have to loop anyway to handle timeouts
+      // that are greater then 35 minutes...
+      LTimeout := ATimeout;
+      while LTimeout >= cMaxMSPerLoop do
+      begin
+        Result := DoSelect(FSockets, cMaxMSPerLoop * 1000);
+        if Result then begin
+          Exit;
+        end;
+        Dec(LTimeout, cMaxMSPerLoop);
+      end;
+      if (not Result) and (LTimeout > 0) then begin
+        Result := DoSelect(FSockets, LTimeout * 1000);
+      end;
     end;
   except
+    on e: ArgumentNullException do begin
+      Result := False;
+    end;
     on e: Exception do begin
-      raise BuildException( GDotNETStack , e);
+      raise BuildException(GDotNETStack, e);
     end;
   end;
 end;
@@ -703,50 +718,75 @@ end;
 function TIdSocketListDotNet.SelectReadList(var VSocketList: TIdSocketList;
   const ATimeout: Integer): Boolean;
 var
-  LTempSockets: ArrayList;
+  LTemp: ArrayList;
   LTimeout: Integer;
-{
-NOte that there seems to be a bug with Select.
 
-http://groups.google.com/group/microsoft.public.dotnet.framework/browse_thread/thread/e58f729f5081c428/7d8c07780f6312e0?lnk=st&q=dotnet+socket+select+timeout&rnum=2#7d8c07780f6312e0
-http://groups.google.com/group/microsoft.public.dotnet.languages.csharp/browse_thread/thread/ae7cb9d3f7c42fb5/be320d8dd31ee49b?lnk=st&q=dotnet+socket+select+timeout&rnum=5#be320d8dd31ee49b
-
-So for indefinate timeouts, we have to loop.
-}  
-begin
-  try
+  function DoSelect(const AList: ArrayList; const AInterval: Integer;
+    var VList: ArrayList): Boolean;
+  var
+    LTemp: ArrayList;
+  begin
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTempSockets := ArrayList(FSockets.Clone);
+    LTemp := ArrayList(AList.Clone);
     try
-      LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
-      if LTimeout = -1 then
+      Socket.Select(LTemp, nil, nil, AInterval);
+      Result := LTemp.Count > 0;
+      if Result then
       begin
-        repeat
-          Socket.Select(LTempSockets, nil, nil, MaxInt);
-          Result := LTempSockets.Count > 0;
-          if not result then
-          begin
-            LTempSockets := ArrayList(FSockets.Clone);
-          end;
-        until Result;
-      end
-      else
-      begin
-        Socket.Select(LTempSockets, nil, nil, LTimeout);
-        Result := LTempSockets.Count > 0;
+        VList := LTemp;
+        LTemp := nil;
       end;
-      if Result then begin
+    finally
+      LTemp.Free;
+    end;
+  end;
+
+begin
+  Result := False;
+  try
+    // RLebeau 8/27/2007: the .NET docs say that -1 is supposed to
+    // cause an infinite timeout, but it doesn't actually work!
+    // So loop manually instead until Microsoft fixes it...
+    if ATimeout = IdTimeoutInfinite then
+    begin
+      repeat
+        Result := DoSelect(FSockets, MaxInt, LTemp);
+      until Result;
+    end else
+    begin
+      // RLebeau: Select() accepts a timeout in microseconds, not
+      // milliseconds, so have to loop anyway to handle timeouts
+      // that are greater then 35 minutes...
+      LTimeout := ATimeout;
+      while LTimeout >= cMaxMSPerLoop do
+      begin
+        Result := DoSelect(FSockets, cMaxMSPerLoop * 1000, LTemp);
+        if Result then begin
+          Break;
+        end;
+        Dec(LTimeout, cMaxMSPerLoop);
+      end;
+      if (not Result) and (LTimeout > 0) then begin
+        Result := DoSelect(FSockets, LTimeout * 1000, LTemp);
+      end;
+    end;
+    if Result then
+    begin
+      try
         if VSocketList = nil then begin
           VSocketList := TIdSocketList.CreateSocketList;
         end;
         TIdSocketListDotNet(VSocketList).FSockets.Free;
-        TIdSocketListDotNet(VSocketList).FSockets := LTempSockets;
-        LTempSockets := nil;
+        TIdSocketListDotNet(VSocketList).FSockets := LTemp;
+      except
+        LTemp.Free;
+        raise;
       end;
-    finally
-      LTempSockets.Free;
     end;
   except
+    on e: ArgumentNullException do begin
+      Result := False;
+    end;
     on e: Exception do begin
       raise BuildException(GDotNETStack, e);
     end;
@@ -757,52 +797,118 @@ class function TIdSocketListDotNet.Select(AReadList, AWriteList, AExceptList: TI
   const ATimeout: Integer): Boolean;
 var
   LTimeout: Integer;
-  LRead, LWrite, LExcept : TIdSocketList;
-{
-NOte that there seems to be a bug with Select.
+  LReadTemp, LWriteTemp, LExceptTemp: ArrayList;
 
-http://groups.google.com/group/microsoft.public.dotnet.framework/browse_thread/thread/e58f729f5081c428/7d8c07780f6312e0?lnk=st&q=dotnet+socket+select+timeout&rnum=2#7d8c07780f6312e0
-http://groups.google.com/group/microsoft.public.dotnet.languages.csharp/browse_thread/thread/ae7cb9d3f7c42fb5/be320d8dd31ee49b?lnk=st&q=dotnet+socket+select+timeout&rnum=5#be320d8dd31ee49b
+  function DoSelect(const AReadList, AWriteList, AExceptList: ArrayList;
+    var VReadList, VWriteList, VExceptList: ArrayList;
+    const AInterval: Integer): Boolean;
+  var
+    LReadTemp: ArrayList;
+    LWriteTemp: ArrayList;
+    LExceptTemp: ArrayList;
+  begin
+    LReadTemp := nil;
+    LWriteTemp := nil;
+    LExceptTemp := nil;
 
-So for indefinate timeouts, we have to loop.
-}
+    VReadList := nil;
+    VWriteList := nil;
+    VExceptList := nil;
+
+    // DotNet updates these objects on return, so we need to copy them each time we need them
+    if Assigned(AReadList) and Assigned(TIdSocketListDotNet(AReadList).FSockets) then begin
+      LReadTemp := ArrayList(TIdSocketListDotNet(AReadList).FSockets.Clone);
+    end;
+    try
+      if Assigned(AWriteList) and Assigned(TIdSocketListDotNet(AWriteList).FSockets) then begin
+        LWriteTemp := ArrayList(TIdSocketListDotNet(AWriteList).FSockets.Clone);
+      end;
+      try
+        if Assigned(AExceptList) and Assigned(TIdSocketListDotNet(AExceptList).FSockets) then begin
+          LExceptTemp := ArrayList(TIdSocketListDotNet(AExceptList).FSockets.Clone);
+        end;
+        try
+          Socket.Select(LReadTemp, LWriteTemp, LExceptTemp, AInterval);
+          Result := (LReadTemp.Count > 0) or
+                    (LWriteTemp.Count > 0) or
+                    (LExceptTemp.Count > 0);
+          if Result then
+          begin
+            VReadList := LReadTemp;
+            LReadTemp:= nil;
+
+            VWriteList := LWriteTemp;
+            LWriteTemp:= nil;
+
+            VExceptList := LExceptTemp;
+            LExceptTemp:= nil;
+          end;
+        finally
+          LExceptTemp.Free;
+        end;
+      finally
+        LWriteTemp.Free;
+      end;
+    finally
+      LReadTemp.Free;
+    end;
+  end;
+
 begin
+  Result := False;
   try
-    LTimeout := iif(ATimeout = IdTimeoutInfinite, -1, ATimeout*1000);
-    if LTimeout=-1 then
+    // RLebeau 8/27/2007: the .NET docs say that -1 is supposed to
+    // cause an infinite timeout, but it doesn't actually work!
+    // So loop manually instead until Microsoft fixes it...
+    if ATimeout = IdTimeoutInfinite then
     begin
-       LRead := AReadList;
-       LWrite := AWriteList;
-       LExcept := AExceptList;
-       repeat
-         Socket.Select(
-           TIdSocketListDotNet(AReadList).FSockets,
-           TIdSocketListDotNet(AWriteList).FSockets,
-           TIdSocketListDotNet(AExceptList).FSockets,
-           MaxInt);
-         Result:=
-           (TIdSocketListDotNet(AReadList).FSockets.Count > 0) or
-           (TIdSocketListDotNet(AWriteList).FSockets.Count > 0) or
-           (TIdSocketListDotNet(AExceptList).FSockets.Count > 0);
-           if not Result  then
-           begin
-             AReadList := LRead;
-             AWriteList := LWrite;
-             AExceptList := LExcept;
-           end;
+      repeat
+        Result := DoSelect(
+          AReadList, AWriteList, AExceptList,
+          LReadTemp, LWriteTemp, LExceptTemp,
+          MaxInt);
       until Result;
-    end
-    else
+    end else
     begin
-      Socket.Select(
-        TIdSocketListDotNet(AReadList).FSockets,
-        TIdSocketListDotNet(AWriteList).FSockets,
-        TIdSocketListDotNet(AExceptList).FSockets,
-        LTimeout);
-      Result:=
-        (TIdSocketListDotNet(AReadList).FSockets.Count > 0) or
-        (TIdSocketListDotNet(AWriteList).FSockets.Count > 0) or
-        (TIdSocketListDotNet(AExceptList).FSockets.Count > 0);
+      // RLebeau: Select() accepts a timeout in microseconds, not
+      // milliseconds, so have to loop anyway to handle timeouts
+      // that are greater then 35 minutes...
+      LTimeout := ATimeout;
+      while LTimeout >= cMaxMSPerLoop do
+      begin
+        Result := DoSelect(
+          AReadList, AWriteList, AExceptList,
+          LReadTemp, LWriteTemp, LExceptTemp,
+          cMaxMSPerLoop * 1000);
+        if Result then begin
+          Break;
+        end;
+        Dec(LTimeout, cMaxMSPerLoop);
+      end;
+      if (not Result) and (LTimeout > 0) then
+      begin
+        Result := DoSelect(
+          AReadList, AWriteList, AExceptList,
+          LReadTemp, LWriteTemp, LExceptTemp,
+          LTimeout * 1000);
+      end;
+    end;
+    // RLebeau: this method is meant to update the
+    // source lists inlined regardless of the Result...
+    if Assigned(AReadList) then
+    begin
+      TIdSocketListDotNet(AReadList).FSockets.Free;
+      TIdSocketListDotNet(AReadList).FSockets := LReadTemp;
+    end;
+    if Assigned(AWriteList) then
+    begin
+      TIdSocketListDotNet(AWriteList).FSockets.Free;
+      TIdSocketListDotNet(AWriteList).FSockets := LWriteTemp;
+    end;
+    if Assigned(AExceptList) then
+    begin
+      TIdSocketListDotNet(AExceptList).FSockets.Free;
+      TIdSocketListDotNet(AExceptList).FSockets := LExceptTemp;
     end;
   except
     on e: ArgumentNullException do begin
@@ -1186,11 +1292,12 @@ end;
 
 {$IFDEF DOTNET2_OR_ABOVE}
 function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
-var LFile : FileInfo;
+var
+  LFile : FileInfo;
 begin
   ASocket.SendFile(AFileName);
   LFile := System.IO.FileInfo.Create(AFileName);
-   Result := LFile.Length;
+  Result := LFile.Length;
 end;
 {$ENDIF}
 
