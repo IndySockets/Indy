@@ -722,7 +722,7 @@ begin
       if LTimeout = -1 then
       begin
         repeat
-          Socket.Select(LTempSockets, nil, nil, LTimeout);
+          Socket.Select(LTempSockets, nil, nil, 1);
           Result := LTempSockets.Count > 0;
           if not result then
           begin
@@ -731,6 +731,7 @@ begin
         until Result;
       end
       else
+      begin
         Socket.Select(LTempSockets, nil, nil, LTimeout);
         Result := LTempSockets.Count > 0;
       end;
