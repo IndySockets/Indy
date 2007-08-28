@@ -312,6 +312,14 @@ implementation
 uses
   IdResourceStrings, IdWship6;
 
+type
+
+  TGetFileSizeEx = function (hFile : THandle;
+   var lpFileSize : LARGE_INTEGER) : BOOL; stdcall;
+
+var
+  GetFileSizeEx : TGetFileSizeEx = nil;
+
 const
   SIZE_HOSTNAME = 250;
 
@@ -687,22 +695,6 @@ begin
 end;
 
 { TIdStackVersionWinsock }
-
-{$IFNDEF WINCE}
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
-var
-  LFileHandle: THandle;
-begin
-  Result := 0;
-  LFileHandle := CreateFile(PChar(AFileName), GENERIC_READ, FILE_SHARE_READ, nil,
-    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL or FILE_FLAG_SEQUENTIAL_SCAN, 0);
-  try
-    if TransmitFile(ASocket, LFileHandle, 0, 0, nil, nil, 0) then begin
-      Result := GetFileSize(LFileHandle, nil);
-    end;
-  finally CloseHandle(LFileHandle); end;
-end;
-{$ENDIF}
 
 function TIdStackWindows.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
 begin
@@ -1319,15 +1311,44 @@ begin
   end;
 end;
 
+{$IFNDEF WINCE}
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
+var
+  LFileHandle: THandle;
+  LINT : _LARGE_INTEGER;
+{
+This is somewhat messy but I wanted to do things this way to support Int64
+file sizes.
+}
+begin
+  Result := 0;
+  LFileHandle := CreateFile(PChar(AFileName), GENERIC_READ, FILE_SHARE_READ, nil,
+    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL or FILE_FLAG_SEQUENTIAL_SCAN, 0);
+  try
+    if TransmitFile(ASocket, LFileHandle, 0, 0, nil, nil, 0) then begin
+      if Assigned(GetFileSizeEx) then
+      begin
+       GetFileSizeEx(LFileHandle, LINT);
+       Result := LINT.QuadPart;
+      end
+      else
+      begin
+        Result := GetFileSize(LFileHandle, nil);
+      end;
+    end;
+  finally CloseHandle(LFileHandle); end;
+end;
+{$ENDIF}
+
 initialization
   GSocketListClass := TIdSocketListWindows;
   // Check if we are running under windows NT
   {$IFNDEF WINCE}
   if Win32Platform = VER_PLATFORM_WIN32_NT then begin
+    GetFileSizeEx := Windows.GetProcAddress( GetModuleHandle(PChar('Kernel32.dll')), PChar('GetFileSizeEx'));
     GServeFileProc := ServeFile;
   end;
   {$ENDIF}
-
 finalization
   if GStarted then begin
     UninitializeWinSock;

@@ -161,7 +161,7 @@ type
   EIdReverseResolveError = class(EIdSocketError);
   EIdNotASocket = class(EIdSocketError);
 
-    TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
+  TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
   TIdPacketInfo = class
   protected
     FSourceIP: String;

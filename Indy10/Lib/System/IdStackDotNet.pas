@@ -1286,7 +1286,7 @@ begin
 end;
 
 {$IFDEF DOTNET2_OR_ABOVE}
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
 var
   LFile : FileInfo;
 begin
