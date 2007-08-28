@@ -1117,5 +1117,7 @@ end;
 
 initialization
   GSocketListClass := TIdSocketListDotNet;
-
+  {$IFDEF DOTNET2}
+  GServeFileProc := ServeFile;
+  {$ENDIF}
 end.
