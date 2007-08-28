@@ -662,12 +662,12 @@ function TIdSocketListDotNet.SelectRead(const ATimeout: Integer): Boolean;
 var
   LTimeout: Integer;
 
-  function DoSelect(const AList: ArrayList; const AInterval: Integer): Boolean;
+  function DoSelect(const AInterval: Integer): Boolean;
   var
     LTemp: ArrayList;
   begin
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTemp := ArrayList(AList.Clone);
+    LTemp := ArrayList(FSockets.Clone);
     try
       Socket.Select(LTemp, nil, nil, AInterval);
       Result := LTemp.Count > 0;
@@ -685,7 +685,7 @@ begin
     if ATimeout = IdTimeoutInfinite then
     begin
       repeat
-        Result := DoSelect(FSockets, MaxInt);
+        Result := DoSelect(MaxInt);
       until Result;
     end else
     begin
@@ -695,14 +695,14 @@ begin
       LTimeout := ATimeout;
       while LTimeout >= cMaxMSPerLoop do
       begin
-        Result := DoSelect(FSockets, cMaxMSPerLoop * 1000);
+        Result := DoSelect(cMaxMSPerLoop * 1000);
         if Result then begin
           Exit;
         end;
         Dec(LTimeout, cMaxMSPerLoop);
       end;
       if (not Result) and (LTimeout > 0) then begin
-        Result := DoSelect(FSockets, LTimeout * 1000);
+        Result := DoSelect(LTimeout * 1000);
       end;
     end;
   except
@@ -721,13 +721,12 @@ var
   LTemp: ArrayList;
   LTimeout: Integer;
 
-  function DoSelect(const AList: ArrayList; const AInterval: Integer;
-    var VList: ArrayList): Boolean;
+  function DoSelect(const AInterval: Integer; var VList: ArrayList): Boolean;
   var
     LTemp: ArrayList;
   begin
     // DotNet updates this object on return, so we need to copy it each time we need it
-    LTemp := ArrayList(AList.Clone);
+    LTemp := ArrayList(FSockets.Clone);
     try
       Socket.Select(LTemp, nil, nil, AInterval);
       Result := LTemp.Count > 0;
@@ -750,7 +749,7 @@ begin
     if ATimeout = IdTimeoutInfinite then
     begin
       repeat
-        Result := DoSelect(FSockets, MaxInt, LTemp);
+        Result := DoSelect(MaxInt, LTemp);
       until Result;
     end else
     begin
@@ -760,14 +759,14 @@ begin
       LTimeout := ATimeout;
       while LTimeout >= cMaxMSPerLoop do
       begin
-        Result := DoSelect(FSockets, cMaxMSPerLoop * 1000, LTemp);
+        Result := DoSelect(cMaxMSPerLoop * 1000, LTemp);
         if Result then begin
           Break;
         end;
         Dec(LTimeout, cMaxMSPerLoop);
       end;
       if (not Result) and (LTimeout > 0) then begin
-        Result := DoSelect(FSockets, LTimeout * 1000, LTemp);
+        Result := DoSelect(LTimeout * 1000, LTemp);
       end;
     end;
     if Result then
@@ -799,8 +798,7 @@ var
   LTimeout: Integer;
   LReadTemp, LWriteTemp, LExceptTemp: ArrayList;
 
-  function DoSelect(const AReadList, AWriteList, AExceptList: ArrayList;
-    var VReadList, VWriteList, VExceptList: ArrayList;
+  function DoSelect(var VReadList, VWriteList, VExceptList: ArrayList;
     const AInterval: Integer): Boolean;
   var
     LReadTemp: ArrayList;
@@ -864,7 +862,6 @@ begin
     begin
       repeat
         Result := DoSelect(
-          AReadList, AWriteList, AExceptList,
           LReadTemp, LWriteTemp, LExceptTemp,
           MaxInt);
       until Result;
@@ -877,7 +874,6 @@ begin
       while LTimeout >= cMaxMSPerLoop do
       begin
         Result := DoSelect(
-          AReadList, AWriteList, AExceptList,
           LReadTemp, LWriteTemp, LExceptTemp,
           cMaxMSPerLoop * 1000);
         if Result then begin
@@ -888,7 +884,6 @@ begin
       if (not Result) and (LTimeout > 0) then
       begin
         Result := DoSelect(
-          AReadList, AWriteList, AExceptList,
           LReadTemp, LWriteTemp, LExceptTemp,
           LTimeout * 1000);
       end;
