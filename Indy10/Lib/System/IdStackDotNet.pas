@@ -677,7 +677,7 @@ begin
       if LTimeout = -1 then
       begin
         repeat
-          Socket.Select(LTempSockets, nil, nil, 1);
+          Socket.Select(LTempSockets, nil, nil, MaxInt);
           Result := LTempSockets.Count > 0;
           if not result then
           begin
@@ -722,7 +722,7 @@ begin
       if LTimeout = -1 then
       begin
         repeat
-          Socket.Select(LTempSockets, nil, nil, 1);
+          Socket.Select(LTempSockets, nil, nil, MaxInt);
           Result := LTempSockets.Count > 0;
           if not result then
           begin
@@ -779,7 +779,7 @@ begin
            TIdSocketListDotNet(AReadList).FSockets,
            TIdSocketListDotNet(AWriteList).FSockets,
            TIdSocketListDotNet(AExceptList).FSockets,
-           1);
+           MaxInt);
          Result:=
            (TIdSocketListDotNet(AReadList).FSockets.Count > 0) or
            (TIdSocketListDotNet(AWriteList).FSockets.Count > 0) or
