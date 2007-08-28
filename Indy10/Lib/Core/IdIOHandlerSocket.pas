@@ -221,6 +221,12 @@ type
 implementation
 
 uses
+  //facilitate inlining only.
+  {$IFDEF DOTNET}
+    {$IFDEF USEINLINE}
+    System.IO,
+    {$ENDIF}
+  {$ENDIF}  
   SysUtils,
   IdStack,
   IdStackConsts,
@@ -348,17 +354,19 @@ end;
 function TIdIOHandlerSocket.WriteFile(const AFile: String;
   AEnableTransferFile: Boolean): Int64;
 begin
-// TODO: Reenable this
-//  Result := 0;
-//  if FileExists(AFile) then begin
-//    if Assigned(GServeFileProc) and (not WriteBufferingActive)
-//     {and (Intercept = nil)} and AEnableTransferFile
-//     then begin
-//      Result := GServeFileProc(Binding.Handle, AFile);
-//      Exit;
-//    end;
-//  end;
-  Result := inherited WriteFile(AFile, AEnableTransferFile);
+  Result := 0;
+  if FileExists(AFile) then begin
+    if Assigned(GServeFileProc) and (not WriteBufferingActive)
+     {and (Intercept = nil)} and AEnableTransferFile
+     then begin
+      Result := GServeFileProc(Binding.Handle, AFile);
+      Exit;
+    end
+    else
+    begin
+      Result := inherited WriteFile(AFile, AEnableTransferFile);
+    end;
+  end;
 end;
 
 procedure TIdIOHandlerSocket.SetTransparentProxy(AProxy : TIdCustomTransparentProxy);
