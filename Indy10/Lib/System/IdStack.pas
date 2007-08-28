@@ -161,6 +161,7 @@ type
   EIdReverseResolveError = class(EIdSocketError);
   EIdNotASocket = class(EIdSocketError);
 
+    TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
   TIdPacketInfo = class
   protected
     FSourceIP: String;
@@ -331,7 +332,9 @@ type
 
 var
   GStack: TIdStack = nil;
+  GServeFileProc: TIdServeFile = nil;
   GSocketListClass: TIdSocketListClass;
+
 
 // Procedures
   function IdStackFactory : TIdStack;

@@ -1105,6 +1105,16 @@ begin
   Result := 0;
 end;
 
+{$IFDEF DOTNET2}
+function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
+var LFile : FileInfo;
+begin
+  ASocket.SendFile(AFileName);
+  LFile := System.IO.FileInfo.Create(AFileName);
+   Result := LFile.Length;
+end;
+{$ENDIF}
+
 initialization
   GSocketListClass := TIdSocketListDotNet;
 

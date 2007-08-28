@@ -166,8 +166,6 @@ uses
 type
   EIdNotASocket = class(EIdSocketError);
 
-  TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): LongWord;
-
   // RP - for use with the HostToNetwork() and NetworkToHost()
   // methods under Windows and Linux since the Socket API doesn't
   // have native conversion functions for int64 values...
@@ -297,8 +295,7 @@ type
   EIdStackInitializationFailed = class (EIdStackError);
   EIdStackSetSizeExceeded = class (EIdStackError);
 
-var
-  GServeFileProc: TIdServeFile = nil;
+
 
 //for some reason, if GDBSDStack is in the same block as GServeFileProc then
 //FPC gives a type declaration error.
