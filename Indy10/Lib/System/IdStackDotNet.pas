@@ -236,7 +236,7 @@ type
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes;
       APkt: TIdPacketInfo; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-      const AOffset: Integer; const AIP: string; const APort: TIdPort;
+      const AOffset: Integer; const ASize: Integer; const AIP: string; const APort: TIdPort;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     function HostToNetwork(AValue: Word): Word; override;
     function NetworkToHost(AValue: Word): Word; override;
@@ -588,12 +588,12 @@ begin
 end;
 
 function TIdStackDotNet.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-  const AOffset: Integer; const AIP: string; const APort: TIdPort;
+  const AOffset: Integer; const ASize: Integer; const AIP: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 var
   LEndPoint : EndPoint;
 begin
-  Result := IndyLength(ABuffer, -1, AOffset);
+  Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then
   begin
     LEndPoint := IPEndPoint.Create(IPAddress.Parse(AIP), APort);
@@ -1286,7 +1286,7 @@ begin
 end;
 
 {$IFDEF DOTNET2_OR_ABOVE}
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
+function ServeFile(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
 var
   LFile : FileInfo;
 begin
