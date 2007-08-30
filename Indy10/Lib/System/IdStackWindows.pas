@@ -313,18 +313,14 @@ uses
   IdResourceStrings, IdWship6;
 
 type
-
-  TGetFileSizeEx = function (hFile : THandle;
-   var lpFileSize : LARGE_INTEGER) : BOOL; stdcall;
-
-var
-  GetFileSizeEx : TGetFileSizeEx = nil;
+  TGetFileSizeEx = function (hFile : THandle; var lpFileSize : LARGE_INTEGER) : BOOL; stdcall;
 
 const
   SIZE_HOSTNAME = 250;
 
 var
   GStarted: Boolean = False;
+  GetFileSizeEx : TGetFileSizeEx = nil;
 
 constructor TIdStackWindows.Create;
 begin
@@ -1312,7 +1308,7 @@ begin
 end;
 
 {$IFNDEF WINCE}
-function ServeFile(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
+function ServeFile(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
 var
   LFileHandle: THandle;
   LINT : _LARGE_INTEGER;
@@ -1328,10 +1324,9 @@ begin
     if TransmitFile(ASocket, LFileHandle, 0, 0, nil, nil, 0) then begin
       if Assigned(GetFileSizeEx) then
       begin
-       GetFileSizeEx(LFileHandle, LINT);
-       Result := LINT.QuadPart;
-      end
-      else
+        GetFileSizeEx(LFileHandle, LINT);
+        Result := LINT.QuadPart;
+      end else
       begin
         Result := GetFileSize(LFileHandle, nil);
       end;
