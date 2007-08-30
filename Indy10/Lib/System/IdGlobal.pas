@@ -3632,7 +3632,11 @@ begin
   Result := System.Timezone.CurrentTimezone.GetUTCOffset(DateTime.FromOADate(Now)).TotalDays;
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF WIN32_OR_WIN64}
   case GetTimeZoneInformation(tmez) of
+  {$ELSE}
+   case GetTimeZoneInformation(@tmez) of
+  {$ENDIF}
     TIME_ZONE_ID_INVALID:
     begin
       raise EIdFailedToRetreiveTimeZoneInfo.Create(RSFailedTimeZoneInfo);
@@ -4481,7 +4485,9 @@ begin
     Result := System.String.Compare(S, 0, SubS, 0, LLen, True) = 0;
     {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, PChar(S), LLen, PChar(SubS), LLen) = 2;
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE,
+      {$IFDEF WINCE}PWideChar{$ELSE} PChar{$ENDIF}(S), LLen,
+      {$IFDEF WINCE}PWideChar {$ELSE}PChar{$ENDIF}(SubS), LLen) = 2;
     {$ELSE}
     Result := AnsiCompareText(Copy(S, 1, LLen), SubS) = 0;
     {$ENDIF}
@@ -4492,8 +4498,11 @@ end;
 function TextEndsWith(const S, SubS: string): Boolean;
 var
   LLen: Integer;
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WIN32_OR_WIN64}
   P: PChar;
+  {$ENDIF}
+  {$IFDEF WINCE}
+  P: PWideChar;
   {$ENDIF}
 begin
   LLen := Length(SubS);
@@ -4504,9 +4513,9 @@ begin
     Result := System.String.Compare(S, Length(S)-LLen, SubS, 0, LLen, True) = 0;
     {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-    P := PChar(S);
+    P := {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(S);
     Inc(P, Length(S)-LLen);
-    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P, LLen, PChar(SubS), LLen) = 2;
+    Result := CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE, P, LLen, {$IFDEF WINCE}PWideChar{$ELSE}PChar{$ENDIF}(SubS), LLen) = 2;
     {$ELSE}
     Result := AnsiCompareText(Copy(S, Length(S)-LLen+1, LLen), SubS) = 0;
     {$ENDIF}
