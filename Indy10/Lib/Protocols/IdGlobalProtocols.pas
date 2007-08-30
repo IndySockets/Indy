@@ -1586,16 +1586,35 @@ function FileSizeByName(const AFilename: TIdFileName): Int64;
 var
   LF : System.IO.FileInfo;
 {$ELSE}
-  {$IFDEF USEINLINE} inline; {$ENDIF}
+   {$IFDEF USEINLINE} inline; {$ENDIF}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+var
+  LFileHandle : THandle;
+  LFindData : TWin32FindData;
+    {$ELSE}
+
+    {$ENDIF}
+
 {$ENDIF}
 begin
   {$IFDEF DOTNET}
   LF := System.IO.FileInfo.Create(AFileName);
   Result := LF.Length;
   {$ELSE}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  LFileHandle := FindFirstFile(
+    {$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LFindData);
+  if LFileHandle <> INVALID_HANDLE_VALUE then begin
+    Windows.FindClose(LFileHandle);
+    Result := Int64(LFindData.nFileSizeHigh) shl 32 +
+                LFindData.nFileSizeLow;
+  end else
+    Result := 0;
+    {$ELSE}
   with TIdReadFileExclusiveStream.Create(AFilename) do try
     Result := Size;
   finally Free; end;
+    {$ENDIF}
   {$ENDIF}
 end;
 
