@@ -194,12 +194,9 @@ type
     function RecvFrom(var ABuffer : TIdBytes; var VIP: string;
       var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
     procedure Reset(const AResetLocal: boolean = True);
-    function Send(
-      const ABuffer: TIdBytes;
-      AOffset: Integer;
-      ASize: Integer = -1
-      ): Integer;
-    procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+    function Send(const ABuffer: TIdBytes; const AOffset: Integer = 0; const ASize: Integer = -1): Integer;
+    procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
+    procedure SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AOffset: Integer; const ASize: Integer; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION); overload;
     procedure SetPeer(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure SetBinding(const AIP: string; const APort: TIdPort; const AIPVersion : TIdIPVersion = ID_DEFAULT_IP_VERSION);
     procedure GetSockOpt(ALevel:TIdSocketOptionLevel; AOptName: TIdSocketOption; out VOptVal: Integer);
@@ -288,25 +285,30 @@ begin
   Result := GStack.Receive(Handle, VBuffer);
 end;
 
-function TIdSocketHandle.Send(
-  const ABuffer: TIdBytes;
-  AOffset: Integer;
-  ASize: Integer = -1
-  ): Integer;
+function TIdSocketHandle.Send(const ABuffer: TIdBytes; const AOffset: Integer = 0;
+  const ASize: Integer = -1): Integer;
 begin
   Result := GStack.Send(Handle, ABuffer, AOffset, ASize);
 end;
 
-procedure TIdSocketHandle.SetSockOpt(ALevel:TIdSocketOptionLevel; 
-      AOptName: TIdSocketOption; AOptVal: Integer);
+procedure TIdSocketHandle.SetSockOpt(ALevel:TIdSocketOptionLevel;
+  AOptName: TIdSocketOption; AOptVal: Integer);
 begin
-  GStack.SetSocketOption(Handle,ALevel,AOptName,AOptVal);
+  GStack.SetSocketOption(Handle, ALevel, AOptName, AOptVal);
 ////  (GStack as TIdStackBSDBase).WSSetSockOpt(Handle, level, optname, optval, optlen);
 end;
 
-procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort; const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
+  const ABuffer : TIdBytes; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
 begin
-  GStack.SendTo(Handle, ABuffer, 0, AIP, APort, AIPVersion);
+  SendTo(AIP, APort, ABuffer, 0, -1, AIPVersion);
+end;
+
+procedure TIdSocketHandle.SendTo(const AIP: string; const APort: TIdPort;
+  const ABuffer : TIdBytes; const AOffset: Integer; const ASize: Integer;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION);
+begin
+  GStack.SendTo(Handle, ABuffer, AOffset, ASize, AIP, APort, AIPVersion);
 end;
 
 function TIdSocketHandle.RecvFrom(var ABuffer : TIdBytes; var VIP: string;
@@ -455,7 +457,7 @@ end;
 function TIdSocketHandle.TryBind: Boolean;
 begin
   try
-    GStack.Bind(Handle, FIP, Port, FIPVersion);
+    GStack.Bind(Handle, FIP, FPort, FIPVersion);
     Result := True;
     UpdateBindingLocal;
   except
