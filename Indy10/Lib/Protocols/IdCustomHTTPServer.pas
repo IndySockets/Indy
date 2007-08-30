@@ -1333,6 +1333,8 @@ begin
 end;
 
 function TIdHTTPResponseInfo.ServeFile(AContext: TIdContext; const AFile: String): Int64;
+var
+  EnableTransferFile: Boolean;
 begin
   if Length(ContentType) = 0 then begin
     ContentType := HTTPServer.MIMETable.GetFileMIMEType(AFile);
@@ -1342,18 +1344,12 @@ begin
     ContentDisposition := IndyFormat('attachment: filename="%s";', [ExtractFileName(AFile)]);
   end;
   WriteHeader;
-  if AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase then
-  begin
-    Result := AContext.Connection.IOHandler.WriteFile(AFile);
-  end
-  else
-  begin
-    Result := AContext.Connection.IOHandler.WriteFile(AFile,True);
-  end;
+  EnableTransferFile := not (AContext.Connection.IOHandler is TIdSSLIOHandlerSocketBase);
+  Result := AContext.Connection.IOHandler.WriteFile(AFile, EnableTransferFile);
 end;
 
-function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext; ARequestInfo: TIdHTTPRequestInfo;
-  const AFile: String): Int64;
+function TIdHTTPResponseInfo.SmartServeFile(AContext: TIdContext;
+  ARequestInfo: TIdHTTPRequestInfo; const AFile: String): Int64;
 var
   LFileDate : TDateTime;
   LReqDate : TDateTime;
