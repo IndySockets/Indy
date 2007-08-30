@@ -4715,8 +4715,10 @@ uses
 
 var
   hWinSockDll : THandle = 0; // WS2_32.DLL handle
+  {$IFNDEF WINCE}
   hMSWSockDll : THandle = 0; // MSWSOCK.DLL handle
-
+  {$ENDIF}
+  
 function WinsockHandle : THandle;
 begin
   Result := hWinSockDll;
@@ -4748,6 +4750,7 @@ begin
   end;
 end;
 
+{$IFNDEF WINCE}
 procedure LoadMSWSock;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -4758,14 +4761,17 @@ begin
     end;
   end;
 end;
+{$ENDIF}
 
 procedure UninitializeWinSock;
 begin
+{$IFNDEF WINCE}
   if hMSWSockDll <> 0 then
   begin
     FreeLibrary(hMSWSockDll);
     hMSWSockDll := 0;
   end;
+{$ENDIF}
   if hWinSockDll <> 0 then
   begin
     WSACleanup;
@@ -4793,7 +4799,7 @@ begin
   if hDll = 0 then begin
     raise EIdWinsockStubError.Build(WSANOTINITIALISED, RSWinsockCallError, [AName]);
   end;
-  Result := Windows.GetProcAddress(hDll, PChar(AName));
+  Result := Windows.GetProcAddress(hDll, {$IFDEF WINCE}PWideChar {$ELSE}PChar {$ENDIF}(AName));
   if Result = nil then begin
     raise EIdWinsockStubError.Build(WSAEINVAL, RSWinsockCallError, [AName]);
   end;
@@ -5367,7 +5373,7 @@ begin
   Result := WSALookupServiceBeginW(qsRestrictions, dwControlFlags, hLookup);
 end;
 
-function Stub_WSALookupServiceBegin(var qsRestrictions: TWSAQuerySet; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
+function Stub_WSALookupServiceBegin(var qsRestrictions: {$IFDEF UNDER_CE}TWSAQuerySetW{$ELSE}TWSAQuerySet{$ENDIF}; const dwControlFlags: DWORD; var hLookup: THandle): Integer; stdcall;
 begin
   {$IFDEF UNICODE}
   @WSALookupServiceBegin := FixupStub(hWinSockDll, 'WSALookupServiceBeginW'); {Do not Localize}
@@ -5529,6 +5535,7 @@ begin
   Result := WSAProviderConfigChange(lpNotificationHandle, AOverlapped, lpCompletionRoutine);
 end;
 
+{$IFNDEF WINCE}
 function Stub_TransmitFile(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite: DWORD;
   nNumberOfBytesPerSend: DWORD; lpOverlapped: POverlapped;
   lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
@@ -5536,13 +5543,14 @@ begin
   @TransmitFile := FixupStubEx(hSocket, 'TransmitFile', WSAID_TRANSMITFILE); {Do not localize}
   Result := TransmitFile(hSocket, hFile, nNumberOfBytesToWrite, nNumberOfBytesPerSend, lpOverlapped, lpTransmitBuffers, dwReserved);
 end;
+{$ENDIF}
 
 {RLebeau 1/26/2006 - loading GetAcceptExSockaddrs() at the same time as AcceptEx().
 This is because GetAcceptExSockaddrs() is not passed a SOCKET that can be passed to
 WSAIoCtrl() to get the function pointer. Also, GetAcceptExSockaddrs() is needed to
 parse AcceptEx()'s return data, so there is no point in calling AcceptEx() unless
 its data can be parsed afterwards.}
-
+{$IFNDEF WINCE}
 function Stub_AcceptEx(sListenSocket, sAcceptSocket: TSocket;
   lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
   dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
@@ -5561,7 +5569,7 @@ begin
   @WSARecvEx := FixupStub(hMSWSockDll, 'WSARecvEx'); {Do not localize}
   Result := WSARecvEx(s, buf, len, flags);
 end;
-
+{$ENDIF}
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
   dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;  stdcall;
 begin
