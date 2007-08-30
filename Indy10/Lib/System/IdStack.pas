@@ -161,7 +161,8 @@ type
   EIdReverseResolveError = class(EIdSocketError);
   EIdNotASocket = class(EIdSocketError);
 
-  TIdServeFile = function(ASocket: TIdStackSocketHandle; AFileName: string): Int64;
+  TIdServeFile = function(ASocket: TIdStackSocketHandle; const AFileName: string): Int64;
+
   TIdPacketInfo = class
   protected
     FSourceIP: String;
@@ -285,7 +286,10 @@ type
              const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
              const AOffset: Integer; const AIP: string; const APort: TIdPort;
-             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; virtual; abstract;
+             const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; overload;
+    function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+             const AOffset: Integer; const ASize: Integer; const AIP: string;
+             const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; overload; virtual; abstract;
     function ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer: TIdBytes; APkt: TIdPacketInfo;
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): LongWord; virtual; abstract;
     function SupportsIPv6: Boolean; virtual; abstract;
@@ -334,7 +338,6 @@ var
   GStack: TIdStack = nil;
   GServeFileProc: TIdServeFile = nil;
   GSocketListClass: TIdSocketListClass;
-
 
 // Procedures
   function IdStackFactory : TIdStack;
@@ -522,6 +525,13 @@ begin
   end //else IPVersionUnsupported; // IPVersionUnsupported is introduced in
                                    // a decendant class, so we can't use it here,
                                    // TODO: move it to this class
+end;
+
+function TIdStack.SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
+  const AOffset: Integer; const AIP: string; const APort: TIdPort;
+  const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
+begin
+  Result := SendTo(ASocket, ABuffer, AOffset, -1, AIP, APort, AIPVersion);
 end;
 
 constructor EIdSocketError.CreateError(const AErr: Integer; const AMsg: string);
