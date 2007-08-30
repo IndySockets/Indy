@@ -251,8 +251,8 @@ type
       var VIP: string; var VPort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION
       ): Integer; override;
     function SendTo(ASocket: TIdStackSocketHandle; const ABuffer: TIdBytes;
-      const AOffset: Integer; const AIP: string; const APort: TIdPort;
-      const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
+      const AOffset: Integer; const ASize: Integer; const AIP: string;
+      const APort: TIdPort; const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer; override;
     procedure SetSocketOption( const ASocket: TIdStackSocketHandle;
       const Alevel, Aoptname: Integer; Aoptval: PChar;
       const Aoptlen: Integer); overload; virtual; abstract;
@@ -294,7 +294,6 @@ type
   EIdInvalidServiceName = class(EIdException);
   EIdStackInitializationFailed = class (EIdStackError);
   EIdStackSetSizeExceeded = class (EIdStackError);
-
 
 
 //for some reason, if GDBSDStack is in the same block as GServeFileProc then
@@ -422,11 +421,11 @@ begin
 end;
 
 function TIdStackBSDBase.SendTo(ASocket: TIdStackSocketHandle;
-  const ABuffer: TIdBytes; const AOffset: Integer; const AIP: string;
-  const APort: TIdPort;
+  const ABuffer: TIdBytes; const AOffset: Integer; const ASize: Integer;
+  const AIP: string; const APort: TIdPort;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): Integer;
 begin
-  Result := IndyLength(ABuffer, -1, AOffset);
+  Result := IndyLength(ABuffer, ASize, AOffset);
   if Result > 0 then begin
     WSSendTo(ASocket, PChar(@ABuffer[AOffset])^, Result, 0, AIP, APort, AIPVersion);
   end;
