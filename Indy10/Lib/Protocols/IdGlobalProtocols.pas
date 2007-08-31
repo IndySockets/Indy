@@ -442,8 +442,8 @@ type
   function FTPLocalDateTimeToMLS(const ATimeStamp : TDateTime; const AIncludeMSecs : Boolean=True): String;
 
   function GetClockValue : Int64;
-  function GetMIMETypeFromFile(const AFile: String): string;
-  function GetMIMEDefaultFileExt(const MIMEType: string): string;
+  function GetMIMETypeFromFile(const AFile: TIdFileName): string;
+  function GetMIMEDefaultFileExt(const MIMEType: string): TIdFileName;
   function GetGMTDateByName(const AFileName : TIdFileName) : TDateTime;
   function GmtOffsetStrToDateTime(S: string): TDateTime;
   function GMTToLocalDateTime(S: string): TDateTime;
@@ -1430,7 +1430,7 @@ var
   i: Integer;
 begin
   SetLength(Result, MAX_PATH);
-  i := GetTempPath(Length(Result), PChar(Result));
+  i := GetTempPath(Length(Result),  {$IFDEF UNICODE}PWideChar{$ELSE}PChar{$ENDIF}(Result));
   SetLength(Result, i);
   Result := IndyIncludeTrailingPathDelimiter(Result);
 end;
