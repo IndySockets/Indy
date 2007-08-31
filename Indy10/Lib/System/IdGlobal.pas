@@ -568,7 +568,7 @@ const
   // the synchro classes and other are all ported directly to portable classes
   // (SyncObjs is platform specific)
   //Infinite = Timeout.Infinite;
-  INFINITE = Cardinal($FFFFFFFF);     { Infinite timeout }
+  INFINITE = LongWord($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
 
   LF = #10;
@@ -737,7 +737,6 @@ type
   {$IFDEF DOTNET}
   Short = System.Int16;
   {$ENDIF}
-
   {$IFDEF UNIX}
   Short = Smallint;  //Only needed for ToBytes(Short) and BytesToShort
   {$ENDIF}
@@ -746,6 +745,7 @@ type
   PShort = ^Short;
     {$ENDIF}
   {$ENDIF}
+
   {$IFDEF VCL4ORABOVE}
     {$IFNDEF VCL6ORABOVE} // Delphi 6 has PCardinal
   PCardinal = ^Cardinal;
@@ -1053,7 +1053,7 @@ procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue 
 function CurrentThreadId: TIdPID;
 function GetThreadHandle(AThread: TThread): THandle;
 //GetTickDiff required because GetTickCount will wrap
-function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal; //IdICMP uses it
+function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
 procedure IdInsert(const Source: string; var S: string; Index: Integer);
 {$IFNDEF DOTNET}
@@ -1068,11 +1068,11 @@ function IPv6AddressToStr(const AValue: TIdIPv6Address): string;
 //Note that there is NO need for Big Endian byte order functions because
 //that's done through HostToNetwork byte order functions.
 function HostToLittleEndian(const AValue : Word) : Word; overload;
-function HostToLittleEndian(const AValue : Cardinal): Cardinal; overload;
+function HostToLittleEndian(const AValue : LongWord): LongWord; overload;
 function HostToLittleEndian(const AValue : Integer): Integer; overload;
 
 function LittleEndianToHost(const AValue : Word) : Word; overload;
-function LittleEndianToHost(const AValue : Cardinal): Cardinal; overload;
+function LittleEndianToHost(const AValue : LongWord): LongWord; overload;
 function LittleEndianToHost(const AValue : Integer): Integer; overload;
 
 procedure WriteMemoryStreamToStream(Src: TMemoryStream; Dest: TStream; Count: int64);
@@ -1111,19 +1111,19 @@ function IndyMin(const AValueOne, AValueTwo: Word): Word; overload;
 function IndyMax(const AValueOne, AValueTwo: Int64): Int64; overload;
 function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
-function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): Cardinal;
+function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
 function OffsetFromUTC: TDateTime;
 
-function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal = 0): Cardinal; //For "ignoreCase" use AnsiUpperCase
+function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: LongWord = 0): LongWord; //For "ignoreCase" use AnsiUpperCase
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
 function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 function ServicesFilePath: string;
 procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
-procedure Sleep(ATime: cardinal);
+procedure Sleep(ATime: LongWord);
 //in Integer(Strings.Objects[i]) - column position in AData
 procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
 procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
@@ -1136,7 +1136,7 @@ function TextEndsWith(const S, SubS: string): Boolean;
 function IndyUpperCase(const A1: string): string;
 function IndyLowerCase(const A1: string): string;
 function IndyCompareStr(const A1: string; const A2: string): Integer;
-function Ticks: Cardinal;
+function Ticks: LongWord;
 procedure ToDo;
 function TwoByteToWord(AByte1, AByte2: Byte): Word;
 
@@ -1280,7 +1280,7 @@ begin
   {$ENDIF}
 end;
 
-function HostToLittleEndian(const AValue : Cardinal) : Cardinal;
+function HostToLittleEndian(const AValue : LongWord) : LongWord;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF DOTNET}
@@ -2272,7 +2272,7 @@ begin
   {$ENDIF}
 end;
 
-function Ticks: Cardinal;
+function Ticks: LongWord;
 {$IFDEF DOTNET}
   {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ENDIF}
@@ -2312,14 +2312,14 @@ begin
     {$IFDEF WINCE}
   if Windows.QueryPerformanceFrequency(@freq) then begin
     if Windows.QueryPerformanceCounter(@nTime) then begin
-      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(Cardinal);
+      Result := Trunc((nTime.QuadPart / Freq.QuadPart) * 1000) and High(LongWord);
       Exit;
     end;
   end;
     {$ELSE}
   if Windows.QueryPerformanceFrequency(freq) then begin
     if Windows.QueryPerformanceCounter(nTime) then begin
-      Result := Trunc((nTime / Freq) * 1000) and High(Cardinal);
+      Result := Trunc((nTime / Freq) * 1000) and High(LongWord);
       Exit;
     end;
   end;
@@ -2336,18 +2336,18 @@ begin
   // There may be a problem in the future if .NET changes this to work as docced with 25 days.
   // Will need to check our routines then and somehow counteract / detect this.
   // One possibility is that we could just wrap it ourselves in this routine.
-  Result := Cardinal(Environment.TickCount);
+  Result := LongWord(Environment.TickCount);
   {$ENDIF}
 end;
 
-function GetTickDiff(const AOldTickCount, ANewTickCount: Cardinal): Cardinal;
+function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {This is just in case the TickCount rolled back to zero}
   if ANewTickCount >= AOldTickCount then begin
     Result := ANewTickCount - AOldTickCount;
   end else begin
-    Result := High(Cardinal) - AOldTickCount + ANewTickCount;
+    Result := High(LongWord) - AOldTickCount + ANewTickCount;
   end;
 end;
 
@@ -2630,7 +2630,7 @@ begin
   end;
 end;
 
-function IPv4ToDWord(const AIPAddress: string): Cardinal; overload;
+function IPv4ToDWord(const AIPAddress: string): LongWord; overload;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LErr: Boolean;
@@ -2741,7 +2741,7 @@ function MakeCanonicalIPv4Address(const AAddr: string): string;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
   LErr: Boolean;
-  LIP: Cardinal;
+  LIP: LongWord;
 begin
   LIP := IPv4ToDWord(AAddr, LErr);
   if LErr then begin
@@ -3027,7 +3027,7 @@ begin
   end;
 end;
 
-function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: Cardinal): Cardinal;
+function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: LongWord): LongWord;
 {$IFDEF DOTNET}
   {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
@@ -3040,7 +3040,7 @@ begin
   end;
 {$ELSE}
   // use best register allocation on Win32
-  function Find(AStartPos, EndPos: Cardinal; StartChar: AnsiChar; const AStr: AnsiString): Cardinal;
+  function Find(AStartPos, EndPos: LongWord; StartChar: AnsiChar; const AStr: AnsiString): LongWord;
   begin
     for Result := AStartPos to EndPos do
       if AStr[Result] = StartChar then
@@ -3049,7 +3049,7 @@ begin
   end;
 
   // use best register allocation on Win32
-  function FindNext(AStartPos, EndPos: Cardinal; const AStr, ASubStr: AnsiString): Cardinal;
+  function FindNext(AStartPos, EndPos: LongWord; const AStr, ASubStr: AnsiString): LongWord;
   begin
     for Result := AStartPos + 1 to EndPos do
       if AStr[Result] <> ASubStr[Result - AStartPos + 1] then
@@ -3059,36 +3059,36 @@ begin
 
 var
   StartChar: AnsiChar;
-  LenSubStr, LenStr: Cardinal;
-  EndPos: Cardinal;
+  LenSubStr, LenStr: LongWord;
+  EndPos: LongWord;
 begin
   if AStartPos = 0 then
     AStartPos := 1;
   Result := 0;
   LenSubStr := Length(ASubStr);
   LenStr := Length(AStr);
-  if (LenSubStr = 0) or (AStr = '') or (LenSubStr > LenStr - (AStartPos - 1)) then
+  if (LenSubStr = 0) or (AStr = '') or (LenSubStr > LenStr - (AStartPos - 1)) then begin
     Exit;
-
+  end;
   StartChar := ASubStr[1];
   EndPos := LenStr - LenSubStr + 1;
-  if LenSubStr = 1 then
+  if LenSubStr = 1 then begin
     Result := Find(AStartPos, EndPos, StartChar, AStr)
-  else
+  end else
   begin
     repeat
       Result := Find(AStartPos, EndPos, StartChar, AStr);
-      if Result = 0 then
+      if Result = 0 then begin
         Break;
+      end;
       AStartPos := Result;
       Result := FindNext(Result, AStartPos + LenSubStr - 1, AStr, ASubStr);
       if Result = 0 then
       begin
         Result := AStartPos;
         Exit;
-      end
-      else
-        Inc(AStartPos);
+      end;
+      Inc(AStartPos);
     until False;
   end;
 {$ENDIF}
@@ -3144,7 +3144,7 @@ begin
   {$ENDIF}
 end;
 
-procedure Sleep(ATime: Cardinal);
+procedure Sleep(ATime: LongWord);
 {$IFNDEF UNIX}
   {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}
