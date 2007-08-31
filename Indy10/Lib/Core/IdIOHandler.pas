@@ -498,7 +498,7 @@ type
     // available (if any) into the buffer. Must NOT raise closure exceptions.
     // It is used to get avialable data, and check connection status. That is
     // it can set status flags about the connection.
-    procedure CheckForDataOnSource(ATimeout: Integer = 0); virtual; abstract;
+    function CheckForDataOnSource(ATimeout: Integer = 0): Boolean; virtual;
     procedure Close; virtual;
     procedure CloseGracefully; virtual;
     class function MakeDefaultIOHandler(AOwner: TComponent = nil)
@@ -1244,6 +1244,15 @@ begin
   end;
 end;
 
+function TIdIOHandler.CheckForDataOnSource(ATimeout: Integer = 0): Boolean;
+begin
+  // return whether at least 1 byte was received
+  Result := False;
+  if Connected then begin
+    Result := ReadFromSource(False, ATimeout, False) > 0;
+  end;
+end;
+
 procedure TIdIOHandler.Write(AStream: TStream; ASize: Int64 = 0;
   AWriteByteCount: Boolean = FALSE);
 var
@@ -1670,24 +1679,25 @@ begin
   LBytes := ToBytes(AString, AEncoding);
   LPos := 0;
   repeat
-    CheckForDataOnSource(250);
-    LPos := InputBuffer.IndexOf(LBytes, LPos);
-    if LPos <> -1 then begin
-      if ARemoveFromBuffer and AInclusive then begin
-        Result := InputBuffer.Extract(LPos+Length(LBytes), AEncoding);
-      end else begin
-        if AInclusive then begin
-          Result := InputBuffer.Extract(LPos, AEncoding) + AString;
+    if CheckForDataOnSource(250) then begin
+      LPos := InputBuffer.IndexOf(LBytes, LPos);
+      if LPos <> -1 then begin
+        if ARemoveFromBuffer and AInclusive then begin
+          Result := InputBuffer.Extract(LPos+Length(LBytes), AEncoding);
         end else begin
-          Result := InputBuffer.Extract(LPos, AEncoding);
+          if AInclusive then begin
+            Result := InputBuffer.Extract(LPos, AEncoding) + AString;
+          end else begin
+            Result := InputBuffer.Extract(LPos, AEncoding);
+          end;
+          if ARemoveFromBuffer then begin
+            InputBuffer.Remove(Length(LBytes));
+          end;
         end;
-        if ARemoveFromBuffer then begin
-          InputBuffer.Remove(Length(LBytes));
-        end;
+        Break;
       end;
-      Break;
+      LPos := IndyMax(0, InputBuffer.Size - (Length(LBytes)-1));
     end;
-    LPos := IndyMax(0, InputBuffer.Size - (Length(LBytes)-1));
     CheckForDisconnect;
   until False;
 end;
