@@ -1520,8 +1520,7 @@ begin
             begin
               FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler,
                 FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
-            end
-            else
+            end else
             begin
               if AFromBeginning then begin
                 FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
@@ -1574,8 +1573,7 @@ begin
         if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
         begin
           FCompressor.CompressFTPToIO(ASource, FDataChannel.IOHandler, FZLibCompressionLevel, FZLibWindowBits, FZLibMemLevel, FZLibStratagy);
-        end
-        else
+        end else
         begin
           if AFromBeginning then begin
             FDataChannel.IOHandler.Write(ASource, 0, False);  // from beginning
@@ -1660,12 +1658,9 @@ begin
           if (FDataPortProtection = ftpdpsPrivate) then begin
             TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).Passthrough := False;
           end;
-          if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
-          begin
+          if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then begin
             FCompressor.DecompressFTPFromIO(LPasvCl.IOHandler, ADest, FZLibWindowBits);
-          end
-          else
-          begin
+          end else begin
             LPasvCl.IOHandler.ReadStream(ADest, -1, True);
           end;
         end;
@@ -1706,12 +1701,9 @@ begin
       if FUsingSFTP and (FDataPortProtection = ftpdpsPrivate) then begin
         TIdSSLIOHandlerSocketBase(FDataChannel.IOHandler).PassThrough := False;
       end;
-      if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then
-      begin
+      if (FCurrentTransferMode = dmDeflate) and FCompressor.IsReady then begin
         FCompressor.DecompressFTPFromIO(LPortSv.IOHandler, ADest, FZLibWindowBits);
-      end
-      else
-      begin
+      end else begin
         FDataChannel.IOHandler.ReadStream(ADest, -1, True);
       end;
     finally
@@ -3501,7 +3493,7 @@ var
 begin
   LRemoteFileName := ARemoteFile;
   if LRemoteFileName = '' then begin
-    LRemoteFileName := ExtractFileName(ARemoteFile);
+    LRemoteFileName := ExtractFileName(ALocalFile);
   end;
   LLocalStream := TIdReadFileExclusiveStream.Create(ALocalFile);
   try
