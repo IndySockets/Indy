@@ -14,10 +14,12 @@ ABSOLUTELY NO CODE is permitted in this unit.
 }
 
 implementation
-
+{$i IdCompilerDefines.inc}
 uses
   {$IFNDEF DOTNET}
+    {$IFNDEF WINCE}
   IdAuthenticationNTLM,
+    {$ENDIF}
   {$ENDIF}
   IdAuthenticationDigest;
 
