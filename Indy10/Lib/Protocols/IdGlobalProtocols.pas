@@ -409,7 +409,7 @@ type
   function ABNFToText(const AText : String) : String;
   function BinStrToInt(const ABinary: String): Integer;
   function BreakApart(BaseString, BreakString: string; StringList: TStrings): TStrings;
-  function LongWordToFourChar(ACardinal : LongWord): string;
+  function LongWordToFourChar(AValue : LongWord): string;
   function CharRange(const AMin, AMax : Char): String;
   Function CharToHex(const APrefix : String; const c : AnsiChar) : shortstring;
   procedure CommaSeparatedToStringList(AList: TStrings; const Value:string);
@@ -480,15 +480,14 @@ type
 
   function StartsWith(const ANSIStr, APattern : String) : Boolean;
 
-  function StrToCard(const AStr: String): Cardinal;
   function StrInternetToDateTime(Value: string): TDateTime;
   function StrToDay(const ADay: string): Byte;
   function StrToMonth(const AMonth: string): Byte;
   function StrToWord(const Value: String): Word;
   function TimeZoneBias: TDateTime;
    //these are for FSP but may also help with MySQL
-  function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
-  function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
+  function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
+  function DateTimeToUnix(ADateTime: TDateTime): LongWord;
 
   function TwoCharToWord(AChar1, AChar2: Char):Word;
   function UpCaseFirst(const AStr: string): string;
@@ -707,7 +706,7 @@ begin
 end;
 
 
-function UnixDateTimeToDelphiDateTime(UnixDateTime: Cardinal): TDateTime;
+function UnixDateTimeToDelphiDateTime(UnixDateTime: LongWord): TDateTime;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
    Result := (UnixDateTime / 86400) + UnixStartDate;
@@ -717,7 +716,7 @@ From: http://homepages.borland.com/efg2lab/Library/UseNet/1999/0309b.txt
    //  Result := EncodeDate(1970, 1, 1) + (UnixDateTime / 86400); {86400=No. of secs. per day}
 end;
 
-function DateTimeToUnix(ADateTime: TDateTime): Cardinal;
+function DateTimeToUnix(ADateTime: TDateTime): LongWord;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   //example: DateTimeToUnix(now);
@@ -733,7 +732,7 @@ begin
 end;
 
 procedure CopyBytesToHostLongWord(const ASource : TIdBytes; const ASourceIndex: Integer;
-  var VDest : Cardinal);
+  var VDest : LongWord);
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   VDest := IdGlobal.BytesToLongWord(ASource, ASourceIndex);
@@ -782,10 +781,10 @@ begin
   Result := APrefix + Result;
 end;
 
-function LongWordToFourChar(ACardinal : LongWord): string;
+function LongWordToFourChar(AValue : LongWord): string;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
-  Result := BytesToString(ToBytes(ACardinal));
+  Result := BytesToString(ToBytes(AValue));
 end;
 
 procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
@@ -825,26 +824,26 @@ end;
 function OrdFourByteToLongWord(AByte1, AByte2, AByte3, AByte4 : Byte): LongWord;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
-  LCardinal: TIdBytes;
+  LValue: TIdBytes;
 begin
-  SetLength(LCardinal, 4);
-  LCardinal[0] := AByte1;
-  LCardinal[1] := AByte2;
-  LCardinal[2] := AByte3;
-  LCardinal[3] := AByte4;
-  Result := BytesToLongWord(LCardinal);
+  SetLength(LValue, 4);
+  LValue[0] := AByte1;
+  LValue[1] := AByte2;
+  LValue[2] := AByte3;
+  LValue[3] := AByte4;
+  Result := BytesToLongWord(LValue);
 end;
 
 procedure LongWordToOrdFourByte(const AValue: LongWord; var VByte1, VByte2, VByte3, VByte4 : Byte);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 var
-  LCardinal: TIdBytes;
+  LValue: TIdBytes;
 begin
-  LCardinal := ToBytes(AValue);
-  VByte1 := LCardinal[0];
-  VByte2 := LCardinal[1];
-  VByte3 := LCardinal[2];
-  VByte4 := LCardinal[3];
+  LValue := ToBytes(AValue);
+  VByte1 := LValue[0];
+  VByte2 := LValue[1];
+  VByte3 := LValue[2];
+  VByte4 := LValue[3];
 end;
 
 function TwoCharToWord(AChar1,AChar2: Char):Word;
@@ -1472,7 +1471,7 @@ end;
 
 function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
 var
-  LNamePart : Cardinal;
+  LNamePart : LongWord;
   LFQE : String;
   LFName: String;
 begin
@@ -1586,34 +1585,33 @@ function FileSizeByName(const AFilename: TIdFileName): Int64;
 var
   LF : System.IO.FileInfo;
 {$ELSE}
-   {$IFDEF USEINLINE} inline; {$ENDIF}
-    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$IFDEF USEINLINE} inline; {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
 var
-  LFileHandle : THandle;
-  LFindData : TWin32FindData;
-    {$ELSE}
-
-    {$ENDIF}
-
+  LHandle : THandle;
+  LRec : TWin32FindData;
+  {$ENDIF}
 {$ENDIF}
 begin
+  Result := 0;
   {$IFDEF DOTNET}
   LF := System.IO.FileInfo.Create(AFileName);
-  Result := LF.Length;
+  if LF.Exists then begin
+    Result := LF.Length;
+  end;
   {$ELSE}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  LFileHandle := FindFirstFile(
-    {$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LFindData);
-  if LFileHandle <> INVALID_HANDLE_VALUE then begin
-    Windows.FindClose(LFileHandle);
-    Result := Int64(LFindData.nFileSizeHigh) shl 32 +
-                LFindData.nFileSizeLow;
-  end else
-    Result := 0;
+  LHandle := Windows.FindFirstFile({$IFDEF WINCE}PWideChar(AFileName){$ELSE}PChar(AFileName){$ENDIF}, LRec);
+  if LHandle <> INVALID_HANDLE_VALUE then begin
+    Windows.FindClose(LHandle);
+    Result := (Int64(LRec.nFileSizeHigh) shl 32) + LRec.nFileSizeLow;
+  end;
     {$ELSE}
-  with TIdReadFileExclusiveStream.Create(AFilename) do try
-    Result := Size;
-  finally Free; end;
+  if FileExists(AFilename) then begin
+    with TIdReadFileExclusiveStream.Create(AFilename) do try
+      Result := Size;
+    finally Free; end;
+  end;
     {$ENDIF}
   {$ENDIF}
 end;
@@ -1646,7 +1644,7 @@ begin
     if (LRec.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then
     begin
       {$IFDEF WINCE}
-      FileTimeToSystemTime(@LRec,@LTime);
+      FileTimeToSystemTime(@LRec, @LTime);
       Result := SystemTimeToDateTime(LTime);
       {$ELSE}
       FileTimeToDosDateTime(LRec.ftLastWriteTime, LongRec(LTime).Hi, LongRec(LTime).Lo);
@@ -1688,12 +1686,6 @@ begin
     //+1 is necessary for the Index because it is one based
     Result := Copy(AStr, LStrLen - Len+1, Len);
   end;
-end;
-
-function StrToCard(const AStr: String): Cardinal;
-{$IFDEF USEINLINE} inline; {$ENDIF}
-begin
-  Result := IndyStrToInt64(AStr, 0);
 end;
 
 function TimeZoneBias: TDateTime;
@@ -2873,8 +2865,8 @@ function GetClockValue : Int64;
 type
   TLong64Rec = record
     case LongInt of
-      0 : (High : Cardinal;
-           Low : Cardinal);
+      0 : (High : LongWord;
+           Low : LongWord);
       1 : (Long : Int64);
     end;
 
