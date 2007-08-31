@@ -420,7 +420,11 @@ var
   Host: PHostEnt;
   LAddr: u_long;
   Hints: TAddrInfo;
+  {$IFDEF UNICODE}
+  AddrInfo: pAddrInfoW;
+  {$ELSE}
   AddrInfo: pAddrInfo;
+  {$ENDIF}
   RetVal: Integer;
 begin
   case AIPVersion of
@@ -440,7 +444,7 @@ begin
       Hints.ai_socktype := Integer(SOCK_STREAM);
       Hints.ai_flags := AI_CANONNAME;
       AddrInfo := nil;
-      RetVal := getaddrinfo(pchar(AAddress), nil, @Hints, @AddrInfo);
+      RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AAddress), nil, @Hints, @AddrInfo);
       try
         if RetVal<>0 then
           RaiseSocketError(gaiErrorToWsaError(RetVal))
@@ -938,7 +942,11 @@ var
   LHost: PHostEnt;
 
   Hints:TAddrInfo;
+  {$IFDEF UNICODE}
+  AddrInfo:pAddrInfoW;
+  {$ELSE}
   AddrInfo:pAddrInfo;
+  {$ENDIF}
   RetVal:integer;
 begin
   case AIPVersion of
@@ -961,7 +969,7 @@ begin
       Hints.ai_family := Id_PF_INET6;
       Hints.ai_socktype := SOCK_STREAM;
       AddrInfo := nil;
-      RetVal := getaddrinfo(pchar(AHostName), nil, @Hints, @AddrInfo);
+      RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AHostName), nil, @Hints, @AddrInfo);
       try
         if RetVal <> 0 then begin
           RaiseSocketError(gaiErrorToWsaError(RetVal));
@@ -1204,6 +1212,8 @@ function TIdStackWindows.ReceiveMsg(ASocket: TIdStackSocketHandle; var VBuffer :
 var
   LIP : String;
   LPort : TIdPort;
+  {Windows CE does not have WSARecvMsg}
+   {$IFNDEF WINCE}
   LSize: PtrUInt;
   LAddr4: TSockAddrIn;
   LAddr6: TSockAddrIn6;
@@ -1213,7 +1223,9 @@ var
   LCurCmsg : LPWSACMSGHDR;   //for iterating through the control buffer
   LCurPt : PInPktInfo;
   LCurPt6 : PIn6PktInfo;
+  {$ENDIF}
 begin
+  {$IFNDEF WINCE}
   //This runs only on WIndowsXP or later
   // XP 5.1 at least, Vista 6.0
   if ((Win32MajorVersion = 5) and (Win32MinorVersion > 0)) or
@@ -1290,10 +1302,13 @@ begin
     until False;
   end else
   begin
+  {$ENDIF}
     Result := RecvFrom(ASocket, VBuffer, Length(VBuffer), 0, LIP, LPort, AIPVersion);
     APkt.SourceIP := LIP;
     APkt.SourcePort := LPort;
+  {$IFNDEF WINCE}
   end;
+  {$ENDIF}
 end;
 
 function TIdStackWindows.CheckIPVersionSupport(const AIPVersion: TIdIPVersion): Boolean;
