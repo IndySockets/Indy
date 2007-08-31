@@ -159,13 +159,13 @@ begin
     // do protocol negotiation first
     DoNegotiate(AContext);
     // Welcome the user
-    if length(LoginMessage) > 0 then
+    if Length(LoginMessage) > 0 then
     begin
       AContext.Connection.IOHandler.WriteLn(LoginMessage);
-      AContext.Connection.IOHandler.WriteLn('');    {Do not Localize}
+      AContext.Connection.IOHandler.WriteLn;    {Do not Localize}
     end;
     // Only prompt for creditentials if there is an authentication handler
-    if assigned(OnAuthentication) then
+    if Assigned(OnAuthentication) then
     begin
       // ask for username/password.
       for i := 1 to LoginAttempts do
@@ -180,11 +180,10 @@ begin
         // Check authentication
         if DoAuthenticate(AContext, Data.Username, Data.Password) then begin
           Break; // exit the loop
-        end else begin
-          AContext.Connection.IOHandler.WriteLn(RSTELNETSRVInvalidLogin); // translate
-          if i = FLoginAttempts then begin
-            raise EIdException.Create(RSTELNETSRVMaxloginAttempt); // translate
-          end;
+        end;
+        AContext.Connection.IOHandler.WriteLn(RSTELNETSRVInvalidLogin); // translate
+        if i = FLoginAttempts then begin
+          raise EIdException.Create(RSTELNETSRVMaxloginAttempt); // translate
         end;
       end;
     end;
