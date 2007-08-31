@@ -122,10 +122,13 @@ const
   SOCKET_INFO_CONNECTION_ENCRYPTED = $00000002;
 
 type
-  {$IFNDEF FPC}
   // RLebeau: find a better place for this
   {$EXTERNALSYM UINT64}
+  {$IFNDEF FPC}
   UINT64 = Int64;
+  {$ENDIF}
+  {$IFDEF FPC}
+   UINT64 = QWord;
   {$ENDIF}
   
   {$NODEFINE PPaddrinfo}
@@ -210,7 +213,8 @@ type
   LPFN_GETNAMEINFOW = function(sa: psockaddr; salen: u_int; host: PWideChar; hostlen: u_int; serv: PWideChar; servlen: u_int; flags: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_FREEADDRINFO}
   LPFN_FREEADDRINFO = procedure(ai: Paddrinfo); stdcall;
-
+  {$EXTERNALSYM LPFN_FREEADDRINFOW}
+  LPFN_FREEADDRINFOW = procedure(ai: PaddrinfoW); stdcall;
 //function GetAdaptersAddresses( Family:cardinal; Flags:cardinal; Reserved:pointer; pAdapterAddresses: PIP_ADAPTER_ADDRESSES; pOutBufLen:pcardinal):cardinal;stdcall;  external iphlpapi_dll;
 
 { the following are not used, nor tested}
@@ -250,6 +254,14 @@ function inet_ntop(af:integer; const src:pointer; dst:pchar;size:integer):pchar;
     timeout : Ptimeval;
     lpOverlapped : LPWSAOVERLAPPED;
     lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; var lpNameHandle : THandle) : Integer; stdcall;
+  {$EXTERNALSYM LPFN_SETADDRINFOEXW}
+  LPFN_SETADDRINFOEXW= function(pName : PWideChar; pServiceName : PWideChar;
+    pAddresses : PSOCKET_ADDRESS; const dwAddressCount : DWord; lpBlob : LPBLOB;
+    const dwFlags : DWord; const dwNameSpace : DWord; lpNspId : LPGUID;
+    timeout : Ptimeval;
+    lpOverlapped : LPWSAOVERLAPPED;
+    lpCompletionRoutine : LPLOOKUPSERVICE_COMPLETION_ROUTINE; var lpNameHandle : THandle) : Integer; stdcall;
+
   {$EXTERNALSYM LPFN_FREEADDRINFOEX}
   LPFN_FREEADDRINFOEX = procedure(pAddrInfoEx : PADDRINFOEXA) ; stdcall;
   {$EXTERNALSYM LPFN_FREEADDRINFOEXW}
