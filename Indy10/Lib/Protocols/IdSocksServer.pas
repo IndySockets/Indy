@@ -249,9 +249,8 @@ var
   function ReadFrom(AFrom: TIdTCPConnection): Integer;
   begin
     AFrom.IOHandler.CheckForDataOnSource(25);
-    Result := AFrom.IOHandler.InputBuffer.Size;
+    Result := IndyMin(AFrom.IOHandler.InputBuffer.Size, cMaxBufSize);
     if Result > 0 then begin
-      Result := IndyMin(Result, cMaxBufSize);
       LBuffer.Position := 0;
       AFrom.IOHandler.InputBuffer.ExtractToStream(LBuffer, Result);
     end;
