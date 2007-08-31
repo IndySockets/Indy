@@ -313,8 +313,10 @@ const
   fn_GetAddrInfo = 'GetAddrInfoW';
   fn_getnameinfo = 'GetNameInfoW';
   fn_freeaddrinfo = 'FreeAddrInfoW';
+     {$IFNDEF WINCE}
   fn_inet_pton = 'InetPtonW';
   fn_inet_ntop = 'InetNtopW';
+     {$ENDIF}
   {$ELSE}
   fn_GetAddrInfoEx = 'GetAddrInfoExA';
   fn_SetAddrInfoEx = 'SetAddrInfoExA';
@@ -322,8 +324,10 @@ const
   fn_GetAddrInfo = 'getaddrinfo';
   fn_getnameinfo = 'getnameinfo';
   fn_freeaddrinfo = 'freeaddrinfo';
+   {$IFNDEF WINCE}
   fn_inet_pton = 'inet_pton';
   fn_inet_ntop = 'inet_ntop';
+     {$ENDIF}
   {$ENDIF}
 
 var
@@ -336,16 +340,20 @@ var
   getaddrinfo: LPFN_GETADDRINFOW = nil;
   getnameinfo: LPFN_GETNAMEINFOW = nil;
   freeaddrinfo: LPFN_FREEADDRINFOW = nil;
+    {$IFNDEF WINCE}
   //These are here for completeness
   inet_pton : LPFN_inet_ptonW = nil;
   inet_ntop : LPFN_inet_ntopW = nil;
+    {$ENDIF}
   {$ELSE}
   getaddrinfo: LPFN_GETADDRINFO = nil;
   getnameinfo: LPFN_GETNAMEINFO = nil;
   freeaddrinfo: LPFN_FREEADDRINFO = nil;
+      {$IFNDEF WINCE}
   //These are here for completeness
   inet_pton : LPFN_inet_pton = nil;
-  inet_ntop : LPFN_inet_ntop = nil;  
+  inet_ntop : LPFN_inet_ntop = nil;
+     {$ENDIF}
   {$ENDIF}
   {
   IMPORTANT!!!
@@ -365,7 +373,7 @@ var
   {$ELSE}
   FreeAddrInfoEx : LPFN_FREEADDRINFOEXW = nil;
   {$ENDIF}
-
+  {$IFNDEF WINCE}
   //Fwpuclnt.dll available for Windows Vista and later
   {$EXTERNALSYM WSASETSOCKETPEERTARGETNAME}
   WSASetSocketPeerTargetName : LPFN_WSASETSOCKETPEERTARGETNAME = nil;
@@ -377,7 +385,8 @@ var
   WSAQUERYSOCKETSECURITY : LPFN_WSAQUERYSOCKETSECURITY = nil;
   {$EXTERNALSYM WSAREVERTIMPERSONATION}
   WSARevertImpersonation : LPFN_WSAREVERTIMPERSONATION = nil;
-
+  {$ENDIF}
+  
 var
   IdIPv6Available: Boolean = False;
 
@@ -392,7 +401,9 @@ var
   hWship6Dll : THandle = 0; // Wship6.dll handle
   //Use this instead of hWship6Dll because this will point to the correct lib.
   hProcHandle : THandle = 0;
+  {$IFNDEF WINCE}
   hfwpuclntDll : THandle = 0;
+  {$ENDIF}
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 begin
@@ -425,22 +436,24 @@ begin
   if h <> 0 then begin
     FreeLibrary(h);
   end;
+  {$IFNDEF WINCE}
   h := InterlockedExchangeTHandle(hfwpuclntDll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
   end;
-
+  {$ENDIF}
   IdIPv6Available := False;
 
   getaddrinfo := nil;
   getnameinfo := nil;
   freeaddrinfo := nil;
-
+  {$IFNDEF WINCE}
   WSASetSocketPeerTargetName := nil;
   WSADeleteSocketPeerTargetName := nil;
   WSAImpersonateSocketPeer := nil;
   WSAQuerySocketSecurity := nil;
   WSARevertImpersonation := nil;
+  {$ENDIF}
 end;
 
 procedure InitLibrary;
@@ -484,12 +497,14 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
         IdIPv6Available := True;
 
         //Additional functions should be initialized here.
+          {$IFNDEF WINCE}
         inet_pton := GetProcAddress(hProcHandle, fn_inet_pton);  {do not localize}
         inet_ntop := GetProcAddress(hProcHandle, fn_inet_ntop);  {do not localize}
+         {$ENDIF}
         GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
         SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
         FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
-
+        {$IFNDEF WINCE}
         hfwpuclntDll := LoadLibrary(fwpuclnt_dll);
         if hfwpuclntDll <> 0 then
         begin
@@ -499,7 +514,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
           WSAQuerySocketSecurity := GetProcAddress(hfwpuclntDll, 'WSAQuerySocketSecurity'); {Do not localize}
           WSARevertImpersonation := GetProcAddress(hfwpuclntDll, 'WSARevertImpersonation'); {Do not localize}
         end;
-
+        {$ENDIF}
         Exit;
       end;
     end;
