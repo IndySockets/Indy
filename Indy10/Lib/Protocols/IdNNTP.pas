@@ -179,9 +179,9 @@ type
   TIdNNTP = class(TIdMessageClient)
   protected
     FGreetingCode : Integer;
-    FlMsgHigh: Integer;
-    FlMsgLow: Integer;
-    FlMsgCount: Integer;
+    FMsgHigh: Integer;
+    FMsgLow: Integer;
+    FMsgCount: Integer;
     FNewsAgent: string;
     FOnNewsgroupList,
     FOnNewGroupsList: TIdEvenTIdNewsgroupList;
@@ -275,9 +275,9 @@ type
     procedure SendAuth;
     //
     property ModeResult: TIdModeSetResult read FModeResult write FModeResult;
-    property MsgCount: Integer read flMsgCount;
-    property MsgHigh: Integer read FlMsgHigh;
-    property MsgLow: Integer read FlMsgLow;
+    property MsgCount: Integer read FMsgCount;
+    property MsgHigh: Integer read FMsgHigh;
+    property MsgLow: Integer read FMsgLow;
     property Permission: TIdNNTPPermission read FPermission;
   published
     property NewsAgent: string read FNewsAgent write FNewsAgent;
@@ -314,7 +314,8 @@ uses
   IdResourceStringsProtocols,
   IdSSL, SysUtils;
 
-Procedure TIdNNTP.ParseXOVER(Aline : String; var AArticleIndex : Integer;
+procedure TIdNNTP.ParseXOVER(Aline : String;
+  var AArticleIndex : Integer;
   var ASubject,
       AFrom : String;
   var ADate : TDateTime;
@@ -326,34 +327,33 @@ Procedure TIdNNTP.ParseXOVER(Aline : String; var AArticleIndex : Integer;
 
 begin
   {Strip backspace and tab junk sequences which occur after a tab separator so they don't throw off any code}
-  ALine := StringReplace(ALine,#9#8#9,#9,[rfReplaceAll]);
+  ALine := StringReplace(ALine, #9#8#9, #9, [rfReplaceAll]);
   {Article Index}
-  AArticleIndex := StrToCard ( Fetch( ALine, #9 ) );
+  AArticleIndex := IndyStrToInt(Fetch(ALine, #9), 0);
   {Subject}
-  ASubject := Fetch ( ALine, #9 );
+  ASubject := Fetch(ALine, #9);
   {From}
-  AFrom := Fetch ( ALine, #9 );
+  AFrom := Fetch(ALine, #9);
   {Date}
-  ADate := GMTToLocalDateTime ( Fetch ( Aline, #9 ) );
+  ADate := GMTToLocalDateTime(Fetch(Aline, #9));
   {Message ID}
-  AMsgId := Fetch ( Aline, #9 );
+  AMsgId := Fetch(Aline, #9);
   {References}
-  AReferences := Fetch( ALine, #9);
+  AReferences := Fetch(ALine, #9);
   {Byte Count}
-  AByteCount := StrToCard(Fetch(ALine,#9));
+  AByteCount := IndyStrToInt(Fetch(ALine, #9), 0);
   {Line Count}
-  ALineCount := StrToCard(Fetch(ALine,#9));
+  ALineCount := IndyStrToInt(Fetch(ALine, #9), 0);
   {Extra data}
   AExtraData := ALine;
 end;
 
-Procedure TIdNNTP.ParseNewsGroup(ALine : String; out ANewsGroup : String;
-            out AHi, ALo : Integer;
-            out AStatus : String);
+procedure TIdNNTP.ParseNewsGroup(ALine : String; out ANewsGroup : String;
+  out AHi, ALo : Integer; out AStatus : String);
 begin
   ANewsgroup := Fetch(ALine, ' ');
-  AHi := StrToCard(Fetch(Aline, ' '));
-  ALo := StrToCard(Fetch(ALine, ' '));
+  AHi := IndyStrToInt(Fetch(Aline, ' '), 0);
+  ALo := IndyStrToInt(Fetch(ALine, ' '), 0);
   AStatus := ALine;
 end;
 
@@ -465,9 +465,9 @@ var
 begin
   SendCmd('Group ' + AGroup, [211]);  {do not localize}
   s := LastCmdResult.Text[0];
-  FlMsgCount := StrToCard(Fetch(s));
-  FlMsgLow := StrToCard(Fetch(s));
-  FlMsgHigh := StrToCard(Fetch(s));
+  FMsgCount := IndyStrToInt(Fetch(s), 0);
+  FMsgLow := IndyStrToInt(Fetch(s), 0);
+  FMsgHigh := IndyStrToInt(Fetch(s), 0);
 end;
 
 { This method will send messages via the IHAVE command.
