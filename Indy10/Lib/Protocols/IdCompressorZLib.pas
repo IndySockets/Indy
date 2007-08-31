@@ -120,23 +120,12 @@ var
     //raise an exception that we don't want.
     repeat
       AIOHandler.CheckForDataOnSource(1);
-      Result := AIOHandler.InputBuffer.Size;
-      if Result > AMax then
-      begin
-        Result := AMax;
+      Result := IndyMin(AIOHandler.InputBuffer.Size, AMax);
+      if Result > 0 then begin
+        AIOHandler.InputBuffer.ExtractToBytes(ABuffer, Result, False);
+        Break;
       end;
-      if Result>0 then
-      begin
-        AIOHandler.InputBuffer.ExtractToBytes(ABuffer,Result,False);
-      end
-      else
-      begin
-        if not AIOHandler.connected then
-        begin
-          break;
-        end;
-      end;
-    until (Result > 0)
+    until not AIOHandler.Connected;
   end;
 
 begin
