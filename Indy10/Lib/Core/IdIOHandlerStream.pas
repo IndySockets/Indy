@@ -143,7 +143,6 @@ type
     function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
     function SourceIsAvailable: Boolean; override;
   public
-    procedure CheckForDataOnSource(ATimeout: Integer = 0); override;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
       AIgnoreBuffer: Boolean = False); override;
     constructor Create(AOwner: TComponent; AReceiveStream: TStream; ASendStream: TStream = nil); reintroduce; overload; virtual;
@@ -168,13 +167,6 @@ uses
   SysUtils;
 
 { TIdIOHandlerStream }
-
-procedure TIdIOHandlerStream.CheckForDataOnSource(ATimeout: Integer = 0);
-begin
-  if Connected then begin
-    ReadFromSource(False, ATimeout, False);
-  end;
-end;
 
 procedure TIdIOHandlerStream.CheckForDisconnect(
   ARaiseExceptionIfDisconnected: Boolean = True;

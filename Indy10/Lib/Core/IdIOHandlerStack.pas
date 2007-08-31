@@ -193,7 +193,6 @@ type
     function ReadDataFromSource(var VBuffer: TIdBytes): Integer; override;
     function WriteDataToTarget(const ABuffer: TIdBytes; const AOffset, ALength: Integer): Integer; override;
   public
-    procedure CheckForDataOnSource(ATimeout: Integer = 0); override;
     procedure CheckForDisconnect(ARaiseExceptionIfDisconnected: Boolean = True;
       AIgnoreBuffer: Boolean = False); override;
     function Connected: Boolean; override;
@@ -397,13 +396,6 @@ begin
     if (InputBufferIsEmpty or AIgnoreBuffer) and ARaiseExceptionIfDisconnected then begin
       RaiseConnClosedGracefully;
     end;
-  end;
-end;
-
-procedure TIdIOHandlerStack.CheckForDataOnSource(ATimeout: Integer);
-begin
-  if Connected then begin
-    ReadFromSource(False, ATimeout, False);
   end;
 end;
 
