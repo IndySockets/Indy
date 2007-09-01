@@ -1512,7 +1512,7 @@ begin
   end;
 
   if CtxMode = sslCtxServer then begin
-    IdSSLCtxSetSessionIdContext(fContext, PChar(@fSessionId), SizeOf(fSessionId));
+    IdSSLCtxSetSessionIdContext(fContext, PByte(@fSessionId), SizeOf(fSessionId));
   end;
 
   // CA list
@@ -1996,7 +1996,7 @@ end;
 
 function TIdX509Fingerprints.GetMD5: TEVP_MD;
 begin
-   IdSslX509Digest(FX509, IdSslEvpMd5, PChar(@Result.MD), Result.Length);
+   IdSslX509Digest(FX509, IdSslEvpMd5, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetMD5AsString: String;
@@ -2016,7 +2016,7 @@ end;
 
 function TIdX509Fingerprints.GetSHA1: TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA1, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA1, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA1AsString: String;
@@ -2029,7 +2029,7 @@ end;
 
 function TIdX509Fingerprints.GetSHA224 : TEVP_MD;
 begin
-   IdSslX509Digest(FX509, IdSslEvpSHA224, PChar(@Result.MD), Result.Length);
+   IdSslX509Digest(FX509, IdSslEvpSHA224, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA224AsString : String;
@@ -2042,7 +2042,7 @@ end;
 
 function TIdX509Fingerprints.GetSHA256 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA256, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA256, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA256AsString : String;
@@ -2055,7 +2055,7 @@ end;
 
 function TIdX509Fingerprints.GetSHA386 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA386, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA386, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA386AsString : String;
@@ -2068,7 +2068,7 @@ end;
 
 function TIdX509Fingerprints.GetSHA512 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA512, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpSHA512, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509Fingerprints.GetSHA512AsString : String;
@@ -2181,7 +2181,7 @@ end;
 
 function TIdX509.RFingerprint: TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpMd5, PChar(@Result.MD), Result.Length);
+  IdSslX509Digest(FX509, IdSslEvpMd5, PByte(@Result.MD), Result.Length);
 end;
 
 function TIdX509.RFingerprintAsString: String;
