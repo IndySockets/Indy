@@ -1286,11 +1286,12 @@ type
   PWSAOverlapped  = ^TWSAOverlapped;
   {$EXTERNALSYM LPWSAOVERLAPPED}
   LPWSAOVERLAPPED = PWSAOverlapped;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSC_PROVIDER_INFO_TYPE}
   {$EXTERNALSYM PROVIDERINFOLSPCATEGORIES}
   {$EXTERNALSYM PROVIDERINFOAUDIT}
   WSC_PROVIDER_INFO_TYPE = (ProviderInfoLspCategories, ProviderInfoAudit);
-
+  {$ENDIF}
 { WinSock 2 extension -- WSABUF and QOS struct, include qos.h }
 { to pull in FLOWSPEC and related definitions }
 
@@ -1400,7 +1401,7 @@ type
   LPWSANETWORKEVENTS = PWSANetworkEvents;
 
 //TransmitFile types used for the TransmitFile API function in WinNT/2000/XP
-{$IFNDEF UNDER_CE}
+//not sure why its defined in WinCE when TransmitFile is not available.
   {$IFNDEF NOREDECLARE}
   {$EXTERNALSYM TRANSMIT_FILE_BUFFERS}
   TRANSMIT_FILE_BUFFERS = record
@@ -1416,7 +1417,6 @@ type
   {$ENDIF}
   {$EXTERNALSYM LPTRANSMIT_FILE_BUFFERS}
   LPTRANSMIT_FILE_BUFFERS = PTransmitFileBuffers;
-{$ENDIF}
 
 const
   {$EXTERNALSYM TP_ELEMENT_MEMORY}
@@ -1437,6 +1437,7 @@ const
   {$EXTERNALSYM TP_USE_KERNEL_APC}
   TP_USE_KERNEL_APC     = TF_USE_KERNEL_APC;
 
+{$IFNDEF UNDER_CE}
 type
   {$EXTERNALSYM TRANSMIT_PACKETS_ELEMENT}
   TRANSMIT_PACKETS_ELEMENT = record
@@ -1465,6 +1466,7 @@ type
   PGUID = ^TGUID;
   {$EXTERNALSYM LPGUID}
   LPGUID = PGUID;
+{$ENDIF}
 
 //  WinSock 2 extension -- WSAPROTOCOL_INFO manifest constants
 const
@@ -2262,6 +2264,7 @@ type
   LPWSANAMESPACE_INFO = LPWSANAMESPACE_INFOA;
   {$ENDIF}
 
+{$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAMSG}
   WSAMSG = record
     name : PSOCKADDR;  ///* Remote address */
@@ -2304,7 +2307,7 @@ type
   PWSAPOLLFD = ^TWSAPOLLFD;
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
-
+{$ENDIF}
 
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
@@ -2444,6 +2447,9 @@ type
   {$EXTERNALSYM LPFN_WSAGETLASTERROR}
   LPFN_WSAGETLASTERROR = function: Integer; stdcall;
 {$IFNDEF UNDER_CE}
+  {$EXTERNALSYM LPFN_WSACANCELASYNCREQUEST}
+  LPFN_WSACANCELASYNCREQUEST = function(hAsyncTaskHandle: THandle): Integer; stdcall;
+
   {$EXTERNALSYM LPFN_WSAISBLOCKING}
   LPFN_WSAISBLOCKING = function: BOOL; stdcall;
   {$EXTERNALSYM LPFN_WSAUNHOOKBLOCKINGHOOK}
@@ -2464,11 +2470,9 @@ type
   LPFN_WSAASYNCGETHOSTBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETHOSTBYADDR}
   LPFN_WSAASYNCGETHOSTBYADDR = function(HWindow: HWND; wMsg: u_int; addr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
-{$ENDIF} 
-  {$EXTERNALSYM LPFN_WSACANCELASYNCREQUEST}
-  LPFN_WSACANCELASYNCREQUEST = function(hAsyncTaskHandle: THandle): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCSELECT}
   LPFN_WSAASYNCSELECT = function(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
+{$ENDIF}
   {$EXTERNALSYM LPFN___WSAFDISSET}
   LPFN___WSAFDISSET = function(const s: TSocket; var FDSet: TFDSet): Bool; stdcall;
 
@@ -2604,10 +2608,12 @@ type
   LPFN_WSASOCKET = LPFN_WSASOCKETA;
   {$ENDIF}
 
+   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSAWAITFORMULTIPLEEVENTS}
   LPFN_WSAWAITFORMULTIPLEEVENTS = function(cEvents : DWORD; lphEvents : PWSAEVENT; fWaitAll : LongBool;
       dwTimeout : DWORD; fAlertable : LongBool): DWORD; stdcall;
-
+  {$ENDIF}
+  
   {$EXTERNALSYM LPFN_WSAADDRESSTOSTRINGA}
   LPFN_WSAADDRESSTOSTRINGA = function(lpsaAddress : PSOCKADDR; const dwAddressLength : DWORD; const lpProtocolInfo : LPWSAPROTOCOL_INFOA;
       const lpszAddressString : PChar; var lpdwAddressStringLength : DWORD): Integer; stdcall;
@@ -2656,9 +2662,10 @@ type
   {$ELSE}
   LPFN_WSALOOKUPSERVICENEXT = LPFN_WSALOOKUPSERVICENEXTA;
   {$ENDIF}
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSANSPIOCTL}
   LPFN_WSANSPIOCTL = function(const hLookup : THANDLE; const dwControlCode : DWORD;  lpvInBuffer : Pointer; var cbInBuffer : DWORD; lpvOutBuffer : Pointer; var cbOutBuffer : DWORD; var lpcbBytesReturned : DWORD; lpCompletion : LPWSACOMPLETION) : Integer; stdcall;
-
+  {$ENDIF}
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEEND}
   LPFN_WSALOOKUPSERVICEEND = function(const hLookup : THandle): Integer; stdcall;
 
@@ -2694,11 +2701,11 @@ type
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSW}
   LPFN_WSAENUMNAMESPACEPROVIDERSW = function(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOW): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERS}
-{$IFDEF UNICODE}
+  {$IFDEF UNICODE}
   LPFN_WSAENUMNAMESPACEPROVIDERS = LPFN_WSAENUMNAMESPACEPROVIDERSW;
-{$ELSE}
+  {$ELSE}
   LPFN_WSAENUMNAMESPACEPROVIDERS = LPFN_WSAENUMNAMESPACEPROVIDERSA;
-{$ENDIF}
+  {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PChar; var lpdwBufferLength: DWORD): Integer; stdcall;
@@ -2726,6 +2733,7 @@ type
   LPFN_WSAPROVIDERCONFIGCHANGE = function(var lpNotificationHandle : THandle; lpOverlapped : LPWSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
 
   //microsoft specific extension
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_GETACCEPTEXSOCKADDRS}
   LPFN_GETACCEPTEXSOCKADDRS = procedure(lpOutputBuffer: Pointer;
     dwReceiveDataLength, dwLocalAddressLength, dwRemoteAddressLength: DWORD;
@@ -2748,8 +2756,10 @@ type
   LPFN_WSASENDMSG = function(const s : TSocket; lpMsg : LPWSAMSG; const dwFlags : DWORD; var lpNumberOfBytesSent : DWORD;  lpOverlapped : LPWSAOVERLAPPED;  lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAPOLL}
   LPFN_WSAPOLL = function(fdarray : LPWSAPOLLFD; const nfds : u_long; const timeout : Integer) : Integer; stdcall;
+  {$ENDIF}
 {$ENDIF} // $IFDEF INCL_WINSOCK_API_TYPEDEFS
 
+{$IFNDEF UNDER_CE}
 const
   //GUID's for Microsoft extensions
   {$EXTERNALSYM WSAID_ACCEPTEX}
@@ -2770,6 +2780,7 @@ const
   WSAID_WSARECVMSG: TGuid = (D1:$f689d7c8;D2:$6f1f;D3:$436b;D4:($8a,$53,$e5,$4f,$e3,$51,$c3,$22));
   {$EXTERNALSYM WSAID_WSASENDMSG}
   WSAID_WSASENDMSG : TGuid = (D1:$a441e712;D2:$754f;D3:$43ca;D4:($84,$a7,$0d,$ee,$44,$cf,$60,$6d));
+{$ENDIF}
 
 {$IFDEF WS2_DLL_FUNC_VARS}
 var
@@ -2868,9 +2879,9 @@ var
   WSAAsyncGetHostByAddr : LPFN_WSAASYNCGETHOSTBYADDR = nil;
   {$EXTERNALSYM WSACancelAsyncRequest}
   WSACancelAsyncRequest : LPFN_WSACANCELASYNCREQUEST = nil;
-{$ENDIF}
   {$EXTERNALSYM WSAAsyncSelect}
   WSAAsyncSelect : LPFN_WSAASYNCSELECT = nil;
+{$ENDIF}
   {$EXTERNALSYM __WSAFDIsSet}
   __WSAFDIsSet : LPFN___WSAFDISSET = nil;
   {$EXTERNALSYM WSAAccept}
@@ -2935,8 +2946,10 @@ var
   WSASocketW : LPFN_WSASOCKETW = nil;
   {$EXTERNALSYM WSASocket}
   WSASocket : LPFN_WSASOCKET = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAWaitForMultipleEvents}
   WSAWaitForMultipleEvents : LPFN_WSAWAITFORMULTIPLEEVENTS = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAAddressToStringA}
   WSAAddressToStringA : LPFN_WSAADDRESSTOSTRINGA = nil;
   {$EXTERNALSYM WSAAddressToStringW}
@@ -2997,7 +3010,7 @@ var
   WSASetService : LPFN_WSASETSERVICE = nil;
   {$EXTERNALSYM WSAProviderConfigChange}
   WSAProviderConfigChange : LPFN_WSAPROVIDERCONFIGCHANGE = nil;
-{$IFNDEF UNDER_CE}
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM TransmitFile}
   TransmitFile : LPFN_TRANSMITFILE = nil;
   {$EXTERNALSYM AcceptEx}
@@ -3006,7 +3019,7 @@ var
   GetAcceptExSockaddrs : LPFN_GETACCEPTEXSOCKADDRS = nil;
   {$EXTERNALSYM WSARecvEx}
   WSARecvEx : LPFN_WSARECVEX = nil;
-{$ENDIF}
+
   {$EXTERNALSYM ConnectEx}
   ConnectEx : LPFN_CONNECTEX = nil;
   {$EXTERNALSYM DisconnectEx}
@@ -3022,6 +3035,7 @@ var
   WSASendMsg: LPFN_WSASENDMSG = nil;
   {$EXTERNALSYM WSAPoll}
   WSAPoll: LPFN_WSAPOLL = nil;
+  {$ENDIF}
 {$ENDIF} // $IFDEF WS2_DLL_FUNC_VARS
 
   { Macros }
@@ -3047,6 +3061,7 @@ var
   {$EXTERNALSYM FD_ZERO}
   procedure FD_ZERO(var FDSet: TFDSet);
 
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSA_CMSGHDR_ALIGN}
   function WSA_CMSGHDR_ALIGN(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSGDATA_ALIGN}
@@ -3061,7 +3076,8 @@ var
   function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_LEN}
   function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
-
+  {$ENDIF}
+  
 //=============================================================
 
 {
@@ -3082,6 +3098,7 @@ var
 	Rev 0.4	Dec 15, 1996
 }
 
+{$IFNDEF UNDER_CE}
 type
 // Argument structure for IP_ADD_MEMBERSHIP and IP_DROP_MEMBERSHIP
   {$EXTERNALSYM ip_mreq}
@@ -3111,6 +3128,7 @@ type
 
   {$EXTERNALSYM IP_MSFILTER_SIZE}
   function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
+{$ENDIF}
 
 // TCP/IP specific Ioctl codes
 const
@@ -3216,6 +3234,7 @@ type
   {$EXTERNALSYM LPIN6_ADDR}
   LPIN6_ADDR = PIN6_ADDR;
 
+{$IFNDEF UNDER_CE}
   {$IFNDEF NOREDECLARE}
   // Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP
   {$EXTERNALSYM ipv6_mreq}
@@ -3224,6 +3243,7 @@ type
     ipv6mr_interface: u_int; // Interface index
   end;
  {$ENDIF}
+{$ENDIF}
 
   // Old IPv6 socket address structure (retained for sockaddr_gen definition below)
   {$EXTERNALSYM sockaddr_in6_old}
@@ -3597,6 +3617,7 @@ type
     {$ENDIF}
   {$ENDIF}
 
+{$IFNDEF UNDER_CE}
 type
 // structure for IP_PKTINFO option
   {$EXTERNALSYM IN_PKTINFO}
@@ -3619,6 +3640,7 @@ type
   TIn6PktInfo = IN6_PKTINFO;
   {$NODEFINE PIn6PktInfo}
   PIn6PktInfo = ^TIn6PktInfo;
+{$ENDIF}
 
 // Error codes from getaddrinfo()
 const
@@ -4737,14 +4759,18 @@ so it should give us the numbers.
 
 }
 const
+  {$IFNDEF UNDER_CE}
  {$EXTERNALSYM SIZE_WSACMSGHDR}
   SIZE_WSACMSGHDR = DWORD(SizeOf(WSACMSGHDR));
+  {$ENDIF}
   {$EXTERNALSYM SIZE_FARPROC}
   SIZE_FARPROC = DWORD(SizeOf(FARPROC));
   {$EXTERNALSYM MAX_NATURAL_ALIGNMENT_SUB_1}
   MAX_NATURAL_ALIGNMENT_SUB_1 = DWORD(MAX_NATURAL_ALIGNMENT - 1);
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SIZE_IP_MSFILTER}
   SIZE_IP_MSFILTER = DWORD(SizeOf(ip_msfilter));
+  {$ENDIF}
   {$EXTERNALSYM SIZE_TINADDR}
   SIZE_TINADDR = DWORD(SizeOf(TInAddr));
   {$EXTERNALSYM SIZE_TIN6ADDR}
@@ -4759,8 +4785,10 @@ const
   SIZE_TADDRINFO = DWORD(SizeOf(TAddrInfo));
   {$EXTERNALSYM SIZE_SOCKADDR_STORAGE}
   SIZE_SOCKADDR_STORAGE = DWORD(sizeof(SOCKADDR_STORAGE));
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SIZE_TWSAMSG}
   SIZE_TWSAMSG = DWORD(SizeOf(TWSAMSG));
+  {$ENDIF}
   {$EXTERNALSYM SIZE_GUID}
   SIZE_GUID = DWORD(SizeOf(TGuid));
   {$EXTERNALSYM SIZE_INTEGER}
@@ -5156,13 +5184,13 @@ begin
   @WSACancelAsyncRequest := FixupStub(hWinSockDll, 'WSACancelAsyncRequest'); {Do not Localize}
   Result := WSACancelAsyncRequest(hAsyncTaskHandle);
 end;
-{$ENDIF}
 
 function Stub_WSAAsyncSelect(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
 begin
   @WSAAsyncSelect := FixupStub(hWinSockDll, 'WSAAsyncSelect'); {Do not Localize}
   Result := WSAAsyncSelect(s, HWindow, wMsg, lEvent);
 end;
+{$ENDIF}
 
 function Stub___WSAFDIsSet(const s: TSocket; var FDSet: TFDSet): Bool; stdcall;
 begin
@@ -5368,11 +5396,13 @@ begin
   Result := WSASocket(af, iType, protocol, lpProtocolInfo, g, dwFlags);
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSAWaitForMultipleEvents(cEvents: DWORD; lphEvents: Pwsaevent; fWaitAll: LongBool; dwTimeout: DWORD; fAlertable: LongBool): DWORD; stdcall;
 begin
   @WSAWaitForMultipleEvents := FixupStub(hWinSockDll, 'WSAWaitForMultipleEvents'); {Do not Localize}
   Result := WSAWaitForMultipleEvents(cEvents, lphEvents, fWaitAll, dwTimeout, fAlertable);
 end;
+{$ENDIF}
 
 function Stub_WSAAddressToStringA(lpsaAddress: PSockAddr; const dwAddressLength: DWORD; const lpProtocolInfo: LPWSAPROTOCOL_INFOA; const lpszAddressString: PChar; var lpdwAddressStringLength: DWORD): Integer; stdcall;
 begin
@@ -5466,6 +5496,13 @@ begin
   Result := WSALookupServiceNext(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
+function Stub_WSALookupServiceEnd(const hLookup: THandle): Integer; stdcall;
+begin
+  @WSALookupServiceEnd := FixupStub(hWinSockDll, 'WSALookupServiceEnd'); {Do not Localize}
+  Result := WSALookupServiceEnd(hLookup);
+end;
+
+{$IFNDEF UNDER_CE}
 function Stub_WSANSPIoctl(const hLookup : THANDLE; const dwControlCode : DWORD;
   lpvInBuffer : Pointer; var cbInBuffer : DWORD; lpvOutBuffer : Pointer;
   var cbOutBuffer : DWORD; var lpcbBytesReturned : DWORD;
@@ -5475,12 +5512,7 @@ begin
   Result := WSANSPIoctl(hLookup,dwControlCode,lpvInBuffer,cbInBuffer,lpvOutBuffer,
     cbOutBuffer, lpcbBytesReturned,lpCompletion);
 end;
-
-function Stub_WSALookupServiceEnd(const hLookup: THandle): Integer; stdcall;
-begin
-  @WSALookupServiceEnd := FixupStub(hWinSockDll, 'WSALookupServiceEnd'); {Do not Localize}
-  Result := WSALookupServiceEnd(hLookup);
-end;
+{$ENDIF}
 
 function Stub_WSAInstallServiceClassA(const lpServiceClassInfo: LPWSASERVICECLASSINFOA): Integer; stdcall;
 begin
@@ -5621,7 +5653,7 @@ This is because GetAcceptExSockaddrs() is not passed a SOCKET that can be passed
 WSAIoCtrl() to get the function pointer. Also, GetAcceptExSockaddrs() is needed to
 parse AcceptEx()'s return data, so there is no point in calling AcceptEx() unless
 its data can be parsed afterwards.}
-{$IFNDEF WINCE}
+{$IFNDEF UNDER_CE}
 function Stub_AcceptEx(sListenSocket, sAcceptSocket: TSocket;
   lpOutputBuffer: Pointer; dwReceiveDataLength, dwLocalAddressLength,
   dwRemoteAddressLength: DWORD; var lpdwBytesReceived: DWORD;
@@ -5640,7 +5672,7 @@ begin
   @WSARecvEx := FixupStub(hMSWSockDll, 'WSARecvEx'); {Do not localize}
   Result := WSARecvEx(s, buf, len, flags);
 end;
-{$ENDIF}
+
 function Stub_ConnectEx(const s : TSocket; const name: PSockAddr; const namelen: Integer; lpSendBuffer : Pointer;
   dwSendDataLength : DWORD; var lpdwBytesSent : DWORD; lpOverlapped : LPWSAOVERLAPPED) : BOOL;  stdcall;
 begin
@@ -5678,11 +5710,12 @@ begin
   @WSAPoll := FixupStubEx(fdarray.fd, 'WSAPoll', WSAID_WSAPOLL); {Do not localize}
   Result := WSAPoll(fdarray, nfds, timeout);
 end;
+{$ENDIF}
 
 procedure InitializeStubs;
+{Alphabetize these so we can more easily determine what's available on a platform.
+by section in Winsock SDK reference}
 begin
-  WSAStartup                       := Stub_WSAStartup;
-  WSACleanup                       := Stub_WSACleanup;
   accept                           := Stub_accept;
   bind                             := Stub_bind;
   closesocket                      := Stub_closesocket;
@@ -5703,37 +5736,47 @@ begin
   select                           := Stub_select;
   send                             := Stub_send;
   sendto                           := Stub_sendto;
+  {$IFDEF UNDER_CE}
+  sethostname                      := Stub_sethostname;
+  {$ENDIF}  
   setsockopt                       := Stub_setsockopt;
   shutdown                         := Stub_shutdown;
   socket                           := Stub_socket;
   gethostbyaddr                    := Stub_gethostbyaddr;
   gethostbyname                    := Stub_gethostbyname;
   gethostname                      := Stub_gethostname;
-  {$IFDEF UNDER_CE}
-  sethostname                      := Stub_sethostname;
-  {$ENDIF}
   getservbyport                    := Stub_getservbyport;
   getservbyname                    := Stub_getservbyname;
   getprotobynumber                 := Stub_getprotobynumber;
   getprotobyname                   := Stub_getprotobyname;
-  WSASetLastError                  := Stub_WSASetLastError;
-  WSAGetLastError                  := Stub_WSAGetLastError;
+  //extensions
+  __WSAFDIsSet                     := Stub___WSAFDIsSet;
   {$IFNDEF UNDER_CE}
-  WSAIsBlocking                    := Stub_WSAIsBlocking;
-  WSAUnhookBlockingHook            := Stub_WSAUnhookBlockingHook;
-  WSASetBlockingHook               := Stub_WSASetBlockingHook;
-  WSACancelBlockingCall            := Stub_WSACancelBlockingCall;
-  WSAAsyncGetServByName            := Stub_WSAAsyncGetServByName;
-  WSAAsyncGetServByPort            := Stub_WSAAsyncGetServByPort;
+  AcceptEx                         := Stub_AcceptEx;
+  //GetAcceptExSockaddrs is loaded by Stub_AcceptEx
+  ConnectEx                        := Stub_ConnectEx;
+  DisconnectEx                     := Stub_DisconnectEx;
+  TransmitFile                     := Stub_TransmitFile;
+  TransmitPackets                  := Stub_TransmitPackets;
+  {$ENDIF}
+  WSAAccept                        := Stub_WSAAccept;
+  {$IFNDEF UNDER_CE}
+  WSACancelAsyncRequest            := Stub_WSACancelAsyncRequest;
+  WSAAsyncGetHostByAddr            := Stub_WSAAsyncGetHostByAddr;
+  WSAAsyncGetHostByName            := Stub_WSAAsyncGetHostByName;
   WSAAsyncGetProtoByName           := Stub_WSAAsyncGetProtoByName;
   WSAAsyncGetProtoByNumber         := Stub_WSAAsyncGetProtoByNumber;
-  WSAAsyncGetHostByName            := Stub_WSAAsyncGetHostByName;
-  WSAAsyncGetHostByAddr            := Stub_WSAAsyncGetHostByAddr;
-  WSACancelAsyncRequest            := Stub_WSACancelAsyncRequest;
-  {$ENDIF}
+  WSAAsyncGetServByName            := Stub_WSAAsyncGetServByName;
+  WSAAsyncGetServByPort            := Stub_WSAAsyncGetServByPort;
   WSAAsyncSelect                   := Stub_WSAAsyncSelect;
-  __WSAFDIsSet                     := Stub___WSAFDIsSet;
-  WSAAccept                        := Stub_WSAAccept;
+  {$ENDIF}
+  WSAAddressToStringA              := Stub_WSAAddressToStringA;
+  WSAAddressToStringW              := Stub_WSAAddressToStringW;
+  WSAAddressToString               := Stub_WSAAddressToString;
+  {$IFNDEF UNDER_CE}
+  WSACancelBlockingCall            := Stub_WSACancelBlockingCall;
+  {$ENDIF}
+  WSACleanup                       := Stub_WSACleanup;
   WSACloseEvent                    := Stub_WSACloseEvent;
   WSAConnect                       := Stub_WSAConnect;
   WSACreateEvent                   := Stub_WSACreateEvent;
@@ -5745,40 +5788,64 @@ begin
   WSAEnumProtocolsW                := Stub_WSAEnumProtocolsW;
   WSAEnumProtocols                 := Stub_WSAEnumProtocols;
   WSAEventSelect                   := Stub_WSAEventSelect;
+  WSAGetLastError                  := Stub_WSAGetLastError;
   WSAGetOverlappedResult           := Stub_WSAGetOverlappedResult;
   WSAGetQOSByName                  := Stub_WSAGetQOSByName;
   WSAHtonl                         := Stub_WSAHtonl;
   WSAHtons                         := Stub_WSAHtons;
   WSAIoctl                         := Stub_WSAIoctl;
+  {$IFNDEF WINCE}
+  WSAIsBlocking                    := Stub_WSAIsBlocking;
+  {$ENDIF}
   WSAJoinLeaf                      := Stub_WSAJoinLeaf;
-  WSANtohl                         := Stub_WSANtohl;
-  WSANtohs                         := Stub_WSANtohs;
-  WSARecv                          := Stub_WSARecv;
-  WSARecvDisconnect                := Stub_WSARecvDisconnect;
-  WSARecvFrom                      := Stub_WSARecvFrom;
-  WSAResetEvent                    := Stub_WSAResetEvent;
-  WSASend                          := Stub_WSASend;
-  WSASendDisconnect                := Stub_WSASendDisconnect;
-  WSASendTo                        := Stub_WSASendTo;
-  WSASetEvent                      := Stub_WSASetEvent;
-  WSASocketA                       := Stub_WSASocketA;
-  WSASocketW                       := Stub_WSASocketW;
-  WSASocket                        := Stub_WSASocket;
-  WSAWaitForMultipleEvents         := Stub_WSAWaitForMultipleEvents;
-  WSAAddressToStringA              := Stub_WSAAddressToStringA;
-  WSAAddressToStringW              := Stub_WSAAddressToStringW;
-  WSAAddressToString               := Stub_WSAAddressToString;
-  WSAStringToAddressA              := Stub_WSAStringToAddressA;
-  WSAStringToAddressW              := Stub_WSAStringToAddressW;
-  WSAStringToAddress               := Stub_WSAStringToAddress;
   WSALookupServiceBeginA           := Stub_WSALookupServiceBeginA;
   WSALookupServiceBeginW           := Stub_WSALookupServiceBeginW;
   WSALookupServiceBegin            := Stub_WSALookupServiceBegin;
+  WSALookupServiceEnd              := Stub_WSALookupServiceEnd;
   WSALookupServiceNextA            := Stub_WSALookupServiceNextA;
   WSALookupServiceNextW            := Stub_WSALookupServiceNextW;
   WSALookupServiceNext             := Stub_WSALookupServiceNext;
+  {$IFNDEF UNDER_CE}
   WSANSPIoctl                      := Stub_WSANSPIoctl;
-  WSALookupServiceEnd              := Stub_WSALookupServiceEnd;
+  {$ENDIF}
+  WSANtohl                         := Stub_WSANtohl;
+  WSANtohs                         := Stub_WSANtohs;
+  {$IFNDEF UNDER_CE}
+  WSAPoll                          := Stub_WSAPoll;
+  {$ENDIF}
+  WSARecv                          := Stub_WSARecv;
+  WSARecvDisconnect                := Stub_WSARecvDisconnect;
+  {$IFNDEF UNDER_CE}
+  WSARecvEx                        := Stub_WSARecvEx;
+  {$ENDIF}
+  WSARecvFrom                      := Stub_WSARecvFrom;
+  {$IFNDEF UNDER_CE}
+  WSARecvMsg                       := Stub_WSARecvMsg;
+  {$ENDIF}
+  WSAResetEvent                    := Stub_WSAResetEvent;
+  WSASend                          := Stub_WSASend;
+  WSASendDisconnect                := Stub_WSASendDisconnect;
+  {$IFNDEF UNDER_CE}
+  WSASendMsg                       := Stub_WSASendMsg;
+  {$ENDIF}
+  WSASendTo                        := Stub_WSASendTo;
+  {$IFNDEF UNDER_CE}
+  WSASetBlockingHook               := Stub_WSASetBlockingHook;
+  {$ENDIF}
+  WSASetEvent                      := Stub_WSASetEvent;
+  WSASetLastError                  := Stub_WSASetLastError;
+  WSASocketA                       := Stub_WSASocketA;
+  WSASocketW                       := Stub_WSASocketW;
+  WSASocket                        := Stub_WSASocket;
+  WSAStartup                       := Stub_WSAStartup;
+  WSAStringToAddressA              := Stub_WSAStringToAddressA;
+  WSAStringToAddressW              := Stub_WSAStringToAddressW;
+  WSAStringToAddress               := Stub_WSAStringToAddress;
+  {$IFNDEF UNDER_CE}
+  WSAUnhookBlockingHook            := Stub_WSAUnhookBlockingHook;
+  WSAWaitForMultipleEvents         := Stub_WSAWaitForMultipleEvents;
+  {$ENDIF}
+
   WSAInstallServiceClassA          := Stub_WSAInstallServiceClassA;
   WSAInstallServiceClassW          := Stub_WSAInstallServiceClassW;
   WSAInstallServiceClass           := Stub_WSAInstallServiceClass;
@@ -5796,18 +5863,6 @@ begin
   WSASetServiceW                   := Stub_WSASetServiceW;
   WSASetService                    := Stub_WSASetService;
   WSAProviderConfigChange          := Stub_WSAProviderConfigChange;
-{$IFNDEF UNDER_CE}
-  AcceptEx                         := Stub_AcceptEx;
-  //GetAcceptExSockaddrs is loaded by Stub_AcceptEx
-  WSARecvEx                        := Stub_WSARecvEx;
-  ConnectEx                        := Stub_ConnectEx;
-  DisconnectEx                     := Stub_DisconnectEx;
-  TransmitFile                     := Stub_TransmitFile;
-  TransmitPackets                  := Stub_TransmitPackets;
-  WSAPoll                          := Stub_WSAPoll;
-  WSARecvMsg                       := Stub_WSARecvMsg;
-  WSASendMsg                       := Stub_WSASendMsg;
-{$ENDIF}
 end;
 
 function WSAMakeSyncReply(Buflen, Error: Word): Longint;
@@ -5889,6 +5944,7 @@ begin
   FDSet.fd_count := 0;
 end;
 
+{$IFNDEF UNDER_CE}
 function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
   {$ALIGN ON}
@@ -5959,6 +6015,8 @@ function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
 begin
   Result := SIZE_IP_MSFILTER - SIZE_TINADDR + (numsrc*SIZE_TINADDR);
 end;
+
+{$ENDIF}
 
 function SS_PORT(ssp: PSockAddrIn): u_short;
 {$IFDEF USEINLINE}inline;{$ENDIF}
