@@ -1286,7 +1286,6 @@ type
   PWSAOverlapped  = ^TWSAOverlapped;
   {$EXTERNALSYM LPWSAOVERLAPPED}
   LPWSAOVERLAPPED = PWSAOverlapped;
-
   {$EXTERNALSYM WSC_PROVIDER_INFO_TYPE}
   {$EXTERNALSYM PROVIDERINFOLSPCATEGORIES}
   {$EXTERNALSYM PROVIDERINFOAUDIT}
@@ -1658,6 +1657,7 @@ const
   {$EXTERNALSYM IOC_VENDOR}
   IOC_VENDOR    = $18000000;
 
+
   {$EXTERNALSYM SIO_ASSOCIATE_HANDLE}
   SIO_ASSOCIATE_HANDLE                =  DWORD(IOC_IN or IOC_WS2 or 1);
   {$EXTERNALSYM SIO_ENABLE_CIRCULAR_QUEUEING}
@@ -1694,6 +1694,8 @@ const
   SIO_ADDRESS_LIST_CHANGE             = DWORD(IOC_VOID or IOC_WS2 or 23);
   {$EXTERNALSYM SIO_QUERY_TARGET_PNP_HANDLE}
   SIO_QUERY_TARGET_PNP_HANDLE         = DWORD(IOC_OUT or IOC_WS2 or 24);
+  {$EXTERNALSYM SIO_NSP_NOTIFY_CHANGE}
+  SIO_NSP_NOTIFY_CHANGE               =  DWORD(IOC_IN or IOC_WS2 or 25);
   {$EXTERNALSYM SIO_ADDRESS_LIST_SORT}
   SIO_ADDRESS_LIST_SORT               = DWORD(IOC_INOUT or IOC_WS2 or 25);
 
@@ -2303,6 +2305,7 @@ type
   {$EXTERNALSYM LPWSAPOLLFD}
   LPWSAPOLLFD = PWSAPOLLFD;
 
+
 { WinSock 2 extensions -- data types for the condition function in }
 { WSAAccept() and overlapped I/O completion routine. }
 type
@@ -2312,6 +2315,58 @@ type
   {$EXTERNALSYM LPWSAOVERLAPPED_COMPLETION_ROUTINE}
   LPWSAOVERLAPPED_COMPLETION_ROUTINE = procedure(const dwError, cbTransferred: DWORD;
     const lpOverlapped : LPWSAOVERLAPPED; const dwFlags: DWORD); stdcall;
+
+
+
+type
+  {$EXTERNALSYM WSACOMPLETIONTYPE}
+  {$EXTERNALSYM NSP_NOTIFY_IMMEDIATELY}
+  {$EXTERNALSYM NSP_NOTIFY_HWND}
+  {$EXTERNALSYM NSP_NOTIFY_EVENT}
+  {$EXTERNALSYM NSP_NOTIFY_PORT}
+  {$EXTERNALSYM NSP_NOTIFY_APC}
+  WSACOMPLETIONTYPE = (NSP_NOTIFY_IMMEDIATELY,
+    NSP_NOTIFY_HWND,
+    NSP_NOTIFY_EVENT,
+    NSP_NOTIFY_PORT,
+    NSP_NOTIFY_APC);
+  {$EXTERNALSYM WSACOMPLETION_WINDOWMESSAGE}
+  WSACOMPLETION_WINDOWMESSAGE = record
+    hWnd : HWND;
+    uMsg : UINT;
+    context : WPARAM;
+  end;
+  WSACOMPLETION_EVENT = record
+    lpOverlapped : LPWSAOVERLAPPED;
+  end;
+  {$EXTERNALSYM WSACOMPLETION_APC}
+  WSACOMPLETION_APC = record
+    lpOverlapped : LPWSAOVERLAPPED;
+    lpfnCompletionProc : LPWSAOVERLAPPED_COMPLETION_ROUTINE;
+  end;
+  {$EXTERNALSYM WSACOMPLETION_PORT}
+  WSACOMPLETION_PORT = record
+    lpOverlapped : LPWSAOVERLAPPED;
+    hPort : THANDLE;
+    Key : ULONG_PTR;
+  end;
+  {$EXTERNALSYM WSACOMPLETION_UNION}
+  WSACOMPLETION_union = record
+    case Integer of
+        0: (WindowMessage : WSACOMPLETION_WINDOWMESSAGE);
+        1: (Event : WSACOMPLETION_EVENT);
+        2: (Apc : WSACOMPLETION_APC);
+        3: (Port : WSACOMPLETION_PORT);
+  end;
+  {$EXTERNALSYM WSACOMPLETION}
+  WSACOMPLETION = record
+    _Type : WSACOMPLETIONTYPE;
+    Parameters : WSACOMPLETION_union;
+  end;
+   {$EXTERNALSYM PWSACOMPLETION}
+  PWSACOMPLETION = ^WSACOMPLETION;
+   {$EXTERNALSYM LPWSACOMPLETION}
+  LPWSACOMPLETION = PWSACOMPLETION;
 
 type
 {$IFDEF INCL_WINSOCK_API_TYPEDEFS}
@@ -2467,6 +2522,7 @@ type
 {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAENUMPROTOCOLS}
+  {wince}
   {$IFDEF UNICODE}
   LPFN_WSAENUMPROTOCOLS = LPFN_WSAENUMPROTOCOLSW;
   {$ELSE}
@@ -2512,6 +2568,7 @@ type
 
   {$EXTERNALSYM LPFN_WSANTOHL}
   LPFN_WSANTOHL = function(const s : TSocket; netlong : u_long; var lphostlong : DWORD): Integer; stdcall;
+
   {$EXTERNALSYM LPFN_WSANTOHS}
   LPFN_WSANTOHS = function(const s : TSocket; netshort : u_short; var lphostshort : WORD): Integer; stdcall;
 
@@ -2599,6 +2656,8 @@ type
   {$ELSE}
   LPFN_WSALOOKUPSERVICENEXT = LPFN_WSALOOKUPSERVICENEXTA;
   {$ENDIF}
+  {$EXTERNALSYM LPFN_WSANSPIOCTL}
+  LPFN_WSANSPIOCTL = function(const hLookup : THANDLE; const dwControlCode : DWORD;  lpvInBuffer : Pointer; var cbInBuffer : DWORD; lpvOutBuffer : Pointer; var cbOutBuffer : DWORD; var lpcbBytesReturned : DWORD; lpCompletion : LPWSACOMPLETION) : Integer; stdcall;
 
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEEND}
   LPFN_WSALOOKUPSERVICEEND = function(const hLookup : THandle): Integer; stdcall;
@@ -2956,7 +3015,8 @@ var
   WSARecvMsg : LPFN_WSARECVMSG = nil;
   {$EXTERNALSYM TransmitPackets}
   TransmitPackets : LPFN_TRANSMITPACKETS = nil;
-
+  {$EXTERNALSYM WSANSPIoctl}
+  WSANSPIoctl : LPFN_WSANSPIOCTL = nil;
   //Windows Vista, Windows Server 2008
   {$EXTERNALSYM WSASendMsg}
   WSASendMsg: LPFN_WSASENDMSG = nil;
@@ -5406,6 +5466,16 @@ begin
   Result := WSALookupServiceNext(hLookup, dwControlFlags, dwBufferLength, lpqsResults);
 end;
 
+function Stub_WSANSPIoctl(const hLookup : THANDLE; const dwControlCode : DWORD;
+  lpvInBuffer : Pointer; var cbInBuffer : DWORD; lpvOutBuffer : Pointer;
+  var cbOutBuffer : DWORD; var lpcbBytesReturned : DWORD;
+  lpCompletion : LPWSACOMPLETION) : Integer; stdcall;
+begin
+  @WSANSPIoctl := FixupStub(hWinSockDLL, 'WSANSPIoctl');    {Do not Localize}
+  Result := WSANSPIoctl(hLookup,dwControlCode,lpvInBuffer,cbInBuffer,lpvOutBuffer,
+    cbOutBuffer, lpcbBytesReturned,lpCompletion);
+end;
+
 function Stub_WSALookupServiceEnd(const hLookup: THandle): Integer; stdcall;
 begin
   @WSALookupServiceEnd := FixupStub(hWinSockDll, 'WSALookupServiceEnd'); {Do not Localize}
@@ -5707,6 +5777,7 @@ begin
   WSALookupServiceNextA            := Stub_WSALookupServiceNextA;
   WSALookupServiceNextW            := Stub_WSALookupServiceNextW;
   WSALookupServiceNext             := Stub_WSALookupServiceNext;
+  WSANSPIoctl                      := Stub_WSANSPIoctl;
   WSALookupServiceEnd              := Stub_WSALookupServiceEnd;
   WSAInstallServiceClassA          := Stub_WSAInstallServiceClassA;
   WSAInstallServiceClassW          := Stub_WSAInstallServiceClassW;
@@ -5820,10 +5891,12 @@ end;
 
 function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
+  {$ALIGN ON}
   TempRec = record
     x: Char;
     test: WSACMSGHDR;
   end;
+  {$ALIGN OFF}
 var
   Alignment: PtrUInt;
   Tmp: ^TempRec;
