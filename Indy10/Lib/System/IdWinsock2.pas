@@ -2706,7 +2706,6 @@ type
     {$ENDIF}
   {$EXTERNALSYM LPFN_WSAREMOVESERVICECLASS}
   LPFN_WSAREMOVESERVICECLASS = function(const lpServiceClassId : LPGUID) : Integer; stdcall;
-
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSINFOA}
   LPFN_WSAGETSERVICECLASSINFOA = function(const lpProviderId : LPGUID; const lpServiceClassId : LPGUID; var lpdwBufSize : DWORD;
       lpServiceClassInfo : LPWSASERVICECLASSINFOA): Integer; stdcall;
@@ -2720,7 +2719,7 @@ type
   LPFN_WSAGETSERVICECLASSINFO = LPFN_WSAGETSERVICECLASSINFOA;
     {$ENDIF}
   {$ENDIF}
-
+  {
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSA}
   LPFN_WSAENUMNAMESPACEPROVIDERSA = function(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOA): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSW}
@@ -2732,6 +2731,7 @@ type
   LPFN_WSAENUMNAMESPACEPROVIDERS = LPFN_WSAENUMNAMESPACEPROVIDERSA;
   {$ENDIF}
 
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = function(const lpServiceClassId: LPGUID; lpszServiceClassName: PChar; var lpdwBufferLength: DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW}
@@ -2741,6 +2741,7 @@ type
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW;
   {$ELSE}
   LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA;
+  {$ENDIF}
   {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSASETSERVICEA}
@@ -2754,11 +2755,11 @@ type
   LPFN_WSASETSERVICE = LPFN_WSASETSERVICEA;
   {$ENDIF}
 
+   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSAPROVIDERCONFIGCHANGE}
   LPFN_WSAPROVIDERCONFIGCHANGE = function(var lpNotificationHandle : THandle; lpOverlapped : LPWSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE) : Integer; stdcall;
 
   //microsoft specific extension
-  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_GETACCEPTEXSOCKADDRS}
   LPFN_GETACCEPTEXSOCKADDRS = procedure(lpOutputBuffer: Pointer;
     dwReceiveDataLength, dwLocalAddressLength, dwRemoteAddressLength: DWORD;
@@ -2911,6 +2912,12 @@ var
   __WSAFDIsSet : LPFN___WSAFDISSET = nil;
   {$EXTERNALSYM WSAAccept}
   WSAAccept : LPFN_WSAACCEPT = nil;
+  {$EXTERNALSYM WSAAddressToStringA}
+  WSAAddressToStringA : LPFN_WSAADDRESSTOSTRINGA = nil;
+  {$EXTERNALSYM WSAAddressToStringW}
+  WSAAddressToStringW : LPFN_WSAADDRESSTOSTRINGW = nil;
+  {$EXTERNALSYM WSAAddressToString}
+  WSAAddressToString : LPFN_WSAADDRESSTOSTRING = nil;  
   {$EXTERNALSYM WSACloseEvent}
   WSACloseEvent : LPFN_WSACLOSEEVENT = nil;
   {$EXTERNALSYM WSAConnect}
@@ -2933,6 +2940,15 @@ var
   WSAEnumProtocolsW : LPFN_WSAENUMPROTOCOLSW = nil;
   {$EXTERNALSYM WSAEnumProtocols}
   WSAEnumProtocols : LPFN_WSAENUMPROTOCOLS = nil;
+
+  {$EXTERNALSYM WSAEnumNameSpaceProvidersA}
+  WSAEnumNameSpaceProvidersA : LPFN_WSAENUMNAMESPACEPROVIDERSA = nil;
+  {$EXTERNALSYM WSAEnumNameSpaceProvidersW}
+  WSAEnumNameSpaceProvidersW : LPFN_WSAENUMNAMESPACEPROVIDERSW = nil;
+  {$EXTERNALSYM WSAEnumNameSpaceProviders}
+  WSAEnumNameSpaceProviders : LPFN_WSAENUMNAMESPACEPROVIDERS = nil;
+
+
   {$EXTERNALSYM WSAEventSelect}
   WSAEventSelect : LPFN_WSAEVENTSELECT = nil;
   {$EXTERNALSYM WSAGetOverlappedResult}
@@ -2940,6 +2956,18 @@ var
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAGetQosByName}
   WSAGetQosByName : LPFN_WSAGETQOSBYNAME = nil;
+  {$EXTERNALSYM WSAGetServiceClassInfoA}
+  WSAGetServiceClassInfoA : LPFN_WSAGETSERVICECLASSINFOA = nil;
+  {$EXTERNALSYM WSAGetServiceClassInfoW}
+  WSAGetServiceClassInfoW : LPFN_WSAGETSERVICECLASSINFOW = nil;
+  {$EXTERNALSYM WSAGetServiceClassInfo}
+  WSAGetServiceClassInfo : LPFN_WSAGETSERVICECLASSINFO = nil;
+  {$EXTERNALSYM WSAGetServiceClassNameByClassIdA}
+  WSAGetServiceClassNameByClassIdA : LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = nil;
+  {$EXTERNALSYM WSAGetServiceClassNameByClassIdW}
+  WSAGetServiceClassNameByClassIdW : LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW = nil;
+  {$EXTERNALSYM WSAGetServiceClassNameByClassId}
+  WSAGetServiceClassNameByClassId : LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = nil;
   {$ENDIF}
   {$EXTERNALSYM WSAHtonl}
   WSAHtonl : LPFN_WSAHTONL = nil;
@@ -2947,18 +2975,46 @@ var
   WSAHtons : LPFN_WSAHTONS = nil;
   {$EXTERNALSYM WSAIoctl}
   WSAIoctl : LPFN_WSAIOCTL = nil;
+  {$IFNDEF UNDER_CE}
+  {$EXTERNALSYM WSAInstallServiceClassA}
+  WSAInstallServiceClassA : LPFN_WSAINSTALLSERVICECLASSA = nil;
+  {$EXTERNALSYM WSAInstallServiceClassW}
+  WSAInstallServiceClassW : LPFN_WSAINSTALLSERVICECLASSW = nil;
+  {$EXTERNALSYM WSAInstallServiceClass}
+  WSAInstallServiceClass : LPFN_WSAINSTALLSERVICECLASS = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAJoinLeaf}
   WSAJoinLeaf : LPFN_WSAJOINLEAF = nil;
+  {$EXTERNALSYM WSALookupServiceBeginA}
+  WSALookupServiceBeginA : LPFN_WSALOOKUPSERVICEBEGINA = nil;
+  {$EXTERNALSYM WSALookupServiceBeginW}
+  WSALookupServiceBeginW : LPFN_WSALOOKUPSERVICEBEGINW = nil;
+  {$EXTERNALSYM WSALookupServiceBegin}
+  WSALookupServiceBegin : LPFN_WSALOOKUPSERVICEBEGIN = nil;
+  {$EXTERNALSYM WSALookupServiceEnd}
+  WSALookupServiceEnd : LPFN_WSALOOKUPSERVICEEND = nil;
+  {$EXTERNALSYM WSALookupServiceNextA}
+  WSALookupServiceNextA : LPFN_WSALOOKUPSERVICENEXTA = nil;
+  {$EXTERNALSYM WSALookupServiceNextW}
+  WSALookupServiceNextW : LPFN_WSALOOKUPSERVICENEXTW = nil;
+  {$EXTERNALSYM WSALookupServiceNext}
+  WSALookupServiceNext : LPFN_WSALOOKUPSERVICENEXT = nil;
   {$EXTERNALSYM WSANtohl}
   WSANtohl : LPFN_WSANTOHL = nil;
   {$EXTERNALSYM WSANtohs}
   WSANtohs : LPFN_WSANTOHS = nil;
   {$EXTERNALSYM WSARecv}
   WSARecv : LPFN_WSARECV = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSARecvDisconnect}
   WSARecvDisconnect : LPFN_WSARECVDISCONNECT = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSARecvFrom}
   WSARecvFrom : LPFN_WSARECVFROM = nil;
+  {$IFNDEF UNDER_CE}
+  {$EXTERNALSYM WSARemoveServiceClass}
+  WSARemoveServiceClass : LPFN_WSAREMOVESERVICECLASS = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAResetEvent}
   WSAResetEvent : LPFN_WSARESETEVENT = nil;
   {$EXTERNALSYM WSASend}
@@ -2971,79 +3027,30 @@ var
   WSASendTo : LPFN_WSASENDTO = nil;
   {$EXTERNALSYM WSASetEvent}
   WSASetEvent : LPFN_WSASETEVENT = nil;
+  {$EXTERNALSYM WSASetServiceA}
+  WSASetServiceA : LPFN_WSASETSERVICEA = nil;
+  {$EXTERNALSYM WSASetServiceW}
+  WSASetServiceW : LPFN_WSASETSERVICEW = nil;
+  {$EXTERNALSYM WSASetService}
+  WSASetService : LPFN_WSASETSERVICE = nil;  
   {$EXTERNALSYM WSASocketA}
   WSASocketA : LPFN_WSASOCKETA = nil;
   {$EXTERNALSYM WSASocketW}
   WSASocketW : LPFN_WSASOCKETW = nil;
   {$EXTERNALSYM WSASocket}
   WSASocket : LPFN_WSASOCKET = nil;
-  {$IFNDEF UNDER_CE}
-  {$EXTERNALSYM WSAWaitForMultipleEvents}
-  WSAWaitForMultipleEvents : LPFN_WSAWAITFORMULTIPLEEVENTS = nil;
-  {$ENDIF}
-  {$EXTERNALSYM WSAAddressToStringA}
-  WSAAddressToStringA : LPFN_WSAADDRESSTOSTRINGA = nil;
-  {$EXTERNALSYM WSAAddressToStringW}
-  WSAAddressToStringW : LPFN_WSAADDRESSTOSTRINGW = nil;
-  {$EXTERNALSYM WSAAddressToString}
-  WSAAddressToString : LPFN_WSAADDRESSTOSTRING = nil;
   {$EXTERNALSYM WSAStringToAddressA}
   WSAStringToAddressA : LPFN_WSASTRINGTOADDRESSA = nil;
   {$EXTERNALSYM WSAStringToAddressW}
   WSAStringToAddressW : LPFN_WSASTRINGTOADDRESSW = nil;
   {$EXTERNALSYM WSAStringToAddress}
   WSAStringToAddress : LPFN_WSASTRINGTOADDRESS = nil;
-  {$EXTERNALSYM WSALookupServiceBeginA}
-  WSALookupServiceBeginA : LPFN_WSALOOKUPSERVICEBEGINA = nil;
-  {$EXTERNALSYM WSALookupServiceBeginW}
-  WSALookupServiceBeginW : LPFN_WSALOOKUPSERVICEBEGINW = nil;
-  {$EXTERNALSYM WSALookupServiceBegin}
-  WSALookupServiceBegin : LPFN_WSALOOKUPSERVICEBEGIN = nil;
-  {$EXTERNALSYM WSALookupServiceNextA}
-  WSALookupServiceNextA : LPFN_WSALOOKUPSERVICENEXTA = nil;
-  {$EXTERNALSYM WSALookupServiceNextW}
-  WSALookupServiceNextW : LPFN_WSALOOKUPSERVICENEXTW = nil;
-  {$EXTERNALSYM WSALookupServiceNext}
-  WSALookupServiceNext : LPFN_WSALOOKUPSERVICENEXT = nil;
-  {$EXTERNALSYM WSALookupServiceEnd}
-  WSALookupServiceEnd : LPFN_WSALOOKUPSERVICEEND = nil;
+
   {$IFNDEF UNDER_CE}
-  {$EXTERNALSYM WSAInstallServiceClassA}
-  WSAInstallServiceClassA : LPFN_WSAINSTALLSERVICECLASSA = nil;
-  {$EXTERNALSYM WSAInstallServiceClassW}
-  WSAInstallServiceClassW : LPFN_WSAINSTALLSERVICECLASSW = nil;
-  {$EXTERNALSYM WSAInstallServiceClass}
-  WSAInstallServiceClass : LPFN_WSAINSTALLSERVICECLASS = nil;
-  {$EXTERNALSYM WSARemoveServiceClass}
-  WSARemoveServiceClass : LPFN_WSAREMOVESERVICECLASS = nil;
-  {$EXTERNALSYM WSAGetServiceClassInfoA}
-  WSAGetServiceClassInfoA : LPFN_WSAGETSERVICECLASSINFOA = nil;
-  {$EXTERNALSYM WSAGetServiceClassInfoW}
-  WSAGetServiceClassInfoW : LPFN_WSAGETSERVICECLASSINFOW = nil;
-  {$EXTERNALSYM WSAGetServiceClassInfo}
-  WSAGetServiceClassInfo : LPFN_WSAGETSERVICECLASSINFO = nil;
-  {$ENDIF}
-  {$EXTERNALSYM WSAEnumNameSpaceProvidersA}
-  WSAEnumNameSpaceProvidersA : LPFN_WSAENUMNAMESPACEPROVIDERSA = nil;
-  {$EXTERNALSYM WSAEnumNameSpaceProvidersW}
-  WSAEnumNameSpaceProvidersW : LPFN_WSAENUMNAMESPACEPROVIDERSW = nil;
-  {$EXTERNALSYM WSAEnumNameSpaceProviders}
-  WSAEnumNameSpaceProviders : LPFN_WSAENUMNAMESPACEPROVIDERS = nil;
-  {$EXTERNALSYM WSAGetServiceClassNameByClassIdA}
-  WSAGetServiceClassNameByClassIdA : LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDA = nil;
-  {$EXTERNALSYM WSAGetServiceClassNameByClassIdW}
-  WSAGetServiceClassNameByClassIdW : LPFN_WSAGETSERVICECLASSNAMEBYCLASSIDW = nil;
-  {$EXTERNALSYM WSAGetServiceClassNameByClassId}
-  WSAGetServiceClassNameByClassId : LPFN_WSAGETSERVICECLASSNAMEBYCLASSID = nil;
-  {$EXTERNALSYM WSASetServiceA}
-  WSASetServiceA : LPFN_WSASETSERVICEA = nil;
-  {$EXTERNALSYM WSASetServiceW}
-  WSASetServiceW : LPFN_WSASETSERVICEW = nil;
-  {$EXTERNALSYM WSASetService}
-  WSASetService : LPFN_WSASETSERVICE = nil;
+  {$EXTERNALSYM WSAWaitForMultipleEvents}
+  WSAWaitForMultipleEvents : LPFN_WSAWAITFORMULTIPLEEVENTS = nil;
   {$EXTERNALSYM WSAProviderConfigChange}
   WSAProviderConfigChange : LPFN_WSAPROVIDERCONFIGCHANGE = nil;
-  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM TransmitFile}
   TransmitFile : LPFN_TRANSMITFILE = nil;
   {$EXTERNALSYM AcceptEx}
@@ -5627,6 +5634,7 @@ begin
   Result := WSAEnumNameSpaceProviders(lpdwBufferLength, lpnspBuffer);
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSAGetServiceClassNameByClassIdA(const lpServiceClassId: PGUID; lpszServiceClassName: PChar; var lpdwBufferLength: DWORD): Integer; stdcall;
 begin
   @WSAGetServiceClassNameByClassIdA := FixupStub(hWinSockDll, 'WSAGetServiceClassNameByClassIdA'); {Do not Localize}
@@ -5650,6 +5658,7 @@ begin
   {$ENDIF}
   Result := WSAGetServiceClassNameByClassId(lpServiceClassId, lpszServiceClassName, lpdwBufferLength);
 end;
+{$ENDIF}
 
 function Stub_WSASetServiceA(const lpqsRegInfo: LPWSAQUERYSETA; const essoperation: WSAESETSERVICEOP; const dwControlFlags: DWORD): Integer; stdcall;
 begin
@@ -5673,13 +5682,13 @@ begin
   Result := WSASetService(lpqsRegInfo, essoperation, dwControlFlags);
 end;
 
+{$IFNDEF WINCE}
 function Stub_WSAProviderConfigChange(var lpNotificationHandle: THandle; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
   @WSAProviderConfigChange := FixupStub(hWinSockDll, 'WSAProviderConfigChange'); {Do not Localize}
   Result := WSAProviderConfigChange(lpNotificationHandle, AOverlapped, lpCompletionRoutine);
 end;
 
-{$IFNDEF WINCE}
 function Stub_TransmitFile(hSocket: TSocket; hFile: THandle; nNumberOfBytesToWrite: DWORD;
   nNumberOfBytesPerSend: DWORD; lpOverlapped: POverlapped;
   lpTransmitBuffers: LPTRANSMIT_FILE_BUFFERS; dwReserved: DWORD): BOOL; stdcall;
@@ -5839,6 +5848,12 @@ begin
   WSAGetOverlappedResult           := Stub_WSAGetOverlappedResult;
   {$IFNDEF UNDER_CE}
   WSAGetQOSByName                  := Stub_WSAGetQOSByName;
+  WSAGetServiceClassInfoA          := Stub_WSAGetServiceClassInfoA;
+  WSAGetServiceClassInfoW          := Stub_WSAGetServiceClassInfoW;
+  WSAGetServiceClassInfo           := Stub_WSAGetServiceClassInfo;
+  WSAGetServiceClassNameByClassIdA := Stub_WSAGetServiceClassNameByClassIdA;
+  WSAGetServiceClassNameByClassIdW := Stub_WSAGetServiceClassNameByClassIdW;
+  WSAGetServiceClassNameByClassId  := Stub_WSAGetServiceClassNameByClassId;
   {$ENDIF}
   WSAHtonl                         := Stub_WSAHtonl;
   WSAHtons                         := Stub_WSAHtons;
@@ -5866,6 +5881,7 @@ begin
   WSANtohs                         := Stub_WSANtohs;
   {$IFNDEF UNDER_CE}
   WSAPoll                          := Stub_WSAPoll;
+  WSAProviderConfigChange          := Stub_WSAProviderConfigChange;
   {$ENDIF}
   WSARecv                          := Stub_WSARecv;
   {$IFNDEF UNDER_CE}
@@ -5875,6 +5891,7 @@ begin
   WSARecvFrom                      := Stub_WSARecvFrom;
   {$IFNDEF UNDER_CE}
   WSARecvMsg                       := Stub_WSARecvMsg;
+  WSARemoveServiceClass            := Stub_WSARemoveServiceClass;
   {$ENDIF}
   WSAResetEvent                    := Stub_WSAResetEvent;
   WSASend                          := Stub_WSASend;
@@ -5888,6 +5905,9 @@ begin
   {$ENDIF}
   WSASetEvent                      := Stub_WSASetEvent;
   WSASetLastError                  := Stub_WSASetLastError;
+  WSASetServiceA                   := Stub_WSASetServiceA;
+  WSASetServiceW                   := Stub_WSASetServiceW;
+  WSASetService                    := Stub_WSASetService;  
   WSASocketA                       := Stub_WSASocketA;
   WSASocketW                       := Stub_WSASocketW;
   WSASocket                        := Stub_WSASocket;
@@ -5898,18 +5918,7 @@ begin
   {$IFNDEF UNDER_CE}
   WSAUnhookBlockingHook            := Stub_WSAUnhookBlockingHook;
   WSAWaitForMultipleEvents         := Stub_WSAWaitForMultipleEvents;
-  WSARemoveServiceClass            := Stub_WSARemoveServiceClass;
-  WSAGetServiceClassInfoA          := Stub_WSAGetServiceClassInfoA;
-  WSAGetServiceClassInfoW          := Stub_WSAGetServiceClassInfoW;
-  WSAGetServiceClassInfo           := Stub_WSAGetServiceClassInfo;
-  {$ENDIF}
-  WSAGetServiceClassNameByClassIdA := Stub_WSAGetServiceClassNameByClassIdA;
-  WSAGetServiceClassNameByClassIdW := Stub_WSAGetServiceClassNameByClassIdW;
-  WSAGetServiceClassNameByClassId  := Stub_WSAGetServiceClassNameByClassId;
-  WSASetServiceA                   := Stub_WSASetServiceA;
-  WSASetServiceW                   := Stub_WSASetServiceW;
-  WSASetService                    := Stub_WSASetService;
-  WSAProviderConfigChange          := Stub_WSAProviderConfigChange;
+ {$ENDIF}
 end;
 
 function WSAMakeSyncReply(Buflen, Error: Word): Longint;
