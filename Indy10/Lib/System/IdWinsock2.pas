@@ -138,6 +138,26 @@ unit IdWinSock2;
 interface
 
 {$I IdCompilerDefines.inc}
+
+{
+Important!!!
+
+With the ARM architecture, you may get an EBusError exception sating that
+data is misaligned.  Sometimes, that architecture does not have the ability to
+read misaligned data.  On an i386 and x86_64 architecure, you can do this but it
+is inefficient.  For the ARM chip architecture, we have to make sure our records
+are aligned on a 4 byte boundery.  See:
+
+http://wiki.lazarus.freepascal.org/Windows_CE_Development_Notes
+
+This is not necessary and can cause problems
+when using the standard Win32 API (win32 and win64) where records are packed
+instead of aligned.
+
+To deal with this, I have turned align off when compile for non-Arm targets instead
+of using "packed records".  
+}
+
  {$RANGECHECKS OFF}
 {$IFNDEF WINCE}
   {$ALIGN OFF}
@@ -2541,6 +2561,7 @@ type
   {$EXTERNALSYM LPFN_WSACREATEEVENT}
   LPFN_WSACREATEEVENT  = function: WSAEVENT; stdcall;
 
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSADUPLICATESOCKETA}
   LPFN_WSADUPLICATESOCKETA = function(const s : TSocket; const dwProcessId : DWORD; lpProtocolInfo : LPWSAPROTOCOL_INFOA) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSADUPLICATESOCKETW}
@@ -2551,7 +2572,8 @@ type
   {$ELSE}
   LPFN_WSADUPLICATESOCKET = LPFN_WSADUPLICATESOCKETA;
   {$ENDIF}
-
+  {$ENDIF}
+  
   {$EXTERNALSYM LPFN_WSAENUMNETWORKEVENTS}
   LPFN_WSAENUMNETWORKEVENTS = function(const s : TSocket; const hEventObject : WSAEVENT; lpNetworkEvents : LPWSANETWORKEVENTS) :Integer; stdcall;
 
@@ -2671,20 +2693,20 @@ type
   {$EXTERNALSYM LPFN_WSALOOKUPSERVICEEND}
   LPFN_WSALOOKUPSERVICEEND = function(const hLookup : THandle): Integer; stdcall;
 
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSAINSTALLSERVICECLASSA}
   LPFN_WSAINSTALLSERVICECLASSA = function(const lpServiceClassInfo : LPWSASERVICECLASSINFOA) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAINSTALLSERVICECLASSW}
   LPFN_WSAINSTALLSERVICECLASSW = function(const lpServiceClassInfo : LPWSASERVICECLASSINFOW) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAINSTALLSERVICECLASS}
-  {$IFDEF UNICODE}
+    {$IFDEF UNICODE}
   LPFN_WSAINSTALLSERVICECLASS = LPFN_WSAINSTALLSERVICECLASSW;
-  {$ELSE}
+    {$ELSE}
   LPFN_WSAINSTALLSERVICECLASS = LPFN_WSAINSTALLSERVICECLASSA;
-  {$ENDIF}
-
+    {$ENDIF}
   {$EXTERNALSYM LPFN_WSAREMOVESERVICECLASS}
   LPFN_WSAREMOVESERVICECLASS = function(const lpServiceClassId : LPGUID) : Integer; stdcall;
-
+  {$ENDIF}
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSINFOA}
   LPFN_WSAGETSERVICECLASSINFOA = function(const lpProviderId : LPGUID; const lpServiceClassId : LPGUID; var lpdwBufSize : DWORD;
       lpServiceClassInfo : LPWSASERVICECLASSINFOA): Integer; stdcall;
@@ -2894,12 +2916,14 @@ var
   WSAConnect : LPFN_WSACONNECT = nil;
   {$EXTERNALSYM WSACreateEvent}
   WSACreateEvent : LPFN_WSACREATEEVENT = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSADuplicateSocketA}
   WSADuplicateSocketA : LPFN_WSADUPLICATESOCKETA = nil;
   {$EXTERNALSYM WSADuplicateSocketW}
   WSADuplicateSocketW : LPFN_WSADUPLICATESOCKETW = nil;
   {$EXTERNALSYM WSADuplicateSocket}
   WSADuplicateSocket : LPFN_WSADUPLICATESOCKET = nil;
+    {$ENDIF}
   {$EXTERNALSYM WSAEnumNetworkEvents}
   WSAEnumNetworkEvents : LPFN_WSAENUMNETWORKEVENTS = nil;
   {$EXTERNALSYM WSAEnumProtocolsA}
@@ -2982,6 +3006,7 @@ var
   WSALookupServiceNext : LPFN_WSALOOKUPSERVICENEXT = nil;
   {$EXTERNALSYM WSALookupServiceEnd}
   WSALookupServiceEnd : LPFN_WSALOOKUPSERVICEEND = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAInstallServiceClassA}
   WSAInstallServiceClassA : LPFN_WSAINSTALLSERVICECLASSA = nil;
   {$EXTERNALSYM WSAInstallServiceClassW}
@@ -2990,6 +3015,7 @@ var
   WSAInstallServiceClass : LPFN_WSAINSTALLSERVICECLASS = nil;
   {$EXTERNALSYM WSARemoveServiceClass}
   WSARemoveServiceClass : LPFN_WSAREMOVESERVICECLASS = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAGetServiceClassInfoA}
   WSAGetServiceClassInfoA : LPFN_WSAGETSERVICECLASSINFOA = nil;
   {$EXTERNALSYM WSAGetServiceClassInfoW}
@@ -5228,6 +5254,7 @@ begin
   Result := WSACreateEvent;
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSADuplicateSocketA(const s: TSocket; const dwProcessId: DWORD; lpProtocolInfo: LPWSAPROTOCOL_INFOA): Integer; stdcall;
 begin
   @WSADuplicateSocketA := FixupStub(hWinSockDll, 'WSADuplicateSocketA'); {Do not Localize}
@@ -5249,6 +5276,7 @@ begin
   {$ENDIF}
   Result := WSADuplicateSocket(s, dwProcessId, lpProtocolInfo);
 end;
+{$ENDIF}
 
 function Stub_WSAEnumNetworkEvents(const s: TSocket; const hEventObject: WSAEVENT; lpNetworkEvents: LPWSANETWORKEVENTS): Integer; stdcall;
 begin
@@ -5524,7 +5552,6 @@ begin
   Result := WSANSPIoctl(hLookup,dwControlCode,lpvInBuffer,cbInBuffer,lpvOutBuffer,
     cbOutBuffer, lpcbBytesReturned,lpCompletion);
 end;
-{$ENDIF}
 
 function Stub_WSAInstallServiceClassA(const lpServiceClassInfo: LPWSASERVICECLASSINFOA): Integer; stdcall;
 begin
@@ -5565,6 +5592,7 @@ begin
   @WSAGetServiceClassInfoW := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW'); {Do not Localize}
   Result := WSAGetServiceClassInfoW(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
+{$ENDIF}
 
 function Stub_WSAGetServiceClassInfo(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
@@ -5792,9 +5820,15 @@ begin
   WSACloseEvent                    := Stub_WSACloseEvent;
   WSAConnect                       := Stub_WSAConnect;
   WSACreateEvent                   := Stub_WSACreateEvent;
+  {$IFNDEF UNDER_CE}
   WSADuplicateSocketA              := Stub_WSADuplicateSocketA;
   WSADuplicateSocketW              := Stub_WSADuplicateSocketW;
   WSADuplicateSocket               := Stub_WSADuplicateSocket;
+  {$ENDIF}
+  WSAEnumNameSpaceProvidersA       := Stub_WSAEnumNameSpaceProvidersA;
+  WSAEnumNameSpaceProvidersW       := Stub_WSAEnumNameSpaceProvidersW;
+  WSAEnumNameSpaceProviders        := Stub_WSAEnumNameSpaceProviders;
+
   WSAEnumNetworkEvents             := Stub_WSAEnumNetworkEvents;
   WSAEnumProtocolsA                := Stub_WSAEnumProtocolsA;
   WSAEnumProtocolsW                := Stub_WSAEnumProtocolsW;
@@ -5807,6 +5841,11 @@ begin
   {$ENDIF}
   WSAHtonl                         := Stub_WSAHtonl;
   WSAHtons                         := Stub_WSAHtons;
+  {$IFNDEF UNDER_CE}
+  WSAInstallServiceClassA          := Stub_WSAInstallServiceClassA;
+  WSAInstallServiceClassW          := Stub_WSAInstallServiceClassW;
+  WSAInstallServiceClass           := Stub_WSAInstallServiceClass;
+  {$ENDIF}
   WSAIoctl                         := Stub_WSAIoctl;
   {$IFNDEF UNDER_CE}
   WSAIsBlocking                    := Stub_WSAIsBlocking;
@@ -5858,18 +5897,11 @@ begin
   {$IFNDEF UNDER_CE}
   WSAUnhookBlockingHook            := Stub_WSAUnhookBlockingHook;
   WSAWaitForMultipleEvents         := Stub_WSAWaitForMultipleEvents;
-  {$ENDIF}
-
-  WSAInstallServiceClassA          := Stub_WSAInstallServiceClassA;
-  WSAInstallServiceClassW          := Stub_WSAInstallServiceClassW;
-  WSAInstallServiceClass           := Stub_WSAInstallServiceClass;
   WSARemoveServiceClass            := Stub_WSARemoveServiceClass;
+   {$ENDIF}
   WSAGetServiceClassInfoA          := Stub_WSAGetServiceClassInfoA;
   WSAGetServiceClassInfoW          := Stub_WSAGetServiceClassInfoW;
   WSAGetServiceClassInfo           := Stub_WSAGetServiceClassInfo;
-  WSAEnumNameSpaceProvidersA       := Stub_WSAEnumNameSpaceProvidersA;
-  WSAEnumNameSpaceProvidersW       := Stub_WSAEnumNameSpaceProvidersW;
-  WSAEnumNameSpaceProviders        := Stub_WSAEnumNameSpaceProviders;
   WSAGetServiceClassNameByClassIdA := Stub_WSAGetServiceClassNameByClassIdA;
   WSAGetServiceClassNameByClassIdW := Stub_WSAGetServiceClassNameByClassIdW;
   WSAGetServiceClassNameByClassId  := Stub_WSAGetServiceClassNameByClassId;
