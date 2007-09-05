@@ -2706,7 +2706,7 @@ type
     {$ENDIF}
   {$EXTERNALSYM LPFN_WSAREMOVESERVICECLASS}
   LPFN_WSAREMOVESERVICECLASS = function(const lpServiceClassId : LPGUID) : Integer; stdcall;
-  {$ENDIF}
+
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSINFOA}
   LPFN_WSAGETSERVICECLASSINFOA = function(const lpProviderId : LPGUID; const lpServiceClassId : LPGUID; var lpdwBufSize : DWORD;
       lpServiceClassInfo : LPWSASERVICECLASSINFOA): Integer; stdcall;
@@ -2714,10 +2714,11 @@ type
   LPFN_WSAGETSERVICECLASSINFOW = function(const lpProviderId : LPGUID; const lpServiceClassId : LPGUID; var lpdwBufSize : DWORD;
       lpServiceClassInfo : LPWSASERVICECLASSINFOW): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAGETSERVICECLASSINFO}
-  {$IFDEF UNICODE}
+    {$IFDEF UNICODE}
   LPFN_WSAGETSERVICECLASSINFO = LPFN_WSAGETSERVICECLASSINFOW;
-  {$ELSE}
+    {$ELSE}
   LPFN_WSAGETSERVICECLASSINFO = LPFN_WSAGETSERVICECLASSINFOA;
+    {$ENDIF}
   {$ENDIF}
 
   {$EXTERNALSYM LPFN_WSAENUMNAMESPACEPROVIDERSA}
@@ -3015,13 +3016,13 @@ var
   WSAInstallServiceClass : LPFN_WSAINSTALLSERVICECLASS = nil;
   {$EXTERNALSYM WSARemoveServiceClass}
   WSARemoveServiceClass : LPFN_WSAREMOVESERVICECLASS = nil;
-  {$ENDIF}
   {$EXTERNALSYM WSAGetServiceClassInfoA}
   WSAGetServiceClassInfoA : LPFN_WSAGETSERVICECLASSINFOA = nil;
   {$EXTERNALSYM WSAGetServiceClassInfoW}
   WSAGetServiceClassInfoW : LPFN_WSAGETSERVICECLASSINFOW = nil;
   {$EXTERNALSYM WSAGetServiceClassInfo}
   WSAGetServiceClassInfo : LPFN_WSAGETSERVICECLASSINFO = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAEnumNameSpaceProvidersA}
   WSAEnumNameSpaceProvidersA : LPFN_WSAENUMNAMESPACEPROVIDERSA = nil;
   {$EXTERNALSYM WSAEnumNameSpaceProvidersW}
@@ -5592,7 +5593,6 @@ begin
   @WSAGetServiceClassInfoW := FixupStub(hWinSockDll, 'WSAGetServiceClassInfoW'); {Do not Localize}
   Result := WSAGetServiceClassInfoW(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
-{$ENDIF}
 
 function Stub_WSAGetServiceClassInfo(const lpProviderId: PGUID; const lpServiceClassId: PGUID; var lpdwBufSize: DWORD; lpServiceClassInfo: LPWSASERVICECLASSINFO): Integer; stdcall;
 begin
@@ -5603,6 +5603,7 @@ begin
   {$ENDIF}
   Result := WSAGetServiceClassInfo(lpProviderId, lpServiceClassId, lpdwBufSize, lpServiceClassInfo);
 end;
+{$ENDIF}
 
 function Stub_WSAEnumNameSpaceProvidersA(var lpdwBufferLength: DWORD; const lpnspBuffer: LPWSANAMESPACE_INFOA): Integer; stdcall;
 begin
@@ -5898,10 +5899,10 @@ begin
   WSAUnhookBlockingHook            := Stub_WSAUnhookBlockingHook;
   WSAWaitForMultipleEvents         := Stub_WSAWaitForMultipleEvents;
   WSARemoveServiceClass            := Stub_WSARemoveServiceClass;
-   {$ENDIF}
   WSAGetServiceClassInfoA          := Stub_WSAGetServiceClassInfoA;
   WSAGetServiceClassInfoW          := Stub_WSAGetServiceClassInfoW;
   WSAGetServiceClassInfo           := Stub_WSAGetServiceClassInfo;
+  {$ENDIF}
   WSAGetServiceClassNameByClassIdA := Stub_WSAGetServiceClassNameByClassIdA;
   WSAGetServiceClassNameByClassIdW := Stub_WSAGetServiceClassNameByClassIdW;
   WSAGetServiceClassNameByClassId  := Stub_WSAGetServiceClassNameByClassId;
