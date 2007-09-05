@@ -813,14 +813,6 @@ type
   TIdExtList = class(TList);
   {$ENDIF}
 
-  {$UNDEF SIZE64STREAM}
-  {$IFDEF FPC}
-    {$DEFINE SIZE64STREAM}
-  {$ENDIF}
-  {$IFDEF VCL6ORABOVE}
-    {$DEFINE SIZE64STREAM}
-  {$ENDIF}
-
   {$IFNDEF SIZE64STREAM}
   type
     TSeekOrigin = (soBeginning, soCurrent, soEnd);
