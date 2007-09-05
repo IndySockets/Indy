@@ -35,7 +35,9 @@ History:
 unit IdZLib;
 
 interface
+
 {$i IdCompilerDefines.inc}
+
 uses
   SysUtils,
   Classes,
@@ -193,7 +195,7 @@ const
 implementation
 
 uses
-  IdZLibConst;
+  IdStream, IdZLibConst;
 
 const
   Levels: array [TCompressionLevel] of ShortInt =
@@ -203,8 +205,7 @@ function CCheck(code: Integer): Integer;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := code;
-  if code < 0 then
-  begin
+  if code < 0 then begin
     raise ECompressionError.CreateError(code);
   end;
 //    raise ECompressionError.Create('error'); //!!
@@ -214,8 +215,7 @@ function DCheck(code: Integer): Integer;
 {$IFDEF USEINLINE} inline; {$ENDIF}
 begin
   Result := code;
-  if code < 0 then
-  begin
+  if code < 0 then begin
     raise EDecompressionError.CreateError(code);
  //   raise EDecompressionError.Create('error');  //!!
   end;
@@ -397,7 +397,7 @@ begin
   finally
     if UseBuffer then
     begin
-      InStream.Seek(-N, soCurrent);
+      TIdStreamHelper.Seek(InStream, -N, soCurrent);
       FreeMem(Buff);
     end;
   end;
@@ -428,9 +428,8 @@ begin
     buf := Pointer(BackObj.InMem);
     //what if integer overflow?
     Result := S.Size - S.Position;
-    S.Seek(Result, soFromCurrent);
-  end
-  else
+    TIdStreamHelper.Seek(S, Result, soCurrent);
+  end else
   begin
     buf    := @BackObj.ReadBuf;
     Result := S.Read(buf^, SizeOf(BackObj.ReadBuf));
@@ -469,7 +468,7 @@ begin
     try
       DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
       //seek back when unused data
-      InStream.Seek(-strm.avail_in, soFromCurrent);
+      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
       //now trailer can be checked
     finally
       DCheck(inflateBackEnd(strm));
@@ -529,7 +528,7 @@ begin
     try
       DCheck(inflateBack(strm, @Strm_in_func, BackObj, @Strm_out_func, BackObj));
       //seek back when unused data
-      InStream.Seek(-strm.avail_in, soFromCurrent);
+      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
       //now trailer can be checked
     finally
       DCheck(inflateBackEnd(strm));
@@ -582,7 +581,7 @@ var
       begin
         ExpandStream(OutStream, OutStream.Size + BufSize);
       end;
-      OutStream.Seek(LastOutCount - strm.avail_out, soFromCurrent);
+      TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
       strm.next_out  := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
@@ -635,12 +634,13 @@ begin
     end;
 
     //adjust position of the input stream
-    if UseInBuf then
+    if UseInBuf then begin
       //seek back when unused data
-      InStream.Seek(-strm.avail_in, soFromCurrent)
-    else
+      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+    end else begin
       //simple seek
-      InStream.Seek(strm.total_in, soFromCurrent);
+      TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+    end;
 
     CCheck(deflateEnd(strm));
   finally
@@ -671,7 +671,7 @@ var
     else
     begin
       if (strm.avail_out = 0) then ExpandStream(OutStream, OutStream.Size + BufSize);
-      OutStream.Seek(LastOutCount - strm.avail_out, soFromCurrent);
+      TIdStreamHelper.Seek(OutStream, LastOutCount - strm.avail_out, soCurrent);
       strm.next_out  := DMAOfStream(OutStream, strm.avail_out);
       //because we can't really know how much resize is increasing!
     end;
@@ -729,12 +729,13 @@ begin
     end;
 
     //adjust position of the input stream
-    if UseInBuf then
+    if UseInBuf then begin
       //seek back when unused data
-      InStream.Seek(-strm.avail_in, soFromCurrent)
-    else
+      TIdStreamHelper.Seek(InStream, -strm.avail_in, soCurrent);
+    end else begin
       //simple seek
-      InStream.Seek(strm.total_in, soFromCurrent);
+      TIdStreamHelper.Seek(InStream, strm.total_in, soCurrent);
+    end;
 
     CCheck(deflateEnd(strm));
   finally
@@ -978,7 +979,7 @@ end;
 
 destructor TDecompressionStream.Destroy;
 begin
-  FStrm.Seek(-FZRec.avail_in, soCurrent);
+  TIdStreamHelper.Seek(FStrm, -FZRec.avail_in, soCurrent);
   inflateEnd(FZRec);
   inherited Destroy;
 end;
@@ -998,7 +999,7 @@ begin
   //theoretically it can happen with a veeeeery long gzip name or comment
   //this is more generic, but some extra steps
   begin
-    FStrm.Seek(-N, soFromCurrent);
+    TIdStreamHelper.Seek(FStrm, -N, soCurrent);
     FStreamType := GetStreamType(FStrm, @FGZHeader, S);
   end;
 
