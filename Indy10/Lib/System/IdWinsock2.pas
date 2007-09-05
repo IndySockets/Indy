@@ -2557,10 +2557,10 @@ type
 
   {$EXTERNALSYM LPFN_WSAEVENTSELECT}
   LPFN_WSAEVENTSELECT = function(const s : TSocket; const hEventObject : WSAEVENT; lNetworkEvents : LongInt): Integer; stdcall;
-
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSAGETQOSBYNAME}
   LPFN_WSAGETQOSBYNAME = function(const s : TSocket; lpQOSName : LPWSABUF; lpQOS : LPQOS): WordBool; stdcall;
-
+  {$ENDIF}
   {$EXTERNALSYM LPFN_WSAHTONL}
   LPFN_WSAHTONL = function(const s : TSocket; hostlong : u_long; var lpnetlong : DWORD): Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAHTONS}
@@ -2588,8 +2588,10 @@ type
   {$EXTERNALSYM LPFN_WSASEND}
   LPFN_WSASEND = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesSent : DWORD; dwFlags : DWORD;
     lpOverlapped : LPWSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM LPFN_WSASENDDISCONNECT}
   LPFN_WSASENDDISCONNECT = function(const s : TSocket; lpOutboundDisconnectData : LPWSABUF): Integer; stdcall;
+   {$ENDIF}
   {$EXTERNALSYM LPFN_WSASENDTO}
   LPFN_WSASENDTO = function(const s : TSocket; lpBuffers : LPWSABUF; dwBufferCount : DWORD; var lpNumberOfBytesSent : DWORD; dwFlags : DWORD;
     lpTo : LPSOCKADDR; iTolen : Integer; lpOverlapped : LPWSAOVERLAPPED; lpCompletionRoutine : LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
@@ -2910,8 +2912,10 @@ var
   WSAEventSelect : LPFN_WSAEVENTSELECT = nil;
   {$EXTERNALSYM WSAGetOverlappedResult}
   WSAGetOverlappedResult : LPFN_WSAGETOVERLAPPEDRESULT = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSAGetQosByName}
   WSAGetQosByName : LPFN_WSAGETQOSBYNAME = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSAHtonl}
   WSAHtonl : LPFN_WSAHTONL = nil;
   {$EXTERNALSYM WSAHtons}
@@ -2934,8 +2938,10 @@ var
   WSAResetEvent : LPFN_WSARESETEVENT = nil;
   {$EXTERNALSYM WSASend}
   WSASend : LPFN_WSASEND = nil;
+  {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSASendDisconnect}
   WSASendDisconnect : LPFN_WSASENDDISCONNECT = nil;
+  {$ENDIF}
   {$EXTERNALSYM WSASendTo}
   WSASendTo : LPFN_WSASENDTO = nil;
   {$EXTERNALSYM WSASetEvent}
@@ -5284,11 +5290,13 @@ begin
   Result := WSAGetOverlappedResult(s, AOverlapped, lpcbTransfer, fWait, lpdwFlags);
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSAGetQOSByName(const s: TSocket; lpQOSName: LPWSABUF; lpQOS: LPQOS): WordBool; stdcall;
 begin
   @WSAGetQOSByName := FixupStub(hWinSockDll, 'WSAGetQOSByName'); {Do not Localize}
   Result := WSAGetQOSByName(s, lpQOSName, lpQOS);
 end;
+{$ENDIF}
 
 function Stub_WSAHtonl(const s: TSocket; hostlong: u_long; var lpnetlong: DWORD): Integer; stdcall;
 begin
@@ -5332,11 +5340,13 @@ begin
   Result := WSARecv(s, lpBuffers, dwBufferCount, lpNumberOfBytesRecvd, lpFlags, AOverlapped, lpCompletionRoutine);
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSARecvDisconnect(const s: TSocket; lpInboundDisconnectData: LPWSABUF): Integer; stdcall;
 begin
   @WSARecvDisconnect := FixupStub(hWinSockDll, 'WSARecvDisconnect'); {Do not Localize}
   Result := WSARecvDisconnect(s, lpInboundDisconnectData);
 end;
+{$ENDIF}
 
 function Stub_WSARecvFrom(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesRecvd: DWORD; var lpFlags: DWORD; lpFrom: PSockAddr; lpFromlen: PInteger; AOverlapped: Pointer; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
@@ -5356,11 +5366,13 @@ begin
   Result := WSASend(s, lpBuffers, dwBufferCount, lpNumberOfBytesSent, dwFlags, AOverlapped, lpCompletionRoutine);
 end;
 
+{$IFNDEF UNDER_CE}
 function Stub_WSASendDisconnect(const s: TSocket; lpOutboundDisconnectData: LPWSABUF): Integer; stdcall;
 begin
   @WSASendDisconnect := FixupStub(hWinSockDll, 'WSASendDisconnect'); {Do not Localize}
   Result := WSASendDisconnect(s, lpOutboundDisconnectData);
 end;
+{$ENDIF}
 
 function Stub_WSASendTo(const s: TSocket; lpBuffers: LPWSABUF; dwBufferCount: DWORD; var lpNumberOfBytesSent: DWORD; dwFlags: DWORD; lpTo: PSOCKADDR; iTolen: Integer; AOverlapped: LPWSAOVERLAPPED; lpCompletionRoutine: LPWSAOVERLAPPED_COMPLETION_ROUTINE): Integer; stdcall;
 begin
@@ -5790,11 +5802,13 @@ begin
   WSAEventSelect                   := Stub_WSAEventSelect;
   WSAGetLastError                  := Stub_WSAGetLastError;
   WSAGetOverlappedResult           := Stub_WSAGetOverlappedResult;
+  {$IFNDEF UNDER_CE}
   WSAGetQOSByName                  := Stub_WSAGetQOSByName;
+  {$ENDIF}
   WSAHtonl                         := Stub_WSAHtonl;
   WSAHtons                         := Stub_WSAHtons;
   WSAIoctl                         := Stub_WSAIoctl;
-  {$IFNDEF WINCE}
+  {$IFNDEF UNDER_CE}
   WSAIsBlocking                    := Stub_WSAIsBlocking;
   {$ENDIF}
   WSAJoinLeaf                      := Stub_WSAJoinLeaf;
@@ -5814,8 +5828,8 @@ begin
   WSAPoll                          := Stub_WSAPoll;
   {$ENDIF}
   WSARecv                          := Stub_WSARecv;
-  WSARecvDisconnect                := Stub_WSARecvDisconnect;
   {$IFNDEF UNDER_CE}
+  WSARecvDisconnect                := Stub_WSARecvDisconnect;
   WSARecvEx                        := Stub_WSARecvEx;
   {$ENDIF}
   WSARecvFrom                      := Stub_WSARecvFrom;
@@ -5824,8 +5838,8 @@ begin
   {$ENDIF}
   WSAResetEvent                    := Stub_WSAResetEvent;
   WSASend                          := Stub_WSASend;
-  WSASendDisconnect                := Stub_WSASendDisconnect;
   {$IFNDEF UNDER_CE}
+  WSASendDisconnect                := Stub_WSASendDisconnect;
   WSASendMsg                       := Stub_WSASendMsg;
   {$ENDIF}
   WSASendTo                        := Stub_WSASendTo;
