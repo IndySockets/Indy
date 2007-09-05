@@ -635,77 +635,33 @@ const
 { TIdDiscardStream }
 
 type
-  TIdDiscardStream = class(TStream)
+  TIdDiscardStream = class(TIdBaseStream)
   protected
-    {$IFDEF DOTNET}
-    procedure SetSize(NewSize: Int64); override;
-    {$ELSE}
-    {$IFDEF VCL6ORABOVE}
-    procedure SetSize(const NewSize: Int64); override;
-    {$ELSE}
-    procedure SetSize(NewSize: Longint); override;
-    {$ENDIF}
-    {$ENDIF}
-  public
-    {$IFDEF DOTNET}
-    function Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
-    function Write(const ABuffer: array of Byte; AOffset, ACount: Longint): Longint; overload; override;
-    {$ELSE}
-    function Read(var Buffer; Count: Longint): Longint;  override;
-    function Write(const Buffer; Count: Longint): Longint;  override;
-    {$ENDIF}
-    {$IFDEF VCL6ORABOVE}
-    function Seek(const Offset: Int64; Origin: TSeekOrigin): Int64; overload; override;
-    {$ELSE}
-    function Seek(Offset: Longint; Origin: Word): Longint; override;
-    {$ENDIF}
+    function IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint; override;
+    function IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64; override;
+    procedure IdSetSize(ASize: Int64); override;
   end;
 
-{$IFDEF DOTNET}
-function TIdDiscardStream.Read(var ABuffer: array of Byte; AOffset, ACount: Longint): Longint;
-begin
-  Result := 0;
-end;
-{$ELSE}
-function TIdDiscardStream.Read(var Buffer; Count: Longint): Longint;
-begin
-  Result := 0;
-end;
-{$ENDIF}
-
-{$IFDEF VCL6ORABOVE}
-function TIdDiscardStream.Seek(const Offset: Int64; Origin: TSeekOrigin): Int64;
-{$ELSE}
-function TIdDiscardStream.Seek(Offset: Longint; Origin: Word): Longint;
-{$ENDIF}
+function TIdDiscardStream.IdRead(var VBuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
   Result := 0;
 end;
 
-{$IFDEF DOTNET}
-procedure TIdDiscardStream.SetSize(NewSize: Int64);
-{$ELSE}
-{$IFDEF VCL6ORABOVE}
-procedure TIdDiscardStream.SetSize(const NewSize: Int64);
-{$ELSE}
-procedure TIdDiscardStream.SetSize(NewSize: Longint);
-{$ENDIF}
-{$ENDIF}
+function TIdDiscardStream.IdSeek(const AOffset: Int64; AOrigin: TSeekOrigin): Int64;
+begin
+  Result := 0;
+end;
+
+procedure TIdDiscardStream.IdSetSize(ASize: Int64);
 begin
 //
 end;
 
-{$IFDEF DOTNET}
-function TIdDiscardStream.Write(const ABuffer: array of Byte; AOffset, ACount: Longint) : Longint;
+function TIdDiscardStream.IdWrite(const ABuffer: TIdBytes; AOffset, ACount: Longint): Longint;
 begin
   Result := ACount;
 end;
-{$ELSE}
-function TIdDiscardStream.Write(const Buffer; Count: Longint): Longint;
-begin
-  Result := Count;
-end;
-{$ENDIF}
 
 { EIdHTTPProtocolException }
 
