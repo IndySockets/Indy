@@ -402,7 +402,7 @@ interface
 {$i IdCompilerDefines.inc}
 
 uses
-   Classes,
+  Classes,
   IdCoderMIME,
   IdExplicitTLSClientServerBase,
   IdGlobal,
@@ -875,7 +875,7 @@ begin
   IOHandler.Write(AMsg.LastGeneratedHeaders);
 end;
 
-procedure TIdMessageClient.SendBody(AMsg: TIdMEssage);
+procedure TIdMessageClient.SendBody(AMsg: TIdMessage);
 var
   i: Integer;
   LAttachment: TIdAttachment;
@@ -953,7 +953,7 @@ var
 
     LX := ATextPart.ExtraHeaders.Count;  {Debugging}
     IOHandler.Write(ATextPart.ExtraHeaders);
-    IOHandler.WriteLn('');
+    IOHandler.WriteLn;
 
     if TextIsSame(ATextPart.ContentTransfer, 'quoted-printable') then begin {do not localize}
       if ATextPart.Body.Count > 0 then begin
@@ -990,7 +990,7 @@ var
   end;
 
 var
-  LBodyLine: String;
+  LBodyLine, LFileName: String;
   LTextPart: TIdText;
   LAddedTextPart: Boolean;
   LLastPart: Integer;
@@ -1011,7 +1011,7 @@ begin
         //this manually, if the user really wants to). Note this should have been trapped in TIdMessage.GenerateHeader.
         raise EIdException.Create(RSMsgClientInvalidForTransferEncoding);
       end;
-      IOHandler.WriteLn('');     //This is the blank line after the headers
+      IOHandler.WriteLn;     //This is the blank line after the headers
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);
       //CC2: Now output AMsg.Body in the chosen encoding...
       if TextIsSame(AMsg.ContentTransferEncoding, 'base64') then begin  {do not localize}
@@ -1021,7 +1021,7 @@ begin
       end;
     end
     else if AMsg.Encoding = mePlainText then begin
-      IOHandler.WriteLn('');     //This is the blank line after the headers
+      IOHandler.WriteLn;     //This is the blank line after the headers
       //CC2: It is NOT Mime.  It is a body followed by optional attachments
       DoStatus(hsStatusText, [RSMsgClientEncodingText]);
       // Write out Body first
@@ -1034,13 +1034,13 @@ begin
       end else begin
         EncodeAndWriteText(AMsg.Body);
       end;
-      IOHandler.WriteLn('');
+      IOHandler.WriteLn;
       if AMsg.MessageParts.Count > 0 then begin
         //The message has attachments.
         for i := 0 to AMsg.MessageParts.Count - 1 do begin
           //CC: Added support for TIdText...
           if AMsg.MessageParts.Items[i] is TIdText then begin
-            IOHandler.WriteLn('');
+            IOHandler.WriteLn;
             IOHandler.WriteLn('------- Start of text attachment -------'); {do not localize}
             DoStatus(hsStatusText,  [RSMsgClientEncodingText]);
             WriteTextPart(AMsg.MessageParts.Items[i] as TIdText);
@@ -1059,13 +1059,16 @@ begin
                 AMsg.MessageParts[i].ContentTransfer := 'UUE';  {do not localize}
               end;
             end;
-            if TextIsSame(AMsg.MessageParts[i].ContentTransfer, 'UUE') then begin          {do not localize}
-              EncodeAttachment(nil, TIdAttachment(AMsg.MessageParts[i]), TIdMessageEncoderUUE);
-            end else if TextIsSame(AMsg.MessageParts[i].ContentTransfer, 'XXE') then begin {do not localize}
-              EncodeAttachment(nil, TIdAttachment(AMsg.MessageParts[i]), TIdMessageEncoderXXE);
+            case PosInStrArray(AMsg.MessageParts[i].ContentTransfer, ['UUE', 'XXE'], False) of  {do not localize}
+              0: begin
+                  EncodeAttachment(nil, TIdAttachment(AMsg.MessageParts[i]), TIdMessageEncoderUUE);
+                end;
+              1: begin
+                  EncodeAttachment(nil, TIdAttachment(AMsg.MessageParts[i]), TIdMessageEncoderXXE);
+                end;
             end;
           end;
-          IOHandler.WriteLn('');
+          IOHandler.WriteLn;
         end;
       end;
     end
@@ -1077,7 +1080,7 @@ begin
       to the message headers.  Otherwise, add the blank separator between header and
       body...}
       if not AMsg.IsMsgSinglePartMime then begin
-        IOHandler.WriteLn('');     //This is the blank line after the headers
+        IOHandler.WriteLn;     //This is the blank line after the headers
         //if AMsg.Body.Count > 0 then begin
         if not AMsg.IsBodyEmpty then begin
           //CC2: The message has a body text.  There are now a few possibilities.
@@ -1118,7 +1121,7 @@ begin
             IOHandler.WriteLn(SThisIsMultiPartMessageInMIMEFormat);
           end;
         end;
-        IOHandler.WriteLn('');
+        IOHandler.WriteLn;
         //######### SET UP THE BOUNDARY STACK ########
         LBoundary := AMsg.MIMEBoundary.Boundary;
         if LBoundary = '' then begin
@@ -1137,7 +1140,7 @@ begin
         IOHandler.WriteLn('--' + LBoundary);       {do not localize}
         DoStatus(hsStatusText, [RSMsgClientEncodingText]);
         WriteTextPart(AMsg.MessageParts.Items[LLastPart] as TIdText);
-        IOHandler.WriteLn('');
+        IOHandler.WriteLn;
         Dec(LLastPart);  //Don't output it again in the following "for" loop
       end;
       for i := 0 to LLastPart do begin
@@ -1151,14 +1154,14 @@ begin
           AMsg.MIMEBoundary.Push(LBoundary, i);
           IOHandler.WriteLn('Content-Type: ' + LLine + ';');            {do not localize}
           IOHandler.WriteLn('        boundary="' + LBoundary + '"');  {do not localize}
-          IOHandler.WriteLn('');
+          IOHandler.WriteLn;
         end
         else begin
           //Not a multipart header, see if it is a part change...
           if not AMsg.IsMsgSinglePartMime then begin
             while AMsg.MessageParts.Items[i].ParentPart <> AMsg.MIMEBoundary.ParentPart do begin
               IOHandler.WriteLn('--' + LBoundary + '--');  {do not localize}
-              IOHandler.WriteLn('');
+              IOHandler.WriteLn;
               AMsg.MIMEBoundary.Pop;  //This also pops AMsg.MIMEBoundary.ParentPart
               LBoundary := AMsg.MIMEBoundary.Boundary;
             end;
@@ -1167,7 +1170,7 @@ begin
           if AMsg.MessageParts.Items[i] is TIdText then begin
             DoStatus(hsStatusText,  [RSMsgClientEncodingText]);
             WriteTextPart(AMsg.MessageParts.Items[i] as TIdText);
-            IOHandler.WriteLn('');
+            IOHandler.WriteLn;
           end
           else if AMsg.MessageParts.Items[i] is TIdAttachment then begin
             LAttachment := TIdAttachment(AMsg.MessageParts[i]);
@@ -1191,12 +1194,11 @@ begin
               //header!  We also have to write a Content-Type specified in RFC 1741
               //(overriding any ContentType present, if necessary).
               LAttachment.ContentType := 'application/mac-binhex40';            {do not localize}
+              IOHandler.Write('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
               if LAttachment.CharSet <> '' then begin
-                IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + '; charset="' + LAttachment.CharSet + '";'); {do not localize}
-              end else begin
-                IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
+                IOHandler.Write(' charset="' + LAttachment.CharSet + '";'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn(EOL + '        name="' + EncodeHeader(ExtractFileName(LAttachment.FileName), '', HeaderEncoding, ISOCharSet) + '"'); {do not localize}
             end
             else begin
               if LAttachment.CharSet <> '' then begin
@@ -1205,16 +1207,17 @@ begin
               end else begin
                 IOHandler.WriteLn('Content-Type: ' + LAttachment.ContentType + ';'); {do not localize}
               end;
-              IOHandler.WriteLn('        name="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              LFileName := EncodeHeader(ExtractFileName(LAttachment.FileName), '', HeaderEncoding, ISOCharSet); {do not localize}
+              IOHandler.WriteLn('        name="' + LFileName + '"'); {do not localize}
               IOHandler.WriteLn('Content-Transfer-Encoding: ' + LAttachment.ContentTransfer); {do not localize}
               IOHandler.WriteLn('Content-Disposition: ' + LAttachment.ContentDisposition +';'); {do not localize}
-              IOHandler.WriteLn('        filename="' + ExtractFileName(LAttachment.FileName) + '"'); {do not localize}
+              IOHandler.WriteLn('        filename="' + LFileName + '"'); {do not localize}
             end;
             if LAttachment.ContentID <> '' then begin
               IOHandler.WriteLn('Content-ID: '+ LAttachment.ContentID); {Do not Localize}
             end;
             IOHandler.Write(LAttachment.ExtraHeaders);
-            IOHandler.WriteLn('');
+            IOHandler.WriteLn;
             LDestStream := TIdTCPStream.Create(Self);
             try
               case PosInStrArray(LAttachment.ContentTransfer, ['base64', 'quoted-printable', 'binhex40'], False) of {do not localize}
@@ -1260,14 +1263,14 @@ begin
             finally
               FreeAndNil(LDestStream);
             end;
-            IOHandler.WriteLn('');
+            IOHandler.WriteLn;
           end;
         end;
       end;
       if AMsg.MessageParts.Count > 0 then begin
         for i := 0 to AMsg.MIMEBoundary.Count - 1 do begin
           IOHandler.WriteLn('--' + AMsg.MIMEBoundary.Boundary + '--');
-          IOHandler.WriteLn('');
+          IOHandler.WriteLn;
           AMsg.MIMEBoundary.Pop;
         end;
       end;
@@ -1282,7 +1285,7 @@ begin
   if AMsg.NoEncode then begin
     BeginWork(wmWrite); try
       IOHandler.Write(AMsg.Headers);
-      IOHandler.WriteLn('');
+      IOHandler.WriteLn;
       if not AHeadersOnly then begin
         IOHandler.WriteRFCStrings(AMsg.Body, False);
       end;
