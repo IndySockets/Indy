@@ -135,6 +135,7 @@
 unit IdZLibCompressorBase;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -153,8 +154,7 @@ type
     //of ZLib fails.
     function GetIsReady : Boolean; virtual;
   public
-
-  //these call the standard InflateInit and DeflateInit
+    //these call the standard InflateInit and DeflateInit
     procedure DeflateStream(AInStream, AOutStream : TStream;
       const ALevel : TIdCompressionLevel=0); virtual; abstract;
     procedure InflateStream(AInStream, AOutStream : TStream); virtual; abstract;
@@ -173,11 +173,10 @@ type
     //RFC 1950 complient input and output
     procedure CompressFTPDeflate(AInStream, AOutStream : TStream;
       const ALevel, AWindowBits, AMemLevel, AStrategy: Integer);
-    procedure CompressFTPToIO(AInStream : TStream;
-      AIOHandler : TIdIOHandler;
+    procedure CompressFTPToIO(AInStream : TStream; AIOHandler : TIdIOHandler;
       const ALevel, AWindowBits, AMemLevel, AStrategy: Integer); virtual; abstract;
     procedure DecompressFTPFromIO(AIOHandler : TIdIOHandler; AOutputStream : TStream;
-       const AWindowBits : Integer); virtual; abstract;
+      const AWindowBits : Integer); virtual; abstract;
     procedure DecompressFTPDeflate(AInStream, AOutStream : TStream;
       const AWindowBits : Integer);
     procedure CompressHTTPDeflate(AInStream, AOutStream : TStream;
@@ -199,42 +198,43 @@ uses
 procedure TIdZLibCompressorBase.DecompressGZipStream(AInStream, AOutStream : TStream);
 
   procedure GotoDataStart;
-  var LFlags:TIdBytes; //used as a byte
-      LExtra:TIdBytes; //used as a word
-      LNullFindChar:TIdBytes; //used as char
+  var
+    LFlags: TIdBytes; //used as a byte
+    LExtra: TIdBytes; //used as a word
+    LNullFindChar: TIdBytes; //used as char
   begin
     SetLength(LFlags,1);
     SetLength(LExtra,2);
     SetLength(LNullFindChar,1);
 
     //skip id1,id2,CompressionMethod (CM should=8)
-    AInStream.Seek(3,soCurrent);
+    TIdStreamHelper.Seek(AInStream, 3, soCurrent);
     //read Flag
-    TIdStreamHelper.ReadBytes(AInStream,LFlags,1);
+    TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
     //skip mtime,xfl,os
-    AInStream.Seek(6,soCurrent);
+    TIdStreamHelper.Seek(AInStream, 6, soCurrent);
 
     // at pos 10 now
 
-    if LFlags[0] and $4 = $4 then begin // FEXTRA
-      TIdStreamHelper.ReadBytes(AInStream,LExtra,2);
-      AInStream.Seek( BytesToWord( LExtra), soCurrent);
+    if (LFlags[0] and $4) = $4 then begin // FEXTRA
+      TIdStreamHelper.ReadBytes(AInStream, LExtra, 2);
+      TIdStreamHelper.Seek(AInStream, BytesToWord(LExtra), soCurrent);
     end;
 
-    if LFlags[0] and $8 = $8 then begin // FNAME
+    if (LFlags[0] and $8) = $8 then begin // FNAME
       repeat
-        TIdStreamHelper.ReadBytes(AInStream,LNullFindChar,1);
-      until LNullFindChar[0]=0;
+        TIdStreamHelper.ReadBytes(AInStream, LNullFindChar, 1);
+      until LNullFindChar[0] = 0;
     end;
 
-    if LFlags[0] and $10 = $10 then begin // FCOMMENT
+    if (LFlags[0] and $10) = $10 then begin // FCOMMENT
       repeat
-        TIdStreamHelper.ReadBytes(AInStream,LNullFindChar,1);
-      until LNullFindChar[0]=0;
+        TIdStreamHelper.ReadBytes(AInStream, LNullFindChar, 1);
+      until LNullFindChar[0] = 0;
     end;
 
-    if LFlags[0] and $2 = $2 then begin // FHCRC
-      AInStream.Seek(2, soCurrent); // CRC16
+    if (LFlags[0] and $2) = $2 then begin // FHCRC
+      TIdStreamHelper.Seek(AInStream, 2, soCurrent); // CRC16
     end;
   end;
 
@@ -242,22 +242,21 @@ var
   LBytes : TIdBytes;
 begin
   Assert(AInStream<>nil);
-
   GotoDataStart;
-  AInStream.Seek(-2, soCurrent);
+  TIdStreamHelper.Seek(AInStream, -2, soCurrent);
   SetLength(LBytes, 2);
   LBytes[0] := $78; //7=32K blocks, 8=deflate
   LBytes[1] := $9C;
-  TIdStreamHelper.Write(AInStream,LBytes,2);
-  AInStream.Seek(-2, soCurrent);
+  TIdStreamHelper.Write(AInStream, LBytes, 2);
+  TIdStreamHelper.Seek(AInStream, -2, soCurrent);
   AInStream.size := AInStream.size - 8; // remove the CRC32 and the size
   InflateStream(AInStream, AOutStream);
 end;
 
 procedure TIdZLibCompressorBase.DecompressDeflateStream(AInStream, AOutStream : TStream);
 begin
-  AInStream.Seek(10, soCurrent); // skip junk at front
-  InflateStream(AInStream,AOutStream);
+  TIdStreamHelper.Seek(AInStream, 10, soCurrent); // skip junk at front
+  InflateStream(AInStream, AOutStream);
 end;
 
 procedure TIdZLibCompressorBase.DecompressFTPDeflate(AInStream, AOutStream : TStream; const AWindowBits : Integer);
@@ -272,33 +271,27 @@ begin
   }
   LWinBits :=  AWindowBits ;
 {
-
-
-     windowBits can also be greater than 15 for optional gzip decoding. Add
+   windowBits can also be greater than 15 for optional gzip decoding. Add
    32 to windowBits to enable zlib and gzip decoding with automatic header
    detection, or add 16 to decode only the gzip format (the zlib format will
    return a Z_DATA_ERROR).
 }
-  if LWinBits > 0 then
-  begin
-    LWinBits := Abs( LWinBits) + 32;
+  if LWinBits > 0 then begin
+    LWinBits := Abs(LWinBits) + 32;
   end;
 
   DecompressStream(AInStream,AOutStream,LWinBits);
-
 end;
 
 procedure TIdZLibCompressorBase.CompressFTPDeflate(AInStream, AOutStream : TStream;
-      const ALevel, AWindowBits, AMemLevel, AStrategy: Integer);
+  const ALevel, AWindowBits, AMemLevel, AStrategy: Integer);
 begin
-  CompressStream(AInStream,AOutStream, ALevel, AWindowBits, AMemLevel,
-      AStrategy);
-
+  CompressStream(AInStream, AOutStream, ALevel, AWindowBits, AMemLevel, AStrategy);
 end;
 
 procedure TIdZLibCompressorBase.CompressHTTPDeflate(AInStream, AOutStream : TStream; const ALevel : TIdCompressionLevel);
 begin
-  DeflateStream(AInStream,AOutStream, ALevel);
+  DeflateStream(AInStream, AOutStream, ALevel);
 end;
 
 procedure TIdZLibCompressorBase.DecompressHTTPDeflate(AInStream, AOutStream : TStream);
@@ -308,16 +301,16 @@ var
   LDict : TIdBytes; //used as Cardinal
   LOrgPos : Int64;
 begin
-  SetLength(LBCmp,1);
-  SetLength(LFlags,1);
-  SetLength(LDict,4);
+  SetLength(LBCmp, 1);
+  SetLength(LFlags, 1);
+  SetLength(LDict, 4);
   LOrgPos := AInStream.Position;
-  TIdStreamHelper.ReadBytes(AInStream,LBCmp,1);
-  TIdStreamHelper.ReadBytes(AInStream,LFlags,1);
+  TIdStreamHelper.ReadBytes(AInStream, LBCmp, 1);
+  TIdStreamHelper.ReadBytes(AInStream, LFlags, 1);
   EIdException.IfFalse(((LBCmp[0] * 256)+LFlags[0] ) mod 31 = 0,'Error - invalid header'); {do not localize}
-  TIdStreamHelper.ReadBytes(AInStream,LDict,4);
+  TIdStreamHelper.ReadBytes(AInStream, LDict, 4);
   AInStream.Position := LOrgPos;
-  InflateStream(AInStream,AOutStream);
+  InflateStream(AInStream, AOutStream);
   AInStream.Position := LOrgPos;
 end;
 
