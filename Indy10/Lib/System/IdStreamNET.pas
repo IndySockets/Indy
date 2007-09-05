@@ -37,6 +37,10 @@ type
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0): Integer; static;
+    class function Seek(
+          const AStream: TStream;
+          const AOffset: Int64;
+          const AOrigin: TSeekOrigin) : Int64; static;
   end;
 
 implementation
@@ -63,7 +67,7 @@ begin
   if LActual = 0 then begin
     Exit;
   end;
-  
+
   if Length(VBytes) < (AOffset+LActual) then begin
     SetLength(VBytes, AOffset+LActual);
   end;
@@ -90,6 +94,12 @@ begin
       Result := LActual;
     end;
   end;
+end;
+
+class function TIdStreamHelperNET.Seek(const AStream: TStream; const AOffset: Int64;
+  const AOrigin: TSeekOrigin): Int64;
+begin
+  Result := AStream.Seek(AOffset, AOrigin);
 end;
 
 end.

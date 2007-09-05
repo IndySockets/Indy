@@ -39,6 +39,10 @@ type
           const ABytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
+    class function Seek(
+          const AStream: TStream;
+          const AOffset: Int64;
+          const AOrigin: TSeekOrigin) : Int64; {$IFDEF DOTNET} static; {$ENDIF}
   end;
 
 implementation
@@ -91,6 +95,20 @@ begin
       Result := AStream.Write(ABytes[AOffset], LActual);
     end;
   end;
+end;
+
+class function TIdStreamHelperVCL.Seek(const AStream: TStream; const AOffset: Int64;
+  const AOrigin: TSeekOrigin): Int64;
+{$IFNDEF SIZE64STREAM}
+const
+  cOrigins: array[TSeekOrigin] of Word = (soFromBeginning, soFromCurrent, soFromEnd);
+{$ENDIF}
+begin
+  {$IFDEF SIZE64STREAM}
+  Result := AStream.Seek(AOffset, AOrigin);
+  {$ELSE}
+  Result := AStream.Seek(AOffset and $FFFFFFFF, cOrigins[AOrigin]);
+  {$ENDIF}
 end;
 
 end.
