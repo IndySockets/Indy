@@ -212,6 +212,17 @@ type
   PWSAEVENT = ^WSAEVENT;
   {$EXTERNALSYM LPWSAEVENT}
   LPWSAEVENT = PWSAEVENT;
+  {$IFNDEF VCL12ORABOVE}
+    {$IFDEF CPU64}
+      {$IFNDEF FPC}
+  ULONG_PTR = Int64;
+       {$ELSE}
+  ULONG_PTR = QWord;
+       {$ENDIF}
+     {$ELSE}
+  ULONG_PTR = DWORD;
+     {$ENDIF}
+  {$ENDIF}
 
 const
   {$EXTERNALSYM FD_SETSIZE}
@@ -2341,7 +2352,6 @@ type
   {$EXTERNALSYM LPWSAOVERLAPPED_COMPLETION_ROUTINE}
   LPWSAOVERLAPPED_COMPLETION_ROUTINE = procedure(const dwError, cbTransferred: DWORD;
     const lpOverlapped : LPWSAOVERLAPPED; const dwFlags: DWORD); stdcall;
-
 
 
 type
