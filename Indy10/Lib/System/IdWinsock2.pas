@@ -1062,6 +1062,9 @@ const
   {$EXTERNALSYM WSAEREFUSED}
   WSAEREFUSED             = WSABASEERR+112;
 
+  {$IFDEF UNDER_CE}
+  WSAEDUPLICATE_NAME      = WSABASEERR+900;
+  {$ENDIF}
 
 { Error return codes from gethostbyname() and gethostbyaddr()
   (when using the resolver). Note that these errors are
