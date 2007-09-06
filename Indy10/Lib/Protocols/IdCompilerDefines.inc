@@ -163,7 +163,13 @@
   {$ENDIF}
 {$ENDIF}
 
-//Delphi 10 - Delphi 2006, Delphi 2007
+// NOTE: CodeGear decided to make Highlander be a non-breaking release
+// (no interface changes, thus fully backwards compatible without any
+// end user code changes), so VER180 applies to both BDS 2006 and
+// Highlander prior to the release of RAD Studio 2007.  Use VER185 to
+// identify Highlanger specifically.
+
+//Delphi 10 - Delphi 2006, Delphi 2007 (Highlander)
 {$IFDEF VER180}
   {$DEFINE USEINLINE}
   {$DEFINE VCL4ORABOVE}
@@ -190,7 +196,7 @@
   {$DEFINE VCL60PLUS}
 {$ENDIF}
 
-//Delphi 11 - 2007
+//Delphi 11 - Delphi 2007 (Highlander)
 {$IFDEF VER185}
   {$DEFINE USEINLINE}
   {$DEFINE VCL4ORABOVE}
