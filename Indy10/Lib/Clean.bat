@@ -16,7 +16,8 @@ if exist %1*.dcpil del %1*.dcpil >nul
 if exist %1*.identcache del %1*.identcache
 if exist %1*.local del %1*.local
 if exist %1*.pdb del %1*.pdb
-
+if exist %1*.o del %1*.o
+if exist %1.ppu del %1*.ppu
 if exist %1*.~*  del %1*.~* >nul
 if exist %1setenv.bat del %1setenv.bat >nul
 
