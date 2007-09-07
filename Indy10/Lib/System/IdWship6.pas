@@ -34,6 +34,13 @@ interface
 
 {$I IdCompilerDefines.inc}
 
+{$IFDEF REQUIRES_PROPER_ALIGNMENT}
+   {$ALIGN ON}
+{$ELSE}
+  {$ALIGN OFF}
+  {$WRITEABLECONST OFF}
+{$ENDIF}
+
 uses
   Windows,
   IdWinSock2;
@@ -123,19 +130,16 @@ const
 
 type
   // RLebeau: find a better place for this
-  {$EXTERNALSYM UINT64}
   {$IFNDEF FPC}
+   {$EXTERNALSYM UINT64}
   UINT64 = Int64;
-  {$ENDIF}
-  {$IFDEF FPC}
-   UINT64 = QWord;
   {$ENDIF}
   
   {$NODEFINE PPaddrinfo}
   PPaddrinfo = ^PAddrInfo;
 ///* Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP */
   {$EXTERNALSYM IPV6_MREQ}
-  IPV6_MREQ = packed record
+  IPV6_MREQ = record
     ipv6mr_multiaddr: IN6_ADDR; // IPv6 multicast address
     ipv6mr_interface: u_int;     // Interface index
   end;
@@ -153,7 +157,7 @@ type
     );
 
   {$EXTERNALSYM SOCKET_SECURITY_SETTINGS_IPSEC}
-  SOCKET_SECURITY_SETTINGS_IPSEC = packed record
+  SOCKET_SECURITY_SETTINGS_IPSEC = record
     SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
     SecurityFlags : ULONG;
     IpsecFlags : ULONG;
@@ -170,7 +174,7 @@ type
   PSOCKET_SECURITY_SETTINGS_IPSEC = ^SOCKET_SECURITY_SETTINGS_IPSEC;
 
   {$EXTERNALSYM SOCKET_PEER_TARGET_NAME}
-  SOCKET_PEER_TARGET_NAME = packed record
+  SOCKET_PEER_TARGET_NAME = record
     SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
     PeerAddress : SOCKADDR_STORAGE;
     PeerTargetNameStringLen : ULONG;
@@ -180,7 +184,7 @@ type
   PSOCKET_PEER_TARGET_NAME = ^SOCKET_PEER_TARGET_NAME;
 
   {$EXTERNALSYM SOCKET_SECURITY_QUERY_INFO}
-  SOCKET_SECURITY_QUERY_INFO = packed record
+  SOCKET_SECURITY_QUERY_INFO = record
      SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
      Flags : ULONG;
      PeerApplicationAccessTokenHandle : UINT64;
@@ -189,7 +193,7 @@ type
   {$EXTERNALSYM PSOCKET_SECURITY_QUERY_INFO}
   PSOCKET_SECURITY_QUERY_INFO = ^SOCKET_SECURITY_QUERY_INFO;
   {$EXTERNALSYM SOCKET_SECURITY_QUERY_TEMPLATE}
-  SOCKET_SECURITY_QUERY_TEMPLATE = packed record
+  SOCKET_SECURITY_QUERY_TEMPLATE = record
     SecurityProtocol : SOCKET_SECURITY_PROTOCOL;
     PeerAddress : SOCKADDR_STORAGE;
     PeerTokenAccessMask : ULONG;
