@@ -154,12 +154,14 @@ This is not necessary and can cause problems
 when using the standard Win32 API (win32 and win64) where records are packed
 instead of aligned.
 
-To deal with this, I have turned align off when compile for non-Arm targets instead
-of using "packed records".  
+To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
+
 }
 
  {$RANGECHECKS OFF}
-{$IFNDEF WINCE}
+{$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
+   {$ALIGN ON}
+{$ELSE}
   {$ALIGN OFF}
   {$WRITEABLECONST OFF}
 {$ENDIF}
