@@ -180,16 +180,6 @@ interface
 uses
   Classes;
 
-
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  {$DEFINE USEZLIB}
-  {$DEFINE USEOPENSSL}
-{$ENDIF}
-{$IFDEF UNIX}
-  {$DEFINE USEZLIB}
-  {$DEFINE USEOPENSSL}
-{$ENDIF}
-
 // Procs
 procedure Register;
 
@@ -208,7 +198,7 @@ uses
   IdCoderQuotedPrintable,
   IdCoderUUE,
   IdCoderXXE,
-  {$IFDEF USEZLIB}
+  {$IFDEF USEZLIBUNIT}
   IdCompressorZLib,
   IdCompressionIntercept,
   {$ENDIF}
@@ -563,7 +553,7 @@ begin
 
   RegisterComponents(RSRegIndyIntercepts, [
    TIdBlockCipherIntercept,
-   {$IFDEF USEZLIB}
+   {$IFDEF USEZLIBUNIT}
    TIdCompressionIntercept,
    TIdServerCompressionIntercept,
     {$ENDIF}
@@ -723,12 +713,12 @@ begin
    TIdMappedTelnet]);
 
   RegisterComponents(RSRegIndyIntercepts+RSProt, [
-   {$IFDEF USEZLIB}
+   {$IFDEF USEZLIBUNIT}
    TIdCompressionIntercept,
    {$ENDIF}
    TIdBlockCipherIntercept,
    TIdCompressionIntercept,
-   {$IFDEF USEZLIB}
+   {$IFDEF USEZLIBUNIT}
    TIdServerCompressionIntercept,
    {$ENDIF}
    TIdServerInterceptLogEvent,
@@ -755,7 +745,7 @@ begin
 
   RegisterComponents(RSRegIndyMisc+RSProt, [
    TIdConnectThroughHttpProxy,
-   {$IFDEF USEZLIB}
+   {$IFDEF USEZLIBUNIT}
    TIdCompressorZLib,
    {$ENDIF}
    TIdCookieManager,
