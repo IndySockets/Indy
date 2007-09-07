@@ -9,6 +9,8 @@
 
 {$DEFINE INDY100}
 
+{$DEFINE 10_2}  //so developers can IFDEF for this specific version
+
 {$IFDEF BCB}
   {$DEFINE CBUILDER}
 {$ELSE}
@@ -228,6 +230,9 @@
   {$ENDIF}
 {$ENDIF}
 
+{
+BDS 2007 NET personality uses VER190 instead of 185.
+}
 //Delphi 12 - Delphi 2007
 {$IFDEF VER190}
   {$DEFINE USEINLINE}
