@@ -1361,6 +1361,7 @@ Indy10/Lib/Protocols/IndyProtocols100Net.dpk -text
 Indy10/Lib/Protocols/IndyProtocols110.dpk -text
 Indy10/Lib/Protocols/IndyProtocols110.rc -text
 Indy10/Lib/Protocols/IndyProtocols110Net.dpk -text
+Indy10/Lib/Protocols/IndyProtocols120.dpk -text
 Indy10/Lib/Protocols/IndyProtocols40.dpk -text
 Indy10/Lib/Protocols/IndyProtocols40.res -text svneol=unset#unset
 Indy10/Lib/Protocols/IndyProtocols50.dpk -text
@@ -1438,6 +1439,9 @@ Indy10/Lib/Protocols/dclIndyProtocols100Net.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocols110.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocols110.rc -text
 Indy10/Lib/Protocols/dclIndyProtocols110Net.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols120.dpk -text
+Indy10/Lib/Protocols/dclIndyProtocols120.rc -text
+Indy10/Lib/Protocols/dclIndyProtocols120Net.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocols50.RES -text svneol=unset#unset
 Indy10/Lib/Protocols/dclIndyProtocols50.dpk -text
 Indy10/Lib/Protocols/dclIndyProtocols50.rc -text
