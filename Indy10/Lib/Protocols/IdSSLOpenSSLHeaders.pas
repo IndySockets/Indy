@@ -173,6 +173,13 @@ interface
 
 {$i IdCompilerDefines.inc}
 
+{$IFDEF REQUIRES_PROPER_ALIGNMENT}
+   {$ALIGN ON}
+{$ELSE}
+  {$ALIGN OFF}
+  {$WRITEABLECONST OFF}
+{$ENDIF}
+
 //THe OpenSSL developers use a IF 0 and an IF 1 convention for selectively
 //enabling or disabling things.
 {$DEFINE USETHIS}
@@ -3095,7 +3102,7 @@ type
 
   {$EXTERNALSYM time_t}
   time_t	  = TIdC_LONG;
-  STACK = packed record
+  STACK = record
     num : TIdC_INT; //int num;
     data : PChar;  //char **data;
     sorted : TIdC_INT;//int sorted;
@@ -3164,7 +3171,7 @@ type
   {$ENDIF}
 
   //rand.h
-  RAND_METHOD = packed record
+  RAND_METHOD = record
     seed : procedure (const buf : Pointer; num : TIdC_INT) cdecl;
     bytes : function(const buf : PChar; num : TIdC_INT) : TIdC_INT cdecl;
     cleanup : procedure cdecl;
@@ -3194,7 +3201,7 @@ type
   {$ENDIF}
   PBN_LONG = ^BN_LONG;
   PBN_ULONG = ^BN_ULONG;
-  BIGNUM = packed record
+  BIGNUM = record
     d : PBN_ULONG;	// Pointer to an array of 'BN_BITS2' bit chunks.
     top : TIdC_INT;	// Index of last used d +1.
     // The next are internal book keeping for bn_expand.
@@ -3203,13 +3210,13 @@ type
     flags : TIdC_INT;
   end;
   PBIGNUM = ^BIGNUM;
-  BN_CTX = packed record
+  BN_CTX = record
     //This is defined internally.  I don't want to do anything with an internal structure.
   end;
   PBN_CTX = ^BN_CTX;
   PPBN_CTX = ^PBN_CTX; 
   // Used for montgomery multiplication
-  BN_MONT_CTX = packed record
+  BN_MONT_CTX = record
     ri : TIdC_INT;   // number of bits in R
     RR : BIGNUM;     // used to convert to montgomery form
     N : BIGNUM;      // The modulus
@@ -3219,11 +3226,11 @@ type
     flags : TIdC_INT;
   end;
   PBN_MONT_CTX = ^BN_MONT_CTX;
-  BN_BLINDING = packed record
+  BN_BLINDING = record
     //I can't locate any information about the record fields in this.
   end;
   PBN_BLINDING = ^BN_BLINDING;
-  BN_RECP_CTX = packed record
+  BN_RECP_CTX = record
     N : BIGNUM;  // the divisor
     Nr : BIGNUM; // the reciprocal
     num_bits : TIdC_INT;
@@ -3236,14 +3243,14 @@ type
   PPBN_GENCB = ^PBN_GENCB;
   BN_cb_1 = procedure (p1, p2 : TIdC_INT; p3 : Pointer); cdecl;
   BN_cb_2 = function (p1, p2 : TIdC_INT; p3 : PBN_GENCB): TIdC_INT; cdecl;
-  BN_GENCB_union = packed record
+  BN_GENCB_union = record
     case Integer of
     		// if(ver==1) - handles old style callbacks
         0 : (cb_1 : BN_cb_1);
 		// if(ver==2) - new callback style
         1 : (cb_2 : BN_cb_2);
   end;
-  BN_GENCB = packed record
+  BN_GENCB = record
     ver : TIdC_UINT;  // To handle binary (in)compatibility
     arg : Pointer;    // callback-specific data
     cb : BN_GENCB_union;
@@ -3251,7 +3258,7 @@ type
 
   //md2.h
   {$IFNDEF OPENSSL_NO_MD2}
-  MD2_CTX = packed record
+  MD2_CTX = record
     num : TIdC_UINT;
     data : array [0..OPENSSL_MD2_BLOCK - 1] of char;
     cksm : array [0..OPENSSL_MD2_BLOCK - 1] of MD2_INT;
@@ -3263,7 +3270,7 @@ type
   //md4.h
   {$IFNDEF OPENSSL_NO_MD4}
   MD4_LONG = TIdC_ULONG;
-  MD4_CTX = packed record
+  MD4_CTX = record
     A,B,C,D : MD4_LONG;
     Nl,Nh : MD4_LONG;
     data : array [0..(OPENSSL_MD4_LBLOCK-1)] of MD4_LONG;
@@ -3273,7 +3280,7 @@ type
 
   //md5.h
   MD5_LONG = TIdC_UINT;
-  MD5_CTX = packed record
+  MD5_CTX = record
     A,B,C,D : MD5_LONG;
     Nl,Nh : MD5_LONG;
     data : array [0..(OPENSSL_MD5_LBLOCK - 1)] of MD5_LONG;
@@ -3301,7 +3308,7 @@ type
 
   SHA_LONG  = TIdC_UINT;
 
-  SHA_CTX = packed record
+  SHA_CTX = record
     h0,h1,h2,h3,h4 : SHA_LONG;
     Nl,Nh : SHA_LONG;
     data : array [0..OPENSSL_SHA_LBLOCK] of SHA_LONG;
@@ -3309,7 +3316,7 @@ type
   end;
 
   {$IFNDEF OPENSSL_NO_SHA256}
-  SHA256_CTX = packed record
+  SHA256_CTX = record
     h : array [0..(8 - 1)] of SHA_LONG;
     Nl,Nh : SHA_LONG;
     data : array [0..(OPENSSL_SHA_LBLOCK -1)] of SHA_LONG;
@@ -3320,12 +3327,12 @@ type
   //not defined like this in sha.h but a comment
   //says that it must be 64 bit.
   SHA_LONG64 = TIdC_UINT64;
-  TSHA512_CTX_Union = packed record
+  TSHA512_CTX_Union = record
     case integer of
      0 : (d : array [0..(OPENSSL_SHA_LBLOCK -1)] of SHA_LONG64);
      1 : (p : array [0..(OPENSSL_SHA512_CBLOCK -1)] of byte);
   end;
-  SHA512_CTX = packed record
+  SHA512_CTX = record
     h : array[0..(8-1)]of SHA_LONG64;
     Nl,Nh : SHA_LONG64;
     u :  TSHA512_CTX_Union;
@@ -3334,20 +3341,20 @@ type
   {$ENDIF}
 
   //engiene.h
-  ENGINE = packed record
+  ENGINE = record
     //I don't have any info about record fields.
   end;
   PENGINE = ^ENGINE;
 
   //crypto.h
-  CRYPTO_EX_DATA = packed record
+  CRYPTO_EX_DATA = record
     sk : PSTACK;
     dummy : TIdC_INT; // gcc is screwing up this data structure :-(
   end;
   PCRYPTO_EX_DATA = ^CRYPTO_EX_DATA;
 
   //evp.h
-  EVP_PBE_KEYGEN = packed record
+  EVP_PBE_KEYGEN = record
   end;
   PEVP_PBE_KEYGEN = ^EVP_PBE_KEYGEN;
 
@@ -3356,7 +3363,7 @@ type
   PRSA = ^RSA;
   PPRSA =^PRSA;
 
-  RSA_METHOD = packed record
+  RSA_METHOD = record
     name : PChar;
     rsa_pub_enc : function (flen : TIdC_INT; const from : PChar;
       _to : PChar; rsa : PRSA; padding : TIdC_INT) : TIdC_INT; cdecl;
@@ -3393,7 +3400,7 @@ type
     rsa_keygen : function (rsa : PRSA; bits : TIdC_INT; e : PBIGNUM; cb : PBN_GENCB) : TIdC_INT; cdecl;
   end;
   PRSA_METHOD = Pointer;
-  RSA = packed record
+  RSA = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
     pad : TIdC_INT;
@@ -3429,7 +3436,7 @@ type
   //dh.h
   {$IFNDEF OPENSSL_NO_DH}
   PDH = ^DH;
-  DH_METHOD = packed record
+  DH_METHOD = record
     name : PChar;
     // Methods here
     generate_key : function (dh : PDH) : TIdC_INT; cdecl;
@@ -3445,7 +3452,7 @@ type
     generate_params : function(dh : PDH; prime_len, generator : TIdC_INT; cb : PBN_GENCB) : TIdC_INT; cdecl;
   end;
 
-  DH = packed record
+  DH = record
     // The first parameter is used to pickup errors where
     // this is passed instead of aEVP_PKEY, it is set to 0
     pad : TIdC_INT;
@@ -3481,13 +3488,13 @@ type
 
   // dsa.h
   {$IFNDEF OPENSSL_NO_DSA}
-  DSA_SIG = packed record
+  DSA_SIG = record
     r : PBIGNUM;
     s : PBIGNUM;
   end;
   PDSA_SIG = ^DSA_SIG;
   PDSA = ^DSA;
-  DSA_METHOD = packed record
+  DSA_METHOD = record
     name : PChar;
     dsa_do_sign : function (const dgst : PChar; dlen : TIdC_INT; dsa : PDSA) : PDSA_SIG; cdecl;
     dsa_sign_setup : function (dsa : PDSA; ctx_in : BN_CTX; kinvp, rp : PPBN_CTX) : TIdC_INT; cdecl;
@@ -3511,7 +3518,7 @@ type
     dsa_keygen : function(dsa : PDSA) : TIdC_INT; cdecl;
   end;
   PDSA_METHOD = ^DSA_METHOD;
-  DSA = packed record
+  DSA = record
     // This first variable is used to pick up errors where
     // a DSA is passed instead of of a EVP_PKEY
     pad : TIdC_INT;
@@ -3541,28 +3548,28 @@ type
 
   // ec.h
   {$IFNDEF OPENSSL_NO_EC}
-  EC_METHOD = packed record
+  EC_METHOD = record
     //The fields are internal to OpenSSL, they are not listed in the header.
   end;
   PEC_METHOD = ^EC_METHOD;
   PPEC_METHOD = ^PEC_METHOD;
-  EC_GROUP = packed record
+  EC_GROUP = record
     //The fields are internal to OpenSSL, they are not listed in the header.
   end;
   PEC_GROUP = ^EC_GROUP;
   PPEC_GROUP = ^PEC_GROUP;
 
-  EC_POINT = packed record
+  EC_POINT = record
     //The fields are internal to OpenSSL, they are not listed in the header.
   end;
   PEC_POINT = ^EC_POINT;
   PPEC_POINT = ^PEC_POINT;
-  EC_builtin_curve = packed record
+  EC_builtin_curve = record
     nid : TIdC_INT;
     comment : PChar;
   end;
   PEC_KEY = ^EC_KEY;
-  EC_KEY = packed record
+  EC_KEY = record
     //The fields are internal to OpenSSL, they are not listed in the header.
   end;
   PPEC_KEY = ^PEC_KEY;
@@ -3570,13 +3577,13 @@ type
 
   //ecdsa.h
   {$IFNDEF OPENSSL_NO_ECDSA}
-  ECDSA_SIG = packed record
+  ECDSA_SIG = record
     r : PBIGNUM;
     s : PBIGNUM;
   end;
   PECDSA_SIG = ^ECDSA_SIG;
   PPECDSA_SIG = ^PECDSA_SIG;
-  ECDH_METHOD = packed record
+  ECDH_METHOD = record
     //defined interally, not through the header so use function to access members
   end;
   PECDH_METHOD = ^ECDH_METHOD;
@@ -3589,7 +3596,7 @@ type
  {$IFNDEF OPENSSL_NO_AES}
   //OpenSSL Developer's note
   // This should be a hidden type, but EVP requires that the size be known
-  AES_KEY = packed record
+  AES_KEY = record
     rd_key: array[0..(4 *(OPENSSL_AES_MAXNR + 1)-1)] of TIdC_UINT;
     rounds : TIdC_INT;
   end;
@@ -3600,7 +3607,7 @@ type
   //lhash.h
   PLHASH_NODE = ^LHASH_NODE;
   PPLHASH_NODE = ^PLHASH_NODE;
-  LHASH_NODE = packed record
+  LHASH_NODE = record
     data : Pointer;
     next : PLHASH_NODE;
     {$IFNDEF OPENSSL_NO_HASH_COMP}
@@ -3613,7 +3620,7 @@ type
   LHASH_DOALL_FN_TYPE = procedure(p1 : Pointer); cdecl;
   LHASH_DOALL_ARG_FN_TYPE = procedure(p1, p2 : Pointer); cdecl;
 
-  LHASH = packed record
+  LHASH = record
     b : PPLHASH_NODE;
     comp : LHASH_COMP_FN_TYPE;
     hash : LHASH_HASH_FN_TYPE;
@@ -3642,14 +3649,14 @@ type
   PLHASH = ^LHASH;
   
   //conf.h
-  CONF_VALUE = packed record
+  CONF_VALUE = record
     section : PChar;
     name : PChar;
     value : PChar;
   end;
   PCONF_VALUE = ^CONF_VALUE;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_CONF_VALUE = packed record
+  STACK_OF_CONF_VALUE = record
     stack: stack;
   end;
   PSTACK_OF_CONF_VALUE = ^STACK_OF_CONF_VALUE;
@@ -3660,7 +3667,7 @@ type
 //
 
   //* This is used to contain a list of bit names */
-  BIT_STRING_BITNAME = packed record
+  BIT_STRING_BITNAME = record
     bitnum : TIdC_INT;
     lname : PChar;
     sname : PChar;
@@ -3668,7 +3675,7 @@ type
   PBIT_STRING_BITNAME = ^BIT_STRING_BITNAME;
   PPBIT_STRING_BITNAME = ^PBIT_STRING_BITNAME;
 
-  buf_mem_st = packed record
+  buf_mem_st = record
     length : TIdC_INT; // current number of bytes
     data : PChar;
     max: TIdC_INT; // size of buffer
@@ -3686,12 +3693,12 @@ type
   //D2I_OF(type) type *(*)(type **,const unsigned char **,long)
   D2I_OF_void = function (var _para1 : Pointer; const _para2 : PPChar; _para3 : TIdC_LONG) : Pointer; cdecl; 
   // This is just an opaque pointer
-  ASN1_VALUE = packed record
+  ASN1_VALUE = record
   end;
   PASN1_VALUE = ^ASN1_VALUE;
   PPASN1_VALUE = ^PASN1_VALUE;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_VALUE = packed record
+  STACK_OF_ASN1_VALUE = record
     stack: stack;
   end;
   PSTACK_OF_ASN1_VALUE = ^STACK_OF_AASN1_VALUE;
@@ -3699,7 +3706,7 @@ type
   //I think the DECLARE_STACK_OF macro is empty
   PSTACK_OF_ASN1_VALUE = PSTACK;
   {$ENDIF}
-  ASN1_OBJECT = packed record
+  ASN1_OBJECT = record
     sn, ln : PChar;
     nid    : TIdC_INT;
     length : TIdC_INT;
@@ -3709,7 +3716,7 @@ type
   PASN1_OBJECT = ^ASN1_OBJECT;
   PPASN1_OBJECT = ^PASN1_OBJECT;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_OBJECT = packed record
+  STACK_OF_ASN1_OBJECT = record
     stack: stack;
   end;
   PSTACK_OF_ASN1_OBJECT = ^STACK_OF_ASN1_OBJECT;
@@ -3719,7 +3726,7 @@ type
   {$ENDIF}
   PPSTACK_OF_ASN1_OBJECT = ^PSTACK_OF_ASN1_OBJECT;
 
-  asn1_string_st = packed record
+  asn1_string_st = record
     length : TIdC_INT;
     _type : TIdC_INT;
     data : PChar;
@@ -3738,7 +3745,7 @@ type
   PASN1_INTEGER = ^ASN1_INTEGER;
   PPASN1_INTEGER = ^PASN1_INTEGER;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_INTEGER = packed record
+  STACK_OF_ASN1_INTEGER = record
     stack: stack;
   end;
   PSTACK_OF_ASN1_INTEGER = ^STACK_OF_ASN1_INTEGER;
@@ -3787,7 +3794,7 @@ type
   PASN1_GENERALSTRING = ^ASN1_GENERALSTRING;
   PPASN1_GENERALSTRING = ^PASN1_GENERALSTRING;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_GENERALSTRING = packed record
+  STACK_OF_ASN1_GENERALSTRING = record
     _stack: STACK;
   end;
   PSTACK_OF_ASN1_GENERALSTRING =^STACK_OF_ASN1_GENERALSTRING;
@@ -3820,7 +3827,7 @@ type
   PASN1_NULL = ^ASN1_NULL;
   PPASN1_NULL = ^PASN1_NULL;
 
-  ASN1_TYPE = packed record 
+  ASN1_TYPE = record 
     case Integer of 
       0:  (ptr: PChar); 
       1:  (boolean: ASN1_BOOLEAN); 
@@ -3850,7 +3857,7 @@ type
   PASN1_TYPE = ^ASN1_TYPE;
   PPASN1_TYPE = ^PASN1_TYPE;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_TYPE = packed record
+  STACK_OF_ASN1_TYPE = record
     _stack: stack;
   end;
   PSTACK_OF_ASN1_TYPE = ^STACK_OF_ASN1_TYPE;
@@ -3859,7 +3866,7 @@ type
   PSTACK_OF_ASN1_TYPE = ^PSTACK;
   {$ENDIF}
          
-  ASN1_CTX = packed record
+  ASN1_CTX = record
     p : PChar;         // work char pointer
     eos : TIdC_INT;    // end of sequence read for indefinite encoding
     error : TIdC_INT;  // error code to use when returning an error
@@ -3875,7 +3882,7 @@ type
   PASN1_CTX = ^ASN1_CTX;
   PPASN1_CTX = ^PASN1_CTX;
 
-  ASN1_METHOD = packed record
+  ASN1_METHOD = record
     i2d : i2d_of_void;
     d2i : i2d_of_void;
     create : function: Pointer; cdecl;
@@ -3885,7 +3892,7 @@ type
   PPASN1_METHOD = ^PASN1_METHOD;
  
   // This is used when parsing some Netscape objects
-  ASN1_HEADER = packed record
+  ASN1_HEADER = record
     header : PASN1_OCTET_STRING;
     data : Pointer;
     meth : PASN1_METHOD;
@@ -3893,7 +3900,7 @@ type
   PASN1_HEADER = ^ASN1_HEADER;
   PPASN1_HEADER = ^PASN1_HEADER;
 
-  ASN1_ENCODING = packed record
+  ASN1_ENCODING = record
     enc: PChar;
     len: TIdC_LONG;
     modified: TIdC_INT;
@@ -3901,7 +3908,7 @@ type
   PASN1_ENCODING = ^ASN1_ENCODING;
   PPASN1_ENCODING = ^ASN1_ENCODING;
 
-  ASN1_STRING_TABLE = packed record
+  ASN1_STRING_TABLE = record
     nid : TIdC_INT;
     minsize : TIdC_LONG;
     maxsize : TIdC_LONG;
@@ -3911,7 +3918,7 @@ type
   PASN1_STRING_TABLE = ^ASN1_STRING_TABLE;
   PPASN1_STRING_TABLE = ^ASN1_STRING_TABLE;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_STRING_TABLE = packed record
+  STACK_OF_ASN1_STRING_TABLE = record
     _stack: stack;
   end;
   PSTACK_OF_ASN1_STRING_TABLE = ^STACK_OF_ASN1_STRING_TABLE;
@@ -3938,7 +3945,7 @@ type
   {$ENDIF}
 
   //asn1t.h
-  ASN1_TEMPLATE = packed record
+  ASN1_TEMPLATE = record
     flags : TIdC_ULONG;   // Various flags
     tag : TIdC_LONG;      // tag, not used if no tagging
     offset : TIdC_ULONG;  // Offset of this field in structure
@@ -3948,7 +3955,7 @@ type
     item : PASN1_ITEM_EXP; // Relevant ASN1_ITEM or ASN1_ADB
   end;
   PASN1_TEMPLATE = ^ASN1_TEMPLATE;
-  ASN1_ITEM = packed record
+  ASN1_ITEM = record
     itype : Char;                 // The item type, primitive, SEQUENCE, CHOICE or extern
     utype : TIdC_LONG;            // underlying type
     templates : PASN1_TEMPLATE;   // If SEQUENCE or CHOICE this contains the contents
@@ -3961,7 +3968,7 @@ type
   end;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ASN1_ADB_TABLE = packed record
+  STACK_OF_ASN1_ADB_TABLE = record
     stack: stack;
   end;
   PSTACK_OF_ASN1_ADB_TABLE = ^STACK_OF_ASN1_ADB_TABLE;
@@ -3974,7 +3981,7 @@ type
   PASN1_ADB_TABLE = ^ASN1_ADB_TABLE;
   
   PASN1_ADB = ^ASN1_ADB;
-  ASN1_ADB = packed record
+  ASN1_ADB = record
     flags : TIdC_ULONG;          // Various flags
     offset : TIdC_ULONG;         // Offset of selector field
     app_items : PPSTACK_OF_ASN1_ADB_TABLE; // Application defined items
@@ -3984,7 +3991,7 @@ type
     null_tt : PASN1_TEMPLATE;    // Type to use if selector is NULL
   end;
 
-  ASN1_ADB_TABLE = packed record
+  ASN1_ADB_TABLE = record
     flags : TIdC_LONG;            // Various flags
     offset : TIdC_LONG;	          // Offset of selector field
     app_items : PPSTACK_OF_ASN1_ADB_TABLE; // Application defined items
@@ -3998,7 +4005,7 @@ type
   //struct evp_pkey_st
   PPEVP_PKEY = ^PEVP_PKEY;
   PEVP_PKEY = ^EVP_PKEY;
-  EVP_PKEY_union = packed record
+  EVP_PKEY_union = record
     case byte of
       0: (ptr : PChar);
       {$IFNDEF OPENSSL_NO_RSA}
@@ -4017,7 +4024,7 @@ type
   Pevp_pkey_st    = PEVP_PKEY;
   //this was moved from x509 section so that something here can compile.
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_ATTRIBUTE = packed record
+  STACK_OF_X509_ATTRIBUTE = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_ATTRIBUTE = ^STACK_OF_X509_ATTRIBUTE;
@@ -4027,7 +4034,7 @@ type
   {$ENDIF}
   PPSTACK_OF_X509_ATTRIBUTE = ^PSTACK_OF_X509_ATTRIBUTE;
 
-  EVP_PKEY = packed record
+  EVP_PKEY = record
     _type : TIdC_INT;
     save_type : TIdC_INT;
     references : TIdC_INT;
@@ -4037,7 +4044,7 @@ type
   
   PEVP_MD = ^EVP_MD;
 
-  EVP_MD_CTX = packed record
+  EVP_MD_CTX = record
     digest : PEVP_MD;
     engine : PENGINE; // functional reference if 'digest' is ENGINE-provided
     flags : TIdC_ULONG;
@@ -4045,7 +4052,7 @@ type
   end;
   PEVP_MD_CTX = ^EVP_MD_CTX;
         
-  EVP_MD = packed record
+  EVP_MD = record
     _type : TIdC_INT;
     pkey_type : TIdC_INT;
     md_size : TIdC_INT;
@@ -4071,7 +4078,7 @@ type
   PEVP_CIPHER_CTX = ^EVP_CIPHER_CTX;
   
   PEVP_CIPHER = ^EVP_CIPHER;
-  EVP_CIPHER = packed record
+  EVP_CIPHER = record
     nid : TIdC_INT;
     block_size : TIdC_INT;
     key_len : TIdC_INT; // Default value for variable length ciphers
@@ -4090,7 +4097,7 @@ type
     app_data : Pointer;  // Application data
   end;
 
-  EVP_CIPHER_CTX = packed record
+  EVP_CIPHER_CTX = record
     cipher : PEVP_CIPHER;
     engine : PENGINE;   // functional reference if 'cipher' is ENGINE-provided
     encrypt: TIdC_INT;  // encrypt or decrypt
@@ -4108,12 +4115,12 @@ type
     _final : array [0..OPENSSL_EVP_MAX_BLOCK_LENGTH-1] of char; // possible final block
   end;
 
-  EVP_CIPHER_INFO = packed record
+  EVP_CIPHER_INFO = record
     cipher : PEVP_CIPHER;
     iv : array [0..OPENSSL_EVP_MAX_IV_LENGTH -1] of char;
   end;
   PEVP_CIPHER_INFO = ^EVP_CIPHER_INFO;
-  EVP_ENCODE_CTX = packed record
+  EVP_ENCODE_CTX = record
     num : TIdC_INT;    // number saved in a partial encode/decode
     length: TIdC_INT;  // The length is either the output line length
                        // (in input bytes) or the shortest input line
@@ -4129,7 +4136,7 @@ type
   //hmac.h
   //This has to come after the EVP definitions
   {$IFNDEF OPENSSL_NO_HMAC}
-  HMAC_CTX = packed record
+  HMAC_CTX = record
     md : PEVP_MD;
     md_ctx : EVP_MD_CTX;
     i_ctx : EVP_MD_CTX;
@@ -4143,15 +4150,15 @@ type
 
   //pcy_int.h
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_POLICY_DATA = packed record
+  STACK_OF_X509_POLICY_DATA = record
     _stack: stack;
   end;
   PSTACK_OF_X509_POLICY_DATA = ^STACK_OF_X509_POLICY_DATA;
-  STACK_OF_X509_POLICY_REF = packed record
+  STACK_OF_X509_POLICY_REF = record
     _stack: stack;
   end;
   PSTACK_OF_X509_POLICY_REF = ^STACK_OF_X509_POLICY_DATA;  
-  STACK_OF_X509_POLICY_NODE = packed record
+  STACK_OF_X509_POLICY_NODE = record
     _stack: stack;
   end;
   PSTACK_OF_X509_POLICY_NODE = ^STACK_OF_X509_POLICY_NODE;   
@@ -4164,7 +4171,7 @@ type
   PSTACK_OF_POLICYQUALINFO = PSTACK;
   {$ENDIF}
 
-  X509_POLICY_DATA = packed record
+  X509_POLICY_DATA = record
     flags : TIdC_UINT;
     // Policy OID and qualifiers for this data
     valid_policy : PASN1_OBJECT; 
@@ -4173,12 +4180,12 @@ type
   end;
   PX509_POLICY_DATA = ^X509_POLICY_DATA;
 
-  X509_POLICY_REF = packed record
+  X509_POLICY_REF = record
     subjectDomainPolicy : PASN1_OBJECT;
     data : PX509_POLICY_DATA;
   end;
   PX509_POLICY_REF = ^X509_POLICY_REF;
-  X509_POLICY_CACHE = packed record
+  X509_POLICY_CACHE = record
     // anyPolicy data or NULL if no anyPolicy
     anyPolicy : PX509_POLICY_DATA;
     // other policy data
@@ -4234,7 +4241,7 @@ type
   X509V3_EXT_I2R = function (method : Pv3_ext_method; ext : Pointer; _out : PBIO; indent : TIdC_INT) : TIdC_INT; cdecl;
   X509V3_EXT_R2I = function (method : Pv3_ext_method; ctx : Pv3_ext_ctx; const str : PChar): Pointer; cdecl;
 
-  V3_EXT_METHOD = packed record
+  V3_EXT_METHOD = record
     ext_nid : TIdC_INT;
     ext_flags : TIdC_INT;
     // If this is set the following four fields are ignored
@@ -4262,7 +4269,7 @@ type
   end;
   X509V3_EXT_METHOD = V3_EXT_METHOD;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509V3_EXT_METHOD = packed record
+  STACK_OF_X509V3_EXT_METHOD = record
     _stack: stack;
   end;
   PSTACK_OF_X509V3_EXT_METHOD = ^STACK_OF_X509V3_EXT_METHOD;
@@ -4272,13 +4279,13 @@ type
   {$ENDIF}
   PPSTACK_OF_X509V3_EXT_METHOD = ^PSTACK_OF_X509V3_EXT_METHOD;
 
-  X509V3_CONF_METHOD = packed record
+  X509V3_CONF_METHOD = record
     get_string : function(db : Pointer; section, value : PChar) : PChar; cdecl;
     get_section : function(db : Pointer; section : PChar) : PSTACK_OF_CONF_VALUE; cdecl;
     free_string : procedure(db : Pointer; _string : PChar); cdecl;
     free_section : procedure (db : Pointer; section : PSTACK_OF_CONF_VALUE);
   end;
-  V3_EXT_CTX = packed record
+  V3_EXT_CTX = record
     flags : TIdC_INT;
     issuer_cert : PX509;
     subject_cert : PX509;
@@ -4292,31 +4299,31 @@ type
   
   ENUMERATED_NAMES = BIT_STRING_BITNAME;
 
-  BASIC_CONSTRAINTS = packed record
+  BASIC_CONSTRAINTS = record
    ca : TIdC_INT;
    pathlen: PASN1_INTEGER;
   end;
   PBASIC_CONSTRAINTS = ^BASIC_CONSTRAINTS;
 
-  PKEY_USAGE_PERIOD = packed record
+  PKEY_USAGE_PERIOD = record
     notBefore : ASN1_GENERALIZEDTIME;
     notAfter : PASN1_GENERALIZEDTIME;
   end;
   PPKEY_USAGE_PERIOD = ^PKEY_USAGE_PERIOD;
 
-  OTHERNAME = packed record
+  OTHERNAME = record
     type_id : PASN1_OBJECT;
     value : PASN1_TYPE;
   end;
   POTHERNAME = ^OTHERNAME;
 
-  EDIPARTYNAME = packed record
+  EDIPARTYNAME = record
     nameAssigner : PASN1_STRING;
     partyName : PASN1_STRING;
   end;
   PEDIPARTYNAME = ^EDIPARTYNAME;
 
-  GENERAL_NAME_union = packed record
+  GENERAL_NAME_union = record
     case byte of
       0 : (ptr : PChar);
       1 : (otherName : POTHERNAME); // otherName
@@ -4336,13 +4343,13 @@ type
      13 : (rid : ASN1_OBJECT);       // registeredID
      14 : (other : PASN1_TYPE);      // x400Address
   end;
-  GENERAL_NAME = packed record
+  GENERAL_NAME = record
     _type : TIdC_INT;
     d : GENERAL_NAME_union;
   end;
   PGENERAL_NAME = ^GENERAL_NAME;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_GENERAL_NAME = packed record
+  STACK_OF_GENERAL_NAME = record
     _stack: stack;
   end;
   PSTACK_OF_GENERAL_NAME = ^STACK_OF_GENERAL_NAME;
@@ -4353,13 +4360,13 @@ type
 
   PGENERAL_NAMES = PSTACK_OF_GENERAL_NAME;
 
-  ACCESS_DESCRIPTION = packed record
+  ACCESS_DESCRIPTION = record
     method : PASN1_OBJECT;
     location : PGENERAL_NAME;
   end;
   PACCESS_DESCRIPTION = ^ACCESS_DESCRIPTION;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_ACCESS_DESCRIPTION = packed record
+  STACK_OF_ACCESS_DESCRIPTION = record
     _stack: stack;
   end;
   PSTACK_OF_ACCESS_DESCRIPTION = ^STACK_OF_ACCESS_DESCRIPTION;
@@ -4372,24 +4379,24 @@ type
 
   PEXTENDED_KEY_USAGE = PSTACK_OF_ASN1_OBJECT;
 
-  DIST_POINT_NAME_union = packed record
+  DIST_POINT_NAME_union = record
     case byte of
     0 : (fullname : PGENERAL_NAMES);
     1 : (relativename : PSTACK_OF_X509_NAME_ENTRY);
   end;
-  DIST_POINT_NAME = packed record
+  DIST_POINT_NAME = record
     _type : TIdC_INT;
     name : DIST_POINT_NAME_union;
   end;
   PDIST_POINT_NAME = ^DIST_POINT_NAME;
 
-  DIST_POINT = packed record
+  DIST_POINT = record
     distpoint : PDIST_POINT_NAME;
     reasons : PASN1_BIT_STRING;
     CRLissuer : PGENERAL_NAMES;
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_DIST_POINT = packed record
+  STACK_OF_DIST_POINT = record
     _stack: stack;
   end;
   PSTACK_OF_DIST_POINT = ^STACK_OF_DIST_POINT;
@@ -4398,7 +4405,7 @@ type
   PSTACK_OF_DIST_POINT = PSTACK;
   {$ENDIF}
 
-  AUTHORITY_KEYID = packed record
+  AUTHORITY_KEYID = record
     keyid : PASN1_OCTET_STRING;
     issuer : PGENERAL_NAMES;
     serial : PASN1_INTEGER;
@@ -4406,13 +4413,13 @@ type
   PAUTHORITY_KEYID = ^AUTHORITY_KEYID;
 
   // Strong extranet structures
-  SXNETID = packed record
+  SXNETID = record
     zone : PASN1_INTEGER;
     user : PASN1_OCTET_STRING;
   end;
   PSXNETID = ^SXNETID;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_SXNETID = packed record
+  STACK_OF_SXNETID = record
     _stack: stack;
   end;
   PSTACK_OF_SXNETID = ^STACK_OF_SXNETID;
@@ -4421,37 +4428,37 @@ type
   PSTACK_OF_SXNETID = PSTACK;
   {$ENDIF}
 
-  SXNET = packed record
+  SXNET = record
     version : PASN1_INTEGER;
     ids : PSTACK_OF_SXNETID;
   end;
   PSXNET = ^SXNET;
 
-  NOTICEREF = packed record
+  NOTICEREF = record
     organization : PASN1_STRING;
     noticenos : PSTACK_OF_ASN1_INTEGER;
   end;
   PNOTICEREF = ^NOTICEREF;
 
-  USERNOTICE = packed record
+  USERNOTICE = record
     noticeref : PNOTICEREF;
     exptext : PASN1_STRING;
   end;
   PUSERNOTICE = ^USERNOTICE;
 
-  POLICYQUALINFO_union = packed record
+  POLICYQUALINFO_union = record
     case byte of
       0 : (cpsuri : PASN1_IA5STRING);
       1 : (usernotice : PUSERNOTICE);
       2 : (other : PASN1_TYPE);
   end;
-  POLICYQUALINFO = packed record
+  POLICYQUALINFO = record
     pqualid : PASN1_OBJECT;
     d : POLICYQUALINFO_union;
   end;
   PPOLICYQUALINFO = ^POLICYQUALINFO;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_POLICYQUALINFO = packed record
+  STACK_OF_POLICYQUALINFO = record
     _stack: stack;
   end;
   {$ELSE}
@@ -4463,12 +4470,12 @@ type
   {$ELSE}
   PSTACK_OF_POLICYINFO = PSTACK;
   {$ENDIF}
-  POLICYINFO = packed record
+  POLICYINFO = record
     policyid : PASN1_OBJECT;
     qualifiers : PSTACK_OF_POLICYQUALINFO;
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_POLICYQUALINFO = packed record
+  STACK_OF_POLICYQUALINFO = record
     _stack: stack;
   end;
   {$ELSE}
@@ -4478,13 +4485,13 @@ type
   CERTIFICATEPOLICIES = PSTACK_OF_POLICYINFO;
   //typedef STACK_OF(POLICYINFO) CERTIFICATEPOLICIES;
 
-  POLICY_MAPPING = packed record
+  POLICY_MAPPING = record
     issuerDomainPolicy : PASN1_OBJECT;
     subjectDomainPolicy : PASN1_OBJECT;
   end;
   PPOLICY_MAPPING = ^POLICY_MAPPING;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_PPOLICY_MAPPING = packed record
+  STACK_OF_PPOLICY_MAPPING = record
     _stack: stack;
   end;
   PSTACK_OF_POLICY_MAPPING = ^STACK_OF_POLICY_MAPPING;
@@ -4494,14 +4501,14 @@ type
   {$ENDIF}
   PPSTACK_OF_POLICY_MAPPING = ^PSTACK_OF_POLICY_MAPPING;
   
-  GENERAL_SUBTREE = packed record
+  GENERAL_SUBTREE = record
     base : PGENERAL_NAME;
     minimum : PASN1_INTEGER;
     maximum : PASN1_INTEGER;
   end;
   PGENERAL_SUBTREE = ^GENERAL_SUBTREE;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_GENERAL_SUBTREE = packed record
+  STACK_OF_GENERAL_SUBTREE = record
     _stack: stack;
   end;
   PSTACK_OF_GENERAL_SUBTREE = ^STACK_OF_GENERAL_SUBTREE;
@@ -4510,32 +4517,32 @@ type
   PSTACK_OF_GENERAL_SUBTREE = PSTACK;
   {$ENDIF}
 
-  NAME_CONSTRAINTS = packed record
+  NAME_CONSTRAINTS = record
     permittedSubtrees : PSTACK_OF_GENERAL_SUBTREE;
     excludedSubtrees : PSTACK_OF_GENERAL_SUBTREE;
   end;
   PNAME_CONSTRAINTS = ^NAME_CONSTRAINTS;
 
-  POLICY_CONSTRAINTS = packed record
+  POLICY_CONSTRAINTS = record
     requireExplicitPolicy : PASN1_INTEGER;
     inhibitPolicyMapping : ASN1_INTEGER;
   end;
   PPOLICY_CONSTRAINTS = ^POLICY_CONSTRAINTS;
 
   // Proxy certificate structures, see RFC 3820
-  PROXY_POLICY = packed record
+  PROXY_POLICY = record
     policyLanguage : PASN1_OBJECT;
     policy : ASN1_OCTET_STRING;
   end;
   PPROXY_POLICY = ^PROXY_POLICY;
-  PROXY_CERT_INFO_EXTENSION = packed record
+  PROXY_CERT_INFO_EXTENSION = record
     pcPathLengthConstraint : PASN1_INTEGER;
     proxyPolicy : PPROXY_POLICY;
   end;
   PPROXY_CERT_INFO_EXTENSION = ^PROXY_CERT_INFO_EXTENSION;
 
   PX509_PURPOSE = ^X509_PURPOSE;
-  X509_PURPOSE = packed record
+  X509_PURPOSE = record
     purpose : TIdC_INT;
     trust : TIdC_INT;    // Default trust ID
     flags : TIdC_INT;
@@ -4546,7 +4553,7 @@ type
     usr_data : Pointer;
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_PURPOSE = packed record
+  STACK_OF_X509_PURPOSE = record
     _stack: stack;
   end;
   PSTACK_OF_X509_PURPOSE = ^STACK_OF_X509_PURPOSE;
@@ -4556,7 +4563,7 @@ type
   {$ENDIF}
 
   //x509.h
-  X509_HASH_DIR_CTX = packed record
+  X509_HASH_DIR_CTX = record
     num_dirs : TIDC_INT;
     dirs : PPChar;
     dirs_type : PIdC_INT;
@@ -4564,7 +4571,7 @@ type
   end;
   PX509_HASH_DIR_CTX = ^X509_HASH_DIR_CTX;
 
-  X509_CERT_FILE_CTX = packed record
+  X509_CERT_FILE_CTX = record
     num_paths : TIdC_INT;  // number of paths to files or directories
     num_alloced : TIdC_INT;
     paths : PPChar;  // the list of paths or directories
@@ -4572,21 +4579,21 @@ type
   end;
   PX509_CERT_FILE_CTX = ^X509_CERT_FILE_CTX;
 
-  x509_object_union = packed record
+  x509_object_union = record
     case byte of
       0: (ptr : PChar);
       1: (_x509 : Px509);
       2: (crl : PX509_CRL);
       3: (pkey : PEVP_PKEY);
   end;
-  X509_OBJECT = packed record
+  X509_OBJECT = record
     _type : TIdC_INT;
     data : x509_object_union;
   end;
   PX509_OBJECT  = ^X509_OBJECT;
   PPX509_OBJECT  = ^PX509_OBJECT;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_OBJECT = packed record
+  STACK_OF_X509_OBJECT = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_OBJECT = ^STACK_OF_X509_OBJECT;
@@ -4595,14 +4602,14 @@ type
   PSTACK_OF_X509_OBJECT = PSTACK;
   {$ENDIF}
 
-  X509_ALGOR = packed record
+  X509_ALGOR = record
     algorithm : PASN1_OBJECT;
     parameter : PASN1_TYPE;
   end;
   PX509_ALGOR  = ^X509_ALGOR;
   PPX509_ALGOR =^PX509_ALGOR;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_ALGOR = packed record
+  STACK_OF_X509_ALGOR = record
     _stack: stack;
   end;
   PSTACK_OF_X509_ALGOR = ^STACK_OF_X509_ALGOR;
@@ -4612,14 +4619,14 @@ type
   {$ENDIF}
   PPSTACK_OF_X509_ALGOR = ^PSTACK_OF_X509_ALGOR;
   
-  X509_VAL = packed record
+  X509_VAL = record
     notBefore : PASN1_TIME;
     notAfter : PASN1_TIME;
   end;
   PX509_VAL = ^X509_VAL;
   PPX509_VAL =^PX509_VAL;
 
-  X509_PUBKEY = packed record
+  X509_PUBKEY = record
     algor : PX509_ALGOR;
     public_key : PASN1_BIT_STRING;
     pkey : PEVP_PKEY;
@@ -4627,28 +4634,28 @@ type
   PX509_PUBKEY = ^X509_PUBKEY;
   PPX509_PUBKEY =^PX509_PUBKEY;
 
-  X509_SIG = packed record
+  X509_SIG = record
     algor : PX509_ALGOR;
     digest : PASN1_OCTET_STRING;
   end;
   PX509_SIG = X509_SIG;
   PPX509_SIG =^PX509_SIG;
 
-  X509_NAME_ENTRY = packed record
+  X509_NAME_ENTRY = record
     _object : PASN1_OBJECT;
     value : PASN1_STRING;
     _set : TIdC_INT;
     size : TIdC_INT; // temp variable
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_NAME_ENTRY = packed record
+  STACK_OF_X509_NAME_ENTRY = record
     _stack: stack;
   end;
   {$ELSE}
   //I think the DECLARE_STACK_OF macro is empty
   {$ENDIF}
 
-  X509_NAME = packed record
+  X509_NAME = record
     entries : PSTACK_OF_X509_NAME_ENTRY;
     modified : TIdC_INT;  // true if 'bytes' needs to be built
     {$IFNDEF OPENSSL_NO_BUFFER}
@@ -4661,7 +4668,7 @@ type
 
   PPX509_NAME =^PX509_NAME;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_NAME = packed record
+  STACK_OF_X509_NAME = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_NAME = ^STACK_OF_X509_NAME;
@@ -4671,7 +4678,7 @@ type
   {$ENDIF}
   PPSTACK_OF_X509_NAME = ^PSTACK_OF_X509_NAME;
 
-  X509_EXTENSION = packed record
+  X509_EXTENSION = record
     _object : PASN1_OBJECT;
     critical : ASN1_BOOLEAN;
     value : PASN1_OCTET_STRING;
@@ -4679,7 +4686,7 @@ type
   PX509_EXTENSION = ^X509_EXTENSION;
   PPX509_EXTENSION =^PX509_EXTENSION;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_EXTENSION = packed record
+  STACK_OF_X509_EXTENSION = record
     _stack: stack;
   end;
   PSTACK_OF_X509_EXTENSION = ^STACK_OF_X509_EXTENSION;
@@ -4689,13 +4696,13 @@ type
   {$ENDIF}
   PPSTACK_OF_X509_EXTENSION = ^PSTACK_OF_X509_EXTENSION;
 
-  x509_attributes_union = packed record
+  x509_attributes_union = record
     case Byte of
       $FF :(Ptr : PChar);
       0 : (_set: PSTACK_OF_ASN1_TYPE); // 0
       1  : (_single: PASN1_TYPE);
   end;
-  X509_ATTRIBUTE = packed record
+  X509_ATTRIBUTE = record
     _object : PASN1_OBJECT;
     single : TIdC_INT; // 0 for a set, 1 for a single item (which is wrong)
     value : x509_attributes_union;
@@ -4703,7 +4710,7 @@ type
   PX509_ATTRIBUTE = ^X509_ATTRIBUTE;
   PPX509_ATTRIBUTE =^PX509_ATTRIBUTE;
 
-  X509_REQ_INFO = packed record
+  X509_REQ_INFO = record
     enc: ASN1_ENCODING;
     version: PASN1_INTEGER;
     subject: PX509_NAME;
@@ -4711,7 +4718,7 @@ type
     attributes: PSTACK_OF_X509_ATTRIBUTE; // [ 0 ]
   end;
 
-  X509_REQ = packed record
+  X509_REQ = record
     req_info: PX509_REQ_INFO;
     sig_alg: PX509_ALGOR;
     signature: PASN1_BIT_STRING;
@@ -4720,7 +4727,7 @@ type
   PPX509_REQ = ^PX509_REQ;
 
   PX509_CINF = ^X509_CINF;
-  X509_CINF = packed record
+  X509_CINF = record
     version: PASN1_INTEGER;
     serialNumber: PASN1_INTEGER;
     signature: PX509_ALGOR;
@@ -4733,7 +4740,7 @@ type
     extensions: PSTACK_OF_X509_EXTENSION;
   end;
 
-  X509_CERT_AUX = packed record
+  X509_CERT_AUX = record
     trust : PSTACK_OF_ASN1_OBJECT;  // trusted uses
     reject : PSTACK_OF_ASN1_OBJECT; // rejected uses
     alias : PASN1_UTF8STRING;       // "friendly name"
@@ -4742,7 +4749,7 @@ type
   end;
   PX509_CERT_AUX = ^X509_CERT_AUX;
 
-  X509 = packed record
+  X509 = record
     cert_info: PX509_CINF;
     sig_alg : PX509_ALGOR;
     signature : PASN1_BIT_STRING;
@@ -4767,7 +4774,7 @@ type
   end;
 
   {$IFDEF DEBUF_SAFESTACK}
-  STACK_OF_X509 = packed record
+  STACK_OF_X509 = record
     _stack: STACK;
   end;
   PSTACK_OF_X509 = ^STACK_OF_X509;
@@ -4776,7 +4783,7 @@ type
   PSTACK_OF_X509 = PSTACK;
   {$ENDIF}
   
-  X509_CRL_INFO = packed record
+  X509_CRL_INFO = record
     version : PASN1_INTEGER;
     sig_alg : PX509_ALGOR;
     issuer : PX509_NAME;
@@ -4789,7 +4796,7 @@ type
   PX509_CRL_INFO     = ^X509_CRL_INFO;
   PPX509_CRL_INFO    =^PX509_CRL_INFO;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_CRL_INFO = packed record
+  STACK_OF_X509_CRL_INFO = record
     _stack: stack;
   end;
   PSTACK_OF_XX509_CRL_INFO = ^STACK_OF_X509_CRL_INFO;
@@ -4800,7 +4807,7 @@ type
   PX509_LOOKUP = ^X509_LOOKUP;
   //This has to be declared ehre for a reference in the next type.
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_LOOKUP = packed record
+  STACK_OF_X509_LOOKUP = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_LOOKUP = ^STACK_OF_X509_LOOKUP;
@@ -4813,7 +4820,7 @@ type
   PX509_STORE_CTX = ^X509_STORE_CTX;
   PPX509_CRL = ^PX509_CRL;
 
-  X509_STORE = packed record
+  X509_STORE = record
     // The following is a cache of trusted certs
     cache : TIdC_INT;               // if true, stash any hits
     objs : PSTACK_OF_X509_OBJECT;   // Cache of all objects
@@ -4839,14 +4846,14 @@ type
   end;
   PX509_STORE = ^X509_STORE;
 
-  X509_CRL = packed record
+  X509_CRL = record
     crl : PX509_CRL_INFO;
     sig_alg : PX509_ALGOR;
     signature : PASN1_BIT_STRING;
     references : TIdC_INT;
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_CRL = packed record
+  STACK_OF_X509_CRL = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_CRL = ^STACK_OF_X509_CRL;
@@ -4855,7 +4862,7 @@ type
   PSTACK_OF_X509_CRL = PSTACK;
   {$ENDIF}
 
-  X509_LOOKUP_METHOD = packed record
+  X509_LOOKUP_METHOD = record
     name : PChar;
     new_item : function (ctx : PX509_LOOKUP): TIdC_INT; cdecl;
     free : procedure (ctx : PX509_LOOKUP); cdecl;
@@ -4870,7 +4877,7 @@ type
   PX509_LOOKUP_METHOD      = ^X509_LOOKUP_METHOD;
   PPX509_LOOKUP_METHOD     = ^PX509_LOOKUP_METHOD;
 
-  X509_VERIFY_PARAM = packed record
+  X509_VERIFY_PARAM = record
     name : PChar;
     check_time : time_t;          // Time to use
     inh_flags : TIdC_ULONG;       // Inheritance flags
@@ -4882,7 +4889,7 @@ type
   end;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_VERIFY_PARAM = packed record
+  STACK_OF_X509_VERIFY_PARAM = record
     _stack: STACK;
   end;
   PSTACK_OF_X509_VERIFY_PARAM = ^STACK_OF_X509_VERIFY_PARAM;
@@ -4891,7 +4898,7 @@ type
   PSTACK_OF_X509_VERIFY_PARAM = PSTACK;
   {$ENDIF}
 
-  X509_LOOKUP = packed record
+  X509_LOOKUP = record
     init : TIdC_INT;              // have we been started
     skip : TIdC_INT;              // don't use us.
     method : PX509_LOOKUP_METHOD; // the functions
@@ -4903,7 +4910,7 @@ type
   // This is a used when verifying cert chains.  Since the
   // gathering of the cert chain can take some time (and have to be
   // 'retried', this needs to be kept and passed around.
-  X509_STORE_CTX = packed record   // X509_STORE_CTX
+  X509_STORE_CTX = record   // X509_STORE_CTX
     ctx : PX509_STORE;
     current_method : TIdC_INT;  // used when looking up certs
     // The following are set by the caller
@@ -4928,7 +4935,7 @@ type
   PX509_EXTENSION_METHOD   = Pointer;
   
   PX509_TRUST = ^X509_TRUST;
-  X509_TRUST = packed record
+  X509_TRUST = record
     trust : TIdC_INT;
     flags : TIdC_INT;
     check_trust : function(_para1 : PX509_TRUST; para2 : PX509; _para3 : TIdC_INT) : TIdC_INT; cdecl;
@@ -4938,7 +4945,7 @@ type
   end;
   PPX509_TRUST = ^PX509_TRUST;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_NAME_ENTRY = packed record
+  STACK_OF_X509_NAME_ENTRY = record
     _stack: stack;
   end;
   PSTACK_OF_509_TRUST = ^STACK_OF_509_TRUST;
@@ -4947,7 +4954,7 @@ type
   PSTACK_OF_509_TRUST = PSTACK;
   {$ENDIF}
 
-  X509_REVOKED = packed record
+  X509_REVOKED = record
     serialNumber: PASN1_INTEGER;
     revocationDate: PASN1_TIME;
     extensions: PSTACK_OF_X509_EXTENSION; // optional
@@ -4957,7 +4964,7 @@ type
   PPX509_REVOKED     =^PX509_REVOKED;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_REVOKED = packed record
+  STACK_OF_X509_REVOKED = record
     _stack: stack;
   end;
   {$ELSE}
@@ -4967,7 +4974,7 @@ type
   PX509_PKEY       = Pointer;
   PPX509_PKEY      =^PX509_PKEY;
 
-  X509_INFO = packed record
+  X509_INFO = record
     x509 : PX509;
     crl : PX509_CRL;
     x_pkey : PX509_PKEY;
@@ -4979,7 +4986,7 @@ type
   PX509_INFO       = ^X509_INFO;
   PPX509_INFO      =^PX509_INFO;
  {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_X509_INFO = packed record
+  STACK_OF_X509_INFO = record
     _stack: stack;
   end;
   PSTACK_OF_X509_INFO = ^STACK_OF_X509_INFO;
@@ -4992,13 +4999,13 @@ type
 // The next 2 structures and their 8 routines were sent to me by
 // Pat Richard <patr@x509.com> and are used to manipulate
 // Netscapes spki structures - useful if you are writing a CA web page
-  NETSCAPE_SPKAC = packed record
+  NETSCAPE_SPKAC = record
     pubkey : PX509_PUBKEY;
     challenge : PASN1_IA5STRING;  // challenge sent in atlas >= PR2
   end;
   PNETSCAPE_SPKAC = ^NETSCAPE_SPKAC;
   PPNETSCAPE_SPKAC = ^PNETSCAPE_SPKAC;
-  NETSCAPE_SPKI = packed record
+  NETSCAPE_SPKI = record
     spkac : PNETSCAPE_SPKAC;  // signed public key and challenge
     sig_algor : PX509_ALGOR;
     signature : PASN1_BIT_STRING;
@@ -5006,7 +5013,7 @@ type
   PNETSCAPE_SPKI = ^NETSCAPE_SPKI;
   PPNETSCAPE_SPKI = ^PNETSCAPE_SPKI;
 
-  NETSCAPE_CERT_SEQUENCE = packed record
+  NETSCAPE_CERT_SEQUENCE = record
     _type : PASN1_OBJECT;
     certs : PSTACK_OF_X509;
   end;
@@ -5014,19 +5021,19 @@ type
   PPNETSCAPE_CERT_SEQUENCE = ^PNETSCAPE_CERT_SEQUENCE;
 
   // Password based encryption structure
-  PBEPARAM = packed record
+  PBEPARAM = record
     salt : PASN1_OCTET_STRING;
     iter : PASN1_INTEGER;
   end;
   PPBEPARAM = ^PBEPARAM;
   PPPBEPARAM = ^PPBEPARAM;
   // Password based encryption V2 structures
-  PBE2PARAM = packed record
+  PBE2PARAM = record
     keyfunc : PX509_ALGOR;
     encryption : PX509_ALGOR;
   end;
   PPBE2PARAM = ^PBE2PARAM;
-  PBKDF2PARAM = packed record
+  PBKDF2PARAM = record
     salt : PASN1_TYPE;  // Usually OCTET STRING but could be anything
     iter : PASN1_INTEGER;
     keylength : PASN1_INTEGER;
@@ -5035,7 +5042,7 @@ type
   PPBKDF2PARAM = ^PBKDF2PARAM;
   PPPBKDF2PARAM = ^PPBKDF2PARAM;
 
-  PKCS8_PRIV_KEY_INFO = packed record
+  PKCS8_PRIV_KEY_INFO = record
     broken : TIdC_INT;     // Flag for various broken formats
 //#define PKCS8_OK              0
 //#define PKCS8_NO_OCTET        1
@@ -5056,7 +5063,7 @@ type
   //ripemd.h
   {$IFNDEF OPENSSL_NO_RIPEMD}
   RIPEMD160_LONG = TIdC_UINT;
-  RIPEMD160_CTX = packed record
+  RIPEMD160_CTX = record
     A,B,C,D,E : RIPEMD160_LONG;
     Nl,Nh : RIPEMD160_LONG;
     data : array [0..OPENSSL_RIPEMD160_LBLOCK -1 ] of RIPEMD160_LONG;
@@ -5065,7 +5072,7 @@ type
   PRIPEMD160_CTX = ^RIPEMD160_CTX;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC4}
-  RC4_KEY = packed record
+  RC4_KEY = record
     x,y : RC4_INT;
     data : array [0..(256 - 1)] of RC4_INT;
   end;
@@ -5074,14 +5081,14 @@ type
 
   //rc2.h
   {$IFNDEF OPENSSL_NO_RC2}
-  RC2_KEY = packed record
+  RC2_KEY = record
     data : array [0..(64 - 1)] of RC2_INT;
   end;
   PRC2_KEY = ^RC2_KEY;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_RC5}
   RC5_32_INT = TIdC_UINT;
-  RC5_32_KEY = packed record
+  RC5_32_KEY = record
     // Number of rounds
     rounds : TIdC_INT;
     data : array [0..(2*(OPENSSL_RC5_16_ROUNDS+1)-1)] of RC5_32_INT;
@@ -5090,7 +5097,7 @@ type
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_BF}
   BF_LONG = TIdC_UINT;
-  BF_KEY = packed record
+  BF_KEY = record
     P : array [0..(OPENSSL_BF_ROUNDS+2)-1] of BF_LONG;
     S : array [0..(4*256)-1] of BF_LONG;
   end;
@@ -5098,27 +5105,27 @@ type
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_CAST}
   CAST_LONG = TIdC_ULONG;
-  CAST_KEY = packed record
+  CAST_KEY = record
     data : array[0..(32 -1)] of CAST_LONG;
     short_key : TIdC_INT; // Use reduced rounds for short key
   end;
   PCAST_KEY = ^CAST_KEY;
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_IDEA}
-  IDEA_KEY_SCHEDULE = packed record
+  IDEA_KEY_SCHEDULE = record
     data : array [0..(9-1),0..(6-1)] of IDEA_INT;
   end;
   PIDEA_KEY_SCHEDULE = ^IDEA_KEY_SCHEDULE;
   {$ENDIF}
 
   //mdc2.h
-  MDC2_CTX = packed record
+  MDC2_CTX = record
     //this is not defined in headers so it's best use functions in the API to access the structure.
   end;
   PMDC2_CTX = ^MDC2_CTX;
 
   //tmdiff.h
-  MS_TM = packed record
+  MS_TM = record
     //this is not defined in headers so it's best use functions in the API to access the structure.
   end;
   PMS_TM = ^MS_TM;
@@ -5128,7 +5135,7 @@ type
 
   ppem_password_cb = function (buf : PChar; size : TIdC_INT; rwflag : TIdC_INT; userdata : Pointer) : TIdC_INT; cdecl;
 
-  PEM_ENCODE_SEAL_CTX   = packed record
+  PEM_ENCODE_SEAL_CTX   = record
     encode : EVP_ENCODE_CTX;
     md : EVP_MD_CTX;
     cipher : EVP_CIPHER_CTX;
@@ -5136,7 +5143,7 @@ type
   PPEM_ENCODE_SEAL_CTX     = ^PEM_ENCODE_SEAL_CTX;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_SSL_COMP = packed record
+  STACK_OF_SSL_COMP = record
     _stack: stack;
   end;
   PSTACK_OF_SSL_COMP = ^STACK_OF_SSL_COMP;
@@ -5164,13 +5171,13 @@ type
   // des_key_schedule = Integer;
 
   DES_LONG = TIdC_ULONG;
-  des_cblock_union = packed record
+  des_cblock_union = record
     case integer of
       0: (cblock: des_cblock);
       1: (deslong: array [1..2] of DES_LONG);
   end;
 
-  des_ks_struct = packed record
+  des_ks_struct = record
     ks : des_cblock_union;
     weak_key: TIdC_INT;
   end;
@@ -5182,7 +5189,7 @@ type
   TIdSslLockingCallback = procedure (mode, n : TIdC_INT; Afile : PChar; line : TIdC_INT) cdecl;
   TIdSslIdCallback = function: TIdC_ULONG cdecl;
     
-{  X509_REQ = packed record
+{  X509_REQ = record
     nid : TIdC_INT;
     minsize : TIdC_LONG;
     maxsize : TIdC_LONG;
@@ -5197,7 +5204,7 @@ type
 //In any case, I don't know how these structs will work on various platforms.
 //JPM
   PSSL3_ENC_METHOD = ^SSL3_ENC_METHOD;
-  SSL3_ENC_METHOD = packed record
+  SSL3_ENC_METHOD = record
     enc : function (_para1 : PSSL) :TIdC_INT; cdecl;
     mac : function (_para1 : PSSL; _para2 : PByte; _para3 : TIdC_INT) : TIdC_INT; cdecl;
     setup_key_block : function (_para1 : PSSL) : TIdC_INT; cdecl;
@@ -5214,7 +5221,7 @@ type
     alert_value : function(_para1 : TIdC_INT) : TIdC_INT; cdecl;
   end;
 
-  CERT_PKEY = packed record
+  CERT_PKEY = record
     x509 : PX509;
     privatekey : PEVP_PKEY;
   end;
@@ -5222,7 +5229,7 @@ type
 
   PPCERT = ^PCERT;
   PCERT = ^CERT;
-  CERT = packed record
+  CERT = record
     // Current active set
     key : PCERT_PKEY; // ALWAYS points to an element of the pkeys array
                       // Probably it would make more sense to store
@@ -5250,7 +5257,7 @@ type
     references : TIdC_INT; // >1 only if SSL_copy_session_id is used
   end;
 
-  SESS_CERT = packed record
+  SESS_CERT = record
     cert_chain : PSTACK_OF_X509; // as received from peer (not for SSL2)
     // The 'peer_...' members are used only by clients.
     peer_cert_type : TIdC_INT;
@@ -5272,12 +5279,12 @@ type
 
   //pkcs7.h
   PPKCS7 = ^PKCS7;
-  PKCS7_ISSUER_AND_SERIAL = packed record
+  PKCS7_ISSUER_AND_SERIAL = record
     issuer : PX509_NAME;
     serial : PASN1_INTEGER;
   end;
   PPKCS7_ISSUER_AND_SERIAL = ^PKCS7_ISSUER_AND_SERIAL;
-  PKCS7_SIGNER_INFO = packed record
+  PKCS7_SIGNER_INFO = record
     version : PASN1_INTEGER;  // version 1
     issuer_and_serial : PPKCS7_ISSUER_AND_SERIAL;
     digest_alg : PX509_ALGOR;
@@ -5290,7 +5297,7 @@ type
   end;
   PPKCS7_SIGNER_INFO = ^PKCS7_SIGNER_INFO;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_PKCS7_SIGNER_INFO = packed record
+  STACK_OF_PKCS7_SIGNER_INFO = record
     _stack: stack;
   end;
   PSTACK_OF_PKCS7_SIGNER_INFO = ^STACK_OF_PKCS7_SIGNER_INFO;
@@ -5298,7 +5305,7 @@ type
   //I think the DECLARE_STACK_OF macro is empty
   PSTACK_OF_PKCS7_SIGNER_INFO = PSTACK;
   {$ENDIF}
-  PKCS7_RECIP_INFO = packed record
+  PKCS7_RECIP_INFO = record
     version : PASN1_INTEGER;  // version 0
     issuer_and_serial : PPKCS7_ISSUER_AND_SERIAL;
     key_enc_algor : PX509_ALGOR;
@@ -5306,7 +5313,7 @@ type
     cert : PX509; // get the pub-key from this
   end;
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_PKCS7_RECIP_INFO = packed record
+  STACK_OF_PKCS7_RECIP_INFO = record
     _stack: stack;
   end;
   PSTACK_OF_PKCS7_RECIP_INFO = ^STACK_OF_PKCS7_RECIP_INFO;
@@ -5316,7 +5323,7 @@ type
   {$ENDIF}
   PPSTACK_OF_PKCS7_RECIP_INFO = ^PSTACK_OF_PKCS7_RECIP_INFO;
 
-  PKCS7_SIGNED = packed record
+  PKCS7_SIGNED = record
     version : PASN1_INTEGER;  // version 1
     md_algs : PSTACK_OF_X509_ALGOR; // md used
     cert : PSTACK_OF_X509;    //  [ 0 ]
@@ -5327,14 +5334,14 @@ type
   PPKCS7_SIGNED = ^PKCS7_SIGNED;
   PPPKCS7_SIGNED = ^PPKCS7_SIGNED;
 
-  PKCS7_ENC_CONTENT = packed record
+  PKCS7_ENC_CONTENT = record
     content_type : PASN1_OBJECT;
     algorithm : PX509_ALGOR;
     enc_data : PASN1_OCTET_STRING;  // [ 0 ]
     cipher : PEVP_CIPHER;
   end;
   PPKCS7_ENC_CONTENT = ^PKCS7_ENC_CONTENT;
-  PKCS7_ENVELOPE = packed record
+  PKCS7_ENVELOPE = record
     version : PASN1_INTEGER;  // version 0
     recipientinfo : PSTACK_OF_PKCS7_RECIP_INFO;
     enc_data : PPKCS7_ENC_CONTENT;
@@ -5344,7 +5351,7 @@ type
   // The above structure is very very similar to PKCS7_SIGN_ENVELOPE.
   // How about merging the two
 
-  PKCS7_SIGN_ENVELOPE = packed record
+  PKCS7_SIGN_ENVELOPE = record
     version : PASN1_INTEGER;  // version 1
     md_algs : PSTACK_OF_X509_ALGOR; // md used
     cert : PSTACK_OF_X509;    // [ 0 ]
@@ -5355,7 +5362,7 @@ type
   end;
   PPKCS7_SIGN_ENVELOPE = ^PKCS7_SIGN_ENVELOPE;
 
-  PKCS7_DIGEST = packed record
+  PKCS7_DIGEST = record
     version : PASN1_INTEGER;  // version 0
     md : PX509_ALGOR;   // md used
     contents : PPKCS7;
@@ -5363,13 +5370,13 @@ type
   end;
   PPKCS7_DIGEST = ^PKCS7_DIGEST;
 
-  PKCS7_ENCRYPT = packed record
+  PKCS7_ENCRYPT = record
     version : PASN1_INTEGER;  // version 0
     enc_data : PPKCS7_ENC_CONTENT;
   end;
   PPKCS7_ENCRYPT = ^PKCS7_ENCRYPT;
 
-  PKCS7_union = packed record
+  PKCS7_union = record
     // content as defined by the type
     // all encryption/message digests are applied to the 'contents',
     // leaving out the 'type' field.
@@ -5388,7 +5395,7 @@ type
       // NID_pkcs7_encrypted
       6 : (encrypted : PPKCS7_ENCRYPT);
   end;
-  PKCS7 = packed record
+  PKCS7 = record
     // The following is non NULL if it contains ASN1 encoding of
     // this structure
     asn1 : PChar;
@@ -5409,7 +5416,7 @@ type
   end;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_PKCS7 = packed record
+  STACK_OF_PKCS7 = record
     _stack: stack;
   end;
   PSTACK_OF_PKCS7 = ^STACK_OF_PKCS7;
@@ -5419,7 +5426,7 @@ type
   {$ENDIF}
 
   //pkcs12.h
-  PKCS12_MAC_DATA = packed record
+  PKCS12_MAC_DATA = record
     dinfo : PX509_SIG;
     salt : PASN1_OCTET_STRING;
     iter : PASN1_INTEGER; // defaults to 1
@@ -5427,7 +5434,7 @@ type
   PPKCS12_MAC_DATA = ^PKCS12_MAC_DATA;
   PSESS_CERT = ^SESS_CERT;
   PPKCS12 = ^PKCS12;
-  PKCS12 = packed record
+  PKCS12 = record
     version : PASN1_INTEGER;
     mac : PPKCS12_MAC_DATA;
     authsafes : PPKCS7;
@@ -5441,7 +5448,7 @@ type
   PBIO_METHOD = ^BIO_METHOD;
   Pbio_info_cb = procedure (_para1 : PBIO; _para2 : TIdC_INT; _para3 : PChar;
      _para4 : TIdC_INT; _para5, _para6 : TIdC_LONG);
-  BIO_METHOD = packed record
+  BIO_METHOD = record
     _type : TIdC_INT;
     name : PChar;
     bwrite : function(_para1 : PBIO; _para2 : PChar; _para3 : TIdC_INT) : TIdC_INT; cdecl;
@@ -5454,7 +5461,7 @@ type
     callback_ctrl : function (_para1 : PBIO; _para2 : TIdC_INT; _para3 : pbio_info_cb): TIdC_LONG; cdecl;
   end;
 
-  BIO = packed record
+  BIO = record
     method : PBIO_METHOD;
     // bio, mode, argp, argi, argl, ret
     callback : function (_para1 : PBIO; _para2 : TIdC_INT; _para3 : PChar;
@@ -5477,7 +5484,7 @@ type
   //comp.h
   PCOMP_CTX = ^COMP_CTX;
 
-  COMP_METHOD = packed record
+  COMP_METHOD = record
     _type : TIdC_INT; // NID for compression library
     name : PChar; // A text string to identify the library
     init : function (ctx : PCOMP_CTX) : TIdC_INT; cdecl;
@@ -5494,7 +5501,7 @@ type
   end;
   PCOMP_METHOD = ^COMP_METHOD;
 
-  COMP_CTX = packed record
+  COMP_CTX = record
     meth : PCOMP_METHOD;
     compress_in : TIdC_ULONG;
     compress_out : TIdC_ULONG;
@@ -5511,11 +5518,11 @@ type
   }
 
   {$IFNDEF OPENSSL_NO_KRB5}
-  KSSL_ERR = packed record
+  KSSL_ERR = record
     reason : TIdC_INT;
       text : array [0..KSSL_ERR_MAX] of Char;
   end;
-  KSSL_CTX = packed record
+  KSSL_CTX = record
     {I am not going to do anything to define this because it uses things in the
     Kerberos API.  Since there's no support for Kerberos, I'm leaving it empty.
     We only need the pointer anyway}
@@ -5525,7 +5532,7 @@ type
 
   //ssl.h
   PSSL_CIPHER	  = ^SSL_CIPHER;
-  SSL_CIPHER = packed record
+  SSL_CIPHER = record
     valid : TIdC_INT;
     name: PChar;  // text name
     id: TIdC_ULONG; // id, 4 bytes, first is version
@@ -5539,7 +5546,7 @@ type
   end;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_SSL_CIPHER = packed record
+  STACK_OF_SSL_CIPHER = record
     _stack: STACK;
   end;
   PSTACK_OF_SSL_CIPHER =^STACK_OF_SSL_CIPHER;
@@ -5548,7 +5555,7 @@ type
   PSTACK_OF_SSL_CIPHER = PSTACK;
   {$ENDIF}
 
-  SSL_SESSION = packed record
+  SSL_SESSION = record
     ssl_version : TIdC_INT; // what ssl version session info is being kept in here?
 
     // only really used in SSLv2
@@ -5579,7 +5586,7 @@ type
 
   SSL_METHOD_PROC = procedure; cdecl;
   PSSL_METHOD = ^SSL_METHOD;
-  SSL_METHOD = packed record
+  SSL_METHOD = record
      version: TIdC_INT;
      ssl_new: function(s: PSSL): TIdC_INT; cdecl;
      ssl_clear: procedure(s: PSSL); cdecl;
@@ -5627,7 +5634,7 @@ type
 // zero.
   PGEN_SESSION_CB = function (const SSL : PSSL; id : PByte; id_len : TIdC_UINT) : TIdC_INT; cdecl;
 
-  SSL_COMP = packed record
+  SSL_COMP = record
     id : TIdC_INT;
     name : PChar;
     {$IFNDEF OPENSSL_NO_COMP}
@@ -5638,7 +5645,7 @@ type
   end;
 
   {$IFDEF DEBUG_SAFESTACK}
-  STACK_OF_COMP = packed record
+  STACK_OF_COMP = record
     _stack: stack;
   end;
   PSTACK_OF_COMP = ^STACK_OF_COMP;
@@ -5648,7 +5655,7 @@ type
   {$ENDIF}
 
   PSSL_CTX_info_callback = procedure (const ssl : PSSL; _type, val : TIdC_INT); cdecl; // used if SSL's info_callback is NULL
-  SSL_CTX = packed record
+  SSL_CTX = record
     method: PSSL_METHOD;
     cipher_list: PSTACK_OF_SSL_CIPHER;
     // same as above but sorted for lookup
@@ -5757,7 +5764,7 @@ type
   PSSL3_STATE = ^SSL3_STATE;
   PDTLS1_STATE = ^DTLS1_STATE;
 
-  SSL = packed record
+  SSL = record
     // protocol version
     // (one of SSL2_VERSION, SSL3_VERSION, TLS1_VERSION, DTLS1_VERSION)
     version : TIdC_INT;
@@ -5914,7 +5921,7 @@ type
   end;
 
   //ssl2.h
-  SSL2_STATE = packed record
+  SSL2_STATE = record
     three_byte_header : TIdC_INT;
     clear_text : TIdC_INT;    // clear text
     escape : TIdC_INT;        // not used in SSLv2
@@ -5977,7 +5984,7 @@ type
 
   //sl3.h
   PSSL3_RECORD = ^SSL3_RECORD;
-  SSL3_RECORD = packed record
+  SSL3_RECORD = record
     {*r *}  _type : TIdC_INT;   // type of record
     {*rw*}  length : TIdC_UINT; // How many bytes available
     {*r *}  off : TIdC_UINT;    // read/write offset into 'buf'
@@ -5988,7 +5995,7 @@ type
     {*r *}  seq_num : PQ_64BIT; // sequence number, needed by DTLS1
   end;
   PSSL3_BUFFER = ^SSL3_BUFFER;
-  SSL3_BUFFER = packed record
+  SSL3_BUFFER = record
     buf : PChar;            // at least SSL3_RT_MAX_PACKET_SIZE bytes,
                             // see ssl3_setup_buffers()
     len : size_t;           // buffer size
@@ -5996,7 +6003,7 @@ type
     left : TIdC_INT;        // how many bytes left
   end;
 
-  SSL3_STATE = packed record
+  SSL3_STATE = record
     flags : TIdC_LONG;
     delay_buf_pop_ret : TIdC_INT;
 
@@ -6106,7 +6113,7 @@ type
 
   //openssl/pq_compat.h
   ppitem = ^pitem;
-  pitem = packed record
+  pitem = record
   priority : PQ_64BIT;
     data : Pointer;
     next : ppitem;
@@ -6116,19 +6123,19 @@ type
   //for some reason, this header is refering to crypto/pqueue/pqueue.c
   //which is in the OpenSSL headers.
 
-  pqueue = packed record
+  pqueue = record
     items : ppitem;
     count : TIdC_INT;
   end;
   //
-  DTLS1_BITMAP = packed record
+  DTLS1_BITMAP = record
     map : PQ_64BIT;
     length : TIdC_ULONG;     // sizeof the bitmap in bits
     max_seq_num : PQ_64BIT;  // max record number seen so far
   end;
   PDTLS1_BITMAP = ^DTLS1_BITMAP;
 
-  hm_header = packed record
+  hm_header = record
     _type : PChar;
     msg_len : TIdC_ULONG;
     seq : TIdC_USHORT;
@@ -6136,11 +6143,11 @@ type
     frag_len : TIdC_ULONG;
     is_ccs : TIdC_UINT;
   end;
-  ccs_header_st = packed record
+  ccs_header_st = record
     _type : PChar;
     seq : TIdC_USHORT;
   end;
-  dtls1_timeout_st = packed record
+  dtls1_timeout_st = record
     // Number of read timeouts so far
     read_timeouts : TIdC_UINT;
 
@@ -6151,17 +6158,17 @@ type
     num_alerts : TIdC_UINT;
   end;
 
-  record_pqueue = packed record
+  record_pqueue = record
     epoch : TIdC_USHORT;
     q : pqueue;
   end;
 
-  hm_fragment = packed record
+  hm_fragment = record
     msg_header : hm_header;
     fragment : PChar;
   end;
 
-  DTLS1_STATE = packed record
+  DTLS1_STATE = record
     send_cookie : TIdC_UINT;
     cookie : array [0..OPENSSL_DTLS1_COOKIE_LENGTH - 1 ] of Char;
     rcvd_cookie : array [0..OPENSSL_DTLS1_COOKIE_LENGTH -1] of Char;

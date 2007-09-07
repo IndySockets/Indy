@@ -16,6 +16,15 @@ different platforms in one file.
 
 interface
 {$i IdCompilerDefines.inc}
+
+//This is for chip architectures such as ARM or Sparc that require data alignment.
+{$IFDEF REQUIRES_PROPER_ALIGNMENT}
+   {$ALIGN ON}
+{$ELSE}
+  {$ALIGN OFF}
+  {$WRITEABLECONST OFF}
+{$ENDIF}
+
 {$IFNDEF FPC}
   {$IFDEF WIN32}
     {$define STATICLOAD}
@@ -52,7 +61,7 @@ type
   TOutFunc   = out_func;
 
   z_streamp = ^z_stream;
-  z_stream = packed record
+  z_stream = record
     next_in: PChar;       (* next input byte *)
     avail_in: TIdC_UINT;    (* number of bytes available at next_in *)
     total_in: TIdC_ULONG;    (* total nb of input bytes read so far *)
@@ -80,7 +89,7 @@ type
   for more details on the meanings of these fields.
 *)
   gz_headerp = ^gz_header;
-  gz_header = packed record
+  gz_header = record
     text       : TIdC_INT;   //* true if compressed data believed to be text */
     time       : TIdC_ULONG;  //* modification time */
     xflags     : TIdC_INT;   //* extra flags (not used when writing a gzip file) */
