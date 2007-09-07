@@ -560,7 +560,14 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   end;
 
   EIdOpenSSLError = class(EIdException);
-  EIdOpenSSLLoadError = class(EIdOpenSSLError);
+  TIdOpenSSLLoadErrorClass = class of EIdOpenSSLLoadError;
+  EIdOpenSSLLoadError = class(EIdOpenSSLError)
+  protected
+    FErrorCode : TIdC_ULONG;
+  public
+    class procedure RaiseException(AEClass : TIdOpenSSLLoadErrorClass);
+    property ErrorCode : TIdC_ULONG read FErrorCode;
+  end;
   EIdOSSLCouldNotLoadSSLLibrary = class(EIdOpenSSLLoadError);
   EIdOSSLModeNotSet = class(EIdOpenSSLError);
   EIdOSSLGetMethodError = class(EIdOpenSSLError);
@@ -597,6 +604,14 @@ var
   LockPassCB: TIdCriticalSection = nil;
   LockVerifyCB: TIdCriticalSection = nil;
   CallbackLockList: TThreadList = nil;
+
+function GetErrorMessage(const AErr : TIdC_ULONG) : String;
+var
+  LErrMsg: array [0..160] of char;
+begin
+  IdSSLERR_error_string(AErr, @LErrMsg);
+  result := StrPas(@LErrMsg);
+end;
 
 function PasswordCallback(buf:PChar; size:TIdC_INT; rwflag:TIdC_INT; userdata: Pointer):TIdC_INT; cdecl;
 var
@@ -1435,8 +1450,9 @@ end;
 procedure TIdSSLContext.InitContext(CtxMode: TIdSSLCtxMode);
 var
   SSLMethod: PSSL_METHOD;
-  error: Integer;
+  error: TIdC_INT;
   pCipherList, pRootCertFile: PChar;
+
 //  pCAname: PSTACK_X509_NAME;
 begin
   // Destroy the context first
@@ -1471,19 +1487,22 @@ begin
   // load key and certificate files
   if RootCertFile <> '' then begin    {Do not Localize}
     if not LoadRootCert then begin
-      raise EIdOSSLLoadingRootCertError.Create(RSSSLLoadingRootCertError);
+       EIdOSSLLoadingRootCertError.RaiseException(EIdOSSLLoadingRootCertError);
+    //  raise EIdOSSLLoadingRootCertError.Create(RSSSLLoadingRootCertError);
     end;
   end;
 
   if CertFile <> '' then begin    {Do not Localize}
     if not LoadCert then begin
-      raise EIdOSSLLoadingCertError.Create(RSSSLLoadingCertError);
+      EIdOSSLLoadingCertError.RaiseException(EIdOSSLLoadingCertError);
+     // raise EIdOSSLLoadingCertError.Create(RSSSLLoadingCertError);
     end;
   end;
 
   if KeyFile <> '' then begin    {Do not Localize}
     if not LoadKey then begin
-      raise EIdOSSLLoadingKeyError.Create(RSSSLLoadingKeyError);
+      EIdOSSLLoadingKeyError.RaiseException(EIdOSSLLoadingKeyError);
+   //   raise EIdOSSLLoadingKeyError.Create(RSSSLLoadingKeyError);
     end;
   end;
 
@@ -2256,6 +2275,18 @@ end;
 function TIdSSLCipher.GetVersion:String;
 begin
   Result := StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
+end;
+
+{ EIdOpenSSLLoadError }
+class procedure EIdOpenSSLLoadError.RaiseException(AEClass : TIdOpenSSLLoadErrorClass);
+var
+  LException : EIdOpenSSLLoadError;
+  LErr : TIdC_ULONG;
+begin
+  LErr := IdSSLERR_get_err;
+  LException := AEClass.Create( GetErrorMessage(LErr) );
+  LException.FErrorCode := LErr;
+  raise  LException;
 end;
 
 initialization
