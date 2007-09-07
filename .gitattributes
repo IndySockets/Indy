@@ -883,6 +883,9 @@ Indy10/Lib/Core/dclIndyCore100Net.dpk -text
 Indy10/Lib/Core/dclIndyCore110.dpk -text
 Indy10/Lib/Core/dclIndyCore110.rc -text
 Indy10/Lib/Core/dclIndyCore110Net.dpk -text
+Indy10/Lib/Core/dclIndyCore120.dpk -text
+Indy10/Lib/Core/dclIndyCore120.rc -text
+Indy10/Lib/Core/dclIndyCore120Net.dpk -text
 Indy10/Lib/Core/dclIndyCore50.dpk -text
 Indy10/Lib/Core/dclIndyCore50.rc -text
 Indy10/Lib/Core/dclIndyCore50.res -text svneol=unset#unset
