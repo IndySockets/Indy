@@ -1025,6 +1025,7 @@ end;
 
 function TIdFTPListOutput.MListItem(AItem: TIdFTPListOutputItem; AMLstOpts: TIdFTPFactOutputs): String;
 begin
+  Result := '';
   if AMLstOpts = [] then begin
     Result := AItem.FileName;
     Exit;
