@@ -878,10 +878,14 @@ type
     function CheckAccount: Boolean;
     function IsAccountNeeded : Boolean;
     function GetSupportsVerification : Boolean;
+    {$IFDEF DOTNET1_1}
     //
     // holger: .NET compatibility change
+    //
+    //ifdefed workaround for an old problem.
     property IPVersion;
     //
+    {$ENDIF}
   public
     function IsExtSupported(const ACmd : String):Boolean;
     procedure ExtractFeatFacts(const ACmd : String; AResults : TStrings);
@@ -972,6 +976,9 @@ type
     property UsingSFTP : Boolean read FUsingSFTP;
     property CurrentTransferMode : TIdFTPTransferMode read FCurrentTransferMode write TransferMode;
   published
+    {$IFNDEF DOTNET1_1}
+    property IPVersion;
+    {$ENDIF}
     property AutoLogin: Boolean read FAutoLogin write FAutoLogin;
     // This is an object that can compress and decompress HTTP Deflate encoding
     property Compressor : TIdZLibCompressorBase read FCompressor write FCompressor;
