@@ -13,7 +13,6 @@ uses
   IdFTPListParseTandemGuardian, //needed ref. to TIdTandemGuardianFTPListItem property
   IdFTPListTypes, //needed for ref. to TIdUnixBaseFTPListItem property
   IdFTPListParseVMS, //needed for ref. to TIdVMSFTPListItem property ;
-  IdObjs,
     IdIOHandler,
   IdIOHandlerStack,
   IdLogEvent; //for logging component
@@ -22,8 +21,8 @@ type
   TFTPProtHandler = class(TProtHandler)
   protected
     FPort : Boolean;
-    procedure OnSent(ASender: TIdNativeComponent; AText: string; AData: string);
-    procedure OnReceived(ASender: TIdNativeComponent; AText: string; AData: string);
+    procedure OnSent(ASender: TComponent; const AText: string; const AData: string);
+    procedure OnReceived(ASender: TComponent; const AText: string; const AData: string);
     procedure MakeHTMLDirTable(AURL : TIdURI; AFTP : TIdFTP);
   public
      class function CanHandleURL(AURL : TIdURI) : Boolean; override;
@@ -259,7 +258,7 @@ begin
   end;
 end;
 
-procedure TFTPProtHandler.OnSent(ASender: TIdNativeComponent; AText: string; AData: string);
+procedure TFTPProtHandler.OnSent(ASender: TComponent; const AText: string; const AData: string);
 begin
   FLogData.Text := FLogData.Text + AData;
   if FVerbose then
@@ -268,7 +267,7 @@ begin
   end;
 end;
 
-procedure TFTPProtHandler.OnReceived(ASender: TIdNativeComponent; AText: string; AData: string);
+procedure TFTPProtHandler.OnReceived(ASender: TComponent; const AText: string; const AData: string);
 begin
    FLogData.Text := FLogData.Text + AData;
   if FVerbose then
