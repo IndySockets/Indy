@@ -3068,6 +3068,9 @@ const
   OPENSSL_ERR_R_DSO_LIB = OPENSSL_ERR_LIB_DSO;
 
 type
+  {$IFNDEF VCL6ORABOVE}
+  PByte = ^Byte;
+  {$ENDIF}
   UInteger        = Longint;
   PUInteger   =^UInteger;
   PFunction       = Pointer;
