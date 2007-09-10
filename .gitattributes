@@ -1598,6 +1598,10 @@ Indy10/Lib/debian/rules -text
 Indy10/Lib/debian/watch.ex -text
 Indy10/Lib/examples/Makefile -text
 Indy10/Lib/examples/Makefile.fpc -text
+Indy10/Lib/examples/elizaweb/HTML/Eliza.jpg -text svneol=unset#image/jpeg
+Indy10/Lib/examples/elizaweb/HTML/eliza.html -text svneol=unset#text/html
+Indy10/Lib/examples/elizaweb/HTML/index.html -text svneol=unset#text/html
+Indy10/Lib/examples/elizaweb/HTML/logo.jpg -text svneol=unset#image/jpeg
 Indy10/Lib/examples/elizaweb/Makefile -text
 Indy10/Lib/examples/elizaweb/Makefile.fpc -text
 Indy10/Lib/examples/elizaweb/elizaweb.pas -text
