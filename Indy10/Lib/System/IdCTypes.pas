@@ -131,7 +131,13 @@ type
   PIdC_DOUBLE = ^TIdC_DOUBLE;
   TIdC_LONGDOUBLE = extended;
   PIdC_LONGDOUBLE = ^TIdC_LONGDOUBLE;
-  
+
+    {$IFNDEF VCL6ORABOVE}
+    //Some headers require this in D5 or earlier.
+    //FreePascal already has this in its system unit.
+  PByte = ^Byte;
+  PWord = ^Word;
+    {$ENDIF}
   {$ENDIF}
     
 
