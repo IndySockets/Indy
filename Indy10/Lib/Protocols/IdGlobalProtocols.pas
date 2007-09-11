@@ -379,11 +379,6 @@ type
     function _Release: Integer;
   end;
 
-  {$IFNDEF VCL6ORABOVE}
-  PByte =^Byte;
-  PWord =^Word;
-  {$ENDIF}
-
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   TIdWin32Type = (Win32s,
     WindowsNT40PreSP6Workstation, WindowsNT40PreSP6Server, WindowsNT40PreSP6AdvancedServer,
