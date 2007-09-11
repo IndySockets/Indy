@@ -403,17 +403,16 @@ function TIdStackUnix.RecvFrom(const ASocket: TIdStackSocketHandle;
   var VPort: TIdPort; AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION ): Integer;
 var
   LiSize: tsocklen;
-  LP : PSockAddr;
+  LAddr: SockAddr;
   LAddr6: sockaddr_in6;
 begin
   case AIPVersion of
     Id_IPv4 :
       begin
-        LP := @LAddr6;
-        LiSize := SizeOf(LiSize);
-        Result := fpRecvFrom(ASocket, @VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, LP, @LiSize);
-        VIP := NetAddrToStr(LP^.sin_addr);
-        VPort := NToHs(LP^.sin_port);
+        LiSize := SizeOf(LAddr);
+        Result := fpRecvFrom(ASocket, @VBuffer, ALength, AFlags or Id_MSG_NOSIGNAL, @LAddr, @LiSize);
+        VIP := NetAddrToStr(LAddr.sin_addr);
+        VPort := NToHs(LAddr.sin_port);
       end;
     Id_IPv6:
       begin
