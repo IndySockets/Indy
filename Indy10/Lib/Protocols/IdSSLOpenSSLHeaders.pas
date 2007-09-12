@@ -8835,7 +8835,7 @@ begin
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF FPC}
-    {$IFDEF WIN32}
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   if hIdCrypto = 0 then begin
     hIdCrypto := LoadLibrary(SSLCLIB_DLL_name);
   end;
