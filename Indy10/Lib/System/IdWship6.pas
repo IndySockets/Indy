@@ -495,7 +495,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);
   if not Assigned(getaddrinfo) then
   begin
-    hWship6Dll := LoadLibrary(Wship6_dll);
+    hWship6Dll := SafeLoadLibrary(Wship6_dll);
     hProcHandle := hWship6Dll;
     getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);  {do not localize}
   end;
@@ -517,7 +517,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
         GetAddrInfoEx := GetProcAddress(hProcHandle, fn_GetAddrInfoEx); {Do not localize}
         SetAddrInfoEx := GetProcAddress(hProcHandle, fn_SetAddrInfoEx); {Do not localize}
         FreeAddrInfoEx := GetProcAddress(hProcHandle, fn_FreeAddrInfoEx); {Do not localize}
-        hfwpuclntDll := LoadLibrary(fwpuclnt_dll);
+        hfwpuclntDll := SafeLoadLibrary(fwpuclnt_dll);
         if hfwpuclntDll <> 0 then
         begin
           WSASetSocketPeerTargetName := GetProcAddress(hfwpuclntDll, 'WSASetSocketPeerTargetName'); {Do not localize}

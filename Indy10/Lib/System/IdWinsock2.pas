@@ -4883,7 +4883,7 @@ var
   LError: DWORD;
 begin
   if hWinSockDll = 0 then begin
-    hWinSockDll := Windows.LoadLibrary(WINSOCK2_DLL);
+    hWinSockDll := SafeLoadLibrary(WINSOCK2_DLL);
     if hWinSockDll <> 0 then begin
       LError := WSAStartup($202, LData);
       if LError = 0 then begin
@@ -4903,7 +4903,7 @@ procedure LoadMSWSock;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if hMSWSockDll = 0 then begin
-    hMSWSockDll := Windows.LoadLibrary(MSWSOCK_DLL);
+    hMSWSockDll := SafeLoadLibrary(MSWSOCK_DLL);
     if hMSWSockDll = 0 then begin
       raise EIdWinsockStubError.Build(Windows.GetLastError, RSWinsockLoadError, [MSWSOCK_DLL]);
     end;
