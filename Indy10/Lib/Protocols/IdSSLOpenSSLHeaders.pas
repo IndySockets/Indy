@@ -8826,21 +8826,36 @@ begin
   end;
   {$ELSE}
     {$IFDEF FPC}
+       {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+       //On Windows, you should use SafeLoadLibrary because
+       //the LoadLibrary API call messes with the FPU control word.
+  if hIdCrypto = 0 then begin
+    hIdCrypto := SafeLoadLibrary(SSLCLIB_DLL_name);
+  end;
+  if hIdSSL = 0 then begin
+    hIdSSL := SafeLoadLibrary(SSL_DLL_name);
+  end
+  else
+  begin
+    Exit;
+  end;
+       {$ELSE}
   if hIdCrypto = 0 then begin
    hIdCrypto := HMODULE(LoadLibrary(SSLCLIB_DLL_name));
   end;
   if hIdSSL = 0 then begin
     hIdSSL := HMODULE(LoadLibrary(SSL_DLL_name));
   end;
+        {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   {$IFNDEF FPC}
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   if hIdCrypto = 0 then begin
-    hIdCrypto := LoadLibrary(SSLCLIB_DLL_name);
+    hIdCrypto := SafeLoadLibrary(SSLCLIB_DLL_name);
   end;
   if hIdSSL = 0 then begin
-    hIdSSL := LoadLibrary(SSL_DLL_name);
+    hIdSSL := SafeLoadLibrary(SSL_DLL_name);
   end else begin
     Exit;
   end;

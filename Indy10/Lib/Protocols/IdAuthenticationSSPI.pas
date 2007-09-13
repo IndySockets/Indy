@@ -467,7 +467,9 @@ function TSSPIInterface.IsAvailable: Boolean;
       { WindowsNT & Windows2000 SSPI dll }
       dllName := SECURITY_DLL_NT;
     { load SSPI dll }
-    fDLLHandle := LoadLibrary(@dllName[1]);
+    //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
+    //call because LoadLibrary messes with the FPU control word.    
+    fDLLHandle := SafeLoadLibrary(@dllName[1]);
     if fDLLHandle > 0 then begin
       { get InitSecurityInterface entry point
         and call it to fetch SPPI function table}

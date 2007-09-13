@@ -866,7 +866,13 @@ begin
   Result := True;
   if not Loaded then
   begin
+    //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
+    //call because LoadLibrary messes with the FPU control word.
+    {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+    hZLib := SafeLoadLibrary(libzlib);
+    {$ELSE}
     hZLib := LoadLibrary(libzlib);
+    {$ENDIF}
     Result := Loaded;
   end;
 end;

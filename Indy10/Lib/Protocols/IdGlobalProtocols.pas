@@ -878,7 +878,9 @@ var
   LVersion: ULONG;
 begin
   Result := Workstation;
-  lh := LoadLibrary('ntdll.dll'); {do not localize}
+    //In Windows, you should use SafeLoadLibrary instead of the LoadLibrary API
+    //call because LoadLibrary messes with the FPU control word.  
+  lh := SafeLoadLibrary('ntdll.dll'); {do not localize}
   if Lh > 0 then begin
     @RtlGetNtProductType := GetProcAddress(lh, 'RtlGetNtProductType'); {do not localize}
     if @RtlGetNtProductType <> nil then begin
