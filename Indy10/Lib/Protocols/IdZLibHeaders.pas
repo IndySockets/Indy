@@ -27,10 +27,11 @@ interface
 
 {$IFNDEF FPC}
   {$IFDEF WIN32}
-    {$define STATICLOAD}
+    {$DEFINE STATICLOAD}
     {$DEFINE USECDECL}
   {$ENDIF}
 {$ENDIF}
+
 {$IFNDEF STATICLOAD}
 uses
   IdCTypes,
@@ -42,7 +43,8 @@ uses
     {$DEFINE USECDECL}
   {$ENDIF}
 {$ELSE}
-uses IdCTypes;
+uses
+  IdCTypes;
 {$ENDIF}
 
 const
@@ -172,12 +174,12 @@ function inflateInitEx(var strm: z_stream; streamtype: TZStreamType = zsZLib): T
 type
   EIdZLibStubError = class(EIdException)
   protected
-    FError : DWORD;
+    FError : LongWord;
     FErrorMessage : String;
     FTitle : String;
   public
-    constructor Build(const ATitle : String; AError : DWORD);
-    property Error : DWORD read FError;
+    constructor Build(const ATitle : String; AError : LongWord);
+    property Error : LongWord read FError;
     property ErrorMessage : String read FErrorMessage;
     property Title : String read FTitle;
   end;
@@ -286,80 +288,80 @@ var
 
 {$ELSE}
 (* basic functions *)
-function zlibVersion: PChar;
+function zlibVersion: PChar; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
-function deflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; 
-function deflateEnd(var strm: z_stream): TIdC_INT;
+function deflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflateEnd(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
-function inflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; 
-function inflateEnd(var strm: z_stream): TIdC_INT;
+function inflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateEnd(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 (* advanced functions *)
 
 function deflateSetDictionary(var strm: z_stream; const dictionary: PChar;
-                              dictLength: TIdC_UINT): TIdC_INT;
-function deflateCopy(var dest, source: z_stream): TIdC_INT;
-function deflateReset(var strm: z_stream): TIdC_INT;
-function deflateParams(var strm: z_stream; level, strategy: TIdC_INT): TIdC_INT;
+                              dictLength: TIdC_UINT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflateCopy(var dest, source: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflateReset(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflateParams(var strm: z_stream; level, strategy: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 {JPM Addition}
 function deflateTune(var strm : z_stream; good_length : TIdC_INT;
-    max_lazy, nice_length, max_chain : TIdC_INT) : TIdC_INT;
-function deflateBound(var strm: z_stream; 
-    sourceLen: TIdC_ULONG): TIdC_ULONG; 
-function deflatePrime(var strm: z_stream; bits, value: TIdC_INT): TIdC_INT;
+    max_lazy, nice_length, max_chain : TIdC_INT) : TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflateBound(var strm: z_stream;
+    sourceLen: TIdC_ULONG): TIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function deflatePrime(var strm: z_stream; bits, value: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 function inflateSetDictionary(var strm: z_stream; const dictionary: PChar;
-                              dictLength: TIdC_UINT): TIdC_INT;
-function inflateSync(var strm: z_stream): TIdC_INT;
-function inflateCopy(var dest, source: z_stream): TIdC_INT;
-function inflateReset(var strm: z_stream): TIdC_INT;
+                              dictLength: TIdC_UINT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateSync(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateCopy(var dest, source: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateReset(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 function inflateBack(var strm: z_stream; in_fn: in_func; in_desc: Pointer;
-                     out_fn: out_func; out_desc: Pointer): TIdC_INT;
-function inflateBackEnd(var strm: z_stream): TIdC_INT;
+                     out_fn: out_func; out_desc: Pointer): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateBackEnd(var strm: z_stream): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
-function zlibCompileFlags: TIdC_ULONG;
+function zlibCompileFlags: TIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 {JPM Additional functions}
-function  zError (err : TIdC_INT) : PChar;
-function inflateSyncPoint(var z : TZStreamRec) : TIdC_INT;
+function  zError (err : TIdC_INT) : PChar; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateSyncPoint(var z : TZStreamRec) : TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 //const uLongf * get_crc_table (void);
 
-function  get_crc_table : PIdC_ULONG;
+function  get_crc_table : PIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
 {end JPM additions}
 
 (* utility functions *)
 function compress(dest: PChar; var destLen: TIdC_ULONG;
-                  const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT;
+                  const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function compress2(dest: PChar; var destLen: TIdC_ULONG;
                   const source: PChar; sourceLen: TIdC_ULONG;
-                  level: TIdC_INT): TIdC_INT; 
-function compressBound(sourceLen: TIdC_ULONG): TIdC_ULONG;
+                  level: TIdC_INT): TIdC_INT;  {$IFDEF USECDECL}cdecl;{$ENDIF}
+function compressBound(sourceLen: TIdC_ULONG): TIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function uncompress(dest: PChar; var destLen: TIdC_ULONG;
-                   const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT;
+                   const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 (* checksum functions *)
 function adler32(adler: TIdC_ULONG; 
-    const buf: PChar; len: TIdC_UINT): TIdC_ULONG;
+    const buf: PChar; len: TIdC_UINT): TIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function crc32(crc: TIdC_ULONG; const buf: PChar; 
-                len: TIdC_UINT): TIdC_ULONG;
+                len: TIdC_UINT): TIdC_ULONG; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
 (* various hacks, don't look :) *)
 function deflateInit_(var strm: z_stream; level: TIdC_INT;
-                      const version: PChar; stream_size: TIdC_INT): TIdC_INT;
+                      const version: PChar; stream_size: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function inflateInit_(var strm: z_stream; const version: PChar;
-                      stream_size: TIdC_INT): TIdC_INT;
+                      stream_size: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function deflateInit2_(var strm: z_stream;
                        level, method, windowBits, memLevel, strategy: TIdC_INT;
-                       const version: PChar; stream_size: TIdC_INT): TIdC_INT;
+                       const version: PChar; stream_size: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function inflateInit2_(var strm: z_stream; windowBits: TIdC_INT;
-                       const version: PChar; stream_size: TIdC_INT): TIdC_INT;
+                       const version: PChar; stream_size: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 function inflateBackInit_(var strm: z_stream;
                           windowBits: TIdC_INT; window: PChar;
-                          const version: PChar; stream_size: TIdC_INT): TIdC_INT;
+                          const version: PChar; stream_size: TIdC_INT): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 
-function deflateSetHeader(var strm: z_stream; var head: gz_header): TIdC_INT;
-function inflateGetHeader(var strm: z_stream; var head: gz_header): TIdC_INT;
+function deflateSetHeader(var strm: z_stream; var head: gz_header): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
+function inflateGetHeader(var strm: z_stream; var head: gz_header): TIdC_INT; {$IFDEF USECDECL}cdecl;{$ENDIF}
 {$ENDIF}
 function  zlibAllocMem(AppData: Pointer; Items, Size: TIdC_UINT): Pointer; {$IFDEF USECDECL}cdecl;{$ENDIF}
 procedure zlibFreeMem(AppData, Block: Pointer); {$IFDEF USECDECL}cdecl;{$ENDIF}
@@ -369,19 +371,23 @@ procedure Unload;
 function Loaded : Boolean;
 
 implementation
+
 uses
   SysUtils
   {$IFNDEF STATICLOAD}
   , IdZLibConst
   {$ENDIF}
   {$IFDEF KYLIX}
-  , libc;
+  , libc
   {$ENDIF}
   {$IFDEF FPC}
     {$IFDEF USELIBC}
     , libc
     {$ENDIF}
     , DynLibs // better add DynLibs only for fpc
+  {$ENDIF}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  , Windows
   {$ENDIF};
 
 {$IFDEF STATICLOAD}
@@ -426,31 +432,26 @@ function inflateSetDictionary; external;
 function inflateSync; external;
 function uncompress; external;
 function zlibCompileFlags; external;
-function  zError (err : TIdC_INT) : PChar;
-  external;
-
-function inflateSyncPoint(var z : TZStreamRec) : TIdC_INT;
-  external;
-
-function  get_crc_table : PIdC_ULONG;
-  external;
+function zError; external;
+function inflateSyncPoint; external;
+function get_crc_table; external;
 function zlibVersion; external;
 function deflateSetHeader; external;
 function inflateGetHeader; external;
 {$ELSE}
 var
-  hZLib    : TlibHandle = 0;
+  hZLib: THandle = 0;
   
 const
   {$IFDEF UNIX} 
-   libzlib = 'libz.so.1';
+  libzlib = 'libz.so.1';
   {$ENDIF}
   {$ifdef netware}  {zlib.nlm comes with netware6}
-   libzlib='zlib';
+  libzlib = 'zlib';
   {$ENDIF}
   {$IFDEF WIN32}
   //Note that this is the official ZLIB1 .DLL from the http://www.zlib.net/
-  libzlib='zlib1.dll'; 
+  libzlib = 'zlib1.dll'; 
   {$ENDIF}
   {$IFDEF WIN64}
   //Note that this is not an official ZLIB .DLL.  It was obtained from:
@@ -458,11 +459,11 @@ const
   //
   //It is defined with the WINAPI conventions instead of the standard cdecl
   //conventions.  Get the DLL for Win32-x86.
-  libzlib='zlibwapi.dll'; 
+  libzlib = 'zlibwapi.dll'; 
   {$ENDIF}  
   
   
-constructor EIdZLibStubError.Build(const ATitle : String; AError : DWORD);
+constructor EIdZLibStubError.Build(const ATitle : String; AError : LongWord);
 begin
   FTitle := ATitle;
   FError := AError;
@@ -475,12 +476,11 @@ begin
   end;
 end;
   
-function FixupStub(hDll: THandle; const AName: string):Pointer;
+function FixupStub(hDll: THandle; const AName: string): Pointer;
 begin
   if hDll = 0 then begin
     EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 0);
   end;
-
   Result := GetProcAddress(hDll, PChar(AName));
   if Result = nil then begin
     EIdZLibStubError.Build(Format(RSZLibCallError, [AName]), 10022);
