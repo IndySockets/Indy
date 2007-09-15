@@ -19,124 +19,149 @@ computil SetupC5
 if exist setenv.bat call setenv.bat
 if not exist ..\C5\*.* md ..\C5 >nul
 if exist ..\C5\*.* call clean.bat ..\C5\
-
-if (%NDC5%)==() goto enderror
-if (%NDWINSYS%)==() goto enderror
-
-
-copy Core\*.pas ..\C5
-copy Core\*.dpk ..\C5
-copy Core\*.obj ..\C5
-copy Core\*.inc ..\C5
-copy Core\*.res ..\C5
-copy Core\*.dcr ..\C5
-copy *.pas ..\C5
-copy *.dpk ..\C5
-copy *.obj ..\C5
-copy *.inc ..\C5
-copy *.res ..\C5
-copy *.dcr ..\C5
-
-if (%NDC5%)==() goto enderror
-if (%NDWINSYS%)==() goto enderror
-
-cd ..\C5
+if (%NDC5%)==() goto enderrmsg
 
 REM ***************************************************
-REM Compile Runtime Core Package Indy50
+REM Compile Runtime Package IndySystem50
 REM ***************************************************
-REM IdCompressionIntercept can never be built as part of a package.  It has to be compileed separately
-REM due to a DCC32 bug.
-%NDC5%\bin\dcc32.exe IdCompressionIntercept.pas /M /DBCB /O..\Source\objs /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Source\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+cd System
+copy *.pas ..\..\C5
+copy *.dpk ..\..\C5
+copy *.obj ..\..\C5
+copy *.inc ..\..\C5
+copy *.res ..\..\C5
+copy *.dcr ..\..\C5
+copy *.rsp ..\..\C5
+if not exist .\objs\*.* md .\objs >nul
+cd ..\..\C5
+%NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHNE /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Source\objs /DBCB /M /H /W -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+%NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-REM ***************************************************
-REM Create .LIB file
-REM ***************************************************
-echo Creating IndyCore50.LIB file, please wait...
-..\Source\LspFix IndyCore50.lsp
-%NDC5%\bin\tlib.exe IndyCore50.lib /P32 @IndyCore50.lsp >nul
-if exist ..\C5\IndyCore50.bak del ..\C5\IndyCore50.bak >nul
+%NDC5%\bin\tlib.exe IndySystem50.lib @IndySystem50.lsp /P64 > nul
 
 REM ***************************************************
-REM Compile Design Time Package Indy50
+REM Clean-up IndySystem50
 REM ***************************************************
-REM IdCompressionIntercept can never be built as part of a package.  It has to be compileed separately
-REM due to a DCC32 bug.
-
-%NDC5%\bin\dcc32.exe dclIndyCore50.dpk /DBCB /O..\Source\objs /H /W /N..\C5 /LIndy50.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-
-REM ***************************************************
-REM Compile Runtime Package Indy50
-REM ***************************************************
-REM IdCompressionIntercept can never be built as part of a package.  It has to be compileed separately
-REM due to a DCC32 bug.
-%NDC5%\bin\dcc32.exe IdCompressionIntercept.pas /O..\Source\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-
-%NDC5%\bin\dcc32.exe Indy50.dpk /O..\Source\objs /DBCB /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe Indy50.dpk /O..\Source\objs /DBCB /M /H /W -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-%NDC5%\bin\dcc32.exe IdDummyUnit.pas /LIndy50.dcp /DBCB /O..\Source\objs /M /H /W /JPHN -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-del IdDummyUnit.dcu >nul
-del IdDummyUnit.hpp >nul
-del IdDummyUnit.obj >nul
-
-%NDC5%\bin\dcc32.exe Indy50.dpk /M /DBCB /O..\Source\objs /H /W -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-copy Indy50.bpl %NDWINSYS% >nul
-del Indy50.bpl > nul
-
-REM ***************************************************
-REM Create .LIB file
-REM ***************************************************
-echo Creating Indy50.LIB file, please wait...
-..\Source\LspFix Indy50.lsp
-%NDC5%\bin\tlib.exe Indy50.lib /P32 @Indy50.lsp >nul
-if exist ..\C5\Indy50.bak del ..\C5\Indy50.bak >nul
-
-REM ***************************************************
-REM Compile Design-time Package dclIndy50
-REM ***************************************************
-%NDC5%\bin\dcc32.exe dclIndy50.dpk /DBCB /O..\Source\objs /H /W /N..\C5 /LIndy50.dcp -$d-l-n+p+r-s-t-w-y- %2 %3 %4
-if errorlevel 1 goto enderror
-
-REM ***************************************************
-REM Clean-up
-REM ***************************************************
+del *.dcu > nul
 del *.pas > nul
 del *.dpk > nul
+del *.obj > nul
 del *.inc > nul
+del *.res > nul
 del *.dcr > nul
+del *.rsp > nul
 
 REM ***************************************************
-REM Design-time only unit .DCU's are not needed.
+REM Compile Runtime Package IndyCore50
 REM ***************************************************
-if exist dclIndy50.dcu del dclIndy50.dcu >nul 
-if exist dclIndy50.dcp del dclIndy50.dcp >nul 
-if exist Indy50.dcu del Indy50.dcu >nul 
-if exist Indy50.bpl del Indy50.bpl >nul 
-if exist IndyCore50.dcu del IndyCore50.dcu >nul 
-if exist IndyCore50.bpl del IndyCore50.bpl >nul 
-if exist dclIndyCore50.dcu del dclIndyCore50.dcu >nul 
-if exist dclIndyCore50.dcp del dclIndyCore50.dcp >nul
-if exist IdAbout.dcu del IdAbout.dcu >nul
-if exist IdDsnPropEdBinding.dcu del IdDsnPropEdBinding.dcu >nul
-if exist IdDsnCoreResourceStrings.dcu del IdDsnCoreResourceStrings.dcu >nul
-if exist IdDsnBaseCmpEdt.dcu del IdDsnBaseCmpEdt.dcu >nul
-if exist IdDsnSASLListEditorForm.dcu del IdDsnSASLListEditorForm.dcu >nul
-if exist IdDsnSASLListEditor.dcu del IdDsnSASLListEditor.dcu > nul
-if exist IdDsnRegister.dcu del IdDsnRegister.dcu >nul
-if exist IdRegister.dcu del IdRegister.dcu >nul
+cd ..\Lib\Core
+copy *.pas ..\..\C5
+copy *.dpk ..\..\C5
+copy *.obj ..\..\C5
+copy *.inc ..\..\C5
+copy *.res ..\..\C5
+copy *.dcr ..\..\C5
+copy *.rsp ..\..\C5
+if not exist .\objs\*.* md .\objs >nul
+cd ..\..\C5
+%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\tlib.exe IndyCore50.lib @IndyCore50.lsp /P64 > nul
+del *.obj > nul
 
+REM ***************************************************
+REM Compile Designtime Package dclIndyCore50
+REM ***************************************************
+%NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\tlib.exe dclIndyCore50.lib @dclIndyCore50.lsp /P64 > nul
+
+REM ***************************************************
+REM Clean-up IndyCore50
+REM ***************************************************
+del *.dcu > nul
+del *.pas > nul
+del *.dpk > nul
+del *.obj > nul
+del *.inc > nul
+del *.res > nul
+del *.dcr > nul
+del *.rsp > nul
+
+REM ***************************************************
+REM Compile Runtime Package IndyProtocols50
+REM ***************************************************
+cd ..\Lib\Protocols
+copy *.pas ..\..\C5
+copy *.dpk ..\..\C5
+copy *.obj ..\..\C5
+copy *.inc ..\..\C5
+copy *.res ..\..\C5
+copy *.dcr ..\..\C5
+copy *.rsp ..\..\C5
+if not exist .\objs\*.* md .\objs >nul
+cd ..\..\C5
+%NDC5%\bin\dcc32.exe IndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\dcc32.exe IndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+
+REM ***************************************************
+REM Delete third-party .obj files
+REM before compiling the .lib file
+REM ***************************************************
+del adler32.obj > nul
+del compress.obj > nul
+del crc32.obj > nul
+del deflate.obj > nul
+del example.obj > nul
+del gzio.obj > nul
+del infback.obj > nul
+del inffast.obj > nul
+del inflate.obj > nul
+del inftrees.obj > nul
+del minigzip.obj > nul
+del trees.obj > nul
+del uncompr.obj > nul
+del zutil.obj > nul
+
+%NDC5%\bin\tlib.exe IndyProtocols50.lib @IndyProtocols50.lsp /P64 > nul
+del *.obj > nul
+
+REM ***************************************************
+REM Compile Designtime Package dclIndyProtocols50
+REM ***************************************************
+%NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+%NDC5%\bin\tlib.exe dclIndyProtocols50.lib @dclIndyProtocols50.lsp /P64 > nul
+
+REM ***************************************************
+REM Clean-up IndyProtocols50
+REM ***************************************************
+del *.dcu > nul
+del *.pas > nul
+del *.dpk > nul
+del *.obj > nul
+del *.inc > nul
+del *.res > nul
+del *.dcr > nul
+del *.rsp > nul
+cd ..\Lib
 goto endok
+
 :enderror
-call clean
+call ..\Lib\clean.bat
+cd ..\Lib
+
+:enderrmsg
 echo Error!
+
 :endok
-cd ..\Source
 
