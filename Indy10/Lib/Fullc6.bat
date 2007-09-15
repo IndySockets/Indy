@@ -19,7 +19,7 @@ computil SetupC6
 if exist setenv.bat call setenv.bat
 if not exist ..\C6\*.* md ..\C6 >nul
 if exist ..\C6\*.* call clean.bat ..\C6\
-if (%NDC6%)==() goto enderror
+if (%NDC6%)==() goto enderrmsg
 
 REM ***************************************************
 REM Compile Runtime Package IndySystem60
@@ -38,7 +38,7 @@ cd ..\..\C6
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndySystem60.lib +%%f /P64 > nul
+%NDC6%\bin\tlib.exe IndySystem60.lib @IndySystem60.lsp /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndySystem60
@@ -69,7 +69,7 @@ cd ..\..\C6
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndyCore60.lib +%%f /P64 > nul
+%NDC6%\bin\tlib.exe IndyCore60.lib @IndyCore60.lsp /P64 > nul
 del *.obj > nul
 
 REM ***************************************************
@@ -79,7 +79,7 @@ REM ***************************************************
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-for %%f in (*.obj) do %NDC6%\bin\tlib.exe dclIndyCore60.lib +%%f /P64 > nul
+%NDC6%\bin\tlib.exe dclIndyCore60.lib @dclIndyCore60.lsp /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndyCore60
@@ -130,7 +130,7 @@ del trees.obj > nul
 del uncompr.obj > nul
 del zutil.obj > nul
 
-for %%f in (*.obj) do %NDC6%\bin\tlib.exe IndyProtocols60.lib +%%f /P64 > nul
+%NDC6%\bin\tlib.exe IndyProtocols60.lib @IndyProtocols60.lsp /P64 > nul
 del *.obj > nul
 
 REM ***************************************************
@@ -140,7 +140,7 @@ REM ***************************************************
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
-for %%f in (*.obj) do %NDC6%\bin\tlib.exe dclIndyProtocols60.lib +%%f /P64 > nul
+%NDC6%\bin\tlib.exe dclIndyProtocols60.lib @dclIndyProtocols60.lsp /P64 > nul
 
 REM ***************************************************
 REM Clean-up IndyProtocols60
@@ -159,6 +159,8 @@ goto endok
 :enderror
 call ..\Lib\clean.bat
 cd ..\Lib
+
+:enderrmsg
 echo Error!
 
 :endok
