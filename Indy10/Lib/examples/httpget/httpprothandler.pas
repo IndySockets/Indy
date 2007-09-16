@@ -1,6 +1,16 @@
 unit httpprothandler;
 interface
 {$mode delphi}{$H+}
+
+{$ifdef unix}
+  {$define usezlib}
+  {$define useopenssl}
+{$endif}
+{$ifdef win32}
+  {$define usezlib}
+  {$define useopenssl}
+{$endif}
+
 uses
   {$ifdef usezlib}
     IdCompressorZLib,  //for deflate and gzip content encoding
