@@ -853,7 +853,7 @@ type
 
 const
   {$IFDEF UNIX}
-  GOSType = otLinux;
+  GOSType = otUnix;
   GPathDelim = '/'; {do not localize}
   INFINITE = LongWord($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
@@ -1162,7 +1162,7 @@ function GetUTF8Decoder: TIdUTF8Decoder;
 implementation
 
 uses
-  {$IFDEF LINUX}Libc,{$ENDIF}
+  {$IFDEF USELIBC}Libc,{$ENDIF}
   {$IFDEF VCL6ORABOVE}DateUtils,{$ENDIF}
   IdResourceStrings,
   IdStream;
