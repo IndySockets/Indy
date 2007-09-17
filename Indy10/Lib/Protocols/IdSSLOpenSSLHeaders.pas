@@ -341,6 +341,18 @@ except from configure script:
 (*$HPPEMIT '#include <time.h>'*)
 
 uses 
+  {$IFDEF KYLIX}
+   , libc
+  {$ENDIF}
+  {$IFDEF FPC}
+    {$IFDEF USELIBC}
+    , libc
+    {$ELSE}
+      {$IFDEF UNIX}
+    baseunix,
+      {$ENDIF}
+    {$ENDIF}
+  {$ENDIF}
   SysUtils, 
   IdCTypes;
 
@@ -6539,13 +6551,7 @@ implementation
 uses
   Classes,
   IdGlobal  //needed for Sys symbol
-  {$IFDEF KYLIX}
-   , libc
-  {$ENDIF}
   {$IFDEF FPC}
-    {$IFDEF USELIBC}
-    , libc
-    {$ENDIF}
     , DynLibs  // better add DynLibs only for fpc
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -9199,9 +9205,11 @@ end;
 
 procedure InitializeRandom;
 begin
+  {$IFDEF SYS_WIN}
   if @IdSslRandScreen <> nil then begin
     IdSslRandScreen;
   end;
+  {$ENDIF}
 end;
 
 function IdSslMASN1StringLength(x : PASN1_STRING): TIdC_INT;
