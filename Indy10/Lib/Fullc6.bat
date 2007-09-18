@@ -38,6 +38,8 @@ cd ..\..\C6
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe IndySystem60.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
+..\Lib\lspFix IndySystem60.lsp
+if errorlevel 1 goto enderror
 %NDC6%\bin\tlib.exe IndySystem60.lib @IndySystem60.lsp /P64 > nul
 
 REM ***************************************************
@@ -69,6 +71,8 @@ cd ..\..\C6
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe IndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
+..\Lib\lspFix IndyCore60.lsp
+if errorlevel 1 goto enderror
 %NDC6%\bin\tlib.exe IndyCore60.lib @IndyCore60.lsp /P64 > nul
 del *.obj > nul
 
@@ -78,6 +82,8 @@ REM ***************************************************
 %NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe dclIndyCore60.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix dclIndyCore60.lsp
 if errorlevel 1 goto enderror
 %NDC6%\bin\tlib.exe dclIndyCore60.lib @dclIndyCore60.lsp /P64 > nul
 
@@ -130,6 +136,8 @@ del trees.obj > nul
 del uncompr.obj > nul
 del zutil.obj > nul
 
+..\Lib\lspFix IndyProtocols60.lsp
+if errorlevel 1 goto enderror
 %NDC6%\bin\tlib.exe IndyProtocols60.lib @IndyProtocols60.lsp /P64 > nul
 del *.obj > nul
 
@@ -139,6 +147,8 @@ REM ***************************************************
 %NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHN /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC6%\bin\dcc32.exe dclIndyProtocols60.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix dclIndyProtocols60.lsp
 if errorlevel 1 goto enderror
 %NDC6%\bin\tlib.exe dclIndyProtocols60.lib @dclIndyProtocols60.lsp /P64 > nul
 

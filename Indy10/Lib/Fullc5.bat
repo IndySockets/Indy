@@ -17,7 +17,7 @@ goto endok
 call clean.bat
 computil SetupC5
 if exist setenv.bat call setenv.bat
-if not exist ..\C5\*.* md ..\C5 >nul
+if not exist ..\C5\*.* md ..\C5 > nul
 if exist ..\C5\*.* call clean.bat ..\C5\
 if (%NDC5%)==() goto enderrmsg
 
@@ -25,18 +25,20 @@ REM ***************************************************
 REM Compile Runtime Package IndySystem50
 REM ***************************************************
 cd System
-copy *.pas ..\..\C5
-copy *.dpk ..\..\C5
-copy *.obj ..\..\C5
-copy *.inc ..\..\C5
-copy *.res ..\..\C5
-copy *.dcr ..\..\C5
-copy *.rsp ..\..\C5
-if not exist .\objs\*.* md .\objs >nul
+copy *.pas ..\..\C5 > nul
+copy *.dpk ..\..\C5 > nul
+copy *.obj ..\..\C5 > nul
+copy *.inc ..\..\C5 > nul
+copy *.res ..\..\C5 > nul
+copy *.dcr ..\..\C5 > nul
+copy *.rsp ..\..\C5 > nul
+if not exist .\objs\*.* md .\objs > nul
 cd ..\..\C5
 %NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /JPHNE /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC5%\bin\dcc32.exe IndySystem50.dpk /O..\Lib\System\objs /DBCB /M /H /W /N. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix IndySystem50.lsp
 if errorlevel 1 goto enderror
 %NDC5%\bin\tlib.exe IndySystem50.lib @IndySystem50.lsp /P64 > nul
 
@@ -56,18 +58,20 @@ REM ***************************************************
 REM Compile Runtime Package IndyCore50
 REM ***************************************************
 cd ..\Lib\Core
-copy *.pas ..\..\C5
-copy *.dpk ..\..\C5
-copy *.obj ..\..\C5
-copy *.inc ..\..\C5
-copy *.res ..\..\C5
-copy *.dcr ..\..\C5
-copy *.rsp ..\..\C5
-if not exist .\objs\*.* md .\objs >nul
+copy *.pas ..\..\C5 > nul
+copy *.dpk ..\..\C5 > nul
+copy *.obj ..\..\C5 > nul
+copy *.inc ..\..\C5 > nul
+copy *.res ..\..\C5 > nul
+copy *.dcr ..\..\C5 > nul
+copy *.rsp ..\..\C5 > nul
+if not exist .\objs\*.* md .\objs > nul
 cd ..\..\C5
 %NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC5%\bin\dcc32.exe IndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix IndyCore50.lsp
 if errorlevel 1 goto enderror
 %NDC5%\bin\tlib.exe IndyCore50.lib @IndyCore50.lsp /P64 > nul
 del *.obj > nul
@@ -78,6 +82,8 @@ REM ***************************************************
 %NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC5%\bin\dcc32.exe dclIndyCore50.dpk /O..\Lib\Core\objs /DBCB /M /H /W /Z /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix dclIndyCore50.lsp
 if errorlevel 1 goto enderror
 %NDC5%\bin\tlib.exe dclIndyCore50.lib @dclIndyCore50.lsp /P64 > nul
 
@@ -97,14 +103,14 @@ REM ***************************************************
 REM Compile Runtime Package IndyProtocols50
 REM ***************************************************
 cd ..\Lib\Protocols
-copy *.pas ..\..\C5
-copy *.dpk ..\..\C5
-copy *.obj ..\..\C5
-copy *.inc ..\..\C5
-copy *.res ..\..\C5
-copy *.dcr ..\..\C5
-copy *.rsp ..\..\C5
-if not exist .\objs\*.* md .\objs >nul
+copy *.pas ..\..\C5 > nul
+copy *.dpk ..\..\C5 > nul
+copy *.obj ..\..\C5 > nul
+copy *.inc ..\..\C5 > nul
+copy *.res ..\..\C5 > nul
+copy *.dcr ..\..\C5 > nul
+copy *.rsp ..\..\C5 > nul
+if not exist .\objs\*.* md .\objs > nul
 cd ..\..\C5
 %NDC5%\bin\dcc32.exe IndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
@@ -130,6 +136,8 @@ del trees.obj > nul
 del uncompr.obj > nul
 del zutil.obj > nul
 
+..\Lib\lspFix IndyProtocols50.lsp
+if errorlevel 1 goto enderror
 %NDC5%\bin\tlib.exe IndyProtocols50.lib @IndyProtocols50.lsp /P64 > nul
 del *.obj > nul
 
@@ -139,6 +147,8 @@ REM ***************************************************
 %NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /JPHNE /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
 if errorlevel 1 goto enderror
 %NDC5%\bin\dcc32.exe dclIndyProtocols50.dpk /O..\Lib\Protocols\objs /DBCB /M /H /W /N. /U. -$d-l-n+p+r-s-t-w-y- %2 %3 %4
+if errorlevel 1 goto enderror
+..\Lib\lspFix dclIndyProtocols50.lsp
 if errorlevel 1 goto enderror
 %NDC5%\bin\tlib.exe dclIndyProtocols50.lib @dclIndyProtocols50.lsp /P64 > nul
 
