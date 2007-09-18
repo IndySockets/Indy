@@ -716,6 +716,7 @@ Indy10/Builder/VersionMarker/VersionMarker.ini -text
 Indy10/KB/IndyKB.hm3 -text svneol=unset#unset
 Indy10/Lib/Clean.bat eol=crlf
 Indy10/Lib/Computil.dpr -text
+Indy10/Lib/Computil.exe -text svneol=unset#unset
 Indy10/Lib/Core/AboutIndyNET.resources -text svneol=unset#unset
 Indy10/Lib/Core/AboutProg.res -text svneol=unset#unset
 Indy10/Lib/Core/IconsDotNet/TIdAntiFreeze.bmp -text svneol=unset#unset
@@ -1620,6 +1621,7 @@ Indy10/Lib/examples/httpget/prothandler.pas -text
 Indy10/Lib/indy-fpc.spec.template -text
 Indy10/Lib/indymaster-Makefile.fpc -text
 Indy10/Lib/lspFix.dpr -text
+Indy10/Lib/lspFix.exe -text svneol=unset#unset
 Indy10/Lib/makeindyrpm.sh -text svneol=LF#unset
 Indy10/NUnit/Sys.cs -text
 Indy10/Other/Protocols/IdCompressorAbbrevia.pas -text
