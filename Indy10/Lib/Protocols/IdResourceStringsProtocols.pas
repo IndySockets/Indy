@@ -344,7 +344,7 @@ resourcestring
   RSFTPFTPPassiveMustBeTrueWithNATFT = 'Can not use active transfers with NAT fastracking.';
   RSFTPServerSentInvalidPort = 'Server sent invalid port number (%s)';
   RSInvalidFTPListingFormat = 'Unknown FTP listing format';
-    RSFTPNoSToSWithNATFastTrack = 'No Site to Site transfers are permitted with a FTP NAT fastracked connection.';
+  RSFTPNoSToSWithNATFastTrack = 'No Site to Site transfers are permitted with a FTP NAT fastracked connection.';
   RSFTPSToSNoDataProtection = 'Can''t use dataprotection on site to site transfer.';
   RSFTPSToSProtosMustBeSame = 'Transport protocols must be the same.';
   RSFTPSToSSSCNNotSupported = 'SSCN is not supported on both servers.';
@@ -354,6 +354,7 @@ resourcestring
   RSFTPNoAUTHWOSSL = 'Can not set AUTH without SSL.';
   RSFTPNoAUTHCon = 'Can not set AUTH while connected.';
   RSFTPSToSTransferModesMusbtSame = 'Transfer modes must be the same.';
+  RSFTPNoListParseUnitsRegistered = 'No IdFTPListParse classes have been registered. Check your uses clause!';
 
   // Property editor exceptions
   // Stack Error Messages
