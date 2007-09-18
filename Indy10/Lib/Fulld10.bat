@@ -28,14 +28,14 @@ ECHO  Compile System
 ECHO ****************
 CD System
 %NDD10%\Bin\dcc32.exe IndySystem100.dpk /Oobjs /m /h /w /N..\..\D100 -$d-l-n+p+r-s-t-w- %2 %3 %4
+if errorlevel 1 goto enderror
 copy *100.bpl ..\..\D100 >nul
 copy *100.dcp ..\..\D100 >nul
-if errorlevel 1 goto enderror
 copy ..\..\D100\IndySystem100.bpl %NDWINSYS% >nul
 CD ..
 
 ECHO **************
-ECHO  Compile Core    
+ECHO  Compile Core
 ECHO **************
 CD Core
 %NDD10%\Bin\dcc32.exe IndyCore100.dpk /Oobjs /m /h /w /N..\..\D100 /U..\..\D100 -$d-l-n+p+r-s-t-w- %2 %3 %4
@@ -64,10 +64,10 @@ if errorlevel 1 goto enderror
 %NDD10%\Bin\dcc32.exe dclIndyProtocols100.dpk /Oobjs /m /h /w /N..\..\D100 /U..\..\D100 -$d-l-n+p+r-s-t-w- %2 %3 %4
 if errorlevel 1 goto enderror
 
-copy *100.bpl ..\..\D10 >nul
-copy *100.dcp ..\..\D10 >nul
-copy ..\..\D9\IndyProtocols100.bpl %NDWINSYS% >nul
-copy ..\..\D9\dclIndyProtocols100.bpl %NDWINSYS% >nul
+copy *100.bpl ..\..\D100 >nul
+copy *100.dcp ..\..\D100 >nul
+copy ..\..\D100\IndyProtocols100.bpl %NDWINSYS% >nul
+copy ..\..\D100\dclIndyProtocols100.bpl %NDWINSYS% >nul
 CD ..
 
 goto endok
@@ -75,4 +75,3 @@ goto endok
 call clean
 echo Error!
 :endok
-
