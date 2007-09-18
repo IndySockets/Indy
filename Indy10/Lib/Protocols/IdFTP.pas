@@ -725,7 +725,6 @@ type
     FUsingSFTP : Boolean; //enable SFTP internel flag
     FUsingCCC : Boolean; //are we using FTP with SSL on a clear control channel?
     FCanUseMLS : Boolean; //can we use MLISx instead of LIST
-    FUsedMLS : Boolean; //Did the developer use MLSx commands for the last list command
     FUsingExtDataPort : Boolean; //are NAT Extensions (RFC 2428 available) flag
     FUsingNATFastTrack : Boolean;//are we using NAT fastrack feature
     FCanResume: Boolean;
@@ -813,7 +812,7 @@ type
     function FindAuthCmd : String;
     function GetReplyClass:TIdReplyClass; override;
     //
-    procedure ParseFTPList(AData : TStrings);
+    procedure ParseFTPList;
     procedure SetPassive(const AValue : Boolean);
     procedure SetTryNATFastTrack(const AValue: Boolean);
     procedure DoTryNATFastTrack;
@@ -1074,13 +1073,15 @@ uses
 const
   cIPVersions: array[TIdIPVersion] of String = ('1', '2'); {do not localize}
 
-function CleanDirName(const APWDReply: string): string;
-begin
-  Result := APWDReply;
-  Delete(result, 1, IndyPos('"', result)); // Remove first doublequote                             {do not localize}
-  Result := Copy(result, 1, IndyPos('"', result) - 1); // Remove anything from second doublequote  {do not localize}                               // to end of line
-  // TODO: handle embedded quotation marks.  RFC 959 allows them to be present
-end;
+type
+  TIdFTPListResult = class(TStringList)
+  private
+    FDetails: Boolean; //Did the developer use the NLST command for the last list command
+    FUsedMLS : Boolean; //Did the developer use MLSx commands for the last list command
+  public
+    property Details: Boolean read FDetails;
+    property UsedMLS: Boolean read FUsedMLS;
+  end;
 
 procedure TIdFTP.InitComponent;
 begin
@@ -1106,8 +1107,8 @@ begin
   FTransferType := Id_TIdFTP_TransferType;
   FTransferTimeout := IdDefTimeout;
   FListenTimeout := DEF_Id_FTP_ListenTimeout;
-  FLoginMsg := TIdReplyFTP.Create(NIL);
-  FListResult := TStringList.Create;
+  FLoginMsg := TIdReplyFTP.Create(nil);
+  FListResult := TIdFTPListResult.Create;
   FLangsSupported := TStringList.Create;
   FCanResume := False;
   FResumeTested := False;
@@ -1116,7 +1117,6 @@ begin
   FTZInfo := TIdFTPTZInfo.Create;
   FTZInfo.FGMTOffsetAvailable := False;
   FUseMLIS := DEF_Id_TIdFTP_UseMIS;
-  FUsedMLS := False;
   FCanUseMLS := False; //initialize MLIS flags
   //Settings specified by
   // http://www.ietf.org/internet-drafts/draft-preston-ftpext-deflate-00.txt
@@ -1380,12 +1380,15 @@ begin
       FreeAndNil(FDirectoryListing);
       LDest.Position := 0;
       FListResult.Text := LDest.DataString;
-      if ADest <> nil then begin
-        ADest.Assign(FListResult);
+      with TIdFTPListResult(FListResult) do begin
+        FDetails := ADetails;
+        FUsedMLS := False;
       end;
-      FUsedMLS := False;
     finally
       FreeAndNil(LDest);
+    end;
+    if ADest <> nil then begin
+      ADest.Assign(FListResult);
     end;
     DoOnRetrievedDir;
   finally
@@ -1929,7 +1932,10 @@ end;
 function TIdFTP.RetrieveCurrentDir: string;
 begin
   SendCmd('PWD', 257); {do not localize}
-  Result := CleanDirName(LastCmdResult.Text[0]);
+  Result := LastCmdResult.Text[0];
+  IdDelete(Result, 1, IndyPos('"', Result)); // Remove first doublequote                             {do not localize}
+  Result := Copy(Result, 1, IndyPos('"', Result) - 1); // Remove anything from second doublequote  {do not localize}                               // to end of line
+  // TODO: handle embedded quotation marks.  RFC 959 allows them to be present
 end;
 
 procedure TIdFTP.RemoveDir(const ADirName: string);
@@ -2433,7 +2439,7 @@ begin
       FOnDirParseStart(Self);
     end;
     ConstructDirListing;
-    ParseFTPList(FListResult);
+    ParseFTPList;
   end;
   Result := FDirectoryListing;
 end;
@@ -2627,13 +2633,16 @@ begin
     InternalGet(Trim('MLSD ' + ADirectory), LDest);  {do not localize}
     FreeAndNil(FDirectoryListing);
     DoOnRetrievedDir;
-    if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
-      ADest.Text := LDest.DataString;
-    end;
     FListResult.Text := LDest.DataString;
-    FUsedMLS := True;
+    with TIdFTPListResult(FListResult) do begin
+      FDetails := True;
+      FUsedMLS := True;
+    end;
   finally
     FreeAndNil(LDest);
+  end;
+  if Assigned(ADest) then begin //APR: User can use ListResult and DirectoryListing
+    ADest.Assign(FListResult);
   end;
 end;
 
@@ -2804,16 +2813,17 @@ begin
   end;
 end;
 
-procedure TIdFTP.ParseFTPList(AData : TStrings);
+procedure TIdFTP.ParseFTPList;
 begin
   DoOnDirParseStart;
   try
     // Parse directory listing
-    if AData.Count > 0 then begin
-      if FUsedMLS then begin
-        IdFTPListParseBase.ParseListing(AData, FDirectoryListing, MLST);
+    if FListResult.Count > 0 then begin
+      if TIdFTPListResult(FListResult).UsedMLS then begin
+        IdFTPListParseBase.ParseListing(FListResult, FDirectoryListing, MLST);
       end else begin
-        CheckListParseCapa(AData, FDirectoryListing, FDirFormat, FListParserClass, SystemDesc);
+        CheckListParseCapa(FListResult, FDirectoryListing, FDirFormat,
+	  FListParserClass, SystemDesc, TIdFTPListResult(FListResult).Details);
       end;
     end;
   finally
