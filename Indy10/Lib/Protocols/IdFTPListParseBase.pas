@@ -331,7 +331,7 @@ begin
     for I := 0 to Count-1 do
     begin
       // we need to exclude protocol specified parsers
-      if PosInStrArray(TIdFTPListParseClass(Items[I]).GetIdent, [NLST, MLST]) <> -1 then begin
+      if PosInStrArray(TIdFTPListParseClass(Items[I]).GetIdent, [NLST, MLST]) = -1 then begin
         HasExtraParsers := True;
         Break;
       end;
