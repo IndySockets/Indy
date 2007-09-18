@@ -123,10 +123,9 @@ interface
 
 uses
   Classes,
-  IdFTPList;
+  IdFTPList, IdException;
 
 type
-
   //We don't want to create instances of these classes and
   //these classes should not contain variables accross procedures
   //because they may run in threads.
@@ -150,22 +149,6 @@ type
   end;
 
   TIdFTPListParseClass = class of TIdFTPListBase;
-
-  TIdFTPRegParseList = class(TList)
-  protected
-    function FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
-    function FindParserByIdent(const AIdent : String) : TIdFTPListParseClass;
-  public
-    procedure EnumFTPListParsers(AData : TStrings);
-    constructor Create; overload;
-    function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean; virtual;
-    function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var VFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
-    function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String; virtual;
-    {
-    This is for TIdFTP.  This parses a list, returns the Parser ID, and the capabilities of the parser.
-    }
-    function CheckListParseCapa(AListing : TStrings; ADir : TIdFTPListItems; var VFormat : String; var VClass :  TIdFTPListParseClass; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
-  end;
 
   //these are anscestors for some listings with a heading
   TIdFTPListBaseHeader = class(TIdFTPListBase)
@@ -208,6 +191,8 @@ type
     class function IsValidAttr(const AAttr : String) : Boolean; virtual;
   end;
 
+  EIdFTPListParseError = class(EIdException);
+
 function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean;
 function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var AFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean;
 function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String;
@@ -220,15 +205,34 @@ procedure UnregisterFTPListParser(const AParser : TIdFTPListParseClass);
 procedure EnumFTPListParsers(AData : TStrings);
 
 const
-  NLST = 'NLIST'; {do not localize}
+  NLST = 'NLST'; {do not localize}
   MLST = 'MLST';  {do not localize}
 
 implementation
 
 uses
-  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols, IdStrings, SysUtils;
+  IdFTPCommon, IdFTPListTypes, IdGlobal, IdGlobalProtocols,
+  IdResourceStringsProtocols, IdStrings, SysUtils;
 
-var GParserList : TIdFTPRegParseList;
+type
+  TIdFTPRegParseList = class(TList)
+  protected
+    function FindParserByDirData(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True) : TIdFTPListParseClass;
+    function FindParserByIdent(const AIdent : String) : TIdFTPListParseClass;
+  public
+    procedure EnumFTPListParsers(AData : TStrings);
+    constructor Create; overload;
+    function ParseListing(AListing : TStrings; ADir : TIdFTPListItems; const AFormatID : String ) : boolean; virtual;
+    function CheckListParse(AListing : TStrings; ADir : TIdFTPListItems;var VFormat : String; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
+    function CheckListing(AListing : TStrings; const ASysDescript : String =''; const ADetails : Boolean = True): String; virtual;
+    {
+    This is for TIdFTP.  This parses a list, returns the Parser ID, and the capabilities of the parser.
+    }
+    function CheckListParseCapa(AListing : TStrings; ADir : TIdFTPListItems; var VFormat : String; var VClass :  TIdFTPListParseClass; const ASysDescript : String =''; const ADetails : Boolean = True) : boolean; virtual;
+  end;
+
+var
+  GParserList : TIdFTPRegParseList = nil;
 
 { TIdFTPRegParseList }
 
@@ -308,18 +312,40 @@ begin
 end;
 
 function TIdFTPRegParseList.CheckListParseCapa(AListing: TStrings;
-  ADir: TIdFTPListItems; var VFormat: String;
-  var VClass:  TIdFTPListParseClass; const ASysDescript: String;
-  const ADetails: Boolean): boolean;
+  ADir: TIdFTPListItems; var VFormat: String; var VClass: TIdFTPListParseClass;
+  const ASysDescript: String; const ADetails: Boolean): boolean;
+var
+  HasExtraParsers: Boolean;
+  I: Integer;
 begin
+  VFormat := '';
+  ADir.Clear;
+
+  // RLebeau 9/17/07: if something other than NLST was used, check to see
+  // that the user has included any of the IdFTPListParse... units in the
+  // app's uses clause.  If the user forgot to include any, warn them.
+  // Otherwise, just move on and assume they know what they are doing...
+  
+  if ADetails then begin
+    HasExtraParsers := False;
+    for I := 0 to Count-1 do
+    begin
+      // we need to exclude protocol specified parsers
+      if PosInStrArray(TIdFTPListParseClass(Items[I]).GetIdent, [NLST, MLST]) <> -1 then begin
+        HasExtraParsers := True;
+        Break;
+      end;
+    end;
+    if not HasExtraParsers then begin
+      raise EIdFTPListParseError.Create(RSFTPNoListParseUnitsRegistered); {do not localize}
+    end;
+  end;
+
   VClass := FindParserByDirData(AListing, ASysDescript, ADetails);
   Result := Assigned(VClass);
   if Result then begin
     VFormat := VClass.GetIdent;
     Result := VClass.ParseListing(AListing, ADir);
-  end else begin
-    VFormat := '';
-    ADir.Clear;
   end;
 end;
 
@@ -353,10 +379,9 @@ begin
   Result := GParserList.CheckListing(AListing, ASysDescript, ADetails);
 end;
 
-function CheckListParseCapa(AListing: TStrings;
-  ADir: TIdFTPListItems; var VFormat: String;
-  var VClass :  TIdFTPListParseClass; const ASysDescript: String;
-  const ADetails: Boolean): Boolean;
+function CheckListParseCapa(AListing: TStrings; ADir: TIdFTPListItems;
+  var VFormat: String; var VClass :  TIdFTPListParseClass;
+  const ASysDescript: String; const ADetails: Boolean): Boolean;
 begin
   Result := GParserList.CheckListParseCapa(AListing, ADir, VFormat, VClass, ASysDescript, ADetails);
 end;
@@ -558,10 +583,10 @@ begin
     //
     //size=0;lang=utf8;modify=20050308020346;create=20041109093936;type=cdir;UNIX.mode=0666;UNIX.owner=a;UNIX.group=default;win32.ea=0x00000810 .
     //
-    LBuffer := LFacts.Values['win32.ea'];
+    LBuffer := LFacts.Values['win32.ea']; {do not localize}
     if LBuffer <> '' then begin
-      Fetch(LBuffer, 'x');
-      LBuffer := '$'+LBuffer;
+      Fetch(LBuffer, 'x'); {do not localize}
+      LBuffer := '$'+LBuffer; {do not localize}
       LI.AttributesAvail := True;
       LI.Attributes.FileAttributes := IndyStrToInt(LBuffer, 0);
     end;
@@ -572,7 +597,6 @@ begin
 end;
 
 { TIdFTPListBaseHeader }
-
 
 class function TIdFTPListBaseHeader.CheckListing(AListing: TStrings;
   const ASysDescript: String; const ADetails: Boolean): boolean;
@@ -644,7 +668,7 @@ var
 begin
   Result := False;
   for i := 1 to Length(AAttr) do begin
-    Result := CharIsInSet(AAttr, i, 'RASH');
+    Result := CharIsInSet(AAttr, i, 'RASH'); {do not localize}
     if not Result then begin
       Break;
     end;
