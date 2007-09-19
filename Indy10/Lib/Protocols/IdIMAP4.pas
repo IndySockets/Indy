@@ -2787,15 +2787,17 @@ begin
 end;
 
 function  TIdIMAP4.AppendMsgNoEncodeFromStream(const AMBName: String; AStream: TStream; const AFlags: TIdMessageFlagsSet = []): Boolean;
+const
+  cTerminator: array[0..4] of Byte = (13, 10, Ord('.'), 13, 10);
 var
-  LFlags,
-  LMsgLiteral: String;
-  Ln: Integer;
+  LFlags, LMsgLiteral: String;
+  I: Integer;
+  LFound: Boolean;
   LCmd: string;
-  LLength: integer;
+  LLength: Int64;
   LTempStream: TMemoryStream;
   LHelper: TIdIMAP4WorkHelper;
-  LTheBytes: TIdBytes;
+  LBuf: TIdBytes;
 begin
   Result := False;
   CheckConnectionState([csAuthenticated, csSelected]);
@@ -2808,32 +2810,26 @@ begin
     LTempStream := TMemoryStream.Create;
     try
       //Hunt for CRLF.CRLF, if present then we need to remove it...
-      SetLength(LTheBytes, 1);
+      SetLength(LBuf, 5);
       LTempStream.CopyFrom(AStream, LLength);
-      for LN := 0 to LTempStream.Size-5 do begin
-        TIdStreamHelper.ReadBytes(LTempStream, LTheBytes, 1, LN);
-        if LTheBytes[0] <> 13 then begin
-          Continue;
+      LTempStream.Position := 0;
+      repeat
+        if TIdStreamHelper.ReadBytes(LTempStream, LBuf, 5) < 5 then begin
+          Break;
         end;
-        TIdStreamHelper.ReadBytes(LTempStream, LTheBytes, 1, LN+1);
-        if LTheBytes[0] <> 10 then begin
-          Continue;
+        LFound := True;
+        for I := 0 to 4 do begin
+          if LBuf[I] <> cTerminator[I] then begin
+            LFound := False;
+            Break;
+          end;
         end;
-        TIdStreamHelper.ReadBytes(LTempStream, LTheBytes, 1, LN+2);
-        if LTheBytes[0] <> Ord('.') then begin
-          Continue;
+        if LFound then begin
+          LLength := LTempStream.Position-5;
+          Break;
         end;
-        TIdStreamHelper.ReadBytes(LTempStream, LTheBytes, 1, LN+3);
-        if LTheBytes[0] <> 13 then begin
-          Continue;
-        end;
-        TIdStreamHelper.ReadBytes(LTempStream, LTheBytes, 1, LN+4);
-        if LTheBytes[0] <> 10 then begin
-          Continue;
-        end;
-        //Found it.
-        LLength := LN;
-      end;
+        TIdStreamHelper.Seek(LTempStream, -4, soCurrent);
+      until False;
 
       {Some servers may want the message termination sequence CRLF.CRLF
       and some may want CRLFCRLF so pass both by using CRLF.CRLFCRLF}
@@ -2858,11 +2854,12 @@ begin
       if LastCmdResult.Code = IMAP_CONT then begin
         LHelper := TIdIMAP4WorkHelper.Create(Self);
         try
+          LTempStream.Position := 0;
           IOHandler.Write(LTempStream, LLength);
           IOHandler.WriteLn(EOL+'.'+EOL);
           {WARNING: After we send the message (which should be exactly
           LLength bytes long), we need to send an EXTRA CRLF which is in
-          addition to to count in LLength, because this CRLF terminates the
+          addition to the count in LLength, because this CRLF terminates the
           APPEND command...}
           IOHandler.WriteLn;
         finally
