@@ -29,7 +29,7 @@ type
   public
     class function ReadBytes(
           AStream: TStream;
-          out VBytes: TIdBytes;
+          var VBytes: TIdBytes;
           ACount: Integer = -1;
           AOffset: Integer = 0): Integer; static;
     class function Write(
@@ -45,13 +45,17 @@ type
 
 implementation
 
-class function TIdStreamHelperNET.ReadBytes(AStream: TStream; out VBytes: TIdBytes;
+// RLebeau: must use a 'var' and not an 'out' for the VBytes parameter,
+// or else any preallocated buffer the caller passes in will get wiped out!
+
+class function TIdStreamHelperNET.ReadBytes(AStream: TStream; var VBytes: TIdBytes;
   ACount, AOffset: Integer): Integer;
 var
   LActual: Integer;
 begin
   Assert(AStream<>nil);
   Result := 0;
+
   if VBytes = nil then begin
     SetLength(VBytes, 0);
   end;

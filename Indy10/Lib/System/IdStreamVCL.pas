@@ -31,7 +31,7 @@ type
   public
     class function ReadBytes(
           const AStream: TStream;
-          out VBytes: TIdBytes;
+          var VBytes: TIdBytes;
           const ACount: Integer = -1;
           const AOffset: Integer = 0) : Integer; {$IFDEF DOTNET} static; {$ENDIF}
     class function Write(
@@ -47,7 +47,10 @@ type
 
 implementation
 
-class function TIdStreamHelperVCL.ReadBytes(const AStream: TStream; out VBytes: TIdBytes;
+// RLebeau: must use a 'var' and not an 'out' for the VBytes parameter,
+// or else any preallocated buffer the caller passes in will get wiped out!
+
+class function TIdStreamHelperVCL.ReadBytes(const AStream: TStream; var VBytes: TIdBytes;
   const ACount, AOffset: Integer): Integer;
 var
   LActual: Integer;
