@@ -27,6 +27,8 @@ resourcestring
  sTargetBufferTooSmall = 'ZLib error: target buffer may be too small';
  sInvalidStreamOp = 'Invalid stream operation';
 
+ sZLibError = 'ZLib Error (%d)';
+ 
 {$IFNDEF STATICLOAD} 
 RSZLibCallError = 'Error on call to ZLib library function %s';
 {$ENDIF}

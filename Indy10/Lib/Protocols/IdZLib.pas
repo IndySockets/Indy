@@ -829,7 +829,7 @@ end;
 
 constructor EZlibError.CreateError(const AError: Integer);
 begin
-  inherited Create( zError(AError) );
+  inherited Create( Format(sZLibError,[AError]) );
   FErrorCode := AError;
 end;
 

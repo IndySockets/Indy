@@ -794,8 +794,10 @@ end;
 
 function inflateInit2(var strm: z_stream; windowBits: TIdC_INT): TIdC_INT;
 begin
-//  if not Assigned(strm.zalloc) then strm.zalloc := zlibAllocMem;
-//  if not Assigned(strm.zfree)  then strm.zfree  := zlibFreeMem;
+  if not Assigned(strm.zalloc) then
+    strm.zalloc := zlibAllocMem;
+  if not Assigned(strm.zfree)  then
+    strm.zfree  := zlibFreeMem;
   Result := inflateInit2_(strm, windowBits, ZLIB_VERSION, sizeof(z_stream));
 end;
 
