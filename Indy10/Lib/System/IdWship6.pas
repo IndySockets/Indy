@@ -402,7 +402,7 @@ var
   {$ENDIF}
   
 var
-  IdIPv6Available: Boolean = False;
+  GIdIPv6FuncsAvailable: Boolean = False;
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 
@@ -456,7 +456,7 @@ begin
     FreeLibrary(h);
   end;
   {$ENDIF}
-  IdIPv6Available := False;
+  GIdIPv6FuncsAvailable := False;
 
   getaddrinfo := nil;
   getnameinfo := nil;
@@ -472,7 +472,7 @@ end;
 
 procedure InitLibrary;
 begin
-  IdIPv6Available := False;
+  GIdIPv6FuncsAvailable := False;
 {
 IMPORTANT!!!
 
@@ -508,7 +508,7 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
       freeaddrinfo := GetProcAddress(hProcHandle, fn_freeaddrinfo);  {do not localize}
       if Assigned(freeaddrinfo) then
       begin
-        IdIPv6Available := True;
+        GIdIPv6FuncsAvailable := True;
 
         //Additional functions should be initialized here.
         {$IFNDEF UNDER_CE}

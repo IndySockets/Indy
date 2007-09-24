@@ -438,7 +438,7 @@ begin
       end;
     end;
     Id_IPv6: begin
-      if not IdIPv6Available then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
+      if not GIdIPv6FuncsAvailable then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
       FillChar(Hints,sizeof(Hints), 0);
       Hints.ai_family := IdIPFamily[AIPVersion];
       Hints.ai_socktype := Integer(SOCK_STREAM);
@@ -964,7 +964,7 @@ begin
       end;
     end;
     Id_IPv6: begin
-      if not IdIPv6Available then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
+      if not GIdIPv6FuncsAvailable then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
       ZeroMemory(@Hints, SIZE_TADDRINFO);
       Hints.ai_family := Id_PF_INET6;
       Hints.ai_socktype := SOCK_STREAM;
@@ -1115,7 +1115,7 @@ var
   LAddr6 : TSockAddrIn6;
   Bytes : LongWord;
 begin
-//  EIdIPv6Unavailable.IfFalse(IdIPv6Available, RSIPv6Unavailable);
+//  EIdIPv6Unavailable.IfFalse(GIdIPv6FuncsAvailable, RSIPv6Unavailable);
   //make our LAddrInfo structure
   FillChar(LAddr6, SizeOf(LAddr6), 0);
   LAddr6.sin6_family := AF_INET6;
