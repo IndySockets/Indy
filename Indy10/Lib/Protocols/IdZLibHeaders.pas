@@ -27,6 +27,16 @@ interface
 
 {$IFNDEF FPC}
   {$IFDEF WIN32}
+{
+For Delphi, we use some .obj files.  These .objs were compiled from the ZLib
+source-code folder with "make -f contrib\delphi\zlibd32.mak" using Borland's
+"make" and "bcc32".  The .objs are compiled with the
+"-DZEXPORT=__fastcall -DZEXPORTVA=__cdecl"  parameter.  Do NOT change
+the function calling conventions unless you know what you are doing and
+the C++ objects are compiled appropriately.
+
+The only things that still are cdecl are the callback functions.
+}
     {$DEFINE STATICLOAD}
   {$ENDIF}
 {$ENDIF}
@@ -281,80 +291,80 @@ var
 
 {$ELSE}
 (* basic functions *)
-function zlibVersion: PChar; cdecl;
+function zlibVersion: PChar; 
 
-function deflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; cdecl;
-function deflateEnd(var strm: z_stream): TIdC_INT; cdecl;
+function deflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT;
+function deflateEnd(var strm: z_stream): TIdC_INT;
 
-function inflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT; cdecl;
-function inflateEnd(var strm: z_stream): TIdC_INT; cdecl;
+function inflate(var strm: z_stream; flush: TIdC_INT): TIdC_INT;
+function inflateEnd(var strm: z_stream): TIdC_INT;
 
 (* advanced functions *)
 
 function deflateSetDictionary(var strm: z_stream; const dictionary: PChar;
-                              dictLength: TIdC_UINT): TIdC_INT; cdecl;
-function deflateCopy(var dest, source: z_stream): TIdC_INT; cdecl;
-function deflateReset(var strm: z_stream): TIdC_INT; cdecl;
-function deflateParams(var strm: z_stream; level, strategy: TIdC_INT): TIdC_INT; cdecl;
+                              dictLength: TIdC_UINT): TIdC_INT;
+function deflateCopy(var dest, source: z_stream): TIdC_INT;
+function deflateReset(var strm: z_stream): TIdC_INT;
+function deflateParams(var strm: z_stream; level, strategy: TIdC_INT): TIdC_INT;
 {JPM Addition}
 function deflateTune(var strm : z_stream; good_length : TIdC_INT;
-    max_lazy, nice_length, max_chain : TIdC_INT) : TIdC_INT; cdecl;
+    max_lazy, nice_length, max_chain : TIdC_INT) : TIdC_INT;
 function deflateBound(var strm: z_stream;
-    sourceLen: TIdC_ULONG): TIdC_ULONG; cdecl;
-function deflatePrime(var strm: z_stream; bits, value: TIdC_INT): TIdC_INT; cdecl;
+    sourceLen: TIdC_ULONG): TIdC_ULONG;
+function deflatePrime(var strm: z_stream; bits, value: TIdC_INT): TIdC_INT;
 
 function inflateSetDictionary(var strm: z_stream; const dictionary: PChar;
-                              dictLength: TIdC_UINT): TIdC_INT; cdecl;
-function inflateSync(var strm: z_stream): TIdC_INT; cdecl;
-function inflateCopy(var dest, source: z_stream): TIdC_INT; cdecl;
-function inflateReset(var strm: z_stream): TIdC_INT; cdecl;
+                              dictLength: TIdC_UINT): TIdC_INT;
+function inflateSync(var strm: z_stream): TIdC_INT;
+function inflateCopy(var dest, source: z_stream): TIdC_INT;
+function inflateReset(var strm: z_stream): TIdC_INT;
 
 function inflateBack(var strm: z_stream; in_fn: in_func; in_desc: Pointer;
-                     out_fn: out_func; out_desc: Pointer): TIdC_INT; cdecl;
-function inflateBackEnd(var strm: z_stream): TIdC_INT; cdecl;
+                     out_fn: out_func; out_desc: Pointer): TIdC_INT;
+function inflateBackEnd(var strm: z_stream): TIdC_INT;
 
-function zlibCompileFlags: TIdC_ULONG; cdecl;
+function zlibCompileFlags: TIdC_ULONG;
 
 {JPM Additional functions}
-function  zError (err : TIdC_INT) : PChar; cdecl;
-function inflateSyncPoint(var z : TZStreamRec) : TIdC_INT; cdecl;
+function  zError (err : TIdC_INT) : PChar;
+function inflateSyncPoint(var z : TZStreamRec) : TIdC_INT;
 //const uLongf * get_crc_table (void);
 
-function  get_crc_table : PIdC_ULONG; cdecl;
+function  get_crc_table : PIdC_ULONG;
 {end JPM additions}
 
 (* utility functions *)
 function compress(dest: PChar; var destLen: TIdC_ULONG;
-                  const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT; cdecl;
+                  const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT;
 function compress2(dest: PChar; var destLen: TIdC_ULONG;
                   const source: PChar; sourceLen: TIdC_ULONG;
-                  level: TIdC_INT): TIdC_INT;  cdecl;
-function compressBound(sourceLen: TIdC_ULONG): TIdC_ULONG; cdecl;
+                  level: TIdC_INT): TIdC_INT;
+function compressBound(sourceLen: TIdC_ULONG): TIdC_ULONG;
 function uncompress(dest: PChar; var destLen: TIdC_ULONG;
-                   const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT; cdecl;
+                   const source: PChar; sourceLen: TIdC_ULONG): TIdC_INT;
 
 (* checksum functions *)
 function adler32(adler: TIdC_ULONG; 
-    const buf: PChar; len: TIdC_UINT): TIdC_ULONG; cdecl;
+    const buf: PChar; len: TIdC_UINT): TIdC_ULONG;
 function crc32(crc: TIdC_ULONG; const buf: PChar; 
-                len: TIdC_UINT): TIdC_ULONG; cdecl;
+                len: TIdC_UINT): TIdC_ULONG;
 
 (* various hacks, don't look :) *)
 function deflateInit_(var strm: z_stream; level: TIdC_INT;
-                      const version: PChar; stream_size: TIdC_INT): TIdC_INT; cdecl;
+                      const version: PChar; stream_size: TIdC_INT): TIdC_INT;
 function inflateInit_(var strm: z_stream; const version: PChar;
-                      stream_size: TIdC_INT): TIdC_INT; cdecl;
+                      stream_size: TIdC_INT): TIdC_INT;
 function deflateInit2_(var strm: z_stream;
                        level, method, windowBits, memLevel, strategy: TIdC_INT;
-                       const version: PChar; stream_size: TIdC_INT): TIdC_INT; cdecl;
+                       const version: PChar; stream_size: TIdC_INT): TIdC_INT;
 function inflateInit2_(var strm: z_stream; windowBits: TIdC_INT;
-                       const version: PChar; stream_size: TIdC_INT): TIdC_INT; cdecl;
+                       const version: PChar; stream_size: TIdC_INT): TIdC_INT;
 function inflateBackInit_(var strm: z_stream;
                           windowBits: TIdC_INT; window: PChar;
-                          const version: PChar; stream_size: TIdC_INT): TIdC_INT; cdecl;
+                          const version: PChar; stream_size: TIdC_INT): TIdC_INT;
 
-function deflateSetHeader(var strm: z_stream; var head: gz_header): TIdC_INT; cdecl;
-function inflateGetHeader(var strm: z_stream; var head: gz_header): TIdC_INT; cdecl;
+function deflateSetHeader(var strm: z_stream; var head: gz_header): TIdC_INT;
+function inflateGetHeader(var strm: z_stream; var head: gz_header): TIdC_INT;
 {$ENDIF}
 function  zlibAllocMem(AppData: Pointer; Items, Size: TIdC_UINT): Pointer; cdecl;
 procedure zlibFreeMem(AppData, Block: Pointer); cdecl;
