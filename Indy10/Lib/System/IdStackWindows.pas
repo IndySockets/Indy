@@ -328,6 +328,7 @@ begin
   if not GStarted then begin
     try
       InitializeWinSock;
+        IdWship6.InitLibrary;
     except
       on E: Exception do begin
         raise EIdStackInitializationFailed.Create(E.Message);
@@ -335,6 +336,7 @@ begin
     end;
     GStarted := True;
   end;
+
   GWindowsStack := Self;
 end;
 
@@ -418,7 +420,9 @@ function TIdStackWindows.HostByAddress(const AAddress: string;
   const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string;
 var
   Host: PHostEnt;
+  {$IFNDEF WINCE}
   LAddr: u_long;
+  {$ENDIF}
   Hints: TAddrInfo;
   {$IFDEF UNICODE}
   AddrInfo: pAddrInfoW;
@@ -427,38 +431,54 @@ var
   {$ENDIF}
   RetVal: Integer;
 begin
-  case AIPVersion of
-    Id_IPv4: begin
-      LAddr := inet_addr(PChar(AAddress));
-      Host := GetHostByAddr(@LAddr, SIZE_TADDRINFO, AF_INET);
-      if Host = nil then begin
-        CheckForSocketError(SOCKET_ERROR);
-      end else begin
-        Result := Host^.h_name;
-      end;
-    end;
-    Id_IPv6: begin
-      if not GIdIPv6FuncsAvailable then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      FillChar(Hints,sizeof(Hints), 0);
-      Hints.ai_family := IdIPFamily[AIPVersion];
-      Hints.ai_socktype := Integer(SOCK_STREAM);
-      Hints.ai_flags := AI_CANONNAME;
-      AddrInfo := nil;
-      RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AAddress), nil, @Hints, @AddrInfo);
-      try
-        if RetVal<>0 then
-          RaiseSocketError(gaiErrorToWsaError(RetVal))
-        else begin
-          setlength(result,NI_MAXHOST);
-          getnameinfo(AddrInfo.ai_addr, AddrInfo.ai_addrlen, Pointer(result), NI_MAXHOST, nil, 0, NI_NAMEREQD);
-          Result := PChar(Result);
+  //GetHostByName and GetHostByAddr may not be availble in future versions
+  //of Windows CE.  Those functions are depreciated in favor of the new
+  //getaddrinfo and getname functions even in Windows so they should be used
+  //when available anyway.
+  //We do have to use the depreciated functions in Windows NT 4.0, probably
+  //Windows 2000, and of course Win9x so fall to our old code in these cases.  
+  {$IFNDEF WINCE}
+  if not GIdIPv6FuncsAvailable then
+  begin
+    case AIPVersion of
+    Id_IPv4:
+      begin
+        LAddr := inet_addr(PChar(AAddress));
+        Host := GetHostByAddr(@LAddr, SIZE_TADDRINFO, AF_INET);
+        if Host = nil then begin
+          CheckForSocketError(SOCKET_ERROR);
+        end else begin
+          Result := Host^.h_name;
         end;
-      finally
-        FreeAddrInfo(AddrInfo);
       end;
-    end else begin
+    Id_IPv6: begin
+        raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
+      end;
+    else 
       IPVersionUnsupported;
     end;
+    Exit;
+  end;
+  {$ENDIF}
+  if (AIPVersion <> Id_IPv4) and (AIPVersion <> Id_IPv6) then begin
+    IPVersionUnsupported;
+  end;
+  FillChar(Hints,sizeof(Hints), 0);
+  Hints.ai_family := IdIPFamily[AIPVersion];
+  Hints.ai_socktype := Integer(SOCK_STREAM);
+  Hints.ai_flags := AI_CANONNAME;
+  AddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AAddress), nil, @Hints, @AddrInfo);
+  try
+    if RetVal<>0 then
+      RaiseSocketError(gaiErrorToWsaError(RetVal))
+    else begin
+      setlength(result,NI_MAXHOST);
+      getnameinfo(AddrInfo.ai_addr, AddrInfo.ai_addrlen, Pointer(result), NI_MAXHOST, nil, 0, NI_NAMEREQD);
+      Result := PChar(Result);
+    end;
+  finally
+    FreeAddrInfo(AddrInfo);
   end;
 end;
 
@@ -949,39 +969,57 @@ var
   {$ENDIF}
   RetVal:integer;
 begin
-  case AIPVersion of
-    Id_IPv4: begin
-      LHost := IdWinsock2.GetHostByName(PChar(AHostName));
-      if LHost = nil then begin
-        RaiseLastSocketError;
-      end else begin
-        LPa := LHost^.h_address_list^;
-        LSa.S_un_b.s_b1 := Ord(LPa[0]);
-        LSa.S_un_b.s_b2 := Ord(LPa[1]);
-        LSa.S_un_b.s_b3 := Ord(LPa[2]);
-        LSa.S_un_b.s_b4 := Ord(LPa[3]);
-        Result := TranslateTInAddrToString(LSa,Id_IPv4);
-      end;
-    end;
-    Id_IPv6: begin
-      if not GIdIPv6FuncsAvailable then raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
-      ZeroMemory(@Hints, SIZE_TADDRINFO);
-      Hints.ai_family := Id_PF_INET6;
-      Hints.ai_socktype := SOCK_STREAM;
-      AddrInfo := nil;
-      RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AHostName), nil, @Hints, @AddrInfo);
-      try
-        if RetVal <> 0 then begin
-          RaiseSocketError(gaiErrorToWsaError(RetVal));
+  //GetHostByName and GetHostByAddr may not be availble in future versions
+  //of Windows CE.  Those functions are depreciated in favor of the new
+  //getaddrinfo and getname functions even in Windows so they should be used
+  //when available anyway.
+  //We do have to use the depreciated functions in Windows NT 4.0, probably
+  //Windows 2000, and of course Win9x so fall to our old code in these cases.
+  {$IFNDEF WINCE}
+  if not GIdIPv6FuncsAvailable then
+  begin
+    case AIPVersion of
+    Id_IPv4:
+      begin
+        LHost := IdWinsock2.GetHostByName(PChar(AHostName));
+        if LHost = nil then begin
+          RaiseLastSocketError;
+        end else begin
+          LPa := LHost^.h_address_list^;
+          LSa.S_un_b.s_b1 := Ord(LPa[0]);
+          LSa.S_un_b.s_b2 := Ord(LPa[1]);
+          LSa.S_un_b.s_b3 := Ord(LPa[2]);
+          LSa.S_un_b.s_b4 := Ord(LPa[3]);
+          Result := TranslateTInAddrToString(LSa,Id_IPv4);
         end;
-        Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_zero, Id_IPv6);
-      finally
-        freeaddrinfo(AddrInfo);
       end;
-    end;
-    else begin
+    Id_IPv6: begin
+        raise EIdIPv6Unavailable.Create(RSIPv6Unavailable);
+      end;
+    else 
       IPVersionUnsupported;
     end;
+    Exit;
+  end;
+  {$ENDIF}
+  if (AIPVersion <> Id_IPv4) and (AIPVersion <> Id_IPv6) then begin
+    IPVersionUnsupported;
+  end;
+  ZeroMemory(@Hints, SIZE_TADDRINFO);
+  Hints.ai_family := IdIPFamily[AIPVersion];
+  Hints.ai_socktype := SOCK_STREAM;
+  AddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(AHostName), nil, @Hints, @AddrInfo);
+  try
+    if RetVal <> 0 then begin
+      RaiseSocketError(gaiErrorToWsaError(RetVal));
+    end;
+    if AIPVersion = Id_IPv4 then
+      Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_addr, AIPVersion)
+    else
+      Result := TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_zero, AIPVersion);
+  finally
+    freeaddrinfo(AddrInfo);
   end;
 end;
 
@@ -1361,7 +1399,9 @@ initialization
   {$ENDIF}
 finalization
   if GStarted then begin
+    IdWship6.CloseLibrary;
     UninitializeWinSock;
+
   end;
 
 end.
