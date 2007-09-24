@@ -406,6 +406,11 @@ var
 
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 
+//We want to load this library only after loading Winsock and unload immediately
+//before unloading Winsock.
+procedure InitLibrary;
+procedure CloseLibrary;
+
 implementation
 
 uses
@@ -446,6 +451,17 @@ procedure CloseLibrary;
 var
   h : THandle;
 begin
+  {$IFNDEF WINCE}
+    {$IFNDEF WIN64}
+  //Only unload the IPv6 functions for Windows NT (2000 or greater).
+  //Note that Win64 was introduced after Windows XP.  That was based on Windows
+  //Server code so we'll skip this in Win64.
+  //I'm just doing this as a minor shortcut.
+  if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Win32MajorVersion < 5) then begin
+    Exit;
+  end;
+    {$ENDIF}
+  {$ENDIF}
   h := InterlockedExchangeTHandle(hWship6Dll, 0);
   if h <> 0 then begin
     FreeLibrary(h);
@@ -473,6 +489,16 @@ end;
 procedure InitLibrary;
 begin
   GIdIPv6FuncsAvailable := False;
+  {$IFNDEF WINCE}
+    {$IFNDEF WIN64}
+  //Only attempt to load the IPv6 functions for Windows NT (2000 or greater).
+  //Note that Win64 was introduced after Windows XP.  That was based on Windows
+  //Server code so we'll skip this in Win64.
+  if (Win32Platform <> VER_PLATFORM_WIN32_NT) or (Win32MajorVersion < 5) then begin
+    Exit;
+  end;
+    {$ENDIF}
+  {$ENDIF}
 {
 IMPORTANT!!!
 
@@ -489,9 +515,8 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
   if not IdWinsock2.Winsock2Loaded then
   begin
     IdWinsock2.InitializeWinSock;
-    hProcHandle := IdWinsock2.WinsockHandle;
   end;
-
+  hProcHandle := IdWinsock2.WinsockHandle;
   getaddrinfo := GetProcAddress(hProcHandle, fn_getaddrinfo);
   if not Assigned(getaddrinfo) then
   begin
@@ -536,7 +561,6 @@ locations.  hWship6Dll is kept so we can unload the Wship6.dll if necessary.
 end;
 
 initialization
-  InitLibrary;
 finalization
   CloseLibrary;
 
