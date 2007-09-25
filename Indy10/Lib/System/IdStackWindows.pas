@@ -423,10 +423,12 @@ var
   {$IFNDEF WINCE}
   LAddr: u_long;
   {$ENDIF}
-  Hints: TAddrInfo;
+
   {$IFDEF UNICODE}
+  Hints: TAddrInfoW;
   AddrInfo: pAddrInfoW;
   {$ELSE}
+  Hints: TAddrInfo;
   AddrInfo: pAddrInfo;
   {$ENDIF}
   RetVal: Integer;
@@ -693,24 +695,60 @@ begin
 end;
 
 procedure TIdStackWindows.PopulateLocalAddresses;
+  {$IFNDEF WINCE}
 type
   TaPInAddr = Array[0..250] of PInAddr;
   PaPInAddr = ^TaPInAddr;
+  {$ENDIF}
 var
+  {$IFNDEF WINCE}
   i: integer;
   AHost: PHostEnt;
   PAdrPtr: PaPInAddr;
+  {$ENDIF}
+
+  {$IFDEF UNICODE}
+  Hints:TAddrInfoW;
+  AddrInfo:pAddrInfoW;
+  {$ELSE}
+  Hints:TAddrInfo;
+  AddrInfo:pAddrInfo;
+  {$ENDIF}
+  RetVal:integer;  
 begin
-  AHost := GetHostByName(PChar(HostName));
-  if AHost = nil then begin
-    CheckForSocketError(SOCKET_ERROR);
-  end else begin
-    PAdrPtr := PAPInAddr(AHost^.h_address_list);
-    i := 0;
-    while PAdrPtr^[i] <> nil do begin
-      FLocalAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^,Id_IPv4)); //BGO FIX
-      Inc(I);
+  {$IFNDEF WINCE}
+  if not GIdIPv6FuncsAvailable then
+  begin
+    AHost := GetHostByName(PChar(HostName));
+    if AHost = nil then begin
+      CheckForSocketError(SOCKET_ERROR);
+    end else begin
+      PAdrPtr := PAPInAddr(AHost^.h_address_list);
+      i := 0;
+      while PAdrPtr^[i] <> nil do begin
+        FLocalAddresses.Add(TranslateTInAddrToString(PAdrPtr^[I]^,Id_IPv4)); //BGO FIX
+        Inc(I);
+      end;
     end;
+    Exit;
+  end;
+  {$ENDIF}
+  ZeroMemory(@Hints, SIZE_TADDRINFO);
+  Hints.ai_family := Id_PF_INET4;
+  Hints.ai_socktype := SOCK_STREAM;
+  AddrInfo := nil;
+  RetVal := getaddrinfo({$IFDEF UNICODE}PWideChar{$ELSE}pchar{$ENDIF}(HostName), nil, @Hints, @AddrInfo);
+  try
+    if RetVal <> 0 then begin
+      RaiseSocketError(gaiErrorToWsaError(RetVal));
+    end;
+    while  AddrInfo <> nil do
+    begin
+      FLocalAddresses.Add(TranslateTInAddrToString(AddrInfo^.ai_addr^.sin_addr,Id_IPv4));
+      AddrInfo := AddrInfo^.ai_next;
+    end;
+  finally
+    freeaddrinfo(AddrInfo);
   end;
 end;
 
@@ -959,8 +997,9 @@ function TIdStackWindows.HostByName(const AHostName: string;
 var
   LPa: PChar;
   LSa: TInAddr;
+   {$IFNDEF WINCE}
   LHost: PHostEnt;
-
+  {$ENDIF}
   Hints:TAddrInfo;
   {$IFDEF UNICODE}
   AddrInfo:pAddrInfoW;
