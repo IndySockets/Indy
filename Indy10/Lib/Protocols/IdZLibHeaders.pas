@@ -16,15 +16,7 @@ different platforms in one file.
 
 interface
 {$i IdCompilerDefines.inc}
-
-//This is for chip architectures such as ARM or Sparc that require data alignment.
-{$IFDEF REQUIRES_PROPER_ALIGNMENT}
-   {$ALIGN ON}
-{$ELSE}
-  {$ALIGN OFF}
-  {$WRITEABLECONST OFF}
-{$ENDIF}
-
+{$WRITEABLECONST OFF}
 {$IFNDEF FPC}
   {$IFDEF WIN32}
 {
@@ -37,8 +29,12 @@ the C++ objects are compiled appropriately.
 
 The only things that still are cdecl are the callback functions.
 }
-    {$DEFINE STATICLOAD}
-  {$ENDIF}
+   {$DEFINE STATICLOAD}
+   {$ELSE}
+   {$message error alignment!}
+   {$ENDIF}  
+{$ELSE}
+  {$packrecords C}
 {$ENDIF}
 
 {$IFNDEF STATICLOAD}
