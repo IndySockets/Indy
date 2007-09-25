@@ -3763,7 +3763,7 @@ type
     ai_addrlen      : ULONG;        // Length of ai_addr
     ai_canonname    : PWideChar;        // Canonical name for nodename
     ai_addr         : PSOCKADDR;    // Binary address
-    ai_next         : PAddrInfo;    // Next structure in linked list
+    ai_next         : PAddrInfoW;    // Next structure in linked list
   end;
   {$NODEFINE TAddrInfoW}
   TAddrInfoW = ADDRINFOW;
