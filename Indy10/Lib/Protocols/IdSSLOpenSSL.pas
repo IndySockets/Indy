@@ -216,8 +216,6 @@ uses
   IdYarn;
 
 type
-  TIdX509 = class;
-
   TIdSSLVersion = (sslvSSLv2, sslvSSLv23, sslvSSLv3, sslvTLSv1);
   TIdSSLMode = (sslmUnassigned, sslmClient, sslmServer, sslmBoth);
   TIdSSLVerifyMode = (sslvrfPeer, sslvrfFailIfNoPeerCert, sslvrfClientOnce);
@@ -225,6 +223,11 @@ type
   TIdSSLCtxMode = (sslCtxClient, sslCtxServer);
   TIdSSLAction = (sslRead, sslWrite);
 
+const
+  DEF_SSLVERSION = sslvTLSv1;
+  
+type
+  TIdX509 = class;
   TULong = packed record
     case Byte of
       0: (B1,B2,B3,B4: Byte);
@@ -262,11 +265,13 @@ type
     //fVerifyFile,
     fVerifyDirs, fCipherList: String;
     procedure AssignTo(ASource: TPersistent); override;
+  public
+    constructor Create;
   published
     property RootCertFile: String read fsRootCertFile write fsRootCertFile;
     property CertFile: String read fsCertFile write fsCertFile;
     property KeyFile: String read fsKeyFile write fsKeyFile;
-    property Method: TIdSSLVersion read fMethod write fMethod;
+    property Method: TIdSSLVersion read fMethod write fMethod default DEF_SSLVERSION;
     property Mode: TIdSSLMode read fMode write fMode;
     property VerifyMode: TIdSSLVerifyModeSet read fVerifyMode write fVerifyMode;
     property VerifyDepth: Integer read fVerifyDepth write fVerifyDepth;
@@ -1053,6 +1058,12 @@ end;
 //   TIdSSLOptions
 ///////////////////////////////////////////////////////
 
+constructor TIdSSLOptions.Create;
+begin
+  inherited Create;
+  Method := DEF_SSLVERSION;
+end;
+
 procedure TIdSSLOptions.AssignTo(ASource: TPersistent);
 begin
   if ASource is TIdSSLOptions then
@@ -1070,6 +1081,7 @@ begin
   else
     inherited AssignTo(ASource);
 end;
+
 
 ///////////////////////////////////////////////////////
 //   TIdServerIOHandlerSSLOpenSSL
@@ -1866,7 +1878,7 @@ begin
   fSSL := IdSslNew(fSSLContext.fContext);
   if fSSL = nil then exit;
 
-  error := IdSslSetAppData(fSSL, Self)
+  error := IdSslSetAppData(fSSL, Self);
   if error <= 0 then begin
     EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
   end;
