@@ -560,27 +560,37 @@ http://csrc.nist.gov/CryptoToolkit/tkhash.html
   end;
 
   EIdOpenSSLError = class(EIdException);
-
-  TIdOpenSSLAPIErrorClass = class of EIdOpenSSLAPIError;
-  EIdOpenSSLAPIError = class(EIdOpenSSLError)
+  TIdOpenSSLAPISSLError = class of EIdOpenSSLAPISSLError;
+  EIdOpenSSLAPISSLError = class(EIdOpenSSLError)
+  protected
+    FErrorCode : TIdC_INT;
+    FRetCode : TIdC_INT;
+  public
+    class procedure RaiseException(s: PSSL; 
+      const ARetCode : TIdC_INT; const AMsg : String = '');
+    property ErrorCode : TIdC_INT read FErrorCode;
+    property RetCode : TIdC_INT read FRetCode;
+  end;
+  TIdOpenSSLAPICryptoError = class of EIdOpenSSLAPICryptoError;
+  EIdOpenSSLAPICryptoError = class(EIdOpenSSLError)
   protected
     FErrorCode : TIdC_ULONG;
   public
-    class procedure RaiseException(AEClass : TIdOpenSSLAPIErrorClass;
-      const AMsg : String = '');
+    class procedure RaiseException(const AMsg : String = '');
     property ErrorCode : TIdC_ULONG read FErrorCode;
   end;
   EIdOSSLCouldNotLoadSSLLibrary = class(EIdOpenSSLError);
   EIdOSSLModeNotSet = class(EIdOpenSSLError);
   EIdOSSLGetMethodError = class(EIdOpenSSLError);
   EIdOSSLCreatingContextError = class(EIdOpenSSLError);
-  EIdOSSLLoadingRootCertError = class(EIdOpenSSLAPIError);
-  EIdOSSLLoadingCertError = class(EIdOpenSSLAPIError);
-  EIdOSSLLoadingKeyError = class(EIdOpenSSLAPIError);
+  EIdOSSLLoadingRootCertError = class(EIdOpenSSLAPICryptoError);
+  EIdOSSLLoadingCertError = class(EIdOpenSSLAPICryptoError);
+  EIdOSSLLoadingKeyError = class(EIdOpenSSLAPICryptoError);
   EIdOSSLSettingCipherError = class(EIdOpenSSLError);
-  EIdOSSLDataBindingError = class(EIdOpenSSLAPIError);
-  EIdOSSLAcceptError = class(EIdOpenSSLAPIError);
-  EIdOSSLConnectError = class(EIdOpenSSLAPIError);
+  EIdOSSLFDSetError = class(EIdOpenSSLAPISSLError);
+  EIdOSSLDataBindingError = class(EIdOpenSSLAPISSLError);
+  EIdOSSLAcceptError = class(EIdOpenSSLAPISSLError);
+  EIdOSSLConnectError = class(EIdOpenSSLAPISSLError);
 
 function LogicalAnd(A, B: Integer): Boolean;
 
@@ -1489,21 +1499,21 @@ begin
   // load key and certificate files
   if RootCertFile <> '' then begin    {Do not Localize}
     if not LoadRootCert then begin
-       EIdOSSLLoadingRootCertError.RaiseException(EIdOSSLLoadingRootCertError,RSSSLLoadingRootCertError);
+       EIdOSSLLoadingRootCertError.RaiseException(RSSSLLoadingRootCertError);
     //  raise EIdOSSLLoadingRootCertError.Create(RSSSLLoadingRootCertError);
     end;
   end;
 
   if CertFile <> '' then begin    {Do not Localize}
     if not LoadCert then begin
-      EIdOSSLLoadingCertError.RaiseException(EIdOSSLLoadingCertError,RSSSLLoadingCertError);
+      EIdOSSLLoadingCertError.RaiseException(RSSSLLoadingCertError);
      // raise EIdOSSLLoadingCertError.Create(RSSSLLoadingCertError);
     end;
   end;
 
   if KeyFile <> '' then begin    {Do not Localize}
     if not LoadKey then begin
-      EIdOSSLLoadingKeyError.RaiseException(EIdOSSLLoadingKeyError,RSSSLLoadingKeyError);
+      EIdOSSLLoadingKeyError.RaiseException(RSSSLLoadingKeyError);
    //   raise EIdOSSLLoadingKeyError.Create(RSSSLLoadingKeyError);
     end;
   end;
@@ -1525,7 +1535,7 @@ begin
     error := IdSslCtxSetCipherList(fContext, OPENSSL_SSL_DEFAULT_CIPHER_LIST);
   end;
   if error <= 0 then begin
-    EIdOSSLLoadingKeyError.RaiseException(EIdOSSLLoadingKeyError,RSSSLSettingCipherError);
+    EIdOSSLLoadingKeyError.RaiseException(RSSSLSettingCipherError);
   end;
 
   if fVerifyMode <> [] then begin
@@ -1821,8 +1831,9 @@ begin
   fSSL := IdSslNew(fSSLContext.fContext);
   if fSSL = nil then exit;
 
-  if IdSslSetAppData(fSSL, self) <= 0 then begin
-    EIdOSSLDataBindingError.RaiseException(EIdOSSLDataBindingError,RSSSLDataBindingError);
+  error := IdSslSetAppData(fSSL, self);
+  if error <= 0 then begin
+    EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
     exit;
   end;
 
@@ -1830,7 +1841,7 @@ begin
 
   error := IdSslAccept(fSSL);
   if error <= 0 then begin
-    EIdOSSLAcceptError.RaiseException(EIdOSSLAcceptError,RSSSLAcceptError);
+    EIdOSSLAcceptError.RaiseException(fSSL, error, RSSSLAcceptError);
   end;
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
@@ -1855,15 +1866,18 @@ begin
   fSSL := IdSslNew(fSSLContext.fContext);
   if fSSL = nil then exit;
 
-  if IdSslSetAppData(fSSL, Self) <= 0 then begin
-    EIdOSSLDataBindingError.RaiseException(EIdOSSLDataBindingError,RSSSLDataBindingError);
+  error := IdSslSetAppData(fSSL, Self)
+  if error <= 0 then begin
+    EIdOSSLDataBindingError.RaiseException(fSSL, error, RSSSLDataBindingError);
   end;
 
-  IdSslSetFd(fSSL, pHandle);
-
+  error :=  IdSslSetFd(fSSL, pHandle);
+  if error <= 0 then begin
+    EIdOSSLFDSetError.RaiseException(fSSL,error,RSSSLFDSetError);
+  end;
   error := IdSslConnect(fSSL);
   if error <= 0 then begin
-    EIdOSSLConnectError.RaiseException(EIdOSSLDataBindingError,RSSSLConnectError);
+    EIdOSSLConnectError.RaiseException(fSSL,error,RSSSLConnectError);
   end;
 
   StatusStr := 'Cipher: name = ' + Cipher.Name + '; ' +    {Do not Localize}
@@ -2279,24 +2293,43 @@ begin
   Result := StrPas(IdSSLCipherGetVersion(IdSSLGetCurrentCipher(FSSLSocket.fSSL)));
 end;
 
-{ EIdOpenSSLAPIError }
-class procedure EIdOpenSSLAPIError.RaiseException(AEClass : TIdOpenSSLAPIErrorClass;
+{ EIdOpenSSLAPICryptoError }
+class procedure EIdOpenSSLAPICryptoError.RaiseException(
   const AMsg : String = '');
 var
-  LException : EIdOpenSSLAPIError;
+  LException : EIdOpenSSLAPICryptoError;
   LErr : TIdC_ULONG;
 begin
   LErr := IdSSLERR_get_err;
   if AMsg <> '' then
   begin
-    LException := AEClass.Create( AMsg + sLineBreak+ GetErrorMessage(LErr) );
+    LException := Create( AMsg + sLineBreak+ GetErrorMessage(LErr) );
   end
   else
   begin
-    LException := AEClass.Create( GetErrorMessage(LErr) );
+    LException := Create( GetErrorMessage(LErr) );
   end;
   LException.FErrorCode := LErr;
-  raise  LException;
+  raise LException;
+end;
+
+{ EIdOpenSSLAPISSLError }
+
+class procedure EIdOpenSSLAPISSLError.RaiseException(s: PSSL;
+  const ARetCode: TIdC_INT; const AMsg: String);
+var LErr : TIdC_INT;
+  LException : EIdOpenSSLAPISSLError;
+begin
+  LErr := IdSslGetError(s,ARetCode);
+  if AMsg <> '' then
+  begin
+    LException := Create( AMsg + sLineBreak+ GetErrorMessage(LErr) );
+  end
+  else
+  begin
+    LException := Create( GetErrorMessage(LErr) );
+  end;
+  raise LException;
 end;
 
 initialization

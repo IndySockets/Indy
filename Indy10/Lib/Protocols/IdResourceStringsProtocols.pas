@@ -499,7 +499,9 @@ resourcestring
   RSSSLLoadingCertError = 'Could not load certificate.';
   RSSSLLoadingKeyError = 'Could not load key, check password.';
   RSSSLGetMethodError = 'Error geting SSL method.';
+  RSSSLFDSetError = 'Error setting File Descriptor for SSL';
   RSSSLDataBindingError = 'Error binding data to SSL socket.';
+
   {IdMessage Component Editor}
   RSMsgCmpEdtrNew = '&New Message Part...';
   RSMsgCmpEdtrExtraHead = 'Extra Headers Text Editor';
