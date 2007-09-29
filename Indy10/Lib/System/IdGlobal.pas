@@ -624,7 +624,7 @@ type
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   TIdPID = LongWord;
-  TIdThreadId = LongWord;
+  TIdThreadId = TThreadID;
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
 
@@ -1042,8 +1042,8 @@ function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetch
 // TODO: add an index parameter
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
-function CurrentThreadId: TIdPID;
-function GetThreadHandle(AThread: TThread): THandle;
+function CurrentThreadId: TIdThreadID;
+function GetThreadHandle(AThread: TThread): TIdThreadID;
 //GetTickDiff required because GetTickCount will wrap
 function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -2142,7 +2142,7 @@ begin
   {$ENDIF}
 end;
 
-function CurrentThreadId: TIdPID;
+function CurrentThreadId: TIdThreadID;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
 {$IFDEF DOTNET}
@@ -2250,7 +2250,7 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TThread): THandle;
+function GetThreadHandle(AThread: TThread): TIdThreadID;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
