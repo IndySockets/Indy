@@ -172,12 +172,15 @@ perl util\mkdef.pl 32 ssleay  1>ms\ssleay32.def
 interface
 
 {$i IdCompilerDefines.inc}
-
-{$IFDEF REQUIRES_PROPER_ALIGNMENT}
-   {$ALIGN ON}
+{$WRITEABLECONST OFF}
+{$IFNDEF FPC}
+  {$IFDEF WIN32}
+  {$ALIGN 1}
+  {$ELSE}
+  {$message error alignment!}
+  {$ENDIF}  
 {$ELSE}
-  {$ALIGN OFF}
-  {$WRITEABLECONST OFF}
+  {$packrecords C}
 {$ENDIF}
 
 //THe OpenSSL developers use a IF 0 and an IF 1 convention for selectively
@@ -5167,7 +5170,7 @@ type
   PSSL_COMP = ^SSL_COMP;
   // PASN1_UTCTIME		   = Pointer;
 
-//GREGOR - spremenjana deklaracija ker se tolèe
+//GREGOR - spremenjana deklaracija ker se tolï¿½e
 //  Phostent	  = Pointer;
   Phostent2   = Pointer;
 //END GREGOR
@@ -8789,19 +8792,25 @@ const
   gl_POLICY_CONSTRAINTS_it = 'POLICY_CONSTRAINTS_it'; {Do not localize}
   {$ENDIF}
 
-function LoadFunction(const FceName: String): Pointer;
+function LoadFunction(const FceName: String; const ACritical : Boolean = True): Pointer;
 begin
   Result := GetProcAddress(hIdSSL, PChar(FceName));
-  if Result = nil then begin
-    FFailedFunctionLoadList.Add(FceName);
+  if ACritical then
+  begin
+    if Result = nil then begin
+      FFailedFunctionLoadList.Add(FceName);
+    end;
   end;
 end;
 
-function LoadFunctionCLib(const FceName:String): Pointer;
+function LoadFunctionCLib(const FceName:String;  const ACritical : Boolean = True): Pointer;
 begin
   Result := GetProcAddress(hIdCrypto, PChar(FceName));
-  if Result = nil then begin
-    FFailedFunctionLoadList.Add(FceName);
+  if ACritical then
+  begin
+    if Result = nil then begin
+      FFailedFunctionLoadList.Add(FceName);
+    end;
   end;
 end;
 
@@ -8905,9 +8914,9 @@ begin
   @IdSslMethodTLSV1 := LoadFunction(fn_TLSv1_method);
   @IdSslMethodServerTLSV1 := LoadFunction(fn_TLSv1_server_method);
   @IdSslMethodClientTLSV1 := LoadFunction(fn_TLSv1_client_method);
-  @IdSslMethodDTLSv1 := LoadFunction(fn_DTLSv1_method);
-  @IdSslMethodServerDTLSv1 := LoadFunction(fn_DTLSv1_server_method);
-  @IdSslMethodClientDTLSv1 := LoadFunction(fn_DTLSv1_client_method);
+  @IdSslMethodDTLSv1 := LoadFunction(fn_DTLSv1_method, False);
+  @IdSslMethodServerDTLSv1 := LoadFunction(fn_DTLSv1_server_method, False);
+  @IdSslMethodClientDTLSv1 := LoadFunction(fn_DTLSv1_client_method, False);
   @IdSslShutdown := LoadFunction(fn_SSL_shutdown);
   @IdSslSetConnectState := LoadFunction(fn_SSL_set_connect_state);
   @IdSslSetAcceptState := LoadFunction(fn_SSL_set_accept_state);
@@ -8915,7 +8924,7 @@ begin
   @IdSslCtxLoadVerifyLocations := LoadFunction(fn_SSL_CTX_load_verify_locations);
   @IdSslGetSession := LoadFunction(fn_SSL_get_session);
   @IdSslAddSslAlgorithms := LoadFunction(fn_SSLeay_add_ssl_algorithms);
-  @IdSslSessionGetId := LoadFunction(fn_SSL_SESSION_get_id);
+  @IdSslSessionGetId := LoadFunction(fn_SSL_SESSION_get_id,False);
   // CRYPTO LIB
   @IdSslSSLeay_version := LoadFunctionCLib(fn_SSLeay_version);
   @IdSslX509NameOneline := LoadFunctionCLib(fn_X509_NAME_oneline);
@@ -9037,12 +9046,12 @@ begin
   @IdSslEvpDesEde3Cbc :=LoadFunctionCLib(fn_EVP_des_ede3_cbc);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA512}
-  @IdSslEvpSHA512 := LoadFunctionCLib(fn_EVP_sha512);
-  @IdSslEvpSHA386 := LoadFunctionCLib(fn_EVP_sha384);
+  @IdSslEvpSHA512 := LoadFunctionCLib(fn_EVP_sha512,False);
+  @IdSslEvpSHA386 := LoadFunctionCLib(fn_EVP_sha384,False);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA256}
-  @IdSslEvpSHA256 := LoadFunctionCLib(fn_EVP_sha256);
-  @IdSslEvpSHA224 := LoadFunctionCLib(fn_EVP_sha224);
+  @IdSslEvpSHA256 := LoadFunctionCLib(fn_EVP_sha256,False);
+  @IdSslEvpSHA224 := LoadFunctionCLib(fn_EVP_sha224,False);
   {$ENDIF}
   {$IFNDEF OPENSSL_NO_SHA}
   @IdSslEvpSHA1 := LoadFunctionCLib(fn_EVP_sha1);

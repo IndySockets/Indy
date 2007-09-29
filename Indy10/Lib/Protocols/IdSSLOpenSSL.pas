@@ -96,7 +96,7 @@
 
   Rev 1.14    6/29/2003 5:42:02 PM  BGooijen
   fixed problem in TIdSSLIOHandlerSocketOpenSSL.SetPassThrough that Henrick
-  Hellström reported
+  Hellstrï¿½m reported
 
   Rev 1.13    5/7/2003 7:13:00 PM  BGooijen
   changed Connected to BindingAllocated in ReadFromSource
@@ -779,7 +779,7 @@ function _GetThreadID: TIdC_ULONG; cdecl;
 begin
   // TODO: Verify how well this will work with fibers potentially running from
   // thread to thread or many on the same thread.
-  Result := CurrentThreadId;
+  Result := TIdC_ULONG(CurrentThreadId);
 end;
 
 {$IFDEF IDOPENSSLMEMORY}
@@ -1953,11 +1953,14 @@ var
 begin
   Result.Length := 0;
   FillChar(tmpArray, SizeOf(TByteArray), 0);
-  if fSSL<>nil then begin
-    pSession := IdSslGetSession(fSSL);
-    if pSession <> nil then begin
-      IdSslSessionGetId(pSession, @tmpArray.Data, @tmpArray.Length);
-      Result := tmpArray;
+  if Assigned(IdSslGetSession) then
+  begin
+    if fSSL<>nil then begin
+      pSession := IdSslGetSession(fSSL);
+      if pSession <> nil then begin
+        IdSslSessionGetId(pSession, @tmpArray.Data, @tmpArray.Length);
+        Result := tmpArray;
+      end;
     end;
   end;
 end;
@@ -2076,7 +2079,14 @@ end;
 
 function TIdX509Fingerprints.GetSHA224 : TEVP_MD;
 begin
+  if Assigned(IdSslEvpSHA224) then
+  begin
    IdSslX509Digest(FX509, IdSslEvpSHA224, PByte(@Result.MD), Result.Length);
+  end
+  else
+  begin
+    FillChar(Result,SizeOf(Result),0);
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA224AsString : String;
@@ -2084,46 +2094,95 @@ var
   EVP_MD : TEVP_MD;
 begin
   EVP_MD := SHA224;
-  Result := MDAsString(EVP_MD);
+  if Assigned(IdSslEvpSHA224) then
+  begin
+    Result := MDAsString(EVP_MD);
+  end
+  else
+  begin
+    Result := '';
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA256 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA256, PByte(@Result.MD), Result.Length);
+  if Assigned(IdSslEvpSHA256) then
+  begin
+    IdSslX509Digest(FX509, IdSslEvpSHA256, PByte(@Result.MD), Result.Length);
+  end
+  else
+  begin
+    FillChar(Result,SizeOf(Result),0);
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA256AsString : String;
 var
   EVP_MD : TEVP_MD;
 begin
-  EVP_MD := SHA256;
-  Result := MDAsString(EVP_MD);
+  if Assigned(IdSslEvpSHA256) then
+  begin
+    EVP_MD := SHA256;
+    Result := MDAsString(EVP_MD);
+  end
+  else
+  begin
+    Result := '';
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA386 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA386, PByte(@Result.MD), Result.Length);
+  if Assigned(IdSslEvpSHA386) then
+  begin
+    IdSslX509Digest(FX509, IdSslEvpSHA386, PByte(@Result.MD), Result.Length);
+  end
+  else
+  begin
+    FillChar(Result,SizeOf(Result),0);
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA386AsString : String;
 var
   EVP_MD : TEVP_MD;
 begin
-  EVP_MD := SHA386;
-  Result := MDAsString(EVP_MD);
+  if Assigned(IdSslEvpSHA386) then
+  begin
+    EVP_MD := SHA386;
+    Result := MDAsString(EVP_MD);
+  end
+  else
+  begin
+    Result := '';
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA512 : TEVP_MD;
 begin
-  IdSslX509Digest(FX509, IdSslEvpSHA512, PByte(@Result.MD), Result.Length);
+  if Assigned(IdSslEvpSHA512) then
+  begin
+    IdSslX509Digest(FX509, IdSslEvpSHA512, PByte(@Result.MD), Result.Length);
+  end
+  else
+  begin
+    FillChar(Result,SizeOf(Result),0);
+  end;
 end;
 
 function TIdX509Fingerprints.GetSHA512AsString : String;
 var
   EVP_MD : TEVP_MD;
 begin
-  EVP_MD := SHA512;
-  Result := MDAsString(EVP_MD);
+  if Assigned(IdSslEvpSHA512) then
+  begin
+    EVP_MD := SHA512;
+    Result := MDAsString(EVP_MD);
+  end
+  else
+  begin
+    Result := '';
+  end;
 end;
 
 
@@ -2347,7 +2406,7 @@ end;
 initialization
 
   RegisterSSL('OpenSSL','Indy Pit Crew',                                  {do not localize}
-    'Copyright © 1993 - 2004'#10#13 +                                     {do not localize}
+    'Copyright ï¿½ 1993 - 2004'#10#13 +                                     {do not localize}
     'Chad Z. Hower (Kudzu) and the Indy Pit Crew. All rights reserved.',  {do not localize}
     'Open SSL Support DLL Delphi and C++Builder interface',               {do not localize}
     'http://www.indyproject.org/'#10#13 +                                 {do not localize}
