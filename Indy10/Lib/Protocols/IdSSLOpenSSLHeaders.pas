@@ -4164,6 +4164,8 @@ type
   {$ENDIF}
 
   //pcy_int.h
+  //Note that anything other than PSTACK should be undefined since the record
+  //members aren't exposed in the headers.
   {$IFDEF DEBUG_SAFESTACK}
   STACK_OF_X509_POLICY_DATA = record
     _stack: stack;
@@ -4187,36 +4189,13 @@ type
   {$ENDIF}
 
   X509_POLICY_DATA = record
-    flags : TIdC_UINT;
-    // Policy OID and qualifiers for this data
-    valid_policy : PASN1_OBJECT; 
-    qualifier_set : PSTACK_OF_POLICYQUALINFO;
-    expected_policy_set : PSTACK_OF_ASN1_OBJECT
   end;
   PX509_POLICY_DATA = ^X509_POLICY_DATA;
 
   X509_POLICY_REF = record
-    subjectDomainPolicy : PASN1_OBJECT;
-    data : PX509_POLICY_DATA;
   end;
   PX509_POLICY_REF = ^X509_POLICY_REF;
   X509_POLICY_CACHE = record
-    // anyPolicy data or NULL if no anyPolicy
-    anyPolicy : PX509_POLICY_DATA;
-    // other policy data
-    data : PSTACK_OF_X509_POLICY_DATA;
-    // If policyMappings extension present a table of mapped policies
-    maps : PSTACK_OF_X509_POLICY_REF;
-    // If InhibitAnyPolicy present this is its value or -1 if absent.
-    any_skip : TIdC_LONG;
-    // If policyConstraints and requireExplicitPolicy present this is its
-    // value or -1 if absent.
-    //
-    explicit_skip : TIdC_LONG;
-    // If policyConstraints and policyMapping present this is its
-    // value or -1 if absent.
-    //
-    map_skip : TIdC_LONG;    
   end;
   PX509_POLICY_CACHE = ^X509_POLICY_CACHE;
 
