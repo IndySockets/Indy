@@ -533,6 +533,7 @@ uses
     {$IFDEF KYLIX}
     Libc,
     {$ELSE}
+      DynLibs, // better add DynLibs only for fpc 
       {$IFDEF USELIBC}
       Libc,
       {$ENDIF}
@@ -1104,6 +1105,9 @@ function IndyMax(const AValueOne, AValueTwo: Int64): Int64; overload;
 function IndyMax(const AValueOne, AValueTwo: LongInt): LongInt; overload;
 function IndyMax(const AValueOne, AValueTwo: Word): Word; overload;
 function IPv4MakeLongWordInRange(const AInt: Int64; const A256Power: Integer): LongWord;
+{$IFDEF UNIX}
+function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
+{$ENDIF}
 {$IFNDEF DOTNET}
 function MemoryPos(const ASubStr: string; MemBuff: PChar; MemorySize: Integer): Integer;
 {$ENDIF}
@@ -1159,6 +1163,15 @@ function GetEncoder(AEncoding: TIdEncoding): Encoding;
 {$ENDIF}
 function GetUTF8Decoder: TIdUTF8Decoder;
 
+{$IFDEF UNIX}
+const
+  {$IFDEF DARWIN}
+  LIBEXT = '.dylib'; {do not localize}
+  {$ELSE}
+  LIBEXT = '.so'; {do not localize}
+  {$ENDIF}
+{$ENDIF}
+
 implementation
 
 uses
@@ -1170,6 +1183,25 @@ uses
 {$IFNDEF DOTNET}
 var
   GIdPorts: TList = nil;
+{$ENDIF}
+
+ {$IFDEF UNIX}
+function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
+var i : Integer;
+begin
+  Result := NilHandle;
+  for i := Low(ALibVersions) to High(ALibVersions) do
+  begin
+    {$IFDEF DARWIN}
+    Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
+    {$ELSE}
+    Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
+    {$ENDIF}
+    if Result <> NilHandle then begin
+      break;
+    end;
+  end;
+end;
 {$ENDIF}
 
 procedure IndyRaiseLastError;

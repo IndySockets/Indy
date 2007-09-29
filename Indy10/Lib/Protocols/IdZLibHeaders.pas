@@ -383,6 +383,7 @@ uses
     {$IFDEF USELIBC}
     , libc
     {$ENDIF}
+    , IdGlobal
     , DynLibs // better add DynLibs only for fpc
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
@@ -439,11 +440,19 @@ function deflateSetHeader; external;
 function inflateGetHeader; external;
 {$ELSE}
 var
+  {$IFDEF UNIX}
+  hZlib: HModule = nilhandle;
+  {$ELSE}
   hZLib: THandle = 0;
-  
+  {$ENDIF}
+
 const
   {$IFDEF UNIX} 
-  libzlib = 'libz.so.1';
+  //The extensions will be resolved by IdGlobal.HackLoad
+  //This is a little messy because symbolic links to libraries may not always be the same
+  //in various Unix types.  Even then, there could possibly be differences.
+  libzlib = 'libz';
+  libvers : array [0..3] of string = ('.1','','.3','.2');
   {$ENDIF}
   {$ifdef netware}  {zlib.nlm comes with netware6}
   libzlib = 'zlib';
@@ -460,7 +469,7 @@ const
   //conventions.  Get the DLL for Win32-x86.
   libzlib = 'zlibwapi.dll'; 
   {$ENDIF}  
-  
+
   
 constructor EIdZLibStubError.Build(const ATitle : String; AError : LongWord);
 begin
@@ -703,7 +712,10 @@ end;
 function stub_zlibVersion : PChar; cdecl;
 begin
   zlibVersion := FixupStub(hZLib, 'zlibVersion'); {Do not Localize}
-  Result := zlibVersion;
+  if Assigned(zlibVersion) then
+  begin
+    Result := zlibVersion;
+  end;
 end;
 
 function stub_deflateSetHeader(var strm: z_stream; var head: gz_header): TIdC_INT; cdecl;
@@ -872,7 +884,11 @@ begin
     {$IFDEF WIN32_OR_WIN64_OR_WINCE}
     hZLib := SafeLoadLibrary(libzlib);
     {$ELSE}
-    hZLib := LoadLibrary(libzlib);
+      {$IFDEF UNIX}
+    hZLib := HackLoad(libzlib,libvers);
+      {$ELSE}
+      hZLib := LoadLibrary(libzlib);
+      {$ENDIF}
     {$ENDIF}
     Result := Loaded;
   end;
