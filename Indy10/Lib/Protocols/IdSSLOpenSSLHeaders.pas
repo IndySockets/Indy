@@ -5193,31 +5193,14 @@ type
   PX509_REQ = ^X509_REQ;
   PPX509_REQ = ^PX509_REQ;  }
 
-///ssl_locl.h structs.  For some reason, these aren't listed in the include files
-//so it seems that the OpenSSL headers are pulling stuff out of thin air.
-//In any case, I don't know how these structs will work on various platforms.
+///ssl_locl.h structs.  These are probably internal records so don't expose
+//their members as ssl_lock.h is not included in the headers
 //JPM
   PSSL3_ENC_METHOD = ^SSL3_ENC_METHOD;
   SSL3_ENC_METHOD = record
-    enc : function (_para1 : PSSL) :TIdC_INT; cdecl;
-    mac : function (_para1 : PSSL; _para2 : PByte; _para3 : TIdC_INT) : TIdC_INT; cdecl;
-    setup_key_block : function (_para1 : PSSL) : TIdC_INT; cdecl;
-    generate_master_secret : function (_para1 : PSSL; _para2, para3 : PByte; _para4 : TIdC_INT): TIdC_INT; cdecl;
-    change_cipher_state : function (_para1 : PSSL; para2 : TIdC_INT) : TIdC_INT; cdecl;
-    final_finish_mac : function (_para1 : PSSL; _para2, _para3 : PEVP_MD_CTX;
-        para4 : PChar; para5 : TIdC_INT; _para5 : PByte) : TIdC_INT; cdecl;
-    finish_mac_length : TIdC_INT;
-    cert_verify_mac : function (_para1 : PSSL; _para2 : PEVP_MD_CTX; _para3 : PByte) : TIdC_INT; cdecl;
-    client_finished_label : PChar;
-    client_finished_label_len : TIdC_INT;
-    server_finished_label : PChar;
-    server_finished_label_len : TIdC_INT;
-    alert_value : function(_para1 : TIdC_INT) : TIdC_INT; cdecl;
   end;
 
   CERT_PKEY = record
-    x509 : PX509;
-    privatekey : PEVP_PKEY;
   end;
   PCERT_PKEY = ^CERT_PKEY;
 
