@@ -6525,8 +6525,11 @@ uses
 
 const
   {$IFDEF UNIX}
-  SSL_DLL_name         = 'libssl.so'; {Do not localize}
-  SSLCLIB_DLL_name     = 'libcrypto.so'; {Do not localize}
+  {This is a workaround for some Linux distributions and a few other things
+  where the symbolic link libbsl.so and libcrypto.so do not exist}
+  SSL_DLL_name         = 'libssl'; {Do not localize}
+  SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
+  SSLDLLVers : array [0..4] of string = ['','0.9.9','.0.9.8','.0.9.7','0.9.6']
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   SSL_DLL_name       = 'ssleay32.dll';  {Do not localize}
@@ -8796,10 +8799,10 @@ begin
   {$IFDEF USELIBC}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   if hIdCrypto = 0 then begin
-    hIdCrypto := HMODULE(dlopen(SSLCLIB_DLL_name, RTLD_LAZY));
+    hIdCrypto := HackLoad(SSLCLIB_DLL_name);
   end;
   if hIdSSL = 0 then begin
-    hIdSSL := HMODULE(dlopen(SSL_DLL_name, RTLD_LAZY));
+    hIdSSL := HackLoad(SSL_DLL_name);
   end;
   {$ELSE}
     {$IFDEF FPC}
