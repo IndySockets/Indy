@@ -1195,7 +1195,12 @@ begin
     {$IFDEF DARWIN}
     Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
     {$ELSE}
+      {$IFDEF USELIBC}
+  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+    Resi;t := HMODULE(dlopen(ALibName+LIBEXT+ALibVersions[i], RTLD_LAZY));
+      {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
+      {$ENDIF}
     {$ENDIF}
     if Result <> NilHandle then begin
       break;
