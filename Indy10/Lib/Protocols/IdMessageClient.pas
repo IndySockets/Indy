@@ -969,8 +969,8 @@ var
                   LData[j] := LHeaderCoder.Encode(ISOCharSet, LData[j]);
                 end;
               end;
+              IOHandler.WriteRFCStrings(LData, False);
             end;
-            IOHandler.WriteRFCStrings(LData, False);
           finally
             FreeAndNil(LData);
           end;
