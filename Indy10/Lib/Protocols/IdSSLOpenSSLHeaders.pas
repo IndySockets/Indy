@@ -175,7 +175,7 @@ interface
 {$WRITEABLECONST OFF}
 {$IFNDEF FPC}
   {$IFDEF WIN32}
-  {$ALIGN 1}
+  {$ALIGN OFF}
   {$ELSE}
   {$message error alignment!}
   {$ENDIF}  
@@ -5207,51 +5207,9 @@ type
   PPCERT = ^PCERT;
   PCERT = ^CERT;
   CERT = record
-    // Current active set
-    key : PCERT_PKEY; // ALWAYS points to an element of the pkeys array
-                      // Probably it would make more sense to store
-                      // an index, not a pointer.
-
-    // The following masks are for the key and auth
-    // algorithms that are supported by the certs below
-    valid : TIdC_INT;
-    mask : TIdC_ULONG;
-    export_mask:TIdC_ULONG;
-    {$IFNDEF OPENSSL_NO_RSA}
-    rsa_tmp:PRSA;
-    rsa_tmp_cb:function (ssl :PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PRSA; cdecl;
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_DH}
-    dh_tmp : PDH;
-    dh_tmp_cb : function (ssl : PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PDH; cdecl;
-    {$ENDIF}
-    {$IFDEF OPENSSL_NO_ECDH}
-    ecdh_tmp : PEC_KEY;
-    // Callback for generating ephemeral ECDH keys
-    ecdh_tmp_cb : function (ssl : PSSL; is_export : TIdC_INT; keysize : TIdC_INT) : PEC_KEY; cdecl;
-    {$ENDIF}
-    pkeys : array [0..OPENSSL_SSL_PKEY_NUM - 1] of CERT_PKEY;
-    references : TIdC_INT; // >1 only if SSL_copy_session_id is used
   end;
 
   SESS_CERT = record
-    cert_chain : PSTACK_OF_X509; // as received from peer (not for SSL2)
-    // The 'peer_...' members are used only by clients.
-    peer_cert_type : TIdC_INT;
-    peer_key : PCERT_PKEY; // points to an element of peer_pkeys (never NULL!)
-    peer_pkeys : array [0..OPENSSL_SSL_PKEY_NUM - 1] of  CERT_PKEY;
-    // Obviously we don't have the private keys of these,
-    // so maybe we shouldn't even use the CERT_PKEY type here.
-    {$IFNDEF OPENSSL_NO_RSA}
-    peer_rsa_tmp : PRSA; // not used for SSL 2
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_DH}
-    peer_dh_tmp : PDH; // not used for SSL 2
-    {$ENDIF}
-    {$IFNDEF OPENSSL_NO_ECDH}
-    ecdh_tmp : PEC_KEY;
-    {$ENDIF}
-    references : TIdC_INT; // actually always 1 at the moment
   end;
 
   //pkcs7.h
