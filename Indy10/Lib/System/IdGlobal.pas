@@ -625,7 +625,7 @@ type
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   TIdPID = LongWord;
-  TIdThreadId = TThreadID;
+  TIdThreadId = LongWord;
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
 
@@ -1044,7 +1044,7 @@ function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetch
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
 function CurrentThreadId: TIdThreadID;
-function GetThreadHandle(AThread: TThread): TIdThreadID;
+function GetThreadHandle(AThread: TThread): THandle;
 //GetTickDiff required because GetTickCount will wrap
 function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -1185,9 +1185,10 @@ var
   GIdPorts: TList = nil;
 {$ENDIF}
 
- {$IFDEF UNIX}
+{$IFDEF UNIX}
 function HackLoad(const ALibName : String; const ALibVersions : array of String) : HMODULE;
-var i : Integer;
+var
+  i : Integer;
 begin
   Result := NilHandle;
   for i := Low(ALibVersions) to High(ALibVersions) do
@@ -1196,8 +1197,8 @@ begin
     Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
     {$ELSE}
       {$IFDEF USELIBC}
-  // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-    Resi;t := HMODULE(dlopen(ALibName+LIBEXT+ALibVersions[i], RTLD_LAZY));
+    // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+    Result := HMODULE(dlopen(ALibName+LIBEXT+ALibVersions[i], RTLD_LAZY));
       {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
       {$ENDIF}
@@ -2287,13 +2288,13 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TThread): TIdThreadID;
+function GetThreadHandle(AThread: TThread): THandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
   Result := AThread.ThreadID;
   {$ENDIF}
-  {$ifdef win32_or_win64_or_winCE}
+  {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   Result := AThread.Handle;
   {$ENDIF}
   {$IFDEF DOTNET}
