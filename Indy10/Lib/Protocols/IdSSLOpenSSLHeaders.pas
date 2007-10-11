@@ -6487,7 +6487,7 @@ const
   where the symbolic link libbsl.so and libcrypto.so do not exist}
   SSL_DLL_name         = 'libssl'; {Do not localize}
   SSLCLIB_DLL_name     = 'libcrypto'; {Do not localize}
-  SSLDLLVers : array [0..4] of string = ['','0.9.9','.0.9.8','.0.9.7','0.9.6']
+  SSLDLLVers : array [0..4] of string = ('','0.9.9','.0.9.8','.0.9.7','0.9.6');
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   SSL_DLL_name       = 'ssleay32.dll';  {Do not localize}
