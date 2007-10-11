@@ -601,6 +601,7 @@ type
   {$IFDEF DOTNET}
   TIdPID = LongWord;
   TIdThreadId = LongWord;
+  TIdThreadHandle = System.Threading.Thread;
     {$IFDEF DOTNETDISTRO}
   TIdThreadPriority = System.Threading.ThreadPriority;
     {$ELSE}
@@ -611,6 +612,11 @@ type
     {$IFDEF USELIBC}
   TIdPID = LongInt;
   TIdThreadId = LongInt;
+      {$IFDEF FPC}
+  TIdThreadHandle = TThreadID;
+      {$ELSE}
+  TIdThreadHandle = DWORD;
+      {$ENDIF}
       {$IFDEF INTTHREADPRIORITY}
   TIdThreadPriority = -20..19;
       {$ELSE}
@@ -620,12 +626,14 @@ type
     {$IFDEF USEBASEUNIX}
   TIdPID = TPid;
   TIdThreadId = TThreadId;
+  TIdThreadHandle = TIdThreadId;
   TIdThreadPriority = TThreadPriority;
     {$ENDIF}
   {$ENDIF}
   {$IFDEF WIN32_OR_WIN64_OR_WINCE}
   TIdPID = LongWord;
   TIdThreadId = LongWord;
+  TIdThreadHandle = THandle;
   TIdThreadPriority = TThreadPriority;
   {$ENDIF}
 
@@ -1044,7 +1052,7 @@ function FetchCaseInsensitive(var AInput: string; const ADelim: string = IdFetch
 procedure FillBytes(var VBytes : TIdBytes; const ACount : Integer; const AValue : Byte);
 
 function CurrentThreadId: TIdThreadID;
-function GetThreadHandle(AThread: TThread): THandle;
+function GetThreadHandle(AThread: TThread): TIdThreadHandle;
 //GetTickDiff required because GetTickCount will wrap
 function GetTickDiff(const AOldTickCount, ANewTickCount: LongWord): LongWord; //IdICMP uses it
 procedure IdDelete(var s: string; AOffset, ACount: Integer);
@@ -2288,7 +2296,7 @@ begin
   end;
 end;
 
-function GetThreadHandle(AThread: TThread): THandle;
+function GetThreadHandle(AThread: TThread): TIdThreadHandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
@@ -2298,7 +2306,7 @@ begin
   Result := AThread.Handle;
   {$ENDIF}
   {$IFDEF DOTNET}
-  Result := 0;
+  Result := AThread.Handle;
   {$ENDIF}
 end;
 
