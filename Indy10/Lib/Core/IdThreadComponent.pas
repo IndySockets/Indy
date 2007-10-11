@@ -83,9 +83,16 @@ unit IdThreadComponent;
 interface
 {$I IdCompilerDefines.inc}
 //Put FPC into Delphi mode
+
 uses
   Classes,
   IdBaseComponent, IdException, IdGlobal, IdThread, SysUtils;
+
+{$IFDEF WIN32}
+//temp fix until I can figure out why this is not visible in IdGlobal
+type
+  TIdThreadHandle = THandle;
+{$ENDIF}
 
 const
   IdThreadComponentDefaultPriority = tpNormal;
@@ -131,7 +138,7 @@ type
     procedure DoTerminate(Sender: TObject); virtual; //thev
     function GetActive: Boolean;
     function GetData: TObject;
-    function GetHandle: TIdThreadID;
+    function GetHandle: TIdThreadHandle;
     function GetPriority: TIdThreadPriority;
     function GetReturnValue: Integer;
     function GetStopMode: TIdThreadStopMode;
@@ -161,7 +168,7 @@ type
     function WaitFor: LongWord;
     // Properties
     property Data: TObject read GetData write SetData;
-    property Handle: TIdThreadID read GetHandle;
+    property Handle: TIdThreadHandle read GetHandle;
     property ReturnValue: Integer read GetReturnValue write SetReturnValue;
     property Stopped: Boolean read GetStopped;
     property Suspended: Boolean read GetSuspended;
@@ -351,7 +358,7 @@ begin
   Result := FThread.Data;
 end;
 
-function TIdThreadComponent.GetHandle: TIdThreadID;
+function TIdThreadComponent.GetHandle: TIdThreadHandle;
 begin
   Result := GetThreadHandle(FThread);
 end;
