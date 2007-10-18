@@ -80,11 +80,16 @@ uses
   IdGlobal,
   IdStackBSDBase;
 
+  {$IFDEF FREEBSD}
+     {$DEFINE SOCK_HAS_SINLEN}
+  {$ENDIF}
+  {$IFDEF DARWIN}
+     {$DEFINE SOCK_HAS_SINLEN}
+  {$ENDIF}
 type
   {$IFNDEF NOREDECLARE}
   Psockaddr = ^sockaddr;
   {$ENDIF}
-
   TIdSocketListUnix = class (TIdSocketList)
   protected
     FCount: Integer;
@@ -226,6 +231,34 @@ const
   {$ENDIF}
   ESysEPIPE = ESysEPIPE;
 
+//helper functions for some structs
+
+{Note:  These hide an API difference in structures.
+
+BSD 4.4 introduced a minor API change.  sa_family was changed from a 16bit
+word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
+
+}
+procedure InitSockaddr(var VSock : Sockaddr);
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  FillChar(VSock, SizeOf(Sockaddr),0);
+  VSock.sin_family := PF_INET;
+  {$IFDEF SOCK_HAS_SINLEN}
+  VSock.sa_len := SizeOf(Sockaddr);
+  {$ENDIF}
+end;
+
+procedure InitSockAddr_in6(var VSock : SockAddr_in6);
+{$IFDEF USEINLINE} inline; {$ENDIF}
+begin
+  FillChar(VSock, SizeOf(SockAddr_in6), 0);
+  {$IFDEF SOCK_HAS_SINLEN}
+  VSock.sin6_len := SizeOf(SockAddr_in6);
+  {$ENDIF}
+  VSock.sin6_family := PF_INET6;
+end;
+//
 constructor TIdStackUnix.Create;
 begin
   inherited Create;
@@ -291,7 +324,7 @@ var
 begin
   case AIPVersion of
     Id_IPv4: begin
-        LAddr.sin_family := PF_INET;
+        InitSockAddr(LAddr);
         if Length(AIP) = 0 then begin
           LAddr.sin_addr.s_addr := INADDR_ANY;
         end else begin
@@ -302,13 +335,13 @@ begin
         CheckForSocketError(fpBind(ASocket, @LAddr, SizeOf(LAddr)));
       end;
     Id_IPv6: begin
-        FillChar(LAddr6, SizeOf(LAddr6), 0);
-        LAddr6.sin6_family := PF_INET6;
+        InitSockAddr_in6(LAddr6);
         if Length(AIP) <> 0 then begin
           LAddr6.sin6_addr := StrToNetAddr6(AIP);
          // TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
         end;
         LAddr6.sin6_port := HToNs(APort);
+
         CheckForSocketError(fpBind(ASocket, Psockaddr(@LAddr6), SizeOf(LAddr6)));
       end;
     else begin
@@ -331,16 +364,16 @@ var
 begin
   case AIPVersion of
     Id_IPv4: begin
-      LAddr.sin_family := PF_INET;
+      InitSockAddr(LAddr);
       LAddr.sin_addr := StrToNetAddr(AIP);
 //      TranslateStringToTInAddr(AIP, LAddr.sin_addr, Id_IPv4);
       LAddr.sin_port := HToNs(APort);
       CheckForSocketError(fpConnect(ASocket, @LAddr, SizeOf(LAddr)));
     end;
     Id_IPv6: begin
-      LAddr6.sin6_flowinfo := 0;
-      LAddr6.sin6_scope_id := 0;
-      LAddr6.sin6_family := PF_INET6;
+      InitSockAddr_in6(LAddr6);
+//      LAddr6.sin6_flowinfo := 0;
+//      LAddr6.sin6_scope_id := 0;
       LAddr6.sin6_addr := StrToNetAddr6(AIP);
      //  TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
       LAddr6.sin6_port := HToNs(APort);
@@ -548,16 +581,14 @@ begin
   case AIPVersion of
     Id_IPv4 :
       begin
-        FillChar(LAddr, SizeOf(LAddr),0);
-        LAddr.sin_family := PF_INET;
+        InitSockAddr(LAddr);
         LAddr.sin_addr := StrToNetAddr(AIP);
         LAddr.sin_port := HToNs(APort);
         LBytesOut := fpSendTo(ASocket, @ABuffer, ABufferLength, AFlags or Id_MSG_NOSIGNAL, Psockaddr(@LAddr), SizeOf(sockaddr));
       end;
     Id_IPv6:
       begin
-        FillChar(LAddr6, SizeOf(LAddr6), 0);
-        LAddr6.sin6_family := PF_INET6;
+        InitSockAddr_in6(LAddr6);
         LAddr6.sin6_addr := StrToHostAddr6(AIP);
         // TranslateStringToTInAddr(AIP, sin6_addr, AIPVersion);
         LAddr6.sin6_port := HToNs(APort);
@@ -603,7 +634,7 @@ end;
 function TIdStackUnix.WSSocket(AFamily, AStruct, AProtocol: Integer;
   const AOverlapped: Boolean = False): TIdStackSocketHandle; 
 begin
-  Result := socket(AFamily, AStruct, AProtocol);
+  Result := fpsocket(AFamily, AStruct, AProtocol);
 end;
 
 function TIdStackUnix.WSGetServByName(const AServiceName: string): TIdPort;
@@ -733,7 +764,7 @@ end;
 
 function TIdStackUnix.WSShutdown(ASocket: TIdStackSocketHandle; AHow: Integer): Integer;
 begin
-  Result := Shutdown(ASocket, AHow);
+  Result := fpShutdown(ASocket, AHow);
 end;
 
 procedure TIdStackUnix.Disconnect(ASocket: TIdStackSocketHandle);
@@ -989,7 +1020,7 @@ class function TIdSocketListUnix.FDSelect(AReadSet, AWriteSet, AExceptSet: PFDSe
 var
   LTime: TTimeVal;
   LTimePtr: PTimeVal;
-  Lerr : Integer;
+
 begin
   if ATimeout = IdTimeoutInfinite then begin
     LTimePtr := nil;
