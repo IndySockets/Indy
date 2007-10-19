@@ -276,6 +276,52 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE DOTNETEXCLUDE}
 {$ENDIF}
 
+  //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
+  //only handles 32bit values.  Some Operating Systems may have 64bit  
+  // THandles.  This is not always tied to the platform architecture.
+
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF SOLARIS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BEOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GBA}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARE}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WATCOM}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BSD}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF EMX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF AMIGA}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF EMBEDDED}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF MACOS}
+   {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+
+{$IFDEF THANDLECPUBITS}  
+  {$IFDEF CPU64}
+     {$DEFINE THANDLE64}
+  {$ELSE}
+     {$DEFINE THANDLE32}
+  {$ENDIF}
+{$ENDIF}
+
 // FPC (2+)
 
 {$IFDEF FPC}
@@ -305,7 +351,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$ENDIF}
   //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
   {$IFDEF WINCE}
-    {.$DEFINE UNICODE} //CE is UNICODE ONLY - UNICODE might already be defined though.
+     //CE is UNICODE ONLY - UNICODE is already defined though.
     {$DEFINE WIN32_OR_WIN64_OR_WINCE}
   {$ENDIF}
   {$DEFINE VCL4ORABOVE}
@@ -330,6 +376,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
 //IF's are evaluated before IFDEF's
 //and Kylix 1 does not have CompilerVersion defined at all.
 {$IFDEF LINUX}
+  {$DEFINE KYLIX}
   {$IFDEF CONDITIONALEXPRESSIONS}
     {$IF RTLVersion = 14.0}
       {$DEFINE KYLIX1}
@@ -353,10 +400,14 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE VCL5ORABOVE}
   {$DEFINE OPTIONALPARAMS}
   {$DEFINE SAMETEXT}
+  {$DEFINE UNIX}
+  {$DEFINE USELIBC}
   {$DEFINE VCL6ORABOVE}
   {$DEFINE VCL60}
   {$DEFINE WIDGETKYLIX}
   {$DEFINE WIDGETVCLLIKEORKYLIX}
+  {$DEFINE INTTHREADPRIORITY}
+  {$DEFINE THANDLE32}
 {$ENDIF}
 
 {$IFDEF WIN32}
@@ -370,6 +421,17 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE USEOPENSSL}
   {$DEFINE USEZLIBUNIT}
   {$DEFINE WIN32_OR_WIN64_OR_WINCE}
+{$ENDIF}
+
+{
+BSD 4.4 introduced a minor API change.  sa_family was changed from a 16bit
+word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
+}
+{$IFDEF FREEBSD}
+   {$DEFINE SOCK_HAS_SINLEN}
+{$ENDIF}
+{$IFDEF DARWIN}
+   {$DEFINE SOCK_HAS_SINLEN}
 {$ENDIF}
 
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}

@@ -66,7 +66,6 @@ uses
   Libc,
   IdStack,
   IdStackConsts,
-  IdObjs,
   IdGlobal,
   IdStackBSDBase;
 
@@ -131,7 +130,7 @@ type
       const AIPVersion: TIdIPVersion = ID_DEFAULT_IP_VERSION): string; override;
     function WSGetLastError: Integer; override;
     function WSGetServByName(const AServiceName: string): TIdPort; override;
-    function WSGetServByPort(const APortNumber: TIdPort): TIdStrings; override;
+    function WSGetServByPort(const APortNumber: TIdPort): TStrings; override;
     procedure WSGetSockOpt(ASocket: TIdStackSocketHandle;
       Alevel, AOptname: Integer; AOptval: PChar; var AOptlen: Integer); override;
     procedure GetSocketOption(ASocket: TIdStackSocketHandle;
@@ -243,8 +242,8 @@ begin
         VIPVersion := Id_IPV4;
       end;
       Id_PF_INET6: begin
-        VIP := TranslateTInAddrToString(LAddr6.sin6_addr, Id_IPv6);
-        VPort := Ntohs(LAddr6.sin6_port);
+        VIP := TranslateTInAddrToString(LAddr.sin6_addr, Id_IPv6);
+        VPort := Ntohs(LAddr.sin6_port);
         VIPVersion := Id_IPV6;
       end;
       else begin
@@ -310,7 +309,11 @@ begin
       LAddr.sin_family := Id_PF_INET4;
       TranslateStringToTInAddr(AIP, LAddr.sin_addr, Id_IPv4);
       LAddr.sin_port := HToNs(APort);
+      {$IFDEF KYLIX}
+      CheckForSocketError(Libc.Connect(ASocket, LAddr, SizeOf(LAddr)));
+      {$ELSE}
       CheckForSocketError(Libc.Connect(ASocket, @LAddr, SizeOf(LAddr)));
+      {$ENDIF}
     end;
     Id_IPv6: begin
       LAddr6.sin6_flowinfo := 0;
@@ -318,7 +321,11 @@ begin
       LAddr6.sin6_family := Id_PF_INET6;
       TranslateStringToTInAddr(AIP, LAddr6.sin6_addr, Id_IPv6);
       LAddr6.sin6_port := HToNs(APort);
+      {$IFDEF KYLIX}
+      CheckForSocketError(Libc.Connect(ASocket, Psockaddr(@LAddr6)^, SizeOf(LAddr6)));
+      {$ELSE}
       CheckForSocketError(Libc.Connect(ASocket, @LAddr6, SizeOf(LAddr6)));
+      {$ENDIF}
     end;
     else begin
       IPVersionUnsupported;
@@ -335,7 +342,7 @@ var
 // ipv6
   LHints: TAddressInfo;
   {$IFDEF KYLIX}
-  LAddrInfo: PPAddressInfo;
+  LAddrInfo: PAddressInfo;
   {$ELSE}
   LAddrInfo: PAddrInfo;
   {$ENDIF}
@@ -361,7 +368,11 @@ begin
       LHints.ai_family := IdIPFamily[AIPVersion];
       LHints.ai_socktype := Integer(SOCK_STREAM);
       LAddrInfo:=nil;
+      {$IFDEF KYLIX}
+      LRetVal := getaddrinfo(PChar(AHostName), nil, @LHints, LAddrInfo);
+      {$ELSE}
       LRetVal := getaddrinfo(PChar(AHostName), nil, @LHints, @LAddrInfo);
+      {$ENDIF}
       if LRetVal <> 0 then begin
         if LRetVal = EAI_SYSTEM then begin
           IndyRaiseLastError;
@@ -723,7 +734,11 @@ begin
       LHints.ai_socktype := Integer(SOCK_STREAM);
       LHints.ai_flags := AI_CANONNAME + AI_NUMERICHOST;
       LAddrInfo := nil;
+      {$IFDEF KYLIX}
+      LRetVal := getaddrinfo(PChar(AAddress), nil, @LHints, LAddrInfo);
+      {$ELSE}
       LRetVal := getaddrinfo(PChar(AAddress), nil, @LHints, @LAddrInfo);
+      {$ENDIF}
       if LRetVal<>0 then begin
         if LRetVal = EAI_SYSTEM then begin
           IndyRaiseLastError;

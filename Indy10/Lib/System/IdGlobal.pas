@@ -572,6 +572,10 @@ const
   INFINITE = LongWord($FFFFFFFF);     { Infinite timeout }
   {$ENDIF}
 
+  {$IFDEF KYLIX}
+  NilHandle = 0;
+  {$ENDIF}
+
   LF = #10;
   CR = #13;
   EOL = CR + LF;
@@ -615,7 +619,7 @@ type
       {$IFDEF FPC}
   TIdThreadHandle = TThreadID;
       {$ELSE}
-  TIdThreadHandle = DWORD;
+  TIdThreadHandle = Cardinal;
       {$ENDIF}
       {$IFDEF INTTHREADPRIORITY}
   TIdThreadPriority = -20..19;
@@ -674,6 +678,11 @@ type
       {$IFDEF WIN64}
    PtrInt  = Int64;
    PtrUInt = Int64;
+      {$ENDIF}
+//NOTE:  The code below asumes a 32bit Linux architecture (such as target i386-linux)
+      {$IFDEF KYLIX}
+   PtrInt  = LongInt;
+   PtrUInt = LongWord;
       {$ENDIF}
      {$ENDIF}
   {$ENDIF}
@@ -1183,7 +1192,7 @@ const
 implementation
 
 uses
-  {$IFDEF USELIBC}Libc,{$ENDIF}
+  {$IFNDEF KYLIX}{$IFDEF USELIBC}Libc,{$ENDIF}{$ENDIF}
   {$IFDEF VCL6ORABOVE}DateUtils,{$ENDIF}
   IdResourceStrings,
   IdStream;
@@ -1206,7 +1215,11 @@ begin
     {$ELSE}
       {$IFDEF USELIBC}
     // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
+        {$IFDEF KYLIX}
+    Result := HMODULE(dlopen(PChar(ALibName+LIBEXT+ALibVersions[i]), RTLD_LAZY));
+        {$ELSE}
     Result := HMODULE(dlopen(ALibName+LIBEXT+ALibVersions[i], RTLD_LAZY));
+        {$ENDIF}
       {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
       {$ENDIF}
@@ -1232,51 +1245,6 @@ end;
 function InterlockedExchangeTHandle(var VTarget : THandle; const AValue : PtrUInt) : THandle;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 
-  //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
-  //only handles 32bit values.  Some Operating Systems may have 64bit  
-  // THandles.  This is not always tied to the platform architecture.
-
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF SOLARIS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF BEOS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF GBA}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF NETWARE}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF WATCOM}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF BSD}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF EMX}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF AMIGA}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF EMBEDDED}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF MACOS}
-   {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-
-{$IFDEF THANDLECPUBITS}  
-  {$IFDEF CPU64}
-     {$DEFINE THANDLE64}
-  {$ELSE}
-     {$DEFINE THANDLE32}
-  {$ENDIF}
-{$ENDIF}
 begin
 
   {$IFDEF THANDLE32}
