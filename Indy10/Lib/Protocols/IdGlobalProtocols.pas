@@ -1353,7 +1353,7 @@ function CopyFileTo(const Source, Destination: TIdFileName): Boolean;
 {$ELSE}
 var
   SourceF, DestF : File;
-  NumRead, NumWritten: Word;
+  NumRead, NumWritten: Longint;
   Buffer: array[1..2048] of Byte;
 {$ENDIF}
 begin
@@ -1467,10 +1467,12 @@ begin
 end;
 
 function GetUniqueFileName(const APath, APrefix, AExt : String) : String;
+{$IFNDEF UNIX}
 var
   LNamePart : LongWord;
   LFQE : String;
   LFName: String;
+{$ENDIF}
 begin
   {$IFDEF UNIX}
 
@@ -1660,7 +1662,7 @@ begin
   begin
     LTime := LRec.st_mtime;
     {$IFDEF USELIBC}
-    gmtime_r(LTime, LU);
+    gmtime_r({$IFDEF KYLIX}@{$ENDIF}LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
 

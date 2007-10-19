@@ -31,8 +31,12 @@ The only things that still are cdecl are the callback functions.
 }
    {$DEFINE STATICLOAD}
    {$ELSE}
-   {$message error alignment!}
-   {$ENDIF}  
+     {$IFDEF LINUX}
+     // ???
+     {$ELSE}
+     {$message error alignment!}
+     {$ENDIF}
+   {$ENDIF}
 {$ELSE}
   {$packrecords C}
 {$ENDIF}
@@ -378,6 +382,7 @@ uses
   {$ENDIF}
   {$IFDEF KYLIX}
   , libc
+  , IdGlobal
   {$ENDIF}
   {$IFDEF FPC}
     {$IFDEF USELIBC}
