@@ -339,7 +339,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE THANDLECPUBITS}
 {$ENDIF}
 
-//
+// end platform specific stuff for THandle size
 
 {$IFDEF THANDLECPUBITS}  
   {$IFDEF CPU64}
@@ -363,17 +363,21 @@ BDS 2007 NET personality uses VER190 instead of 185.
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
   {$IFDEF UNIX}
+    {$DEFINE USEBASEUNIX}
     {$DEFINE USEOPENSSL}
     {$DEFINE USEZLIBUNIT}
     {$IFDEF LINUX}
-      //In Linux, you can either use USELIBC or USEBASEUNIX.
-      //If you choose USELIBC, you need to modify the Makefile.fpc in
-      //in the System folder and generate the Makefile (preferably
-      // with the complete source tree.
-      {.$DEFINE USELIBC}
-      {$DEFINE USEBASEUNIX}
-    {$ELSE}
-      {$DEFINE USEBASEUNIX}
+      //In Linux for i386, you can choose between a Kylix-libc API or 
+      //the standard RTL Unix API.  Just pass -dUSELIBC to the FPC compiler.
+      //I will see what I can do about the Makefile.    
+      {$IFDEF USELIBC}
+        {$IFDEF I386}
+           {$UNDEF USEBASEUNIX}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+    {$IFDEF USEBASEUNIX}
+      {$UNDEF USELIBC}
     {$ENDIF}
   {$ENDIF}
   //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
@@ -404,7 +408,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
 //and Kylix 1 does not have CompilerVersion defined at all.
 {$IFNDEF FPC}
   {$IFDEF LINUX}
-    {$DEFINE KYLIX}
+
     {$IFDEF CONDITIONALEXPRESSIONS}
       {$IF RTLVersion = 14.0}
         {$DEFINE KYLIX1}
@@ -435,6 +439,9 @@ BDS 2007 NET personality uses VER190 instead of 185.
     {$DEFINE WIDGETKYLIX}
     {$DEFINE WIDGETVCLLIKEORKYLIX}
     {$DEFINE INTTHREADPRIORITY}
+    {$DEFINE KYLIX}
+    {$DEFINE I386}
+    {$UNDEF USEBASEUNIX}
   {$ENDIF}
 {$ENDIF}
 
