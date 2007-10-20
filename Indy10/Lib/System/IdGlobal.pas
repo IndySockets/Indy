@@ -1192,7 +1192,6 @@ const
 implementation
 
 uses
-  {$IFNDEF KYLIX}{$IFDEF USELIBC}Libc,{$ENDIF}{$ENDIF}
   {$IFDEF VCL6ORABOVE}DateUtils,{$ENDIF}
   IdResourceStrings,
   IdStream;
@@ -1215,11 +1214,7 @@ begin
     {$ELSE}
       {$IFDEF USELIBC}
     // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
-        {$IFDEF KYLIX}
     Result := HMODULE(dlopen(PChar(ALibName+LIBEXT+ALibVersions[i]), RTLD_LAZY));
-        {$ELSE}
-    Result := HMODULE(dlopen(ALibName+LIBEXT+ALibVersions[i], RTLD_LAZY));
-        {$ENDIF}
       {$ELSE}
     Result := LoadLibrary(ALibName+LIBEXT+ALibVersions[i]);
       {$ENDIF}
