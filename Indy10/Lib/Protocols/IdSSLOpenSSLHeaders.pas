@@ -345,11 +345,11 @@ except from configure script:
 
 uses 
   {$IFDEF KYLIX}
-   , libc
+   libc,
   {$ENDIF}
   {$IFDEF FPC}
     {$IFDEF USELIBC}
-    , libc
+    libc,
     {$ELSE}
       {$IFDEF UNIX}
     baseunix,
@@ -8757,10 +8757,10 @@ begin
   {$IFDEF USELIBC}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   if hIdCrypto = 0 then begin
-    hIdCrypto := HackLoad(SSLCLIB_DLL_name);
+    hIdCrypto := HackLoad(SSLCLIB_DLL_name,SSLDLLVers);
   end;
   if hIdSSL = 0 then begin
-    hIdSSL := HackLoad(SSL_DLL_name);
+    hIdSSL := HackLoad(SSL_DLL_name,SSLDLLVers);
   end;
   {$ELSE}
     {$IFDEF FPC}
@@ -8777,12 +8777,13 @@ begin
   begin
     Exit;
   end;
-       {$ELSE}
+       {$ENDIF}
+       {$IFDEF USEBASEUNIX}
   if hIdCrypto = 0 then begin
-   hIdCrypto := HMODULE(LoadLibrary(SSLCLIB_DLL_name));
+   hIdCrypto := HMODULE(HackLoad(SSLCLIB_DLL_name,SSLDLLVers));
   end;
   if hIdSSL = 0 then begin
-    hIdSSL := HMODULE(LoadLibrary(SSL_DLL_name));
+    hIdSSL := HMODULE(HackLoad(SSL_DLL_name,SSLDLLVers));
   end;
         {$ENDIF}
     {$ENDIF}
