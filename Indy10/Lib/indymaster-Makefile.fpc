@@ -1,8 +1,16 @@
 [package]
 name=indy
 version=10.2.0.1
+[prerules]
+backend=IdStackUnix
+ifeq ($(FULL_TARGET),i386-linux)
+ifeq ($(findstring -dUSELIBC,$(OPT)),)
+backend=IdStackLinux
+endif
+endif
+
 [require]
-packages=fcl
+packages=fcl-base
 fpcsubdir=packages/extra
 [target]
 options=-gl
@@ -36,7 +44,9 @@ rsts_win64=
 rsts_wince=
 rsts_gba=
 implicitunits=IdASN1Util \
+  IdAllAuthentications \
   IdAllFTPListParsers \
+  IdAllHeaderCoders \
   IdAntiFreezeBase \
   IdAssignedNumbers \
   IdAttachment \
@@ -156,6 +166,10 @@ implicitunits=IdASN1Util \
   IdHashElf \
   IdHashMessageDigest \
   IdHashSHA1 \
+  IdHeaderCoder2022JP \
+  IdHeaderCoderBase \
+  IdHeaderCoderPlain \
+  IdHeaderCoderUTF8 \
   IdHeaderList \
   IdIMAP4 \
   IdIMAP4Server \
@@ -247,7 +261,6 @@ implicitunits=IdASN1Util \
   IdSMTPServer \
   IdSNMP \
   IdSNPP \
-  IdSNTP \
   IdSSL \
   IdScheduler \
   IdSchedulerOfThread \
@@ -262,7 +275,6 @@ implicitunits=IdASN1Util \
   IdSimpleServer \
   IdSocketHandle \
   IdSocks \
-  IdSocksServer \
   IdStack \
   IdStackConsts \
   IdStream \
@@ -270,8 +282,6 @@ implicitunits=IdASN1Util \
   IdStrings \
   IdStruct \
   IdSync \
-  IdSys \
-  IdSysBase \
   IdSysLog \
   IdSysLogMessage \
   IdSysLogServer \
@@ -320,21 +330,22 @@ implicitunits_atari=
 units_atari=
 implicitunits_beos=
 units_beos=
-implicitunits_darwin=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_darwin=IdStackUnix IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_darwin=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_emx=
 units_emx=
-units_freebsd=IdStackUnix IdStackBSDBase IdSysLinux \
-             IdSSLOpenSSLHeaders IdSSLOpenSSL \
-             IdCompressionIntercept IdCompressorZLib \
+implicitunits_freebsd=IdStackUnix IdStackBSDBase \
+             IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
+units_freebsd=IdCompressorZLib IdSSLOpenSSL \
+             IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_go_32v1=
 units_go32v1=
 implicitunits_go32v2=
 units_go32v2=
-implicitunits_linux=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_linux=$(backend) IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_linux=IdCompressorZLib IdSSLOpenSSL \
@@ -343,7 +354,7 @@ implicitunits_macos=
 units_macos=
 implicitunits_morphos=
 units_morphos=
-implicitunits_netbsd=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_netbsd=IdStackUnix IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_netbsd=IdCompressorZLib IdSSLOpenSSL \
@@ -352,7 +363,7 @@ implicitunits_netware=
 units_netware=
 implicitunits_netwlibc=
 units_netwlibc=
-implicitunits_openbsd=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_openbsd=IdStackUnix IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_openbsd=IdCompressorZLib IdSSLOpenSSL \
@@ -361,28 +372,28 @@ implicitunits_os2=
 units_os2=
 implicitunits_palmos=
 units_palmos=
-implicitunits_qnx=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_qnx=IdStackUnix IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_qnx=IdCompressorZLib IdSSLOpenSSL IdCompressionIntercept IdAuthenticationNTLM
-implicitunits_solaris=IdStackUnix IdStackBSDBase IdSysLinux \
+implicitunits_solaris=IdStackUnix IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_solaris=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
 implicitunits_watcom=
 units_watcom=
-implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32 \
+implicitunits_win32=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_win32=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
-implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32 \
+implicitunits_win64=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_win64=IdCompressorZLib IdSSLOpenSSL \
              IdCompressionIntercept IdAuthenticationNTLM
-implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6 IdSysWin32
+implicitunits_wince=IdStackBSDBase IdStackWindows IdWinsock2 IdWship6
 units_wince=
 implicitunits_wdosx=
 units_wdosx=
