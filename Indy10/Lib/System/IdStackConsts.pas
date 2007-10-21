@@ -231,12 +231,20 @@ type
 
 const
   {$IFNDEF DOTNET}
+    {$IFDEF USELIBC}
+  Id_SOCK_STREAM     = TIdSocketType(SOCK_STREAM);      //1               /* stream socket */
+  Id_SOCK_DGRAM      = TIdSocketType(SOCK_DGRAM);       //2               /* datagram socket */
+  Id_SOCK_RAW        = TIdSocketType(SOCK_RAW);         //3               /* raw-protocol interface */
+  Id_SOCK_RDM        = TIdSocketType(SOCK_RDM);         //4               /* reliably-delivered message */
+  Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
+    {$ELSE}
   Id_SOCK_STREAM     = SOCK_STREAM;      //1               /* stream socket */
   Id_SOCK_DGRAM      = SOCK_DGRAM;       //2               /* datagram socket */
   Id_SOCK_RAW        = SOCK_RAW;         //3               /* raw-protocol interface */
   Id_SOCK_RDM        = SOCK_RDM;         //4               /* reliably-delivered message */
   Id_SOCK_SEQPACKET  = SOCK_SEQPACKET;   //5               /* sequenced packet stream */
-  {$ELSE}
+    {$ENDIF}
+ {$ELSE}
   Id_SOCK_STREAM     = SocketType.Stream;         // /* stream socket */
   Id_SOCK_DGRAM      = SocketType.Dgram;          // /* datagram socket */
   Id_SOCK_RAW        = SocketType.Raw;            // /* raw-protocol interface */
