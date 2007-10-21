@@ -173,13 +173,8 @@ type
     function TryBind: Boolean;
   public
     function Accept(ASocket: TIdStackSocketHandle): Boolean;
-{$IFDEF LINUX}
-    procedure AllocateSocket(const ASocketType: TIdSocketType = TIdSocketType(Id_SOCK_STREAM);
-     const AProtocol: TIdSocketProtocol = Id_IPPROTO_IP);
-{$ELSE}
     procedure AllocateSocket(const ASocketType: TIdSocketType = Id_SOCK_STREAM;
      const AProtocol: TIdSocketProtocol = Id_IPPROTO_IP);
-{$ENDIF}
     // Returns True if error was ignored (Matches iIgnore), false if no error occurred
     procedure Assign(Source: TPersistent); override;
     procedure Bind;
