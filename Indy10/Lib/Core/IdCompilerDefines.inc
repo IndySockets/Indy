@@ -276,6 +276,8 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE DOTNETEXCLUDE}
 {$ENDIF}
 
+
+
 // FPC (2+)
 
 {$IFDEF FPC}
@@ -290,22 +292,26 @@ BDS 2007 NET personality uses VER190 instead of 185.
   //what we do and what platforms we support in FPC.
   //I'll let Marco think about that one.
   {$IFDEF UNIX}
+    {$DEFINE USEBASEUNIX}
     {$DEFINE USEOPENSSL}
     {$DEFINE USEZLIBUNIT}
     {$IFDEF LINUX}
-      //In Linux, you can either use USELIBC or USEBASEUNIX.
-      //If you choose USELIBC, you need to modify the Makefile.fpc in
-      //in the System folder and generate the Makefile (preferably
-      // with the complete source tree.
-      {.$DEFINE USELIBC}
-      {$DEFINE USEBASEUNIX}
-    {$ELSE}
-      {$DEFINE USEBASEUNIX}
+      //In Linux for i386, you can choose between a Kylix-libc API or 
+      //the standard RTL Unix API.  Just pass -dUSELIBC to the FPC compiler.
+      //I will see what I can do about the Makefile.    
+      {$IFDEF USELIBC}
+        {$IFDEF I386}
+           {$UNDEF USEBASEUNIX}
+        {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
+    {$IFDEF USEBASEUNIX}
+      {$UNDEF USELIBC}
     {$ENDIF}
   {$ENDIF}
   //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
   {$IFDEF WINCE}
-    {.$DEFINE UNICODE} //CE is UNICODE ONLY - UNICODE might already be defined though.
+     //CE is UNICODE ONLY - UNICODE is already defined though.
     {$DEFINE WIN32_OR_WIN64_OR_WINCE}
   {$ENDIF}
   {$DEFINE VCL4ORABOVE}
@@ -329,34 +335,43 @@ BDS 2007 NET personality uses VER190 instead of 185.
 //Important:  Don't use CompilerVersion here as
 //IF's are evaluated before IFDEF's
 //and Kylix 1 does not have CompilerVersion defined at all.
-{$IFDEF LINUX}
-  {$IFDEF CONDITIONALEXPRESSIONS}
-    {$IF RTLVersion = 14.0}
-      {$DEFINE KYLIX1}
-      {$DEFINE KYLIX1ORABOVE}
-    {$IFEND}
-    {$IF RTLVersion = 14.2}
-      {$DEFINE KYLIX2}
-      {$DEFINE USEZLIBUNIT}
-      {$DEFINE KYLIX1ORABOVE}
-      {$DEFINE KYLIX2ORABOVE}
-    {$IFEND}
-    {$IF RTLVersion = 14.5}
-      {$DEFINE KYLIX3}
-      {$DEFINE USEZLIBUNIT}
-      {$DEFINE KYLIX1ORABOVE}
-      {$DEFINE KYLIX2ORABOVE}
-      {$DEFINE KYLIX3ORABOVE}
-    {$IFEND}
+{$IFNDEF FPC}
+  {$IFDEF LINUX}
+
+    {$IFDEF CONDITIONALEXPRESSIONS}
+      {$IF RTLVersion = 14.0}
+        {$DEFINE KYLIX1}
+        {$DEFINE KYLIX1ORABOVE}
+      {$IFEND}
+      {$IF RTLVersion = 14.2}
+        {$DEFINE KYLIX2}
+        {$DEFINE USEZLIBUNIT}
+        {$DEFINE KYLIX1ORABOVE}
+        {$DEFINE KYLIX2ORABOVE}
+      {$IFEND}
+      {$IF RTLVersion = 14.5}
+        {$DEFINE KYLIX3}
+        {$DEFINE USEZLIBUNIT}
+        {$DEFINE KYLIX1ORABOVE}
+        {$DEFINE KYLIX2ORABOVE}
+        {$DEFINE KYLIX3ORABOVE}
+      {$IFEND}
+    {$ENDIF}
+    {$DEFINE VCL4ORABOVE}
+    {$DEFINE VCL5ORABOVE}
+    {$DEFINE OPTIONALPARAMS}
+    {$DEFINE SAMETEXT}
+    {$DEFINE UNIX}
+    {$DEFINE USELIBC}
+    {$DEFINE VCL6ORABOVE}
+    {$DEFINE VCL60}
+    {$DEFINE WIDGETKYLIX}
+    {$DEFINE WIDGETVCLLIKEORKYLIX}
+    {$DEFINE INTTHREADPRIORITY}
+    {$DEFINE KYLIX}
+    {$DEFINE I386}
+    {$UNDEF USEBASEUNIX}
   {$ENDIF}
-  {$DEFINE VCL4ORABOVE}
-  {$DEFINE VCL5ORABOVE}
-  {$DEFINE OPTIONALPARAMS}
-  {$DEFINE SAMETEXT}
-  {$DEFINE VCL6ORABOVE}
-  {$DEFINE VCL60}
-  {$DEFINE WIDGETKYLIX}
-  {$DEFINE WIDGETVCLLIKEORKYLIX}
 {$ENDIF}
 
 {$IFDEF WIN32}
@@ -372,9 +387,94 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE WIN32_OR_WIN64_OR_WINCE}
 {$ENDIF}
 
+{
+BSD 4.4 introduced a minor API change.  sa_family was changed from a 16bit
+word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
+}
+{$IFDEF FREEBSD}
+   {$DEFINE SOCK_HAS_SINLEN}
+{$ENDIF}
+{$IFDEF DARWIN}
+   {$DEFINE SOCK_HAS_SINLEN}
+{$ENDIF}
+
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
   {$DEFINE REQUIRES_PROPER_ALIGNMENT}
 {$ENDIF}
+
+  //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
+  //only handles 32bit values.  Some Operating Systems may have 64bit  
+  // THandles.  This is not always tied to the platform architecture.
+
+{$IFDEF AMIGA}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF ATARI}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BEOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BSD}
+//I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF EMBEDDED}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF EMX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GBA}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GO32}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF LINUX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF MACOS}
+   {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF MORPHOS}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF NDS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARE}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARELIBC}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF OS2}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF PALMOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF SOLARIS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WATCOM}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+
+// end platform specific stuff for THandle size
+
+{$IFDEF THANDLECPUBITS}  
+  {$IFDEF CPU64}
+     {$DEFINE THANDLE64}
+  {$ELSE}
+     {$DEFINE THANDLE32}
+  {$ENDIF}
+{$ENDIF}
+//
 
 {$UNDEF SIZE64STREAM}
 {$IFDEF FPC}
