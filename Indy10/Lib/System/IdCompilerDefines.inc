@@ -276,78 +276,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$DEFINE DOTNETEXCLUDE}
 {$ENDIF}
 
-  //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
-  //only handles 32bit values.  Some Operating Systems may have 64bit  
-  // THandles.  This is not always tied to the platform architecture.
 
-{$IFDEF AMIGA}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF ATARI}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF BEOS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF BSD}
-//I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF EMBEDDED}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF EMX}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF GBA}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF GO32}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF LINUX}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF MACOS}
-   {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF MORPHOS}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-{$IFDEF NDS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF NETWARE}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF NETWARELIBC}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF OS2}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF PALMOS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF SOLARIS}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF WATCOM}
-  {$DEFINE THANDLE32}
-{$ENDIF}
-{$IFDEF WIN32_OR_WIN64_OR_WINCE}
-  {$DEFINE THANDLECPUBITS}
-{$ENDIF}
-
-// end platform specific stuff for THandle size
-
-{$IFDEF THANDLECPUBITS}  
-  {$IFDEF CPU64}
-     {$DEFINE THANDLE64}
-  {$ELSE}
-     {$DEFINE THANDLE32}
-  {$ENDIF}
-{$ENDIF}
 
 // FPC (2+)
 
@@ -472,6 +401,80 @@ word to an 8 bit byteee and an 8 bit byte feild named sa_len was added.
 {$IFDEF FPC_REQUIRES_PROPER_ALIGNMENT}
   {$DEFINE REQUIRES_PROPER_ALIGNMENT}
 {$ENDIF}
+
+  //Do NOT remove these IFDEF's.  They are here because InterlockedExchange
+  //only handles 32bit values.  Some Operating Systems may have 64bit  
+  // THandles.  This is not always tied to the platform architecture.
+
+{$IFDEF AMIGA}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF ATARI}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BEOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF BSD}
+//I think BSD might handle FreeBSD, NetBSD, OpenBSD, and Darwin
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF EMBEDDED}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF EMX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GBA}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF GO32}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF LINUX}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF MACOS}
+   {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF MORPHOS}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+{$IFDEF NDS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARE}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF NETWARELIBC}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF OS2}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF PALMOS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF SOLARIS}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WATCOM}
+  {$DEFINE THANDLE32}
+{$ENDIF}
+{$IFDEF WIN32_OR_WIN64_OR_WINCE}
+  {$DEFINE THANDLECPUBITS}
+{$ENDIF}
+
+// end platform specific stuff for THandle size
+
+{$IFDEF THANDLECPUBITS}  
+  {$IFDEF CPU64}
+     {$DEFINE THANDLE64}
+  {$ELSE}
+     {$DEFINE THANDLE32}
+  {$ENDIF}
+{$ENDIF}
+//
 
 {$UNDEF SIZE64STREAM}
 {$IFDEF FPC}
