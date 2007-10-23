@@ -297,16 +297,16 @@ BDS 2007 NET personality uses VER190 instead of 185.
     {$DEFINE USEZLIBUNIT}
     {$IFDEF LINUX}
       //In Linux for i386, you can choose between a Kylix-libc API or 
-      //the standard RTL Unix API.  Just pass -dUSELIBC to the FPC compiler.
+      //the standard RTL Unix API.  Just pass -dKYLIXCOMPAT to the FPC compiler.
       //I will see what I can do about the Makefile.    
-      {$IFDEF USELIBC}
+      {$IFDEF KYLIXCOMPAT}
         {$IFDEF I386}
            {$UNDEF USEBASEUNIX}
         {$ENDIF}
       {$ENDIF}
     {$ENDIF}
     {$IFDEF USEBASEUNIX}
-      {$UNDEF USELIBC}
+      {$UNDEF KYLIXCOMPAT}
     {$ENDIF}
   {$ENDIF}
   //so we can use IdWinsock2 in WinCE, maybe in other places in Indy as well -CYA
@@ -362,7 +362,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
     {$DEFINE OPTIONALPARAMS}
     {$DEFINE SAMETEXT}
     {$DEFINE UNIX}
-    {$DEFINE USELIBC}
+    {$DEFINE KYLIXCOMPAT}
     {$DEFINE VCL6ORABOVE}
     {$DEFINE VCL60}
     {$DEFINE WIDGETKYLIX}
