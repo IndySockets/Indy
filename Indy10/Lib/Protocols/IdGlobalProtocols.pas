@@ -1475,41 +1475,15 @@ var
 {$ENDIF}
 begin
   {$IFDEF UNIX}
-
-  {
-    man tempnam
-
-    BUGS
-
-       The precise meaning of `appropriate' is undefined;  it  is
-       unspecified  how  accessibility  of  a directory is deter­
-       mined.  Never use this function. Use tmpfile(3) instead.
-
-    Alternative is to use tmpfile, but this creates the temp file.
-
-    Indy is using this to retain it's logic and use of TMPDIR and
-    p_dir in the function.
-
-    If the caller passes an invalid path, the results are unpredicatable.
-  }
-
+  //Do not use Tempnam in Unix-like Operating systems.  That function is dangerous
+  //and you will be warned about it when compiling.  FreePascal has GetTempFileName.  Use
+  //that instead.
   if APath = '' then
   begin
-    {$IFDEF KYLIXCOMPAT}
-    Result := libc.tempnam(nil, 'Indy');
-    {$ENDIF}
-    {$IFDEF USEBASEUNIX} // FPC has wrapper function in SysUtils
-     // This might be an addition to a later 2.0 version
     Result := GetTempFileName('', 'Indy');
-    {$ENDIF}
   end else
   begin
-    {$IFDEF KYLIXCOMPAT}
-    Result := libc.tempnam(PChar(APath), 'Indy');
-    {$ENDIF}
-    {$IFDEF USEBASEUNIX}
     Result := GetTempFileName(APath, 'Indy');
-    {$ENDIF}
   end;
   {$ELSE}
 
