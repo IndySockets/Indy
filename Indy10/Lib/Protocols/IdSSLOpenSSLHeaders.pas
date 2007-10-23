@@ -348,7 +348,7 @@ uses
    libc,
   {$ENDIF}
   {$IFDEF FPC}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     libc,
     {$ELSE}
       {$IFDEF UNIX}
@@ -3120,10 +3120,10 @@ type
 //In Pascal, this is not a problem since Delphi and FreePascla have this in some form.
   {$IFDEF FPC}
   PQ_64BIT = QWord;
+  size_t = ptruint;
   {$ELSE}
+  size_t = LongWord;
   PQ_64BIT = Int64;
-  {$NODEFINE size_t}
-  size_t = Integer;
   {$ENDIF}
 
 // RLebeau - the following value was conflicting with iphlpapi.h under C++Builder
@@ -8768,7 +8768,7 @@ begin
   Assert(FFailedFunctionLoadList<>nil);
 
   FFailedFunctionLoadList.Clear;
-  {$IFDEF USELIBC}
+  {$IFDEF KYLIXCOMPAT}
   // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
   if hIdCrypto = 0 then begin
     hIdCrypto := HackLoad(SSLCLIB_DLL_name,SSLDLLVers);
