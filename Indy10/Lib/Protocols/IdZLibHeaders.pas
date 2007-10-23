@@ -385,7 +385,7 @@ uses
   , IdGlobal
   {$ENDIF}
   {$IFDEF FPC}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     , libc
     {$ENDIF}
     , IdGlobal

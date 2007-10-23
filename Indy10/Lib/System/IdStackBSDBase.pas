@@ -309,7 +309,7 @@ implementation
 uses
   //done this way so we can have a separate stack for the Unix systems in FPC
   {$IFDEF UNIX}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   IdStackLinux,
     {$ELSE}
   IdStackUnix,

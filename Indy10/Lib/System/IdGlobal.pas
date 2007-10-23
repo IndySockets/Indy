@@ -534,7 +534,7 @@ uses
     Libc,
     {$ELSE}
       DynLibs, // better add DynLibs only for fpc 
-      {$IFDEF USELIBC}
+      {$IFDEF KYLIXCOMPAT}
       Libc,
       {$ENDIF}
       {$IFDEF UseBaseUnix}
@@ -613,7 +613,7 @@ type
     {$ENDIF}
   {$ENDIF}
   {$IFDEF UNIX}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   TIdPID = LongInt;
   TIdThreadId = LongInt;
       {$IFDEF FPC}
@@ -1212,7 +1212,7 @@ begin
     {$IFDEF DARWIN}
     Result := LoadLibrary(ALibName+ALibVersions[i]+LIBEXT);
     {$ELSE}
-      {$IFDEF USELIBC}
+      {$IFDEF KYLIXCOMPAT}
     // Workaround that is required under Linux (changed RTLD_GLOBAL with RTLD_LAZY Note: also work with LoadLibrary())
     Result := HMODULE(dlopen(PChar(ALibName+LIBEXT+ALibVersions[i]), RTLD_LAZY));
       {$ELSE}
@@ -2184,7 +2184,7 @@ end;
 function CurrentProcessId: TIdPID;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  {$IFDEF USELIBC}
+  {$IFDEF KYLIXCOMPAT}
   Result := getpid;
   {$ENDIF}
   {$IFDEF USEBASEUNIX}
@@ -2290,7 +2290,7 @@ begin
     {$IFDEF USEBASEUNIX}
   fpgettimeofday(@tv,nil);
     {$ENDIF}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   gettimeofday(tv, nil);
     {$ENDIF}
     {$RANGECHECKS OFF}
@@ -3114,7 +3114,7 @@ procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
       {$IFDEF INTTHREADPRIORITY}
         // Linux only allows root to adjust thread priorities, so we just ignore this call in Linux?
         // actually, why not allow it if root
@@ -3161,7 +3161,7 @@ begin
     // since no readsocketlist exists to get the fdset
   LTime.tv_sec := ATime div 1000;
   LTime.tv_usec := (ATime mod 1000) * 1000;
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   Libc.Select(0, nil, nil, nil, @LTime);
     {$ENDIF}
     {$IFDEF USEBASEUNIX}

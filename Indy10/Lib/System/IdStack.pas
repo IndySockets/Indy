@@ -348,7 +348,7 @@ implementation
 uses
   //done this way so we can have a separate stack for FPC under Unix systems
   {$IFDEF UNIX}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   IdStackLinux,
     {$ELSE}
   IdStackUnix,
@@ -854,7 +854,7 @@ initialization
   //done this way so we can have a separate stack just for FPC under Unix systems
   GStackClass :=
     {$IFDEF UNIX}
-      {$IFDEF USELIBC}
+      {$IFDEF KYLIXCOMPAT}
       TIdStackLinux;
       {$ENDIF}
       {$IFDEF USEBASEUNIX}

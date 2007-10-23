@@ -1,24 +1,16 @@
 [package]
 name=indy
 version=10.2.0.1
-[prerules]
-backend=IdStackUnix
-ifeq ($(FULL_TARGET),i386-linux)
-ifeq ($(findstring -dUSELIBC,$(OPT)),)
-backend=IdStackLinux
-endif
-endif
 
 [require]
 packages=fcl-base
 fpcsubdir=packages/extra
+
 [target]
 options=-gl
 exampledirs=examples
-
 units=indysystemfpc indycorefpc indyprotocolsfpc
 rsts=IdResourceStrings IdResourceStringsCore IdResourceStringsProtocols
-
 rsts_amiga=
 rsts_atari=
 rsts_beos=
@@ -345,7 +337,7 @@ implicitunits_go_32v1=
 units_go32v1=
 implicitunits_go32v2=
 units_go32v2=
-implicitunits_linux=$(backend) IdStackBSDBase \
+implicitunits_linux=$(BACKEND) IdStackBSDBase \
              IdSSLOpenSSLHeaders IdZLibHeaders \
              IdZLib IdZLibConst IdNTLM
 units_linux=IdCompressorZLib IdSSLOpenSSL \
@@ -399,8 +391,19 @@ implicitunits_wdosx=
 units_wdosx=
 implicitunits_gba=
 units_gba=
+
 [install]
 fpcpackage=y
 buildunit=indysystemfpc indycorefpc indyprotocolsfpc
+
 [shared]
 build=n
+
+[prerules]
+# KYLIXCOMPAT option for using the Kylix i386 compatability layer
+BACKEND=IdStackUnix
+ifeq ($(FULL_TARGET),i386-linux)
+ifeq ($(findstring -dKYLIXCOMPAT,$(OPT)),)
+BACKEND=IdStackLinux
+endif
+endif

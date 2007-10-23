@@ -97,7 +97,7 @@ uses
   {$IFDEF MACOS}
   {$ENDIF}
   {$IFDEF UNIX}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     libc;
     {$ELSE}
     Sockets, BaseUnix, Unix; // FPC "native" Unix units.
@@ -231,7 +231,7 @@ type
 
 const
   {$IFNDEF DOTNET}
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   Id_SOCK_STREAM     = TIdSocketType(SOCK_STREAM);      //1               /* stream socket */
   Id_SOCK_DGRAM      = TIdSocketType(SOCK_DGRAM);       //2               /* datagram socket */
   Id_SOCK_RAW        = TIdSocketType(SOCK_RAW);         //3               /* raw-protocol interface */
@@ -409,7 +409,7 @@ SocketOptionName.UseLoopback;//  Bypass hardware when possible.
   Id_SOCKETOPTIONLEVEL_TCP = SocketOptionLevel.TCP; // BGO: rename to Id_SOL_TCP
   {$ENDIF}
 
-  {$IFDEF USELIBC}
+  {$IFDEF KYLIXCOMPAT}
   // Shutdown Options
   Id_SD_Recv = SHUT_RD;
   Id_SD_Send = SHUT_WR;

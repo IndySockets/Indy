@@ -540,7 +540,7 @@ uses
   Libc,
     {$ENDIF}
     {$IFDEF FPC}
-      {$IFDEF USELIBC}
+      {$IFDEF KYLIXCOMPAT}
       libc,
       {$ENDIF}
       {$IFDEF USEBASEUNIX}
@@ -1495,7 +1495,7 @@ begin
 
   if APath = '' then
   begin
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     Result := libc.tempnam(nil, 'Indy');
     {$ENDIF}
     {$IFDEF USEBASEUNIX} // FPC has wrapper function in SysUtils
@@ -1504,7 +1504,7 @@ begin
     {$ENDIF}
   end else
   begin
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     Result := libc.tempnam(PChar(APath), 'Indy');
     {$ENDIF}
     {$IFDEF USEBASEUNIX}
@@ -1625,7 +1625,7 @@ var
 {$IFDEF UNIX}
 var
   LTime : Integer;
-  {$IFDEF USELIBC}
+  {$IFDEF KYLIXCOMPAT}
   LRec : TStatBuf;
   LU : TUnixTime;
   {$ELSE}
@@ -1658,10 +1658,10 @@ begin
   end;
   {$ENDIF}
   {$IFDEF UNIX}
-  if {$IFDEF USELIBC}stat{$ELSE}fpstat{$ENDIF}(PChar(AFileName), LRec) = 0 then
+  if {$IFDEF KYLIXCOMPAT}stat{$ELSE}fpstat{$ENDIF}(PChar(AFileName), LRec) = 0 then
   begin
     LTime := LRec.st_mtime;
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
     gmtime_r({$IFDEF KYLIX}@{$ENDIF}LTime, LU);
     Result := EncodeDate(LU.tm_year + 1900, LU.tm_mon + 1, LU.tm_mday) +
               EncodeTime(LU.tm_hour, LU.tm_min, LU.tm_sec, 0);
@@ -2948,7 +2948,7 @@ var
 begin
   {$IFDEF UNIX}
   //TODO: No need for LHost at all? Prob can use just Result
-    {$IFDEF USELIBC}
+    {$IFDEF KYLIXCOMPAT}
   if GetHostname(@LHost[1], 255) <> -1 then
   begin
     i := IndyPos(#0, LHost);
