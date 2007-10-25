@@ -374,6 +374,10 @@ BDS 2007 NET personality uses VER190 instead of 185.
   {$ENDIF}
 {$ENDIF}
 
+{$IFDEF KYLIXCOMPAT}
+  {$linklib c}
+{$ENDIF}
+
 {$IFDEF WIN32}
   {$DEFINE WIN32_OR_WIN64}
 {$ENDIF}
