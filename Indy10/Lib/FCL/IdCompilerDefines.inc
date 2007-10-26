@@ -296,7 +296,7 @@ BDS 2007 NET personality uses VER190 instead of 185.
     {$DEFINE USEOPENSSL}
     {$DEFINE USEZLIBUNIT}
     {$IFDEF LINUX}
-      //In Linux for CPUI386, you can choose between a Kylix-libc API or 
+      //In Linux for I386, you can choose between a Kylix-libc API or 
       //the standard RTL Unix API.  Just pass -dKYLIXCOMPAT to the FPC compiler.
       //I will see what I can do about the Makefile.    
       {$IFDEF KYLIXCOMPAT}
