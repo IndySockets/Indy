@@ -159,11 +159,20 @@ To deal with this, I use the FPC predefined FPC_REQUIRES_PROPER_ALIGNMENT.
 }
 
  {$RANGECHECKS OFF}
-{$IFDEF REQUIRES_PROPER_ALIGNMENT}
-   {$ALIGN ON}
+{$IFDEF FPC}
+  {$IFDEF WIN32}
+    {$ALIGN OFF}
+  {$ELSE}
+    //It turns out that Win64 does require alignment
+  {$IPACKRECORDS C}
+  {$ENDIF}
 {$ELSE}
-  {$ALIGN OFF}
-  {$WRITEABLECONST OFF}
+  {$IFDEF REQUIRES_PROPER_ALIGNMENT}
+     {$ALIGN ON}
+  {$ELSE}
+    {$ALIGN OFF}
+    {$WRITEABLECONST OFF}
+  {$ENDIF}
 {$ENDIF}
 
 uses
@@ -6022,12 +6031,20 @@ end;
 {$IFNDEF UNDER_CE}
 function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
 type
-  {$ALIGN ON}
+  {$IFDEF WIN32}
+    {$ALIGN ON}
   TempRec = record
     x: Char;
     test: WSACMSGHDR;
   end;
-  {$ALIGN OFF}
+    {$ALIGN OFF}
+  {$ELSE}
+  //Win64 seems to require alignment for everything.
+  TempRec = record
+    x: Char;
+    test: WSACMSGHDR;
+  end;  
+  {$ENDIF}
 var
   Alignment: PtrUInt;
   Tmp: ^TempRec;
