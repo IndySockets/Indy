@@ -301,7 +301,7 @@ begin
   begin
     while FThreadList.Count > 0 do
     begin
-      Sleep(100);
+      IndySleep(100);
     end;
   end;
 

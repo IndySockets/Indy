@@ -237,8 +237,7 @@ type
   {TXFRTypes = (xtAXFR, xtIXFR);
   }
 const
-  Class_IN = 1;
-  Class_CHAOS = 3;
+  
   // Lookup table for query record values.
   QueryRecordCount = 30;
   QueryRecordValues: array [0..QueryRecordCount] of Word = (

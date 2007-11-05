@@ -1033,7 +1033,7 @@ begin
       // Stopping server
       // Boost the clear thread priority to give it a good chance to terminate
       if assigned(FSessionCleanupThread) then begin
-        SetThreadPriority(FSessionCleanupThread, tpNormal);
+        IndySetThreadPriority(FSessionCleanupThread, tpNormal);
         FSessionCleanupThread.TerminateAndWaitFor;
         FreeAndNil(FSessionCleanupThread);
       end;
@@ -1596,14 +1596,14 @@ begin
   inherited Create(false);
   // thread priority used to be set to tpIdle but this is not supported
   // under DotNet. How low do you want to go?
-  SetThreadPriority(Self, tpLowest);
+  IndySetThreadPriority(Self, tpLowest);
   FSessionList := SessionList;
   FreeOnTerminate := False;
 end;
 
 procedure TIdHTTPSessionCleanerThread.Run;
 begin
-  Sleep(1000);
+  IndySleep(1000);
   if Assigned(FSessionList) then begin
     FSessionList.PurgeStaleSessions(Terminated);
   end;

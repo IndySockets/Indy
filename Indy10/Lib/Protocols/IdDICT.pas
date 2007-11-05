@@ -65,10 +65,10 @@ uses
 // TODO: This needs to be completely based on UTF8
 
 type
-  TIdDICTAuthenticationType = (atDefault, atSASL);
+  TIdDICTAuthenticationType = (datDefault, datSASL);
 
 const
-  DICT_AUTHDEF = atDefault;
+  DICT_AUTHDEF = datDefault;
   DEF_TRYMIME = False;
 
 type
@@ -156,7 +156,7 @@ begin
       LBuf := Trim(LBuf);
     end;
     SendCmd('CLIENT '+FClient); {do not localize}
-    if FAuthType = atDefault then
+    if FAuthType = datDefault then
     begin
       if IsCapaSupported('auth') then {do not localize}
       begin

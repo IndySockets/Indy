@@ -247,7 +247,8 @@ const
      RSCodeQueryQueryRefused);
 
   Class_IN = 1;
-
+  Class_CHAOS = 3;
+  
   TypeCode_A            = 1;
   TypeCode_NS           = 2;
   TypeCode_MD           = 3;

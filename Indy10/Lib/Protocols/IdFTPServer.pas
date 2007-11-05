@@ -2488,7 +2488,7 @@ begin
           if LContext.UserSecurity.InvalidPassDelay > 0 then
           begin
             //Delay our error response to slow down a dictionary attack
-            Sleep(FFTPSecurityOptions.InvalidPassDelay);
+            IndySleep(FFTPSecurityOptions.InvalidPassDelay);
           end;
           if (LContext.UserSecurity.PasswordAttempts > 0) and
             (LContext.FPasswordAttempts >= LContext.UserSecurity.PasswordAttempts) then
@@ -2515,7 +2515,7 @@ begin
             if LContext.UserSecurity.InvalidPassDelay > 0 then
             begin
               //Delay our error response to slow down a dictionary attack
-              Sleep(LContext.UserSecurity.InvalidPassDelay);
+              IndySleep(LContext.UserSecurity.InvalidPassDelay);
             end;
             if (LContext.UserSecurity.PasswordAttempts > 0) and
               (LContext.FPasswordAttempts >= LContext.UserSecurity.PasswordAttempts) then

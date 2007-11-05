@@ -769,7 +769,7 @@ begin
       FOnSend(Self, ACmdPacket);
     end;
 
-    Sleep(5); //this is so we don't eat up all of the CPU
+    IndySleep(5); //this is so we don't eat up all of the CPU
     LLen := ReceiveBuffer(VTempBuf, LMsec);
 
     ARecvPacket.ReadPacket(VTempBuf, LLen);
@@ -1081,7 +1081,7 @@ procedure TIdFSP.AbortCmd;
 begin
   FAbortFlag.Value := True;
   repeat
-    Sleep(5);
+    IndySleep(5);
     //we need to wait until the SendCmd routine catches the Abort
     //request so you don't get an AV in a worker thread.
   until not FAbortFlag.Value;

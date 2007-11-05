@@ -373,6 +373,12 @@ function Load : Boolean;
 procedure Unload;
 function Loaded : Boolean;
 
+{minor additional helper functions}
+function _malloc(Size: Integer): Pointer; cdecl;
+procedure _free(Block: Pointer); cdecl;
+procedure _memset(P: Pointer; B: Byte; count: Integer); cdecl;
+procedure _memcpy(dest, source: Pointer; count: Integer); cdecl;
+
 implementation
 
 uses

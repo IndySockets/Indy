@@ -105,8 +105,6 @@ const
 procedure TIdCompressorZLib.InternalDecompressStream(
   LZstream: TZStreamRec; AIOHandler: TIdIOHandler; AOutStream: TStream);
 {Note that much of this is taken from the ZLibEx unit and adapted to use the IOHandler}
-const
-  bufferSize = 32768;
 var
   zresult  : Integer;
   outBuffer: Array [0..bufferSize-1] of Char;

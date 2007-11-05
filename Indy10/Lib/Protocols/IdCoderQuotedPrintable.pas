@@ -155,17 +155,17 @@ var
   function TrimRightWhiteSpace(const ABuf: TIdBytes): TIdBytes;
   var
     LSaveBytes: TIdBytes;
-    i, LLen: Integer;
+    li, LLen: Integer;
   begin
     SetLength(LSaveBytes, 0);
     LLen := Length(ABuf);
-    for i := Length(ABuf)-1 downto 0 do begin
-      case ABuf[i] of
+    for li := Length(ABuf)-1 downto 0 do begin
+      case ABuf[li] of
         9, 32: ;
         10, 13:
           begin
             //BGO: TODO: Change this
-            InsertByte(LSaveBytes, ABuf[i], 0);
+            InsertByte(LSaveBytes, ABuf[li], 0);
           end;
       else
         begin

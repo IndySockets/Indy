@@ -185,7 +185,6 @@ function CCheck(code: Integer): Integer;
 
 const
   //winbit constants
-  MAX_WBITS = 15;   //standard zlib stream - { 32K LZ77 window }
   GZIP_WINBITS = MAX_WBITS + 16; //GZip format
   //negative values mean do not add any headers
   //adapted from "Enhanced zlib implementation"
@@ -328,7 +327,7 @@ function  CheckInitInflateStream(var strm: TZStreamRec; gzheader: gz_headerp): T
 var
   InitBuf: PChar;
   InitIn : integer;
-  function TryStreamType(AStreamType: TZStreamType): boolean;
+  function LocalTryStreamType(AStreamType: TZStreamType): boolean;
   begin
     DCheck(inflateInitEx(strm, AStreamType));
 
@@ -353,7 +352,7 @@ begin
     InitBuf := strm.next_in;
     InitIn  := strm.avail_in;
     for Result := zsZLib to zsGZip do
-      if TryStreamType(Result) then exit;
+      if LocalTryStreamType(Result) then exit;
     Result := zsRaw;
   finally
     

@@ -2043,7 +2043,7 @@ end;
 //Added by SP
 procedure TIdFTP.ReInitialize(ADelay: Cardinal = 10);
 begin
-  Sleep(ADelay); //Added
+  IndySleep(ADelay); //Added
   if SendCmd('REIN', [120, 220, 500]) <> 500 then begin  {do not localize}
     FLoginMsg.Clear;
     FCanResume := False;

@@ -783,7 +783,7 @@ begin
   if not FPreStopped then
     begin
     PreStop;
-    sleep(10); // give other threads a chance to clean up
+    IndySleep(10); // give other threads a chance to clean up
     end;
 
   if FIsServer then
@@ -822,7 +822,7 @@ var
 begin
   LStopWaiting := Now + (AMaxLength * ((1 / (24 * 60)) / (60 * 1000)));
   while not Connected and (LStopWaiting > Now) do
-    sleep(50);
+    IndySleep(50);
 end;
 
 procedure TIdHL7.CheckSynchronousSendResult(AResult: TSendResponse; AMsg: String);
@@ -1067,7 +1067,7 @@ begin
     LFinished := (GetStatus = IsStopped);
     if not LFinished then
       begin
-      sleep(10);
+      IndySleep(10);
       end;
   until LFinished or (Ticks > LWaitStop);
   if GetStatus <> IsStopped then

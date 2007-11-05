@@ -357,13 +357,13 @@ begin
     // force a check for terminated every .5 sec
     if lInterval > 500 then
     begin
-      Sleep(500);
+      IndySleep(500);
       lInterval := lInterval - 500
     end
 
     else
     begin
-      Sleep(lInterval);
+      IndySleep(lInterval);
       LInterval := 0;
     end;
 

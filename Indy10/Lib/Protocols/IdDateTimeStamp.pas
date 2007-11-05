@@ -489,7 +489,7 @@ const
   MaxMinutesAdd : Cardinal = $FFFFFFFF div IdSecondsInMinute;
   DIGITS : String = '0123456789'; {Do not Localize}
 
-function DateTimeToTimeStamp(ADateTime: TDateTime): TIdDateTimeStamp;
+function LocalDateTimeToTimeStamp(ADateTime: TDateTime): TIdDateTimeStamp;
 var
   Year,
   Month,
@@ -1180,7 +1180,7 @@ procedure TIdDateTimeStamp.SetFromTDateTime(ADateTime : TDateTime);
 var
   LStamp: TIdDateTimeStamp;
 begin
-  LStamp := DateTimeToTimeStamp(ADateTime);
+  LStamp := LocalDateTimeToTimeStamp(ADateTime);
   try
     SetFromTTimeStamp(LStamp);
   finally
@@ -1401,7 +1401,7 @@ end;
 procedure TIdDateTimeStamp.SubtractTDateTime(ADateTime : TDateTime);
 var LStamp : TIdDateTimeStamp;
 begin
-  LStamp := DateTimeToTimeStamp(ADateTime);
+  LStamp := LocalDateTimeToTimeStamp(ADateTime);
   try
     SubtractTIdDateTimeStamp(LStamp);
   finally

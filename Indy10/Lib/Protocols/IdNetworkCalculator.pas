@@ -490,12 +490,12 @@ end;
 
 procedure TIpProperty.SetAsDoubleWord(const Value: LongWord);
 var
-  Byte1, Byte2, Byte3, Byte4: Byte;
+  LByte1, LByte2, LByte3, LByte4: Byte;
 begin
   if not ReadOnly then
   begin
-    LongWordToOrdFourByte(Value, Byte1, Byte2, Byte3, Byte4);
-    SetAll(Byte1, Byte2, Byte3, Byte4);
+    LongWordToOrdFourByte(Value, LByte1, LByte2, LByte3, LByte4);
+    SetAll(LByte1, LByte2, LByte3, LByte4);
   end;
 end;
 

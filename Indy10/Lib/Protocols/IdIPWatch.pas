@@ -350,10 +350,10 @@ begin
   LInterval := FInterval;
   while LInterval > 0 do begin
     if LInterval > 500 then begin
-      Sleep(500);
+      IndySleep(500);
       LInterval := LInterval - 500;
     end else begin
-      Sleep(LInterval);
+      IndySleep(LInterval);
       LInterval := 0;
     end;
     if Terminated then begin
