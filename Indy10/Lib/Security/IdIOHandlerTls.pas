@@ -169,7 +169,7 @@ begin
         Result := TotalBytesRead;
         Exit;
       end;
-      Sleep(2);
+      IndySleep(2);
     until (   (Abs(GetTickDiff(StartTime, Ticks)) > ATimeOut)
            and (not ((ATimeOut = IdTimeoutDefault) or (ATimeOut = IdTimeoutInfinite)))
            );
