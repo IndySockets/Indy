@@ -149,14 +149,14 @@ class procedure TIdAntiFreezeBase.Sleep(ATimeout: Integer);
 begin
   if ShouldUse then begin
     while ATimeout > GAntiFreeze.IdleTimeOut do begin
-      IdGlobal.Sleep(GAntiFreeze.IdleTimeOut);
+      IndySleep(GAntiFreeze.IdleTimeOut);
       Dec(ATimeout, GAntiFreeze.IdleTimeOut);
       DoProcess;
     end;
-    IdGlobal.Sleep(ATimeout);
+    IndySleep(ATimeout);
     DoProcess;
   end else begin
-    IdGlobal.Sleep(ATimeout);
+    IndySleep(ATimeout);
   end;
 end;
 

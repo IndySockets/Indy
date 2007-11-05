@@ -1136,9 +1136,9 @@ function PosIdx(const ASubStr, AStr: AnsiString; AStartPos: LongWord = 0): LongW
 function PosInSmallIntArray(const ASearchInt: SmallInt; AArray: array of SmallInt): Integer;
 function PosInStrArray(const SearchStr: string; Contents: array of string; const CaseSensitive: Boolean = True): Integer;
 function ServicesFilePath: string;
-procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure IndySetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 procedure SetThreadName(const AName: string);
-procedure Sleep(ATime: LongWord);
+procedure IndySleep(ATime: LongWord);
 //in Integer(Strings.Objects[i]) - column position in AData
 procedure SplitColumnsNoTrim(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
 procedure SplitColumns(const AData: string; AStrings: TStrings; const ADelim: string = ' ');    {Do not Localize}
@@ -3112,7 +3112,7 @@ begin
 end;
 {$ENDIF}
 
-procedure SetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
+procedure IndySetThreadPriority(AThread: TThread; const APriority: TIdThreadPriority; const APolicy: Integer = -MaxInt);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   {$IFDEF UNIX}
@@ -3147,7 +3147,7 @@ begin
   {$ENDIF}
 end;
 
-procedure Sleep(ATime: LongWord);
+procedure IndySleep(ATime: LongWord);
 {$IFNDEF UNIX}
   {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}

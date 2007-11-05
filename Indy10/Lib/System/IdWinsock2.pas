@@ -6000,7 +6000,7 @@ begin
   i := 0;
   while i < FDSet.fd_count do
   begin
-    if FDSet.fd_array[i] = Socket then
+    if FDSet.fd_array[i] = ASocket then
     begin
       while i < FDSet.fd_count - 1 do
       begin
@@ -6017,7 +6017,7 @@ end;
 function FD_ISSET(ASocket: TSocket; var FDSet: TFDSet): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := __WSAFDIsSet(Socket, FDSet);
+  Result := __WSAFDIsSet(ASocket, FDSet);
 end;
 
 procedure FD_SET(ASocket: TSocket; var FDSet: TFDSet);
@@ -6025,7 +6025,7 @@ procedure FD_SET(ASocket: TSocket; var FDSet: TFDSet);
 begin
   if FDSet.fd_count < fd_setsize then
   begin
-    FDSet.fd_array[FDSet.fd_count] := Socket;
+    FDSet.fd_array[FDSet.fd_count] := ASocket;
     Inc(FDSet.fd_count);
   end;
 end;
@@ -6107,7 +6107,7 @@ end;
 function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length);
+  Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + Alength);
 end;
 
 function IP_MSFILTER_SIZE(const numsrc: DWORD): PtrUInt;
