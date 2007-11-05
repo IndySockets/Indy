@@ -327,7 +327,7 @@ begin
 
   if Result then
   begin
-    Result := SetLocalTime(FOriginateTimestamp + FLocalClockOffset
+    Result := IndySetLocalTime(FOriginateTimestamp + FLocalClockOffset
       + FRoundTripDelay);
   end;
 end;

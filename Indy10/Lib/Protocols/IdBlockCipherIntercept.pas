@@ -87,8 +87,8 @@ uses
   IdResourceStrings,
   SysUtils;
 
-const
-  bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
+//const
+//  bitLongTail = $80; //future: for IdBlockCipherBlockSizeMax>256
 
 procedure TIdBlockCipherIntercept.Encrypt(var VData : TIdBytes);
 begin

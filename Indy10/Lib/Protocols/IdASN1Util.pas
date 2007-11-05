@@ -336,19 +336,19 @@ var
 
   function WalkInt(var s: string): Integer;
   var
-    x: Integer;
+    lx: Integer;
     t: string;
   begin
-    x := Pos('.', s);      {Do not Localize}
-    if x < 1 then
+    lx := Pos('.', s);      {Do not Localize}
+    if lx < 1 then
     begin
       t := s;
       s := '';        {Do not Localize}
     end
     else
     begin
-      t := Copy(s, 1, x - 1);
-      s := Copy(s, x + 1, Length(s) - x);
+      t := Copy(s, 1, lx - 1);
+      s := Copy(s, lx + 1, Length(s) - x);
     end;
     Result := IndyStrToInt(t, 0);
   end;

@@ -3587,12 +3587,12 @@ var
 
 function FindCharset(const s: string): TIdCharset;
 var
-  cset: TIdCharset;
+  Lcset: TIdCharset;
   l: string;
 begin
   l := LowerCase(s);
   Result := idcsINVALID;
-  for cset := Low(TIdCharSet) to High(TIdCharSet) do begin
+  for Lcset := Low(TIdCharSet) to High(TIdCharSet) do begin
     if IdCharsetNamesLower[cset] = l then begin
       Result := cset;
       break;

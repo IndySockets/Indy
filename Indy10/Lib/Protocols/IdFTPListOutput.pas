@@ -869,7 +869,7 @@ var
       LTmp := LTmp + NListItem(TIdFTPListOutputItem(ACurDir.FileList.Objects[i])) + ', ';
     end;
     IdDelete(LTmp, Length(LTmp)-1, 2);
-    AOutput.Text := AOutput.Text + IdGlobalProtocols.WrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
+    AOutput.Text := AOutput.Text + IndyWrapText(LTmp, EOL + ' ', LWS + ',' , 79);  //79 good maxlen for text only terminals
     if Recurse and Assigned(ACurDir.SubDirs) then begin
       for i := 0 to ACurDir.SubDirs.Count -1 do begin
         LCurItem := TDirEntry(ACurDir.SubDirs[i]).DirListItem;

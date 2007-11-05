@@ -215,12 +215,12 @@ end;
 
 procedure TIdEMailAddressItem.Assign(Source: TPersistent);
 var
-  Addr : TIdEMailAddressItem;
+  LAddr : TIdEMailAddressItem;
 begin
   if Source is TIdEMailAddressItem then begin
-    Addr := TIdEMailAddressItem(Source);
-    Address := Addr.Address;
-    Name := Addr.Name;
+    LAddr := TIdEMailAddressItem(Source);
+    Address := LAddr.Address;
+    Name := LAddr.Name;
   end else begin
     inherited Assign(Source);
   end;

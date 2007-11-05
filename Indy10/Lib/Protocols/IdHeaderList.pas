@@ -215,7 +215,7 @@ begin
   Result := TStringList.Create;
   try
     {we specify a space so that starts a folded line}
-    s := IdGlobalProtocols.WrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
+    s := IndyWrapText(AString, EOL+' ', LWS+',', FFoldLinesLength);    {Do not Localize}
     while s <> '' do begin  {Do not Localize}
       Result.Add(TrimRight(Fetch(s, EOL)));
     end; // while s <> '' do    {Do not Localize}

@@ -192,7 +192,7 @@ begin
   LBufTime := DateTime;
   Result := LBufTime <> 0;
   if Result then begin
-    Result := SetLocalTime(LBufTime);
+    Result := IndySetLocalTime(LBufTime);
   end;
 end;
 

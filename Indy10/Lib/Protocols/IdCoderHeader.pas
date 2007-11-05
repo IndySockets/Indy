@@ -402,32 +402,32 @@ var
   csNeedEncode, csReqQuote: String;
   BeginEncode, EndEncode: string;
 
-  procedure EncodeWord(P: Integer);
+  procedure EncodeWord(AP: Integer);
   const
     MaxEncLen = 75;
   var
-    Q: Integer;
+    LQ: Integer;
     EncLen: Integer;
     Enc1: string;
   begin
     T := T + BeginEncode;
-    if L < P then P := L + 1;
-    Q := InEncode;
+    if L < AP then AP := L + 1;
+    LQ := InEncode;
     InEncode := 0;
     EncLen := Length(BeginEncode) + 2;
 
     case PosInStrArray(HeaderEncoding, ['Q', 'B'], False) of {Do not Localize}
       0: begin { quoted-printable }
-        while Q < P do
+        while LQ < AP do
         begin
-          if S[Q] = ' ' then begin {Do not Localize}
+          if S[LQ] = ' ' then begin {Do not Localize}
             Enc1 := '_';  {Do not Localize}
           end
-          else if CharIsInSet(S, Q, csReqQuote) then begin
-            Enc1 := '=' + IntToHex(Ord(S[Q]), 2);     {Do not Localize}
+          else if CharIsInSet(S, LQ, csReqQuote) then begin
+            Enc1 := '=' + IntToHex(Ord(S[LQ]), 2);     {Do not Localize}
           end
           else begin
-            Enc1 := S[Q];
+            Enc1 := S[LQ];
           end;
           if (EncLen + Length(Enc1)) > MaxEncLen then begin
             //T := T + EndEncode + #13#10#9 + BeginEncode;
@@ -441,11 +441,11 @@ var
           end;
           T := T + Enc1;
           Inc(EncLen, Length(Enc1));
-          Inc(Q);
+          Inc(LQ);
         end;
       end;
       1: begin { base64 }
-        while Q < P do begin
+        while LQ < AP do begin
           if (EncLen + 4) > MaxEncLen then begin
             //T := T + EndEncode + #13#10#9 + BeginEncode;
             //CC: The #13#10#9 above caused the subsequent call to FoldWrapText to
@@ -457,23 +457,23 @@ var
             EncLen := Length(BeginEncode) + 2;
           end;
 
-          B0 := Ord(S[Q]);
-          case P - Q of
+          B0 := Ord(S[LQ]);
+          case AP - LQ of
             1:
               begin
                 T := T + base64_tbl[B0 shr 2] + base64_tbl[B0 and $03 shl 4] + '==';  {Do not Localize}
               end;
             2:
               begin
-                B1 := Ord(S[Q + 1]);
+                B1 := Ord(S[LQ + 1]);
                 T := T + base64_tbl[B0 shr 2] +
                   base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
                   base64_tbl[B1 and $0F shl 2] + '=';  {Do not Localize}
               end;
             else
               begin
-                B1 := Ord(S[Q + 1]);
-                B2 := Ord(S[Q + 2]);
+                B1 := Ord(S[LQ + 1]);
+                B2 := Ord(S[LQ + 2]);
                 T := T + base64_tbl[B0 shr 2] +
                   base64_tbl[B0 and $03 shl 4 + B1 shr 4] +
                   base64_tbl[B1 and $0F shl 2 + B2 shr 6] +
@@ -481,7 +481,7 @@ var
               end;
           end;
           Inc(EncLen, 4);
-          Inc(Q, 3);
+          Inc(LQ, 3);
         end;
       end;
     end;

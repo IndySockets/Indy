@@ -391,9 +391,6 @@ type
     Windows2003Server, Windows2003AdvancedServer);
   {$ENDIF}
 
-  //This is called whenever there is a failure to retreive the time zone information
-  EIdFailedToRetreiveTimeZoneInfo = class(EIdException);
-
   //
   EIdExtensionAlreadyExists = class(EIdException);
 
@@ -471,7 +468,7 @@ type
   function ROR(AVal: LongWord; AShift: Byte): LongWord;
   {$ENDIF}
   function RPos(const ASub, AIn: String; AStart: Integer = -1): Integer;
-  function SetLocalTime(Value: TDateTime): Boolean;
+  function IndySetLocalTime(Value: TDateTime): Boolean;
 
   function StartsWith(const ANSIStr, APattern : String) : Boolean;
 
@@ -494,7 +491,7 @@ type
   procedure WordToTwoBytes(AWord : Word; ByteArray: TIdBytes; Index: integer);
   function WordToStr(const Value: Word): String;
   //moved here so I can IFDEF a DotNET ver. that uses StringBuilder
-  function WrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
+  function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
  
   //The following is for working on email headers and message part headers...
   function RemoveHeaderEntry(AHeader, AEntry: string): string;
@@ -563,7 +560,7 @@ uses
   IdStack;
 
 {This is taken from Borland's SysUtils and modified for our folding}    {Do not Localize}
-function WrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
+function IndyWrapText(const ALine, ABreakStr, ABreakChars : string; MaxCol: Integer): string;
 const
   QuoteChars = '"';    {Do not Localize}
 var
@@ -1715,7 +1712,7 @@ begin
   Result := IndyStrToInt(AString) <> 0;
 end;
 
-function SetLocalTime(Value: TDateTime): Boolean;
+function IndySetLocalTime(Value: TDateTime): Boolean;
 {$IFNDEF WIN32_OR_WIN64_OR_WINCE}
   {$IFDEF USEINLINE}inline;{$ENDIF}
 {$ELSE}
