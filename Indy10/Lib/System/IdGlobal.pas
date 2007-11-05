@@ -554,6 +554,7 @@ const
   {$I IdVers.inc}
 
   {$IFNDEF DOTNET}
+    {$IFNDEF VCL11ORABOVE}
   HoursPerDay   = 24;
   MinsPerHour   = 60;
   SecsPerMin    = 60;
@@ -561,6 +562,7 @@ const
   MinsPerDay    = HoursPerDay * MinsPerHour;
   SecsPerDay    = MinsPerDay * SecsPerMin;
   MSecsPerDay   = SecsPerDay * MSecsPerSec;
+    {$ENDIF}
   {$ENDIF}
 
   {$IFDEF DOTNET}

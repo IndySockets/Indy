@@ -52,29 +52,35 @@ const
 //
 // Error codes from getaddrinfo().
 //
+
 const
-  {$EXTERNALSYM EAI_ADDRFAMILY}
-  EAI_ADDRFAMILY = 1  ; // Address family for nodename not supported.
-  {$EXTERNALSYM EAI_AGAIN}
-  EAI_AGAIN      = 2  ; // Temporary failure in name resolution.
-  {$EXTERNALSYM EAI_BADFLAGS}
-  EAI_BADFLAGS   = 3  ; // Invalid value for ai_flags.
-  {$EXTERNALSYM EAI_FAIL}
-  EAI_FAIL       = 4  ; // Non-recoverable failure in name resolution.
-  {$EXTERNALSYM EAI_FAMILY}
-  EAI_FAMILY     = 5  ; // Address family ai_family not supported.
-  {$EXTERNALSYM EAI_MEMORY}
-  EAI_MEMORY     = 6  ; // Memory allocation failure.
-  {$EXTERNALSYM EAI_NODATA}
-  EAI_NODATA     = 7  ; // No address associated with nodename.
-  {$EXTERNALSYM EAI_NONAME}
-  EAI_NONAME     = 8  ; // Nodename nor servname provided, or not known.
-  {$EXTERNALSYM EAI_SERVICE}
-  EAI_SERVICE    = 9  ; // Servname not supported for ai_socktype.
-  {$EXTERNALSYM EAI_SOCKTYPE}
-  EAI_SOCKTYPE   = 10 ; // Socket type ai_socktype not supported.
-  {$EXTERNALSYM EAI_SYSTEM}
-  EAI_SYSTEM     = 11 ; // System error returned in errno.
+  //JPM
+  //Note that I am adding a GIA_ prefix on my own because
+  //some names here share some names defined in IdWinsock2 causing
+  //an unpredictible problem. The values are not defined the same in IdWinsock2
+  {$EXTERNALSYM GIA_EAI_ADDRFAMILY}
+  GIA_EAI_ADDRFAMILY = 1  ; // Address family for nodename not supported.
+  {$EXTERNALSYM GIA_EAI_AGAIN}
+  GIA_EAI_AGAIN      = 2  ; // Temporary failure in name resolution.
+  {$EXTERNALSYM GIA_EAI_BADFLAGS}
+  GIA_EAI_BADFLAGS   = 3  ; // Invalid value for ai_flags.
+  {$EXTERNALSYM GIA_EAI_FAIL}
+  GIA_EAI_FAIL       = 4  ; // Non-recoverable failure in name resolution.
+  {$EXTERNALSYM GIA_EAI_FAMILY}
+  GIA_EAI_FAMILY     = 5  ; // Address family ai_family not supported.
+  {$EXTERNALSYM GIA_EAI_MEMORY}
+  GIA_EAI_MEMORY     = 6  ; // Memory allocation failure.
+  {$EXTERNALSYM GIA_EAI_NODATA}
+  GIA_EAI_NODATA     = 7  ; // No address associated with nodename.
+  {$EXTERNALSYM GIA_EAI_NONAME}
+  GIA_EAI_NONAME     = 8  ; // Nodename nor servname provided, or not known.
+  {$EXTERNALSYM GIA_EAI_SERVICE}
+  GIA_EAI_SERVICE    = 9  ; // Servname not supported for ai_socktype.
+  {$EXTERNALSYM GIA_EAI_SOCKTYPE}
+  GIA_EAI_SOCKTYPE   = 10 ; // Socket type ai_socktype not supported.
+  {$EXTERNALSYM GIA_EAI_SYSTEM}
+  GIA_EAI_SYSTEM     = 11 ; // System error returned in errno.
+
 
 const
   {$EXTERNALSYM NI_MAXHOST}
@@ -131,22 +137,14 @@ const
 type
   // RLebeau: find a better place for this
   {$IFNDEF FPC}
-   {$EXTERNALSYM UINT64}
+   {$IFNDEF VCL11ORABOVE}
+  {$EXTERNALSYM UINT64}
   UINT64 = Int64;
+    {$ENDIF}
   {$ENDIF}
-  
+
   {$NODEFINE PPaddrinfo}
   PPaddrinfo = ^PAddrInfo;
-///* Argument structure for IPV6_JOIN_GROUP and IPV6_LEAVE_GROUP */
-  {$EXTERNALSYM IPV6_MREQ}
-  IPV6_MREQ = record
-    ipv6mr_multiaddr: IN6_ADDR; // IPv6 multicast address
-    ipv6mr_interface: u_int;     // Interface index
-  end;
-  {$NODEFINE TIPv6_MReq}
-  TIPv6_MReq = IPV6_MREQ;
-  {$NODEFINE PIPv6_MReq}
-  PIPv6_MReq = ^TIPv6_MReq;
 
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM SOCKET_SECURITY_PROTOCOL}
@@ -427,17 +425,17 @@ var
 function gaiErrorToWsaError(const gaiError: Integer): Integer;
 begin
   case gaiError of
-    EAI_ADDRFAMILY: Result := 0; // TODO: find a decent error for here
-    EAI_AGAIN:      Result := WSATRY_AGAIN;
-    EAI_BADFLAGS:   Result := WSAEINVAL;
-    EAI_FAIL:       Result := WSANO_RECOVERY;
-    EAI_FAMILY:     Result := WSAEAFNOSUPPORT;
-    EAI_MEMORY:     Result := WSA_NOT_ENOUGH_MEMORY;
-    EAI_NODATA:     Result := WSANO_DATA;
-    EAI_NONAME:     Result := WSAHOST_NOT_FOUND;
-    EAI_SERVICE:    Result := WSATYPE_NOT_FOUND;
-    EAI_SOCKTYPE:   Result := WSAESOCKTNOSUPPORT;
-    EAI_SYSTEM:
+    GIA_EAI_ADDRFAMILY: Result := 0; // TODO: find a decent error for here
+    GIA_EAI_AGAIN:      Result := WSATRY_AGAIN;
+    GIA_EAI_BADFLAGS:   Result := WSAEINVAL;
+    GIA_EAI_FAIL:       Result := WSANO_RECOVERY;
+    GIA_EAI_FAMILY:     Result := WSAEAFNOSUPPORT;
+    GIA_EAI_MEMORY:     Result := WSA_NOT_ENOUGH_MEMORY;
+    GIA_EAI_NODATA:     Result := WSANO_DATA;
+    GIA_EAI_NONAME:     Result := WSAHOST_NOT_FOUND;
+    GIA_EAI_SERVICE:    Result := WSATYPE_NOT_FOUND;
+    GIA_EAI_SOCKTYPE:   Result := WSAESOCKTNOSUPPORT;
+    GIA_EAI_SYSTEM:
       begin
         Result := 0; // avoid warning
         IndyRaiseLastError;

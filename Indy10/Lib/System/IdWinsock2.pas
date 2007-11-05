@@ -224,14 +224,14 @@ type
   {$EXTERNALSYM LPWSAEVENT}
   LPWSAEVENT = PWSAEVENT;
   {$IFNDEF FPC}
-    {$IFNDEF VCL12ORABOVE}
-    {$EXTERNALSYM ULONG_PTR}
-    {$IFDEF CPU64}
+    {$IFNDEF VCL11ORABOVE}
+      {$EXTERNALSYM ULONG_PTR}
+      {$IFDEF CPU64}
   ULONG_PTR = Int64;
-     {$ELSE}
+      {$ELSE}
   ULONG_PTR = DWORD;
-     {$ENDIF}
-  {$ENDIF}
+      {$ENDIF}
+    {$ENDIF}
   {$ENDIF}
 
 const
@@ -1511,8 +1511,10 @@ type
 
   {$IFNDEF FPC}
   type
+    {$IFNDEF VCL11ORABOVE}
     {$NODEFINE PGUID}
     PGUID = ^TGUID;
+    {$ENDIF}
     {$EXTERNALSYM LPGUID}
     LPGUID = PGUID;
   {$ENDIF}
@@ -2426,7 +2428,7 @@ type
   {$EXTERNALSYM LPFN_WSACLEANUP}
   LPFN_WSACLEANUP = function: Integer; stdcall;
   {$EXTERNALSYM LPFN_ACCEPT}
-  LPFN_ACCEPT = function(const s: TSocket; addr: PSOCKADDR; addrlen: PInteger): TSocket; stdcall;
+  LPFN_ACCEPT = function(const s: TSocket; AAddr: PSOCKADDR; addrlen: PInteger): TSocket; stdcall;
   {$EXTERNALSYM LPFN_BIND}
   LPFN_BIND = function(const s: TSocket; const name: PSOCKADDR; const namelen: Integer): Integer; stdcall;
   {$EXTERNALSYM LPFN_CLOSESOCKET}
@@ -2472,7 +2474,7 @@ type
   {$EXTERNALSYM LPFN_SOCKET}
   LPFN_SOCKET = function(const af, istruct, protocol: Integer): TSocket; stdcall;
   {$EXTERNALSYM LPFN_GETHOSTBYADDR}
-  LPFN_GETHOSTBYADDR = function(addr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
+  LPFN_GETHOSTBYADDR = function(AAddr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
   {$EXTERNALSYM LPFN_GETHOSTBYNAME}
   LPFN_GETHOSTBYNAME = function(name: PChar): PHostEnt; stdcall;
   {$EXTERNALSYM LPFN_GETHOSTNAME}
@@ -2517,7 +2519,7 @@ type
   {$EXTERNALSYM LPFN_WSAASYNCGETHOSTBYNAME}
   LPFN_WSAASYNCGETHOSTBYNAME = function(HWindow: HWND; wMsg: u_int; name, buf: PChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCGETHOSTBYADDR}
-  LPFN_WSAASYNCGETHOSTBYADDR = function(HWindow: HWND; wMsg: u_int; addr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
+  LPFN_WSAASYNCGETHOSTBYADDR = function(HWindow: HWND; wMsg: u_int; AAddr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
   {$EXTERNALSYM LPFN_WSAASYNCSELECT}
   LPFN_WSAASYNCSELECT = function(const s: TSocket; HWindow: HWND; wMsg: u_int; lEvent: Longint): Integer; stdcall;
 {$ENDIF}
@@ -2526,7 +2528,7 @@ type
 
 // WinSock 2 API new function prototypes
   {$EXTERNALSYM LPFN_WSAACCEPT}
-  LPFN_WSAACCEPT = function(const s : TSocket; addr : PSOCKADDR; addrlen : PInteger; lpfnCondition : LPCONDITIONPROC; const dwCallbackData : DWORD): TSocket; stdcall;
+  LPFN_WSAACCEPT = function(const s : TSocket; AAddr : PSOCKADDR; addrlen : PInteger; lpfnCondition : LPCONDITIONPROC; const dwCallbackData : DWORD): TSocket; stdcall;
   {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSA}
   LPFN_WSAENUMPROTOCOLSA = function(lpiProtocols : PInteger; lpProtocolBuffer : LPWSAPROTOCOL_INFOA; var lpdwBufferLength : DWORD) : Integer; stdcall;
   {$EXTERNALSYM LPFN_WSAENUMPROTOCOLSW}
@@ -3108,9 +3110,9 @@ var
 
   { Macros }
   {$EXTERNALSYM WSAMakeSyncReply}
-  function WSAMakeSyncReply(Buflen, Error: Word): Longint;
+  function WSAMakeSyncReply(Buflen, AError: Word): Longint;
   {$EXTERNALSYM WSAMakeSelectReply}
-  function WSAMakeSelectReply(Event, Error: Word): Longint;
+  function WSAMakeSelectReply(Event, AError: Word): Longint;
   {$EXTERNALSYM WSAGetAsyncBuflen}
   function WSAGetAsyncBuflen(Param: Longint): Word;
   {$EXTERNALSYM WSAGetAsyncError}
@@ -3121,19 +3123,19 @@ var
   function WSAGetSelectError(Param: Longint): Word;
 
   {$EXTERNALSYM FD_CLR}
-  procedure FD_CLR(Socket: TSocket; var FDSet: TFDSet);
+  procedure FD_CLR(ASocket: TSocket; var FDSet: TFDSet);
   {$EXTERNALSYM FD_ISSET}
-  function FD_ISSET(Socket: TSocket; var FDSet: TFDSet): Boolean;
+  function FD_ISSET(ASocket: TSocket; var FDSet: TFDSet): Boolean;
   {$EXTERNALSYM FD_SET}
-  procedure FD_SET(Socket: TSocket; var FDSet: TFDSet);
+  procedure FD_SET(ASocket: TSocket; var FDSet: TFDSet);
   {$EXTERNALSYM FD_ZERO}
   procedure FD_ZERO(var FDSet: TFDSet);
 
   {$IFNDEF UNDER_CE}
   {$EXTERNALSYM WSA_CMSGHDR_ALIGN}
-  function WSA_CMSGHDR_ALIGN(const length: PtrUInt): PtrUInt;
+  function WSA_CMSGHDR_ALIGN(const Alength: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSGDATA_ALIGN}
-  function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
+  function WSA_CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_FIRSTHDR}
   function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
   {$EXTERNALSYM WSA_CMSG_NXTHDR}
@@ -3141,9 +3143,9 @@ var
   {$EXTERNALSYM WSA_CMSG_DATA}
   function WSA_CMSG_DATA(const cmsg: LPWSACMSGHDR): PByte;
   {$EXTERNALSYM WSA_CMSG_SPACE}
-  function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
+  function WSA_CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
   {$EXTERNALSYM WSA_CMSG_LEN}
-  function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
+  function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
   {$ENDIF}
   
 //=============================================================
@@ -3310,6 +3312,10 @@ type
     ipv6mr_multiaddr: TIn6Addr; // IPv6 multicast address
     ipv6mr_interface: u_int; // Interface index
   end;
+  {$NODEFINE TIPv6_MReq}
+  TIPv6_MReq = IPV6_MREQ;
+  {$NODEFINE PIPv6_MReq}
+  PIPv6_MReq = ^TIPv6_MReq;  
  {$ENDIF}
 {$ENDIF}
 
@@ -3567,6 +3573,7 @@ type
   LPSERVICE_ADDRESSES = PSERVICE_ADDRESSES;
   {$ENDIF}
 
+   {$IFNDEF VCL11ORABOVE}
 const
   {$EXTERNALSYM  RESOURCEDISPLAYTYPE_GENERIC}
   RESOURCEDISPLAYTYPE_GENERIC        = $00000000;
@@ -3592,7 +3599,8 @@ const
   RESOURCEDISPLAYTYPE_TREE           = $0000000A;
   {$EXTERNALSYM RESOURCEDISPLAYTYPE_NDSCONTAINER}
   RESOURCEDISPLAYTYPE_NDSCONTAINER   = $0000000B;
-
+  {$ENDIF}
+  
 type
   {$EXTERNALSYM SERVICE_TYPE_VALUE_ABSA}
   SERVICE_TYPE_VALUE_ABSA = record
@@ -4463,7 +4471,7 @@ type
 
   {$EXTERNALSYM ATM_TRAFFIC_DESCRIPTOR_IE}
   ATM_TRAFFIC_DESCRIPTOR_IE = record
-    Forward    : ATM_TD;
+    _Forward    : ATM_TD;
     Backward   : ATM_TD;
     BestEffort : LongBool;
   end;
@@ -4986,10 +4994,10 @@ begin
   Result := WSACleanup;
 end;
 
-function Stub_accept(const s: TSocket; addr: PSockAddr; addrlen: PInteger): TSocket; stdcall;
+function Stub_accept(const s: TSocket; AAddr: PSockAddr; addrlen: PInteger): TSocket; stdcall;
 begin
   @accept := FixupStub(hWinSockDll, 'accept'); {Do not Localize}
-  Result := accept(s, addr, addrlen);
+  Result := accept(s, AAddr, addrlen);
 end;
 
 function Stub_bind(const s: TSocket; const name: PSockAddr; const namelen: Integer): Integer; stdcall;
@@ -5124,10 +5132,10 @@ begin
   Result := socket(af, istruct, protocol);
 end;
 
-function Stub_gethostbyaddr(addr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
+function Stub_gethostbyaddr(AAddr: Pointer; const len, addrtype: Integer): PHostEnt; stdcall;
 begin
   @gethostbyaddr := FixupStub(hWinSockDll, 'gethostbyaddr'); {Do not Localize}
-  Result := gethostbyaddr(addr, len, addrtype);
+  Result := gethostbyaddr(AAddr, len, addrtype);
 end;
 
 function Stub_gethostbyname(name: PChar): PHostEnt; stdcall;
@@ -5241,10 +5249,10 @@ begin
   Result := WSAAsyncGetHostByName(HWindow, wMsg, name, buf, buflen);
 end;
 
-function Stub_WSAAsyncGetHostByAddr(HWindow: HWND; wMsg: u_int; addr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
+function Stub_WSAAsyncGetHostByAddr(HWindow: HWND; wMsg: u_int; AAddr: PChar; len, istruct: Integer; buf: PChar; buflen: Integer): THandle; stdcall;
 begin
   @WSAAsyncGetHostByAddr := FixupStub(hWinSockDll, 'WSAAsyncGetHostByAddr'); {Do not Localize}
-  Result := WSAAsyncGetHostByAddr(HWindow, wMsg, addr, len, istruct, buf, buflen);
+  Result := WSAAsyncGetHostByAddr(HWindow, wMsg, AAddr, len, istruct, buf, buflen);
 end;
 
 function Stub_WSACancelAsyncRequest(hAsyncTaskHandle: THandle): Integer; stdcall;
@@ -5266,10 +5274,10 @@ begin
   Result := __WSAFDIsSet(s, FDSet);
 end;
 
-function Stub_WSAAccept(const s: TSocket; addr: PSockAddr; addrlen: PInteger; lpfnCondition: LPCONDITIONPROC; const dwCallbackData: DWORD): TSocket; stdcall;
+function Stub_WSAAccept(const s: TSocket; AAddr: PSockAddr; addrlen: PInteger; lpfnCondition: LPCONDITIONPROC; const dwCallbackData: DWORD): TSocket; stdcall;
 begin
   @WSAAccept := FixupStub(hWinSockDll, 'WSAAccept'); {Do not Localize}
-  Result := WSAAccept(s, addr, addrlen, lpfnCondition, dwCallbackData);
+  Result := WSAAccept(s, AAddr, addrlen, lpfnCondition, dwCallbackData);
 end;
 
 function Stub_WSACloseEvent(const hEvent: wsaevent): WordBool; stdcall;
@@ -5949,16 +5957,16 @@ begin
  {$ENDIF}
 end;
 
-function WSAMakeSyncReply(Buflen, Error: Word): Longint;
+function WSAMakeSyncReply(Buflen, AError: Word): Longint;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := MakeLong(Buflen, Error);
+  Result := MakeLong(Buflen, AError);
 end;
 
-function WSAMakeSelectReply(Event, Error: Word): Longint;
+function WSAMakeSelectReply(Event, AError: Word): Longint;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := MakeLong(Event, Error);
+  Result := MakeLong(Event, AError);
 end;
 
 function WSAGetAsyncBuflen(Param: Longint): Word;
@@ -5985,7 +5993,7 @@ begin
   WSAGetSelectError := HIWORD(Param);
 end;
 
-procedure FD_CLR(Socket: TSocket; var FDSet: TFDSet);
+procedure FD_CLR(ASocket: TSocket; var FDSet: TFDSet);
 var
   i: u_int;
 begin
@@ -6006,13 +6014,13 @@ begin
   end;
 end;
 
-function FD_ISSET(Socket: TSocket; var FDSet: TFDSet): Boolean;
+function FD_ISSET(ASocket: TSocket; var FDSet: TFDSet): Boolean;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := __WSAFDIsSet(Socket, FDSet);
 end;
 
-procedure FD_SET(Socket: TSocket; var FDSet: TFDSet);
+procedure FD_SET(ASocket: TSocket; var FDSet: TFDSet);
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   if FDSet.fd_count < fd_setsize then
@@ -6029,7 +6037,7 @@ begin
 end;
 
 {$IFNDEF UNDER_CE}
-function WSA_CMSGHDR_ALIGN(const length: PtrUint): PtrUInt;
+function WSA_CMSGHDR_ALIGN(const Alength: PtrUint): PtrUInt;
 type
   {$IFDEF WIN32}
     {$ALIGN ON}
@@ -6051,13 +6059,13 @@ var
 begin
   Tmp := nil;
   Alignment := PtrUInt(@(Tmp^.test));
-  Result := (length + (Alignment-1)) and not (Alignment-1);
+  Result := (Alength + (Alignment-1)) and not (Alignment-1);
 end;
 
-function WSA_CMSGDATA_ALIGN(const length: PtrUInt): PtrUInt;
+function WSA_CMSGDATA_ALIGN(const Alength: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := (length + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
+  Result := (Alength + MAX_NATURAL_ALIGNMENT_SUB_1) and not (MAX_NATURAL_ALIGNMENT_SUB_1);
 end;
 
 function WSA_CMSG_FIRSTHDR(const msg: LPWSAMSG): LPWSACMSGHDR;
@@ -6090,13 +6098,13 @@ begin
   Result := PByte(PtrUInt(cmsg) + WSA_CMSGDATA_ALIGN(SIZE_WSACMSGHDR));
 end;
 
-function WSA_CMSG_SPACE(const length: PtrUInt): PtrUInt;
+function WSA_CMSG_SPACE(const Alength: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
-  Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(length)));
+  Result := WSA_CMSGDATA_ALIGN(PtrUInt(SIZE_WSACMSGHDR + WSA_CMSGHDR_ALIGN(Alength)));
 end;
 
-function WSA_CMSG_LEN(const length: PtrUInt): PtrUInt;
+function WSA_CMSG_LEN(const Alength: PtrUInt): PtrUInt;
 {$IFDEF USEINLINE}inline;{$ENDIF}
 begin
   Result := (WSA_CMSGDATA_ALIGN(SizeOf(WSACMSGHDR)) + length);

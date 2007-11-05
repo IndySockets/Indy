@@ -164,8 +164,6 @@ uses
   IdException, IdStack, IdStackConsts, IdGlobal;
 
 type
-  EIdNotASocket = class(EIdSocketError);
-
   // RP - for use with the HostToNetwork() and NetworkToHost()
   // methods under Windows and Linux since the Socket API doesn't
   // have native conversion functions for int64 values...
