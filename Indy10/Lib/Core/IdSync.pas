@@ -291,7 +291,7 @@ begin
     with GNotifyThread.FNotifications.LockList do try
       LNotifyIndex := IndexOf(Self);
     finally GNotifyThread.FNotifications.UnlockList; end;
-    Sleep(10);
+    IndySleep(10);
   end;
 end;
 

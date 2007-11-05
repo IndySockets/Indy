@@ -240,7 +240,7 @@ procedure TIdIOHandlerStack.ConnectClient;
     with TIdConnectThread.Create(True) do try
       FBinding := Binding;
       Resume;
-      // Sleep
+      // IndySleep
       if TIdAntiFreezeBase.ShouldUse then begin
         LSleepTime := IndyMin(GAntiFreeze.IdleTimeOut, 125);
       end else begin
@@ -252,7 +252,7 @@ procedure TIdIOHandlerStack.ConnectClient;
       end;
 
       while ATimeout > LSleepTime do begin
-        IdGlobal.Sleep(LSleepTime);
+        IndySleep(LSleepTime);
 
         if LInfinite then begin
           ATimeout := LSleepTime + 1;
@@ -266,7 +266,7 @@ procedure TIdIOHandlerStack.ConnectClient;
           Break;
         end;
       end;
-      IdGlobal.Sleep(ATimeout);
+      IndySleep(ATimeout);
       //
       if Terminated then begin
         if FExceptionMessage <> '' then begin

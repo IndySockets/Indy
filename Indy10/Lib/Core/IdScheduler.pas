@@ -143,7 +143,7 @@ begin
       end;
     finally FActiveYarns.UnlockList; end;
     //TODO: Put terminate timeout check back
-    Sleep(500); // Wait a bit before looping to prevent thrashing
+    IndySleep(500); // Wait a bit before looping to prevent thrashing
   end;
 end;
 

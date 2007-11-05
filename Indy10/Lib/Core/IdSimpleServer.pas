@@ -264,17 +264,17 @@ procedure TIdSimpleServer.Listen(ATimeout: Integer = IdTimeoutDefault);
 var
   LAccepted: Boolean;
   
-  function DoListenTimeout(ATimeout: Integer; AUseProxy: Boolean): Boolean;
+  function DoListenTimeout(ALTimeout: Integer; AUseProxy: Boolean): Boolean;
   var
     LSleepTime: Integer;
   begin
     LSleepTime := AcceptWait;
 
-    if ATimeout = IdTimeoutDefault then begin
-      ATimeout := IdTimeoutInfinite;
+    if ALTimeout = IdTimeoutDefault then begin
+      ALTimeout := IdTimeoutInfinite;
     end;
 
-    if ATimeout = IdTimeoutInfinite then begin
+    if ALTimeout = IdTimeoutInfinite then begin
       repeat
         if AUseProxy then begin
           Result := Socket.TransparentProxy.Listen(IOHandler, LSleepTime);
@@ -285,7 +285,7 @@ var
       Exit;
     end;
 
-    while ATimeout > LSleepTime do begin
+    while ALTimeout > LSleepTime do begin
       if AUseProxy then begin
         Result := Socket.TransparentProxy.Listen(IOHandler, LSleepTime);
       end else begin
@@ -296,13 +296,13 @@ var
         Exit;
       end;
 
-      Dec(ATimeout, LSleepTime);
+      Dec(ALTimeout, LSleepTime);
     end;
 
     if AUseProxy then begin
-      Result := Socket.TransparentProxy.Listen(IOHandler, ATimeout);
+      Result := Socket.TransparentProxy.Listen(IOHandler, ALTimeout);
     end else begin
-      Result := Binding.Select(ATimeout);
+      Result := Binding.Select(ALTimeout);
     end;
   end;
 

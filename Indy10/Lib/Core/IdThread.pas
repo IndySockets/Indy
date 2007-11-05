@@ -277,7 +277,7 @@ begin
     if GThreadCount.Value = 0 then begin
       Break;
     end;
-    Sleep(IdWaitAllThreadsTerminatedStep);
+    IndySleep(IdWaitAllThreadsTerminatedStep);
     AMSec := AMSec - IdWaitAllThreadsTerminatedStep;
   end;
 end;

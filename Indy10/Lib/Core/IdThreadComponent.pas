@@ -88,12 +88,6 @@ uses
   Classes,
   IdBaseComponent, IdException, IdGlobal, IdThread, SysUtils;
 
-{$IFDEF WIN32}
-//temp fix until I can figure out why this is not visible in IdGlobal
-type
-  TIdThreadHandle = THandle;
-{$ENDIF}
-
 const
   IdThreadComponentDefaultPriority = tpNormal;
   IdThreadComponentDefaultStopMode = smTerminate;

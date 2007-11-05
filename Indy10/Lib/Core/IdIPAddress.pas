@@ -102,27 +102,8 @@ implementation
 uses
   IdStack, SysUtils;
 
-//The power constants are for processing IP addresses
-//They are powers of 255.
-const POWER_1 = $000000FF;
-      POWER_2 = $0000FFFF;
-      POWER_3 = $00FFFFFF;
-      POWER_4 = $FFFFFFFF;
-
 //IPv4 address conversion
 //Much of this is based on http://www.pc-help.org/obscure.htm
-
-function OctalToInt64(const AValue: string): Int64;
-//swiped from:
-//http://www.swissdelphicenter.ch/torry/showcode.php?id=711
-var
-  i: Integer;
-begin
-  Result := 0;
-  for i := 1 to Length(AValue) do begin
-    Result := Result * 8 + IndyStrToInt(Copy(AValue, i, 1),0);
-  end;
-end;
 
 function CompareWord(const AWord1, AWord2 : Word) : Integer;
 {$IFDEF USEINLINE}inline;{$ENDIF}

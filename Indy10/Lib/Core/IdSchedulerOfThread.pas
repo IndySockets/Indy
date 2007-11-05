@@ -195,7 +195,7 @@ begin
    , RSchedMaxThreadEx);
   Result := FThreadClass.Create(nil, IndyFormat('%s User', [Name])); {do not localize}
   if ThreadPriority <> tpNormal then begin
-    SetThreadPriority(Result, ThreadPriority);
+    IndySetThreadPriority(Result, ThreadPriority);
   end;
 end;
 
