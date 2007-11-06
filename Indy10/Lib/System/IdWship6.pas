@@ -43,7 +43,7 @@ interface
 
 uses
   Windows,
-  IdWinSock2;
+  IdWinsock2;
 
 const
   Wship6_dll =   'Wship6.dll';    {do not localize}
