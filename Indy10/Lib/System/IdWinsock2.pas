@@ -133,7 +133,7 @@
 // revision 3, March,1 2001
 
 
-unit IdWinSock2;
+unit IdWinsock2;
 
 interface
 
