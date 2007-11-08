@@ -58,7 +58,7 @@ type
     the other methods declared by the DotNet exception (particularly InnerException constructors)
     }
     constructor Create(
-      AMsg: string
+      const AMsg: string
       ); overload; virtual;
     class procedure IfAssigned(
       const ACheck: TObject;
@@ -123,7 +123,7 @@ implementation
 
 { EIdException }
 
-constructor EIdException.Create(AMsg : String);
+constructor EIdException.Create(const AMsg : String);
 begin
   inherited Create(AMsg);
 end;
