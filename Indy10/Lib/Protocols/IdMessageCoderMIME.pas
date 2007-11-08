@@ -224,9 +224,38 @@ implementation
 
 uses
   IdCoder, IdCoderMIME, IdException, IdGlobalProtocols, IdResourceStrings,
-  IdCoderQuotedPrintable, IdCoderBinHex4,  IdCoderHeader, SysUtils;
+  IdCoderQuotedPrintable, IdCoderBinHex4, IdCoderHeader, SysUtils;
+
+type
+  {
+  RLebeau: TIdMessageDecoderMIMEIgnore is a private class used when
+  TIdMessageDecoderInfoMIME.CheckForStart() detects an ending MIME boundary
+  for a finished message part that has nested parts in it.  This is a dirty
+  hack to allow TIdMessageClient to skip the boundary line properly, or else
+  the line ends up as spare data in the TIdMessage.Body property, which is
+  not desired.  A better solution to signal TIdMessageClient to ignore the
+  line needs to be found later.
+  }
+
+  TIdMessageDecoderMIMEIgnore = class(TIdMessageDecoder)
+  public
+    function ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder; override;
+    procedure ReadHeader; override;
+  end;
+
+function TIdMessageDecoderMIMEIgnore.ReadBody(ADestStream: TStream; var VMsgEnd: Boolean): TIdMessageDecoder;
+begin
+  VMsgEnd := False;
+  Result := nil;
+end;
+
+procedure TIdMessageDecoderMIMEIgnore.ReadHeader;
+begin
+  FPartType := mcptIgnore;
+end;
 
 { TIdMIMEBoundaryStrings }
+
 class function TIdMIMEBoundaryStrings.GenerateRandomChar: Char;
 var
   LOrd: integer;
@@ -270,21 +299,20 @@ end;
 function TIdMessageDecoderInfoMIME.CheckForStart(ASender: TIdMessage;
  const ALine: string): TIdMessageDecoder;
 begin
+  Result := nil;
   if ASender.MIMEBoundary.Boundary <> '' then begin
     if TextIsSame(ALine, '--' + ASender.MIMEBoundary.Boundary) then begin    {Do not Localize}
       Result := TIdMessageDecoderMIME.Create(ASender);
-    end else if TextIsSame(ASender.ContentTransferEncoding, 'base64') or    {Do not Localize}
-      TextIsSame(ASender.ContentTransferEncoding, 'quoted-printable') then begin    {Do not Localize}
-        Result := TIdMessageDecoderMIME.Create(ASender, ALine);
-    end else begin
-      Result := nil;
+    end else if TextIsSame(ALine, '--' + ASender.MIMEBoundary.Boundary + '--') then begin    {Do not Localize}
+      ASender.MIMEBoundary.Pop;
+      Result := TIdMessageDecoderMIMEIgnore.Create(ASender);
+    end else if PosInStrArray(ASender.ContentTransferEncoding, ['base64', 'quoted-printable'], False) <> -1 then begin {Do not localize}
+      Result := TIdMessageDecoderMIME.Create(ASender, ALine);
     end;
-  end else begin
-    Result := nil;
   end;
 end;
 
-{ TIdCoderMIME }
+{ TIdMessageDecoderMIME }
 
 constructor TIdMessageDecoderMIME.Create(AOwner: TComponent; const ALine: string);
 begin
@@ -572,14 +600,14 @@ begin
   //First, strip any Windows or Unix path...
   for LN := Length(Result) downto 1 do begin
     if ((Result[LN] = '/') or (Result[LN] = '\')) then begin  {do not localize}
-      Result := Copy(Result, LN+1, MAXINT);
-      break;
+      Result := Copy(Result, LN+1, MaxInt);
+      Break;
     end;
   end;
   //Now remove any invalid filename chars.
   //Hmm - this code will be less buggy if I just replace them with _
   for LN := 1 to Length(Result) do begin
-  // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
+    // MtW: WAS: if Pos(Result[LN], ValidWindowsFilenameChars) = 0 then begin 
     if Pos(Result[LN], InvalidWindowsFilenameChars) > 0 then begin
       Result[LN] := '_';    {do not localize}
     end;
