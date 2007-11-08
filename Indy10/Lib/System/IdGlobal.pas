@@ -661,6 +661,10 @@ const
   tpIdHighest = tpHighest;
   //end thread stuff
 
+const
+  //leave this as zero.  It's significant in many socket calls that specify ports
+  DEF_PORT_ANY = 0;
+
 type
   {$IFNDEF DOTNET}
     {$IFNDEF FPC}
