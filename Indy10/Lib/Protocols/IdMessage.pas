@@ -834,11 +834,19 @@ begin
         {This is a single-part MIME: the part may be a text part or an attachment.
         The relevant headers need to be taken from MessageParts[0].  The problem,
         however, is that we have not yet processed MessageParts[0] yet, so we do
-        not have its properties or header content properly set up.
-        So we will let the processing of MessageParts[0] append its headers to
-        the message headers, i.e. DON'T generate Content-Type or Content-Transfer-Encoding
+        not have its properties or header content properly set up.  So we will
+        let the processing of MessageParts[0] append its headers to the message
+        headers, i.e. DON'T generate Content-Type or Content-Transfer-Encoding
         headers here.}
         Values['MIME-Version'] := '1.0'; {do not localize}
+
+        {RLebeau: need to wipe out the following headers if they were present,
+        otherwise MessageParts[0] will duplicate them instead of replacing them.
+        This is because LastGeneratedHeaders is sent before MessageParts[0] is
+        processed.}
+        Values['Content-Type'] := '';
+        Values['Content-Transfer-Encoding'] := '';
+        Values['Content-Disposition'] := '';
       end else begin
         Values['Content-Type'] := ContentType;  {do not localize}
         if FCharSet > '' then begin
