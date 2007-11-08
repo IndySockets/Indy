@@ -663,7 +663,6 @@ var
     LStringStream: TStringStream;
     i: integer;
     LTxt : TIdText;
-    S: String;
   begin
     LStringStream := TStringStream.Create('');
     try
@@ -705,12 +704,6 @@ var
         end else begin
           LTxt.ParentPart := LParentPart;
         end;
-        if LTxt.ParentPart <> -1 then begin
-          S := AMsg.MessageParts.Items[LTxt.ParentPart].Headers.Values[SContentType];
-        end else begin
-          S := AMsg.Headers.Values[SContentType];
-        end;
-        LTxt.Boundary := AMsg.MIMEBoundary.FindBoundary(S);
       end;
       ADecoder.Free;
     finally
@@ -723,7 +716,6 @@ var
     LDestStream: TStream;
     i: integer;
     LAttachment: TIdAttachment;
-    S: String;
   begin
     Result := nil; // suppress warnings
     LParentPart := AMsg.MIMEBoundary.ParentPart;
@@ -789,12 +781,6 @@ var
         end else begin
           ParentPart := LParentPart;
         end;
-        if ParentPart <> -1 then begin
-          S := AMsg.MessageParts.Items[ParentPart].Headers.Values[SContentType];
-        end else begin
-          S := AMsg.Headers.Values[SContentType];
-        end;
-        Boundary := AMsg.MIMEBoundary.FindBoundary(S);
         ADecoder.Free;
       finally
         FinishTempStream;
@@ -846,6 +832,8 @@ begin
                   LActiveDecoder := ProcessTextPart(LActiveDecoder);
                 mcptAttachment:
                   LActiveDecoder := ProcessAttachment(LActiveDecoder);
+                mcptIgnore:
+                  FreeAndNil(LActiveDecoder);
               end;
             end;
           end;
@@ -861,6 +849,7 @@ begin
           mcptUnknown:    EIdException.Toss(RSMsgClientUnkownMessagePartType);
           mcptText:       ProcessTextPart(LActiveDecoder, True); //Put the text into TIdMessage.Body
           mcptAttachment: ProcessAttachment(LActiveDecoder);
+          mcptIgnore:     FreeAndNil(LActiveDecoder);
         end;
       end;
     finally
@@ -1269,8 +1258,10 @@ begin
       end;
       if AMsg.MessageParts.Count > 0 then begin
         for i := 0 to AMsg.MIMEBoundary.Count - 1 do begin
-          IOHandler.WriteLn('--' + AMsg.MIMEBoundary.Boundary + '--');
-          IOHandler.WriteLn;
+          if not AMsg.IsMsgSinglePartMime then begin
+            IOHandler.WriteLn('--' + AMsg.MIMEBoundary.Boundary + '--');
+            IOHandler.WriteLn;
+          end;
           AMsg.MIMEBoundary.Pop;
         end;
       end;
