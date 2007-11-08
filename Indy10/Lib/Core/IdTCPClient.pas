@@ -205,9 +205,9 @@ type
     function ConnectAndGetAll: string; virtual;
     //
     property BoundIP: string read FBoundIP write SetBoundIP;
-    property BoundPort: TIdPort read FBoundPort write SetBoundPort default 0;
-    property BoundPortMax: TIdPort read FBoundPortMax write SetBoundPortMax;
-    property BoundPortMin: TIdPort read FBoundPortMin write SetBoundPortMin;
+    property BoundPort: TIdPort read FBoundPort write SetBoundPort default DEF_PORT_ANY;
+    property BoundPortMax: TIdPort read FBoundPortMax write SetBoundPortMax default DEF_PORT_ANY;
+    property BoundPortMin: TIdPort read FBoundPortMin write SetBoundPortMin default DEF_PORT_ANY;
     //
     property ConnectTimeout: Integer read FConnectTimeout write SetConnectTimeout;
     property ReadTimeout: Integer read GetReadTimeout write SetReadTimeout;
@@ -250,6 +250,9 @@ procedure TIdTCPClientCustom.InitComponent;
 begin
   inherited InitComponent;
   FReadTimeOut := IdTimeoutDefault;
+  FBoundPort := DEF_PORT_ANY;
+  FBoundPortMin := DEF_PORT_ANY;
+  FBoundPortMax := DEF_PORT_ANY;
 end;
 
 procedure TIdTCPClientCustom.Connect;

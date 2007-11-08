@@ -126,9 +126,9 @@ type
       const AIPVersion: TIdIPVersion; const ABuffer: TIdBytes);overload; override;
   published
     property BoundIP: string read FBoundIP write FBoundIP;
-    property BoundPort: TIdPort read FBoundPort write FBoundPort;
-    property BoundPortMin: TIdPort read FBoundPortMin write FBoundPortMax;
-    property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax;
+    property BoundPort: TIdPort read FBoundPort write FBoundPort default DEF_PORT_ANY;
+    property BoundPortMin: TIdPort read FBoundPortMin write FBoundPortMin default DEF_PORT_ANY;
+    property BoundPortMax: TIdPort read FBoundPortMax write FBoundPortMax default DEF_PORT_ANY;
     property IPVersion;
     property Host;
     property Port;
@@ -267,6 +267,10 @@ begin
   inherited InitComponent;
   FProxyOpened := False;
   FConnected := False;
+  FBoundPort := DEF_PORT_ANY;
+  FBoundPortMin := DEF_PORT_ANY;
+  FBoundPortMax := DEF_PORT_ANY;
+
 end;
 
 procedure TIdUDPClient.OpenProxy;

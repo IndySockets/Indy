@@ -28,7 +28,6 @@ uses
 type
   TIdTraceRoute = class(TIdCustomICMPClient)
   protected
-    FIPAddr : String;
     FResolveHostNames : Boolean;
     procedure DoReply; override;
   public
@@ -71,13 +70,13 @@ procedure TIdTraceRoute.Trace;
 var i : Integer;
   lSeq : Cardinal;
   LTTL : Integer;
-
+  LIPAddr : String;
 begin
 
 //  PacketSize := 64;
 //We do things this way because we only want to resolve the destination host name
 //only one time.  Otherwise, there's a performance penalty for earch DNS resolve.
-  FIPAddr := GStack.ResolveHost(FHost, FBinding.IPVersion);
+  LIPAddr := GStack.ResolveHost(FHost, FBinding.IPVersion);
   try
 
    LSeq := $1;
@@ -86,7 +85,7 @@ begin
    for i := 1 to 30 do
    begin
      ReplyStatus.PacketNumber := i;
-     InternalPing(FIPAddr, '', LSeq);
+     InternalPing(LIPAddr, '', LSeq);
      case ReplyStatus.ReplyStatusType of
        rsErrorTTLExceeded,
        rsTimeout : ;

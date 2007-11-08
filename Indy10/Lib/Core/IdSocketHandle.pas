@@ -132,7 +132,7 @@ interface
 uses
   Classes,
   IdException, IdGlobal, IdStackConsts, IdStack, IdBaseComponent;
-
+  
 type
   TIdSocketHandle = class;
 
@@ -206,8 +206,8 @@ type
     property PeerIP: string read FPeerIP;
     property PeerPort: TIdPort read FPeerPort;
   published
-    property ClientPortMin : TIdPort read FClientPortMin write FClientPortMin default 0;
-    property ClientPortMax : TIdPort read FClientPortMax write FClientPortMax default 0;
+    property ClientPortMin : TIdPort read FClientPortMin write FClientPortMin default DEF_PORT_ANY;
+    property ClientPortMax : TIdPort read FClientPortMax write FClientPortMax default DEF_PORT_ANY;
     property IP: string read FIP write FIP;
     property IPVersion: TIdIPVersion read FIPVersion write SetIPVersion default ID_DEFAULT_IP_VERSION;
     property Port: TIdPort read FPort write FPort;

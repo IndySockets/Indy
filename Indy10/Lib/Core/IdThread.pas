@@ -198,7 +198,7 @@ type
      AMSec: Integer = IdWaitAllThreadsTerminatedCount);
   public
     constructor Create(ACreateSuspended: Boolean = True;
-     ALoop: Boolean = True; AName: string = ''); virtual;
+     ALoop: Boolean = True; const AName: string = ''); virtual;
     destructor Destroy; override;
     procedure Start; virtual;
     procedure Stop; virtual;
@@ -393,7 +393,7 @@ begin
   end;
 end;
 
-constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; AName: string);
+constructor TIdThread.Create(ACreateSuspended: Boolean; ALoop: Boolean; const AName: string);
 begin
   {$IFDEF DOTNET}
   inherited Create(True);
