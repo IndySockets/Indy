@@ -63,6 +63,7 @@
 unit IdMessageParts;
 
 interface
+
 {$i IdCompilerDefines.inc}
 
 uses
@@ -82,9 +83,6 @@ type
   
   TIdMessagePart = class(TCollectionItem)
   protected
-    FBoundary: string;
-    FBoundaryBegin: Boolean;
-    FBoundaryEnd: Boolean;
     FContentMD5: string;
     FContentTransfer: string;
     FContentType: string;
@@ -117,14 +115,10 @@ type
     function  ResolveContentType(AContentType: string): string; //Fixes up ContentType
     class function PartType: TIdMessagePartType; virtual;
     //
-    property Boundary: String read FBoundary write FBoundary;
-    property BoundaryBegin: Boolean read FBoundaryBegin write FBoundaryBegin;
-    property BoundaryEnd: Boolean read FBoundaryEnd write FBoundaryEnd;
     property IsEncoded: Boolean read FIsEncoded;
     property MessageParts: TIdMessageParts read GetMessageParts;
     property OwnerMessage: TPersistent read GetOwnerMessage;
-    property OnGetMessagePartStream: TOnGetMessagePartStream read FOnGetMessagePartStream
-      write FOnGetMessagePartStream;
+    property OnGetMessagePartStream: TOnGetMessagePartStream read FOnGetMessagePartStream write FOnGetMessagePartStream;
     property Headers: TIdHeaderList read FHeaders;
   published
     property ContentTransfer: string read FContentTransfer write FContentTransfer;
